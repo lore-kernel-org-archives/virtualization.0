@@ -1,32 +1,33 @@
 Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E47B3C455D;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0E61C3C4576;
 	Thu, 12 Mar 2026 13:07:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773320825; cv=none; b=GUId/6XHREWP2fU00rdaqNFIYW7egztCgb+mKmIxVMZszR9vPga1z8rgXqRFMsd/uh+XDEgK3mVMpM0SJeOTPq2FisCSVWBtB9hLP5oxWuDUHUVXMOI14ZieTNNrwelvPihOsXuKYzuqMK9CTbNkGANlxPGTtMltGDkE/vVPQUE=
+	t=1773320825; cv=none; b=cjC7itUZLY7S6xHE5INzNFdDtdHLZVDGiBqYTW1VkRCHqzvCoAO2kdijTSHYdZsgx9yDW8PaQzND5CsMMgy8iTWNBXhrpxC6N/6Whk4KkmzCM8MJgpnxABoSQUKO8f3AmrDNuYRTIyEakBZ+Olxt/MDfoEH57KsNKyB6bpM5gXw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1773320825; c=relaxed/simple;
-	bh=uO7mUI3S7FozVecYjXmr+LnyTxVSbRSpJoQgkGbAwuc=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=HG8CPUPktSyjwq/AHdVLL5CJ9W2HSAaO+Mbk2ax5OERvmGEZ9Yhm4HHKrW1EMnuz/0m90CqekBiTzXxCP9MnyYjm5Hos3MTl/x4IZXD5gaKlzq/MMPrujnEP80hrDbOkKr611EPbSZ1FXPihJRTXYDqeZrinqSSjoOeb5L34U9s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=EcU4BDZL; arc=none smtp.client-ip=129.217.128.51
+	bh=4HehsY8l5R7T57W9CPx8ozXdCfAAZac4RFP3cRM7vt8=;
+	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=pzt5BeNWem3zxUv8lCgfxbt7TKy4lAbIr2RPXITODj1AoEsc5VP//yHp4LC75tbbe0sHXhW9RC808sHUw2UMr3AYSJvNaxAA477utm7o9xQmjdB4Fgu8b44FxOMyKEdskRmySs/RvnPvNz6yRQbf1lrQBm+VBjzIcbO0JBrw/Go=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=cZDixCV2; arc=none smtp.client-ip=129.217.128.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="EcU4BDZL"
+	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="cZDixCV2"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tu-dortmund.de;
-	s=unimail; t=1773320810;
-	bh=uO7mUI3S7FozVecYjXmr+LnyTxVSbRSpJoQgkGbAwuc=;
-	h=From:To:Subject:Date;
-	b=EcU4BDZLq1TnMiKCMDcFd8nsDo1CkOjF7HzgSld3B3ppipdD1aSsRmt/LF6XGSAOV
-	 Mxly3RCPw06BAQuOskuSVb7Pp+LNvAuN3jS33b8XPSCFr9N67uYCU68F9t1Kno/wUD
-	 7K8tADq8t8aOTy8FzX2yBpZXh28CtSZxz5qG5XRU=
+	s=unimail; t=1773320811;
+	bh=4HehsY8l5R7T57W9CPx8ozXdCfAAZac4RFP3cRM7vt8=;
+	h=From:To:Subject:Date:In-Reply-To:References;
+	b=cZDixCV2TYkAFMMcNpHa2jbnbm8MATQ67xu5FTTVlt7dfxmQBNgMq2RWyohitk9Pj
+	 73HV+SNUU2UGUi9LwVuQ4IbPR/3U3uPwYNz3GgtOzzBu7gafucjj/IeI6+puzzOXcH
+	 92/mnTHNZmrNy/f7km9RMkaZWCJIcdJA8CxdpKBw=
 Received: from simon-Latitude-5450.fritz.box ([129.217.186.105])
 	(authenticated bits=0)
-	by unimail.uni-dortmund.de (8.18.2/8.18.2) with ESMTPSA id 62CD6mqf014094
+	by unimail.uni-dortmund.de (8.18.2/8.18.2) with ESMTPSA id 62CD6mqj014094
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 12 Mar 2026 14:06:49 +0100 (CET)
+	Thu, 12 Mar 2026 14:06:51 +0100 (CET)
 From: Simon Schippers <simon.schippers@tu-dortmund.de>
 To: willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
         andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
@@ -36,10 +37,12 @@ To: willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
         simon.schippers@tu-dortmund.de, netdev@vger.kernel.org,
         linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
         virtualization@lists.linux.dev
-Subject: [PATCH net-next v8 0/4] tun/tap & vhost-net: apply qdisc backpressure on full ptr_ring to reduce TX drops
-Date: Thu, 12 Mar 2026 14:06:35 +0100
-Message-ID: <20260312130639.138988-1-simon.schippers@tu-dortmund.de>
+Subject: [PATCH net-next v8 2/4] vhost-net: wake queue of tun/tap after ptr_ring consume
+Date: Thu, 12 Mar 2026 14:06:37 +0100
+Message-ID: <20260312130639.138988-3-simon.schippers@tu-dortmund.de>
 X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260312130639.138988-1-simon.schippers@tu-dortmund.de>
+References: <20260312130639.138988-1-simon.schippers@tu-dortmund.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -48,135 +51,137 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This patch series deals with tun/tap & vhost-net which drop incoming
-SKBs whenever their internal ptr_ring buffer is full. Instead, with this 
-patch series, the associated netdev queue is stopped - but only when a
-qdisc is attached. If no qdisc is present the existing behavior is
-preserved. This patch series touches tun/tap and vhost-net, as they
-share common logic and must be updated together. Modifying only one of
-them would break the other.
+Add tun_wake_queue() to tun.c and export it for use by vhost-net. The
+function validates that the file belongs to a tun/tap device,
+dereferences the tun_struct under RCU, and delegates to
+__tun_wake_queue().
 
-By applying proper backpressure, this change allows the connected qdisc to 
-operate correctly, as reported in [1], and significantly improves
-performance in real-world scenarios, as demonstrated in our paper [2]. For 
-example, we observed a 36% TCP throughput improvement for an OpenVPN 
-connection between Germany and the USA.
+vhost_net_buf_produce() now calls tun_wake_queue() after a successful
+batched consume of the ring to allow the netdev subqueue to be woken up.
 
-Synthetic pktgen benchmarks indicate a slight regression.
-Pktgen benchmarks are provided per commit, with the final commit showing
-the overall performance.
+Without the corresponding queue stopping (introduced in a subsequent
+commit), this patch alone causes a slight throughput regression for a
+tap+vhost-net setup sending to a qemu VM:
+3.948 Mpps to 3.888 Mpps (-1.5%).
 
-Thanks!
+Details: AMD Ryzen 5 5600X at 4.3 GHz, 3200 MHz RAM, isolated QEMU
+threads, XDP drop program active in VM, pktgen sender; Avg over
+20 runs @ 100,000,000 packets. SRSO and spectre v2 mitigations disabled.
 
-[1] Link: https://unix.stackexchange.com/questions/762935/traffic-shaping-ineffective-on-tun-device
-[2] Link: https://cni.etit.tu-dortmund.de/storages/cni-etit/r/Research/Publications/2025/Gebauer_2025_VTCFall/Gebauer_VTCFall2025_AuthorsVersion.pdf
-[3] Link: https://lore.kernel.org/r/174549940981.608169.4363875844729313831.stgit@firesoul
-[4] Link: https://lore.kernel.org/r/176295323282.307447.14790015927673763094.stgit@firesoul
-
+Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
 ---
-Changelog:
-V8:
-- Drop code changes in drivers/net/tap.c; The code there deals with
-  ipvtap/macvtap which are unrelated to the goal of this patch series
-  and I did not realize that before
--> Greatly simplified logic, 4 instead of 9 commits
--> No more duplicated logics and distinction in vhost required
-- Only wake after the queue stopped and half of the ring was consumed
-  as suggested by MST
--> Performance improvements for TAP, but still slightly slower
-- Better benchmarking with pinned threads, XDP drop program for
-  tap+vhost-net and disabling CPU mitigations (and newer Ryzen 5 5600X
-  processor) as suggested by Jason Wang
+ drivers/net/tun.c      | 21 +++++++++++++++++++++
+ drivers/vhost/net.c    | 15 +++++++++++----
+ include/linux/if_tun.h |  3 +++
+ 3 files changed, 35 insertions(+), 4 deletions(-)
 
-V7: https://lore.kernel.org/netdev/20260107210448.37851-1-simon.schippers@tu-dortmund.de/
-- Switch to an approach similar to veth [3] (excluding the recently fixed 
-variant [4]), as suggested by MST, with minor adjustments discussed in V6
-- Rename the cover-letter title
-- Add multithreaded pktgen and iperf3 benchmarks, as suggested by Jason 
-Wang
-- Rework __ptr_ring_consume_created_space() so it can also be used after 
-batched consume
-
-V6: https://lore.kernel.org/netdev/20251120152914.1127975-1-simon.schippers@tu-dortmund.de/
-General:
-- Major adjustments to the descriptions. Special thanks to Jon Kohler!
-- Fix git bisect by moving most logic into dedicated functions and only 
-start using them in patch 7.
-- Moved the main logic of the coupled producer and consumer into a single 
-patch to avoid a chicken-and-egg dependency between commits :-)
-- Rebased to 6.18-rc5 and ran benchmarks again that now also include lost 
-packets (previously I missed a 0, so all benchmark results were higher by 
-factor 10...).
-- Also include the benchmark in patch 7.
-
-Producer:
-- Move logic into the new helper tun_ring_produce()
-- Added a smp_rmb() paired with the consumer, ensuring freed space of the 
-consumer is visible
-- Assume that ptr_ring is not full when __ptr_ring_full_next() is called
-
-Consumer:
-- Use an unpaired smp_rmb() instead of barrier() to ensure that the 
-netdev_tx_queue_stopped() call completes before discarding
-- Also wake the netdev queue if it was stopped before discarding and then 
-becomes empty
--> Fixes race with producer as identified by MST in V5
--> Waking the netdev queues upon resize is not required anymore
-- Use __ptr_ring_consume_created_space() instead of messing with ptr_ring 
-internals
--> Batched consume now just calls 
-__tun_ring_consume()/__tap_ring_consume() in a loop
-- Added an smp_wmb() before waking the netdev queue which is paired with 
-the smp_rmb() discussed above
-
-V5: https://lore.kernel.org/netdev/20250922221553.47802-1-simon.schippers@tu-dortmund.de/T/#u
-- Stop the netdev queue prior to producing the final fitting ptr_ring entry
--> Ensures the consumer has the latest netdev queue state, making it safe 
-to wake the queue
--> Resolves an issue in vhost-net where the netdev queue could remain 
-stopped despite being empty
--> For TUN/TAP, the netdev queue no longer needs to be woken in the 
-blocking loop
--> Introduces new helpers __ptr_ring_full_next and 
-__ptr_ring_will_invalidate for this purpose
-- vhost-net now uses wrappers of TUN/TAP for ptr_ring consumption rather 
-than maintaining its own rx_ring pointer
-
-V4: https://lore.kernel.org/netdev/20250902080957.47265-1-simon.schippers@tu-dortmund.de/T/#u
-- Target net-next instead of net
-- Changed to patch series instead of single patch
-- Changed to new title from old title
-"TUN/TAP: Improving throughput and latency by avoiding SKB drops"
-- Wake netdev queue with new helpers wake_netdev_queue when there is any 
-spare capacity in the ptr_ring instead of waiting for it to be empty
-- Use tun_file instead of tun_struct in tun_ring_recv as a more consistent 
-logic
-- Use smp_wmb() and smp_rmb() barrier pair, which avoids any packet drops 
-that happened rarely before
-- Use safer logic for vhost-net using RCU read locks to access TUN/TAP data
-
-V3: https://lore.kernel.org/netdev/20250825211832.84901-1-simon.schippers@tu-dortmund.de/T/#u
-- Added support for TAP and TAP+vhost-net.
-
-V2: https://lore.kernel.org/netdev/20250811220430.14063-1-simon.schippers@tu-dortmund.de/T/#u
-- Removed NETDEV_TX_BUSY return case in tun_net_xmit and removed 
-unnecessary netif_tx_wake_queue in tun_ring_recv.
-
-V1: https://lore.kernel.org/netdev/20250808153721.261334-1-simon.schippers@tu-dortmund.de/T/#u
----
-
-Simon Schippers (4):
-  tun/tap: add ptr_ring consume helper with netdev queue wakeup
-  vhost-net: wake queue of tun/tap after ptr_ring consume
-  ptr_ring: move free-space check into separate helper
-  tun/tap & vhost-net: avoid ptr_ring tail-drop when a qdisc is present
-
- drivers/net/tun.c        | 91 +++++++++++++++++++++++++++++++++++++---
- drivers/vhost/net.c      | 15 +++++--
- include/linux/if_tun.h   |  3 ++
- include/linux/ptr_ring.h | 14 ++++++-
- 4 files changed, 111 insertions(+), 12 deletions(-)
-
+diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+index a82d665dab5f..b86582cc6cb6 100644
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -3760,6 +3760,27 @@ struct ptr_ring *tun_get_tx_ring(struct file *file)
+ }
+ EXPORT_SYMBOL_GPL(tun_get_tx_ring);
+ 
++void tun_wake_queue(struct file *file)
++{
++	struct tun_file *tfile;
++	struct tun_struct *tun;
++
++	if (file->f_op != &tun_fops)
++		return;
++	tfile = file->private_data;
++	if (!tfile)
++		return;
++
++	rcu_read_lock();
++
++	tun = rcu_dereference(tfile->tun);
++	if (tun)
++		__tun_wake_queue(tun, tfile);
++
++	rcu_read_unlock();
++}
++EXPORT_SYMBOL_GPL(tun_wake_queue);
++
+ module_init(tun_init);
+ module_exit(tun_cleanup);
+ MODULE_DESCRIPTION(DRV_DESCRIPTION);
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 80965181920c..c8ef804ef28c 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -176,13 +176,19 @@ static void *vhost_net_buf_consume(struct vhost_net_buf *rxq)
+ 	return ret;
+ }
+ 
+-static int vhost_net_buf_produce(struct vhost_net_virtqueue *nvq)
++static int vhost_net_buf_produce(struct sock *sk,
++				 struct vhost_net_virtqueue *nvq)
+ {
++	struct file *file = sk->sk_socket->file;
+ 	struct vhost_net_buf *rxq = &nvq->rxq;
+ 
+ 	rxq->head = 0;
+ 	rxq->tail = ptr_ring_consume_batched(nvq->rx_ring, rxq->queue,
+ 					      VHOST_NET_BATCH);
++
++	if (rxq->tail)
++		tun_wake_queue(file);
++
+ 	return rxq->tail;
+ }
+ 
+@@ -209,14 +215,15 @@ static int vhost_net_buf_peek_len(void *ptr)
+ 	return __skb_array_len_with_tag(ptr);
+ }
+ 
+-static int vhost_net_buf_peek(struct vhost_net_virtqueue *nvq)
++static int vhost_net_buf_peek(struct sock *sk,
++			      struct vhost_net_virtqueue *nvq)
+ {
+ 	struct vhost_net_buf *rxq = &nvq->rxq;
+ 
+ 	if (!vhost_net_buf_is_empty(rxq))
+ 		goto out;
+ 
+-	if (!vhost_net_buf_produce(nvq))
++	if (!vhost_net_buf_produce(sk, nvq))
+ 		return 0;
+ 
+ out:
+@@ -995,7 +1002,7 @@ static int peek_head_len(struct vhost_net_virtqueue *rvq, struct sock *sk)
+ 	unsigned long flags;
+ 
+ 	if (rvq->rx_ring)
+-		return vhost_net_buf_peek(rvq);
++		return vhost_net_buf_peek(sk, rvq);
+ 
+ 	spin_lock_irqsave(&sk->sk_receive_queue.lock, flags);
+ 	head = skb_peek(&sk->sk_receive_queue);
+diff --git a/include/linux/if_tun.h b/include/linux/if_tun.h
+index 80166eb62f41..ab3b4ebca059 100644
+--- a/include/linux/if_tun.h
++++ b/include/linux/if_tun.h
+@@ -22,6 +22,7 @@ struct tun_msg_ctl {
+ #if defined(CONFIG_TUN) || defined(CONFIG_TUN_MODULE)
+ struct socket *tun_get_socket(struct file *);
+ struct ptr_ring *tun_get_tx_ring(struct file *file);
++void tun_wake_queue(struct file *file);
+ 
+ static inline bool tun_is_xdp_frame(void *ptr)
+ {
+@@ -55,6 +56,8 @@ static inline struct ptr_ring *tun_get_tx_ring(struct file *f)
+ 	return ERR_PTR(-EINVAL);
+ }
+ 
++static inline void tun_wake_queue(struct file *f) {}
++
+ static inline bool tun_is_xdp_frame(void *ptr)
+ {
+ 	return false;
 -- 
 2.43.0
 
