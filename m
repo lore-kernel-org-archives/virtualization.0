@@ -1,83 +1,114 @@
-Received: from mailgw2.hygon.cn (unknown [101.204.27.37])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id B77DB2EE607
-	for <virtualization@lists.linux.dev>; Fri, 13 Mar 2026 01:47:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=101.204.27.37
+Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED99A1D6195
+	for <virtualization@lists.linux.dev>; Fri, 13 Mar 2026 05:08:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773366456; cv=none; b=Ix3ZlGDCQ1XG4gmyYElxby6eg/6xSQXy3XxqXSM0/KcBR/9V0Cek6TL0rFYsnjz8L5daWYscG8m8wYg8vHns5LL1xXfAbNvD72niRBDAige4Vy+9lMh3NXsA/PBW1KnU1LbNDRyMutBlsUuEHZiCIoMg6Ke/TlWWt0S7BIkQnL0=
+	t=1773378488; cv=none; b=qDdONa2rAa+BVaZtnJNgaS7VPUigSzbYsil0qiOdr7dIrkx3FUXmzXGGFjZeYKbTSTbf4/wwbc2VcV/evyWEOowXo1UuzZKdVHQzJqlnMOpHqw9bO6wN80WbIAw9Jg+oKekEIoFUJwW1tsVaZGioAQ99G7yyAXkifKS7O3IE6zg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773366456; c=relaxed/simple;
-	bh=cARjo3b5CBMHUcYu6xnyXwuPlwMkezzMLIuyLwut6pg=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=pP+nFdKPaympR82VKKSuqjavwl8vVUq+cO7TMICuyQTbacKJB63LyTgyiEqNS7aIdO65WjtANVETq+KecfTddWNph6Fe7tDEyrFDVlHuKWgsunyjkXKUsmlemv8IhVo+2cTCD8v22uz8ZPBwKVvPwwh9nVQM/eJWBrkBJeIlJ4E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hygon.cn; spf=pass smtp.mailfrom=hygon.cn; arc=none smtp.client-ip=101.204.27.37
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hygon.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hygon.cn
-Received: from maildlp2.hygon.cn (unknown [127.0.0.1])
-	by mailgw2.hygon.cn (Postfix) with ESMTP id 4fX6Pq3Tszz1YHN2l;
-	Fri, 13 Mar 2026 09:30:55 +0800 (CST)
-Received: from maildlp2.hygon.cn (unknown [172.23.18.61])
-	by mailgw2.hygon.cn (Postfix) with ESMTP id 4fX6Pp6PYDz1YHN2l;
-	Fri, 13 Mar 2026 09:30:54 +0800 (CST)
-Received: from cncheex04.Hygon.cn (unknown [172.23.18.114])
-	by maildlp2.hygon.cn (Postfix) with ESMTPS id A0FA531C620A;
-	Fri, 13 Mar 2026 09:29:39 +0800 (CST)
-Received: from SZ-4DN1M34.Hygon.cn (172.28.22.30) by cncheex04.Hygon.cn
- (172.23.18.114) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.36; Fri, 13 Mar
- 2026 09:30:54 +0800
-From: Di Zhu <zhud@hygon.cn>
-To: <mst@redhat.com>, <jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>,
-	<eperezma@redhat.com>, <andrew+netdev@lunn.ch>, <davem@davemloft.net>,
-	<edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>,
-	<netdev@vger.kernel.org>, <virtualization@lists.linux.dev>
-CC: <zhud@hygon.cn>, <lijing@hygon.cn>, <yingzhiwei@hygon.cn>
-Subject: [PATCH net] virtio-net: clear NETIF_F_GRO_HW if no GRO-related offloads are capable
-Date: Fri, 13 Mar 2026 09:30:40 +0800
-Message-ID: <20260313013040.896924-1-zhud@hygon.cn>
-X-Mailer: git-send-email 2.34.1
+	s=arc-20240116; t=1773378488; c=relaxed/simple;
+	bh=973I4MvM6diQkbCEVFTHHCxVl0F1i7DrNqJaYcqqqFE=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=cWej9zpAthql0j03dZdUB9CzHAQ6kfKqQ+BEz26t2AU+kU/qD7mkwYMxwkfR7plxHO5ugwGnqFU1f/QrTUFB5C4orxsw1mRI3BazNz1J9NbhwjAvCK28x+INJfS8J4wcpGOFoznUyk068iqHlENAhOLV7Ffqd2+Rv+3kpxVQt+c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=K9+yRy1m; arc=none smtp.client-ip=115.124.30.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="K9+yRy1m"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1773378475; h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type;
+	bh=T2fdojMM54qSgNsuFhPwacfFSNjW/hMMNErtovdaSec=;
+	b=K9+yRy1maHL6dE99fG6FnmFTzHdPeR/Y2U5+rMAnH4ssIC2H0Y9pCjP5Q0tjqYR8eRmHzQIRbNXmbGWmA9z7fnpP/UDXYUg2a6pfR25aO1iHP5ymkh9cqxtxLxjSJqrNmF/+KnQXj3VaW9Ub+UtPRX2xYfXY08jHFkBsAKQA9Mo=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R451e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045133197;MF=ying.huang@linux.alibaba.com;NM=1;PH=DS;RN=33;SR=0;TI=SMTPD_---0X-r.uEE_1773378471;
+Received: from DESKTOP-5N7EMDA(mailfrom:ying.huang@linux.alibaba.com fp:SMTPD_---0X-r.uEE_1773378471 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Fri, 13 Mar 2026 13:07:53 +0800
+From: "Huang, Ying" <ying.huang@linux.alibaba.com>
+To: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>
+Cc: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>,  linux-mm@kvack.org,
+  akpm@linux-foundation.org,  mhocko@suse.com,  apopple@nvidia.com,
+  axelrasmussen@google.com,  byungchul@sk.com,  cgroups@vger.kernel.org,
+  david@kernel.org,  eperezma@redhat.com,  gourry@gourry.net,
+  jasowang@redhat.com,  hannes@cmpxchg.org,  joshua.hahnjy@gmail.com,
+  Liam.Howlett@oracle.com,  linux-kernel@vger.kernel.org,
+  lorenzo.stoakes@oracle.com,  matthew.brost@intel.com,  mst@redhat.com,
+  rppt@kernel.org,  muchun.song@linux.dev,  zhengqi.arch@bytedance.com,
+  rakie.kim@sk.com,  roman.gushchin@linux.dev,  shakeel.butt@linux.dev,
+  surenb@google.com,  virtualization@lists.linux.dev,  weixugc@google.com,
+  xuanzhuo@linux.alibaba.com,  yuanchu@google.com,  ziy@nvidia.com,
+  kernel-team@meta.com
+Subject: Re: [PATCH v2] mm/mempolicy: track page allocations per mempolicy
+In-Reply-To: <343bbd5b-67a0-46c4-8ec4-69158bf26b3f@linux.dev> (JP Kobryn's
+	message of "Thu, 12 Mar 2026 09:13:49 -0700")
+References: <20260307045520.247998-1-jp.kobryn@linux.dev>
+	<3a42463b-9ddd-4d64-b64c-6c2e6e4fc75d@kernel.org>
+	<343bbd5b-67a0-46c4-8ec4-69158bf26b3f@linux.dev>
+Date: Fri, 13 Mar 2026 13:07:50 +0800
+Message-ID: <874imkpba1.fsf@DESKTOP-5N7EMDA>
+User-Agent: Gnus/5.13 (Gnus v5.13)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: cncheex05.Hygon.cn (172.23.18.115) To cncheex04.Hygon.cn
- (172.23.18.114)
+Content-Type: text/plain; charset=ascii
 
-Although VIRTIO_NET_F_CTRL_GUEST_OFFLOADS is negotiated, which indicates
-the device supports dynamic control of guest offloads, it does not
-necessarily mean the device supports specific hardware GRO features.
+"JP Kobryn (Meta)" <jp.kobryn@linux.dev> writes:
 
-If none of the features defined in GUEST_OFFLOAD_GRO_HW_MASK (such as
-TSO4, TSO6, or UFO) are present in vi->guest_offloads_capable, the
-device effectively lacks the hardware capability to perform GRO.
+> On 3/12/26 6:40 AM, Vlastimil Babka (SUSE) wrote:
+>> On 3/7/26 05:55, JP Kobryn (Meta) wrote:
+>>> When investigating pressure on a NUMA node, there is no straightforward way
+>>> to determine which policies are driving allocations to it.
+>>>
+>>> Add per-policy page allocation counters as new node stat items. These
+>>> counters track allocations to nodes and also whether the allocations were
+>>> intentional or fallbacks.
+>>>
+>>> The new stats follow the existing numa hit/miss/foreign style and have the
+>>> following meanings:
+>>>
+>>>    hit
+>>>      - for BIND and PREFERRED_MANY, allocation succeeded on node in nodemask
+>>>      - for other policies, allocation succeeded on intended node
+>>>      - counted on the node of the allocation
+>>>    miss
+>>>      - allocation intended for other node, but happened on this one
+>>>      - counted on other node
+>>>    foreign
+>>>      - allocation intended on this node, but happened on other node
+>>>      - counted on this node
+>>>
+>>> Counters are exposed per-memcg, per-node in memory.numa_stat and globally
+>>> in /proc/vmstat.
+>>>
+>>> Signed-off-by: JP Kobryn (Meta) <jp.kobryn@linux.dev>
+>> I think I've been on of the folks on previous versions arguing
+>> against the
+>> many counters, and one of the arguments was it they can't tell the full
+>> story anyway (compared to e.g. tracing), but I don't think adding even more
+>> counters is the right solution. Seems like a number of other people
+>> responding to the thread are providing similar feedback.
+>> For example I'm still not sure how it would help me if I knew the
+>> hits/misses were due to a preferred vs preferred_many policy, or interleave
+>> vs weithed interleave?
+>> 
+>
+> How about I change from per-policy hit/miss/foreign triplets to a single
+> aggregated policy triplet (i.e. just 3 new counters which account for
+> all policies)? They would follow the same hit/miss/foreign semantics
+> already proposed (visible in quoted text above). This would still
+> provide the otherwise missing signal of whether policy-driven
+> allocations to a node are intentional or fallback.
+>
+> Note that I am also planning on moving the stats off of the memcg so the
+> 3 new counters will be global per-node in response to similar feedback.
 
-In this case, NETIF_F_GRO_HW should be cleared from dev->hw_features
-to prevent the stack from attempting to enable an unsupported
-hardware offload configuration.
+Emm, what's the difference between these newly added counters and the
+existing numa_hit/miss/foreign counters?
 
-Fixes: a02e8964eaf9 ("virtio-net: ethtool configurable LRO")
-Signed-off-by: Di Zhu <zhud@hygon.cn>
 ---
- drivers/net/virtio_net.c | 3 +++
- 1 file changed, 3 insertions(+)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 72d6a9c6a5a2..49a60af684d5 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -7058,6 +7058,9 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	}
- 	vi->guest_offloads_capable = vi->guest_offloads;
- 
-+	if (!(vi->guest_offloads_capable & GUEST_OFFLOAD_GRO_HW_MASK))
-+		dev->hw_features &= ~NETIF_F_GRO_HW;
-+
- 	rtnl_unlock();
- 
- 	err = virtnet_cpu_notif_add(vi);
--- 
-2.34.1
-
-
+Best Regards,
+Huang, Ying
