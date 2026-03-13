@@ -1,135 +1,119 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from out-180.mta0.migadu.com (out-180.mta0.migadu.com [91.218.175.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 654AA1D90DD
-	for <virtualization@lists.linux.dev>; Fri, 13 Mar 2026 06:10:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BBC0332917
+	for <virtualization@lists.linux.dev>; Fri, 13 Mar 2026 06:14:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773382225; cv=none; b=cgW3A3VrsaAnlPJ24s78t+S7Ru12bHU9CbB4iBkZT//dZ+6JKTQNYPTCuDgfqhG2yoH3XXHYjQ/mVTkX8vFfOpHxAXpVMAV14rAxB5crTOx5xpLjA845Khyk1c1TJFptbjdevDH+EyGX9Lf1rru0GrDw3185g55ppUU9fSXLhkg=
+	t=1773382493; cv=none; b=IRe3xaNn15kk0aJBqPqUhkRgAe4gCBLc7jXvMhYwVEg6vtoon68qBkSxg6lNnJof/y3ELpNqaLPVf5vY1SV4OaV9kllnCEZ9jdRz1nffuXfhUDdm2eSdal3PesiqsZ+eh/L4eu8FPt3n6tex+6wn+ZZX2gIPxTDq5nVeyoeQFn8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773382225; c=relaxed/simple;
-	bh=/iR6H4jr1ARWE/5biMkgTQ9VIqRD+A+nSoB7kUdSyCg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=BgD/CUI3jGlzrBHaqv2xBDRzAuBvKA/1gCE0IUqHFWPvXuKlmE0QSfDHUKwDhNbta4I8E6gB7No3F7Ny7HAzykpyi/te5sb45Jp3IfeAsrBPRms0PnM1CoNoCMD1zW06otTZbn5MpGdMV29HmTQ0iqoERWveiQqeeAAO84n5+vU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=f9jFbFUF; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1773382493; c=relaxed/simple;
+	bh=TxGCibyeKxKkTZWMmZEfTZ0Hk4cAVCjiVlBujR9CsAE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=SdaQCILkhZJRRwsTl4TlKiB27htqVNrmaDAxc9FY78FOYATgg6bOvTDKw5cLvseexx2kl9mN/4FOA2sU10yS83YVwQvudc7IPZFiTLEloATDUsEZVJ6TGMzPdB6/JxAIjWm8iLoP96G+hvlalYwEGB4qbpiUFENbdCaIpcrEA0Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=uAFdS55K; arc=none smtp.client-ip=91.218.175.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="f9jFbFUF"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1773382223;
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="uAFdS55K"
+Message-ID: <cd3d7e2c-79fa-4c00-89ad-83beddf98bae@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1773382487;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=SEKsLbbuK4rqjcbBkQvwfGzKzEsUkH5eDtzU9/JBt0o=;
-	b=f9jFbFUFpI1YqROXXpn6L34J5CZZuHFGwBy1uHhxDt4y3LTBfWoN0w4xDVijn5wSA6L7+G
-	jbrbWuqxIQfsplRcQ0jYPdsYlxIz6EwbXABR21qy+4olhLoHGp9cCQnks3Ujl5CxFgxL8a
-	vw/eBofcqki2H5MpvY8b1SupjxWY0jM=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-38-q4CXRATvPNCjl0EiEhf0NQ-1; Fri, 13 Mar 2026 02:10:20 -0400
-X-MC-Unique: q4CXRATvPNCjl0EiEhf0NQ-1
-X-Mimecast-MFC-AGG-ID: q4CXRATvPNCjl0EiEhf0NQ_1773382219
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-359fe456655so1334724a91.3
-        for <virtualization@lists.linux.dev>; Thu, 12 Mar 2026 23:10:19 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773382219; x=1773987019;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=SEKsLbbuK4rqjcbBkQvwfGzKzEsUkH5eDtzU9/JBt0o=;
-        b=fxftr8QZywb8oCtoZMi4U4wig9AfVpyUbsrRYoYd9wRGJ+I/laaVUBLHPj+3/0H4rg
-         WGQr5ySHndlCa21B0ST7nuCp+5DeVcA5UVkRANEb8t2SNNHd15UjCBDR4YfjP+HG3YM5
-         H8UR1M7YYISb5lwSBD08H9/lh3eTxpipXuDEyg3dDEWn5JbzUMED3Dwv8ystcLkmXHLm
-         ZLLIswwCD9uzPHC/X8spyLxWWGSH/B0+V/ER0u5tX5/4bHQBFg29M07Nmjsz5QxpsQQH
-         6VrmmkanNWp5npYKHbTQ41UuvSXpRjdSIyp9ZvSQYZsW10gOmRzQN5dYD6yy5WrEcaKs
-         2plA==
-X-Forwarded-Encrypted: i=1; AJvYcCUFwE+gv6xNf/HGRx1ilS/HMkluh32iVwI/KDLEAZlw6ix4rUdFgwBx6sFl4bCk/dZ0nrHGgT8TaneAtJbNIw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxLJzzs3s9tWGCNBfC4t/z1Ht/V4EsgLJG9IVXEIH7L4467OaP0
-	RNndM0MMsBtXei2Wg0F4h6s2PPETb4CgVSV4zxZ60bfKrgMaNW2BSGDBfGLuJgb0SyT0HVhmD0X
-	rG0bbzETZjwhM+ZRosm3wDLl3GfvPxKAF2alGQbIryu0Sy5Js1OyLgyLWGr9kpE9sKHVkiHp0ZG
-	coMKinGJ/98Wt0OGeMGhzD9i/YigW5/WSdFLO1vX2wtGY=
-X-Gm-Gg: ATEYQzydjJ3Zr8k4xZkMDNuqaKorBBW5JSeoObPTnQkdUMXhZkGUo4ICDKMMvS8YTjl
-	P6uBwK7HiIGzVTfUN3vzYXqXR2rIpj+aWmu1tOoJgXhgX7fWOQyAYL0SYRX+m2lroEw8KVSvzIP
-	sxNKWDM9qaCcc+JYyL8Ec22Imcgs6e2n1rRhGCrHDQPTGfTXMYGWd00U56B/zXTFEnxRY2J4otZ
-	04=
-X-Received: by 2002:a05:6a20:72a4:b0:398:c0ba:9ceb with SMTP id adf61e73a8af0-398eca31fb6mr1855049637.12.1773382218937;
-        Thu, 12 Mar 2026 23:10:18 -0700 (PDT)
-X-Received: by 2002:a05:6a20:72a4:b0:398:c0ba:9ceb with SMTP id
- adf61e73a8af0-398eca31fb6mr1855016637.12.1773382218487; Thu, 12 Mar 2026
- 23:10:18 -0700 (PDT)
+	bh=PTOLkQVeVRERnDaN2DY/VOKpnGSBVqeHDpUKHThv08w=;
+	b=uAFdS55KeRCswjq75c2XPetMdLBZz02PMZndCgnGus7RcpkYRA42aQWgO5+73Z48XT+QNy
+	goFei+e4hH/qigznuSXoYYNL6W3QKa4gIO+u47sTlzngo4sHrD4fcv3iyLO3QODXGRMxgX
+	lvTyN830y+LMTKxFJU96X0nsOAQ57sI=
+Date: Thu, 12 Mar 2026 23:14:36 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260313013040.896924-1-zhud@hygon.cn>
-In-Reply-To: <20260313013040.896924-1-zhud@hygon.cn>
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 13 Mar 2026 14:10:06 +0800
-X-Gm-Features: AaiRm504cXpHm99uEXVGnGiUvzq_5LRcfaS9FMPZmiSnxPRP_JS7ljpAlHy91qU
-Message-ID: <CACGkMEvwR2WWyKvho-WU=_06OmWsYTSDSkML9JS9pSkzOQVkTA@mail.gmail.com>
-Subject: Re: [PATCH net] virtio-net: clear NETIF_F_GRO_HW if no GRO-related
- offloads are capable
-To: Di Zhu <zhud@hygon.cn>
-Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
-	andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com, 
-	kuba@kernel.org, pabeni@redhat.com, netdev@vger.kernel.org, 
-	virtualization@lists.linux.dev, lijing@hygon.cn, yingzhiwei@hygon.cn
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 0J36YCx0gniISP5Y7su17jdIdzgPlXPgMaWGbCxf418_1773382219
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH v2] mm/mempolicy: track page allocations per mempolicy
+To: "Huang, Ying" <ying.huang@linux.alibaba.com>
+Cc: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>, linux-mm@kvack.org,
+ akpm@linux-foundation.org, mhocko@suse.com, apopple@nvidia.com,
+ axelrasmussen@google.com, byungchul@sk.com, cgroups@vger.kernel.org,
+ david@kernel.org, eperezma@redhat.com, gourry@gourry.net,
+ jasowang@redhat.com, hannes@cmpxchg.org, joshua.hahnjy@gmail.com,
+ Liam.Howlett@oracle.com, linux-kernel@vger.kernel.org,
+ lorenzo.stoakes@oracle.com, matthew.brost@intel.com, mst@redhat.com,
+ rppt@kernel.org, muchun.song@linux.dev, zhengqi.arch@bytedance.com,
+ rakie.kim@sk.com, roman.gushchin@linux.dev, shakeel.butt@linux.dev,
+ surenb@google.com, virtualization@lists.linux.dev, weixugc@google.com,
+ xuanzhuo@linux.alibaba.com, yuanchu@google.com, ziy@nvidia.com,
+ kernel-team@meta.com
+References: <20260307045520.247998-1-jp.kobryn@linux.dev>
+ <3a42463b-9ddd-4d64-b64c-6c2e6e4fc75d@kernel.org>
+ <343bbd5b-67a0-46c4-8ec4-69158bf26b3f@linux.dev>
+ <874imkpba1.fsf@DESKTOP-5N7EMDA>
+Content-Language: en-US
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>
+In-Reply-To: <874imkpba1.fsf@DESKTOP-5N7EMDA>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Migadu-Flow: FLOW_OUT
 
-On Fri, Mar 13, 2026 at 9:37=E2=80=AFAM Di Zhu <zhud@hygon.cn> wrote:
->
-> Although VIRTIO_NET_F_CTRL_GUEST_OFFLOADS is negotiated, which indicates
-> the device supports dynamic control of guest offloads, it does not
-> necessarily mean the device supports specific hardware GRO features.
->
-> If none of the features defined in GUEST_OFFLOAD_GRO_HW_MASK (such as
-> TSO4, TSO6, or UFO) are present in vi->guest_offloads_capable, the
-> device effectively lacks the hardware capability to perform GRO.
->
-> In this case, NETIF_F_GRO_HW should be cleared from dev->hw_features
-> to prevent the stack from attempting to enable an unsupported
-> hardware offload configuration.
->
-> Fixes: a02e8964eaf9 ("virtio-net: ethtool configurable LRO")
-> Signed-off-by: Di Zhu <zhud@hygon.cn>
-> ---
->  drivers/net/virtio_net.c | 3 +++
->  1 file changed, 3 insertions(+)
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 72d6a9c6a5a2..49a60af684d5 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -7058,6 +7058,9 @@ static int virtnet_probe(struct virtio_device *vdev=
-)
->         }
->         vi->guest_offloads_capable =3D vi->guest_offloads;
->
-> +       if (!(vi->guest_offloads_capable & GUEST_OFFLOAD_GRO_HW_MASK))
-> +               dev->hw_features &=3D ~NETIF_F_GRO_HW;
-> +
+On 3/12/26 10:07 PM, Huang, Ying wrote:
+> "JP Kobryn (Meta)" <jp.kobryn@linux.dev> writes:
+> 
+>> On 3/12/26 6:40 AM, Vlastimil Babka (SUSE) wrote:
+>>> On 3/7/26 05:55, JP Kobryn (Meta) wrote:
+>>>> When investigating pressure on a NUMA node, there is no straightforward way
+>>>> to determine which policies are driving allocations to it.
+>>>>
+>>>> Add per-policy page allocation counters as new node stat items. These
+>>>> counters track allocations to nodes and also whether the allocations were
+>>>> intentional or fallbacks.
+>>>>
+>>>> The new stats follow the existing numa hit/miss/foreign style and have the
+>>>> following meanings:
+>>>>
+>>>>     hit
+>>>>       - for BIND and PREFERRED_MANY, allocation succeeded on node in nodemask
+>>>>       - for other policies, allocation succeeded on intended node
+>>>>       - counted on the node of the allocation
+>>>>     miss
+>>>>       - allocation intended for other node, but happened on this one
+>>>>       - counted on other node
+>>>>     foreign
+>>>>       - allocation intended on this node, but happened on other node
+>>>>       - counted on this node
+>>>>
+>>>> Counters are exposed per-memcg, per-node in memory.numa_stat and globally
+>>>> in /proc/vmstat.
+>>>>
+>>>> Signed-off-by: JP Kobryn (Meta) <jp.kobryn@linux.dev>
+>>> I think I've been on of the folks on previous versions arguing
+>>> against the
+>>> many counters, and one of the arguments was it they can't tell the full
+>>> story anyway (compared to e.g. tracing), but I don't think adding even more
+>>> counters is the right solution. Seems like a number of other people
+>>> responding to the thread are providing similar feedback.
+>>> For example I'm still not sure how it would help me if I knew the
+>>> hits/misses were due to a preferred vs preferred_many policy, or interleave
+>>> vs weithed interleave?
+>>>
+>>
+>> How about I change from per-policy hit/miss/foreign triplets to a single
+>> aggregated policy triplet (i.e. just 3 new counters which account for
+>> all policies)? They would follow the same hit/miss/foreign semantics
+>> already proposed (visible in quoted text above). This would still
+>> provide the otherwise missing signal of whether policy-driven
+>> allocations to a node are intentional or fallback.
+>>
+>> Note that I am also planning on moving the stats off of the memcg so the
+>> 3 new counters will be global per-node in response to similar feedback.
+> 
+> Emm, what's the difference between these newly added counters and the
+> existing numa_hit/miss/foreign counters?
 
-It looks to me the root cause is this during probe?
-
-        if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS))
-                dev->hw_features |=3D NETIF_F_GRO_HW;
-
-Thanks
-
->         rtnl_unlock();
->
->         err =3D virtnet_cpu_notif_add(vi);
-> --
-> 2.34.1
->
->
-
+The existing counters don't account for node masks in the policies that
+make use of them. An allocation can land on a node in the mask and still
+be considered a miss because it wasn't the preferred node.
