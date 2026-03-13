@@ -1,80 +1,80 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87547306B37
-	for <virtualization@lists.linux.dev>; Fri, 13 Mar 2026 06:47:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00DBE381AF
+	for <virtualization@lists.linux.dev>; Fri, 13 Mar 2026 07:09:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773384426; cv=none; b=J0PUbhHziZy7oupGebqy5UtzoF1m3ZNp5H0BC47l+GhTxwpIsdgIKZOstG2TNtqsDC7S7RFK6SfllOnBcGE1N4nCrKSBxdnz+r2ruAgCm+DSWcOZyOc3a+eDA37DU+mJv+ShGlL4J32dli8aoCqZGJ1GzdIF8KtTSYY0BzSsRok=
+	t=1773385777; cv=none; b=U35nr1+v5T/SKi/uX/CB5BVBXsO1u7e5WKEOsSqx4WQZD13XQKofL1paQKySKUGT9hYe4F6tdaByP+iARdFVDSy8lHkCs83QKwzSM12zQ6JaYqfiRjhQNGdVfEvGdDAcT7/0NSQj2XdLRI5s4ltudaXynbH3MRGf6JnLpY09+ls=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773384426; c=relaxed/simple;
-	bh=pMLLmkIps2g3RFhDfWvNns8B+ZWWTpg2gGLI+w0yOXY=;
+	s=arc-20240116; t=1773385777; c=relaxed/simple;
+	bh=zpWMTIIsDU5pytrs36tBG6B9O+mLl1YKQqh/raI6y/A=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Wwj4MuG5b5v/60JXKhSC6fUQETYs8hg/od8xnFREerLxQL4sMgpr4PlAt1M7Fpbn8LYNgApK+1ecMvbgSaR0z5ETTVRcEDZhqZDYFLp+JI7ejDK4OCYRT6wEajadv6xEyZqLJYMfX+5U7XPw8pXWh6hXYebzGg083/ebsFPblj4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RGe5IBZ4; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=nYUFOuMgIm8Xz4sZLPRWfQKuPcQIxjBqfb+QYLiwwEGcaSPwrj1tU25UQHuy2QGkXynWjbJQNEFHDtmVtuYSE+sIEv3JYh8yXEK0+m9v5GTs9k8Na7yJMa58PlBfh2xHVaYnEoubDzOS57SKLL/p96beqE+bEpzypLTWhKYyx1c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KLqryZvp; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RGe5IBZ4"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KLqryZvp"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1773384422;
+	s=mimecast20190719; t=1773385774;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=5FKnFDsAdr487eFPRYI5nKwa5rmRjcCiHtypxJS97Jk=;
-	b=RGe5IBZ4c6PzPOpG0sJ0/RfMg1M/LLpoieDEZQCPE47CeDLKYl3pot65wdC86w2MGNxCkp
-	xFTJ00/NCsm8+BROzjJJQS4rp4gM4L03SwS5fovqR7OXj5AK1VlOYWbrp719gqPxVPfZ/y
-	n3OvV6aRtgZdOUA0h24NKGszOqcTDPs=
-Received: from mail-yw1-f200.google.com (mail-yw1-f200.google.com
- [209.85.128.200]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=tGLHHMlkxvn9yOYAE3QMyUNpmuIw499v1QmSDP4J2xQ=;
+	b=KLqryZvp9ynjUVaUe7M5d0YrBKTIBkYg3med3d5qmUjoQomVQtIrs1nsdwnyVJXK+onnOO
+	YG1vj20t9z8kcfRuo3MPS0iAtSeCN3lbSij4uJy95lC/NWNlQUSdb3oEpWNibVkL0m8Xb8
+	qX0cHhMxu6VA2KV5jO0nxKl7ED6062E=
+Received: from mail-yw1-f198.google.com (mail-yw1-f198.google.com
+ [209.85.128.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-686-2zAjpAnfMl2vz-P54nAPCg-1; Fri, 13 Mar 2026 02:47:00 -0400
-X-MC-Unique: 2zAjpAnfMl2vz-P54nAPCg-1
-X-Mimecast-MFC-AGG-ID: 2zAjpAnfMl2vz-P54nAPCg_1773384420
-Received: by mail-yw1-f200.google.com with SMTP id 00721157ae682-7985951fa83so42810537b3.3
-        for <virtualization@lists.linux.dev>; Thu, 12 Mar 2026 23:47:00 -0700 (PDT)
+ us-mta-625-oUBAoRMAP8WbvDRTRSUmeg-1; Fri, 13 Mar 2026 03:09:33 -0400
+X-MC-Unique: oUBAoRMAP8WbvDRTRSUmeg-1
+X-Mimecast-MFC-AGG-ID: oUBAoRMAP8WbvDRTRSUmeg_1773385773
+Received: by mail-yw1-f198.google.com with SMTP id 00721157ae682-7986f771f69so81803427b3.1
+        for <virtualization@lists.linux.dev>; Fri, 13 Mar 2026 00:09:33 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773384418; x=1773989218;
+        d=1e100.net; s=20251104; t=1773385773; x=1773990573;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=5FKnFDsAdr487eFPRYI5nKwa5rmRjcCiHtypxJS97Jk=;
-        b=YuyRstdJUCb22d7mWnhlwInhdd9jakgn7lQzrpsWM+y3dF6EdnLO+LqO9K2CasKEhs
-         vOFZFIgH07sQoqm4ufKIWwci0XbzSPeFBb4Eq3DUqAHk1oh301eoQgJEW4xipvzStX7D
-         utAy6XrA/p5kVPIBHenGSXmou0G+D+GGA3a7S+dLj+EXslPEnm2k7pYjWQWKyHRTvMPS
-         ivrE+cF+eh4bRnVjHjERL7nyHC9IJvuVCKlrLx0a3zPV32lLswtgg/ZGpDtiZJIPZPqZ
-         LCFn6yfKv+GN3WRPrewX9RZTTLCBOTzOvv1GOpK7M0eRPXmdMcJnJIeT+T5ZBELtfddA
-         jjfg==
-X-Forwarded-Encrypted: i=1; AJvYcCWech0NIHqWewOlXIWwHzxDlZf0bwB7ms56LMt8rXJpCLYfqGEuK0RLN9gPyFMvWGrOyNM8ALZd6lLr8Qhnrg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywq84kmxQHMXrau24cIni4X2JppT0QqyhNJ7OrL5eB+93f4qW5J
-	Tm/3VG0OaPIx2NNFBFbECnUhYXIO+90LfOyK8DIhWpfAth7i7zzGiMzedOG9lPrbcsjwk2H5P+P
-	rYC1uoBvNDHrtcNDFLt3J1qQ270IJoRnPAlI1117T2SPg36nAP0zdZFg5ZAZJq19+uxu62u7xcw
-	uRDkiz8fj0Vmz6X4zVl/EcktwRssf3IUXba7Sgcbc619o=
-X-Gm-Gg: ATEYQzwBuZY+QxNOKt945PVynDdg+woXQOULA9+9PT8H3e7pn4aFMLlQBgFqtnbQ5s5
-	wf3AwhFL8CIha+PSfrkTO/pVgPcMXhqwZop0DqJQyOTqRc3jJW2LV9guuk1TbkhWyBl5FrrBjn0
-	v/nlz2+BESQso5Yn6t8Ioh2pvVJ6amhVc9UiYov5aluC7LeCM99ME/2AbeO4eMkvBcj+RhqLND6
-	Zn7rw==
-X-Received: by 2002:a05:690c:6989:b0:798:9158:8fde with SMTP id 00721157ae682-79a1c23cc57mr21936897b3.65.1773384417837;
-        Thu, 12 Mar 2026 23:46:57 -0700 (PDT)
-X-Received: by 2002:a05:690c:6989:b0:798:9158:8fde with SMTP id
- 00721157ae682-79a1c23cc57mr21936717b3.65.1773384417417; Thu, 12 Mar 2026
- 23:46:57 -0700 (PDT)
+        bh=tGLHHMlkxvn9yOYAE3QMyUNpmuIw499v1QmSDP4J2xQ=;
+        b=l8khNMq+NG9lQxfLwwsXAApHtA/yisj89IOcFozqp9x6CUVfKdf/GT708Luk/VCNuv
+         SJy6XKdCQJmSTNdiC4edcpBXwpg9CgD780hYRfmiHEdPx4ZgvDorLGI2wQm0frj3wIdT
+         /Cg7p/r2Zv9OeQiII7XwZXP69aiSj49teM7WyJmMHvib74/Rvilk1BaXBkn0MXk4+wXV
+         0/wvaR/57D5N4un32CojOPYXb16rFlyKZffRFlxgKxGfrCbtChVkXKxxZmp3afsRIZzS
+         R6/OR/4CuqXLn/NFEsIQALKmjcGhp0t+Ao9sTW/ZHz/K7VWYJf+/SRZvyCWEUTewLhGV
+         PKmA==
+X-Forwarded-Encrypted: i=1; AJvYcCVQ2lo4oCX02d9g8ueK0O6Q4rYkDKqTrfJUJhUH0h+S8VgGU0zBbwbYAOiVmSLNjVH/VqfE/ApEOdJVmb05CQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywtg1o9WoFdxPBm23RPFBVDmwVP4l1w9Fqd1w6vXCzaLaFXE4iN
+	9ip4VnZr50rrWdh811EABvDIxIzEVitd0fo8rW0V11BBHHR2Iob+2FLp2G7n6vnyzFwvy8R7ktE
+	C4ODF4WB+Y6DiJZkxfeGquBAApoIUz8iAbl3jU/KKKq1D7bBT1W812jNQrSCc4G27GRWqLFTdQ9
+	uFERJj+UJuIAIpFTVoutiN1NMq1leTukfzcHwLRhrj5P8=
+X-Gm-Gg: ATEYQzxUL8IpzC8w9rmPHIpBXXNvLsKjjocW2wa8UaXv6vJWWwNQxoxlSKX3tYPUk0X
+	Q2B3B+PHoHHxcxyx3xEtSdY58GnfYwFULrTE1+6QUbs9x//hik1+VIYRCG8svRQyjC6YJqeaLVh
+	nlPr/CeR03qLm/3KQFYtREQAJSDULZcjMYVBYnuGg94D4By5OpS2/jKDXIEIl+CHByRl5zB+f5c
+	y3Hqg==
+X-Received: by 2002:a05:690e:43ce:b0:64a:ce57:cac4 with SMTP id 956f58d0204a3-64e6281c002mr1536219d50.24.1773385772858;
+        Fri, 13 Mar 2026 00:09:32 -0700 (PDT)
+X-Received: by 2002:a05:690e:43ce:b0:64a:ce57:cac4 with SMTP id
+ 956f58d0204a3-64e6281c002mr1536209d50.24.1773385772486; Fri, 13 Mar 2026
+ 00:09:32 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260310190759.1097506-1-eperezma@redhat.com> <20260310190759.1097506-3-eperezma@redhat.com>
- <CACGkMEvafXSWZBsDtt5-zit5_po6U35ciP_-yhbv-MtKo4uG7Q@mail.gmail.com>
- <CAJaqyWf3kgjQ5AQs3yYipNTDvGnF-arcXvJkAJP3G6+eoSB5aQ@mail.gmail.com> <CACGkMEvmA4BnMQoQfzhROmWx1XfQYgHYuZd8JgUy-2zb-ZeLWg@mail.gmail.com>
-In-Reply-To: <CACGkMEvmA4BnMQoQfzhROmWx1XfQYgHYuZd8JgUy-2zb-ZeLWg@mail.gmail.com>
+References: <20260310190759.1097506-1-eperezma@redhat.com> <20260310190759.1097506-4-eperezma@redhat.com>
+ <CACGkMEvwmC4qiYgZAkrHEC3r3q7FyMiqpg5=2oNMPGm0q=PLBA@mail.gmail.com>
+ <CAJaqyWe+x9okNwPD5n6M+PeLt0cQY-_fBWOD9uXSa1nKHqRaFw@mail.gmail.com> <CACGkMEuKTezQQXJ0XEKWEoRaeo-ORcE07+xgSoJ_7UwpPdonWA@mail.gmail.com>
+In-Reply-To: <CACGkMEuKTezQQXJ0XEKWEoRaeo-ORcE07+xgSoJ_7UwpPdonWA@mail.gmail.com>
 From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Fri, 13 Mar 2026 07:46:21 +0100
-X-Gm-Features: AaiRm51fBkQ6wBOSGaNtk3FL7Vp0w8Q2C4ObJ8HIa4RaY4PgEvhjTDzFL101IQA
-Message-ID: <CAJaqyWdQ-a1YbCER30noeGacWeaC=RQuUdPbFA4ke-r0p9boRw@mail.gmail.com>
-Subject: Re: [PATCH v3 2/3] vduse: add VDUSE_GET_FEATURES ioctl
+Date: Fri, 13 Mar 2026 08:08:56 +0100
+X-Gm-Features: AaiRm52alvvUvdFbuOzUrnPB80GVd5V2gTPqWE31hSxruyVvFmqg0a2zeu5eLz4
+Message-ID: <CAJaqyWf5mnARrEXssKQ2CQB0rZ+KVi_kW1xyOc_Dx1ELAs4LHA@mail.gmail.com>
+Subject: Re: [PATCH v3 3/3] vduse: add F_QUEUE_READY feature
 To: Jason Wang <jasowang@redhat.com>
 Cc: "Michael S . Tsirkin" <mst@redhat.com>, Cindy Lu <lulu@redhat.com>, 
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-kernel@vger.kernel.org, 
@@ -82,181 +82,238 @@ Cc: "Michael S . Tsirkin" <mst@redhat.com>, Cindy Lu <lulu@redhat.com>,
 	Laurent Vivier <lvivier@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
 	virtualization@lists.linux.dev
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: UkZPblhMXhnqXRuL6ZhCvN45QlJdMNG0ykeD8A8fVuI_1773384420
+X-Mimecast-MFC-PROC-ID: 50RgBNHkDvu8wg4zdiTUhLPbuq47im6pLzRc5SHhXNM_1773385773
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Mar 13, 2026 at 6:56=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
+On Fri, Mar 13, 2026 at 7:05=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
 ote:
 >
-> On Thu, Mar 12, 2026 at 3:12=E2=80=AFPM Eugenio Perez Martin
+> On Thu, Mar 12, 2026 at 2:24=E2=80=AFPM Eugenio Perez Martin
 > <eperezma@redhat.com> wrote:
 > >
-> > On Thu, Mar 12, 2026 at 4:56=E2=80=AFAM Jason Wang <jasowang@redhat.com=
+> > On Thu, Mar 12, 2026 at 4:58=E2=80=AFAM Jason Wang <jasowang@redhat.com=
 > wrote:
 > > >
 > > > On Wed, Mar 11, 2026 at 3:08=E2=80=AFAM Eugenio P=C3=A9rez <eperezma@=
 redhat.com> wrote:
 > > > >
-> > > > Add an ioctl to allow VDUSE instances to query the available featur=
-es
-> > > > supported by the kernel module.
+> > > > Add the VDUSE_F_QUEUE_READY feature flag. This allows the kernel mo=
+dule
+> > > > to explicitly signal userspace when a specific virtqueue has been
+> > > > enabled.
+> > > >
+> > > > In scenarios like Live Migration of VirtIO net devices, the datapla=
+ne
+> > > > starts after the control virtqueue allowing QEMU to apply configura=
+tion
+> > > > in the destination device.
 > > > >
 > > > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
 > > > > ---
-> > > > A simple u64 bitmap is used for feature flags. While a flexible arr=
-ay
-> > > > could support indefinite expansion, 64 bits is sufficient for the
-> > > > foreseeable future and simplifies the implementation.
-> > > >
-> > > > Also, dev_dbg is used for logging rather than dev_err as these can =
-be
-> > > > triggered from userspace.
-> > > > ---
-> > > > v3:
-> > > > * Remove check for API_VERSION < 2
-> > > > * Add comment about struct vduse_dev_config:vduse_features is only =
-valid
-> > > >   if VDUSE_GET_FEATURES success.
-> > > >
 > > > > v2:
-> > > > * return -EINVAL if ioctl called with version < 2, so userland visi=
-ble
-> > > >   reply is kept (Jason).
+> > > > * Fix comment of vduse_dev_request.vq_ready
+> > > > * Set vq_ready before sending the message to the VDUSE userland
+> > > >   instance, avoiding the need for SMP sync after receiving the mess=
+age.
 > > > > ---
-> > > >  drivers/vdpa/vdpa_user/vduse_dev.c | 7 +++++++
-> > > >  include/uapi/linux/vduse.h         | 7 ++++++-
-> > > >  2 files changed, 13 insertions(+), 1 deletion(-)
+> > > >  drivers/vdpa/vdpa_user/vduse_dev.c | 28 ++++++++++++++++++++++++++=
++-
+> > > >  include/uapi/linux/vduse.h         | 18 ++++++++++++++++++
+> > > >  2 files changed, 45 insertions(+), 1 deletion(-)
 > > > >
 > > > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa=
 _user/vduse_dev.c
-> > > > index d1da7c15d98b..17e0358d3a68 100644
+> > > > index 17e0358d3a68..4f642b95a7cb 100644
 > > > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
 > > > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > > @@ -52,6 +52,9 @@
+> > > > @@ -9,6 +9,7 @@
+> > > >   */
 > > > >
+> > > >  #include "linux/virtio_net.h"
+> > > > +#include <linux/bits.h>
+> > > >  #include <linux/cleanup.h>
+> > > >  #include <linux/init.h>
+> > > >  #include <linux/module.h>
+> > > > @@ -53,7 +54,7 @@
 > > > >  #define IRQ_UNBOUND -1
 > > > >
-> > > > +/* Supported VDUSE features */
-> > > > +static const uint64_t vduse_features;
-> > > > +
+> > > >  /* Supported VDUSE features */
+> > > > -static const uint64_t vduse_features;
+> > > > +static const uint64_t vduse_features =3D BIT_U64(VDUSE_F_QUEUE_REA=
+DY);
+> > > >
 > > > >  /*
 > > > >   * VDUSE instance have not asked the vduse API version, so assume =
 0.
-> > > >   *
-> > > > @@ -2207,6 +2210,10 @@ static long vduse_ioctl(struct file *file, u=
-nsigned int cmd,
-> > > >                 ret =3D vduse_destroy_dev(name);
-> > > >                 break;
-> > > >         }
-> > > > +       case VDUSE_GET_FEATURES:
-> > > > +               ret =3D put_user(vduse_features, (u64 __user *)argp=
-);
-> > > > +               break;
+> > > > @@ -120,6 +121,7 @@ struct vduse_dev {
+> > > >         char *name;
+> > > >         struct mutex lock;
+> > > >         spinlock_t msg_lock;
+> > > > +       u64 vduse_features;
+> > > >         u64 msg_unique;
+> > > >         u32 msg_timeout;
+> > > >         wait_queue_head_t waitq;
+> > > > @@ -601,8 +603,29 @@ static void vduse_vdpa_set_vq_ready(struct vdp=
+a_device *vdpa,
+> > > >  {
+> > > >         struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
+> > > >         struct vduse_virtqueue *vq =3D dev->vqs[idx];
+> > > > +       struct vduse_dev_msg msg =3D { 0 };
+> > > > +       int r;
+> > > >
+> > > >         vq->ready =3D ready;
 > > > > +
-> > > >         default:
-> > > >                 ret =3D -EINVAL;
-> > > >                 break;
-> > > > diff --git a/include/uapi/linux/vduse.h b/include/uapi/linux/vduse.=
-h
-> > > > index 361eea511c21..e9b5f32a452d 100644
-> > > > --- a/include/uapi/linux/vduse.h
-> > > > +++ b/include/uapi/linux/vduse.h
-> > > > @@ -33,6 +33,7 @@
-> > > >   * @vq_align: the allocation alignment of virtqueue's metadata
-> > > >   * @ngroups: number of vq groups that VDUSE device declares
-> > > >   * @nas: number of address spaces that VDUSE device declares
-> > > > + * @vduse_features: VDUSE features
-> > > >   * @reserved: for future use, needs to be initialized to zero
-> > > >   * @config_size: the size of the configuration space
-> > > >   * @config: the buffer of the configuration space
-> > > > @@ -49,7 +50,8 @@ struct vduse_dev_config {
-> > > >         __u32 vq_align;
-> > > >         __u32 ngroups; /* if VDUSE_API_VERSION >=3D 1 */
-> > > >         __u32 nas; /* if VDUSE_API_VERSION >=3D 1 */
-> > > > -       __u32 reserved[11];
-> > > > +       __u64 vduse_features; /* if VDUSE_GET_FEATURES is not EINVA=
-L */
-> > > > +       __u32 reserved[9];
+> > > > +       if (!(dev->vduse_features & BIT_U64(VDUSE_F_QUEUE_READY)))
+> > > > +               return;
+> > > > +
+> > > > +       msg.req.type =3D VDUSE_SET_VQ_READY;
+> > > > +       msg.req.vq_ready.num =3D idx;
+> > > > +       msg.req.vq_ready.ready =3D !!ready;
+> > > > +
+> > > > +       r =3D vduse_dev_msg_sync(dev, &msg);
+> > > > +
+> > > > +       if (r < 0) {
+> > > > +               dev_dbg(&vdpa->dev, "device refuses to set vq %u re=
+ady %u",
+> > > > +                       idx, ready);
+> > > > +
+> > > > +               /* We can't do better than break the device in this=
+ case */
 > > >
-> > > If we go with VDUSE_GET_FEATURES, I'd perfer to go with
-> > > VDUSE_SET_FEATURES intead of this.
+> > > It's better to explain why we can't depend on vduse_dev_msg_sync() he=
+re.
+> > >
+> > > For example it did:
+> > >
+> > >         if (unlikely(dev->broken))
+> > >                 return -EIO;
+> > >
+> > >         init_waitqueue_head(&msg->waitq);
+> > >         spin_lock(&dev->msg_lock);
+> > >         if (unlikely(dev->broken)) {
+> > >                 spin_unlock(&dev->msg_lock);
+> > >                 return -EIO;
+> > >         }
+> > >
+> > > and
+> > >
+> > >         if (!msg->completed) {
+> > >                 list_del(&msg->list);
+> > >                 msg->resp.result =3D VDUSE_REQ_RESULT_FAILED;
+> > >                 /* Mark the device as malfunction when there is a tim=
+eout */
+> > >                 if (!ret)
+> > >                         vduse_dev_broken(dev);
+> > >         }
 > > >
 > >
-> > I didn't realize the lack of symmetry, but that approach grows and
-> > complicates the possible states of struct vduse_control and the
-> > vduse_ioctl code for little benefit in my opinion. Making it atomic in
-> > VDUSE_CREATE_DEV ioctl helps centralize all the potential errors.
-> > Also, from previous experience with vhost_vdpa, the ioctls slow down
-> > the device creation, which could affect things like VDUSE adoption for
-> > containers etc.
->
-> Maybe, but if we really care about the time spent on device creation,
-> uAPI needs redesigning. Or at least more feature in the future
-> wouldn't slow down further.
->
+> > I'm not sure I follow you here.
 > >
-> > On the other hand, it would make it easier to tell if the device
-> > couldn't be created because of invalid features set. This is highly
-> > unlikely, as the VDUSE device should retrieve the features by calling
-> > VDUSE_GET_FEATURES earlier.
-> >
-> > I don't think it is worth it, but if you think we should go that way
-> > I'm ok with the change.
+> > We can't do better than breaking the device because the function
+> > returns no error state, and the caller does not expect an error code.
+> > Do you mean we can't depend on vduse_dev_msg_sync to call
+> > vduse_dev_broken(dev) by itself?
 >
-> It depends on the intialziation flow. After getting features, I'd
-> expect it's something like this
+> I think I meant, reset seems to be more heavyweight than suspend.
 >
-> A:
->
-> 1) GET_API_VERSION
-> 2) SET_API_VERSION
-> 3) GET_FEATURES
-> 4) SET_FEATURES
-> 5) CREATE_DEV
->
-> Or B in this patch:
->
-> 1) GET_API_VERSION
-> 2) SET_API_VERSION
-> 3) GET_FEATURES
-> 4) CREATE_DEV
->
-> I think it's better to stick the symmetry as API_VERSION (technically,
-> API could be set via config as well?)
+> So if reset can fail, I don't see reason ot break device only for
+> suspend failure.
 >
 
-Yes, I'd have chosen to set the API_VERSION via config too.
+Sorry I still don't get you.
 
-> BTW, I found VDUSE_SET_API_VERSION could be set multiple times (even
-> after the device is create), do we need to fix this?
->
-
-It shouldn't be a problem, each device has its own copy of
-api_version. It seems clear to me that the API setting only affects
-devices created after the change, but I can add a guard after the
-first device is created.
+This series does not implement suspend at all. It doesn't modify the
+VDUSE device reset or the virtio reset behavior. It only implements
+the vq ready message for the device. If the device returns an error
+from that operation, what is your proposal for when the driver sends
+new messages like resume?
 
 > Thanks
 >
 > >
-> > > But we can hear from others.
-> > >
-> > > >         __u32 config_size;
-> > > >         __u8 config[];
-> > > >  };
-> > > > @@ -63,6 +65,9 @@ struct vduse_dev_config {
-> > > >   */
-> > > >  #define VDUSE_DESTROY_DEV      _IOW(VDUSE_BASE, 0x03, char[VDUSE_N=
-AME_MAX])
+> > > > +               spin_lock(&dev->msg_lock);
+> > > > +               vduse_dev_broken(dev);
+> > > > +               spin_unlock(&dev->msg_lock);
+> > > > +       }
+> > > >  }
 > > > >
-> > > > +/* Get the VDUSE supported features */
-> > > > +#define VDUSE_GET_FEATURES     _IOR(VDUSE_BASE, 0x04, __u64)
+> > > >  static bool vduse_vdpa_get_vq_ready(struct vdpa_device *vdpa, u16 =
+idx)
+> > > > @@ -2078,6 +2101,9 @@ static int vduse_create_dev(struct vduse_dev_=
+config *config,
+> > > >         dev->device_features =3D config->features;
+> > > >         dev->device_id =3D config->device_id;
+> > > >         dev->vendor_id =3D config->vendor_id;
+> > > > +       dev->vduse_features =3D config->vduse_features;
+> > > > +       dev_dbg(vduse_ctrl_dev, "Creating device %s with features 0=
+x%llx",
+> > > > +               config->name, config->vduse_features);
+> > > >
+> > > >         dev->nas =3D (dev->api_version < VDUSE_API_VERSION_1) ? 1 :=
+ config->nas;
+> > > >         dev->as =3D kcalloc(dev->nas, sizeof(dev->as[0]), GFP_KERNE=
+L);
+> > > > diff --git a/include/uapi/linux/vduse.h b/include/uapi/linux/vduse.=
+h
+> > > > index e9b5f32a452d..7324faea5df4 100644
+> > > > --- a/include/uapi/linux/vduse.h
+> > > > +++ b/include/uapi/linux/vduse.h
+> > > > @@ -14,6 +14,9 @@
+> > > >
+> > > >  #define VDUSE_API_VERSION_1    1
+> > > >
+> > > > +/* The VDUSE instance expects a request for vq ready */
+> > > > +#define VDUSE_F_QUEUE_READY    0
 > > > > +
-> > > >  /* The ioctls for VDUSE device (/dev/vduse/$NAME) */
+> > > >  /*
+> > > >   * Get the version of VDUSE API that kernel supported (VDUSE_API_V=
+ERSION).
+> > > >   * This is used for future extension.
+> > > > @@ -330,6 +333,7 @@ enum vduse_req_type {
+> > > >         VDUSE_SET_STATUS,
+> > > >         VDUSE_UPDATE_IOTLB,
+> > > >         VDUSE_SET_VQ_GROUP_ASID,
+> > > > +       VDUSE_SET_VQ_READY,
+> > > >  };
 > > > >
 > > > >  /**
+> > > > @@ -377,6 +381,15 @@ struct vduse_iova_range_v2 {
+> > > >         __u32 padding;
+> > > >  };
+> > > >
+> > > > +/**
+> > > > + * struct vduse_vq_ready - Virtqueue ready request message
+> > > > + * @num: Virtqueue number
+> > > > + */
+> > > > +struct vduse_vq_ready {
+> > > > +       __u32 num;
+> > > > +       __u32 ready;
+> > > > +};
+> > > > +
+> > > >  /**
+> > > >   * struct vduse_dev_request - control request
+> > > >   * @type: request type
+> > > > @@ -387,6 +400,7 @@ struct vduse_iova_range_v2 {
+> > > >   * @iova: IOVA range for updating
+> > > >   * @iova_v2: IOVA range for updating if API_VERSION >=3D 1
+> > > >   * @vq_group_asid: ASID of a virtqueue group
+> > > > + * @vq_ready: Virtqueue ready request
+> > > >   * @padding: padding
+> > > >   *
+> > > >   * Structure used by read(2) on /dev/vduse/$NAME.
+> > > > @@ -404,6 +418,10 @@ struct vduse_dev_request {
+> > > >                  */
+> > > >                 struct vduse_iova_range_v2 iova_v2;
+> > > >                 struct vduse_vq_group_asid vq_group_asid;
+> > > > +
+> > > > +               /* Only if VDUSE_F_QUEUE_READY is negotiated */
+> > > > +               struct vduse_vq_ready vq_ready;
+> > > > +
+> > > >                 __u32 padding[32];
+> > > >         };
+> > > >  };
 > > > > --
 > > > > 2.53.0
 > > > >
