@@ -1,119 +1,102 @@
-Received: from out-180.mta0.migadu.com (out-180.mta0.migadu.com [91.218.175.180])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BBC0332917
-	for <virtualization@lists.linux.dev>; Fri, 13 Mar 2026 06:14:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 136AE364E92
+	for <virtualization@lists.linux.dev>; Fri, 13 Mar 2026 06:18:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773382493; cv=none; b=IRe3xaNn15kk0aJBqPqUhkRgAe4gCBLc7jXvMhYwVEg6vtoon68qBkSxg6lNnJof/y3ELpNqaLPVf5vY1SV4OaV9kllnCEZ9jdRz1nffuXfhUDdm2eSdal3PesiqsZ+eh/L4eu8FPt3n6tex+6wn+ZZX2gIPxTDq5nVeyoeQFn8=
+	t=1773382710; cv=none; b=bGn6TkQaR7JAFc4hHH3b4llT0bbgk2bl4Fn/GNNowRtDSSONBiNqPq7yySFWQLU8SbmM4FJRPnm9KuIFeJeoR8+6kn5QdGqiip6JaP1ovSP3wyrFVIx41aVsIuslmc2zGsrttFdg8VdJDo/MVI0JsBJPBPrrvQOGbF2fDkirgpU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773382493; c=relaxed/simple;
-	bh=TxGCibyeKxKkTZWMmZEfTZ0Hk4cAVCjiVlBujR9CsAE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=SdaQCILkhZJRRwsTl4TlKiB27htqVNrmaDAxc9FY78FOYATgg6bOvTDKw5cLvseexx2kl9mN/4FOA2sU10yS83YVwQvudc7IPZFiTLEloATDUsEZVJ6TGMzPdB6/JxAIjWm8iLoP96G+hvlalYwEGB4qbpiUFENbdCaIpcrEA0Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=uAFdS55K; arc=none smtp.client-ip=91.218.175.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1773382710; c=relaxed/simple;
+	bh=a7K1Vtv+M/1f5IYr5As7jmeWJ5MW5XWrjcFWBKeVOnY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=hiqO2PNCaD1a2DvF1VTuHqriO6rQ9jBLQOiPGmXsq9mhb/DKblaNq6ly4ZNi/UKcidljuNs3lCp4+nERXl9oIPuOG7ZOUa0xkAl+YQNu9upae2RSTI8bsSC1TB0nl4e5obFrxfbMXstbZFGiXhLCl0tfvW9mcUE/eClo2ZzLRn4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BfiH5wH6; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="uAFdS55K"
-Message-ID: <cd3d7e2c-79fa-4c00-89ad-83beddf98bae@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1773382487;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BfiH5wH6"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1773382707;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=PTOLkQVeVRERnDaN2DY/VOKpnGSBVqeHDpUKHThv08w=;
-	b=uAFdS55KeRCswjq75c2XPetMdLBZz02PMZndCgnGus7RcpkYRA42aQWgO5+73Z48XT+QNy
-	goFei+e4hH/qigznuSXoYYNL6W3QKa4gIO+u47sTlzngo4sHrD4fcv3iyLO3QODXGRMxgX
-	lvTyN830y+LMTKxFJU96X0nsOAQ57sI=
-Date: Thu, 12 Mar 2026 23:14:36 -0700
+	bh=QyTaVAhlozH7ysi6HEiPI7Jjaxd761LKKr6eVCbKn6U=;
+	b=BfiH5wH6vbiCWDGVMJKfhyJp5tIe8FTFK77/Jf8mqKV+3NMzf6rn9f4ObmE8OzUq4VCPqG
+	mfNCDzB7c9t0H47ya3XsTGS3REkCpfRjiQ185XE8uMjSWvfEj+21YsOxXP9vzl5+ciD6J2
+	jXa9ftYL4+u33knqVRTyyk1qxb5VaIc=
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
+ [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-130-hNAZqek9P5mtfT8COtyv6A-1; Fri, 13 Mar 2026 02:18:26 -0400
+X-MC-Unique: hNAZqek9P5mtfT8COtyv6A-1
+X-Mimecast-MFC-AGG-ID: hNAZqek9P5mtfT8COtyv6A_1773382706
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-359812e4fefso1867805a91.1
+        for <virtualization@lists.linux.dev>; Thu, 12 Mar 2026 23:18:26 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1773382705; x=1773987505;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=QyTaVAhlozH7ysi6HEiPI7Jjaxd761LKKr6eVCbKn6U=;
+        b=lju0YkC+GaHu5Y/p//G1FqWsKewl1g8eeBQlBy7KTEsOEnxGv2Wsq+KsUJj+ci61Ds
+         4bDhVotnPr3urh4j9TI6bCtp980ogURQUe/jjL72A+aVNDby0wF2g5GLhwXLcQl72t4n
+         RA0X/WWa2rBDajsZYndRLrtIQIHKyclAFmB5EAB1fGLoVLyZWqNFtcppjf3yoMtxi/dv
+         PQdTq3ayMWwFxxdgyhut9jg56Rwf/qXrAVoolKj4/8GyNou3A81EphukGYnQlKKe/wyo
+         h+xoYoGebinKO5/uf2rgZKwEB6K44U8ZMykLvj44QoRn9UP1Gr9q8/5fkL5pNZMot2AU
+         W4ag==
+X-Forwarded-Encrypted: i=1; AJvYcCWOC81jybqd1HF/pUSZMsfS99VvN0JW9wXXEst9Y2mfclCcO7F3AkZZVkE+HPE5k0T2b6y8aV3X92mYvJTwug==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzKYFqcF1Lt2RVlnwdDCVH5ZjPRbw3Kygf5m5iAtIPwkFGTB0y0
+	jm8VI9hUQNRgrHBNzOBOXgoEv4NA9uyXoXVUgmbZdDFg2NxgtPBsJmuVc+InJraqtr11gmPl+fo
+	/iRK7xn47SMeBXZKWP7BQgi9EBZOi35//k1XNIMOTb1D9Ujozml6Xgw/7QsLcVnFYHEY4qTRX6T
+	ZJLaMGsBjX9IT3QQaM2juSI0DpaPsik4ez2SF4SZ6nrT4=
+X-Gm-Gg: ATEYQzwaU18mqriAqnhPCd193mA28fYizV+mKSYxjnZIsjPKdES8KO4/emglu9oKUTx
+	dXeBAZ26TrsTyJbI9wPWojKQ9xPPXpVIYA6aDI7SAkQ3e4JQDfUROrQaFksFR77Vsp3lJwUxt9U
+	mv8KczxerLoHc/74IZQNSr+VQcaXE9OKC7rw1nZ/GXK5TXRPUcLgZkLkxaw3YB2TvfXXOXO2XLK
+	e8=
+X-Received: by 2002:a17:90b:1d92:b0:359:ff9f:916a with SMTP id 98e67ed59e1d1-35a11a06aeemr5281620a91.8.1773382705607;
+        Thu, 12 Mar 2026 23:18:25 -0700 (PDT)
+X-Received: by 2002:a17:90b:1d92:b0:359:ff9f:916a with SMTP id
+ 98e67ed59e1d1-35a11a06aeemr5281602a91.8.1773382705246; Thu, 12 Mar 2026
+ 23:18:25 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Subject: Re: [PATCH v2] mm/mempolicy: track page allocations per mempolicy
-To: "Huang, Ying" <ying.huang@linux.alibaba.com>
-Cc: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>, linux-mm@kvack.org,
- akpm@linux-foundation.org, mhocko@suse.com, apopple@nvidia.com,
- axelrasmussen@google.com, byungchul@sk.com, cgroups@vger.kernel.org,
- david@kernel.org, eperezma@redhat.com, gourry@gourry.net,
- jasowang@redhat.com, hannes@cmpxchg.org, joshua.hahnjy@gmail.com,
- Liam.Howlett@oracle.com, linux-kernel@vger.kernel.org,
- lorenzo.stoakes@oracle.com, matthew.brost@intel.com, mst@redhat.com,
- rppt@kernel.org, muchun.song@linux.dev, zhengqi.arch@bytedance.com,
- rakie.kim@sk.com, roman.gushchin@linux.dev, shakeel.butt@linux.dev,
- surenb@google.com, virtualization@lists.linux.dev, weixugc@google.com,
- xuanzhuo@linux.alibaba.com, yuanchu@google.com, ziy@nvidia.com,
- kernel-team@meta.com
-References: <20260307045520.247998-1-jp.kobryn@linux.dev>
- <3a42463b-9ddd-4d64-b64c-6c2e6e4fc75d@kernel.org>
- <343bbd5b-67a0-46c4-8ec4-69158bf26b3f@linux.dev>
- <874imkpba1.fsf@DESKTOP-5N7EMDA>
-Content-Language: en-US
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>
-In-Reply-To: <874imkpba1.fsf@DESKTOP-5N7EMDA>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
+References: <CAAZVx9_Tq6afZJb-4pNKCwmB7xw=NZVCR8aSXM5N9+BbDdmTtg@mail.gmail.com>
+In-Reply-To: <CAAZVx9_Tq6afZJb-4pNKCwmB7xw=NZVCR8aSXM5N9+BbDdmTtg@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 13 Mar 2026 14:18:14 +0800
+X-Gm-Features: AaiRm53PdzsHn-Zro68I1g-QLJWPVJN8bggvdBE0Ax5DCNGF1gTdYn5pxhPFKTc
+Message-ID: <CACGkMEvNgaRjsUjrW7PuTHrisBv0nH64SUbFYKMw4T-fia0GpQ@mail.gmail.com>
+Subject: Re: [PATCH] virtio: add kernel-doc for map and vmap members
+To: John S <xaum.io@gmail.com>
+Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 32RSImhA-HdATgQ6H87q3jLRiOnrepvqe6Gt77UvcQ4_1773382706
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 3/12/26 10:07 PM, Huang, Ying wrote:
-> "JP Kobryn (Meta)" <jp.kobryn@linux.dev> writes:
-> 
->> On 3/12/26 6:40 AM, Vlastimil Babka (SUSE) wrote:
->>> On 3/7/26 05:55, JP Kobryn (Meta) wrote:
->>>> When investigating pressure on a NUMA node, there is no straightforward way
->>>> to determine which policies are driving allocations to it.
->>>>
->>>> Add per-policy page allocation counters as new node stat items. These
->>>> counters track allocations to nodes and also whether the allocations were
->>>> intentional or fallbacks.
->>>>
->>>> The new stats follow the existing numa hit/miss/foreign style and have the
->>>> following meanings:
->>>>
->>>>     hit
->>>>       - for BIND and PREFERRED_MANY, allocation succeeded on node in nodemask
->>>>       - for other policies, allocation succeeded on intended node
->>>>       - counted on the node of the allocation
->>>>     miss
->>>>       - allocation intended for other node, but happened on this one
->>>>       - counted on other node
->>>>     foreign
->>>>       - allocation intended on this node, but happened on other node
->>>>       - counted on this node
->>>>
->>>> Counters are exposed per-memcg, per-node in memory.numa_stat and globally
->>>> in /proc/vmstat.
->>>>
->>>> Signed-off-by: JP Kobryn (Meta) <jp.kobryn@linux.dev>
->>> I think I've been on of the folks on previous versions arguing
->>> against the
->>> many counters, and one of the arguments was it they can't tell the full
->>> story anyway (compared to e.g. tracing), but I don't think adding even more
->>> counters is the right solution. Seems like a number of other people
->>> responding to the thread are providing similar feedback.
->>> For example I'm still not sure how it would help me if I knew the
->>> hits/misses were due to a preferred vs preferred_many policy, or interleave
->>> vs weithed interleave?
->>>
->>
->> How about I change from per-policy hit/miss/foreign triplets to a single
->> aggregated policy triplet (i.e. just 3 new counters which account for
->> all policies)? They would follow the same hit/miss/foreign semantics
->> already proposed (visible in quoted text above). This would still
->> provide the otherwise missing signal of whether policy-driven
->> allocations to a node are intentional or fallback.
->>
->> Note that I am also planning on moving the stats off of the memcg so the
->> 3 new counters will be global per-node in response to similar feedback.
-> 
-> Emm, what's the difference between these newly added counters and the
-> existing numa_hit/miss/foreign counters?
+On Fri, Mar 13, 2026 at 5:42=E2=80=AFAM John S <xaum.io@gmail.com> wrote:
+>
+> Document the map and vmap members of struct virtio_device that were
+> added without kernel-doc descriptions.
+>
+> This fixes the following warnings when building with W=3D1:
+>
+>   include/linux/virtio.h: struct member 'map' not described in 'virtio_de=
+vice'
+>   include/linux/virtio.h: struct member 'vmap' not described in 'virtio_d=
+evice'
+>
+> Signed-off-by: Kit Dallege <xaum.io@gmail.com>
 
-The existing counters don't account for node masks in the policies that
-make use of them. An allocation can land on a node in the mask and still
-be considered a miss because it wasn't the preferred node.
+Acked-by: Jason Wang <jasowang@redhat.com>
+
+Thanks
+
