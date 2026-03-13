@@ -1,114 +1,248 @@
-Received: from out30-112.freemail.mail.aliyun.com (out30-112.freemail.mail.aliyun.com [115.124.30.112])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED99A1D6195
-	for <virtualization@lists.linux.dev>; Fri, 13 Mar 2026 05:08:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.112
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9035F2989B5
+	for <virtualization@lists.linux.dev>; Fri, 13 Mar 2026 05:56:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773378488; cv=none; b=qDdONa2rAa+BVaZtnJNgaS7VPUigSzbYsil0qiOdr7dIrkx3FUXmzXGGFjZeYKbTSTbf4/wwbc2VcV/evyWEOowXo1UuzZKdVHQzJqlnMOpHqw9bO6wN80WbIAw9Jg+oKekEIoFUJwW1tsVaZGioAQ99G7yyAXkifKS7O3IE6zg=
+	t=1773381391; cv=none; b=Wt+qHTQstEKglNjB+ex7xpj3M1sszC+UjrbSPkcQ/wvE7diWV/Jfq7sdcIGD/yHkRwweF+UhgJqdIvALz3iROBK6dOGg2UZ5PRvKoog7YJ432UbmYDF9KLbgpcqzB0h+DcgFhp3PjPC49p88UmID6TNvohpCtQSfNyxgzfLF+Og=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773378488; c=relaxed/simple;
-	bh=973I4MvM6diQkbCEVFTHHCxVl0F1i7DrNqJaYcqqqFE=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=cWej9zpAthql0j03dZdUB9CzHAQ6kfKqQ+BEz26t2AU+kU/qD7mkwYMxwkfR7plxHO5ugwGnqFU1f/QrTUFB5C4orxsw1mRI3BazNz1J9NbhwjAvCK28x+INJfS8J4wcpGOFoznUyk068iqHlENAhOLV7Ffqd2+Rv+3kpxVQt+c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=K9+yRy1m; arc=none smtp.client-ip=115.124.30.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1773381391; c=relaxed/simple;
+	bh=KMkBYjsflTmLSE7cSPHf/abczcXCK6cJTS+sebYefVk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=VYB9KPMxKCmZ32p1dCVVWPTyCI3IdAwlJ8fzofkdp/bT0tD+qJKyp4ncjcu0U/KGJoiAw5WHqOy7wTZQBozqHMcRtEhacXZkOg8vQEa86rMnKikALIGUBUVEXNZVJ1n0wh2TdTBINgq9m7reXQDWbvNnP0vCtvKtYDVAxtj1pBM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cY7mjf8F; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="K9+yRy1m"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1773378475; h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type;
-	bh=T2fdojMM54qSgNsuFhPwacfFSNjW/hMMNErtovdaSec=;
-	b=K9+yRy1maHL6dE99fG6FnmFTzHdPeR/Y2U5+rMAnH4ssIC2H0Y9pCjP5Q0tjqYR8eRmHzQIRbNXmbGWmA9z7fnpP/UDXYUg2a6pfR25aO1iHP5ymkh9cqxtxLxjSJqrNmF/+KnQXj3VaW9Ub+UtPRX2xYfXY08jHFkBsAKQA9Mo=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R451e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033045133197;MF=ying.huang@linux.alibaba.com;NM=1;PH=DS;RN=33;SR=0;TI=SMTPD_---0X-r.uEE_1773378471;
-Received: from DESKTOP-5N7EMDA(mailfrom:ying.huang@linux.alibaba.com fp:SMTPD_---0X-r.uEE_1773378471 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Fri, 13 Mar 2026 13:07:53 +0800
-From: "Huang, Ying" <ying.huang@linux.alibaba.com>
-To: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>
-Cc: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>,  linux-mm@kvack.org,
-  akpm@linux-foundation.org,  mhocko@suse.com,  apopple@nvidia.com,
-  axelrasmussen@google.com,  byungchul@sk.com,  cgroups@vger.kernel.org,
-  david@kernel.org,  eperezma@redhat.com,  gourry@gourry.net,
-  jasowang@redhat.com,  hannes@cmpxchg.org,  joshua.hahnjy@gmail.com,
-  Liam.Howlett@oracle.com,  linux-kernel@vger.kernel.org,
-  lorenzo.stoakes@oracle.com,  matthew.brost@intel.com,  mst@redhat.com,
-  rppt@kernel.org,  muchun.song@linux.dev,  zhengqi.arch@bytedance.com,
-  rakie.kim@sk.com,  roman.gushchin@linux.dev,  shakeel.butt@linux.dev,
-  surenb@google.com,  virtualization@lists.linux.dev,  weixugc@google.com,
-  xuanzhuo@linux.alibaba.com,  yuanchu@google.com,  ziy@nvidia.com,
-  kernel-team@meta.com
-Subject: Re: [PATCH v2] mm/mempolicy: track page allocations per mempolicy
-In-Reply-To: <343bbd5b-67a0-46c4-8ec4-69158bf26b3f@linux.dev> (JP Kobryn's
-	message of "Thu, 12 Mar 2026 09:13:49 -0700")
-References: <20260307045520.247998-1-jp.kobryn@linux.dev>
-	<3a42463b-9ddd-4d64-b64c-6c2e6e4fc75d@kernel.org>
-	<343bbd5b-67a0-46c4-8ec4-69158bf26b3f@linux.dev>
-Date: Fri, 13 Mar 2026 13:07:50 +0800
-Message-ID: <874imkpba1.fsf@DESKTOP-5N7EMDA>
-User-Agent: Gnus/5.13 (Gnus v5.13)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cY7mjf8F"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1773381388;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=1uMb43zuYUxUP2sHguUvyWzKcDiqC2RDt4x/CEkDAnA=;
+	b=cY7mjf8FTE/K0yUxZWbB/BBQejtD+yjnmr95etpf7rI8vMf//UOniaggyMqocjhpUJPTit
+	0cOybXyDBh8zUlGhLSD0XpKwgvMJnJXC5ZdI1Ns+8MlDowNnuhY+2ArANuVNEGZq6bynNT
+	nNtixmKmWlszR/PW+QFhxDhIfvZ8llE=
+Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
+ [209.85.214.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-367-e9E2QvKPPBejg5wOk_gZFA-1; Fri, 13 Mar 2026 01:56:26 -0400
+X-MC-Unique: e9E2QvKPPBejg5wOk_gZFA-1
+X-Mimecast-MFC-AGG-ID: e9E2QvKPPBejg5wOk_gZFA_1773381386
+Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-2aecd4f7ca1so4496935ad.2
+        for <virtualization@lists.linux.dev>; Thu, 12 Mar 2026 22:56:26 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1773381386; x=1773986186;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=1uMb43zuYUxUP2sHguUvyWzKcDiqC2RDt4x/CEkDAnA=;
+        b=eydvQ2OFBjOW2hcMlvSNdEw9FCcl9+X4E9Wsr7dfKZxPWsVcCbw/g61rodUmPnl94I
+         jfCPuFZ3Q1i+UF6027vqcwY6BSpsEq+x0n17rgGp8dqsRrJIsiHcRxsR+IJQGLCpXT9T
+         5AJplaVAkKzKlsD7LwXLCOqdljhNn7qigKxppwSQo1m5KnwZHxNBUlU82gVkRal2fIv0
+         HrydLkblH1oQPHe1DzD6vDFL7L7HaFgraj7/zqPDsAyjAS1ujYEkxPgU5LEOJYWIPs8A
+         h/cDkDZi9aDbgzx1LwvrWVMdJEX1m5/ji43KhFpzJj6s16GdTFERKGT6MeFalvBg9ElW
+         uAtQ==
+X-Forwarded-Encrypted: i=1; AJvYcCXCSdD8FyCDv8eY3SR9Z2+5hQIS00arXzM78311bspcqw5hr6vij0Mctk5qiti337x2qJ5RXK3fhE+UzRPwpQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxnooFkhwcCaW4oz4I06vuRnwmaztJTpt1wb0GTsREYzhcAHALm
+	zOhKtcDeNkYnEWG4/TEtJIa5FP3Qul9dTPUs2Qj39qrxGpiN9P7ObdmlGjcQx/5btkof7augMqR
+	w2WVJgQU5c5ZyLSk51kI2Kpo44UIJvjSOPBAdKmbi5+8rUZ8p5G2SoxjXqcazuKaseuRAU4LAfi
+	0PeGudo9ouiSGYJPQ3ku1I6slSi5rUzP7sGagePEBh5x4=
+X-Gm-Gg: ATEYQzxpgrF8wQqmZxd9UKS0f2EmWBtekkKbxQwk3cNVGlK+5x8SUDgkqHmHDxNiSBK
+	M28r44d1qJd+E/2u8zY+/y9fkd/d6NjjJ+h5XNZFhqMepK/4P8oZFqsWRQQsHo/5aLEn/d8nH1y
+	ImAYZwMbIQfKT7ttuONR7H3HXHdT+D1wwrHtqPL78lgWED9tidS5Z3Btt0SIsE/X5FgDlDinkUZ
+	kg=
+X-Received: by 2002:a17:903:1b2f:b0:2ae:3e73:2b43 with SMTP id d9443c01a7336-2aecaa053ecmr20920495ad.22.1773381385749;
+        Thu, 12 Mar 2026 22:56:25 -0700 (PDT)
+X-Received: by 2002:a17:903:1b2f:b0:2ae:3e73:2b43 with SMTP id
+ d9443c01a7336-2aecaa053ecmr20920315ad.22.1773381385304; Thu, 12 Mar 2026
+ 22:56:25 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ascii
+References: <20260310190759.1097506-1-eperezma@redhat.com> <20260310190759.1097506-3-eperezma@redhat.com>
+ <CACGkMEvafXSWZBsDtt5-zit5_po6U35ciP_-yhbv-MtKo4uG7Q@mail.gmail.com> <CAJaqyWf3kgjQ5AQs3yYipNTDvGnF-arcXvJkAJP3G6+eoSB5aQ@mail.gmail.com>
+In-Reply-To: <CAJaqyWf3kgjQ5AQs3yYipNTDvGnF-arcXvJkAJP3G6+eoSB5aQ@mail.gmail.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 13 Mar 2026 13:56:14 +0800
+X-Gm-Features: AaiRm51Fg5AE333KBzrIOD9Aqo5hMR7r6mkPKu5GJWHHiXDATN3Ihtw17R8zxFg
+Message-ID: <CACGkMEvmA4BnMQoQfzhROmWx1XfQYgHYuZd8JgUy-2zb-ZeLWg@mail.gmail.com>
+Subject: Re: [PATCH v3 2/3] vduse: add VDUSE_GET_FEATURES ioctl
+To: Eugenio Perez Martin <eperezma@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Cindy Lu <lulu@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-kernel@vger.kernel.org, 
+	Maxime Coquelin <mcoqueli@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, 
+	Laurent Vivier <lvivier@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
+	virtualization@lists.linux.dev
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: JI0Tok2X2EaLNKLtbrCNLz3kh6wjgYSwFZJNDTbceOs_1773381386
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-"JP Kobryn (Meta)" <jp.kobryn@linux.dev> writes:
-
-> On 3/12/26 6:40 AM, Vlastimil Babka (SUSE) wrote:
->> On 3/7/26 05:55, JP Kobryn (Meta) wrote:
->>> When investigating pressure on a NUMA node, there is no straightforward way
->>> to determine which policies are driving allocations to it.
->>>
->>> Add per-policy page allocation counters as new node stat items. These
->>> counters track allocations to nodes and also whether the allocations were
->>> intentional or fallbacks.
->>>
->>> The new stats follow the existing numa hit/miss/foreign style and have the
->>> following meanings:
->>>
->>>    hit
->>>      - for BIND and PREFERRED_MANY, allocation succeeded on node in nodemask
->>>      - for other policies, allocation succeeded on intended node
->>>      - counted on the node of the allocation
->>>    miss
->>>      - allocation intended for other node, but happened on this one
->>>      - counted on other node
->>>    foreign
->>>      - allocation intended on this node, but happened on other node
->>>      - counted on this node
->>>
->>> Counters are exposed per-memcg, per-node in memory.numa_stat and globally
->>> in /proc/vmstat.
->>>
->>> Signed-off-by: JP Kobryn (Meta) <jp.kobryn@linux.dev>
->> I think I've been on of the folks on previous versions arguing
->> against the
->> many counters, and one of the arguments was it they can't tell the full
->> story anyway (compared to e.g. tracing), but I don't think adding even more
->> counters is the right solution. Seems like a number of other people
->> responding to the thread are providing similar feedback.
->> For example I'm still not sure how it would help me if I knew the
->> hits/misses were due to a preferred vs preferred_many policy, or interleave
->> vs weithed interleave?
->> 
+On Thu, Mar 12, 2026 at 3:12=E2=80=AFPM Eugenio Perez Martin
+<eperezma@redhat.com> wrote:
 >
-> How about I change from per-policy hit/miss/foreign triplets to a single
-> aggregated policy triplet (i.e. just 3 new counters which account for
-> all policies)? They would follow the same hit/miss/foreign semantics
-> already proposed (visible in quoted text above). This would still
-> provide the otherwise missing signal of whether policy-driven
-> allocations to a node are intentional or fallback.
+> On Thu, Mar 12, 2026 at 4:56=E2=80=AFAM Jason Wang <jasowang@redhat.com> =
+wrote:
+> >
+> > On Wed, Mar 11, 2026 at 3:08=E2=80=AFAM Eugenio P=C3=A9rez <eperezma@re=
+dhat.com> wrote:
+> > >
+> > > Add an ioctl to allow VDUSE instances to query the available features
+> > > supported by the kernel module.
+> > >
+> > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> > > ---
+> > > A simple u64 bitmap is used for feature flags. While a flexible array
+> > > could support indefinite expansion, 64 bits is sufficient for the
+> > > foreseeable future and simplifies the implementation.
+> > >
+> > > Also, dev_dbg is used for logging rather than dev_err as these can be
+> > > triggered from userspace.
+> > > ---
+> > > v3:
+> > > * Remove check for API_VERSION < 2
+> > > * Add comment about struct vduse_dev_config:vduse_features is only va=
+lid
+> > >   if VDUSE_GET_FEATURES success.
+> > >
+> > > v2:
+> > > * return -EINVAL if ioctl called with version < 2, so userland visibl=
+e
+> > >   reply is kept (Jason).
+> > > ---
+> > >  drivers/vdpa/vdpa_user/vduse_dev.c | 7 +++++++
+> > >  include/uapi/linux/vduse.h         | 7 ++++++-
+> > >  2 files changed, 13 insertions(+), 1 deletion(-)
+> > >
+> > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_u=
+ser/vduse_dev.c
+> > > index d1da7c15d98b..17e0358d3a68 100644
+> > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > @@ -52,6 +52,9 @@
+> > >
+> > >  #define IRQ_UNBOUND -1
+> > >
+> > > +/* Supported VDUSE features */
+> > > +static const uint64_t vduse_features;
+> > > +
+> > >  /*
+> > >   * VDUSE instance have not asked the vduse API version, so assume 0.
+> > >   *
+> > > @@ -2207,6 +2210,10 @@ static long vduse_ioctl(struct file *file, uns=
+igned int cmd,
+> > >                 ret =3D vduse_destroy_dev(name);
+> > >                 break;
+> > >         }
+> > > +       case VDUSE_GET_FEATURES:
+> > > +               ret =3D put_user(vduse_features, (u64 __user *)argp);
+> > > +               break;
+> > > +
+> > >         default:
+> > >                 ret =3D -EINVAL;
+> > >                 break;
+> > > diff --git a/include/uapi/linux/vduse.h b/include/uapi/linux/vduse.h
+> > > index 361eea511c21..e9b5f32a452d 100644
+> > > --- a/include/uapi/linux/vduse.h
+> > > +++ b/include/uapi/linux/vduse.h
+> > > @@ -33,6 +33,7 @@
+> > >   * @vq_align: the allocation alignment of virtqueue's metadata
+> > >   * @ngroups: number of vq groups that VDUSE device declares
+> > >   * @nas: number of address spaces that VDUSE device declares
+> > > + * @vduse_features: VDUSE features
+> > >   * @reserved: for future use, needs to be initialized to zero
+> > >   * @config_size: the size of the configuration space
+> > >   * @config: the buffer of the configuration space
+> > > @@ -49,7 +50,8 @@ struct vduse_dev_config {
+> > >         __u32 vq_align;
+> > >         __u32 ngroups; /* if VDUSE_API_VERSION >=3D 1 */
+> > >         __u32 nas; /* if VDUSE_API_VERSION >=3D 1 */
+> > > -       __u32 reserved[11];
+> > > +       __u64 vduse_features; /* if VDUSE_GET_FEATURES is not EINVAL =
+*/
+> > > +       __u32 reserved[9];
+> >
+> > If we go with VDUSE_GET_FEATURES, I'd perfer to go with
+> > VDUSE_SET_FEATURES intead of this.
+> >
 >
-> Note that I am also planning on moving the stats off of the memcg so the
-> 3 new counters will be global per-node in response to similar feedback.
+> I didn't realize the lack of symmetry, but that approach grows and
+> complicates the possible states of struct vduse_control and the
+> vduse_ioctl code for little benefit in my opinion. Making it atomic in
+> VDUSE_CREATE_DEV ioctl helps centralize all the potential errors.
+> Also, from previous experience with vhost_vdpa, the ioctls slow down
+> the device creation, which could affect things like VDUSE adoption for
+> containers etc.
 
-Emm, what's the difference between these newly added counters and the
-existing numa_hit/miss/foreign counters?
+Maybe, but if we really care about the time spent on device creation,
+uAPI needs redesigning. Or at least more feature in the future
+wouldn't slow down further.
 
----
-Best Regards,
-Huang, Ying
+>
+> On the other hand, it would make it easier to tell if the device
+> couldn't be created because of invalid features set. This is highly
+> unlikely, as the VDUSE device should retrieve the features by calling
+> VDUSE_GET_FEATURES earlier.
+>
+> I don't think it is worth it, but if you think we should go that way
+> I'm ok with the change.
+
+It depends on the intialziation flow. After getting features, I'd
+expect it's something like this
+
+A:
+
+1) GET_API_VERSION
+2) SET_API_VERSION
+3) GET_FEATURES
+4) SET_FEATURES
+5) CREATE_DEV
+
+Or B in this patch:
+
+1) GET_API_VERSION
+2) SET_API_VERSION
+3) GET_FEATURES
+4) CREATE_DEV
+
+I think it's better to stick the symmetry as API_VERSION (technically,
+API could be set via config as well?)
+
+BTW, I found VDUSE_SET_API_VERSION could be set multiple times (even
+after the device is create), do we need to fix this?
+
+Thanks
+
+>
+> > But we can hear from others.
+> >
+> > >         __u32 config_size;
+> > >         __u8 config[];
+> > >  };
+> > > @@ -63,6 +65,9 @@ struct vduse_dev_config {
+> > >   */
+> > >  #define VDUSE_DESTROY_DEV      _IOW(VDUSE_BASE, 0x03, char[VDUSE_NAM=
+E_MAX])
+> > >
+> > > +/* Get the VDUSE supported features */
+> > > +#define VDUSE_GET_FEATURES     _IOR(VDUSE_BASE, 0x04, __u64)
+> > > +
+> > >  /* The ioctls for VDUSE device (/dev/vduse/$NAME) */
+> > >
+> > >  /**
+> > > --
+> > > 2.53.0
+> > >
+> >
+> > Thanks
+> >
+>
+
