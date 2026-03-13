@@ -1,109 +1,125 @@
-Received: from out-171.mta1.migadu.com (out-171.mta1.migadu.com [95.215.58.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx1-f43.google.com (mail-yx1-f43.google.com [74.125.224.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 546402367DC
-	for <virtualization@lists.linux.dev>; Fri, 13 Mar 2026 18:29:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1D18A36308A
+	for <virtualization@lists.linux.dev>; Fri, 13 Mar 2026 22:15:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773426553; cv=none; b=jFwfKosC8J61R4ZbHMJSdNeX5jAWQw/Irezo92UDDqlJhc7nweUnJstC56HZ9Bs2Qs6J60cogwjSmX/uSz8FMrjw8Y8CXayQVLi+UXt5rMBNJ8Maecl2spG+6DFLTEd5eRk4AxZFL/zVCMguC/UMbubf7a+YYr1XS2qL02XaUmU=
+	t=1773440157; cv=none; b=URL+cHQpjQspQ3JsfoPdOF1hnWTD3Bd0KRlqCp5jW+oPXRoAQ7i8fXa3GUiTb0+HoPns7QJa++ajdnzA4PBJr4E/VPiGKSdPCgTQva0ZUNyA5ZL3EDCeuhrrkhzumsP2OgmjxrMryQGFd+dNE1BqIiuGj1PePGl6sctNG8siGGE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773426553; c=relaxed/simple;
-	bh=beT3slSxigQWpRi2wAgooEEIOo5XJcpPrhDfU9dsQZI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=oyIDLlzDnTSnKImaSslqBsLjXDQv5z1r6PtHc68wmOCh4vNILSIUk1IN3ckGWO5c7ZRiQj0ksw6sBY7AjF1tVyLiYPvVBcMM99BVgEkA+jSzLunDxEztd90BeMiJLG5dD3PO6Q9hyhqsZEfQODXBiyUbx477Tahx4yYQHfXuWQE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=gOjsee/7; arc=none smtp.client-ip=95.215.58.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1773440157; c=relaxed/simple;
+	bh=rBRKXwPprM37HUegKVwfVcNsabxW+lLVWS1raaRWpgw=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=s1rZEVEPOktEECDfqpLJW2qM2b2BahnAPBoqrGdnbpuwtBoKX6UKFY5gLdK3xmvT/iHnXiQJhywcCH0A9s/BXYPxq7ol1pz/gHJ5ey4kN1q8YTmBPefkJMbf9t4Hfwt64iJqXoBZdHCLJ1Fy57JobnGItOlSS2H2Lj1Vt2DS33k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ll7rBxif; arc=none smtp.client-ip=74.125.224.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="gOjsee/7"
-Message-ID: <cdc56556-2f69-46b7-8a7c-0f144a36004c@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1773426547;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Pv/nqWXHkfj7NbNE0aFGYmPjuMP96PKFI4ITkk92xic=;
-	b=gOjsee/7ePXLg2aXVQRCN98jWrWOJGc7S6Od5X5MCK2XmZiOGkbnjW7aiGdNYAKZEniFby
-	yIlBZdhFvB+0R6tKrR+2QHRw41SgEFGPECC6cQR00lVPRhhcghOc3/uCGAMO4OCyycW0lq
-	ZTmH8SsM0A6v+7eY3IHoq5fzhd3ix7E=
-Date: Fri, 13 Mar 2026 11:28:52 -0700
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ll7rBxif"
+Received: by mail-yx1-f43.google.com with SMTP id 956f58d0204a3-649278a69c5so2528655d50.3
+        for <virtualization@lists.linux.dev>; Fri, 13 Mar 2026 15:15:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20230601; t=1773440154; x=1774044954; darn=lists.linux.dev;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=DXzMG7YyZwcIs9g8M/AdNb6aJuadGUAGleE1leZ+rzM=;
+        b=ll7rBxifMNYq7ZX217mFi0DtBA1jsqr8kyxOV1PKQvxbTSnv9L+xBEQ2xsrW2oBbKC
+         8g6LMjGFCyyQEAwZf8m20uOLP4L+aY784jPQdiuf71TuuYtv0+Q8xAzs/1KYv6li8i8t
+         t8VpUq7UoVz7EfCD9p8p2BS/wE6o0yXFMWwEVVPZArnzaD0dNIzEq+7pYMcAIZVBWGX8
+         K6/ZnrQX5cenfeMY8HMF8tNCoSEUeD/inhCx2E9QgTe6JYkFnYZ+tIFDQjvHzp/GbDoq
+         YI/EPHfORzpwhPN6tLcvvmVWkbGQw8hRslKyY+oOXF+9CKLQxTm6PlWLPHlNZVmHjJSP
+         aMtw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1773440154; x=1774044954;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=DXzMG7YyZwcIs9g8M/AdNb6aJuadGUAGleE1leZ+rzM=;
+        b=LKWjXU8dMU/Y0Ub6W6Vt1nzz7Ee0k7kLv8XG/Mggd2yxUZRixPju7baHzq1TlVbVXl
+         XOksFLyqfawbCDrTKgtiruC5cn7QQHW4ofP81Ldj+jwnE9HTLza16VOigZS8IGajV3xZ
+         aItsLJlULqdS7KDr70mR7bjdRSauEJbVMKP6zJXhfQBj1k4aUeDr28kzBfPBoSuxFINa
+         fa7ANfFwD1GdUW2LqGVirL8/AYkwTiyXmvN3qHFvHaLi8bI83tNjXcCm+7CQpaBhYv6R
+         +al+Sxz36rY0b6nwSvEor0h1gxomLuJ7qvBFti/bql59FgbAq+aie71K9GPq2/g9IrTw
+         jDyQ==
+X-Gm-Message-State: AOJu0YzaxaIhul/lMaRcW+gVT8Iv9Zq4JQqusdrDkKWlLP7XqqVrSXRP
+	czSZPh7bMnMYPhVasZ/Gj8GpdHmlREYySwQtMBoymXKxdkIy9M2lbjxl
+X-Gm-Gg: ATEYQzzEYh0aya++bwpvd3NqZ7NLCtNZTuScCtowL86tStOwqF1DdvXqov/+Ml5oITh
+	jaw6lEADMvD2+lqWQbF+m6moyRJJO9ipaGw1gqDdC+7BmTLVnLQzTP60sLDvrS+2zq9tcJmr7vn
+	EeofMXBDgWkLmHEij2KBdK2l1SL3d5bnfZtLdAfKvROR7dyjBgb6mP7GaiGxg7ONgZodVFDIX0d
+	mc7uPdjFCE1oAgtw2QzbepXBa0/GlnAvQWOUVRUF3RS/2rXWHHKVe4+TclHi43RwY5+fqgry4a9
+	oML/z3hohZpI9+fh2heNyMkXvyQ19BCxbAp4EG7AJGbJgtoFYtOmn6r6LrwN97qUXHL22OWm5aB
+	/reKK/W21C8uZPUGPv535Imr+LeqfdXbl0y3yrfxGOiAVWZqtMzljVZf5dsOsVwYkVurWTM1PtM
+	bSDPEWsPTRLqfR1nVPZc4XWw==
+X-Received: by 2002:a05:690e:446:b0:64d:6658:3445 with SMTP id 956f58d0204a3-64e6304494bmr3950749d50.48.1773440153963;
+        Fri, 13 Mar 2026 15:15:53 -0700 (PDT)
+Received: from localhost ([2a03:2880:25ff:50::])
+        by smtp.gmail.com with ESMTPSA id 956f58d0204a3-64e65b39917sm1796322d50.13.2026.03.13.15.15.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 13 Mar 2026 15:15:53 -0700 (PDT)
+From: Bobby Eshleman <bobbyeshleman@gmail.com>
+Date: Fri, 13 Mar 2026 15:15:47 -0700
+Subject: [PATCH net-next] selftests/vsock: auto-detect kernel for guest VMs
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Subject: Re: [PATCH v2] mm/mempolicy: track page allocations per mempolicy
-To: "Huang, Ying" <ying.huang@linux.alibaba.com>,
- "Vlastimil Babka (SUSE)" <vbabka@kernel.org>
-Cc: linux-mm@kvack.org, akpm@linux-foundation.org, mhocko@suse.com,
- apopple@nvidia.com, axelrasmussen@google.com, byungchul@sk.com,
- cgroups@vger.kernel.org, david@kernel.org, eperezma@redhat.com,
- gourry@gourry.net, jasowang@redhat.com, hannes@cmpxchg.org,
- joshua.hahnjy@gmail.com, Liam.Howlett@oracle.com,
- linux-kernel@vger.kernel.org, lorenzo.stoakes@oracle.com,
- matthew.brost@intel.com, mst@redhat.com, rppt@kernel.org,
- muchun.song@linux.dev, zhengqi.arch@bytedance.com, rakie.kim@sk.com,
- roman.gushchin@linux.dev, shakeel.butt@linux.dev, surenb@google.com,
- virtualization@lists.linux.dev, weixugc@google.com,
- xuanzhuo@linux.alibaba.com, yuanchu@google.com, ziy@nvidia.com,
- kernel-team@meta.com
-References: <20260307045520.247998-1-jp.kobryn@linux.dev>
- <3a42463b-9ddd-4d64-b64c-6c2e6e4fc75d@kernel.org>
- <343bbd5b-67a0-46c4-8ec4-69158bf26b3f@linux.dev>
- <874imkpba1.fsf@DESKTOP-5N7EMDA>
- <cd3d7e2c-79fa-4c00-89ad-83beddf98bae@linux.dev>
- <60f71f4c-71d9-4751-8c6b-10179b98bef0@kernel.org>
- <87zf4cnkip.fsf@DESKTOP-5N7EMDA>
-Content-Language: en-US
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>
-In-Reply-To: <87zf4cnkip.fsf@DESKTOP-5N7EMDA>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
+Message-Id: <20260313-vsock-vmtest-autodetect-kernel-v1-1-705c35bdc7fe@meta.com>
+X-B4-Tracking: v=1; b=H4sIAJOMtGkC/x3NUQoCIRAG4KvIPO+ArrSRV4keRP9q2NLQSRaWv
+ XvQd4Fvp44m6BTMTg1DutRCwbjJUHrG8gBLpmBotvNivfM8ek0rj7eiK8ev1gxFUl7RCl6c83I
+ 5Ift4dpYmQ5+Gu2z/4EoFygWb0u04fprCRWJ6AAAA
+X-Change-ID: 20260313-vsock-vmtest-autodetect-kernel-dd695ed3a710
+To: Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+ linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Jakub Kicinski <kuba@kernel.org>, Bobby Eshleman <bobbyeshleman@meta.com>
+X-Mailer: b4 0.14.3
 
-On 3/13/26 2:31 AM, Huang, Ying wrote:
-> "Vlastimil Babka (SUSE)" <vbabka@kernel.org> writes:
-> 
->> On 3/13/26 07:14, JP Kobryn (Meta) wrote:
->>> On 3/12/26 10:07 PM, Huang, Ying wrote:
->>>> "JP Kobryn (Meta)" <jp.kobryn@linux.dev> writes:
->>>>
->>>>> On 3/12/26 6:40 AM, Vlastimil Babka (SUSE) wrote:
->>>>>
->>>>> How about I change from per-policy hit/miss/foreign triplets to a single
->>>>> aggregated policy triplet (i.e. just 3 new counters which account for
->>>>> all policies)? They would follow the same hit/miss/foreign semantics
->>>>> already proposed (visible in quoted text above). This would still
->>>>> provide the otherwise missing signal of whether policy-driven
->>>>> allocations to a node are intentional or fallback.
->>>>>
->>>>> Note that I am also planning on moving the stats off of the memcg so the
->>>>> 3 new counters will be global per-node in response to similar feedback.
->>>>
->>>> Emm, what's the difference between these newly added counters and the
->>>> existing numa_hit/miss/foreign counters?
->>>
->>> The existing counters don't account for node masks in the policies that
->>> make use of them. An allocation can land on a node in the mask and still
->>> be considered a miss because it wasn't the preferred node.
->>
->> That sounds like we could just a new counter e.g. numa_hit_preferred and
->> adjust definitions accordingly? Or some other variant that fills the gap?
-> 
-> Or can we adjust the semantics of numa_hit/miss/foreign to consider the
-> preferred nodemask instead of the preferred node?  Is there some
-> programs to depends on the current behavior?
+From: Bobby Eshleman <bobbyeshleman@meta.com>
 
-Good question. I think it comes down to whether the existing semantics
-are correct with respect to policies that make use of node masks. I gave
-some thoughts on this in the previous reply to Vlastimil. That
-correctness may be outside of the scope of this patch, but I can give
-that a try afterward. I'd like to send a revision that reduces the new
-counters to just 3 and moves them off of the memcg (as previously
-mentioned in thread).
+When running vmtest.sh inside a nested VM the running kernel may not be
+installed on the filesystem at the standard /boot/ or /usr/lib/modules/
+paths.
 
-I know numastat is one consumer of the existing stats. It seems up to
-the user on the interpretation of the data. Not sure about others.
+Previously, this would cause vng to fail with "does not exist" since it
+could not find the kernel image. Instead, this patch uses --dry-run to
+detect if the kernel is available. If not, then we fall back to the
+kernel in the kernel source tree. If that fails, then we die.
+
+This way runners, like NIPA, can use vng --run arch/x86/boot/bzImage to
+setup an outer VM, and vmtest.sh will still do the right thing setting
+up the inner VM.
+
+Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
+---
+ tools/testing/selftests/vsock/vmtest.sh | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
+index 86e338886b33..7247ac99cf33 100755
+--- a/tools/testing/selftests/vsock/vmtest.sh
++++ b/tools/testing/selftests/vsock/vmtest.sh
+@@ -441,6 +441,12 @@ vm_start() {
+ 
+ 	if [[ "${BUILD}" -eq 1 ]]; then
+ 		kernel_opt="${KERNEL_CHECKOUT}"
++	elif vng --run --dry-run &>/dev/null; then
++		kernel_opt=""
++	elif vng --run "${KERNEL_CHECKOUT}" --dry-run &>/dev/null; then
++		kernel_opt="${KERNEL_CHECKOUT}"
++	else
++		die "No suitable kernel found"
+ 	fi
+ 
+ 	if [[ "${ns}" != "init_ns" ]]; then
+
+---
+base-commit: 8f921f61005450589c0bc1a941a5ddde21d9aed9
+change-id: 20260313-vsock-vmtest-autodetect-kernel-dd695ed3a710
+
+Best regards,
+-- 
+Bobby Eshleman <bobbyeshleman@meta.com>
+
