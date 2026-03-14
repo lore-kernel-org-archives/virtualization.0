@@ -1,58 +1,60 @@
-Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177])
+Received: from mail-pf1-f171.google.com (mail-pf1-f171.google.com [209.85.210.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9277E30F52B
-	for <virtualization@lists.linux.dev>; Sat, 14 Mar 2026 03:06:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA97F311940
+	for <virtualization@lists.linux.dev>; Sat, 14 Mar 2026 03:06:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773457592; cv=none; b=k9wdy2zEgxb6m5Vmz8xMB5Q3dUXWxugVqpbQScJBcm/rr+4KWjEZed/9FdFH6P4Yxjk7TF3eDL9UoHbINyn1Kj5UGRO9An5BUeDe19rjgL2L4A3a2iu2yZGsvwSFA++74tcBDKYIyUa8SImvvySEE++LKIp12nd2XrW14XsgWUo=
+	t=1773457594; cv=none; b=HX3o6hw/eg0oWIGbYFKR81Ex/qbBGRpmwtJe3+1QAhMJlD1QMDwXU7l/TTaj3VvYEiKTE6uzWOdnEP5z44Y7EP4heszYdhF+mgk8URpW7X5voOW9upmea7peSVfYegLcpaSK9EKQQ1sSy1FCUnV/bv1x+C2bqbUHVd8K/TAVXR0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773457592; c=relaxed/simple;
-	bh=JsCdI1j27/Q008Y0RmTqKbhlwiwYDL29o+1VwGYzKdo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=d7+EOUKwOj7Ri7ve0D2Qbfy6AnAGDs9PcmYRwxzeHogDgo0OsbviN33P/sy/7rD5WsBt8tOiLeFLIjqaPV8KJRyQSHVh/J2uHlU7xXeCCU65al8C6+Ba6cCWa7hiBxi7KUjlXtaEXVfYqnGrrOTh8+bYObSmQ8XX0z5utYlYeQc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=thingy.jp; spf=pass smtp.mailfrom=0x0f.com; dkim=pass (1024-bit key) header.d=thingy.jp header.i=@thingy.jp header.b=H/Y8p9Pi; arc=none smtp.client-ip=209.85.210.177
+	s=arc-20240116; t=1773457594; c=relaxed/simple;
+	bh=AR35kwCEfJo7sEZa1YVF3bya3llxgaU0XwOpvFCQj3E=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=ZdgaWEc4NM0SAm2BhH9THdUD85Y24GFulyM3D7TPmVNqotN5F5rc69i+L0237O7PIsPe+wYCj3HCP7hta2vh/5ZczdYoU66NeVLcqkI0OMM3/9fJWdrsbrxaBvMSWglWT/KbDUVjNNQRf1xMzxPx2mFp7Mq5iJ4vy0yMX0qq8Q4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=thingy.jp; spf=pass smtp.mailfrom=0x0f.com; dkim=pass (1024-bit key) header.d=thingy.jp header.i=@thingy.jp header.b=CNEhYsMD; arc=none smtp.client-ip=209.85.210.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=thingy.jp
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=0x0f.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=thingy.jp header.i=@thingy.jp header.b="H/Y8p9Pi"
-Received: by mail-pf1-f177.google.com with SMTP id d2e1a72fcca58-829865a8471so2671486b3a.3
-        for <virtualization@lists.linux.dev>; Fri, 13 Mar 2026 20:06:29 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=thingy.jp header.i=@thingy.jp header.b="CNEhYsMD"
+Received: by mail-pf1-f171.google.com with SMTP id d2e1a72fcca58-829a9d08644so1668407b3a.1
+        for <virtualization@lists.linux.dev>; Fri, 13 Mar 2026 20:06:33 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=thingy.jp; s=google; t=1773457589; x=1774062389; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=2ldpGN4CH7HTJ/1fz9XHIFnVyO2fAyaEcw1ZFiYgdj0=;
-        b=H/Y8p9PieEVzUoJySmUa7MT7SMzb12x39451pM+EX3eaIkq795hzI0gBYxnWV4pmDY
-         LJrY7gBwj+haGy2YFNKEz364qv56BtpDzd4auD+0v/f0ez2I8UcjBTMTptpLm5Ie6oW1
-         jW+1UVHHBiZ1zcQ/LtBjYHVh7DhdxV4DevAzM=
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773457589; x=1774062389;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=thingy.jp; s=google; t=1773457593; x=1774062393; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=2ldpGN4CH7HTJ/1fz9XHIFnVyO2fAyaEcw1ZFiYgdj0=;
-        b=TaUS4wwdHcW7R2uo5ksH1nqpJT1IqNJwUzWFEYKRLnltyew0gnZjs5xH/hGm7+KOC4
-         Hy9VHEy1IR5lYvJVKWdTw7Fj6rWT3lWn0mlTuB8iaOR7Sm7S//RGT1y0spjGBMw7kBHQ
-         xIYCoXVzIdKf8UMV+P+Ajua9cwksuMQtVPOSkpwEyZboX21Eljse5BAxtNjJ6JyGVGrd
-         R3qhAAMjrV6Psd8l4taS6Z5K+gVdkYxL94oH/Bh3sDgp1gNUPvEjYIP+KsYbz9L3GsK+
-         eyT1WU8+1ANtnBuupnr13aZuokCgviUuLsnExKzHtZhw2SjpiwzK87gboSuEpC8q1KRE
-         uLrw==
-X-Gm-Message-State: AOJu0YxNlv319P2HU+f1t36ChT1LgSy8S/rUKfrCJhYULwCvypwmKLsr
-	CYTTZeZ7GCDUa+UPcb8JVq5J6MAM+ru3y7/vc9DJfykg+X/9/obMTz8Zso4BsN10nH4=
-X-Gm-Gg: ATEYQzyRrt3ySvCU1XW6XSI1MuBqxMmdrWVcTf6YOr6ykgu22H3QdtFp3d6AMdP134+
-	R8ErvHlNijm2Kd1ahh60PzHhrAZksw94a4ksi7Y2TDLI7JEE6fLmvnnkIicKz6ZAHkqUHVfVFdR
-	6mFbIW6sEZ37sdIHlLoywmhCMWZiyKtSQc1TLYPvvDLClhz1SirZWuRRPdb69grlpezc6tM+K9x
-	7HCyz2QpaAeMkvHd25bxPoV/Lbq63o8DsU2IQCk72BmlKWVnXKjeSmU4zRE1XbMBaEv516JMfHH
-	gCga/N56XcTjmk7an/gXMp25kmEgRt9qAcg4HRuWVGMM92tuLvJmvrZC5ykpVyscc7mvdQLEH6T
-	c5UwD9E3qfF8TCAQ2hBBvIYawNne+vg6ZCuuIA31f9qd3/7ik0JQLhQ3xfAGYdi56hXfruAu301
-	H44fFye1cmHypOfT3CF+UqS1KViGuqX2nViSodQt0YnrZv4cCB5DkTfreY/WXmVZPZSY66l9qci
-	j2Xkp6U75E7xMA9
-X-Received: by 2002:a05:6a00:1586:b0:81a:857b:f944 with SMTP id d2e1a72fcca58-82a19866231mr4000648b3a.26.1773457588857;
-        Fri, 13 Mar 2026 20:06:28 -0700 (PDT)
+        bh=pKbNTW+AGr0VJ4W7ZqAbg3vbau3fq7bpOdvTyaTfwlU=;
+        b=CNEhYsMDqpQH96GYBZl1S42awml6R6carHK1MaBZdYKJT20RN+iaL5kahqSlVz2hF5
+         GJ5etnRJSBvh28HTGCIcf2HGaGjMiyHcCRcG+0wanD1BeQgpUw55fSUwASkqLG4Jtiud
+         O37N23yNN01vPVr75Sb40YWE73CTNB52KNcQk=
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1773457593; x=1774062393;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=pKbNTW+AGr0VJ4W7ZqAbg3vbau3fq7bpOdvTyaTfwlU=;
+        b=aZFEuZ+COleIfBGqYHSNF/xhmM5sOS+8m1vN+NMrfKR99YQAlUSqAc1vy5LeniAfAR
+         8oxGt5v90MbvlnRsgWRt2cUwgDhvbzVdn3NHMvLmn7YrEvAKcTgK7VLFIzE2FEGJ2lJ4
+         /cOzwiArLd8r92Axdw/S1tX53sp81QW6kp+43uxvpNLWXH3GqBQGFp9/4yiUfHKoeBTW
+         OcFNglLzr+aD6/l/uuLScAxkqOyyfjfAIoTtRJ5CWg5w2gwYWXuEKYU4Nkr/zJMRxGi4
+         OXeRfMOWS41l/1CRbigo/jd7YQkM2R3Jpnk6sxFc6II6boP+nE3kuOuodMPVa+LJU8Ru
+         XPug==
+X-Gm-Message-State: AOJu0YySUUwSvXWaEhkb6XdDozdU8E/q3T8drZOZoZRQHl8bQAOgekf+
+	wukU8aBvOHMTA5uSPWSn+JbZJ7x2X9257vdAlKWD4023Nc+yI9v5R/kt09MbjeMdDVY=
+X-Gm-Gg: ATEYQzwombCBbw0ZNCcHsAUTJ5VjXJaNfBGQqfoyRKkvC8qcBFxTpvOwlUbIt5c7TKy
+	nwzsxJGG8m1I3R741BVmWj3eKCEJkMAwuVxwmK7FUotQ2E7eXAzbVZt95LEI2yAlrzCi4Liou6o
+	Fp7M8xzK67GUMHlCj8Ft6RHZmXnrMbdh86rkl4YBP5emK3Om7CkTolo85OvQm20eX69VZfjJf3m
+	FpNlOmWhJYgb8h1/jsHSEo57CWOiNQ8UKF4/WHUyRa38R//YoCMChUx7BrCxmaLQjabnIVthldj
+	oZQLnJ/0PnVXSyoD0JbTzPDtXsroDy5mknYkHhlOYBzR6tzsjG+gIdopGKZjfgooUKK4glab7rz
+	WQoCklXZNKkUL4zCWab4UfwTX8vtxGEopLfrngfIOKuTqEnxrhWUpzRH1h4y9FVVPhSq1vsXmBZ
+	wBKGzMz5npLXpa0F0Kb28HCOooDn97rwhydMg5fPVW5TUD5t+yqi4xkBKUGVWs8NW7ZFmpBBDus
+	n2K6FOEArPOAFy+
+X-Received: by 2002:a05:6a00:2e99:b0:829:88e7:c88b with SMTP id d2e1a72fcca58-82a196db76dmr5417644b3a.19.1773457593159;
+        Fri, 13 Mar 2026 20:06:33 -0700 (PDT)
 Received: from kinako.work.home.arpa (p1766150-ipxg00e01sizuokaden.shizuoka.ocn.ne.jp. [153.167.218.150])
-        by smtp.googlemail.com with ESMTPSA id d2e1a72fcca58-82a13a2f2d6sm8630734b3a.9.2026.03.13.20.06.26
+        by smtp.googlemail.com with ESMTPSA id d2e1a72fcca58-82a13a2f2d6sm8630734b3a.9.2026.03.13.20.06.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 13 Mar 2026 20:06:27 -0700 (PDT)
+        Fri, 13 Mar 2026 20:06:30 -0700 (PDT)
 From: Daniel Palmer <daniel@thingy.jp>
 To: mst@redhat.com,
 	jasowang@redhat.com,
@@ -63,10 +65,12 @@ Cc: virtualization@lists.linux.dev,
 	linux-m68k@lists.linux-m68k.org,
 	arnd@kernel.org,
 	Daniel Palmer <daniel@thingy.jp>
-Subject: [PATCH 0/2] Allow virtio-mmio to work on m68k nommu 68000
-Date: Sat, 14 Mar 2026 12:06:09 +0900
-Message-ID: <20260314030612.1949420-1-daniel@thingy.jp>
+Subject: [PATCH 1/2] virtio-mmio: Replace sizeof x with sizeof(x)
+Date: Sat, 14 Mar 2026 12:06:10 +0900
+Message-ID: <20260314030612.1949420-2-daniel@thingy.jp>
 X-Mailer: git-send-email 2.51.0
+In-Reply-To: <20260314030612.1949420-1-daniel@thingy.jp>
+References: <20260314030612.1949420-1-daniel@thingy.jp>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -75,22 +79,74 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-- First patch just cleans up sizeof usage so that checkpatch complains
-  less about the second patch.
+checkpatch wants the braces.
 
-- Second patch replaces uses of readl()/writel() with raw io access +
-  explict endian conversion to avoid getting the wrong values where
-  readl()/writel() are abnormal like m68k nommu for non-coldfire.
+Signed-off-by: Daniel Palmer <daniel@thingy.jp>
+---
+ drivers/virtio/virtio_mmio.c | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
 
-Tested on QEMU + patches to make a 68000 virt machine possible.
-
-Daniel Palmer (2):
-  virtio-mmio: Replace sizeof x with sizeof(x)
-  virtio-mmio: Use raw io accessors to avoid arch issues
-
- drivers/virtio/virtio_mmio.c | 140 ++++++++++++++++++-----------------
- 1 file changed, 74 insertions(+), 66 deletions(-)
-
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index 595c2274fbb5..dda915b2ac9f 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -152,21 +152,21 @@ static void vm_get(struct virtio_device *vdev, unsigned int offset,
+ 	switch (len) {
+ 	case 1:
+ 		b = readb(base + offset);
+-		memcpy(buf, &b, sizeof b);
++		memcpy(buf, &b, sizeof(b));
+ 		break;
+ 	case 2:
+ 		w = cpu_to_le16(readw(base + offset));
+-		memcpy(buf, &w, sizeof w);
++		memcpy(buf, &w, sizeof(w));
+ 		break;
+ 	case 4:
+ 		l = cpu_to_le32(readl(base + offset));
+-		memcpy(buf, &l, sizeof l);
++		memcpy(buf, &l, sizeof(l));
+ 		break;
+ 	case 8:
+ 		l = cpu_to_le32(readl(base + offset));
+-		memcpy(buf, &l, sizeof l);
+-		l = cpu_to_le32(ioread32(base + offset + sizeof l));
+-		memcpy(buf + sizeof l, &l, sizeof l);
++		memcpy(buf, &l, sizeof(l));
++		l = cpu_to_le32(ioread32(base + offset + sizeof(l)));
++		memcpy(buf + sizeof(l), &l, sizeof(l));
+ 		break;
+ 	default:
+ 		BUG();
+@@ -194,22 +194,22 @@ static void vm_set(struct virtio_device *vdev, unsigned int offset,
+ 
+ 	switch (len) {
+ 	case 1:
+-		memcpy(&b, buf, sizeof b);
++		memcpy(&b, buf, sizeof(b));
+ 		writeb(b, base + offset);
+ 		break;
+ 	case 2:
+-		memcpy(&w, buf, sizeof w);
++		memcpy(&w, buf, sizeof(w));
+ 		writew(le16_to_cpu(w), base + offset);
+ 		break;
+ 	case 4:
+-		memcpy(&l, buf, sizeof l);
++		memcpy(&l, buf, sizeof(l));
+ 		writel(le32_to_cpu(l), base + offset);
+ 		break;
+ 	case 8:
+-		memcpy(&l, buf, sizeof l);
++		memcpy(&l, buf, sizeof(l));
+ 		writel(le32_to_cpu(l), base + offset);
+-		memcpy(&l, buf + sizeof l, sizeof l);
+-		writel(le32_to_cpu(l), base + offset + sizeof l);
++		memcpy(&l, buf + sizeof(l), sizeof(l));
++		writel(le32_to_cpu(l), base + offset + sizeof(l));
+ 		break;
+ 	default:
+ 		BUG();
 -- 
 2.51.0
 
