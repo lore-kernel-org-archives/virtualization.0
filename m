@@ -1,64 +1,64 @@
-Received: from mail-pg1-f169.google.com (mail-pg1-f169.google.com [209.85.215.169])
+Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 852BC314D37
-	for <virtualization@lists.linux.dev>; Sat, 14 Mar 2026 18:29:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 558CA336885
+	for <virtualization@lists.linux.dev>; Sat, 14 Mar 2026 18:29:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773512951; cv=none; b=VCYdJGMQxsM8ovrMtKXGHKJtG0dkz6OezRx+m4TPV8PR7vdTSqLKzNgMVcb1pKadqdF8ifJMISE/EBEHKtnC8jukM7lxL8ujcuByePpdTMAe5dZl5nCkJ2jZw0DRVqTsHOc6IZvzOOgyhxBrdX87c20qodyJP5e3o/CvtykPXig=
+	t=1773512960; cv=none; b=T5wgIOQnh6utjUCOLLHNkkSnJ1D17y6CuEVtepexA9b2IucBhYLqUTNUM5n7YKHoh67veoQuQivavW8HkBBH7NPhhrsO6e7VoYV1TI9xbRv8a3od9I+vuZ0AgqNNCOB8Zj5tffthXMaxcjuA7gUidIhQjgKmtXG9sDEVmUMhNjw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773512951; c=relaxed/simple;
-	bh=VSzdK6fFXXfUKXv/QSuO1q2/KGkkuP3m3IoNyvnhahY=;
+	s=arc-20240116; t=1773512960; c=relaxed/simple;
+	bh=dO/o0JMUv+1ZIvwhmT7hMk44yXS9kH2XOnxXr/908xQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=gdi6zef7k0SeA/p4oTCgtRWZF0B/2soM6AxrJgCX+B1OwMnwLh4fQG2VB9IcTYwyMgYuWLi3QjMonZJ3kz0J8Id63BHkyrfo4ix4WQADrtXyYHL0Fvg//K74ihxj5jpV9Do04uQZAP7Wys41lTebIK0sXSJNxVtp5mRDIYllbMM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Im338OdA; arc=none smtp.client-ip=209.85.215.169
+	 MIME-Version; b=uFsxp9FiPlTPR7iLI6ozzlxImH6G61P0wdqhyLr1EItu84Dd47jRwNT/qMJ4zwsvyz0IdecLUVrXN6yKH3jQQBWl9XuISRMboBI+9KiHrZtqdQdklztMNElw3TxvIR4v/kQKdD2/6rTONzoihcS6hmTEBqmg34vThv+qoCsycrU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=E9XXy1cU; arc=none smtp.client-ip=209.85.215.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Im338OdA"
-Received: by mail-pg1-f169.google.com with SMTP id 41be03b00d2f7-c70bfef17a4so2122648a12.2
-        for <virtualization@lists.linux.dev>; Sat, 14 Mar 2026 11:29:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="E9XXy1cU"
+Received: by mail-pg1-f181.google.com with SMTP id 41be03b00d2f7-c7393c6832bso1176065a12.2
+        for <virtualization@lists.linux.dev>; Sat, 14 Mar 2026 11:29:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773512950; x=1774117750; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1773512959; x=1774117759; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=vPjyZJZYcHWPj/blRqGZlp+ucpD5kzaKMmjNcDwFvP0=;
-        b=Im338OdAKHdNPlBcqKapE4ptK6rap3pbyBZUPI84BTeMAqwkNlaTWqXgeXjia9s6j1
-         ZGwP4oYH0IFKHHQYnigi+K0jsV5a04ZeQTqshzJgiZR0AffLneRfI9gDwBOnnfXY14Kj
-         q3Ne/YzfUvW3toKKEe6NJMZj8UteQfBtnQdOCEF4jHE8ifhkPwNmQGJ4NXxD2T6ZzLIe
-         aRrG5NV0TswY2NLGS0X02tzj25zrb1ihw/Tn1XEEx06z4C8ZCjpLbgHqMMlOLPrDTOQm
-         f6coYvUf4NpmF7nLbx8OiXU/+cemka+XnV+yQdI5jFAA6ntlSM9whfLWijnH7h9hGZzo
-         jC7A==
+        bh=HcUZRx+vC9EsPoreW0zaJm9GJsT/ODmp1Tzy9ZQGo5g=;
+        b=E9XXy1cUebBDH+LODLO1A65mKqqFpDLQKxT9VqC5uQeVsxQgN4c8BVh2pbbGJ3vG7u
+         Of8firvqGdrGqBbm/how/iuIipEdnyguwEKVJodBbOWLAeIKDZzEKkSjyWI6xZPEc43j
+         f5tTrPHuPe7YyRlNryZZnvO0oIWshPwl7Ix9dAXboGUefILsURAPHY7BQIwZzLyu+I26
+         Ep8x7HqxK4nQG+qbRjD2Uwj/9nNYhRoGwHrEVR9Fvm85x7DsWIpI9YrH/bStnk+/XN2P
+         a/yRqWubAqZ6eqh6y0L72x8G0qyaxPPDT5rHrjgkMjjEbR1YakZLCJq//J0O5In+f9v6
+         Aahg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773512950; x=1774117750;
+        d=1e100.net; s=20251104; t=1773512959; x=1774117759;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=vPjyZJZYcHWPj/blRqGZlp+ucpD5kzaKMmjNcDwFvP0=;
-        b=RYxJYw96rlNXIxgK177VR7j1glc40nRMou7Vl61YXIlfEoffDTD4FRHUCXnd33cHtB
-         BKsJqqnkJ8Pa7TD3VrUUvKgb6eOevtSSz3+TTmzR5mIL62SLaUo503gGKmjxo1Pm+6GY
-         2YgizjYq8ROyRTbxnSlNO6Wr2s68+TL8zr1pc/eoG99ev5eqIr29MgvlbegizUxSKKPS
-         xV9MAIfzmAyxefXhcGHXpyXuKa+owcMBnwlQsiE+pBoaq7fp0RxKcqf+GX9K8GT+QRmk
-         CBBTkBxkshC5IdEGtYGNXTvOjq7QNtYvVpiPjYRtKJ2hGnIeO31KjtkRINL+Ul2zFMQx
-         2zUw==
-X-Forwarded-Encrypted: i=1; AJvYcCXYRF2NFefP7tKe4exxPwJ6yR25NNtb3rFLRDEsqZM8roFBYkCjc/jSOtjQwtgYfcRGiTsOTPkuPB7wXJZhiA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw10gUTKogc9EOVCBxq8vMXtka2ejMH9f0BGb8NEzELMQKmLYAm
-	RgTsjoTPWmQqQrwHPHKurAGwhRRgY/DM6bhFudqYSob+p9IKahc98X0K
-X-Gm-Gg: ATEYQzwVrUUipQhuXDJE9hgiScuRhUEzdJvgRGDNlxvFX380EnWb2DpyH0VcmrC6vNc
-	vdMS3N9xWpKT+4kL6o7XFI8xmsUkWmpcGkuBNrjB86rLjBT5gBlCgZ9vjwit9OM8/TTNfm6O7rZ
-	xR8PFoZ6s7yjYH8sSvRAjKZaL4XYmmkMq2+ofLBU+7NjzCmz7gHhU2kXN8OW4f2UJcwmm1puLJQ
-	Vx4Tqox1sZ3dkvWJ9D6IL1UNwdOg9dArj841ZLxGyJrZN7pjpJTHXffkao3xfsguw1RR6esC9fc
-	Fomzje3DpzXlLezuvydTDdzsBXu3tb2kV3yVC68qU5+xrWeha+t0kq4ADIPUYBQrd7yhmFbsxTg
-	Ca4wU5GKfqo3yeIn62Xy989OLkScZWwhX9XGS6JWGauM6RDy+0WXnDXfbqPIH99T7nn1vWTr38N
-	t0zs9ixewa8xWNuM17M7pCHVnzoH73QTE1ZD4TK86DyOdnALzqvX1BJlwZv+XYPIDPSJ0NUT36d
-	+LdOA==
-X-Received: by 2002:a17:903:1210:b0:2ae:b9cd:d2df with SMTP id d9443c01a7336-2aecab1f32bmr78786355ad.34.1773512949621;
-        Sat, 14 Mar 2026 11:29:09 -0700 (PDT)
+        bh=HcUZRx+vC9EsPoreW0zaJm9GJsT/ODmp1Tzy9ZQGo5g=;
+        b=ZB8yPID/EhxdhrP+FTab/thQOZ5TSMlxDsaaoBUqheVNk5rlqnKN1Ux4EPl1nIgEW9
+         np1bVRIrCE0ELIS7H+WdgHj1oB0ghg+5aQUe6IazvW+EA7OcpFa49mrdUrOvpIMShOpN
+         cscSqHsG6R+WlLqZmFiWU+h01qmDYvg4VojJEfkmhzaNM+MnCflWPrtd1Bga57r8qY7n
+         d78kFGBvA4ptLrjbSoqtv565jL15KDvJ/tYUUAeIRhnT/Sre9ARzp0tCvN3Io4dpgBN7
+         Ohk30Gbv+MkEO2T+2nZgy5emiBUL8YwN0usNgQfGz7yYRrOhbuK6SCpvtr8Np3g3BcIm
+         XNPg==
+X-Forwarded-Encrypted: i=1; AJvYcCWi0baxryhj9A7WDNzeBnUeGDOlUF9hqqToq5dPwNDfxqjz6MMEWm94e6lYRa3pknf39vHNVzYYh1hwuZ8QwA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz8VOflkPq9AIZUUmp9vOvACVYRIPpROS19s+Jh2BtNd1sYyi2r
+	VSU+uALOdLc0geq6fK8T5t7ASZJqDJ7tLa06yVGqvLFKZxR/gc/BI393
+X-Gm-Gg: ATEYQzw7gvSOFteKa8ko+SEYgmodc4NUpiJVVQF82RS86OfEzu8QMfEAmOzXuGdGg4B
+	HX2b8uo8bK0aErD9E6EoHDk3sTjaPP37n/x9vrK5q3cRJLboVqTpXi6MqPOH5IDtW0XrimWqmuH
+	Hv5pWkKHQctiXQUh6kogR9qjpSeQuVjsHLCNs6XX+ZEQPrqpx8TnmfcZ5ImlWURUrXwkkF1ttX7
+	p9dRFdw+suD8p9WbizfEiSAQX6fPm4P5rEI7j8TnbKFeOGGzstP7e0PiaGpC9bDo/S+AOSNePHL
+	n8ToaTWv2mwQaPo3g7bup2IMmCZooDhzFZ6abem8isu62AECJqRNm/JxWVBVxJkneiMqpiCadUS
+	d7ITEY9LS7w0Zr6UvoTQLBndleWV3U7BeS4pGNYSqMIOMuN2djkaHNNpa/v/UV1V9C/vAQFYDHD
+	8LV3CjuNtyvh4HQS4SHY7n22Biev7q10E5tb7yHHxkftV7r3olN6iTtwgAtPUcyBFDHH/yHrV4f
+	v5owD1aUXYviimi
+X-Received: by 2002:a17:903:2283:b0:2ae:c5b2:6a41 with SMTP id d9443c01a7336-2aecac84adamr78848905ad.52.1773512958550;
+        Sat, 14 Mar 2026 11:29:18 -0700 (PDT)
 Received: from localhost.localdomain ([122.168.66.151])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2aece62c581sm77673525ad.33.2026.03.14.11.28.59
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2aece62c581sm77673525ad.33.2026.03.14.11.29.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 14 Mar 2026 11:29:09 -0700 (PDT)
+        Sat, 14 Mar 2026 11:29:17 -0700 (PDT)
 From: I Viswanath <viswanathiyyappan@gmail.com>
 To: stfomichev@gmail.com,
 	horms@kernel.org,
@@ -82,9 +82,9 @@ Cc: bcm-kernel-feedback-list@broadcom.com,
 	intel-wired-lan@lists.osuosl.org,
 	linux-kernel@vger.kernel.org,
 	I Viswanath <viswanathiyyappan@gmail.com>
-Subject: [PATCH net-next v9 3/7] virtio-net: Implement ndo_set_rx_mode_async callback
-Date: Sat, 14 Mar 2026 23:58:05 +0530
-Message-ID: <20260314182809.362808-4-viswanathiyyappan@gmail.com>
+Subject: [PATCH net-next v9 4/7] e1000: Implement ndo_set_rx_mode_async callback
+Date: Sat, 14 Mar 2026 23:58:06 +0530
+Message-ID: <20260314182809.362808-5-viswanathiyyappan@gmail.com>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20260314182809.362808-1-viswanathiyyappan@gmail.com>
 References: <20260314182809.362808-1-viswanathiyyappan@gmail.com>
@@ -101,246 +101,251 @@ the driver to use the snapshot/commit model for RX mode update.
 
 Signed-off-by: I Viswanath <viswanathiyyappan@gmail.com>
 ---
- 
-  There are no calls to netif_set_rx_mode in virtio-net
- 
- drivers/net/virtio_net.c | 85 ++++++++++++----------------------------
- 1 file changed, 25 insertions(+), 60 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 811b90da15a9..70255d09401c 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -448,12 +448,6 @@ struct virtnet_info {
- 	/* Work struct for config space updates */
- 	struct work_struct config_work;
+Call paths involving netif_set_rx_mode in e1000
+
+netif_set_rx_mode
+|-- __e1000_shutdown (lock added)
+|
+`-- e1000_configure
+    |-- e1000_open (ndo_open, takes lock)
+    |
+    `-- e1000_up
+        |-- e1000_reinit_locked
+        |   |-- e1000_set_features (ndo_set_features, takes lock)
+        |   |-- e1000_reset_task (ethtool callback, takes lock)
+        |   |-- e1000_mii_ioctl
+        |   |   `-- e1000_ioctl (ndo_do_ioctl, takes lock)
+        |   `-- e1000_nway_reset (ethtool callback, takes lock)
+        |
+        |-- e1000_change_mtu (ndo_change_mtu, takes lock)
+        |-- e1000_resume (lock added)
+        |-- e1000_io_resume (lock added)
+        |
+        |-- e1000_set_link_ksettings (ethtool callback, takes lock)
+        |-- e1000_set_pauseparam (ethtool callback, takes lock)
+        `-- e1000_set_ringparam (ethtool callback, takes lock)
+
+ drivers/net/ethernet/intel/e1000/e1000_main.c | 77 ++++++++++++++-----
+ 1 file changed, 59 insertions(+), 18 deletions(-)
+
+diff --git a/drivers/net/ethernet/intel/e1000/e1000_main.c b/drivers/net/ethernet/intel/e1000/e1000_main.c
+index 9b09eb144b81..ec25b41c63b7 100644
+--- a/drivers/net/ethernet/intel/e1000/e1000_main.c
++++ b/drivers/net/ethernet/intel/e1000/e1000_main.c
+@@ -99,6 +99,7 @@ static void e1000_clean_tx_ring(struct e1000_adapter *adapter,
+ static void e1000_clean_rx_ring(struct e1000_adapter *adapter,
+ 				struct e1000_rx_ring *rx_ring);
+ static void e1000_set_rx_mode(struct net_device *netdev);
++static void e1000_set_rx_mode_async(struct net_device *netdev);
+ static void e1000_update_phy_info_task(struct work_struct *work);
+ static void e1000_watchdog(struct work_struct *work);
+ static void e1000_82547_tx_fifo_stall_task(struct work_struct *work);
+@@ -359,7 +360,7 @@ static void e1000_configure(struct e1000_adapter *adapter)
+ 	struct net_device *netdev = adapter->netdev;
+ 	int i;
  
--	/* Work struct for setting rx mode */
--	struct work_struct rx_mode_work;
--
--	/* OK to queue work setting RX mode? */
--	bool rx_mode_work_enabled;
--
- 	/* Does the affinity hint is set for virtqueues? */
- 	bool affinity_hint_set;
+-	e1000_set_rx_mode(netdev);
++	netif_set_rx_mode(netdev);
  
-@@ -717,20 +711,6 @@ static void virtnet_rq_free_buf(struct virtnet_info *vi,
- 		put_page(virt_to_head_page(buf));
+ 	e1000_restore_vlan(adapter);
+ 	e1000_init_manageability(adapter);
+@@ -823,6 +824,7 @@ static const struct net_device_ops e1000_netdev_ops = {
+ 	.ndo_stop		= e1000_close,
+ 	.ndo_start_xmit		= e1000_xmit_frame,
+ 	.ndo_set_rx_mode	= e1000_set_rx_mode,
++	.ndo_set_rx_mode_async	= e1000_set_rx_mode_async,
+ 	.ndo_set_mac_address	= e1000_set_mac,
+ 	.ndo_tx_timeout		= e1000_tx_timeout,
+ 	.ndo_change_mtu		= e1000_change_mtu,
+@@ -2223,23 +2225,44 @@ static int e1000_set_mac(struct net_device *netdev, void *p)
  }
  
--static void enable_rx_mode_work(struct virtnet_info *vi)
--{
--	rtnl_lock();
--	vi->rx_mode_work_enabled = true;
--	rtnl_unlock();
--}
--
--static void disable_rx_mode_work(struct virtnet_info *vi)
--{
--	rtnl_lock();
--	vi->rx_mode_work_enabled = false;
--	rtnl_unlock();
--}
--
- static void virtqueue_napi_schedule(struct napi_struct *napi,
- 				    struct virtqueue *vq)
+ /**
+- * e1000_set_rx_mode - Secondary Unicast, Multicast and Promiscuous mode set
++ * e1000_set_rx_mode - Secondary Unicast, Multicast and Promiscuous mode
++ * config.
+  * @netdev: network interface device structure
+  *
+  * The set_rx_mode entry point is called whenever the unicast or multicast
+  * address lists or the network interface flags are updated. This routine is
+- * responsible for configuring the hardware for proper unicast, multicast,
+- * promiscuous mode, and all-multi behavior.
++ * responsible for preparing the rx mode config and scheduling the rx_mode
++ * work which invokes the set_rx_mode_async callback.
+  **/
+ static void e1000_set_rx_mode(struct net_device *netdev)
++{
++	bool allmulti = !!(netdev->flags & IFF_ALLMULTI);
++	bool promisc = !!(netdev->flags & IFF_PROMISC);
++
++	netif_set_rx_mode_flag(netdev, NETIF_RX_MODE_UC_SKIP, promisc);
++
++	netif_set_rx_mode_cfg(netdev, NETIF_RX_MODE_CFG_ALLMULTI, allmulti);
++	netif_set_rx_mode_cfg(netdev, NETIF_RX_MODE_CFG_PROMISC, promisc);
++}
++
++/**
++ * e1000_set_rx_mode_async - Secondary Unicast, Multicast and Promiscuous mode
++ * confirm.
++ * @netdev: network interface device structure
++ *
++ * The set_rx_mode_async callback is responsible for actually updating the
++ * hardware. This routine is responsible for configuring the hardware for
++ * proper unicast, multicast, promiscuous mode, and all-multi behavior.
++ **/
++static void e1000_set_rx_mode_async(struct net_device *netdev)
  {
-@@ -3802,33 +3782,30 @@ static int virtnet_close(struct net_device *dev)
- 	return 0;
- }
- 
--static void virtnet_rx_mode_work(struct work_struct *work)
-+static void virtnet_set_rx_mode_async(struct net_device *dev)
- {
--	struct virtnet_info *vi =
--		container_of(work, struct virtnet_info, rx_mode_work);
-+	struct virtnet_info *vi = netdev_priv(dev);
- 	u8 *promisc_allmulti  __free(kfree) = NULL;
--	struct net_device *dev = vi->dev;
- 	struct scatterlist sg[2];
- 	struct virtio_net_ctrl_mac *mac_data;
+ 	struct e1000_adapter *adapter = netdev_priv(netdev);
+ 	struct e1000_hw *hw = &adapter->hw;
 -	struct netdev_hw_addr *ha;
+ 	bool use_uc = false;
 +	char *ha_addr;
- 	int uc_count;
- 	int mc_count;
- 	void *buf;
--	int i;
-+	int i, ni;
+ 	u32 rctl;
+ 	u32 hash_value;
+-	int i, rar_entries = E1000_RAR_ENTRIES;
++	int i, rar_entries = E1000_RAR_ENTRIES, ni;
+ 	int mta_reg_count = E1000_NUM_MTA_REGISTERS;
+ 	u32 *mcarray = kcalloc(mta_reg_count, sizeof(u32), GFP_ATOMIC);
  
--	/* We can't dynamically set ndo_set_rx_mode, so return gracefully */
-+	/* We can't dynamically set rx_mode, so return gracefully */
- 	if (!virtio_has_feature(vi->vdev, VIRTIO_NET_F_CTRL_RX))
- 		return;
+@@ -2250,11 +2273,11 @@ static void e1000_set_rx_mode(struct net_device *netdev)
  
--	promisc_allmulti = kzalloc_obj(*promisc_allmulti);
-+	promisc_allmulti = kzalloc_obj(*promisc_allmulti, GFP_ATOMIC);
- 	if (!promisc_allmulti) {
- 		dev_warn(&dev->dev, "Failed to set RX mode, no memory.\n");
- 		return;
+ 	rctl = er32(RCTL);
+ 
+-	if (netdev->flags & IFF_PROMISC) {
++	if (netif_get_rx_mode_cfg(netdev, NETIF_RX_MODE_CFG_PROMISC)) {
+ 		rctl |= (E1000_RCTL_UPE | E1000_RCTL_MPE);
+ 		rctl &= ~E1000_RCTL_VFE;
+ 	} else {
+-		if (netdev->flags & IFF_ALLMULTI)
++		if (netif_get_rx_mode_cfg(netdev, NETIF_RX_MODE_CFG_ALLMULTI))
+ 			rctl |= E1000_RCTL_MPE;
+ 		else
+ 			rctl &= ~E1000_RCTL_MPE;
+@@ -2263,9 +2286,9 @@ static void e1000_set_rx_mode(struct net_device *netdev)
+ 			rctl |= E1000_RCTL_VFE;
  	}
  
--	rtnl_lock();
--
--	*promisc_allmulti = !!(dev->flags & IFF_PROMISC);
-+	*promisc_allmulti = netif_get_rx_mode_cfg(dev,
-+						  NETIF_RX_MODE_CFG_PROMISC);
- 	sg_init_one(sg, promisc_allmulti, sizeof(*promisc_allmulti));
+-	if (netdev_uc_count(netdev) > rar_entries - 1) {
++	if (netif_rx_mode_uc_count(netdev) > rar_entries - 1) {
+ 		rctl |= E1000_RCTL_UPE;
+-	} else if (!(netdev->flags & IFF_PROMISC)) {
++	} else if (!netif_get_rx_mode_cfg(netdev, NETIF_RX_MODE_CFG_PROMISC)) {
+ 		rctl &= ~E1000_RCTL_UPE;
+ 		use_uc = true;
+ 	}
+@@ -2286,23 +2309,23 @@ static void e1000_set_rx_mode(struct net_device *netdev)
+ 	 */
+ 	i = 1;
+ 	if (use_uc)
+-		netdev_for_each_uc_addr(ha, netdev) {
++		netif_rx_mode_for_each_uc_addr(ha_addr, netdev, ni) {
+ 			if (i == rar_entries)
+ 				break;
+-			e1000_rar_set(hw, ha->addr, i++);
++			e1000_rar_set(hw, ha_addr, i++);
+ 		}
  
- 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
-@@ -3836,7 +3813,8 @@ static void virtnet_rx_mode_work(struct work_struct *work)
- 		dev_warn(&dev->dev, "Failed to %sable promisc mode.\n",
- 			 *promisc_allmulti ? "en" : "dis");
+-	netdev_for_each_mc_addr(ha, netdev) {
++	netif_rx_mode_for_each_mc_addr(ha_addr, netdev, ni) {
+ 		if (i == rar_entries) {
+ 			/* load any remaining addresses into the hash table */
+ 			u32 hash_reg, hash_bit, mta;
+-			hash_value = e1000_hash_mc_addr(hw, ha->addr);
++			hash_value = e1000_hash_mc_addr(hw, ha_addr);
+ 			hash_reg = (hash_value >> 5) & 0x7F;
+ 			hash_bit = hash_value & 0x1F;
+ 			mta = (1 << hash_bit);
+ 			mcarray[hash_reg] |= mta;
+ 		} else {
+-			e1000_rar_set(hw, ha->addr, i++);
++			e1000_rar_set(hw, ha_addr, i++);
+ 		}
+ 	}
  
--	*promisc_allmulti = !!(dev->flags & IFF_ALLMULTI);
-+	*promisc_allmulti = netif_get_rx_mode_cfg(dev,
-+						  NETIF_RX_MODE_CFG_ALLMULTI);
- 	sg_init_one(sg, promisc_allmulti, sizeof(*promisc_allmulti));
+@@ -5092,7 +5115,10 @@ static int __e1000_shutdown(struct pci_dev *pdev, bool *enable_wake)
  
- 	if (!virtnet_send_command(vi, VIRTIO_NET_CTRL_RX,
-@@ -3844,27 +3822,22 @@ static void virtnet_rx_mode_work(struct work_struct *work)
- 		dev_warn(&dev->dev, "Failed to %sable allmulti mode.\n",
- 			 *promisc_allmulti ? "en" : "dis");
+ 	if (wufc) {
+ 		e1000_setup_rctl(adapter);
+-		e1000_set_rx_mode(netdev);
++
++		rtnl_lock();
++		netif_set_rx_mode(netdev);
++		rtnl_unlock();
  
--	netif_addr_lock_bh(dev);
--
--	uc_count = netdev_uc_count(dev);
--	mc_count = netdev_mc_count(dev);
-+	uc_count = netif_rx_mode_uc_count(dev);
-+	mc_count = netif_rx_mode_mc_count(dev);
- 	/* MAC filter - use one buffer for both lists */
- 	buf = kzalloc(((uc_count + mc_count) * ETH_ALEN) +
- 		      (2 * sizeof(mac_data->entries)), GFP_ATOMIC);
- 	mac_data = buf;
--	if (!buf) {
--		netif_addr_unlock_bh(dev);
--		rtnl_unlock();
-+	if (!buf)
- 		return;
--	}
+ 		rctl = er32(RCTL);
  
- 	sg_init_table(sg, 2);
- 
- 	/* Store the unicast list and count in the front of the buffer */
- 	mac_data->entries = cpu_to_virtio32(vi->vdev, uc_count);
- 	i = 0;
--	netdev_for_each_uc_addr(ha, dev)
--		memcpy(&mac_data->macs[i++][0], ha->addr, ETH_ALEN);
-+	netif_rx_mode_for_each_uc_addr(ha_addr, dev, ni)
-+		memcpy(&mac_data->macs[i++][0], ha_addr, ETH_ALEN);
- 
- 	sg_set_buf(&sg[0], mac_data,
- 		   sizeof(mac_data->entries) + (uc_count * ETH_ALEN));
-@@ -3874,10 +3847,8 @@ static void virtnet_rx_mode_work(struct work_struct *work)
- 
- 	mac_data->entries = cpu_to_virtio32(vi->vdev, mc_count);
- 	i = 0;
--	netdev_for_each_mc_addr(ha, dev)
--		memcpy(&mac_data->macs[i++][0], ha->addr, ETH_ALEN);
--
--	netif_addr_unlock_bh(dev);
-+	netif_rx_mode_for_each_mc_addr(ha_addr, dev, ni)
-+		memcpy(&mac_data->macs[i++][0], ha_addr, ETH_ALEN);
- 
- 	sg_set_buf(&sg[1], mac_data,
- 		   sizeof(mac_data->entries) + (mc_count * ETH_ALEN));
-@@ -3886,17 +3857,16 @@ static void virtnet_rx_mode_work(struct work_struct *work)
- 				  VIRTIO_NET_CTRL_MAC_TABLE_SET, sg))
- 		dev_warn(&dev->dev, "Failed to set MAC filter table.\n");
- 
--	rtnl_unlock();
--
- 	kfree(buf);
- }
- 
- static void virtnet_set_rx_mode(struct net_device *dev)
+@@ -5150,11 +5176,13 @@ static int e1000_suspend(struct device *dev)
  {
--	struct virtnet_info *vi = netdev_priv(dev);
-+	bool allmulti = !!(dev->flags & IFF_ALLMULTI);
-+	bool promisc = !!(dev->flags & IFF_PROMISC);
+ 	int retval;
+ 	struct pci_dev *pdev = to_pci_dev(dev);
++	struct net_device *netdev = pci_get_drvdata(pdev);
+ 	bool wake;
  
--	if (vi->rx_mode_work_enabled)
--		schedule_work(&vi->rx_mode_work);
-+	netif_set_rx_mode_cfg(dev, NETIF_RX_MODE_CFG_ALLMULTI, allmulti);
-+	netif_set_rx_mode_cfg(dev, NETIF_RX_MODE_CFG_PROMISC, promisc);
+ 	retval = __e1000_shutdown(pdev, &wake);
+ 	device_set_wakeup_enable(dev, wake);
+ 
++	netif_disable_async_ops(netdev);
+ 	return retval;
  }
  
- static int virtnet_vlan_rx_add_vid(struct net_device *dev,
-@@ -5711,8 +5681,6 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
+@@ -5166,6 +5194,8 @@ static int e1000_resume(struct device *dev)
+ 	struct e1000_hw *hw = &adapter->hw;
+ 	u32 err;
  
- 	/* Make sure no work handler is accessing the device */
- 	flush_work(&vi->config_work);
--	disable_rx_mode_work(vi);
--	flush_work(&vi->rx_mode_work);
++	netif_enable_async_ops(netdev);
++
+ 	if (adapter->need_ioport)
+ 		err = pci_enable_device(pdev);
+ 	else
+@@ -5195,8 +5225,11 @@ static int e1000_resume(struct device *dev)
  
- 	if (netif_running(vi->dev)) {
- 		rtnl_lock();
-@@ -5738,8 +5706,6 @@ static int virtnet_restore_up(struct virtio_device *vdev)
+ 	e1000_init_manageability(adapter);
  
- 	virtio_device_ready(vdev);
+-	if (netif_running(netdev))
++	if (netif_running(netdev)) {
++		rtnl_lock();
+ 		e1000_up(adapter);
++		rtnl_unlock();
++	}
  
--	enable_rx_mode_work(vi);
--
- 	if (netif_running(vi->dev)) {
- 		rtnl_lock();
- 		err = virtnet_open(vi->dev);
-@@ -6214,6 +6180,7 @@ static const struct net_device_ops virtnet_netdev = {
- 	.ndo_validate_addr   = eth_validate_addr,
- 	.ndo_set_mac_address = virtnet_set_mac_address,
- 	.ndo_set_rx_mode     = virtnet_set_rx_mode,
-+	.ndo_set_rx_mode_async  = virtnet_set_rx_mode_async,
- 	.ndo_get_stats64     = virtnet_stats,
- 	.ndo_vlan_rx_add_vid = virtnet_vlan_rx_add_vid,
- 	.ndo_vlan_rx_kill_vid = virtnet_vlan_rx_kill_vid,
-@@ -6834,7 +6801,6 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	vdev->priv = vi;
+ 	netif_device_attach(netdev);
  
- 	INIT_WORK(&vi->config_work, virtnet_config_changed_work);
--	INIT_WORK(&vi->rx_mode_work, virtnet_rx_mode_work);
+@@ -5205,6 +5238,7 @@ static int e1000_resume(struct device *dev)
  
- 	if (virtio_has_feature(vdev, VIRTIO_NET_F_MRG_RXBUF)) {
- 		vi->mergeable_rx_bufs = true;
-@@ -6986,8 +6952,6 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	if (vi->has_rss || vi->has_rss_hash_report)
- 		virtnet_init_default_rss(vi);
+ static void e1000_shutdown(struct pci_dev *pdev)
+ {
++	struct net_device *netdev = pci_get_drvdata(pdev);
+ 	bool wake;
  
--	enable_rx_mode_work(vi);
--
- 	/* serialize netdev register + virtio_device_ready() with ndo_open() */
- 	rtnl_lock();
- 
-@@ -7136,8 +7100,6 @@ static void virtnet_remove(struct virtio_device *vdev)
- 
- 	/* Make sure no work handler is accessing the device. */
- 	flush_work(&vi->config_work);
--	disable_rx_mode_work(vi);
--	flush_work(&vi->rx_mode_work);
- 
- 	virtnet_free_irq_moder(vi);
- 
-@@ -7158,6 +7120,7 @@ static __maybe_unused int virtnet_freeze(struct virtio_device *vdev)
- 	virtnet_freeze_down(vdev);
- 	remove_vq_common(vi);
- 
-+	netif_disable_async_ops(vi->dev);
- 	return 0;
- }
- 
-@@ -7166,6 +7129,7 @@ static __maybe_unused int virtnet_restore(struct virtio_device *vdev)
- 	struct virtnet_info *vi = vdev->priv;
- 	int err;
- 
-+	netif_enable_async_ops(vi->dev);
- 	err = virtnet_restore_up(vdev);
- 	if (err)
- 		return err;
-@@ -7175,6 +7139,7 @@ static __maybe_unused int virtnet_restore(struct virtio_device *vdev)
- 	if (err) {
- 		virtnet_freeze_down(vdev);
- 		remove_vq_common(vi);
-+		netif_disable_async_ops(vi->dev);
- 		return err;
+ 	__e1000_shutdown(pdev, &wake);
+@@ -5213,6 +5247,8 @@ static void e1000_shutdown(struct pci_dev *pdev)
+ 		pci_wake_from_d3(pdev, wake);
+ 		pci_set_power_state(pdev, PCI_D3hot);
  	}
++
++	netif_disable_async_ops(netdev);
+ }
  
+ #ifdef CONFIG_NET_POLL_CONTROLLER
+@@ -5312,11 +5348,16 @@ static void e1000_io_resume(struct pci_dev *pdev)
+ {
+ 	struct net_device *netdev = pci_get_drvdata(pdev);
+ 	struct e1000_adapter *adapter = netdev_priv(netdev);
++	int rc;
+ 
+ 	e1000_init_manageability(adapter);
+ 
+ 	if (netif_running(netdev)) {
+-		if (e1000_up(adapter)) {
++		rtnl_lock();
++		rc = e1000_up(adapter);
++		rtnl_unlock();
++
++		if (rc) {
+ 			pr_info("can't bring device back up after reset\n");
+ 			return;
+ 		}
 -- 
 2.47.3
 
