@@ -1,64 +1,64 @@
-Received: from mail-pg1-f181.google.com (mail-pg1-f181.google.com [209.85.215.181])
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 558CA336885
-	for <virtualization@lists.linux.dev>; Sat, 14 Mar 2026 18:29:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CC4422B8B6
+	for <virtualization@lists.linux.dev>; Sat, 14 Mar 2026 18:29:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773512960; cv=none; b=T5wgIOQnh6utjUCOLLHNkkSnJ1D17y6CuEVtepexA9b2IucBhYLqUTNUM5n7YKHoh67veoQuQivavW8HkBBH7NPhhrsO6e7VoYV1TI9xbRv8a3od9I+vuZ0AgqNNCOB8Zj5tffthXMaxcjuA7gUidIhQjgKmtXG9sDEVmUMhNjw=
+	t=1773512970; cv=none; b=DzZWe8WBTFOgqJXSYzvg+m8AFIXxjIEzmLtegGVsIHVMn1orUoZQuNke8irjyxJMEB7Sviif0eYYgyzynln2twbg535s8uOoqfZsJqwY0VEax6hbQ+XnHbBoArVoaTBEQCV3XBdCvqVqje51b8vrMBp0nryYeub5AYNR8GgFhO0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773512960; c=relaxed/simple;
-	bh=dO/o0JMUv+1ZIvwhmT7hMk44yXS9kH2XOnxXr/908xQ=;
+	s=arc-20240116; t=1773512970; c=relaxed/simple;
+	bh=QLZYYEoj+5kLfwWS2IqKub9BTqN23yPeZ2bW6yAB0N4=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=uFsxp9FiPlTPR7iLI6ozzlxImH6G61P0wdqhyLr1EItu84Dd47jRwNT/qMJ4zwsvyz0IdecLUVrXN6yKH3jQQBWl9XuISRMboBI+9KiHrZtqdQdklztMNElw3TxvIR4v/kQKdD2/6rTONzoihcS6hmTEBqmg34vThv+qoCsycrU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=E9XXy1cU; arc=none smtp.client-ip=209.85.215.181
+	 MIME-Version; b=mRkkifSJ0ngaFxf630E+LX0QiwLCNbZ4sapHTWtAX5SHVTT4DlmX8XJqPAo2yJSWqpoz2RBIHnw096CaHJ48T88RHX30imTHw+Fkf1ev3CJJpebL2rKQJMc2ydCz0r0neUXiuJBIaKLpAappryLw/QyOw/thTSMP2SYM2wxmmOU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ccSnKWmk; arc=none smtp.client-ip=209.85.214.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="E9XXy1cU"
-Received: by mail-pg1-f181.google.com with SMTP id 41be03b00d2f7-c7393c6832bso1176065a12.2
-        for <virtualization@lists.linux.dev>; Sat, 14 Mar 2026 11:29:19 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ccSnKWmk"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2ae4e538abdso36152425ad.3
+        for <virtualization@lists.linux.dev>; Sat, 14 Mar 2026 11:29:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773512959; x=1774117759; darn=lists.linux.dev;
+        d=gmail.com; s=20230601; t=1773512969; x=1774117769; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=HcUZRx+vC9EsPoreW0zaJm9GJsT/ODmp1Tzy9ZQGo5g=;
-        b=E9XXy1cUebBDH+LODLO1A65mKqqFpDLQKxT9VqC5uQeVsxQgN4c8BVh2pbbGJ3vG7u
-         Of8firvqGdrGqBbm/how/iuIipEdnyguwEKVJodBbOWLAeIKDZzEKkSjyWI6xZPEc43j
-         f5tTrPHuPe7YyRlNryZZnvO0oIWshPwl7Ix9dAXboGUefILsURAPHY7BQIwZzLyu+I26
-         Ep8x7HqxK4nQG+qbRjD2Uwj/9nNYhRoGwHrEVR9Fvm85x7DsWIpI9YrH/bStnk+/XN2P
-         a/yRqWubAqZ6eqh6y0L72x8G0qyaxPPDT5rHrjgkMjjEbR1YakZLCJq//J0O5In+f9v6
-         Aahg==
+        bh=IB6x/lr1ek9kI9gI1prPQzKFPvlqHQ7Z+jL2sCBy488=;
+        b=ccSnKWmk0MUaONKSXgs9A6/XD6SEe1uptlRCnTpmHBj4HCWoungKYWZPPTIxJQT/7R
+         f/JVMNannnjoTr6zgprmW/be4SKmwS+W7/k9hTj12Snyr0j+Ek587Y1oAhX+FbuMhRLA
+         VoiT8rh+W/xVJES+bMzOj0W/Q+3DKAWbi/TLBJ7IibeXWLCJrDxs6YKwPr1KRrK7YM8w
+         AHow7O+v+Q9idjYN1Dty9wh3rIiYD+47/ntcJIX6WfL5RpAmEC0Ks+8UPQ2xD3Dx5Iwh
+         VLnHnq2SoS5lObAuVaym3aiMz19CvTMlJUDQIM55bWht3m2q02DtJMimypzc+moILSvo
+         jtjg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773512959; x=1774117759;
+        d=1e100.net; s=20251104; t=1773512969; x=1774117769;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=HcUZRx+vC9EsPoreW0zaJm9GJsT/ODmp1Tzy9ZQGo5g=;
-        b=ZB8yPID/EhxdhrP+FTab/thQOZ5TSMlxDsaaoBUqheVNk5rlqnKN1Ux4EPl1nIgEW9
-         np1bVRIrCE0ELIS7H+WdgHj1oB0ghg+5aQUe6IazvW+EA7OcpFa49mrdUrOvpIMShOpN
-         cscSqHsG6R+WlLqZmFiWU+h01qmDYvg4VojJEfkmhzaNM+MnCflWPrtd1Bga57r8qY7n
-         d78kFGBvA4ptLrjbSoqtv565jL15KDvJ/tYUUAeIRhnT/Sre9ARzp0tCvN3Io4dpgBN7
-         Ohk30Gbv+MkEO2T+2nZgy5emiBUL8YwN0usNgQfGz7yYRrOhbuK6SCpvtr8Np3g3BcIm
-         XNPg==
-X-Forwarded-Encrypted: i=1; AJvYcCWi0baxryhj9A7WDNzeBnUeGDOlUF9hqqToq5dPwNDfxqjz6MMEWm94e6lYRa3pknf39vHNVzYYh1hwuZ8QwA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz8VOflkPq9AIZUUmp9vOvACVYRIPpROS19s+Jh2BtNd1sYyi2r
-	VSU+uALOdLc0geq6fK8T5t7ASZJqDJ7tLa06yVGqvLFKZxR/gc/BI393
-X-Gm-Gg: ATEYQzw7gvSOFteKa8ko+SEYgmodc4NUpiJVVQF82RS86OfEzu8QMfEAmOzXuGdGg4B
-	HX2b8uo8bK0aErD9E6EoHDk3sTjaPP37n/x9vrK5q3cRJLboVqTpXi6MqPOH5IDtW0XrimWqmuH
-	Hv5pWkKHQctiXQUh6kogR9qjpSeQuVjsHLCNs6XX+ZEQPrqpx8TnmfcZ5ImlWURUrXwkkF1ttX7
-	p9dRFdw+suD8p9WbizfEiSAQX6fPm4P5rEI7j8TnbKFeOGGzstP7e0PiaGpC9bDo/S+AOSNePHL
-	n8ToaTWv2mwQaPo3g7bup2IMmCZooDhzFZ6abem8isu62AECJqRNm/JxWVBVxJkneiMqpiCadUS
-	d7ITEY9LS7w0Zr6UvoTQLBndleWV3U7BeS4pGNYSqMIOMuN2djkaHNNpa/v/UV1V9C/vAQFYDHD
-	8LV3CjuNtyvh4HQS4SHY7n22Biev7q10E5tb7yHHxkftV7r3olN6iTtwgAtPUcyBFDHH/yHrV4f
-	v5owD1aUXYviimi
-X-Received: by 2002:a17:903:2283:b0:2ae:c5b2:6a41 with SMTP id d9443c01a7336-2aecac84adamr78848905ad.52.1773512958550;
-        Sat, 14 Mar 2026 11:29:18 -0700 (PDT)
+        bh=IB6x/lr1ek9kI9gI1prPQzKFPvlqHQ7Z+jL2sCBy488=;
+        b=eWYM6Sq0rV9nJCWL7EQS2jXF3wbBrKBEvzuQxUKZOqyjxgP5l4ZZ+5hcch8dVyvnN4
+         t4ksnHmQ/gkGmTfNAiUQwWntCOsmqmG1tEbB1Jd1A9Jtfn+LzGcoTK2hdpw5x7yG7PJV
+         ljFpYNLt9lfCxxvwPcPFMnvU8XYnUZOgenc2Y6wDsJpgG744R0fNb30foax+jIdtxM/t
+         Zow4EJTl0CLpIUe73ykzv6XM/utBUEWsxa3hdQMUxZaEgqN55gJ/C86JJopuwmNBFMJ2
+         sdl4K3UuhVMAlYWkD4tZ1O2/XUDqKlugsfZEGUXoqGQ1M3sC6vddIAuoMEPOJh2Un+y1
+         VJ4g==
+X-Forwarded-Encrypted: i=1; AJvYcCWxTlA4mDtJruhv1TKd7lv9uZuZU8W6UQHPSGvYBp78slb5DkrJ78cl0SmB1ThBwKV3OtNfc5nbkVGstRf7KQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzmnhd/6nG2/kPK02axY2x765mLsNY+Nqj1pAr03eUhL5EaFB46
+	F9LqrCmbyi4c2+rbFvjmlGW/rcYHopZsEZGbvq0diuS8sa/QMxrt+THd
+X-Gm-Gg: ATEYQzxzuZAEKU7D35RnDccP0RVe1DadiAC+PBFG7Ps3emtf5KVs7zK1/28GyMWXp+M
+	aiKCFAk+J0MtqeIKVb1OjAd+dsN8im4gJCMU9BuT4oPl9jgh6j/ufeoJI/QPonkJ57BmJcaiftx
+	WHZ+f4SwqMJv35t2hpkJRaVmGAd+0LDBLWlA2w9YIr4vJQIi92r3G+a1EC+5YXR6P0kZInJOHTK
+	nlu3BLicwTdDyyreqE3mSyIsi+TLNF+foFZeL4uxXcIOVCs6tjKvKaSQl3Hw0fMkOf2olRDYXyk
+	u2u4x3OApxrBSdyuYKH7wELSApnmMf+oCeCYB3U77lB8jL1TGNKaY2NKaIGo17pQMH3qWXOBt9B
+	5QT62guf14y1rhlvXwqmFK9WKpGF0JKuEr5GY0Ail+nodWaIbIXmja2Q6H4ZFfZZe5FwBJVhXf7
+	JTOcIQ/tg1nzzNysAZqYK8sjO5CF81oSyF3305DT9vb6XLgHjpDsJep8oGKbwC8Le9cE+wrNKDE
+	igBKg==
+X-Received: by 2002:a17:902:d592:b0:2ae:5ec4:2f78 with SMTP id d9443c01a7336-2aecaaa860dmr85707515ad.33.1773512968776;
+        Sat, 14 Mar 2026 11:29:28 -0700 (PDT)
 Received: from localhost.localdomain ([122.168.66.151])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2aece62c581sm77673525ad.33.2026.03.14.11.29.10
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2aece62c581sm77673525ad.33.2026.03.14.11.29.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 14 Mar 2026 11:29:17 -0700 (PDT)
+        Sat, 14 Mar 2026 11:29:27 -0700 (PDT)
 From: I Viswanath <viswanathiyyappan@gmail.com>
 To: stfomichev@gmail.com,
 	horms@kernel.org,
@@ -82,9 +82,9 @@ Cc: bcm-kernel-feedback-list@broadcom.com,
 	intel-wired-lan@lists.osuosl.org,
 	linux-kernel@vger.kernel.org,
 	I Viswanath <viswanathiyyappan@gmail.com>
-Subject: [PATCH net-next v9 4/7] e1000: Implement ndo_set_rx_mode_async callback
-Date: Sat, 14 Mar 2026 23:58:06 +0530
-Message-ID: <20260314182809.362808-5-viswanathiyyappan@gmail.com>
+Subject: [PATCH net-next v9 5/7] 8139cp: Implement ndo_set_rx_mode_async callback
+Date: Sat, 14 Mar 2026 23:58:07 +0530
+Message-ID: <20260314182809.362808-6-viswanathiyyappan@gmail.com>
 X-Mailer: git-send-email 2.47.3
 In-Reply-To: <20260314182809.362808-1-viswanathiyyappan@gmail.com>
 References: <20260314182809.362808-1-viswanathiyyappan@gmail.com>
@@ -101,251 +101,170 @@ the driver to use the snapshot/commit model for RX mode update.
 
 Signed-off-by: I Viswanath <viswanathiyyappan@gmail.com>
 ---
-
-Call paths involving netif_set_rx_mode in e1000
+ 
+Call paths involving netif_set_rx_mode in 8139cp
 
 netif_set_rx_mode
-|-- __e1000_shutdown (lock added)
+|-- cp_init_hw
+|   |-- cp_open (ndo_open, takes lock)
+|   |   `-- cp_change_mtu (ndo_change_mtu, takes lock)
+|   |
+|   `-- cp_resume (lock added)
 |
-`-- e1000_configure
-    |-- e1000_open (ndo_open, takes lock)
-    |
-    `-- e1000_up
-        |-- e1000_reinit_locked
-        |   |-- e1000_set_features (ndo_set_features, takes lock)
-        |   |-- e1000_reset_task (ethtool callback, takes lock)
-        |   |-- e1000_mii_ioctl
-        |   |   `-- e1000_ioctl (ndo_do_ioctl, takes lock)
-        |   `-- e1000_nway_reset (ethtool callback, takes lock)
-        |
-        |-- e1000_change_mtu (ndo_change_mtu, takes lock)
-        |-- e1000_resume (lock added)
-        |-- e1000_io_resume (lock added)
-        |
-        |-- e1000_set_link_ksettings (ethtool callback, takes lock)
-        |-- e1000_set_pauseparam (ethtool callback, takes lock)
-        `-- e1000_set_ringparam (ethtool callback, takes lock)
+`-- cp_tx_timeout (ndo_tx_timeout, takes lock)
 
- drivers/net/ethernet/intel/e1000/e1000_main.c | 77 ++++++++++++++-----
- 1 file changed, 59 insertions(+), 18 deletions(-)
+ drivers/net/ethernet/realtek/8139cp.c | 49 ++++++++++++++++++---------
+ 1 file changed, 33 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/net/ethernet/intel/e1000/e1000_main.c b/drivers/net/ethernet/intel/e1000/e1000_main.c
-index 9b09eb144b81..ec25b41c63b7 100644
---- a/drivers/net/ethernet/intel/e1000/e1000_main.c
-+++ b/drivers/net/ethernet/intel/e1000/e1000_main.c
-@@ -99,6 +99,7 @@ static void e1000_clean_tx_ring(struct e1000_adapter *adapter,
- static void e1000_clean_rx_ring(struct e1000_adapter *adapter,
- 				struct e1000_rx_ring *rx_ring);
- static void e1000_set_rx_mode(struct net_device *netdev);
-+static void e1000_set_rx_mode_async(struct net_device *netdev);
- static void e1000_update_phy_info_task(struct work_struct *work);
- static void e1000_watchdog(struct work_struct *work);
- static void e1000_82547_tx_fifo_stall_task(struct work_struct *work);
-@@ -359,7 +360,7 @@ static void e1000_configure(struct e1000_adapter *adapter)
- 	struct net_device *netdev = adapter->netdev;
- 	int i;
+diff --git a/drivers/net/ethernet/realtek/8139cp.c b/drivers/net/ethernet/realtek/8139cp.c
+index 5652da8a178c..9651a0d9d8f0 100644
+--- a/drivers/net/ethernet/realtek/8139cp.c
++++ b/drivers/net/ethernet/realtek/8139cp.c
+@@ -372,7 +372,6 @@ struct cp_private {
+ 	} while (0)
  
--	e1000_set_rx_mode(netdev);
-+	netif_set_rx_mode(netdev);
  
- 	e1000_restore_vlan(adapter);
- 	e1000_init_manageability(adapter);
-@@ -823,6 +824,7 @@ static const struct net_device_ops e1000_netdev_ops = {
- 	.ndo_stop		= e1000_close,
- 	.ndo_start_xmit		= e1000_xmit_frame,
- 	.ndo_set_rx_mode	= e1000_set_rx_mode,
-+	.ndo_set_rx_mode_async	= e1000_set_rx_mode_async,
- 	.ndo_set_mac_address	= e1000_set_mac,
- 	.ndo_tx_timeout		= e1000_tx_timeout,
- 	.ndo_change_mtu		= e1000_change_mtu,
-@@ -2223,23 +2225,44 @@ static int e1000_set_mac(struct net_device *netdev, void *p)
+-static void __cp_set_rx_mode (struct net_device *dev);
+ static void cp_tx (struct cp_private *cp);
+ static void cp_clean_rings (struct cp_private *cp);
+ #ifdef CONFIG_NET_POLL_CONTROLLER
+@@ -885,30 +884,31 @@ static netdev_tx_t cp_start_xmit (struct sk_buff *skb,
+ /* Set or clear the multicast filter for this adaptor.
+    This routine is not state sensitive and need not be SMP locked. */
+ 
+-static void __cp_set_rx_mode (struct net_device *dev)
++static void cp_set_rx_mode_async(struct net_device *dev)
+ {
+ 	struct cp_private *cp = netdev_priv(dev);
+ 	u32 mc_filter[2];	/* Multicast hash filter */
++	char *ha_addr;
+ 	int rx_mode;
++	int ni;
+ 
+ 	/* Note: do not reorder, GCC is clever about common statements. */
+-	if (dev->flags & IFF_PROMISC) {
++	if (netif_get_rx_mode_cfg(dev, NETIF_RX_MODE_CFG_PROMISC)) {
+ 		/* Unconditionally log net taps. */
+ 		rx_mode =
+ 		    AcceptBroadcast | AcceptMulticast | AcceptMyPhys |
+ 		    AcceptAllPhys;
+ 		mc_filter[1] = mc_filter[0] = 0xffffffff;
+-	} else if ((netdev_mc_count(dev) > multicast_filter_limit) ||
+-		   (dev->flags & IFF_ALLMULTI)) {
++	} else if ((netif_rx_mode_mc_count(dev) > multicast_filter_limit) ||
++		   netif_get_rx_mode_cfg(dev, NETIF_RX_MODE_CFG_ALLMULTI)) {
+ 		/* Too many to filter perfectly -- accept all multicasts. */
+ 		rx_mode = AcceptBroadcast | AcceptMulticast | AcceptMyPhys;
+ 		mc_filter[1] = mc_filter[0] = 0xffffffff;
+ 	} else {
+-		struct netdev_hw_addr *ha;
+ 		rx_mode = AcceptBroadcast | AcceptMyPhys;
+ 		mc_filter[1] = mc_filter[0] = 0;
+-		netdev_for_each_mc_addr(ha, dev) {
+-			int bit_nr = ether_crc(ETH_ALEN, ha->addr) >> 26;
++		netif_rx_mode_for_each_mc_addr(ha_addr, dev, ni) {
++			int bit_nr = ether_crc(ETH_ALEN, ha_addr) >> 26;
+ 
+ 			mc_filter[bit_nr >> 5] |= 1 << (bit_nr & 31);
+ 			rx_mode |= AcceptMulticast;
+@@ -925,12 +925,14 @@ static void __cp_set_rx_mode (struct net_device *dev)
+ 
+ static void cp_set_rx_mode (struct net_device *dev)
+ {
+-	unsigned long flags;
+-	struct cp_private *cp = netdev_priv(dev);
++	bool allmulti = !!(dev->flags & IFF_ALLMULTI);
++	bool promisc = !!(dev->flags & IFF_PROMISC);
+ 
+-	spin_lock_irqsave (&cp->lock, flags);
+-	__cp_set_rx_mode(dev);
+-	spin_unlock_irqrestore (&cp->lock, flags);
++	netif_set_rx_mode_flag(dev, NETIF_RX_MODE_UC_SKIP, true);
++	netif_set_rx_mode_flag(dev, NETIF_RX_MODE_MC_SKIP, promisc | allmulti);
++
++	netif_set_rx_mode_cfg(dev, NETIF_RX_MODE_CFG_ALLMULTI, allmulti);
++	netif_set_rx_mode_cfg(dev, NETIF_RX_MODE_CFG_PROMISC, promisc);
  }
  
- /**
-- * e1000_set_rx_mode - Secondary Unicast, Multicast and Promiscuous mode set
-+ * e1000_set_rx_mode - Secondary Unicast, Multicast and Promiscuous mode
-+ * config.
-  * @netdev: network interface device structure
-  *
-  * The set_rx_mode entry point is called whenever the unicast or multicast
-  * address lists or the network interface flags are updated. This routine is
-- * responsible for configuring the hardware for proper unicast, multicast,
-- * promiscuous mode, and all-multi behavior.
-+ * responsible for preparing the rx mode config and scheduling the rx_mode
-+ * work which invokes the set_rx_mode_async callback.
-  **/
- static void e1000_set_rx_mode(struct net_device *netdev)
+ static void __cp_get_stats(struct cp_private *cp)
+@@ -1040,7 +1042,7 @@ static void cp_init_hw (struct cp_private *cp)
+ 	cp_start_hw(cp);
+ 	cpw8(TxThresh, 0x06); /* XXX convert magic num to a constant */
+ 
+-	__cp_set_rx_mode(dev);
++	netif_set_rx_mode(dev);
+ 	cpw32_f (TxConfig, IFG | (TX_DMA_BURST << TxDMAShift));
+ 
+ 	cpw8(Config1, cpr8(Config1) | DriverLoaded | PMEnable);
+@@ -1262,7 +1264,7 @@ static void cp_tx_timeout(struct net_device *dev, unsigned int txqueue)
+ 	cp_clean_rings(cp);
+ 	cp_init_rings(cp);
+ 	cp_start_hw(cp);
+-	__cp_set_rx_mode(dev);
++	netif_set_rx_mode(dev);
+ 	cpw16_f(IntrMask, cp_norx_intr_mask);
+ 
+ 	netif_wake_queue(dev);
+@@ -1870,6 +1872,7 @@ static const struct net_device_ops cp_netdev_ops = {
+ 	.ndo_validate_addr	= eth_validate_addr,
+ 	.ndo_set_mac_address 	= cp_set_mac_address,
+ 	.ndo_set_rx_mode	= cp_set_rx_mode,
++	.ndo_set_rx_mode_async	= cp_set_rx_mode_async,
+ 	.ndo_get_stats		= cp_get_stats,
+ 	.ndo_eth_ioctl		= cp_ioctl,
+ 	.ndo_start_xmit		= cp_start_xmit,
+@@ -2071,7 +2074,7 @@ static int __maybe_unused cp_suspend(struct device *device)
+ 	spin_unlock_irqrestore (&cp->lock, flags);
+ 
+ 	device_set_wakeup_enable(device, cp->wol_enabled);
+-
++	netif_disable_async_ops(dev);
+ 	return 0;
+ }
+ 
+@@ -2081,6 +2084,8 @@ static int __maybe_unused cp_resume(struct device *device)
+ 	struct cp_private *cp = netdev_priv(dev);
+ 	unsigned long flags;
+ 
++	netif_enable_async_ops(dev);
++
+ 	if (!netif_running(dev))
+ 		return 0;
+ 
+@@ -2088,7 +2093,11 @@ static int __maybe_unused cp_resume(struct device *device)
+ 
+ 	/* FIXME: sh*t may happen if the Rx ring buffer is depleted */
+ 	cp_init_rings_index (cp);
++
++	rtnl_lock();
+ 	cp_init_hw (cp);
++	rtnl_unlock();
++
+ 	cp_enable_irq(cp);
+ 	netif_start_queue (dev);
+ 
+@@ -2101,6 +2110,13 @@ static int __maybe_unused cp_resume(struct device *device)
+ 	return 0;
+ }
+ 
++static void cp_shutdown(struct pci_dev *pdev)
 +{
-+	bool allmulti = !!(netdev->flags & IFF_ALLMULTI);
-+	bool promisc = !!(netdev->flags & IFF_PROMISC);
++	struct net_device *dev = pci_get_drvdata(pdev);
 +
-+	netif_set_rx_mode_flag(netdev, NETIF_RX_MODE_UC_SKIP, promisc);
-+
-+	netif_set_rx_mode_cfg(netdev, NETIF_RX_MODE_CFG_ALLMULTI, allmulti);
-+	netif_set_rx_mode_cfg(netdev, NETIF_RX_MODE_CFG_PROMISC, promisc);
++	netif_disable_async_ops(dev);
 +}
 +
-+/**
-+ * e1000_set_rx_mode_async - Secondary Unicast, Multicast and Promiscuous mode
-+ * confirm.
-+ * @netdev: network interface device structure
-+ *
-+ * The set_rx_mode_async callback is responsible for actually updating the
-+ * hardware. This routine is responsible for configuring the hardware for
-+ * proper unicast, multicast, promiscuous mode, and all-multi behavior.
-+ **/
-+static void e1000_set_rx_mode_async(struct net_device *netdev)
- {
- 	struct e1000_adapter *adapter = netdev_priv(netdev);
- 	struct e1000_hw *hw = &adapter->hw;
--	struct netdev_hw_addr *ha;
- 	bool use_uc = false;
-+	char *ha_addr;
- 	u32 rctl;
- 	u32 hash_value;
--	int i, rar_entries = E1000_RAR_ENTRIES;
-+	int i, rar_entries = E1000_RAR_ENTRIES, ni;
- 	int mta_reg_count = E1000_NUM_MTA_REGISTERS;
- 	u32 *mcarray = kcalloc(mta_reg_count, sizeof(u32), GFP_ATOMIC);
+ static const struct pci_device_id cp_pci_tbl[] = {
+         { PCI_DEVICE(PCI_VENDOR_ID_REALTEK,     PCI_DEVICE_ID_REALTEK_8139), },
+         { PCI_DEVICE(PCI_VENDOR_ID_TTTECH,      PCI_DEVICE_ID_TTTECH_MC322), },
+@@ -2116,6 +2132,7 @@ static struct pci_driver cp_driver = {
+ 	.probe        =	cp_init_one,
+ 	.remove       = cp_remove_one,
+ 	.driver.pm    = &cp_pm_ops,
++	.shutdown     = &cp_shutdown
+ };
  
-@@ -2250,11 +2273,11 @@ static void e1000_set_rx_mode(struct net_device *netdev)
- 
- 	rctl = er32(RCTL);
- 
--	if (netdev->flags & IFF_PROMISC) {
-+	if (netif_get_rx_mode_cfg(netdev, NETIF_RX_MODE_CFG_PROMISC)) {
- 		rctl |= (E1000_RCTL_UPE | E1000_RCTL_MPE);
- 		rctl &= ~E1000_RCTL_VFE;
- 	} else {
--		if (netdev->flags & IFF_ALLMULTI)
-+		if (netif_get_rx_mode_cfg(netdev, NETIF_RX_MODE_CFG_ALLMULTI))
- 			rctl |= E1000_RCTL_MPE;
- 		else
- 			rctl &= ~E1000_RCTL_MPE;
-@@ -2263,9 +2286,9 @@ static void e1000_set_rx_mode(struct net_device *netdev)
- 			rctl |= E1000_RCTL_VFE;
- 	}
- 
--	if (netdev_uc_count(netdev) > rar_entries - 1) {
-+	if (netif_rx_mode_uc_count(netdev) > rar_entries - 1) {
- 		rctl |= E1000_RCTL_UPE;
--	} else if (!(netdev->flags & IFF_PROMISC)) {
-+	} else if (!netif_get_rx_mode_cfg(netdev, NETIF_RX_MODE_CFG_PROMISC)) {
- 		rctl &= ~E1000_RCTL_UPE;
- 		use_uc = true;
- 	}
-@@ -2286,23 +2309,23 @@ static void e1000_set_rx_mode(struct net_device *netdev)
- 	 */
- 	i = 1;
- 	if (use_uc)
--		netdev_for_each_uc_addr(ha, netdev) {
-+		netif_rx_mode_for_each_uc_addr(ha_addr, netdev, ni) {
- 			if (i == rar_entries)
- 				break;
--			e1000_rar_set(hw, ha->addr, i++);
-+			e1000_rar_set(hw, ha_addr, i++);
- 		}
- 
--	netdev_for_each_mc_addr(ha, netdev) {
-+	netif_rx_mode_for_each_mc_addr(ha_addr, netdev, ni) {
- 		if (i == rar_entries) {
- 			/* load any remaining addresses into the hash table */
- 			u32 hash_reg, hash_bit, mta;
--			hash_value = e1000_hash_mc_addr(hw, ha->addr);
-+			hash_value = e1000_hash_mc_addr(hw, ha_addr);
- 			hash_reg = (hash_value >> 5) & 0x7F;
- 			hash_bit = hash_value & 0x1F;
- 			mta = (1 << hash_bit);
- 			mcarray[hash_reg] |= mta;
- 		} else {
--			e1000_rar_set(hw, ha->addr, i++);
-+			e1000_rar_set(hw, ha_addr, i++);
- 		}
- 	}
- 
-@@ -5092,7 +5115,10 @@ static int __e1000_shutdown(struct pci_dev *pdev, bool *enable_wake)
- 
- 	if (wufc) {
- 		e1000_setup_rctl(adapter);
--		e1000_set_rx_mode(netdev);
-+
-+		rtnl_lock();
-+		netif_set_rx_mode(netdev);
-+		rtnl_unlock();
- 
- 		rctl = er32(RCTL);
- 
-@@ -5150,11 +5176,13 @@ static int e1000_suspend(struct device *dev)
- {
- 	int retval;
- 	struct pci_dev *pdev = to_pci_dev(dev);
-+	struct net_device *netdev = pci_get_drvdata(pdev);
- 	bool wake;
- 
- 	retval = __e1000_shutdown(pdev, &wake);
- 	device_set_wakeup_enable(dev, wake);
- 
-+	netif_disable_async_ops(netdev);
- 	return retval;
- }
- 
-@@ -5166,6 +5194,8 @@ static int e1000_resume(struct device *dev)
- 	struct e1000_hw *hw = &adapter->hw;
- 	u32 err;
- 
-+	netif_enable_async_ops(netdev);
-+
- 	if (adapter->need_ioport)
- 		err = pci_enable_device(pdev);
- 	else
-@@ -5195,8 +5225,11 @@ static int e1000_resume(struct device *dev)
- 
- 	e1000_init_manageability(adapter);
- 
--	if (netif_running(netdev))
-+	if (netif_running(netdev)) {
-+		rtnl_lock();
- 		e1000_up(adapter);
-+		rtnl_unlock();
-+	}
- 
- 	netif_device_attach(netdev);
- 
-@@ -5205,6 +5238,7 @@ static int e1000_resume(struct device *dev)
- 
- static void e1000_shutdown(struct pci_dev *pdev)
- {
-+	struct net_device *netdev = pci_get_drvdata(pdev);
- 	bool wake;
- 
- 	__e1000_shutdown(pdev, &wake);
-@@ -5213,6 +5247,8 @@ static void e1000_shutdown(struct pci_dev *pdev)
- 		pci_wake_from_d3(pdev, wake);
- 		pci_set_power_state(pdev, PCI_D3hot);
- 	}
-+
-+	netif_disable_async_ops(netdev);
- }
- 
- #ifdef CONFIG_NET_POLL_CONTROLLER
-@@ -5312,11 +5348,16 @@ static void e1000_io_resume(struct pci_dev *pdev)
- {
- 	struct net_device *netdev = pci_get_drvdata(pdev);
- 	struct e1000_adapter *adapter = netdev_priv(netdev);
-+	int rc;
- 
- 	e1000_init_manageability(adapter);
- 
- 	if (netif_running(netdev)) {
--		if (e1000_up(adapter)) {
-+		rtnl_lock();
-+		rc = e1000_up(adapter);
-+		rtnl_unlock();
-+
-+		if (rc) {
- 			pr_info("can't bring device back up after reset\n");
- 			return;
- 		}
+ module_pci_driver(cp_driver);
 -- 
 2.47.3
 
