@@ -1,125 +1,139 @@
-Received: from mail-pj1-f45.google.com (mail-pj1-f45.google.com [209.85.216.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3B1D219A7A
-	for <virtualization@lists.linux.dev>; Sun, 15 Mar 2026 15:24:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43BBA33A9C3
+	for <virtualization@lists.linux.dev>; Sun, 15 Mar 2026 15:30:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773588295; cv=none; b=XqzTaeM1jsnVjgoI+3tJjLijbMOrtRIFiX0C/L/IhxZglGg7xIY7M/bTSxEN+GPDiSiF001aPzlozZ4/UjmGl/2VWPDRjFKQVdHm3e9/3iMy6DO00T+PzTTKIirI8pmTTJHAPJAY0h0MmYAC0h5R/+X0/n1UJ7SKpFXHARJS/cc=
+	t=1773588610; cv=none; b=ek6oNNhU2boyQmYimAVDrk08XJzZWcAZMEiyAguB/I0KN/q1vbCBWtFmLn/VulUe7YXyexjeSk5SaMR+FASNX14GWoNbyXiMDlepf9QNzD0DFE4qezLisZblG+dfQJ75dVqnZF6nNC8yw++tmkmjRNc1QIKqAjjshmEY1dEPBbg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773588295; c=relaxed/simple;
-	bh=SNop8XUPK6Hgfe4O2UI2bOnOLb9LGUujLa9UjCVo5U0=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=SR1PjlhHxc4DQ2B/1lyYM6YQPwCqOPaDvTThk8QXYmZyX8LV9HqZkVLgWPxOtywheh+31qKx1sf6m6ntDasZgXlTBK2hGCy7ytWE9RoIITv/ZVQtxNi13EO6iHjYpzYT6zy3xUNY7czf+blM1L79QkeQQTdx9K3gV9vqb0weLXY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XYdAh/cw; arc=none smtp.client-ip=209.85.216.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1773588610; c=relaxed/simple;
+	bh=EyOiydOuPLuOTj6QEmQI4rH9HhV6xLu3F9vI8CesZBc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=CyNLq3AlrNZrIXLKHggrBKVj0n0Q2lEp37hGl6wMkqb0pMq0qIsJdmqgJ3Z1Z0mwZZz34xqNXaNXNTYcG3R4a/3G3lAGQrWDrJC7riY5bcePu7mCnfP2hSLJHGbrn1Ac0NicQdCcHjGeZDYOZp6zk217joGdqcuszsfj14KFJ+w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=imZ0JMxT; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XYdAh/cw"
-Received: by mail-pj1-f45.google.com with SMTP id 98e67ed59e1d1-354a18c48b5so3663780a91.1
-        for <virtualization@lists.linux.dev>; Sun, 15 Mar 2026 08:24:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20230601; t=1773588293; x=1774193093; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=7MtjS8bH1E8z5wp3WLVz/oCa3p3s0LxEuaeiXaVAd1M=;
-        b=XYdAh/cwZnkFkiqUU7/pnhu54bi9NxVwyfVRsrXu4xzt2y0LoM70zCDeTGhak04Bd3
-         Eo/f8w/uyQugf5S54+mF96xhztGtP7f7p2J9t0VR1/GSKBjUThg/YgBt2WrX7fEHuZSB
-         2KzteMaQYott82E13C4WwQIRSeunnlIw72zypJ+YtPiEtX+8eKmy0FiWFODPAByUphjx
-         TL0Zkllrh3FLByX7FQlX3+eFTJkxbEEuXf0btBt7pqwiAa5VXwCf1tYmeFVYD8Q1ndSU
-         1kWHBGiegmwOCmu1l0BN5VNtz6uai1Lp2/z6j8TOu+QiBexzqfmKmsUGCncVckzpT+xX
-         B8jw==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="imZ0JMxT"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1773588608;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=iiiFUzJ9tbUShPW9dcm9hP1jmyIzZs8zb+I7tXGQA24=;
+	b=imZ0JMxT5V6DBcSTtGbdlG9fd/3k9OPKW9ewyflLOPXQzWjFt+1ABLxDQusfoUVLAJDpwv
+	a4kHSo6xOGxqnOXeZaqccLH1kxzp9mW9J40kRzcYSwdPj4Cd5mlBfLpZUakDklcCnbRC58
+	+G1EW/BZuw0aKn1buDHi959iwBkmMHs=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-690-udA0rprLODOvdMVU0iWVTA-1; Sun, 15 Mar 2026 11:30:06 -0400
+X-MC-Unique: udA0rprLODOvdMVU0iWVTA-1
+X-Mimecast-MFC-AGG-ID: udA0rprLODOvdMVU0iWVTA_1773588605
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-48532df52c5so52200235e9.1
+        for <virtualization@lists.linux.dev>; Sun, 15 Mar 2026 08:30:06 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773588293; x=1774193093;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=7MtjS8bH1E8z5wp3WLVz/oCa3p3s0LxEuaeiXaVAd1M=;
-        b=FRPELcCmyftGuBjLdtxsDobaP3hkhW8UkQcFIPSxGAUc8oGFJ6hf6zcoN59tHbgqyV
-         XbnBjSfR3O4l7FVrMICd21umBE39WyT3kHH9y8VQbVdrx4sQipMQTIxMeneQa7iykrl/
-         41B6SP0Sx51ANHheUq1zM+jECJVd2w6C93aPasNtAekUCO4icN3crvg/LQrYA6V15nAq
-         fbMufgDPmQ5OL4PG7ja4NRM6gmnTrQjhQoXR0VHa7NzTwPuSb6O6WzfA+yfv8HM9aXLb
-         3RV7eM7qo/14kmHcs5Iil6pobquRWDhLKyROFOF0T7u5LP67CJ8SGC632SusM2wZS4qm
-         KABw==
-X-Forwarded-Encrypted: i=1; AJvYcCXXhQ1Uk3CJKt1wU/Q2Zao4qeKQmPQ5uhjOCcAInw0BIo1yOPnDB1mjreTwwtb93ZfSuXdttjfe7cTx9KDWUg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzDhTpTkBoRjjXTW4LLFNouxISeiWvLv6E+3WqYuHhff7QXxtFI
-	ODF17kUwpbXlZBpwLE6ZsJtZow3M4U99RM9sQhSsVHoxPOiS5WfaGZ/5
-X-Gm-Gg: ATEYQzy+zJc1HyiH479aF6R9OMqotyeGeaKSbmOZd/Ewl0b3m+QGtGkVcy5wTXHRWnb
-	LVWnZnEKnva5gZUa76K1ppVchyNb2YF2Bko0sNK5jKB6LL4JSCBh3/rBb3VHnoBS84K5yX3hLrW
-	JPRxmtBGrVbCXrdYWQJeYagzbK/PYrQ5bdv+5tV4F7fp4YiuO8rebMW8M6pCguWPw4DWvsM2557
-	gDzOIsqKIMppFtxbWASUr6KseL6kXqjt6ruz8+ydgtq2L8YYHKqx6st6MsHGQNZXACQPYyros3e
-	ycYYDqA4zUdqZY0w+Man/7bNqy8+h4hUDPQDleMxouOngcFeeYmNTSyBWPwZPUPn/ByZt+GBOrN
-	xTPpOvc2e1L8on9EhQPry7jTIeB+qX+X1a+DqGSoTzxUTjxRiEff2Nz0VoT1A76ql0+W1RnC99S
-	mHG6ZsHNtsnBvhlN7Ivez1brnQY0nlvYEZ/uoUrO7sJ5HfF0Lr5dU0gHw5ZVk=
-X-Received: by 2002:a17:90b:3dc7:b0:35b:9ab6:1d4b with SMTP id 98e67ed59e1d1-35b9ab61eb1mr1172866a91.20.1773588292890;
-        Sun, 15 Mar 2026 08:24:52 -0700 (PDT)
-Received: from pop-os.. (118-163-201-9.hinet-ip.hinet.net. [118.163.201.9])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-35a22d0c854sm2932933a91.2.2026.03.15.08.24.50
+        d=1e100.net; s=20251104; t=1773588605; x=1774193405;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=iiiFUzJ9tbUShPW9dcm9hP1jmyIzZs8zb+I7tXGQA24=;
+        b=OTTvaIs05Fcp/Pfb6NGIdAeHtznFJbRhz4mOImfA5KHhgEuH3R+ayoxlKPFt2g4iEB
+         vG5EY6kyFnld1gCPkgAoReIjCWS1cbvvboEJR3ySJL5ig1AOUGU/ylGp0LOASMG0FGXO
+         qkaNSJmgUTQz0D6uXXd1JItRHFC2PH4B4OTae7ZceG/v7iZEFmBhltNWNiV8pT+bbIX5
+         6iqajDFjNLpcMceHciyy7tXJgk9MW94Bjkwyfh2chRx2dlDG95r3SA/caVK/OgMtZ7IK
+         Lk9RuxfjTDzpaXf/z+XFT7rAJd1nih/Yow1pfvncXiO6YHEdbPFnOT0aanE27W4tj+e+
+         EULw==
+X-Forwarded-Encrypted: i=1; AJvYcCXkSXTQmN6RO2FSC8nQdtIBexgsts5v65EFVC5eQGEUdaff3vPPDG6XweALbcfuPCNI3BaqinsOlueKrJcvqQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwMyKd+GnH0q6v3na9TjNkBZT7OwkV+wNHLNk6KE1uVmzG9f0ZR
+	lhBvETPHIVT1AVuIgKrPfYKnfg9Lq4EWYdeiX4VDLxa9Wfnmd32iLzQ5NkGfJC7K5dqDRTHfLo6
+	t/JtlbCKcn5uR9cJR0Qm7Vo/wmbaR4C45OqAyHyywdZRTnQShVF1SvMcTWCXSGqdIuoI8u7UyXD
+	Fe
+X-Gm-Gg: ATEYQzyc4Zt5upkvK5VpEPgYdYtGi4wuARbi9TsQaIBkJqiQaenHlB7Ljs8Seh0QJQt
+	o8lbDap2h1CobiJ2QZPx+4cwlR8JQ6klR8FDG3YdFseXp++vxJivmwd1x6GX5P3rDADUka+t9tl
+	KWr0g7H5m7/hh+zHuSKdWWttgyLmfduH4iopjNn/CLdDcK8Pko13ZZRCBrQ3TJ9dI+uOely/EKn
+	jSKHVkxNpQrwN/jbHPCTu7ttJR2KauuqEAGnbGAMriL7Slu9I9omo/A/8CndKIjmIjWDhWPVKfy
+	tENfCVm9tWRj6E79TlzvOrscIPZHlsj3ovqqBR70myvxAf9qkej+CNSLxPrPHeEdgeiBg9RZ6v4
+	55gzRbZdxeArk0nHNyW1fq+3Mf35ivyK3UKQVxqXxrW4ssQ==
+X-Received: by 2002:a05:600c:c162:b0:485:3fd1:992c with SMTP id 5b1f17b1804b1-485566d2fe7mr153624665e9.1.1773588605010;
+        Sun, 15 Mar 2026 08:30:05 -0700 (PDT)
+X-Received: by 2002:a05:600c:c162:b0:485:3fd1:992c with SMTP id 5b1f17b1804b1-485566d2fe7mr153624055e9.1.1773588604468;
+        Sun, 15 Mar 2026 08:30:04 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-79-166.inter.net.il. [80.230.79.166])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4854e67ea40sm301596055e9.7.2026.03.15.08.30.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 15 Mar 2026 08:24:52 -0700 (PDT)
-From: Shengwen Cheng <shengwen1997.tw@gmail.com>
-To: mst@redhat.com,
-	jasowang@redhat.com
-Cc: xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Shengwen Cheng <shengwen1997.tw@gmail.com>
-Subject: [PATCH] virtio_ring: reject NULL recycle callback in reset/resize helpers
-Date: Sun, 15 Mar 2026 23:24:03 +0800
-Message-Id: <20260315152403.127645-1-shengwen1997.tw@gmail.com>
-X-Mailer: git-send-email 2.34.1
+        Sun, 15 Mar 2026 08:30:03 -0700 (PDT)
+Date: Sun, 15 Mar 2026 11:30:01 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Shengwen Cheng <shengwen1997.tw@gmail.com>
+Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] virtio_ring: reject NULL recycle callback in
+ reset/resize helpers
+Message-ID: <20260315112904-mutt-send-email-mst@kernel.org>
+References: <20260315152403.127645-1-shengwen1997.tw@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260315152403.127645-1-shengwen1997.tw@gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: tnu_R884CtP2n8hQdpLqge2bonUDlA2wAccZL3tDzbg_1773588605
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-virtqueue_reset() and virtqueue_resize() rely on the recycle callback
-to release each detached unused buffer after disable_vq_and_reset().
+On Sun, Mar 15, 2026 at 11:24:03PM +0800, Shengwen Cheng wrote:
+> virtqueue_reset() and virtqueue_resize() rely on the recycle callback
+> to release each detached unused buffer after disable_vq_and_reset().
+> 
+> As a defensive change, reject a NULL recycle callback explicitly to make
+> this requirement clear. Update virtqueue_disable_and_recycle() to warn
+> and return -EINVAL when @recycle is NULL, and update the descriptions
+> for virtqueue_reset() and virtqueue_resize() to document that @recycle
+> must not be %NULL.
 
-As a defensive change, reject a NULL recycle callback explicitly to make
-this requirement clear. Update virtqueue_disable_and_recycle() to warn
-and return -EINVAL when @recycle is NULL, and update the descriptions
-for virtqueue_reset() and virtqueue_resize() to document that @recycle
-must not be %NULL.
----
- drivers/virtio/virtio_ring.c | 7 +++++--
- 1 file changed, 5 insertions(+), 2 deletions(-)
+I see little point in this change, sorry.
 
-diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-index 335692d41617..563cee634426 100644
---- a/drivers/virtio/virtio_ring.c
-+++ b/drivers/virtio/virtio_ring.c
-@@ -2698,6 +2698,9 @@ static int virtqueue_disable_and_recycle(struct virtqueue *_vq,
- 	void *buf;
- 	int err;
- 
-+	if (WARN_ON_ONCE(!recycle))
-+		return -EINVAL;
-+
- 	if (!vq->we_own_ring)
- 		return -EPERM;
- 
-@@ -3311,7 +3314,7 @@ EXPORT_SYMBOL_GPL(vring_create_virtqueue_map);
-  * virtqueue_resize - resize the vring of vq
-  * @_vq: the struct virtqueue we're talking about.
-  * @num: new ring num
-- * @recycle: callback to recycle unused buffers
-+ * @recycle: callback to recycle unused buffers, must not be %NULL
-  * @recycle_done: callback to be invoked when recycle for all unused buffers done
-  *
-  * When it is really necessary to create a new vring, it will set the current vq
-@@ -3367,7 +3370,7 @@ EXPORT_SYMBOL_GPL(virtqueue_resize);
- /**
-  * virtqueue_reset - detach and recycle all unused buffers
-  * @_vq: the struct virtqueue we're talking about.
-- * @recycle: callback to recycle unused buffers
-+ * @recycle: callback to recycle unused buffers, must not be %NULL
-  * @recycle_done: callback to be invoked when recycle for all unused buffers done
-  *
-  * Caller must ensure we don't call this with other virtqueue operations
--- 
-2.34.1
+> ---
+>  drivers/virtio/virtio_ring.c | 7 +++++--
+>  1 file changed, 5 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index 335692d41617..563cee634426 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -2698,6 +2698,9 @@ static int virtqueue_disable_and_recycle(struct virtqueue *_vq,
+>  	void *buf;
+>  	int err;
+>  
+> +	if (WARN_ON_ONCE(!recycle))
+> +		return -EINVAL;
+> +
+>  	if (!vq->we_own_ring)
+>  		return -EPERM;
+>  
+> @@ -3311,7 +3314,7 @@ EXPORT_SYMBOL_GPL(vring_create_virtqueue_map);
+>   * virtqueue_resize - resize the vring of vq
+>   * @_vq: the struct virtqueue we're talking about.
+>   * @num: new ring num
+> - * @recycle: callback to recycle unused buffers
+> + * @recycle: callback to recycle unused buffers, must not be %NULL
+>   * @recycle_done: callback to be invoked when recycle for all unused buffers done
+>   *
+>   * When it is really necessary to create a new vring, it will set the current vq
+> @@ -3367,7 +3370,7 @@ EXPORT_SYMBOL_GPL(virtqueue_resize);
+>  /**
+>   * virtqueue_reset - detach and recycle all unused buffers
+>   * @_vq: the struct virtqueue we're talking about.
+> - * @recycle: callback to recycle unused buffers
+> + * @recycle: callback to recycle unused buffers, must not be %NULL
+>   * @recycle_done: callback to be invoked when recycle for all unused buffers done
+>   *
+>   * Caller must ensure we don't call this with other virtqueue operations
+> -- 
+> 2.34.1
 
