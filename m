@@ -1,654 +1,152 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 565B834FF78
-	for <virtualization@lists.linux.dev>; Mon, 16 Mar 2026 07:42:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7DC352F88
+	for <virtualization@lists.linux.dev>; Mon, 16 Mar 2026 09:15:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773646923; cv=none; b=eTOI1CXgPzRHgOB6Aqc9VMxJHenGvL9YxgtkEouqtpw6cl3vpbLWmD90s+A+JyEKCe9pO6wJrlv9qPSanN7Hby0Pf6x7cmdTOOPxuay+tCO3xD9Dxxuq3xc+DAi9AZYlNjJmnH8RIAw3SNC/zhLLAno0aoyeLLR0LPIhG3Wq+2w=
+	t=1773652551; cv=none; b=umNzDqGgWJNwo5dinM1wrqLVSWUmg66bkszSoh3d7t5mwFJrVkLZ2vrcKDie1kqow1GOdOzuZDVT0wDtFsgiI9d1R6GNyGTik/T/7zpbNIQGJ/CLsRBzs3ntvuFzxpj9bEVMnKewsW2WKc+kPP/s8ZFvVSrb7e1UWivmBBJCSfA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773646923; c=relaxed/simple;
-	bh=sBfer2ry6lDRDgaYrP1v6myw8fqpPlVBdma7qxWKdcc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=MtuZDmx/QdDKvMn0Fa6acWmpCFRb6AtAT/BAxV3l37zO0hTLdKiSz6u3kBreVKgPLUGj0sYXThM0aROGW81jt93dSTrBUKkaQhDrcgqK6Pe+FIp5+hr5W0Tbp/mbWD+eE2kSDvCIHLYtinSkq5BCOx+bbuXYejelaE1ssSj282M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ov5l2nUn; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1773652551; c=relaxed/simple;
+	bh=O2SS18rlSUcdzi98lp2IyIdV6D0lACHf6IBFjWpTWwQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=RJlEooLpw6LyGabE26oCfNhnJGlJpbXKSuwxPlejCA8MOQQe9+q1MeVFBhunAXbPFgVcNhRgOOT4bHP/KCY9M1ABgsBYgFK+ED+LwiTZZSL+gk0ZCUvP9w9ObDKz5iCEKMCzpJLuaxTmLHqgEy5ko00AgE8jZ1LsMtz114Rc2mw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Eo/OUQKE; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ov5l2nUn"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Eo/OUQKE"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1773646920;
+	s=mimecast20190719; t=1773652548;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=f9x1zAey7c7fE/EVMcbEnsqXl6phhfzkzVKr/aDpN2A=;
-	b=Ov5l2nUntU8kncoF34Lyx6ZPIR+oPCkUbSL75tYu0jzSHiTd2G9+5PxnFejVpl+/EifSZ1
-	YSJqMjDyjzCXdipCvrexkGv0BgNnnlSix2/ywtWQc4AezY7IRGqJOm4LnrxkhgbhAvQWc3
-	IVLDcVLaiDS1ZBc2uBDLvqJvFIPdV4c=
-Received: from mail-pf1-f197.google.com (mail-pf1-f197.google.com
- [209.85.210.197]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=ep6TcvjqLGgLknc4tGkbaa/0WsAO+G7kPe/z8Cm1bsI=;
+	b=Eo/OUQKEES2U3e1PzaZkVSs5eTKXpPQQn+eVmS8dwCdtBXUVa009JLcIM2ixOnRUjIQEyk
+	ETWhSDsHS8otE3pqyd3DSKjR7nL1mWJpjCYX5GX7n9/y14KkVwAKZgOu4GkbQvuc7ZpTFw
+	1WBGsBDawe1tVo1ceVNepSGs12yGg1o=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-663--tiymIRUODKcTzWj26c8Og-1; Mon, 16 Mar 2026 03:41:59 -0400
-X-MC-Unique: -tiymIRUODKcTzWj26c8Og-1
-X-Mimecast-MFC-AGG-ID: -tiymIRUODKcTzWj26c8Og_1773646918
-Received: by mail-pf1-f197.google.com with SMTP id d2e1a72fcca58-8230d6d54a5so3884876b3a.1
-        for <virtualization@lists.linux.dev>; Mon, 16 Mar 2026 00:41:58 -0700 (PDT)
+ us-mta-475-QiEzQ4ftOXS_yGK4_DnxjQ-1; Mon, 16 Mar 2026 05:15:47 -0400
+X-MC-Unique: QiEzQ4ftOXS_yGK4_DnxjQ-1
+X-Mimecast-MFC-AGG-ID: QiEzQ4ftOXS_yGK4_DnxjQ_1773652546
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-439b3011be7so2924700f8f.1
+        for <virtualization@lists.linux.dev>; Mon, 16 Mar 2026 02:15:47 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773646918; x=1774251718;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=f9x1zAey7c7fE/EVMcbEnsqXl6phhfzkzVKr/aDpN2A=;
-        b=Jjy5bCJLLHyrt/kzxcKEqPTRIhzoVJF/CiinUkmPt+SWGA5smvSIEiQc+Tklcctcdx
-         hJEf9IKcFY4Lk+PRmeveF9cAg8V1rQ2scaxUag+0wylNHp+MrRMGukAxJSG4KGp7Onvl
-         jT69P9rluWWFy9zJa4k0WrOGsaQKMeKG11kl3NSXYNhKAz/3B+tpwo1hbxvL1+VvL8qI
-         Emo8cxQ3TFL1KXbsf/Hg6uGypJt2eHvOuxwjrIBaKmuUlTplYLIG7kDGcwRTiAYh8tmx
-         2Letx+Ke7DVREP0FAPo6fw3rI3asiDrqlDrQh5cU8A6s8kCcKzH5L/JDV45tUmK9q+rh
-         jhcg==
-X-Forwarded-Encrypted: i=1; AJvYcCX/QrNrcUJiKeUrZ2ybOapR+x/SfJSHAd5SffB+aON+t0G5nFlxZxdwM0l0WYUdz3qhIuvVL1Xe4ZItVIQ95A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyoDJ9UtJbANw7hNSPnCMuYz90K10Tm3QjZor4AszQTExIQ61ZA
-	m0060VpZ2TsVPmZFSu86ORCtBjpAJafkFIKDFCMDc4lNaScmnz1r68CepuxPMwqLUpeoaLAxHg3
-	A9DYDuFU9BaJICakqDTdARcrpmVP8ul9wIp1GwO/gaBEimevS8j44Nts/37xuZ7byVidZ0vZl+F
-	AITCHNpuOk/TM7owGKF9DcH7ydjJoQ0KZ22kAd0VfUER8=
-X-Gm-Gg: ATEYQzyVyGmGw1hEBIv8QkWhdwnmU75tMPerElQgiIZvdyYPKG0rdEwAQ14TN7+yKd1
-	9hh8c/uyc/UQnSGKuXPcTcDD+Dzx6gcLuAiItj9Pzzp/yeEYwg/7t2vv/gyG7YWmViMjDasEFKj
-	tXkvDPH8k3XPByvgsQpiHmIMaYMaGc7oAoiyRW20Tz7hDRRi/QX6tbJNRZnC8N4ffACH1GKZ9KH
-	IQ=
-X-Received: by 2002:a05:6a00:a21b:b0:7e8:3fcb:9b03 with SMTP id d2e1a72fcca58-82a072c6dacmr11824421b3a.25.1773646917744;
-        Mon, 16 Mar 2026 00:41:57 -0700 (PDT)
-X-Received: by 2002:a05:6a00:a21b:b0:7e8:3fcb:9b03 with SMTP id
- d2e1a72fcca58-82a072c6dacmr11824397b3a.25.1773646917112; Mon, 16 Mar 2026
- 00:41:57 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1773652546; x=1774257346;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ep6TcvjqLGgLknc4tGkbaa/0WsAO+G7kPe/z8Cm1bsI=;
+        b=s0Ul5178EtpVi8jqqZx0k9sHzEfpPQPDG2d67rzrEEtv0lj7NYCh172ejdJefdjpOv
+         tp5VvPnuSDffVte8LK6Ca0SC+uhFqDV1agRica7jumg9N8yHgl3b3tqlj8plkpYWwd6w
+         WK9bWAurp5LGDeBiO/CwUPKF31xbKln7Kbgr7Z3IfpQluofBwHjN+umtAS0vyqD6O054
+         GkRQPSCPu8DHxIMS1nH5M7Gzkq9XM0scQEwzloZJ12Ye6uHqVMNNupDe96PYp24sONxM
+         pPDRLAxlQIg3IfdSlxaL2Uw5KzX7Dc7iV8vn5GPZm5ibR4Vfc8UlLynRFSkww5wCP1MO
+         QeQA==
+X-Forwarded-Encrypted: i=1; AJvYcCWVpgaSNoyIb5uF3zb1W8AfuGSOq+L7KLuC/fls/AB5Di1F7RR8QungEPKw+CwwqKFuP9iVUNOzu+91/oWqXQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx5ZZflvTl88fr2T9IRqfj3OMfGaQka/Ho0/HsO6gLAMlbRR7nA
+	7t/ZDcTjwAyxnu/D7Zlu6lF+OhrNGZ+zKAkb+BLXOqISRZ4fMrWefsBfyPPHmDlrLGgRPrYAQlD
+	4wmnvZNLe66ix3gSByvG/RAj21Jye5VEXjf3e0wYqtq0P1LBAN8dqDD4GFF2IIJR9Y+jm
+X-Gm-Gg: ATEYQzzevZOWZ0dERCDebACYK4DX0TjesmpbaQRZvSIQd/M/8mZJBlrpMMaUE8PGXaz
+	DVy+exy7AluX7nJu2Psg7+U76b2YxCZP6s0/TNN0my0GIbAkrdfiaGwShcxfpQGMLqxsWOudrUj
+	1byqMagXAWnM8yQ+bj1P1XyLWK52WLZGTgy6KSJg/Vz3dggfiTx+nzqPGXv3YoowPD22ogNmbQp
+	08tQ09BbMi+FckZNkJUwPxxsxkfaVc+rQpC1iKOUREJVjBVhmUrl4838n2hf+rKrGOzR2nZal64
+	tAb70hgoxIFYgOZP/B8Mljf7CECxKj+ekExaCy4n0HOdqqHttY+v69KxW1kkfhFECNuE6txNHMH
+	oe9xISCu+ABBJ1oXRkG1W/d+pmfSwo+Bcyik0p81xaVquow==
+X-Received: by 2002:adf:f349:0:b0:43b:3b80:6781 with SMTP id ffacd0b85a97d-43b3b8068cfmr9071733f8f.49.1773652545932;
+        Mon, 16 Mar 2026 02:15:45 -0700 (PDT)
+X-Received: by 2002:adf:f349:0:b0:43b:3b80:6781 with SMTP id ffacd0b85a97d-43b3b8068cfmr9071675f8f.49.1773652545370;
+        Mon, 16 Mar 2026 02:15:45 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-79-166.inter.net.il. [80.230.79.166])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-439fe228986sm37539616f8f.35.2026.03.16.02.15.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 16 Mar 2026 02:15:44 -0700 (PDT)
+Date: Mon, 16 Mar 2026 05:15:41 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Di Zhu <zhud@hygon.cn>
+Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+	andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+	kuba@kernel.org, pabeni@redhat.com, willemb@google.com,
+	netdev@vger.kernel.org, virtualization@lists.linux.dev,
+	lijing@hygon.cn, yingzhiwei@hygon.cn
+Subject: Re: [PATCH net-next v2] virtio-net: enable NETIF_F_GRO_HW only if
+ GRO-related offloads are supported
+Message-ID: <20260316051327-mutt-send-email-mst@kernel.org>
+References: <20260316072152.910857-1-zhud@hygon.cn>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260310183107.2822016-1-vishs@meta.com> <CACGkMEt8WWbHRpD-e4aHBdwbK9QdvCcCX39xzK6FRrb263G+5w@mail.gmail.com>
- <973b9a78-7ef2-4f2d-9952-81755a17d719@meta.com>
-In-Reply-To: <973b9a78-7ef2-4f2d-9952-81755a17d719@meta.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Mon, 16 Mar 2026 15:41:44 +0800
-X-Gm-Features: AaiRm50ps3CSTKveySkAJ1VgwNGWyyfCUpuuCfuHCKMzUfLGarJT6caWhsouITk
-Message-ID: <CACGkMEt+85Q_FZfb8zy98cg1DN273DU5NYbxTyKnGMSWSQdmYg@mail.gmail.com>
-Subject: Re: [PATCH net-next v11] virtio_net: add page_pool support for buffer allocation
-To: Vishwanath Seshagiri <vishs@meta.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Andrew Lunn <andrew+netdev@lunn.ch>, "David S . Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	David Wei <dw@davidwei.uk>, Matteo Croce <technoboy85@gmail.com>, 
-	Ilias Apalodimas <ilias.apalodimas@linaro.org>, netdev@vger.kernel.org, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	kernel-team@meta.com
+In-Reply-To: <20260316072152.910857-1-zhud@hygon.cn>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: f0PPrajubfZ1g98ZX0wqRnuh8A4KTocKrjeCCmkWOcw_1773646918
+X-Mimecast-MFC-PROC-ID: ls88dsUlV0OyKA8fBS_DgieSSQJvfo0wLY6vPcK9wWY_1773652546
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Fri, Mar 13, 2026 at 5:27=E2=80=AFPM Vishwanath Seshagiri <vishs@meta.co=
-m> wrote:
->
-> On 3/13/26 1:21 PM, Jason Wang wrote:
-> > On Wed, Mar 11, 2026 at 2:31=E2=80=AFAM Vishwanath Seshagiri <vishs@met=
-a.com> wrote:
-> >>
-> >> Use page_pool for RX buffer allocation in mergeable and small buffer
-> >> modes to enable page recycling and avoid repeated page allocator calls=
-.
-> >> skb_mark_for_recycle() enables page reuse in the network stack.
-> >>
-> >> Big packets mode is unchanged because it uses page->private for linked
-> >> list chaining of multiple pages per buffer, which conflicts with
-> >> page_pool's internal use of page->private.
-> >>
-> >> Implement conditional DMA premapping using virtqueue_dma_dev():
-> >> - When non-NULL (vhost, virtio-pci): use PP_FLAG_DMA_MAP with page_poo=
-l
-> >>    handling DMA mapping, submit via virtqueue_add_inbuf_premapped()
-> >> - When NULL (VDUSE, direct physical): page_pool handles allocation onl=
-y,
-> >>    submit via virtqueue_add_inbuf_ctx()
-> >>
-> >> This preserves the DMA premapping optimization from commit 31f3cd4e575=
-6b
-> >> ("virtio-net: rq submits premapped per-buffer") while adding page_pool
-> >> support as a prerequisite for future zero-copy features (devmem TCP,
-> >> io_uring ZCRX).
-> >>
-> >> Page pools are created in probe and destroyed in remove (not open/clos=
-e),
-> >> following existing driver behavior where RX buffers remain in virtqueu=
-es
-> >> across interface state changes.
-> >>
-> >> Signed-off-by: Vishwanath Seshagiri <vishs@meta.com>
-> >> ---
-> >> Changes in v11:
-> >> - add_recvbuf_small: encode alloc_len and xdp_headroom in ctx via
-> >>    mergeable_len_to_ctx() so receive_small() recovers the actual bufle=
-n
-> >>    via mergeable_ctx_to_truesize() (Michael S. Tsirkin)
-> >> - receive_small_build_skb, receive_small_xdp: accept buflen parameter
-> >>    instead of recomputing it, to use the actual allocation size
-> >> - v10:
-> >>    https://lore.kernel.org/virtualization/9752a952-195d-4da3-bc7a-5a4a=
-1f2fd2ca@meta.com/
-> >>
-> >> Changes in v10:
-> >> - add_recvbuf_small: use alloc_len to avoid clobbering len; v9 feedbac=
-k
-> >>    was about truesize under-accounting, not variable naming =E2=80=94 =
-misunderstood
-> >>    the comment in v9
-> >> - v9:
-> >>    https://lore.kernel.org/virtualization/20260302041005.1627210-1-vis=
-hs@meta.com/
-> >>
-> >> Changes in v9:
-> >> - Fix virtnet_skb_append_frag() for XSK callers (Michael S. Tsirkin)
-> >> - v8:
-> >>    https://lore.kernel.org/virtualization/e824c5a3-cfe0-4d11-958f-c3ec=
-82d11d37@meta.com/
-> >>
-> >> Changes in v8:
-> >> - Remove virtnet_no_page_pool() helper, replace with direct !rq->page_=
-pool
-> >>    checks or inlined conditions (Xuan Zhuo)
-> >> - Extract virtnet_rq_submit() helper to consolidate DMA/non-DMA buffer
-> >>    submission in add_recvbuf_small() and add_recvbuf_mergeable()
-> >> - Add skb_mark_for_recycle(nskb) for overflow frag_list skbs in
-> >>    virtnet_skb_append_frag() to ensure page_pool pages are returned to
-> >>    the pool instead of freed via put_page()
-> >> - Rebase on net-next (kzalloc_objs API)
-> >> - v7:
-> >>    https://lore.kernel.org/virtualization/20260210014305.3236342-1-vis=
-hs@meta.com/
-> >>
-> >> Changes in v7:
-> >> - Replace virtnet_put_page() helper with direct page_pool_put_page()
-> >>    calls (Xuan Zhuo)
-> >> - Add virtnet_no_page_pool() helper to consolidate big_packets mode ch=
-eck
-> >>    (Michael S. Tsirkin)
-> >> - Add DMA sync_for_cpu for subsequent buffers in xdp_linearize_page() =
-when
-> >>    use_page_pool_dma is set (Michael S. Tsirkin)
-> >> - Remove unused pp_params.dev assignment in non-DMA path
-> >> - Add page pool recreation in virtnet_restore_up() for freeze/restore =
-support (Chris Mason's
-> >> Review Prompt)
-> >> - v6:
-> >>    https://lore.kernel.org/virtualization/20260208175410.1910001-1-vis=
-hs@meta.com/
-> >>
-> >> Changes in v6:
-> >> - Drop page_pool_frag_offset_add() helper and switch to page_pool_allo=
-c_va();
-> >>    page_pool_alloc_netmem() already handles internal fragmentation int=
-ernally
-> >>    (Jakub Kicinski)
-> >> - v5:
-> >>    https://lore.kernel.org/virtualization/20260206002715.1885869-1-vis=
-hs@meta.com/
-> >>
-> >> Benchmark results:
-> >>
-> >> Configuration: pktgen TX -> tap -> vhost-net | virtio-net RX -> XDP_DR=
-OP
-> >>
-> >> Small packets (64 bytes, mrg_rxbuf=3Doff):
-> >>    1Q:  853,493 -> 868,923 pps  (+1.8%)
-> >>    2Q: 1,655,793 -> 1,696,707 pps (+2.5%)
-> >>    4Q: 3,143,375 -> 3,302,511 pps (+5.1%)
-> >>    8Q: 6,082,590 -> 6,156,894 pps (+1.2%)
-> >>
-> >> Mergeable RX (64 bytes):
-> >>    1Q:   766,168 ->   814,493 pps  (+6.3%)
-> >>    2Q: 1,384,871 -> 1,670,639 pps (+20.6%)
-> >>    4Q: 2,773,081 -> 3,080,574 pps (+11.1%)
-> >>    8Q: 5,600,615 -> 6,043,891 pps  (+7.9%)
-> >>
-> >> Mergeable RX (1500 bytes):
-> >>    1Q:   741,579 ->   785,442 pps  (+5.9%)
-> >>    2Q: 1,310,043 -> 1,534,554 pps (+17.1%)
-> >>    4Q: 2,748,700 -> 2,890,582 pps  (+5.2%)
-> >>    8Q: 5,348,589 -> 5,618,664 pps  (+5.0%)
-> >>
-> >>   drivers/net/Kconfig      |   1 +
-> >>   drivers/net/virtio_net.c | 497 ++++++++++++++++++++-----------------=
---
-> >>   2 files changed, 251 insertions(+), 247 deletions(-)
-> >>
-> >> diff --git a/drivers/net/Kconfig b/drivers/net/Kconfig
-> >> index 17108c359216..b2fd90466bab 100644
-> >> --- a/drivers/net/Kconfig
-> >> +++ b/drivers/net/Kconfig
-> >> @@ -452,6 +452,7 @@ config VIRTIO_NET
-> >>          depends on VIRTIO
-> >>          select NET_FAILOVER
-> >>          select DIMLIB
-> >> +       select PAGE_POOL
-> >>          help
-> >>            This is the virtual network driver for virtio.  It can be u=
-sed with
-> >>            QEMU based VMMs (like KVM or Xen).  Say Y or M.
-> >> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> >> index 72d6a9c6a5a2..a85d75a7f539 100644
-> >> --- a/drivers/net/virtio_net.c
-> >> +++ b/drivers/net/virtio_net.c
-> >> @@ -26,6 +26,7 @@
-> >>   #include <net/netdev_rx_queue.h>
-> >>   #include <net/netdev_queues.h>
-> >>   #include <net/xdp_sock_drv.h>
-> >> +#include <net/page_pool/helpers.h>
-> >>
-> >>   static int napi_weight =3D NAPI_POLL_WEIGHT;
-> >>   module_param(napi_weight, int, 0444);
-> >> @@ -290,14 +291,6 @@ struct virtnet_interrupt_coalesce {
-> >>          u32 max_usecs;
-> >>   };
-> >>
-> >> -/* The dma information of pages allocated at a time. */
-> >> -struct virtnet_rq_dma {
-> >> -       dma_addr_t addr;
-> >> -       u32 ref;
-> >> -       u16 len;
-> >> -       u16 need_sync;
-> >> -};
-> >> -
-> >>   /* Internal representation of a send virtqueue */
-> >>   struct send_queue {
-> >>          /* Virtqueue associated with this send _queue */
-> >> @@ -356,8 +349,10 @@ struct receive_queue {
-> >>          /* Average packet length for mergeable receive buffers. */
-> >>          struct ewma_pkt_len mrg_avg_pkt_len;
-> >>
-> >> -       /* Page frag for packet buffer allocation. */
-> >> -       struct page_frag alloc_frag;
-> >> +       struct page_pool *page_pool;
-> >> +
-> >> +       /* True if page_pool handles DMA mapping via PP_FLAG_DMA_MAP *=
-/
-> >> +       bool use_page_pool_dma;
-> >>
-> >>          /* RX: fragments + linear part + virtio header */
-> >>          struct scatterlist sg[MAX_SKB_FRAGS + 2];
-> >> @@ -370,9 +365,6 @@ struct receive_queue {
-> >>
-> >>          struct xdp_rxq_info xdp_rxq;
-> >>
-> >> -       /* Record the last dma info to free after new pages is allocat=
-ed. */
-> >> -       struct virtnet_rq_dma *last_dma;
-> >> -
-> >>          struct xsk_buff_pool *xsk_pool;
-> >>
-> >>          /* xdp rxq used by xsk */
-> >> @@ -521,11 +513,14 @@ static int virtnet_xdp_handler(struct bpf_prog *=
-xdp_prog, struct xdp_buff *xdp,
-> >>                                 struct virtnet_rq_stats *stats);
-> >>   static void virtnet_receive_done(struct virtnet_info *vi, struct rec=
-eive_queue *rq,
-> >>                                   struct sk_buff *skb, u8 flags);
-> >> -static struct sk_buff *virtnet_skb_append_frag(struct sk_buff *head_s=
-kb,
-> >> +static struct sk_buff *virtnet_skb_append_frag(struct receive_queue *=
-rq,
-> >> +                                              struct sk_buff *head_sk=
-b,
-> >>                                                 struct sk_buff *curr_s=
-kb,
-> >>                                                 struct page *page, voi=
-d *buf,
-> >>                                                 int len, int truesize)=
-;
-> >>   static void virtnet_xsk_completed(struct send_queue *sq, int num);
-> >> +static void free_unused_bufs(struct virtnet_info *vi);
-> >> +static void virtnet_del_vqs(struct virtnet_info *vi);
-> >>
-> >>   enum virtnet_xmit_type {
-> >>          VIRTNET_XMIT_TYPE_SKB,
-> >> @@ -709,12 +704,10 @@ static struct page *get_a_page(struct receive_qu=
-eue *rq, gfp_t gfp_mask)
-> >>   static void virtnet_rq_free_buf(struct virtnet_info *vi,
-> >>                                  struct receive_queue *rq, void *buf)
-> >>   {
-> >> -       if (vi->mergeable_rx_bufs)
-> >> -               put_page(virt_to_head_page(buf));
-> >> -       else if (vi->big_packets)
-> >> +       if (!rq->page_pool)
-> >>                  give_pages(rq, buf);
-> >>          else
-> >> -               put_page(virt_to_head_page(buf));
-> >> +               page_pool_put_page(rq->page_pool, virt_to_head_page(bu=
-f), -1, false);
-> >>   }
-> >>
-> >>   static void enable_rx_mode_work(struct virtnet_info *vi)
-> >> @@ -876,10 +869,16 @@ static struct sk_buff *page_to_skb(struct virtne=
-t_info *vi,
-> >>                  skb =3D virtnet_build_skb(buf, truesize, p - buf, len=
-);
-> >>                  if (unlikely(!skb))
-> >>                          return NULL;
-> >> +               /* Big packets mode chains pages via page->private, wh=
-ich is
-> >> +                * incompatible with the way page_pool uses page->priv=
-ate.
-> >> +                * Currently, big packets mode doesn't use page pools.
-> >> +                */
-> >> +               if (!rq->page_pool) {
-> >> +                       page =3D (struct page *)page->private;
-> >> +                       if (page)
-> >> +                               give_pages(rq, page);
-> >> +               }
-> >>
-> >> -               page =3D (struct page *)page->private;
-> >> -               if (page)
-> >> -                       give_pages(rq, page);
-> >>                  goto ok;
-> >>          }
-> >>
-> >> @@ -925,133 +924,16 @@ static struct sk_buff *page_to_skb(struct virtn=
-et_info *vi,
-> >>          hdr =3D skb_vnet_common_hdr(skb);
-> >>          memcpy(hdr, hdr_p, hdr_len);
-> >>          if (page_to_free)
-> >> -               put_page(page_to_free);
-> >> +               page_pool_put_page(rq->page_pool, page_to_free, -1, tr=
-ue);
-> >>
-> >>          return skb;
-> >>   }
-> >>
-> >> -static void virtnet_rq_unmap(struct receive_queue *rq, void *buf, u32=
- len)
-> >> -{
-> >> -       struct virtnet_info *vi =3D rq->vq->vdev->priv;
-> >> -       struct page *page =3D virt_to_head_page(buf);
-> >> -       struct virtnet_rq_dma *dma;
-> >> -       void *head;
-> >> -       int offset;
-> >> -
-> >> -       BUG_ON(vi->big_packets && !vi->mergeable_rx_bufs);
-> >> -
-> >> -       head =3D page_address(page);
-> >> -
-> >> -       dma =3D head;
-> >> -
-> >> -       --dma->ref;
-> >> -
-> >> -       if (dma->need_sync && len) {
-> >> -               offset =3D buf - (head + sizeof(*dma));
-> >> -
-> >> -               virtqueue_map_sync_single_range_for_cpu(rq->vq, dma->a=
-ddr,
-> >> -                                                       offset, len,
-> >> -                                                       DMA_FROM_DEVIC=
-E);
-> >> -       }
-> >> -
-> >> -       if (dma->ref)
-> >> -               return;
-> >> -
-> >> -       virtqueue_unmap_single_attrs(rq->vq, dma->addr, dma->len,
-> >> -                                    DMA_FROM_DEVICE, DMA_ATTR_SKIP_CP=
-U_SYNC);
-> >> -       put_page(page);
-> >> -}
-> >> -
-> >>   static void *virtnet_rq_get_buf(struct receive_queue *rq, u32 *len, =
-void **ctx)
-> >>   {
-> >> -       struct virtnet_info *vi =3D rq->vq->vdev->priv;
-> >> -       void *buf;
-> >> -
-> >> -       BUG_ON(vi->big_packets && !vi->mergeable_rx_bufs);
-> >> +       BUG_ON(!rq->page_pool);
-> >>
-> >> -       buf =3D virtqueue_get_buf_ctx(rq->vq, len, ctx);
-> >> -       if (buf)
-> >> -               virtnet_rq_unmap(rq, buf, *len);
-> >> -
-> >> -       return buf;
-> >> -}
-> >> -
-> >> -static void virtnet_rq_init_one_sg(struct receive_queue *rq, void *bu=
-f, u32 len)
-> >> -{
-> >> -       struct virtnet_info *vi =3D rq->vq->vdev->priv;
-> >> -       struct virtnet_rq_dma *dma;
-> >> -       dma_addr_t addr;
-> >> -       u32 offset;
-> >> -       void *head;
-> >> -
-> >> -       BUG_ON(vi->big_packets && !vi->mergeable_rx_bufs);
-> >> -
-> >> -       head =3D page_address(rq->alloc_frag.page);
-> >> -
-> >> -       offset =3D buf - head;
-> >> -
-> >> -       dma =3D head;
-> >> -
-> >> -       addr =3D dma->addr - sizeof(*dma) + offset;
-> >> -
-> >> -       sg_init_table(rq->sg, 1);
-> >> -       sg_fill_dma(rq->sg, addr, len);
-> >> -}
-> >> -
-> >> -static void *virtnet_rq_alloc(struct receive_queue *rq, u32 size, gfp=
-_t gfp)
-> >> -{
-> >> -       struct page_frag *alloc_frag =3D &rq->alloc_frag;
-> >> -       struct virtnet_info *vi =3D rq->vq->vdev->priv;
-> >> -       struct virtnet_rq_dma *dma;
-> >> -       void *buf, *head;
-> >> -       dma_addr_t addr;
-> >> -
-> >> -       BUG_ON(vi->big_packets && !vi->mergeable_rx_bufs);
-> >> -
-> >> -       head =3D page_address(alloc_frag->page);
-> >> -
-> >> -       dma =3D head;
-> >> -
-> >> -       /* new pages */
-> >> -       if (!alloc_frag->offset) {
-> >> -               if (rq->last_dma) {
-> >> -                       /* Now, the new page is allocated, the last dm=
-a
-> >> -                        * will not be used. So the dma can be unmappe=
-d
-> >> -                        * if the ref is 0.
-> >> -                        */
-> >> -                       virtnet_rq_unmap(rq, rq->last_dma, 0);
-> >> -                       rq->last_dma =3D NULL;
-> >> -               }
-> >> -
-> >> -               dma->len =3D alloc_frag->size - sizeof(*dma);
-> >> -
-> >> -               addr =3D virtqueue_map_single_attrs(rq->vq, dma + 1,
-> >> -                                                 dma->len, DMA_FROM_D=
-EVICE, 0);
-> >> -               if (virtqueue_map_mapping_error(rq->vq, addr))
-> >> -                       return NULL;
-> >> -
-> >> -               dma->addr =3D addr;
-> >> -               dma->need_sync =3D virtqueue_map_need_sync(rq->vq, add=
-r);
-> >> -
-> >> -               /* Add a reference to dma to prevent the entire dma fr=
-om
-> >> -                * being released during error handling. This referenc=
-e
-> >> -                * will be freed after the pages are no longer used.
-> >> -                */
-> >> -               get_page(alloc_frag->page);
-> >> -               dma->ref =3D 1;
-> >> -               alloc_frag->offset =3D sizeof(*dma);
-> >> -
-> >> -               rq->last_dma =3D dma;
-> >> -       }
-> >> -
-> >> -       ++dma->ref;
-> >> -
-> >> -       buf =3D head + alloc_frag->offset;
-> >> -
-> >> -       get_page(alloc_frag->page);
-> >> -       alloc_frag->offset +=3D size;
-> >> -
-> >> -       return buf;
-> >> +       return virtqueue_get_buf_ctx(rq->vq, len, ctx);
-> >>   }
-> >>
-> >>   static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *bu=
-f)
-> >> @@ -1067,9 +949,6 @@ static void virtnet_rq_unmap_free_buf(struct virt=
-queue *vq, void *buf)
-> >>                  return;
-> >>          }
-> >>
-> >> -       if (!vi->big_packets || vi->mergeable_rx_bufs)
-> >> -               virtnet_rq_unmap(rq, buf, 0);
-> >> -
-> >>          virtnet_rq_free_buf(vi, rq, buf);
-> >>   }
-> >>
-> >> @@ -1335,7 +1214,7 @@ static int xsk_append_merge_buffer(struct virtne=
-t_info *vi,
-> >>
-> >>                  truesize =3D len;
-> >>
-> >> -               curr_skb  =3D virtnet_skb_append_frag(head_skb, curr_s=
-kb, page,
-> >> +               curr_skb  =3D virtnet_skb_append_frag(rq, head_skb, cu=
-rr_skb, page,
-> >>                                                      buf, len, truesiz=
-e);
-> >>                  if (!curr_skb) {
-> >>                          put_page(page);
-> >> @@ -1771,7 +1650,7 @@ static int virtnet_xdp_xmit(struct net_device *d=
-ev,
-> >>          return ret;
-> >>   }
-> >>
-> >> -static void put_xdp_frags(struct xdp_buff *xdp)
-> >> +static void put_xdp_frags(struct receive_queue *rq, struct xdp_buff *=
-xdp)
-> >>   {
-> >>          struct skb_shared_info *shinfo;
-> >>          struct page *xdp_page;
-> >> @@ -1781,7 +1660,7 @@ static void put_xdp_frags(struct xdp_buff *xdp)
-> >>                  shinfo =3D xdp_get_shared_info_from_buff(xdp);
-> >>                  for (i =3D 0; i < shinfo->nr_frags; i++) {
-> >>                          xdp_page =3D skb_frag_page(&shinfo->frags[i])=
-;
-> >> -                       put_page(xdp_page);
-> >> +                       page_pool_put_page(rq->page_pool, xdp_page, -1=
-, true);
-> >>                  }
-> >>          }
-> >>   }
-> >> @@ -1873,7 +1752,7 @@ static struct page *xdp_linearize_page(struct ne=
-t_device *dev,
-> >>          if (page_off + *len + tailroom > PAGE_SIZE)
-> >>                  return NULL;
-> >>
-> >> -       page =3D alloc_page(GFP_ATOMIC);
-> >> +       page =3D page_pool_alloc_pages(rq->page_pool, GFP_ATOMIC);
-> >>          if (!page)
-> >>                  return NULL;
-> >>
-> >> @@ -1896,8 +1775,12 @@ static struct page *xdp_linearize_page(struct n=
-et_device *dev,
-> >>                  p =3D virt_to_head_page(buf);
-> >>                  off =3D buf - page_address(p);
-> >>
-> >> +               if (rq->use_page_pool_dma)
-> >> +                       page_pool_dma_sync_for_cpu(rq->page_pool, p,
-> >> +                                                  off, buflen);
-> >
-> > Intresting, I think we need a patch for -stable to sync for cpu as
-> > well (and probably the XDP_TX path).
-> >
-> >
-> >> +
-> >>                  if (check_mergeable_len(dev, ctx, buflen)) {
-> >> -                       put_page(p);
-> >> +                       page_pool_put_page(rq->page_pool, p, -1, true)=
-;
-> >>                          goto err_buf;
-> >>                  }
-> >>
-> >> @@ -1905,38 +1788,36 @@ static struct page *xdp_linearize_page(struct =
-net_device *dev,
-> >>                   * is sending packet larger than the MTU.
-> >>                   */
-> >>                  if ((page_off + buflen + tailroom) > PAGE_SIZE) {
-> >> -                       put_page(p);
-> >> +                       page_pool_put_page(rq->page_pool, p, -1, true)=
-;
-> >>                          goto err_buf;
-> >>                  }
-> >>
-> >>                  memcpy(page_address(page) + page_off,
-> >>                         page_address(p) + off, buflen);
-> >>                  page_off +=3D buflen;
-> >> -               put_page(p);
-> >> +               page_pool_put_page(rq->page_pool, p, -1, true);
-> >>          }
-> >>
-> >>          /* Headroom does not contribute to packet length */
-> >>          *len =3D page_off - XDP_PACKET_HEADROOM;
-> >>          return page;
-> >>   err_buf:
-> >> -       __free_pages(page, 0);
-> >> +       page_pool_put_page(rq->page_pool, page, -1, true);
-> >>          return NULL;
-> >>   }
-> >>
-> >>   static struct sk_buff *receive_small_build_skb(struct virtnet_info *=
-vi,
-> >>                                                 unsigned int xdp_headr=
-oom,
-> >>                                                 void *buf,
-> >> -                                              unsigned int len)
-> >> +                                              unsigned int len,
-> >> +                                              unsigned int buflen)
-> >>   {
-> >>          unsigned int header_offset;
-> >>          unsigned int headroom;
-> >> -       unsigned int buflen;
-> >>          struct sk_buff *skb;
-> >>
-> >>          header_offset =3D VIRTNET_RX_PAD + xdp_headroom;
-> >>          headroom =3D vi->hdr_len + header_offset;
-> >> -       buflen =3D SKB_DATA_ALIGN(GOOD_PACKET_LEN + headroom) +
-> >> -               SKB_DATA_ALIGN(sizeof(struct skb_shared_info));
-> >>
-> >
-> > Any reason for remvoing this?
->
-> page_pool_alloc_va() can return a larger allocation than requested as it
-> appends remaining fragment space to avoid truesize underestimation
-> (comment in page_pool_alloc_netmem() in helpers.h). The old hardcoded
-> computation would always produce the requested ~512 bytes, ignoring any
-> extra space page_pool gave us, so build_skb() would set skb->truesize
-> too low. To pass the real size through: add_recvbuf_small() encodes
-> alloc_len and xdp_headroom into ctx via mergeable_len_to_ctx(alloc_len,
-> xdp_headroom). On the receive side, receive_small() extracts it with
-> mergeable_ctx_to_truesize(ctx) and passes it as the buflen parameter to
-> receive_small_build_skb().
->
+Thanks! Yes something to improve:
 
-Right.
+On Mon, Mar 16, 2026 at 03:21:52PM +0800, Di Zhu wrote:
+> Although VIRTIO_NET_F_CTRL_GUEST_OFFLOADS is negotiated, which indicates
+> the device supports dynamic control of guest offloads, it does not
+> necessarily mean the device supports specific hardware GRO features.
+> 
+> If none of the features defined in GUEST_OFFLOAD_GRO_HW_MASK (such as
+> TSO4, TSO6, or UFO) are present in vi->guest_offloads_capable, the
+> device effectively lacks the hardware capability to perform GRO.
 
-So
+So what is the user-visible problem this is trying to address?
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+> 
+> So, making NETIF_F_GRO_HW conditional on these feature bits ensures the
+> stack does not enable an unsupported hardware offload configuration.
 
-Thanks
+I guess the assumption is that without this, something
+enables such a config? Which stack is this and what happens then?
+
+
+
+> Fixes: a02e8964eaf9 ("virtio-net: ethtool configurable LRO")
+> Signed-off-by: Di Zhu <zhud@hygon.cn>
+
+judging by this, has something to do with LRO?
+
+> ---
+> /* v2 */
+>   -make the modified logic clearer
+> ---
+>  drivers/net/virtio_net.c | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 72d6a9c6a5a2..b233c99925e9 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -6781,8 +6781,6 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
+>  	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO6))
+>  		dev->features |= NETIF_F_GRO_HW;
+> -	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS))
+> -		dev->hw_features |= NETIF_F_GRO_HW;
+>  
+>  	dev->vlan_features = dev->features;
+>  	dev->xdp_features = NETDEV_XDP_ACT_BASIC | NETDEV_XDP_ACT_REDIRECT |
+> @@ -7058,6 +7056,10 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  	}
+>  	vi->guest_offloads_capable = vi->guest_offloads;
+>  
+> +	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS) &&
+> +	    (vi->guest_offloads_capable & GUEST_OFFLOAD_GRO_HW_MASK))
+> +		dev->hw_features |= NETIF_F_GRO_HW;
+> +
+>  	rtnl_unlock();
+>  
+>  	err = virtnet_cpu_notif_add(vi);
+> -- 
+> 2.34.1
+> 
 
