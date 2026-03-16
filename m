@@ -1,116 +1,184 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 618D8394786;
-	Mon, 16 Mar 2026 12:08:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+Received: from mailgw2.hygon.cn (unknown [101.204.27.37])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 1708638F932
+	for <virtualization@lists.linux.dev>; Mon, 16 Mar 2026 12:57:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=101.204.27.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773662901; cv=none; b=q1clOBSd+Bil2UKtOdIodkz2Fn121AMaqix9leUm28Njr/CAd3VJUd1esSuUMiQH4Q+jkaVrT/Gsn69pvOsZod554JpmzgY34VVt1uNoRK4/Tgv+8bjkFsNe2yur5ehboRuwQIp5ogCV+tFrNxQOw/wgrzIEy0F2F6Xom88gbls=
+	t=1773665841; cv=none; b=U55iRKv83vz5wB5Qw264cdV2iI86XgsFaACqjyo/b05K9wCVRVqIYCaoerP1g53VRnmXCuFCDBIDuzprLgjX7AagQcaiEwJzyV4PUR/U44oXX3PGTAjJbWjzGqZ/grl0jtzZ8CqZzzNMhdtl+gFTJrlANczo+3AlcYU47GTqRNQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773662901; c=relaxed/simple;
-	bh=LNgT1bkI36Aaof9fGXufbmbOzF+v6lX+erH+ej291/M=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ZRV0zdqjZFqmkV0Sd7TD8D/xN3i9u8KSY/ljklfP5TUnZe8shSK0E5zFe+vbMV2XzM54CRMVAf9vmraW1s7q9OzO8hiU5nLZZbBWot1TRfpQ8N663HJW/JpdtOK7DmB/W63vYpnGFr+ndGwJ6eq1vkU45DPMdd69CMfl1vUsNBc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f606EcX/; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f606EcX/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53C54C19421;
-	Mon, 16 Mar 2026 12:08:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773662901;
-	bh=LNgT1bkI36Aaof9fGXufbmbOzF+v6lX+erH+ej291/M=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=f606EcX/A9glc8WgIXCSk9iKCWKEoKrhkdJVscxdVcWFT695P+witEfvwlCxbEAoV
-	 2CaPc/0g04ihQAXpaPzDa/tlf7aOI13buTu7t3gnUbHkVkrLlFanGr/mB8x5HVpybK
-	 57K2Isz0uTBifrIQNSuprOtawTKMqAaohnn654SPxoEQDv866DbsftDYB3l+B/v0Xs
-	 SNT446KDsBuZwh6PEMQHsyAhJw4tBLeu5BfB0KIjH/A+mCGNPURb6RivzTCS1RhV+C
-	 HjhVSYbYi5L4lYC2dPjofsP5oDqqDuRfVNzePhAX0LUh01xBpqfZ2JM71hLybIlQGV
-	 bkdNsNZuaDUIQ==
-Message-ID: <ef451711-af1c-4145-8e81-df7d09e389ad@kernel.org>
-Date: Mon, 16 Mar 2026 13:08:17 +0100
+	s=arc-20240116; t=1773665841; c=relaxed/simple;
+	bh=E8Vvbe21aQJezrulBOtxtWrB4U8bc+EgbdCUxkqQdwQ=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=gxwK2/Pv3a5RK4ByjTKXuehwqD9j1P9kwZdI6nj3MxgGavnPBPVCQst9sQwELzH4VNh2BiSmrjhRyHJA8ttwIcbsXYNoHXSZ1L57W2bhhORqWcQzT26mOAjau2030WRFDhz1d4iHfLCMHxrD+FUvtT+R4bp8OBKL4aJCPq5y8Xs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hygon.cn; spf=pass smtp.mailfrom=hygon.cn; arc=none smtp.client-ip=101.204.27.37
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hygon.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hygon.cn
+Received: from maildlp2.hygon.cn (unknown [127.0.0.1])
+	by mailgw2.hygon.cn (Postfix) with ESMTP id 4fZFV401dQz1YHN2d;
+	Mon, 16 Mar 2026 20:57:00 +0800 (CST)
+Received: from maildlp2.hygon.cn (unknown [172.23.18.61])
+	by mailgw2.hygon.cn (Postfix) with ESMTP id 4fZFV34r24z1YHN2d;
+	Mon, 16 Mar 2026 20:56:59 +0800 (CST)
+Received: from cncheex03.Hygon.cn (unknown [172.23.18.113])
+	by maildlp2.hygon.cn (Postfix) with ESMTPS id 3C77631C6206;
+	Mon, 16 Mar 2026 20:55:40 +0800 (CST)
+Received: from cncheex04.Hygon.cn (172.23.18.114) by cncheex03.Hygon.cn
+ (172.23.18.113) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.36; Mon, 16 Mar
+ 2026 20:57:00 +0800
+Received: from cncheex04.Hygon.cn ([fe80::1b6f:6c58:58a4:430d]) by
+ cncheex04.Hygon.cn ([fe80::1b6f:6c58:58a4:430d%10]) with mapi id
+ 15.02.1544.036; Mon, 16 Mar 2026 20:57:00 +0800
+From: Zhud <zhud@hygon.cn>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+CC: "jasowang@redhat.com" <jasowang@redhat.com>, "xuanzhuo@linux.alibaba.com"
+	<xuanzhuo@linux.alibaba.com>, "eperezma@redhat.com" <eperezma@redhat.com>,
+	"andrew+netdev@lunn.ch" <andrew+netdev@lunn.ch>, "davem@davemloft.net"
+	<davem@davemloft.net>, "edumazet@google.com" <edumazet@google.com>,
+	"kuba@kernel.org" <kuba@kernel.org>, "pabeni@redhat.com" <pabeni@redhat.com>,
+	"willemb@google.com" <willemb@google.com>, "netdev@vger.kernel.org"
+	<netdev@vger.kernel.org>, "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>, Jing Li <lijing@hygon.cn>, Zhiwei Ying
+	<yingzhiwei@hygon.cn>
+Subject: RE: [PATCH net-next v2] virtio-net: enable NETIF_F_GRO_HW only if
+ GRO-related offloads are supported
+Thread-Topic: [PATCH net-next v2] virtio-net: enable NETIF_F_GRO_HW only if
+ GRO-related offloads are supported
+Thread-Index: AQHctRWZ2ojSo6zfekKUjfvJ+iW5wbWwWqSAgACMBDD//43AAIAAnuoQ
+Date: Mon, 16 Mar 2026 12:57:00 +0000
+Message-ID: <a82cd6088e554fe1bb3daa6ad3df18dc@hygon.cn>
+References: <20260316072152.910857-1-zhud@hygon.cn>
+ <20260316051327-mutt-send-email-mst@kernel.org>
+ <607818aba89a44d88afa213f39611451@hygon.cn>
+ <20260316063139-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20260316063139-mutt-send-email-mst@kernel.org>
+Accept-Language: zh-CN, en-US
+Content-Language: zh-CN
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] virtio: add kernel-doc for map and vmap members
-To: Jason Wang <jasowang@redhat.com>, John S <xaum.io@gmail.com>
-Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-References: <CAAZVx9_Tq6afZJb-4pNKCwmB7xw=NZVCR8aSXM5N9+BbDdmTtg@mail.gmail.com>
- <CACGkMEvNgaRjsUjrW7PuTHrisBv0nH64SUbFYKMw4T-fia0GpQ@mail.gmail.com>
-From: Krzysztof Kozlowski <krzk@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=krzk@kernel.org; keydata=
- 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 a/A=
-In-Reply-To: <CACGkMEvNgaRjsUjrW7PuTHrisBv0nH64SUbFYKMw4T-fia0GpQ@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
 
-On 13/03/2026 07:18, Jason Wang wrote:
-> On Fri, Mar 13, 2026 at 5:42 AM John S <xaum.io@gmail.com> wrote:
->>
->> Document the map and vmap members of struct virtio_device that were
->> added without kernel-doc descriptions.
->>
->> This fixes the following warnings when building with W=1:
->>
->>   include/linux/virtio.h: struct member 'map' not described in 'virtio_device'
->>   include/linux/virtio.h: struct member 'vmap' not described in 'virtio_device'
->>
->> Signed-off-by: Kit Dallege <xaum.io@gmail.com>
-> 
-> Acked-by: Jason Wang <jasowang@redhat.com>
->
+> On Mon, Mar 16, 2026 at 10:18:04AM +0000, Zhud wrote:
+> > > Thanks! Yes something to improve:
+> > >
+> > > On Mon, Mar 16, 2026 at 03:21:52PM +0800, Di Zhu wrote:
+> > > > Although VIRTIO_NET_F_CTRL_GUEST_OFFLOADS is negotiated, which
+> > > > indicates the device supports dynamic control of guest offloads,
+> > > > it does not necessarily mean the device supports specific hardware =
+GRO
+> features.
+> > > >
+> > > > If none of the features defined in GUEST_OFFLOAD_GRO_HW_MASK (such
+> > > > as TSO4, TSO6, or UFO) are present in vi->guest_offloads_capable,
+> > > > the device effectively lacks the hardware capability to perform GRO=
+.
+> > >
+> > > So what is the user-visible problem this is trying to address?
+> >
+> > A key concern is that once a user enables NETIF_F_GRO_HW via ethtool,
+> > they might manually disable software GRO (ethtool -K eth0 gro off)
+> > assuming the hardware is now handling the aggregation.
+>=20
+> Thanks!
+> Sorry could you be even more specific please?
+> Is this a theoretical concern or did some users encounter this?
+> Note that NETIF_F_GRO_HW is best effort anyway: e.g.
+> it can apply only to TCPv6 and v4 will still need software.
 
-Sorry, but no :(.
+This might not be the best example, but I want to draw an analogy to show h=
+ow
+this hardware offload capability can be misleading. For instance, if I enab=
+le GRO_HW
+expecting to see lower CPU usage when receiving packets, but it doesn't hap=
+pen, that
+would be very confusing.
 
-Patch has incorrect DCO chain and most likely is product of LLM
-microslop without proper marking (as the rest of author's
-contributions). Therefore this should be actually reviewed before accepting.
+> > Secondly, while we haven't encountered a specific hardware failure
+> > yet, enabling a hardware offload feature that the DPU does not
+> > physically support introduces the risk of undefined hardware behavior
+>=20
+> This would be a major concern but I don't get it - how would one trigger =
+this?
+> It seems that guest_offloads_capable only includes offloads actually supp=
+orted.
 
-Best regards,
-Krzysztof
+You're absolutely right. Upon rechecking the code, virtnet_set_features alr=
+eady ensures=20
+that only bits within vi->guest_offloads_capable are sent to the device.
+Thank you for pointing that out.
+
+> > > >
+> > > > So, making NETIF_F_GRO_HW conditional on these feature bits
+> > > > ensures the stack does not enable an unsupported hardware offload
+> configuration.
+> > >
+> > > I guess the assumption is that without this, something enables such
+> > > a config? Which stack is this and what happens then?
+> > >
+> >
+> > Sorry for the confusion, let me clarify the intent.
+> > The 'stack' here refers to the ethtool interface and the netset (ioctl/=
+netlink) path.
+>=20
+>=20
+> A bit more detail about the specific set of commands that leads to confus=
+ion in the
+> commit log would be helpful.
+
+> Thanks!
+>=20
+> > >
+> > > > Fixes: a02e8964eaf9 ("virtio-net: ethtool configurable LRO")
+> > > > Signed-off-by: Di Zhu <zhud@hygon.cn>
+> > >
+> > > judging by this, has something to do with LRO?
+> > >
+> > > > ---
+> > > > /* v2 */
+> > > >   -make the modified logic clearer
+> > > > ---
+> > > >  drivers/net/virtio_net.c | 6 ++++--
+> > > >  1 file changed, 4 insertions(+), 2 deletions(-)
+> > > >
+> > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > > > index
+> > > > 72d6a9c6a5a2..b233c99925e9 100644
+> > > > --- a/drivers/net/virtio_net.c
+> > > > +++ b/drivers/net/virtio_net.c
+> > > > @@ -6781,8 +6781,6 @@ static int virtnet_probe(struct virtio_device=
+ *vdev)
+> > > >  	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
+> > > >  	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO6))
+> > > >  		dev->features |=3D NETIF_F_GRO_HW;
+> > > > -	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS))
+> > > > -		dev->hw_features |=3D NETIF_F_GRO_HW;
+> > > >
+> > > >  	dev->vlan_features =3D dev->features;
+> > > >  	dev->xdp_features =3D NETDEV_XDP_ACT_BASIC |
+> > > NETDEV_XDP_ACT_REDIRECT |
+> > > > @@ -7058,6 +7056,10 @@ static int virtnet_probe(struct virtio_devic=
+e *vdev)
+> > > >  	}
+> > > >  	vi->guest_offloads_capable =3D vi->guest_offloads;
+> > > >
+> > > > +	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS) &&
+> > > > +	    (vi->guest_offloads_capable & GUEST_OFFLOAD_GRO_HW_MASK))
+> > > > +		dev->hw_features |=3D NETIF_F_GRO_HW;
+> > > > +
+> > > >  	rtnl_unlock();
+> > > >
+> > > >  	err =3D virtnet_cpu_notif_add(vi);
+> > > > --
+> > > > 2.34.1
+> > > >
+> > >
+> >
+>=20
+
+
