@@ -1,156 +1,115 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96E9A392C20
-	for <virtualization@lists.linux.dev>; Mon, 16 Mar 2026 12:04:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CC9D39449F;
+	Mon, 16 Mar 2026 12:06:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773662693; cv=none; b=HepFkuIPaaX6Me8rl9H1tYgi3wBJm21acG/dxzHgd0se+RBL+fek1UIU/XkMbzwJ9xbtETC083V8nrr6S++TtC9OLLW1igJfI4CgxtGIgOT2nxL3fKCnmmoDrnCglKtz/WbQMiSeApPIXhSB45DFzRWTG+EvTfDnP248lmGr8o0=
+	t=1773662765; cv=none; b=gWEd3hoOFmfKvFlqKcH+NMQ/knR/NykblOUKjSjsL4aXL06er3YBkdza0VV5lvmlUNjLF/JcnDIREPJKUVPrvZfpVZLvwQC0ko0wPw8ZwN8T15uD6NIpnCxjcKh4FPV99JitgQKNUwcleFJndzVmNjVXIKxHMEgG2uXOSwZegPs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773662693; c=relaxed/simple;
-	bh=CN3BB8jMqtpHX9v247an8eQx/ZrNnfSh/VbSD9NzPqs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=gdNKkmldP1MnT6AYP+fi4+0Y1MM9/49pJftdDRkqluB0lPSfSjY9v1ZIq/ShaYkbYlLii5C8mbUWhOssJiUChsfwsyuaVYFcmBXMIMVSbOHQK8URRoF/A9cIM1vSO1rcg0Dhdtyanj5YP2lJ3xodqt/QxBYHd93nYX4saObZUeA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=B6qk/CCO; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1773662765; c=relaxed/simple;
+	bh=ZRtAZTNtj21DA+dLUkzrLS06oD7H1G2/XVPogljiumQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=IUunjyQvPFIzi2LWMl8CoTErP3CNu7VnQWNvTl9qyN5l9zC5khBKXQDrWosBQ547aWGD9fYjEJSP1G+Emxx8byMMygiEOEWtaC707yo7IkS14eQ98dhsmJnyaW0mpvAhSBJbHlzDnBDiKkNQqKTL35WHXLYrPKzkMl0I4Cow5s0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uazIWo21; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="B6qk/CCO"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1773662689;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=T1ThxgnukPZdnVsAXkBiIHRauBYKnXhO8ujaThY4wrs=;
-	b=B6qk/CCOIDDu4d5C2GaX7UJl2f6iHespLdxQx8qAMfnYPIBR3gOmHIF20o64nh9t27Hx+y
-	hXbgyrO5CN80v6ZPTLQ03FO1qRn2FkRC+pmG3UzRotTzsWwTHptYjuk/iASyqep6E9G5nY
-	fhME/5CpAoHS6Fkv8pFGdNshpqMfwsc=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-523--ptp1lnIMMebvR-Nma-_ng-1; Mon, 16 Mar 2026 08:04:48 -0400
-X-MC-Unique: -ptp1lnIMMebvR-Nma-_ng-1
-X-Mimecast-MFC-AGG-ID: -ptp1lnIMMebvR-Nma-_ng_1773662687
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-439c112b1a4so2906240f8f.3
-        for <virtualization@lists.linux.dev>; Mon, 16 Mar 2026 05:04:48 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773662687; x=1774267487;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=T1ThxgnukPZdnVsAXkBiIHRauBYKnXhO8ujaThY4wrs=;
-        b=A+pJFdW/tVbyes+5y9VFu3GBAdpH+30u5xSDZwa3+LGPxR7N0Ul0YYgytPROjP8AlM
-         w3bMvvSAn1TEXz3CwsEN5DOusLchfPrWvU5UYjjlrGB9abF1JKr5VnzIp48mdvak3Zvj
-         tUUCIc1rbgAjE8N7l3ugiFlqOXd11Vz94cRaR9ZnonDiBHnC4eMisaN1aGTHpHWCJh0f
-         ssi4hGsCuL1gveZ9eTvAO2nhMiKRwNVZb+HVJ8upbeHpN0QbFCX4Ktfr8kSyqNSmesR6
-         wsPshkDoSQATxc/N3xPde3JVjOu/nU2kOXBCt2meU+2uBsdn0nTzza1QTbkhBESBLGIB
-         18EA==
-X-Forwarded-Encrypted: i=1; AJvYcCV5ZXvWEm3x/6FO+7Ij33qHRcnPJfjvg7/JhF2CLlveQJjUU148BQ4bENpx8gqRbynojUJHvnfAaCpUdMae6A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwXjGln86cIVPDGpyiQcb0VLhiNpeoAATfKydu91SbzPYyBl/6q
-	/0VX1yTGjjkR69ltWXHj42+oQasqpNGbAYOpjWAI/SIfPOY6cnHahFPMmQOg6XQjOEWndScBVYP
-	il97p815zEU9HjTLLow/WAkQt8k6JSjKGk/uUj6dFqLu37c6vSOIekuYygRV02b73WCJA
-X-Gm-Gg: ATEYQzyYeF7VxL1OOT4VAAzvjkSHnE+pKU761NKUUGi/TuIQFd6ogO0ZMX4uWuq0jDr
-	WwnE/SurBN/O6yt8evR3OPj9/ZfiAmsEwsCLp+6NNROcF0S4s7NL6qVSrHuvUgRw1xwTNiAHn+V
-	KLxz+3mktZz2IVxjYKTblYuUPYfOa7zUJYExb94Nu9k5YCM3i1d79aMIl9erBfxB9U5xok2m6HE
-	AC0rQkiOogxhAYS8V9eaTzYsjr30erayjjqCsJKyDO5qrvUYCw8SeTOVZf7xqkC8rEOIDRv+4Hs
-	SsiTODy2Qx4uVXNRF3TXreFpCgPhSo2QvKmKpMjg5cn3E9r1FBrVu+Wb2+IVpsoMCqPmf6E51B2
-	ZGaXFiv7IWWLmn2wM37KU/g6KiEHFx7qNvhDHfB33OVF+Bg==
-X-Received: by 2002:a05:6000:2383:b0:43b:41b5:e02e with SMTP id ffacd0b85a97d-43b41b5e19emr8017952f8f.4.1773662687013;
-        Mon, 16 Mar 2026 05:04:47 -0700 (PDT)
-X-Received: by 2002:a05:6000:2383:b0:43b:41b5:e02e with SMTP id ffacd0b85a97d-43b41b5e19emr8017848f8f.4.1773662686464;
-        Mon, 16 Mar 2026 05:04:46 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-79-166.inter.net.il. [80.230.79.166])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43b45e5c233sm6464487f8f.33.2026.03.16.05.04.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 16 Mar 2026 05:04:45 -0700 (PDT)
-Date: Mon, 16 Mar 2026 08:04:41 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Vishwanath Seshagiri <vishs@meta.com>
-Cc: Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	David Wei <dw@davidwei.uk>, Matteo Croce <technoboy85@gmail.com>,
-	Ilias Apalodimas <ilias.apalodimas@linaro.org>,
-	netdev@vger.kernel.org, virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org, kernel-team@meta.com
-Subject: Re: [PATCH net-next v11] virtio_net: add page_pool support for
- buffer allocation
-Message-ID: <20260316080419-mutt-send-email-mst@kernel.org>
-References: <20260310183107.2822016-1-vishs@meta.com>
- <20260316054232-mutt-send-email-mst@kernel.org>
- <20260316064256-mutt-send-email-mst@kernel.org>
- <6d43dbbb-7d04-4442-8743-3963b61195cd@meta.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uazIWo21"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B739C2BCB3;
+	Mon, 16 Mar 2026 12:06:02 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773662764;
+	bh=ZRtAZTNtj21DA+dLUkzrLS06oD7H1G2/XVPogljiumQ=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=uazIWo21z9Q0Nfxh7k8vQaBdJR/cz4jSxAND0XUGo3yg9ZQk+kntEV+X9wuWm11o/
+	 tbbVwc6e1RsyBfJk9G3opjWSkU2LqwydeVvfP+P39spZkU80/E7KsbPX9xZtRPW3b5
+	 cyqUE0LhhcI/d/6xPTp+VPmuvrwas9Y02cKWEuSqNjfpFgZp2J9ON4Qti2IDRdOj7E
+	 C1jzgwW8U+YqqViqu7ap8gJlJ65eQ5A9hWrFTnPD8IaV+MhN5CQmMrjKLshcJ0F06a
+	 AqMbROiyaKrqGfJeP39jlUxsTbo3LXTyG+oW0bukJwb3Z0p+VQWnvc5hjRhHDvwJ/S
+	 l4CuuH2ZBolqw==
+Message-ID: <085ebc8c-636b-45d6-8431-878cbe90314b@kernel.org>
+Date: Mon, 16 Mar 2026 13:06:00 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <6d43dbbb-7d04-4442-8743-3963b61195cd@meta.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: _nzQm_P7y2sRCThVRJo0tAdUpH9LK2AMJaNfXxyOuxM_1773662687
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] virtio: document the map API in the driver writing guide
+To: John S <xaum.io@gmail.com>, mst@redhat.com, jasowang@redhat.com
+Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, corbet@lwn.net,
+ skhan@linuxfoundation.org, virtualization@lists.linux.dev,
+ linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <CAAZVx999y-DvB7Dp2ekoHk6s8aqqScd2gKSY4ySGAK6NNXeH5g@mail.gmail.com>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ xsFNBFVDQq4BEAC6KeLOfFsAvFMBsrCrJ2bCalhPv5+KQF2PS2+iwZI8BpRZoV+Bd5kWvN79
+ cFgcqTTuNHjAvxtUG8pQgGTHAObYs6xeYJtjUH0ZX6ndJ33FJYf5V3yXqqjcZ30FgHzJCFUu
+ JMp7PSyMPzpUXfU12yfcRYVEMQrmplNZssmYhiTeVicuOOypWugZKVLGNm0IweVCaZ/DJDIH
+ gNbpvVwjcKYrx85m9cBVEBUGaQP6AT7qlVCkrf50v8bofSIyVa2xmubbAwwFA1oxoOusjPIE
+ J3iadrwpFvsZjF5uHAKS+7wHLoW9hVzOnLbX6ajk5Hf8Pb1m+VH/E8bPBNNYKkfTtypTDUCj
+ NYcd27tjnXfG+SDs/EXNUAIRefCyvaRG7oRYF3Ec+2RgQDRnmmjCjoQNbFrJvJkFHlPeHaeS
+ BosGY+XWKydnmsfY7SSnjAzLUGAFhLd/XDVpb1Een2XucPpKvt9ORF+48gy12FA5GduRLhQU
+ vK4tU7ojoem/G23PcowM1CwPurC8sAVsQb9KmwTGh7rVz3ks3w/zfGBy3+WmLg++C2Wct6nM
+ Pd8/6CBVjEWqD06/RjI2AnjIq5fSEH/BIfXXfC68nMp9BZoy3So4ZsbOlBmtAPvMYX6U8VwD
+ TNeBxJu5Ex0Izf1NV9CzC3nNaFUYOY8KfN01X5SExAoVTr09ewARAQABzSVLcnp5c3p0b2Yg
+ S296bG93c2tpIDxrcnprQGtlcm5lbC5vcmc+wsGVBBMBCgA/AhsDBgsJCAcDAgYVCAIJCgsE
+ FgIDAQIeAQIXgBYhBJvQfg4MUfjVlne3VBuTQ307QWKbBQJoF1BKBQkWlnSaAAoJEBuTQ307
+ QWKbHukP/3t4tRp/bvDnxJfmNdNVn0gv9ep3L39IntPalBFwRKytqeQkzAju0whYWg+R/rwp
+ +r2I1Fzwt7+PTjsnMFlh1AZxGDmP5MFkzVsMnfX1lGiXhYSOMP97XL6R1QSXxaWOpGNCDaUl
+ ajorB0lJDcC0q3xAdwzRConxYVhlgmTrRiD8oLlSCD5baEAt5Zw17UTNDnDGmZQKR0fqLpWy
+ 786Lm5OScb7DjEgcA2PRm17st4UQ1kF0rQHokVaotxRM74PPDB8bCsunlghJl1DRK9s1aSuN
+ hL1Pv9VD8b4dFNvCo7b4hfAANPU67W40AaaGZ3UAfmw+1MYyo4QuAZGKzaP2ukbdCD/DYnqi
+ tJy88XqWtyb4UQWKNoQqGKzlYXdKsldYqrLHGoMvj1UN9XcRtXHST/IaLn72o7j7/h/Ac5EL
+ 8lSUVIG4TYn59NyxxAXa07Wi6zjVL1U11fTnFmE29ALYQEXKBI3KUO1A3p4sQWzU7uRmbuxn
+ naUmm8RbpMcOfa9JjlXCLmQ5IP7Rr5tYZUCkZz08LIfF8UMXwH7OOEX87Y++EkAB+pzKZNNd
+ hwoXulTAgjSy+OiaLtuCys9VdXLZ3Zy314azaCU3BoWgaMV0eAW/+gprWMXQM1lrlzvwlD/k
+ whyy9wGf0AEPpLssLVt9VVxNjo6BIkt6d1pMg6mHsUEVzsFNBFVDXDQBEADNkrQYSREUL4D3
+ Gws46JEoZ9HEQOKtkrwjrzlw/tCmqVzERRPvz2Xg8n7+HRCrgqnodIYoUh5WsU84N03KlLue
+ MNsWLJBvBaubYN4JuJIdRr4dS4oyF1/fQAQPHh8Thpiz0SAZFx6iWKB7Qrz3OrGCjTPcW6ei
+ OMheesVS5hxietSmlin+SilmIAPZHx7n242u6kdHOh+/SyLImKn/dh9RzatVpUKbv34eP1wA
+ GldWsRxbf3WP9pFNObSzI/Bo3kA89Xx2rO2roC+Gq4LeHvo7ptzcLcrqaHUAcZ3CgFG88CnA
+ 6z6lBZn0WyewEcPOPdcUB2Q7D/NiUY+HDiV99rAYPJztjeTrBSTnHeSBPb+qn5ZZGQwIdUW9
+ YegxWKvXXHTwB5eMzo/RB6vffwqcnHDoe0q7VgzRRZJwpi6aMIXLfeWZ5Wrwaw2zldFuO4Dt
+ 91pFzBSOIpeMtfgb/Pfe/a1WJ/GgaIRIBE+NUqckM+3zJHGmVPqJP/h2Iwv6nw8U+7Yyl6gU
+ BLHFTg2hYnLFJI4Xjg+AX1hHFVKmvl3VBHIsBv0oDcsQWXqY+NaFahT0lRPjYtrTa1v3tem/
+ JoFzZ4B0p27K+qQCF2R96hVvuEyjzBmdq2esyE6zIqftdo4MOJho8uctOiWbwNNq2U9pPWmu
+ 4vXVFBYIGmpyNPYzRm0QPwARAQABwsF8BBgBCgAmAhsMFiEEm9B+DgxR+NWWd7dUG5NDfTtB
+ YpsFAmgXUF8FCRaWWyoACgkQG5NDfTtBYptO0w//dlXJs5/42hAXKsk+PDg3wyEFb4NpyA1v
+ qmx7SfAzk9Hf6lWwU1O6AbqNMbh6PjEwadKUk1m04S7EjdQLsj/MBSgoQtCT3MDmWUUtHZd5
+ RYIPnPq3WVB47GtuO6/u375tsxhtf7vt95QSYJwCB+ZUgo4T+FV4hquZ4AsRkbgavtIzQisg
+ Dgv76tnEv3YHV8Jn9mi/Bu0FURF+5kpdMfgo1sq6RXNQ//TVf8yFgRtTUdXxW/qHjlYURrm2
+ H4kutobVEIxiyu6m05q3e9eZB/TaMMNVORx+1kM3j7f0rwtEYUFzY1ygQfpcMDPl7pRYoJjB
+ dSsm0ZuzDaCwaxg2t8hqQJBzJCezTOIkjHUsWAK+tEbU4Z4SnNpCyM3fBqsgYdJxjyC/tWVT
+ AQ18NRLtPw7tK1rdcwCl0GFQHwSwk5pDpz1NH40e6lU+NcXSeiqkDDRkHlftKPV/dV+lQXiu
+ jWt87ecuHlpL3uuQ0ZZNWqHgZoQLXoqC2ZV5KrtKWb/jyiFX/sxSrodALf0zf+tfHv0FZWT2
+ zHjUqd0t4njD/UOsuIMOQn4Ig0SdivYPfZukb5cdasKJukG1NOpbW7yRNivaCnfZz6dTawXw
+ XRIV/KDsHQiyVxKvN73bThKhONkcX2LWuD928tAR6XMM2G5ovxLe09vuOzzfTWQDsm++9UKF a/A=
+In-Reply-To: <CAAZVx999y-DvB7Dp2ekoHk6s8aqqScd2gKSY4ySGAK6NNXeH5g@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Mon, Mar 16, 2026 at 05:27:57PM +0530, Vishwanath Seshagiri wrote:
-> On 3/16/26 4:13 PM, Michael S. Tsirkin wrote:
-> > On Mon, Mar 16, 2026 at 05:56:20AM -0400, Michael S. Tsirkin wrote:
-> > > On Tue, Mar 10, 2026 at 11:31:04AM -0700, Vishwanath Seshagiri wrote:
-> > > > @@ -5857,7 +5863,7 @@ static int virtnet_xsk_pool_enable(struct net_device *dev,
-> > > >   	/* In big_packets mode, xdp cannot work, so there is no need to
-> > > >   	 * initialize xsk of rq.
-> > > >   	 */
-> > > > -	if (vi->big_packets && !vi->mergeable_rx_bufs)
-> > > > +	if (!vi->rq[qid].page_pool)
-> > > >   		return -ENOENT;
-> > > >   	if (qid >= vi->curr_queue_pairs)
-> > > 
-> > > 
-> > > 
-> > > It seems that a qid that exceeds curr_queue_pairs would previously get
-> > > -EINVAL and now gets -ENOENT.
-> > 
-> > Or maybe this if (qid >= vi->curr_queue_pairs) is dead code?
-> > I looked at it some more and I can't find a path where this
-> > triggers.
-> > 
-> > > Maybe reorder the checks:
-> > > 
-> > >          if (qid >= vi->curr_queue_pairs)
-> > >                  return -EINVAL;
-> > > 
-> > >          /* In big_packets mode, xdp cannot work, so there is no need to
-> > >           * initialize xsk of rq.
-> > >           */
-> > >         if (!vi->rq[qid].page_pool)
-> > >                 return -ENOENT;
-> > > 
-> > > 
-> > > Alternatively I think we can completely drop this chunk: we already seem
-> > > to init page_pull at all times except for big packets mode, so the
-> > > current code is fine I think.
+On 12/03/2026 22:58, John S wrote:
+> Add a new "Buffer mapping" section to the virtio driver writing guide
+> documenting the virtio map API (struct virtio_map_ops). This API was
+> introduced in commit bee8c7c24b73 ("virtio: introduce map ops in virtio
+> core") to allow transports and devices that do not perform DMA (such
+> as VDUSE) to provide their own buffer mapping logic instead of abusing
+> the DMA API.
 > 
-> Yes, I agree qid >= curr_queue_pairs appears to be dead code.
-> xsk_reg_pool_at_qid() in the XSK core already validates
-> queue_id < max(real_num_rx_queues, real_num_tx_queues) before
-> ndo_bpf is called, and real_num_rx_queues == curr_queue_pairs is an
-> invariant in virtio_net. Both paths hold rtnl_lock so no race is
-> possible. That said, I'll adopt your suggested reorder for v12 to ensure
-> vi->rq[qid] isn't accessed before a bounds check, even if the check
-> is currently redundant.
+> The new section explains when and why custom map ops are used, documents
+> the virtio_map_ops structure and the union virtio_map token, and
+> references the driver-facing mapping helpers with their kernel-doc.
+> 
+> Signed-off-by: Kit Dallege <xaum.io@gmail.com>
+> ---
+>  .../virtio/writing_virtio_drivers.rst         | 72 +++++++++++++++++++
+>  1 file changed, 72 insertions(+)
 
-I think we can just take this as-is, and do more cleanups on top.
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+NAK, because:
+1. Mismatched DCO or anonymous contribution
+2. Likely unverified LLM microslop
 
-
-> > > 
-> > > 
-> > > -- 
-> > > MST
-> > 
-
+Best regards,
+Krzysztof
