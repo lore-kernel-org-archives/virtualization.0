@@ -1,139 +1,224 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from out-179.mta0.migadu.com (out-179.mta0.migadu.com [91.218.175.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43BBA33A9C3
-	for <virtualization@lists.linux.dev>; Sun, 15 Mar 2026 15:30:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E74C13635E
+	for <virtualization@lists.linux.dev>; Mon, 16 Mar 2026 02:36:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773588610; cv=none; b=ek6oNNhU2boyQmYimAVDrk08XJzZWcAZMEiyAguB/I0KN/q1vbCBWtFmLn/VulUe7YXyexjeSk5SaMR+FASNX14GWoNbyXiMDlepf9QNzD0DFE4qezLisZblG+dfQJ75dVqnZF6nNC8yw++tmkmjRNc1QIKqAjjshmEY1dEPBbg=
+	t=1773628606; cv=none; b=OyYch/BgU3GOg7FgcwepJo8z5gS1hOCcPDQlBhBHyj/b5cchsBjqJpo8TTt0C8BJtycJ3InmyqPWOnT2oCRXBaxniDT9GoG6Nl9SNPR9SaVtrA0z5oQQ23AoTDuqjzsiaShn5BjnA74MojC+z5RyYgba6uNI2MfSeSXQmv3GVT4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773588610; c=relaxed/simple;
-	bh=EyOiydOuPLuOTj6QEmQI4rH9HhV6xLu3F9vI8CesZBc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=CyNLq3AlrNZrIXLKHggrBKVj0n0Q2lEp37hGl6wMkqb0pMq0qIsJdmqgJ3Z1Z0mwZZz34xqNXaNXNTYcG3R4a/3G3lAGQrWDrJC7riY5bcePu7mCnfP2hSLJHGbrn1Ac0NicQdCcHjGeZDYOZp6zk217joGdqcuszsfj14KFJ+w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=imZ0JMxT; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1773628606; c=relaxed/simple;
+	bh=mRd3IdzcKm4SM+baBTlHmRT/EusGdNBOuLESbb1MSpE=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=DCWBbDFB+2Zv1qP3oLE6ut32Ip9Hr1+TNv9lYEdmoRxFocxP46dOhlQO8wVffI+TA4CwEah+QDVncr4JSQMHph5iWg5gu9aO6TFQJ1UkPeSLWfJSIbLl6h8dAx6Gqoe9iAoePWaQb2L7beIMeU4rgBz+bgt9/Deu2wVkn+pjDHo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=JyucV4QL; arc=none smtp.client-ip=91.218.175.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="imZ0JMxT"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1773588608;
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="JyucV4QL"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1773628600;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=iiiFUzJ9tbUShPW9dcm9hP1jmyIzZs8zb+I7tXGQA24=;
-	b=imZ0JMxT5V6DBcSTtGbdlG9fd/3k9OPKW9ewyflLOPXQzWjFt+1ABLxDQusfoUVLAJDpwv
-	a4kHSo6xOGxqnOXeZaqccLH1kxzp9mW9J40kRzcYSwdPj4Cd5mlBfLpZUakDklcCnbRC58
-	+G1EW/BZuw0aKn1buDHi959iwBkmMHs=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-690-udA0rprLODOvdMVU0iWVTA-1; Sun, 15 Mar 2026 11:30:06 -0400
-X-MC-Unique: udA0rprLODOvdMVU0iWVTA-1
-X-Mimecast-MFC-AGG-ID: udA0rprLODOvdMVU0iWVTA_1773588605
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-48532df52c5so52200235e9.1
-        for <virtualization@lists.linux.dev>; Sun, 15 Mar 2026 08:30:06 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1773588605; x=1774193405;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=iiiFUzJ9tbUShPW9dcm9hP1jmyIzZs8zb+I7tXGQA24=;
-        b=OTTvaIs05Fcp/Pfb6NGIdAeHtznFJbRhz4mOImfA5KHhgEuH3R+ayoxlKPFt2g4iEB
-         vG5EY6kyFnld1gCPkgAoReIjCWS1cbvvboEJR3ySJL5ig1AOUGU/ylGp0LOASMG0FGXO
-         qkaNSJmgUTQz0D6uXXd1JItRHFC2PH4B4OTae7ZceG/v7iZEFmBhltNWNiV8pT+bbIX5
-         6iqajDFjNLpcMceHciyy7tXJgk9MW94Bjkwyfh2chRx2dlDG95r3SA/caVK/OgMtZ7IK
-         Lk9RuxfjTDzpaXf/z+XFT7rAJd1nih/Yow1pfvncXiO6YHEdbPFnOT0aanE27W4tj+e+
-         EULw==
-X-Forwarded-Encrypted: i=1; AJvYcCXkSXTQmN6RO2FSC8nQdtIBexgsts5v65EFVC5eQGEUdaff3vPPDG6XweALbcfuPCNI3BaqinsOlueKrJcvqQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwMyKd+GnH0q6v3na9TjNkBZT7OwkV+wNHLNk6KE1uVmzG9f0ZR
-	lhBvETPHIVT1AVuIgKrPfYKnfg9Lq4EWYdeiX4VDLxa9Wfnmd32iLzQ5NkGfJC7K5dqDRTHfLo6
-	t/JtlbCKcn5uR9cJR0Qm7Vo/wmbaR4C45OqAyHyywdZRTnQShVF1SvMcTWCXSGqdIuoI8u7UyXD
-	Fe
-X-Gm-Gg: ATEYQzyc4Zt5upkvK5VpEPgYdYtGi4wuARbi9TsQaIBkJqiQaenHlB7Ljs8Seh0QJQt
-	o8lbDap2h1CobiJ2QZPx+4cwlR8JQ6klR8FDG3YdFseXp++vxJivmwd1x6GX5P3rDADUka+t9tl
-	KWr0g7H5m7/hh+zHuSKdWWttgyLmfduH4iopjNn/CLdDcK8Pko13ZZRCBrQ3TJ9dI+uOely/EKn
-	jSKHVkxNpQrwN/jbHPCTu7ttJR2KauuqEAGnbGAMriL7Slu9I9omo/A/8CndKIjmIjWDhWPVKfy
-	tENfCVm9tWRj6E79TlzvOrscIPZHlsj3ovqqBR70myvxAf9qkej+CNSLxPrPHeEdgeiBg9RZ6v4
-	55gzRbZdxeArk0nHNyW1fq+3Mf35ivyK3UKQVxqXxrW4ssQ==
-X-Received: by 2002:a05:600c:c162:b0:485:3fd1:992c with SMTP id 5b1f17b1804b1-485566d2fe7mr153624665e9.1.1773588605010;
-        Sun, 15 Mar 2026 08:30:05 -0700 (PDT)
-X-Received: by 2002:a05:600c:c162:b0:485:3fd1:992c with SMTP id 5b1f17b1804b1-485566d2fe7mr153624055e9.1.1773588604468;
-        Sun, 15 Mar 2026 08:30:04 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-79-166.inter.net.il. [80.230.79.166])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4854e67ea40sm301596055e9.7.2026.03.15.08.30.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 15 Mar 2026 08:30:03 -0700 (PDT)
-Date: Sun, 15 Mar 2026 11:30:01 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Shengwen Cheng <shengwen1997.tw@gmail.com>
-Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] virtio_ring: reject NULL recycle callback in
- reset/resize helpers
-Message-ID: <20260315112904-mutt-send-email-mst@kernel.org>
-References: <20260315152403.127645-1-shengwen1997.tw@gmail.com>
+	bh=fL2ocGYrCU73YIvyxsIf7Pv7ZgK5y+PdJrpmfGXFYuY=;
+	b=JyucV4QL5mIFot5WZ/H/DQExVZoMvI++Bbbamzm67TTpLUQmbnNIpJComi8c84KBV+zqEd
+	+3WpzzW3KVAYXUYO54k++7UTAtCr31rZG2j+U4VUNK5TozudqnpHjFdU6BbReevmLv9cIl
+	o+0/ctOpiVrJvPCSAmWaSxXTK1rbHEk=
+From: Lance Yang <lance.yang@linux.dev>
+To: dave.hansen@intel.com,
+	peterz@infradead.org
+Cc: akpm@linux-foundation.org,
+	david@kernel.org,
+	dave.hansen@linux.intel.com,
+	ypodemsk@redhat.com,
+	hughd@google.com,
+	will@kernel.org,
+	aneesh.kumar@kernel.org,
+	npiggin@gmail.com,
+	tglx@linutronix.de,
+	mingo@redhat.com,
+	bp@alien8.de,
+	x86@kernel.org,
+	hpa@zytor.com,
+	arnd@arndb.de,
+	lorenzo.stoakes@oracle.com,
+	ziy@nvidia.com,
+	baolin.wang@linux.alibaba.com,
+	Liam.Howlett@oracle.com,
+	npache@redhat.com,
+	ryan.roberts@arm.com,
+	dev.jain@arm.com,
+	baohua@kernel.org,
+	shy828301@gmail.com,
+	riel@surriel.com,
+	jannh@google.com,
+	jgross@suse.com,
+	seanjc@google.com,
+	pbonzini@redhat.com,
+	boris.ostrovsky@oracle.com,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org,
+	linux-arch@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org,
+	ioworker0@gmail.com,
+	Lance Yang <lance.yang@linux.dev>
+Subject: Re: [PATCH v7 2/2] x86/tlb: skip redundant sync IPIs for native TLB flush
+Date: Mon, 16 Mar 2026 10:36:30 +0800
+Message-Id: <20260316023630.92368-1-lance.yang@linux.dev>
+In-Reply-To: <20260309020711.20831-3-lance.yang@linux.dev>
+References: <20260309020711.20831-3-lance.yang@linux.dev>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260315152403.127645-1-shengwen1997.tw@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: tnu_R884CtP2n8hQdpLqge2bonUDlA2wAccZL3tDzbg_1773588605
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-On Sun, Mar 15, 2026 at 11:24:03PM +0800, Shengwen Cheng wrote:
-> virtqueue_reset() and virtqueue_resize() rely on the recycle callback
-> to release each detached unused buffer after disable_vq_and_reset().
+
+Gently ping :)
+
+On Mon, Mar 09, 2026 at 10:07:11AM +0800, Lance Yang wrote:
+>From: Lance Yang <lance.yang@linux.dev>
+>
+>Enable the optimization introduced in the previous patch for x86.
+>
+>native_pv_tlb_init() checks whether native_flush_tlb_multi() is in use.
+>On CONFIG_PARAVIRT systems, it checks pv_ops; on non-PARAVIRT, native
+>flush is always in use.
+>
+>It decides once at boot whether to enable the optimization: if using
+>native TLB flush and INVLPGB is not supported, we know IPIs were sent
+>and can skip the redundant sync. The decision is fixed via a static
+>key as Peter suggested[1].
+>
+>PV backends (KVM, Xen, Hyper-V) typically have their own implementations
+>and don't call native_flush_tlb_multi() directly, so they cannot be trusted
+>to provide the IPI guarantees we need.
+>
+>Two-step plan as David suggested[2]:
+>
+>Step 1 (this patch): Skip redundant sync when we're 100% certain the TLB
+>flush sent IPIs. INVLPGB is excluded because when supported, we cannot
+>guarantee IPIs were sent, keeping it clean and simple.
+>
+>Step 2 (future work): Send targeted IPIs only to CPUs actually doing
+>software/lockless page table walks, benefiting all architectures.
+>
+>Regarding Step 2, it obviously only applies to setups where Step 1 does
+>not apply: like x86 with INVLPGB or arm64.
+>
+>[1] https://lore.kernel.org/linux-mm/20260302145652.GH1395266@noisy.programming.kicks-ass.net/
+>[2] https://lore.kernel.org/linux-mm/bbfdf226-4660-4949-b17b-0d209ee4ef8c@kernel.org/
+>
+>Suggested-by: Peter Zijlstra <peterz@infradead.org>
+>Suggested-by: David Hildenbrand (Arm) <david@kernel.org>
+>Signed-off-by: Lance Yang <lance.yang@linux.dev>
+>---
+> arch/x86/include/asm/tlb.h      | 17 ++++++++++++++++-
+> arch/x86/include/asm/tlbflush.h |  2 ++
+> arch/x86/kernel/smpboot.c       |  1 +
+> arch/x86/mm/tlb.c               | 15 +++++++++++++++
+> 4 files changed, 34 insertions(+), 1 deletion(-)
+>
+>diff --git a/arch/x86/include/asm/tlb.h b/arch/x86/include/asm/tlb.h
+>index 866ea78ba156..99de622d3856 100644
+>--- a/arch/x86/include/asm/tlb.h
+>+++ b/arch/x86/include/asm/tlb.h
+>@@ -5,11 +5,21 @@
+> #define tlb_flush tlb_flush
+> static inline void tlb_flush(struct mmu_gather *tlb);
 > 
-> As a defensive change, reject a NULL recycle callback explicitly to make
-> this requirement clear. Update virtqueue_disable_and_recycle() to warn
-> and return -EINVAL when @recycle is NULL, and update the descriptions
-> for virtqueue_reset() and virtqueue_resize() to document that @recycle
-> must not be %NULL.
-
-I see little point in this change, sorry.
-
-> ---
->  drivers/virtio/virtio_ring.c | 7 +++++--
->  1 file changed, 5 insertions(+), 2 deletions(-)
+>+#define tlb_table_flush_implies_ipi_broadcast tlb_table_flush_implies_ipi_broadcast
+>+static inline bool tlb_table_flush_implies_ipi_broadcast(void);
+>+
+> #include <asm-generic/tlb.h>
+> #include <linux/kernel.h>
+> #include <vdso/bits.h>
+> #include <vdso/page.h>
 > 
-> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> index 335692d41617..563cee634426 100644
-> --- a/drivers/virtio/virtio_ring.c
-> +++ b/drivers/virtio/virtio_ring.c
-> @@ -2698,6 +2698,9 @@ static int virtqueue_disable_and_recycle(struct virtqueue *_vq,
->  	void *buf;
->  	int err;
->  
-> +	if (WARN_ON_ONCE(!recycle))
-> +		return -EINVAL;
-> +
->  	if (!vq->we_own_ring)
->  		return -EPERM;
->  
-> @@ -3311,7 +3314,7 @@ EXPORT_SYMBOL_GPL(vring_create_virtqueue_map);
->   * virtqueue_resize - resize the vring of vq
->   * @_vq: the struct virtqueue we're talking about.
->   * @num: new ring num
-> - * @recycle: callback to recycle unused buffers
-> + * @recycle: callback to recycle unused buffers, must not be %NULL
->   * @recycle_done: callback to be invoked when recycle for all unused buffers done
->   *
->   * When it is really necessary to create a new vring, it will set the current vq
-> @@ -3367,7 +3370,7 @@ EXPORT_SYMBOL_GPL(virtqueue_resize);
->  /**
->   * virtqueue_reset - detach and recycle all unused buffers
->   * @_vq: the struct virtqueue we're talking about.
-> - * @recycle: callback to recycle unused buffers
-> + * @recycle: callback to recycle unused buffers, must not be %NULL
->   * @recycle_done: callback to be invoked when recycle for all unused buffers done
->   *
->   * Caller must ensure we don't call this with other virtqueue operations
-> -- 
-> 2.34.1
-
+>+DECLARE_STATIC_KEY_FALSE(tlb_ipi_broadcast_key);
+>+
+>+static inline bool tlb_table_flush_implies_ipi_broadcast(void)
+>+{
+>+	return static_branch_likely(&tlb_ipi_broadcast_key);
+>+}
+>+
+> static inline void tlb_flush(struct mmu_gather *tlb)
+> {
+> 	unsigned long start = 0UL, end = TLB_FLUSH_ALL;
+>@@ -20,7 +30,12 @@ static inline void tlb_flush(struct mmu_gather *tlb)
+> 		end = tlb->end;
+> 	}
+> 
+>-	flush_tlb_mm_range(tlb->mm, start, end, stride_shift, tlb->freed_tables);
+>+	/*
+>+	 * Pass both freed_tables and unshared_tables so that lazy-TLB CPUs
+>+	 * also receive IPIs during unsharing page tables.
+>+	 */
+>+	flush_tlb_mm_range(tlb->mm, start, end, stride_shift,
+>+			   tlb->freed_tables || tlb->unshared_tables);
+> }
+> 
+> static inline void invlpg(unsigned long addr)
+>diff --git a/arch/x86/include/asm/tlbflush.h b/arch/x86/include/asm/tlbflush.h
+>index 5a3cdc439e38..8ba853154b46 100644
+>--- a/arch/x86/include/asm/tlbflush.h
+>+++ b/arch/x86/include/asm/tlbflush.h
+>@@ -18,6 +18,8 @@
+> 
+> DECLARE_PER_CPU(u64, tlbstate_untag_mask);
+> 
+>+void __init native_pv_tlb_init(void);
+>+
+> void __flush_tlb_all(void);
+> 
+> #define TLB_FLUSH_ALL	-1UL
+>diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
+>index 5cd6950ab672..3cdb04162843 100644
+>--- a/arch/x86/kernel/smpboot.c
+>+++ b/arch/x86/kernel/smpboot.c
+>@@ -1167,6 +1167,7 @@ void __init native_smp_prepare_boot_cpu(void)
+> 		switch_gdt_and_percpu_base(me);
+> 
+> 	native_pv_lock_init();
+>+	native_pv_tlb_init();
+> }
+> 
+> void __init native_smp_cpus_done(unsigned int max_cpus)
+>diff --git a/arch/x86/mm/tlb.c b/arch/x86/mm/tlb.c
+>index 621e09d049cb..8f5585ebaf09 100644
+>--- a/arch/x86/mm/tlb.c
+>+++ b/arch/x86/mm/tlb.c
+>@@ -26,6 +26,8 @@
+> 
+> #include "mm_internal.h"
+> 
+>+DEFINE_STATIC_KEY_FALSE(tlb_ipi_broadcast_key);
+>+
+> #ifdef CONFIG_PARAVIRT
+> # define STATIC_NOPV
+> #else
+>@@ -1834,3 +1836,16 @@ static int __init create_tlb_single_page_flush_ceiling(void)
+> 	return 0;
+> }
+> late_initcall(create_tlb_single_page_flush_ceiling);
+>+
+>+void __init native_pv_tlb_init(void)
+>+{
+>+#ifdef CONFIG_PARAVIRT
+>+	if (pv_ops.mmu.flush_tlb_multi != native_flush_tlb_multi)
+>+		return;
+>+#endif
+>+
+>+	if (cpu_feature_enabled(X86_FEATURE_INVLPGB))
+>+		return;
+>+
+>+	static_branch_enable(&tlb_ipi_broadcast_key);
+>+}
