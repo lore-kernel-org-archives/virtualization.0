@@ -1,148 +1,138 @@
-Received: from mailgw2.hygon.cn (unknown [101.204.27.37])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id C686183A14
-	for <virtualization@lists.linux.dev>; Mon, 16 Mar 2026 10:18:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=101.204.27.37
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04D5738F239
+	for <virtualization@lists.linux.dev>; Mon, 16 Mar 2026 10:44:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773656305; cv=none; b=gMXV+WpVcpJFWatVGUKEEeVVtNwt/lWZ0zykg7TkMeH3SXxxV7Kp15oQsIU3x6K8DWaSvesN0HDesppp0tW0PESVGcoO9M2xiNVUrJZm0g8guyR7FRo11wISm3dzsUoJEnbwF0gvs/Mi0LxclWzchZg2SQZhsS5U8en3xYoo5s8=
+	t=1773657849; cv=none; b=GVbk9a7h2Qj6V1xgFWPLFAQ6s6tEMJtrDkNUfBWneqicANm+Hi9kYIhNn+IyjBDN9c7fvVMzPBnyfTWXZb7/YvjQXw0G/DwdFJW/AgQAZlXBUsyezSdVSjMeuZAb7x6zs4iTyAZ99PQezTVhDnz2QmZmz4fkDdotFnEF4tyzweM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773656305; c=relaxed/simple;
-	bh=1HjdbNbfcmSXQnz9z8qFvZA/wH0eYWpTbEZsCCL/LtI=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=Ucm3NnXyxnvNcahdSbyOJ+04adgN/c5loafA80azGkFrX43gI3qli6xuwUuibt0k5vwocX2FhqjA+JLt6KxZwP1ftTAy2cMXmBdkRNlJ0XQ5PPpXGLSkZsLbP7ICwXVBJWWLoQ37qHBWZNXteDjBk7+J8Hn4kBSgb9iMeAA+HFc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hygon.cn; spf=pass smtp.mailfrom=hygon.cn; arc=none smtp.client-ip=101.204.27.37
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hygon.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hygon.cn
-Received: from maildlp1.hygon.cn (unknown [127.0.0.1])
-	by mailgw2.hygon.cn (Postfix) with ESMTP id 4fZ9yj2Khsz1YHN2d;
-	Mon, 16 Mar 2026 18:18:05 +0800 (CST)
-Received: from maildlp1.hygon.cn (unknown [172.23.18.60])
-	by mailgw2.hygon.cn (Postfix) with ESMTP id 4fZ9yh2TpQz1YHN2d;
-	Mon, 16 Mar 2026 18:18:04 +0800 (CST)
-Received: from cncheex06.Hygon.cn (unknown [172.23.18.116])
-	by maildlp1.hygon.cn (Postfix) with ESMTPS id B97B3596C;
-	Mon, 16 Mar 2026 18:18:01 +0800 (CST)
-Received: from cncheex04.Hygon.cn (172.23.18.114) by cncheex06.Hygon.cn
- (172.23.18.116) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.36; Mon, 16 Mar
- 2026 18:18:05 +0800
-Received: from cncheex04.Hygon.cn ([fe80::1b6f:6c58:58a4:430d]) by
- cncheex04.Hygon.cn ([fe80::1b6f:6c58:58a4:430d%10]) with mapi id
- 15.02.1544.036; Mon, 16 Mar 2026 18:18:05 +0800
-From: Zhud <zhud@hygon.cn>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-CC: "jasowang@redhat.com" <jasowang@redhat.com>, "xuanzhuo@linux.alibaba.com"
-	<xuanzhuo@linux.alibaba.com>, "eperezma@redhat.com" <eperezma@redhat.com>,
-	"andrew+netdev@lunn.ch" <andrew+netdev@lunn.ch>, "davem@davemloft.net"
-	<davem@davemloft.net>, "edumazet@google.com" <edumazet@google.com>,
-	"kuba@kernel.org" <kuba@kernel.org>, "pabeni@redhat.com" <pabeni@redhat.com>,
-	"willemb@google.com" <willemb@google.com>, "netdev@vger.kernel.org"
-	<netdev@vger.kernel.org>, "virtualization@lists.linux.dev"
-	<virtualization@lists.linux.dev>, Jing Li <lijing@hygon.cn>, Zhiwei Ying
-	<yingzhiwei@hygon.cn>
-Subject: RE: [PATCH net-next v2] virtio-net: enable NETIF_F_GRO_HW only if
- GRO-related offloads are supported
-Thread-Topic: [PATCH net-next v2] virtio-net: enable NETIF_F_GRO_HW only if
- GRO-related offloads are supported
-Thread-Index: AQHctRWZ2ojSo6zfekKUjfvJ+iW5wbWwWqSAgACMBDA=
-Date: Mon, 16 Mar 2026 10:18:04 +0000
-Message-ID: <607818aba89a44d88afa213f39611451@hygon.cn>
-References: <20260316072152.910857-1-zhud@hygon.cn>
- <20260316051327-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20260316051327-mutt-send-email-mst@kernel.org>
-Accept-Language: zh-CN, en-US
-Content-Language: zh-CN
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	s=arc-20240116; t=1773657849; c=relaxed/simple;
+	bh=Sfai54yGfVswX06wKRJbvlx+Ae5w4/tFvgMB8FyVF0w=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=rW4tvFtnvuZIkYW8gbpDi5WMsDOOgxkXYcoUAo3m1+gvrDtTfOAmJbuL0/Rk43jSGGo9+6cIAcXMSxN9TO1YsroLdaXOFw+ttRa97/zscMpkBT/XHpJUwG/n9uD7b433xhUguum7vROAr+ho3VDf+B1rz/6wYm3USJpcW23JNRc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=G848RMsI; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="G848RMsI"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1773657846;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=N/gyi8r2QqrmKNfnuildAwIe3Wu8jqbPwSPfbNMez1o=;
+	b=G848RMsIykfGvEzrRxY+2+Ez7Sc7my0bZqfvakOq16UZT8IgiyQbbk/SM5WBSuYzuA5JtS
+	TxAqz43MRUsp61Du0qrXvfKK7Qd4gTxwFTuNbT7rI4WEV9DLOo2i+CkDWP+R1JoaRvsvja
+	hlazSUMepqzlAbK/+Ntj2/M/SdJcCDI=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-528-zAuTZF7wMAW6zuhAiLBFAw-1; Mon, 16 Mar 2026 06:44:04 -0400
+X-MC-Unique: zAuTZF7wMAW6zuhAiLBFAw-1
+X-Mimecast-MFC-AGG-ID: zAuTZF7wMAW6zuhAiLBFAw_1773657843
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-43b3da235dbso1291599f8f.1
+        for <virtualization@lists.linux.dev>; Mon, 16 Mar 2026 03:44:04 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1773657843; x=1774262643;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=N/gyi8r2QqrmKNfnuildAwIe3Wu8jqbPwSPfbNMez1o=;
+        b=bFO1tUhOKo5YWBU/xPIKI0wnaSQJ5yaXj/DlMpKWqD5jtD75tVPvzneyzeIrPgZwnO
+         7c/HYc6zDu5RAon4+KdEALtlXnk6n9jDOHwOEaUyJSpBtrp23XQFFh96sA+hGFaVtO6/
+         QkS4otzOA6WZNn1qXAH5EkR3EVbqVLoj/AHHOybuG8qzIfm9g9+ZEUATSteCWu+xLEmW
+         yb4Yg79QqgSxWOo02kuN6WRujZeUaSqXtgJzAuA8pJv2KLpiH6wPThs99tMs4CdZhI7w
+         PwtLAKGOTOrqpByj5HD1OV9nvHMpFgqnuWK9P88tUSvzEsMJAeUeDYRPqBFtEFFMtAKs
+         qX7A==
+X-Forwarded-Encrypted: i=1; AJvYcCVm/JmJ2GCK7Odmzex31+I6zV0M4FsVni3QaXeRRSFIQVjZcTCc/A4NJtnj4Sw5Ok4xsauKRKDjf2xHrqhj1g==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz/nJzh/KKlbNygMvhIefBuwZhidDr+T4fF1AQMFedeP87zpCZN
+	dDG5TLNoiRVHxR8jsc+O8koZftRe+19rQfP0wpO/3U+IdUaj76B3lX6JfOCBkT7Hoyd+FVohkFh
+	pWYqOyZI/BXWd7o+yPDp7rFhRDrvCAAkKmAsNo+k9XfBY16GJ0UFkNn/klcTawTnBKTSQ
+X-Gm-Gg: ATEYQzxUhJmI6IsRyNaPuEAeQ4Yn3m72tGRHzSOao/L6X9mjkQzN988Bb11ZITLIc2/
+	XfZmFJyRThwuA8t4K2wPknk13H32QOyLYpgdjRkqrkorAEpcYLKrNK40sEFMXxBPmYf2xYncuFX
+	rnxEgHeejRu9/74Rg8yWwAIxRZeZ6qEMk2OhoLvZ6t7HaF97/3DXi/npPXscRnKsuFWbPNX0VVa
+	sB9lUsiDfW8GW7b/69y8FsY7hW7bWNy7aQvyR4N2YKCWz9hNWf5dFkxUy1KdpFeqwksjGJNTKWL
+	/aSO3ZFjoEDdtfcxygdqlXaNOWq3BTDpKeIW3h9Wg17lkFyBI9ATOgRih9Ktz2lM3phZwGKNBpB
+	PoaMuXTmJsT6fZs0h+yvyiD92B+cMr0ICV9/P3XAfBGuZjw==
+X-Received: by 2002:a05:6000:381:b0:439:d8cb:1392 with SMTP id ffacd0b85a97d-43a04d91a43mr23683328f8f.26.1773657843172;
+        Mon, 16 Mar 2026 03:44:03 -0700 (PDT)
+X-Received: by 2002:a05:6000:381:b0:439:d8cb:1392 with SMTP id ffacd0b85a97d-43a04d91a43mr23683282f8f.26.1773657842675;
+        Mon, 16 Mar 2026 03:44:02 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-79-166.inter.net.il. [80.230.79.166])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43b45e51681sm3730121f8f.25.2026.03.16.03.44.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 16 Mar 2026 03:44:02 -0700 (PDT)
+Date: Mon, 16 Mar 2026 06:43:58 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Vishwanath Seshagiri <vishs@meta.com>
+Cc: Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S . Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	David Wei <dw@davidwei.uk>, Matteo Croce <technoboy85@gmail.com>,
+	Ilias Apalodimas <ilias.apalodimas@linaro.org>,
+	netdev@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org, kernel-team@meta.com
+Subject: Re: [PATCH net-next v11] virtio_net: add page_pool support for
+ buffer allocation
+Message-ID: <20260316064256-mutt-send-email-mst@kernel.org>
+References: <20260310183107.2822016-1-vishs@meta.com>
+ <20260316054232-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <20260316054232-mutt-send-email-mst@kernel.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: O7S3RJe1I47tuZIwOr6HumsJUvkVJkd-wzHTD_3hodQ_1773657843
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> Thanks! Yes something to improve:
->=20
-> On Mon, Mar 16, 2026 at 03:21:52PM +0800, Di Zhu wrote:
-> > Although VIRTIO_NET_F_CTRL_GUEST_OFFLOADS is negotiated, which
-> > indicates the device supports dynamic control of guest offloads, it
-> > does not necessarily mean the device supports specific hardware GRO fea=
-tures.
-> >
-> > If none of the features defined in GUEST_OFFLOAD_GRO_HW_MASK (such as
-> > TSO4, TSO6, or UFO) are present in vi->guest_offloads_capable, the
-> > device effectively lacks the hardware capability to perform GRO.
->=20
-> So what is the user-visible problem this is trying to address?
+On Mon, Mar 16, 2026 at 05:56:20AM -0400, Michael S. Tsirkin wrote:
+> On Tue, Mar 10, 2026 at 11:31:04AM -0700, Vishwanath Seshagiri wrote:
+> > @@ -5857,7 +5863,7 @@ static int virtnet_xsk_pool_enable(struct net_device *dev,
+> >  	/* In big_packets mode, xdp cannot work, so there is no need to
+> >  	 * initialize xsk of rq.
+> >  	 */
+> > -	if (vi->big_packets && !vi->mergeable_rx_bufs)
+> > +	if (!vi->rq[qid].page_pool)
+> >  		return -ENOENT;
+> >  
+> >  	if (qid >= vi->curr_queue_pairs)
+> 
+> 
+> 
+> It seems that a qid that exceeds curr_queue_pairs would previously get
+> -EINVAL and now gets -ENOENT.
 
-A key concern is that once a user enables NETIF_F_GRO_HW via ethtool,=20
-they might manually disable software GRO (ethtool -K eth0 gro off) assuming=
- the=20
-hardware is now handling the aggregation.
+Or maybe this if (qid >= vi->curr_queue_pairs) is dead code?
+I looked at it some more and I can't find a path where this
+triggers.
 
-Secondly, while we haven't encountered a specific hardware failure yet,=20
-enabling a hardware offload feature that the DPU does not physically suppor=
-t=20
-introduces the risk of undefined hardware behavior
-
-> >
-> > So, making NETIF_F_GRO_HW conditional on these feature bits ensures
-> > the stack does not enable an unsupported hardware offload configuration=
-.
->=20
-> I guess the assumption is that without this, something enables such a con=
-fig? Which
-> stack is this and what happens then?
->=20
-
-Sorry for the confusion, let me clarify the intent.
-The 'stack' here refers to the ethtool interface and the netset (ioctl/netl=
-ink) path.=20
-
->=20
-> > Fixes: a02e8964eaf9 ("virtio-net: ethtool configurable LRO")
-> > Signed-off-by: Di Zhu <zhud@hygon.cn>
->=20
-> judging by this, has something to do with LRO?
->=20
-> > ---
-> > /* v2 */
-> >   -make the modified logic clearer
-> > ---
-> >  drivers/net/virtio_net.c | 6 ++++--
-> >  1 file changed, 4 insertions(+), 2 deletions(-)
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c index
-> > 72d6a9c6a5a2..b233c99925e9 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -6781,8 +6781,6 @@ static int virtnet_probe(struct virtio_device *vd=
-ev)
-> >  	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
-> >  	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO6))
-> >  		dev->features |=3D NETIF_F_GRO_HW;
-> > -	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS))
-> > -		dev->hw_features |=3D NETIF_F_GRO_HW;
-> >
-> >  	dev->vlan_features =3D dev->features;
-> >  	dev->xdp_features =3D NETDEV_XDP_ACT_BASIC |
-> NETDEV_XDP_ACT_REDIRECT |
-> > @@ -7058,6 +7056,10 @@ static int virtnet_probe(struct virtio_device *v=
-dev)
-> >  	}
-> >  	vi->guest_offloads_capable =3D vi->guest_offloads;
-> >
-> > +	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS) &&
-> > +	    (vi->guest_offloads_capable & GUEST_OFFLOAD_GRO_HW_MASK))
-> > +		dev->hw_features |=3D NETIF_F_GRO_HW;
-> > +
-> >  	rtnl_unlock();
-> >
-> >  	err =3D virtnet_cpu_notif_add(vi);
-> > --
-> > 2.34.1
-> >
->=20
-
+> Maybe reorder the checks:
+> 
+>         if (qid >= vi->curr_queue_pairs)
+>                 return -EINVAL;
+> 
+>         /* In big_packets mode, xdp cannot work, so there is no need to
+>          * initialize xsk of rq.
+>          */ 
+>        if (!vi->rq[qid].page_pool)
+>                return -ENOENT;
+> 
+> 
+> Alternatively I think we can completely drop this chunk: we already seem
+> to init page_pull at all times except for big packets mode, so the
+> current code is fine I think.
+> 
+> 
+> -- 
+> MST
 
