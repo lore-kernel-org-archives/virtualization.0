@@ -1,56 +1,56 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 356D339B946
-	for <virtualization@lists.linux.dev>; Mon, 16 Mar 2026 13:59:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B976786347
+	for <virtualization@lists.linux.dev>; Mon, 16 Mar 2026 14:01:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773669586; cv=none; b=fwTvd0gj10uPh44QfnD8YvkT0nJ+PQtKnb00EgXB6h9FW6LXJLJkoJffgibigrHRIpx8A4kms8nrkb1mJMrcalQkXWc3YI/rXdirKPwYupqtS1iTzrvBgYnwuXQ8Oop6Al1Z+7yBnnO+zd3gVqjVdTUYzgOVTjwxQ/DTCEUwrXw=
+	t=1773669671; cv=none; b=ALJEcjA49/rBhkqmRWTzNDP1Uf54LgoabQYsCrmmnoc/zmoLZ8gemXcL9JpRipcu+mmquT6kgQCWg5M3TPraXlxE0XUR94y5guKF84kS1fHy4nHsVNMxFfoewsofkwCEozZV5OgLfcTOfVh296QkYtk/ixRhQE/zZE1UV6hc9dI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773669586; c=relaxed/simple;
-	bh=Fjb9fZZs1ZvFOQ4C9uQbO/1B6MRyMCO+ilDgqLwjVi0=;
+	s=arc-20240116; t=1773669671; c=relaxed/simple;
+	bh=icuPs2B4QFfLsKJ38YJ08fObVs+9ZJnMQpHj6+krw1I=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ePzamLiVLi4gkl62pNwfQx/MZgkUKXQ7If5o8quAgDRvIWJ23T02lJIpBwmsD7V53oDut01I7bA1+79Whsyn/awdfAx0Ai0MrVvOFU5hL+1/jLungP2abOXifhE6ylFlKdgduo85jcnsphmSfBhPq975otEP3nuViSf/bBlKORE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FhpcxDUh; arc=none smtp.client-ip=10.30.226.201
+	 To:Cc:Content-Type; b=fQJvXsegNHYDhs38V9q+PaG+6oEswx4wgCtOab38+bTHltyo1VNIM+qLGXXJfVBiZkLyYavINa36tGhLGp8VE76o3FqJWvGobjEK1ij2OU5Ygvin5tuzhiLRQRNKmSiXhjwogFw/leK1ozIxvVaNyC60CCLmy0OmREnY8Ipkf8c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RoBG/hpq; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FhpcxDUh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E20E2C19421
-	for <virtualization@lists.linux.dev>; Mon, 16 Mar 2026 13:59:45 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RoBG/hpq"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9F074C2BC87
+	for <virtualization@lists.linux.dev>; Mon, 16 Mar 2026 14:01:11 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773669585;
-	bh=Fjb9fZZs1ZvFOQ4C9uQbO/1B6MRyMCO+ilDgqLwjVi0=;
+	s=k20201202; t=1773669671;
+	bh=icuPs2B4QFfLsKJ38YJ08fObVs+9ZJnMQpHj6+krw1I=;
 	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=FhpcxDUhFXxP/s3z39GyLkA3mHIjnO2p5Uh4OJyIo2zbv+tGGXQhmmy61586p5uK/
-	 nAaSsf36BROI3y4U/G/YXqD559zF1wOqncS7bdegu6Ks1lIccfTXCkIffTyhGOUERr
-	 wxKfVzq3H8C4TaefrFOl+se3XbNKBj29IiDakLpcXawhz/CbJqsZQzdavfFNAMZ1V6
-	 CsutPglymEjrrSA9rEz6jYIpZdIusb58StT18CTu5s1DVtaMVWj7IqEoUYmC2ovuac
-	 Jtus0JLCX8SNvN8/IyExRHpJIy9B98M6iGC65oDVjYcjTT+djMPSsU3qx+VLNm9FCF
-	 IqZBvPgKqtEPw==
-Received: by mail-yx1-f52.google.com with SMTP id 956f58d0204a3-64ca09f2056so3411088d50.2
-        for <virtualization@lists.linux.dev>; Mon, 16 Mar 2026 06:59:45 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCULoiVFh3DQEtoKwBcokGXu27fbVh95844DTDQkBhy3lOKF0adbrqZroMp1tKaR0SJMK5971qcI7i0rogsb2A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwNkApcHwgwLrfqVEERkv98/HABad6u9BZaOZNStHlaGtFZecDG
-	Wce92m+/H9IDBJLUjGZBeFb/+5tR7FK+Bo0E0AUDl0D0yf3hNdYB/YZGvaICWH8plNMFrvk4REl
-	fQBIAdLq2snRfpXkof7jLkP3Ednl37yk=
-X-Received: by 2002:a05:690e:1c7:b0:63c:f5a6:f2ef with SMTP id
- 956f58d0204a3-64e6307f5dcmr9995930d50.65.1773669585234; Mon, 16 Mar 2026
- 06:59:45 -0700 (PDT)
+	b=RoBG/hpqia+HVYMm3ag0XnK9qy5/PkT3O7feLeO09O2pbQIfl7jQ37IoK0chQ0iGK
+	 ckwuaoqZ6zLhfzf4pUiuKOtU1i54AFwCLg2uYASdWpyZLZopQuT0DM2m9ToZCZZsTo
+	 G3pvTdAQI5OPp6M+NtgwrxyU7UZeGhrOQW7OCHtwJP6miu2jWyTKPHIJmA5vJVInSJ
+	 /PuAc9Rh43Zan1/qRIt4+y7SNcRGOnxKvk+B6rM5bEMEtqPJIWem0k3E0wSMRXDzxK
+	 XOlwxrrKPCgzJZIJ7MrI6xRXnuAbZyBwjUkPmTasiBkHZF39ZFX2ZOGjrFITQxwgBf
+	 LCGfGRfGQHFQQ==
+Received: by mail-yw1-f178.google.com with SMTP id 00721157ae682-79a3e2e64f4so7307787b3.1
+        for <virtualization@lists.linux.dev>; Mon, 16 Mar 2026 07:01:11 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AJvYcCV/v82EUbIwLlt9O5tJfAhc8kV5XEeKyHWs79eO7+EcGwTZwIBqZl1lxR3eDGkEfbnNVjbYE9OG+8IX9MAu+g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwOSG3rgKQLDIJR1sB7d3eEImuZVMSxvFKsfYGTTcH8+FyNSaH8
+	pDWeoYRKZCWbXSxuVKDjDRJhPorLsJSWY09BAb+6dn2bNIy+c9sXqq4frp4IMRwY7c/sc4WFc50
+	N+S/wgEZNvL6rGSYp8TMVoNNqU4mbLS0=
+X-Received: by 2002:a05:690c:c:b0:79a:467a:3c57 with SMTP id
+ 00721157ae682-79a467a4014mr44717547b3.54.1773669670981; Mon, 16 Mar 2026
+ 07:01:10 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260312193717.12221-1-rosenp@gmail.com>
-In-Reply-To: <20260312193717.12221-1-rosenp@gmail.com>
+References: <20260312193717.12221-1-rosenp@gmail.com> <7jwgbrijeldghk44tdg2be5q7o7vuj5np3nlbl2pxuln6c7ll7@ntuquxxdnfmm>
+In-Reply-To: <7jwgbrijeldghk44tdg2be5q7o7vuj5np3nlbl2pxuln6c7ll7@ntuquxxdnfmm>
 From: Linus Walleij <linusw@kernel.org>
-Date: Mon, 16 Mar 2026 14:59:34 +0100
-X-Gmail-Original-Message-ID: <CAD++jLnRseLfMFq982ggXSYCrO-5xoxPD30eepGKY6-EEeuhLA@mail.gmail.com>
-X-Gm-Features: AaiRm51aOzZzJaZ_mm2VdjhqhKeQ3AoEaq_JqIIJjrVjOdtyD03zXAXm1_l24VE
-Message-ID: <CAD++jLnRseLfMFq982ggXSYCrO-5xoxPD30eepGKY6-EEeuhLA@mail.gmail.com>
+Date: Mon, 16 Mar 2026 15:00:59 +0100
+X-Gmail-Original-Message-ID: <CAD++jLnTJGt2YXo6ASXEjPPsMbrr+Mz3RKcCVeUpaWEMPm6DOQ@mail.gmail.com>
+X-Gm-Features: AaiRm527HlMvMf70RMP51LH1S6r3tIVHbSLAV8tVZzSohcjCv6bE8KOjkGMLXvs
+Message-ID: <CAD++jLnTJGt2YXo6ASXEjPPsMbrr+Mz3RKcCVeUpaWEMPm6DOQ@mail.gmail.com>
 Subject: Re: [PATCHv3] gpio: virtio: remove one kcalloc
-To: Rosen Penev <rosenp@gmail.com>
-Cc: linux-gpio@vger.kernel.org, 
+To: Viresh Kumar <viresh.kumar@linaro.org>
+Cc: Rosen Penev <rosenp@gmail.com>, linux-gpio@vger.kernel.org, 
 	"Enrico Weigelt, metux IT consult" <info@metux.net>, Viresh Kumar <vireshk@kernel.org>, 
 	Bartosz Golaszewski <brgl@kernel.org>, Kees Cook <kees@kernel.org>, 
 	"Gustavo A. R. Silva" <gustavoars@kernel.org>, 
@@ -59,15 +59,16 @@ Cc: linux-gpio@vger.kernel.org,
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Mar 12, 2026 at 8:37=E2=80=AFPM Rosen Penev <rosenp@gmail.com> wrot=
-e:
+On Fri, Mar 13, 2026 at 7:09=E2=80=AFAM Viresh Kumar <viresh.kumar@linaro.o=
+rg> wrote:
 
-> A flexible array member can be used to combine allocations.
->
-> Signed-off-by: Rosen Penev <rosenp@gmail.com>
-> Acked-by: Viresh Kumar <viresh.kumar@linaro.org>
+> I wonder if it is worth it anymore. Why combining allocations is better w=
+hen we
+> are ending up using more memory ?
 
-Reviewed-by: Linus Walleij <linusw@kernel.org>
+For the same reason we are starting to use Rust in the kernel, despite
+it sometimes will take more memory essentially. __counted_by() enforce
+the same type of runtime size checks as Rust do on arrays.
 
 Yours,
 Linus Walleij
