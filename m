@@ -1,111 +1,96 @@
-Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68E8723E342
-	for <virtualization@lists.linux.dev>; Mon, 16 Mar 2026 02:54:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
+Received: from mailgw1.hygon.cn (unknown [101.204.27.37])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 6192D34CFD0
+	for <virtualization@lists.linux.dev>; Mon, 16 Mar 2026 07:22:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=101.204.27.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773629676; cv=none; b=DDMgfVS//dvJNglCPmu/dxmOfV3VgEHjjUkL3O41F+OIgPiZBFBuqjpwQx86JA1TaEbSleC0Gam+n6O4pFuG8BzMmRQeXpd9orEgxb1SZmJ7laVp6t0QzUvcK9Xzo01d8kPYHFzGR4i/m+hPvOWLnkNF07aJz5Gwn8GTZigr1GI=
+	t=1773645756; cv=none; b=arpHphF4IPAFh5wEp4KPJyFGHTpPpKNEIphirTaPIrVUM3kX3TKDXE5XwEoJWEmRrNTDdny6q8oxgQcyyXTrKMsekmrLmqws/Sn3EXx2ylvAJE56+IueH7hBTE13oQmIIy8T4Slq6O3p1nwz+0zn8XJfnu25KQS0bRSPo0Fmo7Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773629676; c=relaxed/simple;
-	bh=czmgvKSkWorSh1qUwUlivcTnGg2JfzlR8yJGfiNC2IU=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=n2LjpCVUqadISzV17HjlyyDCv6EN59I2b+nih5MqcqYJbqu7bHURhJQXuNASrGDnqE6n3d+AJ0mqtB0Wd+CBLVtJrt/D7ATm7danqw5IhV4A4qtc8OOYuhZ/f8yBOqjS0S4ZfX9gQsaJGeWwA2Co+AxgR2GfdahWNgg09sNnU1w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=l9BePq72; arc=none smtp.client-ip=115.124.30.110
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="l9BePq72"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1773629672; h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type;
-	bh=czmgvKSkWorSh1qUwUlivcTnGg2JfzlR8yJGfiNC2IU=;
-	b=l9BePq72YgYdFv4VFjHvyMKOxAqh5RE6Cw7UN9xHkpU/NQIe0SfTSj/8lWSyIsqL22O7pmpU7JKqxQj6QDlsAz2kYH1/b27TNkBvN5HLQuXugp+weIX1wJSatqBSlwm16gqvFioCRIoZc2rF9Ru4VOE1Key0WhJNwmWDmFN3BCc=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037026112;MF=ying.huang@linux.alibaba.com;NM=1;PH=DS;RN=33;SR=0;TI=SMTPD_---0X.-KIlz_1773629668;
-Received: from DESKTOP-5N7EMDA(mailfrom:ying.huang@linux.alibaba.com fp:SMTPD_---0X.-KIlz_1773629668 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Mon, 16 Mar 2026 10:54:30 +0800
-From: "Huang, Ying" <ying.huang@linux.alibaba.com>
-To: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>
-Cc: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>,  linux-mm@kvack.org,
-  akpm@linux-foundation.org,  mhocko@suse.com,  apopple@nvidia.com,
-  axelrasmussen@google.com,  byungchul@sk.com,  cgroups@vger.kernel.org,
-  david@kernel.org,  eperezma@redhat.com,  gourry@gourry.net,
-  jasowang@redhat.com,  hannes@cmpxchg.org,  joshua.hahnjy@gmail.com,
-  Liam.Howlett@oracle.com,  linux-kernel@vger.kernel.org,
-  lorenzo.stoakes@oracle.com,  matthew.brost@intel.com,  mst@redhat.com,
-  rppt@kernel.org,  muchun.song@linux.dev,  zhengqi.arch@bytedance.com,
-  rakie.kim@sk.com,  roman.gushchin@linux.dev,  shakeel.butt@linux.dev,
-  surenb@google.com,  virtualization@lists.linux.dev,  weixugc@google.com,
-  xuanzhuo@linux.alibaba.com,  yuanchu@google.com,  ziy@nvidia.com,
-  kernel-team@meta.com
-Subject: Re: [PATCH v2] mm/mempolicy: track page allocations per mempolicy
-In-Reply-To: <c4e5cc3c-5daa-404e-8c55-cface8aa969d@linux.dev> (JP Kobryn's
-	message of "Fri, 13 Mar 2026 11:09:58 -0700")
-References: <20260307045520.247998-1-jp.kobryn@linux.dev>
-	<3a42463b-9ddd-4d64-b64c-6c2e6e4fc75d@kernel.org>
-	<343bbd5b-67a0-46c4-8ec4-69158bf26b3f@linux.dev>
-	<874imkpba1.fsf@DESKTOP-5N7EMDA>
-	<cd3d7e2c-79fa-4c00-89ad-83beddf98bae@linux.dev>
-	<60f71f4c-71d9-4751-8c6b-10179b98bef0@kernel.org>
-	<c4e5cc3c-5daa-404e-8c55-cface8aa969d@linux.dev>
-Date: Mon, 16 Mar 2026 10:54:26 +0800
-Message-ID: <87sea0o55p.fsf@DESKTOP-5N7EMDA>
-User-Agent: Gnus/5.13 (Gnus v5.13)
+	s=arc-20240116; t=1773645756; c=relaxed/simple;
+	bh=n/m2fIo1//fzphMsR8a6nCfeSIhnPB3+DDLk5P+GvuI=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=XyTvILRd1nKVrVnVFK5HO0NxAr+mqjgH8TXhP5HDQmjLTlZQNNKU79B1Zpth0pV5B0QtFYiNZ+6OCiT+G4zIqxq2fi6iAcSYBNnNlNAF+KQjY6OJDQfViqYqGyCP8kSJPh6TXoPVYeneEZH49aigLPqWHfVncavpOCpmiSBy8Pk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hygon.cn; spf=pass smtp.mailfrom=hygon.cn; arc=none smtp.client-ip=101.204.27.37
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hygon.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hygon.cn
+Received: from maildlp1.hygon.cn (unknown [127.0.0.1])
+	by mailgw1.hygon.cn (Postfix) with ESMTP id 4fZ63h5kFfztyPT;
+	Mon, 16 Mar 2026 15:22:08 +0800 (CST)
+Received: from maildlp1.hygon.cn (unknown [172.23.18.60])
+	by mailgw1.hygon.cn (Postfix) with ESMTP id 4fZ63g6BQ0zrg5n;
+	Mon, 16 Mar 2026 15:22:07 +0800 (CST)
+Received: from cncheex04.Hygon.cn (unknown [172.23.18.114])
+	by maildlp1.hygon.cn (Postfix) with ESMTPS id 6A4224B74;
+	Mon, 16 Mar 2026 15:22:05 +0800 (CST)
+Received: from SZ-4DN1M34.Hygon.cn (172.28.22.30) by cncheex04.Hygon.cn
+ (172.23.18.114) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.36; Mon, 16 Mar
+ 2026 15:22:07 +0800
+From: Di Zhu <zhud@hygon.cn>
+To: <mst@redhat.com>, <jasowang@redhat.com>, <xuanzhuo@linux.alibaba.com>,
+	<eperezma@redhat.com>, <andrew+netdev@lunn.ch>, <davem@davemloft.net>,
+	<edumazet@google.com>, <kuba@kernel.org>, <pabeni@redhat.com>,
+	<willemb@google.com>, <netdev@vger.kernel.org>,
+	<virtualization@lists.linux.dev>
+CC: <zhud@hygon.cn>, <lijing@hygon.cn>, <yingzhiwei@hygon.cn>
+Subject: [PATCH net-next v2] virtio-net: enable NETIF_F_GRO_HW only if GRO-related offloads are supported
+Date: Mon, 16 Mar 2026 15:21:52 +0800
+Message-ID: <20260316072152.910857-1-zhud@hygon.cn>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ascii
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: cncheex05.Hygon.cn (172.23.18.115) To cncheex04.Hygon.cn
+ (172.23.18.114)
 
-"JP Kobryn (Meta)" <jp.kobryn@linux.dev> writes:
+Although VIRTIO_NET_F_CTRL_GUEST_OFFLOADS is negotiated, which indicates
+the device supports dynamic control of guest offloads, it does not
+necessarily mean the device supports specific hardware GRO features.
 
-> On 3/13/26 12:34 AM, Vlastimil Babka (SUSE) wrote:
->> On 3/13/26 07:14, JP Kobryn (Meta) wrote:
->>> On 3/12/26 10:07 PM, Huang, Ying wrote:
->>>> "JP Kobryn (Meta)" <jp.kobryn@linux.dev> writes:
->>>>
->>>>> On 3/12/26 6:40 AM, Vlastimil Babka (SUSE) wrote:
->>>>>
->>>>> How about I change from per-policy hit/miss/foreign triplets to a single
->>>>> aggregated policy triplet (i.e. just 3 new counters which account for
->>>>> all policies)? They would follow the same hit/miss/foreign semantics
->>>>> already proposed (visible in quoted text above). This would still
->>>>> provide the otherwise missing signal of whether policy-driven
->>>>> allocations to a node are intentional or fallback.
->>>>>
->>>>> Note that I am also planning on moving the stats off of the memcg so the
->>>>> 3 new counters will be global per-node in response to similar feedback.
->>>>
->>>> Emm, what's the difference between these newly added counters and the
->>>> existing numa_hit/miss/foreign counters?
->>>
->>> The existing counters don't account for node masks in the policies that
->>> make use of them. An allocation can land on a node in the mask and still
->>> be considered a miss because it wasn't the preferred node.
->> That sounds like we could just a new counter e.g. numa_hit_preferred
->> and
->> adjust definitions accordingly? Or some other variant that fills the gap?
->
-> It's an interesting thought. Looking into these existing counters more,
-> the in-kernel direct node allocations, which don't fall under any
-> mempolicy, are also included in these stats. One good example might be
-> include/linux/skbuff.h, where __dev_alloc_pages() calls
-> alloc_pages_node_noprof(NUMA_NO_NODE, ...) which eventually reaches
-> zone_statistics() and increments the stats.
+If none of the features defined in GUEST_OFFLOAD_GRO_HW_MASK (such as
+TSO4, TSO6, or UFO) are present in vi->guest_offloads_capable, the
+device effectively lacks the hardware capability to perform GRO.
 
-IIUC, the default memory policy is used here, that is, MPOL_LOCAL.
+So, making NETIF_F_GRO_HW conditional on these feature bits ensures the
+stack does not enable an unsupported hardware offload configuration.
 
-> So if we applied the hit/miss/foreign semantics in this patch to the
-> existing counters we would be mixing allocations that are in and out
-> of policy, losing the accuracy.
->
-> The new 3 counters I last proposed (in an effort to reduce the amount of
-> new counters as much as possible) would isolate mempolicy allocs and be
-> named to reflect that: numa_mpol_{hit,miss,foreign}.
-
+Fixes: a02e8964eaf9 ("virtio-net: ethtool configurable LRO")
+Signed-off-by: Di Zhu <zhud@hygon.cn>
 ---
-Best Regards,
-Huang, Ying
+/* v2 */
+  -make the modified logic clearer
+---
+ drivers/net/virtio_net.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 72d6a9c6a5a2..b233c99925e9 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -6781,8 +6781,6 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	if (virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO4) ||
+ 	    virtio_has_feature(vdev, VIRTIO_NET_F_GUEST_TSO6))
+ 		dev->features |= NETIF_F_GRO_HW;
+-	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS))
+-		dev->hw_features |= NETIF_F_GRO_HW;
+ 
+ 	dev->vlan_features = dev->features;
+ 	dev->xdp_features = NETDEV_XDP_ACT_BASIC | NETDEV_XDP_ACT_REDIRECT |
+@@ -7058,6 +7056,10 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	}
+ 	vi->guest_offloads_capable = vi->guest_offloads;
+ 
++	if (virtio_has_feature(vdev, VIRTIO_NET_F_CTRL_GUEST_OFFLOADS) &&
++	    (vi->guest_offloads_capable & GUEST_OFFLOAD_GRO_HW_MASK))
++		dev->hw_features |= NETIF_F_GRO_HW;
++
+ 	rtnl_unlock();
+ 
+ 	err = virtnet_cpu_notif_add(vi);
+-- 
+2.34.1
+
+
