@@ -1,224 +1,111 @@
-Received: from out-179.mta0.migadu.com (out-179.mta0.migadu.com [91.218.175.179])
+Received: from out30-110.freemail.mail.aliyun.com (out30-110.freemail.mail.aliyun.com [115.124.30.110])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E74C13635E
-	for <virtualization@lists.linux.dev>; Mon, 16 Mar 2026 02:36:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68E8723E342
+	for <virtualization@lists.linux.dev>; Mon, 16 Mar 2026 02:54:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.110
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773628606; cv=none; b=OyYch/BgU3GOg7FgcwepJo8z5gS1hOCcPDQlBhBHyj/b5cchsBjqJpo8TTt0C8BJtycJ3InmyqPWOnT2oCRXBaxniDT9GoG6Nl9SNPR9SaVtrA0z5oQQ23AoTDuqjzsiaShn5BjnA74MojC+z5RyYgba6uNI2MfSeSXQmv3GVT4=
+	t=1773629676; cv=none; b=DDMgfVS//dvJNglCPmu/dxmOfV3VgEHjjUkL3O41F+OIgPiZBFBuqjpwQx86JA1TaEbSleC0Gam+n6O4pFuG8BzMmRQeXpd9orEgxb1SZmJ7laVp6t0QzUvcK9Xzo01d8kPYHFzGR4i/m+hPvOWLnkNF07aJz5Gwn8GTZigr1GI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773628606; c=relaxed/simple;
-	bh=mRd3IdzcKm4SM+baBTlHmRT/EusGdNBOuLESbb1MSpE=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=DCWBbDFB+2Zv1qP3oLE6ut32Ip9Hr1+TNv9lYEdmoRxFocxP46dOhlQO8wVffI+TA4CwEah+QDVncr4JSQMHph5iWg5gu9aO6TFQJ1UkPeSLWfJSIbLl6h8dAx6Gqoe9iAoePWaQb2L7beIMeU4rgBz+bgt9/Deu2wVkn+pjDHo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=JyucV4QL; arc=none smtp.client-ip=91.218.175.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1773629676; c=relaxed/simple;
+	bh=czmgvKSkWorSh1qUwUlivcTnGg2JfzlR8yJGfiNC2IU=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=n2LjpCVUqadISzV17HjlyyDCv6EN59I2b+nih5MqcqYJbqu7bHURhJQXuNASrGDnqE6n3d+AJ0mqtB0Wd+CBLVtJrt/D7ATm7danqw5IhV4A4qtc8OOYuhZ/f8yBOqjS0S4ZfX9gQsaJGeWwA2Co+AxgR2GfdahWNgg09sNnU1w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=l9BePq72; arc=none smtp.client-ip=115.124.30.110
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="JyucV4QL"
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1773628600;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=fL2ocGYrCU73YIvyxsIf7Pv7ZgK5y+PdJrpmfGXFYuY=;
-	b=JyucV4QL5mIFot5WZ/H/DQExVZoMvI++Bbbamzm67TTpLUQmbnNIpJComi8c84KBV+zqEd
-	+3WpzzW3KVAYXUYO54k++7UTAtCr31rZG2j+U4VUNK5TozudqnpHjFdU6BbReevmLv9cIl
-	o+0/ctOpiVrJvPCSAmWaSxXTK1rbHEk=
-From: Lance Yang <lance.yang@linux.dev>
-To: dave.hansen@intel.com,
-	peterz@infradead.org
-Cc: akpm@linux-foundation.org,
-	david@kernel.org,
-	dave.hansen@linux.intel.com,
-	ypodemsk@redhat.com,
-	hughd@google.com,
-	will@kernel.org,
-	aneesh.kumar@kernel.org,
-	npiggin@gmail.com,
-	tglx@linutronix.de,
-	mingo@redhat.com,
-	bp@alien8.de,
-	x86@kernel.org,
-	hpa@zytor.com,
-	arnd@arndb.de,
-	lorenzo.stoakes@oracle.com,
-	ziy@nvidia.com,
-	baolin.wang@linux.alibaba.com,
-	Liam.Howlett@oracle.com,
-	npache@redhat.com,
-	ryan.roberts@arm.com,
-	dev.jain@arm.com,
-	baohua@kernel.org,
-	shy828301@gmail.com,
-	riel@surriel.com,
-	jannh@google.com,
-	jgross@suse.com,
-	seanjc@google.com,
-	pbonzini@redhat.com,
-	boris.ostrovsky@oracle.com,
-	virtualization@lists.linux.dev,
-	kvm@vger.kernel.org,
-	linux-arch@vger.kernel.org,
-	linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org,
-	ioworker0@gmail.com,
-	Lance Yang <lance.yang@linux.dev>
-Subject: Re: [PATCH v7 2/2] x86/tlb: skip redundant sync IPIs for native TLB flush
-Date: Mon, 16 Mar 2026 10:36:30 +0800
-Message-Id: <20260316023630.92368-1-lance.yang@linux.dev>
-In-Reply-To: <20260309020711.20831-3-lance.yang@linux.dev>
-References: <20260309020711.20831-3-lance.yang@linux.dev>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="l9BePq72"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1773629672; h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type;
+	bh=czmgvKSkWorSh1qUwUlivcTnGg2JfzlR8yJGfiNC2IU=;
+	b=l9BePq72YgYdFv4VFjHvyMKOxAqh5RE6Cw7UN9xHkpU/NQIe0SfTSj/8lWSyIsqL22O7pmpU7JKqxQj6QDlsAz2kYH1/b27TNkBvN5HLQuXugp+weIX1wJSatqBSlwm16gqvFioCRIoZc2rF9Ru4VOE1Key0WhJNwmWDmFN3BCc=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R111e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037026112;MF=ying.huang@linux.alibaba.com;NM=1;PH=DS;RN=33;SR=0;TI=SMTPD_---0X.-KIlz_1773629668;
+Received: from DESKTOP-5N7EMDA(mailfrom:ying.huang@linux.alibaba.com fp:SMTPD_---0X.-KIlz_1773629668 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Mon, 16 Mar 2026 10:54:30 +0800
+From: "Huang, Ying" <ying.huang@linux.alibaba.com>
+To: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>
+Cc: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>,  linux-mm@kvack.org,
+  akpm@linux-foundation.org,  mhocko@suse.com,  apopple@nvidia.com,
+  axelrasmussen@google.com,  byungchul@sk.com,  cgroups@vger.kernel.org,
+  david@kernel.org,  eperezma@redhat.com,  gourry@gourry.net,
+  jasowang@redhat.com,  hannes@cmpxchg.org,  joshua.hahnjy@gmail.com,
+  Liam.Howlett@oracle.com,  linux-kernel@vger.kernel.org,
+  lorenzo.stoakes@oracle.com,  matthew.brost@intel.com,  mst@redhat.com,
+  rppt@kernel.org,  muchun.song@linux.dev,  zhengqi.arch@bytedance.com,
+  rakie.kim@sk.com,  roman.gushchin@linux.dev,  shakeel.butt@linux.dev,
+  surenb@google.com,  virtualization@lists.linux.dev,  weixugc@google.com,
+  xuanzhuo@linux.alibaba.com,  yuanchu@google.com,  ziy@nvidia.com,
+  kernel-team@meta.com
+Subject: Re: [PATCH v2] mm/mempolicy: track page allocations per mempolicy
+In-Reply-To: <c4e5cc3c-5daa-404e-8c55-cface8aa969d@linux.dev> (JP Kobryn's
+	message of "Fri, 13 Mar 2026 11:09:58 -0700")
+References: <20260307045520.247998-1-jp.kobryn@linux.dev>
+	<3a42463b-9ddd-4d64-b64c-6c2e6e4fc75d@kernel.org>
+	<343bbd5b-67a0-46c4-8ec4-69158bf26b3f@linux.dev>
+	<874imkpba1.fsf@DESKTOP-5N7EMDA>
+	<cd3d7e2c-79fa-4c00-89ad-83beddf98bae@linux.dev>
+	<60f71f4c-71d9-4751-8c6b-10179b98bef0@kernel.org>
+	<c4e5cc3c-5daa-404e-8c55-cface8aa969d@linux.dev>
+Date: Mon, 16 Mar 2026 10:54:26 +0800
+Message-ID: <87sea0o55p.fsf@DESKTOP-5N7EMDA>
+User-Agent: Gnus/5.13 (Gnus v5.13)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset=ascii
 
+"JP Kobryn (Meta)" <jp.kobryn@linux.dev> writes:
 
-Gently ping :)
+> On 3/13/26 12:34 AM, Vlastimil Babka (SUSE) wrote:
+>> On 3/13/26 07:14, JP Kobryn (Meta) wrote:
+>>> On 3/12/26 10:07 PM, Huang, Ying wrote:
+>>>> "JP Kobryn (Meta)" <jp.kobryn@linux.dev> writes:
+>>>>
+>>>>> On 3/12/26 6:40 AM, Vlastimil Babka (SUSE) wrote:
+>>>>>
+>>>>> How about I change from per-policy hit/miss/foreign triplets to a single
+>>>>> aggregated policy triplet (i.e. just 3 new counters which account for
+>>>>> all policies)? They would follow the same hit/miss/foreign semantics
+>>>>> already proposed (visible in quoted text above). This would still
+>>>>> provide the otherwise missing signal of whether policy-driven
+>>>>> allocations to a node are intentional or fallback.
+>>>>>
+>>>>> Note that I am also planning on moving the stats off of the memcg so the
+>>>>> 3 new counters will be global per-node in response to similar feedback.
+>>>>
+>>>> Emm, what's the difference between these newly added counters and the
+>>>> existing numa_hit/miss/foreign counters?
+>>>
+>>> The existing counters don't account for node masks in the policies that
+>>> make use of them. An allocation can land on a node in the mask and still
+>>> be considered a miss because it wasn't the preferred node.
+>> That sounds like we could just a new counter e.g. numa_hit_preferred
+>> and
+>> adjust definitions accordingly? Or some other variant that fills the gap?
+>
+> It's an interesting thought. Looking into these existing counters more,
+> the in-kernel direct node allocations, which don't fall under any
+> mempolicy, are also included in these stats. One good example might be
+> include/linux/skbuff.h, where __dev_alloc_pages() calls
+> alloc_pages_node_noprof(NUMA_NO_NODE, ...) which eventually reaches
+> zone_statistics() and increments the stats.
 
-On Mon, Mar 09, 2026 at 10:07:11AM +0800, Lance Yang wrote:
->From: Lance Yang <lance.yang@linux.dev>
+IIUC, the default memory policy is used here, that is, MPOL_LOCAL.
+
+> So if we applied the hit/miss/foreign semantics in this patch to the
+> existing counters we would be mixing allocations that are in and out
+> of policy, losing the accuracy.
 >
->Enable the optimization introduced in the previous patch for x86.
->
->native_pv_tlb_init() checks whether native_flush_tlb_multi() is in use.
->On CONFIG_PARAVIRT systems, it checks pv_ops; on non-PARAVIRT, native
->flush is always in use.
->
->It decides once at boot whether to enable the optimization: if using
->native TLB flush and INVLPGB is not supported, we know IPIs were sent
->and can skip the redundant sync. The decision is fixed via a static
->key as Peter suggested[1].
->
->PV backends (KVM, Xen, Hyper-V) typically have their own implementations
->and don't call native_flush_tlb_multi() directly, so they cannot be trusted
->to provide the IPI guarantees we need.
->
->Two-step plan as David suggested[2]:
->
->Step 1 (this patch): Skip redundant sync when we're 100% certain the TLB
->flush sent IPIs. INVLPGB is excluded because when supported, we cannot
->guarantee IPIs were sent, keeping it clean and simple.
->
->Step 2 (future work): Send targeted IPIs only to CPUs actually doing
->software/lockless page table walks, benefiting all architectures.
->
->Regarding Step 2, it obviously only applies to setups where Step 1 does
->not apply: like x86 with INVLPGB or arm64.
->
->[1] https://lore.kernel.org/linux-mm/20260302145652.GH1395266@noisy.programming.kicks-ass.net/
->[2] https://lore.kernel.org/linux-mm/bbfdf226-4660-4949-b17b-0d209ee4ef8c@kernel.org/
->
->Suggested-by: Peter Zijlstra <peterz@infradead.org>
->Suggested-by: David Hildenbrand (Arm) <david@kernel.org>
->Signed-off-by: Lance Yang <lance.yang@linux.dev>
->---
-> arch/x86/include/asm/tlb.h      | 17 ++++++++++++++++-
-> arch/x86/include/asm/tlbflush.h |  2 ++
-> arch/x86/kernel/smpboot.c       |  1 +
-> arch/x86/mm/tlb.c               | 15 +++++++++++++++
-> 4 files changed, 34 insertions(+), 1 deletion(-)
->
->diff --git a/arch/x86/include/asm/tlb.h b/arch/x86/include/asm/tlb.h
->index 866ea78ba156..99de622d3856 100644
->--- a/arch/x86/include/asm/tlb.h
->+++ b/arch/x86/include/asm/tlb.h
->@@ -5,11 +5,21 @@
-> #define tlb_flush tlb_flush
-> static inline void tlb_flush(struct mmu_gather *tlb);
-> 
->+#define tlb_table_flush_implies_ipi_broadcast tlb_table_flush_implies_ipi_broadcast
->+static inline bool tlb_table_flush_implies_ipi_broadcast(void);
->+
-> #include <asm-generic/tlb.h>
-> #include <linux/kernel.h>
-> #include <vdso/bits.h>
-> #include <vdso/page.h>
-> 
->+DECLARE_STATIC_KEY_FALSE(tlb_ipi_broadcast_key);
->+
->+static inline bool tlb_table_flush_implies_ipi_broadcast(void)
->+{
->+	return static_branch_likely(&tlb_ipi_broadcast_key);
->+}
->+
-> static inline void tlb_flush(struct mmu_gather *tlb)
-> {
-> 	unsigned long start = 0UL, end = TLB_FLUSH_ALL;
->@@ -20,7 +30,12 @@ static inline void tlb_flush(struct mmu_gather *tlb)
-> 		end = tlb->end;
-> 	}
-> 
->-	flush_tlb_mm_range(tlb->mm, start, end, stride_shift, tlb->freed_tables);
->+	/*
->+	 * Pass both freed_tables and unshared_tables so that lazy-TLB CPUs
->+	 * also receive IPIs during unsharing page tables.
->+	 */
->+	flush_tlb_mm_range(tlb->mm, start, end, stride_shift,
->+			   tlb->freed_tables || tlb->unshared_tables);
-> }
-> 
-> static inline void invlpg(unsigned long addr)
->diff --git a/arch/x86/include/asm/tlbflush.h b/arch/x86/include/asm/tlbflush.h
->index 5a3cdc439e38..8ba853154b46 100644
->--- a/arch/x86/include/asm/tlbflush.h
->+++ b/arch/x86/include/asm/tlbflush.h
->@@ -18,6 +18,8 @@
-> 
-> DECLARE_PER_CPU(u64, tlbstate_untag_mask);
-> 
->+void __init native_pv_tlb_init(void);
->+
-> void __flush_tlb_all(void);
-> 
-> #define TLB_FLUSH_ALL	-1UL
->diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
->index 5cd6950ab672..3cdb04162843 100644
->--- a/arch/x86/kernel/smpboot.c
->+++ b/arch/x86/kernel/smpboot.c
->@@ -1167,6 +1167,7 @@ void __init native_smp_prepare_boot_cpu(void)
-> 		switch_gdt_and_percpu_base(me);
-> 
-> 	native_pv_lock_init();
->+	native_pv_tlb_init();
-> }
-> 
-> void __init native_smp_cpus_done(unsigned int max_cpus)
->diff --git a/arch/x86/mm/tlb.c b/arch/x86/mm/tlb.c
->index 621e09d049cb..8f5585ebaf09 100644
->--- a/arch/x86/mm/tlb.c
->+++ b/arch/x86/mm/tlb.c
->@@ -26,6 +26,8 @@
-> 
-> #include "mm_internal.h"
-> 
->+DEFINE_STATIC_KEY_FALSE(tlb_ipi_broadcast_key);
->+
-> #ifdef CONFIG_PARAVIRT
-> # define STATIC_NOPV
-> #else
->@@ -1834,3 +1836,16 @@ static int __init create_tlb_single_page_flush_ceiling(void)
-> 	return 0;
-> }
-> late_initcall(create_tlb_single_page_flush_ceiling);
->+
->+void __init native_pv_tlb_init(void)
->+{
->+#ifdef CONFIG_PARAVIRT
->+	if (pv_ops.mmu.flush_tlb_multi != native_flush_tlb_multi)
->+		return;
->+#endif
->+
->+	if (cpu_feature_enabled(X86_FEATURE_INVLPGB))
->+		return;
->+
->+	static_branch_enable(&tlb_ipi_broadcast_key);
->+}
+> The new 3 counters I last proposed (in an effort to reduce the amount of
+> new counters as much as possible) would isolate mempolicy allocs and be
+> named to reflect that: numa_mpol_{hit,miss,foreign}.
+
+---
+Best Regards,
+Huang, Ying
