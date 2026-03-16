@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3CC9D39449F;
-	Mon, 16 Mar 2026 12:06:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 618D8394786;
+	Mon, 16 Mar 2026 12:08:21 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773662765; cv=none; b=gWEd3hoOFmfKvFlqKcH+NMQ/knR/NykblOUKjSjsL4aXL06er3YBkdza0VV5lvmlUNjLF/JcnDIREPJKUVPrvZfpVZLvwQC0ko0wPw8ZwN8T15uD6NIpnCxjcKh4FPV99JitgQKNUwcleFJndzVmNjVXIKxHMEgG2uXOSwZegPs=
+	t=1773662901; cv=none; b=q1clOBSd+Bil2UKtOdIodkz2Fn121AMaqix9leUm28Njr/CAd3VJUd1esSuUMiQH4Q+jkaVrT/Gsn69pvOsZod554JpmzgY34VVt1uNoRK4/Tgv+8bjkFsNe2yur5ehboRuwQIp5ogCV+tFrNxQOw/wgrzIEy0F2F6Xom88gbls=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773662765; c=relaxed/simple;
-	bh=ZRtAZTNtj21DA+dLUkzrLS06oD7H1G2/XVPogljiumQ=;
+	s=arc-20240116; t=1773662901; c=relaxed/simple;
+	bh=LNgT1bkI36Aaof9fGXufbmbOzF+v6lX+erH+ej291/M=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=IUunjyQvPFIzi2LWMl8CoTErP3CNu7VnQWNvTl9qyN5l9zC5khBKXQDrWosBQ547aWGD9fYjEJSP1G+Emxx8byMMygiEOEWtaC707yo7IkS14eQ98dhsmJnyaW0mpvAhSBJbHlzDnBDiKkNQqKTL35WHXLYrPKzkMl0I4Cow5s0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=uazIWo21; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=ZRV0zdqjZFqmkV0Sd7TD8D/xN3i9u8KSY/ljklfP5TUnZe8shSK0E5zFe+vbMV2XzM54CRMVAf9vmraW1s7q9OzO8hiU5nLZZbBWot1TRfpQ8N663HJW/JpdtOK7DmB/W63vYpnGFr+ndGwJ6eq1vkU45DPMdd69CMfl1vUsNBc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f606EcX/; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="uazIWo21"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B739C2BCB3;
-	Mon, 16 Mar 2026 12:06:02 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f606EcX/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 53C54C19421;
+	Mon, 16 Mar 2026 12:08:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773662764;
-	bh=ZRtAZTNtj21DA+dLUkzrLS06oD7H1G2/XVPogljiumQ=;
+	s=k20201202; t=1773662901;
+	bh=LNgT1bkI36Aaof9fGXufbmbOzF+v6lX+erH+ej291/M=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=uazIWo21z9Q0Nfxh7k8vQaBdJR/cz4jSxAND0XUGo3yg9ZQk+kntEV+X9wuWm11o/
-	 tbbVwc6e1RsyBfJk9G3opjWSkU2LqwydeVvfP+P39spZkU80/E7KsbPX9xZtRPW3b5
-	 cyqUE0LhhcI/d/6xPTp+VPmuvrwas9Y02cKWEuSqNjfpFgZp2J9ON4Qti2IDRdOj7E
-	 C1jzgwW8U+YqqViqu7ap8gJlJ65eQ5A9hWrFTnPD8IaV+MhN5CQmMrjKLshcJ0F06a
-	 AqMbROiyaKrqGfJeP39jlUxsTbo3LXTyG+oW0bukJwb3Z0p+VQWnvc5hjRhHDvwJ/S
-	 l4CuuH2ZBolqw==
-Message-ID: <085ebc8c-636b-45d6-8431-878cbe90314b@kernel.org>
-Date: Mon, 16 Mar 2026 13:06:00 +0100
+	b=f606EcX/A9glc8WgIXCSk9iKCWKEoKrhkdJVscxdVcWFT695P+witEfvwlCxbEAoV
+	 2CaPc/0g04ihQAXpaPzDa/tlf7aOI13buTu7t3gnUbHkVkrLlFanGr/mB8x5HVpybK
+	 57K2Isz0uTBifrIQNSuprOtawTKMqAaohnn654SPxoEQDv866DbsftDYB3l+B/v0Xs
+	 SNT446KDsBuZwh6PEMQHsyAhJw4tBLeu5BfB0KIjH/A+mCGNPURb6RivzTCS1RhV+C
+	 HjhVSYbYi5L4lYC2dPjofsP5oDqqDuRfVNzePhAX0LUh01xBpqfZ2JM71hLybIlQGV
+	 bkdNsNZuaDUIQ==
+Message-ID: <ef451711-af1c-4145-8e81-df7d09e389ad@kernel.org>
+Date: Mon, 16 Mar 2026 13:08:17 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -35,12 +35,12 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] virtio: document the map API in the driver writing guide
-To: John S <xaum.io@gmail.com>, mst@redhat.com, jasowang@redhat.com
-Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, corbet@lwn.net,
- skhan@linuxfoundation.org, virtualization@lists.linux.dev,
- linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <CAAZVx999y-DvB7Dp2ekoHk6s8aqqScd2gKSY4ySGAK6NNXeH5g@mail.gmail.com>
+Subject: Re: [PATCH] virtio: add kernel-doc for map and vmap members
+To: Jason Wang <jasowang@redhat.com>, John S <xaum.io@gmail.com>
+Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+References: <CAAZVx9_Tq6afZJb-4pNKCwmB7xw=NZVCR8aSXM5N9+BbDdmTtg@mail.gmail.com>
+ <CACGkMEvNgaRjsUjrW7PuTHrisBv0nH64SUbFYKMw4T-fia0GpQ@mail.gmail.com>
 From: Krzysztof Kozlowski <krzk@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=krzk@kernel.org; keydata=
@@ -86,30 +86,31 @@ Autocrypt: addr=krzk@kernel.org; keydata=
  jWt87ecuHlpL3uuQ0ZZNWqHgZoQLXoqC2ZV5KrtKWb/jyiFX/sxSrodALf0zf+tfHv0FZWT2
  zHjUqd0t4njD/UOsuIMOQn4Ig0SdivYPfZukb5cdasKJukG1NOpbW7yRNivaCnfZz6dTawXw
  XRIV/KDsHQiyVxKvN73bThKhONkcX2LWuD928tAR6XMM2G5ovxLe09vuOzzfTWQDsm++9UKF a/A=
-In-Reply-To: <CAAZVx999y-DvB7Dp2ekoHk6s8aqqScd2gKSY4ySGAK6NNXeH5g@mail.gmail.com>
+In-Reply-To: <CACGkMEvNgaRjsUjrW7PuTHrisBv0nH64SUbFYKMw4T-fia0GpQ@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 12/03/2026 22:58, John S wrote:
-> Add a new "Buffer mapping" section to the virtio driver writing guide
-> documenting the virtio map API (struct virtio_map_ops). This API was
-> introduced in commit bee8c7c24b73 ("virtio: introduce map ops in virtio
-> core") to allow transports and devices that do not perform DMA (such
-> as VDUSE) to provide their own buffer mapping logic instead of abusing
-> the DMA API.
+On 13/03/2026 07:18, Jason Wang wrote:
+> On Fri, Mar 13, 2026 at 5:42 AM John S <xaum.io@gmail.com> wrote:
+>>
+>> Document the map and vmap members of struct virtio_device that were
+>> added without kernel-doc descriptions.
+>>
+>> This fixes the following warnings when building with W=1:
+>>
+>>   include/linux/virtio.h: struct member 'map' not described in 'virtio_device'
+>>   include/linux/virtio.h: struct member 'vmap' not described in 'virtio_device'
+>>
+>> Signed-off-by: Kit Dallege <xaum.io@gmail.com>
 > 
-> The new section explains when and why custom map ops are used, documents
-> the virtio_map_ops structure and the union virtio_map token, and
-> references the driver-facing mapping helpers with their kernel-doc.
-> 
-> Signed-off-by: Kit Dallege <xaum.io@gmail.com>
-> ---
->  .../virtio/writing_virtio_drivers.rst         | 72 +++++++++++++++++++
->  1 file changed, 72 insertions(+)
+> Acked-by: Jason Wang <jasowang@redhat.com>
+>
 
-NAK, because:
-1. Mismatched DCO or anonymous contribution
-2. Likely unverified LLM microslop
+Sorry, but no :(.
+
+Patch has incorrect DCO chain and most likely is product of LLM
+microslop without proper marking (as the rest of author's
+contributions). Therefore this should be actually reviewed before accepting.
 
 Best regards,
 Krzysztof
