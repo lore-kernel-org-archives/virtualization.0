@@ -1,70 +1,124 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out-181.mta0.migadu.com (out-181.mta0.migadu.com [91.218.175.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 658D7283C87;
-	Tue, 17 Mar 2026 16:15:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6693C31E841
+	for <virtualization@lists.linux.dev>; Tue, 17 Mar 2026 17:55:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773764102; cv=none; b=OQ1bRU7jJGsUER5tWyAV79ITJyA7jP1z3wmyTKfqtrzHHA1DTIm2Y5dWfkAavfXWdM/8ryp6vxrpuwv46B112NoVltbWmmIpNz7Ts9qgi2LqLkULKTbbSwjJEBWShdnpiSjXDZgto/KRABk7+ca6mOLUkw2p0+6odBVuE9QhOC4=
+	t=1773770141; cv=none; b=QKR/BTSTFpHFvqHRy0MM4q44u1ZiuH2ANNWYprv6YFCYi76/YKKmL6pkQR5LiZ4DIddyaxl2OZEBW9d99jL42JRN/uFkUo1wfhtBJAPygZbWU/MHIUXmCPzg++uqDeiiZXMPm6qv4fQr/XFXAXfy7oiBKI35lUZ6ym+gK5wUgzg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773764102; c=relaxed/simple;
-	bh=UphfycUSWzpIkA6CM6q6KSYT3Kt5Z/+FEK5eSxrCnWw=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=UCjfxAlPoz3xkCIkStlkN9unqL43KGwQYFtY+ogiP7AU4Koig8eRc71XZR1iyX1woovTloKvn/+CkwvGKSohKwvy4m34PSjuDlL7V4ubWf/8DhyPYi1I0LqPozDmYR53xLLDXpmAumDPayj3NjNeZBJJhg8GYOym4gPnuwLgA/U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=d1BxvLWA; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773770141; c=relaxed/simple;
+	bh=kOVU8iJwnYx0FdEkjEXpzP0JhkgJQiE7YpSMZimGrwU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Vvdw+5aY59qm2pqIjJgUd/0SNx4q+dHgkCcUMfRee1DgNOBYaqDaGPi8I+gOJLYfuOUO1tomb5cJa8+TDz/TKbhGPW5xF/0FHfvCn2Bi7VoapGAgU058PP0/vx3u8DP7PprT+FBEErGB3bBeFWWe5uH/hviQjoLItKHjpsnIi3o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=pjaAZX31; arc=none smtp.client-ip=91.218.175.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="d1BxvLWA"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30E54C4CEF7;
-	Tue, 17 Mar 2026 16:15:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773764102;
-	bh=UphfycUSWzpIkA6CM6q6KSYT3Kt5Z/+FEK5eSxrCnWw=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=d1BxvLWAsohB++QNIhLN1YFQxrt4XnXj1JFsUQfvSoT0fFAnVztCTtpfjx7vKPnxk
-	 6qGdhQo7nzE4F/mNL5Q0sRYKWEabLJX9GtIKERlnnLmzq8mMQj9bDY61FQ9eqlW3Tj
-	 f5igX67Ru650I2e+gbseyqLyoGULpN4rj+znIUcrTwIcRzHzO3e9JfKhSfEuLpsCWC
-	 Pqb8ttQoAR4pBXYhDFNJskQm1sAqZGUNGp1d8CbcljJ5uraC0X5mW23HaLS4sIxBwv
-	 0nJp+xPBBBUq5MbgvSXUtiH6VYxzrFIJYnFvfcigqDjLGn7XX5B9KSqtUwO/MGZIWm
-	 D8oyPcOa6WzTg==
-Date: Tue, 17 Mar 2026 09:15:00 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: I Viswanath <viswanathiyyappan@gmail.com>
-Cc: stfomichev@gmail.com, horms@kernel.org, edumazet@google.com,
- pabeni@redhat.com, andrew+netdev@lunn.ch, davem@davemloft.net,
- eperezma@redhat.com, xuanzhuo@linux.alibaba.com, jasowang@redhat.com,
- mst@redhat.com, przemyslaw.kitszel@intel.com, anthony.l.nguyen@intel.com,
- jacob.e.keller@intel.com, ronak.doshi@broadcom.com, pcnet32@frontier.com,
- bcm-kernel-feedback-list@broadcom.com, netdev@vger.kernel.org,
- virtualization@lists.linux.dev, intel-wired-lan@lists.osuosl.org,
- linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next v9 0/7] Introduce async callback
- ndo_set_rx_mode_async
-Message-ID: <20260317091500.3b3488d4@kernel.org>
-In-Reply-To: <CAPrAcgMBQsVAG3utAD=7dp5tU1jjEBPO5QQGpMUrDu+rMrDJaA@mail.gmail.com>
-References: <20260314182809.362808-1-viswanathiyyappan@gmail.com>
-	<20260314130601.0ec7a534@kernel.org>
-	<CAPrAcgMBQsVAG3utAD=7dp5tU1jjEBPO5QQGpMUrDu+rMrDJaA@mail.gmail.com>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="pjaAZX31"
+Message-ID: <ae4ea01d-a30e-4085-ab4a-578dcfcba82c@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1773770136;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=qTYVKV5nb5ayCDEY32vWKZpQOz0lpO2L66vO5Fes22w=;
+	b=pjaAZX31HfPv0EqxBir1wrcOT4ZRPxKDxntVvAAZnr7TtTsyDgri1szGW/0d/+Frj9Xeuk
+	t7xO1e8UeWMQMiTSIl9JwrugHVnaKhHQL+RxC/k1YCPYhdeKUYjy/J7ZJURqccLLxMt+mv
+	oj2tZq7fy2Z2lQJEQ91Eaz9CEFmhq2c=
+Date: Tue, 17 Mar 2026 10:55:26 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Subject: Re: [PATCH v2] mm/mempolicy: track page allocations per mempolicy
+To: "Huang, Ying" <ying.huang@linux.alibaba.com>
+Cc: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>, linux-mm@kvack.org,
+ akpm@linux-foundation.org, mhocko@suse.com, apopple@nvidia.com,
+ axelrasmussen@google.com, byungchul@sk.com, cgroups@vger.kernel.org,
+ david@kernel.org, eperezma@redhat.com, gourry@gourry.net,
+ jasowang@redhat.com, hannes@cmpxchg.org, joshua.hahnjy@gmail.com,
+ Liam.Howlett@oracle.com, linux-kernel@vger.kernel.org,
+ lorenzo.stoakes@oracle.com, matthew.brost@intel.com, mst@redhat.com,
+ rppt@kernel.org, muchun.song@linux.dev, zhengqi.arch@bytedance.com,
+ rakie.kim@sk.com, roman.gushchin@linux.dev, shakeel.butt@linux.dev,
+ surenb@google.com, virtualization@lists.linux.dev, weixugc@google.com,
+ xuanzhuo@linux.alibaba.com, yuanchu@google.com, ziy@nvidia.com,
+ kernel-team@meta.com
+References: <20260307045520.247998-1-jp.kobryn@linux.dev>
+ <3a42463b-9ddd-4d64-b64c-6c2e6e4fc75d@kernel.org>
+ <343bbd5b-67a0-46c4-8ec4-69158bf26b3f@linux.dev>
+ <874imkpba1.fsf@DESKTOP-5N7EMDA>
+ <cd3d7e2c-79fa-4c00-89ad-83beddf98bae@linux.dev>
+ <60f71f4c-71d9-4751-8c6b-10179b98bef0@kernel.org>
+ <c4e5cc3c-5daa-404e-8c55-cface8aa969d@linux.dev>
+ <87sea0o55p.fsf@DESKTOP-5N7EMDA>
+ <0d66401f-9874-4047-971b-632723b0b7ee@linux.dev>
+ <87a4w7x8d0.fsf@DESKTOP-5N7EMDA>
+Content-Language: en-US
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>
+In-Reply-To: <87a4w7x8d0.fsf@DESKTOP-5N7EMDA>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Migadu-Flow: FLOW_OUT
 
-On Sun, 15 Mar 2026 01:29:14 +0530 I Viswanath wrote:
-> On Sun, 15 Mar 2026 at 01:36, Jakub Kicinski <kuba@kernel.org> wrote:
-> > Stan is actively working on this:
-> > https://lore.kernel.org/20260313145113.1424442-1-sdf@fomichev.me
-> > I feel like I spent enough time reviewing your attempts and Stan
-> > will not need as much maintainer attention to bring this to
-> > a closure so let him cook. Sorry.  
+On 3/16/26 11:44 PM, Huang, Ying wrote:
+> "JP Kobryn (Meta)" <jp.kobryn@linux.dev> writes:
 > 
-> Honestly, I should be thanking you for not throwing it out sooner. I
-> don't think I was skilled/experienced to actually make it work and
-> someone more qualified should handle this. On the bright side, That
-> means I am now much better at solving regular boring bugs and I think
-> that's what matters. Cheers
+>> On 3/15/26 7:54 PM, Huang, Ying wrote:
+>>> "JP Kobryn (Meta)" <jp.kobryn@linux.dev> writes:
+>>>
+>>>> On 3/13/26 12:34 AM, Vlastimil Babka (SUSE) wrote:
+>>>>> On 3/13/26 07:14, JP Kobryn (Meta) wrote:
+>>>>>> On 3/12/26 10:07 PM, Huang, Ying wrote:
+>>>>>>> "JP Kobryn (Meta)" <jp.kobryn@linux.dev> writes:
+>>>>>>>
+>>>>>>>> On 3/12/26 6:40 AM, Vlastimil Babka (SUSE) wrote:
+>>>>>>>>
+>>>>>>>> How about I change from per-policy hit/miss/foreign triplets to a single
+>>>>>>>> aggregated policy triplet (i.e. just 3 new counters which account for
+>>>>>>>> all policies)? They would follow the same hit/miss/foreign semantics
+>>>>>>>> already proposed (visible in quoted text above). This would still
+>>>>>>>> provide the otherwise missing signal of whether policy-driven
+>>>>>>>> allocations to a node are intentional or fallback.
+>>>>>>>>
+>>>>>>>> Note that I am also planning on moving the stats off of the memcg so the
+>>>>>>>> 3 new counters will be global per-node in response to similar feedback.
+>>>>>>>
+>>>>>>> Emm, what's the difference between these newly added counters and the
+>>>>>>> existing numa_hit/miss/foreign counters?
+>>>>>>
+>>>>>> The existing counters don't account for node masks in the policies that
+>>>>>> make use of them. An allocation can land on a node in the mask and still
+>>>>>> be considered a miss because it wasn't the preferred node.
+>>>>> That sounds like we could just a new counter e.g. numa_hit_preferred
+>>>>> and
+>>>>> adjust definitions accordingly? Or some other variant that fills the gap?
+>>>>
+>>>> It's an interesting thought. Looking into these existing counters more,
+>>>> the in-kernel direct node allocations, which don't fall under any
+>>>> mempolicy, are also included in these stats. One good example might be
+>>>> include/linux/skbuff.h, where __dev_alloc_pages() calls
+>>>> alloc_pages_node_noprof(NUMA_NO_NODE, ...) which eventually reaches
+>>>> zone_statistics() and increments the stats.
+>>> IIUC, the default memory policy is used here, that is, MPOL_LOCAL.
+>>
+>> I'm not seeing that. zone_statistics() is eventually reached.
+>> alloc_pages_mpol() is not.
+> 
+> Yes.  The page isn't allocated through alloc_pages_mpol().  For example,
+> if we want to allocate pages for the kernel instead of user space
+> applications.  However, IMHO, the equivalent memory policy is
+> MPOL_LOCAL, that is, allocate from local node firstly, then fallback to
+> other nodes.  I don't think that alloc_pages_mpol() is so special.
 
-Thank you for the understanding!
+Sure. My response was based on how you said, "the default memory policy
+is used here". I took that literally. I agree on the behavioral
+equivalence, but the important point is that no mempolicy is set. In the
+v3 patch which was recently sent out, I'm using that aspect to
+distinguish between allocations with a user-defined mempolicy and
+allocations without one.
