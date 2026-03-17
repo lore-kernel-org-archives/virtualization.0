@@ -1,74 +1,70 @@
-Received: from ms.lwn.net (ms.lwn.net [45.79.88.28])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A96673E7154
-	for <virtualization@lists.linux.dev>; Tue, 17 Mar 2026 14:49:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=45.79.88.28
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 658D7283C87;
+	Tue, 17 Mar 2026 16:15:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773758952; cv=none; b=mMv1arbAttjkged2LpN6xrrAeVomHiwm5RlkNH/kCfS5S/j1ikFjzLD+/rlq55uL/cm/kts5UK4kS3uhfQ522jhQzHSxmak8Ps/X0slcc7Q5vCSBOtwdMI9sowM6uPodi8aC7XWUgUrsCUn8H6ACSrX6hxrIZg6VA7XrhidPauM=
+	t=1773764102; cv=none; b=OQ1bRU7jJGsUER5tWyAV79ITJyA7jP1z3wmyTKfqtrzHHA1DTIm2Y5dWfkAavfXWdM/8ryp6vxrpuwv46B112NoVltbWmmIpNz7Ts9qgi2LqLkULKTbbSwjJEBWShdnpiSjXDZgto/KRABk7+ca6mOLUkw2p0+6odBVuE9QhOC4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773758952; c=relaxed/simple;
-	bh=iNJs/u1TpYWfU0Qz9eQPyh9AhCbCAQ1n9YEhxTfTWls=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=O8rOL35IpHuP3NjogS8w20UZ2/SU5tL+2FwybTxq244EoBJW90ievkHbhICMiIi925eUa9rRYpLCRgnDbgd4LKh8wy985B7FjuI6V8sGabVhi2b2vbyU5/DnvWD0X1oIpUo9EaBNSDgwYyYHryrt3mB8fCI5g6QmZ6TZ0/u/scI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lwn.net; spf=pass smtp.mailfrom=lwn.net; dkim=pass (2048-bit key) header.d=lwn.net header.i=@lwn.net header.b=H9NP+HUg; arc=none smtp.client-ip=45.79.88.28
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=lwn.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=lwn.net
+	s=arc-20240116; t=1773764102; c=relaxed/simple;
+	bh=UphfycUSWzpIkA6CM6q6KSYT3Kt5Z/+FEK5eSxrCnWw=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=UCjfxAlPoz3xkCIkStlkN9unqL43KGwQYFtY+ogiP7AU4Koig8eRc71XZR1iyX1woovTloKvn/+CkwvGKSohKwvy4m34PSjuDlL7V4ubWf/8DhyPYi1I0LqPozDmYR53xLLDXpmAumDPayj3NjNeZBJJhg8GYOym4gPnuwLgA/U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=d1BxvLWA; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=lwn.net header.i=@lwn.net header.b="H9NP+HUg"
-DKIM-Filter: OpenDKIM Filter v2.11.0 ms.lwn.net F353540C7C
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=lwn.net; s=20201203;
-	t=1773758950; bh=wkDfJ+MhK/Z+X+CYUG17c6gVD0tWJHWYlkOrN2nR1Gs=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:From;
-	b=H9NP+HUgQiY0qPDtNgc6P00Il3c/wcdbtrAJEhSzq5gLIUtqluRQeE1kGho5pVTQD
-	 QWpbwFXg5uNOMJzokqk1Uxy3n2wAJIOya8L6Rbm0Uu3X9a+Uvr76Jn8ZLfXjuAaCAG
-	 C0HNnz6EPuJARNb9sYI2gF9gKfWDLR6LX6tAB0l8C1Aq/4ZniTFy1UsM38GSZeUzp/
-	 SAt957trGF8oYonOJTSGveMU6bFdjk4V9xyvQnl/nqq/YaIQ1gjCafne2+uNOE529b
-	 Z9brsHhHMJyc3qepgyNEGcOEPYppiKW7Ij/1P6k6mtJ/QAaKmvDryO7TFeJxl9plv2
-	 T67NB6jykCuIw==
-Received: from localhost (c-71-229-227-126.hsd1.co.comcast.net [71.229.227.126])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature ECDSA (prime256v1) server-digest SHA256)
-	(No client certificate requested)
-	by ms.lwn.net (Postfix) with ESMTPSA id F353540C7C;
-	Tue, 17 Mar 2026 14:49:09 +0000 (UTC)
-From: Jonathan Corbet <corbet@lwn.net>
-To: John S <xaum.io@gmail.com>, mst@redhat.com, jasowang@redhat.com
-Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
- skhan@linuxfoundation.org, virtualization@lists.linux.dev,
- linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] virtio: document the map API in the driver writing guide
-In-Reply-To: <CAAZVx999y-DvB7Dp2ekoHk6s8aqqScd2gKSY4ySGAK6NNXeH5g@mail.gmail.com>
-References: <CAAZVx999y-DvB7Dp2ekoHk6s8aqqScd2gKSY4ySGAK6NNXeH5g@mail.gmail.com>
-Date: Tue, 17 Mar 2026 08:49:09 -0600
-Message-ID: <87wlzacxzu.fsf@trenco.lwn.net>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="d1BxvLWA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30E54C4CEF7;
+	Tue, 17 Mar 2026 16:15:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773764102;
+	bh=UphfycUSWzpIkA6CM6q6KSYT3Kt5Z/+FEK5eSxrCnWw=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=d1BxvLWAsohB++QNIhLN1YFQxrt4XnXj1JFsUQfvSoT0fFAnVztCTtpfjx7vKPnxk
+	 6qGdhQo7nzE4F/mNL5Q0sRYKWEabLJX9GtIKERlnnLmzq8mMQj9bDY61FQ9eqlW3Tj
+	 f5igX67Ru650I2e+gbseyqLyoGULpN4rj+znIUcrTwIcRzHzO3e9JfKhSfEuLpsCWC
+	 Pqb8ttQoAR4pBXYhDFNJskQm1sAqZGUNGp1d8CbcljJ5uraC0X5mW23HaLS4sIxBwv
+	 0nJp+xPBBBUq5MbgvSXUtiH6VYxzrFIJYnFvfcigqDjLGn7XX5B9KSqtUwO/MGZIWm
+	 D8oyPcOa6WzTg==
+Date: Tue, 17 Mar 2026 09:15:00 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: I Viswanath <viswanathiyyappan@gmail.com>
+Cc: stfomichev@gmail.com, horms@kernel.org, edumazet@google.com,
+ pabeni@redhat.com, andrew+netdev@lunn.ch, davem@davemloft.net,
+ eperezma@redhat.com, xuanzhuo@linux.alibaba.com, jasowang@redhat.com,
+ mst@redhat.com, przemyslaw.kitszel@intel.com, anthony.l.nguyen@intel.com,
+ jacob.e.keller@intel.com, ronak.doshi@broadcom.com, pcnet32@frontier.com,
+ bcm-kernel-feedback-list@broadcom.com, netdev@vger.kernel.org,
+ virtualization@lists.linux.dev, intel-wired-lan@lists.osuosl.org,
+ linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next v9 0/7] Introduce async callback
+ ndo_set_rx_mode_async
+Message-ID: <20260317091500.3b3488d4@kernel.org>
+In-Reply-To: <CAPrAcgMBQsVAG3utAD=7dp5tU1jjEBPO5QQGpMUrDu+rMrDJaA@mail.gmail.com>
+References: <20260314182809.362808-1-viswanathiyyappan@gmail.com>
+	<20260314130601.0ec7a534@kernel.org>
+	<CAPrAcgMBQsVAG3utAD=7dp5tU1jjEBPO5QQGpMUrDu+rMrDJaA@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-John S <xaum.io@gmail.com> writes:
+On Sun, 15 Mar 2026 01:29:14 +0530 I Viswanath wrote:
+> On Sun, 15 Mar 2026 at 01:36, Jakub Kicinski <kuba@kernel.org> wrote:
+> > Stan is actively working on this:
+> > https://lore.kernel.org/20260313145113.1424442-1-sdf@fomichev.me
+> > I feel like I spent enough time reviewing your attempts and Stan
+> > will not need as much maintainer attention to bring this to
+> > a closure so let him cook. Sorry.  
+> 
+> Honestly, I should be thanking you for not throwing it out sooner. I
+> don't think I was skilled/experienced to actually make it work and
+> someone more qualified should handle this. On the bright side, That
+> means I am now much better at solving regular boring bugs and I think
+> that's what matters. Cheers
 
-> Add a new "Buffer mapping" section to the virtio driver writing guide
-> documenting the virtio map API (struct virtio_map_ops). This API was
-> introduced in commit bee8c7c24b73 ("virtio: introduce map ops in virtio
-> core") to allow transports and devices that do not perform DMA (such
-> as VDUSE) to provide their own buffer mapping logic instead of abusing
-> the DMA API.
->
-> The new section explains when and why custom map ops are used, documents
-> the virtio_map_ops structure and the union virtio_map token, and
-> references the driver-facing mapping helpers with their kernel-doc.
->
-> Signed-off-by: Kit Dallege <xaum.io@gmail.com>
-
-So what is the story with "John S" in the From line?
-
-Please, slow down with the AI-generated patches.  Perhaps focus on
-exactly one of them, and get it to the point where it can be considered
-for inclusion before doing any others?
-
-jon
+Thank you for the understanding!
