@@ -1,81 +1,107 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out-189.mta0.migadu.com (out-189.mta0.migadu.com [91.218.175.189])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EC04734D4E3;
-	Tue, 17 Mar 2026 02:30:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8530F1922F5
+	for <virtualization@lists.linux.dev>; Tue, 17 Mar 2026 04:37:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.189
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773714617; cv=none; b=CgCxoNAvm3bFvQmmxZqL9p2OC7nkRX1/FO0KGs6tpBoQSZnHg2iQbNHerX6b189xWG3LYUzoialhgjNQWPDW2sI5pmGKD2QOpGBEh6F52lRUMA+VfbC01IvQb2fdTM3cz9+ozXmFFOOS2/+cV4vYDs0ZRdX9z2SqJs3EkJWodfk=
+	t=1773722245; cv=none; b=fm2mrNn6/tpeUXOU0igPY0oqP0G25IWM68hWrLwhmlT8gKMkqCO/geU9ilXfTfragw7fVkjdWptvLzQAMo/mw6J17M8YFDGuM0jwp5dAOxjz+Jd2OXs6xV/FPFLTdCi77BwVnnmEab1meWFwaqVNjPdtHrGrbWvCCk+cA0MIrKk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773714617; c=relaxed/simple;
-	bh=FTK3Ck0Vm2mylMVdtNZsM8W3IIsqFHcFgNrL9TyWz9g=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=i495aqouSzgbC99inXADg+nrc4/Yy4wDyaYVp3kJ5oNBSR/Abm9yMd8IlIFY2q1oNnx7sGlGGrucoz6H3KMtikHyhIDYx8PehlNWeMAHsb6b63hanmM9OX4tOx53LStdL/AXiVpD0QnaHr8/6o168zjJQsg3ibMxlYegjza/8lg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=K3sPrDHg; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773722245; c=relaxed/simple;
+	bh=zL0wy19fVG4depCvUJ/VT1pJhTUMyVt4dEpl2I4lvNM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=oTUbl3+SFNLL2npi7EVFuMDTWq5sMh0Qq1C8chBE808etUmSh+Z2iLrvz2Auh9LE95rRRRB9BGhRFlBVkvws+wA/I9/Jfm9QrrIBuZTGuCAy5degfx6qiX7EgII/EK70RJ9GLR9/Mad2PNuDGvAWOaTP/n1eYPLPPifTOThA8rQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=fYW/2Z+H; arc=none smtp.client-ip=91.218.175.189
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="K3sPrDHg"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 97E06C19421;
-	Tue, 17 Mar 2026 02:30:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773714616;
-	bh=FTK3Ck0Vm2mylMVdtNZsM8W3IIsqFHcFgNrL9TyWz9g=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=K3sPrDHg/kgZtjxvnCHbPYXiD08AgRwtIvUhSXtz3ugrQdYc8ncq6hXxf5IGzXBRR
-	 RXjqGIrHsxS9BPFXFVArIxaPEF7O7BXLkIPG5oRbYKvwbfGeHx4K5MTnBOH1D5VhjW
-	 76f6VgVPNR8FzzekZrH86h2ochJd78Oezr7xsg+tU48/crGBz5zQ1pmqkHU6xyvGVH
-	 8AkE1e5lgeIeQxnFFTY7r0psjDNrd0jFhokKZtEWjSq0UaVoPkEForJgmJeBirG4hl
-	 7NBOz1nfaf/uSkQF9hHk1XlH/xohCcEEEDeTCAGgROF6wbWjeqtMl3DnCOqpvPyQl7
-	 3wdq2ie40cLbQ==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 7CF643808200;
-	Tue, 17 Mar 2026 02:30:10 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="fYW/2Z+H"
+Message-ID: <0d66401f-9874-4047-971b-632723b0b7ee@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1773722232;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=g/D/uyf3nn8bxGRwMVEfXcttdOuJQ2DTCrN1S57yUG8=;
+	b=fYW/2Z+H7GDqviCHCJxlMlopFyd0rVRST+Kt+qnMmSRDH0/2HSkqYnt2zM4572KfZ1IoMF
+	QdgnYxrOKNf7viUh8MhHQAFvHJN7K/tJkMImaj7zfLcg4xzDV79pXlx4AMJIuYxrBKmTmc
+	5yfsO6dct2hccDcLaUMMZOKdVvIkn3k=
+Date: Mon, 16 Mar 2026 21:37:01 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next v11] virtio_net: add page_pool support for buffer
- allocation
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <177371460929.3397946.4827611096206644305.git-patchwork-notify@kernel.org>
-Date: Tue, 17 Mar 2026 02:30:09 +0000
-References: <20260310183107.2822016-1-vishs@meta.com>
-In-Reply-To: <20260310183107.2822016-1-vishs@meta.com>
-To: Vishwanath Seshagiri <vishs@meta.com>
-Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
- eperezma@redhat.com, andrew+netdev@lunn.ch, davem@davemloft.net,
- edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, dw@davidwei.uk,
- technoboy85@gmail.com, ilias.apalodimas@linaro.org, netdev@vger.kernel.org,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+Subject: Re: [PATCH v2] mm/mempolicy: track page allocations per mempolicy
+To: "Huang, Ying" <ying.huang@linux.alibaba.com>
+Cc: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>, linux-mm@kvack.org,
+ akpm@linux-foundation.org, mhocko@suse.com, apopple@nvidia.com,
+ axelrasmussen@google.com, byungchul@sk.com, cgroups@vger.kernel.org,
+ david@kernel.org, eperezma@redhat.com, gourry@gourry.net,
+ jasowang@redhat.com, hannes@cmpxchg.org, joshua.hahnjy@gmail.com,
+ Liam.Howlett@oracle.com, linux-kernel@vger.kernel.org,
+ lorenzo.stoakes@oracle.com, matthew.brost@intel.com, mst@redhat.com,
+ rppt@kernel.org, muchun.song@linux.dev, zhengqi.arch@bytedance.com,
+ rakie.kim@sk.com, roman.gushchin@linux.dev, shakeel.butt@linux.dev,
+ surenb@google.com, virtualization@lists.linux.dev, weixugc@google.com,
+ xuanzhuo@linux.alibaba.com, yuanchu@google.com, ziy@nvidia.com,
  kernel-team@meta.com
+References: <20260307045520.247998-1-jp.kobryn@linux.dev>
+ <3a42463b-9ddd-4d64-b64c-6c2e6e4fc75d@kernel.org>
+ <343bbd5b-67a0-46c4-8ec4-69158bf26b3f@linux.dev>
+ <874imkpba1.fsf@DESKTOP-5N7EMDA>
+ <cd3d7e2c-79fa-4c00-89ad-83beddf98bae@linux.dev>
+ <60f71f4c-71d9-4751-8c6b-10179b98bef0@kernel.org>
+ <c4e5cc3c-5daa-404e-8c55-cface8aa969d@linux.dev>
+ <87sea0o55p.fsf@DESKTOP-5N7EMDA>
+Content-Language: en-US
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>
+In-Reply-To: <87sea0o55p.fsf@DESKTOP-5N7EMDA>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Migadu-Flow: FLOW_OUT
 
-Hello:
-
-This patch was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
-
-On Tue, 10 Mar 2026 11:31:04 -0700 you wrote:
-> Use page_pool for RX buffer allocation in mergeable and small buffer
-> modes to enable page recycling and avoid repeated page allocator calls.
-> skb_mark_for_recycle() enables page reuse in the network stack.
+On 3/15/26 7:54 PM, Huang, Ying wrote:
+> "JP Kobryn (Meta)" <jp.kobryn@linux.dev> writes:
 > 
-> Big packets mode is unchanged because it uses page->private for linked
-> list chaining of multiple pages per buffer, which conflicts with
-> page_pool's internal use of page->private.
+>> On 3/13/26 12:34 AM, Vlastimil Babka (SUSE) wrote:
+>>> On 3/13/26 07:14, JP Kobryn (Meta) wrote:
+>>>> On 3/12/26 10:07 PM, Huang, Ying wrote:
+>>>>> "JP Kobryn (Meta)" <jp.kobryn@linux.dev> writes:
+>>>>>
+>>>>>> On 3/12/26 6:40 AM, Vlastimil Babka (SUSE) wrote:
+>>>>>>
+>>>>>> How about I change from per-policy hit/miss/foreign triplets to a single
+>>>>>> aggregated policy triplet (i.e. just 3 new counters which account for
+>>>>>> all policies)? They would follow the same hit/miss/foreign semantics
+>>>>>> already proposed (visible in quoted text above). This would still
+>>>>>> provide the otherwise missing signal of whether policy-driven
+>>>>>> allocations to a node are intentional or fallback.
+>>>>>>
+>>>>>> Note that I am also planning on moving the stats off of the memcg so the
+>>>>>> 3 new counters will be global per-node in response to similar feedback.
+>>>>>
+>>>>> Emm, what's the difference between these newly added counters and the
+>>>>> existing numa_hit/miss/foreign counters?
+>>>>
+>>>> The existing counters don't account for node masks in the policies that
+>>>> make use of them. An allocation can land on a node in the mask and still
+>>>> be considered a miss because it wasn't the preferred node.
+>>> That sounds like we could just a new counter e.g. numa_hit_preferred
+>>> and
+>>> adjust definitions accordingly? Or some other variant that fills the gap?
+>>
+>> It's an interesting thought. Looking into these existing counters more,
+>> the in-kernel direct node allocations, which don't fall under any
+>> mempolicy, are also included in these stats. One good example might be
+>> include/linux/skbuff.h, where __dev_alloc_pages() calls
+>> alloc_pages_node_noprof(NUMA_NO_NODE, ...) which eventually reaches
+>> zone_statistics() and increments the stats.
 > 
-> [...]
+> IIUC, the default memory policy is used here, that is, MPOL_LOCAL.
 
-Here is the summary with links:
-  - [net-next,v11] virtio_net: add page_pool support for buffer allocation
-    https://git.kernel.org/netdev/net-next/c/24fbd3967f3f
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+I'm not seeing that. zone_statistics() is eventually reached.
+alloc_pages_mpol() is not.
