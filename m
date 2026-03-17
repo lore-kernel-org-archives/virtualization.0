@@ -1,116 +1,101 @@
-Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6847730DEA6
-	for <virtualization@lists.linux.dev>; Tue, 17 Mar 2026 06:45:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 663EC34DB4B
+	for <virtualization@lists.linux.dev>; Tue, 17 Mar 2026 08:49:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773729913; cv=none; b=L0M4Frgkk4EYiLQFfytJYr9Tu+zd8kmIPLz6KD5Aii/BbWDbRvRQD3V+qgjkY7RUOjHl3N3lEsT+0Dtd03HiI95vJD4eM5/l5A41K/hJppGV6LgFF+b7S3IdsEvS2TTJ9TdJy+3uoa4yIy2Xju7gLQ25nDq1a59E1FGeeZ3woPQ=
+	t=1773737343; cv=none; b=kUE4va5jJX37MFYOCq5fkGxwBS6alpabr/rsFsY+s318xv4TqGzwCK/0iA5vohIoQ3GHb57jbaRTDDq65d6gWqSG8gXkQy3TtpiuQrdIkFxu42Xzdu7VHbqssUsbcq/LW6Id2NUYuoS+/80VTwcaVCYAh6gtgRyn26FanRy0wHc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773729913; c=relaxed/simple;
-	bh=8ghl4Tyasnsz0ekbvIT4f5knJlPJmBDwa+JdA1ozBxQ=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=qPJ6VfJ7rVjMWV1bE4SVPPfU7n/2XqpsFi5Gs0+l+YLDxLgToAi6IIQCx1B0prOXNgxYqmb01cIt0impIM1cPWysb0N2y76pEZQlaD8XCBjRIBtu2fXK8kMLnkS0F7WrYLxy4FdW183D+m576mWgORqfpsJhzGOdxzofqGMFebw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=NodgPK+6; arc=none smtp.client-ip=115.124.30.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1773737343; c=relaxed/simple;
+	bh=B1SonV887716oesm2yPOqphPLINTjebEH4V7kipGne8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=C7/Nh7LG+2hUyzTYlNaZ1PI3xKfl5wJkugnKMD4FJnSnND5kcOJMjBkoBTphFGXbEfogGz/+miGSxL2vnF+xDGWG1dWSiFyksJQNm0ai91mQHOz4NdVVSawYmNakE0Y0fd+ALKXGunBeP1gBUq75tSMOLSlKGwlPnmJzoGt+1Jk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=I5zMxZ/k; arc=none smtp.client-ip=209.85.214.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="NodgPK+6"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1773729909; h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type;
-	bh=d9m8AenGNBSpK6f9o8GrCon857vC2vFuEB2dcmCEqmU=;
-	b=NodgPK+6dMbsoNxKCOUFABB5sTnX/b91O4OB0qArN11uTlAl/bU7IXw2m2OH0Cz1YYXvuSwT0Q36PXu4OKZ2WJ1n004RV+/mGSlDRbS6XW2W3Zzd+C0j12V0f5nOGpF/VzpzExUl003vx4UMQQyd8ktXORCLXZO1mihya3Hrydw=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R131e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam011083073210;MF=ying.huang@linux.alibaba.com;NM=1;PH=DS;RN=33;SR=0;TI=SMTPD_---0X.9ya0W_1773729894;
-Received: from DESKTOP-5N7EMDA(mailfrom:ying.huang@linux.alibaba.com fp:SMTPD_---0X.9ya0W_1773729894 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Tue, 17 Mar 2026 14:45:07 +0800
-From: "Huang, Ying" <ying.huang@linux.alibaba.com>
-To: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>
-Cc: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>,  linux-mm@kvack.org,
-  akpm@linux-foundation.org,  mhocko@suse.com,  apopple@nvidia.com,
-  axelrasmussen@google.com,  byungchul@sk.com,  cgroups@vger.kernel.org,
-  david@kernel.org,  eperezma@redhat.com,  gourry@gourry.net,
-  jasowang@redhat.com,  hannes@cmpxchg.org,  joshua.hahnjy@gmail.com,
-  Liam.Howlett@oracle.com,  linux-kernel@vger.kernel.org,
-  lorenzo.stoakes@oracle.com,  matthew.brost@intel.com,  mst@redhat.com,
-  rppt@kernel.org,  muchun.song@linux.dev,  zhengqi.arch@bytedance.com,
-  rakie.kim@sk.com,  roman.gushchin@linux.dev,  shakeel.butt@linux.dev,
-  surenb@google.com,  virtualization@lists.linux.dev,  weixugc@google.com,
-  xuanzhuo@linux.alibaba.com,  yuanchu@google.com,  ziy@nvidia.com,
-  kernel-team@meta.com
-Subject: Re: [PATCH v2] mm/mempolicy: track page allocations per mempolicy
-In-Reply-To: <0d66401f-9874-4047-971b-632723b0b7ee@linux.dev> (JP Kobryn's
-	message of "Mon, 16 Mar 2026 21:37:01 -0700")
-References: <20260307045520.247998-1-jp.kobryn@linux.dev>
-	<3a42463b-9ddd-4d64-b64c-6c2e6e4fc75d@kernel.org>
-	<343bbd5b-67a0-46c4-8ec4-69158bf26b3f@linux.dev>
-	<874imkpba1.fsf@DESKTOP-5N7EMDA>
-	<cd3d7e2c-79fa-4c00-89ad-83beddf98bae@linux.dev>
-	<60f71f4c-71d9-4751-8c6b-10179b98bef0@kernel.org>
-	<c4e5cc3c-5daa-404e-8c55-cface8aa969d@linux.dev>
-	<87sea0o55p.fsf@DESKTOP-5N7EMDA>
-	<0d66401f-9874-4047-971b-632723b0b7ee@linux.dev>
-Date: Tue, 17 Mar 2026 14:44:59 +0800
-Message-ID: <87a4w7x8d0.fsf@DESKTOP-5N7EMDA>
-User-Agent: Gnus/5.13 (Gnus v5.13)
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="I5zMxZ/k"
+Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-2ae3a2f6007so44770995ad.2
+        for <virtualization@lists.linux.dev>; Tue, 17 Mar 2026 01:49:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1773737342; x=1774342142; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=xjrnRLDXHBwFdgbFPJ5wbch9uelKKkj5QYsOf+XR6ck=;
+        b=I5zMxZ/kRQk7vgWzYP9C4658GRt4h50cVbnEiUwX6I8qk85myP8yd/Rwwpm5Pc3iAY
+         yfIR59RcLj8KvJS9wSEFxV2/WbBUHXB+RZlA3F4EXcPC0Dnp3vPSM8JtpFUs6SawHa61
+         Zz60iDo2lZzxOlt+fIZUypfiWygVEB/jQ/AfmokiW5u+Um9VmLh1TjzvQPIQae3ee2rW
+         Vr/nmuaLWcgVbGoFP+j2CyJ6TREOLNYGRiXubp9nbnqTf3IixC0/QhH+av6jO+9PX+ux
+         3Ik4MzSMk5Xej/Z6cVyVKU5Wg2zGR8l1Ny2kFQQhG1TxZxM0lvTaNpU69uz8tAUTuGiH
+         rIIA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1773737342; x=1774342142;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=xjrnRLDXHBwFdgbFPJ5wbch9uelKKkj5QYsOf+XR6ck=;
+        b=W0NYhQNKJKesIoNsaw0VsyS714B6xq/gDJqsqdrTGg08Bu1NFgcWrhtwbYxUvHRSQL
+         06LPvoMbhtesK6rG22ZrrUyNI/vWKB8DW1ZycT8baRqSO7SuAZGnmZyaZmBJPtQ1Fk1n
+         twKt3F75RzRfhlYRCb6vwij1ypdAMxJ/UyQVOGL7fpzRbKS9yttNOdD0gPv81vyi5Rcp
+         S7KPM+bWbb9hi47KPh9gSGeZz3d0aztcpRWEXSfyqe/IAY5aHqy5e+HjdfNwnOPe2ccj
+         6zV7dgLCn+KgZ3WhWiThsD50Tk2Ys9fF8TVClb/kfVmybjaadvdcIfBzH88l/u8oWfD4
+         dkuA==
+X-Forwarded-Encrypted: i=1; AJvYcCXw1mxCui5AVAf7ufDXoyTsa47nwSwISvTxGEUqrmRrsLfQ5RTFiPauK5Ci0FVI1OpV4pUQ4wRUcYvEpfSrHw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy2gAOVxzx0PKROGMHy8vRU1DLhtVc+QGrsfmTFqoM7OCCSr6E3
+	bpG8VTaFR9Nf2anmuwPx6FcxPfZnXMeVMg23sGroMLDPoDm2PO7UwpD9c4fBhi0/wI4=
+X-Gm-Gg: ATEYQzzuqY1L6kto+YNX+0zF6DaWy+t0sD2pFkqeVXuk/fQIG26BTuMC+RT27/ClOkd
+	vE2ZvPXsnw4o2rVEg2gys6l8LZyuKoLa041nZZVqUSgNF2M9rDRvVcdoPzI7plxTgY+N/C6jz16
+	d6nxvVzV3VvaaKxh8FvhRTzFaUCdoxujW6jGCVxc6vguWinXfOETzN8eCknatl+D810EwSlA/Qo
+	LpnT0QQX3TLEoZEFXPevf3renAhv5JL/Zky5ApBJUXCNrWPZ3EEef5WIez9a6MQ+mUaif6PSQ4s
+	PgkEP8Be36REXjRsTAsqEqDRtJ2oK96rhG9rejYbB8VuBnWai+TZKkBJ9FKXDou+IGP5CDy5sKz
+	08oKLU7VjMHr6DSrDwCb2MEDZGc3NqgLn0ssEJ2ao0TH5Q21+SfMLJiNlIZwbjNbBO7FPOqG9I7
+	x5HA/L6zLDNeJR4E91zUKoDqo2
+X-Received: by 2002:a17:902:e850:b0:2ae:ba5f:3ac3 with SMTP id d9443c01a7336-2aeca9a961cmr181695145ad.2.1773737341543;
+        Tue, 17 Mar 2026 01:49:01 -0700 (PDT)
+Received: from localhost ([122.172.81.200])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2aece84084bsm126396425ad.82.2026.03.17.01.49.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 17 Mar 2026 01:49:00 -0700 (PDT)
+Date: Tue, 17 Mar 2026 14:18:58 +0530
+From: Viresh Kumar <viresh.kumar@linaro.org>
+To: Linus Walleij <linusw@kernel.org>
+Cc: Rosen Penev <rosenp@gmail.com>, linux-gpio@vger.kernel.org, 
+	"Enrico Weigelt, metux IT consult" <info@metux.net>, Viresh Kumar <vireshk@kernel.org>, 
+	Bartosz Golaszewski <brgl@kernel.org>, Kees Cook <kees@kernel.org>, 
+	"Gustavo A. R. Silva" <gustavoars@kernel.org>, "open list:VIRTIO GPIO DRIVER" <virtualization@lists.linux.dev>, 
+	open list <linux-kernel@vger.kernel.org>, 
+	"open list:KERNEL HARDENING (not covered by other areas):Keyword:b__counted_by(_le|_be)?b" <linux-hardening@vger.kernel.org>
+Subject: Re: [PATCHv3] gpio: virtio: remove one kcalloc
+Message-ID: <bh5rgccasvor5xjunkc7wjp3resyulehnqafhzlfwqx2ealwxw@eqohebwzjq2a>
+References: <20260312193717.12221-1-rosenp@gmail.com>
+ <7jwgbrijeldghk44tdg2be5q7o7vuj5np3nlbl2pxuln6c7ll7@ntuquxxdnfmm>
+ <CAD++jLnTJGt2YXo6ASXEjPPsMbrr+Mz3RKcCVeUpaWEMPm6DOQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ascii
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <CAD++jLnTJGt2YXo6ASXEjPPsMbrr+Mz3RKcCVeUpaWEMPm6DOQ@mail.gmail.com>
 
-"JP Kobryn (Meta)" <jp.kobryn@linux.dev> writes:
+On 16-03-26, 15:00, Linus Walleij wrote:
+> On Fri, Mar 13, 2026 at 7:09 AM Viresh Kumar <viresh.kumar@linaro.org> wrote:
+> 
+> > I wonder if it is worth it anymore. Why combining allocations is better when we
+> > are ending up using more memory ?
+> 
+> For the same reason we are starting to use Rust in the kernel, despite
+> it sometimes will take more memory essentially. __counted_by() enforce
+> the same type of runtime size checks as Rust do on arrays.
 
-> On 3/15/26 7:54 PM, Huang, Ying wrote:
->> "JP Kobryn (Meta)" <jp.kobryn@linux.dev> writes:
->> 
->>> On 3/13/26 12:34 AM, Vlastimil Babka (SUSE) wrote:
->>>> On 3/13/26 07:14, JP Kobryn (Meta) wrote:
->>>>> On 3/12/26 10:07 PM, Huang, Ying wrote:
->>>>>> "JP Kobryn (Meta)" <jp.kobryn@linux.dev> writes:
->>>>>>
->>>>>>> On 3/12/26 6:40 AM, Vlastimil Babka (SUSE) wrote:
->>>>>>>
->>>>>>> How about I change from per-policy hit/miss/foreign triplets to a single
->>>>>>> aggregated policy triplet (i.e. just 3 new counters which account for
->>>>>>> all policies)? They would follow the same hit/miss/foreign semantics
->>>>>>> already proposed (visible in quoted text above). This would still
->>>>>>> provide the otherwise missing signal of whether policy-driven
->>>>>>> allocations to a node are intentional or fallback.
->>>>>>>
->>>>>>> Note that I am also planning on moving the stats off of the memcg so the
->>>>>>> 3 new counters will be global per-node in response to similar feedback.
->>>>>>
->>>>>> Emm, what's the difference between these newly added counters and the
->>>>>> existing numa_hit/miss/foreign counters?
->>>>>
->>>>> The existing counters don't account for node masks in the policies that
->>>>> make use of them. An allocation can land on a node in the mask and still
->>>>> be considered a miss because it wasn't the preferred node.
->>>> That sounds like we could just a new counter e.g. numa_hit_preferred
->>>> and
->>>> adjust definitions accordingly? Or some other variant that fills the gap?
->>>
->>> It's an interesting thought. Looking into these existing counters more,
->>> the in-kernel direct node allocations, which don't fall under any
->>> mempolicy, are also included in these stats. One good example might be
->>> include/linux/skbuff.h, where __dev_alloc_pages() calls
->>> alloc_pages_node_noprof(NUMA_NO_NODE, ...) which eventually reaches
->>> zone_statistics() and increments the stats.
->> IIUC, the default memory policy is used here, that is, MPOL_LOCAL.
->
-> I'm not seeing that. zone_statistics() is eventually reached.
-> alloc_pages_mpol() is not.
+Right. I don't have any issue with __counted_by(). It does the right thing for
+flexible length arrays. But we don't need a flexible length array here and so my
+question.
 
-Yes.  The page isn't allocated through alloc_pages_mpol().  For example,
-if we want to allocate pages for the kernel instead of user space
-applications.  However, IMHO, the equivalent memory policy is
-MPOL_LOCAL, that is, allocate from local node firstly, then fallback to
-other nodes.  I don't think that alloc_pages_mpol() is so special.
-
----
-Best Regards,
-Huang, Ying
+-- 
+viresh
