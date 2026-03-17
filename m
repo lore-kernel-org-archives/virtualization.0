@@ -1,124 +1,115 @@
-Received: from out-181.mta0.migadu.com (out-181.mta0.migadu.com [91.218.175.181])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6693C31E841
-	for <virtualization@lists.linux.dev>; Tue, 17 Mar 2026 17:55:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF1513E5ED6;
+	Tue, 17 Mar 2026 19:05:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773770141; cv=none; b=QKR/BTSTFpHFvqHRy0MM4q44u1ZiuH2ANNWYprv6YFCYi76/YKKmL6pkQR5LiZ4DIddyaxl2OZEBW9d99jL42JRN/uFkUo1wfhtBJAPygZbWU/MHIUXmCPzg++uqDeiiZXMPm6qv4fQr/XFXAXfy7oiBKI35lUZ6ym+gK5wUgzg=
+	t=1773774343; cv=none; b=FhaFxk7N+eYDxLw42IvH+vOZ1PbpFV65O0RZem2eqVXg2B430hxhYoo/3l1L4AOUP3espcAWn9svwkC8QOQgkSYoZG133BPxrN4G7n61eW46RAcJPFYhnHUTe/MRoyrrEuBAQ2Sp++YvTzzTDROlCiH6hjp5qtHzMCPrqVszxaw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773770141; c=relaxed/simple;
-	bh=kOVU8iJwnYx0FdEkjEXpzP0JhkgJQiE7YpSMZimGrwU=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Vvdw+5aY59qm2pqIjJgUd/0SNx4q+dHgkCcUMfRee1DgNOBYaqDaGPi8I+gOJLYfuOUO1tomb5cJa8+TDz/TKbhGPW5xF/0FHfvCn2Bi7VoapGAgU058PP0/vx3u8DP7PprT+FBEErGB3bBeFWWe5uH/hviQjoLItKHjpsnIi3o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=pjaAZX31; arc=none smtp.client-ip=91.218.175.181
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1773774343; c=relaxed/simple;
+	bh=syW3z0x80IUsDkJqDO1sfU4YY8HBrpHtA77ObK08ZFo=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Q76V/LLtGIjS2sCJcdINX6Sw0By0nS+Hu6Kkf5jUEnoJmfKa+ZLAkRLO+x/iXpGtBjGDCTe+wGLLse9lX04auWLBhgSuBsYhDBs9NERchuUxOY0tzL/BxylIcdCBveFH+JkPCWBMLseC+DhimqxOpExH55Zrw0nwqryAnOhedck=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VRWgTDqb; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="pjaAZX31"
-Message-ID: <ae4ea01d-a30e-4085-ab4a-578dcfcba82c@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1773770136;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qTYVKV5nb5ayCDEY32vWKZpQOz0lpO2L66vO5Fes22w=;
-	b=pjaAZX31HfPv0EqxBir1wrcOT4ZRPxKDxntVvAAZnr7TtTsyDgri1szGW/0d/+Frj9Xeuk
-	t7xO1e8UeWMQMiTSIl9JwrugHVnaKhHQL+RxC/k1YCPYhdeKUYjy/J7ZJURqccLLxMt+mv
-	oj2tZq7fy2Z2lQJEQ91Eaz9CEFmhq2c=
-Date: Tue, 17 Mar 2026 10:55:26 -0700
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VRWgTDqb"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A1F64C4CEF7;
+	Tue, 17 Mar 2026 19:05:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773774343;
+	bh=syW3z0x80IUsDkJqDO1sfU4YY8HBrpHtA77ObK08ZFo=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=VRWgTDqbWe3Q1W3JoxRORGEv9cJSyULlIC1z8Bw/dttRqK0xrUjV3jcLj+FCNIlhA
+	 yfquFZi5RuoGYh094bwpTEqzMSy1oi20VB/mwVmDasAQXUEDUj69QwmFrLNkzzaaEW
+	 TxL4IoR2tfqmdocyZECPzry0Flux1xfTuoo78wga02G7HX9CfQP86SEbWHmeki3bnG
+	 fQQPAweWzmsOQWPyYRrr1vn+O2GeAM0lXjxVoRUKicNl0fMpfX0u90da1igsahAgWD
+	 lVpeDEoTnLCevj3RHVAGT/mI6ZPAnZpFvQykUFfbUgqTYwv27pZul8kECdVX2mxKrW
+	 MJpheC1EsGxUQ==
+Date: Tue, 17 Mar 2026 21:05:38 +0200
+From: Leon Romanovsky <leon@kernel.org>
+To: Marek Szyprowski <m.szyprowski@samsung.com>,
+	Robin Murphy <robin.murphy@arm.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Petr Tesarik <ptesarik@suse.com>, Jonathan Corbet <corbet@lwn.net>,
+	Shuah Khan <skhan@linuxfoundation.org>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Jason Gunthorpe <jgg@ziepe.ca>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>
+Cc: iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
+	linux-doc@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-rdma@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+	linux-mm@kvack.org
+Subject: Re: [PATCH v3 0/8] RDMA: Enable operation with DMA debug enabled
+Message-ID: <20260317190538.GD61385@unreal>
+References: <20260316-dma-debug-overlap-v3-0-1dde90a7f08b@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Subject: Re: [PATCH v2] mm/mempolicy: track page allocations per mempolicy
-To: "Huang, Ying" <ying.huang@linux.alibaba.com>
-Cc: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>, linux-mm@kvack.org,
- akpm@linux-foundation.org, mhocko@suse.com, apopple@nvidia.com,
- axelrasmussen@google.com, byungchul@sk.com, cgroups@vger.kernel.org,
- david@kernel.org, eperezma@redhat.com, gourry@gourry.net,
- jasowang@redhat.com, hannes@cmpxchg.org, joshua.hahnjy@gmail.com,
- Liam.Howlett@oracle.com, linux-kernel@vger.kernel.org,
- lorenzo.stoakes@oracle.com, matthew.brost@intel.com, mst@redhat.com,
- rppt@kernel.org, muchun.song@linux.dev, zhengqi.arch@bytedance.com,
- rakie.kim@sk.com, roman.gushchin@linux.dev, shakeel.butt@linux.dev,
- surenb@google.com, virtualization@lists.linux.dev, weixugc@google.com,
- xuanzhuo@linux.alibaba.com, yuanchu@google.com, ziy@nvidia.com,
- kernel-team@meta.com
-References: <20260307045520.247998-1-jp.kobryn@linux.dev>
- <3a42463b-9ddd-4d64-b64c-6c2e6e4fc75d@kernel.org>
- <343bbd5b-67a0-46c4-8ec4-69158bf26b3f@linux.dev>
- <874imkpba1.fsf@DESKTOP-5N7EMDA>
- <cd3d7e2c-79fa-4c00-89ad-83beddf98bae@linux.dev>
- <60f71f4c-71d9-4751-8c6b-10179b98bef0@kernel.org>
- <c4e5cc3c-5daa-404e-8c55-cface8aa969d@linux.dev>
- <87sea0o55p.fsf@DESKTOP-5N7EMDA>
- <0d66401f-9874-4047-971b-632723b0b7ee@linux.dev>
- <87a4w7x8d0.fsf@DESKTOP-5N7EMDA>
-Content-Language: en-US
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: "JP Kobryn (Meta)" <jp.kobryn@linux.dev>
-In-Reply-To: <87a4w7x8d0.fsf@DESKTOP-5N7EMDA>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260316-dma-debug-overlap-v3-0-1dde90a7f08b@nvidia.com>
 
-On 3/16/26 11:44 PM, Huang, Ying wrote:
-> "JP Kobryn (Meta)" <jp.kobryn@linux.dev> writes:
+On Mon, Mar 16, 2026 at 09:06:44PM +0200, Leon Romanovsky wrote:
+> Add a new DMA_ATTR_REQUIRE_COHERENT attribute to the DMA API to mark
+> mappings that must run on a DMA‑coherent system. Such buffers cannot
+> use the SWIOTLB path, may overlap with CPU caches, and do not depend on
+> explicit cache flushing.
 > 
->> On 3/15/26 7:54 PM, Huang, Ying wrote:
->>> "JP Kobryn (Meta)" <jp.kobryn@linux.dev> writes:
->>>
->>>> On 3/13/26 12:34 AM, Vlastimil Babka (SUSE) wrote:
->>>>> On 3/13/26 07:14, JP Kobryn (Meta) wrote:
->>>>>> On 3/12/26 10:07 PM, Huang, Ying wrote:
->>>>>>> "JP Kobryn (Meta)" <jp.kobryn@linux.dev> writes:
->>>>>>>
->>>>>>>> On 3/12/26 6:40 AM, Vlastimil Babka (SUSE) wrote:
->>>>>>>>
->>>>>>>> How about I change from per-policy hit/miss/foreign triplets to a single
->>>>>>>> aggregated policy triplet (i.e. just 3 new counters which account for
->>>>>>>> all policies)? They would follow the same hit/miss/foreign semantics
->>>>>>>> already proposed (visible in quoted text above). This would still
->>>>>>>> provide the otherwise missing signal of whether policy-driven
->>>>>>>> allocations to a node are intentional or fallback.
->>>>>>>>
->>>>>>>> Note that I am also planning on moving the stats off of the memcg so the
->>>>>>>> 3 new counters will be global per-node in response to similar feedback.
->>>>>>>
->>>>>>> Emm, what's the difference between these newly added counters and the
->>>>>>> existing numa_hit/miss/foreign counters?
->>>>>>
->>>>>> The existing counters don't account for node masks in the policies that
->>>>>> make use of them. An allocation can land on a node in the mask and still
->>>>>> be considered a miss because it wasn't the preferred node.
->>>>> That sounds like we could just a new counter e.g. numa_hit_preferred
->>>>> and
->>>>> adjust definitions accordingly? Or some other variant that fills the gap?
->>>>
->>>> It's an interesting thought. Looking into these existing counters more,
->>>> the in-kernel direct node allocations, which don't fall under any
->>>> mempolicy, are also included in these stats. One good example might be
->>>> include/linux/skbuff.h, where __dev_alloc_pages() calls
->>>> alloc_pages_node_noprof(NUMA_NO_NODE, ...) which eventually reaches
->>>> zone_statistics() and increments the stats.
->>> IIUC, the default memory policy is used here, that is, MPOL_LOCAL.
->>
->> I'm not seeing that. zone_statistics() is eventually reached.
->> alloc_pages_mpol() is not.
-> 
-> Yes.  The page isn't allocated through alloc_pages_mpol().  For example,
-> if we want to allocate pages for the kernel instead of user space
-> applications.  However, IMHO, the equivalent memory policy is
-> MPOL_LOCAL, that is, allocate from local node firstly, then fallback to
-> other nodes.  I don't think that alloc_pages_mpol() is so special.
+> Mappings using this attribute are rejected on systems where cache
+> side‑effects could lead to data corruption, and therefore do not need
+> the cache‑overlap debugging logic. This series also includes fixes for
+> DMA_ATTR_CPU_CACHE_CLEAN handling.
+> Thanks.
 
-Sure. My response was based on how you said, "the default memory policy
-is used here". I took that literally. I agree on the behavioral
-equivalence, but the important point is that no mempolicy is set. In the
-v3 patch which was recently sent out, I'm using that aspect to
-distinguish between allocations with a user-defined mempolicy and
-allocations without one.
+<...>
+
+> ---
+> Leon Romanovsky (8):
+>       dma-debug: Allow multiple invocations of overlapping entries
+>       dma-mapping: handle DMA_ATTR_CPU_CACHE_CLEAN in trace output
+>       dma-mapping: Clarify valid conditions for CPU cache line overlap
+>       dma-mapping: Introduce DMA require coherency attribute
+>       dma-direct: prevent SWIOTLB path when DMA_ATTR_REQUIRE_COHERENT is set
+>       iommu/dma: add support for DMA_ATTR_REQUIRE_COHERENT attribute
+>       RDMA/umem: Tell DMA mapping that UMEM requires coherency
+>       mm/hmm: Indicate that HMM requires DMA coherency
+> 
+>  Documentation/core-api/dma-attributes.rst | 38 ++++++++++++++++++++++++-------
+>  drivers/infiniband/core/umem.c            |  5 ++--
+>  drivers/iommu/dma-iommu.c                 | 21 +++++++++++++----
+>  drivers/virtio/virtio_ring.c              | 10 ++++----
+>  include/linux/dma-mapping.h               | 15 ++++++++----
+>  include/trace/events/dma.h                |  4 +++-
+>  kernel/dma/debug.c                        |  9 ++++----
+>  kernel/dma/direct.h                       |  7 +++---
+>  kernel/dma/mapping.c                      |  6 +++++
+>  mm/hmm.c                                  |  4 ++--
+>  10 files changed, 86 insertions(+), 33 deletions(-)
+
+Marek,
+
+Despite the "RDMA ..." tag in the subject, the diffstat clearly shows that
+you are the appropriate person to take this patch.
+
+Thanks.
+
+
+> ---
+> base-commit: 11439c4635edd669ae435eec308f4ab8a0804808
+> change-id: 20260305-dma-debug-overlap-21487c3fa02c
+> 
+> Best regards,
+> --  
+> Leon Romanovsky <leonro@nvidia.com>
+> 
