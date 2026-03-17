@@ -1,96 +1,95 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3F5B371CFC
-	for <virtualization@lists.linux.dev>; Tue, 17 Mar 2026 09:45:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A5593A6402;
+	Tue, 17 Mar 2026 11:10:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773740731; cv=none; b=tcYqzDx2krTaAkST8qCI14jdoL6HqIW3ALK8EYsoypaCdtOEDYNTQDR0WJiSfEuIidHKzz3XLBY1X+z51UcADAIsag+K+suLN12q3gs8490EsA8K1oRwGsh/9gaAyssWhOdemPuZfUkWFR+Nmh7+gyBLC3ibBvdjETip8or9ixg=
+	t=1773745846; cv=none; b=HKOaxhp6OgFEJYIAAIienDc623zZ0vGSrvfXiYSxVjVfl08VDYS1aopXNI7vv/WH3fR4jt8z5R7QmqtdX2Oxn5kXdFmT9igX4kkD+19md3P+LsdWi5c/BVW/QditzsTx9u9QpMJDOvk9D1ADVevcwjDPm0wPPStV/QQUGOZla4A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773740731; c=relaxed/simple;
-	bh=JGBz0SdiTulLcKwRUnaZplsI+zj2QfUegXT7Nov2gO4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pK+3nlX0YaKO+OQOuj0RT/+jPZH1eY0Bm/z/bMYmHFY+KY+tMLWNc0i7haQxBHrePVA0MXNG8g1qYHDGJAyZJDzIG2ngH4bDgG7gV7xEg4QSz488zIMm9vpRldJG4Ik1eaWPuQPqB2tvjyimBQoIFH6HRsYNe+dwL6EliBJV5LM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cnQMs3yD; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773745846; c=relaxed/simple;
+	bh=h+iIk4sKTg71YTACb73pQNi/1+OjRYcdvjHoMwjgIaY=;
+	h=Message-ID:Date:MIME-Version:From:Subject:To:Cc:References:
+	 In-Reply-To:Content-Type; b=pP5IPqEhWnbBfWY0axN0Fz2MjtjYXrM8QoU6up12gbx8XDntWfYbI03qFgaRfwEr6wXJzMRkOipOmKEKgIaaGUQSItu/62esC25Mwz/p4BouZz3FZaVR8QjasNApLjuIqWmqERLedppu/M/S0X45x4n9lEwoIDuUDCAvamagv4g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=s6pNrlBc; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cnQMs3yD"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AB1C1C2BC9E
-	for <virtualization@lists.linux.dev>; Tue, 17 Mar 2026 09:45:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="s6pNrlBc"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 086A6C19425;
+	Tue, 17 Mar 2026 11:10:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773740730;
-	bh=JGBz0SdiTulLcKwRUnaZplsI+zj2QfUegXT7Nov2gO4=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=cnQMs3yDCcmFOrk4R10NlxOp1qHZasnz84rJHrEAlX/FnzPd7AGcSz1uiUV6vwg+l
-	 okDB/3MJJyLOD73Iaw4DXFwZB7Tx6OYBMXzlfbpTH4qGGR34HYApEstbaCSaVmoN6j
-	 YuNlvAGrDMmZ4D++z0JIDgLqf4drvNKBLvAICWv1Ujf3Bv71kD7lIsNn6DAc5FsrpD
-	 n8wlOnUvtY6BEb5j3HWCiNOt8HmcYS82Ok/lvPq+4gZJmKNEtGNXWQQjTcUBb1VqiW
-	 YqKJit6vU6BWfc5HbyVFR4oa7B8hbhPBMGsNBlrHScYTtLjLb0ds8MkB6eXf18T7gS
-	 L3Jc/vOUao1DQ==
-Received: by mail-yw1-f176.google.com with SMTP id 00721157ae682-79801df3e42so7972397b3.0
-        for <virtualization@lists.linux.dev>; Tue, 17 Mar 2026 02:45:30 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AJvYcCWJrfnZdDiCqt6NMEkq8Fea1SuSqVqhCoPAs82ijAf2XBnmZ94Oi5IiHldNTfiHn4a3ZQduXgngzotVRZfHHA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyN+mpj7YIwg+KQpMpvAiGuWZj3rO4wxCKo0n+uy1pHxgnMCNlP
-	vAat4VYicGhLmVQvWNd9vaeoG002yeGpEvry/vLU8AUs8RYDhaQE1d/1m2+zghgeVY9bc6HHvhf
-	kcB0xXbiyKRFHmnjskJEt+s3VOS5g5T8=
-X-Received: by 2002:a05:690c:9688:b0:79a:3564:ee8d with SMTP id
- 00721157ae682-79a618e6111mr20649057b3.26.1773740730046; Tue, 17 Mar 2026
- 02:45:30 -0700 (PDT)
+	s=k20201202; t=1773745846;
+	bh=h+iIk4sKTg71YTACb73pQNi/1+OjRYcdvjHoMwjgIaY=;
+	h=Date:From:Subject:To:Cc:References:In-Reply-To:From;
+	b=s6pNrlBct8GJbRVqxmGYx17KCxR0NHWfkJJWindVrjfCwJE1vpER1+XNeY9qgu8W/
+	 6QCuUvoCkST7h2tb1pn93TlZNhZuM2BCOdpcXIXRWopGwcJZ6ZeWQrS1FqyX1ABljP
+	 oxp2LuSVjUOE/P/St3jv3qXXAGgOu7dQlaTSicNG1J7LTAIqvB6gFDw+/GRCNoesbS
+	 zW/QyvYYbbjB05GlcSDOjAJK30QJILKDoP9QDBF8VUOZfxdC9qUJ7sxs7XutOV9oVQ
+	 13aZwnoWCaG+8XsMbNG8r2ykyqmePvMWePzAUvwWlMPy2K59aUEiWGWdN/35eyOTC9
+	 WQjgj7oorP6FA==
+Message-ID: <48ad9d08-157b-426f-86f4-69793f3537fc@kernel.org>
+Date: Tue, 17 Mar 2026 12:10:36 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260312193717.12221-1-rosenp@gmail.com> <7jwgbrijeldghk44tdg2be5q7o7vuj5np3nlbl2pxuln6c7ll7@ntuquxxdnfmm>
- <CAD++jLnTJGt2YXo6ASXEjPPsMbrr+Mz3RKcCVeUpaWEMPm6DOQ@mail.gmail.com> <bh5rgccasvor5xjunkc7wjp3resyulehnqafhzlfwqx2ealwxw@eqohebwzjq2a>
-In-Reply-To: <bh5rgccasvor5xjunkc7wjp3resyulehnqafhzlfwqx2ealwxw@eqohebwzjq2a>
-From: Linus Walleij <linusw@kernel.org>
-Date: Tue, 17 Mar 2026 10:45:19 +0100
-X-Gmail-Original-Message-ID: <CAD++jLkKqF4ooL7zC0dyT+k7o1MC7AyY-Xat5xSTzSZ6KdLHfw@mail.gmail.com>
-X-Gm-Features: AaiRm50c28ehMzG3FZtQnMIktiveKhdLesYuHZvx6K3Ld6TrmqPk05dY8AJLm7s
-Message-ID: <CAD++jLkKqF4ooL7zC0dyT+k7o1MC7AyY-Xat5xSTzSZ6KdLHfw@mail.gmail.com>
-Subject: Re: [PATCHv3] gpio: virtio: remove one kcalloc
-To: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: Rosen Penev <rosenp@gmail.com>, linux-gpio@vger.kernel.org, 
-	"Enrico Weigelt, metux IT consult" <info@metux.net>, Viresh Kumar <vireshk@kernel.org>, 
-	Bartosz Golaszewski <brgl@kernel.org>, Kees Cook <kees@kernel.org>, 
-	"Gustavo A. R. Silva" <gustavoars@kernel.org>, 
-	"open list:VIRTIO GPIO DRIVER" <virtualization@lists.linux.dev>, open list <linux-kernel@vger.kernel.org>, 
-	"open list:KERNEL HARDENING (not covered by other areas):Keyword:b__counted_by(_le|_be)?b" <linux-hardening@vger.kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+From: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>
+Subject: Re: [PATCH v2] mm/mempolicy: track page allocations per mempolicy
+Content-Language: en-US
+To: "Huang, Ying" <ying.huang@linux.alibaba.com>,
+ "JP Kobryn (Meta)" <jp.kobryn@linux.dev>
+Cc: linux-mm@kvack.org, akpm@linux-foundation.org, mhocko@suse.com,
+ apopple@nvidia.com, axelrasmussen@google.com, byungchul@sk.com,
+ cgroups@vger.kernel.org, david@kernel.org, eperezma@redhat.com,
+ gourry@gourry.net, jasowang@redhat.com, hannes@cmpxchg.org,
+ joshua.hahnjy@gmail.com, Liam.Howlett@oracle.com,
+ linux-kernel@vger.kernel.org, lorenzo.stoakes@oracle.com,
+ matthew.brost@intel.com, mst@redhat.com, rppt@kernel.org,
+ muchun.song@linux.dev, zhengqi.arch@bytedance.com, rakie.kim@sk.com,
+ roman.gushchin@linux.dev, shakeel.butt@linux.dev, surenb@google.com,
+ virtualization@lists.linux.dev, weixugc@google.com,
+ xuanzhuo@linux.alibaba.com, yuanchu@google.com, ziy@nvidia.com,
+ kernel-team@meta.com
+References: <20260307045520.247998-1-jp.kobryn@linux.dev>
+ <3a42463b-9ddd-4d64-b64c-6c2e6e4fc75d@kernel.org>
+ <343bbd5b-67a0-46c4-8ec4-69158bf26b3f@linux.dev>
+ <874imkpba1.fsf@DESKTOP-5N7EMDA>
+ <cd3d7e2c-79fa-4c00-89ad-83beddf98bae@linux.dev>
+ <60f71f4c-71d9-4751-8c6b-10179b98bef0@kernel.org>
+ <c4e5cc3c-5daa-404e-8c55-cface8aa969d@linux.dev>
+ <87sea0o55p.fsf@DESKTOP-5N7EMDA>
+ <0d66401f-9874-4047-971b-632723b0b7ee@linux.dev>
+ <87a4w7x8d0.fsf@DESKTOP-5N7EMDA>
+In-Reply-To: <87a4w7x8d0.fsf@DESKTOP-5N7EMDA>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Tue, Mar 17, 2026 at 9:49=E2=80=AFAM Viresh Kumar <viresh.kumar@linaro.o=
-rg> wrote:
-> On 16-03-26, 15:00, Linus Walleij wrote:
-> > On Fri, Mar 13, 2026 at 7:09=E2=80=AFAM Viresh Kumar <viresh.kumar@lina=
-ro.org> wrote:
-> >
-> > > I wonder if it is worth it anymore. Why combining allocations is bett=
-er when we
-> > > are ending up using more memory ?
-> >
-> > For the same reason we are starting to use Rust in the kernel, despite
-> > it sometimes will take more memory essentially. __counted_by() enforce
-> > the same type of runtime size checks as Rust do on arrays.
->
-> Right. I don't have any issue with __counted_by(). It does the right thin=
-g for
-> flexible length arrays. But we don't need a flexible length array here an=
-d so my
-> question.
+On 3/17/26 07:44, Huang, Ying wrote:
+> "JP Kobryn (Meta)" <jp.kobryn@linux.dev> writes:
+> 
+>>>>
+>>>> It's an interesting thought. Looking into these existing counters more,
+>>>> the in-kernel direct node allocations, which don't fall under any
+>>>> mempolicy, are also included in these stats. One good example might be
+>>>> include/linux/skbuff.h, where __dev_alloc_pages() calls
+>>>> alloc_pages_node_noprof(NUMA_NO_NODE, ...) which eventually reaches
+>>>> zone_statistics() and increments the stats.
+>>> IIUC, the default memory policy is used here, that is, MPOL_LOCAL.
+>>
+>> I'm not seeing that. zone_statistics() is eventually reached.
+>> alloc_pages_mpol() is not.
+> 
+> Yes.  The page isn't allocated through alloc_pages_mpol().  For example,
+> if we want to allocate pages for the kernel instead of user space
+> applications.  However, IMHO, the equivalent memory policy is
+> MPOL_LOCAL, that is, allocate from local node firstly, then fallback to
+> other nodes.  I don't think that alloc_pages_mpol() is so special.
 
-So why check for something that "can't go wrong".
+Agree, it's equivalent to MPOL_LOCAL.
 
-IIUC it still removes undefined behaviour from the object code.
+> ---
+> Best Regards,
+> Huang, Ying
 
-If someone managed to compromise the kernel using return-oriented programmi=
-ng
-they cannot call back into this function to overwrite the memory
-beyond where the
-array is stored, because the runtime checks will block this.
-
-But Kees & Gustavo can tell if I understand this correctly.
-
-Yours,
-Linus Walleij
