@@ -1,130 +1,71 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from relay.hostedemail.com (smtprelay0016.hostedemail.com [216.40.44.16])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1274377544;
-	Wed, 18 Mar 2026 08:19:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B45232F60A7;
+	Wed, 18 Mar 2026 23:12:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.40.44.16
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773821944; cv=none; b=Fjf1+g+NwKwoZKhP0gHy3ne/X6bXmC8BlfUn2WBddVnazKJLjbDdtmHZn1S41FGw9N8CA0O9Y6MJEx3FRGQNxm5xKlfecifSzUoHd9ShRKgkHL7zG0se6AJskE3HX6v0p/3y3PT2tKW/XVkjDT1lcVqeMe7Wz/cIfwC7agJGHtY=
+	t=1773875551; cv=none; b=mEcLRLf4mBuTI4RELO2QHHbI1uWkE1pxXt2AZiqMAf+CxMjQRmvR3ea6Z0hth7Vws3pNF+BA2V4iMEfHl//33uccaQKAgZWUv0JbDsu7yNgEbWpVuf590fKwOPOy57PLEDIEdPz5UBCPVuFPWFHqbrn8iI3HG+UvFx0Ev+9Mg/k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773821944; c=relaxed/simple;
-	bh=jVeQZp0h7g+obL73Q3BKVJM80mNeyIKHbMpYvZlI/EM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=u5+WGDa3dwmljbCnlY6xlNX7fTyLuMQ4K8nyPCNdLrTiglqBqwCWew7FNb0ONFwHkWMQzn3AB9Q78QKoX9ACr5q0cstCMqcZ6+tQM9y9QSbKE/MEwyyfXh6LU1uNesP7VpxeVeGN1FWdweYxc72w2j/K2V7BUhvCWEl4JcXSiLg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LaorMzDl; arc=none smtp.client-ip=10.30.226.201
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LaorMzDl"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78818C19421;
-	Wed, 18 Mar 2026 08:19:03 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773821944;
-	bh=jVeQZp0h7g+obL73Q3BKVJM80mNeyIKHbMpYvZlI/EM=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=LaorMzDlLJ2+D0bII3A53j63hnSxrjJGHbtDoCBjpAfjf52OE/no45FdOEDejAHRh
-	 Q4Z76a9d8zbmglulrhmHrYtmvPsrWYnsRaZkSI/UchSyQrCmizli9RDszWfk6XXFKt
-	 aranseGkN99fprSjS157PfMdIHUFwsV2p1bAi2UFxZXFIz/EAYgiB/URpZ5JbOxNxe
-	 jW+7XnQhbRstMMHYEsKG+lGQMl3YAciYRQ7GWy9pBq2l+Zz9MXxxmoueb7kjGBHVgf
-	 +ldwzEHFsYidjsNvg3b12ZQyiYT4f22PXh5B2feb8k0aRkk7Bo+Kv5lcBkdpLlf4BE
-	 alySAZY/1b4Lw==
-Date: Wed, 18 Mar 2026 10:18:58 +0200
-From: Leon Romanovsky <leon@kernel.org>
-To: Marek Szyprowski <m.szyprowski@samsung.com>
-Cc: Robin Murphy <robin.murphy@arm.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Petr Tesarik <ptesarik@suse.com>, Jonathan Corbet <corbet@lwn.net>,
-	Shuah Khan <skhan@linuxfoundation.org>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Jason Gunthorpe <jgg@ziepe.ca>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>,
-	Andrew Morton <akpm@linux-foundation.org>, iommu@lists.linux.dev,
-	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-rdma@vger.kernel.org,
-	linux-trace-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [PATCH v3 0/8] RDMA: Enable operation with DMA debug enabled
-Message-ID: <20260318081858.GE61385@unreal>
-References: <20260316-dma-debug-overlap-v3-0-1dde90a7f08b@nvidia.com>
- <CGME20260317190552eucas1p28f3e818f88d252b1e4161332be084177@eucas1p2.samsung.com>
- <20260317190538.GD61385@unreal>
- <de23ccf6-75ef-48af-8c69-2f416c564f2d@samsung.com>
+	s=arc-20240116; t=1773875551; c=relaxed/simple;
+	bh=JCh4IeE/Cn60D/pNAmjztbTuiNBWjjTZpNihj1Tve9Y=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=JCOffRpAytYhlGLwfkI40vvEG4iUXtUnpHJgkQoL5pmEPwghKbGvMoknLhkTGI5s6Ta3ZpugBMjZZJAeIbbujlmudptXkkjeQfyNcJN4rYms+bjHeOvV01LnL8trD2+hTutLEILizZQ+gAVE6rz2RF4y98sJs7vlbB3BPcLOzGA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org; spf=pass smtp.mailfrom=goodmis.org; arc=none smtp.client-ip=216.40.44.16
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=goodmis.org
+Received: from omf14.hostedemail.com (a10.router.float.18 [10.200.18.1])
+	by unirelay04.hostedemail.com (Postfix) with ESMTP id 9F2241A01AB;
+	Wed, 18 Mar 2026 23:12:21 +0000 (UTC)
+Received: from [HIDDEN] (Authenticated sender: rostedt@goodmis.org) by omf14.hostedemail.com (Postfix) with ESMTPA id 729DB2D;
+	Wed, 18 Mar 2026 23:12:17 +0000 (UTC)
+Date: Wed, 18 Mar 2026 19:12:46 -0400
+From: Steven Rostedt <rostedt@goodmis.org>
+To: David Laight <david.laight.linux@gmail.com>
+Cc: Christian Brauner <brauner@kernel.org>, Linus Torvalds
+ <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org,
+ linux-modules@vger.kernel.org, linux-nfs@vger.kernel.org,
+ bpf@vger.kernel.org, kunit-dev@googlegroups.com, linux-doc@vger.kernel.org,
+ linux-trace-kernel@vger.kernel.org, netfs@lists.linux.dev,
+ io-uring@vger.kernel.org, audit@vger.kernel.org, rcu@vger.kernel.org,
+ kvm@vger.kernel.org, virtualization@lists.linux.dev,
+ netdev@vger.kernel.org, linux-mm@kvack.org,
+ linux-security-module@vger.kernel.org, Christian Loehle
+ <christian.loehle@arm.com>, linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH v2 1/2] kthread: remove kthread_exit()
+Message-ID: <20260318191246.21f5cae8@gandalf.local.home>
+In-Reply-To: <20260311104736.51b53405@pumpkin>
+References: <20260310-work-kernel-exit-v2-0-30711759d87b@kernel.org>
+	<20260310-work-kernel-exit-v2-1-30711759d87b@kernel.org>
+	<20260311104736.51b53405@pumpkin>
+X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <de23ccf6-75ef-48af-8c69-2f416c564f2d@samsung.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Rspamd-Queue-Id: 729DB2D
+X-Rspamd-Server: rspamout06
+X-Stat-Signature: k3okmar3gqwa3bym6uatb3yctgtgf59r
+X-Session-Marker: 726F737465647440676F6F646D69732E6F7267
+X-Session-ID: U2FsdGVkX18ZAlHD7zRdqyhWTgVQ561leKpKdrlCUw4=
+X-HE-Tag: 1773875537-654795
+X-HE-Meta: U2FsdGVkX1+7MRZYfjkh8tY3o0PNQxfTCp9CNyhqYR5NFfoxVPCM5iPNukWLzQIvK353tkgDvhZEdUedgHQ5QAkLbovGV5fvwkWyav20iib+DYA0dDHoYUnOxRBuEyIUuWk0DzuG1lL8+oddkej4s1MPcpQDwUN5GqInEA4qcRZLkJpWWxd7t1PfzHXZfqpOcF7WAx+PlcQksO8TPjRtlBOpPJasveRV7LExQmrExj38ijzYTXM4IkABls4ZOZgZxz6jQwh3Jnl0QSJRHa6iPYc7cT5zoaTdKKIxa3A6zx0cZRoh9me2qihdhYWm4g9GrHKVoLJDzQiYMqh11BNCWgZQJ5CMSezB
 
-On Wed, Mar 18, 2026 at 09:03:00AM +0100, Marek Szyprowski wrote:
-> Hi Leon,
-> 
-> On 17.03.2026 20:05, Leon Romanovsky wrote:
-> > On Mon, Mar 16, 2026 at 09:06:44PM +0200, Leon Romanovsky wrote:
-> >> Add a new DMA_ATTR_REQUIRE_COHERENT attribute to the DMA API to mark
-> >> mappings that must run on a DMA‑coherent system. Such buffers cannot
-> >> use the SWIOTLB path, may overlap with CPU caches, and do not depend on
-> >> explicit cache flushing.
-> >>
-> >> Mappings using this attribute are rejected on systems where cache
-> >> side‑effects could lead to data corruption, and therefore do not need
-> >> the cache‑overlap debugging logic. This series also includes fixes for
-> >> DMA_ATTR_CPU_CACHE_CLEAN handling.
-> >> Thanks.
-> > <...>
-> >
-> >> ---
-> >> Leon Romanovsky (8):
-> >>        dma-debug: Allow multiple invocations of overlapping entries
-> >>        dma-mapping: handle DMA_ATTR_CPU_CACHE_CLEAN in trace output
-> >>        dma-mapping: Clarify valid conditions for CPU cache line overlap
-> >>        dma-mapping: Introduce DMA require coherency attribute
-> >>        dma-direct: prevent SWIOTLB path when DMA_ATTR_REQUIRE_COHERENT is set
-> >>        iommu/dma: add support for DMA_ATTR_REQUIRE_COHERENT attribute
-> >>        RDMA/umem: Tell DMA mapping that UMEM requires coherency
-> >>        mm/hmm: Indicate that HMM requires DMA coherency
-> >>
-> >>   Documentation/core-api/dma-attributes.rst | 38 ++++++++++++++++++++++++-------
-> >>   drivers/infiniband/core/umem.c            |  5 ++--
-> >>   drivers/iommu/dma-iommu.c                 | 21 +++++++++++++----
-> >>   drivers/virtio/virtio_ring.c              | 10 ++++----
-> >>   include/linux/dma-mapping.h               | 15 ++++++++----
-> >>   include/trace/events/dma.h                |  4 +++-
-> >>   kernel/dma/debug.c                        |  9 ++++----
-> >>   kernel/dma/direct.h                       |  7 +++---
-> >>   kernel/dma/mapping.c                      |  6 +++++
-> >>   mm/hmm.c                                  |  4 ++--
-> >>   10 files changed, 86 insertions(+), 33 deletions(-)
-> > Marek,
-> >
-> > Despite the "RDMA ..." tag in the subject, the diffstat clearly shows that
-> > you are the appropriate person to take this patch.
-> 
-> I plan to take the first 2 patches to the dma-mapping-fixes branch 
-> (v7.0-rc) and the next to dma-mapping-for-next. Should I also take the 
-> RDMA and HMM patches, or do You want a stable branch for merging them 
-> via respective subsystem trees?
+On Wed, 11 Mar 2026 10:47:36 +0000
+David Laight <david.laight.linux@gmail.com> wrote:
 
-I suggest taking all patches into the -fixes branch, as the "RDMA/..." patch
-also resolves the dmesg splat. With -fixes, there is no need to worry about
-a shared branch since we do not expect merge conflicts in that area.
-
-If you still prefer to split the series between -fixes and -next, it would be
-better to use a shared branch in that case. There are patches on the RDMA
-list targeted for -next that touch ib_umem_get().
-
-Thanks
-
+> > -#define module_put_and_kthread_exit(code) kthread_exit(code)
+> > +#define module_put_and_kthread_exit(code) do_exit(code)  
 > 
-> Best regards
-> -- 
-> Marek Szyprowski, PhD
-> Samsung R&D Institute Poland
-> 
-> 
+> I'm intrigued...
+> How does that actually know to do the module_put()?
+> (I know it does one - otherwise my driver wouldn't unload.)
+
+It's in the !CONFIG_MODULES section. No module_put() necessary. Only the
+kthread_exit (do_exit) is needed.
+
+-- Steve
