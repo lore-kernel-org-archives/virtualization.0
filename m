@@ -1,64 +1,35 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0242385509
-	for <virtualization@lists.linux.dev>; Thu, 19 Mar 2026 02:56:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 706C23876A9;
+	Thu, 19 Mar 2026 03:10:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773889010; cv=none; b=LhM4J8qSwZLtAoA8EASL2FVmRuLx5cd2hXkbjBRBFUwDQmcW8qxw3RP2Xa551Vj55X1Jsl5OEmOC943IqvJuP3jeMqn3kHoVpzOBdaW044qXQ8bgU2qOMRO8kdy0b47Ul8/qq/sytjiBdV3GLXVeEtl6suROXRRKVQxDjjsvvB4=
+	t=1773889823; cv=none; b=DJ/fIdw5Y0wbS0/itXfi7WyOllvG5Pu+Lw6P/wT79kUIPgn12XRoUJK1Gm1/U3P7njeU7nJr2HAnRe9VBHMe8+GvEPR5ugj542YMxiO5O86MZe5MOcb8WZ9h0EYVO61yMhee+7sYIfY/38YX5ZvPfX3TU1pzFQCvj7iXwtqd6+I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773889010; c=relaxed/simple;
-	bh=bXivs8IXt1WcC0X4WuaLBLSrVtXzJ6R+1TwhLBSFQUY=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=r83yodFo+nJT8K7T889Dc9UcxsJzzBLmx8p7hepk380Pdd33SxjsHiXx2Gowf9PA0Mg2n1pFeszgBmx4s1Lmw5/RJVGLpMncdClo4/nn1B5uLEY4+YU0XACMWkJ+8rO+j2DD9fpWweeZ05s+2iajG5XE9BXTDirykWgAh+Gf2bE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: 3fd2dbc6233f11f1a21c59e7364eecb8-20260319
-X-CTIC-Tags:
-	HR_CC_CHARSET, HR_CC_CHARSET_NUM, HR_CC_COUNT, HR_CC_DOMAIN_COUNT, HR_CC_NAME
-	HR_CC_NO_NAME, HR_CHARSET, HR_CHARSET_NUM, HR_CTE_8B, HR_CTT_MISS
-	HR_DATE_H, HR_DATE_WKD, HR_DATE_ZONE, HR_FROM_NAME, HR_SJ_LANG
-	HR_SJ_LEN, HR_SJ_LETTER, HR_SJ_NOR_SYM, HR_SJ_PHRASE, HR_SJ_PHRASE_LEN
-	HR_SJ_WS, HR_TO_COUNT, HR_TO_DOMAIN_COUNT, HR_TO_NAME, IP_TRUSTED
-	SRC_TRUSTED, DN_TRUSTED, SA_UNTRUSTED, SA_LOWREP, SA_EXISTED
-	SN_TRUSTED, SN_EXISTED, SPF_NOPASS, DKIM_NOPASS, DMARC_NOPASS
-	CIE_GOOD, CIE_GOOD_SPF, GTI_FG_BS, GTI_RG_INFO, GTI_C_BU
-	AMN_GOOD, ABX_MISS_RDNS
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.11,REQID:9dca0f34-a6b9-4c12-bcbf-31fad11e29a5,IP:15,
-	URL:0,TC:0,Content:0,EDM:0,RT:0,SF:5,FILE:0,BULK:0,RULE:Release_Ham,ACTION
-	:release,TS:20
-X-CID-INFO: VERSION:1.3.11,REQID:9dca0f34-a6b9-4c12-bcbf-31fad11e29a5,IP:15,UR
-	L:0,TC:0,Content:0,EDM:0,RT:0,SF:5,FILE:0,BULK:0,RULE:Release_Ham,ACTION:r
-	elease,TS:20
-X-CID-META: VersionHash:89c9d04,CLOUDID:b19740625739cf7cbda76a7cc9e0d1ef,BulkI
-	D:26031910564090RU6KMI,BulkQuantity:0,Recheck:0,SF:19|38|66|72|78|102|127|
-	898,TC:nil,Content:0|15|50,EDM:-3,IP:-2,URL:0,File:nil,RT:nil,Bulk:nil,QS:
-	nil,BEC:nil,COL:0,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,AR
-	C:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR,TF_CID_SPAM_FSD
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: 3fd2dbc6233f11f1a21c59e7364eecb8-20260319
-X-User: liwang@kylinos.cn
-Received: from computer.. [(116.128.244.171)] by mailgw.kylinos.cn
-	(envelope-from <liwang@kylinos.cn>)
-	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
-	with ESMTP id 1790803102; Thu, 19 Mar 2026 10:56:38 +0800
-From: Li Wang <liwang@kylinos.cn>
-To: German Maglione <gmaglione@redhat.com>,
-	Vivek Goyal <vgoyal@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Miklos Szeredi <miklos@szeredi.hu>
-Cc: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev,
-	linux-fsdevel@vger.kernel.org,
-	Li Wang <liwang@kylinos.cn>
-Subject: [PATCH] virtiofs: Verify that server properly follows FUSE protocol
-Date: Thu, 19 Mar 2026 10:56:09 +0800
-Message-Id: <20260319025609.10721-1-liwang@kylinos.cn>
-X-Mailer: git-send-email 2.34.1
+	s=arc-20240116; t=1773889823; c=relaxed/simple;
+	bh=uuPFUGmJLa6ZmtGZh44sRVLRMdtLRmTdH3xVrTkZI1w=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=ipokHxQNeL6Ly61FuPuywXwbVvCP2dsry8dgOIityH+sI1JYLFtTb6y80otVpzw/oTLyRsz5wK9Mxl4brt8Lo9Vylcc9ZTYZh6GK8c4YY/zJ0s16uZ9OTX0u6ARtV+HOOalMLGeYVpk4RuHKsFqWwXINZ4MJWd2ciPofjD6e6B8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LyAow0al; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LyAow0al"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E838EC19421;
+	Thu, 19 Mar 2026 03:10:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1773889823;
+	bh=uuPFUGmJLa6ZmtGZh44sRVLRMdtLRmTdH3xVrTkZI1w=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=LyAow0algRLBdBjTJQljI+gJheTwYE5jNoYxmPWEOTVFzpz44AR5tskoiAu/nQ1xa
+	 FiLiwVFEj20+CotM5D80F401NKNuayw+C3lCHf5w6d/mjcqQFgsAtdEZ/3i4YLPxOX
+	 dsY/MeC0tV5/JUt56Es9bb7+c8Fn+2F9244hMznw5zcHS/jYCMH3qRJGhIXDWB5gT+
+	 2xdqCfjr+sIDD1o/9pZpZTeaudNH+3cV0qJiqRhsq/wepqemgHs0JazUUb+XbDUfGk
+	 oVC21ey/C2pVt5/k1Nbv56lJC93HBIcToDwjPZyckNTp09N/wqPBrhqFQNrEskZVNK
+	 9Jry52qV11p1Q==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 7CED43808200;
+	Thu, 19 Mar 2026 03:10:15 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -66,63 +37,47 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next v2] selftests/vsock: auto-detect kernel for guest
+ VMs
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <177388981428.1008325.4813735802050665740.git-patchwork-notify@kernel.org>
+Date: Thu, 19 Mar 2026 03:10:14 +0000
+References: 
+ <20260316-vsock-vmtest-autodetect-kernel-v2-1-5eec7b4831f8@meta.com>
+In-Reply-To: 
+ <20260316-vsock-vmtest-autodetect-kernel-v2-1-5eec7b4831f8@meta.com>
+To: Bobby Eshleman <bobbyeshleman@gmail.com>
+Cc: sgarzare@redhat.com, shuah@kernel.org, virtualization@lists.linux.dev,
+ netdev@vger.kernel.org, linux-kselftest@vger.kernel.org,
+ linux-kernel@vger.kernel.org, kuba@kernel.org, bobbyeshleman@meta.com
 
-Verify that server properly follows FUSE protocol, by checking
-oh.uniq and oh.len.
+Hello:
 
-Signed-off-by: Li Wang <liwang@kylinos.cn>
----
- fs/fuse/virtio_fs.c | 27 ++++++++++++++++++++++++++-
- 1 file changed, 26 insertions(+), 1 deletion(-)
+This patch was applied to netdev/net-next.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index 057e65b51b99..c30f6f58664c 100644
---- a/fs/fuse/virtio_fs.c
-+++ b/fs/fuse/virtio_fs.c
-@@ -768,10 +768,34 @@ static void virtio_fs_request_complete(struct fuse_req *req,
- 	struct folio *folio;
- 
- 	/*
--	 * TODO verify that server properly follows FUSE protocol
-+	 * Verify that server properly follows FUSE protocol
- 	 * (oh.uniq, oh.len)
- 	 */
- 	args = req->args;
-+	if (test_bit(FR_ISREPLY, &req->flags)) {
-+		struct fuse_out_header *oh = &req->out.h;
-+
-+		if (unlikely(oh->unique != req->in.h.unique)) {
-+			pr_warn_ratelimited("virtio-fs: bad reply unique %llu (expected %llu)\n",
-+					    oh->unique, req->in.h.unique);
-+			oh->error = -EIO;
-+			oh->len = sizeof(*oh);
-+			goto out;
-+		}
-+		unsigned int num_out = args->out_numargs - args->out_pages;
-+		unsigned int cap = sizeof(req->out.h);
-+
-+		cap += fuse_len_args(num_out, args->out_args);
-+		if (args->out_pages)
-+			cap += args->out_args[args->out_numargs - 1].size;
-+		if (unlikely(oh->len < sizeof(*oh) || oh->len > cap)) {
-+			pr_warn_ratelimited("virtio-fs: bad reply len %u (cap %u)\n",
-+					    oh->len, cap);
-+			oh->error = -EIO;
-+			oh->len = sizeof(*oh);
-+			goto out;
-+		}
-+	}
- 	copy_args_from_argbuf(args, req);
- 
- 	if (args->out_pages && args->page_zeroing) {
-@@ -790,6 +814,7 @@ static void virtio_fs_request_complete(struct fuse_req *req,
- 		}
- 	}
- 
-+out:
- 	clear_bit(FR_SENT, &req->flags);
- 
- 	fuse_request_end(req);
+On Mon, 16 Mar 2026 17:56:15 -0700 you wrote:
+> From: Bobby Eshleman <bobbyeshleman@meta.com>
+> 
+> When running vmtest.sh inside a nested VM the running kernel may not be
+> installed on the filesystem at the standard /boot/ or /usr/lib/modules/
+> paths.
+> 
+> Previously, this would cause vng to fail with "does not exist" since it
+> could not find the kernel image. Instead, this patch uses --dry-run to
+> detect if the kernel is available. If not, then we fall back to the
+> kernel in the kernel source tree. If that fails, then we die.
+> 
+> [...]
+
+Here is the summary with links:
+  - [net-next,v2] selftests/vsock: auto-detect kernel for guest VMs
+    https://git.kernel.org/netdev/net-next/c/3883c2b50910
+
+You are awesome, thank you!
 -- 
-2.34.1
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
 
