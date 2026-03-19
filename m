@@ -1,35 +1,47 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from forwardcorp1d.mail.yandex.net (forwardcorp1d.mail.yandex.net [178.154.239.200])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 706C23876A9;
-	Thu, 19 Mar 2026 03:10:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1BF839A7E9
+	for <virtualization@lists.linux.dev>; Thu, 19 Mar 2026 08:01:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.154.239.200
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773889823; cv=none; b=DJ/fIdw5Y0wbS0/itXfi7WyOllvG5Pu+Lw6P/wT79kUIPgn12XRoUJK1Gm1/U3P7njeU7nJr2HAnRe9VBHMe8+GvEPR5ugj542YMxiO5O86MZe5MOcb8WZ9h0EYVO61yMhee+7sYIfY/38YX5ZvPfX3TU1pzFQCvj7iXwtqd6+I=
+	t=1773907290; cv=none; b=W+yMR3fZV9tBOGsI4iI0xP65CXNmsB28oJiuwsV7mj8hIiFp1NjFt6TAEoRgVlr/IJFqcTLU9rV7Op5bp7mA+zbOoA3jBK9BJqrk6t4JMAh9myMXHKJh5IkeSDu6lwzEGdBuD7ZkpxXruRWzbTVA9TYnaB9yrIWiW9veikmXoMs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773889823; c=relaxed/simple;
-	bh=uuPFUGmJLa6ZmtGZh44sRVLRMdtLRmTdH3xVrTkZI1w=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=ipokHxQNeL6Ly61FuPuywXwbVvCP2dsry8dgOIityH+sI1JYLFtTb6y80otVpzw/oTLyRsz5wK9Mxl4brt8Lo9Vylcc9ZTYZh6GK8c4YY/zJ0s16uZ9OTX0u6ARtV+HOOalMLGeYVpk4RuHKsFqWwXINZ4MJWd2ciPofjD6e6B8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LyAow0al; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1773907290; c=relaxed/simple;
+	bh=Z5XzVzZjSM8KYAVqS2gks8t042AVRybgtkb6BUkQIk0=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=fXiME4nHfINkUiSpqU47orMBDk7VG5P+dWpKfIx0BrLx2HmpRLzyPO372xyQT9YYn6M7zqNhCeOR1jIUebCiVoZDVzGrUTXQL9SfORkm4E333L0ZRvFUrHP9JzX1SbOLzc6VBmsWsVnYxuHxoOJ7xynckz1WDQ+7DMR6YwdmubA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex-team.ru; spf=pass smtp.mailfrom=yandex-team.ru; dkim=pass (1024-bit key) header.d=yandex-team.ru header.i=@yandex-team.ru header.b=xCr85/J2; arc=none smtp.client-ip=178.154.239.200
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=yandex-team.ru
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=yandex-team.ru
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LyAow0al"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E838EC19421;
-	Thu, 19 Mar 2026 03:10:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1773889823;
-	bh=uuPFUGmJLa6ZmtGZh44sRVLRMdtLRmTdH3xVrTkZI1w=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=LyAow0algRLBdBjTJQljI+gJheTwYE5jNoYxmPWEOTVFzpz44AR5tskoiAu/nQ1xa
-	 FiLiwVFEj20+CotM5D80F401NKNuayw+C3lCHf5w6d/mjcqQFgsAtdEZ/3i4YLPxOX
-	 dsY/MeC0tV5/JUt56Es9bb7+c8Fn+2F9244hMznw5zcHS/jYCMH3qRJGhIXDWB5gT+
-	 2xdqCfjr+sIDD1o/9pZpZTeaudNH+3cV0qJiqRhsq/wepqemgHs0JazUUb+XbDUfGk
-	 oVC21ey/C2pVt5/k1Nbv56lJC93HBIcToDwjPZyckNTp09N/wqPBrhqFQNrEskZVNK
-	 9Jry52qV11p1Q==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 7CED43808200;
-	Thu, 19 Mar 2026 03:10:15 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (1024-bit key) header.d=yandex-team.ru header.i=@yandex-team.ru header.b="xCr85/J2"
+Received: from mail-nwsmtp-smtp-corp-main-56.klg.yp-c.yandex.net (mail-nwsmtp-smtp-corp-main-56.klg.yp-c.yandex.net [IPv6:2a02:6b8:c42:65a0:0:640:e1de:0])
+	by forwardcorp1d.mail.yandex.net (Yandex) with ESMTPS id 5C84F808CB;
+	Thu, 19 Mar 2026 11:01:23 +0300 (MSK)
+Received: from kniv-nix.yandex-team.ru (unknown [2a02:6bf:8080:4b::1:26])
+	by mail-nwsmtp-smtp-corp-main-56.klg.yp-c.yandex.net (smtpcorp/Yandex) with ESMTPSA id q0JiSw1AZqM0-jT7pE6cZ;
+	Thu, 19 Mar 2026 11:01:22 +0300
+X-Yandex-Fwd: 1
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=yandex-team.ru;
+	s=default; t=1773907282;
+	bh=fCQ+qU35pEQq1W3N0/JCh6dWJijS1YVgrLWBHzC2aag=;
+	h=Message-Id:Date:Cc:Subject:To:From;
+	b=xCr85/J2LC2iaAF5kmuY9eN3SEbZpC4hz6VPWg/H1bXTqlNY50uauhwSFPtoOzuOG
+	 qIpGSYKZKMAzVyRYybtM/BRR64ASk4ZrWbeH5PF1T4JjuYBHvfIG8aIgk30HCuzMvD
+	 Am8lkbESG2fhvnxsNeWcSmmw8H1Cp5kw5BzYPrdQ=
+Authentication-Results: mail-nwsmtp-smtp-corp-main-56.klg.yp-c.yandex.net; dkim=pass header.i=@yandex-team.ru
+From: Nikolay Kuratov <kniv@yandex-team.ru>
+To: linux-kernel@vger.kernel.org
+Cc: netdev@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+Subject: [PATCH] vhost: Bump max_mem_regions default to 256
+Date: Thu, 19 Mar 2026 11:00:52 +0300
+Message-Id: <20260319080052.1942514-1-kniv@yandex-team.ru>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -37,47 +49,34 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next v2] selftests/vsock: auto-detect kernel for guest
- VMs
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <177388981428.1008325.4813735802050665740.git-patchwork-notify@kernel.org>
-Date: Thu, 19 Mar 2026 03:10:14 +0000
-References: 
- <20260316-vsock-vmtest-autodetect-kernel-v2-1-5eec7b4831f8@meta.com>
-In-Reply-To: 
- <20260316-vsock-vmtest-autodetect-kernel-v2-1-5eec7b4831f8@meta.com>
-To: Bobby Eshleman <bobbyeshleman@gmail.com>
-Cc: sgarzare@redhat.com, shuah@kernel.org, virtualization@lists.linux.dev,
- netdev@vger.kernel.org, linux-kselftest@vger.kernel.org,
- linux-kernel@vger.kernel.org, kuba@kernel.org, bobbyeshleman@meta.com
 
-Hello:
+Today, vfio mappings for a single GPU (BAR 0) may consume more than 30
+umem entries (e.g. configured by qemu with vhost-net), so bump default to
+allow running with a few GPUs without module parameter adjustment - it
+is harmless, since umem rarely used and iotlb already have larger limit.
 
-This patch was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+Signed-off-by: Nikolay Kuratov <kniv@yandex-team.ru>
+---
+ drivers/vhost/vhost.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-On Mon, 16 Mar 2026 17:56:15 -0700 you wrote:
-> From: Bobby Eshleman <bobbyeshleman@meta.com>
-> 
-> When running vmtest.sh inside a nested VM the running kernel may not be
-> installed on the filesystem at the standard /boot/ or /usr/lib/modules/
-> paths.
-> 
-> Previously, this would cause vng to fail with "does not exist" since it
-> could not find the kernel image. Instead, this patch uses --dry-run to
-> detect if the kernel is available. If not, then we fall back to the
-> kernel in the kernel source tree. If that fails, then we die.
-> 
-> [...]
-
-Here is the summary with links:
-  - [net-next,v2] selftests/vsock: auto-detect kernel for guest VMs
-    https://git.kernel.org/netdev/net-next/c/3883c2b50910
-
-You are awesome, thank you!
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 2f2c45d20883..3ac2ba272716 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -34,10 +34,10 @@
+ 
+ #include "vhost.h"
+ 
+-static ushort max_mem_regions = 64;
++static ushort max_mem_regions = 256;
+ module_param(max_mem_regions, ushort, 0444);
+ MODULE_PARM_DESC(max_mem_regions,
+-	"Maximum number of memory regions in memory map. (default: 64)");
++	"Maximum number of memory regions in memory map. (default: 256)");
+ static int max_iotlb_entries = 2048;
+ module_param(max_iotlb_entries, int, 0444);
+ MODULE_PARM_DESC(max_iotlb_entries,
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.34.1
 
