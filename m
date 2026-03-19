@@ -1,92 +1,128 @@
-Received: from mailgw2.hygon.cn (unknown [101.204.27.37])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id DB1FF1662E7
-	for <virtualization@lists.linux.dev>; Thu, 19 Mar 2026 00:43:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=101.204.27.37
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D0242385509
+	for <virtualization@lists.linux.dev>; Thu, 19 Mar 2026 02:56:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773881043; cv=none; b=sfAl7JcEImtB9zDqVPgiwNnq8aZBbOBpwP0rjk1eE69pUDquPrzRPsOBxwp0aVQaS+cq/61LlT9N1IE5WIEuXDhJnKqU1uRgIazkjwUJ09pUIk9w7Vz/2lIJ/1jaJIGOj+QVK3bJwsYAXuys0bMFUabcHOzLhZD5rlcTPo/PFmU=
+	t=1773889010; cv=none; b=LhM4J8qSwZLtAoA8EASL2FVmRuLx5cd2hXkbjBRBFUwDQmcW8qxw3RP2Xa551Vj55X1Jsl5OEmOC943IqvJuP3jeMqn3kHoVpzOBdaW044qXQ8bgU2qOMRO8kdy0b47Ul8/qq/sytjiBdV3GLXVeEtl6suROXRRKVQxDjjsvvB4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773881043; c=relaxed/simple;
-	bh=R0gyezNUjoeHfKtZpni3CaO3nviThjHMgM9T+bNatbk=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=kvZT9fjP/3lbslsRtgADLP32tjsD7ihTiBuHIzwPPpJyyg4yHhP1JIyt4JsWwYkmSZQ5dYaSbV2A1Tm/JVXh4mDYOKq5AgZqqUJRpuLTvdgvtplx7cAhAPky8ipZjTSn7Xi6w54vZ4XFGt6mudpZkpMR5elgQaKNblAYD6xE1/A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hygon.cn; spf=pass smtp.mailfrom=hygon.cn; arc=none smtp.client-ip=101.204.27.37
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hygon.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hygon.cn
-Received: from maildlp1.hygon.cn (unknown [127.0.0.1])
-	by mailgw2.hygon.cn (Postfix) with ESMTP id 4fbn4T3gz3z1YQpmD;
-	Thu, 19 Mar 2026 08:43:37 +0800 (CST)
-Received: from maildlp1.hygon.cn (unknown [172.23.18.60])
-	by mailgw2.hygon.cn (Postfix) with ESMTP id 4fbn4R20Mbz1YQpmD;
-	Thu, 19 Mar 2026 08:43:35 +0800 (CST)
-Received: from cncheex05.Hygon.cn (unknown [172.23.18.115])
-	by maildlp1.hygon.cn (Postfix) with ESMTPS id 1F2895959;
-	Thu, 19 Mar 2026 08:43:28 +0800 (CST)
-Received: from cncheex04.Hygon.cn (172.23.18.114) by cncheex05.Hygon.cn
- (172.23.18.115) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.36; Thu, 19 Mar
- 2026 08:43:35 +0800
-Received: from cncheex04.Hygon.cn ([fe80::1b6f:6c58:58a4:430d]) by
- cncheex04.Hygon.cn ([fe80::1b6f:6c58:58a4:430d%10]) with mapi id
- 15.02.1544.036; Thu, 19 Mar 2026 08:43:34 +0800
-From: Zhud <zhud@hygon.cn>
-To: Jakub Kicinski <kuba@kernel.org>
-CC: "mst@redhat.com" <mst@redhat.com>, "jasowang@redhat.com"
-	<jasowang@redhat.com>, "xuanzhuo@linux.alibaba.com"
-	<xuanzhuo@linux.alibaba.com>, "eperezma@redhat.com" <eperezma@redhat.com>,
-	"andrew+netdev@lunn.ch" <andrew+netdev@lunn.ch>, "davem@davemloft.net"
-	<davem@davemloft.net>, "edumazet@google.com" <edumazet@google.com>,
-	"pabeni@redhat.com" <pabeni@redhat.com>, "willemb@google.com"
-	<willemb@google.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, Jing Li
-	<lijing@hygon.cn>, Zhiwei Ying <yingzhiwei@hygon.cn>
-Subject: RE: [PATCH net v3] virtio-net: enable NETIF_F_GRO_HW only if
- GRO-related offloads are supported
-Thread-Topic: [PATCH net v3] virtio-net: enable NETIF_F_GRO_HW only if
- GRO-related offloads are supported
-Thread-Index: AQHctgIsDY8nIT6XukqVKwAnhqpvxrWyyXQAgACy7rA=
-Date: Thu, 19 Mar 2026 00:43:34 +0000
-Message-ID: <738926a1932e4c7a94f0ad8929b38171@hygon.cn>
-References: <20260317113433.927022-1-zhud@hygon.cn>
- <20260317153126.61f7d3de@kernel.org>
-In-Reply-To: <20260317153126.61f7d3de@kernel.org>
-Accept-Language: zh-CN, en-US
-Content-Language: zh-CN
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	s=arc-20240116; t=1773889010; c=relaxed/simple;
+	bh=bXivs8IXt1WcC0X4WuaLBLSrVtXzJ6R+1TwhLBSFQUY=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=r83yodFo+nJT8K7T889Dc9UcxsJzzBLmx8p7hepk380Pdd33SxjsHiXx2Gowf9PA0Mg2n1pFeszgBmx4s1Lmw5/RJVGLpMncdClo4/nn1B5uLEY4+YU0XACMWkJ+8rO+j2DD9fpWweeZ05s+2iajG5XE9BXTDirykWgAh+Gf2bE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
+X-UUID: 3fd2dbc6233f11f1a21c59e7364eecb8-20260319
+X-CTIC-Tags:
+	HR_CC_CHARSET, HR_CC_CHARSET_NUM, HR_CC_COUNT, HR_CC_DOMAIN_COUNT, HR_CC_NAME
+	HR_CC_NO_NAME, HR_CHARSET, HR_CHARSET_NUM, HR_CTE_8B, HR_CTT_MISS
+	HR_DATE_H, HR_DATE_WKD, HR_DATE_ZONE, HR_FROM_NAME, HR_SJ_LANG
+	HR_SJ_LEN, HR_SJ_LETTER, HR_SJ_NOR_SYM, HR_SJ_PHRASE, HR_SJ_PHRASE_LEN
+	HR_SJ_WS, HR_TO_COUNT, HR_TO_DOMAIN_COUNT, HR_TO_NAME, IP_TRUSTED
+	SRC_TRUSTED, DN_TRUSTED, SA_UNTRUSTED, SA_LOWREP, SA_EXISTED
+	SN_TRUSTED, SN_EXISTED, SPF_NOPASS, DKIM_NOPASS, DMARC_NOPASS
+	CIE_GOOD, CIE_GOOD_SPF, GTI_FG_BS, GTI_RG_INFO, GTI_C_BU
+	AMN_GOOD, ABX_MISS_RDNS
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.11,REQID:9dca0f34-a6b9-4c12-bcbf-31fad11e29a5,IP:15,
+	URL:0,TC:0,Content:0,EDM:0,RT:0,SF:5,FILE:0,BULK:0,RULE:Release_Ham,ACTION
+	:release,TS:20
+X-CID-INFO: VERSION:1.3.11,REQID:9dca0f34-a6b9-4c12-bcbf-31fad11e29a5,IP:15,UR
+	L:0,TC:0,Content:0,EDM:0,RT:0,SF:5,FILE:0,BULK:0,RULE:Release_Ham,ACTION:r
+	elease,TS:20
+X-CID-META: VersionHash:89c9d04,CLOUDID:b19740625739cf7cbda76a7cc9e0d1ef,BulkI
+	D:26031910564090RU6KMI,BulkQuantity:0,Recheck:0,SF:19|38|66|72|78|102|127|
+	898,TC:nil,Content:0|15|50,EDM:-3,IP:-2,URL:0,File:nil,RT:nil,Bulk:nil,QS:
+	nil,BEC:nil,COL:0,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,AR
+	C:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR,TF_CID_SPAM_FSD
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: 3fd2dbc6233f11f1a21c59e7364eecb8-20260319
+X-User: liwang@kylinos.cn
+Received: from computer.. [(116.128.244.171)] by mailgw.kylinos.cn
+	(envelope-from <liwang@kylinos.cn>)
+	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
+	with ESMTP id 1790803102; Thu, 19 Mar 2026 10:56:38 +0800
+From: Li Wang <liwang@kylinos.cn>
+To: German Maglione <gmaglione@redhat.com>,
+	Vivek Goyal <vgoyal@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Miklos Szeredi <miklos@szeredi.hu>
+Cc: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev,
+	linux-fsdevel@vger.kernel.org,
+	Li Wang <liwang@kylinos.cn>
+Subject: [PATCH] virtiofs: Verify that server properly follows FUSE protocol
+Date: Thu, 19 Mar 2026 10:56:09 +0800
+Message-Id: <20260319025609.10721-1-liwang@kylinos.cn>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
 
-> On Tue, 17 Mar 2026 19:34:33 +0800 Di Zhu wrote:
-> > In such a setup, reporting NETIF_F_GRO_HW as available for the device
-> > is too optimistic and misleading to the user.
->=20
-> This is not a sufficient justification to make this a fix.
-> As Michael was already alluding to HW GRO usually covers fewer
-> protocols and is less effective than SW GRO. Normal config is
-> to have both enabled. Please explain if there's anything special
-> about virtio here, because I haven't heard of people disabling
-> SW GRO because HW GRO is already enabled.
+Verify that server properly follows FUSE protocol, by checking
+oh.uniq and oh.len.
 
-"Thanks, Jakub. You're right, that was a poorly chosen example to justify t=
-his as a fix,=20
-and I see your point regarding HW GRO vs SW GRO. There isn't anything speci=
-al about
-virtio here that would necessitate disabling SW GRO in normal cases; my ini=
-tial thought=20
-was more about the potential for user confusion in specific testing scenari=
-os.
+Signed-off-by: Li Wang <liwang@kylinos.cn>
+---
+ fs/fuse/virtio_fs.c | 27 ++++++++++++++++++++++++++-
+ 1 file changed, 26 insertions(+), 1 deletion(-)
 
-
->=20
-> I think this should continue to target net-next with no Fixes tag.
-
-I'll drop the Fixes tag and target net-next in V2. I'll also move the=20
-hw_features initialization before register_netdevice() as discussed,=20
-to ensure the driver follows the proper pattern."
+diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+index 057e65b51b99..c30f6f58664c 100644
+--- a/fs/fuse/virtio_fs.c
++++ b/fs/fuse/virtio_fs.c
+@@ -768,10 +768,34 @@ static void virtio_fs_request_complete(struct fuse_req *req,
+ 	struct folio *folio;
+ 
+ 	/*
+-	 * TODO verify that server properly follows FUSE protocol
++	 * Verify that server properly follows FUSE protocol
+ 	 * (oh.uniq, oh.len)
+ 	 */
+ 	args = req->args;
++	if (test_bit(FR_ISREPLY, &req->flags)) {
++		struct fuse_out_header *oh = &req->out.h;
++
++		if (unlikely(oh->unique != req->in.h.unique)) {
++			pr_warn_ratelimited("virtio-fs: bad reply unique %llu (expected %llu)\n",
++					    oh->unique, req->in.h.unique);
++			oh->error = -EIO;
++			oh->len = sizeof(*oh);
++			goto out;
++		}
++		unsigned int num_out = args->out_numargs - args->out_pages;
++		unsigned int cap = sizeof(req->out.h);
++
++		cap += fuse_len_args(num_out, args->out_args);
++		if (args->out_pages)
++			cap += args->out_args[args->out_numargs - 1].size;
++		if (unlikely(oh->len < sizeof(*oh) || oh->len > cap)) {
++			pr_warn_ratelimited("virtio-fs: bad reply len %u (cap %u)\n",
++					    oh->len, cap);
++			oh->error = -EIO;
++			oh->len = sizeof(*oh);
++			goto out;
++		}
++	}
+ 	copy_args_from_argbuf(args, req);
+ 
+ 	if (args->out_pages && args->page_zeroing) {
+@@ -790,6 +814,7 @@ static void virtio_fs_request_complete(struct fuse_req *req,
+ 		}
+ 	}
+ 
++out:
+ 	clear_bit(FR_SENT, &req->flags);
+ 
+ 	fuse_request_end(req);
+-- 
+2.34.1
 
