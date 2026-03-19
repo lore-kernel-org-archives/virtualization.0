@@ -1,71 +1,92 @@
-Received: from relay.hostedemail.com (smtprelay0016.hostedemail.com [216.40.44.16])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B45232F60A7;
-	Wed, 18 Mar 2026 23:12:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.40.44.16
+Received: from mailgw2.hygon.cn (unknown [101.204.27.37])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id DB1FF1662E7
+	for <virtualization@lists.linux.dev>; Thu, 19 Mar 2026 00:43:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=101.204.27.37
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1773875551; cv=none; b=mEcLRLf4mBuTI4RELO2QHHbI1uWkE1pxXt2AZiqMAf+CxMjQRmvR3ea6Z0hth7Vws3pNF+BA2V4iMEfHl//33uccaQKAgZWUv0JbDsu7yNgEbWpVuf590fKwOPOy57PLEDIEdPz5UBCPVuFPWFHqbrn8iI3HG+UvFx0Ev+9Mg/k=
+	t=1773881043; cv=none; b=sfAl7JcEImtB9zDqVPgiwNnq8aZBbOBpwP0rjk1eE69pUDquPrzRPsOBxwp0aVQaS+cq/61LlT9N1IE5WIEuXDhJnKqU1uRgIazkjwUJ09pUIk9w7Vz/2lIJ/1jaJIGOj+QVK3bJwsYAXuys0bMFUabcHOzLhZD5rlcTPo/PFmU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1773875551; c=relaxed/simple;
-	bh=JCh4IeE/Cn60D/pNAmjztbTuiNBWjjTZpNihj1Tve9Y=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=JCOffRpAytYhlGLwfkI40vvEG4iUXtUnpHJgkQoL5pmEPwghKbGvMoknLhkTGI5s6Ta3ZpugBMjZZJAeIbbujlmudptXkkjeQfyNcJN4rYms+bjHeOvV01LnL8trD2+hTutLEILizZQ+gAVE6rz2RF4y98sJs7vlbB3BPcLOzGA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org; spf=pass smtp.mailfrom=goodmis.org; arc=none smtp.client-ip=216.40.44.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=goodmis.org
-Received: from omf14.hostedemail.com (a10.router.float.18 [10.200.18.1])
-	by unirelay04.hostedemail.com (Postfix) with ESMTP id 9F2241A01AB;
-	Wed, 18 Mar 2026 23:12:21 +0000 (UTC)
-Received: from [HIDDEN] (Authenticated sender: rostedt@goodmis.org) by omf14.hostedemail.com (Postfix) with ESMTPA id 729DB2D;
-	Wed, 18 Mar 2026 23:12:17 +0000 (UTC)
-Date: Wed, 18 Mar 2026 19:12:46 -0400
-From: Steven Rostedt <rostedt@goodmis.org>
-To: David Laight <david.laight.linux@gmail.com>
-Cc: Christian Brauner <brauner@kernel.org>, Linus Torvalds
- <torvalds@linux-foundation.org>, linux-kernel@vger.kernel.org,
- linux-modules@vger.kernel.org, linux-nfs@vger.kernel.org,
- bpf@vger.kernel.org, kunit-dev@googlegroups.com, linux-doc@vger.kernel.org,
- linux-trace-kernel@vger.kernel.org, netfs@lists.linux.dev,
- io-uring@vger.kernel.org, audit@vger.kernel.org, rcu@vger.kernel.org,
- kvm@vger.kernel.org, virtualization@lists.linux.dev,
- netdev@vger.kernel.org, linux-mm@kvack.org,
- linux-security-module@vger.kernel.org, Christian Loehle
- <christian.loehle@arm.com>, linux-fsdevel@vger.kernel.org
-Subject: Re: [PATCH v2 1/2] kthread: remove kthread_exit()
-Message-ID: <20260318191246.21f5cae8@gandalf.local.home>
-In-Reply-To: <20260311104736.51b53405@pumpkin>
-References: <20260310-work-kernel-exit-v2-0-30711759d87b@kernel.org>
-	<20260310-work-kernel-exit-v2-1-30711759d87b@kernel.org>
-	<20260311104736.51b53405@pumpkin>
-X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	s=arc-20240116; t=1773881043; c=relaxed/simple;
+	bh=R0gyezNUjoeHfKtZpni3CaO3nviThjHMgM9T+bNatbk=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=kvZT9fjP/3lbslsRtgADLP32tjsD7ihTiBuHIzwPPpJyyg4yHhP1JIyt4JsWwYkmSZQ5dYaSbV2A1Tm/JVXh4mDYOKq5AgZqqUJRpuLTvdgvtplx7cAhAPky8ipZjTSn7Xi6w54vZ4XFGt6mudpZkpMR5elgQaKNblAYD6xE1/A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hygon.cn; spf=pass smtp.mailfrom=hygon.cn; arc=none smtp.client-ip=101.204.27.37
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=hygon.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=hygon.cn
+Received: from maildlp1.hygon.cn (unknown [127.0.0.1])
+	by mailgw2.hygon.cn (Postfix) with ESMTP id 4fbn4T3gz3z1YQpmD;
+	Thu, 19 Mar 2026 08:43:37 +0800 (CST)
+Received: from maildlp1.hygon.cn (unknown [172.23.18.60])
+	by mailgw2.hygon.cn (Postfix) with ESMTP id 4fbn4R20Mbz1YQpmD;
+	Thu, 19 Mar 2026 08:43:35 +0800 (CST)
+Received: from cncheex05.Hygon.cn (unknown [172.23.18.115])
+	by maildlp1.hygon.cn (Postfix) with ESMTPS id 1F2895959;
+	Thu, 19 Mar 2026 08:43:28 +0800 (CST)
+Received: from cncheex04.Hygon.cn (172.23.18.114) by cncheex05.Hygon.cn
+ (172.23.18.115) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.1544.36; Thu, 19 Mar
+ 2026 08:43:35 +0800
+Received: from cncheex04.Hygon.cn ([fe80::1b6f:6c58:58a4:430d]) by
+ cncheex04.Hygon.cn ([fe80::1b6f:6c58:58a4:430d%10]) with mapi id
+ 15.02.1544.036; Thu, 19 Mar 2026 08:43:34 +0800
+From: Zhud <zhud@hygon.cn>
+To: Jakub Kicinski <kuba@kernel.org>
+CC: "mst@redhat.com" <mst@redhat.com>, "jasowang@redhat.com"
+	<jasowang@redhat.com>, "xuanzhuo@linux.alibaba.com"
+	<xuanzhuo@linux.alibaba.com>, "eperezma@redhat.com" <eperezma@redhat.com>,
+	"andrew+netdev@lunn.ch" <andrew+netdev@lunn.ch>, "davem@davemloft.net"
+	<davem@davemloft.net>, "edumazet@google.com" <edumazet@google.com>,
+	"pabeni@redhat.com" <pabeni@redhat.com>, "willemb@google.com"
+	<willemb@google.com>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, Jing Li
+	<lijing@hygon.cn>, Zhiwei Ying <yingzhiwei@hygon.cn>
+Subject: RE: [PATCH net v3] virtio-net: enable NETIF_F_GRO_HW only if
+ GRO-related offloads are supported
+Thread-Topic: [PATCH net v3] virtio-net: enable NETIF_F_GRO_HW only if
+ GRO-related offloads are supported
+Thread-Index: AQHctgIsDY8nIT6XukqVKwAnhqpvxrWyyXQAgACy7rA=
+Date: Thu, 19 Mar 2026 00:43:34 +0000
+Message-ID: <738926a1932e4c7a94f0ad8929b38171@hygon.cn>
+References: <20260317113433.927022-1-zhud@hygon.cn>
+ <20260317153126.61f7d3de@kernel.org>
+In-Reply-To: <20260317153126.61f7d3de@kernel.org>
+Accept-Language: zh-CN, en-US
+Content-Language: zh-CN
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Rspamd-Queue-Id: 729DB2D
-X-Rspamd-Server: rspamout06
-X-Stat-Signature: k3okmar3gqwa3bym6uatb3yctgtgf59r
-X-Session-Marker: 726F737465647440676F6F646D69732E6F7267
-X-Session-ID: U2FsdGVkX18ZAlHD7zRdqyhWTgVQ561leKpKdrlCUw4=
-X-HE-Tag: 1773875537-654795
-X-HE-Meta: U2FsdGVkX1+7MRZYfjkh8tY3o0PNQxfTCp9CNyhqYR5NFfoxVPCM5iPNukWLzQIvK353tkgDvhZEdUedgHQ5QAkLbovGV5fvwkWyav20iib+DYA0dDHoYUnOxRBuEyIUuWk0DzuG1lL8+oddkej4s1MPcpQDwUN5GqInEA4qcRZLkJpWWxd7t1PfzHXZfqpOcF7WAx+PlcQksO8TPjRtlBOpPJasveRV7LExQmrExj38ijzYTXM4IkABls4ZOZgZxz6jQwh3Jnl0QSJRHa6iPYc7cT5zoaTdKKIxa3A6zx0cZRoh9me2qihdhYWm4g9GrHKVoLJDzQiYMqh11BNCWgZQJ5CMSezB
 
-On Wed, 11 Mar 2026 10:47:36 +0000
-David Laight <david.laight.linux@gmail.com> wrote:
+> On Tue, 17 Mar 2026 19:34:33 +0800 Di Zhu wrote:
+> > In such a setup, reporting NETIF_F_GRO_HW as available for the device
+> > is too optimistic and misleading to the user.
+>=20
+> This is not a sufficient justification to make this a fix.
+> As Michael was already alluding to HW GRO usually covers fewer
+> protocols and is less effective than SW GRO. Normal config is
+> to have both enabled. Please explain if there's anything special
+> about virtio here, because I haven't heard of people disabling
+> SW GRO because HW GRO is already enabled.
 
-> > -#define module_put_and_kthread_exit(code) kthread_exit(code)
-> > +#define module_put_and_kthread_exit(code) do_exit(code)  
-> 
-> I'm intrigued...
-> How does that actually know to do the module_put()?
-> (I know it does one - otherwise my driver wouldn't unload.)
+"Thanks, Jakub. You're right, that was a poorly chosen example to justify t=
+his as a fix,=20
+and I see your point regarding HW GRO vs SW GRO. There isn't anything speci=
+al about
+virtio here that would necessitate disabling SW GRO in normal cases; my ini=
+tial thought=20
+was more about the potential for user confusion in specific testing scenari=
+os.
 
-It's in the !CONFIG_MODULES section. No module_put() necessary. Only the
-kthread_exit (do_exit) is needed.
 
--- Steve
+>=20
+> I think this should continue to target net-next with no Fixes tag.
+
+I'll drop the Fixes tag and target net-next in V2. I'll also move the=20
+hw_features initialization before register_netdevice() as discussed,=20
+to ensure the driver follows the proper pattern."
+
