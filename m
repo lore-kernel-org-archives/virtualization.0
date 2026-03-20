@@ -1,150 +1,139 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C7D43806A2
-	for <virtualization@lists.linux.dev>; Fri, 20 Mar 2026 11:02:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A3773A0B39
+	for <virtualization@lists.linux.dev>; Fri, 20 Mar 2026 11:08:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774004558; cv=none; b=RkMIiLfM/Tv/RCbP9WDLgX/LMTgGbrIXfOrdNr8HldSaZxJXTvBgweXMNdvNCieBpN8MFf34oUoeivEM+Qv5twgbr30lEVdE1eA+WY1yXEZPFMPQ/aG5QLTMHOErZkEMg4jxrox5nD67pAefSWf6xEYT9Y3PdNDU8FZccWQ88ME=
+	t=1774004923; cv=none; b=LgqYR6u/g+db0cq+/UYyn0jG4yhrqe2eWjxMA78/7MTo5Rrk8nFN57Vh0CVKPm4OQbSUJ5fSL0+fs51vSzGS+6xCfoyyk5+fYR/Tpm3FYuCG7enrAunqtQMoWVRBf5NrRBGx3FHhV6S9mZevpiUn9ubiBP8xKUgEPVfeQ5RPv38=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774004558; c=relaxed/simple;
-	bh=ADuYsDMUdHpn8bfrceLDi1vQuYixzdfca6AIYCwJxyM=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=Nigbj13rWcK8P/KH389+n0U/dXApTkTLz/b8/CdqffJfOoB+YLyKefWWc++zaU5jQG2duoSjn8+V5wPMcHCxKjV9NCWBkAlhuqYx8purshe99H5FQibPrM56Va0dzvRDKCLYR+h/C9fB66As+Rpi3ATNBlnnRGqPnrCN/JdvWxk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=kSxO7L0M; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=I0/eEZju; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=SnTorjlu; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=JJUg01bC; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+	s=arc-20240116; t=1774004923; c=relaxed/simple;
+	bh=DcSdZ1Od4bjS1xSpPlNiqp2KmerXVT1VSew5Vlvza1Y=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:From:In-Reply-To:
+	 Content-Type:References; b=HegrjD1+RR0yKUbiHo4asdBBsb/eDm09h+HHMOpRe5BSnlSwVqsGkXBcIFp50xJp5Qd1dj833MZOBqy531Gv/r3gnSl3OO5NhyQu1RiIE7TIF3x/RPalGTTTmpAr16O+FP/T/ouNVej59wwrQEEi72cOMJSVshkHCPoBrrsatB0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=tC3YC+f/; arc=none smtp.client-ip=210.118.77.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="kSxO7L0M";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="I0/eEZju";
-	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="SnTorjlu";
-	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="JJUg01bC"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id D223D4D24D;
-	Fri, 20 Mar 2026 11:02:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1774004555;
-	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-	 cc:cc:mime-version:mime-version:content-type:content-type;
-	bh=ADuYsDMUdHpn8bfrceLDi1vQuYixzdfca6AIYCwJxyM=;
-	b=kSxO7L0MVfzj0e1wO9MqhFDmFrce8KVXHSHp1vEEprA3fUqoaB5K9hJZFnNk/Lh9Sd5P1z
-	Rv0kyIPemFKCK5mSupKdaNZTNmU/NW/+wtQYO2CPIrkmWoRMlkEUmlAtiUHp7e82a9kCyW
-	mX39S/RWop7AcpDma3UUwHnPrie/5fs=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1774004555;
-	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-	 cc:cc:mime-version:mime-version:content-type:content-type;
-	bh=ADuYsDMUdHpn8bfrceLDi1vQuYixzdfca6AIYCwJxyM=;
-	b=I0/eEZju2obF86thKoppQTQjmJq097usim5gFUrWQK/p7Z3o6LGRD406/Fkiqv3qiDXazj
-	/CLLOHdONgWg9mDw==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=SnTorjlu;
-	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=JJUg01bC
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
-	t=1774004550;
-	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-	 cc:cc:mime-version:mime-version:content-type:content-type;
-	bh=ADuYsDMUdHpn8bfrceLDi1vQuYixzdfca6AIYCwJxyM=;
-	b=SnTorjlul6wCyF3+1yHcR7Y4Tr3KkJtwBuYhZA+1H2Z5TbJtTNqdAMN6CaDezBFUHJDfbu
-	bO5MO19kGTNXNuKOyvk0HMqS6ToemIeS7s7fQbKX1L6zgWDEBrI6GgLwRNJOfFRon/qPFF
-	FseJFGVSxhVO4TVaa7W+tTmSnSo1MAg=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
-	s=susede2_ed25519; t=1774004550;
-	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
-	 cc:cc:mime-version:mime-version:content-type:content-type;
-	bh=ADuYsDMUdHpn8bfrceLDi1vQuYixzdfca6AIYCwJxyM=;
-	b=JJUg01bCzyvruxByQ6brhE3kUcc1uhfDmxCK1OQ8mjwu/bZ/uhX6ufNhtDSpBPP8WvJF09
-	k0DuGhVfB4IcSWDQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 6F62742751;
-	Fri, 20 Mar 2026 11:02:30 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id wweKGEYpvWnoYQAAD6G6ig
-	(envelope-from <pvorel@suse.cz>); Fri, 20 Mar 2026 11:02:30 +0000
-Date: Fri, 20 Mar 2026 12:02:24 +0100
-From: Petr Vorel <pvorel@suse.cz>
-To: virtualization@lists.linux.dev
-Cc: netdev@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
-	Valentin Lefebvre <valentin.lefebvre@suse.com>,
-	Yu Watanabe <watanabe.yu@gmail.com>,
-	Andrei Borzenkov <arvidjaar@gmail.com>,
-	Luca Boccassi <luca.boccassi@gmail.com>,
-	Luca Boccassi <bluca@debian.org>
-Subject: [RFC] loading vmw_vsock_virtio_transport by systemd breaks
- vsock_loopback autoloading
-Message-ID: <20260320110224.GA140154@pevik>
-Reply-To: Petr Vorel <pvorel@suse.cz>
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="tC3YC+f/"
+Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
+	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20260320110837euoutp013ce8d6159e1a3a3788c6bad97feee28e~eiBK_vm1z0470104701euoutp01b
+	for <virtualization@lists.linux.dev>; Fri, 20 Mar 2026 11:08:37 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20260320110837euoutp013ce8d6159e1a3a3788c6bad97feee28e~eiBK_vm1z0470104701euoutp01b
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1774004917;
+	bh=4qovv9+aD8RsPS13oGAV/y3xbW2UGToHDWte0hu5auQ=;
+	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
+	b=tC3YC+f/cwuKn2RlZKFwY2x8rUDgAsDAFY60UyBWpLPBL+67Y08nlVUxai1DNaN5D
+	 sFUfqzCG/9wmcnOrRRU7vo76g8QFm1fOPCix13urNlB577UaZgeKHor7NP4Zw+PBBu
+	 i0Qd/1bii8ZaKPiERbuc0j3N6JUtuaGTgrhxYrZ8=
+Received: from eusmtip2.samsung.com (unknown [203.254.199.222]) by
+	eucas1p1.samsung.com (KnoxPortal) with ESMTPA id
+	20260320110836eucas1p13ceb4f958f17b568b1b6a89ce9cdbea5~eiBKofPAW2282122821eucas1p1u;
+	Fri, 20 Mar 2026 11:08:36 +0000 (GMT)
+Received: from [106.210.134.192] (unknown [106.210.134.192]) by
+	eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
+	20260320110835eusmtip2ba021ee90f681f3ad044dd9fe0d2ed25~eiBI-eTqE1236312363eusmtip2w;
+	Fri, 20 Mar 2026 11:08:35 +0000 (GMT)
+Message-ID: <3fe54fb7-8192-4b0c-9f51-d04cb8ac1300@samsung.com>
+Date: Fri, 20 Mar 2026 12:08:34 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Spamd-Result: default: False [-2.21 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_RHS_NOT_FQDN(0.50)[];
-	HAS_REPLYTO(0.30)[pvorel@suse.cz];
-	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
-	TO_DN_SOME(0.00)[];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	ARC_NA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_TRACE(0.00)[suse.cz:+];
-	RCVD_COUNT_TWO(0.00)[2];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:url,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.cz:dkim,suse.cz:replyto];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[vger.kernel.org,redhat.com,suse.com,gmail.com,debian.org];
-	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from,2a07:de40:b281:106:10:150:64:167:received];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	MISSING_XM_UA(0.00)[];
-	RCPT_COUNT_SEVEN(0.00)[8];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	TAGGED_RCPT(0.00)[];
-	REPLYTO_EQ_FROM(0.00)[]
-X-Rspamd-Queue-Id: D223D4D24D
-X-Spam-Flag: NO
-X-Spam-Score: -2.21
-X-Spam-Level: 
+User-Agent: Betterbird (Windows)
+Subject: Re: [PATCH v3 0/8] RDMA: Enable operation with DMA debug enabled
+To: Leon Romanovsky <leon@kernel.org>
+Cc: Robin Murphy <robin.murphy@arm.com>, "Michael S. Tsirkin"
+	<mst@redhat.com>, Petr Tesarik <ptesarik@suse.com>, Jonathan Corbet
+	<corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>, Jason Wang
+	<jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, Jason Gunthorpe
+	<jgg@ziepe.ca>, Steven Rostedt <rostedt@goodmis.org>, Masami Hiramatsu
+	<mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Andrew Morton
+	<akpm@linux-foundation.org>, iommu@lists.linux.dev,
+	linux-kernel@vger.kernel.org, linux-doc@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-rdma@vger.kernel.org,
+	linux-trace-kernel@vger.kernel.org, linux-mm@kvack.org
+Content-Language: en-US
+From: Marek Szyprowski <m.szyprowski@samsung.com>
+In-Reply-To: <20260318081858.GE61385@unreal>
+Content-Transfer-Encoding: 8bit
+X-CMS-MailID: 20260320110836eucas1p13ceb4f958f17b568b1b6a89ce9cdbea5
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+X-RootMTR: 20260317190552eucas1p28f3e818f88d252b1e4161332be084177
+X-EPHeader: CA
+X-CMS-RootMailID: 20260317190552eucas1p28f3e818f88d252b1e4161332be084177
+References: <20260316-dma-debug-overlap-v3-0-1dde90a7f08b@nvidia.com>
+	<CGME20260317190552eucas1p28f3e818f88d252b1e4161332be084177@eucas1p2.samsung.com>
+	<20260317190538.GD61385@unreal>
+	<de23ccf6-75ef-48af-8c69-2f416c564f2d@samsung.com>
+	<20260318081858.GE61385@unreal>
 
-Hi all,
+Hi Leon,
 
-there is a systemd bug [1] which causes vsock_loopback not to be autoloaded due
-previous loading vmw_vsock_virtio_transport in an early phase of boot.
-vmw_vsock_virtio_transport requires vmw_vsock_virtio_transport_common and vsock,
-vsock_loopback requires vsock.
+On 18.03.2026 09:18, Leon Romanovsky wrote:
+> On Wed, Mar 18, 2026 at 09:03:00AM +0100, Marek Szyprowski wrote:
+>> On 17.03.2026 20:05, Leon Romanovsky wrote:
+>>> On Mon, Mar 16, 2026 at 09:06:44PM +0200, Leon Romanovsky wrote:
+>>>> Add a new DMA_ATTR_REQUIRE_COHERENT attribute to the DMA API to mark
+>>>> mappings that must run on a DMA‑coherent system. Such buffers cannot
+>>>> use the SWIOTLB path, may overlap with CPU caches, and do not depend on
+>>>> explicit cache flushing.
+>>>>
+>>>> Mappings using this attribute are rejected on systems where cache
+>>>> side‑effects could lead to data corruption, and therefore do not need
+>>>> the cache‑overlap debugging logic. This series also includes fixes for
+>>>> DMA_ATTR_CPU_CACHE_CLEAN handling.
+>>>> Thanks.
+>>> <...>
+>>>
+>>>> ---
+>>>> Leon Romanovsky (8):
+>>>>         dma-debug: Allow multiple invocations of overlapping entries
+>>>>         dma-mapping: handle DMA_ATTR_CPU_CACHE_CLEAN in trace output
+>>>>         dma-mapping: Clarify valid conditions for CPU cache line overlap
+>>>>         dma-mapping: Introduce DMA require coherency attribute
+>>>>         dma-direct: prevent SWIOTLB path when DMA_ATTR_REQUIRE_COHERENT is set
+>>>>         iommu/dma: add support for DMA_ATTR_REQUIRE_COHERENT attribute
+>>>>         RDMA/umem: Tell DMA mapping that UMEM requires coherency
+>>>>         mm/hmm: Indicate that HMM requires DMA coherency
+>>>>
+>>>>    Documentation/core-api/dma-attributes.rst | 38 ++++++++++++++++++++++++-------
+>>>>    drivers/infiniband/core/umem.c            |  5 ++--
+>>>>    drivers/iommu/dma-iommu.c                 | 21 +++++++++++++----
+>>>>    drivers/virtio/virtio_ring.c              | 10 ++++----
+>>>>    include/linux/dma-mapping.h               | 15 ++++++++----
+>>>>    include/trace/events/dma.h                |  4 +++-
+>>>>    kernel/dma/debug.c                        |  9 ++++----
+>>>>    kernel/dma/direct.h                       |  7 +++---
+>>>>    kernel/dma/mapping.c                      |  6 +++++
+>>>>    mm/hmm.c                                  |  4 ++--
+>>>>    10 files changed, 86 insertions(+), 33 deletions(-)
+>>> Marek,
+>>>
+>>> Despite the "RDMA ..." tag in the subject, the diffstat clearly shows that
+>>> you are the appropriate person to take this patch.
+>> I plan to take the first 2 patches to the dma-mapping-fixes branch
+>> (v7.0-rc) and the next to dma-mapping-for-next. Should I also take the
+>> RDMA and HMM patches, or do You want a stable branch for merging them
+>> via respective subsystem trees?
+> I suggest taking all patches into the -fixes branch, as the "RDMA/..." patch
+> also resolves the dmesg splat. With -fixes, there is no need to worry about
+> a shared branch since we do not expect merge conflicts in that area.
+>
+> If you still prefer to split the series between -fixes and -next, it would be
+> better to use a shared branch in that case. There are patches on the RDMA
+> list targeted for -next that touch ib_umem_get().
 
-Reproducer: [2].
-Proposed fix in systemd: [3]
+Okay, I will merge all patches to the -fixes branch then.
 
-While I think the bug should be fixed in systemd with proposed fix [3] we'd like
-to know opinion of the kernel vsock developers in case there is a way to improve
-vsock modules autoloading.
+Best regards
+-- 
+Marek Szyprowski, PhD
+Samsung R&D Institute Poland
 
-Kind regards,
-Petr
-
-[1] https://github.com/systemd/systemd/issues/41100
-[2] https://bugzilla.suse.com/attachment.cgi?id=888729
-[3] https://github.com/systemd/systemd/issues/41100#issuecomment-4056603242
