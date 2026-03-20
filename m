@@ -1,163 +1,150 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7268635F19C
-	for <virtualization@lists.linux.dev>; Fri, 20 Mar 2026 10:28:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C7D43806A2
+	for <virtualization@lists.linux.dev>; Fri, 20 Mar 2026 11:02:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774002512; cv=none; b=JsgWzyfetNurut6iFx5LcqE2nFVKapx6vH/nAitoE+ulpl6RdrTQ/Q19YjP6UkgkOM331dKHpkeJX89OdKh4CO4Om9FY53xLSlfJExGxsxQWJDmio8lLzi6r2c1iNejK2/VBn6uKPw3j3AeE7bLHuKlUtjIQY6Ldp4EcGs2aOpY=
+	t=1774004558; cv=none; b=RkMIiLfM/Tv/RCbP9WDLgX/LMTgGbrIXfOrdNr8HldSaZxJXTvBgweXMNdvNCieBpN8MFf34oUoeivEM+Qv5twgbr30lEVdE1eA+WY1yXEZPFMPQ/aG5QLTMHOErZkEMg4jxrox5nD67pAefSWf6xEYT9Y3PdNDU8FZccWQ88ME=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774002512; c=relaxed/simple;
-	bh=KyJKK5isZ64xOnxxGEaZ5VV7iYtLlVlKAJxcAORDKgs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=pvYWjImaYx8FLJyzTaISLMmNatvml/G2ANhwEOCxCx/A8wBeyoCqYslbqlRis1FSXSm32AWgVlOA3suBYzh0f3Pa4Gx4McX9L1y3MxVGCOA2t90prS6G4VoCtCM2C65PiUON6/mVg51Ud+BiLQDm+fn0IIz/oiBYd0+5EKGdn1U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YuXUAk7Q; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1774004558; c=relaxed/simple;
+	bh=ADuYsDMUdHpn8bfrceLDi1vQuYixzdfca6AIYCwJxyM=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=Nigbj13rWcK8P/KH389+n0U/dXApTkTLz/b8/CdqffJfOoB+YLyKefWWc++zaU5jQG2duoSjn8+V5wPMcHCxKjV9NCWBkAlhuqYx8purshe99H5FQibPrM56Va0dzvRDKCLYR+h/C9fB66As+Rpi3ATNBlnnRGqPnrCN/JdvWxk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=kSxO7L0M; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=I0/eEZju; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=SnTorjlu; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=JJUg01bC; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YuXUAk7Q"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1774002509;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ETcinoc+Iu6TM4nD/QE43KJ6uJXP6/02M2IBKPvEmHw=;
-	b=YuXUAk7Q3Jg0i4Jmyf4QML7ae2gisjMgjocC/GDtjIwbYFN7lg6u70k3bjcJl7R0eLuNqx
-	aQiaCBjvAUhOUtyl/q9Obrxcjff5MgVnCidrOMGQLSEuPF9Lk4sRyN8V+t5NgmnEccQLk5
-	9cOPEfzzfMPRo4KjArRmnY/q3HDdobY=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-201-5Ln-7wCRNASnFK36WrbDLw-1; Fri, 20 Mar 2026 06:28:28 -0400
-X-MC-Unique: 5Ln-7wCRNASnFK36WrbDLw-1
-X-Mimecast-MFC-AGG-ID: 5Ln-7wCRNASnFK36WrbDLw_1774002507
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-48531e6012bso32926595e9.1
-        for <virtualization@lists.linux.dev>; Fri, 20 Mar 2026 03:28:28 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774002507; x=1774607307;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ETcinoc+Iu6TM4nD/QE43KJ6uJXP6/02M2IBKPvEmHw=;
-        b=etASanoKZT23yrdZH2SaOveEJMP9c6mwbeWDn6HCgZ3bFoZxw/60wtZxJal1jiF8UC
-         pIJcod5pFRofz4KBQ6X2qgvYgzLpZoN8aXYh7+QBQ4GiYEBNrzLsUL+woanA/co8Fy3/
-         B5raxlj4TG+Cts0+fQJLeRpPz1CC+Y8Wgdvioty9zTVqwEF624W/p44BsE0mtlHe56DF
-         HLNLys+UjvYIP7YGwLcFD9gmMolNExOPPOEmRyg8LiBv0d26u3qbXA6EaGHZVl3QrmFV
-         twKH5v1CEICHcybCsPKx/vXcY3G+ivDWCjWaN4+AQAA2TWv33hezUMJ3dKA4FY/dSUou
-         7TeQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWT/WnzyQM0MKZiEYXRg9c6MHVHUQ40HI4c++kWQGS9ebzDK2YIv5Va1MHoQNEXAYyPvK5hrnh5yMb0TYKDXA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyD/9tIyi2bUQN4ZhIlXPq74n9EJcBnD0g3Uw8CCADHGK9JZbvh
-	glBFzxniQbhwbtknHPO/y8dpa8S8k0qe5L9424Ph2Eu+b0F7yHM6mHTENk5Xc8nKnsZAMVCIAwU
-	sgh9S35Vvf6DVaVMJjR8jr1p1TMjavice69zIlJUt0KLP0e3IXBodvbDyXfEFyUH9q1ea
-X-Gm-Gg: ATEYQzyDVq0kkQNjliMnSYHpi3LidKWTDBfczF5/2Bufrw9eskYnviHxe6Hb/jA4owc
-	VpXw90Adjx5v7wKbPFIoIBreVLwJi7btvSj+M0+R3mcE81T7JA5Jj+eCYLjwBK10IL0/DH3EQV6
-	adz59wVnw5REQhDarrRa1ycEfeFSzArqPVZeSkcy2fgEsBBFdVtxsoFmmZSDiGCGfuCwQxOnGBN
-	AIhXsknZmp+kE2UFn2/cExjmGXcOnmKueo4wweHlTSQGeWV0LgapOo8S912hZIxnwKLYeze72Cr
-	1DVKowUV7jjGUbk2VrEdBXxVJt51ZirrO8VkQZozmLxN6KPIlVyqxR5bXLQr048mPkmDpD84hTD
-	ea8RkuvRSMhopaExV
-X-Received: by 2002:a05:600c:c84:b0:485:3812:36f6 with SMTP id 5b1f17b1804b1-486fee0bcc1mr34021625e9.21.1774002507007;
-        Fri, 20 Mar 2026 03:28:27 -0700 (PDT)
-X-Received: by 2002:a05:600c:c84:b0:485:3812:36f6 with SMTP id 5b1f17b1804b1-486fee0bcc1mr34021275e9.21.1774002506531;
-        Fri, 20 Mar 2026 03:28:26 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1525:da00:3ac2:1a22:72ff:4256])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-486fe7e3a94sm59954255e9.7.2026.03.20.03.28.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 20 Mar 2026 03:28:25 -0700 (PDT)
-Date: Fri, 20 Mar 2026 06:28:21 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: netdev@vger.kernel.org,
-	Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Jiri Pirko <jiri@resnulli.us>,
-	Alvaro Karsz <alvaro.karsz@solid-run.com>,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH net v11 0/2] virtio-net: fix for VIRTIO_NET_F_GUEST_HDRLEN
-Message-ID: <20260320062811-mutt-send-email-mst@kernel.org>
-References: <20260320021818.111741-1-xuanzhuo@linux.alibaba.com>
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="kSxO7L0M";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="I0/eEZju";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="SnTorjlu";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="JJUg01bC"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id D223D4D24D;
+	Fri, 20 Mar 2026 11:02:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1774004555;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type;
+	bh=ADuYsDMUdHpn8bfrceLDi1vQuYixzdfca6AIYCwJxyM=;
+	b=kSxO7L0MVfzj0e1wO9MqhFDmFrce8KVXHSHp1vEEprA3fUqoaB5K9hJZFnNk/Lh9Sd5P1z
+	Rv0kyIPemFKCK5mSupKdaNZTNmU/NW/+wtQYO2CPIrkmWoRMlkEUmlAtiUHp7e82a9kCyW
+	mX39S/RWop7AcpDma3UUwHnPrie/5fs=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1774004555;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type;
+	bh=ADuYsDMUdHpn8bfrceLDi1vQuYixzdfca6AIYCwJxyM=;
+	b=I0/eEZju2obF86thKoppQTQjmJq097usim5gFUrWQK/p7Z3o6LGRD406/Fkiqv3qiDXazj
+	/CLLOHdONgWg9mDw==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b=SnTorjlu;
+	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=JJUg01bC
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1774004550;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type;
+	bh=ADuYsDMUdHpn8bfrceLDi1vQuYixzdfca6AIYCwJxyM=;
+	b=SnTorjlul6wCyF3+1yHcR7Y4Tr3KkJtwBuYhZA+1H2Z5TbJtTNqdAMN6CaDezBFUHJDfbu
+	bO5MO19kGTNXNuKOyvk0HMqS6ToemIeS7s7fQbKX1L6zgWDEBrI6GgLwRNJOfFRon/qPFF
+	FseJFGVSxhVO4TVaa7W+tTmSnSo1MAg=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1774004550;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type;
+	bh=ADuYsDMUdHpn8bfrceLDi1vQuYixzdfca6AIYCwJxyM=;
+	b=JJUg01bCzyvruxByQ6brhE3kUcc1uhfDmxCK1OQ8mjwu/bZ/uhX6ufNhtDSpBPP8WvJF09
+	k0DuGhVfB4IcSWDQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 6F62742751;
+	Fri, 20 Mar 2026 11:02:30 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id wweKGEYpvWnoYQAAD6G6ig
+	(envelope-from <pvorel@suse.cz>); Fri, 20 Mar 2026 11:02:30 +0000
+Date: Fri, 20 Mar 2026 12:02:24 +0100
+From: Petr Vorel <pvorel@suse.cz>
+To: virtualization@lists.linux.dev
+Cc: netdev@vger.kernel.org, Stefano Garzarella <sgarzare@redhat.com>,
+	Valentin Lefebvre <valentin.lefebvre@suse.com>,
+	Yu Watanabe <watanabe.yu@gmail.com>,
+	Andrei Borzenkov <arvidjaar@gmail.com>,
+	Luca Boccassi <luca.boccassi@gmail.com>,
+	Luca Boccassi <bluca@debian.org>
+Subject: [RFC] loading vmw_vsock_virtio_transport by systemd breaks
+ vsock_loopback autoloading
+Message-ID: <20260320110224.GA140154@pevik>
+Reply-To: Petr Vorel <pvorel@suse.cz>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260320021818.111741-1-xuanzhuo@linux.alibaba.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: eIsgbDI9wtdIEXUH8WBTZ58-kPi16nCSlX2FVwulTQo_1774002507
-X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-2.21 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_RHS_NOT_FQDN(0.50)[];
+	HAS_REPLYTO(0.30)[pvorel@suse.cz];
+	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	TO_DN_SOME(0.00)[];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.cz:+];
+	RCVD_COUNT_TWO(0.00)[2];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:url,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.cz:dkim,suse.cz:replyto];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_CC(0.00)[vger.kernel.org,redhat.com,suse.com,gmail.com,debian.org];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from,2a07:de40:b281:106:10:150:64:167:received];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	MISSING_XM_UA(0.00)[];
+	RCPT_COUNT_SEVEN(0.00)[8];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	TAGGED_RCPT(0.00)[];
+	REPLYTO_EQ_FROM(0.00)[]
+X-Rspamd-Queue-Id: D223D4D24D
+X-Spam-Flag: NO
+X-Spam-Score: -2.21
+X-Spam-Level: 
 
-On Fri, Mar 20, 2026 at 10:18:16AM +0800, Xuan Zhuo wrote:
-> v11:
->   1. rename virtio_net_set_hdrlen() to __virtio_net_set_hdrlen(),
->   virtio_net_set_tnl_hdrlen() to __virtio_net_set_tnl_hdrlen(), and add
->   explicitly mention in a comment that such functions must be invoked only after
->   virtio_net_hdr_from_skb()
-> 
-> v10:
->   1. fix http://lore.kernel.org/all/202603122214.8Anoxrmq-lkp@intel.com
-> 
-> v9:
->   1. Introduce new helpers to set hdr len, and virtio_net_hdr_tnl_from_skb
->   calls them directly.
-> 
-> v8:
->   1. move changes of virtio_net_hdr_from_skb for udp tunnel to #2
->   2. remove change for num_sg
-> 
-> v7:
->   1. fix bug reported by robot
->   2. Still splitting into two commits, as the issues fixed originate from
->      different commits. This separation makes it easier to selectively revert to
->      previous versions.
-> 
-> v6:
->   1. rename to guest_hdrlen
->   2. introduce a function virtio_net_set_hdrlen to set the hdrlen
-> 
-> The commit be50da3e9d4a ("net: virtio_net: implement exact header length
-> guest feature") introduces support for the VIRTIO_NET_F_GUEST_HDRLEN
-> feature in virtio-net.
-> 
-> This feature requires virtio-net to set hdr_len to the actual header
-> length of the packet when transmitting, the number of
-> bytes from the start of the packet to the beginning of the
-> transport-layer payload.
-> 
-> However, in practice, hdr_len was being set using skb_headlen(skb),
-> which is clearly incorrect. This path set fixes that issue.
-> 
-> As discussed in [0], this version checks the VIRTIO_NET_F_GUEST_HDRLEN is
-> negotiated.
-> 
-> 
-> [0]: http://lore.kernel.org/all/20251029030913.20423-1-xuanzhuo@linux.alibaba.com
-> 
+Hi all,
 
+there is a systemd bug [1] which causes vsock_loopback not to be autoloaded due
+previous loading vmw_vsock_virtio_transport in an early phase of boot.
+vmw_vsock_virtio_transport requires vmw_vsock_virtio_transport_common and vsock,
+vsock_loopback requires vsock.
 
+Reproducer: [2].
+Proposed fix in systemd: [3]
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+While I think the bug should be fixed in systemd with proposed fix [3] we'd like
+to know opinion of the kernel vsock developers in case there is a way to improve
+vsock modules autoloading.
 
-> 
-> 
-> 
-> 
-> 
-> Xuan Zhuo (2):
->   virtio-net: correct hdr_len handling for VIRTIO_NET_F_GUEST_HDRLEN
->   virtio-net: correct hdr_len handling for tunnel gso
-> 
->  drivers/net/tun_vnet.h     |  2 +-
->  drivers/net/virtio_net.c   |  6 ++++-
->  include/linux/virtio_net.h | 53 +++++++++++++++++++++++++++++++++++---
->  3 files changed, 55 insertions(+), 6 deletions(-)
-> 
-> --
-> 2.32.0.3.g01195cf9f
+Kind regards,
+Petr
 
+[1] https://github.com/systemd/systemd/issues/41100
+[2] https://bugzilla.suse.com/attachment.cgi?id=888729
+[3] https://github.com/systemd/systemd/issues/41100#issuecomment-4056603242
