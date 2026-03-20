@@ -1,137 +1,134 @@
-Received: from mailout2.w1.samsung.com (mailout2.w1.samsung.com [210.118.77.12])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A090639EF20
-	for <virtualization@lists.linux.dev>; Fri, 20 Mar 2026 11:09:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.12
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C76FD391E4B
+	for <virtualization@lists.linux.dev>; Fri, 20 Mar 2026 11:14:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774005000; cv=none; b=OOF478WTepI4GjT04TSd7OJDYZZiOdw2wfxtyRksIBwQsDOWr7tpkFAoUFGAXQI1ESNJz4rCBzmwO2D9tLrWscHdsrLhKNAR+j3628DLFk8NSIhS9TYJaermyV+Yzqp7ezQUNxpXCyIKkT4SHzP1huiCBv0KPDhpFgHBkVPAxKY=
+	t=1774005247; cv=none; b=M5b9bJrwyiAHUDKn909glKCZiDZwaA443HI3MXFzIaZAyIcA7VpSRgnhNqIqg5cviK30zzRSfrqplUYmVLjHGNq7xDhUGfDbijDx532bneonAqYT/7Zs+Y/G4R2oSSTMbb6i787KubxfLz/iBGNSvB+/0FLj9SRGd1oI8jhGh7M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774005000; c=relaxed/simple;
-	bh=muj+S0CwdCa4Mdabtxh88dHeY5bgveIdxMpzHzByQ6E=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:From:In-Reply-To:
-	 Content-Type:References; b=M2idHwegzEl14WORjFhCzHaW9HStNwBfvTd7gPCyxeKauwYNsBVcxoTZ69GXKLmNDfA00r9kYq8VKmvcrBDh/2/zBjHHv3cem1jPhgJQNHbMhg+jOnm6HG+PTEhOmQvu7DlcmLQnkYZL/i9jItK5JCHFdj0kzUelgA5CTunBczM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=ptyVoPWX; arc=none smtp.client-ip=210.118.77.12
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
+	s=arc-20240116; t=1774005247; c=relaxed/simple;
+	bh=1hj72cRPqwqfvLjJnaBh/cOjWaZYnOWHm71Pw/s74CY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=eo1Aej2FbEuy1lpD6YjhES+5AqWzAWR7VBiPegf3Q5f/HtfXJEyZflYTBU48D3vMcwZa6ca71CDqgAZslsGGKo/8xIeCcYGfVOz4beLF5SfXAI3GjdOunpHKwYNb2L1TtRLs8F9lMTjTwSVzQJ/hLY2bL2K51rA4HfPV9cq1T1c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MGofotne; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="ptyVoPWX"
-Received: from eucas1p2.samsung.com (unknown [182.198.249.207])
-	by mailout2.w1.samsung.com (KnoxPortal) with ESMTP id 20260320110956euoutp021204b4a0c4a00721d7508bf878357ae2~eiCUXedDF1913419134euoutp02E
-	for <virtualization@lists.linux.dev>; Fri, 20 Mar 2026 11:09:56 +0000 (GMT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.w1.samsung.com 20260320110956euoutp021204b4a0c4a00721d7508bf878357ae2~eiCUXedDF1913419134euoutp02E
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
-	s=mail20170921; t=1774004996;
-	bh=pTmqpdf8GjnyZsUw8L2XfkacmPpa02J4Xau6gTuFHFk=;
-	h=Date:Subject:To:Cc:From:In-Reply-To:References:From;
-	b=ptyVoPWXcBIi6CFajqz8jBHUc7QxmVLROBIa6B07X05T2gMHSAF3qJV+Mxu2faMdW
-	 uAMswRdsBVr/P6CT4N9vFmq0zmpofYL/qZzw6yGNXtUr+3CNEGQBePtGtm+H/geV65
-	 29SmHCE/UzvDdepCwlLyhLC/iO2gx/kPUCouI5Ys=
-Received: from eusmtip1.samsung.com (unknown [203.254.199.221]) by
-	eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
-	20260320110955eucas1p27a53a87afc17b63b07866d088aeac78a~eiCUCPSBF0485504855eucas1p2p;
-	Fri, 20 Mar 2026 11:09:55 +0000 (GMT)
-Received: from [106.210.134.192] (unknown [106.210.134.192]) by
-	eusmtip1.samsung.com (KnoxPortal) with ESMTPA id
-	20260320110953eusmtip1e57b08b4312207c095ed6eee93225c85~eiCR0ORyQ2928429284eusmtip1k;
-	Fri, 20 Mar 2026 11:09:53 +0000 (GMT)
-Message-ID: <b9bdd287-6bd7-4223-be06-7531845c5a19@samsung.com>
-Date: Fri, 20 Mar 2026 12:09:52 +0100
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MGofotne"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1774005245;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=3NQZznosVl48MCXOoUyc53RSVU44S4P9FpUYqwm8D6Y=;
+	b=MGofotnemEzZpXQiA5fraKMVwJEPWm8ad7kH0BA6jD7WGI1EvLrfbaUflQQa/47Ff40buV
+	KVvvQGlPuNDqAYJjWUHm8NJWkslHYe/VFni5B98ymlSemBxV29D9vs2tot6yw4aQdkLI76
+	N6Ea+GgBRBagbgmjDh24jr0wqwkHUnM=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-74-wjq3BzQaN8eowOVq2MuslA-1; Fri,
+ 20 Mar 2026 07:14:01 -0400
+X-MC-Unique: wjq3BzQaN8eowOVq2MuslA-1
+X-Mimecast-MFC-AGG-ID: wjq3BzQaN8eowOVq2MuslA_1774005240
+Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 905BF180049D;
+	Fri, 20 Mar 2026 11:13:59 +0000 (UTC)
+Received: from localhost (unknown [10.44.33.200])
+	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 3719A1955F21;
+	Fri, 20 Mar 2026 11:13:57 +0000 (UTC)
+Date: Fri, 20 Mar 2026 07:13:54 -0400
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: "Martin K. Petersen" <martin.petersen@oracle.com>
+Cc: Joshua Daley <jdaley@linux.ibm.com>, linux-scsi@vger.kernel.org,
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+	mst@redhat.com, jasowang@redhat.com, pbonzini@redhat.com,
+	eperezma@redhat.com, James.Bottomley@hansenpartnership.com,
+	mjrosato@linux.ibm.com, farman@linux.ibm.com, frankja@linux.ibm.com
+Subject: Re: [PATCH v3 0/3] scsi: virtio_scsi: move INIT_WORK calls to
+ virtscsi_init
+Message-ID: <20260320111354.GA227028@fedora>
+References: <20260316153341.2062278-1-jdaley@linux.ibm.com>
+ <yq14imbkzxr.fsf@ca-mkp.ca.oracle.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Betterbird (Windows)
-Subject: Re: [PATCH v3 0/8] RDMA: Enable operation with DMA debug enabled
-To: Leon Romanovsky <leon@kernel.org>, Robin Murphy <robin.murphy@arm.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>, Petr Tesarik <ptesarik@suse.com>,
-	Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>,
-	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, Jason Gunthorpe
-	<jgg@ziepe.ca>, Steven Rostedt <rostedt@goodmis.org>, Masami Hiramatsu
-	<mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>, Andrew Morton
-	<akpm@linux-foundation.org>
-Cc: iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
-	linux-doc@vger.kernel.org, virtualization@lists.linux.dev,
-	linux-rdma@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
-	linux-mm@kvack.org
-Content-Language: en-US
-From: Marek Szyprowski <m.szyprowski@samsung.com>
-In-Reply-To: <20260316-dma-debug-overlap-v3-0-1dde90a7f08b@nvidia.com>
-Content-Transfer-Encoding: 8bit
-X-CMS-MailID: 20260320110955eucas1p27a53a87afc17b63b07866d088aeac78a
-X-Msg-Generator: CA
-Content-Type: text/plain; charset="utf-8"
-X-RootMTR: 20260316190712eucas1p27573f4514f2cf7dca5d58414b3c2b7e8
-X-EPHeader: CA
-X-CMS-RootMailID: 20260316190712eucas1p27573f4514f2cf7dca5d58414b3c2b7e8
-References: <CGME20260316190712eucas1p27573f4514f2cf7dca5d58414b3c2b7e8@eucas1p2.samsung.com>
-	<20260316-dma-debug-overlap-v3-0-1dde90a7f08b@nvidia.com>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="uagbqTySvoIPF7sU"
+Content-Disposition: inline
+In-Reply-To: <yq14imbkzxr.fsf@ca-mkp.ca.oracle.com>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
 
-On 16.03.2026 20:06, Leon Romanovsky wrote:
-> Add a new DMA_ATTR_REQUIRE_COHERENT attribute to the DMA API to mark
-> mappings that must run on a DMA‑coherent system. Such buffers cannot
-> use the SWIOTLB path, may overlap with CPU caches, and do not depend on
-> explicit cache flushing.
->
-> Mappings using this attribute are rejected on systems where cache
-> side‑effects could lead to data corruption, and therefore do not need
-> the cache‑overlap debugging logic. This series also includes fixes for
-> DMA_ATTR_CPU_CACHE_CLEAN handling.
-> Thanks.
->
-> Signed-off-by: Leon Romanovsky <leonro@nvidia.com>
 
-Applied to dma-mapping-fixes. Thanks!
+--uagbqTySvoIPF7sU
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> ---
-> Changes in v3:
-> - Enriched commit messages and documentation
-> - Added ROB tags
-> - Link to v2: https://protect2.fireeye.com/v1/url?k=9c1ba148-fd90b40f-9c1a2a07-000babff99aa-86ebd022a97425b3&q=1&e=3c8e10cc-4c34-4bf6-aa9d-c339877d6a27&u=https%3A%2F%2Fpatch.msgid.link%2F20260311-dma-debug-overlap-v2-0-e00bc2ca346d%40nvidia.com
+On Thu, Mar 19, 2026 at 10:19:00PM -0400, Martin K. Petersen wrote:
+> > This patch avoids a kernel warning that may occur if a virtio_scsi
+> > controller is detached immediately following a disk detach. See the
+> > commit message for details. The following are instructions to
+> > produce the warning (without the proposed patch).
+>=20
+> A few issues were flagged. Please review:
+>=20
+>   https://sashiko.dev/#/patchset/20260316153341.2062278-1-jdaley%40linux.=
+ibm.com
+
+Hi Joshua,
+I am responding to the following sashiko review comment (haven't figured
+out a way to reply in the web UI or via direct email to sashiko). I feel
+responsible for this one since I suggested the change that sashiko is
+questioning. I haven't looked at the other review comments, please
+triage them yourself.
+
+=46rom Sashiko:
+> Does this code violate the virtio-scsi specification?
 >
-> Changes in v2:
-> - Added DMA_ATTR_REQUIRE_COHERENT attribute
-> - Added HMM patch which needs this attribute as well
-> - Renamed DMA_ATTR_CPU_CACHE_CLEAN to be DMA_ATTR_DEBUGGING_IGNORE_CACHELINES
-> - Link to v1: https://protect2.fireeye.com/v1/url?k=cc0590de-ad8e8599-cc041b91-000babff99aa-07e4da206b7e0d97&q=1&e=3c8e10cc-4c34-4bf6-aa9d-c339877d6a27&u=https%3A%2F%2Fpatch.msgid.link%2F20260307-dma-debug-overlap-v1-0-c034c38872af%40nvidia.com
+> The specification mandates that a driver must not place buffers into the
+> event virtqueue if neither VIRTIO_SCSI_F_HOTPLUG nor VIRTIO_SCSI_F_CHANGE
+> has been negotiated.
 >
-> ---
-> Leon Romanovsky (8):
->        dma-debug: Allow multiple invocations of overlapping entries
->        dma-mapping: handle DMA_ATTR_CPU_CACHE_CLEAN in trace output
->        dma-mapping: Clarify valid conditions for CPU cache line overlap
->        dma-mapping: Introduce DMA require coherency attribute
->        dma-direct: prevent SWIOTLB path when DMA_ATTR_REQUIRE_COHERENT is set
->        iommu/dma: add support for DMA_ATTR_REQUIRE_COHERENT attribute
->        RDMA/umem: Tell DMA mapping that UMEM requires coherency
->        mm/hmm: Indicate that HMM requires DMA coherency
->
->   Documentation/core-api/dma-attributes.rst | 38 ++++++++++++++++++++++++-------
->   drivers/infiniband/core/umem.c            |  5 ++--
->   drivers/iommu/dma-iommu.c                 | 21 +++++++++++++----
->   drivers/virtio/virtio_ring.c              | 10 ++++----
->   include/linux/dma-mapping.h               | 15 ++++++++----
->   include/trace/events/dma.h                |  4 +++-
->   kernel/dma/debug.c                        |  9 ++++----
->   kernel/dma/direct.h                       |  7 +++---
->   kernel/dma/mapping.c                      |  6 +++++
->   mm/hmm.c                                  |  4 ++--
->   10 files changed, 86 insertions(+), 33 deletions(-)
-> ---
-> base-commit: 11439c4635edd669ae435eec308f4ab8a0804808
-> change-id: 20260305-dma-debug-overlap-21487c3fa02c
->
-> Best regards,
-> --
-> Leon Romanovsky <leonro@nvidia.com>
->
->
-Best regards
--- 
-Marek Szyprowski, PhD
-Samsung R&D Institute Poland
+> By completely removing the VIRTIO_SCSI_F_HOTPLUG check without expanding =
+it
+> to check for VIRTIO_SCSI_F_CHANGE, could this unconditionally populate the
+> event queue and cause strict implementations to reject the buffers or
+> transition the device into a broken state?
+
+No, this is a hallucination. The spec does not mandate that a driver
+must not place buffers into the event virtqueue when neither
+VIRTIO_SCSI_F_HOTPLUG nor VIRTIO_SCSI_F_CHANGE has been negotiated:
+https://docs.oasis-open.org/virtio/virtio/v1.4/virtio-v1.4.html#x1-4510006
+
+The event virtqueue still serves a purpose when both
+VIRTIO_SCSI_F_HOTPLUG and VIRTIO_SCSI_F_CHANGE are not negotiated. For
+example, see "Asynchronous notification subscription" and the
+VIRTIO_SCSI_T_ASYNC_NOTIFY event type.
+
+Stefan
+
+--uagbqTySvoIPF7sU
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCgAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmm9K/IACgkQnKSrs4Gr
+c8i3aAf+NF/UZTnAHGOBAx2EqnAXxT3SWR5a9K3rGuKzj4HOYpkhHfyad0jaWDM9
+NVcAk3kH8Lywbca/je3kbfJDUfoNPTs840drpeBh89s2GRhKLDKxL8GLam8XYCg6
+l35OzwEWtCowWpBGyoZ73sLUXniRFdQHhtWyMYyMv4jjwgyWTJdOXCU8pXtL6lPV
+XjvV6KaUB8d9yfuELeT78uXAXUDTgkTMH9t45NHsxtX+fbcECyGUhtz+6cRlOohl
+Xosbeg5ZP6loPqUU3HpfMqb5BlgVyNRrybYQ7dZAkJ90tCzN61DsXRMInpUaHuaz
+ZWGl5ilkQxcE41/JX0t/qMhJrLCkQg==
+=JMnL
+-----END PGP SIGNATURE-----
+
+--uagbqTySvoIPF7sU--
 
