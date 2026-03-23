@@ -1,119 +1,71 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D5933164DF;
-	Mon, 23 Mar 2026 20:53:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 913C636D9EB;
+	Mon, 23 Mar 2026 21:49:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774299199; cv=none; b=R/AddaHISb0LIm4ESsqKfkd42A9ltfZYc/4wnbKogA+XXZ0o6sRVa3vSiSVylE5ga7PFK9OXAMlyfjLMpjet2R3EzhltKY4YK4kYL8v2QFIkciJOKwjH4cqoF30SQBO1d+EIP/OsAUPbDs0y8+ZHilFsBc2r2Ql3J8/dYDNraPs=
+	t=1774302582; cv=none; b=sJOk3cGU6McsBpbgsLnXfoAk/DDnnbCUGAQqYpw+47R3XGQLL+PtrKnAJ6Hlwe+LQdQF44bPKby9WDe4Q3vaIxRmFoxTQPAfA/IbhV+FjBKO11dI/unx0nNjSCyhe9sNq0pSjjRFhdCqq73OahFyn8cwGXWjnR1hjARJRXPM884=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774299199; c=relaxed/simple;
-	bh=QmQZj8LJwz8i/n5oMIerdh5lvsfZ3NzT10K6LkDvPj4=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=YZBqqDw2aLuRKtizCTzq4tucdKdZC98OQjXI0Z7UexEOok8MnaPPledXpoBnP+Q8O4L3EQSMBePzr7+ZBCV2zchKxPV+6Yis5QEXUrz7MH+FGvjhAUDWqcpRqVYwP7sT0GxmEoZvz60jtDj9cgIOiN3MHhzHrb8WgbwNNS0Mh1A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=kvPVnbAw; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774302582; c=relaxed/simple;
+	bh=F3YPmaITdEScGqQkB2M0Y0/ePglVVsPUpGdyETHCneM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:Cc:From:
+	 In-Reply-To:Content-Type; b=TpGQ0Zzb8dCr35okkCxsVBcvxUUhobBHrZvkU3ZeHWWKloezYCrpIkWq9czP9WfXILXWIUyAasqz9i1e8t+G+65GpXOUcP1yCorwYyu6q3GCjYJsWQByGPQy9vKOU6czDENtHFFtYozxJkVF7JfO7YyTwY4QbfiF7hfQduIyAAM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=hVhKPX4Y; arc=none smtp.client-ip=129.217.128.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="kvPVnbAw"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 44D3BC4CEF7;
-	Mon, 23 Mar 2026 20:53:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
-	s=korg; t=1774299199;
-	bh=QmQZj8LJwz8i/n5oMIerdh5lvsfZ3NzT10K6LkDvPj4=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=kvPVnbAwr00o9SQ7ZkT1K2caM9+zgYDp9UtWvkzPgTBmdKYSZX22YUmwe8jqHvw2M
-	 0bz6DGEYuA3D+y3EMhjJQLaeqQ7BODjk/7he5KAZUzmSNlTnSv+AIvIdAUsjAb4RoB
-	 DUisssSc2jyK6FKFTDwQ6amAtnVwj/PaSceQlkFw=
-Date: Mon, 23 Mar 2026 13:53:17 -0700
-From: Andrew Morton <akpm@linux-foundation.org>
-To: Lance Yang <lance.yang@linux.dev>
-Cc: peterz@infradead.org, david@kernel.org, dave.hansen@intel.com,
- dave.hansen@linux.intel.com, ypodemsk@redhat.com, hughd@google.com,
- will@kernel.org, aneesh.kumar@kernel.org, npiggin@gmail.com,
- tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org,
- hpa@zytor.com, arnd@arndb.de, lorenzo.stoakes@oracle.com, ziy@nvidia.com,
- baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com, npache@redhat.com,
- ryan.roberts@arm.com, dev.jain@arm.com, baohua@kernel.org,
- shy828301@gmail.com, riel@surriel.com, jannh@google.com, jgross@suse.com,
- seanjc@google.com, pbonzini@redhat.com, boris.ostrovsky@oracle.com,
- virtualization@lists.linux.dev, kvm@vger.kernel.org,
- linux-arch@vger.kernel.org, linux-mm@kvack.org,
- linux-kernel@vger.kernel.org, ioworker0@gmail.com
-Subject: Re: [PATCH v7 0/2] skip redundant sync IPIs when TLB flush sent
- them
-Message-Id: <20260323135317.0b702a575eeef93332ba2519@linux-foundation.org>
-In-Reply-To: <20260309020711.20831-1-lance.yang@linux.dev>
-References: <20260309020711.20831-1-lance.yang@linux.dev>
-X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="hVhKPX4Y"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tu-dortmund.de;
+	s=unimail; t=1774302568;
+	bh=F3YPmaITdEScGqQkB2M0Y0/ePglVVsPUpGdyETHCneM=;
+	h=Date:Subject:To:References:Cc:From:In-Reply-To;
+	b=hVhKPX4YYJTnhXfIMdpsY+cFwL1ihBr2+VoUtyLtJaVGnQkr3eAANfkUXPzIiasDb
+	 v0HLhQhlrWLWUYjvtd/9Zb1JLEJ8oDGs46vHlEcPt0fJ6xyURAm3mDm+KlghLt84es
+	 UjeoFFCWUHMD+nknBbQ8mEff5Wy+r0hhOBrrufKY=
+Received: from [192.168.178.143] (p5dc880d2.dip0.t-ipconnect.de [93.200.128.210])
+	(authenticated bits=0)
+	by unimail.uni-dortmund.de (8.18.2/8.18.2) with ESMTPSA id 62NLnQrb009858
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Mon, 23 Mar 2026 22:49:26 +0100 (CET)
+Message-ID: <c98afd05-79fa-4bd6-9f34-79fd2875544f@tu-dortmund.de>
+Date: Mon, 23 Mar 2026 22:49:26 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v8 0/4] tun/tap & vhost-net: apply qdisc
+ backpressure on full ptr_ring to reduce TX drops
+To: jasowang@redhat.com
+References: <20260312130639.138988-1-simon.schippers@tu-dortmund.de>
+Content-Language: en-US
+Cc: willemdebruijn.kernel@gmail.com, andrew+netdev@lunn.ch,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, mst@redhat.com, eperezma@redhat.com,
+        leiyang@redhat.com, stephen@networkplumber.org, jon@nutanix.com,
+        tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        virtualization@lists.linux.dev
+From: Simon Schippers <simon.schippers@tu-dortmund.de>
+In-Reply-To: <20260312130639.138988-1-simon.schippers@tu-dortmund.de>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On Mon,  9 Mar 2026 10:07:09 +0800 Lance Yang <lance.yang@linux.dev> wrote:
+On 3/12/26 14:06, Simon Schippers wrote:
+> This patch series deals with tun/tap & vhost-net which drop incoming
+> SKBs whenever their internal ptr_ring buffer is full. Instead, with this 
+> patch series, the associated netdev queue is stopped - but only when a
+> qdisc is attached. If no qdisc is present the existing behavior is
+> preserved. This patch series touches tun/tap and vhost-net, as they
+> share common logic and must be updated together. Modifying only one of
+> them would break the other.
 
-> Hi all,
-> 
-> When page table operations require synchronization with software/lockless
-> walkers, they call tlb_remove_table_sync_{one,rcu}() after flushing the
-> TLB (tlb->freed_tables or tlb->unshared_tables).
-> 
-> On architectures where the TLB flush already sends IPIs to all target CPUs,
-> the subsequent sync IPI broadcast is redundant. This is not only costly on
-> large systems where it disrupts all CPUs even for single-process page table
-> operations, but has also been reported to hurt RT workloads[1].
-> 
-> This series introduces tlb_table_flush_implies_ipi_broadcast() to check if
-> the prior TLB flush already provided the necessary synchronization. When
-> true, the sync calls can early-return.
-> 
-> A few cases rely on this synchronization:
-> 
-> 1) hugetlb PMD unshare[2]: The problem is not the freeing but the reuse
->    of the PMD table for other purposes in the last remaining user after
->    unsharing.
-> 
-> 2) khugepaged collapse[3]: Ensure no concurrent GUP-fast before collapsing
->    and (possibly) freeing the page table / re-depositing it.
-> 
-> Two-step plan as David suggested[4]:
-> 
-> Step 1 (this series): Skip redundant sync when we're 100% certain the TLB
-> flush sent IPIs. INVLPGB is excluded because when supported, we cannot
-> guarantee IPIs were sent, keeping it clean and simple.
-> 
-> Step 2 (future work): Send targeted IPIs only to CPUs actually doing
-> software/lockless page table walks, benefiting all architectures.
-> 
-> Regarding Step 2, it obviously only applies to setups where Step 1 does not
-> apply: like x86 with INVLPGB or arm64. Step 2 work is ongoing; early
-> attempts showed ~3% GUP-fast overhead. Reducing the overhead requires more
-> work and tuning; it will be submitted separately once ready.
-> 
-> ...
-> 
->  arch/x86/include/asm/tlb.h      | 17 ++++++++++++++++-
->  arch/x86/include/asm/tlbflush.h |  2 ++
->  arch/x86/kernel/smpboot.c       |  1 +
->  arch/x86/mm/tlb.c               | 15 +++++++++++++++
->  include/asm-generic/tlb.h       | 17 +++++++++++++++++
->  mm/mmu_gather.c                 | 15 +++++++++++++++
->  6 files changed, 66 insertions(+), 1 deletion(-)
+Hi,
 
-Kinda straddles both MM and x86.
+@Jason what do you think about the patchset?
 
-I expect a v8 based on David's comments.
+Thanks!
 
-One merge path is for the x86 people to take this, noting David's acks.
-
-The other merge path is via mm.git, if the x86 people can please
-perform review.
-
-And...  mm.git is basically full (overflowing) for this cycle and
-review/test has some catching up to do.  So I'd prefer to only take the
-important things.  This patchset is a performance improvement but
-contains no measurements to demonstrate the benefit, so I'm not able to
-determine its importance!
