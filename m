@@ -1,171 +1,232 @@
-Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
+Received: from out-171.mta1.migadu.com (out-171.mta1.migadu.com [95.215.58.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E3E62192FA
-	for <virtualization@lists.linux.dev>; Mon, 23 Mar 2026 10:36:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96F2B390205
+	for <virtualization@lists.linux.dev>; Mon, 23 Mar 2026 10:49:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774262186; cv=none; b=NKD3/8eSQoLpKpzkdBwn9DsLarlmek8FfQEzQ7BGIA72gjW2wbf7m3TeKZyAedG5LiLnsJ21yj180PfYOu4wsI5cBZ9eBtB4cAElICI/zfX2IEXwrfuGd8UACNRilm2rlEEhjYnqfv57rk6ng8O5OGaZoRjouacfuV6UGNNDwoE=
+	t=1774262946; cv=none; b=PjaM8+FGJDVZnvB5FeDd8CSKyAsXexdBsRJAftHDEfqJADQAxFooddN8iJX5/NM3sGscDXWsKb2Lg/iQYbqA79itGRc4Gp87Qtapl2HMqG8jQbnyc1wCsxMx9lfp+0rBY7t/rFxKGD0VofVjEdzdwsWnEQC1Ljv7bbIIRM0bYsM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774262186; c=relaxed/simple;
-	bh=84cWpFOEfJUrl7OHPV0gcP7TAT6ro+QeEH6UHJ61bvI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bHqdosjwwMRwNUrMfvEwKK3su4vbMYuJDYsb00gsRkaCroQ8m6uW7kohVYs5sADo1bbVGhcV2Znxb8wOZuW/bXmHaT3O1Ur0yAoK5o4dsRuSBQHn5+S8m5vpCjo+QmXQmykm9SWtqRR6BYftxB+AauBMpfXsJc+Q6XNAmhaqHK4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
-Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
-	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
-	(Exim 4.92)
-	(envelope-from <mkl@pengutronix.de>)
-	id 1w4cdw-0000dP-Ab; Mon, 23 Mar 2026 11:36:20 +0100
-Received: from moin.white.stw.pengutronix.de ([2a0a:edc0:0:b01:1d::7b] helo=bjornoya.blackshift.org)
-	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.96)
-	(envelope-from <mkl@pengutronix.de>)
-	id 1w4cdv-001iAm-1I;
-	Mon, 23 Mar 2026 11:36:19 +0100
-Received: from pengutronix.de (p4ffb2dc6.dip0.t-ipconnect.de [79.251.45.198])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange x25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(Client did not present a certificate)
-	(Authenticated sender: mkl-all@blackshift.org)
-	by smtp.blackshift.org (Postfix) with ESMTPSA id 114E250A7F9;
-	Mon, 23 Mar 2026 10:36:19 +0000 (UTC)
-Date: Mon, 23 Mar 2026 11:36:18 +0100
-From: Marc Kleine-Budde <mkl@pengutronix.de>
-To: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
-Cc: Harald Mommer <harald.mommer@oss.qualcomm.com>, 
-	Vincent Mailhol <mailhol@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, linux-can@vger.kernel.org, virtualization@lists.linux.dev, 
-	Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>, Stefano Garzarella <sgarzare@redhat.com>, francesco@valla.it
-Subject: Re: [PATCH v13] can: virtio: Add virtio CAN driver
-Message-ID: <20260323-hilarious-active-eagle-a0ee74-mkl@pengutronix.de>
-X-AI: stop_reason: "refusal"
-References: <ab2FlQTWUxl0KmlT@fedora>
+	s=arc-20240116; t=1774262946; c=relaxed/simple;
+	bh=SHaYoo67LAzF6MLKxO0BpyvZV5GeULmIBGMyykaF4/Y=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=rpxfJkhkOAm085u0/+fv+W0fcnl1WxbDQo/6NMuxa17DDMUzkNnympP5EhwH0g3tI1Cp6Kh1IgitEuS/ykvUbnNS8h+B046NyufYlHHggqOptJUft6jzeiuadGnq4EAfcI+k3N4nbPHlDMIYMcy5mhbg738vJYvLpgVqKqa3qUA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=MF2ZZBzr; arc=none smtp.client-ip=95.215.58.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="MF2ZZBzr"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1774262932;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=IIWA57EXEjW5hjoCtv+I9HTIMV/HrYvLk+JVmnYDAwg=;
+	b=MF2ZZBzrtuNrSpZLTH2a3gF6RV1eNpmkt3BAmaWgG6S8RxOxlaeNFX4d222z2xmMeS3l0s
+	PIWBBUZQzzpEaGMYLzW4Fl7YjT6YlY42cEP+aWy63xavFj9szHY6GcdXWHYrO71AUkL9uE
+	pmzv4xes6AXSJgB1d4qf9aX8eXVokxw=
+From: Lance Yang <lance.yang@linux.dev>
+To: dave.hansen@intel.com,
+	peterz@infradead.org
+Cc: akpm@linux-foundation.org,
+	david@kernel.org,
+	dave.hansen@linux.intel.com,
+	ypodemsk@redhat.com,
+	hughd@google.com,
+	will@kernel.org,
+	aneesh.kumar@kernel.org,
+	npiggin@gmail.com,
+	tglx@linutronix.de,
+	mingo@redhat.com,
+	bp@alien8.de,
+	x86@kernel.org,
+	hpa@zytor.com,
+	arnd@arndb.de,
+	lorenzo.stoakes@oracle.com,
+	ziy@nvidia.com,
+	baolin.wang@linux.alibaba.com,
+	Liam.Howlett@oracle.com,
+	npache@redhat.com,
+	ryan.roberts@arm.com,
+	dev.jain@arm.com,
+	baohua@kernel.org,
+	shy828301@gmail.com,
+	riel@surriel.com,
+	jannh@google.com,
+	jgross@suse.com,
+	seanjc@google.com,
+	pbonzini@redhat.com,
+	boris.ostrovsky@oracle.com,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org,
+	linux-arch@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org,
+	ioworker0@gmail.com,
+	Lance Yang <lance.yang@linux.dev>
+Subject: Re: [PATCH v7 2/2] x86/tlb: skip redundant sync IPIs for native TLB flush
+Date: Mon, 23 Mar 2026 18:48:28 +0800
+Message-Id: <20260323104828.55481-1-lance.yang@linux.dev>
+In-Reply-To: <20260316023630.92368-1-lance.yang@linux.dev>
+References: <20260316023630.92368-1-lance.yang@linux.dev>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="zsnxvdx43cvgpphl"
-Content-Disposition: inline
-In-Reply-To: <ab2FlQTWUxl0KmlT@fedora>
-X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
-X-SA-Exim-Mail-From: mkl@pengutronix.de
-X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
-X-PTX-Original-Recipient: virtualization@lists.linux.dev
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
+Just following up on this series. Any feedback would be appreciated!
 
---zsnxvdx43cvgpphl
-Content-Type: text/plain; protected-headers=v1; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH v13] can: virtio: Add virtio CAN driver
-MIME-Version: 1.0
+Thanks,
+Lance
 
-Hello,
-
-The nipa/ai-review bot found these problems:
-
-| https://netdev-ai.bots.linux.dev/ai-review.html?id=3Db046d75a-2de1-4063-b=
-b96-8f64abc65e7d
-
-commit 0f3cb3b3bc94eaff9b9709b528e498fe6150f9c1
-Author: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
-
-can: virtio: Add virtio CAN driver
-
-This commit adds a virtio CAN driver implementing a complete CAN bus
-interface over Virtio transport, supporting both CAN Classic and CAN-FD
-frames.
-
-> diff --git a/drivers/net/can/virtio_can.c b/drivers/net/can/virtio_can.c
-> new file mode 100644
-> index 000000000000..57641c3ed6d0
-> --- /dev/null
-> +++ b/drivers/net/can/virtio_can.c
-
-[ ... ]
-
-> +static int __maybe_unused virtio_can_restore(struct virtio_device *vdev)
-> +{
-> +	struct virtio_can_priv *priv =3D vdev->priv;
-> +	struct net_device *ndev =3D priv->dev;
-> +	size_t size;
-> +	int err;
-> +
-> +	napi_enable(&priv->napi);
-> +	napi_enable(&priv->napi_tx);
-> +
-> +	err =3D virtio_can_find_vqs(priv);
-> +	if (err !=3D 0)
-> +		return err;
-
-What happens to the enabled NAPI instances when this error path is taken?
-virtio_can_restore() enables both NAPI instances at the start, but if
-virtio_can_find_vqs() fails here, the function returns without calling
-napi_disable().
-
-The corresponding virtio_can_freeze() function disables both NAPIs before
-returning, so the restore function leaves the NAPI subsystem in an
-inconsistent state on failure.
-
-If the PM framework retries restore after this failure, the second
-napi_enable() call on an already-enabled NAPI will hit the BUG_ON in
-napi_enable_locked():
-
-net/core/dev.c:napi_enable_locked() {
-	BUG_ON(!test_bit(NAPI_STATE_SCHED, &n->state));
-	...
-}
-
-In contrast, virtio_can_probe() enables NAPI only after all setup
-succeeds, avoiding this issue.
-
-> +
-> +	size =3D priv->rpkt_len * priv->vqs[VIRTIO_CAN_QUEUE_RX]->num_free;
-> +	priv->rpkt =3D devm_krealloc(&vdev->dev, priv->rpkt, size, GFP_KERNEL |=
- __GFP_ZERO);
-> +	if (!priv->rpkt) {
-> +		virtio_can_del_vq(vdev);
-> +		return -ENOMEM;
-> +	}
-
-The same NAPI state issue occurs on this error path.
-
-> +	virtio_can_populate_rx_vq(vdev);
-> +
-> +	if (netif_running(ndev)) {
-> +		err =3D virtio_can_start(ndev);
-> +		if (err) {
-> +			virtio_can_del_vq(vdev);
-> +			return err;
-> +		}
-
-And again on this error path.
-
-Should all three error paths call napi_disable(&priv->napi_tx) and
-napi_disable(&priv->napi) before returning the error code?
-
---=20
-Pengutronix e.K.                 | Marc Kleine-Budde          |
-Embedded Linux                   | https://www.pengutronix.de |
-Vertretung N=C3=BCrnberg              | Phone: +49-5121-206917-129 |
-Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-9   |
-
---zsnxvdx43cvgpphl
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iHUEABYKAB0WIQSl+MghEFFAdY3pYJLMOmT6rpmt0gUCacEXoAAKCRDMOmT6rpmt
-0oc0AP4r/E0p8/W4XH5xFsFvHnvCil/2ybFe0uqsmduXn4Gw4QD6A2wQTTGMyyJp
-k6X5ros7i59H9faw/8/FWIR1ffBnmQY=
-=E13T
------END PGP SIGNATURE-----
-
---zsnxvdx43cvgpphl--
+On Mon, Mar 16, 2026 at 10:36:30AM +0800, Lance Yang wrote:
+>
+>Gently ping :)
+>
+>On Mon, Mar 09, 2026 at 10:07:11AM +0800, Lance Yang wrote:
+>>From: Lance Yang <lance.yang@linux.dev>
+>>
+>>Enable the optimization introduced in the previous patch for x86.
+>>
+>>native_pv_tlb_init() checks whether native_flush_tlb_multi() is in use.
+>>On CONFIG_PARAVIRT systems, it checks pv_ops; on non-PARAVIRT, native
+>>flush is always in use.
+>>
+>>It decides once at boot whether to enable the optimization: if using
+>>native TLB flush and INVLPGB is not supported, we know IPIs were sent
+>>and can skip the redundant sync. The decision is fixed via a static
+>>key as Peter suggested[1].
+>>
+>>PV backends (KVM, Xen, Hyper-V) typically have their own implementations
+>>and don't call native_flush_tlb_multi() directly, so they cannot be trusted
+>>to provide the IPI guarantees we need.
+>>
+>>Two-step plan as David suggested[2]:
+>>
+>>Step 1 (this patch): Skip redundant sync when we're 100% certain the TLB
+>>flush sent IPIs. INVLPGB is excluded because when supported, we cannot
+>>guarantee IPIs were sent, keeping it clean and simple.
+>>
+>>Step 2 (future work): Send targeted IPIs only to CPUs actually doing
+>>software/lockless page table walks, benefiting all architectures.
+>>
+>>Regarding Step 2, it obviously only applies to setups where Step 1 does
+>>not apply: like x86 with INVLPGB or arm64.
+>>
+>>[1] https://lore.kernel.org/linux-mm/20260302145652.GH1395266@noisy.programming.kicks-ass.net/
+>>[2] https://lore.kernel.org/linux-mm/bbfdf226-4660-4949-b17b-0d209ee4ef8c@kernel.org/
+>>
+>>Suggested-by: Peter Zijlstra <peterz@infradead.org>
+>>Suggested-by: David Hildenbrand (Arm) <david@kernel.org>
+>>Signed-off-by: Lance Yang <lance.yang@linux.dev>
+>>---
+>> arch/x86/include/asm/tlb.h      | 17 ++++++++++++++++-
+>> arch/x86/include/asm/tlbflush.h |  2 ++
+>> arch/x86/kernel/smpboot.c       |  1 +
+>> arch/x86/mm/tlb.c               | 15 +++++++++++++++
+>> 4 files changed, 34 insertions(+), 1 deletion(-)
+>>
+>>diff --git a/arch/x86/include/asm/tlb.h b/arch/x86/include/asm/tlb.h
+>>index 866ea78ba156..99de622d3856 100644
+>>--- a/arch/x86/include/asm/tlb.h
+>>+++ b/arch/x86/include/asm/tlb.h
+>>@@ -5,11 +5,21 @@
+>> #define tlb_flush tlb_flush
+>> static inline void tlb_flush(struct mmu_gather *tlb);
+>> 
+>>+#define tlb_table_flush_implies_ipi_broadcast tlb_table_flush_implies_ipi_broadcast
+>>+static inline bool tlb_table_flush_implies_ipi_broadcast(void);
+>>+
+>> #include <asm-generic/tlb.h>
+>> #include <linux/kernel.h>
+>> #include <vdso/bits.h>
+>> #include <vdso/page.h>
+>> 
+>>+DECLARE_STATIC_KEY_FALSE(tlb_ipi_broadcast_key);
+>>+
+>>+static inline bool tlb_table_flush_implies_ipi_broadcast(void)
+>>+{
+>>+	return static_branch_likely(&tlb_ipi_broadcast_key);
+>>+}
+>>+
+>> static inline void tlb_flush(struct mmu_gather *tlb)
+>> {
+>> 	unsigned long start = 0UL, end = TLB_FLUSH_ALL;
+>>@@ -20,7 +30,12 @@ static inline void tlb_flush(struct mmu_gather *tlb)
+>> 		end = tlb->end;
+>> 	}
+>> 
+>>-	flush_tlb_mm_range(tlb->mm, start, end, stride_shift, tlb->freed_tables);
+>>+	/*
+>>+	 * Pass both freed_tables and unshared_tables so that lazy-TLB CPUs
+>>+	 * also receive IPIs during unsharing page tables.
+>>+	 */
+>>+	flush_tlb_mm_range(tlb->mm, start, end, stride_shift,
+>>+			   tlb->freed_tables || tlb->unshared_tables);
+>> }
+>> 
+>> static inline void invlpg(unsigned long addr)
+>>diff --git a/arch/x86/include/asm/tlbflush.h b/arch/x86/include/asm/tlbflush.h
+>>index 5a3cdc439e38..8ba853154b46 100644
+>>--- a/arch/x86/include/asm/tlbflush.h
+>>+++ b/arch/x86/include/asm/tlbflush.h
+>>@@ -18,6 +18,8 @@
+>> 
+>> DECLARE_PER_CPU(u64, tlbstate_untag_mask);
+>> 
+>>+void __init native_pv_tlb_init(void);
+>>+
+>> void __flush_tlb_all(void);
+>> 
+>> #define TLB_FLUSH_ALL	-1UL
+>>diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
+>>index 5cd6950ab672..3cdb04162843 100644
+>>--- a/arch/x86/kernel/smpboot.c
+>>+++ b/arch/x86/kernel/smpboot.c
+>>@@ -1167,6 +1167,7 @@ void __init native_smp_prepare_boot_cpu(void)
+>> 		switch_gdt_and_percpu_base(me);
+>> 
+>> 	native_pv_lock_init();
+>>+	native_pv_tlb_init();
+>> }
+>> 
+>> void __init native_smp_cpus_done(unsigned int max_cpus)
+>>diff --git a/arch/x86/mm/tlb.c b/arch/x86/mm/tlb.c
+>>index 621e09d049cb..8f5585ebaf09 100644
+>>--- a/arch/x86/mm/tlb.c
+>>+++ b/arch/x86/mm/tlb.c
+>>@@ -26,6 +26,8 @@
+>> 
+>> #include "mm_internal.h"
+>> 
+>>+DEFINE_STATIC_KEY_FALSE(tlb_ipi_broadcast_key);
+>>+
+>> #ifdef CONFIG_PARAVIRT
+>> # define STATIC_NOPV
+>> #else
+>>@@ -1834,3 +1836,16 @@ static int __init create_tlb_single_page_flush_ceiling(void)
+>> 	return 0;
+>> }
+>> late_initcall(create_tlb_single_page_flush_ceiling);
+>>+
+>>+void __init native_pv_tlb_init(void)
+>>+{
+>>+#ifdef CONFIG_PARAVIRT
+>>+	if (pv_ops.mmu.flush_tlb_multi != native_flush_tlb_multi)
+>>+		return;
+>>+#endif
+>>+
+>>+	if (cpu_feature_enabled(X86_FEATURE_INVLPGB))
+>>+		return;
+>>+
+>>+	static_branch_enable(&tlb_ipi_broadcast_key);
+>>+}
+>
+>
