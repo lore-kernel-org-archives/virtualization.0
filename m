@@ -1,93 +1,171 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+Received: from metis.whiteo.stw.pengutronix.de (metis.whiteo.stw.pengutronix.de [185.203.201.7])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DEF335C181
-	for <virtualization@lists.linux.dev>; Mon, 23 Mar 2026 09:44:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E3E62192FA
+	for <virtualization@lists.linux.dev>; Mon, 23 Mar 2026 10:36:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.203.201.7
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774259067; cv=none; b=TUqunEYvkBX8ghO5gQRmKPkp/GngH2Xn+95SOfg26byUgzPFRK0GZVn1xxAUpW6tkpG9dYk3oMyKiVbSmX7TndNI4PLQlcfTtSntIXMK7Og9ki9YBe75J7VzKHoePYEg9mtb3wdXfi4b+MeFSvZmOAeGR7dQZ+nKjtmrLrAfYgY=
+	t=1774262186; cv=none; b=NKD3/8eSQoLpKpzkdBwn9DsLarlmek8FfQEzQ7BGIA72gjW2wbf7m3TeKZyAedG5LiLnsJ21yj180PfYOu4wsI5cBZ9eBtB4cAElICI/zfX2IEXwrfuGd8UACNRilm2rlEEhjYnqfv57rk6ng8O5OGaZoRjouacfuV6UGNNDwoE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774259067; c=relaxed/simple;
-	bh=rJAdK/ogPRx5IKWx8AL6KURRAQlzWUx657ZfddCtzh0=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=eQ4JkoV62n2dm4vjDmIxKn+WaBt1OFceD1KxJr48DEgiZB0l1Dcqc3JsoRt15dq+plMO3q7WBOfWVH4Cl6NaiCu0gWuQlAm3EUg/zNhUq80ov39lvt1wy0Oa4GOiHh2oMDKKnh/0mSp7rJX/e+HT9KQHQW57lfD9d6Q5tJk0FZs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: dc16db76269c11f1a21c59e7364eecb8-20260323
-X-CTIC-Tags:
-	HR_CC_CHARSET, HR_CC_CHARSET_NUM, HR_CC_COUNT, HR_CC_DOMAIN_COUNT, HR_CC_NAME
-	HR_CC_NO_NAME, HR_CHARSET, HR_CHARSET_NUM, HR_CTE_8B, HR_CTT_MISS
-	HR_DATE_H, HR_DATE_WKD, HR_DATE_ZONE, HR_FROM_NAME, HR_SJ_DIGIT_LEN
-	HR_SJ_LANG, HR_SJ_LEN, HR_SJ_LETTER, HR_SJ_NOR_SYM, HR_SJ_PHRASE
-	HR_SJ_PHRASE_LEN, HR_SJ_WS, HR_TO_COUNT, HR_TO_DOMAIN_COUNT, HR_TO_NAME
-	IP_TRUSTED, SRC_TRUSTED, DN_TRUSTED, SA_EXISTED, SN_TRUSTED
-	SN_EXISTED, SPF_NOPASS, DKIM_NOPASS, DMARC_NOPASS, CIE_BAD
-	CIE_GOOD, CIE_GOOD_SPF, GTI_FG_BS, GTI_RG_INFO, GTI_C_BU
-	AMN_GOOD, ABX_MISS_RDNS
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.11,REQID:337ae9fa-fd2e-44d4-a02f-0eea6ed5c4da,IP:15,
-	URL:0,TC:0,Content:-5,EDM:-20,RT:0,SF:-5,FILE:0,BULK:0,RULE:Release_Ham,AC
-	TION:release,TS:-15
-X-CID-INFO: VERSION:1.3.11,REQID:337ae9fa-fd2e-44d4-a02f-0eea6ed5c4da,IP:15,UR
-	L:0,TC:0,Content:-5,EDM:-20,RT:0,SF:-5,FILE:0,BULK:0,RULE:EDM_GE969F26,ACT
-	ION:release,TS:-15
-X-CID-META: VersionHash:89c9d04,CLOUDID:3459a9c1411b80ab212c4f690e93f732,BulkI
-	D:260323174418J3AROAJ5,BulkQuantity:0,Recheck:0,SF:17|19|38|66|78|102|127|
-	898,TC:nil,Content:0|15|50,EDM:1,IP:-2,URL:0,File:nil,RT:nil,Bulk:nil,QS:n
-	il,BEC:nil,COL:0,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC
-	:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR,TF_CID_SPAM_AEC,TF_CID_SPAM_FAS,TF_CID_SPAM_FSD
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: dc16db76269c11f1a21c59e7364eecb8-20260323
-X-User: liwang@kylinos.cn
-Received: from computer.. [(116.128.244.171)] by mailgw.kylinos.cn
-	(envelope-from <liwang@kylinos.cn>)
-	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
-	with ESMTP id 1571188595; Mon, 23 Mar 2026 17:44:17 +0800
-From: Li Wang <liwang@kylinos.cn>
-To: Stefan Hajnoczi <stefanha@redhat.com>,
-	German Maglione <gmaglione@redhat.com>,
-	Vivek Goyal <vgoyal@redhat.com>,
-	Miklos Szeredi <miklos@szeredi.hu>
-Cc: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev,
-	linux-fsdevel@vger.kernel.org,
-	Li Wang <liwang@kylinos.cn>
-Subject: [PATCH 1/3] virtiofs: Only parse the out header if the request expects a reply in virtio_fs_request_complete()
-Date: Mon, 23 Mar 2026 17:43:15 +0800
-Message-Id: <20260323094317.46302-1-liwang@kylinos.cn>
-X-Mailer: git-send-email 2.34.1
+	s=arc-20240116; t=1774262186; c=relaxed/simple;
+	bh=84cWpFOEfJUrl7OHPV0gcP7TAT6ro+QeEH6UHJ61bvI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=bHqdosjwwMRwNUrMfvEwKK3su4vbMYuJDYsb00gsRkaCroQ8m6uW7kohVYs5sADo1bbVGhcV2Znxb8wOZuW/bXmHaT3O1Ur0yAoK5o4dsRuSBQHn5+S8m5vpCjo+QmXQmykm9SWtqRR6BYftxB+AauBMpfXsJc+Q6XNAmhaqHK4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de; spf=pass smtp.mailfrom=pengutronix.de; arc=none smtp.client-ip=185.203.201.7
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=pengutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pengutronix.de
+Received: from drehscheibe.grey.stw.pengutronix.de ([2a0a:edc0:0:c01:1d::a2])
+	by metis.whiteo.stw.pengutronix.de with esmtps (TLS1.3:ECDHE_RSA_AES_256_GCM_SHA384:256)
+	(Exim 4.92)
+	(envelope-from <mkl@pengutronix.de>)
+	id 1w4cdw-0000dP-Ab; Mon, 23 Mar 2026 11:36:20 +0100
+Received: from moin.white.stw.pengutronix.de ([2a0a:edc0:0:b01:1d::7b] helo=bjornoya.blackshift.org)
+	by drehscheibe.grey.stw.pengutronix.de with esmtps  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.96)
+	(envelope-from <mkl@pengutronix.de>)
+	id 1w4cdv-001iAm-1I;
+	Mon, 23 Mar 2026 11:36:19 +0100
+Received: from pengutronix.de (p4ffb2dc6.dip0.t-ipconnect.de [79.251.45.198])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange x25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(Client did not present a certificate)
+	(Authenticated sender: mkl-all@blackshift.org)
+	by smtp.blackshift.org (Postfix) with ESMTPSA id 114E250A7F9;
+	Mon, 23 Mar 2026 10:36:19 +0000 (UTC)
+Date: Mon, 23 Mar 2026 11:36:18 +0100
+From: Marc Kleine-Budde <mkl@pengutronix.de>
+To: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
+Cc: Harald Mommer <harald.mommer@oss.qualcomm.com>, 
+	Vincent Mailhol <mailhol@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, linux-can@vger.kernel.org, virtualization@lists.linux.dev, 
+	Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>, Stefano Garzarella <sgarzare@redhat.com>, francesco@valla.it
+Subject: Re: [PATCH v13] can: virtio: Add virtio CAN driver
+Message-ID: <20260323-hilarious-active-eagle-a0ee74-mkl@pengutronix.de>
+X-AI: stop_reason: "refusal"
+References: <ab2FlQTWUxl0KmlT@fedora>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="zsnxvdx43cvgpphl"
+Content-Disposition: inline
+In-Reply-To: <ab2FlQTWUxl0KmlT@fedora>
+X-SA-Exim-Connect-IP: 2a0a:edc0:0:c01:1d::a2
+X-SA-Exim-Mail-From: mkl@pengutronix.de
+X-SA-Exim-Scanned: No (on metis.whiteo.stw.pengutronix.de); SAEximRunCond expanded to false
+X-PTX-Original-Recipient: virtualization@lists.linux.dev
 
-The value of req->out.h may be undefined when FR_ISREPLY is not set.
 
-Signed-off-by: Li Wang <liwang@kylinos.cn>
----
- fs/fuse/virtio_fs.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+--zsnxvdx43cvgpphl
+Content-Type: text/plain; protected-headers=v1; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH v13] can: virtio: Add virtio CAN driver
+MIME-Version: 1.0
 
-diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index 2f7485ffac52..dec2c5a30e4e 100644
---- a/fs/fuse/virtio_fs.c
-+++ b/fs/fuse/virtio_fs.c
-@@ -789,7 +789,8 @@ static void virtio_fs_request_complete(struct fuse_req *req,
- 	struct folio *folio;
- 
- 	args = req->args;
--	copy_args_from_argbuf(args, req);
-+	if (test_bit(FR_ISREPLY, &req->flags))
-+		copy_args_from_argbuf(args, req);
- 
- 	if (args->out_pages && args->page_zeroing) {
- 		len = args->out_args[args->out_numargs - 1].size;
--- 
-2.34.1
+Hello,
 
+The nipa/ai-review bot found these problems:
+
+| https://netdev-ai.bots.linux.dev/ai-review.html?id=3Db046d75a-2de1-4063-b=
+b96-8f64abc65e7d
+
+commit 0f3cb3b3bc94eaff9b9709b528e498fe6150f9c1
+Author: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
+
+can: virtio: Add virtio CAN driver
+
+This commit adds a virtio CAN driver implementing a complete CAN bus
+interface over Virtio transport, supporting both CAN Classic and CAN-FD
+frames.
+
+> diff --git a/drivers/net/can/virtio_can.c b/drivers/net/can/virtio_can.c
+> new file mode 100644
+> index 000000000000..57641c3ed6d0
+> --- /dev/null
+> +++ b/drivers/net/can/virtio_can.c
+
+[ ... ]
+
+> +static int __maybe_unused virtio_can_restore(struct virtio_device *vdev)
+> +{
+> +	struct virtio_can_priv *priv =3D vdev->priv;
+> +	struct net_device *ndev =3D priv->dev;
+> +	size_t size;
+> +	int err;
+> +
+> +	napi_enable(&priv->napi);
+> +	napi_enable(&priv->napi_tx);
+> +
+> +	err =3D virtio_can_find_vqs(priv);
+> +	if (err !=3D 0)
+> +		return err;
+
+What happens to the enabled NAPI instances when this error path is taken?
+virtio_can_restore() enables both NAPI instances at the start, but if
+virtio_can_find_vqs() fails here, the function returns without calling
+napi_disable().
+
+The corresponding virtio_can_freeze() function disables both NAPIs before
+returning, so the restore function leaves the NAPI subsystem in an
+inconsistent state on failure.
+
+If the PM framework retries restore after this failure, the second
+napi_enable() call on an already-enabled NAPI will hit the BUG_ON in
+napi_enable_locked():
+
+net/core/dev.c:napi_enable_locked() {
+	BUG_ON(!test_bit(NAPI_STATE_SCHED, &n->state));
+	...
+}
+
+In contrast, virtio_can_probe() enables NAPI only after all setup
+succeeds, avoiding this issue.
+
+> +
+> +	size =3D priv->rpkt_len * priv->vqs[VIRTIO_CAN_QUEUE_RX]->num_free;
+> +	priv->rpkt =3D devm_krealloc(&vdev->dev, priv->rpkt, size, GFP_KERNEL |=
+ __GFP_ZERO);
+> +	if (!priv->rpkt) {
+> +		virtio_can_del_vq(vdev);
+> +		return -ENOMEM;
+> +	}
+
+The same NAPI state issue occurs on this error path.
+
+> +	virtio_can_populate_rx_vq(vdev);
+> +
+> +	if (netif_running(ndev)) {
+> +		err =3D virtio_can_start(ndev);
+> +		if (err) {
+> +			virtio_can_del_vq(vdev);
+> +			return err;
+> +		}
+
+And again on this error path.
+
+Should all three error paths call napi_disable(&priv->napi_tx) and
+napi_disable(&priv->napi) before returning the error code?
+
+--=20
+Pengutronix e.K.                 | Marc Kleine-Budde          |
+Embedded Linux                   | https://www.pengutronix.de |
+Vertretung N=C3=BCrnberg              | Phone: +49-5121-206917-129 |
+Amtsgericht Hildesheim, HRA 2686 | Fax:   +49-5121-206917-9   |
+
+--zsnxvdx43cvgpphl
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEABYKAB0WIQSl+MghEFFAdY3pYJLMOmT6rpmt0gUCacEXoAAKCRDMOmT6rpmt
+0oc0AP4r/E0p8/W4XH5xFsFvHnvCil/2ybFe0uqsmduXn4Gw4QD6A2wQTTGMyyJp
+k6X5ros7i59H9faw/8/FWIR1ffBnmQY=
+=E13T
+-----END PGP SIGNATURE-----
+
+--zsnxvdx43cvgpphl--
