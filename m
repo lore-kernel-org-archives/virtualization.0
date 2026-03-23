@@ -1,181 +1,141 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A3C63396567;
-	Mon, 23 Mar 2026 11:11:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FEC2275AEB
+	for <virtualization@lists.linux.dev>; Mon, 23 Mar 2026 15:02:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774264264; cv=none; b=c/cpVgXPfoVveI1VdbEMo0gHEaP81YQvd1S30y4aVeQk7O/8W15QJ1Rs7p2Q91TOVmSjp6kA6BWNjtPVDvXVTARLOqr72jfo/GnyUDo4SDJjZHi4PjF8+WeNeD5RzkhRpGXUssLlGREiyBEoSEqEUEAvp6NFMrRjBcp0GPJXGto=
+	t=1774278121; cv=none; b=NyH4ia96e3krleyZz1l5h+Z0b2UadrUShI4FSdj4VAOACFnqX2Eqbx7WwTy7unbRHjZqlr1jlEcov2bwRMJJlY5lMsHHGl/JF5dtcDU4PySjI23iJA2Qvy3U9qAqvefNbDbkd9JdcbtlMYnDCyMsWfWaBqEzXVobTUwtr68ZDxg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774264264; c=relaxed/simple;
-	bh=vTUszPxJ7UBycC8qO+JCehCQKDd15YQItm9d2WcAJPw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=GHnx+I/KCabbgp3tl1mbYMxwQWWgI7/aIsG8DhQdSYuOyuAsKc9+YoHf/zeQKbtKmSegtSGkTjGIUj4ytjQzJYo8am9m1jqQUmle5eN1gtzqgk8swYH449Kkn/KSQ/9MMTSMTErNo50VTV0sa+W3eyVDrtwBru+tU9UXd+voUPI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JtKO4QAN; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774278121; c=relaxed/simple;
+	bh=V+8n2djQSrAn0/iD48NW+grY2jzX6Ew6bZZOy3qArZo=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=U+FqFSVG1QBwPJttBXFHmGbvK993/xtxdTY3l9fdxbaWKDrqzvSKLXIJYVhre68OaGZa3YZUwQynslZRDyrziqAnI/hoWIu0MKp0WJqGZXrP7pR5utsaMEFXp4MwOk3WyBdR43alRJBrqqp04HnIt571l2vS9wAKx+hfcIEBgJo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=KKvBgedI; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JtKO4QAN"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF316C4CEF7;
-	Mon, 23 Mar 2026 11:10:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774264264;
-	bh=vTUszPxJ7UBycC8qO+JCehCQKDd15YQItm9d2WcAJPw=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=JtKO4QANPZgLp/9I0GWBByVvq719GSIruX6T38eKeXJbZuk6oOGlRJ1N7/P4rO4Aj
-	 L8II8pmPgJYZ3/tJfC7RQG3g+SF6Wyxv0FY2PnunAYjKT9Id84VSQP51StTzOAMGLO
-	 nyaLpuARpVVwmphwmR6LWHr1FBOqgi3JEG83tXBjlwl15JrR0smgomY7DYIzzjHTv/
-	 in6+KmWKw03h/FTwymyLjyw/Qw+lVs34o/qHpsIfVN7YQ1giMr/lS3VTJRo4Telj3+
-	 /Eey6aTdgACkv1z1fUa++f4u+FHbKIwnnwIvWB1yqPaabd874pJUgp9sJe/g6TXml+
-	 cqo/XBij2wgsw==
-Message-ID: <bc8a7721-2bb9-4044-b5ec-422633690971@kernel.org>
-Date: Mon, 23 Mar 2026 12:10:54 +0100
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="KKvBgedI"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62MNU57e670670;
+	Mon, 23 Mar 2026 15:01:53 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=GLL1Ly
+	3OeAkM26lTyfuK59J2i4l+t5B9XXC/Bq7VyJs=; b=KKvBgedIntUMFnLe+in10/
+	ShGLogvTap51JQ+yqi0eVYJzFjLO10C9YUq0WmFwslEdPlllrjtErFvtEFChT0wa
+	ZRcG3JmkJWEbl1d33WjE+EGvvA7JxSOtWikN4Nqj5jQFRQuGkE8TTZNiUnuMXzHw
+	xAL3NeM6zs6ZJNbl9kSr9oAm5XudAk/BToX1ixNU2dE/iQjh0ZfX94+R/zTpLGPz
+	JGOzt43Sd9p6bC1FAml/1/ZlCY8yv22ZJXSiwWsyCwv3hnVmxnIPzdXUE2erWS9q
+	/M5HAjVS99cEVGC0IXcp7OzURinRW/ppiDuOTAQipjb1mbuCV15QMQDla3oeI59Q
+	==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1ktuq3ee-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 23 Mar 2026 15:01:52 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62NCruMC026771;
+	Mon, 23 Mar 2026 15:01:51 GMT
+Received: from smtprelay03.wdc07v.mail.ibm.com ([172.16.1.70])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d275knqtw-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 23 Mar 2026 15:01:51 +0000
+Received: from smtpav05.wdc07v.mail.ibm.com (smtpav05.wdc07v.mail.ibm.com [10.39.53.232])
+	by smtprelay03.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62NF1RmQ29360808
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 23 Mar 2026 15:01:27 GMT
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 42E6658063;
+	Mon, 23 Mar 2026 15:01:51 +0000 (GMT)
+Received: from smtpav05.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 51E1C58059;
+	Mon, 23 Mar 2026 15:01:49 +0000 (GMT)
+Received: from Mac.ibm.com (unknown [9.61.247.188])
+	by smtpav05.wdc07v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 23 Mar 2026 15:01:49 +0000 (GMT)
+From: Omar Elghoul <oelghoul@linux.ibm.com>
+To: vishs@meta.com
+Cc: andrew+netdev@lunn.ch, davem@davemloft.net, dw@davidwei.uk,
+        edumazet@google.com, eperezma@redhat.com, ilias.apalodimas@linaro.org,
+        jasowang@redhat.com, kernel-team@meta.com, kuba@kernel.org,
+        linux-kernel@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org,
+        pabeni@redhat.com, technoboy85@gmail.com,
+        virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com,
+        oelghoul@linux.ibm.com
+Subject: Re: [PATCH net-next v11] virtio_net: add page_pool support for buffer allocation
+Date: Mon, 23 Mar 2026 11:01:31 -0400
+Message-ID: <20260323150136.14452-1-oelghoul@linux.ibm.com>
+X-Mailer: git-send-email 2.52.0
+In-Reply-To: <20260310183107.2822016-1-vishs@meta.com>
+References: <20260310183107.2822016-1-vishs@meta.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v7 2/2] x86/tlb: skip redundant sync IPIs for native TLB
- flush
-To: Lance Yang <lance.yang@linux.dev>, akpm@linux-foundation.org
-Cc: peterz@infradead.org, dave.hansen@intel.com, dave.hansen@linux.intel.com,
- ypodemsk@redhat.com, hughd@google.com, will@kernel.org,
- aneesh.kumar@kernel.org, npiggin@gmail.com, tglx@linutronix.de,
- mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com,
- arnd@arndb.de, lorenzo.stoakes@oracle.com, ziy@nvidia.com,
- baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com, npache@redhat.com,
- ryan.roberts@arm.com, dev.jain@arm.com, baohua@kernel.org,
- shy828301@gmail.com, riel@surriel.com, jannh@google.com, jgross@suse.com,
- seanjc@google.com, pbonzini@redhat.com, boris.ostrovsky@oracle.com,
- virtualization@lists.linux.dev, kvm@vger.kernel.org,
- linux-arch@vger.kernel.org, linux-mm@kvack.org,
- linux-kernel@vger.kernel.org, ioworker0@gmail.com
-References: <20260309020711.20831-1-lance.yang@linux.dev>
- <20260309020711.20831-3-lance.yang@linux.dev>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <20260309020711.20831-3-lance.yang@linux.dev>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-ORIG-GUID: YNzfoRIt1da90gDrXm5OnayrwaK83DCr
+X-Authority-Analysis: v=2.4 cv=aMr9aL9m c=1 sm=1 tr=0 ts=69c155e0 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=bD6ukYfIgYhu4hH-dYIA:9
+ a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzIzMDExNCBTYWx0ZWRfXx63mzxnELWk5
+ Y4ei4W1R77ANzeQcp3sM/IdvojFh1xZob0caVE4n47QoppYM048+qJ2ITChKBSjII++GBT3OduH
+ FgKkCoVxgd/db9ymu20dPIn9V/fyFxZfEySwE7z7hPyZR7l5xim0s4c4dVCS+N4BKVnI0PKq1tu
+ Q3VQWOb3aJI8NTpl0kqw2nVIfI4hH6gS0tAJE+FsJSdcnGj/vEHnHX9NDmGpag2zyjCd9wBIjTE
+ fhXgeZWkW+1b4vyW4wli182xMcnpU+FO4qTWf9OumG1AmNrAySfCqOPfmEyY59nOzJZ2u78X1Gx
+ I6XRcQvrlpEGEqFM3P2lTFIVTn9VhSM4BgUrpwdcKGDc2GQzwp7UwpwdFBViTmSGMeMWni8GmZb
+ /2ruwN8yuID2OV1fr4NADUTfUJFtlWYlHu235M+UQXNnadxH8kilKOKn4kO6vGzuVpUVYQbRz18
+ 7oLM2n8sWdX/X/s4bvg==
+X-Proofpoint-GUID: 9gD9_WOZoQLsJS8lan0dhb2SdmUj0w89
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-23_04,2026-03-23_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ spamscore=0 lowpriorityscore=0 adultscore=0 impostorscore=0 malwarescore=0
+ suspectscore=0 phishscore=0 priorityscore=1501 bulkscore=0 clxscore=1011
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603230114
 
-On 3/9/26 03:07, Lance Yang wrote:
-> From: Lance Yang <lance.yang@linux.dev>
-> 
-> Enable the optimization introduced in the previous patch for x86.
+Hi,
 
-Best to make the patch description standalone, not referring to
-"previous patch".
+I've been testing linux-next (tags later than 03/17) and hit new issues in
+virtio-net on s390x. I bisected the issue, and I found this patch to be the
+first buggy commit.
 
-> 
-> native_pv_tlb_init() checks whether native_flush_tlb_multi() is in use.
-> On CONFIG_PARAVIRT systems, it checks pv_ops; on non-PARAVIRT, native
-> flush is always in use.
-> 
-> It decides once at boot whether to enable the optimization: if using
-> native TLB flush and INVLPGB is not supported, we know IPIs were sent
-> and can skip the redundant sync. The decision is fixed via a static
-> key as Peter suggested[1].
-> 
-> PV backends (KVM, Xen, Hyper-V) typically have their own implementations
-> and don't call native_flush_tlb_multi() directly, so they cannot be trusted
-> to provide the IPI guarantees we need.
-> 
-> Two-step plan as David suggested[2]:
-> 
-> Step 1 (this patch): Skip redundant sync when we're 100% certain the TLB
-> flush sent IPIs. INVLPGB is excluded because when supported, we cannot
-> guarantee IPIs were sent, keeping it clean and simple.
-> 
-> Step 2 (future work): Send targeted IPIs only to CPUs actually doing
-> software/lockless page table walks, benefiting all architectures.
-> 
-> Regarding Step 2, it obviously only applies to setups where Step 1 does
-> not apply: like x86 with INVLPGB or arm64.
-> 
-> [1] https://lore.kernel.org/linux-mm/20260302145652.GH1395266@noisy.programming.kicks-ass.net/
-> [2] https://lore.kernel.org/linux-mm/bbfdf226-4660-4949-b17b-0d209ee4ef8c@kernel.org/
-> 
-> Suggested-by: Peter Zijlstra <peterz@infradead.org>
-> Suggested-by: David Hildenbrand (Arm) <david@kernel.org>
-> Signed-off-by: Lance Yang <lance.yang@linux.dev>
-> ---
+The issue seems to only be reproducible when running in Secure Execution.
+Tested in a KVM guest, the virtio-net performance appears greatly reduced,
+and the dmesg output shows many instances of the following error messages.
 
-[...]
+Partial relevant logs
+=====================
+[   49.332028] macvtap0: bad gso: type: 0, size: 0, flags 1 tunnel 0 tnl csum 0
+[   74.365668] macvtap0: bad gso: type: 2e, size: 27948, flags 0 tunnel 0 tnl csum 0
+[  403.302168] macvtap0: bad csum: flags: 2, gso_type: 23 rx_tnl_csum 0
+[  403.302271] macvtap0: bad csum: flags: 2, gso_type: e0 rx_tnl_csum 0
+[  403.302279] macvtap0: bad csum: flags: 2, gso_type: e1 rx_tnl_csum 0
+[  403.309492] macvtap0: bad csum: flags: 2, gso_type: 4c rx_tnl_csum 0
+[  403.317029] macvtap0: bad csum: flags: 2, gso_type: e0 rx_tnl_csum 0
 
->  static inline void tlb_flush(struct mmu_gather *tlb)
->  {
->  	unsigned long start = 0UL, end = TLB_FLUSH_ALL;
-> @@ -20,7 +30,12 @@ static inline void tlb_flush(struct mmu_gather *tlb)
->  		end = tlb->end;
->  	}
->  
-> -	flush_tlb_mm_range(tlb->mm, start, end, stride_shift, tlb->freed_tables);
-> +	/*
-> +	 * Pass both freed_tables and unshared_tables so that lazy-TLB CPUs
-> +	 * also receive IPIs during unsharing page tables.
+Steps to reproduce
+==================
+1. Boot a Linux guest implementing this patch under QEMU/KVM (*) with SE
+   enabled and a virtio-net-ccw device attached.
+2. Run dmesg. The error message is usually already present at boot time,
+   but if not, it can be reproduced by creating any network traffic.
 
-"unsharing of page tables" ?
+(*) This patch was not tested in a non-KVM hypervisor environment.
 
-I would maybe have it written ass
+I've further confirmed that reverting this patch onto its parent commit
+resolves the issue. Please let me know if you'd like me to test a fix or if
+you would need more information.
 
-"Treat unshared_tables just like freed_tables, such that lazy-TLB CPUs
- also receive IPIs during unsharing of page tables, allowing us to
- safely implement tlb_table_flush_implies_ipi_broadcast()."
+Thanks in advance.
 
-> +	 */
-> +	flush_tlb_mm_range(tlb->mm, start, end, stride_shift,
-> +			   tlb->freed_tables || tlb->unshared_tables);
->  }
-
-In general, LGTM.
-
-Acked-by: David Hildenbrand (Arm) <david@kernel.org>
-
--- 
-Cheers,
-
-David
+Best,
+Omar
