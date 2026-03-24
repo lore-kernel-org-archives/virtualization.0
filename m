@@ -1,240 +1,175 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C866F3FCB1E
-	for <virtualization@lists.linux.dev>; Tue, 24 Mar 2026 14:02:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CECF13D1CA7
+	for <virtualization@lists.linux.dev>; Tue, 24 Mar 2026 15:16:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774360956; cv=none; b=lMjZn8izxO+RCs2/rTNb3epej4hfKGLgDo4NomKx13Du2fUr4rQF6M5Z7CNORVaNBLjwbYN8pJjtLLC+H4Fx3fgf4lFSl3OvHwdqduFjX9mCzappR3SK5HWnCpc+IMwCDT7Nvs+EQ15THXSCTwjPaSmJuyc/ddS1wkU1spjxIPg=
+	t=1774365363; cv=none; b=js4paKBsx27oLBmMkQ+LBeZX+ow5zahbIpC0d6ty3+8WyVlIodISqDJh1lN5EfGu7w3AN53J91SbBVS4ZHxsf8uFWp0/5/B4LSUPeIYutr7OI6deeYKdasJbvJxWIg7QFKaIBV7Wg9HLMjkXpbAEyc1pKjMPWZA9eIa1bWU+mxo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774360956; c=relaxed/simple;
-	bh=i5XS5OV/+6tUO7TAS6jrPF3SxKNTVoq67pMTbn5wrcU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Nit7TAPxEiOA7IV4zl7aoMsH4GVGZqPy5yi5bqn02oSvyZkwZ6oXEpz2Jvs26vE44ZL7PanzjpP+JNCbRXAjKD2dMAG34XBPUSxIH0TrU/Rnte0omKpJiXKcCDSqPElLHJADohWrZhcJykNbZYmI1H2IlQ98u5JNs0ILUsS6pSA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fbvpbn9l; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1774365363; c=relaxed/simple;
+	bh=0DAQT5hcnfFP7UoqaO6an4vhVS498McC5K6b/zfmBDc=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=FTJ05KJYg1IpCheZyPowz2FY1+yUpqiD7kYoon5w1l+SF6hFgjT713LK5GCw/P1FtpGDJwnRSxn3pNS7oxcJCndkKyIKB7xDeV5TGSJBJPlB94on2kFpAuXy3/cWhFsU+R9Ipbz29SylmanM0gmj52Vjx+SlOTMM0kW8sF4IsOs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=E5jqo7Ps; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fbvpbn9l"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="E5jqo7Ps"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1774360951;
+	s=mimecast20190719; t=1774365360;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=mlvPDahKX2NFF6xhr+4/ztQAmDK+1ra9fm020urxfp0=;
-	b=fbvpbn9lQjU1EU50XY27Ulx0BU0J4RCKRfzXoIcD0nKB0Ry4YS3gH5X4sjmZ8xn7JgmeLz
-	iTkWDE9hea0Jys+JvWsC3cSiwMZs8lKAcbkM5DbTcZAZX005wMThfT21FBD4yNjgQYzBsT
-	zPaq1/CTWSC8qJzj7dH5w1eBqBGOC/I=
-Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
- [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
+	bh=zZaZ+weNFt/DeQ+y853Qd9D2vVvyy8X2coFZA5Jbyn4=;
+	b=E5jqo7PsAcxpFcO+ac7Z/QtF+S0Pim9g+/Hut12J8KPBttI+hO/iuV7UTFJuP39n1fgTlM
+	zWwNskvpCx1lp+mrW9iyg6+qW45y/XYJDt6wfrrozeI8erjUHwF9SnofdXGfyphRtBaDOr
+	WrlFSG44GBds72YbzT2boEDI7F3N0+Q=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-407-Xc0hhLGdMuKk5XSqqlRNaA-1; Tue, 24 Mar 2026 10:02:28 -0400
-X-MC-Unique: Xc0hhLGdMuKk5XSqqlRNaA-1
-X-Mimecast-MFC-AGG-ID: Xc0hhLGdMuKk5XSqqlRNaA_1774360946
-Received: by mail-lf1-f72.google.com with SMTP id 2adb3069b0e04-5a1499d93a1so3032294e87.1
-        for <virtualization@lists.linux.dev>; Tue, 24 Mar 2026 07:02:27 -0700 (PDT)
+ us-mta-83-CTiSd0rdOzKcEQEc8yZROQ-1; Tue, 24 Mar 2026 11:15:59 -0400
+X-MC-Unique: CTiSd0rdOzKcEQEc8yZROQ-1
+X-Mimecast-MFC-AGG-ID: CTiSd0rdOzKcEQEc8yZROQ_1774365358
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-485c45885e6so59102045e9.0
+        for <virtualization@lists.linux.dev>; Tue, 24 Mar 2026 08:15:59 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774360946; x=1774965746;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=mlvPDahKX2NFF6xhr+4/ztQAmDK+1ra9fm020urxfp0=;
-        b=oR7uzTLpHwv1jdq/PE+mTSAimk00vvpLHnCLljIHbyWcF+9qrsKNJhUOtJQxN3UY1c
-         ZznSIXFdixE43cAux2gdh3SjfqmdfDu6mlX7SF1WumELsVCcgmZw8uIUEmmNeOMC0s8Y
-         ql46btaOlJMB1GhVTOeu7J4EoAAttNITQUWQuaWmaCRVfkZZZtwkiEdxJLARo1nhYYpI
-         UpCWDABLNrKxO0fclzmIRX30oIFcfy8PdVu/SEM5CbNgD/vvHtrXynd613c07LGr09Od
-         4s+bG+O4twy5AQnz7YjtUJRkb0lJHwe/Abp3ursHhHu57xAHmaDJuCrwCap5fAmQxAZc
-         P9MQ==
-X-Forwarded-Encrypted: i=1; AJvYcCWfdx2SL+lBkji7/yjoxLPIobuctXxebWUnBI2wjFFTjRiIv/aOOcApRYK0vd4vzNeyxrxqxYHKk+V4+XJrVQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyrGrm4uIa1w88fozlx5O+hAE8/wnSXxu5T6zvvf7Yr00PqLCA7
-	+Med+ntaCRZ/4d7/psU65uSsp+qsGVfbqzWuGIIsfiddTF73meGIrunEGOqumY3y7TmdUt6uYwp
-	faXJR8/ToR4PhbP1CfAyejxnnScsMo5Ol2ptoQof9fFH3MmlQbIuwASr+NVQTqs5S+YEoxYMAzz
-	D0253TgO4vPrIOLxud4FeWhesG5IBRB2svxycI21O9Wd4=
-X-Gm-Gg: ATEYQzyjL3gTc+ni94bJWly2DaBRKiDggz+KAxwdJEFqv4tOZ4a5IMib7kAAQN8KsE+
-	rRDCceyPom3zPyLynrBNhM04hm8imHZhNhMzHQjQY3nMlNhsOsz/c++QhI+T8iycATk0DxbQgSt
-	/cvj8Ixr+rY5asunQIrTWDXLMJvnRh/fZMddlR8uSMahxxlH/9iW37f11Fd/eTrpsP8rIinWTmL
-	2EIRA==
-X-Received: by 2002:a05:6512:3d20:b0:5a1:2e7b:d885 with SMTP id 2adb3069b0e04-5a296220848mr1328731e87.25.1774360946183;
-        Tue, 24 Mar 2026 07:02:26 -0700 (PDT)
-X-Received: by 2002:a05:6512:3d20:b0:5a1:2e7b:d885 with SMTP id
- 2adb3069b0e04-5a296220848mr1328700e87.25.1774360945532; Tue, 24 Mar 2026
- 07:02:25 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1774365358; x=1774970158;
+        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=zZaZ+weNFt/DeQ+y853Qd9D2vVvyy8X2coFZA5Jbyn4=;
+        b=m9ZlIGnn7xhf92Ggzsx5JcBhZ3eJN2worem8yuQ8+WtBch4U59N2HHNEaNgTabri08
+         GvC2eBYwAQeFFzwjk6wu7SfilX8nwZ/HDiiaWp5+jtXXtrgf5Ys508iEyEdP0bLeZ4NZ
+         5WoSkk5Dapw40LsGgLrc7U7M1T9KScQPkmOtr2suaamw+aiUQ46RfPuqMJBrB+29VBOl
+         ZhwaBDdsTarGNFbjzZFZYA+0mkg+TyEcSe7TBys8hpqXxJUERekFYrdG8HDmZWkI/zap
+         4ru4h86vtITSzyIbsuHOiQgT+IvMKb4HTxY8G1YrFcQ+J/i7QykwBQBZscOzdnIRM9oU
+         gKUQ==
+X-Forwarded-Encrypted: i=1; AJvYcCUt+hivpeaBCU9+f8tHdMtC8EOJUVlgLWsggABOkx+08fOvJ++kkQJPsWIm8nfALtxchLiYnyZsV9V3vlMC+Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw36gKfwmm+B6et6VqVyAd7XRTDAqiKSVPfKHCcjZWiNJBZ3W2H
+	kgLSo/tA6N/UtSlAoOXSKVH+UTQPZYWb7IqEocPwOnfjvI4KKP08tRVUstjVLWtN0f5Iqg/QsHW
+	zm0oLi7U2u0DWj1EQtJzwXQCFOCdsoQdNf36mtKgZCEJ1JAWjpacSX2CV3DiN0zzQhJHs
+X-Gm-Gg: ATEYQzx0UvXsjDdNwpPehu/4zAHPrECcF8UjlY4/5Rt4r3b1l8MjMppGA9bXJ7v+kLp
+	rsMKwt0ycgjjKGv2CdW70YKHYchBf5IsNWLpMsvlXXGwHosTrYl6ng+hZuhzl0Gqdu5bPqjY9hr
+	MW6X22rrueh2vat+fSFSVgdBWeLrOavEY2xXSEaBZp+Kn62fYFtqQBIOeQjtRFftn7saShL5Ns+
+	iSoevSzCKaKO+bNOTPtH5NJ3uRJ0WrJV9ZhY6FA72hqxhlD9K8jcFgaZ8hfQajX6U44E4TfzZRY
+	E5p2i8Fj9tKqWGTZDKeyQTiKs6kIQx3B92vUoZY+KiRlOf+mozzmtoqbUqLA/jKzDIjnTJDm8yj
+	/qzDmeV+VDMMP+VuI
+X-Received: by 2002:a05:600c:5296:b0:486:ffa3:593 with SMTP id 5b1f17b1804b1-4871606730amr1910515e9.28.1774365358073;
+        Tue, 24 Mar 2026 08:15:58 -0700 (PDT)
+X-Received: by 2002:a05:600c:5296:b0:486:ffa3:593 with SMTP id 5b1f17b1804b1-4871606730amr1909895e9.28.1774365357596;
+        Tue, 24 Mar 2026 08:15:57 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:1525:da00:3ac2:1a22:72ff:4256])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-487116d82f1sm55500765e9.11.2026.03.24.08.15.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 24 Mar 2026 08:15:57 -0700 (PDT)
+Date: Tue, 24 Mar 2026 11:15:54 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: Omar Elghoul <oelghoul@linux.ibm.com>,
+	Srikanth Aithal <sraithal@amd.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Jesper Dangaard Brouer <hawk@kernel.org>,
+	John Fastabend <john.fastabend@gmail.com>,
+	Stanislav Fomichev <sdf@fomichev.me>,
+	Vishwanath Seshagiri <vishs@meta.com>, netdev@vger.kernel.org,
+	virtualization@lists.linux.dev, bpf@vger.kernel.org
+Subject: [PATCH net-next] virtio_net: sync RX buffer before reading the header
+Message-ID: <f4caa9be9e5addae7851c012cab0a733be7f0974.1774365273.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260310190759.1097506-1-eperezma@redhat.com> <20260310190759.1097506-4-eperezma@redhat.com>
- <CACGkMEvwmC4qiYgZAkrHEC3r3q7FyMiqpg5=2oNMPGm0q=PLBA@mail.gmail.com>
- <CAJaqyWe+x9okNwPD5n6M+PeLt0cQY-_fBWOD9uXSa1nKHqRaFw@mail.gmail.com>
- <CACGkMEuKTezQQXJ0XEKWEoRaeo-ORcE07+xgSoJ_7UwpPdonWA@mail.gmail.com> <CAJaqyWf5mnARrEXssKQ2CQB0rZ+KVi_kW1xyOc_Dx1ELAs4LHA@mail.gmail.com>
-In-Reply-To: <CAJaqyWf5mnARrEXssKQ2CQB0rZ+KVi_kW1xyOc_Dx1ELAs4LHA@mail.gmail.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Tue, 24 Mar 2026 15:01:47 +0100
-X-Gm-Features: AaiRm50XGJ92Ixi_DiKijf_WMmkWP6yH4dOrpt7f5HtlD3f-L_Ghpm4ryJcdwlE
-Message-ID: <CAJaqyWd40=bxMOwTR4wyHtPS_-Txn2WbwSj9rZEXoY-4DxQgpw@mail.gmail.com>
-Subject: Re: [PATCH v3 3/3] vduse: add F_QUEUE_READY feature
-To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Cindy Lu <lulu@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-kernel@vger.kernel.org, 
-	Maxime Coquelin <mcoqueli@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, 
-	Laurent Vivier <lvivier@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
-	virtualization@lists.linux.dev
+X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
+X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: zhQUDqUYj9EUagUahdCfZd65XSoWDnKodG8TkHrZ-jY_1774360946
+X-Mimecast-MFC-PROC-ID: fdJb-G23OeZTp5LbkwrmeujXypODY1h3UK6Ysw5Bf-w_1774365358
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Fri, Mar 13, 2026 at 8:08=E2=80=AFAM Eugenio Perez Martin
-<eperezma@redhat.com> wrote:
->
-> On Fri, Mar 13, 2026 at 7:05=E2=80=AFAM Jason Wang <jasowang@redhat.com> =
-wrote:
-> >
-> > On Thu, Mar 12, 2026 at 2:24=E2=80=AFPM Eugenio Perez Martin
-> > <eperezma@redhat.com> wrote:
-> > >
-> > > On Thu, Mar 12, 2026 at 4:58=E2=80=AFAM Jason Wang <jasowang@redhat.c=
-om> wrote:
-> > > >
-> > > > On Wed, Mar 11, 2026 at 3:08=E2=80=AFAM Eugenio P=C3=A9rez <eperezm=
-a@redhat.com> wrote:
-> > > > >
-> > > > > Add the VDUSE_F_QUEUE_READY feature flag. This allows the kernel =
-module
-> > > > > to explicitly signal userspace when a specific virtqueue has been
-> > > > > enabled.
-> > > > >
-> > > > > In scenarios like Live Migration of VirtIO net devices, the datap=
-lane
-> > > > > starts after the control virtqueue allowing QEMU to apply configu=
-ration
-> > > > > in the destination device.
-> > > > >
-> > > > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> > > > > ---
-> > > > > v2:
-> > > > > * Fix comment of vduse_dev_request.vq_ready
-> > > > > * Set vq_ready before sending the message to the VDUSE userland
-> > > > >   instance, avoiding the need for SMP sync after receiving the me=
-ssage.
-> > > > > ---
-> > > > >  drivers/vdpa/vdpa_user/vduse_dev.c | 28 ++++++++++++++++++++++++=
-+++-
-> > > > >  include/uapi/linux/vduse.h         | 18 ++++++++++++++++++
-> > > > >  2 files changed, 45 insertions(+), 1 deletion(-)
-> > > > >
-> > > > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vd=
-pa_user/vduse_dev.c
-> > > > > index 17e0358d3a68..4f642b95a7cb 100644
-> > > > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > > > @@ -9,6 +9,7 @@
-> > > > >   */
-> > > > >
-> > > > >  #include "linux/virtio_net.h"
-> > > > > +#include <linux/bits.h>
-> > > > >  #include <linux/cleanup.h>
-> > > > >  #include <linux/init.h>
-> > > > >  #include <linux/module.h>
-> > > > > @@ -53,7 +54,7 @@
-> > > > >  #define IRQ_UNBOUND -1
-> > > > >
-> > > > >  /* Supported VDUSE features */
-> > > > > -static const uint64_t vduse_features;
-> > > > > +static const uint64_t vduse_features =3D BIT_U64(VDUSE_F_QUEUE_R=
-EADY);
-> > > > >
-> > > > >  /*
-> > > > >   * VDUSE instance have not asked the vduse API version, so assum=
-e 0.
-> > > > > @@ -120,6 +121,7 @@ struct vduse_dev {
-> > > > >         char *name;
-> > > > >         struct mutex lock;
-> > > > >         spinlock_t msg_lock;
-> > > > > +       u64 vduse_features;
-> > > > >         u64 msg_unique;
-> > > > >         u32 msg_timeout;
-> > > > >         wait_queue_head_t waitq;
-> > > > > @@ -601,8 +603,29 @@ static void vduse_vdpa_set_vq_ready(struct v=
-dpa_device *vdpa,
-> > > > >  {
-> > > > >         struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
-> > > > >         struct vduse_virtqueue *vq =3D dev->vqs[idx];
-> > > > > +       struct vduse_dev_msg msg =3D { 0 };
-> > > > > +       int r;
-> > > > >
-> > > > >         vq->ready =3D ready;
-> > > > > +
-> > > > > +       if (!(dev->vduse_features & BIT_U64(VDUSE_F_QUEUE_READY))=
-)
-> > > > > +               return;
-> > > > > +
-> > > > > +       msg.req.type =3D VDUSE_SET_VQ_READY;
-> > > > > +       msg.req.vq_ready.num =3D idx;
-> > > > > +       msg.req.vq_ready.ready =3D !!ready;
-> > > > > +
-> > > > > +       r =3D vduse_dev_msg_sync(dev, &msg);
-> > > > > +
-> > > > > +       if (r < 0) {
-> > > > > +               dev_dbg(&vdpa->dev, "device refuses to set vq %u =
-ready %u",
-> > > > > +                       idx, ready);
-> > > > > +
-> > > > > +               /* We can't do better than break the device in th=
-is case */
-> > > >
-> > > > It's better to explain why we can't depend on vduse_dev_msg_sync() =
-here.
-> > > >
-> > > > For example it did:
-> > > >
-> > > >         if (unlikely(dev->broken))
-> > > >                 return -EIO;
-> > > >
-> > > >         init_waitqueue_head(&msg->waitq);
-> > > >         spin_lock(&dev->msg_lock);
-> > > >         if (unlikely(dev->broken)) {
-> > > >                 spin_unlock(&dev->msg_lock);
-> > > >                 return -EIO;
-> > > >         }
-> > > >
-> > > > and
-> > > >
-> > > >         if (!msg->completed) {
-> > > >                 list_del(&msg->list);
-> > > >                 msg->resp.result =3D VDUSE_REQ_RESULT_FAILED;
-> > > >                 /* Mark the device as malfunction when there is a t=
-imeout */
-> > > >                 if (!ret)
-> > > >                         vduse_dev_broken(dev);
-> > > >         }
-> > > >
-> > >
-> > > I'm not sure I follow you here.
-> > >
-> > > We can't do better than breaking the device because the function
-> > > returns no error state, and the caller does not expect an error code.
-> > > Do you mean we can't depend on vduse_dev_msg_sync to call
-> > > vduse_dev_broken(dev) by itself?
-> >
-> > I think I meant, reset seems to be more heavyweight than suspend.
-> >
-> > So if reset can fail, I don't see reason ot break device only for
-> > suspend failure.
-> >
->
-> Sorry I still don't get you.
->
-> This series does not implement suspend at all. It doesn't modify the
-> VDUSE device reset or the virtio reset behavior. It only implements
-> the vq ready message for the device. If the device returns an error
-> from that operation, what is your proposal for when the driver sends
-> new messages like resume?
->
+receive_buf() reads the virtio header through buf before
+page_pool_dma_sync_for_cpu() runs in receive_small() or
+receive_mergeable(). The header buffer is thus unsynchronized at the
+point where flags and, for mergeable buffers, num_buffers are consumed.
 
-Friendly ping.
+Omar Elghoul reported that on s390x Secure Execution this showed up as
+greatly reduced virtio-net performance together with "bad gso" and
+"bad csum" messages in dmesg. This is because with SE sync actually
+copies data, so the header is uninitialized.
+
+Move the sync into receive_buf() so the
+header is synchronized before any access through buf.
+
+Tool use: Cursor with GPT-5.4 drafted the initial code move from prompt:
+"in drivers/net/virtio_net.c, move page_pool_dma_sync_for_cpu on receive
+path to before memory is accessed through buf".
+The result and the commit log were reviewed and edited manually.
+
+Fixes: 168b61da6871 ("virtio_net: add page_pool support for buffer allocation")
+Reported-by: Omar Elghoul <oelghoul@linux.ibm.com>
+Tested-by: Srikanth Aithal <sraithal@amd.com>
+Tested-by: Omar Elghoul <oelghoul@linux.ibm.com>
+Link: https://lore.kernel.org/r/20260323150136.14452-1-oelghoul@linux.ibm.com
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ drivers/net/virtio_net.c | 20 ++++++++++----------
+ 1 file changed, 10 insertions(+), 10 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 97035b49bae7..2f57245c682d 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1956,13 +1956,6 @@ static struct sk_buff *receive_small(struct net_device *dev,
+ 	 */
+ 	buf -= VIRTNET_RX_PAD + xdp_headroom;
+ 
+-	if (rq->use_page_pool_dma) {
+-		int offset = buf - page_address(page) +
+-			     VIRTNET_RX_PAD + xdp_headroom;
+-
+-		page_pool_dma_sync_for_cpu(rq->page_pool, page, offset, len);
+-	}
+-
+ 	len -= vi->hdr_len;
+ 	u64_stats_add(&stats->bytes, len);
+ 
+@@ -2398,9 +2391,6 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+ 
+ 	head_skb = NULL;
+ 
+-	if (rq->use_page_pool_dma)
+-		page_pool_dma_sync_for_cpu(rq->page_pool, page, offset, len);
+-
+ 	u64_stats_add(&stats->bytes, len - vi->hdr_len);
+ 
+ 	if (check_mergeable_len(dev, ctx, len))
+@@ -2563,6 +2553,16 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
+ 		return;
+ 	}
+ 
++	/* Sync the memory before touching anything through buf,
++	 * unless virtio core did it already.
++	 */
++	if (rq->use_page_pool_dma) {
++		struct page *page = virt_to_head_page(buf);
++		int offset = buf - page_address(page);
++
++		page_pool_dma_sync_for_cpu(rq->page_pool, page, offset, len);
++	}
++
+ 	/* About the flags below:
+ 	 * 1. Save the flags early, as the XDP program might overwrite them.
+ 	 * These flags ensure packets marked as VIRTIO_NET_HDR_F_DATA_VALID
+-- 
+MST
 
