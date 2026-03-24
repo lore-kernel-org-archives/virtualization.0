@@ -1,98 +1,333 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from BN1PR04CU002.outbound.protection.outlook.com (mail-eastus2azon11010008.outbound.protection.outlook.com [52.101.56.8])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8148634753F;
-	Tue, 24 Mar 2026 08:09:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774339796; cv=none; b=eKjeTilkUGUb54VrYJTr9e0K4JRaPl+04p1gHZ+hTOdipknxRDZI9xmO6PMtBqn+IrHhk8cd/3xD3k7OdNXxOOiUIG3RbK96ykYwjyWV/PLdOErxFW61PtS5g25wpp1uNMlzFJmpAxrNJbADEfynBCbnVEM+bnks4B+UjbOHmsE=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774339796; c=relaxed/simple;
-	bh=IKKPJZ+MZDaoxP4vPPsLme6gW/n7DEGEiTEMcgMuYp0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=eCstLSOCKQfQIGaM6HV7tt1KasuIH8E+yrqXSqmQoAQ2M0nlQdivOHAnptuHOs8xbUrgv2uHVABgExmtcefcsdmhCiUwI6TAdcfKHVR+O4nw1X5U7Qd7j25wcX4KWt5EeMmrLoP72FJuOC6tKq7fLB/E03U3WxVW/1CLncICSVE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=0L8IR6Pk; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7028D369206
+	for <virtualization@lists.linux.dev>; Tue, 24 Mar 2026 08:20:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.56.8
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774340437; cv=fail; b=E10WtfbgUldjEISNqnSO88O0wn+d46GwmXRdgyfME16OP4veY1UiTf1p1jKqmCw7fjDdlEShBoTz5AI6kiyqfIPXYPi2uHzJ8BhTxmGkHd0JB8G5yP9ikTVNCISbCl28j6ST6aVIdFyFeOpHIFawk5bFNCBgIdNe58pYKhFd0qg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774340437; c=relaxed/simple;
+	bh=Cv2TeXyCFGOmnxgMnmtwIvpZCMHNOPBMytO4epLjjjI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=H2CCvqRot7qT1WFtAkFhMzUjGEiABw7iYKUqVpap4k/NjvTw1m+vdUG8bJhfGNBQ0P4W77FvEWAUugrq8PCci+gwNoivAAPnxa8DnU5iVGTuA185OD0+S3NS9pOyVS4itf8YAi32E5RsgoxsX9X6dKaVZl4SaFHDtKITxvR9Pvw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=lItA5BEd; arc=fail smtp.client-ip=52.101.56.8
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="0L8IR6Pk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B1B8C19424;
-	Tue, 24 Mar 2026 08:09:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1774339795;
-	bh=IKKPJZ+MZDaoxP4vPPsLme6gW/n7DEGEiTEMcgMuYp0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=0L8IR6Pk68bAp9++dR6ItzOnWZf2MgvBLl2UV5zaHXNUbsVb9RAc04NnLuD2YNf+G
-	 GmqZcQvouuvrdE0xPt4YHI6OTcY19NxN8kIn1pWJKzLM1zFnqP+nevgcl7t5hQ7vTE
-	 9EDRgh/2RJsqQNRl7woh8a9xc4H6xKdllWSA+5ec=
-Date: Tue, 24 Mar 2026 09:09:28 +0100
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: Danilo Krummrich <dakr@kernel.org>
-Cc: Russell King <linux@armlinux.org.uk>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Ioana Ciornei <ioana.ciornei@nxp.com>,
-	Nipun Gupta <nipun.gupta@amd.com>,
-	Nikhil Agarwal <nikhil.agarwal@amd.com>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Long Li <longli@microsoft.com>, Bjorn Helgaas <bhelgaas@google.com>,
-	Armin Wolf <W_Armin@gmx.de>, Bjorn Andersson <andersson@kernel.org>,
-	Mathieu Poirier <mathieu.poirier@linaro.org>,
-	Vineeth Vijayan <vneethv@linux.ibm.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Harald Freudenberger <freude@linux.ibm.com>,
-	Holger Dengler <dengler@linux.ibm.com>,
-	Mark Brown <broonie@kernel.org>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Alex Williamson <alex@shazbot.org>, Juergen Gross <jgross@suse.com>,
-	Stefano Stabellini <sstabellini@kernel.org>,
-	Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
-	linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org,
-	linux-pci@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-	linux-s390@vger.kernel.org, linux-spi@vger.kernel.org,
-	virtualization@lists.linux.dev, kvm@vger.kernel.org,
-	xen-devel@lists.xenproject.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 12/12] driver core: remove driver_set_override()
-Message-ID: <2026032412-finally-lubricant-7fe2@gregkh>
-References: <20260324005919.2408620-1-dakr@kernel.org>
- <20260324005919.2408620-13-dakr@kernel.org>
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="lItA5BEd"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=KXXm+t3xmft1v3xPhyLepgyckVV3t8cB4wazJg2CNuA+tSJ0FVZRxnqToq/xOj6FYurf89uWe+GX6mlTjDWeEjCm3ZHMv5lvxvQGFZkHmeI0pfls25I2zQ9yg8nfC7b6hvxUYifD/dctGBEeBlgL40nUV+78RKvbTVXg+cIHM9R3ubmkMGXpKIqGpaL6GkCs0ao3RskQB0QuYJTP3YsLWueZ2DsYO2dHS9nVGkWsXzgpWvALMhrjalnqdYRWoChzgDJD4yHGitS6lMT973/dwpL1ZXdrvaxWCrVpEUkNP17/yDPjXmRJRy72Wh9QEmPcqVPKiSBw7olFXfJSNKM2DA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=GPr+Elxb6UVBKYfcZ/tUerk30U8LktK8aiaE6KLKb60=;
+ b=euQf7VbFCTrjk/KorGfitA32H18Q8XPCuLOg/2G+zHI3Ca1cu8NKaz5DleFQEJzWrPCXRUr7UWLkZhanH8A4ph85Bby7x1U03y0iGU2b6oPrRyKruOBhySeE25HK0mIPIMBeLnKNNxg3SThKEVC0CRWsjTrMi7j8cNoQ0+mfGaslw35I2AuKMi2rnxbpPVaBxQsOx9bQQWPu4gBVDjU/hgquzJffvoqnGJTwklU0z9JFj9QY/dMVIFzsr5CBwoHp/HFEXn3unZD1wZUQXAsahNo2saeGcpoQAnjy3sMM6q8nJJGqxaF7fMrHHqBd7nW5B/EtBXAa+9GtmvDJqNdOzg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 165.204.84.17) smtp.rcpttodomain=redhat.com smtp.mailfrom=amd.com; dmarc=pass
+ (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=GPr+Elxb6UVBKYfcZ/tUerk30U8LktK8aiaE6KLKb60=;
+ b=lItA5BEd7OplyQUImv/Yihc87W3VC6ha++M4lXy3WhutyEvZChW7Ny+ydg+bvY9Ku3g3GI1tUM9ejwF9smaU7j5TkSK9h2kQ8/jQXSu323ofQiy1KXyd49C4z2dy5Rv+1LdiWisqxl9UA5jyD7nBezaZlzE+BdHPD/Fl0qV8/M8=
+Received: from BYAPR11CA0095.namprd11.prod.outlook.com (2603:10b6:a03:f4::36)
+ by CY1PR12MB9581.namprd12.prod.outlook.com (2603:10b6:930:fe::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9745.20; Tue, 24 Mar
+ 2026 08:20:24 +0000
+Received: from CO1PEPF00012E66.namprd05.prod.outlook.com
+ (2603:10b6:a03:f4:cafe::90) by BYAPR11CA0095.outlook.office365.com
+ (2603:10b6:a03:f4::36) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9723.31 via Frontend Transport; Tue,
+ 24 Mar 2026 08:20:23 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
+ smtp.mailfrom=amd.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=amd.com;
+Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
+ 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
+ client-ip=165.204.84.17; helo=satlexmb07.amd.com; pr=C
+Received: from satlexmb07.amd.com (165.204.84.17) by
+ CO1PEPF00012E66.mail.protection.outlook.com (10.167.249.75) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.9723.19 via Frontend Transport; Tue, 24 Mar 2026 08:20:23 +0000
+Received: from satlexmb10.amd.com (10.181.42.219) by satlexmb07.amd.com
+ (10.181.42.216) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Tue, 24 Mar
+ 2026 03:20:23 -0500
+Received: from satlexmb07.amd.com (10.181.42.216) by satlexmb10.amd.com
+ (10.181.42.219) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Tue, 24 Mar
+ 2026 03:20:23 -0500
+Received: from [10.136.34.242] (10.180.168.240) by satlexmb07.amd.com
+ (10.181.42.216) with Microsoft SMTP Server id 15.2.2562.17 via Frontend
+ Transport; Tue, 24 Mar 2026 03:20:19 -0500
+Message-ID: <cbce5727-f4d5-4601-a81f-ed9cb3f541e6@amd.com>
+Date: Tue, 24 Mar 2026 13:50:18 +0530
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260324005919.2408620-13-dakr@kernel.org>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v11] virtio_net: add page_pool support for buffer
+ allocation
+To: "Michael S. Tsirkin" <mst@redhat.com>, Omar Elghoul
+	<oelghoul@linux.ibm.com>
+CC: <vishs@meta.com>, <andrew+netdev@lunn.ch>, <davem@davemloft.net>,
+	<dw@davidwei.uk>, <edumazet@google.com>, <eperezma@redhat.com>,
+	<ilias.apalodimas@linaro.org>, <jasowang@redhat.com>, <kernel-team@meta.com>,
+	<kuba@kernel.org>, <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
+	<pabeni@redhat.com>, <technoboy85@gmail.com>,
+	<virtualization@lists.linux.dev>, <xuanzhuo@linux.alibaba.com>
+References: <20260310183107.2822016-1-vishs@meta.com>
+ <20260323150136.14452-1-oelghoul@linux.ibm.com>
+ <20260323114313-mutt-send-email-mst@kernel.org>
+ <20260323122728-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+From: "Aithal, Srikanth" <sraithal@amd.com>
+In-Reply-To: <20260323122728-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Transfer-Encoding: 8bit
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CO1PEPF00012E66:EE_|CY1PR12MB9581:EE_
+X-MS-Office365-Filtering-Correlation-Id: 43e8ea93-1e2d-4f0f-dec3-08de897e328c
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|7416014|376014|36860700016|82310400026|1800799024|13003099007|56012099003|22082099003|18002099003;
+X-Microsoft-Antispam-Message-Info:
+	lcN5DXZ8a0XhxK9omY39NdA/unFDs86R5rHSIBbgttqLuDv5kdTToxykRoUsn4BiHK21VOr2wTtvuaJHKwUUYwei4DL9SoA2uNxlj3+/dtfoNMaB4voiCtgYty7mCQ32QbN5gz+cJipjSKOhcBj2a0p3b1PBnFvwU0pv6+Ir1GRyjPHi77ay1ekQoCpEmtBAGp7Euji4i6W0Tq1sto3sP5CDrCfiJytWMJ0aPi3cSb3s/V87J4PW/3b1zlSVl8ms5FeWNwBAml8hprhG9kMezDXdzoahSwEW5Orny9yOqzPjfeOSDe28GjnyzmqsPAAkQHft2Yap8N3UrEqYZ7YHoA3j70OGKMMMN73tvDkCO/tlPRsRh+AvSuHdqOkI7/fepNu0Wp0qE6ctgjOaqAtDDViR9V7T0yRbq55n+mRqgyPRcnPctWe8OxJihXo0ufumm8c+/6vRuLB7uNuSPl6QXqt3SgeEOSTUy1G3uWzHtN5MSCu031w+xN3O/UT5SaeiG5Tf05rkF0vjjprZBeUJSfY8RByfipD235OIVtvTLTarUPkUl09ha7xlNeutzBUfXl25VgJso27Zdv+xtn324deaZGyfNEyQKzpdi9+WHMxOcQXIbIH+Rq4IsVRJd7hv9ByMk7Vs1aJCw2x8S5WYp6Bw8Uh/xrIViSoUnIh6oNJDBM6IrcbJTYN648BMrwG5v+SK2gG1zmHTGKOQBMR/0y7TOZGC0T6QtNycn5htie+AtDPGsz8xbX1K/Dw7ugYZAQY2LjHwvi588EKIeuOrJw==
+X-Forefront-Antispam-Report:
+	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(7416014)(376014)(36860700016)(82310400026)(1800799024)(13003099007)(56012099003)(22082099003)(18002099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	2mnXxB2wrZ8+ypriArA7GRVGHuKMj1Ubdwu4AIzaOQYYNOVCIxoXYnIjJbjOcepcY1cy/JByzqPXVjd1R+kHax7zFX9EWCxiEvgyx/p1qppESZ20W1z7R1Afl5BluhItqAZ8bJeHPChr39jrJpjT5yetSbX0K20FBkwulTeUGPilyHK6ue/MoIFsCMdQvyb7nFGVty8X7jvXFF0AxhOPUigvRSNpbcEa9gaFz2vRZoPXeCn+3Tl/qZs63cusXcxg2E1BC8MlIoeVMWCmP05YC4w3w6yqfN+DXr+EYZ1mzmQZPCQZDUPz6H22MdTZd/L6bhDx3GGVj8+1O6VhPnombIP/nrktI6dusugxbfpMojyOnke37YHntWvvXEpErvVA269OOegS2HQOf75KXOpGv0KGRKE3epwjkB2E8OjUpJmgbaDe8kvsRjNqZ9cWDN78
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Mar 2026 08:20:23.8826
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 43e8ea93-1e2d-4f0f-dec3-08de897e328c
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb07.amd.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	CO1PEPF00012E66.namprd05.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY1PR12MB9581
 
-On Tue, Mar 24, 2026 at 01:59:16AM +0100, Danilo Krummrich wrote:
-> All buses have been converted from driver_set_override() to the generic
-> driver_override infrastructure introduced in commit cb3d1049f4ea
-> ("driver core: generalize driver_override in struct device").
+On 3/23/2026 10:28 PM, Michael S. Tsirkin wrote:
+> On Mon, Mar 23, 2026 at 11:52:34AM -0400, Michael S. Tsirkin wrote:
+>> On Mon, Mar 23, 2026 at 11:01:31AM -0400, Omar Elghoul wrote:
+>>> Hi,
+>>>
+>>> I've been testing linux-next (tags later than 03/17) and hit new issues in
+>>> virtio-net on s390x. I bisected the issue, and I found this patch to be the
+>>> first buggy commit.
+>>>
+>>> The issue seems to only be reproducible when running in Secure Execution.
+>>> Tested in a KVM guest, the virtio-net performance appears greatly reduced,
+>>> and the dmesg output shows many instances of the following error messages.
+>>>
+>>> Partial relevant logs
+>>> =====================
+>>> [   49.332028] macvtap0: bad gso: type: 0, size: 0, flags 1 tunnel 0 tnl csum 0
+>>> [   74.365668] macvtap0: bad gso: type: 2e, size: 27948, flags 0 tunnel 0 tnl csum 0
+>>> [  403.302168] macvtap0: bad csum: flags: 2, gso_type: 23 rx_tnl_csum 0
+>>> [  403.302271] macvtap0: bad csum: flags: 2, gso_type: e0 rx_tnl_csum 0
+>>> [  403.302279] macvtap0: bad csum: flags: 2, gso_type: e1 rx_tnl_csum 0
+>>> [  403.309492] macvtap0: bad csum: flags: 2, gso_type: 4c rx_tnl_csum 0
+>>> [  403.317029] macvtap0: bad csum: flags: 2, gso_type: e0 rx_tnl_csum 0
+>>>
+>>> Steps to reproduce
+>>> ==================
+>>> 1. Boot a Linux guest implementing this patch under QEMU/KVM (*) with SE
+>>>     enabled and a virtio-net-ccw device attached.
+>>> 2. Run dmesg. The error message is usually already present at boot time,
+>>>     but if not, it can be reproduced by creating any network traffic.
+>>>
+>>> (*) This patch was not tested in a non-KVM hypervisor environment.
+>>>
+>>> I've further confirmed that reverting this patch onto its parent commit
+>>> resolves the issue. Please let me know if you'd like me to test a fix or if
+>>> you would need more information.
+>>>
+>>> Thanks in advance.
+>>>
+>>> Best,
+>>> Omar
+>>
+>> Well... I am not sure how I missed it. Obvious in hindsight:
+>>
+>> static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
+>>                          void *buf, unsigned int len, void **ctx,
+>>                          unsigned int *xdp_xmit,
+>>                          struct virtnet_rq_stats *stats)
+>> {
+>>          struct net_device *dev = vi->dev;
+>>          struct sk_buff *skb;
+>>          u8 flags;
+>>                  
+>>          if (unlikely(len < vi->hdr_len + ETH_HLEN)) {
+>>                  pr_debug("%s: short packet %i\n", dev->name, len);
+>>                  DEV_STATS_INC(dev, rx_length_errors);
+>>                  virtnet_rq_free_buf(vi, rq, buf);
+>>                  return;
+>>          }
+>>          
+>>          /* About the flags below:
+>>           * 1. Save the flags early, as the XDP program might overwrite them.
+>>           * These flags ensure packets marked as VIRTIO_NET_HDR_F_DATA_VALID
+>>           * stay valid after XDP processing.
+>>           * 2. XDP doesn't work with partially checksummed packets (refer to
+>>           * virtnet_xdp_set()), so packets marked as
+>>           * VIRTIO_NET_HDR_F_NEEDS_CSUM get dropped during XDP processing.
+>>           */
+>>                  
+>>          if (vi->mergeable_rx_bufs) {
+>>                  flags = ((struct virtio_net_common_hdr *)buf)->hdr.flags;
+>>                  skb = receive_mergeable(dev, vi, rq, buf, ctx, len, xdp_xmit,
+>>                                          stats);
+>>          } else if (vi->big_packets) {
+>>                  void *p = page_address((struct page *)buf);
+>>                  
+>>                  flags = ((struct virtio_net_common_hdr *)p)->hdr.flags;
+>>                  skb = receive_big(dev, vi, rq, buf, len, stats);
+>>          } else {
+>>                  flags = ((struct virtio_net_common_hdr *)buf)->hdr.flags;
+>>                  skb = receive_small(dev, vi, rq, buf, ctx, len, xdp_xmit, stats);
+>>          }
+>>
+>>
+>> So we are reading the header, before dma sync, which is within
+>> receive_mergeable and friends:
+>>
+>> static struct sk_buff *receive_mergeable(struct net_device *dev,
+>>                                           struct virtnet_info *vi,
+>>                                           struct receive_queue *rq,
+>>                                           void *buf,
+>>                                           void *ctx,
+>>                                           unsigned int len,
+>>                                           unsigned int *xdp_xmit,
+>>                                           struct virtnet_rq_stats *stats)
+>> {
+>>          struct virtio_net_hdr_mrg_rxbuf *hdr = buf;
+>>          int num_buf = virtio16_to_cpu(vi->vdev, hdr->num_buffers);
+>>          struct page *page = virt_to_head_page(buf);
+>>          int offset = buf - page_address(page);
+>>          struct sk_buff *head_skb, *curr_skb;
+>>          unsigned int truesize = mergeable_ctx_to_truesize(ctx);
+>>          unsigned int headroom = mergeable_ctx_to_headroom(ctx);
+>>                  
+>>          head_skb = NULL;
+>>                  
+>>          if (rq->use_page_pool_dma)
+>>                  page_pool_dma_sync_for_cpu(rq->page_pool, page, offset, len);
+>>                  
+>>
+>>
+>> Just as a test, the below should fix it (compiled only), but the real
+>> fix is more complex since we need to be careful to avoid expensive syncing
+>> twice.
+>>
+>>
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index 97035b49bae7..57b4f5954bed 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -931,9 +931,19 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
+>>   
+>>   static void *virtnet_rq_get_buf(struct receive_queue *rq, u32 *len, void **ctx)
+>>   {
+>> +	void *buf;
+>> +
+>>   	BUG_ON(!rq->page_pool);
+>>   
+>> -	return virtqueue_get_buf_ctx(rq->vq, len, ctx);
+>> +	buf = virtqueue_get_buf_ctx(rq->vq, len, ctx);
+>> +	if (buf && rq->use_page_pool_dma && *len) {
+>> +		struct page *page = virt_to_head_page(buf);
+>> +		int offset = buf - page_address(page);
+>> +
+>> +		page_pool_dma_sync_for_cpu(rq->page_pool, page, offset, *len);
+>> +	}
+>> +
+>> +	return buf;
+>>   }
+>>   
+>>   static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
+>>
+>>
+>>
+>>
+>> -- 
+>> MST
 > 
-> Buses now either opt into the generic sysfs callbacks via the
-> bus_type::driver_override flag, or use device_set_driver_override() /
-> __device_set_driver_override() directly.
+> or maybe like this:
 > 
-> Thus, remove the now-unused driver_set_override() helper.
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 97035b49bae7..835f52651006 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -1956,13 +1956,6 @@ static struct sk_buff *receive_small(struct net_device *dev,
+>   	 */
+>   	buf -= VIRTNET_RX_PAD + xdp_headroom;
+>   
+> -	if (rq->use_page_pool_dma) {
+> -		int offset = buf - page_address(page) +
+> -			     VIRTNET_RX_PAD + xdp_headroom;
+> -
+> -		page_pool_dma_sync_for_cpu(rq->page_pool, page, offset, len);
+> -	}
+> -
+>   	len -= vi->hdr_len;
+>   	u64_stats_add(&stats->bytes, len);
+>   
+> @@ -2398,9 +2391,6 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
+>   
+>   	head_skb = NULL;
+>   
+> -	if (rq->use_page_pool_dma)
+> -		page_pool_dma_sync_for_cpu(rq->page_pool, page, offset, len);
+> -
+>   	u64_stats_add(&stats->bytes, len - vi->hdr_len);
+>   
+>   	if (check_mergeable_len(dev, ctx, len))
+> @@ -2563,6 +2553,13 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
+>   		return;
+>   	}
+>   
+> +	if (rq->use_page_pool_dma) {
+> +		struct page *page = virt_to_head_page(buf);
+> +		int offset = buf - page_address(page);
+> +
+> +		page_pool_dma_sync_for_cpu(rq->page_pool, page, offset, len);
+> +	}
+> +
+>   	/* About the flags below:
+>   	 * 1. Save the flags early, as the XDP program might overwrite them.
+>   	 * These flags ensure packets marked as VIRTIO_NET_HDR_F_DATA_VALID
 > 
-> Link: https://bugzilla.kernel.org/show_bug.cgi?id=220789
-> Signed-off-by: Danilo Krummrich <dakr@kernel.org>
-> ---
->  drivers/base/driver.c         | 75 -----------------------------------
->  include/linux/device/driver.h |  2 -
->  2 files changed, 77 deletions(-)
 
-Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+I see the same virtio_net regression introduced by commit 24fbd3967f3f 
+(“virtio_net: add page_pool support for buffer allocation”) on AMD EPYC 
+(KVM/QEMU secure guests with virtio-net), in addition to s390x as in 
+Omar Elghoul’s report [1].
+
+The failure mode matches: broken guest networking until that commit is 
+reverted or worked around.
+
+I built and tested both of Michael Tsirkin’s proposed fixes in this 
+thread [2] [3]; each resolves the issue on my AMD EPYC setup.
+
+[1] 
+https://lore.kernel.org/all/20260323150136.14452-1-oelghoul@linux.ibm.com/
+[2] 
+https://lore.kernel.org/all/20260323114313-mutt-send-email-mst@kernel.org/
+[3] 
+https://lore.kernel.org/all/20260323122728-mutt-send-email-mst@kernel.org/#t
+
+Tested-by: Srikanth Aithal <sraithal@amd.com>
+
+
