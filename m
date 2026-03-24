@@ -1,189 +1,98 @@
-Received: from mail-qv1-f44.google.com (mail-qv1-f44.google.com [209.85.219.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 905D134EEF5
-	for <virtualization@lists.linux.dev>; Tue, 24 Mar 2026 07:46:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.44
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774338408; cv=pass; b=Em0JkbDwheMRFM0zpwj52AGUhOY7TQTZBbtnuKRkX6+QdJ2BHkncDiPfwwslVy8y39xdH3rDKJ87VaS50lYEseLBd3zhKDlfIwnZaazsCtzb3o2NeLdLcrlQZVqO/obphqlLqyc/e41l8JojCVha6btrjnE8JtxDq+WX/eznTn4=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774338408; c=relaxed/simple;
-	bh=UD2wbaMFnRxKpWf+z6+HfYus07A2S++EQyCRhHJ9cek=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ap2hP29IzSwolqw/a0ej563FCxxOEosWIMNVGsACuPEZucJgLcRevry+pReDypaVqjjzFwvEYFbTghXHona5E9SK1FVCqRd01vdvPiMWCMzlbZUM2mkxUzc7uOvSdXrZRQBdahY3YH/6S2LliBCFn9XJnU9s+e2kRdnzH+YMsdE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=qX3P27e1; arc=pass smtp.client-ip=209.85.219.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8148634753F;
+	Tue, 24 Mar 2026 08:09:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774339796; cv=none; b=eKjeTilkUGUb54VrYJTr9e0K4JRaPl+04p1gHZ+hTOdipknxRDZI9xmO6PMtBqn+IrHhk8cd/3xD3k7OdNXxOOiUIG3RbK96ykYwjyWV/PLdOErxFW61PtS5g25wpp1uNMlzFJmpAxrNJbADEfynBCbnVEM+bnks4B+UjbOHmsE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774339796; c=relaxed/simple;
+	bh=IKKPJZ+MZDaoxP4vPPsLme6gW/n7DEGEiTEMcgMuYp0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=eCstLSOCKQfQIGaM6HV7tt1KasuIH8E+yrqXSqmQoAQ2M0nlQdivOHAnptuHOs8xbUrgv2uHVABgExmtcefcsdmhCiUwI6TAdcfKHVR+O4nw1X5U7Qd7j25wcX4KWt5EeMmrLoP72FJuOC6tKq7fLB/E03U3WxVW/1CLncICSVE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=0L8IR6Pk; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="qX3P27e1"
-Received: by mail-qv1-f44.google.com with SMTP id 6a1803df08f44-89a000f5adeso61788866d6.3
-        for <virtualization@lists.linux.dev>; Tue, 24 Mar 2026 00:46:40 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1774338399; cv=none;
-        d=google.com; s=arc-20240605;
-        b=aUdPE0ZUWv1pwiTzvVYA9fzEohTn+iMjnVDB0uXs9sM1PSj+W2LPbfijHTZPHCk+M3
-         gG/46y127LKR/sRl0XPvZ3KTO7cq0V+bbdZFjBNpqfRbMJMP5vhHEnAyMOsXIoFQetzQ
-         7HiXza1I2bf8NiUR37WqNZQZ5FNNVGFqfPYTjLI44vzYdFa9IlILPxr3RVdAELrfOvGc
-         Thi5dC6tIhuyRjPQrb84n950MuFC67twMtxS0J1Qdjjn1bLkxd5wLTcwDqsJDNW8XayO
-         z7MvnbV9eAfRfxxlJbBrPIr+OIroFrmt+sXnyTYiN/22StbOdg5TppjDItNX5ypP6MAV
-         qzCg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=xHFEGvyuVueh8l+H85vdxytZmPQSqK2Ng0X2X/FjRmY=;
-        fh=ynLZ/T8ZWbDO0OH+DsvIE02Tc3qNZU4YDOp9C3p0GVk=;
-        b=bbdQaSHuI4JyCrGqVnG2zW0KtkTW1kS70Z6vrTpSt7UWKstXxoIQp/dw5w4RHVR901
-         k8ftiSF3+BBbRY77xFV9TudHMMhgzwl1Z8xCLziZ2RT3uWbWsej/gmM+Jy/N3FbV6rnk
-         yXPyH9YsX9P5G8lfZckMG3mbRlPCoGqVmSs7o3Gd9JddFjCeTjn/FlfawCjDH2yJuPma
-         0t7Wdh2MsDSyVlTId3+Hxi2bO/VHejEQxgFsivSM1Z6VcqUKiOeWs4PW6psZOtv+4j5y
-         OOTFoF+7OWHiVexPevvC4vkL2a6HtArEIl+kOCctYuGnzJgdSoKZtcmbfGISfdFqEZ9x
-         Bazw==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1774338399; x=1774943199; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=xHFEGvyuVueh8l+H85vdxytZmPQSqK2Ng0X2X/FjRmY=;
-        b=qX3P27e1MTOAm/bRL5dI35wpKn8rQ+BWcoJ+GijAO0gcjGrOofsPoLfKTMA41mga03
-         LtZMwix0AlHJmfUjKCIT2tPpez3YNmk1dulhKPIPkhgncLKJf8ulF5LWIVZ3cQq/xGfM
-         yUxtP4Pglz9S/uGfq2IK/ez4AsxdN4voqMUfDmMhi8ctGIELW5YGXdwaBKbIE34F/Sfu
-         +vsWTSDtLormOi0vmmEips6mWsl+Nwamnjvo+BoLBfQWoAa2xZOkZZprjlfoIo44o8vy
-         3uWWXE9U2QynSVXUovW0ErshgHkd3v+g0K9wwFNf9BpauKVsWzR1Q/VDoo1SdPB7eMDr
-         6WzA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774338399; x=1774943199;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=xHFEGvyuVueh8l+H85vdxytZmPQSqK2Ng0X2X/FjRmY=;
-        b=f/+YFcxs7SzZRjwAiikfA/dHc292tc148yW+3+1HRDhjXfvwd4iuZeRT8uGM7/cyZk
-         joxBMnbw4yIqgTL2wMFbSDFzgNm8uExG/9+kDLOuhcddQJaLJgTEWeq3ORGnJtcR/K3J
-         f6kfhsSWIVkwgTFazYhskO9Q33cp6ayC6YQl1k08/tekF4MMILOrK6BI0KvXGhLAeAXq
-         2PgsEPif8gmG1ZHX/pwNjnjd2CB2ajsebLD0v6tWjJEDL0hv2BG3c/YKcOwPqfSp5wHT
-         Jv6mXZLLV9RD7lqplD2x/UiCqqut7STQHpibP0kxbDwPk9DvO91N2DPmVKgfmD1B8AiG
-         /etQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVYKwof/Lba+T1dU5DCnI08EjEO0yYRKroI6TTCWdTF9ElzZE2qvODWcsrqE33UlOhD7UzBncqU5Aal2xqpOw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx5Kpefdc/ir3rNGQqDP9RQjL//CYLa92k5hXUfIRD8L4M6gWL1
-	z68Gl7GrIy/QHnxIWAdVHr1EzNV5vx6sa9Y3I8QPFGI0z9E1UdxNuNPYGQpRDeHmBkKtbbidEno
-	yad6RpiT5cfwLkk3SIHFqATQR4sWZxpct3fmhNSPs
-X-Gm-Gg: ATEYQzx3eOhlDHH6Vj/9KvFdrh+XJkCaRb5N9MLvHGSRHjbakL+pWLrs+HVZpFBnVof
-	kUiXwNCtVIhJ4zwn2025tE0z522ctibb0SAITeV4nEJa5w8P11ZzJ4cokfeP96HmSpAbX+9PV/v
-	GEl/j1xDuwMNHJd0Oc2AuxV1OqXPf3GeMvEtauD8I+pHksG8p9tmZUFJV+inx0G+JdJfMucdh0T
-	U+IjmaCToR2a0YoFeBbZVYZy4lezdvUojXE4FW3fmmPfepo16cOJLoRFrDJ1VG9EwkFA1JRp13V
-	bUjYWg==
-X-Received: by 2002:ad4:5d62:0:b0:89c:a2c8:a874 with SMTP id
- 6a1803df08f44-89ca2c8af85mr111671516d6.41.1774338398191; Tue, 24 Mar 2026
- 00:46:38 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="0L8IR6Pk"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9B1B8C19424;
+	Tue, 24 Mar 2026 08:09:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
+	s=korg; t=1774339795;
+	bh=IKKPJZ+MZDaoxP4vPPsLme6gW/n7DEGEiTEMcgMuYp0=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=0L8IR6Pk68bAp9++dR6ItzOnWZf2MgvBLl2UV5zaHXNUbsVb9RAc04NnLuD2YNf+G
+	 GmqZcQvouuvrdE0xPt4YHI6OTcY19NxN8kIn1pWJKzLM1zFnqP+nevgcl7t5hQ7vTE
+	 9EDRgh/2RJsqQNRl7woh8a9xc4H6xKdllWSA+5ec=
+Date: Tue, 24 Mar 2026 09:09:28 +0100
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: Danilo Krummrich <dakr@kernel.org>
+Cc: Russell King <linux@armlinux.org.uk>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Ioana Ciornei <ioana.ciornei@nxp.com>,
+	Nipun Gupta <nipun.gupta@amd.com>,
+	Nikhil Agarwal <nikhil.agarwal@amd.com>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+	Long Li <longli@microsoft.com>, Bjorn Helgaas <bhelgaas@google.com>,
+	Armin Wolf <W_Armin@gmx.de>, Bjorn Andersson <andersson@kernel.org>,
+	Mathieu Poirier <mathieu.poirier@linaro.org>,
+	Vineeth Vijayan <vneethv@linux.ibm.com>,
+	Peter Oberparleiter <oberpar@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Harald Freudenberger <freude@linux.ibm.com>,
+	Holger Dengler <dengler@linux.ibm.com>,
+	Mark Brown <broonie@kernel.org>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Alex Williamson <alex@shazbot.org>, Juergen Gross <jgross@suse.com>,
+	Stefano Stabellini <sstabellini@kernel.org>,
+	Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+	linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org,
+	linux-pci@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+	linux-s390@vger.kernel.org, linux-spi@vger.kernel.org,
+	virtualization@lists.linux.dev, kvm@vger.kernel.org,
+	xen-devel@lists.xenproject.org,
+	linux-arm-kernel@lists.infradead.org
+Subject: Re: [PATCH 12/12] driver core: remove driver_set_override()
+Message-ID: <2026032412-finally-lubricant-7fe2@gregkh>
+References: <20260324005919.2408620-1-dakr@kernel.org>
+ <20260324005919.2408620-13-dakr@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260312025406.15641-1-xietangxin@yeah.net> <1774335943.3427165-1-xuanzhuo@linux.alibaba.com>
-In-Reply-To: <1774335943.3427165-1-xuanzhuo@linux.alibaba.com>
-From: Eric Dumazet <edumazet@google.com>
-Date: Tue, 24 Mar 2026 00:46:27 -0700
-X-Gm-Features: AaiRm51GA4aV1ym9PHNSS4b7XqpUYygD3yfgSv699tCpajq3gs0b1wqLQ4Ac1Ew
-Message-ID: <CANn89iJYj9Jc8-usgAYcFMoSo+Po3aOxsMkhg+F8BA_kME2e9g@mail.gmail.com>
-Subject: Re: [PATCH net v2] virtio_net: Fix UAF on dst_ops when
- IFF_XMIT_DST_RELEASE is cleared and napi_tx is false
-To: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: xietangxin <xietangxin@yeah.net>, netdev@vger.kernel.org, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	stable@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	"David S . Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Andrew Lunn <andrew+netdev@lunn.ch>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260324005919.2408620-13-dakr@kernel.org>
 
-On Tue, Mar 24, 2026 at 12:11=E2=80=AFAM Xuan Zhuo <xuanzhuo@linux.alibaba.=
-com> wrote:
->
-> On Thu, 12 Mar 2026 10:54:06 +0800, xietangxin <xietangxin@yeah.net> wrot=
-e:
-> > A UAF issue occurs when the virtio_net driver is configured with napi_t=
-x=3DN
-> > and the device's IFF_XMIT_DST_RELEASE flag is cleared
-> > (e.g., during the configuration of tc route filter rules).
-> >
-> > When IFF_XMIT_DST_RELEASE is removed from the net_device, the network s=
-tack
-> > expects the driver to hold the reference to skb->dst until the packet
-> > is fully transmitted and freed. In virtio_net with napi_tx=3DN,
-> > skbs may remain in the virtio transmit ring for an extended period.
-> >
-> > If the network namespace is destroyed while these skbs are still pendin=
-g,
-> > the corresponding dst_ops structure has freed. When a subsequent packet
-> > is transmitted, free_old_xmit() is triggered to clean up old skbs.
-> > It then calls dst_release() on the skb associated with the stale dst_en=
-try.
-> > Since the dst_ops (referenced by the dst_entry) has already been freed,
-> > a UAF kernel paging request occurs.
->
-> Sorry, this sounds a bit off to me. We know that napi_tx=3DN merely prolo=
-ngs the
-> presence of the skb on the device side. However, even without napi_tx=3DN=
-, there
-> is no guarantee that the skb will be freed within any specific timeframe.
-> Therefore, napi_tx=3DN just makes the issue more reproducible; it is not =
-the root
-> cause. Also, I'm surprised that the dst could be freed while it is still
-> referenced/held. I have a feeling that something is being overlooked here=
-.
->
-> Thanks.
->
-> >
-> > fix it by adds skb_dst_drop(skb) in start_xmit to explicitly release
-> > the dst reference before the skb is queued in virtio_net.
-> >
-> > Call Trace:
-> >  Unable to handle kernel paging request at virtual address ffff80007e15=
-0000
-> >  CPU: 2 UID: 0 PID: 6236 Comm: ping Kdump: loaded Not tainted 7.0.0-rc1=
-+ #6 PREEMPT
-> >   ...
-> >   percpu_counter_add_batch+0x3c/0x158 lib/percpu_counter.c:98 (P)
-> >   dst_release+0xe0/0x110  net/core/dst.c:177
-> >   skb_release_head_state+0xe8/0x108 net/core/skbuff.c:1177
-> >   sk_skb_reason_drop+0x54/0x2d8 net/core/skbuff.c:1255
-> >   dev_kfree_skb_any_reason+0x64/0x78 net/core/dev.c:3469
-> >   napi_consume_skb+0x1c4/0x3a0 net/core/skbuff.c:1527
-> >   __free_old_xmit+0x164/0x230  drivers/net/virtio_net.c:611 [virtio_net=
-]
-> >   free_old_xmit drivers/net/virtio_net.c:1081 [virtio_net]
-> >   start_xmit+0x7c/0x530 drivers/net/virtio_net.c:3329 [virtio_net]
-> >   ...
-> >
-> > Reproduction Steps:
-> > NETDEV=3D"enp3s0"
-> >
-> > config_qdisc_route_filter() {
-> >     tc qdisc del dev $NETDEV root
-> >     tc qdisc add dev $NETDEV root handle 1: prio
-> >     tc filter add dev $NETDEV parent 1:0 \
-> >       protocol ip prio 100 route to 100 flowid 1:1
-> >     ip route add 192.168.1.100/32 dev $NETDEV realm 100
-> > }
-> >
-> > test_ns() {
-> >     ip netns add testns
-> >     ip link set $NETDEV netns testns
-> >     ip netns exec testns ifconfig $NETDEV  10.0.32.46/24
-> >     ip netns exec testns ping -c 1 10.0.32.1
-> >     ip netns del testns
-> > }
-> >
-> > config_qdisc_route_filter
-> >
-> > test_ns
-> > sleep 2
-> > test_ns
+On Tue, Mar 24, 2026 at 01:59:16AM +0100, Danilo Krummrich wrote:
+> All buses have been converted from driver_set_override() to the generic
+> driver_override infrastructure introduced in commit cb3d1049f4ea
+> ("driver core: generalize driver_override in struct device").
+> 
+> Buses now either opt into the generic sysfs callbacks via the
+> bus_type::driver_override flag, or use device_set_driver_override() /
+> __device_set_driver_override() directly.
+> 
+> Thus, remove the now-unused driver_set_override() helper.
+> 
+> Link: https://bugzilla.kernel.org/show_bug.cgi?id=220789
+> Signed-off-by: Danilo Krummrich <dakr@kernel.org>
+> ---
+>  drivers/base/driver.c         | 75 -----------------------------------
+>  include/linux/device/driver.h |  2 -
+>  2 files changed, 77 deletions(-)
 
-I took a stab at this, please look at
-
-https://lore.kernel.org/netdev/20260324073750.1500328-1-edumazet@google.com=
-/T/#u
+Reviewed-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
