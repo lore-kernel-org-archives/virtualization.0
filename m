@@ -1,333 +1,200 @@
-Received: from BN1PR04CU002.outbound.protection.outlook.com (mail-eastus2azon11010008.outbound.protection.outlook.com [52.101.56.8])
+Received: from out-187.mta1.migadu.com (out-187.mta1.migadu.com [95.215.58.187])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7028D369206
-	for <virtualization@lists.linux.dev>; Tue, 24 Mar 2026 08:20:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.56.8
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774340437; cv=fail; b=E10WtfbgUldjEISNqnSO88O0wn+d46GwmXRdgyfME16OP4veY1UiTf1p1jKqmCw7fjDdlEShBoTz5AI6kiyqfIPXYPi2uHzJ8BhTxmGkHd0JB8G5yP9ikTVNCISbCl28j6ST6aVIdFyFeOpHIFawk5bFNCBgIdNe58pYKhFd0qg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774340437; c=relaxed/simple;
-	bh=Cv2TeXyCFGOmnxgMnmtwIvpZCMHNOPBMytO4epLjjjI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=H2CCvqRot7qT1WFtAkFhMzUjGEiABw7iYKUqVpap4k/NjvTw1m+vdUG8bJhfGNBQ0P4W77FvEWAUugrq8PCci+gwNoivAAPnxa8DnU5iVGTuA185OD0+S3NS9pOyVS4itf8YAi32E5RsgoxsX9X6dKaVZl4SaFHDtKITxvR9Pvw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=lItA5BEd; arc=fail smtp.client-ip=52.101.56.8
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16E8A336887
+	for <virtualization@lists.linux.dev>; Tue, 24 Mar 2026 08:53:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.187
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774342400; cv=none; b=mQjwbLgrs581qTFQ+e7MFcl8spmfuDVzKl8vgWHeOPyKRpgx0hBXFl9cVXMT/p2knZTMij5Z1SQ0+xidLVLjV7Lhjx1OF+Nq7ORED8C3Tmxt9srDCyQROiVysQRhcpd2OPsols9HxJ8FzucZEZHh4aTnkBSIYt4CcsN3wAej/j4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774342400; c=relaxed/simple;
+	bh=x3AbBSH/6zc/3JdVH91tTFUja889KAbu62u1Vjccw0o=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YCJYEfuc/zNSBBP4IB8Ag5VfGIlLg/CP+7ZWONTQCh4wYNHvP/0A7MO56wPYkYXuR2eYsl964Sy7u5ihTTCahmeSKzYR3Asin6LGujhVOngIpAlDBbbqayMm/H2VBA1qQW66uS8khd1FwKO4WbaU1XywsJKCWj0ysLs3IWH5dTY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=Ehx+GvCQ; arc=none smtp.client-ip=95.215.58.187
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="lItA5BEd"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=KXXm+t3xmft1v3xPhyLepgyckVV3t8cB4wazJg2CNuA+tSJ0FVZRxnqToq/xOj6FYurf89uWe+GX6mlTjDWeEjCm3ZHMv5lvxvQGFZkHmeI0pfls25I2zQ9yg8nfC7b6hvxUYifD/dctGBEeBlgL40nUV+78RKvbTVXg+cIHM9R3ubmkMGXpKIqGpaL6GkCs0ao3RskQB0QuYJTP3YsLWueZ2DsYO2dHS9nVGkWsXzgpWvALMhrjalnqdYRWoChzgDJD4yHGitS6lMT973/dwpL1ZXdrvaxWCrVpEUkNP17/yDPjXmRJRy72Wh9QEmPcqVPKiSBw7olFXfJSNKM2DA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=GPr+Elxb6UVBKYfcZ/tUerk30U8LktK8aiaE6KLKb60=;
- b=euQf7VbFCTrjk/KorGfitA32H18Q8XPCuLOg/2G+zHI3Ca1cu8NKaz5DleFQEJzWrPCXRUr7UWLkZhanH8A4ph85Bby7x1U03y0iGU2b6oPrRyKruOBhySeE25HK0mIPIMBeLnKNNxg3SThKEVC0CRWsjTrMi7j8cNoQ0+mfGaslw35I2AuKMi2rnxbpPVaBxQsOx9bQQWPu4gBVDjU/hgquzJffvoqnGJTwklU0z9JFj9QY/dMVIFzsr5CBwoHp/HFEXn3unZD1wZUQXAsahNo2saeGcpoQAnjy3sMM6q8nJJGqxaF7fMrHHqBd7nW5B/EtBXAa+9GtmvDJqNdOzg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 165.204.84.17) smtp.rcpttodomain=redhat.com smtp.mailfrom=amd.com; dmarc=pass
- (p=quarantine sp=quarantine pct=100) action=none header.from=amd.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=GPr+Elxb6UVBKYfcZ/tUerk30U8LktK8aiaE6KLKb60=;
- b=lItA5BEd7OplyQUImv/Yihc87W3VC6ha++M4lXy3WhutyEvZChW7Ny+ydg+bvY9Ku3g3GI1tUM9ejwF9smaU7j5TkSK9h2kQ8/jQXSu323ofQiy1KXyd49C4z2dy5Rv+1LdiWisqxl9UA5jyD7nBezaZlzE+BdHPD/Fl0qV8/M8=
-Received: from BYAPR11CA0095.namprd11.prod.outlook.com (2603:10b6:a03:f4::36)
- by CY1PR12MB9581.namprd12.prod.outlook.com (2603:10b6:930:fe::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9745.20; Tue, 24 Mar
- 2026 08:20:24 +0000
-Received: from CO1PEPF00012E66.namprd05.prod.outlook.com
- (2603:10b6:a03:f4:cafe::90) by BYAPR11CA0095.outlook.office365.com
- (2603:10b6:a03:f4::36) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9723.31 via Frontend Transport; Tue,
- 24 Mar 2026 08:20:23 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 165.204.84.17)
- smtp.mailfrom=amd.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=amd.com;
-Received-SPF: Pass (protection.outlook.com: domain of amd.com designates
- 165.204.84.17 as permitted sender) receiver=protection.outlook.com;
- client-ip=165.204.84.17; helo=satlexmb07.amd.com; pr=C
-Received: from satlexmb07.amd.com (165.204.84.17) by
- CO1PEPF00012E66.mail.protection.outlook.com (10.167.249.75) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9723.19 via Frontend Transport; Tue, 24 Mar 2026 08:20:23 +0000
-Received: from satlexmb10.amd.com (10.181.42.219) by satlexmb07.amd.com
- (10.181.42.216) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Tue, 24 Mar
- 2026 03:20:23 -0500
-Received: from satlexmb07.amd.com (10.181.42.216) by satlexmb10.amd.com
- (10.181.42.219) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.17; Tue, 24 Mar
- 2026 03:20:23 -0500
-Received: from [10.136.34.242] (10.180.168.240) by satlexmb07.amd.com
- (10.181.42.216) with Microsoft SMTP Server id 15.2.2562.17 via Frontend
- Transport; Tue, 24 Mar 2026 03:20:19 -0500
-Message-ID: <cbce5727-f4d5-4601-a81f-ed9cb3f541e6@amd.com>
-Date: Tue, 24 Mar 2026 13:50:18 +0530
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="Ehx+GvCQ"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1774342395;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=cooa/41xI7d+DZUvbghWmkV6GAOYjQWfhrGJsw3E+Hc=;
+	b=Ehx+GvCQR7JSE3G0Gcv67EFfJuYOYPtcS6CVJgMxW9nvVX1uHVU+O9ZtrvqPr1sZO9Vos8
+	RZ8pygTVO30fZj+U9PODUBVQ4GmxXMmPvam/Z9FB2sPnjVwxAHx9+mYbDoG3O+ES6AekQF
+	Rz7lQiIdgJAhpWLNyo2xOXvidlRKOE0=
+From: Lance Yang <lance.yang@linux.dev>
+To: akpm@linux-foundation.org
+Cc: peterz@infradead.org,
+	david@kernel.org,
+	dave.hansen@intel.com,
+	dave.hansen@linux.intel.com,
+	ypodemsk@redhat.com,
+	hughd@google.com,
+	will@kernel.org,
+	aneesh.kumar@kernel.org,
+	npiggin@gmail.com,
+	tglx@linutronix.de,
+	mingo@redhat.com,
+	bp@alien8.de,
+	x86@kernel.org,
+	hpa@zytor.com,
+	arnd@arndb.de,
+	lorenzo.stoakes@oracle.com,
+	ziy@nvidia.com,
+	baolin.wang@linux.alibaba.com,
+	Liam.Howlett@oracle.com,
+	npache@redhat.com,
+	ryan.roberts@arm.com,
+	dev.jain@arm.com,
+	baohua@kernel.org,
+	shy828301@gmail.com,
+	riel@surriel.com,
+	jannh@google.com,
+	jgross@suse.com,
+	seanjc@google.com,
+	pbonzini@redhat.com,
+	boris.ostrovsky@oracle.com,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org,
+	linux-arch@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org,
+	ioworker0@gmail.com
+Subject: [PATCH v8 0/2] skip redundant sync IPIs when TLB flush sent them
+Date: Tue, 24 Mar 2026 16:52:36 +0800
+Message-ID: <20260324085238.44477-1-lance.yang@linux.dev>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v11] virtio_net: add page_pool support for buffer
- allocation
-To: "Michael S. Tsirkin" <mst@redhat.com>, Omar Elghoul
-	<oelghoul@linux.ibm.com>
-CC: <vishs@meta.com>, <andrew+netdev@lunn.ch>, <davem@davemloft.net>,
-	<dw@davidwei.uk>, <edumazet@google.com>, <eperezma@redhat.com>,
-	<ilias.apalodimas@linaro.org>, <jasowang@redhat.com>, <kernel-team@meta.com>,
-	<kuba@kernel.org>, <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
-	<pabeni@redhat.com>, <technoboy85@gmail.com>,
-	<virtualization@lists.linux.dev>, <xuanzhuo@linux.alibaba.com>
-References: <20260310183107.2822016-1-vishs@meta.com>
- <20260323150136.14452-1-oelghoul@linux.ibm.com>
- <20260323114313-mutt-send-email-mst@kernel.org>
- <20260323122728-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-From: "Aithal, Srikanth" <sraithal@amd.com>
-In-Reply-To: <20260323122728-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 8bit
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CO1PEPF00012E66:EE_|CY1PR12MB9581:EE_
-X-MS-Office365-Filtering-Correlation-Id: 43e8ea93-1e2d-4f0f-dec3-08de897e328c
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|7416014|376014|36860700016|82310400026|1800799024|13003099007|56012099003|22082099003|18002099003;
-X-Microsoft-Antispam-Message-Info:
-	lcN5DXZ8a0XhxK9omY39NdA/unFDs86R5rHSIBbgttqLuDv5kdTToxykRoUsn4BiHK21VOr2wTtvuaJHKwUUYwei4DL9SoA2uNxlj3+/dtfoNMaB4voiCtgYty7mCQ32QbN5gz+cJipjSKOhcBj2a0p3b1PBnFvwU0pv6+Ir1GRyjPHi77ay1ekQoCpEmtBAGp7Euji4i6W0Tq1sto3sP5CDrCfiJytWMJ0aPi3cSb3s/V87J4PW/3b1zlSVl8ms5FeWNwBAml8hprhG9kMezDXdzoahSwEW5Orny9yOqzPjfeOSDe28GjnyzmqsPAAkQHft2Yap8N3UrEqYZ7YHoA3j70OGKMMMN73tvDkCO/tlPRsRh+AvSuHdqOkI7/fepNu0Wp0qE6ctgjOaqAtDDViR9V7T0yRbq55n+mRqgyPRcnPctWe8OxJihXo0ufumm8c+/6vRuLB7uNuSPl6QXqt3SgeEOSTUy1G3uWzHtN5MSCu031w+xN3O/UT5SaeiG5Tf05rkF0vjjprZBeUJSfY8RByfipD235OIVtvTLTarUPkUl09ha7xlNeutzBUfXl25VgJso27Zdv+xtn324deaZGyfNEyQKzpdi9+WHMxOcQXIbIH+Rq4IsVRJd7hv9ByMk7Vs1aJCw2x8S5WYp6Bw8Uh/xrIViSoUnIh6oNJDBM6IrcbJTYN648BMrwG5v+SK2gG1zmHTGKOQBMR/0y7TOZGC0T6QtNycn5htie+AtDPGsz8xbX1K/Dw7ugYZAQY2LjHwvi588EKIeuOrJw==
-X-Forefront-Antispam-Report:
-	CIP:165.204.84.17;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:satlexmb07.amd.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(7416014)(376014)(36860700016)(82310400026)(1800799024)(13003099007)(56012099003)(22082099003)(18002099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	2mnXxB2wrZ8+ypriArA7GRVGHuKMj1Ubdwu4AIzaOQYYNOVCIxoXYnIjJbjOcepcY1cy/JByzqPXVjd1R+kHax7zFX9EWCxiEvgyx/p1qppESZ20W1z7R1Afl5BluhItqAZ8bJeHPChr39jrJpjT5yetSbX0K20FBkwulTeUGPilyHK6ue/MoIFsCMdQvyb7nFGVty8X7jvXFF0AxhOPUigvRSNpbcEa9gaFz2vRZoPXeCn+3Tl/qZs63cusXcxg2E1BC8MlIoeVMWCmP05YC4w3w6yqfN+DXr+EYZ1mzmQZPCQZDUPz6H22MdTZd/L6bhDx3GGVj8+1O6VhPnombIP/nrktI6dusugxbfpMojyOnke37YHntWvvXEpErvVA269OOegS2HQOf75KXOpGv0KGRKE3epwjkB2E8OjUpJmgbaDe8kvsRjNqZ9cWDN78
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Mar 2026 08:20:23.8826
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 43e8ea93-1e2d-4f0f-dec3-08de897e328c
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=3dd8961f-e488-4e60-8e11-a82d994e183d;Ip=[165.204.84.17];Helo=[satlexmb07.amd.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	CO1PEPF00012E66.namprd05.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY1PR12MB9581
+X-Migadu-Flow: FLOW_OUT
 
-On 3/23/2026 10:28 PM, Michael S. Tsirkin wrote:
-> On Mon, Mar 23, 2026 at 11:52:34AM -0400, Michael S. Tsirkin wrote:
->> On Mon, Mar 23, 2026 at 11:01:31AM -0400, Omar Elghoul wrote:
->>> Hi,
->>>
->>> I've been testing linux-next (tags later than 03/17) and hit new issues in
->>> virtio-net on s390x. I bisected the issue, and I found this patch to be the
->>> first buggy commit.
->>>
->>> The issue seems to only be reproducible when running in Secure Execution.
->>> Tested in a KVM guest, the virtio-net performance appears greatly reduced,
->>> and the dmesg output shows many instances of the following error messages.
->>>
->>> Partial relevant logs
->>> =====================
->>> [   49.332028] macvtap0: bad gso: type: 0, size: 0, flags 1 tunnel 0 tnl csum 0
->>> [   74.365668] macvtap0: bad gso: type: 2e, size: 27948, flags 0 tunnel 0 tnl csum 0
->>> [  403.302168] macvtap0: bad csum: flags: 2, gso_type: 23 rx_tnl_csum 0
->>> [  403.302271] macvtap0: bad csum: flags: 2, gso_type: e0 rx_tnl_csum 0
->>> [  403.302279] macvtap0: bad csum: flags: 2, gso_type: e1 rx_tnl_csum 0
->>> [  403.309492] macvtap0: bad csum: flags: 2, gso_type: 4c rx_tnl_csum 0
->>> [  403.317029] macvtap0: bad csum: flags: 2, gso_type: e0 rx_tnl_csum 0
->>>
->>> Steps to reproduce
->>> ==================
->>> 1. Boot a Linux guest implementing this patch under QEMU/KVM (*) with SE
->>>     enabled and a virtio-net-ccw device attached.
->>> 2. Run dmesg. The error message is usually already present at boot time,
->>>     but if not, it can be reproduced by creating any network traffic.
->>>
->>> (*) This patch was not tested in a non-KVM hypervisor environment.
->>>
->>> I've further confirmed that reverting this patch onto its parent commit
->>> resolves the issue. Please let me know if you'd like me to test a fix or if
->>> you would need more information.
->>>
->>> Thanks in advance.
->>>
->>> Best,
->>> Omar
->>
->> Well... I am not sure how I missed it. Obvious in hindsight:
->>
->> static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
->>                          void *buf, unsigned int len, void **ctx,
->>                          unsigned int *xdp_xmit,
->>                          struct virtnet_rq_stats *stats)
->> {
->>          struct net_device *dev = vi->dev;
->>          struct sk_buff *skb;
->>          u8 flags;
->>                  
->>          if (unlikely(len < vi->hdr_len + ETH_HLEN)) {
->>                  pr_debug("%s: short packet %i\n", dev->name, len);
->>                  DEV_STATS_INC(dev, rx_length_errors);
->>                  virtnet_rq_free_buf(vi, rq, buf);
->>                  return;
->>          }
->>          
->>          /* About the flags below:
->>           * 1. Save the flags early, as the XDP program might overwrite them.
->>           * These flags ensure packets marked as VIRTIO_NET_HDR_F_DATA_VALID
->>           * stay valid after XDP processing.
->>           * 2. XDP doesn't work with partially checksummed packets (refer to
->>           * virtnet_xdp_set()), so packets marked as
->>           * VIRTIO_NET_HDR_F_NEEDS_CSUM get dropped during XDP processing.
->>           */
->>                  
->>          if (vi->mergeable_rx_bufs) {
->>                  flags = ((struct virtio_net_common_hdr *)buf)->hdr.flags;
->>                  skb = receive_mergeable(dev, vi, rq, buf, ctx, len, xdp_xmit,
->>                                          stats);
->>          } else if (vi->big_packets) {
->>                  void *p = page_address((struct page *)buf);
->>                  
->>                  flags = ((struct virtio_net_common_hdr *)p)->hdr.flags;
->>                  skb = receive_big(dev, vi, rq, buf, len, stats);
->>          } else {
->>                  flags = ((struct virtio_net_common_hdr *)buf)->hdr.flags;
->>                  skb = receive_small(dev, vi, rq, buf, ctx, len, xdp_xmit, stats);
->>          }
->>
->>
->> So we are reading the header, before dma sync, which is within
->> receive_mergeable and friends:
->>
->> static struct sk_buff *receive_mergeable(struct net_device *dev,
->>                                           struct virtnet_info *vi,
->>                                           struct receive_queue *rq,
->>                                           void *buf,
->>                                           void *ctx,
->>                                           unsigned int len,
->>                                           unsigned int *xdp_xmit,
->>                                           struct virtnet_rq_stats *stats)
->> {
->>          struct virtio_net_hdr_mrg_rxbuf *hdr = buf;
->>          int num_buf = virtio16_to_cpu(vi->vdev, hdr->num_buffers);
->>          struct page *page = virt_to_head_page(buf);
->>          int offset = buf - page_address(page);
->>          struct sk_buff *head_skb, *curr_skb;
->>          unsigned int truesize = mergeable_ctx_to_truesize(ctx);
->>          unsigned int headroom = mergeable_ctx_to_headroom(ctx);
->>                  
->>          head_skb = NULL;
->>                  
->>          if (rq->use_page_pool_dma)
->>                  page_pool_dma_sync_for_cpu(rq->page_pool, page, offset, len);
->>                  
->>
->>
->> Just as a test, the below should fix it (compiled only), but the real
->> fix is more complex since we need to be careful to avoid expensive syncing
->> twice.
->>
->>
->> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
->> index 97035b49bae7..57b4f5954bed 100644
->> --- a/drivers/net/virtio_net.c
->> +++ b/drivers/net/virtio_net.c
->> @@ -931,9 +931,19 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
->>   
->>   static void *virtnet_rq_get_buf(struct receive_queue *rq, u32 *len, void **ctx)
->>   {
->> +	void *buf;
->> +
->>   	BUG_ON(!rq->page_pool);
->>   
->> -	return virtqueue_get_buf_ctx(rq->vq, len, ctx);
->> +	buf = virtqueue_get_buf_ctx(rq->vq, len, ctx);
->> +	if (buf && rq->use_page_pool_dma && *len) {
->> +		struct page *page = virt_to_head_page(buf);
->> +		int offset = buf - page_address(page);
->> +
->> +		page_pool_dma_sync_for_cpu(rq->page_pool, page, offset, *len);
->> +	}
->> +
->> +	return buf;
->>   }
->>   
->>   static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
->>
->>
->>
->>
->> -- 
->> MST
-> 
-> or maybe like this:
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 97035b49bae7..835f52651006 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -1956,13 +1956,6 @@ static struct sk_buff *receive_small(struct net_device *dev,
->   	 */
->   	buf -= VIRTNET_RX_PAD + xdp_headroom;
->   
-> -	if (rq->use_page_pool_dma) {
-> -		int offset = buf - page_address(page) +
-> -			     VIRTNET_RX_PAD + xdp_headroom;
-> -
-> -		page_pool_dma_sync_for_cpu(rq->page_pool, page, offset, len);
-> -	}
-> -
->   	len -= vi->hdr_len;
->   	u64_stats_add(&stats->bytes, len);
->   
-> @@ -2398,9 +2391,6 @@ static struct sk_buff *receive_mergeable(struct net_device *dev,
->   
->   	head_skb = NULL;
->   
-> -	if (rq->use_page_pool_dma)
-> -		page_pool_dma_sync_for_cpu(rq->page_pool, page, offset, len);
-> -
->   	u64_stats_add(&stats->bytes, len - vi->hdr_len);
->   
->   	if (check_mergeable_len(dev, ctx, len))
-> @@ -2563,6 +2553,13 @@ static void receive_buf(struct virtnet_info *vi, struct receive_queue *rq,
->   		return;
->   	}
->   
-> +	if (rq->use_page_pool_dma) {
-> +		struct page *page = virt_to_head_page(buf);
-> +		int offset = buf - page_address(page);
-> +
-> +		page_pool_dma_sync_for_cpu(rq->page_pool, page, offset, len);
-> +	}
-> +
->   	/* About the flags below:
->   	 * 1. Save the flags early, as the XDP program might overwrite them.
->   	 * These flags ensure packets marked as VIRTIO_NET_HDR_F_DATA_VALID
-> 
+Hi all,
 
-I see the same virtio_net regression introduced by commit 24fbd3967f3f 
-(“virtio_net: add page_pool support for buffer allocation”) on AMD EPYC 
-(KVM/QEMU secure guests with virtio-net), in addition to s390x as in 
-Omar Elghoul’s report [1].
+When page table operations require synchronization with software/lockless
+walkers, they call tlb_remove_table_sync_{one,rcu}() after flushing the
+TLB (tlb->freed_tables or tlb->unshared_tables).
 
-The failure mode matches: broken guest networking until that commit is 
-reverted or worked around.
+On architectures where the TLB flush already sends IPIs to all target CPUs,
+the subsequent sync IPI broadcast is redundant. This is not only costly on
+large systems where it disrupts all CPUs even for single-process page table
+operations, but has also been reported to hurt RT workloads[1].
 
-I built and tested both of Michael Tsirkin’s proposed fixes in this 
-thread [2] [3]; each resolves the issue on my AMD EPYC setup.
+This series introduces tlb_table_flush_implies_ipi_broadcast() to check if
+the prior TLB flush already provided the necessary synchronization. When
+true, the sync calls can early-return.
 
-[1] 
-https://lore.kernel.org/all/20260323150136.14452-1-oelghoul@linux.ibm.com/
-[2] 
-https://lore.kernel.org/all/20260323114313-mutt-send-email-mst@kernel.org/
-[3] 
-https://lore.kernel.org/all/20260323122728-mutt-send-email-mst@kernel.org/#t
+A few cases rely on this synchronization:
 
-Tested-by: Srikanth Aithal <sraithal@amd.com>
+1) hugetlb PMD unshare[2]: The problem is not the freeing but the reuse
+   of the PMD table for other purposes in the last remaining user after
+   unsharing.
 
+2) khugepaged collapse[3]: Ensure no concurrent GUP-fast before collapsing
+   and (possibly) freeing the page table / re-depositing it.
+
+Two-step plan as David suggested[4]:
+
+Step 1 (this series): Skip redundant sync when we're 100% certain the TLB
+flush sent IPIs. INVLPGB is excluded because when supported, we cannot
+guarantee IPIs were sent, keeping it clean and simple.
+
+Step 2 (future work): Send targeted IPIs only to CPUs actually doing
+software/lockless page table walks, benefiting all architectures.
+
+Regarding Step 2, it obviously only applies to setups where Step 1 does not
+apply: like x86 with INVLPGB or arm64. Step 2 work is ongoing; early
+attempts showed ~3% GUP-fast overhead. Reducing the overhead requires more
+work and tuning; it will be submitted separately once ready.
+
+On a 64-core Intel x86 server, the CAL interrupt count in
+/proc/interrupts dropped from 646,316 to 785 when collapsing a 20 GiB
+range with this series applied.
+
+David Hildenbrand did the initial implementation. I built on his work and
+relied on off-list discussions to push it further - thanks a lot David!
+
+[1] https://lore.kernel.org/linux-mm/1b27a3fa-359a-43d0-bdeb-c31341749367@kernel.org/
+[2] https://lore.kernel.org/linux-mm/6a364356-5fea-4a6c-b959-ba3b22ce9c88@kernel.org/
+[3] https://lore.kernel.org/linux-mm/2cb4503d-3a3f-4f6c-8038-7b3d1c74b3c2@kernel.org/
+[4] https://lore.kernel.org/linux-mm/bbfdf226-4660-4949-b17b-0d209ee4ef8c@kernel.org/
+
+v7 -> v8:
+- Pick up Acked-by tags from David, thanks!
+- Add CAL interrupt numbers to the cover letter (per Andrew, thanks!)
+- Rewrite the [2/2] changelog and reword the comment (per David, thanks!)
+- https://lore.kernel.org/linux-mm/20260309020711.20831-1-lance.yang@linux.dev/
+
+v6 -> v7:
+- Simplify init logic and eliminate duplicated X86_FEATURE_INVLPGB checks
+  (per Dave, thanks!)
+- Remove flush_tlb_multi_implies_ipi_broadcast property because no PV
+  backend sets it today.
+- https://lore.kernel.org/linux-mm/20260304021046.18550-1-lance.yang@linux.dev/
+
+v5 -> v6:
+- Use static_branch to eliminate the branch overhead (per Peter, thanks!)
+- https://lore.kernel.org/linux-mm/20260302063048.9479-1-lance.yang@linux.dev/
+
+v4 -> v5:
+- Drop per-CPU tracking (active_lockless_pt_walk_mm) from this series;
+  defer to Step 2 as it adds ~3% GUP-fast overhead
+- Keep pv_ops property false for PV backends like KVM: preempted vCPUs
+  cannot be assumed safe (per Sean, thanks!)
+  https://lore.kernel.org/linux-mm/aaCP95l-m8ISXF78@google.com/
+- https://lore.kernel.org/linux-mm/20260202074557.16544-1-lance.yang@linux.dev/ 
+
+v3 -> v4:
+- Rework based on David's two-step direction and per-CPU idea:
+  1) Targeted IPIs: per-CPU variable when entering/leaving lockless page
+     table walk; tlb_remove_table_sync_mm() IPIs only those CPUs.
+  2) On x86, pv_mmu_ops property set at init to skip the extra sync when
+     flush_tlb_multi() already sends IPIs.
+  https://lore.kernel.org/linux-mm/bbfdf226-4660-4949-b17b-0d209ee4ef8c@kernel.org/
+- https://lore.kernel.org/linux-mm/20260106120303.38124-1-lance.yang@linux.dev/
+
+v2 -> v3:
+- Complete rewrite: use dynamic IPI tracking instead of static checks
+  (per Dave Hansen, thanks!)
+- Track IPIs via mmu_gather: native_flush_tlb_multi() sets flag when
+  actually sending IPIs
+- Motivation for skipping redundant IPIs explained by David:
+  https://lore.kernel.org/linux-mm/1b27a3fa-359a-43d0-bdeb-c31341749367@kernel.org/
+- https://lore.kernel.org/linux-mm/20251229145245.85452-1-lance.yang@linux.dev/
+
+v1 -> v2:
+- Fix cover letter encoding to resolve send-email issues. Apologies for
+  any email flood caused by the failed send attempts :(
+
+RFC -> v1:
+- Use a callback function in pv_mmu_ops instead of comparing function
+  pointers (per David)
+- Embed the check directly in tlb_remove_table_sync_one() instead of
+  requiring every caller to check explicitly (per David)
+- Move tlb_table_flush_implies_ipi_broadcast() outside of
+  CONFIG_MMU_GATHER_RCU_TABLE_FREE to fix build error on architectures
+  that don't enable this config.
+  https://lore.kernel.org/oe-kbuild-all/202512142156.cShiu6PU-lkp@intel.com/
+- https://lore.kernel.org/linux-mm/20251213080038.10917-1-lance.yang@linux.dev/
+
+Lance Yang (2):
+  mm/mmu_gather: prepare to skip redundant sync IPIs
+  x86/tlb: skip redundant sync IPIs for native TLB flush
+
+ arch/x86/include/asm/tlb.h      | 18 +++++++++++++++++-
+ arch/x86/include/asm/tlbflush.h |  2 ++
+ arch/x86/kernel/smpboot.c       |  1 +
+ arch/x86/mm/tlb.c               | 15 +++++++++++++++
+ include/asm-generic/tlb.h       | 17 +++++++++++++++++
+ mm/mmu_gather.c                 | 15 +++++++++++++++
+ 6 files changed, 67 insertions(+), 1 deletion(-)
+
+-- 
+2.49.0
 
