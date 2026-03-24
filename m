@@ -1,330 +1,181 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4DEA1DF26E
-	for <virtualization@lists.linux.dev>; Tue, 24 Mar 2026 00:34:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66AAB1DF26E;
+	Tue, 24 Mar 2026 00:59:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774312486; cv=none; b=jQ/rSo567xAnAqjLkNJkYFrCnoY/SUM6qfrBfNjgfIay1YCNYglzFuhFQM/tuXhZ6eeCkXmRp9815bdyR4LR/r/jnI/o5xnTBJbp1spa8M80keLddVm391LxZ/Y6A+/famD0A5KPUfnFQpz2t8XHddloqJpDKJJ9Zs2ifI/MR9M=
+	t=1774313972; cv=none; b=e0uMYgmfNy/rshUduBxdi0B9wUWtN3hz9m2ktjZ0O5aujPlDQyc94Q4G/4ouusribSVtlB9LDDndU6aSsebn4IeVrZp5Hg+8pQGSsDHlPXEMCBR0F/3cPvm7s/BvZH+eqdJMpOo3ouYM2NvsiTP+APg/F6EXolP+wxaukMAYkUc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774312486; c=relaxed/simple;
-	bh=NmX6aq1AjJs12Yq+PWPzbIZnkkSYYGFdr1l5n18R484=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=g8CUwZXKyuYOkylYlYqyZ5QR6oQzfQAqJL4dRK/y+NsVR+VpnKirv9ATe9E7f46m33a1AsBPF0etoMLq1BXccq4jk/Gnw0pzwjMRd3jl1BuYdcjg+wlJV+fmECoaiD6DQMWDeFHXwK6gxTurjVyIx5eCSUOgwIq7V04U4mCzv24=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Ddgf8HKU; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1774313972; c=relaxed/simple;
+	bh=g9n6egUYTuF5ke2JJ6m74go1iA9dbs1LNBwQX9Kfxdo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KAB09zD+vGfQS/hpeTaOSW2W5R7Oj+LilVeml7NfvtNEMgPfwcX4Pqo0AA6CR+BsdlJ1sCGIAyO+RLXiyU3xMxMJzz0fl1j+1hyDOYTUnt6GorWD1gzPfxLmMDO0rgY9fqOo4JbrvHyl9Rzr2vKoPGA+/U1A5w/L/WbSnhW8lU8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=r79tvbMT; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Ddgf8HKU"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1774312483;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=saGQT6VbC9RUqD0YOp9yO8+1VRHnufK9WLW/Cpl18Rg=;
-	b=Ddgf8HKUN0J1TQkC+Ogwpu7XcfBqnbz1XOSnHq6z5vKrdvT6Da8WgQphLSkxT3g6TJ0kla
-	/Uo/LrlZXBDFE1Pg7UEdU47ju2WjFFUi+Q+zKlW3DT8LYsGgyfPuyF3hLtawc4TP5/6JB/
-	JOYZcHPUPYTI8iBr6SW7WAnRlBEHFwE=
-Received: from mail-pl1-f200.google.com (mail-pl1-f200.google.com
- [209.85.214.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-497-49PubPWiPC2XbMJ-_MprAg-1; Mon, 23 Mar 2026 20:34:42 -0400
-X-MC-Unique: 49PubPWiPC2XbMJ-_MprAg-1
-X-Mimecast-MFC-AGG-ID: 49PubPWiPC2XbMJ-_MprAg_1774312481
-Received: by mail-pl1-f200.google.com with SMTP id d9443c01a7336-2b059511554so5410265ad.0
-        for <virtualization@lists.linux.dev>; Mon, 23 Mar 2026 17:34:42 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774312481; x=1774917281;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=saGQT6VbC9RUqD0YOp9yO8+1VRHnufK9WLW/Cpl18Rg=;
-        b=H+ntie9v9JZulSYE9Ryva0wX2rsbd9JCGpM8Ya6QgxRiscMcmcVLXkFCVzqkNyPsbk
-         CSbtMpTdxjX8xNvTgxLPRwNi15HpvtzVwA97qAd5zfkk4EAPAtf8KwcTqeH5naEXsO0i
-         w1UMZO69tK3Ib/xCfS2wI+FoSTJuRmgxRD7O97rK2riYxIoiXjjYMCm/VFDUUgb13fE/
-         JzdyX9l+WV69lN2MFRid8DuIpEVO2dnDGqJpLremLp1/tSkjkwwkMtStioSQdRaDpCKM
-         V8w9Sa4SPTxywdjadE3n8aSqtQszcesIHQ6Ec1hLJfItS523zTOIdD6gUmqvihs/a1KI
-         YMSA==
-X-Forwarded-Encrypted: i=1; AJvYcCXVgeiv7OoFWWQoEsdlXYNVIRwn0JBi07lg0SNlaLCZsPWClh0mqLvin/xL+fEruv4hWX5+ZSaJZzAm845jWw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyCh4IfKS3zDwSpa2FpTAWfdD/gnuX+97tr/YF5HQyvhJMYvhME
-	5YzinszXKi2S0/EPqJk8Qk3Wf8nGXbUWqBL/4LG/soPgZNtQM/qZ5tdQ6l5gHx+qHE+iw5FOd9E
-	HETHwHBV8XKsX83v2opX+e+tzS37vVy3qhw1z+w+PADhqGxO/Nj6f6YcrCdJMts6eIWzwEEKzu6
-	NODG9kBmDMhd+CEP/4D38fxjobKkEcRp7KubCmxL62rF0=
-X-Gm-Gg: ATEYQzxXnBcWhYes58+6PWRM7H/jVSLjETTzrfKH/S8201BfvJMIRrERN6bVgbiLSZJ
-	Q+bErPp9Ry24wiDbNLKV43IUSVXRT0EYN5DmVrUDu+jhgSa5PKPHKE2U0WsBzyvHHtKgUKqD6op
-	D/VYpWCmDRakOV+URT2WZpx/ljnWMoAupj4Ix0Mp6qqSNr+O9PPd367YIpJbS9CfFQ2Zq1jZR0M
-	1x7
-X-Received: by 2002:a17:902:d4c5:b0:2ad:dfb8:8ed3 with SMTP id d9443c01a7336-2b0826d7570mr125521045ad.8.1774312481449;
-        Mon, 23 Mar 2026 17:34:41 -0700 (PDT)
-X-Received: by 2002:a17:902:d4c5:b0:2ad:dfb8:8ed3 with SMTP id
- d9443c01a7336-2b0826d7570mr125520745ad.8.1774312481005; Mon, 23 Mar 2026
- 17:34:41 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="r79tvbMT"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EF2ECC4CEF7;
+	Tue, 24 Mar 2026 00:59:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1774313972;
+	bh=g9n6egUYTuF5ke2JJ6m74go1iA9dbs1LNBwQX9Kfxdo=;
+	h=From:To:Cc:Subject:Date:From;
+	b=r79tvbMTbzL0ftvYwrYFxtc47UR6uhBnmMbW/y7VVV1iRybB+2M4JpIoiYURI0KHc
+	 xbQi6Hae6AoFoJmbmbDJaHU6H4twMWZBNd3LQspzN5XukCR8uOrEpuyEmdRt0aOb0U
+	 mOwgSJ8cLDV9T8BHYl+ocS0L8OVgW58qmKn8ydBwrFxSGxlpZWrzAsZEqo1gSY7MVu
+	 kkOnSl/PVHu6HAiahaLq+b8nbHuZsE8hCdipD5o7lr0426ClKDJ0QYolowXlhy4fkV
+	 i8IvftFPJDTfcclR/4ZCSmDk8L1PXC7Ak76kNlhT/lIjYoVE7r0UGtOBo25YTrAjXS
+	 EFJsJ4/WWZ6pw==
+From: Danilo Krummrich <dakr@kernel.org>
+To: Russell King <linux@armlinux.org.uk>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Ioana Ciornei <ioana.ciornei@nxp.com>,
+	Nipun Gupta <nipun.gupta@amd.com>,
+	Nikhil Agarwal <nikhil.agarwal@amd.com>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>,
+	Dexuan Cui <decui@microsoft.com>,
+	Long Li <longli@microsoft.com>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Armin Wolf <W_Armin@gmx.de>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Mathieu Poirier <mathieu.poirier@linaro.org>,
+	Vineeth Vijayan <vneethv@linux.ibm.com>,
+	Peter Oberparleiter <oberpar@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Harald Freudenberger <freude@linux.ibm.com>,
+	Holger Dengler <dengler@linux.ibm.com>,
+	Mark Brown <broonie@kernel.org>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Alex Williamson <alex@shazbot.org>,
+	Juergen Gross <jgross@suse.com>,
+	Stefano Stabellini <sstabellini@kernel.org>,
+	Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
+Cc: linux-kernel@vger.kernel.org,
+	driver-core@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-hyperv@vger.kernel.org,
+	linux-pci@vger.kernel.org,
+	platform-driver-x86@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org,
+	linux-remoteproc@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-spi@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org,
+	xen-devel@lists.xenproject.org,
+	linux-arm-kernel@lists.infradead.org,
+	Danilo Krummrich <dakr@kernel.org>
+Subject: [PATCH 00/12] treewide: Convert buses to use generic driver_override
+Date: Tue, 24 Mar 2026 01:59:04 +0100
+Message-ID: <20260324005919.2408620-1-dakr@kernel.org>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260310183107.2822016-1-vishs@meta.com> <20260323150136.14452-1-oelghoul@linux.ibm.com>
- <20260323114313-mutt-send-email-mst@kernel.org> <20260323122728-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20260323122728-mutt-send-email-mst@kernel.org>
-From: Jason Wang <jasowang@redhat.com>
-Date: Tue, 24 Mar 2026 08:34:29 +0800
-X-Gm-Features: AaiRm52xN2lo_tVFI0DDvUo4ivVlfAirVP3edMWUgEftkLvUyxZ5RHdMesVost0
-Message-ID: <CACGkMEtUcdwhDYSZPfzc4noSFjgvS7exS0rYcCSscoMiMPvrHA@mail.gmail.com>
-Subject: Re: [PATCH net-next v11] virtio_net: add page_pool support for buffer allocation
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Omar Elghoul <oelghoul@linux.ibm.com>, vishs@meta.com, andrew+netdev@lunn.ch, 
-	davem@davemloft.net, dw@davidwei.uk, edumazet@google.com, eperezma@redhat.com, 
-	ilias.apalodimas@linaro.org, kernel-team@meta.com, kuba@kernel.org, 
-	linux-kernel@vger.kernel.org, netdev@vger.kernel.org, pabeni@redhat.com, 
-	technoboy85@gmail.com, virtualization@lists.linux.dev, 
-	xuanzhuo@linux.alibaba.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 1i7smR8Z71sYN8Kwt6hhMc1XOmKDjS2yKr98dz_LM1U_1774312481
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Tue, Mar 24, 2026 at 12:58=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com=
-> wrote:
->
-> On Mon, Mar 23, 2026 at 11:52:34AM -0400, Michael S. Tsirkin wrote:
-> > On Mon, Mar 23, 2026 at 11:01:31AM -0400, Omar Elghoul wrote:
-> > > Hi,
-> > >
-> > > I've been testing linux-next (tags later than 03/17) and hit new issu=
-es in
-> > > virtio-net on s390x. I bisected the issue, and I found this patch to =
-be the
-> > > first buggy commit.
-> > >
-> > > The issue seems to only be reproducible when running in Secure Execut=
-ion.
-> > > Tested in a KVM guest, the virtio-net performance appears greatly red=
-uced,
-> > > and the dmesg output shows many instances of the following error mess=
-ages.
-> > >
-> > > Partial relevant logs
-> > > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> > > [   49.332028] macvtap0: bad gso: type: 0, size: 0, flags 1 tunnel 0 =
-tnl csum 0
-> > > [   74.365668] macvtap0: bad gso: type: 2e, size: 27948, flags 0 tunn=
-el 0 tnl csum 0
-> > > [  403.302168] macvtap0: bad csum: flags: 2, gso_type: 23 rx_tnl_csum=
- 0
-> > > [  403.302271] macvtap0: bad csum: flags: 2, gso_type: e0 rx_tnl_csum=
- 0
-> > > [  403.302279] macvtap0: bad csum: flags: 2, gso_type: e1 rx_tnl_csum=
- 0
-> > > [  403.309492] macvtap0: bad csum: flags: 2, gso_type: 4c rx_tnl_csum=
- 0
-> > > [  403.317029] macvtap0: bad csum: flags: 2, gso_type: e0 rx_tnl_csum=
- 0
-> > >
-> > > Steps to reproduce
-> > > =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> > > 1. Boot a Linux guest implementing this patch under QEMU/KVM (*) with=
- SE
-> > >    enabled and a virtio-net-ccw device attached.
-> > > 2. Run dmesg. The error message is usually already present at boot ti=
-me,
-> > >    but if not, it can be reproduced by creating any network traffic.
-> > >
-> > > (*) This patch was not tested in a non-KVM hypervisor environment.
-> > >
-> > > I've further confirmed that reverting this patch onto its parent comm=
-it
-> > > resolves the issue. Please let me know if you'd like me to test a fix=
- or if
-> > > you would need more information.
-> > >
-> > > Thanks in advance.
-> > >
-> > > Best,
-> > > Omar
-> >
-> > Well... I am not sure how I missed it. Obvious in hindsight:
-> >
-> > static void receive_buf(struct virtnet_info *vi, struct receive_queue *=
-rq,
-> >                         void *buf, unsigned int len, void **ctx,
-> >                         unsigned int *xdp_xmit,
-> >                         struct virtnet_rq_stats *stats)
-> > {
-> >         struct net_device *dev =3D vi->dev;
-> >         struct sk_buff *skb;
-> >         u8 flags;
-> >
-> >         if (unlikely(len < vi->hdr_len + ETH_HLEN)) {
-> >                 pr_debug("%s: short packet %i\n", dev->name, len);
-> >                 DEV_STATS_INC(dev, rx_length_errors);
-> >                 virtnet_rq_free_buf(vi, rq, buf);
-> >                 return;
-> >         }
-> >
-> >         /* About the flags below:
-> >          * 1. Save the flags early, as the XDP program might overwrite =
-them.
-> >          * These flags ensure packets marked as VIRTIO_NET_HDR_F_DATA_V=
-ALID
-> >          * stay valid after XDP processing.
-> >          * 2. XDP doesn't work with partially checksummed packets (refe=
-r to
-> >          * virtnet_xdp_set()), so packets marked as
-> >          * VIRTIO_NET_HDR_F_NEEDS_CSUM get dropped during XDP processin=
-g.
-> >          */
-> >
-> >         if (vi->mergeable_rx_bufs) {
-> >                 flags =3D ((struct virtio_net_common_hdr *)buf)->hdr.fl=
-ags;
-> >                 skb =3D receive_mergeable(dev, vi, rq, buf, ctx, len, x=
-dp_xmit,
-> >                                         stats);
-> >         } else if (vi->big_packets) {
-> >                 void *p =3D page_address((struct page *)buf);
-> >
-> >                 flags =3D ((struct virtio_net_common_hdr *)p)->hdr.flag=
-s;
-> >                 skb =3D receive_big(dev, vi, rq, buf, len, stats);
-> >         } else {
-> >                 flags =3D ((struct virtio_net_common_hdr *)buf)->hdr.fl=
-ags;
-> >                 skb =3D receive_small(dev, vi, rq, buf, ctx, len, xdp_x=
-mit, stats);
-> >         }
-> >
-> >
-> > So we are reading the header, before dma sync, which is within
-> > receive_mergeable and friends:
-> >
-> > static struct sk_buff *receive_mergeable(struct net_device *dev,
-> >                                          struct virtnet_info *vi,
-> >                                          struct receive_queue *rq,
-> >                                          void *buf,
-> >                                          void *ctx,
-> >                                          unsigned int len,
-> >                                          unsigned int *xdp_xmit,
-> >                                          struct virtnet_rq_stats *stats=
-)
-> > {
-> >         struct virtio_net_hdr_mrg_rxbuf *hdr =3D buf;
-> >         int num_buf =3D virtio16_to_cpu(vi->vdev, hdr->num_buffers);
-> >         struct page *page =3D virt_to_head_page(buf);
-> >         int offset =3D buf - page_address(page);
-> >         struct sk_buff *head_skb, *curr_skb;
-> >         unsigned int truesize =3D mergeable_ctx_to_truesize(ctx);
-> >         unsigned int headroom =3D mergeable_ctx_to_headroom(ctx);
-> >
-> >         head_skb =3D NULL;
-> >
-> >         if (rq->use_page_pool_dma)
-> >                 page_pool_dma_sync_for_cpu(rq->page_pool, page, offset,=
- len);
-> >
-> >
-> >
-> > Just as a test, the below should fix it (compiled only), but the real
-> > fix is more complex since we need to be careful to avoid expensive sync=
-ing
-> > twice.
-> >
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 97035b49bae7..57b4f5954bed 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -931,9 +931,19 @@ static struct sk_buff *page_to_skb(struct virtnet_=
-info *vi,
-> >
-> >  static void *virtnet_rq_get_buf(struct receive_queue *rq, u32 *len, vo=
-id **ctx)
-> >  {
-> > +     void *buf;
-> > +
-> >       BUG_ON(!rq->page_pool);
-> >
-> > -     return virtqueue_get_buf_ctx(rq->vq, len, ctx);
-> > +     buf =3D virtqueue_get_buf_ctx(rq->vq, len, ctx);
-> > +     if (buf && rq->use_page_pool_dma && *len) {
-> > +             struct page *page =3D virt_to_head_page(buf);
-> > +             int offset =3D buf - page_address(page);
-> > +
-> > +             page_pool_dma_sync_for_cpu(rq->page_pool, page, offset, *=
-len);
-> > +     }
-> > +
-> > +     return buf;
-> >  }
-> >
-> >  static void virtnet_rq_unmap_free_buf(struct virtqueue *vq, void *buf)
-> >
-> >
-> >
-> >
-> > --
-> > MST
->
-> or maybe like this:
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 97035b49bae7..835f52651006 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -1956,13 +1956,6 @@ static struct sk_buff *receive_small(struct net_de=
-vice *dev,
->          */
->         buf -=3D VIRTNET_RX_PAD + xdp_headroom;
->
-> -       if (rq->use_page_pool_dma) {
-> -               int offset =3D buf - page_address(page) +
-> -                            VIRTNET_RX_PAD + xdp_headroom;
-> -
-> -               page_pool_dma_sync_for_cpu(rq->page_pool, page, offset, l=
-en);
-> -       }
-> -
->         len -=3D vi->hdr_len;
->         u64_stats_add(&stats->bytes, len);
->
-> @@ -2398,9 +2391,6 @@ static struct sk_buff *receive_mergeable(struct net=
-_device *dev,
->
->         head_skb =3D NULL;
->
-> -       if (rq->use_page_pool_dma)
-> -               page_pool_dma_sync_for_cpu(rq->page_pool, page, offset, l=
-en);
-> -
->         u64_stats_add(&stats->bytes, len - vi->hdr_len);
->
->         if (check_mergeable_len(dev, ctx, len))
-> @@ -2563,6 +2553,13 @@ static void receive_buf(struct virtnet_info *vi, s=
-truct receive_queue *rq,
->                 return;
->         }
->
-> +       if (rq->use_page_pool_dma) {
-> +               struct page *page =3D virt_to_head_page(buf);
-> +               int offset =3D buf - page_address(page);
-> +
-> +               page_pool_dma_sync_for_cpu(rq->page_pool, page, offset, l=
-en);
-> +       }
-> +
->         /* About the flags below:
->          * 1. Save the flags early, as the XDP program might overwrite th=
-em.
->          * These flags ensure packets marked as VIRTIO_NET_HDR_F_DATA_VAL=
-ID
->
+This is the follow-up of the driver_override generalization in [1], converting
+the remaining 11 busses and removing the now-unused driver_set_override()
+helper.
 
-This looks better.
+All of them (except AP, which has a different race condition) are prone to the
+potential UAF described in [2], caused by accessing the driver_override field
+from their corresponding match() callback.
 
-Acked-by: Jason Wang <jasowang@redhat.com>
+In order to address this, the generalized driver_override field in struct device
+is protected with a spinlock. The driver-core provides accessors, such as
+device_match_driver_override(), device_has_driver_override() and
+device_set_driver_override(), which all ensure proper locking internally.
 
-Thanks
+Additionally, the driver-core provides a driver_override flag in struct
+bus_type, which, once enabled, automatically registers generic sysfs callbacks,
+allowing userspace to modify the driver_override field.
+
+SPI and AP are a bit special; both print "\n" when driver_override is not set,
+whereas all other buses (and thus the driver-core) produce "(null)\n" in this
+case.
+
+Hence, SPI and AP do not take advantage of the driver_override flag in struct
+bus_type; AP additionally maintains a counter in its custom sysfs store().
+
+Technically, we could support a custom fallback string when driver_override is
+unset in struct bus_type, but only SPI would benefit from this, since AP has
+additional custom logic in store() anyways.
+
+(I'm not sure if there are userspace programs that strictly rely on this;
+driverctl seems to check for both, but I rather not break some userspace tool
+I'm not aware of. :)
+
+This series is based on v7.0-rc5 with no additional dependencies, hence those
+patches can be picked up by subsystems individually.
+
+[1] https://lore.kernel.org/driver-core/20260303115720.48783-1-dakr@kernel.org/
+[2] https://bugzilla.kernel.org/show_bug.cgi?id=220789
+[3] https://gitlab.com/driverctl/driverctl/-/blob/0.121/driverctl?ref_type=tags#L99
+
+Danilo Krummrich (12):
+  amba: use generic driver_override infrastructure
+  bus: fsl-mc: use generic driver_override infrastructure
+  cdx: use generic driver_override infrastructure
+  hv: vmbus: use generic driver_override infrastructure
+  PCI: use generic driver_override infrastructure
+  platform/wmi: use generic driver_override infrastructure
+  rpmsg: use generic driver_override infrastructure
+  vdpa: use generic driver_override infrastructure
+  s390/cio: use generic driver_override infrastructure
+  s390/ap: use generic driver_override infrastructure
+  spi: use generic driver_override infrastructure
+  driver core: remove driver_set_override()
+
+ drivers/amba/bus.c                 | 37 +++------------
+ drivers/base/driver.c              | 75 ------------------------------
+ drivers/bus/fsl-mc/fsl-mc-bus.c    | 43 +++--------------
+ drivers/cdx/cdx.c                  | 40 ++--------------
+ drivers/hv/vmbus_drv.c             | 36 ++------------
+ drivers/pci/pci-driver.c           | 11 +++--
+ drivers/pci/pci-sysfs.c            | 28 -----------
+ drivers/pci/probe.c                |  1 -
+ drivers/platform/wmi/core.c        | 36 ++------------
+ drivers/rpmsg/qcom_glink_native.c  |  2 -
+ drivers/rpmsg/rpmsg_core.c         | 43 +++--------------
+ drivers/rpmsg/virtio_rpmsg_bus.c   |  1 -
+ drivers/s390/cio/cio.h             |  5 --
+ drivers/s390/cio/css.c             | 34 ++------------
+ drivers/s390/crypto/ap_bus.c       | 34 +++++++-------
+ drivers/s390/crypto/ap_bus.h       |  1 -
+ drivers/s390/crypto/ap_queue.c     | 24 +++-------
+ drivers/spi/spi.c                  | 19 +++-----
+ drivers/vdpa/vdpa.c                | 48 ++-----------------
+ drivers/vfio/fsl-mc/vfio_fsl_mc.c  |  4 +-
+ drivers/vfio/pci/vfio_pci_core.c   |  5 +-
+ drivers/xen/xen-pciback/pci_stub.c |  6 ++-
+ include/linux/amba/bus.h           |  5 --
+ include/linux/cdx/cdx_bus.h        |  4 --
+ include/linux/device/driver.h      |  2 -
+ include/linux/fsl/mc.h             |  4 --
+ include/linux/hyperv.h             |  5 --
+ include/linux/pci.h                |  6 ---
+ include/linux/rpmsg.h              |  4 --
+ include/linux/spi/spi.h            |  5 --
+ include/linux/vdpa.h               |  4 --
+ include/linux/wmi.h                |  4 --
+ 32 files changed, 88 insertions(+), 488 deletions(-)
+
+
+base-commit: c369299895a591d96745d6492d4888259b004a9e
+-- 
+2.53.0
 
