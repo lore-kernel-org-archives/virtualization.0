@@ -1,173 +1,240 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2802F29D265;
-	Tue, 24 Mar 2026 12:59:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C866F3FCB1E
+	for <virtualization@lists.linux.dev>; Tue, 24 Mar 2026 14:02:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774357156; cv=none; b=BVbiDBVE5P4rMY5GOw/Almwj5EUAMRFBG5BhcLot+HFuC1rln6SPYojhP9lRxhAP3UQ1lsNe/TVO3L7nFgDylX8KXVjk9YXGVYSsqjDCW2xVbFKRlsFJ/ltr4EN3tEbna8x8L0CIhUpa/4M3oDsOwQQ3Q2oy5/eF4VZViZX8f/4=
+	t=1774360956; cv=none; b=lMjZn8izxO+RCs2/rTNb3epej4hfKGLgDo4NomKx13Du2fUr4rQF6M5Z7CNORVaNBLjwbYN8pJjtLLC+H4Fx3fgf4lFSl3OvHwdqduFjX9mCzappR3SK5HWnCpc+IMwCDT7Nvs+EQ15THXSCTwjPaSmJuyc/ddS1wkU1spjxIPg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774357156; c=relaxed/simple;
-	bh=jHv8K9pMMNQ6xFjsDOLiyEic78sAfLIcZfc3vWD5W4I=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=kQvPxwrcOf1YVuVyWR/MYLH5HsyTa9j8X6cwe4dSkQC3O3vdRzxqCCI3vlEx9nE2djAHD+BmXjU0H1aDGgcgW3T97p064/WCzFPAoYBJzZ8ry9WW1RU/lTmV168qPj5ovrcZH04ULqub5c/87JYH7pi1VkQOh6FG2P2eZwGEZII=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Su7gQstz; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1774360956; c=relaxed/simple;
+	bh=i5XS5OV/+6tUO7TAS6jrPF3SxKNTVoq67pMTbn5wrcU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Nit7TAPxEiOA7IV4zl7aoMsH4GVGZqPy5yi5bqn02oSvyZkwZ6oXEpz2Jvs26vE44ZL7PanzjpP+JNCbRXAjKD2dMAG34XBPUSxIH0TrU/Rnte0omKpJiXKcCDSqPElLHJADohWrZhcJykNbZYmI1H2IlQ98u5JNs0ILUsS6pSA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fbvpbn9l; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Su7gQstz"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62O9UV8t564224;
-	Tue, 24 Mar 2026 12:59:01 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=Ej3Isx
-	3J43WHcbqsXFspxuLWGfpG7XzaDk8RnET7IuY=; b=Su7gQstz3B6aM6PFBG8uQh
-	x01IvkgpF4akIkC2Yv8b74FadNo9e27ekRxXsakT3p1TARe7CZAY29h53xxd8wz1
-	F4kZz+lkiD78vGhCs+laxqnB5u9xFRGK/Tsh6twYP7thvfsNIeWAGdP1jRWjsBE2
-	2NrTa+0v/b8PhcVeJOs61gs29vpCXXnXjqWi5QPV0rxXNiDc7IpzG9wKPCFU1dJu
-	hyIdXPUJ8IHi1NA9903kpVA7KAIe5DifhKuhpq4v9lSgLr3r1ewpvKEptBjvZ2uB
-	zO3ARjeDVnRRo3nNzvOHwsDydcL2Hd5OJrLdyn0FWx65JkOT58sm1iZ5/kZyz6iA
-	==
-Received: from ppma13.dal12v.mail.ibm.com (dd.9e.1632.ip4.static.sl-reverse.com [50.22.158.221])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1ky02vr9-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 24 Mar 2026 12:59:00 +0000 (GMT)
-Received: from pps.filterd (ppma13.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma13.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62OCedC1011824;
-	Tue, 24 Mar 2026 12:58:59 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma13.dal12v.mail.ibm.com (PPS) with ESMTPS id 4d27vk1pae-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 24 Mar 2026 12:58:59 +0000
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62OCwtnj51904902
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 24 Mar 2026 12:58:55 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 8811920063;
-	Tue, 24 Mar 2026 12:58:55 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id DD0782004E;
-	Tue, 24 Mar 2026 12:58:54 +0000 (GMT)
-Received: from [9.52.215.154] (unknown [9.52.215.154])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Tue, 24 Mar 2026 12:58:54 +0000 (GMT)
-Message-ID: <43139b81-2d3a-407b-9ddf-bd42aa70f780@linux.ibm.com>
-Date: Tue, 24 Mar 2026 13:58:54 +0100
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fbvpbn9l"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1774360951;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=mlvPDahKX2NFF6xhr+4/ztQAmDK+1ra9fm020urxfp0=;
+	b=fbvpbn9lQjU1EU50XY27Ulx0BU0J4RCKRfzXoIcD0nKB0Ry4YS3gH5X4sjmZ8xn7JgmeLz
+	iTkWDE9hea0Jys+JvWsC3cSiwMZs8lKAcbkM5DbTcZAZX005wMThfT21FBD4yNjgQYzBsT
+	zPaq1/CTWSC8qJzj7dH5w1eBqBGOC/I=
+Received: from mail-lf1-f72.google.com (mail-lf1-f72.google.com
+ [209.85.167.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-407-Xc0hhLGdMuKk5XSqqlRNaA-1; Tue, 24 Mar 2026 10:02:28 -0400
+X-MC-Unique: Xc0hhLGdMuKk5XSqqlRNaA-1
+X-Mimecast-MFC-AGG-ID: Xc0hhLGdMuKk5XSqqlRNaA_1774360946
+Received: by mail-lf1-f72.google.com with SMTP id 2adb3069b0e04-5a1499d93a1so3032294e87.1
+        for <virtualization@lists.linux.dev>; Tue, 24 Mar 2026 07:02:27 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774360946; x=1774965746;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=mlvPDahKX2NFF6xhr+4/ztQAmDK+1ra9fm020urxfp0=;
+        b=oR7uzTLpHwv1jdq/PE+mTSAimk00vvpLHnCLljIHbyWcF+9qrsKNJhUOtJQxN3UY1c
+         ZznSIXFdixE43cAux2gdh3SjfqmdfDu6mlX7SF1WumELsVCcgmZw8uIUEmmNeOMC0s8Y
+         ql46btaOlJMB1GhVTOeu7J4EoAAttNITQUWQuaWmaCRVfkZZZtwkiEdxJLARo1nhYYpI
+         UpCWDABLNrKxO0fclzmIRX30oIFcfy8PdVu/SEM5CbNgD/vvHtrXynd613c07LGr09Od
+         4s+bG+O4twy5AQnz7YjtUJRkb0lJHwe/Abp3ursHhHu57xAHmaDJuCrwCap5fAmQxAZc
+         P9MQ==
+X-Forwarded-Encrypted: i=1; AJvYcCWfdx2SL+lBkji7/yjoxLPIobuctXxebWUnBI2wjFFTjRiIv/aOOcApRYK0vd4vzNeyxrxqxYHKk+V4+XJrVQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyrGrm4uIa1w88fozlx5O+hAE8/wnSXxu5T6zvvf7Yr00PqLCA7
+	+Med+ntaCRZ/4d7/psU65uSsp+qsGVfbqzWuGIIsfiddTF73meGIrunEGOqumY3y7TmdUt6uYwp
+	faXJR8/ToR4PhbP1CfAyejxnnScsMo5Ol2ptoQof9fFH3MmlQbIuwASr+NVQTqs5S+YEoxYMAzz
+	D0253TgO4vPrIOLxud4FeWhesG5IBRB2svxycI21O9Wd4=
+X-Gm-Gg: ATEYQzyjL3gTc+ni94bJWly2DaBRKiDggz+KAxwdJEFqv4tOZ4a5IMib7kAAQN8KsE+
+	rRDCceyPom3zPyLynrBNhM04hm8imHZhNhMzHQjQY3nMlNhsOsz/c++QhI+T8iycATk0DxbQgSt
+	/cvj8Ixr+rY5asunQIrTWDXLMJvnRh/fZMddlR8uSMahxxlH/9iW37f11Fd/eTrpsP8rIinWTmL
+	2EIRA==
+X-Received: by 2002:a05:6512:3d20:b0:5a1:2e7b:d885 with SMTP id 2adb3069b0e04-5a296220848mr1328731e87.25.1774360946183;
+        Tue, 24 Mar 2026 07:02:26 -0700 (PDT)
+X-Received: by 2002:a05:6512:3d20:b0:5a1:2e7b:d885 with SMTP id
+ 2adb3069b0e04-5a296220848mr1328700e87.25.1774360945532; Tue, 24 Mar 2026
+ 07:02:25 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 10/12] s390/ap: use generic driver_override infrastructure
-To: Danilo Krummrich <dakr@kernel.org>, Russell King <linux@armlinux.org.uk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Ioana Ciornei <ioana.ciornei@nxp.com>,
-        Nipun Gupta <nipun.gupta@amd.com>,
-        Nikhil Agarwal <nikhil.agarwal@amd.com>,
-        "K. Y. Srinivasan"
- <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
-        Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>,
-        Bjorn Helgaas <bhelgaas@google.com>, Armin Wolf <W_Armin@gmx.de>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Vineeth Vijayan <vneethv@linux.ibm.com>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Mark Brown
- <broonie@kernel.org>,
-        "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
-        Alex Williamson <alex@shazbot.org>, Juergen Gross <jgross@suse.com>,
-        Stefano Stabellini <sstabellini@kernel.org>,
-        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
-        "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
-Cc: linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
-        linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org,
-        linux-pci@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-spi@vger.kernel.org,
-        virtualization@lists.linux.dev, kvm@vger.kernel.org,
-        xen-devel@lists.xenproject.org, linux-arm-kernel@lists.infradead.org
-References: <20260324005919.2408620-1-dakr@kernel.org>
- <20260324005919.2408620-11-dakr@kernel.org>
-From: Holger Dengler <dengler@linux.ibm.com>
-Content-Language: en-US
-In-Reply-To: <20260324005919.2408620-11-dakr@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI0MDEwMSBTYWx0ZWRfX6N1fBrtwZrfl
- aNao0Xhwv2iPArpXTciFzlHehJzd3FqyuyxByqEu+FLvzIew8kt3PjWdYdZtO7Ev/dzu1juD33i
- ULiVxPJi+Eu3Wm01+pD7w41oOcB6CO0eS2PR+DcOqwrlrsqbZgbqKoknbOSccN4kN1AdGDnpSh4
- giT9HWCMECWpapxDaYdMQ/IXQp+iHi2011iYdnklc4+iAjB4tA8YcsPMKFTESeLitzfCKx7CeYa
- F5bfAZ1prh5bHCsbzFtvW6c4E94vHNefJ4W5xyDv5bTOpwX5xpUV089SzGXBpTCh2Tn6j/1RJAy
- 8JrNkM5IZMTuuFxodSI3N0ItWWwaPezBykvTmfdz5CNBYNkZhJ/G7w4qUg5Kyf1QOlPIUBtuFZ0
- TaNFvnH1pIhI71CTLphAPYyjG3E9oMOG+wVPVi77oKaFO89fYZRslVgre89UqkZSjDGRx3OB3Tc
- tkfYq5p7x6UpUVDBiYg==
-X-Authority-Analysis: v=2.4 cv=JK42csKb c=1 sm=1 tr=0 ts=69c28a95 cx=c_pps
- a=AfN7/Ok6k8XGzOShvHwTGQ==:117 a=AfN7/Ok6k8XGzOShvHwTGQ==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8
- a=VnNF1IyMAAAA:8 a=JtdtG7AWE7AhTqZWL1AA:9 a=3ZKOabzyN94A:10 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: umcwOVG9OGh_DW7scW8FgcsJPpy_MgAT
-X-Proofpoint-GUID: iDlj1Pn5DnrzHKXcEcJoAVIWEUdMu_KQ
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-24_03,2026-03-23_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- impostorscore=0 clxscore=1011 priorityscore=1501 malwarescore=0 adultscore=0
- spamscore=0 suspectscore=0 phishscore=0 lowpriorityscore=0 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2603050001 definitions=main-2603240101
+References: <20260310190759.1097506-1-eperezma@redhat.com> <20260310190759.1097506-4-eperezma@redhat.com>
+ <CACGkMEvwmC4qiYgZAkrHEC3r3q7FyMiqpg5=2oNMPGm0q=PLBA@mail.gmail.com>
+ <CAJaqyWe+x9okNwPD5n6M+PeLt0cQY-_fBWOD9uXSa1nKHqRaFw@mail.gmail.com>
+ <CACGkMEuKTezQQXJ0XEKWEoRaeo-ORcE07+xgSoJ_7UwpPdonWA@mail.gmail.com> <CAJaqyWf5mnARrEXssKQ2CQB0rZ+KVi_kW1xyOc_Dx1ELAs4LHA@mail.gmail.com>
+In-Reply-To: <CAJaqyWf5mnARrEXssKQ2CQB0rZ+KVi_kW1xyOc_Dx1ELAs4LHA@mail.gmail.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Tue, 24 Mar 2026 15:01:47 +0100
+X-Gm-Features: AaiRm50XGJ92Ixi_DiKijf_WMmkWP6yH4dOrpt7f5HtlD3f-L_Ghpm4ryJcdwlE
+Message-ID: <CAJaqyWd40=bxMOwTR4wyHtPS_-Txn2WbwSj9rZEXoY-4DxQgpw@mail.gmail.com>
+Subject: Re: [PATCH v3 3/3] vduse: add F_QUEUE_READY feature
+To: Jason Wang <jasowang@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Cindy Lu <lulu@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-kernel@vger.kernel.org, 
+	Maxime Coquelin <mcoqueli@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, 
+	Laurent Vivier <lvivier@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
+	virtualization@lists.linux.dev
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: zhQUDqUYj9EUagUahdCfZd65XSoWDnKodG8TkHrZ-jY_1774360946
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 24/03/2026 01:59, Danilo Krummrich wrote:
-> When the AP masks are updated via apmask_store() or aqmask_store(),
-> ap_bus_revise_bindings() is called after ap_attr_mutex has been
-> released.
-> 
-> This calls __ap_revise_reserved(), which accesses the driver_override
-> field without holding any lock, racing against a concurrent
-> driver_override_store() that may free the old string, resulting in a
-> potential UAF.
-> 
-> Fix this by using the driver-core driver_override infrastructure, which
-> protects all accesses with an internal spinlock.
-> 
-> Note that unlike most other buses, the AP bus does not check
-> driver_override in its match() callback; the override is checked in
-> ap_device_probe() and __ap_revise_reserved() instead.
-> 
-> Also note that we do not enable the driver_override feature of struct
-> bus_type, as AP - in contrast to most other buses - passes "" to
-> sysfs_emit() when the driver_override pointer is NULL. Thus, printing
-> "\n" instead of "(null)\n".
-> 
-> Additionally, AP has a custom counter that is modified in the
-> corresponding custom driver_override_store().
-> 
-> Fixes: d38a87d7c064 ("s390/ap: Support driver_override for AP queue devices")
-> Signed-off-by: Danilo Krummrich <dakr@kernel.org>
+On Fri, Mar 13, 2026 at 8:08=E2=80=AFAM Eugenio Perez Martin
+<eperezma@redhat.com> wrote:
+>
+> On Fri, Mar 13, 2026 at 7:05=E2=80=AFAM Jason Wang <jasowang@redhat.com> =
+wrote:
+> >
+> > On Thu, Mar 12, 2026 at 2:24=E2=80=AFPM Eugenio Perez Martin
+> > <eperezma@redhat.com> wrote:
+> > >
+> > > On Thu, Mar 12, 2026 at 4:58=E2=80=AFAM Jason Wang <jasowang@redhat.c=
+om> wrote:
+> > > >
+> > > > On Wed, Mar 11, 2026 at 3:08=E2=80=AFAM Eugenio P=C3=A9rez <eperezm=
+a@redhat.com> wrote:
+> > > > >
+> > > > > Add the VDUSE_F_QUEUE_READY feature flag. This allows the kernel =
+module
+> > > > > to explicitly signal userspace when a specific virtqueue has been
+> > > > > enabled.
+> > > > >
+> > > > > In scenarios like Live Migration of VirtIO net devices, the datap=
+lane
+> > > > > starts after the control virtqueue allowing QEMU to apply configu=
+ration
+> > > > > in the destination device.
+> > > > >
+> > > > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+> > > > > ---
+> > > > > v2:
+> > > > > * Fix comment of vduse_dev_request.vq_ready
+> > > > > * Set vq_ready before sending the message to the VDUSE userland
+> > > > >   instance, avoiding the need for SMP sync after receiving the me=
+ssage.
+> > > > > ---
+> > > > >  drivers/vdpa/vdpa_user/vduse_dev.c | 28 ++++++++++++++++++++++++=
++++-
+> > > > >  include/uapi/linux/vduse.h         | 18 ++++++++++++++++++
+> > > > >  2 files changed, 45 insertions(+), 1 deletion(-)
+> > > > >
+> > > > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vd=
+pa_user/vduse_dev.c
+> > > > > index 17e0358d3a68..4f642b95a7cb 100644
+> > > > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+> > > > > @@ -9,6 +9,7 @@
+> > > > >   */
+> > > > >
+> > > > >  #include "linux/virtio_net.h"
+> > > > > +#include <linux/bits.h>
+> > > > >  #include <linux/cleanup.h>
+> > > > >  #include <linux/init.h>
+> > > > >  #include <linux/module.h>
+> > > > > @@ -53,7 +54,7 @@
+> > > > >  #define IRQ_UNBOUND -1
+> > > > >
+> > > > >  /* Supported VDUSE features */
+> > > > > -static const uint64_t vduse_features;
+> > > > > +static const uint64_t vduse_features =3D BIT_U64(VDUSE_F_QUEUE_R=
+EADY);
+> > > > >
+> > > > >  /*
+> > > > >   * VDUSE instance have not asked the vduse API version, so assum=
+e 0.
+> > > > > @@ -120,6 +121,7 @@ struct vduse_dev {
+> > > > >         char *name;
+> > > > >         struct mutex lock;
+> > > > >         spinlock_t msg_lock;
+> > > > > +       u64 vduse_features;
+> > > > >         u64 msg_unique;
+> > > > >         u32 msg_timeout;
+> > > > >         wait_queue_head_t waitq;
+> > > > > @@ -601,8 +603,29 @@ static void vduse_vdpa_set_vq_ready(struct v=
+dpa_device *vdpa,
+> > > > >  {
+> > > > >         struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
+> > > > >         struct vduse_virtqueue *vq =3D dev->vqs[idx];
+> > > > > +       struct vduse_dev_msg msg =3D { 0 };
+> > > > > +       int r;
+> > > > >
+> > > > >         vq->ready =3D ready;
+> > > > > +
+> > > > > +       if (!(dev->vduse_features & BIT_U64(VDUSE_F_QUEUE_READY))=
+)
+> > > > > +               return;
+> > > > > +
+> > > > > +       msg.req.type =3D VDUSE_SET_VQ_READY;
+> > > > > +       msg.req.vq_ready.num =3D idx;
+> > > > > +       msg.req.vq_ready.ready =3D !!ready;
+> > > > > +
+> > > > > +       r =3D vduse_dev_msg_sync(dev, &msg);
+> > > > > +
+> > > > > +       if (r < 0) {
+> > > > > +               dev_dbg(&vdpa->dev, "device refuses to set vq %u =
+ready %u",
+> > > > > +                       idx, ready);
+> > > > > +
+> > > > > +               /* We can't do better than break the device in th=
+is case */
+> > > >
+> > > > It's better to explain why we can't depend on vduse_dev_msg_sync() =
+here.
+> > > >
+> > > > For example it did:
+> > > >
+> > > >         if (unlikely(dev->broken))
+> > > >                 return -EIO;
+> > > >
+> > > >         init_waitqueue_head(&msg->waitq);
+> > > >         spin_lock(&dev->msg_lock);
+> > > >         if (unlikely(dev->broken)) {
+> > > >                 spin_unlock(&dev->msg_lock);
+> > > >                 return -EIO;
+> > > >         }
+> > > >
+> > > > and
+> > > >
+> > > >         if (!msg->completed) {
+> > > >                 list_del(&msg->list);
+> > > >                 msg->resp.result =3D VDUSE_REQ_RESULT_FAILED;
+> > > >                 /* Mark the device as malfunction when there is a t=
+imeout */
+> > > >                 if (!ret)
+> > > >                         vduse_dev_broken(dev);
+> > > >         }
+> > > >
+> > >
+> > > I'm not sure I follow you here.
+> > >
+> > > We can't do better than breaking the device because the function
+> > > returns no error state, and the caller does not expect an error code.
+> > > Do you mean we can't depend on vduse_dev_msg_sync to call
+> > > vduse_dev_broken(dev) by itself?
+> >
+> > I think I meant, reset seems to be more heavyweight than suspend.
+> >
+> > So if reset can fail, I don't see reason ot break device only for
+> > suspend failure.
+> >
+>
+> Sorry I still don't get you.
+>
+> This series does not implement suspend at all. It doesn't modify the
+> VDUSE device reset or the virtio reset behavior. It only implements
+> the vq ready message for the device. If the device returns an error
+> from that operation, what is your proposal for when the driver sends
+> new messages like resume?
+>
 
-Tested-by: Holger Dengler <dengler@linux.ibm.com>
-Reviewed-by: Holger Dengler <dengler@linux.ibm.com>
-
--- 
-Mit freundlichen Grüßen / Kind regards
-Holger Dengler
---
-IBM Systems, Linux on IBM Z Development
-dengler@linux.ibm.com
+Friendly ping.
 
