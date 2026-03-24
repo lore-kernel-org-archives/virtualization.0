@@ -1,231 +1,252 @@
-Received: from out-178.mta0.migadu.com (out-178.mta0.migadu.com [91.218.175.178])
+Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 949073AEF37
-	for <virtualization@lists.linux.dev>; Tue, 24 Mar 2026 08:53:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BF2D359A66;
+	Tue, 24 Mar 2026 10:15:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774342422; cv=none; b=qydWyxuuCxdjM1nboF5A9pbwiQ1g8e9ENXsj8Zjw+Ye1kMCq2EpOGJQf79PgpDSRIATWMo87XLjJdu2+bw9DrMVa4K/qaccCvfip+02XXDJyZNpIdl02VH69Vjk93WlQ9dun3DPm02vSuMxQvCrVjSonw5U6CcsSAY2mGSuRlcA=
+	t=1774347314; cv=none; b=VJoUAJzJVJb5/4p1PU85wdWnRdDMNdCXNtxbE+/QdANzNxfFLys/6Stca6mlPceP6O6hcoDWqXuyN5T+V1wZh+2oIA1h5juSmGtEd6ga58j8LHeu/v5+63ljbj4xQ3aZyS9SKiXniRUHw28NohoRBC1O7VipDRDUmnRzXbD7cTQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774342422; c=relaxed/simple;
-	bh=5A9m0BUSwXdy9sb9k8BJtgZ3S5xNCVV+8LeCNxbnQCg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=pxYzQ2B2w+cpZH9pWfVZqFLYujinA9P8FjWEKo1fceoG/Uqfhji/54XYYbGoB3d3Q6jv35G3D1Ene3vOndv1SWpLlDCMLIl9aRb6CrQSLVxB6xiHjBxCGxhW6CRU5/p6j4TAJ59CzBPTdCVOqPPcSrsBNNh8mED+rbAf0Iq9Vt4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=hnis4mFm; arc=none smtp.client-ip=91.218.175.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1774347314; c=relaxed/simple;
+	bh=EeWxqb0HgRENSXG2d8Fk2RYIq4kncRyI4/Iu6SENreg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=HUYyLcDG0CrLvFJYF0AGd4Oq3esyRgisFIIlZ25AFNvgtyY5ctTchUpLK+clNatKZv2g352G8BO7Sb/KkO5JnOrhX2PkS6fAt0czqTQOG8cK7FE72NeWF0EXW3AA0yGLz2kXC3fvJMs2n7S+Tb1vPf/hM7h9WnVS6mf1pmOWsCg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=RM7R4tQr; arc=none smtp.client-ip=129.217.128.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="hnis4mFm"
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1774342418;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=kze1ges43lCb7kREwIJMd42h9t5NMryI/FoPBiTgyD4=;
-	b=hnis4mFmxk8UE5Ph4hvLT2YpX6ce7VQ4AmCZgAMaj4z+uGLDqMhYDoJvPDCWcfi0cgNbJi
-	IFKDU7+TfEUCxM8/gnJq65wUDQYGfxvbQMfNvAu236q4OxM0y4MuqWhoswILqskVnJIBLo
-	g67MREHBdhQsfRHzMJd6jBxvyOqpGck=
-From: Lance Yang <lance.yang@linux.dev>
-To: akpm@linux-foundation.org
-Cc: peterz@infradead.org,
-	david@kernel.org,
-	dave.hansen@intel.com,
-	dave.hansen@linux.intel.com,
-	ypodemsk@redhat.com,
-	hughd@google.com,
-	will@kernel.org,
-	aneesh.kumar@kernel.org,
-	npiggin@gmail.com,
-	tglx@linutronix.de,
-	mingo@redhat.com,
-	bp@alien8.de,
-	x86@kernel.org,
-	hpa@zytor.com,
-	arnd@arndb.de,
-	lorenzo.stoakes@oracle.com,
-	ziy@nvidia.com,
-	baolin.wang@linux.alibaba.com,
-	Liam.Howlett@oracle.com,
-	npache@redhat.com,
-	ryan.roberts@arm.com,
-	dev.jain@arm.com,
-	baohua@kernel.org,
-	shy828301@gmail.com,
-	riel@surriel.com,
-	jannh@google.com,
-	jgross@suse.com,
-	seanjc@google.com,
-	pbonzini@redhat.com,
-	boris.ostrovsky@oracle.com,
-	virtualization@lists.linux.dev,
-	kvm@vger.kernel.org,
-	linux-arch@vger.kernel.org,
-	linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org,
-	ioworker0@gmail.com,
-	Lance Yang <lance.yang@linux.dev>
-Subject: [PATCH v8 2/2] x86/tlb: skip redundant sync IPIs for native TLB flush
-Date: Tue, 24 Mar 2026 16:52:38 +0800
-Message-ID: <20260324085238.44477-3-lance.yang@linux.dev>
-In-Reply-To: <20260324085238.44477-1-lance.yang@linux.dev>
-References: <20260324085238.44477-1-lance.yang@linux.dev>
+	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="RM7R4tQr"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tu-dortmund.de;
+	s=unimail; t=1774347297;
+	bh=EeWxqb0HgRENSXG2d8Fk2RYIq4kncRyI4/Iu6SENreg=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=RM7R4tQri46kneVGg7+K2sNbwiOtJh+Yany9dmcKhLoJf52nTRyXCZUWuKx1wEwBU
+	 aD3P0rpfqGS2eriGMQys7f/VbAkAArMFE6Wk6g5Nssf9y7T1y8b7UVWK4BGk/+KlQW
+	 wi+9RO07qPOuv7I/xxaeR/83bB5qH35m6DHLUcPc=
+Received: from [192.168.178.143] (p5dc880d2.dip0.t-ipconnect.de [93.200.128.210])
+	(authenticated bits=0)
+	by unimail.uni-dortmund.de (8.18.2/8.18.2) with ESMTPSA id 62OAEtkX003138
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Tue, 24 Mar 2026 11:14:56 +0100 (CET)
+Message-ID: <0908392d-6314-4141-b908-6c9a880ba0a4@tu-dortmund.de>
+Date: Tue, 24 Mar 2026 11:14:55 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v8 4/4] tun/tap & vhost-net: avoid ptr_ring
+ tail-drop when a qdisc is present
+To: Jason Wang <jasowang@redhat.com>
+Cc: willemdebruijn.kernel@gmail.com, andrew+netdev@lunn.ch,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, mst@redhat.com, eperezma@redhat.com,
+        leiyang@redhat.com, stephen@networkplumber.org, jon@nutanix.com,
+        tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        virtualization@lists.linux.dev
+References: <20260312130639.138988-1-simon.schippers@tu-dortmund.de>
+ <20260312130639.138988-5-simon.schippers@tu-dortmund.de>
+ <CACGkMEtN9XgYPGHQg4TEWEsa_UcMbcnzO=VaTFT=0Tn4BayMDw@mail.gmail.com>
+Content-Language: en-US
+From: Simon Schippers <simon.schippers@tu-dortmund.de>
+In-Reply-To: <CACGkMEtN9XgYPGHQg4TEWEsa_UcMbcnzO=VaTFT=0Tn4BayMDw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
 
-From: Lance Yang <lance.yang@linux.dev>
+On 3/24/26 02:47, Jason Wang wrote:
+> On Thu, Mar 12, 2026 at 9:07 PM Simon Schippers
+> <simon.schippers@tu-dortmund.de> wrote:
+>>
+>> This commit prevents tail-drop when a qdisc is present and the ptr_ring
+>> becomes full. Once an entry is successfully produced and the ptr_ring
+>> reaches capacity, the netdev queue is stopped instead of dropping
+>> subsequent packets.
+>>
+>> If producing an entry fails anyways due to a race, tun_net_xmit returns
+>> NETDEV_TX_BUSY, again avoiding a drop. Such races are expected because
+>> LLTX is enabled and the transmit path operates without the usual locking.
+>>
+>> The existing __tun_wake_queue() function wakes the netdev queue. Races
+>> between this wakeup and the queue-stop logic could leave the queue
+>> stopped indefinitely. To prevent this, a memory barrier is enforced
+>> (as discussed in a similar implementation in [1]), followed by a recheck
+>> that wakes the queue if space is already available.
+>>
+>> If no qdisc is present, the previous tail-drop behavior is preserved.
+> 
+> I wonder if we need a dedicated TUN flag to enable this. With this new
+> flag, we can even prevent TUN from using noqueue (not sure if it's
+> possible or not).
+> 
 
-Some page table operations need to synchronize with software/lockless
-walkers after a TLB flush by calling tlb_remove_table_sync_{one,rcu}().
-On x86, that extra synchronization is redundant when the preceding TLB
-flush already broadcast IPIs to all relevant CPUs.
+Except of the slight regressions because of this patchset I do not see
+a reason for such a flag.
 
-native_pv_tlb_init() checks whether native_flush_tlb_multi() is in use.
-On CONFIG_PARAVIRT systems, it checks pv_ops; on non-PARAVIRT, native
-flush is always in use.
+I have never seen that the driver prevents noqueue. For example you can
+set noqueue to your ethernet interface and under load you soon get 
 
-It decides once at boot whether to enable the optimization: if using
-native TLB flush and INVLPGB is not supported, we know IPIs were sent
-and can skip the redundant sync. The decision is fixed via a static
-key as Peter suggested[1].
+net_crit_ratelimited("Virtual device %s asks to queue packet!\n",
+					     dev->name);
 
-PV backends (KVM, Xen, Hyper-V) typically have their own implementations
-and don't call native_flush_tlb_multi() directly, so they cannot be trusted
-to provide the IPI guarantees we need.
+followed by a -ENETDOWN. And this is not prevented even though it is
+clearly not something a user wants.
 
-Also treat unshared_tables like freed_tables when issuing the TLB flush,
-so lazy-TLB CPUs receive IPIs during unsharing of page tables as well.
-This allows us to safely implement tlb_table_flush_implies_ipi_broadcast().
+>>
+>> Benchmarks:
+>> The benchmarks show a slight regression in raw transmission performance,
+>> though no packets are lost anymore.
+>>
+>> The previously introduced threshold to only wake after the queue stopped
+>> and half of the ring was consumed showed to be a descent choice:
+>> Waking the queue whenever a consume made space in the ring strongly
+>> degrades performance for tap, while waking only when the ring is empty
+>> is too late and also hurts throughput for tap & tap+vhost-net.
+>> Other ratios (3/4, 7/8) showed similar results (not shown here), so
+>> 1/2 was chosen for the sake of simplicity for both tun/tap and
+>> tun/tap+vhost-net.
+>>
+>> Test setup:
+>> AMD Ryzen 5 5600X at 4.3 GHz, 3200 MHz RAM, isolated QEMU threads;
+>> Average over 20 runs @ 100,000,000 packets. SRSO and spectre v2
+>> mitigations disabled.
+>>
+>> Note for tap+vhost-net:
+>> XDP drop program active in VM -> ~2.5x faster, slower for tap due to
+>> more syscalls (high utilization of entry_SYSRETQ_unsafe_stack in perf)
+>>
+>> +--------------------------+--------------+----------------+----------+
+>> | 1 thread                 | Stock        | Patched with   | diff     |
+>> | sending                  |              | fq_codel qdisc |          |
+>> +------------+-------------+--------------+----------------+----------+
+>> | TAP        | Transmitted | 1.151 Mpps   | 1.139 Mpps     | -1.1%    |
+>> |            +-------------+--------------+----------------+----------+
+>> |            | Lost/s      | 3.606 Mpps   | 0 pps          |          |
+>> +------------+-------------+--------------+----------------+----------+
+>> | TAP        | Transmitted | 3.948 Mpps   | 3.738 Mpps     | -5.3%    |
+>> |            +-------------+--------------+----------------+----------+
+>> | +vhost-net | Lost/s      | 496.5 Kpps   | 0 pps          |          |
+>> +------------+-------------+--------------+----------------+----------+
+>>
+>> +--------------------------+--------------+----------------+----------+
+>> | 2 threads                | Stock        | Patched with   | diff     |
+>> | sending                  |              | fq_codel qdisc |          |
+>> +------------+-------------+--------------+----------------+----------+
+>> | TAP        | Transmitted | 1.133 Mpps   | 1.109 Mpps     | -2.1%    |
+>> |            +-------------+--------------+----------------+----------+
+>> |            | Lost/s      | 8.269 Mpps   | 0 pps          |          |
+>> +------------+-------------+--------------+----------------+----------+
+>> | TAP        | Transmitted | 3.820 Mpps   | 3.513 Mpps     | -8.0%    |
+>> |            +-------------+--------------+----------------+----------+
+>> | +vhost-net | Lost/s      | 4.961 Mpps   | 0 pps          |          |
+>> +------------+-------------+--------------+----------------+----------+
+>>
+>> [1] Link: https://lore.kernel.org/all/20250424085358.75d817ae@kernel.org/
+>>
+>> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+>> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+>> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
+>> ---
+>>  drivers/net/tun.c | 30 ++++++++++++++++++++++++++++--
+>>  1 file changed, 28 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+>> index b86582cc6cb6..9b7daec69acd 100644
+>> --- a/drivers/net/tun.c
+>> +++ b/drivers/net/tun.c
+>> @@ -1011,6 +1011,8 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
+>>         struct netdev_queue *queue;
+>>         struct tun_file *tfile;
+>>         int len = skb->len;
+>> +       bool qdisc_present;
+>> +       int ret;
+>>
+>>         rcu_read_lock();
+>>         tfile = rcu_dereference(tun->tfiles[txq]);
+>> @@ -1063,13 +1065,37 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
+>>
+>>         nf_reset_ct(skb);
+>>
+>> -       if (ptr_ring_produce(&tfile->tx_ring, skb)) {
+>> +       queue = netdev_get_tx_queue(dev, txq);
+>> +       qdisc_present = !qdisc_txq_has_no_queue(queue);
+>> +
+>> +       spin_lock(&tfile->tx_ring.producer_lock);
+>> +       ret = __ptr_ring_produce(&tfile->tx_ring, skb);
+>> +       if (__ptr_ring_produce_peek(&tfile->tx_ring) && qdisc_present) {
+> 
+> So, it's possible that the administrator is switching between noqueue
+> and another qdisc. So ptr_ring_produce() can fail here, do we need to
+> check that or not?
+> 
 
-Two-step plan as David suggested[2]:
+Do you mean that? My thoughts:
 
-Step 1 (this patch): Skip redundant sync when we're 100% certain the TLB
-flush sent IPIs. INVLPGB is excluded because when supported, we cannot
-guarantee IPIs were sent, keeping it clean and simple.
+Switching from noqueue to some qdisc can cause a 
 
-Step 2 (future work): Send targeted IPIs only to CPUs actually doing
-software/lockless page table walks, benefiting all architectures.
+net_crit_ratelimited("Virtual device %s asks to queue packet!\n",
+					     dev->name);
 
-Regarding Step 2, it obviously only applies to setups where Step 1 does
-not apply: like x86 with INVLPGB or arm64.
+followed by a return of -ENETDOWN in __dev_queue_xmit().
+This is because tun_net_xmit detects some qdisc with 
 
-[1] https://lore.kernel.org/linux-mm/20260302145652.GH1395266@noisy.programming.kicks-ass.net/
-[2] https://lore.kernel.org/linux-mm/bbfdf226-4660-4949-b17b-0d209ee4ef8c@kernel.org/
+qdisc_present = !qdisc_txq_has_no_queue(queue);
 
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Suggested-by: David Hildenbrand (Arm) <david@kernel.org>
-Acked-by: David Hildenbrand (Arm) <david@kernel.org>
-Signed-off-by: Lance Yang <lance.yang@linux.dev>
----
- arch/x86/include/asm/tlb.h      | 18 +++++++++++++++++-
- arch/x86/include/asm/tlbflush.h |  2 ++
- arch/x86/kernel/smpboot.c       |  1 +
- arch/x86/mm/tlb.c               | 15 +++++++++++++++
- 4 files changed, 35 insertions(+), 1 deletion(-)
+and returns NETDEV_TX_BUSY even though __dev_queue_xmit() did still
+detect noqueue.
 
-diff --git a/arch/x86/include/asm/tlb.h b/arch/x86/include/asm/tlb.h
-index 866ea78ba156..fc586ec8e768 100644
---- a/arch/x86/include/asm/tlb.h
-+++ b/arch/x86/include/asm/tlb.h
-@@ -5,11 +5,21 @@
- #define tlb_flush tlb_flush
- static inline void tlb_flush(struct mmu_gather *tlb);
- 
-+#define tlb_table_flush_implies_ipi_broadcast tlb_table_flush_implies_ipi_broadcast
-+static inline bool tlb_table_flush_implies_ipi_broadcast(void);
-+
- #include <asm-generic/tlb.h>
- #include <linux/kernel.h>
- #include <vdso/bits.h>
- #include <vdso/page.h>
- 
-+DECLARE_STATIC_KEY_FALSE(tlb_ipi_broadcast_key);
-+
-+static inline bool tlb_table_flush_implies_ipi_broadcast(void)
-+{
-+	return static_branch_likely(&tlb_ipi_broadcast_key);
-+}
-+
- static inline void tlb_flush(struct mmu_gather *tlb)
- {
- 	unsigned long start = 0UL, end = TLB_FLUSH_ALL;
-@@ -20,7 +30,13 @@ static inline void tlb_flush(struct mmu_gather *tlb)
- 		end = tlb->end;
- 	}
- 
--	flush_tlb_mm_range(tlb->mm, start, end, stride_shift, tlb->freed_tables);
-+	/*
-+	 * Treat unshared_tables just like freed_tables, such that lazy-TLB
-+	 * CPUs also receive IPIs during unsharing of page tables, allowing
-+	 * us to safely implement tlb_table_flush_implies_ipi_broadcast().
-+	 */
-+	flush_tlb_mm_range(tlb->mm, start, end, stride_shift,
-+			   tlb->freed_tables || tlb->unshared_tables);
- }
- 
- static inline void invlpg(unsigned long addr)
-diff --git a/arch/x86/include/asm/tlbflush.h b/arch/x86/include/asm/tlbflush.h
-index 5a3cdc439e38..8ba853154b46 100644
---- a/arch/x86/include/asm/tlbflush.h
-+++ b/arch/x86/include/asm/tlbflush.h
-@@ -18,6 +18,8 @@
- 
- DECLARE_PER_CPU(u64, tlbstate_untag_mask);
- 
-+void __init native_pv_tlb_init(void);
-+
- void __flush_tlb_all(void);
- 
- #define TLB_FLUSH_ALL	-1UL
-diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
-index 294a8ea60298..df776b645a9c 100644
---- a/arch/x86/kernel/smpboot.c
-+++ b/arch/x86/kernel/smpboot.c
-@@ -1256,6 +1256,7 @@ void __init native_smp_prepare_boot_cpu(void)
- 		switch_gdt_and_percpu_base(me);
- 
- 	native_pv_lock_init();
-+	native_pv_tlb_init();
- }
- 
- void __init native_smp_cpus_done(unsigned int max_cpus)
-diff --git a/arch/x86/mm/tlb.c b/arch/x86/mm/tlb.c
-index 621e09d049cb..8f5585ebaf09 100644
---- a/arch/x86/mm/tlb.c
-+++ b/arch/x86/mm/tlb.c
-@@ -26,6 +26,8 @@
- 
- #include "mm_internal.h"
- 
-+DEFINE_STATIC_KEY_FALSE(tlb_ipi_broadcast_key);
-+
- #ifdef CONFIG_PARAVIRT
- # define STATIC_NOPV
- #else
-@@ -1834,3 +1836,16 @@ static int __init create_tlb_single_page_flush_ceiling(void)
- 	return 0;
- }
- late_initcall(create_tlb_single_page_flush_ceiling);
-+
-+void __init native_pv_tlb_init(void)
-+{
-+#ifdef CONFIG_PARAVIRT
-+	if (pv_ops.mmu.flush_tlb_multi != native_flush_tlb_multi)
-+		return;
-+#endif
-+
-+	if (cpu_feature_enabled(X86_FEATURE_INVLPGB))
-+		return;
-+
-+	static_branch_enable(&tlb_ipi_broadcast_key);
-+}
--- 
-2.49.0
+I am not sure how to solve this/if this has to be solved.
+I do not see a proper way to avoid parallel execution of ndo_start_xmit
+and a qdisc change (dev_graft_qdisc only takes qdisc_skb_head lock).
 
+And from my understanding the veth implementation faces the same issue.
+
+
+Switching from some qdisc to noqueue is no problem I think.
+
+>> +               netif_tx_stop_queue(queue);
+>> +               /* Avoid races with queue wake-ups in __tun_wake_queue by
+>> +                * waking if space is available in a re-check.
+>> +                * The barrier makes sure that the stop is visible before
+>> +                * we re-check.
+>> +                */
+>> +               smp_mb__after_atomic();
+> 
+> Let's document which barrier is paired with this.
+> 
+
+I am basically copying the (old) logic of veth [1] proposed by
+Jakub Kicinski. I must admit I am not 100% sure what it pairs with.
+
+[1] Link: https://lore.kernel.org/all/20250424085358.75d817ae@kernel.org/
+
+>> +               if (!__ptr_ring_produce_peek(&tfile->tx_ring))
+>> +                       netif_tx_wake_queue(queue);
+>> +       }
+>> +       spin_unlock(&tfile->tx_ring.producer_lock);
+>> +
+>> +       if (ret) {
+>> +               /* If a qdisc is attached to our virtual device,
+>> +                * returning NETDEV_TX_BUSY is allowed.
+>> +                */
+>> +               if (qdisc_present) {
+>> +                       rcu_read_unlock();
+>> +                       return NETDEV_TX_BUSY;
+>> +               }
+>>                 drop_reason = SKB_DROP_REASON_FULL_RING;
+>>                 goto drop;
+>>         }
+>>
+>>         /* dev->lltx requires to do our own update of trans_start */
+>> -       queue = netdev_get_tx_queue(dev, txq);
+>>         txq_trans_cond_update(queue);
+>>
+>>         /* Notify and wake up reader process */
+>> --
+>> 2.43.0
+>>
+> 
+> Thanks
+> 
