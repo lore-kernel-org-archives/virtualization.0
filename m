@@ -1,282 +1,293 @@
-Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com [209.85.208.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 528E03E556C;
-	Wed, 25 Mar 2026 14:47:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774450070; cv=none; b=WdjeM/j/5fXfdRv1xRoKtKXFEweOg+4XbDonpyVVa20b1Wsswo3L8B7TOymy8kwVwOnbKS0PALYbaboD5/WXlqmswvNaIjYBLCh0piY4RD2M0aix71II4w8RMTgHECiyB0OI97/6L8wgNUp9g07z5OME/dOz01XNSm1X5TfZDQc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774450070; c=relaxed/simple;
-	bh=3vMzfTSY0WKYes7D51AP4NEkC2SMGLTu3ppzV8FUDEs=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=LFZ6KNvJVY0yoN7j0yqwEI1LXWT53v4H9Gxi/YnPyRUf4KW3YRWazanskCPc/t2aC9TDOOqLekMrb7gHTvgivcuvE9T0JKUNQ8ENaHf4dWZnyqbNrKblS5QX4KftepMi9gkPkTNuuFf4Nylt5t1bxOmkwr608JDhn+U5KNZjA7Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=DWi1ClUA; arc=none smtp.client-ip=129.217.128.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 348933E557B
+	for <virtualization@lists.linux.dev>; Wed, 25 Mar 2026 15:49:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.53
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774453786; cv=pass; b=GVhckYf3XXFfZx2EQPMsO85kKmrAfZpJhHg5wHQbuDEyQrq6qPvZpES/eS7q8Bkc1PCjuf+rGDMjNkm1rmLoIElmRDHwOq5GC8qtxh8g6rBvU7VIPTkQGvI/yaSLjX5HxxJfthE8tutWLNAAfxLQq9l6wGhhg0QYItObe6Ky06I=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774453786; c=relaxed/simple;
+	bh=SMw1jlxrpubfTnHEDlbO4rziVId8vc4wQCntfT4i+lU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=GIvbLrslfjZAqgo1b0WMniDqCkM199KVjFtfa9B7s1FGAQy6xLkTAcvi2OOuHkNq6d+3seBJbvGGfAhG3RCpkEOSmpB1swjvdeALI3aueFgzvwPl52VHdIefi2+pmf/rXyWYrP0qllERCSBKHlR/hzRVb6572hM9Ev9KqGnTR/U=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=ugLqosko; arc=pass smtp.client-ip=209.85.208.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="DWi1ClUA"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tu-dortmund.de;
-	s=unimail; t=1774450056;
-	bh=3vMzfTSY0WKYes7D51AP4NEkC2SMGLTu3ppzV8FUDEs=;
-	h=Date:Subject:From:To:Cc:References:In-Reply-To;
-	b=DWi1ClUACRz9BAa7yPQZpoUB7jTfbj+svASA7scdHS/lY7zkJ1+zaw0my/Lt/xuWh
-	 NAOCrMFuXgmhlHOAjG3geuhelBVlQ+RPDAF84srKnc39oo8XRkNSwlnMcUJez7299h
-	 hx54hUBesw9N481Us3gprmiM5bFEdDE8Cg1eKnt4=
-Received: from [192.168.96.127] (dhcp-ip-251.ipt.rwth-aachen.de [137.226.82.251])
-	(authenticated bits=0)
-	by unimail.uni-dortmund.de (8.18.2/8.18.2) with ESMTPSA id 62PElYOM028631
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Wed, 25 Mar 2026 15:47:34 +0100 (CET)
-Message-ID: <cda710f8-033a-4772-b5ce-a2cfddf42bea@tu-dortmund.de>
-Date: Wed, 25 Mar 2026 15:47:34 +0100
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="ugLqosko"
+Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-66970715adbso7740878a12.3
+        for <virtualization@lists.linux.dev>; Wed, 25 Mar 2026 08:49:44 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1774453782; cv=none;
+        d=google.com; s=arc-20240605;
+        b=ikziRRdeUmFyHAk0x0EhBVkyaygob16vmJaagZH5S5mCinK7LIl/nz6JoMx5N99FW9
+         ivPtzKkpaE3ls8EoZdUkzDLanrp+TFvbIjRePJVF0ySiY0Yw23PqYz8UKgKYXQEYFY9x
+         TE5wLLLi6vPJjAzTinklqwN5sJkDlFPyerf34J9scL5lmPxYcUAYQNUJ3AEngM+T3KtA
+         X3s0/vSUNoFS8e+5aZ3fwUHGu5cpU+r7RZVEfBtCVpkknnJ+ogNrZN7/JRNNrPcJ8qaP
+         kWDvGlqhrBsVBzZcAH0NQg6I8jazcrxVnb8ax7lH72ssLW5kPnY7vC29wDTTTug5LOis
+         1vYg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=PetZC3qxgw91I7G4PL1kgiG97oaIIgIA0g2FQ1jwb8M=;
+        fh=9QPVg6v8rGhdlVn5dlksHw9IAtqG0ZC3y/oJFW3GLwM=;
+        b=VvfbJXdpCjhD4qUB2u4op/lotdhqMqhY3OIPXx6Skyhvqaa3WYhGfQATNQnNx9YCoW
+         ni5e7ViRYSL+T+mrr6d+h1YfR7sXHAsouvuLV/LOM/0TA2uuo1PMX2w0XwTtd8c7xNOV
+         zpqwtmML5TC6axHcnlc+9a3wIb5z2QBBOhgRokNNX41i+PsD7Leqgr1Iy5a3lV6AbPFV
+         uyDgPglTxGNTKioFL5sY4/bPklJ9pplilK1mcjY7BuwXKfgs4uqhd2MHOmb1dRPI/t8Y
+         D5COSlFhApkcN7J7NbfEqbnb74ZcUf2rrWpm+55FGiYrRhMBy6amOumIoQveKZDV0EL5
+         gLRA==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1774453782; x=1775058582; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=PetZC3qxgw91I7G4PL1kgiG97oaIIgIA0g2FQ1jwb8M=;
+        b=ugLqoskoC3I4voiTSCjtBEbL8Z6Hkqhb0iMmRDRsdj/CZI31GalLzPFvrTuPoxmfua
+         BGiBPgh3w5Y7sgUeqlyiu+oGG7k9EWooEAjLT5zCiAOnamjejb7uOHos+9r8+6qG2NM5
+         G6q4fMkkzw5Dx24pmfJCINe/Wnavx11DB7MHYBiO08vl8rNSPpWkn8p5ZX+xC6CTVnhg
+         LNd6ExcGLsFxOAPFc+lNQNrH8h2oo3c5RSb9xphL0plbTKl+hlIYu8sbT5aH6WbOal5E
+         pfGeC1V2u17LOuAHqJYDIZPITiCjgk2uaIoSAdwmQU7umnig3oMircklxBU2ZqZPxBrq
+         UPHg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774453782; x=1775058582;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=PetZC3qxgw91I7G4PL1kgiG97oaIIgIA0g2FQ1jwb8M=;
+        b=ptVuK6qtfWRJYxTKZdR/bOvCFS01MGu235zJxmLy9WLGsAUa5oqYcb1n4KAL8uKDs/
+         CEZCOP7zVLemBW/32zmCvxbB7mQLElnSamBI1UgPXIP2nuOgWFUfKNgsIdXKfgFyj+qA
+         211xtA3xRip/vSNK7xjfUeBeBSa5/ufmm8+25lV4HINO6J5sL7T3KpdTUWn0cpnNaMO+
+         5zUD7m8DpF3I3cynsJKLE7vJ481rIWiWrjiirjPGtsR1Yq5EYERO6kxoS8L0PsEcC2ht
+         Zller7g91uT3iNV1Vi/yikHOhti/0vup/HXNmQJ/grZvuP5UtlSgwsBs8CPq+/Xiu3al
+         S2KA==
+X-Forwarded-Encrypted: i=1; AJvYcCUYI0tlK0oGkwUOdXkJvZDDch7Ix7oU1rOfZQZof3eOIrNvzavoixX9s7/DV+XeFzfbPjcTw1ytBzQQar5jOw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyhX7CQUOfJstgDNY1JswsJZGs0GWh5Vzh7GzKPR4BK7X4U05lP
+	6VpAlhnyy9vKEK8HXiKHXIQxT+ffvKJoOqKGXJtVgnzzISkSFlZy1064qGWIM91ww7GsEDurNw8
+	kY7jmOJAXh/xT+BR6rKB6QxdDCK9V+qaz5KSHK1xAqQ==
+X-Gm-Gg: ATEYQzwgLHB9C9UxG9PQLqm51TiWisvJGZ8ofIlzOxdyFVeNdOr0n19UajiBy7f50vo
+	5eoyHJU+LRes68nZmh/1jlFM2VOyadPyqw88I73R3HaE11DZc7BoAWw36DeiPS0i2rWUxrv0oUH
+	6SRrNdqqmNXOJTEkyqpXOCGDV2aajbpZpOzoxfK83kRYoYs1kKD+7dLG0qzFA0n915HZbzLsYEE
+	kWIU70xu91qTIHLKHvEtwrdjufCDH6y+tPI4i/C92xRq1rK9BhwwU8Bye4aJK1+oBe5+cb3jWky
+	OBQjSejPfMyhSBWP0NqBGmpnBefLeBb9eJwQP2iSJA==
+X-Received: by 2002:a05:6402:3251:b0:668:368b:38d3 with SMTP id
+ 4fb4d7f45d1cf-66a82634560mr2196905a12.12.1774453782373; Wed, 25 Mar 2026
+ 08:49:42 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v8 4/4] tun/tap & vhost-net: avoid ptr_ring
- tail-drop when a qdisc is present
-From: Simon Schippers <simon.schippers@tu-dortmund.de>
-To: Jason Wang <jasowang@redhat.com>
-Cc: willemdebruijn.kernel@gmail.com, andrew+netdev@lunn.ch,
-        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
-        pabeni@redhat.com, mst@redhat.com, eperezma@redhat.com,
-        leiyang@redhat.com, stephen@networkplumber.org, jon@nutanix.com,
-        tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        virtualization@lists.linux.dev
-References: <20260312130639.138988-1-simon.schippers@tu-dortmund.de>
- <20260312130639.138988-5-simon.schippers@tu-dortmund.de>
- <CACGkMEtN9XgYPGHQg4TEWEsa_UcMbcnzO=VaTFT=0Tn4BayMDw@mail.gmail.com>
- <0908392d-6314-4141-b908-6c9a880ba0a4@tu-dortmund.de>
-Content-Language: en-US
-In-Reply-To: <0908392d-6314-4141-b908-6c9a880ba0a4@tu-dortmund.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+References: <20260324005919.2408620-1-dakr@kernel.org> <20260324005919.2408620-8-dakr@kernel.org>
+In-Reply-To: <20260324005919.2408620-8-dakr@kernel.org>
+From: Mathieu Poirier <mathieu.poirier@linaro.org>
+Date: Wed, 25 Mar 2026 09:49:31 -0600
+X-Gm-Features: AQROBzDaUkN0ZNcFR8HLoPUZ0UwwRolGugOyW2ifJVz-O5YTothUc8ZwonnT9P8
+Message-ID: <CANLsYkyNx+e=QrSc=ZOqgMcOpwqdpCWsuhrvByJYcXLHPSHMUw@mail.gmail.com>
+Subject: Re: [PATCH 07/12] rpmsg: use generic driver_override infrastructure
+To: Danilo Krummrich <dakr@kernel.org>
+Cc: Russell King <linux@armlinux.org.uk>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	"Rafael J. Wysocki" <rafael@kernel.org>, Ioana Ciornei <ioana.ciornei@nxp.com>, 
+	Nipun Gupta <nipun.gupta@amd.com>, Nikhil Agarwal <nikhil.agarwal@amd.com>, 
+	"K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
+	Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>, 
+	Bjorn Helgaas <bhelgaas@google.com>, Armin Wolf <W_Armin@gmx.de>, 
+	Bjorn Andersson <andersson@kernel.org>, Vineeth Vijayan <vneethv@linux.ibm.com>, 
+	Peter Oberparleiter <oberpar@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>, 
+	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev <agordeev@linux.ibm.com>, 
+	Christian Borntraeger <borntraeger@linux.ibm.com>, Sven Schnelle <svens@linux.ibm.com>, 
+	Harald Freudenberger <freude@linux.ibm.com>, Holger Dengler <dengler@linux.ibm.com>, 
+	Mark Brown <broonie@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Alex Williamson <alex@shazbot.org>, Juergen Gross <jgross@suse.com>, 
+	Stefano Stabellini <sstabellini@kernel.org>, 
+	Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>, 
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, linux-kernel@vger.kernel.org, 
+	driver-core@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
+	linux-hyperv@vger.kernel.org, linux-pci@vger.kernel.org, 
+	platform-driver-x86@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
+	linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org, 
+	linux-spi@vger.kernel.org, virtualization@lists.linux.dev, 
+	kvm@vger.kernel.org, xen-devel@lists.xenproject.org, 
+	linux-arm-kernel@lists.infradead.org, Gui-Dong Han <hanguidong02@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
 
-On 3/24/26 11:14, Simon Schippers wrote:
-> On 3/24/26 02:47, Jason Wang wrote:
->> On Thu, Mar 12, 2026 at 9:07 PM Simon Schippers
->> <simon.schippers@tu-dortmund.de> wrote:
->>>
->>> This commit prevents tail-drop when a qdisc is present and the ptr_ring
->>> becomes full. Once an entry is successfully produced and the ptr_ring
->>> reaches capacity, the netdev queue is stopped instead of dropping
->>> subsequent packets.
->>>
->>> If producing an entry fails anyways due to a race, tun_net_xmit returns
->>> NETDEV_TX_BUSY, again avoiding a drop. Such races are expected because
->>> LLTX is enabled and the transmit path operates without the usual locking.
->>>
->>> The existing __tun_wake_queue() function wakes the netdev queue. Races
->>> between this wakeup and the queue-stop logic could leave the queue
->>> stopped indefinitely. To prevent this, a memory barrier is enforced
->>> (as discussed in a similar implementation in [1]), followed by a recheck
->>> that wakes the queue if space is already available.
->>>
->>> If no qdisc is present, the previous tail-drop behavior is preserved.
->>
->> I wonder if we need a dedicated TUN flag to enable this. With this new
->> flag, we can even prevent TUN from using noqueue (not sure if it's
->> possible or not).
->>
-> 
-> Except of the slight regressions because of this patchset I do not see
-> a reason for such a flag.
-> 
-> I have never seen that the driver prevents noqueue. For example you can
-> set noqueue to your ethernet interface and under load you soon get 
-> 
-> net_crit_ratelimited("Virtual device %s asks to queue packet!\n",
-> 					     dev->name);
-> 
-> followed by a -ENETDOWN. And this is not prevented even though it is
-> clearly not something a user wants.
-> 
->>>
->>> Benchmarks:
->>> The benchmarks show a slight regression in raw transmission performance,
->>> though no packets are lost anymore.
->>>
->>> The previously introduced threshold to only wake after the queue stopped
->>> and half of the ring was consumed showed to be a descent choice:
->>> Waking the queue whenever a consume made space in the ring strongly
->>> degrades performance for tap, while waking only when the ring is empty
->>> is too late and also hurts throughput for tap & tap+vhost-net.
->>> Other ratios (3/4, 7/8) showed similar results (not shown here), so
->>> 1/2 was chosen for the sake of simplicity for both tun/tap and
->>> tun/tap+vhost-net.
->>>
->>> Test setup:
->>> AMD Ryzen 5 5600X at 4.3 GHz, 3200 MHz RAM, isolated QEMU threads;
->>> Average over 20 runs @ 100,000,000 packets. SRSO and spectre v2
->>> mitigations disabled.
->>>
->>> Note for tap+vhost-net:
->>> XDP drop program active in VM -> ~2.5x faster, slower for tap due to
->>> more syscalls (high utilization of entry_SYSRETQ_unsafe_stack in perf)
->>>
->>> +--------------------------+--------------+----------------+----------+
->>> | 1 thread                 | Stock        | Patched with   | diff     |
->>> | sending                  |              | fq_codel qdisc |          |
->>> +------------+-------------+--------------+----------------+----------+
->>> | TAP        | Transmitted | 1.151 Mpps   | 1.139 Mpps     | -1.1%    |
->>> |            +-------------+--------------+----------------+----------+
->>> |            | Lost/s      | 3.606 Mpps   | 0 pps          |          |
->>> +------------+-------------+--------------+----------------+----------+
->>> | TAP        | Transmitted | 3.948 Mpps   | 3.738 Mpps     | -5.3%    |
->>> |            +-------------+--------------+----------------+----------+
->>> | +vhost-net | Lost/s      | 496.5 Kpps   | 0 pps          |          |
->>> +------------+-------------+--------------+----------------+----------+
->>>
->>> +--------------------------+--------------+----------------+----------+
->>> | 2 threads                | Stock        | Patched with   | diff     |
->>> | sending                  |              | fq_codel qdisc |          |
->>> +------------+-------------+--------------+----------------+----------+
->>> | TAP        | Transmitted | 1.133 Mpps   | 1.109 Mpps     | -2.1%    |
->>> |            +-------------+--------------+----------------+----------+
->>> |            | Lost/s      | 8.269 Mpps   | 0 pps          |          |
->>> +------------+-------------+--------------+----------------+----------+
->>> | TAP        | Transmitted | 3.820 Mpps   | 3.513 Mpps     | -8.0%    |
->>> |            +-------------+--------------+----------------+----------+
->>> | +vhost-net | Lost/s      | 4.961 Mpps   | 0 pps          |          |
->>> +------------+-------------+--------------+----------------+----------+
->>>
->>> [1] Link: https://lore.kernel.org/all/20250424085358.75d817ae@kernel.org/
->>>
->>> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
->>> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
->>> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
->>> ---
->>>  drivers/net/tun.c | 30 ++++++++++++++++++++++++++++--
->>>  1 file changed, 28 insertions(+), 2 deletions(-)
->>>
->>> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
->>> index b86582cc6cb6..9b7daec69acd 100644
->>> --- a/drivers/net/tun.c
->>> +++ b/drivers/net/tun.c
->>> @@ -1011,6 +1011,8 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
->>>         struct netdev_queue *queue;
->>>         struct tun_file *tfile;
->>>         int len = skb->len;
->>> +       bool qdisc_present;
->>> +       int ret;
->>>
->>>         rcu_read_lock();
->>>         tfile = rcu_dereference(tun->tfiles[txq]);
->>> @@ -1063,13 +1065,37 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
->>>
->>>         nf_reset_ct(skb);
->>>
->>> -       if (ptr_ring_produce(&tfile->tx_ring, skb)) {
->>> +       queue = netdev_get_tx_queue(dev, txq);
->>> +       qdisc_present = !qdisc_txq_has_no_queue(queue);
->>> +
->>> +       spin_lock(&tfile->tx_ring.producer_lock);
->>> +       ret = __ptr_ring_produce(&tfile->tx_ring, skb);
->>> +       if (__ptr_ring_produce_peek(&tfile->tx_ring) && qdisc_present) {
->>
->> So, it's possible that the administrator is switching between noqueue
->> and another qdisc. So ptr_ring_produce() can fail here, do we need to
->> check that or not?
->>
-> 
-> Do you mean that? My thoughts:
-> 
-> Switching from noqueue to some qdisc can cause a 
-> 
-> net_crit_ratelimited("Virtual device %s asks to queue packet!\n",
-> 					     dev->name);
-> 
-> followed by a return of -ENETDOWN in __dev_queue_xmit().
-> This is because tun_net_xmit detects some qdisc with 
-> 
-> qdisc_present = !qdisc_txq_has_no_queue(queue);
-> 
-> and returns NETDEV_TX_BUSY even though __dev_queue_xmit() did still
-> detect noqueue.
-> 
-> I am not sure how to solve this/if this has to be solved.
-> I do not see a proper way to avoid parallel execution of ndo_start_xmit
-> and a qdisc change (dev_graft_qdisc only takes qdisc_skb_head lock).
-> 
-> And from my understanding the veth implementation faces the same issue.
+On Mon, 23 Mar 2026 at 19:00, Danilo Krummrich <dakr@kernel.org> wrote:
+>
+> When a driver is probed through __driver_attach(), the bus' match()
+> callback is called without the device lock held, thus accessing the
+> driver_override field without a lock, which can cause a UAF.
+>
+> Fix this by using the driver-core driver_override infrastructure taking
+> care of proper locking internally.
+>
+> Note that calling match() from __driver_attach() without the device lock
+> held is intentional. [1]
+>
+> Link: https://lore.kernel.org/driver-core/DGRGTIRHA62X.3RY09D9SOK77P@kernel.org/ [1]
+> Reported-by: Gui-Dong Han <hanguidong02@gmail.com>
+> Closes: https://bugzilla.kernel.org/show_bug.cgi?id=220789
+> Fixes: e95060478244 ("rpmsg: Introduce a driver override mechanism")
+> Signed-off-by: Danilo Krummrich <dakr@kernel.org>
+> ---
+>  drivers/rpmsg/qcom_glink_native.c |  2 --
 
-How about rechecking if a qdisc is connected?
-This would avoid -ENETDOWN.
+For the below files:
 
-diff --git a/net/core/dev.c b/net/core/dev.c
-index f48dc299e4b2..2731a1a70732 100644
---- a/net/core/dev.c
-+++ b/net/core/dev.c
-@@ -4845,10 +4845,17 @@ int __dev_queue_xmit(struct sk_buff *skb, struct net_device *sb_dev)
-                                if (is_list)
-                                        rc = NETDEV_TX_OK;
-                        }
-+                       bool qdisc_present = !qdisc_txq_has_no_queue(txq);
-                        HARD_TX_UNLOCK(dev, txq);
-                        if (!skb) /* xmit completed */
-                                goto out;
- 
-+                       /* Maybe a qdisc was connected in the meantime */
-+                       if (qdisc_present) {
-+                               kfree_skb(skb);
-+                               goto out;
-+                       }
-+
-                        net_crit_ratelimited("Virtual device %s asks to queue packet!\n",
-                                             dev->name);
-                        /* NETDEV_TX_BUSY or queue was stopped */
+Reviewed-by: Mathieu Poirier <mathieu.poirier@linaro.org>
 
-
-> 
-> 
-> Switching from some qdisc to noqueue is no problem I think.
-> 
->>> +               netif_tx_stop_queue(queue);
->>> +               /* Avoid races with queue wake-ups in __tun_wake_queue by
->>> +                * waking if space is available in a re-check.
->>> +                * The barrier makes sure that the stop is visible before
->>> +                * we re-check.
->>> +                */
->>> +               smp_mb__after_atomic();
->>
->> Let's document which barrier is paired with this.
->>
-> 
-> I am basically copying the (old) logic of veth [1] proposed by
-> Jakub Kicinski. I must admit I am not 100% sure what it pairs with.
-> 
-> [1] Link: https://lore.kernel.org/all/20250424085358.75d817ae@kernel.org/
-> 
->>> +               if (!__ptr_ring_produce_peek(&tfile->tx_ring))
->>> +                       netif_tx_wake_queue(queue);
->>> +       }
->>> +       spin_unlock(&tfile->tx_ring.producer_lock);
->>> +
->>> +       if (ret) {
->>> +               /* If a qdisc is attached to our virtual device,
->>> +                * returning NETDEV_TX_BUSY is allowed.
->>> +                */
->>> +               if (qdisc_present) {
->>> +                       rcu_read_unlock();
->>> +                       return NETDEV_TX_BUSY;
->>> +               }
->>>                 drop_reason = SKB_DROP_REASON_FULL_RING;
->>>                 goto drop;
->>>         }
->>>
->>>         /* dev->lltx requires to do our own update of trans_start */
->>> -       queue = netdev_get_tx_queue(dev, txq);
->>>         txq_trans_cond_update(queue);
->>>
->>>         /* Notify and wake up reader process */
->>> --
->>> 2.43.0
->>>
->>
->> Thanks
->>
+>  drivers/rpmsg/rpmsg_core.c        | 43 +++++--------------------------
+>  drivers/rpmsg/virtio_rpmsg_bus.c  |  1 -
+>  include/linux/rpmsg.h             |  4 ---
+>  4 files changed, 7 insertions(+), 43 deletions(-)
+>
+> diff --git a/drivers/rpmsg/qcom_glink_native.c b/drivers/rpmsg/qcom_glink_native.c
+> index 9ef17c2e45b0..e9d1b2082477 100644
+> --- a/drivers/rpmsg/qcom_glink_native.c
+> +++ b/drivers/rpmsg/qcom_glink_native.c
+> @@ -1623,7 +1623,6 @@ static void qcom_glink_rpdev_release(struct device *dev)
+>  {
+>         struct rpmsg_device *rpdev = to_rpmsg_device(dev);
+>
+> -       kfree(rpdev->driver_override);
+>         kfree(rpdev);
+>  }
+>
+> @@ -1859,7 +1858,6 @@ static void qcom_glink_device_release(struct device *dev)
+>
+>         /* Release qcom_glink_alloc_channel() reference */
+>         kref_put(&channel->refcount, qcom_glink_channel_release);
+> -       kfree(rpdev->driver_override);
+>         kfree(rpdev);
+>  }
+>
+> diff --git a/drivers/rpmsg/rpmsg_core.c b/drivers/rpmsg/rpmsg_core.c
+> index 96964745065b..2b9f6d5a9a4f 100644
+> --- a/drivers/rpmsg/rpmsg_core.c
+> +++ b/drivers/rpmsg/rpmsg_core.c
+> @@ -358,33 +358,6 @@ rpmsg_show_attr(src, src, "0x%x\n");
+>  rpmsg_show_attr(dst, dst, "0x%x\n");
+>  rpmsg_show_attr(announce, announce ? "true" : "false", "%s\n");
+>
+> -static ssize_t driver_override_store(struct device *dev,
+> -                                    struct device_attribute *attr,
+> -                                    const char *buf, size_t count)
+> -{
+> -       struct rpmsg_device *rpdev = to_rpmsg_device(dev);
+> -       int ret;
+> -
+> -       ret = driver_set_override(dev, &rpdev->driver_override, buf, count);
+> -       if (ret)
+> -               return ret;
+> -
+> -       return count;
+> -}
+> -
+> -static ssize_t driver_override_show(struct device *dev,
+> -                                   struct device_attribute *attr, char *buf)
+> -{
+> -       struct rpmsg_device *rpdev = to_rpmsg_device(dev);
+> -       ssize_t len;
+> -
+> -       device_lock(dev);
+> -       len = sysfs_emit(buf, "%s\n", rpdev->driver_override);
+> -       device_unlock(dev);
+> -       return len;
+> -}
+> -static DEVICE_ATTR_RW(driver_override);
+> -
+>  static ssize_t modalias_show(struct device *dev,
+>                              struct device_attribute *attr, char *buf)
+>  {
+> @@ -405,7 +378,6 @@ static struct attribute *rpmsg_dev_attrs[] = {
+>         &dev_attr_dst.attr,
+>         &dev_attr_src.attr,
+>         &dev_attr_announce.attr,
+> -       &dev_attr_driver_override.attr,
+>         NULL,
+>  };
+>  ATTRIBUTE_GROUPS(rpmsg_dev);
+> @@ -424,9 +396,11 @@ static int rpmsg_dev_match(struct device *dev, const struct device_driver *drv)
+>         const struct rpmsg_driver *rpdrv = to_rpmsg_driver(drv);
+>         const struct rpmsg_device_id *ids = rpdrv->id_table;
+>         unsigned int i;
+> +       int ret;
+>
+> -       if (rpdev->driver_override)
+> -               return !strcmp(rpdev->driver_override, drv->name);
+> +       ret = device_match_driver_override(dev, drv);
+> +       if (ret >= 0)
+> +               return ret;
+>
+>         if (ids)
+>                 for (i = 0; ids[i].name[0]; i++)
+> @@ -535,6 +509,7 @@ static const struct bus_type rpmsg_bus = {
+>         .name           = "rpmsg",
+>         .match          = rpmsg_dev_match,
+>         .dev_groups     = rpmsg_dev_groups,
+> +       .driver_override = true,
+>         .uevent         = rpmsg_uevent,
+>         .probe          = rpmsg_dev_probe,
+>         .remove         = rpmsg_dev_remove,
+> @@ -560,11 +535,9 @@ int rpmsg_register_device_override(struct rpmsg_device *rpdev,
+>
+>         device_initialize(dev);
+>         if (driver_override) {
+> -               ret = driver_set_override(dev, &rpdev->driver_override,
+> -                                         driver_override,
+> -                                         strlen(driver_override));
+> +               ret = device_set_driver_override(dev, driver_override);
+>                 if (ret) {
+> -                       dev_err(dev, "device_set_override failed: %d\n", ret);
+> +                       dev_err(dev, "device_set_driver_override() failed: %d\n", ret);
+>                         put_device(dev);
+>                         return ret;
+>                 }
+> @@ -573,8 +546,6 @@ int rpmsg_register_device_override(struct rpmsg_device *rpdev,
+>         ret = device_add(dev);
+>         if (ret) {
+>                 dev_err(dev, "device_add failed: %d\n", ret);
+> -               kfree(rpdev->driver_override);
+> -               rpdev->driver_override = NULL;
+>                 put_device(dev);
+>         }
+>
+> diff --git a/drivers/rpmsg/virtio_rpmsg_bus.c b/drivers/rpmsg/virtio_rpmsg_bus.c
+> index 8d9e2b4dc7c1..e0dacb736ef9 100644
+> --- a/drivers/rpmsg/virtio_rpmsg_bus.c
+> +++ b/drivers/rpmsg/virtio_rpmsg_bus.c
+> @@ -373,7 +373,6 @@ static void virtio_rpmsg_release_device(struct device *dev)
+>         struct rpmsg_device *rpdev = to_rpmsg_device(dev);
+>         struct virtio_rpmsg_channel *vch = to_virtio_rpmsg_channel(rpdev);
+>
+> -       kfree(rpdev->driver_override);
+>         kfree(vch);
+>  }
+>
+> diff --git a/include/linux/rpmsg.h b/include/linux/rpmsg.h
+> index fb7ab9165645..c2e3ef8480d5 100644
+> --- a/include/linux/rpmsg.h
+> +++ b/include/linux/rpmsg.h
+> @@ -41,9 +41,6 @@ struct rpmsg_channel_info {
+>   * rpmsg_device - device that belong to the rpmsg bus
+>   * @dev: the device struct
+>   * @id: device id (used to match between rpmsg drivers and devices)
+> - * @driver_override: driver name to force a match; do not set directly,
+> - *                   because core frees it; use driver_set_override() to
+> - *                   set or clear it.
+>   * @src: local address
+>   * @dst: destination address
+>   * @ept: the rpmsg endpoint of this channel
+> @@ -53,7 +50,6 @@ struct rpmsg_channel_info {
+>  struct rpmsg_device {
+>         struct device dev;
+>         struct rpmsg_device_id id;
+> -       const char *driver_override;
+>         u32 src;
+>         u32 dst;
+>         struct rpmsg_endpoint *ept;
+> --
+> 2.53.0
+>
