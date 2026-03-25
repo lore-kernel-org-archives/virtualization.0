@@ -1,58 +1,59 @@
 Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB4A941B374
-	for <virtualization@lists.linux.dev>; Wed, 25 Mar 2026 18:09:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D40741B340
+	for <virtualization@lists.linux.dev>; Wed, 25 Mar 2026 18:09:05 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774462149; cv=none; b=I5zJmW3Tt/Pt/m0C3qORDHlR8Fa7hwj1JfuxXZ/iELFYEW8HgWlgSt2m4qMnnOdzU6ApPV3VIXy/mMwyMjR0d3a55/R5QM3MynSt8cOuk9UnYO8e6fD186hkvVTjEu0WFqq4DNG3S9MUUzq45LHsRSVAG9HLVWpTV12N+1oyRUA=
+	t=1774462150; cv=none; b=QacMzFQbIYbSGQz+7O8jErXg1pOaSPnK30GZ8Oyf6P9MInIfDTlI5lZxSdl6+o9JuZ3gH4hcXxepQG+Y6dhuM9yIqnUmtIaGDgWWoe5rX8cGNZLY8e57nbJ//jaPtQYQ5W36Oxz6k828tMewNujbrmjNKAVHkVAGfIORxZvVrvM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774462149; c=relaxed/simple;
-	bh=YOLTyhMdaqgptdgS7Xr6cneJmP7tltwCYxGztnMm5AA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=oG90eCbMwVXS8k/zIwvQSqdNftS6Nh7F07HPem0uEuujZUKDingqO7JtPjfuHUQJ5lHhSG51rKH+VGaT04WI3QIouV8JxPHJTfCaCGbeq5PoenuAM0sw1UYnCkxmD5TWqP2olDGw8nklrWRODfDA4LnwQ1///msf7KsEOgf1Dqs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=gzJSw5AX; arc=none smtp.client-ip=148.163.156.1
+	s=arc-20240116; t=1774462150; c=relaxed/simple;
+	bh=6BuOBRXmTWUCtl9y7zduCFX25TYqL88ILxR7IGOe5x0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=t1aTFshS2DgnOTAOLN4KpJYogAP/yD6/DRVrXXv2Xnm7Bt5ipYyU21SOtMMAjf7yy4VXcdGZ0hR1k8m+tZpLFMNkSPpQR8/eYxp+t6mIfpMCKonqKScytfsKvwOZ2GZRvSbKJx7pDOSP7XpuCfRZr53iO9ttsDb6F6lToQxcX9c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sOYsXbcG; arc=none smtp.client-ip=148.163.156.1
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="gzJSw5AX"
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sOYsXbcG"
 Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62PFo9SE3011996;
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62P9A3F1768705;
 	Wed, 25 Mar 2026 18:09:03 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=pp1; bh=vIrf9M33ixy5kPT8YVVUFWKNQS7KjLsBRP/hLnG+D
-	sw=; b=gzJSw5AXAjggkNAfMvEt9UB2YkqI9dkN0Im6J9f9cvKluYHA8CLT4uZKS
-	7WUItO2XxNx2tskpXGXEQbRhVTN5mfnGTB2azQUOre1pk3WKRhxqVll/HMADIIuP
-	mcCv5016/dXTvjESxqpU2IhDpgwClgpOvD4fThO6sa56yw3uHTEyCeHktzRMbrSj
-	cvryNuFVTHV7cEKDHv8yp61SMlBsrpvS/k0kZ/OqEs4WVu1OV6nFw29PPkRGv63K
-	vuA/ztw8TIE6G1I0VSXAfVtyvrRGnN56gqbfc7JFTlLtb+f3fXN3p37Gbi2tjNh5
-	QcDB90YlX22YGPUfQIseTU5fILj3A==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1kxqhu96-1
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=GNPu0plGhuI444jjm
+	RL0uWJ74ZWYu727MBGUUs7VFhA=; b=sOYsXbcGnHZneJ6FMS4o+bkBffFp2fjXb
+	PQKjwS8xGdapW4EDYXJqEMQPUUVBfZrb99fw9O8A1kCGoKUaB2SZ8FdqKOYicEqn
+	Q3Es1c9ltDfatVz1u0FHphG/CSHHPa57levxQDiH84F87ehYJuK1SYrU2jkuge+c
+	pUgg2P5HmaKXucj47GzJFFAUTuB8EhCS/g9FmVFg9Fe32AxkHuzTyFZFv/l6QJZM
+	cSikIhLC7CgIu47sCw1/7rn1M/eo25WR/W89ieD+eQykh2/F5xl8i+KIzr3t1Zdh
+	pemC0yakJcEdcFuw+ipiSVO/T8lvUT2rNptHFkPXJQ3vfUzJsTi5g==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1kxqhu97-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 25 Mar 2026 18:09:02 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62PF7FUK031583;
+	Wed, 25 Mar 2026 18:09:03 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62PF7TV6009143;
 	Wed, 25 Mar 2026 18:09:02 GMT
-Received: from smtprelay05.fra02v.mail.ibm.com ([9.218.2.225])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4d25nsytxt-1
+Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d26nnqq61-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 25 Mar 2026 18:09:01 +0000
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay05.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62PI8wcP43581858
+	Wed, 25 Mar 2026 18:09:02 +0000
+Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
+	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62PI8wpJ52625706
 	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Wed, 25 Mar 2026 18:08:58 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 318E12004B;
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 2183A2004E;
 	Wed, 25 Mar 2026 18:08:58 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EB9EB20040;
+Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id EACF42004B;
 	Wed, 25 Mar 2026 18:08:57 +0000 (GMT)
 Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with SMTP;
+	by smtpav06.fra02v.mail.ibm.com (Postfix) with SMTP;
 	Wed, 25 Mar 2026 18:08:57 +0000 (GMT)
 Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 56370)
-	id CB11EE0471; Wed, 25 Mar 2026 19:08:57 +0100 (CET)
+	id CFE3CE0729; Wed, 25 Mar 2026 19:08:57 +0100 (CET)
 From: Joshua Daley <jdaley@linux.ibm.com>
 To: linux-scsi@vger.kernel.org
 Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
@@ -60,10 +61,12 @@ Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
         pbonzini@redhat.com, stefanha@redhat.com, eperezma@redhat.com,
         James.Bottomley@HansenPartnership.com, martin.petersen@oracle.com,
         mjrosato@linux.ibm.com, farman@linux.ibm.com, frankja@linux.ibm.com
-Subject: [PATCH v4 0/2] scsi: virtio_scsi: move INIT_WORK calls to virtscsi_probe
-Date: Wed, 25 Mar 2026 19:08:55 +0100
-Message-ID: <20260325180857.3675854-1-jdaley@linux.ibm.com>
+Subject: [PATCH v4 2/2] scsi: virtio_scsi: kick event_list unconditionally
+Date: Wed, 25 Mar 2026 19:08:57 +0100
+Message-ID: <20260325180857.3675854-3-jdaley@linux.ibm.com>
 X-Mailer: git-send-email 2.51.0
+In-Reply-To: <20260325180857.3675854-1-jdaley@linux.ibm.com>
+References: <20260325180857.3675854-1-jdaley@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -72,21 +75,21 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: quoted-printable
 X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: ZFOYTNYnzsMF1Bte4xdU-j-NUH4GLscx
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI1MDEyOSBTYWx0ZWRfX0rwb2plh2AYO
- p2jmjtgLkU7cd6n05uCw2CEUfGSfgQeM75INRNP7sLTG7bgg94yQYr6eBXWCo2lWCX+7O0vsm+8
- Lp+anWusLV6g8ekYALecPKrZ3gxZnpLctaEo6HnnLgKiWPpQueYvFF+6CRESILU62dO6i4sz0+R
- YujJRpGuslyYwE27lXFgTdbEYrNGrzANYh3qzbqi2IOxFR46nVmIbho6eihoSlV7mXScvvBDCr6
- uZ2gi/zQ2UutdadxwsNhItu/8d6ciQNv7CrlHTXKw6U4TbouRY202tw0MkVbNUVkKY+jcBhQ4fP
- 9c37GFohyVAq2rZLr60wO39rgdCmrYalHGL5EW/cUUmH9M6L/hkgSf5UT6DPL2Mxo7m0jNZ8CIZ
- FGbDZiSb0p2BobHpw79mzK6zfIEN59iJB/pkMtkOUNzxJilb4PfqLBz0cmSwI26T0BzWk/O3Rhj
- 6+D/CP3/n6Tq+vvQ6vw==
-X-Authority-Analysis: v=2.4 cv=bLEb4f+Z c=1 sm=1 tr=0 ts=69c424be cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
+X-Proofpoint-ORIG-GUID: rQmsXwBnlcELviMN4oh3p2fzunCy43JK
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI1MDEyOSBTYWx0ZWRfX7jqxZdKbw9so
+ ZnSyAiDL6Z9H3PbMaGvLXInzIsg1HE/BHHaHVXIfdRwLg4if32T9N0P7BlILq8c1rwUwUXVVPvy
+ zCruP25KlK+8w4LxCS9UqyAReGSQ1L/tWVcZCG6hGG5HXuqwoAxwDLDdXCDO19Wie/ji+nPcJYv
+ iR5GrcHfqLvI2eTImBkKtNdTDMpdtcNg70IYrPfmlSCA/pCTBVxK5lzSaXYX6kmbJf/ku26vfgN
+ 0nc/OKfTVcD6XS3wNPX2reQGtEcn/LprL+Ko9LmECX04vTQb8PCaP+LedFAW7vzOxD5b1scSHTs
+ A8mqqNtpkUyHSDxTYNFZ8taHUXNgZlpD+vosrCTfiT9TTfV9bS6jbEhOlB0V+pFfrbDsuO/pTEZ
+ Wcs0aRx+mpCioEfUEFNBqTsGoEB0R4+iauyugSEV7+Ul9Ai8UbY4P5kywZrrNOEwFbBWmLaq0Xp
+ oswUqeEvecNQ/OxbGTQ==
+X-Authority-Analysis: v=2.4 cv=bLEb4f+Z c=1 sm=1 tr=0 ts=69c424bf cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
  a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8 a=VnNF1IyMAAAA:8 a=20KFwNOVAAAA:8
- a=LNY0ek4hQKP4GrC02joA:9 a=lqcHg5cX4UMA:10
-X-Proofpoint-GUID: ZFOYTNYnzsMF1Bte4xdU-j-NUH4GLscx
+ a=iQ6ETzBq9ecOQQE5vZCe:22 a=20KFwNOVAAAA:8 a=VnNF1IyMAAAA:8
+ a=fOgkfDuy17jzwl4HYOQA:9
+X-Proofpoint-GUID: rQmsXwBnlcELviMN4oh3p2fzunCy43JK
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-03-25_05,2026-03-24_01,2025-10-01_01
@@ -97,112 +100,59 @@ X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
  route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
  definitions=main-2603250129
 
-TITLE CHANGED! Original series title:
-"scsi: virtio_scsi: move INIT_WORK calls to virtscsi_init"
-Previous version:
-https://lore.kernel.org/linux-scsi/4a93583c-47a1-4700-a7bb-da75fbd231dc@l=
-inux.ibm.com/T/#t
+The event_list processes non-hotplug events (such as LUN capacity
+changes), so remove the conditions that guard the initial kicks in
+_probe() and _restore(), as well as the work cancellation in _remove().
 
-Changelog v3 -> v4:
+Suggested-by: Stefan Hajnoczi <stefanha@redhat.com>
+Signed-off-by: Joshua Daley <jdaley@linux.ibm.com>
+---
+ drivers/scsi/virtio_scsi.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
 
-[PATCH v3 1/3] scsi: virtio_scsi: kick event_list unconditionally
--> [PATCH v4 2/2] scsi: virtio_scsi: kick event_list unconditionally
-    - this patch now comes after moving the INIT_WORK calls, to address b=
-isection concerns:
-      https://lore.kernel.org/linux-scsi/4a93583c-47a1-4700-a7bb-da75fbd2=
-31dc@linux.ibm.com/
-    - the code changes are a bit different given that the INIT_WORK calls=
- are now moved into
-      virtscsi_probe(), but the concept is the same.
-
-[PATCH v3 2/3] scsi: virtio_scsi: move INIT_WORK calls to virtscsi_init
--> [PATCH v4 1/2] scsi: virtio_scsi: move INIT_WORK calls to virtscsi_pro=
-be
-   - the INIT_WORK calls are now moved to virtscsi_probe() to address con=
-cerns
-     with suspend/resume. The title of the series is changed to reflect t=
-his.
-
-[PATCH v3 3/3] scsi: virtio_scsi: remove unnecessary fn declaration
-- squashed into [PATCH v4 1/2]
-
------
-
-v3 cover letter:
-
-Changelog v2 -> v3:
-
-- switched the order of patches 2 & 3 to fix compilation error.
-- added reviewed-by tags.
-
------
-
-v2 cover letter:
-
-Changelog v1 -> v2:
-
-- Added 2 additional patches:
-  - [PATCH v2 1/3] scsi: virtio_scsi: kick event_list unconditionally
-    - Removes the conditions surrounding event_list operations (suggested=
- by Stefan Hajnoczi [<stefanha@redhat.com>](mailto:stefanha@redhat.com))
-  - [PATCH v2 2/3] scsi: virtio_scsi: remove unnecessary fn declaration
-    - Removes virtscsi_handle_event() prototype (suggested by Eric Farman=
- [<farman@linux.ibm.com>](mailto:farman@linux.ibm.com))
-
-- [PATCH 1/1] -> [PATCH v2 3/3] scsi: virtio_scsi: move INIT_WORK calls t=
-o virtscsi_init
-  - Removed the condition surrounding INIT_WORK calls
-
------
-
-v1 cover letter:
-
-This patch avoids a kernel warning that may occur if a virtio_scsi
-controller is detached immediately following a disk detach. See the
-commit message for details. The following are instructions to
-produce the warning (without the proposed patch).
-
-Timing matters--if all event work items call INIT_WORK before they are
-flushed by cancel_work_sync, then the warning will not occur.
-
-The warning will occur consistently if a sleep is added in
-virtscsi_kick_event before the INIT_WORK call, like so:
-
-#include <linux/delay.h>
-
-static int virtscsi_kick_event(struct virtio_scsi *vscsi,
-			       struct virtio_scsi_event_node *event_node)
-{
-    int err;
-    struct scatterlist sg;
-    unsigned long flags;
-
- -> msleep(1000);
-    INIT_WORK(&event_node->work, virtscsi_handle_event);
-=09
-    ...
-}
-
-Then, just detach a disk and its controller in quick succession:
-
-virsh detach-device --domain <domain> disk.xml; \
-virsh detach-device --domain <domain> controller.xml
-
-where disk.xml and controller.xml are text files containing the XML
-of the disk and controller.
-
-Or, with the libvirt python module:
-
-domain.detachDevice(str(disk_xml))
-domain.detachDevice(str(controller_xml))
-
-Joshua Daley (2):
-  scsi: virtio_scsi: move INIT_WORK calls to virtscsi_probe
-  scsi: virtio_scsi: kick event_list unconditionally
-
- drivers/scsi/virtio_scsi.c | 14 ++++++--------
- 1 file changed, 6 insertions(+), 8 deletions(-)
-
+diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+index 64b6c942f572..5fdaa71f0652 100644
+--- a/drivers/scsi/virtio_scsi.c
++++ b/drivers/scsi/virtio_scsi.c
+@@ -982,11 +982,10 @@ static int virtscsi_probe(struct virtio_device *vde=
+v)
+=20
+ 	virtio_device_ready(vdev);
+=20
+-	if (virtio_has_feature(vdev, VIRTIO_SCSI_F_HOTPLUG)) {
+-		for (int i =3D 0; i < VIRTIO_SCSI_EVENT_LEN; i++)
+-			INIT_WORK(&vscsi->event_list[i].work, virtscsi_handle_event);
+-		virtscsi_kick_event_all(vscsi);
+-	}
++	for (int i =3D 0; i < VIRTIO_SCSI_EVENT_LEN; i++)
++		INIT_WORK(&vscsi->event_list[i].work, virtscsi_handle_event);
++
++	virtscsi_kick_event_all(vscsi);
+=20
+ 	scsi_scan_host(shost);
+ 	return 0;
+@@ -1003,8 +1002,7 @@ static void virtscsi_remove(struct virtio_device *v=
+dev)
+ 	struct Scsi_Host *shost =3D virtio_scsi_host(vdev);
+ 	struct virtio_scsi *vscsi =3D shost_priv(shost);
+=20
+-	if (virtio_has_feature(vdev, VIRTIO_SCSI_F_HOTPLUG))
+-		virtscsi_cancel_event_work(vscsi);
++	virtscsi_cancel_event_work(vscsi);
+=20
+ 	scsi_remove_host(shost);
+ 	virtscsi_remove_vqs(vdev);
+@@ -1030,8 +1028,7 @@ static int virtscsi_restore(struct virtio_device *v=
+dev)
+=20
+ 	virtio_device_ready(vdev);
+=20
+-	if (virtio_has_feature(vdev, VIRTIO_SCSI_F_HOTPLUG))
+-		virtscsi_kick_event_all(vscsi);
++	virtscsi_kick_event_all(vscsi);
+=20
+ 	return err;
+ }
 --=20
 2.34.1
 
