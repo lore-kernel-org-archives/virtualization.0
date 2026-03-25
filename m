@@ -1,198 +1,281 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from PH8PR06CU001.outbound.protection.outlook.com (mail-westus3azolkn19012037.outbound.protection.outlook.com [52.103.23.37])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6C90C3FADF0
-	for <virtualization@lists.linux.dev>; Wed, 25 Mar 2026 16:55:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774457757; cv=none; b=qyHEsoHe5CpkeUnasyQpCJaSd0wBD4yUZXGpy3sMZZB26129XS5vqKgbRWJaO4YMCP/M54OJNpRtbJ7T4P19Mrnpoj2YsymVvBRUDRX98IYJDK5DIo/JKc8it0lHGd53Rdd8++nFYeP63hriXVMiHhhlPjUNlqQ5zaiAUmY+0K4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774457757; c=relaxed/simple;
-	bh=+OjMb5092maQp2iEGHKWjP63NT/l3FVLEKtpncsAeD4=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=gn060QBwMZ/JXsj57orBdcZfI7HL1rSJKxdJjoRZQU1EYEcnmG+2khgYjTflhU5DCnwF7FUMGULTagWZV3Vsvjd40nFXo8MgS0p5+pNCgSzZGDiQB8t9rTWBUsig4kFgiBWLAWJsosmBHuozshEGU4L3UPPp1UmTZV52qZGm8kc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ewzOSV46; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6ADB03F7E89;
+	Wed, 25 Mar 2026 17:28:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.103.23.37
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774459734; cv=fail; b=noy8WNolXlLouXrYLh29y9fbFq73jf5hue+bu9SpMRaXIVKdG+V3vhQOMF95pNA0L/Vff1zS01Rn1RbwzbrRDSDMkI6XvatSvLWwX5YAADLvBWrPhFfeKzf7hZDdByHjXHEPXaULMqJAd3ojmtAc4Ys5QvAFLFNo9DhXB3dMYbg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774459734; c=relaxed/simple;
+	bh=wFC4dcMQGBKRsnW5GoZczi1xpYJJTze36QKPgps2Ec0=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=aZOS+ez4sPRTdeQyl5URHcLKZUu0iu2MABb3aB4E6hMfQPGhiwO/BzQwGoEbX14fEVV1pX+HmrK5KDWdgElsH053JaAh9mEYXVXX+ZffGajzJlmNfR/XaPD43b3G5Vbm1czjvQfzuDqXOIORz92f7ptPMaOWvbFKc0BSAPbM+80=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=GTqwa1eW; arc=fail smtp.client-ip=52.103.23.37
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ewzOSV46"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1774457752;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-	bh=5gZ/S9pbjjkoQ+gcMJJTXTQUJ/FjVdC55bH/vaTcEqo=;
-	b=ewzOSV46u1ANS/Rf7aHfXMgM9RPRU+yErI82+z7BjptmN6dQj8pqInI2Z/Ffg1KQBWW0ya
-	b6ohzlc2QYLqwPJ9pb4n7A/BrEltJWoc72bk7WEdmBGZMLykpwo4Cs3qmI0LbWj0XlEWGr
-	ZPLcw4Iecd9zeo3FClUGfjZMek7TOKI=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-263-2l0-pabQMkaNGLXp_E35HQ-1; Wed, 25 Mar 2026 12:55:50 -0400
-X-MC-Unique: 2l0-pabQMkaNGLXp_E35HQ-1
-X-Mimecast-MFC-AGG-ID: 2l0-pabQMkaNGLXp_E35HQ_1774457749
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-43b4a9a3bf6so8164f8f.0
-        for <virtualization@lists.linux.dev>; Wed, 25 Mar 2026 09:55:50 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774457749; x=1775062549;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=5gZ/S9pbjjkoQ+gcMJJTXTQUJ/FjVdC55bH/vaTcEqo=;
-        b=cgRI5EWCoD5vwYMuuvQ2SCq75p4hz143kWSfC63oO62ZSZUVkI37swkgydSEKrtqo1
-         aay2UFcn0wXmx/5MMOEBlLFt9pRrVdI2kg3eNeolDGzloUAbVqA9DFBgZXRH3gMohHZU
-         E7zt4u/5TsTWqJI0UbXJui7g6skpOamlyz6ejIosYwkXa4JfIHn9L8RacQ32Vonr3FKc
-         in29aj6Eh0kVxyZOqJbz+RQSR+WW/dZFWkVFXXagd1Ti6vM3fhXrFds8E7XgCSxullr5
-         SMGyZ3+sw3JHQdAYrFuzdTVnmc1+T94q9wC1PfCRSR9CjQn7NJ+y+3zgwlq9QXvJ695h
-         FBzw==
-X-Forwarded-Encrypted: i=1; AJvYcCUZKAlawzdEet8Ml/6Q4lGqqSP6PVgIE+WZ+ZN8Olo/yOyzuIAZp8z8eqi4RW3Z4wgYEq6fW4hfUb3aD8Dh/g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwpeqPccvjDzEKsseYT5UpCoSCTZmgkg+XzGCxx5TcpnOF82w46
-	hxaTf+IsHLRjQDPBYtcFwawXm1NDLd5ZQ5moz/K1VEPbjnXZWNIP9I2Rww+67mNniKlCCGiqb5W
-	PcHxcBDzndWHTx8Z2kMGwERcHYMxNP7iWidKEBfhQ1aiGwTDfCsTNYzX6FolkuuANA6ON
-X-Gm-Gg: ATEYQzwDP6U2l5pzM+UC9IXn6FaEmegEpSkC/HDzq9QEu5reg21yzWRkMoIMb0/FGYA
-	kuLSa7TSteTg9CC6zzHX+sznfUnstuZAMyELqm8DcTF6pRih64Iv8CtTfcrE4xP6Wa82udhtRtN
-	5JJL4u6ImSQtm2TE9ImvWEVja8uAeEtZYmRlFP7wsAwFeZIQRwiKnL0N567bWq5Hpwd3Xobflyp
-	2f1YBqRAAi4ks0C7LV25h8rjzc6+KUxgZAC6rM9ioYOGDGIuNYBZVrnHElR5Z/FLFZe81hVZ1bM
-	GXN28cGQ82sjyXBAWdI+hlJI4pM7NNhM28UJoL9W+eT3R32fXPiYyoXdEhWiuPIRjNHnuFjGHRt
-	N+Tptb6Kw/IBEHcUe
-X-Received: by 2002:a5d:64e7:0:b0:43b:4960:60f2 with SMTP id ffacd0b85a97d-43b88a399aemr5997834f8f.47.1774457749415;
-        Wed, 25 Mar 2026 09:55:49 -0700 (PDT)
-X-Received: by 2002:a5d:64e7:0:b0:43b:4960:60f2 with SMTP id ffacd0b85a97d-43b88a399aemr5997793f8f.47.1774457748903;
-        Wed, 25 Mar 2026 09:55:48 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1525:da00:3ac2:1a22:72ff:4256])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43b91943184sm1001694f8f.14.2026.03.25.09.55.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Mar 2026 09:55:48 -0700 (PDT)
-Date: Wed, 25 Mar 2026 12:55:45 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: bpf@vger.kernel.org, Simon Schippers <simon.schippers@tu-dortmund.de>,
-	willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
-	andrew+netdev@lunn.ch, davem@davemloft.net, kuba@kernel.org,
-	pabeni@redhat.com, eperezma@redhat.com, leiyang@redhat.com,
-	stephen@networkplumber.org, jon@nutanix.com,
-	tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev, Eric Dumazet <edumazet@google.com>
-Subject: [PATCH net] ptr_ring: disable KCSAN warnings
-Message-ID: <97d39458d8dd7a00341f0be391b580650896ce42.1774457524.git.mst@redhat.com>
+	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="GTqwa1eW"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=A7niL8dK+tae6540T7P32RBaytyVW7zolF8lluf0r4R160iZvxMe8wz0w6vbYtaQIpwAjSMDr+dMe7EGtduuKqfdos64LihelGZuCCOvseUiqQzHnwIqIsGfLAquA+kP1kaJC4nC0Juoh386GRR1UboUJt1ZJpTBqskj9+q4dqEkMD+eo37Daomf0FTM/llT3T+FkOsxf6ip5NsucUlAUbbIKFudkCTIevCZSpHq1zthYC9rHMNAlt+RoZtUcQnHPGPeFUdpTQr5dFiDq9+qd6tmTeP8UAOZQdiObQLazoX5D5aGbLZORgkibaii+N6nHQuWHwzincJVMPUJAS3QKA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=XxHfHViKfT/KJvdZf18l85ejznK+DDKKxrW5WwShbCU=;
+ b=UQ+SKI6p0Uxa6vVjtOYIiFTOYBWymNEmhVqJEKQ2Ufm+ODmhzci0x2irjrsmwG64klbVF9J7sj+F2jQoHC3uAGoJ1htf8Uqhz3S0bUayiUYcr4vKyGe+wHmjOkEx2Bs9ConhKsB3+SHH7xSGCfcRuSpMJOlOXtyhPJxAKBwecZrJLzflw7mt7kQKuKe37lFnilDoVuvFx88wLp/3c8C1q9dOsSsCLXX9tPsOz9ZAYgYY6FW08a6ykjdyOCuVGAthPDR7bsWiN/7eC28/QRDASNCgLixtRiDxD1Ru8Ujfxy6iJaisNN5X6xet/Pa5o4QTajUbJcfLdjpiqUHP1Bv8Lg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
+ dkim=none; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
+ s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=XxHfHViKfT/KJvdZf18l85ejznK+DDKKxrW5WwShbCU=;
+ b=GTqwa1eWCRPC2rPEJoIg/aO0mDmO8aFoToC/PtO/QThE7d3SMDxLssVR/NFejVM+Y9Hwv6sZKhwmiGQvkBk7aD6FuxiBXjz01Bs/kDXcuattVT5iNAmikOt+xf1WFvobaERn2DKK4x5pk8fOblaBeuPQUyjxzwIKEksFKdZoX5fiLRr5njHKSqVs83dhBG3WVS2NTYEAtSFViFFeDuHowwM7hPDF4Dz2V2Lr0Lgp3bgpjvIvy2j88oZDVTzm0FVKbEAsmPQKIbfjqEP3Ttr32ZNbLlCvovbwSvq6kJ/xwEg5JXYa7qwEoHLp/iqJjT5UFZvY3jw+p+xihJljvzUALQ==
+Received: from BN7PR02MB4148.namprd02.prod.outlook.com (2603:10b6:406:f6::17)
+ by SA3PR02MB11069.namprd02.prod.outlook.com (2603:10b6:806:45f::5) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9745.20; Wed, 25 Mar
+ 2026 17:28:50 +0000
+Received: from BN7PR02MB4148.namprd02.prod.outlook.com
+ ([fe80::6007:d1a1:bcf9:58ef]) by BN7PR02MB4148.namprd02.prod.outlook.com
+ ([fe80::6007:d1a1:bcf9:58ef%2]) with mapi id 15.20.9745.019; Wed, 25 Mar 2026
+ 17:28:49 +0000
+From: Michael Kelley <mhklinux@outlook.com>
+To: Danilo Krummrich <dakr@kernel.org>, Russell King <linux@armlinux.org.uk>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, "Rafael J. Wysocki"
+	<rafael@kernel.org>, Ioana Ciornei <ioana.ciornei@nxp.com>, Nipun Gupta
+	<nipun.gupta@amd.com>, Nikhil Agarwal <nikhil.agarwal@amd.com>, "K. Y.
+ Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Wei
+ Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>, Long Li
+	<longli@microsoft.com>, Bjorn Helgaas <bhelgaas@google.com>, Armin Wolf
+	<W_Armin@gmx.de>, Bjorn Andersson <andersson@kernel.org>, Mathieu Poirier
+	<mathieu.poirier@linaro.org>, Vineeth Vijayan <vneethv@linux.ibm.com>, Peter
+ Oberparleiter <oberpar@linux.ibm.com>, Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>, Alexander Gordeev
+	<agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>, Harald Freudenberger
+	<freude@linux.ibm.com>, Holger Dengler <dengler@linux.ibm.com>, Mark Brown
+	<broonie@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang
+	<jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?iso-8859-1?Q?Eugenio_P=E9rez?= <eperezma@redhat.com>, Alex Williamson
+	<alex@shazbot.org>, Juergen Gross <jgross@suse.com>, Stefano Stabellini
+	<sstabellini@kernel.org>, Oleksandr Tyshchenko
+	<oleksandr_tyshchenko@epam.com>, "Christophe Leroy (CS GROUP)"
+	<chleroy@kernel.org>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"driver-core@lists.linux.dev" <driver-core@lists.linux.dev>,
+	"linuxppc-dev@lists.ozlabs.org" <linuxppc-dev@lists.ozlabs.org>,
+	"linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+	"linux-pci@vger.kernel.org" <linux-pci@vger.kernel.org>,
+	"platform-driver-x86@vger.kernel.org" <platform-driver-x86@vger.kernel.org>,
+	"linux-arm-msm@vger.kernel.org" <linux-arm-msm@vger.kernel.org>,
+	"linux-remoteproc@vger.kernel.org" <linux-remoteproc@vger.kernel.org>,
+	"linux-s390@vger.kernel.org" <linux-s390@vger.kernel.org>,
+	"linux-spi@vger.kernel.org" <linux-spi@vger.kernel.org>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"kvm@vger.kernel.org" <kvm@vger.kernel.org>, "xen-devel@lists.xenproject.org"
+	<xen-devel@lists.xenproject.org>, "linux-arm-kernel@lists.infradead.org"
+	<linux-arm-kernel@lists.infradead.org>, Gui-Dong Han <hanguidong02@gmail.com>
+Subject: RE: [PATCH 04/12] hv: vmbus: use generic driver_override
+ infrastructure
+Thread-Topic: [PATCH 04/12] hv: vmbus: use generic driver_override
+ infrastructure
+Thread-Index: AQEWuxLbDbmJwzc+SqngUlED+v4GuwG+YWLCtz2FqZA=
+Date: Wed, 25 Mar 2026 17:28:49 +0000
+Message-ID:
+ <BN7PR02MB414825D0532A1DFE16F3B671D449A@BN7PR02MB4148.namprd02.prod.outlook.com>
+References: <20260324005919.2408620-1-dakr@kernel.org>
+ <20260324005919.2408620-5-dakr@kernel.org>
+In-Reply-To: <20260324005919.2408620-5-dakr@kernel.org>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: BN7PR02MB4148:EE_|SA3PR02MB11069:EE_
+x-ms-office365-filtering-correlation-id: 3043ded6-cfcb-46d1-33ce-08de8a93fa3b
+x-microsoft-antispam:
+ BCL:0;ARA:14566002|13091999003|461199028|8062599012|19110799012|8060799015|41001999006|31061999003|37011999003|15080799012|1602099012|53005399003|40105399003|31055399003|440099028|4302099013|3412199025|10035399007|102099032;
+x-microsoft-antispam-message-info:
+ =?iso-8859-1?Q?xDdh4OAArEx6ipBroHecRSDruWPZ8ExFDTLtZ5cfbygyWS3S9xLqnFxe5s?=
+ =?iso-8859-1?Q?a+ujbZc8vkR+pPBqoIu5ezFO7ZTQ0YMwUIho6WDhB8OHb5pGXMG44l5HxP?=
+ =?iso-8859-1?Q?2vFoGJnVFSczIt6xeqUty9w+A0CzDDQjzi/ah2ScPaReFloPOT9u920x/Q?=
+ =?iso-8859-1?Q?to6/PgXLfCt/+1NiOgPNFWZDryyzPWZlQXuPs5B9eLA0b/oJZLe55S1pa9?=
+ =?iso-8859-1?Q?Y36FcKSy427n3M2rboUDjlP99+ndwk0CR6mUIm+t+dqAD2cOypVbw879Hi?=
+ =?iso-8859-1?Q?XZIuNTaV1JlNfgfQ2T2w8eiG4zIyG1JIFswZ1DeYcdEYrMZauDEI7uGISt?=
+ =?iso-8859-1?Q?C3RZ9ey0pFmhuctIIHxHUvs4oS968ub/ml+NRRJm6z8h+FzlC1Cp8KkCnt?=
+ =?iso-8859-1?Q?voV3ynhpZRsb6Fjo7N+tiy2Vdvk+7L/rnHwk2/6toeLMDYknHd/nNjFhSG?=
+ =?iso-8859-1?Q?6UyvYRI01YvAMZ6fpkCv2wF6CnAfZs0bcZJvXLDOvGsPbp93+DduaG9xGm?=
+ =?iso-8859-1?Q?VNmNwcarrgCyoijB37EBaJbfXXLYpiPUrFJ2tWYHgjTmtbDt19IVmwgGcK?=
+ =?iso-8859-1?Q?Gy5QSXMYKvy04YgQNa0RiQWKi0F9ECheTBwVoamVN5A/vj0XV4KGHdQgLa?=
+ =?iso-8859-1?Q?3Rj1TcVwREklQpnpiFLI320GaEUL8JkxffxhJ8HUC5sPTYaKwwLKp3cj8Z?=
+ =?iso-8859-1?Q?iwncBsf9WLRorbM8jkj+jKBb6zWet+qu83dQbCDgs0WXuaWTqnQTvSE5cy?=
+ =?iso-8859-1?Q?+tm/BjYApvnbeiGnEbf/xCGzrXL55OcdWW0B6RY0Jadk7DyPAfgedFTiy3?=
+ =?iso-8859-1?Q?3k+KbsMfO0zJWK9is3LGC1Vvoe7L9nrGWGQsOQPldv0fHlJaldowbAKDv4?=
+ =?iso-8859-1?Q?9WNZYQdcXB4eG4iY0X5grHsh382uInTvK6EsWF4nsumGRenwLfI73pa7HL?=
+ =?iso-8859-1?Q?cUP9jrZdOJlkwqHHyqi/bpuaH272HXE+UR5s2YocuLCK69o9dJOQXL1r4T?=
+ =?iso-8859-1?Q?f9ObHjpDhoKGIUoEBowjh+YN0hrnlFaKaBaXFHhMhk4ktfvWaouBlSiRV/?=
+ =?iso-8859-1?Q?QBwKb0V7oNXWC6MaKJYDN9MExgBx8a9akOy1PyhzXvSlPjBPuvT8dyKhFS?=
+ =?iso-8859-1?Q?TMkVJyHhlyaWETFYlmQ4y4/joJuO/fBGf1cDUcsNn5dokg1D5e47+l7AbL?=
+ =?iso-8859-1?Q?QKRZx67WyvRLZEzVfZIXyLC/h4GjRDfwqPs=3D?=
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?iso-8859-1?Q?mFtu/wRLMR80m+TtFnxJ48B9YizrMj6EnaIIOgVUnJ0WRooSmL4s/c64+0?=
+ =?iso-8859-1?Q?BRUpvbE6jLLeEAcXqx2z4Oia+NoNpzg4qpVdbCK1F33yVfJ0zP37/uCCf6?=
+ =?iso-8859-1?Q?dStD6w9DHSf0J29wLC7/fB0Iiw1A4kEzhFThe2gAQuSTaHSMPXVukYVdu5?=
+ =?iso-8859-1?Q?0ZEjvHG2Mst9TO4qnhcP+dYVnrARk3WycHxGa98pqk3hMlO41QUhPYyD1S?=
+ =?iso-8859-1?Q?qiMDNp3LLTXbcLVc7PkBNSzg723bKdZ9W77OvGgSz6NEe/VWl+YFcp5UXu?=
+ =?iso-8859-1?Q?uWyoHtnrwG8pvZsn0GQ7kS5IyNhhZ/0CT2WlfY2vwOYM3zUkJi1WNStsrh?=
+ =?iso-8859-1?Q?rEeIiWXucV3wjUiPTz/aVCxMVtn/ayI7vSFfeBMfR0D6UO1E7y2lOh+vYz?=
+ =?iso-8859-1?Q?hub3yazex+VoZxOSVu39cQn/yIsTS9/T9SNsjUBnGFySpbcr4IFalfEoIo?=
+ =?iso-8859-1?Q?W4yWlZVzYkmIcRmHUh3ZfHAMPQRyUImFPh1vYEa/jcoP1MDvrD9PCZICjQ?=
+ =?iso-8859-1?Q?ViOywWR/g3MqPViFUdoiWfR2VlNKAKtHCqzTFtjGap7m0iH7H5Q5OLOCWa?=
+ =?iso-8859-1?Q?wTgsyoosfRgaNXvKo8Blw5yxmPDzmfznJCcXqHgC+RobZac3e75k80KtCm?=
+ =?iso-8859-1?Q?/ApbKF6+ybIwWQsmEbR2hNcBOa7t+ObJ8WloPHrGk3Bdp1mKuK3kQIJ49+?=
+ =?iso-8859-1?Q?wmQ0tOgrN3UVjyI0mFdllicH3BNNTQQkcbVxRkGFW7MrPkCxkevIzQLH+5?=
+ =?iso-8859-1?Q?N8tLzVGJXVMIl4H0Q4qgLgYLP+iPV8nHrDcJnZ6K+wpaIiULPdOS/uHLJ1?=
+ =?iso-8859-1?Q?tfEdyILZHzwZrK2C2wrXMOVb2vq7gRtsLkHNMVq1lTOpJLowDRfkmaLfLo?=
+ =?iso-8859-1?Q?8A+xgwdZry5BIGfYE6Q7NMsfKn+g8rIp8/yamr4R8sgTqAaWBHQESvqblI?=
+ =?iso-8859-1?Q?TieTWqxSo5HJ3TDHVgkRXgC63CDxzg2dIKF1J1sKm7boa7ig7Rp84upZE+?=
+ =?iso-8859-1?Q?Rs5Xq90tdKxWHNQpe29DvSEwVlQYmqVSx9LGSXuExmKIkiHKcS0Xn4z7//?=
+ =?iso-8859-1?Q?lErzUgGK2FNrC9iFQzFGrg584FgJDjKQnITcprs8TI8wtoUhj+Vv8z9IM3?=
+ =?iso-8859-1?Q?vFt7aNk/Y42iuZkeYSqFghCstl976KI29cqIl5P0iUo9tokW5Usfe89+od?=
+ =?iso-8859-1?Q?na9qZS6uBtNnD8RDxUr2s6PkOUJQ/EhqJtxp6Kf2m2BVGLOjLK/D4E73A7?=
+ =?iso-8859-1?Q?SZHPF6ZjZaVF78TnsLE8Jfcov57HBw3DxSgPk40VzlHZwuXya3ffTcEkSZ?=
+ =?iso-8859-1?Q?OJ/IWTK++eEIt6tM0MpbZ31JfyDD3jp9XgyWNWJKjren3/fsE6hULgGP8l?=
+ =?iso-8859-1?Q?X9qaEoQ7lAXLAsR/ksnRqKJWLh/SiBnTac7kf6PE/qG2TM4OlmzJw=3D?=
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
-X-Mutt-Fcc: =sent
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: fwWBiZASlIYs-5tgNixECAiTs5PmajjpJC7Hkzh8xCY_1774457749
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-OriginatorOrg: outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: BN7PR02MB4148.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-CrossTenant-Network-Message-Id: 3043ded6-cfcb-46d1-33ce-08de8a93fa3b
+X-MS-Exchange-CrossTenant-originalarrivaltime: 25 Mar 2026 17:28:49.5574
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
+X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA3PR02MB11069
 
-Eric Dumazet reported KCSAN warnings:
+From: Danilo Krummrich <dakr@kernel.org> Sent: Monday, March 23, 2026 5:59 =
+PM
+>=20
 
-BUG: KCSAN: data-race in pfifo_fast_dequeue / pfifo_fast_enqueue
+In the patch "Subject" line, the prefix for changes for vmbus_drv.c has
+historically been "Drivers: hv: vmbus:".  It's a mouthful, but has been kep=
+t
+fairly consistent over time.
 
-write to 0xffff88811d5ccc00 of 8 bytes by interrupt on cpu 0:
-__ptr_ring_zero_tail include/linux/ptr_ring.h:259 [inline]
-__ptr_ring_discard_one include/linux/ptr_ring.h:291 [inline]
-__ptr_ring_consume include/linux/ptr_ring.h:311 [inline]
-__skb_array_consume include/linux/skb_array.h:98 [inline]
-pfifo_fast_dequeue+0x770/0x8f0 net/sched/sch_generic.c:770
-dequeue_skb net/sched/sch_generic.c:297 [inline]
-qdisc_restart net/sched/sch_generic.c:402 [inline]
-__qdisc_run+0x189/0xc80 net/sched/sch_generic.c:420
-qdisc_run include/net/pkt_sched.h:120 [inline]
-net_tx_action+0x379/0x590 net/core/dev.c:5793
-handle_softirqs+0xb9/0x280 kernel/softirq.c:622
-do_softirq+0x45/0x60 kernel/softirq.c:523
-__local_bh_enable_ip+0x70/0x80 kernel/softirq.c:450
-local_bh_enable include/linux/bottom_half.h:33 [inline]
-bpf_test_run+0x2db/0x620 net/bpf/test_run.c:426
-bpf_prog_test_run_skb+0x9a4/0xef0 net/bpf/test_run.c:1159
-bpf_prog_test_run+0x204/0x340 kernel/bpf/syscall.c:4721
-__sys_bpf+0x52e/0x7e0 kernel/bpf/syscall.c:6246
-__do_sys_bpf kernel/bpf/syscall.c:6341 [inline]
-__se_sys_bpf kernel/bpf/syscall.c:6339 [inline]
-__x64_sys_bpf+0x41/0x50 kernel/bpf/syscall.c:6339
-x64_sys_call+0x10cb/0x3020 arch/x86/include/generated/asm/syscalls_64.h:322
-do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
-do_syscall_64+0x12c/0x370 arch/x86/entry/syscall_64.c:94
-entry_SYSCALL_64_after_hwframe+0x77/0x7f
+> When a driver is probed through __driver_attach(), the bus' match()
+> callback is called without the device lock held, thus accessing the
+> driver_override field without a lock, which can cause a UAF.
+>=20
+> Fix this by using the driver-core driver_override infrastructure taking
+> care of proper locking internally.
+>=20
+> Note that calling match() from __driver_attach() without the device lock
+> held is intentional. [1]
 
-read to 0xffff88811d5ccc00 of 8 bytes by task 22632 on cpu 1:
-__ptr_ring_produce include/linux/ptr_ring.h:106 [inline]
-ptr_ring_produce include/linux/ptr_ring.h:129 [inline]
-skb_array_produce include/linux/skb_array.h:44 [inline]
-pfifo_fast_enqueue+0xd5/0x2c0 net/sched/sch_generic.c:741
-dev_qdisc_enqueue net/core/dev.c:4144 [inline]
-__dev_xmit_skb net/core/dev.c:4188 [inline]
-__dev_queue_xmit+0x6a4/0x1f20 net/core/dev.c:4795
-dev_queue_xmit include/linux/netdevice.h:3384 [inline]
-__bpf_tx_skb net/core/filter.c:2153 [inline]
-__bpf_redirect_common net/core/filter.c:2197 [inline]
-__bpf_redirect+0x862/0x990 net/core/filter.c:2204
-____bpf_clone_redirect net/core/filter.c:2487 [inline]
-bpf_clone_redirect+0x20c/0x290 net/core/filter.c:2450
-bpf_prog_53f18857bc887b09+0x22/0x2a
-bpf_dispatcher_nop_func include/linux/bpf.h:1402 [inline]
-__bpf_prog_run include/linux/filter.h:723 [inline]
-bpf_prog_run include/linux/filter.h:730 [inline]
-bpf_test_run+0x29d/0x620 net/bpf/test_run.c:423
-bpf_prog_test_run_skb+0x9a4/0xef0 net/bpf/test_run.c:1159
-bpf_prog_test_run+0x204/0x340 kernel/bpf/syscall.c:4721
-__sys_bpf+0x52e/0x7e0 kernel/bpf/syscall.c:6246
-__do_sys_bpf kernel/bpf/syscall.c:6341 [inline]
-__se_sys_bpf kernel/bpf/syscall.c:6339 [inline]
-__x64_sys_bpf+0x41/0x50 kernel/bpf/syscall.c:6339
-x64_sys_call+0x10cb/0x3020 arch/x86/include/generated/asm/syscalls_64.h:322
-do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
-do_syscall_64+0x12c/0x370 arch/x86/entry/syscall_64.c:94
-entry_SYSCALL_64_after_hwframe+0x77/0x7f
+I've tested this patch in a Hyper-V VM with VMBus devices. Did a simple
+VMBus driver override, listed the overrides, and then removed the override.
+All the right things happened with driver binding, unbind, etc.
 
-value changed: 0xffff888104a93a00 -> 0x0000000000000000
+Tested-by: Michael Kelley <mhklinux@outlook.com>
 
-Reported by Kernel Concurrency Sanitizer on:
-CPU: 1 UID: 0 PID: 22632 Comm: syz.0.4135 Tainted: G W syzkaller #0
-PREEMPT(full)
-Tainted: [W]=WARN
-Hardware name: Google Google Compute Engine/Google Compute Engine,
-BIOS Google 01/24/2026
+Modulo updates to the comments that I've noted below (and the patch
+Subject line mentioned above):
 
-There is no race here: reading/writing a partial pointer
-would be fine, because the reading is always done by the producer
-which merely cares about NULL/non NULL.
-Document this / disable the warnings using data_race().
+Reviewed-by: Michael Kelley <mhklinux@outlook.com>
 
-Link: https://lore.kernel.org/all/CANn89iLHwZ4foPEL2TdQhYx3Ps3zXiwygb%3DQr7OTKW2R7Ldixg@mail.gmail.com/
-Tested-by: Opus Sonnet 4.6 1M window.
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
----
- include/linux/ptr_ring.h | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+>=20
+> Link: https://lore.kernel.org/driver-core/DGRGTIRHA62X.3RY09D9SOK77P@kern=
+el.org/ [1]
+> Reported-by: Gui-Dong Han <hanguidong02@gmail.com>
+> Closes: https://bugzilla.kernel.org/show_bug.cgi?id=3D220789
+> Fixes: d765edbb301c ("vmbus: add driver_override support")
+> Signed-off-by: Danilo Krummrich <dakr@kernel.org>
+> ---
+>  drivers/hv/vmbus_drv.c | 36 +++++-------------------------------
+>  include/linux/hyperv.h |  5 -----
+>  2 files changed, 5 insertions(+), 36 deletions(-)
+>=20
+> diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+> index bc4fc1951ae1..bc8dfd136f3c 100644
+> --- a/drivers/hv/vmbus_drv.c
+> +++ b/drivers/hv/vmbus_drv.c
 
-diff --git a/include/linux/ptr_ring.h b/include/linux/ptr_ring.h
-index 534531807d95..87ff669b0c57 100644
---- a/include/linux/ptr_ring.h
-+++ b/include/linux/ptr_ring.h
-@@ -103,7 +103,7 @@ static inline bool ptr_ring_full_bh(struct ptr_ring *r)
-  */
- static inline int __ptr_ring_produce(struct ptr_ring *r, void *ptr)
- {
--	if (unlikely(!r->size) || r->queue[r->producer])
-+	if (unlikely(!r->size) || data_race(r->queue[r->producer]))
- 		return -ENOSPC;
- 
- 	/* Make sure the pointer we are storing points to a valid data. */
-@@ -256,7 +256,7 @@ static inline void __ptr_ring_zero_tail(struct ptr_ring *r, int consumer_head)
- 	 * besides the first one until we write out all entries.
- 	 */
- 	while (likely(head > r->consumer_tail))
--		r->queue[--head] = NULL;
-+		data_race(r->queue[--head] = NULL);
- 
- 	r->consumer_tail = consumer_head;
- }
--- 
-MST
+[snip]
+
+>=20
+> @@ -711,9 +682,11 @@ static const struct hv_vmbus_device_id
+> *hv_vmbus_get_id(const struct hv_driver *
+>  {
+>  	const guid_t *guid =3D &dev->dev_type;
+>  	const struct hv_vmbus_device_id *id;
+> +	int ret;
+>=20
+>  	/* When driver_override is set, only bind to the matching driver */
+
+This reference to "driver_override" in the comment was originally to the
+"driver_override" field in struct hv_device, which has now gone away. Bette=
+r
+wording would be "If a driver override is set, only bind ...."
+
+> -	if (dev->driver_override && strcmp(dev->driver_override, drv->name))
+> +	ret =3D device_match_driver_override(&dev->device, &drv->driver);
+> +	if (ret =3D=3D 0)
+>  		return NULL;
+>=20
+>  	/* Look at the dynamic ids first, before the static ones */
+> @@ -722,7 +695,7 @@ static const struct hv_vmbus_device_id *hv_vmbus_get_=
+id(const struct hv_driver *
+>  		id =3D hv_vmbus_dev_match(drv->id_table, guid);
+>=20
+>  	/* driver_override will always match, send a dummy id */
+
+Again, the reference to "driver_override" no longer makes sense. The
+original comment is a bit opaque in its own way. Let me suggest this new
+wording:
+
+If there's a matching driver override, this function should succeed. So
+return a dummy device ID if no matching ID is found.
+
+> -	if (!id && dev->driver_override)
+> +	if (!id && ret > 0)
+>  		id =3D &vmbus_device_null;
+>=20
+>  	return id;
+> @@ -1024,6 +997,7 @@ static const struct dev_pm_ops vmbus_pm =3D {
+>  /* The one and only one */
+>  static const struct bus_type  hv_bus =3D {
+>  	.name =3D		"vmbus",
+> +	.driver_override =3D	true,
+>  	.match =3D		vmbus_match,
+>  	.shutdown =3D		vmbus_shutdown,
+>  	.remove =3D		vmbus_remove,
+> diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
+> index dfc516c1c719..bf689d07d750 100644
+> --- a/include/linux/hyperv.h
+> +++ b/include/linux/hyperv.h
+> @@ -1272,11 +1272,6 @@ struct hv_device {
+>  	u16 device_id;
+>=20
+>  	struct device device;
+> -	/*
+> -	 * Driver name to force a match.  Do not set directly, because core
+> -	 * frees it.  Use driver_set_override() to set or clear it.
+> -	 */
+> -	const char *driver_override;
+>=20
+>  	struct vmbus_channel *channel;
+>  	struct kset	     *channels_kset;
+> --
+> 2.53.0
+>=20
 
