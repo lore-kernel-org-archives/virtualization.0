@@ -1,220 +1,251 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B138347529
-	for <virtualization@lists.linux.dev>; Wed, 25 Mar 2026 09:29:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B614F3B9D80
+	for <virtualization@lists.linux.dev>; Wed, 25 Mar 2026 10:18:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774430998; cv=none; b=rytQ/+iqHzDAEVpn78DUZrcP5ZcvRG5zTEYTfjTCwUy3K5NY1UQqXQG3IDTyJW4msp0iuwyHA7XLmh3/J7J5dr1mloXc1wuXE50MA3eCGWTZk+ChNDyady9+O7YH+LXwi5wSHm0xURUTN8zMvouHEIEL++7Kta0HYlCEk1bZhso=
+	t=1774433906; cv=none; b=StL8IEQhNvHlCdef/1m2eUx7zGUxIpRs+oz/CDJCARF9hRAwoCziSd8XhbURlCYxXIu9FAb4lLUlZcMBu4aMoefWLgMpxQpGEcygQNPNxMJq3mjE2IFmANrP8jCO3IWRLdL6evyRxImLFUzX1LrV1XQ51P543yxfJ9jhJ9G6z+Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774430998; c=relaxed/simple;
-	bh=hzAY3ZoPFk3ktxoVDsUh6drVK7glBEle7ZgqK1lKcjk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=DyLJK6RcLUizA9j1HVvbiKUithqkCrVpCy7KxsSO69wUB3IbsjomjDLdPn4xNOrKibEObITKpHiS/XBqTTH8A0G2t8f5V70dmbTAlgIMtdZY/ls6s6qA2jOqRLlgsU1K+OLVbmJjwHxPLE9wI+Dx1I4OdehOR+PUWuEfGPmlbYY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UIIwNU+n; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1774433906; c=relaxed/simple;
+	bh=1Uc6t1cwxW0MzD1dqSUvlR5rqITAHKLiUYzFlCfYbCs=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=t4b6q8E2erhoCmJRoT1SQ/BZAly76o42Tp5oUaraw8gBz9YRaeQGVZMoH0EOVHoz7FlkUSAayzJVE8k4kFLNh6t1csySUcc/mEXtJzhzCK1m9vgziyke7bXgNtKgUAtpROPXfXugdJtcnE4T0T0Hy7RZGQFhxjOMHo5UUPSDLW4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=jHOZW0NK; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UIIwNU+n"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jHOZW0NK"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1774430996;
+	s=mimecast20190719; t=1774433902;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=/X6OQFIMMVlzQpHVcxvz5zk00vazKEddYu1a8TXBALA=;
-	b=UIIwNU+nPUJJvHBBie22wcCjzDVg3JpRuHuXBHiy0rjpN6rDxNAzNlOeQY2QG9m8DWuxEm
-	iaNmUUXhpXPFoYwUfpFYc/GchGtfpCQlnmZs/FYSLP7O1jEI3zV30Rr3AOr8Y9H0wsXSVL
-	jcPPi+BUVu4IYinrziQaqTXzZ8OPLkY=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=HBOh/aoPlGxYDPbqkk5UK0G4/ytz0Hu0GxFXOarsu9g=;
+	b=jHOZW0NK4ph+nCIJtYbvMbiUxhKSecQKP3lRboTMJ/wC/susilImFdkTeVMDXxSLG97Nar
+	W+vkI4YrRS5PUnC/g/l7L9/ukhyoOe+IvvcZPz/qLET2y2XH2OghLxBMNgbO9aN/8pxbXp
+	AnPtpPyYDcfF17Ftp3L2xu1ISskNauM=
+Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
+ [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-37-YZRrcHzEP62V5esukQWzdw-1; Wed, 25 Mar 2026 05:29:55 -0400
-X-MC-Unique: YZRrcHzEP62V5esukQWzdw-1
-X-Mimecast-MFC-AGG-ID: YZRrcHzEP62V5esukQWzdw_1774430994
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-43b4d3919e4so2320253f8f.0
-        for <virtualization@lists.linux.dev>; Wed, 25 Mar 2026 02:29:54 -0700 (PDT)
+ us-mta-426-qi7s9b-2MjCwJ0nFeN4efw-1; Wed, 25 Mar 2026 06:18:21 -0400
+X-MC-Unique: qi7s9b-2MjCwJ0nFeN4efw-1
+X-Mimecast-MFC-AGG-ID: qi7s9b-2MjCwJ0nFeN4efw_1774433901
+Received: by mail-yw1-f199.google.com with SMTP id 00721157ae682-7986f771f69so19576477b3.1
+        for <virtualization@lists.linux.dev>; Wed, 25 Mar 2026 03:18:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774430994; x=1775035794;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=/X6OQFIMMVlzQpHVcxvz5zk00vazKEddYu1a8TXBALA=;
-        b=iec8ajcY32L+JbVt9GP6AWSFIqR2VeXEK/zfYAOSMdxsEzph+eRJUVUv8JwxsfgUoT
-         AZlvXc6JKEBNqRJRckBaXCD+DDdhW/Uvcz9kFS7s8j9BAQiinJ+d2Szf+5VZvZ0Nij4h
-         jK8VBtnvjBNmdVWQqfBa2EShwmTecfnF375P/UzWGsuqyHX15mnvOC7Hoa6w6cBjpxhe
-         HW3WjBbDBWTeEfVqvrGpEptV/52xtvVAZBfzMIxMYmWLJuwXO4FSIXtXEioxThQEVVLb
-         XIYu8jIiGnUKiF4brgMAoxECQw59kjesakEBJY/dP3EJX5Saogh2mUyDEERPv07xZfVn
-         taGw==
-X-Forwarded-Encrypted: i=1; AJvYcCUCatE6iTK1Bw/hivNg9XWKuaBaJssFfDimQ0PAAOZBDL83qA4obKYwI/IsaLQAIxSuJdqaDtoEG8mnLaT13w==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxlg+TS4s4cIlbsgooI2eFz24pnkLg3xUE99ubL/i0yqPMhT9Gy
-	L1MCKIlIZuIdsyoZcnyTGMlNzlxerqfWoHtmJCaR2or8qS1riG25Dq9wGg/gaXkLXEx29ZsdYQA
-	rAl2PfzZOkQ4vreUydfcDIgZ47jre6nWW/TyEmIRDqGVLNBDWlMNJoxyCVQbFRZbd8obU
-X-Gm-Gg: ATEYQzyqQwdIQ/alGIbZ9pQ1KrjUBvRtiiIeKfp5U9IVLt+O3kNXzCmZZnI+ahTWreL
-	5ACuKsslqZSeNTD81oGj5qdX65MTVhDiyHiyHZAych3xfXdbFOx0b1NNLn+S6I/gH6R7/Ax4eaT
-	8PdJYaCdHf2RESEsowIojDcmMkMbtrVtIKA5TSfU4yH/UEPEfp/9lLHc9ArzbvxiCYSqu0n9WUw
-	xl7KKRACLLkUh3gHXknFRVxG6ZHJC5xt8m0CyJ63Swpj5YQ9+VxWD240iHLDNwpxf4IcOqz996g
-	bmdgZZTJVgokbGVELNWGY5eTlnBgcg2wT6EvboQcKiw/Ux+iYZVbxqdJAnlqCsYtQ/2ZitEgJBE
-	YJ1MxWtoDhI+zCPLN
-X-Received: by 2002:a05:6000:400c:b0:439:be78:e1e9 with SMTP id ffacd0b85a97d-43b88a3d3cdmr3692815f8f.14.1774430993594;
-        Wed, 25 Mar 2026 02:29:53 -0700 (PDT)
-X-Received: by 2002:a05:6000:400c:b0:439:be78:e1e9 with SMTP id ffacd0b85a97d-43b88a3d3cdmr3692727f8f.14.1774430992928;
-        Wed, 25 Mar 2026 02:29:52 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1525:da00:3ac2:1a22:72ff:4256])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43b6470380asm44280922f8f.24.2026.03.25.02.29.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 25 Mar 2026 02:29:52 -0700 (PDT)
-Date: Wed, 25 Mar 2026 05:29:45 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Danilo Krummrich <dakr@kernel.org>
-Cc: Russell King <linux@armlinux.org.uk>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Ioana Ciornei <ioana.ciornei@nxp.com>,
-	Nipun Gupta <nipun.gupta@amd.com>,
-	Nikhil Agarwal <nikhil.agarwal@amd.com>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Long Li <longli@microsoft.com>, Bjorn Helgaas <bhelgaas@google.com>,
-	Armin Wolf <W_Armin@gmx.de>, Bjorn Andersson <andersson@kernel.org>,
-	Mathieu Poirier <mathieu.poirier@linaro.org>,
-	Vineeth Vijayan <vneethv@linux.ibm.com>,
-	Peter Oberparleiter <oberpar@linux.ibm.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Harald Freudenberger <freude@linux.ibm.com>,
-	Holger Dengler <dengler@linux.ibm.com>,
-	Mark Brown <broonie@kernel.org>, Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Alex Williamson <alex@shazbot.org>, Juergen Gross <jgross@suse.com>,
-	Stefano Stabellini <sstabellini@kernel.org>,
-	Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
-	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
-	linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
-	linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org,
-	linux-pci@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-	linux-arm-msm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-	linux-s390@vger.kernel.org, linux-spi@vger.kernel.org,
-	virtualization@lists.linux.dev, kvm@vger.kernel.org,
-	xen-devel@lists.xenproject.org,
-	linux-arm-kernel@lists.infradead.org
-Subject: Re: [PATCH 00/12] treewide: Convert buses to use generic
- driver_override
-Message-ID: <20260325052919-mutt-send-email-mst@kernel.org>
-References: <20260324005919.2408620-1-dakr@kernel.org>
+        d=1e100.net; s=20251104; t=1774433901; x=1775038701;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=HBOh/aoPlGxYDPbqkk5UK0G4/ytz0Hu0GxFXOarsu9g=;
+        b=dr9oW+7k53H1vIpVkh+gg70bqc9ASiutoAFaY2D5cGozrNKfhOCPHm0Vu5Ue+SMooE
+         HwrDJmEpSzl8tW909qPA7wvH+bljsllpVNP9yKbsSBRBZp8mL8bUghHczyDii0ETPT4O
+         SwS1bOktofDrWELeruui+UeOjEZCnUCnjSISYuhi9aVohmKyc9T2ltZHt3sw9uTclqxf
+         TJgin6W+K6YdhIhsSXujaEPSossnpTSLMfCWTqaYOnj5nWs0jq1VmKzpC5x5FwOqmKox
+         DOX4JEy31xGvWtVr7gTL/xqhDwpSBlzGi1iK6c4yqacVRHN3q19jRIoGm+i1HHr1mfQV
+         /7Sw==
+X-Forwarded-Encrypted: i=1; AJvYcCVon5QZG9kjNda6gTTnm5uyQddtDEuWr0P6pqktvJKzJOtLiV026w2ZPZ48WTfr3YCWNaW60JtcDllZvt19CA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz4dD1vecWGxhs3pPSQlXc2Y5PY2Ztf92FKKX1cyXbtRjSnx5EG
+	u5GMX9izldX50en/XMnrBNeG8iNVYZxGOeY95MmdXSVrPFtlPQwVEVLJbdowU9hJe4CR3ZdoIuW
+	naUd7Jywso0To1VNrDj1vUslvVM7M/ca9Qt1L1idbH4zi6L+mIls1/52QahSduU+iu5mncLifW5
+	7onFTOI4AkzStXy1VuV2EA+pfeSjZzF05u2oN+3q8i8wk=
+X-Gm-Gg: ATEYQzyYebkldvOcImiMMmZKz4qgZ4i9lh7kHtfTu5wrt/CfwaAzMswWEwC46xSuex5
+	09Ju8QZ0I+3YEHZl7DcJwm/IFae7ED6iCE2n4/IuhGWiw1Q/uJl3O2XwlMfdRyHLYH2mPNQ2rdT
+	lHo/iA/5REbPqxV+DoP3pU9awBueIWr/hiuAEdiRiidThgCn/3H7S3OauteUm+wkcYfUAoRLqne
+	rik+Q==
+X-Received: by 2002:a53:acd1:0:20b0:64c:9f60:19d4 with SMTP id 956f58d0204a3-64ed77ef1ecmr4805289d50.8.1774433900751;
+        Wed, 25 Mar 2026 03:18:20 -0700 (PDT)
+X-Received: by 2002:a53:acd1:0:20b0:64c:9f60:19d4 with SMTP id
+ 956f58d0204a3-64ed77ef1ecmr4805242d50.8.1774433900219; Wed, 25 Mar 2026
+ 03:18:20 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260324005919.2408620-1-dakr@kernel.org>
+References: <20260324005919.2408620-1-dakr@kernel.org> <20260324005919.2408620-9-dakr@kernel.org>
+In-Reply-To: <20260324005919.2408620-9-dakr@kernel.org>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Wed, 25 Mar 2026 11:17:43 +0100
+X-Gm-Features: AaiRm50qMzjkKEJ7Fkr-Roi7I1a_DrzOw3E963yu_3LAy7xQt4ygKXGG9Px12Pc
+Message-ID: <CAJaqyWeuvD+XntgE9q4epQELpYYTOs1CznFn_tuOxeh_LurrcA@mail.gmail.com>
+Subject: Re: [PATCH 08/12] vdpa: use generic driver_override infrastructure
+To: Danilo Krummrich <dakr@kernel.org>
+Cc: Russell King <linux@armlinux.org.uk>, Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
+	"Rafael J. Wysocki" <rafael@kernel.org>, Ioana Ciornei <ioana.ciornei@nxp.com>, 
+	Nipun Gupta <nipun.gupta@amd.com>, Nikhil Agarwal <nikhil.agarwal@amd.com>, 
+	"K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
+	Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>, 
+	Bjorn Helgaas <bhelgaas@google.com>, Armin Wolf <W_Armin@gmx.de>, 
+	Bjorn Andersson <andersson@kernel.org>, Mathieu Poirier <mathieu.poirier@linaro.org>, 
+	Vineeth Vijayan <vneethv@linux.ibm.com>, Peter Oberparleiter <oberpar@linux.ibm.com>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Harald Freudenberger <freude@linux.ibm.com>, 
+	Holger Dengler <dengler@linux.ibm.com>, Mark Brown <broonie@kernel.org>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Alex Williamson <alex@shazbot.org>, 
+	Juergen Gross <jgross@suse.com>, Stefano Stabellini <sstabellini@kernel.org>, 
+	Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>, 
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, linux-kernel@vger.kernel.org, 
+	driver-core@lists.linux.dev, linuxppc-dev@lists.ozlabs.org, 
+	linux-hyperv@vger.kernel.org, linux-pci@vger.kernel.org, 
+	platform-driver-x86@vger.kernel.org, linux-arm-msm@vger.kernel.org, 
+	linux-remoteproc@vger.kernel.org, linux-s390@vger.kernel.org, 
+	linux-spi@vger.kernel.org, virtualization@lists.linux.dev, 
+	kvm@vger.kernel.org, xen-devel@lists.xenproject.org, 
+	linux-arm-kernel@lists.infradead.org, Gui-Dong Han <hanguidong02@gmail.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: qhC6dJ6MWYt22TGFpApZbYEvrQ8QmDcO_9hgxijlq8Y_1774430994
+X-Mimecast-MFC-PROC-ID: iEeRNnFh_S9IKnvD7wgdDCttVKxEROPwBqnBbsMFizo_1774433901
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Mar 24, 2026 at 01:59:04AM +0100, Danilo Krummrich wrote:
-> This is the follow-up of the driver_override generalization in [1], converting
-> the remaining 11 busses and removing the now-unused driver_set_override()
-> helper.
-> 
-> All of them (except AP, which has a different race condition) are prone to the
-> potential UAF described in [2], caused by accessing the driver_override field
-> from their corresponding match() callback.
-> 
-> In order to address this, the generalized driver_override field in struct device
-> is protected with a spinlock. The driver-core provides accessors, such as
-> device_match_driver_override(), device_has_driver_override() and
-> device_set_driver_override(), which all ensure proper locking internally.
-> 
-> Additionally, the driver-core provides a driver_override flag in struct
-> bus_type, which, once enabled, automatically registers generic sysfs callbacks,
-> allowing userspace to modify the driver_override field.
-> 
-> SPI and AP are a bit special; both print "\n" when driver_override is not set,
-> whereas all other buses (and thus the driver-core) produce "(null)\n" in this
-> case.
-> 
-> Hence, SPI and AP do not take advantage of the driver_override flag in struct
-> bus_type; AP additionally maintains a counter in its custom sysfs store().
-> 
-> Technically, we could support a custom fallback string when driver_override is
-> unset in struct bus_type, but only SPI would benefit from this, since AP has
-> additional custom logic in store() anyways.
-> 
-> (I'm not sure if there are userspace programs that strictly rely on this;
-> driverctl seems to check for both, but I rather not break some userspace tool
-> I'm not aware of. :)
-> 
-> This series is based on v7.0-rc5 with no additional dependencies, hence those
-> patches can be picked up by subsystems individually.
-> 
-> [1] https://lore.kernel.org/driver-core/20260303115720.48783-1-dakr@kernel.org/
-> [2] https://bugzilla.kernel.org/show_bug.cgi?id=220789
-> [3] https://gitlab.com/driverctl/driverctl/-/blob/0.121/driverctl?ref_type=tags#L99
+On Tue, Mar 24, 2026 at 2:00=E2=80=AFAM Danilo Krummrich <dakr@kernel.org> =
+wrote:
+>
+> When a driver is probed through __driver_attach(), the bus' match()
+> callback is called without the device lock held, thus accessing the
+> driver_override field without a lock, which can cause a UAF.
+>
+> Fix this by using the driver-core driver_override infrastructure taking
+> care of proper locking internally.
+>
+> Note that calling match() from __driver_attach() without the device lock
+> held is intentional. [1]
+>
+> Link: https://lore.kernel.org/driver-core/DGRGTIRHA62X.3RY09D9SOK77P@kern=
+el.org/ [1]
+> Reported-by: Gui-Dong Han <hanguidong02@gmail.com>
+> Closes: https://bugzilla.kernel.org/show_bug.cgi?id=3D220789
+> Fixes: 539fec78edb4 ("vdpa: add driver_override support")
+> Signed-off-by: Danilo Krummrich <dakr@kernel.org>
+> ---
+>  drivers/vdpa/vdpa.c  | 48 +++++---------------------------------------
+>  include/linux/vdpa.h |  4 ----
+>  2 files changed, 5 insertions(+), 47 deletions(-)
+>
 
-vdpa bits:
+Consolidate this logic is great, thanks!
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
+> diff --git a/drivers/vdpa/vdpa.c b/drivers/vdpa/vdpa.c
+> index 34874beb0152..caf0ee5d6856 100644
+> --- a/drivers/vdpa/vdpa.c
+> +++ b/drivers/vdpa/vdpa.c
+> @@ -67,57 +67,20 @@ static void vdpa_dev_remove(struct device *d)
+>
+>  static int vdpa_dev_match(struct device *dev, const struct device_driver=
+ *drv)
+>  {
+> -       struct vdpa_device *vdev =3D dev_to_vdpa(dev);
+> +       int ret;
+>
+>         /* Check override first, and if set, only use the named driver */
+> -       if (vdev->driver_override)
+> -               return strcmp(vdev->driver_override, drv->name) =3D=3D 0;
+> +       ret =3D device_match_driver_override(dev, drv);
+> +       if (ret >=3D 0)
+> +               return ret;
+>
+>         /* Currently devices must be supported by all vDPA bus drivers */
+>         return 1;
 
-I assume it'll all be merged together?
+Nit: Maybe all of this can be replaced by
+abs(device_match_driver_override(dev,drv))? Or maybe we're putting too
+much in the same line.
 
-> Danilo Krummrich (12):
->   amba: use generic driver_override infrastructure
->   bus: fsl-mc: use generic driver_override infrastructure
->   cdx: use generic driver_override infrastructure
->   hv: vmbus: use generic driver_override infrastructure
->   PCI: use generic driver_override infrastructure
->   platform/wmi: use generic driver_override infrastructure
->   rpmsg: use generic driver_override infrastructure
->   vdpa: use generic driver_override infrastructure
->   s390/cio: use generic driver_override infrastructure
->   s390/ap: use generic driver_override infrastructure
->   spi: use generic driver_override infrastructure
->   driver core: remove driver_set_override()
-> 
->  drivers/amba/bus.c                 | 37 +++------------
->  drivers/base/driver.c              | 75 ------------------------------
->  drivers/bus/fsl-mc/fsl-mc-bus.c    | 43 +++--------------
->  drivers/cdx/cdx.c                  | 40 ++--------------
->  drivers/hv/vmbus_drv.c             | 36 ++------------
->  drivers/pci/pci-driver.c           | 11 +++--
->  drivers/pci/pci-sysfs.c            | 28 -----------
->  drivers/pci/probe.c                |  1 -
->  drivers/platform/wmi/core.c        | 36 ++------------
->  drivers/rpmsg/qcom_glink_native.c  |  2 -
->  drivers/rpmsg/rpmsg_core.c         | 43 +++--------------
->  drivers/rpmsg/virtio_rpmsg_bus.c   |  1 -
->  drivers/s390/cio/cio.h             |  5 --
->  drivers/s390/cio/css.c             | 34 ++------------
->  drivers/s390/crypto/ap_bus.c       | 34 +++++++-------
->  drivers/s390/crypto/ap_bus.h       |  1 -
->  drivers/s390/crypto/ap_queue.c     | 24 +++-------
->  drivers/spi/spi.c                  | 19 +++-----
->  drivers/vdpa/vdpa.c                | 48 ++-----------------
->  drivers/vfio/fsl-mc/vfio_fsl_mc.c  |  4 +-
->  drivers/vfio/pci/vfio_pci_core.c   |  5 +-
->  drivers/xen/xen-pciback/pci_stub.c |  6 ++-
->  include/linux/amba/bus.h           |  5 --
->  include/linux/cdx/cdx_bus.h        |  4 --
->  include/linux/device/driver.h      |  2 -
->  include/linux/fsl/mc.h             |  4 --
->  include/linux/hyperv.h             |  5 --
->  include/linux/pci.h                |  6 ---
->  include/linux/rpmsg.h              |  4 --
->  include/linux/spi/spi.h            |  5 --
->  include/linux/vdpa.h               |  4 --
->  include/linux/wmi.h                |  4 --
->  32 files changed, 88 insertions(+), 488 deletions(-)
-> 
-> 
-> base-commit: c369299895a591d96745d6492d4888259b004a9e
-> -- 
+Either way,
+
+Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+
+Thanks!
+
+
+
+
+>  }
+>
+> -static ssize_t driver_override_store(struct device *dev,
+> -                                    struct device_attribute *attr,
+> -                                    const char *buf, size_t count)
+> -{
+> -       struct vdpa_device *vdev =3D dev_to_vdpa(dev);
+> -       int ret;
+> -
+> -       ret =3D driver_set_override(dev, &vdev->driver_override, buf, cou=
+nt);
+> -       if (ret)
+> -               return ret;
+> -
+> -       return count;
+> -}
+> -
+> -static ssize_t driver_override_show(struct device *dev,
+> -                                   struct device_attribute *attr, char *=
+buf)
+> -{
+> -       struct vdpa_device *vdev =3D dev_to_vdpa(dev);
+> -       ssize_t len;
+> -
+> -       device_lock(dev);
+> -       len =3D sysfs_emit(buf, "%s\n", vdev->driver_override);
+> -       device_unlock(dev);
+> -
+> -       return len;
+> -}
+> -static DEVICE_ATTR_RW(driver_override);
+> -
+> -static struct attribute *vdpa_dev_attrs[] =3D {
+> -       &dev_attr_driver_override.attr,
+> -       NULL,
+> -};
+> -
+> -static const struct attribute_group vdpa_dev_group =3D {
+> -       .attrs  =3D vdpa_dev_attrs,
+> -};
+> -__ATTRIBUTE_GROUPS(vdpa_dev);
+> -
+>  static const struct bus_type vdpa_bus =3D {
+>         .name  =3D "vdpa",
+> -       .dev_groups =3D vdpa_dev_groups,
+> +       .driver_override =3D true,
+>         .match =3D vdpa_dev_match,
+>         .probe =3D vdpa_dev_probe,
+>         .remove =3D vdpa_dev_remove,
+> @@ -132,7 +95,6 @@ static void vdpa_release_dev(struct device *d)
+>                 ops->free(vdev);
+>
+>         ida_free(&vdpa_index_ida, vdev->index);
+> -       kfree(vdev->driver_override);
+>         kfree(vdev);
+>  }
+>
+> diff --git a/include/linux/vdpa.h b/include/linux/vdpa.h
+> index 2bfe3baa63f4..782c42d25db1 100644
+> --- a/include/linux/vdpa.h
+> +++ b/include/linux/vdpa.h
+> @@ -72,9 +72,6 @@ struct vdpa_mgmt_dev;
+>   * struct vdpa_device - representation of a vDPA device
+>   * @dev: underlying device
+>   * @vmap: the metadata passed to upper layer to be used for mapping
+> - * @driver_override: driver name to force a match; do not set directly,
+> - *                   because core frees it; use driver_set_override() to
+> - *                   set or clear it.
+>   * @config: the configuration ops for this device.
+>   * @map: the map ops for this device
+>   * @cf_lock: Protects get and set access to configuration layout.
+> @@ -90,7 +87,6 @@ struct vdpa_mgmt_dev;
+>  struct vdpa_device {
+>         struct device dev;
+>         union virtio_map vmap;
+> -       const char *driver_override;
+>         const struct vdpa_config_ops *config;
+>         const struct virtio_map_ops *map;
+>         struct rw_semaphore cf_lock; /* Protects get/set config */
+> --
 > 2.53.0
+>
 
