@@ -1,131 +1,161 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from out-188.mta1.migadu.com (out-188.mta1.migadu.com [95.215.58.188])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2F8830FC0F;
-	Tue, 24 Mar 2026 19:44:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04C5E29ACD7
+	for <virtualization@lists.linux.dev>; Wed, 25 Mar 2026 02:43:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.188
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774381491; cv=none; b=mtXEhXnWVSMZX2PGYgfHIdmbFOgRvn86vPDkldoUYeV1fwLZ/VvcPxqyimSYSdC9j/Uev8GqoO+huslebf6SWhYYXxSn7P8nZEizcYG/xApApkogRfrJZdgYZRj2h5s1IuhqgqmC+cSEbppaXgubDOEagcCXAhEsyREM5yls2nk=
+	t=1774406638; cv=none; b=TqaZKr5LEJSkq2nvTsC20V0v/xDLZSja0UcJrMel9yocdGebLdxa3gP1ME31zYgSDpFZxtgvoCND9/Vi8hfwk3ERdK2DcevRsD/hsmnoFj+GT3xlbFUhpR+2gAlm/b+QEjF9mKdp+FRKHDLddjETnBYD30ookS5iKDJADjA/U8w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774381491; c=relaxed/simple;
-	bh=WRF/0A79XI/IfrPujL8sWiRG4jtPsIHG8/HKlYhxfwg=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Message-Id:Date:
-	 MIME-Version:Content-Type; b=NGqVbPo8WKAGLL+OqD+s4OvjyUPaAE/OAUYZQ7T+tRf1S/uSvIuIjKCNBcFQcVSz6V08EFN6FakTUSo4VHhdiUPQXFVRFcK3zsuDRumc5D7eU1JpCkGI4G08/E73XLuWdIMeoLP1JrHw0htY8AsFlg7v5fCje9ISWg2Z9T730Kk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BI/PyKSY; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774406638; c=relaxed/simple;
+	bh=c742JusgdRYlQGvW1a+5YwuppXgvwBk000930nYQ2To=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=dFeiBfntO2BpvdglpCS7uY+vAenEnmiwZwQxD2YqWjl4w3w6gqDl5NMBGYK82ipuPRseih+g33lG6HIhq0hcxZ5x+WZ3nypymdo1EV2MFZvHy4JmouRMd3f3A1RnzkP8+L4qjm2sjewlPu4mVI0ydSsi6FU8s7VkB3tgeh9ttLo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=JqJYxCEq; arc=none smtp.client-ip=95.215.58.188
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BI/PyKSY"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AF553C19424;
-	Tue, 24 Mar 2026 19:44:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774381490;
-	bh=WRF/0A79XI/IfrPujL8sWiRG4jtPsIHG8/HKlYhxfwg=;
-	h=From:To:Cc:In-Reply-To:References:Subject:Date:From;
-	b=BI/PyKSYvjLJXWbEpQrc+czH+55hhTQfVKT55Uu1wKsITHQaRklHZhshTVjzHQFZN
-	 XI99w4CrCK+yRfm2877TM5yV4pPdvKaG1DWbUoq9X2UMljaiVAeNppp3zNtFe6VQcR
-	 Nbxio4BzKuKvbSdbHpiqyp9b0V4Wi4iBFmRLBu0AraFrnoul9PN3a4ntDRFnw+1WBV
-	 6VOLh/84HoNWnxFvJA4p13awciT/KZz8A8WdIkArI2aCUbV0ZkSk5h4r/JYUTPRIIT
-	 T8Jt8zQSnSc69wMDv4JXXRT2onYDSQlxz5UqGBDTvOp1c1OxGFbD7+EZxoeS8MPSTJ
-	 8n38/skizDzlQ==
-From: Mark Brown <broonie@kernel.org>
-To: Russell King <linux@armlinux.org.uk>, 
- Greg Kroah-Hartman <gregkh@linuxfoundation.org>, 
- "Rafael J. Wysocki" <rafael@kernel.org>, 
- Ioana Ciornei <ioana.ciornei@nxp.com>, Nipun Gupta <nipun.gupta@amd.com>, 
- Nikhil Agarwal <nikhil.agarwal@amd.com>, 
- "K. Y. Srinivasan" <kys@microsoft.com>, 
- Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
- Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>, 
- Bjorn Helgaas <bhelgaas@google.com>, Armin Wolf <W_Armin@gmx.de>, 
- Bjorn Andersson <andersson@kernel.org>, 
- Mathieu Poirier <mathieu.poirier@linaro.org>, 
- Vineeth Vijayan <vneethv@linux.ibm.com>, 
- Peter Oberparleiter <oberpar@linux.ibm.com>, 
- Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
- Alexander Gordeev <agordeev@linux.ibm.com>, 
- Christian Borntraeger <borntraeger@linux.ibm.com>, 
- Sven Schnelle <svens@linux.ibm.com>, 
- Harald Freudenberger <freude@linux.ibm.com>, 
- Holger Dengler <dengler@linux.ibm.com>, 
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
- Alex Williamson <alex@shazbot.org>, Juergen Gross <jgross@suse.com>, 
- Stefano Stabellini <sstabellini@kernel.org>, 
- Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>, 
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
- Danilo Krummrich <dakr@kernel.org>
-Cc: linux-kernel@vger.kernel.org, driver-core@lists.linux.dev, 
- linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org, 
- linux-pci@vger.kernel.org, platform-driver-x86@vger.kernel.org, 
- linux-arm-msm@vger.kernel.org, linux-remoteproc@vger.kernel.org, 
- linux-s390@vger.kernel.org, linux-spi@vger.kernel.org, 
- virtualization@lists.linux.dev, kvm@vger.kernel.org, 
- xen-devel@lists.xenproject.org, linux-arm-kernel@lists.infradead.org
-In-Reply-To: <20260324005919.2408620-1-dakr@kernel.org>
-References: <20260324005919.2408620-1-dakr@kernel.org>
-Subject: Re: (subset) [PATCH 00/12] treewide: Convert buses to use generic
- driver_override
-Message-Id: <177436441990.98682.12977271865531185229.b4-ty@b4>
-Date: Tue, 24 Mar 2026 15:00:19 +0000
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="JqJYxCEq"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1774406632;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ei/9l0yY7Rn5LSa4qZLzjXvD8FXeXbiuykIdzrEGGI8=;
+	b=JqJYxCEq+lrhrLpLxEyPYrKajW5e8CXwMDWT8tH66YKkSs1lIqcLLBSimJDzH2ilNjg2fr
+	XqMyL9OU6mgfjoBf8JGd1h7NnAf5wUyg9Sl9kJtncCi0D3BfYneybyTawTqCbvGyi29LLu
+	TyhR/3ijGiBXv1xiv7Di0IYSdgxmA4Y=
+From: Lance Yang <lance.yang@linux.dev>
+To: akpm@linux-foundation.org,
+	peterz@infradead.org,
+	dave.hansen@intel.com,
+	david@kernel.org
+Cc: dave.hansen@linux.intel.com,
+	ypodemsk@redhat.com,
+	hughd@google.com,
+	will@kernel.org,
+	aneesh.kumar@kernel.org,
+	npiggin@gmail.com,
+	tglx@linutronix.de,
+	mingo@redhat.com,
+	bp@alien8.de,
+	x86@kernel.org,
+	hpa@zytor.com,
+	arnd@arndb.de,
+	lorenzo.stoakes@oracle.com,
+	ziy@nvidia.com,
+	baolin.wang@linux.alibaba.com,
+	Liam.Howlett@oracle.com,
+	npache@redhat.com,
+	ryan.roberts@arm.com,
+	dev.jain@arm.com,
+	baohua@kernel.org,
+	shy828301@gmail.com,
+	riel@surriel.com,
+	jannh@google.com,
+	jgross@suse.com,
+	seanjc@google.com,
+	pbonzini@redhat.com,
+	boris.ostrovsky@oracle.com,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org,
+	linux-arch@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org,
+	ioworker0@gmail.com,
+	Lance Yang <lance.yang@linux.dev>
+Subject: Re: [PATCH v8 0/2] skip redundant sync IPIs when TLB flush sent them
+Date: Wed, 25 Mar 2026 10:43:37 +0800
+Message-Id: <20260325024337.56681-1-lance.yang@linux.dev>
+In-Reply-To: <20260324114339.2c0777f7b2c5483281a15667@linux-foundation.org>
+References: <20260324114339.2c0777f7b2c5483281a15667@linux-foundation.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-X-Mailer: b4 0.16-dev-6cc06
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1523; i=broonie@kernel.org;
- h=from:subject:message-id; bh=WRF/0A79XI/IfrPujL8sWiRG4jtPsIHG8/HKlYhxfwg=;
- b=kA0DAAoBJNaLcl1Uh9AByyZiAGnC6amgudhaUXvPlk+pDm3GoyUp8H0DzJj7P23jodGH3vgaM
- YkBMwQAAQoAHRYhBK3maKpnVxi1n+Kf6iTWi3JdVIfQBQJpwumpAAoJECTWi3JdVIfQ7W4H/0HK
- bnLD6QxQOBC+fzyIxZ6G6kEKZPO4GVW3Pfn4yfAzX5qrdKQRkDgps7IYWut/u33hS3f+Z04EmOJ
- lYrLIJIM422nR6nge6hF8EhqNBiTq/w9q7cGC48hH540F15d0sLd2//XCIGupIA1RXpBqVdzq5x
- OT6qjdHSfs8FyZ+oeQmp08Rcg1XfVc+MneH1PzidJufZ+tJUtayZw29OlGfNk6vGZ389vkRi+Ec
- XFn5qSzIYh78B0Z0zXzPv2/IjG8frEcheWdi3dJbD2bUS4h2S1US62r3HG8U3Au0lRz8ggXRMML
- 03vuVW3IP0egShhpeZHJhBzFqhYb6LFlY+k9hXc=
-X-Developer-Key: i=broonie@kernel.org; a=openpgp;
- fpr=3F2568AAC26998F9E813A1C5C3F436CA30F5D8EB
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-On Tue, 24 Mar 2026 01:59:04 +0100, Danilo Krummrich wrote:
-> treewide: Convert buses to use generic driver_override
-> 
-> This is the follow-up of the driver_override generalization in [1], converting
-> the remaining 11 busses and removing the now-unused driver_set_override()
-> helper.
-> 
-> All of them (except AP, which has a different race condition) are prone to the
-> potential UAF described in [2], caused by accessing the driver_override field
-> from their corresponding match() callback.
-> 
-> [...]
 
-Applied to
+On Tue, Mar 24, 2026 at 11:43:39AM -0700, Andrew Morton wrote:
+>On Tue, 24 Mar 2026 16:52:36 +0800 Lance Yang <lance.yang@linux.dev> wrote:
+>
+>> Hi all,
+>> 
+>> When page table operations require synchronization with software/lockless
+>> walkers, they call tlb_remove_table_sync_{one,rcu}() after flushing the
+>> TLB (tlb->freed_tables or tlb->unshared_tables).
+>> 
+>> On architectures where the TLB flush already sends IPIs to all target CPUs,
+>> the subsequent sync IPI broadcast is redundant. This is not only costly on
+>> large systems where it disrupts all CPUs even for single-process page table
+>> operations, but has also been reported to hurt RT workloads[1].
+>> 
+>> This series introduces tlb_table_flush_implies_ipi_broadcast() to check if
+>> the prior TLB flush already provided the necessary synchronization. When
+>> true, the sync calls can early-return.
+>> 
+>> A few cases rely on this synchronization:
+>> 
+>> 1) hugetlb PMD unshare[2]: The problem is not the freeing but the reuse
+>>    of the PMD table for other purposes in the last remaining user after
+>>    unsharing.
+>> 
+>> 2) khugepaged collapse[3]: Ensure no concurrent GUP-fast before collapsing
+>>    and (possibly) freeing the page table / re-depositing it.
+>> 
+>> Two-step plan as David suggested[4]:
+>> 
+>> Step 1 (this series): Skip redundant sync when we're 100% certain the TLB
+>> flush sent IPIs. INVLPGB is excluded because when supported, we cannot
+>> guarantee IPIs were sent, keeping it clean and simple.
+>> 
+>> Step 2 (future work): Send targeted IPIs only to CPUs actually doing
+>> software/lockless page table walks, benefiting all architectures.
+>> 
+>> Regarding Step 2, it obviously only applies to setups where Step 1 does not
+>> apply: like x86 with INVLPGB or arm64. Step 2 work is ongoing; early
+>> attempts showed ~3% GUP-fast overhead. Reducing the overhead requires more
+>> work and tuning; it will be submitted separately once ready.
+>> 
+>> On a 64-core Intel x86 server, the CAL interrupt count in
+>> /proc/interrupts dropped from 646,316 to 785 when collapsing a 20 GiB
+>> range with this series applied.
+>
+>Well that's nice.
+>
+>Which other architectures could utilize this?
 
-   https://git.kernel.org/pub/scm/linux/kernel/git/broonie/spi.git for-7.0
+Thanks! RISC-V looks like a candidate, and if I get some time I'll dive
+into it.
 
-Thanks!
+>
+>> David Hildenbrand did the initial implementation. I built on his work and
+>> relied on off-list discussions to push it further - thanks a lot David!
+>>
+>> ...
+>>
+>>  arch/x86/include/asm/tlb.h      | 18 +++++++++++++++++-
+>>  arch/x86/include/asm/tlbflush.h |  2 ++
+>>  arch/x86/kernel/smpboot.c       |  1 +
+>>  arch/x86/mm/tlb.c               | 15 +++++++++++++++
+>>  include/asm-generic/tlb.h       | 17 +++++++++++++++++
+>>  mm/mmu_gather.c                 | 15 +++++++++++++++
+>>  6 files changed, 67 insertions(+), 1 deletion(-)
+>
+>Can the x86 maintainers please review these changes?
 
-[11/12] spi: use generic driver_override infrastructure
-        https://git.kernel.org/broonie/spi/c/cc34d77dd487
+Yes, an x86 review would be much appreciated, please!
 
-All being well this means that it will be integrated into the linux-next
-tree (usually sometime in the next 24 hours) and sent to Linus during
-the next merge window (or sooner if it is a bug fix), however if
-problems are discovered then the patch may be dropped or reverted.
-
-You may get further e-mails resulting from automated or manual testing
-and review of the tree, please engage with people reporting problems and
-send followup patches addressing any issues that are reported if needed.
-
-If any updates are required or you are submitting further changes they
-should be sent as incremental updates against current git, existing
-patches will not be replaced.
-
-Please add any relevant lists and maintainers to the CCs when replying
-to this mail.
+After commit a37259732a7d ("x86/mm: Make MMU_GATHER_RCU_TABLE_FREE
+unconditional"), tlb_remove_table_sync_one() is no longer a NOP, even on
+native x86 without INVLPGB, so it ends up issuing a redundant IPI
+broadcast.
 
 Thanks,
-Mark
-
+Lance
