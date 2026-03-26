@@ -1,161 +1,132 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B4443365A05;
-	Thu, 26 Mar 2026 09:43:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39B17220F49
+	for <virtualization@lists.linux.dev>; Thu, 26 Mar 2026 14:00:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774518231; cv=none; b=qp5tfJUGHsxx9T+o/zdtYcRf2bqt9MV9UESYgHWhPn2SzBSbO6dChenw6kD5QgiU8wLa+htoeNWzictgbG7YSGE2cn1eoGT3Mkr365nSi7p/AtxY2T0mbTZrNqYJpW35IEiRef3NzeF5Dp2ZUhmE1U1cIbrbQ/FfBa+EhQefpWo=
+	t=1774533652; cv=none; b=Vhyh/+0Nkv8DL4Q24E+thHqNSiDKzJnqtsjj3ied6cmgdnZwu4JpZ8zH1Fwj6hfwOO6CA75ccyAxUO6bsh1bJF3Ute+RYeHYCOy+7AF5E+jPdX1quVLH2bI0+hDxR75kCCUcF4SXI2cQXqahC7AcZ6qUjKS5pRXHg44B0LWI6So=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774518231; c=relaxed/simple;
-	bh=G7X3A1FjDM7WiH77ZcPoedDF8U0V8w19yjC2Pc1U5kk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=hmcf5CO3++YHJ2Bv3hf5jeT7ZtDAL799mV4L57LmTV8v2bBap/yrE1kikH6MrkKP6LGf7WA9l25sIKhHUeiHYEN6cb8nEk6DcRtABluwm5sM9lBZZhczXKiSzmryNz2nL6BMB0BhvpJL5TphX9m6Jx5Z2rKQ1R1JRVIEIraBsHs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=avrMFIfO; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1774533652; c=relaxed/simple;
+	bh=KTRKonfGUd97+mpSwvoA/3Jmlf8IN1wJ4LosLVYKkrE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=TUfWNUMhyHWybqM2juwbfiA/KnZD4c7s/Sfdo8SoQ5fZ13Zqtv6PxO6x5byVBuAYBd3kxOOnZUfMZgMzneIEP4lhs269a/bxt92K0XYcVfKMOZG4apUfKGJU51d1BISsRu5O6KcNwF+cN/FGv2Dslk0rdkVVhfgJrZUI8/uKC6k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ODWxKMoP; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="avrMFIfO"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62Q59Wqg1479684;
-	Thu, 26 Mar 2026 09:43:19 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=GQ61ku
-	hdrfqFul0L2FFBXSHRCVEg6otwfwoaX1TK3/E=; b=avrMFIfOdugi4S/4hndTN+
-	CLl/8HIMGz5Y/Oum5eOm3OxGCkgJK5eRyIT5itUmQlmpPCJa5rd7cEhD70kd89Vx
-	sIkj70/bP26p1m99XZIqnezWszE2fOzkNLz1UKG/M+ZIpYxEchD1eZtuvPGMylcs
-	oeHmw2eVFKJjsgFq0pWIzHhgjEoKzXSvm+Q3IfGfuYz/X6Rtw3ddqbg74qyboisW
-	7VhJFSlPA/npMVSA1RxAqkj0qgcs/ITsZmLD/UBiIHDv6wpIicKFko9HHa1mxW7e
-	FX0uQjKv616F5kTpsv6tLKCb9nFCwCPKBw3DJM+rLF0pILZ/li0SeQnt8POSnByw
-	==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1kxqmkhe-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 26 Mar 2026 09:43:18 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62Q70AQB026695;
-	Thu, 26 Mar 2026 09:43:16 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d275m292g-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 26 Mar 2026 09:43:16 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62Q9hCts51970526
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 26 Mar 2026 09:43:12 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 59BB320049;
-	Thu, 26 Mar 2026 09:43:12 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B3A6C20040;
-	Thu, 26 Mar 2026 09:43:11 +0000 (GMT)
-Received: from [9.52.196.90] (unknown [9.52.196.90])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with ESMTPS;
-	Thu, 26 Mar 2026 09:43:11 +0000 (GMT)
-Message-ID: <e232e227-b022-40b7-ae9b-085398172aaa@linux.ibm.com>
-Date: Thu, 26 Mar 2026 10:43:11 +0100
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ODWxKMoP"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1774533643;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=3ud6/uRMMbQ6RHbdjTkyUxh57Nx1jsGx4SxZ5+YkVoU=;
+	b=ODWxKMoPGH2AKX0trIY+YjkpbUyIz316kC7HMVtAGIXeRpksJKE+IojvrmkbZVckX1o03Q
+	KNwbbSmJwL885KVDodqMcZdXXq10Zg61Fx3TDAgBjK+8SP01T3MJUSXoszrCZIqUVCOFj3
+	LWWya67AmZ2fjskbcQjMJguYy2bcdzQ=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-124-U6nCzDQ8OTKuAhhnq91FsA-1; Thu,
+ 26 Mar 2026 10:00:40 -0400
+X-MC-Unique: U6nCzDQ8OTKuAhhnq91FsA-1
+X-Mimecast-MFC-AGG-ID: U6nCzDQ8OTKuAhhnq91FsA_1774533638
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id EEBF619560B4;
+	Thu, 26 Mar 2026 14:00:37 +0000 (UTC)
+Received: from localhost (unknown [10.44.35.38])
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 65F9218001FE;
+	Thu, 26 Mar 2026 14:00:36 +0000 (UTC)
+Date: Thu, 26 Mar 2026 10:00:33 -0400
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Joshua Daley <jdaley@linux.ibm.com>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev, mst@redhat.com, jasowang@redhat.com,
+	pbonzini@redhat.com, eperezma@redhat.com,
+	James.Bottomley@hansenpartnership.com, martin.petersen@oracle.com,
+	mjrosato@linux.ibm.com, farman@linux.ibm.com, frankja@linux.ibm.com
+Subject: Re: [PATCH v4 1/2] scsi: virtio_scsi: move INIT_WORK calls to
+ virtscsi_probe
+Message-ID: <20260326140033.GC758087@fedora>
+References: <20260325180857.3675854-1-jdaley@linux.ibm.com>
+ <20260325180857.3675854-2-jdaley@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 09/12] s390/cio: use generic driver_override
- infrastructure
-To: Danilo Krummrich <dakr@kernel.org>, Russell King <linux@armlinux.org.uk>,
-        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-        "Rafael J. Wysocki" <rafael@kernel.org>,
-        Ioana Ciornei <ioana.ciornei@nxp.com>,
-        Nipun Gupta <nipun.gupta@amd.com>,
-        Nikhil Agarwal <nikhil.agarwal@amd.com>,
-        "K. Y. Srinivasan"
- <kys@microsoft.com>,
-        Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
-        Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>,
-        Bjorn Helgaas <bhelgaas@google.com>, Armin Wolf <W_Armin@gmx.de>,
-        Bjorn Andersson <andersson@kernel.org>,
-        Mathieu Poirier <mathieu.poirier@linaro.org>,
-        Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
-        Alexander Gordeev <agordeev@linux.ibm.com>,
-        Christian Borntraeger <borntraeger@linux.ibm.com>,
-        Sven Schnelle <svens@linux.ibm.com>,
-        Harald Freudenberger <freude@linux.ibm.com>,
-        Holger Dengler <dengler@linux.ibm.com>,
-        Mark Brown <broonie@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
-        Jason Wang <jasowang@redhat.com>,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>,
-        Alex Williamson <alex@shazbot.org>, Juergen Gross <jgross@suse.com>,
-        Stefano Stabellini
- <sstabellini@kernel.org>,
-        Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
-        "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
-Cc: linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
-        linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org,
-        linux-pci@vger.kernel.org, platform-driver-x86@vger.kernel.org,
-        linux-arm-msm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
-        linux-s390@vger.kernel.org, linux-spi@vger.kernel.org,
-        virtualization@lists.linux.dev, kvm@vger.kernel.org,
-        xen-devel@lists.xenproject.org, linux-arm-kernel@lists.infradead.org,
-        Gui-Dong Han <hanguidong02@gmail.com>
-References: <20260324005919.2408620-1-dakr@kernel.org>
- <20260324005919.2408620-10-dakr@kernel.org>
-Content-Language: en-US
-From: Vineeth Vijayan <vneethv@linux.ibm.com>
-In-Reply-To: <20260324005919.2408620-10-dakr@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: lM9ihgFyzDaKKK4hT6xbAWnBu4HPvbko
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI2MDA2NyBTYWx0ZWRfX2in2v/sm6fVn
- 1EOEfnIWW9XHJhqTtN1dackcJvrGoIn6RYtzj2jaFpMYQNlaN3XxkuZ6dzpRGfvaZaU5moxAo8x
- trr+PwJfEqlepekJSKPo1fy9d5o6sgA5m683HkjOswpiKaLB0x2ZC2oGeSCAtUXbWtftJWxMU93
- r9db17SA3IR04n61jqkqo5Bm6YDmBdYR4V4J415d1oOQfmhBzzcsrs5XSBy2lSc6eI3Yyn+zNJA
- fVQxRgkOI9yEBwUOLE+1Bp0urJ3SQpsL6Mxqh1jqv0YqiavIDSQ9i78PTJ+7C/RudgHS8T2aNad
- w9soTfL5Lep9UESaYSAmOjYsSO5EEkxvuZXANkgGYCQiRzjVScD+Gyn69Rf+vvAYsxJQFXrQuWu
- UQoghhH9HNEe1gD65ozDrx3Bl3HFNi5z9FxZxdctIbC0r4+GoaXzUaZ2fC0g/Uri9kPCKMvcMLh
- 7P5IIMyCHlQF+nN31cA==
-X-Authority-Analysis: v=2.4 cv=bLEb4f+Z c=1 sm=1 tr=0 ts=69c4ffb7 cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=IkcTkHD0fZMA:10 a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=iQ6ETzBq9ecOQQE5vZCe:22 a=VwQbUJbxAAAA:8
- a=pGLkceISAAAA:8 a=VnNF1IyMAAAA:8 a=rH2cy8X4UbemT2jZliAA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: sWD6kkjX1ahK5tMWR5AN0EWZ8NVBfHg-
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-26_02,2026-03-24_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 adultscore=0 clxscore=1011 phishscore=0 impostorscore=0
- malwarescore=0 lowpriorityscore=0 suspectscore=0 bulkscore=0
- priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
- definitions=main-2603260067
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="eEXDPCt21ng7yGj2"
+Content-Disposition: inline
+In-Reply-To: <20260325180857.3675854-2-jdaley@linux.ibm.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
 
+--eEXDPCt21ng7yGj2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On 3/24/26 01:59, Danilo Krummrich wrote:
-> When a driver is probed through __driver_attach(), the bus' match()
-> callback is called without the device lock held, thus accessing the
-> driver_override field without a lock, which can cause a UAF.
-> 
-> Fix this by using the driver-core driver_override infrastructure taking
-> care of proper locking internally.
-> 
-> Note that calling match() from __driver_attach() without the device lock
-> held is intentional. [1]
-> 
-> Link:https://lore.kernel.org/driver-core/DGRGTIRHA62X.3RY09D9SOK77P@kernel.org/ [1]
-> Reported-by: Gui-Dong Han<hanguidong02@gmail.com>
-> Closes:https://bugzilla.kernel.org/show_bug.cgi?id=220789
-> Fixes: ebc3d1791503 ("s390/cio: introduce driver_override on the css bus")
-> Signed-off-by: Danilo Krummrich<dakr@kernel.org>
+On Wed, Mar 25, 2026 at 07:08:56PM +0100, Joshua Daley wrote:
+> The last step of virtscsi_handle_event is to call virtscsi_kick_event,
+> which calls INIT_WORK on it's own work item. INIT_WORK resets the
+> work item's data bits to 0.
+>=20
+> If this occurs while the work item is being flushed by
+> cancel_work_sync, then kernel/workqueue.c/work_offqd_enable triggers a
+> kernel warning, as it expects the "disable" bit to be 1:
+>=20
+> [   21.450115] workqueue: work disable count underflowed
+> [   21.450117] WARNING: CPU: 1 PID: 56 at kernel/workqueue.c:4328 enable_=
+work+0x10a/0x120
+> ...
+> [   21.450171] Call Trace:
+> [   21.450173]  [<000003db2e5bdc3e>] enable_work+0x10e/0x120
+> [   21.450176] ([<000003db2e5bdc3a>] enable_work+0x10a/0x120)
+> [   21.450178]  [<000003db2e5bdd86>] cancel_work_sync+0x86/0xa0
+> [   21.450181]  [<000003daae97d9e4>] virtscsi_remove+0xb4/0xd0 [virtio_sc=
+si]
+> [   21.450184]  [<000003db2ef3b5ca>] virtio_dev_remove+0x6a/0xd0
+> [   21.450186]  [<000003db2ef9106c>] device_release_driver_internal+0x1ac=
+/0x260
+> [   21.450190]  [<000003db2ef8edc8>] bus_remove_device+0xf8/0x190
+> [   21.450192]  [<000003db2ef88d72>] device_del+0x142/0x340
+> [   21.450194]  [<000003db2ef88fa0>] device_unregister+0x30/0xa0
+> [   21.450196]  [<000003db2ef3b2fa>] unregister_virtio_device+0x2a/0x40
+>=20
+> This warning may occur if a controller is detached immediately
+> following a disk detach.
+>=20
+> Move the INIT_WORK call to prevent this. Don't re-init event list
+> work items in virtscsi_kick_event, init them only once in
+> virtscsi_probe instead.
+>=20
+> Signed-off-by: Joshua Daley <jdaley@linux.ibm.com>
 > ---
+>  drivers/scsi/virtio_scsi.c | 7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
 
-Thank you Danilo.
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
-Reviewed-by: Vineeth Vijayan <vneethv@linux.ibm.com>
+--eEXDPCt21ng7yGj2
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCgAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmnFPAEACgkQnKSrs4Gr
+c8ia4wgAjrcxhvgueCwsnWGTkhwdMBqfQEa1muDZVm/1qybWRGO57sKFCJYIXKUK
+DXEhC+1QCvYa/iQqCM97Hlwblh3WLqyC9A3/cASQl82JXlIs6y2I6dYRB8MEitDx
+HODAgaWGsqztA9wUqgIqdaKNfjELlkiNK9k6eiJJLs2kgnGTwNi0OVYYiGBTCITN
+iM6oqt5Tiv9WSoawqJa+PQYSfwWWp/p5zabehccx+ilTtByt43i6EhcLHtdhF5CL
++XvBMVBHlIDQwZmxEliEB8LxZpiOuC+BXXhqi00dyOWBozq2N7XeQ9dqTWSajG2X
+2azsqUjcbU2/kanG86drSlg220M8iA==
+=Jv78
+-----END PGP SIGNATURE-----
+
+--eEXDPCt21ng7yGj2--
+
