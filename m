@@ -1,101 +1,84 @@
-Received: from relay.hostedemail.com (smtprelay0013.hostedemail.com [216.40.44.13])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 212DA402B83
-	for <virtualization@lists.linux.dev>; Thu, 26 Mar 2026 16:46:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.40.44.13
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37A9329ACDB;
+	Thu, 26 Mar 2026 17:38:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774543584; cv=none; b=Tr1vTpDNJxz0TB+DsV8QzypZez0giO2/0VJ89NoZhOTkEwkWncsUkcuMuNQ2C5r2LQDglozsZjf7YUurV8XGcl4+xUCAKDkc+Qe3iVHuVf+VmCVUBRkv6+MSOKozBnirfAkdXAqL8MwXvSPZqaD4uyP9jLURwY9UoK6ZqmyVp7w=
+	t=1774546726; cv=none; b=liLgENEAE/l8BkfUuZm2eDH4WFrZRq+Eku8Osw9fN3/m8MoHGxEXFRdL5S6UvAJMXqDDmvCU/Ru0ifW4ziHzfK6tT/KS+3Obgkr7BS3gX1LUP07uRq1a6xq+emogMkEUY88aR7ujjRD6fb17BEGMjAcoDogTsbuZlq6P+HU5zdo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774543584; c=relaxed/simple;
-	bh=IrNMG8JzJf0gLtDRAMekvNsaWFh/Zj1yl1xgjQeFBX8=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=l5OZZNYtOi+/cUwgQqWM16l7QHXZiht2UyNs17+kCBfbtupgsagydT8cRoDyN59e2CxtWc/qeLqvfsvYtRAYc/fsTrKlkhtPoq3k+DtASL+e45Hs6phZMnA+GyrNOlcvCckxYioR8b3ojhniTATCWVBVBRq3iVqrPPb4mnBNq8s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org; spf=pass smtp.mailfrom=goodmis.org; arc=none smtp.client-ip=216.40.44.13
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=goodmis.org
-Received: from omf07.hostedemail.com (a10.router.float.18 [10.200.18.1])
-	by unirelay08.hostedemail.com (Postfix) with ESMTP id 96E35140E1C;
-	Thu, 26 Mar 2026 16:46:13 +0000 (UTC)
-Received: from [HIDDEN] (Authenticated sender: rostedt@goodmis.org) by omf07.hostedemail.com (Postfix) with ESMTPA id AA7C220032;
-	Thu, 26 Mar 2026 16:46:07 +0000 (UTC)
-Date: Thu, 26 Mar 2026 12:46:54 -0400
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Matthew Wilcox <willy@infradead.org>
-Cc: Dmitry Ilvokhin <d@ilvokhin.com>, Peter Zijlstra <peterz@infradead.org>,
- Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>, Boqun Feng
- <boqun@kernel.org>, Waiman Long <longman@redhat.com>, Thomas Bogendoerfer
- <tsbogend@alpha.franken.de>, Juergen Gross <jgross@suse.com>, Ajay Kaher
- <ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.makhalov@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Thomas Gleixner <tglx@kernel.org>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- x86@kernel.org, "H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann
- <arnd@arndb.de>, Dennis Zhou <dennis@kernel.org>, Tejun Heo
- <tj@kernel.org>, Christoph Lameter <cl@gentwo.org>, Masami Hiramatsu
- <mhiramat@kernel.org>, Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
- linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
- virtualization@lists.linux.dev, linux-arch@vger.kernel.org,
- linux-mm@kvack.org, linux-trace-kernel@vger.kernel.org,
- kernel-team@meta.com
-Subject: Re: [PATCH v4 0/5] locking: contended_release tracepoint
- instrumentation
-Message-ID: <20260326124654.66b4dbc1@gandalf.local.home>
-In-Reply-To: <acVW6eFGwqACD91Y@casper.infradead.org>
-References: <cover.1774536681.git.d@ilvokhin.com>
-	<acVW6eFGwqACD91Y@casper.infradead.org>
-X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	s=arc-20240116; t=1774546726; c=relaxed/simple;
+	bh=hAAiF8xSgL3z4E5G5/XmRxGLgvCy/D0+zQfYgHI39gw=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Cc:To:From:Subject:
+	 References:In-Reply-To; b=IFxkvGTbEJ0T/UTVgRt9Bp2fvNusBmVhr3bEdRFBHnWbIavF2ABHatZSrw5TcXpU4z716hR8uxZcZNKMWUMfOKX4esWlUobSA5O1qzL3oJO1x5Q6L1hn7qKO+fhI4rfFnFwzBX5OESMzKajmksfNixdku8LlsU+HHXH2jfXBoRI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ArEAbT+s; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ArEAbT+s"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64CF3C116C6;
+	Thu, 26 Mar 2026 17:38:37 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1774546725;
+	bh=hAAiF8xSgL3z4E5G5/XmRxGLgvCy/D0+zQfYgHI39gw=;
+	h=Date:Cc:To:From:Subject:References:In-Reply-To:From;
+	b=ArEAbT+s3n7x1zNm2qUyfultheclQsMn7Cylk1mxfVokFRrNp3WpcDfI8mmayZ+0h
+	 m2cGLs0n6Sh6ZCu8EvHXqLDxmAX8LMqlZoRnQEfHReuoiYU3xPG1brRn0xv/B7nG91
+	 dfctDdAzWRRIBz5wDeTdWGKHbyzznewMhiup0tTEhLqFpUABWkXccnP5fkKD1V8bqG
+	 AQrp8yU+1knEeWB4pCRAjqoVJNKbnXs/r4tup9fByZXD5EgZfswwbwv0q7Wo741gye
+	 MvHPzW2Tb0nrON4/+fHRtWe9N46CjKkZ5ux8WM6YRAe6n1JfA4kFbYnKDRvMa6t1Pa
+	 3vRMCPXPpyakA==
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Stat-Signature: oxpnmau35kmgbeef69arytyyqjdq4tcm
-X-Rspamd-Server: rspamout02
-X-Rspamd-Queue-Id: AA7C220032
-X-Session-Marker: 726F737465647440676F6F646D69732E6F7267
-X-Session-ID: U2FsdGVkX18T30hkquOyghpO0b3wg7U69NQLAoKWLEI=
-X-HE-Tag: 1774543567-165604
-X-HE-Meta: U2FsdGVkX1+aucRsg/fJwSO9PcSLmk9Uk3XJJ6a8zNjBvZXhrYnWw8QuFZDYOQAZcKByDBMi6oGlRWtTF/Acf81GjhgOA6h7nGVnnpPy9E5e0/5WaXs311Ddp5diPLuMOv2IW38+0Dk/6tOn+Zkvvq989+N+UF2XvBrebx1sWJWtvBgdDrf9ptRKO/b1FQfSq2VqlITHIQYMVZy7JK1h3nZDehd2eU/kzpM76hR0FzJKGqVYc7rtfpxOV3e5SKzZPSzkoOwAOuxo4uaGOxH6Qi1DWYPmS90pi+Lwbv2tjNOCuDuR2Jn16cNcy8fcYO0C5X4AfXaiHii7M18gBqE54UkvWLH/jjdU1XUWoqlX11A9Tv93kHbWpf7w0uUHT93G
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Thu, 26 Mar 2026 18:38:35 +0100
+Message-Id: <DHCWB6YQ7B8E.1I9WCHXJ6FBPH@kernel.org>
+Cc: "Russell King" <linux@armlinux.org.uk>, "Greg Kroah-Hartman"
+ <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>,
+ "Ioana Ciornei" <ioana.ciornei@nxp.com>, "Nipun Gupta"
+ <nipun.gupta@amd.com>, "Nikhil Agarwal" <nikhil.agarwal@amd.com>, "K. Y.
+ Srinivasan" <kys@microsoft.com>, "Haiyang Zhang" <haiyangz@microsoft.com>,
+ "Wei Liu" <wei.liu@kernel.org>, "Dexuan Cui" <decui@microsoft.com>, "Long
+ Li" <longli@microsoft.com>, "Bjorn Helgaas" <bhelgaas@google.com>, "Armin
+ Wolf" <W_Armin@gmx.de>, "Bjorn Andersson" <andersson@kernel.org>, "Mathieu
+ Poirier" <mathieu.poirier@linaro.org>, "Vineeth Vijayan"
+ <vneethv@linux.ibm.com>, "Peter Oberparleiter" <oberpar@linux.ibm.com>,
+ "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>,
+ "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger"
+ <borntraeger@linux.ibm.com>, "Sven Schnelle" <svens@linux.ibm.com>, "Harald
+ Freudenberger" <freude@linux.ibm.com>, "Holger Dengler"
+ <dengler@linux.ibm.com>, "Mark Brown" <broonie@kernel.org>, "Jason Wang"
+ <jasowang@redhat.com>, "Xuan Zhuo" <xuanzhuo@linux.alibaba.com>,
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, "Alex Williamson"
+ <alex@shazbot.org>, "Juergen Gross" <jgross@suse.com>, "Stefano Stabellini"
+ <sstabellini@kernel.org>, "Oleksandr Tyshchenko"
+ <oleksandr_tyshchenko@epam.com>, "Christophe Leroy (CS GROUP)"
+ <chleroy@kernel.org>, <linux-kernel@vger.kernel.org>,
+ <driver-core@lists.linux.dev>, <linuxppc-dev@lists.ozlabs.org>,
+ <linux-hyperv@vger.kernel.org>, <linux-pci@vger.kernel.org>,
+ <platform-driver-x86@vger.kernel.org>, <linux-arm-msm@vger.kernel.org>,
+ <linux-remoteproc@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+ <linux-spi@vger.kernel.org>, <virtualization@lists.linux.dev>,
+ <kvm@vger.kernel.org>, <xen-devel@lists.xenproject.org>,
+ <linux-arm-kernel@lists.infradead.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+From: "Danilo Krummrich" <dakr@kernel.org>
+Subject: Re: [PATCH 00/12] treewide: Convert buses to use generic
+ driver_override
+References: <20260324005919.2408620-1-dakr@kernel.org>
+ <20260325052919-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20260325052919-mutt-send-email-mst@kernel.org>
 
-On Thu, 26 Mar 2026 15:55:21 +0000
-Matthew Wilcox <willy@infradead.org> wrote:
+On Wed Mar 25, 2026 at 10:29 AM CET, Michael S. Tsirkin wrote:
+> vdpa bits:
+>
+> Acked-by: Michael S. Tsirkin <mst@redhat.com>
+>
+> I assume it'll all be merged together?
 
-> > - The holder's stack at release time, which may differ from what perf lock
-> >   contention --lock-owner captures if the holder does significant work between
-> >   the waiter's arrival and the unlock.  
-> 
-> As someone who's not an expert in this area (so please use short words
-> to explain it to me), why do we want to know how long this holder took
-> to release the lock from when it became contended?
-> 
-> I understand why we want to know how long any given waiter had to wait
-> to gain the lock (but we already have tracepoints which show that).
-> 
-> I also don't understand why we want to know the holder's stack at
-> release time.  The stack at contention-begin time will include
-> the point at which the lock was acquired which should be correlated
-> with where the lock was released.
-> 
-> Perhaps examples might help me understand why we want this?
-
-Dmitry could give his own rationale for this, but I have my only use case.
-
-This would be useful to find out how long the critical section is. If a
-lock is highly contended by many tasks, you could get a high contention
-time simply because other tasks are causing the delay for the waiter.
-Seeing the release time and location would let you also know how long the
-critical section was held, and if the length of the critical section is
-causing the contention.
-
-Having a stack trace of the release would differentiate the path that
-released the lock, as there can be many places that release them. Although,
-I have to admit, I'm not sure there are many different places locks are
-released. Especially now that we have guard(), which will make all the
-releases in a function at the same location.
-
--- Steve
-
+I can take it through the driver-core tree if you prefer, but you can also =
+pick
+it up yourself.
