@@ -1,61 +1,69 @@
-Received: from mx0b-0016f401.pphosted.com (mx0b-0016f401.pphosted.com [67.231.156.173])
+Received: from mail.ilvokhin.com (mail.ilvokhin.com [178.62.254.231])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCCFC1A3029
-	for <virtualization@lists.linux.dev>; Thu, 26 Mar 2026 14:24:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.156.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C955F3FEB18
+	for <virtualization@lists.linux.dev>; Thu, 26 Mar 2026 15:10:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.62.254.231
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774535044; cv=none; b=VIPCPy31VFuYadyWN9jqxfY2lT+D/kzbBlgObwm0SN171E8PZ+AnpIBbCjDTjRKSXwtUZXTLSPG2Hn1JCX0C3EwKxSCLbjUcH6MWc2i4JsuBgRBxHOdIDSgGoveTlDqh48ylJs6Fv4hmgfaetwFhnhf4ni2iC7YT0vx3kMxdFxI=
+	t=1774537830; cv=none; b=imVhjkXbbOC8k8L4Ny9N/YW+cqZ9lD7uuBqxKknlzTvNOC6bPjWnqruA8XM0RClNw+q24QitYaGh626i9P+n2pgOi5U8COULthTEiO4UICsYsyXssZolz9i8ke1WmRFtXsQpOexScNGKxZVQhJwqhtVw7RT/HLxQQRe5xktThAE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774535044; c=relaxed/simple;
-	bh=1WjDEFYQ6g3yPDoaJcLh1uifQ/JIp50+93poSdvKpEs=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=FqXU0ixhX/52nJ1D3wz6b4yraIDQX4tB7EKP2OlQjgwbOv9yRiJO86sxSPJHKOvU/SamYdfsxB7ACh8H61HVMPVcUCI8uPEJSPr1aelzv387Jg3r4dvAe3pSDNErWyNgR7H8lm9RD43VjDxuOQ0FNIcjxK6H+L59YmzunFqQP/Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=B86RCfia; arc=none smtp.client-ip=67.231.156.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
+	s=arc-20240116; t=1774537830; c=relaxed/simple;
+	bh=ImpOumTXiHhK2E/RRqtjHi28bu7nryXk7tD/1s0FNio=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=AnYZkGy4DMYw+F7RS2e0LVSox5U+FDQ/XN60gUzRqT6QAcPcERHspx7JlG9O3pHihtAJmVQJdN/sidLYdo491y/HYvt0apDS302htnXP8KsSEVOjP6YO7r6Fky5voMdeNnxTFldKyWqCfqSTLwGHwCx4V+YMB0ywYj4m1Bp+jrs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ilvokhin.com; spf=pass smtp.mailfrom=ilvokhin.com; dkim=pass (1024-bit key) header.d=ilvokhin.com header.i=@ilvokhin.com header.b=dLLqDI1p; arc=none smtp.client-ip=178.62.254.231
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ilvokhin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ilvokhin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="B86RCfia"
-Received: from pps.filterd (m0431383.ppops.net [127.0.0.1])
-	by mx0b-0016f401.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62Q72wWC3460647;
-	Thu, 26 Mar 2026 07:23:52 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=
-	cc:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=pfpt0220; bh=B3YvpA0Aly9tBY2HK1OtTRO
-	vqY4jw+STba23l+LW2M0=; b=B86RCfiaCV1AxdWNE62pX+m+W7wudW6F2jx4Uvo
-	v/IpAND6FjGJvh3eGnib4tLjkUwqhZoWY0MQjj21KYabEv9qqJF++rmW0LCULM3U
-	R+BBR7DRUc8ucAvKB3mDlLK4WxNHJbQFuijocTlNrXOhWrp/Vu/jpZsWlmVBxqIy
-	SiQNEWfVHldcZ5S6bmeHhPxKoRxiMlV0hwE/HeneavWQgwvxG6LJ2HpjnMIvzv84
-	O917kOreCqlB8OrPiQBDfEDHcluWunKKYaKNfGzYRZZBonfRt4zXSrRZzFX2vPiN
-	aLCP6MtjNx5Bn/s4JWbHnEtruP2161ZqfuklXceQ7+BueFQ==
-Received: from dc5-exch05.marvell.com ([199.233.59.128])
-	by mx0b-0016f401.pphosted.com (PPS) with ESMTPS id 4d4b7hc6ah-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 26 Mar 2026 07:23:52 -0700 (PDT)
-Received: from DC6WP-EXCH02.marvell.com (10.76.176.209) by
- DC5-EXCH05.marvell.com (10.69.176.209) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.25; Thu, 26 Mar 2026 07:23:51 -0700
-Received: from DC6WP-EXCH02.marvell.com (10.76.176.209) by
- DC6WP-EXCH02.marvell.com (10.76.176.209) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.25; Thu, 26 Mar 2026 07:23:50 -0700
-Received: from maili.marvell.com (10.69.176.80) by DC6WP-EXCH02.marvell.com
- (10.76.176.209) with Microsoft SMTP Server id 15.2.1544.25 via Frontend
- Transport; Thu, 26 Mar 2026 07:23:50 -0700
-Received: from localhost.localdomain (unknown [10.28.36.175])
-	by maili.marvell.com (Postfix) with ESMTP id ADFBE3F706D;
-	Thu, 26 Mar 2026 07:23:45 -0700 (PDT)
-From: Srujana Challa <schalla@marvell.com>
-To: <netdev@vger.kernel.org>, <virtualization@lists.linux.dev>
-CC: <pabeni@redhat.com>, <mst@redhat.com>, <jasowang@redhat.com>,
-        <xuanzhuo@linux.alibaba.com>, <eperezma@redhat.com>,
-        <davem@davemloft.net>, <edumazet@google.com>, <kuba@kernel.org>,
-        <ndabilpuram@marvell.com>, <kshankar@marvell.com>,
-        <schalla@marvell.com>, <stable@vger.kernel.org>
-Subject: [PATCH net,v5] virtio_net: clamp rss_max_key_size to NETDEV_RSS_KEY_LEN
-Date: Thu, 26 Mar 2026 19:53:44 +0530
-Message-ID: <20260326142344.1171317-1-schalla@marvell.com>
-X-Mailer: git-send-email 2.25.1
+	dkim=pass (1024-bit key) header.d=ilvokhin.com header.i=@ilvokhin.com header.b="dLLqDI1p"
+Received: from localhost.localdomain (shell.ilvokhin.com [138.68.190.75])
+	(Authenticated sender: d@ilvokhin.com)
+	by mail.ilvokhin.com (Postfix) with ESMTPSA id 9D059BDE1E;
+	Thu, 26 Mar 2026 15:10:21 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ilvokhin.com;
+	s=mail; t=1774537822;
+	bh=vg6orVDTPecMi8OeXzXS8oUaQlC99nRHDPvEe4x4LeU=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=dLLqDI1p21R53wCA8eob+BVI6XwqXJpZuprXjmvBjW/iBsJ7cf+ADApcxOKpwSyya
+	 A+lKSNgUYnHa1L7n0SzHyd2w1GjjlxWJLI8NECaewbUXU7VVQTj7a3s0E5eKkMk38Z
+	 dNvaBjriNbIT5ix6kJ00hgEddssmRBYJMPY+afno=
+From: Dmitry Ilvokhin <d@ilvokhin.com>
+To: Peter Zijlstra <peterz@infradead.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Will Deacon <will@kernel.org>,
+	Boqun Feng <boqun@kernel.org>,
+	Waiman Long <longman@redhat.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Juergen Gross <jgross@suse.com>,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Dennis Zhou <dennis@kernel.org>,
+	Tejun Heo <tj@kernel.org>,
+	Christoph Lameter <cl@gentwo.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
+Cc: linux-kernel@vger.kernel.org,
+	linux-mips@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	linux-arch@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-trace-kernel@vger.kernel.org,
+	kernel-team@meta.com,
+	Dmitry Ilvokhin <d@ilvokhin.com>
+Subject: [PATCH v4 5/5] locking: Add contended_release tracepoint to spinning locks
+Date: Thu, 26 Mar 2026 15:10:04 +0000
+Message-ID: <81eb8e0cd90b31e761e12721dbacb967281f840f.1774536681.git.d@ilvokhin.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <cover.1774536681.git.d@ilvokhin.com>
+References: <cover.1774536681.git.d@ilvokhin.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -63,107 +71,218 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Authority-Analysis: v=2.4 cv=b4q/I9Gx c=1 sm=1 tr=0 ts=69c54178 cx=c_pps
- a=rEv8fa4AjpPjGxpoe8rlIQ==:117 a=rEv8fa4AjpPjGxpoe8rlIQ==:17
- a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22 a=l0iWHRpgs5sLHlkKQ1IR:22
- a=qit2iCtTFQkLgVSMPQTB:22 a=VwQbUJbxAAAA:8 a=M5GUcnROAAAA:8
- a=hiWoBk9w0w8mUrHqcNwA:9 a=OBjm3rFKGHvpk9ecZwUJ:22
-X-Proofpoint-ORIG-GUID: 8zcCUThkkFwxIocBPR-Vy4uLlQN38fKQ
-X-Proofpoint-GUID: 8zcCUThkkFwxIocBPR-Vy4uLlQN38fKQ
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI2MDEwMCBTYWx0ZWRfX+4EB72cMh9Dl
- 0gs0eCvqhqJf+i3NkrzfK/DU977l/sMdn6lcOb/yVHwLBjPRWzI4cy/eBbtFghSFaAz8TmP0HX+
- +dcZ2hePpBCOZMwpzGQeoQQ8S9z5OekwT0BNzo2l31Vc9zpgLfFG2JxzaUqhBrKHiDQnug2j7YL
- PKjZR168WDNuqG5hAwW07DM1fW94F2fA4DhPgJrYvPUo3H5gs9qXA2af6u6HDDD14hP9m4MKUC7
- yQstUavBVabCs0J+BR1fNtathd3gm7t0mS1lqMsSPChz9bMZ9EjOJXaB2iULkvFbI7wEpo2i0el
- kYwdh56DglFiUfQsiQ2FFGs3nMwtSQ47whS6yDg77Ug0bxtiQdTczF6wiw9ftcsFL/jfOHptzBQ
- OJjpevhhidpBdQFCCs0ov5z9iDoLLDGhEn9sxXqaThlutpKOIM5BnDvI6+ukknyGCe/Yvm0rlWL
- dd2SyR6Pe/k4Lmp747Q==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-26_03,2026-03-26_01,2025-10-01_01
 
-rss_max_key_size in the virtio spec is the maximum key size supported by
-the device, not a mandatory size the driver must use. Also the value 40
-is a spec minimum, not a spec maximum.
+Extend the contended_release tracepoint to queued spinlocks and queued
+rwlocks.
 
-The current code rejects RSS and can fail probe when the device reports a
-larger rss_max_key_size than the driver buffer limit. Instead, clamp the
-effective key length to min(device rss_max_key_size, NETDEV_RSS_KEY_LEN)
-and keep RSS enabled.
+Use the arch-overridable queued_spin_release(), introduced in the
+previous commit, to ensure the tracepoint works correctly across all
+architectures, including those with custom unlock implementations (e.g.
+x86 paravirt).
 
-This keeps probe working on devices that advertise larger maximum key sizes
-while respecting the netdev RSS key buffer size limit.
+When the tracepoint is disabled, the only addition to the hot path is a
+single NOP instruction (the static branch). When enabled, the contention
+check, trace call, and unlock are combined in an out-of-line function to
+minimize hot path impact, avoiding the compiler needing to preserve the
+lock pointer in a callee-saved register across the trace call.
 
-Fixes: 3f7d9c1964fc ("virtio_net: Add hash_key_length check")
-Cc: stable@vger.kernel.org
-Signed-off-by: Srujana Challa <schalla@marvell.com>
+Binary size impact (x86_64, defconfig):
+  uninlined unlock (common case): +983 bytes  (+0.00%)
+  inlined unlock (worst case):    +58165 bytes (+0.24%)
+
+The inlined unlock case could not be achieved through Kconfig options on
+x86_64 as PREEMPT_BUILD unconditionally selects UNINLINE_SPIN_UNLOCK on
+x86_64. The UNINLINE_SPIN_UNLOCK guards were manually inverted to force
+inline the unlock path and estimate the worst case binary size increase.
+
+Architectures with fully custom qspinlock implementations (e.g.
+PowerPC) are not covered by this change.
+
+Signed-off-by: Dmitry Ilvokhin <d@ilvokhin.com>
 ---
-v3:
-- Moved RSS key validation checks to virtnet_validate.
-- Add fixes: tag and CC -stable
-v4:
-- Use NETDEV_RSS_KEY_LEN instead of type_max for the maximum rss key size.
-v5:
-- Interpret rss_max_key_size as a maximum and clamp it to NETDEV_RSS_KEY_LEN.
-- Do not disable RSS/HASH_REPORT when device rss_max_key_size exceeds NETDEV_RSS_KEY_LEN.
-- Drop the separate patch that replaced the runtime check with BUILD_BUG_ON.
+ include/asm-generic/qrwlock.h   | 48 +++++++++++++++++++++++++++------
+ include/asm-generic/qspinlock.h | 18 +++++++++++++
+ kernel/locking/qrwlock.c        | 16 +++++++++++
+ kernel/locking/qspinlock.c      |  8 ++++++
+ 4 files changed, 82 insertions(+), 8 deletions(-)
 
- drivers/net/virtio_net.c | 20 +++++++++-----------
- 1 file changed, 9 insertions(+), 11 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 022f60728721..b241c8dbb4e1 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -373,8 +373,6 @@ struct receive_queue {
- 	struct xdp_buff **xsk_buffs;
- };
+diff --git a/include/asm-generic/qrwlock.h b/include/asm-generic/qrwlock.h
+index 75b8f4601b28..e24dc537fd66 100644
+--- a/include/asm-generic/qrwlock.h
++++ b/include/asm-generic/qrwlock.h
+@@ -14,6 +14,7 @@
+ #define __ASM_GENERIC_QRWLOCK_H
  
--#define VIRTIO_NET_RSS_MAX_KEY_SIZE     40
--
- /* Control VQ buffers: protected by the rtnl lock */
- struct control_buf {
- 	struct virtio_net_ctrl_hdr hdr;
-@@ -478,7 +476,7 @@ struct virtnet_info {
+ #include <linux/atomic.h>
++#include <linux/tracepoint-defs.h>
+ #include <asm/barrier.h>
+ #include <asm/processor.h>
  
- 	/* Must be last as it ends in a flexible-array member. */
- 	TRAILING_OVERLAP(struct virtio_net_rss_config_trailer, rss_trailer, hash_key_data,
--		u8 rss_hash_key_data[VIRTIO_NET_RSS_MAX_KEY_SIZE];
-+		u8 rss_hash_key_data[NETDEV_RSS_KEY_LEN];
- 	);
- };
- static_assert(offsetof(struct virtnet_info, rss_trailer.hash_key_data) ==
-@@ -6717,6 +6715,7 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	struct virtnet_info *vi;
- 	u16 max_queue_pairs;
- 	int mtu = 0;
-+	u16 key_sz;
- 
- 	/* Find if host supports multiqueue/rss virtio_net device */
- 	max_queue_pairs = 1;
-@@ -6851,14 +6850,13 @@ static int virtnet_probe(struct virtio_device *vdev)
- 	}
- 
- 	if (vi->has_rss || vi->has_rss_hash_report) {
--		vi->rss_key_size =
--			virtio_cread8(vdev, offsetof(struct virtio_net_config, rss_max_key_size));
--		if (vi->rss_key_size > VIRTIO_NET_RSS_MAX_KEY_SIZE) {
--			dev_err(&vdev->dev, "rss_max_key_size=%u exceeds the limit %u.\n",
--				vi->rss_key_size, VIRTIO_NET_RSS_MAX_KEY_SIZE);
--			err = -EINVAL;
--			goto free;
--		}
-+		key_sz = virtio_cread8(vdev, offsetof(struct virtio_net_config, rss_max_key_size));
+@@ -35,6 +36,10 @@
+  */
+ extern void queued_read_lock_slowpath(struct qrwlock *lock);
+ extern void queued_write_lock_slowpath(struct qrwlock *lock);
++extern void queued_read_unlock_traced(struct qrwlock *lock);
++extern void queued_write_unlock_traced(struct qrwlock *lock);
 +
-+		vi->rss_key_size = min_t(u16, key_sz, NETDEV_RSS_KEY_LEN);
-+		if (key_sz > vi->rss_key_size)
-+			dev_warn(&vdev->dev,
-+				 "rss_max_key_size=%u exceeds driver limit %u, clamping\n",
-+				 key_sz, vi->rss_key_size);
++DECLARE_TRACEPOINT(contended_release);
  
- 		vi->rss_hash_types_supported =
- 		    virtio_cread32(vdev, offsetof(struct virtio_net_config, supported_hash_types));
+ /**
+  * queued_read_trylock - try to acquire read lock of a queued rwlock
+@@ -102,10 +107,16 @@ static inline void queued_write_lock(struct qrwlock *lock)
+ }
+ 
+ /**
+- * queued_read_unlock - release read lock of a queued rwlock
++ * queued_rwlock_is_contended - check if the lock is contended
+  * @lock : Pointer to queued rwlock structure
++ * Return: 1 if lock contended, 0 otherwise
+  */
+-static inline void queued_read_unlock(struct qrwlock *lock)
++static inline int queued_rwlock_is_contended(struct qrwlock *lock)
++{
++	return arch_spin_is_locked(&lock->wait_lock);
++}
++
++static __always_inline void __queued_read_unlock(struct qrwlock *lock)
+ {
+ 	/*
+ 	 * Atomically decrement the reader count
+@@ -114,22 +125,43 @@ static inline void queued_read_unlock(struct qrwlock *lock)
+ }
+ 
+ /**
+- * queued_write_unlock - release write lock of a queued rwlock
++ * queued_read_unlock - release read lock of a queued rwlock
+  * @lock : Pointer to queued rwlock structure
+  */
+-static inline void queued_write_unlock(struct qrwlock *lock)
++static inline void queued_read_unlock(struct qrwlock *lock)
++{
++	/*
++	 * Trace and unlock are combined in the traced unlock variant so
++	 * the compiler does not need to preserve the lock pointer across
++	 * the function call, avoiding callee-saved register save/restore
++	 * on the hot path.
++	 */
++	if (tracepoint_enabled(contended_release)) {
++		queued_read_unlock_traced(lock);
++		return;
++	}
++
++	__queued_read_unlock(lock);
++}
++
++static __always_inline void __queued_write_unlock(struct qrwlock *lock)
+ {
+ 	smp_store_release(&lock->wlocked, 0);
+ }
+ 
+ /**
+- * queued_rwlock_is_contended - check if the lock is contended
++ * queued_write_unlock - release write lock of a queued rwlock
+  * @lock : Pointer to queued rwlock structure
+- * Return: 1 if lock contended, 0 otherwise
+  */
+-static inline int queued_rwlock_is_contended(struct qrwlock *lock)
++static inline void queued_write_unlock(struct qrwlock *lock)
+ {
+-	return arch_spin_is_locked(&lock->wait_lock);
++	/* See comment in queued_read_unlock(). */
++	if (tracepoint_enabled(contended_release)) {
++		queued_write_unlock_traced(lock);
++		return;
++	}
++
++	__queued_write_unlock(lock);
+ }
+ 
+ /*
+diff --git a/include/asm-generic/qspinlock.h b/include/asm-generic/qspinlock.h
+index df76f34645a0..915a4c2777f6 100644
+--- a/include/asm-generic/qspinlock.h
++++ b/include/asm-generic/qspinlock.h
+@@ -41,6 +41,7 @@
+ 
+ #include <asm-generic/qspinlock_types.h>
+ #include <linux/atomic.h>
++#include <linux/tracepoint-defs.h>
+ 
+ #ifndef queued_spin_is_locked
+ /**
+@@ -129,12 +130,29 @@ static __always_inline void queued_spin_release(struct qspinlock *lock)
+ }
+ #endif
+ 
++DECLARE_TRACEPOINT(contended_release);
++
++extern void queued_spin_release_traced(struct qspinlock *lock);
++
+ /**
+  * queued_spin_unlock - unlock a queued spinlock
+  * @lock : Pointer to queued spinlock structure
++ *
++ * Generic tracing wrapper around the arch-overridable
++ * queued_spin_release().
+  */
+ static __always_inline void queued_spin_unlock(struct qspinlock *lock)
+ {
++	/*
++	 * Trace and release are combined in queued_spin_release_traced() so
++	 * the compiler does not need to preserve the lock pointer across the
++	 * function call, avoiding callee-saved register save/restore on the
++	 * hot path.
++	 */
++	if (tracepoint_enabled(contended_release)) {
++		queued_spin_release_traced(lock);
++		return;
++	}
+ 	queued_spin_release(lock);
+ }
+ 
+diff --git a/kernel/locking/qrwlock.c b/kernel/locking/qrwlock.c
+index d2ef312a8611..5f7a0fc2b27a 100644
+--- a/kernel/locking/qrwlock.c
++++ b/kernel/locking/qrwlock.c
+@@ -90,3 +90,19 @@ void __lockfunc queued_write_lock_slowpath(struct qrwlock *lock)
+ 	trace_contention_end(lock, 0);
+ }
+ EXPORT_SYMBOL(queued_write_lock_slowpath);
++
++void __lockfunc queued_read_unlock_traced(struct qrwlock *lock)
++{
++	if (queued_rwlock_is_contended(lock))
++		trace_contended_release(lock);
++	__queued_read_unlock(lock);
++}
++EXPORT_SYMBOL(queued_read_unlock_traced);
++
++void __lockfunc queued_write_unlock_traced(struct qrwlock *lock)
++{
++	if (queued_rwlock_is_contended(lock))
++		trace_contended_release(lock);
++	__queued_write_unlock(lock);
++}
++EXPORT_SYMBOL(queued_write_unlock_traced);
+diff --git a/kernel/locking/qspinlock.c b/kernel/locking/qspinlock.c
+index af8d122bb649..c72610980ec7 100644
+--- a/kernel/locking/qspinlock.c
++++ b/kernel/locking/qspinlock.c
+@@ -104,6 +104,14 @@ static __always_inline u32  __pv_wait_head_or_lock(struct qspinlock *lock,
+ #define queued_spin_lock_slowpath	native_queued_spin_lock_slowpath
+ #endif
+ 
++void __lockfunc queued_spin_release_traced(struct qspinlock *lock)
++{
++	if (queued_spin_is_contended(lock))
++		trace_contended_release(lock);
++	queued_spin_release(lock);
++}
++EXPORT_SYMBOL(queued_spin_release_traced);
++
+ #endif /* _GEN_PV_LOCK_SLOWPATH */
+ 
+ /**
 -- 
-2.25.1
+2.52.0
 
