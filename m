@@ -1,175 +1,369 @@
-Received: from mail.ilvokhin.com (mail.ilvokhin.com [178.62.254.231])
+Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 459BE3624CA
-	for <virtualization@lists.linux.dev>; Thu, 26 Mar 2026 15:17:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.62.254.231
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F2A8B2DB789;
+	Thu, 26 Mar 2026 15:31:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774538262; cv=none; b=l6UoM4RwbSF4o2SEpsYyDCvgdSKu5/f3N86kA19R1iFCdltE+KXzKEdCKb5ET+29mYeHsdAYPrrM9hak4rBlG+qC77f+ND0dCn38OlReS924z6TOreu5rGzghSOvhX/XLMs2ti1MfXwVxBjkItbjV+sLh6AN9P2mzuVMpv/2keo=
+	t=1774539071; cv=none; b=q4AF8WsY1hdYulB/9b9TpzAYsW9tGM9S9A2JrKEUimSrEKdT4qU4Bf1iRMNaraNfxRNe/7RohhNoWEH2trQnZP0fNBm/tWfMZfqXXAq+2nmZqNyNs0mscfaY8qxdiFINe6QWqplq0RsDADscyL9RTEDJiByuE9+GBiPzlY9xWJU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774538262; c=relaxed/simple;
-	bh=wf/IZX0UahYcXFFt0JEuOfwqMC51WnMMqOlntG+tTdQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=pjcAf6Wf5MYaMN+9NLuQSBIdV6pLhYgS4Jgs6X+0A+KC1U974Gcqz42v/F5V7Kb8z0kmxaWZVgzhr/eu8nNoASoKokxZ6WVUTwkj05KAcvOkuUytvE9thzGytRiM6ULHtWC6Ueup3CpZubH8mcNVftC5O1brUmy4744sPi3n/XI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ilvokhin.com; spf=pass smtp.mailfrom=ilvokhin.com; dkim=pass (1024-bit key) header.d=ilvokhin.com header.i=@ilvokhin.com header.b=fS1AnZ/H; arc=none smtp.client-ip=178.62.254.231
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ilvokhin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ilvokhin.com
+	s=arc-20240116; t=1774539071; c=relaxed/simple;
+	bh=r/2LmhQamfFFtesDDbhB3kua9tpVG54JzgmJZut7Yg4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Cgl9zitzq1MBEcxaVZuVN+Kkc2Ua8lhSpymbYvhdY98OMjct5TUSZ4zE7WjTRUV/Lilr2jx+XD6FAxMg+niILoj0x029gC+WuIIewj3BzM15CNRIeRv31oyh79JctbzMNkEPUxtaxDpyuuPIfZy6HCnsAHEy/OAT86VHcsJQt/s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=pK0J5BbB; arc=none smtp.client-ip=129.217.128.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ilvokhin.com header.i=@ilvokhin.com header.b="fS1AnZ/H"
-Received: from localhost.localdomain (shell.ilvokhin.com [138.68.190.75])
-	(Authenticated sender: d@ilvokhin.com)
-	by mail.ilvokhin.com (Postfix) with ESMTPSA id 21B38BDE1A;
-	Thu, 26 Mar 2026 15:10:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ilvokhin.com;
-	s=mail; t=1774537821;
-	bh=72ZUqls9X5Zxxy0EgcvU1FGMJtT1EgV5tBxL8foNtm4=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=fS1AnZ/HQlSe70Ax1fOuyRM8x6rg4qhAT4E8gFsscQUcDFKPsnj2VF77IxipYcdq5
-	 tccXuj0olEgX95inon7/ZI7w82wjSIIhdGV9NUfAXVQn+npzwnxxZFKMTKgFVBPLZZ
-	 6ym8V9XEZznruRazOkrIVPFlXWgY/0r9ml7F0dXE=
-From: Dmitry Ilvokhin <d@ilvokhin.com>
-To: Peter Zijlstra <peterz@infradead.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Will Deacon <will@kernel.org>,
-	Boqun Feng <boqun@kernel.org>,
-	Waiman Long <longman@redhat.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Juergen Gross <jgross@suse.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Dennis Zhou <dennis@kernel.org>,
-	Tejun Heo <tj@kernel.org>,
-	Christoph Lameter <cl@gentwo.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: linux-kernel@vger.kernel.org,
-	linux-mips@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	linux-arch@vger.kernel.org,
-	linux-mm@kvack.org,
-	linux-trace-kernel@vger.kernel.org,
-	kernel-team@meta.com,
-	Dmitry Ilvokhin <d@ilvokhin.com>
-Subject: [PATCH v4 4/5] locking: Factor out queued_spin_release()
-Date: Thu, 26 Mar 2026 15:10:03 +0000
-Message-ID: <c15d0462f57722aa9e7bd4fd4ec1b48a0420c442.1774536681.git.d@ilvokhin.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <cover.1774536681.git.d@ilvokhin.com>
-References: <cover.1774536681.git.d@ilvokhin.com>
+	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="pK0J5BbB"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tu-dortmund.de;
+	s=unimail; t=1774539057;
+	bh=r/2LmhQamfFFtesDDbhB3kua9tpVG54JzgmJZut7Yg4=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=pK0J5BbBptgmVaSGZ0DuPECLRnNSk9hlRSl0LZdq4BWm2FrNWcwcusFa+AUF97aj0
+	 Jucg/uIgzM8Xkj4cOyjw2IvOFnjnYRqNkjWJTJxzlCMgpnXeDwAiC98d9V3tI3ze+g
+	 p0FcyCg4qPEpjPk7E9gynhxgbyvMDPNGzlg6nu/4=
+Received: from [IPV6:2a01:599:315:42f6:2b7d:6788:7636:61c0] (tmo-102-21.customers.d1-online.com [80.187.102.21])
+	(authenticated bits=0)
+	by unimail.uni-dortmund.de (8.18.2/8.18.2) with ESMTPSA id 62QFUrou011014
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Thu, 26 Mar 2026 16:30:55 +0100 (CET)
+Message-ID: <3d3274b4-f274-4cf9-9d0f-989d05148604@tu-dortmund.de>
+Date: Thu, 26 Mar 2026 16:30:52 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v8 4/4] tun/tap & vhost-net: avoid ptr_ring
+ tail-drop when a qdisc is present
+To: Jason Wang <jasowang@redhat.com>
+Cc: willemdebruijn.kernel@gmail.com, andrew+netdev@lunn.ch,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, mst@redhat.com, eperezma@redhat.com,
+        leiyang@redhat.com, stephen@networkplumber.org, jon@nutanix.com,
+        tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        virtualization@lists.linux.dev
+References: <20260312130639.138988-1-simon.schippers@tu-dortmund.de>
+ <20260312130639.138988-5-simon.schippers@tu-dortmund.de>
+ <CACGkMEtN9XgYPGHQg4TEWEsa_UcMbcnzO=VaTFT=0Tn4BayMDw@mail.gmail.com>
+ <0908392d-6314-4141-b908-6c9a880ba0a4@tu-dortmund.de>
+ <cda710f8-033a-4772-b5ce-a2cfddf42bea@tu-dortmund.de>
+ <CACGkMEuLqxnz=GtdKp3-u0egkGT_eZUgBBwvvtHcgAYpLJv-UA@mail.gmail.com>
+Content-Language: en-US
+From: Simon Schippers <simon.schippers@tu-dortmund.de>
+In-Reply-To: <CACGkMEuLqxnz=GtdKp3-u0egkGT_eZUgBBwvvtHcgAYpLJv-UA@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-Introduce queued_spin_release() as an arch-overridable unlock primitive,
-and make queued_spin_unlock() a generic wrapper around it. This is a
-preparatory refactoring for the next commit, which adds
-contended_release tracepoint instrumentation to queued_spin_unlock().
+On 3/26/26 03:41, Jason Wang wrote:
+> On Wed, Mar 25, 2026 at 10:48 PM Simon Schippers
+> <simon.schippers@tu-dortmund.de> wrote:
+>>
+>> On 3/24/26 11:14, Simon Schippers wrote:
+>>> On 3/24/26 02:47, Jason Wang wrote:
+>>>> On Thu, Mar 12, 2026 at 9:07 PM Simon Schippers
+>>>> <simon.schippers@tu-dortmund.de> wrote:
+>>>>>
+>>>>> This commit prevents tail-drop when a qdisc is present and the ptr_ring
+>>>>> becomes full. Once an entry is successfully produced and the ptr_ring
+>>>>> reaches capacity, the netdev queue is stopped instead of dropping
+>>>>> subsequent packets.
+>>>>>
+>>>>> If producing an entry fails anyways due to a race, tun_net_xmit returns
+>>>>> NETDEV_TX_BUSY, again avoiding a drop. Such races are expected because
+>>>>> LLTX is enabled and the transmit path operates without the usual locking.
+>>>>>
+>>>>> The existing __tun_wake_queue() function wakes the netdev queue. Races
+>>>>> between this wakeup and the queue-stop logic could leave the queue
+>>>>> stopped indefinitely. To prevent this, a memory barrier is enforced
+>>>>> (as discussed in a similar implementation in [1]), followed by a recheck
+>>>>> that wakes the queue if space is already available.
+>>>>>
+>>>>> If no qdisc is present, the previous tail-drop behavior is preserved.
+>>>>
+>>>> I wonder if we need a dedicated TUN flag to enable this. With this new
+>>>> flag, we can even prevent TUN from using noqueue (not sure if it's
+>>>> possible or not).
+>>>>
+>>>
+>>> Except of the slight regressions because of this patchset I do not see
+>>> a reason for such a flag.
+>>>
+>>> I have never seen that the driver prevents noqueue. For example you can
+>>> set noqueue to your ethernet interface and under load you soon get
+>>>
+>>> net_crit_ratelimited("Virtual device %s asks to queue packet!\n",
+>>>                                            dev->name);
+>>>
+>>> followed by a -ENETDOWN. And this is not prevented even though it is
+>>> clearly not something a user wants.
+>>>
+>>>>>
+>>>>> Benchmarks:
+>>>>> The benchmarks show a slight regression in raw transmission performance,
+>>>>> though no packets are lost anymore.
+>>>>>
+>>>>> The previously introduced threshold to only wake after the queue stopped
+>>>>> and half of the ring was consumed showed to be a descent choice:
+>>>>> Waking the queue whenever a consume made space in the ring strongly
+>>>>> degrades performance for tap, while waking only when the ring is empty
+>>>>> is too late and also hurts throughput for tap & tap+vhost-net.
+>>>>> Other ratios (3/4, 7/8) showed similar results (not shown here), so
+>>>>> 1/2 was chosen for the sake of simplicity for both tun/tap and
+>>>>> tun/tap+vhost-net.
+>>>>>
+>>>>> Test setup:
+>>>>> AMD Ryzen 5 5600X at 4.3 GHz, 3200 MHz RAM, isolated QEMU threads;
+>>>>> Average over 20 runs @ 100,000,000 packets. SRSO and spectre v2
+>>>>> mitigations disabled.
+>>>>>
+>>>>> Note for tap+vhost-net:
+>>>>> XDP drop program active in VM -> ~2.5x faster, slower for tap due to
+>>>>> more syscalls (high utilization of entry_SYSRETQ_unsafe_stack in perf)
+>>>>>
+>>>>> +--------------------------+--------------+----------------+----------+
+>>>>> | 1 thread                 | Stock        | Patched with   | diff     |
+>>>>> | sending                  |              | fq_codel qdisc |          |
+>>>>> +------------+-------------+--------------+----------------+----------+
+>>>>> | TAP        | Transmitted | 1.151 Mpps   | 1.139 Mpps     | -1.1%    |
+>>>>> |            +-------------+--------------+----------------+----------+
+>>>>> |            | Lost/s      | 3.606 Mpps   | 0 pps          |          |
+>>>>> +------------+-------------+--------------+----------------+----------+
+>>>>> | TAP        | Transmitted | 3.948 Mpps   | 3.738 Mpps     | -5.3%    |
+>>>>> |            +-------------+--------------+----------------+----------+
+>>>>> | +vhost-net | Lost/s      | 496.5 Kpps   | 0 pps          |          |
+>>>>> +------------+-------------+--------------+----------------+----------+
+>>>>>
+>>>>> +--------------------------+--------------+----------------+----------+
+>>>>> | 2 threads                | Stock        | Patched with   | diff     |
+>>>>> | sending                  |              | fq_codel qdisc |          |
+>>>>> +------------+-------------+--------------+----------------+----------+
+>>>>> | TAP        | Transmitted | 1.133 Mpps   | 1.109 Mpps     | -2.1%    |
+>>>>> |            +-------------+--------------+----------------+----------+
+>>>>> |            | Lost/s      | 8.269 Mpps   | 0 pps          |          |
+>>>>> +------------+-------------+--------------+----------------+----------+
+>>>>> | TAP        | Transmitted | 3.820 Mpps   | 3.513 Mpps     | -8.0%    |
+>>>>> |            +-------------+--------------+----------------+----------+
+>>>>> | +vhost-net | Lost/s      | 4.961 Mpps   | 0 pps          |          |
+>>>>> +------------+-------------+--------------+----------------+----------+
+>>>>>
+>>>>> [1] Link: https://lore.kernel.org/all/20250424085358.75d817ae@kernel.org/
+>>>>>
+>>>>> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+>>>>> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+>>>>> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
+>>>>> ---
+>>>>>  drivers/net/tun.c | 30 ++++++++++++++++++++++++++++--
+>>>>>  1 file changed, 28 insertions(+), 2 deletions(-)
+>>>>>
+>>>>> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+>>>>> index b86582cc6cb6..9b7daec69acd 100644
+>>>>> --- a/drivers/net/tun.c
+>>>>> +++ b/drivers/net/tun.c
+>>>>> @@ -1011,6 +1011,8 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
+>>>>>         struct netdev_queue *queue;
+>>>>>         struct tun_file *tfile;
+>>>>>         int len = skb->len;
+>>>>> +       bool qdisc_present;
+>>>>> +       int ret;
+>>>>>
+>>>>>         rcu_read_lock();
+>>>>>         tfile = rcu_dereference(tun->tfiles[txq]);
+>>>>> @@ -1063,13 +1065,37 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
+>>>>>
+>>>>>         nf_reset_ct(skb);
+>>>>>
+>>>>> -       if (ptr_ring_produce(&tfile->tx_ring, skb)) {
+>>>>> +       queue = netdev_get_tx_queue(dev, txq);
+>>>>> +       qdisc_present = !qdisc_txq_has_no_queue(queue);
+>>>>> +
+>>>>> +       spin_lock(&tfile->tx_ring.producer_lock);
+>>>>> +       ret = __ptr_ring_produce(&tfile->tx_ring, skb);
+>>>>> +       if (__ptr_ring_produce_peek(&tfile->tx_ring) && qdisc_present) {
+>>>>
+>>>> So, it's possible that the administrator is switching between noqueue
+>>>> and another qdisc. So ptr_ring_produce() can fail here, do we need to
+>>>> check that or not?
+>>>>
+>>>
+>>> Do you mean that? My thoughts:
+>>>
+>>> Switching from noqueue to some qdisc can cause a
+>>>
+>>> net_crit_ratelimited("Virtual device %s asks to queue packet!\n",
+>>>                                            dev->name);
+>>>
+>>> followed by a return of -ENETDOWN in __dev_queue_xmit().
+>>> This is because tun_net_xmit detects some qdisc with
+>>>
+>>> qdisc_present = !qdisc_txq_has_no_queue(queue);
+>>>
+>>> and returns NETDEV_TX_BUSY even though __dev_queue_xmit() did still
+>>> detect noqueue.
+>>>
+>>> I am not sure how to solve this/if this has to be solved.
+>>> I do not see a proper way to avoid parallel execution of ndo_start_xmit
+>>> and a qdisc change (dev_graft_qdisc only takes qdisc_skb_head lock).
+>>>
+>>> And from my understanding the veth implementation faces the same issue.
+>>
+>> How about rechecking if a qdisc is connected?
+>> This would avoid -ENETDOWN.
+>>
+>> diff --git a/net/core/dev.c b/net/core/dev.c
+>> index f48dc299e4b2..2731a1a70732 100644
+>> --- a/net/core/dev.c
+>> +++ b/net/core/dev.c
+>> @@ -4845,10 +4845,17 @@ int __dev_queue_xmit(struct sk_buff *skb, struct net_device *sb_dev)
+>>                                 if (is_list)
+>>                                         rc = NETDEV_TX_OK;
+>>                         }
+>> +                       bool qdisc_present = !qdisc_txq_has_no_queue(txq);
+>>                         HARD_TX_UNLOCK(dev, txq);
+>>                         if (!skb) /* xmit completed */
+>>                                 goto out;
+>>
+>> +                       /* Maybe a qdisc was connected in the meantime */
+>> +                       if (qdisc_present) {
+>> +                               kfree_skb(skb);
+>> +                               goto out;
+>> +                       }
+>> +
+>>                         net_crit_ratelimited("Virtual device %s asks to queue packet!\n",
+>>                                              dev->name);
+>>                         /* NETDEV_TX_BUSY or queue was stopped */
+>>
+> 
+> Probably not, and we likely won't hit this warning because qdisc could
+> not be changed during ndo_start_xmit().
 
-Rename the existing arch-specific queued_spin_unlock() overrides on
-x86 (paravirt) and MIPS to queued_spin_release().
+Okay.
 
-No functional change.
+> 
+> I meant something like this:
+> 
+> 1) set noqueue to tuntap
+> 2) produce packets so tuntap is full
+> 3) set e.g fq_codel to tuntap
+> 4) then we can hit the failure of __ptr_ring_produce()
+> 
+> Rethink of the code, it looks just fine.
 
-Signed-off-by: Dmitry Ilvokhin <d@ilvokhin.com>
----
- arch/mips/include/asm/spinlock.h         |  6 +++---
- arch/x86/include/asm/paravirt-spinlock.h |  6 +++---
- include/asm-generic/qspinlock.h          | 15 ++++++++++++---
- 3 files changed, 18 insertions(+), 9 deletions(-)
+Yes, in this case it just returns NETDEV_TX_BUSY which is fine with a
+qdisc attached.
 
-diff --git a/arch/mips/include/asm/spinlock.h b/arch/mips/include/asm/spinlock.h
-index 6ce2117e49f6..c349162f15eb 100644
---- a/arch/mips/include/asm/spinlock.h
-+++ b/arch/mips/include/asm/spinlock.h
-@@ -13,12 +13,12 @@
- 
- #include <asm-generic/qspinlock_types.h>
- 
--#define	queued_spin_unlock queued_spin_unlock
-+#define	queued_spin_release queued_spin_release
- /**
-- * queued_spin_unlock - release a queued spinlock
-+ * queued_spin_release - release a queued spinlock
-  * @lock : Pointer to queued spinlock structure
-  */
--static inline void queued_spin_unlock(struct qspinlock *lock)
-+static inline void queued_spin_release(struct qspinlock *lock)
- {
- 	/* This could be optimised with ARCH_HAS_MMIOWB */
- 	mmiowb();
-diff --git a/arch/x86/include/asm/paravirt-spinlock.h b/arch/x86/include/asm/paravirt-spinlock.h
-index 7beffcb08ed6..ac75e0736198 100644
---- a/arch/x86/include/asm/paravirt-spinlock.h
-+++ b/arch/x86/include/asm/paravirt-spinlock.h
-@@ -49,9 +49,9 @@ static __always_inline bool pv_vcpu_is_preempted(long cpu)
- 				ALT_NOT(X86_FEATURE_VCPUPREEMPT));
- }
- 
--#define queued_spin_unlock queued_spin_unlock
-+#define queued_spin_release queued_spin_release
- /**
-- * queued_spin_unlock - release a queued spinlock
-+ * queued_spin_release - release a queued spinlock
-  * @lock : Pointer to queued spinlock structure
-  *
-  * A smp_store_release() on the least-significant byte.
-@@ -66,7 +66,7 @@ static inline void queued_spin_lock_slowpath(struct qspinlock *lock, u32 val)
- 	pv_queued_spin_lock_slowpath(lock, val);
- }
- 
--static inline void queued_spin_unlock(struct qspinlock *lock)
-+static inline void queued_spin_release(struct qspinlock *lock)
- {
- 	kcsan_release();
- 	pv_queued_spin_unlock(lock);
-diff --git a/include/asm-generic/qspinlock.h b/include/asm-generic/qspinlock.h
-index bf47cca2c375..df76f34645a0 100644
---- a/include/asm-generic/qspinlock.h
-+++ b/include/asm-generic/qspinlock.h
-@@ -115,12 +115,12 @@ static __always_inline void queued_spin_lock(struct qspinlock *lock)
- }
- #endif
- 
--#ifndef queued_spin_unlock
-+#ifndef queued_spin_release
- /**
-- * queued_spin_unlock - release a queued spinlock
-+ * queued_spin_release - release a queued spinlock
-  * @lock : Pointer to queued spinlock structure
-  */
--static __always_inline void queued_spin_unlock(struct qspinlock *lock)
-+static __always_inline void queued_spin_release(struct qspinlock *lock)
- {
- 	/*
- 	 * unlock() needs release semantics:
-@@ -129,6 +129,15 @@ static __always_inline void queued_spin_unlock(struct qspinlock *lock)
- }
- #endif
- 
-+/**
-+ * queued_spin_unlock - unlock a queued spinlock
-+ * @lock : Pointer to queued spinlock structure
-+ */
-+static __always_inline void queued_spin_unlock(struct qspinlock *lock)
-+{
-+	queued_spin_release(lock);
-+}
-+
- #ifndef virt_spin_lock
- static __always_inline bool virt_spin_lock(struct qspinlock *lock)
- {
--- 
-2.52.0
+> 
+>>
+>>>
+>>>
+>>> Switching from some qdisc to noqueue is no problem I think.
+>>>
+>>>>> +               netif_tx_stop_queue(queue);
+>>>>> +               /* Avoid races with queue wake-ups in __tun_wake_queue by
+>>>>> +                * waking if space is available in a re-check.
+>>>>> +                * The barrier makes sure that the stop is visible before
+>>>>> +                * we re-check.
+>>>>> +                */
+>>>>> +               smp_mb__after_atomic();
+>>>>
+>>>> Let's document which barrier is paired with this.
+>>>>
+>>>
+>>> I am basically copying the (old) logic of veth [1] proposed by
+>>> Jakub Kicinski. I must admit I am not 100% sure what it pairs with.
+>>>
+>>> [1] Link: https://lore.kernel.org/all/20250424085358.75d817ae@kernel.org/
+> 
+> So it looks like it implicitly tries to pair with tun_ring_consume():
+> 
+> 1) spinlock(consumer_lock)
+> 2) store NULL to ptr_ring // STORE
+> 3) spinunlock(consumer_lock) // RELEASE
+> 4) spinlock(consumer_lock) // ACQURE
+> 5) check empty
+> 6) spinunlock(consumer_lock)
+> 7) netif_wakeup_queue() // test_and_set() which is an RMW
+> 
+> RELEASE + ACQUIRE implies a full barrier
 
+Thanks.
+
+> 
+> I see several problems
+> 
+> 1) Due to batch consumption, we may get spurious wakeups under heavy
+> load (we can try disabling batch consuming to see if it helps).
+
+I assume that you mean the waking in the recheck of the producer happens
+too often and then wakes too often. But this would just take slightly
+more producer cpu as the SOFTIRQ runs on the producer cpu and not slow
+down the consumer?
+
+Why would disabling batch consume help here?
+Wouldn't it just decrease the consumer speed?
+
+Apart from that I do not see a different method to do this recheck.
+The ring producer is only safely able to do a !produce_peek (so a check
+for !full).
+
+The normal waking (after consuming half of the ring) should be fine IMO.
+
+> 2) So the barriers don't help but would slow down the consuming
+> 3) Two spinlocks were used instead of one, this is another reason we
+> will see a performance regression
+
+You are right, I can change it to a single spin_lock. Apart from that
+I do not see how the barriers/locking could be reduced further.
+
+> 4) Tricky code that needs to be understood or at least requires a comment tweak.
+> 
+> Note that due to ~IFF_TX_SKB_SHARING, pktgen can't clone skbs, so we
+> may not notice the real degradation.
+
+So run pktgen with pg_set SHARED? I am pretty sure that the vhost
+thread was always at 100% CPU so pktgen was not the bottleneck. And when
+I had perf enabled I always saw that in my patched version not the
+creation of SKB's took most CPU in pktgen but a different unnamed
+function (I assume this is a waiting function).
+
+
+Thank you!
+
+> 
+>>>
+>>>>> +               if (!__ptr_ring_produce_peek(&tfile->tx_ring))
+>>>>> +                       netif_tx_wake_queue(queue);
+>>>>> +       }
+>>>>> +       spin_unlock(&tfile->tx_ring.producer_lock);
+>>>>> +
+>>>>> +       if (ret) {
+>>>>> +               /* If a qdisc is attached to our virtual device,
+>>>>> +                * returning NETDEV_TX_BUSY is allowed.
+>>>>> +                */
+>>>>> +               if (qdisc_present) {
+>>>>> +                       rcu_read_unlock();
+>>>>> +                       return NETDEV_TX_BUSY;
+>>>>> +               }
+>>>>>                 drop_reason = SKB_DROP_REASON_FULL_RING;
+>>>>>                 goto drop;
+>>>>>         }
+>>>>>
+>>>>>         /* dev->lltx requires to do our own update of trans_start */
+>>>>> -       queue = netdev_get_tx_queue(dev, txq);
+>>>>>         txq_trans_cond_update(queue);
+>>>>>
+>>>>>         /* Notify and wake up reader process */
+>>>>> --
+>>>>> 2.43.0
+>>>>>
+>>>>
+>>>> Thanks
+>>>>
+>>
+> 
+> Thanks
+> 
