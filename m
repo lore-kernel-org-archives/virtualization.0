@@ -1,158 +1,125 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D40741B340
-	for <virtualization@lists.linux.dev>; Wed, 25 Mar 2026 18:09:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF99B4CB5B
+	for <virtualization@lists.linux.dev>; Thu, 26 Mar 2026 02:09:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774462150; cv=none; b=QacMzFQbIYbSGQz+7O8jErXg1pOaSPnK30GZ8Oyf6P9MInIfDTlI5lZxSdl6+o9JuZ3gH4hcXxepQG+Y6dhuM9yIqnUmtIaGDgWWoe5rX8cGNZLY8e57nbJ//jaPtQYQ5W36Oxz6k828tMewNujbrmjNKAVHkVAGfIORxZvVrvM=
+	t=1774490976; cv=none; b=IeyUxIV+3B22yUvIya9XPkVoS3tR2JHT0A0/7A2sONYoYiwR4b+8qp9zxfUrLCEC34ohzOnepOih8cEUARvY8zIAgL8iqiC+nrtspT3IqRR6UeFbNF6QatDnp/MuR/A8D4p4TVqOZt77B9y/YCErWjN77xl71l/nesjL17RxJPU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774462150; c=relaxed/simple;
-	bh=6BuOBRXmTWUCtl9y7zduCFX25TYqL88ILxR7IGOe5x0=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=t1aTFshS2DgnOTAOLN4KpJYogAP/yD6/DRVrXXv2Xnm7Bt5ipYyU21SOtMMAjf7yy4VXcdGZ0hR1k8m+tZpLFMNkSPpQR8/eYxp+t6mIfpMCKonqKScytfsKvwOZ2GZRvSbKJx7pDOSP7XpuCfRZr53iO9ttsDb6F6lToQxcX9c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=sOYsXbcG; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1774490976; c=relaxed/simple;
+	bh=SM+x8B+Pz15Gvc1EQP2Y8VvxinV8pQbKuNafLtpnPcE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=cvg4Qy/Csdtl2yrV8xh034DW5HUrJa+F6Feipqp/Dx0O00sE9Ak5qQin+RgDB/1uRmtpCWUMdr8bPu2R7Hyx1Js5V4GRcpkK2pyNLcODRYhosKiDAEMNTDCKYI+p6qTmEvRK14Gw/GLQQDFYJF1WOUZRJoILsHpYMDNU1Jl+8iA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YhhjxEP9; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="sOYsXbcG"
-Received: from pps.filterd (m0360083.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62P9A3F1768705;
-	Wed, 25 Mar 2026 18:09:03 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=GNPu0plGhuI444jjm
-	RL0uWJ74ZWYu727MBGUUs7VFhA=; b=sOYsXbcGnHZneJ6FMS4o+bkBffFp2fjXb
-	PQKjwS8xGdapW4EDYXJqEMQPUUVBfZrb99fw9O8A1kCGoKUaB2SZ8FdqKOYicEqn
-	Q3Es1c9ltDfatVz1u0FHphG/CSHHPa57levxQDiH84F87ehYJuK1SYrU2jkuge+c
-	pUgg2P5HmaKXucj47GzJFFAUTuB8EhCS/g9FmVFg9Fe32AxkHuzTyFZFv/l6QJZM
-	cSikIhLC7CgIu47sCw1/7rn1M/eo25WR/W89ieD+eQykh2/F5xl8i+KIzr3t1Zdh
-	pemC0yakJcEdcFuw+ipiSVO/T8lvUT2rNptHFkPXJQ3vfUzJsTi5g==
-Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4d1kxqhu97-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 25 Mar 2026 18:09:03 +0000 (GMT)
-Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma21.wdc07v.mail.ibm.com (8.18.1.2/8.18.1.2) with ESMTP id 62PF7TV6009143;
-	Wed, 25 Mar 2026 18:09:02 GMT
-Received: from smtprelay02.fra02v.mail.ibm.com ([9.218.2.226])
-	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4d26nnqq61-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 25 Mar 2026 18:09:02 +0000
-Received: from smtpav06.fra02v.mail.ibm.com (smtpav06.fra02v.mail.ibm.com [10.20.54.105])
-	by smtprelay02.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 62PI8wpJ52625706
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 25 Mar 2026 18:08:58 GMT
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 2183A2004E;
-	Wed, 25 Mar 2026 18:08:58 +0000 (GMT)
-Received: from smtpav06.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id EACF42004B;
-	Wed, 25 Mar 2026 18:08:57 +0000 (GMT)
-Received: from tuxmaker.boeblingen.de.ibm.com (unknown [9.87.85.9])
-	by smtpav06.fra02v.mail.ibm.com (Postfix) with SMTP;
-	Wed, 25 Mar 2026 18:08:57 +0000 (GMT)
-Received: by tuxmaker.boeblingen.de.ibm.com (Postfix, from userid 56370)
-	id CFE3CE0729; Wed, 25 Mar 2026 19:08:57 +0100 (CET)
-From: Joshua Daley <jdaley@linux.ibm.com>
-To: linux-scsi@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
-        jdaley@linux.ibm.com, mst@redhat.com, jasowang@redhat.com,
-        pbonzini@redhat.com, stefanha@redhat.com, eperezma@redhat.com,
-        James.Bottomley@HansenPartnership.com, martin.petersen@oracle.com,
-        mjrosato@linux.ibm.com, farman@linux.ibm.com, frankja@linux.ibm.com
-Subject: [PATCH v4 2/2] scsi: virtio_scsi: kick event_list unconditionally
-Date: Wed, 25 Mar 2026 19:08:57 +0100
-Message-ID: <20260325180857.3675854-3-jdaley@linux.ibm.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260325180857.3675854-1-jdaley@linux.ibm.com>
-References: <20260325180857.3675854-1-jdaley@linux.ibm.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YhhjxEP9"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1774490973;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=SM+x8B+Pz15Gvc1EQP2Y8VvxinV8pQbKuNafLtpnPcE=;
+	b=YhhjxEP9T/XBh3WBIxgezTgdymDF/hLrXkDIGQ2sGcbqxfn+cigJejGhxzlWx4FYDbS7DE
+	9cNoilqCK1Jbu8VCu9IQBSE0tnYz9g4JWnjyPUSTCnzgrpNcGnFeURlWe5DkhA9/DfEMlM
+	YeXqOwNSc3wpaJeWPcdpsq7vR54y7pQ=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-624-hd2xbYIiMainQE3aC70LbQ-1; Wed, 25 Mar 2026 22:09:30 -0400
+X-MC-Unique: hd2xbYIiMainQE3aC70LbQ-1
+X-Mimecast-MFC-AGG-ID: hd2xbYIiMainQE3aC70LbQ_1774490969
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-354c0234c1fso610855a91.2
+        for <virtualization@lists.linux.dev>; Wed, 25 Mar 2026 19:09:30 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774490969; x=1775095769;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=SM+x8B+Pz15Gvc1EQP2Y8VvxinV8pQbKuNafLtpnPcE=;
+        b=Z0ojrvn9gsUPga2nJHAX5hgJfqAioGN3now4Bp7zRsuIYcrH5+xuvnEGR/9c3oTs5O
+         /E5Vafjlt+6j6rhHA8C1K+X5SVo7vb9J1q3wjtdIT5lRVQWh4HBgVfQtSegruAZ5pfPF
+         eaNV2XGTxs0mm/KiujdrJYF6OQBdshF4CD4zG2GUJ1bxB0Jies18jVb9hKohZ10/+vDe
+         N5g1/7pTWoOt4RwFAksvcva8ekbqk2NLPo1L1BBO7I1OCkztA20QqrTpNWlJqLBcWdYv
+         Ym4lpj/CSc2JIf2wlMxDd/jiIuIur3GBzJoWx0BV+Xl4suTzuqioF39unf+EtHlFktO+
+         fNMA==
+X-Forwarded-Encrypted: i=1; AJvYcCWHJhLIZtt+cHcQZNYZAbn0ol3j/PBh7j3PwtIv7DgkRWKq3FCrfMTKhUarXDEtIc/yOEQyJarMX4MrXFw5ww==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzM/+vA0lYEg7gJbtm9sT2A6L7/yezo3kiIEL2LEDWbdKaAaasR
+	rJADGO2xDvmXaecGbTIaTXHqhYp+eQ54QNh3RlkH17YddLI2xGOJRiuEK63bExtnPEv0BaiZ4Cz
+	8FeAR7v81p3Zt58blMueIgB1ZSyuDZwZM6kGif10W73OIZeVTyVTqpzypstmuzYrane4aqFuxCc
+	jPVVr4aenVdkv9HIH8KELzH71U7LU1uDngqF/+YgzlHHw=
+X-Gm-Gg: ATEYQzxhMw7PUEusHZE+3IHUlc3M7cg4xBuQwrcvBDks5Pr55uHgB+F4MMi0NgOkxNj
+	U8SGSHorIQge6uf1t9XalEsrs0HInwCN2FgjyBT8hpCtTbaVDJqjDKyZyPUF23kQOX0lisA3Vb3
+	RIRdUgrdGBnAUEnOcgcm4oHY++B/S90UIZJYUoHGBaxPJKPRdYClLrkor78h1xn/MRPI1KQAssU
+	bGq
+X-Received: by 2002:a05:6a20:3d1c:b0:398:8546:c3fc with SMTP id adf61e73a8af0-39c4ab516d8mr6008482637.7.1774490969220;
+        Wed, 25 Mar 2026 19:09:29 -0700 (PDT)
+X-Received: by 2002:a05:6a20:3d1c:b0:398:8546:c3fc with SMTP id
+ adf61e73a8af0-39c4ab516d8mr6008444637.7.1774490968666; Wed, 25 Mar 2026
+ 19:09:28 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+References: <f4caa9be9e5addae7851c012cab0a733be7f0974.1774365273.git.mst@redhat.com>
+In-Reply-To: <f4caa9be9e5addae7851c012cab0a733be7f0974.1774365273.git.mst@redhat.com>
+From: Jason Wang <jasowang@redhat.com>
+Date: Thu, 26 Mar 2026 10:09:17 +0800
+X-Gm-Features: AQROBzAQPVawV1gSLClGfkluwZR06MG28vS66UgSXN-aCJ_PcJcLGWhQhc3M-Xc
+Message-ID: <CACGkMEt146_eZCuTt3qP02sjFXPMHb-1s_TcMnOBXox5k87Ugw@mail.gmail.com>
+Subject: Re: [PATCH net-next] virtio_net: sync RX buffer before reading the header
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Omar Elghoul <oelghoul@linux.ibm.com>, 
+	Srikanth Aithal <sraithal@amd.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	Alexei Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>, 
+	Jesper Dangaard Brouer <hawk@kernel.org>, John Fastabend <john.fastabend@gmail.com>, 
+	Stanislav Fomichev <sdf@fomichev.me>, Vishwanath Seshagiri <vishs@meta.com>, netdev@vger.kernel.org, 
+	virtualization@lists.linux.dev, bpf@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: BcbvvnpFHTaplYAuVpk5lcIKw_JkTBB6tB8MXVIxhbU_1774490969
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: rQmsXwBnlcELviMN4oh3p2fzunCy43JK
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI1MDEyOSBTYWx0ZWRfX7jqxZdKbw9so
- ZnSyAiDL6Z9H3PbMaGvLXInzIsg1HE/BHHaHVXIfdRwLg4if32T9N0P7BlILq8c1rwUwUXVVPvy
- zCruP25KlK+8w4LxCS9UqyAReGSQ1L/tWVcZCG6hGG5HXuqwoAxwDLDdXCDO19Wie/ji+nPcJYv
- iR5GrcHfqLvI2eTImBkKtNdTDMpdtcNg70IYrPfmlSCA/pCTBVxK5lzSaXYX6kmbJf/ku26vfgN
- 0nc/OKfTVcD6XS3wNPX2reQGtEcn/LprL+Ko9LmECX04vTQb8PCaP+LedFAW7vzOxD5b1scSHTs
- A8mqqNtpkUyHSDxTYNFZ8taHUXNgZlpD+vosrCTfiT9TTfV9bS6jbEhOlB0V+pFfrbDsuO/pTEZ
- Wcs0aRx+mpCioEfUEFNBqTsGoEB0R4+iauyugSEV7+Ul9Ai8UbY4P5kywZrrNOEwFbBWmLaq0Xp
- oswUqeEvecNQ/OxbGTQ==
-X-Authority-Analysis: v=2.4 cv=bLEb4f+Z c=1 sm=1 tr=0 ts=69c424bf cx=c_pps
- a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
- a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=iQ6ETzBq9ecOQQE5vZCe:22 a=20KFwNOVAAAA:8 a=VnNF1IyMAAAA:8
- a=fOgkfDuy17jzwl4HYOQA:9
-X-Proofpoint-GUID: rQmsXwBnlcELviMN4oh3p2fzunCy43JK
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-03-25_05,2026-03-24_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 adultscore=0 clxscore=1015 phishscore=0 impostorscore=0
- malwarescore=0 lowpriorityscore=0 suspectscore=0 bulkscore=0
- priorityscore=1501 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2603050001
- definitions=main-2603250129
 
-The event_list processes non-hotplug events (such as LUN capacity
-changes), so remove the conditions that guard the initial kicks in
-_probe() and _restore(), as well as the work cancellation in _remove().
+On Tue, Mar 24, 2026 at 11:16=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com=
+> wrote:
+>
+> receive_buf() reads the virtio header through buf before
+> page_pool_dma_sync_for_cpu() runs in receive_small() or
+> receive_mergeable(). The header buffer is thus unsynchronized at the
+> point where flags and, for mergeable buffers, num_buffers are consumed.
+>
+> Omar Elghoul reported that on s390x Secure Execution this showed up as
+> greatly reduced virtio-net performance together with "bad gso" and
+> "bad csum" messages in dmesg. This is because with SE sync actually
+> copies data, so the header is uninitialized.
+>
+> Move the sync into receive_buf() so the
+> header is synchronized before any access through buf.
+>
+> Tool use: Cursor with GPT-5.4 drafted the initial code move from prompt:
+> "in drivers/net/virtio_net.c, move page_pool_dma_sync_for_cpu on receive
+> path to before memory is accessed through buf".
+> The result and the commit log were reviewed and edited manually.
+>
+> Fixes: 168b61da6871 ("virtio_net: add page_pool support for buffer alloca=
+tion")
+> Reported-by: Omar Elghoul <oelghoul@linux.ibm.com>
+> Tested-by: Srikanth Aithal <sraithal@amd.com>
+> Tested-by: Omar Elghoul <oelghoul@linux.ibm.com>
+> Link: https://lore.kernel.org/r/20260323150136.14452-1-oelghoul@linux.ibm=
+.com
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-Suggested-by: Stefan Hajnoczi <stefanha@redhat.com>
-Signed-off-by: Joshua Daley <jdaley@linux.ibm.com>
----
- drivers/scsi/virtio_scsi.c | 15 ++++++---------
- 1 file changed, 6 insertions(+), 9 deletions(-)
+Acked-by: Jason Wang <jasowang@redhat.com>
 
-diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
-index 64b6c942f572..5fdaa71f0652 100644
---- a/drivers/scsi/virtio_scsi.c
-+++ b/drivers/scsi/virtio_scsi.c
-@@ -982,11 +982,10 @@ static int virtscsi_probe(struct virtio_device *vde=
-v)
-=20
- 	virtio_device_ready(vdev);
-=20
--	if (virtio_has_feature(vdev, VIRTIO_SCSI_F_HOTPLUG)) {
--		for (int i =3D 0; i < VIRTIO_SCSI_EVENT_LEN; i++)
--			INIT_WORK(&vscsi->event_list[i].work, virtscsi_handle_event);
--		virtscsi_kick_event_all(vscsi);
--	}
-+	for (int i =3D 0; i < VIRTIO_SCSI_EVENT_LEN; i++)
-+		INIT_WORK(&vscsi->event_list[i].work, virtscsi_handle_event);
-+
-+	virtscsi_kick_event_all(vscsi);
-=20
- 	scsi_scan_host(shost);
- 	return 0;
-@@ -1003,8 +1002,7 @@ static void virtscsi_remove(struct virtio_device *v=
-dev)
- 	struct Scsi_Host *shost =3D virtio_scsi_host(vdev);
- 	struct virtio_scsi *vscsi =3D shost_priv(shost);
-=20
--	if (virtio_has_feature(vdev, VIRTIO_SCSI_F_HOTPLUG))
--		virtscsi_cancel_event_work(vscsi);
-+	virtscsi_cancel_event_work(vscsi);
-=20
- 	scsi_remove_host(shost);
- 	virtscsi_remove_vqs(vdev);
-@@ -1030,8 +1028,7 @@ static int virtscsi_restore(struct virtio_device *v=
-dev)
-=20
- 	virtio_device_ready(vdev);
-=20
--	if (virtio_has_feature(vdev, VIRTIO_SCSI_F_HOTPLUG))
--		virtscsi_kick_event_all(vscsi);
-+	virtscsi_kick_event_all(vscsi);
-=20
- 	return err;
- }
---=20
-2.34.1
+Thanks
 
