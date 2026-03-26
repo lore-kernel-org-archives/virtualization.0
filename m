@@ -1,103 +1,169 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0b-0016f401.pphosted.com (mx0b-0016f401.pphosted.com [67.231.156.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0D342D780C
-	for <virtualization@lists.linux.dev>; Thu, 26 Mar 2026 14:01:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BCCFC1A3029
+	for <virtualization@lists.linux.dev>; Thu, 26 Mar 2026 14:24:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.156.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774533665; cv=none; b=pXry4kbn+pBMM5mRcMlDXHegbDffZ67Tq34L4EfvoBqqZnUGcxA0ZUh5JhJYsQ68K7KY4P47bXjAzOkzjf8DHN2IffmM3/QUrwdak1MR3L4sN9PKGnlOIS9VNTxGIaQejijiDCOqJur0/Fi1jcSl8VGc1ykASO31F75iOZd1QlQ=
+	t=1774535044; cv=none; b=VIPCPy31VFuYadyWN9jqxfY2lT+D/kzbBlgObwm0SN171E8PZ+AnpIBbCjDTjRKSXwtUZXTLSPG2Hn1JCX0C3EwKxSCLbjUcH6MWc2i4JsuBgRBxHOdIDSgGoveTlDqh48ylJs6Fv4hmgfaetwFhnhf4ni2iC7YT0vx3kMxdFxI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774533665; c=relaxed/simple;
-	bh=2mozpB23xgxEgyUwDhXixVLTNPE3PHOSyUJqmiA/eTE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QGUXzMdnFC7u+wJ3NdS+3lYT6fQRofp3GIDUDxNioJiIrH2tknIKWT9IZNsgBsC+NQ36u1bGEpqcnsvF/CWssB5oKIAx4nvOFh/mGPULStwvxz9Oy9JE3tzNlFIxQJvSoO6flhIqe1LyRfOgH2wSStTFVnaFu+62jRFFypDYD7k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GXOx7LDt; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1774535044; c=relaxed/simple;
+	bh=1WjDEFYQ6g3yPDoaJcLh1uifQ/JIp50+93poSdvKpEs=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=FqXU0ixhX/52nJ1D3wz6b4yraIDQX4tB7EKP2OlQjgwbOv9yRiJO86sxSPJHKOvU/SamYdfsxB7ACh8H61HVMPVcUCI8uPEJSPr1aelzv387Jg3r4dvAe3pSDNErWyNgR7H8lm9RD43VjDxuOQ0FNIcjxK6H+L59YmzunFqQP/Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com; spf=pass smtp.mailfrom=marvell.com; dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b=B86RCfia; arc=none smtp.client-ip=67.231.156.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=marvell.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=marvell.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GXOx7LDt"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1774533662;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=W2N+36ApuMSHi+1WUWLxSakyItlIL+cUiW4jI9AwkuI=;
-	b=GXOx7LDtK+WqlwMcI3Ge6+XgQhHW/wyR7b+HEVuJccxcZnlrTDsa3JaZAu3xRTnkyYj0ea
-	LuSpKjWARwQMT+lxE4hTude0VX471unj0j7CSLh2ZSKB1B16EMq13a514LE92Nuaeif4rl
-	9T43lcVR1gIXxDFQ5hcXwd+lQZaFDqk=
-Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-400-mFuruvTIN2KTmyAB8GxLAQ-1; Thu,
- 26 Mar 2026 10:01:00 -0400
-X-MC-Unique: mFuruvTIN2KTmyAB8GxLAQ-1
-X-Mimecast-MFC-AGG-ID: mFuruvTIN2KTmyAB8GxLAQ_1774533657
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id C88FA1944EBE;
-	Thu, 26 Mar 2026 14:00:56 +0000 (UTC)
-Received: from localhost (unknown [10.44.35.38])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id A0C74180035F;
-	Thu, 26 Mar 2026 14:00:55 +0000 (UTC)
-Date: Thu, 26 Mar 2026 10:00:53 -0400
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Joshua Daley <jdaley@linux.ibm.com>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev, mst@redhat.com, jasowang@redhat.com,
-	pbonzini@redhat.com, eperezma@redhat.com,
-	James.Bottomley@hansenpartnership.com, martin.petersen@oracle.com,
-	mjrosato@linux.ibm.com, farman@linux.ibm.com, frankja@linux.ibm.com
-Subject: Re: [PATCH v4 2/2] scsi: virtio_scsi: kick event_list unconditionally
-Message-ID: <20260326140053.GD758087@fedora>
-References: <20260325180857.3675854-1-jdaley@linux.ibm.com>
- <20260325180857.3675854-3-jdaley@linux.ibm.com>
+	dkim=pass (2048-bit key) header.d=marvell.com header.i=@marvell.com header.b="B86RCfia"
+Received: from pps.filterd (m0431383.ppops.net [127.0.0.1])
+	by mx0b-0016f401.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 62Q72wWC3460647;
+	Thu, 26 Mar 2026 07:23:52 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=marvell.com; h=
+	cc:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=pfpt0220; bh=B3YvpA0Aly9tBY2HK1OtTRO
+	vqY4jw+STba23l+LW2M0=; b=B86RCfiaCV1AxdWNE62pX+m+W7wudW6F2jx4Uvo
+	v/IpAND6FjGJvh3eGnib4tLjkUwqhZoWY0MQjj21KYabEv9qqJF++rmW0LCULM3U
+	R+BBR7DRUc8ucAvKB3mDlLK4WxNHJbQFuijocTlNrXOhWrp/Vu/jpZsWlmVBxqIy
+	SiQNEWfVHldcZ5S6bmeHhPxKoRxiMlV0hwE/HeneavWQgwvxG6LJ2HpjnMIvzv84
+	O917kOreCqlB8OrPiQBDfEDHcluWunKKYaKNfGzYRZZBonfRt4zXSrRZzFX2vPiN
+	aLCP6MtjNx5Bn/s4JWbHnEtruP2161ZqfuklXceQ7+BueFQ==
+Received: from dc5-exch05.marvell.com ([199.233.59.128])
+	by mx0b-0016f401.pphosted.com (PPS) with ESMTPS id 4d4b7hc6ah-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Thu, 26 Mar 2026 07:23:52 -0700 (PDT)
+Received: from DC6WP-EXCH02.marvell.com (10.76.176.209) by
+ DC5-EXCH05.marvell.com (10.69.176.209) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.25; Thu, 26 Mar 2026 07:23:51 -0700
+Received: from DC6WP-EXCH02.marvell.com (10.76.176.209) by
+ DC6WP-EXCH02.marvell.com (10.76.176.209) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.25; Thu, 26 Mar 2026 07:23:50 -0700
+Received: from maili.marvell.com (10.69.176.80) by DC6WP-EXCH02.marvell.com
+ (10.76.176.209) with Microsoft SMTP Server id 15.2.1544.25 via Frontend
+ Transport; Thu, 26 Mar 2026 07:23:50 -0700
+Received: from localhost.localdomain (unknown [10.28.36.175])
+	by maili.marvell.com (Postfix) with ESMTP id ADFBE3F706D;
+	Thu, 26 Mar 2026 07:23:45 -0700 (PDT)
+From: Srujana Challa <schalla@marvell.com>
+To: <netdev@vger.kernel.org>, <virtualization@lists.linux.dev>
+CC: <pabeni@redhat.com>, <mst@redhat.com>, <jasowang@redhat.com>,
+        <xuanzhuo@linux.alibaba.com>, <eperezma@redhat.com>,
+        <davem@davemloft.net>, <edumazet@google.com>, <kuba@kernel.org>,
+        <ndabilpuram@marvell.com>, <kshankar@marvell.com>,
+        <schalla@marvell.com>, <stable@vger.kernel.org>
+Subject: [PATCH net,v5] virtio_net: clamp rss_max_key_size to NETDEV_RSS_KEY_LEN
+Date: Thu, 26 Mar 2026 19:53:44 +0530
+Message-ID: <20260326142344.1171317-1-schalla@marvell.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="ROB/BNDoRVfOr6T6"
-Content-Disposition: inline
-In-Reply-To: <20260325180857.3675854-3-jdaley@linux.ibm.com>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Authority-Analysis: v=2.4 cv=b4q/I9Gx c=1 sm=1 tr=0 ts=69c54178 cx=c_pps
+ a=rEv8fa4AjpPjGxpoe8rlIQ==:117 a=rEv8fa4AjpPjGxpoe8rlIQ==:17
+ a=Yq5XynenixoA:10 a=VkNPw1HP01LnGYTKEx00:22 a=l0iWHRpgs5sLHlkKQ1IR:22
+ a=qit2iCtTFQkLgVSMPQTB:22 a=VwQbUJbxAAAA:8 a=M5GUcnROAAAA:8
+ a=hiWoBk9w0w8mUrHqcNwA:9 a=OBjm3rFKGHvpk9ecZwUJ:22
+X-Proofpoint-ORIG-GUID: 8zcCUThkkFwxIocBPR-Vy4uLlQN38fKQ
+X-Proofpoint-GUID: 8zcCUThkkFwxIocBPR-Vy4uLlQN38fKQ
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwMzI2MDEwMCBTYWx0ZWRfX+4EB72cMh9Dl
+ 0gs0eCvqhqJf+i3NkrzfK/DU977l/sMdn6lcOb/yVHwLBjPRWzI4cy/eBbtFghSFaAz8TmP0HX+
+ +dcZ2hePpBCOZMwpzGQeoQQ8S9z5OekwT0BNzo2l31Vc9zpgLfFG2JxzaUqhBrKHiDQnug2j7YL
+ PKjZR168WDNuqG5hAwW07DM1fW94F2fA4DhPgJrYvPUo3H5gs9qXA2af6u6HDDD14hP9m4MKUC7
+ yQstUavBVabCs0J+BR1fNtathd3gm7t0mS1lqMsSPChz9bMZ9EjOJXaB2iULkvFbI7wEpo2i0el
+ kYwdh56DglFiUfQsiQ2FFGs3nMwtSQ47whS6yDg77Ug0bxtiQdTczF6wiw9ftcsFL/jfOHptzBQ
+ OJjpevhhidpBdQFCCs0ov5z9iDoLLDGhEn9sxXqaThlutpKOIM5BnDvI6+ukknyGCe/Yvm0rlWL
+ dd2SyR6Pe/k4Lmp747Q==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-03-26_03,2026-03-26_01,2025-10-01_01
 
+rss_max_key_size in the virtio spec is the maximum key size supported by
+the device, not a mandatory size the driver must use. Also the value 40
+is a spec minimum, not a spec maximum.
 
---ROB/BNDoRVfOr6T6
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+The current code rejects RSS and can fail probe when the device reports a
+larger rss_max_key_size than the driver buffer limit. Instead, clamp the
+effective key length to min(device rss_max_key_size, NETDEV_RSS_KEY_LEN)
+and keep RSS enabled.
 
-On Wed, Mar 25, 2026 at 07:08:57PM +0100, Joshua Daley wrote:
-> The event_list processes non-hotplug events (such as LUN capacity
-> changes), so remove the conditions that guard the initial kicks in
-> _probe() and _restore(), as well as the work cancellation in _remove().
->=20
-> Suggested-by: Stefan Hajnoczi <stefanha@redhat.com>
-> Signed-off-by: Joshua Daley <jdaley@linux.ibm.com>
-> ---
->  drivers/scsi/virtio_scsi.c | 15 ++++++---------
->  1 file changed, 6 insertions(+), 9 deletions(-)
+This keeps probe working on devices that advertise larger maximum key sizes
+while respecting the netdev RSS key buffer size limit.
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Fixes: 3f7d9c1964fc ("virtio_net: Add hash_key_length check")
+Cc: stable@vger.kernel.org
+Signed-off-by: Srujana Challa <schalla@marvell.com>
+---
+v3:
+- Moved RSS key validation checks to virtnet_validate.
+- Add fixes: tag and CC -stable
+v4:
+- Use NETDEV_RSS_KEY_LEN instead of type_max for the maximum rss key size.
+v5:
+- Interpret rss_max_key_size as a maximum and clamp it to NETDEV_RSS_KEY_LEN.
+- Do not disable RSS/HASH_REPORT when device rss_max_key_size exceeds NETDEV_RSS_KEY_LEN.
+- Drop the separate patch that replaced the runtime check with BUILD_BUG_ON.
 
---ROB/BNDoRVfOr6T6
-Content-Type: application/pgp-signature; name=signature.asc
+ drivers/net/virtio_net.c | 20 +++++++++-----------
+ 1 file changed, 9 insertions(+), 11 deletions(-)
 
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCgAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmnFPBUACgkQnKSrs4Gr
-c8g0PggAvSdvyn8Ma+AMVolR9NiFo7iRzrCdSwC8eGmbMzlqsttbbNn8/0PE1b3S
-qSsvt6pdsiLyYNbmVU2b6Paip/NpVRBn7QOAJ94fn20ecszGYq6uLJarvvnd+Eo7
-ppcWySqpZb+pqbi6wbZ9rv9ChjDII4MTYa5nEA4CMrLSTmI7Rv5ZMtv+u7F4ZRAG
-zZtvEKHv8s1kOwhcptfMhPO/boRDuh+qD/9uLRWpXhiQUesRCHD5HTLoDxVD+8A9
-qJmcH96tc94zGIIiqsiUAR+aTSTR/tzwixmDDWu0BW1SzMcwFCLQZYcfxQiSBhOi
-UBzSkoFFkm8TPWNukeo+YS8lZUsRlg==
-=gCH1
------END PGP SIGNATURE-----
-
---ROB/BNDoRVfOr6T6--
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 022f60728721..b241c8dbb4e1 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -373,8 +373,6 @@ struct receive_queue {
+ 	struct xdp_buff **xsk_buffs;
+ };
+ 
+-#define VIRTIO_NET_RSS_MAX_KEY_SIZE     40
+-
+ /* Control VQ buffers: protected by the rtnl lock */
+ struct control_buf {
+ 	struct virtio_net_ctrl_hdr hdr;
+@@ -478,7 +476,7 @@ struct virtnet_info {
+ 
+ 	/* Must be last as it ends in a flexible-array member. */
+ 	TRAILING_OVERLAP(struct virtio_net_rss_config_trailer, rss_trailer, hash_key_data,
+-		u8 rss_hash_key_data[VIRTIO_NET_RSS_MAX_KEY_SIZE];
++		u8 rss_hash_key_data[NETDEV_RSS_KEY_LEN];
+ 	);
+ };
+ static_assert(offsetof(struct virtnet_info, rss_trailer.hash_key_data) ==
+@@ -6717,6 +6715,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	struct virtnet_info *vi;
+ 	u16 max_queue_pairs;
+ 	int mtu = 0;
++	u16 key_sz;
+ 
+ 	/* Find if host supports multiqueue/rss virtio_net device */
+ 	max_queue_pairs = 1;
+@@ -6851,14 +6850,13 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 	}
+ 
+ 	if (vi->has_rss || vi->has_rss_hash_report) {
+-		vi->rss_key_size =
+-			virtio_cread8(vdev, offsetof(struct virtio_net_config, rss_max_key_size));
+-		if (vi->rss_key_size > VIRTIO_NET_RSS_MAX_KEY_SIZE) {
+-			dev_err(&vdev->dev, "rss_max_key_size=%u exceeds the limit %u.\n",
+-				vi->rss_key_size, VIRTIO_NET_RSS_MAX_KEY_SIZE);
+-			err = -EINVAL;
+-			goto free;
+-		}
++		key_sz = virtio_cread8(vdev, offsetof(struct virtio_net_config, rss_max_key_size));
++
++		vi->rss_key_size = min_t(u16, key_sz, NETDEV_RSS_KEY_LEN);
++		if (key_sz > vi->rss_key_size)
++			dev_warn(&vdev->dev,
++				 "rss_max_key_size=%u exceeds driver limit %u, clamping\n",
++				 key_sz, vi->rss_key_size);
+ 
+ 		vi->rss_hash_types_supported =
+ 		    virtio_cread32(vdev, offsetof(struct virtio_net_config, supported_hash_types));
+-- 
+2.25.1
 
