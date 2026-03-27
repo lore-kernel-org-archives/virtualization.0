@@ -1,317 +1,432 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D8AA386540
-	for <virtualization@lists.linux.dev>; Fri, 27 Mar 2026 06:24:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 595583D3D02;
+	Fri, 27 Mar 2026 08:31:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774592689; cv=none; b=C//9YmsrW6zRtCMmjpJH6P/BukWMATF35pJu+12MyK25XZDkniloGA8wrhhCgF16wIZI4SldD+JXS+rRFK6SN9Z0yOTn121ElGrSoituDElxIQh44jQfgaDvqWPDmJXMLi1y7Ht2ihiB1ENISOOME8eBeJJnaq2iR5gZpi7MZNM=
+	t=1774600317; cv=none; b=Ne5ZKdDXiAzgtOBCQSAf+IwU7re1Mh6xEzDo7HQv/m+tjMD/942FHm2g6h7AQkTfwyl/YGTOWTokw49RnAi375mZGUu/Bv5OYCUYrIw44O9hv8Zupfl6gQKprH+9MtcW+FTNxRUhZ+mCrLhNclQwb02boCi+rh441p9Qifjs5mk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774592689; c=relaxed/simple;
-	bh=ANbGHaKeAA/lNhx279xbXmAwyVDnKcwXDFpkch90aXo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=nnmZ+NNimpbNQa20Pqsgy3oBJ5PGNKa90+/snUUcXPzhcnvJ8lBi1YLafGog4gCkO8KRJs6zzevewVYR2PY2siA50XUrTzLFwtfyS1IlEv743w3tSdI+6eKMTjT2GNgPcohohr2oz6lkR6rgjklcgtAV/Lm+PYGdx9dMkCOGvZI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hRMnXzhu; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1774600317; c=relaxed/simple;
+	bh=C5zCJ2dSSr2sUEmtiMBLlNl+9IFiw1PPxBngmjF/gZs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=B5m4b8qX8cTGvf7iGUAj9vfV+vUixNvJ9EqT15Yd0fvAq3zkDjZsIHnMtu+/ZQATMWBiR5wEkfxa6Fj/nE1V4jAwULe//ygk3YHXjTw/74K4OORnoO6lYdL2O7ha0R4KAohU1CtuBXIMQX9XJBbgfRg5I6M4C5fvfCub5w0rNkE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=OoYtxFEH; arc=none smtp.client-ip=129.217.128.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hRMnXzhu"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1774592683;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=dNCDbAlAePjte5UYR05hE5vrYjE9xAw8CJotVbK8a5Y=;
-	b=hRMnXzhu2Od/Njk28oLvXOr4iKfX+qQyIzInk2ax1UJ1S/hMNV+/ZDB+f0uV348p891ZWb
-	IoGjU9J7dhHa7y5I3DqMrkawMPIwdMBwuD3Y3xSACH1ZhnGnVrDAuJbQeKSR5hoHjHwFE0
-	DxaOR6DVZ5pe1dBEGL8H9rSWj4XWqv4=
-Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
- [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-235-QfoE_9gqMBmpx5Tsk6kbzA-1; Fri, 27 Mar 2026 02:24:41 -0400
-X-MC-Unique: QfoE_9gqMBmpx5Tsk6kbzA-1
-X-Mimecast-MFC-AGG-ID: QfoE_9gqMBmpx5Tsk6kbzA_1774592681
-Received: by mail-yw1-f199.google.com with SMTP id 00721157ae682-79832285fa1so38348037b3.1
-        for <virtualization@lists.linux.dev>; Thu, 26 Mar 2026 23:24:41 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774592681; x=1775197481;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=dNCDbAlAePjte5UYR05hE5vrYjE9xAw8CJotVbK8a5Y=;
-        b=bQfW0dJ14QhL93hPgdp3bLdBlatotVP2zy7OfB5Q0K22jMIMSPbvb42c8D2rtvhPfK
-         QRx8YrV9CrKkTWlR2MrPsXVRzqdCOr3iCj2FddGJlQmLjsACef6bWM9u8Yw2gjoX5yK8
-         vUt3nsXtQCFtw0tb3E9zuJjXEnU7/oP6FsqOSW/jgxTOFt6ig0FGiiBf50woZbwTRWeG
-         H/s6oCiutiFdZak+F+rt0gGkdt4b3hocBDp4Gm/RyeXxQLt6YqT9Kxk02szqzo7VAmuS
-         zq6NJWnwu/UrY+L4WXI3MC7scusRvHLrfFKfs+WTKCXqqjaAOPckG+etg2yGACdg1ZQc
-         wKmQ==
-X-Forwarded-Encrypted: i=1; AJvYcCVbhEOc1EU4KGMA1jsPjH+lH5QjZ3xLjpTsWBfl1f6vm/cGThGAwNJLquaE4fJdPhIL4WMIrLwTMp3psvvu5w==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy2J+Pt6pAVinRGTK75zomdv7tlAozSsYjHwwPjKPOhGX38XZLL
-	+pYgd0BGNGjko/blpfYPgY0tTW+T/QkLKGpSuvnO/27Vhm6taebLzGuCq57jMDxpNaDvPqTLtvQ
-	Px3hob1VelVF+hQ3TsQiDHcLx24USXVKBjZ6SN/SF6Bfz/F/StMxRU3hSEDk223eO8Y0FmUP8EY
-	DpRqObNay2hTH1IMMh6aEnebEduZ49wD7/NSRT1Y7FOtk=
-X-Gm-Gg: ATEYQzyZ+wpcpmh2jdyjviKsC0VvwibWrBJYPXTxxC/vuvpF7+rk9qYw22sSAwNymJd
-	K/+uaIw/e5uJ6IemaWpcAmdLoDju24cFZz6CxnU+hfMAqs2abm+mfKwDKlmaePaOEtUUe7pLXk9
-	eekHsywnhFLa/FO7+EogrAUHvuUOPESanpBcYOLQAlNyddJAsflQzBedb2eIFCo12wdziafBYLB
-	FARkA==
-X-Received: by 2002:a05:690e:440e:b0:64c:af3f:e2a3 with SMTP id 956f58d0204a3-64ff74158efmr1106852d50.55.1774592680887;
-        Thu, 26 Mar 2026 23:24:40 -0700 (PDT)
-X-Received: by 2002:a05:690e:440e:b0:64c:af3f:e2a3 with SMTP id
- 956f58d0204a3-64ff74158efmr1106834d50.55.1774592680349; Thu, 26 Mar 2026
- 23:24:40 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="OoYtxFEH"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tu-dortmund.de;
+	s=unimail; t=1774600297;
+	bh=C5zCJ2dSSr2sUEmtiMBLlNl+9IFiw1PPxBngmjF/gZs=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=OoYtxFEHguYXITndQdnURTe59OppSq1IZqB+aZK0SCdXwRRqo7f4lAn3saL9h8fFp
+	 kt+2R8RktS6vYjK4of8RlBKvg5B1Dqm2npsCHl9lKO5i1DHcZe1dWtgL6nWCPcigsO
+	 6KfcaS7MgsUaJs+UA6oEgJjnyUhWcRah7uutJaLQ=
+Received: from [IPV6:2a01:599:313:1ec8:db54:5cf5:3244:cdab] (tmo-120-113.customers.d1-online.com [80.187.120.113])
+	(authenticated bits=0)
+	by unimail.uni-dortmund.de (8.18.2/8.18.2) with ESMTPSA id 62R8VWni018737
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Fri, 27 Mar 2026 09:31:33 +0100 (CET)
+Message-ID: <b9d84d88-46d5-4fd3-a5b2-d914f54766f6@tu-dortmund.de>
+Date: Fri, 27 Mar 2026 09:31:32 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260310190759.1097506-1-eperezma@redhat.com> <20260310190759.1097506-4-eperezma@redhat.com>
- <CACGkMEvwmC4qiYgZAkrHEC3r3q7FyMiqpg5=2oNMPGm0q=PLBA@mail.gmail.com>
- <CAJaqyWe+x9okNwPD5n6M+PeLt0cQY-_fBWOD9uXSa1nKHqRaFw@mail.gmail.com>
- <CACGkMEuKTezQQXJ0XEKWEoRaeo-ORcE07+xgSoJ_7UwpPdonWA@mail.gmail.com>
- <CAJaqyWf5mnARrEXssKQ2CQB0rZ+KVi_kW1xyOc_Dx1ELAs4LHA@mail.gmail.com>
- <CAJaqyWd40=bxMOwTR4wyHtPS_-Txn2WbwSj9rZEXoY-4DxQgpw@mail.gmail.com>
- <20260324112340-mutt-send-email-mst@kernel.org> <CACGkMEsFwQ=8Hu=OGzhGX5tA5dHNMJBa2K20KDXUmOoru2BR=g@mail.gmail.com>
- <CAJaqyWe74=3pqfYhzroSg+SiwX-L8E8bJsk_zK8_BssuPr3bWQ@mail.gmail.com> <CACGkMEsA8Rt+3Y3_-kA5dyL1jgqkE5LQ_M3X9P-cjhKXT1A+tA@mail.gmail.com>
-In-Reply-To: <CACGkMEsA8Rt+3Y3_-kA5dyL1jgqkE5LQ_M3X9P-cjhKXT1A+tA@mail.gmail.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Fri, 27 Mar 2026 07:24:03 +0100
-X-Gm-Features: AQROBzCu3C2Mzzs2cMGo0oXc5drVXPeTxaW8NHaacrSRVjZZv-VyJItaDMP9xwY
-Message-ID: <CAJaqyWfh5gWdusrC25gxGpVfqyssUxzeLD9QLTcgVpwgR4_Sxw@mail.gmail.com>
-Subject: Re: [PATCH v3 3/3] vduse: add F_QUEUE_READY feature
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v8 4/4] tun/tap & vhost-net: avoid ptr_ring
+ tail-drop when a qdisc is present
 To: Jason Wang <jasowang@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Cindy Lu <lulu@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, linux-kernel@vger.kernel.org, 
-	Maxime Coquelin <mcoqueli@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, 
-	Laurent Vivier <lvivier@redhat.com>, Yongji Xie <xieyongji@bytedance.com>, 
-	virtualization@lists.linux.dev
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: jlvNFGqgwrurXxmVoKOtT28piAhk2J6gazrCR6XaM-c_1774592681
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Cc: willemdebruijn.kernel@gmail.com, andrew+netdev@lunn.ch,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, mst@redhat.com, eperezma@redhat.com,
+        leiyang@redhat.com, stephen@networkplumber.org, jon@nutanix.com,
+        tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        virtualization@lists.linux.dev
+References: <20260312130639.138988-1-simon.schippers@tu-dortmund.de>
+ <20260312130639.138988-5-simon.schippers@tu-dortmund.de>
+ <CACGkMEtN9XgYPGHQg4TEWEsa_UcMbcnzO=VaTFT=0Tn4BayMDw@mail.gmail.com>
+ <0908392d-6314-4141-b908-6c9a880ba0a4@tu-dortmund.de>
+ <cda710f8-033a-4772-b5ce-a2cfddf42bea@tu-dortmund.de>
+ <CACGkMEuLqxnz=GtdKp3-u0egkGT_eZUgBBwvvtHcgAYpLJv-UA@mail.gmail.com>
+ <3d3274b4-f274-4cf9-9d0f-989d05148604@tu-dortmund.de>
+ <CACGkMEsUag4zNZG+aYipHv_PirbKb_rs7DzSOr-NF8ckhUaJOQ@mail.gmail.com>
+Content-Language: en-US
+From: Simon Schippers <simon.schippers@tu-dortmund.de>
+In-Reply-To: <CACGkMEsUag4zNZG+aYipHv_PirbKb_rs7DzSOr-NF8ckhUaJOQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Fri, Mar 27, 2026 at 2:15=E2=80=AFAM Jason Wang <jasowang@redhat.com> wr=
-ote:
->
-> On Thu, Mar 26, 2026 at 2:57=E2=80=AFPM Eugenio Perez Martin
-> <eperezma@redhat.com> wrote:
-> >
-> > On Thu, Mar 26, 2026 at 3:44=E2=80=AFAM Jason Wang <jasowang@redhat.com=
-> wrote:
-> > >
-> > > On Tue, Mar 24, 2026 at 11:24=E2=80=AFPM Michael S. Tsirkin <mst@redh=
-at.com> wrote:
-> > > >
-> > > > On Tue, Mar 24, 2026 at 03:01:47PM +0100, Eugenio Perez Martin wrot=
-e:
-> > > > > On Fri, Mar 13, 2026 at 8:08=E2=80=AFAM Eugenio Perez Martin
-> > > > > <eperezma@redhat.com> wrote:
-> > > > > >
-> > > > > > On Fri, Mar 13, 2026 at 7:05=E2=80=AFAM Jason Wang <jasowang@re=
-dhat.com> wrote:
-> > > > > > >
-> > > > > > > On Thu, Mar 12, 2026 at 2:24=E2=80=AFPM Eugenio Perez Martin
-> > > > > > > <eperezma@redhat.com> wrote:
-> > > > > > > >
-> > > > > > > > On Thu, Mar 12, 2026 at 4:58=E2=80=AFAM Jason Wang <jasowan=
-g@redhat.com> wrote:
-> > > > > > > > >
-> > > > > > > > > On Wed, Mar 11, 2026 at 3:08=E2=80=AFAM Eugenio P=C3=A9re=
-z <eperezma@redhat.com> wrote:
-> > > > > > > > > >
-> > > > > > > > > > Add the VDUSE_F_QUEUE_READY feature flag. This allows t=
-he kernel module
-> > > > > > > > > > to explicitly signal userspace when a specific virtqueu=
-e has been
-> > > > > > > > > > enabled.
-> > > > > > > > > >
-> > > > > > > > > > In scenarios like Live Migration of VirtIO net devices,=
- the dataplane
-> > > > > > > > > > starts after the control virtqueue allowing QEMU to app=
-ly configuration
-> > > > > > > > > > in the destination device.
-> > > > > > > > > >
-> > > > > > > > > > Signed-off-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
-> > > > > > > > > > ---
-> > > > > > > > > > v2:
-> > > > > > > > > > * Fix comment of vduse_dev_request.vq_ready
-> > > > > > > > > > * Set vq_ready before sending the message to the VDUSE =
-userland
-> > > > > > > > > >   instance, avoiding the need for SMP sync after receiv=
-ing the message.
-> > > > > > > > > > ---
-> > > > > > > > > >  drivers/vdpa/vdpa_user/vduse_dev.c | 28 ++++++++++++++=
-+++++++++++++-
-> > > > > > > > > >  include/uapi/linux/vduse.h         | 18 ++++++++++++++=
-++++
-> > > > > > > > > >  2 files changed, 45 insertions(+), 1 deletion(-)
-> > > > > > > > > >
-> > > > > > > > > > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drive=
-rs/vdpa/vdpa_user/vduse_dev.c
-> > > > > > > > > > index 17e0358d3a68..4f642b95a7cb 100644
-> > > > > > > > > > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > > > > > > > > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > > > > > > > > > @@ -9,6 +9,7 @@
-> > > > > > > > > >   */
-> > > > > > > > > >
-> > > > > > > > > >  #include "linux/virtio_net.h"
-> > > > > > > > > > +#include <linux/bits.h>
-> > > > > > > > > >  #include <linux/cleanup.h>
-> > > > > > > > > >  #include <linux/init.h>
-> > > > > > > > > >  #include <linux/module.h>
-> > > > > > > > > > @@ -53,7 +54,7 @@
-> > > > > > > > > >  #define IRQ_UNBOUND -1
-> > > > > > > > > >
-> > > > > > > > > >  /* Supported VDUSE features */
-> > > > > > > > > > -static const uint64_t vduse_features;
-> > > > > > > > > > +static const uint64_t vduse_features =3D BIT_U64(VDUSE=
-_F_QUEUE_READY);
-> > > > > > > > > >
-> > > > > > > > > >  /*
-> > > > > > > > > >   * VDUSE instance have not asked the vduse API version=
-, so assume 0.
-> > > > > > > > > > @@ -120,6 +121,7 @@ struct vduse_dev {
-> > > > > > > > > >         char *name;
-> > > > > > > > > >         struct mutex lock;
-> > > > > > > > > >         spinlock_t msg_lock;
-> > > > > > > > > > +       u64 vduse_features;
-> > > > > > > > > >         u64 msg_unique;
-> > > > > > > > > >         u32 msg_timeout;
-> > > > > > > > > >         wait_queue_head_t waitq;
-> > > > > > > > > > @@ -601,8 +603,29 @@ static void vduse_vdpa_set_vq_read=
-y(struct vdpa_device *vdpa,
-> > > > > > > > > >  {
-> > > > > > > > > >         struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
-> > > > > > > > > >         struct vduse_virtqueue *vq =3D dev->vqs[idx];
-> > > > > > > > > > +       struct vduse_dev_msg msg =3D { 0 };
-> > > > > > > > > > +       int r;
-> > > > > > > > > >
-> > > > > > > > > >         vq->ready =3D ready;
-> > > > > > > > > > +
-> > > > > > > > > > +       if (!(dev->vduse_features & BIT_U64(VDUSE_F_QUE=
-UE_READY)))
-> > > > > > > > > > +               return;
-> > > > > > > > > > +
-> > > > > > > > > > +       msg.req.type =3D VDUSE_SET_VQ_READY;
-> > > > > > > > > > +       msg.req.vq_ready.num =3D idx;
-> > > > > > > > > > +       msg.req.vq_ready.ready =3D !!ready;
-> > > > > > > > > > +
-> > > > > > > > > > +       r =3D vduse_dev_msg_sync(dev, &msg);
-> > > > > > > > > > +
-> > > > > > > > > > +       if (r < 0) {
-> > > > > > > > > > +               dev_dbg(&vdpa->dev, "device refuses to =
-set vq %u ready %u",
-> > > > > > > > > > +                       idx, ready);
-> > > > > > > > > > +
-> > > > > > > > > > +               /* We can't do better than break the de=
-vice in this case */
-> > > > > > > > >
-> > > > > > > > > It's better to explain why we can't depend on vduse_dev_m=
-sg_sync() here.
-> > > > > > > > >
-> > > > > > > > > For example it did:
-> > > > > > > > >
-> > > > > > > > >         if (unlikely(dev->broken))
-> > > > > > > > >                 return -EIO;
-> > > > > > > > >
-> > > > > > > > >         init_waitqueue_head(&msg->waitq);
-> > > > > > > > >         spin_lock(&dev->msg_lock);
-> > > > > > > > >         if (unlikely(dev->broken)) {
-> > > > > > > > >                 spin_unlock(&dev->msg_lock);
-> > > > > > > > >                 return -EIO;
-> > > > > > > > >         }
-> > > > > > > > >
-> > > > > > > > > and
-> > > > > > > > >
-> > > > > > > > >         if (!msg->completed) {
-> > > > > > > > >                 list_del(&msg->list);
-> > > > > > > > >                 msg->resp.result =3D VDUSE_REQ_RESULT_FAI=
-LED;
-> > > > > > > > >                 /* Mark the device as malfunction when th=
-ere is a timeout */
-> > > > > > > > >                 if (!ret)
-> > > > > > > > >                         vduse_dev_broken(dev);
-> > > > > > > > >         }
-> > > > > > > > >
-> > > > > > > >
-> > > > > > > > I'm not sure I follow you here.
-> > > > > > > >
-> > > > > > > > We can't do better than breaking the device because the fun=
-ction
-> > > > > > > > returns no error state, and the caller does not expect an e=
-rror code.
-> > > > > > > > Do you mean we can't depend on vduse_dev_msg_sync to call
-> > > > > > > > vduse_dev_broken(dev) by itself?
-> > > > > > >
-> > > > > > > I think I meant, reset seems to be more heavyweight than susp=
-end.
-> > > > > > >
-> > > > > > > So if reset can fail, I don't see reason ot break device only=
- for
-> > > > > > > suspend failure.
-> > > > > > >
-> > > > > >
-> > > > > > Sorry I still don't get you.
-> > > > > >
-> > > > > > This series does not implement suspend at all. It doesn't modif=
-y the
-> > > > > > VDUSE device reset or the virtio reset behavior. It only implem=
-ents
-> > > > > > the vq ready message for the device. If the device returns an e=
-rror
-> > > > > > from that operation, what is your proposal for when the driver =
-sends
-> > > > > > new messages like resume?
-> > > > > >
-> > > > >
-> > > > > Friendly ping.
-> > > >
-> > > > Jason, more comments? If this is to go in it has to go into linux n=
-ext.
-> > >
-> > > A typo, basically I meant that reset is more heavyweight than queue
-> > > ready. If we decide to check the response for queue ready, we need to
-> > > check the reset as well.
-> > >
-> > > But I'm fine if you think we can start from this.
-> > >
-> >
-> > If you mean something like this:
-> > diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > index 6202f6902fcd..23b850023417 100644
-> > --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> > +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> > @@ -816,7 +816,8 @@ static int vduse_vdpa_reset(struct vdpa_device *vdp=
-a)
-> >         struct vduse_dev *dev =3D vdpa_to_vduse(vdpa);
-> >         int ret =3D vduse_dev_set_status(dev, 0);
-> >
-> > -       vduse_dev_reset(dev);
-> > +       if (ret =3D=3D 0)
-> > +               vduse_dev_reset(dev);
->
-> Something like this but we need to check if it's a timeout as queue ready=
-.
->
+On 3/27/26 02:13, Jason Wang wrote:
+> On Thu, Mar 26, 2026 at 11:31 PM Simon Schippers
+> <simon.schippers@tu-dortmund.de> wrote:
+>>
+>> On 3/26/26 03:41, Jason Wang wrote:
+>>> On Wed, Mar 25, 2026 at 10:48 PM Simon Schippers
+>>> <simon.schippers@tu-dortmund.de> wrote:
+>>>>
+>>>> On 3/24/26 11:14, Simon Schippers wrote:
+>>>>> On 3/24/26 02:47, Jason Wang wrote:
+>>>>>> On Thu, Mar 12, 2026 at 9:07 PM Simon Schippers
+>>>>>> <simon.schippers@tu-dortmund.de> wrote:
+>>>>>>>
+>>>>>>> This commit prevents tail-drop when a qdisc is present and the ptr_ring
+>>>>>>> becomes full. Once an entry is successfully produced and the ptr_ring
+>>>>>>> reaches capacity, the netdev queue is stopped instead of dropping
+>>>>>>> subsequent packets.
+>>>>>>>
+>>>>>>> If producing an entry fails anyways due to a race, tun_net_xmit returns
+>>>>>>> NETDEV_TX_BUSY, again avoiding a drop. Such races are expected because
+>>>>>>> LLTX is enabled and the transmit path operates without the usual locking.
+>>>>>>>
+>>>>>>> The existing __tun_wake_queue() function wakes the netdev queue. Races
+>>>>>>> between this wakeup and the queue-stop logic could leave the queue
+>>>>>>> stopped indefinitely. To prevent this, a memory barrier is enforced
+>>>>>>> (as discussed in a similar implementation in [1]), followed by a recheck
+>>>>>>> that wakes the queue if space is already available.
+>>>>>>>
+>>>>>>> If no qdisc is present, the previous tail-drop behavior is preserved.
+>>>>>>
+>>>>>> I wonder if we need a dedicated TUN flag to enable this. With this new
+>>>>>> flag, we can even prevent TUN from using noqueue (not sure if it's
+>>>>>> possible or not).
+>>>>>>
+>>>>>
+>>>>> Except of the slight regressions because of this patchset I do not see
+>>>>> a reason for such a flag.
+>>>>>
+>>>>> I have never seen that the driver prevents noqueue. For example you can
+>>>>> set noqueue to your ethernet interface and under load you soon get
+>>>>>
+>>>>> net_crit_ratelimited("Virtual device %s asks to queue packet!\n",
+>>>>>                                            dev->name);
+>>>>>
+>>>>> followed by a -ENETDOWN. And this is not prevented even though it is
+>>>>> clearly not something a user wants.
+>>>>>
+>>>>>>>
+>>>>>>> Benchmarks:
+>>>>>>> The benchmarks show a slight regression in raw transmission performance,
+>>>>>>> though no packets are lost anymore.
+>>>>>>>
+>>>>>>> The previously introduced threshold to only wake after the queue stopped
+>>>>>>> and half of the ring was consumed showed to be a descent choice:
+>>>>>>> Waking the queue whenever a consume made space in the ring strongly
+>>>>>>> degrades performance for tap, while waking only when the ring is empty
+>>>>>>> is too late and also hurts throughput for tap & tap+vhost-net.
+>>>>>>> Other ratios (3/4, 7/8) showed similar results (not shown here), so
+>>>>>>> 1/2 was chosen for the sake of simplicity for both tun/tap and
+>>>>>>> tun/tap+vhost-net.
+>>>>>>>
+>>>>>>> Test setup:
+>>>>>>> AMD Ryzen 5 5600X at 4.3 GHz, 3200 MHz RAM, isolated QEMU threads;
+>>>>>>> Average over 20 runs @ 100,000,000 packets. SRSO and spectre v2
+>>>>>>> mitigations disabled.
+>>>>>>>
+>>>>>>> Note for tap+vhost-net:
+>>>>>>> XDP drop program active in VM -> ~2.5x faster, slower for tap due to
+>>>>>>> more syscalls (high utilization of entry_SYSRETQ_unsafe_stack in perf)
+>>>>>>>
+>>>>>>> +--------------------------+--------------+----------------+----------+
+>>>>>>> | 1 thread                 | Stock        | Patched with   | diff     |
+>>>>>>> | sending                  |              | fq_codel qdisc |          |
+>>>>>>> +------------+-------------+--------------+----------------+----------+
+>>>>>>> | TAP        | Transmitted | 1.151 Mpps   | 1.139 Mpps     | -1.1%    |
+>>>>>>> |            +-------------+--------------+----------------+----------+
+>>>>>>> |            | Lost/s      | 3.606 Mpps   | 0 pps          |          |
+>>>>>>> +------------+-------------+--------------+----------------+----------+
+>>>>>>> | TAP        | Transmitted | 3.948 Mpps   | 3.738 Mpps     | -5.3%    |
+>>>>>>> |            +-------------+--------------+----------------+----------+
+>>>>>>> | +vhost-net | Lost/s      | 496.5 Kpps   | 0 pps          |          |
+>>>>>>> +------------+-------------+--------------+----------------+----------+
+>>>>>>>
+>>>>>>> +--------------------------+--------------+----------------+----------+
+>>>>>>> | 2 threads                | Stock        | Patched with   | diff     |
+>>>>>>> | sending                  |              | fq_codel qdisc |          |
+>>>>>>> +------------+-------------+--------------+----------------+----------+
+>>>>>>> | TAP        | Transmitted | 1.133 Mpps   | 1.109 Mpps     | -2.1%    |
+>>>>>>> |            +-------------+--------------+----------------+----------+
+>>>>>>> |            | Lost/s      | 8.269 Mpps   | 0 pps          |          |
+>>>>>>> +------------+-------------+--------------+----------------+----------+
+>>>>>>> | TAP        | Transmitted | 3.820 Mpps   | 3.513 Mpps     | -8.0%    |
+>>>>>>> |            +-------------+--------------+----------------+----------+
+>>>>>>> | +vhost-net | Lost/s      | 4.961 Mpps   | 0 pps          |          |
+>>>>>>> +------------+-------------+--------------+----------------+----------+
+>>>>>>>
+>>>>>>> [1] Link: https://lore.kernel.org/all/20250424085358.75d817ae@kernel.org/
+>>>>>>>
+>>>>>>> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+>>>>>>> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+>>>>>>> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
+>>>>>>> ---
+>>>>>>>  drivers/net/tun.c | 30 ++++++++++++++++++++++++++++--
+>>>>>>>  1 file changed, 28 insertions(+), 2 deletions(-)
+>>>>>>>
+>>>>>>> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+>>>>>>> index b86582cc6cb6..9b7daec69acd 100644
+>>>>>>> --- a/drivers/net/tun.c
+>>>>>>> +++ b/drivers/net/tun.c
+>>>>>>> @@ -1011,6 +1011,8 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
+>>>>>>>         struct netdev_queue *queue;
+>>>>>>>         struct tun_file *tfile;
+>>>>>>>         int len = skb->len;
+>>>>>>> +       bool qdisc_present;
+>>>>>>> +       int ret;
+>>>>>>>
+>>>>>>>         rcu_read_lock();
+>>>>>>>         tfile = rcu_dereference(tun->tfiles[txq]);
+>>>>>>> @@ -1063,13 +1065,37 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
+>>>>>>>
+>>>>>>>         nf_reset_ct(skb);
+>>>>>>>
+>>>>>>> -       if (ptr_ring_produce(&tfile->tx_ring, skb)) {
+>>>>>>> +       queue = netdev_get_tx_queue(dev, txq);
+>>>>>>> +       qdisc_present = !qdisc_txq_has_no_queue(queue);
+>>>>>>> +
+>>>>>>> +       spin_lock(&tfile->tx_ring.producer_lock);
+>>>>>>> +       ret = __ptr_ring_produce(&tfile->tx_ring, skb);
+>>>>>>> +       if (__ptr_ring_produce_peek(&tfile->tx_ring) && qdisc_present) {
+>>>>>>
+>>>>>> So, it's possible that the administrator is switching between noqueue
+>>>>>> and another qdisc. So ptr_ring_produce() can fail here, do we need to
+>>>>>> check that or not?
+>>>>>>
+>>>>>
+>>>>> Do you mean that? My thoughts:
+>>>>>
+>>>>> Switching from noqueue to some qdisc can cause a
+>>>>>
+>>>>> net_crit_ratelimited("Virtual device %s asks to queue packet!\n",
+>>>>>                                            dev->name);
+>>>>>
+>>>>> followed by a return of -ENETDOWN in __dev_queue_xmit().
+>>>>> This is because tun_net_xmit detects some qdisc with
+>>>>>
+>>>>> qdisc_present = !qdisc_txq_has_no_queue(queue);
+>>>>>
+>>>>> and returns NETDEV_TX_BUSY even though __dev_queue_xmit() did still
+>>>>> detect noqueue.
+>>>>>
+>>>>> I am not sure how to solve this/if this has to be solved.
+>>>>> I do not see a proper way to avoid parallel execution of ndo_start_xmit
+>>>>> and a qdisc change (dev_graft_qdisc only takes qdisc_skb_head lock).
+>>>>>
+>>>>> And from my understanding the veth implementation faces the same issue.
+>>>>
+>>>> How about rechecking if a qdisc is connected?
+>>>> This would avoid -ENETDOWN.
+>>>>
+>>>> diff --git a/net/core/dev.c b/net/core/dev.c
+>>>> index f48dc299e4b2..2731a1a70732 100644
+>>>> --- a/net/core/dev.c
+>>>> +++ b/net/core/dev.c
+>>>> @@ -4845,10 +4845,17 @@ int __dev_queue_xmit(struct sk_buff *skb, struct net_device *sb_dev)
+>>>>                                 if (is_list)
+>>>>                                         rc = NETDEV_TX_OK;
+>>>>                         }
+>>>> +                       bool qdisc_present = !qdisc_txq_has_no_queue(txq);
+>>>>                         HARD_TX_UNLOCK(dev, txq);
+>>>>                         if (!skb) /* xmit completed */
+>>>>                                 goto out;
+>>>>
+>>>> +                       /* Maybe a qdisc was connected in the meantime */
+>>>> +                       if (qdisc_present) {
+>>>> +                               kfree_skb(skb);
+>>>> +                               goto out;
+>>>> +                       }
+>>>> +
+>>>>                         net_crit_ratelimited("Virtual device %s asks to queue packet!\n",
+>>>>                                              dev->name);
+>>>>                         /* NETDEV_TX_BUSY or queue was stopped */
+>>>>
+>>>
+>>> Probably not, and we likely won't hit this warning because qdisc could
+>>> not be changed during ndo_start_xmit().
+>>
+>> Okay.
+>>
+>>>
+>>> I meant something like this:
+>>>
+>>> 1) set noqueue to tuntap
+>>> 2) produce packets so tuntap is full
+>>> 3) set e.g fq_codel to tuntap
+>>> 4) then we can hit the failure of __ptr_ring_produce()
+>>>
+>>> Rethink of the code, it looks just fine.
+>>
+>> Yes, in this case it just returns NETDEV_TX_BUSY which is fine with a
+>> qdisc attached.
+>>
+>>>
+>>>>
+>>>>>
+>>>>>
+>>>>> Switching from some qdisc to noqueue is no problem I think.
+>>>>>
+>>>>>>> +               netif_tx_stop_queue(queue);
+>>>>>>> +               /* Avoid races with queue wake-ups in __tun_wake_queue by
+>>>>>>> +                * waking if space is available in a re-check.
+>>>>>>> +                * The barrier makes sure that the stop is visible before
+>>>>>>> +                * we re-check.
+>>>>>>> +                */
+>>>>>>> +               smp_mb__after_atomic();
+>>>>>>
+>>>>>> Let's document which barrier is paired with this.
+>>>>>>
+>>>>>
+>>>>> I am basically copying the (old) logic of veth [1] proposed by
+>>>>> Jakub Kicinski. I must admit I am not 100% sure what it pairs with.
+>>>>>
+>>>>> [1] Link: https://lore.kernel.org/all/20250424085358.75d817ae@kernel.org/
+>>>
+>>> So it looks like it implicitly tries to pair with tun_ring_consume():
+>>>
+>>> 1) spinlock(consumer_lock)
+>>> 2) store NULL to ptr_ring // STORE
+>>> 3) spinunlock(consumer_lock) // RELEASE
+>>> 4) spinlock(consumer_lock) // ACQURE
+>>> 5) check empty
+>>> 6) spinunlock(consumer_lock)
+>>> 7) netif_wakeup_queue() // test_and_set() which is an RMW
+>>>
+>>> RELEASE + ACQUIRE implies a full barrier
+>>
+>> Thanks.
+>>
+>>>
+>>> I see several problems
+>>>
+>>> 1) Due to batch consumption, we may get spurious wakeups under heavy
+>>> load (we can try disabling batch consuming to see if it helps).
+>>
+>> I assume that you mean the waking in the recheck of the producer happens
+>> too often and then wakes too often. But this would just take slightly
+>> more producer cpu as the SOFTIRQ runs on the producer cpu and not slow
+>> down the consumer?
+>>
+>> Why would disabling batch consume help here?
+> 
+> We could end up with.
+> 
+> 1) consumer wakes up the producer but the slot is not cleaned
 
-What should VDUSE or vdpa layer do differently if it is a timeout vs
-returning an error?
+Ah okay.. I guess MST will not like this:
 
-> >
-> >         return ret;
-> >  }
-> >
-> > ---
-> >
-> > I totally agree. But in my opinion, it's outside this series' scope. I
-> > can send a patch on top.
-> >
->
-> Works for me.
->
+From now on I assume that by "batch consumption" you mean that
+__ptr_ring_zero_tail() is only called after consuming ring.batch
+elements. And you want to disable it so __ptr_ring_zero_tail() is
+called after each consumption.
+(And I assume that you do not mean ptr_ring_consume_batched() in
+vhost_net_buf_produce() as that does not make sense to me.)
+
+I think my current implementation works fine with that:
+The consumer only wakes after consuming >= ring.size/2.
+And this is for TAP and TAP+vhost-net.
+And ring.size/2 is always bigger than a single ring.batch (see
+__ptr_ring_set_size() ), which ensures that __ptr_ring_zero_tail()
+is called and the slot is cleaned before waking.
+
+Waking on ptr_ring_empty() also ensures that __ptr_ring_zero_tail()
+is called and the slot is cleaned before waking.
+
+> 2) producer is woken up but see the ring is full, so it need to drop the packet 
+> 
+> This probably defeat the goal of zero packet loss.
+
+No then NETDEV_TX_BUSY is returned (noticeable as qdisc requeue).
+
+And this happened very rarely for me in my benchmarks.
+Here the average of the 20 runs @ 100.000.000 packets each:
+
+TAP single queue: 23.6 requeues
+TAP 2 queues: 35.5 requeues
+TAP+vhost-net single queue: 1.9 requeues
+TAP+vhost-net 2 queues: 12.1 requeues
+
+> 
+>> Wouldn't it just decrease the consumer speed?
+> 
+> Not sure, we probably need a benchmark.
+> 
+>>
+>> Apart from that I do not see a different method to do this recheck.
+>> The ring producer is only safely able to do a !produce_peek (so a check
+>> for !full).
+>>
+>> The normal waking (after consuming half of the ring) should be fine IMO.
+>>
+>>> 2) So the barriers don't help but would slow down the consuming
+>>> 3) Two spinlocks were used instead of one, this is another reason we
+>>> will see a performance regression
+>>
+>> You are right, I can change it to a single spin_lock. Apart from that
+>> I do not see how the barriers/locking could be reduced further.
+>>
+>>> 4) Tricky code that needs to be understood or at least requires a comment tweak.
+>>>
+>>> Note that due to ~IFF_TX_SKB_SHARING, pktgen can't clone skbs, so we
+>>> may not notice the real degradation.
+>>
+>> So run pktgen with pg_set SHARED?
+> 
+> Probably (as a workaround).
+> 
+
+Okay, for future benchmarks I will add this command to my benchmark
+scripts.
+
+>> I am pretty sure that the vhost
+>> thread was always at 100% CPU so pktgen was not the bottleneck. And when
+>> I had perf enabled I always saw that in my patched version not the
+>> creation of SKB's took most CPU in pktgen but a different unnamed
+>> function (I assume this is a waiting function).
+> 
+> Let's try and see.
+> 
 > Thanks
->
-
+> 
+>>
+>>
+>> Thank you!
+>>
+>>>
+>>>>>
+>>>>>>> +               if (!__ptr_ring_produce_peek(&tfile->tx_ring))
+>>>>>>> +                       netif_tx_wake_queue(queue);
+>>>>>>> +       }
+>>>>>>> +       spin_unlock(&tfile->tx_ring.producer_lock);
+>>>>>>> +
+>>>>>>> +       if (ret) {
+>>>>>>> +               /* If a qdisc is attached to our virtual device,
+>>>>>>> +                * returning NETDEV_TX_BUSY is allowed.
+>>>>>>> +                */
+>>>>>>> +               if (qdisc_present) {
+>>>>>>> +                       rcu_read_unlock();
+>>>>>>> +                       return NETDEV_TX_BUSY;
+>>>>>>> +               }
+>>>>>>>                 drop_reason = SKB_DROP_REASON_FULL_RING;
+>>>>>>>                 goto drop;
+>>>>>>>         }
+>>>>>>>
+>>>>>>>         /* dev->lltx requires to do our own update of trans_start */
+>>>>>>> -       queue = netdev_get_tx_queue(dev, txq);
+>>>>>>>         txq_trans_cond_update(queue);
+>>>>>>>
+>>>>>>>         /* Notify and wake up reader process */
+>>>>>>> --
+>>>>>>> 2.43.0
+>>>>>>>
+>>>>>>
+>>>>>> Thanks
+>>>>>>
+>>>>
+>>>
+>>> Thanks
+>>>
+>>
+> 
