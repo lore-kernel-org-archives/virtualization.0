@@ -1,139 +1,483 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E9D231ED93
-	for <virtualization@lists.linux.dev>; Thu, 26 Mar 2026 22:03:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 329B715A86D
+	for <virtualization@lists.linux.dev>; Fri, 27 Mar 2026 01:14:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774562620; cv=none; b=Q3yNC/danwwwODPJa0vlo3i+KAIP5tKwDkOvwY9vnsqIODd6Z2YlSEShmHPrac8zP25w2zbxD6DdtgEchyqztfGTYXBXFHp8KEWA8MFuEAExQOECGLX2LCev3uut6QT97a8jS2gnC7G9LSwJaIlebmBnX9VGkH6uJkKQu2I0R+4=
+	t=1774574043; cv=none; b=EYzZP/+a1TDKcWZvTUSUAyXwu5X7Fk1x+dtfBFHTML7ZgYtgZO6z1SHOIkrd9BvEoF3F9srSdms8UJb4fIfcPYxkVySrOIsu8Na/R8eKbIh9Hl4yV2kcclFNrGOWV3VoOHv/eMEzaswB3YT0pt+m9bNqC77NmKMp1pgP/jf8RUo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774562620; c=relaxed/simple;
-	bh=/0I5PlNTDmo42F78lIX7rXVUcj3Vn1T+pJs/PmebPl4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=PUMjlGcJc2xFUT5tmhUBXTwMhR8RGOAkQ+ZyQdDhdlvwk+YKjF8GFpLoZzH5bNAaxOpJ6VJHthfbuYGdojRWn/7NBkhUfEmA0R5gbUj8mjiiUeOumBM0PrJx75FB32J7IINmAfxArtGMedAfRNJhUEzikWOY6Xo7x+jKdAqlSro=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VLoukITq; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1774574043; c=relaxed/simple;
+	bh=K9BdomJ0oyd/P8kHvACnjRTj74BOP1zpB7Ajzk4ly5A=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=faZOV2ObYxyXl1fQJoxc+e56L5snweNwYPpookAVjtE2hVAB/XxPrXP6TL7vX8H84y0NoMfedDR2iIYVQmY3/RWBvHRpdWCWdXqoT3xID4lcCwApZESDh2ClcWKrBiK9ayyTZ5j3B6p/8D4WhBJqQZdPhguty75xW1vKGkKje4k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=L6sIBBB6; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VLoukITq"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="L6sIBBB6"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1774562618;
+	s=mimecast20190719; t=1774574041;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Lpgob1tvHT4IKRz9W+hPWJKbEluQbBFuXgVxhpqe0s0=;
-	b=VLoukITqEfezgPCrM+k1DlfwA0g3awFeBM7Ct18YKnhdBPbJZhadrwohKqec6BhRwDYihx
-	OPugtfpEYKRPzFwR958z8T4lsyH14lCfstL6rFSMJW5K9nS1GObShoQCBdy43D07qTMo3Q
-	jV+wsH3LCat4o4pNtHSp4j6GcvQIcXY=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=6jItjwJJuANgTXGr+5yBvT6YAOU5YWaNA37h+VHMmew=;
+	b=L6sIBBB6bJojj4jzmJHymLrdVuIWBSXHsdVn96HYGm7JO2hCrwKAkFQMjJhBD1/cSJpR6t
+	UpuxQBf4b6V7BUlPz8a/s7YeMINYwmCgMTtowNZHd2WJzJ7mTnIsxaJsg4LR1LA8/nP2Hf
+	UnX040Wj3GZ66/1KqkVKrZeYkntGNnM=
+Received: from mail-pg1-f198.google.com (mail-pg1-f198.google.com
+ [209.85.215.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-641-H2JiwwWSOgiE8Tpx5OgnBg-1; Thu, 26 Mar 2026 18:03:35 -0400
-X-MC-Unique: H2JiwwWSOgiE8Tpx5OgnBg-1
-X-Mimecast-MFC-AGG-ID: H2JiwwWSOgiE8Tpx5OgnBg_1774562614
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4852ccff333so12988015e9.2
-        for <virtualization@lists.linux.dev>; Thu, 26 Mar 2026 15:03:34 -0700 (PDT)
+ us-mta-668-0bGY_RKJP6WfwEiOX8TVmA-1; Thu, 26 Mar 2026 21:13:59 -0400
+X-MC-Unique: 0bGY_RKJP6WfwEiOX8TVmA-1
+X-Mimecast-MFC-AGG-ID: 0bGY_RKJP6WfwEiOX8TVmA_1774574038
+Received: by mail-pg1-f198.google.com with SMTP id 41be03b00d2f7-c6e24ee93a6so1814826a12.0
+        for <virtualization@lists.linux.dev>; Thu, 26 Mar 2026 18:13:59 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1774562613; x=1775167413;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Lpgob1tvHT4IKRz9W+hPWJKbEluQbBFuXgVxhpqe0s0=;
-        b=P23SiypWUl0kAOegLj8FxXHgPevrCahasWze2ORONt4s5iEdxD2r8uUSB8ZW63O95L
-         7vEIIR9pz6XAkAl1v4VBdAoVr3eMpZsfHRUmkMuhIqhZqTn3gceQkEAVNEumoq7Bird5
-         t5C7LzHjHKfqsWRqQl1zR8WUoXE7v2tdZYJnShIprHlwQA16usRQ9m/dhxhAI8KLvZVq
-         dswxaPobMOUtoyQi3Bwnj9rSAly/wyGVP0hL7eNKp3k+EBTQ/4f+m4Z+mn9B6p95OoCp
-         dxhoomdfQ999PV3i1nSOgH0LOQKckL8AnPB9TGy+N5yv1cXHocHDzudEhhhe/lZvMdKZ
-         s3Pg==
-X-Forwarded-Encrypted: i=1; AJvYcCXa2v7Xp/LAgltWwVtRKlwkfnAlH2W+GVjgIoAU++tl+6+5tIwxvLRL8+k+Z6vCjXC6h6oOnT/1Wsojqnd+Nw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzMpWRT6iGZsQoJyz/dXYA2k5Ld2rWjh//0WswDvGedPndFyR3H
-	WwXeCEVwWZv+ndmWFpYY5l3DKtpdRMwwf+3jgKaNXvNixQpQyJwHpPiFyhA58RFgGvOeRSXiYIo
-	CVCb3rcauU8G4X+3VZYAdLz+PojwNxtGq5vlpOvWgJmrUZZkjmXug9iYJEWCMfKZZ2emNfpQ8lZ
-	KI
-X-Gm-Gg: ATEYQzz9rhFSLhQSXtdwIYSS6279Cj1fnjqAExaOrO+xKuIy18xye55fw5JZdYIMfYh
-	Q9nbe/J+gBL/qjF63qvotQoGgUf1ZJCJai7vB6IFi9lEr9/0QNpZ6mhPhv5C3jofTwHZI3rTY06
-	e1Jm/5Kqzw2iwUnuoPl596eVN9KHzuKsa2a8/KlqrQdqVKe4vzN6eziNLYIfFbESHMDRFlMrQkb
-	DJOS9DR65NvUZKSIxesmopJidJ1atbDw0qsfSMXwx74KLlQbK3YFtfECQkUXL/Y6kZ5KztOUOPy
-	KZFHA5949dgW+VBoH3ZtZDNmmwX3WmrFDSkZAkHaZUjZgHEVipU981gk7WwJG3Q4ST2OASXwSiC
-	mGN1c5hRq+o47cba9
-X-Received: by 2002:a05:600c:3d87:b0:487:1114:d42f with SMTP id 5b1f17b1804b1-48727d59da0mr4643745e9.1.1774562613590;
-        Thu, 26 Mar 2026 15:03:33 -0700 (PDT)
-X-Received: by 2002:a05:600c:3d87:b0:487:1114:d42f with SMTP id 5b1f17b1804b1-48727d59da0mr4643465e9.1.1774562613107;
-        Thu, 26 Mar 2026 15:03:33 -0700 (PDT)
-Received: from redhat.com ([2a0d:6fc0:1525:da00:3ac2:1a22:72ff:4256])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48722c9f58fsm90811505e9.11.2026.03.26.15.03.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 26 Mar 2026 15:03:32 -0700 (PDT)
-Date: Thu, 26 Mar 2026 18:03:28 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Simon Horman <horms@kernel.org>
-Cc: linux-kernel@vger.kernel.org, Omar Elghoul <oelghoul@linux.ibm.com>,
-	Srikanth Aithal <sraithal@amd.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Alexei Starovoitov <ast@kernel.org>,
-	Daniel Borkmann <daniel@iogearbox.net>,
-	Jesper Dangaard Brouer <hawk@kernel.org>,
-	John Fastabend <john.fastabend@gmail.com>,
-	Stanislav Fomichev <sdf@fomichev.me>,
-	Vishwanath Seshagiri <vishs@meta.com>, netdev@vger.kernel.org,
-	virtualization@lists.linux.dev, bpf@vger.kernel.org
-Subject: Re: [PATCH net-next] virtio_net: sync RX buffer before reading the
- header
-Message-ID: <20260326180313-mutt-send-email-mst@kernel.org>
-References: <f4caa9be9e5addae7851c012cab0a733be7f0974.1774365273.git.mst@redhat.com>
- <20260326181736.GV111839@horms.kernel.org>
+        d=1e100.net; s=20251104; t=1774574038; x=1775178838;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=6jItjwJJuANgTXGr+5yBvT6YAOU5YWaNA37h+VHMmew=;
+        b=EshVwdAT0KOekdV0avWzWl/hnEx0S0o8MFeg8wvTdaQdk+BAEMNjBblmh930834viF
+         eOImpCsW9E+pYaAcCD6sw2o9usvQkmCyMaUONWOEsymi8Iw4t3moNb2rYMR/MW76Qbc3
+         fI7rfGt8qngQVyYjtXtmfqD5b5KLHU7c1wuqhY4nyz6VaO7XxzdcImE6SMMDwah8dYnK
+         ehtevzw+G+lDGmiDtoC6ZdPhQiPBV/psTAPG2sV30mogEO1rp+8BfZsyfaQZWFjji8m4
+         I+cnLwDMCFyS4qr27x/S2XMrCEQ9ja28PwNSBbHf6qGIoj3ZYra1dbCZMgezaYK9no+2
+         5ayg==
+X-Forwarded-Encrypted: i=1; AJvYcCWBYMhQjMDL2WyM5mN0GeaTHiXmtTeFqH4p9VSnOb3k8gkvFlmX/4q2WCXHDc/wNLD1Kt8YTUe/ENH9F0z/bA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz9D+nvApJFVtOj5EK/XTrC6PJhGV1HDShfm7CdK//sOein9cTS
+	fDBjdET3fkzUD9235wEnqDNdMbNME5WgRvJgMXVNvCxJ0AUy/iBbRBpUWcIpSH93FfqKv99FHdl
+	lz2AfPWE9CeJ/oBD9TOhhsmMgHQ9sq8wn05IUaIXgItrHpwh+a2gKNDx6UCf3rUqaG26Fo55p1C
+	n/dW8zE+yFjAK4Mz+ZDocPr6NQqcCozrFJVTP/03Txc80=
+X-Gm-Gg: ATEYQzwqRVdRQlgb18th1yaei7dWUKuURijI6TXW6+DFzTtZmNLmYJVwBpwKxI5u2OU
+	p477Sccrv2AbXNXSCOHkDbK4Z2Wc/VGLvVoGBfeJHid7hvFtVgLf1qxcNzCC+pxQXv+l9FgEr9w
+	aPQ7UJQIIQBeKn1DzjQ0qP0oz5eVH6hJQzdlLQNmZIGds+7y6Qmn/rODMY9X9v1Nu7nIWfcXkwK
+	f3aX5Q=
+X-Received: by 2002:a05:6a20:1582:b0:394:505d:fcf8 with SMTP id adf61e73a8af0-39c73809298mr3587307637.30.1774574037555;
+        Thu, 26 Mar 2026 18:13:57 -0700 (PDT)
+X-Received: by 2002:a05:6a20:1582:b0:394:505d:fcf8 with SMTP id
+ adf61e73a8af0-39c73809298mr3587271637.30.1774574036896; Thu, 26 Mar 2026
+ 18:13:56 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260326181736.GV111839@horms.kernel.org>
+References: <20260312130639.138988-1-simon.schippers@tu-dortmund.de>
+ <20260312130639.138988-5-simon.schippers@tu-dortmund.de> <CACGkMEtN9XgYPGHQg4TEWEsa_UcMbcnzO=VaTFT=0Tn4BayMDw@mail.gmail.com>
+ <0908392d-6314-4141-b908-6c9a880ba0a4@tu-dortmund.de> <cda710f8-033a-4772-b5ce-a2cfddf42bea@tu-dortmund.de>
+ <CACGkMEuLqxnz=GtdKp3-u0egkGT_eZUgBBwvvtHcgAYpLJv-UA@mail.gmail.com> <3d3274b4-f274-4cf9-9d0f-989d05148604@tu-dortmund.de>
+In-Reply-To: <3d3274b4-f274-4cf9-9d0f-989d05148604@tu-dortmund.de>
+From: Jason Wang <jasowang@redhat.com>
+Date: Fri, 27 Mar 2026 09:13:44 +0800
+X-Gm-Features: AQROBzCm0eJyvWEdhgKck6Ldr_rdZXEPK0YJuDBmFmgznfSwGMPNb_QymFWCZlc
+Message-ID: <CACGkMEsUag4zNZG+aYipHv_PirbKb_rs7DzSOr-NF8ckhUaJOQ@mail.gmail.com>
+Subject: Re: [PATCH net-next v8 4/4] tun/tap & vhost-net: avoid ptr_ring
+ tail-drop when a qdisc is present
+To: Simon Schippers <simon.schippers@tu-dortmund.de>
+Cc: willemdebruijn.kernel@gmail.com, andrew+netdev@lunn.ch, 
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
+	mst@redhat.com, eperezma@redhat.com, leiyang@redhat.com, 
+	stephen@networkplumber.org, jon@nutanix.com, tim.gebauer@tu-dortmund.de, 
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: fYAV6jkF0R049pVA9g9czCo_-eNLT7ZmM4Gsr8W3DAY_1774562614
+X-Mimecast-MFC-PROC-ID: OcCYLTZEkDjRG-abs-j2oH3Xf8-OX2i28QcMlYAoDuI_1774574038
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Mar 26, 2026 at 06:17:36PM +0000, Simon Horman wrote:
-> On Tue, Mar 24, 2026 at 11:15:54AM -0400, Michael S. Tsirkin wrote:
-> > receive_buf() reads the virtio header through buf before
-> > page_pool_dma_sync_for_cpu() runs in receive_small() or
-> > receive_mergeable(). The header buffer is thus unsynchronized at the
-> > point where flags and, for mergeable buffers, num_buffers are consumed.
-> > 
-> > Omar Elghoul reported that on s390x Secure Execution this showed up as
-> > greatly reduced virtio-net performance together with "bad gso" and
-> > "bad csum" messages in dmesg. This is because with SE sync actually
-> > copies data, so the header is uninitialized.
-> > 
-> > Move the sync into receive_buf() so the
-> > header is synchronized before any access through buf.
-> > 
-> > Tool use: Cursor with GPT-5.4 drafted the initial code move from prompt:
-> > "in drivers/net/virtio_net.c, move page_pool_dma_sync_for_cpu on receive
-> > path to before memory is accessed through buf".
-> > The result and the commit log were reviewed and edited manually.
-> > 
-> > Fixes: 168b61da6871 ("virtio_net: add page_pool support for buffer allocation")
-> 
-> Hi Michael,
-> 
-> The hash for a patch with that subject in net-next appears to be 24fbd3967f3f.
+On Thu, Mar 26, 2026 at 11:31=E2=80=AFPM Simon Schippers
+<simon.schippers@tu-dortmund.de> wrote:
+>
+> On 3/26/26 03:41, Jason Wang wrote:
+> > On Wed, Mar 25, 2026 at 10:48=E2=80=AFPM Simon Schippers
+> > <simon.schippers@tu-dortmund.de> wrote:
+> >>
+> >> On 3/24/26 11:14, Simon Schippers wrote:
+> >>> On 3/24/26 02:47, Jason Wang wrote:
+> >>>> On Thu, Mar 12, 2026 at 9:07=E2=80=AFPM Simon Schippers
+> >>>> <simon.schippers@tu-dortmund.de> wrote:
+> >>>>>
+> >>>>> This commit prevents tail-drop when a qdisc is present and the ptr_=
+ring
+> >>>>> becomes full. Once an entry is successfully produced and the ptr_ri=
+ng
+> >>>>> reaches capacity, the netdev queue is stopped instead of dropping
+> >>>>> subsequent packets.
+> >>>>>
+> >>>>> If producing an entry fails anyways due to a race, tun_net_xmit ret=
+urns
+> >>>>> NETDEV_TX_BUSY, again avoiding a drop. Such races are expected beca=
+use
+> >>>>> LLTX is enabled and the transmit path operates without the usual lo=
+cking.
+> >>>>>
+> >>>>> The existing __tun_wake_queue() function wakes the netdev queue. Ra=
+ces
+> >>>>> between this wakeup and the queue-stop logic could leave the queue
+> >>>>> stopped indefinitely. To prevent this, a memory barrier is enforced
+> >>>>> (as discussed in a similar implementation in [1]), followed by a re=
+check
+> >>>>> that wakes the queue if space is already available.
+> >>>>>
+> >>>>> If no qdisc is present, the previous tail-drop behavior is preserve=
+d.
+> >>>>
+> >>>> I wonder if we need a dedicated TUN flag to enable this. With this n=
+ew
+> >>>> flag, we can even prevent TUN from using noqueue (not sure if it's
+> >>>> possible or not).
+> >>>>
+> >>>
+> >>> Except of the slight regressions because of this patchset I do not se=
+e
+> >>> a reason for such a flag.
+> >>>
+> >>> I have never seen that the driver prevents noqueue. For example you c=
+an
+> >>> set noqueue to your ethernet interface and under load you soon get
+> >>>
+> >>> net_crit_ratelimited("Virtual device %s asks to queue packet!\n",
+> >>>                                            dev->name);
+> >>>
+> >>> followed by a -ENETDOWN. And this is not prevented even though it is
+> >>> clearly not something a user wants.
+> >>>
+> >>>>>
+> >>>>> Benchmarks:
+> >>>>> The benchmarks show a slight regression in raw transmission perform=
+ance,
+> >>>>> though no packets are lost anymore.
+> >>>>>
+> >>>>> The previously introduced threshold to only wake after the queue st=
+opped
+> >>>>> and half of the ring was consumed showed to be a descent choice:
+> >>>>> Waking the queue whenever a consume made space in the ring strongly
+> >>>>> degrades performance for tap, while waking only when the ring is em=
+pty
+> >>>>> is too late and also hurts throughput for tap & tap+vhost-net.
+> >>>>> Other ratios (3/4, 7/8) showed similar results (not shown here), so
+> >>>>> 1/2 was chosen for the sake of simplicity for both tun/tap and
+> >>>>> tun/tap+vhost-net.
+> >>>>>
+> >>>>> Test setup:
+> >>>>> AMD Ryzen 5 5600X at 4.3 GHz, 3200 MHz RAM, isolated QEMU threads;
+> >>>>> Average over 20 runs @ 100,000,000 packets. SRSO and spectre v2
+> >>>>> mitigations disabled.
+> >>>>>
+> >>>>> Note for tap+vhost-net:
+> >>>>> XDP drop program active in VM -> ~2.5x faster, slower for tap due t=
+o
+> >>>>> more syscalls (high utilization of entry_SYSRETQ_unsafe_stack in pe=
+rf)
+> >>>>>
+> >>>>> +--------------------------+--------------+----------------+-------=
+---+
+> >>>>> | 1 thread                 | Stock        | Patched with   | diff  =
+   |
+> >>>>> | sending                  |              | fq_codel qdisc |       =
+   |
+> >>>>> +------------+-------------+--------------+----------------+-------=
+---+
+> >>>>> | TAP        | Transmitted | 1.151 Mpps   | 1.139 Mpps     | -1.1% =
+   |
+> >>>>> |            +-------------+--------------+----------------+-------=
+---+
+> >>>>> |            | Lost/s      | 3.606 Mpps   | 0 pps          |       =
+   |
+> >>>>> +------------+-------------+--------------+----------------+-------=
+---+
+> >>>>> | TAP        | Transmitted | 3.948 Mpps   | 3.738 Mpps     | -5.3% =
+   |
+> >>>>> |            +-------------+--------------+----------------+-------=
+---+
+> >>>>> | +vhost-net | Lost/s      | 496.5 Kpps   | 0 pps          |       =
+   |
+> >>>>> +------------+-------------+--------------+----------------+-------=
+---+
+> >>>>>
+> >>>>> +--------------------------+--------------+----------------+-------=
+---+
+> >>>>> | 2 threads                | Stock        | Patched with   | diff  =
+   |
+> >>>>> | sending                  |              | fq_codel qdisc |       =
+   |
+> >>>>> +------------+-------------+--------------+----------------+-------=
+---+
+> >>>>> | TAP        | Transmitted | 1.133 Mpps   | 1.109 Mpps     | -2.1% =
+   |
+> >>>>> |            +-------------+--------------+----------------+-------=
+---+
+> >>>>> |            | Lost/s      | 8.269 Mpps   | 0 pps          |       =
+   |
+> >>>>> +------------+-------------+--------------+----------------+-------=
+---+
+> >>>>> | TAP        | Transmitted | 3.820 Mpps   | 3.513 Mpps     | -8.0% =
+   |
+> >>>>> |            +-------------+--------------+----------------+-------=
+---+
+> >>>>> | +vhost-net | Lost/s      | 4.961 Mpps   | 0 pps          |       =
+   |
+> >>>>> +------------+-------------+--------------+----------------+-------=
+---+
+> >>>>>
+> >>>>> [1] Link: https://lore.kernel.org/all/20250424085358.75d817ae@kerne=
+l.org/
+> >>>>>
+> >>>>> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+> >>>>> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+> >>>>> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
+> >>>>> ---
+> >>>>>  drivers/net/tun.c | 30 ++++++++++++++++++++++++++++--
+> >>>>>  1 file changed, 28 insertions(+), 2 deletions(-)
+> >>>>>
+> >>>>> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+> >>>>> index b86582cc6cb6..9b7daec69acd 100644
+> >>>>> --- a/drivers/net/tun.c
+> >>>>> +++ b/drivers/net/tun.c
+> >>>>> @@ -1011,6 +1011,8 @@ static netdev_tx_t tun_net_xmit(struct sk_buf=
+f *skb, struct net_device *dev)
+> >>>>>         struct netdev_queue *queue;
+> >>>>>         struct tun_file *tfile;
+> >>>>>         int len =3D skb->len;
+> >>>>> +       bool qdisc_present;
+> >>>>> +       int ret;
+> >>>>>
+> >>>>>         rcu_read_lock();
+> >>>>>         tfile =3D rcu_dereference(tun->tfiles[txq]);
+> >>>>> @@ -1063,13 +1065,37 @@ static netdev_tx_t tun_net_xmit(struct sk_b=
+uff *skb, struct net_device *dev)
+> >>>>>
+> >>>>>         nf_reset_ct(skb);
+> >>>>>
+> >>>>> -       if (ptr_ring_produce(&tfile->tx_ring, skb)) {
+> >>>>> +       queue =3D netdev_get_tx_queue(dev, txq);
+> >>>>> +       qdisc_present =3D !qdisc_txq_has_no_queue(queue);
+> >>>>> +
+> >>>>> +       spin_lock(&tfile->tx_ring.producer_lock);
+> >>>>> +       ret =3D __ptr_ring_produce(&tfile->tx_ring, skb);
+> >>>>> +       if (__ptr_ring_produce_peek(&tfile->tx_ring) && qdisc_prese=
+nt) {
+> >>>>
+> >>>> So, it's possible that the administrator is switching between noqueu=
+e
+> >>>> and another qdisc. So ptr_ring_produce() can fail here, do we need t=
+o
+> >>>> check that or not?
+> >>>>
+> >>>
+> >>> Do you mean that? My thoughts:
+> >>>
+> >>> Switching from noqueue to some qdisc can cause a
+> >>>
+> >>> net_crit_ratelimited("Virtual device %s asks to queue packet!\n",
+> >>>                                            dev->name);
+> >>>
+> >>> followed by a return of -ENETDOWN in __dev_queue_xmit().
+> >>> This is because tun_net_xmit detects some qdisc with
+> >>>
+> >>> qdisc_present =3D !qdisc_txq_has_no_queue(queue);
+> >>>
+> >>> and returns NETDEV_TX_BUSY even though __dev_queue_xmit() did still
+> >>> detect noqueue.
+> >>>
+> >>> I am not sure how to solve this/if this has to be solved.
+> >>> I do not see a proper way to avoid parallel execution of ndo_start_xm=
+it
+> >>> and a qdisc change (dev_graft_qdisc only takes qdisc_skb_head lock).
+> >>>
+> >>> And from my understanding the veth implementation faces the same issu=
+e.
+> >>
+> >> How about rechecking if a qdisc is connected?
+> >> This would avoid -ENETDOWN.
+> >>
+> >> diff --git a/net/core/dev.c b/net/core/dev.c
+> >> index f48dc299e4b2..2731a1a70732 100644
+> >> --- a/net/core/dev.c
+> >> +++ b/net/core/dev.c
+> >> @@ -4845,10 +4845,17 @@ int __dev_queue_xmit(struct sk_buff *skb, stru=
+ct net_device *sb_dev)
+> >>                                 if (is_list)
+> >>                                         rc =3D NETDEV_TX_OK;
+> >>                         }
+> >> +                       bool qdisc_present =3D !qdisc_txq_has_no_queue=
+(txq);
+> >>                         HARD_TX_UNLOCK(dev, txq);
+> >>                         if (!skb) /* xmit completed */
+> >>                                 goto out;
+> >>
+> >> +                       /* Maybe a qdisc was connected in the meantime=
+ */
+> >> +                       if (qdisc_present) {
+> >> +                               kfree_skb(skb);
+> >> +                               goto out;
+> >> +                       }
+> >> +
+> >>                         net_crit_ratelimited("Virtual device %s asks t=
+o queue packet!\n",
+> >>                                              dev->name);
+> >>                         /* NETDEV_TX_BUSY or queue was stopped */
+> >>
+> >
+> > Probably not, and we likely won't hit this warning because qdisc could
+> > not be changed during ndo_start_xmit().
+>
+> Okay.
+>
+> >
+> > I meant something like this:
+> >
+> > 1) set noqueue to tuntap
+> > 2) produce packets so tuntap is full
+> > 3) set e.g fq_codel to tuntap
+> > 4) then we can hit the failure of __ptr_ring_produce()
+> >
+> > Rethink of the code, it looks just fine.
+>
+> Yes, in this case it just returns NETDEV_TX_BUSY which is fine with a
+> qdisc attached.
+>
+> >
+> >>
+> >>>
+> >>>
+> >>> Switching from some qdisc to noqueue is no problem I think.
+> >>>
+> >>>>> +               netif_tx_stop_queue(queue);
+> >>>>> +               /* Avoid races with queue wake-ups in __tun_wake_qu=
+eue by
+> >>>>> +                * waking if space is available in a re-check.
+> >>>>> +                * The barrier makes sure that the stop is visible =
+before
+> >>>>> +                * we re-check.
+> >>>>> +                */
+> >>>>> +               smp_mb__after_atomic();
+> >>>>
+> >>>> Let's document which barrier is paired with this.
+> >>>>
+> >>>
+> >>> I am basically copying the (old) logic of veth [1] proposed by
+> >>> Jakub Kicinski. I must admit I am not 100% sure what it pairs with.
+> >>>
+> >>> [1] Link: https://lore.kernel.org/all/20250424085358.75d817ae@kernel.=
+org/
+> >
+> > So it looks like it implicitly tries to pair with tun_ring_consume():
+> >
+> > 1) spinlock(consumer_lock)
+> > 2) store NULL to ptr_ring // STORE
+> > 3) spinunlock(consumer_lock) // RELEASE
+> > 4) spinlock(consumer_lock) // ACQURE
+> > 5) check empty
+> > 6) spinunlock(consumer_lock)
+> > 7) netif_wakeup_queue() // test_and_set() which is an RMW
+> >
+> > RELEASE + ACQUIRE implies a full barrier
+>
+> Thanks.
+>
+> >
+> > I see several problems
+> >
+> > 1) Due to batch consumption, we may get spurious wakeups under heavy
+> > load (we can try disabling batch consuming to see if it helps).
+>
+> I assume that you mean the waking in the recheck of the producer happens
+> too often and then wakes too often. But this would just take slightly
+> more producer cpu as the SOFTIRQ runs on the producer cpu and not slow
+> down the consumer?
+>
+> Why would disabling batch consume help here?
 
-Thanks, will fix in the next version.
+We could end up with.
 
-> > Reported-by: Omar Elghoul <oelghoul@linux.ibm.com>
-> > Tested-by: Srikanth Aithal <sraithal@amd.com>
-> > Tested-by: Omar Elghoul <oelghoul@linux.ibm.com>
-> > Link: https://lore.kernel.org/r/20260323150136.14452-1-oelghoul@linux.ibm.com
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> 
-> ...
+1) consumer wakes up the producer but the slot is not cleaned
+2) producer is woken up but see the ring is full, so it need to drop the pa=
+cket
+
+This probably defeat the goal of zero packet loss.
+
+> Wouldn't it just decrease the consumer speed?
+
+Not sure, we probably need a benchmark.
+
+>
+> Apart from that I do not see a different method to do this recheck.
+> The ring producer is only safely able to do a !produce_peek (so a check
+> for !full).
+>
+> The normal waking (after consuming half of the ring) should be fine IMO.
+>
+> > 2) So the barriers don't help but would slow down the consuming
+> > 3) Two spinlocks were used instead of one, this is another reason we
+> > will see a performance regression
+>
+> You are right, I can change it to a single spin_lock. Apart from that
+> I do not see how the barriers/locking could be reduced further.
+>
+> > 4) Tricky code that needs to be understood or at least requires a comme=
+nt tweak.
+> >
+> > Note that due to ~IFF_TX_SKB_SHARING, pktgen can't clone skbs, so we
+> > may not notice the real degradation.
+>
+> So run pktgen with pg_set SHARED?
+
+Probably (as a workaround).
+
+> I am pretty sure that the vhost
+> thread was always at 100% CPU so pktgen was not the bottleneck. And when
+> I had perf enabled I always saw that in my patched version not the
+> creation of SKB's took most CPU in pktgen but a different unnamed
+> function (I assume this is a waiting function).
+
+Let's try and see.
+
+Thanks
+
+>
+>
+> Thank you!
+>
+> >
+> >>>
+> >>>>> +               if (!__ptr_ring_produce_peek(&tfile->tx_ring))
+> >>>>> +                       netif_tx_wake_queue(queue);
+> >>>>> +       }
+> >>>>> +       spin_unlock(&tfile->tx_ring.producer_lock);
+> >>>>> +
+> >>>>> +       if (ret) {
+> >>>>> +               /* If a qdisc is attached to our virtual device,
+> >>>>> +                * returning NETDEV_TX_BUSY is allowed.
+> >>>>> +                */
+> >>>>> +               if (qdisc_present) {
+> >>>>> +                       rcu_read_unlock();
+> >>>>> +                       return NETDEV_TX_BUSY;
+> >>>>> +               }
+> >>>>>                 drop_reason =3D SKB_DROP_REASON_FULL_RING;
+> >>>>>                 goto drop;
+> >>>>>         }
+> >>>>>
+> >>>>>         /* dev->lltx requires to do our own update of trans_start *=
+/
+> >>>>> -       queue =3D netdev_get_tx_queue(dev, txq);
+> >>>>>         txq_trans_cond_update(queue);
+> >>>>>
+> >>>>>         /* Notify and wake up reader process */
+> >>>>> --
+> >>>>> 2.43.0
+> >>>>>
+> >>>>
+> >>>> Thanks
+> >>>>
+> >>
+> >
+> > Thanks
+> >
+>
 
