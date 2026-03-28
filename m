@@ -1,106 +1,106 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF2BF1DDC3F;
-	Sat, 28 Mar 2026 03:30:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 715A9350D4F;
+	Sat, 28 Mar 2026 12:10:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774668626; cv=none; b=oLkcUgXFHlbCJ5uEuist3CSebJKzC6AQ376eDtMcfv8apdUL4Oa4Hs/KXDZ1ljpsXvOik2NfdwQErngWfvl8sguNRLfPmcmY9kTml3EGBfJ233nIpBHNYQjVvI85beqOZCeR+72fVR7fiRjdJWWJeuO3XWMLdRVaCs5ovo20TV4=
+	t=1774699839; cv=none; b=idvw0vZasCWtKC09RJJMrl6FbB+K7+TrAITPVoyVeZFwEpzgI0Zm49hF0jUcNQvkK3108+aXI60WZLf9AWr3+VvUon75YNxv0tFwhhZtxy3FDZiRgNDElfUAx5qRGklYlJEK1hDzqrw5BlqTyCIWpTNEHW8t3EOK5D7Q42SXHcA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774668626; c=relaxed/simple;
-	bh=j0dH5kvTMqHLiJML1JmVpOXxmBCLlUMBSucA7QjeNlA=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=RL8kBB++RA3loQV1P2DzbHYhIw9Q5EHNnciPLB9E4Rj/2xeLOkzHemt1tvpAiHT2nWAK2MvdP2nQvFYsg4GK1sPTlnRW/WgL0JnAEiUPOw9yhLeiBYnvUXopTLqZXZTT1d/ErvDFvPV+GVfdvMNABaNimYsNiy3VVaPwoJp/Y1k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=sRSDToqU; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774699839; c=relaxed/simple;
+	bh=NTFcZ7aSZIsyP3qPdyEPoyvUbM7dBDc1cogifZf44fs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=P9XCRS2qW87CLdzcr8Zki5ktXAEtAvaTVtrv6LymA3iPpHFyYZeUoy2W6aUVFGTREiJP5JtKLK9uERT4Xbd6YMWR5L2P4XAprMHCdi+v1AFI26tMhMr5rUpkzb2IzeRg0fNh1PaeJfhEP3+XI/nDw3jNksx/uWP0sUlqGnbdQew=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LQI2u2FJ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="sRSDToqU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 70A6CC19424;
-	Sat, 28 Mar 2026 03:30:26 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LQI2u2FJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 24AC2C4CEF7;
+	Sat, 28 Mar 2026 12:10:26 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774668626;
-	bh=j0dH5kvTMqHLiJML1JmVpOXxmBCLlUMBSucA7QjeNlA=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
-	b=sRSDToqUtgUGZDh+5qnZAYPT3xCTpLrrjLzoZrzyFuSCOnBpxDMeA9rfKNcVrKH/T
-	 pwq4NbG4CledVelDW4C1K870u2iPacWe+HG7cUpp9cAJKbVGqXCAQW2l5tr2VlVErv
-	 PpJMWuxHpgdaM13etbe/8T7eX07sXvsDTQUkFXXVmddUjO6/QwOsFV8ZJnJDeIu1fi
-	 oTeeNYO3BbnAR2xBnIJbZym/qeAwgpHjo25xBoO2NyQC8J1+HV9VsF1npyAGzFzZHp
-	 /J5CNGjcMeTUgVk0NisrsSoCNSrb1Ho91aS7M21wD99sWyOZkzyB9dBpiBGrgbcKh4
-	 oxPlZTAiVqjlg==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 3FDD73930181;
-	Sat, 28 Mar 2026 03:30:13 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=k20201202; t=1774699839;
+	bh=NTFcZ7aSZIsyP3qPdyEPoyvUbM7dBDc1cogifZf44fs=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=LQI2u2FJrZdfURKcCR9tStL7U7j9JDQoiHCmq72vccMs+ZUBhp+9/TKvL161WNaYt
+	 HB6Cn/KW4bpF4LE8szU/Ttp0n1iAeBjvFxI338mQ+OH5v7/aZmAQ9mRmTZhzpLHT8Q
+	 2ij/qw3sRiilAWVo3GAkTfwxr5AaAfiGpMiRoVeACXWF2FpqJdBr1mqCSFspFTpRGG
+	 IWAWGn1ScwG3hTcEoF9XWrUzsMNbRCB9m36GDK5FSVbYng9NVfLXXuJIcV7JatH039
+	 EqdHKj9j/+OVngUAIX3Bg6ahCKh6k16Ub4DhdqyNRlVlqKadrI7x9Bvws94pvNi0EJ
+	 U/HidD7p2Gw6Q==
+Message-ID: <4c5e9bad-82f0-4714-99c2-8ccd79a45043@kernel.org>
+Date: Sat, 28 Mar 2026 13:10:25 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 02/12] bus: fsl-mc: use generic driver_override
+ infrastructure
+To: Ioana Ciornei <ioana.ciornei@nxp.com>, Danilo Krummrich <dakr@kernel.org>
+Cc: Russell King <linux@armlinux.org.uk>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ "Rafael J. Wysocki" <rafael@kernel.org>, Nipun Gupta <nipun.gupta@amd.com>,
+ Nikhil Agarwal <nikhil.agarwal@amd.com>, "K. Y. Srinivasan"
+ <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>,
+ Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+ Long Li <longli@microsoft.com>, Bjorn Helgaas <bhelgaas@google.com>,
+ Armin Wolf <W_Armin@gmx.de>, Bjorn Andersson <andersson@kernel.org>,
+ Mathieu Poirier <mathieu.poirier@linaro.org>,
+ Vineeth Vijayan <vneethv@linux.ibm.com>,
+ Peter Oberparleiter <oberpar@linux.ibm.com>,
+ Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Christian Borntraeger <borntraeger@linux.ibm.com>,
+ Sven Schnelle <svens@linux.ibm.com>,
+ Harald Freudenberger <freude@linux.ibm.com>,
+ Holger Dengler <dengler@linux.ibm.com>, Mark Brown <broonie@kernel.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C4=82=C2=A9rez?=
+ <eperezma@redhat.com>, Alex Williamson <alex@shazbot.org>,
+ Juergen Gross <jgross@suse.com>, Stefano Stabellini
+ <sstabellini@kernel.org>,
+ Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+ linux-kernel@vger.kernel.org, driver-core@lists.linux.dev,
+ linuxppc-dev@lists.ozlabs.org, linux-hyperv@vger.kernel.org,
+ linux-pci@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+ linux-arm-msm@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+ linux-s390@vger.kernel.org, linux-spi@vger.kernel.org,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org,
+ xen-devel@lists.xenproject.org, linux-arm-kernel@lists.infradead.org,
+ Gui-Dong Han <hanguidong02@gmail.com>
+References: <20260324005919.2408620-1-dakr@kernel.org>
+ <20260324005919.2408620-3-dakr@kernel.org>
+ <cvcetxkxjq2tz6n2vsofhyzove3qdi2e4r6rq6yxou3joejk2h@rmt5ygav7ssu>
+Content-Language: fr-FR
+From: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
+In-Reply-To: <cvcetxkxjq2tz6n2vsofhyzove3qdi2e4r6rq6yxou3joejk2h@rmt5ygav7ssu>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH v2 net] ptr_ring: disable KCSAN warnings
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <177466861178.4167434.16609769903000560037.git-patchwork-notify@kernel.org>
-Date: Sat, 28 Mar 2026 03:30:11 +0000
-References: 
- <dd3984b3bce9df3591927f927668cb31cc7ecf34.1774460059.git.mst@redhat.com>
-In-Reply-To: 
- <dd3984b3bce9df3591927f927668cb31cc7ecf34.1774460059.git.mst@redhat.com>
-To: Michael S. Tsirkin <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, bpf@vger.kernel.org,
- simon.schippers@tu-dortmund.de, willemdebruijn.kernel@gmail.com,
- jasowang@redhat.com, andrew+netdev@lunn.ch, davem@davemloft.net,
- kuba@kernel.org, pabeni@redhat.com, eperezma@redhat.com, leiyang@redhat.com,
- stephen@networkplumber.org, jon@nutanix.com, tim.gebauer@tu-dortmund.de,
- netdev@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux.dev,
- edumazet@google.com
 
-Hello:
 
-This patch was applied to netdev/net-next.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
 
-On Wed, 25 Mar 2026 13:36:00 -0400 you wrote:
-> Eric Dumazet reported KCSAN warnings:
+Le 25/03/2026 à 13:01, Ioana Ciornei a écrit :
+> On Tue, Mar 24, 2026 at 01:59:06AM +0100, Danilo Krummrich wrote:
+>> When a driver is probed through __driver_attach(), the bus' match()
+>> callback is called without the device lock held, thus accessing the
+>> driver_override field without a lock, which can cause a UAF.
+>>
+>> Fix this by using the driver-core driver_override infrastructure taking
+>> care of proper locking internally.
+>>
+>> Note that calling match() from __driver_attach() without the device lock
+>> held is intentional. [1]
+>>
+>> Link: https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Flore.kernel.org%2Fdriver-core%2FDGRGTIRHA62X.3RY09D9SOK77P%40kernel.org%2F&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7C4b9262ddecdd4ce29f9808de8a66485e%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C639100369055903282%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=%2BRfjlUkq7oWV%2F0v2S2B%2BEuxCY%2FLRQv6qHiEWiupd6kc%3D&reserved=0 [1]
+>> Reported-by: Gui-Dong Han <hanguidong02@gmail.com>
+>> Closes: https://eur01.safelinks.protection.outlook.com/?url=https%3A%2F%2Fbugzilla.kernel.org%2Fshow_bug.cgi%3Fid%3D220789&data=05%7C02%7Cchristophe.leroy%40csgroup.eu%7C4b9262ddecdd4ce29f9808de8a66485e%7C8b87af7d86474dc78df45f69a2011bb5%7C0%7C0%7C639100369055936232%7CUnknown%7CTWFpbGZsb3d8eyJFbXB0eU1hcGkiOnRydWUsIlYiOiIwLjAuMDAwMCIsIlAiOiJXaW4zMiIsIkFOIjoiTWFpbCIsIldUIjoyfQ%3D%3D%7C0%7C%7C%7C&sdata=XL1K1ICiygOZnlvDUbQFe192KnLsBQms0HFNGCuyz%2Fw%3D&reserved=0
+>> Fixes: 1f86a00c1159 ("bus/fsl-mc: add support for 'driver_override' in the mc-bus")
+>> Signed-off-by: Danilo Krummrich <dakr@kernel.org>
 > 
-> BUG: KCSAN: data-race in pfifo_fast_dequeue / pfifo_fast_enqueue
+> Tested-by: Ioana Ciornei <ioana.ciornei@nxp.com>
+> Signed-off-by: Ioana Ciornei <ioana.ciornei@nxp.com>
 > 
-> write to 0xffff88811d5ccc00 of 8 bytes by interrupt on cpu 0:
-> __ptr_ring_zero_tail include/linux/ptr_ring.h:259 [inline]
-> __ptr_ring_discard_one include/linux/ptr_ring.h:291 [inline]
-> __ptr_ring_consume include/linux/ptr_ring.h:311 [inline]
-> __skb_array_consume include/linux/skb_array.h:98 [inline]
-> pfifo_fast_dequeue+0x770/0x8f0 net/sched/sch_generic.c:770
-> dequeue_skb net/sched/sch_generic.c:297 [inline]
-> qdisc_restart net/sched/sch_generic.c:402 [inline]
-> __qdisc_run+0x189/0xc80 net/sched/sch_generic.c:420
-> qdisc_run include/net/pkt_sched.h:120 [inline]
-> net_tx_action+0x379/0x590 net/core/dev.c:5793
-> handle_softirqs+0xb9/0x280 kernel/softirq.c:622
-> do_softirq+0x45/0x60 kernel/softirq.c:523
-> __local_bh_enable_ip+0x70/0x80 kernel/softirq.c:450
-> local_bh_enable include/linux/bottom_half.h:33 [inline]
-> bpf_test_run+0x2db/0x620 net/bpf/test_run.c:426
-> bpf_prog_test_run_skb+0x9a4/0xef0 net/bpf/test_run.c:1159
-> bpf_prog_test_run+0x204/0x340 kernel/bpf/syscall.c:4721
-> __sys_bpf+0x52e/0x7e0 kernel/bpf/syscall.c:6246
-> __do_sys_bpf kernel/bpf/syscall.c:6341 [inline]
-> __se_sys_bpf kernel/bpf/syscall.c:6339 [inline]
-> __x64_sys_bpf+0x41/0x50 kernel/bpf/syscall.c:6339
-> x64_sys_call+0x10cb/0x3020 arch/x86/include/generated/asm/syscalls_64.h:322
-> do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
-> do_syscall_64+0x12c/0x370 arch/x86/entry/syscall_64.c:94
-> entry_SYSCALL_64_after_hwframe+0x77/0x7f
-> 
-> [...]
-
-Here is the summary with links:
-  - [v2,net] ptr_ring: disable KCSAN warnings
-    https://git.kernel.org/netdev/net-next/c/d748047af135
-
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
 
 
+Applied, thanks
