@@ -1,215 +1,184 @@
-Received: from LO0P265CU003.outbound.protection.outlook.com (mail-uksouthazon11022119.outbound.protection.outlook.com [52.101.96.119])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F19653DCD9C
-	for <virtualization@lists.linux.dev>; Mon, 30 Mar 2026 22:11:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.96.119
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774908701; cv=fail; b=XeNiB0MC5cSOt/xoXkhShPVlsVYCehS3K+1LzQuUDfZeK4bj95bF1yrDTUNL+hwFPUQqmE3sHPdVxOo3ZCOwu0s/OpNbbXhn1WwV1dmM+84JhHDYAz684fCL3FwgGIsOtGPL/sRijnH+9p+tGXRpRWma/9CXkuFPqjJQ6K3cwb8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774908701; c=relaxed/simple;
-	bh=ogEeDzV+LVEZHZ1eRbPOXXTGYSqG5oysG7Z3ejObpe4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=Z/8xd3CiiDMQP4gnbhygo2+dzXbqJ1f9NKWa6PlQjZ8jSM5bSn4Ed0MQT9CubsnYahQ1zWmX6A3mHzAx+4mJJAk/u/0cUOvFvKp7Bc+PL9Kvz5l3ZS0y/zOIjhXzaUevsdLqzOWZUHpwbcOmDdfMvrHQ8geW3w8DXSzKMKnGxzE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com; spf=pass smtp.mailfrom=atomlin.com; arc=fail smtp.client-ip=52.101.96.119
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=atomlin.com
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=BEopKRXQSLCJwv0eI/tIA0MJyPdofTMO/9Xt2/Ur7D61BD09kquidsiDJ+0kO4urT8BjNoLvIpX/9TTWEox8yjBPwfFQ0xHv29Cb0qB1aiLcYOTNw/r+NcgdxlWsVW+3eDOWpzLpp5owxf7A6hkfbHtrds15UyS3WxR3gt71yxHr2+COk2DD/YPIT7m9s2fXVFvpg/jnXLAHTLXVOk53fWYXeoJIRA/inrCSl7f7so8mRi9IMorU2iWf5LVUAniyjhpAHtxnp+RXToVYNcDbDfwpPL44fRs8S5i9EtXDmVKpmBkYBPzEC1ur9ra8fJ9WmqzzeyQIZoPbcW+sYDGHLA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=rmWC6QGOVxeNPUHeGnXrU3BrxZ8azJrRPagwYTbPgrs=;
- b=sYcMIiElMwh5Oa5A0SFEZteKwZ1+7NlRTcMczKGW9m9NryCQjMa8VXToJDZqfYbwKwSxqoG9uDfgouOQrrP65pnF9C/Zf2P7qFvf1qnIk/JVmSknSvGyybmxTByqdyPdkRA7PTDBiw8413mQyrWeZxXNkE8/ll8L7gDd/pOZhhI8Y/GE5aMDhxCZ4gflUSjBVsxJ/KHmaBsifjGIw3w9nXLdYbXVARAgZId+LVykeXeu1sm6Ahms9tMqFylrEogYOYC3uqpH6mfHJ+LYvmis4GN+CDloj8ghpxXPCHtc+k7XmaWoHCf4Fi7PabV+pf4soj4Ici+U4OlAqWSyAdznNQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=atomlin.com; dmarc=pass action=none header.from=atomlin.com;
- dkim=pass header.d=atomlin.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=atomlin.com;
-Received: from CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM (2603:10a6:400:70::10)
- by CWLP123MB3841.GBRP123.PROD.OUTLOOK.COM (2603:10a6:400:a9::14) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9745.28; Mon, 30 Mar
- 2026 22:11:37 +0000
-Received: from CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
- ([fe80::de8e:2e4f:6c6:f3bf]) by CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
- ([fe80::de8e:2e4f:6c6:f3bf%2]) with mapi id 15.20.9745.022; Mon, 30 Mar 2026
- 22:11:37 +0000
-From: Aaron Tomlin <atomlin@atomlin.com>
-To: axboe@kernel.dk,
-	kbusch@kernel.org,
-	hch@lst.de,
-	sagi@grimberg.me,
-	mst@redhat.com
-Cc: atomlin@atomlin.com,
-	aacraid@microsemi.com,
-	James.Bottomley@HansenPartnership.com,
-	martin.petersen@oracle.com,
-	liyihang9@h-partners.com,
-	kashyap.desai@broadcom.com,
-	sumit.saxena@broadcom.com,
-	shivasharan.srikanteshwara@broadcom.com,
-	chandrakanth.patil@broadcom.com,
-	sathya.prakash@broadcom.com,
-	sreekanth.reddy@broadcom.com,
-	suganath-prabu.subramani@broadcom.com,
-	ranjan.kumar@broadcom.com,
-	jinpu.wang@cloud.ionos.com,
-	tglx@kernel.org,
-	mingo@redhat.com,
-	peterz@infradead.org,
-	juri.lelli@redhat.com,
-	vincent.guittot@linaro.org,
-	akpm@linux-foundation.org,
-	maz@kernel.org,
-	ruanjinjie@huawei.com,
-	bigeasy@linutronix.de,
-	yphbchou0911@gmail.com,
-	wagi@kernel.org,
-	frederic@kernel.org,
-	longman@redhat.com,
-	chenridong@huawei.com,
-	hare@suse.de,
-	kch@nvidia.com,
-	ming.lei@redhat.com,
-	steve@abita.co,
-	sean@ashe.io,
-	chjohnst@gmail.com,
-	neelx@suse.com,
-	mproche@gmail.com,
-	linux-block@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	linux-nvme@lists.infradead.org,
-	linux-scsi@vger.kernel.org,
-	megaraidlinux.pdl@broadcom.com,
-	mpi3mr-linuxdrv.pdl@broadcom.com,
-	MPT-FusionLinux.pdl@broadcom.com
-Subject: [PATCH v9 13/13] docs: add io_queue flag to isolcpus
-Date: Mon, 30 Mar 2026 18:10:47 -0400
-Message-ID: <20260330221047.630206-14-atomlin@atomlin.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260330221047.630206-1-atomlin@atomlin.com>
-References: <20260330221047.630206-1-atomlin@atomlin.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: BN9P220CA0001.NAMP220.PROD.OUTLOOK.COM
- (2603:10b6:408:13e::6) To CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
- (2603:10a6:400:70::10)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE2B53B47CF
+	for <virtualization@lists.linux.dev>; Mon, 30 Mar 2026 23:09:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1774912203; cv=none; b=CNFzo6+O7mX67w3jth+OOhp1zfXdZcn0sDa1Bf47oE7Xp3lAFEiLOpLkeSH6LbLaStRW2PSyRSh03qYTTXRuqD3ek2dRmUsv1k4dyG59Lk4ZLRg9llJNnTlittOCfNXo18iTfQIZHvU8ujgTgN5P9mj1Mmu+FYzvVaGdQu8PDWk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1774912203; c=relaxed/simple;
+	bh=je0nK5GYgw4YWy/87+u34k0PPJBhDhJUBSziNOQACTc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ev/E4nWCccS1RbXARNRoZJIYnkyijFcqwg+13MrpsWdHHqN3gXL/h6vPOaflx3iSWDBdVimn3uA2FyYmRBRNyRk+io4M45o4NMmhj1SHOahtAUQadpv8c34KdVadg2JpNy1uoJuo6aNzxzwmecZvkhPjlcVjocic7whHLMX3qfw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz; spf=pass smtp.mailfrom=suse.cz; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=pN/DWH7B; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=TwTxOO0o; dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b=pN/DWH7B; dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b=TwTxOO0o; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=suse.cz
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.cz
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="pN/DWH7B";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="TwTxOO0o";
+	dkim=pass (1024-bit key) header.d=suse.cz header.i=@suse.cz header.b="pN/DWH7B";
+	dkim=permerror (0-bit key) header.d=suse.cz header.i=@suse.cz header.b="TwTxOO0o"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 272C54D267;
+	Mon, 30 Mar 2026 23:09:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1774912197;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=je0nK5GYgw4YWy/87+u34k0PPJBhDhJUBSziNOQACTc=;
+	b=pN/DWH7B+3f/367yUERIqospKSvUnkVHx07ywRM5WYA1kQL4mwaA2vqQehQ49Dm+pT0b8U
+	S2hFT7QaN3R7M0DylIxD6yK7YWvzqQJTUusVfSmDSxQ/R4Ez1uMEgkTltF2h0DHalR+TQS
+	ONB4Sc/GRjTW1NfGH1R7RI6mGuw3Y3w=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1774912197;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=je0nK5GYgw4YWy/87+u34k0PPJBhDhJUBSziNOQACTc=;
+	b=TwTxOO0obSlo/RCv5hZfn22IM7haTn0EyQJ22X0M6Emak33dMD+/vcHoReV4o/I+PkRifc
+	OivNIGbajwB687Bg==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.cz header.s=susede2_rsa header.b="pN/DWH7B";
+	dkim=pass header.d=suse.cz header.s=susede2_ed25519 header.b=TwTxOO0o
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.cz; s=susede2_rsa;
+	t=1774912197;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=je0nK5GYgw4YWy/87+u34k0PPJBhDhJUBSziNOQACTc=;
+	b=pN/DWH7B+3f/367yUERIqospKSvUnkVHx07ywRM5WYA1kQL4mwaA2vqQehQ49Dm+pT0b8U
+	S2hFT7QaN3R7M0DylIxD6yK7YWvzqQJTUusVfSmDSxQ/R4Ez1uMEgkTltF2h0DHalR+TQS
+	ONB4Sc/GRjTW1NfGH1R7RI6mGuw3Y3w=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.cz;
+	s=susede2_ed25519; t=1774912197;
+	h=from:from:reply-to:reply-to:date:date:message-id:message-id:to:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=je0nK5GYgw4YWy/87+u34k0PPJBhDhJUBSziNOQACTc=;
+	b=TwTxOO0obSlo/RCv5hZfn22IM7haTn0EyQJ22X0M6Emak33dMD+/vcHoReV4o/I+PkRifc
+	OivNIGbajwB687Bg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id C10A54A0A2;
+	Mon, 30 Mar 2026 23:09:56 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id cMOQLMQCy2nJZgAAD6G6ig
+	(envelope-from <pvorel@suse.cz>); Mon, 30 Mar 2026 23:09:56 +0000
+Date: Tue, 31 Mar 2026 01:09:51 +0200
+From: Petr Vorel <pvorel@suse.cz>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org,
+	Valentin Lefebvre <valentin.lefebvre@suse.com>,
+	Yu Watanabe <watanabe.yu@gmail.com>,
+	Andrei Borzenkov <arvidjaar@gmail.com>,
+	Luca Boccassi <luca.boccassi@gmail.com>,
+	Luca Boccassi <bluca@debian.org>, ltp@lists.linux.it
+Subject: Re: [RFC] loading vmw_vsock_virtio_transport by systemd breaks
+ vsock_loopback autoloading
+Message-ID: <20260330230951.GB108555@pevik>
+Reply-To: Petr Vorel <pvorel@suse.cz>
+References: <20260320110224.GA140154@pevik>
+ <acqLo6-IQVBzY3UW@sgarzare-redhat>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CWLP123MB3523:EE_|CWLP123MB3841:EE_
-X-MS-Office365-Filtering-Correlation-Id: d3c8f54e-d209-4090-b5ee-08de8ea94fe5
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|7416014|366016|1800799024|56012099003|22082099003|18002099003;
-X-Microsoft-Antispam-Message-Info:
-	bwOevYgtoZK271KtY0FnpSfJoISBBhsDcJqda2ivxq1jxoorirNxbxLy1Mt+l13EGlhnVgl9PL2bvmGnz+B3anBTvFi+JkQTKEDibx0MfLw9dASDzCU25l+2UfqRACoqfZYeJZnhSdlJ+JQZ2B0dyRa4bbbuI017Y7GhfeT/879x81RZinIbWnNRfzEnIlSfcov/b/mPUaVi5iQVWoQH2bU7g/lY/pgVVK7Pl6yaAvIBX0UVZ24k8wfMiwdNHjTlFnuUEcpnKCttiAS82Yc35kKvtnMMNyffrilgjT+Qji3nRzJSW30bLmWWpEQGj5y3ZQ3bkWWxZV3a+m6zuAaOwJHde70Zc1Qi5YyHN90iI7q9qI01EzpiduogZKQkUTbfqtYsLyqLGJQJsjmtwujj2a7U3iE+JO+VuTnOUj5zf0pVBAfKUDLpg61RTyDOzLYWseJFwvGIs3FtBOOLqc7WG/hHPDPXgyymHbkFF/w0hbVaCimLsrLtCL0cR0bsRWp1x6QKCosYVD9ih9DP04eMVVaAu+YfySDRcR1zIALW8Z21m/zehdGNYhjVQgN3GS4qKoO9NYE+lHYAVyFylTyl4O/ocejUkkwO5p+6dtJkaqM+K4YrBKEkXX38Ak3Vm2qKWGDvUTGEthui8B/dYyKKD+dr8T4bGTqNEd/UaTjJxlTf+IKM5xb2eO/yWV5bQruThXqhQyHSuDwtz290k+lgFYZTUXifcGv7DiM+unMKJWE=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(366016)(1800799024)(56012099003)(22082099003)(18002099003);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?Z/G0RWZ7vb/zrDN+23KOagkHa0wApItIz6l9pa5q1OcMnpPDFd6ASLpHsIpY?=
- =?us-ascii?Q?XvIDoAFvAPZDMVXSe5IB/mt4epWiYDSaIH0po7yq4K5eljL+4CFf/9w+GxgM?=
- =?us-ascii?Q?Ek0dWNFPXxffHJSuuQJ4dUKbf0gYhQ0Llys5LciK2fDreKaTaCDKeRuSpNhE?=
- =?us-ascii?Q?0R+OqNkwVmEEx0nc7h45JtUnIinADTRW0zuvcZj6dBXljvNGTb2sltGj13zX?=
- =?us-ascii?Q?p7cWMFgi+M3ndaocB70fy0hDS30tBcCEkBZsuA73d2UP0QpnL8WvHeNQpdbn?=
- =?us-ascii?Q?5uU7NoMQmMy/Gj1u4xZXpC1M25iLobzrcKo17DSuvYrAYqi01ibSai+TXWf0?=
- =?us-ascii?Q?BUiVsi2LDpOFNiWsThuraGu7N4wyWUic/REzwFK+DuHwUf8YZcB2gBPLDhjr?=
- =?us-ascii?Q?Q/jVI9XY+sDnQ1zrZnTV3WVIHwqA0kvsfoPdjlEQL2UAZY/pU4xItt34x6yt?=
- =?us-ascii?Q?aW8LUdJvM/xeHsGKzF0txPUNHRiYbypiyFofeVoRzEHCDpaSwGX7rOT+ISFu?=
- =?us-ascii?Q?JJi+ulETamZqLBgRIgoOD+8G0GEDZLG9LZKN+x+FsJInRLcRaS+Ano7bKoEN?=
- =?us-ascii?Q?yk6PL1U08TlRyBJAXhNVf/7ywrWASIvIanbJqe6ht3u0upFeneBJnc5s6mkX?=
- =?us-ascii?Q?FVwdjhaaht0h8zuDY+/mBy47SkuHgax4TN6l3lSj2D6gvw8A5DDmgntte1vx?=
- =?us-ascii?Q?Sw+r7T2aVgPfJzFaRJ22OzHzFy4t1TDxBVQShmU/XUlvmXAIVXXPObXzzvzG?=
- =?us-ascii?Q?ZWlDkfnpuGNBnwMB60G9AoV0GJj9h3VmmwPcidjFVea0ksq8vJ3fZwkPqnVa?=
- =?us-ascii?Q?D3i2SvF5sOc3Slata68fhgrUAiDT7KZDFkke/O1tHYyfz8d1rJc0OzPd34lS?=
- =?us-ascii?Q?6SeDIPbeEuMWNpXre9zm+vKU3CyrGLY19tlHPilOZ+jIAplQJWmBaIzZm8z8?=
- =?us-ascii?Q?YyTwHiQohx5/DpHV7PqmcXodiOIwo7u5VgtZ4FZm+Oi8RNRa4scTdpZOaIZc?=
- =?us-ascii?Q?1BsC0exVGOmYCJPLdUm1Iwj/y16Js8hVFiKn28zkWk7b4f3QDrF8Ows3SD58?=
- =?us-ascii?Q?SRpuVhUexRKtNW7Y71RPPEUARvTfhgiLWoU/jB9bcMv9v9yICiw82C7I+/ft?=
- =?us-ascii?Q?e18BV7YtOzNqMJr+PDpjCLNi44+tomBAr/+bJO9NTIM6Widep9dcH8qq8bEZ?=
- =?us-ascii?Q?x5sxyctvkvym8FhbraWZLz+rI2hCofSAJr9QsMLi8fN5hwyfr+Xlsda5n05u?=
- =?us-ascii?Q?Vi697AcKFTSTbzW4tSdSZYSRRl6EAnLCxDiYDewYxrNl5+OYbpze+4OhQHuL?=
- =?us-ascii?Q?hxYuZ7ziBaOUUt1eA7MHE0ipSPNk7LxkfyQK5O3UUA5eoXjaxYIJXUHe2+ze?=
- =?us-ascii?Q?Au7pRHEwnXliEJ/LX6GDhMZA8KhqHuPViFRNWOvaQpIyEc/tjO0yqOUNL9ke?=
- =?us-ascii?Q?8EXglu83Sc9nNzHuPp+YYN/OHP7KJsYXlTmj7SGEP9gPb1z5afY2GoHS/jCn?=
- =?us-ascii?Q?NVrAnoyvgIeT6Z5JWM6OVl/uR4mLQyONKX3rmjAus5M+945U9Si+kcmIpnVr?=
- =?us-ascii?Q?lircV6SndZNrIYcvggWOAHRRpRtQP7JXRLyNnkiBTIshYLrPlkHIPSc+kIqG?=
- =?us-ascii?Q?WwqJ+hKZPrWumSAbyV5RW275BuTQO9qgjQI5A09RAXeyQ9dt6C8A/pFUFv6l?=
- =?us-ascii?Q?qX5ILuTY4VgycEmLQswRIW+qiVrumMwDAsuUy/z/uj6QdnjjYtueDiP4QDco?=
- =?us-ascii?Q?pdf7+FmFeg=3D=3D?=
-X-OriginatorOrg: atomlin.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d3c8f54e-d209-4090-b5ee-08de8ea94fe5
-X-MS-Exchange-CrossTenant-AuthSource: CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 30 Mar 2026 22:11:37.5134
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: e6a32402-7d7b-4830-9a2b-76945bbbcb57
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: qlXPCWfJOEsyyRfj5yD41KgKISdUNf7WHxsLudLFXFw9vQ8rc/SZHOUe/N5N9Z9z3ewIllGhH/YHvUw/QiCJwA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CWLP123MB3841
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <acqLo6-IQVBzY3UW@sgarzare-redhat>
+X-Spamd-Result: default: False [-2.21 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_RHS_NOT_FQDN(0.50)[];
+	HAS_REPLYTO(0.30)[pvorel@suse.cz];
+	R_DKIM_ALLOW(-0.20)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	TO_DN_SOME(0.00)[];
+	DKIM_SIGNED(0.00)[suse.cz:s=susede2_rsa,suse.cz:s=susede2_ed25519];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.cz:+];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_CC(0.00)[lists.linux.dev,vger.kernel.org,suse.com,gmail.com,debian.org,lists.linux.it];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns];
+	TAGGED_RCPT(0.00)[];
+	RCPT_COUNT_SEVEN(0.00)[9];
+	MISSING_XM_UA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	REPLYTO_EQ_FROM(0.00)[]
+X-Rspamd-Action: no action
+X-Spam-Flag: NO
+X-Spam-Score: -2.21
+X-Spam-Level: 
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Rspamd-Queue-Id: 272C54D267
 
-From: Daniel Wagner <wagi@kernel.org>
+[ Cc LTP ML ]
 
-The io_queue flag informs multiqueue device drivers where to place
-hardware queues. Document this new flag in the isolcpus
-command-line argument description.
+> On Fri, Mar 20, 2026 at 12:02:24PM +0100, Petr Vorel wrote:
+> > Hi all,
 
-Reviewed-by: Aaron Tomlin <atomlin@atomlin.com>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-Signed-off-by: Daniel Wagner <wagi@kernel.org>
----
- .../admin-guide/kernel-parameters.txt         | 22 ++++++++++++++++++-
- 1 file changed, 21 insertions(+), 1 deletion(-)
+> > there is a systemd bug [1] which causes vsock_loopback not to be autoloaded due
+> > previous loading vmw_vsock_virtio_transport in an early phase of boot.
+> > vmw_vsock_virtio_transport requires vmw_vsock_virtio_transport_common and vsock,
+> > vsock_loopback requires vsock.
 
-diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index 03a550630644..9ed7c3ecd158 100644
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -2816,7 +2816,6 @@ Kernel parameters
- 			  "number of CPUs in system - 1".
- 
- 			managed_irq
--
- 			  Isolate from being targeted by managed interrupts
- 			  which have an interrupt mask containing isolated
- 			  CPUs. The affinity of managed interrupts is
-@@ -2839,6 +2838,27 @@ Kernel parameters
- 			  housekeeping CPUs has no influence on those
- 			  queues.
- 
-+			io_queue
-+			  Isolate from I/O queue work caused by multiqueue
-+			  device drivers. Restrict the placement of
-+			  queues to housekeeping CPUs only, ensuring that
-+			  all I/O work is processed by a housekeeping CPU.
-+
-+			  The io_queue configuration takes precedence
-+			  over managed_irq. When io_queue is used,
-+			  managed_irq placement constrains have no
-+			  effect.
-+
-+			  Note: Offlining housekeeping CPUS which serve
-+			  isolated CPUs will be rejected. Isolated CPUs
-+			  need to be offlined before offlining the
-+			  housekeeping CPUs.
-+
-+			  Note: When an isolated CPU issues an I/O request,
-+			  it is forwarded to a housekeeping CPU. This will
-+			  trigger a software interrupt on the completion
-+			  path.
-+
- 			The format of <cpu-list> is described above.
- 
- 	iucv=		[HW,NET]
--- 
-2.51.0
+> > Reproducer: [2].
+> > Proposed fix in systemd: [3]
+
+> > While I think the bug should be fixed in systemd with proposed fix [3] we'd like
+> > to know opinion of the kernel vsock developers in case there is a way to improve
+> > vsock modules autoloading.
+
+> The original idea of vsock_loopback was to be used just for
+> testing/debugging, so maybe even the autoloading when no other transport was
+> loaded wasn't a great idea, but at the time we thought it might be useful
+> for testing.
+
+Stefano, thanks for info.
+
+> In general, therefore, if you want to use the loopback, it's always best to
+> load vsock_loopback.
+
+> What use case is being affected by the fact that vsock_loopback isn't loaded
+> automatically?
+
+It's actually testing. Only LTP test cve-2025-21756.c [1] used it.
+
+Reported [2], fixed in systemd [3].
+Of course we could call 'modprobe vsock_loopback' in the test, but now not
+needed as as fixed in systemd.
+
+I wonder who else uses the module. Searching in Debian's codesearch I see mostly
+testing code (+ now systemd :)).
+
+Kind regards,
+Petr
+
+[1] https://github.com/linux-test-project/ltp/blob/master/testcases/cve/cve-2025-21756.c
+[2] https://github.com/systemd/systemd/issues/41100
+[3] https://github.com/systemd/systemd/commit/7c1075fb8ff2d3b87fa463d542e2e00ac086cbd3
+[4] https://codesearch.debian.net/search?q=vsock_loopback&perpkg=1&page=1
+
+> Thanks,
+> Stefano
 
