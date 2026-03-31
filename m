@@ -1,177 +1,180 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D77AF3DBD4A;
-	Tue, 31 Mar 2026 08:22:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 710063ED12B
+	for <virtualization@lists.linux.dev>; Tue, 31 Mar 2026 09:21:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774945345; cv=none; b=Rka0tOnxdn1LlC0+Ap95fSVmOXdeRQrkRaG7UtIZ+3763hPdoZn2aTHFXZi80PJY0AowjVbgpu7+kauTasWOVWAFNOO+BVtrAlx6e0W6F0gwFHpTm0OZfjqzeb4iHLfijkArcvpFJ3MsdeJvYqX/tdUIDO6X01D0JMaMRfiQg08=
+	t=1774948861; cv=none; b=DtBXrYHQiq1PWLR+o6pPC1DaDPcn9g5NDLgzY7EhLQX+K4rQv8/z+EsO5yIQyKskd+ZYjXdmPXxa4mDthMYE6l3ohLMUw3YAgh0KufectkEfzrMqxGMUVrUbUQiCNA9Wh09KOFe9FVZ+GmZte9Pkp5ECV5H9/+Q76kikqYMb96Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774945345; c=relaxed/simple;
-	bh=l6+1fNT+srCycsiVVoib27WaB3v/ZfJTiLnjMUHoUKo=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Subject:Cc:To:From:
-	 References:In-Reply-To; b=GAqFVgtpqfY+jTv8RYYeTEjFB1tschma4wHs9Z72Pb7XNqnDE++abFKJi7VrhPrAIRlvPJZDAfNMy2Bl6M2a4zUQgWWzEIAM6dOHhcCfgof6CjdoQnMGgmV+wW2bRv+eSUHucTOa+RpoKa4tMb1uQ9J4t5YmJynreRAOD+7OB3I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hSy9+x0o; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1774948861; c=relaxed/simple;
+	bh=npAzXkJWcAEQdybp4dELF99mAn10Mr9vx71ipcJ4toI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=EjZhf2zb75mD+dY1D4Cu8TI538lLfpBCe8tclU/4tRTC6I9ZqKLoHCMpKX6aMHIK7cTQ5J+uSwW3Ihg8AUk0bSNAKMV0OHSpsF5AYnz9Uzh2wNrBZ3r6H4SY+Iy13qP2OLhjW7izejtWq04E2azhSDckQPdeEZ6+OHYwMdH0bgs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OliXUjjA; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hSy9+x0o"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 491C9C19423;
-	Tue, 31 Mar 2026 08:22:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1774945345;
-	bh=l6+1fNT+srCycsiVVoib27WaB3v/ZfJTiLnjMUHoUKo=;
-	h=Date:Subject:Cc:To:From:References:In-Reply-To:From;
-	b=hSy9+x0oWet2Vv+Oa/3w4GpGm2W4uKeHJBTg9yWIIsbEo6AeK4CHA2HWQrg43wVml
-	 UVDFcKRzAiCTcPrPYa8DFRgndlsXnw4fTPckVVFiVQb06rsmUThpiBFwbHCwFpNgx9
-	 aItzsCrpgMmhdBzOksIXuo4KjSj0zwKhq5Cid6OYUD9yR5jXXRbnJ0gLf3fnZTo/+d
-	 1ltaJGKRSE2hkkenVvfpB0JLleI13qUWazlmX5cCzMNZECQq3dZ5sC7thgT6+6cjC8
-	 i3Qv/NInrpLzf5qRyZ3z333YkadqamLF6R3ft0Ny0IUSwt34LY7sCNzSn76UOiN7FG
-	 7FAeA2EXbVc6w==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OliXUjjA"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1774948859;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=jEFy+ly0SyOy8YL/S4CPl+fJ88M+Cfc8bAbwXPfI46s=;
+	b=OliXUjjAcWm++gSPCUNu0eY4YLK/YrNGZbbKO0fU1R8/Kb9p1JB2Kq7FiW5pRl8BJTLnES
+	VpG8soxo/xVKt0SQvsIlswNWAsodQ+ZzfujxWIWE2HBS6aJJcpN68oRpyfoPPOOed6QJ3Q
+	OM/DIJSiePkKnBRNIXn2Osf8Vp/0FIw=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-340-iK4x1dKqNy-WqzUUFFjgCw-1; Tue, 31 Mar 2026 05:20:55 -0400
+X-MC-Unique: iK4x1dKqNy-WqzUUFFjgCw-1
+X-Mimecast-MFC-AGG-ID: iK4x1dKqNy-WqzUUFFjgCw_1774948854
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-486f830f4e4so38425055e9.1
+        for <virtualization@lists.linux.dev>; Tue, 31 Mar 2026 02:20:55 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1774948854; x=1775553654;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=jEFy+ly0SyOy8YL/S4CPl+fJ88M+Cfc8bAbwXPfI46s=;
+        b=jiRGKvjVYwF4EKaaytsm7BCUf1nq864BU0LyGMDlAsFrfTsmqqV6g1i523NiYDAJ2F
+         +PKybjsEqORzxD1zKs8CUXLr6QToFLOD3bdENFtmFxPyeUpJhD3xSFExGdQOpLhdiI/2
+         ufdG+HyLczAZL64f6e9eaZ44L4ntOuk8p+EuahYdM38AmWkyDv7syjtKRGf3U3w0+Y0/
+         SXRY8rUzKU46pT0Rl4crkSV2NHWTzzw5i/d+Iuj2Y+tWY+w3fcLx8P4c32HctV3tdkvf
+         qM6G1MwCTLBIbF6GJwmRFr4wHad6xeE0MLIhsQjfMeI17kYEjoR7Izdx7Bf8LzokRvWB
+         8cxQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVKfyuQLU3oYOCXWu0cifIp92ZauPDjgIZd9DhCBi7Fuly1soCRPdb3F1MwZaioZMbZ0wp+9MB5crdOxS1QtA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyleWl95BUsqINoIbyYXC6oBiyPzBkLPvU8Yo0nSsIyj2z5opWU
+	xeOg/SpBVhQ9WrMiHAR+gVJ2ZXHZfTak6my/UgFo1b+CLLe23f0I5JtPDdcTZ/XdBo7lWddUvtH
+	sqSCW4RjLwuq4ieNiaxGb3FZh9Z592ych7VdHS7w6A92uBy6VZMAwucAeWP3EBAYui64i
+X-Gm-Gg: ATEYQzyyoyK6mVj+MwKtH2znq62AjELgvJ6xlhlpUKmXj7U+NADwlWDA9A/iOWV2EHq
+	CpWmH+VjG/rAntl9+wJURBG5kqbhtw1/0Gtk3b9G3H6rwd4CMich/1wv/M+cGISPxN54GPvgpWI
+	ckWN1gFqZWj6B5LTUxgKsHlu0xSM+toKaiyMgeW+uJC8dFJ9ufC++MPLNsqfwnxOQe3iIr3DUpQ
+	y+sW1vFv11i0PgtsXOki4v/xVLss+18i5Muk56skCdWzpaLsbAHTVCdMmlPKt/qeD4j4t3oDpYH
+	Efv42C4ObtCg/f0ch2xby1f77NUIf2Q86CAS310T09Sm0k222zj2xZckwLQT0BXO082KakNnt5t
+	hR1LF05IDaOEXrrDV6t1sa8WsRn4Vmww04s6cGRc7MRx5c4KnRGHKcxsm
+X-Received: by 2002:a05:600c:83c4:b0:47e:e076:c7a5 with SMTP id 5b1f17b1804b1-48727d87b56mr262108795e9.11.1774948854117;
+        Tue, 31 Mar 2026 02:20:54 -0700 (PDT)
+X-Received: by 2002:a05:600c:83c4:b0:47e:e076:c7a5 with SMTP id 5b1f17b1804b1-48727d87b56mr262108175e9.11.1774948853631;
+        Tue, 31 Mar 2026 02:20:53 -0700 (PDT)
+Received: from [192.168.88.32] ([212.105.155.58])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4887e80148csm23480185e9.5.2026.03.31.02.20.51
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 31 Mar 2026 02:20:52 -0700 (PDT)
+Message-ID: <ba027306-e5e0-4d4d-8357-f6080441167d@redhat.com>
+Date: Tue, 31 Mar 2026 11:20:51 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net,v5] virtio_net: clamp rss_max_key_size to
+ NETDEV_RSS_KEY_LEN
+To: Srujana Challa <schalla@marvell.com>, netdev@vger.kernel.org,
+ virtualization@lists.linux.dev
+Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+ eperezma@redhat.com, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, ndabilpuram@marvell.com, kshankar@marvell.com,
+ stable@vger.kernel.org
+References: <20260326142344.1171317-1-schalla@marvell.com>
+From: Paolo Abeni <pabeni@redhat.com>
+In-Reply-To: <20260326142344.1171317-1-schalla@marvell.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: aY4NI-wWEV20F3y0qy2UAF_b4jLbMrCN5NkphkgcKA0_1774948854
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
 Content-Type: text/plain; charset=UTF-8
-Date: Tue, 31 Mar 2026 10:22:14 +0200
-Message-Id: <DHGTLY0FJWD2.2VLT6NQWF97YY@kernel.org>
-Subject: Re: [PATCH 05/12] PCI: use generic driver_override infrastructure
-Cc: "Jason Gunthorpe" <jgg@ziepe.ca>, "Russell King"
- <linux@armlinux.org.uk>, "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
- "Rafael J. Wysocki" <rafael@kernel.org>, "Ioana Ciornei"
- <ioana.ciornei@nxp.com>, "Nipun Gupta" <nipun.gupta@amd.com>, "Nikhil
- Agarwal" <nikhil.agarwal@amd.com>, "K. Y. Srinivasan" <kys@microsoft.com>,
- "Haiyang Zhang" <haiyangz@microsoft.com>, "Wei Liu" <wei.liu@kernel.org>,
- "Dexuan Cui" <decui@microsoft.com>, "Long Li" <longli@microsoft.com>,
- "Bjorn Helgaas" <bhelgaas@google.com>, "Armin Wolf" <W_Armin@gmx.de>,
- "Bjorn Andersson" <andersson@kernel.org>, "Mathieu Poirier"
- <mathieu.poirier@linaro.org>, "Vineeth Vijayan" <vneethv@linux.ibm.com>,
- "Peter Oberparleiter" <oberpar@linux.ibm.com>, "Heiko Carstens"
- <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
- Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger"
- <borntraeger@linux.ibm.com>, "Sven Schnelle" <svens@linux.ibm.com>, "Harald
- Freudenberger" <freude@linux.ibm.com>, "Holger Dengler"
- <dengler@linux.ibm.com>, "Mark Brown" <broonie@kernel.org>, "Michael S.
- Tsirkin" <mst@redhat.com>, "Jason Wang" <jasowang@redhat.com>, "Xuan Zhuo"
- <xuanzhuo@linux.alibaba.com>, =?utf-8?q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, "Juergen Gross" <jgross@suse.com>, "Stefano
- Stabellini" <sstabellini@kernel.org>, "Oleksandr Tyshchenko"
- <oleksandr_tyshchenko@epam.com>, "Christophe Leroy (CS GROUP)"
- <chleroy@kernel.org>, <linux-kernel@vger.kernel.org>,
- <driver-core@lists.linux.dev>, <linuxppc-dev@lists.ozlabs.org>,
- <linux-hyperv@vger.kernel.org>, <linux-pci@vger.kernel.org>,
- <platform-driver-x86@vger.kernel.org>, <linux-arm-msm@vger.kernel.org>,
- <linux-remoteproc@vger.kernel.org>, <linux-s390@vger.kernel.org>,
- <linux-spi@vger.kernel.org>, <virtualization@lists.linux.dev>,
- <kvm@vger.kernel.org>, <xen-devel@lists.xenproject.org>,
- <linux-arm-kernel@lists.infradead.org>, "Gui-Dong Han"
- <hanguidong02@gmail.com>
-To: "Alex Williamson" <alex@shazbot.org>
-From: "Danilo Krummrich" <dakr@kernel.org>
-References: <20260324005919.2408620-1-dakr@kernel.org>
- <20260324005919.2408620-6-dakr@kernel.org>
- <DHGATG6LJOM1.2AI7BYQ2O4DFU@kernel.org>
- <20260330141050.2cb47bd9@shazbot.org>
- <DHGT9XCG8Y96.3IB1EI6FF1ZDZ@kernel.org>
-In-Reply-To: <DHGT9XCG8Y96.3IB1EI6FF1ZDZ@kernel.org>
+Content-Transfer-Encoding: 7bit
 
-On Tue Mar 31, 2026 at 10:06 AM CEST, Danilo Krummrich wrote:
-> On Mon Mar 30, 2026 at 10:10 PM CEST, Alex Williamson wrote:
->> On Mon, 30 Mar 2026 19:38:41 +0200
->> "Danilo Krummrich" <dakr@kernel.org> wrote:
->>
->>> (Cc: Jason)
->>>=20
->>> On Tue Mar 24, 2026 at 1:59 AM CET, Danilo Krummrich wrote:
->>> > diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio=
-_pci_core.c
->>> > index d43745fe4c84..460852f79f29 100644
->>> > --- a/drivers/vfio/pci/vfio_pci_core.c
->>> > +++ b/drivers/vfio/pci/vfio_pci_core.c
->>> > @@ -1987,9 +1987,8 @@ static int vfio_pci_bus_notifier(struct notifie=
-r_block *nb,
->>> >  	    pdev->is_virtfn && physfn =3D=3D vdev->pdev) {
->>> >  		pci_info(vdev->pdev, "Captured SR-IOV VF %s driver_override\n",
->>> >  			 pci_name(pdev));
->>> > -		pdev->driver_override =3D kasprintf(GFP_KERNEL, "%s",
->>> > -						  vdev->vdev.ops->name);
->>> > -		WARN_ON(!pdev->driver_override);
->>> > +		WARN_ON(device_set_driver_override(&pdev->dev,
->>> > +						   vdev->vdev.ops->name)); =20
->>>=20
->>> Technically, this is a change in behavior. If vdev->vdev.ops->name is N=
-ULL, it
->>> will trigger the WARN_ON(), whereas before it would have just written "=
-(null)"
->>> into driver_override.
->>
->> It's worse than that.  Looking at the implementation in [1], we have:
->>
->> +static inline int device_set_driver_override(struct device *dev, const =
-char *s)
->> +{
->> +	return __device_set_driver_override(dev, s, strlen(s));
->> +}
->>
->> So if name is NULL, we oops in strlen() before we even hit the -EINVAL
->> and WARN_ON().
->
-> This was changed in v2 [2] and the actual code in-tree is
->
-> 	static inline int device_set_driver_override(struct device *dev, const c=
-har *s)
-> 	{
-> 		return __device_set_driver_override(dev, s, s ? strlen(s) : 0);
-> 	}
->
-> so it does indeed return -EINVAL for a NULL pointer.
->
->> I don't believe we have any vfio-pci variant drivers where the name is
->> NULL, but kasprintf() handling NULL as "(null)" was a consideration in
->> this design, that even if there is no name the device is sequestered
->> with a driver_override that won't match an actual driver.
->>
->>> I assume that vfio_pci_core drivers are expected to set the name in str=
-uct
->>> vfio_device_ops in the first place and this code (silently) relies on t=
-his
->>> invariant?
->>
->> We do expect that, but it was previously safe either way to make sure
->> VFs are only bound to the same ops driver or barring that, at least
->> don't perform a standard driver match.  The last thing we want to
->> happen automatically is for a user owned PF to create SR-IOV VFs that
->> automatically bind to native kernel drivers.
->> =20
->>> Alex, Jason: Should we keep this hunk above as is and check for a prope=
-r name in
->>> struct vfio_device_ops in vfio_pci_core_register_device() with a subseq=
-uent
->>> patch?
->>
->> Given the oops, my preference would be to roll it in here.  This change
->> is what makes it a requirement that name cannot be NULL, where this was
->> safely handled with kasprintf().
->
-> Again, no oops here. :)
->
-> I still think it makes more sense to fail early in
-> vfio_pci_core_register_device(), rather than silently accept "(null)" in
-> driver_override. It also doesn't seem unreasonable with only the WARN_ON(=
-), but
-> I can also just add vdev->vdev.ops->name ?: "(null)".
+On 3/26/26 3:23 PM, Srujana Challa wrote:
+> rss_max_key_size in the virtio spec is the maximum key size supported by
+> the device, not a mandatory size the driver must use. Also the value 40
+> is a spec minimum, not a spec maximum.
+> 
+> The current code rejects RSS and can fail probe when the device reports a
+> larger rss_max_key_size than the driver buffer limit. Instead, clamp the
+> effective key length to min(device rss_max_key_size, NETDEV_RSS_KEY_LEN)
+> and keep RSS enabled.
+> 
+> This keeps probe working on devices that advertise larger maximum key sizes
+> while respecting the netdev RSS key buffer size limit.
+> 
+> Fixes: 3f7d9c1964fc ("virtio_net: Add hash_key_length check")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Srujana Challa <schalla@marvell.com>
+> ---
+> v3:
+> - Moved RSS key validation checks to virtnet_validate.
+> - Add fixes: tag and CC -stable
+> v4:
+> - Use NETDEV_RSS_KEY_LEN instead of type_max for the maximum rss key size.
+> v5:
+> - Interpret rss_max_key_size as a maximum and clamp it to NETDEV_RSS_KEY_LEN.
+> - Do not disable RSS/HASH_REPORT when device rss_max_key_size exceeds NETDEV_RSS_KEY_LEN.
+> - Drop the separate patch that replaced the runtime check with BUILD_BUG_ON.
+> 
+>  drivers/net/virtio_net.c | 20 +++++++++-----------
+>  1 file changed, 9 insertions(+), 11 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 022f60728721..b241c8dbb4e1 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -373,8 +373,6 @@ struct receive_queue {
+>  	struct xdp_buff **xsk_buffs;
+>  };
+>  
+> -#define VIRTIO_NET_RSS_MAX_KEY_SIZE     40
+> -
+>  /* Control VQ buffers: protected by the rtnl lock */
+>  struct control_buf {
+>  	struct virtio_net_ctrl_hdr hdr;
+> @@ -478,7 +476,7 @@ struct virtnet_info {
+>  
+>  	/* Must be last as it ends in a flexible-array member. */
+>  	TRAILING_OVERLAP(struct virtio_net_rss_config_trailer, rss_trailer, hash_key_data,
+> -		u8 rss_hash_key_data[VIRTIO_NET_RSS_MAX_KEY_SIZE];
+> +		u8 rss_hash_key_data[NETDEV_RSS_KEY_LEN];
+>  	);
+>  };
+>  static_assert(offsetof(struct virtnet_info, rss_trailer.hash_key_data) ==
+> @@ -6717,6 +6715,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  	struct virtnet_info *vi;
+>  	u16 max_queue_pairs;
+>  	int mtu = 0;
+> +	u16 key_sz;
+>  
+>  	/* Find if host supports multiqueue/rss virtio_net device */
+>  	max_queue_pairs = 1;
+> @@ -6851,14 +6850,13 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  	}
+>  
+>  	if (vi->has_rss || vi->has_rss_hash_report) {
+> -		vi->rss_key_size =
+> -			virtio_cread8(vdev, offsetof(struct virtio_net_config, rss_max_key_size));
+> -		if (vi->rss_key_size > VIRTIO_NET_RSS_MAX_KEY_SIZE) {
+> -			dev_err(&vdev->dev, "rss_max_key_size=%u exceeds the limit %u.\n",
+> -				vi->rss_key_size, VIRTIO_NET_RSS_MAX_KEY_SIZE);
+> -			err = -EINVAL;
+> -			goto free;
+> -		}
+> +		key_sz = virtio_cread8(vdev, offsetof(struct virtio_net_config, rss_max_key_size));
+> +
+> +		vi->rss_key_size = min_t(u16, key_sz, NETDEV_RSS_KEY_LEN);
+> +		if (key_sz > vi->rss_key_size)
+> +			dev_warn(&vdev->dev,
+> +				 "rss_max_key_size=%u exceeds driver limit %u, clamping\n",
+> +				 key_sz, vi->rss_key_size);
 
-(Or just skip the call if !vdev->vdev.ops->name, as a user will read "(null=
-)"
-from sysfs either way.)
+NETDEV_RSS_KEY_LEN is 256 and virtio_cread8() returns a u8. The check is
+not needed, and the warning will never be printed. I think that the
+BUILD_BUG_ON() you used in v4 would be better than the above chunk.
 
-> Please let me know what you prefer.
->
-> - Danilo
->
->> [1] https://lore.kernel.org/all/20260302002729.19438-2-dakr@kernel.org/
->
-> [2] https://lore.kernel.org/driver-core/20260303115720.48783-1-dakr@kerne=
-l.org/
+/P
 
