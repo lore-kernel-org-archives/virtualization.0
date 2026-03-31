@@ -1,50 +1,50 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.19])
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 038A03EC2E1
-	for <virtualization@lists.linux.dev>; Tue, 31 Mar 2026 21:37:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D2F63DFC66
+	for <virtualization@lists.linux.dev>; Tue, 31 Mar 2026 21:41:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.9
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774993053; cv=none; b=mFr2Li3A1gl3ussIEHyYEatItsaBCSDxebcSkwMPQXkePRPXfJLkPvs6PRWhrS87+9YLRGVErO512Lrr2R7jqEdtA46apYClbGj5LVLFxRYYP9ZveCPX4VtcICERJkMZ5yh8F75k6YDbbcak4/+c7UZDccOytxbQMmMsnfflUJU=
+	t=1774993265; cv=none; b=cxsGmu8W9/vr1xfU+3XeOhOjDeC+Ljgc9YdcbjLnofFIaR8yEgv5H1KO3Mo9V/PGqqFTpiqeZtZs27RfqwBSiH4RtcCKLZXpu4SisFPsOtsryGiuEXlupmvPrPJPNFKy+5LnPoAUPnAwJQMBrVObW2TC+MO+mpPlHwdROlp/P9s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774993053; c=relaxed/simple;
-	bh=KYDeJhU6knnhnjoAhPI2pwZtlb/8LXvfUn4oaJIiF5I=;
+	s=arc-20240116; t=1774993265; c=relaxed/simple;
+	bh=+ggG8lbEn/jDC5U1zFwhNpZwSQWjb9sihYFpJyLPpak=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=G2hFtrgzmSrMuNse5fbXvSXJCCvvm0L5kmuy8gCHNvl1QR0WNa6T5kTw0dyadefXO2ZjjLzFUa6WrCACv8d6kqraQXPaq5iw4vxflF41zAqDsGhV421psQaJsUtdMhsQzWVRx28CmT/r4PsZVhV6r+z4VD9gvyCuAf+lxb+jZT4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=diaRdKl2; arc=none smtp.client-ip=192.198.163.19
+	 In-Reply-To:Content-Type; b=I1s4JUtbW4kQCI6Vuk1egO6oMPT62briHo5F73oE7kKTsU515cgqfb+MLARPvqVgy3YEDw1VAuBMXgcqiLNK71D/T4bXhGLt0xvPwlD7KJlNXwI4mq7v0QG/PcNwWKvldms6SaH0R9XRpkuopEC+RBpAnZUfzgXAgvz8KgDV29I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=d3tdWxjx; arc=none smtp.client-ip=192.198.163.9
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="diaRdKl2"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="d3tdWxjx"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1774993052; x=1806529052;
+  t=1774993265; x=1806529265;
   h=message-id:date:mime-version:subject:to:cc:references:
    from:in-reply-to:content-transfer-encoding;
-  bh=KYDeJhU6knnhnjoAhPI2pwZtlb/8LXvfUn4oaJIiF5I=;
-  b=diaRdKl2FaqtozCQqtdCWvHr7E8pgqmRz51dMmc8SXQd+2vXCDwizHaK
-   qBTvdKZS+X9IF8M8FQ9f3qQJnw9R1bPQ2CXFegWF8/eMq4O+5uEhYzHia
-   XCb8YhXlhSqAsPnp5+ktSJiKnQzRh5iHTZtJxXpf+wMXRDSUQ0EPwN902
-   SSj+gcIDJwSV/ZgZsZeEcKp5esHVIhWDPznvy3FFKPifoDmKLZHOH+ITo
-   QSd7ICOcxVg09h7xaRFx186WkVAUv7ZBIphOnK0LXitB5QNMBjsHLjzT/
-   lCT06cnUQscLVPyK/Q6YFCdBMmI4gxure+gQ4kJ211nrYytpFPQl43JTP
-   g==;
-X-CSE-ConnectionGUID: czAa5hLETnqIMzKFAdNvfQ==
-X-CSE-MsgGUID: cEVo/RtcTPO76gZkJTsJ1A==
-X-IronPort-AV: E=McAfee;i="6800,10657,11745"; a="75057862"
+  bh=+ggG8lbEn/jDC5U1zFwhNpZwSQWjb9sihYFpJyLPpak=;
+  b=d3tdWxjxriT+Lk09jmzNdGm4cpsBhDdnePH6qTpgAPD4qcvDTXvN89lX
+   kHDbwMN1SKONXz/DCadYhMYEkMGOX4B8bAZNzn5R01e/COAfQycWTZ/Md
+   GxkHErJGCRugEjwmOP3XX1ZLgpf7NOCWwqm0WD07s7uLLKVYtAqUp2HpR
+   3qDiQM1yEyCi2fU0UtdsVjn6OVKNOHZSq4Im2sEfoDHwdplH4qnpxXEna
+   3yYvr840bcQM5JbzVx+Ss2XkoUBz1CCcdia29G/PSY8S5bVSZJt1xpEDq
+   xIQnqgyEMZFMftj5RGqThxALNsH31sVfu1uP3bxaBr8RF7W5SBJleUPSz
+   w==;
+X-CSE-ConnectionGUID: yIl4v5sQQWiuzOg4JcQG4Q==
+X-CSE-MsgGUID: DWH78UJSRQq9JUzBpmzVmA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11745"; a="86719606"
 X-IronPort-AV: E=Sophos;i="6.23,152,1770624000"; 
-   d="scan'208";a="75057862"
-Received: from orviesa009.jf.intel.com ([10.64.159.149])
-  by fmvoesa113.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Mar 2026 14:37:31 -0700
-X-CSE-ConnectionGUID: fO3LWrJdSe2gUr/jdUtGxQ==
-X-CSE-MsgGUID: AxOonVazRBu6LgdYSNdoLA==
+   d="scan'208";a="86719606"
+Received: from fmviesa002.fm.intel.com ([10.60.135.142])
+  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Mar 2026 14:41:04 -0700
+X-CSE-ConnectionGUID: +lBe89lzRgu4xVbfyIR6JQ==
+X-CSE-MsgGUID: 1WGJtimGSJmgOjgm4ntStA==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.23,152,1770624000"; 
-   d="scan'208";a="226354120"
+   d="scan'208";a="249539322"
 Received: from unknown (HELO [10.24.81.183]) ([10.24.81.183])
-  by orviesa009-auth.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Mar 2026 14:37:31 -0700
-Message-ID: <8f630a58-d12a-4e70-8770-c2b51aff50a9@intel.com>
-Date: Tue, 31 Mar 2026 14:37:38 -0700
+  by fmviesa002-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 31 Mar 2026 14:41:03 -0700
+Message-ID: <2c4f1284-77d2-4628-88bc-28677afd2238@intel.com>
+Date: Tue, 31 Mar 2026 14:41:10 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -53,14 +53,16 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH 0/8] x86/msr: Consolidate native/paravirt MSR functions
-To: Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>
+To: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>
 Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@kernel.org>,
  Ingo Molnar <mingo@redhat.com>, x86@kernel.org,
- Juergen Gross <jgross@suse.com>, virtualization@lists.linux.dev
+ virtualization@lists.linux.dev
 References: <20260320190330.A97C443B@davehans-spike.ostc.intel.com>
  <20260320233319.GZab3ZP1lTfxOmQ4YF@fat_crate.local>
-Content-Language: en-US
+ <4c26ba32-d15f-496f-9f83-211c51a58673@suse.com>
 From: Dave Hansen <dave.hansen@intel.com>
+Content-Language: en-US
 Autocrypt: addr=dave.hansen@intel.com; keydata=
  xsFNBE6HMP0BEADIMA3XYkQfF3dwHlj58Yjsc4E5y5G67cfbt8dvaUq2fx1lR0K9h1bOI6fC
  oAiUXvGAOxPDsB/P6UEOISPpLl5IuYsSwAeZGkdQ5g6m1xq7AlDJQZddhr/1DC/nMVa/2BoY
@@ -104,29 +106,13 @@ Autocrypt: addr=dave.hansen@intel.com; keydata=
  MTsCeQDdjpgHsj+P2ZDeEKCbma4m6Ez/YWs4+zDm1X8uZDkZcfQlD9NldbKDJEXLIjYWo1PH
  hYepSffIWPyvBMBTW2W5FRjJ4vLRrJSUoEfJuPQ3vW9Y73foyo/qFoURHO48AinGPZ7PC7TF
  vUaNOTjKedrqHkaOcqB185ahG2had0xnFsDPlx5y
-In-Reply-To: <20260320233319.GZab3ZP1lTfxOmQ4YF@fat_crate.local>
+In-Reply-To: <4c26ba32-d15f-496f-9f83-211c51a58673@suse.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 3/20/26 16:33, Borislav Petkov wrote:
-> I *think* this is only a naming issue and with "raw_" you probably wanna say
-> "native_or_paravirt_" depending on the ifdeffery... but shorter...
-> 
-> If so, I wouldn't call it "raw". I'd say
-> 
-> xx_read_msr()
-> xx_write_msr()
-
-How about we just stick with the paravirt naming?
-
-We're completely used to having stubs that do nothing for paravirt.
-We're also used to paravirt_foo() ending up *eventually* doing
-native_foo(). So, why not just short-circuit that at the compiler and do:
-
-/* Short-circuit the paravirt infrastructure when it is disabled: */
-#define paravirt_read_msr           native_read_msr
-#define paravirt_read_msr_safe      native_read_msr_safe
-#define paravirt_write_msr          native_write_msr
-#define paravirt_write_msr_safe     native_write_msr_safe
-
-I'll hack something together and see if I hate it.
+On 3/20/26 23:23, Jürgen Groß wrote:
+> I think this should be the first step towards a MSR access 
+> consolidation, as it allows any internal optimizations and changes
+> without further bothering most of the users.
+I'm not opposed to something more thorough than these 8 patches. But,
+these do fix real problems. Would they make some future effort harder?
