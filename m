@@ -1,41 +1,69 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.5])
+Received: from out-182.mta0.migadu.com (out-182.mta0.migadu.com [91.218.175.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A7BF3A962D
-	for <virtualization@lists.linux.dev>; Tue, 31 Mar 2026 10:27:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4608D3630B5
+	for <virtualization@lists.linux.dev>; Tue, 31 Mar 2026 10:27:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774952823; cv=none; b=hIt6bea65qtz9q8h/qQLrLkMqkDU9capy522yxc+CDmZSy5WzaXwaG22pXjloyYiQ/yZFReogcXLd6CAZyWuT2tVgOsQNmRgy2XMOx9Xx8CAcmMULb2kuJxEvT/qQAGE6uorrK7m1KSREVqyeJi4Az6OllLvRZFOSJ14cgCJr/o=
+	t=1774952837; cv=none; b=J9NkjR9Rv3Wx3eb7T+f/L1ioHl1ung101/2fTwPH0Oi+VSBnvBZz0IfxubhWMIB+JgY6P2Di/BJrQbYdlRU/Kabovlv8l1fHm52W097iMe0y+0DyDyS7FriRrUemcSjlh807tIaf5PXD7WgZPSkGb3mJaA8hAA6Dl3OMQruni+0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774952823; c=relaxed/simple;
-	bh=5pm7Qn2XElzYS3fOUrGjF0VgmVwF+RJXnmray/+6o7o=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=nuEYyQ6rxw3TIlIVwCeT2jq4ry5shIEUGS6ixXIXIdtrHn1Hy79dafmUZYeB9LaSMssWln2rGF4Q58gImDw5WgLxamH5u2uJOM9R8gbWgXCTzFzFhJfhIQPdnyV4ELfx8uau8iAM55py03yRaQwRJhtrFKSxQJLzfr79WbWR5fQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=S9lftEu5; arc=none smtp.client-ip=117.135.210.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1774952837; c=relaxed/simple;
+	bh=qzZkQ3i93l0FQlsjhTVvBhRGCZM8HqmGjGodNljUlIA=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Nj1q5oNslrrvEaV3e5kjGf9CHFSFG9/dxSuUj5Mk50NOCV6X1mUKRt01L+JFqmmiUVJ4moj/RJDuaaVyM5zkBz2Sjm/iDqQqugArU1bu2SR1Dq1T+Wtwcnw3COq+P0WF/S1rWc5QBcapxRgika/5POt3WS8KCgEqa/S83kLWOs4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=o7RBAi13; arc=none smtp.client-ip=91.218.175.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="S9lftEu5"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=R+
-	rgBVCQ57bDSptspbbbF6BPdxKY94YGMQDVjYD8ids=; b=S9lftEu5Mw50/JpsNQ
-	XVFXe7/e4Sx2XBEUpPfFbLRxCaJ0Fg2wosKixcB5UxROEg2emOhZxeplhHTZEIty
-	/lLMOFiITwMwWhG0u6GP9wfJiwGGHCuj1y1kBvUmV3yHwCApVa2XbSXxPg5Qyu7D
-	Dm7s6EVqdz3ifpG+JGIFlJdac=
-Received: from localhost.localdomain (unknown [])
-	by gzga-smtp-mtada-g0-0 (Coremail) with SMTP id _____wDHqoNToctphXY9CQ--.9353S2;
-	Tue, 31 Mar 2026 18:26:27 +0800 (CST)
-From: Longjun Tang <lange_tang@163.com>
-To: mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	edumazet@google.com
-Cc: lange_tang@163.com,
-	tanglongjun@kylinos.cn,
-	virtualization@lists.linux.dev
-Subject: [PATCH 0/2] fix virtio_net/virtio when in busy-polling
-Date: Tue, 31 Mar 2026 18:26:24 +0800
-Message-Id: <20260331102626.108962-1-lange_tang@163.com>
-X-Mailer: git-send-email 2.25.1
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="o7RBAi13"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1774952832;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=a18x6ZQjYkqeWxFtayZuE5Lz8yKC0RDpl9ExxmZO+X0=;
+	b=o7RBAi13M3ymJIxeIcVVcVU7ArACtE8dCrjJjGz5z+vEZYGgF1B1ZaS7f35w+NpdDX2Unp
+	f/ElyU26K/tOyOtBeLLhv7VbxMV4S/xMG+FcVulhOO1Crwahfpdetbbi4j8NsAeXAtuv9D
+	TtMRPMhTEuuHOtV/fbSvHdHBJxbrGZs=
+From: Usama Arif <usama.arif@linux.dev>
+To: Dmitry Ilvokhin <d@ilvokhin.com>
+Cc: Usama Arif <usama.arif@linux.dev>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Will Deacon <will@kernel.org>,
+	Boqun Feng <boqun@kernel.org>,
+	Waiman Long <longman@redhat.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Juergen Gross <jgross@suse.com>,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Dennis Zhou <dennis@kernel.org>,
+	Tejun Heo <tj@kernel.org>,
+	Christoph Lameter <cl@gentwo.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	linux-kernel@vger.kernel.org,
+	linux-mips@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	linux-arch@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-trace-kernel@vger.kernel.org,
+	kernel-team@meta.com
+Subject: Re: [PATCH v4 0/5] locking: contended_release tracepoint instrumentation
+Date: Tue, 31 Mar 2026 03:27:03 -0700
+Message-ID: <20260331102704.921355-1-usama.arif@linux.dev>
+In-Reply-To: <cover.1774536681.git.d@ilvokhin.com>
+References: 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -43,46 +71,35 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wDHqoNToctphXY9CQ--.9353S2
-X-Coremail-Antispam: 1Uf129KBjvJXoW7WF48Xry5KrWxJFWDZw13urg_yoW8Gw4UpF
-	WUK3yF9F4jvryIyFn3XF1qkw15Zwn3ArWfGrn7u3yUCw15KF48Xr10kFyFvFyUuw4kCw12
-	vrs5Za45ua45XrJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0pEb18DUUUUU=
-X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbC-hPJ92nLoVOsswAA3c
+X-Migadu-Flow: FLOW_OUT
 
-From: Longjun Tang <tanglongjun@kylinos.cn>
+On Thu, 26 Mar 2026 15:09:59 +0000 Dmitry Ilvokhin <d@ilvokhin.com> wrote:
 
-hi,
-about this two patch:
-1. virtio_net: disable cb when in busy-polling
-When in a busy-polling context, it's possible to be in an enable cb 
-state,even though it doesn't need to be. This can lead to vring_interrupt
-returning IRQ_NONE. so, This patch proactively disables the cb when
-in busy_polling.
+> The existing contention_begin/contention_end tracepoints fire on the
+> waiter side. The lock holder's identity and stack can be captured at
+> contention_begin time (e.g. perf lock contention --lock-owner), but
+> this reflects the holder's state when a waiter arrives, not when the
+> lock is actually released.
+> 
+> This series adds a contended_release tracepoint that fires on the
+> holder side when a lock with waiters is released. This provides:
+> 
+> - Hold time estimation: when the holder's own acquisition was
+>   contended, its contention_end (acquisition) and contended_release
+>   can be correlated to measure how long the lock was held under
+>   contention.
+> 
+> - The holder's stack at release time, which may differ from what perf lock
+>   contention --lock-owner captures if the holder does significant work between
+>   the waiter's arrival and the unlock.
+> 
+> Note: for reader/writer locks, the tracepoint fires for every reader
+> releasing while a writer is waiting, not only for the last reader.
+> 
 
-2. virtio_ring: return IRQ_HANDLED for stale interrupts when cb disabled
-In the vring_interrupt, if the used ring is empty, IRQ_NONE is returned.
-However,Sometimes, such as with busy-polling, buffers might be consumed
-from the used ring before an stale interrupt notification arrives. it
-leading to return IRQ_NONE.The kernel's spurious-IRQ detector counts 
-consecutive IRQ_NONE returnsand will permanently disable the interrupt 
-line if 99,900 out of 100,000 interrupts go unhandled. so, this patch
-add is_cb_disabled() to virtqueue_ops and, when more_used() is false but
-cb are suppressed, return IRQ_HANDLED instead of IRQ_NONE so the spurious
-counter does not accumulate.
-
-stale interrupts: the device posted this notification before it observed
-the cb suppression;
-
-
-Longjun Tang (2):
-  virtio_net: disable cb when in busy-polling
-  virtio_ring: return IRQ_HANDLED for stale interrupts when cb disabled
-
- drivers/net/virtio_net.c     |  3 +++
- drivers/virtio/virtio_ring.c | 29 +++++++++++++++++++++++++++++
- 2 files changed, 32 insertions(+)
-
--- 
-2.43.0
-
+Would it be better to reorder the patches? It would help with git
+bisectability as well. Move the refractoring work in patch 4 and
+5 (excluding adding the tracepoints ofcourse) earlier, and then add
+all the tracepoints in the same commit at the end? It would help
+in the future with git blame to see where all the tracepoints
+were added as well.
