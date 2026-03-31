@@ -1,30 +1,29 @@
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.2])
+Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D68F3E0C66
-	for <virtualization@lists.linux.dev>; Tue, 31 Mar 2026 10:26:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.2
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A7BF3A962D
+	for <virtualization@lists.linux.dev>; Tue, 31 Mar 2026 10:27:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774952822; cv=none; b=rD+42qCJcTxSLVzwLkRvoFLcNNr2isEWbm+ZMzEBaZOi7WkeCaHUx4qsdZ8/pBn7CSLQKH2UdqYFQ9moc+KVFUXu24Kmt7IcJ7E+HoU8EsDR+713cjqPXtBsAHg+VeyOA8bK8prXLCkPLlHB8kaIBQ9SRRerxQMtgjaeGpgFkvA=
+	t=1774952823; cv=none; b=hIt6bea65qtz9q8h/qQLrLkMqkDU9capy522yxc+CDmZSy5WzaXwaG22pXjloyYiQ/yZFReogcXLd6CAZyWuT2tVgOsQNmRgy2XMOx9Xx8CAcmMULb2kuJxEvT/qQAGE6uorrK7m1KSREVqyeJi4Az6OllLvRZFOSJ14cgCJr/o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774952822; c=relaxed/simple;
-	bh=yBhUO9AcDizDzi5hZ7HFPf1Ys9igXRDkMcDveowrUBU=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=t6F2k+HXMDdOMlSwXhWzbEi7xrlZoBEy9uAjVTX1AW1zewB/exXV5n6g3LtpuVnJTaMmnkGLfyvCAtVXQ+YZIVPU0ESBDkUhhq43JLBkO1cYI79c5fm9Tq61OHCcXGByDgquaSlcnuwG5SAOu28Vbsu+wHCLvTV14nd3zafiwV8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=WewWCeZ4; arc=none smtp.client-ip=220.197.31.2
+	s=arc-20240116; t=1774952823; c=relaxed/simple;
+	bh=5pm7Qn2XElzYS3fOUrGjF0VgmVwF+RJXnmray/+6o7o=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=nuEYyQ6rxw3TIlIVwCeT2jq4ry5shIEUGS6ixXIXIdtrHn1Hy79dafmUZYeB9LaSMssWln2rGF4Q58gImDw5WgLxamH5u2uJOM9R8gbWgXCTzFzFhJfhIQPdnyV4ELfx8uau8iAM55py03yRaQwRJhtrFKSxQJLzfr79WbWR5fQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=S9lftEu5; arc=none smtp.client-ip=117.135.210.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="WewWCeZ4"
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="S9lftEu5"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=qj
-	GcDu2cLYHPG5yJ/yHByIrJKq6iL1NMW8tRcHnqlWk=; b=WewWCeZ4Pcolhw1OXj
-	er2iatdtthc2VinSXnGhWL18+yaAwmmq5sPzlr5BvP7icgm2VheWN0TnHAfuGw5s
-	nmzWnbEMpDu7VQ0Z1aV/N+f2TH/yq1PS15EiqmZ6jfda846zNERCfnBgjo6rUao8
-	z6HI0xixAVcu7KZLxEK9HNFzg=
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=R+
+	rgBVCQ57bDSptspbbbF6BPdxKY94YGMQDVjYD8ids=; b=S9lftEu5Mw50/JpsNQ
+	XVFXe7/e4Sx2XBEUpPfFbLRxCaJ0Fg2wosKixcB5UxROEg2emOhZxeplhHTZEIty
+	/lLMOFiITwMwWhG0u6GP9wfJiwGGHCuj1y1kBvUmV3yHwCApVa2XbSXxPg5Qyu7D
+	Dm7s6EVqdz3ifpG+JGIFlJdac=
 Received: from localhost.localdomain (unknown [])
-	by gzga-smtp-mtada-g0-0 (Coremail) with SMTP id _____wDHqoNToctphXY9CQ--.9353S3;
-	Tue, 31 Mar 2026 18:26:28 +0800 (CST)
+	by gzga-smtp-mtada-g0-0 (Coremail) with SMTP id _____wDHqoNToctphXY9CQ--.9353S2;
+	Tue, 31 Mar 2026 18:26:27 +0800 (CST)
 From: Longjun Tang <lange_tang@163.com>
 To: mst@redhat.com,
 	jasowang@redhat.com,
@@ -33,12 +32,10 @@ To: mst@redhat.com,
 Cc: lange_tang@163.com,
 	tanglongjun@kylinos.cn,
 	virtualization@lists.linux.dev
-Subject: [PATCH 1/2] virtio_net: disable cb when in busy-polling
-Date: Tue, 31 Mar 2026 18:26:25 +0800
-Message-Id: <20260331102626.108962-2-lange_tang@163.com>
+Subject: [PATCH 0/2] fix virtio_net/virtio when in busy-polling
+Date: Tue, 31 Mar 2026 18:26:24 +0800
+Message-Id: <20260331102626.108962-1-lange_tang@163.com>
 X-Mailer: git-send-email 2.25.1
-In-Reply-To: <20260331102626.108962-1-lange_tang@163.com>
-References: <20260331102626.108962-1-lange_tang@163.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -46,40 +43,46 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wDHqoNToctphXY9CQ--.9353S3
-X-Coremail-Antispam: 1Uf129KBjvdXoWrurW3GFW3trWkWF4kGry7Awb_yoWDZFg_C3
-	4xWr1fG345AFsYk3yUuw45XrySya909F48WF9IgrySk3s7C3WUXr1DZr1DC3ZxC3yxuFnx
-	Cws3XFy5t3yfWjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
-	9fnUUvcSsGvfC2KfnxnUUI43ZEXa7sRqeH6JUUUUU==
-X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbC-RTK+GnLoVS2uAAA3C
+X-CM-TRANSID:_____wDHqoNToctphXY9CQ--.9353S2
+X-Coremail-Antispam: 1Uf129KBjvJXoW7WF48Xry5KrWxJFWDZw13urg_yoW8Gw4UpF
+	WUK3yF9F4jvryIyFn3XF1qkw15Zwn3ArWfGrn7u3yUCw15KF48Xr10kFyFvFyUuw4kCw12
+	vrs5Za45ua45XrJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0pEb18DUUUUU=
+X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbC-hPJ92nLoVOsswAA3c
 
 From: Longjun Tang <tanglongjun@kylinos.cn>
 
-virtnet_poll() is shared between NAPI softirq context and the busy-poll
-path (sk_busy_loop).  In the busy-poll path the caller drives the loop
-directly and does not rely on interrupts to schedule NAPI; keeping
-callbacks enabled is wasteful and risks a flood of IRQ_NONE returns that
-can trigger the kernel's spurious-IRQ detector.
+hi,
+about this two patch:
+1. virtio_net: disable cb when in busy-polling
+When in a busy-polling context, it's possible to be in an enable cb 
+state,even though it doesn't need to be. This can lead to vring_interrupt
+returning IRQ_NONE. so, This patch proactively disables the cb when
+in busy_polling.
 
-Signed-off-by: Longjun Tang <tanglongjun@kylinos.cn>
----
- drivers/net/virtio_net.c | 3 +++
- 1 file changed, 3 insertions(+)
+2. virtio_ring: return IRQ_HANDLED for stale interrupts when cb disabled
+In the vring_interrupt, if the used ring is empty, IRQ_NONE is returned.
+However,Sometimes, such as with busy-polling, buffers might be consumed
+from the used ring before an stale interrupt notification arrives. it
+leading to return IRQ_NONE.The kernel's spurious-IRQ detector counts 
+consecutive IRQ_NONE returnsand will permanently disable the interrupt 
+line if 99,900 out of 100,000 interrupts go unhandled. so, this patch
+add is_cb_disabled() to virtqueue_ops and, when more_used() is false but
+cb are suppressed, return IRQ_HANDLED instead of IRQ_NONE so the spurious
+counter does not accumulate.
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 72d6a9c6a5a2..df365fba2c40 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -3078,6 +3078,9 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
- 	unsigned int xdp_xmit = 0;
- 	bool napi_complete;
- 
-+	if (READ_ONCE(napi->state) & NAPIF_STATE_IN_BUSY_POLL)
-+		virtqueue_disable_cb(rq->vq);
-+
- 	virtnet_poll_cleantx(rq, budget);
- 
- 	received = virtnet_receive(rq, budget, &xdp_xmit);
+stale interrupts: the device posted this notification before it observed
+the cb suppression;
+
+
+Longjun Tang (2):
+  virtio_net: disable cb when in busy-polling
+  virtio_ring: return IRQ_HANDLED for stale interrupts when cb disabled
+
+ drivers/net/virtio_net.c     |  3 +++
+ drivers/virtio/virtio_ring.c | 29 +++++++++++++++++++++++++++++
+ 2 files changed, 32 insertions(+)
+
 -- 
 2.43.0
 
