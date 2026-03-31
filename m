@@ -1,106 +1,170 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29EB523A9BD
-	for <virtualization@lists.linux.dev>; Tue, 31 Mar 2026 01:02:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C6883D891E;
+	Tue, 31 Mar 2026 08:06:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1774918947; cv=none; b=sCE+8X6Zsr/nuDKIWrKnUdPwHEhGb3h6FqM4Q6D43fTIS3VbSTozES0zARgKUiJXiplcvBaQyAzTYDRI6zQqBisMMnQwHDqEsy5aL0RLz2Bykx2HS/Iu7Nr0fVlO/ZEpGU63c8PDiV/RUJALbWAipacUxLSW7ieG1TG+z0p8WdQ=
+	t=1774944404; cv=none; b=Tl9JMR9FcHw2HWTv19S52AvdetOD7iIIqJub4hRQbOYnlnYpTpFHjK25gdbT9/GgUr8d8Elc3XdZCeaKn0uVfFwufspSSDvhMSYiCEQkJiZkYDlqIugTWMrClj3H/L89K3TgU2QgZynB4GU2oBGwxKi2hGw09Cq7l44DAxrlde0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1774918947; c=relaxed/simple;
-	bh=ypRpAL/SOpf+fJx+QABf23+W6rQ4iDe3inTkvlPaqX0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=mqWBWSrR5a0TN4d4vPmMgYRMUdQ7zhKQ91sunwx7RILbKTNSkJ0PR9yA2n1ogywgpoUYaBwkMKxjuzeTu8LWCYOgBP+SXGwVB0DIHum/Cr3tvB3P0rwMSFZZCOcMGyJ4UBQQmSRBsq1rD/CEyEviB9/VuSYANA0H3fSqMDAUDOI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Zs12qFBv; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1774944404; c=relaxed/simple;
+	bh=7ZnFUcGBpSYxCeawHwcWvE73wN8LYb8XSX/aZ34llBU=;
+	h=Mime-Version:Content-Type:Date:Message-Id:Subject:Cc:To:From:
+	 References:In-Reply-To; b=TmHlnZtNmU3jHLj6h29vNybS2m7yJ5sOdOKIXHMp0k5qZWLS/KyQCITR99waDuHMeSMB0DKq0YVKU0UIQScxlPfhk8S3ZDSDs4W8Cj0XZj9j75cssyBDtmBr8b4a4IUN/GRR/f8h0WbahOGBgY0pqb4Re+3FeMUT4gO1uSaRtSo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AWIlCHwQ; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Zs12qFBv"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1774918945;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=vCyOd8Hq2eAy0S/aAjPXgTm66WXi3qjg5wbQWwZEhK4=;
-	b=Zs12qFBv06my5f2JEpXTF2oQ0+NOu4RztfWK3Le0tDzO/5f3vIFvqJ4xoWe2XNWyOGREGe
-	khvC5BJXizprxVnITPfFTXg17xdZ1U8L2WBZ7QkUOAySmwtRX/NyL403QqCu1cBDOelEO5
-	tYQyIQ3fn40wBrhXbF3pAumzJ8JyjfU=
-Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-622-brngCdPJOnCsi5PsAzUHdw-1; Mon,
- 30 Mar 2026 21:02:23 -0400
-X-MC-Unique: brngCdPJOnCsi5PsAzUHdw-1
-X-Mimecast-MFC-AGG-ID: brngCdPJOnCsi5PsAzUHdw_1774918938
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 1F39D1956056;
-	Tue, 31 Mar 2026 01:02:17 +0000 (UTC)
-Received: from fedora (unknown [10.72.116.5])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 70BB319560AB;
-	Tue, 31 Mar 2026 01:01:52 +0000 (UTC)
-Date: Tue, 31 Mar 2026 09:01:48 +0800
-From: Ming Lei <ming.lei@redhat.com>
-To: Aaron Tomlin <atomlin@atomlin.com>
-Cc: axboe@kernel.dk, kbusch@kernel.org, hch@lst.de, sagi@grimberg.me,
-	mst@redhat.com, aacraid@microsemi.com,
-	James.Bottomley@hansenpartnership.com, martin.petersen@oracle.com,
-	liyihang9@h-partners.com, kashyap.desai@broadcom.com,
-	sumit.saxena@broadcom.com, shivasharan.srikanteshwara@broadcom.com,
-	chandrakanth.patil@broadcom.com, sathya.prakash@broadcom.com,
-	sreekanth.reddy@broadcom.com, suganath-prabu.subramani@broadcom.com,
-	ranjan.kumar@broadcom.com, jinpu.wang@cloud.ionos.com,
-	tglx@kernel.org, mingo@redhat.com, peterz@infradead.org,
-	juri.lelli@redhat.com, vincent.guittot@linaro.org,
-	akpm@linux-foundation.org, maz@kernel.org, ruanjinjie@huawei.com,
-	bigeasy@linutronix.de, yphbchou0911@gmail.com, wagi@kernel.org,
-	frederic@kernel.org, longman@redhat.com, chenridong@huawei.com,
-	hare@suse.de, kch@nvidia.com, steve@abita.co, sean@ashe.io,
-	chjohnst@gmail.com, neelx@suse.com, mproche@gmail.com,
-	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-nvme@lists.infradead.org,
-	linux-scsi@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-	mpi3mr-linuxdrv.pdl@broadcom.com, MPT-FusionLinux.pdl@broadcom.com
-Subject: Re: [PATCH v9 00/13] blk: honor isolcpus configuration
-Message-ID: <acsc_GHv7Q04U1db@fedora>
-References: <20260330221047.630206-1-atomlin@atomlin.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AWIlCHwQ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9364DC2BCB1;
+	Tue, 31 Mar 2026 08:06:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1774944403;
+	bh=7ZnFUcGBpSYxCeawHwcWvE73wN8LYb8XSX/aZ34llBU=;
+	h=Date:Subject:Cc:To:From:References:In-Reply-To:From;
+	b=AWIlCHwQfZsUuHzOmGZpVGY5YC2rf+d68CeBHq+msonYwp7U2eqLrZxes/cDwOhzj
+	 cxpHUVzGLXyiRtTuiesiUTZk1jZ4TcDex7KFW8cftoKdzZUi7rr5OJwggbIXG1Qkjk
+	 y+1kJYFjlXJgwRMxjX5gpnBgZX2SWzf28LHVl+Lqu+vuVqVDfsqOYyI0fBSLNK4oiz
+	 5o/ZjxvWe1HfMi03Q77GYttGBzv0VRF/kGrPedoVKNJAcdTkHpW3bIz1sDtXTCy1mo
+	 2Z3qOFa/hlvy8JEPivh5B8wp9J/5+CgONWe9R6Y+M3smVnPJrUWUnRppA4rHbFzvHS
+	 mmm1NDCdVo7ag==
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-In-Reply-To: <20260330221047.630206-1-atomlin@atomlin.com>
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
-X-Mimecast-MFC-PROC-ID: ktzBK9SM7i2h08kPXaLIjI_gyv53ftqs0rbWrCbvc98_1774918938
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Date: Tue, 31 Mar 2026 10:06:32 +0200
+Message-Id: <DHGT9XCG8Y96.3IB1EI6FF1ZDZ@kernel.org>
+Subject: Re: [PATCH 05/12] PCI: use generic driver_override infrastructure
+Cc: "Jason Gunthorpe" <jgg@ziepe.ca>, "Russell King"
+ <linux@armlinux.org.uk>, "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+ "Rafael J. Wysocki" <rafael@kernel.org>, "Ioana Ciornei"
+ <ioana.ciornei@nxp.com>, "Nipun Gupta" <nipun.gupta@amd.com>, "Nikhil
+ Agarwal" <nikhil.agarwal@amd.com>, "K. Y. Srinivasan" <kys@microsoft.com>,
+ "Haiyang Zhang" <haiyangz@microsoft.com>, "Wei Liu" <wei.liu@kernel.org>,
+ "Dexuan Cui" <decui@microsoft.com>, "Long Li" <longli@microsoft.com>,
+ "Bjorn Helgaas" <bhelgaas@google.com>, "Armin Wolf" <W_Armin@gmx.de>,
+ "Bjorn Andersson" <andersson@kernel.org>, "Mathieu Poirier"
+ <mathieu.poirier@linaro.org>, "Vineeth Vijayan" <vneethv@linux.ibm.com>,
+ "Peter Oberparleiter" <oberpar@linux.ibm.com>, "Heiko Carstens"
+ <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>, "Alexander
+ Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger"
+ <borntraeger@linux.ibm.com>, "Sven Schnelle" <svens@linux.ibm.com>, "Harald
+ Freudenberger" <freude@linux.ibm.com>, "Holger Dengler"
+ <dengler@linux.ibm.com>, "Mark Brown" <broonie@kernel.org>, "Michael S.
+ Tsirkin" <mst@redhat.com>, "Jason Wang" <jasowang@redhat.com>, "Xuan Zhuo"
+ <xuanzhuo@linux.alibaba.com>, =?utf-8?q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, "Juergen Gross" <jgross@suse.com>, "Stefano
+ Stabellini" <sstabellini@kernel.org>, "Oleksandr Tyshchenko"
+ <oleksandr_tyshchenko@epam.com>, "Christophe Leroy (CS GROUP)"
+ <chleroy@kernel.org>, <linux-kernel@vger.kernel.org>,
+ <driver-core@lists.linux.dev>, <linuxppc-dev@lists.ozlabs.org>,
+ <linux-hyperv@vger.kernel.org>, <linux-pci@vger.kernel.org>,
+ <platform-driver-x86@vger.kernel.org>, <linux-arm-msm@vger.kernel.org>,
+ <linux-remoteproc@vger.kernel.org>, <linux-s390@vger.kernel.org>,
+ <linux-spi@vger.kernel.org>, <virtualization@lists.linux.dev>,
+ <kvm@vger.kernel.org>, <xen-devel@lists.xenproject.org>,
+ <linux-arm-kernel@lists.infradead.org>, "Gui-Dong Han"
+ <hanguidong02@gmail.com>
+To: "Alex Williamson" <alex@shazbot.org>
+From: "Danilo Krummrich" <dakr@kernel.org>
+References: <20260324005919.2408620-1-dakr@kernel.org>
+ <20260324005919.2408620-6-dakr@kernel.org>
+ <DHGATG6LJOM1.2AI7BYQ2O4DFU@kernel.org>
+ <20260330141050.2cb47bd9@shazbot.org>
+In-Reply-To: <20260330141050.2cb47bd9@shazbot.org>
 
-On Mon, Mar 30, 2026 at 06:10:34PM -0400, Aaron Tomlin wrote:
-> Hi Jens, Keith, Christoph, Sagi, Michael,
-> 
-> I have decided to drive this series forward on behalf of Daniel Wagner, the
-> original author. This iteration addresses the outstanding architectural and
-> concurrency concerns raised during the previous review cycle, and the series
-> has been rebased on v7.0-rc5-509-g545475aebc2a.
-> 
-> Building upon prior iterations, this series introduces critical
-> architectural refinements to the mapping and affinity spreading algorithms
-> to guarantee thread safety and resilience against concurrent CPU-hotplug
-> operations. Previously, the block layer relied on a shared global static
-> mask (i.e., blk_hk_online_mask), which proved vulnerable to race conditions
-> during rapid hotplug events. This vulnerability was recently highlighted by
-> the kernel test robot, which encountered a NULL pointer dereference during
-> rcutorture (cpuhotplug) stress testing due to concurrent mask modification.
+On Mon Mar 30, 2026 at 10:10 PM CEST, Alex Williamson wrote:
+> On Mon, 30 Mar 2026 19:38:41 +0200
+> "Danilo Krummrich" <dakr@kernel.org> wrote:
+>
+>> (Cc: Jason)
+>>=20
+>> On Tue Mar 24, 2026 at 1:59 AM CET, Danilo Krummrich wrote:
+>> > diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_=
+pci_core.c
+>> > index d43745fe4c84..460852f79f29 100644
+>> > --- a/drivers/vfio/pci/vfio_pci_core.c
+>> > +++ b/drivers/vfio/pci/vfio_pci_core.c
+>> > @@ -1987,9 +1987,8 @@ static int vfio_pci_bus_notifier(struct notifier=
+_block *nb,
+>> >  	    pdev->is_virtfn && physfn =3D=3D vdev->pdev) {
+>> >  		pci_info(vdev->pdev, "Captured SR-IOV VF %s driver_override\n",
+>> >  			 pci_name(pdev));
+>> > -		pdev->driver_override =3D kasprintf(GFP_KERNEL, "%s",
+>> > -						  vdev->vdev.ops->name);
+>> > -		WARN_ON(!pdev->driver_override);
+>> > +		WARN_ON(device_set_driver_override(&pdev->dev,
+>> > +						   vdev->vdev.ops->name)); =20
+>>=20
+>> Technically, this is a change in behavior. If vdev->vdev.ops->name is NU=
+LL, it
+>> will trigger the WARN_ON(), whereas before it would have just written "(=
+null)"
+>> into driver_override.
+>
+> It's worse than that.  Looking at the implementation in [1], we have:
+>
+> +static inline int device_set_driver_override(struct device *dev, const c=
+har *s)
+> +{
+> +	return __device_set_driver_override(dev, s, strlen(s));
+> +}
+>
+> So if name is NULL, we oops in strlen() before we even hit the -EINVAL
+> and WARN_ON().
 
-Can you share the bug report link?
+This was changed in v2 [2] and the actual code in-tree is
 
-IMO, it should be solved as a backportable patch first if possible.
+	static inline int device_set_driver_override(struct device *dev, const cha=
+r *s)
+	{
+		return __device_set_driver_override(dev, s, s ? strlen(s) : 0);
+	}
 
+so it does indeed return -EINVAL for a NULL pointer.
 
-Thanks,
-Ming
+> I don't believe we have any vfio-pci variant drivers where the name is
+> NULL, but kasprintf() handling NULL as "(null)" was a consideration in
+> this design, that even if there is no name the device is sequestered
+> with a driver_override that won't match an actual driver.
+>
+>> I assume that vfio_pci_core drivers are expected to set the name in stru=
+ct
+>> vfio_device_ops in the first place and this code (silently) relies on th=
+is
+>> invariant?
+>
+> We do expect that, but it was previously safe either way to make sure
+> VFs are only bound to the same ops driver or barring that, at least
+> don't perform a standard driver match.  The last thing we want to
+> happen automatically is for a user owned PF to create SR-IOV VFs that
+> automatically bind to native kernel drivers.
+> =20
+>> Alex, Jason: Should we keep this hunk above as is and check for a proper=
+ name in
+>> struct vfio_device_ops in vfio_pci_core_register_device() with a subsequ=
+ent
+>> patch?
+>
+> Given the oops, my preference would be to roll it in here.  This change
+> is what makes it a requirement that name cannot be NULL, where this was
+> safely handled with kasprintf().
 
+Again, no oops here. :)
+
+I still think it makes more sense to fail early in
+vfio_pci_core_register_device(), rather than silently accept "(null)" in
+driver_override. It also doesn't seem unreasonable with only the WARN_ON(),=
+ but
+I can also just add vdev->vdev.ops->name ?: "(null)".
+
+Please let me know what you prefer.
+
+- Danilo
+
+> [1] https://lore.kernel.org/all/20260302002729.19438-2-dakr@kernel.org/
+
+[2] https://lore.kernel.org/driver-core/20260303115720.48783-1-dakr@kernel.=
+org/
