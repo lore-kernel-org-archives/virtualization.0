@@ -1,80 +1,136 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mailgw02.mediatek.com (unknown [210.61.82.184])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2FC3E1E5018;
-	Wed,  1 Apr 2026 01:05:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F279E2E7F25
+	for <virtualization@lists.linux.dev>; Wed,  1 Apr 2026 06:12:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.61.82.184
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775005524; cv=none; b=VOq9z5MJcDFSkcPQXtXui3e/djdj/ixEu/BbJ7IAwQo0EOxU1B1ZgcPEYKjuwIBKMBqsbhQfcpInFe/NMimauB8woLTgrCDLZ7h5B7m7VwnBTrrsc+hZ4eFZlUEUYDKiP0h26BExGBWwvXXObCl7L1wQCWFl8HCZJjjRwhl62lo=
+	t=1775023971; cv=none; b=uBkXj4XeOH8XFMQxzTwUd3h39/Nn2rKZiQaSee/d4EiHlHb0wLTloW7ysem3016Q4aTg3uFxYE/fCihkLsRzWPXbJcp4edgW2IIzyIPsAb3TWnQGEmKavC37e9uGlXF/575O4uKMpcT92ENYoofo5y/ZVw43T7bTvxD0PwPSMMo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775005524; c=relaxed/simple;
-	bh=ByDXKuHai140NrVm7ahWH+xM2F6/SDBLhHluQ1Ex/FY=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=qzbfpfiNBULJpDuqcSuZYf0C/nlICtXzUHVqvqYOox81sdMtxw9at122iTg0w75XcH4A2AE1lj9ILqHqGvJg6eFMqJ5HZsU57oBFp1HVbdt+EFuMt31ftIhT9lbaQygDWJcV1sdk/GAwGi324kiL6wJnaj2Zx6u9mACU/eYXqM0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VIVC5wxL; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1775023971; c=relaxed/simple;
+	bh=O34xXC6QS7UiPkBldM6k/wxVN2A+cLQXDvRFHgsdE5Q=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=OdXOM0DxPOd3fpW4LaBfMfGdpmYwWAa+U0TzpFNPqg7UKt6Jvwp75/IrbK2iw7IoqJTxoIu1UQGykrI/vzbuUxB3+BjCePxuxFiEVm5uISLpGmFeI0CesRAX3jQ/LCm4+P0dHkQp7UPAs3Yxss0FF+Lg/RgFFyxWyw1gFUk1K5g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mediatek.com; spf=pass smtp.mailfrom=mediatek.com; dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b=r7LMFFwo; arc=none smtp.client-ip=210.61.82.184
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=mediatek.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mediatek.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VIVC5wxL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C0B5C2BCB0;
-	Wed,  1 Apr 2026 01:05:23 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775005524;
-	bh=ByDXKuHai140NrVm7ahWH+xM2F6/SDBLhHluQ1Ex/FY=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=VIVC5wxLlIXQHrHwokUCek+jrgGpTIDiYTrs8YZnlbjpHErRPL+HqZI/uMk1YoKvY
-	 cgFHixFJDW4dMiX5D1jJYgqYrULcTRRofdayL7rG1X6ABTEd1rV0mQ+rP40QB8kFoo
-	 Wm9fWqSJqoYEMbHBRTYWh4Ja7aHYVErKe3kl/KnrnqfpqcR/vHHC9aULHvHy5Y9zfZ
-	 vTQZiAe9m0QqN+vDlER9AFJcwt1C4Xep2/9bFURNxMd2VyV0RPMZ3lmk8U9nqjIlBf
-	 94p58cPsDFClm6zqwMR545mDZOogMzQvAMPd62alkXlYOFM+faE3sJiJyilEHlRlQS
-	 3+j7RcHRydCvA==
-Date: Tue, 31 Mar 2026 18:05:22 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Paolo Abeni <pabeni@redhat.com>, Srujana Challa <schalla@marvell.com>,
- "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
- "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
- "jasowang@redhat.com" <jasowang@redhat.com>, "xuanzhuo@linux.alibaba.com"
- <xuanzhuo@linux.alibaba.com>, "eperezma@redhat.com" <eperezma@redhat.com>,
- "davem@davemloft.net" <davem@davemloft.net>, "edumazet@google.com"
- <edumazet@google.com>, Nithin Kumar Dabilpuram <ndabilpuram@marvell.com>,
- Shiva Shankar Kommula <kshankar@marvell.com>, "stable@vger.kernel.org"
- <stable@vger.kernel.org>
-Subject: Re: [EXTERNAL] Re: [PATCH net,v5] virtio_net: clamp
- rss_max_key_size to NETDEV_RSS_KEY_LEN
-Message-ID: <20260331180522.64ef9886@kernel.org>
-In-Reply-To: <20260331104737-mutt-send-email-mst@kernel.org>
-References: <20260326142344.1171317-1-schalla@marvell.com>
-	<ba027306-e5e0-4d4d-8357-f6080441167d@redhat.com>
-	<CH3PR18MB6379D39BA068565667CF2B06A053A@CH3PR18MB6379.namprd18.prod.outlook.com>
-	<68ca0a8c-27f9-45f1-94cc-7e3c7936181f@redhat.com>
-	<20260331104737-mutt-send-email-mst@kernel.org>
+	dkim=pass (1024-bit key) header.d=mediatek.com header.i=@mediatek.com header.b="r7LMFFwo"
+X-UUID: caea3e462d9111f19a16598d5ca7f8ec-20260401
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=mediatek.com; s=dk;
+	h=Content-Type:Content-Transfer-Encoding:MIME-Version:Message-ID:Date:Subject:CC:To:From; bh=2W14g40vqxna88foZFfsDI/an1hpSc2sZgoHE3Dhm/0=;
+	b=r7LMFFwoZbYg1nBnVhoTIOKmmqNq91f6VF/rSCRbOXnXtiJ4IXpIXYRKrT73+SXE9awog/iGGw58jV3ivWOBPY5wZdHvqWzeWimh6FaGbw4bGem8wLDM9hz93yHWkPNaWZeQQNXCSrkOJrdT3GuC8dnvI94e7s3BrOyZoPgUSmM=;
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.12,REQID:60da354d-eeaa-436a-a70c-e3453edb1a46,IP:0,U
+	RL:0,TC:0,Content:-25,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTIO
+	N:release,TS:-25
+X-CID-META: VersionHash:e7bac3a,CLOUDID:c1c15fd5-060f-4ecc-9ee0-121eeeb4a682,B
+	ulkID:nil,BulkQuantity:0,Recheck:0,SF:102|836|888|898,TC:-5,Content:0|15|5
+	0,EDM:-3,IP:nil,URL:0,File:130,RT:0,Bulk:nil,QS:nil,BEC:-1,COL:0,OSI:0,OSA
+	:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: caea3e462d9111f19a16598d5ca7f8ec-20260401
+Received: from mtkmbs13n2.mediatek.inc [(172.21.101.108)] by mailgw02.mediatek.com
+	(envelope-from <morris.pan@mediatek.com>)
+	(Generic MTA with TLSv1.2 ECDHE-RSA-AES256-GCM-SHA384 256/256)
+	with ESMTP id 110947584; Wed, 01 Apr 2026 14:12:42 +0800
+Received: from mtkmbs13n2.mediatek.inc (172.21.101.108) by
+ mtkmbs13n2.mediatek.inc (172.21.101.108) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.2562.29; Wed, 1 Apr 2026 14:12:41 +0800
+Received: from mtksitap99.mediatek.inc (10.233.130.16) by
+ mtkmbs13n2.mediatek.inc (172.21.101.73) with Microsoft SMTP Server id
+ 15.2.2562.29 via Frontend Transport; Wed, 1 Apr 2026 14:12:41 +0800
+From: Morris Pan <morris.pan@mediatek.com>
+To: <airlied@redhat.com>, <kraxel@redhat.com>, <dmitry.osipenko@collabora.com>
+CC: <srv_heupstream@mediatek.com>, <gurchetansingh@chromium.org>,
+	<olvaffe@gmail.com>, <maarten.lankhorst@linux.intel.com>,
+	<mripard@kernel.org>, <tzimmermann@suse.de>, <simona@ffwll.ch>,
+	<dri-devel@lists.freedesktop.org>, <virtualization@lists.linux.dev>, Morris
+ Pan <morris.pan@mediatek.com>
+Subject: [PATCH] drm/virtgpu: Add PM support for suspend/resume
+Date: Wed, 1 Apr 2026 14:10:50 +0800
+Message-ID: <20260401061050.1035881-1-morris.pan@mediatek.com>
+X-Mailer: git-send-email 2.45.2
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-MTK: N
 
-On Tue, 31 Mar 2026 10:48:41 -0400 Michael S. Tsirkin wrote:
-> > > Thank you for the feedback. In net-next, NETDEV_RSS_KEY_LEN is 256. This fix is
-> > > also intended for stable kernels, where NETDEV_RSS_KEY_LEN is 52, and
-> > > I added the message to make clamping visible in that case.
-> > > I will remove the check and send the next version.    
-> > 
-> > I'm sorry, I haven't looked at the historical context when I wrote my
-> > previous reply.
-> > 
-> > IMHO the additional check does not make sense in the current net tree.
-> > On the flip side stable trees will need it. I suggest:
-> > 
-> > - dropping the check for the 'net' patch
-> > - also dropping CC: stable tag
-> > - explicitly sending to stable the fix variant including the size check.
-> > 
-> > @Michael: WDYT?
->
-> I was the one who suggested it, the extra check is harmless, I'm
-> inclined to always have it.  Less work than maintaining two patches.
+Add freeze/restore callbacks to handle system suspend/resume.
+During freeze, delete virtqueues and reset device.
+During restore, reinitialize virtqueues and mark device ready.
 
-Give us an RB tag please and lets close this one? :)
+Signed-off-by: Morris Pan <morris.pan@mediatek.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_drv.c | 40 +++++++++++++++++++++++++++-
+ 1 file changed, 39 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+index a5ce96fb8a1d..fbca0a82958c 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.c
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+@@ -145,6 +145,40 @@ static void virtio_gpu_config_changed(struct virtio_device *vdev)
+ 	schedule_work(&vgdev->config_changed_work);
+ }
+ 
++#ifdef CONFIG_PM_SLEEP
++static int virtgpu_freeze(struct virtio_device *vdev)
++{
++	vdev->config->del_vqs(vdev);
++	virtio_reset_device(vdev);
++
++	return 0;
++}
++
++static int virtgpu_restore(struct virtio_device *vdev)
++{
++	int ret;
++	struct virtqueue *vqs[2];
++	struct drm_device *dev = vdev->priv;
++	struct virtio_gpu_device *vgdev = dev->dev_private;
++	struct virtqueue_info vqs_info[] = {
++		{ "control", virtio_gpu_ctrl_ack },
++		{ "cursor", virtio_gpu_cursor_ack },
++	};
++
++	ret = virtio_find_vqs(vdev, 2, vqs, vqs_info, NULL);
++	if (ret) {
++		DRM_ERROR("failed to find virtio queues\n");
++		return ret;
++	}
++
++	vgdev->ctrlq.vq = vqs[0];
++	vgdev->cursorq.vq = vqs[1];
++	virtio_device_ready(vdev);
++
++	return 0;
++}
++#endif
++
+ static struct virtio_device_id id_table[] = {
+ 	{ VIRTIO_ID_GPU, VIRTIO_DEV_ANY_ID },
+ 	{ 0 },
+@@ -172,7 +206,11 @@ static struct virtio_driver virtio_gpu_driver = {
+ 	.probe = virtio_gpu_probe,
+ 	.remove = virtio_gpu_remove,
+ 	.shutdown = virtio_gpu_shutdown,
+-	.config_changed = virtio_gpu_config_changed
++	.config_changed = virtio_gpu_config_changed,
++#ifdef CONFIG_PM_SLEEP
++	.freeze = virtgpu_freeze,
++	.restore = virtgpu_restore
++#endif
+ };
+ 
+ static int __init virtio_gpu_driver_init(void)
+-- 
+2.45.2
+
