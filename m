@@ -1,66 +1,81 @@
-Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7B58A2E7F25
-	for <virtualization@lists.linux.dev>; Wed,  1 Apr 2026 06:12:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.52
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20DE31DED63
+	for <virtualization@lists.linux.dev>; Wed,  1 Apr 2026 06:24:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775023973; cv=none; b=GefTOH7Lr+n5xEYy6iV3ce63h3v3MdsOtuFz1dU/gSsgGJ0sdgP2Mj7MGKevL+lqq5ifaWz7lUoa3skeib8Nvah6Z2EybIix4q90ARvpnRsy5w9erbLmx3bhAwB12ZshY8DUy2aeRNulFLgDSl5Ijl6MecMEAFCoxGlNC1q8Wow=
+	t=1775024677; cv=none; b=uHWUHjiT+RdGTy7yJtig65DarBkLzewrbHIrz+Psk+o8ww1IbEVTO/EblGKJ7ihETX3eQ9pVC15huVmpzfbV5WHNL7sBTXHzgoIhzDugEskSsj733b3TwUQqoJhKGLoFKz/hrA45ZvWLmcYRZLadZpDxdfisvOST6RVilMH2DUc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775023973; c=relaxed/simple;
-	bh=X26Wp79o6pE57pIUrqLSskRNxV/bmYQXvMpdVf9DIPA=;
+	s=arc-20240116; t=1775024677; c=relaxed/simple;
+	bh=cEb/sxyPv2rPVhv3t3hryULSRtHWPCchgqhpyvipU7Y=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LVk5W5Ov54pb/7xUAJvq8rU799XrdbupQbpusFviX8BvHLCp3WxBYCvtf+vrsKICl3Rt4IhNxwX8jGeXsXuMx+ERV2ImUv0IdSykYV1BIG5WrhACGygNQQtqTmZupSvB2pr9MGV1Mrc30BnJYhJHv3G/3sqy0TRcT9DFN7o4HRw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=eS6wMBuF; arc=none smtp.client-ip=209.85.208.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	 In-Reply-To:Content-Type; b=dZQoL/lN1Fyhkp8/RFw1v2w8Af6H0TZ6YD5lpVm/B29ezoXfJB9AWkHthTxkr+EOsewmB0IhhojaNaN82SjPZlFhi4NOZdq8YBPjC8OE+VMMaEP4mDBY1wqzsYc7YX1oELycxUMB0MkmxBr4nZYpBeGswjXdrITrT7iUUTq4QBU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=hm71gxeV; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=xICUwHcY; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=hm71gxeV; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=xICUwHcY; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="eS6wMBuF"
-Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-661b16ac011so12264766a12.2
-        for <virtualization@lists.linux.dev>; Tue, 31 Mar 2026 23:12:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1775023971; x=1775628771; darn=lists.linux.dev;
-        h=in-reply-to:autocrypt:from:content-language:references:cc:to
-         :subject:user-agent:mime-version:date:message-id:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=X26Wp79o6pE57pIUrqLSskRNxV/bmYQXvMpdVf9DIPA=;
-        b=eS6wMBuFNd197MTnLxWIM9Iux0eTSMxq91Xx+P/9WIctzvfDO2QzQOxd0Vcqgo+US7
-         yLsUy8dNkjZbH+vS8LcIvNkUOfdkEwhDbRdW9xQ9tcoA0/Mob7YM2/SRBr8ALFdTfZs/
-         tXN5q9otGeW3vRkow9Y3c83KyDFg+0/UpRfMwyZQVsk2cWHd3sqlu1nkqn9ZfUzrird+
-         2OFqZw4pfpUJVKeJBDwdW7nWt1LQIxYDs1uhDXS3yOXJ+4I7iA4ngD1fMkO4345sQ44m
-         9lMMk/FNolWf2XM/oJ+46ULAvb6RM47YZORxoUy8vCl1N/tZ4xIcYKD112WRu4pvBZFA
-         sKqA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775023971; x=1775628771;
-        h=in-reply-to:autocrypt:from:content-language:references:cc:to
-         :subject:user-agent:mime-version:date:message-id:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=X26Wp79o6pE57pIUrqLSskRNxV/bmYQXvMpdVf9DIPA=;
-        b=aPVbd7DnwoiBOy044VRZBmkUxfVwiNyAOZsdQo8ZYVaABCdOfmg64oJquQ/2bQjNOk
-         0o+8XBzqD9kcsHDHMtd2wPfqIJktNOD+nODieyjV4xlNRQdQOeNw5GlCMrcMkiMGNNW3
-         GGU2U2cEl2//SyANYlcMs8vY95ObUAZdAVUs786M7yhhk0vbxZ6bQ4PD4PGMHVf1BAYn
-         OEeQjsWj3Pd+F3KIVOO+xglj81kCd1/6IANK6/rQGFUlUj4xHhHN8oBPi4cqaYwSirtc
-         c9mdtJqApNyeBOaHsk+SRIR2rfTUWMeS4sodJHW7APmkvOgAMWkCe6OuohDPaEXhRbpv
-         YpNQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXQymLbMpVT164mvQDHIvqrNfK2Pj1Tff2ayVfYIrrsLX2TBPYqjZilDEWARh6ewu4MKKfSgvXvEEnWdKCE8A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyK9yYS1FLz0wWPUENLHeZ57tDRzAzuINQ9u7TD0410y59+opvP
-	qoXl0lVIOcETYeRE1SE91TVVSTKhbVMkHm05akWo1yR20ItabC7ES6veGDxikyf0Osg=
-X-Gm-Gg: ATEYQzwfx3gMPIJ8ibGI3wgt/MKtnqKXaJMuhv4GFk07xLLnjmJI+/bDSXV6Bg7b5nI
-	i4HpUL2PXkzt9PVx96oOaAl1m+/W+QfNd2e3P90ioo38bTQQa8t71fwjwqxav4ImTjwROWrC2bl
-	qnfq37ssuhoXKU1V5TwMhr7eWh00HK2EwyRaOCoYHjnCsAtk/T8s8jwV7sWFclmYUcPqa5daH1P
-	WlXo4yiA07iQnpmnjy9dR2SaEqx5Fzq2JIAK3LR/zcMsCMMLlOWN7ToAc1asbzKCdE5TO0SBG7s
-	X01s+yjGIokCJXtOSDrvkkbkXsVWP86IUuNRcuAO3zlKrTgOlfyH7A/JZxVf+fQvURhun2UMqHj
-	wQAA5vs/PwT/gWKGpnA61pmM8m3kVVLNmCv14nxqipEHlw34tUWm2EjXaiPbS6VkUGSORAe05mJ
-	pTOl6GC0aLWRhG/41AiltZY8gMoDENC5f2c3K7w17HUfXY0kZhHd7ptagsNSwtOIfJObaoOWJai
-	Uivc+f+GhM8cSzm7BXcYK58ym3cNbSU8DXeH7q3OqaiWS26VppWnw==
-X-Received: by 2002:a17:907:6c11:b0:b97:dc00:fbc5 with SMTP id a640c23a62f3a-b9c13b32317mr167342466b.36.1775023970830;
-        Tue, 31 Mar 2026 23:12:50 -0700 (PDT)
-Received: from ?IPV6:2a00:12d0:af5d:ad01:5d3f:14e6:9bcb:5112? (2a00-12d0-af5d-ad01-5d3f-14e6-9bcb-5112.ip.tng.de. [2a00:12d0:af5d:ad01:5d3f:14e6:9bcb:5112])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-b9c29605870sm10506266b.37.2026.03.31.23.12.50
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 31 Mar 2026 23:12:50 -0700 (PDT)
-Message-ID: <29e40dbb-8baf-45fa-a7e8-30c4a2cc90d4@suse.com>
-Date: Wed, 1 Apr 2026 08:12:49 +0200
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="hm71gxeV";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="xICUwHcY";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="hm71gxeV";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="xICUwHcY"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 0230A5BCDD;
+	Wed,  1 Apr 2026 06:24:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1775024674; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=WkMZFf1YLFOp20aiXd0j6w1gfYwVnV5uHLDkoTFp1VA=;
+	b=hm71gxeVq4Y5jDWrOp1IRQlGBtXm055PclgbkYdk2uSd7HAp1I8QXZEjLsKZpZ6EBaS/7W
+	Ae4dmOTNj/WGe93klKC7fDkvUWtmXVqXAE+LjdPzUzTXSSUpOMKbcWHp1pWWVPZcP1/FiZ
+	QL+lAEFi2soaHPvzM5IYvt2neTJdDQs=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1775024674;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=WkMZFf1YLFOp20aiXd0j6w1gfYwVnV5uHLDkoTFp1VA=;
+	b=xICUwHcYZd5rnO6eYrILOLkqy5w6rEmW0r71mVxc5rv18vdRURVJ1B+Q2SH3xZvi/UDLnD
+	Xxq1pg/z2XPqe6CA==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=hm71gxeV;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=xICUwHcY
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1775024674; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=WkMZFf1YLFOp20aiXd0j6w1gfYwVnV5uHLDkoTFp1VA=;
+	b=hm71gxeVq4Y5jDWrOp1IRQlGBtXm055PclgbkYdk2uSd7HAp1I8QXZEjLsKZpZ6EBaS/7W
+	Ae4dmOTNj/WGe93klKC7fDkvUWtmXVqXAE+LjdPzUzTXSSUpOMKbcWHp1pWWVPZcP1/FiZ
+	QL+lAEFi2soaHPvzM5IYvt2neTJdDQs=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1775024674;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=WkMZFf1YLFOp20aiXd0j6w1gfYwVnV5uHLDkoTFp1VA=;
+	b=xICUwHcYZd5rnO6eYrILOLkqy5w6rEmW0r71mVxc5rv18vdRURVJ1B+Q2SH3xZvi/UDLnD
+	Xxq1pg/z2XPqe6CA==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 8F2F44A0B0;
+	Wed,  1 Apr 2026 06:24:33 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 1bgYISG6zGmnBwAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Wed, 01 Apr 2026 06:24:33 +0000
+Message-ID: <47e26c77-4efe-414e-a851-67791bde3a8c@suse.de>
+Date: Wed, 1 Apr 2026 08:24:32 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -68,172 +83,172 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/8] x86/msr: Consolidate native/paravirt MSR functions
-To: Dave Hansen <dave.hansen@intel.com>, Borislav Petkov <bp@alien8.de>,
- Dave Hansen <dave.hansen@linux.intel.com>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@kernel.org>,
- Ingo Molnar <mingo@redhat.com>, x86@kernel.org,
+Subject: Re: [PATCH] drm/virtgpu: Add PM support for suspend/resume
+To: Morris Pan <morris.pan@mediatek.com>, airlied@redhat.com,
+ kraxel@redhat.com, dmitry.osipenko@collabora.com
+Cc: srv_heupstream@mediatek.com, gurchetansingh@chromium.org,
+ olvaffe@gmail.com, maarten.lankhorst@linux.intel.com, mripard@kernel.org,
+ simona@ffwll.ch, dri-devel@lists.freedesktop.org,
  virtualization@lists.linux.dev
-References: <20260320190330.A97C443B@davehans-spike.ostc.intel.com>
- <20260320233319.GZab3ZP1lTfxOmQ4YF@fat_crate.local>
- <4c26ba32-d15f-496f-9f83-211c51a58673@suse.com>
- <2c4f1284-77d2-4628-88bc-28677afd2238@intel.com>
+References: <20260401061050.1035881-1-morris.pan@mediatek.com>
 Content-Language: en-US
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-Autocrypt: addr=jgross@suse.com; keydata=
- xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
- ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
- dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
- NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
- XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
- AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
- CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
- mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
- G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
- kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
- Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
- RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
- vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
- sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
- aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
- w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
- auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
- 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
- fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
- HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
- QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
- ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
-In-Reply-To: <2c4f1284-77d2-4628-88bc-28677afd2238@intel.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------zI4TA6yipCcrvNJZI0dFM1ws"
-
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------zI4TA6yipCcrvNJZI0dFM1ws
-Content-Type: multipart/mixed; boundary="------------MJaPaG1XPd90Svo1brX0662N";
- protected-headers="v1"
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-To: Dave Hansen <dave.hansen@intel.com>, Borislav Petkov <bp@alien8.de>,
- Dave Hansen <dave.hansen@linux.intel.com>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@kernel.org>,
- Ingo Molnar <mingo@redhat.com>, x86@kernel.org,
- virtualization@lists.linux.dev
-Message-ID: <29e40dbb-8baf-45fa-a7e8-30c4a2cc90d4@suse.com>
-Subject: Re: [PATCH 0/8] x86/msr: Consolidate native/paravirt MSR functions
-References: <20260320190330.A97C443B@davehans-spike.ostc.intel.com>
- <20260320233319.GZab3ZP1lTfxOmQ4YF@fat_crate.local>
- <4c26ba32-d15f-496f-9f83-211c51a58673@suse.com>
- <2c4f1284-77d2-4628-88bc-28677afd2238@intel.com>
-In-Reply-To: <2c4f1284-77d2-4628-88bc-28677afd2238@intel.com>
-
---------------MJaPaG1XPd90Svo1brX0662N
-Content-Type: multipart/mixed; boundary="------------DrvHAXTO3uLDWek0oJ4yW6Hd"
-
---------------DrvHAXTO3uLDWek0oJ4yW6Hd
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <20260401061050.1035881-1-morris.pan@mediatek.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+Content-Transfer-Encoding: 8bit
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-4.51 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	ARC_NA(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[12];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	FREEMAIL_CC(0.00)[mediatek.com,chromium.org,gmail.com,linux.intel.com,kernel.org,ffwll.ch,lists.freedesktop.org,lists.linux.dev];
+	RCVD_TLS_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from,2a07:de40:b281:106:10:150:64:167:received];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	MID_RHS_MATCH_FROM(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:url,mediatek.com:email,suse.de:dkim,suse.de:mid,bootlin.com:url,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns]
+X-Rspamd-Queue-Id: 0230A5BCDD
+X-Spam-Flag: NO
+X-Spam-Score: -4.51
+X-Spam-Level: 
 
-T24gMzEuMDMuMjYgMjM6NDEsIERhdmUgSGFuc2VuIHdyb3RlOg0KPiBPbiAzLzIwLzI2IDIz
-OjIzLCBKw7xyZ2VuIEdyb8OfIHdyb3RlOg0KPj4gSSB0aGluayB0aGlzIHNob3VsZCBiZSB0
-aGUgZmlyc3Qgc3RlcCB0b3dhcmRzIGEgTVNSIGFjY2Vzcw0KPj4gY29uc29saWRhdGlvbiwg
-YXMgaXQgYWxsb3dzIGFueSBpbnRlcm5hbCBvcHRpbWl6YXRpb25zIGFuZCBjaGFuZ2VzDQo+
-PiB3aXRob3V0IGZ1cnRoZXIgYm90aGVyaW5nIG1vc3Qgb2YgdGhlIHVzZXJzLg0KPiBJJ20g
-bm90IG9wcG9zZWQgdG8gc29tZXRoaW5nIG1vcmUgdGhvcm91Z2ggdGhhbiB0aGVzZSA4IHBh
-dGNoZXMuIEJ1dCwNCj4gdGhlc2UgZG8gZml4IHJlYWwgcHJvYmxlbXMuIFdvdWxkIHRoZXkg
-bWFrZSBzb21lIGZ1dHVyZSBlZmZvcnQgaGFyZGVyPw0KDQpJIHdvdWxkIG5lZWQgdG8gcmVi
-YXNlIG15IHBhcmF2aXJ0IE1TUiBzZXJpZXMsIGJ1dCB0aGlzIGlzbid0IGEgYmxvY2tlci4N
-Cg0KTWF5YmUgSSB3aWxsIG5lZWQgdG8gdW5kbyBzb21lIG9mIHlvdXIgY2hhbmdlcyBhbmQg
-Zml4IHRoZSB1bmRlcmx5aW5nDQpwcm9ibGVtIGRpZmZlcmVudGx5LCBidXQgdGhpcyBpcyBm
-aW5lIGZvciBtZS4gSW4gdGhlIGVuZCBJIGJlbGlldmUgeW91cg0Kc2VyaWVzIGFuZCB0aGUg
-b25lIEkgd2FzIHByb3Bvc2luZyBhYm92ZSB3b3VsZG4ndCBpbnRlcmZlcmUgYSBsb3QuIEl0
-IGlzDQp0aGUgbGF5ZXIgYmV0d2VlbiBib3RoIChteSBwYXJhdmlydCBNU1Igd29yaykgd2hp
-Y2ggd291bGQgYmUgYWZmZWN0ZWQNCm1vc3QsIGJ1dCB0aGlzIHNlcmllcyBtaWdodCBuZWVk
-IG1vcmUgd29yayBhbnl3YXkuDQoNCg0KSnVlcmdlbg0K
---------------DrvHAXTO3uLDWek0oJ4yW6Hd
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
-Content-Transfer-Encoding: quoted-printable
+Hi
 
------BEGIN PGP PUBLIC KEY BLOCK-----
+Am 01.04.26 um 08:10 schrieb Morris Pan:
+> Add freeze/restore callbacks to handle system suspend/resume.
+> During freeze, delete virtqueues and reset device.
+> During restore, reinitialize virtqueues and mark device ready.
+>
+> Signed-off-by: Morris Pan <morris.pan@mediatek.com>
+> ---
+>   drivers/gpu/drm/virtio/virtgpu_drv.c | 40 +++++++++++++++++++++++++++-
+>   1 file changed, 39 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> index a5ce96fb8a1d..fbca0a82958c 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> @@ -145,6 +145,40 @@ static void virtio_gpu_config_changed(struct virtio_device *vdev)
+>   	schedule_work(&vgdev->config_changed_work);
+>   }
+>   
+> +#ifdef CONFIG_PM_SLEEP
+> +static int virtgpu_freeze(struct virtio_device *vdev)
+> +{
 
-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
-kt+z4drzFUyEjLM1vVvIMjkUoJs=3D
-=3DeeAB
------END PGP PUBLIC KEY BLOCK-----
+I think you first need to call drm_mode_config_helper_suspend() [1] to 
+stop DRM and save the current state.
 
---------------DrvHAXTO3uLDWek0oJ4yW6Hd--
+[1] 
+https://elixir.bootlin.com/linux/v6.19.10/source/drivers/gpu/drm/drm_modeset_helper.c#L179
 
---------------MJaPaG1XPd90Svo1brX0662N--
+> +	vdev->config->del_vqs(vdev);
+> +	virtio_reset_device(vdev);
+> +
+> +	return 0;
+> +}
+> +
+> +static int virtgpu_restore(struct virtio_device *vdev)
+> +{
+> +	int ret;
+> +	struct virtqueue *vqs[2];
+> +	struct drm_device *dev = vdev->priv;
+> +	struct virtio_gpu_device *vgdev = dev->dev_private;
+> +	struct virtqueue_info vqs_info[] = {
+> +		{ "control", virtio_gpu_ctrl_ack },
+> +		{ "cursor", virtio_gpu_cursor_ack },
+> +	};
+> +
+> +	ret = virtio_find_vqs(vdev, 2, vqs, vqs_info, NULL);
+> +	if (ret) {
+> +		DRM_ERROR("failed to find virtio queues\n");
+> +		return ret;
+> +	}
+> +
+> +	vgdev->ctrlq.vq = vqs[0];
+> +	vgdev->cursorq.vq = vqs[1];
+> +	virtio_device_ready(vdev);
 
---------------zI4TA6yipCcrvNJZI0dFM1ws
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+And here you have to call drm_mode_config_helper_resume() [2] to restore 
+the DRM state from before the freeze.
 
------BEGIN PGP SIGNATURE-----
+[2] 
+https://elixir.bootlin.com/linux/v6.19.10/source/drivers/gpu/drm/drm_modeset_helper.c#L227
 
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmnMt2IFAwAAAAAACgkQsN6d1ii/Ey94
-RQf/a4QequMAwlYLzIJtjKQJ+L1XXA0SY6q5b5XV7XvCVHJSFXUQ+98/+nkhK0Eq1AiOKycGynD7
-icG6wsWzlvccY1Xa8etLPMwCfbRYmz1ec5Huezp/uWODrZ0TmwaCBMNnfq7PdAhX/cJ4cPJ8sGyZ
-/DZNsM4/bifQ7BzrKjslFOn5Kwz3lzZREp05EwNWJ4XsIf/KeNwnwKkAtGW82+3KD6yFU+VJqRh6
-iaSbD9VLOhAd+pdtqk4ZUIVcEvwX90CxlkqIQtEAMYIjz+FgdJhPlzHYcfUR7BCuOe0FkTxEbRxT
-URF82go/NhUtyvy/jEATt4ZoKXPoGlnUfTHS1xrPHA==
-=YoV9
------END PGP SIGNATURE-----
+Best regards
+Thomas
 
---------------zI4TA6yipCcrvNJZI0dFM1ws--
+> +
+> +	return 0;
+> +}
+> +#endif
+> +
+>   static struct virtio_device_id id_table[] = {
+>   	{ VIRTIO_ID_GPU, VIRTIO_DEV_ANY_ID },
+>   	{ 0 },
+> @@ -172,7 +206,11 @@ static struct virtio_driver virtio_gpu_driver = {
+>   	.probe = virtio_gpu_probe,
+>   	.remove = virtio_gpu_remove,
+>   	.shutdown = virtio_gpu_shutdown,
+> -	.config_changed = virtio_gpu_config_changed
+> +	.config_changed = virtio_gpu_config_changed,
+> +#ifdef CONFIG_PM_SLEEP
+> +	.freeze = virtgpu_freeze,
+> +	.restore = virtgpu_restore
+> +#endif
+>   };
+>   
+>   static int __init virtio_gpu_driver_init(void)
+
+-- 
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
+GF: Jochen Jaser, Andrew McDonald, Werner Knoblich, (HRB 36809, AG Nürnberg)
+
+
