@@ -1,254 +1,180 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20DE31DED63
-	for <virtualization@lists.linux.dev>; Wed,  1 Apr 2026 06:24:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CDB038D68F
+	for <virtualization@lists.linux.dev>; Wed,  1 Apr 2026 08:21:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775024677; cv=none; b=uHWUHjiT+RdGTy7yJtig65DarBkLzewrbHIrz+Psk+o8ww1IbEVTO/EblGKJ7ihETX3eQ9pVC15huVmpzfbV5WHNL7sBTXHzgoIhzDugEskSsj733b3TwUQqoJhKGLoFKz/hrA45ZvWLmcYRZLadZpDxdfisvOST6RVilMH2DUc=
+	t=1775031681; cv=none; b=RNAitvvNZjliTXkflTA89EBBe/ziJfToE87XrPCRFNdlnD9+SLq9XJUpmJb824+HHqQwO+V4DwDtAQ6teQyilHnqky+aJgE1cdlvMVfkQhg5qCfHouvU8M+47FZuZwNM6skljRJ0PDFOouVSXh3CdIyjqqN9Aw7XkPpXTlvLc88=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775024677; c=relaxed/simple;
-	bh=cEb/sxyPv2rPVhv3t3hryULSRtHWPCchgqhpyvipU7Y=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=dZQoL/lN1Fyhkp8/RFw1v2w8Af6H0TZ6YD5lpVm/B29ezoXfJB9AWkHthTxkr+EOsewmB0IhhojaNaN82SjPZlFhi4NOZdq8YBPjC8OE+VMMaEP4mDBY1wqzsYc7YX1oELycxUMB0MkmxBr4nZYpBeGswjXdrITrT7iUUTq4QBU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=hm71gxeV; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=xICUwHcY; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=hm71gxeV; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=xICUwHcY; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1775031681; c=relaxed/simple;
+	bh=B5Tle2fRi76KfDMCO8D4EC6UyhUw+743wpGBNKtB0iM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=jj+VuVmjb4an+UBJ+vJLMkMZY9FRGfaS6QsqIIcqG+6Dv55ZatRtPq+gCvTDrSZVkPe4faba6v9Zku69A6zFJaKJrs66VQETI46ToVTkvJRPgqtgYN69wXtY7jXQ9oA05Bh424ex+y7CUXmj3ofByYrPmLouiTmvb7yqm62mmaI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hubbP+T3; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="hm71gxeV";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="xICUwHcY";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="hm71gxeV";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="xICUwHcY"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 0230A5BCDD;
-	Wed,  1 Apr 2026 06:24:34 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1775024674; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=WkMZFf1YLFOp20aiXd0j6w1gfYwVnV5uHLDkoTFp1VA=;
-	b=hm71gxeVq4Y5jDWrOp1IRQlGBtXm055PclgbkYdk2uSd7HAp1I8QXZEjLsKZpZ6EBaS/7W
-	Ae4dmOTNj/WGe93klKC7fDkvUWtmXVqXAE+LjdPzUzTXSSUpOMKbcWHp1pWWVPZcP1/FiZ
-	QL+lAEFi2soaHPvzM5IYvt2neTJdDQs=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1775024674;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=WkMZFf1YLFOp20aiXd0j6w1gfYwVnV5uHLDkoTFp1VA=;
-	b=xICUwHcYZd5rnO6eYrILOLkqy5w6rEmW0r71mVxc5rv18vdRURVJ1B+Q2SH3xZvi/UDLnD
-	Xxq1pg/z2XPqe6CA==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=hm71gxeV;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=xICUwHcY
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1775024674; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=WkMZFf1YLFOp20aiXd0j6w1gfYwVnV5uHLDkoTFp1VA=;
-	b=hm71gxeVq4Y5jDWrOp1IRQlGBtXm055PclgbkYdk2uSd7HAp1I8QXZEjLsKZpZ6EBaS/7W
-	Ae4dmOTNj/WGe93klKC7fDkvUWtmXVqXAE+LjdPzUzTXSSUpOMKbcWHp1pWWVPZcP1/FiZ
-	QL+lAEFi2soaHPvzM5IYvt2neTJdDQs=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1775024674;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=WkMZFf1YLFOp20aiXd0j6w1gfYwVnV5uHLDkoTFp1VA=;
-	b=xICUwHcYZd5rnO6eYrILOLkqy5w6rEmW0r71mVxc5rv18vdRURVJ1B+Q2SH3xZvi/UDLnD
-	Xxq1pg/z2XPqe6CA==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 8F2F44A0B0;
-	Wed,  1 Apr 2026 06:24:33 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 1bgYISG6zGmnBwAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Wed, 01 Apr 2026 06:24:33 +0000
-Message-ID: <47e26c77-4efe-414e-a851-67791bde3a8c@suse.de>
-Date: Wed, 1 Apr 2026 08:24:32 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hubbP+T3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1775031678;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=1+9bEHS3jmAexwoYuhPYmzlkbcIU24Gjv5E3vES6Edw=;
+	b=hubbP+T3DqH6VmwgNZNLMgRo/DMlAsz6jqpH6AtxboKZDyt3jJwKbkMoA+G/i4y0xn6oDw
+	fVh7Rwcmwb50/3G7m7fyk+4QnR5uPlodfOF0PKoSRWtegAkmLtxtNirCNbzYeDG2QdWnNY
+	wY+2ow1/EZdIzJd8xIbbvhrpuo+emF8=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-367-RpVe97D1P1aagmDqGOMCYQ-1; Wed, 01 Apr 2026 04:21:17 -0400
+X-MC-Unique: RpVe97D1P1aagmDqGOMCYQ-1
+X-Mimecast-MFC-AGG-ID: RpVe97D1P1aagmDqGOMCYQ_1775031676
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4853b5b0fafso80701425e9.3
+        for <virtualization@lists.linux.dev>; Wed, 01 Apr 2026 01:21:17 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775031676; x=1775636476;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=1+9bEHS3jmAexwoYuhPYmzlkbcIU24Gjv5E3vES6Edw=;
+        b=VY19iD2PmoIXCAZi9z51J4/7r1Xrrb9slCqIn+QaGLPDl/tV4br2IRHLeAlliKrsLZ
+         pnetLyDq/AREvDYFNhMBA77nRZLRGj/sq2LpwyAbhTk9GeJrxNJ942H22PEgGM3+I86S
+         oJzqMuJzm9tdZHlc4FN10hkRGtH0nJmOIVwWGigbXm7w6PJTt+H8pqusjm7Vg7fqJ545
+         q2Y6CdXFwIA60xFyEIs0IG5tZZHmXFyXVFuQnTC09tLdzaiJfgHHl5yQxhJ2g0UQ0aVS
+         8WhQ6rGR57v2AL+kvCCy+YRhvIIVjsnaIJDJz4K3d5MFkd9HC26mcqubTd8I3Q+kuyja
+         dUHA==
+X-Forwarded-Encrypted: i=1; AJvYcCWizQMwSwVKbEqc4MUOXvvf44plfzcWN6akQoJdPVPdTQpazbu1yezhHZZ4V98eVdwW5Dp1yPk18y4SSMrqrg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwEra3Na/OpFeONzNUP+v7T12/WscJe9aRYwNJSL8V59GE0aGCr
+	hlm5j75aDl/74/VttqhNI6lnENskPajdeYKO6FbXH1wVQTXZ1sKT3i6guxsxDgHQnnMAEvYVI9U
+	Mh65NhVxgnl84kAH++1O7DkfpIBlNBayzKgyutsqPp2YXdyMlRayqIS05sLIUFrETaguGG27VDo
+	cw
+X-Gm-Gg: ATEYQzz4065nhJLRXW3Aa/9nAgfN8Lrpu6zIMy2PQ8xH/g5DQC9+7pUFUbWk8UfNAH/
+	dTLMfoJNiFQ+aGdZC1zgYPKOUXTzc3jOaFKw+RXg4mY3kti1hpYxYQLcpoE8pVTXbgb946nqbjO
+	PGZr02TvdHQYwyLAcP8rSsB75tFpIg9tbCwyL8rm+kx3dGpZGQrZ3Xt/fi3PFAHn357zfnHc7jf
+	cr1VRh6dvIJgemfkEJ/nO2kPwXzwYrIXm4MDTniWVdl3VTWHEvGV92Nd2fYmds3/kDzgBwl/VSb
+	Gmi819gYnvMOCxH+hiybfymZ5Oq/kiSruZ6IvC4DZPCdh59juCJWoaK5CKAYc1gpnJzeEeZxD0p
+	ivNceQX+1gY4ZCLjJ
+X-Received: by 2002:a05:600c:468b:b0:480:1d0b:2d32 with SMTP id 5b1f17b1804b1-4888356275bmr40333145e9.12.1775031675928;
+        Wed, 01 Apr 2026 01:21:15 -0700 (PDT)
+X-Received: by 2002:a05:600c:468b:b0:480:1d0b:2d32 with SMTP id 5b1f17b1804b1-4888356275bmr40332415e9.12.1775031675320;
+        Wed, 01 Apr 2026 01:21:15 -0700 (PDT)
+Received: from redhat.com ([2a0d:6fc0:1525:da00:3ac2:1a22:72ff:4256])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4887e7e9728sm101815975e9.1.2026.04.01.01.21.13
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 01 Apr 2026 01:21:14 -0700 (PDT)
+Date: Wed, 1 Apr 2026 04:21:11 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Srujana Challa <schalla@marvell.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
+	pabeni@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com, davem@davemloft.net, edumazet@google.com,
+	kuba@kernel.org, ndabilpuram@marvell.com, kshankar@marvell.com,
+	stable@vger.kernel.org
+Subject: Re: [PATCH net,v5] virtio_net: clamp rss_max_key_size to
+ NETDEV_RSS_KEY_LEN
+Message-ID: <20260401042105-mutt-send-email-mst@kernel.org>
+References: <20260326142344.1171317-1-schalla@marvell.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] drm/virtgpu: Add PM support for suspend/resume
-To: Morris Pan <morris.pan@mediatek.com>, airlied@redhat.com,
- kraxel@redhat.com, dmitry.osipenko@collabora.com
-Cc: srv_heupstream@mediatek.com, gurchetansingh@chromium.org,
- olvaffe@gmail.com, maarten.lankhorst@linux.intel.com, mripard@kernel.org,
- simona@ffwll.ch, dri-devel@lists.freedesktop.org,
- virtualization@lists.linux.dev
-References: <20260401061050.1035881-1-morris.pan@mediatek.com>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <20260401061050.1035881-1-morris.pan@mediatek.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Spamd-Result: default: False [-4.51 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	ARC_NA(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[12];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	FREEMAIL_CC(0.00)[mediatek.com,chromium.org,gmail.com,linux.intel.com,kernel.org,ffwll.ch,lists.freedesktop.org,lists.linux.dev];
-	RCVD_TLS_ALL(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from,2a07:de40:b281:106:10:150:64:167:received];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	MID_RHS_MATCH_FROM(0.00)[];
-	DKIM_TRACE(0.00)[suse.de:+];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:url,mediatek.com:email,suse.de:dkim,suse.de:mid,bootlin.com:url,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns]
-X-Rspamd-Queue-Id: 0230A5BCDD
-X-Spam-Flag: NO
-X-Spam-Score: -4.51
-X-Spam-Level: 
+In-Reply-To: <20260326142344.1171317-1-schalla@marvell.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: gK0JKo5KVOuJAWezB3KqV_DgE07ELJYxiqpdCNW9egk_1775031676
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Hi
+On Thu, Mar 26, 2026 at 07:53:44PM +0530, Srujana Challa wrote:
+> rss_max_key_size in the virtio spec is the maximum key size supported by
+> the device, not a mandatory size the driver must use. Also the value 40
+> is a spec minimum, not a spec maximum.
+> 
+> The current code rejects RSS and can fail probe when the device reports a
+> larger rss_max_key_size than the driver buffer limit. Instead, clamp the
+> effective key length to min(device rss_max_key_size, NETDEV_RSS_KEY_LEN)
+> and keep RSS enabled.
+> 
+> This keeps probe working on devices that advertise larger maximum key sizes
+> while respecting the netdev RSS key buffer size limit.
+> 
+> Fixes: 3f7d9c1964fc ("virtio_net: Add hash_key_length check")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Srujana Challa <schalla@marvell.com>
 
-Am 01.04.26 um 08:10 schrieb Morris Pan:
-> Add freeze/restore callbacks to handle system suspend/resume.
-> During freeze, delete virtqueues and reset device.
-> During restore, reinitialize virtqueues and mark device ready.
->
-> Signed-off-by: Morris Pan <morris.pan@mediatek.com>
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
 > ---
->   drivers/gpu/drm/virtio/virtgpu_drv.c | 40 +++++++++++++++++++++++++++-
->   1 file changed, 39 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> index a5ce96fb8a1d..fbca0a82958c 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> @@ -145,6 +145,40 @@ static void virtio_gpu_config_changed(struct virtio_device *vdev)
->   	schedule_work(&vgdev->config_changed_work);
->   }
->   
-> +#ifdef CONFIG_PM_SLEEP
-> +static int virtgpu_freeze(struct virtio_device *vdev)
-> +{
-
-I think you first need to call drm_mode_config_helper_suspend() [1] to 
-stop DRM and save the current state.
-
-[1] 
-https://elixir.bootlin.com/linux/v6.19.10/source/drivers/gpu/drm/drm_modeset_helper.c#L179
-
-> +	vdev->config->del_vqs(vdev);
-> +	virtio_reset_device(vdev);
+> v3:
+> - Moved RSS key validation checks to virtnet_validate.
+> - Add fixes: tag and CC -stable
+> v4:
+> - Use NETDEV_RSS_KEY_LEN instead of type_max for the maximum rss key size.
+> v5:
+> - Interpret rss_max_key_size as a maximum and clamp it to NETDEV_RSS_KEY_LEN.
+> - Do not disable RSS/HASH_REPORT when device rss_max_key_size exceeds NETDEV_RSS_KEY_LEN.
+> - Drop the separate patch that replaced the runtime check with BUILD_BUG_ON.
+> 
+>  drivers/net/virtio_net.c | 20 +++++++++-----------
+>  1 file changed, 9 insertions(+), 11 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 022f60728721..b241c8dbb4e1 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -373,8 +373,6 @@ struct receive_queue {
+>  	struct xdp_buff **xsk_buffs;
+>  };
+>  
+> -#define VIRTIO_NET_RSS_MAX_KEY_SIZE     40
+> -
+>  /* Control VQ buffers: protected by the rtnl lock */
+>  struct control_buf {
+>  	struct virtio_net_ctrl_hdr hdr;
+> @@ -478,7 +476,7 @@ struct virtnet_info {
+>  
+>  	/* Must be last as it ends in a flexible-array member. */
+>  	TRAILING_OVERLAP(struct virtio_net_rss_config_trailer, rss_trailer, hash_key_data,
+> -		u8 rss_hash_key_data[VIRTIO_NET_RSS_MAX_KEY_SIZE];
+> +		u8 rss_hash_key_data[NETDEV_RSS_KEY_LEN];
+>  	);
+>  };
+>  static_assert(offsetof(struct virtnet_info, rss_trailer.hash_key_data) ==
+> @@ -6717,6 +6715,7 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  	struct virtnet_info *vi;
+>  	u16 max_queue_pairs;
+>  	int mtu = 0;
+> +	u16 key_sz;
+>  
+>  	/* Find if host supports multiqueue/rss virtio_net device */
+>  	max_queue_pairs = 1;
+> @@ -6851,14 +6850,13 @@ static int virtnet_probe(struct virtio_device *vdev)
+>  	}
+>  
+>  	if (vi->has_rss || vi->has_rss_hash_report) {
+> -		vi->rss_key_size =
+> -			virtio_cread8(vdev, offsetof(struct virtio_net_config, rss_max_key_size));
+> -		if (vi->rss_key_size > VIRTIO_NET_RSS_MAX_KEY_SIZE) {
+> -			dev_err(&vdev->dev, "rss_max_key_size=%u exceeds the limit %u.\n",
+> -				vi->rss_key_size, VIRTIO_NET_RSS_MAX_KEY_SIZE);
+> -			err = -EINVAL;
+> -			goto free;
+> -		}
+> +		key_sz = virtio_cread8(vdev, offsetof(struct virtio_net_config, rss_max_key_size));
 > +
-> +	return 0;
-> +}
-> +
-> +static int virtgpu_restore(struct virtio_device *vdev)
-> +{
-> +	int ret;
-> +	struct virtqueue *vqs[2];
-> +	struct drm_device *dev = vdev->priv;
-> +	struct virtio_gpu_device *vgdev = dev->dev_private;
-> +	struct virtqueue_info vqs_info[] = {
-> +		{ "control", virtio_gpu_ctrl_ack },
-> +		{ "cursor", virtio_gpu_cursor_ack },
-> +	};
-> +
-> +	ret = virtio_find_vqs(vdev, 2, vqs, vqs_info, NULL);
-> +	if (ret) {
-> +		DRM_ERROR("failed to find virtio queues\n");
-> +		return ret;
-> +	}
-> +
-> +	vgdev->ctrlq.vq = vqs[0];
-> +	vgdev->cursorq.vq = vqs[1];
-> +	virtio_device_ready(vdev);
-
-And here you have to call drm_mode_config_helper_resume() [2] to restore 
-the DRM state from before the freeze.
-
-[2] 
-https://elixir.bootlin.com/linux/v6.19.10/source/drivers/gpu/drm/drm_modeset_helper.c#L227
-
-Best regards
-Thomas
-
-> +
-> +	return 0;
-> +}
-> +#endif
-> +
->   static struct virtio_device_id id_table[] = {
->   	{ VIRTIO_ID_GPU, VIRTIO_DEV_ANY_ID },
->   	{ 0 },
-> @@ -172,7 +206,11 @@ static struct virtio_driver virtio_gpu_driver = {
->   	.probe = virtio_gpu_probe,
->   	.remove = virtio_gpu_remove,
->   	.shutdown = virtio_gpu_shutdown,
-> -	.config_changed = virtio_gpu_config_changed
-> +	.config_changed = virtio_gpu_config_changed,
-> +#ifdef CONFIG_PM_SLEEP
-> +	.freeze = virtgpu_freeze,
-> +	.restore = virtgpu_restore
-> +#endif
->   };
->   
->   static int __init virtio_gpu_driver_init(void)
-
--- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
-GF: Jochen Jaser, Andrew McDonald, Werner Knoblich, (HRB 36809, AG Nürnberg)
-
+> +		vi->rss_key_size = min_t(u16, key_sz, NETDEV_RSS_KEY_LEN);
+> +		if (key_sz > vi->rss_key_size)
+> +			dev_warn(&vdev->dev,
+> +				 "rss_max_key_size=%u exceeds driver limit %u, clamping\n",
+> +				 key_sz, vi->rss_key_size);
+>  
+>  		vi->rss_hash_types_supported =
+>  		    virtio_cread32(vdev, offsetof(struct virtio_net_config, supported_hash_types));
+> -- 
+> 2.25.1
 
