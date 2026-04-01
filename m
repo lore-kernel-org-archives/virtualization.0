@@ -1,429 +1,169 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9A0693C7DE5
-	for <virtualization@lists.linux.dev>; Wed,  1 Apr 2026 11:12:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EF3538644D
+	for <virtualization@lists.linux.dev>; Wed,  1 Apr 2026 11:23:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775041971; cv=none; b=pxBsciohGFSSbgSVfjehjsnDUnZ/D25sU8KQ5j4SUDRPfgeNW+H0iTYiJyYxXQbJFUGKtXCwv2QmSprECdSWP6cutzd5S5K9h7i6jL8iqhf4EMDb3OhMYB7C9VxwKDw7ZXbyuhqNVqV8yoNID3SSqTJqrGIk2TIkt/5kKpaXtIY=
+	t=1775042618; cv=none; b=hej5Eg84/QNPb98tU/BKogsMJm5XogF6sbhWiMQo1OQ1oVpbGvwQOjJpjMfodxxoufL4ncsfhkJkQveiJ4bvNzj2Ixv3qME87As1IgIfZ2Fh10HkEMbQaixqZBaKY0wH6rs+BTOrMDP9waQQomPdrjI8QC/Cv9yvA14e33jIxMM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775041971; c=relaxed/simple;
-	bh=l7031pO/9+csvRDcUBB9IUff5JjlgcXfVmjawI6DbMg=;
-	h=From:Date:Subject:MIME-Version:Message-Id:To:Cc:Content-Type; b=rGIUZrw/eXd37AdsKXe0LL1eOy1xEHcQzCyWV9hjP2m1ZiTCXF8hmGLqvZI3T1FwDRodeL1Z+eAaiyTJsQonl8NeigAt0LGGXFeGjTFCTVaWpL5o+KSK1RYRrQRGhdqjoTAOSbzi9t311vLm+HFmpvo8bsu5inf9+5lXfsl/c9A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=W7b7Ae2/; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1775042618; c=relaxed/simple;
+	bh=tZ1qpc9jFWedWE8AwUzwx8Nqnc2oEi5R0JG7PTZIt4s=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=o7Be6tCY/K7Vwdy0uCL+9e2qxA0izXup3la/r4mcanv2lGjfpI4yzOTlQ6MxVvTopD7RXFDobuYiGiTGZyhQdp75J7q5OIbzDAiEXVvywI2cIXRVPqV5pq7qAeio1bXjgqELFEN04cPTEiVSfp5P65VP7zGRYKECpek5Fh9Xuds=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=tFfA36T0; arc=none smtp.client-ip=209.85.214.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="W7b7Ae2/"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1775041968;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=2CB21nD5AxdfTt+xVozs6vk1Zk6bTUrkKs07BKmFt9w=;
-	b=W7b7Ae2/mzgE0pWrUh4Y6OsbqZI2Omwnle7zO/HDj3uD6kneEn46FqppkfOhCtB/aQyGIc
-	pPqzVs193w966qe8R7oNy+BK+PLm8WxukmcRXatzsx3bWSDupqGXyicQHQy2yVGKKzVJjX
-	tdRtgnpVVqlKZvimuOV25yRNMyLFsdQ=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-80-rRnMQcmcP_SzDJCNVNSF-g-1; Wed,
- 01 Apr 2026 07:12:45 -0400
-X-MC-Unique: rRnMQcmcP_SzDJCNVNSF-g-1
-X-Mimecast-MFC-AGG-ID: rRnMQcmcP_SzDJCNVNSF-g_1775041964
-Received: from mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.12])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 1555B195608C;
-	Wed,  1 Apr 2026 11:12:44 +0000 (UTC)
-Received: from localhost (unknown [10.44.22.22])
-	by mx-prod-int-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 344C519560AB;
-	Wed,  1 Apr 2026 11:12:41 +0000 (UTC)
-From: =?utf-8?q?Marc-Andr=C3=A9_Lureau?= <marcandre.lureau@redhat.com>
-Date: Wed, 01 Apr 2026 15:12:34 +0400
-Subject: [PATCH RFC] virtio-mem: support Confidential Computing (CoCo)
- environments
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="tFfA36T0"
+Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2b2591757fbso221745ad.0
+        for <virtualization@lists.linux.dev>; Wed, 01 Apr 2026 04:23:36 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1775042616; x=1775647416; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=+wLwW3RwfZlMNchucl4Q1BjkgKkbbVmuqcbZXsSlons=;
+        b=tFfA36T0L/p/3B8WwNcVd/ZnKEw0/jmZ1FVHVH6vUT7bZOQPdCKOKpyym+Xi5AdYle
+         +snvjJAW+VNqWpeos7Gdi9EXGemBRm91eNQ1AZVSnCXr/35xgy5hpLdBS4ebfORwLcHz
+         CfIOB8+8DbhgaTx9VKpREnvLoxSghZ+VJH6tYr5Xj/diZeXQoQzq6KTtkw05FfiwkESN
+         Q+xJ+xQt17mW41J7dqeLdoNukoH0smHXLk6d+zrlpbcIKNQQlV6ig5lguYjfOzOjl98b
+         PKrE0IiU49AXE33FPK9/JOCbLW3fgw5ndgDvKiA3EIYJohjS5sbqwXAFZgFcJRQporbV
+         +21w==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775042616; x=1775647416;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=+wLwW3RwfZlMNchucl4Q1BjkgKkbbVmuqcbZXsSlons=;
+        b=OUZXWUV+kYrTL0bWWWZPUPXAxdPSwNlnELp4NHGYAtmd70DdopMyGmJPWg9i9wyI3i
+         +1JhwLM1EdcXZoyw+LZiIJTn5pfUvW1Y1G09p3n3Mk8PTaa2MNoccTwO0Zwp384LIah1
+         6xcxubjS25MkuGKaSE4rV644Wp7bImkpaC+c9BhM9Br45f9YhqQkC9GJwLVG/OkJrFFj
+         AQ2AjlySrTronwNaPDW807GQRAVL24aQeQPDe0syTIuxuBgs0/XOmTq+2kyDtlwiwFyw
+         Ywp9AlRbwdS7v4ZydfB3d0Q1yDilpZoKwY/fHf/tyIt//vKUGTq+MBbFZ/uxEDb1+lJ+
+         ZKOw==
+X-Forwarded-Encrypted: i=1; AJvYcCUjF6nryUDnktcSXmBs6pEq48y+ihUDem4aM806b7oCwgjL7rWYzQJaYJ10ob/nhGKttCz41NHT/cibEDPPBw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yza/SjSY5gVCLaHKCoh2BMkbEtAuZEfPLy7aZQrg7x86U0rAbiI
+	l4TkCHdtmO9uCtN0go82IIqVRVqQU0arw2G2cSOkrkVvroAOw+MphlsHXmqWwsM3fQ==
+X-Gm-Gg: ATEYQzzTpZ5rWWXwEC7bqyh2MpLPeCJ8/XjkUIDsqmQ7i69b67AK6rIoFbwIQ+YavYZ
+	y980ODQYdcj+irb1Oui7Z2idjF7oqKyJHiQGkiyVqxEPTVcUUDeGFAI8mpWA9qZWDcn9tQGitd6
+	2/6ha8IRJzdpQOKPV2ycrG94irx6Lt1LF51m7OED6e6ZnVttKMqY9QzchcuVtXVp/POd6iO+TNj
+	kfoxCxicivmFZ4goff4+GxxsCG9w7G4Bappu9Pcyhk4jOu2kyvkoEfDi2hnUjnwO4IKDXUeWxdn
+	XiuUpOcxZO72vo2yaZgPklXRbrXyItyRr9jF4Ss/gBwbvQ25xmGIJY+P+wz3jVkqnBIRSuNzNhV
+	OybNH2rj7k3ocW4OZsy63rdMSYHJnpCyv8GZ8Y0g7c/5wNka1XCVlcPcek1F1eNGlgnXFDyX4m3
+	yhwaNKh3mCoSyqEHYCGjAbQnE1uXvSsuJjJVwpfSTT6W/w/mjUh5q9ZzXsrw==
+X-Received: by 2002:a17:902:ccca:b0:2ae:44db:570c with SMTP id d9443c01a7336-2b26b2b089amr2189835ad.12.1775042615401;
+        Wed, 01 Apr 2026 04:23:35 -0700 (PDT)
+Received: from google.com (10.129.124.34.bc.googleusercontent.com. [34.124.129.10])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-35dbe606dd2sm6533691a91.3.2026.04.01.04.23.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 01 Apr 2026 04:23:34 -0700 (PDT)
+Date: Wed, 1 Apr 2026 11:23:23 +0000
+From: Pranjal Shrivastava <praan@google.com>
+To: Jason Gunthorpe <jgg@nvidia.com>
+Cc: Alexandre Ghiti <alex@ghiti.fr>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Albert Ou <aou@eecs.berkeley.edu>, asahi@lists.linux.dev,
+	Baolin Wang <baolin.wang@linux.alibaba.com>, iommu@lists.linux.dev,
+	Janne Grunau <j@jannau.net>,
+	Jernej Skrabec <jernej.skrabec@gmail.com>,
+	Joerg Roedel <joro@8bytes.org>,
+	Jean-Philippe Brucker <jpb@kernel.org>,
+	linux-arm-kernel@lists.infradead.org,
+	linux-mediatek@lists.infradead.org, linux-riscv@lists.infradead.org,
+	linux-sunxi@lists.linux.dev,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	Neal Gompa <neal@gompa.dev>, Orson Zhai <orsonzhai@gmail.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>, Paul Walmsley <pjw@kernel.org>,
+	Samuel Holland <samuel@sholland.org>, Sven Peter <sven@kernel.org>,
+	virtualization@lists.linux.dev, Chen-Yu Tsai <wens@kernel.org>,
+	Will Deacon <will@kernel.org>, Yong Wu <yong.wu@mediatek.com>,
+	Chunyan Zhang <zhang.lyra@gmail.com>,
+	Lu Baolu <baolu.lu@linux.intel.com>,
+	Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>,
+	Joerg Roedel <joerg.roedel@amd.com>,
+	Jon Hunter <jonathanh@nvidia.com>, patches@lists.linux.dev,
+	Robin Murphy <robin.murphy@arm.com>,
+	Samiullah Khawaja <skhawaja@google.com>, stable@vger.kernel.org,
+	Vasant Hegde <vasant.hegde@amd.com>
+Subject: Re: [PATCH] iommu: Always fill in gather when unmapping
+Message-ID: <ac0AKyvHMYHlqL5i@google.com>
+References: <0-v1-664d3acaabb9+78b-iommu_gather_always_jgg@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Message-Id: <20260401-coco-v1-1-b9c3072e2d9c@redhat.com>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
- vPSU3UzU4B8JSMDIzMDEwND3eT85HxdA/M0Q0MTSzOzJAsjJaDSgqLUtMwKsDHRSkFuzkqxEMH
- i0qSs1OQSkAFKtbUACdT/CW0AAAA=
-X-Change-ID: 20260401-coco-07f114966b82
-To: David Hildenbrand <david@kernel.org>, 
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
-Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
- Chenyi Qiang <chenyi.qiang@intel.com>, 
- =?utf-8?q?Marc-Andr=C3=A9_Lureau?= <marcandre.lureau@redhat.com>
-X-Developer-Signature: v=1; a=openpgp-sha256; l=12154;
- i=marcandre.lureau@redhat.com; h=from:subject:message-id;
- bh=l7031pO/9+csvRDcUBB9IUff5JjlgcXfVmjawI6DbMg=;
- b=owEBbQKS/ZANAwAKAdro4Ql1lpzlAcsmYgBpzP2m6jvb4PkfUloZ5+0Zyuu8j2MtFNeL432RD
- 9JD73FoYUqJAjMEAAEKAB0WIQSHqb2TP4fGBtJ29i3a6OEJdZac5QUCacz9pgAKCRDa6OEJdZac
- 5Y7UD/9A4wxjRaQiLlS+21iDUj5NoI5P4H0/Odjp4R9DRgdeJa+M78inRbkvFzG27GWk9dZEw2M
- GHQEtIT6BaT7EdWjztd17wf+1dN9T5x3Ac9gqmNoAnoTlItBryGwZRxWHyTHxniK83C00uxEQV6
- JC96Vt0QoRu2Up3TzDjkRfBXZvOvHRM4WVWN52Q/2bIlMOhn4+wHlGArxuQ1PgHTTyk8T4mR1xs
- 8yUnHh/mzh5fnZWr+m4GbXv9dNM+XGKN0QNfgT9xtEkI67mXkPuuA+oB2VdNDE2n3juWXiHz8uo
- Ld3auprUAM1WxEKf0kPLlq4GAOLa2sutcvbfdMseEEcO32J+x9hjgFTtaLAkQgt8MQPhxQA8t6g
- ympUSYYx/PYDvUqAknWENlIslRbeR645Er1rj96DzMEFAmKbaYCxg+GEJzRaUZdvJbJve8yzSe6
- gEYBBwK8TzAWGsU7WYacngQqO52MLUXPDG0sWLV4e9ud3qdZeWmXz+v1M5qgXaELgrkb5170zRm
- f+VkiWIgXObNIEuPxun2TLbJjLoG8upq8JuZ9ATan7SA1k+wMVJcYupVdU5NvCStERNVyHCnrMu
- 9f90D1T/fyNSGAzn5ZgFICNOxQIQ43XD5WcPhsEnIqa0Zlurn0Z/NJ9jNqzaLuDhMv8YHS5UajM
- CLitcjLgVvOFx0Q==
-X-Developer-Key: i=marcandre.lureau@redhat.com; a=openpgp;
- fpr=87A9BD933F87C606D276F62DDAE8E10975969CE5
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.12
-X-Mimecast-MFC-PROC-ID: WAV-F5UhqTih6TIF458y-RE-hA1r8Y5MghbFh3G-S2U_1775041964
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <0-v1-664d3acaabb9+78b-iommu_gather_always_jgg@nvidia.com>
 
-In Confidential Computing (CoCo) environments such as Intel TDX or AMD
-SEV-SNP, hotplugged memory must be explicitly "accepted" (transitioned to
-a private/encrypted state) before it can be safely used by the guest.
-Conversely, before returning memory to the hypervisor during an unplug
-operation, it must be converted back to a shared/decrypted state.
+On Tue, Mar 31, 2026 at 04:56:22PM -0300, Jason Gunthorpe wrote:
+> The fixed commit assumed that the gather would always be populated if
+> an iotlb_sync was required.
+> 
+> arm-smmu-v3, amd, VT-d, riscv, s390, mtk all use information from the
+> gather during their iotlb_sync() and this approach works for them.
+> 
+> However, arm-smmu, qcom_iommu, ipmmu-vmsa, sun50i, sprd, virtio,
+> apple-dart all ignore the gather during their iotlb_sync(). They
+> mostly issue a full flush.
+> 
+> Unfortunately the latter set of drivers often don't bother to add
+> anything to the gather since they don't intend on using it. Since the
+> core code now blocks gathers that were never filled, this caused those
+> drivers to stop getting their iotlb_sync() calls and breaks them.
+> 
+> Since it is impossible to tell the difference between gathers that are
+> empty because there is nothing to do and gathers that are empty
+> because they are not used, fill in the gathers for the missing cases.
+> 
 
-Attempting to handle memory acceptance automatically using generic
-architecture-level memory hotplug notifiers (e.g., MEM_GOING_ONLINE)
-is not viable for devices like virtio-mem:
+I believe the problem is a fundamental disagreement between the core
+layer and these drivers. The core assumes an empty gather means there
+is no work to do, while these drivers expect a sync regardless. With
+this, it seems we're forcing the drivers to lie to the core by 
+populating a gather they don't actually use just to trigger the sync.
 
-1. Granularity Mismatch: virtio-mem can dynamically hot(un)plug memory
-   at a subblock granularity (e.g., 2MB chunks within a 128MB memory
-   block). Generic memory notifiers operate on the entire memory block.
-2. Lifecycle Control: Memory must be explicitly accepted *before* it is
-   handed to the core memory management subsystem (the buddy allocator),
-   and it must be decrypted *before* being handed back to the device.
-3. State Tracking (Offline -> Re-online): If memory is offlined and
-   re-onlined without proper state transitions, TDX will panic on
-   attempting to accept an already-accepted page (TDX_EPT_ENTRY_STATE_INCORRECT).
+I was wondering if, as a longer-term direction, having an explicit flag
+for these drivers to indicate they always require a sync would be a
+cleaner way to handle this than the trivial population?
 
-To address this, this patch implements explicit CoCo memory conversions
-directly within the virtio-mem driver using set_memory_encrypted() and
-set_memory_decrypted():
+Just a thought, not a hard disagreement with the current approach..
 
-- During hotplug, explicitly accepts only the physically plugged subblocks
-  right before fake-onlining them into the buddy allocator.
-- During unplug, memory is explicitly transitioned to the shared state
-  before being handed back to the host. If the unplug operation fails,
-  the driver attempts to re-accept (encrypt) the memory. If this
-  re-acceptance fails, the memory is intentionally leaked to prevent
-  confidentiality breaches or fatal hypervisor faults.
+> io-pgtable might have intended to allow the driver to choose between
+> gather or immediate flush because it passed gather to
+> ops->tlb_add_page(), however no driver does anything with it.
+> 
+> mtk uses io-pgtable-arm-v7s but added the range to the gather in the
+> unmap callback. Move this into the io-pgtable-arm unmap itself. That
+> will fix all the armv7 using drivers (arm-smmu, qcom_iommu,
+> ipmmu-vmsa).
+> 
+> arm-smmu uses both ARM_V7S and ARM LPAE formats. The LPAE formats
+> already have the gather population because SMMUv3 requires it, so it
+> becomes consistent.
+> 
+> Add a trivial gather population to io-pgtable-dart.
+> 
+> Add trivial populations to sprd, sun50i and virtio-iommu in their
+> unmap functions.
+> 
+> Fixes: 90c5def10bea ("iommu: Do not call drivers for empty gathers")
+> Reported-by: Jon Hunter <jonathanh@nvidia.com>
+> Closes: https://lore.kernel.org/r/8800a38b-8515-4bbe-af15-0dae81274bf7@nvidia.com
+> Signed-off-by: Jason Gunthorpe <jgg@nvidia.com>
+> ---
+>  drivers/iommu/io-pgtable-arm.c  | 4 +++-
+>  drivers/iommu/io-pgtable-dart.c | 3 +++
+>  drivers/iommu/mtk_iommu.c       | 1 -
+>  drivers/iommu/sprd-iommu.c      | 1 +
+>  drivers/iommu/sun50i-iommu.c    | 1 +
+>  drivers/iommu/virtio-iommu.c    | 2 ++
+>  6 files changed, 10 insertions(+), 2 deletions(-)
+>
 
-This was discovered while testing virtio-mem resize with TDX guests.
-The associated QEMU virtio-mem + TDX patch series is under review at:
-https://patchew.org/QEMU/20260226140001.3622334-1-marcandre.lureau@redhat.com/
+Acked-by: Pranjal Shrivastava <praan@google.com>
 
-Note that QEMU punches the guest_memfd on KVM_HC_MAP_GPA_RANGE, when the
-guest memory is decrypted. There is thus no need to discard the guest_memfd
-in the virtio-mem device.
-
-This patch is a follow-up and supersedes "[PATCH 0/2] x86/tdx: Fix
-memory hotplug in TDX guests".
-
-Assisted-by: Claude:claude-opus-4-6
-Reported-by: Chenyi Qiang <chenyi.qiang@intel.com>
-Signed-off-by: Marc-André Lureau <marcandre.lureau@redhat.com>
----
- drivers/virtio/virtio_mem.c | 183 +++++++++++++++++++++++++++++++++++++++++---
- 1 file changed, 173 insertions(+), 10 deletions(-)
-
-diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index 48051e9e98abf..518bc0aae5304 100644
---- a/drivers/virtio/virtio_mem.c
-+++ b/drivers/virtio/virtio_mem.c
-@@ -23,6 +23,8 @@
- #include <linux/log2.h>
- #include <linux/vmalloc.h>
- #include <linux/suspend.h>
-+#include <linux/set_memory.h>
-+#include <linux/cc_platform.h>
- 
- #include <acpi/acpi_numa.h>
- 
-@@ -864,19 +866,90 @@ static bool virtio_mem_contains_range(struct virtio_mem *vm, uint64_t start,
- 	return start >= vm->addr && start + size <= vm->addr + vm->region_size;
- }
- 
-+/*
-+ * In CoCo (TDX, SEV-SNP) environments, hotplugged memory must be explicitly
-+ * accepted before use (private/encrypted), and converted to shared/decrypted
-+ * before returning to the hypervisor on unplug.
-+ */
-+static int virtio_mem_coco_set_encrypted(uint64_t addr, uint64_t size)
-+{
-+	return set_memory_encrypted((unsigned long)__va(addr), PFN_DOWN(size));
-+}
-+
-+static int virtio_mem_coco_set_decrypted(uint64_t addr, uint64_t size)
-+{
-+	return set_memory_decrypted((unsigned long)__va(addr), PFN_DOWN(size));
-+}
-+
-+/*
-+ * Convert all plugged subblocks of a memory block back to shared/decrypted.
-+ * Used to undo set_encrypted on failure or cancel.
-+ */
-+static void virtio_mem_sbm_coco_set_decrypted(struct virtio_mem *vm,
-+					      unsigned long mb_id)
-+{
-+	int sb_id, count;
-+
-+	if (!cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT))
-+		return;
-+
-+	for (sb_id = 0; sb_id < vm->sbm.sbs_per_mb; sb_id += count) {
-+		count = 1;
-+		if (!virtio_mem_sbm_test_sb_plugged(vm, mb_id, sb_id, 1))
-+			continue;
-+		while (sb_id + count < vm->sbm.sbs_per_mb &&
-+		       virtio_mem_sbm_test_sb_plugged(vm, mb_id,
-+						      sb_id + count, 1))
-+			count++;
-+		virtio_mem_coco_set_decrypted(
-+			virtio_mem_mb_id_to_phys(mb_id) +
-+				sb_id * vm->sbm.sb_size,
-+			(uint64_t)count * vm->sbm.sb_size);
-+	}
-+}
-+
- static int virtio_mem_sbm_notify_going_online(struct virtio_mem *vm,
- 					      unsigned long mb_id)
- {
-+	int sb_id, count, rc;
-+
- 	switch (virtio_mem_sbm_get_mb_state(vm, mb_id)) {
- 	case VIRTIO_MEM_SBM_MB_OFFLINE_PARTIAL:
- 	case VIRTIO_MEM_SBM_MB_OFFLINE:
--		return NOTIFY_OK;
--	default:
- 		break;
-+	default:
-+		dev_warn_ratelimited(&vm->vdev->dev,
-+				     "memory block onlining denied\n");
-+		return NOTIFY_BAD;
-+	}
-+
-+	if (!cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT))
-+		return NOTIFY_OK;
-+
-+	/*
-+	 * In CoCo environments, explicitly accept plugged subblocks before
-+	 * they get onlined and handed to the buddy. Only accept at subblock
-+	 * granularity -- unplugged subblocks have no backing in the secure
-+	 * page tables (SEPT) and accepting them would fail.
-+	 */
-+	for (sb_id = 0; sb_id < vm->sbm.sbs_per_mb; sb_id += count) {
-+		count = 1;
-+		if (!virtio_mem_sbm_test_sb_plugged(vm, mb_id, sb_id, 1))
-+			continue;
-+		/* Coalesce consecutive plugged subblocks */
-+		while (sb_id + count < vm->sbm.sbs_per_mb &&
-+		       virtio_mem_sbm_test_sb_plugged(vm, mb_id,
-+						      sb_id + count, 1))
-+			count++;
-+		rc = virtio_mem_coco_set_encrypted(
-+			virtio_mem_mb_id_to_phys(mb_id) +
-+				sb_id * vm->sbm.sb_size,
-+			(uint64_t)count * vm->sbm.sb_size);
-+		if (rc)
-+			return NOTIFY_BAD;
- 	}
--	dev_warn_ratelimited(&vm->vdev->dev,
--			     "memory block onlining denied\n");
--	return NOTIFY_BAD;
-+
-+	return NOTIFY_OK;
- }
- 
- static void virtio_mem_sbm_notify_offline(struct virtio_mem *vm,
-@@ -1055,8 +1128,16 @@ static int virtio_mem_memory_notifier_cb(struct notifier_block *nb,
- 			break;
- 		}
- 		vm->hotplug_active = true;
--		if (vm->in_sbm)
-+		if (vm->in_sbm) {
- 			rc = virtio_mem_sbm_notify_going_online(vm, id);
-+		} else {
-+			/*
-+			 * For BBM, accept the whole memory block range. Unlike
-+			 * SBM, the entire big block is always plugged.
-+			 */
-+			if (virtio_mem_coco_set_encrypted(start, size))
-+				rc = NOTIFY_BAD;
-+		}
- 		break;
- 	case MEM_OFFLINE:
- 		if (vm->in_sbm)
-@@ -1106,6 +1187,14 @@ static int virtio_mem_memory_notifier_cb(struct notifier_block *nb,
- 	case MEM_CANCEL_ONLINE:
- 		if (!vm->hotplug_active)
- 			break;
-+		/*
-+		 * Undo CoCo acceptance done in MEM_GOING_ONLINE. Pages were
-+		 * made private but never onlined -- convert back to shared.
-+		 */
-+		if (vm->in_sbm)
-+			virtio_mem_sbm_coco_set_decrypted(vm, id);
-+		else
-+			virtio_mem_coco_set_decrypted(start, size);
- 		vm->hotplug_active = false;
- 		mutex_unlock(&vm->hotplug_mutex);
- 		break;
-@@ -1583,12 +1672,17 @@ static int virtio_mem_bbm_plug_bb(struct virtio_mem *vm, unsigned long bb_id)
-  * memory block. Will fail if any subblock cannot get unplugged (instead of
-  * skipping it).
-  *
-+ * If @coco_shared is true, convert each subblock range to shared/decrypted
-+ * before unplugging. This is required for offline blocks that have a direct
-+ * map but must not be used for blocks in PLUGGED state (no direct map).
-+ *
-  * Will not modify the state of the memory block.
-  *
-  * Note: can fail after some subblocks were unplugged.
-  */
- static int virtio_mem_sbm_unplug_any_sb_raw(struct virtio_mem *vm,
--					    unsigned long mb_id, uint64_t *nb_sb)
-+					    unsigned long mb_id, uint64_t *nb_sb,
-+					    bool coco_shared)
- {
- 	int sb_id, count;
- 	int rc;
-@@ -1609,6 +1703,15 @@ static int virtio_mem_sbm_unplug_any_sb_raw(struct virtio_mem *vm,
- 			sb_id--;
- 		}
- 
-+		if (coco_shared) {
-+			rc = virtio_mem_coco_set_decrypted(
-+				virtio_mem_mb_id_to_phys(mb_id) +
-+					sb_id * vm->sbm.sb_size,
-+				(uint64_t)count * vm->sbm.sb_size);
-+			if (rc)
-+				return rc;
-+		}
-+
- 		rc = virtio_mem_sbm_unplug_sb(vm, mb_id, sb_id, count);
- 		if (rc)
- 			return rc;
-@@ -1630,7 +1733,11 @@ static int virtio_mem_sbm_unplug_mb(struct virtio_mem *vm, unsigned long mb_id)
- {
- 	uint64_t nb_sb = vm->sbm.sbs_per_mb;
- 
--	return virtio_mem_sbm_unplug_any_sb_raw(vm, mb_id, &nb_sb);
-+	/*
-+	 * Called for PLUGGED blocks (add_memory failed) -- no direct map
-+	 * exists, so CoCo conversion is not possible.
-+	 */
-+	return virtio_mem_sbm_unplug_any_sb_raw(vm, mb_id, &nb_sb, false);
- }
- 
- /*
-@@ -1744,6 +1851,17 @@ static int virtio_mem_sbm_plug_any_sb(struct virtio_mem *vm,
- 		if (old_state == VIRTIO_MEM_SBM_MB_OFFLINE_PARTIAL)
- 			continue;
- 
-+		/* Accept memory for CoCo before fake-onlining into buddy */
-+		rc = virtio_mem_coco_set_encrypted(
-+			virtio_mem_mb_id_to_phys(mb_id) +
-+				sb_id * vm->sbm.sb_size,
-+			(uint64_t)count * vm->sbm.sb_size);
-+		if (rc) {
-+			virtio_mem_sbm_unplug_sb(vm, mb_id, sb_id, count);
-+			*nb_sb += count;
-+			return rc;
-+		}
-+
- 		/* fake-online the pages if the memory block is online */
- 		pfn = PFN_DOWN(virtio_mem_mb_id_to_phys(mb_id) +
- 			       sb_id * vm->sbm.sb_size);
-@@ -1941,7 +2059,8 @@ static int virtio_mem_sbm_unplug_any_sb_offline(struct virtio_mem *vm,
- {
- 	int rc;
- 
--	rc = virtio_mem_sbm_unplug_any_sb_raw(vm, mb_id, nb_sb);
-+	/* Offline blocks have a direct map -- convert for CoCo before unplug */
-+	rc = virtio_mem_sbm_unplug_any_sb_raw(vm, mb_id, nb_sb, true);
- 
- 	/* some subblocks might have been unplugged even on failure */
- 	if (!virtio_mem_sbm_test_sb_plugged(vm, mb_id, 0, vm->sbm.sbs_per_mb))
-@@ -1989,10 +2108,32 @@ static int virtio_mem_sbm_unplug_sb_online(struct virtio_mem *vm,
- 	if (rc)
- 		return rc;
- 
-+	/* Convert private→shared for CoCo before handing back to device */
-+	rc = virtio_mem_coco_set_decrypted(
-+		virtio_mem_mb_id_to_phys(mb_id) +
-+			sb_id * vm->sbm.sb_size,
-+		(uint64_t)count * vm->sbm.sb_size);
-+	if (rc) {
-+		virtio_mem_fake_online(start_pfn, nr_pages);
-+		return rc;
-+	}
-+
- 	/* Try to unplug the allocated memory */
- 	rc = virtio_mem_sbm_unplug_sb(vm, mb_id, sb_id, count);
- 	if (rc) {
--		/* Return the memory to the buddy. */
-+		/*
-+		 * Try to return the memory to the buddy. If set_encrypted
-+		 * fails, we must not fake-online shared memory -- that would
-+		 * be a CoCo confidentiality breach. Leak the memory instead.
-+		 */
-+		if (virtio_mem_coco_set_encrypted(
-+			    virtio_mem_mb_id_to_phys(mb_id) +
-+				    sb_id * vm->sbm.sb_size,
-+			    (uint64_t)count * vm->sbm.sb_size)) {
-+			dev_err(&vm->vdev->dev,
-+				"CoCo set_encrypted failed, leaking memory\n");
-+			return rc;
-+		}
- 		virtio_mem_fake_online(start_pfn, nr_pages);
- 		return rc;
- 	}
-@@ -2191,8 +2332,30 @@ static int virtio_mem_bbm_offline_remove_and_unplug_bb(struct virtio_mem *vm,
- 	}
- 	mutex_unlock(&vm->hotplug_mutex);
- 
-+	/*
-+	 * Convert private→shared for CoCo while direct map still exists.
-+	 * Must happen before offline_and_remove tears down the mapping.
-+	 */
-+	rc = virtio_mem_coco_set_decrypted(
-+		virtio_mem_bb_id_to_phys(vm, bb_id), vm->bbm.bb_size);
-+	if (rc) {
-+		mutex_lock(&vm->hotplug_mutex);
-+		goto rollback;
-+	}
-+
- 	rc = virtio_mem_bbm_offline_and_remove_bb(vm, bb_id);
- 	if (rc) {
-+		/*
-+		 * Try to re-accept the memory for CoCo. If this fails, we
-+		 * must not fake-online shared memory -- leak it instead.
-+		 */
-+		if (virtio_mem_coco_set_encrypted(
-+			    virtio_mem_bb_id_to_phys(vm, bb_id),
-+			    vm->bbm.bb_size)) {
-+			dev_err(&vm->vdev->dev,
-+				"CoCo set_encrypted failed, leaking memory\n");
-+			return rc;
-+		}
- 		mutex_lock(&vm->hotplug_mutex);
- 		goto rollback;
- 	}
-
----
-base-commit: c369299895a591d96745d6492d4888259b004a9e
-change-id: 20260401-coco-07f114966b82
-
-Best regards,
---  
-Marc-André Lureau <marcandre.lureau@redhat.com>
-
+Thanks,
+Praan
