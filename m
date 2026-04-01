@@ -1,273 +1,136 @@
-Received: from LO2P265CU024.outbound.protection.outlook.com (mail-uksouthazon11021102.outbound.protection.outlook.com [52.101.95.102])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx1-f49.google.com (mail-yx1-f49.google.com [74.125.224.49])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE500336EC6
-	for <virtualization@lists.linux.dev>; Wed,  1 Apr 2026 17:16:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.95.102
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775063771; cv=fail; b=KVolltvkhuMvAFf7ncTffxqFarI6cqgcuud/rFafTYkXUDBDxR3Wf4pncZ1mRm6Lgl17Y1P4hULgu3P9P8oGt6kj+Wq6yYVT6Z73NYrJvrLVyp+Z3ONTkQ2tdmtaHF8RQFyyBcbklEgYkKcdRr/8D867A50nnUSJ4TKX0a9a4LI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775063771; c=relaxed/simple;
-	bh=Fz9KQZbhrK92wXYAgaRcsbbwvocQLEgWGf/CBJdEwe4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=H0Ti5DYYUm/i3sTzBG3fxSJDCtPlBWZaN3INFRVkLa+EHctCgLHIh+ayGD0+Bbht4QDSkhERRBmy+PXPN9GQOQnMXLn2DNWuxZHE7gIhPj2WvrKzbBNPuCcwmc7K1aX9VMrNllnub0ff6jSkyVxB0y5zmlhkVKuBPv/DBFlIpYo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com; spf=pass smtp.mailfrom=atomlin.com; arc=fail smtp.client-ip=52.101.95.102
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=atomlin.com
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=ugGGjpI0kq/BoJf4ye4IP8ewSnQO1rcVZ0X1nFkoeQjWC4RWVeigakWPMK8ooLeX5uD9ImE4jI+D+ug0pjA+h/Mbf3xOnYdDc26P2ruoSEu6sV89fQWMV/oYJeMCPaHECSwmYpLHoaMQq+BuviMUi+g2YTlSsNe6tm6GXzvkl855PYHkEAaTNIhxwFOKxNU3+HkL8Ndh8oXau0LjZow8WwS0/pp8500G2CzqayMF8tcD7kKwcoEtzvZyC53ChCOmIIyUGRaVklEHA9kNEzFTdjhkeSun6OC3wxD8pgmwY7q2loiXj9Ox6l4qbgXnwOqx9h46uInIk5x9BETfPnjb+A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=ViFuGnQRClp15nxUgalV4RixSyoqtr58UhCBZEW+Aw0=;
- b=RfRADah3WuAgPm2mdUw+6pzkqiu+XIfcPo7GkqYdPVSeMY87XbUXgs7c4lmB9ubBraL/p055rJ/twOMjED7NTvcQhVruMfb+V9Zf0+f0+nFnIKea37sTHKU82P1fCzQqQPWJ3iq7HypM3CkaURIlvkOwTQamDue1R7ErIULAPFZdRi04X9ogfAGYvIirSVqFeZdYMwjGVeKWFA+jarEib1xJBZCcPI4fY7DVLHEJWFxLTfhy6kiz24ZkDh+9/ESeKNsLsXEsg6zVIMOp3MYIMwA97WpuCHGryRtaIoIuRFxY74MTSfLvI2XmEkyHwyOBiX0ov/q5cDwdpL0+UVRj8w==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=atomlin.com; dmarc=pass action=none header.from=atomlin.com;
- dkim=pass header.d=atomlin.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=atomlin.com;
-Received: from CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM (2603:10a6:400:70::10)
- by LO6P123MB7367.GBRP123.PROD.OUTLOOK.COM (2603:10a6:600:37e::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9769.17; Wed, 1 Apr
- 2026 17:16:06 +0000
-Received: from CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
- ([fe80::de8e:2e4f:6c6:f3bf]) by CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
- ([fe80::de8e:2e4f:6c6:f3bf%2]) with mapi id 15.20.9769.016; Wed, 1 Apr 2026
- 17:16:06 +0000
-Date: Wed, 1 Apr 2026 13:16:02 -0400
-From: Aaron Tomlin <atomlin@atomlin.com>
-To: Keith Busch <kbusch@kernel.org>
-Cc: axboe@kernel.dk, hch@lst.de, sagi@grimberg.me, mst@redhat.com, 
-	aacraid@microsemi.com, James.Bottomley@hansenpartnership.com, 
-	martin.petersen@oracle.com, liyihang9@h-partners.com, kashyap.desai@broadcom.com, 
-	sumit.saxena@broadcom.com, shivasharan.srikanteshwara@broadcom.com, 
-	chandrakanth.patil@broadcom.com, sathya.prakash@broadcom.com, sreekanth.reddy@broadcom.com, 
-	suganath-prabu.subramani@broadcom.com, ranjan.kumar@broadcom.com, jinpu.wang@cloud.ionos.com, 
-	tglx@kernel.org, mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com, 
-	vincent.guittot@linaro.org, akpm@linux-foundation.org, maz@kernel.org, ruanjinjie@huawei.com, 
-	bigeasy@linutronix.de, yphbchou0911@gmail.com, wagi@kernel.org, frederic@kernel.org, 
-	longman@redhat.com, chenridong@huawei.com, hare@suse.de, kch@nvidia.com, 
-	ming.lei@redhat.com, steve@abita.co, sean@ashe.io, chjohnst@gmail.com, neelx@suse.com, 
-	mproche@gmail.com, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	virtualization@lists.linux.dev, linux-nvme@lists.infradead.org, linux-scsi@vger.kernel.org, 
-	megaraidlinux.pdl@broadcom.com, mpi3mr-linuxdrv.pdl@broadcom.com, 
-	MPT-FusionLinux.pdl@broadcom.com
-Subject: Re: [PATCH v9 10/13] blk-mq: use hk cpus only when isolcpus=io_queue
- is enabled
-Message-ID: <guielleeqpvy754g4453pqjzs2jo6yn6463oafoqct2bedl76l@wv2n7t7m24ag>
-References: <20260330221047.630206-1-atomlin@atomlin.com>
- <20260330221047.630206-11-atomlin@atomlin.com>
- <acxTI2CJlq3npMVa@kbusch-mbp>
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="riyilwvjpctyspcu"
-Content-Disposition: inline
-In-Reply-To: <acxTI2CJlq3npMVa@kbusch-mbp>
-X-ClientProxiedBy: BN0PR04CA0102.namprd04.prod.outlook.com
- (2603:10b6:408:ec::17) To CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
- (2603:10a6:400:70::10)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1F6147D941
+	for <virtualization@lists.linux.dev>; Wed,  1 Apr 2026 17:33:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.224.49
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775064816; cv=none; b=HFub0L6n3+iTXSY0YvOF2FR7Zggpk6g/lDHwSM5x9bfe8tq//1vtGnKoFJjHvY+FA1BjIvvvTK0cgcgWONDmSHRCQkDRv5BhV6csPvD+ED1MMsk1P/FPTIsxen9G1GLErGHnHqOSvdlHK+SpPufIleCFfUIozFMgO/E2JWEDofo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775064816; c=relaxed/simple;
+	bh=GALUpL9FcmSNoTtHE6SpePyLmLDTRd/mTbP3SWjUuZY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=UBfXcZ0UdXVi5Aj+T+AYZc6t0+wHK1jZW4iZcQ1hZGl9f37iI2Na3/MV5P0CIHjGlh0s8MIiDsFFTUXtPUxBG+CVH9z+C081qdqJdq0feSMTaOSofKHgyoIcG14T0Iz9aip9mGogPBWtBS0iLaqZ+oJljsvi7nGGlMr+LFOeYMI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=s1Iz1jDZ; arc=none smtp.client-ip=74.125.224.49
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="s1Iz1jDZ"
+Received: by mail-yx1-f49.google.com with SMTP id 956f58d0204a3-65032e9cf01so610d50.3
+        for <virtualization@lists.linux.dev>; Wed, 01 Apr 2026 10:33:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1775064814; x=1775669614; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=aLnfQJSw9REm8a9+311bKseMryW3/suAyHmSGj3g0SU=;
+        b=s1Iz1jDZkAbEVIatKSbyV81ohrM+aVIowXOPLJkJnl597hGESjsqKL9/UnnIfhNZBH
+         ny/AKzy1D1ed/a7e4kUbLR+eTOPOQ/5XUvpQu62jlSgAK2j/jRYt5fej/Qy2iKVZ7pUf
+         2CPE2BG5+ysrwwkR05rATXowjw/V8nsBM8pihU6Kmdkzzs7Uju/CKomwQ9mUkWI1ALjq
+         fF49iM5mP2Ar7Vfqde+KUV1/2e5zmnQd2ZcCPOuSxG5hV1XnwjX140cbgziChgQjNvX2
+         C4tCaZrsqZU7GqVVDOYZHiMpBdrtZnbPkLWQcFrMTGQMIJ6TADOEmvBm9dSodpdlsEQ8
+         dUeA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775064814; x=1775669614;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=aLnfQJSw9REm8a9+311bKseMryW3/suAyHmSGj3g0SU=;
+        b=b/tYW2YrgVDGKoqRAvQ8aNGfgCOAgdSoaPQ7KouiKx3E5/gUZ8Q3StGrhKu1dIX+4B
+         DhH5Gc0W5PxUSGJD+6mgCsr7baVIzM/Zu4ja6wpQwz0gIpcwo2j+Ijsf81lK8h9DgwBG
+         jU61UlxGhxOx5rED1VR1y0dn+tMGqqfRZRJwJ/Tj2eoUtUormVzYAUuFt0omq3fzjlwg
+         PRGZ69NfihDIEKKGggTgiEZQsDXwlzQzJ4Bqw/LcMrLhY6324S0lxkQwwdSNVMJ7Zu6T
+         gZ5PTnv5NtSWiSdHpInOzq8O32M+bLsVY/A684UdiS0rQBbZ1uMDxRT9X5+1UbztuUNM
+         81AQ==
+X-Forwarded-Encrypted: i=1; AJvYcCW0wCilt+z0K+QwACh7zC5v8cJ2g1KgqQnpFci7jdvIfSK8TmAls7VWd6C739hFR5nRblsR9DdT3yfth26DCA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxR//Yofxwq33v4pYmOEDqA/3Z8kRwFOXqmdLwrizovpOh/B3pt
+	cLOmKnXsk8AZzztjZrFyHrKm5PrxhMDc05I9yYStlB4w4h1DXhBBS4tf
+X-Gm-Gg: ATEYQzxqptLYGKh6jxKEh9VfOZtlq07GF1npjxq9WFyxDx6A5Aq8NRUDV/GW3UmykJu
+	5oNUOp+6MUs2t9yD49jS3x3GeHuGURhJqZ6O10gMhSPa290gGnwHzEz+6EZrcaZ9T4Z82iy9aei
+	wDmYdydoVlCyToI30XPMHLpibzlzICF41s9/TR/4e686z1IIq6WGV3oblRE6gTrT2qMBFRfedhT
+	5lZ/j+wlamtDeWycSvhDcWNaVBBi2SYTLZyoQbdbmwDVNafahE8nD+7myXkqVGwRduqWUvU1Mb6
+	TJNyEyBQ6U+YbEiyKQfEzfos+OArQAJzjwZ5K5rvXs1Mymzm0FK1OMIJOUApnbW3cnKrrdYoHL8
+	2jnZKn1bn00t8zxfBNABXunK2xPq0ZEWh+dlEqUPRQ4KHOYrWoMXlNCHOsipB9YL6JF7q5Paf2C
+	1sxCaVKXdUdjYCrWbSuPraRvPWt4kkZYbv
+X-Received: by 2002:a05:690e:1c20:b0:650:3aae:e2e6 with SMTP id 956f58d0204a3-6503aaee65fmr764874d50.20.1775064813767;
+        Wed, 01 Apr 2026 10:33:33 -0700 (PDT)
+Received: from syzkaller ([2a03:2880:25ff:5c::])
+        by smtp.gmail.com with ESMTPSA id 956f58d0204a3-6503a828f3csm214698d50.3.2026.04.01.10.33.32
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 01 Apr 2026 10:33:32 -0700 (PDT)
+Date: Wed, 1 Apr 2026 10:33:27 -0700
+From: Bobby Eshleman <bobbyeshleman@gmail.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>,
+	linux-kernel@vger.kernel.org,
+	Bobby Eshleman <bobbyeshleman@meta.com>,
+	Jakub Kicinski <kuba@kernel.org>, Simon Horman <horms@kernel.org>,
+	virtualization@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
+	Paolo Abeni <pabeni@redhat.com>, Jin Liu <jinl@redhat.com>
+Subject: Re: [PATCH net] vsock: initialize child_ns_mode_locked in
+ vsock_net_init()
+Message-ID: <ac1W53WyCMYyOv4f@syzkaller>
+References: <20260401092153.28462-1-sgarzare@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CWLP123MB3523:EE_|LO6P123MB7367:EE_
-X-MS-Office365-Filtering-Correlation-Id: af501b52-6589-44c5-40b5-08de90125bba
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|376014|7416014|366016|18002099003|22082099003|56012099003;
-X-Microsoft-Antispam-Message-Info:
-	jb0mzuvxVS4Jy9029WVEuazu0iS90+cYwZi1oyRDavDeazD1+5aJkA5weKPpyrfqzrzmcMxBXaicd8nxja07d7YOMNkcZPxV5ebWdLR9DulCp7qhseoln3xQwfRctI50H6NPPV9Wr224O9eOTFv0H2R/7ilDJdpQE+uGa2Lc/1ZApfnf5MG1dnGSc6uAFp+6bNXP94q4RrUkvTLt+5YC22vy5OxetHH3BmPEaF4mUqPYorWGOodoe2nkmpneXoUBkXgZs4ZCfkIrC3FrgHzC6qW/fNw/30IzuUJ2jsd16nIS/rkqXNyyCUIzM+rN9tJ5r5p2/N/ORYrmsh6xAZv+DAu6c0QzVxqzVZbR3pSs0+SQA/YAB3tihoshwgf1MlVIY6EH3T8WXFOo+XuJSv8MpltALEE+xV0V+90Ll8rzcOT2N6sx/VZoMGPw0qUug1H6wtKBl20en2zMAsKhWHNXDnHstoHeAcripfmyRal19MxO4vjdXXUrHwYS2rkJde9wEvpNRNdfHelH321D4MjbC/sdpiVeBBkjr0LS5zQXF9TR1IKhkdsVVXTPWQ+UgYpZbhi5qsmAfhbwcc/otg+Uvt7ViADNGb+L0yRgezRpNSySkkik8fa8DW+UQJcPZRawI9xtUIFhg9GiT5AlBSyW+zECHFwBYgNf6tgA52ZqrMprWIBDVl900lFSdrVEjIRsw3NzP0NlE3NrUosrg3WvbIfiTt+yWz296ZoUZK/hMuk=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(7416014)(366016)(18002099003)(22082099003)(56012099003);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?YTd6TE1hTW9SNW90b0dKcHFybmFNZWMxODMyZFVVSk1ITEJKSnc4ZHJFMHVp?=
- =?utf-8?B?ZXUwZFlwakZEY2hrZ0Q0RDYyT2Jya1hWUHVyeDY1NDV3Sk5oTHovaWdGa2pP?=
- =?utf-8?B?aXQxOWZpdFM3Vzc0cWtycUptemU2MU9wZkJQYjdRUTFTbTlRYUwvWjgwYk0y?=
- =?utf-8?B?VDd3MWV2eDJpWEJQN3pLOGc0eTFOWFpEcCt5ZjhTcTkwa3ZPQ3Z4S2JYTTJo?=
- =?utf-8?B?WWhtZ2pKNWI0cU1KdWM1VDdOL1FwbUlKa3NYR1FjVkZtblorN043MlFKMUJl?=
- =?utf-8?B?NDRiNFJKTFZHdklVU0NBbTNMK3dDV3p2MklDRFMva1h0VFMySWNvelJ5Y2F4?=
- =?utf-8?B?TDlkblh5RXJCTkpUQnBqeGdJL3VqbkpMRlVYZmxRWTBXcFZDUE1tSlFlbzVO?=
- =?utf-8?B?dmhQOWp0bTRMSmxZQlZSSCtycEdGYWpaMXl2NE1aaWhnV2ZvWmNMdzR6b0d4?=
- =?utf-8?B?U3R5aGZLanJKeHZkMlVnR2JDbWg3T290ZVh3eTd6cmxUb1IyNjloQXBlYmJr?=
- =?utf-8?B?VVlQVGxWNHhhQkdmYWdDR1d0aEhjelNpRmYzWVRRYm42enpEU3pEMGJZMnVR?=
- =?utf-8?B?L1FaUVZlVXlaSTVaTlZNWVpvZWdlNGx5LytGN21hMnQvQktTT2xXREJHRitG?=
- =?utf-8?B?RGQvNmQzaTJKOFlDVTU1U3ZHdGdhY0tObEVHMkc2Z2tlZXI0eEFyTmNoOHh1?=
- =?utf-8?B?MjhTdmJmNmdBNWR1aEZ5QkY1cDNoRWRDOW5BY1hlVHplWTlrbmVVUWlleDls?=
- =?utf-8?B?ZnpQWHpMaTZ4RnVPblhUaHZldDdvZXRMQndmeE5OeGlUL0RkdGlnbTlOeXRJ?=
- =?utf-8?B?V0k2WE9rYUZQVFJSaitQeWw5U0FwU0JQdWxIOHNHaFg5MVdZOVVJUmJsdk1G?=
- =?utf-8?B?ZCtsWFZoMWxJSGg3VHFkeHJUeFRkZlQyZ09seGFHbXpwWVB1MGoybUN2OGE1?=
- =?utf-8?B?b0VoUHhRRUJ5UWlMOC8zSUZtLytsMERuRzVoUStHT003ODNTeFZuQVlxUjNl?=
- =?utf-8?B?SGZxTUxsV3o3ZndZS3R3RDZKa3c1WTdObGpYSkYrY0g5dzVoNDRyYVhqYlB6?=
- =?utf-8?B?SWd1a0tuRklNRTM3Q1Izb1pnTy96NDBoV29hOXhTVnhtMUdwY1dKWGFMQVN2?=
- =?utf-8?B?ald3V2FTWE1QcDNRcU1yNWYrL3BPNnU2aUxHdXNBbmdURHJ4MWFTR0s3U3JU?=
- =?utf-8?B?dUw3RmFSbnVoVjVKWGx5RnA2WFlzengxc2F1anZSODJQQVRlZHdWQ3FRbjM3?=
- =?utf-8?B?NDFrM1RSeU1iaGRTeGFpcWpTa3A1UlJ1RmRqOW1rM20yL05BYm1BS28vbUhJ?=
- =?utf-8?B?cVRWQzFmRDZ0b0NTbXg1bWNMdG5OdjZ3bHM1Q0pPblhueTI0MWdZQWRreWcr?=
- =?utf-8?B?VjNNMnhxZks0SmVtWXoxNHYzL21MOC80d2wrNHdjZVVPcWp3YnNmOUV6Qlg5?=
- =?utf-8?B?Qm9CTCs1R3o1b2NmTlBuZG9SbTRJcU5BaW5JMFdwY0xrZEFMQ0svT1lVSmtN?=
- =?utf-8?B?THZmeExRWHVBcVFESVh5N1NtdVJsS1VieTNYNHVFNnpQUURFeUFycWFtUWZM?=
- =?utf-8?B?bEVIVk03c1RFSktjcTdQMWJDbnRmMm5iWmE0VUlnK0dhUnZpSnRSMDh3OVRs?=
- =?utf-8?B?SU1qaWVidXN3UXE4QTY3QTd2M1BjMEhmNTVtemI0MFZmUEVzZ3lGOEFBcGpN?=
- =?utf-8?B?M09HRDdJQkZpQ2Z6WW9wVXcrU0dtYkpSeVRSR2tDdk11MUYrNmk0aVl0MVdR?=
- =?utf-8?B?QitMK0VheDRyVTJuSXRMaXVqSWZBUkloR29SZGpNU2xCczhLZ1l1SGJBZ04v?=
- =?utf-8?B?U0RjWjlzSXQzSlVON0ZDTGZmajVQRWNIaWdSMmszZUJZR0Q3aEx1VWQ5OXhw?=
- =?utf-8?B?MjdTaUVPVFBSaDBlZVFZVXRIWFJZZzJPSWJKWEFhNzFwTUhzQjBOdDNIai9v?=
- =?utf-8?B?N3B5cXcrSUxxeGRsZkR6NElqb1pnNGJLTVhIVzZuSVNhVDdFZEwrTkhMaGxn?=
- =?utf-8?B?VVVYbWRxMzhJYVdQRG4rTnFvRmlsVWZRZm1qMFJvUmdFUW00MTBOTmtGRkN3?=
- =?utf-8?B?WkFpb0tld3VYdnlwZ2d1S0lnbGxMbjA3R3IydFk2alFOM2xSSm94OGdIZTJD?=
- =?utf-8?B?RmZUWHh6ZVN0KzUvZVNnYWlEYkh1UGN0cmkvZmVXaE8xMzd5SFRrS0ZXL0hq?=
- =?utf-8?B?MXgza09Db2lvRmxwRDUrZ3ZDdE51b1VOckVldkNnc2hUT3dUZ3M3OEFrNTVL?=
- =?utf-8?B?cGpUN1B4ODUyaTFKYUNYL2hMOFFia3dTNkV4N1BNcW9ZT0JhV1QwL1JhNGNj?=
- =?utf-8?B?NjcrWkIxcm5Kak1vT0JENGEvZFZ3OUkzOEpzZExLTUNObllYY2plQT09?=
-X-OriginatorOrg: atomlin.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: af501b52-6589-44c5-40b5-08de90125bba
-X-MS-Exchange-CrossTenant-AuthSource: CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Apr 2026 17:16:05.9246
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: e6a32402-7d7b-4830-9a2b-76945bbbcb57
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: S5qv7mWV4tMOxSF3k4hcLmIvzt/Jz2MBDC1crBt4Uwo5Id9C4Jtg3gACBSsrUKSCTXV7GQ2+8A1CrnOKvJ73Gw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LO6P123MB7367
-
---riyilwvjpctyspcu
-Content-Type: text/plain; protected-headers=v1; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-Subject: Re: [PATCH v9 10/13] blk-mq: use hk cpus only when isolcpus=io_queue
- is enabled
-MIME-Version: 1.0
+In-Reply-To: <20260401092153.28462-1-sgarzare@redhat.com>
 
-On Tue, Mar 31, 2026 at 05:05:07PM -0600, Keith Busch wrote:
-> > +static bool blk_mq_validate(struct blk_mq_queue_map *qmap,
-> > +			    const struct cpumask *active_hctx)
-> > +{
-> > +	/*
-> > +	 * Verify if the mapping is usable when housekeeping
-> > +	 * configuration is enabled
-> > +	 */
-> > +
-> > +	for (int queue =3D 0; queue < qmap->nr_queues; queue++) {
-> > +		int cpu;
+On Wed, Apr 01, 2026 at 11:21:53AM +0200, Stefano Garzarella wrote:
+> From: Stefano Garzarella <sgarzare@redhat.com>
+> 
+> The `child_ns_mode_locked` field lives in `struct net`, which persists
+> across vsock module reloads. When the module is unloaded and reloaded,
+> `vsock_net_init()` resets `mode` and `child_ns_mode` back to their
+> default values, but does not reset `child_ns_mode_locked`.
+> 
+> The stale lock from the previous module load causes subsequent writes
+> to `child_ns_mode` to silently fail: `vsock_net_set_child_mode()` sees
+> the old lock, skips updating the actual value, and returns success
+> when the requested mode matches the stale lock. The sysctl handler
+> reports no error, but `child_ns_mode` remains unchanged.
+> 
+> Steps to reproduce:
+>     $ modprobe vsock
+>     $ echo local > /proc/sys/net/vsock/child_ns_mode
+>     $ cat /proc/sys/net/vsock/child_ns_mode
+>     local
+>     $ modprobe -r vsock
+>     $ modprobe vsock
+>     $ echo local > /proc/sys/net/vsock/child_ns_mode
+>     $ cat /proc/sys/net/vsock/child_ns_mode
+>     global    <--- expected "local"
+> 
+> Fix this by initializing `child_ns_mode_locked` to 0 (unlocked) in
+> `vsock_net_init()`, so the write-once mechanism works correctly after
+> module reload.
+> 
+> Fixes: 102eab95f025 ("vsock: lock down child_ns_mode as write-once")
+> Cc: bobbyeshleman@meta.com
+> Reported-by: Jin Liu <jinl@redhat.com>
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> ---
+>  net/vmw_vsock/af_vsock.c | 1 +
+>  1 file changed, 1 insertion(+)
+> 
+> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+> index 2f7d94d682cb..d912ed2f012a 100644
+> --- a/net/vmw_vsock/af_vsock.c
+> +++ b/net/vmw_vsock/af_vsock.c
+> @@ -2928,6 +2928,7 @@ static void vsock_net_init(struct net *net)
+>  		net->vsock.mode = vsock_net_child_mode(current->nsproxy->net_ns);
+>  
+>  	net->vsock.child_ns_mode = net->vsock.mode;
+> +	net->vsock.child_ns_mode_locked = 0;
+>  }
+>  
+>  static __net_init int vsock_sysctl_init_net(struct net *net)
+> -- 
+> 2.53.0
+> 
 
-Hi Keith,
-
-Thank you for taking the time to review and test.
-
-> > +
-> > +		if (cpumask_test_cpu(queue, active_hctx)) {
-> > +			/*
-> > +			 * This htcx has at least one online CPU thus it
->=20
-> Typo, should say "hctx".
-
-Acknowledged.
-
-> > +			 * is able to serve any assigned isolated CPU.
-> > +			 */
-> > +			continue;
-> > +		}
-> > +
-> > +		/*
-> > +		 * There is no housekeeping online CPU for this hctx, all
-> > +		 * good as long as all non houskeeping CPUs are also
->=20
-> Typo, "housekeeping".
-
-Acknowledged.
-
-> ...
->=20
-> >  void blk_mq_map_queues(struct blk_mq_queue_map *qmap)
-> >  {
-> > -	const struct cpumask *masks;
-> > +	struct cpumask *masks __free(kfree) =3D NULL;
-> > +	const struct cpumask *constraint;
-> >  	unsigned int queue, cpu, nr_masks;
-> > +	cpumask_var_t active_hctx;
-> > =20
-> > -	masks =3D group_cpus_evenly(qmap->nr_queues, &nr_masks);
-> > -	if (!masks) {
-> > -		for_each_possible_cpu(cpu)
-> > -			qmap->mq_map[cpu] =3D qmap->queue_offset;
-> > -		return;
-> > -	}
-> > +	if (!zalloc_cpumask_var(&active_hctx, GFP_KERNEL))
-> > +		goto fallback;
-> > +
-> > +	if (housekeeping_enabled(HK_TYPE_IO_QUEUE))
-> > +		constraint =3D housekeeping_cpumask(HK_TYPE_IO_QUEUE);
-> > +	else
-> > +		constraint =3D cpu_possible_mask;
-> > +
-> > +	/* Map CPUs to the hardware contexts (hctx) */
-> > +	masks =3D group_mask_cpus_evenly(qmap->nr_queues, constraint, &nr_mas=
-ks);
-> > +	if (!masks)
-> > +		goto free_fallback;
-> > =20
-> >  	for (queue =3D 0; queue < qmap->nr_queues; queue++) {
-> > -		for_each_cpu(cpu, &masks[queue % nr_masks])
-> > -			qmap->mq_map[cpu] =3D qmap->queue_offset + queue;
-> > +		unsigned int idx =3D (qmap->queue_offset + queue) % nr_masks;
-> > +
-> > +		for_each_cpu(cpu, &masks[idx]) {
-> > +			qmap->mq_map[cpu] =3D idx;
->=20
-> I think there's something off with this when we have multiple queue maps.=
- The
-> wrapping loses the offset when we've isolated CPUs, so I think the index =
-would
-> end up incorrect.
->=20
-> Trying this series out when "nvme.poll_queues=3D2" with isolcpus set, I am
-> getting a kernel panic:
-
-To resolve this comprehensively, I have made the following adjustments:
-
-    1.  qmap->mq_map now strictly stores the absolute hardware index
-        (qmap->queue_offset + queue) across both the primary assignment
-        loop and the unassigned CPU fallback loop.
-
-    2.  The active_hctx cpumask now strictly tracks the relative index
-        (queue) for the current map being processed, preventing
-        out-of-bounds mask tracking.
-
-    3.  The validation check within blk_mq_validate() has been updated to
-        correctly compare the absolute index stored in mq_map against the
-        offset-adjusted queue index.
-
-I shall fold these corrections directly into the next series.
-
-
-Best regards,
---=20
-Aaron Tomlin
-
---riyilwvjpctyspcu
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAEBCgAdFiEEeQaE6/qKljiNHm6b4t6WWBnMd9YFAmnNUs0ACgkQ4t6WWBnM
-d9bwwRAArG+mD7cntRzDM5s4MrtIevTU2rwU42jGlmcZEycR87jgRV0kclgbslmd
-VfNkfbl2nPqeG/GNRy4XIsIhWnP6LThpOMZGwD5R3EEiQssd0Jhllox6s7HjH3VS
-/J0Um32Ds+Os2u2GZVUvRDZOO0GozMsxrQbSFFwFRFM/3uvk+vT1hfKIMrQx0w4w
-wWGBkbS4rxCQN3ZY0zdWz0/3oZKNr7W+PanK8utQgmpphuejejW7QvL8ykCiAAof
-R++nw7HdnQShHGjPMLJBiEshwSNeanEv/h3Wwz1A9WrhNua7xAF5+9/1wXlbjBmZ
-QMUfNiPsqGDN2TJYEPsFBOCLQyhNfk+pVE2rSIV3sg7WE0pKaU2sUgYyXZeO4qrA
-w9C7ZuQV08x4SegZiEGyNFN1OuMkvEDtDh+4moHmc1nKWuvEClvbKVw0G2e80qDe
-I/w56G/dpKalUviPzJT1mc1kUh8pVrm3plEUf2ZEwb4ehfC4p8sLXctOacLKXEbU
-WBm3soCXTvoVxaAyAsUDRzVoWT531SPxz0+YTvIIxNcx1PVXirFdW9RXXISKA1P7
-YFrlqJM1Gq2zM3hgMRfBGN/UjiboWUw1vU9DkUmR4FzSyESWfazXG6EEkIwsd4kz
-pXkhR+aJQDhoyvAuS1rBxK/jggzeMo9TwqRuWf9G7nHxoLPhfIw=
-=cH5L
------END PGP SIGNATURE-----
-
---riyilwvjpctyspcu--
+Reviewed-by: Bobby Eshleman <bobbyeshleman@meta.com>
