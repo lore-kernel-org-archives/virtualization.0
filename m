@@ -1,214 +1,115 @@
-Received: from PH7PR06CU001.outbound.protection.outlook.com (mail-westus3azon11010039.outbound.protection.outlook.com [52.101.201.39])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D15A3B0AFD;
-	Wed,  1 Apr 2026 17:36:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.201.39
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775065018; cv=fail; b=vAvPPPtYZDxSyxfYSaPEDDDYx0zWXb7BJZnm2bqUEijF9tkAHkc+ngU7voZSlyqRCg+MroldnPuEy2vGoovm8AJA8gknu8by15WRWML4igOESMapTjBcqAJEXdWxqz+QjQ/jithQBborfyf3SLEObeqFQSm98eujY2ZBVAkh60E=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775065018; c=relaxed/simple;
-	bh=vz1n179LJmO6ow1C+4igcrtUuyxM2a+XnEuW9v1BDbQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=WBFgQ/0/9j15e9z402ANyK3Y7ZsG3P9nV9NO+AsvYrGD4cSpqVFvqIVUVyamYjqvCm5C5mFZdKYFWvjQKWSixH0Gf8wdAjf+rbM/E0PPMhDikqjTyzLl3beaQ8fxyAG9/JCsTU/3rSi/l4BjZh693aojY0O5K6GzIgi4EFjZSiE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=q4DEFYep; arc=fail smtp.client-ip=52.101.201.39
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A88733F58A
+	for <virtualization@lists.linux.dev>; Wed,  1 Apr 2026 19:05:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775070348; cv=none; b=MeI6+lNKR6vrHvrBP0Kkoevn0fSTQoJt05omq+BPOpb36EO5bdZf0DjB+hMyQvWS7MoeitWtzPpczeWcDOr/ZBf3F0hHg0Kx4na+DjCJeBoKyUAcORm5gQbowRgf1dCxUk6xvBkVAe+lBY1kNqvQvd5VF2wfWuaEKBYwN9moLwQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775070348; c=relaxed/simple;
+	bh=wW8PJiB2WunGtowCjXzATpDa3T2NiSBGzCktX2oKtNk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=qJrj/RFCcB0IejmaY9NpojlwCbrvcGZbQSrUL3p1VlCmtqfkfOPckkB9LRDAi8nmaankFdP8hj3qgLh4YEYk+BroWjGLuliRhwRk4Vcqr1YynQKVrelI5DoVM39sM2y2/5v0ot3wsxWH6HbpahktuNEKlLrlKH9VcU+7ukBz+w4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bl329GQ9; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="q4DEFYep"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=SxM2maOj83b0d5hxQMNInmztqGRJibEJZPdS06VfJfg05HlR0S1Eg7+Fk6tP4CSYLaUAPjvRWzuqpT7uosGSjdH/Ehppa1b7adT3dIjffFsKxv/sJN3OSkL62YztNY2gjiEuCPa0L3psvnONfLtDMwX5VZ/1at5UJvx38I5KHktypFqGZ2uyf/ZjSN9CbI5kLhiOe6v7EM88TmDKHi46l/V1e86LGJtcy9fEGT6JH9leWd8CP4tlpp4fPsVGUreTWVzewXNxJjBENf9FWxtJT5FwIlt5YDOSN5ijS3nlhJg1tUA086Q39EzdUqNpVjNEOPKOLKDGouPfhdV5D9vpmQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=a8ocrs4T5ioB4gcna5RJSflFqO+GeKr4bXA/KoHdINc=;
- b=NCW4dx/wuZClatF3TvNnwb+rw6wFs9pFG4NQXMWkNLmlH4+HoGf/bAmre0a/fahsAtaVJ65InZaS+AhKHbnLXMtO1Vn9DqWBjFS0KuJsgym5B4MsBa7unffUrDfuVwMsTGqtVVLWdFddNzygpdnssKN+A3i15NdPIVoGYFsbLSWkGY9iMiY5fw1x09bW2hj4d1y7bTHL5q3zsNX46pK3PMp9enmB+hC7Ko9QmF5eQnQDP0aSetreWbKkn69Yy2tv2LI128HTVC2oLqNi9YotlNTipM+ZENFEJhcqJpgYUMogJ1XXVZLA7ODV4zZayyo+pzjoO0FN7hhjJX0IbSxL3Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=a8ocrs4T5ioB4gcna5RJSflFqO+GeKr4bXA/KoHdINc=;
- b=q4DEFYepsP2s3p8POcQ/7xLtw//iBrvOYnkUPdPTe0PBmglJ7MiDa+Gs/uwk6vBFaOKHLEaI9JspbVRQ+B1xLBXx9BS5O/ny5mPKI/WJf0XvXvDXanB/AziIvAfKLfV3GQdS/L7l/9kd72UkU3G/PeoKBSLjLTzf3G6CIKiBXRxiQ/eihXpxl/nQRNKxom5bXAo4mYWUvJYmIAprEJHrVluUgC5YwG++dckjIyCybzvvvl1Zm0GyKYOI443Fx//+7GznxjVf1pKBmvHSHFbVdmfGwk7JWNICZjvGeP7uG9TbDhzKoTnhXuhOqf2vVpWslHPIj81dyO0PY0Bp96ed1A==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV8PR12MB9620.namprd12.prod.outlook.com (2603:10b6:408:2a1::19)
- by LV3PR12MB9188.namprd12.prod.outlook.com (2603:10b6:408:19b::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9769.17; Wed, 1 Apr
- 2026 17:36:52 +0000
-Received: from LV8PR12MB9620.namprd12.prod.outlook.com
- ([fe80::299d:f5e0:3550:1528]) by LV8PR12MB9620.namprd12.prod.outlook.com
- ([fe80::299d:f5e0:3550:1528%5]) with mapi id 15.20.9769.016; Wed, 1 Apr 2026
- 17:36:51 +0000
-Date: Wed, 1 Apr 2026 14:36:50 -0300
-From: Jason Gunthorpe <jgg@nvidia.com>
-To: Robin Murphy <robin.murphy@arm.com>
-Cc: Alexandre Ghiti <alex@ghiti.fr>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, asahi@lists.linux.dev,
-	Baolin Wang <baolin.wang@linux.alibaba.com>, iommu@lists.linux.dev,
-	Janne Grunau <j@jannau.net>,
-	Jernej Skrabec <jernej.skrabec@gmail.com>,
-	Joerg Roedel <joro@8bytes.org>,
-	Jean-Philippe Brucker <jpb@kernel.org>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org, linux-riscv@lists.infradead.org,
-	linux-sunxi@lists.linux.dev,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	Neal Gompa <neal@gompa.dev>, Orson Zhai <orsonzhai@gmail.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>, Paul Walmsley <pjw@kernel.org>,
-	Samuel Holland <samuel@sholland.org>, Sven Peter <sven@kernel.org>,
-	virtualization@lists.linux.dev, Chen-Yu Tsai <wens@kernel.org>,
-	Will Deacon <will@kernel.org>, Yong Wu <yong.wu@mediatek.com>,
-	Chunyan Zhang <zhang.lyra@gmail.com>,
-	Lu Baolu <baolu.lu@linux.intel.com>,
-	Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>,
-	Joerg Roedel <joerg.roedel@amd.com>,
-	Jon Hunter <jonathanh@nvidia.com>, patches@lists.linux.dev,
-	Samiullah Khawaja <skhawaja@google.com>, stable@vger.kernel.org,
-	Vasant Hegde <vasant.hegde@amd.com>
-Subject: Re: [PATCH] iommu: Always fill in gather when unmapping
-Message-ID: <20260401173650.GD310919@nvidia.com>
-References: <0-v1-664d3acaabb9+78b-iommu_gather_always_jgg@nvidia.com>
- <ee2c2044-e329-4cdd-ac35-9365824d3677@arm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ee2c2044-e329-4cdd-ac35-9365824d3677@arm.com>
-X-ClientProxiedBy: BL1PR13CA0171.namprd13.prod.outlook.com
- (2603:10b6:208:2bd::26) To LV8PR12MB9620.namprd12.prod.outlook.com
- (2603:10b6:408:2a1::19)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bl329GQ9"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1775070346;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=/3sAJ1FdjGwRu+DMqvGIwhQdYQkK9kW2zWLcKVGLOXc=;
+	b=bl329GQ93F6CcGo9PiWh5ZRQsBIy+ASQb+GlfXdRWrF6X1umYitX1L2L/zTkuey5cHnhIo
+	neIgzCgZstlrTySh50T8xYPL2Y7LafvZWnpAzajVtTNqcwnPSxsW4OYQ0OBkAo7GkKV5kb
+	qzZGBLkVGOmrzr+l7EChXwUSUjuM6w0=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-463-gdXDJV8FOZaZNkUCfQRb2A-1; Wed,
+ 01 Apr 2026 15:05:41 -0400
+X-MC-Unique: gdXDJV8FOZaZNkUCfQRb2A-1
+X-Mimecast-MFC-AGG-ID: gdXDJV8FOZaZNkUCfQRb2A_1775070333
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 8FF8D1955D4D;
+	Wed,  1 Apr 2026 19:05:31 +0000 (UTC)
+Received: from [10.22.81.104] (unknown [10.22.81.104])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id B2C8F180035F;
+	Wed,  1 Apr 2026 19:05:22 +0000 (UTC)
+Message-ID: <5e6aa61e-0ad0-4027-bba9-cd906ab0d7e8@redhat.com>
+Date: Wed, 1 Apr 2026 15:05:21 -0400
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV8PR12MB9620:EE_|LV3PR12MB9188:EE_
-X-MS-Office365-Filtering-Correlation-Id: 4213b8d7-188c-4a4c-2c33-08de90154269
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|376014|7416014|366016|18002099003|56012099003|22082099003;
-X-Microsoft-Antispam-Message-Info:
-	b3h+N4/EQ+SSFkWEPdZ/vA4Ojml7XNb7jTdobmvgRvlxRerYHMrqyiW5///T40fz7Kzi5dr9OmSV4YvoLOwwva4eiE/eT+sL7NYk36YJ5N+ImFkmmoTNzXi5B2BfptFjrc16lyDV+d3AM56enCOVFwHCB+nIIT7bFw1TCTltlSHBVf4khdIUA5VKHqtnYc9XxVzv9te9BJarFc6UtiXTv0EMdVF5gfh39brX3rkECCNmV/oYLqunvnJaQpRjtMYNIX+QDBbrEngsexmm1YG1MMJ7bVIz7mCDbECVixj5esZwxxUmrpB3RJNzfrGrQlq6jMJnzAn3T7Vqb5CkHfkD/p2dAmRgVogVjgqQpdhQ/eSj/EiF6kFoU+ZyICZuz6fJ6m/A/YaHOpMI2YInORiAYMeg1pUIR18aft6LmmaiXK82rpEq2aoECAg9+/veKCnOpYS1OCf2lg9SFeTwiksEhhhL377oz2xIVx2lhu5Mhir11gKtPAwYQyQdyvk8S+VQCrgVWHJuOv0zppvuuvqZdYlpuUEZIoSzB34uhzTSjNg4J/sgwbRF8MwEmtIKPeE+2XTyjY8YfElYkv8ri0khQAQtNke/uOkCcH7pj66wLqpGGY7GVqAGgkTgLxH1+izqqovyeLr22K0aOQRp5vE+ymTXDN6S7NOVNCFQLDr/26jmblUxEQS5GvZ2bDGPl1+HkdGwmO6FOAsclYg296nxVy4Hy4qvHPJFJNLFk1SrpAQ=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV8PR12MB9620.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(7416014)(366016)(18002099003)(56012099003)(22082099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?+b/n8Baqi+201j4Y+dQgc8bFc2lRNtCmQP2s7qbDJPmfeDnXa7nkMWIIiO2+?=
- =?us-ascii?Q?hbomudAWjGGl1j+iOKZhqDCzYGT82FGDAvhEZWoKwQ3m/QxPdWdvfyMSPyUM?=
- =?us-ascii?Q?ZLhSvyMFi/Y4u/6XhBhLzIJB3RBjO1DDZgAabA/IQhVMeT15GEqn4ICfFNcS?=
- =?us-ascii?Q?EzpTN8SN4jU6vb2FYRbFtARoedLKjflxGWpGMHKgBLpYOLTF7HDDpE5B+xXP?=
- =?us-ascii?Q?5cDePlkACXrXydNEjjlHhCexWwFfpO+ziTWedWl13l10JoVgkc1a8pFZHE0V?=
- =?us-ascii?Q?xIYm6cCVi1v1z121GIg4sDwV2/DkB7qer45N0HH85oewJzVK1AOvYoL9HqWH?=
- =?us-ascii?Q?2aLTt8008v3dpgiHuvbhVLKUBCtkPMegDurqwBW8T6Vc/4LA1kBjzQADysZz?=
- =?us-ascii?Q?/ZwqFDfPFXTM6z8NzQnt6dyGH+YhF5nU57QlT5NeWkSCcfU7ewSGprK7YKGW?=
- =?us-ascii?Q?17776Sqk6FZ3iJ1zUwwAn6kzkh0xrYAKFAUEE/x7AknMeDXpb1F4hEnOwqQy?=
- =?us-ascii?Q?vBotWkqsuZE+z4JOPn6a6gx5jTUfiD1V9PQ704Xr5+UfS7JAN6d5TAQCidj1?=
- =?us-ascii?Q?MVVjNhxbvpvV/q+jHYvpI3NVgw5bDKqryYKeBqWoPNDP/FbjI5wvsKw0vwAJ?=
- =?us-ascii?Q?GxHIyVPwHUxKcIsiNRiy0fpKs0M4SqZGmIRfWkgTW/Sgr38rb5q+kvnN9iBl?=
- =?us-ascii?Q?1UspoRPPULG782wPqonm/Sky93rvk8/bAntPnLUgtevpcib/fb19GcKurofL?=
- =?us-ascii?Q?FDqaWH08NLWcTUycuPNgkRipaz77Kp4bHhaCrfJekVdWEC5LJG7A/77pW946?=
- =?us-ascii?Q?N3uzfd8NTRQ2vg4TCzili75xsB7ZWmpxgX/KqWmoqPcRkfsVk/NvzynIBSY3?=
- =?us-ascii?Q?97Ez21fCDnhcxNbZq3aswkJNJymG90OZqv0POW855WrJA2c9elRQlMesXr9f?=
- =?us-ascii?Q?my18SlmyZ4vgc5c4Y0MzejSIOowUTUzx261Y9bDTob5OsplXoh9Zy8fD2xQm?=
- =?us-ascii?Q?YPz3Exv8yN6+5anYo1RGXlDzuA2rYk/7py8A6drWDzMa4NkQ+T5mQgAsbqbz?=
- =?us-ascii?Q?VTmmIKNyDjkAsCqTvQ410d3CxWrcy8MoFi/MfhYUR36+axjKu+uhd0MDHyIy?=
- =?us-ascii?Q?WtqCpWzDf2toQkuF+jAy+gLawJR6PcHlpbZT0OCBW1nXGvmBm1JQkSbTywRC?=
- =?us-ascii?Q?aiA3giCi91XCqtwJ9415Wpuau0zziH4apzOY4NfVxzm2pAGJh2LupkyP/+Xw?=
- =?us-ascii?Q?X11k2LxK6mTXtSQOUNG95HBQ+sdS2oVvLOFpjrEfIXjWqtbaf2M2aBIdKyvI?=
- =?us-ascii?Q?fX7exW69LnT61I0MX/ZlngnhfqEbwPQKi4Q3vZ+2lWJuvDF0IRJk06N1RGm7?=
- =?us-ascii?Q?2r81spI0KHrOprBq4Ir9pMh9exrZuZxHOLAxaos3XKjPq1y3e47178W9sVrB?=
- =?us-ascii?Q?f3hf9kPuQI5DKwYOht3uxvvghaLG6a1mvUMrtAvbb7VUcFqJCTdTXskjQoge?=
- =?us-ascii?Q?VRR+H3e72cizw6t2ofQFaqOeqsi+tTqyxUDHtmrJGivbloSKekDfL18/D+9H?=
- =?us-ascii?Q?XQMag9M5cJNBWATmXsl7RPqcXVzlpydA6poo3Hna3TS5sHDLEZLrl7/J/ICM?=
- =?us-ascii?Q?4miq6pb7TcM+PTagIJorhwi1K2EKWaXV0zBeIEwdcHZt9lMd0NB8LWYJeid5?=
- =?us-ascii?Q?JnYryBombNVKBPBKaOoJlLJ4r3fykFRQDIRE1tnT4vLsP1i+?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 4213b8d7-188c-4a4c-2c33-08de90154269
-X-MS-Exchange-CrossTenant-AuthSource: LV8PR12MB9620.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Apr 2026 17:36:51.8830
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: XdgabD9h7+D709XGIK8f89EpmAHt3LadLsWER9A/KNHChSciAMKbAS2/tyj7GLou
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV3PR12MB9188
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v9 09/13] isolation: Introduce io_queue isolcpus type
+To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>,
+ Aaron Tomlin <atomlin@atomlin.com>
+Cc: axboe@kernel.dk, kbusch@kernel.org, hch@lst.de, sagi@grimberg.me,
+ mst@redhat.com, aacraid@microsemi.com,
+ James.Bottomley@hansenpartnership.com, martin.petersen@oracle.com,
+ liyihang9@h-partners.com, kashyap.desai@broadcom.com,
+ sumit.saxena@broadcom.com, shivasharan.srikanteshwara@broadcom.com,
+ chandrakanth.patil@broadcom.com, sathya.prakash@broadcom.com,
+ sreekanth.reddy@broadcom.com, suganath-prabu.subramani@broadcom.com,
+ ranjan.kumar@broadcom.com, jinpu.wang@cloud.ionos.com, tglx@kernel.org,
+ mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com,
+ vincent.guittot@linaro.org, akpm@linux-foundation.org, maz@kernel.org,
+ ruanjinjie@huawei.com, yphbchou0911@gmail.com, wagi@kernel.org,
+ frederic@kernel.org, chenridong@huawei.com, hare@suse.de, kch@nvidia.com,
+ ming.lei@redhat.com, steve@abita.co, sean@ashe.io, chjohnst@gmail.com,
+ neelx@suse.com, mproche@gmail.com, linux-block@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-nvme@lists.infradead.org, linux-scsi@vger.kernel.org,
+ megaraidlinux.pdl@broadcom.com, mpi3mr-linuxdrv.pdl@broadcom.com,
+ MPT-FusionLinux.pdl@broadcom.com
+References: <20260330221047.630206-1-atomlin@atomlin.com>
+ <20260330221047.630206-10-atomlin@atomlin.com>
+ <20260401124947.-d4D5Cr-@linutronix.de>
+From: Waiman Long <longman@redhat.com>
+In-Reply-To: <20260401124947.-d4D5Cr-@linutronix.de>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
+X-Mimecast-MFC-PROC-ID: shn3-KXo4Iqk_qD_qf03OAIzVIGkab8vfij3c87hSBg_1775070333
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Wed, Apr 01, 2026 at 05:33:28PM +0100, Robin Murphy wrote:
-> > io-pgtable might have intended to allow the driver to choose between
-> > gather or immediate flush because it passed gather to
-> > ops->tlb_add_page(), however no driver does anything with it.
-> 
-> Apart from arm-smmu-v3...
+On 4/1/26 8:49 AM, Sebastian Andrzej Siewior wrote:
+> On 2026-03-30 18:10:43 [-0400], Aaron Tomlin wrote:
+>> From: Daniel Wagner <wagi@kernel.org>
+>>
+>> Multiqueue drivers spread I/O queues across all CPUs for optimal
+>> performance. However, these drivers are not aware of CPU isolation
+>> requirements and will distribute queues without considering the isolcpus
+>> configuration.
+>>
+>> Introduce a new isolcpus mask that allows users to define which CPUs
+>> should have I/O queues assigned. This is similar to managed_irq, but
+>> intended for drivers that do not use the managed IRQ infrastructure
+> I set down and documented the behaviour of managed_irq at
+> 	https://lore.kernel.org/all/20260401110232.ET5RxZfl@linutronix.de/
+>
+> Could we please clarify whether we want to keep it and this
+> additionally or if managed_irq could be used instead. This adds another
+> bit. If networking folks jump in on managed_irqs, would they need to
+> duplicate this with their net sub flag?
 
-Bah, I did my research on the wrong tree and missed this.
+Yes, I will very much prefer to reuse an existing HK cpumask like 
+managed_irqs for this purpose, if possible, rather than adding another 
+cpumask that we need to manage. Note that we are in the process of 
+making these housekeeping cpumasks modifiable at run time in the near 
+future.
 
-> > mtk uses io-pgtable-arm-v7s but added the range to the gather in the
-> > unmap callback. Move this into the io-pgtable-arm unmap itself. That
-> > will fix all the armv7 using drivers (arm-smmu, qcom_iommu,
-> > ipmmu-vmsa).
-> 
-> io-pgtable-arm-v7s != io-pgtable-arm. You're *breaking* MTK (and failing
-> to fix the other v7s user, which is MSM).
+Cheers,
+Longman
 
-I was very confused what you were talking about, but I see now that
-the hunk adding iommu_iotlb_gather_add_range() to v7 got lost somehow!
-
-@@ -596,6 +596,9 @@ static size_t __arm_v7s_unmap(struct arm_v7s_io_pgtable *data,
- 
-                __arm_v7s_set_pte(ptep, 0, num_entries, &iop->cfg);
- 
-+               if (!iommu_iotlb_gather_queued(gather))
-+                       iommu_iotlb_gather_add_range(gather, iova, size);
-+
-                for (i = 0; i < num_entries; i++) {
-                        if (ARM_V7S_PTE_IS_TABLE(pte[i], lvl)) {
-                                /* Also flush any partial walks */
-
-> > arm-smmu uses both ARM_V7S and ARM LPAE formats. The LPAE formats
-> > already have the gather population because SMMUv3 requires it, so it
-> > becomes consistent.
-> 
-> Huh? arm-smmu-v3 invokes iommu_iotlb_gather_add_page() itself, because
-> arm-smmu-v3 uses gathers
-
-Yeah, I missed this whole bit, it needs some changes.
-
-> Invoking add range before add_page will end up defeating the
-> iommu_iotlb_gather_is_disjoint() check and making SMMUv3
-> overinvalidate between disjoint ranges.
-
-Right, that flow needs fixing.
-
-> I guess now I remember why we weren't validating gathers in core code
-> before :(
-
-My point is not filling the gather is a micro-optimization that
-benefits a few drivers. I think it is so small compared to an IOTLB
-flush that it isn't worth worrying about.
-
-So, I'd like to make everything the same and populate the gather
-correctly in all flows. I'll fix the SMMUv3 thing and lets look again,
-this patch is not so scary to make me think we shouldn't do that.
-
-> @@ -2714,6 +2714,10 @@ static size_t __iommu_unmap(struct iommu_domain *domain,
->  		pr_debug("unmapped: iova 0x%lx size 0x%zx\n",
->  			 iova, unmapped_page);
-> +		/* If the driver itself isn't using the gather, mark it used */
-> +		if (iotlb_gather->end <= iotlb_gather->start)
-> +			iommu_iotlb_gather_add_range(&iotlb_gather, iova, unmapped_page);
-
-The gathers can be joined across unmaps and now we are inviting subtly
-ill-formed gathers as only the first unmap will get included.
-
-We do have error cases where the gather is legitimately empty, and
-this would squash that, it probably needs to check unmapped_page for 0
-too, at least.
-
-Thanks,
-Jason
