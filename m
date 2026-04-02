@@ -1,165 +1,170 @@
-Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
+Received: from mail-dy1-f170.google.com (mail-dy1-f170.google.com [74.125.82.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63F1818D658
-	for <virtualization@lists.linux.dev>; Thu,  2 Apr 2026 19:22:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.47
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775157748; cv=pass; b=RgAkTh5B6W/fVDOe9ODDZ6T950C2p9eFPHs3CuPu3Ma1z812U8J3KzDAxTjqOoRkSti+9PYKdSgJHnmetHIrSlFdLwW+T76kaH1SPpc7dfP0b4SgODlpVlISdsyvUkXMGY8TpElQWbOO2QEN7oabqTtj6PFh5gdwwxu0UvnnBCU=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775157748; c=relaxed/simple;
-	bh=cQrixCzgQ4H0I5sRm31clp6klAihQ3kGYJ6qIWoBe9w=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=qPn+4X5LUEKObC4uWJjLd+ASZjSqe71PmPxabojdR1ytNpXfQ4EPbiq1VDJg8YYKGuJnp11aSbMqbXK7ngFNSrNG5tpQJofrMxr/wNlZQB61F7VMlJNtMjqxQIYbxFx82bVxkMNMk6Hg/4aL1o6HSWinhvHt5hdwCMuDYz3XS2g=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fIbWU8CU; arc=pass smtp.client-ip=209.85.208.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C17BC35F185
+	for <virtualization@lists.linux.dev>; Thu,  2 Apr 2026 20:49:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.170
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775162995; cv=none; b=qCDcuUi280OqidOc3FI/txfjLShyDngHSaJ6t3AaXJRzUVUnedGfWOhwt7HmHcNIleyVPXutZIZCO8ECkPYLA5uKz3cxKHC/klN7Wb+CPkvdXTzyA1Sqr9KznGK9p4nhvzT8CEFjHtm9bvGN/jdRp1VN2B/N8hQaRtHKKNkbvnc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775162995; c=relaxed/simple;
+	bh=/NOWjdCDjnSGtjfZ0scHtF9gHAc7SZGxwt0BAwxtaiE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=jhLDfWtvFJvpfDyYlrFw/+DLyclUjwguD3ObwvrpJOinnkfdrrYAaO6X16nMAd0xJfSLfMiYWzfNf4+qBYWm9KWd5e7iZp6Qrj5ZG5kudK0wHewjQuGbP4EBNMgyUFJb1w4Hzezp7TplUC5ZecPoYHaZMjdXpIpSnwLHKUnszgU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Kg378e2N; arc=none smtp.client-ip=74.125.82.170
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fIbWU8CU"
-Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-66e192ce6efso1736617a12.3
-        for <virtualization@lists.linux.dev>; Thu, 02 Apr 2026 12:22:27 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1775157746; cv=none;
-        d=google.com; s=arc-20240605;
-        b=k/kgpVftnu/eWXaLAaLh1C1o1P3L//d/Emm+HofS1Tk0B/Ejwi7nbeVNW5Md1R8GOK
-         idOaCiTup1CLZSOWfdaIRX82jrygR5znf9occaPDVeq5TTCdURJb6Nb+tFemQDFusc+z
-         KcKZMiuZohZ30pvJ/WzlhjulddmQs9/vVdLinPeEkLyZYV4hpBwhrAosY4S7PMFPPfEe
-         Blpo/g86Jq/TsqgSQTHG6imygOlKeqI4RZtBB+U++uJQsLhyuJRF/j3F2ThR1Cs0/yLy
-         FNhBQA6BIjtBPrHacChyrqzP9tNmnRL8D3/K8laEaCwJq9Us6tOJUfcCLPmGlfdQmYfv
-         1u0Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=cZCpjsHBmVImyRAJmholf3kR9HDLjfsy2HnHxQeXb1U=;
-        fh=LH0XHQ5VSc0M1nnnyry7/zfrHrz6qFSJIs79VQ+uic4=;
-        b=XlrFMQqHKpM+YUHd86TM+tGE7l419JiOowFa3nQEHmL6EHr9P1Cln01sogCycuZuJp
-         55aSwGwyVGgG9HPJ9DAL6zLisfnmaDUY+cDmOyPkpGyNk/lBRa0ddcYYu56WY7rvFXKB
-         80fKRjzCxBnUb2Vir6t82FxlFOxIw4q27vESsJ3RPajjBB2ef7VItN0y+rDFxVKiURbI
-         x114sS5oGCmeJK6zEMyucyGrWnCxYR2qI953Mb+vaJQg/Ds20r4D6jaRT7Mq5nNe8GbJ
-         oIGiSXWb044HWnr6U22sXyQkvRrvN2m8TQ3+5oxy5QqF4cWAbdfNbC/XE5QeTJLoYAR1
-         r60A==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Kg378e2N"
+Received: by mail-dy1-f170.google.com with SMTP id 5a478bee46e88-2cc1534e026so78616eec.1
+        for <virtualization@lists.linux.dev>; Thu, 02 Apr 2026 13:49:53 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775157746; x=1775762546; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=cZCpjsHBmVImyRAJmholf3kR9HDLjfsy2HnHxQeXb1U=;
-        b=fIbWU8CUlcoHyQlMtKX4ktgMxceFf19TuGLbPdPX1HM6YS2REmZKd87qKNNEce4I3m
-         4wH9nZr58KWtAq8UIF+x/xHOOxVLHk4hEawBgBq1wuAhCcLlRi/udVG6/tEvdXPIQaDc
-         XDEKKOSnRkVgXYCZNlIuvL1dObvWal2gWHjJk9mSiYFJX0sFlgyxMWO6uooD+zKqsPUo
-         CcWV8+j1HUUq06GTNNeE7JQbJFoU/EiVMgCNrPzhj4nrRSsyp6ojVtlzY1FssPqKlJch
-         PazA/Z1H6xoxRxh+PhlWL5u6hJOOWmmydJ40G8EVjND3wt8HXAMXH0legQqXYZUC5fxh
-         +wPw==
+        d=gmail.com; s=20251104; t=1775162993; x=1775767793; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=SNWS0mYa+ildstE8KT3uWmZVAb+dtMF6/uKnjB13/tk=;
+        b=Kg378e2NLCAnIVSdYg7iTMlIWLY+V6C0ZXBu5uve/VGarAta2YsI7ViAuLIMgTrFLv
+         ZslnHh341951asgWUj5VryObB7p4ByyT0pgmdIFOOLflDjiDque4lgpaRNzz3sPsQVwv
+         IozPZ6WsVBUgKAD02gfe9awEyHoE6W/2hqaNb/nWbgEJSVqWu8rUN8P4LubXJCM9DoFW
+         6t82NVt+R695zHD1A2NGEvRk1kJwrmE46Z3gI4ZdXAK4aKvUoG/Ehz0OWfw9vTFeNsan
+         TvQYgBf73d0NN5qc6qMB6iWf0jzq66oOPypcV+yJH/iMrwB0GDp9qBlGTLocHPeTTu2i
+         gJ8w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775157746; x=1775762546;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=cZCpjsHBmVImyRAJmholf3kR9HDLjfsy2HnHxQeXb1U=;
-        b=FyWNSU77cZnQtmLNI1LSPiPStZNKPZb3EaaPcHQT3elfhksFkMLtz3+Gp1ul/P8FKF
-         pu+0OvfN8jL5X8kBU8Aq9R6TuICLm5NiGF5qScu3zmi9oTqKfq4sZVhFlCBCiFttoqJf
-         S3huOcS8ukA4dfmM+PV00BwZemhy0HoasVcn9lAc/tUjRWoig8u52l43wUiWECJ2JxDd
-         D+z9Bx7betyUgsnRuVZozpfHk5sm60Hs5c2d+Ll/XyliUrz7mZPExnphDo2kMmsSc4wJ
-         mXemgxzsI1EIRFc+8NE0tG9xYfPcWNJpzHBchuzn0JqlYn1y3ZIg+ztes+Paw/k5TKmS
-         xxdg==
-X-Gm-Message-State: AOJu0YyXDVuRL0cWCbzyMY2A/MVCseQP/LYvIn0g99NhyW7zGn/ReYxX
-	4XJM9UgZ6g1LpD3co/455AIcW9fVp0BOjrsoJF2/5y3wn8rfBltjXoKgLXCbH4d1wHUuKsWTXkp
-	qPfh3VLJFuxqOcRNaknj9RJ9KTsmtIjA=
-X-Gm-Gg: AeBDievffbtQ1r8j2vPVzTBx46MxVpAIZqGnhsKzFnD9bAbsrxjD3YSHg00AbIG+Kaz
-	bbx72k3/r7/D6n9bNQTnr11Wyg8XLDuxiocwa87DZC5vHwiJkAuzubHZKROgVGgnsK35wM2G8bl
-	sXlylvRGKqXs9f5edJsTdAhAc1qGW/R4VK5TncsGY6XX+Xr0NbuknCVSva0RqIOCVU11g9n0zo5
-	lpY0TO4Uc+8ERPemwCGQVijt/ijufERbKtf5gNmbvTZ7UpPacKrn6o1bSBtL253bz5uqUrQlw4R
-	enNDn3DedRCLet0uHA==
-X-Received: by 2002:a05:6402:3719:b0:66c:5a46:b7fa with SMTP id
- 4fb4d7f45d1cf-66e3f2bde49mr169822a12.5.1775157745469; Thu, 02 Apr 2026
- 12:22:25 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1775162993; x=1775767793;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=SNWS0mYa+ildstE8KT3uWmZVAb+dtMF6/uKnjB13/tk=;
+        b=I4Tnxpm452VXN146AupRdk42PjxFRLdNg72s21Uuyiq0v5FyyND73KVChcXpw7ezOk
+         9m9YRy+h/TYEEVK3aK+D1P7JZDoH8Y7rqCAxK81fKG/OOoGhv/p5YkmWRyIQcc8uw1ah
+         10WfcuMWepMiAviKTHaxjIj526quOZvWPqVvNxYrLaGqhnTEuvSQMrYb+GHffweNwTTq
+         bYuoO5aoDl1SjGojMy8SBnQ+jlRNjdGVuDA2PIHlcVy9oyHM+qqqO0etKPj07dlJN/jD
+         XseRawhK/Iu6gSbL9RE1nQ4lflniRbZD71OrmHag3Ojzm7hnYwFpXSndk14vpHz3a8n/
+         5fDg==
+X-Forwarded-Encrypted: i=1; AJvYcCWLLbC0X/HEpNjuTAIV7gJEETvhtskaPNKYlFryrDyYsJlM/KCyK+ktSLPQ6+iod0G/AAZiC+DTbRxolNv4fw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywq+ANy/AqW20Dk1ncV/3IWcBKJ0VApYYPjplZCMm41+Ahq0uYe
+	Lr9WPmtbNyQSglQItiSStz07aRJ8CFMrW6AV+opjgsRlwOd4WkCey+kn
+X-Gm-Gg: AeBDietLytpWGwO1qH4nXKdH4ubWN5XlJ51eaFXwx2QojOgm0m1Pk+RtgnM5/gZl36V
+	me3ee5uJerQ+1Hzu346NJBS5jETyowLDXTp3+tUVefDo5Cj0kdkcAIRiyywPaavnBWdDOXRxuz2
+	oIW8vLhOC6kigj9GfzX9UubDSlRkD3QFqotnpcThzIz3XqmRtSU6pFKipt7CSx9g9mzj2uo98gI
+	lb3it4Nut7WD1OVTCVP5cVjJrbud72a00pjALNtJ6UeI/WLGbag6w1CkKiTd0ldyrot8A5X3LoB
+	EDfZ1NIZxJJqH5h0fzDnTjb5qfOijTzrSr4FErsP7oNqgxjxerxD9tSdexce96kJqNK+LlGjr3l
+	rXdAiE76WAF/XyxWz+evSFF1H/QM1/lrZXF9Z7+TO31fhaCfQBmng8vwywX/DnyDYFBO69Qdy2O
+	2I+Akgu92pWNHdpwXUkDt0qlWVAeB1Egm55KoQMdnh24TcQJe6ZzRm190Cdg8T
+X-Received: by 2002:a05:7300:bc86:b0:2cb:53f5:553e with SMTP id 5a478bee46e88-2cbf64ab2c5mr405861eec.0.1775162992583;
+        Thu, 02 Apr 2026 13:49:52 -0700 (PDT)
+Received: from elmini.. (c-98-42-127-152.hsd1.ca.comcast.net. [98.42.127.152])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2ca7c20c30asm3575737eec.15.2026.04.02.13.49.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 02 Apr 2026 13:49:51 -0700 (PDT)
+From: Laurence Rowe <laurencerowe@gmail.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	Laurence Rowe <laurencerowe@gmail.com>,
+	Bobby Eshleman <bobbyeshleman@meta.com>
+Subject: [PATCH net-next v2] vsock: avoid timeout for non-blocking accept() with empty backlog
+Date: Thu,  2 Apr 2026 13:49:18 -0700
+Message-ID: <20260402204918.130395-1-laurencerowe@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260402044637.73531-1-laurencerowe@gmail.com> <ac47PYPeL0IyRtY6@sgarzare-redhat>
-In-Reply-To: <ac47PYPeL0IyRtY6@sgarzare-redhat>
-From: Laurence Rowe <laurencerowe@gmail.com>
-Date: Thu, 2 Apr 2026 12:22:12 -0700
-X-Gm-Features: AQROBzB2-Dau1-MNR3xqc_SHA8HQW_z28I2FNnIn6XVrVmtXCPSjbV8KbrcIedU
-Message-ID: <CAOycyLTy=ZT0AXiwPrbEfyxX_ZZgwzaetKOqP9cNywTO1_wNZw@mail.gmail.com>
-Subject: Re: [PATCH] vsock: avoid timeout for non-blocking accept() with empty backlog
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	Bobby Eshleman <bobbyeshleman@gmail.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Thu, Apr 2, 2026 at 5:03=E2=80=AFAM Stefano Garzarella <sgarzare@redhat.=
-com> wrote:
+A common pattern in epoll network servers is to eagerly accept all
+pending connections from the non-blocking listening socket after
+epoll_wait indicates the socket is ready by calling accept in a loop
+until EAGAIN is returned indicating that the backlog is empty.
 
-> >Scheduling a timeout for a non-blocking accept with an empty backlog
-> >meant AF_VSOCK sockets used by epoll network servers incurred hundreds
-> >of microseconds of additional latency per accept loop compared to
-> >AF_INET or AF_UNIX sockets.
->
-> Not related to this patch, but should we do something similar (in
-> another patch) also in vsock_connect() or doesn't matter since usually
-> it's always blocking?
+Scheduling a timeout for a non-blocking accept with an empty backlog
+meant AF_VSOCK sockets used by epoll network servers incurred hundreds
+of microseconds of additional latency per accept loop compared to
+AF_INET or AF_UNIX sockets.
 
-Looking at vsock_connect it's not immediately obvious to me whether it
-is affected
-in the same way. I'll capture some ftraces and follow up after
-updating this patch.
+Signed-off-by: Laurence Rowe <laurencerowe@gmail.com>
+Reviewed-by: Bobby Eshleman <bobbyeshleman@meta.com>
+---
 
-> >diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> >index 2f7d94d682..483889b6d8 100644
-> >--- a/net/vmw_vsock/af_vsock.c
-> >+++ b/net/vmw_vsock/af_vsock.c
-> >@@ -1850,11 +1850,11 @@ static int vsock_accept(struct socket *sock, str=
-uct socket *newsock,
-> >        * created upon connection establishment.
-> >        */
-> >       timeout =3D sock_rcvtimeo(listener, arg->flags & O_NONBLOCK);
-> >-      prepare_to_wait(sk_sleep(listener), &wait, TASK_INTERRUPTIBLE);
-> >
-> >       while ((connected =3D vsock_dequeue_accept(listener)) =3D=3D NULL=
- &&
-> >-             listener->sk_err =3D=3D 0) {
-> >+             listener->sk_err =3D=3D 0 && timeout !=3D 0) {
-> >               release_sock(listener);
-> >+              prepare_to_wait(sk_sleep(listener), &wait, TASK_INTERRUPT=
-IBLE);
->
-> Is it okay to move prepare_to_wait() after `release_sock(listener)`?
->
-> I'm worried if we can miss any wakeup. BTW if this change is okay, we
-> should document that at least in the commit description.
+Patch v2 with feedback from Stefano Garzarella and Bobby Eshleman:
 
-I'm not sure. I'll swap them around so they are the same order as before.
+- Move prepare_to_wait before release_sock to match previous behaviour.
 
->  From checkpatch:
-> CHECK: Comparison to NULL could be written "!connected"
-> #58: FILE: net/vmw_vsock/af_vsock.c:1870:
-> +       } else if (timeout =3D=3D 0 && connected =3D=3D NULL) {
->
-> >+              err =3D -EAGAIN;
-> >+              goto out;
-> >+      }
->
-> What about simplifying this with (not a strong opinion):
->
->         } else if (connected =3D=3D NULL) {
->                 err =3D -EAGAIN;
->         }
+- Simplify not connected case.
 
-That definitely seems cleaner.
+This fixes the observed issue for me:
 
-> Also
-> https://patchwork.kernel.org/project/netdevbpf/patch/20260402044637.73531=
--1-laurencerowe@gmail.com/
-> suggests to specify a tree (net-next I think for this change) and be
-> sure to CC other maintainers (scripts/get_maintainer.pl can help).
+1. With loopback vsock on the host running Linux v6.19.10 built with
+config-6.17.0-19-generic from Ubuntu 24.04 and make olddefconfig.
 
-Sorry about that, first kernel patch submission. Will do so when I
-send the updated patch.
+2. With Firecracker guests with current torvalds/master, v6.19.10, and
+amazonlinux/microvm-kernel-6.1.166-24.303.amzn2023 used in Firecracker
+CI and examples. (Firecracker guest vsocks are unix sockets on the host
+side so this fix works there with just a fixed guest kernel.)
 
-Laurence
+I struggled to build a generic 6.1.166 kernel that worked as a
+Firecracker guest but the patch applies (conflict due to change of
+`flags` to `arg->flags` in surrounding context) so I believe it should
+work for generic v6.1.166 kernel.
+
+Alternatively a minimal version of this fix is to just wrap the
+`schedule_timeout` in an `if (timeout != 0)` but that leaves an
+unnecessary additional `lock_sock` call.
+
+There are ftrace's and reproduction tools at:
+https://github.com/lrowe/linux-vsock-accept-timeout-investigation
+---
+ net/vmw_vsock/af_vsock.c | 15 ++++++---------
+ 1 file changed, 6 insertions(+), 9 deletions(-)
+
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index e4756604d5..b8794ea0f0 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1864,10 +1864,10 @@ static int vsock_accept(struct socket *sock, struct socket *newsock,
+ 	 * created upon connection establishment.
+ 	 */
+ 	timeout = sock_rcvtimeo(listener, arg->flags & O_NONBLOCK);
+-	prepare_to_wait(sk_sleep(listener), &wait, TASK_INTERRUPTIBLE);
+ 
+ 	while ((connected = vsock_dequeue_accept(listener)) == NULL &&
+-	       listener->sk_err == 0) {
++	       listener->sk_err == 0 && timeout != 0) {
++		prepare_to_wait(sk_sleep(listener), &wait, TASK_INTERRUPTIBLE);
+ 		release_sock(listener);
+ 		timeout = schedule_timeout(timeout);
+ 		finish_wait(sk_sleep(listener), &wait);
+@@ -1876,17 +1876,14 @@ static int vsock_accept(struct socket *sock, struct socket *newsock,
+ 		if (signal_pending(current)) {
+ 			err = sock_intr_errno(timeout);
+ 			goto out;
+-		} else if (timeout == 0) {
+-			err = -EAGAIN;
+-			goto out;
+ 		}
+-
+-		prepare_to_wait(sk_sleep(listener), &wait, TASK_INTERRUPTIBLE);
+ 	}
+-	finish_wait(sk_sleep(listener), &wait);
+ 
+-	if (listener->sk_err)
++	if (listener->sk_err) {
+ 		err = -listener->sk_err;
++	} else if (!connected) {
++		err = -EAGAIN;
++	}
+ 
+ 	if (connected) {
+ 		sk_acceptq_removed(listener);
+
+base-commit: f35340f2d653f1003602878403c901396ab03c17
+-- 
+2.43.0
+
