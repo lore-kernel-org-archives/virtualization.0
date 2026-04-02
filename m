@@ -1,156 +1,99 @@
-Received: from mail-dy1-f169.google.com (mail-dy1-f169.google.com [74.125.82.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDF5B299943
-	for <virtualization@lists.linux.dev>; Thu,  2 Apr 2026 04:46:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7552138BF9E
+	for <virtualization@lists.linux.dev>; Thu,  2 Apr 2026 07:58:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775105220; cv=none; b=hso0McSul6Y/QizX12wq7ujVPBn93t/pLTWwg24srcRNBFIM46sOhum2wz3n2+uUdMXJQG16FSMh9uVbEoi6k09i/K02VFbOZ2l/967HCzmL6YLYch27TLn33PDf6um3+E2jjivrRnx7+XXqTl3C8xBvKKQwlD9hfTeQ85aDgpY=
+	t=1775116695; cv=none; b=XcFU43zjnPlDoL63xUsTxEAOe0K/LfEuyGfbMYBp68skpgQ7boWbhtU29KJURvjEnxqz8/3CgOKperW3ubbs9XtUJsG6K9a28yvB26O/Pblv6hEu8fIGwGOQWDXEBqc3l0GWWGvgAp9v955SpNnl8c9Qz9dyaAqT76c2bF6Sowg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775105220; c=relaxed/simple;
-	bh=jV5CWtutJqLa16q3x6lGkU+AgLFtOqIMJk0X4qmwhUc=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=WT3lalUcEuFcVzfe+02yFo0bzHneFrLj6HkxacIGOLdmlQIO3Exnd6wcz6n5wdfauHgBX3gq4gZ7TXhFoY7P8LfwxgBh5YEOPc+M3xeuWBnnzgP10vOHTl9zKlGtMTlsVm16LNjFMq8na+IGZLZywadvs5S2qrT9ItPkyNUXUYI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AX4k43VR; arc=none smtp.client-ip=74.125.82.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1775116695; c=relaxed/simple;
+	bh=vHibcFiXOv8GrYg6f/bqFV+bVmQHYs2HrK6rxD8gKiU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=IJJDPIsoQj65HEVmkL+LVgNjlYH8/sMdDQmV9M8Q6UtHmD+JYJMN6UgBL5MZ7U6v4I6qDGZGKeuSYp9adp6rZsoI/ZoTRvhZZPsyReN+JZPqSea66cKiim7iM7/Ie5dpf/+ppOAyIe1cIesrKjf7bO3WM2KrGp58J2WGwohtrMI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=2VGbfWPi; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=RCSzIAOv; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AX4k43VR"
-Received: by mail-dy1-f169.google.com with SMTP id 5a478bee46e88-2c87871133dso658238eec.0
-        for <virtualization@lists.linux.dev>; Wed, 01 Apr 2026 21:46:58 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775105218; x=1775710018; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=yNPRt9AdqdMzFCaTU2ZjYAQXhCSBuqIya6uWjrlqzLU=;
-        b=AX4k43VRAsVB5yZGRhPHnGuh375H5XlbrwoeU2Zx5IcmmeJeXpU2pPKs68uiNACCCM
-         7DU1yTIVlZebMqWah4xrw2xhaVghvAUZ3ZcBIaoGgkmjc69j8DkBTSKOiWeI9a6ltQbi
-         8T81cCw4Xv8IzjNmiflyUyIn7l6rPdTM2CGfof4u20Rx5RLGK5vtKhZKtisoUE/FJ/jY
-         u7Wxhg92cpXBVccnEJPp2q91RRcCScbzisJhI/qNtBOF9OCbU66sYg6FNyG6iTRsjQLM
-         a1bhE5hdnR2k33exKGiYBelPCIY3flD7WKrG4qOduv4PRuH2+j1DV3Fygung5FVS/B5E
-         GRCw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775105218; x=1775710018;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=yNPRt9AdqdMzFCaTU2ZjYAQXhCSBuqIya6uWjrlqzLU=;
-        b=EzHdFhp9eIsdjfp52eEIWBT9PVLkcwlMSU06/dqly70T1x2YrsHUYstpsgHG2V40Ol
-         C0IseDqwoJ9yBIXh587a2xQ0KkH0vsryOX8Qg1emPlq0ND1q5upSEio6SGJ4GU5QrfS7
-         L69bxdfb11DAcyqw09BQiUsYG3adVXV6T9lLDDgMrj9TwM/oYQfjuDahj9A/+GkCK4Te
-         V9ZXAEUohd5nIrzy3x2e1fBXO+yV34Tv6FB084AzN5g0iyxXdCTekZltIzeIkpFm200x
-         qRLkR9ppDJ8fQaauXCXei3odhiv1JHSNDM1e9r6lWqWvJy5tSFIIkdye0Vvzd0gnGU8+
-         r98Q==
-X-Gm-Message-State: AOJu0YwQc7EmfZmpoQqLuPq7rDbgDW4iYCzCDC6KXBzE02AgLAh0ujak
-	0KKg+xQHpt9eWP9LnOc7H7vbKwH58h2KqgE0iLpO/gf8o+3pvQkLXJzA
-X-Gm-Gg: ATEYQzyZDHQYPtqPgJeFn0aWjrwk1rXibjINmk7hak1km4lGI3JA215tvnPblEtJqcV
-	CKfi03cPCLUHX7j+BNCMBjJ0OntfNKHrpDfPYZA/B7pSHHwx+0o7jKdQM0xEaQjAv2s5dP6C+er
-	eoomtUNkTPvbzhbvqHzs+RglMmV9EoulnGYZ2Uy/Gcu4+LAAjmXjd2whb7Vy+OwjZt1pD87kMuu
-	GsteiuxoJmVX59ODY+WNs5Dq3rTg8m1KkFpbvuJWAA0MJqBaauh3P7mhOCi5TNi8aQ283yU9t26
-	xDaHqzyoGqxCckfU+VVhEUeJ4kzm69iXGXGCUpNe1mryw56a7vwch/NQ9htJGVDVDnuEm2hAaY7
-	LKYMe+s3EAyXKYgQdVNJQB5K41qE6+p7N95rdrnBQ13XDdKpcF7yOnkc8QA+uLWFBiXShd0CaR8
-	OvQrPQ41zPy/Sq9UNoR2uWlHOo8na7x9Y1ZUrBbIIxo2w6FFRV/LI9V3QAA7nU
-X-Received: by 2002:a05:7300:724b:b0:2c5:30ed:5e99 with SMTP id 5a478bee46e88-2ca8dbde026mr1140306eec.14.1775105217820;
-        Wed, 01 Apr 2026 21:46:57 -0700 (PDT)
-Received: from elmini.. (c-98-42-127-152.hsd1.ca.comcast.net. [98.42.127.152])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2ca760b0518sm1554832eec.0.2026.04.01.21.46.56
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Apr 2026 21:46:57 -0700 (PDT)
-From: Laurence Rowe <laurencerowe@gmail.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	Laurence Rowe <laurencerowe@gmail.com>
-Subject: [PATCH] vsock: avoid timeout for non-blocking accept() with empty backlog
-Date: Wed,  1 Apr 2026 21:46:37 -0700
-Message-ID: <20260402044637.73531-1-laurencerowe@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="2VGbfWPi";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="RCSzIAOv"
+Date: Thu, 2 Apr 2026 09:58:10 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1775116692;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=8ds3u4+6LAQIo5JXRSrJAOTU+FbNVAjarQWEAuaA6KI=;
+	b=2VGbfWPiuvIl7w8Nm7Vgl/McrfOt8PG119L5zLfE6KMnhE2hHWKESbQsFDcFTHLjuYKwQS
+	Wi1quhUFsXmA4k/me9cksXxi4JcuROmE6HgQDaBYkaqnq0Wb1wJZsxYt4qjmJ1hGTZJ8I7
+	8jpOs1/qSDlEVPLNCtXPo3bEM33sh4phWlQMT44Hcq3W6TyjRH5pOpeWOTdLYAhOK0zcNy
+	k+1v8X7OjaUweZYskkitoDEBSEPqj52PBfX6Xlh1DV1LziwRpHiyHBa8uWdfkyXvjb4/fJ
+	e0RUpvyouMdKCc93cNwUHYKHlGIgHDtjMpicuVtsTfY1BIxq8Y97/kuZAonMrw==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1775116692;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=8ds3u4+6LAQIo5JXRSrJAOTU+FbNVAjarQWEAuaA6KI=;
+	b=RCSzIAOvGwKMDpOL3oHmxXQbRFkbngSE2GOk9Z6lL7gUflAeNOI03DkohbZb4f4Y/KLJvz
+	vCwwY7N6gwweLsDw==
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To: Waiman Long <longman@redhat.com>
+Cc: Aaron Tomlin <atomlin@atomlin.com>, axboe@kernel.dk, kbusch@kernel.org,
+	hch@lst.de, sagi@grimberg.me, mst@redhat.com, aacraid@microsemi.com,
+	James.Bottomley@hansenpartnership.com, martin.petersen@oracle.com,
+	liyihang9@h-partners.com, kashyap.desai@broadcom.com,
+	sumit.saxena@broadcom.com, shivasharan.srikanteshwara@broadcom.com,
+	chandrakanth.patil@broadcom.com, sathya.prakash@broadcom.com,
+	sreekanth.reddy@broadcom.com, suganath-prabu.subramani@broadcom.com,
+	ranjan.kumar@broadcom.com, jinpu.wang@cloud.ionos.com,
+	tglx@kernel.org, mingo@redhat.com, peterz@infradead.org,
+	juri.lelli@redhat.com, vincent.guittot@linaro.org,
+	akpm@linux-foundation.org, maz@kernel.org, ruanjinjie@huawei.com,
+	yphbchou0911@gmail.com, wagi@kernel.org, frederic@kernel.org,
+	chenridong@huawei.com, hare@suse.de, kch@nvidia.com,
+	ming.lei@redhat.com, steve@abita.co, sean@ashe.io,
+	chjohnst@gmail.com, neelx@suse.com, mproche@gmail.com,
+	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-nvme@lists.infradead.org,
+	linux-scsi@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+	mpi3mr-linuxdrv.pdl@broadcom.com, MPT-FusionLinux.pdl@broadcom.com
+Subject: Re: [PATCH v9 09/13] isolation: Introduce io_queue isolcpus type
+Message-ID: <20260402075810.w0GVbX0Z@linutronix.de>
+References: <20260330221047.630206-1-atomlin@atomlin.com>
+ <20260330221047.630206-10-atomlin@atomlin.com>
+ <20260401124947.-d4D5Cr-@linutronix.de>
+ <5e6aa61e-0ad0-4027-bba9-cd906ab0d7e8@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <5e6aa61e-0ad0-4027-bba9-cd906ab0d7e8@redhat.com>
 
-A common pattern in epoll network servers is to eagerly accept all
-pending connections from the non-blocking listening socket after
-epoll_wait indicates the socket is ready by calling accept in a loop
-until EAGAIN is returned indicating that the backlog is empty.
+On 2026-04-01 15:05:21 [-0400], Waiman Long wrote:
+> > Could we please clarify whether we want to keep it and this
+> > additionally or if managed_irq could be used instead. This adds another
+> > bit. If networking folks jump in on managed_irqs, would they need to
+> > duplicate this with their net sub flag?
+> 
+> Yes, I will very much prefer to reuse an existing HK cpumask like
+> managed_irqs for this purpose, if possible, rather than adding another
+> cpumask that we need to manage. Note that we are in the process of making
+> these housekeeping cpumasks modifiable at run time in the near future.
 
-Scheduling a timeout for a non-blocking accept with an empty backlog
-meant AF_VSOCK sockets used by epoll network servers incurred hundreds
-of microseconds of additional latency per accept loop compared to
-AF_INET or AF_UNIX sockets.
+Now if you want to change it at run time, it would mean to reconfigure
+the interrupts, device and so on. Not sure if this useful _or_ if it
+would be "easier" to just the tell upper layer (block in case of I/O)
+not to perform any request on this CPU. Then we would have an interrupt
+on that CPU but it wouldn't do anything.
+It would only become a problem if you would have less queues than CPUs
+and you would like to migrate things.
 
-Signed-off-by: Laurence Rowe <laurencerowe@gmail.com>
----
+> Cheers,
+> Longman
 
-This fixes the observed issue for me:
-
-1. With loopback vsock on the host running Linux v6.19.10 built with
-config-6.17.0-19-generic from Ubuntu 24.04 and make olddefconfig.
-
-2. With Firecracker guests with current torvalds/master, v6.19.10, and
-amazonlinux/microvm-kernel-6.1.166-24.303.amzn2023 used in Firecracker
-CI and examples. (Firecracker guest vsocks are unix sockets on the host
-side so this fix works there with just a fixed guest kernel.)
-
-I struggled to build a generic 6.1.166 kernel that worked as a
-Firecracker guest but the patch applies (conflict due to change of
-`flags` to `arg->flags` in surrounding context) so I believe it should
-work for generic v6.1.166 kernel.
-
-Alternatively a minimal version of this fix is to just wrap the
-`schedule_timeout` in an `if (timeout != 0)` but that leaves an
-unnecessary additional `lock_sock` call.
-
-There are ftrace's and reproduction tools at:
-https://github.com/lrowe/linux-vsock-accept-timeout-investigation
----
- net/vmw_vsock/af_vsock.c | 16 +++++++---------
- 1 file changed, 7 insertions(+), 9 deletions(-)
-
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 2f7d94d682..483889b6d8 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -1850,11 +1850,11 @@ static int vsock_accept(struct socket *sock, struct socket *newsock,
- 	 * created upon connection establishment.
- 	 */
- 	timeout = sock_rcvtimeo(listener, arg->flags & O_NONBLOCK);
--	prepare_to_wait(sk_sleep(listener), &wait, TASK_INTERRUPTIBLE);
- 
- 	while ((connected = vsock_dequeue_accept(listener)) == NULL &&
--	       listener->sk_err == 0) {
-+	       listener->sk_err == 0 && timeout != 0) {
- 		release_sock(listener);
-+		prepare_to_wait(sk_sleep(listener), &wait, TASK_INTERRUPTIBLE);
- 		timeout = schedule_timeout(timeout);
- 		finish_wait(sk_sleep(listener), &wait);
- 		lock_sock(listener);
-@@ -1862,17 +1862,15 @@ static int vsock_accept(struct socket *sock, struct socket *newsock,
- 		if (signal_pending(current)) {
- 			err = sock_intr_errno(timeout);
- 			goto out;
--		} else if (timeout == 0) {
--			err = -EAGAIN;
--			goto out;
- 		}
--
--		prepare_to_wait(sk_sleep(listener), &wait, TASK_INTERRUPTIBLE);
- 	}
--	finish_wait(sk_sleep(listener), &wait);
- 
--	if (listener->sk_err)
-+	if (listener->sk_err) {
- 		err = -listener->sk_err;
-+	} else if (timeout == 0 && connected == NULL) {
-+		err = -EAGAIN;
-+		goto out;
-+	}
- 
- 	if (connected) {
- 		sk_acceptq_removed(listener);
--- 
-2.43.0
-
+Sebastian
