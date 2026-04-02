@@ -1,99 +1,124 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7552138BF9E
-	for <virtualization@lists.linux.dev>; Thu,  2 Apr 2026 07:58:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 280D31A2C0B
+	for <virtualization@lists.linux.dev>; Thu,  2 Apr 2026 08:18:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775116695; cv=none; b=XcFU43zjnPlDoL63xUsTxEAOe0K/LfEuyGfbMYBp68skpgQ7boWbhtU29KJURvjEnxqz8/3CgOKperW3ubbs9XtUJsG6K9a28yvB26O/Pblv6hEu8fIGwGOQWDXEBqc3l0GWWGvgAp9v955SpNnl8c9Qz9dyaAqT76c2bF6Sowg=
+	t=1775117890; cv=none; b=aIhJ4IRN28xuRXoEhcJwvNK6WLo6xwnPXSMyQc4isum0YMgP5HEzIY4Y/f/ns41YaLmC60YZkzY+OKM7vlEVPEmennc9c6oLsK4LIYabYu7IJb6BDT9A3yXBSDfvYrUY7EBRIB2ytklj8AHmAsc+XFneXEqRtqC9i+G7fkh0VS0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775116695; c=relaxed/simple;
-	bh=vHibcFiXOv8GrYg6f/bqFV+bVmQHYs2HrK6rxD8gKiU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=IJJDPIsoQj65HEVmkL+LVgNjlYH8/sMdDQmV9M8Q6UtHmD+JYJMN6UgBL5MZ7U6v4I6qDGZGKeuSYp9adp6rZsoI/ZoTRvhZZPsyReN+JZPqSea66cKiim7iM7/Ie5dpf/+ppOAyIe1cIesrKjf7bO3WM2KrGp58J2WGwohtrMI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=2VGbfWPi; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=RCSzIAOv; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	s=arc-20240116; t=1775117890; c=relaxed/simple;
+	bh=Gv4j5F5kmYPN2toSNOT0NUM+Ds/EorTosVmZDSuDh0M=;
+	h=From:Subject:Date:Message-Id:MIME-Version:To:Cc:Content-Type; b=d4SqqrVFOL4PpvfK2CvOwj/2dmBvsyZMDbIcmgRXWZDH2ed3hFAGQUmsSwrsVuPtFoNL33MVHc3WdPuVxU8MQY7WmHOAUyuI4ElcO0MkdYxBRKSCvWD/ATG+/wo++Zg97v2Y3tPrSSOHiRFDLHbSIAgVtb6+7mNJQBwqEfaJgQM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Dm7t+OgM; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="2VGbfWPi";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="RCSzIAOv"
-Date: Thu, 2 Apr 2026 09:58:10 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1775116692;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Dm7t+OgM"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1775117887;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=8ds3u4+6LAQIo5JXRSrJAOTU+FbNVAjarQWEAuaA6KI=;
-	b=2VGbfWPiuvIl7w8Nm7Vgl/McrfOt8PG119L5zLfE6KMnhE2hHWKESbQsFDcFTHLjuYKwQS
-	Wi1quhUFsXmA4k/me9cksXxi4JcuROmE6HgQDaBYkaqnq0Wb1wJZsxYt4qjmJ1hGTZJ8I7
-	8jpOs1/qSDlEVPLNCtXPo3bEM33sh4phWlQMT44Hcq3W6TyjRH5pOpeWOTdLYAhOK0zcNy
-	k+1v8X7OjaUweZYskkitoDEBSEPqj52PBfX6Xlh1DV1LziwRpHiyHBa8uWdfkyXvjb4/fJ
-	e0RUpvyouMdKCc93cNwUHYKHlGIgHDtjMpicuVtsTfY1BIxq8Y97/kuZAonMrw==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1775116692;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=8ds3u4+6LAQIo5JXRSrJAOTU+FbNVAjarQWEAuaA6KI=;
-	b=RCSzIAOvGwKMDpOL3oHmxXQbRFkbngSE2GOk9Z6lL7gUflAeNOI03DkohbZb4f4Y/KLJvz
-	vCwwY7N6gwweLsDw==
-From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-To: Waiman Long <longman@redhat.com>
-Cc: Aaron Tomlin <atomlin@atomlin.com>, axboe@kernel.dk, kbusch@kernel.org,
-	hch@lst.de, sagi@grimberg.me, mst@redhat.com, aacraid@microsemi.com,
-	James.Bottomley@hansenpartnership.com, martin.petersen@oracle.com,
-	liyihang9@h-partners.com, kashyap.desai@broadcom.com,
-	sumit.saxena@broadcom.com, shivasharan.srikanteshwara@broadcom.com,
-	chandrakanth.patil@broadcom.com, sathya.prakash@broadcom.com,
-	sreekanth.reddy@broadcom.com, suganath-prabu.subramani@broadcom.com,
-	ranjan.kumar@broadcom.com, jinpu.wang@cloud.ionos.com,
-	tglx@kernel.org, mingo@redhat.com, peterz@infradead.org,
-	juri.lelli@redhat.com, vincent.guittot@linaro.org,
-	akpm@linux-foundation.org, maz@kernel.org, ruanjinjie@huawei.com,
-	yphbchou0911@gmail.com, wagi@kernel.org, frederic@kernel.org,
-	chenridong@huawei.com, hare@suse.de, kch@nvidia.com,
-	ming.lei@redhat.com, steve@abita.co, sean@ashe.io,
-	chjohnst@gmail.com, neelx@suse.com, mproche@gmail.com,
-	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-nvme@lists.infradead.org,
-	linux-scsi@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-	mpi3mr-linuxdrv.pdl@broadcom.com, MPT-FusionLinux.pdl@broadcom.com
-Subject: Re: [PATCH v9 09/13] isolation: Introduce io_queue isolcpus type
-Message-ID: <20260402075810.w0GVbX0Z@linutronix.de>
-References: <20260330221047.630206-1-atomlin@atomlin.com>
- <20260330221047.630206-10-atomlin@atomlin.com>
- <20260401124947.-d4D5Cr-@linutronix.de>
- <5e6aa61e-0ad0-4027-bba9-cd906ab0d7e8@redhat.com>
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=t6mFCTOwHARpB/AAY05EQ/dyhhMmoktNcIHAMGcB1vg=;
+	b=Dm7t+OgMdQ4Wfg5ug4cdghgZ8DGPzHtltpKN0EhpcO12jf4pb4/nO08+P/4a3aIPDGsb9a
+	4pmkz2vTE1Qj4DO/AsorIs+sNbE0YFGts/duPvfbBUeMkF9stlRi0qPwzAJcVODw6CNW4n
+	AZ27i2tw+aKj1E43UR4rX2/wWn4hY74=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-370-fxuAYhO_MMKYbqbRCcUeVg-1; Thu, 02 Apr 2026 04:18:05 -0400
+X-MC-Unique: fxuAYhO_MMKYbqbRCcUeVg-1
+X-Mimecast-MFC-AGG-ID: fxuAYhO_MMKYbqbRCcUeVg_1775117884
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-43cf6758644so553397f8f.3
+        for <virtualization@lists.linux.dev>; Thu, 02 Apr 2026 01:18:05 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775117884; x=1775722684;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=t6mFCTOwHARpB/AAY05EQ/dyhhMmoktNcIHAMGcB1vg=;
+        b=broHhzWcE3ifPmikOY/Ym31iKX5GcNNDSG15PwKcaaC8/mPg7pJWWy7/3Sj614NTNe
+         khin81DSzygLhVQ96xG31Alr9/me+6eYzCO3ZCGLuoa250ZXvDocPUzWZIhNPdR8Zvs5
+         NdsUu79VeiQhQjJEIQVK8mBXG2Y5gr8x8XdtmeEuwghVhELntyC6/ARCQ6qFoMEZStgz
+         1ERDk4zIhgwns+59oJiJozETYOiN2r/ivXrrMjpACJvIjZJNa33LrkWiw8FMtQgoZUeh
+         jZvaF/Xmr4MDG30zTVmEwYZ9wA8tkoAwzV2ae7X/nxGjGQLR/HAX6yTQvqkc803OJJFw
+         LkAw==
+X-Forwarded-Encrypted: i=1; AJvYcCUIFL/P+/82GrM8Wps0ZOM3QYU48RZ+YdgVemsrvN7fgIUxmf74+2wC1DE6jagIYcntJe6ItTBs/dAvdHVsow==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzHqEN62u2mVjp4ro/YTQHdTFC2+hGeJrcm6TdHRWPTUU5Px/Ut
+	jjOihL8VyevmvCx14/CO8PI7UMq8Syyoqkp1AZ6bwjkac2mQ/R9/YRdn8YvtkbBSF4BEx3CBLwZ
+	ycR/Og5ZbM+ivGr17KsZ2e5vl0KqF62zVRvWkz0pp8Dpr86JYa1SBn8G8BDhQ1FkLRv1b
+X-Gm-Gg: ATEYQzzH0BMF8kq7qB3+mVKVXN0V4VMNRawayUOdDtMlXhoFb7ta1DwXc1kFG7gbuYM
+	GrLrPzWZca9kFs6f0QF/iiMk7IRax3dCYYdnhCkLFQGQB5Nu6uCrFJpkUwiGVGKyeO8fAsUC8yB
+	FsnZ5aqIDuhXXH/FW/9SgoA0fCVpH3Y67RyiCawGcdCoZllx9EXIiRasu3LiO9DNHVb+PvUfMAs
+	dDa+cZM4IGpaGETcRUJ1kr6tdkfaxOjsD/ZPLu8DEPKYn54yrSKzf0UlHrue54bH6ZKHUxiULIP
+	+EJCgAdFn72w36wLYPjgZmbKu9HX6Yz3XedUdVo1xo0RX0bKuuLHuduWs4sUd0kC31UPWg+cvcx
+	FOgpjxG763OQZ+8aBYeArJ8pdYVaxVdC7JOhPxg0rJDJc4V/OHB2cOjPwTreF
+X-Received: by 2002:a05:600c:45c5:b0:485:3193:6ddb with SMTP id 5b1f17b1804b1-4888356a036mr110318955e9.3.1775117884411;
+        Thu, 02 Apr 2026 01:18:04 -0700 (PDT)
+X-Received: by 2002:a05:600c:45c5:b0:485:3193:6ddb with SMTP id 5b1f17b1804b1-4888356a036mr110318555e9.3.1775117883944;
+        Thu, 02 Apr 2026 01:18:03 -0700 (PDT)
+Received: from lleonard-thinkpadx1carbongen13.rmtit.csb ([176.206.19.176])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4887e735532sm214476005e9.0.2026.04.02.01.18.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 02 Apr 2026 01:18:03 -0700 (PDT)
+From: Luigi Leonardi <leonardi@redhat.com>
+Subject: [PATCH net 0/2] vsock/virtio: fix MSG_PEEK calculation on bytes to
+ copy
+Date: Thu, 02 Apr 2026 10:18:00 +0200
+Message-Id: <20260402-fix_peek-v1-0-ad274fcef77b@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <5e6aa61e-0ad0-4027-bba9-cd906ab0d7e8@redhat.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
+ vPSU3UzU4B8JSMDIzMDEwND3bTMiviC1NRsXTMLY/MkC2MTM8tUYyWg8oKiVKAc2KhopbzUEqX
+ Y2loAioNizF8AAAA=
+X-Change-ID: 20260401-fix_peek-6837b83469e3
+To: Stefan Hajnoczi <stefanha@redhat.com>, 
+ Stefano Garzarella <sgarzare@redhat.com>, 
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Simon Horman <horms@kernel.org>, 
+ Arseniy Krasnov <avkrasnov@salutedevices.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev, 
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Luigi Leonardi <leonardi@redhat.com>
+X-Mailer: b4 0.14.2
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: zMoqzr54WyYGV1TzgyRFMrKukUZXlQHMOEGWuu95cpk_1775117884
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 
-On 2026-04-01 15:05:21 [-0400], Waiman Long wrote:
-> > Could we please clarify whether we want to keep it and this
-> > additionally or if managed_irq could be used instead. This adds another
-> > bit. If networking folks jump in on managed_irqs, would they need to
-> > duplicate this with their net sub flag?
-> 
-> Yes, I will very much prefer to reuse an existing HK cpumask like
-> managed_irqs for this purpose, if possible, rather than adding another
-> cpumask that we need to manage. Note that we are in the process of making
-> these housekeeping cpumasks modifiable at run time in the near future.
+`virtio_transport_stream_do_peek`, when calculating the number of bytes to copy,
+didn't consider the `offset`, caused by partial reads that happend before.
+This might cause out-of-bounds read that lead to an EFAULT.
+More details in the commit.
 
-Now if you want to change it at run time, it would mean to reconfigure
-the interrupts, device and so on. Not sure if this useful _or_ if it
-would be "easier" to just the tell upper layer (block in case of I/O)
-not to perform any request on this CPU. Then we would have an interrupt
-on that CPU but it wouldn't do anything.
-It would only become a problem if you would have less queues than CPUs
-and you would like to migrate things.
+Commit 1 introduces the fix
+Commit 2 introduces a test that checks for this bug to avoid future
+regressions.
 
-> Cheers,
-> Longman
+Signed-off-by: Luigi Leonardi <leonardi@redhat.com>
+---
+Luigi Leonardi (2):
+      vsock/virtio: fix MSG_PEEK ignoring skb offset when calculating bytes to copy
+      vsock/test: add MSG_PEEK after partial recv test
 
-Sebastian
+ net/vmw_vsock/virtio_transport_common.c |  5 ++-
+ tools/testing/vsock/vsock_test.c        | 64 +++++++++++++++++++++++++++++++++
+ 2 files changed, 66 insertions(+), 3 deletions(-)
+---
+base-commit: 9147566d801602c9e7fc7f85e989735735bf38ba
+change-id: 20260401-fix_peek-6837b83469e3
+
+Best regards,
+-- 
+Luigi Leonardi <leonardi@redhat.com>
+
