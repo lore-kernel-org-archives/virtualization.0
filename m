@@ -1,134 +1,167 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9CCB93A4538
-	for <virtualization@lists.linux.dev>; Thu,  2 Apr 2026 08:18:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 444F53750CC
+	for <virtualization@lists.linux.dev>; Thu,  2 Apr 2026 09:09:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775117893; cv=none; b=Jo60vHsn9sTvkf17jz3xJybaLo2yrMYvD/yEt18D27pm4MrGKN8HfogjnOzAuZax5lLFzlBojtOMu/OhrqYKg6BlEX0iBmYVPHl8RR/e7CneI9KyF/lpjFbnTKqlkQaieWR48BlQPvjTaSVZ8LiN6LJXzqfUZqi56z9HiMlxc+M=
+	t=1775120986; cv=none; b=ny8ZI4m5RBTZKvSFtG6kgGhEhlmUQLGslxe7FacW3tUwrF1msyKH0h0WTnyXojBxlbXOnL7vavGvIocI0L/z9PzK0fP+up0uifohS9I9SIWL9V4w0oiA2sPvuoiShWVP4g0Y0UcUBCWX7Tf10Kfqzm1r7vMENwOZkld7C3ngCZg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775117893; c=relaxed/simple;
-	bh=7RbGQyRVtd3iDjWPPVgXBB7W0hDbsWzu7x3oEX7DOMs=;
-	h=From:Date:Subject:MIME-Version:Message-Id:References:In-Reply-To:
-	 To:Cc:Content-Type; b=dD4wjM/4bWVBELTx5Fku7hnRUVrDo2muOlNry5KIBFNuGHya0gZJAijavc0RT/E1/C5ldl6j6iF80oSRdVZB7of8z91Js0KvzTtt7/ToE+YyOLO/pWOz4NvUjXT++AWTSgXIwoDreDO1jPsQwBwLV3SijxKKyvfWpFZJWFK+reg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Pn98l8Ws; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1775120986; c=relaxed/simple;
+	bh=TuGik8RXHnYMOBFzZzJ8Z1EDIzIDUfS6hJtG0TBgUfg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=c4xWkYc3k5d9MnE855FKFcaFZbCZ/K3qCUCZrymcCWJa/QnCXhM5sD9M2hR9zmMVZv+SdLbnWDkR22xuAGc410Cu3CyT9kdfylWWQMvS9UYrJglp5tQcBO4zbWNCPjIkeiE7Rn4cbZdthVfUdvyu8VxPqYHmwxSpnmdRvJqGr90=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=odde0n62; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=jWPcQeev; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Pn98l8Ws"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1775117890;
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="odde0n62";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="jWPcQeev"
+Date: Thu, 2 Apr 2026 11:09:40 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1775120983;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=O0i0CiAjjC2o5qhUUVNqS3NUjJfokP7K8K/WQ+tgiCw=;
-	b=Pn98l8WsgDJrBBlBEHfMvGQHi3vCY22S3ibszjMxk3GVsYRc3BiKnuoYE+LVBIG9Cfo3qs
-	ChH6Io9DPtYgLtKJ08uyUru48bk3It4+mUEsEiiBgBw8y02WEanLPCdkIUPdhrR1gYCpQ1
-	hjeFDR0UTmA/hcJzqgyRAmSBx4VGozA=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-266-BW7hwmpwNnW7mSeYy9TynQ-1; Thu, 02 Apr 2026 04:18:07 -0400
-X-MC-Unique: BW7hwmpwNnW7mSeYy9TynQ-1
-X-Mimecast-MFC-AGG-ID: BW7hwmpwNnW7mSeYy9TynQ_1775117886
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4887d32788bso4267495e9.0
-        for <virtualization@lists.linux.dev>; Thu, 02 Apr 2026 01:18:07 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775117886; x=1775722686;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=O0i0CiAjjC2o5qhUUVNqS3NUjJfokP7K8K/WQ+tgiCw=;
-        b=RTM+phsMsY2cdI6IAdIFqolGTRp+wLuec+sqWNwDdzS8GQXO4BJad2iBbgUyoYlANH
-         vaSaocbXB99hpbaJEyIRl0HH0MdIEm+iV2C6ILQ89vYEn5MGk1CUSUElN2sXkXzFenEW
-         xwYpjEWbVpErRnAi7DeNEJMlErlV58BrZgUiv0p3bJ1O8xTyYi/Lol0zRXZETHTlj7gJ
-         bMzQfl+fr8b2hMHsrettK4a03+WZSB0f6dTQ0vqO10AbVFEvXAQBscba8EOmxG6ANp7H
-         wpbFl6aX+kdtBhGDFJtVqRrJtMCejzHIcSHk3xuy1SzxIK+s5Qgk2yudBJ2kKLXhemix
-         bSpA==
-X-Forwarded-Encrypted: i=1; AJvYcCVF3FIG+10q1+Bo5z8qJUXgfL0zUxUfzk/QyNYlWGIQWd0nQVbiL6io22CX/3xU2Ke6O3UJQ3JF/9uTMdE0hw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzyR1DEEu7EoyV+4Q/LxFrvwhKrNelfmg5Q1U7pABWYwfo1s/kp
-	9oSJol8Ij5Nx3/WhBHCMiOLPLk7aW3A8QFT1pDWq3t3p8BS3zUeeFT3xoohgUBkU153iFiaWOIn
-	jokBTzdqpkeb0WqPM0rrFGUGW3dWx6qjuhdI2Z2xrlfWFK7sLvX1sqfDa2o6oXPLDzndU
-X-Gm-Gg: ATEYQzwaG9q2WWQV0DZB2x4Crpw73G88yEwemZt20eZ0AK74XTFvsi8yBhQaCgrTRsL
-	hyE53zKVARUcwCzqHgku2eaAo1hNBdHYQ/k831LaodYStimL7mB1VrHkP8xKx7mZO56yzK/ZvJ7
-	DN9F8w4xHeEhjJBYB9qSwcV2I/QKmg8wT/DoKG18uS6O0VshlouPbR0CDHxdIxUx955Yf6QH/Xy
-	jVZyT62jYJNurLGs0pC+y3Kn6/WM7hUSrLfMS2LzvyehD9WpIa64GqorJ1z6wpb9y3OZ3qshvKK
-	Mqu/wpKFof0AKBjnftQgTpIKiLjO10S6x35piojtPYHFQPSPUN6jj76hgtwzvSSFawziX4PaRfk
-	nirJg98tDHtMWH7QNpAkhrIL7hkvfNLFVspLJ0Y36NJqK1PhdpdI40EQGYLbB
-X-Received: by 2002:a05:600c:b99:b0:485:3f1c:d8a4 with SMTP id 5b1f17b1804b1-4888b70fbdemr38341105e9.9.1775117886258;
-        Thu, 02 Apr 2026 01:18:06 -0700 (PDT)
-X-Received: by 2002:a05:600c:b99:b0:485:3f1c:d8a4 with SMTP id 5b1f17b1804b1-4888b70fbdemr38340675e9.9.1775117885762;
-        Thu, 02 Apr 2026 01:18:05 -0700 (PDT)
-Received: from lleonard-thinkpadx1carbongen13.rmtit.csb ([176.206.19.176])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4887e735532sm214476005e9.0.2026.04.02.01.18.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Apr 2026 01:18:04 -0700 (PDT)
-From: Luigi Leonardi <leonardi@redhat.com>
-Date: Thu, 02 Apr 2026 10:18:01 +0200
-Subject: [PATCH net 1/2] vsock/virtio: fix MSG_PEEK ignoring skb offset
- when calculating bytes to copy
+	bh=fwrBn0MM36ml3NMuCzWd/m89P37wcag8vmF/9UbXMcQ=;
+	b=odde0n62hjn9LZuq2B/dNwt9vUJZXCyajd+XWvOnXWmMaFGfXUE69bDf4leWPam241E+Uo
+	+t41Oorwn99laL8GawIlMBvyPAbCTIGh0H2AUKz00FIWozPRG019it7jkX8/Ire+WLTsc+
+	MGkmMskasKYO/5jh4zdm0Wc6bePiqfI/eNq2qyPIjv8eEvy984XIYnxDEKDs9rnmXk1o0w
+	pa2PYrA1InqHqmCkp/yzbOh8y1YPrIPL9sWcgxzyrS4uoVYs81UxfG3u+yPmEHirc/pDRo
+	jHZqmkz992BIVJYTKebOathyOPxUjscWc4RX4+zhXMHAcUsxLoHvYJo8zu+hMA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1775120983;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=fwrBn0MM36ml3NMuCzWd/m89P37wcag8vmF/9UbXMcQ=;
+	b=jWPcQeevqgP+QitjhXQzSifCfojusGMWduLoSkX24XZKzhrOV1MXsOOvAlCQ9Xy22O+9/K
+	7W5PFVNeWP3iKtBw==
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To: Aaron Tomlin <atomlin@atomlin.com>
+Cc: axboe@kernel.dk, kbusch@kernel.org, hch@lst.de, sagi@grimberg.me,
+	mst@redhat.com, aacraid@microsemi.com,
+	James.Bottomley@hansenpartnership.com, martin.petersen@oracle.com,
+	liyihang9@h-partners.com, kashyap.desai@broadcom.com,
+	sumit.saxena@broadcom.com, shivasharan.srikanteshwara@broadcom.com,
+	chandrakanth.patil@broadcom.com, sathya.prakash@broadcom.com,
+	sreekanth.reddy@broadcom.com, suganath-prabu.subramani@broadcom.com,
+	ranjan.kumar@broadcom.com, jinpu.wang@cloud.ionos.com,
+	tglx@kernel.org, mingo@redhat.com, peterz@infradead.org,
+	juri.lelli@redhat.com, vincent.guittot@linaro.org,
+	akpm@linux-foundation.org, maz@kernel.org, ruanjinjie@huawei.com,
+	yphbchou0911@gmail.com, wagi@kernel.org, frederic@kernel.org,
+	longman@redhat.com, chenridong@huawei.com, hare@suse.de,
+	kch@nvidia.com, ming.lei@redhat.com, steve@abita.co, sean@ashe.io,
+	chjohnst@gmail.com, neelx@suse.com, mproche@gmail.com,
+	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-nvme@lists.infradead.org,
+	linux-scsi@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+	mpi3mr-linuxdrv.pdl@broadcom.com, MPT-FusionLinux.pdl@broadcom.com
+Subject: Re: [PATCH v9 09/13] isolation: Introduce io_queue isolcpus type
+Message-ID: <20260402090940.5j0WmVX_@linutronix.de>
+References: <20260330221047.630206-1-atomlin@atomlin.com>
+ <20260330221047.630206-10-atomlin@atomlin.com>
+ <20260401124947.-d4D5Cr-@linutronix.de>
+ <c7phvlvohdn2ksc2jymxk5foolwlqaqq2jzcdv7oic4uzomh3j@yjimbwcnnst3>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Message-Id: <20260402-fix_peek-v1-1-ad274fcef77b@redhat.com>
-References: <20260402-fix_peek-v1-0-ad274fcef77b@redhat.com>
-In-Reply-To: <20260402-fix_peek-v1-0-ad274fcef77b@redhat.com>
-To: Stefan Hajnoczi <stefanha@redhat.com>, 
- Stefano Garzarella <sgarzare@redhat.com>, 
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Simon Horman <horms@kernel.org>, 
- Arseniy Krasnov <avkrasnov@salutedevices.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev, 
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Luigi Leonardi <leonardi@redhat.com>
-X-Mailer: b4 0.14.2
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Pl40-iajA4vP9GYKLcnSMnADl4RVbXfFz6Xs27Zaq8Q_1775117886
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <c7phvlvohdn2ksc2jymxk5foolwlqaqq2jzcdv7oic4uzomh3j@yjimbwcnnst3>
 
-`virtio_transport_stream_do_peek()` does not account for the skb offset
-when computing the number of bytes to copy.
+On 2026-04-01 16:58:22 [-0400], Aaron Tomlin wrote:
+> Hi Sebastian,
+Hi,
 
-This means that, after a partial recv() that advances the offset, a peek
-requesting more bytes than are available in the sk_buff causes
-`skb_copy_datagram_iter()` to go past the valid payload, resulting in a -EFAULT.
+> Thank you for taking the time to document the "managed_irq" behaviour; it
+> is immensely helpful. You raise a highly pertinent point regarding the
+> potential proliferation of "isolcpus=" flags. It is certainly a situation
+> that must be managed carefully to prevent every subsystem from demanding
+> its own bit.
+> 
+> To clarify the reasoning behind introducing "io_queue" rather than strictly
+> relying on managed_irq:
+> 
+> The managed_irq flag belongs firmly to the interrupt subsystem. It dictates
+> whether a CPU is eligible to receive hardware interrupts whose affinity is
+> managed by the kernel. Whilst many modern block drivers use managed IRQs,
+> the block layer multi-queue mapping encompasses far more than just
+> interrupt routing. It maps logical queues to CPUs to handle I/O submission,
+> software queues, and crucially, poll queues, which do not utilise
+> interrupts at all. Furthermore, there are specific drivers that do not use
+> the managed IRQ infrastructure but still rely on the block layer for queue
+> distribution.
 
-The dequeue path already handles this correctly.
-Apply the same logic to the peek path.
+Could you tell block which queue maps to which CPU at /sys/block/$$/mq/
+level? Then you have one queue going to one CPU.
+Then the drive could request one or more interrupts managed or not. For
+managed you could specify a CPU mask which you desire to occupy.
+You have the case where
+- you have more queues than CPUs
+  - use all of them
+  - use less
+- less queues than CPUs
+  - mapped a queue to more than once CPU in case it goes down or becomes
+    not available
+  - mapped to one CPU
 
-Fixes: 0df7cd3c13e4 ("vsock/virtio/vhost: read data from non-linear skb")
-Signed-off-by: Luigi Leonardi <leonardi@redhat.com>
----
- net/vmw_vsock/virtio_transport_common.c | 5 ++---
- 1 file changed, 2 insertions(+), 3 deletions(-)
+Ideally you solve this at one level so that the device(s) can request
+less queues than CPUs if told so without patching each and every driver.
 
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index 8a9fb23c6e853dfea0a24d3787f7d6eb351dd6c6..4b65bfe5d875111f115e0fc4c6727adb66f34830 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -547,9 +547,8 @@ virtio_transport_stream_do_peek(struct vsock_sock *vsk,
- 	skb_queue_walk(&vvs->rx_queue, skb) {
- 		size_t bytes;
- 
--		bytes = len - total;
--		if (bytes > skb->len)
--			bytes = skb->len;
-+		bytes = min_t(size_t, len - total,
-+			      skb->len - VIRTIO_VSOCK_SKB_CB(skb)->offset);
- 
- 		spin_unlock_bh(&vvs->rx_lock);
- 
+This should give you the freedom to isolate CPUs, decide at boot time
+which CPUs get I/O queues assigned. At run time you can tell which
+queues go to which CPUs. If you shutdown a queue, the interrupt remains
+but does not get any I/O requests assigned so no problem. If the CPU
+goes down, same thing.
 
--- 
-2.53.0
+I am trying to come up with a design here which I haven't found so far.
+But I might be late to the party and everyone else is fully aware.
 
+> If managed_irq were solely relied upon, the IRQ subsystem would
+> successfully keep hardware interrupts off the isolated CPUs, but the block
+
+The managed_irqs can't be influence by userland. The CPUs are auto
+distributed.
+
+> layer would still blindly map polling queues or non-managed queues to those
+> same isolated CPUs. This would force isolated CPUs to process I/O
+> submissions or handle polling tasks, thereby breaking the strict isolation.
+> 
+> Regarding the point about the networking subsystem, it is a very valid
+> comparison. If the networking layer wishes to respect isolcpus in the
+> future, adding a net flag would indeed exacerbate the bit proliferation.
+
+Networking could also have different cases like adding a RX filter and
+having HW putting packet based on it in a dedicated queue. But also in
+this case I would like to have the freedome to decide which isolated
+CPUs should receive interrupts/ traffic and which don't.
+
+> For the present time, retaining io_queue seems the most prudent approach to
+> ensure that block queue mapping remains semantically distinct from
+> interrupt delivery. This provides an immediate and clean architectural
+> boundary. However, if the consensus amongst the maintainers suggests that
+> this is too granular, alternative approaches could certainly be considered
+> for the future. For instance, a broader, more generic flag could be
+> introduced to encompass both block and future networking queue mappings.
+> Alternatively, if semantic conflation is deemed acceptable, the existing
+> managed_irq housekeeping mask could simply be overloaded within the block
+> layer to restrict all queue mappings.
+> 
+> Keeping the current separation appears to be the cleanest solution for this
+> series, but your thoughts, and those of the wider community, on potentially
+> migrating to a consolidated generic flag in the future would be very much
+> welcomed.
+
+I just don't like introducing yet another boot argument, making it a
+boot constraint while in my naive view this could be managed at some
+degree via sysfs as suggested above.
+
+> 
+> Kind regards,
+
+Sebastian
