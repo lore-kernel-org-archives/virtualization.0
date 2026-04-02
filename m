@@ -1,167 +1,165 @@
-Received: from foss.arm.com (foss.arm.com [217.140.110.172])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 3DE6A1A01BE;
-	Thu,  2 Apr 2026 18:11:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775153485; cv=none; b=lc9Wum67FQfRPa2LNdCuRckQTbp9AQbr1gHUbGSiWsXkhmYtE0nBiKU4d4lscBPrwjK720CEKPMVZdgYQm6rX60PEeRJD3HsaNLJD4kN83T7SriOGnogNB7VVCwbBlM8DCZAqO7pUK2jBXoHP8aJotAlCHSgq6Z85CkFrb4KnfE=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775153485; c=relaxed/simple;
-	bh=lWwySeUuucnSqrRMaEssqv+qa77TPxUWW5jml+8ovZo=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=aOYzszcQfBEDSDOnHAAG+nBE4NvmXa/78h3MRcuSOnB/cCbvDlFYBSjch4mI64hJP/TictWXBI56ZIvSQb/oljWTKHpodYDEooVlJSPJCaz5AB6HpbEKnkpGcepXPuAlQJykBaF2i2bz6oO6+QyXcOI8eGnmtYSDUfFjuvb9xh8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=nI+zbstn; arc=none smtp.client-ip=217.140.110.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
+Received: from mail-ed1-f47.google.com (mail-ed1-f47.google.com [209.85.208.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 63F1818D658
+	for <virtualization@lists.linux.dev>; Thu,  2 Apr 2026 19:22:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.47
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775157748; cv=pass; b=RgAkTh5B6W/fVDOe9ODDZ6T950C2p9eFPHs3CuPu3Ma1z812U8J3KzDAxTjqOoRkSti+9PYKdSgJHnmetHIrSlFdLwW+T76kaH1SPpc7dfP0b4SgODlpVlISdsyvUkXMGY8TpElQWbOO2QEN7oabqTtj6PFh5gdwwxu0UvnnBCU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775157748; c=relaxed/simple;
+	bh=cQrixCzgQ4H0I5sRm31clp6klAihQ3kGYJ6qIWoBe9w=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=qPn+4X5LUEKObC4uWJjLd+ASZjSqe71PmPxabojdR1ytNpXfQ4EPbiq1VDJg8YYKGuJnp11aSbMqbXK7ngFNSrNG5tpQJofrMxr/wNlZQB61F7VMlJNtMjqxQIYbxFx82bVxkMNMk6Hg/4aL1o6HSWinhvHt5hdwCMuDYz3XS2g=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fIbWU8CU; arc=pass smtp.client-ip=209.85.208.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="nI+zbstn"
-Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
-	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id 978AE1570;
-	Thu,  2 Apr 2026 11:11:16 -0700 (PDT)
-Received: from [10.57.75.194] (unknown [10.57.75.194])
-	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 0787B3F915;
-	Thu,  2 Apr 2026 11:11:15 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
-	t=1775153482; bh=lWwySeUuucnSqrRMaEssqv+qa77TPxUWW5jml+8ovZo=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=nI+zbstndSHKJ/mynYHRuC64m8Z4xHAi45TXEjGH5rMJxTMtKiuXxjyjbxLarmMYn
-	 hXXkhX8l35nrPiZyzp+ZgYDe4uw+iI8Bv/L+f2xWNIa+OiQyxnU8y+avrnVGEPKVGX
-	 +wUG0AxZTOalhJkOHOlwae27JD/n0ccdlbnChrhg=
-Message-ID: <ec51ef14-e360-43a6-ae62-44a939ec8027@arm.com>
-Date: Thu, 2 Apr 2026 19:11:13 +0100
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fIbWU8CU"
+Received: by mail-ed1-f47.google.com with SMTP id 4fb4d7f45d1cf-66e192ce6efso1736617a12.3
+        for <virtualization@lists.linux.dev>; Thu, 02 Apr 2026 12:22:27 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1775157746; cv=none;
+        d=google.com; s=arc-20240605;
+        b=k/kgpVftnu/eWXaLAaLh1C1o1P3L//d/Emm+HofS1Tk0B/Ejwi7nbeVNW5Md1R8GOK
+         idOaCiTup1CLZSOWfdaIRX82jrygR5znf9occaPDVeq5TTCdURJb6Nb+tFemQDFusc+z
+         KcKZMiuZohZ30pvJ/WzlhjulddmQs9/vVdLinPeEkLyZYV4hpBwhrAosY4S7PMFPPfEe
+         Blpo/g86Jq/TsqgSQTHG6imygOlKeqI4RZtBB+U++uJQsLhyuJRF/j3F2ThR1Cs0/yLy
+         FNhBQA6BIjtBPrHacChyrqzP9tNmnRL8D3/K8laEaCwJq9Us6tOJUfcCLPmGlfdQmYfv
+         1u0Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=cZCpjsHBmVImyRAJmholf3kR9HDLjfsy2HnHxQeXb1U=;
+        fh=LH0XHQ5VSc0M1nnnyry7/zfrHrz6qFSJIs79VQ+uic4=;
+        b=XlrFMQqHKpM+YUHd86TM+tGE7l419JiOowFa3nQEHmL6EHr9P1Cln01sogCycuZuJp
+         55aSwGwyVGgG9HPJ9DAL6zLisfnmaDUY+cDmOyPkpGyNk/lBRa0ddcYYu56WY7rvFXKB
+         80fKRjzCxBnUb2Vir6t82FxlFOxIw4q27vESsJ3RPajjBB2ef7VItN0y+rDFxVKiURbI
+         x114sS5oGCmeJK6zEMyucyGrWnCxYR2qI953Mb+vaJQg/Ds20r4D6jaRT7Mq5nNe8GbJ
+         oIGiSXWb044HWnr6U22sXyQkvRrvN2m8TQ3+5oxy5QqF4cWAbdfNbC/XE5QeTJLoYAR1
+         r60A==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1775157746; x=1775762546; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=cZCpjsHBmVImyRAJmholf3kR9HDLjfsy2HnHxQeXb1U=;
+        b=fIbWU8CUlcoHyQlMtKX4ktgMxceFf19TuGLbPdPX1HM6YS2REmZKd87qKNNEce4I3m
+         4wH9nZr58KWtAq8UIF+x/xHOOxVLHk4hEawBgBq1wuAhCcLlRi/udVG6/tEvdXPIQaDc
+         XDEKKOSnRkVgXYCZNlIuvL1dObvWal2gWHjJk9mSiYFJX0sFlgyxMWO6uooD+zKqsPUo
+         CcWV8+j1HUUq06GTNNeE7JQbJFoU/EiVMgCNrPzhj4nrRSsyp6ojVtlzY1FssPqKlJch
+         PazA/Z1H6xoxRxh+PhlWL5u6hJOOWmmydJ40G8EVjND3wt8HXAMXH0legQqXYZUC5fxh
+         +wPw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775157746; x=1775762546;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=cZCpjsHBmVImyRAJmholf3kR9HDLjfsy2HnHxQeXb1U=;
+        b=FyWNSU77cZnQtmLNI1LSPiPStZNKPZb3EaaPcHQT3elfhksFkMLtz3+Gp1ul/P8FKF
+         pu+0OvfN8jL5X8kBU8Aq9R6TuICLm5NiGF5qScu3zmi9oTqKfq4sZVhFlCBCiFttoqJf
+         S3huOcS8ukA4dfmM+PV00BwZemhy0HoasVcn9lAc/tUjRWoig8u52l43wUiWECJ2JxDd
+         D+z9Bx7betyUgsnRuVZozpfHk5sm60Hs5c2d+Ll/XyliUrz7mZPExnphDo2kMmsSc4wJ
+         mXemgxzsI1EIRFc+8NE0tG9xYfPcWNJpzHBchuzn0JqlYn1y3ZIg+ztes+Paw/k5TKmS
+         xxdg==
+X-Gm-Message-State: AOJu0YyXDVuRL0cWCbzyMY2A/MVCseQP/LYvIn0g99NhyW7zGn/ReYxX
+	4XJM9UgZ6g1LpD3co/455AIcW9fVp0BOjrsoJF2/5y3wn8rfBltjXoKgLXCbH4d1wHUuKsWTXkp
+	qPfh3VLJFuxqOcRNaknj9RJ9KTsmtIjA=
+X-Gm-Gg: AeBDievffbtQ1r8j2vPVzTBx46MxVpAIZqGnhsKzFnD9bAbsrxjD3YSHg00AbIG+Kaz
+	bbx72k3/r7/D6n9bNQTnr11Wyg8XLDuxiocwa87DZC5vHwiJkAuzubHZKROgVGgnsK35wM2G8bl
+	sXlylvRGKqXs9f5edJsTdAhAc1qGW/R4VK5TncsGY6XX+Xr0NbuknCVSva0RqIOCVU11g9n0zo5
+	lpY0TO4Uc+8ERPemwCGQVijt/ijufERbKtf5gNmbvTZ7UpPacKrn6o1bSBtL253bz5uqUrQlw4R
+	enNDn3DedRCLet0uHA==
+X-Received: by 2002:a05:6402:3719:b0:66c:5a46:b7fa with SMTP id
+ 4fb4d7f45d1cf-66e3f2bde49mr169822a12.5.1775157745469; Thu, 02 Apr 2026
+ 12:22:25 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] iommu: Always fill in gather when unmapping
-To: Jason Gunthorpe <jgg@nvidia.com>
-Cc: Alexandre Ghiti <alex@ghiti.fr>,
- AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
- Albert Ou <aou@eecs.berkeley.edu>, asahi@lists.linux.dev,
- Baolin Wang <baolin.wang@linux.alibaba.com>, iommu@lists.linux.dev,
- Janne Grunau <j@jannau.net>, Jernej Skrabec <jernej.skrabec@gmail.com>,
- Joerg Roedel <joro@8bytes.org>, Jean-Philippe Brucker <jpb@kernel.org>,
- linux-arm-kernel@lists.infradead.org, linux-mediatek@lists.infradead.org,
- linux-riscv@lists.infradead.org, linux-sunxi@lists.linux.dev,
- Matthias Brugger <matthias.bgg@gmail.com>, Neal Gompa <neal@gompa.dev>,
- Orson Zhai <orsonzhai@gmail.com>, Palmer Dabbelt <palmer@dabbelt.com>,
- Paul Walmsley <pjw@kernel.org>, Samuel Holland <samuel@sholland.org>,
- Sven Peter <sven@kernel.org>, virtualization@lists.linux.dev,
- Chen-Yu Tsai <wens@kernel.org>, Will Deacon <will@kernel.org>,
- Yong Wu <yong.wu@mediatek.com>, Chunyan Zhang <zhang.lyra@gmail.com>,
- Lu Baolu <baolu.lu@linux.intel.com>,
- Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>,
- Joerg Roedel <joerg.roedel@amd.com>, Jon Hunter <jonathanh@nvidia.com>,
- patches@lists.linux.dev, Samiullah Khawaja <skhawaja@google.com>,
- stable@vger.kernel.org, Vasant Hegde <vasant.hegde@amd.com>
-References: <0-v1-664d3acaabb9+78b-iommu_gather_always_jgg@nvidia.com>
- <ee2c2044-e329-4cdd-ac35-9365824d3677@arm.com>
- <20260401173650.GD310919@nvidia.com>
-From: Robin Murphy <robin.murphy@arm.com>
-Content-Language: en-GB
-In-Reply-To: <20260401173650.GD310919@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+References: <20260402044637.73531-1-laurencerowe@gmail.com> <ac47PYPeL0IyRtY6@sgarzare-redhat>
+In-Reply-To: <ac47PYPeL0IyRtY6@sgarzare-redhat>
+From: Laurence Rowe <laurencerowe@gmail.com>
+Date: Thu, 2 Apr 2026 12:22:12 -0700
+X-Gm-Features: AQROBzB2-Dau1-MNR3xqc_SHA8HQW_z28I2FNnIn6XVrVmtXCPSjbV8KbrcIedU
+Message-ID: <CAOycyLTy=ZT0AXiwPrbEfyxX_ZZgwzaetKOqP9cNywTO1_wNZw@mail.gmail.com>
+Subject: Re: [PATCH] vsock: avoid timeout for non-blocking accept() with empty backlog
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	Bobby Eshleman <bobbyeshleman@gmail.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 2026-04-01 6:36 pm, Jason Gunthorpe wrote:
-> On Wed, Apr 01, 2026 at 05:33:28PM +0100, Robin Murphy wrote:
->>> io-pgtable might have intended to allow the driver to choose between
->>> gather or immediate flush because it passed gather to
->>> ops->tlb_add_page(), however no driver does anything with it.
->>
->> Apart from arm-smmu-v3...
-> 
-> Bah, I did my research on the wrong tree and missed this.
-> 
->>> mtk uses io-pgtable-arm-v7s but added the range to the gather in the
->>> unmap callback. Move this into the io-pgtable-arm unmap itself. That
->>> will fix all the armv7 using drivers (arm-smmu, qcom_iommu,
->>> ipmmu-vmsa).
->>
->> io-pgtable-arm-v7s != io-pgtable-arm. You're *breaking* MTK (and failing
->> to fix the other v7s user, which is MSM).
-> 
-> I was very confused what you were talking about, but I see now that
-> the hunk adding iommu_iotlb_gather_add_range() to v7 got lost somehow!
-> 
-> @@ -596,6 +596,9 @@ static size_t __arm_v7s_unmap(struct arm_v7s_io_pgtable *data,
->   
->                  __arm_v7s_set_pte(ptep, 0, num_entries, &iop->cfg);
->   
-> +               if (!iommu_iotlb_gather_queued(gather))
-> +                       iommu_iotlb_gather_add_range(gather, iova, size);
-> +
->                  for (i = 0; i < num_entries; i++) {
->                          if (ARM_V7S_PTE_IS_TABLE(pte[i], lvl)) {
->                                  /* Also flush any partial walks */
-> 
->>> arm-smmu uses both ARM_V7S and ARM LPAE formats. The LPAE formats
->>> already have the gather population because SMMUv3 requires it, so it
->>> becomes consistent.
->>
->> Huh? arm-smmu-v3 invokes iommu_iotlb_gather_add_page() itself, because
->> arm-smmu-v3 uses gathers
-> 
-> Yeah, I missed this whole bit, it needs some changes.
-> 
->> Invoking add range before add_page will end up defeating the
->> iommu_iotlb_gather_is_disjoint() check and making SMMUv3
->> overinvalidate between disjoint ranges.
-> 
-> Right, that flow needs fixing.
-> 
->> I guess now I remember why we weren't validating gathers in core code
->> before :(
-> 
-> My point is not filling the gather is a micro-optimization that
-> benefits a few drivers. I think it is so small compared to an IOTLB
-> flush that it isn't worth worrying about.
+On Thu, Apr 2, 2026 at 5:03=E2=80=AFAM Stefano Garzarella <sgarzare@redhat.=
+com> wrote:
 
-It's hardly a "micro-optimisation" for drivers to just not touch an 
-optional mechanism which offers no benefit to them, especially when in 
-many cases said mechanism is newer than the code that isn't using it 
-anyway. The only required semantic of .iotlb_sync is to ensure that any 
-previous .unmap_pages calls are complete and their associated 
-translations invalidated. The entire concept of gathering and deferred 
-invalidation is irrelevant to many IOMMU designs where it would only 
-stand to make overall invalidation performance worse.
+> >Scheduling a timeout for a non-blocking accept with an empty backlog
+> >meant AF_VSOCK sockets used by epoll network servers incurred hundreds
+> >of microseconds of additional latency per accept loop compared to
+> >AF_INET or AF_UNIX sockets.
+>
+> Not related to this patch, but should we do something similar (in
+> another patch) also in vsock_connect() or doesn't matter since usually
+> it's always blocking?
 
-I'm starting to wish I'd been able to page all this context back in 
-before reviewing the first patch, as I too only really had Intel and 
-SMMUv3 in mind at the time... :(
+Looking at vsock_connect it's not immediately obvious to me whether it
+is affected
+in the same way. I'll capture some ftraces and follow up after
+updating this patch.
 
-> So, I'd like to make everything the same and populate the gather
-> correctly in all flows. I'll fix the SMMUv3 thing and lets look again,
-> this patch is not so scary to make me think we shouldn't do that.
-> 
->> @@ -2714,6 +2714,10 @@ static size_t __iommu_unmap(struct iommu_domain *domain,
->>   		pr_debug("unmapped: iova 0x%lx size 0x%zx\n",
->>   			 iova, unmapped_page);
->> +		/* If the driver itself isn't using the gather, mark it used */
->> +		if (iotlb_gather->end <= iotlb_gather->start)
->> +			iommu_iotlb_gather_add_range(&iotlb_gather, iova, unmapped_page);
-> 
-> The gathers can be joined across unmaps and now we are inviting subtly
-> ill-formed gathers as only the first unmap will get included.
+> >diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+> >index 2f7d94d682..483889b6d8 100644
+> >--- a/net/vmw_vsock/af_vsock.c
+> >+++ b/net/vmw_vsock/af_vsock.c
+> >@@ -1850,11 +1850,11 @@ static int vsock_accept(struct socket *sock, str=
+uct socket *newsock,
+> >        * created upon connection establishment.
+> >        */
+> >       timeout =3D sock_rcvtimeo(listener, arg->flags & O_NONBLOCK);
+> >-      prepare_to_wait(sk_sleep(listener), &wait, TASK_INTERRUPTIBLE);
+> >
+> >       while ((connected =3D vsock_dequeue_accept(listener)) =3D=3D NULL=
+ &&
+> >-             listener->sk_err =3D=3D 0) {
+> >+             listener->sk_err =3D=3D 0 && timeout !=3D 0) {
+> >               release_sock(listener);
+> >+              prepare_to_wait(sk_sleep(listener), &wait, TASK_INTERRUPT=
+IBLE);
+>
+> Is it okay to move prepare_to_wait() after `release_sock(listener)`?
+>
+> I'm worried if we can miss any wakeup. BTW if this change is okay, we
+> should document that at least in the commit description.
 
-Ill-formed? It's a perfectly valid range for the purposes of any 
-subsequent generic check - which couldn't realistically be anything 
-beyond empty vs. non-empty anyway - and it's only being set at all in 
-the case where we know the driver doesn't care, because if the driver 
-*was* going to look at gather->start or gather->end in its .iotlb_sync 
-then it must have already set them to meaningful values in the prior 
-successful .unmap_pages call. I think we can safely consider it invalid 
-for a driver to suddenly decide to start using a gather mid-way through 
-an unmap (or indeed to use start/end in any intentionally non-obvious 
-manner either).
+I'm not sure. I'll swap them around so they are the same order as before.
 
-> We do have error cases where the gather is legitimately empty, and
-> this would squash that, it probably needs to check unmapped_page for 0
-> too, at least.
+>  From checkpatch:
+> CHECK: Comparison to NULL could be written "!connected"
+> #58: FILE: net/vmw_vsock/af_vsock.c:1870:
+> +       } else if (timeout =3D=3D 0 && connected =3D=3D NULL) {
+>
+> >+              err =3D -EAGAIN;
+> >+              goto out;
+> >+      }
+>
+> What about simplifying this with (not a strong opinion):
+>
+>         } else if (connected =3D=3D NULL) {
+>                 err =3D -EAGAIN;
+>         }
 
-Maybe try looking at the rest of the code around these lines...
+That definitely seems cleaner.
 
-Thanks,
-Robin.
+> Also
+> https://patchwork.kernel.org/project/netdevbpf/patch/20260402044637.73531=
+-1-laurencerowe@gmail.com/
+> suggests to specify a tree (net-next I think for this change) and be
+> sure to CC other maintainers (scripts/get_maintainer.pl can help).
+
+Sorry about that, first kernel patch submission. Will do so when I
+send the updated patch.
+
+Laurence
