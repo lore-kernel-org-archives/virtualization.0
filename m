@@ -1,107 +1,164 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from PH0PR06CU001.outbound.protection.outlook.com (mail-westus3azon11011045.outbound.protection.outlook.com [40.107.208.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BC8931B803;
-	Thu,  2 Apr 2026 21:58:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775167107; cv=none; b=k0KTnsXAl0U1zEWJXPFqqxg/0Ps3JXPapOn3I1EGDoeKTvF9US/PyIfdG+xpLI7tvChHd36X2Tl7BxvkXQId6eqjJ0CvRUFjBPnNvmh0R8aT2gMib5ftcekYMyYcmiA1YqUefTFMScCkjx1iMYXus6GRMr0nosElGxpPdOE0UK0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775167107; c=relaxed/simple;
-	bh=QvUc9vANqYsb1luDp8UYk1f8BqkeVaTMVXLV75eutnQ=;
-	h=Date:From:To:cc:Subject:In-Reply-To:Message-ID:References:
-	 MIME-Version:Content-Type; b=DVJp2RZb27ELpuSXbKU4Hp/Y6oxtY4GVZi+hvh0cGpfFqwLi3iiECU8FkXW3LsP2E4BFa3lHd7gKiNOQi5H6gIaKO0hKHraIz2ZSgvjaY8pL8Nj3ueFJ33XzKXy8KKHzyLjplHoEp/PCfYJu8MKrJG/teYDsTZ/J1SYs3fWx0zQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=KBJzCsq7; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 842F41A9F82;
+	Thu,  2 Apr 2026 22:51:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.208.45
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775170289; cv=fail; b=lnujaeEJLioZepEoq6OPd/5+KOQKBQcivjpK14WgJQwfIBdWj7hf1wiRKeL3vYGtBTF35dhmWKseNK54EnfUbDC+PI2QHLwn3ZlSZHZcH+A3aGkpQFDrtI1T3AJWOaFsJf2O97UVx6COkxkEIYYgS9b6cJWpJYpflk+f8DTHxNQ=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775170289; c=relaxed/simple;
+	bh=cK4tDRRK9TbJHDetDlOCIkvesIUlvfxYenDoApXr7XA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=YTlmbH2295S2LPXEyk3Ef+1l9Zx1QRYX6TxczZVT1z5H2wsMX7FaRkzpU0hzIiJUKKeyhKzcNdRHAlEr9vqKLW4TkU1FNuEXL1daALc+A7rkpVu6vMaArBaEGuxZ3T80egLltOTZgjZ9oIubbYG8Kz/8RblPxyhaPAmJZBwQkjE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=SHbWMUQa; arc=fail smtp.client-ip=40.107.208.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="KBJzCsq7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 76D96C116C6;
-	Thu,  2 Apr 2026 21:58:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775167106;
-	bh=QvUc9vANqYsb1luDp8UYk1f8BqkeVaTMVXLV75eutnQ=;
-	h=Date:From:To:cc:Subject:In-Reply-To:References:From;
-	b=KBJzCsq7TNcgHpU+TWPAd3W8YuuJXdgpviR9Ow38UzYp/E+eDMYCQdUq5+04/Mnru
-	 vF8yruBgH9Kqoxj3RdUA00tDQnEgnr1qE7AXbmqG7qka9IVu/f1eZKTg86JWT+ETrn
-	 TjxI1jdECoYVYFvAydaPvhTr0DLyOkSNS0rHhfEWArmmkmeciwTpFwX+5aQHpstoUl
-	 foXfbAlUvknuR2UINHvJ3kK1f5ozCCWUSVy6PFFL3eEN4gpoDz+keSHvFP6Ep2zvPe
-	 Ej2doeiB7lotVTyVy6ov80wS5IsFWdnGSH4WR6z1XJ7lBV9TObDwXGWdYhpggyK3MT
-	 1b1VbHt8uneOw==
-Date: Thu, 2 Apr 2026 15:58:18 -0600 (MDT)
-From: Paul Walmsley <pjw@kernel.org>
-To: Yury Norov <ynorov@nvidia.com>
-cc: Andrew Morton <akpm@linux-foundation.org>, 
-    "David S. Miller" <davem@davemloft.net>, 
-    "Michael S. Tsirkin" <mst@redhat.com>, Theodore Ts'o <tytso@mit.edu>, 
-    Albert Ou <aou@eecs.berkeley.edu>, Alexander Duyck <alexanderduyck@fb.com>, 
-    Alexander Gordeev <agordeev@linux.ibm.com>, 
-    Alexander Viro <viro@zeniv.linux.org.uk>, 
-    Alexandra Winter <wintera@linux.ibm.com>, 
-    Andreas Dilger <adilger.kernel@dilger.ca>, 
-    Andrew Lunn <andrew+netdev@lunn.ch>, Anna Schumaker <anna@kernel.org>, 
-    Anton Yakovlev <anton.yakovlev@opensynergy.com>, 
-    Arnaldo Carvalho de Melo <acme@kernel.org>, 
-    Aswin Karuvally <aswin@linux.ibm.com>, Borislav Petkov <bp@alien8.de>, 
-    Carlos Maiolino <cem@kernel.org>, 
-    Catalin Marinas <catalin.marinas@arm.com>, Chao Yu <chao@kernel.org>, 
-    Christian Borntraeger <borntraeger@linux.ibm.com>, 
-    Christian Brauner <brauner@kernel.org>, 
-    Claudio Imbrenda <imbrenda@linux.ibm.com>, 
-    Dave Hansen <dave.hansen@linux.intel.com>, 
-    David Airlie <airlied@gmail.com>, 
-    Dominique Martinet <asmadeus@codewreck.org>, 
-    Dongsheng Yang <dongsheng.yang@linux.dev>, 
-    Eric Dumazet <edumazet@google.com>, 
-    Eric Van Hensbergen <ericvh@kernel.org>, 
-    Heiko Carstens <hca@linux.ibm.com>, 
-    Herbert Xu <herbert@gondor.apana.org.au>, Ingo Molnar <mingo@redhat.com>, 
-    Jaegeuk Kim <jaegeuk@kernel.org>, Jakub Kicinski <kuba@kernel.org>, 
-    Jani Nikula <jani.nikula@linux.intel.com>, 
-    Janosch Frank <frankja@linux.ibm.com>, Jaroslav Kysela <perex@perex.cz>, 
-    Jens Axboe <axboe@kernel.dk>, 
-    Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, 
-    Latchesar Ionkov <lucho@ionkov.net>, Linus Walleij <linusw@kernel.org>, 
-    Madhavan Srinivasan <maddy@linux.ibm.com>, Mark Brown <broonie@kernel.org>, 
-    Michael Ellerman <mpe@ellerman.id.au>, Miklos Szeredi <miklos@szeredi.hu>, 
-    Namhyung Kim <namhyung@kernel.org>, Palmer Dabbelt <palmer@dabbelt.com>, 
-    Paolo Abeni <pabeni@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>, 
-    Paul Walmsley <pjw@kernel.org>, Peter Zijlstra <peterz@infradead.org>, 
-    Rodrigo Vivi <rodrigo.vivi@intel.com>, 
-    Sean Christopherson <seanjc@google.com>, Simona Vetter <simona@ffwll.ch>, 
-    Takashi Iwai <tiwai@suse.com>, Thomas Gleixner <tglx@kernel.org>, 
-    Trond Myklebust <trondmy@kernel.org>, 
-    Tvrtko Ursulin <tursulin@ursulin.net>, Vasily Gorbik <gor@linux.ibm.com>, 
-    Will Deacon <will@kernel.org>, Yury Norov <yury.norov@gmail.com>, 
-    Zheng Gu <cengku@gmail.com>, linux-kernel@vger.kernel.org, x86@kernel.org, 
-    linux-arm-kernel@lists.infradead.org, linuxppc-dev@lists.ozlabs.org, 
-    linux-riscv@lists.infradead.org, kvm@vger.kernel.org, 
-    linux-s390@vger.kernel.org, linux-block@vger.kernel.org, 
-    intel-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org, 
-    dm-devel@lists.linux.dev, netdev@vger.kernel.org, 
-    linux-spi@vger.kernel.org, linux-ext4@vger.kernel.org, 
-    linux-f2fs-devel@lists.sourceforge.net, linux-fsdevel@vger.kernel.org, 
-    linux-xfs@vger.kernel.org, linux-nfs@vger.kernel.org, 
-    linux-crypto@vger.kernel.org, linux-mm@kvack.org, 
-    linux-perf-users@vger.kernel.org, v9fs@lists.linux.dev, 
-    virtualization@lists.linux.dev, linux-sound@vger.kernel.org
-Subject: Re: [PATCH 8/8] arch: use rest_of_page() macro where appropriate
-In-Reply-To: <20260304012717.201797-9-ynorov@nvidia.com>
-Message-ID: <ee15482d-22a8-9686-ba64-d216b25d8e68@kernel.org>
-References: <20260304012717.201797-1-ynorov@nvidia.com> <20260304012717.201797-9-ynorov@nvidia.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="SHbWMUQa"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=ZiKxVrtLMfCdDFXUZZ3DUiOdBqPp97ZTsoJxDRRiaP/faj+hnrj/+VtNhPb2hKOU3MT/h0j22s7necyZyTOSx+pO6x+0NcOk2flRhvuvx4hK7QVsyxEhivzBaGJ1Z2VSgVJURz4esK+Y6wWcJMM3hZKtE8NCvTV9pdhrwb//1zIuRVTFqoAfdQ8c7Yo2p/nRdpNrvKxQmnZU5ZxsRcWrskRQW1g+xLOgJ0BgV1ft4TJm/3EfQIiYvwLtBoo/8jdl7AI4eZJP6BxbkzzCpIN6oyX6sJP/vZFKDIHO+8mJWt2DrtH1pEx9b1CtpzARU9A+MaQmVmSv/pGICdJmbIMMYw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=VarKxQRAOJ2T6r0hSi82fUvx4NYmx/qXeUrp4a7LC4w=;
+ b=A1ppFKr4nU5Vj/qjf97iVpRm6Dq2VwJEj2MnT+pcpbjn6xm+pTiQb7PXzM4wk7ETijve/DC6HTWGNraKVphioye/qbYkeB/xj/1I+VpoTCy1CmO+vYscEK2bOD0Z4P/Op+n3i1U05diwMkKhMqpvcJMtcX7DFVmHEOeLg/qCa2touPpNwgegI8z2V0JvBTO+tWVhORYSpxh6o4CYx8+cVc3I9+U/SMTY1/vn6/dv57FHGrBVNgekm7ttTHpM7r1yTBeSkCkXCAzKy3dWFlY06cmsiiDZcj2ePcsgWOEeCMsPnJGRBDsoeEL7ihfQf13+YtO2ipSmCiD8+yTjKjsgYA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=VarKxQRAOJ2T6r0hSi82fUvx4NYmx/qXeUrp4a7LC4w=;
+ b=SHbWMUQaKQYPIBO/up9JE5PcNqlrxgKIWxxrgdYQbKya+Gh5gQwzOorak+aGltG9Cih2FKtBzDu+sNdUH/6l4Ag/FYXi1uJ10wcwnJwCBXhUpS1SRO8cXLUN3MIUdSKId880nDIcPiN2FWak2+cHJ+9MFwX69xJhMlYH33qPTAlIXi6PMyJ96B+5ed2DsiSc1nE6tW/qOVG1BYG9ll8ti4xs30NQUjqugcR7UBbSbzHlKVuHSgywxVFXQpN70KmEoTDGTnBXOydQ324SR4Rmis//lmj3DbnikcblowWFS8q/GliZ4CiR3pV2hBhC2vVq2OCqueLRrNODY6ZGbpPU1Q==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from LV8PR12MB9620.namprd12.prod.outlook.com (2603:10b6:408:2a1::19)
+ by MN2PR12MB4341.namprd12.prod.outlook.com (2603:10b6:208:262::24) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9769.20; Thu, 2 Apr
+ 2026 22:51:23 +0000
+Received: from LV8PR12MB9620.namprd12.prod.outlook.com
+ ([fe80::299d:f5e0:3550:1528]) by LV8PR12MB9620.namprd12.prod.outlook.com
+ ([fe80::299d:f5e0:3550:1528%5]) with mapi id 15.20.9769.017; Thu, 2 Apr 2026
+ 22:51:23 +0000
+Date: Thu, 2 Apr 2026 19:51:21 -0300
+From: Jason Gunthorpe <jgg@nvidia.com>
+To: Robin Murphy <robin.murphy@arm.com>
+Cc: Alexandre Ghiti <alex@ghiti.fr>,
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+	Albert Ou <aou@eecs.berkeley.edu>, asahi@lists.linux.dev,
+	Baolin Wang <baolin.wang@linux.alibaba.com>, iommu@lists.linux.dev,
+	Janne Grunau <j@jannau.net>,
+	Jernej Skrabec <jernej.skrabec@gmail.com>,
+	Joerg Roedel <joro@8bytes.org>,
+	Jean-Philippe Brucker <jpb@kernel.org>,
+	linux-arm-kernel@lists.infradead.org,
+	linux-mediatek@lists.infradead.org, linux-riscv@lists.infradead.org,
+	linux-sunxi@lists.linux.dev,
+	Matthias Brugger <matthias.bgg@gmail.com>,
+	Neal Gompa <neal@gompa.dev>, Orson Zhai <orsonzhai@gmail.com>,
+	Palmer Dabbelt <palmer@dabbelt.com>, Paul Walmsley <pjw@kernel.org>,
+	Samuel Holland <samuel@sholland.org>, Sven Peter <sven@kernel.org>,
+	virtualization@lists.linux.dev, Chen-Yu Tsai <wens@kernel.org>,
+	Will Deacon <will@kernel.org>, Yong Wu <yong.wu@mediatek.com>,
+	Chunyan Zhang <zhang.lyra@gmail.com>,
+	Lu Baolu <baolu.lu@linux.intel.com>,
+	Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>,
+	Joerg Roedel <joerg.roedel@amd.com>,
+	Jon Hunter <jonathanh@nvidia.com>, patches@lists.linux.dev,
+	Samiullah Khawaja <skhawaja@google.com>, stable@vger.kernel.org,
+	Vasant Hegde <vasant.hegde@amd.com>
+Subject: Re: [PATCH] iommu: Always fill in gather when unmapping
+Message-ID: <20260402225121.GI310919@nvidia.com>
+References: <0-v1-664d3acaabb9+78b-iommu_gather_always_jgg@nvidia.com>
+ <ee2c2044-e329-4cdd-ac35-9365824d3677@arm.com>
+ <20260401173650.GD310919@nvidia.com>
+ <ec51ef14-e360-43a6-ae62-44a939ec8027@arm.com>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <ec51ef14-e360-43a6-ae62-44a939ec8027@arm.com>
+X-ClientProxiedBy: YT4PR01CA0412.CANPRD01.PROD.OUTLOOK.COM
+ (2603:10b6:b01:10b::11) To LV8PR12MB9620.namprd12.prod.outlook.com
+ (2603:10b6:408:2a1::19)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: LV8PR12MB9620:EE_|MN2PR12MB4341:EE_
+X-MS-Office365-Filtering-Correlation-Id: f8063a5d-23df-4a4f-cd30-08de910a5cc1
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|376014|7416014|1800799024|366016|18002099003|56012099003|22082099003;
+X-Microsoft-Antispam-Message-Info:
+	LQ0iqyWq+OZzBq/Kh7OYSQ/H+kNFSr9BE4y9lHAQuuNJAiE71Y492BmtVlnMhkY4BHaJKRlmDAQ5OJBg7jud7DF6TJlab10cH4bJ38A+1Uy+D/Jfac//l47eK4UFatzpd4t0SK1Mtqf/eDuiM8ZD8JHNdpMpSa5gNskwHb3zYRVYcaVEKkNdQsVKggqrJLv1sjEBOt8GrCLPKNSFTfT+zr35MZh/oDgUn9CLRAsWUnUPmNRETHxtsypspxf97r6hhTBZUxpS5OGLlvh+g051WOb0xnPAZufJaK38SILI83JAy2x6jfmdB/N8SBLT9nPr6zJSP6VGHQiZ6IXXedUDoFEiPhIlnvNgeF74UEIxLLlZ3Xa0p84w0OQ/YLtD/Nz7kdpRB0QPYN+btHrsmOHb2KB6cTF6T2UoAOKUQOA+NU+P/l1T4dpS63S/i47dnNtkDmFX2AgUgbdARfLplsWt8Zzv7jXLN4dunT7uGdvbc1+kGCNcSxadXfIzCZsMYiIDRp6Y4l8zpvGlUFwni+1fsqMxDq07tKsBSJ6TMgV/vQusnGtSdEAG8sn99pDVtLfOYAGw22FvRhdxVvuYZXlsUtMcHErtLzjgp++DS+xU7167869AHMMLMLWr3DLfxmj3hqkUPOM75bGB4D9ubTWjRAmC9joe4gG61dICvcSbv67iVUzNv5Jb/IFVq2Hla4dcfkq1bG/FPbVh8tGsLBMz+cy+GdIC7l+0/J0C0UXRCiA=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV8PR12MB9620.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(1800799024)(366016)(18002099003)(56012099003)(22082099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?cobql2wOA85oOqv7eTqFUbYr2f7++offO0mBvU0c308Vol83H5HjMbtaabke?=
+ =?us-ascii?Q?SYJt+lpGfURjIfRC9tHLT1QJpmKsz72VeNIHIRkIRC0kSsZ2+g5uglWoDusI?=
+ =?us-ascii?Q?GtvyCPFELlAppnw0i9Me5s82iI17QGIuAw7IuacNoTFZGqxj3H0fS+KSIQk0?=
+ =?us-ascii?Q?4mfqpRlVVQvt80mT74jlQRLFJXKg9iR5AszsVK9jOiybBO38CYwuDll0WDoo?=
+ =?us-ascii?Q?rIxG2T5cgvm5vlihhA4CynLdF5tEVtW696o9Y/TH5+epvBVUG8i7BevGEcsK?=
+ =?us-ascii?Q?LQubXWVF9j382fqsA+3RrtVYY4tkMiXGb2u8RVxMyPTYwzkwgmAtjDeFloH1?=
+ =?us-ascii?Q?2+z5hiKlmhgRVW4fAPC7QSU58OQ7E1GkWy2nkUJ0pk61qMiOUFPcnnfinRGy?=
+ =?us-ascii?Q?gN2lz0eV0rk6+wiCn+/Dc5gFl3SeAOUxq+nIibSQJQOQ/LxMUS4X7o0OMKap?=
+ =?us-ascii?Q?FLTJS6AO8VDvIriBHa1eUqSIELpKIeSFyBGZ0cLRLopBI6liPNbhlBPo9O1D?=
+ =?us-ascii?Q?e43dTh4g8zbzOys2vwIFojXkeEMfgkwULpnpTPp9SjS0yn47nmsd8WqRqFKW?=
+ =?us-ascii?Q?f0pPOyo7q+NO7sr6dUfG0fEQd/4SdyXyfJuEmNYNxDyh3t4I5tW8iHL8HzKF?=
+ =?us-ascii?Q?qZmgToQj6Qb2eic9vsnhaUu+BxpVWvHT0yOteZhDrfjonnC0HDXv4Xs2T0xR?=
+ =?us-ascii?Q?XjP5bK6EG1jwn1JT+EOdj2WrcyKvsPJ7IiQeaPRQjChcuGb84XEgm+FZwFLf?=
+ =?us-ascii?Q?7uje9+ZwyQK4WVpd0z4ewbiYL7NfVZU/MZj+hEboMvaqOtuYPrZwvP1Etnqo?=
+ =?us-ascii?Q?7wOBr1vfv80Irx4TiJ0+9Y9boLd2YbLqTdYHnL3x+t+nh/wUr21BWy4q9XVt?=
+ =?us-ascii?Q?vIXbmnP2Jp/T8TsdoZx53wV6KRlf8PWHkJw5s52x6PRRKnqbckoh8dieXW84?=
+ =?us-ascii?Q?PcVBUB2HUyXsJXgSb9coy2E5v8DNW4OWouROcurqWaGk/N0g9ClcPkbHKHUt?=
+ =?us-ascii?Q?Z1yRGnNSINy6H6G26zxB/GsD2T4AksJXUnZjbda0Di6TjTHmw7+9z3rxVU3o?=
+ =?us-ascii?Q?kuRJRU1yuh+lajHWOD4H0vpxJCzLTrscqiKa2h7K/KF0QQyRtC+qdyTxQk3u?=
+ =?us-ascii?Q?PyxeS7I2iY6SlGBSZAt17ueGUcRcqf1fUDWX4cFc4xet3M/JHc7ha8q6BuZf?=
+ =?us-ascii?Q?f+3calHo4m+EAtTQDBFKXQZfAJ8NbzzHCfU27Wpf78T0lV8yaOVMBKFOOaHI?=
+ =?us-ascii?Q?n32FfftLoz1f7+hfRXUFq2xdYloRwNAffbl0Yd9++U8yvAhabrVt8je/bamq?=
+ =?us-ascii?Q?vuLO4HL8+O3/uzZJq+XHeYrRTZngHTICd0gK+R6sJtw6Oq4oJfjzgIrFvtum?=
+ =?us-ascii?Q?M6gLCc/lH5qeREPO+NinMgcctDTQgP+bwdpxXLlDivE8zwtNN4nC1p9aw2Ay?=
+ =?us-ascii?Q?y6ozzzD/4MW8C60i4cgj9HYTQpyUqwGQU2CYFNkYMMnxKNXhFJl33e/cka7F?=
+ =?us-ascii?Q?F5Ze173NLKilJHS7eMDuSEiXt+rIMTjDDJyUhNWNx7beVa3z+jsy+H7JlSfR?=
+ =?us-ascii?Q?DBvZymhSvsrXkUKOFSmvX87bJAB2dIWSGZ8BpBwNXmz1wsyoq0nZEhkDKF2I?=
+ =?us-ascii?Q?0Qf02/gl+04YDMVEzHHkt+/th71KiD/jNqN8z9C4m1gJ7psL+DafK/Zijqr4?=
+ =?us-ascii?Q?sUndc/whFrh+FtjHJy4X70lwt8WCBsGNYmhzX3kKi8QVtzUt?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: f8063a5d-23df-4a4f-cd30-08de910a5cc1
+X-MS-Exchange-CrossTenant-AuthSource: LV8PR12MB9620.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Apr 2026 22:51:22.6660
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: +bw76KTwxE4EBlcAgILyD7N4SDvV79AZ40vMl5IVNKz9LDDyFfpmJYt18Rb2F6fW
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4341
 
-On Tue, 3 Mar 2026, Yury Norov wrote:
+On Thu, Apr 02, 2026 at 07:11:13PM +0100, Robin Murphy wrote:
+> > > @@ -2714,6 +2714,10 @@ static size_t __iommu_unmap(struct iommu_domain *domain,
+> > >   		pr_debug("unmapped: iova 0x%lx size 0x%zx\n",
+> > >   			 iova, unmapped_page);
+> > > +		/* If the driver itself isn't using the gather, mark it used */
+> > > +		if (iotlb_gather->end <= iotlb_gather->start)
+> > > +			iommu_iotlb_gather_add_range(&iotlb_gather, iova, unmapped_page);
+> > 
+> > The gathers can be joined across unmaps and now we are inviting subtly
+> > ill-formed gathers as only the first unmap will get included.
 
-> Switch arch code to using the macro. No functional changes intended.
+> > We do have error cases where the gather is legitimately empty, and
+> > this would squash that, it probably needs to check unmapped_page for 0
+> > too, at least.
 > 
-> Signed-off-by: Yury Norov <ynorov@nvidia.com>
+> Maybe try looking at the rest of the code around these lines...
 
-Acked-by: Paul Walmsley <pjw@kernel.org> # arch/riscv
+Okay, well lets do this one, do you want to send it since it is your
+idea?
 
-
-- Paul
+Jason
