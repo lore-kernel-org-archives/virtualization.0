@@ -1,179 +1,163 @@
-Received: from PH7PR06CU001.outbound.protection.outlook.com (mail-westus3azon11010053.outbound.protection.outlook.com [52.101.201.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com [209.85.128.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 086513F0AA3;
-	Thu,  2 Apr 2026 16:51:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.201.53
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775148697; cv=fail; b=Xz+MY9P8GQQlgav16Mhklc9zqZMS/MG+XVRW0biAsJqFZdy03a7L2n2x7pyBaPVXGtPV/B7TB93IzOGETZGUnJpt/XrELiqZPNUthbf54+zEh3PZNhmia5qXJugl/QgaAfL/ZcuczdDuVTvgjLRc6CSecfJEFJdhpmtDOyehstg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775148697; c=relaxed/simple;
-	bh=5wVxDKSI8dIeJDQd13lwYInamtzVRF476Ri78XCc2BY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=Fov7cJgnXv6FuaPbM/7xONtUFlBd+8dc/eE3XzRVFqz6gg/92nXnG3/mAOqU74DQPJ4sZGpacXJhhCxDCh5HPKNSUn3JDqVQidPd6ymA+ESZ/+5PFG+ue99SJK2BoF53TjaVMFULDboanAe3W6rmM+vPZxObtNi/zelh/fPikqw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=fQDyJAqS; arc=fail smtp.client-ip=52.101.201.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C13E36C5AC
+	for <virtualization@lists.linux.dev>; Thu,  2 Apr 2026 17:19:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.175
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1775150386; cv=none; b=ZRX5QniEWxXVi8YiyldtC4zeqTKlAmG5BlRywKMhafzH39zgUqfiW6jKVoRZaXS9xpEtWlU2CioDVw/wcKtjC5ilJV8o+pIRel5L+bnDrGJIKtgWFt1YdFoPyV1ubrn6JBAMuZSn54Y7KGKMvZyP+v6r+KokPKzZfc1A+rPc1hE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1775150386; c=relaxed/simple;
+	bh=q+bH+MzBqzAaB1kR8c1eOTTKDhHAZs3b4rogy3u0En8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=rI+IinXMTGQYss537edfiqNQEtCvCd6XsWuuD5WIldwcH8VLpRAKssvUyWfdqgkMq1yCNg6cZmSfC2touqG90aamVGfv3cQd5jT2/u4oYyuqb5MYn0rB5drl8PKMblV3MsHH4lTyPfdMostZ09oQCSsDVXhYVQLf4KFGpaKf9gc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Rqt6rJq7; arc=none smtp.client-ip=209.85.128.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="fQDyJAqS"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=YxVgv/a5FBKUEMGOwAyZZQ+/9ATFx1rxCHbK2fXsszMd9I/Oz6wFdYMxcbYVQtn6EiB/jPzdYvI+48gmNFm8xJmpGwW3sIPfr48J4p4SIsyz7E+sVJ2/exJaZ2RSqmV0NyFyU75LNGqT37xZZOU4xBcUZ470ocPBo15lmjphKmUBei4RtYQSsWTiDlFbVg94oV8joP+XdJ+yDL247JUk6rRgka4NZ1tAf2R1x1DRbw92b4LZsXLxrSXkWAYWGfDvVXF7lHyrmIJNawZ3TCMszvGZlUULsKlGjI5DinhIRcabdSseEKa9eNm3/ecMuHcgD0PyOHwdCtO040OD0U8Czg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=RBizT6dITzOWs3PxefUJhuMVHGKPHsRS7LDlIgolVHA=;
- b=T2GzLxBtOdF1SM6L0TtHSIZXsj/HYSzYP2UWfIpXDUOgfGbDpXHEV6UD30Yxm1pKG+4WGmD5PIxcRvGKo2WoptfHQYiAIAYKZYpprwqUgAkGACcI6T8ratzPu9IvynuGB0D2SxYMsK6ueGB+ONhe9txfS9Tr81ORwzS7MBJcoqb+kMEGQUgT48nsBoZtMG80TmQqF1oLuHKx+Z3umgdtXzl98FUw8tIm3WJOZd2Nqbli55rzLRSV9Hh12RqOEOrh9t6AP3hKyBvSEuEMf2AYh8b4RQrdT/d3DKDP3Ckvn7cpqwUnB8mAlv/bRiyOqTpZSqrmH9XdnDEkQR3xpozsfQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=RBizT6dITzOWs3PxefUJhuMVHGKPHsRS7LDlIgolVHA=;
- b=fQDyJAqSkJyMHoiYKTaK32SJvdJQCDaUpLB7molXDt67shG25G/IDhdZMnvZBUNJYdR3eqkPuRY45T6410bkmzo5QUud2JAe7GqdT8nVqPalZCO9CjUCOj1lDWp9+y/mc2qxOgBBOPjIpjcxpGQ9MyRjEXyL6MIdbFSymTUTbhzTvnlypWSXvbwF7y2SRmEBU9nKYAPntiYaZaiClSO/iQw0Mf4/titxp/Bm+gy28cgzf7/iMt/uAkTwH4Z8xGgBI4zlnj89tAwNVgHLCOg9Ffm9IOLxNun5+3oqGRPOojh0hEzDYrwpggrJRYtoNWqu1FmXrY4Oxpgw//ZBN2v9fw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV8PR12MB9620.namprd12.prod.outlook.com (2603:10b6:408:2a1::19)
- by SJ2PR12MB7918.namprd12.prod.outlook.com (2603:10b6:a03:4cc::20) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9769.17; Thu, 2 Apr
- 2026 16:51:25 +0000
-Received: from LV8PR12MB9620.namprd12.prod.outlook.com
- ([fe80::299d:f5e0:3550:1528]) by LV8PR12MB9620.namprd12.prod.outlook.com
- ([fe80::299d:f5e0:3550:1528%5]) with mapi id 15.20.9769.017; Thu, 2 Apr 2026
- 16:51:25 +0000
-Date: Thu, 2 Apr 2026 13:51:23 -0300
-From: Jason Gunthorpe <jgg@nvidia.com>
-To: Robin Murphy <robin.murphy@arm.com>
-Cc: Alexandre Ghiti <alex@ghiti.fr>,
-	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
-	Albert Ou <aou@eecs.berkeley.edu>, asahi@lists.linux.dev,
-	Baolin Wang <baolin.wang@linux.alibaba.com>, iommu@lists.linux.dev,
-	Janne Grunau <j@jannau.net>,
-	Jernej Skrabec <jernej.skrabec@gmail.com>,
-	Joerg Roedel <joro@8bytes.org>,
-	Jean-Philippe Brucker <jpb@kernel.org>,
-	linux-arm-kernel@lists.infradead.org,
-	linux-mediatek@lists.infradead.org, linux-riscv@lists.infradead.org,
-	linux-sunxi@lists.linux.dev,
-	Matthias Brugger <matthias.bgg@gmail.com>,
-	Neal Gompa <neal@gompa.dev>, Orson Zhai <orsonzhai@gmail.com>,
-	Palmer Dabbelt <palmer@dabbelt.com>, Paul Walmsley <pjw@kernel.org>,
-	Samuel Holland <samuel@sholland.org>, Sven Peter <sven@kernel.org>,
-	virtualization@lists.linux.dev, Chen-Yu Tsai <wens@kernel.org>,
-	Will Deacon <will@kernel.org>, Yong Wu <yong.wu@mediatek.com>,
-	Chunyan Zhang <zhang.lyra@gmail.com>,
-	Lu Baolu <baolu.lu@linux.intel.com>,
-	Janusz Krzysztofik <janusz.krzysztofik@linux.intel.com>,
-	Joerg Roedel <joerg.roedel@amd.com>,
-	Jon Hunter <jonathanh@nvidia.com>, patches@lists.linux.dev,
-	Pranjal Shrivastava <praan@google.com>,
-	Samiullah Khawaja <skhawaja@google.com>, stable@vger.kernel.org,
-	Vasant Hegde <vasant.hegde@amd.com>
-Subject: Re: [PATCH v2] iommu: Always fill in gather when unmapping
-Message-ID: <20260402165123.GG310919@nvidia.com>
-References: <0-v2-b24668f107b2+11bbe-iommu_gather_always_jgg@nvidia.com>
- <70a128f9-d6f0-41b6-8fef-e249c0507149@arm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <70a128f9-d6f0-41b6-8fef-e249c0507149@arm.com>
-X-ClientProxiedBy: YT4PR01CA0221.CANPRD01.PROD.OUTLOOK.COM
- (2603:10b6:b01:eb::12) To LV8PR12MB9620.namprd12.prod.outlook.com
- (2603:10b6:408:2a1::19)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Rqt6rJq7"
+Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-79be0de8610so11333047b3.2
+        for <virtualization@lists.linux.dev>; Thu, 02 Apr 2026 10:19:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1775150382; x=1775755182; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=6UIU0kC8Y0nz3yhV5FHyC+ln+Iwi4Xg/ywzP08MRwPg=;
+        b=Rqt6rJq78LgdQJYLBoaygxlC+ikGHq/vjuHSsW6uoGKf+C9LNWK/HPH/m79l50V5ls
+         bILMn9FNkds4uPg0ijNooZaMfAD9YTPXOJMOl7GdQt+cC4tX2lJA2ghgvoU6jF1vFykD
+         BKBE52F7ytaJLiHF5h5tcMNN8BhKBxajDpCHEVABx62HwMVNKJpAZ14XJJjl8J9+4DsZ
+         yz/eYUOub6yBJqaX0xDj9x8v5G+h4lKFK/tLZem46eBlsXT2cpLwPynnRh9AKDbJJeiq
+         Y/GgKGQDq+lvoqRNhfAsjKxiNjyX8gi5Nt763DT/2V4s2JhGDncQweMrePZG1WcU3L+w
+         gltw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775150382; x=1775755182;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=6UIU0kC8Y0nz3yhV5FHyC+ln+Iwi4Xg/ywzP08MRwPg=;
+        b=fP7uRiFXzM6pS5g8la1U9yOpEUPEpFoUFlgUptRkU+GIUNOducNdygqtw7YYr7GN+o
+         FkmMjMiUkA5bseGRJdKail7dvJOu9ofLD6tivQQ8yFnnIxhLaacM/tyvmDL+D7QtQgyV
+         QOjgs3CPTbPC9k8m0GFwddpX/SrvI2h0CTGHVbxd/e3T8J0i4j00Hb9/EkT7MHjWCkP0
+         r8Xnmq4G5n8kZb+zap/nbqRpALwpuSnWARcGHmKGMYvWLzdadyj51uSKCHyOSzPB1E7L
+         qkQCNz+O8yTxgkZbR6FqwxNhG2IM929wB+ReDzUoWrMvalq2lbYmHJhcHWyPV9uPcDVg
+         IwaA==
+X-Forwarded-Encrypted: i=1; AJvYcCW+fSx32KhrOMnGmbkFS3ZH0Z+4RBugoPAEjS5JwAapoMQwOk5TDjQ6EyE5IUzSbElAyRCjYkqKqXxy0ZgwgQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwibmYr5ISp4uok9UYjIXwHECTAZCHaNNwnXzEvH4dvLOZK+B0x
+	lIVnFK0wsynYHjNvDCwR11zM224W+6aZ3zDvXo/fAl6TDEpQ8MNClSKM
+X-Gm-Gg: AeBDievpgUCBimH+4tWd+an1QY1OP5U8QAcLhc3FgxOoDY9GWaEhYG4HaB7JDtNh/Xb
+	iQunWVGIi4+a3ks7YCGgDFNDWtLvQjI6QrX3/mi/9bOaNRnnJ95EOxY+MD9t3iElfCWyawIxaax
+	4Q6zHODBVt3vX58EnQ9eQU6YxaIgEaJ4Zuc/kMxr0fK+u4pcbeZ2+tnJ6+XFw6JFunvoAjMLZ32
+	uqzJFR5RWM7qVeULRoTTqS10Tg8xzP1P77vTOIKmI++eD//xFvXRrUpdtx7NFPZwMbjeC4Se6u2
+	Bz9k0ZfKxq8RMtd9EkeE5ICbPAqibFfiQVp+AWpsUzYfhNgtqy238xJfHmZGe6htWXGk/MQ5Xru
+	itEqvwMppBMVnBwJABy0U3CEPIH0rdS3WdN75VJC/KKIzFs8S8tpA/cVtHR9+wISY8c0zULuJRS
+	Az0OR/R0ryafGn92W+nKbxCA==
+X-Received: by 2002:a05:690c:6e87:b0:79a:da70:864 with SMTP id 00721157ae682-7a4d6152810mr1492807b3.49.1775150381775;
+        Thu, 02 Apr 2026 10:19:41 -0700 (PDT)
+Received: from syzkaller ([2a03:2880:25ff:4b::])
+        by smtp.gmail.com with ESMTPSA id 00721157ae682-7a3712f04aesm12714417b3.48.2026.04.02.10.19.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 02 Apr 2026 10:19:41 -0700 (PDT)
+Date: Thu, 2 Apr 2026 10:19:37 -0700
+From: Bobby Eshleman <bobbyeshleman@gmail.com>
+To: Laurence Rowe <laurencerowe@gmail.com>
+Cc: Stefano Garzarella <sgarzare@redhat.com>,
+	virtualization@lists.linux.dev, netdev@vger.kernel.org
+Subject: Re: [PATCH] vsock: avoid timeout for non-blocking accept() with
+ empty backlog
+Message-ID: <ac6lKTabFc04Fl35@syzkaller>
+References: <20260402044637.73531-1-laurencerowe@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV8PR12MB9620:EE_|SJ2PR12MB7918:EE_
-X-MS-Office365-Filtering-Correlation-Id: 12a523e2-26d5-4294-88b9-08de90d8134d
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|7416014|1800799024|366016|22082099003|56012099003|18002099003;
-X-Microsoft-Antispam-Message-Info:
-	nv3eWcfPVgqpwumndzHvGpmiicpJDjcAupVRIpfFppJ2h7nneXAjiVLiFGyeE4haqMRus50NmE12DLDx17tyEnunLBqV8UmPT4tLbrneF0rT/eAV21uGRn/GuBvUFqUsmC1sqhCpuvVNT7VLjmq/FM+unJaz4ODfhfFYcGFmXhekMU0Mcbv/yhEGWNTLNSCvbJ7dctJLsoFVEHdBAaYo1Bs6sgpibI6hiH5bFCd/wlGalQVwCP4wyYb1ei2oo13wmYFHTl17b5UracBRe/KJXNIw/ytFWpS3PwldMhUm+0lBo4KB8bW+S3I5fcZmmYUeZvcHJLaJ9KS4MiWwcDF1ffU9GmRsKc4FbHh7dNVf14pDCqURXkhcPpiYYTZKBoymIaQwV/S47darmEMQlQppF3EgCRVv/U4t9Ggv4XmG9PRBNekTnIrsGNDRcu/HnnWsMktw3VZw0ChZhv75Py//1uwfnJnLadX6ida5RGFhzBc0dHhkNbV3GR+2Q+4FB1tLQuBL3zWxY5WLrTpsS9AfytOh70B2mAlw8DW3SVk2/E5NanfFOZhhjELsEdMXnfy32biCvThZP6+JZS4Qi2vh3LVAwrd6Njs5hbm9nEkugeB1MWsdxlWfxD7pcv7ZJpiKKpARakWf9ltiPzp8iXJrD8qBQNE8u9YyhYIdJtIEYZyjPDCDuDO7VyIOqk8U9HzmRGwJbnp/EOX3+dh6ZCsUpoaDjukpn3QBshEgQFya3gc=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV8PR12MB9620.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(7416014)(1800799024)(366016)(22082099003)(56012099003)(18002099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?pdbny2mjmDm0DkpF0XzFDwQxA68zQu5QwbhUMLKNfLKme00Sg/a6r5XvOfes?=
- =?us-ascii?Q?im0OPbWN1UvQ8UCgyrT1j12USyPoFHyHs/Fx/SkIj6ApzeE2vWV1X0mud7Y7?=
- =?us-ascii?Q?gR00yHrP1ZyNESt8HjZs3pU6/DWjo1vScfe6Uqo/6lEWzhAdfi16MX1eLVwY?=
- =?us-ascii?Q?cY3L78dmNLtarQb4N3GcnqRcKWxKihxU0wTMkv+kK3oQ/vgaVvW7M1jWmtWC?=
- =?us-ascii?Q?KROIBGArjPls1SzS23QiCEukolq4jRYALAskNgWVw/R05nG8YfwdCbNgQvJ4?=
- =?us-ascii?Q?ZRZeGqgChoLIorgKfx/1KOBOP9maqIY4ZJvPdIaLBsIpBimo76uYfGW4r65O?=
- =?us-ascii?Q?pg5X45F++0cejh5ZeyauVHKAKDZgoJdty7fVH1o+nsDSHFV1IMBsh35Ik5yp?=
- =?us-ascii?Q?CPfY+CLr6MMJTiFwgCiIhp74zNzT7oOFlQVfPiLbVgNWmJNXu+lJq5mfaKp1?=
- =?us-ascii?Q?d2a+5NwxpCL9NQzMrAyFCgY/ryZWc5i1XKfftV+i6ZkkbUKRaa/wE8sUcFRN?=
- =?us-ascii?Q?aQ864kCbB5iIcqsGCV19D6LPwCKxnwzTQJrBk1Ks1oqojGYLTv93qphcevcg?=
- =?us-ascii?Q?YjiDyhigMkpDDmb4oMhOYEKFG/AFgcW8S+QlICtl4oOTJsLqOWlMP9N3HAtg?=
- =?us-ascii?Q?AVSRJU+kQ598+yfbKxAYwDEaHYfBhY8luoV5f5mYbqd0cwMn4gm9iLdyQ7of?=
- =?us-ascii?Q?lYK3yx8mLA8LyOSzgQoHSLGy7jd+WgB1B8Oib5nWd4skxBDFuugYKl4wWnwd?=
- =?us-ascii?Q?Wfa4uMj4YFUPNUdVEGjq2DO5u5wFtoEoCs4bzXsctQoBlR141JLOY0wY+RaB?=
- =?us-ascii?Q?eB1vYcjNHXJ+nPbqAsEUIMQ6DQuu/WAns4gZxNzP2K3OF3oKfkkUnJwvcjrF?=
- =?us-ascii?Q?TPF40m68jGlpJndufvibmvEj25qpctsdic6YdnzTh8nIHRZ5nuGBdWQAQZAz?=
- =?us-ascii?Q?cM9/aYtN4qPo+9JWu0m5OPThky/7gOyUbuZAGkowR/2WsxiUHamuV4llEvHJ?=
- =?us-ascii?Q?FcbqvdqlAALlw7JZxzNyCWtmkzF97aLTsB/NmVzOADgg+A0R/Nw/tW0RhZYC?=
- =?us-ascii?Q?HaXILRGz91th53gEY1KibxpohW7jStXl1RLunTbPtO7984Vu4fwI9rWD0+L1?=
- =?us-ascii?Q?0hO5nrr3RMWn1hw4QzWBrL90bWGoikfu+kZd9e0JMsM/hw13s8qrq2BsqUvD?=
- =?us-ascii?Q?OCDsL5gAf2VX3eXswdqaT4CibT9ZneNWIIdVh4LDenzpLxOVocYa3307kj6P?=
- =?us-ascii?Q?yKyYt4JMfbI8YucN9AI+BywLGCEgrfF5TCNIwOgVtHj1KYHBzwvzE3NfC2CN?=
- =?us-ascii?Q?p0CMEOa7JBS/meGYrMSy9hCtBEsiY5ROZuGYTLXuTNoUleY1ZXS4ES5DCQ8Y?=
- =?us-ascii?Q?wGrb3AgZ1wr1hgu8E6NNJH8ood37t/cEW5jDyZW2e9DQuOWiouGE4TWEWn0v?=
- =?us-ascii?Q?x9zXnl+zijnvb8gCzMxm6t1t66xbtu7RMqfgeVHePsDS8B3YRGPiXmafAeOC?=
- =?us-ascii?Q?g/d09J0jN/Ob9A7Jxl2J/8lFhsTjfAEq+jBct5tsYjyByiSxquBn7AKJHz3a?=
- =?us-ascii?Q?6ZapIxGHhDG/msQYrybHwvI/aWpv9ZBOVWaBaVSB33NRPIiMZZKp81JCNV8t?=
- =?us-ascii?Q?zwj//5BOBrS25GQpRohQKKE3wcpsRz1AJ2w9lVnRUXUhqQxxPF37EsLdD7E0?=
- =?us-ascii?Q?qVrkwoV4aVjNm71KJR9mNtY1xHmbhYD7Kqdf9hQrrxGc+9Vh?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 12a523e2-26d5-4294-88b9-08de90d8134d
-X-MS-Exchange-CrossTenant-AuthSource: LV8PR12MB9620.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Apr 2026 16:51:24.8765
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: tcdTlflq2fhu3zOHc9hj1v+tRAfHusMO9e0IMxmC8dO1XOBn7eHcnxYH4UWKaoji
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR12MB7918
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260402044637.73531-1-laurencerowe@gmail.com>
 
-On Thu, Apr 02, 2026 at 04:59:29PM +0100, Robin Murphy wrote:
-> > @@ -666,9 +666,22 @@ static size_t __arm_lpae_unmap(struct arm_lpae_io_pgtable *data,
-> >   		/* Clear the remaining entries */
-> >   		__arm_lpae_clear_pte(ptep, &iop->cfg, i);
-> > -		if (gather && !iommu_iotlb_gather_queued(gather))
-> > -			for (int j = 0; j < i; j++)
-> > -				io_pgtable_tlb_add_page(iop, gather, iova + j * size, size);
-> > +		if (gather && !iommu_iotlb_gather_queued(gather)) {
-> > +			if (iop->cfg.tlb && iop->cfg.tlb->tlb_add_range) {
-> > +				iop->cfg.tlb->tlb_add_range(gather, iova,
-> > +							    i * size, size,
-> > +							    iop->cookie);
-> > +
-> > +			} else {
-> > +				iommu_iotlb_gather_add_range(gather, iova,
-> > +							     i * size);
-> > +
-> > +				for (int j = 0; j < i; j++)
-> > +					io_pgtable_tlb_add_page(iop, gather,
-> > +								iova + j * size,
-> > +								size);
-> > +			}
-> > +		}
+On Wed, Apr 01, 2026 at 09:46:37PM -0700, Laurence Rowe wrote:
+> A common pattern in epoll network servers is to eagerly accept all
+> pending connections from the non-blocking listening socket after
+> epoll_wait indicates the socket is ready by calling accept in a loop
+> until EAGAIN is returned indicating that the backlog is empty.
 > 
-> NAK, this is insane.
+> Scheduling a timeout for a non-blocking accept with an empty backlog
+> meant AF_VSOCK sockets used by epoll network servers incurred hundreds
+> of microseconds of additional latency per accept loop compared to
+> AF_INET or AF_UNIX sockets.
+> 
+> Signed-off-by: Laurence Rowe <laurencerowe@gmail.com>
+> ---
+> 
+> This fixes the observed issue for me:
+> 
+> 1. With loopback vsock on the host running Linux v6.19.10 built with
+> config-6.17.0-19-generic from Ubuntu 24.04 and make olddefconfig.
+> 
+> 2. With Firecracker guests with current torvalds/master, v6.19.10, and
+> amazonlinux/microvm-kernel-6.1.166-24.303.amzn2023 used in Firecracker
+> CI and examples. (Firecracker guest vsocks are unix sockets on the host
+> side so this fix works there with just a fixed guest kernel.)
+> 
+> I struggled to build a generic 6.1.166 kernel that worked as a
+> Firecracker guest but the patch applies (conflict due to change of
+> `flags` to `arg->flags` in surrounding context) so I believe it should
+> work for generic v6.1.166 kernel.
+> 
+> Alternatively a minimal version of this fix is to just wrap the
+> `schedule_timeout` in an `if (timeout != 0)` but that leaves an
+> unnecessary additional `lock_sock` call.
+> 
+> There are ftrace's and reproduction tools at:
+> https://github.com/lrowe/linux-vsock-accept-timeout-investigation
+> ---
+>  net/vmw_vsock/af_vsock.c | 16 +++++++---------
+>  1 file changed, 7 insertions(+), 9 deletions(-)
+> 
+> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+> index 2f7d94d682..483889b6d8 100644
+> --- a/net/vmw_vsock/af_vsock.c
+> +++ b/net/vmw_vsock/af_vsock.c
+> @@ -1850,11 +1850,11 @@ static int vsock_accept(struct socket *sock, struct socket *newsock,
+>  	 * created upon connection establishment.
+>  	 */
+>  	timeout = sock_rcvtimeo(listener, arg->flags & O_NONBLOCK);
+> -	prepare_to_wait(sk_sleep(listener), &wait, TASK_INTERRUPTIBLE);
+>  
+>  	while ((connected = vsock_dequeue_accept(listener)) == NULL &&
+> -	       listener->sk_err == 0) {
+> +	       listener->sk_err == 0 && timeout != 0) {
+>  		release_sock(listener);
+> +		prepare_to_wait(sk_sleep(listener), &wait, TASK_INTERRUPTIBLE);
+>  		timeout = schedule_timeout(timeout);
+>  		finish_wait(sk_sleep(listener), &wait);
+>  		lock_sock(listener);
+> @@ -1862,17 +1862,15 @@ static int vsock_accept(struct socket *sock, struct socket *newsock,
+>  		if (signal_pending(current)) {
+>  			err = sock_intr_errno(timeout);
+>  			goto out;
+> -		} else if (timeout == 0) {
+> -			err = -EAGAIN;
+> -			goto out;
+>  		}
+> -
+> -		prepare_to_wait(sk_sleep(listener), &wait, TASK_INTERRUPTIBLE);
+>  	}
+> -	finish_wait(sk_sleep(listener), &wait);
+>  
+> -	if (listener->sk_err)
+> +	if (listener->sk_err) {
+>  		err = -listener->sk_err;
+> +	} else if (timeout == 0 && connected == NULL) {
+> +		err = -EAGAIN;
+> +		goto out;
+> +	}
 
-This quite an optimization for SMMUv3 so it doesn't have to fit into
-the ill fitting add_page api. What is "insane" here?
+I wonder if this goto can be omitted since the following 'if
+(connected)' guards the connected != NULL case? I don't have a strong
+opinion, just noticed it would keep if-else symmetrical.
 
-> If you'd rather make gathers mandatory for all drivers than fix it in the
-> core code, then for goodness' sake just add the trivial one-liner to the
-> handful of .unamp_pages implementations which need it, 
+All-in-all, LGTM.
 
-Do I understand this right, you want to not touch io-pgtable and
-instead the unmap trampolines will fix the gather like mkt is doing?
-
-Jason
+Reviewed-by: Bobby Eshleman <bobbyeshleman@meta.com>
