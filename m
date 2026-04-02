@@ -1,70 +1,70 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41EDF3E51C5
-	for <virtualization@lists.linux.dev>; Thu,  2 Apr 2026 13:08:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94D302DE6F1
+	for <virtualization@lists.linux.dev>; Thu,  2 Apr 2026 13:28:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775135313; cv=none; b=FfYyFnShacXVUkr1VlWsmChE4iqIFWyyB3vVS/XjmfUu+U1pj//2nlCj2HvDpwKnjPn+Nlp7cgQ6vBm1WGVeoHAFj9yA2ARivWH5e8cTQbQXTiN2rizinSLJHA4qy6SCoRxScM6CJCA5FmwhV2xouOusW23kbZh+/EjA9JXrPAo=
+	t=1775136522; cv=none; b=UUVuQpufsm9+kel6nL4F6wwqdkoL/kshKqetG6CkPSVkvh0LDfsMD5cMc++iXnIzaWQz42u0Xr8BHK+4xzt9b3FIo71X1MiOxNqQnHJ4IfVQBXc+P2bTzSqyIC2JnR6URpcEu49IDxiBqIVWzTlKrn7iPmXHb7RSkWiEHRa+cUk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775135313; c=relaxed/simple;
-	bh=wm02E3T0a1peGSnmnmR4/hZwBTf9XgjeCN8sySv09FI=;
+	s=arc-20240116; t=1775136522; c=relaxed/simple;
+	bh=gGY/VwPUMO0SWDMiHLhnA/IVkYO3C7UOkCh7m+DwrXk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=jtS6EnxR2bOhmTeYd1AdLAy5ASmPjVPJUxPTtXbEJeK7YnPYfdeoXY4A5tQky+pXnpG7PF8XxpPaR1u6tDIytI8qNYlBDyopZUH/WH8IMV7GdYQdMKz37QLA9bq0Q+LXeQ9w6u8/x6llDI2INYC7qFIaDk67QLElSNIWo6YNDM0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Xr2GyAt9; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=RnBg3857gxkzvbQaJF1ubJPjqMVkzLa/q0K0mLhKLWCuy7OgwLruVj0mfcAbqI0c23hpfNR+VrwIoTzFlPcbtq+WlQTTEGUeZs9+ls+BaVZD5DvmxS8QPjzR7oTG6wJvughZgIYxz3w/K4e3KXWQetkFDWSZIvLBaBKrOd/y7UY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FfXr5cxK; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Xr2GyAt9"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FfXr5cxK"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1775135308;
+	s=mimecast20190719; t=1775136520;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=+/AYnKJRH8mdswMQLrHJ90PhRLOmS9dKac7jjdIwogo=;
-	b=Xr2GyAt9Jbc6RMafb1malf2z11tv03vn0ECDjXNafC1Y7hAPhs68S1tKbXe3FY06SzgQMd
-	FNu1nslpexwwjyr2/AyfQeLquuaDrZj1OSe8I8k5RADAnRJQl4bzqZ9Xed/M96CbRFncZn
-	pFlpZxMqIYV9+9/2lD1qef6zp00iPUo=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=h/+o6grdtsiw9OGyUnvd5JR5iZVJ9ugAbNz7gRFL3qM=;
+	b=FfXr5cxKtseQvhlftxRxqMTd17uSed8zW/N1vrrQILDgAMpS0YFvFToTz83fQKS6+0WmgD
+	P94Dj5MnVxtENTrOZkkv+AmH7UwpocSjG7gN7xhOVQc8Dk8Hmk0LE9qLIzaqEvvbd9lft3
+	ReF8X1W+mNtmAx9kMS+TFbqQE01cKuI=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-625-H_TTmFrjOpypLuQls3ahLQ-1; Thu, 02 Apr 2026 09:08:25 -0400
-X-MC-Unique: H_TTmFrjOpypLuQls3ahLQ-1
-X-Mimecast-MFC-AGG-ID: H_TTmFrjOpypLuQls3ahLQ_1775135305
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4839fc4cef6so18951025e9.0
-        for <virtualization@lists.linux.dev>; Thu, 02 Apr 2026 06:08:25 -0700 (PDT)
+ us-mta-375-ayofLh3ROpiUFFDLXphopw-1; Thu, 02 Apr 2026 09:28:39 -0400
+X-MC-Unique: ayofLh3ROpiUFFDLXphopw-1
+X-Mimecast-MFC-AGG-ID: ayofLh3ROpiUFFDLXphopw_1775136518
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-43d034589d0so845162f8f.1
+        for <virtualization@lists.linux.dev>; Thu, 02 Apr 2026 06:28:39 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775135304; x=1775740104;
+        d=1e100.net; s=20251104; t=1775136518; x=1775741318;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=+/AYnKJRH8mdswMQLrHJ90PhRLOmS9dKac7jjdIwogo=;
-        b=hE5PYMwawqb0U3BaxMX7Sus2NAOrNz0S+BuVzyUlV3mxDpPXj4v1d+vSY9RLfOtTLv
-         3JYDWwYLhfkzJpmhreXe/Xl4yhnsqcujai3oxaWkkeWR+Z5Sg2YdSJVXXe6mp9fAH8m0
-         Iw6WDgdewGOHgTyA1YCUvKz+yEAEdj/QnDIsRavP0WPuQ7Yvgm+Ykj/C9oGhp5pklXwP
-         n8jTDayFtmvG8+QejTKh9yMt7z5tPaNuf734AYiAXJAq43lpuHtVpAuCT8Ehlp+qxH87
-         +JnlzZkdCXEC5SYOe47QhssCxCkT2N6c8RNt2BrU7w6p4xNEEAv2EZmZHVRIguyffe2Z
-         CKBg==
-X-Forwarded-Encrypted: i=1; AJvYcCWcMN8arf890zeXjP9k0/0ECwKKuT7g/xWoB7N0/S1GP53DyKAjs4Zde1g4uXKQUwL02/0OQhbgahftEogMNw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx7668D3HIMNQucmbc/1v28fzXNEodCCFBGTMjtHqWMRBhyUSFn
-	eYJnCzKe4wWWGjW0/6H4izSGAj1eyrRRVR0HfYFm/IiPcUQPSkYveCaozqkNWSyaGb/Rk368cKf
-	uezm7Exw4nRkCClXq/mQbTb57vSb+GyboKIUvis2jD66XuSpiPPf7Xoqsmjah1MmUvkdQ
-X-Gm-Gg: ATEYQzxG5lhitfoDIueWY6Z0b0nHt+z/Qwj9HdTdo1p9nwZy30XN0IuUw+SfEpUaiE1
-	IoRpmwuX3FrETmhwyl6PNy+CK1+h+S1HTWJ6UKxcihIwd6PQqfksIz0BnENlJ1fkCtoLds53Tia
-	slJ0bkxikTArnS1aUCPjXqbyG1dZYypCTKTVnjPXARKX9eMz5/T9Ed3+rE5NAe8eY+sxN5qlNPn
-	VXJxcQc9zAShKZSwNsbz5RbFPSD9tgi1jfJL6QewBAcm3ib1B/y8jEkTQlVJYmMcA/094nlzvn1
-	YOzQTOs7BJfQorIAU2urARzUL3OIHeF/3Uo7VSSkBWoyS9LuPEM860Pb4GZjTddAr9x0kNFrbb4
-	f2pLRW90cjzafP/NTnJZiOOA3CBAQeZZbWNtB4z06Nc/DE36gXU/MYHgCfVsWr8J6MDWokx4OQn
-	RX
-X-Received: by 2002:a05:600c:3496:b0:486:fbc4:8fe2 with SMTP id 5b1f17b1804b1-4888e0e47damr36924965e9.15.1775135304497;
-        Thu, 02 Apr 2026 06:08:24 -0700 (PDT)
-X-Received: by 2002:a05:600c:3496:b0:486:fbc4:8fe2 with SMTP id 5b1f17b1804b1-4888e0e47damr36924105e9.15.1775135303929;
-        Thu, 02 Apr 2026 06:08:23 -0700 (PDT)
+        bh=h/+o6grdtsiw9OGyUnvd5JR5iZVJ9ugAbNz7gRFL3qM=;
+        b=QgPcP/VgMaC3WKnUmCkzU8M/ZJz3yVoXIs2jgJfokYilkqtsesJts+ELltvLA58YLn
+         mXHokG858qBoPD41z6pDMiKkf752ndeteRZt3FtV9X/vkudKLF3QJyr5V0fzoCXVb0Pe
+         rRLoE07TcAUDh6x6mTNMySdfVcftbUpAyAUeNFZIfBsa1rhqYO7TZ7/719eZ2aDWpyuB
+         v4OlrQlrVDy+iv2sw90DkL2TsWC6Um4VQrr4Fb7EI7NaTLxUQi533O0ZaxVezNT5AZnG
+         aihZPjszh0WdLFEqZvGD/nyAfX0JAdsyU6O1AXzgSBw2m97o0pc4oVst4mmtUbStRxXr
+         Ac1Q==
+X-Forwarded-Encrypted: i=1; AJvYcCXOdIU1JtDY2LgwKgYEdUL01sAHuuopruvoqHhuKXwGLxaNzH8cv8n5j8v3hqh8Q4Q2uW92fEaUxXQvds8lSw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyKx99P1Jb7qtjvrke3wtKV/GMDG2lUT8xN2QBUokLoYlkaReEy
+	NncgC2AJCGZhsllvpalNIuKqz/fbIl7gIFLjZbZ4NFPXkdS9rDATLwvUYfHYwscgvsNSJ6m/FYJ
+	BLOdQXsWYkdKxi1l7JEdwT+Z2ERsPofeGH0869vH14ls1npYX7qobVF6gumlEkGWXmBlE
+X-Gm-Gg: ATEYQzw4nin8aSVfCYUjumhTqIHG5S+a2NlSnbwjBjLNEljC3EpBov3TPZpU0n+BikR
+	sZ94bygpw9Tvg7pMTOFijVrfr+2zb5nExhcl0nukbNb9hxbtrPNrMvgkwJiU8Z2yNA+LFCR3mBx
+	j8sbDD4b2bQ0PFUzryt7U4T68Ts43HuaRDl7xiiSkideTgjopKqRlXPXQnYnN0bi9UWZk7MFEiX
+	HIGOp5RodVzN88uCjwBU+wjV8ajEGJmk8rZQ42iqcp1MZaEqPm3nsJrys97ic04V4gBdrNzhbj4
+	jd31xrnR2NizJ1RTii7Fmgyr16OZFUiKosyV4fLER/MNtrpAAD1hoAV1MkNL0IMojCbwwepfkBt
+	/UzkyLFOI2kuRBNqpsZMQLtA+z1Gg1I8G3ZFoFhe083Sf3egNlNkHCPCeMLMzSwCaakohIXmXvo
+	Z9
+X-Received: by 2002:a05:600c:848d:b0:485:3c66:e230 with SMTP id 5b1f17b1804b1-488835b78f1mr140993775e9.29.1775136517999;
+        Thu, 02 Apr 2026 06:28:37 -0700 (PDT)
+X-Received: by 2002:a05:600c:848d:b0:485:3c66:e230 with SMTP id 5b1f17b1804b1-488835b78f1mr140992975e9.29.1775136517515;
+        Thu, 02 Apr 2026 06:28:37 -0700 (PDT)
 Received: from sgarzare-redhat (host-87-12-139-105.business.telecomitalia.it. [87.12.139.105])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4887e967badsm251669415e9.14.2026.04.02.06.08.22
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4887a630922sm244763235e9.0.2026.04.02.06.28.35
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Apr 2026 06:08:23 -0700 (PDT)
-Date: Thu, 2 Apr 2026 15:08:15 +0200
+        Thu, 02 Apr 2026 06:28:36 -0700 (PDT)
+Date: Thu, 2 Apr 2026 15:28:25 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Luigi Leonardi <leonardi@redhat.com>
 Cc: Stefan Hajnoczi <stefanha@redhat.com>, 
@@ -74,68 +74,162 @@ Cc: Stefan Hajnoczi <stefanha@redhat.com>,
 	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
 	Arseniy Krasnov <avkrasnov@salutedevices.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
 	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net 1/2] vsock/virtio: fix MSG_PEEK ignoring skb offset
- when calculating bytes to copy
-Message-ID: <ac5pVRhTSc0Xr2xy@sgarzare-redhat>
+Subject: Re: [PATCH net 2/2] vsock/test: add MSG_PEEK after partial recv test
+Message-ID: <ac5qWSEBM--HuKQK@sgarzare-redhat>
 References: <20260402-fix_peek-v1-0-ad274fcef77b@redhat.com>
- <20260402-fix_peek-v1-1-ad274fcef77b@redhat.com>
+ <20260402-fix_peek-v1-2-ad274fcef77b@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260402-fix_peek-v1-1-ad274fcef77b@redhat.com>
+In-Reply-To: <20260402-fix_peek-v1-2-ad274fcef77b@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: v3FDBjcBW8jmq-UzF1aMh5P1mlgkWfMTat70y6iKBj8_1775135305
+X-Mimecast-MFC-PROC-ID: 5CN2WfdCmbofympQ5WMqn-YPNUlAF0BNlfi4CpS3_Dw_1775136518
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
 
-On Thu, Apr 02, 2026 at 10:18:01AM +0200, Luigi Leonardi wrote:
->`virtio_transport_stream_do_peek()` does not account for the skb offset
->when computing the number of bytes to copy.
+On Thu, Apr 02, 2026 at 10:18:02AM +0200, Luigi Leonardi wrote:
+>Add a test that verifies MSG_PEEK works correctly after a partial
+>recv().
 >
->This means that, after a partial recv() that advances the offset, a peek
->requesting more bytes than are available in the sk_buff causes
->`skb_copy_datagram_iter()` to go past the valid payload, resulting in a -EFAULT.
-
-nit:
+>This is to test a bug that was present in the `virtio_transport_stream_do_peek()`
 
 WARNING: Prefer a maximum 75 chars per line (possible unwrapped commit description?)
-#14: `skb_copy_datagram_iter()` to go past the valid payload, resulting 
-in a -EFAULT.
+#11: This is to test a bug that was present in the 
+`virtio_transport_stream_do_peek()`
 
+>when computing the number of bytes to copy: After a partial read, the
+>peek function didn't take into consideration the number of bytes that
+>were already read. So peeking the whole buffer would cause a out-of-bounds read,
+>that resulted in a -EFAULT.
 >
->The dequeue path already handles this correctly.
->Apply the same logic to the peek path.
+>This test does exactly this: do a partial recv on a buffer, then try to
+>peek the whole buffer content.
 >
->Fixes: 0df7cd3c13e4 ("vsock/virtio/vhost: read data from non-linear skb")
 >Signed-off-by: Luigi Leonardi <leonardi@redhat.com>
 >---
-> net/vmw_vsock/virtio_transport_common.c | 5 ++---
-> 1 file changed, 2 insertions(+), 3 deletions(-)
+> tools/testing/vsock/vsock_test.c | 64 ++++++++++++++++++++++++++++++++++++++++
+> 1 file changed, 64 insertions(+)
 >
->diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->index 8a9fb23c6e853dfea0a24d3787f7d6eb351dd6c6..4b65bfe5d875111f115e0fc4c6727adb66f34830 100644
->--- a/net/vmw_vsock/virtio_transport_common.c
->+++ b/net/vmw_vsock/virtio_transport_common.c
->@@ -547,9 +547,8 @@ virtio_transport_stream_do_peek(struct vsock_sock *vsk,
-> 	skb_queue_walk(&vvs->rx_queue, skb) {
-> 		size_t bytes;
+>diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
+>index 5bd20ccd9335caafe68e8b7a5d02a4deb3d2deec..308f9f8f30d22bec5aaa282356e400d8438fe321 100644
+>--- a/tools/testing/vsock/vsock_test.c
+>+++ b/tools/testing/vsock/vsock_test.c
+>@@ -346,6 +346,65 @@ static void test_stream_msg_peek_server(const struct test_opts *opts)
+> 	return test_msg_peek_server(opts, false);
+> }
 >
->-		bytes = len - total;
->-		if (bytes > skb->len)
->-			bytes = skb->len;
->+		bytes = min_t(size_t, len - total,
->+			      skb->len - VIRTIO_VSOCK_SKB_CB(skb)->offset);
+>+#define PEEK_AFTER_RECV_LEN 100
 
-I think we should add some helper like virtio_transport_skb_remain() or 
-virtio_transport_skb_bytes() and use it here but also in places where we 
-check offset < len or offset == len. But maybe better to do that in 
-another patch/series for net-next.
+Why 100 ?
+Better to use a power of 2 IMO like we do in all other cases IIRC.
 
-This fix LGTM:
+>+
+>+static void test_stream_peek_after_recv_client(const struct test_opts *opts)
+>+{
+>+	unsigned char buf[PEEK_AFTER_RECV_LEN];
+>+	int fd;
+>+	int i;
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+nit: int fd, i;
+
+>+
+>+	fd = vsock_stream_connect(opts->peer_cid, opts->peer_port);
+>+	if (fd < 0) {
+>+		perror("connect");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	for (i = 0; i < sizeof(buf); i++)
+>+		buf[i] = (unsigned char)i;
+
+Why setting the payload in this way ? Can we just do a memset() ?
+
+>+
+>+	control_expectln("SRVREADY");
+
+Why we need this barrier ?
+
+>+
+>+	send_buf(fd, buf, sizeof(buf), 0, sizeof(buf));
+>+
+>+	close(fd);
+>+}
+>+
+>+static void test_stream_peek_after_recv_server(const struct test_opts *opts)
+>+{
+>+	unsigned char buf[PEEK_AFTER_RECV_LEN];
+>+	int half = PEEK_AFTER_RECV_LEN / 2;
+>+	ssize_t ret;
+>+	int fd;
+>+
+>+	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+>+	if (fd < 0) {
+>+		perror("accept");
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	control_writeln("SRVREADY");
+>+
+>+	/* Partial recv to advance offset within the skb */
+>+	recv_buf(fd, buf, half, 0, half);
+
+Why reading half of the size ?
+
+IMO is better to read just 1 byte, since it is almost certain that an 
+skb does not have a 1-byte payload.
+
+>+
+>+	/* Try to peek more than what remains: should return only 'half'
+
+How we are sure that the sender sent all the bytes ?
+
+>+	 * bytes. Note: we can't use recv_buf() because it loops until
+>+	 * all requested bytes are returned.
+
+Why this is a problem ? (an useful comment should explain the reason)
+
+>+	 */
+>+	ret = recv(fd, buf, sizeof(buf), MSG_PEEK);
+>+	if (ret < 0) {
+
+Should we handle EINTR like we do in recv_buf() ?
+But I still don't understand why we can't use it directly.
+
+Thanks,
+Stefano
+
+>+		perror("recv");
+>+		exit(EXIT_FAILURE);
+>+	} else if (ret != half) {
+>+		fprintf(stderr, "MSG_PEEK after partial recv returned %d (expected %d)\n",
+>+			ret, half);
+>+		exit(EXIT_FAILURE);
+>+	}
+>+
+>+	close(fd);
+>+}
+>+
+> #define SOCK_BUF_SIZE (2 * 1024 * 1024)
+> #define SOCK_BUF_SIZE_SMALL (64 * 1024)
+> #define MAX_MSG_PAGES 4
+>@@ -2520,6 +2579,11 @@ static struct test_case test_cases[] = {
+> 		.run_client = test_stream_tx_credit_bounds_client,
+> 		.run_server = test_stream_tx_credit_bounds_server,
+> 	},
+>+	{
+>+		.name = "SOCK_STREAM MSG_PEEK after partial recv",
+>+		.run_client = test_stream_peek_after_recv_client,
+>+		.run_server = test_stream_peek_after_recv_server,
+>+	},
+> 	{},
+> };
+>
+>
+>-- 
+>2.53.0
+>
 
