@@ -1,132 +1,123 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A7682DC331
-	for <virtualization@lists.linux.dev>; Fri,  3 Apr 2026 09:32:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0053E38228F
+	for <virtualization@lists.linux.dev>; Fri,  3 Apr 2026 10:04:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775208781; cv=none; b=gj7KrxxAuT1oxjrBtjLIaXYFhi9pxjrmZu24MqKDAlhDJu3hqfrejSl3Ii2+V9GAAZabMrer6P1PQJwEu37W5Fc5Wbg+2LSOqkiHpIcRRN3/XNr+UrKdGX7g23UQ4ARgWeIKXtU2oI/Ig45UROHKSZVf8GVHq6tD/69e3lpWbys=
+	t=1775210670; cv=none; b=RZ+egSwjD+/ApsEep4K/FuclCzH2y6HctQh3Hi79ggtF7kBSeI2aLpuzfkwp50SxUkEHHnxHSDQJvlS9tlky5p9KNG3K0f1ut1MGrnWA2naHSmLw/hksprwqUna60Igd68wgRht8sJBKipDAFy9pWCMSsHQKTkwFeAuVn3Y59SA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775208781; c=relaxed/simple;
-	bh=cv1n3+Y6D+oKSnZC7Rf2LuWBrgJHOPCt+mhyNABBrEQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:content-type; b=NOS9ouap6Dd+9vCj7NA6ZhRZCA7mgYNXpSDZ1muLznJiSeTTLBwMib2FndIK/7rfYxMUr2XJJgbh2zlAwOU4oeTRuNzizpATHjyh0v96Ws+XM9Yn+OLS0KdyydmeAEsUn1g9k++fiRR08ulG63yw05czM1vdg0OcdO7Vsq4WF6Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BHxdMRUQ; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1775210670; c=relaxed/simple;
+	bh=u074NOceth/+r9Ei9g2pssvboQrOKX4SPpJBbPS2SPA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=OqVizHbQxMjA4BrkiKgBbhR4GXe3+cZciJscoSk/PnOyAO9H8kF65rCIjNrxxQEWKKgDWa0Hz6MIM4OpeM2ayUNTGWoljYfwEaR01xFgyvPEklfB028t24l1/KNxaSDoGOe+36Wi7E2EJ+cAxLV5v0mZyeJTef1DFc9+d2HFVkQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=F0aFu8t9; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BHxdMRUQ"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="F0aFu8t9"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1775208777;
+	s=mimecast20190719; t=1775210662;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=OlhvOOy7p63KXaOzp0l12f0csTlzcyaDpAiq+n8anCo=;
-	b=BHxdMRUQlF+j18Yx8M0UKuoxdIXKOHPEBsvyUe/HeohGRIQ8KdHhWOqCiW6s4XYlj8SsKq
-	EwZrpV991QQXDqxIvdSLS9rvTGv1i9dfHgxJx7kUc2ms5t1eNAGt1Am+Ox2EWV49PABa46
-	S9Ow/Dn7Zt+7qP1usQO8l2Lp/TYnSNI=
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=u074NOceth/+r9Ei9g2pssvboQrOKX4SPpJBbPS2SPA=;
+	b=F0aFu8t92lwz9Y+5rNZKFnhw4JCHKbwRVziKjtOlvXW+Esx5AotEPkcPMvkzmuyQYFRgBm
+	udnu5rS90f8YxpS0VMPC4QOYyY3iGFUvF5SVgXWMJ1y4+5OJDABzxqAdwrcDPat7aqgcYG
+	H0UBM+CKv6JZG17Zew4Zs9JoIrAa+7E=
 Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
  [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-694-efWuDHIGM9e946k1hufJ2Q-1; Fri, 03 Apr 2026 05:32:56 -0400
-X-MC-Unique: efWuDHIGM9e946k1hufJ2Q-1
-X-Mimecast-MFC-AGG-ID: efWuDHIGM9e946k1hufJ2Q_1775208774
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4887d32788bso14009545e9.0
-        for <virtualization@lists.linux.dev>; Fri, 03 Apr 2026 02:32:55 -0700 (PDT)
+ us-mta-58-BG3M592nMaOUh08H2jJ25g-1; Fri, 03 Apr 2026 06:04:21 -0400
+X-MC-Unique: BG3M592nMaOUh08H2jJ25g-1
+X-Mimecast-MFC-AGG-ID: BG3M592nMaOUh08H2jJ25g_1775210660
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4836abfc742so16777175e9.0
+        for <virtualization@lists.linux.dev>; Fri, 03 Apr 2026 03:04:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775208774; x=1775813574;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=OlhvOOy7p63KXaOzp0l12f0csTlzcyaDpAiq+n8anCo=;
-        b=o/TLhQatmENMR/o31vZJzxkEu417uo8xHnG/ZCRtll1CiHOAtRc0P34bRDzuGry3y7
-         fn6EO6XHLbKD9mTvxwF3K1nfXn34tFP/CJ3eQ2s4HLmLglmK4LDUWNrbbKmG76pD5oop
-         lgn2smu3azzsBL9W8F+TPpjmKvBuUSlP/8MNEkAhXd3QRw2Fu0aQlPGemHAb7NjRkm5B
-         WfRxMSzJ+2LqNh/LHZExy8woAyGE5Q6e5VVfgBNX9tegtor8Ne4oWovhADyBMYMe8gtD
-         KlGWXDTV84DHMCteIs+RXj3sPbZuWVFaCIWYOxEVkDOL00yCa2sml4EzDKMRPXXFdrUd
-         9I7A==
-X-Forwarded-Encrypted: i=1; AJvYcCXbDt5gDofwT1alC/9Ny7vEohdOtHM8Xtgeoslx0R6TxRGCSr99sutuAU68lnTt2+8wsEyrXfuPWupo4PnvXg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxl0sfXAxSCBtd8CAnHHhrOTMWj9unZcOxlZelR7RDCN63mjLWt
-	CRsUQvHqHyJduU8M17JxnO57MnOzNjUfoYuZ/Ln/+s3HqFKAv47RLjo3eHE39LUP3CQ4ZuYbp2y
-	4+/xgsJNjdvnNyp2tWuwd7IKNqDPuKa1sf8uWb1ULkotkcTd1hYGvfW2snq2W0X6nOVSd
-X-Gm-Gg: ATEYQzy7j+8gdk7J/208/nB3guk0gFCqZzCPbn97EjKY4viS4+5swYPaZOgRRZYjf1W
-	VT7Q9PO19lYZf1ATXG6Nn8G9YDfWhYTaabhtkPzImbNxLmBsJ9cGipkUNzcmk/MFdTZf4EphkoB
-	/G11J/MqDDnD7FY1lUb1lkBQ2yPrOLXA6SL5NUjIu5Saup0/rSvpipoYd6kOzyMlKPC1C31DEFh
-	1tLEhoJS60sfVgTMqgIDQfaqMBzo62VRneQtPEC6QV+lnkiXxUwfdrKd18J/UuN/BhMftGVS8Ky
-	pMwTXYbCPB4xKnfXnkZBRaKj4HJJboA5vvqddvn9yv4dZNcK6UufcvJSJIXzzhpF2O+3LG6lsmy
-	/Iejx2dG2eXzAO1pYHz1ixiCVuEFp5ElSpFRE66l/2UeEfpi3lpHxLNXOG97dzIE=
-X-Received: by 2002:a05:600c:1d86:b0:480:1d0b:2d32 with SMTP id 5b1f17b1804b1-48899719a00mr32512475e9.12.1775208774411;
-        Fri, 03 Apr 2026 02:32:54 -0700 (PDT)
-X-Received: by 2002:a05:600c:1d86:b0:480:1d0b:2d32 with SMTP id 5b1f17b1804b1-48899719a00mr32512075e9.12.1775208773785;
-        Fri, 03 Apr 2026 02:32:53 -0700 (PDT)
-Received: from stex1 (host-87-12-139-105.business.telecomitalia.it. [87.12.139.105])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4888a65635fsm132198625e9.6.2026.04.03.02.32.52
+        d=1e100.net; s=20251104; t=1775210660; x=1775815460;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=u074NOceth/+r9Ei9g2pssvboQrOKX4SPpJBbPS2SPA=;
+        b=sMcXlt1KgVpqI5iWixhqJN2OUZgtroUCbEvUFUOQ/d8ZHQinXp+d9sDZKwX4ZcK4Ri
+         g50VFpVCjrHYEouqq4b3MZ9Ta3vPdp/gaZDWVxXg5vLLxoGGOBjEGixkFZXI8iKvtNiL
+         GrB9nnqXbOVrE99z5jcJlSbQY/V3RIl25vZdlxJM/bRHxMd1MpGI3Z82eetcb5SI0w/0
+         3n/UWRnmTu8XyvsAGPDDzCgoyPBa3S7euU95BUWHPiEfNlComZbjMJO8m48lSN76aX1N
+         mmUTjl4G9CcMRGhqVpYbk4v3T0Av8SHnkB51zDcFkBvsVOqnt5VFCHNjYR+tz3/EHmjd
+         Us6A==
+X-Gm-Message-State: AOJu0Yw6+VGw4omNDi3L4V+/o4Ietvd6HX/qVTwarHmjBKwSz79AOr8c
+	yiLdcieao3q4cGW+nie9DSbcjgZvx8SzV3ToBG6kBKuLCmXWA45aTU/8x8I+kuO5C/26qA42WuR
+	rMaUQEuqEoFJdl3HWwUKuvJYxxc0v84R2PqCRechxPx2QeUqPyARHsKo8nuQKJAWBg00jzeCTWe
+	l6
+X-Gm-Gg: ATEYQzzWave61w5GNZ5Kk2xL3BEX9zUk6JL60RmslpVmoCdGx8MQd4P+ees+o1/41sX
+	PwwbGaDKy5A3tfDRXH2Md9ZR0+CW+WN1gEs9Gx15jV4UfpexULTe1qdj3yFPgL64DDfTg7nfUmn
+	xsrGnifZK278VKvYSkQUdlUeWDnJB22+wypxb2eVflzHwSiAlD9ofKs2iHuJwvlPI2rSIf0xfAe
+	2xu96Z9/tU+Ip84utXzClPiygkFrSNAJINyY1PIoBpUk/7aeV7w7LEr/L5u82xy1drYxOkZKX88
+	nG9SdwDPe1akVL+nd1WQEDIAgUGC0Pbai2jV24HiOnL7SojKV1wphIuVgHQLg3AbTJLthPLwOeE
+	0EPSb4OlCR7PdqB0W/qSsj8vp3fJo9umu25eFBr0c9/k6dSf1WLvBDeMNTB0H0SYe4DQRHYFdZ1
+	Ye
+X-Received: by 2002:a05:600c:3e0c:b0:488:92a3:dd4d with SMTP id 5b1f17b1804b1-488997d32fbmr37461485e9.29.1775210659620;
+        Fri, 03 Apr 2026 03:04:19 -0700 (PDT)
+X-Received: by 2002:a05:600c:3e0c:b0:488:92a3:dd4d with SMTP id 5b1f17b1804b1-488997d32fbmr37460995e9.29.1775210659150;
+        Fri, 03 Apr 2026 03:04:19 -0700 (PDT)
+Received: from sgarzare-redhat (host-87-12-139-105.business.telecomitalia.it. [87.12.139.105])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4887e80a63esm335385945e9.3.2026.04.03.03.04.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Apr 2026 02:32:52 -0700 (PDT)
+        Fri, 03 Apr 2026 03:04:18 -0700 (PDT)
+Date: Fri, 3 Apr 2026 12:04:12 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
-To: netdev@vger.kernel.org
-Cc: "David S. Miller" <davem@davemloft.net>,
-	Arseniy Krasnov <avkrasnov@salutedevices.com>,
-	linux-kernel@vger.kernel.org,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	virtualization@lists.linux.dev
-Subject: [PATCH net] vsock/test: fix send_buf()/recv_buf() EINTR handling
-Date: Fri,  3 Apr 2026 11:32:51 +0200
-Message-ID: <20260403093251.30662-1-sgarzare@redhat.com>
-X-Mailer: git-send-email 2.53.0
+To: Laurence Rowe <laurencerowe@gmail.com>
+Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	Bobby Eshleman <bobbyeshleman@gmail.com>
+Subject: Re: [PATCH] vsock: avoid timeout for non-blocking accept() with
+ empty backlog
+Message-ID: <ac-QdDNhpuGuAzjr@sgarzare-redhat>
+References: <20260402044637.73531-1-laurencerowe@gmail.com>
+ <ac47PYPeL0IyRtY6@sgarzare-redhat>
+ <CAOycyLTy=ZT0AXiwPrbEfyxX_ZZgwzaetKOqP9cNywTO1_wNZw@mail.gmail.com>
+ <CAOycyLR-otKw4jTcNpo3pUBbDx9DVJyPU7b0T6uHib6mSrAvVg@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <CAOycyLR-otKw4jTcNpo3pUBbDx9DVJyPU7b0T6uHib6mSrAvVg@mail.gmail.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: xmAR1PsM0ridIuM9ZaA40cK5eUvtwkIF9JBjuZFErXs_1775208774
+X-Mimecast-MFC-PROC-ID: Vu-D3o6K5QlOhbfmIMsCe14Nod5-z-GGagbsIrrzeQc_1775210660
 X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
-content-type: text/plain; charset="US-ASCII"; x-default=true
 
-From: Stefano Garzarella <sgarzare@redhat.com>
+On Thu, Apr 02, 2026 at 04:30:20PM -0700, Laurence Rowe wrote:
+>On Thu, Apr 2, 2026 at 12:22 PM Laurence Rowe <laurencerowe@gmail.com> wrote:
+>>
+>> On Thu, Apr 2, 2026 at 5:03 AM Stefano Garzarella <sgarzare@redhat.com> wrote:
+>>
+>> > >Scheduling a timeout for a non-blocking accept with an empty backlog
+>> > >meant AF_VSOCK sockets used by epoll network servers incurred hundreds
+>> > >of microseconds of additional latency per accept loop compared to
+>> > >AF_INET or AF_UNIX sockets.
+>> >
+>> > Not related to this patch, but should we do something similar (in
+>> > another patch) also in vsock_connect() or doesn't matter since usually
+>> > it's always blocking?
+>>
+>> Looking at vsock_connect it's not immediately obvious to me whether it
+>> is affected
+>> in the same way. I'll capture some ftraces and follow up after
+>> updating this patch.
+>
+>This does not seem to be a problem for vsock_connect since it checks
+>for `if (flags & O_NONBLOCK) {` in the while loop before calling
+>`schedule_timeout`.
+>
+>Timings and ftraces:
+>
+>https://github.com/lrowe/linux-vsock-accept-timeout-investigation?tab=readme-ov-file#a-quick-look-at-connect
 
-When send() or recv() returns -1 with errno == EINTR, the code skips
-the break but still adds the return value to nwritten/nread, making it
-decrease by 1. This leads to wrong buffer offsets and wrong bytes count.
-
-Fix it by explicitly continuing the loop on EINTR, so the return value
-is only added when it is positive.
-
-Fixes: a8ed71a27ef5 ("vsock/test: add recv_buf() utility function")
-Fixes: 12329bd51fdc ("vsock/test: add send_buf() utility function")
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
- tools/testing/vsock/util.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
-
-diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
-index 9430ef5b8bc3..1fe1338c79cd 100644
---- a/tools/testing/vsock/util.c
-+++ b/tools/testing/vsock/util.c
-@@ -344,7 +344,9 @@ void send_buf(int fd, const void *buf, size_t len, int flags,
- 		ret = send(fd, buf + nwritten, len - nwritten, flags);
- 		timeout_check("send");
- 
--		if (ret == 0 || (ret < 0 && errno != EINTR))
-+		if (ret < 0 && errno == EINTR)
-+			continue;
-+		if (ret <= 0)
- 			break;
- 
- 		nwritten += ret;
-@@ -396,7 +398,9 @@ void recv_buf(int fd, void *buf, size_t len, int flags, ssize_t expected_ret)
- 		ret = recv(fd, buf + nread, len - nread, flags);
- 		timeout_check("recv");
- 
--		if (ret == 0 || (ret < 0 && errno != EINTR))
-+		if (ret < 0 && errno == EINTR)
-+			continue;
-+		if (ret <= 0)
- 			break;
- 
- 		nread += ret;
--- 
-2.53.0
+Thanks for checking and for the fix!
+Stefano
 
