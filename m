@@ -1,138 +1,132 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 98437199D8
-	for <virtualization@lists.linux.dev>; Fri,  3 Apr 2026 02:58:13 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A7682DC331
+	for <virtualization@lists.linux.dev>; Fri,  3 Apr 2026 09:32:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775185094; cv=none; b=nVI3grjZ+TpGlNLc3HykiUm2FNaCVyoS5XOT6mTOvy02l+zIdbXFKbHAdMaPTQ6c8daAhAd6grU0fCkSLjuoOjf8t+oFB0VKsbIH0a//qkZS4jqUy7/WqqmspOglFB07+PMSK4ZSzkWCCvFVIyTopOdCYx//rdw4jMwRLu8jN6c=
+	t=1775208781; cv=none; b=gj7KrxxAuT1oxjrBtjLIaXYFhi9pxjrmZu24MqKDAlhDJu3hqfrejSl3Ii2+V9GAAZabMrer6P1PQJwEu37W5Fc5Wbg+2LSOqkiHpIcRRN3/XNr+UrKdGX7g23UQ4ARgWeIKXtU2oI/Ig45UROHKSZVf8GVHq6tD/69e3lpWbys=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775185094; c=relaxed/simple;
-	bh=OrsYaHbebd/SSPKeyKf/VJ6Qd2v9505H2ZrSwNlE5lw=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=PX+/68CrNdmm+3RQDAfiJOWOrMoWYa2pUjE7/Zm4lhZylMjSR/itn1Kz/x8HNypBPU8ORGQTNpusNE2PRfiCzPQKCLB+ZSGpj0WrpqWePghYKNe3OyQLsSfwLTsL2AQg90VP78fIzGdcA4AYVj8XE97WRns8sbWymkfhG24T9AA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=N0aAPftT; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1775208781; c=relaxed/simple;
+	bh=cv1n3+Y6D+oKSnZC7Rf2LuWBrgJHOPCt+mhyNABBrEQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:content-type; b=NOS9ouap6Dd+9vCj7NA6ZhRZCA7mgYNXpSDZ1muLznJiSeTTLBwMib2FndIK/7rfYxMUr2XJJgbh2zlAwOU4oeTRuNzizpATHjyh0v96Ws+XM9Yn+OLS0KdyydmeAEsUn1g9k++fiRR08ulG63yw05czM1vdg0OcdO7Vsq4WF6Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BHxdMRUQ; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="N0aAPftT"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BHxdMRUQ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1775185092;
+	s=mimecast20190719; t=1775208777;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=wEDAPwDEEynt6WVmKPpdzSXOKEt2L8PEvBbzu0ltSi8=;
-	b=N0aAPftTdGf+OM9Mejrlzhy2YH7k9flgzYe7em8CRlYdgEawzWX6Cf0XqProfVX/lcO3UF
-	p09Hw0xXFWatV1wBUT/fMM873m4g61ynDhPwrgRYr5z2ZQ0OE2di6vq6Ccpe8CyOOK3bs6
-	wS7D7o7zLshcKFReKCRnkTzVFsfXoCQ=
-Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com
- [209.85.216.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=OlhvOOy7p63KXaOzp0l12f0csTlzcyaDpAiq+n8anCo=;
+	b=BHxdMRUQlF+j18Yx8M0UKuoxdIXKOHPEBsvyUe/HeohGRIQ8KdHhWOqCiW6s4XYlj8SsKq
+	EwZrpV991QQXDqxIvdSLS9rvTGv1i9dfHgxJx7kUc2ms5t1eNAGt1Am+Ox2EWV49PABa46
+	S9Ow/Dn7Zt+7qP1usQO8l2Lp/TYnSNI=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-362-eveSa9WXOv-0yl4RpMczig-1; Thu, 02 Apr 2026 22:58:11 -0400
-X-MC-Unique: eveSa9WXOv-0yl4RpMczig-1
-X-Mimecast-MFC-AGG-ID: eveSa9WXOv-0yl4RpMczig_1775185090
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-35c1107da15so1455235a91.2
-        for <virtualization@lists.linux.dev>; Thu, 02 Apr 2026 19:58:11 -0700 (PDT)
+ us-mta-694-efWuDHIGM9e946k1hufJ2Q-1; Fri, 03 Apr 2026 05:32:56 -0400
+X-MC-Unique: efWuDHIGM9e946k1hufJ2Q-1
+X-Mimecast-MFC-AGG-ID: efWuDHIGM9e946k1hufJ2Q_1775208774
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4887d32788bso14009545e9.0
+        for <virtualization@lists.linux.dev>; Fri, 03 Apr 2026 02:32:55 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775185090; x=1775789890;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=wEDAPwDEEynt6WVmKPpdzSXOKEt2L8PEvBbzu0ltSi8=;
-        b=lwpudw/nURxiR0DhY+0p3G53DGabRIF6bfsPrK95kb9UjV6EtAaScwCTN+UFqq3MEk
-         RwhYTk8ko686wXHdEMojiwW9wsmsQsY1HVk+SzELpQ0WNQO3+1RXvk1xIge3KMujh3OW
-         HGlfRro1QPQxwXSamnMQDm6TIUVlarvwWfyRIy+LO62SZZ7utFYF7PZ39nFSEfMbutjq
-         CIdL26FTzzA4p4ATNjR0V76Owp1XSGuS/IfwgunU2gCazOrI6WeTm+r+w1XA+Ehl7tHV
-         mz6NE5XP/VGHI2xx7PD4PMb3/hSQDFQpn6Wo6b6PzssrOS9LJeH3o6I43HRUx21ZOK92
-         QJlw==
-X-Forwarded-Encrypted: i=1; AJvYcCWdhthiwZAiPrOd7HBvU/G3FaoYsKg1SqbcV6aXha9pKfNHos8bOK0eqmf+q02bYV3oMlZ1Nkmi0jm4s7VDdw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxGVmzXT7BpsblS+VxMHS8ndlS1sTaF8PLTx+LiXnlQ3xgopGSe
-	ka39IWEPtwWJSvlb4FAO1vFzNerpy7VT7Y3Iu4clS7CbcpzdfH24ATmk39SqpiEsWzuETzV42Mt
-	Bl9l/GoXwURvxlZ8J8zXClNA44OhOff9fw7arBRXSouIGB+I7uGlY2583CtQj694HaPZEZ+3Pg5
-	2z6QK3KZXoD307pB/i5vyI/QaihByzEbRJC9I1PJih3gk=
-X-Gm-Gg: ATEYQzyPLmNdJGqqaEroZx4OIe2IHF/vkpHdCF62o36nJx6G4GK9Wj6yz3WT0Z1M9XN
-	ItZkU4tHwiF5IJvJOe81pEghdNoEhExVuHn8nFaBFGTO/yNOrtil51QUujWbecCY+GjQJAfpviV
-	q+j+3Y3gtYNlPx1U4ejCxYQ0KgH2H2x54aJZQYuDoQG6b4NUWM78cgtGS7kc3ohcpKS3yq7yxiZ
-	ZIbkaw=
-X-Received: by 2002:a05:6a20:7f98:b0:387:a311:3825 with SMTP id adf61e73a8af0-39f2f3079f3mr1212045637.61.1775185090338;
-        Thu, 02 Apr 2026 19:58:10 -0700 (PDT)
-X-Received: by 2002:a05:6a20:7f98:b0:387:a311:3825 with SMTP id
- adf61e73a8af0-39f2f3079f3mr1212024637.61.1775185089824; Thu, 02 Apr 2026
- 19:58:09 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1775208774; x=1775813574;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=OlhvOOy7p63KXaOzp0l12f0csTlzcyaDpAiq+n8anCo=;
+        b=o/TLhQatmENMR/o31vZJzxkEu417uo8xHnG/ZCRtll1CiHOAtRc0P34bRDzuGry3y7
+         fn6EO6XHLbKD9mTvxwF3K1nfXn34tFP/CJ3eQ2s4HLmLglmK4LDUWNrbbKmG76pD5oop
+         lgn2smu3azzsBL9W8F+TPpjmKvBuUSlP/8MNEkAhXd3QRw2Fu0aQlPGemHAb7NjRkm5B
+         WfRxMSzJ+2LqNh/LHZExy8woAyGE5Q6e5VVfgBNX9tegtor8Ne4oWovhADyBMYMe8gtD
+         KlGWXDTV84DHMCteIs+RXj3sPbZuWVFaCIWYOxEVkDOL00yCa2sml4EzDKMRPXXFdrUd
+         9I7A==
+X-Forwarded-Encrypted: i=1; AJvYcCXbDt5gDofwT1alC/9Ny7vEohdOtHM8Xtgeoslx0R6TxRGCSr99sutuAU68lnTt2+8wsEyrXfuPWupo4PnvXg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxl0sfXAxSCBtd8CAnHHhrOTMWj9unZcOxlZelR7RDCN63mjLWt
+	CRsUQvHqHyJduU8M17JxnO57MnOzNjUfoYuZ/Ln/+s3HqFKAv47RLjo3eHE39LUP3CQ4ZuYbp2y
+	4+/xgsJNjdvnNyp2tWuwd7IKNqDPuKa1sf8uWb1ULkotkcTd1hYGvfW2snq2W0X6nOVSd
+X-Gm-Gg: ATEYQzy7j+8gdk7J/208/nB3guk0gFCqZzCPbn97EjKY4viS4+5swYPaZOgRRZYjf1W
+	VT7Q9PO19lYZf1ATXG6Nn8G9YDfWhYTaabhtkPzImbNxLmBsJ9cGipkUNzcmk/MFdTZf4EphkoB
+	/G11J/MqDDnD7FY1lUb1lkBQ2yPrOLXA6SL5NUjIu5Saup0/rSvpipoYd6kOzyMlKPC1C31DEFh
+	1tLEhoJS60sfVgTMqgIDQfaqMBzo62VRneQtPEC6QV+lnkiXxUwfdrKd18J/UuN/BhMftGVS8Ky
+	pMwTXYbCPB4xKnfXnkZBRaKj4HJJboA5vvqddvn9yv4dZNcK6UufcvJSJIXzzhpF2O+3LG6lsmy
+	/Iejx2dG2eXzAO1pYHz1ixiCVuEFp5ElSpFRE66l/2UeEfpi3lpHxLNXOG97dzIE=
+X-Received: by 2002:a05:600c:1d86:b0:480:1d0b:2d32 with SMTP id 5b1f17b1804b1-48899719a00mr32512475e9.12.1775208774411;
+        Fri, 03 Apr 2026 02:32:54 -0700 (PDT)
+X-Received: by 2002:a05:600c:1d86:b0:480:1d0b:2d32 with SMTP id 5b1f17b1804b1-48899719a00mr32512075e9.12.1775208773785;
+        Fri, 03 Apr 2026 02:32:53 -0700 (PDT)
+Received: from stex1 (host-87-12-139-105.business.telecomitalia.it. [87.12.139.105])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4888a65635fsm132198625e9.6.2026.04.03.02.32.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 03 Apr 2026 02:32:52 -0700 (PDT)
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: netdev@vger.kernel.org
+Cc: "David S. Miller" <davem@davemloft.net>,
+	Arseniy Krasnov <avkrasnov@salutedevices.com>,
+	linux-kernel@vger.kernel.org,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	virtualization@lists.linux.dev
+Subject: [PATCH net] vsock/test: fix send_buf()/recv_buf() EINTR handling
+Date: Fri,  3 Apr 2026 11:32:51 +0200
+Message-ID: <20260403093251.30662-1-sgarzare@redhat.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260331102626.108962-1-lange_tang@163.com> <20260331102626.108962-2-lange_tang@163.com>
-In-Reply-To: <20260331102626.108962-2-lange_tang@163.com>
-From: Jason Wang <jasowang@redhat.com>
-Date: Fri, 3 Apr 2026 10:57:58 +0800
-X-Gm-Features: AQROBzCuJCoKuJshy4hPFnkz6yoFCG-wgRnUwaDqexm9jhVzFw_1yyQu6eCi6U8
-Message-ID: <CACGkMEtakF0EUYT11N=aNjphY_Ra4YsRaJZmJ4UD0VL5aPxX9g@mail.gmail.com>
-Subject: Re: [PATCH 1/2] virtio_net: disable cb when in busy-polling
-To: Longjun Tang <lange_tang@163.com>
-Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, edumazet@google.com, 
-	tanglongjun@kylinos.cn, virtualization@lists.linux.dev
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 2M6CEfO2fxCcKjAXXEwFDonPi5gVD_mbyOgNLiEe32E_1775185090
+X-Mimecast-MFC-PROC-ID: xmAR1PsM0ridIuM9ZaA40cK5eUvtwkIF9JBjuZFErXs_1775208774
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+content-type: text/plain; charset="US-ASCII"; x-default=true
 
-On Tue, Mar 31, 2026 at 6:27=E2=80=AFPM Longjun Tang <lange_tang@163.com> w=
-rote:
->
-> From: Longjun Tang <tanglongjun@kylinos.cn>
->
-> virtnet_poll() is shared between NAPI softirq context and the busy-poll
-> path (sk_busy_loop).  In the busy-poll path the caller drives the loop
-> directly and does not rely on interrupts to schedule NAPI; keeping
-> callbacks enabled is wasteful and risks a flood of IRQ_NONE returns that
-> can trigger the kernel's spurious-IRQ detector.
->
-> Signed-off-by: Longjun Tang <tanglongjun@kylinos.cn>
-> ---
->  drivers/net/virtio_net.c | 3 +++
->  1 file changed, 3 insertions(+)
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 72d6a9c6a5a2..df365fba2c40 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -3078,6 +3078,9 @@ static int virtnet_poll(struct napi_struct *napi, i=
-nt budget)
->         unsigned int xdp_xmit =3D 0;
->         bool napi_complete;
->
-> +       if (READ_ONCE(napi->state) & NAPIF_STATE_IN_BUSY_POLL)
-> +               virtqueue_disable_cb(rq->vq);
-> +
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-I guess the root cause is virtuqeue_disable_cb() doesn't disable cb in
-this case?
+When send() or recv() returns -1 with errno == EINTR, the code skips
+the break but still adds the return value to nwritten/nread, making it
+decrease by 1. This leads to wrong buffer offsets and wrong bytes count.
 
-static void virtqueue_napi_schedule(struct napi_struct *napi,
-                                    struct virtqueue *vq)
-{
-        if (napi_schedule_prep(napi)) {
-virtqueue_disable_cb(vq);
-                __napi_schedule(napi);
-        }
-}
+Fix it by explicitly continuing the loop on EINTR, so the return value
+is only added when it is positive.
 
-If there's an interrupt in the middle of NAPIF_STATE_IN_BUSY_POLL,
-napi_schedule_prep() will return false, so we lose the chance to
-disable cb.
+Fixes: a8ed71a27ef5 ("vsock/test: add recv_buf() utility function")
+Fixes: 12329bd51fdc ("vsock/test: add send_buf() utility function")
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+---
+ tools/testing/vsock/util.c | 8 ++++++--
+ 1 file changed, 6 insertions(+), 2 deletions(-)
 
-Thanks
-
->         virtnet_poll_cleantx(rq, budget);
->
->         received =3D virtnet_receive(rq, budget, &xdp_xmit);
-> --
-> 2.43.0
->
+diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
+index 9430ef5b8bc3..1fe1338c79cd 100644
+--- a/tools/testing/vsock/util.c
++++ b/tools/testing/vsock/util.c
+@@ -344,7 +344,9 @@ void send_buf(int fd, const void *buf, size_t len, int flags,
+ 		ret = send(fd, buf + nwritten, len - nwritten, flags);
+ 		timeout_check("send");
+ 
+-		if (ret == 0 || (ret < 0 && errno != EINTR))
++		if (ret < 0 && errno == EINTR)
++			continue;
++		if (ret <= 0)
+ 			break;
+ 
+ 		nwritten += ret;
+@@ -396,7 +398,9 @@ void recv_buf(int fd, void *buf, size_t len, int flags, ssize_t expected_ret)
+ 		ret = recv(fd, buf + nread, len - nread, flags);
+ 		timeout_check("recv");
+ 
+-		if (ret == 0 || (ret < 0 && errno != EINTR))
++		if (ret < 0 && errno == EINTR)
++			continue;
++		if (ret <= 0)
+ 			break;
+ 
+ 		nread += ret;
+-- 
+2.53.0
 
