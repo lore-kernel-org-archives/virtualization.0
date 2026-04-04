@@ -1,137 +1,221 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D9DFE3254B2
-	for <virtualization@lists.linux.dev>; Fri,  3 Apr 2026 12:10:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 238BA3B7A8;
+	Sat,  4 Apr 2026 15:02:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775218221; cv=none; b=hJ/B6wzQB8GctRd7GXBAaKoQ/dLHJf3vVxcI+sJsXb/UkrlmFA4P7GAvX3P41Xvl2KF5/sge/7NYyyRzzAY3msQ9qTOMZUjX1ujwMRqe2mE9WDkv2mmUvjleT8NZpZP60ZYzDOtuNbatYIL/b1nB0YbzuNhbOipoBdY9U3bjh9g=
+	t=1775314936; cv=none; b=hXy9wh6iRLHCgPLpwTcrMVazPACLWQ7Nh9iBsM8SymD9oawhjS87W3ieISdwGRqkxuPaO3agP6XPnj0eW8+V/n0gD+GqZAYcfzwKcbbTlbBR2BmRauKV9eOfq3mOPwl+K2JzC3zN0KUzvHiElzZrf0ypqZEr9Pfxj98ZpcnmBqk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775218221; c=relaxed/simple;
-	bh=gKuPZPZjAF2bu9KQLK5KUDtBDxAA9ZaVqW9WeXW5oAU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=TGaFXK7AnQOhFsjR2AJTf76irnaJOmbd6O0LVgQ3n8lQ8jVXZOzNif5WRhByToDj0ToZx0orrwwkdPRHTMsKWYqcJjl7LztaYupAeRq95GDlm9H9yHtTakARtlNvt79cPR5znVgft09PgMRVRcOAVTL6BBJKxbGxvUuI5p5jSIw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aAHcwrc7; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1775314936; c=relaxed/simple;
+	bh=yS1a8GmMxhd+gaXjsrUMOyEcZUcN2vLf71oRyrhAVkk=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=U7whb4p0v2gfusZtNmzpc2g52jEEGYJwWhUfkdYnueaq0aVlNCTCg7MAvWKVqc6K91kFLa9il1ZJMXRQaqmhCo8VXCUU2Zh9MSNm5PXOjGXQ57XJ+RRvOcZVNMk8DUx3DQ7OfD6Ei/IAH07RXc/ud58vcvc9rrLW1G5sjTxG6o0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fcd1WH1u; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aAHcwrc7"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1775218218;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=XT4Axufy1UQO5/IB2/wh8iVy7omBnkBDck5yhzPJ1BM=;
-	b=aAHcwrc735IwvBAApWmu/Z34yP3sChN4MEQ+fSBlQwleL+psIQ+9o/0DJf4hyGbG0idhaC
-	it5Jde+IkFdAeZw2lUPlO3OPMypsMMV/Rpe9Wz62HRevy7ZcbuvVtCh87RNI2yzBIYU+lw
-	VGwReW2gbbFAuOl9tNg44ah/ccssESg=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-442-MBimRL1iOBeaqGDKg9hHpQ-1; Fri, 03 Apr 2026 08:10:17 -0400
-X-MC-Unique: MBimRL1iOBeaqGDKg9hHpQ-1
-X-Mimecast-MFC-AGG-ID: MBimRL1iOBeaqGDKg9hHpQ_1775218216
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4837b6f6b93so21679615e9.3
-        for <virtualization@lists.linux.dev>; Fri, 03 Apr 2026 05:10:17 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775218216; x=1775823016;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=XT4Axufy1UQO5/IB2/wh8iVy7omBnkBDck5yhzPJ1BM=;
-        b=d7SXw5VjoJEoH1XrocXUZdbvYjdWGLs63fyBR3v5kCBgXOk7h/U4wcZgft8943uyx6
-         bsJjdSo5DtWzl+bPrBMpZdJqOBvgIiPPK6vyzpXpqv6Bm73cRLowZkD80BYJ++GobDEq
-         j2Xtn03Qt0JTi7H0TlDgSVJisbqIx4Mu0Cc1chObGHEg9mSD/YPffp+IvZ7RpGSPhMDM
-         hSmuDlbcza76bkY7G+wCCEp0J55dTAIBel8ZJryidAchEn4boDuEMLD/Ch3665cCP2yF
-         SwRaEzV0ri8MB8vDmPQdyfnVJxD72+HjmXtsQvK9aCOHz5dbux0K84IV+vNOobxWkgUt
-         2WmQ==
-X-Forwarded-Encrypted: i=1; AJvYcCV9vPQzb4vPIebrc5aU+xcyG9E7TVhyasICmGB28F786pOhTVeDOO1gBpFJ80OWBXg0y8uryk7wzO6a8A+zmw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YypsjQmSHLyBeouD2IEjxLGl3bhS+CgG2sgs7IIIYfE+JKJ6/yc
-	apzf/FaatF0jkdlR4HornW1kh/as1wbjXrPjMDJ8tOnmBSu8Rlaj4UAoRf5Rk/ZJZSaJoqJ6L61
-	ccohc2gl9wnB3+uE6RjXDVdvXTi76a/tsf8fAce1oU0m+sTQEYoA2+dCSKGhuGkSRfMhk
-X-Gm-Gg: ATEYQzxpJz3gmJ3bGcz2N253R/Zrkc9jxXtcrhWR/Rd6IxVpkXYT/TDW5uOl4wNXdHj
-	BnNh1wO3Oneocm0sV2MKHzWQcvkhML3Xxmw72DkhYCkFfpDvnsxJ1eKypmIhg3SqBp3laNTL9AP
-	/6I29uRiBuwvXEuzNWhK5j8+us9dTd/nuazdY6nTm6FlGezRvHviUMzDeG6Mc8zKS077fta5lV5
-	q9g1z81lCLUcwA/wfKmxtHta/wGltZU3MljjirBPyA0EfCXf29CJX3dwUznR7CDgjgEaMt4+uFl
-	HxKd2xy1LkKDYDW6125NjzQkA7ggp4DicLHYUIaMqbbX/sk7jFuuuLdfpOFMmmkl+c23kbp+0Hr
-	Nx5HbbwjTsl5Wa/0RUItyZcirMHo=
-X-Received: by 2002:a05:600c:3544:b0:486:fd5c:2b35 with SMTP id 5b1f17b1804b1-48899735bb2mr39169255e9.13.1775218216473;
-        Fri, 03 Apr 2026 05:10:16 -0700 (PDT)
-X-Received: by 2002:a05:600c:3544:b0:486:fd5c:2b35 with SMTP id 5b1f17b1804b1-48899735bb2mr39168825e9.13.1775218216048;
-        Fri, 03 Apr 2026 05:10:16 -0700 (PDT)
-Received: from leonardi-redhat ([176.206.19.176])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4889f6843dfsm22557565e9.12.2026.04.03.05.10.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 03 Apr 2026 05:10:15 -0700 (PDT)
-Date: Fri, 3 Apr 2026 14:10:13 +0200
-From: Luigi Leonardi <leonardi@redhat.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: netdev@vger.kernel.org, "David S. Miller" <davem@davemloft.net>, 
-	Arseniy Krasnov <avkrasnov@salutedevices.com>, linux-kernel@vger.kernel.org, virtualization@lists.linux.dev
-Subject: Re: [PATCH net] vsock/test: fix send_buf()/recv_buf() EINTR handling
-Message-ID: <ac-uFMz-tFFQIOAE@leonardi-redhat>
-References: <20260403093251.30662-1-sgarzare@redhat.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fcd1WH1u"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B9BB2C19421;
+	Sat,  4 Apr 2026 15:02:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1775314935;
+	bh=yS1a8GmMxhd+gaXjsrUMOyEcZUcN2vLf71oRyrhAVkk=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=fcd1WH1uMPDFcW95A5bP6twrmSlGywxDbhV9K4GUdxmnw9OhLho72J9OlIZREDDfv
+	 Evf5eg+FhGKnEBZMEi0xrGzL0W0wBBPFC5ZbOalQpNWyhGwDm3HuLGvy/jgjYAq60X
+	 Jsa257f9xIzRC/LnmHpxdh9mv/JRHNm7utYMn96WoZP6ZRATrlwe1+3BmjlR9bxRPR
+	 tiA87cPHB5ojtZQJ2zSKPbtecnXGON24oyWbrZcP9XuN+XivvmLrVCQGu5orrMZe/a
+	 +xDtWMIwREbTcGNYdTKbgyxE7aDCuXqmHaashK055GEOETa+XQlaspyrGVn7GrwOhI
+	 UHZOaAkc+kiUA==
+From: Danilo Krummrich <dakr@kernel.org>
+To: Russell King <linux@armlinux.org.uk>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Ioana Ciornei <ioana.ciornei@nxp.com>,
+	Nipun Gupta <nipun.gupta@amd.com>,
+	Nikhil Agarwal <nikhil.agarwal@amd.com>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>,
+	Dexuan Cui <decui@microsoft.com>,
+	Long Li <longli@microsoft.com>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Armin Wolf <W_Armin@gmx.de>,
+	Bjorn Andersson <andersson@kernel.org>,
+	Mathieu Poirier <mathieu.poirier@linaro.org>,
+	Vineeth Vijayan <vneethv@linux.ibm.com>,
+	Peter Oberparleiter <oberpar@linux.ibm.com>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Alexander Gordeev <agordeev@linux.ibm.com>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	Sven Schnelle <svens@linux.ibm.com>,
+	Harald Freudenberger <freude@linux.ibm.com>,
+	Holger Dengler <dengler@linux.ibm.com>,
+	Mark Brown <broonie@kernel.org>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Alex Williamson <alex@shazbot.org>,
+	Juergen Gross <jgross@suse.com>,
+	Stefano Stabellini <sstabellini@kernel.org>,
+	Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+	"Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
+Cc: linux-kernel@vger.kernel.org,
+	driver-core@lists.linux.dev,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-hyperv@vger.kernel.org,
+	linux-pci@vger.kernel.org,
+	platform-driver-x86@vger.kernel.org,
+	linux-arm-msm@vger.kernel.org,
+	linux-remoteproc@vger.kernel.org,
+	linux-s390@vger.kernel.org,
+	linux-spi@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org,
+	xen-devel@lists.xenproject.org,
+	linux-arm-kernel@lists.infradead.org,
+	Danilo Krummrich <dakr@kernel.org>,
+	Michael Kelley <mhklinux@outlook.com>,
+	Gui-Dong Han <hanguidong02@gmail.com>
+Subject: [PATCH v2] Drivers: hv: vmbus: use generic driver_override infrastructure
+Date: Sat,  4 Apr 2026 17:01:49 +0200
+Message-ID: <20260404150155.3473682-1-dakr@kernel.org>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <BN7PR02MB414825D0532A1DFE16F3B671D449A@BN7PR02MB4148.namprd02.prod.outlook.com>
+References: <BN7PR02MB414825D0532A1DFE16F3B671D449A@BN7PR02MB4148.namprd02.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260403093251.30662-1-sgarzare@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: No0a7kP4ENlwp4vVTT5YVqqPD8cJNi-AultBpEvwU3o_1775218216
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Fri, Apr 03, 2026 at 11:32:51AM +0200, Stefano Garzarella wrote:
->From: Stefano Garzarella <sgarzare@redhat.com>
->
->When send() or recv() returns -1 with errno == EINTR, the code skips
->the break but still adds the return value to nwritten/nread, making it
->decrease by 1. This leads to wrong buffer offsets and wrong bytes count.
->
->Fix it by explicitly continuing the loop on EINTR, so the return value
->is only added when it is positive.
->
->Fixes: a8ed71a27ef5 ("vsock/test: add recv_buf() utility function")
->Fixes: 12329bd51fdc ("vsock/test: add send_buf() utility function")
->Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
->---
-> tools/testing/vsock/util.c | 8 ++++++--
-> 1 file changed, 6 insertions(+), 2 deletions(-)
->
->diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
->index 9430ef5b8bc3..1fe1338c79cd 100644
->--- a/tools/testing/vsock/util.c
->+++ b/tools/testing/vsock/util.c
->@@ -344,7 +344,9 @@ void send_buf(int fd, const void *buf, size_t len, int flags,
-> 		ret = send(fd, buf + nwritten, len - nwritten, flags);
-> 		timeout_check("send");
->
->-		if (ret == 0 || (ret < 0 && errno != EINTR))
->+		if (ret < 0 && errno == EINTR)
->+			continue;
->+		if (ret <= 0)
-> 			break;
->
-> 		nwritten += ret;
->@@ -396,7 +398,9 @@ void recv_buf(int fd, void *buf, size_t len, int flags, ssize_t expected_ret)
-> 		ret = recv(fd, buf + nread, len - nread, flags);
-> 		timeout_check("recv");
->
->-		if (ret == 0 || (ret < 0 && errno != EINTR))
->+		if (ret < 0 && errno == EINTR)
->+			continue;
->+		if (ret <= 0)
-> 			break;
->
-> 		nread += ret;
->-- 
->2.53.0
->
+When a driver is probed through __driver_attach(), the bus' match()
+callback is called without the device lock held, thus accessing the
+driver_override field without a lock, which can cause a UAF.
 
-LGTM!
+Fix this by using the driver-core driver_override infrastructure taking
+care of proper locking internally.
 
-Reviewed-by: Luigi Leonardi <leonardi@redhat.com>
+Note that calling match() from __driver_attach() without the device lock
+held is intentional. [1]
+
+Tested-by: Michael Kelley <mhklinux@outlook.com>
+Reviewed-by: Michael Kelley <mhklinux@outlook.com>
+Link: https://lore.kernel.org/driver-core/DGRGTIRHA62X.3RY09D9SOK77P@kernel.org/ [1]
+Reported-by: Gui-Dong Han <hanguidong02@gmail.com>
+Closes: https://bugzilla.kernel.org/show_bug.cgi?id=220789
+Fixes: d765edbb301c ("vmbus: add driver_override support")
+Signed-off-by: Danilo Krummrich <dakr@kernel.org>
+---
+Changes in v2:
+  - Change patch subject and comments according to Michael's suggestion.
+---
+ drivers/hv/vmbus_drv.c | 43 ++++++++++--------------------------------
+ include/linux/hyperv.h |  5 -----
+ 2 files changed, 10 insertions(+), 38 deletions(-)
+
+diff --git a/drivers/hv/vmbus_drv.c b/drivers/hv/vmbus_drv.c
+index bc4fc1951ae1..ba7326ec6add 100644
+--- a/drivers/hv/vmbus_drv.c
++++ b/drivers/hv/vmbus_drv.c
+@@ -541,34 +541,6 @@ static ssize_t device_show(struct device *dev,
+ }
+ static DEVICE_ATTR_RO(device);
+ 
+-static ssize_t driver_override_store(struct device *dev,
+-				     struct device_attribute *attr,
+-				     const char *buf, size_t count)
+-{
+-	struct hv_device *hv_dev = device_to_hv_device(dev);
+-	int ret;
+-
+-	ret = driver_set_override(dev, &hv_dev->driver_override, buf, count);
+-	if (ret)
+-		return ret;
+-
+-	return count;
+-}
+-
+-static ssize_t driver_override_show(struct device *dev,
+-				    struct device_attribute *attr, char *buf)
+-{
+-	struct hv_device *hv_dev = device_to_hv_device(dev);
+-	ssize_t len;
+-
+-	device_lock(dev);
+-	len = sysfs_emit(buf, "%s\n", hv_dev->driver_override);
+-	device_unlock(dev);
+-
+-	return len;
+-}
+-static DEVICE_ATTR_RW(driver_override);
+-
+ /* Set up per device attributes in /sys/bus/vmbus/devices/<bus device> */
+ static struct attribute *vmbus_dev_attrs[] = {
+ 	&dev_attr_id.attr,
+@@ -599,7 +571,6 @@ static struct attribute *vmbus_dev_attrs[] = {
+ 	&dev_attr_channel_vp_mapping.attr,
+ 	&dev_attr_vendor.attr,
+ 	&dev_attr_device.attr,
+-	&dev_attr_driver_override.attr,
+ 	NULL,
+ };
+ 
+@@ -711,9 +682,11 @@ static const struct hv_vmbus_device_id *hv_vmbus_get_id(const struct hv_driver *
+ {
+ 	const guid_t *guid = &dev->dev_type;
+ 	const struct hv_vmbus_device_id *id;
++	int ret;
+ 
+-	/* When driver_override is set, only bind to the matching driver */
+-	if (dev->driver_override && strcmp(dev->driver_override, drv->name))
++	/* If a driver override is set, only bind to the matching driver */
++	ret = device_match_driver_override(&dev->device, &drv->driver);
++	if (ret == 0)
+ 		return NULL;
+ 
+ 	/* Look at the dynamic ids first, before the static ones */
+@@ -721,8 +694,11 @@ static const struct hv_vmbus_device_id *hv_vmbus_get_id(const struct hv_driver *
+ 	if (!id)
+ 		id = hv_vmbus_dev_match(drv->id_table, guid);
+ 
+-	/* driver_override will always match, send a dummy id */
+-	if (!id && dev->driver_override)
++	/*
++	 * If there's a matching driver override, this function should succeed,
++	 * thus return a dummy device ID if no matching ID is found.
++	 */
++	if (!id && ret > 0)
+ 		id = &vmbus_device_null;
+ 
+ 	return id;
+@@ -1024,6 +1000,7 @@ static const struct dev_pm_ops vmbus_pm = {
+ /* The one and only one */
+ static const struct bus_type  hv_bus = {
+ 	.name =		"vmbus",
++	.driver_override =	true,
+ 	.match =		vmbus_match,
+ 	.shutdown =		vmbus_shutdown,
+ 	.remove =		vmbus_remove,
+diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
+index dfc516c1c719..bf689d07d750 100644
+--- a/include/linux/hyperv.h
++++ b/include/linux/hyperv.h
+@@ -1272,11 +1272,6 @@ struct hv_device {
+ 	u16 device_id;
+ 
+ 	struct device device;
+-	/*
+-	 * Driver name to force a match.  Do not set directly, because core
+-	 * frees it.  Use driver_set_override() to set or clear it.
+-	 */
+-	const char *driver_override;
+ 
+ 	struct vmbus_channel *channel;
+ 	struct kset	     *channels_kset;
+-- 
+2.53.0
 
