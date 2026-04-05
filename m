@@ -1,121 +1,122 @@
-Received: from mx5.sberdevices.ru (mx5.sberdevices.ru [95.181.183.35])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCFEE2236FD
-	for <virtualization@lists.linux.dev>; Sun,  5 Apr 2026 19:22:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.181.183.35
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CC042F069D
+	for <virtualization@lists.linux.dev>; Sun,  5 Apr 2026 19:32:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775416933; cv=none; b=i9+HFKrkToZdlTVmOSkcbdPGfZwDj3VT1ZelnzdXC5NrjqZ8jQwcnVHc4CkR+Fpwj5YjBz18Om0vD0hQageKWeLW51r90Ant4wntdcR/Of/vTnD94CHrZ6bzQvUhS1nSg1kzyos0dRTlhfVr0Z6b8xATvk/EcTM896LBlt23c7Q=
+	t=1775417561; cv=none; b=Jvveo0Pfi3cnTHVqSXinxOppujpTKvnTy/4yCJCVqb8bvGDU+CAPYq1JWqBMi5eXXALuPBp6f/27FqdWAve7+w2ALyW0wdNQWVDK6ok7JyfRpwbojlRNjojdN+G9OCYWjD+IBIq5wmZ0IsQGbKuzDuOcukqW4sTkkiVQ4671E3s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775416933; c=relaxed/simple;
-	bh=4FEK7G9FUJ2+gkgHqqFO4PYkr4bpAFXC7gWGdsYRC00=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=UvP4KpcnzQS4Racc3uo+3hw9PQ7BH6l5A7gZbF+N1tM2fHXRFrvAVI0mNq5ZLfDap4PP9kcsRe0ZaKGAYtaahHGJTKRCvZtNp1kvOUuNUGsMMGpKA/W4B9x1fjF/Vhu2Gpi6Nf1gErKG3jLyRBb7WTzf+3G89cJo7+lipUWN+Rs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=salutedevices.com; spf=pass smtp.mailfrom=salutedevices.com; dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b=oJnZ90iu; arc=none smtp.client-ip=95.181.183.35
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=salutedevices.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=salutedevices.com
+	s=arc-20240116; t=1775417561; c=relaxed/simple;
+	bh=vBtlceh81EBRly2nwGp4pbLnqkxyOo4vOEbYGLFUMsY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=nJwdSr0fWKjFx+ohXlF43GB15zuGUFENZvRnLCTllPQNPFRtp1tnNOxLY3ZHdBxDqD4DNzZlDvjGo5Dker7tx0dHAlwDITxUNza3tItnK4adFqKA3Vv5cEzujfK8YXMMIy9fhr8aOtR37H9P5bMR/EQzqx9HCCgU17V1DzUfrVM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kLyBqsBN; arc=none smtp.client-ip=209.85.216.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="oJnZ90iu"
-Received: from p-antispam-ksmg-gc-msk01.sberdevices.ru (localhost [127.0.0.1])
-	by mx5.sberdevices.ru (Postfix) with ESMTP id 1904A24000B;
-	Sun,  5 Apr 2026 22:22:10 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx5.sberdevices.ru 1904A24000B
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
-	s=post; t=1775416930;
-	bh=6Sq7O88E3GPsooLdbHDQsH6D2/KBDMjazQjjB7hgd+M=;
-	h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type:From;
-	b=oJnZ90iu6tByApjRTo5oYcdLV99i4TCUbO75XEHSeeZ5NlradpeVikvUdOBw1JyqO
-	 xIAgbjEUBBuWZoTIpABOq76RYp/XDPUFp1j50fRiGHM/gLhWeS+/aQDObW6v7l8wpd
-	 nogXGgAUqymks0PZL60oFtijQD1xChFHoO842751U8Vy2ClgN9o4kleDq4UzkagRtl
-	 /vVHL7Vti3YmgxOg+JYAW5f7aDj7HSvw+7d3Axs5/5UkB5l2VRzMQn6UjxHFHdltJ6
-	 rt2BpuMiIBCjvcb1jF1r9kLJtgR6yPHGzL0MqqlW6sMz2Tp64CKs4h8asmQVtuPN7h
-	 guxhh/i/Pj9Wg==
-Received: from smtp.sberdevices.ru (p-exch-cas-a-m1.sberdevices.ru [172.24.201.216])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(Client CN "sberdevices.ru", Issuer "R12" (not verified))
-	by mx5.sberdevices.ru (Postfix) with ESMTPS;
-	Sun,  5 Apr 2026 22:22:09 +0300 (MSK)
-Message-ID: <ac71a69c-e45d-4767-b5c0-806708fff388@salutedevices.com>
-Date: Sun, 5 Apr 2026 22:22:08 +0300
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kLyBqsBN"
+Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-35da8d037a5so1257309a91.0
+        for <virtualization@lists.linux.dev>; Sun, 05 Apr 2026 12:32:40 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1775417560; x=1776022360; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZBuFGDALcJeSyW255Y6h4kabjHqNu/KLOW1Xbqv4rHw=;
+        b=kLyBqsBNXSVoyMkq3zy09rHeDir+qgjhukByaiVIdqwiS/eUFAdvZymnRxfAkWnnFG
+         a7gNgzHs1E3ipiON87YdqU6x7aWuiyBOuwVWGFMfuUsu9PfI2TSnN00X8KGexOniPW6L
+         sXUmhwoqy/QLxz5LzJeOWSq3Iva9nv1luM/McM92PAzmfsA+0O8lQMS77VzGIkZWkfb+
+         63+Drc/smB+DE2s0NLURuavd4PdW6UKhymxJxjgr514jTa/fQttf3h8l+ArgxbkzJzks
+         3DUj+3k2Vxk8Bf6lj/2VgykxhNa4o3V6fG1vJsUQ/iQPZTXJYEQy6xbDULwXyQeeWAvr
+         zsow==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775417560; x=1776022360;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ZBuFGDALcJeSyW255Y6h4kabjHqNu/KLOW1Xbqv4rHw=;
+        b=Vnzkvp15Vcz+MLU8EWZB/MljsW8XoWPro2mr3fWL3aCXu8xmTERtg273aHl/5pePRE
+         bcGEE9q4kA8kEoIMjiOX5R4jyitNy/MOGG+JQVSjfHpjWlUIA8nJGpTW0P3qlrJ1ELkj
+         f3rpIahiJXSXiVZp/AGiwVSQ5aWRW9tmFXjwXDYGB4DyYUMUTHi02yy5Mehw5cOQMv27
+         /yNSsRVMumpRCAXe7h7iIM0f1IzOPmz4j9cHa5MMf9b/afZQbkVWNyNcVsL0//TR0eIV
+         xlAwHMd0qS6rjLvImcoRUveITM9UIynb3QqNL7Dimnh5t2PL3SOnvzRNGirtRbwWtHi6
+         jtvA==
+X-Forwarded-Encrypted: i=1; AJvYcCUAtKhc7BGKqo2RJctFR5chrndnclPdxtD1j5CpAZycNaThjrfvifMTJ4kczJMCoRq1S6KmuGWXXTeRmBWQrg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YztDGJwjVXYoQTQO/8iJeI7xE8SbPi5pEGOYH67kCvCVXv9Y4mS
+	quHsBLlfjt1Iirh6lOUYUpJ113YOEFgbD1WXpAD+8nXqh8QC/YX5PCDw
+X-Gm-Gg: AeBDiesyrVjCx4U5EJwvYiyGzVMYgZ7iQzK3HBGKsFY/xl4O5yf8OBH2QfITsLLmZQz
+	t/he/1OsVtXzcblKz/MN8SYlJ6eYYL9w0qRgRx8BBvtiW+6vFAxaK6X5O7FVitFxHaNicekPWie
+	K+GLJzmrf37oT0h7gP1Mrsg9FOvxglxtHwzR0RPFnusHDN7bsQP3Hs3J3NfONBRDIxLbIM/UO0O
+	kJQxl4UFTJLWnN9jnUD0T048qAm3jYtYzXi7b80u/dvh1coFxYxn5OXGE5lnsZwkuwNiGOoiUIa
+	g9MCOBqvCYOofoNKR/SjSJR4v66OdrbjQO2Xg8yTN4gj6zWVxjc+mrMx4IBRqe+JwsS4olCi3Xl
+	r9ONsDopvrWKR0mZyZo1PBTMCwgIsUfQ/EBKTyE52PyNl8aNvuz3ECk382BxUP1QQYj9FX41thf
+	6nSHRNYA7VhcOhEA==
+X-Received: by 2002:a17:90b:1dc6:b0:35d:a843:6b1f with SMTP id 98e67ed59e1d1-35de6899ce5mr9686034a91.11.1775417559954;
+        Sun, 05 Apr 2026 12:32:39 -0700 (PDT)
+Received: from mes.. ([2001:288:3001:25:be24:11ff:fe8b:b59f])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c76c6563aacsm10498601a12.19.2026.04.05.12.32.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 05 Apr 2026 12:32:39 -0700 (PDT)
+From: Yung-Tse Cheng <mes900903@gmail.com>
+To: gmaglione@redhat.com,
+	vgoyal@redhat.com,
+	stefanha@redhat.com,
+	miklos@szeredi.hu
+Cc: eperezma@redhat.com,
+	virtualization@lists.linux.dev,
+	linux-fsdevel@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Yung-Tse Cheng <mes900903@gmail.com>
+Subject: [PATCH] virtio-fs: avoid double-free on failed queue setup
+Date: Mon,  6 Apr 2026 03:30:39 +0800
+Message-ID: <20260405193039.178506-1-mes900903@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net 1/2] vsock/virtio: fix MSG_PEEK ignoring skb offset
- when calculating bytes to copy
-Content-Language: ru
-To: Luigi Leonardi <leonardi@redhat.com>, Stefan Hajnoczi
-	<stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, "Michael S.
- Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
-	<xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
-	<eperezma@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet
-	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
-	<pabeni@redhat.com>, Simon Horman <horms@kernel.org>
-CC: <kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
-	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>
-References: <20260402-fix_peek-v1-0-ad274fcef77b@redhat.com>
- <20260402-fix_peek-v1-1-ad274fcef77b@redhat.com>
-From: Arseniy Krasnov <avkrasnov@salutedevices.com>
-In-Reply-To: <20260402-fix_peek-v1-1-ad274fcef77b@redhat.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: p-exch-cas-a-m2.sberdevices.ru (172.24.201.210) To
- p-exch-cas-a-m1.sberdevices.ru (172.24.201.216)
-X-KSMG-AntiPhishing: NotDetected
-X-KSMG-AntiSpam-Auth: dkim=none
-X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
-X-KSMG-AntiSpam-Info: LuaCore: 96 0.3.96 f0df504111d78c4fb91ce829559989c2d1ddd192, {Tracking_from_domain_doesnt_match_to}, 127.0.0.199:7.1.2;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;salutedevices.com:7.1.1;smtp.sberdevices.ru:7.1.1,5.0.1, FromAlignment: s
-X-KSMG-AntiSpam-Interceptor-Info: scan successful
-X-KSMG-AntiSpam-Lua-Profiles: 201980 [Apr 05 2026]
-X-KSMG-AntiSpam-Method: none
-X-KSMG-AntiSpam-Rate: 0
-X-KSMG-AntiSpam-Status: not_detected
-X-KSMG-AntiSpam-Version: 6.1.1.22
-X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.1.1.8310, bases: 2026/04/05 16:38:00 #28374316
-X-KSMG-AntiVirus-Status: NotDetected, skipped
-X-KSMG-KATA-Status: Not Scanned
-X-KSMG-LinksScanning: NotDetected
-X-KSMG-Message-Action: skipped
-X-KSMG-Rule-ID: 5
+Content-Transfer-Encoding: 8bit
 
+virtio_fs_setup_vqs() allocates fs->vqs and fs->mq_map before calling
+virtio_find_vqs(). If virtio_find_vqs() fails, the error path frees both
+pointers and returns an error to virtio_fs_probe().
 
+virtio_fs_probe() then drops the last kobject reference, and
+virtio_fs_ktype_release() frees fs->vqs and fs->mq_map again. This leaves
+dangling pointers in struct virtio_fs and can trigger a double-free during
+probe failure cleanup.
 
-02.04.2026 11:18, Luigi Leonardi wrote:
-> `virtio_transport_stream_do_peek()` does not account for the skb offset
-> when computing the number of bytes to copy.
-> 
-> This means that, after a partial recv() that advances the offset, a peek
-> requesting more bytes than are available in the sk_buff causes
-> `skb_copy_datagram_iter()` to go past the valid payload, resulting in a -EFAULT.
-> 
-> The dequeue path already handles this correctly.
-> Apply the same logic to the peek path.
-> 
-> Fixes: 0df7cd3c13e4 ("vsock/virtio/vhost: read data from non-linear skb")
-> Signed-off-by: Luigi Leonardi <leonardi@redhat.com>
-> ---
->  net/vmw_vsock/virtio_transport_common.c | 5 ++---
->  1 file changed, 2 insertions(+), 3 deletions(-)
-> 
-> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-> index 8a9fb23c6e853dfea0a24d3787f7d6eb351dd6c6..4b65bfe5d875111f115e0fc4c6727adb66f34830 100644
-> --- a/net/vmw_vsock/virtio_transport_common.c
-> +++ b/net/vmw_vsock/virtio_transport_common.c
-> @@ -547,9 +547,8 @@ virtio_transport_stream_do_peek(struct vsock_sock *vsk,
->  	skb_queue_walk(&vvs->rx_queue, skb) {
->  		size_t bytes;
->  
-> -		bytes = len - total;
-> -		if (bytes > skb->len)
-> -			bytes = skb->len;
-> +		bytes = min_t(size_t, len - total,
-> +			      skb->len - VIRTIO_VSOCK_SKB_CB(skb)->offset);
->  
->  		spin_unlock_bh(&vvs->rx_lock);
->  
-> 
+Set fs->vqs and fs->mq_map to NULL immediately after kfree() in the
+virtio_fs_setup_vqs() error path so that the later kobject release sees an
+uninitialized state and kfree(NULL) becomes harmless.
 
-Acked-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
+Signed-off-by: Yung-Tse Cheng <mes900903@gmail.com>
+---
+This can be reproduced when a broken virtio-fs device advertises more
+request queues than the transport actually provides. In that case
+virtio_find_vqs() fails while setting up the extra queue, and the probe
+path reaches the double-free cleanup sequence.
+
+ fs/fuse/virtio_fs.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+index 057e65b51b99d..e33241e1b8ad9 100644
+--- a/fs/fuse/virtio_fs.c
++++ b/fs/fuse/virtio_fs.c
+@@ -988,7 +988,9 @@ static int virtio_fs_setup_vqs(struct virtio_device *vdev,
+ 	kfree(vqs);
+ 	if (ret) {
+ 		kfree(fs->vqs);
++		fs->vqs = NULL;
+ 		kfree(fs->mq_map);
++		fs->mq_map = NULL;
+ 	}
+ 	return ret;
+ }
+
+base-commit: 3aae9383f42f687221c011d7ee87529398e826b3
+-- 
+2.43.0
+
