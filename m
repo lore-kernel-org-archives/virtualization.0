@@ -1,29 +1,29 @@
 Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.3])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D360029C327
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 895D6C8EB
 	for <virtualization@lists.linux.dev>; Sun,  5 Apr 2026 19:57:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775419069; cv=none; b=fZTsNYoR4chPuuy0FzJPHkN15d2p26n1/daRb6GUaTqbdjESuQ+JaX/3dC40TN7ioCl7K+XsKPB/aetCi2lzjYiOgAYWVU1SgyOP9ahB9K4yfjTot1II7gGBMEjo2DRy30ykmFrysy51ayv00Z5KVKDs5rr/DHP2XCjTR+cgd8c=
+	t=1775419070; cv=none; b=mYjAX0t0o57iLmgau+fvO/fK0q5HGQ231IPoi+LulQRIBhoBrvE/n+WUutcVsgyRg7IG3zmedX9jYw/BosY/nHfoGgBDH/HtsrxIeCOeEh+XZMvBYexFLv3PdG5yOdkH7k/zVcs5QTSMTUEhSw4/f93DdVJw2sDZ4Cl7QKvI6GM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775419069; c=relaxed/simple;
+	s=arc-20240116; t=1775419070; c=relaxed/simple;
 	bh=mr+n5Lb6V+b1/GO9pFMZU3SpjhBT4hIZrAwsX9QQqb0=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=dB1LcdMEZWT2uzU0IrFxTElYX9DGi7Le5B/cT2KfHw/RADz2xOrpSKtUwgQYFVNyMOOhOcvh7aABi4yhQBX9fFKnekw+ooSR26WldYauVIuasBy/apCGXXy16fQLLXdtpSK7Rs3zdXFQPL5hQQjhXjovQkFIBIKYJ4HBfzhj33Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=YagBpdDc; arc=none smtp.client-ip=220.197.31.3
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=sjcCS7DhLwsVpF926Y7pRTEqymH/dbhKa1ESS/37sQidM0/Ms9JU0F0kp4L2sjV59D7JhyhseqAbEtAzgoCn1A29LMDgX8Bx/3RPXnA9wA2ZBjcY89Z+A5NoJN4FV3reZPhisdCHdpLKw8SMY4fzdEQVDnna80DhHCOvXvQ6bFw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=eOv0TMRY; arc=none smtp.client-ip=220.197.31.3
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="YagBpdDc"
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="eOv0TMRY"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
 	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=Ym
-	zywPE5Lp18k1Lf7VdFqM/Ieh7Q8sd8fqBVNAE02fo=; b=YagBpdDcBhMb7OZ+Iz
-	mxqQ0VJONjQzOFlKk5Zw28o/EvwiqQl8FZXoM5RaGGaKqzERO/tGoRSxQ8OXQgTt
-	yDGra/gCpuaBXR+l06vgVzq1HH6uK9u7vifhYZhCjWLkwMq12wHwvSDeQK2w1Dy/
-	VHLbqYt3ikBOCw20pzKIM5GjE=
+	zywPE5Lp18k1Lf7VdFqM/Ieh7Q8sd8fqBVNAE02fo=; b=eOv0TMRYeb383y5tC2
+	S4y1Em7SaEDfXXfsHD0Rq5GkEZZ8rd1E4OF2RhjuqJERmqsckD2weI6q97P47Et1
+	SxkZfjg31Eq1eH0/EL+s+AzMQ1toBm4RnoinCwKWX1ObDjrhTHmL+EmdHvCSKKoX
+	I53k1QiAWObDVy9Mrz9splzIU=
 Received: from localhost.localdomain (unknown [])
-	by gzsmtp2 (Coremail) with SMTP id PSgvCgDXn96uvtJpxrc1ZA--.25289S2;
-	Mon, 06 Apr 2026 03:57:36 +0800 (CST)
+	by gzsmtp3 (Coremail) with SMTP id PigvCgDXX8CbvtJpRAqFCA--.641S2;
+	Mon, 06 Apr 2026 03:57:21 +0800 (CST)
 From: CaoRuichuang <create0818@163.com>
 To: Stefano Garzarella <sgarzare@redhat.com>,
 	Shuah Khan <shuah@kernel.org>
@@ -33,8 +33,8 @@ Cc: virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org,
 	CaoRuichuang <create0818@163.com>
 Subject: [PATCH 1/1] selftests: vsock: avoid mktemp -u for Unix socket paths
-Date: Mon,  6 Apr 2026 03:57:33 +0800
-Message-Id: <20260405195733.86043-1-create0818@163.com>
+Date: Mon,  6 Apr 2026 03:57:09 +0800
+Message-Id: <20260405195709.85957-1-create0818@163.com>
 X-Mailer: git-send-email 2.39.5 (Apple Git-154)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -43,12 +43,12 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:PSgvCgDXn96uvtJpxrc1ZA--.25289S2
+X-CM-TRANSID:PigvCgDXX8CbvtJpRAqFCA--.641S2
 X-Coremail-Antispam: 1Uf129KBjvJXoWxCw1furWUtFyDXr4UGr47CFg_yoW5WrW5pF
 	ySqrWDtry0kF1avF1fCw4jkryFgan5AF47X39xZr1jyrsrGrn7Zr4xtFn8ZFnxWF4fXFWr
 	uayvgFs5ZF4UK37anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0pRa9aDUUUUU=
-X-CM-SenderInfo: pfuht3jhqyimi6rwjhhfrp/xtbC6BDqJGnSvrA2gwAA32
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0pRVRRtUUUUU=
+X-CM-SenderInfo: pfuht3jhqyimi6rwjhhfrp/xtbC6AHmIGnSvqE2RwAA36
 
 The namespace tests create temporary Unix socket paths with mktemp -u and
 then hand them to socat. That only prints an unused pathname and leaves
