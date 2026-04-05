@@ -1,80 +1,191 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx5.sberdevices.ru (mx5.sberdevices.ru [95.181.183.35])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 538B323D290;
-	Sat,  4 Apr 2026 19:20:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BE16125A0
+	for <virtualization@lists.linux.dev>; Sun,  5 Apr 2026 19:14:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.181.183.35
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775330424; cv=none; b=B3ugAX7882C0RZlGR6IB6GuB8wLx3N9rk/sBycIosKaEELWwIJRKAhRVHJZ/PsnTAc01qNupnAWGt6KkI/e5lO4pQNA5k/L9sFqmCya1+7sSCdzTDPOs15HOCN7zgx+lwhyprV1lxZQdry8Aj2cpUqEmspDi++uppF/HHuBRoLM=
+	t=1775416485; cv=none; b=fO5Of/sef2K2lJiHCh/CyHMeukmWJ7iN8pWg7DRwVUDM2FiJ8pdvBQge/zMGxO8FZpc1SztwUvIZbM6vn6A+izIHaOUUDZ0tNmPbt7BpfOGQgLP39Zcs2cCMN99zkegZFrd9eJoR8tG4tGRiijheXZhgEV4UAm+4pzCVkJHjxxE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775330424; c=relaxed/simple;
-	bh=Gm9FGkRc1QRpNSImSwgwSEPvOU2SLgI61ARuYW5LgUM=;
-	h=Mime-Version:Content-Type:Date:Message-Id:Subject:Cc:To:From:
-	 References:In-Reply-To; b=AQJhvOyM11n4YH4IIwN6BBhqRE5jSAFZh1Hemvfuth+8hExzlcKkxUOjwOq9BNu6VWC0qbI4TmaZgbDOURP0AsJI2AmdX16GIBfCqKZ4GwLbbOCTKilDaJL/EORaRW5J66CvvMzkAB8/Lyo8OqosG7Eo+Z0GSDci0RBtlyg911Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jmGUx9ea; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1775416485; c=relaxed/simple;
+	bh=eiSFwjlxUO+t4zZraR8vU7Ip4xeMeSVGuESmqO4n3pk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=FY/oy25dSOHvSLgCZcr49DStHHMErP7jY1CaVP0lnnyZeRXM5RjtEEw4xG4EYLdxRuWaLSmPgwc3PR2eRNyutL5gNtbT5BaUVzlwox2m7dwlA36sdQdplNUxu6tNwjwhou+3iFukXNx9qHh6qiRqux2M6mZlWTBD+zBOyF3Eyg8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=salutedevices.com; spf=pass smtp.mailfrom=salutedevices.com; dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b=SL+2Z2Ub; arc=none smtp.client-ip=95.181.183.35
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=salutedevices.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=salutedevices.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jmGUx9ea"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 00214C19421;
-	Sat,  4 Apr 2026 19:20:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775330423;
-	bh=Gm9FGkRc1QRpNSImSwgwSEPvOU2SLgI61ARuYW5LgUM=;
-	h=Date:Subject:Cc:To:From:References:In-Reply-To:From;
-	b=jmGUx9ea8KKZGI+yk4InrpqyltSpIFXbxzumeqJLrPMsCCsI1AmriWu84nJMybHDm
-	 YQX3Ac/MMmi2g9ubzYQwGTmoLjoD5HvqXXGENZ7sZF+bdgDoJQgXEb5+YyoFBlZFth
-	 rIDl6Or9j72Pxfg8gbRbLoxXUMFAACLFbQ4DfxU/vKJfbDZ88r7qcAUikXvNARJnPR
-	 UKzC1aGXBRx4bgxjkQ5ETAqx1gHtveCsTmzJzi7+wf9pVTh4t9trQOG4pictre3Zqy
-	 coxYtZTwXCoUTOSXcrTxyqOyBWyu2eDrD5N4/86+0enySLlkVbuU3KeCQL6A1XpL4u
-	 dWWtgOZ4j3TJA==
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="SL+2Z2Ub"
+Received: from p-antispam-ksmg-gc-msk01.sberdevices.ru (localhost [127.0.0.1])
+	by mx5.sberdevices.ru (Postfix) with ESMTP id 24DEF240003;
+	Sun,  5 Apr 2026 22:14:34 +0300 (MSK)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx5.sberdevices.ru 24DEF240003
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
+	s=post; t=1775416474;
+	bh=Ad5uUb0JCpyeuMo5rFDJwdCtmi97e4MfK4yhXpG3fPs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type:From;
+	b=SL+2Z2Ub3Brrnh9JXB8lzQqRTnN5OG76FczGJACcBoUcgDK+mojVh+CE9g+uc5Jce
+	 EH9Xk8fmud+UcXFlIO3JN5oHuh+pggSvYAOasv3UzHTsqhzjlfhUxY78m2di9uBFgF
+	 y+IvmxrioTNbhFCE6J86iGYAraGKFZ+M7Cb61Sb67IJi/Pj+cCs+i8tdEuKA7t1fp8
+	 SVDrhUTYWHdpwchdsKpiYHNLcqYdL1lV5E94FDQ+9ImABleHJXZlShfyv2SRaM3Fyq
+	 Smb803l2m4m2hftzGTfeaqENbL62VzZlJAetw/Z7d70iHE/rGeD/QkGxVbj3iPMoOZ
+	 fc+uafSYDBxSg==
+Received: from smtp.sberdevices.ru (p-exch-cas-a-m1.sberdevices.ru [172.24.201.216])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(Client CN "sberdevices.ru", Issuer "R12" (not verified))
+	by mx5.sberdevices.ru (Postfix) with ESMTPS;
+	Sun,  5 Apr 2026 22:14:32 +0300 (MSK)
+Message-ID: <2521971f-798d-4560-b2d8-bb540591d4b1@salutedevices.com>
+Date: Sun, 5 Apr 2026 22:14:26 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-Content-Transfer-Encoding: quoted-printable
-Content-Type: text/plain; charset=UTF-8
-Date: Sat, 04 Apr 2026 21:20:13 +0200
-Message-Id: <DHKM3WP2ZJYE.84WX6IAGUH5@kernel.org>
-Subject: Re: (subset) [PATCH 00/12] treewide: Convert buses to use generic
- driver_override
-Cc: "Russell King" <linux@armlinux.org.uk>, "Greg Kroah-Hartman"
- <gregkh@linuxfoundation.org>, "Rafael J. Wysocki" <rafael@kernel.org>,
- "Ioana Ciornei" <ioana.ciornei@nxp.com>, "Nipun Gupta"
- <nipun.gupta@amd.com>, "Nikhil Agarwal" <nikhil.agarwal@amd.com>, "K. Y.
- Srinivasan" <kys@microsoft.com>, "Haiyang Zhang" <haiyangz@microsoft.com>,
- "Wei Liu" <wei.liu@kernel.org>, "Dexuan Cui" <decui@microsoft.com>, "Long
- Li" <longli@microsoft.com>, "Bjorn Helgaas" <bhelgaas@google.com>, "Armin
- Wolf" <W_Armin@gmx.de>, "Bjorn Andersson" <andersson@kernel.org>, "Mathieu
- Poirier" <mathieu.poirier@linaro.org>, "Vineeth Vijayan"
- <vneethv@linux.ibm.com>, "Peter Oberparleiter" <oberpar@linux.ibm.com>,
- "Heiko Carstens" <hca@linux.ibm.com>, "Vasily Gorbik" <gor@linux.ibm.com>,
- "Alexander Gordeev" <agordeev@linux.ibm.com>, "Christian Borntraeger"
- <borntraeger@linux.ibm.com>, "Sven Schnelle" <svens@linux.ibm.com>, "Harald
- Freudenberger" <freude@linux.ibm.com>, "Holger Dengler"
- <dengler@linux.ibm.com>, "Mark Brown" <broonie@kernel.org>, "Michael S.
- Tsirkin" <mst@redhat.com>, "Jason Wang" <jasowang@redhat.com>, "Xuan Zhuo"
- <xuanzhuo@linux.alibaba.com>, =?utf-8?q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, "Alex Williamson" <alex@shazbot.org>, "Juergen
- Gross" <jgross@suse.com>, "Stefano Stabellini" <sstabellini@kernel.org>,
- "Oleksandr Tyshchenko" <oleksandr_tyshchenko@epam.com>,
- <linux-kernel@vger.kernel.org>, <driver-core@lists.linux.dev>,
- <linuxppc-dev@lists.ozlabs.org>, <linux-hyperv@vger.kernel.org>,
- <linux-pci@vger.kernel.org>, <platform-driver-x86@vger.kernel.org>,
- <linux-arm-msm@vger.kernel.org>, <linux-remoteproc@vger.kernel.org>,
- <linux-s390@vger.kernel.org>, <linux-spi@vger.kernel.org>,
- <virtualization@lists.linux.dev>, <kvm@vger.kernel.org>,
- <xen-devel@lists.xenproject.org>, <linux-arm-kernel@lists.infradead.org>
-To: "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>
-From: "Danilo Krummrich" <dakr@kernel.org>
-References: <20260324005919.2408620-1-dakr@kernel.org>
- <DHKGQN6D0ANO.2QYY3JTM5435O@kernel.org>
- <76355cb5-0b5d-4a29-9702-8d020a79f4c0@kernel.org>
- <DHKJ7VWI1CHO.3ETHUGQVPFFDE@kernel.org>
- <a8c85884-e2ba-4a3a-a660-9715f0de2704@kernel.org>
-In-Reply-To: <a8c85884-e2ba-4a3a-a660-9715f0de2704@kernel.org>
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net 2/2] vsock/test: add MSG_PEEK after partial recv test
+Content-Language: ru
+To: Luigi Leonardi <leonardi@redhat.com>, Stefan Hajnoczi
+	<stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, "Michael S.
+ Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
+	<xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+	<eperezma@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet
+	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
+	<pabeni@redhat.com>, Simon Horman <horms@kernel.org>
+CC: <kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
+	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+References: <20260402-fix_peek-v1-0-ad274fcef77b@redhat.com>
+ <20260402-fix_peek-v1-2-ad274fcef77b@redhat.com>
+From: Arseniy Krasnov <avkrasnov@salutedevices.com>
+In-Reply-To: <20260402-fix_peek-v1-2-ad274fcef77b@redhat.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: p-exch-cas-a-m2.sberdevices.ru (172.24.201.210) To
+ p-exch-cas-a-m1.sberdevices.ru (172.24.201.216)
+X-KSMG-AntiPhishing: NotDetected
+X-KSMG-AntiSpam-Auth: dkim=none
+X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
+X-KSMG-AntiSpam-Info: LuaCore: 96 0.3.96 f0df504111d78c4fb91ce829559989c2d1ddd192, {Tracking_from_domain_doesnt_match_to}, 127.0.0.199:7.1.2;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;salutedevices.com:7.1.1;smtp.sberdevices.ru:7.1.1,5.0.1, FromAlignment: s
+X-KSMG-AntiSpam-Interceptor-Info: scan successful
+X-KSMG-AntiSpam-Lua-Profiles: 201980 [Apr 05 2026]
+X-KSMG-AntiSpam-Method: none
+X-KSMG-AntiSpam-Rate: 0
+X-KSMG-AntiSpam-Status: not_detected
+X-KSMG-AntiSpam-Version: 6.1.1.22
+X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.1.1.8310, bases: 2026/04/05 16:38:00 #28374316
+X-KSMG-AntiVirus-Status: NotDetected, skipped
+X-KSMG-KATA-Status: Not Scanned
+X-KSMG-LinksScanning: NotDetected
+X-KSMG-Message-Action: skipped
+X-KSMG-Rule-ID: 5
 
-On Sat Apr 4, 2026 at 7:09 PM CEST, Christophe Leroy (CS GROUP) wrote:
-> Yes please pick it up as my tree is based on rc1.
 
-Applied the patch to driver-core-testing, thanks!
+
+02.04.2026 11:18, Luigi Leonardi wrote:
+> Add a test that verifies MSG_PEEK works correctly after a partial
+> recv().
+> 
+> This is to test a bug that was present in the `virtio_transport_stream_do_peek()`
+> when computing the number of bytes to copy: After a partial read, the
+> peek function didn't take into consideration the number of bytes that
+> were already read. So peeking the whole buffer would cause a out-of-bounds read,
+> that resulted in a -EFAULT.
+> 
+> This test does exactly this: do a partial recv on a buffer, then try to
+> peek the whole buffer content.
+> 
+> Signed-off-by: Luigi Leonardi <leonardi@redhat.com>
+> ---
+>  tools/testing/vsock/vsock_test.c | 64 ++++++++++++++++++++++++++++++++++++++++
+>  1 file changed, 64 insertions(+)
+> 
+> diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
+> index 5bd20ccd9335caafe68e8b7a5d02a4deb3d2deec..308f9f8f30d22bec5aaa282356e400d8438fe321 100644
+> --- a/tools/testing/vsock/vsock_test.c
+> +++ b/tools/testing/vsock/vsock_test.c
+> @@ -346,6 +346,65 @@ static void test_stream_msg_peek_server(const struct test_opts *opts)
+>  	return test_msg_peek_server(opts, false);
+>  }
+>  
+> +#define PEEK_AFTER_RECV_LEN 100
+
+Hi, may be we can just reuse MSG_PEEK_BUF_LEN which was already used in MSG_PEEK tests ?
+
+Thanks
+
+> +
+> +static void test_stream_peek_after_recv_client(const struct test_opts *opts)
+> +{
+> +	unsigned char buf[PEEK_AFTER_RECV_LEN];
+> +	int fd;
+> +	int i;
+> +
+> +	fd = vsock_stream_connect(opts->peer_cid, opts->peer_port);
+> +	if (fd < 0) {
+> +		perror("connect");
+> +		exit(EXIT_FAILURE);
+> +	}
+> +
+> +	for (i = 0; i < sizeof(buf); i++)
+> +		buf[i] = (unsigned char)i;
+> +
+> +	control_expectln("SRVREADY");
+> +
+> +	send_buf(fd, buf, sizeof(buf), 0, sizeof(buf));
+> +
+> +	close(fd);
+> +}
+> +
+> +static void test_stream_peek_after_recv_server(const struct test_opts *opts)
+> +{
+> +	unsigned char buf[PEEK_AFTER_RECV_LEN];
+> +	int half = PEEK_AFTER_RECV_LEN / 2;
+> +	ssize_t ret;
+> +	int fd;
+> +
+> +	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
+> +	if (fd < 0) {
+> +		perror("accept");
+> +		exit(EXIT_FAILURE);
+> +	}
+> +
+> +	control_writeln("SRVREADY");
+> +
+> +	/* Partial recv to advance offset within the skb */
+> +	recv_buf(fd, buf, half, 0, half);
+> +
+> +	/* Try to peek more than what remains: should return only 'half'
+> +	 * bytes. Note: we can't use recv_buf() because it loops until
+> +	 * all requested bytes are returned.
+> +	 */
+> +	ret = recv(fd, buf, sizeof(buf), MSG_PEEK);
+> +	if (ret < 0) {
+> +		perror("recv");
+> +		exit(EXIT_FAILURE);
+> +	} else if (ret != half) {
+> +		fprintf(stderr, "MSG_PEEK after partial recv returned %d (expected %d)\n",
+> +			ret, half);
+> +		exit(EXIT_FAILURE);
+> +	}
+> +
+> +	close(fd);
+> +}
+> +
+>  #define SOCK_BUF_SIZE (2 * 1024 * 1024)
+>  #define SOCK_BUF_SIZE_SMALL (64 * 1024)
+>  #define MAX_MSG_PAGES 4
+> @@ -2520,6 +2579,11 @@ static struct test_case test_cases[] = {
+>  		.run_client = test_stream_tx_credit_bounds_client,
+>  		.run_server = test_stream_tx_credit_bounds_server,
+>  	},
+> +	{
+> +		.name = "SOCK_STREAM MSG_PEEK after partial recv",
+> +		.run_client = test_stream_peek_after_recv_client,
+> +		.run_server = test_stream_peek_after_recv_server,
+> +	},
+>  	{},
+>  };
+>  
+> 
+
