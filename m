@@ -1,75 +1,41 @@
-Received: from mail-pj1-f54.google.com (mail-pj1-f54.google.com [209.85.216.54])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.3])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8CC042F069D
-	for <virtualization@lists.linux.dev>; Sun,  5 Apr 2026 19:32:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D360029C327
+	for <virtualization@lists.linux.dev>; Sun,  5 Apr 2026 19:57:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775417561; cv=none; b=Jvveo0Pfi3cnTHVqSXinxOppujpTKvnTy/4yCJCVqb8bvGDU+CAPYq1JWqBMi5eXXALuPBp6f/27FqdWAve7+w2ALyW0wdNQWVDK6ok7JyfRpwbojlRNjojdN+G9OCYWjD+IBIq5wmZ0IsQGbKuzDuOcukqW4sTkkiVQ4671E3s=
+	t=1775419069; cv=none; b=fZTsNYoR4chPuuy0FzJPHkN15d2p26n1/daRb6GUaTqbdjESuQ+JaX/3dC40TN7ioCl7K+XsKPB/aetCi2lzjYiOgAYWVU1SgyOP9ahB9K4yfjTot1II7gGBMEjo2DRy30ykmFrysy51ayv00Z5KVKDs5rr/DHP2XCjTR+cgd8c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775417561; c=relaxed/simple;
-	bh=vBtlceh81EBRly2nwGp4pbLnqkxyOo4vOEbYGLFUMsY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=nJwdSr0fWKjFx+ohXlF43GB15zuGUFENZvRnLCTllPQNPFRtp1tnNOxLY3ZHdBxDqD4DNzZlDvjGo5Dker7tx0dHAlwDITxUNza3tItnK4adFqKA3Vv5cEzujfK8YXMMIy9fhr8aOtR37H9P5bMR/EQzqx9HCCgU17V1DzUfrVM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kLyBqsBN; arc=none smtp.client-ip=209.85.216.54
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1775419069; c=relaxed/simple;
+	bh=mr+n5Lb6V+b1/GO9pFMZU3SpjhBT4hIZrAwsX9QQqb0=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=dB1LcdMEZWT2uzU0IrFxTElYX9DGi7Le5B/cT2KfHw/RADz2xOrpSKtUwgQYFVNyMOOhOcvh7aABi4yhQBX9fFKnekw+ooSR26WldYauVIuasBy/apCGXXy16fQLLXdtpSK7Rs3zdXFQPL5hQQjhXjovQkFIBIKYJ4HBfzhj33Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=YagBpdDc; arc=none smtp.client-ip=220.197.31.3
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kLyBqsBN"
-Received: by mail-pj1-f54.google.com with SMTP id 98e67ed59e1d1-35da8d037a5so1257309a91.0
-        for <virtualization@lists.linux.dev>; Sun, 05 Apr 2026 12:32:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1775417560; x=1776022360; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=ZBuFGDALcJeSyW255Y6h4kabjHqNu/KLOW1Xbqv4rHw=;
-        b=kLyBqsBNXSVoyMkq3zy09rHeDir+qgjhukByaiVIdqwiS/eUFAdvZymnRxfAkWnnFG
-         a7gNgzHs1E3ipiON87YdqU6x7aWuiyBOuwVWGFMfuUsu9PfI2TSnN00X8KGexOniPW6L
-         sXUmhwoqy/QLxz5LzJeOWSq3Iva9nv1luM/McM92PAzmfsA+0O8lQMS77VzGIkZWkfb+
-         63+Drc/smB+DE2s0NLURuavd4PdW6UKhymxJxjgr514jTa/fQttf3h8l+ArgxbkzJzks
-         3DUj+3k2Vxk8Bf6lj/2VgykxhNa4o3V6fG1vJsUQ/iQPZTXJYEQy6xbDULwXyQeeWAvr
-         zsow==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775417560; x=1776022360;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ZBuFGDALcJeSyW255Y6h4kabjHqNu/KLOW1Xbqv4rHw=;
-        b=Vnzkvp15Vcz+MLU8EWZB/MljsW8XoWPro2mr3fWL3aCXu8xmTERtg273aHl/5pePRE
-         bcGEE9q4kA8kEoIMjiOX5R4jyitNy/MOGG+JQVSjfHpjWlUIA8nJGpTW0P3qlrJ1ELkj
-         f3rpIahiJXSXiVZp/AGiwVSQ5aWRW9tmFXjwXDYGB4DyYUMUTHi02yy5Mehw5cOQMv27
-         /yNSsRVMumpRCAXe7h7iIM0f1IzOPmz4j9cHa5MMf9b/afZQbkVWNyNcVsL0//TR0eIV
-         xlAwHMd0qS6rjLvImcoRUveITM9UIynb3QqNL7Dimnh5t2PL3SOnvzRNGirtRbwWtHi6
-         jtvA==
-X-Forwarded-Encrypted: i=1; AJvYcCUAtKhc7BGKqo2RJctFR5chrndnclPdxtD1j5CpAZycNaThjrfvifMTJ4kczJMCoRq1S6KmuGWXXTeRmBWQrg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YztDGJwjVXYoQTQO/8iJeI7xE8SbPi5pEGOYH67kCvCVXv9Y4mS
-	quHsBLlfjt1Iirh6lOUYUpJ113YOEFgbD1WXpAD+8nXqh8QC/YX5PCDw
-X-Gm-Gg: AeBDiesyrVjCx4U5EJwvYiyGzVMYgZ7iQzK3HBGKsFY/xl4O5yf8OBH2QfITsLLmZQz
-	t/he/1OsVtXzcblKz/MN8SYlJ6eYYL9w0qRgRx8BBvtiW+6vFAxaK6X5O7FVitFxHaNicekPWie
-	K+GLJzmrf37oT0h7gP1Mrsg9FOvxglxtHwzR0RPFnusHDN7bsQP3Hs3J3NfONBRDIxLbIM/UO0O
-	kJQxl4UFTJLWnN9jnUD0T048qAm3jYtYzXi7b80u/dvh1coFxYxn5OXGE5lnsZwkuwNiGOoiUIa
-	g9MCOBqvCYOofoNKR/SjSJR4v66OdrbjQO2Xg8yTN4gj6zWVxjc+mrMx4IBRqe+JwsS4olCi3Xl
-	r9ONsDopvrWKR0mZyZo1PBTMCwgIsUfQ/EBKTyE52PyNl8aNvuz3ECk382BxUP1QQYj9FX41thf
-	6nSHRNYA7VhcOhEA==
-X-Received: by 2002:a17:90b:1dc6:b0:35d:a843:6b1f with SMTP id 98e67ed59e1d1-35de6899ce5mr9686034a91.11.1775417559954;
-        Sun, 05 Apr 2026 12:32:39 -0700 (PDT)
-Received: from mes.. ([2001:288:3001:25:be24:11ff:fe8b:b59f])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c76c6563aacsm10498601a12.19.2026.04.05.12.32.38
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 05 Apr 2026 12:32:39 -0700 (PDT)
-From: Yung-Tse Cheng <mes900903@gmail.com>
-To: gmaglione@redhat.com,
-	vgoyal@redhat.com,
-	stefanha@redhat.com,
-	miklos@szeredi.hu
-Cc: eperezma@redhat.com,
-	virtualization@lists.linux.dev,
-	linux-fsdevel@vger.kernel.org,
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="YagBpdDc"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=Ym
+	zywPE5Lp18k1Lf7VdFqM/Ieh7Q8sd8fqBVNAE02fo=; b=YagBpdDcBhMb7OZ+Iz
+	mxqQ0VJONjQzOFlKk5Zw28o/EvwiqQl8FZXoM5RaGGaKqzERO/tGoRSxQ8OXQgTt
+	yDGra/gCpuaBXR+l06vgVzq1HH6uK9u7vifhYZhCjWLkwMq12wHwvSDeQK2w1Dy/
+	VHLbqYt3ikBOCw20pzKIM5GjE=
+Received: from localhost.localdomain (unknown [])
+	by gzsmtp2 (Coremail) with SMTP id PSgvCgDXn96uvtJpxrc1ZA--.25289S2;
+	Mon, 06 Apr 2026 03:57:36 +0800 (CST)
+From: CaoRuichuang <create0818@163.com>
+To: Stefano Garzarella <sgarzare@redhat.com>,
+	Shuah Khan <shuah@kernel.org>
+Cc: virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kselftest@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	Yung-Tse Cheng <mes900903@gmail.com>
-Subject: [PATCH] virtio-fs: avoid double-free on failed queue setup
-Date: Mon,  6 Apr 2026 03:30:39 +0800
-Message-ID: <20260405193039.178506-1-mes900903@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	CaoRuichuang <create0818@163.com>
+Subject: [PATCH 1/1] selftests: vsock: avoid mktemp -u for Unix socket paths
+Date: Mon,  6 Apr 2026 03:57:33 +0800
+Message-Id: <20260405195733.86043-1-create0818@163.com>
+X-Mailer: git-send-email 2.39.5 (Apple Git-154)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -77,46 +43,92 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:PSgvCgDXn96uvtJpxrc1ZA--.25289S2
+X-Coremail-Antispam: 1Uf129KBjvJXoWxCw1furWUtFyDXr4UGr47CFg_yoW5WrW5pF
+	ySqrWDtry0kF1avF1fCw4jkryFgan5AF47X39xZr1jyrsrGrn7Zr4xtFn8ZFnxWF4fXFWr
+	uayvgFs5ZF4UK37anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0pRa9aDUUUUU=
+X-CM-SenderInfo: pfuht3jhqyimi6rwjhhfrp/xtbC6BDqJGnSvrA2gwAA32
 
-virtio_fs_setup_vqs() allocates fs->vqs and fs->mq_map before calling
-virtio_find_vqs(). If virtio_find_vqs() fails, the error path frees both
-pointers and returns an error to virtio_fs_probe().
+The namespace tests create temporary Unix socket paths with mktemp -u and
+then hand them to socat. That only prints an unused pathname and leaves
+a race before the socket is created.
 
-virtio_fs_probe() then drops the last kobject reference, and
-virtio_fs_ktype_release() frees fs->vqs and fs->mq_map again. This leaves
-dangling pointers in struct virtio_fs and can trigger a double-free during
-probe failure cleanup.
+Create a private temporary directory with mktemp -d and place the Unix
+socket inside it instead. This keeps the path unique without relying on
+mktemp -u for filesystem socket names.
 
-Set fs->vqs and fs->mq_map to NULL immediately after kfree() in the
-virtio_fs_setup_vqs() error path so that the later kobject release sees an
-uninitialized state and kfree(NULL) becomes harmless.
-
-Signed-off-by: Yung-Tse Cheng <mes900903@gmail.com>
+Signed-off-by: CaoRuichuang <create0818@163.com>
 ---
-This can be reproduced when a broken virtio-fs device advertises more
-request queues than the transport actually provides. In that case
-virtio_find_vqs() fails while setting up the extra queue, and the probe
-path reaches the double-free cleanup sequence.
+ tools/testing/selftests/vsock/vmtest.sh | 13 +++++++++----
+ 1 file changed, 9 insertions(+), 4 deletions(-)
 
- fs/fuse/virtio_fs.c | 2 ++
- 1 file changed, 2 insertions(+)
-
-diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
-index 057e65b51b99d..e33241e1b8ad9 100644
---- a/fs/fuse/virtio_fs.c
-+++ b/fs/fuse/virtio_fs.c
-@@ -988,7 +988,9 @@ static int virtio_fs_setup_vqs(struct virtio_device *vdev,
- 	kfree(vqs);
- 	if (ret) {
- 		kfree(fs->vqs);
-+		fs->vqs = NULL;
- 		kfree(fs->mq_map);
-+		fs->mq_map = NULL;
- 	}
- 	return ret;
- }
-
-base-commit: 3aae9383f42f687221c011d7ee87529398e826b3
+diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
+index 86e338886..91e0037d2 100755
+--- a/tools/testing/selftests/vsock/vmtest.sh
++++ b/tools/testing/selftests/vsock/vmtest.sh
+@@ -718,6 +718,7 @@ test_ns_diff_global_host_connect_to_global_vm_ok() {
+ 	local pids pid pidfile
+ 	local ns0 ns1 port
+ 	declare -a pids
++	local unixdir
+ 	local unixfile
+ 	ns0="global0"
+ 	ns1="global1"
+@@ -736,7 +737,8 @@ test_ns_diff_global_host_connect_to_global_vm_ok() {
+ 	oops_before=$(vm_dmesg_oops_count "${ns0}")
+ 	warn_before=$(vm_dmesg_warn_count "${ns0}")
+ 
+-	unixfile=$(mktemp -u /tmp/XXXX.sock)
++	unixdir=$(mktemp -d /tmp/vsock_vmtest_XXXXXX)
++	unixfile="${unixdir}/sock"
+ 	ip netns exec "${ns1}" \
+ 		socat TCP-LISTEN:"${TEST_HOST_PORT}",fork \
+ 			UNIX-CONNECT:"${unixfile}" &
+@@ -758,6 +760,7 @@ test_ns_diff_global_host_connect_to_global_vm_ok() {
+ 
+ 	terminate_pids "${pids[@]}"
+ 	terminate_pidfiles "${pidfile}"
++	rm -rf "${unixdir}"
+ 
+ 	if [[ "${rc}" -ne 0 ]] || [[ "${dmesg_rc}" -ne 0 ]]; then
+ 		return "${KSFT_FAIL}"
+@@ -814,6 +817,7 @@ test_ns_diff_global_vm_connect_to_global_host_ok() {
+ 	local ns0="global0"
+ 	local ns1="global1"
+ 	local port=12345
++	local unixdir
+ 	local unixfile
+ 	local dmesg_rc
+ 	local pidfile
+@@ -826,7 +830,8 @@ test_ns_diff_global_vm_connect_to_global_host_ok() {
+ 
+ 	log_host "Setup socat bridge from ns ${ns0} to ns ${ns1} over port ${port}"
+ 
+-	unixfile=$(mktemp -u /tmp/XXXX.sock)
++	unixdir=$(mktemp -d /tmp/vsock_vmtest_XXXXXX)
++	unixfile="${unixdir}/sock"
+ 
+ 	ip netns exec "${ns0}" \
+ 		socat TCP-LISTEN:"${port}" UNIX-CONNECT:"${unixfile}" &
+@@ -845,7 +850,7 @@ test_ns_diff_global_vm_connect_to_global_host_ok() {
+ 	if ! vm_start "${pidfile}" "${ns0}"; then
+ 		log_host "failed to start vm (cid=${cid}, ns=${ns0})"
+ 		terminate_pids "${pids[@]}"
+-		rm -f "${unixfile}"
++		rm -rf "${unixdir}"
+ 		return "${KSFT_FAIL}"
+ 	fi
+ 
+@@ -862,7 +867,7 @@ test_ns_diff_global_vm_connect_to_global_host_ok() {
+ 
+ 	terminate_pidfiles "${pidfile}"
+ 	terminate_pids "${pids[@]}"
+-	rm -f "${unixfile}"
++	rm -rf "${unixdir}"
+ 
+ 	if [[ "${rc}" -ne 0 ]] || [[ "${dmesg_rc}" -ne 0 ]]; then
+ 		return "${KSFT_FAIL}"
 -- 
-2.43.0
+2.39.5 (Apple Git-154)
 
