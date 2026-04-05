@@ -1,42 +1,42 @@
 Received: from mx5.sberdevices.ru (mx5.sberdevices.ru [95.181.183.35])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BE16125A0
-	for <virtualization@lists.linux.dev>; Sun,  5 Apr 2026 19:14:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCFEE2236FD
+	for <virtualization@lists.linux.dev>; Sun,  5 Apr 2026 19:22:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.181.183.35
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775416485; cv=none; b=fO5Of/sef2K2lJiHCh/CyHMeukmWJ7iN8pWg7DRwVUDM2FiJ8pdvBQge/zMGxO8FZpc1SztwUvIZbM6vn6A+izIHaOUUDZ0tNmPbt7BpfOGQgLP39Zcs2cCMN99zkegZFrd9eJoR8tG4tGRiijheXZhgEV4UAm+4pzCVkJHjxxE=
+	t=1775416933; cv=none; b=i9+HFKrkToZdlTVmOSkcbdPGfZwDj3VT1ZelnzdXC5NrjqZ8jQwcnVHc4CkR+Fpwj5YjBz18Om0vD0hQageKWeLW51r90Ant4wntdcR/Of/vTnD94CHrZ6bzQvUhS1nSg1kzyos0dRTlhfVr0Z6b8xATvk/EcTM896LBlt23c7Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775416485; c=relaxed/simple;
-	bh=eiSFwjlxUO+t4zZraR8vU7Ip4xeMeSVGuESmqO4n3pk=;
+	s=arc-20240116; t=1775416933; c=relaxed/simple;
+	bh=4FEK7G9FUJ2+gkgHqqFO4PYkr4bpAFXC7gWGdsYRC00=;
 	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=FY/oy25dSOHvSLgCZcr49DStHHMErP7jY1CaVP0lnnyZeRXM5RjtEEw4xG4EYLdxRuWaLSmPgwc3PR2eRNyutL5gNtbT5BaUVzlwox2m7dwlA36sdQdplNUxu6tNwjwhou+3iFukXNx9qHh6qiRqux2M6mZlWTBD+zBOyF3Eyg8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=salutedevices.com; spf=pass smtp.mailfrom=salutedevices.com; dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b=SL+2Z2Ub; arc=none smtp.client-ip=95.181.183.35
+	 In-Reply-To:Content-Type; b=UvP4KpcnzQS4Racc3uo+3hw9PQ7BH6l5A7gZbF+N1tM2fHXRFrvAVI0mNq5ZLfDap4PP9kcsRe0ZaKGAYtaahHGJTKRCvZtNp1kvOUuNUGsMMGpKA/W4B9x1fjF/Vhu2Gpi6Nf1gErKG3jLyRBb7WTzf+3G89cJo7+lipUWN+Rs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=salutedevices.com; spf=pass smtp.mailfrom=salutedevices.com; dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b=oJnZ90iu; arc=none smtp.client-ip=95.181.183.35
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=salutedevices.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=salutedevices.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="SL+2Z2Ub"
+	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="oJnZ90iu"
 Received: from p-antispam-ksmg-gc-msk01.sberdevices.ru (localhost [127.0.0.1])
-	by mx5.sberdevices.ru (Postfix) with ESMTP id 24DEF240003;
-	Sun,  5 Apr 2026 22:14:34 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx5.sberdevices.ru 24DEF240003
+	by mx5.sberdevices.ru (Postfix) with ESMTP id 1904A24000B;
+	Sun,  5 Apr 2026 22:22:10 +0300 (MSK)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mx5.sberdevices.ru 1904A24000B
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
-	s=post; t=1775416474;
-	bh=Ad5uUb0JCpyeuMo5rFDJwdCtmi97e4MfK4yhXpG3fPs=;
+	s=post; t=1775416930;
+	bh=6Sq7O88E3GPsooLdbHDQsH6D2/KBDMjazQjjB7hgd+M=;
 	h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type:From;
-	b=SL+2Z2Ub3Brrnh9JXB8lzQqRTnN5OG76FczGJACcBoUcgDK+mojVh+CE9g+uc5Jce
-	 EH9Xk8fmud+UcXFlIO3JN5oHuh+pggSvYAOasv3UzHTsqhzjlfhUxY78m2di9uBFgF
-	 y+IvmxrioTNbhFCE6J86iGYAraGKFZ+M7Cb61Sb67IJi/Pj+cCs+i8tdEuKA7t1fp8
-	 SVDrhUTYWHdpwchdsKpiYHNLcqYdL1lV5E94FDQ+9ImABleHJXZlShfyv2SRaM3Fyq
-	 Smb803l2m4m2hftzGTfeaqENbL62VzZlJAetw/Z7d70iHE/rGeD/QkGxVbj3iPMoOZ
-	 fc+uafSYDBxSg==
+	b=oJnZ90iu6tByApjRTo5oYcdLV99i4TCUbO75XEHSeeZ5NlradpeVikvUdOBw1JyqO
+	 xIAgbjEUBBuWZoTIpABOq76RYp/XDPUFp1j50fRiGHM/gLhWeS+/aQDObW6v7l8wpd
+	 nogXGgAUqymks0PZL60oFtijQD1xChFHoO842751U8Vy2ClgN9o4kleDq4UzkagRtl
+	 /vVHL7Vti3YmgxOg+JYAW5f7aDj7HSvw+7d3Axs5/5UkB5l2VRzMQn6UjxHFHdltJ6
+	 rt2BpuMiIBCjvcb1jF1r9kLJtgR6yPHGzL0MqqlW6sMz2Tp64CKs4h8asmQVtuPN7h
+	 guxhh/i/Pj9Wg==
 Received: from smtp.sberdevices.ru (p-exch-cas-a-m1.sberdevices.ru [172.24.201.216])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(Client CN "sberdevices.ru", Issuer "R12" (not verified))
 	by mx5.sberdevices.ru (Postfix) with ESMTPS;
-	Sun,  5 Apr 2026 22:14:32 +0300 (MSK)
-Message-ID: <2521971f-798d-4560-b2d8-bb540591d4b1@salutedevices.com>
-Date: Sun, 5 Apr 2026 22:14:26 +0300
+	Sun,  5 Apr 2026 22:22:09 +0300 (MSK)
+Message-ID: <ac71a69c-e45d-4767-b5c0-806708fff388@salutedevices.com>
+Date: Sun, 5 Apr 2026 22:22:08 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -44,7 +44,8 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net 2/2] vsock/test: add MSG_PEEK after partial recv test
+Subject: Re: [PATCH net 1/2] vsock/virtio: fix MSG_PEEK ignoring skb offset
+ when calculating bytes to copy
 Content-Language: ru
 To: Luigi Leonardi <leonardi@redhat.com>, Stefan Hajnoczi
 	<stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, "Michael S.
@@ -56,9 +57,9 @@ To: Luigi Leonardi <leonardi@redhat.com>, Stefan Hajnoczi
 CC: <kvm@vger.kernel.org>, <virtualization@lists.linux.dev>,
 	<netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>
 References: <20260402-fix_peek-v1-0-ad274fcef77b@redhat.com>
- <20260402-fix_peek-v1-2-ad274fcef77b@redhat.com>
+ <20260402-fix_peek-v1-1-ad274fcef77b@redhat.com>
 From: Arseniy Krasnov <avkrasnov@salutedevices.com>
-In-Reply-To: <20260402-fix_peek-v1-2-ad274fcef77b@redhat.com>
+In-Reply-To: <20260402-fix_peek-v1-1-ad274fcef77b@redhat.com>
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: 7bit
 X-ClientProxiedBy: p-exch-cas-a-m2.sberdevices.ru (172.24.201.210) To
@@ -83,109 +84,38 @@ X-KSMG-Rule-ID: 5
 
 
 02.04.2026 11:18, Luigi Leonardi wrote:
-> Add a test that verifies MSG_PEEK works correctly after a partial
-> recv().
+> `virtio_transport_stream_do_peek()` does not account for the skb offset
+> when computing the number of bytes to copy.
 > 
-> This is to test a bug that was present in the `virtio_transport_stream_do_peek()`
-> when computing the number of bytes to copy: After a partial read, the
-> peek function didn't take into consideration the number of bytes that
-> were already read. So peeking the whole buffer would cause a out-of-bounds read,
-> that resulted in a -EFAULT.
+> This means that, after a partial recv() that advances the offset, a peek
+> requesting more bytes than are available in the sk_buff causes
+> `skb_copy_datagram_iter()` to go past the valid payload, resulting in a -EFAULT.
 > 
-> This test does exactly this: do a partial recv on a buffer, then try to
-> peek the whole buffer content.
+> The dequeue path already handles this correctly.
+> Apply the same logic to the peek path.
 > 
+> Fixes: 0df7cd3c13e4 ("vsock/virtio/vhost: read data from non-linear skb")
 > Signed-off-by: Luigi Leonardi <leonardi@redhat.com>
 > ---
->  tools/testing/vsock/vsock_test.c | 64 ++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 64 insertions(+)
+>  net/vmw_vsock/virtio_transport_common.c | 5 ++---
+>  1 file changed, 2 insertions(+), 3 deletions(-)
 > 
-> diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
-> index 5bd20ccd9335caafe68e8b7a5d02a4deb3d2deec..308f9f8f30d22bec5aaa282356e400d8438fe321 100644
-> --- a/tools/testing/vsock/vsock_test.c
-> +++ b/tools/testing/vsock/vsock_test.c
-> @@ -346,6 +346,65 @@ static void test_stream_msg_peek_server(const struct test_opts *opts)
->  	return test_msg_peek_server(opts, false);
->  }
+> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+> index 8a9fb23c6e853dfea0a24d3787f7d6eb351dd6c6..4b65bfe5d875111f115e0fc4c6727adb66f34830 100644
+> --- a/net/vmw_vsock/virtio_transport_common.c
+> +++ b/net/vmw_vsock/virtio_transport_common.c
+> @@ -547,9 +547,8 @@ virtio_transport_stream_do_peek(struct vsock_sock *vsk,
+>  	skb_queue_walk(&vvs->rx_queue, skb) {
+>  		size_t bytes;
 >  
-> +#define PEEK_AFTER_RECV_LEN 100
-
-Hi, may be we can just reuse MSG_PEEK_BUF_LEN which was already used in MSG_PEEK tests ?
-
-Thanks
-
-> +
-> +static void test_stream_peek_after_recv_client(const struct test_opts *opts)
-> +{
-> +	unsigned char buf[PEEK_AFTER_RECV_LEN];
-> +	int fd;
-> +	int i;
-> +
-> +	fd = vsock_stream_connect(opts->peer_cid, opts->peer_port);
-> +	if (fd < 0) {
-> +		perror("connect");
-> +		exit(EXIT_FAILURE);
-> +	}
-> +
-> +	for (i = 0; i < sizeof(buf); i++)
-> +		buf[i] = (unsigned char)i;
-> +
-> +	control_expectln("SRVREADY");
-> +
-> +	send_buf(fd, buf, sizeof(buf), 0, sizeof(buf));
-> +
-> +	close(fd);
-> +}
-> +
-> +static void test_stream_peek_after_recv_server(const struct test_opts *opts)
-> +{
-> +	unsigned char buf[PEEK_AFTER_RECV_LEN];
-> +	int half = PEEK_AFTER_RECV_LEN / 2;
-> +	ssize_t ret;
-> +	int fd;
-> +
-> +	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-> +	if (fd < 0) {
-> +		perror("accept");
-> +		exit(EXIT_FAILURE);
-> +	}
-> +
-> +	control_writeln("SRVREADY");
-> +
-> +	/* Partial recv to advance offset within the skb */
-> +	recv_buf(fd, buf, half, 0, half);
-> +
-> +	/* Try to peek more than what remains: should return only 'half'
-> +	 * bytes. Note: we can't use recv_buf() because it loops until
-> +	 * all requested bytes are returned.
-> +	 */
-> +	ret = recv(fd, buf, sizeof(buf), MSG_PEEK);
-> +	if (ret < 0) {
-> +		perror("recv");
-> +		exit(EXIT_FAILURE);
-> +	} else if (ret != half) {
-> +		fprintf(stderr, "MSG_PEEK after partial recv returned %d (expected %d)\n",
-> +			ret, half);
-> +		exit(EXIT_FAILURE);
-> +	}
-> +
-> +	close(fd);
-> +}
-> +
->  #define SOCK_BUF_SIZE (2 * 1024 * 1024)
->  #define SOCK_BUF_SIZE_SMALL (64 * 1024)
->  #define MAX_MSG_PAGES 4
-> @@ -2520,6 +2579,11 @@ static struct test_case test_cases[] = {
->  		.run_client = test_stream_tx_credit_bounds_client,
->  		.run_server = test_stream_tx_credit_bounds_server,
->  	},
-> +	{
-> +		.name = "SOCK_STREAM MSG_PEEK after partial recv",
-> +		.run_client = test_stream_peek_after_recv_client,
-> +		.run_server = test_stream_peek_after_recv_server,
-> +	},
->  	{},
->  };
+> -		bytes = len - total;
+> -		if (bytes > skb->len)
+> -			bytes = skb->len;
+> +		bytes = min_t(size_t, len - total,
+> +			      skb->len - VIRTIO_VSOCK_SKB_CB(skb)->offset);
+>  
+>  		spin_unlock_bh(&vvs->rx_lock);
 >  
 > 
 
+Acked-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
