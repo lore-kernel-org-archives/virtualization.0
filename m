@@ -1,167 +1,112 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3767F283C82
-	for <virtualization@lists.linux.dev>; Mon,  6 Apr 2026 03:30:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4D3D313E01
+	for <virtualization@lists.linux.dev>; Mon,  6 Apr 2026 09:22:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775446222; cv=none; b=pjTqTE1lDf4k+Jk9fr3bpiXrAzQfTHa3mSQ7q82SMEYJrPFn2cpy7r9wQwAFZt1EEmqguM4UADPw+UmKQxKVElTaSiJDtg0DXcf5bry1pY4VaUqa+Ak5ooxV9oNK6GSgpQioE9+Xi334VTW1D/3ykJvzTH68HROLdHCtPo35y0s=
+	t=1775467329; cv=none; b=k6ibfpJnreEbBc1zbqDti86leXnOnGPd9KaJkIQNVZIP15GpFSCE0Eg2PkN0mSEStAkYHjqxFVRSPoH/YZ85C8reYghmVv6iak8RH/C/GbdcAg1JUfcLqsvj1Mxqdtwvi0r3+eCQpekZ/jZMWRY1lb30srHTGP38REmXk4ye4+0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775446222; c=relaxed/simple;
-	bh=NonUutwAo/zhYBxlpgdl1iESm3QtQQCqjHDdu1G1nYY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=iXLHAEBJP12Gnjum7EX9wT3jAKR7Zqj1tXREInzsbpCRWR8D8WYU16CDyiFdxFyHc6zzJJTcxZ92mcsSi19U+035cS7VgMJMfTy5KxIY/RS9O5qZVr6EsYTtGoEai/3FSd3SMWNMiSZ/7EZDoS4p6PmyHJIO8XhzoZJSX3Ek6IU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aPbdnL8u; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1775467329; c=relaxed/simple;
+	bh=nPmeLyKheAluha24MShpyFT0khgevoZVJ1J2O4svefg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gRRbgsDXe2509miu3cRTMNPdphsnygY+wioKoDoWAGlMhXNy6TkrG5kFBQrCiSOdro/Qs6G1que5GUQfBATVCW9koG0HEmA5pWbjSEh1RVSc/AJe4YGhmJzqvGdB9/Yb7G2IEU4vRNC739hKzo894qeC1/DBguArcHG7x/PnJdA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PdWBUezj; arc=none smtp.client-ip=209.85.128.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aPbdnL8u"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1775446220;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=QMs4B+i4gWp0fPDDgUUvzkKR5xdCLJxCya7S4/Pg2oI=;
-	b=aPbdnL8uICW+PtEJRxyCKLtB75dHQ9YSykMdMfb+naE8QVa0q4QGIIwjgO8nnDF16e67br
-	Dw5zpAex2uiYILHG0wyYJkNLYKOoBvkLe6j2AeiFdKaxAfKnmoWYmMwts6q+YlC7+XoBo4
-	JbaS6e4ZQbbS3XP/GsWZpngLWRbjnDs=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-691-WT4xYZ7RM_SDhcbZJXQjhA-1; Sun,
- 05 Apr 2026 23:30:16 -0400
-X-MC-Unique: WT4xYZ7RM_SDhcbZJXQjhA-1
-X-Mimecast-MFC-AGG-ID: WT4xYZ7RM_SDhcbZJXQjhA_1775446212
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 5B3B11956080;
-	Mon,  6 Apr 2026 03:30:09 +0000 (UTC)
-Received: from fedora (unknown [10.72.116.2])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id B3FED1800576;
-	Mon,  6 Apr 2026 03:29:43 +0000 (UTC)
-Date: Mon, 6 Apr 2026 11:29:38 +0800
-From: Ming Lei <ming.lei@redhat.com>
-To: Aaron Tomlin <atomlin@atomlin.com>
-Cc: axboe@kernel.dk, kbusch@kernel.org, hch@lst.de, sagi@grimberg.me,
-	mst@redhat.com, aacraid@microsemi.com,
-	James.Bottomley@hansenpartnership.com, martin.petersen@oracle.com,
-	liyihang9@h-partners.com, kashyap.desai@broadcom.com,
-	sumit.saxena@broadcom.com, shivasharan.srikanteshwara@broadcom.com,
-	chandrakanth.patil@broadcom.com, sathya.prakash@broadcom.com,
-	sreekanth.reddy@broadcom.com, suganath-prabu.subramani@broadcom.com,
-	ranjan.kumar@broadcom.com, jinpu.wang@cloud.ionos.com,
-	tglx@kernel.org, mingo@redhat.com, peterz@infradead.org,
-	juri.lelli@redhat.com, vincent.guittot@linaro.org,
-	akpm@linux-foundation.org, maz@kernel.org, ruanjinjie@huawei.com,
-	bigeasy@linutronix.de, yphbchou0911@gmail.com, wagi@kernel.org,
-	frederic@kernel.org, longman@redhat.com, chenridong@huawei.com,
-	hare@suse.de, kch@nvidia.com, steve@abita.co, sean@ashe.io,
-	chjohnst@gmail.com, neelx@suse.com, mproche@gmail.com,
-	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-nvme@lists.infradead.org,
-	linux-scsi@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-	mpi3mr-linuxdrv.pdl@broadcom.com, MPT-FusionLinux.pdl@broadcom.com
-Subject: Re: [PATCH v10 13/13] docs: add io_queue flag to isolcpus
-Message-ID: <adMoon3Zf6gO-UbA@fedora>
-References: <20260401222312.772334-1-atomlin@atomlin.com>
- <20260401222312.772334-14-atomlin@atomlin.com>
- <ac8l-w8ERG1YN2Wm@fedora>
- <nxe24ixebb4lm2d5w4aubhtwr23df6mumqd663axj35oswdiyv@amtqhtsidyr4>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PdWBUezj"
+Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-488b00ed86fso7891475e9.3
+        for <virtualization@lists.linux.dev>; Mon, 06 Apr 2026 02:22:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1775467325; x=1776072125; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=oT3j7eJ56iHVhP23HyrLK/FqBqCArQkgm0YXamNGuoA=;
+        b=PdWBUezjEMi4Vw2IThjJXmfJe2+mKa0YguW+XK35vjHjYjxAEGxg3/6WpyV3iefRee
+         PAUPW7fWMuemrVUmFP1gkRIbpDdzLV7PbG/rZPqAeMIaL1DAJROq4rjvsLs26Tm/XPdQ
+         D/vXd2mYr+tKbGLZc3hl5ogSCPfpRpd69Gon6t0qlrIN7czkFSpKoEf190BljNk+zepF
+         +Di3NHy9JS+iDn/uYWAGVjNgGciy2LcD/zo0EJUzLFug7dGPWQv6uNDE4FTxgpI1HvUl
+         om9dbAArP5+VvNaOPuS5HyIXafiSKSDfmur+nbvvHQ4vdpUs8QnPtPmthN4/tL0qIBuz
+         Srvw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1775467325; x=1776072125;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=oT3j7eJ56iHVhP23HyrLK/FqBqCArQkgm0YXamNGuoA=;
+        b=XpB7YkPVXuDHnC1GKLEivGPfDRF4/1gTd2OzO4eOublIT8CnLi7WJt2u1gnXmxwD0+
+         hg7iigEXfawtstIWrHAOAH6hT8IInxz1NL4FjQeu/poVfsqD8ExtUFQSx8krWyMB/6hf
+         J7GoCMBfumZeS029WfIvkG/EamGO7mm1HxLFLp3h8DXfTcmXVl3omJv+Ojr3M4iI8rIb
+         HMNoQKNsL6jbOMLfi4vYXqy9mtnz0do9FSMU5mzHcoXQsOZkFOv2hZVOrUegTVVDM3ex
+         tsyAMrrfL9sd6f+RUgIYmRq1zqHtoYoriUTasx7hbDaqcit+ubGaS2R6wEu4NXn4nveN
+         F7gg==
+X-Forwarded-Encrypted: i=1; AJvYcCX3pBwwng/ebjEIOT9hrb8Ewg05HlcCY/Dj5bqgZ3mE/JEcs/WFAfdbnzw+XAw5viGbUTaZUzB4xfCdCnQZEw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzmf5BtwmYCd8ioraSpfTRYdNRwoll0nsUe88dQ5U/MYf1YuDUd
+	v0tcc5NuN1i0RkpmdZxvA/XIFzMXZiLFlbkQzWTVi8hhZKtshmJ6UmWzR9OZzClYofo=
+X-Gm-Gg: AeBDievjfW4UlgUu2FrS6RcEo66oTNSxeGCwY7CB7lXH2G/5LTzkKlsDIr6xyaer0zm
+	/DF5ZoJTqMb5RbijT3UCLzavziI3VEqWWfYqad7dTMEjrqZx2mDC5dGDA3YgPBQ9t7sIepxcFUr
+	WachtRXV1+ymAjqNdr/Hndrb8vktcV8W5+k2oFdtiw/0Zkip42XU7jgKnzoZYaDH2fiXf9+uobz
+	jvUpzCiZpbHcH1yfmJC4af2bte0rve1bpOBF4Nam/g/w7YlPODlG5uE7dzQyCxx+t5caNaCun3b
+	+nph+Gh+nT5se9t0VmVmXc1Dn22eFfRw0YD7U7/4wW03k3iD+ahn/icUSqq8wp7HPthE31eajL0
+	1ROU4yPMHim9s88s2J4FGzBR/7wkyCkpazG2vwJSDpMyyKAeXiFISB2AYlR/8EWZopeL7kehpSq
+	y6MLzpNcqUsWuz+1CZdx3KfDJgqs/PTsGrujL+8FlHSr+sgJWB2ktaxK3R3g6LB2e0W0LRt6Tu6
+	vjl1FIrTooz2qopCXCBFesmlNWzFqa5g9arPggOID0=
+X-Received: by 2002:a05:600c:3549:b0:485:30d4:6b9e with SMTP id 5b1f17b1804b1-488997d1f50mr164045015e9.21.1775467324920;
+        Mon, 06 Apr 2026 02:22:04 -0700 (PDT)
+Received: from user-Vivobook-ASUSLaptop-K3504VA-K3504VA.lan ([2001:861:3380:8810:54d0:56ef:66b3:18ee])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48897fd5594sm87940235e9.3.2026.04.06.02.22.03
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 06 Apr 2026 02:22:04 -0700 (PDT)
+From: Clement Amar <clementamar@gmail.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Clement Amar <clementamar@gmail.com>
+Subject: [PATCH] virtio: simplify of_node handling in virtio_device_of_init
+Date: Mon,  6 Apr 2026 11:21:59 +0200
+Message-ID: <20260406092159.136447-1-clementamar@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <nxe24ixebb4lm2d5w4aubhtwr23df6mumqd663axj35oswdiyv@amtqhtsidyr4>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
-X-Mimecast-MFC-PROC-ID: o1OTx7spC1fPdv_LWrgixcChzc2AV5pVo_yX1HN6cwY_1775446212
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Sun, Apr 05, 2026 at 09:15:36PM -0400, Aaron Tomlin wrote:
-> On Fri, Apr 03, 2026 at 10:30:26AM +0800, Ming Lei wrote:
-> > On Wed, Apr 01, 2026 at 06:23:12PM -0400, Aaron Tomlin wrote:
-> > 
-> > All these can be supported by `managed_irq` already, please document the thing
-> > which `io_queue` solves, and `managed_irq` can't cover, so user can know
-> > how to choose between the two command lines.
-> > 
-> > `Restrict the placement of queues to housekeeping CPUs only` looks totally
-> > stale, please see patch 10, in which isolated CPUs are spread too.
-> 
-> Dear Ming,
-> 
-> Thank you for your careful review of the documentation and for raising
-> these excellent points. I completely agree that the administrator guide
-> must be as unambiguous as possible.
-> 
-> Regarding your first point on the distinction between managed_irq and
-> io_queue, you are entirely correct that the documentation must explicitly
-> guide the user in their choice. I shall revise the text to clarify that
-> where managed_irq solely restricts the affinity of hardware interrupts at
-> the interrupt controller level, io_queue governs the block layer
-> multi-queue mapping algorithm itself. I will add a clear explanation that
-> io_queue is required for users who utilise polling queues, which do not
-> rely on interrupts, or specific drivers that do not use the managed
-> interrupt infrastructure. Without io_queue, the block layer would still
-> assign these polling duties to isolated CPUs, thereby breaking the
-> isolation.
+Replace goto with return for simple error
 
-I don't think there is such breaking isolation thing. For iopoll, if
-applications won't submit polled IO on isolated CPUs, everything is just
-fine. If they do it, IO may be reaped from isolated CPUs, that is just their
-choice, anything is wrong?
+Signed-off-by: Clement Amar <clementamar@gmail.com>
+---
+ drivers/virtio/virtio.c | 8 ++------
+ 1 file changed, 2 insertions(+), 6 deletions(-)
 
-> 
-> Every logical CPU, including the isolated ones, must logically map to a
-> hardware context in order to submit input and output requests, saying they
-> are completely restricted is indeed stale and technically inaccurate. The
-> isolation mechanism actually ensures that the hardware contexts themselves
-> are serviced by the housekeeping CPUs, while the isolated CPUs are simply
-> mapped onto these housekeeping queues for submission purposes. I will
-> rewrite this paragraph to accurately reflect this topology, ensuring it
-> aligns perfectly with the behaviour introduced in patch 10.
-
-I am not sure if the above words is helpful from administrator viewpoint about
-the two kernel parameters.
-
-IMO, only two differences from this viewpoint:
-
-1) `io_queue` may reduce nr_hw_queues
-
-2) when application submits IO from isolated CPUs, `io_queue` can complete
-IO from housekeeping CPUs.
-
-> 
-> > > +
-> > > +			  The io_queue configuration takes precedence
-> > > +			  over managed_irq. When io_queue is used,
-> > > +			  managed_irq placement constrains have no
-> > > +			  effect.
-> > > +
-> > > +			  Note: Offlining housekeeping CPUS which serve
-> > > +			  isolated CPUs will be rejected. Isolated CPUs
-> > > +			  need to be offlined before offlining the
-> > > +			  housekeeping CPUs.
-> > > +
-> > > +			  Note: When an isolated CPU issues an I/O request,
-> > > +			  it is forwarded to a housekeeping CPU. This will
-> > > +			  trigger a software interrupt on the completion
-> > > +			  path.
-> > 
-> > `io_queue` doesn't touch io completion code path, which is more
-> > implementation details, so not sure if the above Note is needed.
-> 
-> Possibly the original author intended to suggest that the software
-> interrupt is sent to the isolated CPU?
-
-I meant this point can't be found in the patches.
-
-
-Thanks, 
-Ming
+diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
+index 5bdc6b82b..b49113ea8 100644
+--- a/drivers/virtio/virtio.c
++++ b/drivers/virtio/virtio.c
+@@ -493,16 +493,12 @@ static int virtio_device_of_init(struct virtio_device *dev)
+ 	 * Simply don't init of_node in this case.
+ 	 */
+ 	if (!of_device_is_compatible(np, compat)) {
+-		ret = 0;
+-		goto out;
++		of_node_put(np);
++		return 0;
+ 	}
+ 
+ 	dev->dev.of_node = np;
+ 	return 0;
+-
+-out:
+-	of_node_put(np);
+-	return ret;
+ }
+ 
+ /**
+-- 
+2.43.0
 
