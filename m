@@ -1,164 +1,171 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f201.google.com (mail-pf1-f201.google.com [209.85.210.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F21E37C0FC
-	for <virtualization@lists.linux.dev>; Tue,  7 Apr 2026 20:53:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2FD72C0307
+	for <virtualization@lists.linux.dev>; Tue,  7 Apr 2026 21:25:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775595233; cv=none; b=G0Pjfm7wlPfkOxF0RAQx6lM5+zWryq+ZmR+VtwnD3IqDma205Jf3QPNJ9afr1Mrv6P71hHwclxNauPFjVhgeklCs7UdDgPycgmdEFpfblew3TjVZu35SdgGJ42HbU7An+fWhQrHrLaH9/mnpc5EqtdL2v8rK6E7/QZ0nnFQkSII=
+	t=1775597136; cv=none; b=IpCu2/r0jTQ7Ia9Cvm+fbZPn+4SDvTIfwD6n1r2jf7BTe+ozd9D8kH1RPcPzCLEBCU58kqruMvjQZbKPknU6CCrHSqfXNMOkhcGI5QD3fzZG2W/1oRXoJ4ZCp8dxwAUkMwm8hFH7pQO3I4YUyoWeenGrGsyXYuIGAW0TJx80GIU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775595233; c=relaxed/simple;
-	bh=Ee/qHfXFW2asDHH+jIUGNSMPEwStCg2EFYapaMnIKEc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=AsxvdfAWSQ/1bY3JMDOZH3Zj+uZ2EP3LiG4wWnJPWQ9hpFf2kNeb0zEJipM36i5r016RnavBJU0oB5wL/fqAPrAQGB93Dwu3qOX7oeHx9Few019QSX7fWC5JPJZI40Jp75W9OauppIVzTq4nbqUG/OPfo/P1f+Sgf9p/rPT2BiA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bGIz2O/Q; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1775597136; c=relaxed/simple;
+	bh=T2n6S3Hip8ALDwtgzJsRE07Dwme3jNgyNJ9v+3yTLdk=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=hjyxmvR89wCIWHxxT0KA+69qmLaTdvF2yBe4h4zubnOKEHvK3peUMgBgI6HLt7aQOKQZUMl7BVK3XMS+VGkbRzBXL7KUQ13KKdh89LGpWnRAH3hQVqsBV/3mtSUk43OfVV5LwA4aWPO+K3gTiD0WJk2X5YPu+tUxbPfpF8TbQrE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--linkl.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=YMCHutBi; arc=none smtp.client-ip=209.85.210.201
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--linkl.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bGIz2O/Q"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1775595231;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=VG6m9UgTxPVqPxu1271c7bScRWR6Q9hAy8QpFk3TXFA=;
-	b=bGIz2O/QP99/hYaEs+jmrjOMJpSlMW5+tIEhKghC+f5VzaRJhyafmyBe/HkMK9ytK/UdBF
-	jklhBdPYEx11QARcAcpqLrH2PXY+RKANeEP0x6z3FkouWCR1BY5SPN5G0e2cSDF6MuS+Ob
-	u8ZZJ7FuHtPln2u2XqmeLgfTPXHURK4=
-Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
- [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-135-XCX_xpxvPSuEI-tZJNPW_w-1; Tue, 07 Apr 2026 16:53:49 -0400
-X-MC-Unique: XCX_xpxvPSuEI-tZJNPW_w-1
-X-Mimecast-MFC-AGG-ID: XCX_xpxvPSuEI-tZJNPW_w_1775595229
-Received: by mail-qk1-f200.google.com with SMTP id af79cd13be357-8cb52a9c0eeso1934554485a.2
-        for <virtualization@lists.linux.dev>; Tue, 07 Apr 2026 13:53:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="YMCHutBi"
+Received: by mail-pf1-f201.google.com with SMTP id d2e1a72fcca58-82c1e1a6cfbso3777718b3a.0
+        for <virtualization@lists.linux.dev>; Tue, 07 Apr 2026 14:25:34 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1775597134; x=1776201934; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=dxNx3kEadxMVt+ezqmLAsD+9NFOi3aPx7y/U/ZwLHXU=;
+        b=YMCHutBiOUcwS5SNrAv1jZPQbkV9r6BRM24ThhTc504hHJeXUvKPX/r2C1GHos+uwX
+         iwl7o801RpNaerH+2M8AkIzTADnxwOC7y+OSxXlPLG6HwqHSnSDw44Odh0X08C/l0QJJ
+         I0s6T99++zKSUTReJal++Q2GWvCv3wDMfQ7vdpJSaoi1WmF1RUU66msvZ/f+W4HVFzPg
+         cbA9U/QBEdj8C7u/XCuW4mdevlQGq6dUth/M3195jB21dh69dR2VRuUNcUGEbaroBTBa
+         VkyiWBXIDoJsh3mIuX3ZbYRQ4JgBufucDjUwwaxzLtpf01HWCalVmJVwiIETILCS+AKO
+         3gIw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775595229; x=1776200029;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=VG6m9UgTxPVqPxu1271c7bScRWR6Q9hAy8QpFk3TXFA=;
-        b=D0mG8C3lyX6V9OesQjb+fSrOfTgy7ioZrE+xcth9DBN1crvMrwIXT6CvGwhVa0BYXo
-         NTqMhDRc+Z7E/t2ztD7HAMTDuqeiohNVNrhJBhUWy0Tbp49hjXP70oBngQ4E8KjKnVLb
-         dT7yUbbj2P+aAUePDYZiI8ruh06GjY7WP0ehrQwS1y4kbDi/F+UZWbV8MBHqQjqtB3Lu
-         XJX3dxJrunY+KnEv2Te6M08krJZdoUOAeSOLHoUcY8xM2I2SXp3UiMBbTHWkf6ODYmAp
-         AANX/XPYsPx/ykaZQIsRpYdgGd+LZfvLrKd8DNWWJcs6X9pNAVLpn0GihRw8yj9eEEdP
-         U2GQ==
-X-Forwarded-Encrypted: i=1; AJvYcCXVuIaFsbu9YKeqIvYsC4Y8I+Uuv+DgHX0U2VwSswUHsa70LEpzTGZYd7NhcDDF9CqVcBNEwHxQ8/VwlhhFww==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzAXKkaHg6MPHGx6LtHDOCuOSp6u9ejh3uluf9LC9tbrD+4+H0E
-	DkZdkMycZQW1OUgJEQyLVpcHko+gBmVJD6b+s8r8jE7vZyUAqiZnsfGnhCVfu2tr8NNi1OFmVFP
-	JiXoI++WyCqdGmXYJ7R8EyyoWNglSuTQlFz4MDLI7HguX6tHsKJx6uhB8HZeL/Yb7owxU
-X-Gm-Gg: AeBDiev0VjV5gZiBWC5IIovD86CfzDxudmiNvYRYdU+ktlxcoLfgnqyeDg8YUp88Bzy
-	yTfxXzsl10e0v7+2dvicuyrqvH1J6vAXhJ08Jw5rWcf/BXGyu9wvYs2S2/E28qBhOHlzdrXks5u
-	tbxC/vB36dFQPNdH3hyxeKp4oipxhCZNJOUJ+oiX26KGpL0gs7w6VP+ysoCc4dauC60yUI4EzVu
-	V55lOiBkVEwp9v/fQEzEsYfLMPmPzMogCU3x4jRpWTqy99YhQNslOWxVIVqfDQxO+72yENz2RnR
-	NaVfXba7APrHAsL9rmFGKY5U719oE95+CAeUw/aMh4z2FiS8AJoe7jTg505ax/Urdc5FPu0Tek5
-	LjmnGj0X45a+B
-X-Received: by 2002:a05:620a:4892:b0:8cd:94a5:2f22 with SMTP id af79cd13be357-8d4195747a1mr2575819185a.20.1775595229105;
-        Tue, 07 Apr 2026 13:53:49 -0700 (PDT)
-X-Received: by 2002:a05:620a:4892:b0:8cd:94a5:2f22 with SMTP id af79cd13be357-8d4195747a1mr2575817185a.20.1775595228577;
-        Tue, 07 Apr 2026 13:53:48 -0700 (PDT)
-Received: from redhat.com ([37.19.196.202])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8d2a8c29f17sm1418649385a.42.2026.04.07.13.53.47
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 07 Apr 2026 13:53:48 -0700 (PDT)
-Date: Tue, 7 Apr 2026 16:53:44 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Andrew Stellman <astellman@stellman-greene.com>
-Cc: Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH 3/4] virtio-pci: return IRQ_HANDLED for config-change
- interrupts
-Message-ID: <20260407165323-mutt-send-email-mst@kernel.org>
-References: <20260407123904.6390-1-astellman@stellman-greene.com>
- <20260407123904.6390-4-astellman@stellman-greene.com>
- <20260407121906-mutt-send-email-mst@kernel.org>
- <CAChPuV9iGu6o5yJz87DEo6=gfr2P7m_jM=-auFuZevrr-HoYNw@mail.gmail.com>
+        d=1e100.net; s=20251104; t=1775597134; x=1776201934;
+        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=dxNx3kEadxMVt+ezqmLAsD+9NFOi3aPx7y/U/ZwLHXU=;
+        b=BsCVwO3wmbLL0uMtwtD82xQSLQxKpAMN+9uSdck7+j4OR7iBbgaA0+OPXQMtytgQ3F
+         bZy5ParX6VStE7ZtH9vLvy1WxFKxXi1+jJhKfT8PSCnseUpoq5ZOsQt3bOCyMv5/Lvwl
+         TXX8wvxiXk8ekLPVNl08teloSghH293sJvI/Xb+3oM4HAbvodIbbLlHAEjZSxFnYeou0
+         srMN8XqcMl532xubdKiXwFzXnY4QMLPdKqKV+wt1+5C3/MPzpMuhDnhTtxhtw/A4Gu3u
+         6YXL+OR2Tl7JYJF3Zo3UyHddRfjxgoG9vY7fO1dnVIoRJ9FV3P6LXPcU0Jp+QhJi3i1E
+         XrKQ==
+X-Forwarded-Encrypted: i=1; AJvYcCVsJD9kE37OdVd/sVcEwWQKYNvtELfXLcCIcHpyGj+CdiJioQXC3vObeWBEp5aZZwUm8LS67KB24qBXwm0flA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyBA3fKq3g6bj94SpyFIcjllruzey5q0qB9VyAviXvv+SMjFaC7
+	gqr4DlcYtdJe1DvH/nplNGI3ekyWm8CB9lQf9KuP9GWGw6D4KqIiRg6Cx78hrSHZCawcnIDb/v2
+	Kcw==
+X-Received: from pfgs39.prod.google.com ([2002:a05:6a00:17a7:b0:82a:108d:4308])
+ (user=linkl job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:c92:b0:82c:d6d3:3197
+ with SMTP id d2e1a72fcca58-82d0daadb73mr18952159b3a.23.1775597133722; Tue, 07
+ Apr 2026 14:25:33 -0700 (PDT)
+Date: Tue,  7 Apr 2026 14:25:21 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-In-Reply-To: <CAChPuV9iGu6o5yJz87DEo6=gfr2P7m_jM=-auFuZevrr-HoYNw@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: ENFnoB187CtAfkRebzZGJiGe0gHkWpMbwpADa3TUh0w_1775595229
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.53.0.1213.gd9a14994de-goog
+Message-ID: <20260407212521.934620-1-linkl@google.com>
+Subject: [RFC PATCH v1] virtio_pci: only store successfully populated virtio_pci_vq_info
+From: Link Lin <linkl@google.com>
+To: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com
+Cc: eperezma@redhat.com, jiaqiyan@google.com, rientjes@google.com, 
+	weixugc@google.com, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, Link Lin <linkl@google.com>
+Content-Type: text/plain; charset="UTF-8"
 
-On Tue, Apr 07, 2026 at 01:35:26PM -0400, Andrew Stellman wrote:
-> Fixes: 77cf524654a8 ("virtio_pci: split up vp_interrupt")
-> 
-> Should I resend as v2 with the tag included, or is adding it on your end
-> easier?
+In environments where free page reporting is disabled, a kernel
+panic is triggered when tearing down the virtio_balloon module:
 
+  [12261.808190] Call trace:
+  [12261.808471]  __list_del_entry_valid_or_report+0x18/0xe0
+  [12261.809064]  vp_del_vqs+0x12c/0x270
+  [12261.809462]  remove_common+0x80/0x98 [virtio_balloon]
+  [12261.810034]  virtballoon_remove+0xfc/0x158 [virtio_balloon]
+  [12261.810663]  virtio_dev_remove+0x68/0xf8
+  [12261.811108]  device_release_driver_internal+0x17c/0x278
+  [12261.811701]  driver_detach+0xd4/0x138
+  [12261.812117]  bus_remove_driver+0x90/0xd0
+  [12261.812562]  driver_unregister+0x40/0x70
+  [12261.813006]  unregister_virtio_driver+0x20/0x38
+  [12261.813518]  cleanup_module+0x20/0x7a8 [virtio_balloon]
+  [12261.814109]  __arm64_sys_delete_module+0x278/0x3d0
+  [12261.814654]  invoke_syscall+0x5c/0x120
+  [12261.815086]  el0_svc_common+0x90/0xf8
+  [12261.815506]  do_el0_svc+0x2c/0x48
+  [12261.815883]  el0_svc+0x3c/0xa8
+  [12261.816235]  el0t_64_sync_handler+0x8c/0x108
+  [12261.816724]  el0t_64_sync+0x198/0x1a0
 
-how was this tested? I don't think a unit test is sufficient here, FYI.
+The issue originates in vp_find_vqs_intx(). It kzalloc_objs() based
+on the nvqs count provided by the caller, virtio_balloon::init_vqs().
+However, it is not always the case that all nvqs number of
+virtio_pci_vq_info objects will be properly populated.
 
+For example, when VIRTIO_BALLOON_F_FREE_PAGE_HINT is absent, the
+VIRTIO_BALLOON_VQ_FREE_PAGE-th item in the vp_dev->vqs array is
+actually never populated, and is still a zeroe-initialized
+virtio_pci_vq_info object, which is eventually going to trigger
+a __list_del_entry_valid_or_report() crash.
 
-> On Tue, Apr 7, 2026 at 12:20 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> 
->     On Tue, Apr 07, 2026 at 08:39:03AM -0400, Andrew Stellman wrote:
->     > vp_interrupt() unconditionally returns the result of
->     > vp_vring_interrupt(). When a config-change interrupt fires but no vring
->     > activity is pending, vp_vring_interrupt() returns IRQ_NONE — even
->     > though the interrupt was legitimately handled by vp_config_changed().
->     > Over time this causes the IRQ subsystem to flag the line as spurious.
->     >
->     > Track the return value explicitly: set ret to IRQ_HANDLED when the
->     > config-change bit is set, OR it with the vring result, and return the
->     > combined value.
->     >
->     > Signed-off-by: Andrew Stellman <astellman@stellman-greene.com>
-> 
->     Fixes tag?
-> 
->     > ---
->     >  drivers/virtio/virtio_pci_common.c | 10 ++++++++--
->     >  1 file changed, 8 insertions(+), 2 deletions(-)
->     >
->     > diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/
->     virtio_pci_common.c
->     > index 0b9d66b..1d1ab02 100644
->     > --- a/drivers/virtio/virtio_pci_common.c
->     > +++ b/drivers/virtio/virtio_pci_common.c
->     > @@ -106,6 +106,7 @@ static irqreturn_t vp_vring_interrupt(int irq, void
->     *opaque)
->     >  static irqreturn_t vp_interrupt(int irq, void *opaque)
->     >  {
->     >       struct virtio_pci_device *vp_dev = opaque;
->     > +     irqreturn_t ret = IRQ_NONE;
->     >       u8 isr;
->     > 
->     >       /* reading the ISR has the effect of also clearing it so it's very
->     > @@ -117,10 +118,15 @@ static irqreturn_t vp_interrupt(int irq, void
->     *opaque)
->     >               return IRQ_NONE;
->     > 
->     >       /* Configuration change?  Tell driver if it wants to know. */
->     > -     if (isr & VIRTIO_PCI_ISR_CONFIG)
->     > +     if (isr & VIRTIO_PCI_ISR_CONFIG) {
->     >               vp_config_changed(irq, opaque);
->     > +             ret = IRQ_HANDLED;
->     > +     }
->     > 
->     > -     return vp_vring_interrupt(irq, opaque);
->     > +     if (vp_vring_interrupt(irq, opaque) == IRQ_HANDLED)
->     > +             ret = IRQ_HANDLED;
->     > +
->     > +     return ret;
->     >  }
->     > 
->     >  static int vp_request_msix_vectors(struct virtio_device *vdev, int
->     nvectors,
->     > --
->     > 2.34.1
-> 
-> 
+Tested by applying this patch to a guest VM kernel with the
+VIRTIO_BALLOON_F_REPORTING feature enabled and the
+VIRTIO_BALLOON_F_FREE_PAGE_HINT feature disabled.
+Without this patch, unloading the virtio_balloon module triggers a panic.
+With this patch, no panic is observed.
 
+The fix is to use queue_idx to handle the case that vp_find_vqs_intx()
+skips vp_setup_vq() when caller provided null vqs_info[i].name, when
+the caller doesn't populate all nvqs number of virtqueue_info objects.
+Invariantly queue_idx is the correct index to store a successfully
+created and populated virtio_pci_vq_info object. As a result, now
+a virtio_pci_device object only stores queue_idx number of valid
+virtio_pci_vq_info objects in its vqs array when the for-loop over
+nvqs finishes (of course, without goto out_del_vqs).
+
+vp_find_vqs_msix() has similar issue, so fix it in the same way.
+
+This patch is marked as RFC because we are uncertain if any virtio-pci
+code implicitly requires virtio_pci_device's vqs array to always
+contain nvqs number of virtio_pci_vq_info objects, and to store
+zero-initialized virtio_pci_vq_info objects. We have not observed
+any issues in our testing, but insights or alternatives are welcome!
+
+Signed-off-by: Link Lin <linkl@google.com>
+Co-developed-by: Jiaqi Yan <jiaqiyan@google.com>
+Signed-off-by: Jiaqi Yan <jiaqiyan@google.com>
+---
+ drivers/virtio/virtio_pci_common.c | 10 ++++++----
+ 1 file changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
+index da97b6a988de..9b32301529e5 100644
+--- a/drivers/virtio/virtio_pci_common.c
++++ b/drivers/virtio/virtio_pci_common.c
+@@ -423,14 +423,15 @@ static int vp_find_vqs_msix(struct virtio_device *vdev, unsigned int nvqs,
+ 			vqs[i] = NULL;
+ 			continue;
+ 		}
+-		vqs[i] = vp_find_one_vq_msix(vdev, queue_idx++, vqi->callback,
++		vqs[i] = vp_find_one_vq_msix(vdev, queue_idx, vqi->callback,
+ 					     vqi->name, vqi->ctx, false,
+ 					     &allocated_vectors, vector_policy,
+-					     &vp_dev->vqs[i]);
++					     &vp_dev->vqs[queue_idx]);
+ 		if (IS_ERR(vqs[i])) {
+ 			err = PTR_ERR(vqs[i]);
+ 			goto error_find;
+ 		}
++		++queue_idx;
+ 	}
+ 
+ 	if (!avq_num)
+@@ -485,13 +486,14 @@ static int vp_find_vqs_intx(struct virtio_device *vdev, unsigned int nvqs,
+ 			vqs[i] = NULL;
+ 			continue;
+ 		}
+-		vqs[i] = vp_setup_vq(vdev, queue_idx++, vqi->callback,
++		vqs[i] = vp_setup_vq(vdev, queue_idx, vqi->callback,
+ 				     vqi->name, vqi->ctx,
+-				     VIRTIO_MSI_NO_VECTOR, &vp_dev->vqs[i]);
++				     VIRTIO_MSI_NO_VECTOR, &vp_dev->vqs[queue_idx]);
+ 		if (IS_ERR(vqs[i])) {
+ 			err = PTR_ERR(vqs[i]);
+ 			goto out_del_vqs;
+ 		}
++		++queue_idx;
+ 	}
+ 
+ 	if (!avq_num)
+-- 
+2.53.0.1213.gd9a14994de-goog
