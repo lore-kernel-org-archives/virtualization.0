@@ -1,56 +1,82 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D56542B9A4;
-	Tue,  7 Apr 2026 00:37:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F7BD1F91E3;
+	Tue,  7 Apr 2026 01:40:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775522223; cv=none; b=nJpU9OGeoiHqy7741+9zHxEfZliiV/o7Fkenm+iUEJpZHrW0GX7lOQTjZnAW1mRMZRsRDWQRk/TtNHdaZTDcRvz809SiS/Bh8oSYGaF7CtE6EzkvzMpPZy+cDO1LxQP004s8yRxOQKdvQymEuJma7OSeq9wk7Kq0+VU44M9qSjY=
+	t=1775526047; cv=none; b=GxNJoHR5RRCD9JRtN+oFqLfGypYULIp1klzl+6HZLRBQcrZvWEVNukOUutw75aG9j4dfHaE7HP/aXtajec6Qnmq6RiScXFtgo8ElyuqdPAv8dGHTQYgfLkBNGaEXAZIBEygaCudereJ7lDdPQOPt3kEYLFEwNEIlRfrHzbThljU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775522223; c=relaxed/simple;
-	bh=XlHyAzaJklqxmNalMDD6OKRU12ck+jCq8qKnCst96gI=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=KOp13/D7oCLbVRspT3Zm2iGikcUYSMi5tur+hsZ/nIUWn5fWodrge7oD8+nHWiEdjZrBdKtkXO8bSqsqz8gvnqwvAZ5Z9BrHtzbuFotNCu/UoHt2JVLe/Zc4AYmJpc9z1yvx2sXisteysgxBsUMhAJzOuWVzQ3QTOoAB8kFPMOw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=SVp70/+t; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1775526047; c=relaxed/simple;
+	bh=CrvNckWVDsiDnXOP0XHIevmZ4ZtfHWAyTDSyNAQ/iqQ=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=X29Dufd0WD741fbHg9GsYVx5R1Ud46enxkQ4Lx6bt+9I891sSg8U+wLJOQ44iOzsWavfPXgGscI9WoKn6gVavQx993qOq8Ajn30M6AIfGEgNhP0lzqokEeVKkvrRCRC2uUG02oxLL71Fb4+nwij1ab9GXhR/BojQgnMeRxv7ELo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ER2RAdtw; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="SVp70/+t"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 14F58C4CEF7;
-	Tue,  7 Apr 2026 00:37:03 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ER2RAdtw"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3CBAC4AF09;
+	Tue,  7 Apr 2026 01:40:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1775522223;
-	bh=XlHyAzaJklqxmNalMDD6OKRU12ck+jCq8qKnCst96gI=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
-	b=SVp70/+tlQHEJnueuLtQClkQR1/+dtsCJj9DulgO1WpCNXWprnF+zoscNNJk7ZVux
-	 a7lIqu3QkET4z0bHxNT78dqjeGhEVNuyUpnV3xNo2ps6CS7/dba2r1Pm9YDWFmyta6
-	 O6biJMb8Z+jNYrQrdlKM0BDxBHCwoDxeR0s+9OqWjcz/7XaamRjeW0lGHPyQy33DGI
-	 CulDptKAPmAhC8VBZ/xiex0X7VAP9YKXcVw0rxC8T4MlkRDg93+A+MSU+Mey2SC7kL
-	 wtiSDz64hFL76ad4FoNrt1SUuqu69i30mO3OHlp+p99NYRMNRmQb9TWL2xYCH6Xj4j
-	 pcCPc/b+x61iA==
-Date: Mon, 6 Apr 2026 17:37:02 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Norbert Szetei <norbert@doyensec.com>
-Cc: Stefano Garzarella <sgarzare@redhat.com>, davem@davemloft.net,
- edumazet@google.com, pabeni@redhat.com, horms@kernel.org,
- virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, John Villamil <john@doyensec.com>
-Subject: Re: [PATCH v2 net] vsock: fix buffer size clamping order
-Message-ID: <20260406173702.56239557@kernel.org>
-In-Reply-To: <69317E49-40AA-4985-8A4E-447C58665A68@doyensec.com>
-References: <523A8D3C-F4D9-43DD-A3A6-01C9EC335656@doyensec.com>
-	<acuKUpZQq6z1DY_n@sgarzare-redhat>
-	<102981F1-2CAE-481F-8FAE-4F3085E25E89@doyensec.com>
-	<69317E49-40AA-4985-8A4E-447C58665A68@doyensec.com>
+	s=k20201202; t=1775526046;
+	bh=CrvNckWVDsiDnXOP0XHIevmZ4ZtfHWAyTDSyNAQ/iqQ=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc:From;
+	b=ER2RAdtw8T+wzjQMTw8I60jp1oyuQVGG4Kl6hrnaWYol2mA+5SXolp2zP37fx9EKo
+	 MclHdqofvBIaCtQz/UDiUfxsTh5QFuoehf/DutZ0K5rJzf/fGg19rRsbj1d3KaYXH1
+	 MC8wYS/scRSyUvTo9fUJQKhl2mQHqVeW9clJ9+jaWvHwbgru9On5eSBKUo9PaCqrox
+	 /E589mk39UE+7aPJKuN9cmlBoUgwMyr69vNI5zkXp7kjkccsCWsqwxHQWNBcSSpOl9
+	 NTfv4YPzBN9UdKvfNND5k6PVOUYo+cvQtOok9cwWCssON+9tsh6MLRGhNKZbtEKGDy
+	 dVyhsto8/a+yQ==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 7D1DF3809A28;
+	Tue,  7 Apr 2026 01:40:26 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net-next v2] vsock: avoid timeout for non-blocking
+ accept()
+ with empty backlog
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <177552602504.3334922.14970338927374707582.git-patchwork-notify@kernel.org>
+Date: Tue, 07 Apr 2026 01:40:25 +0000
+References: <20260402204918.130395-1-laurencerowe@gmail.com>
+In-Reply-To: <20260402204918.130395-1-laurencerowe@gmail.com>
+To: Laurence Rowe <laurencerowe@gmail.com>
+Cc: sgarzare@redhat.com, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, horms@kernel.org,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ bobbyeshleman@meta.com
 
-On Mon, 6 Apr 2026 22:04:26 +0200 Norbert Szetei wrote:
-> v2: fix indentation/whitespace issues in the previous patch.
+Hello:
 
-This is not a correct way to submit a patch, but please wait until
-Stefano responds with any further postings.
+This patch was applied to netdev/net-next.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
+
+On Thu,  2 Apr 2026 13:49:18 -0700 you wrote:
+> A common pattern in epoll network servers is to eagerly accept all
+> pending connections from the non-blocking listening socket after
+> epoll_wait indicates the socket is ready by calling accept in a loop
+> until EAGAIN is returned indicating that the backlog is empty.
+> 
+> Scheduling a timeout for a non-blocking accept with an empty backlog
+> meant AF_VSOCK sockets used by epoll network servers incurred hundreds
+> of microseconds of additional latency per accept loop compared to
+> AF_INET or AF_UNIX sockets.
+> 
+> [...]
+
+Here is the summary with links:
+  - [net-next,v2] vsock: avoid timeout for non-blocking accept() with empty backlog
+    https://git.kernel.org/netdev/net-next/c/98f28d8d6e5a
+
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
+
+
