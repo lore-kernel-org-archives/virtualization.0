@@ -1,130 +1,140 @@
-Received: from mail-ed1-f42.google.com (mail-ed1-f42.google.com [209.85.208.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4142C3B7741
-	for <virtualization@lists.linux.dev>; Thu,  9 Apr 2026 16:34:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F8DD3E1CF4
+	for <virtualization@lists.linux.dev>; Thu,  9 Apr 2026 16:53:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775752469; cv=none; b=fJOqdteKGJL3IK5HpARBQJvGEc9yx63ZwXvqMOklM0jrWj0htXLlCiPoRmNS71hSJReeTWfMVRCv70jRaEuDErb9twp9F9fhv1Lg9q0SlFeYyYuF385ziD4L94Zteg8X6udsCZIzG4rhEBDVcdJh72S/2wGE5mF4NllgtP5xTHY=
+	t=1775753638; cv=none; b=AS6UvT9WVgjrE239OYGwMs4kQnbfHlDQSqo4W9CBz1HBD4c05jHTeaxN1PujiOJazntstthOdvPxoiiqjvzodVvjlvOacj7ucMUf9ag29N0Tc3BTzQp8VuM4F6LQ2cBYZdjqVC3Z23qTDbJIQ6q1yqKABj9lmYx4TU3DxQAa0Jo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775752469; c=relaxed/simple;
-	bh=5HPjyCGIUcS+XZxwOq7su4bREXkMRa1byoy+Frp53Po=;
-	h=From:Content-Type:Mime-Version:Date:Subject:Cc:To:Message-Id; b=E8TuuSe+1R/VmPnjyZv1xqPnATACD67SWTOwMoFH7E4LJEPKGRIYdtNB+QwkK4Tewn6T0NJpK6qITLCPV5GL56nqn17k/7UaB+P+9lr2Aa0MWSK341oRmOMZ95bqspxmHsLm47GmDI8Q9u0T6671mKcpKoFXELnBvESCu0G0rW4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=doyensec.com; spf=pass smtp.mailfrom=doyensec.com; dkim=pass (2048-bit key) header.d=doyensec.com header.i=@doyensec.com header.b=aSEV4Dxv; arc=none smtp.client-ip=209.85.208.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=doyensec.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=doyensec.com
+	s=arc-20240116; t=1775753638; c=relaxed/simple;
+	bh=U8E10q+Ey8nt3yWvTgzBVIBTGW45V3Z0mUVuJjH4YwQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Z+yPAaDGtGKYC/bctbuIEx++0v9n0LjQC6QsyjAQtGgrD41JLlsvEnoxrCRzMaOUHXIUEz/Ke+Adu7W820AEsfwSul6wueqG73s8ZKb3VlMOzUvccOanuKAisbFVCBX5iPNNovxpeOxeNxEiAwXPfnP8fOgvZedmKgkphU97rho=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bnnEwpCH; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=doyensec.com header.i=@doyensec.com header.b="aSEV4Dxv"
-Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-6701fb93f23so1683900a12.0
-        for <virtualization@lists.linux.dev>; Thu, 09 Apr 2026 09:34:26 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=doyensec.com; s=google; t=1775752465; x=1776357265; darn=lists.linux.dev;
-        h=message-id:to:cc:subject:date:mime-version
-         :content-transfer-encoding:from:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=yvD6iQG1O/I+/j+ks+GogJBSWRhUCp/c6DPnLqjhUYs=;
-        b=aSEV4DxvZ/RfRh7mHOcqaOdRxrIfPdDObMDNvZKw8/4b4j6lsDwRRjuez17/DqHBgm
-         ocKkWkY00qOkEuwrpKtwZIoR30XirWP/AJgtnHCK4kR1Xd7gfhEYzmIkxhLXjojz4PGY
-         JZIySZ9Myk6DYblI1hDKYh7JzleOnUX0OWyj+nWsLCDVoqQ47tmLSW7G9Ykif1RcqbUU
-         o6ZxTu/4FNkVNTVw13rAQbgoFXlSsfqqUE+am9cpYddfMTpEUxTKpruhjRi4uvYaxJcj
-         hAS3AK0rtMaUm9osewdIbAcNcolDkAWKkMutvP935dmtWOZYaE7gIdaMuuzWHUw8lU7y
-         eDqA==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bnnEwpCH"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1775753636;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=x787QkDVb/cLqOOpafxZbY7NHAGjCM7sQxc05FIRucg=;
+	b=bnnEwpCHZa4+vZCHuLLSiPo3e47+GoGb2uET8ocSe0W1wt3P170BHz5zDEnJLBQN6t/2LP
+	JJCWYPfNw35bfobut7dnrYRNjMh4FtdMCCRZ9ADLIBRzv3kEAhWZGO2zJ/humjfU418uXK
+	/1CVUJMGcyiK9EuwuMJRs1uN0J/8a1Y=
+Received: from mail-yx1-f72.google.com (mail-yx1-f72.google.com
+ [74.125.224.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-125-oOia3tcQNyGkdxVpUJeRtw-1; Thu, 09 Apr 2026 12:53:55 -0400
+X-MC-Unique: oOia3tcQNyGkdxVpUJeRtw-1
+X-Mimecast-MFC-AGG-ID: oOia3tcQNyGkdxVpUJeRtw_1775753634
+Received: by mail-yx1-f72.google.com with SMTP id 956f58d0204a3-64eaa6294d9so2057327d50.1
+        for <virtualization@lists.linux.dev>; Thu, 09 Apr 2026 09:53:55 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775752465; x=1776357265;
-        h=message-id:to:cc:subject:date:mime-version
-         :content-transfer-encoding:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=yvD6iQG1O/I+/j+ks+GogJBSWRhUCp/c6DPnLqjhUYs=;
-        b=lAEAA01mbnB0q4RVdFvCidJAWTaHedAHlfMJ2uniCWNwT2XoKfivFNPg/BVcjKGp7s
-         7Bpc8Tu83Z7WZiSFJ4ZY2ZHP+mHZq4adNpB/Z3+7WZ17iHVJApALRUaJsQMGU0mqZ+u1
-         4Zei5108rjX3V5OQpur/+7dpHloRv8OFd0FHAK4BHZ9016EUsU1jJIyuvm1bNXWCT2hI
-         1WzsT+NjDqqeoTQ7QfYwgJY58pgCzD/utLnQe6zSKkiclXNKtHoYWe3+SjrSKFwjEwjr
-         NOBmSeP2474PH6SrjUd0l8K+kLQ3zez72/AY2htIbdF543nTpiewVqSLnAan9pJUvZ72
-         jZtA==
-X-Forwarded-Encrypted: i=1; AJvYcCXeC+7JSdqFtDnnzrYjFngYyTz0XXHq88OpDLmFOM+TFXpOWQn9Prx+UVL2XfB1uxLgU3GlMg4yV+6SFgUKBQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwDWpx8Cr3mohu9psKpY8U5LnMW2FNHAg+h1iwK48Q47h8dvLhT
-	BnpMTq/3AwH/UZJMLRd8OuqWkX4Vp7TJuW7yFNnLUEKZ8Ih1jY1f+mcY+jzJu68WxQ0=
-X-Gm-Gg: AeBDieth/UkRZHtA7RYOxRH5PNL637O1Cprgzihk4jipuIOXuxjGBebcWQqKzbf6YwG
-	jxyUCZIaSey+xPEnjTqG7g8wWWm6TyBeFYOTyi7mDPlTMnyFwI4jcS9D/qSYxCkbhJNsmbnt70/
-	dgkyRi/EzokUmgKvKLB0eXTEBxNWcO7+8If2AJlj9b/I6Lr+puIwHWLRRgTIHzDv4jxRILroS7u
-	x5UIcCG3gbt7ZVZnq5X3eeUztR3B3dj73uQTknXCAThJS2XgOIMmp5re2o504hZWbEWQaSlvaEz
-	zPtDRiGQX04vJc61ezLq7Tp7VkR9At7+I3/okeaJRr+whWIzN9tKFrjisR46mAz/q8b5MSGVPwB
-	Gjk31ggpn8viTrD9qrF91ZRM5EZCxTyIjMMgUnFShZisF/GfRLMjU57RAo4dpAnAA2APB4nOzhl
-	Vr00X/hIlwIVhtjQsKU2nSfyBp74JMtPGMzsQAy2OzuY66ZefpItJUwzThD7yIcT1eoN6T2xnS9
-	mN4
-X-Received: by 2002:a05:6402:504a:b0:66e:df52:7ce0 with SMTP id 4fb4d7f45d1cf-66edf527d86mr8235560a12.17.1775752465513;
-        Thu, 09 Apr 2026 09:34:25 -0700 (PDT)
-Received: from smtpclient.apple (83.10.27.44.ipv4.supernova.orange.pl. [83.10.27.44])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-66e033a787fsm5984074a12.14.2026.04.09.09.34.23
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Thu, 09 Apr 2026 09:34:24 -0700 (PDT)
-From: Norbert Szetei <norbert@doyensec.com>
-Content-Type: text/plain;
-	charset=us-ascii
-Content-Transfer-Encoding: quoted-printable
+        d=1e100.net; s=20251104; t=1775753634; x=1776358434;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=x787QkDVb/cLqOOpafxZbY7NHAGjCM7sQxc05FIRucg=;
+        b=hSR7vWTh6evdWNYxOVF1M2Efhnm6MdeJdVKrUR0Z043I9N9AsUQ2Qe8WF7g50JV2xG
+         0LteeiE+JkZum7tmvNUmA9nHd8+NtjYWdsd7keMSc7tEyquD7CNvSparby/Cmi9/47bo
+         ZE0WR9tHHGnIdbNU6ZamyJwYOzNCsGb+hKdZ73s7Se+pN//F+g8Uwc+j1gn9z+UunEq2
+         AYSSQTTs3r41Z0P+VlIpz9nOvqf5imFOkskZs1/V/kxKzeUqu0m+/PvhcXUWBooTGdzR
+         cKDvV4ogENIa3ZUc8iVntzAzj+ScdARs4/tqsaUl1W89A8teGfQJlChAnoyoFmQc3iQQ
+         vQAg==
+X-Gm-Message-State: AOJu0YzRn1iPhLEZMG7E7l3HjJnBrgatwZ533WG/DjbRKS5FtuO3YOeV
+	NBnbWOe712HFXkiGuOY0fZu1E1x+HT4io5sJLKQPlVxMptzaV78SOYKhKdG7W1Y8OzaXNz1wWea
+	C3o8kCFG2tUd8qKpIlwhd9PjDrqUTITbVerR7tSSYP5a7YGf+3/A2R8uZEhrtieDtbmUBhGwPgo
+	hgVVoNvNdYaZhM415Y6AtOfuWrjITYm4qjr4e8VAPM+og=
+X-Gm-Gg: AeBDievgLKqx8Eh+QNnDCWJeLLlM9FMsgBSxqVJrh/pifkv1DN4CubQ/CVvGLL8z2aM
+	iMw/daBcTZIQN+aCZGxosOL4WrRjSIV/jzRDc2QNIS0iVimn1oVPQOXQmr+GuuDImMCWXtKbFWp
+	RoxC4bhvI45ecp97OxfsTHEAA57hbzgUB1kyqsjJ7VfiQI6tZ42Xpb5JA0SCcDkT5UMwmsm722i
+	lqD6w==
+X-Received: by 2002:a53:ac88:0:b0:650:323c:8304 with SMTP id 956f58d0204a3-65048754f2amr23156962d50.28.1775753634376;
+        Thu, 09 Apr 2026 09:53:54 -0700 (PDT)
+X-Received: by 2002:a53:ac88:0:b0:650:323c:8304 with SMTP id
+ 956f58d0204a3-65048754f2amr23156944d50.28.1775753633945; Thu, 09 Apr 2026
+ 09:53:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3826.700.81.1.4\))
-Date: Thu, 9 Apr 2026 18:34:12 +0200
-Subject: [PATCH v3 net] vsock: fix buffer size clamping order
-Cc: "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>,
- Simon Horman <horms@kernel.org>,
- virtualization@lists.linux.dev,
- netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-To: Stefano Garzarella <sgarzare@redhat.com>
-Message-Id: <180118C5-8BCF-4A63-A305-4EE53A34AB9C@doyensec.com>
-X-Mailer: Apple Mail (2.3826.700.81.1.4)
+MIME-Version: 1.0
+References: <20260310-virtio-media-id-v1-1-be211bcf682b@redhat.com>
+In-Reply-To: <20260310-virtio-media-id-v1-1-be211bcf682b@redhat.com>
+From: Albert Esteve <aesteve@redhat.com>
+Date: Thu, 9 Apr 2026 18:53:41 +0200
+X-Gm-Features: AQROBzDaFJaZiFxmZiHsfQn41Ahklm_jm6vStQdJB-dsw3IWC6_Nu3_OKyiOr14
+Message-ID: <CADSE00+VyDf6hMAB79wP2koSQ3FznO_OJuGCZ6zN8zuCrwtZMg@mail.gmail.com>
+Subject: Re: [PATCH] virtio: Add ID for virtio media
+To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	gnurou@gmail.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: yrhoP1KuBt7NQgp-wEGIezOJH_nEVFla2VgTxMgAq2g_1775753634
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-In vsock_update_buffer_size(), the buffer size was being clamped to the
-maximum first, and then to the minimum. If a user sets a minimum buffer
-size larger than the maximum, the minimum check overrides the maximum
-check, inverting the constraint.
+Hi,
 
-This breaks the intended socket memory boundaries by allowing the
-vsk->buffer_size to grow beyond the configured vsk->buffer_max_size.
 
-Fix this by checking the minimum first, and then the maximum. This
-ensures the buffer size never exceeds the buffer_max_size.
+On Tue, Mar 10, 2026 at 9:41=E2=80=AFAM Albert Esteve <aesteve@redhat.com> =
+wrote:
+>
+> Add VIRTIO_ID_MEDIA definition for virtio-media.
+>
+> Signed-off-by: Albert Esteve <aesteve@redhat.com>
 
-Fixes: b9f2b0ffde0c ("vsock: handle buffer_size sockopts in the core")
-Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Norbert Szetei <norbert@doyensec.com>
----
-v3:=20
- - Added Fixes and Suggested-by tags.
+Are there any thoughts on this patch, or any actions I need to take?
 
- net/vmw_vsock/af_vsock.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+Thanks,
+Albert
 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index d912ed2f012a..08f4dfb9782c 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -1951,12 +1951,12 @@ static void vsock_update_buffer_size(struct =
-vsock_sock *vsk,
- 				     const struct vsock_transport =
-*transport,
- 				     u64 val)
- {
--	if (val > vsk->buffer_max_size)
--		val =3D vsk->buffer_max_size;
--
- 	if (val < vsk->buffer_min_size)
- 		val =3D vsk->buffer_min_size;
-=20
-+	if (val > vsk->buffer_max_size)
-+		val =3D vsk->buffer_max_size;
-+
- 	if (val !=3D vsk->buffer_size &&
- 	    transport && transport->notify_buffer_size)
- 		transport->notify_buffer_size(vsk, &val);
---=20
-2.53.0
+> ---
+> While the Linux driver for virtio media is currently under active
+> development and review [1], the VirtIO v1.4 specification has
+> already been published and oficially defines the media device type [2].
+>
+> Adding the device ID now allows other components and tools to reference i=
+t
+> before the driver lands, and ensures the kernel headers stay aligned
+> with the specification.
+>
+> [1] https://lore.kernel.org/linux-media/20250412-virtio-media-v3-1-97dc94=
+c18398@gmail.com/
+> [2] https://docs.oasis-open.org/virtio/virtio/v1.4/virtio-v1.4.html#x1-82=
+200022
+> ---
+>  include/uapi/linux/virtio_ids.h | 1 +
+>  1 file changed, 1 insertion(+)
+>
+> diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/linux/virtio_=
+ids.h
+> index 6c12db16faa3a..f9056af0c6223 100644
+> --- a/include/uapi/linux/virtio_ids.h
+> +++ b/include/uapi/linux/virtio_ids.h
+> @@ -69,6 +69,7 @@
+>  #define VIRTIO_ID_BT                   40 /* virtio bluetooth */
+>  #define VIRTIO_ID_GPIO                 41 /* virtio gpio */
+>  #define VIRTIO_ID_SPI                  45 /* virtio spi */
+> +#define VIRTIO_ID_MEDIA                        48 /* virtio media */
+>
+>  /*
+>   * Virtio Transitional IDs
+>
+> ---
+> base-commit: 6de23f81a5e08be8fbf5e8d7e9febc72a5b5f27f
+> change-id: 20260310-virtio-media-id-b31179fcdc44
+>
+> Best regards,
+> --
+> Albert Esteve <aesteve@redhat.com>
+>
 
