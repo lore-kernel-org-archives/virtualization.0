@@ -1,219 +1,130 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f42.google.com (mail-ed1-f42.google.com [209.85.208.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0893133B6E3
-	for <virtualization@lists.linux.dev>; Thu,  9 Apr 2026 15:00:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4142C3B7741
+	for <virtualization@lists.linux.dev>; Thu,  9 Apr 2026 16:34:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775746827; cv=none; b=RiFIhlHoH6XkioVoHJanB3xyFD0qf4FTML6V0qpNnwAbktG9Sj3OO0/mxXE1zZU+SbuZVOq2vl1vZN8f8bj/m6rXIyJ9cykDVJBEnkHW3eskImLqkzdO5VAO4JxnspqhXlwUIJvgmfRRcu8MoD3oYxVcfBbVCcyTJbdev/DYGQ0=
+	t=1775752469; cv=none; b=fJOqdteKGJL3IK5HpARBQJvGEc9yx63ZwXvqMOklM0jrWj0htXLlCiPoRmNS71hSJReeTWfMVRCv70jRaEuDErb9twp9F9fhv1Lg9q0SlFeYyYuF385ziD4L94Zteg8X6udsCZIzG4rhEBDVcdJh72S/2wGE5mF4NllgtP5xTHY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775746827; c=relaxed/simple;
-	bh=A6WjcZkzB7y/uOYAw/eN9Tj+j1b6o0TUODV7Nvp2H68=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=U5BR55EMQo5ke10N9uhIkMUauYywIfBkEITzPOErfJhTgyJj8X2p7GrxXJTVK1kEQv2CMKlZxzeaVSomt/wI0njbASOQWPUj/P0tOAHwknKhreGchtcv7XnI5f2FoITHOXU21MWrShAOb/ktWHbD6calAMG9F9OJG/eBdzjrz7A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hwedqR/p; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1775752469; c=relaxed/simple;
+	bh=5HPjyCGIUcS+XZxwOq7su4bREXkMRa1byoy+Frp53Po=;
+	h=From:Content-Type:Mime-Version:Date:Subject:Cc:To:Message-Id; b=E8TuuSe+1R/VmPnjyZv1xqPnATACD67SWTOwMoFH7E4LJEPKGRIYdtNB+QwkK4Tewn6T0NJpK6qITLCPV5GL56nqn17k/7UaB+P+9lr2Aa0MWSK341oRmOMZ95bqspxmHsLm47GmDI8Q9u0T6671mKcpKoFXELnBvESCu0G0rW4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=doyensec.com; spf=pass smtp.mailfrom=doyensec.com; dkim=pass (2048-bit key) header.d=doyensec.com header.i=@doyensec.com header.b=aSEV4Dxv; arc=none smtp.client-ip=209.85.208.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=doyensec.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=doyensec.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hwedqR/p"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1775746825;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=cf9B6qVrP1bgRDKEPgwYFOrfy8peSUb1Uft91wqXmNg=;
-	b=hwedqR/p0O6y1rp/HU8TxNQ9sgPH8BN/KEAnvhOVFj5L5Gmmni3nuLNiT8Dyi1XDhAThTX
-	AvupUWhj4WPz5ZUmD1AjOTsj5ueqD854UxMDMM9fdtq+oQYrbsAR5lNvIEo3oL41zQAsrK
-	cy66/CIeRnDjIOUmyaquAKSbLsTw+7s=
-Received: from mail-vs1-f71.google.com (mail-vs1-f71.google.com
- [209.85.217.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-470-zEPePUdsPC-OJKv2KZH_aA-1; Thu, 09 Apr 2026 11:00:23 -0400
-X-MC-Unique: zEPePUdsPC-OJKv2KZH_aA-1
-X-Mimecast-MFC-AGG-ID: zEPePUdsPC-OJKv2KZH_aA_1775746823
-Received: by mail-vs1-f71.google.com with SMTP id ada2fe7eead31-5ffa1faa59dso637574137.2
-        for <virtualization@lists.linux.dev>; Thu, 09 Apr 2026 08:00:23 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=doyensec.com header.i=@doyensec.com header.b="aSEV4Dxv"
+Received: by mail-ed1-f42.google.com with SMTP id 4fb4d7f45d1cf-6701fb93f23so1683900a12.0
+        for <virtualization@lists.linux.dev>; Thu, 09 Apr 2026 09:34:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=doyensec.com; s=google; t=1775752465; x=1776357265; darn=lists.linux.dev;
+        h=message-id:to:cc:subject:date:mime-version
+         :content-transfer-encoding:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=yvD6iQG1O/I+/j+ks+GogJBSWRhUCp/c6DPnLqjhUYs=;
+        b=aSEV4DxvZ/RfRh7mHOcqaOdRxrIfPdDObMDNvZKw8/4b4j6lsDwRRjuez17/DqHBgm
+         ocKkWkY00qOkEuwrpKtwZIoR30XirWP/AJgtnHCK4kR1Xd7gfhEYzmIkxhLXjojz4PGY
+         JZIySZ9Myk6DYblI1hDKYh7JzleOnUX0OWyj+nWsLCDVoqQ47tmLSW7G9Ykif1RcqbUU
+         o6ZxTu/4FNkVNTVw13rAQbgoFXlSsfqqUE+am9cpYddfMTpEUxTKpruhjRi4uvYaxJcj
+         hAS3AK0rtMaUm9osewdIbAcNcolDkAWKkMutvP935dmtWOZYaE7gIdaMuuzWHUw8lU7y
+         eDqA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775746823; x=1776351623;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=cf9B6qVrP1bgRDKEPgwYFOrfy8peSUb1Uft91wqXmNg=;
-        b=BJ/18hcHRuQnLJlRAUSxwx0DvrRJzWHSo1Ga2dO/ZSbTNam89Kg4HcGyvjDS5mM9IB
-         OR0czC45oxeFI03aj6s5BhdG7tl/JCbeR7Iuzb8RVOhW8zN6nrxzKqxYpJ9nmFQIreEM
-         JGFYuCjy+sluS2cAAEVcjqVV2QafDfomz19mh5Ky7FhNNe7iLMVA1Gc7fNrwOTL0taj+
-         imtR9md18/rvfNeQpuWPNptdacWRjKZsbfdgyB6I5+tJEW9vprsuTi6NJSg5AOuR7afx
-         jv+qFLDyvyM9YxgJOjldJ4Od/4q+OUK1zBKoN/GsviA4vHyZaW/IogZGCXNBgNlzbLWi
-         WTZg==
-X-Forwarded-Encrypted: i=1; AJvYcCVlfwuvzCVagnK2bnGsxIb20CMmE+TPRUjxglaHm9prD/M3RKwpckoIi5Q3uVwuaCvX24lrohrEmQGgfWh0Cw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxXFW69XenlHps62er/paUzr/HzmezUWA3wZDK8KuVTlJ2cDlQ8
-	JfxLxP+/TJj+g0wv4csf+lTUQvRgGI7axkQsI+SiRCYO3C/HpBfMMkCDJu8YQafSFAjOVBJeEjc
-	kC1BGXVerDUyp5VwO+CYSZVjH1hFfnLh0tOAGuRJYE6X1uZxT1ZTw45gZFIDv3MFW9mgQEUuBd8
-	F2N0K2uqaMN8kmBbVEea+U3UxzdN+iwXZduLVWsM+4x9k=
-X-Gm-Gg: AeBDieugapWDTaRKyiQXwECpwxbEvP1e0/ol39PCztLHQJOhDMID6RMzy8jHQNhRTwU
-	NAES8KdFpPxwuSuWuaZp69Wu9V5/Yf8QmVukoOze1dXNtUQKuB6trMEOlYt/uiPSK9kt0aF87PJ
-	tTYBe/65E0yElQKyx5lvslOI8j41fVNpLytTwQkDKVKvNe6d26Mg1RFnLiZ4dSreZ+2NSg7IgjV
-	oh5H+ahBHwnIbbGdG7O/s/FkqUe8fu25kTEUV8=
-X-Received: by 2002:a67:e713:0:b0:608:1b6e:f4dc with SMTP id ada2fe7eead31-6081b6ef921mr2784439137.11.1775746823142;
-        Thu, 09 Apr 2026 08:00:23 -0700 (PDT)
-X-Received: by 2002:a67:e713:0:b0:608:1b6e:f4dc with SMTP id
- ada2fe7eead31-6081b6ef921mr2784399137.11.1775746822118; Thu, 09 Apr 2026
- 08:00:22 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1775752465; x=1776357265;
+        h=message-id:to:cc:subject:date:mime-version
+         :content-transfer-encoding:from:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=yvD6iQG1O/I+/j+ks+GogJBSWRhUCp/c6DPnLqjhUYs=;
+        b=lAEAA01mbnB0q4RVdFvCidJAWTaHedAHlfMJ2uniCWNwT2XoKfivFNPg/BVcjKGp7s
+         7Bpc8Tu83Z7WZiSFJ4ZY2ZHP+mHZq4adNpB/Z3+7WZ17iHVJApALRUaJsQMGU0mqZ+u1
+         4Zei5108rjX3V5OQpur/+7dpHloRv8OFd0FHAK4BHZ9016EUsU1jJIyuvm1bNXWCT2hI
+         1WzsT+NjDqqeoTQ7QfYwgJY58pgCzD/utLnQe6zSKkiclXNKtHoYWe3+SjrSKFwjEwjr
+         NOBmSeP2474PH6SrjUd0l8K+kLQ3zez72/AY2htIbdF543nTpiewVqSLnAan9pJUvZ72
+         jZtA==
+X-Forwarded-Encrypted: i=1; AJvYcCXeC+7JSdqFtDnnzrYjFngYyTz0XXHq88OpDLmFOM+TFXpOWQn9Prx+UVL2XfB1uxLgU3GlMg4yV+6SFgUKBQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwDWpx8Cr3mohu9psKpY8U5LnMW2FNHAg+h1iwK48Q47h8dvLhT
+	BnpMTq/3AwH/UZJMLRd8OuqWkX4Vp7TJuW7yFNnLUEKZ8Ih1jY1f+mcY+jzJu68WxQ0=
+X-Gm-Gg: AeBDieth/UkRZHtA7RYOxRH5PNL637O1Cprgzihk4jipuIOXuxjGBebcWQqKzbf6YwG
+	jxyUCZIaSey+xPEnjTqG7g8wWWm6TyBeFYOTyi7mDPlTMnyFwI4jcS9D/qSYxCkbhJNsmbnt70/
+	dgkyRi/EzokUmgKvKLB0eXTEBxNWcO7+8If2AJlj9b/I6Lr+puIwHWLRRgTIHzDv4jxRILroS7u
+	x5UIcCG3gbt7ZVZnq5X3eeUztR3B3dj73uQTknXCAThJS2XgOIMmp5re2o504hZWbEWQaSlvaEz
+	zPtDRiGQX04vJc61ezLq7Tp7VkR9At7+I3/okeaJRr+whWIzN9tKFrjisR46mAz/q8b5MSGVPwB
+	Gjk31ggpn8viTrD9qrF91ZRM5EZCxTyIjMMgUnFShZisF/GfRLMjU57RAo4dpAnAA2APB4nOzhl
+	Vr00X/hIlwIVhtjQsKU2nSfyBp74JMtPGMzsQAy2OzuY66ZefpItJUwzThD7yIcT1eoN6T2xnS9
+	mN4
+X-Received: by 2002:a05:6402:504a:b0:66e:df52:7ce0 with SMTP id 4fb4d7f45d1cf-66edf527d86mr8235560a12.17.1775752465513;
+        Thu, 09 Apr 2026 09:34:25 -0700 (PDT)
+Received: from smtpclient.apple (83.10.27.44.ipv4.supernova.orange.pl. [83.10.27.44])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-66e033a787fsm5984074a12.14.2026.04.09.09.34.23
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Thu, 09 Apr 2026 09:34:24 -0700 (PDT)
+From: Norbert Szetei <norbert@doyensec.com>
+Content-Type: text/plain;
+	charset=us-ascii
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-References: <20260401222312.772334-1-atomlin@atomlin.com> <20260401222312.772334-14-atomlin@atomlin.com>
- <ac8l-w8ERG1YN2Wm@fedora> <nxe24ixebb4lm2d5w4aubhtwr23df6mumqd663axj35oswdiyv@amtqhtsidyr4>
- <adMoon3Zf6gO-UbA@fedora> <zawhqvn53mcp4wf7axsmuq4cg73upxs5h2zgrfta5dpat3sfy4@zctfbz2ttz5m>
-In-Reply-To: <zawhqvn53mcp4wf7axsmuq4cg73upxs5h2zgrfta5dpat3sfy4@zctfbz2ttz5m>
-From: Ming Lei <ming.lei@redhat.com>
-Date: Thu, 9 Apr 2026 23:00:09 +0800
-X-Gm-Features: AQROBzBGMQxEgwdm4UZJAa6NOKwn3RLk5aSwu5C0sv3kx4PGZQZHIp5V15VSUxk
-Message-ID: <CAFj5m9JE5e4DRGbzQFxDdZWU76ZPQ3G+C9JpLu0mhTB6aesZ9g@mail.gmail.com>
-Subject: Re: [PATCH v10 13/13] docs: add io_queue flag to isolcpus
-To: Aaron Tomlin <atomlin@atomlin.com>
-Cc: axboe@kernel.dk, kbusch@kernel.org, hch@lst.de, sagi@grimberg.me, 
-	mst@redhat.com, aacraid@microsemi.com, James.Bottomley@hansenpartnership.com, 
-	martin.petersen@oracle.com, liyihang9@h-partners.com, 
-	kashyap.desai@broadcom.com, sumit.saxena@broadcom.com, 
-	shivasharan.srikanteshwara@broadcom.com, chandrakanth.patil@broadcom.com, 
-	sathya.prakash@broadcom.com, sreekanth.reddy@broadcom.com, 
-	suganath-prabu.subramani@broadcom.com, ranjan.kumar@broadcom.com, 
-	jinpu.wang@cloud.ionos.com, tglx@kernel.org, mingo@redhat.com, 
-	peterz@infradead.org, juri.lelli@redhat.com, vincent.guittot@linaro.org, 
-	akpm@linux-foundation.org, maz@kernel.org, ruanjinjie@huawei.com, 
-	bigeasy@linutronix.de, yphbchou0911@gmail.com, wagi@kernel.org, 
-	frederic@kernel.org, longman@redhat.com, chenridong@huawei.com, hare@suse.de, 
-	kch@nvidia.com, steve@abita.co, sean@ashe.io, chjohnst@gmail.com, 
-	neelx@suse.com, mproche@gmail.com, linux-block@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
-	linux-nvme@lists.infradead.org, linux-scsi@vger.kernel.org, 
-	megaraidlinux.pdl@broadcom.com, mpi3mr-linuxdrv.pdl@broadcom.com, 
-	MPT-FusionLinux.pdl@broadcom.com, "Lei, Ming" <tom.leiming@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: N4W9j6KloGpE2qU1SU8poJh0RLGH3bpYnY4cJIbGAik_1775746823
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0 (Mac OS X Mail 16.0 \(3826.700.81.1.4\))
+Date: Thu, 9 Apr 2026 18:34:12 +0200
+Subject: [PATCH v3 net] vsock: fix buffer size clamping order
+Cc: "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>,
+ Simon Horman <horms@kernel.org>,
+ virtualization@lists.linux.dev,
+ netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+To: Stefano Garzarella <sgarzare@redhat.com>
+Message-Id: <180118C5-8BCF-4A63-A305-4EE53A34AB9C@doyensec.com>
+X-Mailer: Apple Mail (2.3826.700.81.1.4)
 
-On Wed, Apr 8, 2026 at 11:58=E2=80=AFPM Aaron Tomlin <atomlin@atomlin.com> =
-wrote:
->
-> On Mon, Apr 06, 2026 at 11:29:38AM +0800, Ming Lei wrote:
-> > I don't think there is such breaking isolation thing. For iopoll, if
-> > applications won't submit polled IO on isolated CPUs, everything is jus=
-t
-> > fine. If they do it, IO may be reaped from isolated CPUs, that is just =
-their
-> > choice, anything is wrong?
->
-> Hi Ming,
->
-> Thank you for your follow up. You make a fair point regarding polling
-> queues and application choice; if an application explicitly binds to an
-> isolated CPU and submits polled operations, it is indeed actively electin=
-g
-> to utilise that core and accept the resulting behaviour.
->
-> However, the architectural challenge arises from how the kernel handles
-> these queues structurally when the application does not explicitly make
-> that choice. Because poll queues never utilise interrupts, they are
-> completely invisible to the managed interrupt subsystem.
->
-> If we were to rely exclusively on the managed irq flag, the block layer
-> would blindly map these non interrupt driven polling queues to isolated
-> CPUs. If a general background storage operation were then routed to
-> that queue, the isolated core would be forced to spin actively in a tight
+In vsock_update_buffer_size(), the buffer size was being clamped to the
+maximum first, and then to the minimum. If a user sets a minimum buffer
+size larger than the maximum, the minimum check overrides the maximum
+check, inverting the constraint.
 
-How can the isolated core be scheduled for running polling task?
+This breaks the intended socket memory boundaries by allowing the
+vsk->buffer_size to grow beyond the configured vsk->buffer_max_size.
 
-Who triggered it?
+Fix this by checking the minimum first, and then the maximum. This
+ensures the buffer size never exceeds the buffer_max_size.
 
-> loop waiting for the hardware completion. This would completely monopolis=
-e
-> the core and destroy any real time isolation guarantees without the user
-> space application ever having requested it.
+Fixes: b9f2b0ffde0c ("vsock: handle buffer_size sockopts in the core")
+Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+Signed-off-by: Norbert Szetei <norbert@doyensec.com>
+---
+v3:=20
+ - Added Fixes and Suggested-by tags.
 
-No.
+ net/vmw_vsock/af_vsock.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-IOPOLL queue doesn't have interrupt, and the ->poll() is only run from
-the submission context.  So if you don't submitted polled IO on isolated
-CPU cores, everything is just fine.  This is simpler than irq IO actually.
-
->
-> This illustrates precisely why the io queue flag is a mechanical necessit=
-y.
-> Its primary objective is to act as a comprehensive block layer isolation
-> boundary. It structurally restricts both hardware queue placement and
-> managed interrupt affinity strictly to housekeeping CPUs, ensuring that n=
-o
-> storage queue operations of any kind are mapped to an isolated CPU.
->
-> To achieve this reliably, this series expands the struct irq affinity
-> structure to incorporate a new CPU mask [1]. This mask is explicitly set =
-to
-> the result of blk mq online queue affinity. By passing this housekeeping
-> mask directly through the interrupt affinity parameters, we ensure that t=
-he
-> native affinity calculation is strictly bounded to non isolated CPUs from
-> the moment the device probes.
->
-> This structural enhancement allows device drivers to seamlessly inherit t=
-he
-> isolation constraints without requiring bespoke, driver specific logic. A
-> clear example of this application can be seen in the modifications to the
-> Broadcom MPI3 Storage Controller [2]. By leveraging the expanded struct i=
-rq
-> affinity, the driver guarantees that its queues and corresponding managed
-> interrupts are perfectly aligned with the system housekeeping
-> configuration, completely avoiding the isolated CPUs during allocation.
->
-> [1]: https://lore.kernel.org/lkml/20260401222312.772334-5-atomlin@atomlin=
-.com/
-> [2]: https://lore.kernel.org/lkml/20260401222312.772334-8-atomlin@atomlin=
-.com/
->
-> I hope this better illustrates the mechanical necessity of the io_queue
-> flag and the corresponding changes to the interrupt affinity structures.
-
-Can you share one example in which managed irq can't address?
-
->
-> > > Every logical CPU, including the isolated ones, must logically map to=
- a
-> > > hardware context in order to submit input and output requests, saying=
- they
-> > > are completely restricted is indeed stale and technically inaccurate.=
- The
-> > > isolation mechanism actually ensures that the hardware contexts thems=
-elves
-> > > are serviced by the housekeeping CPUs, while the isolated CPUs are si=
-mply
-> > > mapped onto these housekeeping queues for submission purposes. I will
-> > > rewrite this paragraph to accurately reflect this topology, ensuring =
-it
-> > > aligns perfectly with the behaviour introduced in patch 10.
-> >
-> > I am not sure if the above words is helpful from administrator viewpoin=
-t about
-> > the two kernel parameters.
-> >
-> > IMO, only two differences from this viewpoint:
-> >
-> > 1) `io_queue` may reduce nr_hw_queues
-> >
-> > 2) when application submits IO from isolated CPUs, `io_queue` can compl=
-ete
-> > IO from housekeeping CPUs.
->
-> Acknowledged.
-
-Are there other major differences besides the two mentioned above?
-
-Thanks,
-Ming
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index d912ed2f012a..08f4dfb9782c 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -1951,12 +1951,12 @@ static void vsock_update_buffer_size(struct =
+vsock_sock *vsk,
+ 				     const struct vsock_transport =
+*transport,
+ 				     u64 val)
+ {
+-	if (val > vsk->buffer_max_size)
+-		val =3D vsk->buffer_max_size;
+-
+ 	if (val < vsk->buffer_min_size)
+ 		val =3D vsk->buffer_min_size;
+=20
++	if (val > vsk->buffer_max_size)
++		val =3D vsk->buffer_max_size;
++
+ 	if (val !=3D vsk->buffer_size &&
+ 	    transport && transport->notify_buffer_size)
+ 		transport->notify_buffer_size(vsk, &val);
+--=20
+2.53.0
 
