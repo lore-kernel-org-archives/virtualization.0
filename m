@@ -1,113 +1,179 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 30AA1351C09
-	for <virtualization@lists.linux.dev>; Fri, 10 Apr 2026 08:36:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DF4D3B3BE3
+	for <virtualization@lists.linux.dev>; Fri, 10 Apr 2026 09:06:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1775810190; cv=none; b=KhohtbbLvTd4E+amsNse94UcScmK8hTwUZwhjIk1zNkCv7yppdtNuYZbjosX6/ovqCz9h7meP2d43p4IWwjXswnjGmsNvumturX+dCJpE3s5Oo5jro1d12xge56qlIKgo4FhKsSoxyYHJDqlYJRi/FAik+8GeXDg3yHTwg02FZo=
+	t=1775812010; cv=none; b=ZRT3Lqn7Avne9h64t0OLjLh0Ar7/MU7Gh/noU9IgoNzNt4fJ26dGwsM6gOagyfzOLVijpME/EDyr5ekAhW++8cD9x0kOEM65E5ONFXw9D+TaqRoi4IWmjnPSmphsObVv9GyL6CuB/8qYRyJ0AuJLk9a5iTVHGUVRF8/LkQSag/g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1775810190; c=relaxed/simple;
-	bh=AxgP8c47gAUCi2wMx3yIR+EuLZ1MEOnbjNDACsoNfbg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=lhptjtI4ycp7A6Z8dffXiKQobkjy4jkc0ugoDnwE9ZUCM0OFki+ggn/wUPgQqF675m2mGxDLwk5dPkUauCPFVTv7YkRQAPFM7vWDoHPiocMfe4uQ2SsFr/cOxNxvL/LRlWK2WDJwed98xJll3S5JX4NY1s4/pwSDQkblIcX9tC4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=H4dMTgia; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1775812010; c=relaxed/simple;
+	bh=mkRB3+rS1m3805s8GQTj2HfkmQ2P2SWXAkPM7ASB7ME=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=qaUiLRIMWgobECBM9Ia3tcFLdfSEuzO/0lA0EM7gAuchnUgcr8tmc6xouboMoVcyDW/rGykWdzCdI9mhLEmLLUdd/z8xVzjcPSVvHSPFhb3hXZz20U8worHhLTtX9kHX50ziocPWMQpaZtT0IdpOWqHQWpWJ3ojL733LHGlxMYY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LBK7lFu2; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="H4dMTgia"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LBK7lFu2"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1775810187;
+	s=mimecast20190719; t=1775812007;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=AxgP8c47gAUCi2wMx3yIR+EuLZ1MEOnbjNDACsoNfbg=;
-	b=H4dMTgiaaZ/0nGsemDGuSy5/XiJOFnKkFb2ghNoZzaBCF3FjgXI13Kmrv7HQ78hM4zeof9
-	REsstwXGrY1FFrk364iLdt2UgDCoL+7+EYNg3rogp+pI/DcXXKmZ4/pFwqFb1MPMk93iPl
-	vZhZ5X6kR/Ruc6qDQ7MeWTrHpNq9oOc=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=MfU0YWSJIfl9AQo8fY3otc4QhRCrsnnfRWzfq3Ua0cM=;
+	b=LBK7lFu2hAYD57dNrwiXfUCR91vVRYRAPCXLRLb+/lH+0TbCCEVnflGewXfjrGpkyA3tEB
+	FIbmT++PY6WA1jleKSZ93V59/izmch5hfN+xwelf3v5NVO31mzYejU4dlUJOj2JJQZNllC
+	BxibLHqM0lUNkpGRzYxyz4r4yofau14=
+Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com
+ [209.85.214.198]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-195-MmyYmA1OPwKKRde_oH42yA-1; Fri, 10 Apr 2026 04:36:26 -0400
-X-MC-Unique: MmyYmA1OPwKKRde_oH42yA-1
-X-Mimecast-MFC-AGG-ID: MmyYmA1OPwKKRde_oH42yA_1775810185
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-43d60e50887so1147820f8f.2
-        for <virtualization@lists.linux.dev>; Fri, 10 Apr 2026 01:36:25 -0700 (PDT)
+ us-mta-682-Tl3WvoCdPOCXRI8a4Sj2EA-1; Fri, 10 Apr 2026 05:06:46 -0400
+X-MC-Unique: Tl3WvoCdPOCXRI8a4Sj2EA-1
+X-Mimecast-MFC-AGG-ID: Tl3WvoCdPOCXRI8a4Sj2EA_1775812005
+Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-2b2471321dcso44437355ad.1
+        for <virtualization@lists.linux.dev>; Fri, 10 Apr 2026 02:06:46 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1775810185; x=1776414985;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=AxgP8c47gAUCi2wMx3yIR+EuLZ1MEOnbjNDACsoNfbg=;
-        b=VUriaOcEE3NmCGzlY0ZPNWzBOd0ac+GW5BWw58dGR3qRSlzFmYEBb1OWCfaZ2JBP3u
-         Hx2+OF8xvGtsXfU/xqmpPsj3uDAWVB6eW6Ydt7An1rLmZ+VZq6pUV/jcYJdmJ3On2f4K
-         JeCcOtxox4lAMs7RhDkGBQjapuOkFa4vziFKb7jNv85+cMjpeVVJ62HD3+lRw4mUIP3M
-         A2iNCIJ7Sbqn5JyKLvzYOYvfUERN7mVfSb3RX6zS02SpIsWFA+R1PWrmoGJVn7eZ0fSW
-         i8G6P04Y0SewFlPR0GSG1kBUdTGaNvTmrKCB4CaXy9jb7Lxjv7vw+6XtG/D+CDrmc2Bu
-         pS6w==
-X-Forwarded-Encrypted: i=1; AJvYcCWp+SOFq8cm2rkZuFwm/BvzZxcWVpNIJ5uh0ByCFKyjL71ZPrMztRZdAfon+vALAJg76TLppm+kdWmOMrI87A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxoPe3Of29ltFxOCR2jLzeaj+pi+z/+bUMolcg/L42+gMqmXC2o
-	6hCBVqAa8CFxtCQQOW9wXWP5cMV+VUUYc/jVGgW+K9XpMh2SqUxK+1GXxE1f1iNtscHIW5QkiGX
-	hDU1Da0cLThgIzaQ9B90Irtk8a1REn6u1DqIz80YzFtX2g6N2BW2wnAperlGLwWfyVt/V
-X-Gm-Gg: AeBDiet0uzA/KHQeJzA2APji0fYuQabxlWR+X8aewAQHUibZoiFUCZyRWJcwwDcytx0
-	Y3rY0zh7aiGevWivCwVsT073j3qYUD/76P6DjTQIupnBBf4Jkr5YidGkZLgl3os8DXUU5TVec6c
-	jXy9TNOZ7CbEJc91TxJZpMcqzs7UsXaW+Jpw7DdAgdis8S4Gore6MBCe2mUdbgRwqmdOkB9vcmA
-	CPzg7Ne8YdZwCPF4hzFxrQxD+/HCYigWN6WJQ3KuEePLrkHiZuMCt/nPck79ubpgXrLgyatdnSn
-	5wr4DorwXUeRwGU+X0ktiTDsp81MrRat+6zhUxqNjeEjunhJ2rqRvQ4zixlAfBdnKjsLwPDqlLJ
-	mDptJukOXNnrWrkJ/oE+LV7x6NvTulFDy5VTZWPkmLxdJkR2NXOGsd5Hr+ztV+ZnlvaW3PRZ4Hw
-	==
-X-Received: by 2002:a05:600c:8209:b0:488:9ed3:148f with SMTP id 5b1f17b1804b1-488d684ba0emr25033315e9.21.1775810184727;
-        Fri, 10 Apr 2026 01:36:24 -0700 (PDT)
-X-Received: by 2002:a05:600c:8209:b0:488:9ed3:148f with SMTP id 5b1f17b1804b1-488d684ba0emr25032745e9.21.1775810184278;
-        Fri, 10 Apr 2026 01:36:24 -0700 (PDT)
-Received: from sgarzare-redhat (host-79-45-205-236.retail.telecomitalia.it. [79.45.205.236])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-488d525c931sm56045695e9.0.2026.04.10.01.36.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 10 Apr 2026 01:36:23 -0700 (PDT)
-Date: Fri, 10 Apr 2026 10:36:18 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Norbert Szetei <norbert@doyensec.com>
-Cc: "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v3 net] vsock: fix buffer size clamping order
-Message-ID: <adi2chLOGW0pms1Y@sgarzare-redhat>
-References: <180118C5-8BCF-4A63-A305-4EE53A34AB9C@doyensec.com>
+        d=1e100.net; s=20251104; t=1775812005; x=1776416805;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=MfU0YWSJIfl9AQo8fY3otc4QhRCrsnnfRWzfq3Ua0cM=;
+        b=k0i8Y6t9I5m0XC6QzxYXZhmemFdfH1otxNVIDmvY4C9h4aqy5LJySrH6X6AFbqEFH+
+         dyJib0UxrQI69fDVal4ER8GL4T9W1TDMSgV97K30a8gG2qW3lR03xB4gZkoUfSRDjYXg
+         CLhs/6k84aC+Jj4WaG19np8AAPq/cnOAAE8XWTiEHOvMJYp8IgKEzPcfUjl/AnikHxMT
+         Et6WSIGQxSJT1PvLhxk/tvUYQl1ObWblf8FHr4MOnHNf01uRS2TbQqheCHtBlZQjQvH7
+         6nr3vKSrB2sQkBeFuZDae9srN/Ig8Uy6mGwBq24nGvtBe6mNrdULFz/PeGgYDgCPOnTo
+         IwXg==
+X-Forwarded-Encrypted: i=1; AJvYcCVouwXwZ2jSk2UCFrcOKkwJh7lQ/gHkqUv2DzsQRdHk+jcWZbxl+LYhgyH+6GgU+0dyn9kSYKh3kDsqIW9k5w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxehSQPaCtIaQ/3sUWOYu0Js2ag851jybxW9pVc+7FAYniFwBEc
+	g851FP6poskn+1A9cvgbnKFtIyaWRwPKRE5E0PUUIN0XTO1Hw0PfD8gzcqASDm0Qig4xzvTFgU7
+	Qc18DDmMYSQG+x33MD5yMkc+20q8XUWKPALPwHH18iN3fm2HFNk/tqA+g5shE2sI0x2IeiAuufg
+	VUdEIu4TnhXFrHUOQ6IbpcRaPoC4J7+JTL2Qu/EbLO5Mk=
+X-Gm-Gg: AeBDiev63MyxrW+AS6cVmBV5dNwEmpQOr5ycNsDOQ+GiG0w6Aza3RRu4+GClXr7FUsE
+	vB0FMkwrGwyqTUk1hzWB/6k/NQVZTv841c+JITSAI5ZeKAfmr8ODTtYbGFA2K1klT/nOHNPIfa0
+	q/F4QMnmnt3eJfg9M/Q3/Kzxu9VzPdmubYoPRxywWWOXOo3AvtjwXy2wYSHBwqRS2AHnQuOChQ5
+	XgjKA==
+X-Received: by 2002:a17:902:f0ce:b0:2b2:41a9:8e10 with SMTP id d9443c01a7336-2b2d5a3c39dmr14965835ad.23.1775812005211;
+        Fri, 10 Apr 2026 02:06:45 -0700 (PDT)
+X-Received: by 2002:a17:902:f0ce:b0:2b2:41a9:8e10 with SMTP id
+ d9443c01a7336-2b2d5a3c39dmr14965435ad.23.1775812004685; Fri, 10 Apr 2026
+ 02:06:44 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <180118C5-8BCF-4A63-A305-4EE53A34AB9C@doyensec.com>
+References: <20260405195733.86043-1-create0818@163.com> <20260410035237.59644-1-create0818@163.com>
+ <adi1X_3wVUsDhRmR@sgarzare-redhat>
+In-Reply-To: <adi1X_3wVUsDhRmR@sgarzare-redhat>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Date: Fri, 10 Apr 2026 11:06:33 +0200
+X-Gm-Features: AQROBzDVhsz7kNUJ36YTaPNuvynQFY-Dt0FMLOERsUNJeRpJCN7EnVLjvVRFZ1o
+Message-ID: <CAGxU2F4XpzQiKwboQt9UEpxY+Gzsq7qyR5CMLZO4F_hGqTpndA@mail.gmail.com>
+Subject: Re: [PATCH v2] selftests: vsock: avoid races creating Unix socket paths
+To: Cao Ruichuang <create0818@163.com>, Bobby Eshleman <bobbyeshleman@meta.com>
+Cc: stefano.garzarella@gmail.com, shuah@kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	horms@kernel.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: aZtSxuBm8ck6cE32EZDZTnbNFls9f0c6U6cyXfTGMmU_1775810185
+X-Mimecast-MFC-PROC-ID: xVX6lid8QRvES06yeVghYlRQqbNQZgdD97YrziVmRAQ_1775812005
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
 
-On Thu, Apr 09, 2026 at 06:34:12PM +0200, Norbert Szetei wrote:
->In vsock_update_buffer_size(), the buffer size was being clamped to the
->maximum first, and then to the minimum. If a user sets a minimum buffer
->size larger than the maximum, the minimum check overrides the maximum
->check, inverting the constraint.
+On Fri, 10 Apr 2026 at 10:33, Stefano Garzarella <sgarzare@redhat.com> wrote:
 >
->This breaks the intended socket memory boundaries by allowing the
->vsk->buffer_size to grow beyond the configured vsk->buffer_max_size.
+> On Fri, Apr 10, 2026 at 11:52:37AM +0800, Cao Ruichuang wrote:
 >
->Fix this by checking the minimum first, and then the maximum. This
->ensures the buffer size never exceeds the buffer_max_size.
->
->Fixes: b9f2b0ffde0c ("vsock: handle buffer_size sockopts in the core")
->Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
->Signed-off-by: Norbert Szetei <norbert@doyensec.com>
->---
->v3:
-> - Added Fixes and Suggested-by tags.
->
-> net/vmw_vsock/af_vsock.c | 6 +++---
-> 1 file changed, 3 insertions(+), 3 deletions(-)
+> No patch description at all?
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+Also, maybe better to CC Bobby.
+
+Stefano
+
+>
+> >Signed-off-by: Cao Ruichuang <create0818@163.com>
+> >---
+> >v2:
+> >- retitle the patch to describe the race being fixed
+> >- replace rm -rf with explicit rm and rmdir cleanup
+> >
+> > tools/testing/selftests/vsock/vmtest.sh | 16 ++++++++++++----
+> > 1 file changed, 12 insertions(+), 4 deletions(-)
+> >
+> >diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
+> >index 86e338886b3..c345fa539d3 100755
+> >--- a/tools/testing/selftests/vsock/vmtest.sh
+> >+++ b/tools/testing/selftests/vsock/vmtest.sh
+> >@@ -718,6 +718,7 @@ test_ns_diff_global_host_connect_to_global_vm_ok() {
+> >       local pids pid pidfile
+> >       local ns0 ns1 port
+> >       declare -a pids
+> >+      local unixdir
+> >       local unixfile
+> >       ns0="global0"
+> >       ns1="global1"
+> >@@ -736,7 +737,8 @@ test_ns_diff_global_host_connect_to_global_vm_ok() {
+> >       oops_before=$(vm_dmesg_oops_count "${ns0}")
+> >       warn_before=$(vm_dmesg_warn_count "${ns0}")
+> >
+> >-      unixfile=$(mktemp -u /tmp/XXXX.sock)
+> >+      unixdir=$(mktemp -d /tmp/vsock_vmtest_XXXXXX)
+> >+      unixfile="${unixdir}/sock"
+> >       ip netns exec "${ns1}" \
+> >               socat TCP-LISTEN:"${TEST_HOST_PORT}",fork \
+> >                       UNIX-CONNECT:"${unixfile}" &
+> >@@ -758,6 +760,8 @@ test_ns_diff_global_host_connect_to_global_vm_ok() {
+> >
+> >       terminate_pids "${pids[@]}"
+> >       terminate_pidfiles "${pidfile}"
+> >+      rm "${unixfile}"
+> >+      rmdir "${unixdir}"
+> >
+> >       if [[ "${rc}" -ne 0 ]] || [[ "${dmesg_rc}" -ne 0 ]]; then
+> >               return "${KSFT_FAIL}"
+> >@@ -814,6 +818,7 @@ test_ns_diff_global_vm_connect_to_global_host_ok() {
+> >       local ns0="global0"
+> >       local ns1="global1"
+> >       local port=12345
+> >+      local unixdir
+> >       local unixfile
+> >       local dmesg_rc
+> >       local pidfile
+> >@@ -826,7 +831,8 @@ test_ns_diff_global_vm_connect_to_global_host_ok() {
+> >
+> >       log_host "Setup socat bridge from ns ${ns0} to ns ${ns1} over port ${port}"
+> >
+> >-      unixfile=$(mktemp -u /tmp/XXXX.sock)
+> >+      unixdir=$(mktemp -d /tmp/vsock_vmtest_XXXXXX)
+> >+      unixfile="${unixdir}/sock"
+> >
+> >       ip netns exec "${ns0}" \
+> >               socat TCP-LISTEN:"${port}" UNIX-CONNECT:"${unixfile}" &
+> >@@ -845,7 +851,8 @@ test_ns_diff_global_vm_connect_to_global_host_ok() {
+> >       if ! vm_start "${pidfile}" "${ns0}"; then
+> >               log_host "failed to start vm (cid=${cid}, ns=${ns0})"
+> >               terminate_pids "${pids[@]}"
+> >-              rm -f "${unixfile}"
+> >+              rm "${unixfile}"
+> >+              rmdir "${unixdir}"
+> >               return "${KSFT_FAIL}"
+> >       fi
+> >
+> >@@ -862,7 +869,8 @@ test_ns_diff_global_vm_connect_to_global_host_ok() {
+> >
+> >       terminate_pidfiles "${pidfile}"
+> >       terminate_pids "${pids[@]}"
+> >-      rm -f "${unixfile}"
+> >+      rm "${unixfile}"
+> >+      rmdir "${unixdir}"
+> >
+> >       if [[ "${rc}" -ne 0 ]] || [[ "${dmesg_rc}" -ne 0 ]]; then
+> >               return "${KSFT_FAIL}"
+> >--
+> >2.39.5 (Apple Git-154)
+> >
+> >
 
