@@ -1,185 +1,199 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEE163A4538
-	for <virtualization@lists.linux.dev>; Mon, 13 Apr 2026 08:10:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A52739901A;
+	Mon, 13 Apr 2026 08:15:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776067853; cv=none; b=slqJ1WRIui3DJnkUM9MOc1g+ElehVQ4mlyz5wZsVCKJ6+HAQAhe5hEXs96xcw0oqRZEZT3TXzNnt0NH/ithugykj7P6GpHvxbynCGAj61GMtAfU/fW1EBfXhfzci8EfbiNuU9r+YhySYGXATdRVOy+I2p2nvGwCNmxHOuvLzZQA=
+	t=1776068116; cv=none; b=VTe1RmJpcB1eOBZjntVQSLlD/IWT+XiHV+9GcE3V6G/KjAF2mp43V3vH6FQclHmJbfvq9GBIiidNgZ2ZjnEU2Rv4RO7HnR58q4AvjgNUIsDzK9sx3sI8TI7lZe3Wt/2NdmiIGQD9TJ7kDkUIOmRqJmKhzvk7qMiCBlh7kC2VEK4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776067853; c=relaxed/simple;
-	bh=GEunZ9UcB09fSEmuMjlxeLs2Xmd5ksXd1isCdjy3oSk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=e8pWEMVIvCrW2wAlhEi/0qQUPbWpGAlsLhh+/Ot5EjMSpEHc5xiEtHT0fzdbLJrda3djmG2YsnLb1vZPcP8sSywr6HvvSFbcIHz+qJ7P//hi/Sz6zt6Ddz55XYu8jmsR75P0iPfLJITJnOnf7ZpwG1P7inayQR0t0Nc6S0lOiTo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QimhEpKY; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1776068116; c=relaxed/simple;
+	bh=33NTUTIwsDbi+rzZUkVvN5OJH7UDAeSwaboNiGNq9+A=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=pf+0YAsz4cmlAHpLNtjt/+FNjRY5R8t6fyJ8QQy9oqNQqdjIF0nvC8O5P8pcHLgDLv2bb/7dtFIVQ54EqNJ2ksfR9thZ7qB33jBZk3tpLWDLQ9+5W7T0Mw2R3qaLCWXX3SZspkF0kfQzxs9+r+2u5fk+VHMpDh7zsg4FlGKFABI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mbiFSFfT; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QimhEpKY"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1776067851;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=OaQMCi5HMfp/OHds/BFFbF3BJqhYWZNHL69rqmLc+L4=;
-	b=QimhEpKYn4IQUcwcnHLjdMxc9iTfIcbxXrwfvg16zuLp0nRbmj+wiEKWmxr790JZGCzwJC
-	gjKzZH9duU/JCZQAC+ydepL6UYLCcjEvJ//DCKYYmlsGDsGyekdwNHlPaVjfc9w+zEYzQ2
-	Bfko8lXqpk1c8FnF4ofSY35Y5aGcFLE=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-417-5X7JWudBOuin6d6v9znwlQ-1; Mon, 13 Apr 2026 04:10:49 -0400
-X-MC-Unique: 5X7JWudBOuin6d6v9znwlQ-1
-X-Mimecast-MFC-AGG-ID: 5X7JWudBOuin6d6v9znwlQ_1776067848
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-43d70e3e4e7so1022086f8f.1
-        for <virtualization@lists.linux.dev>; Mon, 13 Apr 2026 01:10:49 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776067848; x=1776672648;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=OaQMCi5HMfp/OHds/BFFbF3BJqhYWZNHL69rqmLc+L4=;
-        b=pOo/Ac9kAfZCFHEvk6PCD9Jv/kNzKKpw+CC9G0Ez1hSjEQCO9ut+WdorQAU8eYfpMj
-         /Mn8MLc4qgZ6OspC5g2xMzcFuvq7eWoSweqnTZzz6B21qy43v8zC5lWHpcnKkeqyNq49
-         f9TmUfG5TpZ+3ICuiZ1VFpME86hgZeyWCXnvt8F1wav1zjSzrvNrEPqv/ny0YUy2LTkk
-         vaWLedWfbNpwz3x1291ne7eCI5XKtxYkgiSzyNheMc96lDNcxNqIbNFH4kvZRuwWTWRr
-         509ZfjH+HdfAHWD3orcg1q4lZiBZRxMYS3XK4UYHLB0H39FbBIypCPXqYFc9dWyURft2
-         9MVA==
-X-Forwarded-Encrypted: i=1; AFNElJ/LFQGty8xaBakOKcqw84LiiMnKWEK473yPrDCbVF215//ioyA5nKQfRK5Dx2SsJF247wqBApLHe/p3oRZl5w==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwnZNyHcqRK8V3IBiQYJl5MHKGJHBnWo3Xz5ztDWA3Wfh9OYpx4
-	gcjKUxfLYaxseuT/K28dOo3wPcJIO7Em8p/wRlIFYdd14dEaZ0lcj46hPtV3Qhhcjv+lfZfiY10
-	azrbD5t5Cv5knFkiw7y9nU06OI3o4/y9uW0iFjLv1Eh+ra8uFMLCiURlb/t/+C7NyprmG
-X-Gm-Gg: AeBDieuRcxoQJgTqQjE6eTqJOZ26ZeA8c5gnL+qaYHGQvenkHI5munnZRAruEmwUCXK
-	QLheYj/uAriE9U5GE24m67Q4WzYFlGUEABqLUkm9h8Rn7StdWEaylPNvkTWJnBxTUdXzQL6wdeU
-	jUM/BV/qdN38t6YsXyuixf1V0icfaOIypYoc3Y/fa9nNaNCF8Jh/fSZy4rPneSn2ozsRvD6wWl2
-	UhrtC8grD2dmne63WibfN+wR2MdxtcVTmg2730G13+ohIEBCBOANCdhhTmPHpYlLopG3pyKxDwC
-	hj/xkxyQbYA6wLYuKegpjn3h2Vjvaz1NyTxhr3GGH7BaIseUGL7j+P9zCoyBKesoheQ/lS8bziR
-	Y4tUm0Zf53vnzeAZ+/IlKHcffvocM/XEDeZi3tO6h6Ag=
-X-Received: by 2002:a05:600c:4715:b0:488:9e54:94c0 with SMTP id 5b1f17b1804b1-488d67e7dd4mr183038885e9.8.1776067848272;
-        Mon, 13 Apr 2026 01:10:48 -0700 (PDT)
-X-Received: by 2002:a05:600c:4715:b0:488:9e54:94c0 with SMTP id 5b1f17b1804b1-488d67e7dd4mr183038325e9.8.1776067847773;
-        Mon, 13 Apr 2026 01:10:47 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-25-21.inter.net.il. [80.230.25.21])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-488d5344e28sm297869325e9.7.2026.04.13.01.10.45
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 13 Apr 2026 01:10:47 -0700 (PDT)
-Date: Mon, 13 Apr 2026 04:10:43 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Brendan Jackman <jackmanb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Andrea Arcangeli <aarcange@redhat.com>, linux-mm@kvack.org,
-	virtualization@lists.linux.dev,
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
-	Mike Rapoport <rppt@kernel.org>,
-	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>
-Subject: Re: [PATCH RFC 2/9] mm: page_reporting: skip redundant zeroing of
- host-zeroed reported pages
-Message-ID: <20260413040143-mutt-send-email-mst@kernel.org>
-References: <cover.1776033471.git.mst@redhat.com>
- <ea67e39bc3aea1b0b491908f851ffce25154cd26.1776033771.git.mst@redhat.com>
- <2155527a-e077-4b71-80ee-d735f9984f60@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mbiFSFfT"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1349FC2BCB0;
+	Mon, 13 Apr 2026 08:15:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1776068116;
+	bh=33NTUTIwsDbi+rzZUkVvN5OJH7UDAeSwaboNiGNq9+A=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=mbiFSFfTNcEKw5YAOH4DOxMGSmBU3n6+O+zj2mN2C0clNi0DFYW7IwqtZYNSPgWE/
+	 fqZSbHWxiO7a7rDnRcRNeDH/rQjwiPk2mvQemSbQ4p6RSFAF485IKX3d8/UsiSojDS
+	 Fqq2ExtLmFLznIr1GYYZw+zchzSAR5WH9da9skaePiJiHkR0Ip1vep7slyLcTFebpU
+	 5BMuJv9XPQR7cgpvGYvQ1uWI6vOOsYZaVi/gdV0b1Kk4wUT3VsgoMgzMXZwIyrbkVt
+	 TP5XU6xiYzseMGWJ3cRNQOa6qesQgb9weZ9LuW09e3ZJEz2T0Biq/8OEG+bbf0JCMO
+	 wWZy3fyLHZPFQ==
+Message-ID: <4e1b349b-d0df-4ad5-8050-9a2b3b3831ac@kernel.org>
+Date: Mon, 13 Apr 2026 10:15:08 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <2155527a-e077-4b71-80ee-d735f9984f60@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: VkGYJ4zXL9jPgyEF3OML8bVPDdZ0hVcl46E1V1Sf-40_1776067848
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC 2/9] mm: page_reporting: skip redundant zeroing of
+ host-zeroed reported pages
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+ Vlastimil Babka <vbabka@kernel.org>, Brendan Jackman <jackmanb@google.com>,
+ Michal Hocko <mhocko@suse.com>, Suren Baghdasaryan <surenb@google.com>,
+ Jason Wang <jasowang@redhat.com>, Andrea Arcangeli <aarcange@redhat.com>,
+ linux-mm@kvack.org, virtualization@lists.linux.dev,
+ Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ "Liam R. Howlett" <Liam.Howlett@oracle.com>, Mike Rapoport
+ <rppt@kernel.org>, Johannes Weiner <hannes@cmpxchg.org>,
+ Zi Yan <ziy@nvidia.com>
+References: <cover.1776033471.git.mst@redhat.com>
+ <ea67e39bc3aea1b0b491908f851ffce25154cd26.1776033771.git.mst@redhat.com>
+ <2155527a-e077-4b71-80ee-d735f9984f60@kernel.org>
+ <20260413040143-mutt-send-email-mst@kernel.org>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
+ dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
+ QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
+ XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
+ Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
+ PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
+ WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
+ UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
+ jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
+ B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABzS5EYXZpZCBIaWxk
+ ZW5icmFuZCAoQ3VycmVudCkgPGRhdmlkQGtlcm5lbC5vcmc+wsGQBBMBCAA6AhsDBQkmWAik
+ AgsJBBUKCQgCFgICHgUCF4AWIQQb2cqtc1xMOkYN/MpN3hD3AP+DWgUCaYJt/AIZAQAKCRBN
+ 3hD3AP+DWriiD/9BLGEKG+N8L2AXhikJg6YmXom9ytRwPqDgpHpVg2xdhopoWdMRXjzOrIKD
+ g4LSnFaKneQD0hZhoArEeamG5tyo32xoRsPwkbpIzL0OKSZ8G6mVbFGpjmyDLQCAxteXCLXz
+ ZI0VbsuJKelYnKcXWOIndOrNRvE5eoOfTt2XfBnAapxMYY2IsV+qaUXlO63GgfIOg8RBaj7x
+ 3NxkI3rV0SHhI4GU9K6jCvGghxeS1QX6L/XI9mfAYaIwGy5B68kF26piAVYv/QZDEVIpo3t7
+ /fjSpxKT8plJH6rhhR0epy8dWRHk3qT5tk2P85twasdloWtkMZ7FsCJRKWscm1BLpsDn6EQ4
+ jeMHECiY9kGKKi8dQpv3FRyo2QApZ49NNDbwcR0ZndK0XFo15iH708H5Qja/8TuXCwnPWAcJ
+ DQoNIDFyaxe26Rx3ZwUkRALa3iPcVjE0//TrQ4KnFf+lMBSrS33xDDBfevW9+Dk6IISmDH1R
+ HFq2jpkN+FX/PE8eVhV68B2DsAPZ5rUwyCKUXPTJ/irrCCmAAb5Jpv11S7hUSpqtM/6oVESC
+ 3z/7CzrVtRODzLtNgV4r5EI+wAv/3PgJLlMwgJM90Fb3CB2IgbxhjvmB1WNdvXACVydx55V7
+ LPPKodSTF29rlnQAf9HLgCphuuSrrPn5VQDaYZl4N/7zc2wcWM7BTQRVy5+RARAA59fefSDR
+ 9nMGCb9LbMX+TFAoIQo/wgP5XPyzLYakO+94GrgfZjfhdaxPXMsl2+o8jhp/hlIzG56taNdt
+ VZtPp3ih1AgbR8rHgXw1xwOpuAd5lE1qNd54ndHuADO9a9A0vPimIes78Hi1/yy+ZEEvRkHk
+ /kDa6F3AtTc1m4rbbOk2fiKzzsE9YXweFjQvl9p+AMw6qd/iC4lUk9g0+FQXNdRs+o4o6Qvy
+ iOQJfGQ4UcBuOy1IrkJrd8qq5jet1fcM2j4QvsW8CLDWZS1L7kZ5gT5EycMKxUWb8LuRjxzZ
+ 3QY1aQH2kkzn6acigU3HLtgFyV1gBNV44ehjgvJpRY2cC8VhanTx0dZ9mj1YKIky5N+C0f21
+ zvntBqcxV0+3p8MrxRRcgEtDZNav+xAoT3G0W4SahAaUTWXpsZoOecwtxi74CyneQNPTDjNg
+ azHmvpdBVEfj7k3p4dmJp5i0U66Onmf6mMFpArvBRSMOKU9DlAzMi4IvhiNWjKVaIE2Se9BY
+ FdKVAJaZq85P2y20ZBd08ILnKcj7XKZkLU5FkoA0udEBvQ0f9QLNyyy3DZMCQWcwRuj1m73D
+ sq8DEFBdZ5eEkj1dCyx+t/ga6x2rHyc8Sl86oK1tvAkwBNsfKou3v+jP/l14a7DGBvrmlYjO
+ 59o3t6inu6H7pt7OL6u6BQj7DoMAEQEAAcLBfAQYAQgAJgIbDBYhBBvZyq1zXEw6Rg38yk3e
+ EPcA/4NaBQJonNqrBQkmWAihAAoJEE3eEPcA/4NaKtMQALAJ8PzprBEXbXcEXwDKQu+P/vts
+ IfUb1UNMfMV76BicGa5NCZnJNQASDP/+bFg6O3gx5NbhHHPeaWz/VxlOmYHokHodOvtL0WCC
+ 8A5PEP8tOk6029Z+J+xUcMrJClNVFpzVvOpb1lCbhjwAV465Hy+NUSbbUiRxdzNQtLtgZzOV
+ Zw7jxUCs4UUZLQTCuBpFgb15bBxYZ/BL9MbzxPxvfUQIPbnzQMcqtpUs21CMK2PdfCh5c4gS
+ sDci6D5/ZIBw94UQWmGpM/O1ilGXde2ZzzGYl64glmccD8e87OnEgKnH3FbnJnT4iJchtSvx
+ yJNi1+t0+qDti4m88+/9IuPqCKb6Stl+s2dnLtJNrjXBGJtsQG/sRpqsJz5x1/2nPJSRMsx9
+ 5YfqbdrJSOFXDzZ8/r82HgQEtUvlSXNaXCa95ez0UkOG7+bDm2b3s0XahBQeLVCH0mw3RAQg
+ r7xDAYKIrAwfHHmMTnBQDPJwVqxJjVNr7yBic4yfzVWGCGNE4DnOW0vcIeoyhy9vnIa3w1uZ
+ 3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
+ CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
+ qIws/H2t
+In-Reply-To: <20260413040143-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Mon, Apr 13, 2026 at 10:00:58AM +0200, David Hildenbrand (Arm) wrote:
-> On 4/13/26 00:50, Michael S. Tsirkin wrote:
-> > When a guest reports free pages to the hypervisor via the page reporting
-> > framework (used by virtio-balloon and hv_balloon), the host typically
-> > zeros those pages when reclaiming their backing memory.  However, when
-> > those pages are later allocated in the guest, post_alloc_hook()
-> > unconditionally zeros them again if __GFP_ZERO is set.  This
-> > double-zeroing is wasteful, especially for large pages.
-> > 
-> > Avoid redundant zeroing by propagating the "host already zeroed this"
-> > information through the allocation path:
-> > 
-> > 1. Add a host_zeroes_pages flag to page_reporting_dev_info, allowing
-> >    drivers to declare that their host zeros reported pages on reclaim.
-> >    A static key (page_reporting_host_zeroes) gates the fast path.
-> > 
-> > 2. In page_del_and_expand(), when the page was reported and the
-> >    static key is enabled, stash a sentinel value (MAGIC_PAGE_ZEROED)
-> >    in page->private.
-> > 
-> > 3. In post_alloc_hook(), check page->private for the sentinel.  If
-> >    present and zeroing was requested (but not tag zeroing), skip
-> >    kernel_init_pages().
-> > 
-> > In particular, __GFP_ZERO is used by the x86 arch override of
-> > vma_alloc_zeroed_movable_folio.
-> > 
-> > No driver sets host_zeroes_pages yet; a follow-up patch to
-> > virtio_balloon is needed to opt in.
-> > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > Assisted-by: Claude:claude-opus-4-6
-> > ---
-> >  include/linux/mm.h             |  6 ++++++
-> >  include/linux/page_reporting.h |  3 +++
-> >  mm/page_alloc.c                | 21 +++++++++++++++++++++
-> >  mm/page_reporting.c            |  9 +++++++++
-> >  mm/page_reporting.h            |  2 ++
-> >  5 files changed, 41 insertions(+)
-> > 
-> > diff --git a/include/linux/mm.h b/include/linux/mm.h
-> > index 5be3d8a8f806..59fc77c4c90e 100644
-> > --- a/include/linux/mm.h
-> > +++ b/include/linux/mm.h
-> > @@ -4814,6 +4814,12 @@ static inline bool user_alloc_needs_zeroing(void)
-> >  				   &init_on_alloc);
-> >  }
-> >  
-> > +/*
-> > + * Sentinel stored in page->private to indicate the page was pre-zeroed
-> > + * by the hypervisor (via free page reporting).
-> > + */
-> > +#define MAGIC_PAGE_ZEROED	0x5A45524FU	/* ZERO */
+On 4/13/26 10:10, Michael S. Tsirkin wrote:
+> On Mon, Apr 13, 2026 at 10:00:58AM +0200, David Hildenbrand (Arm) wrote:
+>> On 4/13/26 00:50, Michael S. Tsirkin wrote:
+>>> When a guest reports free pages to the hypervisor via the page reporting
+>>> framework (used by virtio-balloon and hv_balloon), the host typically
+>>> zeros those pages when reclaiming their backing memory.  However, when
+>>> those pages are later allocated in the guest, post_alloc_hook()
+>>> unconditionally zeros them again if __GFP_ZERO is set.  This
+>>> double-zeroing is wasteful, especially for large pages.
+>>>
+>>> Avoid redundant zeroing by propagating the "host already zeroed this"
+>>> information through the allocation path:
+>>>
+>>> 1. Add a host_zeroes_pages flag to page_reporting_dev_info, allowing
+>>>    drivers to declare that their host zeros reported pages on reclaim.
+>>>    A static key (page_reporting_host_zeroes) gates the fast path.
+>>>
+>>> 2. In page_del_and_expand(), when the page was reported and the
+>>>    static key is enabled, stash a sentinel value (MAGIC_PAGE_ZEROED)
+>>>    in page->private.
+>>>
+>>> 3. In post_alloc_hook(), check page->private for the sentinel.  If
+>>>    present and zeroing was requested (but not tag zeroing), skip
+>>>    kernel_init_pages().
+>>>
+>>> In particular, __GFP_ZERO is used by the x86 arch override of
+>>> vma_alloc_zeroed_movable_folio.
+>>>
+>>> No driver sets host_zeroes_pages yet; a follow-up patch to
+>>> virtio_balloon is needed to opt in.
+>>>
+>>> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>>> Assisted-by: Claude:claude-opus-4-6
+>>> ---
+>>>  include/linux/mm.h             |  6 ++++++
+>>>  include/linux/page_reporting.h |  3 +++
+>>>  mm/page_alloc.c                | 21 +++++++++++++++++++++
+>>>  mm/page_reporting.c            |  9 +++++++++
+>>>  mm/page_reporting.h            |  2 ++
+>>>  5 files changed, 41 insertions(+)
+>>>
+>>> diff --git a/include/linux/mm.h b/include/linux/mm.h
+>>> index 5be3d8a8f806..59fc77c4c90e 100644
+>>> --- a/include/linux/mm.h
+>>> +++ b/include/linux/mm.h
+>>> @@ -4814,6 +4814,12 @@ static inline bool user_alloc_needs_zeroing(void)
+>>>  				   &init_on_alloc);
+>>>  }
+>>>  
+>>> +/*
+>>> + * Sentinel stored in page->private to indicate the page was pre-zeroed
+>>> + * by the hypervisor (via free page reporting).
+>>> + */
+>>> +#define MAGIC_PAGE_ZEROED	0x5A45524FU	/* ZERO */
+>>
+>> Why are we not using another page flag that is yet unused for buddy pages?
 > 
-> Why are we not using another page flag that is yet unused for buddy pages?
+> Because we need to report the status *after* it left buddy.
+> And all flags are in use at that point.
 
-Because we need to report the status *after* it left buddy.
-And all flags are in use at that point.
-
-
-> Using page->private for that, and exposing it to buddy users with the
-> __GFP_PREZEROED flag (I hope we can avoid that) does not sound
-> particularly elegant.
-
-But propagating this all over mm does not sound too palatable, right?
-There's precedent with MAGIC_HWPOISON already.
-Better ideas? Thanks!
-
-> Also, if we're going to remember that some pages in the buddy are
-> pre-zeroed, it should better not be free-page-reporting specific.
-> I'd assume ordinary inflating+deflating of the balloon would also end up
-> with pre-zeroed pages. We'd just need a (mm/balloon.c -specific)
-> interface to tell the buddy that the pages are zeroed.
-> 
-
-Indeed, it's also easily possible - it's a separate optimization, though.
-Another simple enhancement is including hugetlbfs freelists in page
-reporting.
-Doesn't need to block this patchset though, right?
+I'll comment on that on the other patch, where __GFP_PREZEROED, which I
+really hate, is added.
 
 > 
-> -- 
-> Cheers,
 > 
-> David
+>> Using page->private for that, and exposing it to buddy users with the
+>> __GFP_PREZEROED flag (I hope we can avoid that) does not sound
+>> particularly elegant.
+> 
+> But propagating this all over mm does not sound too palatable, right?
+> There's precedent with MAGIC_HWPOISON already.
+> Better ideas? Thanks!
 
+I'll comment on the __GFP_PREZEROED patch.
+
+> 
+>> Also, if we're going to remember that some pages in the buddy are
+>> pre-zeroed, it should better not be free-page-reporting specific.
+>> I'd assume ordinary inflating+deflating of the balloon would also end up
+>> with pre-zeroed pages. We'd just need a (mm/balloon.c -specific)
+>> interface to tell the buddy that the pages are zeroed.
+>>
+> 
+> Indeed, it's also easily possible - it's a separate optimization, though.
+> Another simple enhancement is including hugetlbfs freelists in page
+> reporting.
+> Doesn't need to block this patchset though, right?
+
+Not blocking, but I don't want something that is too coupled to
+free-page reporting optimizations in the buddy. The comment above
+MAGIC_PAGE_ZEROED triggered my reaction.
+
+-- 
+Cheers,
+
+David
