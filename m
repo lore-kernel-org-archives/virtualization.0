@@ -1,163 +1,133 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f48.google.com (mail-wr1-f48.google.com [209.85.221.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA9D93AF674;
-	Mon, 13 Apr 2026 09:05:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 489B63B2FC1
+	for <virtualization@lists.linux.dev>; Mon, 13 Apr 2026 09:18:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776071146; cv=none; b=qJZsm329mxhnruMYzia3nToTh7OZaXH0tnVq05nUzsEAWW2hQdTPHD6x7oE1huTb0kCyh6j2PHJfpRYFUI0qAGx+H738omg2JWRNbH3UNJ+Ivg6MmP5zXD5Z7O6dMNTYDjSv6pDa7zNVOUDrIkcJQuitKjQFTgrRt75eXQ2jTl0=
+	t=1776071900; cv=none; b=ZI0/5O4sx7NE4UfN47dM9bOucYZq19YbL75y7cW9HatQdS71HFHC+3JgA89kx4hhITOoDB+vI+g6Ja6sr1J2Ye3NLPuLQXAkUEk42C0sL58AWc+zQJWNZVTMEbd2DImBPjwPhZN051rUxD34g9AHAwxSRPuPMc16WqsYKPE7bNg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776071146; c=relaxed/simple;
-	bh=DQqFduPAamuKZKGO2jW+RQdIobu5fatzN8LsyfP2WlM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=WidARwy75ZH+ck1vG0AcxfEXFpBqC++jVZ8HuFZxfDXZ0eUyEem4c3GOxmpfUXFtBL84u4s22uswB3jga98PeTXox7xUnSaWVQUMI+MO5ek8BO2NsPFh/16yFU03Aw89rcZ+5ZKXRjLEeS3N/5/0XQVXnhyz73781hJByu0Z22s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YK3lsYXR; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1776071900; c=relaxed/simple;
+	bh=uDVsXuAgOukhJvoFEJaLM04wN34waooFTfCn+0aeSUQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=fuaIYjTUo0SAtMjO1b6ycJGqfb+Im7FIyg3Scl1scN2Nmgi6Ixli7QM6Kj3q64n43YmYyYTO+DxnSsuTFvaoCvRi5sWryEdCjvHPbz4VllF+oT8r4HSGxQi7055/KdgKRRMTbYtehx8WIDuqHYexb0jJcbRacwqXuKqZOBu9BU8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ktOjdJ+R; arc=none smtp.client-ip=209.85.221.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YK3lsYXR"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 232E3C116C6;
-	Mon, 13 Apr 2026 09:05:42 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776071146;
-	bh=DQqFduPAamuKZKGO2jW+RQdIobu5fatzN8LsyfP2WlM=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=YK3lsYXR2ffn0X3oipV+P/4GaP4TKY3098suUlWm0+GNU2Hd8dfhdYgreIoEOhZxL
-	 lVjERpp2u07zM72v1CRseBQTDiWjYnpk/lyXOVdstFHd7hRHYxFrd6o+lvl60jbfQ4
-	 6HG/d5hKnntx2hTje7g0AN7+PGtAvtScYDen839zgq0CUAAspL2FKQyOSoiAHZ984N
-	 PyYgRu/zwdbvj5A8qhtRQRCR+zVKdI9/ur6VAL4sUiylnzLvQwBzCdj/ICvqjAswOu
-	 kYaU5arJTxfaNphn94DUPKb55SbsH34/zW0sLmKAcno/5uRDGJfXVtiiGHiiqukCeW
-	 UK+huuMhDvFzQ==
-Message-ID: <b258160c-5287-43dd-b56e-268c403b85ea@kernel.org>
-Date: Mon, 13 Apr 2026 11:05:40 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ktOjdJ+R"
+Received: by mail-wr1-f48.google.com with SMTP id ffacd0b85a97d-43cff5dafc3so2991617f8f.1
+        for <virtualization@lists.linux.dev>; Mon, 13 Apr 2026 02:18:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1776071895; x=1776676695; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=XIAN/FrHU6F27zvsbKpZ8LqpxugufEWgzIK9oqXBU9c=;
+        b=ktOjdJ+R/Cv4zQAQXQ0da/NhTD9eiHSjnyP9s2/0Th9ULzm1Hcj/IL9fisW3a4xcZi
+         tYp9nYoe9FiOfuOdyma0hXyhd5Pt6RLzwAlsUy6PbLXrYgb9DAj4IfBqQrq930pJKpnN
+         yUEIi2Fg52JtwTQTEWfTjDLog7QOi3xeaMn08+FC5oolwp6OVIOqj0x6a39/hWNt3sd4
+         58b3kjQsdnacm2c1BPqHisi5L4tGWTETdbv/WMhrLV95/TrAXuvsG12HCzeZpG2k/6tE
+         QdGz6jc7q4oeqe/kb2pDXTTdkvMy38pVpeGfEtt6TQ2NDuk+sJDYShC9SlrjmpiCGT4c
+         Iing==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1776071895; x=1776676695;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=XIAN/FrHU6F27zvsbKpZ8LqpxugufEWgzIK9oqXBU9c=;
+        b=HuLAiIpQRxHMHiOoaGdvN5N5I9VcM1CH6QZf5GYxAY7Fb/lIg+RNVQg2tptEgBmcgX
+         IYwjQrXLw1SeityUOacG6nE96zSVZXlbFuQz8+vHzsz1yDvNxgPsq6fj4/kbMUKWCzww
+         FqzfdA7eYuBfez0m5JQLGa0x3qqXljNu2zp7k2MvMnC212+yt5BGWoXZDS3B+AJc41UF
+         Fas1V1+YYiHTof4wcyNoQgd+BNblZFBak6XBSMlBHozRjbDJ/rNWlKqCxWYF8O/HV3fy
+         Y3MLsGJ5BzXN91FP0EgHTtpNMGwO4K097uXIRG9XMagCo5MJpEY8DriTNesgCWQErHhp
+         NubA==
+X-Forwarded-Encrypted: i=1; AFNElJ8fK1LGJQIuM6akchmwNSvaHOt+LxeE4/tfsZpjt/f73s/+LJNSDyyyRYkzhkbEsfbauI2Oq112ivwY0LWVeA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzcSxKXfkJNadVbeezM0lYyL/TqyZIuYUigoqU7azoWnGdBnpCc
+	IQ7RZd4qey9rPIqtc388QaEBwJccPnhI+9tqD1DlHrREWH7TgY6T4ZZp
+X-Gm-Gg: AeBDievzU+gYA+Z6UWcshL+R4AsneMfkyYs0iR32LrubOJzljxHqYDp8WF7hki2ax/5
+	SK4J7lR0MffBIvUfzMAObfvF8qUzuRiFBUzuDfrgzoh0gnzSUerIrL4Si2vYUSxDs0LMyFVJ6h3
+	gscgxDvGOT3Vrsz9NlXO7BQfhvxsFK+8schwh+OesdN9YsTMihb1pk9kV3NMiJIuR08TInGXEdW
+	EHrJwUykXu5VPlLpFLL4Qqgl9DhTuh/Gt4XclMFLcBAOP7lX5/BFG83tqp3kphn5d1cxIjIygN+
+	s/PJotv5OXyvcLt3KLWrLdTTv8btI6fclU11JTHHL7BrN9wDaS1DBgWvm87Lkyt2wZ3DXxm95I5
+	k4fIwOorJseSO5u65aJqB83xQM34n6BYDr8Tkc/JI82yZn1Is3qSJtxYfQQVRvuQd7xhFD9llLZ
+	SMag/pP5nLraCQ/+Hqq8OLXJr/7GZmG5IvCKHG56vMQNbRLVmzVZFTjrKanEvtJ3J9
+X-Received: by 2002:a5d:64c3:0:b0:43d:714:34e5 with SMTP id ffacd0b85a97d-43d642da7aamr17575085f8f.24.1776071895213;
+        Mon, 13 Apr 2026 02:18:15 -0700 (PDT)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43d7b219576sm4172172f8f.19.2026.04.13.02.18.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 13 Apr 2026 02:18:11 -0700 (PDT)
+Date: Mon, 13 Apr 2026 10:17:59 +0100
+From: David Laight <david.laight.linux@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jinhui Guo <guojinhui.liam@bytedance.com>, Jason Wang
+ <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio
+ =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>, Jiri Pirko <jiri@resnulli.us>,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ stable@vger.kernel.org
+Subject: Re: [PATCH] virtio_pci_modern: Use GFP_ATOMIC with
+ spin_lock_irqsave held in virtqueue_exec_admin_cmd()
+Message-ID: <20260413101759.6323fb68@pumpkin>
+In-Reply-To: <20260413034046-mutt-send-email-mst@kernel.org>
+References: <20260413072249.30433-1-guojinhui.liam@bytedance.com>
+	<20260413034046-mutt-send-email-mst@kernel.org>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC 3/9] mm: add __GFP_PREZEROED flag and
- folio_test_clear_prezeroed()
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@linux-foundation.org>,
- Vlastimil Babka <vbabka@kernel.org>, Brendan Jackman <jackmanb@google.com>,
- Michal Hocko <mhocko@suse.com>, Suren Baghdasaryan <surenb@google.com>,
- Jason Wang <jasowang@redhat.com>, Andrea Arcangeli <aarcange@redhat.com>,
- linux-mm@kvack.org, virtualization@lists.linux.dev,
- Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- "Liam R. Howlett" <Liam.Howlett@oracle.com>, Mike Rapoport
- <rppt@kernel.org>, Johannes Weiner <hannes@cmpxchg.org>,
- Zi Yan <ziy@nvidia.com>
-References: <cover.1776033471.git.mst@redhat.com>
- <b21b0ba353330f24b9e10ee5bf01b60f32043327.1776033771.git.mst@redhat.com>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <b21b0ba353330f24b9e10ee5bf01b60f32043327.1776033771.git.mst@redhat.com>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On 4/13/26 00:50, Michael S. Tsirkin wrote:
-> The previous patch skips zeroing in post_alloc_hook() when
-> __GFP_ZERO is used.  However, several page allocation paths
-> zero pages via folio_zero_user() or clear_user_highpage() after
-> allocation, not via __GFP_ZERO.
+On Mon, 13 Apr 2026 03:45:20 -0400
+"Michael S. Tsirkin" <mst@redhat.com> wrote:
+
+> On Mon, Apr 13, 2026 at 03:22:49PM +0800, Jinhui Guo wrote:
+> > virtqueue_exec_admin_cmd() holds admin_vq->lock with spin_lock_irqsave(),
+> > which disables interrupts.  Using GFP_KERNEL inside this critical section
+> > is unsafe because kmalloc() may sleep, leading to potential deadlocks or
+> > scheduling violations.
+> > 
+> > Switch to GFP_ATOMIC to ensure the allocation is non-blocking.
+> > 
+> > Fixes: 4c3b54af907e ("virtio_pci_modern: use completion instead of busy loop to wait on admin cmd result")
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Jinhui Guo <guojinhui.liam@bytedance.com>
+> > ---
+> >  drivers/virtio/virtio_pci_modern.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/virtio/virtio_pci_modern.c b/drivers/virtio/virtio_pci_modern.c
+> > index 6d8ae2a6a8ca..db8e4f88b749 100644
+> > --- a/drivers/virtio/virtio_pci_modern.c
+> > +++ b/drivers/virtio/virtio_pci_modern.c
+> > @@ -101,7 +101,7 @@ static int virtqueue_exec_admin_cmd(struct virtio_pci_admin_vq *admin_vq,
+> >  		return -EIO;
+> >  
+> >  	spin_lock_irqsave(&admin_vq->lock, flags);
+> > -	ret = virtqueue_add_sgs(vq, sgs, out_num, in_num, cmd, GFP_KERNEL);
+> > +	ret = virtqueue_add_sgs(vq, sgs, out_num, in_num, cmd, GFP_ATOMIC);
+> >  	if (ret < 0) {
+> >  		if (ret == -ENOSPC) {
+> >  			spin_unlock_irqrestore(&admin_vq->lock, flags);  
 > 
-> Add __GFP_PREZEROED gfp flag that tells post_alloc_hook() to
-> preserve the MAGIC_PAGE_ZEROED sentinel in page->private so the
-> caller can detect pre-zeroed pages and skip its own zeroing.
-> Add folio_test_clear_prezeroed() helper to check and clear
-> the sentinel.
+> 
+> GFP_ATOMIC allocations can and will fail. If using them, one must
+> retry, not just propagate failures.
+> Or just switch admin_vq->lock to a mutex?
 
-I really don't like __GFP_PREZEROED, and wonder how we can avoid it.
+Or do the allocate before acquiring the lock (and free it not used
+in the error path).
 
+	David
 
-What you want is, allocate a folio (well, actually a page that becomes
-a folio) and know whether zeroing for that folio (once we establish it
-from a page) is still required.
+> 
+> 
+> > -- 
+> > 2.20.1  
+> 
+> 
 
-Or you just allocate a folio, specify GFP_ZERO, and let the folio
-allocation code deal with that.
-
-
-I think we have two options:
-
-(1) Use an indication that can be sticky for callers that do not care.
-
-Assuming we would use a page flag that is only ever used on folios, all
-we'd have to do is make sure that we clear the flag once we convert
-the to a folio.
-
-For example, PG_dropbehind is only ever set on folios in the pagecache. 
-
-Paths that allocate folios would have to clear the flag. For non-hugetlb
-folios that happens through page_rmappable_folio().
-
-I'm not super-happy about that, but it would be doable.
-
-
-(2) Use a dedicated allocation interface for user pages in the buddy.
-
-I hate the whole user_alloc_needs_zeroing()+folio_zero_user() handling.
-
-It shouldn't exist. We should just be passing GFP_ZERO and let the buddy handle
-all that.
-
-
-For example, vma_alloc_folio() already gets passed the address in.
-
-Pass the address from vma_alloc_folio_noprof()->folio_alloc_noprof(), and let
-folio_alloc_noprof() use a buddy interface that can handle it.
-
-Imagine if we had a alloc_user_pages_noprof() that consumes an address. It could just
-do what folio_zero_user() does, and only if really required.
-
-The whole user_alloc_needs_zeroing() could go away and you could just handle the
-pre-zeroed optimization internally.
-
--- 
-Cheers,
-
-David
