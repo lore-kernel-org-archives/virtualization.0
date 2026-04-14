@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5467437F756;
-	Tue, 14 Apr 2026 09:08:58 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C01413BA23F;
+	Tue, 14 Apr 2026 09:18:09 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776157738; cv=none; b=apu1AkxMlMGlG1nNMXqAFkbqW7pBcNenIj9W5POh8QbN67HoPNgnaR1Mahd15abACcvZivMgiiHxip3ILFmS5coZaDxaTeC09/sUFE+cixFRhB9gVvEwpdT1h1g0IUmR1LrRiX2O9WnyEpDFzlHz0acrHvXTD0b+OEoUZhhyOU0=
+	t=1776158289; cv=none; b=CmmHSVYOut9u55bB2kcRQt8sSrTwggYYWhqJR6XQJ39S2OzJPxnOcxR0LIlCj5VWUnumUpBra0Lu8tBxlNmse3sZj1Nuu4/Nee/3k2ApWwt6FFejLZ3fSpLslaXsXIKRmbScGA50wxVARg9zQhYlkkCFZf5D81sTOY7//VH2+5I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776157738; c=relaxed/simple;
-	bh=kFQsu16PS4TcR1wUOaHYbRYwmtPBOrXiE6IJuMeHqPw=;
+	s=arc-20240116; t=1776158289; c=relaxed/simple;
+	bh=MnJtJqS5Xyd9/Qk6LVxPCSly4mAwMpZuLttyd+ihRbk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=BMPNXi6n18bVQOwsToNyJDs8mQef92jMMdl9zKFHDQFJVk7Qv5k5Q80uyntrKcrfQIOjnGXTkrqPwuCHLqAt71BFFyMCFR8p50Xx3wu/u+PJhcPzUtneiSsVY5ge7ynrfgy5Ee2u2W05TFzViS7Cisa94gU7Q+YwGNjTz/B/WN8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=K78y+bsE; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=n0PyVkW4msu0b5iFaRFhTni+0efCpMRpbWi+57Q6EmPNSIcOJ1n2bDxY0nQGAIDzrHFbk9bsdIlEcjUIP8z35OYOK4g8lo/XstF3r9uCzxaDx17tIQhGTfN6nL1seWMo4JtcrhviKr78O6P4KlH/AT0aC8Xj35qosVWmfqQqFj8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bQqLo/TN; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="K78y+bsE"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B97E1C19425;
-	Tue, 14 Apr 2026 09:08:54 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bQqLo/TN"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BBA95C19425;
+	Tue, 14 Apr 2026 09:18:05 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776157738;
-	bh=kFQsu16PS4TcR1wUOaHYbRYwmtPBOrXiE6IJuMeHqPw=;
+	s=k20201202; t=1776158289;
+	bh=MnJtJqS5Xyd9/Qk6LVxPCSly4mAwMpZuLttyd+ihRbk=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=K78y+bsEejqPqLUZedA/9YcP4jF/0uyvmYFjVq87EPfcHxxPa1atjtxiLyyUux2ea
-	 Wmpxu95tdngd/MLfrfG8dy/Qr20vi3jJrMzcrfFRv2j6EqenpNrinnz3moZdpjClOS
-	 TflWRTTdiLCSGvil7vnqVL5urdYN3+tKP9sd8rjokYDhFHlrG+f+HFdZ8ElkfBv7FS
-	 /CE+6CKf4+RfazDh9TUhfud3SRtDgLMOuSqing/yDmtElQqrYi4qoEcMgqisGqPz3M
-	 7BdfZsvvy7/ovurn6/HfHu0zAttA4UpA2zNFm/5CcPENC0IedrJCnBd4iswl1RFU7n
-	 G4kPyaYfjoVSQ==
-Message-ID: <6a667757-9105-4a75-afed-bed4cfd751d9@kernel.org>
-Date: Tue, 14 Apr 2026 11:08:51 +0200
+	b=bQqLo/TNwazE2PEIhbMC5fjfFa7Ta2wqjzOJMNxUUfl02j2FZmaqdKPoA7R5Ogvw4
+	 16He+N/W2Kxv3DZSjkZNAPH4EbJ8dC290wDsfUnJJQbYMFdQwW5BIbJeTJGdsce6rX
+	 yl0qIo3Ca+qqo+VnByEpo5+VBSNWq+fDvApkudIa7lSeebfLc5F9HNbE6YQkKJV5OX
+	 9tkjPWzUlU8zBriCVkfTPFrOkHGVWKSnpdoEV9ZGu6lI6x5KXadfH/u7Rl2K9I3sOO
+	 v6vD4Foa4x3QgJJ+vQ2CE2rec5+3hv4L10B9zWyqKzdfO/vosYq7ncFoKhQ7lLlw50
+	 yVkXc9kxIJzwg==
+Message-ID: <244c9779-b4a5-4d0f-9eb9-ef0ec873e0f6@kernel.org>
+Date: Tue, 14 Apr 2026 11:18:02 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -35,19 +35,22 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC 1/9] mm: page_alloc: propagate PageReported flag
- across buddy splits
+Subject: Re: [PATCH RFC 2/9] mm: page_reporting: skip redundant zeroing of
+ host-zeroed reported pages
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
  Vlastimil Babka <vbabka@kernel.org>, Brendan Jackman <jackmanb@google.com>,
  Michal Hocko <mhocko@suse.com>, Suren Baghdasaryan <surenb@google.com>,
  Jason Wang <jasowang@redhat.com>, Andrea Arcangeli <aarcange@redhat.com>,
  linux-mm@kvack.org, virtualization@lists.linux.dev,
- Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>
+ Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ "Liam R. Howlett" <Liam.Howlett@oracle.com>, Mike Rapoport
+ <rppt@kernel.org>, Johannes Weiner <hannes@cmpxchg.org>,
+ Zi Yan <ziy@nvidia.com>
 References: <cover.1776033471.git.mst@redhat.com>
- <a74ad3652d9bd68c78fbb5360fa7adfd0606689f.1776033771.git.mst@redhat.com>
- <b330143f-f3aa-4f4c-8467-d91102094e8d@kernel.org>
- <20260413163104-mutt-send-email-mst@kernel.org>
+ <ea67e39bc3aea1b0b491908f851ffce25154cd26.1776033771.git.mst@redhat.com>
+ <2155527a-e077-4b71-80ee-d735f9984f60@kernel.org>
+ <20260413163233-mutt-send-email-mst@kernel.org>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -94,26 +97,79 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20260413163104-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20260413163233-mutt-send-email-mst@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
+On 4/13/26 22:35, Michael S. Tsirkin wrote:
+> On Mon, Apr 13, 2026 at 10:00:58AM +0200, David Hildenbrand (Arm) wrote:
+>> On 4/13/26 00:50, Michael S. Tsirkin wrote:
+>>> When a guest reports free pages to the hypervisor via the page reporting
+>>> framework (used by virtio-balloon and hv_balloon), the host typically
+>>> zeros those pages when reclaiming their backing memory.  However, when
+>>> those pages are later allocated in the guest, post_alloc_hook()
+>>> unconditionally zeros them again if __GFP_ZERO is set.  This
+>>> double-zeroing is wasteful, especially for large pages.
+>>>
+>>> Avoid redundant zeroing by propagating the "host already zeroed this"
+>>> information through the allocation path:
+>>>
+>>> 1. Add a host_zeroes_pages flag to page_reporting_dev_info, allowing
+>>>    drivers to declare that their host zeros reported pages on reclaim.
+>>>    A static key (page_reporting_host_zeroes) gates the fast path.
+>>>
+>>> 2. In page_del_and_expand(), when the page was reported and the
+>>>    static key is enabled, stash a sentinel value (MAGIC_PAGE_ZEROED)
+>>>    in page->private.
+>>>
+>>> 3. In post_alloc_hook(), check page->private for the sentinel.  If
+>>>    present and zeroing was requested (but not tag zeroing), skip
+>>>    kernel_init_pages().
+>>>
+>>> In particular, __GFP_ZERO is used by the x86 arch override of
+>>> vma_alloc_zeroed_movable_folio.
+>>>
+>>> No driver sets host_zeroes_pages yet; a follow-up patch to
+>>> virtio_balloon is needed to opt in.
+>>>
+>>> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>>> Assisted-by: Claude:claude-opus-4-6
+>>> ---
+>>>  include/linux/mm.h             |  6 ++++++
+>>>  include/linux/page_reporting.h |  3 +++
+>>>  mm/page_alloc.c                | 21 +++++++++++++++++++++
+>>>  mm/page_reporting.c            |  9 +++++++++
+>>>  mm/page_reporting.h            |  2 ++
+>>>  5 files changed, 41 insertions(+)
+>>>
+>>> diff --git a/include/linux/mm.h b/include/linux/mm.h
+>>> index 5be3d8a8f806..59fc77c4c90e 100644
+>>> --- a/include/linux/mm.h
+>>> +++ b/include/linux/mm.h
+>>> @@ -4814,6 +4814,12 @@ static inline bool user_alloc_needs_zeroing(void)
+>>>  				   &init_on_alloc);
+>>>  }
+>>>  
+>>> +/*
+>>> + * Sentinel stored in page->private to indicate the page was pre-zeroed
+>>> + * by the hypervisor (via free page reporting).
+>>> + */
+>>> +#define MAGIC_PAGE_ZEROED	0x5A45524FU	/* ZERO */
 >>
+>> Why are we not using another page flag that is yet unused for buddy pages?
 >>
->> This raises a good question: how does buddy merging handle the reported
->> flag?
->>
->> -- 
->> Cheers,
->>
->> David
+>> Using page->private for that, and exposing it to buddy users with the
+>> __GFP_PREZEROED flag (I hope we can avoid that) does not sound
+>> particularly elegant.
 > 
 > 
-> IIUC it doesn't: reported pages are never merged, if a page is merged it has
-> just entered buddy.
+> So here's an only alternative I see: a page flag for when page is in
+> buddy and a new "prezero" bool that we have to propagate everywhere
+> else. This is a patch on top. More elegant? Please tell me if you prefer that.
+> If yes I will squash it into the appropriate patches.
 
-I guess it makes sense: if a page gets freed and we end up merging, the
-freed page was not reported yet, so we have to report the whole block.
+I'd be interesting to know how this would look without the GFP flag,
+when we don't have to leak any of this out of the buddy.
 
 -- 
 Cheers,
