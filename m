@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FC981DD525;
-	Tue, 14 Apr 2026 09:04:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81146237713;
+	Tue, 14 Apr 2026 09:06:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776157452; cv=none; b=W87dmk8yIH+OJm9PIL1HnT7X17q4tV4cxzlJhX3nKqBed9uMU1/me2V1b5LRL0GxGiRtISfW4y6+SOQ5X7hKfrVvkDQU0JgRLjxNGMyr8eM0RifQSZ/pPb8vXlHVtG6EcKNfIYS3zWaZa5OXS1j8wZf2JTW7aY+Cn9wW3P5DWnE=
+	t=1776157589; cv=none; b=P/8IWTqapMMyrVPnYK66ra9uPlf0ZA4FHKGIsE1k2AHcS1W/En6GPiYX5GgneHK3/ZpH5uLn615pADEuBkgl1fY050tjHdfPJsO9cfqeReGXnJEV+1kriReZ+2uHemxqLsHuRp4nxvZ0+ZiXHTYdud9HoBZLHoeznQDwyEAA2qg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776157452; c=relaxed/simple;
-	bh=9YZ3f1pEg/cerPbOleboqxXFRvXme+37veRTtITZnyk=;
+	s=arc-20240116; t=1776157589; c=relaxed/simple;
+	bh=0HFC6LCOCRUWWKTQwlg+7vyB5B5S9zxAroCeUQNKVzk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=pERInLr+h1/EuSoTex6Y2hQxOaB4AslTBjJ39D424uk2IpmTIC4k2a79wNfY9vbSmxu31zkicjB9IiwwYIeAbZMLG1KDsa56ATiuiFx5wCrcA388uhwtb1pqXh+sac0zmrsIY+ngc9U+vjH1q30QBjYj8mJs+9aSYOdf1bPN3dY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=MtmiWnzi; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=dQZuf/PrKNZB50NcJT1NnOK3DfvXetEMD5WUNE/Eggm5YTS+bdm5AkLIA9j6QL87t/Qon2q+2Accb4w1yKh6WyM81FYlhg+BJ3ToqcYxf52AjRKImaZCRnK0bSnSg0yfrfdNkk2GwO1vuEjIojcTQuIm5645TX7lk2s/7Y7RdaM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WEKOe/7Q; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="MtmiWnzi"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E876C19425;
-	Tue, 14 Apr 2026 09:04:07 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WEKOe/7Q"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46CBFC2BCB4;
+	Tue, 14 Apr 2026 09:06:25 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776157451;
-	bh=9YZ3f1pEg/cerPbOleboqxXFRvXme+37veRTtITZnyk=;
+	s=k20201202; t=1776157589;
+	bh=0HFC6LCOCRUWWKTQwlg+7vyB5B5S9zxAroCeUQNKVzk=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=MtmiWnzibX8Yh6f+n+HUjz/KfwWNcpM4LTlAsV0wR+Jj/sVF6j+gcjNdaFmIdNJRT
-	 49IBk5ZKKlZAmh/AJpCsJsOiErswZlqKM4heBrfStthDAPdV30a6AE4eFHwCDynIwA
-	 CbzgvInpu+b1k1Z0ft4NN0xut9dwPIv8vk7zBXxOH0nGHha2OlAnOsm7KzxbIWc4c4
-	 HUHRVb7zzJxjDQO/b425WJQTWZe7/0S8V9QjeFx7HQl3W4L628BzQwLLQ2tfP5i+Vl
-	 nMSRWrQQRsCZSjBBTKnXNaMJ8zStBZ3SD/C3I6aIBByRLOTR4Y8aESu7mR55MIKbbi
-	 MCtAQ3TU+UA9w==
-Message-ID: <da935245-9c75-4cf4-8a42-2c6328bd93f9@kernel.org>
-Date: Tue, 14 Apr 2026 11:04:04 +0200
+	b=WEKOe/7Q4DyG+Sd0Uopd1VpE9hHy2EIMoKq1irldHH+xBpWvdSJssIybd7Vy9jHgc
+	 8K2BoBZef1SgIOoxgFAsZVB9gR+04RauyXozQmJcMCJAJja+tF+vozv8xh7fbp3sOG
+	 jV0eh7ApHl/s1PDIsjsCS5I98FxGNh/lxVw9ViZydRdaenFkiuD6FCSgv1a89fxfpW
+	 a6KKEKTu6BhIP64FlymRJNOQsWXFCiW6qYmbsk70lxatU6M6+8FXQj61KecuQqjsID
+	 EzOs7h9P1x5HU5Xz1Hq8Ngs7NH1IOkA6XnO6iu3SLxmUPkaEtkpc/ow8gvMnVR8iCH
+	 LnN8QqPpZ891g==
+Message-ID: <ccb1f5ef-20d0-4720-8904-f6af52b896c7@kernel.org>
+Date: Tue, 14 Apr 2026 11:06:22 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -50,7 +50,8 @@ Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
 References: <cover.1776033471.git.mst@redhat.com>
  <b21b0ba353330f24b9e10ee5bf01b60f32043327.1776033771.git.mst@redhat.com>
  <b258160c-5287-43dd-b56e-268c403b85ea@kernel.org>
- <20260413163644-mutt-send-email-mst@kernel.org>
+ <20260413180303-mutt-send-email-mst@kernel.org>
+ <20260413184022-mutt-send-email-mst@kernel.org>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -97,194 +98,61 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20260413163644-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20260413184022-mutt-send-email-mst@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 4/13/26 22:37, Michael S. Tsirkin wrote:
-> On Mon, Apr 13, 2026 at 11:05:40AM +0200, David Hildenbrand (Arm) wrote:
->> On 4/13/26 00:50, Michael S. Tsirkin wrote:
->>> The previous patch skips zeroing in post_alloc_hook() when
->>> __GFP_ZERO is used.  However, several page allocation paths
->>> zero pages via folio_zero_user() or clear_user_highpage() after
->>> allocation, not via __GFP_ZERO.
+On 4/14/26 01:43, Michael S. Tsirkin wrote:
+> On Mon, Apr 13, 2026 at 06:06:14PM -0400, Michael S. Tsirkin wrote:
+>> On Mon, Apr 13, 2026 at 11:05:40AM +0200, David Hildenbrand (Arm) wrote:
+>>
+>> ...
+>>
+>>> (2) Use a dedicated allocation interface for user pages in the buddy.
 >>>
->>> Add __GFP_PREZEROED gfp flag that tells post_alloc_hook() to
->>> preserve the MAGIC_PAGE_ZEROED sentinel in page->private so the
->>> caller can detect pre-zeroed pages and skip its own zeroing.
->>> Add folio_test_clear_prezeroed() helper to check and clear
->>> the sentinel.
+>>> I hate the whole user_alloc_needs_zeroing()+folio_zero_user() handling.
+>>>
+>>> It shouldn't exist. We should just be passing GFP_ZERO and let the buddy handle
+>>> all that.
+>>>
+>>>
+>>> For example, vma_alloc_folio() already gets passed the address in.
+>>>
+>>> Pass the address from vma_alloc_folio_noprof()->folio_alloc_noprof(), and let
+>>> folio_alloc_noprof() use a buddy interface that can handle it.
+>>>
+>>> Imagine if we had a alloc_user_pages_noprof() that consumes an address. It could just
+>>> do what folio_zero_user() does, and only if really required.
+>>>
+>>> The whole user_alloc_needs_zeroing() could go away and you could just handle the
+>>> pre-zeroed optimization internally.
 >>
->> I really don't like __GFP_PREZEROED, and wonder how we can avoid it.
+>> I looked at this a bit, and I think the issue is that the buddy
+>> allocator doesn't do the arch-specific cache handling.
+>> So allocating it is a fundamentally different thing from GFP_ZERO which
+>> is "zero a kernel address range".
 >>
->>
->> What you want is, allocate a folio (well, actually a page that becomes
->> a folio) and know whether zeroing for that folio (once we establish it
->> from a page) is still required.
->>
->> Or you just allocate a folio, specify GFP_ZERO, and let the folio
->> allocation code deal with that.
->>
->>
->> I think we have two options:
->>
->> (1) Use an indication that can be sticky for callers that do not care.
->>
->> Assuming we would use a page flag that is only ever used on folios, all
->> we'd have to do is make sure that we clear the flag once we convert
->> the to a folio.
->>
->> For example, PG_dropbehind is only ever set on folios in the pagecache. 
->>
->> Paths that allocate folios would have to clear the flag. For non-hugetlb
->> folios that happens through page_rmappable_folio().
->>
->> I'm not super-happy about that, but it would be doable.
->>
->>
->> (2) Use a dedicated allocation interface for user pages in the buddy.
->>
->> I hate the whole user_alloc_needs_zeroing()+folio_zero_user() handling.
->>
->> It shouldn't exist. We should just be passing GFP_ZERO and let the buddy handle
->> all that.
->>
->>
->> For example, vma_alloc_folio() already gets passed the address in.
->>
->> Pass the address from vma_alloc_folio_noprof()->folio_alloc_noprof(), and let
->> folio_alloc_noprof() use a buddy interface that can handle it.
->>
->> Imagine if we had a alloc_user_pages_noprof() that consumes an address. It could just
->> do what folio_zero_user() does, and only if really required.
->>
->> The whole user_alloc_needs_zeroing() could go away and you could just handle the
->> pre-zeroed optimization internally.
->>
->> -- 
->> Cheers,
->>
->> David
-> 
-> I admit I only vaguely understand the core mm refactoring you are suggesting.
+>> So I don't get how you want to do it.
 > 
 
-Oh, I was hoping claude would figure that out for you.
+Saw your new mails just now.
 
+> Oh, wait, do you mean we thread the userspace address through all the allocation calls?
+> Like the below? This is on top of my patches, on top of mm it will be
+> a tiny bit smaller.  I can rebase no problem.
+> 
+> But: isn't it a bit overkill for something that is, in the end, virtualization specific?
+> It's all mechanical threading through of user_addr, but should we miss
+> one place, and suddenly you get weird corruption on esoteric arches
+> since we will get memset instead of folio_zero_user.
+> 
+> Worth it?
 
-Essentially, we move the zeroing of folios back into the buddy, by using
-GFP_ZERO.
+See my other mail, we'd be forwarding it only for
+vma_alloc_folio_noprof(), where we call a _user specific interface.
 
-user_alloc_needs_zeroing() logic would reside in the buddy and is no longer
-required in callers.
-
-E.g.,
-
-diff --git a/mm/memory.c b/mm/memory.c
-index 631205a384e1..44576ba3def5 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -5259,7 +5259,7 @@ static struct folio *alloc_anon_folio(struct vm_fault *vmf)
-        gfp = vma_thp_gfp_mask(vma);
-        while (orders) {
-                addr = ALIGN_DOWN(vmf->address, PAGE_SIZE << order);
--               folio = vma_alloc_folio(gfp, order, vma, addr);
-+               folio = vma_alloc_folio(gfp | GFP_ZERO, order, vma, addr);
-                if (!folio)
-                        goto next;
-                if (mem_cgroup_charge(folio, vma->vm_mm, gfp)) {
-@@ -5272,15 +5272,6 @@ static struct folio *alloc_anon_folio(struct vm_fault *vmf)
-                        goto fallback;
-                }
-                folio_throttle_swaprate(folio, gfp);
--               /*
--                * When a folio is not zeroed during allocation
--                * (__GFP_ZERO not used) or user folios require special
--                * handling, folio_zero_user() is used to make sure
--                * that the page corresponding to the faulting address
--                * will be hot in the cache after zeroing.
--                */
--               if (user_alloc_needs_zeroing())
--                       folio_zero_user(folio, vmf->address);
-                return folio;
- next:
-                count_mthp_stat(order, MTHP_STAT_ANON_FAULT_FALLBACK);
-
-
-folio_zero_user(), from where we would extract a function that operates on a
-page+order chunk, requires the address hint.
-
-So we would have to pass that address. For example for the !CONFIG_NUMA case,
-something like the following could be done.
-
-diff --git a/include/linux/gfp.h b/include/linux/gfp.h
-index 51ef13ed756e..29771c3240be 100644
---- a/include/linux/gfp.h
-+++ b/include/linux/gfp.h
-@@ -234,6 +234,10 @@ struct folio *__folio_alloc_noprof(gfp_t gfp, unsigned int order, int preferred_
-                nodemask_t *nodemask);
- #define __folio_alloc(...)                     alloc_hooks(__folio_alloc_noprof(__VA_ARGS__))
- 
-+struct folio *__folio_alloc_user_noprof(gfp_t gfp, unsigned int order, int preferred_nid,
-+               nodemask_t *nodemask, unsigned long addr);
-+#define __folio_alloc_user(...)                        alloc_hooks(__folio_alloc_user_noprof(__VA_ARGS__))
-+
- unsigned long alloc_pages_bulk_noprof(gfp_t gfp, int preferred_nid,
-                                nodemask_t *nodemask, int nr_pages,
-                                struct page **page_array);
-@@ -291,6 +295,18 @@ __alloc_pages_node_noprof(int nid, gfp_t gfp_mask, unsigned int order)
- 
- #define  __alloc_pages_node(...)               alloc_hooks(__alloc_pages_node_noprof(__VA_ARGS__))
- 
-+static inline
-+struct folio *__folio_alloc_user_node_noprof(gfp_t gfp, unsigned int order,
-+               int nid, unsigned long addr)
-+{
-+       VM_BUG_ON(nid < 0 || nid >= MAX_NUMNODES);
-+       warn_if_node_offline(nid, gfp);
-+
-+       return __folio_alloc_user_noprof(gfp, order, nid, NULL, addr);
-+}
-+
-+#define  __folio_alloc_user_node(...)          alloc_hooks(__folio_alloc_user_node_noprof(__VA_ARGS__))
-+
- static inline
- struct folio *__folio_alloc_node_noprof(gfp_t gfp, unsigned int order, int nid)
- {
-@@ -342,7 +358,7 @@ static inline struct folio *folio_alloc_mpol_noprof(gfp_t gfp, unsigned int orde
- static inline struct folio *vma_alloc_folio_noprof(gfp_t gfp, int order,
-                struct vm_area_struct *vma, unsigned long addr)
- {
--       return folio_alloc_noprof(gfp, order);
-+       return __folio_alloc_user_node_noprof(gfp, order, numa_node_id(), addr);
- }
- #endif
- 
-index ee81f5c67c18..28f448f40b75 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -5260,6 +5260,13 @@ struct folio *__folio_alloc_noprof(gfp_t gfp, unsigned int order, int preferred_
- }
- EXPORT_SYMBOL(__folio_alloc_noprof);
- 
-+struct folio *__folio_alloc_user_noprof(gfp_t gfp, unsigned int order, int preferred_nid,
-+               nodemask_t *nodemask, unsigned long addr)
-+{
-+       /* TODO */
-+}
-+EXPORT_SYMBOL(__folio_alloc_noprof);
-+
- /*
-  * Common helper functions. Never use with __GFP_HIGHMEM because the returned
-  * address cannot represent highmem pages. Use alloc_pages and then kmap if
-
-
-As alloc_user_pages() resides in the buddy, it can just honor any
-buddy-internal "pre-zeroed" flag.
-
-
-Once you are in page_alloc.c you can access internal allocation functions and
-take care of that without GFP flags.
+Then we can get rid of the user_alloc_needs_zeroing() hack and just do
+the right thing in page_alloc.c
 
 -- 
 Cheers,
