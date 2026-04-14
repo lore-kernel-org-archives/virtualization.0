@@ -1,28 +1,28 @@
-Received: from SN4PR2101CU001.outbound.protection.outlook.com (mail-southcentralusazon11012019.outbound.protection.outlook.com [40.93.195.19])
+Received: from CY3PR05CU001.outbound.protection.outlook.com (mail-westcentralusazon11013068.outbound.protection.outlook.com [40.93.201.68])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28D9F314D07
-	for <virtualization@lists.linux.dev>; Tue, 14 Apr 2026 20:07:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.195.19
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5AC023246F4
+	for <virtualization@lists.linux.dev>; Tue, 14 Apr 2026 20:07:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.201.68
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776197238; cv=fail; b=q0uXY9/Q/JprGFSnOuMu0gnNcNqwRRp3cF0CTtnsi2TLdvsK6GNIB3O9vJFziNcr1XnUbPXUtms1TQH8DiHffnKYXLtnzbDKcSi7pUb/Pu5/8x6hiA9O/vX0w81XeOzDa3Q22x5436EdTer0uLGLNDj4S9UJXThJpdqQZSUcSyc=
+	t=1776197241; cv=fail; b=D+tT2f82HFkD9WyCel2FUG2iZTNSz9Iv5I9xYH0Xkc9YtFak9rYd/7Q+bg8Rn5Vsfg6RRuei2v2FgbG4s+llqy3dfg/tjxg4oTyUaXHTSwckePxti7+HJWXJnQTK2+ikVkC2/aF1OgtEadAzg9I0iv6WJ6vMUYGAomfmPEtpaUI=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776197238; c=relaxed/simple;
-	bh=ljpZU/CK9sboKlMlKGHF9AomEaRKft/mIS5wqbelFGM=;
+	s=arc-20240116; t=1776197241; c=relaxed/simple;
+	bh=wnS9zkibxFXdPQZ4EXhXd9Kd4dYryCn1VpwuK5NltP0=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=KZvs8h56QlQ03iPSzMqSyCViQZ+0Ay+LRRqfDxOgwCAwV2h0/HX+RyaqELOqSeo07YziFJcAot3tfvDpZHZPFRTGjeHnjBPPTEEWiRqVLl/IZ3L44PJDlEEj/LvRqlHj1YMvr+ITvSyeHO1q8xwBu3POxjsrgJBKahyyASdHQBw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=liH+kxrb; arc=fail smtp.client-ip=40.93.195.19
+	 MIME-Version:Content-Type; b=so6woxYQVYg0rKVbEA3yyA2zlBXqflz/PiodLvIpUrSKZw5JzIc0hSqIYVbX389Cl7pgO20MpWE8EjZLd0gsKgo1NnKf2+tO+HhetxuVUUQpmK1OmyZ9hTE5QAw3NF4Rp8WD+msk5LZKBy2Ximq/AAPLb21j8IF/avZqDp3htTE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=Opl2503B; arc=fail smtp.client-ip=40.93.201.68
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="liH+kxrb"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="Opl2503B"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=VkgDla0HIW8zhcZKBFmWxXgkcivL1EG1BjLERMHvnxH+uBTVSChNmHk9KvsrFJHBxjduhoHU+uPielBYvnNyruqqvLWgE50HF7TWCO5BAy4MITrhIJ1rOEG2K6w7iNbtVN6kvbZLebHrValbwVsdkIrPPlgPGudHcXQ+pDUNkUAJUENnfNO64UipeAmlYYRx9g2w2AbBL0lD+sEQy5Vy3ZakqU8aY3K3jltMfaaX6/d8Z7eq+oKIftGU3ZdiRuG9HHNX24I0Uyq3l+I8nQIq8cX14b9WhTzc4YdR/GO12rISo5f4IQ5ttbRy8RAtqYihkRbovcD73GABoUK3iym2bA==
+ b=ctuNB3n987gIpnKK4Khl91tI0+kpvpf2Pkj/a2lF6GFWOdKh5wmbEwkHjpAAKCjz/mUHTInRV8Y/wgO/gUHQbdhgSPrtAz1nZxVFYOsTbRE7D5sHpYcQb0RIeCjR+RUFhglvh7rVcBAyEjnaPoJIZoqafAEhnYtPGS7EGQfCM7x21yq6DeOBEfNUWRT0GSQEzK1Fwz6NbKQk1weSlQMmRahHUC0sbFKz1KpP+BWChL3VI4Ic2nGhu34LRSexwlDke6V38wrskQBNR0I/d6CESuPlenp899117TddOVRTbhxeg48U0+gUKqRk6wGw04KYiEDTRqmiZjNd6uwJc8m6Rg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=HyTJZIsKPO12rF4bk5+bPbV2jQwsUCZje4ri+d7wr8k=;
- b=QFVSzUjeHujq59fpRX5iWFrCZEobSEph+UO5pbLQXUTiCh9yLK+8xMFxeKhetROwQQtcqq19p/1hMdGeZIPLam55OfuJkjTob3xSlS9/YUKrFpP4jc/i+QvaP2XyCSSL+kkvdx6rlls9XE3uF4FH6cqrB4EybXmLJwu0SDphxu9gl/xOIwvsldq2pmfVkcXzTng5qeZGIjSec6lp9TUS4TU6HyUcN9c6nV5rfm3HrGA2Bi7Up2O3wYmBKeVT4ZIrSJBN7Y/exloozonLLFYKX8B5l1O/Jd7XKvRUBTwpKr53pRbZ1aNb5fSrwA8vWRgwt0jaZUX6oXBU6Fmn7Y05QA==
+ bh=Xp/OXiZS6acLWIwhxMq7w8ztwgfy+DD+rF8EdXrCjX4=;
+ b=UZVu8+8gymwR0UrIsVeDqAPw4/0TrhvPkCbFcb92RrvzctGLkrcWEeiaJlXaBs/TS5jKxbw0LAbv1974I5/WE1GldYiqVTdKWd7LhKrM+TPRDuNy3/S+ViE/vKvcFR5x9H+vm51cjuAVSfXpPYa6tpovcmiWxSHopGoRECDMswvrIGo0T9/fBVrzI0H8uC0tRYlxILMGPNF23TRUziC3HNUeG11rgpilqMGXtYuN+OTczJ0q/NLo1nd3WryHtL65Kcv5WtRly3PKkBlQVUZB/WCPlImAZQenTMKGV63tTWNgE/LszJ642yI5F0NiPv36ijiayXnVsUUUrHq0UzSRSg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
  216.228.117.160) smtp.rcpttodomain=shazbot.org smtp.mailfrom=nvidia.com;
  dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
@@ -30,18 +30,18 @@ ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=HyTJZIsKPO12rF4bk5+bPbV2jQwsUCZje4ri+d7wr8k=;
- b=liH+kxrbeb0DKFOYDvkSzY/IQ1v0wWAOUhk+IpDjgftVQ1Nz+0vkpaLxcYpBOSeWaP7qmgO44uzp0fxn2beh0U9rdS1HYxFvdTdV3lvN7EwkdwfiqFf73GfB1e1/3rVWuYQma2Kepjv4cTZXp2fIXohVv+m8SLTtxvgKns09TBR4AvoE2lWOaIJ5dyWt+aL+a5UdF8goXnZmcpBZjpGCTLOdZ+e7swhLj+ZTIVbhpfer2j7sjVfpGOSIU7XhCtLDUrg6NUZGE8GlhMyCrV3NJ/ln//xf6HexhgsKu11y72bOCG/lQZYO+wu7xQc3LHz8klswVD1LRfCDti6CY3tnaw==
-Received: from BLAPR03CA0003.namprd03.prod.outlook.com (2603:10b6:208:32b::8)
- by CH3PR12MB9730.namprd12.prod.outlook.com (2603:10b6:610:253::9) with
+ bh=Xp/OXiZS6acLWIwhxMq7w8ztwgfy+DD+rF8EdXrCjX4=;
+ b=Opl2503B6X2d8/8F355NbU8CrmhbSOx+hP0V6DE5KmDfmszXlOrxc5kpkio+BOXLeb5Jyh1Zxu0/l8ie6DKhu7ZtLec77SRt6nUAWN0+ydJiNG0LFjCXUG9V+mSxFU6Eluj3RIl71zhbnEHtt86rhEdpezAPwfVKUi0ngxm1a7p/IqO4+Q+ygBp3+LBdTqFbV2zXHk+1T0DH3Rpu5TR32vqPbs+YFC4XbSScAZ49fcW63082oXtIT+lpvJtEkv+m/gbXdyBUgVH2v8jJAx035J+0IDf7RDIsWmEsPgNnqPkKwaRTUrKjszg9C8spmKcYvystfnCdKbmLtDtF49+bng==
+Received: from MN2PR11CA0012.namprd11.prod.outlook.com (2603:10b6:208:23b::17)
+ by SN7PR12MB7273.namprd12.prod.outlook.com (2603:10b6:806:2ac::21) with
  Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9818.20; Tue, 14 Apr
- 2026 20:07:12 +0000
-Received: from BL6PEPF0001AB59.namprd02.prod.outlook.com
- (2603:10b6:208:32b:cafe::8c) by BLAPR03CA0003.outlook.office365.com
- (2603:10b6:208:32b::8) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9791.35; Tue, 14 Apr
+ 2026 20:07:15 +0000
+Received: from BL6PEPF0001AB57.namprd02.prod.outlook.com
+ (2603:10b6:208:23b:cafe::99) by MN2PR11CA0012.outlook.office365.com
+ (2603:10b6:208:23b::17) with Microsoft SMTP Server (version=TLS1_3,
  cipher=TLS_AES_256_GCM_SHA384) id 15.20.9769.49 via Frontend Transport; Tue,
- 14 Apr 2026 20:07:12 +0000
+ 14 Apr 2026 20:07:15 +0000
 X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
  smtp.mailfrom=nvidia.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=nvidia.com;
@@ -49,26 +49,25 @@ Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
  216.228.117.160 as permitted sender) receiver=protection.outlook.com;
  client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
 Received: from mail.nvidia.com (216.228.117.160) by
- BL6PEPF0001AB59.mail.protection.outlook.com (10.167.241.11) with Microsoft
+ BL6PEPF0001AB57.mail.protection.outlook.com (10.167.241.9) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9769.17 via Frontend Transport; Tue, 14 Apr 2026 20:07:11 +0000
+ 15.20.9769.17 via Frontend Transport; Tue, 14 Apr 2026 20:07:15 +0000
 Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
  (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Tue, 14 Apr
- 2026 13:06:49 -0700
+ 2026 13:06:52 -0700
 Received: from meforce.lab.shazbot.org (10.126.230.37) by
  rnnvmail201.nvidia.com (10.129.68.8) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.20; Tue, 14 Apr 2026 13:06:48 -0700
+ 15.2.2562.20; Tue, 14 Apr 2026 13:06:50 -0700
 From: Alex Williamson <alex.williamson@nvidia.com>
 To: <alex@shazbot.org>
 CC: Alex Williamson <alex.williamson@nvidia.com>, <yishaih@nvidia.com>,
 	<kvm@vger.kernel.org>, <guojinhui.liam@bytedance.com>,
-	<linux-kernel@vger.kernel.org>, <virtualization@lists.linux.dev>,
-	<stable@vger.kernel.org>
-Subject: [PATCH 1/4] vfio/virtio: Convert list_lock from spinlock to mutex
-Date: Tue, 14 Apr 2026 14:06:19 -0600
-Message-ID: <20260414200625.3601509-2-alex.williamson@nvidia.com>
+	<linux-kernel@vger.kernel.org>, <virtualization@lists.linux.dev>
+Subject: [PATCH 3/4] vfio/virtio: Use guard() for migf->lock where applicable
+Date: Tue, 14 Apr 2026 14:06:21 -0600
+Message-ID: <20260414200625.3601509-4-alex.williamson@nvidia.com>
 X-Mailer: git-send-email 2.51.0
 In-Reply-To: <20260414200625.3601509-1-alex.williamson@nvidia.com>
 References: <20260414200625.3601509-1-alex.williamson@nvidia.com>
@@ -84,191 +83,119 @@ X-ClientProxiedBy: rnnvmail203.nvidia.com (10.129.68.9) To
  rnnvmail201.nvidia.com (10.129.68.8)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: BL6PEPF0001AB59:EE_|CH3PR12MB9730:EE_
-X-MS-Office365-Filtering-Correlation-Id: 3408f2ba-227d-45e3-a803-08de9a616a64
+X-MS-TrafficTypeDiagnostic: BL6PEPF0001AB57:EE_|SN7PR12MB7273:EE_
+X-MS-Office365-Filtering-Correlation-Id: 34ae34b0-1532-4eec-2e90-08de9a616c64
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|82310400026|36860700016|1800799024|13003099007|18002099003|56012099003|22082099003;
+	BCL:0;ARA:13230040|82310400026|1800799024|376014|36860700016|56012099003|22082099003|18002099003;
 X-Microsoft-Antispam-Message-Info:
-	zKZD6t+Ktt+L3SpW4//t+A/aBKlCpqQcZmGS7VDNF42pC5f7Gn7bkqoRz9cEn/onRwZbDScT61ri7o5GG9IqrtfXFHjEwJM13qJN55mLInPQe+hg5CAffPGbrmV0kot2+wx/O69UBiojY1Bkf2fzshzh9DfLi4PswKXXRZDo4AE7f+In63DirqkaccASR0bxChyJwS0datg4zf6C/6dZepZlFifqzaOtqrSEjqpeZkW7H2go4D/wsusBn7Vvm2jg2be96IuJQWG/LwA4sYTNUoH3671+8246rQlJsxSZT2AoDP4c1LHDNrOT15w65ziKABm0bxVYkTNY4zOvjohUa2gUYjWwGiP1m+Ku+lsx/MtCldARaLcz9QsvFKtSdquHqu3QU4nVhsUixzozL4TLomFa1aB/5O0d2xM82QNo8xJb+MUUUKE92yHHCXDd9Uu5DFQSYuPmKKT32vWavZCgpjat0X6W175J9mop+En1z4bgBvGabMzbW1MN3FnidcFu7Crm72OXJr+NYmGbdDKI+7dxHK4fI0hbFTa30kiSZxm1nbHyI1QbmK/WZW+Rt+ZdpxaNWug066xFEPKjjaD/2VZz0p9+7yIury2NXxaP/nrzJc8heGUyC2jtkhwETTPkGdR/oQTiwIJhQQ+581aH9ExIhAQDI+8URqEF8YVNMPlv/tlL8pcrd/yfm4k6m7nfW3JsTfWXU2VldmUUDxdyocoJKlmMScZIUWlhTwHeXRs22UBGGWRcbhBB4IOsnLm39/Sn89vuNw5FF14DGuCTiA==
+	mOATR5k9dYlKGgal9ucPAb2ft0yjRXARVDZ/5gjHlYCU0YFkmFMzVprpuUXDWwclXhYo/234m321LX9HSQzsq0hmSfOkNwyrw87qDKu0YFQlFwft7UcnR0YqxRsm+8wz3m+r605fEuqr1yPX3ddUdOEpZb0HrdUI0bpN2L6a0O/DIKSgA3fmE79Wffv26uAcuTQEYXrKf2FJCpGDwdyaoP6ZzDJtxEeSRKApbBoSQ/kCU1qVa8ju7lBuXdjrkx5SPKn6bM2utLXAW3Nvredm3K/VG0UDvLo8zJUTJoxb5hNJWnWifmW4nFcL+6sfX+zW+v09M+6OlUfNcSFQQQEMsIIs3KAdpsvAoE1kOUdaycokXxBbzNXA9y3pkmuV999BKpWdVSRQ0L2WwkwwtHHmV/MS7Ea6+FZAZ6PdmZGGYKq/Ze+Bbo4BWTmRSGQ4ad0zJp0xo9+EK7taCVGUEx1zqffqa2uxH2j1JxzNcgrrCKNtFRyz6eMO3bkJwLYwPfWnL1X6/92tm/lTouO7g8wQvwV3IJBJEPaX3VmHkU8POkBHWiehbdXp1kfxg19R6SqtAoFUL5Wdw6bL1B96ds8grhE4KK7zpj/D85rvL9skvLLbROgr4erYN/FDKR5J0GcoFVruXzGoae9iSRawYBOWSsABouaitPo18kU0MKQigCxTw5emrd2mq2myKNZYLmYPzB5pRt9cNI7fu/23XVLv2rhhJfXwwxJX10/UfeQePRBqzqsG5OAs96HnWW2iZXSnTWjBboVM/DHkliiuoSKU3Q==
 X-Forefront-Antispam-Report:
-	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(376014)(82310400026)(36860700016)(1800799024)(13003099007)(18002099003)(56012099003)(22082099003);DIR:OUT;SFP:1101;
+	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(82310400026)(1800799024)(376014)(36860700016)(56012099003)(22082099003)(18002099003);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	PqJcILTR8/1kScY+W0fze3YGh1eac96EER0sNa/QfKdfGAU2fEW48uMI9gHdFcYrXzy3U0DGb8/Qp79C9kV53bAsI5ibBjXFKytf9sW9soPXLLL5WpBssqHxmPoYSMHkPrfpTVuNOl5voJDWSjrEjNfaorqa33QjxmkIYjiWpYWCG56HvN615a1nosbpAg9TM6XFAxRu3ISpGyden0LAGtXvPtV4zTQUG3u5E1IG3MrUBqryzH4y7lE48H0H/zR85v51Lf28y6gXzB0Ojh8wZmqhLzKIIvuSqMje/92m7MWwu6VMRjsQ3pJuvoBgAImNoCfV+S80kK1oVWOYbPNZXvIUslbGsVIMYqJC+jieQKxd7KXJhj8M5+2IUhxURiGdZsk9PammwP6nqMqwmdcR3kJ4WoFaztpatuJcxdT94UsG25bA8SCTyaX4wYVJz53Z
+	HATuTWSKvNtf3HT/u2CzDLSBlP+Ci+4vJgokdKXE+46rTHHCQKITyX7F6y51O8sPzxAxgqXMvtis7RjPoUI3vYPIVEIuqbFlWRM5E1QYJVTt3fIbMH8dS83PflaJz6qtqAi5lpibLclgK81jsT3uzSqsRxGhlzhzjnYXsuauOWhFSeLXdBWluq8yn3mrbgdAwstJqOqhTXhTJG//T5tQPuF3odVtcgvk+hL8BO4N6yKuQtNKKjWja5RClcZbJHgKgadvvMUpyJywFuO4RccQDeTDjdpeom6Lh/7ekRujKoklKAcrFPIloO0ZTz6+KU/3VIlbI0LoaqdxsU5hNHiX97Dv1DvxYjwwX1eiSAFXwyedhJHO6XL0CG+iBSrz9gghCy/zGHRKWmkv8g9WR2HeeRfm6EipGI5guYL0mUei2pLPWjIPqfaNL3EX9xgrXpOZ
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Apr 2026 20:07:11.8790
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Apr 2026 20:07:15.2312
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 3408f2ba-227d-45e3-a803-08de9a616a64
+X-MS-Exchange-CrossTenant-Network-Message-Id: 34ae34b0-1532-4eec-2e90-08de9a616c64
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
 X-MS-Exchange-CrossTenant-AuthSource:
-	BL6PEPF0001AB59.namprd02.prod.outlook.com
+	BL6PEPF0001AB57.namprd02.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH3PR12MB9730
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB7273
 
-The list_lock spinlock with IRQ disabling was copied from the mlx5
-vfio-pci variant driver, where it is justified by a hardirq async
-command completion callback that accesses the protected lists.  The
-virtio driver has no such interrupt context usage; all list_lock
-acquisitions occur in process context via file read/write operations
-or state transitions under state_mutex.
+Convert migf->lock acquisitions in virtiovf_disable_fd() and
+virtiovf_save_read() to use guard().  In virtiovf_save_read() this
+eliminates the out_unlock label and multiple goto paths by allowing
+direct returns, and removes the need for the done variable to double
+as an error carrier.
 
-Convert list_lock to a mutex to be consistent with peer vfio-pci
-variant drivers (hisilicon, pds, qat, xe) which all use mutexes for
-equivalent migration data protection.  This also fixes a mismatched
-spin_lock()/spin_unlock_irq() pair in virtiovf_read_device_context_chunk()
-that could incorrectly enable interrupts.
-
-Reported-by: Jinhui Guo <guojinhui.liam@bytedance.com>
-Closes: https://lore.kernel.org/all/20260413073603.30538-1-guojinhui.liam@bytedance.com
-Fixes: 0bbc82e4ec79 ("vfio/virtio: Add support for the basic live migration functionality")
-Cc: stable@vger.kernel.org
 Assisted-by: Claude:claude-opus-4-6
 Signed-off-by: Alex Williamson <alex.williamson@nvidia.com>
 ---
- drivers/vfio/pci/virtio/common.h  |  2 +-
- drivers/vfio/pci/virtio/migrate.c | 33 ++++++++++++++++---------------
- 2 files changed, 18 insertions(+), 17 deletions(-)
+ drivers/vfio/pci/virtio/migrate.c | 40 +++++++++++--------------------
+ 1 file changed, 14 insertions(+), 26 deletions(-)
 
-diff --git a/drivers/vfio/pci/virtio/common.h b/drivers/vfio/pci/virtio/common.h
-index cb3d5e57d3a3..3ccbd49e6abe 100644
---- a/drivers/vfio/pci/virtio/common.h
-+++ b/drivers/vfio/pci/virtio/common.h
-@@ -68,7 +68,7 @@ struct virtiovf_migration_file {
- 	enum virtiovf_migf_state state;
- 	enum virtiovf_load_state load_state;
- 	/* synchronize access to the lists */
--	spinlock_t list_lock;
-+	struct mutex list_lock;
- 	struct list_head buf_list;
- 	struct list_head avail_list;
- 	struct virtiovf_data_buffer *buf;
 diff --git a/drivers/vfio/pci/virtio/migrate.c b/drivers/vfio/pci/virtio/migrate.c
-index 35fa2d6ed611..15fcd936528b 100644
+index 058d359c9b5a..80ca8a1b625a 100644
 --- a/drivers/vfio/pci/virtio/migrate.c
 +++ b/drivers/vfio/pci/virtio/migrate.c
-@@ -142,9 +142,9 @@ virtiovf_alloc_data_buffer(struct virtiovf_migration_file *migf, size_t length)
+@@ -224,10 +224,9 @@ static void virtiovf_clean_migf_resources(struct virtiovf_migration_file *migf)
  
- static void virtiovf_put_data_buffer(struct virtiovf_data_buffer *buf)
+ static void virtiovf_disable_fd(struct virtiovf_migration_file *migf)
  {
--	spin_lock_irq(&buf->migf->list_lock);
-+	mutex_lock(&buf->migf->list_lock);
- 	list_add_tail(&buf->buf_elm, &buf->migf->avail_list);
--	spin_unlock_irq(&buf->migf->list_lock);
-+	mutex_unlock(&buf->migf->list_lock);
- }
- 
- static int
-@@ -170,21 +170,21 @@ virtiovf_get_data_buffer(struct virtiovf_migration_file *migf, size_t length)
- 
- 	INIT_LIST_HEAD(&free_list);
- 
--	spin_lock_irq(&migf->list_lock);
-+	mutex_lock(&migf->list_lock);
- 	list_for_each_entry_safe(buf, temp_buf, &migf->avail_list, buf_elm) {
- 		list_del_init(&buf->buf_elm);
- 		if (buf->allocated_length >= length) {
--			spin_unlock_irq(&migf->list_lock);
-+			mutex_unlock(&migf->list_lock);
- 			goto found;
- 		}
- 		/*
- 		 * Prevent holding redundant buffers. Put in a free
--		 * list and call at the end not under the spin lock
-+		 * list and call at the end not under the mutex
- 		 * (&migf->list_lock) to minimize its scope usage.
- 		 */
- 		list_add(&buf->buf_elm, &free_list);
- 	}
--	spin_unlock_irq(&migf->list_lock);
-+	mutex_unlock(&migf->list_lock);
- 	buf = virtiovf_alloc_data_buffer(migf, length);
- 
- found:
-@@ -295,6 +295,7 @@ static int virtiovf_release_file(struct inode *inode, struct file *filp)
- 	struct virtiovf_migration_file *migf = filp->private_data;
- 
- 	virtiovf_disable_fd(migf);
-+	mutex_destroy(&migf->list_lock);
- 	mutex_destroy(&migf->lock);
- 	kfree(migf);
- 	return 0;
-@@ -308,7 +309,7 @@ virtiovf_get_data_buff_from_pos(struct virtiovf_migration_file *migf,
- 	bool found = false;
- 
- 	*end_of_data = false;
--	spin_lock_irq(&migf->list_lock);
-+	mutex_lock(&migf->list_lock);
- 	if (list_empty(&migf->buf_list)) {
- 		*end_of_data = true;
- 		goto end;
-@@ -329,7 +330,7 @@ virtiovf_get_data_buff_from_pos(struct virtiovf_migration_file *migf,
+-	mutex_lock(&migf->lock);
++	guard(mutex)(&migf->lock);
  	migf->state = VIRTIOVF_MIGF_STATE_ERROR;
- 
- end:
--	spin_unlock_irq(&migf->list_lock);
-+	mutex_unlock(&migf->list_lock);
- 	return found ? buf : NULL;
+ 	migf->filp->f_pos = 0;
+-	mutex_unlock(&migf->lock);
  }
  
-@@ -369,10 +370,10 @@ static ssize_t virtiovf_buf_read(struct virtiovf_data_buffer *vhca_buf,
+ static void virtiovf_disable_fds(struct virtiovf_pci_core_device *virtvdev)
+@@ -385,11 +384,10 @@ static ssize_t virtiovf_save_read(struct file *filp, char __user *buf, size_t le
+ 		return -ESPIPE;
+ 	pos = &filp->f_pos;
+ 
+-	mutex_lock(&migf->lock);
+-	if (migf->state == VIRTIOVF_MIGF_STATE_ERROR) {
+-		done = -ENODEV;
+-		goto out_unlock;
+-	}
++	guard(mutex)(&migf->lock);
++
++	if (migf->state == VIRTIOVF_MIGF_STATE_ERROR)
++		return -ENODEV;
+ 
+ 	while (len) {
+ 		ssize_t count;
+@@ -398,34 +396,24 @@ static ssize_t virtiovf_save_read(struct file *filp, char __user *buf, size_t le
+ 		if (first_loop_call) {
+ 			first_loop_call = false;
+ 			/* Temporary end of file as part of PRE_COPY */
+-			if (end_of_data && migf->state == VIRTIOVF_MIGF_STATE_PRECOPY) {
+-				done = -ENOMSG;
+-				goto out_unlock;
+-			}
+-			if (end_of_data && migf->state != VIRTIOVF_MIGF_STATE_COMPLETE) {
+-				done = -EINVAL;
+-				goto out_unlock;
+-			}
++			if (end_of_data && migf->state == VIRTIOVF_MIGF_STATE_PRECOPY)
++				return -ENOMSG;
++			if (end_of_data && migf->state != VIRTIOVF_MIGF_STATE_COMPLETE)
++				return -EINVAL;
+ 		}
+ 
+ 		if (end_of_data)
+-			goto out_unlock;
++			return done;
+ 
+-		if (!vhca_buf) {
+-			done = -EINVAL;
+-			goto out_unlock;
+-		}
++		if (!vhca_buf)
++			return -EINVAL;
+ 
+ 		count = virtiovf_buf_read(vhca_buf, &buf, &len, pos);
+-		if (count < 0) {
+-			done = count;
+-			goto out_unlock;
+-		}
++		if (count < 0)
++			return count;
+ 		done += count;
  	}
  
- 	if (*pos >= vhca_buf->start_pos + vhca_buf->length) {
--		spin_lock_irq(&vhca_buf->migf->list_lock);
-+		mutex_lock(&vhca_buf->migf->list_lock);
- 		list_del_init(&vhca_buf->buf_elm);
- 		list_add_tail(&vhca_buf->buf_elm, &vhca_buf->migf->avail_list);
--		spin_unlock_irq(&vhca_buf->migf->list_lock);
-+		mutex_unlock(&vhca_buf->migf->list_lock);
- 	}
- 
+-out_unlock:
+-	mutex_unlock(&migf->lock);
  	return done;
-@@ -554,9 +555,9 @@ virtiovf_add_buf_header(struct virtiovf_data_buffer *header_buf,
- 	header_buf->length = sizeof(header);
- 	header_buf->start_pos = header_buf->migf->max_pos;
- 	migf->max_pos += header_buf->length;
--	spin_lock_irq(&migf->list_lock);
-+	mutex_lock(&migf->list_lock);
- 	list_add_tail(&header_buf->buf_elm, &migf->buf_list);
--	spin_unlock_irq(&migf->list_lock);
-+	mutex_unlock(&migf->list_lock);
- 	return 0;
  }
  
-@@ -621,9 +622,9 @@ virtiovf_read_device_context_chunk(struct virtiovf_migration_file *migf,
- 
- 	buf->start_pos = buf->migf->max_pos;
- 	migf->max_pos += buf->length;
--	spin_lock(&migf->list_lock);
-+	mutex_lock(&migf->list_lock);
- 	list_add_tail(&buf->buf_elm, &migf->buf_list);
--	spin_unlock_irq(&migf->list_lock);
-+	mutex_unlock(&migf->list_lock);
- 	return 0;
- 
- out_header:
-@@ -692,7 +693,7 @@ virtiovf_pci_save_device_data(struct virtiovf_pci_core_device *virtvdev,
- 	mutex_init(&migf->lock);
- 	INIT_LIST_HEAD(&migf->buf_list);
- 	INIT_LIST_HEAD(&migf->avail_list);
--	spin_lock_init(&migf->list_lock);
-+	mutex_init(&migf->list_lock);
- 	migf->virtvdev = virtvdev;
- 
- 	lockdep_assert_held(&virtvdev->state_mutex);
-@@ -1082,7 +1083,7 @@ virtiovf_pci_resume_device_data(struct virtiovf_pci_core_device *virtvdev)
- 	mutex_init(&migf->lock);
- 	INIT_LIST_HEAD(&migf->buf_list);
- 	INIT_LIST_HEAD(&migf->avail_list);
--	spin_lock_init(&migf->list_lock);
-+	mutex_init(&migf->list_lock);
- 
- 	buf = virtiovf_alloc_data_buffer(migf, VIRTIOVF_TARGET_INITIAL_BUF_SIZE);
- 	if (IS_ERR(buf)) {
 -- 
 2.51.0
 
