@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81146237713;
-	Tue, 14 Apr 2026 09:06:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5467437F756;
+	Tue, 14 Apr 2026 09:08:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776157589; cv=none; b=P/8IWTqapMMyrVPnYK66ra9uPlf0ZA4FHKGIsE1k2AHcS1W/En6GPiYX5GgneHK3/ZpH5uLn615pADEuBkgl1fY050tjHdfPJsO9cfqeReGXnJEV+1kriReZ+2uHemxqLsHuRp4nxvZ0+ZiXHTYdud9HoBZLHoeznQDwyEAA2qg=
+	t=1776157738; cv=none; b=apu1AkxMlMGlG1nNMXqAFkbqW7pBcNenIj9W5POh8QbN67HoPNgnaR1Mahd15abACcvZivMgiiHxip3ILFmS5coZaDxaTeC09/sUFE+cixFRhB9gVvEwpdT1h1g0IUmR1LrRiX2O9WnyEpDFzlHz0acrHvXTD0b+OEoUZhhyOU0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776157589; c=relaxed/simple;
-	bh=0HFC6LCOCRUWWKTQwlg+7vyB5B5S9zxAroCeUQNKVzk=;
+	s=arc-20240116; t=1776157738; c=relaxed/simple;
+	bh=kFQsu16PS4TcR1wUOaHYbRYwmtPBOrXiE6IJuMeHqPw=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=dQZuf/PrKNZB50NcJT1NnOK3DfvXetEMD5WUNE/Eggm5YTS+bdm5AkLIA9j6QL87t/Qon2q+2Accb4w1yKh6WyM81FYlhg+BJ3ToqcYxf52AjRKImaZCRnK0bSnSg0yfrfdNkk2GwO1vuEjIojcTQuIm5645TX7lk2s/7Y7RdaM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WEKOe/7Q; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=BMPNXi6n18bVQOwsToNyJDs8mQef92jMMdl9zKFHDQFJVk7Qv5k5Q80uyntrKcrfQIOjnGXTkrqPwuCHLqAt71BFFyMCFR8p50Xx3wu/u+PJhcPzUtneiSsVY5ge7ynrfgy5Ee2u2W05TFzViS7Cisa94gU7Q+YwGNjTz/B/WN8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=K78y+bsE; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WEKOe/7Q"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46CBFC2BCB4;
-	Tue, 14 Apr 2026 09:06:25 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="K78y+bsE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B97E1C19425;
+	Tue, 14 Apr 2026 09:08:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776157589;
-	bh=0HFC6LCOCRUWWKTQwlg+7vyB5B5S9zxAroCeUQNKVzk=;
+	s=k20201202; t=1776157738;
+	bh=kFQsu16PS4TcR1wUOaHYbRYwmtPBOrXiE6IJuMeHqPw=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=WEKOe/7Q4DyG+Sd0Uopd1VpE9hHy2EIMoKq1irldHH+xBpWvdSJssIybd7Vy9jHgc
-	 8K2BoBZef1SgIOoxgFAsZVB9gR+04RauyXozQmJcMCJAJja+tF+vozv8xh7fbp3sOG
-	 jV0eh7ApHl/s1PDIsjsCS5I98FxGNh/lxVw9ViZydRdaenFkiuD6FCSgv1a89fxfpW
-	 a6KKEKTu6BhIP64FlymRJNOQsWXFCiW6qYmbsk70lxatU6M6+8FXQj61KecuQqjsID
-	 EzOs7h9P1x5HU5Xz1Hq8Ngs7NH1IOkA6XnO6iu3SLxmUPkaEtkpc/ow8gvMnVR8iCH
-	 LnN8QqPpZ891g==
-Message-ID: <ccb1f5ef-20d0-4720-8904-f6af52b896c7@kernel.org>
-Date: Tue, 14 Apr 2026 11:06:22 +0200
+	b=K78y+bsEejqPqLUZedA/9YcP4jF/0uyvmYFjVq87EPfcHxxPa1atjtxiLyyUux2ea
+	 Wmpxu95tdngd/MLfrfG8dy/Qr20vi3jJrMzcrfFRv2j6EqenpNrinnz3moZdpjClOS
+	 TflWRTTdiLCSGvil7vnqVL5urdYN3+tKP9sd8rjokYDhFHlrG+f+HFdZ8ElkfBv7FS
+	 /CE+6CKf4+RfazDh9TUhfud3SRtDgLMOuSqing/yDmtElQqrYi4qoEcMgqisGqPz3M
+	 7BdfZsvvy7/ovurn6/HfHu0zAttA4UpA2zNFm/5CcPENC0IedrJCnBd4iswl1RFU7n
+	 G4kPyaYfjoVSQ==
+Message-ID: <6a667757-9105-4a75-afed-bed4cfd751d9@kernel.org>
+Date: Tue, 14 Apr 2026 11:08:51 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -35,23 +35,19 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC 3/9] mm: add __GFP_PREZEROED flag and
- folio_test_clear_prezeroed()
+Subject: Re: [PATCH RFC 1/9] mm: page_alloc: propagate PageReported flag
+ across buddy splits
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
  Vlastimil Babka <vbabka@kernel.org>, Brendan Jackman <jackmanb@google.com>,
  Michal Hocko <mhocko@suse.com>, Suren Baghdasaryan <surenb@google.com>,
  Jason Wang <jasowang@redhat.com>, Andrea Arcangeli <aarcange@redhat.com>,
  linux-mm@kvack.org, virtualization@lists.linux.dev,
- Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- "Liam R. Howlett" <Liam.Howlett@oracle.com>, Mike Rapoport
- <rppt@kernel.org>, Johannes Weiner <hannes@cmpxchg.org>,
- Zi Yan <ziy@nvidia.com>
+ Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>
 References: <cover.1776033471.git.mst@redhat.com>
- <b21b0ba353330f24b9e10ee5bf01b60f32043327.1776033771.git.mst@redhat.com>
- <b258160c-5287-43dd-b56e-268c403b85ea@kernel.org>
- <20260413180303-mutt-send-email-mst@kernel.org>
- <20260413184022-mutt-send-email-mst@kernel.org>
+ <a74ad3652d9bd68c78fbb5360fa7adfd0606689f.1776033771.git.mst@redhat.com>
+ <b330143f-f3aa-4f4c-8467-d91102094e8d@kernel.org>
+ <20260413163104-mutt-send-email-mst@kernel.org>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -98,61 +94,26 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20260413184022-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20260413163104-mutt-send-email-mst@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 4/14/26 01:43, Michael S. Tsirkin wrote:
-> On Mon, Apr 13, 2026 at 06:06:14PM -0400, Michael S. Tsirkin wrote:
->> On Mon, Apr 13, 2026 at 11:05:40AM +0200, David Hildenbrand (Arm) wrote:
 >>
->> ...
 >>
->>> (2) Use a dedicated allocation interface for user pages in the buddy.
->>>
->>> I hate the whole user_alloc_needs_zeroing()+folio_zero_user() handling.
->>>
->>> It shouldn't exist. We should just be passing GFP_ZERO and let the buddy handle
->>> all that.
->>>
->>>
->>> For example, vma_alloc_folio() already gets passed the address in.
->>>
->>> Pass the address from vma_alloc_folio_noprof()->folio_alloc_noprof(), and let
->>> folio_alloc_noprof() use a buddy interface that can handle it.
->>>
->>> Imagine if we had a alloc_user_pages_noprof() that consumes an address. It could just
->>> do what folio_zero_user() does, and only if really required.
->>>
->>> The whole user_alloc_needs_zeroing() could go away and you could just handle the
->>> pre-zeroed optimization internally.
+>> This raises a good question: how does buddy merging handle the reported
+>> flag?
 >>
->> I looked at this a bit, and I think the issue is that the buddy
->> allocator doesn't do the arch-specific cache handling.
->> So allocating it is a fundamentally different thing from GFP_ZERO which
->> is "zero a kernel address range".
+>> -- 
+>> Cheers,
 >>
->> So I don't get how you want to do it.
+>> David
 > 
-
-Saw your new mails just now.
-
-> Oh, wait, do you mean we thread the userspace address through all the allocation calls?
-> Like the below? This is on top of my patches, on top of mm it will be
-> a tiny bit smaller.  I can rebase no problem.
 > 
-> But: isn't it a bit overkill for something that is, in the end, virtualization specific?
-> It's all mechanical threading through of user_addr, but should we miss
-> one place, and suddenly you get weird corruption on esoteric arches
-> since we will get memset instead of folio_zero_user.
-> 
-> Worth it?
+> IIUC it doesn't: reported pages are never merged, if a page is merged it has
+> just entered buddy.
 
-See my other mail, we'd be forwarding it only for
-vma_alloc_folio_noprof(), where we call a _user specific interface.
-
-Then we can get rid of the user_alloc_needs_zeroing() hack and just do
-the right thing in page_alloc.c
+I guess it makes sense: if a page gets freed and we end up merging, the
+freed page was not reported yet, so we have to report the whole block.
 
 -- 
 Cheers,
