@@ -1,141 +1,150 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB1B93E958F;
-	Tue, 14 Apr 2026 15:47:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 943CB3EAC68
+	for <virtualization@lists.linux.dev>; Tue, 14 Apr 2026 16:10:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776181627; cv=none; b=bUfcb+gsJWOcuany5zjZEL941CKyhRYSSyEwrqvz6kntnte1vYMSPo0M5gxduU8FwXzYL8/ltOY2bam4JivvuHzIGXvNOl5j7X7tIs/9AtD4eFr6ExjaO7PHEB9xNznCahnYI6T5GhUCgyCteh5OPdZYX9mwQiaxl0L7BFQ3pVo=
+	t=1776183030; cv=none; b=rbDTb3SKWG/Pmw6TaOSvByIsnHcYo7hUuZ0DA8KQekUjlgezxBryd6kj1Zdc5fschi7S0coQ8lLLa9Cf/KLOHRi2eJE8nTihpMb0e2qQWBErj5wHHMEoSBXoh/yCOg0ebfhbfjk6rK4UmWFZ5zpD1njw97c1AsKjyjpntCFsltc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776181627; c=relaxed/simple;
-	bh=bFYymnGKlPpXMQOtr4KQ9ZRTIC572uDtmfpvEZBw97g=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=owS6PGDAaOts4ZMG9wQvh+WPnnwJ3MqmbpfTaighYssmJ7LsHbfhk/J5MFYAx9EbD1p6n9GW+l129gOSYHn0W6iXaMqB/rSGfqoxognlgwMpRWbDR4TFBNTEfIPcJwiDU2QdJErKsoWX0q0RyrkYO/cwGqu/ISV4iXBUrN/qMck=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=h1wVR/cz; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1776183030; c=relaxed/simple;
+	bh=2xDcIT3f78H7eKHRPribLJ8e2LZJl4ii3oNMP2ytE+A=;
+	h=From:Subject:Date:Message-Id:MIME-Version:To:Cc:Content-Type; b=re9HluEpJgVHebbRXa6C0HfxJaymkO9PW6qEIhGUtrw50FhCXy22AYhvyTEDbIeGZHlwPHg61LaL2Bu9WsA0NMS8T02AzcTUAU1urIlyJISQALMmxTMzPFeY4yzDQDX667nTbVEijexECJ5MleLyhjZhcQrqqCkWkCL5T0fiF+E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TxFx3XK+; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="h1wVR/cz"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2578EC19425;
-	Tue, 14 Apr 2026 15:47:01 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776181626;
-	bh=bFYymnGKlPpXMQOtr4KQ9ZRTIC572uDtmfpvEZBw97g=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=h1wVR/czaDhbpEeVeiwjZpMMV7t4hPQCFRB/51dSknKVBFIecdQMJeoohxonXeh2w
-	 v/X3IOhaYRKLnCXmvxL9aiVsNdLaz9uBM77mhNA85RVxKI4DWsEC26mfH+AbRNLNEf
-	 T4+8WL99tDJp+r3aWL5ETSj5BeR3ZAH8V5R9fBOp9LTVlK2K8S0I357X5ZpF70aCis
-	 374M101RO4IaxXuM+hRwXWxytG03t9Lp/3rdUN9dhqWJjl1EVP0PjBDI8+jYkkdk+5
-	 9MLJILqotDOgaQXqKXvFgmSKXNPwCFiinz8DA++WnTXW+pbIYgaENp2ipBSUSPKamw
-	 SsRPub/s5kFEg==
-Message-ID: <6fc307da-72b4-4d07-9e34-5e6c0563124c@kernel.org>
-Date: Tue, 14 Apr 2026 17:46:58 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TxFx3XK+"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1776183027;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=dXlPrnMYysHI4EKQcfAK7A0hsCX8t6PffR9osO+JIF0=;
+	b=TxFx3XK+H7CxAj0fPQCvS6rLNFkeoUnw9PMEXl8FdZtj3LUqNu8Jz4zliQoJd+3iUNlRiQ
+	LHq9T4hG4DejCoQihKvq0/G//IvvxVz+YRxPNcc3Gq2vRfOoXg7X5erpOSpPlCoSrdrXSr
+	/tVofu7aZaxmAcnZsyNg5eisLYWsdhU=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-307-AtqF4DFtPTC9kxrXqGQC3g-1; Tue, 14 Apr 2026 12:10:26 -0400
+X-MC-Unique: AtqF4DFtPTC9kxrXqGQC3g-1
+X-Mimecast-MFC-AGG-ID: AtqF4DFtPTC9kxrXqGQC3g_1776183025
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-43d00dd913cso6299392f8f.1
+        for <virtualization@lists.linux.dev>; Tue, 14 Apr 2026 09:10:26 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1776183025; x=1776787825;
+        h=cc:to:content-transfer-encoding:mime-version:message-id:date
+         :subject:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=dXlPrnMYysHI4EKQcfAK7A0hsCX8t6PffR9osO+JIF0=;
+        b=lCjwwcY14pYnhsLSouVLgRgiBnwt17NQMWQHK2TrMTxivOBweVck2hXqMJ2iqK51ov
+         b2J2WJXyoCt0qgPzE1ettJmdndD2Uyx+4vaarrj9i09MhyEJ0TyE6gJ/B8sXlLMA5Zbs
+         7NOsYpSpOsNgoQ92LXBZ1JjXwyLu9DwXblFRKjixi89E5ACzFLXVFuxx+rTEHYGt3TIQ
+         VFik9InaYg7m5ajNVjReTuRLhMNjEczZC+21m284lABRZtf8s1arBZw/ZQLxDGd3xFNe
+         Q354IQH/cNYNjAGuauHPD+aKqSzU/NKEVYNOpOepk8Zc02s0KWPTLd88RRB8xHbwaT+y
+         gpfQ==
+X-Forwarded-Encrypted: i=1; AFNElJ/JT5NRzr2SFIJgVe3VP1xo5aIgZGhmwhaF1kY7y/g7J0VDL5Eua5ds95M4bAgCAL1g/2YFb9i1hW7aQ7Y9ig==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwzeLNuECu01l6FgjB0DXZGit4lHUqk3R9ahqa3yJLWsMKBMeK5
+	kJYflVZt9FBb5i+YbcgLnF1jJgXVf34MUGhJzJ/++rk5hgVEdRHuxBuhVajtEcyu3InIsU2ym5r
+	XSDwLq211ls36RhZBwZKgIM1rtynuo7atjY7acpyeDmOdVoEHhYw0IZI4G/sZzWler4rS
+X-Gm-Gg: AeBDievkmH1s6tMz1JelstXamVxpoiH6CPjI+Qi/2SbeDuqSRxSYCAJ12sKeUAANHIs
+	kxl/uj1RZRHZlcz4k3HOj1Qxm4ILr3FU2v7OI0rEm9/6ZtJG5PlRjau3mJNK4gady3sJNoEhGiI
+	kKYzV0vK7FB6TkTlYk1rz+mV+8hycU5tc7lSSIDMMMINYvNNS04u+zF1bhHIKEpSyd54p60HdVd
+	OMeB5lraHjmkHxpoyPvHKEirKza7qZ874JADgMJVjUrVvzc/aCTXOLML2tZIqGh3ouUXJnMw5cZ
+	17pqfbZsXioQM1HT7Du10ScKY3UPdCqm4XuIbfGtVYWxLrGJBH+geWFgPt3oRnUIIJo6DU6amMm
+	tG0ccs/S8ZK/OFCZCbjJps+q72G2XGnHmv/l92qRiDoBdDK/6mzoaxhB2y6nx
+X-Received: by 2002:a05:6000:24c2:b0:43c:f90b:5668 with SMTP id ffacd0b85a97d-43d642a7a6dmr26523569f8f.23.1776183024764;
+        Tue, 14 Apr 2026 09:10:24 -0700 (PDT)
+X-Received: by 2002:a05:6000:24c2:b0:43c:f90b:5668 with SMTP id ffacd0b85a97d-43d642a7a6dmr26523479f8f.23.1776183024220;
+        Tue, 14 Apr 2026 09:10:24 -0700 (PDT)
+Received: from lleonard-thinkpadx1carbongen13.rmtit.csb ([176.206.19.176])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43d63dec090sm43035268f8f.12.2026.04.14.09.10.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 14 Apr 2026 09:10:23 -0700 (PDT)
+From: Luigi Leonardi <leonardi@redhat.com>
+Subject: [PATCH net v3 0/3] vsock/virtio: fix MSG_PEEK calculation on bytes
+ to copy
+Date: Tue, 14 Apr 2026 18:10:20 +0200
+Message-Id: <20260414-fix_peek-v3-0-e7daead49f83@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC 3/9] mm: add __GFP_PREZEROED flag and
- folio_test_clear_prezeroed()
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
- Vlastimil Babka <vbabka@kernel.org>, Brendan Jackman <jackmanb@google.com>,
- Michal Hocko <mhocko@suse.com>, Suren Baghdasaryan <surenb@google.com>,
- Jason Wang <jasowang@redhat.com>, Andrea Arcangeli <aarcange@redhat.com>,
- linux-mm@kvack.org, virtualization@lists.linux.dev,
- Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- "Liam R. Howlett" <Liam.Howlett@oracle.com>, Mike Rapoport
- <rppt@kernel.org>, Johannes Weiner <hannes@cmpxchg.org>,
- Zi Yan <ziy@nvidia.com>
-References: <cover.1776033471.git.mst@redhat.com>
- <b21b0ba353330f24b9e10ee5bf01b60f32043327.1776033771.git.mst@redhat.com>
- <b258160c-5287-43dd-b56e-268c403b85ea@kernel.org>
- <20260413163644-mutt-send-email-mst@kernel.org>
- <da935245-9c75-4cf4-8a42-2c6328bd93f9@kernel.org>
- <20260414062524-mutt-send-email-mst@kernel.org>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <20260414062524-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/1WM3wrCIBSHX2Wc6ww9rmld9R4RselZk2gOHVKMv
+ XsiQevy9+f7FogUHEU4VQsESi46P+YgdxWYoR3vxJzNGZBjw2suWO9et4nowRotVadl3RxJQr5
+ PgfJWVBcYaYZrLgcXZx/eRZ9Emb4m/JmSYJy1FlXdG+qV6s6B7NDOe+OfxZJwS6oNiZlEwoMW1
+ uhOmT9yXdcPjfM9XuAAAAA=
+X-Change-ID: 20260401-fix_peek-6837b83469e3
+To: Stefan Hajnoczi <stefanha@redhat.com>, 
+ Stefano Garzarella <sgarzare@redhat.com>, 
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+ Simon Horman <horms@kernel.org>, 
+ Arseniy Krasnov <avkrasnov@salutedevices.com>
+Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev, 
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ Luigi Leonardi <leonardi@redhat.com>
+X-Mailer: b4 0.14.3
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: Lhk3IuK_XkoKFkgBPYM-eULR01CsicPzKoDf04zJgO0_1776183025
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 
-On 4/14/26 12:29, Michael S. Tsirkin wrote:
-> On Tue, Apr 14, 2026 at 11:04:04AM +0200, David Hildenbrand (Arm) wrote:
->> On 4/13/26 22:37, Michael S. Tsirkin wrote:
->>>
->>> I admit I only vaguely understand the core mm refactoring you are suggesting.
->>>
->>
->> Oh, I was hoping claude would figure that out for you.
-> 
-> We figured it out together)
+`virtio_transport_stream_do_peek`, when calculating the number of bytes to
+copy, didn't consider the `offset`, caused by partial reads that happened
+before.
+This might cause out-of-bounds read that lead to an EFAULT.
+More details in the commits.
 
-:)
+Commit 1 introduces the fix
+Commit 2 introduces some preliminary work for adding a test and fixes a
+problem in existing tests.
+Commit 3 introduces a test that checks for this bug to avoid future
+regressions.
 
-[...]
+For disclosure: this bug was found initially by claude opus 4.6, I then analzyed
+it and worked on the fix and the test.
 
-> 
-> 
-> Pretty much what I did, except I felt it is better to change the
-> existing APIs. A bit more churn, but in return there's less of a chance
-> we forget to pass the user address.
-> 
-> Because, if we do, the result works fine on x86 but corrupts memory
-> on other arches.
+Signed-off-by: Luigi Leonardi <leonardi@redhat.com>
+---
+Changes in v3:
+- Addressed reviwers omment
+    - Dropped test client, reusing the one already existing
+    - Minor changes: added comment, improved commit messages
+    - Rebased to latest net-next
+- Link to v2: https://lore.kernel.org/r/20260407-fix_peek-v2-0-2e2581dc8b7c@redhat.com
 
-Converting everything is probably cleaner long term, But there are many
-instances where we just don't really have an address, or the address is
-irrelevant, because we wouldn't care about the difference when zeroing.
+Changes in v2:
+- Addressed reviewers comment
+    - Test now uses the recv_buf utils.
+    - Removed unnecessary barrier
+    - Checkpatch warnings.
+- Added new commit that allows to use recv_buf with MSG_PEEK
+- Picked up RoBs
+- Link to v1: https://lore.kernel.org/r/20260402-fix_peek-v1-0-ad274fcef77b@redhat.com
 
-vma_alloc_folio() is the API to use when we have a VMA + address.
+---
+Luigi Leonardi (3):
+      vsock/virtio: fix MSG_PEEK ignoring skb offset when calculating bytes to copy
+      vsock/test: fix MSG_PEEK handling in recv_buf()
+      vsock/test: add MSG_PEEK after partial recv test
 
-But yeah, something that is harder to mess up would be nice.
+ net/vmw_vsock/virtio_transport_common.c |  5 ++--
+ tools/testing/vsock/util.c              | 15 ++++++++++
+ tools/testing/vsock/vsock_test.c        | 50 +++++++++++++++++++++++++--------
+ 3 files changed, 55 insertions(+), 15 deletions(-)
+---
+base-commit: bc28831d7a09f7058cdca4658d81e5faf635bed7
+change-id: 20260401-fix_peek-6837b83469e3
 
+Best regards,
 -- 
-Cheers,
+Luigi Leonardi <leonardi@redhat.com>
 
-David
