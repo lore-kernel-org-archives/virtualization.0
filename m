@@ -1,99 +1,113 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id D49C3383C9D
-	for <virtualization@lists.linux.dev>; Tue, 14 Apr 2026 23:43:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14C6038737A
+	for <virtualization@lists.linux.dev>; Wed, 15 Apr 2026 08:41:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776210212; cv=none; b=cPNyW7nv9yU8ZIRiX1Z++mr5YoitrltA82iR9DIsobmXFp2hbizFeKHGEGMFKF9R6nTcyjjG6oOHpcyxxiqOV4rJQy4+ZKKs2V68Z4fQfMQA2CqMMiqDaKSbUKaeWRc65UWEO+DTs4CiFA7m3gj3ZZtbAaT9iJUJxtnlVr2DB8M=
+	t=1776242501; cv=none; b=DH2qGQd3k4SX/fmoaKnze38HgLuOIC5/taNM/V/+7LL4+wSHwFxxvOmV1uBJs1uj179xn4/NApI5zBDS3pXjF2/WkWIjHg4RlXovHdJ27PX+I7zJPxkjCc+L6XDPsGoWlKJX4Na66xoFkHWtXrg/NqDTHv+s823U14aRyw0JFdk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776210212; c=relaxed/simple;
-	bh=Miu0g9DjTMkZ+zTPXVsdPrcxAWHOAxr2mijCOzBROWk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=GR70UURcyGIcBig5HtSUut3LN+i3u697jZdYO1L8ghIhSLOaFZq/d7IxZQPAYrYHjww0um7NltVy/MczNdPCcsdUiskqBHY1fs4AF2ceTEkzIyehOPFVaDr+JWgv2fpfTrG2Q/ygoeKzz8qNkoQqU7ydznm11eolkC+Od65jdLE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
-Received: by linux.microsoft.com (Postfix, from userid 1009)
-	id B2ECE20B7128; Tue, 14 Apr 2026 16:43:31 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com B2ECE20B7128
-From: Dexuan Cui <decui@microsoft.com>
-To: kys@microsoft.com,
-	haiyangz@microsoft.com,
-	wei.liu@kernel.org,
-	decui@microsoft.com,
-	longli@microsoft.com,
-	sgarzare@redhat.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	horms@kernel.org,
-	niuxuewei.nxw@antgroup.com,
-	linux-hyperv@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org,
-	Ben Hillis <Ben.Hillis@microsoft.com>,
-	Mitchell Levy <levymitchell0@gmail.com>
-Subject: [PATCH net] hv_sock: Report EOF instead of -EIO for FIN
-Date: Tue, 14 Apr 2026 16:43:16 -0700
-Message-ID: <20260414234316.711578-1-decui@microsoft.com>
-X-Mailer: git-send-email 2.43.7
+	s=arc-20240116; t=1776242501; c=relaxed/simple;
+	bh=VpQXeMzIawrJLZl9CcFL7UYlf5uIJhmNB8PKgPDcGwQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=WoBvt0tdixTVhqxVrgMwymgQtFODD+cToaNVbOIZEY6skm6Eb2+cmSaYY9sxyYCb+CkSif/pLw/sZUx3K0Mu3CaS70CbVA5Gs9Wl/ZkqgQM0i/juHLPSaViL6J7E+nl5OYIQXrG17NwDybAKsdRzsT5nPBLzEc9Hqs/9V1uJFx8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=07EG34Pd; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=5aK9zNFA; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="07EG34Pd";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="5aK9zNFA"
+Date: Wed, 15 Apr 2026 10:34:58 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1776242100;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=lJvdUxUUPaebZ87OfEcbBiQ0Cb+WI4qRuhXO7Cgjo1w=;
+	b=07EG34PdGxTG6ncahJqEGpSFi2vmyg11FXnNJb2fSf1QdcF62LbTQ5VRospF7lcKzVwfux
+	e4mYk3YPz8FuePLL6dmn2/8irypzy+9t2fWJN8bWaqRqwd8hNWYAQT8jiL6s5ktoOUfq2/
+	wFEnvWw9l3snNypme9XYruxUTinW2EXm14h2PMggUY4o0J9jw7JVcRI+NT3M8DIx85ixWq
+	ZIETR2daLhGrPF5yPK9o8bmqXdQJbVLG57O75Us2n0TdiIvkcvmDmuyIqW4uG62eoNW9ww
+	P8eGR3UeBYrsErhP+UwykZw2UvY/i/IMqN92LL6Rh9HKmmDi+DRNefdzLuNT/g==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1776242100;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=lJvdUxUUPaebZ87OfEcbBiQ0Cb+WI4qRuhXO7Cgjo1w=;
+	b=5aK9zNFAQwnRroDNDQ+XYuEPmdTdVkZP2V2Fgiw8ZMZ9rvNOr2JZaCkXfABWb0rlsw9ZqL
+	v/+4GiC2syrrF5Aw==
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To: Ming Lei <tom.leiming@gmail.com>
+Cc: Aaron Tomlin <atomlin@atomlin.com>, Ming Lei <ming.lei@redhat.com>,
+	axboe@kernel.dk, kbusch@kernel.org, hch@lst.de, sagi@grimberg.me,
+	mst@redhat.com, aacraid@microsemi.com,
+	James.Bottomley@hansenpartnership.com, martin.petersen@oracle.com,
+	liyihang9@h-partners.com, kashyap.desai@broadcom.com,
+	sumit.saxena@broadcom.com, shivasharan.srikanteshwara@broadcom.com,
+	chandrakanth.patil@broadcom.com, sathya.prakash@broadcom.com,
+	sreekanth.reddy@broadcom.com, suganath-prabu.subramani@broadcom.com,
+	ranjan.kumar@broadcom.com, jinpu.wang@cloud.ionos.com,
+	tglx@kernel.org, mingo@redhat.com, peterz@infradead.org,
+	juri.lelli@redhat.com, vincent.guittot@linaro.org,
+	akpm@linux-foundation.org, maz@kernel.org, ruanjinjie@huawei.com,
+	yphbchou0911@gmail.com, wagi@kernel.org, frederic@kernel.org,
+	longman@redhat.com, chenridong@huawei.com, hare@suse.de,
+	kch@nvidia.com, steve@abita.co, sean@ashe.io, chjohnst@gmail.com,
+	neelx@suse.com, mproche@gmail.com, linux-block@vger.kernel.org,
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-nvme@lists.infradead.org, linux-scsi@vger.kernel.org,
+	megaraidlinux.pdl@broadcom.com, mpi3mr-linuxdrv.pdl@broadcom.com,
+	MPT-FusionLinux.pdl@broadcom.com
+Subject: Re: [PATCH v10 13/13] docs: add io_queue flag to isolcpus
+Message-ID: <20260415083458.UD3cF5IQ@linutronix.de>
+References: <nxe24ixebb4lm2d5w4aubhtwr23df6mumqd663axj35oswdiyv@amtqhtsidyr4>
+ <adMoon3Zf6gO-UbA@fedora>
+ <zawhqvn53mcp4wf7axsmuq4cg73upxs5h2zgrfta5dpat3sfy4@zctfbz2ttz5m>
+ <CAFj5m9JE5e4DRGbzQFxDdZWU76ZPQ3G+C9JpLu0mhTB6aesZ9g@mail.gmail.com>
+ <a566smu6morqeefqal23eek4ibezfuiwhs774xtxhyyclpbtsx@uzzwgbzmwdjd>
+ <adhj_w11cpMfeEgN@fedora>
+ <dzpxscrhibmi5okkozf5jfull4dcajgpctldvdyfcjgmpeetk5@tkeyqouyabzy>
+ <adpD8M8cNu3IZzEL@fedora>
+ <6glgsbk2djsz4cqtbp2ht4274dw4rveq6fojlnpnuvx6zmpjxw@i43jo2l4qlz4>
+ <ad0Hk48y5JEeMlFk@fedora>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <ad0Hk48y5JEeMlFk@fedora>
 
-Commit f0c5827d07cb unluckily causes a regression for the FIN packet,
-and the final read syscall gets an error rather than 0.
+On 2026-04-13 23:11:15 [+0800], Ming Lei wrote:
+> > > What matters is that IO won't interrupt isolated CPU.
+> > 
+> > The isolcpus=managed_irq acts as a "best effort" avoidance algorithm rather
+> > than a strict, unbreakable constraint. This is indicated in the proposed
+> > changes to Documentation/core-api/irq/managed_irq.rst [1].
+> 
+> Yes, it is "best effort", but isolated cpu is only take as effective CPU
+> for the hw queue's irq iff all others are offline. Which is just fine for typical
+> use cases, in which IO isn't submitted from isolated CPU.
 
-Ideally, we would want to fix hvs_channel_readable_payload() so that it
-could return 0 in the FIN scenario, but it's not good for the hv_sock
-driver to use the VMBus ringbuffer's cached priv_read_index, which is
-internal data in the VMBus driver.
+Couldn't we tackle this by limiting the number of managed interrupts the
+device asks for and then limiting the CPUs it could be bound to?
 
-Fix the regression in hv_sock by returning 0 rather than -EIO.
+So if have house keeping CPUs 0/1 and isolated 2-63 then managed_irq= is
+futile since it use 64 interrupts and map each to one CPU. Even if the
+device supports less it would map them evenly across available CPUs.
 
-Fixes: f0c5827d07cb ("hv_sock: Return the readable bytes in hvs_stream_has_data()")
-Cc: stable@vger.kernel.org
-Reported-by: Ben Hillis <Ben.Hillis@microsoft.com>
-Reported-by: Mitchell Levy <levymitchell0@gmail.com>
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
----
- net/vmw_vsock/hyperv_transport.c | 18 ++++++++++++++++--
- 1 file changed, 16 insertions(+), 2 deletions(-)
+If the user wishes to initiate I/O from all CPUs but not be bother by
+interrupts we could limit the device to ask for 2 interrupts instead of
+64 (with the consequence of more queue sharing) and then limit those two
+interrupts to CPU 0 and 1 instead to CPU 0-31 and 32-63 like it would be
+now the case.
 
-diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
-index 069386a74557..63d3549125be 100644
---- a/net/vmw_vsock/hyperv_transport.c
-+++ b/net/vmw_vsock/hyperv_transport.c
-@@ -703,8 +703,22 @@ static s64 hvs_stream_has_data(struct vsock_sock *vsk)
- 	switch (hvs_channel_readable_payload(hvs->chan)) {
- 	case 1:
- 		need_refill = !hvs->recv_desc;
--		if (!need_refill)
--			return -EIO;
-+		if (!need_refill) {
-+			/* Here hvs->recv_data_len is 0, so hvs->recv_desc must
-+			 * be NULL unless it points to the 0-byte-payload FIN
-+			 * packet: see hvs_update_recv_data().
-+			 *
-+			 * Here all the payload has been dequeued, but
-+			 * hvs_channel_readable_payload() still returns 1,
-+			 * because the VMBus ringbuffer's read_index is not
-+			 * updated for the FIN packet: hvs_stream_dequeue() ->
-+			 * hv_pkt_iter_next() updates the cached priv_read_index
-+			 * but has no opportunity to update the read_index in
-+			 * hv_pkt_iter_close() as hvs_stream_has_data() returns
-+			 * 0 for the FIN packet, so it won't get dequeued.
-+			 */
-+			return 0;
-+		}
- 
- 		hvs->recv_desc = hv_pkt_iter_first(hvs->chan);
- 		if (!hvs->recv_desc)
--- 
-2.49.0
+Wouldn't that be what the io_queue flag tries to do?
 
+> Thanks, 
+> Ming
+
+Sebastian
