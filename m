@@ -1,176 +1,165 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from BL2PR02CU003.outbound.protection.outlook.com (mail-eastusazon11011020.outbound.protection.outlook.com [52.101.52.20])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 476403DC4C2
-	for <virtualization@lists.linux.dev>; Wed, 15 Apr 2026 15:09:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776265791; cv=none; b=W4lGpI1PwTYf2DHLM85Hpn3sAGhib/93E9CoYvxxQg6a2Ku2z2PQWwwCYUZTXzmSv1kn5nYhCW/l/8NfuUth55o3YNHzByoxcdxA8fhPEWKSpM34Jzlh953aTwYSkKNtfoXjacxxXeGWCWw05UM+qZgsqHRKUCA6wY9FUleJsIk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776265791; c=relaxed/simple;
-	bh=LicrGY4V+zsv5KZ7wlpKw3NN40iL41s8FOtyi0yIhNg=;
-	h=From:Date:Subject:MIME-Version:Message-Id:References:In-Reply-To:
-	 To:Cc:Content-Type; b=VFJDN2Xv8tCDFx1CtCr0DRuqcQ9RLuojzNRFh9W4ZR7DajOAbGwR2ChKGw2aSrsigrw48zM8GYSikDrZsdKIS9QXH7vqo7aOeaUS5R45QwEclL/6k24GgOH5UMUKa/plOUGUF6i/tzSGoRh6EXnlgCsx1BZrunVnu/n3JX9hVI0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=S3fFHEtE; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B36892F1FFC
+	for <virtualization@lists.linux.dev>; Wed, 15 Apr 2026 15:13:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.52.20
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1776266005; cv=fail; b=ARFi05h+DgHL0ZSM3DeCKrQf2NnPzes+Uc/SdfuS13BTTvcdwSDsrQAoJBu33v2EE4ZOHcoiZAfbQZLMHYIh+CeTDk7Y9pKqzwY/LtjMoUmnLxLtxD2exCGDwBEithL9gJ1Wn08de8PExrXO0T7PSNgaYtHo1g8dn3el3bML4Lk=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1776266005; c=relaxed/simple;
+	bh=iAMxXWLK31O3U126ib3bBc+v6xptSrAIUYVP0tkimsk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
+	 In-Reply-To:Content-Type; b=X39WFfjaR28JQAtoK7VK0t5BxvRC4/NA3fmwhowEp0oN3aAHbAITjB/3OJdEP7SiejSsMfUpd4+up4RxHwMHtCFb4iyB/ifZQYBCfoLhGN/tYlX0ZaOgvqB7bGVCWJVfeC82svD0bnUj1erCp+kYJdl2JyEP3UGWnupE2GMgLGU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=mPxVdHxJ; arc=fail smtp.client-ip=52.101.52.20
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="S3fFHEtE"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1776265789;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=BKxh1xV1gWd+m52UTAHmFCb6N+6HL0A4jah73SCv02s=;
-	b=S3fFHEtE8A42CZMyfsNGrmv+tCdJbuOazB9kD1OF3XxKjPOjGRO8vPhVfJI+xYMMAV/SpZ
-	2L15eASC8/xvKTe7JYVOY32smSl8Mts44PtlNDoWY3oWZ0W7eFFN9SxXBbUCsyGoYazoUp
-	5eHZ8J4HaxrbqyXsjP+FeQtKks3mz8w=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-648-xTXJaHUWNQOP8nz-6a_pHw-1; Wed, 15 Apr 2026 11:09:47 -0400
-X-MC-Unique: xTXJaHUWNQOP8nz-6a_pHw-1
-X-Mimecast-MFC-AGG-ID: xTXJaHUWNQOP8nz-6a_pHw_1776265786
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-43d1fec59c9so3664546f8f.0
-        for <virtualization@lists.linux.dev>; Wed, 15 Apr 2026 08:09:46 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776265786; x=1776870586;
-        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
-         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=BKxh1xV1gWd+m52UTAHmFCb6N+6HL0A4jah73SCv02s=;
-        b=cvE8GYQ56rWJJuzqY020RVEKCwCJWONBBIQHEihQ4UG8GJvgzlhnEzmfW5ILHTO1Sr
-         2WZrUoK2NaplwrTRDzLL7yE9NFrctHtT+D4keOkJbw9rJU6x4kpSn6KjiEyVcHpRaK1U
-         nk7vfEJl0rrTMlWBzQ2eY0AhbEaySPO76NLxrCHGv72wS3x1d92xjUugc6U6jKk8gz5d
-         /cELA0HQ40OdeWtAPg7SQh7D8E7krFXzXEZxCGdDFdOV8GBbb7fWetnUEe/CCmCAUGTp
-         t/5xFtB9FvXBRo6TBoj5QOhrRiu1hoDisiKqt45ziCvYMEi9e5CEXP69ATXajzdg576H
-         aBIA==
-X-Forwarded-Encrypted: i=1; AFNElJ/YItC8FdMUka/eKE3wF8MftrNb0WLD84gf2jcadY9yRujTnoOb64H5+07KU8Pf0xp365kkX310tXsjakpiFg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxsE3RLUdOA/PQepVnWfoUpxhcFzM3BilBys1PhPceh5NfLBWSG
-	PgEybzlFfNV9/akUS7m7GZMg40CHOnMq439VYYvrRxB/a5ReIJ2cHdDCTwR6EbL09LAI6sMo1SB
-	YXLgfAYNUfhXJdSGf2lVJPrxFBkBQk+8+R3Uz/HhUHKah0uaw5FW5XfXJRNSRJZRekEvp
-X-Gm-Gg: AeBDietDoYR36maf47in/wJTn5csp7IhZjMqifqsvGv/MCsVMgN5jmSpxs561zn+5sd
-	W6KcIb54Z5Z6i+FPzM4pmZey+t0yrEesgpLdI9Ns+nbKQE4oq+/RRGSzsiBugSS4oi7q2txSbBI
-	euIOyWSwr3qOMh1ZKFROGpQ1Xe9gDQWI8OGDnjQtbfG8LcIDZ7XEHAnJC+iJmfor/2FJABnthUx
-	uxjOq5HEEplMIIqM/K8nQG6DBO87cj4pTGatt2n9mObRvu2aDb2kbBnItlmZOBKROoRpZ8tkaCa
-	YmwQ7hKhGyJhJQwg1eVL7dEEFfvrLgsyjV3Cypwl/tDA91wA/P+m+jM//kWl1YX+35R2iUkFI8Q
-	0wooB/do6rr8phrKFQtszGjpr2XSie/BPn+mIE62Vtvy03zhFzjpHcX868WGo
-X-Received: by 2002:a05:6000:2a84:b0:43d:7a5e:8162 with SMTP id ffacd0b85a97d-43d7a5e8360mr12790595f8f.15.1776265785734;
-        Wed, 15 Apr 2026 08:09:45 -0700 (PDT)
-X-Received: by 2002:a05:6000:2a84:b0:43d:7a5e:8162 with SMTP id ffacd0b85a97d-43d7a5e8360mr12790549f8f.15.1776265785199;
-        Wed, 15 Apr 2026 08:09:45 -0700 (PDT)
-Received: from lleonard-thinkpadx1carbongen13.rmtit.csb ([176.206.19.176])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43ead35bf1esm5907557f8f.16.2026.04.15.08.09.42
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Apr 2026 08:09:43 -0700 (PDT)
-From: Luigi Leonardi <leonardi@redhat.com>
-Date: Wed, 15 Apr 2026 17:09:30 +0200
-Subject: [PATCH net v4 3/3] vsock/test: add MSG_PEEK after partial recv
- test
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="mPxVdHxJ"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=Pa2mF2DcnSfbhQw4MTlvlfANpq93CIwHFSp8WcQzW5XZ0rUgRSxPVxb4q1bMv9Mv2ea7f3MVhWY9soNvPAwF06ppgI2lKhumKR7oIYcSU9CBXY2G8TZAnY/LDyTwrnU3dHlwqbG7Ujy6qFgsox/6auOGWtt/kzMZHd9PvFCUpagT34jbN21YyQiQuj6AcjMyg9IbEebyYtB7ElmHkuA+WRagOBK/EiM/SHpGvkVmXCj7Sii49omBmPrCy0+6nwZ2xuQ6At7OFBaFY+ySXeTHcUfVMxbLH77hTZ3SzGd+Jibw7v/GPeZhd4bDRPAKCHLXETeiH6S+AYqd87M0BowWhg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=2omQnpceO11NVkXMO4/3hySIN/oY8LKcn0ESI643lbU=;
+ b=Rm46F/4qy3Q3iSa68ULNaJ0pnjInPpnoX37gynz2rBHD/OTrnrBQI5h/JNaOyc62uHumOhzeVXdQSebOOZAwmzDxOG6gTL8q3GAsuk4qw7BXkvB47dozRA+N/mPm31stkmrcRVCXOWCjsJ9ozxfV/M1a7+qf57EaNuwLUCTgJHU7JtGHsf55DlGf1GC32nqFnZk+XejmDgM03MUM8zXUKltywGQxj0aebTVEOQ8AaVWeXYzTesEMpPb2CLNdBP1k2PqrPcsVF3f44iBTc4RYsFCZgctmBngwXbfmkfoSro4a93TynS6OhAQ5FEA5zEBI6cVc1g464VzgVTaG+e9ZAA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
+ 216.228.117.160) smtp.rcpttodomain=shazbot.org smtp.mailfrom=nvidia.com;
+ dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
+ dkim=none (message not signed); arc=none (0)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=2omQnpceO11NVkXMO4/3hySIN/oY8LKcn0ESI643lbU=;
+ b=mPxVdHxJCHhHn43F82AzHBuWYx/SQY4N3AHU8mfa8CP58ZT7mM4ppW4EdR3KQvdTk1UqsMDYe9V+T08EwRamQMU6vFEQG7oDf+B5NEm2pac3Kj94arnwGfWsD5fHaXuHDxakJI+OdSzHiAKwKGeiEKXcKr+6k0mmqc7DqxiIpyY9YT73qofYg7hQ5V7E1ZOrGjDh0ob8bjA4k1ggKiMEFtJKCz8a4UxJA/dJqZN3jHMWZ+ztL8IxUQIb7DEFSYYOU/DWtAW5Z9InoaOE58yTo3rtZDAkyiA50jcxEQWa1M7EqsBFN2Xo4CyhHzqhwQfMKX4KNcNEJTSWwVQQZieldg==
+Received: from CH2PR10CA0014.namprd10.prod.outlook.com (2603:10b6:610:4c::24)
+ by IA1PR12MB6185.namprd12.prod.outlook.com (2603:10b6:208:3e7::21) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9818.20; Wed, 15 Apr
+ 2026 15:13:18 +0000
+Received: from CH2PEPF0000009E.namprd02.prod.outlook.com
+ (2603:10b6:610:4c:cafe::5e) by CH2PR10CA0014.outlook.office365.com
+ (2603:10b6:610:4c::24) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9769.48 via Frontend Transport; Wed,
+ 15 Apr 2026 15:13:18 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ smtp.mailfrom=nvidia.com; dkim=none (message not signed)
+ header.d=none;dmarc=pass action=none header.from=nvidia.com;
+Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
+ 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.160) by
+ CH2PEPF0000009E.mail.protection.outlook.com (10.167.244.27) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.20.9769.17 via Frontend Transport; Wed, 15 Apr 2026 15:13:18 +0000
+Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
+ (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Wed, 15 Apr
+ 2026 08:12:55 -0700
+Received: from [10.221.197.34] (10.126.230.37) by rnnvmail201.nvidia.com
+ (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Wed, 15 Apr
+ 2026 08:12:53 -0700
+Message-ID: <cb38037c-9fbe-4a10-9538-1dfbbb12f330@nvidia.com>
+Date: Wed, 15 Apr 2026 18:12:50 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Message-Id: <20260415-fix_peek-v4-3-8207e872759e@redhat.com>
-References: <20260415-fix_peek-v4-0-8207e872759e@redhat.com>
-In-Reply-To: <20260415-fix_peek-v4-0-8207e872759e@redhat.com>
-To: Stefan Hajnoczi <stefanha@redhat.com>, 
- Stefano Garzarella <sgarzare@redhat.com>, 
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
- Simon Horman <horms@kernel.org>, 
- Arseniy Krasnov <avkrasnov@salutedevices.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev, 
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
- Luigi Leonardi <leonardi@redhat.com>
-X-Mailer: b4 0.14.3
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: oUJnSPkFJsrTip5FQ2BSUnbvWquWOmXbG3IngaGCqMg_1776265786
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="utf-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/4] vfio/virtio: Fix list_lock type and modernize locking
+To: Alex Williamson <alex.williamson@nvidia.com>, <alex@shazbot.org>
+CC: <kvm@vger.kernel.org>, <guojinhui.liam@bytedance.com>,
+	<linux-kernel@vger.kernel.org>, <virtualization@lists.linux.dev>,
+	<yishaih@nvidia.com>
+References: <20260414200625.3601509-1-alex.williamson@nvidia.com>
+Content-Language: en-US
+From: Yishai Hadas <yishaih@nvidia.com>
+In-Reply-To: <20260414200625.3601509-1-alex.williamson@nvidia.com>
+Content-Type: text/plain; charset="UTF-8"; format=flowed
 Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: rnnvmail203.nvidia.com (10.129.68.9) To
+ rnnvmail201.nvidia.com (10.129.68.8)
+X-EOPAttributedMessage: 0
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CH2PEPF0000009E:EE_|IA1PR12MB6185:EE_
+X-MS-Office365-Filtering-Correlation-Id: 8083f892-e7d9-4c2e-0433-08de9b018641
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|36860700016|376014|82310400026|22082099003|18002099003|56012099003;
+X-Microsoft-Antispam-Message-Info:
+	RGCfkWVJegmgTrxOOD/e1g1Nna9iaSt1bzgdXhU1umTkpfKWMCFr3/V9DHfLi5MvPME7cXStfMekSrB7E4KXNvCckCdBSR+5xuZUTcPuPgObBLHkfZFLkQIQPxKkbloLliXU4O7tgAMGXWOjDyzzO8ouCpH7isEHr+Ly+r1lg7KIG0lmP8K5JFLKgvAwQBEy+OOl6nW/vW4HtB0JtJQ2V0/3hfBQfxJ/MYIKrpY0cFNQ6NTYxt9OcAWqPfDMY61l0XoIg4ede/M+P4qo9Cao4sj/unVwmrQ0iwE50z0dSvvQ1TEwZtARnGUOPnvhrYgY7rLpY0Jw1nGS/v73mhQ9uHcmFJjD6YlznFqqaHtYhJtbCoMbopLqM04tnSTuIMSjEwZGCi+e2wAiib4mp4xaUGoNUWxWYlieF1ZsjviNwupKACqD3sUMX0eArzXgK+VTDSvAP8rpAVb87BkTIsgnfNl8vQt3g5Abxz7w10kI45wPCi3gGfFtCJMePVviNBl/5qDfgpWt+4AhJWLcv9h+tqNInzCkepslTSTxgtdOmBgzcNIZ+RZoyoT3bvOv/pe6Lgr51capHixyefRUd7d+XyFKuj2NaCFf3gWxdTA0j91AtcTds69CAmWP07oUs8aUcOFnTgoUSlicRGR/eYOKCNcGpvghh0E3ZiiGRaBWGiRPbcH89ImqzPZP/Lpdrqjngz8IoU8aYjM4sWYlfZY+jA2rDZvom3tgavbT+bFn7qbtWEsYCBtWmHKdHsypSH/4jEdACDiL5regcWY3q94q9Q==
+X-Forefront-Antispam-Report:
+	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(1800799024)(36860700016)(376014)(82310400026)(22082099003)(18002099003)(56012099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	dBzYmG/CGJaEFUfYqRIWHJ0Enhh1aIU/T3V2l3A9didoz+WoNg79bj8mO5hkhSFNFI/W/zDYyn7yOQ/40Al+7Hm1tHQG3iY7sW4QIE1YZsxV2CNJT8XUKukSoyLcaQrNm2nizVshPgq0SNYJ4E2SYDdLjub20cO7+nbNH7bkYZY42euDOkrfXVsbRiFo0VgjaDaPcsv7qia7U8YBGKvtLJa8XqmLleQtBOjG0Fy3GW7Dh59TY6Z5dxwLETmnl4tfdVWGJufWvz1D1gl9Pzz4eZPON4y/seENUwfbsrWjcYWOuy+6M6Hq7Q7mkyrAD0HAgJJws7Ips0uZbsYRT/P9Ndoabo5VGH7yNT11sZKbySTbZZ/KqBtfpKL6ZY4jHPZmxWNS/4a1A2b5R5OSZLjpmk4I9UUiMTjzKAqcVXtJVhY/CVf4fWnNdirY/9wa5dTN
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Apr 2026 15:13:18.1139
+ (UTC)
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8083f892-e7d9-4c2e-0433-08de9b018641
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-AuthSource:
+	CH2PEPF0000009E.namprd02.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Anonymous
+X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB6185
 
-Add a test that verifies MSG_PEEK works correctly after a partial
-recv().
+On 14/04/2026 23:06, Alex Williamson wrote:
+> Jinhui Guo reported a mismatched spin_lock()/spin_unlock_irq() pair
+> in virtiovf_read_device_context_chunk() where spin_unlock_irq() would
+> unconditionally enable interrupts despite spin_lock() never having
+> disabled them.  On closer inspection, the list_lock spinlock with IRQ
+> disabling was copied from the mlx5 variant driver where a hardirq
+> completion callback justifies it, but the virtio driver has no
+> interrupt context usage of list_lock.  Patch 1 converts list_lock to
+> a mutex, fixing the mismatch and aligning with peer vfio-pci variant
+> drivers.
 
-This is to test a bug that was present in the
-`virtio_transport_stream_do_peek()` when computing the number of bytes to
-copy: After a partial read, the peek function didn't take into
-consideration the number of bytes that were already read. So peeking the
-whole buffer would cause an out-of-bounds read, that resulted in a -EFAULT.
+Alex,
+How about staying with spin_lock but without the 'irq' variant, instead 
+of replacing to mutex ?
 
-This test does exactly this: do a partial recv on a buffer, then try to
-peek the whole buffer content. The test re-uses
-`test_stream_msg_peek_client()` to also cover this scenario.
+The scope of the lock is very small which can fit spin.
+We may potentially get a performance degradation compared to mutex as 
+part of the hot path of STOP_COPY where this lock is used.
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Luigi Leonardi <leonardi@redhat.com>
----
- tools/testing/vsock/vsock_test.c | 37 +++++++++++++++++++++++++++++++++++++
- 1 file changed, 37 insertions(+)
+Note:
+I don't see that other peer vfio-pci variant drivers maintain a list of 
+buffers as of this driver, unless I missed that.
 
-diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
-index bdb0754965df..76be0e4a7f0e 100644
---- a/tools/testing/vsock/vsock_test.c
-+++ b/tools/testing/vsock/vsock_test.c
-@@ -346,6 +346,38 @@ static void test_stream_msg_peek_server(const struct test_opts *opts)
- 	return test_msg_peek_server(opts, false);
- }
- 
-+static void test_stream_peek_after_recv_server(const struct test_opts *opts)
-+{
-+	unsigned char buf_normal[MSG_PEEK_BUF_LEN];
-+	unsigned char buf_peek[MSG_PEEK_BUF_LEN];
-+	int fd;
-+
-+	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-+	if (fd < 0) {
-+		perror("accept");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	control_writeln("SRVREADY");
-+
-+	/* Partial recv to advance offset within the skb */
-+	recv_buf(fd, buf_normal, 1, 0, 1);
-+
-+	/* Peek with a buffer larger than the remaining data */
-+	recv_buf(fd, buf_peek, sizeof(buf_peek), MSG_PEEK, sizeof(buf_peek) - 1);
-+
-+	/* Consume the remaining data */
-+	recv_buf(fd, buf_normal, sizeof(buf_normal) - 1, 0, sizeof(buf_normal) - 1);
-+
-+	/* Compare full peek and normal read. */
-+	if (memcmp(buf_peek, buf_normal, sizeof(buf_peek) - 1)) {
-+		fprintf(stderr, "Full peek data mismatch\n");
-+		exit(EXIT_FAILURE);
-+	}
-+
-+	close(fd);
-+}
-+
- #define SOCK_BUF_SIZE (2 * 1024 * 1024)
- #define SOCK_BUF_SIZE_SMALL (64 * 1024)
- #define MAX_MSG_PAGES 4
-@@ -2509,6 +2541,11 @@ static struct test_case test_cases[] = {
- 		.run_client = test_stream_tx_credit_bounds_client,
- 		.run_server = test_stream_tx_credit_bounds_server,
- 	},
-+	{
-+		.name = "SOCK_STREAM MSG_PEEK after partial recv",
-+		.run_client = test_stream_msg_peek_client,
-+		.run_server = test_stream_peek_after_recv_server,
-+	},
- 	{},
- };
- 
+> Patch 2 converts the list_lock acquisitions to guard()/scoped_guard()
+> where the lock scope aligns naturally with function or block scope.
+> 
 
--- 
-2.53.0
+This patch might not be applicable if we'll stay with spin_lock.
+
+> Patches 3 and 4 extend the same guard() conversion to the remaining
+> two mutexes in the driver (migf->lock and bar_mutex).  These are
+> relatively independent of the list_lock fix but complete the
+> conversion across the driver.  Thanks,
+> 
+
+Those 2 patches seem fine to me.
+Reviewed-by: Yishai Hadas <yishaih@nvidia.com>
+
+Yishai
+
+> Alex
+> 
+> Alex Williamson (4):
+>    vfio/virtio: Convert list_lock from spinlock to mutex
+>    vfio/virtio: Use guard() for list_lock where applicable
+>    vfio/virtio: Use guard() for migf->lock where applicable
+>    vfio/virtio: Use guard() for bar_mutex in legacy I/O
+> 
+>   drivers/vfio/pci/virtio/common.h    |  2 +-
+>   drivers/vfio/pci/virtio/legacy_io.c | 17 +++---
+>   drivers/vfio/pci/virtio/migrate.c   | 90 ++++++++++++-----------------
+>   3 files changed, 46 insertions(+), 63 deletions(-)
+> 
 
