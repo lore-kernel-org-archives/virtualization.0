@@ -1,141 +1,119 @@
-Received: from mail.ilvokhin.com (mail.ilvokhin.com [178.62.254.231])
+Received: from mx0b-00082601.pphosted.com (mx0b-00082601.pphosted.com [67.231.153.30])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F3FB3CAE95
-	for <virtualization@lists.linux.dev>; Wed, 15 Apr 2026 17:43:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.62.254.231
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C1582367CF
+	for <virtualization@lists.linux.dev>; Wed, 15 Apr 2026 18:15:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.153.30
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776275005; cv=none; b=MA9t4FD6B7bd3U8MsvMDt4pGENjVsrOZj4N3BOL99fFyjh8IfcibIyDLmUwhFkDQBIPJFcODWAJoqkj4glBIeerkxfW3hvhPNsmYRq+EuNL/1yZFwHl5ZHudgxD6yW6s36cOxmkgj/7iV4MTR8PkMpLE5yw0ECcrADDsx6pgB/o=
+	t=1776276949; cv=none; b=KRZVFIJP0Iea3W3FiWXzwkVhL0iA8obGGDOCY8+w8oR2K+mO2SDh3fwNsZ/toZjDLyDoR3HgC/BGYiTYvVl5eHektdBmsNDBPiFkc21uL1q8xSXf8LN5JzbwC7+mMREqJYvtjgyHiZ8ZKr2CdKUBl7p32wBds/5NYcHRkgoFDck=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776275005; c=relaxed/simple;
-	bh=wz37IEghmnvxBAYYIPenClkYXs37gFVCzGp061LZKqs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=VFdudc3e1axEgko8MuXAs/ORn/PTkYRXLF0b9HSvEgWvHdcloF8DUALbVeylR3Ehjbav5VLGW5c5z9HgZSPq9JGQdzzdHzZTJWlyjfFCncINh0ry/uE4V7xONA4kjsifY3mGS8V2Krn7t52qmz3BEr92xZke4jhRd0FyirmFnnA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ilvokhin.com; spf=pass smtp.mailfrom=ilvokhin.com; dkim=pass (1024-bit key) header.d=ilvokhin.com header.i=@ilvokhin.com header.b=SM6B0AO6; arc=none smtp.client-ip=178.62.254.231
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ilvokhin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ilvokhin.com
+	s=arc-20240116; t=1776276949; c=relaxed/simple;
+	bh=9nJzwFXYXqdBdfxos7E2lzUNb/mwU+rQgpf6MgkOjbo=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Avnh7EraZUd8lLLM8Ybw85hXCYJX8kSdhEgpui6ap8aLj9g7D/ZWQDlE/x0enDl/Snzq7bdR+hapmdEBeSvzTB2V7Lz1iZ6KGWVeXYOZDUnJ17h0Khnv9aFyNOTgjypQiThXPQnI5TZTR1jGIgmImJOfPvmAsBVxK9DUeJ+w7PA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=f3g0hOQe; arc=none smtp.client-ip=67.231.153.30
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ilvokhin.com header.i=@ilvokhin.com header.b="SM6B0AO6"
-Received: from shell.ilvokhin.com (shell.ilvokhin.com [138.68.190.75])
-	(Authenticated sender: d@ilvokhin.com)
-	by mail.ilvokhin.com (Postfix) with ESMTPSA id 93F3CC73A9;
-	Wed, 15 Apr 2026 17:43:16 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ilvokhin.com;
-	s=mail; t=1776274996;
-	bh=SOJSWDSELeB0YTngjDwuIRTiVa2seMMmI2D7vgbLJHE=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=SM6B0AO6SmMcSfXheaPbbVLMC7aRcI7Hs4se/r4k9imn2nObg2IzOFbNYHgZgva9b
-	 ow5wVC2t14ax/460besk2BLk2ZWreZ/iowSL/PsDXW8Jvz0IPJzEXCWLkYn3Z/5pOK
-	 biOqNAzm1emEyoQaB5lwW/xPsxIFCbmK8c4HniVw=
-Date: Wed, 15 Apr 2026 17:43:13 +0000
-From: Dmitry Ilvokhin <d@ilvokhin.com>
-To: "Paul E. McKenney" <paulmck@kernel.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
-	Will Deacon <will@kernel.org>, Boqun Feng <boqun@kernel.org>,
-	Waiman Long <longman@redhat.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Juergen Gross <jgross@suse.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Thomas Gleixner <tglx@kernel.org>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
-	Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
-	Christoph Lameter <cl@gentwo.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-arch@vger.kernel.org,
-	linux-mm@kvack.org, linux-trace-kernel@vger.kernel.org,
-	kernel-team@meta.com
-Subject: Re: [PATCH v4 5/5] locking: Add contended_release tracepoint to
- spinning locks
-Message-ID: <ad_OMbqBSjtTPsok@shell.ilvokhin.com>
-References: <cover.1774536681.git.d@ilvokhin.com>
- <81eb8e0cd90b31e761e12721dbacb967281f840f.1774536681.git.d@ilvokhin.com>
- <8d98d9f4-ccab-4864-b406-d3eb684cab45@paulmck-laptop>
+	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="f3g0hOQe"
+Received: from pps.filterd (m0528005.ppops.net [127.0.0.1])
+	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63F6Hxmc3772462;
+	Wed, 15 Apr 2026 11:15:43 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=s2048-2025-q2; bh=8bgcvKjIdrV23RvSPQ
+	yh9ajPyzn8ykMFAHnEekB0cQU=; b=f3g0hOQeTzPDeGDSbneJd9+YAWKfPpVfKu
+	nhhwTDgOf46IN4Cle8D3L0Fspwnlhtv/ZevBrTHLaAxxUumooxjXiHDp3fSunnLq
+	KLntTAOOt0HWO1VIrvNxDPyL+H/E8+M+LtlNpr+VLezHaDWI64UZGsY9iwI2nP2c
+	EwNA28Ci01PT8P/FX3IcRRMvY8B32Yy9pL1bcAPJGT4wwOy0PBX2CyGseyNTSVkT
+	boPDVI7HLX40pZ2CV7gQ5TP7vqW1tPKPmgh/1Up/2pmFWKn43oB9MRJkBt+UoMv4
+	dLymBr7QLTasXHiu2TdV3xqGxeOCeKvyH86aJx2/z3gSMJ7qvRXQ==
+Received: from mail.thefacebook.com ([163.114.134.16])
+	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4dh84w5ad1-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
+	Wed, 15 Apr 2026 11:15:43 -0700 (PDT)
+Received: from localhost (2620:10d:c085:108::150d) by mail.thefacebook.com
+ (2620:10d:c08b:78::c78f) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.37; Wed, 15 Apr
+ 2026 18:15:42 +0000
+From: Matt Evans <mattev@meta.com>
+To: Alex Williamson <alex@shazbot.org>, Ankit Agrawal <ankita@nvidia.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Yishai Hadas <yishaih@nvidia.com>,
+        Shameer
+ Kolothum <skolothumtho@nvidia.com>,
+        Kevin Tian <kevin.tian@intel.com>
+CC: Alistair Popple <apopple@nvidia.com>, Leon Romanovsky <leon@kernel.org>,
+        Vivek Kasireddy <vivek.kasireddy@intel.com>,
+        Kees Cook <kees@kernel.org>, Zhi
+ Wang <zhiw@nvidia.com>,
+        Peter Xu <peterx@redhat.com>, Alexey Kardashevskiy
+	<aik@ozlabs.ru>,
+        Eric Auger <eric.auger@redhat.com>, <kvm@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <virtualization@lists.linux.dev>
+Subject: [PATCH 1/2] vfio/pci: Set up VFIO barmap before creating a DMABUF
+Date: Wed, 15 Apr 2026 11:14:22 -0700
+Message-ID: <20260415181423.1008458-1-mattev@meta.com>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <8d98d9f4-ccab-4864-b406-d3eb684cab45@paulmck-laptop>
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDE1MDE3MCBTYWx0ZWRfX8UrqErrmhMFT
+ dQQkNuaZzVod2WXrLrUAtFi3R+1oZgTmlEx05FCQmYg5At3cmKRKAGpAJJCYCQ3Jc707spmM7R3
+ F5StWVoye0QBKeZF0U41tB5WRH/ahy7J8wHX6UtZn/NHmKftbbZqLOKXwzUA7v5P6551YEwnNda
+ 53djGsd6NhMmdv3CCDsl0uSO9518ujrEFT/eyMOQXBXHbUdJ3QMKibzxPNRK8RUyJPlB3kictOO
+ pb1JrQZR1NZi/0BXMuBHO31q7gktfDJQKh9omZqfYNKaP2Ut2NKF0EyqbksR9OMhUefuw+uStOg
+ 380fpbiREpuLkzSf/PMTnAqI/FRtve4pc5632F8jOEgX415tk0/QoTKhTfKLdr1zIdxpEhKR6Bl
+ tCfV+JtFGp0EL4h4CNYrBTOnm+UOn5O7FC4dXviztXjRV3aoiJ6MTgVhQ3ixgVosiR2L2Ae20j0
+ WZldSvrq+WlBaBVsGgg==
+X-Proofpoint-ORIG-GUID: clRI_3kHylAE62rh2pqBRz5km45dHr8x
+X-Proofpoint-GUID: clRI_3kHylAE62rh2pqBRz5km45dHr8x
+X-Authority-Analysis: v=2.4 cv=cf7iaHDM c=1 sm=1 tr=0 ts=69dfd5cf cx=c_pps
+ a=CB4LiSf2rd0gKozIdrpkBw==:117 a=CB4LiSf2rd0gKozIdrpkBw==:17
+ a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22 a=7x6HtfJdh03M6CCDgxCd:22
+ a=jCddH8ec0KUNCymVuxII:22 a=VabnemYjAAAA:8 a=DkskzI1_-XwU4soQF-MA:9
+ a=gKebqoRLp9LExxC7YDUY:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-04-15_01,2026-04-13_04,2025-10-01_01
 
-On Tue, Apr 14, 2026 at 04:20:26PM -0700, Paul E. McKenney wrote:
+A DMABUF exports access to BAR resources which need to be requested
+before the DMABUF is handed out.  Usually the resources are requested
+when setting up the barmap when the VFIO device fd is mmap()ed, but
+there's no guarantee that's done before a DMABUF is created.
 
-[...]
+Set up the barmap (and so request resources) in the DMABUF-creation
+path.
 
-> > +static inline void queued_read_unlock(struct qrwlock *lock)
-> > +{
-> > +	/*
-> > +	 * Trace and unlock are combined in the traced unlock variant so
-> > +	 * the compiler does not need to preserve the lock pointer across
-> > +	 * the function call, avoiding callee-saved register save/restore
-> > +	 * on the hot path.
-> > +	 */
-> > +	if (tracepoint_enabled(contended_release)) {
-> > +		queued_read_unlock_traced(lock);
-> > +		return;
-> > +	}
-> > +
-> > +	__queued_read_unlock(lock);
-> > +}
-> 
-> Shouldn't this refactoring be its own separate patch, similar to 4/5?
-> 
-> That would probably clean up this diff a bit.
-> 
-> > +
-> > +static __always_inline void __queued_write_unlock(struct qrwlock *lock)
-> >  {
-> >  	smp_store_release(&lock->wlocked, 0);
-> >  }
-> >  
-> >  /**
-> > - * queued_rwlock_is_contended - check if the lock is contended
-> > + * queued_write_unlock - release write lock of a queued rwlock
-> >   * @lock : Pointer to queued rwlock structure
-> > - * Return: 1 if lock contended, 0 otherwise
-> >   */
-> > -static inline int queued_rwlock_is_contended(struct qrwlock *lock)
-> > +static inline void queued_write_unlock(struct qrwlock *lock)
-> >  {
-> > -	return arch_spin_is_locked(&lock->wait_lock);
-> > +	/* See comment in queued_read_unlock(). */
-> > +	if (tracepoint_enabled(contended_release)) {
-> > +		queued_write_unlock_traced(lock);
-> > +		return;
-> > +	}
-> > +
-> > +	__queued_write_unlock(lock);
-> 
-> And the same here, so one patch for interposing __queued_read_unlock()
-> and another for interposing __queued_write_unlock().
-> 
->
+Fixes: 5d74781ebc86c ("vfio/pci: Add dma-buf export support for MMIO regions")
+Signed-off-by: Matt Evans <mattev@meta.com>
+---
+ drivers/vfio/pci/vfio_pci_dmabuf.c | 9 +++++++++
+ 1 file changed, 9 insertions(+)
 
-[...]
+diff --git a/drivers/vfio/pci/vfio_pci_dmabuf.c b/drivers/vfio/pci/vfio_pci_dmabuf.c
+index 4ccaf3531e02..fefe7cf4256b 100644
+--- a/drivers/vfio/pci/vfio_pci_dmabuf.c
++++ b/drivers/vfio/pci/vfio_pci_dmabuf.c
+@@ -272,6 +272,15 @@ int vfio_pci_core_feature_dma_buf(struct vfio_pci_core_device *vdev, u32 flags,
+ 		goto err_free_priv;
+ 	}
+ 
++	/*
++	 * See comment in vfio_pci_core_mmap(); ensure PCI regions
++	 * were requested before returning DMABUFs that reference
++	 * them.  Barmap setup does this:
++	 */
++	ret = vfio_pci_core_setup_barmap(vdev, get_dma_buf.region_index);
++	if (ret)
++		goto err_free_phys;
++
+ 	priv->vdev = vdev;
+ 	priv->nr_ranges = get_dma_buf.nr_ranges;
+ 	priv->size = length;
+-- 
+2.47.3
 
-> And is it possible to have one patch for qspinlock and another for qrwlock?
-> It *looks* like it should be.
-> 
-> 							Thanx, Paul
-> 
-
-Thanks for the suggestion, Paul.
-
-I think separate commits for the read and write paths of qrwlock is a
-bit too fine-grained, but I like the point about mixing refactoring with
-instrumentation and keeping different lock types separate.
-
-I'll split this commit into four.
-
-    locking: Factor out __queued_read_unlock()/__queued_write_unlock()                                                    
-    locking: Add contended_release tracepoint to qrwlock
-    locking: Factor out queued_spin_release()                                                                             
-    locking: Add contended_release tracepoint to qspinlock
