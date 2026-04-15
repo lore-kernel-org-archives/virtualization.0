@@ -1,28 +1,29 @@
 Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F8983E51FC
-	for <virtualization@lists.linux.dev>; Wed, 15 Apr 2026 16:47:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FABB3E51F0
+	for <virtualization@lists.linux.dev>; Wed, 15 Apr 2026 16:47:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.176.79.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776271659; cv=none; b=H1s42rD4UpKKquThC8IKyTwfJFWmQ3SmemLgDdsVdktOxHFvQhtkSDfqysE9sAo7saIdvuQP9QApwmlUqLOT4n1h4AQvxEWuwYTudTyX+THCkL45UIEowy+Wid7QmF1tY5w1iqRCYjjr7nneqZmRWAcnWIyTlPM2EQCeBRTJuu8=
+	t=1776271659; cv=none; b=VUDdTbP/F1AoRLJbyi8/Wx8vpamQnI4guxkXvDTqNamGs1Z0pzLgZpzYilceUOvrKSd8ru/uT0Zib6r6zBNGaIoz1JzHOw+8wBslGXBPKw3Yn4+qIP/+pn0DQI6wFckqYpx7TuKTCv5VflOK3sResR47DWMzAUkrxrLaDoCO5Dw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1776271659; c=relaxed/simple;
-	bh=NVp2JwZgyDzVSJWNWnw5sXnwoxONp/PFyZjWXMyckgE=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=WG7klyPBCfI3nZ68jw99ku6yublkyvDHnbIchuWzqcAlbc64eJyiBL4q4H4kqwvZuVzn5scyWOEDEUg02bmihMGzPn69A6DPnv9n2HBDpB93/YDxQlrYWv80X8bzEPUMmbPrpJ1A9optdVFG528Q4XlbDfZgv8RPh5CK1PinR1E=
+	bh=n2U7fbKOFoyNg2g2fe9ZpqZv2M9/KqSRfSL9jbo1Zcg=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=AoqDoLZmPuDD6k8fnAyuVIZKsrZfDADsFvr4HtQ73CqfAt0lLQUfYpdvIF5OkwYC14XaiBpLlIgm5Avky6mMkIQeDh0wR1+EGx7CTgzeLCCPFmzIII9DoZaKDtuTYKTBbu3ykNg3d2wo0ukExP2b6z+sgLXl3JFaDdy2KAyCWq8=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=h-partners.com; spf=pass smtp.mailfrom=h-partners.com; arc=none smtp.client-ip=185.176.79.56
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=h-partners.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=h-partners.com
 Received: from mail.maildlp.com (unknown [172.18.224.83])
-	by frasgout.his.huawei.com (SkyGuard) with ESMTPS id 4fwn9p1RZ4zHnGjl;
-	Thu, 16 Apr 2026 00:47:10 +0800 (CST)
+	by frasgout.his.huawei.com (SkyGuard) with ESMTPS id 4fwn9K6MNPzJ46DM;
+	Thu, 16 Apr 2026 00:46:45 +0800 (CST)
 Received: from mscpeml500003.china.huawei.com (unknown [7.188.49.51])
-	by mail.maildlp.com (Postfix) with ESMTPS id 8C8F340569;
-	Thu, 16 Apr 2026 00:47:26 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id 4733E40569;
+	Thu, 16 Apr 2026 00:47:29 +0800 (CST)
 Received: from localhost.localdomain (10.123.66.205) by
  mscpeml500003.china.huawei.com (7.188.49.51) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Wed, 15 Apr 2026 19:47:25 +0300
+ 15.2.1544.11; Wed, 15 Apr 2026 19:47:28 +0300
 From: Fedorov Nikita <fedorov.nikita@h-partners.com>
 To: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
 	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav
@@ -45,10 +46,12 @@ CC: Nikita Fedorov <fedorov.nikita@h-partners.com>,
 	<linux-mm@kvack.org>, <guohanjun@huawei.com>, <wangkefeng.wang@huawei.com>,
 	<weiyongjun1@huawei.com>, <yusongping@huawei.com>, <leijitang@huawei.com>,
 	<artem.kuzin@huawei.com>, <kang.sun@huawei.com>, <chenjieping3@huawei.com>
-Subject: [RFC PATCH v3 0/7]
-Date: Thu, 16 Apr 2026 00:44:52 +0800
-Message-ID: <20260415164459.2904963-1-fedorov.nikita@h-partners.com>
+Subject: [RFC PATCH v3 3/7] hq-spinlock: add contention detection
+Date: Thu, 16 Apr 2026 00:44:55 +0800
+Message-ID: <20260415164459.2904963-4-fedorov.nikita@h-partners.com>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20260415164459.2904963-1-fedorov.nikita@h-partners.com>
+References: <20260415164459.2904963-1-fedorov.nikita@h-partners.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -60,192 +63,182 @@ Content-Type: text/plain
 X-ClientProxiedBy: mscpeml500003.china.huawei.com (7.188.49.51) To
  mscpeml500003.china.huawei.com (7.188.49.51)
 
-Changes since v2:
-  - split the patch into a smaller patch series,
-  though it is still hard to split the hqlock internal logic itself
-  - remove some unused code
-  - rebased onto Linux v7.0
-  - allocate hq-spinlock metadata with kvmalloc instead of memblock
-  - added contention detection and verified we have no performance degradation in low contention scenario
+The hierarchical slowpath is needed for locks that experience
+sustained cross-node contention. Enabling it unconditionally is
+undesirable for lightly contended locks and may decrease the performance.
 
-[Motivation]
+Add a simple contention detection scheme that tracks remote handoffs
+separately from overall handoff activity and enables HQ mode only when
+the observed handoff pattern indicates that cross-node contention is
+high enough to benefit from NUMA-aware queueing.
 
-In a high contention case, existing Linux kernel spinlock implementations can become
-inefficient on modern NUMA systems due to frequent and expensive
-cross-NUMA cacheline transfers. 
+HQ lock type can be turned on if remote_handoffs exceeds `hqlock_remote_handoffs_turn_numa`.
+Lock can be turned back into QSPINLOCK mode if in HQ mode
+amount of remote handoffs will not exceed `hqlock_remote_handoffs_keep_numa`.
 
-This might happen due to following reasons:
- - on "contender enqueue" each lock contender updates a shared lock structure
- - on "MCS handoff" cross-NUMA cache-line transfer occurs when
-two contenders are from different NUMA nodes.
+Remote handoffs counter will increase only if the amount of local handoffs after previous increase
+is not less than `hqlock_local_handoffs_to_increase_remotes`.
 
-Previous work regarding NUMA-aware spinlock in Linux kernel is CNA-lock:
-https://lore.kernel.org/lkml/20210514200743.3026725-1-alex.kogan@oracle.com/
+Additional locktorture reruns showed no degradation
+in low-contention configurations after adding contention-based switching
+while maintaining practically the same performance improvement in high contention cases.
 
-It reduces cross-NUMA cacheline traffic during handoff, but does not reduce it during enqueuing.
-CNA design also requires the first contender to do additional work during global spinning
-and keeps threads from all nodes other than the first one in the single secondary queue. 
-In our measurements, we only saw benefits from using it on Kunpeng;
-on x86 platforms, CNA behaved the same as a regular qspinlock.
-Thus, there is still quite a lot of potential for optimization.
+Co-developed-by: Anatoly Stepanov <stepanov.anatoly@huawei.com>
+Signed-off-by: Anatoly Stepanov <stepanov.anatoly@huawei.com>
+Co-developed-by: Nikita Fedorov <fedorov.nikita@h-partners.com>
+Signed-off-by: Nikita Fedorov <fedorov.nikita@h-partners.com>
+---
+ kernel/locking/hqlock_core.h  | 57 +++++++++++++++++++++++++++++++++--
+ kernel/locking/hqlock_meta.h  |  4 +++
+ kernel/locking/hqlock_types.h |  8 +++--
+ 3 files changed, 65 insertions(+), 4 deletions(-)
 
-HQ-lock has completely different design concept: kind of cohort-lock and
-queued-spinlock hybrid.
-
-If someone wants to try the HQ-lock in some subsystem, just
-change lock initialization code from `spin_lock_init()` to `spin_lock_init_hq()`,
-or change `DEFINE_SPINLOCK()` macro to `DEFINE_SPINLOCK_HQ()` if the lock is static.
-The dedicated bit in the lock structure is used to distiguish between the two lock types.
-
-[Performance measurements]
-
-Performance measurements were done on x86 (AMD EPYC) and arm64 (Kunpeng 920)
-platforms with the following scenarious:
-- Locktorture benchmark
-- Memcached + memtier benchmark
-- Ngnix + Wrk benchmark
-
-[Locktorture]
-
-NPS stands for "Nodes per socket"
-+------------------------------+-----------------------+-------+-------+--------+
-| AMD EPYC 9654									|
-+------------------------------+-----------------------+-------+-------+--------+
-| 192 cores (x2 hyper-threads) |                       |       |       |        |
-| 2 sockets                    |                       |       |       |        |
-| Locktorture 60 sec.          | NUMA nodes per-socket |       |       |        |
-| Average gain (single lock)   | 1 NPS                 | 2 NPS | 4 NPS | 12 NPS |
-| Total contender threads      |                       |       |       |        |
-| 8                            | 19%                   | 21%   | 12%   | 12%    |
-| 16                           | 13%                   | 18%   | 34%   | 75%    |
-| 32                           | 8%                    | 14%   | 25%   | 112%   |
-| 64                           | 11%                   | 12%   | 30%   | 152%   |
-| 128                          | 9%                    | 17%   | 37%   | 163%   |
-| 256                          | 2%                    | 16%   | 40%   | 168%   |
-| 384                          | -1%                   | 14%   | 44%   | 186%   |
-+------------------------------+-----------------------+-------+-------+--------+
-
-+-----------------+-------+-------+-------+--------+
-| Fairness factor | 1 NPS | 2 NPS | 4 NPS | 12 NPS |
-+-----------------+-------+-------+-------+--------+
-| 8               | 0.54  | 0.57  | 0.57  | 0.55   |
-| 16              | 0.52  | 0.53  | 0.60  | 0.58   |
-| 32              | 0.53  | 0.53  | 0.53  | 0.61   |
-| 64              | 0.52  | 0.56  | 0.54  | 0.56   |
-| 128             | 0.51  | 0.54  | 0.54  | 0.53   |
-| 256             | 0.52  | 0.52  | 0.52  | 0.52   |
-| 384             | 0.51  | 0.51  | 0.51  | 0.51   |
-+-----------------+-------+-------+-------+--------+
-
-+-------------------------+--------------+
-| Kunpeng 920 (arm64)     |              |
-+-------------------------+--------------+
-| 96 cores (no MT)        |              |
-| 2 sockets, 4 NUMA nodes |              |
-| Locktorture 60 sec.     |              |
-|                         |              |
-| Total contender threads | Average gain |
-| 8                       | 93%          |
-| 16                      | 142%         |
-| 32                      | 129%         |
-| 64                      | 152%         |
-| 96                      | 158%         |
-+-------------------------+--------------+
-
-[Memcached]
-
-+---------------------------------+-----------------+-------------------+
-| AMD EPYC 9654                   |                 |                   |
-+---------------------------------+-----------------+-------------------+
-| 192 cores (x2 hyper-threads)    |                 |                   |
-| 2 sockets, NPS=4                |                 |                   |
-|                                 |                 |                   |
-| Memtier+memcached 1:1 R/W ratio |                 |                   |
-| Workers                         | Throughput gain | Latency reduction |
-| 32                              | 1%              | -1%               |
-| 64                              | 1%              | -1%               |
-| 128                             | 3%              | -4%               |
-| 256                             | 7%              | -6%               |
-| 384                             | 10%             | -8%               |
-+---------------------------------+-----------------+-------------------+
-
-+---------------------------------+-----------------+-------------------+
-| Kunpeng 920 (arm64)             |                 |                   |
-+---------------------------------+-----------------+-------------------+
-| 96 cores (no MT)                |                 |                   |
-| 2 sockets, 4 NUMA nodes         |                 |                   |
-|                                 |                 |                   |
-| Memtier+memcached 1:1 R/W ratio |                 |                   |
-| Workers                         | Throughput gain | Latency reduction |
-| 32                              | 4%              | -3%               |
-| 64                              | 6%              | -6%               |
-| 80                              | 8%              | -7%               |
-| 96                              | 8%              | -8%               |
-+---------------------------------+-----------------+-------------------+
-
-[Nginx]
-
-+-----------------------------------------------------------------------+-----------------+
-| Kunpeng 920 (arm64)                                                   |                 |
-+-----------------------------------------------------------------------+-----------------+
-| 96 cores (no MT)                                                      |                 |
-| 2 sockets, 4 NUMA nodes                                               |                 |
-|                                                                       |                 |
-| Nginx + WRK benchmark, single file (lockref spinlock contention case) |                 |
-| Workers                                                               | Throughput gain |
-| 32                                                                    | 1%              |
-| 64                                                                    | 68%             |
-| 80                                                                    | 72%             |
-| 96                                                                    | 78%             |
-+-----------------------------------------------------------------------+-----------------+
-Despite, the test is a single-file test, it can be related to real-life cases, when some
-html-pages are accessed much more frequently than others (index.html, etc.)
-
-[Low contention remarks]
-After adding contention detection scheme, we do not see performance degradation in low contention scenario (< 8 threads),
-throughput of HQspinlock is equal to qspinlock,
-while still having practically the same improvement in high contention case as mentioned above.
-
-Previous version:
-https://lore.kernel.org/lkml/20251206062106.2109014-1-stepanov.anatoly@huawei.com/
-
-Anatoly Stepanov (7):
-  kernel: add hq-spinlock types
-  hq-spinlock: implement inner logic
-  hq-spinlock: add contention detection
-  hq-spinlock: add hq-spinlock tunables and debug statistics
-  kernel: introduce general hq-spinlock support
-  lockref: use hq-spinlock
-  futex: use hq-spinlock for hash buckets
-
- arch/arm64/include/asm/qspinlock.h       |  37 +
- arch/x86/include/asm/hq-spinlock.h       |  34 +
- arch/x86/include/asm/paravirt-spinlock.h |   3 +-
- arch/x86/include/asm/qspinlock.h         |   6 +-
- include/asm-generic/qspinlock.h          |  23 +-
- include/asm-generic/qspinlock_types.h    |  44 +-
- include/linux/lockref.h                  |   2 +-
- include/linux/spinlock.h                 |  26 +
- include/linux/spinlock_types.h           |  26 +
- include/linux/spinlock_types_raw.h       |  20 +
- kernel/Kconfig.locks                     |  29 +
- kernel/futex/core.c                      |   2 +-
- kernel/locking/hqlock_core.h             | 850 +++++++++++++++++++++++
- kernel/locking/hqlock_meta.h             | 487 +++++++++++++
- kernel/locking/hqlock_proc.h             | 164 +++++
- kernel/locking/hqlock_types.h            | 122 ++++
- kernel/locking/qspinlock.c               |  65 +-
- kernel/locking/qspinlock.h               |   4 +-
- kernel/locking/spinlock_debug.c          |  20 +
- mm/mempolicy.c                           |   4 +
- 20 files changed, 1939 insertions(+), 29 deletions(-)
- create mode 100644 arch/arm64/include/asm/qspinlock.h
- create mode 100644 arch/x86/include/asm/hq-spinlock.h
- create mode 100644 kernel/locking/hqlock_core.h
- create mode 100644 kernel/locking/hqlock_meta.h
- create mode 100644 kernel/locking/hqlock_proc.h
- create mode 100644 kernel/locking/hqlock_types.h
-
+diff --git a/kernel/locking/hqlock_core.h b/kernel/locking/hqlock_core.h
+index 7322199228..e2ba09d758 100644
+--- a/kernel/locking/hqlock_core.h
++++ b/kernel/locking/hqlock_core.h
+@@ -450,6 +450,23 @@ static inline void hqlock_handoff(struct qspinlock *lock,
+ 					 struct mcs_spinlock *next, u32 tail,
+ 					 int handoff_info);
+ 
++/*
++ * In low_contention_mcs_lock_handoff we wanted to help processor optimise writes
++ * and avoid extra reading of our cpu cacheline (read our qnode->numa_node),
++ * so previous contender has saved his numa node in our prev_numa_node,
++ * and now we need to update remote_handoffs counter by ourself
++ */
++static __always_inline void update_counters_qspinlock(struct numa_qnode *qnode)
++{
++	if (qnode->numa_node != qnode->prev_numa_node) {
++		if ((qnode->general_handoffs - qnode->prev_general_handoffs)
++		    > hqlock_local_handoffs_to_increase_remotes) {
++			qnode->remote_handoffs++;
++		}
++
++		qnode->prev_general_handoffs = qnode->general_handoffs;
++	}
++}
+ 
+ /*
+  * Chech if contention has risen and if we need to set NUMA-aware mode
+@@ -458,8 +475,13 @@ static __always_inline bool determine_contention_qspinlock_mode(struct mcs_spinl
+ {
+ 	struct numa_qnode *qnode = (void *)node;
+ 
+-	if (qnode->general_handoffs > READ_ONCE(hqlock_general_handoffs_turn_numa))
++	unsigned long general_handoffs = (unsigned long) qnode->general_handoffs;
++	unsigned long remote_handoffs = (unsigned long) qnode->remote_handoffs;
++
++	if ((general_handoffs > hqlock_general_handoffs_turn_numa) &&
++		(remote_handoffs > hqlock_remote_handoffs_turn_numa))
+ 		return true;
++
+ 	return false;
+ }
+ 
+@@ -485,7 +507,14 @@ static __always_inline bool low_contention_try_clear_tail(struct qspinlock *lock
+ 	else
+ 		update_val |= _Q_LOCK_INVALID_TAIL;
+ 
+-	return atomic_try_cmpxchg_relaxed(&lock->val, &val, update_val);
++	bool ret = atomic_try_cmpxchg_relaxed(&lock->val, &val, update_val);
++
++#ifdef CONFIG_HQSPINLOCKS_DEBUG
++	if (ret && high_contention)
++		atomic_inc(&transitions_from_qspinlock_to_hq);
++#endif
++
++	return ret;
+ }
+ 
+ static __always_inline void low_contention_mcs_lock_handoff(struct mcs_spinlock *node,
+@@ -502,6 +531,17 @@ static __always_inline void low_contention_mcs_lock_handoff(struct mcs_spinlock
+ 		general_handoffs++;
+ 
+ 	qnext->general_handoffs = general_handoffs;
++	qnext->remote_handoffs = qnode->remote_handoffs;
++	qnext->prev_general_handoffs = qnode->prev_general_handoffs;
++
++	/*
++	 * Show next contender our numa node and assume
++	 * he will update remote_handoffs counter in update_counters_qspinlock by himself
++	 * instead of reading his numa_node and updating remote_handoffs here
++	 * to avoid extra cacheline transferring and help processor optimise several writes here
++	 */
++	qnext->prev_numa_node = qnode->numa_node;
++
+ 	arch_mcs_spin_unlock_contended(&next->locked);
+ }
+ 
+@@ -557,6 +597,10 @@ static inline void hqlock_init_node(struct mcs_spinlock *node)
+ 	qnode->numa_node = numa_node_id() + 1;
+ 	qnode->lock_id = 0;
+ 	qnode->wrong_fallback_tail = 0;
++
++	qnode->remote_handoffs = 0;
++	qnode->prev_numa_node = 0;
++	qnode->prev_general_handoffs = 0;
+ }
+ 
+ static inline void reset_handoff_counter(struct numa_qnode *qnode)
+@@ -580,6 +624,8 @@ static inline void handoff_local(struct mcs_spinlock *node,
+ 
+ 	qnext->general_handoffs = general_handoffs;
+ 
++	qnext->remote_handoffs = qnode->remote_handoffs;
++
+ 	u16 wrong_fallback_tail = qnode->wrong_fallback_tail;
+ 
+ 	if (wrong_fallback_tail != 0 && wrong_fallback_tail != (tail >> _Q_TAIL_OFFSET)) {
+@@ -641,6 +687,13 @@ static inline void handoff_remote(struct qspinlock *lock,
+ 
+ 	mcs_head = (void *) qhead;
+ 
++	u16 remote_handoffs = qnode->remote_handoffs;
++
++	if (qnode->general_handoffs > hqlock_local_handoffs_to_increase_remotes)
++		remote_handoffs++;
++
++	qhead->remote_handoffs = remote_handoffs;
++
+ 	/* arch_mcs_spin_unlock_contended implies smp-barrier */
+ 	arch_mcs_spin_unlock_contended(&mcs_head->locked);
+ }
+diff --git a/kernel/locking/hqlock_meta.h b/kernel/locking/hqlock_meta.h
+index 5b54801326..561d5a5fd0 100644
+--- a/kernel/locking/hqlock_meta.h
++++ b/kernel/locking/hqlock_meta.h
+@@ -307,6 +307,10 @@ static inline void release_lock_meta(struct qspinlock *lock,
+ 			goto do_rollback;
+ 	}
+ 
++	if (qnode->remote_handoffs < hqlock_remote_handoffs_keep_numa) {
++		upd_val |= _Q_LOCK_MODE_QSPINLOCK_VAL;
++	}
++
+ 	/*
+ 	 * We need wait until pending is gone.
+ 	 * Otherwise, clearing pending can erase a mode we will set here
+diff --git a/kernel/locking/hqlock_types.h b/kernel/locking/hqlock_types.h
+index 32d06f2755..40061f11a1 100644
+--- a/kernel/locking/hqlock_types.h
++++ b/kernel/locking/hqlock_types.h
+@@ -37,9 +37,13 @@ struct numa_qnode {
+ 
+ 	u16 lock_id;
+ 	u16 wrong_fallback_tail;
+-	u16 general_handoffs;
+-
+ 	u16 numa_node;
++
++
++	u16 general_handoffs;
++	u16 remote_handoffs;
++	u16 prev_general_handoffs;
++	u16 prev_numa_node;
+ };
+ 
+ struct numa_queue {
 -- 
 2.34.1
 
