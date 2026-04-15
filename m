@@ -1,165 +1,189 @@
-Received: from BL2PR02CU003.outbound.protection.outlook.com (mail-eastusazon11011020.outbound.protection.outlook.com [52.101.52.20])
+Received: from CH5PR02CU005.outbound.protection.outlook.com (mail-northcentralusazon11012035.outbound.protection.outlook.com [40.107.200.35])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B36892F1FFC
-	for <virtualization@lists.linux.dev>; Wed, 15 Apr 2026 15:13:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.52.20
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD58933DEF9
+	for <virtualization@lists.linux.dev>; Wed, 15 Apr 2026 15:40:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.200.35
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776266005; cv=fail; b=ARFi05h+DgHL0ZSM3DeCKrQf2NnPzes+Uc/SdfuS13BTTvcdwSDsrQAoJBu33v2EE4ZOHcoiZAfbQZLMHYIh+CeTDk7Y9pKqzwY/LtjMoUmnLxLtxD2exCGDwBEithL9gJ1Wn08de8PExrXO0T7PSNgaYtHo1g8dn3el3bML4Lk=
+	t=1776267622; cv=fail; b=iUw4OZpBOkZOV/rIMqEmYdeTL8yJg5JOb8udXdNd5KF5eshojek5hh5XXT/dDvYM38q8a11ND+zl2gM1iaHGbdc/EChF7vkBByZw1d69a/nGge9xc0TiwCPvk5Qih2sTWnOqg+Es3nKV5uypttJIm09XudGUkzw5994ETd8Q1LU=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776266005; c=relaxed/simple;
-	bh=iAMxXWLK31O3U126ib3bBc+v6xptSrAIUYVP0tkimsk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=X39WFfjaR28JQAtoK7VK0t5BxvRC4/NA3fmwhowEp0oN3aAHbAITjB/3OJdEP7SiejSsMfUpd4+up4RxHwMHtCFb4iyB/ifZQYBCfoLhGN/tYlX0ZaOgvqB7bGVCWJVfeC82svD0bnUj1erCp+kYJdl2JyEP3UGWnupE2GMgLGU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=mPxVdHxJ; arc=fail smtp.client-ip=52.101.52.20
+	s=arc-20240116; t=1776267622; c=relaxed/simple;
+	bh=QGe39Jf4Ozy3fzPyeWVW31vQ4T4g5XgOgN0zYWJXZRc=;
+	h=Date:From:To:CC:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=MAr260Nk2zPSy+p6HDrwlQmGEaLBb+cFS50OlfTcJErQyei520Gh4kjiTPENbz62IsVKQvJTIdX+WwQ5N2LTHkVJ6b5CPmH3Paosmq1JriF8zRAv8Is48/01vEwJrEE2AdKFu4Ch91GmzGSLG9h06sdlpOkfIaFevay2JHhyZII=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=SQNoLj5g; arc=fail smtp.client-ip=40.107.200.35
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="mPxVdHxJ"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="SQNoLj5g"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Pa2mF2DcnSfbhQw4MTlvlfANpq93CIwHFSp8WcQzW5XZ0rUgRSxPVxb4q1bMv9Mv2ea7f3MVhWY9soNvPAwF06ppgI2lKhumKR7oIYcSU9CBXY2G8TZAnY/LDyTwrnU3dHlwqbG7Ujy6qFgsox/6auOGWtt/kzMZHd9PvFCUpagT34jbN21YyQiQuj6AcjMyg9IbEebyYtB7ElmHkuA+WRagOBK/EiM/SHpGvkVmXCj7Sii49omBmPrCy0+6nwZ2xuQ6At7OFBaFY+ySXeTHcUfVMxbLH77hTZ3SzGd+Jibw7v/GPeZhd4bDRPAKCHLXETeiH6S+AYqd87M0BowWhg==
+ b=eSxH0/XN9demSdnVSkkqw77g7KirPyEv4T8xiS7OLmS3v7zdLOMHoMhM/RBuNGpxgqm6RD3OiSYVhQZHnj7dcmPRdM13ekA6y2+ysaV6XWqzXxArsUV1vKtsfiYdkwrELFQfLSYEyOcbmY2LyunprSgG5T3XLVv0zDtVTr2O6EhFbI9ifCUbVorKxXVfaVgJ5OgWqhD1HQDDb9t7EH58v4UM8TtD3TkMS//i6bMj/+4KBa101xG4Pi8+3NUFT6KjHu/qvW0f44iBt1Pp5FAzsRVXu20cK6yoydqtl/5pN/gTZ82m5w/sSImN5isryLRMEx4FX8cp06DsG5tuccIO2Q==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=2omQnpceO11NVkXMO4/3hySIN/oY8LKcn0ESI643lbU=;
- b=Rm46F/4qy3Q3iSa68ULNaJ0pnjInPpnoX37gynz2rBHD/OTrnrBQI5h/JNaOyc62uHumOhzeVXdQSebOOZAwmzDxOG6gTL8q3GAsuk4qw7BXkvB47dozRA+N/mPm31stkmrcRVCXOWCjsJ9ozxfV/M1a7+qf57EaNuwLUCTgJHU7JtGHsf55DlGf1GC32nqFnZk+XejmDgM03MUM8zXUKltywGQxj0aebTVEOQ8AaVWeXYzTesEMpPb2CLNdBP1k2PqrPcsVF3f44iBTc4RYsFCZgctmBngwXbfmkfoSro4a93TynS6OhAQ5FEA5zEBI6cVc1g464VzgVTaG+e9ZAA==
+ bh=dgVEiqRSSVAcGniLzurO3gPSXO6kl1XwCEDTBqn3oYw=;
+ b=mfCzqw/g8w4a8f9puHM2/KyKvj1MSpbOtqwYlMP7bH7iP3kikZ0m7wu++cgLonHt91QTOrH9yP8faDQegEThbaMvatjazLm0krEGEOA9WTmMSsmPL3DpZ6Jqda6/nGyeSWI2hidtyjjItCZWujc7YGNothFsbso1dv+dPD5yhK04eS8Ao0/miztjmtRdYgdO44KKhVbfqmwb/jWzIQyouRXz4pL3jzZhX7tPcIRhHyIZkGjJ2+alUfBH8v9gyRX8D3WFBfqpKfmVD8H6huSzUwMCy7bdp9PUJVKYG3QXcQaf45Z/e4SUaSU+EtBrhdMjx3PrDvjwQ+aMU2Sidipsyw==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.160) smtp.rcpttodomain=shazbot.org smtp.mailfrom=nvidia.com;
+ 216.228.117.161) smtp.rcpttodomain=shazbot.org smtp.mailfrom=nvidia.com;
  dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
  dkim=none (message not signed); arc=none (0)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=2omQnpceO11NVkXMO4/3hySIN/oY8LKcn0ESI643lbU=;
- b=mPxVdHxJCHhHn43F82AzHBuWYx/SQY4N3AHU8mfa8CP58ZT7mM4ppW4EdR3KQvdTk1UqsMDYe9V+T08EwRamQMU6vFEQG7oDf+B5NEm2pac3Kj94arnwGfWsD5fHaXuHDxakJI+OdSzHiAKwKGeiEKXcKr+6k0mmqc7DqxiIpyY9YT73qofYg7hQ5V7E1ZOrGjDh0ob8bjA4k1ggKiMEFtJKCz8a4UxJA/dJqZN3jHMWZ+ztL8IxUQIb7DEFSYYOU/DWtAW5Z9InoaOE58yTo3rtZDAkyiA50jcxEQWa1M7EqsBFN2Xo4CyhHzqhwQfMKX4KNcNEJTSWwVQQZieldg==
-Received: from CH2PR10CA0014.namprd10.prod.outlook.com (2603:10b6:610:4c::24)
- by IA1PR12MB6185.namprd12.prod.outlook.com (2603:10b6:208:3e7::21) with
+ bh=dgVEiqRSSVAcGniLzurO3gPSXO6kl1XwCEDTBqn3oYw=;
+ b=SQNoLj5gAZLKLCKCRuAxABDOdJhO4ZzBCviHHRmiLAb2AAZb8gR25p/7aT5ui9UCTB8VOSGhwneuI9wso5xn2TOEwqxI9aj8eOJ235lw2K1UvCN8TViGqgelcwhd9xx5+BszDCz2LmcR65WR9kd8XrJjKnKWT8R1/sYjw2fgYJE8zM/wefVWDSHvZE5jOLwYmDEU6TR/0xkp/hcWta4mdzc2vE453zikw/3UBHxBkdK4di89/UQbJN4pio2jdIlbc1zcP2OZd3nhM2z4Z11cd5vu3U4Hz5LFyC4e4YIGOS0zsli1HQDqFPXXX/nKN+tlVdee9B0NjFrXRqrf4ixo5A==
+Received: from PH7P220CA0070.NAMP220.PROD.OUTLOOK.COM (2603:10b6:510:32c::10)
+ by CH2PR12MB4055.namprd12.prod.outlook.com (2603:10b6:610:78::15) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9818.20; Wed, 15 Apr
- 2026 15:13:18 +0000
-Received: from CH2PEPF0000009E.namprd02.prod.outlook.com
- (2603:10b6:610:4c:cafe::5e) by CH2PR10CA0014.outlook.office365.com
- (2603:10b6:610:4c::24) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9769.48 via Frontend Transport; Wed,
- 15 Apr 2026 15:13:18 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
+ 2026 15:40:09 +0000
+Received: from SN1PEPF00036F43.namprd05.prod.outlook.com
+ (2603:10b6:510:32c:cafe::a3) by PH7P220CA0070.outlook.office365.com
+ (2603:10b6:510:32c::10) with Microsoft SMTP Server (version=TLS1_3,
+ cipher=TLS_AES_256_GCM_SHA384) id 15.20.9769.49 via Frontend Transport; Wed,
+ 15 Apr 2026 15:40:09 +0000
+X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.161)
  smtp.mailfrom=nvidia.com; dkim=none (message not signed)
  header.d=none;dmarc=pass action=none header.from=nvidia.com;
 Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.160) by
- CH2PEPF0000009E.mail.protection.outlook.com (10.167.244.27) with Microsoft
+ 216.228.117.161 as permitted sender) receiver=protection.outlook.com;
+ client-ip=216.228.117.161; helo=mail.nvidia.com; pr=C
+Received: from mail.nvidia.com (216.228.117.161) by
+ SN1PEPF00036F43.mail.protection.outlook.com (10.167.248.27) with Microsoft
  SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.20.9769.17 via Frontend Transport; Wed, 15 Apr 2026 15:13:18 +0000
+ 15.20.9769.17 via Frontend Transport; Wed, 15 Apr 2026 15:40:09 +0000
 Received: from rnnvmail201.nvidia.com (10.129.68.8) by mail.nvidia.com
- (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
+ (10.129.200.67) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Wed, 15 Apr
- 2026 08:12:55 -0700
-Received: from [10.221.197.34] (10.126.230.37) by rnnvmail201.nvidia.com
+ 2026 08:39:48 -0700
+Received: from nvidia.com (10.126.230.37) by rnnvmail201.nvidia.com
  (10.129.68.8) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Wed, 15 Apr
- 2026 08:12:53 -0700
-Message-ID: <cb38037c-9fbe-4a10-9538-1dfbbb12f330@nvidia.com>
-Date: Wed, 15 Apr 2026 18:12:50 +0300
+ 2026 08:39:47 -0700
+Date: Wed, 15 Apr 2026 09:39:45 -0600
+From: Alex Williamson <alex.williamson@nvidia.com>
+To: Yishai Hadas <yishaih@nvidia.com>
+CC: <alex@shazbot.org>, <kvm@vger.kernel.org>, <guojinhui.liam@bytedance.com>,
+	<linux-kernel@vger.kernel.org>, <virtualization@lists.linux.dev>
+Subject: Re: [PATCH 0/4] vfio/virtio: Fix list_lock type and modernize
+ locking
+Message-ID: <20260415093945.36d01312@nvidia.com>
+In-Reply-To: <cb38037c-9fbe-4a10-9538-1dfbbb12f330@nvidia.com>
+References: <20260414200625.3601509-1-alex.williamson@nvidia.com>
+	<cb38037c-9fbe-4a10-9538-1dfbbb12f330@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/4] vfio/virtio: Fix list_lock type and modernize locking
-To: Alex Williamson <alex.williamson@nvidia.com>, <alex@shazbot.org>
-CC: <kvm@vger.kernel.org>, <guojinhui.liam@bytedance.com>,
-	<linux-kernel@vger.kernel.org>, <virtualization@lists.linux.dev>,
-	<yishaih@nvidia.com>
-References: <20260414200625.3601509-1-alex.williamson@nvidia.com>
-Content-Language: en-US
-From: Yishai Hadas <yishaih@nvidia.com>
-In-Reply-To: <20260414200625.3601509-1-alex.williamson@nvidia.com>
-Content-Type: text/plain; charset="UTF-8"; format=flowed
+Content-Type: text/plain; charset="US-ASCII"
 Content-Transfer-Encoding: 7bit
 X-ClientProxiedBy: rnnvmail203.nvidia.com (10.129.68.9) To
  rnnvmail201.nvidia.com (10.129.68.8)
 X-EOPAttributedMessage: 0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH2PEPF0000009E:EE_|IA1PR12MB6185:EE_
-X-MS-Office365-Filtering-Correlation-Id: 8083f892-e7d9-4c2e-0433-08de9b018641
+X-MS-TrafficTypeDiagnostic: SN1PEPF00036F43:EE_|CH2PR12MB4055:EE_
+X-MS-Office365-Filtering-Correlation-Id: 6410aaef-37b9-471c-929f-08de9b054688
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|36860700016|376014|82310400026|22082099003|18002099003|56012099003;
+	BCL:0;ARA:13230040|376014|82310400026|36860700016|1800799024|22082099003|18002099003|56012099003;
 X-Microsoft-Antispam-Message-Info:
-	RGCfkWVJegmgTrxOOD/e1g1Nna9iaSt1bzgdXhU1umTkpfKWMCFr3/V9DHfLi5MvPME7cXStfMekSrB7E4KXNvCckCdBSR+5xuZUTcPuPgObBLHkfZFLkQIQPxKkbloLliXU4O7tgAMGXWOjDyzzO8ouCpH7isEHr+Ly+r1lg7KIG0lmP8K5JFLKgvAwQBEy+OOl6nW/vW4HtB0JtJQ2V0/3hfBQfxJ/MYIKrpY0cFNQ6NTYxt9OcAWqPfDMY61l0XoIg4ede/M+P4qo9Cao4sj/unVwmrQ0iwE50z0dSvvQ1TEwZtARnGUOPnvhrYgY7rLpY0Jw1nGS/v73mhQ9uHcmFJjD6YlznFqqaHtYhJtbCoMbopLqM04tnSTuIMSjEwZGCi+e2wAiib4mp4xaUGoNUWxWYlieF1ZsjviNwupKACqD3sUMX0eArzXgK+VTDSvAP8rpAVb87BkTIsgnfNl8vQt3g5Abxz7w10kI45wPCi3gGfFtCJMePVviNBl/5qDfgpWt+4AhJWLcv9h+tqNInzCkepslTSTxgtdOmBgzcNIZ+RZoyoT3bvOv/pe6Lgr51capHixyefRUd7d+XyFKuj2NaCFf3gWxdTA0j91AtcTds69CAmWP07oUs8aUcOFnTgoUSlicRGR/eYOKCNcGpvghh0E3ZiiGRaBWGiRPbcH89ImqzPZP/Lpdrqjngz8IoU8aYjM4sWYlfZY+jA2rDZvom3tgavbT+bFn7qbtWEsYCBtWmHKdHsypSH/4jEdACDiL5regcWY3q94q9Q==
+	iwGftislKP511BwDmDRKjp1HUb+kZkzfh4D560JHdx7bqFfY7KDHW2ry+2XOrjVz1YSAFF0IFLWKeZfv/G7QvU5ElhZUdNTk3eDlfJZaot88hSUUg+g6yjVq1Pr5/LpkOn2y+zcnhPAeLKfm7pXFxT/7VcBGZ89Vk1MvGM0+43jrEXr+fC98DXd+57BZOAONk0s0uKxVgpYGLt/FkS0Qw7YpjC4TLj7w+jNni29JtzV4fjaWkzotSter9xN2uwC51pWyfvg4e19Ews3qdGksIYWLYG3p0hkh6tW87hsH17XjtgQSCjZ5rwLI6PPmIwES3305BUAlxtS40Eig0NKWVczuYbjpz0d4YYA6dumNuFhBzLgi2HSXbRiYZnJaZzXvYALlbh+OpIOxnwztzZdbcEmn0SxEh8R8J1hYMIS+RoIUX+T2X6oW2VM1yJnWAL12bYh8rhI4uDP0X66tsoSmgvSHjThSG719nGintFRnylHUIY7Lz/X1rPRtcryjAFwi/Nliqprkr7vYDnakhTfgMIKhZyBJosskiDS/6PuvHjlpE7FXGpL97qnCfUxrnw3dqbtN4JHMY1fvACjdJZumszsJ4bwLUzxOf8zTarSxq/kTuZsf4bvClQ+3Ct9F2nj8S4axakNTkZoI5Z2fYQjwkjh+ntKpQK2jrMfyGaiZFBgSmuMxOuiBnVu0X2C9yOTagzGrEuElJZBuciUmp5ndcD4GjxOmvLcchkdDb1dFl4+3yKqVXv+czmwpK0f8/T24ladp71LXViM2zo4zgVD4iQ==
 X-Forefront-Antispam-Report:
-	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(1800799024)(36860700016)(376014)(82310400026)(22082099003)(18002099003)(56012099003);DIR:OUT;SFP:1101;
+	CIP:216.228.117.161;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge2.nvidia.com;CAT:NONE;SFS:(13230040)(376014)(82310400026)(36860700016)(1800799024)(22082099003)(18002099003)(56012099003);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	dBzYmG/CGJaEFUfYqRIWHJ0Enhh1aIU/T3V2l3A9didoz+WoNg79bj8mO5hkhSFNFI/W/zDYyn7yOQ/40Al+7Hm1tHQG3iY7sW4QIE1YZsxV2CNJT8XUKukSoyLcaQrNm2nizVshPgq0SNYJ4E2SYDdLjub20cO7+nbNH7bkYZY42euDOkrfXVsbRiFo0VgjaDaPcsv7qia7U8YBGKvtLJa8XqmLleQtBOjG0Fy3GW7Dh59TY6Z5dxwLETmnl4tfdVWGJufWvz1D1gl9Pzz4eZPON4y/seENUwfbsrWjcYWOuy+6M6Hq7Q7mkyrAD0HAgJJws7Ips0uZbsYRT/P9Ndoabo5VGH7yNT11sZKbySTbZZ/KqBtfpKL6ZY4jHPZmxWNS/4a1A2b5R5OSZLjpmk4I9UUiMTjzKAqcVXtJVhY/CVf4fWnNdirY/9wa5dTN
+	WDoSXKyzPH2KQrr8FKBSNREd4zu5aIrV7g1eNKHCYX2x/BPheoIvsOX12fZyxtThXixQuASiwbzsm5FXBN0BisOtzTaBNA+nc025n9/brIuK4xfFVi/ybVs0Kpy3iMMbGGazbBwShg0aN57u0lLw0sMtVTZOEwiSx9irnopWR5Ci2TyOqXAJton3KerwEjb0Kh96JdH7QHQStojSgegd/wvAKNcQm9YOasE1Ku/g62bCqH9L4B+z5DRqmKorqQWeNOIr/dN7A9CV0MzJivV7KxaAzAtpWDgwzdOxjvk63p4Mf3+aIQmeAwVohScBRGF9UPXLfLjgkp4u3Gb6Xo6/WPutZHabN1fQxKmPA1xNNcZCG9Y8M34d7JDFNGPVAuU1EkTsRfWOg0FnlmqlO2+P4tGUOWlBTQKkkKaOW16Wy5NH44A2sWX1D5c1jEUKhUyT
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Apr 2026 15:13:18.1139
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Apr 2026 15:40:09.2274
  (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: 8083f892-e7d9-4c2e-0433-08de9b018641
+X-MS-Exchange-CrossTenant-Network-Message-Id: 6410aaef-37b9-471c-929f-08de9b054688
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
+X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.161];Helo=[mail.nvidia.com]
 X-MS-Exchange-CrossTenant-AuthSource:
-	CH2PEPF0000009E.namprd02.prod.outlook.com
+	SN1PEPF00036F43.namprd05.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Anonymous
 X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA1PR12MB6185
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CH2PR12MB4055
 
-On 14/04/2026 23:06, Alex Williamson wrote:
-> Jinhui Guo reported a mismatched spin_lock()/spin_unlock_irq() pair
-> in virtiovf_read_device_context_chunk() where spin_unlock_irq() would
-> unconditionally enable interrupts despite spin_lock() never having
-> disabled them.  On closer inspection, the list_lock spinlock with IRQ
-> disabling was copied from the mlx5 variant driver where a hardirq
-> completion callback justifies it, but the virtio driver has no
-> interrupt context usage of list_lock.  Patch 1 converts list_lock to
-> a mutex, fixing the mismatch and aligning with peer vfio-pci variant
-> drivers.
+On Wed, 15 Apr 2026 18:12:50 +0300
+Yishai Hadas <yishaih@nvidia.com> wrote:
 
-Alex,
-How about staying with spin_lock but without the 'irq' variant, instead 
-of replacing to mutex ?
-
-The scope of the lock is very small which can fit spin.
-We may potentially get a performance degradation compared to mutex as 
-part of the hot path of STOP_COPY where this lock is used.
-
-Note:
-I don't see that other peer vfio-pci variant drivers maintain a list of 
-buffers as of this driver, unless I missed that.
-
-> Patch 2 converts the list_lock acquisitions to guard()/scoped_guard()
-> where the lock scope aligns naturally with function or block scope.
+> On 14/04/2026 23:06, Alex Williamson wrote:
+> > Jinhui Guo reported a mismatched spin_lock()/spin_unlock_irq() pair
+> > in virtiovf_read_device_context_chunk() where spin_unlock_irq() would
+> > unconditionally enable interrupts despite spin_lock() never having
+> > disabled them.  On closer inspection, the list_lock spinlock with IRQ
+> > disabling was copied from the mlx5 variant driver where a hardirq
+> > completion callback justifies it, but the virtio driver has no
+> > interrupt context usage of list_lock.  Patch 1 converts list_lock to
+> > a mutex, fixing the mismatch and aligning with peer vfio-pci variant
+> > drivers.  
 > 
-
-This patch might not be applicable if we'll stay with spin_lock.
-
-> Patches 3 and 4 extend the same guard() conversion to the remaining
-> two mutexes in the driver (migf->lock and bar_mutex).  These are
-> relatively independent of the list_lock fix but complete the
-> conversion across the driver.  Thanks,
+> Alex,
+> How about staying with spin_lock but without the 'irq' variant, instead 
+> of replacing to mutex ?
 > 
-
-Those 2 patches seem fine to me.
-Reviewed-by: Yishai Hadas <yishaih@nvidia.com>
-
-Yishai
-
-> Alex
+> The scope of the lock is very small which can fit spin.
+> We may potentially get a performance degradation compared to mutex as 
+> part of the hot path of STOP_COPY where this lock is used.
 > 
-> Alex Williamson (4):
->    vfio/virtio: Convert list_lock from spinlock to mutex
->    vfio/virtio: Use guard() for list_lock where applicable
->    vfio/virtio: Use guard() for migf->lock where applicable
->    vfio/virtio: Use guard() for bar_mutex in legacy I/O
+> Note:
+> I don't see that other peer vfio-pci variant drivers maintain a list of 
+> buffers as of this driver, unless I missed that.
+
+The argument doesn't make sense to me, we use a spinlock if we have an
+operation that cannot be preempted and a spinlock-irq if we need to
+manage that from a hardirq context.  I think we just need mutual
+exclusion here.  Stealing the CPU because you want the absolute best
+performance for a little bit of list manipulation is not valid
+justification.
+
+Documentation/locking/mutex-design.rst:
+
+  When to use mutexes
+  -------------------
+
+  Unless the strict semantics of mutexes are unsuitable and/or the critical
+  region prevents the lock from being shared, always prefer them to any other
+  locking primitive.
+
+Can you cite specific requirements for a spinlock in the critical
+section here?  Thanks,
+
+Alex
+ 
+> > Patch 2 converts the list_lock acquisitions to guard()/scoped_guard()
+> > where the lock scope aligns naturally with function or block scope.
+> >   
 > 
->   drivers/vfio/pci/virtio/common.h    |  2 +-
->   drivers/vfio/pci/virtio/legacy_io.c | 17 +++---
->   drivers/vfio/pci/virtio/migrate.c   | 90 ++++++++++++-----------------
->   3 files changed, 46 insertions(+), 63 deletions(-)
+> This patch might not be applicable if we'll stay with spin_lock.
+> 
+> > Patches 3 and 4 extend the same guard() conversion to the remaining
+> > two mutexes in the driver (migf->lock and bar_mutex).  These are
+> > relatively independent of the list_lock fix but complete the
+> > conversion across the driver.  Thanks,
+> >   
+> 
+> Those 2 patches seem fine to me.
+> Reviewed-by: Yishai Hadas <yishaih@nvidia.com>
+> 
+> Yishai
+> 
+> > Alex
+> > 
+> > Alex Williamson (4):
+> >    vfio/virtio: Convert list_lock from spinlock to mutex
+> >    vfio/virtio: Use guard() for list_lock where applicable
+> >    vfio/virtio: Use guard() for migf->lock where applicable
+> >    vfio/virtio: Use guard() for bar_mutex in legacy I/O
+> > 
+> >   drivers/vfio/pci/virtio/common.h    |  2 +-
+> >   drivers/vfio/pci/virtio/legacy_io.c | 17 +++---
+> >   drivers/vfio/pci/virtio/migrate.c   | 90 ++++++++++++-----------------
+> >   3 files changed, 46 insertions(+), 63 deletions(-)
+> >   
 > 
 
