@@ -1,96 +1,164 @@
-Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
+Received: from CH4PR04CU002.outbound.protection.outlook.com (mail-northcentralusazon11023116.outbound.protection.outlook.com [40.107.201.116])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 360723E63BB
-	for <virtualization@lists.linux.dev>; Wed, 15 Apr 2026 16:47:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.176.79.56
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776271661; cv=none; b=bJMi7PwmNfJGmGUT3BItEFvxwX8h4y/8JKtuEwmIz5iYuglsq0xhsQEHuKzlKbRgqx/tBMokncB38tmZnKsDvA6ZRSGPBTowf+WijnbKtIF/yyN6++L19EQjZL6z1YZkKFmmt+N/Ty+sAKsAj3DkHUD4Rubzn2GFyLPJp5hnW2g=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776271661; c=relaxed/simple;
-	bh=QbtHo2KwWzt1Vddli+d8CRyxnVEGfhvlMA5BCOioIrE=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=cH9VBxcFMvsi9ny4K2B0a6j9FEyaVLlxD+0lRxlqV81R77SYFayU0WELfiq8nZy7Ogy/OJuFJ51CLX+LTvsxjrRMn9t1xdce8bRuZ+vEQFZXHAoV3JV0avDvChM7QAIwvbzijlGFUfmpznnv1e7u5eaSr4MYBXkXFe9mbxNhenE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=h-partners.com; spf=pass smtp.mailfrom=h-partners.com; arc=none smtp.client-ip=185.176.79.56
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=h-partners.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=h-partners.com
-Received: from mail.maildlp.com (unknown [172.18.224.107])
-	by frasgout.his.huawei.com (SkyGuard) with ESMTPS id 4fwn9v082YzHnGjb;
-	Thu, 16 Apr 2026 00:47:15 +0800 (CST)
-Received: from mscpeml500003.china.huawei.com (unknown [7.188.49.51])
-	by mail.maildlp.com (Postfix) with ESMTPS id 6482A40584;
-	Thu, 16 Apr 2026 00:47:31 +0800 (CST)
-Received: from localhost.localdomain (10.123.66.205) by
- mscpeml500003.china.huawei.com (7.188.49.51) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Wed, 15 Apr 2026 19:47:30 +0300
-From: Fedorov Nikita <fedorov.nikita@h-partners.com>
-To: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav
- Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
-	<x86@kernel.org>, <hpa@zytor.com>, Juergen Gross <jgross@suse.com>, Ajay
- Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov
-	<alexey.makhalov@broadcom.com>, <bcm-kernel-feedback-list@broadcom.com>, Arnd
- Bergmann <arnd@arndb.de>, Peter Zijlstra <peterz@infradead.org>, Boqun Feng
-	<boqun@kernel.org>, Waiman Long <longman@redhat.com>, Darren Hart
-	<dvhart@infradead.org>, Davidlohr Bueso <dave@stgolabs.net>,
-	<andrealmeid@igalia.com>, Andrew Morton <akpm@linux-foundation.org>, David
- Hildenbrand <david@kernel.org>, Zi Yan <ziy@nvidia.com>, Matthew Brost
-	<matthew.brost@intel.com>, Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim
-	<rakie.kim@sk.com>, <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
-	Ying Huang <ying.huang@linux.alibaba.com>, Alistair Popple
-	<apopple@nvidia.com>, Anatoly Stepanov <stepanov.anatoly@huawei.com>
-CC: Nikita Fedorov <fedorov.nikita@h-partners.com>,
-	<linux-arm-kernel@lists.infradead.org>, <linux-kernel@vger.kernel.org>,
-	<virtualization@lists.linux.dev>, <linux-arch@vger.kernel.org>,
-	<linux-mm@kvack.org>, <guohanjun@huawei.com>, <wangkefeng.wang@huawei.com>,
-	<weiyongjun1@huawei.com>, <yusongping@huawei.com>, <leijitang@huawei.com>,
-	<artem.kuzin@huawei.com>, <kang.sun@huawei.com>, <chenjieping3@huawei.com>
-Subject: [RFC PATCH v3 7/7] futex: use hq-spinlock for hash buckets
-Date: Thu, 16 Apr 2026 00:44:59 +0800
-Message-ID: <20260415164459.2904963-8-fedorov.nikita@h-partners.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260415164459.2904963-1-fedorov.nikita@h-partners.com>
-References: <20260415164459.2904963-1-fedorov.nikita@h-partners.com>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 535B53EDAAD
+	for <virtualization@lists.linux.dev>; Wed, 15 Apr 2026 16:56:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.201.116
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1776272162; cv=fail; b=d0F6XzXijE3mpYcune6xJ6JHO/zhqJi6YBRBE3DZk5TQx0TP5zNsak9xepeLIHwEO4vYwZ3hrQ/KZMC8IcyrRDFerMGL8gtvbhT6KvN2QXa6qcT6SRcex95NG7VrukyDbQN0Av9pizOOieTIJnZoI2ttcn/Xne0PAAoy2o9Enos=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1776272162; c=relaxed/simple;
+	bh=VhLzU8SunLGIMO7M9jxcD9saUnGszxGEynI7TzG1uB0=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=cF+yqQqHg60Qk0TT6FPUNWXEi43v6FNvsjPvS0UwtZBIsROSArS82Is1D/MCFT9Ou/7/zuL2IXplaJ/30YQEbBnwG3wmMip5zzMlHE1lyEg5MJUmtoV3M1kIbkoabifmrlm8OAcqU7ZylaaeqY/td1UHislYLIRFyqE2GuuaFDA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microsoft.com; spf=pass smtp.mailfrom=microsoft.com; dkim=pass (1024-bit key) header.d=microsoft.com header.i=@microsoft.com header.b=Bw+FSK0w; arc=fail smtp.client-ip=40.107.201.116
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=microsoft.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=microsoft.com header.i=@microsoft.com header.b="Bw+FSK0w"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=PrPtAhbowArKQ+pVdYHbBJqiMvYswRO0SindaoGV98qrDKAcn27qvn/5/JM0EylwrQqJcK9i4IVYogt5/lchQigKpxgWzCGcLHL35rwg07wph7qs6uXnmozySWCbzMP4KR/9r7SiJ1MhR4n+Hgdq4CnhH+VYVU3bidmDAiTBLcjAjXyBM3P/t78Hcn+B/zPqx9PrET5/TuZqITZMTXdSnDHMOZCTpvYz2IilB9LzmEyRkV4KtQfo1LnXZ3Q9b878/YQqXwTrl76Jw7Bn+8bLl7nwp5QWknkOv3bJo3Yyy2EhCzSokLIyyfdeKZoCRMEp5xyk5T90lzQvVulsP49QVg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=i2OwXonR0wYHGINyJt+yBCFgSke2QeodSD/ITsmd3B0=;
+ b=BnfrKGbLlY4RPs9eJ3lysfnUIgIFVlKczEP+V6PdXjgwSwfBOMklHLbVR+8yjhm0/YCzuz1aoNDKmePzUIx1S4b26JDtKemyyyKCdBG4HMFKPtjPv1eQ1cHnDGYqeZSEIx4OEGkLvXMj1/xQ/ZYC0ndMBimKo3GlzJW1szq/e+5WL7QXYaJqxT+1VZCw5PDRY3XtnKzVVA6NW43wkekaOJx2qAaT2ZzP33j5yF4MiwGlJ/HL/WdVAJUiepWMB65EQqCLwMYBHJrdxrl/Rrw7ScEmZBzA5PtRNjsqtA2JevziYumNTJGRLwv2yXQ6Wr2G3Fghk8oW3mnO5PF+s4hwzg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=microsoft.com; dmarc=pass action=none
+ header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=i2OwXonR0wYHGINyJt+yBCFgSke2QeodSD/ITsmd3B0=;
+ b=Bw+FSK0wTsDa7CN+UIPXvN1EPQR0TDDIDMVkbnBWaDRmi54zJCfzlc47ebGDcYu1Z9nOt5XQWl5HhxljL7ge6KcIC9xWSHZiI2z+/gMlfUI6tUWjcU6bC9fqn+7IHs/rx3yhjPCLJrWzQAueONOpy/DdiBqNNwuo+aHhz0naRX8=
+Received: from SA1PR21MB6921.namprd21.prod.outlook.com (2603:10b6:806:4a7::11)
+ by SA1PR21MB6560.namprd21.prod.outlook.com (2603:10b6:806:4a6::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9818.20; Wed, 15 Apr
+ 2026 16:55:57 +0000
+Received: from SA1PR21MB6921.namprd21.prod.outlook.com
+ ([fe80::51cf:497c:e5df:f6d]) by SA1PR21MB6921.namprd21.prod.outlook.com
+ ([fe80::51cf:497c:e5df:f6d%2]) with mapi id 15.20.9818.017; Wed, 15 Apr 2026
+ 16:55:57 +0000
+From: Dexuan Cui <DECUI@microsoft.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+CC: KY Srinivasan <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>,
+	"wei.liu@kernel.org" <wei.liu@kernel.org>, Long Li <longli@microsoft.com>,
+	"davem@davemloft.net" <davem@davemloft.net>, "edumazet@google.com"
+	<edumazet@google.com>, "kuba@kernel.org" <kuba@kernel.org>,
+	"pabeni@redhat.com" <pabeni@redhat.com>, "horms@kernel.org"
+	<horms@kernel.org>, "niuxuewei.nxw@antgroup.com"
+	<niuxuewei.nxw@antgroup.com>, "linux-hyperv@vger.kernel.org"
+	<linux-hyperv@vger.kernel.org>, "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>, "netdev@vger.kernel.org"
+	<netdev@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "stable@vger.kernel.org"
+	<stable@vger.kernel.org>, Ben Hillis <Ben.Hillis@microsoft.com>, Mitchell
+ Levy <levymitchell0@gmail.com>
+Subject: RE: [EXTERNAL] Re: [PATCH net] hv_sock: Report EOF instead of -EIO
+ for FIN
+Thread-Topic: [EXTERNAL] Re: [PATCH net] hv_sock: Report EOF instead of -EIO
+ for FIN
+Thread-Index: AQHczMP62DSp8tUfXUqykY0mY+sLYLXgVi9Q
+Date: Wed, 15 Apr 2026 16:55:57 +0000
+Message-ID:
+ <SA1PR21MB6921C57E27E17305E56BC0F9BF222@SA1PR21MB6921.namprd21.prod.outlook.com>
+References: <20260414234316.711578-1-decui@microsoft.com>
+ <ad9pPrji1uYSgNir@sgarzare-redhat>
+In-Reply-To: <ad9pPrji1uYSgNir@sgarzare-redhat>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+msip_labels:
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=1dca6e96-832a-40da-9150-e0ccdd9e8c43;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2026-04-15T16:49:42Z;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Tag=10,
+ 3, 0, 1;
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=microsoft.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: SA1PR21MB6921:EE_|SA1PR21MB6560:EE_
+x-ms-office365-filtering-correlation-id: aff118d6-52ca-4036-1860-08de9b0fdd2f
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|366016|7416014|376014|1800799024|38070700021|18002099003|22082099003|56012099003;
+x-microsoft-antispam-message-info:
+ 84xNx29pX24oOEG38GQGFMPkPbRSFhjr7mlWpGyjGH5bzr8kTbr6dnIQWWvJoEhd41HWL6ClL5zgJ1eBQk3tuJ/sgVujQ06OiIknlQKnRhOBO7Spfk12Xz4lGEs2UTK0TtJYXB8hnzVw9vAJRXUVyIR7Ff8ZEew6u7583iVV4+gNgXKYuRLdhJjAmOZvx8DmYToxIWoSb7mf/qshO9jLzpW4QQJeS5KrqeGNPIMz6hcyIe/8JyuzW5iKs3tAO6VS8yM/WGrNMgWU8efhm2m8UpC2IEMjF74m/LvFrThHRmm7YUpOj1oa7ymf6xr3CSMN+cey8X7D0n3qUb89gn04VbDyEJTKplsKQmPLxXwFKAfjcLirXceXhL++mWy3O7wGtrkuGjz8uLKRDUvw3J/DD7n62sjBVmlp55SS6extKEla5a9Bfh03GFLnfK6gBh0kiLRb764UsZzmO6WDgIzkv++NAR1V3PtzLmaGQlP94S0MYFRYIf5qXWY+AWqZgCU3m+lERFRZ3X1+5SfEtNma13nNahC9VXoprpn8bFewK2AfyIp52Zmog13qXNsL6hcUy9U+bRNThBLG5Nzg/J65bzZF+WekTRlmaEmIHmaZpDD8JpR6ni5VtNWZT2O1o0cKNjt4lpxh3iRjrn/Zk5M2wh190c/L8IgSPilsHjyFuofE+ZHeK9exIJTBfjT4cJlEwSWyArJ8ANcvc4X5hWpSaRZpgI11GecnOPOIz9N0zYK1WmaQbpcismKU7DBZzRCqYmMaraDXQZ57vvGrjILI3+xuUb5ouq0BhC3jo7wnSj8=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA1PR21MB6921.namprd21.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(376014)(1800799024)(38070700021)(18002099003)(22082099003)(56012099003);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?Li2w9Qlzlwk817z5BYveuLind//778M8r9Y+1aeWwtQ85Z/02SKq7nLWM7Q+?=
+ =?us-ascii?Q?/+2pZviOUU/WNCGT3MvrAjVRbk4Aen+39sZ/LSkOrsxVDYgCbsHHEbPhfNK7?=
+ =?us-ascii?Q?74q3Af1QUN19IXLI/sy0oo9XDq24MilnqEI4iCOPsQ+DKD/6Tb7HYLrCzIF9?=
+ =?us-ascii?Q?8iLeb/EiCoQM6qE+IKhGyhR7L6KV8uoSBxXixpgJR5QVhQJdvlsgINguSfk5?=
+ =?us-ascii?Q?7OCFvkHZde1xB/Xrdfqfosbsaf5V2eHEJE5lhYlZj0cHXyF+4pf4d+u32Zjs?=
+ =?us-ascii?Q?CWai+xa8/BgUE82QPoqNsB0MERT5mHVwTYuj4sNeOhKwz4E7a4kqibUdUhj9?=
+ =?us-ascii?Q?xVGOe+PeIK/gaOc/73gXJGz1SucqUiwpVxpur8PvDxdKO/yvf6X1MwZ0tSST?=
+ =?us-ascii?Q?RddAeQmtGiILfPgIdvuTwd19om74LDQ815FeZ4VDH7yKiW+2a4CQfyAOqMCm?=
+ =?us-ascii?Q?ywQ9+b6jNGiBSncBOl5Vd/FJxMukFpLV9+gshS/sPHbfsWxItIHtJoEVMtGi?=
+ =?us-ascii?Q?JUComfetGv7nsVBVzr2YQLah3DBVPG6x07KPDGtypwYKTmOqS0MpePYeUWTB?=
+ =?us-ascii?Q?I3ILYhhSoLeOHmJPxdqQGXjIniusGHV29Mw1qGGT1JSabUaEzCaZ7Sfkfn0l?=
+ =?us-ascii?Q?RE0i1ERBH4IWnIweiSF2HoGN+0fdB0cBA37A/Qe+mKnR+nXv81wzLFEpvmb/?=
+ =?us-ascii?Q?/9i+nHaEOkGF2kTRInv5s6MMKr2oZ7ojnSUYb2GOB8EvgKnKO9Nx2Ntwcje+?=
+ =?us-ascii?Q?9Kb32m73pIAoyrFsQW7qecgHgwV1MaNJgNcPp76IkM5M4xXXj1rIT70upDFn?=
+ =?us-ascii?Q?pRQ3WYiPbDhIsQRRLb7dOLkDlbE8O2Ygd5rNeI3pjxvDVIctLiEsNaLYa8mT?=
+ =?us-ascii?Q?G6O0CYArbPYZ35ieSv5eK9tfDwuQWyXAvRRDAObJtnbls6i15hKLfS3bSd8U?=
+ =?us-ascii?Q?djYkoIDMzuLbLO8EKJPhoesjFX2kTnydbaAXElKGTRMv8z4j7FWESQ7oxUW9?=
+ =?us-ascii?Q?a/5cHzAI/rXuL6C/TM+bbnydjos4hcOYNj0HN53rO+sIdwr/ndZDMpn/Giqj?=
+ =?us-ascii?Q?Yc0q3eKGNsjtjPz9OUSt/A6Bs8EXGCkcTc6IF89TdPfjpD7Y1rFeqFJ7WuTu?=
+ =?us-ascii?Q?u/SRTJWNjnq9TWR7mdHdu/9BElCEnJ5Hsqo6hmlxKvCaVkwxQWLSzOnw2mn8?=
+ =?us-ascii?Q?bNYQ4EjQ9mYcreRBP2DcaQBmBiBiLCitvV+o0rGaK1xhdCZcp/JV/gkt4Abf?=
+ =?us-ascii?Q?Jw+OUS8KJ0XwIC5ksWWCU53r1CBOBnO7Unhq1+j0yl2D3K+un48oWF+vXnBc?=
+ =?us-ascii?Q?AuvzgEqzNwGwWDSutK9gbs1CHUU/kXbsM96XnrZdVwIPGRc9uJ+/j8vX+lDP?=
+ =?us-ascii?Q?0t+85/cd2jn7uzu7AG8F1bsQIyhefwP5ADpgOXLMKBhGP5/IhhFTvOJHAHMj?=
+ =?us-ascii?Q?cDep0LF4Zfhvc1xcXc4VKbuTrMkfnwDJkQU+LHbvU95dYmfwoZ8yCJmJXok3?=
+ =?us-ascii?Q?uUPM5Q+fFK6/czM6d7cRt/9iNkDL0UPYOhoySJezeqPzElAchM/7rfm6dVwa?=
+ =?us-ascii?Q?rSvsOhcHMhRFLPPIe1KUc3bJsWq++XisYRVzYAHv7cnImfDinHfhZgUxwwby?=
+ =?us-ascii?Q?ru8xzF5TESfDS8MCGxP4YKxJyBiR8BG+NGb39euLPpq5wrf2+eG2Oit+MWb4?=
+ =?us-ascii?Q?g18FRjfCfktpFLeDXrkd0U1ONdz0A6GrdJUrWV9XpSJliMct?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: mscpeml500003.china.huawei.com (7.188.49.51) To
- mscpeml500003.china.huawei.com (7.188.49.51)
+X-OriginatorOrg: microsoft.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SA1PR21MB6921.namprd21.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: aff118d6-52ca-4036-1860-08de9b0fdd2f
+X-MS-Exchange-CrossTenant-originalarrivaltime: 15 Apr 2026 16:55:57.0318
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: p0w+XY+/ujA2yGtM+tH0ozRO9I1KAfT5apza83B6DQHPEGR3FRak9thCbTrYWhKeA8wbNr3YSEAcUXNHbmudZQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR21MB6560
 
-Example of hq-spinlock enabled for futex hash-table bucket locks
-(used in memcached testing scenario)
+> From: Stefano Garzarella <sgarzare@redhat.com>
+> Sent: Wednesday, April 15, 2026 3:38 AM
+> >@@ -703,8 +703,22 @@ static s64 hvs_stream_has_data(struct vsock_sock
+> *vsk)
+> > 	switch (hvs_channel_readable_payload(hvs->chan)) {
+> > 	case 1:
+> > 		need_refill =3D !hvs->recv_desc;
+> >-		if (!need_refill)
+> >-			return -EIO;
+> >+		if (!need_refill) {
+>=20
+> Can we drop `need_refill` entirly and just check `hvs->recv_desc` here?
 
-In the evaluated memcached workloads, this improved throughput by up to
-10% on AMD EPYC 9654 and by up to 8% on Kunpeng 920, with corresponding
-latency reductions.
+OK. Will post v2 later today.
 
-Co-developed-by: Anatoly Stepanov <stepanov.anatoly@huawei.com>
-Signed-off-by: Anatoly Stepanov <stepanov.anatoly@huawei.com>
-Co-developed-by: Nikita Fedorov <fedorov.nikita@h-partners.com>
-Signed-off-by: Nikita Fedorov <fedorov.nikita@h-partners.com>
----
- kernel/futex/core.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+> Mainly because now the comment we are adding is confusing me about what
+> `need_refill` means.
+>=20
+> The rest LGTM.
+>=20
+> Thanks,
+> Stefano
 
-diff --git a/kernel/futex/core.c b/kernel/futex/core.c
-index 31e83a0978..042cdc7f75 100644
---- a/kernel/futex/core.c
-+++ b/kernel/futex/core.c
-@@ -1521,7 +1521,7 @@ static void futex_hash_bucket_init(struct futex_hash_bucket *fhb,
- #endif
- 	atomic_set(&fhb->waiters, 0);
- 	plist_head_init(&fhb->chain);
--	spin_lock_init(&fhb->lock);
-+	spin_lock_init_hq(&fhb->lock);
- }
- 
- #define FH_CUSTOM	0x01
--- 
-2.34.1
+Thanks for the review!
 
