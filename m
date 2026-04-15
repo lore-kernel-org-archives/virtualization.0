@@ -1,196 +1,232 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from LO0P265CU003.outbound.protection.outlook.com (mail-uksouthazon11022134.outbound.protection.outlook.com [52.101.96.134])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1786E332919
-	for <virtualization@lists.linux.dev>; Wed, 15 Apr 2026 13:11:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776258686; cv=none; b=F4kMqlsNo0IvaZ+nq/s7K6VkIXpobfIcx6Pq04Z/2XIpif4ESqQL3FqGNwrh05lus2lK2SSk2B+YseT4PwAQLaiOHIoGcuyebFufzUF79FW9ylZTmTUbmwvedK+ZlW0AuELXsZ5pl6nNAs6G3rJEPeol6ZTWQCl8iXdGP71nSt4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776258686; c=relaxed/simple;
-	bh=HOy4QBTiHtu5pZJktO361ZlyF5xmQN/JVgQvXBzyBow=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=bHMNia6oC7wXl6U17OZGuK/tX2Y1WkK77siDNIWv4C3mC4wfPnLPGB7Qca/9xVK/o7hnCZHXcgEG2w7EAG25un52cCDkKgirtKM8tIAC9Dx4bHlaXJ6ABnnbJdREQmkk28DMNxhRfl0VnnDB5AHRjaN+a4AjxbFwy8GK5LW99dc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OC0cUE0G; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OC0cUE0G"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1776258683;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=WL2SJseQynMpG1hsJR3ThfhQkhlDiJgfMk9Ad5tgV64=;
-	b=OC0cUE0GibiyV5D9TNdQaTeYxHt2GmaRLg2/cO7SkptEPo8PIzK5+kagAUbGT7WeC7FLAp
-	jzN+MuouDFqYXu84hsnhR9xM5Et8vjfiMcILOGKZ5BATwYy7bw6ZMTT0+u4ZUBe7N2fgZq
-	tOUHM3wrmE3tQFWmAg0rQeNQT9hjiic=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-501-knHUGWerMoWryXj83LUanw-1; Wed, 15 Apr 2026 09:11:21 -0400
-X-MC-Unique: knHUGWerMoWryXj83LUanw-1
-X-Mimecast-MFC-AGG-ID: knHUGWerMoWryXj83LUanw_1776258681
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-488d4ac6ff9so38950465e9.1
-        for <virtualization@lists.linux.dev>; Wed, 15 Apr 2026 06:11:21 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776258680; x=1776863480;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=WL2SJseQynMpG1hsJR3ThfhQkhlDiJgfMk9Ad5tgV64=;
-        b=kqAs2ErLFQ9GMdmWBOU85ZjqKi3fN48wkL3w/WpjMiqxZODelnz/4th4wD/TzuQLte
-         WLgiTGdgpjkNN3LC6cinJgjtph35Y1gz873h9hE0PLBtpJrhSBPMuHm8FYYa3Qu3yYa/
-         OlfKUN4OchSfyiHbbQ9KPQe6qpu4pOtAqoPt27U6TgLmqPnUpkBGJKNNqwWX2pgLwzBA
-         XukVdWn9AQnXh019UkPMuw2zVkILegHT1GG+PaVds9LT0IB7XmTDENJbT/+nDmOsEctS
-         rkDJL+MQuCleiq53PPgNUCW/5CEkXb84INMsc0QJf+QGJ0M7LO0t2lZcA/OODCnKEIfk
-         +Z3Q==
-X-Forwarded-Encrypted: i=1; AFNElJ/1eEAdu78NjvyW2IhG55P52CfqpSkIU8lhcwTU7BDfT4CmLAWk16XzW4EjmP/EUszobnjuJOp2kTr5ex9hpg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzg2UQzYNEdOCvaPaBstrTaHRsI2MK1MjiCaiX1zeCT9l2tEMPO
-	osi5GxK+OHCD3+8CdkFIu+Ovw7Ut/yhet2DlL6To6q2zXxuhq/OPcZi7V+n2jEbk1DGJ0ZcNelB
-	ocabMC6vPuTYIWzR20f/rcbwLQNRMQuzkwap1XLkDiQTWQMx5iMMJiL8RD4n+p4/1iezJ
-X-Gm-Gg: AeBDievEeWRehnM93mFxjySWzZtd2dSu1vCFjAkMVbOLQCNKZZMu0eSfk6ei0hin4PW
-	YB17a0oEjC2sSO12Si7vp85TYdQ1BYfeCUsmMFQZN0afilbWomhPDaXLbuEnF6ztagHMr9ctGgZ
-	IrH2e3InlnwotSLCCinKafcUE3h/sikrtJSIY6y5St0K3mBvL1usnAgaOaGXq7Wi0uI1yVzDvUw
-	8WyshKnDp/jSOACFFMgebnzC4a6CkK1bfnRRjPkJu565H54CSBVK+2tlF9+sODS6x9rHnOFhKM6
-	NW0QHqjlTheemlcKZpDPGZeCutEmoyLtmeGSNWbZ1L+uc8EZGyBrqraR4NjPGhBjfXBC4DCjJgS
-	IPgdSFq6VuqNbtC6WAX9KBDA8c9Y=
-X-Received: by 2002:a05:600c:6994:b0:485:3eba:ab96 with SMTP id 5b1f17b1804b1-488d67bbcbamr306254135e9.3.1776258680473;
-        Wed, 15 Apr 2026 06:11:20 -0700 (PDT)
-X-Received: by 2002:a05:600c:6994:b0:485:3eba:ab96 with SMTP id 5b1f17b1804b1-488d67bbcbamr306253665e9.3.1776258679964;
-        Wed, 15 Apr 2026 06:11:19 -0700 (PDT)
-Received: from leonardi-redhat ([176.206.19.176])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-488f0ebd0e1sm20362525e9.28.2026.04.15.06.11.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Apr 2026 06:11:19 -0700 (PDT)
-Date: Wed, 15 Apr 2026 15:11:16 +0200
-From: Luigi Leonardi <leonardi@redhat.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Arseniy Krasnov <avkrasnov@salutedevices.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net v3 2/3] vsock/test: fix MSG_PEEK handling in
- recv_buf()
-Message-ID: <ad-OSiCXGAXKgxrx@leonardi-redhat>
-References: <20260414-fix_peek-v3-0-e7daead49f83@redhat.com>
- <20260414-fix_peek-v3-2-e7daead49f83@redhat.com>
- <ad9uYrUjgCkW1D_k@sgarzare-redhat>
- <ad96TgXHW_jKitls@sgarzare-redhat>
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E4D43D6664
+	for <virtualization@lists.linux.dev>; Wed, 15 Apr 2026 14:47:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.96.134
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1776264443; cv=fail; b=hqsXleNBtAR5fpIyuG5XwzYE4l4Un2KwvGIUccUeC8EiqwaQ1ywQRXFJcdZlEtM/PATF8u28Tld5Q1zLI5SREbFaoDZX069rMsVracd3Il1R/DwO3hJuhxaOPXIh1azm6gmKQODajoI/zO1+0OrgtstFcVVWSJwgjkhKpkuZLT4=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1776264443; c=relaxed/simple;
+	bh=ReZwYvnE5xkN1rCKFb1fE+/k7DquvA7PQ3h9PZVKluc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
+	 Content-Disposition:In-Reply-To:MIME-Version; b=iNABV7UfFnTqF57BFEQmMmWTmte3cAS1Oe571rpnds4Sf7ilpmhwlw43JY3RV90sYq2YRFFnhE3NutVv9dADbtSLEXWZ5j2CZ21G+w7prKwZHtnc9hAEKxaIHnHa3dLUTMvxlPVY5klBBvwdv02SnepE7MJbxDHSp3JeVhVPS0U=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com; spf=pass smtp.mailfrom=atomlin.com; arc=fail smtp.client-ip=52.101.96.134
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=atomlin.com
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=o7eo0B5fF5SCqSUFA4Tob/0v7Fh7e9mK9Z/2kP0fRsnjH4QsdrJJjTYWefkRIXwgGmWBmIfbiwz3wLfzIIk70en2SMHhqP25BuyCyYX0atxBQ0vRp/opfs5o3rBjUUM4+9McSI6EbemHjZbcKfHcAui3wqOmeVNG4uSGwXsMgLpon+2LY807NLgq8nl4CUlksOm3/oXrI6lhKI0YHArG04xrplxreKGXd4SQ9tKPVGsSm3hQq1+IxNz7MhuUs22sn2TxR1+y4iAA++JJPGg94sLgkAx+SSGAqNuUNaNNodtoTCwNto7/tP9guJSWK3HOxHInmJUGv3Qu9UlygUDEVA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=HRLhu0j/455Y5T9J1TaoFJFpEu8bzcu/RdTbaPAl3X8=;
+ b=bib6HuYCF1OZNc2Z4dnfOMHqRt5gC/+zpSEoW+tJJ7Kwl0eLSlx04+qUuaSawbZdGJ/LsYKUho4Jub+dUTXVDjMQc8RCOHsZW31m+aJvOHFGuGbOmg9EwUsWdgmowF8LHM9HOoRIV8U8nICt3S8Y1FSbfmNG8I9sH4IKGyxwcbnzhQjL0wfT7crCg2Php6l5s16gQ5IXKs8DgxXjH0rpXUVzG6VLzkNc/7KivHGSBi7xuI9nKmbLdklJcB0t686eItpip5sz/Fz2mf0TtvcSGmWAc9wOuU8y9gluRMcR0QrBauMqzAZmRXgchZbitHdT+D+/HshqrPb0AfMF2qKQXw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=atomlin.com; dmarc=pass action=none header.from=atomlin.com;
+ dkim=pass header.d=atomlin.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=atomlin.com;
+Received: from CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM (2603:10a6:400:70::10)
+ by LO8P123MB7476.GBRP123.PROD.OUTLOOK.COM (2603:10a6:600:3b0::6) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9769.48; Wed, 15 Apr
+ 2026 14:47:16 +0000
+Received: from CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
+ ([fe80::de8e:2e4f:6c6:f3bf]) by CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
+ ([fe80::de8e:2e4f:6c6:f3bf%2]) with mapi id 15.20.9769.046; Wed, 15 Apr 2026
+ 14:47:16 +0000
+Date: Wed, 15 Apr 2026 10:47:11 -0400
+From: Aaron Tomlin <atomlin@atomlin.com>
+To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+Cc: Ming Lei <tom.leiming@gmail.com>, Ming Lei <ming.lei@redhat.com>, 
+	axboe@kernel.dk, kbusch@kernel.org, hch@lst.de, sagi@grimberg.me, mst@redhat.com, 
+	aacraid@microsemi.com, James.Bottomley@hansenpartnership.com, 
+	martin.petersen@oracle.com, liyihang9@h-partners.com, kashyap.desai@broadcom.com, 
+	sumit.saxena@broadcom.com, shivasharan.srikanteshwara@broadcom.com, 
+	chandrakanth.patil@broadcom.com, sathya.prakash@broadcom.com, sreekanth.reddy@broadcom.com, 
+	suganath-prabu.subramani@broadcom.com, ranjan.kumar@broadcom.com, jinpu.wang@cloud.ionos.com, 
+	tglx@kernel.org, mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com, 
+	vincent.guittot@linaro.org, akpm@linux-foundation.org, maz@kernel.org, ruanjinjie@huawei.com, 
+	yphbchou0911@gmail.com, wagi@kernel.org, frederic@kernel.org, longman@redhat.com, 
+	chenridong@huawei.com, hare@suse.de, kch@nvidia.com, steve@abita.co, sean@ashe.io, 
+	chjohnst@gmail.com, neelx@suse.com, mproche@gmail.com, linux-block@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, linux-nvme@lists.infradead.org, 
+	linux-scsi@vger.kernel.org, megaraidlinux.pdl@broadcom.com, mpi3mr-linuxdrv.pdl@broadcom.com, 
+	MPT-FusionLinux.pdl@broadcom.com
+Subject: Re: [PATCH v10 13/13] docs: add io_queue flag to isolcpus
+Message-ID: <nvumw2ekyms6r72uhq3nnyhksc3zxd3svom4agqhltz3tzeufe@i4zh7pvj5fnk>
+References: <adMoon3Zf6gO-UbA@fedora>
+ <zawhqvn53mcp4wf7axsmuq4cg73upxs5h2zgrfta5dpat3sfy4@zctfbz2ttz5m>
+ <CAFj5m9JE5e4DRGbzQFxDdZWU76ZPQ3G+C9JpLu0mhTB6aesZ9g@mail.gmail.com>
+ <a566smu6morqeefqal23eek4ibezfuiwhs774xtxhyyclpbtsx@uzzwgbzmwdjd>
+ <adhj_w11cpMfeEgN@fedora>
+ <dzpxscrhibmi5okkozf5jfull4dcajgpctldvdyfcjgmpeetk5@tkeyqouyabzy>
+ <adpD8M8cNu3IZzEL@fedora>
+ <6glgsbk2djsz4cqtbp2ht4274dw4rveq6fojlnpnuvx6zmpjxw@i43jo2l4qlz4>
+ <ad0Hk48y5JEeMlFk@fedora>
+ <20260415083458.UD3cF5IQ@linutronix.de>
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="2qhzsoz5szogc6ye"
+Content-Disposition: inline
+In-Reply-To: <20260415083458.UD3cF5IQ@linutronix.de>
+X-ClientProxiedBy: BL0PR02CA0110.namprd02.prod.outlook.com
+ (2603:10b6:208:35::15) To CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
+ (2603:10a6:400:70::10)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <ad96TgXHW_jKitls@sgarzare-redhat>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: J3VT2wqMSOmxW5eVsu8Yvw8DQKFLfdP9-O4UnF_zK7w_1776258681
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8; format=flowed
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CWLP123MB3523:EE_|LO8P123MB7476:EE_
+X-MS-Office365-Filtering-Correlation-Id: dcfd38bc-2653-4d88-3b98-08de9afde2ca
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|7416014|376014|366016|1800799024|18002099003|56012099003|22082099003;
+X-Microsoft-Antispam-Message-Info:
+	n9oasinS9ekXn1nqNEmOP3q9i6p1MHQUHEz6ioaw7hnuqjwT9zHDzv6cu2dF5YZrL3qlFsyYLIjpBqwxH+zEVFkk+AqtlZ7VKLu6mE4DcWpg/Z/yVUSk3320UUyAE6aTG05sxNcXexItRb5rqgIepuHrsoXQLaEc3cpVMqM7E+lWgdzAU43TuHsRXn0ndWUjhPlWQJ2YmAJLasNT/kjQqxjLUbx8VSrbuCZvkSqZYkV7Z5FfklpE8H0cG+sWekyrz4vvm8Tu0IQzuLO9lJVOWb25ew2nwRV2+7Z9SpF+BIi90j2htoz55evfLJMbGv7o7i1li23F/u6rbxdGVpaV47fUlbKcLhrjHzll0pNuE3/cFJJeq/vYkFO98yqUZk/op+poK0ODoUuoRHeHCYTjmV27O/zOaNc4A1U3CT5/Qqswa8OthTQVJCiz1v4yy1bi9RBNGkDPopDBqGFOtcUIfzb4DLlA6eaDGFLQ8avU18kaGi1rGhTRZQcVw90YQfQOdMmzYnLdF95cP/zco/7Gx+SlavP7TOmdFJ1LeX+Te6FnCa7Wetcke+3wbvOONqB9VP3F+zAa+mRD9M8aUjzeCiZZ9fYDcyV5B4NL6QkkKzZjjDXT9fcBRhPS4WhzoVGmQ82HVA3DO5VSThrz4k4mmHRXlhLqRbTXF+CH2Zd6Jlda6XdJ1RTsAeHARi+QdSFgz1ZB37fNcLhl9b3E/9yZ7Rx1d61ycglOXam4ih6Hm4s=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(366016)(1800799024)(18002099003)(56012099003)(22082099003);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?STFnc3lQK0FsL2NSU0dOWElqSnlPQnFKNnhBbndTQ2NiUHVjVEZRNTdxUytC?=
+ =?utf-8?B?UGk5cEwvY0hQV0hGT09EUjZxVXpOSWFOUFRXQ3RNWEV5NWlnVTAwQndsWWVZ?=
+ =?utf-8?B?VlZuOW1ZVklBdjdKUGFsYzU0M2RFbHVSeUkzQmZkZWFxeWVGZ2QxTjRYM3dS?=
+ =?utf-8?B?T0p3OTdSYzVyZ2NlMjNmUE96VlkxdU13M1NoVWxSYWc0ZEdhNEFJWHg1RmZX?=
+ =?utf-8?B?d2ZvNW1nbDZZSFprWFU3b2dMczVRTU9rYWVWYW12ZkdPeGM0MkVVdkVGSHlF?=
+ =?utf-8?B?ZFdTSERyZGx3NGNCOFNSVllHZjZtaEJtN3BQbnNwemRrYjRuZFFVc3YrMitC?=
+ =?utf-8?B?eVU0bEc3b2lxN1NwNFBHYW43VFZCYlpNcnVEUC9KU2pWTVZoVFNGWUxaVXo2?=
+ =?utf-8?B?YzQwWVMyeVNJOXJQbkNPQmkyYzhPblMrc2hOZVVheEdwREl6bzdpSFNJMXR0?=
+ =?utf-8?B?NVlTYUpWa25CSmswMFZ6WlJYSk5jblhjZmF6eVlGa0dBRTRxZGNoRUJEclY0?=
+ =?utf-8?B?QlRlSGFpRU9MOGUvRjlaa0pid2FYc2dXSGxXWFlkdzBMbTRWWWY5S2FYMzlz?=
+ =?utf-8?B?eTExL0dnOFdRRWhxeXc2V2xQUXVZYzBPK2dnbE1sdTEvYlBZQzlJNlpCbS9N?=
+ =?utf-8?B?aTlnZDAxYnFqTUtJTkF5cHRidzA3cmlKanBjUmdmMDZtQWpJWUlPbHVHNVdO?=
+ =?utf-8?B?VndsdnBPR0FVajlMbHRmS0hQSDFTeDhuRU1hQmkvTlhYbzVVczMrdVlQUlRK?=
+ =?utf-8?B?S0J5OEZOMkkxVVE4MTh1UnBXRFlmTGgvTVZzcnNaUkFyekpqZDhzcE9RTURF?=
+ =?utf-8?B?enBUVW91NkYwU1JJWkV4QkJwcng5alFhbjRITkRBSDBueUlBU2xlOHZEWFFK?=
+ =?utf-8?B?V1JycHZscnpxOEdvK3ZEZFc3R3dPMXhocUNqSGw4YUU2c0pYRE9YZFB5RHFr?=
+ =?utf-8?B?U1psWXo0TWgzUmg5SDJaekQ5S1VuSTB0WUNvMEFjMllDYWlCRG9IWlZhVy8w?=
+ =?utf-8?B?a1NFWlY4MU5MUzlNQjdScW42UGJZekdvdTZwSTZXdEg0V0lSNGFIS1dPT040?=
+ =?utf-8?B?Z3hKN3ZqTHI4akpEd0ZndTN0eDV4YXlrUzdnZHhlSVJIanV3VWtIY3pCbHZw?=
+ =?utf-8?B?TUlkSEQ0MUt0aUJ3ZmxnbmlTbTlZbGRMdE1YN1BNak9ZTTBmVnNlVVBRMmxt?=
+ =?utf-8?B?OThEMVpBd2FSbWJCeDdtOUFqSUJSUnhOVE5iTHdZR1VtclV3WUM2ZUlhYlh1?=
+ =?utf-8?B?OGgwQnh1TnpVbmhjQVRyNm1Gc0lWdDNyOUxyY0txTmhxNTdkRzBaSGhNM2JH?=
+ =?utf-8?B?VkNXWnZZTnJNRlhDVExHWXNJRzJlMHRVY3FscEJ3M25OMkR4aVB1NjJqbVp0?=
+ =?utf-8?B?NWZBbFQ0Sk1qWjV0VnMyWmQyS0RuL1VhYkpzaVh4N1ZIbStBNmZNYUMyZGJX?=
+ =?utf-8?B?SnBta0xXK2lEYVJLU1FDdG9uL1I2V1loOUNTNkJ3aVBRVHltWXl3NjE4dVho?=
+ =?utf-8?B?cFNNNUFUREJnbVVjbXFSc2IvNzdvT2tRRXVlU2Y4VVc5bDhMT0ErVm1meUNF?=
+ =?utf-8?B?RkZ3OERmOURyaTF1bWNJZEdpWHdPV21IYlRYbSsxN2lGdXNpQWltcnU4cGxn?=
+ =?utf-8?B?ZnNvdU9FQmo3VmFCcGNwSmd1N3JFSHZ1VWdhRTNVQ3dJWGlOTlh2R2NUNVFp?=
+ =?utf-8?B?UzBSK0JHOUhzWWw3dzBKcW5nV3orSGRkUkU2K1djWXpUcHNhRFRGcGtuZENP?=
+ =?utf-8?B?MjQ5UkE3ZkVLOHkwQlgwSnJjckY2THJSL0lLS2NRYmFSajhvOUlQaW9yMFZI?=
+ =?utf-8?B?dnVSS0tzMnpmY2FYRkhYeWdHYmh6aWMrcVc3R1JYMjY1b2pPR1JUUm1LZmNu?=
+ =?utf-8?B?eU5LdzQ3djRkcmNDcjc0WDhjZ0hiVk9uUXdrK0VmbkJRUDFaaVRleXdTQmVj?=
+ =?utf-8?B?UEtQeFNxaUxaMHBCVEVmanF1S1FDbndDaDFWNE80cGZYdGcrcGg1Y1daZzJ0?=
+ =?utf-8?B?UWk5a2NXWlRrUWpqeVJob2VQKy9tZjlibFAxS1hjUkNJRzVQaXVTWjdNNzho?=
+ =?utf-8?B?MGtrbVNmcDg3eW1HT1hkQ1FCK1gzL1U2NjVEdlRFVjUzOTZpaC9JaHloSG5G?=
+ =?utf-8?B?WEN6R1h6dGhiL0pKcXRGWDVabEZvVi9vRENDbmt1ek5mTUVoTlBNV0VXZHli?=
+ =?utf-8?B?NFdRcFFzRmtjMnRvSjl0eXlQcVJiRi9IK3B3YUhkQTJWY253dGdCM2k1MUlr?=
+ =?utf-8?B?RjMyZnJScDYvSFJ1a1l6QWVDWUlOQ3IyMGpnQ21yL24za3BVc1A1b3poTzNw?=
+ =?utf-8?B?TFUzRno0VGJsejhhS3NHaU5vM1BNN29Ud0xVSTcra2l1WTY5cDFaUT09?=
+X-OriginatorOrg: atomlin.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: dcfd38bc-2653-4d88-3b98-08de9afde2ca
+X-MS-Exchange-CrossTenant-AuthSource: CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 15 Apr 2026 14:47:16.2894
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: e6a32402-7d7b-4830-9a2b-76945bbbcb57
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: vHoZEA5nKWAW3AdcB0qGZd1UIdu2w6VjVyBSFFYYGsvrd6VOKUbK024pKofW2cPqw7PLXNMfgcFql5GS+F9Epg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: LO8P123MB7476
+
+--2qhzsoz5szogc6ye
+Content-Type: text/plain; protected-headers=v1; charset=utf-8
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH v10 13/13] docs: add io_queue flag to isolcpus
+MIME-Version: 1.0
 
-On Wed, Apr 15, 2026 at 01:54:43PM +0200, Stefano Garzarella wrote:
->On Wed, Apr 15, 2026 at 01:31:11PM +0200, Stefano Garzarella wrote:
->>On Tue, Apr 14, 2026 at 06:10:22PM +0200, Luigi Leonardi wrote:
->>>`recv_buf` does not handle the MSG_PEEK flag correctly: it keeps calling
->>>`recv` until all requested bytes are available or an error occurs.
->>>
->>>The problem is how it calculates the amount of bytes read: MSG_PEEK
->>>doesn't consume any bytes, will re-read the same bytes from the buffer
->>>head, so, summing the return value every time is wrong.
->>>
->>>Moreover, MSG_PEEK doesn't consume the bytes in the buffer, so if the
->>>requested amount is more than the bytes available, the loop will never
->>>terminate, because `recv` will never return EOF. For this reason we need
->>>to compare the amount of read bytes with the number of bytes expected.
->>>
->>>Add a check, and if the MSG_PEEK flag is present, update the counter of
->>>read bytes differently, and break if we read the expected amount.
->>
->>nit: "..., update the counter for bytes read only after all expected
->>bytes have been read and break out of the loop; otherwise, try again
->>after a short delay to avoid consuming too many CPU cycles."
->>
->>>
->>>This allows us to simplify the `test_stream_credit_update_test`, by
->>>reusing `recv_buf`, like some other tests already do.
->>>
->>>This also fixes callers that pass MSG_PEEK to recv_buf().
->>
->>nit: this is implicit from the first part of the description.
->>
->>>
->>>Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
->>>Signed-off-by: Luigi Leonardi <leonardi@redhat.com>
->>>---
->>>tools/testing/vsock/util.c       | 15 +++++++++++++++
->>>tools/testing/vsock/vsock_test.c | 13 +------------
->>>2 files changed, 16 insertions(+), 12 deletions(-)
->>>
->>>diff --git a/tools/testing/vsock/util.c b/tools/testing/vsock/util.c
->>>index 1fe1338c79cd..2c9ee3210090 100644
->>>--- a/tools/testing/vsock/util.c
->>>+++ b/tools/testing/vsock/util.c
->>>@@ -381,7 +381,13 @@ void send_buf(int fd, const void *buf, size_t len, int flags,
->>>	}
->>>}
->>>
->>>+#define RECV_PEEK_RETRY_USEC 10
->>
->>10 usec IMO are a bit low, it could be the same order of the 
->>syscalls involved in the loop, I'd go to some milliseconds like we 
->>do for SEND_SLEEP_USEC.
->>
->>>+
->>>/* Receive bytes in a buffer and check the return value.
->>>+ *
->>>+ * MSG_PEEK note: MSG_PEEK doesn't consume bytes from the buffer, so partial
->>>+ * reads cannot be summed. Instead, the function retries until recv() returns
->>>+ * exactly expected_ret bytes in a single call.
->>
->>I'd replace with something like this:
->>
->>  * When MSG_PEEK is set, recv() is retried until it returns exactly
->>  * expected_ret bytes. The function returns on error, EOF, or timeout
->>  * as usual.
->>
->>Thanks,
->>Stefano
->>
->>>*
->>>* expected_ret:
->>>*  <0 Negative errno (for testing errors)
->>>@@ -403,6 +409,15 @@ void recv_buf(int fd, void *buf, size_t len, int flags, ssize_t expected_ret)
->>>		if (ret <= 0)
->>>			break;
->>>
->>>+		if (flags & MSG_PEEK) {
->>>+			if (ret == expected_ret) {
->
->On second thought, I think it would be more appropriate to check for
->`ret >= expected_ret` here, because all subsequent recv() will
->definitely return more bytes, so there’s no point in continuing the
->loop... and anyway, we’ll check the result later, so just that change
->should be fine.
->
->And of course I'd update the comment on top in this way:
->
->   * When MSG_PEEK is set, recv() is retried until it returns at least
->   * expected_ret bytes. The function returns on error, EOF, or timeout
->   * as usual.
->
->Thanks,
->Stefano
->
+On Wed, Apr 15, 2026 at 10:34:58AM +0200, Sebastian Andrzej Siewior wrote:
+> On 2026-04-13 23:11:15 [+0800], Ming Lei wrote:
+> > > > What matters is that IO won't interrupt isolated CPU.
+> > >=20
+> > > The isolcpus=3Dmanaged_irq acts as a "best effort" avoidance algorith=
+m rather
+> > > than a strict, unbreakable constraint. This is indicated in the propo=
+sed
+> > > changes to Documentation/core-api/irq/managed_irq.rst [1].
+> >=20
+> > Yes, it is "best effort", but isolated cpu is only take as effective CPU
+> > for the hw queue's irq iff all others are offline. Which is just fine f=
+or typical
+> > use cases, in which IO isn't submitted from isolated CPU.
+>=20
+> Couldn't we tackle this by limiting the number of managed interrupts the
+> device asks for and then limiting the CPUs it could be bound to?
+>=20
+> So if have house keeping CPUs 0/1 and isolated 2-63 then managed_irq=3D is
+> futile since it use 64 interrupts and map each to one CPU. Even if the
+> device supports less it would map them evenly across available CPUs.
+>=20
+> If the user wishes to initiate I/O from all CPUs but not be bother by
+> interrupts we could limit the device to ask for 2 interrupts instead of
+> 64 (with the consequence of more queue sharing) and then limit those two
+> interrupts to CPU 0 and 1 instead to CPU 0-31 and 32-63 like it would be
+> now the case.
+>=20
+> Wouldn't that be what the io_queue flag tries to do?
+>=20
+Hi Sebastian,
 
-Good idea, will do.
+Indeed, you are spot on.
 
-Thanks!
-Luigi
+What you have described is precisely the architectural mechanism that this
+patchset implements to resolve the issue:
 
+    1.  Rather than permitting the device driver to blindly allocate 64
+        queues (and 64 MSI-X vectors) for a 64-core system, the
+        "isolcpus=3Dio_queue" intercepts this at the block layer. It
+        throttles the hardware queue allocation to match the number of
+        online housekeeping CPUs (2 queues in your example). As you rightly
+        noted, this results in the isolated CPUs sharing those submission
+        queues.
+
+    2.  Once those two queues have been allocated, the new
+        irq_spread_hk_filter() strictly confines their hardware completion
+        interrupts to CPUs 0 and 1.
+
+By structurally enforcing both of these constraints at initialisation,
+"isolcpus=3Dio_queue" entirely prevents the vector exhaustion observed on
+large topologies. Furthermore, it provides an absolute guarantee that
+hardware completion interrupts will never be routed to the isolated CPUs,
+even when an application submits I/O from them.
+
+
+Kind regards,
+--=20
+Aaron Tomlin
+
+--2qhzsoz5szogc6ye
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAEBCgAdFiEEeQaE6/qKljiNHm6b4t6WWBnMd9YFAmnfpOgACgkQ4t6WWBnM
+d9Z+Dg/+Pe9TdJNDzD3IRPZIKV47tJNaJoUvEVSSwVqCnWecAM9WiD9HmSzknQqb
+R+3CBwN39Z5AX06sOIw9wp7M5xOo33jqQsCI5nmsawKG+LV48uKLEmCsXIaIQXMM
+cOuwGe8KVMqeHxvwyjeLe1zimvz2c61GAckXpPPxpLQSCLMRlWnj5xI4yVR8+5NN
+BPYtMgKuSnswJmCt6/ZN2VdEx+ybDxBCXFacgXcIbr8uq2QM02X02w/BjtlmaY/x
+OwYFxrpucSTDu9gwHtEgzAhBc11J5pTm1kie2nr/132meFNVVNwFC6HTsJzapIw2
+zy9SdCdTJh+fp30PaOGf8VRe7WQTjyQYqARN5WjXU0hk0vIO6CB6WU+y1Fhyt402
+zny40fIg3Ik8s7H3vQS5xQrxnpEbsr6jxrYDLuJR5mpLRIxB3dSXyuacj61o8CXK
+qwN/DhTcsXAqt0j5JioYwb8Op1thgVmxnQdoar0vFLpNN+vSh703q5n9qTQF2zz3
+UuL/EvnbZcXAUnM8ugnLXsbVxIaQ58rrDETOzu2TTsfkQllHvu3vpV4Be08GT4Sh
+iPZiRONBc6iopbw1ykgvEUw7mP0gjhI0HvmfWKCGGbifB5oi6yNLE5M/HDW5MK/C
+bUl9O7+HFwfEpdHA2ikWsh69GuIv3XS2ANQM8vkcZ0I7DDDIhsA=
+=88NS
+-----END PGP SIGNATURE-----
+
+--2qhzsoz5szogc6ye--
