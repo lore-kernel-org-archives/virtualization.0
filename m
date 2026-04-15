@@ -1,29 +1,29 @@
 Received: from frasgout.his.huawei.com (frasgout.his.huawei.com [185.176.79.56])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90EF93E5560
-	for <virtualization@lists.linux.dev>; Wed, 15 Apr 2026 16:47:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22F6E3E5567
+	for <virtualization@lists.linux.dev>; Wed, 15 Apr 2026 16:47:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.176.79.56
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776271658; cv=none; b=Tx/1p+uyRfns0URVSVGJf2fF8yjoBTixv8IPY6FPaXHawpE5lQu3wBETckEbAwxEruhL+vy/7mI1+WuNq1p1dCBcIBu+V+P7WgM6xq1m1wnKnlWZRVomMN63Fmz4iBZ1WcgVY22YPa9JOmg/ywdi8JPzWuSD516rdbKPkTayvPQ=
+	t=1776271659; cv=none; b=UOyWhLgELSp7mhTFyKjQ+F5F8vvKV8MoTr61BLjZ7q+F2QpUEk2k2FDWI06sIYLwgiUCK11vZ2BecfwAz5kIx2Io7PHMyt+zeXP4/o185s0hPIQm77svBk5Bs84QUG+rOcXoqB1eCjgCw3VfYSoxc2WjaUYqIIVAHKXbaAicLmk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776271658; c=relaxed/simple;
-	bh=GB7hnr8gL/xUh7qfRJVFwiyTl7Bd6wNCVU9HRjw9TO8=;
+	s=arc-20240116; t=1776271659; c=relaxed/simple;
+	bh=1yX26Jv5NzWhA11bb35ltXqfXtMgA8ci4GY5NIhY6nQ=;
 	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=VqgqCZJBVGzj9sSlIq6g3hz98jUPVlFc8vELhLwF/RMudvLSg5zm+zKrBdQY0CIdvIRPggnqm5RJ21Myt5F0BtXwhg09Q/rlJ/B6kpAlaDM+K/d5ARiWuzu++MQg7SgCVtjr6OVl3pGN5CMMRlRbU7jwUikUCcjs6eNZYkJZ068=
+	 MIME-Version:Content-Type; b=aGcp/59dOZZRI9OxwC/RBYeMEMdE/M7+eaCNUp+IroPhwdSOGu6yqxkarZXfLjLpGny9kRRb+7NLHmZNyBqU+ib4Tp2SIL2j4ZgAA5PITVINrSST8SRicaK3KT+k5N6ex5iXNrF3IZHfAEARkqxLcLd/4ThuT+nHf7f2nUFL8vE=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=h-partners.com; spf=pass smtp.mailfrom=h-partners.com; arc=none smtp.client-ip=185.176.79.56
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=h-partners.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=h-partners.com
-Received: from mail.maildlp.com (unknown [172.18.224.150])
-	by frasgout.his.huawei.com (SkyGuard) with ESMTPS id 4fwn9J4N2czJ46DW;
-	Thu, 16 Apr 2026 00:46:44 +0800 (CST)
+Received: from mail.maildlp.com (unknown [172.18.224.83])
+	by frasgout.his.huawei.com (SkyGuard) with ESMTPS id 4fwn9L3YfJzJ46Dq;
+	Thu, 16 Apr 2026 00:46:46 +0800 (CST)
 Received: from mscpeml500003.china.huawei.com (unknown [7.188.49.51])
-	by mail.maildlp.com (Postfix) with ESMTPS id 0334640570;
-	Thu, 16 Apr 2026 00:47:28 +0800 (CST)
+	by mail.maildlp.com (Postfix) with ESMTPS id DC7F440569;
+	Thu, 16 Apr 2026 00:47:29 +0800 (CST)
 Received: from localhost.localdomain (10.123.66.205) by
  mscpeml500003.china.huawei.com (7.188.49.51) with Microsoft SMTP Server
  (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Wed, 15 Apr 2026 19:47:27 +0300
+ 15.2.1544.11; Wed, 15 Apr 2026 19:47:29 +0300
 From: Fedorov Nikita <fedorov.nikita@h-partners.com>
 To: Catalin Marinas <catalin.marinas@arm.com>, Will Deacon <will@kernel.org>,
 	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav
@@ -46,9 +46,9 @@ CC: Nikita Fedorov <fedorov.nikita@h-partners.com>,
 	<linux-mm@kvack.org>, <guohanjun@huawei.com>, <wangkefeng.wang@huawei.com>,
 	<weiyongjun1@huawei.com>, <yusongping@huawei.com>, <leijitang@huawei.com>,
 	<artem.kuzin@huawei.com>, <kang.sun@huawei.com>, <chenjieping3@huawei.com>
-Subject: [RFC PATCH v3 1/7] kernel: add hq-spinlock types
-Date: Thu, 16 Apr 2026 00:44:53 +0800
-Message-ID: <20260415164459.2904963-2-fedorov.nikita@h-partners.com>
+Subject: [RFC PATCH v3 4/7] hq-spinlock: add hq-spinlock tunables and debug statistics
+Date: Thu, 16 Apr 2026 00:44:56 +0800
+Message-ID: <20260415164459.2904963-5-fedorov.nikita@h-partners.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20260415164459.2904963-1-fedorov.nikita@h-partners.com>
 References: <20260415164459.2904963-1-fedorov.nikita@h-partners.com>
@@ -63,213 +63,259 @@ Content-Type: text/plain
 X-ClientProxiedBy: mscpeml500003.china.huawei.com (7.188.49.51) To
  mscpeml500003.china.huawei.com (7.188.49.51)
 
-Introduce the type definitions used by Hierarchical Queued spinlocks.
+The HQ slowpath and contention-based mode switching depend on several
+parameters that affect when NUMA-aware mode becomes active and how long
+local handoff can continue. Expose these parameters through procfs so
+that the behaviour can be inspected and tuned without rebuilding the
+kernel.
 
-Add the HQ-specific types definitions and extend qspinlock so
-that a lock can be marked as using the HQ slowpath
-while preserving the existing qspinlock layout
+Also add debug statistics that make it possible to observe HQ lock
+activation, handoff behaviour, and mode switching decisions during
+testing and evaluation.
+
+These controls are intended to simplify validation and analysis of HQ
+lock behaviour on different systems and workloads.
 
 Co-developed-by: Anatoly Stepanov <stepanov.anatoly@huawei.com>
 Signed-off-by: Anatoly Stepanov <stepanov.anatoly@huawei.com>
 Co-developed-by: Nikita Fedorov <fedorov.nikita@h-partners.com>
 Signed-off-by: Nikita Fedorov <fedorov.nikita@h-partners.com>
 ---
- include/asm-generic/qspinlock_types.h |  44 ++++++++--
- kernel/locking/hqlock_types.h         | 118 ++++++++++++++++++++++++++
- 2 files changed, 157 insertions(+), 5 deletions(-)
- create mode 100644 kernel/locking/hqlock_types.h
+ kernel/locking/hqlock_core.h |   5 ++
+ kernel/locking/hqlock_meta.h |  16 ++++
+ kernel/locking/hqlock_proc.h | 164 +++++++++++++++++++++++++++++++++++
+ 3 files changed, 185 insertions(+)
+ create mode 100644 kernel/locking/hqlock_proc.h
 
-diff --git a/include/asm-generic/qspinlock_types.h b/include/asm-generic/qspinlock_types.h
-index 2fd1fb89ec..a97387ae48 100644
---- a/include/asm-generic/qspinlock_types.h
-+++ b/include/asm-generic/qspinlock_types.h
-@@ -43,11 +43,6 @@ typedef struct qspinlock {
- 	};
- } arch_spinlock_t;
+diff --git a/kernel/locking/hqlock_core.h b/kernel/locking/hqlock_core.h
+index e2ba09d758..b7681915b4 100644
+--- a/kernel/locking/hqlock_core.h
++++ b/kernel/locking/hqlock_core.h
+@@ -530,6 +530,11 @@ static __always_inline void low_contention_mcs_lock_handoff(struct mcs_spinlock
+ 	if (next != prev && likely(general_handoffs + 1 != max_u16))
+ 		general_handoffs++;
  
--/*
-- * Initializier
-- */
--#define	__ARCH_SPIN_LOCK_UNLOCKED	{ { .val = ATOMIC_INIT(0) } }
--
- /*
-  * Bitfields in the atomic value:
-  *
-@@ -76,6 +71,26 @@ typedef struct qspinlock {
- #else
- #define _Q_PENDING_BITS		1
- #endif
-+
-+#ifdef CONFIG_HQSPINLOCKS
-+/* For locks with HQ-mode we always use single pending bit */
-+#define _Q_PENDING_HQLOCK_BITS	 1
-+#define _Q_PENDING_HQLOCK_OFFSET (_Q_LOCKED_OFFSET + _Q_LOCKED_BITS)
-+#define _Q_PENDING_HQLOCK_MASK		_Q_SET_MASK(PENDING_HQLOCK)
-+
-+#define _Q_LOCKTYPE_OFFSET	(_Q_PENDING_HQLOCK_OFFSET + _Q_PENDING_HQLOCK_BITS)
-+#define _Q_LOCKTYPE_BITS	1
-+#define _Q_LOCKTYPE_MASK	_Q_SET_MASK(LOCKTYPE)
-+#define _Q_LOCKTYPE_HQ			(1U << _Q_LOCKTYPE_OFFSET)
-+
-+#define _Q_LOCK_MODE_OFFSET	(_Q_LOCKTYPE_OFFSET + _Q_LOCKTYPE_BITS)
-+#define _Q_LOCK_MODE_BITS	2
-+#define _Q_LOCK_MODE_MASK	_Q_SET_MASK(LOCK_MODE)
-+#define _Q_LOCK_MODE_QSPINLOCK_VAL	(1U << _Q_LOCK_MODE_OFFSET)
-+
-+#define _Q_LOCK_TYPE_MODE_MASK	(_Q_LOCKTYPE_MASK | _Q_LOCK_MODE_MASK)
-+#endif //CONFIG_HQSPINLOCKS
-+
- #define _Q_PENDING_MASK		_Q_SET_MASK(PENDING)
- 
- #define _Q_TAIL_IDX_OFFSET	(_Q_PENDING_OFFSET + _Q_PENDING_BITS)
-@@ -92,4 +107,23 @@ typedef struct qspinlock {
- #define _Q_LOCKED_VAL		(1U << _Q_LOCKED_OFFSET)
- #define _Q_PENDING_VAL		(1U << _Q_PENDING_OFFSET)
- 
-+#ifdef CONFIG_HQSPINLOCKS
-+#define _Q_LOCK_INVALID_TAIL	(_Q_TAIL_IDX_MASK)
-+
-+#define _Q_SERVICE_MASK		(_Q_LOCKTYPE_MASK | _Q_LOCK_MODE_QSPINLOCK_VAL | _Q_LOCK_INVALID_TAIL)
-+#else // CONFIG_HQSPINLOCKS
-+#define _Q_SERVICE_MASK		0
++#ifdef CONFIG_HQSPINLOCKS_DEBUG
++	if (READ_ONCE(max_general_handoffs) < general_handoffs)
++		WRITE_ONCE(max_general_handoffs, general_handoffs);
 +#endif
 +
-+/*
-+ * Initializier
-+ */
-+#define	__ARCH_SPIN_LOCK_UNLOCKED		{ { .val = ATOMIC_INIT(0) } }
+ 	qnext->general_handoffs = general_handoffs;
+ 	qnext->remote_handoffs = qnode->remote_handoffs;
+ 	qnext->prev_general_handoffs = qnode->prev_general_handoffs;
+diff --git a/kernel/locking/hqlock_meta.h b/kernel/locking/hqlock_meta.h
+index 561d5a5fd0..1c69df536b 100644
+--- a/kernel/locking/hqlock_meta.h
++++ b/kernel/locking/hqlock_meta.h
+@@ -124,6 +124,12 @@ static inline enum meta_status grab_lock_meta(struct qspinlock *lock, u32 lock_i
+ 	}
+ 
+ 	*seq = seq_counter;
++#ifdef CONFIG_HQSPINLOCKS_DEBUG
++	int current_used = atomic_inc_return_relaxed(&cur_buckets_in_use);
 +
-+#ifdef CONFIG_HQSPINLOCKS
-+#define	__ARCH_SPIN_LOCK_UNLOCKED_HQ	{ { .val = ATOMIC_INIT(_Q_LOCKTYPE_HQ | _Q_LOCK_MODE_QSPINLOCK_VAL) } }
-+#else
-+#define	__ARCH_SPIN_LOCK_UNLOCKED_HQ	{ { .val = ATOMIC_INIT(0) } }
++	if (READ_ONCE(max_buckets_in_use) < current_used)
++		WRITE_ONCE(max_buckets_in_use, current_used);
++#endif
+ 	return META_GRABBED;
+ }
+ 
+@@ -252,6 +258,9 @@ hqlock_mode_t setup_lock_mode(struct qspinlock *lock, u16 lock_id, u32 *meta_seq
+ 		 */
+ 		if (status == META_GRABBED && mode != LOCK_MODE_HQLOCK) {
+ 			smp_store_release(&meta_pool[lock_id].lock_ptr, NULL);
++#ifdef CONFIG_HQSPINLOCKS_DEBUG
++			atomic_dec(&cur_buckets_in_use);
++#endif
+ 		}
+ 	} while (mode == LOCK_NO_MODE);
+ 
+@@ -307,8 +316,15 @@ static inline void release_lock_meta(struct qspinlock *lock,
+ 			goto do_rollback;
+ 	}
+ 
++#ifdef CONFIG_HQSPINLOCKS_DEBUG
++	atomic_dec(&cur_buckets_in_use);
 +#endif
 +
- #endif /* __ASM_GENERIC_QSPINLOCK_TYPES_H */
-diff --git a/kernel/locking/hqlock_types.h b/kernel/locking/hqlock_types.h
+ 	if (qnode->remote_handoffs < hqlock_remote_handoffs_keep_numa) {
+ 		upd_val |= _Q_LOCK_MODE_QSPINLOCK_VAL;
++#ifdef CONFIG_HQSPINLOCKS_DEBUG
++		atomic_inc(&transitions_from_hq_to_qspinlock);
++#endif
+ 	}
+ 
+ 	/*
+diff --git a/kernel/locking/hqlock_proc.h b/kernel/locking/hqlock_proc.h
 new file mode 100644
-index 0000000000..32d06f2755
+index 0000000000..ea68635851
 --- /dev/null
-+++ b/kernel/locking/hqlock_types.h
-@@ -0,0 +1,118 @@
++++ b/kernel/locking/hqlock_proc.h
+@@ -0,0 +1,164 @@
 +/* SPDX-License-Identifier: GPL-2.0 */
 +#ifndef _GEN_HQ_SPINLOCK_SLOWPATH
 +#error "Do not include this file!"
 +#endif
 +
-+#define IRQ_NODE (MAX_NUMNODES + 1)
-+#define Q_NEW_NODE_QUEUE 1
-+#define LOCK_ID_BITS		(12)
-+
-+#define LOCK_ID_MAX			(1 << LOCK_ID_BITS)
-+#define LOCK_ID_NONE		(LOCK_ID_MAX + 1)
-+
-+#define _QUEUE_TAIL_MASK (((1ULL << 32) - 1) << 0)
-+#define _QUEUE_SEQ_COUNTER_MASK (((1ULL << 32) - 1) << 32)
++#include <linux/sysctl.h>
 +
 +/*
-+ * Output code for handoff-logic:
-+ *
-+ * ==  0 (HQLOCK_HANDOFF_LOCAL) - has local nodes to handoff
-+ *  >  0 - has remote node to handoff, id is visible
-+ * == -1 (HQLOCK_HANDOFF_REMOTE_HEAD) - has remote node to handoff,
-+ *         id isn't visible yet, will be in the *lock_meta->head_node*
++ * Local handoffs threshold to maintain global fairness,
++ * perform remote handoff if it's reached
 + */
-+enum {
-+	HQLOCK_HANDOFF_LOCAL = 0,
-+	HQLOCK_HANDOFF_REMOTE_HEAD = -1
-+};
++unsigned long hqlock_fairness_threshold = 1000;
 +
-+typedef enum {
-+	LOCK_NO_MODE = 0,
-+	LOCK_MODE_QSPINLOCK = 1,
-+	LOCK_MODE_HQLOCK = 2,
-+} hqlock_mode_t;
-+
-+struct numa_qnode {
-+	struct mcs_spinlock mcs;
-+
-+	u16 lock_id;
-+	u16 wrong_fallback_tail;
-+	u16 general_handoffs;
-+
-+	u16 numa_node;
-+};
-+
-+struct numa_queue {
-+	struct numa_qnode *head;
-+	union {
-+		u64 seq_counter_tail;
-+		struct {
-+			u32 tail;
-+			u32 seq_counter;
-+		};
-+	};
-+
-+	u16 next_node;
-+	u16 prev_node;
-+
-+	u16 handoffs_not_head;
-+} ____cacheline_aligned;
-+
-+/**
-+ * Lock metadata
-+ * "allocated"/"freed" on demand.
-+ *
-+ * Used to dynamically bind numa_queue to a lock,
-+ * maintain FIFO-order for the NUMA-queues.
-+ *
-+ * seq_counter is needed to distinguish metadata usage
-+ * by different locks, preventing local contenders
-+ * from queueing in the wrong per-NUMA queue
-+ *
-+ * @see set_bucket
-+ * @see numa_xchg_tail
++/*
++ * Minimal amount of handoffs in LOCK_MODE_QSPINLOCK
++ * to enable NUMA-awareness
 + */
-+struct lock_metadata {
-+	atomic_t seq_counter;
-+	struct qspinlock *lock_ptr;
++unsigned long hqlock_general_handoffs_turn_numa = 50;
 +
-+	/* NUMA-queues of contenders ae kept in FIFO order */
-+	union {
-+		u32 nodes_tail;
-+		struct {
-+			u16 tail_node;
-+			u16 head_node;
-+		};
-+	};
++/*
++ * Minimal amount of remote handoffs in LOCK_MODE_QSPINLOCK
++ * to enable NUMA-awareness.
++ *
++ * counter is increased if local handoffs >= hqlock_local_handoffs_to_increase_remotes
++ */
++unsigned long hqlock_remote_handoffs_turn_numa = 2;
++
++/*
++ * How many remote handoffs are needed
++ * to keep NUMA-awareness on
++ */
++unsigned long hqlock_remote_handoffs_keep_numa = 1;
++
++/*
++ * How many local handoffs are needed
++ * to increase remote handoffs counter.
++ *
++ * That is needed to avoid using LOCK_MODE_HQLOCK mode
++ * with 1-2 threads from several NUMA nodes,
++ * in this case HQlock will give more overhead then benefit
++ */
++unsigned long hqlock_local_handoffs_to_increase_remotes = 2;
++
++unsigned long hqlock_probability_of_force_stay_numa = 5000;
++
++static unsigned long long_zero;
++static unsigned long long_max = LONG_MAX;
++static unsigned long long_hundred_percent = 10000;
++
++static const struct ctl_table hqlock_settings[] = {
++	{
++		.procname		= "hqlock_fairness_threshold",
++		.data			= &hqlock_fairness_threshold,
++		.maxlen			= sizeof(hqlock_fairness_threshold),
++		.mode			= 0644,
++		.proc_handler	= proc_doulongvec_minmax
++	},
++	{
++		.procname		= "hqlock_general_handoffs_turn_numa",
++		.data			= &hqlock_general_handoffs_turn_numa,
++		.maxlen			= sizeof(hqlock_general_handoffs_turn_numa),
++		.mode			= 0644,
++		.proc_handler	= proc_doulongvec_minmax,
++		.extra1		= &long_zero,
++		.extra2		= &long_max,
++	},
++	{
++		.procname		= "hqlock_probability_of_force_stay_numa",
++		.data			= &hqlock_probability_of_force_stay_numa,
++		.maxlen			= sizeof(hqlock_probability_of_force_stay_numa),
++		.mode			= 0644,
++		.proc_handler	= proc_doulongvec_minmax,
++		.extra1		= &long_zero,
++		.extra2		= &long_hundred_percent,
++	},
++	{
++		.procname		= "hqlock_remote_handoffs_turn_numa",
++		.data			= &hqlock_remote_handoffs_turn_numa,
++		.maxlen			= sizeof(hqlock_remote_handoffs_turn_numa),
++		.mode			= 0644,
++		.proc_handler	= proc_doulongvec_minmax,
++		.extra1		= &long_zero,
++		.extra2		= &long_max,
++	},
++	{
++		.procname		= "hqlock_remote_handoffs_keep_numa",
++		.data			= &hqlock_remote_handoffs_keep_numa,
++		.maxlen			= sizeof(hqlock_remote_handoffs_keep_numa),
++		.mode			= 0644,
++		.proc_handler	= proc_doulongvec_minmax,
++		.extra1		= &long_zero,
++		.extra2		= &long_max,
++	},
++	{
++		.procname		= "hqlock_local_handoffs_to_increase_remotes",
++		.data			= &hqlock_local_handoffs_to_increase_remotes,
++		.maxlen			= sizeof(hqlock_local_handoffs_to_increase_remotes),
++		.mode			= 0644,
++		.proc_handler	= proc_doulongvec_minmax,
++		.extra1		= &long_zero,
++		.extra2		= &long_max,
++	},
++};
++static int __init init_numa_spinlock_sysctl(void)
++{
++	if (!register_sysctl("kernel", hqlock_settings))
++		return -EINVAL;
++	return 0;
++}
++core_initcall(init_numa_spinlock_sysctl);
++
++
++#ifdef CONFIG_HQSPINLOCKS_DEBUG
++static int max_buckets_in_use;
++static int max_general_handoffs;
++static atomic_t cur_buckets_in_use = ATOMIC_INIT(0);
++
++static atomic_t transitions_from_qspinlock_to_hq = ATOMIC_INIT(0);
++static atomic_t transitions_from_hq_to_qspinlock = ATOMIC_INIT(0);
++
++
++static int print_hqlock_stats(struct seq_file *file, void *v)
++{
++	seq_printf(file, "Max dynamic metada in use after previous print: %d\n",
++		   READ_ONCE(max_buckets_in_use));
++	WRITE_ONCE(max_buckets_in_use, 0);
++
++	seq_printf(file, "Currently in use: %d\n",
++		   atomic_read(&cur_buckets_in_use));
++
++	seq_printf(file, "Max MCS handoffs after previous print: %d\n",
++		   READ_ONCE(max_general_handoffs));
++	WRITE_ONCE(max_general_handoffs, 0);
++
++	seq_printf(file, "Transitions from qspinlock to HQ mode after previous print: %d\n",
++		   atomic_xchg_relaxed(&transitions_from_qspinlock_to_hq, 0));
++
++	seq_printf(file, "Transitions from HQ to qspinlock mode after previous print: %d\n",
++		   atomic_xchg_relaxed(&transitions_from_hq_to_qspinlock, 0));
++
++	return 0;
++}
++
++
++static int stats_open(struct inode *inode, struct file *file)
++{
++	return single_open(file, print_hqlock_stats, NULL);
++}
++
++static const struct proc_ops stats_ops = {
++	.proc_open  = stats_open,
++	.proc_read  = seq_read,
++	.proc_lseek = seq_lseek,
 +};
 +
-+static inline int decode_lock_mode(u32 lock_val)
++static int __init stats_init(void)
 +{
-+	return (lock_val & _Q_LOCK_MODE_MASK) >> _Q_LOCK_MODE_OFFSET;
++	proc_create("hqlock_stats", 0444, NULL, &stats_ops);
++	return 0;
 +}
 +
-+static inline u32 encode_lock_mode(u16 lock_id)
-+{
-+	if (lock_id == LOCK_ID_NONE)
-+		return LOCK_MODE_QSPINLOCK << _Q_LOCK_MODE_OFFSET;
++core_initcall(stats_init);
 +
-+	return LOCK_MODE_HQLOCK << _Q_LOCK_MODE_OFFSET;
-+}
-+
-+static inline u64 encode_tc(u32 tail, u32 counter)
-+{
-+	u64 __tail = (u64)tail;
-+	u64 __counter = (u64)counter;
-+
-+	return __tail | (__counter << 32);
-+}
-+
-+static inline u32 decode_tc_tail(u64 tail_counter)
-+{
-+	return (u32)(tail_counter & _QUEUE_TAIL_MASK);
-+}
-+
-+static inline u32 decode_tc_counter(u64 tail_counter)
-+{
-+	return (u32)((tail_counter & _QUEUE_SEQ_COUNTER_MASK) >> 32);
-+}
++#endif // HQSPINLOCKS_DEBUG
 -- 
 2.34.1
 
