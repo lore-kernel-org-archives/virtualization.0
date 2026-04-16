@@ -1,155 +1,333 @@
-Received: from fhigh-b7-smtp.messagingengine.com (fhigh-b7-smtp.messagingengine.com [202.12.124.158])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f172.google.com (mail-pg1-f172.google.com [209.85.215.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9844F38E121
-	for <virtualization@lists.linux.dev>; Thu, 16 Apr 2026 22:44:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.158
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D57613242B8
+	for <virtualization@lists.linux.dev>; Thu, 16 Apr 2026 23:38:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776379454; cv=none; b=X0yhdoaOyQNplRCazOyjjyy1rrOVLFgdAqoFiJxo4nW56efalZIx8oQ/97i9zJYXs9UzbJmwqY4fn+NQQBG0K8RWAWuawPcTjpzsDjq/tj81Azsh8s/vDs7friLv3UYj0qC0wBN1FkVCUbgoNZby+2ojpaGB31qEULaThxl4xRQ=
+	t=1776382685; cv=none; b=X245JkarsOIUmqAO0y3mrbI5J54znSQkrDQHj3C+0eVZkLalcJyLgATjnrKkVf3a4m/yQiuOXfbeOuSzT0Y9J1bOe68LCtyto2xa5FvpfxnU3vna+tcQ4uofq47kfR8UUyQD/FyNHK+HvhqQ8+0Q5xfn5VB6y4M0UbpxOZdF4c8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776379454; c=relaxed/simple;
-	bh=j2SsrKwHx1PlDFiTIav3oazP14sDhn6ZApe2Ilkm+Qk=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=pxG7Qoy1NeMTNNTSGSXXgUyj1guab3iYVCgL6++PkRKcs2nbxwFEtnvzyHeJ+qwNKvXVFO5jFmOfnlBvEUjdB96ZIwdmohK2IRDXTT2DA0wJRQXjokl51ugqy1tqwHHjtFLTHCYH1//LpY2W7tlYfsRiN+/ldCqVjg2uFusH6Eo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=HhgnRCy1; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=JYT1CsFh; arc=none smtp.client-ip=202.12.124.158
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
+	s=arc-20240116; t=1776382685; c=relaxed/simple;
+	bh=1hm+B86G5D9G/MCdxoIY2wItu3QHzV/wLiy7jMjCweY=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=q4Pg5qlBM6AWkP0IdUsKK1SgcZpTUfN99DlglLJHUFEx8SjGPuYCaC+a59vXYbUpD52g2dk0rRCiOCr9xzIYgivrjVpJHcasu0GQkvNlLigNt5FiEAmoJ9tbtdlpUNnW+8F9b52MVyzzi3zzOsqgZViagljk9r5KRznrdbbs6Gs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=RUfN8HP3; arc=none smtp.client-ip=209.85.215.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="HhgnRCy1";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="JYT1CsFh"
-Received: from phl-compute-06.internal (phl-compute-06.internal [10.202.2.46])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id 32EEE7A0256;
-	Thu, 16 Apr 2026 18:44:10 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-06.internal (MEProxy); Thu, 16 Apr 2026 18:44:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm1; t=1776379449;
-	 x=1776465849; bh=+4+ocCvoeYhWO4RzU4Nm3ZoHgVf0pZuK3DortIW2CKo=; b=
-	HhgnRCy1WuVQcusHdDhE7few+0xNjlHmBsIxrbYhuGMhb0238PJM3qEi9K0FPG7K
-	3ptKxhENkfYEmo6ZyZux0/sEvsWBLWufnX5u19mfvjtyM2ZW8SP/C9BEdSzFdRS3
-	wG6WKNjXQxA6ssk+34/vhTfeBtHVQTgPHhwYwy3jkGmBsmiSHn0vfhxg5a2arZlv
-	TffsJmUMGQKLwiXvpu/cS2XEwGAF30iEEdoOzeUggULpLtDmXJua+xn+7UgMK3F2
-	Vv26cTWk6GMUdF9eNDW8LHnKqb9eDehL28/GW1w73Z0X9HMcKd1Stz578rfB5clB
-	Sr893vaz0WfTS4PH5IKsEw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1776379449; x=
-	1776465849; bh=+4+ocCvoeYhWO4RzU4Nm3ZoHgVf0pZuK3DortIW2CKo=; b=J
-	YT1CsFh5zI2TKxT8+C8QxctR4tUVFEnLhIndnWEkyWpFg69znQMH622ijsDKN4lu
-	P8iyRn5vCw1MfrCLNTxtywSxKktc3CjqgjgS6MQd2UBef2q+UH0KDT4n1amn209t
-	Ad4Ilyhb6v3GobElri+Hqpkap4f24QPWOPdJ/fVMjX+zJExJKGGdrHvUj0VThF9G
-	gf3zWjb/nYG72lzTl1u85l5epqTNMJRuNn7BOsy063BBt6d/+TWhV36yuYvsMKeB
-	Prdkpq0Ahhkd2yD0Mfs6bonx5YPR/ujO9zCDut3YP1qNVIgqzoJi4Gj/Lp0RB9Uc
-	zzK/0gVAocj0MUilhqNww==
-X-ME-Sender: <xms:OGbhaStC4DV0und_riSZ5-p6y9YbSv6p54zAf-KaF9rGy6VMqJVOyQ>
-    <xme:OGbhaSKnONjOE_R-A6JiXlGu2otUlY99-cXPvo7aNZ7YKHi7O5s5tQtCuFAHnDTfW
-    kjG-NS7qm7fas5QWXd44KqGqdbTApIjRHabwj2G06n_NfhW5JmJ>
-X-ME-Received: <xmr:OGbhaUZoX5Icq3rfTzGpARLKNBO0HHIGFip6nMc5uHjg10LKDQknZdAeefU>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgdegkedvfecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
-    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
-    hrpeffhffvvefukfgjfhfogggtgfesthejredtredtvdenucfhrhhomheptehlvgigucgh
-    ihhllhhirghmshhonhcuoegrlhgvgiesshhhrgiisghothdrohhrgheqnecuggftrfgrth
-    htvghrnhepvdekfeejkedvudfhudfhteekudfgudeiteetvdeukedvheetvdekgfdugeev
-    ueeunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
-    hlvgigsehshhgriigsohhtrdhorhhgpdhnsggprhgtphhtthhopedukedpmhhouggvpehs
-    mhhtphhouhhtpdhrtghpthhtohepmhgrthhtvghvsehmvghtrgdrtghomhdprhgtphhtth
-    hopegrnhhkihhtrgesnhhvihguihgrrdgtohhmpdhrtghpthhtohepjhhgghesiihivghp
-    vgdrtggrpdhrtghpthhtohephihishhhrghihhesnhhvihguihgrrdgtohhmpdhrtghpth
-    htohepshhkohhlohhthhhumhhthhhosehnvhhiughirgdrtghomhdprhgtphhtthhopehk
-    vghvihhnrdhtihgrnhesihhnthgvlhdrtghomhdprhgtphhtthhopegrphhophhplhgvse
-    hnvhhiughirgdrtghomhdprhgtphhtthhopehlvghonheskhgvrhhnvghlrdhorhhgpdhr
-    tghpthhtohepvhhivhgvkhdrkhgrshhirhgvugguhiesihhnthgvlhdrtghomh
-X-ME-Proxy: <xmx:OGbhaYLl_ntaWte04DOQO7Xa3xQ1maGJZYVucQrgmyUIJL5xupgRUQ>
-    <xmx:OGbhadqjMWhmeUkNStkVCbt3X0pEEtFxASekWh0LhxxrpZlMs1oe-w>
-    <xmx:OGbhaRA3a3GNN3w3yScyIB6ZORBMb0431gKzljYP0AbtHJ7tYUbg1Q>
-    <xmx:OGbhaTeRldz7Cuisj0iP_0raEg3rUPrQEg6yTon_F-idJqn_w-B_bQ>
-    <xmx:OWbhaUUkP2EXTAhJLjSlpmbD5pJxTzysOFJxEnaMo_6m_rKq0X4vw4Ya>
-Feedback-ID: i03f14258:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 16 Apr 2026 18:44:07 -0400 (EDT)
-Date: Thu, 16 Apr 2026 16:44:06 -0600
-From: Alex Williamson <alex@shazbot.org>
-To: Matt Evans <mattev@meta.com>
-Cc: Ankit Agrawal <ankita@nvidia.com>, Jason Gunthorpe <jgg@ziepe.ca>,
- Yishai Hadas <yishaih@nvidia.com>, Shameer Kolothum
- <skolothumtho@nvidia.com>, Kevin Tian <kevin.tian@intel.com>, Alistair
- Popple <apopple@nvidia.com>, Leon Romanovsky <leon@kernel.org>, Vivek
- Kasireddy <vivek.kasireddy@intel.com>, Kees Cook <kees@kernel.org>, Zhi
- Wang <zhiw@nvidia.com>, Peter Xu <peterx@redhat.com>, Alexey Kardashevskiy
- <aik@ozlabs.ru>, Eric Auger <eric.auger@redhat.com>, <kvm@vger.kernel.org>,
- <linux-kernel@vger.kernel.org>, <virtualization@lists.linux.dev>,
- alex@shazbot.org
-Subject: Re: [PATCH 1/2] vfio/pci: Set up VFIO barmap before creating a
- DMABUF
-Message-ID: <20260416164406.7fb3bb0b@shazbot.org>
-In-Reply-To: <20260415181423.1008458-1-mattev@meta.com>
-References: <20260415181423.1008458-1-mattev@meta.com>
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.51; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="RUfN8HP3"
+Received: by mail-pg1-f172.google.com with SMTP id 41be03b00d2f7-c796163fac5so60475a12.1
+        for <virtualization@lists.linux.dev>; Thu, 16 Apr 2026 16:38:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1776382683; x=1776987483; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=rKqud54K8Q9ymiWL5Jl6Wgt+D0YrAG8IY+dffFgFtSk=;
+        b=RUfN8HP3uL9AEhNvL85dzxaBTS3An49ZaKsAka7D5YjtUdhosi9UbXweT3q4YXpJC+
+         QlutsM6vrIbNr1QogIaw+ehtnuCEVeiAci0qyv58u62aYchw5WPrlA/E1IpOTLVBYMbY
+         SDgUmrin9zpc70n3qccL1E1nRRaTQYyhm4B8QNWOlfn9KVjNcJ8ARdo1WjKMv1pROb3M
+         5tILCCo/BXVjqSXh/OdRSAuJQjom3VqMPXC+Uaf3SC5qi8zzLPSOyY3m/zErjsi5AGez
+         hApSBHVUZnWbZUR1mWZTYj8vvUmYp3Sqt3ehSJHAbN8DzcFwXXlkzHNgCNaawR6FJjih
+         Bxrg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1776382683; x=1776987483;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=rKqud54K8Q9ymiWL5Jl6Wgt+D0YrAG8IY+dffFgFtSk=;
+        b=HQAGB4Io3OKbTV7J4C255GSaUeRULuE5zLzYVJrPNpD1RT10zWQ3Mnotw6sv8dVvHo
+         33/rHfT5ngx5CUckJUBElRuYsI/CjrM2Vdnxvl37indX2FzKR5QjqOY/2aWFCC4uOEgw
+         SYanosF3vE56lYB6Q5Q7iQ4E1r31GQgWTYMDyb+el6SDwFLLYOBMartxJX6aI+2H8FDN
+         XfDGm5gFUp/Syk5uXgBNYmbIARCkc4WIyAU7TLVu+JalsS6RRlzAOgSxjmi2+CtCxywX
+         nEWwwCMXo++zGkmS0WVal3C9ADqUybg4I4V9ETWirm69iyfw6wdkTZwKbzElq5tH6Ore
+         CVgg==
+X-Forwarded-Encrypted: i=1; AFNElJ/0PzG8b4dGeb3YmI/IwE7jUXNuHg9KIQDota6pKgmHCE4iLAKAxAEXVEpDZP/4/TEdWzVDCoynDgRhTGrdxw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzyZRB+zzU+nCF5NDE/VoU5I4qYwdfQgKGKety1Tbilix6TdpO5
+	rgPgU31gQaZwILFYldpz3Ua6jBiMiUJYVNumnbL+DtQgzIL+EDdXouFl
+X-Gm-Gg: AeBDies8WUeIJcJQ5yp+Yfh2abz8bgpUTxinAhZl/UKPpfMj+dSQaQ3ODMgdwsEfVEo
+	NAEmzli8Uwv19c/PIGfUDbS4LzOk9Hh0FzWiQoGDW7iNy+UMYm80Bk3V1mwZ3AIKlsM0AuJuK+P
+	wfTaxKkx29cWI1alfxvHHMyhtiaNHd0hw3qfjLP9ftOHjhrhSh8gNCRCYAA9o4OU3FR+hLpW7C/
+	vCJBG2xhEuVAhwhasM6W2z2D5t0uEhcd4jDaC2+pbFjHDPBoDwjraMKc4xDYPGEktrRj6IHE6LN
+	iB7NoXX1nMOv1w8wS4XpQXVWadBDaq9e1Myw8VN54cACIK3wdJ2/Em0SAPUEtDJBcz6h2WHCmtt
+	fRSkVonvQ0EMdyZHcGwNxVszkggiFDF8vCRQjVgTklaZXT3iYBiLlxTnU/AYBd4boeub+dc9lFd
+	Rv8Ikhf0uyrMPH23tHSxbTE8DzLQkuhA1VBVin5Ui0vyivrqQ=
+X-Received: by 2002:a05:6a00:3cd1:b0:82f:8a29:e3b4 with SMTP id d2e1a72fcca58-82f8c97f212mr270310b3a.50.1776382682407;
+        Thu, 16 Apr 2026 16:38:02 -0700 (PDT)
+Received: from localhost ([188.253.126.211])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82f8cb6fabbsm135513b3a.33.2026.04.16.16.38.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 16 Apr 2026 16:38:01 -0700 (PDT)
+From: physicalmtea <physicalmtea@gmail.com>
+To: amit@kernel.org
+Cc: arnd@arndb.de,
+	gregkh@linuxfoundation.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	JiaJia <physicalmtea@gmail.com>
+Subject: [PATCH] virtio: console: fix use-after-free after failed restore
+Date: Fri, 17 Apr 2026 07:37:53 +0800
+Message-Id: <20260416233753.134082-1-physicalmtea@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On Wed, 15 Apr 2026 11:14:22 -0700
-Matt Evans <mattev@meta.com> wrote:
+From: JiaJia <physicalmtea@gmail.com>
 
-> A DMABUF exports access to BAR resources which need to be requested
-> before the DMABUF is handed out.  Usually the resources are requested
-> when setting up the barmap when the VFIO device fd is mmap()ed, but
-> there's no guarantee that's done before a DMABUF is created.
-> 
-> Set up the barmap (and so request resources) in the DMABUF-creation
-> path.
-> 
-> Fixes: 5d74781ebc86c ("vfio/pci: Add dma-buf export support for MMIO regions")
-> Signed-off-by: Matt Evans <mattev@meta.com>
-> ---
->  drivers/vfio/pci/vfio_pci_dmabuf.c | 9 +++++++++
->  1 file changed, 9 insertions(+)
-> 
-> diff --git a/drivers/vfio/pci/vfio_pci_dmabuf.c b/drivers/vfio/pci/vfio_pci_dmabuf.c
-> index 4ccaf3531e02..fefe7cf4256b 100644
-> --- a/drivers/vfio/pci/vfio_pci_dmabuf.c
-> +++ b/drivers/vfio/pci/vfio_pci_dmabuf.c
-> @@ -272,6 +272,15 @@ int vfio_pci_core_feature_dma_buf(struct vfio_pci_core_device *vdev, u32 flags,
->  		goto err_free_priv;
->  	}
->  
-> +	/*
-> +	 * See comment in vfio_pci_core_mmap(); ensure PCI regions
-> +	 * were requested before returning DMABUFs that reference
-> +	 * them.  Barmap setup does this:
-> +	 */
-> +	ret = vfio_pci_core_setup_barmap(vdev, get_dma_buf.region_index);
-> +	if (ret)
-> +		goto err_free_phys;
-> +
->  	priv->vdev = vdev;
->  	priv->nr_ranges = get_dma_buf.nr_ranges;
->  	priv->size = length;
+virtcons_freeze() tears down the virtqueues through remove_vqs(), but
+remove_vqs() only deletes the virtqueues and frees portdev->in_vqs and
+portdev->out_vqs. It leaves port->in_vq, port->out_vq, portdev->c_ivq,
+and portdev->c_ovq pointing at the old queues.
 
-Wouldn't this get a lot easier if we just setup all the barmaps in
-vfio_pci_core_enable(), conditional on pci_resource_len() just like we
-use to filter in REGION_INFO?
+Those stale pointers survive a failed restore:
 
-I don't recall if there's some reason we've avoid this so far, maybe
-others can shout it out if they do.
+  virtcons_freeze()
+    -> remove_vqs()
+       -> del_vqs()
+          -> vring_del_virtqueue()
+             -> kfree(vq)
 
-We already tear them all down in vfio_pci_core_disable().  It would be
-a small patch to add that, which we would mark as Fixes:, then a small
-follow-up on top of that that removes any then redundant or unnecessary
-callers (all of them).  Thoughts?  Thanks,
+  virtcons_restore()
+    -> init_vqs()
+       -> virtio_find_vqs()
 
-Alex
+If init_vqs() fails, virtcons_restore() returns without rebinding the
+per-port queue pointers. Later get_chars(), __send_control_msg(),
+control_work_handler(), get_inbuf(), reclaim_consumed_buffers(),
+__send_to_port(), fill_readbuf(), and splice_write can still reach those
+cached pointers and trigger a use-after-free or Oops.
 
-BTW, cover letters are appreciated for multi-part series.
+A fault-injection-assisted hibernation run that forces init_vqs() to
+fail reproduces this as a KASAN slab-use-after-free in
+virtqueue_disable_cb() from virtcons_freeze() on the subsequent PM
+path.
+
+Clear the cached virtqueue pointers when queues are deleted, guard the
+direct queue users that can still run after a failed restore, and make
+queue-less open/write paths fail immediately instead of sleeping or
+succeeding against a broken port state.
+
+Signed-off-by: JiaJia <physicalmtea@gmail.com>
+---
+Runtime evidence from a fault-injection-assisted hibernation run that
+forces init_vqs() to fail with -ENOMEM:
+
+  virtio_console virtio1: virtcons_restore: init_vqs failed: -12
+  virtio-pci 0000:00:02.0: PM: failed to thaw: error -12
+
+  KASAN report: slab-use-after-free in virtqueue_disable_cb+0x20/0xb0
+  Read of size 4 at addr fff000000417c848 by task virtio-console-/1
+  The buggy address belongs to the object at fff000000417c800
+    which belongs to the cache kmalloc-256 of size 256
+  The buggy address is located 72 bytes inside of
+    freed 256-byte region [fff000000417c800, fff000000417c900)
+
+  Call trace:
+    virtqueue_disable_cb+0x20/0xb0
+    virtcons_freeze+0x1f8/0x208
+    virtio_device_freeze+0x98/0xd0
+    virtio_pci_freeze+0x28/0x60
+    pci_pm_freeze+0x94/0x1a8
+    dpm_run_callback+0x118/0x4e0
+    device_suspend+0x210/0xa40
+    dpm_suspend+0x258/0x628
+    dpm_suspend_start+0x78/0x88
+    hibernation_restore+0x28/0x188
+    load_image_and_restore+0xd0/0x118
+    hibernate+0x2cc/0x430
+
+ drivers/char/virtio_console.c | 57 ++++++++++++++++++++++++++++-------
+ 1 file changed, 46 insertions(+), 11 deletions(-)
+
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 9a33217c6..05887bdb5 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -464,6 +464,8 @@ static struct port_buffer *get_inbuf(struct port *port)
+ 
+ 	if (port->inbuf)
+ 		return port->inbuf;
++	if (!port->in_vq)
++		return NULL;
+ 
+ 	buf = virtqueue_get_buf(port->in_vq, &len);
+ 	if (buf) {
+@@ -547,6 +549,8 @@ static ssize_t __send_control_msg(struct ports_device *portdev, u32 port_id,
+ 		return 0;
+ 
+ 	vq = portdev->c_ovq;
++	if (!vq)
++		return -ENODEV;
+ 
+ 	spin_lock(&portdev->c_ovq_lock);
+ 
+@@ -583,8 +587,8 @@ static void reclaim_consumed_buffers(struct port *port)
+ 	struct port_buffer *buf;
+ 	unsigned int len;
+ 
+-	if (!port->portdev) {
+-		/* Device has been unplugged.  vqs are already gone. */
++	if (!port->portdev || !port->out_vq) {
++		/* Device has been unplugged or the queues have been torn down. */
+ 		return;
+ 	}
+ 	while ((buf = virtqueue_get_buf(port->out_vq, &len))) {
+@@ -603,6 +607,8 @@ static ssize_t __send_to_port(struct port *port, struct scatterlist *sg,
+ 	unsigned int len;
+ 
+ 	out_vq = port->out_vq;
++	if (!out_vq)
++		return -ENODEV;
+ 
+ 	spin_lock_irqsave(&port->outvq_lock, flags);
+ 
+@@ -684,7 +690,9 @@ static ssize_t fill_readbuf(struct port *port, u8 __user *out_buf,
+ 		spin_lock_irqsave(&port->inbuf_lock, flags);
+ 		port->inbuf = NULL;
+ 
+-		if (add_inbuf(port->in_vq, buf) < 0)
++		if (!port->in_vq)
++			free_buf(buf, false);
++		else if (add_inbuf(port->in_vq, buf) < 0)
+ 			dev_warn(port->dev, "failed add_buf\n");
+ 
+ 		spin_unlock_irqrestore(&port->inbuf_lock, flags);
+@@ -777,6 +785,9 @@ static int wait_port_writable(struct port *port, bool nonblock)
+ {
+ 	int ret;
+ 
++	if (!port->out_vq)
++		return -ENODEV;
++
+ 	if (will_write_block(port)) {
+ 		if (nonblock)
+ 			return -EAGAIN;
+@@ -786,8 +797,8 @@ static int wait_port_writable(struct port *port, bool nonblock)
+ 		if (ret < 0)
+ 			return ret;
+ 	}
+-	/* Port got hot-unplugged. */
+-	if (!port->guest_connected)
++	/* Port got hot-unplugged or lost its queues. */
++	if (!port->guest_connected || !port->out_vq)
+ 		return -ENODEV;
+ 
+ 	return 0;
+@@ -919,6 +930,8 @@ static ssize_t port_fops_splice_write(struct pipe_inode_info *pipe,
+ 	 * regular pages to dma pages. And alloc_buf and free_buf must
+ 	 * support allocating and freeing such a list of dma-buffers.
+ 	 */
++	if (!port->portdev || !port->out_vq)
++		return -ENODEV;
+ 	if (is_rproc_serial(port->out_vq->vdev))
+ 		return -EINVAL;
+ 
+@@ -1039,7 +1052,6 @@ static int port_fops_open(struct inode *inode, struct file *filp)
+ 		ret = -ENXIO;
+ 		goto out;
+ 	}
+-
+ 	/* Allow only one process to open a particular port at a time */
+ 	spin_lock_irq(&port->inbuf_lock);
+ 	if (port->guest_connected) {
+@@ -1047,6 +1059,11 @@ static int port_fops_open(struct inode *inode, struct file *filp)
+ 		ret = -EBUSY;
+ 		goto out;
+ 	}
++	if (!port->in_vq || !port->out_vq) {
++		spin_unlock_irq(&port->inbuf_lock);
++		ret = -ENODEV;
++		goto out;
++	}
+ 
+ 	port->guest_connected = true;
+ 	spin_unlock_irq(&port->inbuf_lock);
+@@ -1141,7 +1158,8 @@ static ssize_t get_chars(u32 vtermno, u8 *buf, size_t count)
+ 		return -EPIPE;
+ 
+ 	/* If we don't have an input queue yet, we can't get input. */
+-	BUG_ON(!port->in_vq);
++	if (!port->in_vq)
++		return -EPIPE;
+ 
+ 	return fill_readbuf(port, (__force u8 __user *)buf, count, false);
+ }
+@@ -1666,6 +1684,8 @@ static void control_work_handler(struct work_struct *work)
+ 
+ 	portdev = container_of(work, struct ports_device, control_work);
+ 	vq = portdev->c_ivq;
++	if (!vq)
++		return;
+ 
+ 	spin_lock(&portdev->c_ivq_lock);
+ 	while ((buf = virtqueue_get_buf(vq, &len))) {
+@@ -1869,7 +1889,11 @@ static int init_vqs(struct ports_device *portdev)
+ 
+ free:
+ 	kfree(portdev->out_vqs);
++	portdev->out_vqs = NULL;
+ 	kfree(portdev->in_vqs);
++	portdev->in_vqs = NULL;
++	portdev->c_ivq = NULL;
++	portdev->c_ovq = NULL;
+ 	kfree(vqs_info);
+ 	kfree(vqs);
+ 
+@@ -1882,6 +1906,7 @@ static const struct file_operations portdev_fops = {
+ 
+ static void remove_vqs(struct ports_device *portdev)
+ {
++	struct port *port;
+ 	struct virtqueue *vq;
+ 
+ 	virtio_device_for_each_vq(portdev->vdev, vq) {
+@@ -1892,9 +1917,17 @@ static void remove_vqs(struct ports_device *portdev)
+ 			free_buf(buf, true);
+ 		cond_resched();
+ 	}
++	list_for_each_entry(port, &portdev->ports, list) {
++		port->in_vq = NULL;
++		port->out_vq = NULL;
++	}
++	portdev->c_ivq = NULL;
++	portdev->c_ovq = NULL;
+ 	portdev->vdev->config->del_vqs(portdev->vdev);
+ 	kfree(portdev->in_vqs);
++	portdev->in_vqs = NULL;
+ 	kfree(portdev->out_vqs);
++	portdev->out_vqs = NULL;
+ }
+ 
+ static void virtcons_remove(struct virtio_device *vdev)
+@@ -2094,7 +2127,7 @@ static int virtcons_freeze(struct virtio_device *vdev)
+ 
+ 	virtio_reset_device(vdev);
+ 
+-	if (use_multiport(portdev))
++	if (use_multiport(portdev) && portdev->c_ivq)
+ 		virtqueue_disable_cb(portdev->c_ivq);
+ 	cancel_work_sync(&portdev->control_work);
+ 	cancel_work_sync(&portdev->config_work);
+@@ -2102,12 +2135,14 @@ static int virtcons_freeze(struct virtio_device *vdev)
+ 	 * Once more: if control_work_handler() was running, it would
+ 	 * enable the cb as the last step.
+ 	 */
+-	if (use_multiport(portdev))
++	if (use_multiport(portdev) && portdev->c_ivq)
+ 		virtqueue_disable_cb(portdev->c_ivq);
+ 
+ 	list_for_each_entry(port, &portdev->ports, list) {
+-		virtqueue_disable_cb(port->in_vq);
+-		virtqueue_disable_cb(port->out_vq);
++		if (port->in_vq)
++			virtqueue_disable_cb(port->in_vq);
++		if (port->out_vq)
++			virtqueue_disable_cb(port->out_vq);
+ 		/*
+ 		 * We'll ask the host later if the new invocation has
+ 		 * the port opened or closed.
+-- 
+2.34.1
