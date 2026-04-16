@@ -1,160 +1,86 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99BBD392C20
-	for <virtualization@lists.linux.dev>; Thu, 16 Apr 2026 08:45:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B76C93803E4;
+	Thu, 16 Apr 2026 08:54:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776329118; cv=none; b=bNnBpg1KyaLJPgNYwA5S3Njf6Fy/uFOTrH9wnk9myx7bZpVIVIbuWBC+7duZAg0FjqdnOfdNOWe8HtVK8gv1MrBSU79d0rVCdEk/4vwxbrvaZ3jVz7HXFYXbeIHlWSr895nw98XCTOZ/hLy0WkSkY7XAx86bsXcroTuQVt2pot4=
+	t=1776329701; cv=none; b=n+vqypitbriEmSSD5fwDbuaN76oQbwbqGEx0BHnNvXEoS5D4XtleYXqMjmW30kpa924BL0W9tId2QSQRyVSQRoN7Fb0OlI8La6/CfULYCLq3aVyTSjwUY8kdF9eIHlb9iYDzjw/aYXdDq8cbHiXisk7fSdzezHbJzjBq+lNBm6A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776329118; c=relaxed/simple;
-	bh=wbMWrulmEaXtn0IpH9RUnB3WRZ9O9lpS2QKVeNr8y7s=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=aJAdwV15OT448ZpOxUTgSCWjvc4Eb/IxeGxb48RECeTA8GKUfQ9CAQBt5+HFePGFAvqoJWoZ2ILDftJEdiIZCG7Q4P/uvsOmQIwKZ+U5CWwdYjXSTwg5bdfZ3tfcKjC4ieN+pb844zqpUw1OWcl5xcXFWKBX42A2lH/zpnckpU0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FfOx5pcc; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1776329701; c=relaxed/simple;
+	bh=9IobvFpQbS8xVL4t/3Nn3NBNUu395pAwqYcnMxHAGNg=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=O/1GlA9aamQnb8GbiGUodeniDPz3lYfQZdoWLk6dEuxM1h8MVEyT0WgNdFhZ78Ed0QFfyzJKetgdDY2wNZAqwu9zhc96Sbj+hE+Rr+s2fBewYepMWdEiR6GdBMK5JR6bgScN4xTiJaiT95rKcdFHoabExNmyb0KnhmQDLtrjG7o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=NkKIkdKV; arc=none smtp.client-ip=129.217.128.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FfOx5pcc"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1776329115;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Z/k5i8b178evugSrRqD2BM3wAHP5mDLkDXVGvrRPlfc=;
-	b=FfOx5pccr+u7g3ykp0YUy3IpoQZVu2ehNR6hhPnZLgdfL/7dUx/BW3AqQ+mmRyCgPqleqa
-	n2W+lblYKYBnqySR2sJ+u+p0ImkYbGEdtzFCJwA9JypotBepQR5hZ5C7THdYhfmb3KxkEo
-	kAQfbiq51deF74IKFaG13oQ7q4pbcJc=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-682-SRQ9xrw4OD6MXHiVUeOt-w-1; Thu, 16 Apr 2026 04:45:12 -0400
-X-MC-Unique: SRQ9xrw4OD6MXHiVUeOt-w-1
-X-Mimecast-MFC-AGG-ID: SRQ9xrw4OD6MXHiVUeOt-w_1776329111
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-43d744128b9so3488563f8f.0
-        for <virtualization@lists.linux.dev>; Thu, 16 Apr 2026 01:45:12 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776329111; x=1776933911;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Z/k5i8b178evugSrRqD2BM3wAHP5mDLkDXVGvrRPlfc=;
-        b=gCUF9YR8wp7JxDJx7P0d8xyBMDBBg2AWfC0284gAeF4jOFN+3mlqfXGD0/tPJK4YO6
-         z77mO3rQ2N8HCKorbT7o2IlBY1MYf3KV3wC4curfZWsr+LSGA9zrL8rEaPkamcsubYce
-         ZPIwPpffw6wXYkL+TTkNuGGan1TZiXytIFaVnj52jcYWhm0tTQ+i+9yfHrlt5TWJPRrp
-         4rkwSDy+V6vK2gjlw2veQ0Sbf/QwfTN4txMWpEmrS0PxMOdiLUMuDL+2KhlIoHu3nMd/
-         cS7Ot5Sb9CCIZ+hTx6T0cgUQBjpejDlMLJLPrpRJcNfigcpHQm3fDvvIGl+GuWPVPNtn
-         LUNQ==
-X-Forwarded-Encrypted: i=1; AFNElJ8WaDapKdyRpoQ7esdRlw6VZC+bGl/YIJnmvlpJ80Zo8B50VC5Moz4ukaZ81MAgfTT7A8vctQPuGxaxQN1YnA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxxhFe1sM1BiKtbVtsg+LOLx4FeiqZrz1qYvjcdiV1+L103BMpL
-	4wfR6PA0IW5UO2+8hbNmV6IiGU5gNtuxnbSpeBxwzufwyLRcr3ePmNWjyYjoWkKnaH6KN9UY60g
-	QH4O5AD/UfNLJYrJqh9ReJL9FaAAQD3MP6shwO9OjFO317QnPP5EhYdnPPVLmKz6jpHeF
-X-Gm-Gg: AeBDiet7S5GqRCQjh4CyM1CCx2ncvmz5HS3fRn3S6NUZwyPswmwXwchJjOUyoqGaL9f
-	Exp6JuZHsAj+kyYcWZfbkeI48Psd8uYrL5e3Wc8+56htkq5sIOyFNfGox/h16SeERLOm2IrqbK/
-	5po658ZUW5vtm6QUa0pl1429HZqYTfZGFtjiHkFEtnPiIwGTjZGHxbFm7m8UclblL0zNP84EYjI
-	aWeBewQhjSFZpD/YhPnu986F/ii2LqTkB4SYxDuom0zRrjVyhRT0NjDJn7cZQiUmgoLa3D3rKxr
-	iWhqM6u9EiHkbmCmgjw/KSE8tfO2rD0ZAL6LLsQUb0Rxul9V/ANCi6YsdV8Y6FFsnWrf8aso4dQ
-	jdN23RxQ88r15TEPwu95KC++BNBAeJt/L5P9HagAqxk0=
-X-Received: by 2002:a5d:5f53:0:b0:43d:242:b9bb with SMTP id ffacd0b85a97d-43d642711ffmr37714712f8f.18.1776329110881;
-        Thu, 16 Apr 2026 01:45:10 -0700 (PDT)
-X-Received: by 2002:a5d:5f53:0:b0:43d:242:b9bb with SMTP id ffacd0b85a97d-43d642711ffmr37714647f8f.18.1776329110312;
-        Thu, 16 Apr 2026 01:45:10 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-25-21.inter.net.il. [80.230.25.21])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43ead33d65asm11893147f8f.4.2026.04.16.01.45.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Apr 2026 01:45:09 -0700 (PDT)
-Date: Thu, 16 Apr 2026 04:45:06 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Brendan Jackman <jackmanb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Andrea Arcangeli <aarcange@redhat.com>, linux-mm@kvack.org,
-	virtualization@lists.linux.dev,
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
-	Mike Rapoport <rppt@kernel.org>,
-	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>
-Subject: Re: [PATCH RFC 3/9] mm: add __GFP_PREZEROED flag and
- folio_test_clear_prezeroed()
-Message-ID: <20260416022758-mutt-send-email-mst@kernel.org>
-References: <cover.1776033471.git.mst@redhat.com>
- <b21b0ba353330f24b9e10ee5bf01b60f32043327.1776033771.git.mst@redhat.com>
- <b258160c-5287-43dd-b56e-268c403b85ea@kernel.org>
- <20260413163644-mutt-send-email-mst@kernel.org>
- <da935245-9c75-4cf4-8a42-2c6328bd93f9@kernel.org>
- <20260414062524-mutt-send-email-mst@kernel.org>
- <6fc307da-72b4-4d07-9e34-5e6c0563124c@kernel.org>
+	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="NkKIkdKV"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tu-dortmund.de;
+	s=unimail; t=1776329687;
+	bh=9IobvFpQbS8xVL4t/3Nn3NBNUu395pAwqYcnMxHAGNg=;
+	h=Date:Subject:From:To:Cc:References:In-Reply-To;
+	b=NkKIkdKVZ4fi31ItM8Tvf11CiXJry9lcn8AW+qVRkgp8lSukkUZMgkG1/DIDVZLDj
+	 FQscoDR2J+LiRYJm7BWOAT1RzL42rfLD6X1ETF+8Iv49qFV0KfMkXi0+AXCT2pAHPs
+	 o9DpEaDWZNF7HhNxKdLnbqYEptjrZ/MrEMEOoFUY=
+Received: from [129.217.186.105] ([129.217.186.105])
+	(authenticated bits=0)
+	by unimail.uni-dortmund.de (8.18.2/8.18.2) with ESMTPSA id 63G8skqo025371
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Thu, 16 Apr 2026 10:54:46 +0200 (CEST)
+Message-ID: <73033bfc-4da3-4057-9480-bd977a66ecef@tu-dortmund.de>
+Date: Thu, 16 Apr 2026 10:54:45 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <6fc307da-72b4-4d07-9e34-5e6c0563124c@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: NaBfn3eHcnxSy0oJ60V-0Tp0PYlYivSPEuvGQfuQ0bI_1776329111
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v8 4/4] tun/tap & vhost-net: avoid ptr_ring
+ tail-drop when a qdisc is present
+From: Simon Schippers <simon.schippers@tu-dortmund.de>
+To: Jason Wang <jasowang@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>
+Cc: willemdebruijn.kernel@gmail.com, andrew+netdev@lunn.ch,
+        davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+        pabeni@redhat.com, mst@redhat.com, eperezma@redhat.com,
+        leiyang@redhat.com, stephen@networkplumber.org, jon@nutanix.com,
+        tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        virtualization@lists.linux.dev
+References: <20260312130639.138988-1-simon.schippers@tu-dortmund.de>
+ <20260312130639.138988-5-simon.schippers@tu-dortmund.de>
+ <CACGkMEtN9XgYPGHQg4TEWEsa_UcMbcnzO=VaTFT=0Tn4BayMDw@mail.gmail.com>
+ <0908392d-6314-4141-b908-6c9a880ba0a4@tu-dortmund.de>
+ <cda710f8-033a-4772-b5ce-a2cfddf42bea@tu-dortmund.de>
+ <CACGkMEuLqxnz=GtdKp3-u0egkGT_eZUgBBwvvtHcgAYpLJv-UA@mail.gmail.com>
+ <3d3274b4-f274-4cf9-9d0f-989d05148604@tu-dortmund.de>
+ <CACGkMEsUag4zNZG+aYipHv_PirbKb_rs7DzSOr-NF8ckhUaJOQ@mail.gmail.com>
+ <b9d84d88-46d5-4fd3-a5b2-d914f54766f6@tu-dortmund.de>
+Content-Language: en-US
+In-Reply-To: <b9d84d88-46d5-4fd3-a5b2-d914f54766f6@tu-dortmund.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Tue, Apr 14, 2026 at 05:46:58PM +0200, David Hildenbrand (Arm) wrote:
-> On 4/14/26 12:29, Michael S. Tsirkin wrote:
-> > On Tue, Apr 14, 2026 at 11:04:04AM +0200, David Hildenbrand (Arm) wrote:
-> >> On 4/13/26 22:37, Michael S. Tsirkin wrote:
-> >>>
-> >>> I admit I only vaguely understand the core mm refactoring you are suggesting.
-> >>>
-> >>
-> >> Oh, I was hoping claude would figure that out for you.
-> > 
-> > We figured it out together)
-> 
-> :)
-> 
-> [...]
-> 
-> > 
-> > 
-> > Pretty much what I did, except I felt it is better to change the
-> > existing APIs. A bit more churn, but in return there's less of a chance
-> > we forget to pass the user address.
-> > 
-> > Because, if we do, the result works fine on x86 but corrupts memory
-> > on other arches.
-> 
-> Converting everything is probably cleaner long term, But there are many
-> instances where we just don't really have an address, or the address is
-> irrelevant, because we wouldn't care about the difference when zeroing.
-> 
-> vma_alloc_folio() is the API to use when we have a VMA + address.
-> 
-> But yeah, something that is harder to mess up would be nice.
+To summarize the discussion from my POV:
 
-Well ... I am making progress on this but it is very intrusive.
+Open point: __ptr_ring_zero_tail() is only called after
+            consuming ring.batch elements.
+1) Consumer wakes up the producer but the slot is not cleaned.
+--> I disagree, the consumer only wakes after consuming ring.size/2.
+    Then __ptr_ring_zero_tail() was called at least once.
+2) Producer is woken up but see the ring is full, so it need to
+   drop the packet.
+--> I disagree, because then NETDEV_TX_BUSY is returned. This is
+    noticeable as qdisc requeue and only happens very rarely.
 
-Are we sure we do not want simply this, just maybe renaming
-the flags?
-
-
-
-For example:
-__GFP_PREZERO -> __GFP_ZERO_HINT   -  request a hint that the allocated page is zero
-
-And an API hiding the fact that the hint is in page->private.
-
-
-
-Hmm?
-
-
-
-
-> -- 
-> Cheers,
-> 
-> David
+Points I will address:
+- Minor nit on patch 2 by MST.
+- Rebase patch 3 because of commit d748047
+  ("ptr_ring: disable KCSAN warnings").
+- Document the pair of the smp_mb__after_atomic() in tun_net_xmit
+  with tun_ring_consume().
+- Use 1 ptr_ring spinlock instead of 2 (currently used for consume
+  and empty check), not sure how to implement it pretty rn.
+- Run pktgen benchmarks with pg_set SHARED.
 
