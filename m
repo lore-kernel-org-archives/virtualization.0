@@ -1,128 +1,160 @@
-Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 379521A76BB
-	for <virtualization@lists.linux.dev>; Thu, 16 Apr 2026 00:48:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99BBD392C20
+	for <virtualization@lists.linux.dev>; Thu, 16 Apr 2026 08:45:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776300531; cv=none; b=YHNe2DABa9KpUxGT3LcM67ODkbspX4/0Bzj0ZEuuxE+/6yXxr02yKOJvSp3gZ7IboQQNwAPH31/DBKHTc9DgXq33Gu1HROvMyvOftuIheymhAg4U7SWQmGR2WOlozR05hI2ASJk+Kp/hcsP1p82oQqQQzIhEWMl6Kh5Tizntgsc=
+	t=1776329118; cv=none; b=bNnBpg1KyaLJPgNYwA5S3Njf6Fy/uFOTrH9wnk9myx7bZpVIVIbuWBC+7duZAg0FjqdnOfdNOWe8HtVK8gv1MrBSU79d0rVCdEk/4vwxbrvaZ3jVz7HXFYXbeIHlWSr895nw98XCTOZ/hLy0WkSkY7XAx86bsXcroTuQVt2pot4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776300531; c=relaxed/simple;
-	bh=vSZrDHJWdUT3fc0mnfVsASM38Ik77OOrDrcLveHcMs0=;
+	s=arc-20240116; t=1776329118; c=relaxed/simple;
+	bh=wbMWrulmEaXtn0IpH9RUnB3WRZ9O9lpS2QKVeNr8y7s=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kwlcvpc/uZms8dMhWDmAipeM6xIP+whrGVGnIbBlGZ8TFlS15iZk3QFw3bUKEatV6Lo5xb4awK0ui/J6i5erL5Z23nOjcDPP5nZvT6HhWmzWuSOWjyfCuw2J4E0FCWQOvLwhZ80DX+0LVC75rKXeD1rWHFs40+BGxFQIZkLZdvM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MM2rLDIm; arc=none smtp.client-ip=209.85.128.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 In-Reply-To:Content-Type:Content-Disposition; b=aJAdwV15OT448ZpOxUTgSCWjvc4Eb/IxeGxb48RECeTA8GKUfQ9CAQBt5+HFePGFAvqoJWoZ2ILDftJEdiIZCG7Q4P/uvsOmQIwKZ+U5CWwdYjXSTwg5bdfZ3tfcKjC4ieN+pb844zqpUw1OWcl5xcXFWKBX42A2lH/zpnckpU0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FfOx5pcc; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MM2rLDIm"
-Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-488af9fdaa7so51315025e9.1
-        for <virtualization@lists.linux.dev>; Wed, 15 Apr 2026 17:48:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1776300528; x=1776905328; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=4wHjoL5bgW6OaCvqxEnCcQc9CZYqGIAVWFc6AfVy0os=;
-        b=MM2rLDIme09D4WxO3BgUPBTZIkINEbwa38atOS1XhIJaeGNKXcxnl+Io6Ut659Nn8S
-         shYCy4z2Fo51d8JEFoLb75mpi/9AKZypRNLHk7e/LZm9/KZjOyB4st407jI1uplSiZmp
-         lmJnYGLqEUGps6Gw9DAfEVfcx7aORzgwazepj7OxYwTDvljgeRj3/Of+oI0OUE/EdaRr
-         y8a2BOtJKH4/DHKAkn/CXSFp9+DRiD4LVkJXOjO8YdTtLP6cuBzle/c7ScGM2U/8nCER
-         ykGJtw6gLWAIgscI356itTsWdHu0zdSuQlHoGtalVp6O/3aXZloVx5QuEeF8w1qQXbw5
-         h/3g==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FfOx5pcc"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1776329115;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Z/k5i8b178evugSrRqD2BM3wAHP5mDLkDXVGvrRPlfc=;
+	b=FfOx5pccr+u7g3ykp0YUy3IpoQZVu2ehNR6hhPnZLgdfL/7dUx/BW3AqQ+mmRyCgPqleqa
+	n2W+lblYKYBnqySR2sJ+u+p0ImkYbGEdtzFCJwA9JypotBepQR5hZ5C7THdYhfmb3KxkEo
+	kAQfbiq51deF74IKFaG13oQ7q4pbcJc=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-682-SRQ9xrw4OD6MXHiVUeOt-w-1; Thu, 16 Apr 2026 04:45:12 -0400
+X-MC-Unique: SRQ9xrw4OD6MXHiVUeOt-w-1
+X-Mimecast-MFC-AGG-ID: SRQ9xrw4OD6MXHiVUeOt-w_1776329111
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-43d744128b9so3488563f8f.0
+        for <virtualization@lists.linux.dev>; Thu, 16 Apr 2026 01:45:12 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776300528; x=1776905328;
+        d=1e100.net; s=20251104; t=1776329111; x=1776933911;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=4wHjoL5bgW6OaCvqxEnCcQc9CZYqGIAVWFc6AfVy0os=;
-        b=VZJwN14myWrH1j6N5nDLfD84WZJZdaDMg69DPvGYmNO1JKtF+HpzdtEQpryXTMasTc
-         azT5SRNGbhxivD8P0D8pweg7dW5IrSZQFzwDN9RHPfW6uWdoon68d8IUFnDRbrNAO7EY
-         qw3tNBMSxiW/uEnvqCLiJPdfe97uoUZqbQ8EDQY6ZgEcKQyc8QH2bpTIQUwZOrylI40E
-         oHr0ebw0/r/N7w/OCB0FrsYGM/rwNrma2gXbF74lBH39YLsqC6V/7W2EqA3ksntAIjxZ
-         0ZUqeJjYt4X9jjHQnL8VMAYLZt9V8EYEPqZwF8BeRm5sgxNLRD0kt7gEUrhNhczlRBez
-         nsiA==
-X-Forwarded-Encrypted: i=1; AFNElJ+0ZiGL5wY3EqD9gPWgVajdhkRmNOJLmv3E1f1cbboWpIMYsq1aI5JJiRX8nu4+I1HSyepeUJNpXP105VP8Vw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz8fxOP2bKPveN0C5j7BFfnBpNKD+51ff85XpB3VLCzmtBA8FSC
-	wYDsEgKSQzohKTrofvu5bOZOhPJ7NqCouv4gy4FfTsfGfC9HaOP/KPdV
-X-Gm-Gg: AeBDiev/Lf+YQsjneoRK5RzIiO1GAhmgVjYZrgGrv7fcbwra2u8w7EjtNrPmU6z1UFV
-	jElgELB2TVkBN6KD0gIhldaowb64zd7Js0MRSTrTiOpY4nK+ukIw5JnzCflMjtaJ8Fkuou91eml
-	0EAq0JxavJKm69Da+rfPC2h/JybeUOd7QanO+Z2CZ/kTT0jJmVRXdHm7a22V6zm0TNSUqKPV9W0
-	LwWkqQQw7NsS1fDlsbI6+vDNlfAhVEnOSUCWCFjjn9jcgXvwcwYaGgzUlvv4gX5ukypK4XqG3RX
-	RcVHqLCo8OFobtgBEF64ZDuz67g4TFFFOJyUmGrPQqGnJwGox0qIhQdV4hiqf6hHVZQjDNVPSoX
-	jjQbLT7fCFhXk6MlzqvF9Ldm44kyyk9+NBPWTZqH6yLeu95BH4hNnUqzKkFgTNFYGsGLVgcAKet
-	Row4fTvpc9d5sGCL51o3LqN/oPGX1mj86kIHLoG6G8moq3Zl9GQWPo
-X-Received: by 2002:a05:6000:1a89:b0:43d:7b51:5178 with SMTP id ffacd0b85a97d-43d7b515250mr19740589f8f.5.1776300528339;
-        Wed, 15 Apr 2026 17:48:48 -0700 (PDT)
-Received: from fedora ([2001:250:3c1e:503:ffff:ffff:74aa:4903])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43ead3dfff3sm8344319f8f.26.2026.04.15.17.48.29
+        bh=Z/k5i8b178evugSrRqD2BM3wAHP5mDLkDXVGvrRPlfc=;
+        b=gCUF9YR8wp7JxDJx7P0d8xyBMDBBg2AWfC0284gAeF4jOFN+3mlqfXGD0/tPJK4YO6
+         z77mO3rQ2N8HCKorbT7o2IlBY1MYf3KV3wC4curfZWsr+LSGA9zrL8rEaPkamcsubYce
+         ZPIwPpffw6wXYkL+TTkNuGGan1TZiXytIFaVnj52jcYWhm0tTQ+i+9yfHrlt5TWJPRrp
+         4rkwSDy+V6vK2gjlw2veQ0Sbf/QwfTN4txMWpEmrS0PxMOdiLUMuDL+2KhlIoHu3nMd/
+         cS7Ot5Sb9CCIZ+hTx6T0cgUQBjpejDlMLJLPrpRJcNfigcpHQm3fDvvIGl+GuWPVPNtn
+         LUNQ==
+X-Forwarded-Encrypted: i=1; AFNElJ8WaDapKdyRpoQ7esdRlw6VZC+bGl/YIJnmvlpJ80Zo8B50VC5Moz4ukaZ81MAgfTT7A8vctQPuGxaxQN1YnA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxxhFe1sM1BiKtbVtsg+LOLx4FeiqZrz1qYvjcdiV1+L103BMpL
+	4wfR6PA0IW5UO2+8hbNmV6IiGU5gNtuxnbSpeBxwzufwyLRcr3ePmNWjyYjoWkKnaH6KN9UY60g
+	QH4O5AD/UfNLJYrJqh9ReJL9FaAAQD3MP6shwO9OjFO317QnPP5EhYdnPPVLmKz6jpHeF
+X-Gm-Gg: AeBDiet7S5GqRCQjh4CyM1CCx2ncvmz5HS3fRn3S6NUZwyPswmwXwchJjOUyoqGaL9f
+	Exp6JuZHsAj+kyYcWZfbkeI48Psd8uYrL5e3Wc8+56htkq5sIOyFNfGox/h16SeERLOm2IrqbK/
+	5po658ZUW5vtm6QUa0pl1429HZqYTfZGFtjiHkFEtnPiIwGTjZGHxbFm7m8UclblL0zNP84EYjI
+	aWeBewQhjSFZpD/YhPnu986F/ii2LqTkB4SYxDuom0zRrjVyhRT0NjDJn7cZQiUmgoLa3D3rKxr
+	iWhqM6u9EiHkbmCmgjw/KSE8tfO2rD0ZAL6LLsQUb0Rxul9V/ANCi6YsdV8Y6FFsnWrf8aso4dQ
+	jdN23RxQ88r15TEPwu95KC++BNBAeJt/L5P9HagAqxk0=
+X-Received: by 2002:a5d:5f53:0:b0:43d:242:b9bb with SMTP id ffacd0b85a97d-43d642711ffmr37714712f8f.18.1776329110881;
+        Thu, 16 Apr 2026 01:45:10 -0700 (PDT)
+X-Received: by 2002:a5d:5f53:0:b0:43d:242:b9bb with SMTP id ffacd0b85a97d-43d642711ffmr37714647f8f.18.1776329110312;
+        Thu, 16 Apr 2026 01:45:10 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-25-21.inter.net.il. [80.230.25.21])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43ead33d65asm11893147f8f.4.2026.04.16.01.45.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Apr 2026 17:48:47 -0700 (PDT)
-Date: Thu, 16 Apr 2026 08:48:26 +0800
-From: Ming Lei <tom.leiming@gmail.com>
-To: Aaron Tomlin <atomlin@atomlin.com>
-Cc: Ming Lei <ming.lei@redhat.com>, axboe@kernel.dk, kbusch@kernel.org,
-	hch@lst.de, sagi@grimberg.me, mst@redhat.com, aacraid@microsemi.com,
-	James.Bottomley@hansenpartnership.com, martin.petersen@oracle.com,
-	liyihang9@h-partners.com, kashyap.desai@broadcom.com,
-	sumit.saxena@broadcom.com, shivasharan.srikanteshwara@broadcom.com,
-	chandrakanth.patil@broadcom.com, sathya.prakash@broadcom.com,
-	sreekanth.reddy@broadcom.com, suganath-prabu.subramani@broadcom.com,
-	ranjan.kumar@broadcom.com, jinpu.wang@cloud.ionos.com,
-	tglx@kernel.org, mingo@redhat.com, peterz@infradead.org,
-	juri.lelli@redhat.com, vincent.guittot@linaro.org,
-	akpm@linux-foundation.org, maz@kernel.org, ruanjinjie@huawei.com,
-	bigeasy@linutronix.de, yphbchou0911@gmail.com, wagi@kernel.org,
-	frederic@kernel.org, longman@redhat.com, chenridong@huawei.com,
-	hare@suse.de, kch@nvidia.com, steve@abita.co, sean@ashe.io,
-	chjohnst@gmail.com, neelx@suse.com, mproche@gmail.com,
-	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-nvme@lists.infradead.org,
-	linux-scsi@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
-	mpi3mr-linuxdrv.pdl@broadcom.com, MPT-FusionLinux.pdl@broadcom.com
-Subject: Re: [PATCH v10 13/13] docs: add io_queue flag to isolcpus
-Message-ID: <aeAx2g-nJQO2yyS4@fedora>
-References: <adMoon3Zf6gO-UbA@fedora>
- <zawhqvn53mcp4wf7axsmuq4cg73upxs5h2zgrfta5dpat3sfy4@zctfbz2ttz5m>
- <CAFj5m9JE5e4DRGbzQFxDdZWU76ZPQ3G+C9JpLu0mhTB6aesZ9g@mail.gmail.com>
- <a566smu6morqeefqal23eek4ibezfuiwhs774xtxhyyclpbtsx@uzzwgbzmwdjd>
- <adhj_w11cpMfeEgN@fedora>
- <dzpxscrhibmi5okkozf5jfull4dcajgpctldvdyfcjgmpeetk5@tkeyqouyabzy>
- <adpD8M8cNu3IZzEL@fedora>
- <6glgsbk2djsz4cqtbp2ht4274dw4rveq6fojlnpnuvx6zmpjxw@i43jo2l4qlz4>
- <ad0Hk48y5JEeMlFk@fedora>
- <fouvg7qn7g4yah7jsvzkdmweesbp4aqmhx37gf3ow5medzvuyk@5n3ddkijosr6>
+        Thu, 16 Apr 2026 01:45:09 -0700 (PDT)
+Date: Thu, 16 Apr 2026 04:45:06 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Brendan Jackman <jackmanb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Andrea Arcangeli <aarcange@redhat.com>, linux-mm@kvack.org,
+	virtualization@lists.linux.dev,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Mike Rapoport <rppt@kernel.org>,
+	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>
+Subject: Re: [PATCH RFC 3/9] mm: add __GFP_PREZEROED flag and
+ folio_test_clear_prezeroed()
+Message-ID: <20260416022758-mutt-send-email-mst@kernel.org>
+References: <cover.1776033471.git.mst@redhat.com>
+ <b21b0ba353330f24b9e10ee5bf01b60f32043327.1776033771.git.mst@redhat.com>
+ <b258160c-5287-43dd-b56e-268c403b85ea@kernel.org>
+ <20260413163644-mutt-send-email-mst@kernel.org>
+ <da935245-9c75-4cf4-8a42-2c6328bd93f9@kernel.org>
+ <20260414062524-mutt-send-email-mst@kernel.org>
+ <6fc307da-72b4-4d07-9e34-5e6c0563124c@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <6fc307da-72b4-4d07-9e34-5e6c0563124c@kernel.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: NaBfn3eHcnxSy0oJ60V-0Tp0PYlYivSPEuvGQfuQ0bI_1776329111
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <fouvg7qn7g4yah7jsvzkdmweesbp4aqmhx37gf3ow5medzvuyk@5n3ddkijosr6>
 
-On Wed, Apr 15, 2026 at 10:56:37AM -0400, Aaron Tomlin wrote:
-> On Mon, Apr 13, 2026 at 11:11:15PM +0800, Ming Lei wrote:
-> > But typical applications aren't supposed to submit IOs from these
-> > isolated CPUs, so in reality, it isn't a big deal.
+On Tue, Apr 14, 2026 at 05:46:58PM +0200, David Hildenbrand (Arm) wrote:
+> On 4/14/26 12:29, Michael S. Tsirkin wrote:
+> > On Tue, Apr 14, 2026 at 11:04:04AM +0200, David Hildenbrand (Arm) wrote:
+> >> On 4/13/26 22:37, Michael S. Tsirkin wrote:
+> >>>
+> >>> I admit I only vaguely understand the core mm refactoring you are suggesting.
+> >>>
+> >>
+> >> Oh, I was hoping claude would figure that out for you.
+> > 
+> > We figured it out together)
 > 
-> Hi Ming,
+> :)
 > 
-> While that may be true for general-purpose workloads, it is a fundamentally
-> incorrect assumption for the highly specialised environments that actually
-> rely on strict CPU isolation, such as High-Frequency Trading (HFT).
+> [...]
 > 
-> The requirement in these strict environments is not that the isolated CPU
-> performs zero I/O. Rather, the requirement is that the isolated CPU must be
-> shielded from the unpredictable latency of the hardware completion
-> interrupt.
+> > 
+> > 
+> > Pretty much what I did, except I felt it is better to change the
+> > existing APIs. A bit more churn, but in return there's less of a chance
+> > we forget to pass the user address.
+> > 
+> > Because, if we do, the result works fine on x86 but corrupts memory
+> > on other arches.
+> 
+> Converting everything is probably cleaner long term, But there are many
+> instances where we just don't really have an address, or the address is
+> irrelevant, because we wouldn't care about the difference when zeroing.
+> 
+> vma_alloc_folio() is the API to use when we have a VMA + address.
+> 
+> But yeah, something that is harder to mess up would be nice.
 
-Again it is just your opinion, not a bug report, may not be a fact, right?
-Which kind of HFT application submits IO from isolated CPU?
+Well ... I am making progress on this but it is very intrusive.
 
-However, as I mentioned, I don't object this patchset, but you have to fix all
-wrong comment & document & bug found in review first.
+Are we sure we do not want simply this, just maybe renaming
+the flags?
 
 
-Thanks, 
-Ming
+
+For example:
+__GFP_PREZERO -> __GFP_ZERO_HINT   -  request a hint that the allocated page is zero
+
+And an API hiding the fact that the hint is in page->private.
+
+
+
+Hmm?
+
+
+
+
+> -- 
+> Cheers,
+> 
+> David
+
