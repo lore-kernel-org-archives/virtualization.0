@@ -1,111 +1,128 @@
-Received: from mailtransmit05.runbox.com (mailtransmit05.runbox.com [185.226.149.38])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 321E12DF6E9;
-	Wed, 15 Apr 2026 19:55:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.226.149.38
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 379521A76BB
+	for <virtualization@lists.linux.dev>; Thu, 16 Apr 2026 00:48:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776282927; cv=none; b=JSx647yUNVkY9Az6mCN1vAoCPx68i13qH2VxVFaA5zFZxj8xcDIJNYbCu6i9bQ4lbU/Bi0STvSj0nz+9JvKlYxnlr/gwVBrTZgWBkJGmQpC2LrPnh7KbIbg+d99rRjf8B9asuK0KmByz2TMmn3yrsWE7W9Pu4uQTZpwoVFEbgBM=
+	t=1776300531; cv=none; b=YHNe2DABa9KpUxGT3LcM67ODkbspX4/0Bzj0ZEuuxE+/6yXxr02yKOJvSp3gZ7IboQQNwAPH31/DBKHTc9DgXq33Gu1HROvMyvOftuIheymhAg4U7SWQmGR2WOlozR05hI2ASJk+Kp/hcsP1p82oQqQQzIhEWMl6Kh5Tizntgsc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776282927; c=relaxed/simple;
-	bh=upIzA9nztGtMIqW6T91AYIhtI3hp4D9KymFJfErBe8Y=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=t0RGKgNUPVdyWlcxYX5DSPNz9DPXch7trvUioUsWT/GZcY6AtSy1qgtzLF8ToHEUVjkKC+nM7gS/8+HDxg4f1XGzLLQipG4Q8GNJH+Hb6WFzVRkIrmG5xGCPpIwkEnecPWoSx8Bq74+Mun5TjhaLY5EzceP27nxaDPlpQO9zRkg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co; spf=pass smtp.mailfrom=rbox.co; dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b=G/lJtFvb; arc=none smtp.client-ip=185.226.149.38
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=rbox.co
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rbox.co
+	s=arc-20240116; t=1776300531; c=relaxed/simple;
+	bh=vSZrDHJWdUT3fc0mnfVsASM38Ik77OOrDrcLveHcMs0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=kwlcvpc/uZms8dMhWDmAipeM6xIP+whrGVGnIbBlGZ8TFlS15iZk3QFw3bUKEatV6Lo5xb4awK0ui/J6i5erL5Z23nOjcDPP5nZvT6HhWmzWuSOWjyfCuw2J4E0FCWQOvLwhZ80DX+0LVC75rKXeD1rWHFs40+BGxFQIZkLZdvM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MM2rLDIm; arc=none smtp.client-ip=209.85.128.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rbox.co header.i=@rbox.co header.b="G/lJtFvb"
-Received: from mailtransmit03.runbox ([10.9.9.163] helo=aibo.runbox.com)
-	by mailtransmit05.runbox.com with esmtps  (TLS1.2) tls TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-	(Exim 4.93)
-	(envelope-from <mhal@rbox.co>)
-	id 1wD6KW-001q8h-A7; Wed, 15 Apr 2026 21:55:20 +0200
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=rbox.co;
-	s=selector1; h=Content-Transfer-Encoding:Content-Type:In-Reply-To:From:
-	References:Cc:To:Subject:MIME-Version:Date:Message-ID;
-	bh=9asflFeC5wgbGJNskH8Hof7belu3ig81FXjgigMZvoE=; b=G/lJtFvbeEU9lo0fXgn9wt/mxS
-	9mUymMXnCv6KzsIuF9bKB0r8TB0L83ly3TQ198e8YtmxWK4BRHCScQDCYTTGg7rR+1jC9wIMmxO3D
-	Ex6t2bWgXpisYVOrBx4xL4laV5wocNQbAds6IyEbV2CST5M/2UsxOYS5i/GLvAUNOQEH0wTocDfNE
-	neUZ1+QSCo7EV+PwwH8LhTigzGq9ahZHt7sbGTyPkEgQTD9w+bpQveTq3jTV3eqXpaVra/foakdUg
-	P3DgpB6Mtit/MJEyUZtayAmqfrvwdepiMOpUXtS+BSr0t1gYZPMQKeEHUYZJrCJ0Am7xyldTE0UMp
-	UocR2zhw==;
-Received: from [10.9.9.74] (helo=submission03.runbox)
-	by mailtransmit03.runbox with esmtp (Exim 4.86_2)
-	(envelope-from <mhal@rbox.co>)
-	id 1wD6KV-0005ON-Jr; Wed, 15 Apr 2026 21:55:19 +0200
-Received: by submission03.runbox with esmtpsa  [Authenticated ID (604044)]  (TLS1.2:ECDHE_SECP256R1__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
-	(Exim 4.93)
-	id 1wD6KN-00H7po-CG; Wed, 15 Apr 2026 21:55:11 +0200
-Message-ID: <78602787-523e-42b7-9e7e-09c5dac1e243@rbox.co>
-Date: Wed, 15 Apr 2026 21:55:09 +0200
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MM2rLDIm"
+Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-488af9fdaa7so51315025e9.1
+        for <virtualization@lists.linux.dev>; Wed, 15 Apr 2026 17:48:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1776300528; x=1776905328; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=4wHjoL5bgW6OaCvqxEnCcQc9CZYqGIAVWFc6AfVy0os=;
+        b=MM2rLDIme09D4WxO3BgUPBTZIkINEbwa38atOS1XhIJaeGNKXcxnl+Io6Ut659Nn8S
+         shYCy4z2Fo51d8JEFoLb75mpi/9AKZypRNLHk7e/LZm9/KZjOyB4st407jI1uplSiZmp
+         lmJnYGLqEUGps6Gw9DAfEVfcx7aORzgwazepj7OxYwTDvljgeRj3/Of+oI0OUE/EdaRr
+         y8a2BOtJKH4/DHKAkn/CXSFp9+DRiD4LVkJXOjO8YdTtLP6cuBzle/c7ScGM2U/8nCER
+         ykGJtw6gLWAIgscI356itTsWdHu0zdSuQlHoGtalVp6O/3aXZloVx5QuEeF8w1qQXbw5
+         h/3g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1776300528; x=1776905328;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=4wHjoL5bgW6OaCvqxEnCcQc9CZYqGIAVWFc6AfVy0os=;
+        b=VZJwN14myWrH1j6N5nDLfD84WZJZdaDMg69DPvGYmNO1JKtF+HpzdtEQpryXTMasTc
+         azT5SRNGbhxivD8P0D8pweg7dW5IrSZQFzwDN9RHPfW6uWdoon68d8IUFnDRbrNAO7EY
+         qw3tNBMSxiW/uEnvqCLiJPdfe97uoUZqbQ8EDQY6ZgEcKQyc8QH2bpTIQUwZOrylI40E
+         oHr0ebw0/r/N7w/OCB0FrsYGM/rwNrma2gXbF74lBH39YLsqC6V/7W2EqA3ksntAIjxZ
+         0ZUqeJjYt4X9jjHQnL8VMAYLZt9V8EYEPqZwF8BeRm5sgxNLRD0kt7gEUrhNhczlRBez
+         nsiA==
+X-Forwarded-Encrypted: i=1; AFNElJ+0ZiGL5wY3EqD9gPWgVajdhkRmNOJLmv3E1f1cbboWpIMYsq1aI5JJiRX8nu4+I1HSyepeUJNpXP105VP8Vw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz8fxOP2bKPveN0C5j7BFfnBpNKD+51ff85XpB3VLCzmtBA8FSC
+	wYDsEgKSQzohKTrofvu5bOZOhPJ7NqCouv4gy4FfTsfGfC9HaOP/KPdV
+X-Gm-Gg: AeBDiev/Lf+YQsjneoRK5RzIiO1GAhmgVjYZrgGrv7fcbwra2u8w7EjtNrPmU6z1UFV
+	jElgELB2TVkBN6KD0gIhldaowb64zd7Js0MRSTrTiOpY4nK+ukIw5JnzCflMjtaJ8Fkuou91eml
+	0EAq0JxavJKm69Da+rfPC2h/JybeUOd7QanO+Z2CZ/kTT0jJmVRXdHm7a22V6zm0TNSUqKPV9W0
+	LwWkqQQw7NsS1fDlsbI6+vDNlfAhVEnOSUCWCFjjn9jcgXvwcwYaGgzUlvv4gX5ukypK4XqG3RX
+	RcVHqLCo8OFobtgBEF64ZDuz67g4TFFFOJyUmGrPQqGnJwGox0qIhQdV4hiqf6hHVZQjDNVPSoX
+	jjQbLT7fCFhXk6MlzqvF9Ldm44kyyk9+NBPWTZqH6yLeu95BH4hNnUqzKkFgTNFYGsGLVgcAKet
+	Row4fTvpc9d5sGCL51o3LqN/oPGX1mj86kIHLoG6G8moq3Zl9GQWPo
+X-Received: by 2002:a05:6000:1a89:b0:43d:7b51:5178 with SMTP id ffacd0b85a97d-43d7b515250mr19740589f8f.5.1776300528339;
+        Wed, 15 Apr 2026 17:48:48 -0700 (PDT)
+Received: from fedora ([2001:250:3c1e:503:ffff:ffff:74aa:4903])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43ead3dfff3sm8344319f8f.26.2026.04.15.17.48.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 15 Apr 2026 17:48:47 -0700 (PDT)
+Date: Thu, 16 Apr 2026 08:48:26 +0800
+From: Ming Lei <tom.leiming@gmail.com>
+To: Aaron Tomlin <atomlin@atomlin.com>
+Cc: Ming Lei <ming.lei@redhat.com>, axboe@kernel.dk, kbusch@kernel.org,
+	hch@lst.de, sagi@grimberg.me, mst@redhat.com, aacraid@microsemi.com,
+	James.Bottomley@hansenpartnership.com, martin.petersen@oracle.com,
+	liyihang9@h-partners.com, kashyap.desai@broadcom.com,
+	sumit.saxena@broadcom.com, shivasharan.srikanteshwara@broadcom.com,
+	chandrakanth.patil@broadcom.com, sathya.prakash@broadcom.com,
+	sreekanth.reddy@broadcom.com, suganath-prabu.subramani@broadcom.com,
+	ranjan.kumar@broadcom.com, jinpu.wang@cloud.ionos.com,
+	tglx@kernel.org, mingo@redhat.com, peterz@infradead.org,
+	juri.lelli@redhat.com, vincent.guittot@linaro.org,
+	akpm@linux-foundation.org, maz@kernel.org, ruanjinjie@huawei.com,
+	bigeasy@linutronix.de, yphbchou0911@gmail.com, wagi@kernel.org,
+	frederic@kernel.org, longman@redhat.com, chenridong@huawei.com,
+	hare@suse.de, kch@nvidia.com, steve@abita.co, sean@ashe.io,
+	chjohnst@gmail.com, neelx@suse.com, mproche@gmail.com,
+	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-nvme@lists.infradead.org,
+	linux-scsi@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+	mpi3mr-linuxdrv.pdl@broadcom.com, MPT-FusionLinux.pdl@broadcom.com
+Subject: Re: [PATCH v10 13/13] docs: add io_queue flag to isolcpus
+Message-ID: <aeAx2g-nJQO2yyS4@fedora>
+References: <adMoon3Zf6gO-UbA@fedora>
+ <zawhqvn53mcp4wf7axsmuq4cg73upxs5h2zgrfta5dpat3sfy4@zctfbz2ttz5m>
+ <CAFj5m9JE5e4DRGbzQFxDdZWU76ZPQ3G+C9JpLu0mhTB6aesZ9g@mail.gmail.com>
+ <a566smu6morqeefqal23eek4ibezfuiwhs774xtxhyyclpbtsx@uzzwgbzmwdjd>
+ <adhj_w11cpMfeEgN@fedora>
+ <dzpxscrhibmi5okkozf5jfull4dcajgpctldvdyfcjgmpeetk5@tkeyqouyabzy>
+ <adpD8M8cNu3IZzEL@fedora>
+ <6glgsbk2djsz4cqtbp2ht4274dw4rveq6fojlnpnuvx6zmpjxw@i43jo2l4qlz4>
+ <ad0Hk48y5JEeMlFk@fedora>
+ <fouvg7qn7g4yah7jsvzkdmweesbp4aqmhx37gf3ow5medzvuyk@5n3ddkijosr6>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 net] vsock: fix buffer size clamping order
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: Norbert Szetei <norbert@doyensec.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Simon Horman <horms@kernel.org>, virtualization@lists.linux.dev,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <180118C5-8BCF-4A63-A305-4EE53A34AB9C@doyensec.com>
- <e965ff22-37b2-406d-b885-e2736e84c0f3@rbox.co>
- <ad9q6r6ZBHIH7k4f@sgarzare-redhat>
-Content-Language: pl-PL, en-GB
-From: Michal Luczaj <mhal@rbox.co>
-In-Reply-To: <ad9q6r6ZBHIH7k4f@sgarzare-redhat>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <fouvg7qn7g4yah7jsvzkdmweesbp4aqmhx37gf3ow5medzvuyk@5n3ddkijosr6>
 
-On 4/15/26 12:42, Stefano Garzarella wrote:
-> On Tue, Apr 14, 2026 at 04:22:04PM +0200, Michal Luczaj wrote:
->> On 4/9/26 18:34, Norbert Szetei wrote:
->>> In vsock_update_buffer_size(), the buffer size was being clamped to the
->>> maximum first, and then to the minimum. If a user sets a minimum buffer
->>> size larger than the maximum, the minimum check overrides the maximum
->>> check, inverting the constraint.
->>>
->>> This breaks the intended socket memory boundaries by allowing the
->>> vsk->buffer_size to grow beyond the configured vsk->buffer_max_size.
->>>
->>> Fix this by checking the minimum first, and then the maximum. This
->>> ensures the buffer size never exceeds the buffer_max_size.
->>
->> Something may be missing. After adding another ioctl to your reproducer, I
->> still see crashes.
->>
->>     SYSCHK(setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_MIN_SIZE, &min,
->>                       sizeof(min)));
->> +    SYSCHK(setsockopt(fd, AF_VSOCK, SO_VM_SOCKETS_BUFFER_MAX_SIZE, &min,
->> +                      sizeof(min)));
->> }
->>
->> [*] Setting buffer_min_size to 0x400000000.
->> [socket][0] sending...
->>
->> refcount_t: saturated; leaking memory.
->> WARNING: lib/refcount.c:22 at refcount_warn_saturate+0x7d/0xb0, CPU#2:
->> a.out/1478
->> ...
->> refcount_t: underflow; use-after-free.
->> WARNING: lib/refcount.c:28 at refcount_warn_saturate+0x50/0xb0, CPU#12:
->> kworker/12:0/80
->> Workqueue: vsock-loopback vsock_loopback_work
->> ...
->>
+On Wed, Apr 15, 2026 at 10:56:37AM -0400, Aaron Tomlin wrote:
+> On Mon, Apr 13, 2026 at 11:11:15PM +0800, Ming Lei wrote:
+> > But typical applications aren't supposed to submit IOs from these
+> > isolated CPUs, so in reality, it isn't a big deal.
 > 
-> yeah, I pointed out the same during the bug discussion 
-> (https://lore.kernel.org/netdev/acuKUpZQq6z1DY_n@sgarzare-redhat/) and 
-> suggested to add a sysctl or reuse net.core.wmem_max/rmem_max
-> (https://lore.kernel.org/netdev/adYKERRYwzMIhZAl@sgarzare-redhat/)
+> Hi Ming,
+> 
+> While that may be true for general-purpose workloads, it is a fundamentally
+> incorrect assumption for the highly specialised environments that actually
+> rely on strict CPU isolation, such as High-Frequency Trading (HFT).
+> 
+> The requirement in these strict environments is not that the isolated CPU
+> performs zero I/O. Rather, the requirement is that the isolated CPU must be
+> shielded from the unpredictable latency of the hardware completion
+> interrupt.
 
-Oh, so this patch wasn't meant to tackle the repro from v1. Sorry, I got
-confused.
+Again it is just your opinion, not a bug report, may not be a fact, right?
+Which kind of HFT application submits IO from isolated CPU?
 
-Michal
+However, as I mentioned, I don't object this patchset, but you have to fix all
+wrong comment & document & bug found in review first.
 
+
+Thanks, 
+Ming
