@@ -1,115 +1,251 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id B3E9F34D90E
-	for <virtualization@lists.linux.dev>; Thu, 16 Apr 2026 19:15:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776366906; cv=none; b=kfUT+fGDnnOuhXzgoQM0IWlgr2EyoMD9j7z7xRHEpL3eyDsvctnDw17WLHYvrDSoBWD0KmHdlWyXQFx+xI2Q7Bnw8w9uZx3LGn/5EH+KKWCKvV9EuTWFK5whgJ8Y6JqRuP1OR0Q6VR1eYrKONil2l5xtVkUkfBDNYEXpBqCvgSk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776366906; c=relaxed/simple;
-	bh=pxExjy9+COVofPKPelAFl6ZTZDTzl6NhBpiM4c7aFVI=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=newZRfbUwT/tWATFuFrvpJ0KAB7AmTqsLepE5L/2SWlS2vV0XBZ1BQL2rhF/RJVi6/OdZrZ00SaobsSZ0c5Xx2xtMdTlyXAHmXmRyl9Ky8gSOpVc8QML1g8ERSQw7zq9tBv2wJTP6XcLQDd+7SioRbm5rXHhwRgU7jthJ3p+Lb4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
-Received: by linux.microsoft.com (Postfix, from userid 1009)
-	id A080C20B7128; Thu, 16 Apr 2026 12:15:04 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com A080C20B7128
-From: Dexuan Cui <decui@microsoft.com>
-To: kys@microsoft.com,
-	haiyangz@microsoft.com,
-	wei.liu@kernel.org,
-	decui@microsoft.com,
-	longli@microsoft.com,
-	sgarzare@redhat.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	horms@kernel.org,
-	niuxuewei.nxw@antgroup.com,
-	linux-hyperv@vger.kernel.org,
+Received: from LO3P265CU004.outbound.protection.outlook.com (mail-uksouthazon11020135.outbound.protection.outlook.com [52.101.196.135])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D03F39A80E
+	for <virtualization@lists.linux.dev>; Thu, 16 Apr 2026 19:29:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.196.135
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1776367793; cv=fail; b=SyUxFyzNNH333z8dOqSA45dG94DTecuKH8g2kFxrK05ahEUO6g1xxJNtgvRZKwtnICv1FRcKhQbJuAWPkvcR1byzYRHFLECHPP6DhqV/l047J/n2C5+hYbcnoUqTQH+LqWrfk42fRLW2eGDEfexUHA1m4LoRuGF82n6PCsZkuB0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1776367793; c=relaxed/simple;
+	bh=o3/kBy/u9QGN6sRyLmzDbx/QfYUEPoUQBdXRlz67/J8=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=ZyCW5t854tX8+Myt3P138E2BiTdeMEYI7Kf7TjR360XZ3kmuFG8vJJP82JrrYN53unH5vQjik7DnJuYoWAB7UWkqZYbGBAUe7IqPcAsg2o9MNhkJZvTdr9QHFpJjMFjcgl0BIUh4SVX4QyvfQVfXpvQ1jFZup3oWgdvnjmxnxFk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com; spf=pass smtp.mailfrom=atomlin.com; arc=fail smtp.client-ip=52.101.196.135
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=atomlin.com
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=whPTBJySndArXAKhdAhq0AMEfTlqMEvv0POJfqhUPr4LdwjdZcEMB/BMLp/PQRSBwKfwAp0khtL9YP5Fe9tAwxu5M/xR5KiO8ZnskWQ12UIn49m/gUC1iLZEzhGUwtsjJcxQmc7UCpj4JRE2BPDoj2jgKcr25xOsidTNbbvTNixtS3HS+Kriq7u5mYWVNgQEnhte22VXVzuetR9Q80sakuon0c3HtGiNV3UOhH/9p7jiIgnYum37ukzqoUmll4jhEnWCGmyZPdnYnIxOkhQ2bZau2JfnkGrasP/SqJJp1CSXYKt12xawxKzZi4Gc72i51ZmaAko0ImOVbOgAmsvuiA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ESo+oMx9LcJmyd1KXHbhrTUp6XFjjlsLTUknC2P9Hng=;
+ b=jP+td9CjKy39BxPUacjXFVVaMVKe1a/9oG7R4xDvwXwHUADEx+5u04pKUoo+R+fH9KvwuqA0+p/b2v8CVqy653Utz8udSg2v7aA8lJd8Ba8nUr+aUcLAtxNdAGqBj8R84uTQuX94rHwgr8VJs7pbxmAi9FrK4ZGvlYRwoNNdAeWd3AhE36YalYMb96JnL00Rm65bg7fY/iwnSfYYcS+y3lAmyAWjCOnL/P/cCs9PdLqYG4iIU0ioAkDTD9lxCL6zj9Ta9dvz0yxpQQzinm9MuxFReDtOtlWZ9gvRZ7+/3Jn5pZrWDGl7OGmCuQnr362UxBmCei33Wm7R13B84SBY4Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=atomlin.com; dmarc=pass action=none header.from=atomlin.com;
+ dkim=pass header.d=atomlin.com; arc=none
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=atomlin.com;
+Received: from CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM (2603:10a6:400:70::10)
+ by CWXP123MB4039.GBRP123.PROD.OUTLOOK.COM (2603:10a6:400:c5::11) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9818.25; Thu, 16 Apr
+ 2026 19:29:46 +0000
+Received: from CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
+ ([fe80::de8e:2e4f:6c6:f3bf]) by CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
+ ([fe80::de8e:2e4f:6c6:f3bf%2]) with mapi id 15.20.9769.046; Thu, 16 Apr 2026
+ 19:29:46 +0000
+From: Aaron Tomlin <atomlin@atomlin.com>
+To: axboe@kernel.dk,
+	kbusch@kernel.org,
+	hch@lst.de,
+	sagi@grimberg.me,
+	mst@redhat.com
+Cc: atomlin@atomlin.com,
+	aacraid@microsemi.com,
+	James.Bottomley@HansenPartnership.com,
+	martin.petersen@oracle.com,
+	liyihang9@h-partners.com,
+	kashyap.desai@broadcom.com,
+	sumit.saxena@broadcom.com,
+	shivasharan.srikanteshwara@broadcom.com,
+	chandrakanth.patil@broadcom.com,
+	sathya.prakash@broadcom.com,
+	sreekanth.reddy@broadcom.com,
+	suganath-prabu.subramani@broadcom.com,
+	ranjan.kumar@broadcom.com,
+	jinpu.wang@cloud.ionos.com,
+	tglx@kernel.org,
+	mingo@redhat.com,
+	peterz@infradead.org,
+	juri.lelli@redhat.com,
+	vincent.guittot@linaro.org,
+	akpm@linux-foundation.org,
+	maz@kernel.org,
+	ruanjinjie@huawei.com,
+	bigeasy@linutronix.de,
+	yphbchou0911@gmail.com,
+	wagi@kernel.org,
+	frederic@kernel.org,
+	longman@redhat.com,
+	chenridong@huawei.com,
+	hare@suse.de,
+	kch@nvidia.com,
+	ming.lei@redhat.com,
+	tom.leiming@gmail.com,
+	steve@abita.co,
+	sean@ashe.io,
+	chjohnst@gmail.com,
+	neelx@suse.com,
+	mproche@gmail.com,
+	nick.lange@gmail.com,
+	linux-block@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
 	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Cc: stable@vger.kernel.org,
-	Ben Hillis <Ben.Hillis@microsoft.com>,
-	Mitchell Levy <levymitchell0@gmail.com>
-Subject: [PATCH net v2] hv_sock: Report EOF instead of -EIO for FIN
-Date: Thu, 16 Apr 2026 12:14:33 -0700
-Message-ID: <20260416191433.840637-1-decui@microsoft.com>
-X-Mailer: git-send-email 2.43.7
+	linux-nvme@lists.infradead.org,
+	linux-scsi@vger.kernel.org,
+	megaraidlinux.pdl@broadcom.com,
+	mpi3mr-linuxdrv.pdl@broadcom.com,
+	MPT-FusionLinux.pdl@broadcom.com
+Subject: [PATCH v11 00/13] blk: honor isolcpus configuration
+Date: Thu, 16 Apr 2026 15:29:29 -0400
+Message-ID: <20260416192942.1243421-1-atomlin@atomlin.com>
+X-Mailer: git-send-email 2.51.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: BL1PR13CA0093.namprd13.prod.outlook.com
+ (2603:10b6:208:2b9::8) To CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
+ (2603:10a6:400:70::10)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CWLP123MB3523:EE_|CWXP123MB4039:EE_
+X-MS-Office365-Filtering-Correlation-Id: 55d8b175-25a1-4cc9-177e-08de9bee843a
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|7416014|376014|366016|56012099003|18002099003|20046099003;
+X-Microsoft-Antispam-Message-Info:
+	eSRvUIGFt9dw4rG8qpmsbVORKjN0bPNhWNLsuR3g4KVh+MTskWlruSS96FJ8KKiHdKQG+uJj6k8CHowAVscKdkSMi7M8SVCiBBaJ+Z0Wmxpexqzj9iph23q/5gXa+/DvpYrk8WeGrGw/vVGbu7ySmCI35x4d+UB54dx/bVMqV7MIL7YwOuz7iE0OF74naxiJsp8e7n1PgDHJiEsbefUkBlv9tWsoIrLNv/xYR0eZiRKOCYkmEz1c8Ei3GD1UfGvNeo2L1ys1gKESdH0meTrIi1hUVxM/V9BRkRKp9gA7yWl/+SkNrc/8hmBndD066yUOl/mSKexz++KbfB01CsLWqhBLvkJB7qE87Fq+UOvymKJMogtPDVYB26mng1MneaMI2ep0XARpME+pxFCAzIVGqlx+EdCd4tnuYru2CZC6z/sJ6afiB6G6YOl9Tec+8L+Ihxgg++iTn5I2HFUTfGgap+4FYkEZzOmHeauqBAPP8aBU+qK9Q1udG+l3RFuEbk8fTgnCc74svh91lsBajsQvl45lWMZ+NHYR8Kg5DNqdxQTZe9FkF7+OkN5lM5zvZBeVUGKHg+97t2hgRHL+GAZLNzTXNbeMLBsWH0zY19xYsQGCd760v3fzGkHOZfLjIPWrNDtBNNMaFLju1a6D5hgV108/CMZRMWIysaHR7eBAgBrWRiR2z27U3PF+AHqJY5IuVoUjeMSN5hA9mOO/lWILGEIzoS3eKhGUvlU8NiQY0Ek=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(7416014)(376014)(366016)(56012099003)(18002099003)(20046099003);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?6J+PeGCOkNCWKp1Blf74dQxGG2gC+qKPuGasIukuLVGkbV1q73DalIiqo7Ps?=
+ =?us-ascii?Q?PhwmRJxfq1hqOO/hEWXZ69mkea7J/GQTH7aD+qt5fmmBpaOZg1L+nChYox4U?=
+ =?us-ascii?Q?N/xyfdEjHkGgACVpg7/cIQ6ucunmoGLQgAc4Zp/SQS/4hZY6Q7w5TSPXGmqA?=
+ =?us-ascii?Q?t6VfDUy0HUG0GWVom0WZlQ3aLyPmgW3bysN8uLxyp28TX5IBHyF7jTrIUpsY?=
+ =?us-ascii?Q?1rndb5d5K8a7XyeK8bSHSSINJZ7g1h7tS57pf44a0+qzylkp3fPBPMWK4iQ9?=
+ =?us-ascii?Q?fQ6r8bSVi7OuwHi1IIutvW9OwIxxk+t79wrZiFjNW9fuM/IBIiIyFPPNTups?=
+ =?us-ascii?Q?pl1QeS2BJlLUP5kx/9lzxHXj4IfquIP2rOFqfr4Dyx2D8EdItDsqfrubbG42?=
+ =?us-ascii?Q?KedsI5X+O8l/BGsuyQrjvgZzHxqgQ7msNNB657xleQuUiuFzOC20qPiXZPRk?=
+ =?us-ascii?Q?EPWAOpj29lks7BWkwz5ixKpkU+6X2tM3b8fy2FCXsO1iHmqfZ3IQQpJSb7cs?=
+ =?us-ascii?Q?slVEhh8akDuMJ18wh4kr5jNE7WZvduRF6pWuJgju9b73rSFpdCx4ufuM45Fj?=
+ =?us-ascii?Q?DLjpfkxFQSly6qUpPfE1lojd9FFc59K6STU2ZLSvfZKxxpXU5hfekjSUzXxo?=
+ =?us-ascii?Q?Xta/12Lg+jbQ/c0xlBjeXsSmjdGZ2/utxhxb5T1BdF+xnSXgAf48pJe3Iddt?=
+ =?us-ascii?Q?7UtGQUbUzH/oe7BojHoD72AOdfvWzbjRY6OLXQ+69c95fTHAZ0BAzBUHne6P?=
+ =?us-ascii?Q?7Y1aq3PPx+7wFEU0EoTKCQOulDiUMsdJv+KgWu2iSdfxl0LEgJARQmZeQ8Or?=
+ =?us-ascii?Q?yJ34PtGtHqM2t0Jdh9Dh3UveTl9l3XYyUZdUvMQLcWP67zbvhTMbN8rYIcx6?=
+ =?us-ascii?Q?4uBHP80mCSJ2S5eXhoWVpnZdDgf8WJXPa1KysFT2aq36TeSpUi7r7I380eTN?=
+ =?us-ascii?Q?u3vsdYVR2/SeIryHI5Kc4A9KBj1bNuUSy7HgLmKuKthz4sJB53A6cFPKr0wo?=
+ =?us-ascii?Q?mESPM66XmQudVmvkwW0FZITmevBxGmeGhhwliHqoIKEPBWoVYOJssPfw/aK0?=
+ =?us-ascii?Q?7XIoD7dzOSVMPz9eH/SRTGhziC/LiveDiv8qTrJ5NvkEhiSstM6IvrCrEy2P?=
+ =?us-ascii?Q?20GeyL/Cae+UIlU5+nB5ch/cYF/I1FcYgV+wy+SUNcLfY3162Ozi0kzXs1UO?=
+ =?us-ascii?Q?aW6JBmQEuVjTClLpd1ymoFqzc7kgy7kihu5RBgVjZXw7umQ2JIfHp68dVMHL?=
+ =?us-ascii?Q?E7ox7WPgT+ptIGfFRXRRiuWJzdRigR0bOj52qbTkMTuydNqyI0MROOPklAgx?=
+ =?us-ascii?Q?KXH21Q129Z+b4/s1EfNCAmEm3AD7Hm1LGTsoE04E7i1gGL7OvPlKLP3Lz6G/?=
+ =?us-ascii?Q?Regqu+vD+C7p5zPpw2N2PhcJkzJ6R+V2LxQCAZNDyBYOZIoW3T1Vj32nbcrY?=
+ =?us-ascii?Q?WpQPSz0AP2Ej8kDLAURIm1LHBL1HCoAPJO7SlDQcTy5/Hn2Fr1OJfihwhMV1?=
+ =?us-ascii?Q?GxV9RjZmUIfu8ig8LmKV+fEcvFsQ/avMvcAe1NgSTqr0GlwqRLBsaIBh97V+?=
+ =?us-ascii?Q?p+j8WXdrossfmyluAq0/eoJQhzYB7CucnU9VydEexy30aYakfkyh+her2v3L?=
+ =?us-ascii?Q?6P4BXXvQ+rl+3MugPfBJI+p2KOkWgTo5Damw6GDJ50USfBWOCh9NrBpM9fN6?=
+ =?us-ascii?Q?Qris/u68LqO+DxfurbjPtMFyUirnx7F/bQcF7JKQWIWPsp/B2pJz8MK+Bm8q?=
+ =?us-ascii?Q?tr/puWZWmQ=3D=3D?=
+X-OriginatorOrg: atomlin.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 55d8b175-25a1-4cc9-177e-08de9bee843a
+X-MS-Exchange-CrossTenant-AuthSource: CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Apr 2026 19:29:46.3408
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: e6a32402-7d7b-4830-9a2b-76945bbbcb57
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: BN/dZFIkixie6FgU2FtvfALc1dWnoT6V8OtxgyPyi6sZgsXIwXpgyzs2++xS4Rl5dI9FYkHU2lgKHh4iOSjBkg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CWXP123MB4039
 
-Commit f0c5827d07cb unluckily causes a regression for the FIN packet,
-and the final read syscall gets an error rather than 0.
+Hi,
 
-Ideally, we would want to fix hvs_channel_readable_payload() so that it
-could return 0 in the FIN scenario, but it's not good for the hv_sock
-driver to use the VMBus ringbuffer's cached priv_read_index, which is
-internal data in the VMBus driver.
+I have decided to drive this series forward on behalf of Daniel Wagner, the
+original author. This iteration addresses the outstanding architectural and
+concurrency concerns raised during the previous review cycle, and the series
+has been rebased on v7.0-rc5-509-g545475aebc2a.
 
-Fix the regression in hv_sock by returning 0 rather than -EIO.
+Building upon prior iterations, this series introduces critical
+architectural refinements to the mapping and affinity spreading algorithms
+to guarantee thread safety and resilience against concurrent CPU-hotplug
+operations. Previously, the block layer relied on a shared global static
+mask (i.e., blk_hk_online_mask), which proved vulnerable to race conditions
+during rapid hotplug events. This vulnerability was recently highlighted by
+the kernel test robot, which encountered a NULL pointer dereference during
+rcutorture (cpuhotplug) stress testing due to concurrent mask modification.
 
-Fixes: f0c5827d07cb ("hv_sock: Return the readable bytes in hvs_stream_has_data()")
-Cc: stable@vger.kernel.org
-Reported-by: Ben Hillis <Ben.Hillis@microsoft.com>
-Reported-by: Mitchell Levy <levymitchell0@gmail.com>
-Signed-off-by: Dexuan Cui <decui@microsoft.com>
----
+To resolve this, the architecture has been fundamentally hardened. The
+global static state has been eradicated. Instead, the IRQ affinity core now
+employs a newly introduced irq_spread_hk_filter(), which safely intersects
+the natively calculated affinity mask with the HK_TYPE_IO_QUEUE mask.
+Crucially, this is achieved using a local, hotplug-safe snapshot via
+data_race(cpu_online_mask). This approach circumvents the hotplug lock
+deadlocks previously identified by Thomas Gleixner, while explicitly
+avoiding CONFIG_CPUMASK_OFFSTACK stack bloat hazards on high-core-count
+systems. A robust fallback mechanism guarantees that should an interrupt
+vector be assigned exclusively to isolated cores, it is safely re-routed to
+the system's online housekeeping CPUs.
 
-Changes since v1:
-    Removed the local variable 'need_refill' to make the code more 
-    readable. Stefano, thanks!
+Following rigorous testing of multiple queue maps (such as NVMe poll
+queues) alongside isolated CPUs, the tenth iteration resolved a critical
+page fault regression. The multi-queue mapping logic has been corrected to
+strictly maintain absolute hardware queue indices, ensuring faultless queue
+initialisation and preventing out-of-bounds memory access.
 
-    No other change.
+Furthermore, following feedback from Ming Lei, the administrative
+documentation for isolcpus=io_queue has undergone a comprehensive overhaul
+to reflect this architectural reality. Previous iterations lacked the
+required technical precision regarding subsystem impact. The expanded
+kernel-parameters.txt now explicitly details that this parameter applies
+strictly to managed IRQs. It thoroughly documents how the block layer
+intercepts multiqueue allocation to match the housekeeping mask, actively
+preventing MSI-X vector exhaustion on massive topologies and forcing queue
+sharing. Most importantly, it cements the structural guarantee: while an
+application on an isolated CPU may freely submit I/O, the hardware
+completion interrupt is strictly and safely offloaded to a housekeeping
+core.
 
- net/vmw_vsock/hyperv_transport.c | 20 ++++++++++++++++----
- 1 file changed, 16 insertions(+), 4 deletions(-)
+Please let me know your thoughts.
 
-diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
-index 069386a74557..e5ee7aa14d0c 100644
---- a/net/vmw_vsock/hyperv_transport.c
-+++ b/net/vmw_vsock/hyperv_transport.c
-@@ -694,7 +694,6 @@ static ssize_t hvs_stream_enqueue(struct vsock_sock *vsk, struct msghdr *msg,
- static s64 hvs_stream_has_data(struct vsock_sock *vsk)
- {
- 	struct hvsock *hvs = vsk->trans;
--	bool need_refill;
- 	s64 ret;
- 
- 	if (hvs->recv_data_len > 0)
-@@ -702,9 +701,22 @@ static s64 hvs_stream_has_data(struct vsock_sock *vsk)
- 
- 	switch (hvs_channel_readable_payload(hvs->chan)) {
- 	case 1:
--		need_refill = !hvs->recv_desc;
--		if (!need_refill)
--			return -EIO;
-+		if (hvs->recv_desc) {
-+			/* Here hvs->recv_data_len is 0, so hvs->recv_desc must
-+			 * be NULL unless it points to the 0-byte-payload FIN
-+			 * packet: see hvs_update_recv_data().
-+			 *
-+			 * Here all the payload has been dequeued, but
-+			 * hvs_channel_readable_payload() still returns 1,
-+			 * because the VMBus ringbuffer's read_index is not
-+			 * updated for the FIN packet: hvs_stream_dequeue() ->
-+			 * hv_pkt_iter_next() updates the cached priv_read_index
-+			 * but has no opportunity to update the read_index in
-+			 * hv_pkt_iter_close() as hvs_stream_has_data() returns
-+			 * 0 for the FIN packet, so it won't get dequeued.
-+			 */
-+			return 0;
-+		}
- 
- 		hvs->recv_desc = hv_pkt_iter_first(hvs->chan);
- 		if (!hvs->recv_desc)
+
+Aaron Tomlin (1):
+  genirq/affinity: Restrict managed IRQ affinity to housekeeping CPUs
+
+Daniel Wagner (12):
+  scsi: aacraid: use block layer helpers to calculate num of queues
+  lib/group_cpus: remove dead !SMP code
+  lib/group_cpus: Add group_mask_cpus_evenly()
+  genirq/affinity: Add cpumask to struct irq_affinity
+  blk-mq: add blk_mq_{online|possible}_queue_affinity
+  nvme-pci: use block layer helpers to constrain queue affinity
+  scsi: Use block layer helpers to constrain queue affinity
+  virtio: blk/scsi: use block layer helpers to constrain queue affinity
+  isolation: Introduce io_queue isolcpus type
+  blk-mq: use hk cpus only when isolcpus=io_queue is enabled
+  blk-mq: prevent offlining hk CPUs with associated online isolated CPUs
+  docs: add io_queue flag to isolcpus
+
+ .../admin-guide/kernel-parameters.txt         |  30 ++-
+ block/blk-mq-cpumap.c                         | 192 ++++++++++++++++--
+ block/blk-mq.c                                |  42 ++++
+ drivers/block/virtio_blk.c                    |   4 +-
+ drivers/nvme/host/pci.c                       |   1 +
+ drivers/scsi/aacraid/comminit.c               |   3 +-
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c        |   1 +
+ drivers/scsi/megaraid/megaraid_sas_base.c     |   5 +-
+ drivers/scsi/mpi3mr/mpi3mr_fw.c               |   6 +-
+ drivers/scsi/mpt3sas/mpt3sas_base.c           |   5 +-
+ drivers/scsi/pm8001/pm8001_init.c             |   1 +
+ drivers/scsi/virtio_scsi.c                    |   5 +-
+ include/linux/blk-mq.h                        |   2 +
+ include/linux/group_cpus.h                    |   3 +
+ include/linux/interrupt.h                     |  16 +-
+ include/linux/sched/isolation.h               |   1 +
+ kernel/irq/affinity.c                         |  38 +++-
+ kernel/sched/isolation.c                      |   7 +
+ lib/group_cpus.c                              |  65 ++++--
+ 19 files changed, 379 insertions(+), 48 deletions(-)
+
+
+base-commit: 3cd8b194bf3428dfa53120fee47e827a7c495815
 -- 
-2.49.0
+2.51.0
 
