@@ -1,86 +1,86 @@
 Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2923368974
-	for <virtualization@lists.linux.dev>; Fri, 17 Apr 2026 23:08:01 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C16DA24A047
+	for <virtualization@lists.linux.dev>; Fri, 17 Apr 2026 23:08:04 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=205.220.165.32
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776467283; cv=fail; b=Np+BczxIMuTv3tjos444/SZVMVbHxSkHJfxKzk5+zB9g3y4SxbqNoo9KN+0w9KvVUwSbaahRz4EWOveMgeGxQFpc3ObRmfQEREbcDsLYG+Gheqv9eZrCIINPyW/yv2BRkpJ2cMtSHgXHyhmPGLH37bQamqH/ykefuhidQYih3SM=
+	t=1776467286; cv=fail; b=sy6BYksLAt4QUsiruIj5pFWSQdA2DqKs1pf/T+V1i1oVRAbEE2mq178tvU30g4f/crtbupiuMczD/nUIQz2RgY7OSFYn4hYaYbMSUrI1NgtY755u2WQIuY+TZpG+eWARR7lrByEpEZvFzn6g9JZYAMFd+G19ruaRvTE7bAiFbMU=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776467283; c=relaxed/simple;
-	bh=Qb23XqYPUSOyhKHC9tnDLeCyBnjtJXMXML8xONK29Eg=;
+	s=arc-20240116; t=1776467286; c=relaxed/simple;
+	bh=VrKeNOIqjp6Xw2Ay0Loujy5wZh9oAVVWbs0w1UgqmLI=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=Wb6+aHC9gM7mrX7IB8QEoBJ3g+7nCXIKRBahW9eDWVSp24Ez+jNKO5A8BVTtTGI+FCPvFMVJstmCyOwKG55A24IGXnhFo6bBIFL08XT+22cmf01EjZfL84TP9Vd+DFb9t+EAN0Y4dUKNUUyaNtcgMbEDqUj7rPAWNhUMzMSwD8I=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=VMD3ZTr3; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=rAD+pXiy; arc=fail smtp.client-ip=205.220.165.32
+	 Content-Type:MIME-Version; b=EUqr1wn8dyoJ3oc+9EOx8kDduiH5ZMJTaF+SLCWkqMApCacERtLRxEPqixDqfsuB3YDPXc/S0UwtUIwyVC9bzi7+zVbOlMIDFjkGJditXW+9QxFLTC9R35su9Ok6CyJu7h+XhFb8Ma62ArsCnaqA8uzAkIuricRB40HqKyEjn4U=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=RfP19S2w; dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b=zqcECTSu; arc=fail smtp.client-ip=205.220.165.32
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="VMD3ZTr3";
-	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="rAD+pXiy"
-Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63HKfXTR1225577;
-	Fri, 17 Apr 2026 23:08:00 GMT
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="RfP19S2w";
+	dkim=pass (1024-bit key) header.d=oracle.onmicrosoft.com header.i=@oracle.onmicrosoft.com header.b="zqcECTSu"
+Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63HKfg9d2215412;
+	Fri, 17 Apr 2026 23:08:03 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
 	:content-transfer-encoding:content-type:date:from:in-reply-to
 	:message-id:mime-version:references:subject:to; s=
-	corp-2025-04-25; bh=tIst8gh59jJ/JRUFeTJk4tirFObHzOksYwfwm54evmg=; b=
-	VMD3ZTr3YXDPWOsjha/wesv6IPvCiRW4pO9oc5b7DzyvoHasoyya0MV8B1IhfEl1
-	6GSVNFNik3LU70YIaauCu+Rs8n84z57BuvGbE0WBIN6juwlkVy+iW0LBf2O8aIBK
-	rKIObkaRFFsPJD5BuTokgmI0fCScjD/UxBSd8HYM65zgxzC0xWRZh6MbDu8YHF0n
-	Yl9Ud2YaRdiJrlbTypkkdOjn/F48+1kb0yOhf9oVTdOIxTYrgL7w4mzHEd5lyAVf
-	CHUf6C7WtkCoe+U5Mjho9AS6mQMVCH6vcuDbW4SuQ+aq8VeoO2vf32PTn1axwPf1
-	lKRIWnpyKaXJnGZLo2bOqg==
-Received: from iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta03.appoci.oracle.com [130.35.103.27])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 4dh87mjrx6-1
+	corp-2025-04-25; bh=bEuo0OMZVG7qUewLFn2FnjDnVDczdPnc1pPurOENIEc=; b=
+	RfP19S2w/tta7XRjKNoyZnRB5qqffHu9DLWQWhIQs7/jgtTRaUF5IAbb0+GBSZpK
+	ov8xsplLDyT9aubF+D6gEt6uC59iQZ2XOVdSaolmpJ/R2Rxrg9GXHga0Mu8A81sj
+	xJaAAMyzY+5+Lm9y1us02AIvr0MP/TxpemrsM2BnuLVk0fqlORYdPDlmGi48CVwL
+	9DjAXL9PGP/mptGXG3B0T3DSjDQoDtI1FQ88+sv4G4RQXwRnIaR1dLvSGBKxFqKF
+	awc6582/BGoJTRx9x0piv7pQKF23eYAcorQwPg+mIXZGpF+v14x9naJ/7OQ5Edu+
+	F18gNR4o0lxxGX09/ZE66g==
+Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 4dh87ham0j-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 17 Apr 2026 23:08:00 +0000 (GMT)
-Received: from pps.filterd (iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
-	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.7/8.18.1.7) with ESMTP id 63HN4SK2029884;
-	Fri, 17 Apr 2026 23:07:58 GMT
-Received: from cy3pr05cu001.outbound.protection.outlook.com (mail-westcentralusazon11013043.outbound.protection.outlook.com [40.93.201.43])
-	by iadpaimrmta03.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 4dh7nrbsev-1
+	Fri, 17 Apr 2026 23:08:02 +0000 (GMT)
+Received: from pps.filterd (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.7/8.18.1.7) with ESMTP id 63HN4QX4035206;
+	Fri, 17 Apr 2026 23:08:02 GMT
+Received: from cy3pr05cu001.outbound.protection.outlook.com (mail-westcentralusazon11013063.outbound.protection.outlook.com [40.93.201.63])
+	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 4dh7nqtw5q-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 17 Apr 2026 23:07:58 +0000 (GMT)
+	Fri, 17 Apr 2026 23:08:02 +0000 (GMT)
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=JG/jL1Jtz4sB63H0ivqC8bu53hL4lt2knd0KlKbStRch6X5fUL7kSWc2WGU5Ju1xC5rn5v02cOIXrj/Rl8Wj3m5f02NTJAhA13eHX5aa4APiGOpxCJ4BzNK65OOViFaZMpOo7W5dSspmc0KWe9xCHoTVpucEzK0KUgN/xZ+sIjxpQpkdEkLnkFWR55bFqztPn6H+mgYVhe59HB/THUzbP6Q//5TQRNOFQg3LrbpVBQS61M4CTGs8WR+LdA+UuuV20IgqbzV3N4Lke4m1BfXBYpNU2URBLtCRfyJYprsiY3OgsteV4er/7ETarqpZZfup69UHUMx0/LtcZLwbcXUUVA==
+ b=CsaTr5BnKX2Z/zX5DHggWGN497uU1qxua51uQsoE6WRdOJShkUPZC5eJPum5OB1wvAYrRqU+uAJQYyIG2hv3WE4HoHogpuWmS14II39RMJlikhd/ETVw3poUKw07Tvw6SuTSl/1ESuaMsA3jMJjxCl9ey4FB9R9YofjCR9x6qFMyF4L/dj5t/bTwMjZZcC3YBKc+jGs4hIO5soSZMuGdUHTcpVczTLZxKkDUKRCSY0i+nAJkikbQwdlszl4Rc1eB9H3lHOeWf+nr7O1yAo8Am2u71YdTVckSxOnrJxLf71TkkkhsRlPohXoe1AxlBI/Xk7ADnVwgCrkj5oGvmPyHIg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=tIst8gh59jJ/JRUFeTJk4tirFObHzOksYwfwm54evmg=;
- b=qP9MXOBV1z4N/dk2QtSzUqRzbcN9ybFreffOEI8q53Vr17xvGJ1PCanj6I0b1UM3YjemPk4ef0EOgClnnTbmBQwK8XttZHuhpqZSlC0fxEKL5rOFC/El6nB/7gchfPofrcR8PO3jNWMZeDKYR76vqHizdhMws+vYqXL832a9zgqAkri52ans0wZpv6bH6iKPjUdaRjW0Bqzk9nXm/vwU3cd95UTGzvuiMzFtRJxjA8f+Yo+b0qFiCxE7gySVVNr+FSkmebir3JQVb0iWV++SLnAsaFVoYCG1Fax97VT9PuM+HWsVWNP762yuENvzDHAlDX6IOj+lqC6cpjXQW3YfUw==
+ bh=bEuo0OMZVG7qUewLFn2FnjDnVDczdPnc1pPurOENIEc=;
+ b=DGa4XuCLKiI14Eff1wlHdSMFR7WS0edNbcHZvvUFMjusSLc3lVHAq2yE6EM+d6sctHcLoC7qiAKSl+SJeizlCGpGftb/ImKzJkX8yzuqM4kosmViPxiQBCf7AoxCsdxNE16fsZbNLglQTv/ao5f7e/zWGgWv0uML4FIkknr1XbClC+Aq8XjLv55/m1KFVe+rvDU0BJSpGUpQCfppg2JMXs342zqt2d1DPC9ogHN9cpzgdAf4gJws9iEsMAK/Zc6Q208hv1bT85RIJ2BJSA8AdLhEsnVtnesfkiBpJNiDpl6CULBcmzFSpnzHzNYLrkcfWnElYDpQGkU6U/wc2iI7eg==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=oracle.com; dmarc=pass action=none header.from=oracle.com;
  dkim=pass header.d=oracle.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
  d=oracle.onmicrosoft.com; s=selector2-oracle-onmicrosoft-com;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=tIst8gh59jJ/JRUFeTJk4tirFObHzOksYwfwm54evmg=;
- b=rAD+pXiyQQY+9s2g36OScOxvi3TyTffZerc6FoAcb1FvAmy1GL3ER8/WiRPXVd6NJS3xZvj1MkFMj6LP5kWaqB+mKeVMecLQLzvrTHHpeWZ1+YJvs9D6KTiLcbuaPHLZ8ZuXYGx6U/9enMmp6T3OIkKSv3Nl20VOD51YckY+kNU=
+ bh=bEuo0OMZVG7qUewLFn2FnjDnVDczdPnc1pPurOENIEc=;
+ b=zqcECTSu7mG2ZJUfk5p6tcq7loBUH6M/MNnMx+6j43vzKhz95yb9kfkmLcdg/qLW2lSdDMdTed++j6epV/zpdmu/uU4Y6K/qSKqWtdRXVEthqaxrk37i2WyJpCOhHlINIJ8qIc/Z+74/K/QVoqbjPDbQ+ijYXQwP4zQMgnwAOoU=
 Received: from DM3PPF905D77450.namprd10.prod.outlook.com
  (2603:10b6:f:fc00::c37) by MN2PR10MB4205.namprd10.prod.outlook.com
  (2603:10b6:208:1d3::9) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9818.25; Fri, 17 Apr
- 2026 23:07:55 +0000
+ 2026 23:07:58 +0000
 Received: from DM3PPF905D77450.namprd10.prod.outlook.com
  ([fe80::4ee0:38a:f5b6:336c]) by DM3PPF905D77450.namprd10.prod.outlook.com
  ([fe80::4ee0:38a:f5b6:336c%3]) with mapi id 15.20.9818.023; Fri, 17 Apr 2026
- 23:07:55 +0000
+ 23:07:58 +0000
 From: Mike Christie <michael.christie@oracle.com>
 To: martin.petersen@oracle.com, linux-scsi@vger.kernel.org,
         james.bottomley@hansenpartnership.com, virtualization@lists.linux.dev,
         mst@redhat.com, pbonzini@redhat.com, stefanha@redhat.com,
         eperezma@redhat.com
 Cc: Mike Christie <michael.christie@oracle.com>
-Subject: [PATCH 1/4] scsi: Fix can_queue comments
-Date: Fri, 17 Apr 2026 17:57:21 -0500
-Message-ID: <20260417230751.117836-2-michael.christie@oracle.com>
+Subject: [PATCH 3/4] scsi: Support scsi_devices without a device wide limit
+Date: Fri, 17 Apr 2026 17:57:23 -0500
+Message-ID: <20260417230751.117836-4-michael.christie@oracle.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260417230751.117836-1-michael.christie@oracle.com>
 References: <20260417230751.117836-1-michael.christie@oracle.com>
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-ClientProxiedBy: DS7PR03CA0287.namprd03.prod.outlook.com
- (2603:10b6:5:3ad::22) To DM3PPF905D77450.namprd10.prod.outlook.com
+X-ClientProxiedBy: DM6PR06CA0080.namprd06.prod.outlook.com
+ (2603:10b6:5:336::13) To DM3PPF905D77450.namprd10.prod.outlook.com
  (2603:10b6:f:fc00::c37)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -90,150 +90,191 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
 X-MS-TrafficTypeDiagnostic: DM3PPF905D77450:EE_|MN2PR10MB4205:EE_
-X-MS-Office365-Filtering-Correlation-Id: 61fc4462-be35-4687-7ebb-08de9cd628af
+X-MS-Office365-Filtering-Correlation-Id: 85e8a3e2-19a5-4c07-775d-08de9cd62a96
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
 	BCL:0;ARA:13230040|366016|376014|1800799024|22082099003|18002099003|56012099003;
 X-Microsoft-Antispam-Message-Info:
-	xNqk5UBOdmh5heC2237DlX/pVMj3Rbq7PbQJaj/eVF/mfDFBmJmi9CER7Gx2eFTSviMhJdAmGIsGjGD+UsPoVHp0cK2DLPHKC2NrwN+29uU2OWFy/5Pt7d8DGBlJI4wwCbn6Qnoeepz7OkruzAW5qDkjBolG2w7KZAKjSCAiOSvpEQjXDADkIfF99xQh13plRd2P4R64Ek4F7YrFyYrPKpy/awwM6FMsZ0ExqpZINeQctNaf83W8ciaPvL48+VRSDT8bKev+x3AsZZgaBXqWOP29fUJXlQdMC2Tnf6pQwFmp6NRlh4V16889qPGuwFy88SDX3fMerINHl+U8k7rL8BRvc+7TixJWNm5ZewLV0NbQoh4alPXE5N+ZQKwRKDQNxKWyca53/4fMrhqM7HU3J8nCs6SLWeFXzcO9eV6bbsy5E7rb38DDn980PNsmx2OURntS2PedKJPL0rKX2yMnPhFOCSGIu7tvTS4pkrgHCcmP0jELdZ2hGKTmkC09ZdqniBwiTb1DwRsnIvXkO+nCSW+nw7zuwjVujTlKe5qc9esij4IP1eXIlD+j2hFy2uVFF6Ue+YhQCMgJqQj12xE2yXT9Zjqln/Gjx7ZHNm5uaRN1FOSoF8By3XGYcwjcV4r5PHRpK1oMczhNRIvGsyx9bdeOkqbQ6jSpY6rSy+bITnOSjZwLbQA49dHvNZU7j7qiHrjTwO/WtpnjEa2y2EOQiC5yWKGAiLbhLK6IIMi/9bU=
+	aDmpbz+GLeERPY1S2bFgwlZn72dUwfkz3Cuzjqb1iWdfc8a4qpaNBfHUUVwca6kBlYRyjAQXOZZLCt5RjYLjztZnRWNo6zKU1+z94RFQzxm0VDmzehbYQSTzZ/bBs5bQsTeScsIv9PH52WwF3aCJLHgYmG6JVrWZHTps/C4hOj3n9Zf4W8hwb2iuWMiUtogJb9Q/wuvWUD9RV+CVlHgIGhil0hv7IxgxmJtt1emf+ot4AO5NnMNxIko7bo1FI38w5JERWDtM+/vOTnfd6HfLjUdl5nT6sF6u4y5hsWTkWkHt3PDzMTKOQcMVPIAq0iXG4RhYV+If6JWrO0JHvc8wMgZPl7yXwiSp5gk/OcE13kudDZqy71JmLXLM8LEFr8PpBLPDwbXlQ252lx7FL0nVeMUR46jqU8HbPI2WqSgOxXq1LMf6k73onQLjaqBIQhs1T94WLY8e+7421DF44KNFOI7W/mUyeIr07Mi0Ahh72dYZAolzYOeDYV+ZUhQy+5tp8RjKgTmNzTaRiiUxsf4zUsAmhxuqULNEAz7QNLYDKgC1iTDasEp+rrJep2RuNFu7ieyd+yvlp4IJdXkjUsFPAgy3J30WzN3zaFz9UATNI7RAfFdREvBmWMQW3QUtB/+TqC6vHRrfDWLL6VTj/pAH8Q5GOsrMJ7EvBFpAFNwed1nLk5FB7bx4S8madRQ0ys0xplPwcwXl5jG1SoXzearFIAtC284rJ1GRnM4y1merYGE=
 X-Forefront-Antispam-Report:
 	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM3PPF905D77450.namprd10.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(1800799024)(22082099003)(18002099003)(56012099003);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?4y0rg5+YJQbdOby7Se1yzEjMOhP2FSo16bORW+oIzYdxqdn+EKadftDwTsRX?=
- =?us-ascii?Q?BOXun22ATEDVLQbaU1SyRVNyUF16OiVxIoU4+iAkkPTxUuhQIv8udTqm8YcL?=
- =?us-ascii?Q?kmu8UoY8HGsZG/zbh/3qIufFJ1xx4A2/Y11J1BVanN4DAqjAfrTjf9eKJtxx?=
- =?us-ascii?Q?aKzg+QbzF+PrKW08aF/ZfM9I96Aiw9OjFMVZA1VB+0hthXsncO2zKqWsky7c?=
- =?us-ascii?Q?qR9urskMMdAmjdjvmBHsHQy4VuVayFR20tdzDJwqqAAHdpwbZmv5HNuQNdRk?=
- =?us-ascii?Q?nleulYO3dqLnHtFLl4ZNpVQ3ORbjIWT6qWNSO0FA7VEWgU8mg7tUsMEE/aP2?=
- =?us-ascii?Q?7pizYM3icIOSszEfNH6sv2tAOmXhS1RZpDqjKPYqUT56SscEa2BsFr1Ti+2H?=
- =?us-ascii?Q?B+C3dN7t8MEnL6phTY36ksbkj4fMuKSfWRonCIKtNNzF4ied8kcnbXpMNme4?=
- =?us-ascii?Q?TQYGCaaLOe3Q4koR46IP7xnKKSdWafr+OgG8KudwAwri0X9Yq/yoa48GaKny?=
- =?us-ascii?Q?OTMvMNz/Z0GBkY1MHCQqQvDDhADHDlfKeTXMm+AfYgfXpv5UbiopovLE0DDb?=
- =?us-ascii?Q?JK4BdnkLo58j+fa5MTFda7rIPMrPFnDaGT1wRlGsx+a+RnB9vR27q1tFBjoa?=
- =?us-ascii?Q?u1YqcByY53AhIBm1YLUQM5plJvUM24AAk7aKqW75EDbSbcw9L/aZWU8NkAVG?=
- =?us-ascii?Q?JgFhdVgaTfvIgPrusanGDDN9qej5xhOyNvoY9tzcHukCP9FGt00kR3k6mR2V?=
- =?us-ascii?Q?05Psam3XrjOTr3BjWU5tpert9mDARhwHJDxnQXilxjvO0xFOnWGGZuiOZemA?=
- =?us-ascii?Q?8V7VKA5oUTXbTETQRA338gGfHKsHHim0iYlv26QLe2mh394okQG0oedp3jeK?=
- =?us-ascii?Q?T24qw0On6toUqbGqf8Kqo8T7L2Hj7FJe82SJFYr2xUMy0KZUlqBm0mSxiMMp?=
- =?us-ascii?Q?epdPJmAxsokIXAraTCIk3BH+NckH4sShf8BEkSf7LgZy3kHu0BFjvcMZjuhz?=
- =?us-ascii?Q?kGAJx+J6IqrAOcV9Rzf6oddIhLBth4jpGk53ieXL3WsEO0vEWdNcb1G3VOjU?=
- =?us-ascii?Q?zexiz43dQFjYMAUv+1x0yxEqkMIbBfXDsatSPVxsH4bQQAo57r+9ox2sltUn?=
- =?us-ascii?Q?7CRW362p776Bx2b3q0Z8nFqKGVj0wpYKUfAz9Yv/OHoMuJQ7jRHxPz/EHFD2?=
- =?us-ascii?Q?/3QW982yRXWifH/DttcRWWaTXZ49vdf6+FBCe2QtcWDkRQti1s3i7YLGzMXz?=
- =?us-ascii?Q?3MFRZBkw4/+kwo4hsJQ/bJrInoSixwyxDKSQIoDx3RlCjP8GVKnAGiedllWZ?=
- =?us-ascii?Q?EhaEg2YtagrIJN7rs5zHwUbvgNrRiumwyE6urufxsFE+gcpYCFemwfUbFZUb?=
- =?us-ascii?Q?XHM6ehwobL7fz9smoG7P5l3/YMGqsYfyd5J6QoNJsj/OganbUC1Uv9zrONNh?=
- =?us-ascii?Q?00NLR0ZlOrUYtFW/iJsQuv+OCgg5Nhj//cH6v2LP88sA3Ubc1NN6clBkYLqf?=
- =?us-ascii?Q?UUnBPkgqtzfV0wShvMA390ONomzDpTZb2NBceK8Mvrr5rCNLzty7L5pjyl3X?=
- =?us-ascii?Q?AawUB8vL8SI8j807qXgJpshWdhO3sK1XhQ8ysDpsXr7E3JJf8WJHjy2RWxI2?=
- =?us-ascii?Q?V99ogoDPYDtuUgb3xyZyxZWachfFHJ7j4RKm4IKLdpyL3XHWCMvjjSqMqxMg?=
- =?us-ascii?Q?vGaHb3cR3U3V6O8MtVGF6juKo3VKD0bjfYp+9gEl+HrYNeq052ljjhFSnv6u?=
- =?us-ascii?Q?7FDkWSZedSYOsP33ZMQQQdrLZXkQ0aU=3D?=
+	=?us-ascii?Q?AGaBTZc3sHP3AxKFGvGOzUypMfS5x7wjdf3NdHfzKwbQRd2SkjSER+k0D6nh?=
+ =?us-ascii?Q?3Gtb0hZqpkPZW0TTLgKOvcm4cYmhDf05yNfvrK0BNfySsBy6A2c70RIX1w3e?=
+ =?us-ascii?Q?i6S+ax728LYB39gvLc4rInMd431biU2uDc/Id46fXpn+zQPGJexx2n+Wzo5N?=
+ =?us-ascii?Q?616OThUB+wxR0IuE1vAziUDQYzOMZSPLwbLB0fKcX7VhOgkWMsBGjyCjXmBx?=
+ =?us-ascii?Q?eX6DccI3FdJUCjZSa2GMIWNujHjnrjLQMxaThb6RNB+8qNZz7K3FmsQIhbAI?=
+ =?us-ascii?Q?fO/tCzDhVcSo63tXt0c6qKzoTomZ7WIoGunqCwIipGOBEl0+CfP52mx/9oTn?=
+ =?us-ascii?Q?6cFGupdCbLuWb16QQ4m1HnxXUDqWcoWh5JjtLO9KbOshnllvAgDTdHw0N/XW?=
+ =?us-ascii?Q?A3vFAgMYijm/EGWKsKhgP09orPPgPYLq1OZGajh0Ij+4JeWGwlgVd9lY6W0z?=
+ =?us-ascii?Q?vVyV9wLV4LG80dzwVm+iDlcBynwO4DEHrA869pcrsv/rHCK2BsXyKfLf7oF3?=
+ =?us-ascii?Q?qDTP62PPCQ0SFGIEOCVX/svVXq8rwkEhhQkbNUmZc/rSbUD4YFQhT2VAaDGz?=
+ =?us-ascii?Q?e1TLNExA2maJStwxZ4nHADcgwlwwlcL2Gryoe73mVvO+D9sUXK03c2aGKqvb?=
+ =?us-ascii?Q?P42Uag28y9QUm9XA/GTX9i3rw97VjyOEoa/WufmFEy/8ebbsPpufpprqvETl?=
+ =?us-ascii?Q?CCk87tE6ov0h0mUAGsdtecVyQ3b5yMkt6Fa3vDqg8QYV0OJLUBMzEsn05BtZ?=
+ =?us-ascii?Q?cMZs+eS+WEsC34MPwCXNlKZgWm3ZMndmDH7/H9b94wGynmOLu6sYlfBWIy1S?=
+ =?us-ascii?Q?ArpOFBN5xmRKpmjusijtf79JR1SsGiueBomnIKwNmWR7B710BOBk7IdWpy2k?=
+ =?us-ascii?Q?/efxsMKgDdZn91/BzlaxrVv6jhHU9VuGWnn9nStx/XZ6TPC7VP8W01Fvgtvs?=
+ =?us-ascii?Q?86KbLotz5W/NzvJakgt+7DB4gQ4XJ/gLCo8yjxdYv4lDRN2UXNtdPSmswuyk?=
+ =?us-ascii?Q?Jt9xSTRNtVyhu6gzFX5bAdiX6/6YG8ao5CQYiUKoP4YG6LONbDFk/NAd3emf?=
+ =?us-ascii?Q?YZsMgY4JQJ0ocYV12y2scy8/b/GcWA0SbCLugD47dLtmqXw+ekc3yO0o8N/P?=
+ =?us-ascii?Q?pBX6lpqV5Nf5lMPoUqAJ9PrnRBN/KDw2P6wJaRvdCbz9QJaYaB5gDEteQFBW?=
+ =?us-ascii?Q?J9Cg5srUG94LYoA9ZG9A2zCdZEYrTeWIDn6qoFXsn8FHaG8hUeHRr4vTFab5?=
+ =?us-ascii?Q?SiDpcItLxZqs30q0GPET+zu19GiY94VgopWG3/H0KI73wpDOlyW0QLNzCMTI?=
+ =?us-ascii?Q?5OqJmIoMEwalBS8J4K+llqPKFRWTS04SefPc7IuTlAVOYn4YruBpAIMo7EPW?=
+ =?us-ascii?Q?XeKSY7+V5eahcQpkxbS4OVKrld27bu1JNtC1wB99o0pw/9SIc9Cb1/MjCY0z?=
+ =?us-ascii?Q?XVBxDLRC993e7xjKOBN3Eg+6VzAJfYM9umFhcQ8usVXdJJQZHFjRkYtEu1Zq?=
+ =?us-ascii?Q?1wnzCAE+HFsUSLX3VOlzblwmDxBIUHebe1QbJDJD/biZhbwMCh4O5UgtQuTI?=
+ =?us-ascii?Q?lXFSuwVfWv1A68f+a66vEN1GvWAgEcMvR4u7jic14N1Zf4K8Cg5Me0K85zFC?=
+ =?us-ascii?Q?DWivS5vW70yTNvaeq1FKdoqeZ4SXdAj6ISnpst6exvkn/z1fx/X3z18Z1UBd?=
+ =?us-ascii?Q?CTvHRxKtazTCq3e2tW6hvXo6EeJ7CBi7/goEwCxzqsGD5rnN68XC5s0RgvqX?=
+ =?us-ascii?Q?V6k1gDkNZgi95M+0LpGulm3qwV0z0vA=3D?=
 X-Exchange-RoutingPolicyChecked:
-	R3nle3hZZP3pzGTOXsEOY0mOD5+GLyw+H3jLQmlgSQT5OwaIXDzWC5UjV7bBR0I02ThO+h9nl4FrmxlBn+U4yyMciLWE+4OK76zL9ABnJDkVScTXPQ7mBpl7lDn8KB/X+nO1NZGnKgqFt1ptFGBwvRG54vOIlnkaf20u37QU8gz23muxsKklw0NvFplGLWm0XvtbzVLvoPqFdP0od7wfRhHy0KU3eS5mc6t/8YQaxB7CTXWkN0GiNPL3d8AGJURvM+mFLDaTXrM0VdjZoCXtpOFJC0yUJske/w2IkmcNk6vFIwoiFw5aFEcexgkluuG5joJQkolZV3kttdNhq6mqHw==
+	hlzf4x4tVSfnJkiqzVRvZv9VncFHeDSLImcZD3rHNLUNXryXGp5Bt/HEuX/lrvz8dLzdl+O6FNSHLby0wDX1IXSqnBFAUg5nudPhpZ2gyV3PCT117lPLCI9ZEYeRai46sNkRzjxlImTTIOvIiqJ/RnFxFyTVn3Ieaw4rWWE363V1e0dVLPT3tZbZtPd/knckMQ7IExc48x/hw4iUDb8sGKmCg3P91EFbllj1HJ3zH6DujIzXVP1waXFySlUvA4+uj+OEl+9YOVlqEYfa5xG7ubiS2zRUFoPBTaWB83gKVZ/kide7RJmA9OWOsCfdUqgvKHFPs1HGO94ZCgCVHcpw7g==
 X-MS-Exchange-AntiSpam-ExternalHop-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-ExternalHop-MessageData-0:
-	h2g/2Eq5Ox3K3dEctLqyrX1kNanvnPnvWtmd7XvnO2eybAoSolAtS5Rnje25D0yQGqUo9RKET1UEMQIf3cSo6Q/q/oFcLp6MXMMEflq4m5e7d24+ySUpwbqM3mtncXkN4ix3pM+EO0svQVq187R6qpceGPRddolaUVmHUGJBgDlPy1hcoiEehLQUMA27LSRQAorq4387MQGUkcAkBo7mKVVeM41yIo+UalPPRL66OxC9BX2oOGuwsZk+oXmKpe9iGKl38xIssOFzx5YdFB8UKRqCGe1R9vRNCMD719VZTSTuwSCuR0bFH1LpYqcjlDtR3Pf4v1rGUouu7rbXM4uo86c+DdDIDbROcGu7pYiH1ssXYXk6o2BrIKhfC+sml3q+F7rA854D0QadqsFG1ah5SszORh2z5tVgoEtjGrUnF1HLYAQlksOsOkviGwIr3yG1KQ7yXL+Co3VGLm30dF2FYNCUFjoTToQGBSSGJW8teFo3J6YXX/tAaZWC8TWMwxrF7rO2B6VhIAQ/6As041g88HsLy1kAlzc4LLv46YEfw29YJc09+Kz6bnArrdNZR8J8cTxC1ECK435psSj8yQDAbEjgLUezyIn45OWnt/LdJZg=
+	ocsHuPiHprhT0uZr4ZYn/5/lJWAXLYHHYv20rnfDMEDovQmPeGKOOUgJccLQFhLwz6kxWpKIuao73QNZ29iYjC/0QdChXeZyYyYcFUOuVDfJCZ6h67uKIHCxY/557nw3tb6Rloutf7rsG+dRnQJ5kP5rL7F0E0KvRiJ/c3v2gpJqyISR6hm7xMGBZo1x7L8F76feaqrqoroHFg9XAL70cYjlLCE2/ZkFJgzp2INs+FJuId5TzKLc4ecblTusx+TqIYAWkgyvw3TYD0ZSkvjp7VFFJfO2xlzx/l70k/fXfarui+PxjYsvYOm09vDxVIEOY5CXowPY4D1waRW1BiXXFrPtgvpq2AlvFaXKJ9gMNX+3nWfXujl2o8InBfbokxrQQUP1pBTB7Sia6OZQQYYOXeRFP8rmsrrazyHdQwIWinNi1TPTN563WCGVNzDFc8ZMM9n1Q2PBmloyQaG6UFvv1Uy6qzbcGCQbbudYYJYe0ABuLLQ7iomnAneHTI4Qg1Ozx6fc1jT5HTC0DZv6fAmmYzRfK2U/wtKeXmBAdMtCLqgdZ95lgjKKhJlm2pyu0tiNr0NaLZsWRvGfYLzhrCH8lx/XYMBYLAbpEqzHnauTBN4=
 X-OriginatorOrg: oracle.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 61fc4462-be35-4687-7ebb-08de9cd628af
+X-MS-Exchange-CrossTenant-Network-Message-Id: 85e8a3e2-19a5-4c07-775d-08de9cd62a96
 X-MS-Exchange-CrossTenant-AuthSource: DM3PPF905D77450.namprd10.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Apr 2026 23:07:55.4153
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 17 Apr 2026 23:07:58.6495
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 4e2c6054-71cb-48f1-bd6c-3a9705aca71b
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: CYJhCneY2c2sF/vH1kaHjCa7BGQHifNbJ3HRHT74NIJd3fZaHGpBCRXn52O0n4T10vdVe+vQ+m8tHDNooa4Ex0xtTCUVwpj22Q+Rl68Hn2w=
+X-MS-Exchange-CrossTenant-UserPrincipalName: TLfDtudw2IiaPtVDxLYI3iwJZstOKYXUYrD6OOWpe8ADF7xDS4elTTfH33GSonFXSsiPPT7Z0J6EEcn5ZERb//KkIfVgdA8t7971T/eB9eE=
 X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR10MB4205
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-04-17_02,2026-04-17_04,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 suspectscore=0
- mlxlogscore=999 mlxscore=0 phishscore=0 adultscore=0 bulkscore=0
- lowpriorityscore=0 malwarescore=0 spamscore=0 classifier=spam adjust=0
- reason=mlx scancount=1 engine=8.19.0-2604070000 definitions=main-2604170232
-X-Authority-Analysis: v=2.4 cv=JKYLdcKb c=1 sm=1 tr=0 ts=69e2bd50 b=1 cx=c_pps
- a=qoll8+KPOyaMroiJ2sR5sw==:117 a=qoll8+KPOyaMroiJ2sR5sw==:17
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0
+ lowpriorityscore=0 mlxscore=0 mlxlogscore=999 spamscore=0 adultscore=0
+ suspectscore=0 bulkscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2604070000 definitions=main-2604170232
+X-Authority-Analysis: v=2.4 cv=eJUjSnp1 c=1 sm=1 tr=0 ts=69e2bd53 cx=c_pps
+ a=OOZaFjgC48PWsiFpTAqLcw==:117 a=OOZaFjgC48PWsiFpTAqLcw==:17
  a=6eWqkTHjU83fiwn7nKZWdM+Sl24=:19 a=z/mQ4Ysz8XfWz/Q5cLBRGdckG28=:19
  a=lCpzRmAYbLLaTzLvsPZ7Mbvzbb8=:19 a=xqWC_Br6kY4A:10 a=A5OVakUREuEA:10
  a=GoEa3M9JfhUA:10 a=VkNPw1HP01LnGYTKEx00:22 a=jiCTI4zE5U7BLdzWsZGv:22
- a=7Gl3-_t3PgB9XO-mQDs3:22 a=yPCof4ZbAAAA:8 a=ih1sjumYWU1RLgJRaqUA:9 cc=ntf
- awl=host:12292
-X-Proofpoint-ORIG-GUID: C82G5Y-7rt_gbi_xzh6Cn3kgj_flpmQC
-X-Proofpoint-GUID: C82G5Y-7rt_gbi_xzh6Cn3kgj_flpmQC
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDE3MDIzMSBTYWx0ZWRfX/XwGZ5msCQve
- EcM79I9LQq+V5aEglDt9z1L8rVNXVkv55LfHPPYGR9ltTKs8zwjWCEQ6QvBk/6cjzdi7CMhTCyh
- 82gsBtmnauFYJ4mxYzPKlthusp4t+HxE89cDUgpw2n4vPI3zemqXmt+Emg4Ks7mqfxyFEmltCCS
- 03GpbMO42mNonpOzJ+eaCkh24Ni6nUzkXj33y1wmq5rNuk6fdy6mwOq3VS3S41QJXdQEmmMk08k
- 25ZbSLyU/A/9Lxwdb2i6tpxM3Hg5FQCTUTrNfr5ycE/1XhYbNTjOP8w8r54RrBj4r1LaEyIOH9s
- OkzX5BZkA7hizWSNExiRZIgWRaJ5W0cxIlT3EHCUWDXtvFwbq+lKy0W/My3TBkGQx+Vq3NFZ3fG
- 6GvMlXgNCt088jlp8daMhuDTJNVuyG+16rvSssZs+DKGDUPgUHEnmABVCyx/BW4yPNn1o1YVQxU
- PKRN4Sd7g1yQF5OPg2nC6pCyuWoGcNsPoNcLQ/sg=
+ a=EIcjfB9IiI4px24ztqRk:22 a=yPCof4ZbAAAA:8 a=EXDcZh3qLuxMbbeiqS0A:9
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDE3MDIzMiBTYWx0ZWRfXwbYcA9DwyJe4
+ oxnpt5tg8b0w48BOjC3c2hOCPxwjQ9LvPLPOWi5rX4LfHLvl5BRGl8J2GTaCeb4dc0FX0oQ5NQc
+ T3oBoM0hK2V1RrpWuozNmNboUlQtt4mUDrzhuhuDWlOsEDFCpdvmBVK5W0b/WQI2RQK9IFIolWm
+ hfSUx3ef6GWHWe0SnSlHyL0LEgdgz4uZEpD2mQaKm39zfMS5wCCd3lQl3m8uHj1oCr+HvTat+aI
+ g7/0ezV2ekH3HbbsObvB3ttEy9eJ0uacv2jWnMrT7cjuuJAMmzQCHrcpcYpgMjTMtqwc1gO47qd
+ ZJSIBdvTyULPQQXKIW4ZbDD9q9BKmo6PNQHLVbE5XeJe61LpeoMuZhArU8DvNEEOenTji5pyEmo
+ YsnEoCaIJadC4O4a9bqftSrgjjj2xq2qYyRKlfh1xxa0EL84qGkUGIB3GB1epcaDq9SW1xKvhCN
+ phwpdvgTBDNH4hwPXEA==
+X-Proofpoint-ORIG-GUID: eS-j21QYFoSDSF3SCBn3z5YmVST7pZ2V
+X-Proofpoint-GUID: eS-j21QYFoSDSF3SCBn3z5YmVST7pZ2V
 
-The Scsi_Host can_queue comment assumes the old pre-mq can_queue use or
-it assumed host_tagset is set. This syncs the scsi_host_template and
-Scsi_Host comment so they are in sync.
+For virtio-scsi, we export a wide variety of non-scsi devices like
+NVMe (local and RDMA/TCP based) drives and block based devices using
+ublk. And then it's common to have multiple high perf devices im a LVM
+volume. The problem for these setups, is we can easily hit the 4096
+scsi_device queue depth limit so we end up throttling IO in the guest
+when the real device can handle more IO.
 
-It also redirects the nr_hw_queues comment to can_queue so we only
-have to describe how can_queue and nr_hw_queues are related in one
-place.
-
-I also dropped the non-interrupt vs interrupt driven comment because it
-doesn't seem to apply anymore.
+In these situations we don't have a device wide limit that maps to
+cmd_per_lun. We have per hw queue limits or on the host we are doing
+more dynamic throttling. To allow for these types of devices, this
+patch allows drivers to set SCSI_UNLIMITED_CMD_PER_LUN for the
+cmd_per_lun. When set, we will then only be limited by the per hw
+queue limits.
 
 Signed-off-by: Mike Christie <michael.christie@oracle.com>
 ---
- include/scsi/scsi_host.h | 21 +++++++++------------
- 1 file changed, 9 insertions(+), 12 deletions(-)
+ drivers/scsi/hosts.c     |  5 +++--
+ drivers/scsi/scsi_scan.c | 25 ++++++++++++++-----------
+ include/scsi/scsi_host.h |  4 ++++
+ 3 files changed, 21 insertions(+), 13 deletions(-)
 
-diff --git a/include/scsi/scsi_host.h b/include/scsi/scsi_host.h
-index f6e12565a81d..7c747b566bc3 100644
---- a/include/scsi/scsi_host.h
-+++ b/include/scsi/scsi_host.h
-@@ -381,10 +381,13 @@ struct scsi_host_template {
- 	const char *proc_name;
+diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
+index e047747d4ecf..c93c59e847c5 100644
+--- a/drivers/scsi/hosts.c
++++ b/drivers/scsi/hosts.c
+@@ -238,8 +238,9 @@ int scsi_add_host_with_dma(struct Scsi_Host *shost, struct device *dev,
+ 	}
  
- 	/*
--	 * This determines if we will use a non-interrupt driven
--	 * or an interrupt driven scheme.  It is set to the maximum number
--	 * of simultaneous commands a single hw queue in HBA will accept
--	 * excluding internal commands.
-+	 * If host_tagset is set, this is the maximum number of simultaneous
-+	 * commands the host will accept excluding internal commands.
-+	 *
-+	 * If host_tagset is not set, this is the maximum number simultaneous
-+	 * commands a single hw queue in the host will accept excluding
-+	 * internal commands. In other words, the total queue depth per host
-+	 * is nr_hw_queues * can_queue.
- 	 */
- 	int can_queue;
+ 	/* Use min_t(int, ...) in case shost->can_queue exceeds SHRT_MAX */
+-	shost->cmd_per_lun = min_t(int, shost->cmd_per_lun,
+-				   shost->can_queue);
++	if (shost->cmd_per_lun != SCSI_UNLIMITED_CMD_PER_LUN)
++		shost->cmd_per_lun = min_t(int, shost->cmd_per_lun,
++					   shost->can_queue);
  
-@@ -631,10 +634,7 @@ struct Scsi_Host {
+ 	error = scsi_init_sense_cache(shost);
+ 	if (error)
+diff --git a/drivers/scsi/scsi_scan.c b/drivers/scsi/scsi_scan.c
+index 7b11bc7de0e3..ecc3638c1909 100644
+--- a/drivers/scsi/scsi_scan.c
++++ b/drivers/scsi/scsi_scan.c
+@@ -352,18 +352,20 @@ static struct scsi_device *scsi_alloc_sdev(struct scsi_target *starget,
+ 	if (scsi_device_is_pseudo_dev(sdev))
+ 		return sdev;
  
- 	int this_id;
+-	depth = sdev->host->cmd_per_lun ?: 1;
++	if (sdev->host->cmd_per_lun != SCSI_UNLIMITED_CMD_PER_LUN) {
++		depth = sdev->host->cmd_per_lun ?: 1;
  
 -	/*
--	 * Number of commands this host can handle at the same time.
--	 * This excludes reserved commands as specified by nr_reserved_cmds.
+-	 * Use .can_queue as budget map's depth because we have to
+-	 * support adjusting queue depth from sysfs. Meantime use
+-	 * default device queue depth to figure out sbitmap shift
+-	 * since we use this queue depth most of times.
 -	 */
-+	/* See scsi_host_template's can_queue. */
- 	int can_queue;
- 	/*
- 	 * Number of reserved commands to allocate, if any.
-@@ -653,10 +653,7 @@ struct Scsi_Host {
- 	/*
- 	 * In scsi-mq mode, the number of hardware queues supported by the LLD.
- 	 *
--	 * Note: it is assumed that each hardware queue has a queue depth of
--	 * can_queue. In other words, the total queue depth per host
--	 * is nr_hw_queues * can_queue. However, for when host_tagset is set,
--	 * the total queue depth is can_queue.
-+	 * See scsi_host_template's can_queue for queueing requirements.
+-	if (scsi_realloc_sdev_budget_map(sdev, depth))
+-		goto out_device_destroy;
++		/*
++		 * Use .can_queue as budget map's depth because we have to
++		 * support adjusting queue depth from sysfs. Meantime use
++		 * default device queue depth to figure out sbitmap shift
++		 * since we use this queue depth most of times.
++		 */
++		if (scsi_realloc_sdev_budget_map(sdev, depth))
++			goto out_device_destroy;
+ 
+-	scsi_change_queue_depth(sdev, depth);
++		scsi_change_queue_depth(sdev, depth);
++	}
+ 
+ 	if (shost->hostt->sdev_init) {
+ 		ret = shost->hostt->sdev_init(sdev);
+@@ -1108,7 +1110,8 @@ static int scsi_add_lun(struct scsi_device *sdev, unsigned char *inq_result,
+ 	 * Set up budget map again since memory consumption of the map depends
+ 	 * on actual queue depth.
  	 */
- 	unsigned nr_hw_queues;
- 	unsigned nr_maps;
+-	if (hostt->sdev_configure)
++	if (hostt->sdev_configure &&
++	    sdev->host->cmd_per_lun != SCSI_UNLIMITED_CMD_PER_LUN)
+ 		scsi_realloc_sdev_budget_map(sdev, sdev->queue_depth);
+ 
+ 	if (sdev->scsi_level >= SCSI_3)
+diff --git a/include/scsi/scsi_host.h b/include/scsi/scsi_host.h
+index 7c747b566bc3..7555898dba25 100644
+--- a/include/scsi/scsi_host.h
++++ b/include/scsi/scsi_host.h
+@@ -443,6 +443,7 @@ struct scsi_host_template {
+ 	 */
+ #define SCSI_DEFAULT_MAX_SECTORS	1024
+ 
++#define SCSI_UNLIMITED_CMD_PER_LUN	-1
+ 	/*
+ 	 * True if this host adapter can make good use of linked commands.
+ 	 * This will allow more than one command to be queued to a given
+@@ -451,6 +452,9 @@ struct scsi_host_template {
+ 	 * command block per lun, 2 for two, etc.  Do not set this to 0.
+ 	 * You should make sure that the host adapter will do the right thing
+ 	 * before you try setting this above 1.
++	 *
++	 * Adapters that do not have a device limit can set this to
++	 * SCSI_UNLIMITED_CMD_PER_LUN.
+ 	 */
+ 	short cmd_per_lun;
+ 
 -- 
 2.47.1
 
