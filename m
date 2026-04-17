@@ -1,279 +1,213 @@
-Received: from mail-pg1-f177.google.com (mail-pg1-f177.google.com [209.85.215.177])
+Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27B09397680
-	for <virtualization@lists.linux.dev>; Fri, 17 Apr 2026 13:35:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E31C315D46
+	for <virtualization@lists.linux.dev>; Fri, 17 Apr 2026 13:50:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776432953; cv=none; b=TSbEU5v/32DjscaM2rMT/qafbDlUdu0Rka88mTw+zwB8q1qc3Zx40U4vBH4a2eNULVbJVsB/rLJpu7mbLMr+8Z+QP+mOGIMgzVi7rfhqmZ+zTYjGNuqsLR3NtBJRa2Ttt7nkZwz4UOnkbWHx1pzFyZoenFltT8x02TIK4w1CYtQ=
+	t=1776433808; cv=none; b=fih8/CCSYaTeAEa09CU6HsiPGtDGGqnjJSDyxuzEhwY7boaxCwfAWD5W4D2Ir1vETFhC5sgPZIvn04ZQ0CtUv/BXkt6PUq0UAdVWYuFrWdKo/gCySF9Tpd7QCOF5RsVAFl42MyAjsqT5j+oDAVhckmKhtC4YJCQtOXlMiFAh1xs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776432953; c=relaxed/simple;
-	bh=tJQmTWfO326kdUEX0KHUrK6HcbNOKPA2N0r/07lyJRU=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=BF2fyftnd94g0UhQDWqD1ldjmjswM00/8TGTY9TxFKPxOx5ctFpI1jRmruBZ0uD1+9alfDiJusctXFAQJsbhlfhK5UWUjQpNp7rw1+ZF+64W9ZqzAaYDDKNxQDfqX5fAu6sj2g6rLL5KjbmerDQhGxZZplZs0uWk3QUg404fKbg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=BnYj9E4R; arc=none smtp.client-ip=209.85.215.177
+	s=arc-20240116; t=1776433808; c=relaxed/simple;
+	bh=fo4xhoC9NzPbZRZBW63KZnbvMyUJGRXLR+fuMV1h24I=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=jweLwySlEJDKHNWH4jzxVvXprGTF4DxuXArNOmTL2t/XKH9EuRySUB6GI+QVJxAmx1ScVd/vlbY7G4iK4jdR1YfjfHnqVk8xThGvilb76lXN6KZIYoi9pcN7HEHJN/0145aTibuClYGVu6ivAfq7lmnyP5cEAZ9RNbaemS/hv9k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=p07I7Nh+; arc=none smtp.client-ip=209.85.210.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="BnYj9E4R"
-Received: by mail-pg1-f177.google.com with SMTP id 41be03b00d2f7-c76b9efc299so292368a12.0
-        for <virtualization@lists.linux.dev>; Fri, 17 Apr 2026 06:35:51 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="p07I7Nh+"
+Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-824c9da9928so396245b3a.3
+        for <virtualization@lists.linux.dev>; Fri, 17 Apr 2026 06:50:07 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1776432951; x=1777037751; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=nXcUGIfcha85KeTtKQKluvJ7CZSCtoU5lC4yHHMNuyE=;
-        b=BnYj9E4R/iH/VgzvHHzKHfJInF00ZUGbGTI3kHCtoBBoCRhN9bRWY049sCUj/+KyC7
-         pxccFhpXc5m9VWYJw7+t1N00xMbk80zqmky9vfb2+6jNPPchaGrvjbwK/S9N0Bu6TCNS
-         5VKbXroVhqUdyFOnQK5Z1Er1XbxvDwUFR3fiOSR2ch9FzPajsQVhWxK3L1kdtkInxw6g
-         giU11WkvR6a9rdza3GM6EcFOjv9ysDfKnCutSOWzhF+z87WKYyaAPu5ygVBkwt2b193q
-         pOjHAkFprHOZapxOfzhXU7ntrLoWAOFMlEw6Dq7mQF2VAdlNeA8AH4sizCWjCdC+otv+
-         S6hA==
+        d=gmail.com; s=20251104; t=1776433807; x=1777038607; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=C2i44n+1eaFoKthvoHXkc0Qb+3fUcYde9FhFl3lRY+w=;
+        b=p07I7Nh+N3GBiLHR0XqIUBcjZq+3TpU/q2A8clbOdqqXiUCuiBT+aXCXZZG/iXwWRc
+         X0TtzEelE8N+gpTpio+p5pxbmBPedWUKAeJuz8lKP2G+jNl5rPHNBOXkaqafnYdURlUL
+         4TxWDI3umyRaPFbtJ31FJpO3RI+KTJMzRulwUDpE+hL/3gLdSGfbppg84kBNZ9fErKbH
+         L5tcAd6nAsyCod9hAhUAEhulPRAzjYLkZLgsmHA75xog2FzM9tviqQaOQgfLFqoIIHzm
+         l7IVkAOlqaSdic/BS1aziS6I9Sa8WfH0rVXNb1MdoNrpfWREFVJRRLyuUL08FpHMkkFK
+         r0vw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776432951; x=1777037751;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=nXcUGIfcha85KeTtKQKluvJ7CZSCtoU5lC4yHHMNuyE=;
-        b=U1anKPwbo50bFPlXiDGRgETF34+dMmd0Qic7Dk60MgQKBFE5MeCAM1OEOlITcdvChy
-         0UBQrFDnPVhn0IPh2H8UIIrJt5bfFGbq1+NIwYBFnOF4RLum0fOOLzwd4+ZJVi2sZkmH
-         KIEVBvELqWWb7FCURJX0UpCKC6IBrU02PGJB3ACGvcOnqD038mfCkPSEtlMSSaCZl/QR
-         Zj/7PWgMf7yJVfZNgs0kO1c8dUMndrpmrul3madsnEdQ3HMU/+btwsBLuzk9dHW7CVJi
-         eXq2/XFM2DJrilwczIZnCkGGC4niuQCIb8tPmYftPw1kYR0dy0PTbffNgMOeHMsU5kFx
-         c9rw==
-X-Forwarded-Encrypted: i=1; AFNElJ+01brSeV+qHQuA/9Wfa0A9DVGZ5FbLok9Kr/O+ZmUz9h+FmtP+2VM0Xe7G0c+ED0RG5+McHRkoKLnVBsqycA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzk5YGDjb5KO7hsr8Eslz6AuoFbKf4PpDi54U20DyDpYHEEqStT
-	oP5dhAgFXV1yC3EE3Dg1L1q8NfmG1tz28pPCkWgVIthke8EoZqTjRayS
-X-Gm-Gg: AeBDievz0Xt5XnSkt/BNrE/glDb2Jei4pygEgzcwPnyXpbLQmkDtjGAyai3s5ls1pmy
-	NfM1bVIt32c5VcL7tCtVi8NsIJo5K+I3aEE/iEk4De2t7vEb/QAz0lS+uRuyxL8w9VXTqP5JHq1
-	iub0sz1xprc8Rgy+csx52bYZ798SmKHiz4hp1HAvFziHs0RhRvmpeb4szeOL6zH6LS994Tp3hzt
-	EVu2uWpqsYjiHKAOpd2E+EaEcvd443uEfZc2HlxcjezfoQ0XrZsFQpfh8Tvh5eckDPB+5KqBw05
-	+jZbmD+07qlRmnjREk2JJ7TIbgcQuirBTzngCt6POn5YYcLzi1NS3tY2WVQcgmHP57ZQ3bSvkQt
-	hlmCot05ok69PbGusr1iLT53wL1pl62SeaWD2IpIspcf0xf9LD7thSW2LLyv0Uj1+Yj/nr9oq2K
-	GK8cySqYlS+f9yGifQJT/5KuK6JOhscFuTCqSqFJijmIw8BgguZlQyvQJbyNA2TTpxVh5LMiDV7
-	iaufUtFeJECn2hQPLFpBKtkY6OT5sJ6zYKltw==
-X-Received: by 2002:a05:6a20:4306:b0:389:8f3f:50ce with SMTP id adf61e73a8af0-3a08d939437mr3218253637.56.1776432951186;
-        Fri, 17 Apr 2026 06:35:51 -0700 (PDT)
-Received: from baver-zenith.localdomain ([124.49.88.131])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c7976fa3604sm1421272a12.14.2026.04.17.06.35.47
+        d=1e100.net; s=20251104; t=1776433807; x=1777038607;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=C2i44n+1eaFoKthvoHXkc0Qb+3fUcYde9FhFl3lRY+w=;
+        b=DJ1VsfWmtIrEaFO+NZAzp2Lzhj5C9XWAyaFMkhU9ifd2DrEZkPgrC/r8D1GcPG8HUk
+         UDgG0qKiNGypfWBik7kZrZh7l9yxoDmWJDizjRbUREodbw0cD263YGMxj9arL77SxQ+T
+         GJ1HC52yaOwG1BchfnJoP+J79yeUXAO+qM3u7pf7l6/yG3UhSZ6vKFNoS02fJ5ASy5Nc
+         Gn0Rpd4lwlWSEwa5f3NtQ0i2DafaJOc1T6nk8+ITEC1xZAyZwMdZgoprhoHVoGNcNwU7
+         AUJ7HfkmSzoQWKHrlGT87xRhTwGswQASYmPt8O6oZOza1fViVzAxmCfG6bsyXiCSF97a
+         5lOg==
+X-Forwarded-Encrypted: i=1; AFNElJ9Mi5CNix3YqusjGtSZoBCkh0Tmr+GW1tMzd2DzN9Be4iRANvSPzN19vI8plYU2X2np4C/pIIBkFobZw1RR1w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwoQziMAI3eUugr3yFOQ5Gj1AvSKK1IDbE9uG0T7L6ySbs1vDOP
+	L0MyldUj/kATm9wea8siPuK6v9y4s9u10x76/W6gdbYTytMGxtUbQCYf
+X-Gm-Gg: AeBDieu2KVmWe+hwP/WiYyR9wUQhuqJY8l9mjCvtj3kvyyRzJ/A9Av+HznPeip13YDb
+	DLFPXQ5dz5QVFM31E7h+horpXOaSTj6khfwTMMhnjGybKHiB4OR8vhlFKF4yecy2kwVwhW6IO7w
+	Bw05Dzaf8gmDhkdfVdNgJWh2yvc9JdorRhDlOEgpTvWuPJMxI0yPJzj/Ch6JX0yXMwU2d7gPLjm
+	fDs+sqZZk9+7v6fkP6QJ97Ca9xXMF3/vcf5ni7RvhugRjqOnNS9giU9S/uXLXYxCrmumnrSSk9f
+	LLcSDhy6e2SKTTPOsTQLG9hz5ZPwiS0shtrsw3dV1xbaDlN3MGPka/bK/9PUcCp+/dgsh6Lgm4g
+	YhF0BnPFBX1PcCDHukLutAcbsQUrHb7UMoxHTStRNWNtbrmV7kZfn4RowrOz7OcQLxGsUoSsy7w
+	jKwCgS9JHN8CFHW0/Uilz76hrAw3zerNDeU6c7fVqBkdpOuTtDEw==
+X-Received: by 2002:a05:6a00:148e:b0:82c:9cd2:fee5 with SMTP id d2e1a72fcca58-82f8c87e28amr2673000b3a.7.1776433806291;
+        Fri, 17 Apr 2026 06:50:06 -0700 (PDT)
+Received: from [127.0.1.1] ([188.253.126.210])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82f8e9d6adbsm2877558b3a.18.2026.04.17.06.50.01
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Apr 2026 06:35:50 -0700 (PDT)
-From: Sungho Bae <baver.bae@gmail.com>
-To: mst@redhat.com,
-	jasowang@redhat.com
-Cc: xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
+        Fri, 17 Apr 2026 06:50:05 -0700 (PDT)
+From: JiaJia <physicalmtea@gmail.com>
+To: Peter Hilber <peter.hilber@oss.qualcomm.com>,
+	Michael S. Tsirkin <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio Pérez <eperezma@redhat.com>,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org,
-	Sungho Bae <baver.bae@lge.com>
-Subject: [RFC PATCH v2 4/4] virtio-mmio: wire up noirq system sleep PM callbacks
-Date: Fri, 17 Apr 2026 22:34:30 +0900
-Message-Id: <20260417133430.507-5-baver.bae@gmail.com>
+	JiaJia <physicalmtea@gmail.com>
+Subject: [PATCH] virtio: rtc: tear down old virtqueues before restore
+Date: Fri, 17 Apr 2026 17:08:31 +0800
+Message-Id: <20260417214953.793956-1-physicalmtea@gmail.com>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260417133430.507-1-baver.bae@gmail.com>
-References: <20260417133430.507-1-baver.bae@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-From: Sungho Bae <baver.bae@lge.com>
+virtio_device_restore() resets the device and restores the negotiated
+features before calling ->restore(). viortc_freeze() intentionally
+leaves the existing virtqueues in place so the alarm queue can still
+wake the system, but viortc_restore() immediately calls
+viortc_init_vqs() without first deleting those old queues.
 
-Implement the transport side of noirq system-sleep PM for virtio-mmio:
+If virtqueue reinitialization fails on virtio-pci, the transport error
+path runs vp_del_vqs() against a new vp_dev->vqs array while vdev->vqs
+still holds the old virtqueues. vp_del_vqs() then looks up queue state
+through that new array and can dereference a NULL info pointer in
+vp_del_vq(), crashing the guest kernel during restore.
 
- - vm_reset_vqs(): iterate all virtqueues, call virtqueue_reinit_vring()
-   to reset the vring state in place, then reprogram the MMIO queue
-   registers (QUEUE_SEL, QUEUE_NUM, descriptor/avail/used addresses,
-   QUEUE_READY) so the device can use the same rings immediately after
-   restore.  No memory is allocated or freed.
+Delete any old virtqueues before rebuilding them, and clear the cached
+queue pointers so later message requests fail cleanly if restore does
+not complete.
 
- - virtio_mmio_freeze_noirq() / virtio_mmio_restore_noirq(): thin
-   wrappers that forward to the virtio core noirq helpers.  The
-   restore_noirq path also writes GUEST_PAGE_SIZE for legacy (v1)
-   devices, matching the existing restore callback.
-
- - Wire vm_reset_vqs into virtio_mmio_config_ops and register the
-   noirq callbacks via SET_NOIRQ_SYSTEM_SLEEP_PM_OPS().
-
-With this in place, a virtio-mmio driver can implement freeze_noirq /
-restore_noirq to participate in the noirq PM phase, enabling use cases
-such as virtio-clock or virtio-regulator that must be operational
-before other devices are restored.
-
-Signed-off-by: Sungho Bae <baver.bae@lge.com>
+Signed-off-by: JiaJia <physicalmtea@gmail.com>
 ---
- drivers/virtio/virtio_mmio.c | 131 ++++++++++++++++++++++++-----------
- 1 file changed, 92 insertions(+), 39 deletions(-)
+Runtime evidence from a standard hibernation test_resume run on a guest
+with virtio-rtc-pci (no fault injection):
 
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 595c2274fbb5..7cde042e15ac 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -336,6 +336,75 @@ static void vm_del_vqs(struct virtio_device *vdev)
- 	free_irq(platform_get_irq(vm_dev->pdev, 0), vm_dev);
- }
+  KASAN null-ptr-deref report in vp_del_vq.isra.0+0x70/0xd0
+
+  Call trace:
+    vp_del_vq.isra.0+0x70/0xd0
+    vp_del_vqs+0xec/0x358
+    vp_find_vqs_msix+0x24c/0x6a8
+    vp_find_vqs+0x88/0x360
+    vp_modern_find_vqs+0x20/0x90
+    viortc_init_vqs+0xd0/0x128
+    viortc_restore+0x28/0xb8
+    virtio_device_restore_priv+0x184/0x288
+    virtio_pci_restore+0x44/0x58
+
+ drivers/virtio/virtio_rtc_driver.c | 38 ++++++++++++++++++++++++++----
+ 1 file changed, 33 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/virtio/virtio_rtc_driver.c b/drivers/virtio/virtio_rtc_driver.c
+index a57d5e06e..c1adde27d 100644
+--- a/drivers/virtio/virtio_rtc_driver.c
++++ b/drivers/virtio/virtio_rtc_driver.c
+@@ -427,6 +427,15 @@ static int viortc_msg_xfer(struct viortc_vq *vq, struct viortc_msg *msg,
+ 	sg_init_one(out_sg, msg->req, msg->req_size);
+ 	sg_init_one(in_sg, msg->resp, msg->resp_cap);
  
-+static int vm_active_vq(struct virtio_device *vdev, struct virtqueue *vq)
-+{
-+	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-+	int q_num = virtqueue_get_vring_size(vq);
-+
-+	writel(q_num, vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
-+	if (vm_dev->version == 1) {
-+		u64 q_pfn = virtqueue_get_desc_addr(vq) >> PAGE_SHIFT;
-+
++	if (!vq->vq) {
 +		/*
-+		 * virtio-mmio v1 uses a 32bit QUEUE PFN. If we have something
-+		 * that doesn't fit in 32bit, fail the setup rather than
-+		 * pretending to be successful.
++		 * Keep runtime interfaces in a safe failed state if restore
++		 * teardown removed the virtqueues.
 +		 */
-+		if (q_pfn >> 32) {
-+			dev_err(&vdev->dev,
-+				"platform bug: legacy virtio-mmio must not be used with RAM above 0x%llxGB\n",
-+				0x1ULL << (32 + PAGE_SHIFT - 30));
-+			return -E2BIG;
-+		}
-+
-+		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_QUEUE_ALIGN);
-+		writel(q_pfn, vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
-+	} else {
-+		u64 addr;
-+
-+		addr = virtqueue_get_desc_addr(vq);
-+		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_LOW);
-+		writel((u32)(addr >> 32),
-+				vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_HIGH);
-+
-+		addr = virtqueue_get_avail_addr(vq);
-+		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_LOW);
-+		writel((u32)(addr >> 32),
-+				vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_HIGH);
-+
-+		addr = virtqueue_get_used_addr(vq);
-+		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_USED_LOW);
-+		writel((u32)(addr >> 32),
-+				vm_dev->base + VIRTIO_MMIO_QUEUE_USED_HIGH);
-+
-+		writel(1, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
++		viortc_msg_release(msg);
++		return -ENODEV;
 +	}
 +
-+	return 0;
-+}
-+
-+static int vm_reset_vqs(struct virtio_device *vdev)
-+{
-+	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-+	struct virtqueue *vq;
-+	int err;
-+
-+	virtio_device_for_each_vq(vdev, vq) {
-+		/* Re-init vring */
-+		virtqueue_reinit_vring(vq);
-+
-+		/* Select the queue we're interested in */
-+		writel(vq->index, vm_dev->base + VIRTIO_MMIO_QUEUE_SEL);
-+
-+		/* Activate the queue */
-+		err = vm_active_vq(vdev, vq);
-+		if (err < 0)
-+			return err;
-+	}
-+
-+	return 0;
-+}
-+
- static void vm_synchronize_cbs(struct virtio_device *vdev)
- {
- 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-@@ -388,45 +457,9 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
- 	vq->num_max = num;
+ 	spin_lock_irqsave(&vq->lock, flags);
  
- 	/* Activate the queue */
--	writel(virtqueue_get_vring_size(vq), vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
--	if (vm_dev->version == 1) {
--		u64 q_pfn = virtqueue_get_desc_addr(vq) >> PAGE_SHIFT;
--
--		/*
--		 * virtio-mmio v1 uses a 32bit QUEUE PFN. If we have something
--		 * that doesn't fit in 32bit, fail the setup rather than
--		 * pretending to be successful.
--		 */
--		if (q_pfn >> 32) {
--			dev_err(&vdev->dev,
--				"platform bug: legacy virtio-mmio must not be used with RAM above 0x%llxGB\n",
--				0x1ULL << (32 + PAGE_SHIFT - 30));
--			err = -E2BIG;
--			goto error_bad_pfn;
--		}
--
--		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_QUEUE_ALIGN);
--		writel(q_pfn, vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
--	} else {
--		u64 addr;
--
--		addr = virtqueue_get_desc_addr(vq);
--		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_LOW);
--		writel((u32)(addr >> 32),
--				vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_HIGH);
--
--		addr = virtqueue_get_avail_addr(vq);
--		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_LOW);
--		writel((u32)(addr >> 32),
--				vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_HIGH);
--
--		addr = virtqueue_get_used_addr(vq);
--		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_USED_LOW);
--		writel((u32)(addr >> 32),
--				vm_dev->base + VIRTIO_MMIO_QUEUE_USED_HIGH);
--
--		writel(1, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
--	}
-+	err = vm_active_vq(vdev, vq);
-+	if (err < 0)
-+		goto error_bad_pfn;
- 
- 	return vq;
- 
-@@ -528,6 +561,7 @@ static const struct virtio_config_ops virtio_mmio_config_ops = {
- 	.reset		= vm_reset,
- 	.find_vqs	= vm_find_vqs,
- 	.del_vqs	= vm_del_vqs,
-+	.reset_vqs	= vm_reset_vqs,
- 	.get_features	= vm_get_features,
- 	.finalize_features = vm_finalize_features,
- 	.bus_name	= vm_bus_name,
-@@ -553,8 +587,27 @@ static int virtio_mmio_restore(struct device *dev)
- 	return virtio_device_restore(&vm_dev->vdev);
+ 	ret = virtqueue_add_sgs(vq->vq, sgs, 1, 1, msg, GFP_ATOMIC);
+@@ -478,6 +487,17 @@ static int viortc_msg_xfer(struct viortc_vq *vq, struct viortc_msg *msg,
+ 	return 0;
  }
  
-+static int virtio_mmio_freeze_noirq(struct device *dev)
++static void viortc_del_vqs(struct viortc_dev *viortc)
 +{
-+	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
++	struct virtio_device *vdev = viortc->vdev;
++	unsigned int i;
 +
-+	return virtio_device_freeze_noirq(&vm_dev->vdev);
++	vdev->config->del_vqs(vdev);
++
++	for (i = 0; i < ARRAY_SIZE(viortc->vqs); i++)
++		viortc->vqs[i].vq = NULL;
 +}
 +
-+static int virtio_mmio_restore_noirq(struct device *dev)
-+{
-+	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
+ /*
+  * common message handle macros for messages of different types
+  */
+@@ -1316,7 +1336,7 @@ static int viortc_probe(struct virtio_device *vdev)
+ 
+ err_reset_vdev:
+ 	virtio_reset_device(vdev);
+-	vdev->config->del_vqs(vdev);
++	viortc_del_vqs(viortc);
+ 
+ 	return ret;
+ }
+@@ -1332,7 +1352,7 @@ static void viortc_remove(struct virtio_device *vdev)
+ 	viortc_clocks_deinit(viortc);
+ 
+ 	virtio_reset_device(vdev);
+-	vdev->config->del_vqs(vdev);
++	viortc_del_vqs(viortc);
+ }
+ 
+ static int viortc_freeze(struct virtio_device *dev)
+@@ -1353,9 +1373,11 @@ static int viortc_restore(struct virtio_device *dev)
+ 	bool notify = false;
+ 	int ret;
+ 
++	viortc_del_vqs(viortc);
 +
-+	if (vm_dev->version == 1)
-+		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
+ 	ret = viortc_init_vqs(viortc);
+ 	if (ret)
+-		return ret;
++		goto err_del_vqs;
+ 
+ 	alarm_viortc_vq = &viortc->vqs[VIORTC_ALARMQ];
+ 	alarm_vq = alarm_viortc_vq->vq;
+@@ -1364,16 +1386,22 @@ static int viortc_restore(struct virtio_device *dev)
+ 		ret = viortc_populate_vq(viortc, alarm_viortc_vq,
+ 					 VIORTC_ALARMQ_BUF_CAP, false);
+ 		if (ret)
+-			return ret;
++			goto err_del_vqs;
+ 
+ 		notify = virtqueue_kick_prepare(alarm_vq);
+ 	}
+ 
+ 	virtio_device_ready(dev);
+ 
+-	if (notify && !virtqueue_notify(alarm_vq))
++	if (notify && !virtqueue_notify(alarm_vq)) {
+ 		ret = -EIO;
++		goto err_del_vqs;
++	}
 +
-+	return virtio_device_restore_noirq(&vm_dev->vdev);
-+}
-+
- static const struct dev_pm_ops virtio_mmio_pm_ops = {
- 	SET_SYSTEM_SLEEP_PM_OPS(virtio_mmio_freeze, virtio_mmio_restore)
-+	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(virtio_mmio_freeze_noirq,
-+				      virtio_mmio_restore_noirq)
- };
- #endif
++	return ret;
+ 
++err_del_vqs:
++	viortc_del_vqs(viortc);
+ 	return ret;
+ }
  
 -- 
-2.43.0
-
+2.34.1
