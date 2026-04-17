@@ -1,213 +1,140 @@
-Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
+Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E31C315D46
-	for <virtualization@lists.linux.dev>; Fri, 17 Apr 2026 13:50:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1005A345752
+	for <virtualization@lists.linux.dev>; Fri, 17 Apr 2026 16:11:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776433808; cv=none; b=fih8/CCSYaTeAEa09CU6HsiPGtDGGqnjJSDyxuzEhwY7boaxCwfAWD5W4D2Ir1vETFhC5sgPZIvn04ZQ0CtUv/BXkt6PUq0UAdVWYuFrWdKo/gCySF9Tpd7QCOF5RsVAFl42MyAjsqT5j+oDAVhckmKhtC4YJCQtOXlMiFAh1xs=
+	t=1776442292; cv=none; b=bxrHqTv6Kf/3I2FuHRJs8+sLaBhB/5yJKovvDYDT+OHaJB8Xl1pkDIIW9i+PMEhFuQozfvdEh8FbKlpkCWeM8msoYzqAaAzMslpHi1RRJUjsWEpoSJtE7TJiI/5IRBKjtKgQeJwBJBLJgSItEajKAkoRL9OMfeMRL3MOD2dJ+3c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776433808; c=relaxed/simple;
-	bh=fo4xhoC9NzPbZRZBW63KZnbvMyUJGRXLR+fuMV1h24I=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=jweLwySlEJDKHNWH4jzxVvXprGTF4DxuXArNOmTL2t/XKH9EuRySUB6GI+QVJxAmx1ScVd/vlbY7G4iK4jdR1YfjfHnqVk8xThGvilb76lXN6KZIYoi9pcN7HEHJN/0145aTibuClYGVu6ivAfq7lmnyP5cEAZ9RNbaemS/hv9k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=p07I7Nh+; arc=none smtp.client-ip=209.85.210.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1776442292; c=relaxed/simple;
+	bh=WF57saiDQPuLgei3ntL2rXLAGu55hVNv5gn2ybVfrAg=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=T9hNwESn1fk7nPMhNKkbUuDW3c/jNbgDgXnWQ3Fw9lc2GnU8JCPBCgeBiXxk/nSia6uVtfS/oYc28V5hNCsO53w7DvyFpwgrj1oahZlILT2qq3kVxxmSMdWgwwsowYjIC90DQY1Xs2VwBdcK6Sa7NX02GTbAj1YcAIxaw69Bmk0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=Z5Lg3GOt; arc=none smtp.client-ip=209.85.128.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="p07I7Nh+"
-Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-824c9da9928so396245b3a.3
-        for <virtualization@lists.linux.dev>; Fri, 17 Apr 2026 06:50:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="Z5Lg3GOt"
+Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-488af9fdaa7so6267975e9.1
+        for <virtualization@lists.linux.dev>; Fri, 17 Apr 2026 09:11:30 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1776433807; x=1777038607; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=C2i44n+1eaFoKthvoHXkc0Qb+3fUcYde9FhFl3lRY+w=;
-        b=p07I7Nh+N3GBiLHR0XqIUBcjZq+3TpU/q2A8clbOdqqXiUCuiBT+aXCXZZG/iXwWRc
-         X0TtzEelE8N+gpTpio+p5pxbmBPedWUKAeJuz8lKP2G+jNl5rPHNBOXkaqafnYdURlUL
-         4TxWDI3umyRaPFbtJ31FJpO3RI+KTJMzRulwUDpE+hL/3gLdSGfbppg84kBNZ9fErKbH
-         L5tcAd6nAsyCod9hAhUAEhulPRAzjYLkZLgsmHA75xog2FzM9tviqQaOQgfLFqoIIHzm
-         l7IVkAOlqaSdic/BS1aziS6I9Sa8WfH0rVXNb1MdoNrpfWREFVJRRLyuUL08FpHMkkFK
-         r0vw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776433807; x=1777038607;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=suse.com; s=google; t=1776442289; x=1777047089; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=C2i44n+1eaFoKthvoHXkc0Qb+3fUcYde9FhFl3lRY+w=;
-        b=DJ1VsfWmtIrEaFO+NZAzp2Lzhj5C9XWAyaFMkhU9ifd2DrEZkPgrC/r8D1GcPG8HUk
-         UDgG0qKiNGypfWBik7kZrZh7l9yxoDmWJDizjRbUREodbw0cD263YGMxj9arL77SxQ+T
-         GJ1HC52yaOwG1BchfnJoP+J79yeUXAO+qM3u7pf7l6/yG3UhSZ6vKFNoS02fJ5ASy5Nc
-         Gn0Rpd4lwlWSEwa5f3NtQ0i2DafaJOc1T6nk8+ITEC1xZAyZwMdZgoprhoHVoGNcNwU7
-         AUJ7HfkmSzoQWKHrlGT87xRhTwGswQASYmPt8O6oZOza1fViVzAxmCfG6bsyXiCSF97a
-         5lOg==
-X-Forwarded-Encrypted: i=1; AFNElJ9Mi5CNix3YqusjGtSZoBCkh0Tmr+GW1tMzd2DzN9Be4iRANvSPzN19vI8plYU2X2np4C/pIIBkFobZw1RR1w==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwoQziMAI3eUugr3yFOQ5Gj1AvSKK1IDbE9uG0T7L6ySbs1vDOP
-	L0MyldUj/kATm9wea8siPuK6v9y4s9u10x76/W6gdbYTytMGxtUbQCYf
-X-Gm-Gg: AeBDieu2KVmWe+hwP/WiYyR9wUQhuqJY8l9mjCvtj3kvyyRzJ/A9Av+HznPeip13YDb
-	DLFPXQ5dz5QVFM31E7h+horpXOaSTj6khfwTMMhnjGybKHiB4OR8vhlFKF4yecy2kwVwhW6IO7w
-	Bw05Dzaf8gmDhkdfVdNgJWh2yvc9JdorRhDlOEgpTvWuPJMxI0yPJzj/Ch6JX0yXMwU2d7gPLjm
-	fDs+sqZZk9+7v6fkP6QJ97Ca9xXMF3/vcf5ni7RvhugRjqOnNS9giU9S/uXLXYxCrmumnrSSk9f
-	LLcSDhy6e2SKTTPOsTQLG9hz5ZPwiS0shtrsw3dV1xbaDlN3MGPka/bK/9PUcCp+/dgsh6Lgm4g
-	YhF0BnPFBX1PcCDHukLutAcbsQUrHb7UMoxHTStRNWNtbrmV7kZfn4RowrOz7OcQLxGsUoSsy7w
-	jKwCgS9JHN8CFHW0/Uilz76hrAw3zerNDeU6c7fVqBkdpOuTtDEw==
-X-Received: by 2002:a05:6a00:148e:b0:82c:9cd2:fee5 with SMTP id d2e1a72fcca58-82f8c87e28amr2673000b3a.7.1776433806291;
-        Fri, 17 Apr 2026 06:50:06 -0700 (PDT)
-Received: from [127.0.1.1] ([188.253.126.210])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82f8e9d6adbsm2877558b3a.18.2026.04.17.06.50.01
+        bh=WF57saiDQPuLgei3ntL2rXLAGu55hVNv5gn2ybVfrAg=;
+        b=Z5Lg3GOt5qAfeV3d2gYYfVdl07wiki3iUiP6IldscYmp0b4URNURWq0ZxMM0mAz7bT
+         DvrnwPzPaf3photDut4PhbgvJZSruyYmbzLU3x1nasHphoQwBFm4c0HzmcoV07iESlON
+         qdWQl/7Ka6+RxGTV2jBz9H4QLBgobVKvNMqklI5nm7tvh0/chE/yIcDct/7uSK2QszeS
+         C37ShKoN18lrgVC2gyQYIv9nErrONQeHrkgbt/Jddxz99CzBpnWBLnI5O4lbnWQMcFo5
+         CDqgQPkOiCcmEhX6vdPa6lDjWYI1MmepX2dzkEsu5zc9zG0UNSCWsjFVMUiK/ai9XJ+f
+         EeOw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1776442289; x=1777047089;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=WF57saiDQPuLgei3ntL2rXLAGu55hVNv5gn2ybVfrAg=;
+        b=Wc/pcbAqnnnAkl70oGC7GVGbEvZkWiTO02nuUu+/Yd0UPfkQQxjOk24lFh5nPw21Lj
+         iP06+a5SfdZzewPmzHfC/w5xuspb9J/T89UNJjhO+Xd8w5JT9OMy+TIA/kAaMKOFFCvf
+         S9LHRLwLLEiFePVNjLqOz3Bwj3T7F3JHO0NAqOF7reFhPfk4nTmeTioy8zPCr/jMLJOo
+         y31vIN+24xTyyE9zgJRskAot2DC7SgWSw3aCcKDXpGi+AuUIXR16ndw7/lzIa6gPEVt7
+         fvfu/mZ2/Yn6mw81F0t7MvNXklOeS68VckXLHPnKkkNJ9WOxa7xGXMFbifaoaXJJ9Hae
+         upkg==
+X-Forwarded-Encrypted: i=1; AFNElJ/HSJ2wK21REOkGXuzLaXoYaj2Rga1mcQmM5jIH+vegCxTBGcn+AllzWikE72RNULgwoI7CVRmLsSblRIZdAw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyigo5MtYnq7WAXn/F9sMRUVUG0B+XjMlxaX9WAd2BUuZvrGotr
+	rYtbU70/nA54lx9BoLJvht9BPHP0JMYYlf9sP+kf/E+MX6A9FtMh9l4FAVUQaSmCXvM=
+X-Gm-Gg: AeBDievaCesbe6zuGLMpfaF7j7eyio0XSjSvFvJZKwnJreqfguJvuaSgb9jQNBNPUh6
+	+/Whm6vDJo9UnVrPphhvDF6nNTqCO/P6TwhBrP8wxWZynzDL9VCd+R2LmMU66nLmNQcQcLOWRvC
+	AJztt5ACo3jQRYIFf2UljNG2nf79Q0MfRYai61me+WP/2QhZ0tWUORouD4udcOCRwsHGIxxDakW
+	kHtGHWnDa3mLdallIUMem3Dulk+GmjIKdk0qeTrLSKmYlFOxgsnU1MuSeJcAWhYAdvt2F467m7B
+	xjZ+NhheiMSZ6ic/1mZb178MY+5ZUSr/LfYz9bZZYjYeyAAAuHZ+P1Yusgl0oCc1fDiG59hZ2Hn
+	PzZa1CKdqA2/A9NRuapLbkNw8oVbGGKGb0x0E/AoGasrbiUY/NxzWRvR0tuPv0F+6WNOGsXstyC
+	XI8f78u+GVXT0QIJuPq5YJfTlda77ic7iE2sBcNbv9FsSTNA0V2I5SOt/W+A==
+X-Received: by 2002:a05:600c:6296:b0:488:c40b:c8a4 with SMTP id 5b1f17b1804b1-488fb73d764mr52764605e9.1.1776442289414;
+        Fri, 17 Apr 2026 09:11:29 -0700 (PDT)
+Received: from localhost.localdomain ([2a00:6d43:105:c401:e307:1a37:2e76:ce91])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-488fc1cfbf2sm54863625e9.15.2026.04.17.09.11.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Apr 2026 06:50:05 -0700 (PDT)
-From: JiaJia <physicalmtea@gmail.com>
-To: Peter Hilber <peter.hilber@oss.qualcomm.com>,
-	Michael S. Tsirkin <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio Pérez <eperezma@redhat.com>,
-	virtualization@lists.linux.dev,
+        Fri, 17 Apr 2026 09:11:29 -0700 (PDT)
+From: Marco Crivellari <marco.crivellari@suse.com>
+To: atomlin@atomlin.com
+Cc: James.Bottomley@HansenPartnership.com,
+	MPT-FusionLinux.pdl@broadcom.com,
+	aacraid@microsemi.com,
+	akpm@linux-foundation.org,
+	axboe@kernel.dk,
+	bigeasy@linutronix.de,
+	chandrakanth.patil@broadcom.com,
+	chenridong@huawei.com,
+	chjohnst@gmail.com,
+	frederic@kernel.org,
+	hare@suse.de,
+	hch@lst.de,
+	jinpu.wang@cloud.ionos.com,
+	juri.lelli@redhat.com,
+	kashyap.desai@broadcom.com,
+	kbusch@kernel.org,
+	kch@nvidia.com,
+	linux-block@vger.kernel.org,
 	linux-kernel@vger.kernel.org,
-	JiaJia <physicalmtea@gmail.com>
-Subject: [PATCH] virtio: rtc: tear down old virtqueues before restore
-Date: Fri, 17 Apr 2026 17:08:31 +0800
-Message-Id: <20260417214953.793956-1-physicalmtea@gmail.com>
-X-Mailer: git-send-email 2.34.1
+	linux-nvme@lists.infradead.org,
+	linux-scsi@vger.kernel.org,
+	liyihang9@h-partners.com,
+	longman@redhat.com,
+	martin.petersen@oracle.com,
+	maz@kernel.org,
+	megaraidlinux.pdl@broadcom.com,
+	ming.lei@redhat.com,
+	mingo@redhat.com,
+	mpi3mr-linuxdrv.pdl@broadcom.com,
+	mproche@gmail.com,
+	mst@redhat.com,
+	neelx@suse.com,
+	nick.lange@gmail.com,
+	peterz@infradead.org,
+	ranjan.kumar@broadcom.com,
+	ruanjinjie@huawei.com,
+	sagi@grimberg.me,
+	sathya.prakash@broadcom.com,
+	sean@ashe.io,
+	shivasharan.srikanteshwara@broadcom.com,
+	sreekanth.reddy@broadcom.com,
+	steve@abita.co,
+	suganath-prabu.subramani@broadcom.com,
+	sumit.saxena@broadcom.com,
+	tglx@kernel.org,
+	tom.leiming@gmail.com,
+	vincent.guittot@linaro.org,
+	virtualization@lists.linux.dev,
+	wagi@kernel.org,
+	yphbchou0911@gmail.com,
+	Marco Crivellari <marco.crivellari@suse.com>
+Subject: Re: [PATCH v11 11/13] blk-mq: prevent offlining hk CPUs with associated online isolated CPUs
+Date: Fri, 17 Apr 2026 18:11:16 +0200
+Message-ID: <20260417161116.373130-1-marco.crivellari@suse.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260416192942.1243421-12-atomlin@atomlin.com>
+References: <20260416192942.1243421-12-atomlin@atomlin.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-virtio_device_restore() resets the device and restores the negotiated
-features before calling ->restore(). viortc_freeze() intentionally
-leaves the existing virtqueues in place so the alarm queue can still
-wake the system, but viortc_restore() immediately calls
-viortc_init_vqs() without first deleting those old queues.
+Hi,
 
-If virtqueue reinitialization fails on virtio-pci, the transport error
-path runs vp_del_vqs() against a new vp_dev->vqs array while vdev->vqs
-still holds the old virtqueues. vp_del_vqs() then looks up queue state
-through that new array and can dereference a NULL info pointer in
-vp_del_vq(), crashing the guest kernel during restore.
+Seems like the commit log of this patch is duplicated, isn't it?
+I noticed it's like this from v7.
 
-Delete any old virtqueues before rebuilding them, and clear the cached
-queue pointers so later message requests fail cleanly if restore does
-not complete.
+Thanks!
 
-Signed-off-by: JiaJia <physicalmtea@gmail.com>
----
-Runtime evidence from a standard hibernation test_resume run on a guest
-with virtio-rtc-pci (no fault injection):
+--
 
-  KASAN null-ptr-deref report in vp_del_vq.isra.0+0x70/0xd0
+Marco Crivellari
 
-  Call trace:
-    vp_del_vq.isra.0+0x70/0xd0
-    vp_del_vqs+0xec/0x358
-    vp_find_vqs_msix+0x24c/0x6a8
-    vp_find_vqs+0x88/0x360
-    vp_modern_find_vqs+0x20/0x90
-    viortc_init_vqs+0xd0/0x128
-    viortc_restore+0x28/0xb8
-    virtio_device_restore_priv+0x184/0x288
-    virtio_pci_restore+0x44/0x58
+SUSE Labs
 
- drivers/virtio/virtio_rtc_driver.c | 38 ++++++++++++++++++++++++++----
- 1 file changed, 33 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/virtio/virtio_rtc_driver.c b/drivers/virtio/virtio_rtc_driver.c
-index a57d5e06e..c1adde27d 100644
---- a/drivers/virtio/virtio_rtc_driver.c
-+++ b/drivers/virtio/virtio_rtc_driver.c
-@@ -427,6 +427,15 @@ static int viortc_msg_xfer(struct viortc_vq *vq, struct viortc_msg *msg,
- 	sg_init_one(out_sg, msg->req, msg->req_size);
- 	sg_init_one(in_sg, msg->resp, msg->resp_cap);
- 
-+	if (!vq->vq) {
-+		/*
-+		 * Keep runtime interfaces in a safe failed state if restore
-+		 * teardown removed the virtqueues.
-+		 */
-+		viortc_msg_release(msg);
-+		return -ENODEV;
-+	}
-+
- 	spin_lock_irqsave(&vq->lock, flags);
- 
- 	ret = virtqueue_add_sgs(vq->vq, sgs, 1, 1, msg, GFP_ATOMIC);
-@@ -478,6 +487,17 @@ static int viortc_msg_xfer(struct viortc_vq *vq, struct viortc_msg *msg,
- 	return 0;
- }
- 
-+static void viortc_del_vqs(struct viortc_dev *viortc)
-+{
-+	struct virtio_device *vdev = viortc->vdev;
-+	unsigned int i;
-+
-+	vdev->config->del_vqs(vdev);
-+
-+	for (i = 0; i < ARRAY_SIZE(viortc->vqs); i++)
-+		viortc->vqs[i].vq = NULL;
-+}
-+
- /*
-  * common message handle macros for messages of different types
-  */
-@@ -1316,7 +1336,7 @@ static int viortc_probe(struct virtio_device *vdev)
- 
- err_reset_vdev:
- 	virtio_reset_device(vdev);
--	vdev->config->del_vqs(vdev);
-+	viortc_del_vqs(viortc);
- 
- 	return ret;
- }
-@@ -1332,7 +1352,7 @@ static void viortc_remove(struct virtio_device *vdev)
- 	viortc_clocks_deinit(viortc);
- 
- 	virtio_reset_device(vdev);
--	vdev->config->del_vqs(vdev);
-+	viortc_del_vqs(viortc);
- }
- 
- static int viortc_freeze(struct virtio_device *dev)
-@@ -1353,9 +1373,11 @@ static int viortc_restore(struct virtio_device *dev)
- 	bool notify = false;
- 	int ret;
- 
-+	viortc_del_vqs(viortc);
-+
- 	ret = viortc_init_vqs(viortc);
- 	if (ret)
--		return ret;
-+		goto err_del_vqs;
- 
- 	alarm_viortc_vq = &viortc->vqs[VIORTC_ALARMQ];
- 	alarm_vq = alarm_viortc_vq->vq;
-@@ -1364,16 +1386,22 @@ static int viortc_restore(struct virtio_device *dev)
- 		ret = viortc_populate_vq(viortc, alarm_viortc_vq,
- 					 VIORTC_ALARMQ_BUF_CAP, false);
- 		if (ret)
--			return ret;
-+			goto err_del_vqs;
- 
- 		notify = virtqueue_kick_prepare(alarm_vq);
- 	}
- 
- 	virtio_device_ready(dev);
- 
--	if (notify && !virtqueue_notify(alarm_vq))
-+	if (notify && !virtqueue_notify(alarm_vq)) {
- 		ret = -EIO;
-+		goto err_del_vqs;
-+	}
-+
-+	return ret;
- 
-+err_del_vqs:
-+	viortc_del_vqs(viortc);
- 	return ret;
- }
- 
--- 
-2.34.1
