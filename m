@@ -1,146 +1,170 @@
-Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 368971A285
-	for <virtualization@lists.linux.dev>; Sat, 18 Apr 2026 00:01:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB55140DFC8
+	for <virtualization@lists.linux.dev>; Sat, 18 Apr 2026 00:13:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776470507; cv=none; b=p0akNr+kycLWUshkPvErfikYywDx01BHoUWoRZzmgBaGVx+k3cq44wQZRgFaigo2dVegTxT+fWMYDa7M7HX5Wdz5fHs1dDJLhat48ls2s5KNCwS/cKMsFpfIItQEYocVGwqtu0DJAout0+QKrxrlYruH4qfkoT3ADbvVJ5IDyp0=
+	t=1776471221; cv=none; b=QXWNTGKmNQryV9crkkjaJVMdiWdJJSmV7+upiviRk9vxUWmcyQTEsQv4rWfVY8LY8ERGUjfHSL1syA6pEZ+HYiBPugonHpfvHN/MHDw2DKHbZ36mPQtsrpsp2tcj96t6KroDN3jrn/zQWzovN+WkTywEFwUnMRbwr9nrYRNeRFY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776470507; c=relaxed/simple;
-	bh=aUw5Z9BShh7pPsO/YXyjGvI3vSM3MAsAxuOQ/UOswh0=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=XFBs94WXITkQg7qBi3rE41eqML3gRwuKdcLLHzGf/NTjnNa3lsGynBhYIyRRbjU4ZFi6QvVOgJyDq9y7ao7KN0wnAax3KJ0emR72BVZEvMPqlgZimA0O2laIWCh0taOx2KtRect92ajRltTJaT2rG38hspopkPmolGuAw6brA3Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ILbLDTbU; arc=none smtp.client-ip=209.85.222.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1776471221; c=relaxed/simple;
+	bh=t413uR2z+VC95wnVTYrHIk0J3dXWJAB9CuV5ei4kcJ0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=tDXvHFYpaE2UXQ7pSKaISwK8Bac8iZp0pTlx6PYPfueR44lIaXnW9/d8cR+jrz9bYVa5xayS/UPLcZXjYedPsk8uiA4ufc9fDKK7pY6iy3VNJdeGZglgbiJfPndD8MaiOBgqeEKh79M1WxvCJqla7TtAelGkB3uNH8b8oPVODMA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NJn7zydr; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ILbLDTbU"
-Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-8cb3bae8d3eso106491985a.1
-        for <virtualization@lists.linux.dev>; Fri, 17 Apr 2026 17:01:46 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1776470505; x=1777075305; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=R66LEpe02zTt9gVa2iVCV7h7l2cAvZnx/6Rq7QX2ojM=;
-        b=ILbLDTbU1A56IYXgfbVZedh++bdA1QApYBBhXpC7rrhq7J3Mlkk/lcSh0Wabsitbho
-         O381EzrCLphyu1c4VZnBEmJ/tJ48CJ65BNoM2+O2V9LY6cB6BNzsUXbkGi4c2RPKPlxy
-         H2UYw4EAdyyNsZqyRMRtyMiYGBePSm2xhUlvEFlPMTyKI9zdluuerf8YiKkuZ1MWc6U+
-         BLn1BRlMvkoSq7QucYIO/4aNW/PVRN3GdGbF0ELy84ELq+nP7yPmNY19I92637Th+HGC
-         IVEIXQpJo+4f3oB33TqmUjCqxWg1UWYEr7O6bb5xFWwLUTg0X1egh8epuikiRbjyMfLi
-         QzWg==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NJn7zydr"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1776471219;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=DLc6i5hTDljAXhin+tlCr4ec80GPJxXVTT+TZFT5DQo=;
+	b=NJn7zydrZgkShAJqv3bt9FObmLpWlnDOafon91IILFTIatMKq4EhQ889wZa+cYrc60YNAy
+	bsepouMmEYl37mGSzlrnu/g8DphC6xxAP2qFeEkCu6W44NIBe2VkbxorPywwqF+bdr3/7/
+	a2ClKY4XKdJX5TZN2b7Y7P3za4IsLco=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-218-M1k_UgJGOmKlBS9JKhvkrg-1; Fri, 17 Apr 2026 20:13:37 -0400
+X-MC-Unique: M1k_UgJGOmKlBS9JKhvkrg-1
+X-Mimecast-MFC-AGG-ID: M1k_UgJGOmKlBS9JKhvkrg_1776471216
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-43d77286244so741206f8f.1
+        for <virtualization@lists.linux.dev>; Fri, 17 Apr 2026 17:13:37 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776470505; x=1777075305;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=R66LEpe02zTt9gVa2iVCV7h7l2cAvZnx/6Rq7QX2ojM=;
-        b=n3lt3G/uTRWPlegLwKN7vg91IJj/84/QhugCCDNeqpw9HSg5uQ2hJ+ZTnSPSF3QKNT
-         9kzHRS9EpCOw6yiZOr1fmTKm1lUJfvZbUYOg8TXJSItiBQ18A/4dl9MNu4rsjvJtgnjY
-         TnwR+fvzrDiKZBV/lL4pBYRXsVLzcQeIdWZci8GKQxrGmKPvXaaJxFK/F2iYaLHWkkEd
-         WySBpIybFqvyNc6i+2ubJ7iql9MiPoMaVyKcxVNNWGowKHxu92MTQjI5rX+iI0iIJ8SU
-         o8s820+54YtQaVte34olRuLxDpkItv2LwnJzAv03HGxHNkN9S7x337gx+kOSxGLg60wO
-         dg7Q==
-X-Forwarded-Encrypted: i=1; AFNElJ+fe9ixgJQyyLl9afVEVJBXCpZyqNeWBOMoIenBBrVY5fU6qfYmqlcefB+b//iI9SC19dIGC48M/i9vpfZqFw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxH6KKlYDPx1+8HvfMZgiYCvSYZ0GeUWcX9vzyOwAIdp8omz0oe
-	9/L1guqRef0+EtMzFoAFcp2vbb4vZD6EvzjmbQwfUWdTSsiUWLLQSDnU
-X-Gm-Gg: AeBDies7YYGGGgwV0w7K3zUWpFuP6R+r1o+a09rh5vNYetTLY1qwDneqtP2u8xO+7r+
-	fJeeYH2EIquuU3wksuNxbvwg0SC9ShtTf+z6WU6e2fsCfhTZiFo2kHwG1EtGfM/YksHbXLIEchl
-	e87YbcVbuz+5hc1mSkn3D60V9Qox0KDjjNfCGEo+je8zq2AWbUtGItN/n0VmMzY1KaMXea4KWZT
-	W4vAdanzXzOcbKINyP2dX2NHGjMxElyT0z0ocfn8xgEEybLVW0UExlK6L/XBCiV/yiRNgWW3cI5
-	+6qYSul5S03J6vKRZRMV+Iz4YWxrdiXMZQ0AK0DJgWhQwj+rB2D465uEWIU+Fz7uKBSn2GBYl2q
-	7iA74+q8V5+HFvFXc1V8jcwu0W/cR3TIsyk+0+OxZh/75hd/qdRC1L1YeT63r824WVIHoIzH8mS
-	crd8N+AehaMeinllu7H/xOlDpyS4WJIR3vsoBYcwErjJP4KT6+Bq/Mh26U2kMR1HPtDyuB4F2Pv
-	qGdOgd5fbkjRBe+zrxU0Fjiu2hgnvM5iuJD6md/aUvDY2n+MIncJQ==
-X-Received: by 2002:a05:620a:4101:b0:8cd:a3ab:352d with SMTP id af79cd13be357-8e792f433f6mr748234785a.61.1776470505139;
-        Fri, 17 Apr 2026 17:01:45 -0700 (PDT)
-Received: from server0.tail6e7dd.ts.net (c-68-48-65-54.hsd1.mi.comcast.net. [68.48.65.54])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8e7d64cc559sm228562585a.13.2026.04.17.17.01.44
+        d=1e100.net; s=20251104; t=1776471216; x=1777076016;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=DLc6i5hTDljAXhin+tlCr4ec80GPJxXVTT+TZFT5DQo=;
+        b=NwAc2vn1PClfO9Xn9TY6X3v8wih8IzKABNDZylN7fjAury/SRb6G0SYTPMF8V9gFkQ
+         9YRwzsyyAV3tHcpYcMpqjI7KGd8zjPxLb5tGByzBXWlxyJh68M5DB3kYeASRY6i1+GFZ
+         KWgxaG3+Xerhkox/GEUjxqDlsFOrafQ8vpbPMG4i2FIW4gZqaolM4MKFreU9kJDWpSsM
+         EeHU6aJj6R0WkRojMsuM//8rcKRfiKehpZX5XiGe7zKyXzpktlgIBncJFddk09kvO5W6
+         0QfjY0j+1dKz4q51C1PKqlBIsRqTTowGgy/Vuwek0NvYLLtuZH12LhSUQSDdQOB+qiil
+         vetw==
+X-Forwarded-Encrypted: i=1; AFNElJ++VkHe7mIl24/GU5CH1dcQdJwH4IerfahDEpPGchaJDJfCRjbeKyXnSGes3Aml0P8w/Kjd70RZAkAdwq9Kvg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzA8WcjV2liQZShitPP7KyYG/S2cBQTxu51tkKJRMPMUaGTxH6R
+	3VWFJqw7kqDWjMa6f8fj1sAU96+ukK52FdpqXz3HLPKQOAyUo1022HQitvGX5uk5OhTTdHeiAUe
+	vASBjYlMml9/5G9zs5zbR9ng3Qpe54kjpe0Cy+uOsoFKMVCmqWDV3qP0pcEDGD8snWBxP
+X-Gm-Gg: AeBDieu1v8BAtmZxg6R7SnGs9JfAAOmnDxpq+S1CpPqFf3AZBMDIVkXs2EJ3FRkZBFt
+	lHRqhV9bGLaoYn08NDwDNT7J5lawSA7efcfFBxdiW4+7RgJeSmBG+peGudG/dlRoTvSppq7JeXt
+	nqROz9XQd/cEiUgDR20UJl67vcMFWpC1iOwhdGt1/dS1TFoUQ1NokbVqXKffKlhHqfuYVuV0PX0
+	wG0JZaKdvTXaEgWsb2e6Z7d+8LPcnXr0QV5RaHHuOG71KnqapEz5IZmFtkEiXnNjvJJxF4w4T8O
+	MJ9oQTcIKR2TGXR3YIX+G1Xs27Tt2Of43Aj5sLtRIPnp4PlyQ1DoNuQh8ljJahfXeFs4jq9JvyS
+	l6y2rdoCSmOVZORqRLl70qDYdcPGX29iqCwmlp/2R35SpT0GLUmmAUA==
+X-Received: by 2002:a5d:588f:0:b0:43d:2be:e54 with SMTP id ffacd0b85a97d-43fe3dfd4aemr7384210f8f.39.1776471216324;
+        Fri, 17 Apr 2026 17:13:36 -0700 (PDT)
+X-Received: by 2002:a5d:588f:0:b0:43d:2be:e54 with SMTP id ffacd0b85a97d-43fe3dfd4aemr7384180f8f.39.1776471215734;
+        Fri, 17 Apr 2026 17:13:35 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-25-21.inter.net.il. [80.230.25.21])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43fe4cb13a0sm8364547f8f.8.2026.04.17.17.13.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Apr 2026 17:01:44 -0700 (PDT)
-From: Michael Bommarito <michael.bommarito@gmail.com>
-To: Marcel Holtmann <marcel@holtmann.org>,
-	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-	linux-bluetooth@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-	Soenke Huster <soenke.huster@eknoes.de>,
-	"Michael S . Tsirkin" <mst@redhat.com>,
-	virtualization@lists.linux.dev
-Subject: [PATCH] Bluetooth: virtio_bt: clamp rx length before skb_put
-Date: Fri, 17 Apr 2026 20:01:38 -0400
-Message-ID: <20260418000138.1848813-1-michael.bommarito@gmail.com>
-X-Mailer: git-send-email 2.53.0
+        Fri, 17 Apr 2026 17:13:34 -0700 (PDT)
+Date: Fri, 17 Apr 2026 20:13:31 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Michael Bommarito <michael.bommarito@gmail.com>
+Cc: Olivia Mackall <olivia@selenic.com>,
+	Herbert Xu <herbert@gondor.apana.org.au>,
+	linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org,
+	Jason Wang <jasowang@redhat.com>, virtualization@lists.linux.dev
+Subject: Re: [PATCH] hwrng: virtio: reject invalid used.len from the device
+Message-ID: <20260417201129-mutt-send-email-mst@kernel.org>
+References: <20260418000020.1847122-1-michael.bommarito@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260418000020.1847122-1-michael.bommarito@gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: IBNKYZCz2euoqHOK-oM_WUVI_taOiIEnBQj7Jf7tEpg_1776471216
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-virtbt_rx_work() calls skb_put(skb, len) where len comes directly
-from virtqueue_get_buf() with no validation against the skb we
-posted.  The RX skb is allocated as alloc_skb(1000) in
-virtbt_add_inbuf().  A malicious or buggy virtio-bt backend that
-reports used.len larger than the skb's tailroom causes skb_put() to
-call skb_over_panic() in net/core/skbuff.c, which triggers
-BUG() and panics the guest.
+On Fri, Apr 17, 2026 at 08:00:20PM -0400, Michael Bommarito wrote:
+> random_recv_done() stored the device-reported used.len directly into
+> vi->data_avail without validating it against the posted buffer size
+> sizeof(vi->data) (SMP_CACHE_BYTES bytes, typically 32 or 64).  A
+> malicious or buggy virtio-rng backend could set used.len beyond
+> vi->data so that the subsequent copy_data() in virtio_read() issues
+> memcpy() from vi->data + vi->data_idx past the end of the inline
+> array, reading adjacent kmalloc-1k slab bytes into the hwrng core's
+> buffer and from there into /dev/hwrng consumers and the kernel
+> entropy pool.
+> 
+> Exploitable most clearly in threat models that do not trust the
+> hypervisor (confidential-compute guests on SEV-SNP or TDX; vhost-user
+> split backends).
 
-Reproduced on a QEMU 9.0 whose virtio-bt backend reports
-used.len = 4096 into a 1000-byte rx skb:
+Exploitable? I don't get it. How is reading this data into hwrng
+a problem?
 
-  skbuff: skb_over_panic: text:ffffffff83958e84 len:4096 put:4096
-      head:ffff88800c071000 data:ffff88800c071000 tail:0x1000
-      end:0x6c0 dev:<NULL>
-  ------------[ cut here ]------------
-  kernel BUG at net/core/skbuff.c:214!
-  Call Trace:
-   skb_panic+0x160/0x162
-   skb_put.cold+0x31/0x31
-   virtbt_rx_work+0x94/0x250
-   process_one_work+0x80d/0x1510
-   worker_thread+0x4af/0xd20
-   kthread+0x2cc/0x3a0
 
-Reject any len that exceeds skb_tailroom().  Drop the skb on the
-error path; virtbt_add_inbuf() reposts a fresh one for the next
-iteration.  With the check in place the same harness runs without
-BUG(); the driver logs "rx reply len %u exceeds skb tailroom %u"
-and the device keeps running.
-
-Same class of bug as commit c04db81cd028 ("net/9p: Fix buffer overflow in USB transport layer"),
-which hardened the USB 9p transport against unchecked device-reported length.
-
-Fixes: 160fbcf3bfb9 ("Bluetooth: virtio_bt: Use skb_put to set length")
-Cc: stable@vger.kernel.org
-Cc: Soenke Huster <soenke.huster@eknoes.de>
-Signed-off-by: Michael Bommarito <michael.bommarito@gmail.com>
-Assisted-by: Claude:claude-opus-4-7
----
- drivers/bluetooth/virtio_bt.c | 11 +++++++++--
- 1 file changed, 9 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/bluetooth/virtio_bt.c b/drivers/bluetooth/virtio_bt.c
-index 76d61af8a275..157e68b6e75f 100644
---- a/drivers/bluetooth/virtio_bt.c
-+++ b/drivers/bluetooth/virtio_bt.c
-@@ -227,8 +227,15 @@ static void virtbt_rx_work(struct work_struct *work)
- 	if (!skb)
- 		return;
- 
--	skb_put(skb, len);
--	virtbt_rx_handle(vbt, skb);
-+	if (len > skb_tailroom(skb)) {
-+		bt_dev_err(vbt->hdev,
-+			   "rx reply len %u exceeds skb tailroom %u\n",
-+			   len, skb_tailroom(skb));
-+		kfree_skb(skb);
-+	} else {
-+		skb_put(skb, len);
-+		virtbt_rx_handle(vbt, skb);
-+	}
- 
- 	if (virtbt_add_inbuf(vbt) < 0)
- 		return;
--- 
-2.53.0
+> KASAN confirms the OOB on a guest booted under a QEMU 9.0 whose
+> virtio-rng backend has been patched to report used.len = 0x10000:
+> 
+>   BUG: KASAN: slab-out-of-bounds in virtio_read+0x394/0x5d0
+>   Read of size 64 at addr ffff8880089c2220 by task hwrng/52
+>   Call Trace:
+>    __asan_memcpy
+>    virtio_read+0x394/0x5d0
+>    hwrng_fillfn+0xb2/0x470
+>    kthread
+>   Allocated by task 1:
+>    probe_common+0xa5/0x660
+>    virtio_dev_probe+0x549/0xbc0
+>   The buggy address belongs to the object at ffff8880089c2000
+>    which belongs to the cache kmalloc-1k of size 1024
+>   The buggy address is located 0 bytes to the right of
+>    allocated 544-byte region [ffff8880089c2000, ffff8880089c2220)
+> 
+> hwrng_fillfn is a kernel thread that runs as soon as the device is
+> probed; no guest userspace interaction is needed.
+> 
+> Same class of bug as commit c04db81cd028 ("net/9p: Fix buffer overflow in USB transport layer"),
+> which hardened usb9pfs_rx_complete against unchecked device-reported
+> length in the USB 9p transport.
+> 
+> With the added len-vs-sizeof(vi->data) clamp in place the same
+> harness boots cleanly: the driver logs "bogus used.len" once and
+> subsequent reads wait for a honest response.
+> 
+> Fixes: f7f510ec1957 ("virtio: An entropy device, as suggested by hpa.")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Michael Bommarito <michael.bommarito@gmail.com>
+> Assisted-by: Claude:claude-opus-4-7
+> ---
+>  drivers/char/hw_random/virtio-rng.c | 12 ++++++++++++
+>  1 file changed, 12 insertions(+)
+> 
+> diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
+> index 0ce02d7e5048..6cff480787ca 100644
+> --- a/drivers/char/hw_random/virtio-rng.c
+> +++ b/drivers/char/hw_random/virtio-rng.c
+> @@ -47,6 +47,18 @@ static void random_recv_done(struct virtqueue *vq)
+>  	if (!virtqueue_get_buf(vi->vq, &len))
+>  		return;
+>  
+> +	/*
+> +	 * The device sets used.len; a malicious or buggy backend can
+> +	 * report more bytes than we posted.  Clamp before it reaches
+> +	 * copy_data() which indexes vi->data[].
+> +	 */
+> +	if (len > sizeof(vi->data)) {
+> +		dev_err(&vq->vdev->dev,
+> +			"bogus used.len %u > buffer size %zu\n",
+> +			len, sizeof(vi->data));
+> +		len = 0;
+> +	}
+> +
+>  	smp_store_release(&vi->data_avail, len);
+>  	complete(&vi->have_data);
+>  }
+> -- 
+> 2.53.0
 
