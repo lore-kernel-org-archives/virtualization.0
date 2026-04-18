@@ -1,203 +1,121 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yx1-f51.google.com (mail-yx1-f51.google.com [74.125.224.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 96C65DDA9
-	for <virtualization@lists.linux.dev>; Sat, 18 Apr 2026 00:31:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776472269; cv=none; b=f71TJjERWkIg1x4ls/0SI/REXpY14fixIhR+YnvbMST0+MoyxZrN8FRxptOB6D00Wr/ocT4YD5kqZbphSPqOYuyYoGgkfDlYj7C59gcidQs4f38hIGr6wtH/DnNIPvxQ0z4OfSHtbK8/+BK2wD637qmiu11cqTkBE/4TDdABtlo=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776472269; c=relaxed/simple;
-	bh=bH3XTTI13kA5J/Ns082dZsYWHK1cNLvuDe4MsdGZb04=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=hKv1nytUxFjpFMOEtBpF8PY9af7muD+3Hbfhys7zb9SSgAutTdPpzH51/yCtAiTveyfbzJ9/gWEA+8O+2FXM2Smb1z4QBkpVxxC5eYKgRXFyOoeX13IEAl2CIbr/LWgvap8ohIOi7D+wsy4L3Oobr0KvMVQfJSBJiFbOIgaJq3s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FUPMQ8Pf; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24C36175A66
+	for <virtualization@lists.linux.dev>; Sat, 18 Apr 2026 00:47:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.51
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1776473242; cv=pass; b=WL7vakk1XHjwUiRBwWtS8OXhVFySw9cOMxNuD054YnnJhpSqJxyE/4Fo1wmGFdxTtJdzwkLFoSj0gbO7+WhCxPvci9dtRpu8boWwprWMB80naSRumHddTpXn+56fuDk2GSTj7TBW9ZxswfmZAMa+kpDSkjW+GK92k1pd13hzFZg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1776473242; c=relaxed/simple;
+	bh=rI75D/XswJG3sRrX5mA7QIVX2img+GchrkKkvbE4OOU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=A3eInRnCq8RjLhUZMZVkAqZpqRHAv3TqFfTvI4kdAaLf72i2kcT9Ep144VYH0ih9D9qKZlyXF847/7UgPY26VRt1H7DKMK9YSUmM3qTAB7Z7PZY2Bi6WxgS8h4p+pgPZu8xfi9TRTsy2vJP07V6aiUGjN9riczdeKzH7j2aF0UE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=L5i+p8AZ; arc=pass smtp.client-ip=74.125.224.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FUPMQ8Pf"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1776472267;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=gntGGQguH0Am4pdEgFT88PvB7XjJHe+6hBodNgxy/CU=;
-	b=FUPMQ8Pfb74k0HSmwE7miAqkUcJN5bnmgZnTDXOEN8E/0eOKh7DUWXvbP+4ZIWDsyYfleG
-	3E3tR5VX6/DBW/4pu9f9G3K7CNGlFdr/5eALJ6/ZTD+xy7DCoZbqmjqj7KfPmRdgmABshz
-	9E5KhX/5AFUHx7Wfw4ZFSV4/Pt4vMf8=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-191-u9ZUl1-hPMisDMfq-GRNNg-1; Fri, 17 Apr 2026 20:31:06 -0400
-X-MC-Unique: u9ZUl1-hPMisDMfq-GRNNg-1
-X-Mimecast-MFC-AGG-ID: u9ZUl1-hPMisDMfq-GRNNg_1776472265
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-43d705eaa64so1293490f8f.0
-        for <virtualization@lists.linux.dev>; Fri, 17 Apr 2026 17:31:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="L5i+p8AZ"
+Received: by mail-yx1-f51.google.com with SMTP id 956f58d0204a3-6501d242e2fso1273458d50.3
+        for <virtualization@lists.linux.dev>; Fri, 17 Apr 2026 17:47:21 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1776473240; cv=none;
+        d=google.com; s=arc-20240605;
+        b=C3JaS67MEJgI9GKx5PP9PKwYAAkId37WBlKEygJPiu4DenEADH5hsc9VEjrdYSOCbG
+         767A1V/ed1+MOANmRs1CP1/gJ8qrIdLOhCrZHEAxow9+L9Fuc2LumWFuy98pMwoQouup
+         d3rHu45vgISDHYvmHS7XzBxXchErOtxpIxKZjWo4MEb4voDRalf8QBVZ/hFdb2JEaDEy
+         D9/1c932Lb4m+sRsHRljsJZ+pRzezljwo8iAKcbJzvF3k6zRfFyg1faorL5NzPzh1mJG
+         C8vTW/114f5UyEZbAufyTxv1Qp07TUtZK8Fm27XVVB64WwQOWF+vR4wQS9XIh0kwYjHk
+         7lag==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=72V9NqGcW6qqoMdzaKMDd1yz64pFCmzqJwHFxWDRYog=;
+        fh=Q2eL3NQyr+hp4+AkN8LUf30Lo/Bya6b4ifme7DEziGc=;
+        b=FeeyOHQbpDFuAHgCbIamrOvtwxUXkszeFGoTbFxwv/Qy+0HZj6n4sVU3bnnKfiIH6j
+         DwGHYzE/oIF2TXpsJ+fEPEnwBmXAekVEEm6YWcweoL6MRUr8JOHdRC0pUVOUmBzLJExI
+         SEu8z/mEedcvXnAeLFIV25rEIrNL1KFINzyv5FxkoQ59gKQv50rQYnPghK6DN/JM7gpF
+         QhuVL+n2kXxorL/2ruXj83YCKuCuEebqRfr3rc8AH2mBDaa3yAZFMT52366t2CMQQYbP
+         7rHdHBSpdKJFHcU2ynASBOtQuf7cOIMZOHska7YU8blnfIWh5hYD0qaa2i/hpDS6dCAB
+         MJLw==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1776473240; x=1777078040; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=72V9NqGcW6qqoMdzaKMDd1yz64pFCmzqJwHFxWDRYog=;
+        b=L5i+p8AZQaTVMjX9Dn/jPQLvc2DOm5twsQwjSMkujxMlqaIinrSHmPbY11Y7WMN99E
+         T1A2zYfEnXJxVfOiNAK+CvgLiNBinr0NfKb9i3RfGUYTv0mVJ4bSfaNk9qdzS5xJLO19
+         0RWtqxnpMfAKo90jLC39YLnvstjEWP56BI81qcTau+7VXOdHAOUvB5d+iVSJFI0m9rhX
+         pVXZFg/Ffk1fKUUM9jOuS7xMtz423vD7cIYB6U/hI9b6Efyk1UZXKDHQMtMhwlbAAwkZ
+         LZq5ZIrP7S0o2oR/ohXCdyBdAxufyVadbuIK7gXcFeksuzf2uz0phXzob8UWC8fFdgKj
+         pUMg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776472265; x=1777077065;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=gntGGQguH0Am4pdEgFT88PvB7XjJHe+6hBodNgxy/CU=;
-        b=MXlH2M5g9xJuK11v0WAxUwrtErSV2S8HmFTnl5Lp7zTB3muHAMQsoPNM8Qplb04odp
-         GFNwqBlrwdS1xrugeEDx7G25hoYefCsKMZ/v1wF782dTDRRj91zqWroyjQO9eEa/VMlm
-         BRTRsGycVuly0gHwTTZHyRV3q2nlpt/3TtRSquBVjEBeDkmduOcj8SvNIl4RI5ntIc3a
-         uGv0/GeMoa/fG3/7k/T9cl/ScbG4gC62fZE1/J1Zg6dyLfFossBD2tOgy02T7Ig0jzQE
-         ftzCjMYLxD3y8GdrHHJefyEqRut1zUzQtC7R/n3Lb25CvHyGJB8asGxsIYQ8o11gOl/w
-         +cMg==
-X-Forwarded-Encrypted: i=1; AFNElJ8Z6uyGsdOFowc44Q5ROwXP5GoX+y/1rHI+9xnORascEnZa00ZWiiLuFQ95KL+FLayQs18nM6q4nmNdSQo01g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxqtFzql54KvrYWE9yvHQRxnDbtMd+R98t/FP1rXGXKXljdA8ZH
-	o4aKPhYUru2d+u5vFZDjUY6GwQFbiynivl+3md1FWtHNK3RV+KoMZ+QTkV0BAR7PM2XUzgAqTQ3
-	efRGLtWkYnmCDYFxOJFbMLbqLLvShj30DvDIDq0GprnregMiFAk3f8B/MZ2q2z76RMBcd
-X-Gm-Gg: AeBDievI7Detvsi8c1ggWQlwJHcfy2Qe+nHHncrbw3V/IEOV1ejRAkQWOU2WYMXugYI
-	OJiwbxHBoA1yaRvMeY5xM9wdpurdWQQtsEd/8+0Et3TyzxN7Yicw2P4KZ8/LZj4d9qlXqXyCFN0
-	QQ/j8EmKb6ef8m8KXQufhj+scpKacLfYGbN17YjzxhupB9JYoTiy3rVAAwifxKbOsOA9Od0uVgg
-	MnsbBG06+sILhEnV7X+dS1UdqxSuJ+gPq5B9yl5RV7N3MDsQc8BlXk0pBQV76f/x7SbkTukNfNA
-	53uA5kCupkednILvpFe8383FtBV8BpLKQa2nbVrI2kfnhuMF2vf6x+6ACx39JQ6JKnIj7BaD5cV
-	y10sAnymlBnbgTVxV+NqwqIT0XWHNj2F2F6Rw6RErbzkX0UtYj50sKQ==
-X-Received: by 2002:a05:600c:c085:b0:488:acbc:b2e with SMTP id 5b1f17b1804b1-488fb765b04mr53093805e9.17.1776472265227;
-        Fri, 17 Apr 2026 17:31:05 -0700 (PDT)
-X-Received: by 2002:a05:600c:c085:b0:488:acbc:b2e with SMTP id 5b1f17b1804b1-488fb765b04mr53093615e9.17.1776472264708;
-        Fri, 17 Apr 2026 17:31:04 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-25-21.inter.net.il. [80.230.25.21])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43fe4e3a79esm10108821f8f.17.2026.04.17.17.31.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Apr 2026 17:31:03 -0700 (PDT)
-Date: Fri, 17 Apr 2026 20:31:01 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Michael Bommarito <michael.bommarito@gmail.com>
-Cc: Olivia Mackall <olivia@selenic.com>,
-	Herbert Xu <herbert@gondor.apana.org.au>,
-	linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org,
-	Jason Wang <jasowang@redhat.com>, virtualization@lists.linux.dev
-Subject: Re: [PATCH] hwrng: virtio: reject invalid used.len from the device
-Message-ID: <20260417202330-mutt-send-email-mst@kernel.org>
-References: <20260418000020.1847122-1-michael.bommarito@gmail.com>
- <20260417201129-mutt-send-email-mst@kernel.org>
- <CAJJ9bXzhKTBx4m3-SCM+ccGd6ZhTXTAbRxKekCzidnXY6yXbWg@mail.gmail.com>
+        d=1e100.net; s=20251104; t=1776473240; x=1777078040;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=72V9NqGcW6qqoMdzaKMDd1yz64pFCmzqJwHFxWDRYog=;
+        b=ZZUyEksGKze/wjp3zDEoqyOzAz7xp3M1t1P7UXt/jw3munVKwUWeNqA1Duf+NH9viq
+         fOO/MMMZ8ZY6Yw7NSyFExU1Zt805WTVFpS+SddaefiRSbab6bt2jxmwcGQZxvNTiuHSv
+         cPoU+k961QQZ8dLxV1T2yGiywtXc0M9xiItJqiJLn5bbDb+amw9B6027VQTBMoOp01OW
+         8Mp8br6McmyobGykK1wtl5SJz1h9IpbrDP6BHCV/KeO2fp/nwULKMeIiRmBfrfcTjYK8
+         mh9NrryuuDfZxo0iqDz/xE5qwlQzvn82OJQTWUNV2G2vavyEXyDMTQ8+N+Iw7NNcRYJg
+         nw5Q==
+X-Forwarded-Encrypted: i=1; AFNElJ+98fogCDYd61Y6GfAk8GZbb3q+uzCxqjGMzvsQepv48YRqOnI5ofS2Sbl+i54TwANWoOWi7+8pJY74poEXwQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyXWdi3uiBFb4R3fMCvVIX3rxYaOSQ3qCGGByD4VCQB4JOpZVsT
+	QLHGHuV73jd+bzC1GWhxDWM+iH5H/rxIQkqswKMCuQVHIWK7S9vp4htBgCm9M1tofjDDMN+oLPE
+	SWfxa5L6BwkY9wyI2uWLv5kWYQum0h3M=
+X-Gm-Gg: AeBDievspuesqd8/qYDsFtTnxZ4y5iWoQefvLfe6kgTOBRmXXcKmUk3LuzLEiJmJTDt
+	TFCH1pIW7Ix7BfuBP4Ze9oYzlxXgg2SAsuuG1Zd0CHenP1t6rlqI05yx6u9iF217BPFnkB+gXT8
+	Zzky79NQd+XQZK/r/40NXjUBhf9vj2TAQnVQXzl56FhpjuBzEqC2iIl5TFA6YWdTsooCH9p5x76
+	Jw6/lQPSAWh5hICqFxHrE3PD8b9hP6oV5wjRkI6PpcXqxsP22wViyiSYVe/kThCDLkjXGIuDDKd
+	gX57UyL/y/PGs9KxeP78dSEW7LO6iSooRcvohNC/7EmGsow=
+X-Received: by 2002:a53:ac9b:0:b0:654:c28:551 with SMTP id 956f58d0204a3-6540c282024mr1617570d50.32.1776473240188;
+ Fri, 17 Apr 2026 17:47:20 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CAJJ9bXzhKTBx4m3-SCM+ccGd6ZhTXTAbRxKekCzidnXY6yXbWg@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: WWmmbmjCykPtE65I9zaC-R57mfsa6XmYV7Za4-SWWGM_1776472265
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+References: <20260418000020.1847122-1-michael.bommarito@gmail.com>
+ <20260417201129-mutt-send-email-mst@kernel.org> <CAJJ9bXzhKTBx4m3-SCM+ccGd6ZhTXTAbRxKekCzidnXY6yXbWg@mail.gmail.com>
+ <20260417202330-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20260417202330-mutt-send-email-mst@kernel.org>
+From: Michael Bommarito <michael.bommarito@gmail.com>
+Date: Fri, 17 Apr 2026 20:47:09 -0400
+X-Gm-Features: AQROBzC2J6INtNnpHboIyzK84Yzmhpw9H84-rHj4d_Q05M5JZKKJ7A_UXrtOiM4
+Message-ID: <CAJJ9bXweZ2k+F5A7rOWSodzTN6UYOP3rf2oBbrVirOuof0tqNg@mail.gmail.com>
+Subject: Re: [PATCH] hwrng: virtio: reject invalid used.len from the device
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Olivia Mackall <olivia@selenic.com>, Herbert Xu <herbert@gondor.apana.org.au>, 
+	linux-crypto@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	Jason Wang <jasowang@redhat.com>, virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Apr 17, 2026 at 08:18:06PM -0400, Michael Bommarito wrote:
-> "Actionable" is probably the better word there, sorry.
+On Fri, Apr 17, 2026 at 8:31=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
+ wrote:
+> Actionable meaning what?
 
-Actionable meaning what?
+Well, between the BLAKE2 pass and the fact that 99% of guests already
+shouldn't trust what's above, I agree that actionable doesn't mean
+much to most people, not even for breaking KASLR.
 
->  If it were
-> otherwise, I wouldn't have filed publicly
-> 
-> If you end up ACKing the correctness change, I can send v2 with better log
-> 
-> Thanks,
-> Michael Bommarito
-> 
-> On Fri, Apr 17, 2026 at 8:13 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Fri, Apr 17, 2026 at 08:00:20PM -0400, Michael Bommarito wrote:
-> > > random_recv_done() stored the device-reported used.len directly into
-> > > vi->data_avail without validating it against the posted buffer size
-> > > sizeof(vi->data) (SMP_CACHE_BYTES bytes, typically 32 or 64).  A
-> > > malicious or buggy virtio-rng backend could set used.len beyond
-> > > vi->data so that the subsequent copy_data() in virtio_read() issues
-> > > memcpy() from vi->data + vi->data_idx past the end of the inline
-> > > array, reading adjacent kmalloc-1k slab bytes into the hwrng core's
-> > > buffer and from there into /dev/hwrng consumers and the kernel
-> > > entropy pool.
-> > >
-> > > Exploitable most clearly in threat models that do not trust the
-> > > hypervisor (confidential-compute guests on SEV-SNP or TDX; vhost-user
-> > > split backends).
-> >
-> > Exploitable? I don't get it. How is reading this data into hwrng
-> > a problem?
-> >
-> >
-> > > KASAN confirms the OOB on a guest booted under a QEMU 9.0 whose
-> > > virtio-rng backend has been patched to report used.len = 0x10000:
-> > >
-> > >   BUG: KASAN: slab-out-of-bounds in virtio_read+0x394/0x5d0
-> > >   Read of size 64 at addr ffff8880089c2220 by task hwrng/52
-> > >   Call Trace:
-> > >    __asan_memcpy
-> > >    virtio_read+0x394/0x5d0
-> > >    hwrng_fillfn+0xb2/0x470
-> > >    kthread
-> > >   Allocated by task 1:
-> > >    probe_common+0xa5/0x660
-> > >    virtio_dev_probe+0x549/0xbc0
-> > >   The buggy address belongs to the object at ffff8880089c2000
-> > >    which belongs to the cache kmalloc-1k of size 1024
-> > >   The buggy address is located 0 bytes to the right of
-> > >    allocated 544-byte region [ffff8880089c2000, ffff8880089c2220)
-> > >
-> > > hwrng_fillfn is a kernel thread that runs as soon as the device is
-> > > probed; no guest userspace interaction is needed.
-> > >
-> > > Same class of bug as commit c04db81cd028 ("net/9p: Fix buffer overflow in USB transport layer"),
-> > > which hardened usb9pfs_rx_complete against unchecked device-reported
-> > > length in the USB 9p transport.
-> > >
-> > > With the added len-vs-sizeof(vi->data) clamp in place the same
-> > > harness boots cleanly: the driver logs "bogus used.len" once and
-> > > subsequent reads wait for a honest response.
-> > >
-> > > Fixes: f7f510ec1957 ("virtio: An entropy device, as suggested by hpa.")
-> > > Cc: stable@vger.kernel.org
-> > > Signed-off-by: Michael Bommarito <michael.bommarito@gmail.com>
-> > > Assisted-by: Claude:claude-opus-4-7
-> > > ---
-> > >  drivers/char/hw_random/virtio-rng.c | 12 ++++++++++++
-> > >  1 file changed, 12 insertions(+)
-> > >
-> > > diff --git a/drivers/char/hw_random/virtio-rng.c b/drivers/char/hw_random/virtio-rng.c
-> > > index 0ce02d7e5048..6cff480787ca 100644
-> > > --- a/drivers/char/hw_random/virtio-rng.c
-> > > +++ b/drivers/char/hw_random/virtio-rng.c
-> > > @@ -47,6 +47,18 @@ static void random_recv_done(struct virtqueue *vq)
-> > >       if (!virtqueue_get_buf(vi->vq, &len))
-> > >               return;
-> > >
-> > > +     /*
-> > > +      * The device sets used.len; a malicious or buggy backend can
-> > > +      * report more bytes than we posted.  Clamp before it reaches
-> > > +      * copy_data() which indexes vi->data[].
+But after doing some research, I realized that SEV-SNP/TDX guests that
+expect lockdown=3Dconfidentiality might actually expect otherwise under
+that security model.  Still not a lot to work with, but more than just
+correctness in those cases, and those might be the environments that
+care the most.
 
+> Maybe clamp at sizeof(vi->data) then? 0 might break buggy devices that
+> were working earlier.
+> Or just clamp where it's used, for clarity.
+> And maybe we need the array_index dance, given
+> you are worried about malicious.
 
-
-
-> > > +      */
-> > > +     if (len > sizeof(vi->data)) {
-> > > +             dev_err(&vq->vdev->dev,
-> > > +                     "bogus used.len %u > buffer size %zu\n",
-> > > +                     len, sizeof(vi->data));
-> > > +             len = 0;
-> > > +     }
-
-
-Maybe clamp at sizeof(vi->data) then? 0 might break buggy devices that
-were working earlier.  
-Or just clamp where it's used, for clarity.
-And maybe we need the array_index dance, given
-you are worried about malicious.
-
-
-> > > +
-> > >       smp_store_release(&vi->data_avail, len);
-> > >       complete(&vi->have_data);
-> > >  }
-> > > --
-> > > 2.53.0
-> >
-
+Happy to send a v2 with those changes but I can only test on a 1-2 TDX
+variants at home and don't have access to an EPYC bare metal box, so
+not very confident about your buggy device point
