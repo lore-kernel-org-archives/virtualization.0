@@ -1,106 +1,183 @@
-Received: from 011.lax.mailroute.net (011.lax.mailroute.net [199.89.1.14])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oo1-f71.google.com (mail-oo1-f71.google.com [209.85.161.71])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D0103A9D90
-	for <virtualization@lists.linux.dev>; Mon, 20 Apr 2026 18:02:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=199.89.1.14
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D0F63A9DAB
+	for <virtualization@lists.linux.dev>; Mon, 20 Apr 2026 18:09:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.71
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776708177; cv=none; b=iEXYLKUugrxvWNHZ75atnEqe72gaU5Tyu0tkuU2cYdka3pWlhKjE9oCIqG82zx/sFfsiwlma9wZJ7Q8oEmqoluZmHEVS4nyEEaEl9v4YQBYFAh2J1uQlIwwQwNy1N1x8P3VkJw+EkD8Q/GMYvkGktk/Tw9kqXHaXykEkcNZWUpk=
+	t=1776708579; cv=none; b=t/LLvxea7O4hswk4RPvuwgjNa9vMKVH9PsRIKw7C84sBiCCY2dUZCjh55HEmfKeLsVV32YaGhqR7UAjw5a30IKXHWqdAt438xHoaxGnJ7m+dAlUxCajB6QHg3tnDf3V7Rw0NSavBv2h2LUstJ66HuJbxAA+cDqjDJX+Yk+/cuOU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776708177; c=relaxed/simple;
-	bh=5oJWDqDdZn6vkit7ylZETr0lJ9pcxl8JtZ0G9Ta8yPc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=G3Hro/Zvo2YMVxFz+ptpmPDUZd1ospY+Rr8z+c89QLD0P+jgqoZXl/X8WpVd1bODNOhym7IV/bDW5/2qrBj1avBWsI4mGdqj+Z3eUPQm4c4gtL2eHe1klUzzL4zh7Mo/TtOXCFRSOxrYmAvBU+skjRl4rQHrzHsIRjIDy3o31Xs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=acm.org; spf=pass smtp.mailfrom=acm.org; dkim=pass (2048-bit key) header.d=acm.org header.i=@acm.org header.b=WWKhjsoE; arc=none smtp.client-ip=199.89.1.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=acm.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=acm.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=acm.org header.i=@acm.org header.b="WWKhjsoE"
-Received: from localhost (localhost [127.0.0.1])
-	by 011.lax.mailroute.net (Postfix) with ESMTP id 4fztcv6T8xz1XM6JX;
-	Mon, 20 Apr 2026 18:02:55 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=acm.org; h=
-	content-transfer-encoding:content-type:content-type:in-reply-to
-	:from:from:content-language:references:subject:subject
-	:user-agent:mime-version:date:date:message-id:received:received;
-	 s=mr01; t=1776708168; x=1779300169; bh=5oJWDqDdZn6vkit7ylZETr0l
-	J9pcxl8JtZ0G9Ta8yPc=; b=WWKhjsoEUY1tUkljxNr3cmhPl9vFFPbbVt0RXhpB
-	RPI01gGBfmprSduJgUl/KcVbvQvS61gEq2Mm6Awqd8IJxUX0Plh7//pxcvJ60XX4
-	fL1U1JtA586EvujpFS/K+lTgXAyaIZ5HdInuXftWDZMI8JaILhzxKq1wp/78UygQ
-	LEt9tbZIgEj8L+fGWOFrs1qOa5pVQlHg5MJAz7X9TmTPiHL3mZn30FLLowsXFNiR
-	sLntOXmR/xXTOTWC8kNZUNgdLg3clBV9zMuctV8xQ4Zg2e0gZsuq/CohDsO9TmkV
-	9jqVYwSTu/aUIXrBjKB2hom1Ua/0XyDw3oPm9EcduDSPzQ==
-X-Virus-Scanned: by MailRoute
-Received: from 011.lax.mailroute.net ([127.0.0.1])
- by localhost (011.lax [127.0.0.1]) (mroute_mailscanner, port 10029) with LMTP
- id IzDzOvtuNMUb; Mon, 20 Apr 2026 18:02:48 +0000 (UTC)
-Received: from [100.119.48.131] (unknown [104.135.180.219])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	(Authenticated sender: bvanassche@acm.org)
-	by 011.lax.mailroute.net (Postfix) with ESMTPSA id 4fztch72Gxz1XM6JR;
-	Mon, 20 Apr 2026 18:02:44 +0000 (UTC)
-Message-ID: <b59beef1-ed3a-4eb4-a1bf-c45e5be2764b@acm.org>
-Date: Mon, 20 Apr 2026 11:02:43 -0700
+	s=arc-20240116; t=1776708579; c=relaxed/simple;
+	bh=RfOL1dqt97BjBm1SK3o4NH6LnKKdm3W70WxMrxW6OyA=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:Cc:
+	 Content-Type; b=SWtqeCuj+CYIpZ0xdurLvoHTOCWEm0RLnHypQvIFWznmkmtINiEN+o1xsf+hcanWAoKrFy9DBf/FdywYOU/6bcuBjmRKuFwMS2h6GfoU7ls39xx8oCFmmWXUji14H5o5cHdad6G51KA+eyqRQoMHqy0KaCb7jVPhfTBHUYrj0Ek=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.161.71
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oo1-f71.google.com with SMTP id 006d021491bc7-694867ca247so1559771eaf.1
+        for <virtualization@lists.linux.dev>; Mon, 20 Apr 2026 11:09:38 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1776708577; x=1777313377;
+        h=cc:to:from:subject:message-id:in-reply-to:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=4NIQfN3DmsDKwdnjOyYbdUmi+3233KTMMvwmupv2AJk=;
+        b=Eb8DX/QqH9P7IWdiSklbpg9uYUcFQhAL4s7hl1r0km0AFoH4CDAvEMM6ObxRN5jx9w
+         oeJmDlgBML86msQiLpc5+pK2bAyH1TtCL5twT4YYqDyLHcrSvwXXNT7a8wS5w3VL5jKY
+         ercbbeQzWU1VKjRu3Lpaj43kMo9o4WQStJa4tRVw/JvO9X5P2PuQer3tSaqSJg6IJJDI
+         Wjdm18zIbAecawODLAIHj0QIDvHgYOyem/juJGI1sVsaGYe3PsP0bCVQh0CfzNlbnzBY
+         dbNv8fTn3qtfeL4A7NiTsuGh1IssGoFU+SRzWfrkRb32mrIKX0VGlxUCJarC+lUAa3Ce
+         w71w==
+X-Forwarded-Encrypted: i=1; AFNElJ9PAJmfE24NvgX8aII3oNCdlVrypPG37VmzDuagmjkmjtWkUm5jMQsy7rsumzjUPzwfXL6WMLM/lYBXPlHMqQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxht4D9QDZgbNnSz+fDpfzQidoWeliX4YkjRxzRrJhpUz2FJNmb
+	YS+n6qYxygGytkir7+k302Om/qLsIAYJ1oT1THFu4oJeqtxwmsOHBXZ2tZUjahX0j2CGOeNwQ9K
+	FJd6SgJx+S2qD9NCsBK7h9dVxl/L4HPpxT0oSV6RRIG4f3mUAKkYeAQ915gU=
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/4] scsi: qedi: Fix command overqueueing
-To: Mike Christie <michael.christie@oracle.com>, martin.petersen@oracle.com,
- linux-scsi@vger.kernel.org, james.bottomley@hansenpartnership.com,
- virtualization@lists.linux.dev, mst@redhat.com, pbonzini@redhat.com,
- stefanha@redhat.com, eperezma@redhat.com
-References: <20260417230751.117836-1-michael.christie@oracle.com>
- <20260417230751.117836-3-michael.christie@oracle.com>
- <197fd58e-2cc7-4ed8-a662-52120f39c5e2@acm.org>
- <b3234b38-7eba-4628-a7df-24cd7460df14@oracle.com>
-Content-Language: en-US
-From: Bart Van Assche <bvanassche@acm.org>
-In-Reply-To: <b3234b38-7eba-4628-a7df-24cd7460df14@oracle.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: quoted-printable
+X-Received: by 2002:a05:6820:162a:b0:67e:fbc:de68 with SMTP id
+ 006d021491bc7-69462e7dbcemr7559850eaf.26.1776708577194; Mon, 20 Apr 2026
+ 11:09:37 -0700 (PDT)
+Date: Mon, 20 Apr 2026 11:09:37 -0700
+In-Reply-To: <cover.1776689093.git.mst@redhat.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <69e66be1.a00a0220.9259.0007.GAE@google.com>
+Subject: [syzbot ci] Re: mm/virtio: skip redundant zeroing of host-zeroed
+ reported pages
+From: syzbot ci <syzbot+ci8c594ed0fdfcc0e4@syzkaller.appspotmail.com>
+To: aarcange@redhat.com, akpm@linux-foundation.org, apopple@nvidia.com, 
+	axelrasmussen@google.com, baohua@kernel.org, baolin.wang@linux.alibaba.com, 
+	bhe@redhat.com, byungchul@sk.com, chrisl@kernel.org, david@kernel.org, 
+	dev.jain@arm.com, eperezma@redhat.com, gourry@gourry.net, hannes@cmpxchg.org, 
+	hughd@google.com, jackmanb@google.com, jasowang@redhat.com, 
+	joshua.hahnjy@gmail.com, kasong@tencent.com, lance.yang@linux.dev, 
+	liam.howlett@oracle.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org, 
+	ljs@kernel.org, matthew.brost@intel.com, mhocko@suse.com, mst@redhat.com, 
+	muchun.song@linux.dev, npache@redhat.com, nphamcs@gmail.com, 
+	osalvador@suse.de, rakie.kim@sk.com, rppt@kernel.org, ryan.roberts@arm.com, 
+	shikemeng@huaweicloud.com, surenb@google.com, vbabka@kernel.org, 
+	virtualization@lists.linux.dev, weixugc@google.com, 
+	xuanzhuo@linux.alibaba.com, ying.huang@linux.alibaba.com, yuanchu@google.com, 
+	ziy@nvidia.com
+Cc: syzbot@lists.linux.dev, syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-On 4/20/26 10:47 AM, Mike Christie wrote:
-> On 4/20/26 11:45 AM, Bart Van Assche wrote:
->> On 4/17/26 3:57 PM, Mike Christie wrote:
->>> qedi supports a total of can_queue commands over all queues so set
->>> host_tagset when multiple queues are used.
->>>
->>> Signed-off-by: Mike Christie <michael.christie@oracle.com>
->>> ---
->>> =C2=A0 drivers/scsi/qedi/qedi_main.c | 2 ++
->>> =C2=A0 1 file changed, 2 insertions(+)
->>>
->>> diff --git a/drivers/scsi/qedi/qedi_main.c b/drivers/scsi/qedi/=20
->>> qedi_main.c
->>> index 227ff7bd1bdc..0be0a9f30ee2 100644
->>> --- a/drivers/scsi/qedi/qedi_main.c
->>> +++ b/drivers/scsi/qedi/qedi_main.c
->>> @@ -657,6 +657,8 @@ static struct qedi_ctx *qedi_host_alloc(struct=20
->>> pci_dev *pdev)
->>> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 qedi->max_sqes =3D QEDI_SQ_SIZE;
->>> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 shost->nr_hw_queues =3D MIN_NUM_CPUS_M=
-SIX(qedi);
->>> +=C2=A0=C2=A0=C2=A0 if (shost->nr_hw_queues > 1)
->>> +=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 shost->host_tagset =3D 1;
->>> =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 pci_set_drvdata(pdev, qedi);
->>
->> Why "if (shost->nr_hw_queues > 1)"? It is safe to set host_tagset even
->> if shost->nr_hw_queues =3D=3D 1. See e.g. "[PATCH] ufs: core: Use a ho=
-st-
->> wide tagset in SDB mode" (https://lore.kernel.org/linux-=20
->> scsi/20260116180800.3085233-1-bvanassche@acm.org/).
->>
-> But you can't do batching with host_tagset right?
+syzbot ci has tested the following series
 
-Batching? Does this refer to struct io_comp_batch or perhaps to another
-batching feature?
+[v2] mm/virtio: skip redundant zeroing of host-zeroed reported pages
+https://lore.kernel.org/all/cover.1776689093.git.mst@redhat.com
+* [PATCH RFC v2 01/18] mm: page_alloc: propagate PageReported flag across buddy splits
+* [PATCH RFC v2 02/18] mm: add pghint_t type and vma_alloc_folio_hints API
+* [PATCH RFC v2 03/18] mm: add PG_zeroed page flag for known-zero pages
+* [PATCH RFC v2 04/18] mm: page_alloc: track PG_zeroed across buddy merges
+* [PATCH RFC v2 05/18] mm: page_alloc: preserve PG_zeroed in try_to_claim_block
+* [PATCH RFC v2 06/18] mm: page_alloc: thread pghint_t through get_page_from_freelist
+* [PATCH RFC v2 07/18] mm: post_alloc_hook: use PG_zeroed to skip zeroing, return pghint_t
+* [PATCH RFC v2 08/18] mm: hugetlb: thread pghint_t through buddy allocation chain
+* [PATCH RFC v2 09/18] mm: hugetlb: use PG_zeroed for pool pages, skip redundant zeroing
+* [PATCH RFC v2 10/18] mm: page_reporting: support host-zeroed reported pages
+* [PATCH RFC v2 11/18] mm: skip zeroing in vma_alloc_zeroed_movable_folio for pre-zeroed pages
+* [PATCH RFC v2 12/18] mm: skip zeroing in alloc_anon_folio for pre-zeroed pages
+* [PATCH RFC v2 13/18] mm: skip zeroing in vma_alloc_anon_folio_pmd for pre-zeroed pages
+* [PATCH RFC v2 14/18] mm: memfd: skip zeroing for pre-zeroed hugetlb pages
+* [PATCH RFC v2 15/18] virtio_balloon: add host_zeroes_pages module parameter
+* [PATCH RFC v2 16/18] mm: page_reporting: add flush parameter with page budget
+* [PATCH RFC v2 17/18] mm: add free_frozen_pages_hint and put_page_hint APIs
+* [PATCH RFC v2 18/18] virtio_balloon: mark deflated pages as pre-zeroed
 
-Thanks,
+and found the following issue:
+kernel BUG in free_huge_folio
 
-Bart.
+Full report is available here:
+https://ci.syzbot.org/series/329d9cff-a0ad-46d2-8ff4-d9f4341a611f
+
+***
+
+kernel BUG in free_huge_folio
+
+tree:      mm-new
+URL:       https://kernel.googlesource.com/pub/scm/linux/kernel/git/akpm/mm.git
+base:      b8a5774cd49996e8ef83b1637a9b547158f18de9
+arch:      amd64
+compiler:  Debian clang version 21.1.8 (++20251221033036+2078da43e25a-1~exp1~20251221153213.50), Debian LLD 21.1.8
+config:    https://ci.syzbot.org/builds/60e99a0e-08bf-474f-b034-a8bfd2eb90b0/config
+syz repro: https://ci.syzbot.org/findings/2868ce13-1752-4f9f-9aa9-c5ce89f01fc7/syz_repro
+
+ ret_from_fork+0x51e/0xb90 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+page_owner free stack trace missing
+------------[ cut here ]------------
+kernel BUG at ./include/linux/page-flags.h:698!
+Oops: invalid opcode: 0000 [#1] SMP KASAN PTI
+CPU: 1 UID: 0 PID: 6015 Comm: syz.2.19 Not tainted syzkaller #0 PREEMPT(full) 
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.2-debian-1.16.2-1 04/01/2014
+RIP: 0010:__ClearPageZeroed include/linux/page-flags.h:698 [inline]
+RIP: 0010:free_huge_folio+0xf93/0x12e0 mm/hugetlb.c:1749
+Code: c7 c6 a0 64 db 8b e8 5c 9b fe fe 90 0f 0b e8 74 40 9c ff eb 05 e8 6d 40 9c ff 48 89 df 48 c7 c6 e0 63 db 8b e8 3e 9b fe fe 90 <0f> 0b e8 56 40 9c ff 48 89 df 48 c7 c6 40 64 db 8b e8 27 9b fe fe
+RSP: 0018:ffffc90003a675b8 EFLAGS: 00010246
+RAX: c71fb9abd148e700 RBX: ffffea0005808000 RCX: 0000000000000000
+RDX: 0000000000000007 RSI: ffffffff8defcd3f RDI: 00000000ffffffff
+RBP: 1ffffd4000b0101a R08: ffffffff9011ddb7 R09: 1ffffffff2023bb6
+R10: dffffc0000000000 R11: fffffbfff2023bb7 R12: ffffea0005808008
+R13: ffffea00058080d0 R14: ffffffff9a2e27c0 R15: 0000000000000040
+FS:  00007fe11abed6c0(0000) GS:ffff8882a9453000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fe119de9f00 CR3: 00000001ba914000 CR4: 00000000000006f0
+Call Trace:
+ <TASK>
+ __folio_put+0xfc/0x4f0 mm/swap.c:105
+ hugetlb_mfill_atomic_pte+0x130a/0x1730 mm/hugetlb.c:6294
+ mfill_atomic_hugetlb mm/userfaultfd.c:601 [inline]
+ mfill_atomic mm/userfaultfd.c:773 [inline]
+ mfill_atomic_copy+0xe28/0x1420 mm/userfaultfd.c:872
+ userfaultfd_copy fs/userfaultfd.c:1642 [inline]
+ userfaultfd_ioctl+0x2c17/0x5130 fs/userfaultfd.c:2059
+ vfs_ioctl fs/ioctl.c:51 [inline]
+ __do_sys_ioctl fs/ioctl.c:597 [inline]
+ __se_sys_ioctl+0xfc/0x170 fs/ioctl.c:583
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0x14d/0xf80 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7fe119d9c819
+Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 e8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007fe11abed028 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
+RAX: ffffffffffffffda RBX: 00007fe11a015fa0 RCX: 00007fe119d9c819
+RDX: 00002000000000c0 RSI: 00000000c028aa03 RDI: 0000000000000003
+RBP: 00007fe119e32c91 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007fe11a016038 R14: 00007fe11a015fa0 R15: 00007ffe7cd6ce28
+ </TASK>
+Modules linked in:
+---[ end trace 0000000000000000 ]---
+RIP: 0010:__ClearPageZeroed include/linux/page-flags.h:698 [inline]
+RIP: 0010:free_huge_folio+0xf93/0x12e0 mm/hugetlb.c:1749
+Code: c7 c6 a0 64 db 8b e8 5c 9b fe fe 90 0f 0b e8 74 40 9c ff eb 05 e8 6d 40 9c ff 48 89 df 48 c7 c6 e0 63 db 8b e8 3e 9b fe fe 90 <0f> 0b e8 56 40 9c ff 48 89 df 48 c7 c6 40 64 db 8b e8 27 9b fe fe
+RSP: 0018:ffffc90003a675b8 EFLAGS: 00010246
+RAX: c71fb9abd148e700 RBX: ffffea0005808000 RCX: 0000000000000000
+RDX: 0000000000000007 RSI: ffffffff8defcd3f RDI: 00000000ffffffff
+RBP: 1ffffd4000b0101a R08: ffffffff9011ddb7 R09: 1ffffffff2023bb6
+R10: dffffc0000000000 R11: fffffbfff2023bb7 R12: ffffea0005808008
+R13: ffffea00058080d0 R14: ffffffff9a2e27c0 R15: 0000000000000040
+FS:  00007fe11abed6c0(0000) GS:ffff8882a9453000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007fe119de9f00 CR3: 00000001ba914000 CR4: 00000000000006f0
+
+
+***
+
+If these findings have caused you to resend the series or submit a
+separate fix, please add the following tag to your commit message:
+  Tested-by: syzbot@syzkaller.appspotmail.com
+
+---
+This report is generated by a bot. It may contain errors.
+syzbot ci engineers can be reached at syzkaller@googlegroups.com.
+
+To test a patch for this bug, please reply with `#syz test`
+(should be on a separate line).
+
+The patch should be attached to the email.
+Note: arguments like custom git repos and branches are not supported.
