@@ -1,139 +1,203 @@
-Received: from fhigh-b3-smtp.messagingengine.com (fhigh-b3-smtp.messagingengine.com [202.12.124.154])
+Received: from out-186.mta1.migadu.com (out-186.mta1.migadu.com [95.215.58.186])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3544B2DF68
-	for <virtualization@lists.linux.dev>; Sun, 19 Apr 2026 00:49:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.154
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C07F35DA52
+	for <virtualization@lists.linux.dev>; Mon, 20 Apr 2026 03:09:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.186
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776559794; cv=none; b=NSMd/GFsWTTzxa7O56gQUUORwfbNj3CUXa8Ln+qdhWmjoXMI6FBZYps2Qq0hUVqA584NCDLLeWdhVaoD3kWbsUiQWR5WmspLlI4zbgahiQkz8oZlj4IHcwNBu3GHEauBnO1kZ1tRmEf0WToG/6pJ5g447u3XoCBLbePqMfp7GNM=
+	t=1776654564; cv=none; b=R8Uf2Qw0gmWJm0R334s/HxbtjVHGwjgKVOXRfvMdimA01ISEioM/xyGf1qm505xn+e0MkE7h6ifdPT+mOy2mRWWeBm+RA+KFyJMrOd0XguTVIzA00N1ympMHOQoaSgIMKNYNKGguQDd9IgcvrFwzBfeSBK6Kjw6rR7bVFbo31Ak=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776559794; c=relaxed/simple;
-	bh=wHENpZvxkf/YOAHfOHWTCdGCZOIhVV7fuX6csf/dFw4=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=o/sXz7Z8Nqti+WW+cp4KrSLOkxF9fQedaU4Gqis0BfPqNUFpqDI25WXtp6PdvOkGGBEQfWgIZ2xyI1HhgHd2CKxMNemJw19dRdj5uV98zNU3owRRjxVMzOs0laBqn4QYl56PIZOqblPdJ/xC8jvHj2D6z3fJU5VHqcBnEPQPmHU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ethancedwards.com; spf=pass smtp.mailfrom=ethancedwards.com; dkim=pass (2048-bit key) header.d=ethancedwards.com header.i=@ethancedwards.com header.b=kVX4DnHH; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=rWAo/OBJ; arc=none smtp.client-ip=202.12.124.154
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=ethancedwards.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ethancedwards.com
+	s=arc-20240116; t=1776654564; c=relaxed/simple;
+	bh=QjlU+K6TNzgSBz5mH1uCX+aRYlnMWSQWE4Jap3gw1xc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=nNMFT3mCdQASYySojfL0oaFF11Cf0UHGjVg3P04ONCP4G4x4W4Pbef7QfAVdZgTiyz5upMUmVER9lB/pjY4XXMCh/+p1aapFBw0Qi9T3u8+HssSJhiAwRBL37V3brvJInNzWmXTmWcLfX583LfjBHPWjZ8/52ZSYVOusmZBDkZM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=Mx7mParP; arc=none smtp.client-ip=95.215.58.186
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ethancedwards.com header.i=@ethancedwards.com header.b="kVX4DnHH";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="rWAo/OBJ"
-Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id 5C4C17A0095;
-	Sat, 18 Apr 2026 20:49:51 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-05.internal (MEProxy); Sat, 18 Apr 2026 20:49:51 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	ethancedwards.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:from:from:in-reply-to
-	:message-id:mime-version:reply-to:subject:subject:to:to; s=fm1;
-	 t=1776559791; x=1776646191; bh=4j5ind4Y8rMWCPH5voCCoEAQ0uDhrj2m
-	zHs3k1PsP+c=; b=kVX4DnHHLUhU8idIjLG2Gf+1NANpFmk4//AAf6APWOVlaoUA
-	RfLRpCEplF4plliuHrCDMvnP6/eZ+DTR7nlC5sdb6Gu3Gj7zpXtGbrmL2XSiO2b2
-	ooSUIsmXWyzymtMaenZGLU6ox3MBLdNJ7fDPx71MDovlpqlo7Gb1bFjWz0uRj5EN
-	As6prVlAnMC7T/gtGS94mG+95QXjW8CXMzl4H2EeTbWlmbNGQS4QdPK/PVtIWK9X
-	8LU9U46dC6Bbaq1/5LKxHUftZxKvEQ1lNbxVatoQtKkUAr2j0i7Ofo/03hbJ70DG
-	clPhheEJPyQfP0KlIfd9Nc7xCkTBKYyDWTeu8g==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:message-id:mime-version:reply-to:subject
-	:subject:to:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=
-	fm2; t=1776559791; x=1776646191; bh=4j5ind4Y8rMWCPH5voCCoEAQ0uDh
-	rj2mzHs3k1PsP+c=; b=rWAo/OBJmuj7ecPLDS8q86Q4WDAe0XueVjIReVs8znfR
-	erAi/TSEMHfrSlHFFId774HIXLacvAD5Rl+nlpWfH1MyTAVr0OC7zUczzJRh8hEv
-	oKtWjNQbzrNxR4eneam1FyvojGROxsElA3RJkITpsTIbbyyMisC/r0RxyJIeXtcq
-	kq5SG9Y1UEEyOTDjN3qzIKxswsJOd56eacrPf8rnJxwgDDuN3zSiZ2a9KKXqtB+7
-	sOcOpcNfPlChDo/M21iyAeM4qo7+0nj323VqDvv+2sWEqUoaKNDz3yaCtr1uNzsf
-	jwmNeEfEe60VzCDo6ZaLeph08UF/O+qGYkL/g5xJ8w==
-X-ME-Sender: <xms:ribkaSgzsWP39NBgL7oF7EHtojzi_xYyb1RyWHekjOSI45WvaBUtlA>
-    <xme:ribkafmeFPeD-BhT6FfMFEmX0Dm489Duy24dEnvWSK5H1GMOrg5vwuLQC_g9ZzLbW
-    z7FElX68hfWQutpUSUnURCbm5rtNZ7OKfMxBbwsaGgymqlUmiHt0uc>
-X-ME-Received: <xmr:ribkaeiezalhJzdFGYzsuJgcR7rdrX__6My3kFmPVjBDVioPztHWsRT7NT3U>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgdehgedvgecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
-    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
-    hrpefhfffugggtgffkvfevofesthejredtredtjeenucfhrhhomhepgfhthhgrnhcuvegr
-    rhhtvghrucfgugifrghrughsuceovghthhgrnhesvghthhgrnhgtvggufigrrhgushdrtg
-    homheqnecuggftrfgrthhtvghrnhepieeuhfeuhffguefhffekfffgtefgjeeghfdukeel
-    vdduiedutdffffeghedtiedvnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpe
-    hmrghilhhfrhhomhepvghthhgrnhesvghthhgrnhgtvggufigrrhgushdrtghomhdpnhgs
-    pghrtghpthhtohepledpmhhouggvpehsmhhtphhouhhtpdhrtghpthhtohepvhhirhhtuh
-    grlhhiiigrthhiohhnsehlihhsthhsrdhlihhnuhigrdguvghvpdhrtghpthhtoheplhhi
-    nhhugidqkhgvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhgpdhrtghpthhtohepgi
-    hurghniihhuhhosehlihhnuhigrdgrlhhisggrsggrrdgtohhmpdhrtghpthhtohepvghp
-    vghrvgiimhgrsehrvgguhhgrthdrtghomhdprhgtphhtthhopegrmhhitheskhgvrhhnvg
-    hlrdhorhhgpdhrtghpthhtohepmhhsthesrhgvughhrghtrdgtohhmpdhrtghpthhtohep
-    khgvrhhnvghlqdhjrghnihhtohhrshesvhhgvghrrdhkvghrnhgvlhdrohhrghdprhgtph
-    htthhopehjrghsohifrghnghesrhgvughhrghtrdgtohhmpdhrtghpthhtohepvghthhgr
-    nhesvghthhgrnhgtvggufigrrhgushdrtghomh
-X-ME-Proxy: <xmx:ribkaSEapucUVwDr5cIS74ISRU0vNDCujht7AIolyHEPg2qKwRRm0Q>
-    <xmx:ribkaQuevO1GPuEJlAR2-b_SBZw4y7NgTwSio3kbhxFmG4Pxrian7Q>
-    <xmx:ribkaTekc8SHDCz44rkhYX64QrVKGFmpIiXKQdOrTEjUuMNdl5Tzyg>
-    <xmx:ribkaWm-OjPdKjOjK4Hk2bocasY9b6sS0ipQrJHbQP1OSz4gTwXLAQ>
-    <xmx:rybkaYSEEh7TbxYJ5udTHMaU9KuL-DKvYHc13bAa5xV29vyUjdGvkItn>
-Feedback-ID: ibf9e487c:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Sat,
- 18 Apr 2026 20:49:50 -0400 (EDT)
-From: Ethan Carter Edwards <ethan@ethancedwards.com>
-Date: Sat, 18 Apr 2026 20:49:48 -0400
-Subject: [PATCH] virtio_console: Fix spelling mistake "colums" -> "columns"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="Mx7mParP"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1776654558;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=AKl1g17ICBm+Yhc31h7NqqZRHOYKzoDOhKe2BAK4Ft4=;
+	b=Mx7mParPLpVFgaIsnwObBrva2C+5otUR/xdKuDFQn7DRs58EXi/S2SYJmUo/FlL/NI4bMz
+	LVozt4FY9JRCCCV8dw4pPwmOiNy/p+R2L2M9aY7tIFFaB2w3gJK1ABztD7ngmnjP4QsJSy
+	5icta9wZ9AzxQ8BVz01S6WNDN9u5CcE=
+From: Lance Yang <lance.yang@linux.dev>
+To: akpm@linux-foundation.org
+Cc: peterz@infradead.org,
+	david@kernel.org,
+	dave.hansen@intel.com,
+	dave.hansen@linux.intel.com,
+	ypodemsk@redhat.com,
+	hughd@google.com,
+	will@kernel.org,
+	aneesh.kumar@kernel.org,
+	npiggin@gmail.com,
+	tglx@linutronix.de,
+	mingo@redhat.com,
+	bp@alien8.de,
+	x86@kernel.org,
+	hpa@zytor.com,
+	arnd@arndb.de,
+	ljs@kernel.org,
+	ziy@nvidia.com,
+	baolin.wang@linux.alibaba.com,
+	Liam.Howlett@oracle.com,
+	npache@redhat.com,
+	ryan.roberts@arm.com,
+	dev.jain@arm.com,
+	baohua@kernel.org,
+	shy828301@gmail.com,
+	riel@surriel.com,
+	jannh@google.com,
+	jgross@suse.com,
+	seanjc@google.com,
+	pbonzini@redhat.com,
+	boris.ostrovsky@oracle.com,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org,
+	linux-arch@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org,
+	ioworker0@gmail.com
+Subject: [PATCH 7.2 v9 0/2] skip redundant sync IPIs when TLB flush sent them
+Date: Mon, 20 Apr 2026 11:08:49 +0800
+Message-ID: <20260420030851.6735-1-lance.yang@linux.dev>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260418-virtio-typo-v1-1-0df6f943a79d@ethancedwards.com>
-X-B4-Tracking: v=1; b=H4sIAKsm5GkC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
- vPSU3UzU4B8JSMDIzMDE0ML3bLMopLMfN2SyoJ8XUPL5KSkxBRTCyODFCWgjoKi1LTMCrBp0bG
- 1tQBPuL1GXQAAAA==
-X-Change-ID: 20260418-virtio-typo-19cbbad5820d
-To: Amit Shah <amit@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, 
- Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
-Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
- kernel-janitors@vger.kernel.org, 
- Ethan Carter Edwards <ethan@ethancedwards.com>
-X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=852;
- i=ethan@ethancedwards.com; h=from:subject:message-id;
- bh=wHENpZvxkf/YOAHfOHWTCdGCZOIhVV7fuX6csf/dFw4=;
- b=LS0tLS1CRUdJTiBQR1AgTUVTU0FHRS0tLS0tCgpvd0o0bkp2QXk4ekFKWGJEOXFoNThlVGp6e
- GhQcXlVeFpENVJXeHYxTWpqdlYrWEN5TE5od1pvdnR4bDhrakV5ClU3N29KWlZ1ZXJ2bUl6UGJo
- K2NkcFN3TVlsd01zbUtLTFA5emxOTWVhczVRMlBuWHBRbG1EaXNUeUJBR0xrNEIKbU1oYk9ZYS9
- ZczZyaFhzNzl4ZzdYNVJzdGdrT2I1NnZzU1p2OWNiOGx5NkZnVDVMamh1dFkvakR2YWM2eGJWdw
- o2YjUwaDZDVjJ4a3RUanpPTzdFby9jN3A5dGE2THZWZUsxbHVBRTMzVEY0PQo9aUZnUwotLS0tL
- UVORCBQR1AgTUVTU0FHRS0tLS0tCg==
-X-Developer-Key: i=ethan@ethancedwards.com; a=openpgp;
- fpr=2E51F61839D1FA947A7300C234C04305D581DBFE
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-There is a spelling mistake in a struct description. Fix it.
+Hi all,
 
-Signed-off-by: Ethan Carter Edwards <ethan@ethancedwards.com>
----
- include/uapi/linux/virtio_console.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+When page table operations require synchronization with software/lockless
+walkers, they call tlb_remove_table_sync_{one,rcu}() after flushing the
+TLB (tlb->freed_tables or tlb->unshared_tables).
 
-diff --git a/include/uapi/linux/virtio_console.h b/include/uapi/linux/virtio_console.h
-index 7e6ec2ff0560..0506539e6553 100644
---- a/include/uapi/linux/virtio_console.h
-+++ b/include/uapi/linux/virtio_console.h
-@@ -44,7 +44,7 @@
- #define VIRTIO_CONSOLE_BAD_ID		(~(__u32)0)
- 
- struct virtio_console_config {
--	/* colums of the screens */
-+	/* columns of the screens */
- 	__virtio16 cols;
- 	/* rows of the screens */
- 	__virtio16 rows;
+On architectures where the TLB flush already sends IPIs to all target CPUs,
+the subsequent sync IPI broadcast is redundant. This is not only costly on
+large systems where it disrupts all CPUs even for single-process page table
+operations, but has also been reported to hurt RT workloads[1].
 
----
-base-commit: c7275b05bc428c7373d97aa2da02d3a7fa6b9f66
-change-id: 20260418-virtio-typo-19cbbad5820d
+This series introduces tlb_table_flush_implies_ipi_broadcast() to check if
+the prior TLB flush already provided the necessary synchronization. When
+true, the sync calls can early-return.
 
-Best regards,
+A few cases rely on this synchronization:
+
+1) hugetlb PMD unshare[2]: The problem is not the freeing but the reuse
+   of the PMD table for other purposes in the last remaining user after
+   unsharing.
+
+2) khugepaged collapse[3]: Ensure no concurrent GUP-fast before collapsing
+   and (possibly) freeing the page table / re-depositing it.
+
+Two-step plan as David suggested[4]:
+
+Step 1 (this series): Skip redundant sync when we're 100% certain the TLB
+flush sent IPIs. INVLPGB is excluded because when supported, we cannot
+guarantee IPIs were sent, keeping it clean and simple.
+
+Step 2 (future work): Send targeted IPIs only to CPUs actually doing
+software/lockless page table walks, benefiting all architectures.
+
+Regarding Step 2, it obviously only applies to setups where Step 1 does not
+apply: like x86 with INVLPGB or arm64. Step 2 work is ongoing; early
+attempts showed ~3% GUP-fast overhead. Reducing the overhead requires more
+work and tuning; it will be submitted separately once ready.
+
+On a 64-core Intel x86 server, the CAL interrupt count in
+/proc/interrupts dropped from 646,316 to 785 when collapsing a 20 GiB
+range with this series applied.
+
+David Hildenbrand did the initial implementation. I built on his work and
+relied on off-list discussions to push it further - thanks a lot David!
+
+[1] https://lore.kernel.org/linux-mm/1b27a3fa-359a-43d0-bdeb-c31341749367@kernel.org/
+[2] https://lore.kernel.org/linux-mm/6a364356-5fea-4a6c-b959-ba3b22ce9c88@kernel.org/
+[3] https://lore.kernel.org/linux-mm/2cb4503d-3a3f-4f6c-8038-7b3d1c74b3c2@kernel.org/
+[4] https://lore.kernel.org/linux-mm/bbfdf226-4660-4949-b17b-0d209ee4ef8c@kernel.org/
+
+v8 -> v9:
+- Rebase on mm-new; re-tested, no code changes.
+- https://lore.kernel.org/linux-mm/20260324085238.44477-1-lance.yang@linux.dev/
+
+v7 -> v8:
+- Pick up Acked-by tags from David, thanks!
+- Add CAL interrupt numbers to the cover letter (per Andrew, thanks!)
+- Rewrite the [2/2] changelog and reword the comment (per David, thanks!)
+- https://lore.kernel.org/linux-mm/20260309020711.20831-1-lance.yang@linux.dev/
+
+v6 -> v7:
+- Simplify init logic and eliminate duplicated X86_FEATURE_INVLPGB checks
+  (per Dave, thanks!)
+- Remove flush_tlb_multi_implies_ipi_broadcast property because no PV
+  backend sets it today.
+- https://lore.kernel.org/linux-mm/20260304021046.18550-1-lance.yang@linux.dev/
+
+v5 -> v6:
+- Use static_branch to eliminate the branch overhead (per Peter, thanks!)
+- https://lore.kernel.org/linux-mm/20260302063048.9479-1-lance.yang@linux.dev/
+
+v4 -> v5:
+- Drop per-CPU tracking (active_lockless_pt_walk_mm) from this series;
+  defer to Step 2 as it adds ~3% GUP-fast overhead
+- Keep pv_ops property false for PV backends like KVM: preempted vCPUs
+  cannot be assumed safe (per Sean, thanks!)
+  https://lore.kernel.org/linux-mm/aaCP95l-m8ISXF78@google.com/
+- https://lore.kernel.org/linux-mm/20260202074557.16544-1-lance.yang@linux.dev/ 
+
+v3 -> v4:
+- Rework based on David's two-step direction and per-CPU idea:
+  1) Targeted IPIs: per-CPU variable when entering/leaving lockless page
+     table walk; tlb_remove_table_sync_mm() IPIs only those CPUs.
+  2) On x86, pv_mmu_ops property set at init to skip the extra sync when
+     flush_tlb_multi() already sends IPIs.
+  https://lore.kernel.org/linux-mm/bbfdf226-4660-4949-b17b-0d209ee4ef8c@kernel.org/
+- https://lore.kernel.org/linux-mm/20260106120303.38124-1-lance.yang@linux.dev/
+
+v2 -> v3:
+- Complete rewrite: use dynamic IPI tracking instead of static checks
+  (per Dave Hansen, thanks!)
+- Track IPIs via mmu_gather: native_flush_tlb_multi() sets flag when
+  actually sending IPIs
+- Motivation for skipping redundant IPIs explained by David:
+  https://lore.kernel.org/linux-mm/1b27a3fa-359a-43d0-bdeb-c31341749367@kernel.org/
+- https://lore.kernel.org/linux-mm/20251229145245.85452-1-lance.yang@linux.dev/
+
+v1 -> v2:
+- Fix cover letter encoding to resolve send-email issues. Apologies for
+  any email flood caused by the failed send attempts :(
+
+RFC -> v1:
+- Use a callback function in pv_mmu_ops instead of comparing function
+  pointers (per David)
+- Embed the check directly in tlb_remove_table_sync_one() instead of
+  requiring every caller to check explicitly (per David)
+- Move tlb_table_flush_implies_ipi_broadcast() outside of
+  CONFIG_MMU_GATHER_RCU_TABLE_FREE to fix build error on architectures
+  that don't enable this config.
+  https://lore.kernel.org/oe-kbuild-all/202512142156.cShiu6PU-lkp@intel.com/
+- https://lore.kernel.org/linux-mm/20251213080038.10917-1-lance.yang@linux.dev/
+
+Lance Yang (2):
+  mm/mmu_gather: prepare to skip redundant sync IPIs
+  x86/tlb: skip redundant sync IPIs for native TLB flush
+
+ arch/x86/include/asm/tlb.h      | 18 +++++++++++++++++-
+ arch/x86/include/asm/tlbflush.h |  2 ++
+ arch/x86/kernel/smpboot.c       |  1 +
+ arch/x86/mm/tlb.c               | 15 +++++++++++++++
+ include/asm-generic/tlb.h       | 17 +++++++++++++++++
+ mm/mmu_gather.c                 | 15 +++++++++++++++
+ 6 files changed, 67 insertions(+), 1 deletion(-)
+
 -- 
-Ethan Carter Edwards <ethan@ethancedwards.com>
-
+2.49.0
