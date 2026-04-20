@@ -1,91 +1,127 @@
-Received: from 011.lax.mailroute.net (011.lax.mailroute.net [199.89.1.14])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE5F937883C
-	for <virtualization@lists.linux.dev>; Mon, 20 Apr 2026 16:51:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=199.89.1.14
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F1613A6EF4
+	for <virtualization@lists.linux.dev>; Mon, 20 Apr 2026 17:30:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776703890; cv=none; b=PcAROcaaVDvuV5HpH5PeTey38dlhqtDtFNarnvQgM9fdgyhOSTdgof07f5WB+tWoh5iZWktMOtJYVmiJMXOwL0ufSdDKkPsgb35+ICGJThexjWJhHXphkGczwDNKpGi6R0I3e7GvJ0J4R2PI1uR0smmWO/nGA6DhVl+AcWzowds=
+	t=1776706252; cv=none; b=CvLIU1twdZ3TSPDRzFJfi+uarAid/mCLwtjD17g2FH6umXBWJ2zyqM7VZJWaiXs2q3pgVvneM2vlbtgxhK2yB3d4F1rQiN0fuZqBMXPEkeNV2CjfEuugA57A7zZk/icoj79GcBdhwnSwPTMWJk6Ye0xF3RNy/MN8pdLLQ2HVZwg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776703890; c=relaxed/simple;
-	bh=fMTkVtETBxofMf2sQEI2W7I2qQXdJ08SNERN9JJM+Kw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=c/Q3TxEGWpioJj7fz0aCm5y+FY/a6sGDbgWeYGFDmLB/cHsG7Y79PUKqL8kolq49ZMEQddYV60tLmel96j5rHTKlR/54qg9ZemAbksis3QOHcBRQZeazB/yNTHWryiR5vbihhaDUog9E25ehtt2Duvi1X61obvsOsLshtsfBd7I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=acm.org; spf=pass smtp.mailfrom=acm.org; dkim=pass (2048-bit key) header.d=acm.org header.i=@acm.org header.b=URHfcdeW; arc=none smtp.client-ip=199.89.1.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=acm.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=acm.org
+	s=arc-20240116; t=1776706252; c=relaxed/simple;
+	bh=Iu9f4pFdEAjgms72y4rlL1Ez4wmrP16W0GgbFusR4XQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=EpPSXj698MR/juY5QNtS/jj02962kwyFEejd6K6gpbhG2/cpq47aiIDGKQgK3IwsY9hacYyA3L1ihPBdD/MYWXYco/7Zv8FLxMoHtg9D5p9diJRVxtJaiAzhADTcSCQqBU+fOhY8g0afYG6us2vlSH4Hhd0ht4rkD/++68Bi+r8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=O3TClGR3; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=acm.org header.i=@acm.org header.b="URHfcdeW"
-Received: from localhost (localhost [127.0.0.1])
-	by 011.lax.mailroute.net (Postfix) with ESMTP id 4fzs2S2nsvz1XM6Jf;
-	Mon, 20 Apr 2026 16:51:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=acm.org; h=
-	content-transfer-encoding:content-type:content-type:in-reply-to
-	:from:from:content-language:references:subject:subject
-	:user-agent:mime-version:date:date:message-id:received:received;
-	 s=mr01; t=1776703883; x=1779295884; bh=Bnex+1RTo3Eptes/lVVmUsIe
-	qfbCHfN2vHOGnI7nV14=; b=URHfcdeWJ6q+k9QY7tcSc40nlOGl3hsabjVTbsPv
-	hwWjsH6+cL28jkicaMx3QsppHjHWhw3mrp1DAZOz1HIZ1mLsSql8w0VBkIk5Wgwm
-	GwOylKcSEVE+VfZlhzIQ6nURny2mciOT3W8uYkcaOjr1w4sFCZitWN5NpqqazSTj
-	ufb8KnzYmynVr08I6Nwtt0Uihb/1jj0MTW42ApMvIzKHir+2Pu7j6ifyxKmipFoQ
-	S5ZAdECyd4G6mPpMvY0mKkUKBiP0hP7zasoZ3CIabYBbnOKAEZrLKhGawRgnIXbv
-	L6Aev3a66WToRQmNfGiu7DFZ85U5PM26JSJqGdN4DVP2dQ==
-X-Virus-Scanned: by MailRoute
-Received: from 011.lax.mailroute.net ([127.0.0.1])
- by localhost (011.lax [127.0.0.1]) (mroute_mailscanner, port 10029) with LMTP
- id yfp_JgZi8mnk; Mon, 20 Apr 2026 16:51:23 +0000 (UTC)
-Received: from [100.119.48.131] (unknown [104.135.180.219])
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="O3TClGR3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1776706249;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=0VomCxP0GsSzjqG7HHomtcMmJHUChcTMYDi9bqcaXh0=;
+	b=O3TClGR3gkIJV03EHfI5RPvNYdQPTtSXbZWyUi9yQvASolxHWRv/u3Y01WD9cpldUmkMiR
+	27wKtAoVp4XauneFnDh3pE3FrmqvL2YNHpP8IwfzEMAs1ssUpvLDpisWR5LdP0zzP+uO9N
+	hgR7QRT7ra1nbrAosrMyog2gunoT/w0=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-92-TVrKP6kPPWCqo4qfqPi5OA-1; Mon,
+ 20 Apr 2026 13:30:48 -0400
+X-MC-Unique: TVrKP6kPPWCqo4qfqPi5OA-1
+X-Mimecast-MFC-AGG-ID: TVrKP6kPPWCqo4qfqPi5OA_1776706247
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	(Authenticated sender: bvanassche@acm.org)
-	by 011.lax.mailroute.net (Postfix) with ESMTPSA id 4fzs2K3bdZz1XM6JR;
-	Mon, 20 Apr 2026 16:51:21 +0000 (UTC)
-Message-ID: <0ad1fbe4-2452-4c03-af24-47255021b751@acm.org>
-Date: Mon, 20 Apr 2026 09:51:20 -0700
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 868731800370;
+	Mon, 20 Apr 2026 17:30:46 +0000 (UTC)
+Received: from localhost (unknown [10.44.48.35])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 4949F195608E;
+	Mon, 20 Apr 2026 17:30:44 +0000 (UTC)
+Date: Mon, 20 Apr 2026 13:30:42 -0400
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Mike Christie <michael.christie@oracle.com>
+Cc: martin.petersen@oracle.com, linux-scsi@vger.kernel.org,
+	james.bottomley@hansenpartnership.com,
+	virtualization@lists.linux.dev, mst@redhat.com, pbonzini@redhat.com,
+	eperezma@redhat.com
+Subject: Re: [PATCH 4/4] virtio-scsi: Support scsi_devices without a device
+ wide limit
+Message-ID: <20260420173042.GA405461@fedora>
+References: <20260417230751.117836-1-michael.christie@oracle.com>
+ <20260417230751.117836-5-michael.christie@oracle.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 3/4] scsi: Support scsi_devices without a device wide
- limit
-To: Mike Christie <michael.christie@oracle.com>, martin.petersen@oracle.com,
- linux-scsi@vger.kernel.org, james.bottomley@hansenpartnership.com,
- virtualization@lists.linux.dev, mst@redhat.com, pbonzini@redhat.com,
- stefanha@redhat.com, eperezma@redhat.com
-References: <20260417230751.117836-1-michael.christie@oracle.com>
- <20260417230751.117836-4-michael.christie@oracle.com>
-Content-Language: en-US
-From: Bart Van Assche <bvanassche@acm.org>
-In-Reply-To: <20260417230751.117836-4-michael.christie@oracle.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="OBrD8SR4k90NN6Uo"
+Content-Disposition: inline
+In-Reply-To: <20260417230751.117836-5-michael.christie@oracle.com>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
 
-On 4/17/26 3:57 PM, Mike Christie wrote:
-> +#define SCSI_UNLIMITED_CMD_PER_LUN	-1
->   	/*
->   	 * True if this host adapter can make good use of linked commands.
->   	 * This will allow more than one command to be queued to a given
-> @@ -451,6 +452,9 @@ struct scsi_host_template {
->   	 * command block per lun, 2 for two, etc.  Do not set this to 0.
->   	 * You should make sure that the host adapter will do the right thing
->   	 * before you try setting this above 1.
-> +	 *
-> +	 * Adapters that do not have a device limit can set this to
-> +	 * SCSI_UNLIMITED_CMD_PER_LUN.
->   	 */
->   	short cmd_per_lun;
+--OBrD8SR4k90NN6Uo
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Please make sure that SCSI_UNLIMITED_CMD_PER_LUN has type "short" 
-instead of "int". Otherwise comparisons like "shost->cmd_per_lun !=
-SCSI_UNLIMITED_CMD_PER_LUN" will trigger a conversion from "short" to
-"int" for "shost->cmd_per_lun" before the actual conversion happens. I
-don't think that's what we want ...
+On Fri, Apr 17, 2026 at 05:57:24PM -0500, Mike Christie wrote:
+> When exporting a NVMe drive or other high perf multiqueue enabled
+> devices we may want to pass commands from the guest to the physical
+> device without been throttled for artificial device wide limits. To
+> allow the user to tell virtio-scsi that we don't have a LU wide
+> command limit, this patch uses U32_MAX as a special cmd_per_lun value.
+>=20
+> If U32_MAX is used for cmd_per_lun, virtio-scsi will set
+> SCSI_UNLIMITED_CMD_PER_LUN for the scsi_device's queue limit. In this
+> case there is no scsi_device wide queue limit and we only go by the
+> the virtqueue limits (virtqueue limit is translated to scsi host
+> can_queue which is translated to block layer per hardware queue limit).
+>=20
+> There's a small chance of regression where an existing user could be
+> using U32_MAX and we have been setting the cmd_per_lun to can_queue.
+> However, I think in the cases the user was doing this, they will want
+> the new behavior where they are only limited by can_queue because
+> they have been trying to get the highest queue value possible.
+>=20
+> Signed-off-by: Mike Christie <michael.christie@oracle.com>
+> ---
+>  drivers/scsi/virtio_scsi.c | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
+
+Hi Mike,
+Please send a VIRTIO spec patch documenting the new meaning of U32_MAX
+in the virtio-scsi's cmd_per_lun configuration field to
+virtio-comment@lists.linux.dev. See
+https://github.com/oasis-tcs/virtio-spec for details.
+
+The Linux driver patches need to be be merged after the VIRTIO spec
+change has been merged so that Linux stays spec-compliant and to avoid
+collisions between in-progress VIRTIO changes.
 
 Thanks,
+Stefan
 
-Bart.
+--OBrD8SR4k90NN6Uo
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCgAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmnmYsIACgkQnKSrs4Gr
+c8i31Qf/S9UtAFUHn2IdkrRCWjJLQCGz0oZjxYbgvk/1l3/wgSbUn+O/suzcRXby
+II6ny+/6I0y3LE4FhBfJxEgfHcfjYfTB7pWQa2jVeqiOV0v8ButVmNqXjJRDLlRc
+XQ9xUl+YkLAZ0/mVlpY+nG642c+4EbY1KcCFYDGlAUQcZb4/6MhzLzYxWj86bl55
+g1qFHhH+j1aOslZ4DCa592xv0cipEtDcU++9U8Ka0OlWLK1P4ZquPJTTq0tc4c08
+w+PPE1w53Hnk+pc6+h9AAFCF3O8uEMDtqNI+ghAWPDmMuHa/Lh0Ylg3T/oiq3fFG
+eXz4xPC8WcSc5Dqp4GcyYiqMsZP9JA==
+=DstO
+-----END PGP SIGNATURE-----
+
+--OBrD8SR4k90NN6Uo--
+
