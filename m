@@ -1,183 +1,148 @@
-Received: from mail-oo1-f71.google.com (mail-oo1-f71.google.com [209.85.161.71])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D0F63A9DAB
-	for <virtualization@lists.linux.dev>; Mon, 20 Apr 2026 18:09:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.71
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD9BC39D6FD;
+	Mon, 20 Apr 2026 18:21:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776708579; cv=none; b=t/LLvxea7O4hswk4RPvuwgjNa9vMKVH9PsRIKw7C84sBiCCY2dUZCjh55HEmfKeLsVV32YaGhqR7UAjw5a30IKXHWqdAt438xHoaxGnJ7m+dAlUxCajB6QHg3tnDf3V7Rw0NSavBv2h2LUstJ66HuJbxAA+cDqjDJX+Yk+/cuOU=
+	t=1776709262; cv=none; b=J9zSs2/6ortQS6N2VtAUAo9ZwAeZpt5oDDat6kKsy1MZD5pA5wk/lSZuyrHPq2oofBWZXb/69A5phz+JW1Jos5aAmw6BD6r+ZasBA1Wb6AyEE2jdfbSSrTNSFr3dPUVWAYYeH7ccHgPTKvw5CEQiXe6NwAW15mfZwI9pLfCxnfs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776708579; c=relaxed/simple;
-	bh=RfOL1dqt97BjBm1SK3o4NH6LnKKdm3W70WxMrxW6OyA=;
-	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:Cc:
-	 Content-Type; b=SWtqeCuj+CYIpZ0xdurLvoHTOCWEm0RLnHypQvIFWznmkmtINiEN+o1xsf+hcanWAoKrFy9DBf/FdywYOU/6bcuBjmRKuFwMS2h6GfoU7ls39xx8oCFmmWXUji14H5o5cHdad6G51KA+eyqRQoMHqy0KaCb7jVPhfTBHUYrj0Ek=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.161.71
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oo1-f71.google.com with SMTP id 006d021491bc7-694867ca247so1559771eaf.1
-        for <virtualization@lists.linux.dev>; Mon, 20 Apr 2026 11:09:38 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776708577; x=1777313377;
-        h=cc:to:from:subject:message-id:in-reply-to:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=4NIQfN3DmsDKwdnjOyYbdUmi+3233KTMMvwmupv2AJk=;
-        b=Eb8DX/QqH9P7IWdiSklbpg9uYUcFQhAL4s7hl1r0km0AFoH4CDAvEMM6ObxRN5jx9w
-         oeJmDlgBML86msQiLpc5+pK2bAyH1TtCL5twT4YYqDyLHcrSvwXXNT7a8wS5w3VL5jKY
-         ercbbeQzWU1VKjRu3Lpaj43kMo9o4WQStJa4tRVw/JvO9X5P2PuQer3tSaqSJg6IJJDI
-         Wjdm18zIbAecawODLAIHj0QIDvHgYOyem/juJGI1sVsaGYe3PsP0bCVQh0CfzNlbnzBY
-         dbNv8fTn3qtfeL4A7NiTsuGh1IssGoFU+SRzWfrkRb32mrIKX0VGlxUCJarC+lUAa3Ce
-         w71w==
-X-Forwarded-Encrypted: i=1; AFNElJ9PAJmfE24NvgX8aII3oNCdlVrypPG37VmzDuagmjkmjtWkUm5jMQsy7rsumzjUPzwfXL6WMLM/lYBXPlHMqQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxht4D9QDZgbNnSz+fDpfzQidoWeliX4YkjRxzRrJhpUz2FJNmb
-	YS+n6qYxygGytkir7+k302Om/qLsIAYJ1oT1THFu4oJeqtxwmsOHBXZ2tZUjahX0j2CGOeNwQ9K
-	FJd6SgJx+S2qD9NCsBK7h9dVxl/L4HPpxT0oSV6RRIG4f3mUAKkYeAQ915gU=
+	s=arc-20240116; t=1776709262; c=relaxed/simple;
+	bh=FOAaojl3scYAMf1O14+NiH/97wNiKCNp6Z7bcubMnWI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=ikNpQJv5nMrsBg1+QT+filnPU51+ZOuDejHHv0N7/bjsmX343HbZKTsX+/yWIdTlOhTB7EqyLjmtPonY45/+7broekD2HTVUiuPgnAX/yHEKSKPyOl6KVl8pCvK259Y3Gfssqg1jLZXltfw7dcDT7ZJjvFup+8ccMXRNOUUvqys=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZJvn7T1M; arc=none smtp.client-ip=10.30.226.201
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZJvn7T1M"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 71268C19425;
+	Mon, 20 Apr 2026 18:20:59 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1776709262;
+	bh=FOAaojl3scYAMf1O14+NiH/97wNiKCNp6Z7bcubMnWI=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=ZJvn7T1Mehfwd58iUr4z6KPmYtrflju6rxnK52vFeCgzwVW7gp5jR12PvRswJf7gG
+	 Ljg0m8Kavna3IcqwA9wmu4GnfXtFuO2az2yNglp1WRKI/5zcz22mwWbJPFX/GudUyV
+	 OUBF5t2BZaTQKLRrdl+8RE6UepWh8pnjsWjHHXWf5XNicGTmFaCsWEBblajths32kb
+	 VHVAHqPSOR05EeNtoaRtf55Fo7tZLoSZx6VzPmVqjCFLJHccAcPT9vD6FxX8hZIxwI
+	 itqcqmieANkMfg2qmbuoznd5f8HTH9isfGD1m4zC79dI5QgNI/aDhXt3umVvGuFdmH
+	 7dv8nMw/AtYrA==
+Message-ID: <c199e47d-b2fd-42f3-9e50-c47c848dc72f@kernel.org>
+Date: Mon, 20 Apr 2026 20:20:57 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6820:162a:b0:67e:fbc:de68 with SMTP id
- 006d021491bc7-69462e7dbcemr7559850eaf.26.1776708577194; Mon, 20 Apr 2026
- 11:09:37 -0700 (PDT)
-Date: Mon, 20 Apr 2026 11:09:37 -0700
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC v2 00/18] mm/virtio: skip redundant zeroing of
+ host-zeroed reported pages
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@linux-foundation.org>,
+ Vlastimil Babka <vbabka@kernel.org>, Brendan Jackman <jackmanb@google.com>,
+ Michal Hocko <mhocko@suse.com>, Suren Baghdasaryan <surenb@google.com>,
+ Jason Wang <jasowang@redhat.com>, Andrea Arcangeli <aarcange@redhat.com>,
+ linux-mm@kvack.org, virtualization@lists.linux.dev
+References: <cover.1776689093.git.mst@redhat.com>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
 In-Reply-To: <cover.1776689093.git.mst@redhat.com>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <69e66be1.a00a0220.9259.0007.GAE@google.com>
-Subject: [syzbot ci] Re: mm/virtio: skip redundant zeroing of host-zeroed
- reported pages
-From: syzbot ci <syzbot+ci8c594ed0fdfcc0e4@syzkaller.appspotmail.com>
-To: aarcange@redhat.com, akpm@linux-foundation.org, apopple@nvidia.com, 
-	axelrasmussen@google.com, baohua@kernel.org, baolin.wang@linux.alibaba.com, 
-	bhe@redhat.com, byungchul@sk.com, chrisl@kernel.org, david@kernel.org, 
-	dev.jain@arm.com, eperezma@redhat.com, gourry@gourry.net, hannes@cmpxchg.org, 
-	hughd@google.com, jackmanb@google.com, jasowang@redhat.com, 
-	joshua.hahnjy@gmail.com, kasong@tencent.com, lance.yang@linux.dev, 
-	liam.howlett@oracle.com, linux-kernel@vger.kernel.org, linux-mm@kvack.org, 
-	ljs@kernel.org, matthew.brost@intel.com, mhocko@suse.com, mst@redhat.com, 
-	muchun.song@linux.dev, npache@redhat.com, nphamcs@gmail.com, 
-	osalvador@suse.de, rakie.kim@sk.com, rppt@kernel.org, ryan.roberts@arm.com, 
-	shikemeng@huaweicloud.com, surenb@google.com, vbabka@kernel.org, 
-	virtualization@lists.linux.dev, weixugc@google.com, 
-	xuanzhuo@linux.alibaba.com, ying.huang@linux.alibaba.com, yuanchu@google.com, 
-	ziy@nvidia.com
-Cc: syzbot@lists.linux.dev, syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-syzbot ci has tested the following series
+On 4/20/26 14:51, Michael S. Tsirkin wrote:
+> 
 
-[v2] mm/virtio: skip redundant zeroing of host-zeroed reported pages
-https://lore.kernel.org/all/cover.1776689093.git.mst@redhat.com
-* [PATCH RFC v2 01/18] mm: page_alloc: propagate PageReported flag across buddy splits
-* [PATCH RFC v2 02/18] mm: add pghint_t type and vma_alloc_folio_hints API
-* [PATCH RFC v2 03/18] mm: add PG_zeroed page flag for known-zero pages
-* [PATCH RFC v2 04/18] mm: page_alloc: track PG_zeroed across buddy merges
-* [PATCH RFC v2 05/18] mm: page_alloc: preserve PG_zeroed in try_to_claim_block
-* [PATCH RFC v2 06/18] mm: page_alloc: thread pghint_t through get_page_from_freelist
-* [PATCH RFC v2 07/18] mm: post_alloc_hook: use PG_zeroed to skip zeroing, return pghint_t
-* [PATCH RFC v2 08/18] mm: hugetlb: thread pghint_t through buddy allocation chain
-* [PATCH RFC v2 09/18] mm: hugetlb: use PG_zeroed for pool pages, skip redundant zeroing
-* [PATCH RFC v2 10/18] mm: page_reporting: support host-zeroed reported pages
-* [PATCH RFC v2 11/18] mm: skip zeroing in vma_alloc_zeroed_movable_folio for pre-zeroed pages
-* [PATCH RFC v2 12/18] mm: skip zeroing in alloc_anon_folio for pre-zeroed pages
-* [PATCH RFC v2 13/18] mm: skip zeroing in vma_alloc_anon_folio_pmd for pre-zeroed pages
-* [PATCH RFC v2 14/18] mm: memfd: skip zeroing for pre-zeroed hugetlb pages
-* [PATCH RFC v2 15/18] virtio_balloon: add host_zeroes_pages module parameter
-* [PATCH RFC v2 16/18] mm: page_reporting: add flush parameter with page budget
-* [PATCH RFC v2 17/18] mm: add free_frozen_pages_hint and put_page_hint APIs
-* [PATCH RFC v2 18/18] virtio_balloon: mark deflated pages as pre-zeroed
+Hi!
 
-and found the following issue:
-kernel BUG in free_huge_folio
+> 
+> v2 - this is an attempt to address David Hildenbrand's comments:
+> overloading GFP and using page->private, support for
+> balloon deflate.
+> 
+> I hope this one is acceptable, API wise.
+> 
+> I also went ahead and implemented an alternative approach
+> that David suggested:
+> using GFP_ZERO to zero userspace pages.
+> The issue is simple: on some architectures, one has to know the
+> userspace fault address in order to flush the cache.
+> 
+> So, I had to propagate the fault address everywhere.
 
-Full report is available here:
-https://ci.syzbot.org/series/329d9cff-a0ad-46d2-8ff4-d9f4341a611f
+As I said, that might not be necessary. vma_alloc_folio() is the
+interface we mostly care about in that regard.
 
-***
+> A lot of churn, and my concern is, if we miss even one
+> place, silent, subtle data corruption will result and only
+> on some arches (x86 will be fine).
 
-kernel BUG in free_huge_folio
+Which would *already* be the case of you use folio_alloc(GFP_ZERO)
+instead of magical vma_alloc_folio() + folio_zero_user().
 
-tree:      mm-new
-URL:       https://kernel.googlesource.com/pub/scm/linux/kernel/git/akpm/mm.git
-base:      b8a5774cd49996e8ef83b1637a9b547158f18de9
-arch:      amd64
-compiler:  Debian clang version 21.1.8 (++20251221033036+2078da43e25a-1~exp1~20251221153213.50), Debian LLD 21.1.8
-config:    https://ci.syzbot.org/builds/60e99a0e-08bf-474f-b034-a8bfd2eb90b0/config
-syz repro: https://ci.syzbot.org/findings/2868ce13-1752-4f9f-9aa9-c5ce89f01fc7/syz_repro
+I don't really see how vma_alloc_folio_hints() -- that also consumes the
+address -- is any better in that regard?
 
- ret_from_fork+0x51e/0xb90 arch/x86/kernel/process.c:158
- ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
-page_owner free stack trace missing
-------------[ cut here ]------------
-kernel BUG at ./include/linux/page-flags.h:698!
-Oops: invalid opcode: 0000 [#1] SMP KASAN PTI
-CPU: 1 UID: 0 PID: 6015 Comm: syz.2.19 Not tainted syzkaller #0 PREEMPT(full) 
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.2-debian-1.16.2-1 04/01/2014
-RIP: 0010:__ClearPageZeroed include/linux/page-flags.h:698 [inline]
-RIP: 0010:free_huge_folio+0xf93/0x12e0 mm/hugetlb.c:1749
-Code: c7 c6 a0 64 db 8b e8 5c 9b fe fe 90 0f 0b e8 74 40 9c ff eb 05 e8 6d 40 9c ff 48 89 df 48 c7 c6 e0 63 db 8b e8 3e 9b fe fe 90 <0f> 0b e8 56 40 9c ff 48 89 df 48 c7 c6 40 64 db 8b e8 27 9b fe fe
-RSP: 0018:ffffc90003a675b8 EFLAGS: 00010246
-RAX: c71fb9abd148e700 RBX: ffffea0005808000 RCX: 0000000000000000
-RDX: 0000000000000007 RSI: ffffffff8defcd3f RDI: 00000000ffffffff
-RBP: 1ffffd4000b0101a R08: ffffffff9011ddb7 R09: 1ffffffff2023bb6
-R10: dffffc0000000000 R11: fffffbfff2023bb7 R12: ffffea0005808008
-R13: ffffea00058080d0 R14: ffffffff9a2e27c0 R15: 0000000000000040
-FS:  00007fe11abed6c0(0000) GS:ffff8882a9453000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fe119de9f00 CR3: 00000001ba914000 CR4: 00000000000006f0
-Call Trace:
- <TASK>
- __folio_put+0xfc/0x4f0 mm/swap.c:105
- hugetlb_mfill_atomic_pte+0x130a/0x1730 mm/hugetlb.c:6294
- mfill_atomic_hugetlb mm/userfaultfd.c:601 [inline]
- mfill_atomic mm/userfaultfd.c:773 [inline]
- mfill_atomic_copy+0xe28/0x1420 mm/userfaultfd.c:872
- userfaultfd_copy fs/userfaultfd.c:1642 [inline]
- userfaultfd_ioctl+0x2c17/0x5130 fs/userfaultfd.c:2059
- vfs_ioctl fs/ioctl.c:51 [inline]
- __do_sys_ioctl fs/ioctl.c:597 [inline]
- __se_sys_ioctl+0xfc/0x170 fs/ioctl.c:583
- do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
- do_syscall_64+0x14d/0xf80 arch/x86/entry/syscall_64.c:94
- entry_SYSCALL_64_after_hwframe+0x77/0x7f
-RIP: 0033:0x7fe119d9c819
-Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 e8 ff ff ff f7 d8 64 89 01 48
-RSP: 002b:00007fe11abed028 EFLAGS: 00000246 ORIG_RAX: 0000000000000010
-RAX: ffffffffffffffda RBX: 00007fe11a015fa0 RCX: 00007fe119d9c819
-RDX: 00002000000000c0 RSI: 00000000c028aa03 RDI: 0000000000000003
-RBP: 00007fe119e32c91 R08: 0000000000000000 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
-R13: 00007fe11a016038 R14: 00007fe11a015fa0 R15: 00007ffe7cd6ce28
- </TASK>
-Modules linked in:
----[ end trace 0000000000000000 ]---
-RIP: 0010:__ClearPageZeroed include/linux/page-flags.h:698 [inline]
-RIP: 0010:free_huge_folio+0xf93/0x12e0 mm/hugetlb.c:1749
-Code: c7 c6 a0 64 db 8b e8 5c 9b fe fe 90 0f 0b e8 74 40 9c ff eb 05 e8 6d 40 9c ff 48 89 df 48 c7 c6 e0 63 db 8b e8 3e 9b fe fe 90 <0f> 0b e8 56 40 9c ff 48 89 df 48 c7 c6 40 64 db 8b e8 27 9b fe fe
-RSP: 0018:ffffc90003a675b8 EFLAGS: 00010246
-RAX: c71fb9abd148e700 RBX: ffffea0005808000 RCX: 0000000000000000
-RDX: 0000000000000007 RSI: ffffffff8defcd3f RDI: 00000000ffffffff
-RBP: 1ffffd4000b0101a R08: ffffffff9011ddb7 R09: 1ffffffff2023bb6
-R10: dffffc0000000000 R11: fffffbfff2023bb7 R12: ffffea0005808008
-R13: ffffea00058080d0 R14: ffffffff9a2e27c0 R15: 0000000000000040
-FS:  00007fe11abed6c0(0000) GS:ffff8882a9453000(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
-CR2: 00007fe119de9f00 CR3: 00000001ba914000 CR4: 00000000000006f0
+When we just do the right thing with vma_alloc_folio(GFP_ZERO), at least
+vma_alloc_folio() users will not accidentally do the wrong thing by
+forgetting to use folio_zero_user().
 
+> 
+> Still, you can view that approach here:
+> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git gfp_zero
+> 
+> David, if you still feel I should switch to that approach,
+> let me know. Personally, I'd rather keep that as a separate
+> project from this optimization.
+I'd prefer if we extend vma_alloc_folio() to just handle GFP_ZERO for us.
 
-***
+But let's hear other opinions first.
 
-If these findings have caused you to resend the series or submit a
-separate fix, please add the following tag to your commit message:
-  Tested-by: syzbot@syzkaller.appspotmail.com
+-- 
+Cheers,
 
----
-This report is generated by a bot. It may contain errors.
-syzbot ci engineers can be reached at syzkaller@googlegroups.com.
-
-To test a patch for this bug, please reply with `#syz test`
-(should be on a separate line).
-
-The patch should be attached to the email.
-Note: arguments like custom git repos and branches are not supported.
+David
