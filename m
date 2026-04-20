@@ -1,69 +1,69 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 65E463A0E84
-	for <virtualization@lists.linux.dev>; Mon, 20 Apr 2026 12:50:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E9BD3A0B26
+	for <virtualization@lists.linux.dev>; Mon, 20 Apr 2026 12:50:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776689443; cv=none; b=V9a8h2tAakWu7EsMnrbBKE8Y0JXufPdiUtVnQkfPgHtzr7pm94iyzWRhIMKWpYB+UntBsaBBNQ2DKwRFB6X045dhjEWB8E7SgYSd6vxgQAEeVMuSLmCXxm15K8jdqLOHSkv24CuwiKY3GkD9TauPlOsKnHbM7D7b8szXwr2gYg4=
+	t=1776689446; cv=none; b=R0feJ4Lc3LkvOKecstyzPd3bY3NBN9r5icapKOezoRZv2/XNpkxt+sK7M3m3eIuLh6/BNhRWju3eSSDHEYWVaf4MRajQT3YJ9C0XZItLWAi3aosO8HBLug8m1g6NJvdHCCJI+4hUYJvt5UgDQk2ijzo9Dk+0IEhnx9X4pTXLHyA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776689443; c=relaxed/simple;
-	bh=neg6eIdJRVkDfxbADXvR7pQbjSovMoDrB+ifUOQr2bM=;
+	s=arc-20240116; t=1776689446; c=relaxed/simple;
+	bh=xGH+Tbv6Ot2NIFWvdduKCymUO4Ct3OBttETzUcGBWZ8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=jI/fbieUvgKkYG2LcIv0FxzGZHNbg501IP1wUneQFBqA2FB7fe0wvYGBopoeDE2XNj8RTAqNDFwNjR1lw1Q5CR351e6px1yq/uIJiUR2NksGNgn6yCHLLZ7aBaCLlXM+mUAXVq/CTKwXpxkZQGYVzEGXF5DXZ+alZ8uYMJWz9yg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=c03A3tyo; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=fNvzp1oQ4Et/+HqjJaeH/8mCUIDzpv3jMDr44ZZUUF283XO/1/GHY93UbOM2OreG9uoL62MFQ0abHjB29s1NLCF80gTnhA0FLkZc0JRcQo9V3FW1vPEhiitEbrKHbsa3QWFN4SRzvebNLxkZ9OoIQ5/OT3dbtKHJwxSlTpqucdE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iGbhMUp+; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="c03A3tyo"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iGbhMUp+"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1776689441;
+	s=mimecast20190719; t=1776689444;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=FOqefyw2xfKGzGmt4FILCNloyRh5kydROPG1tzzp9Iw=;
-	b=c03A3tyoc//Q9LfOERjuGnxPCIKtbLqMwxEk/V4mftT0g1u8269sIraSnekF5t1lpB0jTB
-	6M4hoHuluSPtqjJ21OzmLVy2HrrswQke1Z3/6Y0JsFW4XNvGYwoeLsI8bDUyYNyROUmazY
-	BJ3jf1bpAFM9JTYISy5Xu+89nIysCig=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=YJcG0BVg25HZ2E/z9uEY2PXmC8ZZQ0Dy/q/+TJStPMY=;
+	b=iGbhMUp+mOsUpon+xH39dAXASkRveFClob3YiI8Xxg/7saEtw0L4c4/Q1/Q/c3LJdzCfHs
+	+uhf0BCWlgP8vxAd7/702gyxGlRD6L+L1l1qf75sVWkJSiwPTgnO/68e36kQgeCuIvy3AU
+	sbFFWIX0WS4P9kAvUt2sr4awKp8L8AM=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-601-_OEYuMxRPmuz9OS1C038WA-1; Mon, 20 Apr 2026 08:50:40 -0400
-X-MC-Unique: _OEYuMxRPmuz9OS1C038WA-1
-X-Mimecast-MFC-AGG-ID: _OEYuMxRPmuz9OS1C038WA_1776689439
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-4411a1f9601so832097f8f.0
-        for <virtualization@lists.linux.dev>; Mon, 20 Apr 2026 05:50:40 -0700 (PDT)
+ us-mta-675-9hUV2VOpMYeWTtLbtLmACA-1; Mon, 20 Apr 2026 08:50:43 -0400
+X-MC-Unique: 9hUV2VOpMYeWTtLbtLmACA-1
+X-Mimecast-MFC-AGG-ID: 9hUV2VOpMYeWTtLbtLmACA_1776689442
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4891e102d47so5069865e9.0
+        for <virtualization@lists.linux.dev>; Mon, 20 Apr 2026 05:50:42 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776689439; x=1777294239;
+        d=1e100.net; s=20251104; t=1776689442; x=1777294242;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=FOqefyw2xfKGzGmt4FILCNloyRh5kydROPG1tzzp9Iw=;
-        b=YGY5UdADwxfi93LCzItccNiaSwBVdxkClPh107o2wj77Ras7/tG6DypGYyHx5oEgqU
-         L6bPvNsQD1bayHFd84mMbt/VLvHUTy02dpVaunU2eZJhd7sk+H9Yvt0G5AjuV9Kt1JuJ
-         a0HDBJJHDDcAJCaEjY4CMl/ch/ZDjDJmWlT4UyLMci1Z1YdI+TlNYG/EiAF4qvsqBiUn
-         gpMdl3bBUiHBabZYyAm/1s6LunSdXQeoEPO7sMUuK1dItvUBe1CxXv4v4pJUnLl9gYcs
-         VHVmhN4CyVVDA1oI2z5EHINK37MMb1jDnNZwTdahg3ixQ/FdAa0rteKcWPXS/9sR9yme
-         AEjQ==
-X-Forwarded-Encrypted: i=1; AFNElJ/KUprN1sMoxnLqnKhikGKMW21BdULPQjetgreqmaVlQTy8AwkOD5NI4Ngm2tWheKRQc90yGpsisGSsKplXhQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzN3OJ90kYlZaoprJUKkqAmQFOJsTWhmJsRBU7ck5HlFro8kEa4
-	JBbS4Sdbl8n+ELNAbTmUSwo/l92ywGdtFqnENbLG6r8M6KcL8DDFAgl7xRRFf0r7OVlPc5bNYNc
-	iNnuYFteej+aTabriJEtPWejmQQ4Baif+dMQnt5a1JAlgaLrzXn9mscOc2ceJp0SHP37B
-X-Gm-Gg: AeBDiesQ6MLm4M049zkihaRb0SfxsoCeYikvMCKDqydMq/QjaeUJR38HvEVzvS9bar3
-	sOP7Q2AX6Wzu9R/boi7/FBWh6Y/IwiAe/UO2x4S+ioe2UEP3X7HRvD/dTl/N3nN+vhzHZBUZMrU
-	rbM9NY9gEatDcA1Bkem/K0l0ZyRBhdMr5ZBIqHmSyE0D8vsjs0lx9juIs9Xxt8cTeyfLP/Vqm04
-	WUv6aE4dZckN0R7wTpv2U7X4yKpVhJWlIA11MhRM/JibVjhINHOSb9m62OVmtMZ+vWzlkbx2wM2
-	n2JxdfuQWlMDwAUPjYY23xWBQx/tOU22cRl7ZJq7YuUsUxxX9ey10O8rjjWGNFR4PpoNYdyuy86
-	xaWlA1X8phjrmqR9ma1UxwaTCOrAhmqCrjT6qcDDgmiw55slE4rDN9Q==
-X-Received: by 2002:a05:6000:40dc:b0:43d:7b7b:ab77 with SMTP id ffacd0b85a97d-43fe3dcbbeamr19710766f8f.11.1776689438761;
-        Mon, 20 Apr 2026 05:50:38 -0700 (PDT)
-X-Received: by 2002:a05:6000:40dc:b0:43d:7b7b:ab77 with SMTP id ffacd0b85a97d-43fe3dcbbeamr19710690f8f.11.1776689437905;
-        Mon, 20 Apr 2026 05:50:37 -0700 (PDT)
+        bh=YJcG0BVg25HZ2E/z9uEY2PXmC8ZZQ0Dy/q/+TJStPMY=;
+        b=Wg2er6A1WG7Qn+Y4+QgNhu2ufiNWfT3r10rGb1QUZtbjIHZJsvSN81DvYMV2BB0UuA
+         lLzYiYAgErENVlmD7RNVwUuAS4XDx2BAN6TzTTa0qYve3M5e2EPdvgpV7B0PqVzu6L/C
+         l51biVTvpeUt3vwPUH4mB29g3xh4DAgNmZI7YFrEYqEB9gi+F4eDrI9mj3pUDIOVR/NB
+         JIYuajmDCZ9b7Yl0vauefxYLbQEEv+vDUC8Y1jLWFr5VzJkYGSxIB7y6LSZOrIPFNtRh
+         csWvklKyv1SZ/B5LHQwQ6mBYFJz3SrvV0OBT/Wtwpqz4JgPvHcMpwFSYb4F4LT1TDl/N
+         hMUw==
+X-Forwarded-Encrypted: i=1; AFNElJ+Hy20wd62BlH3YdW/eYELfIdHLNMxJu5ZZUdFRnbrX5ktbfzCOSFNGLTb0OuxwtNukI6zicwkWlMij/WkEvA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxCAK8utMjPvL088btIdEwhYW9slimL5ubJOtpVjeFjiRrv5SiD
+	8B0smGN1WmgPGzE9ek6ofnvDW43vzvRqRbz0BXDSoeSdWUYjvabvsYvTOSMRycgfJbz0Fw3pw48
+	zX1aEN9kCl0N9MGpPSIOGNJocfPbUwTqJTruOJCM09xtQCpyVYlTnY/Rpf0TmoBqe2vuS
+X-Gm-Gg: AeBDieuBuktmudjwQ+iBTLwRZPXRv2td+A/siPKWXI0Po10CVVNm9Euw4zHQFqqm8dC
+	hh8SPcSzYJDNHh4yk4+Iqxv+l44/oOQXVzAXDxyGuuDe4oqCYyYsNYqYApZDY5SC3VLgtGAqhez
+	PpkRfWT+au3AzeNxbkEKfx5kB+NQLwWDjisNAC8yZvuBVkatemvyREjw4E7/NfcasVI3W6Xp8NQ
+	y9ZDpoCE9hwjKPavAXV/0qaDh0feXWv2FDQ11SlXTW7WNZ+yrdHq61ahtjF8wS3Hp0fSsc+krP/
+	GizJTYKBYFvFTwEyRArsQoU+ofR9CI56xSpY4UKiw4G9avftpjJlMvY/Lpsrw63t1akKE4vZsQk
+	qiIYQEvVmxj0xnQKc1oGcd0b25FIKVagStTUS5pVBRkVPP8nofAfS+w==
+X-Received: by 2002:a05:600c:4f0c:b0:489:1c1f:35e6 with SMTP id 5b1f17b1804b1-4891c1f38c8mr61834735e9.6.1776689441672;
+        Mon, 20 Apr 2026 05:50:41 -0700 (PDT)
+X-Received: by 2002:a05:600c:4f0c:b0:489:1c1f:35e6 with SMTP id 5b1f17b1804b1-4891c1f38c8mr61834045e9.6.1776689441052;
+        Mon, 20 Apr 2026 05:50:41 -0700 (PDT)
 Received: from redhat.com (IGLD-80-230-25-21.inter.net.il. [80.230.25.21])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43fe4cb1249sm25931964f8f.5.2026.04.20.05.50.36
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-488fb7bf696sm89203495e9.32.2026.04.20.05.50.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Apr 2026 05:50:37 -0700 (PDT)
-Date: Mon, 20 Apr 2026 08:50:35 -0400
+        Mon, 20 Apr 2026 05:50:40 -0700 (PDT)
+Date: Mon, 20 Apr 2026 08:50:38 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@linux-foundation.org>,
@@ -75,10 +75,13 @@ Cc: Andrew Morton <akpm@linux-foundation.org>,
 	Jason Wang <jasowang@redhat.com>,
 	Andrea Arcangeli <aarcange@redhat.com>, linux-mm@kvack.org,
 	virtualization@lists.linux.dev,
-	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>
-Subject: [PATCH RFC v2 06/18] mm: page_alloc: thread pghint_t through
- get_page_from_freelist
-Message-ID: <e4aaa5244f129a0a057b190ff65b87526a1f7c8c.1776689093.git.mst@redhat.com>
+	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
+	Lorenzo Stoakes <ljs@kernel.org>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Mike Rapoport <rppt@kernel.org>
+Subject: [PATCH RFC v2 07/18] mm: post_alloc_hook: use PG_zeroed to skip
+ zeroing, return pghint_t
+Message-ID: <fea448c692ed75232179a24ca853fdc8dede42f6.1776689093.git.mst@redhat.com>
 References: <cover.1776689093.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -90,163 +93,154 @@ In-Reply-To: <cover.1776689093.git.mst@redhat.com>
 X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
 X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: iEFLAR61oJ643vyWGvxN6EBE-NdIzCgjQdlf-pnOVZ8_1776689439
+X-Mimecast-MFC-PROC-ID: xDzVNIiCT0qIv3n3tBLIK611lqdojlNOvD9opfW3Sq4_1776689442
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Add pghint_t *hints to get_page_from_freelist() and pass it to
-prep_new_page().  All internal callers except the main fast path
-in __alloc_frozen_pages_hints_noprof() pass NULL.
+Add pghint_t *hints parameter to post_alloc_hook() and
+prep_new_page(). post_alloc_hook() reads PageZeroed, clears
+it, and returns PGHINT_ZEROED via hints.
 
-The next patch uses this to return hints from
-post_alloc_hook() to callers via __alloc_frozen_pages_hints().
+This provides a single point where PG_zeroed is consumed and
+cleared, regardless of whether the page came through PCP or
+buddy. The flag is set in page_del_and_expand() and survives
+both paths until post_alloc_hook() consumes it.
+
+Only get_page_from_freelist() passes hints through
+prep_new_page(); all other callers (compaction, bulk alloc,
+split, contig) pass NULL.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Assisted-by: Claude:claude-opus-4-6
 Assisted-by: cursor-agent:GPT-5.4-xhigh
 ---
- mm/page_alloc.c | 37 +++++++++++++++++++++++--------------
- 1 file changed, 23 insertions(+), 14 deletions(-)
+ mm/compaction.c |  4 ++--
+ mm/internal.h   |  3 ++-
+ mm/page_alloc.c | 25 +++++++++++++++++--------
+ 3 files changed, 21 insertions(+), 11 deletions(-)
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index b0971a1eaa73..ece61d02ea96 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -2483,7 +2483,8 @@ __rmqueue_steal(struct zone *zone, int order, int start_migratetype)
- 			continue;
+diff --git a/mm/compaction.c b/mm/compaction.c
+index 1e8f8eca318c..6fcce7756613 100644
+--- a/mm/compaction.c
++++ b/mm/compaction.c
+@@ -82,7 +82,7 @@ static inline bool is_via_compact_memory(int order) { return false; }
  
- 		page = get_page_from_free_area(area, fallback_mt);
--		page_del_and_expand(zone, page, order, current_order, fallback_mt);
-+		page_del_and_expand(zone, page, order, current_order,
-+				    fallback_mt);
- 		trace_mm_page_alloc_extfrag(page, order, current_order,
- 					    start_migratetype, fallback_mt);
- 		return page;
-@@ -3294,7 +3295,8 @@ struct page *rmqueue_buddy(struct zone *preferred_zone, struct zone *zone,
- 			 * high-order atomic allocation in the future.
- 			 */
- 			if (!page && (alloc_flags & (ALLOC_OOM|ALLOC_NON_BLOCK)))
--				page = __rmqueue_smallest(zone, order, MIGRATE_HIGHATOMIC);
-+				page = __rmqueue_smallest(zone, order,
-+							  MIGRATE_HIGHATOMIC);
- 
- 			if (!page) {
- 				spin_unlock_irqrestore(&zone->lock, flags);
-@@ -3414,7 +3416,8 @@ static struct page *rmqueue_pcplist(struct zone *preferred_zone,
- 	 */
- 	pcp->free_count >>= 1;
- 	list = &pcp->lists[order_to_pindex(migratetype, order)];
--	page = __rmqueue_pcplist(zone, order, migratetype, alloc_flags, pcp, list);
-+	page = __rmqueue_pcplist(zone, order, migratetype, alloc_flags, pcp,
-+				list);
- 	pcp_spin_unlock(pcp, UP_flags);
- 	if (page) {
- 		__count_zid_vm_events(PGALLOC, page_zonenum(page), 1 << order);
-@@ -3451,7 +3454,7 @@ struct page *rmqueue(struct zone *preferred_zone,
- 	}
- 
- 	page = rmqueue_buddy(preferred_zone, zone, order, alloc_flags,
--							migratetype);
-+			     migratetype);
- 
- out:
- 	/* Separate test+clear to avoid unnecessary atomics */
-@@ -3835,7 +3838,7 @@ static inline unsigned int gfp_to_alloc_flags_cma(gfp_t gfp_mask,
-  */
- static struct page *
- get_page_from_freelist(gfp_t gfp_mask, unsigned int order, int alloc_flags,
--						const struct alloc_context *ac)
-+		       const struct alloc_context *ac, pghint_t *hints)
+ static struct page *mark_allocated_noprof(struct page *page, unsigned int order, gfp_t gfp_flags)
  {
- 	struct zoneref *z;
- 	struct zone *zone;
-@@ -4084,14 +4087,14 @@ __alloc_pages_cpuset_fallback(gfp_t gfp_mask, unsigned int order,
- 	struct page *page;
- 
- 	page = get_page_from_freelist(gfp_mask, order,
--			alloc_flags|ALLOC_CPUSET, ac);
-+			alloc_flags|ALLOC_CPUSET, ac, NULL);
- 	/*
- 	 * fallback to ignore cpuset restriction if our nodes
- 	 * are depleted
- 	 */
- 	if (!page)
- 		page = get_page_from_freelist(gfp_mask, order,
--				alloc_flags, ac);
-+				alloc_flags, ac, NULL);
+-	post_alloc_hook(page, order, __GFP_MOVABLE);
++	post_alloc_hook(page, order, __GFP_MOVABLE, NULL);
+ 	set_page_refcounted(page);
  	return page;
  }
+@@ -1833,7 +1833,7 @@ static struct folio *compaction_alloc_noprof(struct folio *src, unsigned long da
+ 	}
+ 	dst = (struct folio *)freepage;
  
-@@ -4129,7 +4132,8 @@ __alloc_pages_may_oom(gfp_t gfp_mask, unsigned int order,
- 	 */
- 	page = get_page_from_freelist((gfp_mask | __GFP_HARDWALL) &
- 				      ~__GFP_DIRECT_RECLAIM, order,
--				      ALLOC_WMARK_HIGH|ALLOC_CPUSET, ac);
-+				      ALLOC_WMARK_HIGH|ALLOC_CPUSET, ac,
-+				      NULL);
+-	post_alloc_hook(&dst->page, order, __GFP_MOVABLE);
++	post_alloc_hook(&dst->page, order, __GFP_MOVABLE, NULL);
+ 	set_page_refcounted(&dst->page);
+ 	if (order)
+ 		prep_compound_page(&dst->page, order);
+diff --git a/mm/internal.h b/mm/internal.h
+index 686667b956c0..2964cdfcd31f 100644
+--- a/mm/internal.h
++++ b/mm/internal.h
+@@ -887,7 +887,8 @@ static inline void prep_compound_tail(struct page *head, int tail_idx)
+ 	set_page_private(p, 0);
+ }
+ 
+-void post_alloc_hook(struct page *page, unsigned int order, gfp_t gfp_flags);
++void post_alloc_hook(struct page *page, unsigned int order, gfp_t gfp_flags,
++		     pghint_t *hints);
+ extern bool free_pages_prepare(struct page *page, unsigned int order);
+ 
+ extern int user_min_free_kbytes;
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index ece61d02ea96..a4cfd645599a 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -1863,13 +1863,21 @@ static inline bool should_skip_init(gfp_t flags)
+ }
+ 
+ inline void post_alloc_hook(struct page *page, unsigned int order,
+-				gfp_t gfp_flags)
++				gfp_t gfp_flags, pghint_t *hints)
+ {
+ 	bool init = !want_init_on_free() && want_init_on_alloc(gfp_flags) &&
+ 			!should_skip_init(gfp_flags);
+ 	bool zero_tags = init && (gfp_flags & __GFP_ZEROTAGS);
++	bool zeroed = PageZeroed(page);
+ 	int i;
+ 
++	__ClearPageZeroed(page);
++	if (hints)
++		*hints = zeroed ? PGHINT_ZEROED : 0;
++
++	if (zeroed && !zero_tags)
++		init = false;
++
+ 	set_page_private(page, 0);
+ 
+ 	arch_alloc_page(page, order);
+@@ -1918,9 +1926,9 @@ inline void post_alloc_hook(struct page *page, unsigned int order,
+ }
+ 
+ static void prep_new_page(struct page *page, unsigned int order, gfp_t gfp_flags,
+-							unsigned int alloc_flags)
++					unsigned int alloc_flags, pghint_t *hints)
+ {
+-	post_alloc_hook(page, order, gfp_flags);
++	post_alloc_hook(page, order, gfp_flags, hints);
+ 
+ 	if (order && (gfp_flags & __GFP_COMP))
+ 		prep_compound_page(page, order);
+@@ -3991,7 +3999,8 @@ get_page_from_freelist(gfp_t gfp_mask, unsigned int order, int alloc_flags,
+ 		page = rmqueue(zonelist_zone(ac->preferred_zoneref), zone, order,
+ 				gfp_mask, alloc_flags, ac->migratetype);
+ 		if (page) {
+-			prep_new_page(page, order, gfp_mask, alloc_flags);
++			prep_new_page(page, order, gfp_mask, alloc_flags,
++				      hints);
+ 
+ 			/*
+ 			 * If this is a high-order atomic allocation then check
+@@ -4227,7 +4236,7 @@ __alloc_pages_direct_compact(gfp_t gfp_mask, unsigned int order,
+ 
+ 	/* Prep a captured page if available */
  	if (page)
- 		goto out;
- 
-@@ -4227,7 +4231,8 @@ __alloc_pages_direct_compact(gfp_t gfp_mask, unsigned int order,
+-		prep_new_page(page, order, gfp_mask, alloc_flags);
++		prep_new_page(page, order, gfp_mask, alloc_flags, NULL);
  
  	/* Try get a page from the freelist if available */
  	if (!page)
--		page = get_page_from_freelist(gfp_mask, order, alloc_flags, ac);
-+		page = get_page_from_freelist(gfp_mask, order, alloc_flags,
-+					     ac, NULL);
+@@ -5223,7 +5232,7 @@ unsigned long alloc_pages_bulk_noprof(gfp_t gfp, int preferred_nid,
+ 		}
+ 		nr_account++;
  
- 	if (page) {
- 		struct zone *zone = page_zone(page);
-@@ -4477,7 +4482,8 @@ __alloc_pages_direct_reclaim(gfp_t gfp_mask, unsigned int order,
- 		goto out;
+-		prep_new_page(page, 0, gfp, 0);
++		prep_new_page(page, 0, gfp, 0, NULL);
+ 		set_page_refcounted(page);
+ 		page_array[nr_populated++] = page;
+ 	}
+@@ -6958,7 +6967,7 @@ static void split_free_frozen_pages(struct list_head *list, gfp_t gfp_mask)
+ 		list_for_each_entry_safe(page, next, &list[order], lru) {
+ 			int i;
  
- retry:
--	page = get_page_from_freelist(gfp_mask, order, alloc_flags, ac);
-+	page = get_page_from_freelist(gfp_mask, order, alloc_flags, ac,
-+				     NULL);
+-			post_alloc_hook(page, order, gfp_mask);
++			post_alloc_hook(page, order, gfp_mask, NULL);
+ 			if (!order)
+ 				continue;
  
- 	/*
- 	 * If an allocation failed after direct reclaim, it could be because
-@@ -4831,7 +4837,8 @@ __alloc_pages_slowpath(gfp_t gfp_mask, unsigned int order,
- 	 * The adjusted alloc_flags might result in immediate success, so try
- 	 * that first
- 	 */
--	page = get_page_from_freelist(gfp_mask, order, alloc_flags, ac);
-+	page = get_page_from_freelist(gfp_mask, order, alloc_flags, ac,
-+				     NULL);
- 	if (page)
- 		goto got_pg;
+@@ -7164,7 +7173,7 @@ int alloc_contig_frozen_range_noprof(unsigned long start, unsigned long end,
+ 		struct page *head = pfn_to_page(start);
  
-@@ -5249,7 +5256,7 @@ struct page *__alloc_frozen_pages_hints_noprof(gfp_t gfp, unsigned int order,
- 	struct alloc_context ac = { };
- 
- 	if (hints)
--		*hints = (pghint_t)0;
-+		*hints = 0;
- 
- 	/*
- 	 * There are several places where we assume that the order value is sane
-@@ -5279,7 +5286,8 @@ struct page *__alloc_frozen_pages_hints_noprof(gfp_t gfp, unsigned int order,
- 	alloc_flags |= alloc_flags_nofragment(zonelist_zone(ac.preferred_zoneref), gfp);
- 
- 	/* First allocation attempt */
--	page = get_page_from_freelist(alloc_gfp, order, alloc_flags, &ac);
-+	page = get_page_from_freelist(alloc_gfp, order, alloc_flags, &ac,
-+				     hints);
- 	if (likely(page))
- 		goto out;
- 
-@@ -7855,7 +7863,8 @@ struct page *alloc_frozen_pages_nolock_noprof(gfp_t gfp_flags, int nid, unsigned
- 	 * Best effort allocation from percpu free list.
- 	 * If it's empty attempt to spin_trylock zone->lock.
- 	 */
--	page = get_page_from_freelist(alloc_gfp, order, alloc_flags, &ac);
-+	page = get_page_from_freelist(alloc_gfp, order, alloc_flags, &ac,
-+				     NULL);
- 
- 	/* Unlike regular alloc_pages() there is no __alloc_pages_slowpath(). */
- 
+ 		check_new_pages(head, order);
+-		prep_new_page(head, order, gfp_mask, 0);
++		prep_new_page(head, order, gfp_mask, 0, NULL);
+ 	} else {
+ 		ret = -EINVAL;
+ 		WARN(true, "PFN range: requested [%lu, %lu), allocated [%lu, %lu)\n",
 -- 
 MST
 
