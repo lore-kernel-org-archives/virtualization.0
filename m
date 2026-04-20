@@ -1,130 +1,186 @@
-Received: from mail-oo1-f80.google.com (mail-oo1-f80.google.com [209.85.161.80])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2772E38655B
-	for <virtualization@lists.linux.dev>; Mon, 20 Apr 2026 22:09:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.80
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 954A93D3CF0
+	for <virtualization@lists.linux.dev>; Mon, 20 Apr 2026 23:33:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776722966; cv=none; b=plrTfTmNhypK3QqmjRDUlCkK9nwOn3hgtCHn663uy7jaEutWBz9tbSXAsM1p1GgWt8nPhhg/vhRoboZ0s2T4nVfta6GPtz2FiqhpNTaLbfCgsa4XMLVm/QPJPE895/BqoOpLMRuzGfU4kBjL6UW8Y+ptB//+HV/B0j4MR4vozhU=
+	t=1776728033; cv=none; b=u9iVmTgjdRzYD6cQEOdDze3Fxwi0LAV89X4poFKNDSA/hf9+PpmSIBqI3YpClRh2MybUJlG+ucMpQmm0r6053CMs4AXv2mWMrkNqwxKQVkVMQJKR8fL2o7mDC7cl3TJy4l6ZmhVYutzmP8MhigJh6h5eNPZw1NXo25B50FBbzGo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776722966; c=relaxed/simple;
-	bh=hrFHtqLbDq9M1V1QGwN0glJ8tclczOC6jmqxV/uNhYY=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=iy0Mf9pZQSYtfSYJ4M92DCDqEfFM6hd69gqdUkWyYBSeBbIsQzQ4X6aljwTcMyl48XOvKQmlESgJ1RcVHj31ldeODVSNlpk1k/0S8iaEfXu0rcwYexgm4tfC9arrBPiaxrnUyiNMfBisyZnMSM4CMpFhxagrkIWzdplknLseoD8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.161.80
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oo1-f80.google.com with SMTP id 006d021491bc7-68e924f632bso6041932eaf.0
-        for <virtualization@lists.linux.dev>; Mon, 20 Apr 2026 15:09:24 -0700 (PDT)
+	s=arc-20240116; t=1776728033; c=relaxed/simple;
+	bh=yR2/wB5ZyxKUGr0AdiVEcbgQkku+GxQ+Y+qdUpCrdgk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=TLNIXNF9Wz95vQA/40VUtmjw7ea8oyw4WXuGnpMlykEFKviQN41/BeWyY2v45LTFC5wM4PiQO3s2tBLIo+9KFwCqX9uLZDP0ScsYwDu89GHs+LRaKRuA20WTHJ3mLR8jlp1AAkmGNmeZfuvqO2aBpPbGkFrRGTNVAs3m2d5a71w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bktnQaJj; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bktnQaJj"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1776728030;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Crl5IidACm0/Y50tYB/yaiHCDukvD9pxpf1tedSp32Q=;
+	b=bktnQaJjfvJMMGdvs2DWGD9aPHhJhwouGrLDw/H/oWPP8ks5Cy+iJrfZ7N+eESueLRHqm/
+	5TywfqPKsXeG9tdLt9aGsv/UO4xDufUSzLtnXhburlIvM4AukiuBLX1SdNtQmDvz/Yi8rW
+	t4ihcvO5MNlvLjOgo16V/+JeuHkIJEc=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-593-bBnRj34UPNC7Hh5VSQlQ0w-1; Mon, 20 Apr 2026 19:33:43 -0400
+X-MC-Unique: bBnRj34UPNC7Hh5VSQlQ0w-1
+X-Mimecast-MFC-AGG-ID: bBnRj34UPNC7Hh5VSQlQ0w_1776728022
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-43d744128b9so2989325f8f.0
+        for <virtualization@lists.linux.dev>; Mon, 20 Apr 2026 16:33:43 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776722964; x=1777327764;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=hCgfnVADftIsIAYtvNsVF78ADGo857Z72sg3ZFoPg9w=;
-        b=f8rWYPrUlZC3m/tWAekfHbvu0f3lxTSX6PiWVRm4SRXekqIRPhnuvgNAynGQ3F4aHi
-         R0WUQd8HxGJEcUv8wQS660rD0rcUeaQwGQDg3xhBNy6eIRQex4EEyFrkOKH003SE4Zco
-         P6k9BgQzkKpduJu6pdn9OAWdH5n7PAO5QPPAUwgzFak8epK9Cb/4fZ27fp/zjUnauckL
-         ChAPl93yYeZn201G8LpWmBKVaIOiZ9qGAaxHPQ0pXLFeF2oXwYiwQK2ipi8WJ0d+3CKo
-         4SbZljGRN5F0vys0vTIHXgu99/GrDTtj/25/qVkdF1Uu+x2UrNWVF/JqI2my7ojvdkEk
-         og7w==
-X-Forwarded-Encrypted: i=1; AFNElJ+yF+AjS/FGsh0CRRXwCPfyXIDAF9U7xENMuLZbysi+VFGDs3pCvvQ5UXJ9nXmX183hMjy7q6FAxxDj5ttuaA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YztEqrKLH7GAPlC5DuACie3dkKf03rPEZrJg4IfOBUWdydtEgVP
-	H+un7sKKJefEe3HNCVN2PxY9BJ0wl1BwQTlOIMYPnRHtutoXUTxSprGhEWWzE+LCcEucsU+h5U7
-	Bggqcn1v+cctQcCAkyhRBC0elqTaqJs1oQBYGKFA0L5Fo6cTjkvwfkGEYQJU=
+        d=1e100.net; s=20251104; t=1776728022; x=1777332822;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Crl5IidACm0/Y50tYB/yaiHCDukvD9pxpf1tedSp32Q=;
+        b=hWCAxEyDSg0F7lqpMKgJ2kOxW8BUqk3SpHlFh6DzSppFEvQjEoSc6mT6HInNzJpqRu
+         sUqy4/z7Y96uFI7RX3f01z5r5lAeumn5td9KJQnOk77Xj0LKKNM7eWWk2aPmDGWmbIx3
+         NDVGDx3KVS6n4uaIE+MhNGV/8KS51bPvepO5gQ4I7GHdzVE7osW/GHs1hTJrkZ4hzpqO
+         zxlWWe9Av6xQTj4Gvl17GQ/OjK3RRiGochQ9OJENQFcketoJ75+b51T6YwgHfVd4SzQY
+         fz5a8UDWYUFVB4WXIS/UaJ4AH6lLifXECEaN8NAy6agiZ+awQjaVwlhFQ1o5PSQxVumz
+         FtjQ==
+X-Forwarded-Encrypted: i=1; AFNElJ8FRpvCetXNfzcig6e8GljE02/5JCijqeIkYeLsZEOYk4xUuje6kIyg2KVYqPQafSI02MFjqYhA1kbqG6GjuQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwBLluA9aXsrMVNrk6ev0DnbGX0pSoOf7DImZ46bwt4kp4DdH7u
+	NQGZSGVDBWPznjCrR7NSg8595UIWQ0HcIdFLQzFTsxOdLX87Yqo7NnmSJAnxBnYXlafXxOKLMqU
+	6Ps6HyP2ylVoy/gqgDgckgAmuAguVH/xwV3r/g8c6DP9rAI/KBLjF3xPlMwK+H0ROt5NJ
+X-Gm-Gg: AeBDietFgNIW6I2BeAdYvYVHKCjFPgNwO/Li30iRoM0jiotMn4aEoz1ql6XfJamEzRg
+	g2kh5utsZ7j0AMIbvkIFfKbx+bLFSuod+m4csxmqCaHMtQR+DdSmqXT3JohZrO3TOgFh74Aitdx
+	UFmPRwtbfZqwYRqXBllHiNebhMoE5mkzJJVay+OGA9ySKSok9uAx6elHp6UTBUL48DyzXKaaEwW
+	B4p/VKJtZmWinbLSRPve/PhHCFJImzUkdLlwgDR6Rg7QotTRWYmoKN2QiipFkiXPi/hV3nYPMOF
+	OVEdfj26ArLWLTKNjMNRU+Fnv8/SjcB+kY2upncg3FAK2WtB4ywsVwjrUNmdMMmHf+pNoHRkqpx
+	42io7Zch9S7D0SFWiUTkwstGc24cetV9Fv1cvQ6hf3ZjgpChQsPPneA==
+X-Received: by 2002:a05:600c:5294:b0:486:fa35:aef2 with SMTP id 5b1f17b1804b1-488fb73d53bmr206894915e9.4.1776728022104;
+        Mon, 20 Apr 2026 16:33:42 -0700 (PDT)
+X-Received: by 2002:a05:600c:5294:b0:486:fa35:aef2 with SMTP id 5b1f17b1804b1-488fb73d53bmr206894725e9.4.1776728021660;
+        Mon, 20 Apr 2026 16:33:41 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-25-21.inter.net.il. [80.230.25.21])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-488ffc558f2sm191637225e9.1.2026.04.20.16.33.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 20 Apr 2026 16:33:41 -0700 (PDT)
+Date: Mon, 20 Apr 2026 19:33:38 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Brendan Jackman <jackmanb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Andrea Arcangeli <aarcange@redhat.com>, linux-mm@kvack.org,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH RFC v2 00/18] mm/virtio: skip redundant zeroing of
+ host-zeroed reported pages
+Message-ID: <20260420192037-mutt-send-email-mst@kernel.org>
+References: <cover.1776689093.git.mst@redhat.com>
+ <c199e47d-b2fd-42f3-9e50-c47c848dc72f@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a4a:ee05:0:b0:694:8b08:b916 with SMTP id
- 006d021491bc7-6948b08bcb0mr2461508eaf.35.1776722964168; Mon, 20 Apr 2026
- 15:09:24 -0700 (PDT)
-Date: Mon, 20 Apr 2026 15:09:24 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <69e6a414.050a0220.24bfd3.002d.GAE@google.com>
-Subject: [syzbot] [kvm?] [net?] [virt?] BUG: sleeping function called from
- invalid context in vhost_get_avail_idx
-From: syzbot <syzbot+6985cb8e543ea90ba8ee@syzkaller.appspotmail.com>
-To: eperezma@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, mst@redhat.com, netdev@vger.kernel.org, 
-	syzkaller-bugs@googlegroups.com, virtualization@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
+In-Reply-To: <c199e47d-b2fd-42f3-9e50-c47c848dc72f@kernel.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: nbyCKLm8xPrB2eWnuCenWpz7fmBq1NHh5PBTZOryjJY_1776728022
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Hello,
+On Mon, Apr 20, 2026 at 08:20:57PM +0200, David Hildenbrand (Arm) wrote:
+> On 4/20/26 14:51, Michael S. Tsirkin wrote:
+> > 
+> 
+> Hi!
+> 
+> > 
+> > v2 - this is an attempt to address David Hildenbrand's comments:
+> > overloading GFP and using page->private, support for
+> > balloon deflate.
+> > 
+> > I hope this one is acceptable, API wise.
+> > 
+> > I also went ahead and implemented an alternative approach
+> > that David suggested:
+> > using GFP_ZERO to zero userspace pages.
+> > The issue is simple: on some architectures, one has to know the
+> > userspace fault address in order to flush the cache.
+> > 
+> > So, I had to propagate the fault address everywhere.
+> 
+> As I said, that might not be necessary. vma_alloc_folio() is the
+> interface we mostly care about in that regard.
+>
 
-syzbot found the following issue on:
-
-HEAD commit:    8541d8f725c6 Merge tag 'mtd/for-7.1' of git://git.kernel.o..
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=136454ce580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=7e54da1916e8d11f
-dashboard link: https://syzkaller.appspot.com/bug?extid=6985cb8e543ea90ba8ee
-compiler:       gcc (Debian 14.2.0-19) 14.2.0, GNU ld (GNU Binutils for Debian) 2.44
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=15d264ce580000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=143ec1ba580000
-
-Downloadable assets:
-disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/d900f083ada3/non_bootable_disk-8541d8f7.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/22dfea2c37c2/vmlinux-8541d8f7.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/e2f93ad68fe3/bzImage-8541d8f7.xz
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+6985cb8e543ea90ba8ee@syzkaller.appspotmail.com
-
-BUG: sleeping function called from invalid context at drivers/vhost/vhost.c:1527
-in_atomic(): 1, irqs_disabled(): 0, non_block: 0, pid: 6110, name: vhost-6109
-preempt_count: 1, expected: 0
-RCU nest depth: 0, expected: 0
-2 locks held by vhost-6109/6110:
- #0: ffff888055624cb0 (&vq->mutex/1){+.+.}-{4:4}, at: handle_tx+0x2d/0x160 drivers/vhost/net.c:971
- #1: ffff888055620248 (&vq->mutex){+.+.}-{4:4}, at: vhost_net_busy_poll+0x9c/0x730 drivers/vhost/net.c:554
-Preemption disabled at:
-[<ffffffff88f1a006>] vhost_net_busy_poll+0x1c6/0x730 drivers/vhost/net.c:563
-CPU: 0 UID: 0 PID: 6110 Comm: vhost-6109 Not tainted syzkaller #0 PREEMPT(full) 
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
-Call Trace:
- <TASK>
- __dump_stack lib/dump_stack.c:94 [inline]
- dump_stack_lvl+0x100/0x190 lib/dump_stack.c:120
- __might_resched.cold+0x1ec/0x232 kernel/sched/core.c:9162
- __might_fault+0x8b/0x140 mm/memory.c:7322
- vhost_get_avail_idx+0x31c/0x4f0 drivers/vhost/vhost.c:1527
- vhost_vq_avail_empty drivers/vhost/vhost.c:3206 [inline]
- vhost_vq_avail_empty+0xa9/0xe0 drivers/vhost/vhost.c:3199
- vhost_net_busy_poll+0x297/0x730 drivers/vhost/net.c:574
- vhost_net_tx_get_vq_desc drivers/vhost/net.c:610 [inline]
- get_tx_bufs.constprop.0+0x338/0x600 drivers/vhost/net.c:650
- handle_tx_copy+0x28c/0x12e0 drivers/vhost/net.c:778
- handle_tx+0x139/0x160 drivers/vhost/net.c:985
- vhost_run_work_list+0x183/0x220 drivers/vhost/vhost.c:454
- vhost_task_fn+0x156/0x430 kernel/vhost_task.c:49
- ret_from_fork+0x72b/0xd50 arch/x86/kernel/process.c:158
- ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
- </TASK>
+I'm not sure I follow what "might not be necessary". We need a fault
+address so zeroing can be effective wrt cache. Since you asked that it's
+done deep in post alloc hook, the address has to propagate all over mm.
 
 
----
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+> > A lot of churn, and my concern is, if we miss even one
+> > place, silent, subtle data corruption will result and only
+> > on some arches (x86 will be fine).
+> 
+> Which would *already* be the case of you use folio_alloc(GFP_ZERO)
+> instead of magical vma_alloc_folio() + folio_zero_user().
+> 
+> I don't really see how vma_alloc_folio_hints() -- that also consumes the
+> address -- is any better in that regard?
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+By itself, it is not. But the issue is propagating the address from
+there all over mm. If we miss even one place - we get a subtle cache
+corruption on non x86.
 
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
 
-If you want syzbot to run the reproducer, reply with:
-#syz test: git://repo/address.git branch-or-commit-hash
-If you attach or paste a git patch, syzbot will apply it before testing.
 
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
+hints are exactly that - if we forget to set them, all that happens
+is that we do an extra zeroing. That is all.
 
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
+> When we just do the right thing with vma_alloc_folio(GFP_ZERO), at least
+> vma_alloc_folio() users will not accidentally do the wrong thing by
+> forgetting to use folio_zero_user().
 
-If you want to undo deduplication, reply with:
-#syz undup
+
+Well, it's simply that
+1. if you plain forget folio_zero_user you get non zero on all arches
+2. we *already* have folio_zero_user in place
+
+
+
+
+> > 
+> > Still, you can view that approach here:
+> > https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git gfp_zero
+> > 
+> > David, if you still feel I should switch to that approach,
+> > let me know. Personally, I'd rather keep that as a separate
+> > project from this optimization.
+> I'd prefer if we extend vma_alloc_folio() to just handle GFP_ZERO for us.
+
+Pls take a look at that tree then. What do you think of that approach?
+Better? If you want it in form of patches, I can post them
+in private or on list.
+
+Let me know, I don't have a problem with that approach - I tested
+it and the performance is the same.  But the issue is that there's lot
+of paths that have to propagate the fault address. It took me a while to
+even find them all (assuming I found them all).
+
+
+I also note that we need a flag for free in order to implement
+balloon deflate as you asked. Here, I reused the hints.
+
+
+
+> But let's hear other opinions first.
+> 
+> -- 
+> Cheers,
+> 
+> David
+
