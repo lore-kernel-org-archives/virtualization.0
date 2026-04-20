@@ -1,69 +1,69 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDF6B3A3E62
-	for <virtualization@lists.linux.dev>; Mon, 20 Apr 2026 12:51:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 247593A3838
+	for <virtualization@lists.linux.dev>; Mon, 20 Apr 2026 12:51:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776689469; cv=none; b=CDzcbG4CeztsAP79KNU89rkkJ1VxX+POPjGsCjofvBb6HBGMnGloMe9RHUb50SEJHWJ2zfIK+SBEJjZhoX0nynlGI3KRlM5CMSPkqedyRXBZbNz+qHn/XA3UfM0pLak8guuU8RA7yedht/URWqLcJMEWGmNX/CX1wdg7HxNIS7A=
+	t=1776689471; cv=none; b=rGcGELYlX1HBt9uVlI2Xla1EAyonoW4pJLGtqmNxAwv1FBDEaxAti73IzMG+KUwSV3ItTVunLeSmPy0uQgu7Qrt4idqO3upcUrh6lDUyl5/Bty+3vuHg6JZKxjA+BF6DqPMVd2bGd60MTYb6xc0wwe3uqjstr36rPtBnLXv/gr8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776689469; c=relaxed/simple;
-	bh=AZKQuPir2M6D9nuVJhXEkkcoZRJ4ZuK7KdkVVibbYjs=;
+	s=arc-20240116; t=1776689471; c=relaxed/simple;
+	bh=c6CKf7gF4h4nqs4xEImrB5ycxqiLXbgiLtERzixLHo0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=TiZH9NBVkklFFdPcTpmgDK3xOX95CWaYKULBk9DN7Lpwcn25JcPXyXgx2H9kKaX0wjOfINVSp6ndlIL3Y5AgnhdP+HJ0LQ7zMqRWvVTV9ZA0Xh5rp9HlgODVPx869T7L8rxkXSqk92qOr1lubPpj495T4yayzLzFb+/pA/4lIyQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BFmtyi1l; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=fBXyN5em4mDEiIBrQhzKOXzyE+ajBkM0e/3V73QIMDXz4KMf7HeCKqhWNjM/8yf6Y/OcRgN4KS4k/IqAOSIXh6LBADsfhtdCDKX+hyzJUJV3cV3KfeWP5UpxUYYWJjHH9u49S+g/5H/7Nn6hhjEijtl/6YHpXvGAA8kgwgs0OUI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gaGfakVB; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BFmtyi1l"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gaGfakVB"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1776689467;
+	s=mimecast20190719; t=1776689469;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=tQ3NH90R6jD51b/2nlDfTNF+z8a8ZXOca/8W5MzOPpI=;
-	b=BFmtyi1lF2KPessxrrE4u/n/LLma1HlpAV1pmeFBKpbm53qHjyqgamA8EHWZexaCoBwJ78
-	hIZ2lqVNt5yAdDcvCHVc/YZpJEwLFhtJsel0bJ5NIK3AuowUQiUoR8W8w9gThu9UgTUc78
-	HNyIJ7RKs6veMr4n1mC3jbq2lonJkgU=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=SikkYlL1M+gibhFkMnOOpJ+LH2O2BXdI5hRy13pqHRY=;
+	b=gaGfakVBS/rWGd0XlGSDz4QY5/SIgU+LXEVaMSILExrQDKKPmzt8GNBi/eectWsA/ErLc0
+	fGYkToddKqCkByiNfJ8XZXWjXsBT3AOj6Pt1u25ybT1JpCfafKvxXT5SquLqwaO+I6Yl90
+	79LtjnTNmsbShdTNiXI93Y6r/oHDGQs=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-636-gzf-c6nPOI-r9o8qe2mkHQ-1; Mon, 20 Apr 2026 08:51:05 -0400
-X-MC-Unique: gzf-c6nPOI-r9o8qe2mkHQ-1
-X-Mimecast-MFC-AGG-ID: gzf-c6nPOI-r9o8qe2mkHQ_1776689464
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-488bd1ee9e7so21560985e9.1
-        for <virtualization@lists.linux.dev>; Mon, 20 Apr 2026 05:51:05 -0700 (PDT)
+ us-mta-228-NsaxFXZUN4OfKBTPlqUqQg-1; Mon, 20 Apr 2026 08:51:08 -0400
+X-MC-Unique: NsaxFXZUN4OfKBTPlqUqQg-1
+X-Mimecast-MFC-AGG-ID: NsaxFXZUN4OfKBTPlqUqQg_1776689467
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-43cfedb10a8so2039765f8f.1
+        for <virtualization@lists.linux.dev>; Mon, 20 Apr 2026 05:51:08 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776689464; x=1777294264;
+        d=1e100.net; s=20251104; t=1776689467; x=1777294267;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=tQ3NH90R6jD51b/2nlDfTNF+z8a8ZXOca/8W5MzOPpI=;
-        b=h5E+ylXA+1pHMktTTi7hx18/OloPKA1CSE/mq7hYiWZyiCxXRrVNCfxPJMAiYGerJe
-         lWixbP9IsDNT+/nTZfIR1iCczHGRCKEqWrNxnV0abZ+m/bXHEYSoytOUxS+LIwyfinn7
-         guYEgu/EWRbQ5W4enqGoIzbyPGu2P7TfU4BI05KvGr040b22Psgb4tuJK4i6OcfGJ5yJ
-         +tyxgFN0jcNTwE9X7cO5POKN2l6pvMeDAUYIR4k6OFbhJY68pXcG9zuV6rdI9eA4dE+P
-         Ep4nAYGfN+aLhv1E5ctBDVBRSVqlTD2Qdmy3T7qzurSej4jwVDvTPqfA2NADfk4bMRSz
-         H90g==
-X-Forwarded-Encrypted: i=1; AFNElJ8ctbm74Z+1JjqZie3Nb82ozUHvBDhy0nfuen9vEdmTWbspP8fgy6YnYG3mmFzLyMyzaj6BzhSnKyjkrZQ1fg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw8VMtRbEAARi4x9b7REOKG4pZbToQw14M6xkaLg0qq5MWEC4Au
-	02i9DP+FYjC5YUE1id6RTlV5t2oEyNtzcAVk3KmZ3VAbwdofZ/QR9ygJEzM4jl39HzN1ld+rIS9
-	vGp2mkIjgFtRuzcXfJlbjE/ImV3p7jtoVkudGmBoSNKVkcXQONef+qFn3/tup/KJII/cg
-X-Gm-Gg: AeBDiet1mTkm1cK/MJJU8gHMw0mUCym2mOmcaTB90eNQclCjC15z1RXRNNFWEk6eDDV
-	L6ugybf8LK70gJpgweUhgfrIz4NUWo9rIi8xpEEaTetkTBbtbkon7+aJub2jmff+bd8770ZvQV8
-	An6ona/NYpgSKafkmb/AgTC8/O/k534c8ocqkxc8DdKLtFi5aqGwg4ZF2yxBrPtg1kcOt+dmyan
-	3uik1G1+3b1dXt/lykfwR4N1rKXUUQJcm4mpu56eWgmP5J9urPMFEQsh4sohPNuhO6Jfk91broA
-	ShgiL41MgHoupT7TrffDZNJd4CuRAFokbMDnoIymJ9w3NkRKGU1ENxqYDS8gHcA3eg4mRMmDFM2
-	3g/jV7NUB7IsQQ8t1VNiDdIOnbHV1pzMauWCtBBQqS1YN9C984TK0qg==
-X-Received: by 2002:a05:600c:3546:b0:488:81b1:ae36 with SMTP id 5b1f17b1804b1-488fb7880camr196781085e9.23.1776689464236;
-        Mon, 20 Apr 2026 05:51:04 -0700 (PDT)
-X-Received: by 2002:a05:600c:3546:b0:488:81b1:ae36 with SMTP id 5b1f17b1804b1-488fb7880camr196780585e9.23.1776689463650;
-        Mon, 20 Apr 2026 05:51:03 -0700 (PDT)
+        bh=SikkYlL1M+gibhFkMnOOpJ+LH2O2BXdI5hRy13pqHRY=;
+        b=dEdeGjHR1t5vDFa06ogaebSFUakMIh4TaUJc3hNeBK4iMRJT9o35b0my2WgKWCsyMm
+         Mz6aa3mRqLIOwA188LxDhnMojliumkBmJAMgpmItbbbIWGw7VXGH+kDzawlige2Ttw/r
+         Ckk7gZk9ai8mOX8HagBC9Fa28YgSMhUReMUWIXXN7ZBcz5f1kZa7EDIdOxRQMrHw6dgS
+         3nGouPQoHApBGYYov6BHaL5+Tc5jZbgwTvQH5eNUm4e81bsBLHLClH3RA7zkxLCAfbT+
+         r4OipPDlv9F+lrD92G/u4mb6EIA00Z2wQNZqf+7UQ3XRju1t5n8gh2lc1ag5i9U9Wtfl
+         YRsA==
+X-Forwarded-Encrypted: i=1; AFNElJ/RzF33k3v1mlMj0l/g/4Y0AoLXVJTfJmvlJWfdvKck5l6D6GCme65z1dQzkLa5zETGBFdjJsw05TadLcnFBg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzDg/Sp/Mhdz1yARsDbQn4hEtbCxrsgDAysNduCaokNQ1JQ7iG0
+	P7LQ5hEsP1eWw/Q5YB6zAKZGsYa9OkYSkr8h1XExUdma+delr3wSFHFoGpvXioblP+Z7zzBWLml
+	A9ZYRId23yORZlJgbVk2DHdjVQoAwhtf6kkehfubsrFTbMO1i2UaR1plJXqRHibTrLZBB
+X-Gm-Gg: AeBDietA7TPm1xzq1PnXaOH4mRDqm+A5wC6cEqEUfn43FceKVFLW0TZZEMozxdeDcvV
+	COBuiXzAySLvdpxhW3kDE+Crc30IrFv/LbhMtispea7xKy8OxBSVkmHDN4mkTcDPx2Km9uby3To
+	LFoNj+92D/iI89swS7oJc2io6hrC0QpR76bwtjazK/KS2s4nNxLyHOuGGwvm6TY73+7ob9W5j/A
+	cSxy8w6Rv7LMD833Arggdm/Pk5wcdalpGt3HMSuUsHrWRHYACBCGxBdMV1jAHKQoF4d8Xw0CHrR
+	Ek+GZkILbK+iXq6l0qIjK0MaHXabNeFfTgJ7Q+i7fG50V6aoaHQZyHAV5FeYKtQmTQLqT/2/+lS
+	qwEK+HrOUkZW6YkxeCSXqcd07gkbribs51GUDtXYpgtXwVOxZ7BvvIg==
+X-Received: by 2002:a05:6000:2511:b0:43e:b0b0:629a with SMTP id ffacd0b85a97d-43fe3e0a1bemr20301773f8f.34.1776689466833;
+        Mon, 20 Apr 2026 05:51:06 -0700 (PDT)
+X-Received: by 2002:a05:6000:2511:b0:43e:b0b0:629a with SMTP id ffacd0b85a97d-43fe3e0a1bemr20301696f8f.34.1776689466326;
+        Mon, 20 Apr 2026 05:51:06 -0700 (PDT)
 Received: from redhat.com (IGLD-80-230-25-21.inter.net.il. [80.230.25.21])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-489393ddd69sm12665675e9.10.2026.04.20.05.51.02
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43fe4e3a7b4sm27168068f8f.22.2026.04.20.05.51.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Apr 2026 05:51:03 -0700 (PDT)
-Date: Mon, 20 Apr 2026 08:51:01 -0400
+        Mon, 20 Apr 2026 05:51:05 -0700 (PDT)
+Date: Mon, 20 Apr 2026 08:51:03 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@linux-foundation.org>,
@@ -75,11 +75,10 @@ Cc: Andrew Morton <akpm@linux-foundation.org>,
 	Jason Wang <jasowang@redhat.com>,
 	Andrea Arcangeli <aarcange@redhat.com>, linux-mm@kvack.org,
 	virtualization@lists.linux.dev,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>
-Subject: [PATCH RFC v2 15/18] virtio_balloon: add host_zeroes_pages module
- parameter
-Message-ID: <0667676f47ce42c1b9086dc80987773d96f73861.1776689093.git.mst@redhat.com>
+	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>
+Subject: [PATCH RFC v2 16/18] mm: page_reporting: add flush parameter with
+ page budget
+Message-ID: <23f8d36128771ded02b426cf71b840500004ca52.1776689093.git.mst@redhat.com>
 References: <cover.1776689093.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -91,54 +90,79 @@ In-Reply-To: <cover.1776689093.git.mst@redhat.com>
 X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
 X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: nSwHYPdETf0w8yxM1Nt-W0fC_W99r_nnaq26ixA_qZo_1776689464
+X-Mimecast-MFC-PROC-ID: nRROers8vNUkCIru23xDqCbdzAVGSuQIEsxV17OB_bY_1776689467
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Add a module parameter to opt in to the pre-zeroed page
-optimization.  A proper virtio feature flag is needed before
-this can be merged.
+Add a write-only module parameter "flush" that triggers immediate
+page reporting.  The value specifies approximately how many pages
+(at page_reporting_order) to report.  The flush loops through
+reporting cycles until the budget is exhausted, all pages are
+reported, or a signal is pending.
 
-  insmod virtio_balloon.ko host_zeroes_pages=1
-
-When host_zeroes_pages is set, callers skip folio_zero_user() for
-pages that are known to have been zeroed by the host.  This is safe
-on cache-aliasing architectures because the hypervisor invalidates
-guest cache lines when reclaiming page backing (e.g. MADV_DONTNEED),
-so no stale cache state exists when the guest re-maps the page.
+  echo 512 > /sys/module/page_reporting/parameters/flush
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Assisted-by: Claude:claude-opus-4-6
 Assisted-by: cursor-agent:GPT-5.4-xhigh
 ---
- drivers/virtio/virtio_balloon.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ mm/page_reporting.c | 42 ++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 42 insertions(+)
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index d1fbc8fe8470..2e524bf6f934 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -19,6 +19,11 @@
- #include <linux/mm.h>
- #include <linux/page_reporting.h>
+diff --git a/mm/page_reporting.c b/mm/page_reporting.c
+index 5e1e1a924b0c..3560f272ab70 100644
+--- a/mm/page_reporting.c
++++ b/mm/page_reporting.c
+@@ -354,6 +354,48 @@ static void page_reporting_process(struct work_struct *work)
+ static DEFINE_MUTEX(page_reporting_mutex);
+ DEFINE_STATIC_KEY_FALSE(page_reporting_enabled);
  
-+static bool host_zeroes_pages;
-+module_param(host_zeroes_pages, bool, 0444);
-+MODULE_PARM_DESC(host_zeroes_pages,
-+		 "Host zeroes reported pages, skip guest re-zeroing");
++static int page_reporting_flush_set(const char *val,
++				    const struct kernel_param *kp)
++{
++	struct page_reporting_dev_info *prdev;
++	unsigned int budget;
++	int err;
 +
- /*
-  * Balloon device works in 4K page units.  So each page is pointed to by
-  * multiple balloon pages.  All memory counters in this driver are in balloon
-@@ -1039,6 +1044,7 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 		vb->pr_dev_info.order = 5;
- #endif
- 
-+		vb->pr_dev_info.host_zeroes_pages = host_zeroes_pages;
- 		err = page_reporting_register(&vb->pr_dev_info);
- 		if (err)
- 			goto out_unregister_oom;
++	err = kstrtouint(val, 0, &budget);
++	if (err)
++		return err;
++	if (!budget)
++		return 0;
++
++	mutex_lock(&page_reporting_mutex);
++	prdev = rcu_dereference_protected(pr_dev_info,
++				lockdep_is_held(&page_reporting_mutex));
++	if (prdev) {
++		unsigned int reported;
++
++		for (reported = 0; reported < budget;
++		     reported += PAGE_REPORTING_CAPACITY) {
++			flush_delayed_work(&prdev->work);
++			__page_reporting_request(prdev);
++			flush_delayed_work(&prdev->work);
++			if (atomic_read(&prdev->state) == PAGE_REPORTING_IDLE)
++				break;
++			if (signal_pending(current))
++				break;
++		}
++	}
++	mutex_unlock(&page_reporting_mutex);
++	return 0;
++}
++
++static const struct kernel_param_ops flush_ops = {
++	.set = page_reporting_flush_set,
++	.get = param_get_uint,
++};
++static unsigned int page_reporting_flush;
++module_param_cb(flush, &flush_ops, &page_reporting_flush, 0200);
++MODULE_PARM_DESC(flush, "Report up to N pages at page_reporting_order");
++
+ int page_reporting_register(struct page_reporting_dev_info *prdev)
+ {
+ 	int err = 0;
 -- 
 MST
 
