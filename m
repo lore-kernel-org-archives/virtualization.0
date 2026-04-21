@@ -1,178 +1,170 @@
-Received: from fout-b2-smtp.messagingengine.com (fout-b2-smtp.messagingengine.com [202.12.124.145])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EB123BD631
-	for <virtualization@lists.linux.dev>; Tue, 21 Apr 2026 12:15:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.145
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 034763B7763;
+	Tue, 21 Apr 2026 12:27:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776773726; cv=none; b=ZRVyi3eR8OVFQGFBeRaijWfq4Ml56UhqUAS1LuMXC1bX5NqRRl9IFgb66WS/Xrl39o32dmlobLqbigpMdeQE2jQTQuPPECYFJ6hY05zLpVfLJBH9v7JlzVngb0FXJurUGZFNyo/vLMO+6K7GTm1H8O4AZDe/iocGltUubdf0Ba0=
+	t=1776774421; cv=none; b=cbuNzfsb2WxMz8IqsfdBvutFHzCIz+5eNwFHbYd6liVnSAKMGmFIumHNH/UfGgzM1noFmxgrnc4lhvY4coadlgBwt2M95GjUmQpQjDDAn+4hTaNAzoedl960Dh3klsmI3ZbBbX7r6gG0yoVRfWwMHfWQp/eeqsBJ2SPsjY0E/M0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776773726; c=relaxed/simple;
-	bh=oajVY9JAArpj/ZBUxDSQro3U9WeN149W2+2nKR35HBo=;
-	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
-	 Subject:Content-Type; b=dInGt4ORwfjDieBxrqd8kFBmiZAL6svsOSsQcpu1YKuewr6S2s051eT/zCNggCbQnz7/wL9Vb248S8vYhmv9s2BO9m1EfAooz5exDedAEY66aa0ibjM/cbOXCeZRq5vpElD3o1+VuDUqGZkqeVWxpXOWzINxBlMSvNRQdxwM3Y0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=Qr+z6TTt; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=qt3GhovC; arc=none smtp.client-ip=202.12.124.145
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
+	s=arc-20240116; t=1776774421; c=relaxed/simple;
+	bh=ZaGWM8jA4mMH9NwO+YqwAWjdiVWdlYlvmNHObCEIt6k=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=YyQL/SgHlQewIhWFre1zTnWtjsLseQaqLN7ypMQX6TpGE935s3E34f3C0XGM1EPC5kXYFXx7IBuK3VUMCnZpQBZEUvFaXHALpb9VqUV5eA9dECak7GIk+Xd7FZ/6ccxyl+gDhOIRVMyuz0tBHAolllxqUhkgg7xnQUZ2QY7+Z94=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IfI9Jb9g; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="Qr+z6TTt";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="qt3GhovC"
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailfout.stl.internal (Postfix) with ESMTP id 2B0CD1D002B6;
-	Tue, 21 Apr 2026 08:15:23 -0400 (EDT)
-Received: from phl-imap-02 ([10.202.2.81])
-  by phl-compute-04.internal (MEProxy); Tue, 21 Apr 2026 08:15:23 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
-	:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm1; t=1776773722;
-	 x=1776860122; bh=EdU8gDzvJq6j5wdRtn++CXG1KxAsg6n8fJndI6G2M+w=; b=
-	Qr+z6TTttTBBuXUrKDMOhwXQpvcQ26DIG4Er7q3O065XFjW/BAAf5pMjnFeM83am
-	++ZiCemWROLRCSBZrh8aBVXtmkgfoZ+1zaQd/SiaI4GHn/4AaLAi+aehCnqJ1QzR
-	x+vdV24O0Yv+Ec0HCdpfXKTAP3nqe5r+LY6Eif+wppdFGrThW7CtArqG3JyQ+9UQ
-	EzrXZ4HL5LG9kGb8BgkLRd2YzRnGgEhKn07iJ2rljGXUaEgwmcwZkjSwrMbuDyXl
-	4plt0k3plC+SYlnCNPgKuSn0Z0HKii+6i8NSL7kSv7o3d47K7BsAG/wd5jr5D5CQ
-	G5ox8ya7WsjZ2ypH3/gEKQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1776773722; x=
-	1776860122; bh=EdU8gDzvJq6j5wdRtn++CXG1KxAsg6n8fJndI6G2M+w=; b=q
-	t3GhovCXB9+mwOo4dw4JTS0HbZFCDqQemJNwgJVibmudfPQM8C1ZbgVid5lPj9TV
-	f9a/Jck2GZl2Y6cL5/4RfCG06l2AauZBppgazdFaH9PRhXyzjVR4FPpciyLoSNWI
-	4CRxsHL1kxiCRPYEi92oYmWbbXMLvOGEcp9UwZJBNkgFziwyvt7cNkC1avLtydDG
-	bw3nExzmZZpPFk4n1PBgIs33T0bRLa5T+UkslgR5/HQeAEqMEpnyozwabrGfTPsY
-	LjibnACNFMo4ZGVojYnYk6oOUUXGVlMpSGNJyjeVV3Yr+c0ezI/KtGT/kqDTeFZO
-	ciqtGZe068Z+Py/yZDrIA==
-X-ME-Sender: <xms:WmrnaSZrF21TDkBVHN7-eDRnoyu9UOM4yXcm5QuPF5g9wKbN8NMO2Q>
-    <xme:WmrnaQOX0xP50W961Usll7qBUbeFM6PZ0cJM4Ub5XZbm70H6W7W5A_moZoqPeF9tW
-    vXc6pfOvruYETOb7ijCJeHLV51IQFXNp1_zuLKTbVYjR5-xutWySm8>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgdeiudefiecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
-    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
-    hrpefoggffhffvvefkjghfufgtgfesthejredtredttdenucfhrhhomhepfdetrhhnugcu
-    uegvrhhgmhgrnhhnfdcuoegrrhhnugesrghrnhgusgdruggvqeenucggtffrrghtthgvrh
-    hnpefhtdfhvddtfeehudekteeggffghfejgeegteefgffgvedugeduveelvdekhfdvieen
-    ucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpegrrhhnug
-    esrghrnhgusgdruggvpdhnsggprhgtphhtthhopeejpdhmohguvgepshhmthhpohhuthdp
-    rhgtphhtthhopegrmhhitheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepghhrvghgkh
-    hhsehlihhnuhigfhhouhhnuggrthhiohhnrdhorhhgpdhrtghpthhtohepvhhirhhtuhgr
-    lhhiiigrthhiohhnsehlihhsthhsrdhlihhnuhigrdguvghvpdhrtghpthhtohepkhgvrh
-    hnvghlsehoshhsrdhquhgrlhgtohhmmhdrtghomhdprhgtphhtthhopehpvghnghdrhigr
-    nhhgsehoshhsrdhquhgrlhgtohhmmhdrtghomhdprhgtphhtthhopehkvghrnhgvlhesqh
-    huihgtihhntgdrtghomhdprhgtphhtthhopehlihhnuhigqdhkvghrnhgvlhesvhhgvghr
-    rdhkvghrnhgvlhdrohhrgh
-X-ME-Proxy: <xmx:WmrnaSsS1xT3_IPu0NIQtf06jt-WZ5PQR-Y5D3m9Mr3IJVpBXrhQeg>
-    <xmx:WmrnaRd8cphfsQeI1k43Mwij1mmtO89oeh97HD5uFPBaoXXsdbvVzQ>
-    <xmx:WmrnaUYOrkO6hGDr31dZpFiYlMPW543l-uR6Iooz8xIyhWByTcxnuw>
-    <xmx:Wmrnabb1Lu8SJNj8RedDq814TzoBNX41Fad05mqAW5VVKz6C7UHDxg>
-    <xmx:WmrnaSwWPcKOYsQj2YGZnD9tFVuqiGWogV_wZ6iifxiooR4Ff7vncPbg>
-Feedback-ID: i56a14606:Fastmail
-Received: by mailuser.phl.internal (Postfix, from userid 501)
-	id 6FBFA700065; Tue, 21 Apr 2026 08:15:22 -0400 (EDT)
-X-Mailer: MessagingEngine.com Webmail Interface
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IfI9Jb9g"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5B97C2BCB0;
+	Tue, 21 Apr 2026 12:26:42 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1776774420;
+	bh=ZaGWM8jA4mMH9NwO+YqwAWjdiVWdlYlvmNHObCEIt6k=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=IfI9Jb9gKqz+z+jxmbqO6X6SzZtsSqVQArsbwBQxWe62W+RTooyaT3ghb7Me8n5V4
+	 z0M2A0w8RDm2rHw2yGhmhcsg02rGaSBg1IJ2xJCeSRULv7XvNbWHgO25wR3yL56Y2m
+	 DYgdPHlTj9+y32EzGWMtZjnfvnL/KH254IDnPgRXGW0Wk+l3HPdwgERwEN4zIui4R3
+	 baXKtsdlysBs0yk13sxZlyF6ed5iih8ie2NzrkDNwF3OzQnOn9rAKOv+pj+iLgM4Bd
+	 wbVrOG5S+xzIHWl/w+oBedgHWZ6eK2eyUazcS9rTqv0QvV6PjNyDoLJvmraSwkXDFh
+	 bwtSbxOIiPvlw==
+Message-ID: <215f12d6-62c1-4837-9f78-ef270684950c@kernel.org>
+Date: Tue, 21 Apr 2026 14:26:35 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-ThreadId: AunhbntQmaLB
-Date: Tue, 21 Apr 2026 14:14:42 +0200
-From: "Arnd Bergmann" <arnd@arndb.de>
-To: "Peng Yang" <peng.yang@oss.qualcomm.com>, "Amit Shah" <amit@kernel.org>,
- "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>
-Cc: kernel@quicinc.com, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, kernel@oss.qualcomm.com
-Message-Id: <9e5be98b-3035-4e61-8325-52ed8fcf65fa@app.fastmail.com>
-In-Reply-To: <d6908885-7f87-442c-86de-3a08eadf417f@oss.qualcomm.com>
-References: 
- <20260420-add_timeout_to___send_to_port-v1-1-6c32d33bf4f2@oss.qualcomm.com>
- <37b513d6-770b-4442-b3b3-93b2801f3c71@app.fastmail.com>
- <d6908885-7f87-442c-86de-3a08eadf417f@oss.qualcomm.com>
-Subject: Re: [PATCH] virtio_console: add timeout to __send_to_port() spin loop
-Content-Type: text/plain
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/2] powerpc: Add a typos.toml file
+To: Link Mauve <linkmauve@linkmauve.fr>, linuxppc-dev@lists.ozlabs.org
+Cc: Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+ Rob Herring <robh@kernel.org>, Krzysztof Kozlowski <krzk+dt@kernel.org>,
+ Conor Dooley <conor+dt@kernel.org>, Herbert Xu
+ <herbert@gondor.apana.org.au>, "David S. Miller" <davem@davemloft.net>,
+ Juergen Gross <jgross@suse.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
+ Alexey Makhalov <alexey.makhalov@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, Geoff Levand <geoff@infradead.org>,
+ Mahesh J Salgaonkar <mahesh@linux.ibm.com>,
+ Oliver O'Halloran <oohall@gmail.com>, Anatolij Gustschin <agust@denx.de>,
+ =?UTF-8?Q?Breno_Leit=C3=A3o?= <leitao@debian.org>,
+ Nayna Jain <nayna@linux.ibm.com>,
+ Paulo Flabiano Smorigo <pfsmorigo@gmail.com>,
+ Eric Biggers <ebiggers@kernel.org>, "Jason A. Donenfeld" <Jason@zx2c4.com>,
+ Ard Biesheuvel <ardb@kernel.org>, Thorsten Blum <thorsten.blum@linux.dev>,
+ Thomas Huth <thuth@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+ David Hildenbrand <david@kernel.org>, Alistair Popple <apopple@nvidia.com>,
+ "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
+ Donet Tom <donettom@linux.ibm.com>, Andrew Morton
+ <akpm@linux-foundation.org>, =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?=
+ <bjorn@rivosinc.com>, Will Deacon <will@kernel.org>,
+ "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>, Paul Moore
+ <paul@paul-moore.com>, Nam Cao <namcao@linutronix.de>,
+ Alexander Gordeev <agordeev@linux.ibm.com>,
+ Sourabh Jain <sourabhjain@linux.ibm.com>,
+ Hari Bathini <hbathini@linux.ibm.com>,
+ Srikar Dronamraju <srikar@linux.ibm.com>,
+ Shrikanth Hegde <sshegde@linux.ibm.com>, Jiri Bohac <jbohac@suse.cz>,
+ "Mike Rapoport (Microsoft)" <rppt@kernel.org>,
+ "Jiri Slaby (SUSE)" <jirislaby@kernel.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+ =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ Kees Cook <kees@kernel.org>, Stephen Rothwell <sfr@cab.auug.org.au>,
+ Xichao Zhao <zhao.xichao@vivo.com>, Gautam Menghani <gautam@linux.ibm.com>,
+ Peter Zijlstra <peterz@infradead.org>,
+ K Prateek Nayak <kprateek.nayak@amd.com>,
+ Guangshuo Li <lgs201920130244@gmail.com>, Li Chen
+ <chenl311@chinatelecom.cn>, Aboorva Devarajan <aboorvad@linux.ibm.com>,
+ Petr Mladek <pmladek@suse.com>, Feng Tang <feng.tang@linux.alibaba.com>,
+ "Nysal Jan K.A." <nysal@linux.ibm.com>, Aditya Gupta
+ <adityag@linux.ibm.com>, Sayali Patil <sayalip@linux.ibm.com>,
+ Rohan McLure <rmclure@linux.ibm.com>,
+ Pasha Tatashin <pasha.tatashin@soleen.com>, Yeoreum Yun
+ <yeoreum.yun@arm.com>, Kevin Brodsky <kevin.brodsky@arm.com>,
+ "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+ Andrew Donnellan <andrew+kernel@donnellan.id.au>,
+ "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
+ =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
+ Athira Rajeev <atrajeev@linux.ibm.com>, Kajol Jain <kjain@linux.ibm.com>,
+ Thomas Gleixner <tglx@kernel.org>, Chen Ni <nichen@iscas.ac.cn>,
+ Haren Myneni <haren@linux.ibm.com>,
+ Jonathan Greental <yonatan02greental@gmail.com>,
+ Ingo Molnar <mingo@kernel.org>, "Yury Norov (NVIDIA)"
+ <yury.norov@gmail.com>, Gaurav Batra <gbatra@linux.ibm.com>,
+ Nilay Shroff <nilay@linux.ibm.com>, Vivian Wang <wangruikang@iscas.ac.cn>,
+ =?UTF-8?Q?Adrian_Barna=C5=9B?= <abarnas@google.com>,
+ "Rafael J. Wysocki (Intel)" <rafael@kernel.org>,
+ Thierry Reding <treding@nvidia.com>, Yury Norov <ynorov@nvidia.com>,
+ "Mukesh Kumar Chaurasiya (IBM)" <mkchauras@gmail.com>,
+ Ruben Wauters <rubenru09@aol.com>, linux-kernel@vger.kernel.org,
+ devicetree@vger.kernel.org, linux-crypto@vger.kernel.org,
+ kvm@vger.kernel.org, virtualization@lists.linux.dev, x86@kernel.org
+References: <20260421121420.26079-1-linkmauve@linkmauve.fr>
+ <20260421121420.26079-2-linkmauve@linkmauve.fr>
+From: Krzysztof Kozlowski <krzk@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=krzk@kernel.org; keydata=
+ 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 a/A=
+In-Reply-To: <20260421121420.26079-2-linkmauve@linkmauve.fr>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On Tue, Apr 21, 2026, at 11:18, Peng Yang wrote:
-> On 4/21/2026 3:38 PM, Arnd Bergmann wrote:
->> 
->> Which host implementation do you use? The way the virtio_console
->> driver works really assumes that virtqueue_kick() consumes the
->> buffer synchronously. Even though that is not how virtio is
->> specified, this does tend to work. ;-)
->> 
-> We are using crosvm as the host VMM with its virtio-console backend,
-> running on Android. The trigger is Android host reboot/shutdown: when
-> Android initiates a reboot, the crosvm process exits and tears down
-> the virtio-console backend. At that point, the TX virtqueue is no
-> longer being drained by the host and will never be consumed again.
+On 21/04/2026 14:14, Link Mauve wrote:
+> This file is used by the typos tool[1] to determine which words to fix,
+> which ones not to fix, and what the target word should be.
+> 
+> [1] https://github.com/crate-ci/typos
+> 
+> Signed-off-by: Link Mauve <linkmauve@linkmauve.fr>
 
-I see, so the normal behavior is likely just fine, but the error
-handling is what goes wrong. Maybe there is a way for the guest
-to detect the device being turn down already so it does not
-actually have to wait any more?
+This typos.toml file does not belong to the kernel, IMO, but that's up
+to PowerPC folks.
 
-> The crash dump from the actual failure confirms the exact deadlock
-> scenario:
->
-> Core 3 holds outvq_lock and spins forever in virtqueue_get_buf waiting
-> for the host to consume the buffer:
->
-> virtqueue_get_buf
-> __send_to_port
-> put_chars
-> hvc_push
-> hvc_write
-> n_tty_write
->   <- writev() syscall
+My note here is: please use your real, full name. See submitting patches.
 
-This current loop here is
-
-        while (!virtqueue_get_buf(out_vq, &len)
-                && !virtqueue_is_broken(out_vq))
-                cpu_relax();
-
-which looks like the virtqueue_is_broken() check is meant to
-catch this exact case. Do you know why this does not break
-out of the loop after crosvm tears down the virtio-console
-device?
-
-> Core 0 has a watchdog bark ISR fire and attempts printk, holds the
-> console lock, but spins on _raw_spin_lock_irqsave waiting to acquire
-> outvq_lock:
->
-> queued_spin_lock_slowpath
-> _raw_spin_lock_irqsave
-> __send_to_port
-> put_chars
-> hvc_console_print
-> console_flush_all
-> console_unlock
-> vprintk_emit
->   <- printk (watchdog bark handler)
-
-My first thought here was that __send_to_port() should perhaps
-release the lock during the while() loop, which should avoid
-blocking the other threads on the spin_lock_irqsave() but
-would not avoid blocking on the loop.
-
-> The 200 ms timeout is intended as a minimal, targeted workaround to prevent
-> the watchdog bite in our specific scenario. We are open to suggestions on a
-> better long-term approach.
-
-Not sure how to do it, but I think finding a way to call
-virtio_break_device() at the point the host device goes away is
-the best solution here. Ideally there would just be a notification
-from the host, but since __send_to_port() may be called with
-interrupts disabled and may be running on the only CPU, that
-would still be unreliable.
-
-Maybe there is a way for virtio_console to read a status
-register in the virtio config that tells it whether the
-host has turned it off? I was thinking vdev->config->get_status(vdev)
-but that seems to only get updated by the guest.
-
-      Arnd
+Best regards,
+Krzysztof
