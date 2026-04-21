@@ -1,186 +1,83 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 954A93D3CF0
-	for <virtualization@lists.linux.dev>; Mon, 20 Apr 2026 23:33:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04C7D235045
+	for <virtualization@lists.linux.dev>; Tue, 21 Apr 2026 00:59:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776728033; cv=none; b=u9iVmTgjdRzYD6cQEOdDze3Fxwi0LAV89X4poFKNDSA/hf9+PpmSIBqI3YpClRh2MybUJlG+ucMpQmm0r6053CMs4AXv2mWMrkNqwxKQVkVMQJKR8fL2o7mDC7cl3TJy4l6ZmhVYutzmP8MhigJh6h5eNPZw1NXo25B50FBbzGo=
+	t=1776733152; cv=none; b=XaZO9YqPmBnzL1U7o+AjLxJEZ4b8xSVyLqWxXqoe69iIqO/F0K9AYbJcsQh1zYqrPnesjqEFfMu4HDJxW/9w38IVcrNbt5lFqC0qD9Y0nO5jGkb8qWn/25HZwqu2C40MCgLiW5kHZ3+b7ana1nEfjGXJ2FDBgrXkJHWPt8wTTvg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776728033; c=relaxed/simple;
-	bh=yR2/wB5ZyxKUGr0AdiVEcbgQkku+GxQ+Y+qdUpCrdgk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=TLNIXNF9Wz95vQA/40VUtmjw7ea8oyw4WXuGnpMlykEFKviQN41/BeWyY2v45LTFC5wM4PiQO3s2tBLIo+9KFwCqX9uLZDP0ScsYwDu89GHs+LRaKRuA20WTHJ3mLR8jlp1AAkmGNmeZfuvqO2aBpPbGkFrRGTNVAs3m2d5a71w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bktnQaJj; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1776733152; c=relaxed/simple;
+	bh=6C73BwFjiB4Uhl+iXeqGHDpJY45ehmJvEvP3w2YzlwM=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=t/bKgohfbYdD3pJOqYkNTEtz3WV3465PGlqhzCEKXLN48F5s+MCz9fwgJsJ7DXIo7ywM4Zq+Tlhwmm2bZvpanc6yPAtrlPnwcyKWMgbiqkQgXCAMsBeMhV67pINDHnK7TBAynjKVh2+5PzWoS6koqsKGieu1mtZTapMtTisjQ7g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=RguoVPRK; arc=none smtp.client-ip=115.124.30.99
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bktnQaJj"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1776728030;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Crl5IidACm0/Y50tYB/yaiHCDukvD9pxpf1tedSp32Q=;
-	b=bktnQaJjfvJMMGdvs2DWGD9aPHhJhwouGrLDw/H/oWPP8ks5Cy+iJrfZ7N+eESueLRHqm/
-	5TywfqPKsXeG9tdLt9aGsv/UO4xDufUSzLtnXhburlIvM4AukiuBLX1SdNtQmDvz/Yi8rW
-	t4ihcvO5MNlvLjOgo16V/+JeuHkIJEc=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-593-bBnRj34UPNC7Hh5VSQlQ0w-1; Mon, 20 Apr 2026 19:33:43 -0400
-X-MC-Unique: bBnRj34UPNC7Hh5VSQlQ0w-1
-X-Mimecast-MFC-AGG-ID: bBnRj34UPNC7Hh5VSQlQ0w_1776728022
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-43d744128b9so2989325f8f.0
-        for <virtualization@lists.linux.dev>; Mon, 20 Apr 2026 16:33:43 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776728022; x=1777332822;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Crl5IidACm0/Y50tYB/yaiHCDukvD9pxpf1tedSp32Q=;
-        b=hWCAxEyDSg0F7lqpMKgJ2kOxW8BUqk3SpHlFh6DzSppFEvQjEoSc6mT6HInNzJpqRu
-         sUqy4/z7Y96uFI7RX3f01z5r5lAeumn5td9KJQnOk77Xj0LKKNM7eWWk2aPmDGWmbIx3
-         NDVGDx3KVS6n4uaIE+MhNGV/8KS51bPvepO5gQ4I7GHdzVE7osW/GHs1hTJrkZ4hzpqO
-         zxlWWe9Av6xQTj4Gvl17GQ/OjK3RRiGochQ9OJENQFcketoJ75+b51T6YwgHfVd4SzQY
-         fz5a8UDWYUFVB4WXIS/UaJ4AH6lLifXECEaN8NAy6agiZ+awQjaVwlhFQ1o5PSQxVumz
-         FtjQ==
-X-Forwarded-Encrypted: i=1; AFNElJ8FRpvCetXNfzcig6e8GljE02/5JCijqeIkYeLsZEOYk4xUuje6kIyg2KVYqPQafSI02MFjqYhA1kbqG6GjuQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwBLluA9aXsrMVNrk6ev0DnbGX0pSoOf7DImZ46bwt4kp4DdH7u
-	NQGZSGVDBWPznjCrR7NSg8595UIWQ0HcIdFLQzFTsxOdLX87Yqo7NnmSJAnxBnYXlafXxOKLMqU
-	6Ps6HyP2ylVoy/gqgDgckgAmuAguVH/xwV3r/g8c6DP9rAI/KBLjF3xPlMwK+H0ROt5NJ
-X-Gm-Gg: AeBDietFgNIW6I2BeAdYvYVHKCjFPgNwO/Li30iRoM0jiotMn4aEoz1ql6XfJamEzRg
-	g2kh5utsZ7j0AMIbvkIFfKbx+bLFSuod+m4csxmqCaHMtQR+DdSmqXT3JohZrO3TOgFh74Aitdx
-	UFmPRwtbfZqwYRqXBllHiNebhMoE5mkzJJVay+OGA9ySKSok9uAx6elHp6UTBUL48DyzXKaaEwW
-	B4p/VKJtZmWinbLSRPve/PhHCFJImzUkdLlwgDR6Rg7QotTRWYmoKN2QiipFkiXPi/hV3nYPMOF
-	OVEdfj26ArLWLTKNjMNRU+Fnv8/SjcB+kY2upncg3FAK2WtB4ywsVwjrUNmdMMmHf+pNoHRkqpx
-	42io7Zch9S7D0SFWiUTkwstGc24cetV9Fv1cvQ6hf3ZjgpChQsPPneA==
-X-Received: by 2002:a05:600c:5294:b0:486:fa35:aef2 with SMTP id 5b1f17b1804b1-488fb73d53bmr206894915e9.4.1776728022104;
-        Mon, 20 Apr 2026 16:33:42 -0700 (PDT)
-X-Received: by 2002:a05:600c:5294:b0:486:fa35:aef2 with SMTP id 5b1f17b1804b1-488fb73d53bmr206894725e9.4.1776728021660;
-        Mon, 20 Apr 2026 16:33:41 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-25-21.inter.net.il. [80.230.25.21])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-488ffc558f2sm191637225e9.1.2026.04.20.16.33.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Apr 2026 16:33:41 -0700 (PDT)
-Date: Mon, 20 Apr 2026 19:33:38 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Brendan Jackman <jackmanb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Andrea Arcangeli <aarcange@redhat.com>, linux-mm@kvack.org,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH RFC v2 00/18] mm/virtio: skip redundant zeroing of
- host-zeroed reported pages
-Message-ID: <20260420192037-mutt-send-email-mst@kernel.org>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="RguoVPRK"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1776733142; h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type;
+	bh=7yi+xUZCUd5yeE272YJMQ5iJ3vo6smTP4Z4GqGgtzU4=;
+	b=RguoVPRKAQbcH2h0/QWfnQtOzTdRCnmcfM0RzqxiQtcq56cyUN+Ff1svS1CkwBqiozM1adJS1Slu1QBphIA9w2IZkoB49D5GaDsY3gArAdXXc0j2ehL7orVFkAmyXyQUrO7XGToT0nWUHwGrdwpIH/biGAOGJ3vC+aErbpPMEHg=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R171e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037026112;MF=ying.huang@linux.alibaba.com;NM=1;PH=DS;RN=23;SR=0;TI=SMTPD_---0X1RC5RC_1776733139;
+Received: from DESKTOP-5N7EMDA(mailfrom:ying.huang@linux.alibaba.com fp:SMTPD_---0X1RC5RC_1776733139 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Tue, 21 Apr 2026 08:59:00 +0800
+From: "Huang, Ying" <ying.huang@linux.alibaba.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org,  Andrew Morton
+ <akpm@linux-foundation.org>,  David Hildenbrand <david@kernel.org>,
+  Vlastimil Babka <vbabka@kernel.org>,  Brendan Jackman
+ <jackmanb@google.com>,  Michal Hocko <mhocko@suse.com>,  Suren
+ Baghdasaryan <surenb@google.com>,  Jason Wang <jasowang@redhat.com>,
+  Andrea Arcangeli <aarcange@redhat.com>,  linux-mm@kvack.org,
+  virtualization@lists.linux.dev,  Johannes Weiner <hannes@cmpxchg.org>,
+  Zi Yan <ziy@nvidia.com>,  Lorenzo Stoakes <ljs@kernel.org>,  "Liam R.
+ Howlett" <Liam.Howlett@oracle.com>,  Mike Rapoport <rppt@kernel.org>,
+  Matthew Brost <matthew.brost@intel.com>,  Joshua Hahn
+ <joshua.hahnjy@gmail.com>,  Rakie Kim <rakie.kim@sk.com>,  Byungchul Park
+ <byungchul@sk.com>,  Gregory Price <gourry@gourry.net>,  Alistair Popple
+ <apopple@nvidia.com>
+Subject: Re: [PATCH RFC v2 02/18] mm: add pghint_t type and
+ vma_alloc_folio_hints API
+In-Reply-To: <290d615a001cf121dc0c604eb79451bcc7917baa.1776689093.git.mst@redhat.com>
+	(Michael S. Tsirkin's message of "Mon, 20 Apr 2026 08:50:23 -0400")
 References: <cover.1776689093.git.mst@redhat.com>
- <c199e47d-b2fd-42f3-9e50-c47c848dc72f@kernel.org>
+	<290d615a001cf121dc0c604eb79451bcc7917baa.1776689093.git.mst@redhat.com>
+Date: Tue, 21 Apr 2026 08:58:59 +0800
+Message-ID: <87pl3ti0x8.fsf@DESKTOP-5N7EMDA>
+User-Agent: Gnus/5.13 (Gnus v5.13)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <c199e47d-b2fd-42f3-9e50-c47c848dc72f@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: nbyCKLm8xPrB2eWnuCenWpz7fmBq1NHh5PBTZOryjJY_1776728022
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=ascii
 
-On Mon, Apr 20, 2026 at 08:20:57PM +0200, David Hildenbrand (Arm) wrote:
-> On 4/20/26 14:51, Michael S. Tsirkin wrote:
-> > 
-> 
-> Hi!
-> 
-> > 
-> > v2 - this is an attempt to address David Hildenbrand's comments:
-> > overloading GFP and using page->private, support for
-> > balloon deflate.
-> > 
-> > I hope this one is acceptable, API wise.
-> > 
-> > I also went ahead and implemented an alternative approach
-> > that David suggested:
-> > using GFP_ZERO to zero userspace pages.
-> > The issue is simple: on some architectures, one has to know the
-> > userspace fault address in order to flush the cache.
-> > 
-> > So, I had to propagate the fault address everywhere.
-> 
-> As I said, that might not be necessary. vma_alloc_folio() is the
-> interface we mostly care about in that regard.
+"Michael S. Tsirkin" <mst@redhat.com> writes:
+
+> Add pghint_t, a bitwise type for communicating page allocation hints
+> between the allocator and callers.  Define PGHINT_ZEROED to indicate
+> that the allocated page contents are known to be zero.
 >
+> Add _hints variants of the allocation functions that accept a
+> pghint_t *hints output parameter:
+>
+>   vma_alloc_folio_hints()  -> folio_alloc_mpol_hints (internal)
+>                            -> __alloc_frozen_pages_hints()
+>
+> The existing APIs are unchanged and continue to work without hints.
+> For now, hints is always initialized to 0.  A subsequent patch will
+> set PGHINT_ZEROED when the page was pre-zeroed by the host.
 
-I'm not sure I follow what "might not be necessary". We need a fault
-address so zeroing can be effective wrt cache. Since you asked that it's
-done deep in post alloc hook, the address has to propagate all over mm.
+Why do we need this feature?  Is there any performance impact?  If so,
+please provide some performance data.
 
+[snip]
 
-> > A lot of churn, and my concern is, if we miss even one
-> > place, silent, subtle data corruption will result and only
-> > on some arches (x86 will be fine).
-> 
-> Which would *already* be the case of you use folio_alloc(GFP_ZERO)
-> instead of magical vma_alloc_folio() + folio_zero_user().
-> 
-> I don't really see how vma_alloc_folio_hints() -- that also consumes the
-> address -- is any better in that regard?
-
-By itself, it is not. But the issue is propagating the address from
-there all over mm. If we miss even one place - we get a subtle cache
-corruption on non x86.
-
-
-
-hints are exactly that - if we forget to set them, all that happens
-is that we do an extra zeroing. That is all.
-
-> When we just do the right thing with vma_alloc_folio(GFP_ZERO), at least
-> vma_alloc_folio() users will not accidentally do the wrong thing by
-> forgetting to use folio_zero_user().
-
-
-Well, it's simply that
-1. if you plain forget folio_zero_user you get non zero on all arches
-2. we *already* have folio_zero_user in place
-
-
-
-
-> > 
-> > Still, you can view that approach here:
-> > https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git gfp_zero
-> > 
-> > David, if you still feel I should switch to that approach,
-> > let me know. Personally, I'd rather keep that as a separate
-> > project from this optimization.
-> I'd prefer if we extend vma_alloc_folio() to just handle GFP_ZERO for us.
-
-Pls take a look at that tree then. What do you think of that approach?
-Better? If you want it in form of patches, I can post them
-in private or on list.
-
-Let me know, I don't have a problem with that approach - I tested
-it and the performance is the same.  But the issue is that there's lot
-of paths that have to propagate the fault address. It took me a while to
-even find them all (assuming I found them all).
-
-
-I also note that we need a flag for free in order to implement
-balloon deflate as you asked. Here, I reused the hints.
-
-
-
-> But let's hear other opinions first.
-> 
-> -- 
-> Cheers,
-> 
-> David
-
+---
+Best Regards,
+Huang, Ying
