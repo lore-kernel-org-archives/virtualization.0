@@ -1,281 +1,235 @@
-Received: from fout-a8-smtp.messagingengine.com (fout-a8-smtp.messagingengine.com [103.168.172.151])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f172.google.com (mail-qt1-f172.google.com [209.85.160.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7520E374182
-	for <virtualization@lists.linux.dev>; Tue, 21 Apr 2026 19:31:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.151
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776799891; cv=none; b=Gctwjzz4kh7oBuGUF9AY5q31J5EMTz0rxoFOLs0Bk99gXKazNGwYYfH1fbdW1t5h3Azq7hbnye3cK9dH44hlQL4RQRaEckdDG7Wm7t0E6xR2z8vnkRTA9JADq7PrDInMdMlAxKDmp536RzyutexcxZA3Lt4ayTHRFxSINwiitYM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776799891; c=relaxed/simple;
-	bh=IinquCqdbzmTntsumlWfMgE9/jz08jueg77OoAkwzCQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=oaEaGXXlT+c2tR1Eig6p+Oboh1tey7SbL7qA2TsO9ytbe9Xfe0GKO8vxkFblylNLt0k7/OvUvnKA5ShvvSBqwOYptTtsmZ3JWo8QMPFeLiNKwELKm2ep5U6E7sipZrWw9ENvHuARuKCfl+3Wr48tRf7KsvocJgzv7YWfhrPHEwE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=GLkquT7F; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=CD+xjxzU; arc=none smtp.client-ip=103.168.172.151
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 381063451C1
+	for <virtualization@lists.linux.dev>; Tue, 21 Apr 2026 21:47:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.172
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1776808066; cv=pass; b=glYHCddyu6LbygSVgx0KzXaPKa6YWz/VT1At7hdGyGnw1zRSa7IMMlNPM1VmBB3b8yVfn7oZWFmpnyS1ZSvmNd0JsVCqqmk7CTjAuG55bYYZ+hbQhoiuZncNcOAFefebdrynXJEqa5lssdMgJ8zf8bBOji8hwoOgJx5D4N7wYkA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1776808066; c=relaxed/simple;
+	bh=4Oxw6LGpu8RTKw5kwejvt9ouUw2sk/BVGFdK0UFFwHc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=CwD0gikfoSRKsfhv5d0GCTQMmCSBT20KMbeEO9A2/IyzzeMnhjcRyKJclobEn54XupC+C1W3iLBry5WHRJRYQVK8SYtDDfWOvRbHuI83cuGRBsgdSna0lS8i/F5YgefP5Yzr7DOxzTbRbzuShCzFi8KYTnHfb+Uw/RmrH2+QS0Y=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=mIbYLHwY; arc=pass smtp.client-ip=209.85.160.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="GLkquT7F";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="CD+xjxzU"
-Received: from phl-compute-02.internal (phl-compute-02.internal [10.202.2.42])
-	by mailfout.phl.internal (Postfix) with ESMTP id 8EE77EC00A3;
-	Tue, 21 Apr 2026 15:31:27 -0400 (EDT)
-Received: from phl-frontend-03 ([10.202.2.162])
-  by phl-compute-02.internal (MEProxy); Tue, 21 Apr 2026 15:31:27 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm1; t=1776799887;
-	 x=1776886287; bh=hIF2+30qOQFQxzgm1H9H8kdO/7SbRVRzMzpLBLQLkHM=; b=
-	GLkquT7FdWJWnMDVjI6VSaP2Nb8SBDofub6/6YlVXIMFR+NzSkQ5+V1MJPvHBaZI
-	sY68IG6k0DdSRA2KP21RQJOragdX1ZicrGUQios2dunp6HUpYh/V9wy3SRfge/bz
-	xG7mUtDtKIml0fg0+yk/iDmAZBgNBBYsnzf5uf+/whyaM8A0aTuMIUMUoYpC1mdj
-	7gQ6t/8DoFK8gZgBO0hDyAh4CG9wmmZ/b1HQFx9C4Nje/fZdUAj6t64mnqYDP2/b
-	zX03U2oKOF/93CReJ4r9MeGEhaSoCdgMWRsRon2ovegqv1pA/fmv3FbbqsmxHyxZ
-	pksSDT1F+DahG3LtLbItQA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1776799887; x=
-	1776886287; bh=hIF2+30qOQFQxzgm1H9H8kdO/7SbRVRzMzpLBLQLkHM=; b=C
-	D+xjxzU0ySCSiWsAENEwREph3gutca+8jb/2ukIXwxWAavXTavcQTte7NHv6vuHb
-	R2aMttcBZP/jFtT/pH8hU66polWGOu5RIumYKdCX7qZyUmrZ/LibT9enhVfZEpd3
-	cernd/4SagGVD9YZHMSywT2YjWfsEkRCdWKiMBZzdfol1PXPydBe1lhEUMTJ5UsJ
-	vVy2t20aWSSl5VQNk6gnGvNyoqVlg50MpVV0bN0UB0Zz4WUezr6nFcN54tbh/3sd
-	Ug3QR2RpkpRXZem9ilcz9Ci44ZV6k5ypAxKslhsjYnYEk4Hx0ZW/SshfQcKWOpD9
-	kRf6QE8A6YOKWar8XYN9w==
-X-ME-Sender: <xms:jtDnafCoGJf4lQKa72JCGiYmN_KXQAVAUnuEU0sZCYInrZUFHbUYdw>
-    <xme:jtDnaQNnLX2-HutU1kl6R0xNzIiv33yiPkoEpbvg3fbCe3Y4cMZYZgwSAYNmLfYlX
-    P-kZoJBakj7nG3AkgUe3SnHxPb8xGEQAGk2xHpM_u5Rz99e6vgTew>
-X-ME-Received: <xmr:jtDnaRNBZbSeQF-lOnpn4com5znlWC-xD7RgoYkCwXabvJfA1HBEYliqdsA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgdeivddvfecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
-    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
-    hrpeffhffvvefukfgjfhfogggtgfesthejredtredtvdenucfhrhhomheptehlvgigucgh
-    ihhllhhirghmshhonhcuoegrlhgvgiesshhhrgiisghothdrohhrgheqnecuggftrfgrth
-    htvghrnhepvdekfeejkedvudfhudfhteekudfgudeiteetvdeukedvheetvdekgfdugeev
-    ueeunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
-    hlvgigsehshhgriigsohhtrdhorhhgpdhnsggprhgtphhtthhopedukedpmhhouggvpehs
-    mhhtphhouhhtpdhrtghpthhtohepmhgrthhtvghvsehmvghtrgdrtghomhdprhgtphhtth
-    hopehkvghvihhnrdhtihgrnhesihhnthgvlhdrtghomhdprhgtphhtthhopehjghhgseii
-    ihgvphgvrdgtrgdprhgtphhtthhopegrnhhkihhtrgesnhhvihguihgrrdgtohhmpdhrtg
-    hpthhtoheprghpohhpphhlvgesnhhvihguihgrrdgtohhmpdhrtghpthhtoheplhgvohhn
-    sehkvghrnhgvlhdrohhrghdprhgtphhtthhopehkvggvsheskhgvrhhnvghlrdhorhhgpd
-    hrtghpthhtohepshhkohhlohhthhhumhhthhhosehnvhhiughirgdrtghomhdprhgtphht
-    thhopeihihhshhgrihhhsehnvhhiughirgdrtghomh
-X-ME-Proxy: <xmx:jtDnactiQNzKnH0OM_z3owk7yhgBtB4G-s6wUU0_E0WISFCVoExi-g>
-    <xmx:jtDnae-R7wcg0vLy_AthDU3FDJRIUuzlxHv8ofx6-oIrOUxTc-qrSw>
-    <xmx:jtDnaQF0jMqyEL_7q9cJjCxYReLe2wlXH2d-HGxKWWPdZLJtjrDKKg>
-    <xmx:jtDnadQJqdhRFqk6tZwmoZVUFVRwdD5Zkyl-SNpISech-Vqyflcm3w>
-    <xmx:j9Dnaab64ovIADOud0mfMF__j7V7J04q1aDnCOB-3jA8R2zrqt1PrESl>
-Feedback-ID: i03f14258:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Tue,
- 21 Apr 2026 15:31:25 -0400 (EDT)
-Date: Tue, 21 Apr 2026 13:31:23 -0600
-From: Alex Williamson <alex@shazbot.org>
-To: Matt Evans <mattev@meta.com>
-Cc: Kevin Tian <kevin.tian@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Ankit
- Agrawal <ankita@nvidia.com>, Alistair Popple <apopple@nvidia.com>, Leon
- Romanovsky <leon@kernel.org>, Kees Cook <kees@kernel.org>, Shameer Kolothum
- <skolothumtho@nvidia.com>, Yishai Hadas <yishaih@nvidia.com>, Alexey
- Kardashevskiy <aik@ozlabs.ru>, Eric Auger <eric.auger@redhat.com>, Peter Xu
- <peterx@redhat.com>, Vivek Kasireddy <vivek.kasireddy@intel.com>, Zhi Wang
- <zhiw@nvidia.com>, <kvm@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
- <virtualization@lists.linux.dev>, alex@shazbot.org
-Subject: Re: [PATCH 1/2] vfio/pci: Set up barmap in vfio_pci_core_enable()
-Message-ID: <20260421133123.36fc0353@shazbot.org>
-In-Reply-To: <20260421174143.3883579-2-mattev@meta.com>
-References: <20260421174143.3883579-1-mattev@meta.com>
-	<20260421174143.3883579-2-mattev@meta.com>
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.51; x86_64-pc-linux-gnu)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="mIbYLHwY"
+Received: by mail-qt1-f172.google.com with SMTP id d75a77b69052e-50d864c23bdso2564281cf.1
+        for <virtualization@lists.linux.dev>; Tue, 21 Apr 2026 14:47:45 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1776808064; cv=none;
+        d=google.com; s=arc-20240605;
+        b=ctHYB9aSowfnUL3UhoA7X7H5owEZ9221w2DRQfgWM1xX8AYzfx7bfCt/V29g4Z2eAc
+         8ywPbvyaxvK19h60Vr3u/JoGr90tlKeKvEcBeLFswKOiOS5L4rTa74Ptte32ZWtZZlsp
+         OBJHVABBTZ/7UWlwYIzsh8mkCowrTRhxwEAmrNdJnZlkR5Mluid9b3B4+mmpyhGXaCaG
+         Ge+A+epGZ0wYDiQPUxtZww78ijZOVcUPDBjRjU5jDjrKXxcuf1U9sG7zcrvYsUxGOfiw
+         0ViQEjVeTw2fafsKGukC0jt4KFvFtMIPbmbGGZesPF1Qb/LGDb/BrFvs3vBRQazv5+1b
+         9qtQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=VE4UOSZ7NumAlH9D0q/aqdP2qC2HKhPCfoqZLGG6I/8=;
+        fh=3ZOOvx5TT7vbIC17LlyWQZDFLyud6cAofYq4fSPE9OA=;
+        b=SOKjA6RAfTNOXM5pX2XXxJ2kobX81aXhHLdyHLDsT+hi7f4L7tSYTBxaOOIppf8Szb
+         t45JD7iMx+B83kRcbAy7Koeir+zTRtkaZVIgQXl1FueyDD/qyO3ldM+TbmTsRGi8o90M
+         ekT8E7kHfaoElgVGpagvhW9tw6shnmv4Q01qZQYV8XesBp1QUcrz7Sj8AA32f8QybaTf
+         ip670LWAIVo5G/Fx6mOd1c25oPF8zK2p5ywVPAKc52Ic1W+q3JbNpBrBEMgEAvh8dA2L
+         HiiDsZp2192t2H9eeC+DXLJ8uB/5mwwrbIiLXhZCukehuCd5aUyGXBrFxdcIHCCKMly0
+         JHJw==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1776808064; x=1777412864; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=VE4UOSZ7NumAlH9D0q/aqdP2qC2HKhPCfoqZLGG6I/8=;
+        b=mIbYLHwYXLsQOUaHQ9PlAnfY8l3s0vHQqe+kpPTsnLOlXoR5Tx3qz+YqDiVtUkAH+S
+         sJjzjbshlrSICKCq3xRQEtTR/8lT9XrP71mqv+0bom4YUAeYOJDoWKC2rNJHkGcgJJb5
+         5yJCMUNdG8bKPcD7eOpj7D3aNkqGJspgNJVklJ4EY0K82G+oWV+SjeNnf+DIuCUwRiY6
+         uH6kebNLmFZsmtxDf7DQx5iHGTrQjAgd05o2iqsHJeh9O3kewiw2ZgILKytiT+ehAErC
+         wqhao//ct/gKwhLKBi2MEIm9dbhCGGnzUrGgUNAY/HzxB74+zIHw2Ljii4R5CnWsgBs3
+         LFdg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1776808064; x=1777412864;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=VE4UOSZ7NumAlH9D0q/aqdP2qC2HKhPCfoqZLGG6I/8=;
+        b=MFiMnX5+cdowJ6GmGJb/CsRn438elSL5pPjSAYmSXc+9w5y+S7+enBjo26E3nO+A7L
+         JYXkRYOvpPudcnTSLAWftY+7HbNw4qcM2V10IX53I2K/1Tt58sEsufuD4oQ6oe1Ue6Pu
+         bcKpfrol9EcHR6G0t2TTy42bwV+JwvSourqdzUcGcNih65YDG5hpzADRksAK1nV6owrf
+         DKZebRRZ05Eljr7DKIJr4zhymFE+UxevDRuamMLXrBnnrUxgRPR4VGYKfx/Wloq48hJ5
+         GPXYF3dWTlEL5S9Xeb7n8D1QUYuE/DQaydqva4FVSka07eM94Fckcj8mnycSG0VjIsr1
+         BH5g==
+X-Forwarded-Encrypted: i=1; AFNElJ/U4i2+iR9z75AR9OvwxAJmsVc/NF6kLiiyTlAt7ssxcSddH5G/zOEv3ESDvgWkuk38VWSYpDj5arzkH5CjSA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzGN9OZhQ25yk+lyfnqLTko6SY9LPg4r0VnNIJ7xzKgCp4fvRMl
+	Va9M8eQha1arndi9WlA0CJ39dWbyN6rHtHhxI5urjkhSWiGOGhz2SK5XBZCjvkcx8BL63d3hpWf
+	WwcYDIEv/pftvTrVUBUV2/lCnn4LiEKfFlAA8r6wy
+X-Gm-Gg: AeBDieveDgPFM42jHEvnwgjuqwRYIuxyyitxiFPoi2DlP2KYtitl88t6OtuJXhcfSnw
+	jkMUHWpt8nYUAzXEtmAk2+q0OgccHw8Uk64VSI4z397vkcwpfgG4JhAAph8UvtlPSATQwxhPG1m
+	QFVIa+jM2wWp3L1oAE5F606ksqtg3KnaloFK1F22kof2+NDmWG5IaTk4YcOyjDpJ9T/PGoISHdV
+	AX32VAUFIfD9etKz17QZA06qTuF+SKP1N2cH4oVmQoOsJKS8OHLRAo+OOE80yHaPX/TjkPKvPLa
+	ScaNkCo9sonyztmWx/QiyaTq38nCJ8r0UI2s6aPXirKtqyx71CIlBak=
+X-Received: by 2002:a05:622a:1f17:b0:50e:5eba:cadd with SMTP id
+ d75a77b69052e-50e5ebad291mr7256901cf.2.1776808063721; Tue, 21 Apr 2026
+ 14:47:43 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <20260407212521.934620-1-linkl@google.com> <CALUx4KQKNYZm5AZzQXNqLRdGAT0nQOpmn_Lz6WHie73w1d9JQA@mail.gmail.com>
+In-Reply-To: <CALUx4KQKNYZm5AZzQXNqLRdGAT0nQOpmn_Lz6WHie73w1d9JQA@mail.gmail.com>
+From: Link Lin <linkl@google.com>
+Date: Tue, 21 Apr 2026 14:47:32 -0700
+X-Gm-Features: AQROBzA_v1mfepZVcCvM1JWvyJKoqHaIIdFG8hC-KslNeutAp7qSyJfJAJPI-nQ
+Message-ID: <CALUx4KTPcRCGvyvJfHSU_t61UJOuTBaAGxJ6nhUuaghE0_ZfUg@mail.gmail.com>
+Subject: Re: [RFC PATCH v1] virtio_pci: only store successfully populated virtio_pci_vq_info
+To: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com
+Cc: eperezma@redhat.com, jiaqiyan@google.com, rientjes@google.com, 
+	weixugc@google.com, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, 21 Apr 2026 10:41:40 -0700
-Matt Evans <mattev@meta.com> wrote:
+Hi everyone,
 
-> The previous lazy-setup of the barmaps provided opportunities to
-> forget to do it (for example, DMABUF export).  Since all users will
-> ultimately require BAR resources to have been requested, request them
-> in vfio_pci_core_enable.
-> 
-> Existing calls to vfio_pci_core_setup_barmap() are now benign, but
-> remain because some callers use it to validate a BAR index.  This
-> fixes at least the case where DMABUF export could succeed before
-> resources were requested.
-> 
-> This keeps resource request and ioremap() done at the same time, but
-> in future the ioremap() could be done on-demand (not all VFIO users
-> need it).
-> 
-> Fixes: 7f5764e179c6 ("vfio: use vfio_pci_core_setup_barmap to map bar in mmap")
-> Fixes: 0d77ed3589ac0 ("vfio/pci: Pull BAR mapping setup from read-write path")
-> Signed-off-by: Matt Evans <mattev@meta.com>
-> ---
->  drivers/vfio/pci/vfio_pci_core.c | 63 +++++++++++++++++++++++++++-----
->  drivers/vfio/pci/vfio_pci_rdwr.c | 25 +++----------
->  2 files changed, 60 insertions(+), 28 deletions(-)
-> 
-> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-> index 3f8d093aacf8..4a314213f3ae 100644
-> --- a/drivers/vfio/pci/vfio_pci_core.c
-> +++ b/drivers/vfio/pci/vfio_pci_core.c
-> @@ -482,6 +482,55 @@ static int vfio_pci_core_runtime_resume(struct device *dev)
->  }
->  #endif /* CONFIG_PM */
->  
-> +static void __vfio_pci_core_unmap_bars(struct vfio_pci_core_device *vdev)
-> +{
-> +	struct pci_dev *pdev = vdev->pdev;
-> +	int i;
-> +
-> +	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
-> +		int bar = i + PCI_STD_RESOURCES;
-> +
-> +		if (!vdev->barmap[i])
-> +			continue;
-> +		pci_iounmap(pdev, vdev->barmap[bar]);
-> +		pci_release_selected_regions(pdev, 1 << bar);
-> +		vdev->barmap[bar] = NULL;
-> +	}
-> +}
-> +
-> +static int __vfio_pci_core_map_bars(struct vfio_pci_core_device *vdev)
-> +{
-> +	struct pci_dev *pdev = vdev->pdev;
-> +	int ret = 0;
-> +	int i;
-> +
-> +	/* Eager-request BAR resources (and iomap) */
-> +	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
-> +		int bar = i + PCI_STD_RESOURCES;
-> +		void __iomem *io;
-> +
-> +		if (pci_resource_len(pdev, i) == 0)
-> +			continue;
-> +
-> +		ret = pci_request_selected_regions(pdev, 1 << bar, "vfio");
-> +		if (ret)
-> +			goto err_free_barmap;
-> +
-> +		io = pci_iomap(pdev, bar, 0);
-> +		if (!io) {
-> +			pci_release_selected_regions(pdev, 1 << bar);
-> +			ret = -ENOMEM;
-> +			goto err_free_barmap;
-> +		}
-> +		vdev->barmap[bar] = io;
-> +	}
-> +	return 0;
-> +
-> +err_free_barmap:
-> +	__vfio_pci_core_unmap_bars(vdev);
-> +	return ret;
-> +}
-> +
->  /*
->   * The pci-driver core runtime PM routines always save the device state
->   * before going into suspended state. If the device is going into low power
-> @@ -568,6 +617,9 @@ int vfio_pci_core_enable(struct vfio_pci_core_device *vdev)
->  	if (!vfio_vga_disabled() && vfio_pci_is_vga(pdev))
->  		vdev->has_vga = true;
->  
-> +	ret = __vfio_pci_core_map_bars(vdev);
-> +	if (ret)
-> +		goto out_free_zdev;
+Friendly ping. Apologies if you are getting this the second time - my
+last ping wasn't in plain text mode and got rejected by some mailing
+lists.
 
-Beyond simply changing to a preemptive mapping scheme, this hard
-failure makes me concerned about regressing userspace.  With the
-current lazy scheme, we only claim the BAR if the user accesses it and
-the failure only occurs in the access path.  That means we could have
-BARs that are never mapped.  With a hard failure here, with might be
-uncovering some latent issues, and if those latent issues are with BARs
-that we never cared to map previously, we're causing trouble for no
-gain.
+Please let me know if anyone has had a chance to look at this RFC
+patch, or if any changes are needed.
 
-I'd suggest setup should be a void function that generates pci_warn()
-on conflict or iomap error, but doesn't block the device.  Each usage
-path (including mmap that gets removed in the next path) still needs to
-validate the mapping is present for the given BAR and fail the call
-path otherwise.
+Thanks,
+Link
 
-There's also a subtle range check added in the virtio driver in the
-next patch, is that fixing a bug or paranoia?  Do we need a helper that
-does a range test and barmap test?  Thanks,
-
-Alex
-
->  
->  	return 0;
->  
-> @@ -591,7 +643,7 @@ void vfio_pci_core_disable(struct vfio_pci_core_device *vdev)
->  	struct pci_dev *pdev = vdev->pdev;
->  	struct vfio_pci_dummy_resource *dummy_res, *tmp;
->  	struct vfio_pci_ioeventfd *ioeventfd, *ioeventfd_tmp;
-> -	int i, bar;
-> +	int i;
->  
->  	/* For needs_reset */
->  	lockdep_assert_held(&vdev->vdev.dev_set->lock);
-> @@ -646,14 +698,7 @@ void vfio_pci_core_disable(struct vfio_pci_core_device *vdev)
->  
->  	vfio_config_free(vdev);
->  
-> -	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
-> -		bar = i + PCI_STD_RESOURCES;
-> -		if (!vdev->barmap[bar])
-> -			continue;
-> -		pci_iounmap(pdev, vdev->barmap[bar]);
-> -		pci_release_selected_regions(pdev, 1 << bar);
-> -		vdev->barmap[bar] = NULL;
-> -	}
-> +	__vfio_pci_core_unmap_bars(vdev);
->  
->  	list_for_each_entry_safe(dummy_res, tmp,
->  				 &vdev->dummy_resources_list, res_next) {
-> diff --git a/drivers/vfio/pci/vfio_pci_rdwr.c b/drivers/vfio/pci/vfio_pci_rdwr.c
-> index 4251ee03e146..d1386a31a3a3 100644
-> --- a/drivers/vfio/pci/vfio_pci_rdwr.c
-> +++ b/drivers/vfio/pci/vfio_pci_rdwr.c
-> @@ -200,26 +200,13 @@ EXPORT_SYMBOL_GPL(vfio_pci_core_do_io_rw);
->  
->  int vfio_pci_core_setup_barmap(struct vfio_pci_core_device *vdev, int bar)
->  {
-> -	struct pci_dev *pdev = vdev->pdev;
-> -	int ret;
-> -	void __iomem *io;
-> -
-> -	if (vdev->barmap[bar])
-> -		return 0;
-> -
-> -	ret = pci_request_selected_regions(pdev, 1 << bar, "vfio");
-> -	if (ret)
-> -		return ret;
-> -
-> -	io = pci_iomap(pdev, bar, 0);
-> -	if (!io) {
-> -		pci_release_selected_regions(pdev, 1 << bar);
-> -		return -ENOMEM;
-> -	}
-> -
-> -	vdev->barmap[bar] = io;
-> +	/*
-> +	 * The barmap is now always set up in vfio_pci_core_enable().
-> +	 * Some legacy callers use this function to check if the BAR
-> +	 * is legitimate, so maintain that:
-> +	 */
->  
-> -	return 0;
-> +	return vdev->barmap[bar] ? 0 : -EBUSY;
->  }
->  EXPORT_SYMBOL_GPL(vfio_pci_core_setup_barmap);
->  
-
+On Tue, Apr 21, 2026 at 2:24=E2=80=AFPM Link Lin <linkl@google.com> wrote:
+>
+> Hi everyone,
+>
+> Friendly ping on this RFC patch. Please let me know if anyone has had a c=
+hance to look at this, or if any changes are needed.
+>
+> Thanks,
+> Link
+>
+> On Tue, Apr 7, 2026 at 2:25=E2=80=AFPM Link Lin <linkl@google.com> wrote:
+>>
+>> In environments where free page reporting is disabled, a kernel
+>> panic is triggered when tearing down the virtio_balloon module:
+>>
+>>   [12261.808190] Call trace:
+>>   [12261.808471]  __list_del_entry_valid_or_report+0x18/0xe0
+>>   [12261.809064]  vp_del_vqs+0x12c/0x270
+>>   [12261.809462]  remove_common+0x80/0x98 [virtio_balloon]
+>>   [12261.810034]  virtballoon_remove+0xfc/0x158 [virtio_balloon]
+>>   [12261.810663]  virtio_dev_remove+0x68/0xf8
+>>   [12261.811108]  device_release_driver_internal+0x17c/0x278
+>>   [12261.811701]  driver_detach+0xd4/0x138
+>>   [12261.812117]  bus_remove_driver+0x90/0xd0
+>>   [12261.812562]  driver_unregister+0x40/0x70
+>>   [12261.813006]  unregister_virtio_driver+0x20/0x38
+>>   [12261.813518]  cleanup_module+0x20/0x7a8 [virtio_balloon]
+>>   [12261.814109]  __arm64_sys_delete_module+0x278/0x3d0
+>>   [12261.814654]  invoke_syscall+0x5c/0x120
+>>   [12261.815086]  el0_svc_common+0x90/0xf8
+>>   [12261.815506]  do_el0_svc+0x2c/0x48
+>>   [12261.815883]  el0_svc+0x3c/0xa8
+>>   [12261.816235]  el0t_64_sync_handler+0x8c/0x108
+>>   [12261.816724]  el0t_64_sync+0x198/0x1a0
+>>
+>> The issue originates in vp_find_vqs_intx(). It kzalloc_objs() based
+>> on the nvqs count provided by the caller, virtio_balloon::init_vqs().
+>> However, it is not always the case that all nvqs number of
+>> virtio_pci_vq_info objects will be properly populated.
+>>
+>> For example, when VIRTIO_BALLOON_F_FREE_PAGE_HINT is absent, the
+>> VIRTIO_BALLOON_VQ_FREE_PAGE-th item in the vp_dev->vqs array is
+>> actually never populated, and is still a zeroe-initialized
+>> virtio_pci_vq_info object, which is eventually going to trigger
+>> a __list_del_entry_valid_or_report() crash.
+>>
+>> Tested by applying this patch to a guest VM kernel with the
+>> VIRTIO_BALLOON_F_REPORTING feature enabled and the
+>> VIRTIO_BALLOON_F_FREE_PAGE_HINT feature disabled.
+>> Without this patch, unloading the virtio_balloon module triggers a panic=
+.
+>> With this patch, no panic is observed.
+>>
+>> The fix is to use queue_idx to handle the case that vp_find_vqs_intx()
+>> skips vp_setup_vq() when caller provided null vqs_info[i].name, when
+>> the caller doesn't populate all nvqs number of virtqueue_info objects.
+>> Invariantly queue_idx is the correct index to store a successfully
+>> created and populated virtio_pci_vq_info object. As a result, now
+>> a virtio_pci_device object only stores queue_idx number of valid
+>> virtio_pci_vq_info objects in its vqs array when the for-loop over
+>> nvqs finishes (of course, without goto out_del_vqs).
+>>
+>> vp_find_vqs_msix() has similar issue, so fix it in the same way.
+>>
+>> This patch is marked as RFC because we are uncertain if any virtio-pci
+>> code implicitly requires virtio_pci_device's vqs array to always
+>> contain nvqs number of virtio_pci_vq_info objects, and to store
+>> zero-initialized virtio_pci_vq_info objects. We have not observed
+>> any issues in our testing, but insights or alternatives are welcome!
+>>
+>> Signed-off-by: Link Lin <linkl@google.com>
+>> Co-developed-by: Jiaqi Yan <jiaqiyan@google.com>
+>> Signed-off-by: Jiaqi Yan <jiaqiyan@google.com>
+>> ---
+>>  drivers/virtio/virtio_pci_common.c | 10 ++++++----
+>>  1 file changed, 6 insertions(+), 4 deletions(-)
+>>
+>> diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_=
+pci_common.c
+>> index da97b6a988de..9b32301529e5 100644
+>> --- a/drivers/virtio/virtio_pci_common.c
+>> +++ b/drivers/virtio/virtio_pci_common.c
+>> @@ -423,14 +423,15 @@ static int vp_find_vqs_msix(struct virtio_device *=
+vdev, unsigned int nvqs,
+>>                         vqs[i] =3D NULL;
+>>                         continue;
+>>                 }
+>> -               vqs[i] =3D vp_find_one_vq_msix(vdev, queue_idx++, vqi->c=
+allback,
+>> +               vqs[i] =3D vp_find_one_vq_msix(vdev, queue_idx, vqi->cal=
+lback,
+>>                                              vqi->name, vqi->ctx, false,
+>>                                              &allocated_vectors, vector_=
+policy,
+>> -                                            &vp_dev->vqs[i]);
+>> +                                            &vp_dev->vqs[queue_idx]);
+>>                 if (IS_ERR(vqs[i])) {
+>>                         err =3D PTR_ERR(vqs[i]);
+>>                         goto error_find;
+>>                 }
+>> +               ++queue_idx;
+>>         }
+>>
+>>         if (!avq_num)
+>> @@ -485,13 +486,14 @@ static int vp_find_vqs_intx(struct virtio_device *=
+vdev, unsigned int nvqs,
+>>                         vqs[i] =3D NULL;
+>>                         continue;
+>>                 }
+>> -               vqs[i] =3D vp_setup_vq(vdev, queue_idx++, vqi->callback,
+>> +               vqs[i] =3D vp_setup_vq(vdev, queue_idx, vqi->callback,
+>>                                      vqi->name, vqi->ctx,
+>> -                                    VIRTIO_MSI_NO_VECTOR, &vp_dev->vqs[=
+i]);
+>> +                                    VIRTIO_MSI_NO_VECTOR, &vp_dev->vqs[=
+queue_idx]);
+>>                 if (IS_ERR(vqs[i])) {
+>>                         err =3D PTR_ERR(vqs[i]);
+>>                         goto out_del_vqs;
+>>                 }
+>> +               ++queue_idx;
+>>         }
+>>
+>>         if (!avq_num)
+>> --
+>> 2.53.0.1213.gd9a14994de-goog
