@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85B3B38836C;
-	Tue, 21 Apr 2026 10:04:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CCF738CFE1;
+	Tue, 21 Apr 2026 10:50:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776765895; cv=none; b=bgVxSqATv+3qQo9cGIlkSxYetnu1mENXVzamkWAjyx5Bu9Pp0njnqZe6hTUqwtfMB4C9YDuAGpxvMmUeCJuFW5D/YebcWa1PFbaDQ2cJRopjRSda0yj3dvT90Yp3eG4bqYctkvd4NJnZiRc4OC7IyppBJqHOxSNWknfw8x0JbHo=
+	t=1776768617; cv=none; b=ffJCN1gDZ54BsbAwOqN1xtbixeiOPYhGW8yETC6NkkB8o/nPtVAoJZJA60qboIU2O91HqZX1cleLhvYUENQSFkWMHJhxVo96c9C7a2pUP6KpaXjX0ZfH2+OdbfItxbRK1Bi0O6N6fYlDmYH95ysuvtsEv3AaqvV0IxE5UXSFgVo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776765895; c=relaxed/simple;
-	bh=tsk+Ia61mwK7qUKPBPYK2EDdHO8W7BH6sPRHl6yyybE=;
+	s=arc-20240116; t=1776768617; c=relaxed/simple;
+	bh=ZJ6FHm5JKqX31spxia8p0zhN0JlHXITc3WqiAM8CzoQ=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=FQMeELZqRXjDd7wBGxlqirpOKXcDQxMsQhwSS8w99EIxQd01bTC0rnICul5fdoMli98t2ZHE2pFTsh5qgYM8uDvNtiKm59C1FGwjyRSnr66AQPZg53E9L7DrESsq1ZBFF+rY/XxCXP/EK7AVIBnKFEKWxjlrkGhHKgcbv8m4Ldw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZGWjTiK4; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=gVyzvTYz4YjMy5vjBMy5UKhKQEUj5XePVI2bKR95yydPF1ExhXZPOacFwgk58XYL28ZfY5x0icZk1zgDbfsVW7opqKsC/02Xqy3H7tceVIB+Aby+xrZsHl5cYkhKr/VtwNwcKHKV0BfS+SB1JuaUqErykqdlkyn+MZ15y2eUogI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=R7syxLuv; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZGWjTiK4"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E589C2BCB0;
-	Tue, 21 Apr 2026 10:04:51 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="R7syxLuv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8AFAAC2BCB0;
+	Tue, 21 Apr 2026 10:50:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776765895;
-	bh=tsk+Ia61mwK7qUKPBPYK2EDdHO8W7BH6sPRHl6yyybE=;
+	s=k20201202; t=1776768617;
+	bh=ZJ6FHm5JKqX31spxia8p0zhN0JlHXITc3WqiAM8CzoQ=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=ZGWjTiK4NnVuO+SLiafw12sUEIauaIcOB2OEhCSJl/e6FH7+3Y4/ST0uc9EXSfd7C
-	 h6BFQdy6GiwZsL48F0wy8+rQ5PWw74EmFtyBEKEGDqh0by/WlXT6kvAMLxBM5b2V9S
-	 Rm3cg1U7aMfkE10xkWG9rcARlgwj/Dv8eiCN1Mutx7tz78wwQMwnZnWj3ydgpPbfwP
-	 m1Ie+9estCHvL/lPKl1qK67cNnasyOWlSTH3i1UZ0JzJfyaVAEVlQggKHf1er5x8Pg
-	 AnPIEd+7vYz2/IT67KYU4W/UGFnYpUJ7FXHXEBgKO/tB5z7AoNuxPxF2jrUU6Y17D2
-	 OLGxJkeP9hPCQ==
-Message-ID: <0bb2d565-4b3e-4b0b-8e81-57898d8a2a21@kernel.org>
-Date: Tue, 21 Apr 2026 12:04:49 +0200
+	b=R7syxLuvYtg+m30JSYJXnsOqtYyyUFsjAtuggT5S7ijiJdRQgGiHCRtxHkDeo4+i2
+	 eBXJTrLKkGQJP+lEo3rQPShlzLMdi90h+TYf4hmh85RT1ZhWOkgrRBnmUoz9JN03bX
+	 fR2bUoBAb7vGU+OCnn8W9ZRekapy+83BN7Z1YRRea7iqIwGL8Ebz202ampcRIuptRI
+	 yqXBA9j44doKaID8KO953JvyJ3+eFWhzRcrE/DHah+S9GOqdXETXJWmtM0EDmewqkn
+	 Gb9InXGdSoSnVEVQLaS1sjGLI94kzzoRkkkkTvwVbdJJVNL1dskwLavwF3z3DX4kEI
+	 30Hl/ro2xyqTQ==
+Message-ID: <4bdc66f2-1469-4b91-9935-74c3d3ca0ed9@kernel.org>
+Date: Tue, 21 Apr 2026 12:50:11 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -37,7 +37,7 @@ MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH RFC v2 00/18] mm/virtio: skip redundant zeroing of
  host-zeroed reported pages
-To: Gregory Price <gourry@gourry.net>, "Michael S. Tsirkin" <mst@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
  Vlastimil Babka <vbabka@kernel.org>, Brendan Jackman <jackmanb@google.com>,
  Michal Hocko <mhocko@suse.com>, Suren Baghdasaryan <surenb@google.com>,
@@ -46,7 +46,6 @@ Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
 References: <cover.1776689093.git.mst@redhat.com>
  <c199e47d-b2fd-42f3-9e50-c47c848dc72f@kernel.org>
  <20260420192037-mutt-send-email-mst@kernel.org>
- <aebjG-qMLr0joG61@gourry-fedora-PF4VCD3F>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -93,33 +92,142 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <aebjG-qMLr0joG61@gourry-fedora-PF4VCD3F>
+In-Reply-To: <20260420192037-mutt-send-email-mst@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 4/21/26 04:38, Gregory Price wrote:
-> On Mon, Apr 20, 2026 at 07:33:38PM -0400, Michael S. Tsirkin wrote:
->> On Mon, Apr 20, 2026 at 08:20:57PM +0200, David Hildenbrand (Arm) wrote:
+On 4/21/26 01:33, Michael S. Tsirkin wrote:
+> On Mon, Apr 20, 2026 at 08:20:57PM +0200, David Hildenbrand (Arm) wrote:
+>> On 4/20/26 14:51, Michael S. Tsirkin wrote:
+>>>
+>>
+>> Hi!
 >>
 >>>
->>> Which would *already* be the case of you use folio_alloc(GFP_ZERO)
->>> instead of magical vma_alloc_folio() + folio_zero_user().
+>>> v2 - this is an attempt to address David Hildenbrand's comments:
+>>> overloading GFP and using page->private, support for
+>>> balloon deflate.
 >>>
->>> I don't really see how vma_alloc_folio_hints() -- that also consumes the
->>> address -- is any better in that regard?
+>>> I hope this one is acceptable, API wise.
+>>>
+>>> I also went ahead and implemented an alternative approach
+>>> that David suggested:
+>>> using GFP_ZERO to zero userspace pages.
+>>> The issue is simple: on some architectures, one has to know the
+>>> userspace fault address in order to flush the cache.
+>>>
+>>> So, I had to propagate the fault address everywhere.
 >>
->> By itself, it is not. But the issue is propagating the address from
->> there all over mm. If we miss even one place - we get a subtle cache
->> corruption on non x86.
+>> As I said, that might not be necessary. vma_alloc_folio() is the
+>> interface we mostly care about in that regard.
 >>
 > 
-> Why does it need to propogate?
-> 
-> Can we leave folio_zero_user() callers the same, but add a PG_zeroed
-> check in folio_zero_user() that skips the zeroing (but not the cache
-> flush) and clear the PG_zeroed bit?
+> I'm not sure I follow what "might not be necessary". We need a fault
+> address so zeroing can be effective wrt cache. Since you asked that it's
+> done deep in post alloc hook, the address has to propagate all over mm.
 
-folio_zero_user() is just an abomination, really.
+Let's look at who ends up using user_alloc_needs_zeroing() or
+folio_zero_user()
+
+3 folio_zero_user() users are hugetlb that might get pages from another
+allocator. In particular, mm/memfd.c even passes 0 as it doesn't even
+have an address.
+
+I don't think we particularly care about speeding up hugetlb zeroing at
+this point when we already don't even care about optimizing for
+user_alloc_needs_zeroing(). But it could be reworked later to optimize
+zeroing in a similar way when actually allocating a folio from the buddy.
+
+Now, for callers we care more about:
+
+* vma_alloc_anon_folio_pmd() calls
+  vma_alloc_folio()+user_alloc_needs_zeroing()+folio_zero_user()
+* alloc_anon_folio() calls
+  vma_alloc_folio()+user_alloc_needs_zeroing()+folio_zero_user()
+* vma_alloc_zeroed_movable_folio() calls
+  vma_alloc_zeroed_movable_folio()+user_alloc_needs_zeroing()+
+  clear_user_highpage().
+
+
+Other vma_alloc_folio() users neither specify __GFP_ZERO not use
+folio_zero_user(), as they will be overwriting the data either way. Like
+KSM when unsharing, for example.
+
+I am saying we move "user_alloc_needs_zeroing()+folio_zero_user()" into
+vma_alloc_folio(), by teaching vma_alloc_folio() to respect __GFP_ZERO.
+
+user_alloc_needs_zeroing() will effectively go away as the buddy will
+just handle that.
+
+
+All of the above is what you do on gfp_zero branch already, so I think
+you understood what I meant regarding this interface.
+
+
+Anybody in the tree that would be using another folio_alloc() (or page
+allocator) interface with __GFP_ZERO *would already be broken on other
+architectures* where we would actually require folio_zero_user(), as
+they would already not be using folio_zero_user().
+
+But we don't really need the user address in many cases, like when
+allocating a folio for the pagecache where we don't even have an address.
+
+> 
+> 
+>>> A lot of churn, and my concern is, if we miss even one
+>>> place, silent, subtle data corruption will result and only
+>>> on some arches (x86 will be fine).
+>>
+>> Which would *already* be the case of you use folio_alloc(GFP_ZERO)
+>> instead of magical vma_alloc_folio() + folio_zero_user().
+>>
+>> I don't really see how vma_alloc_folio_hints() -- that also consumes the
+>> address -- is any better in that regard?
+> 
+> By itself, it is not. But the issue is propagating the address from
+> there all over mm. If we miss even one place - we get a subtle cache
+> corruption on non x86.
+
+Yes. Like someone not using folio_zero_user() as of today.
+
+[...]
+
+> 
+>>>
+>>> Still, you can view that approach here:
+>>> https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git gfp_zero
+>>>
+>>> David, if you still feel I should switch to that approach,
+>>> let me know. Personally, I'd rather keep that as a separate
+>>> project from this optimization.
+>> I'd prefer if we extend vma_alloc_folio() to just handle GFP_ZERO for us.
+> 
+> Pls take a look at that tree then. What do you think of that approach?
+> Better? 
+
+I primarily wonder whether we can limit the impact in patch #1 by
+focusing on the vma_alloc_folio() path only.
+
+For example, I don't think converting all folio_alloc_mpol() users to
+consume USER_ADDR_NONE at this point is really reasonable.
+
+(a) Focus on vma_alloc_folio(), where we already have an address.
+
+(b) To implement vma_alloc_folio() that way, we might need some internal
+    interfaces that consume an address.
+
+For example, instead of changing all callers of post_alloc_hook() to
+pass USER_ADDR_NONE, can we make post_alloc_hook() a simple wrapper
+around a variant that consumes an address.
+
+So isn't there a way we can just keep the changes mostly to mm/page_alloc.c?
+
+
+> 
+> I also note that we need a flag for free in order to implement
+> balloon deflate as you asked. Here, I reused the hints.
+
+Yes, but on the allocation path we do have a flag: __GFP_ZERO.
 
 -- 
 Cheers,
