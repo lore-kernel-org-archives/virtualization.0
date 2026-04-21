@@ -1,131 +1,145 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6988234321A
-	for <virtualization@lists.linux.dev>; Tue, 21 Apr 2026 16:59:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C622288C08
+	for <virtualization@lists.linux.dev>; Tue, 21 Apr 2026 17:08:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776790783; cv=none; b=ijpmQO2ilEBbG/kgGZ4ILUf/XtFZ0WEuiVsbXEOBDO4mw4UirW310x8WzKuc0sQVU8RFsSsTNiDBf+jOYg4EqrqvpdDTR+U9uqQwdNTwvAUIvb2p/74ObHGzp7ohbD2x+h/bbzqj4t6kaaVJBNtyKaOztqxmxeJs5AJje+uQU58=
+	t=1776791342; cv=none; b=jqsMXzaPL9tilRLYLhJ9qWudJhQEUsoUPHb0lerLFKAr3Cm0VSY2Nc0jR22S0Lel3uR38tKo7VlmYZpV95ZoyJDSCmBFpkHiSlqTdYBT/DjC99qfqOGJmwkMcFKRHNjkRWjK+SoubsU+mLGN/iD+4OUB7QunpZQZMPtbyNZmLh4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776790783; c=relaxed/simple;
-	bh=wr52/3mYI2JPnWPtcPr63RV9bzNblLuMfeskzqToVu8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=h5ZEoiSNzmWBgZD0ERRB8EKojUPESSl6cikizAfKkobbCdKWuYBEJU1yuZHJlb3QiyxB9TBKkvyU7K7ILxnx2Rwuzv4EwwPtyaFS/RCSTPo0T9DnXuYlqcCiDuo+R7K9wY87Tj99z3dqMnEXIjzXdgy5vKpcrveCyl+ypQ/si98=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aXDn6oMJ; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1776791342; c=relaxed/simple;
+	bh=m44O0dwBKI30dD/BNVYtje8eoZK0yrU4cbkCCOY9GCM=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=kipy3Qj/3/4Qj0rDcwRzJZHw2w+/GeaKp+r+GRiPvHCbY29EBhaGjrm3n4cf7R4d7oVxy313DPPROcFCMkEBtLJaWykjnKKHYrngqkg7SY5Ph17tgNHPjLimF+u8dfJvw3bfOrymXRXAQ7n8I8oZ+Mcji2uQ+7muWHm/05CK+FA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Q1HedPvX; arc=none smtp.client-ip=209.85.160.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aXDn6oMJ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1776790781;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Dc7z9eFec98ao+dc2Vh1ZPzSBnM7NHud5P8tRM1qhHs=;
-	b=aXDn6oMJAiL8Z3mAB7IS8qpzjk7pfxd6Pj+9y5nOMEarwEyzGLkwIhIFEmEhC64TmflH11
-	0aWe5PfnnuC6yHoE4shH938Tqdaaff3JjgadwMNVtwfo+hY/txylLDonR3C0/r9HfNgDIk
-	YR045eQpRYdQmXbHtToD5bCJNjyOg0w=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-590-rUp61eUtMRap_MNp_2Bg0Q-1; Tue, 21 Apr 2026 12:59:39 -0400
-X-MC-Unique: rUp61eUtMRap_MNp_2Bg0Q-1
-X-Mimecast-MFC-AGG-ID: rUp61eUtMRap_MNp_2Bg0Q_1776790777
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-48a55ecc32cso7365075e9.1
-        for <virtualization@lists.linux.dev>; Tue, 21 Apr 2026 09:59:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Q1HedPvX"
+Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-50e5c5033f6so22508351cf.0
+        for <virtualization@lists.linux.dev>; Tue, 21 Apr 2026 10:08:59 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1776791339; x=1777396139; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=WFUP7oxtLw+TaklzOUYMTAsDjSFshdzQqWmKfd2xajk=;
+        b=Q1HedPvXtchSCjXXMyZasT535juvWw6TdrYAoNsHyT7AFEwayNj0Lpanh6V/o+l31r
+         dyNTg5smw7otEZoEJWyUhbbJGEXSgLARRDFnKvrHk2SALaZEReYTq/lr5sqsbGk6H7Oh
+         CfxeEDe+pGtu1xxOQ4ZSMzZh839vIcy6zVnnZ4SL27u4COivUOXt/pVAFACdfIARTzsa
+         ehYP8+DBFbOKs4Ws79dJpoYzWm3r8a84MkDOtNGyZJdHF+4ywM0a+o12mtN5gDW7Ql2g
+         FF9rv7HeWN/+u0RyzLCvI4ZJTohkzAeitlDa+d5L0Bcb7CthtlP7AuLbuVBYuA96OK54
+         9+hg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776790777; x=1777395577;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Dc7z9eFec98ao+dc2Vh1ZPzSBnM7NHud5P8tRM1qhHs=;
-        b=kTOUaOkVjVaZJqO6xJSaj1kG/v+lHdDZxr55TltnEOjeNIVZ292WGqK9FUACfA+j+s
-         eoNlO3bepF9IDZEe4VajCTLyLuSjAYic7Rv2BUPORul5F06JI9uPouR50BdrooA7wz/P
-         Cj8bsykr3E40Gq9W3xc2Y2/iBgX980rZo3jnibFq7iZn3NOSzuo5/2yaIvSCuZQkSazO
-         rXpZBMQwp5yjixgtzSQt5lTej1qLzxpinOA2k/4eAmbgrsqd5iwGqRu4oVpacIEuTkQk
-         MU64KqUh8up8eHqakJACaydtBaSvao0gkIpf6qEeSDROemxRjyDp3R5N7Tcvt2V3VE3M
-         l3Tg==
-X-Forwarded-Encrypted: i=1; AFNElJ+TjTyxxSFC7VWezDO8T+rMnqfncK7rQFlTu8XA9lpIIwCchzsTqhS1EEAkZmkALa0Eg2rTB+M/gXxQLoo0eg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz4sTU1LnWT6bUHy2CmxnNE/qtGMwfh9Jqh8mBiLN8IiGJOWikm
-	xPLI9gU4iHcr3zhFt0N120Rlkf8DKEwyVaWf0IYJRofnvDBkvk6OtFaQ8qHXHpKgamEh8ezmHeB
-	ScZ1qBF+jZSeym2KyejnzPtzKITpXaqp0tl+NHrGS2w0dJcjuGxOBCUNcq9syhZbeTpyA
-X-Gm-Gg: AeBDieud6Jtl5arNkSDElONsTi4FHl7MvrWcPO76Wfjfpdl6XID0LBr05Yv6cLlEk2i
-	eouuTASkvb8aCJOmTCZpT1tZD4O+WsjdwaOxC65Jz3mNBorlCULKY2wbn+nBygnrjMhjm45/Sin
-	PTQAIzklRV4BdEQ79VoNU7f+kTa2svPRGK/bNZpSOcPSxJlDFRTHxFBP4c2t7Cd0fnIpJko31Vi
-	mHgBIRJ5WLTPBs4gy9jX1fpvWPobA/sCp5blu9En+cDsrhvtJT1HV5GJohDjbRzu7qxQ+sT57pt
-	n3QrfnLQKelz6u7fYLKWL7o0RG3cwQxjdMnRh6a14zFW+Cz3jRW7WrfG5jlaRdd7W1Iv9NZlTer
-	90ImkjSlPLkOFhQ9yi8WY8bVqriKpHF0sPVQ6MCErjF/7mFhDdIqtdg==
-X-Received: by 2002:a05:600c:1993:b0:489:e696:836f with SMTP id 5b1f17b1804b1-489e69686a7mr110733715e9.10.1776790776721;
-        Tue, 21 Apr 2026 09:59:36 -0700 (PDT)
-X-Received: by 2002:a05:600c:1993:b0:489:e696:836f with SMTP id 5b1f17b1804b1-489e69686a7mr110733065e9.10.1776790776231;
-        Tue, 21 Apr 2026 09:59:36 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-25-21.inter.net.il. [80.230.25.21])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-488fc140c82sm350387875e9.12.2026.04.21.09.59.34
+        d=1e100.net; s=20251104; t=1776791339; x=1777396139;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=WFUP7oxtLw+TaklzOUYMTAsDjSFshdzQqWmKfd2xajk=;
+        b=dB+zATr0sFe2EU0MtsKrASYxCrTpLnmi9h4iwxF7tIx1dzwssZFjFuNgXGpIdHkweR
+         BS/9/UH1vyn4jqggVlEniPCQi6MVdPHtXyLLX99XAq4ta9l/0km+N5pAuE49T2QmAD7g
+         918AOfgE30RBvci9c1eYQuFVgaTPvNwUYvH0C06M7v0dXtp91MTAnGsQdapdmxFBUbmO
+         VYODYN7kxR+UMYButbook05nCeequD26bQT0V3x23pVXesslaBrqoK8+GPbkG99ko+yd
+         QQrRkHATcuonaU/L1HbmgrP6tqjq+w8xa28OoyRzlyX1KLLWNhxQxG3eld8Hwp96sFSi
+         CjwQ==
+X-Forwarded-Encrypted: i=1; AFNElJ8trTCuBPfdq/BqJ5DoAzXeZ/4OwyAijdtxbzYNooL4fM95pjEZf7kYyY9xzz9fv15mqiBXMyN3cgVJ+m/wXw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywboy1ATBVGuO1NJD+xyvBcX822oqpji2FwunK2D/gO+B9soEqO
+	rRAObw2pft3FzaU7x+pXp/MoTgB4fdxgBzrK68VsshJdyRBMap+vzVLk
+X-Gm-Gg: AeBDievOf627ztkFXUnR4Alqq6zeIFvLCufCzBy4eWkTBHP+qtnTJ1Tu5vIRiXvDlM3
+	Xh3EQUXDC+5bZeCERGA8/C+AZS6dCVkJA+B2crNp1zkJwFmjd/IPLGOd395qqEYZ15c2VZP6R5v
+	767OrrS66/DmWZSWZH7AkZKve3RV9S2gppV/OYZYX2lfqjPR0DMI4oREPN/e4jq/5kSn2qanpGy
+	P0y9M4KzF8x8ZN2Lv1uIPv70+fSwFGE+MZN7EfJ/eWHCNQ0k2dv/xq5wYzeUHlKlgYsW4gVylvR
+	1l9sNgf0zBoayBj6DrixGn9Sy4zFm+Pl0dNqY73CCz3N8nuvFZ02KRCyPrQj78py8KfkIENp5yg
+	LAjkUeQaVKrxcgPozfXl1PLh6HSMz/j95AIgtxS3R75Lcj3wMHY+eFuhNTxl7sKc48DNF6bszHi
+	HtnsGBbzF5D2xDrPForgYwTaBwzbY8O4lVLqqtdPlBOxCB0VbUbvK9aCTvKp/s//LGN2raUudqi
+	SlVA2NTvfVgPgGsr/Gg3qQ5PIieZVk=
+X-Received: by 2002:ac8:5ace:0:b0:50f:ad91:8902 with SMTP id d75a77b69052e-50fad918c7amr93780241cf.37.1776791338948;
+        Tue, 21 Apr 2026 10:08:58 -0700 (PDT)
+Received: from server0 (c-68-48-65-54.hsd1.mi.comcast.net. [68.48.65.54])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-50fb92db861sm13134471cf.5.2026.04.21.10.08.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Apr 2026 09:59:35 -0700 (PDT)
-Date: Tue, 21 Apr 2026 12:59:32 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Gregory Price <gourry@gourry.net>
-Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
-	linux-kernel@vger.kernel.org,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Brendan Jackman <jackmanb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Andrea Arcangeli <aarcange@redhat.com>, linux-mm@kvack.org,
+        Tue, 21 Apr 2026 10:08:58 -0700 (PDT)
+From: Michael Bommarito <michael.bommarito@gmail.com>
+To: Marcel Holtmann <marcel@holtmann.org>,
+	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
+	linux-bluetooth@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org,
+	Soenke Huster <soenke.huster@eknoes.de>,
+	"Michael S . Tsirkin" <mst@redhat.com>,
 	virtualization@lists.linux.dev
-Subject: Re: [PATCH RFC v2 00/18] mm/virtio: skip redundant zeroing of
- host-zeroed reported pages
-Message-ID: <20260421125842-mutt-send-email-mst@kernel.org>
-References: <cover.1776689093.git.mst@redhat.com>
- <c199e47d-b2fd-42f3-9e50-c47c848dc72f@kernel.org>
- <20260420192037-mutt-send-email-mst@kernel.org>
- <aebjG-qMLr0joG61@gourry-fedora-PF4VCD3F>
- <20260421090341-mutt-send-email-mst@kernel.org>
- <aeeq9MUrqL6f47Y-@gourry-fedora-PF4VCD3F>
+Subject: [PATCH v3 0/2] Bluetooth: virtio_bt: harden rx against untrusted backend
+Date: Tue, 21 Apr 2026 13:08:43 -0400
+Message-ID: <20260421170845.3469513-1-michael.bommarito@gmail.com>
+X-Mailer: git-send-email 2.53.0
+In-Reply-To: <CABBYNZKqx4ureNbRGEghGjGWcmMQSoiY4oUCECme_Vgn8RvYYw@mail.gmail.com>
+References: <CABBYNZKqx4ureNbRGEghGjGWcmMQSoiY4oUCECme_Vgn8RvYYw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <aeeq9MUrqL6f47Y-@gourry-fedora-PF4VCD3F>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: wh16fAY3bFGCgp7rjtx7fx7kyGE7N6-uNKyaRsIyCh4_1776790777
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Tue, Apr 21, 2026 at 12:51:00PM -0400, Gregory Price wrote:
-> On Tue, Apr 21, 2026 at 09:06:00AM -0400, Michael S. Tsirkin wrote:
-> > On Mon, Apr 20, 2026 at 10:38:19PM -0400, Gregory Price wrote:
-> > > 
-> > > Can we leave folio_zero_user() callers the same, but add a PG_zeroed
-> > > check in folio_zero_user() that skips the zeroing (but not the cache
-> > > flush) and clear the PG_zeroed bit?
-> > > 
-> > > Is this feasible?
-> > 
-> > I do not see how - this would require leaking the page flag out of the
-> > buddy allocator.
-> >
-> 
-> Right, but you're leaking that bit of information out one way or another
-> - whether it's a page-flag or something else (pghint_t) you have the
-> same lifecycle problems (when does it become invalidated? how long can
-> it be trusted for?).
->
-> I suppose at least with (pghint_t) the data (in theory) falls out of
-> scope and doesn't live with the page - but guaranteed it just ends up
-> polluting more and more interfaces.
-> 
-> I'm seeing why David's suggest to plumb __GFP_ZERO correctly makes
-> sense, it's really the only feasible approach here that doesn't generate
-> a staleness problem with whatever information you try to leak out.
-> 
-> ~Gregory
+Respin of the virtio_bt rx hardening patch, split per Luiz's
+request on the v2 thread:
 
-OK, v3 with that incoming.
+  https://lore.kernel.org/linux-bluetooth/20260421151659.3326690-1-michael.bommarito@gmail.com/
+
+v2 bundled two independent hazards in one commit and the commit
+message got convoluted trying to explain them together. This v3
+keeps each hazard in its own patch so the rationale for each is
+self-contained.
+
+Patch 1/2 keeps the original v1/v2 concern: virtbt_rx_work() calls
+skb_put() with a used.len the device controls, with no validation
+against the 1000-byte buffer we actually exposed to virtio via
+sg_init_one(). Checking against skb_tailroom() is not enough
+because alloc_skb() can leave more tailroom than 1000 bytes due to
+slab padding. len == 0 is also accepted, which lets an empty skb
+reach virtbt_rx_handle() where the pkt_type byte is then read from
+uninitialized memory. 1/2 defines VIRTBT_RX_BUF_SIZE, reuses it in
+alloc_skb() and sg_init_one(), and gates virtbt_rx_work() on
+[1, VIRTBT_RX_BUF_SIZE] with bt_dev_err_ratelimited() on the drop
+path.
+
+Patch 2/2 closes a residual short-payload hazard found during v2
+pre-send review. After 1/2 restricts used.len to [1, 1000], a
+one-byte completion still reaches hci_recv_frame() with skb->len
+pulled to 0. If that byte was HCI_ACLDATA_PKT, the ACL-vs-ISO
+classification fast-path in hci_dev_classify_pkt_type()
+dereferences hci_acl_hdr(skb)->handle whenever the HCI device has
+an active CIS_LINK, BIS_LINK, or PA_LINK connection, reading two
+bytes of uninitialized RX-buffer data. The same hazard shape
+exists for every packet type because none of the switch cases in
+virtbt_rx_handle() checked skb->len against the per-type minimum
+HCI header. 2/2 requires skb->len to cover the fixed header size
+for the selected type (event 2, ACL 4, SCO 3, ISO 4) before
+calling hci_recv_frame(); drop ratelimited otherwise. Unknown
+pkt_type values still take the original kfree_skb() default path.
+
+Both patches carry the same Fixes: 160fbcf3bfb9 and Cc: stable@
+as the v2 commit, because both hazards have existed since the
+driver switched to skb_put() for used.len handling.
+
+Fresh runtime repro of the original skb_over_panic on an unpatched
+tree and a clean reject log with 1/2 applied are attached in the
+evidence bundle referenced from the v2 thread; no runtime change
+between v2 and v3 beyond the split (the final tree after 1/2+2/2
+is byte-identical to the v2 commit).
+
+Prior public versions of this patch on linux-bluetooth:
+
+  v1: <20260418000138.1848813-1-michael.bommarito@gmail.com>
+  v2: <20260421151659.3326690-1-michael.bommarito@gmail.com>
+
+Michael Bommarito (2):
+  Bluetooth: virtio_bt: clamp rx length before skb_put
+  Bluetooth: virtio_bt: validate rx pkt_type header length
+
+ drivers/bluetooth/virtio_bt.c | 39 ++++++++++++++++++++++++++++-------
+ 1 file changed, 32 insertions(+), 7 deletions(-)
+
+-- 
+2.53.0
 
