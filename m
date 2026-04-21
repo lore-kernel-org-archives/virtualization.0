@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 305CB34C155;
-	Tue, 21 Apr 2026 11:12:21 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 27D5F3A1A5F;
+	Tue, 21 Apr 2026 11:25:36 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776769942; cv=none; b=kAJ5yTXn49pqDEiIMkLKMCL/DELfmnb7eozGo4XVRXoIcYucPPVfI8XsU1qgghC1cAiXZlwVk6hBSum2l94UJzabbLZoVwa5hdMd4x462mKruOExMKuvb1NgDlxAokJn9H2yrz8vTK4mBvEldxX0jdW8ZV6m5e9IuY+ldtCsVB8=
+	t=1776770737; cv=none; b=juAw4Mx4W2fD29tiwY5cJVMS1ulxXIp3A93SOcx0YX3nK9/fjpHXNXIuIgzSq3xScMyAwaq5+iv/Xyw+HwB8zQ0xr2gRO6+poCPupmA+34WJ0HoAVR12N2mti3bkXzF+2/dBcjaQs4IMuFI5bQZDscpVERBVaMlat6zTri9TRRE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776769942; c=relaxed/simple;
-	bh=h0ZfPS8N0B54B+EWjuQ7SygZYX7IrUZB4L9pra+xp04=;
+	s=arc-20240116; t=1776770737; c=relaxed/simple;
+	bh=/zgzmGNCOYZ1B+8FSXNBeCfsoV+QdAwHLJqkV810FQs=;
 	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=MpWkGj/F3U8nq6+H3KisWQY8oYOModl0P7niR75uV85e/p58puJk9y2nXCjXVJ+89cDf5SxVlUE9k/927Mil395yjtug8/qGQD8NY5zoZMTspf8rvZblYnVs4kN/2j7wD2dxScJ2vEH3ZMFG0r6BnYsFfNozKeb/f+a9dYcso6w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=vHYYWGIQ; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=aRd5hw7zAFh/u3wCy2uEhpnQKW5wjpG40SSr5A704YYAEpXxi32z6DNOUqvCUUfpOTQH+8uUBX/B+sWe/WbNfSGW3AE4Fzj4+tgmC8HTk3t/iKZvBnDRbdFGUcgb6blgp0BxBWniTZw0JBYaEEiILsFHBAYrwdOLfGB3iLtv1ng=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oXiNuaqk; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="vHYYWGIQ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C3E6CC2BCB0;
-	Tue, 21 Apr 2026 11:12:17 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oXiNuaqk"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A9F7AC2BCB0;
+	Tue, 21 Apr 2026 11:25:33 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776769941;
-	bh=h0ZfPS8N0B54B+EWjuQ7SygZYX7IrUZB4L9pra+xp04=;
+	s=k20201202; t=1776770736;
+	bh=/zgzmGNCOYZ1B+8FSXNBeCfsoV+QdAwHLJqkV810FQs=;
 	h=Date:Subject:From:To:Cc:References:In-Reply-To:From;
-	b=vHYYWGIQ+rmLOH/dplvjRPF4vYo2dyyx6zOOYaYT+TEKlyOq5K/savikcr+8DwtZq
-	 TU83RqsoUo7DFezsnyPSWhV0niz/XQHBSYlPWAMylIBL0rYeM1jXoROAv6f/EztRd1
-	 4DHS0P8/EmC7je2SNtQcdoHhpw1EcnO4wBTdzpE1zazgVq6kvJdl1lItBLr/rMNYoA
-	 eHGNLz0Jm0s/YOSycNCe0KhMXrtjUeurXmivk101OPP9HaFMgOMfrSw2ZhCWsoBM8T
-	 cFYLWV8cxRik7tETOXqO2it1/wvqXFRQYZwKRNhN1TAhuCfIB94QSrQX+CklKnP8Ip
-	 Q9+jThh6/X0gw==
-Message-ID: <068cdadf-d979-4170-9ff3-2468f46e9786@kernel.org>
-Date: Tue, 21 Apr 2026 13:12:15 +0200
+	b=oXiNuaqkXGAnHNlr2/CNqYdPMV94W8r0SySgbB4Sd/AzOZNSfrorMyEXJz1t1Kbg8
+	 topuZloklZ6IXxXpm+HFYS+TfPi+rhEv03mdbf35e0k23UJ/tUHPQasPaSUWNPVO2Q
+	 A2AXachdrw1YbC0mG0DPO+Ep8ObtsCZMXgFYT3SH23eY4toKLcfd4/SUAI5cmo/RtF
+	 a5hITbGxw8oBb4ftKTk3dQPvYYuXad/gyG4pqrLw7Z1T7Br8ymE8QCOqJOuO8KxJEv
+	 /rAf/uodPxjhPcOxuUAbvz6JrfELFakT3VcenXf6bWzI50BOnFiAwL6oT/DWniIw5Z
+	 NHPXVV98DeE6Q==
+Message-ID: <def3bab1-b389-47a2-9ef3-4a0c34c674ba@kernel.org>
+Date: Tue, 21 Apr 2026 13:25:31 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -49,6 +49,7 @@ Cc: Andrew Morton <akpm@linux-foundation.org>,
 References: <cover.1776689093.git.mst@redhat.com>
  <39c3c8e647fc4c8e3dcb5c9d12f2e29b5404e8f2.1776689093.git.mst@redhat.com>
  <b7fc296b-06bc-4d52-b607-2da94c123fa4@kernel.org>
+ <068cdadf-d979-4170-9ff3-2468f46e9786@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
  xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
@@ -94,115 +95,125 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <b7fc296b-06bc-4d52-b607-2da94c123fa4@kernel.org>
+In-Reply-To: <068cdadf-d979-4170-9ff3-2468f46e9786@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 4/21/26 12:58, David Hildenbrand (Arm) wrote:
-> On 4/20/26 14:50, Michael S. Tsirkin wrote:
->> Use vma_alloc_folio_hints() and check PGHINT_ZEROED to skip
->> clear_user_highpage() when the page is already zeroed.
+On 4/21/26 13:12, David Hildenbrand (Arm) wrote:
+> On 4/21/26 12:58, David Hildenbrand (Arm) wrote:
+>> On 4/20/26 14:50, Michael S. Tsirkin wrote:
+>>> Use vma_alloc_folio_hints() and check PGHINT_ZEROED to skip
+>>> clear_user_highpage() when the page is already zeroed.
+>>>
+>>> On x86, vma_alloc_zeroed_movable_folio is overridden by a macro
+>>> that uses __GFP_ZERO directly, so this change has no effect there.
+>>>
+>>> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+>>> Assisted-by: Claude:claude-opus-4-6
+>>> Assisted-by: cursor-agent:GPT-5.4-xhigh
+>>> ---
+>>>  include/linux/highmem.h | 6 ++++--
+>>>  1 file changed, 4 insertions(+), 2 deletions(-)
+>>>
+>>> diff --git a/include/linux/highmem.h b/include/linux/highmem.h
+>>> index af03db851a1d..8bb67772c1cb 100644
+>>> --- a/include/linux/highmem.h
+>>> +++ b/include/linux/highmem.h
+>>> @@ -321,9 +321,11 @@ struct folio *vma_alloc_zeroed_movable_folio(struct vm_area_struct *vma,
+>>>  				   unsigned long vaddr)
+>>>  {
+>>>  	struct folio *folio;
+>>> +	pghint_t hints;
+>>>  
+>>> -	folio = vma_alloc_folio(GFP_HIGHUSER_MOVABLE, 0, vma, vaddr);
+>>> -	if (folio && user_alloc_needs_zeroing())
+>>> +	folio = vma_alloc_folio_hints(GFP_HIGHUSER_MOVABLE, 0, vma, vaddr,
+>>> +				      &hints);
+>>> +	if (folio && user_alloc_needs_zeroing() && !(hints & PGHINT_ZEROED))
+>>>  		clear_user_highpage(&folio->page, vaddr);
+>>>  
+>>>  	return folio;
 >>
->> On x86, vma_alloc_zeroed_movable_folio is overridden by a macro
->> that uses __GFP_ZERO directly, so this change has no effect there.
 >>
->> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
->> Assisted-by: Claude:claude-opus-4-6
->> Assisted-by: cursor-agent:GPT-5.4-xhigh
->> ---
->>  include/linux/highmem.h | 6 ++++--
->>  1 file changed, 4 insertions(+), 2 deletions(-)
+>> For others reading along, the variant on your other branch:
 >>
 >> diff --git a/include/linux/highmem.h b/include/linux/highmem.h
->> index af03db851a1d..8bb67772c1cb 100644
+>> index af03db851a1d9..ffa683f64f1d1 100644
 >> --- a/include/linux/highmem.h
 >> +++ b/include/linux/highmem.h
->> @@ -321,9 +321,11 @@ struct folio *vma_alloc_zeroed_movable_folio(struct vm_area_struct *vma,
+>> @@ -320,13 +320,8 @@ static inline
+>>  struct folio *vma_alloc_zeroed_movable_folio(struct vm_area_struct *vma,
 >>  				   unsigned long vaddr)
 >>  {
->>  	struct folio *folio;
->> +	pghint_t hints;
->>  
+>> -	struct folio *folio;
+>> -
 >> -	folio = vma_alloc_folio(GFP_HIGHUSER_MOVABLE, 0, vma, vaddr);
 >> -	if (folio && user_alloc_needs_zeroing())
->> +	folio = vma_alloc_folio_hints(GFP_HIGHUSER_MOVABLE, 0, vma, vaddr,
->> +				      &hints);
->> +	if (folio && user_alloc_needs_zeroing() && !(hints & PGHINT_ZEROED))
->>  		clear_user_highpage(&folio->page, vaddr);
->>  
->>  	return folio;
+>> -		clear_user_highpage(&folio->page, vaddr);
+>> -
+>> -	return folio;
+>> +	return vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO,
+>> +			      0, vma, vaddr);
+>>  }
+>>  #endif
+>>
+>> Looks like an extremely clean interface.
+>>
 > 
+> And we could likely just do the following on top I assume.
 > 
-> For others reading along, the variant on your other branch:
-> 
-> diff --git a/include/linux/highmem.h b/include/linux/highmem.h
-> index af03db851a1d9..ffa683f64f1d1 100644
-> --- a/include/linux/highmem.h
-> +++ b/include/linux/highmem.h
-> @@ -320,13 +320,8 @@ static inline
->  struct folio *vma_alloc_zeroed_movable_folio(struct vm_area_struct *vma,
->  				   unsigned long vaddr)
->  {
-> -	struct folio *folio;
+> diff --git a/arch/m68k/include/asm/page_no.h b/arch/m68k/include/asm/page_no.h
+> index d2532bc407ef..f511b763a235 100644
+> --- a/arch/m68k/include/asm/page_no.h
+> +++ b/arch/m68k/include/asm/page_no.h
+> @@ -12,9 +12,6 @@ extern unsigned long memory_end;
+>  
+>  #define copy_user_page(to, from, vaddr, pg)    copy_page(to, from)
+>  
+> -#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
+> -       vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
 > -
-> -	folio = vma_alloc_folio(GFP_HIGHUSER_MOVABLE, 0, vma, vaddr);
-> -	if (folio && user_alloc_needs_zeroing())
-> -		clear_user_highpage(&folio->page, vaddr);
+>  #define __pa(vaddr)            ((unsigned long)(vaddr))
+>  #define __va(paddr)            ((void *)((unsigned long)(paddr)))
+>  
+> diff --git a/arch/s390/include/asm/page.h b/arch/s390/include/asm/page.h
+> index 56da819a79e6..e995d2a413f9 100644
+> --- a/arch/s390/include/asm/page.h
+> +++ b/arch/s390/include/asm/page.h
+> @@ -67,9 +67,6 @@ static inline void copy_page(void *to, void *from)
+>  
+>  #define copy_user_page(to, from, vaddr, pg)    copy_page(to, from)
+>  
+> -#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
+> -       vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
 > -
-> -	return folio;
-> +	return vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO,
-> +			      0, vma, vaddr);
+>  #ifdef CONFIG_STRICT_MM_TYPECHECKS
+>  #define STRICT_MM_TYPECHECKS
+>  #endif
+> diff --git a/arch/x86/include/asm/page.h b/arch/x86/include/asm/page.h
+> index 416dc88e35c1..92fa975b46f3 100644
+> --- a/arch/x86/include/asm/page.h
+> +++ b/arch/x86/include/asm/page.h
+> @@ -28,9 +28,6 @@ static inline void copy_user_page(void *to, void *from, unsigned long vaddr,
+>         copy_page(to, from);
 >  }
+>  
+> -#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
+> -       vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
+> -
+>  #ifndef __pa
+>  #define __pa(x)                __phys_addr((unsigned long)(x))
 >  #endif
 > 
-> Looks like an extremely clean interface.
 > 
 
-And we could likely just do the following on top I assume.
+... and I wonder whether we could then convert the arm64 variant into a
+simple helper that just returns additional gfp flags.
 
-diff --git a/arch/m68k/include/asm/page_no.h b/arch/m68k/include/asm/page_no.h
-index d2532bc407ef..f511b763a235 100644
---- a/arch/m68k/include/asm/page_no.h
-+++ b/arch/m68k/include/asm/page_no.h
-@@ -12,9 +12,6 @@ extern unsigned long memory_end;
- 
- #define copy_user_page(to, from, vaddr, pg)    copy_page(to, from)
- 
--#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
--       vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
--
- #define __pa(vaddr)            ((unsigned long)(vaddr))
- #define __va(paddr)            ((void *)((unsigned long)(paddr)))
- 
-diff --git a/arch/s390/include/asm/page.h b/arch/s390/include/asm/page.h
-index 56da819a79e6..e995d2a413f9 100644
---- a/arch/s390/include/asm/page.h
-+++ b/arch/s390/include/asm/page.h
-@@ -67,9 +67,6 @@ static inline void copy_page(void *to, void *from)
- 
- #define copy_user_page(to, from, vaddr, pg)    copy_page(to, from)
- 
--#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
--       vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
--
- #ifdef CONFIG_STRICT_MM_TYPECHECKS
- #define STRICT_MM_TYPECHECKS
- #endif
-diff --git a/arch/x86/include/asm/page.h b/arch/x86/include/asm/page.h
-index 416dc88e35c1..92fa975b46f3 100644
---- a/arch/x86/include/asm/page.h
-+++ b/arch/x86/include/asm/page.h
-@@ -28,9 +28,6 @@ static inline void copy_user_page(void *to, void *from, unsigned long vaddr,
-        copy_page(to, from);
- }
- 
--#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
--       vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
--
- #ifndef __pa
- #define __pa(x)                __phys_addr((unsigned long)(x))
- #endif
+We might even be able to call that from inside vma_alloc_folio(), to
+just get __GFP_ZEROTAGS whenever the VMA has VM_MTE.
 
+But that's obviously some additional work on top.
 
 -- 
 Cheers,
