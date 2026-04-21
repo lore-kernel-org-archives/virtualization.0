@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D07A93BD65A;
-	Tue, 21 Apr 2026 10:56:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F13A2D5937;
+	Tue, 21 Apr 2026 10:58:17 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776768969; cv=none; b=l5MHpf2Db5G3APBynSna8sV5ioUUvimIExKuJVqLIhoYiBm5ldCbtR5S1zfbiRey8pIYqWB7b6m74ExpcNAMhvoJMC0YLNhRwOFTyF0Xq60OOk8JpqDTJsWfI7bNcCbXQA76nPytQcuuUgQ3Wrly+oIRNVoKZA0G+fqhweCwxBk=
+	t=1776769097; cv=none; b=t52hZ2egbF2IEiB02UZFITdZ4/qae6hucN1P6fOh0FVIJ599CzhYbM1GGtPZqjM8q9dBq/VAP8RWL5lnRrQqtXlcsrFKlp+/bm3fvb5vr08szpAfmhlo58Q+DWMdbSN+2m2sSB8uxfAR5mzpgKAVPumXjXffeJXsvDpHQ3BkFMk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776768969; c=relaxed/simple;
-	bh=28/Re2P3rtxWETUxEDmL+uBIuydZ6Cru3a7eY539SXs=;
+	s=arc-20240116; t=1776769097; c=relaxed/simple;
+	bh=t8tGhKLq59XKo8MiSyis/w2Xu/nbZ8LJlkNLeDD7oDc=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=giO6JodWhA36tr5180/P/RKrVKRChCKFKMEBqE1whu4jaWVYutcmd6En63uOnEZ7ZTFhA/K9n0KeIzQgD95leBlG3BIUQXgG2/B+TsqjxxiV9kIj03rd7Wqgh3pC9Sw1yyY9dgEf2Xr5Enb6y6wTp+FcGkppcPJP1TUY6u9ocvo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bZGb2Ak9; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=tSRwA2+i0aVUSznoGvtvGhAH2YokDMVOLYekxBsWgfPr9PxvG/Jpe+fSa+StkSRhEE21rEN5PIwDJmR2QdWXfzZsqVXTdBScTq+3YRv4+UeIOPMPWSC9QnEsLc/DYLtMteC8UiCRNN7TNN7MYe9ATAcltxdAE2V/vv6/fm39JJo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GfPX7xO7; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bZGb2Ak9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 69F9CC2BCB0;
-	Tue, 21 Apr 2026 10:56:02 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GfPX7xO7"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1815AC2BCB0;
+	Tue, 21 Apr 2026 10:58:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1776768969;
-	bh=28/Re2P3rtxWETUxEDmL+uBIuydZ6Cru3a7eY539SXs=;
+	s=k20201202; t=1776769096;
+	bh=t8tGhKLq59XKo8MiSyis/w2Xu/nbZ8LJlkNLeDD7oDc=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=bZGb2Ak9fyENYNy7XuwWvO992dL/SDpf5EkNQ0x+kt7nqAf/y6NyobrUgNZ7PbuEU
-	 h81mOWgSnpl8RHh+Gb9/IS+BWGCCW9YOwb71OOF4S7/MB9cCXUMFOPLdJsJrCFFUNc
-	 57AX0ENJKMop/N8T5y2Bly8BmI7X8Jcvrdx4ZidvitfnEmH3nmzvE1/kUoYe1em+ol
-	 cSVs5QJEh9salbgGk72sWVOH7mmWby26YDHqHzkcP5naFpMzdVBZQhXZ0dRPj3alCG
-	 4dqJ9XSYM9T1xiSziwcj4yEk40ids4G1nHwptuxGqa4JICWNJcukY8TS6oQ4yQeTID
-	 10uPBb8BHqVFw==
-Message-ID: <5f76af6e-9818-42ea-a305-c0fc1d920dca@kernel.org>
-Date: Tue, 21 Apr 2026 12:56:00 +0200
+	b=GfPX7xO7qWEA3W1FaagrkCuVWqO23hvMOk/g5VXvc3tyPCglgVtA2SVovEMpppYO1
+	 jlNzP7iEpJBeMl0CDcK4ofJcqaATpxK037YKBke/Sv37LACFY+KZYnJjsatfUO/WgI
+	 8IdCDbg/RNL5BSkkhpmqwFKf3TU8UuYSXiICT0AwHy0H9xYorZctt0/kruvi0DbFjv
+	 3Hn/IpIz1463zxI/Gm2gffBNZa18PvqdMZ1Ey5AtjQeTp9wAI2d9cfIo+OqCTuZJ5A
+	 CbOwayf52P5Kc6tGuN5OzyiHF1/9mTITm7P21YNJy7dYgRgn0YjOkFg9+zXYIjUQcH
+	 MSGcwB3DC1LSQ==
+Message-ID: <b7fc296b-06bc-4d52-b607-2da94c123fa4@kernel.org>
+Date: Tue, 21 Apr 2026 12:58:11 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -35,8 +35,8 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC v2 17/18] mm: add free_frozen_pages_hint and
- put_page_hint APIs
+Subject: Re: [PATCH RFC v2 11/18] mm: skip zeroing in
+ vma_alloc_zeroed_movable_folio for pre-zeroed pages
 To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
 Cc: Andrew Morton <akpm@linux-foundation.org>,
  Vlastimil Babka <vbabka@kernel.org>, Brendan Jackman <jackmanb@google.com>,
@@ -44,15 +44,9 @@ Cc: Andrew Morton <akpm@linux-foundation.org>,
  Jason Wang <jasowang@redhat.com>, Andrea Arcangeli <aarcange@redhat.com>,
  linux-mm@kvack.org, virtualization@lists.linux.dev,
  Lorenzo Stoakes <ljs@kernel.org>, "Liam R. Howlett"
- <Liam.Howlett@oracle.com>, Mike Rapoport <rppt@kernel.org>,
- Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
- Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
- Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham <nphamcs@gmail.com>,
- Baoquan He <bhe@redhat.com>, Barry Song <baohua@kernel.org>,
- Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>,
- Wei Xu <weixugc@google.com>
+ <Liam.Howlett@oracle.com>, Mike Rapoport <rppt@kernel.org>
 References: <cover.1776689093.git.mst@redhat.com>
- <c7094de807c0e963526686e1d245bc76193b1a92.1776689093.git.mst@redhat.com>
+ <39c3c8e647fc4c8e3dcb5c9d12f2e29b5404e8f2.1776689093.git.mst@redhat.com>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -99,35 +93,67 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <c7094de807c0e963526686e1d245bc76193b1a92.1776689093.git.mst@redhat.com>
+In-Reply-To: <39c3c8e647fc4c8e3dcb5c9d12f2e29b5404e8f2.1776689093.git.mst@redhat.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 4/20/26 14:51, Michael S. Tsirkin wrote:
-> Add free_frozen_pages_hint(page, order, hints) to free a page
-> while marking it as pre-zeroed when PGHINT_ZEROED is set.
-> The PG_zeroed flag is set after __free_pages_prepare so it
-> survives on the free list.
+On 4/20/26 14:50, Michael S. Tsirkin wrote:
+> Use vma_alloc_folio_hints() and check PGHINT_ZEROED to skip
+> clear_user_highpage() when the page is already zeroed.
 > 
-> Add __folio_put_hint(), folio_put_hint(), and put_page_hint()
-> wrappers for the put_page path.
+> On x86, vma_alloc_zeroed_movable_folio is overridden by a macro
+> that uses __GFP_ZERO directly, so this change has no effect there.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Assisted-by: Claude:claude-opus-4-6
+> Assisted-by: cursor-agent:GPT-5.4-xhigh
+> ---
+>  include/linux/highmem.h | 6 ++++--
+>  1 file changed, 4 insertions(+), 2 deletions(-)
+> 
+> diff --git a/include/linux/highmem.h b/include/linux/highmem.h
+> index af03db851a1d..8bb67772c1cb 100644
+> --- a/include/linux/highmem.h
+> +++ b/include/linux/highmem.h
+> @@ -321,9 +321,11 @@ struct folio *vma_alloc_zeroed_movable_folio(struct vm_area_struct *vma,
+>  				   unsigned long vaddr)
+>  {
+>  	struct folio *folio;
+> +	pghint_t hints;
+>  
+> -	folio = vma_alloc_folio(GFP_HIGHUSER_MOVABLE, 0, vma, vaddr);
+> -	if (folio && user_alloc_needs_zeroing())
+> +	folio = vma_alloc_folio_hints(GFP_HIGHUSER_MOVABLE, 0, vma, vaddr,
+> +				      &hints);
+> +	if (folio && user_alloc_needs_zeroing() && !(hints & PGHINT_ZEROED))
+>  		clear_user_highpage(&folio->page, vaddr);
+>  
+>  	return folio;
 
-Can we defer that change?
 
-Putting a page with a hint, when there might still be other users of the
-page is a weird interface.
+For others reading along, the variant on your other branch:
 
-In the long term, all balloon pages (PG_offline pages) will be frozen
-pages, and definitely not folios.
+diff --git a/include/linux/highmem.h b/include/linux/highmem.h
+index af03db851a1d9..ffa683f64f1d1 100644
+--- a/include/linux/highmem.h
++++ b/include/linux/highmem.h
+@@ -320,13 +320,8 @@ static inline
+ struct folio *vma_alloc_zeroed_movable_folio(struct vm_area_struct *vma,
+ 				   unsigned long vaddr)
+ {
+-	struct folio *folio;
+-
+-	folio = vma_alloc_folio(GFP_HIGHUSER_MOVABLE, 0, vma, vaddr);
+-	if (folio && user_alloc_needs_zeroing())
+-		clear_user_highpage(&folio->page, vaddr);
+-
+-	return folio;
++	return vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO,
++			      0, vma, vaddr);
+ }
+ #endif
 
-Frozen pages don't have a refcount.
-
-It would then be sufficient to have the single owner of the page call
-something like free_frozen_zeroed_page().
-
-Now, to convert balloon pages to be frozen requires some more work,
-primarily to balloon migration handling, unfortunately. I have it on my
-todo list, but it will take a while.
+Looks like an extremely clean interface.
 
 -- 
 Cheers,
