@@ -1,69 +1,69 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21591332601
-	for <virtualization@lists.linux.dev>; Tue, 21 Apr 2026 13:17:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AE931CAA6C
+	for <virtualization@lists.linux.dev>; Tue, 21 Apr 2026 13:19:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776777429; cv=none; b=UXITaoNr9sJfzFbErgrR5yz75AuqFN5E4kXQ1TYXawIB6R+MIvPBcOLxi1EKzuiIygL+RwfVRgpHxG5/C1aHwDZ/smtATOlV7Ykcl4P4KfopVNO+CMUUwIQtg+kru1X6qqQJCpJbKuhxpEokkvWajgDXWGZG/edwjNLS3EtjLrE=
+	t=1776777600; cv=none; b=RHU/9NzvOUHTRKCt0ccli4P40YXIGHCODZwnXX7+uD42BpWPl7wSiuFuMFjMCzRlQKYyPxPvyHWhkvTD1G07jOKk1adcrxASXxXXcUZ8sX991/K65lZrs231inhcHi+C1ZbHtX8yhM6absmoriXs5jvb3x3p5prooqkwJc4LquU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776777429; c=relaxed/simple;
-	bh=tsLqZiwjUJtIdKfBlq0p4NcSlwdMs+tVFNkf98uSOkI=;
+	s=arc-20240116; t=1776777600; c=relaxed/simple;
+	bh=l5nh2tX+tG4PyQxEGrsy245Ln5RZlFhnAyXMUDP8PX4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=bGDWW9qTxH6hPN9BZML67VjjMreCZporL9Yve4K2MuGDS3b/D0oMXiCgokR/mRp/0rq3iuhaJh/tsc1gNj4Fv+rkqhegkWm5RzlOlSjPcdt5sgRDbEY3JnufCu7arFKCUxQAaDCBqzuUAppYq9zlbfBbPsZYe21q60YfXxwVgIg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Q7T5ho1k; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=HHRr7B4Z5hBQRTloMShSQb4WunseTN8vsgZs7Su3y51VEYyIhfPYlYhSsYVOAl5ijMhRR4hmwcF7u9Si7J3i/jGwNugeP9ZqVupSntjXdM4NhqyUEMVuvQcE1ME67VKImeYgoOGLSypyj5I1WtO4mCcLNroLNRLaay4Ma4lQRZM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=i8UgxQ72; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Q7T5ho1k"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="i8UgxQ72"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1776777427;
+	s=mimecast20190719; t=1776777598;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=bCbA5QUc8U2QOBCnKS0mrwkrQW2ZBzuy6UlJpM8eO7s=;
-	b=Q7T5ho1kR1a9dLcFhR/W1QCm4XAEnFfLMAGnTuM12LV155qGAFR4YEyOqCRTu/afeDh6bN
-	wa1qIbVdRxV/vSQZ7zjQixb7cWsVUxWZ9J2yBoRl5jDjOpy7Z23BqnHs0s0NU0LL+brwPO
-	5etovK4R3JhuY0byvFMy2HEl3cgs9fE=
-Received: from mail-lj1-f199.google.com (mail-lj1-f199.google.com
- [209.85.208.199]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=xexzte0yTqtWkjudFGvCNSwnTYifigEpG3qwMv3/9fw=;
+	b=i8UgxQ72fa+nIiggRyMF3RKAikNtQ9GC2WyMUhzIIkQBqZNcTEolPDZ7xO3ryYj9m42yvI
+	FrIOj50XPdnf6sXcvd7JNiYDYXoLRUtMYeaZbHDGeUERmsa6ZWVzmyinB3Z3O8euC6ISUC
+	XfeQEmIT9ImbFnQq/IQYA2qdP2km+mA=
+Received: from mail-ed1-f72.google.com (mail-ed1-f72.google.com
+ [209.85.208.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-523-6578OmkKOaSAyBQM75ICBA-1; Tue, 21 Apr 2026 09:17:06 -0400
-X-MC-Unique: 6578OmkKOaSAyBQM75ICBA-1
-X-Mimecast-MFC-AGG-ID: 6578OmkKOaSAyBQM75ICBA_1776777424
-Received: by mail-lj1-f199.google.com with SMTP id 38308e7fff4ca-38e936cabf2so21941501fa.1
-        for <virtualization@lists.linux.dev>; Tue, 21 Apr 2026 06:17:05 -0700 (PDT)
+ us-mta-19-7EUvDMRYO5WDRD0a2p0ceA-1; Tue, 21 Apr 2026 09:19:56 -0400
+X-MC-Unique: 7EUvDMRYO5WDRD0a2p0ceA-1
+X-Mimecast-MFC-AGG-ID: 7EUvDMRYO5WDRD0a2p0ceA_1776777595
+Received: by mail-ed1-f72.google.com with SMTP id 4fb4d7f45d1cf-66e6f1b315dso3635834a12.3
+        for <virtualization@lists.linux.dev>; Tue, 21 Apr 2026 06:19:56 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776777424; x=1777382224;
+        d=1e100.net; s=20251104; t=1776777595; x=1777382395;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=bCbA5QUc8U2QOBCnKS0mrwkrQW2ZBzuy6UlJpM8eO7s=;
-        b=nPrGFzUWhdVA1xGHoSfWx4sLOeA25E7tTcnKNHZI901Y1RK68tUoA2uVeogDHL7b+/
-         +BZdnuhB7QoMUu9lJc4nr4TbuKVqYZPZXd3iB0v46gf9mnT44Gn9Bw7xdQS55u9CCMtS
-         6KOZZYNL1DfZx22UFzlQz7sVos3N77LnEUS4fQcdEwEfN1SzTQjqdaRC5wJnAjUrFU6w
-         ClhqgVZd3ccVBnfOoKDz3wZUnFCYefUNT9NByUrDgUcTcWShbdrSGxfiSyw3/rGyeIdv
-         PSCQ251OU6Gk0pRkP/yqtPB3p0hepuQ8mAjfkvmeeb5DFalfiJIe0bpErORfzjksafRF
-         5yqA==
-X-Forwarded-Encrypted: i=1; AFNElJ8XrIyamgO0OQp3eMM7z4QiiFuZEpZ61oz7/OwVl0lFXV58WGzGt3xNJOjOmwnMvl5pgU4kAbT3NYruVRcEVA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzdKM01I6tAG60/3xpaR4CUyKqDGOg2ayghtbzsGhmYewgNoK8y
-	ny/6XyvwskaUy9LqJM7+L0Q3+g9dy9fjDtHivglLqnZg8qftWwtuQxShZsIE8JhFJHdoqcFGups
-	ziZnrkEGagNYiA4LY3cmc7sLZmK66/wP1SfJLaHJKf7Tfa3BObCvn3lgzd3N+tl78Mjtz
-X-Gm-Gg: AeBDietdV/SOidRx1yzZy4uSD/5bnXJymisG5RWq5fsgTco0ueGuoE9GEgY2UbUHlX0
-	Vv+N9UcP8iLFgvSNFCcsy9Wd47REnlWbPfYLsJEbU7AyobxCrKmjltZDn9do5DRuL7fY3YC35sm
-	lPbElI7Ok3zAzPmI5BVFlHwgiB5XsbHPcrqP2/K/3cr4xw04kVlKmhhtldcz32Lv41XppVqWNCU
-	prBUCG/SAroZbi1Kxy/dYiYLGsLW0w644VtGFz30lqmtL9rL2gWXAM4qRBkxrSh4H09cubtw7JC
-	86YznbuPZrWDbH3Jg5TKRvbMAVZFIr/FNi6+FoJq8hb5noPdSdyBLdMAPRa+IBpImqX9Mm1cyIZ
-	s2ECWJTv1fT4dPpvBIA70bDQPsicr434+7xG+UEzzZwR64aRu0UhCvA==
-X-Received: by 2002:a05:651c:1ca:b0:38e:a842:52f1 with SMTP id 38308e7fff4ca-38ec7834d76mr57004921fa.11.1776777424230;
-        Tue, 21 Apr 2026 06:17:04 -0700 (PDT)
-X-Received: by 2002:a05:651c:1ca:b0:38e:a842:52f1 with SMTP id 38308e7fff4ca-38ec7834d76mr57004791fa.11.1776777423636;
-        Tue, 21 Apr 2026 06:17:03 -0700 (PDT)
+        bh=xexzte0yTqtWkjudFGvCNSwnTYifigEpG3qwMv3/9fw=;
+        b=dLJlVJD+vdEwg3S2cIXMRQIRXwAAs8CbRsPOk2dSyg5TEMQkYyZ7nilBJOrcBKekdD
+         kd+WZWiC4xB6sO5rVKyKUMJG0p1NP3ixQpsgApOsHQUz0ZYj4OhYMf8MpWTpO3DZteh5
+         zP3SzRZwhU1MVHsJfDVZ8cP7rsRy055JwGpeRuJwn7bdneN/wWy7UbuFtA7oC5tmOQVp
+         8jE1pt3E34nMnSBsbSA4rlpAd2mMMSDGzXCOnbh/ksS69voQzkqDhbZ2+A9La8jliDR2
+         YKXRz+SynTyBajHHdkVlmcsp8HEon30TDv4zoXwu5jd1iVRBYTBLmM0RlUby0SOEBToj
+         FoRA==
+X-Forwarded-Encrypted: i=1; AFNElJ+oNVALK+/63srgnMSkRZCf7BidWxSiValdcUvSVbnI+BXOgyfa7iSFyH5AHb5p8QyEIEtma01gqA7g/cpPqg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwfO4VKrCIhXNxSHnXLDeyhKZwd7CxK1JhIKHjWtZhNPP1UFdIO
+	ctbHVeD81jGLsKkZA6CybDyHYFeGqg3838McFpk8/+RjHC1cplRF2q+CGR7/FxDTyYzMQwkn0a6
+	i85fqG0OUL0jannNVDmRacLQ/LQoRPo77haM+OujG1eJO6228np/B59MVV3lsNHNjjXrh
+X-Gm-Gg: AeBDieud5r553TRoIlGUwBwlbWqxVII9M1Tlz/f9qg/D7q8eDnGbp8MRm3CAofy8kN6
+	CYBvQMzdfIBWAoL25myoJn+MEk+gl6mrmM5IrITOQsEHyNUv1rfAph2gbbUvZxk2HmIc07gBdKq
+	zMbADAWL9euFCDWF8vk9OvOwbcI7HJO48/z8JqXsiwrC4+ZqlPmKPAkl1wZuj81YHqkd4iYjV54
+	1CQZQFGZYO6qnaXO5JlAgG56IXh7EA0q9g9e7aJ4YqBtoqHsO/9qE37YL56POYb69NajZNTCGYm
+	nOa9pF7768+FsqpXaD9WcD0a7kJbd1pvsRiYfWi3A/IEZfg+VFOY+kl0+pRi6GBNCy7d8xgVEUk
+	+F33YJdcOrIzP9HrDKCnxcT0rKvLk6XCHTZKdTrGk76BUahr5VWOClw==
+X-Received: by 2002:a05:6402:2b9b:b0:670:8b30:a8a7 with SMTP id 4fb4d7f45d1cf-672bfc12ae6mr8152673a12.0.1776777594773;
+        Tue, 21 Apr 2026 06:19:54 -0700 (PDT)
+X-Received: by 2002:a05:6402:2b9b:b0:670:8b30:a8a7 with SMTP id 4fb4d7f45d1cf-672bfc12ae6mr8152659a12.0.1776777594246;
+        Tue, 21 Apr 2026 06:19:54 -0700 (PDT)
 Received: from redhat.com (IGLD-80-230-25-21.inter.net.il. [80.230.25.21])
-        by smtp.gmail.com with ESMTPSA id 38308e7fff4ca-38ecb716751sm32721331fa.29.2026.04.21.06.16.58
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-6744dcdf29fsm2080687a12.30.2026.04.21.06.19.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Apr 2026 06:17:02 -0700 (PDT)
-Date: Tue, 21 Apr 2026 09:16:56 -0400
+        Tue, 21 Apr 2026 06:19:53 -0700 (PDT)
+Date: Tue, 21 Apr 2026 09:19:49 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: "David Hildenbrand (Arm)" <david@kernel.org>
 Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
@@ -75,66 +75,89 @@ Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
 	Andrea Arcangeli <aarcange@redhat.com>, linux-mm@kvack.org,
 	virtualization@lists.linux.dev, Lorenzo Stoakes <ljs@kernel.org>,
 	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
-	Mike Rapoport <rppt@kernel.org>,
-	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
-	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
-	Kemeng Shi <shikemeng@huaweicloud.com>,
-	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
-	Barry Song <baohua@kernel.org>,
-	Axel Rasmussen <axelrasmussen@google.com>,
-	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>
-Subject: Re: [PATCH RFC v2 17/18] mm: add free_frozen_pages_hint and
- put_page_hint APIs
-Message-ID: <20260421091546-mutt-send-email-mst@kernel.org>
+	Mike Rapoport <rppt@kernel.org>
+Subject: Re: [PATCH RFC v2 11/18] mm: skip zeroing in
+ vma_alloc_zeroed_movable_folio for pre-zeroed pages
+Message-ID: <20260421091759-mutt-send-email-mst@kernel.org>
 References: <cover.1776689093.git.mst@redhat.com>
- <c7094de807c0e963526686e1d245bc76193b1a92.1776689093.git.mst@redhat.com>
- <5f76af6e-9818-42ea-a305-c0fc1d920dca@kernel.org>
+ <39c3c8e647fc4c8e3dcb5c9d12f2e29b5404e8f2.1776689093.git.mst@redhat.com>
+ <b7fc296b-06bc-4d52-b607-2da94c123fa4@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <5f76af6e-9818-42ea-a305-c0fc1d920dca@kernel.org>
+In-Reply-To: <b7fc296b-06bc-4d52-b607-2da94c123fa4@kernel.org>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Rmvqt7LvStyAbyL_9z0U0s-iFG354EaNStS8lrGpmBY_1776777424
+X-Mimecast-MFC-PROC-ID: Fem095gNEh6379N8ywJ2k7l1IJcdcK3XPVXF4x-nEfo_1776777595
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Tue, Apr 21, 2026 at 12:56:00PM +0200, David Hildenbrand (Arm) wrote:
-> On 4/20/26 14:51, Michael S. Tsirkin wrote:
-> > Add free_frozen_pages_hint(page, order, hints) to free a page
-> > while marking it as pre-zeroed when PGHINT_ZEROED is set.
-> > The PG_zeroed flag is set after __free_pages_prepare so it
-> > survives on the free list.
+On Tue, Apr 21, 2026 at 12:58:11PM +0200, David Hildenbrand (Arm) wrote:
+> On 4/20/26 14:50, Michael S. Tsirkin wrote:
+> > Use vma_alloc_folio_hints() and check PGHINT_ZEROED to skip
+> > clear_user_highpage() when the page is already zeroed.
 > > 
-> > Add __folio_put_hint(), folio_put_hint(), and put_page_hint()
-> > wrappers for the put_page path.
+> > On x86, vma_alloc_zeroed_movable_folio is overridden by a macro
+> > that uses __GFP_ZERO directly, so this change has no effect there.
+> > 
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > Assisted-by: Claude:claude-opus-4-6
+> > Assisted-by: cursor-agent:GPT-5.4-xhigh
+> > ---
+> >  include/linux/highmem.h | 6 ++++--
+> >  1 file changed, 4 insertions(+), 2 deletions(-)
+> > 
+> > diff --git a/include/linux/highmem.h b/include/linux/highmem.h
+> > index af03db851a1d..8bb67772c1cb 100644
+> > --- a/include/linux/highmem.h
+> > +++ b/include/linux/highmem.h
+> > @@ -321,9 +321,11 @@ struct folio *vma_alloc_zeroed_movable_folio(struct vm_area_struct *vma,
+> >  				   unsigned long vaddr)
+> >  {
+> >  	struct folio *folio;
+> > +	pghint_t hints;
+> >  
+> > -	folio = vma_alloc_folio(GFP_HIGHUSER_MOVABLE, 0, vma, vaddr);
+> > -	if (folio && user_alloc_needs_zeroing())
+> > +	folio = vma_alloc_folio_hints(GFP_HIGHUSER_MOVABLE, 0, vma, vaddr,
+> > +				      &hints);
+> > +	if (folio && user_alloc_needs_zeroing() && !(hints & PGHINT_ZEROED))
+> >  		clear_user_highpage(&folio->page, vaddr);
+> >  
+> >  	return folio;
 > 
-> Can we defer that change?
-
-We can - it's a dependency of the balloon deflate, which you asked
-me to implement. I'm more interested in reporting, myself.
-
-
-> Putting a page with a hint, when there might still be other users of the
-> page is a weird interface.
-
-The hint is just ignored in this case.
-
-> In the long term, all balloon pages (PG_offline pages) will be frozen
-> pages, and definitely not folios.
 > 
-> Frozen pages don't have a refcount.
+> For others reading along, the variant on your other branch:
 > 
-> It would then be sufficient to have the single owner of the page call
-> something like free_frozen_zeroed_page().
+> diff --git a/include/linux/highmem.h b/include/linux/highmem.h
+> index af03db851a1d9..ffa683f64f1d1 100644
+> --- a/include/linux/highmem.h
+> +++ b/include/linux/highmem.h
+> @@ -320,13 +320,8 @@ static inline
+>  struct folio *vma_alloc_zeroed_movable_folio(struct vm_area_struct *vma,
+>  				   unsigned long vaddr)
+>  {
+> -	struct folio *folio;
+> -
+> -	folio = vma_alloc_folio(GFP_HIGHUSER_MOVABLE, 0, vma, vaddr);
+> -	if (folio && user_alloc_needs_zeroing())
+> -		clear_user_highpage(&folio->page, vaddr);
+> -
+> -	return folio;
+> +	return vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO,
+> +			      0, vma, vaddr);
+>  }
+>  #endif
 > 
-> Now, to convert balloon pages to be frozen requires some more work,
-> primarily to balloon migration handling, unfortunately. I have it on my
-> todo list, but it will take a while.
-> 
+> Looks like an extremely clean interface.
+
+OK, sure. I will post that one as v3. Let me just add a changelog in the
+cover letter, and see what to do about balloon.
+
+
 > -- 
 > Cheers,
 > 
