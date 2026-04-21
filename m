@@ -1,188 +1,168 @@
-Received: from mail-qt1-f182.google.com (mail-qt1-f182.google.com [209.85.160.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C4DDA38C42E
-	for <virtualization@lists.linux.dev>; Tue, 21 Apr 2026 17:09:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.182
+Received: from gate.crashing.org (gate.crashing.org [63.228.1.57])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 3ED522EA754
+	for <virtualization@lists.linux.dev>; Tue, 21 Apr 2026 17:34:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=63.228.1.57
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776791345; cv=none; b=BY5TVMY4hWKOj2luEqmJnFI0HrAzXMZcPp9IzoBurjuPw8QMMTQhS0D9daMd6I82NDJ+4ggHlWZdfcugTDOjeA4bApbkzdMW8nrsthZJgixRllLA5FJ6XvoliG4h4DEqeauHFVGBCG/N0ueQv9+J1Po69iIUP/h91pjn2MC53bw=
+	t=1776792878; cv=none; b=CyEp5ZH1IVFbdH8wnUXsxh82hsedGk3wVBcaEoNf7FL/7b2LJ56rTl4lnMKDo497J9Eyge/wORTAg1tQ53g4Be+cLd+Ltgqx3XeicLbZCVlvg/G9N1EK9c3wm2V0IyPaQAj6wA7ngheKfBZ5WerpEDI0bcwpwPIiY49L0DNyrwE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776791345; c=relaxed/simple;
-	bh=KF+hnFE5zemQkg6FfCpCa81pYbVb5pGGjG3G/qYokgg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=h+VZ2mhTj3Lf5m0Pjmb/Ac+C14h6CmSOuuP30JQm7u8hMpz5oVbagoSyO3CiSfF+AYfVWO05lDwru9j2VglvtV1K0wJfRbHsMUG/9/Ba8SpFodr0YuddmFyA7UUBXYGC0FkGShAL35oUsASvbHs/LPpqRkD2JZFBaurhyDeyq1w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=iBTQxXdz; arc=none smtp.client-ip=209.85.160.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="iBTQxXdz"
-Received: by mail-qt1-f182.google.com with SMTP id d75a77b69052e-50d87610513so51066451cf.3
-        for <virtualization@lists.linux.dev>; Tue, 21 Apr 2026 10:09:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1776791343; x=1777396143; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=xGNTr/JlJ9YLgvk3Bc7iOJPEjvIVMGi2qIs7qCWOT8Q=;
-        b=iBTQxXdzIuxuhNz9TX9k5gBYQs5EqChR25TE90GsykqgPMHi8V044jR89qHLiKkPj5
-         5M7gQ70aLCJfq5+TJzwjF1LiSLK+SBM0PFmi1vicAWAQS+bl0Ag2axfQHmcxQUPIhvzg
-         e8pA1H7vjHH00w1f8Oh/orLBJPIBXhyM7Sfqz7Ule3C6SalQ5QhRAFYsfpDAolVaAmWY
-         4P4PCall+VY2mALnRjzocHmfv2tE2pcBeAgyzd9aqb1oIGDw9z9t+q0QFKlvQN/u9rIm
-         6p2wi8S0lCa0CQyNXjiIWCh2ICmYhNt5Xzg9+QNyrJDIbT0YsjODDdcdLQCTNiNckXdy
-         k9Ow==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776791343; x=1777396143;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=xGNTr/JlJ9YLgvk3Bc7iOJPEjvIVMGi2qIs7qCWOT8Q=;
-        b=fdnLM0MKmQ+Zemmt87aqbCLPukTYm0kzvBBXU/IRBavtAaP3VmXKe9IA/uE1zTYUKp
-         IFSS4QWaws3iZQ4YhLfSwsrVQcwf41dD6VPuvq5iJ0S3eyrLCmzYZxEnXMUJcYYwly79
-         tuQ7/jMD1Q7zLSCaq2pOwY4E9r0TaxFetnXNHgScNRO7LBd9YJOEH+ubScUf5duUiP6w
-         4FZpWG9JNbBklN6OSforgBUthQuPf64sm6jZTSPdGaONfE2ut0+DWclmQ+OVgGTS25M7
-         88XkdQ7+ZGBCSVbXA/RMbQuhjGAk9nHY3r52316kHMXWK+HeGfOr8lx2nyyuRPJ7tSoU
-         RAeA==
-X-Forwarded-Encrypted: i=1; AFNElJ/TSPVWItU0k5lqPlZPo4kvd4mpI5U3/Oaf/cw2KjBp7XHLo/OWy99tbCQY+8A/8Qj92Hd+KBTMJe819QxW5w==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwLDvxe7eB+LAHSnDsV2/j9ekmTubqJtiC46Iuj+yfvYol6cP+m
-	5GIjEQoilTh/8hobvD/s7gA9E08Z+t+If72waM26za5XpBznZrFLvxm8
-X-Gm-Gg: AeBDiet53n6UQfWlwdytcznach0H4m0nSY6IWPzmcL/B5W+ZNUkg9fuP3kNUMzuDfx7
-	4Dh6K1P+gBGacUnznQ8ysS3XtdPTpIRl2t7Dc8cllMRscsOvVmf5YOhO1ceLz8WsKlvJp0xQ96Q
-	gcj6/C0jT65v1+lO17FtgXl1KmRZ3ZcfW6dcBklgQpEByqDQvKI7l4pm9gOnTh+Z+xhzfNCOfOM
-	jI71xSMt0z3Z1XY36qFeVUwcJDlWxGPyEwTy0rt5XHy5FrM+bmTqrZbB6onRiYhC8IcnBT3GItz
-	nlU3qv6kDG5qxV+W+wa3GbCkMupFYmevfNCkM6WUc1JEQk7ASdwcoAkVYElqooLbSU6+cseHMv9
-	JI1pPnD/f+Xm87Z+xl3lqJozOwwA07TZr+sb1f/R+GmfhM5PQ1yQBBeP/3gnBtktnoBfCDZDlEn
-	wgYYFLvOB/N/AunUrVRNeKw1RonaZDw62ci8h+Ak6AZIurUOuG3L5dpRLSzpvfGMTMpxrlge2ZW
-	1DQTTO6QEl0t69ghgcWilB5PR4tUb3hQwNAM5XkKQ==
-X-Received: by 2002:a05:622a:98e:b0:50d:7fe9:aa8a with SMTP id d75a77b69052e-50e36e9c3c8mr292927801cf.31.1776791341751;
-        Tue, 21 Apr 2026 10:09:01 -0700 (PDT)
-Received: from server0 (c-68-48-65-54.hsd1.mi.comcast.net. [68.48.65.54])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-50fb92db861sm13134471cf.5.2026.04.21.10.09.00
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Apr 2026 10:09:01 -0700 (PDT)
-From: Michael Bommarito <michael.bommarito@gmail.com>
-To: Marcel Holtmann <marcel@holtmann.org>,
-	Luiz Augusto von Dentz <luiz.dentz@gmail.com>,
-	linux-bluetooth@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-	Soenke Huster <soenke.huster@eknoes.de>,
-	"Michael S . Tsirkin" <mst@redhat.com>,
-	virtualization@lists.linux.dev
-Subject: [PATCH v3 2/2] Bluetooth: virtio_bt: validate rx pkt_type header length
-Date: Tue, 21 Apr 2026 13:08:45 -0400
-Message-ID: <20260421170845.3469513-3-michael.bommarito@gmail.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260421170845.3469513-1-michael.bommarito@gmail.com>
-References: <CABBYNZKqx4ureNbRGEghGjGWcmMQSoiY4oUCECme_Vgn8RvYYw@mail.gmail.com>
- <20260421170845.3469513-1-michael.bommarito@gmail.com>
+	s=arc-20240116; t=1776792878; c=relaxed/simple;
+	bh=BmLatGy8n1zKmv3W1i69jDYO1lD52eKYiSdHSJdTpeE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=G62Yd7sD/lSmfmkF+o8ZsgTFRpsLM05iMDaitG07YnaC7oyzQEMMpsByG7MsWBOMOQcf9lFL42XMTBAjrVrFddS7ZYZh8w4VKuMSxQaJ7kJd89IptEZ6QtJp1X5erwIQcmdhJCEr3lSG7jTxO8Du9nB3zwWavtBod5P3Y5/Ncq8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.crashing.org; spf=pass smtp.mailfrom=kernel.crashing.org; arc=none smtp.client-ip=63.228.1.57
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kernel.crashing.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kernel.crashing.org
+Received: from gate.crashing.org (localhost [127.0.0.1])
+	by gate.crashing.org (8.18.1/8.18.1/Debian-2) with ESMTP id 63LH4FuA3771909;
+	Tue, 21 Apr 2026 12:04:15 -0500
+Received: (from segher@localhost)
+	by gate.crashing.org (8.18.1/8.18.1/Submit) id 63LH47sR3771903;
+	Tue, 21 Apr 2026 12:04:07 -0500
+X-Authentication-Warning: gate.crashing.org: segher set sender to segher@kernel.crashing.org using -f
+Date: Tue, 21 Apr 2026 12:04:06 -0500
+From: Segher Boessenkool <segher@kernel.crashing.org>
+To: Link Mauve <linkmauve@linkmauve.fr>
+Cc: linuxppc-dev@lists.ozlabs.org, Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley <conor+dt@kernel.org>,
+        Herbert Xu <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Juergen Gross <jgross@suse.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
+        Alexey Makhalov <alexey.makhalov@broadcom.com>,
+        Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+        Geoff Levand <geoff@infradead.org>,
+        Mahesh J Salgaonkar <mahesh@linux.ibm.com>,
+        "Oliver O'Halloran" <oohall@gmail.com>,
+        Anatolij Gustschin <agust@denx.de>,
+        Breno =?iso-8859-1?Q?Leit=E3o?= <leitao@debian.org>,
+        Nayna Jain <nayna@linux.ibm.com>,
+        Paulo Flabiano Smorigo <pfsmorigo@gmail.com>,
+        Eric Biggers <ebiggers@kernel.org>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Thorsten Blum <thorsten.blum@linux.dev>,
+        Thomas Huth <thuth@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+        David Hildenbrand <david@kernel.org>,
+        Alistair Popple <apopple@nvidia.com>,
+        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
+        Donet Tom <donettom@linux.ibm.com>,
+        Andrew Morton <akpm@linux-foundation.org>,
+        =?iso-8859-1?Q?Bj=F6rn_T=F6pel?= <bjorn@rivosinc.com>,
+        Will Deacon <will@kernel.org>,
+        "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>,
+        Paul Moore <paul@paul-moore.com>, Nam Cao <namcao@linutronix.de>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sourabh Jain <sourabhjain@linux.ibm.com>,
+        Hari Bathini <hbathini@linux.ibm.com>,
+        Srikar Dronamraju <srikar@linux.ibm.com>,
+        Shrikanth Hegde <sshegde@linux.ibm.com>, Jiri Bohac <jbohac@suse.cz>,
+        "Mike Rapoport (Microsoft)" <rppt@kernel.org>,
+        "Jiri Slaby (SUSE)" <jirislaby@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        Ilpo =?iso-8859-1?Q?J=E4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Kees Cook <kees@kernel.org>, Stephen Rothwell <sfr@cab.auug.org.au>,
+        Xichao Zhao <zhao.xichao@vivo.com>,
+        Gautam Menghani <gautam@linux.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        K Prateek Nayak <kprateek.nayak@amd.com>,
+        Guangshuo Li <lgs201920130244@gmail.com>,
+        Li Chen <chenl311@chinatelecom.cn>,
+        Aboorva Devarajan <aboorvad@linux.ibm.com>,
+        Petr Mladek <pmladek@suse.com>,
+        Feng Tang <feng.tang@linux.alibaba.com>,
+        "Nysal Jan K.A." <nysal@linux.ibm.com>,
+        Aditya Gupta <adityag@linux.ibm.com>,
+        Sayali Patil <sayalip@linux.ibm.com>,
+        Rohan McLure <rmclure@linux.ibm.com>,
+        Pasha Tatashin <pasha.tatashin@soleen.com>,
+        Yeoreum Yun <yeoreum.yun@arm.com>,
+        Kevin Brodsky <kevin.brodsky@arm.com>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Andrew Donnellan <andrew+kernel@donnellan.id.au>,
+        "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
+        Thomas =?iso-8859-1?Q?Wei=DFschuh?= <thomas.weissschuh@linutronix.de>,
+        Athira Rajeev <atrajeev@linux.ibm.com>,
+        Kajol Jain <kjain@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>,
+        Chen Ni <nichen@iscas.ac.cn>, Haren Myneni <haren@linux.ibm.com>,
+        Jonathan Greental <yonatan02greental@gmail.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Yury Norov (NVIDIA)" <yury.norov@gmail.com>,
+        Gaurav Batra <gbatra@linux.ibm.com>,
+        Nilay Shroff <nilay@linux.ibm.com>,
+        Vivian Wang <wangruikang@iscas.ac.cn>,
+        Adrian =?utf-8?Q?Barna=C5=9B?= <abarnas@google.com>,
+        "Rafael J. Wysocki (Intel)" <rafael@kernel.org>,
+        Thierry Reding <treding@nvidia.com>, Yury Norov <ynorov@nvidia.com>,
+        "Mukesh Kumar Chaurasiya (IBM)" <mkchauras@gmail.com>,
+        Ruben Wauters <rubenru09@aol.com>, linux-kernel@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-crypto@vger.kernel.org,
+        kvm@vger.kernel.org, virtualization@lists.linux.dev, x86@kernel.org
+Subject: Re: [PATCH 2/2] powerpc: Run typos -w
+Message-ID: <aeeuBnjhRN7G9gYK@gate>
+References: <20260421121420.26079-1-linkmauve@linkmauve.fr>
+ <20260421121420.26079-3-linkmauve@linkmauve.fr>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260421121420.26079-3-linkmauve@linkmauve.fr>
 
-virtbt_rx_handle() reads the leading pkt_type byte from the RX skb
-and forwards the remainder to hci_recv_frame() for every
-event/ACL/SCO/ISO type, without checking that the remaining payload
-is at least the fixed HCI header for that type.
+Hi!
 
-After the preceding patch bounds the backend-supplied used.len to
-[1, VIRTBT_RX_BUF_SIZE], a one-byte completion still reaches
-hci_recv_frame() with skb->len already pulled to 0. If the byte
-happened to be HCI_ACLDATA_PKT, the ACL-vs-ISO classification
-fast-path in hci_dev_classify_pkt_type() dereferences
-hci_acl_hdr(skb)->handle whenever the HCI device has an active
-CIS_LINK, BIS_LINK, or PA_LINK connection, reading two bytes of
-uninitialized RX-buffer data. The same hazard exists for every
-packet type the driver accepts because none of the switch cases in
-virtbt_rx_handle() check skb->len against the per-type minimum HCI
-header size before handing the frame to the core.
+On Tue, Apr 21, 2026 at 02:14:14PM +0200, Link Mauve wrote:
+> diff --git a/arch/powerpc/boot/dts/fsl/ppa8548.dts b/arch/powerpc/boot/dts/fsl/ppa8548.dts
+> index f39838d93994..32558104b3a9 100644
+> --- a/arch/powerpc/boot/dts/fsl/ppa8548.dts
+> +++ b/arch/powerpc/boot/dts/fsl/ppa8548.dts
+> @@ -95,7 +95,7 @@ i2c@3100 {
+>  
+>  	/*
+>  	 * Only ethernet controller @25000 and @26000 are used.
+> -	 * Use alias enet2 and enet3 for the remainig controllers,
+> +	 * Use alias enet2 and enet3 for the remaining controllers,
 
-After stripping pkt_type, require skb->len to cover the fixed
-header size for the selected type (event 2, ACL 4, SCO 3, ISO 4)
-before calling hci_recv_frame(); drop ratelimited otherwise.
-Unknown pkt_type values still take the original kfree_skb() default
-path.
+Aliases.
 
-Use bt_dev_err_ratelimited() because both the length and pkt_type
-values come from an untrusted backend that can otherwise flood the
-kernel log.
+> diff --git a/arch/powerpc/boot/dts/mpc8308_p1m.dts b/arch/powerpc/boot/dts/mpc8308_p1m.dts
+> index 41f917f97dab..48a98449ecbb 100644
+> --- a/arch/powerpc/boot/dts/mpc8308_p1m.dts
+> +++ b/arch/powerpc/boot/dts/mpc8308_p1m.dts
+> @@ -90,14 +90,14 @@ can@1,0 {
+>  			compatible = "nxp,sja1000";
+>  			reg = <0x1 0x0 0x80>;
+>  			interrupts = <18 0x8>;
+> -			interrups-parent = <&ipic>;
+> +			interrupts-parent = <&ipic>;
+>  		};
 
-Fixes: 160fbcf3bfb9 ("Bluetooth: virtio_bt: Use skb_put to set length")
-Cc: stable@vger.kernel.org
-Cc: Soenke Huster <soenke.huster@eknoes.de>
-Signed-off-by: Michael Bommarito <michael.bommarito@gmail.com>
-Assisted-by: Claude:claude-opus-4-7
----
-Changes in v3:
-- new patch, split out of the v2 commit per Luiz's request on
-  the v2 thread so the per-pkt-type header-length check can be
-  reviewed on its own
+interrupt-parent .
 
-Changes in v2:
-- in virtbt_rx_handle(), require skb->len to cover the fixed HCI
-  header size for the selected pkt_type (event 2, ACL 4, SCO 3,
-  ISO 4) before calling hci_recv_frame(); this prevents a one-byte
-  HCI_ACLDATA_PKT completion from reaching
-  hci_dev_classify_pkt_type() and dereferencing hci_acl_hdr(skb)
-  over uninitialized RX buffer data when CIS/BIS/PA connections
-  are present
-- switch the error log to bt_dev_err_ratelimited() because the
-  length and pkt_type values come from an untrusted backend that
-  can otherwise flood the kernel log
+All the names of properties have a meaning!  Just as you cannot change
+a function name in C without changing all calls to it as well, you
+really should never change a property name (if you want stuff to keep
+on working, that is ;-) ).
 
- drivers/bluetooth/virtio_bt.c | 23 ++++++++++++++++++++---
- 1 file changed, 20 insertions(+), 3 deletions(-)
+In this case, the property was never actually used (because of the
+typo).  Maybe it wasn't needed?  If you make changes to a DTS, post it
+*separately* from the rest of this series, and test it *thoroughly*.
+Just a "does it boot" test is certainly not enough.
 
-diff --git a/drivers/bluetooth/virtio_bt.c b/drivers/bluetooth/virtio_bt.c
-index 2c5c39356a1c..140ab55c9fc5 100644
---- a/drivers/bluetooth/virtio_bt.c
-+++ b/drivers/bluetooth/virtio_bt.c
-@@ -198,6 +198,7 @@ static int virtbt_shutdown_generic(struct hci_dev *hdev)
- 
- static void virtbt_rx_handle(struct virtio_bluetooth *vbt, struct sk_buff *skb)
- {
-+	size_t min_hdr;
- 	__u8 pkt_type;
- 
- 	pkt_type = *((__u8 *) skb->data);
-@@ -205,16 +206,32 @@ static void virtbt_rx_handle(struct virtio_bluetooth *vbt, struct sk_buff *skb)
- 
- 	switch (pkt_type) {
- 	case HCI_EVENT_PKT:
-+		min_hdr = sizeof(struct hci_event_hdr);
-+		break;
- 	case HCI_ACLDATA_PKT:
-+		min_hdr = sizeof(struct hci_acl_hdr);
-+		break;
- 	case HCI_SCODATA_PKT:
-+		min_hdr = sizeof(struct hci_sco_hdr);
-+		break;
- 	case HCI_ISODATA_PKT:
--		hci_skb_pkt_type(skb) = pkt_type;
--		hci_recv_frame(vbt->hdev, skb);
-+		min_hdr = sizeof(struct hci_iso_hdr);
- 		break;
- 	default:
- 		kfree_skb(skb);
--		break;
-+		return;
- 	}
-+
-+	if (skb->len < min_hdr) {
-+		bt_dev_err_ratelimited(vbt->hdev,
-+				       "rx pkt_type 0x%02x payload %u < hdr %zu\n",
-+				       pkt_type, skb->len, min_hdr);
-+		kfree_skb(skb);
-+		return;
-+	}
-+
-+	hci_skb_pkt_type(skb) = pkt_type;
-+	hci_recv_frame(vbt->hdev, skb);
- }
- 
- static void virtbt_rx_work(struct work_struct *work)
--- 
-2.53.0
+It could well be that fixing the typo (so that the property name becomes
+"interrupt-parent") makes the kernel no longer boot on the systems
+affected, or less obvious problems can show up.
 
+It will need to be tested and evaluated by whoever maintains the DTSes
+in question, really :-/  And you cannot test it works for one DTS and
+then conclude it will work everywhere, heh.
+
+
+Segher
