@@ -1,150 +1,143 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E83AC1F151C
-	for <virtualization@lists.linux.dev>; Tue, 21 Apr 2026 13:44:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F14933D7D72;
+	Tue, 21 Apr 2026 14:08:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776779070; cv=none; b=hOXkS4cmMSVL0AY+xRt7/9CdZ88NSq+7Ia0vPhIHPTKOO0KaaYNv2koWuY5gcIVUkU3kim2k6wq3Tf/DinsMeGkocFqAtrB5XR8t7EiiYqateOX8hDKDoroPVvr3EwWtz8zr1Z3CzZpx0NRQvnwuJlfSD4uy1W2fkgzXaayi2YY=
+	t=1776780481; cv=none; b=KHlwL3yb7BA5gE+JmLqDiUVKWQ0yu4P/K4IvFJXRo108htu748fupn/jv1VQFpDvAnH0xbvIcTFwzazSp/QWZ4etLOLxdnmTf9a55f5L6fQdh0RW5PvLlMtr4/tY2DmjytmSWfjxyMzZ7XuAEoiRe8iTO4/AMXvsIXPzfxuvJjs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776779070; c=relaxed/simple;
-	bh=3nKXHQhetipDN0ysN2eJ6ywPnlDZZjVs8c4yD24Ezp0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=ONEPuvPp2eu+ZHvnq0Y/KaYvPO86P5Ap7P8Yot7DWVtfDlUcjGTt3j4mKNgeYB0YJq99dQf3xSpvGb8B7HXNs+eFxtDmL/jHvWGBWV+AOL4nTTpKVUD1rxy/+GKQwEObOURW0q0SvxFCuVM7DOrHFFaVmxpQXncAFV/ZEB+vgWU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Pszcy0YL; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1776780481; c=relaxed/simple;
+	bh=C2vjPG7cYBtC/syRejJLvNATQIcMbGjY9iARX4IFuT8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=KKvqRh7QyG13a9SqnsuGd9dOU+kosJ9m+VYg7/EAPZ/uQqx4O/jnWYUnfbtGXHMbh9EFUUNV0qi4lljwRzp/dwte+EL5X/OWlYxyLIXQfPoTkXAcsXJ7uNx6OUKbYzsPEAtG2UzorqaSBkFkdBRCsBzVXOIFCzWH52C7AMFh7lo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cvCu5x5u; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Pszcy0YL"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1776779068;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=7eTbL6D9GOrwEMsjXolvuGX1Lg2q3QX/lZ1+KzGMn9M=;
-	b=Pszcy0YLeULZa2st8t6fgN21AM56OEZo3qjzuRItSDnqlUejPdfUKHzw+zv4OBw8wdzZxK
-	JvfjTUeGfazhYTZ4JidAwKHxkeIE4Xm+K0co7yK5ZguZPaMNlGRtqi0UgxrNeO19MQUqYz
-	IXanY+JHQj8ReaatJTL8OBF6o6xaGNE=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-216--GRNu0AWMRW8Ou-gaPqIPw-1; Tue, 21 Apr 2026 09:44:24 -0400
-X-MC-Unique: -GRNu0AWMRW8Ou-gaPqIPw-1
-X-Mimecast-MFC-AGG-ID: -GRNu0AWMRW8Ou-gaPqIPw_1776779059
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-488d3eec9bcso27757595e9.3
-        for <virtualization@lists.linux.dev>; Tue, 21 Apr 2026 06:44:19 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776779058; x=1777383858;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=7eTbL6D9GOrwEMsjXolvuGX1Lg2q3QX/lZ1+KzGMn9M=;
-        b=lluHEJQVOp1q0gSnzg+QuNwkQVsudIJkV96ip/1V/SWoYc60uPKNVy/F+gTcLD6NtF
-         /JSOkzKTTi4bLyVsaAWwxFha6rUGHQN8789OgO9ZKXk6V/4SZz6sUjcdM1dovXSUuNv0
-         ymQtPcQ/2D5FECKlJrSOzn20O3yoNg3Ei7wkYjPdRYDDYMkhsjGq5tuEua/3Ykn/T6gX
-         KK0sexci4L+UBLTj2h/YlSDv/WNtsn4YNyewfnt43OLYmiboISHa4ucTFfc32KlFRIiL
-         liuFoM8IkX4Io4ruqE7Xi21im27uui7iLtE6xe8i5EgTJ+cP2tm0DeQm+TN9dNGDGkSC
-         1FlQ==
-X-Forwarded-Encrypted: i=1; AFNElJ+EwJOO1f9DQgDAGlXIqwJ7cXbmlURZ1MooskJvGuwX0W7Uhjvpb2LH3itdnmhG1RmfNZdx7cVAWmP4+HmRGQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyjwg+H6h3or2c5YIVE/ML7J9+njqq4UPthn0OFPn3g5Ee3MLPJ
-	0dqZ8QFmdD527V1RT4nb9weVZD9MvkMz+HyzDzdJ4oXWlED1dd2nz7e1Rn6RrUPopd0nkD2xSLx
-	e9+VEEUZgxkjkwZJaBl/iaLFP5JzZ46XH9n6FjTWznaIclPkbhDih9p0DC6eQRG7y8+tt
-X-Gm-Gg: AeBDievTC1XJmON+xlVnKgW1i8sQg0fOKC3EDFkE7kEfFUtWAD5a46o0wUDRpLkx3bn
-	Oxde+pnIHAWlT0KY1UXqP8spM2oGKG5ghT6POhtwzle+gXjSLwfU0ic9ZTs29w6r4pNineJNg3u
-	K+nEZDQdjtTRbFmcDVOH/QviWfPTbe1N8cC7u4hz37AeynMIX8znCYj0PMe929qGxk0yKXu3JSO
-	OTcu7MaJm0JIpQo2zDWfVEptXmmW2Akgu0n2AOra33IQhIFPrTQzraLpou5NGKd/VdptqYWrSj+
-	SPtdFhKIWBbhdiYfyn4qg7rK69J9Y4gJwQLk5qmKMJw+DMTCUK0fFDSPqUo+ZNvb1P4eVhV07MO
-	KKqWx1GS2JWmEaXZbpdvMJSJpfp7aAidXs8987y1u19y2kcwZAyvuxA==
-X-Received: by 2002:a05:600c:468c:b0:48a:56d5:16f2 with SMTP id 5b1f17b1804b1-48a56d5179amr32738435e9.7.1776779058398;
-        Tue, 21 Apr 2026 06:44:18 -0700 (PDT)
-X-Received: by 2002:a05:600c:468c:b0:48a:56d5:16f2 with SMTP id 5b1f17b1804b1-48a56d5179amr32737835e9.7.1776779057878;
-        Tue, 21 Apr 2026 06:44:17 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-25-21.inter.net.il. [80.230.25.21])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-488fb7b2716sm117377525e9.30.2026.04.21.06.44.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Apr 2026 06:44:17 -0700 (PDT)
-Date: Tue, 21 Apr 2026 09:44:13 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Brendan Jackman <jackmanb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Andrea Arcangeli <aarcange@redhat.com>, linux-mm@kvack.org,
-	virtualization@lists.linux.dev, Lorenzo Stoakes <ljs@kernel.org>,
-	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
-	Mike Rapoport <rppt@kernel.org>,
-	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
-	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
-	Kemeng Shi <shikemeng@huaweicloud.com>,
-	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
-	Barry Song <baohua@kernel.org>,
-	Axel Rasmussen <axelrasmussen@google.com>,
-	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>
-Subject: Re: [PATCH RFC v2 17/18] mm: add free_frozen_pages_hint and
- put_page_hint APIs
-Message-ID: <20260421094049-mutt-send-email-mst@kernel.org>
-References: <cover.1776689093.git.mst@redhat.com>
- <c7094de807c0e963526686e1d245bc76193b1a92.1776689093.git.mst@redhat.com>
- <5f76af6e-9818-42ea-a305-c0fc1d920dca@kernel.org>
- <20260421091546-mutt-send-email-mst@kernel.org>
- <2a41dd0c-7ad8-4d34-8bab-a713e16c3b29@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cvCu5x5u"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9FCC3C2BCB0;
+	Tue, 21 Apr 2026 14:07:53 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1776780480;
+	bh=C2vjPG7cYBtC/syRejJLvNATQIcMbGjY9iARX4IFuT8=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=cvCu5x5u/MxJ/rm3ilOI4UDXqGPxauyCd40rpRmMwbVI5/d2Pot2x5NR0WXVloA8M
+	 LehoYO50jgibwIV3D1kPFXLVwWc7UE7e/WfMPWlatCSpvd2epit8xS7Nn8vi+Ht0Xe
+	 SvJpL19Bqo+9lQ0MAOjB0qcKsoLVFBRGDIpewCV9d4EZy6+hAcE0kkRr/63Nix2+0V
+	 vJTR+hyO7F5wgikJ9cJNkO8fzyw9F5XN6AOuNrsVLcI7/WaokgtpFWbZzihIneT6P7
+	 GEaGS3q5y9d7PX9M5Q6+ChQz0Puf5sxANMYOmIel6AUM45UKABKOPLwOxS+/3qRG/b
+	 DYFdFxtw+738w==
+Message-ID: <04a905af-f19e-4595-b8d7-e3c627f140bd@kernel.org>
+Date: Tue, 21 Apr 2026 16:07:51 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <2a41dd0c-7ad8-4d34-8bab-a713e16c3b29@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: ylvrsn_qw8ZSbkOq5_jP6nhPfv1JfPXo7jPC1YFnB2Y_1776779059
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC v2 17/18] mm: add free_frozen_pages_hint and
+ put_page_hint APIs
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+ Vlastimil Babka <vbabka@kernel.org>, Brendan Jackman <jackmanb@google.com>,
+ Michal Hocko <mhocko@suse.com>, Suren Baghdasaryan <surenb@google.com>,
+ Jason Wang <jasowang@redhat.com>, Andrea Arcangeli <aarcange@redhat.com>,
+ linux-mm@kvack.org, virtualization@lists.linux.dev,
+ Lorenzo Stoakes <ljs@kernel.org>, "Liam R. Howlett"
+ <Liam.Howlett@oracle.com>, Mike Rapoport <rppt@kernel.org>,
+ Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
+ Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
+ Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham <nphamcs@gmail.com>,
+ Baoquan He <bhe@redhat.com>, Barry Song <baohua@kernel.org>,
+ Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>,
+ Wei Xu <weixugc@google.com>
+References: <cover.1776689093.git.mst@redhat.com>
+ <c7094de807c0e963526686e1d245bc76193b1a92.1776689093.git.mst@redhat.com>
+ <5f76af6e-9818-42ea-a305-c0fc1d920dca@kernel.org>
+ <20260421091546-mutt-send-email-mst@kernel.org>
+ <2a41dd0c-7ad8-4d34-8bab-a713e16c3b29@kernel.org>
+ <20260421094049-mutt-send-email-mst@kernel.org>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <20260421094049-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Tue, Apr 21, 2026 at 03:30:53PM +0200, David Hildenbrand (Arm) wrote:
-> On 4/21/26 15:16, Michael S. Tsirkin wrote:
-> > On Tue, Apr 21, 2026 at 12:56:00PM +0200, David Hildenbrand (Arm) wrote:
-> >> On 4/20/26 14:51, Michael S. Tsirkin wrote:
-> >>> Add free_frozen_pages_hint(page, order, hints) to free a page
-> >>> while marking it as pre-zeroed when PGHINT_ZEROED is set.
-> >>> The PG_zeroed flag is set after __free_pages_prepare so it
-> >>> survives on the free list.
-> >>>
-> >>> Add __folio_put_hint(), folio_put_hint(), and put_page_hint()
-> >>> wrappers for the put_page path.
-> >>
-> >> Can we defer that change?
-> > 
-> > We can - it's a dependency of the balloon deflate, which you asked
-> > me to implement. I'm more interested in reporting, myself.
+On 4/21/26 15:44, Michael S. Tsirkin wrote:
+> On Tue, Apr 21, 2026 at 03:30:53PM +0200, David Hildenbrand (Arm) wrote:
+>> On 4/21/26 15:16, Michael S. Tsirkin wrote:
+>>>
+>>> We can - it's a dependency of the balloon deflate, which you asked
+>>> me to implement. I'm more interested in reporting, myself.
+>>
+>> Just to be clear, I said:
+>>
+>> "I'd assume ordinary inflating+deflating of the balloon would also end
+>> up with pre-zeroed pages. We'd just need a (mm/balloon.c -specific)
+>> interface to tell the buddy that the pages are zeroed."
+>>
+>> So while I think there will be value in that in the futur once we
+>> figure out a clean interface, I don't recall asking you to implement that?
 > 
-> Just to be clear, I said:
 > 
-> "I'd assume ordinary inflating+deflating of the balloon would also end
-> up with pre-zeroed pages. We'd just need a (mm/balloon.c -specific)
-> interface to tell the buddy that the pages are zeroed."
->
-> So while I think there will be value in that in the futur once we
-> figure out a clean interface, I don't recall asking you to implement that?
-
-
-Right. you also said:
-
-	Not blocking, but I don't want something that is too coupled to
-	free-page reporting optimizations in the buddy. The comment above
-	MAGIC_PAGE_ZEROED triggered my reaction.
-
-so I interpreted this as meaning "it's nice to have (not blocking), but
-you either need to implement this to demonstrate that indeed, it is not
-too coupled, or prove in some other way that it is not too coupled".
-
-
+> Right. you also said:
 > 
-> -- 
-> Cheers,
+> 	Not blocking, but I don't want something that is too coupled to
+> 	free-page reporting optimizations in the buddy. The comment above
+> 	MAGIC_PAGE_ZEROED triggered my reaction.
 > 
-> David
+> so I interpreted this as meaning "it's nice to have (not blocking), but
+> you either need to implement this to demonstrate that indeed, it is not
+> too coupled, or prove in some other way that it is not too coupled".
 
+Then there was a misunderstanding. I consider it future work and just
+want the internals to easily allow for such a use case :)
+
+-- 
+Cheers,
+
+David
