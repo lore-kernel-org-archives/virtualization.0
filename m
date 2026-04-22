@@ -1,286 +1,194 @@
-Received: from mail-pj1-f49.google.com (mail-pj1-f49.google.com [209.85.216.49])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F2BB3CD8A2
-	for <virtualization@lists.linux.dev>; Wed, 22 Apr 2026 13:11:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D40A53D171D
+	for <virtualization@lists.linux.dev>; Wed, 22 Apr 2026 13:15:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776863469; cv=none; b=gJCrldspE61u9tdjWupF3UTFUNvjtrIIX49CTZu/7SKObxNhUXSKcZxBHpO1QZYVCcVC/RijMuFE1B3yFshgOfWskDLv99XARTnZgbJeoM8ymGRnkibZxpohvX4UWRjlnvrn6T+/hsKMT/Np3Eg3rYm4P6bwD6vn8X2ST2kAF1c=
+	t=1776863750; cv=none; b=T6FZnuwlBi15UQ4e/n0/PP7KE87YWy4BE1MOG4G7Y1MGXojKUVx/mO2hQF2KaM2UUJV3XZ6fU4bHfuWSa9CdVx142Kfy0i0+huoxmiM0UdRlcuHDegG7g/30fwxak0qcM4f8X/8b1vd5kfTAqyoN5jgkBU8cI8nTXdXCsgRLrac=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776863469; c=relaxed/simple;
-	bh=bqyZ3zlNX4wq0F4SlMToUsElYMW/0/3HtJhBt5GqWXw=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=QsnmfbO4ny8LcOEScyOxAEPxPCchlfhm4moZ1HHbzYKmy4a43Sz6gOR89FfNhJCCpiYJx6aqdqbB8tfgvYNJGJ9Vf2yO/NA1kG+YsIvUV7s6uIomYgcQfW699q2IGBYrGlZEelnzmjmJ80DY1BL2RrBVNjLaHzGQDAd379tyjmU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qn+XkZR7; arc=none smtp.client-ip=209.85.216.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1776863750; c=relaxed/simple;
+	bh=ajmAx5QnXGWOom4w9rQU6ozJvG7KJY0EMSZP3IZwbiw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=T5zCTiRuUa4O8DzAysKa2ex5V5TgaWYO1B60DdEwbTK/j0ZzKErqc98iESplfY79n0ahdMu7V/GU1kLyH0pCZ90Cx/YW9T/s5TnpwLKQyKcEP6/Sg9LteTNaIO+wo+hrJOfwyKzXZDydfI0CkCcVaoA42rtm8DCZWIo+kKXx9Yg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=kURvamSQ; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=5Eyz1mxK; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=xZlByWEb; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=9k316xQt; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qn+XkZR7"
-Received: by mail-pj1-f49.google.com with SMTP id 98e67ed59e1d1-354bc7c2c46so3393403a91.0
-        for <virtualization@lists.linux.dev>; Wed, 22 Apr 2026 06:11:08 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1776863467; x=1777468267; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=kLZtjOym8UhPjw8gAAa2p99YiXwmHn7dLCASrBy1N7Y=;
-        b=qn+XkZR7SGQ3No7KHfUuRquPYMJf0+J3FdebIlTnn5A9RaiLcuZcig+8HrfAXdFn/e
-         BuBSKfuDxz3WB4bhBggJNDHmsXPG8AFxKKD1zmUvZLBGlU7OXs3G1dFk3RUXFAgXxhh0
-         /qQYEnZRegLPQTlnmIu7UivATIaQi2E3KkTCTLYuwTqQ8FVV15rENHBbh4cARV1KwYqw
-         /E8iLcRFkCfEMZfxXIrd0c+6E3IBpLBgaUEzuoRMaVU2LOsfbV2GGdAWCyKhm276FiWu
-         6cCicaRog/QmXX5kqM8n/RSBuGd820oXEUsv6piyYH73fwGDprAbbhv53B91ZTK6sGWW
-         PdLw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776863467; x=1777468267;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=kLZtjOym8UhPjw8gAAa2p99YiXwmHn7dLCASrBy1N7Y=;
-        b=jCkTsy0SbumJcCMirhaUVl3E4RaGTLBcTk91vf2Ngwk+r+Bb4yEBYGvOMrr6b+WWAk
-         cLzn0YCjPxV+b+1bjJ2dodQiLiEVduD4jJDuK9fyMGJMQ+Jwg+bakqsLaTnKU5vjpfoe
-         QZiTlqHuox3jyhnHmTVp5U3h0fPtUUwX5aZUeeI9WiirqL3/kcWfWDq994Ytw28MHIvp
-         4C+LpxGqWF8bZjO/5tKVRzdJz7D11DjNtI8kWwLWfPGEpXipcEKel1682gLWSmxQXnrn
-         nvGWoyPF6NLS10ztKSlZftdXlxMAOgetTtQ7eXnkBkwk4Yq1aoE51dlME24thOG07mp3
-         bHOQ==
-X-Forwarded-Encrypted: i=1; AFNElJ9uX5piy7U7i1siKHgMIfBQoaVtqEdgtMSE10qslvv5mOeM5wAo3ifLeHMK8DTUcUFQAWzldDRoV189dh927g==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxb0hZs885rE3g8szlneqE7siE71Ly6hNOkgxBixI0ViRQJbTIL
-	bEbn1U30PTe2JAbYHxEs82s2lVqh54PFm9b+XTsSbBVFALseQhWp17YW
-X-Gm-Gg: AeBDies867cCtmQPszXV9VGxClhRcBVccPXCrBRtIcp1e/Lakfv0x9Sb6yIDYe+PQpc
-	rFhfPGfzlg22qb2w7OHtZq7nfP9IJf5tQZxvlNQtrFh1/9ZuVQdzRkQi3Im98/l+YzyywIPohpD
-	Jm8kyWNENdbfCA2o4XkQXS3a0cDj9g6LLSp6eLo6Ok/K+qaUgj9Z8tYrZEw9BoC1oIu4tCIcrfy
-	jvNw87lgX3IaZOxO0K4ocD1uE1JvJNZ7zt5QfRfX6K5KpBsN3Oa5FS8gHGbakHXdXxa+sSjjDxd
-	CEJ5pvdjFQxZ//ZIuJ+xkKQjGDCsBKqyOG3Y0a9QkLPNo/kTrFq6/tAd6wHp7ZkLzGxyLV7hART
-	dO0WZJ55XYpGhFAV/wTOLugaBXzgf9aknX3RUXMIuIL66c1hd/MIqgUVRcaSFtmIg/gTrmqYOPh
-	/pmXlljXTnZEzCd4gFAzu0z5MKQfp7k64N8P46yUSEufQzKp/z/6P20nQlWEA81g3dca8FIsELg
-	USUg0RQ9rBx3wgthNB+T8y2t5H5gnWtga0jQw==
-X-Received: by 2002:a17:903:3905:b0:2b0:7e4d:f43f with SMTP id d9443c01a7336-2b5f9ffe73amr214991645ad.41.1776863467453;
-        Wed, 22 Apr 2026 06:11:07 -0700 (PDT)
-Received: from baver-zenith.localdomain ([124.49.88.131])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b606ce9891sm127892235ad.83.2026.04.22.06.11.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Apr 2026 06:11:07 -0700 (PDT)
-From: Sungho Bae <baver.bae@gmail.com>
-To: mst@redhat.com,
-	jasowang@redhat.com
-Cc: xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Sungho Bae <baver.bae@lge.com>
-Subject: [RFC PATCH v3 4/4] virtio-mmio: wire up noirq system sleep PM callbacks
-Date: Wed, 22 Apr 2026 22:10:14 +0900
-Message-Id: <20260422131014.956-5-baver.bae@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260422131014.956-1-baver.bae@gmail.com>
-References: <20260422131014.956-1-baver.bae@gmail.com>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="kURvamSQ";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="5Eyz1mxK";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="xZlByWEb";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="9k316xQt"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id BED205BD94;
+	Wed, 22 Apr 2026 13:15:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1776863747; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=7FY09U2FZedrRK93G4lYG3qncRi3YIx5WHWpsJzax04=;
+	b=kURvamSQa4XtnOxsXcg0dwZ6v5RXIuSIHrMI2qGmi329Bs3rQGIfzHYfmWlovl+5IBO7ue
+	SfpgVBzNG2KPUDSCfCQ67ficYSyCWMMgesaByjumBi/1lbWFGEVokBxv9LxL+Xq4B3xOQS
+	Y+7ePDi8VUXRySkYMtLmZiHqn2Zkou0=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1776863747;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=7FY09U2FZedrRK93G4lYG3qncRi3YIx5WHWpsJzax04=;
+	b=5Eyz1mxK11UqkknqtLsBwPpQjKPK8Y4ocR3Vr1ETFcJn+SaxP+TfcC0lcCHxJ+w6J30zLx
+	h2LNmHIbGS/l5lBw==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=xZlByWEb;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=9k316xQt
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1776863745; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=7FY09U2FZedrRK93G4lYG3qncRi3YIx5WHWpsJzax04=;
+	b=xZlByWEbxRn7ZRhbOShOoTTTJYukTYkPJlHCPLVvUIdoOBq7m1D1MFQlCg3fHx3KSjGrOf
+	PUg/Y9mqFDv5Dr91i3Nu0hRFvm+Lm5f9EifxgEdXt5VMdei0GNL74pWBoO+GB1at7zYWfA
+	nF/zRV486x1GzHm/ggCwnGq6cI8hoZI=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1776863745;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=7FY09U2FZedrRK93G4lYG3qncRi3YIx5WHWpsJzax04=;
+	b=9k316xQtFN7Dug7kg0438dA25jF2wuXY8Hrm/cX6dqZn8886BjQW8Pk2pouBqvS2mZTcfo
+	uF3e9D5lgkKbi+Dg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 90EB9593AF;
+	Wed, 22 Apr 2026 13:15:45 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 7ZhvIgHK6Gl+GwAAD6G6ig
+	(envelope-from <hare@suse.de>); Wed, 22 Apr 2026 13:15:45 +0000
+Message-ID: <448302b1-3950-4e6d-ae8b-337cad09f3fe@suse.de>
+Date: Wed, 22 Apr 2026 15:15:45 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 3/4] scsi: Support scsi_devices without a device wide
+ limit
+To: Mike Christie <michael.christie@oracle.com>, martin.petersen@oracle.com,
+ linux-scsi@vger.kernel.org, james.bottomley@hansenpartnership.com,
+ virtualization@lists.linux.dev, mst@redhat.com, pbonzini@redhat.com,
+ stefanha@redhat.com, eperezma@redhat.com
+References: <20260417230751.117836-1-michael.christie@oracle.com>
+ <20260417230751.117836-4-michael.christie@oracle.com>
+Content-Language: en-US
+From: Hannes Reinecke <hare@suse.de>
+In-Reply-To: <20260417230751.117836-4-michael.christie@oracle.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+X-Spamd-Result: default: False [-4.51 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	TO_DN_SOME(0.00)[];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	MID_RHS_MATCH_FROM(0.00)[];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	RCPT_COUNT_SEVEN(0.00)[9];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.de:mid,suse.de:dkim,suse.de:email,oracle.com:email];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	DKIM_TRACE(0.00)[suse.de:+]
+X-Rspamd-Action: no action
+X-Spam-Flag: NO
+X-Spam-Score: -4.51
+X-Spam-Level: 
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Rspamd-Queue-Id: BED205BD94
 
-From: Sungho Bae <baver.bae@lge.com>
+On 4/18/26 00:57, Mike Christie wrote:
+> For virtio-scsi, we export a wide variety of non-scsi devices like
+> NVMe (local and RDMA/TCP based) drives and block based devices using
+> ublk. And then it's common to have multiple high perf devices im a LVM
+> volume. The problem for these setups, is we can easily hit the 4096
+> scsi_device queue depth limit so we end up throttling IO in the guest
+> when the real device can handle more IO.
+> 
+> In these situations we don't have a device wide limit that maps to
+> cmd_per_lun. We have per hw queue limits or on the host we are doing
+> more dynamic throttling. To allow for these types of devices, this
+> patch allows drivers to set SCSI_UNLIMITED_CMD_PER_LUN for the
+> cmd_per_lun. When set, we will then only be limited by the per hw
+> queue limits.
+> 
+> Signed-off-by: Mike Christie <michael.christie@oracle.com>
+> ---
+>   drivers/scsi/hosts.c     |  5 +++--
+>   drivers/scsi/scsi_scan.c | 25 ++++++++++++++-----------
+>   include/scsi/scsi_host.h |  4 ++++
+>   3 files changed, 21 insertions(+), 13 deletions(-)
+> 
+> diff --git a/drivers/scsi/hosts.c b/drivers/scsi/hosts.c
+> index e047747d4ecf..c93c59e847c5 100644
+> --- a/drivers/scsi/hosts.c
+> +++ b/drivers/scsi/hosts.c
+> @@ -238,8 +238,9 @@ int scsi_add_host_with_dma(struct Scsi_Host *shost, struct device *dev,
+>   	}
+>   
+>   	/* Use min_t(int, ...) in case shost->can_queue exceeds SHRT_MAX */
+> -	shost->cmd_per_lun = min_t(int, shost->cmd_per_lun,
+> -				   shost->can_queue);
+> +	if (shost->cmd_per_lun != SCSI_UNLIMITED_CMD_PER_LUN)
+> +		shost->cmd_per_lun = min_t(int, shost->cmd_per_lun,
+> +					   shost->can_queue);
+>   
+>   	error = scsi_init_sense_cache(shost);
+>   	if (error)
+> diff --git a/drivers/scsi/scsi_scan.c b/drivers/scsi/scsi_scan.c
+> index 7b11bc7de0e3..ecc3638c1909 100644
+> --- a/drivers/scsi/scsi_scan.c
+> +++ b/drivers/scsi/scsi_scan.c
+> @@ -352,18 +352,20 @@ static struct scsi_device *scsi_alloc_sdev(struct scsi_target *starget,
+>   	if (scsi_device_is_pseudo_dev(sdev))
+>   		return sdev;
+>   
+> -	depth = sdev->host->cmd_per_lun ?: 1;
+> +	if (sdev->host->cmd_per_lun != SCSI_UNLIMITED_CMD_PER_LUN) {
+> +		depth = sdev->host->cmd_per_lun ?: 1;
+>   
+Why don't we use a simple flag in the host (or host template) to
+indicate that cmd_per_lun should be ignored?
+I'm not in favour of using magic values for a setting which
+otherwise is a limit.
+Look to dev_loss_tmo as a bad example ...
 
-Implement the transport side of noirq system-sleep PM for virtio-mmio:
+Cheers,
 
- - vm_reset_vqs(): iterate all virtqueues, call virtqueue_reinit_vring()
-   to reset the vring state in place, then reprogram the MMIO queue
-   registers (QUEUE_SEL, QUEUE_NUM, descriptor/avail/used addresses,
-   QUEUE_READY) so the device can use the same rings immediately after
-   restore.  No memory is allocated or freed.
-
- - virtio_mmio_freeze_noirq() / virtio_mmio_restore_noirq(): thin
-   wrappers that forward to the virtio core noirq helpers.  The
-   restore_noirq path also writes GUEST_PAGE_SIZE for legacy (v1)
-   devices, matching the existing restore callback.
-
- - Wire vm_reset_vqs into virtio_mmio_config_ops and register the
-   noirq callbacks via SET_NOIRQ_SYSTEM_SLEEP_PM_OPS().
-
-With this in place, a virtio-mmio driver can implement freeze_noirq /
-restore_noirq to participate in the noirq PM phase, enabling use cases
-such as virtio-clock or virtio-regulator that must be operational
-before other devices are restored.
-
-Signed-off-by: Sungho Bae <baver.bae@lge.com>
----
- drivers/virtio/virtio_mmio.c | 133 ++++++++++++++++++++++++-----------
- 1 file changed, 93 insertions(+), 40 deletions(-)
-
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 595c2274fbb5..583da43013e7 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -336,6 +336,75 @@ static void vm_del_vqs(struct virtio_device *vdev)
- 	free_irq(platform_get_irq(vm_dev->pdev, 0), vm_dev);
- }
- 
-+static int vm_active_vq(struct virtio_device *vdev, struct virtqueue *vq)
-+{
-+	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-+	int q_num = virtqueue_get_vring_size(vq);
-+
-+	writel(q_num, vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
-+	if (vm_dev->version == 1) {
-+		u64 q_pfn = virtqueue_get_desc_addr(vq) >> PAGE_SHIFT;
-+
-+		/*
-+		 * virtio-mmio v1 uses a 32bit QUEUE PFN. If we have something
-+		 * that doesn't fit in 32bit, fail the setup rather than
-+		 * pretending to be successful.
-+		 */
-+		if (q_pfn >> 32) {
-+			dev_err(&vdev->dev,
-+				"platform bug: legacy virtio-mmio must not be used with RAM above 0x%llxGB\n",
-+				0x1ULL << (32 + PAGE_SHIFT - 30));
-+			return -E2BIG;
-+		}
-+
-+		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_QUEUE_ALIGN);
-+		writel(q_pfn, vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
-+	} else {
-+		u64 addr;
-+
-+		addr = virtqueue_get_desc_addr(vq);
-+		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_LOW);
-+		writel((u32)(addr >> 32),
-+				vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_HIGH);
-+
-+		addr = virtqueue_get_avail_addr(vq);
-+		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_LOW);
-+		writel((u32)(addr >> 32),
-+				vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_HIGH);
-+
-+		addr = virtqueue_get_used_addr(vq);
-+		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_USED_LOW);
-+		writel((u32)(addr >> 32),
-+				vm_dev->base + VIRTIO_MMIO_QUEUE_USED_HIGH);
-+
-+		writel(1, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
-+	}
-+
-+	return 0;
-+}
-+
-+static int vm_reset_vqs(struct virtio_device *vdev)
-+{
-+	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-+	struct virtqueue *vq;
-+	int err;
-+
-+	virtio_device_for_each_vq(vdev, vq) {
-+		/* Re-initialize vring state */
-+		virtqueue_reinit_vring(vq);
-+
-+		/* Select the queue we're interested in */
-+		writel(vq->index, vm_dev->base + VIRTIO_MMIO_QUEUE_SEL);
-+
-+		/* Activate the queue */
-+		err = vm_active_vq(vdev, vq);
-+		if (err < 0)
-+			return err;
-+	}
-+
-+	return 0;
-+}
-+
- static void vm_synchronize_cbs(struct virtio_device *vdev)
- {
- 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-@@ -388,45 +457,9 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
- 	vq->num_max = num;
- 
- 	/* Activate the queue */
--	writel(virtqueue_get_vring_size(vq), vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
--	if (vm_dev->version == 1) {
--		u64 q_pfn = virtqueue_get_desc_addr(vq) >> PAGE_SHIFT;
--
--		/*
--		 * virtio-mmio v1 uses a 32bit QUEUE PFN. If we have something
--		 * that doesn't fit in 32bit, fail the setup rather than
--		 * pretending to be successful.
--		 */
--		if (q_pfn >> 32) {
--			dev_err(&vdev->dev,
--				"platform bug: legacy virtio-mmio must not be used with RAM above 0x%llxGB\n",
--				0x1ULL << (32 + PAGE_SHIFT - 30));
--			err = -E2BIG;
--			goto error_bad_pfn;
--		}
--
--		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_QUEUE_ALIGN);
--		writel(q_pfn, vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
--	} else {
--		u64 addr;
--
--		addr = virtqueue_get_desc_addr(vq);
--		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_LOW);
--		writel((u32)(addr >> 32),
--				vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_HIGH);
--
--		addr = virtqueue_get_avail_addr(vq);
--		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_LOW);
--		writel((u32)(addr >> 32),
--				vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_HIGH);
--
--		addr = virtqueue_get_used_addr(vq);
--		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_USED_LOW);
--		writel((u32)(addr >> 32),
--				vm_dev->base + VIRTIO_MMIO_QUEUE_USED_HIGH);
--
--		writel(1, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
--	}
-+	err = vm_active_vq(vdev, vq);
-+	if (err < 0)
-+		goto error_bad_pfn;
- 
- 	return vq;
- 
-@@ -528,6 +561,7 @@ static const struct virtio_config_ops virtio_mmio_config_ops = {
- 	.reset		= vm_reset,
- 	.find_vqs	= vm_find_vqs,
- 	.del_vqs	= vm_del_vqs,
-+	.reset_vqs	= vm_reset_vqs,
- 	.get_features	= vm_get_features,
- 	.finalize_features = vm_finalize_features,
- 	.bus_name	= vm_bus_name,
-@@ -547,14 +581,33 @@ static int virtio_mmio_restore(struct device *dev)
- {
- 	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
- 
--	if (vm_dev->version == 1)
-+	if (vm_dev->version == 1 && !vm_dev->vdev.noirq_restore_done)
- 		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
- 
- 	return virtio_device_restore(&vm_dev->vdev);
- }
- 
-+static int virtio_mmio_freeze_noirq(struct device *dev)
-+{
-+	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
-+
-+	return virtio_device_freeze_noirq(&vm_dev->vdev);
-+}
-+
-+static int virtio_mmio_restore_noirq(struct device *dev)
-+{
-+	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
-+
-+	if (vm_dev->version == 1)
-+		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
-+
-+	return virtio_device_restore_noirq(&vm_dev->vdev);
-+}
-+
- static const struct dev_pm_ops virtio_mmio_pm_ops = {
- 	SET_SYSTEM_SLEEP_PM_OPS(virtio_mmio_freeze, virtio_mmio_restore)
-+	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(virtio_mmio_freeze_noirq,
-+				      virtio_mmio_restore_noirq)
- };
- #endif
- 
+Hannes
 -- 
-2.43.0
-
+Dr. Hannes Reinecke                  Kernel Storage Architect
+hare@suse.de                                +49 911 74053 688
+SUSE Software Solutions GmbH, Frankenstr. 146, 90461 Nürnberg
+HRB 36809 (AG Nürnberg), GF: I. Totev, A. McDonald, W. Knoblich
