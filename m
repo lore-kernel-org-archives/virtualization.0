@@ -1,227 +1,158 @@
-Received: from LO3P265CU004.outbound.protection.outlook.com (mail-uksouthazon11020096.outbound.protection.outlook.com [52.101.196.96])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f54.google.com (mail-qv1-f54.google.com [209.85.219.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 47FE43ED11C
-	for <virtualization@lists.linux.dev>; Wed, 22 Apr 2026 18:53:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.196.96
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776883999; cv=fail; b=K9vPEqu8dh5gv/IK40Hj2710Ml6hFW9CQTrNRv5vskVz5oqdR+jidjWoxsDZcnrrpmnN+ebZuhFc6OiT/10cuai3YAqD6/B9fcBrO+c7d3LwgRnQZOmUcSkD2ZxJR6i8913L4Lzk3MKQYBWWFSCWrIrOH804NRpdYK8+sdzmSxs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776883999; c=relaxed/simple;
-	bh=idv9MSpD8WzLsh9YcrhYO0KQmA/q/tmgoYWEVPB5EaU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=M3ULIXSaOKq2ndwk28y1zXtBTLqcbp3YQAK0Z+sbaO6mzDAHviMtbfxhNE8flVcDHfuM9phuNKYStsdlpJFn5NK/h7PUBDSj0CEC6pdkvKwWGcMvK1ejzgjuvZjACA+1prBkkjcuq65iqNUfEHNsIO5F2xwKM1mrl1WFI4f5to0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com; spf=pass smtp.mailfrom=atomlin.com; arc=fail smtp.client-ip=52.101.196.96
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=atomlin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=atomlin.com
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=v5TazKl7HyayTX1FVOT16kW1+17hcZZPbb0WewCtk8Bgpl0sK6KOlXUVf45LR4LXoJoscA4SFBtiwYiEqHDD0gSUDgkrAJu3KTvUP0JplAZO6DyY/FD7keu78XGCi+5Piz2QNnduG7oLXYqaPB+FwYG6YgSfe4yL1FkUhh8kZEIhIvj0UtT0TfRGi9JxcvFi1aRKkn4w+XG+qiiZuzJ18BBplsM4xPsdEI6WcUQrqXFlcmiHmDJ32Ef/QyoJn/5achUT1m5E+zxjY0/o7+LOR8Trnu1lKC13uu553COcf/zQ7C6FFvzn3QrUXAvDqiiKEgqI7w//xqxFZrj1l6ZMug==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=1zbgHWZHCMR8qK0mrPQje8Fz7DdS9z6CZMQHkm92wcI=;
- b=xtqwunq7cVhYc044FO70rUzA5ZVZr/yr/5MvmeYyYP62jq0PkV1OYKr1QzUP2AKGq6J9yib6l1lRWciebwxw5yJg6igqxEG6i+UREw0aWbTpGm3dlc2bZaC+rNl4FSu7FWOsst/HAOBk6LnHXiWs3zITXwHyp1l/9weCxfPoGPcogMR4Hc6Dva/CWbIAGouKil8mFkncBC1JaJ1TFGtZ7UptOCqzVZpjR+B6kdoKiM/jJN/5qHRyM5cm1vY7RUP7fjPMztzu8NbY0Fn+jzpA7eVl3BovslHEjDaAtkQ2OKY72xSVWjY1P/r9QGwS1h1kldcz7XmvV+ZzWgF8fzcJTw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=atomlin.com; dmarc=pass action=none header.from=atomlin.com;
- dkim=pass header.d=atomlin.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=atomlin.com;
-Received: from CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM (2603:10a6:400:70::10)
- by LO0P123MB7717.GBRP123.PROD.OUTLOOK.COM (2603:10a6:600:407::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9846.19; Wed, 22 Apr
- 2026 18:53:16 +0000
-Received: from CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
- ([fe80::de8e:2e4f:6c6:f3bf]) by CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
- ([fe80::de8e:2e4f:6c6:f3bf%2]) with mapi id 15.20.9846.019; Wed, 22 Apr 2026
- 18:53:16 +0000
-From: Aaron Tomlin <atomlin@atomlin.com>
-To: axboe@kernel.dk,
-	kbusch@kernel.org,
-	hch@lst.de,
-	sagi@grimberg.me,
-	mst@redhat.com
-Cc: atomlin@atomlin.com,
-	aacraid@microsemi.com,
-	James.Bottomley@HansenPartnership.com,
-	martin.petersen@oracle.com,
-	liyihang9@h-partners.com,
-	kashyap.desai@broadcom.com,
-	sumit.saxena@broadcom.com,
-	shivasharan.srikanteshwara@broadcom.com,
-	chandrakanth.patil@broadcom.com,
-	sathya.prakash@broadcom.com,
-	sreekanth.reddy@broadcom.com,
-	suganath-prabu.subramani@broadcom.com,
-	ranjan.kumar@broadcom.com,
-	jinpu.wang@cloud.ionos.com,
-	tglx@kernel.org,
-	mingo@redhat.com,
-	peterz@infradead.org,
-	juri.lelli@redhat.com,
-	vincent.guittot@linaro.org,
-	akpm@linux-foundation.org,
-	maz@kernel.org,
-	ruanjinjie@huawei.com,
-	bigeasy@linutronix.de,
-	yphbchou0911@gmail.com,
-	wagi@kernel.org,
-	frederic@kernel.org,
-	longman@redhat.com,
-	chenridong@huawei.com,
-	hare@suse.de,
-	kch@nvidia.com,
-	ming.lei@redhat.com,
-	tom.leiming@gmail.com,
-	steve@abita.co,
-	sean@ashe.io,
-	chjohnst@gmail.com,
-	neelx@suse.com,
-	mproche@gmail.com,
-	nick.lange@gmail.com,
-	marco.crivellari@suse.com,
-	linux-block@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DE59346AE5
+	for <virtualization@lists.linux.dev>; Wed, 22 Apr 2026 19:47:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.54
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1776887233; cv=none; b=Z9HhdcDqZ9M0+GtjMB/ZNP2skxoskHkZ6fQBcYd1faJUfAJfd6GnhOUcSujZeA0i3C8Svr3OwzfsVx+97I8OyjKs568thCEWRMEVP1GnvUHSoeZLC0mqjnTUVY33ic0JzBAqq2R3voiFItnr0ueG/WmI8nZex2gPBep3OlHRyH4=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1776887233; c=relaxed/simple;
+	bh=0nf05vma3xhqsy8YbrfdkENQdMmOEcvjpQx6mh+lTeQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=TOPN2XFbQxw2TfmYLfDGYFRr1J728BTFTQOohDwjGYsv5wsu2K70fiGMPd3v1wE+mDpFj0l9tDM6xk9q5Rh/z+TNa+AROYTRY8tLMCZS92TuGCDf+tk1GLaxy94uOfn5vR8vhzpu0weCNYsPnthHqt8AMmmJ72yrrfXLtrEfClM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=WO62TxtU; arc=none smtp.client-ip=209.85.219.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="WO62TxtU"
+Received: by mail-qv1-f54.google.com with SMTP id 6a1803df08f44-89fc4147f2eso65048386d6.3
+        for <virtualization@lists.linux.dev>; Wed, 22 Apr 2026 12:47:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gourry.net; s=google; t=1776887230; x=1777492030; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=pGdOZjYFd//HiRQ+b4VwV4BRdopXfvmgy3UzEHyg/Zc=;
+        b=WO62TxtUYyMG2LujNfBLV49rpgelDcAvxYxm0VdIb9WxLtlxNrgztYQ3M+vqa8CUPg
+         X53sg9GS2B07p5S63j0hw9Ggy4kY9yjYeN9ULKgeuswuF1uhVM/3QqMwbg3LO2YP0w4c
+         UmsdQlfk3d2ooeUlti8OKLi74qAZZi5oNtG7MbEPTD3NlPHrznwsRXBt1FqRi9LaKPwD
+         TYmmpB8TpmJR6m9VQ025bmzOP2p1Ej0pUt5TRSlV26UKspPviEaY3UyA+9krIym1/fUX
+         1k6eZX1xwztWjkbS47zbcmMVmCBjYWkf+32nu+1W4BWvfX6fNxVtvkolj7UvMnm/2dBH
+         uKlA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1776887230; x=1777492030;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=pGdOZjYFd//HiRQ+b4VwV4BRdopXfvmgy3UzEHyg/Zc=;
+        b=SbwvowfQsUhZ2Rd8RVIoXiEP9EpylQWhrtA1kXQkZBr9+MJrtsNGd4O653YRvJT+W4
+         +mqDFzjig1T34WA5GEiIORwHJJb7DLyIdn1jcorT6hP9givcghWalAh/LkjIGUpfdp7C
+         6AdaNtQSKw/K4u2Y6/CxEkhAa3mSsywwx8BzbfM89U/NQRUALiII+k5iyJEFk2heiE0J
+         WRzxSChb02Iz1WnWFWASmlE0HR1Xj7ivBHkclI4+0Ztn3mtSoKfcDeb6bVwT7eDNtaca
+         sCTpg0CaGPqrXukljJFSK72OvPcGOoJQTXJTKkE09wsMZiGs7IWZGjd3Z+bjVxoaA6w7
+         Hb8g==
+X-Forwarded-Encrypted: i=1; AFNElJ/+Cg/nXtuXRLXJ8F6neXlbAL7aj7sbpZ35Tzs7RrrAHfeBBUpD7fE1RLHNeJ6qzvkinOk9qkHG1mFuWmZq9A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxbXgcYLICeoaT8QMUhd4l/xl4jFW8HlSIXQN7Kr5hxrCVYXvOh
+	l37z/+I4rqwk1U2uJOt0WY7c6RNLJ4/oaXp3b5Q8RnOpscbqnGsUpQxQWI8K3+mIyfw=
+X-Gm-Gg: AeBDiesCTG+jH22EaBPIYC3OI79nFbQRfVf1QpWOLLKZdm/e14f8Nw5mCId75PGOjiB
+	JlY351RLo7xuomaxTX5abjKbudm02B1OLshxwlQ5zPiY8DtD1fbWpwofm5B5nrOofsZCIj18fNJ
+	AaVTMf0+aW+OtWfP27x9akXKZ2lTepl/1tuFKq2JXa07dAygiEUwc2AQltV3ozojVqDnJ3cXeGc
+	Tgl5eTGq52x/Q/MAno0ZTB0HC8IcxuikcCZliMmKtd1qP2MD3k4fMm7zHTna9dBa+/RuSkT+p6K
+	XcVtkcV218DwUx9UVzSiQRpodIDr956RKM57uPLkQqWnMDHqFzGUAS1zN98CxrCyWlAOomMJeSF
+	HAyz62Y+NyM2pxfnyntflYP1AyOab1Isavq61hxthLfY3Gi3Qq7mjedJVsAtRjjQcSeHAfFiaVr
+	LjUV5shMTJZKJZ5QwAQuxX+27brIrR+ZMriy4FFd7DycJNtqjPs0vbaQdVhs+yEnuTMpO75MVNq
+	/K/kQw6EdI0GShOLee1
+X-Received: by 2002:a05:6214:5e08:b0:89c:6a86:e632 with SMTP id 6a1803df08f44-8b028061bf0mr329097316d6.18.1776887230490;
+        Wed, 22 Apr 2026 12:47:10 -0700 (PDT)
+Received: from gourry-fedora-PF4VCD3F (pool-71-246-228-50.washdc.fios.verizon.net. [71.246.228.50])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8b02aec3a3bsm138295346d6.49.2026.04.22.12.47.08
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Apr 2026 12:47:09 -0700 (PDT)
+Date: Wed, 22 Apr 2026 15:47:07 -0400
+From: Gregory Price <gourry@gourry.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+	David Hildenbrand <david@kernel.org>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Brendan Jackman <jackmanb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Andrea Arcangeli <aarcange@redhat.com>, linux-mm@kvack.org,
 	virtualization@lists.linux.dev,
-	linux-nvme@lists.infradead.org,
-	linux-scsi@vger.kernel.org,
-	megaraidlinux.pdl@broadcom.com,
-	mpi3mr-linuxdrv.pdl@broadcom.com,
-	MPT-FusionLinux.pdl@broadcom.com
-Subject: [PATCH v12 13/13] docs: add io_queue flag to isolcpus
-Date: Wed, 22 Apr 2026 14:52:15 -0400
-Message-ID: <20260422185215.100929-14-atomlin@atomlin.com>
-X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260422185215.100929-1-atomlin@atomlin.com>
-References: <20260422185215.100929-1-atomlin@atomlin.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: LO6P123CA0019.GBRP123.PROD.OUTLOOK.COM
- (2603:10a6:600:313::13) To CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
- (2603:10a6:400:70::10)
+	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Mike Rapoport <rppt@kernel.org>,
+	"Matthew Wilcox (Oracle)" <willy@infradead.org>,
+	Muchun Song <muchun.song@linux.dev>,
+	Oscar Salvador <osalvador@suse.de>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
+	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
+	Lance Yang <lance.yang@linux.dev>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+	Byungchul Park <byungchul@sk.com>,
+	Ying Huang <ying.huang@linux.alibaba.com>,
+	Alistair Popple <apopple@nvidia.com>,
+	Hugh Dickins <hughd@google.com>, Christoph Lameter <cl@gentwo.org>,
+	David Rientjes <rientjes@google.com>,
+	Roman Gushchin <roman.gushchin@linux.dev>,
+	Harry Yoo <harry.yoo@oracle.com>, Chris Li <chrisl@kernel.org>,
+	Kairui Song <kasong@tencent.com>,
+	Kemeng Shi <shikemeng@huaweicloud.com>,
+	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
+	linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH RFC v3 01/19] mm: thread user_addr through page allocator
+ for cache-friendly zeroing
+Message-ID: <aekluxNPxF8CN8fL@gourry-fedora-PF4VCD3F>
+References: <cover.1776808209.git.mst@redhat.com>
+ <9dd9deabd42801f3c344326991d1431c3d8db39d.1776808210.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CWLP123MB3523:EE_|LO0P123MB7717:EE_
-X-MS-Office365-Filtering-Correlation-Id: b36bbe55-e848-4029-319a-08dea0a06973
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|366016|7416014|376014|1800799024|22082099003|56012099003|18002099003;
-X-Microsoft-Antispam-Message-Info:
-	lxuohPdGlkDyQTJGJPcVsWIjVqfzCANuZGLCJWTU+yjvFamLzhMkFrUigpU6aOdUHyTNUm5Q2zM+tA+tlmsLW3hZhkP60/cOWzad//qTzv62VARJy51XQXa435rAA2azgTt0WRA3E7+YWP+yzR1lurnmb7SztMfTcJ4BvMvAr7x8owN/wt0i/jz4MIti7rpcgDWTBhsVvxnwQ1dm838GJeqquavwyr4n/kApM+BCku0Y6qJnSTIIiyBQqasfWHvS/SPLs6KfynF7PHifcTwz96f2wpfQhfD1UAKONF10zOTggiIeYwwyHzRAKZuuyRsW8pMrQIoYxtlA38L5+om7Q4rTPe42DQg2EerkFnn02TgBeQkdqsYYPBjohnpa9t0wrccXiUCl6amID3y/DzvuLvzOQaG0g7xjJdD492L7l7nba4dQzXfQaqJ7Ur0vBFA0eV6yfi+NaupmZDy+ioE5gZ+eIeZW6xHzx7qmqtP3Q6IFzdSqcPItf1r6H+MFyJ6TeyvE370ZcU5noX8hhG/SyDmaM6gK93A5Cy4kQBCCKi2k8bdV/RpxO8ak87A3v1LN/gkjLFnkDcKeE3xht78yTfrFjNoJWx/+lHad+FJZD+pAcWni2WMYp/L6DEKQABQ2NPJowAX/DT/Iehgs70OeZqE4qJpM0SGreoQA38NvtnwlauxIvlJWLBBcOfrwxE6B5aB5KMuTtnyOgOcIhr8lg/sw+DbP2Yao3DLIlS2OS0E=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(376014)(1800799024)(22082099003)(56012099003)(18002099003);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?AegIc/cT+DCHFbDazO3vnkOfd2z2AepxGm/SqldrM8InOoaErHzxJCvgfaBa?=
- =?us-ascii?Q?Z8lQwP6/X3nb0VW3e7YdKfp06MByj6IERQgZ98USFEjPOxE+JCZkyu8WBRIb?=
- =?us-ascii?Q?LTGhMhr/pQgGmsnfUTn0ZnxQ1WnsVQFH3cHMrgPjNWBSxVtXoJ8qzwH4PqOj?=
- =?us-ascii?Q?XqnEBBVFsjGWXdlmOtfomDu/0fIM0pwcBtjFMp3bbA63KO9f8T/GC9TaZwSv?=
- =?us-ascii?Q?MIhyQn6ziJ18o1LCW83JF7hZ6y1845oZrSrHiI7+ezvhUYGQ1cpMA9DULUFX?=
- =?us-ascii?Q?U6zrk2BuwzSHPDZC8BuYzd1hsTa8V8F1rRzllQxyEWXtRNPlF6UW4nlEqtbG?=
- =?us-ascii?Q?qPuEfKCCrU37Yr+Pv7ypuGDGjNT6O9/I9uxeUw+EXouvurrqGut+CFaGrQZn?=
- =?us-ascii?Q?Bi+s8+xXshD0x5vUu0jwX1dLk1+iiR4pKcWuNPnwxuoBa8PsslyvxiVASirN?=
- =?us-ascii?Q?6rDNXOY5aH8KVFMSvRxWgTXRcoVpdlxKlbViCoSSXcjSmmZktgBupGqBPVBz?=
- =?us-ascii?Q?GQ99JV8i80cggEQyp7LDwrpjLOu6eHe0Av5C28BQUcQSKUDr0cLysmXYrCOX?=
- =?us-ascii?Q?0QWM3QerDZCcoOK85bt+WY1c5JxShq0kdhlD89atI634kNYe5SsVupSWn+4N?=
- =?us-ascii?Q?a98PdI/62oPeaXaUtoqKO7C1E55ECHUjdHTHk8JlVXFxW87AUMQ+kNUCBC7Q?=
- =?us-ascii?Q?jBhIAKS+UFVUVgQuxnTrOg98zmvvEM76hJ2W/f+KQ3WT3cdUhSBwQMjLy7r0?=
- =?us-ascii?Q?wKc7MDCS892ELecZB1q9S1js/we+hU31ZMiNgUXSgUEUp3wb9M012/kaU395?=
- =?us-ascii?Q?2Y3+MRdPpViMFlPQW/90fUvCHGLB9S2SVUeJl+rSlcgSKy4ySxpNYOTUOPGd?=
- =?us-ascii?Q?seTGxGj9cYsbggn6X6aNJPTCa2hsqhJ+eIZsve93herJn+2MMpmCpqG5obX2?=
- =?us-ascii?Q?xR95/yxRoCCewmWw0adRzlsWaK4TSso3s48Ra3eMrGbcXo6XL1J4caSRMLBK?=
- =?us-ascii?Q?GENGakTLTnQVRWDbK1emAZnnV8CgCOswROlE3A+T9rmM3+uVbQB4EOoMidSf?=
- =?us-ascii?Q?jM8XGRAf5Okyb5fKXHKQ0SaeQxtgmj2yqJdvGPyetrGuxCDB+yYoBY5mw0vi?=
- =?us-ascii?Q?DpVvc8RzAhr0unenUd5/OJUgZBqQe6ElbDG/incdTemiwXr6wlitFHSTz4Tl?=
- =?us-ascii?Q?ENDNuFh05RqNxavwAY/FlMVRWnCiO8KXHb4zWqs5cOShNOG0oUQbTnh4ga85?=
- =?us-ascii?Q?gUVV67tOZ465C5sh8sZjykwm+6vpBCDoT+ncQ8XhJoTjuly+2iWcDwCr0t6k?=
- =?us-ascii?Q?MUms5ojJ7U9mvJiyfqWvlNkAjKbgSaFmeOjV7bjTGW7+YaB/EVsOCuo8uSgk?=
- =?us-ascii?Q?3SI93v3CqY9zm93lixtO+6Xl+zXHhBoWOxQ2RemqEiIRDAtScbyMa7EDAa99?=
- =?us-ascii?Q?wXIFO4UqbtbxnjCiOw2dIEi6XEroxwzKFut0tzIqiKII+wPR/HRR46tEKVCW?=
- =?us-ascii?Q?Vpt3pNoJWT7b78BtBv71e+wlFfC6RYDHJjDAfjheScI8NX5wZUv/KW0ho2T/?=
- =?us-ascii?Q?n4EpUfvVe116sU7Gx6XNLM536V0HEeegfYW/DT3XPbvlslI6HuMUgraZDFwv?=
- =?us-ascii?Q?jd631O6/H3Vea1/BhaIbtx/CF0hdyus3sFidmt30GlRvR8Maz3roMiFXdEjL?=
- =?us-ascii?Q?TjEeXha5xA+FyBeYcG80unHxxbFdcrJqtFRZNwzXlHVqGBHcYUalaVusDl9+?=
- =?us-ascii?Q?iz49uStmNQ=3D=3D?=
-X-OriginatorOrg: atomlin.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b36bbe55-e848-4029-319a-08dea0a06973
-X-MS-Exchange-CrossTenant-AuthSource: CWLP123MB3523.GBRP123.PROD.OUTLOOK.COM
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Apr 2026 18:53:15.9939
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: e6a32402-7d7b-4830-9a2b-76945bbbcb57
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: PsnRcmRMAzCIN4YWv8+ySNraPHOLPxUGJmCFJVdGddVs/MTG5JHCMgbZsFljsl41xUgZZ1R2h43mJxPi5AMuAg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LO0P123MB7717
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <9dd9deabd42801f3c344326991d1431c3d8db39d.1776808210.git.mst@redhat.com>
 
-From: Daniel Wagner <wagi@kernel.org>
+On Tue, Apr 21, 2026 at 06:01:10PM -0400, Michael S. Tsirkin wrote:
+> Thread a user virtual address from vma_alloc_folio() down through
+> the page allocator to post_alloc_hook().  This is plumbing preparation
+> for a subsequent patch that will use user_addr to call folio_zero_user()
+> for cache-friendly zeroing of user pages.
+> 
+> The user_addr is stored in struct alloc_context and flows through:
+>   vma_alloc_folio -> folio_alloc_mpol -> __alloc_pages_mpol ->
+>   __alloc_frozen_pages -> get_page_from_freelist -> prep_new_page ->
+>   post_alloc_hook
+> 
+> Public APIs (__alloc_pages, __folio_alloc, folio_alloc_mpol) gain a
+> user_addr parameter directly.  Callers that do not need user_addr
+> pass USER_ADDR_NONE ((unsigned long)-1), since
+> address 0 is a valid user mapping.
+> 
 
-The io_queue flag informs multiqueue device drivers where to place
-hardware queues. Document this new flag in the isolcpus
-command-line argument description.
+Question: rather than churning the entirety of the existing interfaces,
+is there a possibility of adding an explicit interface for this
+interaction that amounts to:
 
-Signed-off-by: Daniel Wagner <wagi@kernel.org>
-Reviewed-by: Hannes Reinecke <hare@suse.de>
-[atomlin: Refined io_queue kernel parameter documentation]
-Signed-off-by: Aaron Tomlin <atomlin@atomlin.com>
----
- .../admin-guide/kernel-parameters.txt         | 30 ++++++++++++++++++-
- 1 file changed, 29 insertions(+), 1 deletion(-)
+__alloc_user_pages(..., gfp_t gfp, user_addr)
+{
+    BUG_ON(!(gfp & __GFP_ZERO));
 
-diff --git a/Documentation/admin-guide/kernel-parameters.txt b/Documentation/admin-guide/kernel-parameters.txt
-index cf3807641d89..e2d798351964 100644
---- a/Documentation/admin-guide/kernel-parameters.txt
-+++ b/Documentation/admin-guide/kernel-parameters.txt
-@@ -2810,7 +2810,6 @@ Kernel parameters
- 			  "number of CPUs in system - 1".
- 
- 			managed_irq
--
- 			  Isolate from being targeted by managed interrupts
- 			  which have an interrupt mask containing isolated
- 			  CPUs. The affinity of managed interrupts is
-@@ -2833,6 +2832,35 @@ Kernel parameters
- 			  housekeeping CPUs has no influence on those
- 			  queues.
- 
-+			io_queue
-+			  Applicable to managed IRQs only. Restrict
-+			  multiqueue hardware queue allocation to online
-+			  housekeeping CPUs. This guarantees that all
-+			  managed hardware completion interrupts are routed
-+			  exclusively to housekeeping cores, shielding
-+			  isolated CPUs from I/O interruptions even if they
-+			  initiated the request.
-+
-+			  The io_queue configuration takes precedence over
-+			  managed_irq. When io_queue is used, managed_irq
-+			  placement constraints have no effect.
-+
-+			  Note: Using io_queue restricts the number of
-+			  allocated hardware queues to match the number of
-+			  housekeeping CPUs. This prevents MSI-X vector
-+			  exhaustion and forces isolated CPUs to share
-+			  submission queues.
-+
-+			  Note: Offlining housekeeping CPUs which serve
-+			  isolated CPUs will fail. The isolated CPUs must
-+			  be offlined before offlining the housekeeping
-+			  CPUs.
-+
-+			  Note: When I/O is submitted by an application on
-+			  an isolated CPU, the hardware completion
-+			  interrupt is handled entirely by a housekeeping
-+			  CPU.
-+
- 			The format of <cpu-list> is described above.
- 
- 	iucv=		[HW,NET]
--- 
-2.51.0
+    /* post_alloc_hook implements the already-zeroed skip */
+    page = alloc_page(..., gfp, ...); /* existing interface */
 
+    /* Do the cacheline stuff here instead of in the core */
+    cacheline_nonsense(page, user_addr);
+
+    return page; /* user doesn't need to do explicit zeroing */
+}
+
+Then rather than leaking information out of the buddy, we just need to
+get the zeroed information *into* the buddy.
+
+the users that want zeroing but need the explicit user_addr step just
+defer the zeroing to outside post_alloc_hook().
+
+That's just my immediate gut reaction to all this churn on the existing
+interfaces.
+
+Existing users can continue using the buddy as-is, and enlightened users
+can optimize for this specific kind of __GFP_ZERO interaction.
+
+~Gregory
