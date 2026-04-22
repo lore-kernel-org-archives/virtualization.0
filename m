@@ -1,69 +1,69 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 983EF2D73BC
-	for <virtualization@lists.linux.dev>; Wed, 22 Apr 2026 20:32:54 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3879328B7A
+	for <virtualization@lists.linux.dev>; Wed, 22 Apr 2026 21:20:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776889976; cv=none; b=naXgW0SxArnN288X+btR0zfU2UQxn0oWhCCqdhTLv5ZKiaFVdznSeRIhFZ6zJDMDrruoR+N0XPF4/zyO9vhowGxl5f0fzMUJtEp9QA1FscgxHwPsD3c/xA9sWR4oet/tlNOk5OW37EQdMpXtINOAj38Q7vsz4v6YE2Hrejjt6K8=
+	t=1776892841; cv=none; b=H8o+ixHksvxP1P95Ijv+ye3pv8ZKNIqmPbn/OnaYiHlGtIJBkVf3WDN8Fy+1mzklmqskW4NNIRXvVt7YfQ6eJWDKNpLienaUbTukQC6Lsp8ZkFnAdhPtSYkM8GHCtvNYMZUb+lkck9TifS0Nl5eABj+89SM7ZuYEUrTaepobwY8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776889976; c=relaxed/simple;
-	bh=txBDlyu1ezieQzyXS9C8BF2vzT0DIUhYErYLWe5Ihlo=;
+	s=arc-20240116; t=1776892841; c=relaxed/simple;
+	bh=6SyZvBrbf+USjtmnc7xlaVRQIMYtEt4QvTpWJfC1Iso=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=g4LH0hV9LjM9qE8N4kKvep7M21sF+x3BPNi4+17AvflpdwlGhOO41Pbff24l9BHf7zaSMIA8Gj80dtrbbq5eu9CnVaNo9DyLWgYownxYZ5SXoNVeZn2uMyEhfXkCkvpmJbkcMW2WYiWE2PDIGOqTBX/lw+QrNvs+jDOyYa4KmHk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Plv3JKxb; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=QSu9/+wpy2vKSN9evW3dqmV6+zbTML9RO3dIg8JJqr5bmLqdeZBONtF7Nrzzi3RwOAePQdPfkFb5OO1RWDCtkSTCTBxyDw4JFFQ9nE9dbdoTNh+U1tLAc+rHI6qP1uWNcpHYFy7+Zpeu9ijiQhWq+aqxFHqIQX+t2fDpxJ5s0kg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bnF32aIi; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Plv3JKxb"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bnF32aIi"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1776889973;
+	s=mimecast20190719; t=1776892839;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=j2mexCWnAXHTuyUVY4iwTSyRl6JB6J5POTCYS/bdHQE=;
-	b=Plv3JKxbNUmu1D4FYf8cdnWpZ1gG4PeRzQftv9HjFj65ZOLdjPyhg8PZjTvskgiN2bhwQW
-	EujrNcsZy0N6mlN5QRf3Lw2OKpJZ2ILRu0oYPl2mL3RdWyVTZ47QKDWdfaWikO1si4oBGC
-	uhTy0QIiadR2St0hhMD5YMbcePNZ/dg=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=0AuBD0WIXDzq4C1LKbO1zkVvixca9JBQuddXhofRNlk=;
+	b=bnF32aIiXQ9h0gDuqekKWX731rxMgupX05BDsx15SwCrqPMY5r0OIj64l5EwXNMFJBpGMd
+	N8DaNc9V+GEJNe0ykrII9HC3cEZaMLipD0K/jsFsPyRRuXkxT/ftJ4M/9mwDtIQ9Qg6y3+
+	U2mCMrgAwGzGtPRVslXd1p/iy2jTpaE=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-504-D9oHgY_8P0G6sTaw-vrOvg-1; Wed, 22 Apr 2026 16:32:52 -0400
-X-MC-Unique: D9oHgY_8P0G6sTaw-vrOvg-1
-X-Mimecast-MFC-AGG-ID: D9oHgY_8P0G6sTaw-vrOvg_1776889971
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-48906aa28cbso31759775e9.0
-        for <virtualization@lists.linux.dev>; Wed, 22 Apr 2026 13:32:52 -0700 (PDT)
+ us-mta-318-suzxSix8P7Klsa6-nG8tKQ-1; Wed, 22 Apr 2026 17:20:35 -0400
+X-MC-Unique: suzxSix8P7Klsa6-nG8tKQ-1
+X-Mimecast-MFC-AGG-ID: suzxSix8P7Klsa6-nG8tKQ_1776892834
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-48a5523fd53so13467805e9.3
+        for <virtualization@lists.linux.dev>; Wed, 22 Apr 2026 14:20:35 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776889971; x=1777494771;
+        d=1e100.net; s=20251104; t=1776892834; x=1777497634;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=j2mexCWnAXHTuyUVY4iwTSyRl6JB6J5POTCYS/bdHQE=;
-        b=kzGB45KFGhA8xKVzBOzsSV28ssKSrww4b4ZAumMCvLiKoUJCmDM3tOXE4fubb6w/dv
-         2aUberAV9PQlQ63dHVjTWSipFN4JERFz9Vt4wryH9dEUdRIuydHKVFOdq2bv++JWuaF/
-         d7HHu7jpfC5P3Xj1P800KXPVQAZ/RRwCifUiB2izvK5a5FQhuzVQJ0B+kNetgclNt+Bc
-         pb4X+iDBAQo741ZIGhUSm3zuqsiIj8pHJL/f1AK5rEElSByjHvbDcKzxws0mbKbo5tSW
-         HnyqaEzhIjgDlM8EAsktba/G2g2v2JbrOntOJeDqefgjK3VIg7gMjFDtJZHGZlWqsCxI
-         StFg==
-X-Forwarded-Encrypted: i=1; AFNElJ/r/DxBrznm5lMtT8SpW3ZJXVUOQP6AO0CpJlmRvQztenLGTWjI9E4m6Xdb8K96tOwgInN6xSntBVJ57g12jw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzhAtM3/rh+KKwCUjPqgf1dOfPtFy2hsyGMuTdizN7BYxvQjrWZ
-	6HyJGrGtN0ehy3I56p3NA1wEOkO2AbSSBaOLI5dwPa2MWqJ6LAt5PoQWvpxOAAwDWHPrlcagcV9
-	R0t8Npii+yGOvxpduWMKd1RfCwm48/RyX44LtE7ZAna+BjTtb2q+K49k+Me3r9FC5+wxT
-X-Gm-Gg: AeBDietKN7+a6fEykhEN6JgcUkmlps263Ymp2THB6WhZh95ebarWoyX4oRSj2DLIH7K
-	RJH92yTnRYylmkJ33e/yDAGofdRZ7uVlZHWB4MC0gNd6dXT4zA5r353FygJxmc/045dgSW7tJbV
-	aKFMnFIn1kT/1pghNrcX3Gg7xo7VvbZaBROX3CyrWbEogQ3/NKp+IyuX1JJY/yOkbQ5s3c7c8tL
-	gm//M/AcBA/ivBMWUFIwvrnlpRZeHKHu4sneRcReEDuBY2mU0zVlwYcL1ZV0OiJSk3EHHhxn2Kn
-	NSSWVVKj2p1zMCigwhh+YfsJYkcOGNHHHCwk0/v1I1cSvMja43uqWC4ssmA/vPKRCzbNLNzNaE+
-	cSIjKLvxPQ/6QCj4m+ogdtLm3wbCIcpOZpCjQUdmL4TnZDC+dZQwXWg==
-X-Received: by 2002:a05:600c:2288:b0:47d:52ef:c572 with SMTP id 5b1f17b1804b1-488fb881ee2mr228774795e9.1.1776889971060;
-        Wed, 22 Apr 2026 13:32:51 -0700 (PDT)
-X-Received: by 2002:a05:600c:2288:b0:47d:52ef:c572 with SMTP id 5b1f17b1804b1-488fb881ee2mr228774125e9.1.1776889970331;
-        Wed, 22 Apr 2026 13:32:50 -0700 (PDT)
+        bh=0AuBD0WIXDzq4C1LKbO1zkVvixca9JBQuddXhofRNlk=;
+        b=ExQwinA49VRk8+alDyIRWC2Vi36rO9BUgLrJkmpg7UR6Mkf8MSpQ7nc14+TQAoaMBv
+         C+1UwxZ9d7DGz8f3CMNT7s2gSAO4HJkPWzY/uK6gA7sRNP9zXNUJQwdNgQ3v3pJ18kKd
+         AXf5268ly/7oiHdiYuHFNYO9r1vLdwy4Rtz7Qh0RtOWX8t0W89Z4xIGYdVnBdgkkV/UK
+         5cbCl9pr54aCYD93WSNhMh5Oypi1fza5vV5fG1Y39kxGQpRUqARAfG1x7wHD2mg6dooO
+         rfGpk4mgaY9/gcSrWXPDPASFZRVq/q/04C6yHpSLos/7AmW0yZ5OZ4TY+DwgE6C3eFfv
+         TdCw==
+X-Forwarded-Encrypted: i=1; AFNElJ90Yw3O3X440wj9g+B0pcteaxWgY1HfLb0kOmI1zdxZXqh1G6bIQsunTT8SSShCX/U+UGNlY4miB3ntdf2RKQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzPspIio5nNh6R124A4MPc7HzIwFC9VnaJOvvI5kyvFYor+OjRe
+	bFnAdB6Tf51Wm7xhzKpmHVJ7A0NWqXqb8emlIzCCFbovH6suESqmeYfbkGDnto8u5ZMAP6umU1h
+	pW8A/SFEVi1iQb/5cfZsqohzNvAetVjGWIGj7b6n4sIpmZMJ1ArYmyegMAuhkkIhaLZgU
+X-Gm-Gg: AeBDiesfHg8U+Tu2L7uQq+oFTRUsmOPkQ8kmgguOhpZZqHWqSUOuSs1yTyst240w6HY
+	S4Vhj/1efuYFFq9qTejMg2TIYIMeGgIM/hTPrShw0RP+lID57eNrue8wDe8Sf1L1yLVBpINPoOb
+	jSmYqQChbBR0K2s6IsKJKsx/XDM2J+slv7wgQD4++rebTrYv90QeTujdr6J67dvy9+3XMvci6sm
+	gOi6wUMI0+jfJUyg6NGP32WuOwmRLrkw+oZTXU7/QcpUT53vIKRxPskbMrNJhXmmTzkkjDyQB+s
+	0kRbPVFrsvlqAo25THRzOwYoLRiirPiJEQ1l/KDhybGCKhMLsL81HMGYTidnUraLDdQHF0ZT+qY
+	0aGO0ZxBN7vbzkz9B9u+04Yj9f1XJ2+eiqIslWMpbq2JTSRCsdZowKA==
+X-Received: by 2002:a05:600c:8115:b0:488:ac01:72b6 with SMTP id 5b1f17b1804b1-488fb77d7d3mr296536155e9.21.1776892834252;
+        Wed, 22 Apr 2026 14:20:34 -0700 (PDT)
+X-Received: by 2002:a05:600c:8115:b0:488:ac01:72b6 with SMTP id 5b1f17b1804b1-488fb77d7d3mr296535725e9.21.1776892833712;
+        Wed, 22 Apr 2026 14:20:33 -0700 (PDT)
 Received: from redhat.com (IGLD-80-230-25-21.inter.net.il. [80.230.25.21])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43fe4e4ffa8sm49363292f8f.35.2026.04.22.13.32.46
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-488fc10777csm537060875e9.8.2026.04.22.14.20.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 22 Apr 2026 13:32:49 -0700 (PDT)
-Date: Wed, 22 Apr 2026 16:32:44 -0400
+        Wed, 22 Apr 2026 14:20:33 -0700 (PDT)
+Date: Wed, 22 Apr 2026 17:20:27 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Gregory Price <gourry@gourry.net>
 Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
@@ -101,7 +101,7 @@ Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
 	linux-fsdevel@vger.kernel.org
 Subject: Re: [PATCH RFC v3 01/19] mm: thread user_addr through page allocator
  for cache-friendly zeroing
-Message-ID: <20260422162811-mutt-send-email-mst@kernel.org>
+Message-ID: <20260422171315-mutt-send-email-mst@kernel.org>
 References: <cover.1776808209.git.mst@redhat.com>
  <9dd9deabd42801f3c344326991d1431c3d8db39d.1776808210.git.mst@redhat.com>
  <aekluxNPxF8CN8fL@gourry-fedora-PF4VCD3F>
@@ -113,7 +113,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 In-Reply-To: <aekluxNPxF8CN8fL@gourry-fedora-PF4VCD3F>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 5aTrMxro8HI-PpkhTvp_C94d2t7GfnktE7LzdM6n-yM_1776889971
+X-Mimecast-MFC-PROC-ID: _Fj9Yjg3VF285DcvSyof5npOthJ1Kia5lxoI90ebnBM_1776892834
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -168,22 +168,40 @@ On Wed, Apr 22, 2026 at 03:47:07PM -0400, Gregory Price wrote:
 > ~Gregory
 
 
-I am sorry i do not understand. Users have no idea if they need
-"user_addr step" - it is an arch thing.
+Hmm. Maybe I misunderstand what you propose, but this seems pretty close
+to what v2 did - each callsite checked whether the page was pre-zeroed
+and called folio_zero_user() itself.  The feedback (both you and David)
+was that threading it through the allocator is better.
 
-the places that pass USER_ADDR_NONE can avoid being changed.
+With a wrapper approach, looks like we'd need something like
+__GFP_SKIP_ZERO so post_alloc_hook doesn't zero sequentially, then the
+wrapper re-zeros with folio_zero_user().  But then the wrapper needs to
+know whether the page was pre-zeroed (PG_zeroed), which is cleared by
+post_alloc_hook before return.  So the information doesn't survive to
+the wrapper.
 
-*However* without this change it is easy to miss someone who
-has to pass the address and simply forgot to, and this
-someone gets GFP_ZERO from the caller.
+We could return the zeroed hint via an output parameter, but that's
+what v2's pghint_t was, and it was disliked.
 
-It took me forever to find all places as it is, at least
-every change is explicit.
+The user_addr threading through the allocator does add API churn,
+but it's all mechanical (adding one parameter, callers pass
+USER_ADDR_NONE), any mistaked are just build errors.
 
-Because no testing on x86 will show the issue, and it is a subtle
-corruption even on other arches.
+And it makes the zeroing path closer to being correct by
+construction: every allocation either explicitly
+says no address or has a user_addr - and then gets
+cache-friendly zeroing or skip-if-prezeroed, with no possibility
+of a callsite forgetting to handle it.
 
-I think churn is better than a risk of silent corruption...
+Fundamentally, David told me I need to move folio_zero_user into
+post_alloc_hook as a prerequisite to the optimization, so I did that -
+let's stick to it then, shall we?
+
+
+This approach also fixes a pre-existing double-zeroing on architectures with
+aliasing data caches + init_on_alloc, where current code zeros once
+via kernel_init_pages() then again via clear_user_highpage() at
+the callsite. I don't see how that would be possible with the wrapper.
 
 -- 
 MST
