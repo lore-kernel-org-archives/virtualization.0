@@ -1,150 +1,208 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD5022773FF
-	for <virtualization@lists.linux.dev>; Wed, 22 Apr 2026 06:05:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6670F320CD3
+	for <virtualization@lists.linux.dev>; Wed, 22 Apr 2026 06:34:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776837961; cv=none; b=hxCPIeO+XcSts4HpujJitWZjse9eMS3lbw7Z8YnW9AbpFojTaocZhrGS0/a+Lc9HaVWga74D9JwFHcQwMFPsijNBjEnjAp3Jx6zBPn7GQxmyttN/nfA1lfcld3QNZy3ENom0+0aIO3fbaU0IGcMXAzs0+Lc7UlURurn4/9O8HjY=
+	t=1776839658; cv=none; b=UwcbQVRdan4C6eU1KIe/yc/AC6Xukb8q8PuAp+VMNSd2BXJSW5/DL+NL1AZgeez87//uVXg/NPo1pmJ7sZNhOhEln93+CX0pQViPpEntvL4Yqs27ThihyzFfD9aKfgJ0DU9F0F1JyBa59hbG/impXBAcDpYtmmtfOWVpZXRICoo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776837961; c=relaxed/simple;
-	bh=D0IhErlGrKKuMRwPOP4Tlt1GsqbT8xAI/tb1DvR/nwI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=h8osOZv1D0DbNUgN6JTYmDCBNFxquxmasgaEQ8PMRfnn/zP0kS4e2n0HV4w0tF6Wlgry+B3SB5HMw8vQatAauT0x/CY4TllnVYG02xrSsQ5ECkRzO9j2UTITC1V1ifWwl3ohrdFcobBMbhxnAr4C6wOyFoVK+f0tE7KVES10Qjs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eqT4Y83e; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1776839658; c=relaxed/simple;
+	bh=3UiWzTAOfmaFlB4TBcCF2Hwx0NljPLMsEQtkG/B1gHA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=t/jkX1AyrN9bXgXMoh5p3sGS9HPRKmiA60sQt6iipkfUITZwy6B3RYmrcnXsDmLaT9/EdjxoY0jzSUoAWNLVOZajCSE5mdrWBrOVdob08qu0A/sr9vXcOklfQy6OLICsHI+K7/9Da+mWlttli+d5LP8teRk9aE3XgrPyB7ldbYU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=o3+g7ic2; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eqT4Y83e"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1776837958;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ztMyE+ktT7jgxWkcpg5pXckPoWAOQRydQBsfKgsWIR8=;
-	b=eqT4Y83eSEVOld3VSc9b7WKKChHC08li+9tA4dNOM1ML9ACF+kG0NlTbjYqdR3xyk7xBMt
-	49uKWpVDpuQ+kpQnt+bMAA/m1QadqB0mwXukWmQBMvVYVm39wJC/R/8yyqoJusF0XIAyeJ
-	cMqSDL/Vk4djfsyCVRLAedMpEiQZJ0U=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-456-FExLxkWEMmSo_OK0CHZKQw-1; Wed, 22 Apr 2026 02:05:57 -0400
-X-MC-Unique: FExLxkWEMmSo_OK0CHZKQw-1
-X-Mimecast-MFC-AGG-ID: FExLxkWEMmSo_OK0CHZKQw_1776837956
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-488d1b5bca0so27545925e9.2
-        for <virtualization@lists.linux.dev>; Tue, 21 Apr 2026 23:05:57 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776837956; x=1777442756;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ztMyE+ktT7jgxWkcpg5pXckPoWAOQRydQBsfKgsWIR8=;
-        b=cZ6AXcTeWkLiE2VkuN8iR7bzzbVfAuXtgFp+XThk67y0M/7QvmXFXt0Olvkn9Mj9BD
-         SyCPWYWYY1t0Y6Xz064er3XgKIza6FfCpWB2l34dTAkLXn4kgh3bRWwqeLSiv243PBCl
-         d9mpuc8HOI4OojlWUlJVt5J7kooQOI18zwyP1Y3UTIAIB2rbvtKf4N/UJxUTOkwL420Q
-         400PLyIvB3LTrk81LcZEurMCCqcc4afQVtQoqoukE/5Evvas6iu7cy3b9QtI72AV1qAL
-         3yhXOQ2183I+TU1ljb4Y2C92PmCPY6efuG/CZjeaahdN6YcmBRy6MzqPPX+Uvpwa7leP
-         3uyA==
-X-Forwarded-Encrypted: i=1; AFNElJ8N2vWEqHW+ufH06uyDUxGSdYivib/bSp0oqTjRTlTq2Gdb1hP3jqp53E0otiYph8AsP88IjaFCUxayfmGSeg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxaADdj3jQ4Z8DIgrrmtZu+CIvEbZs5LeHQPExB4JtiwqxFNBIm
-	2vXgQm3uLammfF94iNriA835EWPIPLhfQjoUClhjdfcZSM+D9BDMc9j+i2VYjVg8bMY92jspzvR
-	YmkMTmd6B83gUnCNurgmV7kxW7u/GOnaZjoUpXNpK7n3uoN4/OlmH9lE1kSz2jOXBXqUM
-X-Gm-Gg: AeBDievBMGY8Tovs1UX9zKaGPXXkfCyB9tKrM1h5wLczag6oIlYW8zX3CvGe+Ggwayv
-	AVAlFmOrxaqQnyJadxMRJWXqT0Lthr6DmIJPqOdJ1DUY2+iiHgU6Lo7yM9lB8z9GZMc0thM6fxi
-	EInKlVu2/yoUt9Y6S3McJ0fZO7H8Kjkkhb8iyjeClPR2yia1G32iWjgauRuQytUlE19RwMKNc3W
-	+6QvjDOPrLcdJXwTOmr5KR5gv+0CtN3UrYTNjfXjkgX1NS9oyPpu9cukUhduKw5tGewBsFawlPz
-	OMUoSMgZ6Xbiro8hSUmGgM7DcKoOvw3gm5zYudugREIYuWXwiChs23RLQKYXR9FRWCZ1K4Wduwz
-	tFk6rmYrzEL7AeCbsGPF1n+G2tlAtGRni/qyACwqHUVlAdrsTlhuUqg==
-X-Received: by 2002:a05:600c:470d:b0:48a:52ce:a4b1 with SMTP id 5b1f17b1804b1-48a52cea6d8mr117687675e9.15.1776837955984;
-        Tue, 21 Apr 2026 23:05:55 -0700 (PDT)
-X-Received: by 2002:a05:600c:470d:b0:48a:52ce:a4b1 with SMTP id 5b1f17b1804b1-48a52cea6d8mr117687235e9.15.1776837955527;
-        Tue, 21 Apr 2026 23:05:55 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-25-21.inter.net.il. [80.230.25.21])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-488fc177dafsm520792265e9.4.2026.04.21.23.05.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Apr 2026 23:05:54 -0700 (PDT)
-Date: Wed, 22 Apr 2026 02:05:52 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Kohei Enju <kohei@enjuk.jp>
-Cc: Jason Wang <jasowang@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	kvm@vger.kernel.org, virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	syzbot+6985cb8e543ea90ba8ee@syzkaller.appspotmail.com
-Subject: Re: [PATCH net v1] vhost_net: fix sleeping with preempt-disabled in
- vhost_net_busy_poll()
-Message-ID: <20260422020539-mutt-send-email-mst@kernel.org>
-References: <20260422023026.81960-1-kohei@enjuk.jp>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="o3+g7ic2"
+Received: from pps.filterd (m0356516.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63LImEb8679540;
+	Wed, 22 Apr 2026 06:33:49 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=lv3/WB
+	INCsdmPFzZQfz8PwjDQ4gZCVFc1WMMhCu0iso=; b=o3+g7ic2JjjTwhjfYy0GuU
+	L8A46XYlRpfu4uyGD54Sc8R+cEXnryWWm6JDjDiIeFgqDTxVi7kvnMUfjK1excpH
+	aUHwpANa7C3YQygHyolguQajmPDHjBC803o6oYJg8ekmz3kZF9klumVTPKmc6djp
+	5WftRRztZ/4LyK2+m1IWj41wPiVKTPd8uLrvoMBu8zS62yAtKt/HBo+GJtCDV5pU
+	/AD0z7Dt+BosnmW8xl5DIq201/N5GXH+SFim2YqedwY2xulS+tOyxOZLSVv7phkL
+	S//9fz7eb1rxiy4FkJSxk55GD9D1dwylSc3Yg8UOWwpa6Pe7OLlW2wF89OzJX/3w
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4dpeu7hv9b-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 22 Apr 2026 06:33:48 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 63M6KLh8008798;
+	Wed, 22 Apr 2026 06:33:47 GMT
+Received: from smtprelay04.fra02v.mail.ibm.com ([9.218.2.228])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4dpjky13dq-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Wed, 22 Apr 2026 06:33:47 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
+	by smtprelay04.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 63M6Xhqb30147220
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Wed, 22 Apr 2026 06:33:43 GMT
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 8C5822004E;
+	Wed, 22 Apr 2026 06:33:43 +0000 (GMT)
+Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id DE5D020040;
+	Wed, 22 Apr 2026 06:33:25 +0000 (GMT)
+Received: from [9.39.30.99] (unknown [9.39.30.99])
+	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Wed, 22 Apr 2026 06:33:25 +0000 (GMT)
+Message-ID: <c0bd0fd5-5c30-4d2c-bcf6-5dabe59fa5b8@linux.ibm.com>
+Date: Wed, 22 Apr 2026 12:03:24 +0530
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260422023026.81960-1-kohei@enjuk.jp>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: VG5SowTx-0Fji16ETyTSNlrvmU9wa0t1QUa5IRKhfYU_1776837956
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 1/2] powerpc: Add a typos.toml file
+To: Link Mauve <linkmauve@linkmauve.fr>, linuxppc-dev@lists.ozlabs.org
+Cc: Krzysztof Kozlowski <krzk@kernel.org>,
+        Madhavan Srinivasan <maddy@linux.ibm.com>,
+        Michael Ellerman <mpe@ellerman.id.au>,
+        Nicholas Piggin <npiggin@gmail.com>,
+        "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+        Rob Herring <robh@kernel.org>,
+        Krzysztof Kozlowski <krzk+dt@kernel.org>,
+        Conor Dooley <conor+dt@kernel.org>,
+        Herbert Xu
+ <herbert@gondor.apana.org.au>,
+        "David S. Miller" <davem@davemloft.net>,
+        Juergen Gross <jgross@suse.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
+        Alexey Makhalov <alexey.makhalov@broadcom.com>,
+        Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>,
+        Geoff Levand <geoff@infradead.org>,
+        Mahesh J Salgaonkar <mahesh@linux.ibm.com>,
+        "Oliver O'Halloran" <oohall@gmail.com>,
+        Anatolij Gustschin <agust@denx.de>,
+        =?UTF-8?Q?Breno_Leit=C3=A3o?= <leitao@debian.org>,
+        Nayna Jain <nayna@linux.ibm.com>,
+        Paulo Flabiano Smorigo <pfsmorigo@gmail.com>,
+        Eric Biggers <ebiggers@kernel.org>,
+        "Jason A. Donenfeld" <Jason@zx2c4.com>,
+        Ard Biesheuvel <ardb@kernel.org>,
+        Thorsten Blum <thorsten.blum@linux.dev>,
+        Thomas Huth <thuth@redhat.com>, Jason Gunthorpe <jgg@ziepe.ca>,
+        David Hildenbrand <david@kernel.org>,
+        Alistair Popple <apopple@nvidia.com>,
+        "Ritesh Harjani (IBM)" <ritesh.list@gmail.com>,
+        Donet Tom <donettom@linux.ibm.com>,
+        Andrew Morton
+ <akpm@linux-foundation.org>,
+        =?UTF-8?B?QmrDtnJuIFTDtnBlbA==?=
+ <bjorn@rivosinc.com>,
+        Will Deacon <will@kernel.org>,
+        "Lorenzo Stoakes (Oracle)" <ljs@kernel.org>,
+        Paul Moore
+ <paul@paul-moore.com>, Nam Cao <namcao@linutronix.de>,
+        Alexander Gordeev <agordeev@linux.ibm.com>,
+        Sourabh Jain <sourabhjain@linux.ibm.com>,
+        Hari Bathini <hbathini@linux.ibm.com>,
+        Srikar Dronamraju <srikar@linux.ibm.com>, Jiri Bohac <jbohac@suse.cz>,
+        "Mike Rapoport (Microsoft)" <rppt@kernel.org>,
+        "Jiri Slaby (SUSE)" <jirislaby@kernel.org>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+        Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+        =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+        Kees Cook <kees@kernel.org>, Stephen Rothwell <sfr@cab.auug.org.au>,
+        Xichao Zhao <zhao.xichao@vivo.com>,
+        Gautam Menghani <gautam@linux.ibm.com>,
+        Peter Zijlstra <peterz@infradead.org>,
+        K Prateek Nayak <kprateek.nayak@amd.com>,
+        Guangshuo Li <lgs201920130244@gmail.com>,
+        Li Chen
+ <chenl311@chinatelecom.cn>,
+        Aboorva Devarajan <aboorvad@linux.ibm.com>,
+        Petr Mladek <pmladek@suse.com>,
+        Feng Tang <feng.tang@linux.alibaba.com>,
+        "Nysal Jan K.A." <nysal@linux.ibm.com>,
+        Aditya Gupta
+ <adityag@linux.ibm.com>,
+        Sayali Patil <sayalip@linux.ibm.com>,
+        Rohan McLure <rmclure@linux.ibm.com>,
+        Pasha Tatashin <pasha.tatashin@soleen.com>,
+        Yeoreum Yun
+ <yeoreum.yun@arm.com>,
+        Kevin Brodsky <kevin.brodsky@arm.com>,
+        "Matthew Wilcox (Oracle)" <willy@infradead.org>,
+        Andrew Donnellan <andrew+kernel@donnellan.id.au>,
+        "Vishal Moola (Oracle)" <vishal.moola@gmail.com>,
+        =?UTF-8?Q?Thomas_Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>,
+        Athira Rajeev <atrajeev@linux.ibm.com>,
+        Kajol Jain <kjain@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>,
+        Chen Ni <nichen@iscas.ac.cn>, Haren Myneni <haren@linux.ibm.com>,
+        Jonathan Greental <yonatan02greental@gmail.com>,
+        Ingo Molnar <mingo@kernel.org>,
+        "Yury Norov (NVIDIA)"
+ <yury.norov@gmail.com>,
+        Gaurav Batra <gbatra@linux.ibm.com>,
+        Nilay Shroff <nilay@linux.ibm.com>,
+        Vivian Wang <wangruikang@iscas.ac.cn>,
+        =?UTF-8?Q?Adrian_Barna=C5=9B?= <abarnas@google.com>,
+        "Rafael J. Wysocki (Intel)" <rafael@kernel.org>,
+        Thierry Reding <treding@nvidia.com>, Yury Norov <ynorov@nvidia.com>,
+        "Mukesh Kumar Chaurasiya (IBM)" <mkchauras@gmail.com>,
+        Ruben Wauters <rubenru09@aol.com>, linux-kernel@vger.kernel.org,
+        devicetree@vger.kernel.org, linux-crypto@vger.kernel.org,
+        kvm@vger.kernel.org, virtualization@lists.linux.dev, x86@kernel.org
+References: <20260421121420.26079-1-linkmauve@linkmauve.fr>
+ <20260421121420.26079-2-linkmauve@linkmauve.fr>
+ <215f12d6-62c1-4837-9f78-ef270684950c@kernel.org>
+From: Shrikanth Hegde <sshegde@linux.ibm.com>
+Content-Language: en-US
+In-Reply-To: <215f12d6-62c1-4837-9f78-ef270684950c@kernel.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-ORIG-GUID: 4EaM1Y0bvhcFaO8pxVl2Od4VPvv4qd_j
+X-Authority-Analysis: v=2.4 cv=Ksp9H2WN c=1 sm=1 tr=0 ts=69e86bcd cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=Y2IxJ9c9Rs8Kov3niI8_:22 a=NEAV23lmAAAA:8
+ a=YFAi04RA3zjlIS0kzIUA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: wxrhwpGYQgEkSGVFqfHgj6jxXBwEWO3w
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDIyMDA1NyBTYWx0ZWRfX5/ArlEsGNSKD
+ /9hFZpzk/tBrQnVBDmXiF4w1FvzvkI5FYebPR4H6fK6rtGBtQvh5Tbt/QZr3WMDy+6R0noufnH6
+ Ya+wACPpOZFQJ09FYoTudgl5+q/PV7gmmAV9NPezJXdrAxHur1mG8YzhTK9VRbWhJwkgxq3LsPk
+ ffWHlNMh03TTaqUGZnsGBKN42ZF2SD0q0NadhTGxwm168iEa2MRPxSZawS2Aw9hlkqZ9FOIGnaq
+ 2kciRJS8MdAoGjE59gmcgOQT6j/TVxpPgu9Pntm8o89A6QtjwmLm6VUuk22OG3ajrGUfVzkChFa
+ GbkQ1ofav43aIkl/ufNxjJLZ1so6fkhvQr7RvNXLZE2zakfeViXv1oyWiyhQxGizn9RldP9mbN5
+ RrefFQMDKwAImETMEeDhBW8vQlxZ1arpQuX6h/yYSDlnxl3v9+qH0tOe3tdsjrKIxpFe05AjSLr
+ Bwv3zJRpcTPd94rsX8Q==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-04-21_03,2026-04-21_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ bulkscore=0 impostorscore=0 malwarescore=0 phishscore=0 priorityscore=1501
+ lowpriorityscore=0 clxscore=1011 adultscore=0 suspectscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2604200000 definitions=main-2604220057
 
-On Wed, Apr 22, 2026 at 02:30:24AM +0000, Kohei Enju wrote:
-> syzbot reported "sleeping function called from invalid context" in
-> vhost_net_busy_poll().
-> 
-> Commit 030881372460 ("vhost_net: basic polling support") introduced a
-> busy-poll loop and preempt_{disable,enable}() around it, where each
-> iteration calls a sleepable function inside the loop.
-> 
-> The purpose of disabling preemption was to keep local_clock()-based
-> timeout accounting on a single CPU, rather than as a requirement of
-> busy-poll itself:
-> 
-> https://lore.kernel.org/netdev/1448435489-5949-4-git-send-email-jasowang@redhat.com/T/#u
-> 
->   Changes from RFC V1:
->   ...
->   - Disable preemption during busy looping to make sure local_clock()
->     was correctly used.
-> 
-> >From this perspective, migrate_disable() is sufficient here, so replace
-> preempt_disable() with migrate_disable(), avoiding sleepable accesses
-> from a preempt-disabled context.
-> 
-> Fixes: 030881372460 ("vhost_net: basic polling support")
-> Tested-by: syzbot+6985cb8e543ea90ba8ee@syzkaller.appspotmail.com
-> Reported-by: syzbot+6985cb8e543ea90ba8ee@syzkaller.appspotmail.com
-> Closes: https://lore.kernel.org/all/69e6a414.050a0220.24bfd3.002d.GAE@google.com/T/
-> Signed-off-by: Kohei Enju <kohei@enjuk.jp>
 
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-> ---
->  drivers/vhost/net.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
+On 4/21/26 5:56 PM, Krzysztof Kozlowski wrote:
+> On 21/04/2026 14:14, Link Mauve wrote:
+>> This file is used by the typos tool[1] to determine which words to fix,
+>> which ones not to fix, and what the target word should be.
+>>
+>> [1] https://github.com/crate-ci/typos
+>>
+>> Signed-off-by: Link Mauve <linkmauve@linkmauve.fr>
 > 
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 80965181920c..c6536cad9c4f 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -560,7 +560,7 @@ static void vhost_net_busy_poll(struct vhost_net *net,
->  	busyloop_timeout = poll_rx ? rvq->busyloop_timeout:
->  				     tvq->busyloop_timeout;
->  
-> -	preempt_disable();
-> +	migrate_disable();
->  	endtime = busy_clock() + busyloop_timeout;
->  
->  	while (vhost_can_busy_poll(endtime)) {
-> @@ -577,7 +577,7 @@ static void vhost_net_busy_poll(struct vhost_net *net,
->  		cpu_relax();
->  	}
->  
-> -	preempt_enable();
-> +	migrate_enable();
->  
->  	if (poll_rx || sock_has_rx_data(sock))
->  		vhost_net_busy_poll_try_queue(net, vq);
-> -- 
-> 2.51.0
+> This typos.toml file does not belong to the kernel, IMO, but that's up
+> to PowerPC folks.
+> 
 
+Right, Also there is nothing specific to arch/powerpc here.
+
+IMO, This file should be part of the tool's repo. Not part of 
+arch/powerpc kernel tree.
