@@ -1,40 +1,42 @@
-Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
+Received: from mx0b-00082601.pphosted.com (mx0b-00082601.pphosted.com [67.231.153.30])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6170525A2BB
-	for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 18:25:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.145.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55B5325A2BB
+	for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 18:25:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.153.30
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776968741; cv=none; b=YA2Vc1lzCxteR9abWseGws4FvAgpU2Avn4LKTHXmKb98S3sivcJJwvx0KFdP2E/xZ+bgXghczdN722YiCCf9cTc5bw35jLHupsvzkFkP/MX6JAIsItW1lVUwg0ZdoOSDWpp563TyOhR+rOzsrxuXntLP8I81NZICjtB98fnqYGE=
+	t=1776968744; cv=none; b=B8Nyx4zgO1eCxwpAA3DJEMOqmOZFmY8iDV1IgMw7FB5qql7qcDA3t3Eiw/cZrViuqisFjCvbmVMzmEcVL9rtsU1P9VlKWAXPiYwj3aOBSjhincefRata+jLOJIxYsCiXIyp04uhf6OoZT87JWkJhUkJOoqU/acoFvlCEbpJq+VA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776968741; c=relaxed/simple;
-	bh=oWNEM6jnYyfWzRXF8wCV0h45OFTGIH/LQA3zNpeI+P0=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=iYUDDSEeCtj1nIRoEdTfH1HVPDq9pHNf4KNS7xPboR0HSqQYB0aGJI8llaCAwAovlRpLZB4RpdquypE/ovmX+cQKYj7y1NLXxETGaKLFHNa/fQpovmrN/YgBPq6DpSpAFLmx1efv/jiA+7v/8LCr20ti3Ms7RL7vN6cjM8b5gUc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=WSL9zXud; arc=none smtp.client-ip=67.231.145.42
+	s=arc-20240116; t=1776968744; c=relaxed/simple;
+	bh=2Kh3WQw1w8i5k2sGtqTS7Vgt/AVxyI1lGB2Rr7Vp51o=;
+	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=fbOGVkW5PXg/NQyaxxSFZATDpkl2qe6KLUnG0dnm6hh7HgZLdsnUeV3659brZ6kiv2LLVZqjAN1IMbfh2Hm+1riYTdVp00k+kvc/Y677NCqF62TwH9sjGH3/zlULuRFxbhNpnHrKbzJrv5vvUuihmGBrcjiFbbYt5Ef2fJeeLSY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=djpgkP4F; arc=none smtp.client-ip=67.231.153.30
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="WSL9zXud"
-Received: from pps.filterd (m0528007.ppops.net [127.0.0.1])
-	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63NH8t7S2499036;
+	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="djpgkP4F"
+Received: from pps.filterd (m0109331.ppops.net [127.0.0.1])
+	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63NH8ebO2084353;
 	Thu, 23 Apr 2026 11:25:37 -0700
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
-	:content-transfer-encoding:content-type:date:from:message-id
-	:mime-version:subject:to; s=s2048-2025-q2; bh=LklIq/rv1EFSTQEz+p
-	2441/vx1iffgZbusssJoT0mF0=; b=WSL9zXudruPuggHDijjodQpx62ywSAdFJW
-	i1swOUjuqjxoENLB+paXsoGRTT4dVcNNhRTdDQt3tL5N6AfpcH8QMA/qOn6u98Vf
-	spuiRIKXjTJni4K2F3M8Wh62uIEOdgkr6XDJiLFa4CC+/J8Io8PSE1LQ5OtMYUQE
-	q4sMYEzjA9+ncagqjVFVz8Td3HuICv/xdHY63z5KrD1el30CjMw61lPNV0CfONqg
-	HFYviTZmGe/MqIyPcGxEJZ8AGp2FSBU/edMzV1bpmh1s33pmKbpnCHZ513Fn8/TT
-	blP0Hd4FYRr52AQylQ7H4+480/+d5P/nxqizZY0X1rD4c/ciolRA==
-Received: from mail.thefacebook.com ([163.114.134.16])
-	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4dpepcxsf4-1
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=s2048-2025-q2;
+	 bh=2NsjjNNKB1Sd5FL7ejXy198NJ9GNqDkeoa+SR5kpEdU=; b=djpgkP4FE0uJ
+	jIdwhfAqCez2Y7irRd4FnNXzxpmmQ/dbIwB2kscSX1Cmdy6QroxI/0D+6GRihFn0
+	ysaDFRVTDHxdXuEV111PoWwyaq4E1pAZa4mqbW6HpJaN+WldcR9X4ETa/y6Yd2PP
+	mg0xXVrgwgJzBBk4yPSxLyTmG5eJrmn1u281gwam2iz0u8SU9kJT1CSu6Oc5B3vf
+	X8R+DBKSiHWohimPK4iFhvv/5fMXrazXI05o7fOYufRguTHjulkdF6wK7nn8wJJ/
+	WPAjZhHukDiLbhcHolo+kxWQWSQYCFdp+DPhZBeb1eTwhxzpsbbIFh/NHGIFQRqp
+	aihnBd3unA==
+Received: from maileast.thefacebook.com ([163.114.135.16])
+	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4dpepapmp9-4
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
-	Thu, 23 Apr 2026 11:25:36 -0700 (PDT)
-Received: from localhost (2620:10d:c085:208::f) by mail.thefacebook.com
- (2620:10d:c08b:78::c78f) with Microsoft SMTP Server (version=TLS1_2,
+	Thu, 23 Apr 2026 11:25:37 -0700 (PDT)
+Received: from localhost (2620:10d:c0a8:fe::f072) by mail.thefacebook.com
+ (2620:10d:c0a9:6f::8fd4) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.37; Thu, 23 Apr
- 2026 18:25:28 +0000
+ 2026 18:25:36 +0000
 From: Matt Evans <mattev@meta.com>
 To: Alex Williamson <alex@shazbot.org>, Kevin Tian <kevin.tian@intel.com>,
         Jason Gunthorpe <jgg@ziepe.ca>, Ankit Agrawal <ankita@nvidia.com>,
@@ -50,10 +52,12 @@ CC: Alexey Kardashevskiy <aik@ozlabs.ru>, Eric Auger <eric.auger@redhat.com>,
         Vivek Kasireddy <vivek.kasireddy@intel.com>,
         Zhi Wang <zhiw@nvidia.com>, <kvm@vger.kernel.org>,
         <linux-kernel@vger.kernel.org>, <virtualization@lists.linux.dev>
-Subject: [PATCH v2 0/3] vfio/pci: Request resources and map BARs at enable time
-Date: Thu, 23 Apr 2026 11:25:06 -0700
-Message-ID: <20260423182517.2286030-1-mattev@meta.com>
+Subject: [PATCH v2 1/3] vfio/pci: Set up bar resources and maps in vfio_pci_core_enable()
+Date: Thu, 23 Apr 2026 11:25:07 -0700
+Message-ID: <20260423182517.2286030-2-mattev@meta.com>
 X-Mailer: git-send-email 2.52.0
+In-Reply-To: <20260423182517.2286030-1-mattev@meta.com>
+References: <20260423182517.2286030-1-mattev@meta.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -62,102 +66,191 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 Content-Type: text/plain
-X-Authority-Analysis: v=2.4 cv=VKLtWdPX c=1 sm=1 tr=0 ts=69ea6420 cx=c_pps
- a=CB4LiSf2rd0gKozIdrpkBw==:117 a=CB4LiSf2rd0gKozIdrpkBw==:17
+X-Proofpoint-GUID: GtzOfmiZD38WzweTpNfw_eCl_1XRJ-Kb
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDIzMDE3OSBTYWx0ZWRfX8BfbJtcE23yC
+ Ez33lUSXSAzpiHnYKyLtPJjGV5rmlup2DOSReIdwCAKN8QojHz7m1RCLBqosTtROe+cnYOzfnKG
+ 39cTGDqqqUv9+d7AKyUNmayCwbDv7FjrKCAnZG/yfH8++mT+I4IJMqOMnopgveraQlsLoIq+fsp
+ n8Mw2nNRTsvXZwV+Gl4exLROQzEgsPJrwMfhVqQbOEmO+7uRcUZTYiDANj/w5OgKrHbgfT+iUOJ
+ yvQBlUH4/uP9DHg8bpR9mFkXHLUDgeVVNb5OQtB7kJi+MwcgO/VoCemXkJdhMeql2Yxho6scgiZ
+ PJfKVSNNPonywGtp1ql3PL05O2co20zIqwao/z/W2fL7+YYl8z3/UIGFRB4oKZE7YJlM0/0L7AY
+ IBgAW9Fh98MKXvDVkFLDkcccIriuHE9uw78xWtUgoP7P2CsMnipkPFAxdOA4nIsCbCr6g0Mkv+Q
+ JuRWuGQBXzpuC7hKHtA==
+X-Proofpoint-ORIG-GUID: GtzOfmiZD38WzweTpNfw_eCl_1XRJ-Kb
+X-Authority-Analysis: v=2.4 cv=GcknWwXL c=1 sm=1 tr=0 ts=69ea6421 cx=c_pps
+ a=MfjaFnPeirRr97d5FC5oHw==:117 a=MfjaFnPeirRr97d5FC5oHw==:17
  a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22 a=7x6HtfJdh03M6CCDgxCd:22
- a=4h92JMTCafKA-fb_NiOh:22 a=VwQbUJbxAAAA:8 a=VabnemYjAAAA:8
- a=k94C9gkFF5w_uSWTU5gA:9 a=gKebqoRLp9LExxC7YDUY:22
-X-Proofpoint-ORIG-GUID: P9JcLlLeo4xlQccZvg0D8lxtzsi4tf5F
-X-Proofpoint-GUID: P9JcLlLeo4xlQccZvg0D8lxtzsi4tf5F
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDIzMDE3OSBTYWx0ZWRfX+lvHzz5cK9QM
- TQvoqpJw0TspefpslQPv5ufXvHNQcVmDWf6xE704+cNnuipC0x6/93AWpx31ID6Jyi0LACq7lnb
- /7b0QymeTcRspfl5jZvqxvaJbVL94BHI5ucscilGQ1OwSmffC/c/qrWbUjm1y0RJKoopxX5wocL
- BLyuisva/SsSd2rkNBHo8Ai/vSQx90sohiXa//poKvjtdkU6h0MqGR5qmCYLpCnowXjBZsuNHY4
- ikdQ0asPW6nuYAVyCWvOmXRYk6rUJaxo4MGfZCJutca6HxdwoHbcxfqocZQSWimdbE+OVPBL2jf
- zzhyCvZ9ibDaJVMQZwtErz9uuaoWopBwKqKDKYrt1JBSV2YORwcZi3jD94m9SaYLdPWNUrr9gDg
- PeD0nlVl1wYQ0Tg7JvplevHHyJlCjGMUJa4dOcD/zBl1wSAOwfd6d3+0v6LdbReUfQH1d2Bkpe+
- 6jWI+h2j37YcRwD4Ajw==
+ a=wpfVPzegXHpEFt3DAXn9:22 a=VabnemYjAAAA:8 a=UfQzwJ_779yHtm4POjsA:9
+ a=gKebqoRLp9LExxC7YDUY:22
 X-Proofpoint-Virus-Version: vendor=baseguard
  engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
  definitions=2026-04-23_03,2026-04-21_02,2025-10-01_01
 
-Hi,
+Previously BAR resource requests and the corresponding pci_iomap()
+were performed on-demand and without synchronisation, which was racy.
+Rather than add synchronisation, it's simplest to address this by
+doing both activities from vfio_pci_core_enable().
 
-This is a replacement for these patches posted to set up the
-VFIO barmap in the DMABUF export path, and add serialisation:
+The resource allocation and/or pci_iomap() can still fail; their
+status is tracked and existing calls to vfio_pci_core_setup_barmap()
+will fail in the same way as before.  This keeps the point of failure
+as observed by userspace the same, i.e. failures to request/map unused
+BARs are benign.
 
- https://lore.kernel.org/kvm/20260415181423.1008458-1-mattev@meta.com
+Fixes: 7f5764e179c6 ("vfio: use vfio_pci_core_setup_barmap to map bar in mmap")
+Fixes: 0d77ed3589ac0 ("vfio/pci: Pull BAR mapping setup from read-write path")
+Signed-off-by: Matt Evans <mattev@meta.com>
+---
+ drivers/vfio/pci/vfio_pci_core.c | 61 +++++++++++++++++++++++++++-----
+ drivers/vfio/pci/vfio_pci_rdwr.c | 29 ++++++---------
+ include/linux/vfio_pci_core.h    |  1 +
+ 3 files changed, 64 insertions(+), 27 deletions(-)
 
-Those patches were motivated by the DMABUF export originally missing a
-call to vfio_pci_core_setup_barmap() and so possibly exporting a range
-for which resources weren't yet requested.
-
-Responses in the thread indicated there wasn't a strong historical
-reason to require the bar-mapping to be performed on-demand at BAR
-reference time.  It's much simpler to move this to
-vfio_pci_core_enable(), and that then avoids having to deal with
-concurrent lazy requests.
-
-The first patch requests PCI resources and pci_iomap() of the BARs in
-vfio_pci_core_enable(), moving this out of
-vfio_pci_core_setup_barmap().
-
-Some callers relied on vfio_pci_core_setup_barmap() for its ioremap()
-effect, and other callers use it for its resource-acquiring effect.
-The function remains in the first patch, containing a cheap check that
-both these actions have occurred and keeping the same error behaviour.
-
-The second patch then removes calls to vfio_pci_core_setup_barmap(),
-in favour of two small helper functions which make it clearer to
-distinguish code that needs just the resource (e.g. mmap) and code
-that needs the iomap as well (e.g. the rdwr routines, or virtio).
-
-The third patch adds the resource check to VFIO DMABUF export, which
-was previously able to export an unrequested resource.  Although patch
-1 at first appears to fix this by requesting resources at enable time,
-code using the BAR still needs to check the resource really was
-acquired.
-
-In future we could reconsider performing all the ioremap()s at startup
-time, since a lot of VFIO users will never access BARs in-kernel and
-won't need them.  Mapping huge BARs will cost some time & memory, and
-if necessary this could be reduced by doing the ioremap() portion on
-demand.
-
-=== Changes ===
-
-v2:
-
- - Don't fail if resources can't be requested or iomapped, even for
-   valid BARs, as this would change the userspace-observable error
-   behaviour.  Specifically, if there was an issue with one particular
-   BAR which happened to never be used, then userspace would never
-   encounter an error for it.  Track iomap and resource-acquisition
-   status per BAR.
-
- - Break out the checks for resource success from those for iomap
-   success, in the form of the two new helpers.
-
- - Third patch to add the check to VFIO DMABUF export, because
-   init-time requests can now fail.
-
-v1:
-  https://lore.kernel.org/kvm/20260421174143.3883579-1-mattev@meta.com/
-
-Matt Evans (3):
-  vfio/pci: Set up bar resources and maps in vfio_pci_core_enable()
-  vfio/pci: Replace vfio_pci_core_setup_barmap() with checks for
-    resource/map
-  vfio/pci: Check BAR resources before exporting a DMABUF
-
- drivers/vfio/pci/nvgrace-gpu/main.c |  8 ++--
- drivers/vfio/pci/vfio_pci_core.c    | 66 +++++++++++++++++++++++------
- drivers/vfio/pci/vfio_pci_dmabuf.c  |  6 ++-
- drivers/vfio/pci/vfio_pci_rdwr.c    | 29 +------------
- drivers/vfio/pci/virtio/legacy_io.c |  4 +-
- include/linux/vfio_pci_core.h       | 24 ++++++++++-
- 6 files changed, 88 insertions(+), 49 deletions(-)
-
+diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
+index 3f8d093aacf8..c59c61861d81 100644
+--- a/drivers/vfio/pci/vfio_pci_core.c
++++ b/drivers/vfio/pci/vfio_pci_core.c
+@@ -482,6 +482,55 @@ static int vfio_pci_core_runtime_resume(struct device *dev)
+ }
+ #endif /* CONFIG_PM */
+ 
++static void __vfio_pci_core_unmap_bars(struct vfio_pci_core_device *vdev)
++{
++	struct pci_dev *pdev = vdev->pdev;
++	int i;
++
++	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
++		int bar = i + PCI_STD_RESOURCES;
++
++		if (vdev->barmap[bar])
++			pci_iounmap(pdev, vdev->barmap[bar]);
++		if (vdev->have_bar_resource[bar])
++			pci_release_selected_regions(pdev, 1 << bar);
++		vdev->barmap[bar] = NULL;
++		vdev->have_bar_resource[bar] = false;
++	}
++}
++
++static void __vfio_pci_core_map_bars(struct vfio_pci_core_device *vdev)
++{
++	struct pci_dev *pdev = vdev->pdev;
++	int i;
++
++	/*
++	 * Eager-request BAR resources, and iomap; soft failures are
++	 * allowed, and consumers must check before use.
++	 */
++	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
++		int ret;
++		int bar = i + PCI_STD_RESOURCES;
++		void __iomem *io;
++
++		if (pci_resource_len(pdev, i) == 0)
++			continue;
++
++		ret = pci_request_selected_regions(pdev, 1 << bar, "vfio");
++		if (ret) {
++			pci_warn(vdev->pdev, "Failed to reserve region %d\n", bar);
++			continue;
++		}
++		vdev->have_bar_resource[bar] = true;
++
++		io = pci_iomap(pdev, bar, 0);
++		if (io)
++			vdev->barmap[bar] = io;
++		else
++			pci_warn(vdev->pdev, "Failed to iomap region %d\n", bar);
++	}
++}
++
+ /*
+  * The pci-driver core runtime PM routines always save the device state
+  * before going into suspended state. If the device is going into low power
+@@ -568,6 +617,7 @@ int vfio_pci_core_enable(struct vfio_pci_core_device *vdev)
+ 	if (!vfio_vga_disabled() && vfio_pci_is_vga(pdev))
+ 		vdev->has_vga = true;
+ 
++	 __vfio_pci_core_map_bars(vdev);
+ 
+ 	return 0;
+ 
+@@ -591,7 +641,7 @@ void vfio_pci_core_disable(struct vfio_pci_core_device *vdev)
+ 	struct pci_dev *pdev = vdev->pdev;
+ 	struct vfio_pci_dummy_resource *dummy_res, *tmp;
+ 	struct vfio_pci_ioeventfd *ioeventfd, *ioeventfd_tmp;
+-	int i, bar;
++	int i;
+ 
+ 	/* For needs_reset */
+ 	lockdep_assert_held(&vdev->vdev.dev_set->lock);
+@@ -646,14 +696,7 @@ void vfio_pci_core_disable(struct vfio_pci_core_device *vdev)
+ 
+ 	vfio_config_free(vdev);
+ 
+-	for (i = 0; i < PCI_STD_NUM_BARS; i++) {
+-		bar = i + PCI_STD_RESOURCES;
+-		if (!vdev->barmap[bar])
+-			continue;
+-		pci_iounmap(pdev, vdev->barmap[bar]);
+-		pci_release_selected_regions(pdev, 1 << bar);
+-		vdev->barmap[bar] = NULL;
+-	}
++	__vfio_pci_core_unmap_bars(vdev);
+ 
+ 	list_for_each_entry_safe(dummy_res, tmp,
+ 				 &vdev->dummy_resources_list, res_next) {
+diff --git a/drivers/vfio/pci/vfio_pci_rdwr.c b/drivers/vfio/pci/vfio_pci_rdwr.c
+index 4251ee03e146..bf7152316db4 100644
+--- a/drivers/vfio/pci/vfio_pci_rdwr.c
++++ b/drivers/vfio/pci/vfio_pci_rdwr.c
+@@ -200,25 +200,18 @@ EXPORT_SYMBOL_GPL(vfio_pci_core_do_io_rw);
+ 
+ int vfio_pci_core_setup_barmap(struct vfio_pci_core_device *vdev, int bar)
+ {
+-	struct pci_dev *pdev = vdev->pdev;
+-	int ret;
+-	void __iomem *io;
+-
+-	if (vdev->barmap[bar])
+-		return 0;
+-
+-	ret = pci_request_selected_regions(pdev, 1 << bar, "vfio");
+-	if (ret)
+-		return ret;
+-
+-	io = pci_iomap(pdev, bar, 0);
+-	if (!io) {
+-		pci_release_selected_regions(pdev, 1 << bar);
++	/*
++	 * The barmap is now always set up in vfio_pci_core_enable().
++	 * Some legacy callers use this function to ensure the BAR
++	 * resources are requested, and others to ensure the
++	 * pci_iomap() was done, so check here:
++	 */
++	if (bar < 0 || bar >= PCI_STD_NUM_BARS)
++		return -EINVAL;
++	if (vdev->barmap[bar] == 0)
+ 		return -ENOMEM;
+-	}
+-
+-	vdev->barmap[bar] = io;
+-
++	if (!vdev->bar_has_rsrc[bar])
++		return -EBUSY;
+ 	return 0;
+ }
+ EXPORT_SYMBOL_GPL(vfio_pci_core_setup_barmap);
+diff --git a/include/linux/vfio_pci_core.h b/include/linux/vfio_pci_core.h
+index 2ebba746c18f..1f508b067d82 100644
+--- a/include/linux/vfio_pci_core.h
++++ b/include/linux/vfio_pci_core.h
+@@ -101,6 +101,7 @@ struct vfio_pci_core_device {
+ 	const struct vfio_pci_device_ops *pci_ops;
+ 	void __iomem		*barmap[PCI_STD_NUM_BARS];
+ 	bool			bar_mmap_supported[PCI_STD_NUM_BARS];
++	bool			have_bar_resource[PCI_STD_NUM_BARS];
+ 	u8			*pci_config_map;
+ 	u8			*vconfig;
+ 	struct perm_bits	*msi_perm;
 -- 
 2.47.3
 
