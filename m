@@ -1,67 +1,66 @@
-Received: from mail-oi1-f175.google.com (mail-oi1-f175.google.com [209.85.167.175])
+Received: from mail-oi1-f174.google.com (mail-oi1-f174.google.com [209.85.167.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BF5335F196
-	for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 20:54:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9523C346776
+	for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 20:54:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776977687; cv=none; b=FUbxxB4JJFdRideQEnU5xTqBXiiKcgqKc0yklMhretQdoprp+MSCf533vxwVL3eBxC4V2Lo9Iv20UOeyC4XaHwqfDSW5WzomGS7BoA+8kOKd46zmSM8LEVHzzasv0P9kSOSoO+yZXRkWTBUEyOCt6iTb13IGDzANwQi6eczziPo=
+	t=1776977693; cv=none; b=ZhM05dmpp24GGqNBv+o1bkRdVlWcQIuC6ACHyeWmhbFb3PtBEJRgeqvw6DCpyZZZ9Y5/LfUJn0LjlRaYEQKuVy5OL+xj18CDifXhILeNGVPKWXKE3lPAJuhMCvx1YVUug4eiX/GBYbVOF+8jye20nYslHSj35LNDbSYUVe8tqW8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776977687; c=relaxed/simple;
-	bh=jPGjXS71/Sd5PdlEbYR5u6p1XmzzkhLL9WEpBvy8svQ=;
+	s=arc-20240116; t=1776977693; c=relaxed/simple;
+	bh=v7nXtN9RgqHdJNPNJFFsg1eD6gNLpxPo8kGjLNQhYDo=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=rgKKZ6PHhEaHrS9Ot83camUxtgZ64mTePBqaxRw/c/d4fET5VrNx3Em/cV8dKfhQiIO2Fb+LufDPBcxZ47jXxo777vqh/A/i6Apb88paTwq4fuHTmSIn9hy2JVfe+ZJJN12kDheF2p/wq7b6vb7fPRKA+QXYBX6sWxna0CBZw88=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=omwwR4kM; arc=none smtp.client-ip=209.85.167.175
+	 In-Reply-To:To:Cc; b=aviDGD1co6NgJqgBbeRoe3RVAC+R1aW6D945H1TcYogRbOuBJD2s+bKNHVPzkLq/CuXlGFpIPBUR6J5FSywzIdRy5m7m4eKJagr34IO3xWMWNKMBDuXpeBhPPsCaCW2mQW9VaEVqqcbKOG3KJsI1o2dMFbqCRKrr36yJpnR/GWI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TE1Ocj81; arc=none smtp.client-ip=209.85.167.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="omwwR4kM"
-Received: by mail-oi1-f175.google.com with SMTP id 5614622812f47-470145d7df5so4423378b6e.0
-        for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 13:54:44 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TE1Ocj81"
+Received: by mail-oi1-f174.google.com with SMTP id 5614622812f47-4670464029eso3935874b6e.2
+        for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 13:54:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1776977683; x=1777582483; darn=lists.linux.dev;
+        d=gmail.com; s=20251104; t=1776977688; x=1777582488; darn=lists.linux.dev;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=xAEAq+kQJrWXZQykWzpQy5kgtDlX9Aaw3Ob6jXsM1wQ=;
-        b=omwwR4kMzkg6Xs+S5w9lXQM/ED9mwmStdeDkov4MHy/8N7dyH2BD4I8aR/FI7q5gBI
-         IRyWJ8dSrl8YrRZmpmeAy6Zq1vvgW7jDWa9Xvgyw5q6FaG2FIJEOmYwhvlqEk4TTjl0v
-         Da6+1wL581AlXNM5W3bKpjvCr8gnLTJKca5KB9X5qMum43tin95tYq6dkv+42fFNvaaI
-         D+nPSuUTRB7KynViy5rsxOLK9qZDPYhmcnXk3iYebpQ4O/Rusa/yXoCfKg4WHJw+hXWa
-         X3fQ4tPJg+ICPWsWiUQIfdL0wykfVq5AgcM11mSwRHr0U7gDtv3LnM8Bslg8U/Bxjd+O
-         HBKg==
+        bh=zftWqWhtfgLT8BdUHmflQKmCQdRaRDCFv8UXc0/NgE8=;
+        b=TE1Ocj81tl3gQcpHR0DUFJ1aJvpn2wMmfps5OtAgFLEYRl8BwSwhvwyHpMzno6+K6y
+         EVNpZvPHpVAXD0R4zyXD531ttW8pIwqN8ooibQ8zyY0qbbq52JzX8SimOUZRiox6eW1Z
+         EJMGMm09vf9Z68AlbHkBhYUPvz+h89hs2J9uCasqDbk2heQI7rDm1WwHNgQQWMtPcapZ
+         WzbID7yJW2/n1vmlMsTPehJrqOCQ6nFfx9SOVCGKnxQaKXheGQC7Fn6gSbE6svTM1Dsv
+         iZBw5x4UIOVQtCaSaSJ+O0TcLSQLpgwe6q4b02K2tmIx4nWsQXE12Vx1J6tqeqj1IZC3
+         PkCA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776977683; x=1777582483;
+        d=1e100.net; s=20251104; t=1776977688; x=1777582488;
         h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
          :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
          :cc:subject:date:message-id:reply-to;
-        bh=xAEAq+kQJrWXZQykWzpQy5kgtDlX9Aaw3Ob6jXsM1wQ=;
-        b=YWSRd8UNdtofyk14q4BQOoZLMY2g5oxhv88J0IrYVXlEOQaDo77kb3cUasbMeTmQ8t
-         pg08v5I7Y3Giga4YGXJlXshJIkTGjLS7tI7E78itZt5CtP60GlQIZXeF/zH6fmk2QaA2
-         3JXMWnHojTGV9fYpoucEVy0G0SeSv7iB1ezC1VaQ1wtmMBJJ9GURWQH8w4fs2Vdj/fr6
-         uS05hwqYaHvNepOtjYx+TjWf9ZfvCdxc2HZhETVdTb/iOxlTmZFwshuvaMRSN+jKwnPF
-         hyRlR1skYeksqjzisqaCQujHnfpaTsjqZi1nmK9/TUZ0nhN6J6P3FtEPjnNh0lcYxLLI
-         GdEA==
-X-Forwarded-Encrypted: i=1; AFNElJ+GgsI+Gslyqy04V+g8b66Ct7LjBs2kJ3Su5ETTIV5f9KIgtQ5aHRKMbThfjKzqT4nU87Hutj3vu4BPoFcGNw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywk1FHMc6uz+INSl66NjA8M7k4cEsSnW5xIA9gdd65fPYXivpMD
-	HSYZS/rkJLCh9BZ1SBiavHGcoGsKE5poiL48qoSJGSSi2RBcxE8/X4YB
-X-Gm-Gg: AeBDievUMgHrGY7fyIKDBSLIxq1nDEmFqrWt1tF0QmTieB9cwiUY38C+GdMSKae/87c
-	GfSjGOpLAYizq9DQ2Gln4iIZMY/x4NyPf5i0kCeBKq6OVT4vdgyBsxOZQIwDqT/TVufCOBHFnjF
-	Yk2oqKjZzxt/LdxK1D+GOzixN9nCh5628ZOknVStrKn3BuxawGLrGCm0OT/4VtKKTnYnj6KWfPp
-	ZEnlZBxKiXl6cXev3yj4FuA+hTC76Dz5fAZZvpg/llKBuCOmXTEFHA08E30MIerynvXws2ibX9o
-	1+ToL1qugSCJ3kE7Fl1euIkYr8NQByvpBRSzjoIvef4akkNijoouITk8ZeOZXXWhNkxwvpALCod
-	WMD6TPBHNEBlHf9pNaRWuuRJm3Q+ENMBe3M3SQRf1NnqBbMnU+vIMxVMgCmVkt0eWe1KQfu1/Sa
-	psjeVhNixY5Rx0sRBbsq6q2aFlTuz5ntYxsBY44uJFrcJzZUK9vJyyjfholSjh/c6NYfSX/nQgn
-	nGkO+iVs3c=
-X-Received: by 2002:a05:6808:d4c:b0:45e:f443:dc3d with SMTP id 5614622812f47-4799c9424e2mr16765336b6e.13.1776977682728;
-        Thu, 23 Apr 2026 13:54:42 -0700 (PDT)
+        bh=zftWqWhtfgLT8BdUHmflQKmCQdRaRDCFv8UXc0/NgE8=;
+        b=s97GHglBesI5c9s4g02/G341zuss/9MSi+6JXjGtulrLplyoWGhsS2cEaKArcQe6et
+         t07uAEE1+YkemWVKZey3Qz0+AgkaSaZw8s20aQcRSxV+V+TBov1yX2C3n8XnzXCQ+j3G
+         x200lUO7RzkST5M3N8/WrrGvYdtC8nBP3XPZmmf7POJd7vTBOJ56ZCRekvn8qtZQiiZ8
+         ONVgVXyUb8piBCzGuFsa6NcjdgZCaUIqe1qySyMLxHVPxsK+YNJIDdfGWxyDvrQtNu2i
+         qP2933csqteW9t6pEcerKkedg2AQV5f3toN8vrFTj8g/rcoKMiATOaPc6AOPv/863muM
+         CQdA==
+X-Forwarded-Encrypted: i=1; AFNElJ8F72zDm/1978imHCj1jYs6gV7gk0eX3gieTgohGJe0RpH5wpUxGtYa1L/GA5L5MbNutB6YLgxc0FyjHCk7iw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxOsWnSl9LejKUmgYXtghRukZF0WXjen8Iv7V3H8ncvBO0VbT7z
+	zrkxYiy+/rSxiIpwZZQVnfwkZjpxxG1Et9xY0e30pjZAZHgrn0zeo3tK
+X-Gm-Gg: AeBDieuU7z80hC6W50E+jyJJAP8XKnvRPbOL6Qq79HrUMNqdsq4caLnIGm9SIys+HlC
+	hw2fWe450pBe2UQP53HeMmr7UbBeKHiDyStflEgbNnxKzPFYPUSoumsl1WGAHB3Eci6NO0FPeW5
+	iilgTIlhNIUXv/jnOSDiE+cbKMyxMHSJrrbLemWs9sODl5Ryg6de5AZFbP3oa0hr8WRcfgs4YBL
+	P/lw8cLllGfYOeNtZKyMeCFG7XYrbZqntNlQ6I8l0OZ0SXdrMuIAMHVD3y6Q1m0XY94sTvsxldJ
+	7/EJ3dw1rgqjS7VvKoQYVP3XOnrLtuILuxiFh8s5Ld+Fd44f7NGd8yUer8+CLursNv0MSOgpXr7
+	zszX/H2uaQ2dMT9U9AUqkQN92ndBUI452GCfYKHzt0KwPntBYS+ZeWWXPGUNmiJpKxOPSCaJ4wu
+	8zWKL20UcX1ose6nDSwujMDp2zAUnGKpxHMOxoMsdvgQipiSe9jO15XsBWaIN858QkfkgrKo6X
+X-Received: by 2002:a05:6808:1384:b0:467:2926:1231 with SMTP id 5614622812f47-4799cabb091mr15541122b6e.33.1776977687962;
+        Thu, 23 Apr 2026 13:54:47 -0700 (PDT)
 Received: from [192.168.0.245] (c-98-38-17-99.hsd1.co.comcast.net. [98.38.17.99])
-        by smtp.googlemail.com with ESMTPSA id 5614622812f47-4799fead505sm14329744b6e.2.2026.04.23.13.54.37
+        by smtp.googlemail.com with ESMTPSA id 5614622812f47-4799fead505sm14329744b6e.2.2026.04.23.13.54.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Apr 2026 13:54:42 -0700 (PDT)
+        Thu, 23 Apr 2026 13:54:47 -0700 (PDT)
 From: Jim Cromie <jim.cromie@gmail.com>
-Date: Thu, 23 Apr 2026 14:53:49 -0600
-Subject: [PATCH v14 08/92] docs/dyndbg: explain flags parse 1st
+Date: Thu, 23 Apr 2026 14:53:50 -0600
+Subject: [PATCH v14 09/92] test-dyndbg: fixup CLASSMAP usage error
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -70,7 +69,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260423-submit-dyndbg-classmap-foundation-v14-8-2b809a8019d0@gmail.com>
+Message-Id: <20260423-submit-dyndbg-classmap-foundation-v14-9-2b809a8019d0@gmail.com>
 References: <20260423-submit-dyndbg-classmap-foundation-v14-0-2b809a8019d0@gmail.com>
 In-Reply-To: <20260423-submit-dyndbg-classmap-foundation-v14-0-2b809a8019d0@gmail.com>
 To: Arnd Bergmann <arnd@arndb.de>, Jason Baron <jbaron@akamai.com>, 
@@ -165,55 +164,50 @@ Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-stm32@st-md-mailman.stormreply.com, linux-renesas-soc@vger.kernel.org, 
  etnaviv@lists.freedesktop.org, Jim Cromie <jim.cromie@gmail.com>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1776977636; l=1814;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1776977636; l=1492;
  i=jim.cromie@gmail.com; s=20260203; h=from:subject:message-id;
- bh=jPGjXS71/Sd5PdlEbYR5u6p1XmzzkhLL9WEpBvy8svQ=;
- b=HMPoys38nD06ZJHUUrHCqtojr3UfS4NPv3Z3vnBVFyI30FyzOStWh/NmjFhaCcjRBJPNZBJ17
- GJd8iWMP66nCqhCyzWgR1+dBVaXdJOf5pW87LkLUcDicQIXZDja/brX
+ bh=v7nXtN9RgqHdJNPNJFFsg1eD6gNLpxPo8kGjLNQhYDo=;
+ b=VBe9Ut7lbIIOEurwbAbNeQYJD7LG7Pt57wkJQXnWBJg9CpLMfTuVjx/oiKOPJeZDCdXsgXfoN
+ q302jYDv/rXD00pgA4KJloRhJnDOj+7pbSDUehOIPs/xW+brF00GdRj
 X-Developer-Key: i=jim.cromie@gmail.com; a=ed25519;
  pk=C6E5ODlPQo7ZBynATXH9wg7K6HxP0pIXyf4s38Qw0XE=
 
-When writing queries to >control, flags are parsed 1st, since they are
-the only required field, and they require specific compositions.  So
-if the flags draw an error (on those specifics), then keyword errors
-aren't reported.  This can be mildly confusing/annoying, so explain it
-instead.
+commit 6ea3bf466ac6 ("dyndbg: test DECLARE_DYNDBG_CLASSMAP, sysfs nodes")
 
-cc: linux-doc@vger.kernel.org
+A closer look at test_dynamic_debug.ko logging output reveals a macro
+usage error:
+
+lib/test_dynamic_debug.c:105 [test_dynamic_debug]do_cats =p "LOW msg\n" class:MID
+lib/test_dynamic_debug.c:106 [test_dynamic_debug]do_cats =p "MID msg\n" class:HI
+lib/test_dynamic_debug.c:107 [test_dynamic_debug]do_cats =_ "HI msg\n" class unknown, _id:13
+
+107 says: HI is unknown, and 105,106 have a LOW/MID and MID/HI skew.
+
+DECLARE_DYNDBG_CLASSMAP() _base arg must equal the enum's 1st value,
+in this case it was _base + 1.  This leaves HI class un-selectable.
+
+NB: the macro could better validate its arguments.
+
 Reviewed-by: Louis Chauvet <louis.chauvet@bootlin.com>
+Tested-by: Louis Chauvet <louis.chauvet@bootlin.com>
 Signed-off-by: Jim Cromie <jim.cromie@gmail.com>
 ---
- Documentation/admin-guide/dynamic-debug-howto.rst | 17 +++++++++++++----
- 1 file changed, 13 insertions(+), 4 deletions(-)
+ lib/test_dynamic_debug.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/Documentation/admin-guide/dynamic-debug-howto.rst b/Documentation/admin-guide/dynamic-debug-howto.rst
-index 4b14d9fd0300..9c2f096ed1d8 100644
---- a/Documentation/admin-guide/dynamic-debug-howto.rst
-+++ b/Documentation/admin-guide/dynamic-debug-howto.rst
-@@ -109,10 +109,19 @@ The match-spec's select *prdbgs* from the catalog, upon which to apply
- the flags-spec, all constraints are ANDed together.  An absent keyword
- is the same as keyword "*".
+diff --git a/lib/test_dynamic_debug.c b/lib/test_dynamic_debug.c
+index 77c2a669b6af..396144cf351b 100644
+--- a/lib/test_dynamic_debug.c
++++ b/lib/test_dynamic_debug.c
+@@ -75,7 +75,7 @@ DD_SYS_WRAP(disjoint_bits, p);
+ DD_SYS_WRAP(disjoint_bits, T);
  
--
--A match specification is a keyword, which selects the attribute of
--the callsite to be compared, and a value to compare against.  Possible
--keywords are:::
-+Note that since the match-spec can be empty, the flags are checked 1st,
-+then the pairs of keyword and value.  Flag errs will hide keyword errs::
-+
-+  bash-5.2# ddcmd mod bar +foo
-+  dyndbg: read 13 bytes from userspace
-+  dyndbg: query 0: "mod bar +foo" mod:*
-+  dyndbg: unknown flag 'o'
-+  dyndbg: flags parse failed
-+  dyndbg: processed 1 queries, with 0 matches, 1 errs
-+
-+So a match-spec is a keyword, which selects the attribute of the
-+callsite to be compared, and a value to compare against.  Possible
-+keywords are::
- 
-   match-spec ::= 'func' string |
- 		 'file' string |
+ /* symbolic input, independent bits */
+-enum cat_disjoint_names { LOW = 11, MID, HI };
++enum cat_disjoint_names { LOW = 10, MID, HI };
+ DECLARE_DYNDBG_CLASSMAP(map_disjoint_names, DD_CLASS_TYPE_DISJOINT_NAMES, 10,
+ 			"LOW", "MID", "HI");
+ DD_SYS_WRAP(disjoint_names, p);
 
 -- 
 2.53.0
