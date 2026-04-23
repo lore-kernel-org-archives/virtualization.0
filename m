@@ -1,65 +1,68 @@
-Received: from mail-oi1-f171.google.com (mail-oi1-f171.google.com [209.85.167.171])
+Received: from mail-oi1-f179.google.com (mail-oi1-f179.google.com [209.85.167.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2680A33D6E1
-	for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 20:54:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 04A1933F5A4
+	for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 20:54:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776977646; cv=none; b=D29fnRJWEGJDL9+hJCHH0OQ9ViHbWFhXzfffqD/WPZZm157lvTzK4N282u4m0Xehblm3HMEb95oJA9n9VFLpOWkFHF4b5nl1KIB8KwwfFVCJPi2pbjfMPCs/fgAppCSes+h6qAoe3QpIdDE9RROsJ9KUi5M/cuSNl/C+Mz5x9XY=
+	t=1776977652; cv=none; b=BAdvHRGYKifATDtgMROcMSz1ULhj2LavBC3fvm+wKiGP/uJmGiXDaZ7OynjHnzPjaBBCtglQ+D1Us3h6OWE1eXJAhzHqgm+G2LAkwzuQ8cfgakBIitCNvkiHko/UKPoKOL2OS65HnY4XKpvrMsPLTgD39CWEppKtWLj9YtfgWsM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776977646; c=relaxed/simple;
-	bh=BH8wXuQqXu29++/ajdsAj++rfYFfjEnbi/imDFni8vQ=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=ZK9++ncZDbHgH9IrkD1CPA4eRgl3PIRENNru32JJ/z/08O+FapaccfHZ27MCthdjue9yVPMUcr9OVjSKzqkMVXX626yEhxP8BWD7ImHLKi0TANWTdU2IoJfMk5oP77gB3xnxHYkHinBowOY5VxGJ2A4qDUJKihNJb9E7d+rayBI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ip3S/pOC; arc=none smtp.client-ip=209.85.167.171
+	s=arc-20240116; t=1776977652; c=relaxed/simple;
+	bh=YvI+c+2Ph7G01gY6UA2wVrmrHHoi2nJdOmOI4+tqFF4=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=DrhUTjtzpq60sco77nxVNtaoImpF0kQexo8BUaJ8733sslvSVXZSvO3xMwkT0oX77q8urE0oEemoETnyOgW9O7rIcfBhcg3xINhbMoJcymdxlIoFwlHuJdoBsq2HvMwk9m3JNNIbXbTWAXLDzB02z/ZGEdkvC6WP7JogVJbB+P8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oxZ4zfO4; arc=none smtp.client-ip=209.85.167.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ip3S/pOC"
-Received: by mail-oi1-f171.google.com with SMTP id 5614622812f47-479d68a9063so1698715b6e.0
-        for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 13:54:04 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oxZ4zfO4"
+Received: by mail-oi1-f179.google.com with SMTP id 5614622812f47-463a0e14abfso3604666b6e.2
+        for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 13:54:08 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1776977643; x=1777582443; darn=lists.linux.dev;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=/iIzHr8OgSixjrC6X8omEPuSZti0HDks3sOTg/JIH9Y=;
-        b=ip3S/pOCQ0yrZVlovzdshbzriKTDtPwDkDGpFM97IdLI4pZ/Ya44miY8Azsg1o+2kZ
-         CtXda2kpD3FR08vFrOgamgQtcEg6GDn+AUxLnDyolHr0oUS5+gSHNhtMsE+rPw9qaFXY
-         QqZy/sWLygYFRTJSVONwRYc9LHl6kfUk8iig8dQDd/MfcMTdFsiuw7K1Q3CRLq2AwEpX
-         OcUrN/+F8DXMq8uy0U++918UxiSru/qXdJxTmc3f+8CImkZ3LokZRpJhV97u21b4uf+Y
-         VnbNRHHfYa8W2KLo6FvBTP/SS3I6Ar8KbCYRZEnC6ubFNsJRnsWvm+EKVR2MtiYPMyZN
-         v42g==
+        d=gmail.com; s=20251104; t=1776977648; x=1777582448; darn=lists.linux.dev;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=vh+dAS21x3C6ulKovRegxLPmO53GnqH/AjpAPmkhI+c=;
+        b=oxZ4zfO4us7AIZ+RLN1uAw8JghFxQzQ8G9jQxt8eMrKamUdgPYHIlW3JRqteEFksee
+         QMD2ehtj1TbNhPpE25a1Fy3NHvUBE9DrljhKGbxVE64ckbDItweiCMEFJmwMtc0jUue7
+         rEREm79dKKOLvC8eh9QWjm6F75FzmqBIVyMmpFPfUcgdDUJN5H7eK1iiBm9ujTEaX1VD
+         5ZJXMJIJaf6f52sb6ZBAT4a26ad3HcjiLAwSLHHhd7eHp5ildExtEzeY6YSYnSsbOyiJ
+         UZGpkGDVq+56bmdMWr4c8eCzQu/eLXYSRDBr3Er0fx2Ts1n6A11n/8V1F+k3ikCQ0aEd
+         BDtA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776977643; x=1777582443;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=/iIzHr8OgSixjrC6X8omEPuSZti0HDks3sOTg/JIH9Y=;
-        b=qUkP9AHgbQ0lYLaQXLubJr7uAfvdWcgEFo5KQ8cl2osmi7FEW6ZwTvZaFSvNWfs6uc
-         pKoH3Vhs1OVRuZ2vWFbH3Zy2GgZNU1tKzchtgY0ke36ttOKqQMsaicKCQ7yI4uSEpHqk
-         0GvpGlrWwI21yLTmFumW9F9/OJEaA2daJCS0TpC59CyPr6XIF0Cdnh5wK9k+44wTirk1
-         xX9xwGmXQgSGnmRsoS0hRwAZ4Oj4HWdLKJOkUyJE4QugLMa0w5n1WO0vl+i4Guqw8pI2
-         0MkpFM5+YqriREy9q9FPLOBvmc169SYgDuM5Lz30UNKURWTjoKF+B+rRwFeQoWaImqm+
-         rNuA==
-X-Forwarded-Encrypted: i=1; AFNElJ9QMlSDPTszIUxESZMQSdECsE/WFigZDiZNsC5jPIWYieUcYZJ/ofTbI95/hiRW7WpHrcgj82cb4OZIpTY5Kg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyUdZ590xkxwGltQPWet9ilw0mqNTKrOv6001dKj5tZKVTNSc4d
-	/OqRMxnr72AppJj6M+VllSgG0O4r4uDLkJ7wbvkxC6WP6F3mZxvfXLLo
-X-Gm-Gg: AeBDietfu5Y7pKqRiyiUou/df8Vh39Uw4s9wgqfeq6H7/K8M0o6pWv0ruk0W4hM3jpY
-	n79rc9uD7xmDD3vi0VFIXaPpJz8Sf3fZ0ngvU8j2WX7AnZlMA3grAyYkUlWFKeBn64aKMMkBr/j
-	kJQFBWjZIF5rXDIkQIwzIL/5pMCOOO6LmfXGpYbub3Exqus4SBMBoK16aQ7butUVOz5MN85zXCr
-	O89YfhnwzjU6YouvJHE4gso41cmFFO50BpwInz3WH20/TH5GyTokx+EILWHwM4emLegnjoGsIrZ
-	bwGsnOLA7zzU3Q5k0APk2yMKXYg/I/JQriPwNT8MTs3g+0hHib90a7OlHqUC4w3tex6gGXQz8Ca
-	Ko0C/XgOGMFZqzuySUf5KOoiJFIism3MOwMu1eNTQs1bW07QQTupvhchnsOVS1x8xXNk1zMSdNR
-	QHggI8ufkbQJuP9DlXOlZT1D+EWBho4FR8F/N5mZSAxZ0uJi4uko2PEgYXioGylvfYgVrJFkgY
-X-Received: by 2002:a05:6808:1508:b0:479:ded7:485 with SMTP id 5614622812f47-479ded70961mr9559100b6e.1.1776977642773;
-        Thu, 23 Apr 2026 13:54:02 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1776977648; x=1777582448;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=vh+dAS21x3C6ulKovRegxLPmO53GnqH/AjpAPmkhI+c=;
+        b=eBvTqJoTWJlRjJa6pnTsswDXO1FtgUeWf7eTnGPCevsCGp2NdIHxMyPLwJwBP9xMO/
+         khiEG/u6Cjgja+8aDCxGW5JCCR44kFigS66LPWuoH4hudtX1mksTRKr3jCAp+5vJYjzr
+         5E58Sqp3doqmcI0lUZOnVKDQM71q0lI/ttLyg9Cvs+Ypzdv0lA5J/Bu2kUX5zH1ErYxu
+         LrMH1rl9rpS84FvxjUeCiRQEBQPLTxS7GkPnpAlU6lIRGdqStcNQJuz5IiEkmcSwcME9
+         YgTy9XBNPMzVvJV52XyoA0kwYw3Bz097L/iBxKE3ZxuqSymGjN90scduiIpuYQ0qEWFQ
+         pqWw==
+X-Forwarded-Encrypted: i=1; AFNElJ//nf1EymAZ472qvkWffAWkrIXYHm1L8SVxz/EikXlC3RheY0pNNUPJO5H/xJrXkEO5YB6xXYDaUvDLp1p2dQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyTj5h7LiMLf2+7BUorHfT+rrmgcaGL8RaqtNnF0migeGGT4rV0
+	Z8+p6ZPuEgH1zZ//HrIr1BIrBu8EPgz0RDAEzRskOfBJNsm/yG1bPuW0
+X-Gm-Gg: AeBDievEtxMaomiT/aNQH0i6KNp5cWzoWTJVudLBAtuw7+bHzcLiaLlBPtp157r0Mlr
+	M3Fgdu+VjgnJ+AZdE/A8X/JPTM3NGeWMKcCErreVwKaRMYW3fBiE4cbRYJsRLhEXbJUnVpAnERm
+	OUaXjU7/FkB3Rekiy06gz67Xz1v8MkWa8hziZg5eGyrWrrqPoB/GCZXUEfn+elt/4rtLEig6TjJ
+	wTyXgZjTAgsPfOFQADtNXItSxU41Q4Pgu62A23xQXgZ5oGERCvtYlI3E9vGREMHJtygRDneMuXC
+	V9kA5kWdlsszIC0N2V3uwfLqE2di41xUVU3GcHNBJJ773eJX6MeWZboduXVx4Dbq9dJb1Z9dq4u
+	0ImDOBq2l55x+7sU7SXX3WslpSTfeufRZKKdvHWRfcwqe8awi3815VNM3MWjPZa3/6kyH6MYBQ+
+	HSuXJLBNh8pew81ASsjrTwwLSisquIB/bKrvvyLEmEODNOLMvjffKSjBRK5opze04WxV9Ip4xqF
+	uC9tCowcIU=
+X-Received: by 2002:a05:6808:138b:b0:45f:59e:1e06 with SMTP id 5614622812f47-4799c8711e1mr17988935b6e.4.1776977647783;
+        Thu, 23 Apr 2026 13:54:07 -0700 (PDT)
 Received: from [192.168.0.245] (c-98-38-17-99.hsd1.co.comcast.net. [98.38.17.99])
-        by smtp.googlemail.com with ESMTPSA id 5614622812f47-4799fead505sm14329744b6e.2.2026.04.23.13.53.57
+        by smtp.googlemail.com with ESMTPSA id 5614622812f47-4799fead505sm14329744b6e.2.2026.04.23.13.54.03
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Apr 2026 13:54:02 -0700 (PDT)
+        Thu, 23 Apr 2026 13:54:07 -0700 (PDT)
 From: Jim Cromie <jim.cromie@gmail.com>
-Subject: [PATCH v14 00/92] dyndbg: enable 0-off-cost for all of __drm_debug
-Date: Thu, 23 Apr 2026 14:53:41 -0600
-Message-Id: <20260423-submit-dyndbg-classmap-foundation-v14-0-2b809a8019d0@gmail.com>
+Date: Thu, 23 Apr 2026 14:53:42 -0600
+Subject: [PATCH v14 01/92] dyndbg: fix NULL ptr on i386 due to section
+ mis-alignment
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -68,10 +71,9 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x2NQQqDMBBFryKz7kBMo6JXKS7GZNQBjZLR0iLev
- aHL/+C9f4FyElboigsSv0Vli3mU7lGAnylOjBIyAGtsbVzZop7DKgeGbwzDhH4h1ZV2HLczBjq
- yjvT0TVNX1pvKQe7siUf5/E9e/X3/AJLFcnh0AAAA
-X-Change-ID: 20260419-submit-dyndbg-classmap-foundation-a3c77652c054
+Message-Id: <20260423-submit-dyndbg-classmap-foundation-v14-1-2b809a8019d0@gmail.com>
+References: <20260423-submit-dyndbg-classmap-foundation-v14-0-2b809a8019d0@gmail.com>
+In-Reply-To: <20260423-submit-dyndbg-classmap-foundation-v14-0-2b809a8019d0@gmail.com>
 To: Arnd Bergmann <arnd@arndb.de>, Jason Baron <jbaron@akamai.com>, 
  Luis Chamberlain <mcgrof@kernel.org>, Petr Pavlu <petr.pavlu@suse.com>, 
  Daniel Gomez <da.gomez@kernel.org>, Sami Tolvanen <samitolvanen@google.com>, 
@@ -163,312 +165,88 @@ Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org,
  linux-mediatek@lists.infradead.org, linux-rockchip@lists.infradead.org, 
  linux-stm32@st-md-mailman.stormreply.com, linux-renesas-soc@vger.kernel.org, 
  etnaviv@lists.freedesktop.org, Jim Cromie <jim.cromie@gmail.com>, 
- kernel test robot <oliver.sang@intel.com>, 
- =?utf-8?q?=C5=81ukasz_Bartosik?= <ukaszb@chromium.org>, 
- Philipp Hahn <phahn-oss@avm.de>
+ kernel test robot <oliver.sang@intel.com>
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1776977636; l=14130;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1776977636; l=2644;
  i=jim.cromie@gmail.com; s=20260203; h=from:subject:message-id;
- bh=BH8wXuQqXu29++/ajdsAj++rfYFfjEnbi/imDFni8vQ=;
- b=F3TJzCpsLXGArXdimSSTkn3lXLE1c78Zxw+4CZae/xRQMNtVde5YECs4TJSxvXxcDCCikwh8x
- H8EC6hFeEMLB4EwqQ0w4YliBYUeUv1Yv5FFT8ivc7Kvy+iFCdJTTnwx
+ bh=YvI+c+2Ph7G01gY6UA2wVrmrHHoi2nJdOmOI4+tqFF4=;
+ b=JyTcuYLHHiwHBHDMwQ80bkTwG2D19eoKHDE+tl83KcpGRfh3fZenxZ7q9Sw+M3I1crSkiEMPL
+ U/h1shBkXbNDxTVmN1qvPMSBm5G8hxuK6TqMgzZBBZXdklZASPjpC8F
 X-Developer-Key: i=jim.cromie@gmail.com; a=ed25519;
  pk=C6E5ODlPQo7ZBynATXH9wg7K6HxP0pIXyf4s38Qw0XE=
 
-Since Feb 2023, DRM_USE_DYNAMIC_DEBUG has been marked BROKEN [1].
-Although classmaps worked in normal operation (via sysfs), the "v1"
-POC implementation failed to propagate drm.debug boot-args to built-in
-drivers and helpers.
+When dyndbg classmaps get used (later in this series), the
+__dyndbg_classes section (which has 28 byte structs on i386), causes
+mis-alignment of the following __dyndbg section, resulting in a NULL
+pointer deref in dynamic_debug_init().
 
-The API Fix:
+Fix this by:
 
-The root cause was a "Define vs Refer" design error. By using
-DECLARE_DYNDBG_CLASSMAP in both core and drivers, the implementation
-lacked the formal linkage required for dyndbg to associate driver
-callsites with the core's controlling parameter during early boot
-init.
+Adding ALIGN(8) to the BOUNDED_SECTION* macros.  This aligns all
+sections using those macros, including the problem section above.
+Almost all the other macro uses are already ALIGN(8), either
+directly or by being below one.
 
-This series introduces a proper module-scoped API:
-- DYNDBG_CLASSMAP_DEFINE: Invoked once in drm_print.c (exported by drm.ko).
-- DYNDBG_CLASSMAP_USE: Invoked by 20+ DRM/Accel modules to reference the core.
+Removing BOUNDED_SECTION* uses in ORC_UNWINDER sections.  These
+explicitly have smaller alignments, and using the modified macros here
+would override that alignment, which scripts/sorttable.c does not
+tolerate.
 
-This linkage allows dyndbg to trace a driver's USE back to the core's
-DEFINE. At boot-time, dyndbg can now correctly apply drm.debug
-settings to all referencing modules as they are initialized, restoring
-full functionality for built-in drivers.
+Move __dyndbg section back above __dyndbg_classes, restoring its
+original position.  This is cosmetic, given the alignment added to the
+macros.
 
-The Benefit and Evidence (+c flag):
-
-While the instructions saved by replacing bit-tests with NOOPs are
-individually small, the scale of DRM's debug activity makes the
-aggregate impact substantial.  In particular, dyndbg elides the fetch
-of __drm_debug for every drm_debug_enabled() bit test, eliminating the
-fetch from main memory and cache-line thrashing.
-
-To measure the call-counts, the final patch in this series adds +c
-flag to dyndbg, whereby enabled pr_debug* callsites increment a
-per-cpu counter.
-
-The benchmark (in last patch) sets +c flag on all drm_dbg_*s,
-and runs 12 vkcubes for 30 sec:
-
-  root@frodo:/home/jimc/projects/lx# count_hits 30 hammer_vk --
-  Banging on: hammer_vk (&)
-  [1] 100847
-  [1]+  Done                       hammer_vk
-  #: total hits: 2295401
-
-This ran 1 vkcube for 10sec each, counting 1 DRM_UT_* class at a time:
-
-root@frodo:/home/jimc/projects/lx# isolate_drm_hits 2> /dev/null
-Starting isolation study: 10s per class using vkcube
-----------------------------------------------------------
-DRM CLASS            | TOTAL HITS
-----------------------------------------------------------
-DRM_UT_CORE          | 85305
-DRM_UT_DRIVER        | 0
-DRM_UT_KMS           | 1435
-DRM_UT_PRIME         | 0
-DRM_UT_ATOMIC        | 13645
-DRM_UT_VBL           | 4071
-DRM_UT_STATE         | 1780
-DRM_UT_LEASE         | 0
-DRM_UT_DP            | 0
-DRM_UT_DRMRES        | 0
-FOO                  | 0
-
-Replacing this frequent memory fetch & bit-test with static-key NOOPs
-could save approximately 200 peta-instructions per year across the
-Steam Deck install base alone.
-
-Series Organization:
-
-1. vmlinux.lds.h fix and cleanup (patches 1-4)
-   fix section alignment of 32 bit arches
-
-2. dyndbg internal refactorings (5-24)
-   internal callchaing grooming,
-   struct refactoring, __section renames
-   drop linked-list, use existing vector/array
-
-3. core API fix (25-30)
-   replace flawed DECLARE_DYNDBG_CLASSMAP with the DEFINE/USE model.
-   fix boot-time propagation of drm.debug to built-in drivers/helpers.
-   add compile-time validation of classmaps
-
-4. interface improvements, documentation (31-38)
-   query improvments: commas as token separators, % as query separators
-   control-file epilogue
-
-5. apply API to DRM
-   call DYNAMIC_DEBUG_CLASSMAP_DEFINE(drm_debug_classes ...) in drm_drv.c
-   call DYNAMIC_DEBUG_CLASSMAP_USE(drm_debug_classes) in drivers, helpers
-
-6. New additions in v14
-   add +c flag for benchmarking
-   add DYNAMIC_DEBUG_CLASSMAP_USEs to more drivers, helpers
-   drm/nouveau: Fix NULL pointer dereferences in GETPARAM ioctl (RFC)
-
-In v13, to focus the review, I sent only the dyndbg core, and skipped
-the DRM uses.  But the value of the optimization is best seen in
-context; it presented GregKH a "maze with no cheese".
-
-For v14, I've recombined them to show the full scale of the benefit.
-While the performance gains accrue to DRM, the infrastructure resides
-in dyndbg.
-
-So Id like to add some "cheese" (later); ie patchsets to:
-
-1. reduce __dyndbg_* .data by 40%.
-
-This uses 3 maple trees to store module, filename, function, which
-collapses 1st 2 columns by 90%.  Looped `cat control` tests indicate
-a minor cost increase.
-
-2. cache dynamic-prefixes, to avoid repeated work.
-
-This assembles the prefix from maple trees, and stores the prefix into
-another maple tree.  The cache is minimal; for +m callsites, it keeps
-just 1 prefix per enabled module, for +mf prefixes just 1 per function.
-
-Preliminary benchmarking suggests positive ROI on these.
-
-Fixes: bb2ff6c27bc9 ("drm: Disable dynamic debug as broken")
-
-Assisted-by: google gemini
+Reported-by: kernel test robot <oliver.sang@intel.com>
+Closes: https://lore.kernel.org/oe-lkp/202601211325.7e1f336-lkp@intel.com
 Signed-off-by: Jim Cromie <jim.cromie@gmail.com>
 ---
-Jim Cromie (91):
-      dyndbg: fix NULL ptr on i386 due to section mis-alignment
-      vmlinux.lds.h: move BOUNDED_SECTION_* macros to reuse later
-      dyndbg.lds.S: fix lost dyndbg sections in modules
-      vmlinux.lds.h: drop unused HEADERED_SECTION* macros
-      dyndbg: factor ddebug_match_desc out from ddebug_change
-      dyndbg: add stub macro for DECLARE_DYNDBG_CLASSMAP
-      docs/dyndbg: update examples \012 to \n
-      docs/dyndbg: explain flags parse 1st
-      test-dyndbg: fixup CLASSMAP usage error
-      dyndbg: reword "class unknown," to "class:_UNKNOWN_"
-      dyndbg: make ddebug_class_param union members same size
-      dyndbg: drop NUM_TYPE_ARRAY
-      dyndbg: tweak pr_fmt to avoid expansion conflicts
-      dyndbg: reduce verbose/debug clutter
-      dyndbg: refactor param_set_dyndbg_classes and below
-      dyndbg: tighten fn-sig of ddebug_apply_class_bitmap
-      dyndbg: replace classmap list with a vector
-      dyndbg: macrofy a 2-index for-loop pattern
-      dyndbg,module: make proper substructs in _ddebug_info
-      dyndbg: move mod_name down from struct ddebug_table to _ddebug_info
-      dyndbg: hoist classmap-filter-by-modname up to ddebug_add_module
-      dyndbg-API: remove DD_CLASS_TYPE_(DISJOINT|LEVEL)_NAMES and code
-      selftests-dyndbg: add a dynamic_debug run_tests target
-      dyndbg: change __dynamic_func_call_cls* macros into expressions
-      dyndbg-API: replace DECLARE_DYNDBG_CLASSMAP
-      dyndbg: detect class_id reservation conflicts
-      dyndbg: check DYNAMIC_DEBUG_CLASSMAP_{DEFINE,USE_} args at compile-time
-      dyndbg-test: change do_prints testpoint to accept a loopct
-      dyndbg-API: promote DYNAMIC_DEBUG_CLASSMAP_PARAM to API
-      dyndbg: treat comma as a token separator
-      dyndbg: split multi-query strings with %
-      selftests-dyndbg: add test_mod_submod
-      dyndbg: resolve "protection" of class'd pr_debug
-      dyndbg: harden classmap and descriptor validation
-      docs/dyndbg: add classmap info to howto
-      dyndbg: add epilogue to dynamic_debug/control file
-      drm: use correct ccflags-y spelling
-      drm-dyndbg: adapt drm core to use dyndbg classmaps-v2
-      drm-dyndbg: adapt DRM to invoke DYNAMIC_DEBUG_CLASSMAP_PARAM
-      drm/i915: Register DRM_CLASSMAP_USE(drm_debug_classes)
-      drm-dyndbg: DRM_CLASSMAP_USE in amdgpu driver
-      drm-dyndbg: add DRM_CLASSMAP_USE to virtio_gpu
-      drm-dyndbg: add DRM_CLASSMAP_USE to Xe
-      drm/drm_crtc_helper: Register DRM_CLASSMAP_USE(drm_debug_classes)
-      drm/drm_dp_helper: Register DRM_CLASSMAP_USE(drm_debug_classes)
-      drm/nouveau: Register DRM_CLASSMAP_USE(drm_debug_classes)
-      drm/gma500: Register DRM classmap
-      drm/radeon: Register DRM classmap
-      drm/vmwgfx: Register DRM classmap
-      drm/vkms: Register DRM classmap
-      drm/udl: Register DRM classmap
-      drm/mgag200: Register DRM classmap
-      drm/gud: Register DRM classmap
-      drm/qxl: Register DRM classmap
-      drm/shmem-helper: Register DRM classmap
-      drm/ttm-helper: DRM_CLASSMAP_USE(drm_debug_classes);
-      drm/nouveau: Fix NULL pointer dereferences in GETPARAM ioctl
-      drm/vc4: Register DRM classmap
-      drm/msm: Register DRM classmap
-      drm/hibmc: Register DRM classmap
-      drm/imx: Register DRM classmap
-      drm/mediatek: Register DRM classmap
-      drm/rockchip: Register DRM classmap
-      drm/sti: Register DRM classmap
-      drm/stm: Register DRM classmap
-      accel: add -DDYNAMIC_DEBUG_MODULE to subdir-ccflags
-      accel/ivpu: implement IVPU_DBG_* as a dyndbg classmap
-      accel/ethosu: enable drm.debug control
-      accel/rocket: enable drm.debug control
-      drm/komeda: Register DRM classmap
-      drm/bridge/analogix: Register DRM classmap
-      drm/bridge/dw-hdmi: Register DRM classmap
-      drm/hisilicon/kirin: Register DRM classmap
-      drm/imx/dc: Register DRM classmap
-      drm/imx/dcss: Register DRM classmap
-      drm/logicvc: Register DRM classmap
-      drm/loongson: Register DRM classmap
-      drm/renesas/rcar-du: Register DRM classmap
-      drm/sysfb/simpledrm: Register DRM classmap
-      drm/tests: Register DRM classmap in drm_mm_test
-      drm/ttm: Register DRM classmap
-      drm: restore CONFIG_DRM_USE_DYNAMIC_DEBUG un-BROKEN
-      drm-print: fix config-dependent unused variable
-      drm_print: fix drm_printer dynamic debug bypass
-      drm: enable DRM_USE_DYNAMIC_DEBUG by default (for testing)
-      drm-dyndbg: add DRM_CLASSMAP_USE to etnaviv
-      drm/tiny: panel-mipi-dbi: Add DRM_CLASSMAP_USE
-      drm/bridge: ite-it6505: Add DRM_CLASSMAP_USE
-      drm/mipi-dbi: Add DRM_CLASSMAP_USE
-      drm/clients: Add DRM_CLASSMAP_USE to drm_client_setup
-      dyndbg: add +c flag to demonstrate advantage of classmaps for DRM
+ include/asm-generic/vmlinux.lds.h | 14 +++++++++++---
+ 1 file changed, 11 insertions(+), 3 deletions(-)
 
-Philipp Hahn (1):
-      dyndbg: Ignore additional arguments from pr_fmt
+diff --git a/include/asm-generic/vmlinux.lds.h b/include/asm-generic/vmlinux.lds.h
+index 60c8c22fd3e4..db38f52035f3 100644
+--- a/include/asm-generic/vmlinux.lds.h
++++ b/include/asm-generic/vmlinux.lds.h
+@@ -212,11 +212,13 @@
+ #endif
+ 
+ #define BOUNDED_SECTION_PRE_LABEL(_sec_, _label_, _BEGIN_, _END_)	\
++	. = ALIGN(8);							\
+ 	_BEGIN_##_label_ = .;						\
+ 	KEEP(*(_sec_))							\
+ 	_END_##_label_ = .;
+ 
+ #define BOUNDED_SECTION_POST_LABEL(_sec_, _label_, _BEGIN_, _END_)	\
++	. = ALIGN(8);							\
+ 	_label_##_BEGIN_ = .;						\
+ 	KEEP(*(_sec_))							\
+ 	_label_##_END_ = .;
+@@ -862,15 +864,21 @@
+ #ifdef CONFIG_UNWINDER_ORC
+ #define ORC_UNWIND_TABLE						\
+ 	.orc_header : AT(ADDR(.orc_header) - LOAD_OFFSET) {		\
+-		BOUNDED_SECTION_BY(.orc_header, _orc_header)		\
++		__start_orc_header = .;					\
++		KEEP(*(.orc_header))					\
++		__stop_orc_header = .;					\
+ 	}								\
+ 	. = ALIGN(4);							\
+ 	.orc_unwind_ip : AT(ADDR(.orc_unwind_ip) - LOAD_OFFSET) {	\
+-		BOUNDED_SECTION_BY(.orc_unwind_ip, _orc_unwind_ip)	\
++		__start_orc_unwind_ip = .;				\
++		KEEP(*(.orc_unwind_ip))					\
++		__stop_orc_unwind_ip = .;				\
+ 	}								\
+ 	. = ALIGN(2);							\
+ 	.orc_unwind : AT(ADDR(.orc_unwind) - LOAD_OFFSET) {		\
+-		BOUNDED_SECTION_BY(.orc_unwind, _orc_unwind)		\
++		__start_orc_unwind = .;					\
++		KEEP(*(.orc_unwind))					\
++		__stop_orc_unwind = .;					\
+ 	}								\
+ 	text_size = _etext - _stext;					\
+ 	. = ALIGN(4);							\
 
- Documentation/admin-guide/dynamic-debug-howto.rst  | 184 ++++-
- MAINTAINERS                                        |   4 +-
- drivers/accel/Makefile                             |   7 +-
- drivers/accel/ethosu/ethosu_drv.c                  |   3 +
- drivers/accel/ivpu/ivpu_drv.c                      |  27 +-
- drivers/accel/ivpu/ivpu_drv.h                      |  45 +-
- drivers/accel/rocket/rocket_gem.c                  |   2 +
- drivers/gpu/drm/Kconfig.debug                      |   3 +-
- drivers/gpu/drm/Makefile                           |   3 +-
- drivers/gpu/drm/amd/amdgpu/amdgpu_drv.c            |  12 +-
- drivers/gpu/drm/arm/display/komeda/komeda_drv.c    |   4 +
- drivers/gpu/drm/bridge/analogix/analogix_dp_core.c |   2 +
- drivers/gpu/drm/bridge/ite-it6505.c                |   2 +
- drivers/gpu/drm/bridge/synopsys/dw-hdmi.c          |   2 +
- drivers/gpu/drm/clients/drm_client_setup.c         |   2 +
- drivers/gpu/drm/display/drm_dp_helper.c            |  12 +-
- drivers/gpu/drm/drm_crtc_helper.c                  |  12 +-
- drivers/gpu/drm/drm_gem_shmem_helper.c             |   1 +
- drivers/gpu/drm/drm_gem_ttm_helper.c               |   2 +
- drivers/gpu/drm/drm_mipi_dbi.c                     |   2 +
- drivers/gpu/drm/drm_print.c                        |  40 +-
- drivers/gpu/drm/etnaviv/etnaviv_drv.c              |   2 +
- drivers/gpu/drm/gma500/psb_drv.c                   |   2 +
- drivers/gpu/drm/gud/gud_drv.c                      |   2 +
- drivers/gpu/drm/hisilicon/hibmc/hibmc_drm_drv.c    |   2 +
- drivers/gpu/drm/hisilicon/kirin/kirin_drm_drv.c    |   2 +
- drivers/gpu/drm/i915/i915_params.c                 |  12 +-
- drivers/gpu/drm/imx/dc/dc-drv.c                    |   3 +
- drivers/gpu/drm/imx/dcss/dcss-drv.c                |   3 +
- drivers/gpu/drm/imx/ipuv3/imx-drm-core.c           |   2 +
- drivers/gpu/drm/logicvc/logicvc_drm.c              |   2 +
- drivers/gpu/drm/loongson/lsdc_drv.c                |   2 +
- drivers/gpu/drm/mediatek/mtk_drm_drv.c             |   3 +
- drivers/gpu/drm/mgag200/mgag200_drv.c              |   2 +
- drivers/gpu/drm/msm/msm_drv.c                      |   3 +
- drivers/gpu/drm/nouveau/nouveau_abi16.c            |  25 +-
- drivers/gpu/drm/nouveau/nouveau_drm.c              |  12 +-
- drivers/gpu/drm/qxl/qxl_drv.c                      |   2 +
- drivers/gpu/drm/radeon/radeon_drv.c                |   2 +
- drivers/gpu/drm/renesas/rcar-du/rcar_du_drv.c      |   2 +
- drivers/gpu/drm/rockchip/rockchip_drm_drv.c        |   2 +
- drivers/gpu/drm/sti/sti_drv.c                      |   2 +
- drivers/gpu/drm/stm/drv.c                          |   2 +
- drivers/gpu/drm/sysfb/simpledrm.c                  |   2 +
- drivers/gpu/drm/tests/drm_mm_test.c                |   2 +
- drivers/gpu/drm/tiny/panel-mipi-dbi.c              |   2 +
- drivers/gpu/drm/ttm/ttm_device.c                   |   3 +
- drivers/gpu/drm/udl/udl_main.c                     |   2 +
- drivers/gpu/drm/vc4/vc4_drv.c                      |   2 +
- drivers/gpu/drm/virtio/virtgpu_drv.c               |   2 +
- drivers/gpu/drm/vkms/vkms_drv.c                    |   2 +
- drivers/gpu/drm/vmwgfx/vmwgfx_drv.c                |   2 +
- drivers/gpu/drm/xe/xe_module.c                     |   3 +
- include/asm-generic/bounded_sections.lds.h         |  23 +
- include/asm-generic/dyndbg.lds.h                   |  26 +
- include/asm-generic/vmlinux.lds.h                  |  48 +-
- include/drm/drm_print.h                            |  17 +-
- include/linux/dynamic_debug.h                      | 334 ++++++--
- kernel/module/main.c                               |  15 +-
- lib/Kconfig.debug                                  |  24 +-
- lib/Makefile                                       |   5 +
- lib/dynamic_debug.c                                | 889 ++++++++++++++-------
- lib/test_dynamic_debug.c                           | 211 +++--
- lib/test_dynamic_debug_submod.c                    |  21 +
- scripts/module.lds.S                               |   2 +
- tools/testing/selftests/Makefile                   |   1 +
- tools/testing/selftests/dynamic_debug/Makefile     |   9 +
- tools/testing/selftests/dynamic_debug/config       |   7 +
- .../selftests/dynamic_debug/dyndbg_selftest.sh     | 373 +++++++++
- 69 files changed, 1891 insertions(+), 598 deletions(-)
----
-base-commit: d662a710c668a86a39ebaad334d9960a0cc776c2
-change-id: 20260419-submit-dyndbg-classmap-foundation-a3c77652c054
-
-Best regards,
 -- 
-Jim Cromie <jim.cromie@gmail.com>
+2.53.0
 
