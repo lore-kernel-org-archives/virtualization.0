@@ -1,116 +1,163 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f54.google.com (mail-lf1-f54.google.com [209.85.167.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A48833AD8A
-	for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 07:55:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776930931; cv=none; b=n2Zym2dRGh+f7oFLNB0luQ2Jg2MJy9i+gFZadoCOSnm5v3pMFvlIMBRb9WHVmbeNgKLEYCMBWMLWj1WsTrjomGq1cRkVJ5fS98/LOfqef4GypbYxgJ8F1N8EgYouvLOPUjJxzc7ha+uTk4hTu7q2eptoWm+yoTnoAbtWDttdlbQ=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776930931; c=relaxed/simple;
-	bh=L2WN3Mdkt+PLvtN1w07nhMKHoYH38g1usozRivR3K9Q=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=gBasF7X02zRlFcuwqyVb+3T+gWWWhW3h5S2Y4m01bEQz65KT2p6H/Ca4PdXV2zVkJILXnKD6qJiZZSaJ4/P43L8W0zHxH2eg1WSVQbaD3m21BiLbghjbjbyYRtE5dqyfqQdvHinXonbHlGyH7smkTtlIdWIxBpR4814vMB33I/I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ecoLtfXe; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE5C536495E
+	for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 08:12:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.54
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1776931924; cv=pass; b=Lt2GHYIJRrgJ6xZTd8YIZfjNRxUkwXker8k1nyv1dITs9W8CG99JWS2vxNgo6JXccoG8Olkhj1RDhRTQJIJFE9GqYkCCafvgAzklqv+JZ4AtmRIBqCozE6qxPRpO4wKCp0FTg2k0bksRw3Rbr8g02v52jppcfT9pfSfliR9i8mY=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1776931924; c=relaxed/simple;
+	bh=FBFY+j9O1ezwGMt8wjE4G7Wepfqjb6qbKfE3J0CWqXU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=qQLtaynPkgtFzVPGEeZD+kEZHGNJc3c/3xpYR8dnQxSA4T1FENrlu7hKwSxmOd5987QBWPsVv3/EnRHBLabAq8DhXkT+LkDGJhiiKYfmiHYaqyjZ3tL0BlKn3LISO0AXYjp6Zof7xQlsuO+dS/z66VTUmE5w2JfJUD0OqSBVxyw=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=DCe/AKkA; arc=pass smtp.client-ip=209.85.167.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ecoLtfXe"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1776930929;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=kw0NWAnxiHM/StsVSGBC26LNQSa2ifdysLtA6b6dLbI=;
-	b=ecoLtfXeT8yE7zwVFzHDM4ni+2PCPl76kjsodP3oeDSQniQYsxAgS1Tb2fNVMQMagYK5JK
-	hskeqpusb6pc+qdOmIul/yFWknfqUSnI2a1jS9Igh5CnPDNt/y++u+PFt2QsY9aAPSMdMn
-	4YP1wEQ9q1FLwwPAhlhWQmCAPh/uELg=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-571-Mfq2wLDsMpiTVETGbsWOkw-1; Thu, 23 Apr 2026 03:55:26 -0400
-X-MC-Unique: Mfq2wLDsMpiTVETGbsWOkw-1
-X-Mimecast-MFC-AGG-ID: Mfq2wLDsMpiTVETGbsWOkw_1776930925
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-440d0c4401aso3758094f8f.0
-        for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 00:55:26 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="DCe/AKkA"
+Received: by mail-lf1-f54.google.com with SMTP id 2adb3069b0e04-5a40b2d26a1so4972587e87.0
+        for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 01:12:00 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1776931919; cv=none;
+        d=google.com; s=arc-20240605;
+        b=TQoRaZPrUxMsh7CT+yfvP+XPRYnnpnxyyYe2yyrv0YuZmJBVst7KUlG3TPzYsru58b
+         TZEfHnIyFI4x74sFgPQDnGK15SwLU50jvDd4x6VsojoiyrgBz7CqRZOfWiTMNqTNLhsQ
+         rt0fUUoos3gufP6vIo2ShlGki0IaUr7ul8FevR50tZ4o5e6RNvXNrSVkmrV9Oaa2sN2n
+         6nDdS+MskNq9dcJeH2UNvCCpwbfQ0DtTbBDhEmbV0v9IHkMQ5Ddg65SM6i5tpPBXtJlf
+         h5GOx3sS178OgUWMptlAjBicIj1x1S26qMPe8LbMOlFsgMEwVLiSwMNjuOVKBVwu5w7S
+         ecag==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=b1TJ69eD3+dlZgtU6Q/SGAaN/1k6mZejMgKlXmY0+Uw=;
+        fh=fsHDdsLV4PGdNuCXLs2Cug6BkDsJiQnzXLrG36zAAwM=;
+        b=lYi1vTD5T4LHXHuaRou3O7MJsc3rPn1Mq47Aq6cdjhoRFbI1zyOmkUsrq5nNYx1Mfe
+         OLCLj3T4TTtN5B/bMuOioDSp24og6OFje5mnQYpBzr9AnLkFEvj4QdznSVjeiglSEiVF
+         8OYyq6xyZqq7apJUnT4e0NgNAGRx099k/ppbtJb6mgayM+ZWpjpS/PltgFKighdL3WH/
+         3mA157izIZHar4LAf7C5GataLpLeX6sR6vZNSWX60ni7VFZnq9Pal7/C4XTzcXCiyaPX
+         KP4ZI1vTXT/38tXHcANUx4l8GJyhDiYQZOvog1TzIMAH9iK6EtnRV+jP+rDemjHt3Mdn
+         CwKg==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1776931919; x=1777536719; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=b1TJ69eD3+dlZgtU6Q/SGAaN/1k6mZejMgKlXmY0+Uw=;
+        b=DCe/AKkAClcaSoPqr6sEnn/9FIi0b8TyVi4FGE5slWfGf0F4Dy7hgy6mswFA9XHNM7
+         yo1c7026u3HCDzlnpb2V3Hm8UFZMgUjgPmDoP3tYrbYwGTTkNt8irdoMQH+N6ZTxQ4kq
+         OcsDBMRhhKnuxgT/CzIIbR7qdTSE31yIyXWRHXuWnuwXeT7ldQEaZrg7EA1MjV5yUBz/
+         ebUEwy5Dk+IYr8f9bS+WHR7jSJC6EY9NJ3XxHXYOOw4/CcH+cMT83GAS072m52M2BvTM
+         vY9QIpQ9ba3ugXQU5hKpUf7ilScEQXUaBCyhx6WQd86Z4u1xGz0zDVnH22EmpI1MfO1x
+         6XuQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776930925; x=1777535725;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=kw0NWAnxiHM/StsVSGBC26LNQSa2ifdysLtA6b6dLbI=;
-        b=X/q7yaZVw+xTdzGBAwfgXJvqNuIsk7J4eYhdUuvT0Wgc84YefPx6H7rwnRDNfwoVgF
-         A6FW9aEkU6T0BFTF6GwwlAFu7530Es0XE1BOKDFqrNmB9FoTVbakpZvnlG2fDk9ggv1v
-         apvHwgtRcEowwkcQNt1PRx8EnhV1d+11KiyedsIeQBtYjvC9tZiYODkBd2TqVFdAxzmC
-         WXdNLXMjY2ZFvfzXK5DLmyuCuPTBYcvYT7mORD+oateMMyhPU4nXdvjbkkcN23w2dkHU
-         iZULYjb/RrUhj8YMegTRC7sm3gvDZoyO3vPus6aZYbM0FEHy6frcsT0e2eDCyDqVm0EG
-         tqHA==
-X-Forwarded-Encrypted: i=1; AFNElJ+KfBv/uj11JIbapEjTU44ayYrdi/lKfBaYaPTMTI3CB5pw38bu9bwacbiL5zV8dZ0JqTn00tGQkksy7hGwHw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyOSAFeoek4Ga7PSnWYlsVTlvK72VVgvnef7jiiPvDhHUFVX7no
-	aDU3DHQTuHoZ2lxxZ2rlhd/veD/EY/Wczc71L2YtKdyD4+UX4D76eZ1sZW1o6oXzq8nqlD+7T+9
-	o8IPsNOFjBfvxP96cJNE2giDlggFkZbRCPpggaOFqvLD79LRYU7Uv2oywriRIn1z/m2ao
-X-Gm-Gg: AeBDievxYw7FCmiNCvbJwk6iCge1A2N7DUwdjdNN+vQ+ZS8Qnuzv0FsRFjb4uhjuemv
-	3L5FEyLOXw6iTAzNb2dP+2vwbh2ntPpjbK35L+EUFo3tSkMssvZZBtwq5FHXhCwqUZ7ores7+xy
-	x0/uhKFWIuoSJbYXnJ0uR/cC3oGIkopoK+D966sIxdlEnlnGgKiE7lVycr49C/8pvqeQ4AtYnko
-	KgKuK4Fex6Tl0ApiO47pWiJGgE7yoO+Ito4BVh4mOY6l+i2qqtKeh2T0amohEe1dRd5YNWgtj0n
-	6zd9WLpRfSZPnJAXD3e+SEU48jA+DDeZpeAvqxgDZyilVKfbafaslJM8jJemgobtZUaLs8+EWRO
-	za90xY2AOIMFVf9OSAeD7pkN7QuS9M/xKQe2VZ4zSs+NiqLcCdLoihjUwcQfo7ddt6XFrXlBbc2
-	IxyIjWaw==
-X-Received: by 2002:a05:6000:610:b0:43d:1c21:ead5 with SMTP id ffacd0b85a97d-43fe3e0b4d8mr40520279f8f.22.1776930925156;
-        Thu, 23 Apr 2026 00:55:25 -0700 (PDT)
-X-Received: by 2002:a05:6000:610:b0:43d:1c21:ead5 with SMTP id ffacd0b85a97d-43fe3e0b4d8mr40520207f8f.22.1776930924637;
-        Thu, 23 Apr 2026 00:55:24 -0700 (PDT)
-Received: from sgarzare-redhat (host-87-16-204-83.retail.telecomitalia.it. [87.16.204.83])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4412e36ff8bsm2933844f8f.26.2026.04.23.00.55.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Apr 2026 00:55:23 -0700 (PDT)
-Date: Thu, 23 Apr 2026 09:55:16 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Dexuan Cui <decui@microsoft.com>
-Cc: kys@microsoft.com, haiyangz@microsoft.com, wei.liu@kernel.org, 
-	longli@microsoft.com, davem@davemloft.net, edumazet@google.com, kuba@kernel.org, 
-	pabeni@redhat.com, horms@kernel.org, niuxuewei.nxw@antgroup.com, 
-	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH net v2] hv_sock: Return -EIO for malformed/short packets
-Message-ID: <aenQQpYW6j0BoC69@sgarzare-redhat>
-References: <20260423064811.1371749-1-decui@microsoft.com>
+        d=1e100.net; s=20251104; t=1776931919; x=1777536719;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=b1TJ69eD3+dlZgtU6Q/SGAaN/1k6mZejMgKlXmY0+Uw=;
+        b=GdgyaeLuFgmSm1RSKb2g1L/tr1O9nD6f9jSkCMAwnuSiBeBN1JKee2LYTJ5IElOq0Q
+         0e0nEzDzLk5u7SmR+xKFffDR49fQo5wAeKbOJagMmOWOt6RJCCh9MIu71B2XKMgKrtNW
+         7hgdKdUV3O3dW+GOOYlMRzJ3kpjq833PTmtFa+/V76qMzn2ROpO6JzS2km4yNNRrZyMC
+         mmSA6Htrs68UAkgfsyJahm1R/6echw7EJzU5Zv/FOogpuiH5XMsYIFrvLCALLR+tnXlU
+         AUtHPYRABzlk/VjFded9EZZaFptohk2MZblOsJzKn6v8EbPSndDA7rpb3OBLYzCmHgSU
+         m3zQ==
+X-Forwarded-Encrypted: i=1; AFNElJ8WaW2zIeBo6s0UFn23sk7ToEhFdrxUpKq1zmrUQ7dSrOWHa3hEeLaDhd9V4selc/O0t/ChjFUPh3KR2VFrhQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxtLnvA6aSSsPHuVw9aQ9iAgaSaMIqy4H+fmJUjHCBEaj6ziwWO
+	midJVUIEzFts3t/FoTXbzfSf1IRhAdoBM7Fe8iRhUuwcvl2LYoQ2IHLJkoQwLojg2BSnEfyvmBJ
+	L11WUNUoiVF8zhCdzNM4bwGbXj+/jc3shYC9xmdU3/A==
+X-Gm-Gg: AeBDietU35scWV+Au8+caU2uiYqPX2C/YaqvTChXxYIzEAO8teWqHEgnkYGlD1g8sph
+	pqwT+PYr8SlxrRi/kFfN9yZE+jhtA8GVl1PC09yZJTDdHhsutL7jM9stmagJ0Hm/w4f36+W5abS
+	gQXSRncjZK8wrLGzbtBtYfRYZPsepix7VncAlJVc0X3ueLFILPNmbAsilqg+SxqrHg4RyF+yRdd
+	lwGQDfBEEqn9WM6IzP54JzuH+Q4WiROfnFM93vKw9Lhq5NITtPuMbGORgrzyDg4vZzWazZhbKAv
+	Mtq0yKVFTHk3bwhgGBBnUZ+lYrBlJv2hitY6zIBboDML5TEpM6I=
+X-Received: by 2002:a05:6512:3ba6:b0:5a3:ff60:b72e with SMTP id
+ 2adb3069b0e04-5a4172eac66mr8218916e87.39.1776931918554; Thu, 23 Apr 2026
+ 01:11:58 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260423064811.1371749-1-decui@microsoft.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: VtDXd-z3g4nFnOM0UxRzDWbaPqE-M4_ouD9mFdJLcx8_1776930925
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+References: <20260416192942.1243421-4-atomlin@atomlin.com> <20260420131152.243488-1-marco.crivellari@suse.com>
+ <tfkr5mlsdzbhdzv46ookoy2e7ed2wcozuxanv4wagjf6hqb4sa@7i753lpqkxvp>
+In-Reply-To: <tfkr5mlsdzbhdzv46ookoy2e7ed2wcozuxanv4wagjf6hqb4sa@7i753lpqkxvp>
+From: Marco Crivellari <marco.crivellari@suse.com>
+Date: Thu, 23 Apr 2026 10:11:47 +0200
+X-Gm-Features: AQROBzAAJimGp24FdJwHT7vl8MEKvFnP60qRLQ-HOdwRzLvk1TNgQokO0fGWBCw
+Message-ID: <CAAofZF5+igiyR8vne9We5tnfouuWNO2H=BdwWbFCN+gnpUXoVw@mail.gmail.com>
+Subject: Re: [PATCH v11 03/13] lib/group_cpus: Add group_mask_cpus_evenly()
+To: Aaron Tomlin <atomlin@atomlin.com>
+Cc: James.Bottomley@hansenpartnership.com, MPT-FusionLinux.pdl@broadcom.com, 
+	aacraid@microsemi.com, akpm@linux-foundation.org, axboe@kernel.dk, 
+	bigeasy@linutronix.de, chandrakanth.patil@broadcom.com, chenridong@huawei.com, 
+	chjohnst@gmail.com, frederic@kernel.org, hare@suse.de, hch@lst.de, 
+	jinpu.wang@cloud.ionos.com, juri.lelli@redhat.com, kashyap.desai@broadcom.com, 
+	kbusch@kernel.org, kch@nvidia.com, linux-block@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-nvme@lists.infradead.org, 
+	linux-scsi@vger.kernel.org, liyihang9@h-partners.com, longman@redhat.com, 
+	martin.petersen@oracle.com, maz@kernel.org, megaraidlinux.pdl@broadcom.com, 
+	ming.lei@redhat.com, mingo@redhat.com, mpi3mr-linuxdrv.pdl@broadcom.com, 
+	mproche@gmail.com, mst@redhat.com, neelx@suse.com, nick.lange@gmail.com, 
+	peterz@infradead.org, ranjan.kumar@broadcom.com, ruanjinjie@huawei.com, 
+	sagi@grimberg.me, sathya.prakash@broadcom.com, sean@ashe.io, 
+	shivasharan.srikanteshwara@broadcom.com, sreekanth.reddy@broadcom.com, 
+	steve@abita.co, suganath-prabu.subramani@broadcom.com, 
+	sumit.saxena@broadcom.com, tglx@kernel.org, tom.leiming@gmail.com, 
+	vincent.guittot@linaro.org, virtualization@lists.linux.dev, wagi@kernel.org, 
+	yphbchou0911@gmail.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 22, 2026 at 11:48:11PM -0700, Dexuan Cui wrote:
->Commit f63152958994 fixes a regression, however it fails to report an
->error for malformed/short packets -- normally we should never see such
->packets, but let's report an error for them just in case.
+On Wed, Apr 22, 2026 at 7:47=E2=80=AFPM Aaron Tomlin <atomlin@atomlin.com> =
+wrote:
 >
->Fixes: f63152958994 ("hv_sock: Report EOF instead of -EIO for FIN")
->Cc: stable@vger.kernel.org
->Signed-off-by: Dexuan Cui <decui@microsoft.com>
->---
+> On Mon, Apr 20, 2026 at 03:11:52PM +0200, Marco Crivellari wrote:
+> > Without it, I guess the kmalloc() in `group_mask_cpus_evenly()` will
+> > return ZERO_SIZE_PTR:
 >
->Commit f63152958994 is currently only in net.git's master branch.
+> Hi Marco,
 >
->Changes since v1:
->    Integrated comments from Stefano Garzarella:
+> Thank you for reviewing the patch.
 >
->        1) access 'vsk' directly:
->           s/hvs->vsk->peer_shutdown/vsk->peer_shutdown/
+> You are correct. If numgrps is 0, __do_kmalloc_node() will
+> return ZERO_SIZE_PTR.
 >
->        2) test the error condition first and return -EIO for that.
+> > Should this check be added or it is not needed? Or maybe rely on `ZERO_=
+OR_NULL_PTR()` ?
 >
->    NO other changes.
+>  - File: mm/slub.c
+>
+>     5275 static __always_inline
+>     5276 void *__do_kmalloc_node(size_t size, kmem_buckets *b, gfp_t flag=
+s, int node,
+>     5277                         unsigned long caller)
+>     5278 {
+>     5279         struct kmem_cache *s;
+>     5280         void *ret;
+>      :
+>     5289         if (unlikely(!size))
+>     5290                 return ZERO_SIZE_PTR;
+>      :
+>     5298 }
+>
+> Regarding your suggestion: rather than relying on ZERO_OR_NULL_PTR() afte=
+r
+> the fact, I think it is much cleaner to just add the early exit at the ve=
+ry
+> beginning of the function, exactly as group_cpus_evenly() does. It avoids
+> the allocator path entirely.
 
-Thanks, LGTM!
+Hi,
 
-Acked-by: Stefano Garzarella <sgarzare@redhat.com>
+Cool, I think that's the right thing indeed.
 
+Thanks!
+
+--=20
+
+Marco Crivellari
+
+SUSE Labs
