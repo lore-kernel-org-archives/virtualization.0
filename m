@@ -1,72 +1,67 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f44.google.com (mail-qv1-f44.google.com [209.85.219.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FE973590AE
-	for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 14:46:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 127483126B2
+	for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 14:57:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776955606; cv=none; b=dla+Ra4u4vA/it32DdY7hmwhjq4jPdrt78u/iiIDKJ7GCasMARb9WqR7JddRynJ3CLgEIfmJcDqmUmQI3YQT8/dFGpWFZ4Q0SuOjAy1d5VsusqUkyJm+Fk/7hP4aQsY7A45KrBPcCAMyYsEILIbv3jq9MqFQzGRMA+3UrGVc4uw=
+	t=1776956235; cv=none; b=NviOBpmShOn0dAdmq/+O7w/YOWDzn8SwN3qj5Ti9rMz0jmZQ4dreHT4Ku7qzc8PwF8f+FuJy30/qZ7GNqPvB8DXKI1SLGZaXu4pcLdXyy/ncXeIWQrVAdC6dD2limodQtCrmSJ9ji6oEjffouD07VBuO3TcrKjmjP9ty5l1j5vI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776955606; c=relaxed/simple;
-	bh=FVJvwM5KEFZLpNLphp/KsAxO7UvuDFjnyOYTqZVS/Tg=;
+	s=arc-20240116; t=1776956235; c=relaxed/simple;
+	bh=fIawO2hxPLFjqOkLBkMpxy2zyH+AEclGIIHs3EfYteo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=BL1P9BqPQlF/+h05yz5swq+vh78b8vAIFcmBH3Y7VgklOxd7Utjp/h3m9Cp4bz8zBzwb2Tlqp44JLVAlrP3BnqvB96rVFPvzSHpD/0ILjE4maYCkgaqI0LD8fNNfZ9H05jre7Awegi1OOKi05QGhikeLgCxcB79ZIKQu4GvRVfs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JJrHBp1v; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=S7ucg1T8DNBQC10qU13O5Hs6uLSKBypUjv/aV8SEen7EEiyRse4k/UHIJZuQ9bXZSPaoZdQyvS1i9JaVrRoX7RRGbnIDfz/yTLqND4Pnh0Ue1qbBVqt+x3rEhrlCUs6Dfgg3kRdLoXbXaOkjy2MT4VgNHOHsJuFt8y9jNuT0etQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=N9xWu++n; arc=none smtp.client-ip=209.85.219.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JJrHBp1v"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1776955604;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=l8MfwEpFW90pOYwmA/usmJLfbbJthitR1+FeR/wvevQ=;
-	b=JJrHBp1vvZqx8y4oj+Mm37/zXNiW/9eqa6I53poZSxqFnfFw52Sgx/kNhWwEtAquP39VUt
-	PFTQXNCJP8TaadVpbVayHf+67K5gXEk0BIr0+J4ckS7ypaM6ZRBy9rEkA1SYLB75q1jx2s
-	XLkkivgkUhl2xBtaIR2g1XQeBdCElrA=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-295-WUuZWqrfPOK7EP_IY_5Ltg-1; Thu, 23 Apr 2026 10:46:42 -0400
-X-MC-Unique: WUuZWqrfPOK7EP_IY_5Ltg-1
-X-Mimecast-MFC-AGG-ID: WUuZWqrfPOK7EP_IY_5Ltg_1776955602
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-488cc31ea57so52769405e9.3
-        for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 07:46:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="N9xWu++n"
+Received: by mail-qv1-f44.google.com with SMTP id 6a1803df08f44-8aca6bd57cfso64342496d6.0
+        for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 07:57:13 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gourry.net; s=google; t=1776956233; x=1777561033; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=nAoC6Cd2m8uJEAdJCqdAkQcG7d/SgM3iZ532Fzycwn4=;
+        b=N9xWu++nAtEP8WrBxFHyOPIOXVHIgRhXLv881JfJ1V5vB1remo+75Hj+q5ui3B633K
+         7NpwV3+Gf7MupTtiKsQez3nbofospL4rAg0K+YLT3aBR40zJ5GcTJtID9UIrQNCj2rAT
+         XUk6fVALV73FbliZI6JCCEPHgwPKz/8lM6cTcVtYN02QI7WcGSxGeVkr/5c6GtJ1a03z
+         yTW6Tx/Je0Wk67wgrEHoly5SduBGi4NkF4NZTtqAzFHHAu5w50apZX5AWcIHU4vUC6Xw
+         4TSKiFxfQb3YyPvOPTFGp4VaJY1sg2Xq1aF5+oRKBJmLEwLCyBPLId7fHFEG26QBXk6d
+         IFwQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776955601; x=1777560401;
+        d=1e100.net; s=20251104; t=1776956233; x=1777561033;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=l8MfwEpFW90pOYwmA/usmJLfbbJthitR1+FeR/wvevQ=;
-        b=lnkl7i3h0VHss5vt+ZN6SVGjKoz2ItzUPjSTTstAwpfrQiy7N+RA0TTx07P2/HJ3Fw
-         U4lhH4kDMmGy/wIg2jxvFfj65GA5ytn4m4MR/xqu4pJNO9pw+77M+D86noTsJPmwrL8V
-         IRETTXz7KgtzWdBOmn52d3jmsXUU71e2Kq6XD/X29nzHp1PUerGbEwnvjf7ZBIPXTnBY
-         +9yzZeYX3Qpv4Hv23NkhCk4wK5cgrU5LDwn7NhFkpeOf7khI94QS3HTBCw+1vDGbS89t
-         QVfkBVNexDGbDSKWzNeGtc+q8fLpg0IlqxWfiM7mZZpET+JmIDBUbH7QIcUw30SJNZiS
-         FARg==
-X-Forwarded-Encrypted: i=1; AFNElJ+1QlFJ8LuK93KoIzZof2sh4Tw38HkWS+b+q9xoHEsf6rQ9LQKE6RxT+pNVmwodktHNKFkFnFuIzPKl8nf9+g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzmU/NH0PT0F0crVQGSwqMhQlUcp4HX4eDE8utOQjXW9WyiWEUj
-	hXRn9Yobjy2GRhY2hHGJx2rTlPLIvWOSz4THCYGA2IQ9FhrIS0xNlBDn4ANjB9kddrTnJg8YWqa
-	v21OA1DaUXPZHzh6WZP7G3sprq/UNADyBqozhOFvvAyI+aqRY9OOV1U6qn33AjUUTEAfH
-X-Gm-Gg: AeBDievjPIE2K7lkBeAO+p0br6ya4onaHv9umPJZrDqgdrCGpEm+gUHN0wP5sjSGsq1
-	JAQoZCfbQMaUfiGJ2dRkFtzI4l9vN8kkYP812Ta2LFaZa0tSDO7WUQduTZY9+w4egBqI43vc6qq
-	2aD2FgOJJRZB4+AjEpGR3KrXU6Eqpl7vs5sXfwe/EQDg4NEc3HJBqwj/l3KR6Alya1w49lNNBOL
-	9AZxsgX9+Pa9gDKmbpPKQlzwf/0uaDeMDul5zKJEMsvsqB5ypRBwoF9pnW1m9R1enB9XRXnlUie
-	/ZIi1aWAqbzPn9bSpvFNEIh/yrG5uhh/9REb6UGkkxLhuES5SPYdEOsvpDgu5BU1kI6YAIwRtm+
-	13i3JLOjSczIzua5N36Ia4SDe5PVdjVCidbYYttaNM1VlzOvbKOe6MQ==
-X-Received: by 2002:a05:600c:3553:b0:48a:52f2:a0f1 with SMTP id 5b1f17b1804b1-48a52f2a5f0mr200255835e9.18.1776955601370;
-        Thu, 23 Apr 2026 07:46:41 -0700 (PDT)
-X-Received: by 2002:a05:600c:3553:b0:48a:52f2:a0f1 with SMTP id 5b1f17b1804b1-48a52f2a5f0mr200255085e9.18.1776955600835;
-        Thu, 23 Apr 2026 07:46:40 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-25-21.inter.net.il. [80.230.25.21])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-488fc100162sm540787515e9.5.2026.04.23.07.46.36
+        bh=nAoC6Cd2m8uJEAdJCqdAkQcG7d/SgM3iZ532Fzycwn4=;
+        b=ClAX6UtNZI2rIZ+55mWLp4WYCQG105Tw/GseoM847aqodP4tDVyDNQCEuoAm8BF7fw
+         b3d7LqXRUFkuYYTVQux8EEey9aJ0hoUv4gfXMzAkric2hicUQc7yDr1zRjxQYzKo3mBt
+         3KNUlrd+33ELy6+pguwsmpuMrva3lpUPGoknSVzuJf3SmH9pueVmk9TLPVgTv/W9F17M
+         Mditcm6DtWVQ93UxEhNp3FA7A2uMDV5AF3muBwIDu4yQHUZNId64w6j5dEn9Jr2Kxon0
+         2vqw9t0tfI9d8A1X5mXrwkXtYnWVgxNdhPLd2EZOopV4fhhWDnEEmtNXVEhFGlsUvaVo
+         qw8g==
+X-Forwarded-Encrypted: i=1; AFNElJ9fFyG4i9Q3cObHi7IdJm5V5JM+IXsL1in2rXiXxDpFdTgv4RVjxbtsdN9c0dbjzCuYqwCKe/uE/TNArl/D6w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzBl694UHb2oVYr2kv3JMK07JTThNyDCwotxamU8jrH9pEQOAii
+	0b1FYWHCytRDPErziSNzt6+yux9MesS2+79ymgw9OSacqEO+ucCYGQEc5aMiWO0MuUY=
+X-Gm-Gg: AeBDiev3EoMpJW5mLkMYcsf6k4bwnJnT4m2FNhHSsnQUz+/Z03j9/swH0XQtZiyP6Oo
+	nYDgqCHo5C4Gu2rHJwLGZBqYTRFz7Xu8D3F3AEEs5PY9j3nUQIV+H8zX9lD8thRrzz9xJEZNovS
+	sqfNSkMh8j6VAguCtIisxZCTbcd5yll7phdIbjR7M1KufxyfKcKs4ZnNaPeJDR+okLsm705Hk6u
+	l+ClQxjlYDCC3IgldsTrIluyoRuQc7YI+fs8NkdBnRevD+18h44FRywIUCGrN+2EZpisQPS/9Os
+	AnobKcCrKbWwwLYvBaNqwqUmXw2L3aOYAKYYES8oK5JS6woxz3KABFPJkFPS2coS1tySP3X6OSd
+	sMSRlmwvQ1OsKiQ8n+zBsNw1gYpxJBhOY5uY2wK7EljK+LOFzRDqoLut2JUo/8L5s++CxSV90Bw
+	7CCnSTDksFgRc5TENUJYuRDJXjztQ6CO1UdE+CW4nHeS6YEP3frOY/G3aQ+KX0BpJewoyk0rny2
+	YLf0vWdNvulghSU3I5t
+X-Received: by 2002:a05:6214:4e03:b0:89c:5289:4be6 with SMTP id 6a1803df08f44-8b02805a894mr389230206d6.13.1776956233021;
+        Thu, 23 Apr 2026 07:57:13 -0700 (PDT)
+Received: from gourry-fedora-PF4VCD3F (pool-71-246-228-50.washdc.fios.verizon.net. [71.246.228.50])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8b02ae5c26csm164285926d6.31.2026.04.23.07.57.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Apr 2026 07:46:40 -0700 (PDT)
-Date: Thu, 23 Apr 2026 10:46:34 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
+        Thu, 23 Apr 2026 07:57:12 -0700 (PDT)
+Date: Thu, 23 Apr 2026 10:57:09 -0400
+From: Gregory Price <gourry@gourry.net>
 To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: Gregory Price <gourry@gourry.net>, linux-kernel@vger.kernel.org,
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
 	Andrew Morton <akpm@linux-foundation.org>,
 	Vlastimil Babka <vbabka@kernel.org>,
 	Brendan Jackman <jackmanb@google.com>,
@@ -101,7 +96,7 @@ Cc: Gregory Price <gourry@gourry.net>, linux-kernel@vger.kernel.org,
 	linux-fsdevel@vger.kernel.org
 Subject: Re: [PATCH RFC v3 01/19] mm: thread user_addr through page allocator
  for cache-friendly zeroing
-Message-ID: <20260423104120-mutt-send-email-mst@kernel.org>
+Message-ID: <aeozRZ9AvW2jTQkX@gourry-fedora-PF4VCD3F>
 References: <cover.1776808209.git.mst@redhat.com>
  <9dd9deabd42801f3c344326991d1431c3d8db39d.1776808210.git.mst@redhat.com>
  <aekluxNPxF8CN8fL@gourry-fedora-PF4VCD3F>
@@ -117,24 +112,34 @@ List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <88b0765f-7cfc-4e44-83d2-c01a1755c842@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: O4L8Sahk5tPupkeTHnNrxLg8UHcpdiudn2YV-7fpEvw_1776955602
-X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <88b0765f-7cfc-4e44-83d2-c01a1755c842@kernel.org>
 
 On Thu, Apr 23, 2026 at 04:13:50PM +0200, David Hildenbrand (Arm) wrote:
+> On 4/23/26 15:42, Gregory Price wrote:
+> 
+> Maybe we could forward the vma+addr here and call a vma_alloc_froze_folio() if
+> we have a VMA+addr to have a clean interface.
+> 
 > But really, that hugetlb code is rather messy. I'd vote for leaving hugetlb
 > alone on a v1, and focusing on non-hugetlb first.
+> 
 
-I just dislike it when things are non orthogonal.
-People are used to: hugetlb = same perf as THP but more predictable at the cost
-of being harder to use and using more resources.
-Here, suddenly, we have an optimization but only for THP.
+If we're ok increasing the buddy surface this way, then I'd vote for
+only updating the exact interfaces that MST needs to update for his use
+case in a base set of patches, and then have each additional updated
+location (or logical set of locations) updated in follow-ups.
 
-But sure, we can merge a part of it first.
+My initial go around with this - the patch was hard to read at best.
 
--- 
-MST
+But I also think we should also seriously consider not increasing the
+surface of the buddy.  We already have two patterns (either you need to
+call folio_zero_user() or you don't) and adding the wrappers to handle
+this internally means we have 3.
 
+It's a nice to have, but i'm not sure it decreases maintenance issues.
+
+Just my 2-cents for what it's worth.
+
+~Gregory
