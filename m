@@ -1,283 +1,301 @@
-Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 881993ACA4B
-	for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 17:41:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7752D35966
+	for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 17:56:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776966065; cv=none; b=nz8JaKHZw84S09GhBHK5oFF0DjI3vZt/RIiuhAGu76gKNqmjJPIhT2bHelo9XG5ZGprvPGdf9po2lrq/i7bDPr8DvmygC9WOlE9G9LLbpEFM6VH4p4YX6jLOkNj5UmU8qjCJuf1tR4j0QinhWz8f7qTxZd31jFfzUSumy9/bxj4=
+	t=1776966974; cv=none; b=V7hELG9y0R75S8QssCtYFS27RFb2vxz37ZtoFQcQ95YP70VCcIFsXvV/zVYx93dl1QwffPDzYR3r9yZN3xHTPUr5OWWR+6GdavUCFaX04RTc6yIiqODiqJrgtLgpwEjDWsBSmDZ9DcAlKtIMx8Peol3pAc6Jia1yaCa9s+nvPVk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776966065; c=relaxed/simple;
-	bh=wLKpK3tMbIqIN8Ol6qX8hkN7d3LwE17kRaqy9JLPUw8=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=EPq1BnDOCs0ERDE8DBKn5nd0EVLdYDHwqtVUUOBxJhIyGm/W2GnZYMgTIUDcFj7wzrdhmOXXgfGisiWPVijz6DI29FCdqJltowPMqsN2jWjZpequ5IgkAZwTajEoMIsgf7cEkiHR/Wz3up6da9rmtuICfO9rlhMkd2tdFPVivUs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FwOExEZb; arc=none smtp.client-ip=209.85.210.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1776966974; c=relaxed/simple;
+	bh=MHCLyYmnhbQiKGQwL1kRnRWZZa91MoZwsILrqccXVac=;
+	h=Content-Type:Message-ID:Date:MIME-Version:Subject:To:Cc:
+	 References:From:In-Reply-To; b=j4AZ3un6Ahp7YSVZPf7mOmxycWy9UurHHrQOfbwrPH7hXNUkjbwmHwvL6fAQoFU/VZ+AxG3IKC7UN1ztiVjvcFrGayD3PcUp8Y+GA5p1vH8aftTu5EIjnc0TGHbbFgje/X/G7IxQ9RPPh+gX4JdSPqp5Dp7w/baiyCksEo8J0H8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=axjSqeCb; arc=none smtp.client-ip=192.198.163.17
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FwOExEZb"
-Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-82cebbdbdccso4328770b3a.1
-        for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 10:41:03 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1776966062; x=1777570862; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=jhejpkHi44NTY/EhjfX/VPO4q3I84QLwQ+oZB4nOOiw=;
-        b=FwOExEZbkBlBILTKVaUvrtugkUf1/5jHCR0HBXDi1b6zRZ+JB/Xn2qrAonWTXOt3Oe
-         k2/JaImshDltf+74g+so03lmqAlm8jfF3smN9II0hBfnxf5LzvcXpw/0H9SRTAVQqGHF
-         L/sawfl0GfBCanwaxrcb0ie9DJkMaN55sI5VntNll8atqXqFpdAAcDg6Mk3mNS/9aW/5
-         XJB/8e6ToryEUijf5+o3ifv7FvI2WrCEbvi8wL5AWaFMcScWbcqFNZWoheOwugf/nf6D
-         3ZD87VIPrqnM/kMs779gTnykkO9JKFQozVqbIFpQNIXO5mT/jmY+cfiBo3NK/9urqhRd
-         GbMQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776966062; x=1777570862;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=jhejpkHi44NTY/EhjfX/VPO4q3I84QLwQ+oZB4nOOiw=;
-        b=G0Zk03goSqeZKY5MYqkbnuIyLVcdRzGuit0B7ZBkLGBbqUY6DBzfRr2D/CO21cDRej
-         b9OXhWqeNrQDM5tYzfemTZu+aF9QDxJJud64xBkHcZRQ1tlPoycn2cKNIftqB4QwSquL
-         uwDld8kCydbsdLcXy8HXsXj/Crab+BoOMFbmofaFwQMk52FvHg3Xu3zSgIc8TatY5rzz
-         4DLqxkvTEXE9MRlWHyCWFerRs/eRmqVEXy+aK9wLk8Y5r4JixKGgp9VC7BWAZdZ0bvhD
-         Mws+9JPmc4M9Y03uGq6/6/n1vx0ofdYTli6gQGMycW48hZAYlfsezlQGt3tdjuBDVaEO
-         lxbA==
-X-Forwarded-Encrypted: i=1; AFNElJ+uSzLrDQ5fmyzac7jiBmbzlqkm2el9I4KPgZmr2IWhr53+9ZiXUdBs+dIh+CUzsC7mN4pJDRx+wnbrhcbXfg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzGSUkZzQ/zhacOgg33lZPK9G+DUQY/dxk9Hi+X+7iBnllGRyAm
-	Bs1aHn1cq1tNHV/VQCMRpmcNebfAhhEAYHIq7Db7aiOZ8XI/fEX5x1PFhB63+bMw
-X-Gm-Gg: AeBDietsICEz7G+mmkA12XHBZvMsa5Ngg7oP3eqw61WMsie6n5HuwWeqps+GR+ZmCaY
-	RDbE2RGgLanIeoTiMzhzMof2o30nIPMn7VoeNKoEErxpXEDxtUd3vI7ijPqAVH9t89Y55w+/nPd
-	I5bKtbA2VUD/W0iyjwWMC8BcR42x+dDaaByZ24VPWqliY8Lpt8di2bRsTEytkGmtFJ9WLPrlB+c
-	dJL15nKoZpFQxUs17zFxaKvSB9hVAmc6uJ+45LIq+I1El8WNMRkYef0FxALT/FQ+zjiQ8po8lYk
-	lk2fTiH2ajusWWONKyPEyk5+QotB4QgsSAlP6RYUdMSuG1M3Nf3fmEM50NR+uxjeUdpRCeLTU8v
-	vPlRo8v4kSiQPsAqe1L8fzMYfLhMGph6DsCuF4U/tdhqteyRhBoF7sdKVlUvYPbV1gHhuFWKjTj
-	7PwQqNlbO3CmHdOLzJm7lXhiBGsrJTJFPa2Vjj/R50Ur6LpHGUlV/V2eDkhixrosXtwtNkfQn8w
-	yI73WKWIVxD6TiZUIfRBIADCo/IRcnFNDDywg==
-X-Received: by 2002:a05:6a00:2988:b0:82f:66e8:4257 with SMTP id d2e1a72fcca58-82f8b565509mr24255180b3a.32.1776966061864;
-        Thu, 23 Apr 2026 10:41:01 -0700 (PDT)
-Received: from baver-zenith.localdomain ([124.49.88.131])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82f8ebcc9easm27014498b3a.39.2026.04.23.10.40.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Apr 2026 10:41:01 -0700 (PDT)
-From: Sungho Bae <baver.bae@gmail.com>
-To: mst@redhat.com,
-	jasowang@redhat.com
-Cc: xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Sungho Bae <baver.bae@lge.com>
-Subject: [RFC PATCH v4 4/4] virtio-mmio: wire up noirq system sleep PM callbacks
-Date: Fri, 24 Apr 2026 02:40:39 +0900
-Message-Id: <20260423174039.276-5-baver.bae@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260423174039.276-1-baver.bae@gmail.com>
-References: <20260423174039.276-1-baver.bae@gmail.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="axjSqeCb"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1776966972; x=1808502972;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to;
+  bh=MHCLyYmnhbQiKGQwL1kRnRWZZa91MoZwsILrqccXVac=;
+  b=axjSqeCbj662ZKSd2Z7vkbCofdsIGwPnVXFiPLGaebXQI8k/uPRUF3wZ
+   oBKhxECNzhbeRKGEOuVwfJtsyZHGrZz+Fb9r50pEIDf3kyDMKoN0yfHrq
+   TFdlxoNb2icxKTZX8w2G0QX4/Dy1pL7ra/d3lFh3bACV6DYl0gl0rbJCf
+   pyeZ4lRQUs7k122wh9quQfxI4XE9ozLbBMM+wwU+q9YAY9osUQzpei+YJ
+   QoxBUMNE0KF6pgPKGb69yRAi8ApGPFdcmCY6bVA/QDOaN7P+gxrG8oJlK
+   qHgXVv2LQ9wdcR3lEy5sFS3UQLGvVMWlTznHMa+yEDFwoVvqq7G/HfnbH
+   w==;
+X-CSE-ConnectionGUID: n+OWmSthQbeC8iNW3YkU9A==
+X-CSE-MsgGUID: NKMoC7DDQHeK00NFO7rtIQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11765"; a="77825821"
+X-IronPort-AV: E=Sophos;i="6.23,195,1770624000"; 
+   d="scan'208";a="77825821"
+Received: from fmviesa009.fm.intel.com ([10.60.135.149])
+  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Apr 2026 10:56:11 -0700
+X-CSE-ConnectionGUID: kq5U7E4nTBurAK6FbWX4Fg==
+X-CSE-MsgGUID: c8PrEufTT7GgBg2zPvyWYg==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,195,1770624000"; 
+   d="scan'208";a="226192054"
+Received: from aduenasd-mobl5.amr.corp.intel.com (HELO [10.125.108.10]) ([10.125.108.10])
+  by fmviesa009-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Apr 2026 10:56:10 -0700
+Content-Type: multipart/mixed; boundary="------------TpncX0p2dB2Ohe6Tw0NCcsID"
+Message-ID: <f856051b-10c7-4d65-9dbe-6b1677af74bd@intel.com>
+Date: Thu, 23 Apr 2026 10:56:03 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 7.2 v9 2/2] x86/tlb: skip redundant sync IPIs for native
+ TLB flush
+To: Lance Yang <lance.yang@linux.dev>, akpm@linux-foundation.org
+Cc: peterz@infradead.org, david@kernel.org, dave.hansen@linux.intel.com,
+ ypodemsk@redhat.com, hughd@google.com, will@kernel.org,
+ aneesh.kumar@kernel.org, npiggin@gmail.com, tglx@linutronix.de,
+ mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com,
+ arnd@arndb.de, ljs@kernel.org, ziy@nvidia.com,
+ baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com, npache@redhat.com,
+ ryan.roberts@arm.com, dev.jain@arm.com, baohua@kernel.org,
+ shy828301@gmail.com, riel@surriel.com, jannh@google.com, jgross@suse.com,
+ seanjc@google.com, pbonzini@redhat.com, boris.ostrovsky@oracle.com,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org,
+ linux-arch@vger.kernel.org, linux-mm@kvack.org,
+ linux-kernel@vger.kernel.org, ioworker0@gmail.com
+References: <20260420030851.6735-1-lance.yang@linux.dev>
+ <20260420030851.6735-3-lance.yang@linux.dev>
+Content-Language: en-US
+From: Dave Hansen <dave.hansen@intel.com>
+Autocrypt: addr=dave.hansen@intel.com; keydata=
+ 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
+In-Reply-To: <20260420030851.6735-3-lance.yang@linux.dev>
 
-From: Sungho Bae <baver.bae@lge.com>
+This is a multi-part message in MIME format.
+--------------TpncX0p2dB2Ohe6Tw0NCcsID
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Add noirq system-sleep PM support to the virtio-mmio transport.
+On 4/19/26 20:08, Lance Yang wrote:
+> -	flush_tlb_mm_range(tlb->mm, start, end, stride_shift, tlb->freed_tables);
+> +	/*
+> +	 * Treat unshared_tables just like freed_tables, such that lazy-TLB
+> +	 * CPUs also receive IPIs during unsharing of page tables, allowing
+> +	 * us to safely implement tlb_table_flush_implies_ipi_broadcast().
+> +	 */
+> +	flush_tlb_mm_range(tlb->mm, start, end, stride_shift,
+> +			   tlb->freed_tables || tlb->unshared_tables);
+>  }
 
-This change wires noirq freeze/restore callbacks into virtio-mmio and
-hooks queue reset/reactivation into the transport config ops so virtqueues
-can be reinitialized and reused across suspend/resume.
+I've been staring at this trying to make sense of it for too long.
 
-For legacy (v1) devices, keep GUEST_PAGE_SIZE programming aligned with the
-noirq restore path while avoiding duplicate programming in normal restore.
+Right now, flush_tlb_mm_range() literally has an argument named
+"freed_tables" and "tlb->freed_tables" is passed there. That seems
+totally sane. It's 100% straightforward to follow.
 
-This enables virtio-mmio based devices to participate safely in the noirq
-PM phase, which is required for early-restore users.
+But it makes zero logical sense to me to now mix "tlb->unshared_tables"
+in there. Sure, what you _want_ is the freed_tables==1 behavior from
+tlb->unshared_tables==1, and this obviously hacks that in there, but
+it's not explained well enough and not maintainable like this. IOW, it's
+still just hack.
 
-Signed-off-by: Sungho Bae <baver.bae@lge.com>
----
- drivers/virtio/virtio_mmio.c | 134 ++++++++++++++++++++++++-----------
- 1 file changed, 94 insertions(+), 40 deletions(-)
+I think what's happened here is that info->freed_tables is being
+modified from being strictly related to page table freeing, and moved
+over to a bit which tells TLB flushing implementations whether they can
+respect CPUs in lazy TLB mode.
 
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 595c2274fbb5..1cd262f9f8b6 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -336,6 +336,75 @@ static void vm_del_vqs(struct virtio_device *vdev)
- 	free_irq(platform_get_irq(vm_dev->pdev, 0), vm_dev);
- }
- 
-+static int vm_active_vq(struct virtio_device *vdev, struct virtqueue *vq)
-+{
-+	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-+	int q_num = virtqueue_get_vring_size(vq);
-+
-+	writel(q_num, vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
-+	if (vm_dev->version == 1) {
-+		u64 q_pfn = virtqueue_get_desc_addr(vq) >> PAGE_SHIFT;
-+
-+		/*
-+		 * virtio-mmio v1 uses a 32bit QUEUE PFN. If we have something
-+		 * that doesn't fit in 32bit, fail the setup rather than
-+		 * pretending to be successful.
-+		 */
-+		if (q_pfn >> 32) {
-+			dev_err(&vdev->dev,
-+				"platform bug: legacy virtio-mmio must not be used with RAM above 0x%llxGB\n",
-+				0x1ULL << (32 + PAGE_SHIFT - 30));
-+			return -E2BIG;
-+		}
-+
-+		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_QUEUE_ALIGN);
-+		writel(q_pfn, vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
-+	} else {
-+		u64 addr;
-+
-+		addr = virtqueue_get_desc_addr(vq);
-+		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_LOW);
-+		writel((u32)(addr >> 32),
-+				vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_HIGH);
-+
-+		addr = virtqueue_get_avail_addr(vq);
-+		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_LOW);
-+		writel((u32)(addr >> 32),
-+				vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_HIGH);
-+
-+		addr = virtqueue_get_used_addr(vq);
-+		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_USED_LOW);
-+		writel((u32)(addr >> 32),
-+				vm_dev->base + VIRTIO_MMIO_QUEUE_USED_HIGH);
-+
-+		writel(1, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
-+	}
-+
-+	return 0;
-+}
-+
-+static int vm_reset_vqs(struct virtio_device *vdev)
-+{
-+	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-+	struct virtqueue *vq;
-+	int err;
-+
-+	virtio_device_for_each_vq(vdev, vq) {
-+		/* Re-initialize vring state */
-+		virtqueue_reinit_vring(vq);
-+
-+		/* Select the queue we're interested in */
-+		writel(vq->index, vm_dev->base + VIRTIO_MMIO_QUEUE_SEL);
-+
-+		/* Activate the queue */
-+		err = vm_active_vq(vdev, vq);
-+		if (err < 0)
-+			return err;
-+	}
-+
-+	return 0;
-+}
-+
- static void vm_synchronize_cbs(struct virtio_device *vdev)
- {
- 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-@@ -388,45 +457,9 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
- 	vq->num_max = num;
- 
- 	/* Activate the queue */
--	writel(virtqueue_get_vring_size(vq), vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
--	if (vm_dev->version == 1) {
--		u64 q_pfn = virtqueue_get_desc_addr(vq) >> PAGE_SHIFT;
--
--		/*
--		 * virtio-mmio v1 uses a 32bit QUEUE PFN. If we have something
--		 * that doesn't fit in 32bit, fail the setup rather than
--		 * pretending to be successful.
--		 */
--		if (q_pfn >> 32) {
--			dev_err(&vdev->dev,
--				"platform bug: legacy virtio-mmio must not be used with RAM above 0x%llxGB\n",
--				0x1ULL << (32 + PAGE_SHIFT - 30));
--			err = -E2BIG;
--			goto error_bad_pfn;
--		}
--
--		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_QUEUE_ALIGN);
--		writel(q_pfn, vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
--	} else {
--		u64 addr;
--
--		addr = virtqueue_get_desc_addr(vq);
--		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_LOW);
--		writel((u32)(addr >> 32),
--				vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_HIGH);
--
--		addr = virtqueue_get_avail_addr(vq);
--		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_LOW);
--		writel((u32)(addr >> 32),
--				vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_HIGH);
--
--		addr = virtqueue_get_used_addr(vq);
--		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_USED_LOW);
--		writel((u32)(addr >> 32),
--				vm_dev->base + VIRTIO_MMIO_QUEUE_USED_HIGH);
--
--		writel(1, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
--	}
-+	err = vm_active_vq(vdev, vq);
-+	if (err < 0)
-+		goto error_bad_pfn;
- 
- 	return vq;
- 
-@@ -528,11 +561,13 @@ static const struct virtio_config_ops virtio_mmio_config_ops = {
- 	.reset		= vm_reset,
- 	.find_vqs	= vm_find_vqs,
- 	.del_vqs	= vm_del_vqs,
-+	.reset_vqs	= vm_reset_vqs,
- 	.get_features	= vm_get_features,
- 	.finalize_features = vm_finalize_features,
- 	.bus_name	= vm_bus_name,
- 	.get_shm_region = vm_get_shm_region,
- 	.synchronize_cbs = vm_synchronize_cbs,
-+	.noirq_safe	= true,
- };
- 
- #ifdef CONFIG_PM_SLEEP
-@@ -547,14 +582,33 @@ static int virtio_mmio_restore(struct device *dev)
- {
- 	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
- 
--	if (vm_dev->version == 1)
-+	if (vm_dev->version == 1 && !vm_dev->vdev.noirq_restore_done)
- 		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
- 
- 	return virtio_device_restore(&vm_dev->vdev);
- }
- 
-+static int virtio_mmio_freeze_noirq(struct device *dev)
-+{
-+	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
-+
-+	return virtio_device_freeze_noirq(&vm_dev->vdev);
-+}
-+
-+static int virtio_mmio_restore_noirq(struct device *dev)
-+{
-+	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
-+
-+	if (vm_dev->version == 1)
-+		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
-+
-+	return virtio_device_restore_noirq(&vm_dev->vdev);
-+}
-+
- static const struct dev_pm_ops virtio_mmio_pm_ops = {
- 	SET_SYSTEM_SLEEP_PM_OPS(virtio_mmio_freeze, virtio_mmio_restore)
-+	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(virtio_mmio_freeze_noirq,
-+				      virtio_mmio_restore_noirq)
- };
- #endif
- 
--- 
-2.43.0
+It's mentioned in the comment, but then ever reflected into the code.
 
+Shouldn't we be doing something like the attached patch? Look at how
+that maps over to the flushing side, like in the hyperv code:
+
+> -       bool do_lazy = !info->freed_tables;
+> +       bool do_lazy = !info->wake_lazy_cpus;
+>  
+>         trace_hyperv_mmu_flush_tlb_multi(cpus, info);
+>  
+> @@ -198,7 +198,7 @@ static u64 hyperv_flush_tlb_others_ex(co
+>  
+>         flush->hv_vp_set.format = HV_GENERIC_SET_SPARSE_4K;
+>         nr_bank = cpumask_to_vpset_skip(&flush->hv_vp_set, cpus,
+> -                       info->freed_tables ? NULL : cpu_is_lazy);
+> +                       info->wake_lazy_cpus ? NULL : cpu_is_lazy);
+
+That even makes the hyperv code easier to read over what was there
+before, IMNHO.
+
+Thoughts?
+--------------TpncX0p2dB2Ohe6Tw0NCcsID
+Content-Type: text/x-patch; charset=UTF-8;
+ name="flush_tlb_mm_range-lazy.patch"
+Content-Disposition: attachment; filename="flush_tlb_mm_range-lazy.patch"
+Content-Transfer-Encoding: base64
+
+CgotLS0KCiBiL2FyY2gveDg2L2h5cGVydi9tbXUuYyAgICAgICAgICAgfCAgICA0ICsrLS0K
+IGIvYXJjaC94ODYvaW5jbHVkZS9hc20vdGxiLmggICAgICB8ICAgMTEgKysrKysrKysrKy0K
+IGIvYXJjaC94ODYvaW5jbHVkZS9hc20vdGxiZmx1c2guaCB8ICAgIDQgKystLQogYi9hcmNo
+L3g4Ni9tbS90bGIuYyAgICAgICAgICAgICAgIHwgICAyOSArKysrKysrKysrKysrLS0tLS0t
+LS0tLS0tLS0tLQogNCBmaWxlcyBjaGFuZ2VkLCAyNyBpbnNlcnRpb25zKCspLCAyMSBkZWxl
+dGlvbnMoLSkKCmRpZmYgLXB1TiBhcmNoL3g4Ni9tbS90bGIuY35mbHVzaF90bGJfbW1fcmFu
+Z2UtbGF6eSBhcmNoL3g4Ni9tbS90bGIuYwotLS0gYS9hcmNoL3g4Ni9tbS90bGIuY35mbHVz
+aF90bGJfbW1fcmFuZ2UtbGF6eQkyMDI2LTA0LTIzIDEwOjM3OjQ5Ljc0NTgzOTIyNCAtMDcw
+MAorKysgYi9hcmNoL3g4Ni9tbS90bGIuYwkyMDI2LTA0LTIzIDEwOjQ1OjI1LjY3MDg4MDIy
+NiAtMDcwMApAQCAtMTMzOSwxNiArMTMzOSwxMiBAQCBTVEFUSUNfTk9QViB2b2lkIG5hdGl2
+ZV9mbHVzaF90bGJfbXVsdGkoCiAJCQkJKGluZm8tPmVuZCAtIGluZm8tPnN0YXJ0KSA+PiBQ
+QUdFX1NISUZUKTsKIAogCS8qCi0JICogSWYgbm8gcGFnZSB0YWJsZXMgd2VyZSBmcmVlZCwg
+d2UgY2FuIHNraXAgc2VuZGluZyBJUElzIHRvCi0JICogQ1BVcyBpbiBsYXp5IFRMQiBtb2Rl
+LiBUaGV5IHdpbGwgZmx1c2ggdGhlIENQVSB0aGVtc2VsdmVzCi0JICogYXQgdGhlIG5leHQg
+Y29udGV4dCBzd2l0Y2guCi0JICoKLQkgKiBIb3dldmVyLCBpZiBwYWdlIHRhYmxlcyBhcmUg
+Z2V0dGluZyBmcmVlZCwgd2UgbmVlZCB0byBzZW5kIHRoZQotCSAqIElQSSBldmVyeXdoZXJl
+LCB0byBwcmV2ZW50IENQVXMgaW4gbGF6eSBUTEIgbW9kZSBmcm9tIHRyaXBwaW5nCi0JICog
+dXAgb24gdGhlIG5ldyBjb250ZW50cyBvZiB3aGF0IHVzZWQgdG8gYmUgcGFnZSB0YWJsZXMs
+IHdoaWxlCi0JICogZG9pbmcgYSBzcGVjdWxhdGl2ZSBtZW1vcnkgYWNjZXNzLgorCSAqIFNp
+bXBsZSBUTEIgZmx1c2hlcyBjYW4gYXZvaWQgc2VuZGluZyBJUElzIHRvIENQVXMgaW4gbGF6
+eQorCSAqIFRMQiBtb2RlLiBCdXQgc29tZSBvcGVyYXRpb25zIGxpa2UgZnJlZWluZyBwYWdl
+IHRhYmxlcworCSAqIGNvdWxkIGxlYXZlIGRhbmdlcm91cyBzdGF0ZSBpbiBwYWdpbmcgc3Ry
+dWN0dXJlIGNhY2hlcy4KKwkgKiBTZW5kIElQSXMgZXZlbiB0byBsYXp5IENQVXMgd2hlbiBu
+ZWNlc3NhcnkuCiAJICovCi0JaWYgKGluZm8tPmZyZWVkX3RhYmxlcyB8fCBtbV9pbl9hc2lk
+X3RyYW5zaXRpb24oaW5mby0+bW0pKQorCWlmIChpbmZvLT53YWtlX2xhenlfY3B1cyB8fCBt
+bV9pbl9hc2lkX3RyYW5zaXRpb24oaW5mby0+bW0pKQogCQlvbl9lYWNoX2NwdV9tYXNrKGNw
+dW1hc2ssIGZsdXNoX3RsYl9mdW5jLCAodm9pZCAqKWluZm8sIHRydWUpOwogCWVsc2UKIAkJ
+b25fZWFjaF9jcHVfY29uZF9tYXNrKHNob3VsZF9mbHVzaF90bGIsIGZsdXNoX3RsYl9mdW5j
+LApAQCAtMTM4MSw3ICsxMzc3LDcgQEAgc3RhdGljIERFRklORV9QRVJfQ1BVKHVuc2lnbmVk
+IGludCwgZmx1cwogCiBzdGF0aWMgc3RydWN0IGZsdXNoX3RsYl9pbmZvICpnZXRfZmx1c2hf
+dGxiX2luZm8oc3RydWN0IG1tX3N0cnVjdCAqbW0sCiAJCQl1bnNpZ25lZCBsb25nIHN0YXJ0
+LCB1bnNpZ25lZCBsb25nIGVuZCwKLQkJCXVuc2lnbmVkIGludCBzdHJpZGVfc2hpZnQsIGJv
+b2wgZnJlZWRfdGFibGVzLAorCQkJdW5zaWduZWQgaW50IHN0cmlkZV9zaGlmdCwgYm9vbCB3
+YWtlX2xhenlfY3B1cywKIAkJCXU2NCBuZXdfdGxiX2dlbikKIHsKIAlzdHJ1Y3QgZmx1c2hf
+dGxiX2luZm8gKmluZm8gPSB0aGlzX2NwdV9wdHIoJmZsdXNoX3RsYl9pbmZvKTsKQEAgLTE0
+MDgsNyArMTQwNCw3IEBAIHN0YXRpYyBzdHJ1Y3QgZmx1c2hfdGxiX2luZm8gKmdldF9mbHVz
+aF8KIAlpbmZvLT5lbmQJCT0gZW5kOwogCWluZm8tPm1tCQk9IG1tOwogCWluZm8tPnN0cmlk
+ZV9zaGlmdAk9IHN0cmlkZV9zaGlmdDsKLQlpbmZvLT5mcmVlZF90YWJsZXMJPSBmcmVlZF90
+YWJsZXM7CisJaW5mby0+d2FrZV9sYXp5X2NwdXMJPSB3YWtlX2xhenlfY3B1czsKIAlpbmZv
+LT5uZXdfdGxiX2dlbgk9IG5ld190bGJfZ2VuOwogCWluZm8tPmluaXRpYXRpbmdfY3B1CT0g
+c21wX3Byb2Nlc3Nvcl9pZCgpOwogCWluZm8tPnRyaW1fY3B1bWFzawk9IDA7CkBAIC0xNDI3
+LDcgKzE0MjMsNyBAQCBzdGF0aWMgdm9pZCBwdXRfZmx1c2hfdGxiX2luZm8odm9pZCkKIAog
+dm9pZCBmbHVzaF90bGJfbW1fcmFuZ2Uoc3RydWN0IG1tX3N0cnVjdCAqbW0sIHVuc2lnbmVk
+IGxvbmcgc3RhcnQsCiAJCQkJdW5zaWduZWQgbG9uZyBlbmQsIHVuc2lnbmVkIGludCBzdHJp
+ZGVfc2hpZnQsCi0JCQkJYm9vbCBmcmVlZF90YWJsZXMpCisJCQkJYm9vbCB3YWtlX2xhenlf
+Y3B1cykKIHsKIAlzdHJ1Y3QgZmx1c2hfdGxiX2luZm8gKmluZm87CiAJaW50IGNwdSA9IGdl
+dF9jcHUoKTsKQEAgLTE0MzYsNyArMTQzMiw3IEBAIHZvaWQgZmx1c2hfdGxiX21tX3Jhbmdl
+KHN0cnVjdCBtbV9zdHJ1Y3QKIAkvKiBUaGlzIGlzIGFsc28gYSBiYXJyaWVyIHRoYXQgc3lu
+Y2hyb25pemVzIHdpdGggc3dpdGNoX21tKCkuICovCiAJbmV3X3RsYl9nZW4gPSBpbmNfbW1f
+dGxiX2dlbihtbSk7CiAKLQlpbmZvID0gZ2V0X2ZsdXNoX3RsYl9pbmZvKG1tLCBzdGFydCwg
+ZW5kLCBzdHJpZGVfc2hpZnQsIGZyZWVkX3RhYmxlcywKKwlpbmZvID0gZ2V0X2ZsdXNoX3Rs
+Yl9pbmZvKG1tLCBzdGFydCwgZW5kLCBzdHJpZGVfc2hpZnQsIHdha2VfbGF6eV9jcHVzLAog
+CQkJCSAgbmV3X3RsYl9nZW4pOwogCiAJLyoKQEAgLTE1MjgsMTAgKzE1MjQsMTEgQEAgc3Rh
+dGljIHZvaWQga2VybmVsX3RsYl9mbHVzaF9yYW5nZShzdHJ1Ywogdm9pZCBmbHVzaF90bGJf
+a2VybmVsX3JhbmdlKHVuc2lnbmVkIGxvbmcgc3RhcnQsIHVuc2lnbmVkIGxvbmcgZW5kKQog
+ewogCXN0cnVjdCBmbHVzaF90bGJfaW5mbyAqaW5mbzsKKwlib29sIHdha2VfbGF6eV9jcHVz
+ID0gZmFsc2U7CiAKIAlndWFyZChwcmVlbXB0KSgpOwogCi0JaW5mbyA9IGdldF9mbHVzaF90
+bGJfaW5mbyhOVUxMLCBzdGFydCwgZW5kLCBQQUdFX1NISUZULCBmYWxzZSwKKwlpbmZvID0g
+Z2V0X2ZsdXNoX3RsYl9pbmZvKE5VTEwsIHN0YXJ0LCBlbmQsIFBBR0VfU0hJRlQsIHdha2Vf
+bGF6eV9jcHVzLAogCQkJCSAgVExCX0dFTkVSQVRJT05fSU5WQUxJRCk7CiAKIAlpZiAoaW5m
+by0+ZW5kID09IFRMQl9GTFVTSF9BTEwpCkBAIC0xNzA4LDEwICsxNzA1LDEwIEBAIEVYUE9S
+VF9TWU1CT0xfRk9SX0tWTShfX2ZsdXNoX3RsYl9hbGwpOwogdm9pZCBhcmNoX3RsYmJhdGNo
+X2ZsdXNoKHN0cnVjdCBhcmNoX3RsYmZsdXNoX3VubWFwX2JhdGNoICpiYXRjaCkKIHsKIAlz
+dHJ1Y3QgZmx1c2hfdGxiX2luZm8gKmluZm87Ci0KKwlib29sIHdha2VfbGF6eV9jcHVzID0g
+ZmFsc2U7CiAJaW50IGNwdSA9IGdldF9jcHUoKTsKIAotCWluZm8gPSBnZXRfZmx1c2hfdGxi
+X2luZm8oTlVMTCwgMCwgVExCX0ZMVVNIX0FMTCwgMCwgZmFsc2UsCisJaW5mbyA9IGdldF9m
+bHVzaF90bGJfaW5mbyhOVUxMLCAwLCBUTEJfRkxVU0hfQUxMLCAwLCB3YWtlX2xhenlfY3B1
+cywKIAkJCQkgIFRMQl9HRU5FUkFUSU9OX0lOVkFMSUQpOwogCS8qCiAJICogZmx1c2hfdGxi
+X211bHRpKCkgaXMgbm90IG9wdGltaXplZCBmb3IgdGhlIGNvbW1vbiBjYXNlIGluIHdoaWNo
+IG9ubHkKZGlmZiAtcHVOIGFyY2gveDg2L2luY2x1ZGUvYXNtL3RsYmZsdXNoLmh+Zmx1c2hf
+dGxiX21tX3JhbmdlLWxhenkgYXJjaC94ODYvaW5jbHVkZS9hc20vdGxiZmx1c2guaAotLS0g
+YS9hcmNoL3g4Ni9pbmNsdWRlL2FzbS90bGJmbHVzaC5ofmZsdXNoX3RsYl9tbV9yYW5nZS1s
+YXp5CTIwMjYtMDQtMjMgMTA6Mzg6MDIuMDg4Mjk1ODIwIC0wNzAwCisrKyBiL2FyY2gveDg2
+L2luY2x1ZGUvYXNtL3RsYmZsdXNoLmgJMjAyNi0wNC0yMyAxMDozOTo0MC45Nzk5NjU4NjMg
+LTA3MDAKQEAgLTI0Nyw3ICsyNDcsNyBAQCBzdHJ1Y3QgZmx1c2hfdGxiX2luZm8gewogCXU2
+NAkJCW5ld190bGJfZ2VuOwogCXVuc2lnbmVkIGludAkJaW5pdGlhdGluZ19jcHU7CiAJdTgJ
+CQlzdHJpZGVfc2hpZnQ7Ci0JdTgJCQlmcmVlZF90YWJsZXM7CisJdTgJCQl3YWtlX2xhenlf
+Y3B1czsKIAl1OAkJCXRyaW1fY3B1bWFzazsKIH07CiAKQEAgLTMzNyw3ICszMzcsNyBAQCBz
+dGF0aWMgaW5saW5lIGJvb2wgbW1faW5fYXNpZF90cmFuc2l0aW9uCiBleHRlcm4gdm9pZCBm
+bHVzaF90bGJfYWxsKHZvaWQpOwogZXh0ZXJuIHZvaWQgZmx1c2hfdGxiX21tX3JhbmdlKHN0
+cnVjdCBtbV9zdHJ1Y3QgKm1tLCB1bnNpZ25lZCBsb25nIHN0YXJ0LAogCQkJCXVuc2lnbmVk
+IGxvbmcgZW5kLCB1bnNpZ25lZCBpbnQgc3RyaWRlX3NoaWZ0LAotCQkJCWJvb2wgZnJlZWRf
+dGFibGVzKTsKKwkJCQlib29sIHdha2VfbGF6eV9jcHVzKTsKIGV4dGVybiB2b2lkIGZsdXNo
+X3RsYl9rZXJuZWxfcmFuZ2UodW5zaWduZWQgbG9uZyBzdGFydCwgdW5zaWduZWQgbG9uZyBl
+bmQpOwogCiBzdGF0aWMgaW5saW5lIHZvaWQgZmx1c2hfdGxiX3BhZ2Uoc3RydWN0IHZtX2Fy
+ZWFfc3RydWN0ICp2bWEsIHVuc2lnbmVkIGxvbmcgYSkKZGlmZiAtcHVOIGFyY2gveDg2L2lu
+Y2x1ZGUvYXNtL3RsYi5ofmZsdXNoX3RsYl9tbV9yYW5nZS1sYXp5IGFyY2gveDg2L2luY2x1
+ZGUvYXNtL3RsYi5oCi0tLSBhL2FyY2gveDg2L2luY2x1ZGUvYXNtL3RsYi5ofmZsdXNoX3Rs
+Yl9tbV9yYW5nZS1sYXp5CTIwMjYtMDQtMjMgMTA6NDc6MDEuMjIxNDgzODc4IC0wNzAwCisr
+KyBiL2FyY2gveDg2L2luY2x1ZGUvYXNtL3RsYi5oCTIwMjYtMDQtMjMgMTA6NDk6MjYuNzQ2
+OTg1NjE2IC0wNzAwCkBAIC0xNCwxMyArMTQsMjIgQEAgc3RhdGljIGlubGluZSB2b2lkIHRs
+Yl9mbHVzaChzdHJ1Y3QgbW11XwogewogCXVuc2lnbmVkIGxvbmcgc3RhcnQgPSAwVUwsIGVu
+ZCA9IFRMQl9GTFVTSF9BTEw7CiAJdW5zaWduZWQgaW50IHN0cmlkZV9zaGlmdCA9IHRsYl9n
+ZXRfdW5tYXBfc2hpZnQodGxiKTsKKwlib29sIHdha2VfbGF6eV9jcHVzOwogCiAJaWYgKCF0
+bGItPmZ1bGxtbSAmJiAhdGxiLT5uZWVkX2ZsdXNoX2FsbCkgewogCQlzdGFydCA9IHRsYi0+
+c3RhcnQ7CiAJCWVuZCA9IHRsYi0+ZW5kOwogCX0KIAotCWZsdXNoX3RsYl9tbV9yYW5nZSh0
+bGItPm1tLCBzdGFydCwgZW5kLCBzdHJpZGVfc2hpZnQsIHRsYi0+ZnJlZWRfdGFibGVzKTsK
+KwkvKgorCSAqIEVuc3VyZSBhbGwgcGFnaW5nIHN0cnVjdHVyZSBjYWNoZXMgb24gYWxsIENQ
+VXMgYXJlIGZsdXNoZWQKKwkgKiB3aGVuIGZyZWVpbmcgcGFnZSB0YWJsZXMuIE90aGVyd2lz
+ZSwgYSBsYXp5IENQVSBtaWdodCB3YWtlCisJICogdXAgYW5kIHN0YXJ0IHdhbGtpbmcgcHJl
+dmlvdXNseS1mcmVlZCBwYWdlIHRhYmxlcyBhbmQKKwkgKiBjYWNoaW5nIGdhcmJhZ2UuCisJ
+ICovCisJd2FrZV9sYXp5X2NwdXMgPSB0bGItPmZyZWVkX3RhYmxlczsKKworCWZsdXNoX3Rs
+Yl9tbV9yYW5nZSh0bGItPm1tLCBzdGFydCwgZW5kLCBzdHJpZGVfc2hpZnQsIHdha2VfbGF6
+eV9jcHVzKTsKIH0KIAogc3RhdGljIGlubGluZSB2b2lkIGludmxwZyh1bnNpZ25lZCBsb25n
+IGFkZHIpCmRpZmYgLXB1TiBhcmNoL3g4Ni9oeXBlcnYvbW11LmN+Zmx1c2hfdGxiX21tX3Jh
+bmdlLWxhenkgYXJjaC94ODYvaHlwZXJ2L21tdS5jCi0tLSBhL2FyY2gveDg2L2h5cGVydi9t
+bXUuY35mbHVzaF90bGJfbW1fcmFuZ2UtbGF6eQkyMDI2LTA0LTIzIDEwOjUzOjA1LjI1MTI2
+ODkxMSAtMDcwMAorKysgYi9hcmNoL3g4Ni9oeXBlcnYvbW11LmMJMjAyNi0wNC0yMyAxMDo1
+MzoyOC42MjIxNTYxMjEgLTA3MDAKQEAgLTYzLDcgKzYzLDcgQEAgc3RhdGljIHZvaWQgaHlw
+ZXJ2X2ZsdXNoX3RsYl9tdWx0aShjb25zdAogCXN0cnVjdCBodl90bGJfZmx1c2ggKmZsdXNo
+OwogCXU2NCBzdGF0dXM7CiAJdW5zaWduZWQgbG9uZyBmbGFnczsKLQlib29sIGRvX2xhenkg
+PSAhaW5mby0+ZnJlZWRfdGFibGVzOworCWJvb2wgZG9fbGF6eSA9ICFpbmZvLT53YWtlX2xh
+enlfY3B1czsKIAogCXRyYWNlX2h5cGVydl9tbXVfZmx1c2hfdGxiX211bHRpKGNwdXMsIGlu
+Zm8pOwogCkBAIC0xOTgsNyArMTk4LDcgQEAgc3RhdGljIHU2NCBoeXBlcnZfZmx1c2hfdGxi
+X290aGVyc19leChjbwogCiAJZmx1c2gtPmh2X3ZwX3NldC5mb3JtYXQgPSBIVl9HRU5FUklD
+X1NFVF9TUEFSU0VfNEs7CiAJbnJfYmFuayA9IGNwdW1hc2tfdG9fdnBzZXRfc2tpcCgmZmx1
+c2gtPmh2X3ZwX3NldCwgY3B1cywKLQkJCWluZm8tPmZyZWVkX3RhYmxlcyA/IE5VTEwgOiBj
+cHVfaXNfbGF6eSk7CisJCQlpbmZvLT53YWtlX2xhenlfY3B1cyA/IE5VTEwgOiBjcHVfaXNf
+bGF6eSk7CiAJaWYgKG5yX2JhbmsgPCAwKQogCQlyZXR1cm4gSFZfU1RBVFVTX0lOVkFMSURf
+UEFSQU1FVEVSOwogCl8K
+
+--------------TpncX0p2dB2Ohe6Tw0NCcsID--
