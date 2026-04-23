@@ -1,301 +1,293 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.17])
+Received: from mx0a-0031df01.pphosted.com (mx0a-0031df01.pphosted.com [205.220.168.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7752D35966
-	for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 17:56:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.17
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0B39B3603D9
+	for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 18:02:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.168.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776966974; cv=none; b=V7hELG9y0R75S8QssCtYFS27RFb2vxz37ZtoFQcQ95YP70VCcIFsXvV/zVYx93dl1QwffPDzYR3r9yZN3xHTPUr5OWWR+6GdavUCFaX04RTc6yIiqODiqJrgtLgpwEjDWsBSmDZ9DcAlKtIMx8Peol3pAc6Jia1yaCa9s+nvPVk=
+	t=1776967364; cv=none; b=eXG1n4N0n4tr5k8oTGgCUd9K8GxlaPeQilT1sZH9EG+h79uyN4AIAeCJRWFnNHe/L0FXSRe6l3NnweH3W3zokibd8Rys/8C1CFblLkVbrAhnnPJH1fpdxQnpRuK6PMv0yRBTH3TE3iINPOaxSzk4eCoGAyzRUt7gp6IxUogI0K0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776966974; c=relaxed/simple;
-	bh=MHCLyYmnhbQiKGQwL1kRnRWZZa91MoZwsILrqccXVac=;
-	h=Content-Type:Message-ID:Date:MIME-Version:Subject:To:Cc:
-	 References:From:In-Reply-To; b=j4AZ3un6Ahp7YSVZPf7mOmxycWy9UurHHrQOfbwrPH7hXNUkjbwmHwvL6fAQoFU/VZ+AxG3IKC7UN1ztiVjvcFrGayD3PcUp8Y+GA5p1vH8aftTu5EIjnc0TGHbbFgje/X/G7IxQ9RPPh+gX4JdSPqp5Dp7w/baiyCksEo8J0H8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=axjSqeCb; arc=none smtp.client-ip=192.198.163.17
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1776967364; c=relaxed/simple;
+	bh=B8pi58elRtqxuENkeRM5CjB/0M9jad0ChC9yB/j4xfE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=E56ubEfuVbMO4699lqVbo4BGoCO/s652o0a52ZDFCy09f3UwPDvK17fsL+9k3Ze5/NLIYUsRMuX3IfWt67y761t9zoaz0OhqTkRRYiOk8rCxqpmxx/h7iVQ54yBk02oAAQRB/s6jsUly/rYEhvSTaecEmhzoCQJpIdptZ6I7Efo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=YdbQNt+C; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=gPsy2BGx; arc=none smtp.client-ip=205.220.168.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="axjSqeCb"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1776966972; x=1808502972;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to;
-  bh=MHCLyYmnhbQiKGQwL1kRnRWZZa91MoZwsILrqccXVac=;
-  b=axjSqeCbj662ZKSd2Z7vkbCofdsIGwPnVXFiPLGaebXQI8k/uPRUF3wZ
-   oBKhxECNzhbeRKGEOuVwfJtsyZHGrZz+Fb9r50pEIDf3kyDMKoN0yfHrq
-   TFdlxoNb2icxKTZX8w2G0QX4/Dy1pL7ra/d3lFh3bACV6DYl0gl0rbJCf
-   pyeZ4lRQUs7k122wh9quQfxI4XE9ozLbBMM+wwU+q9YAY9osUQzpei+YJ
-   QoxBUMNE0KF6pgPKGb69yRAi8ApGPFdcmCY6bVA/QDOaN7P+gxrG8oJlK
-   qHgXVv2LQ9wdcR3lEy5sFS3UQLGvVMWlTznHMa+yEDFwoVvqq7G/HfnbH
-   w==;
-X-CSE-ConnectionGUID: n+OWmSthQbeC8iNW3YkU9A==
-X-CSE-MsgGUID: NKMoC7DDQHeK00NFO7rtIQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11765"; a="77825821"
-X-IronPort-AV: E=Sophos;i="6.23,195,1770624000"; 
-   d="scan'208";a="77825821"
-Received: from fmviesa009.fm.intel.com ([10.60.135.149])
-  by fmvoesa111.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Apr 2026 10:56:11 -0700
-X-CSE-ConnectionGUID: kq5U7E4nTBurAK6FbWX4Fg==
-X-CSE-MsgGUID: c8PrEufTT7GgBg2zPvyWYg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,195,1770624000"; 
-   d="scan'208";a="226192054"
-Received: from aduenasd-mobl5.amr.corp.intel.com (HELO [10.125.108.10]) ([10.125.108.10])
-  by fmviesa009-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Apr 2026 10:56:10 -0700
-Content-Type: multipart/mixed; boundary="------------TpncX0p2dB2Ohe6Tw0NCcsID"
-Message-ID: <f856051b-10c7-4d65-9dbe-6b1677af74bd@intel.com>
-Date: Thu, 23 Apr 2026 10:56:03 -0700
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="YdbQNt+C";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="gPsy2BGx"
+Received: from pps.filterd (m0279862.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63NFNbsJ1204771
+	for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 18:02:42 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=qcppdkim1; bh=qL5pkb9o0CCnuyrbw4vzw/oR
+	B4wriojHDOoDpXabybI=; b=YdbQNt+CCtPDT/4eZI5bRqwzwpvi5rmTpcGNb4IA
+	zNm6jGElq9wh8UKqtlwh4jTwfBq+STD897erivL1oe50VbB30ctv1Ktg7bRdCxCJ
+	9H/5wyk9RYs3N7OT87pOBYR4E0V3C63BLKo+4dDF4HKpolDPwkuxwe5IGNkpMQPy
+	UCty3UoercpqbU4UwDkyisz62NFhQzctmIAdZTKjL3PcQMjX4ptj5oAs+76AJwmC
+	V2tehZ2iARKPYvSvDu3ZQyzGYh6bVv8sHDmJDUTXLlb+R7Fnakwl7RklTgmYgYfi
+	CYcNRY8NPRYbCx9l8p3JBej+F+Fbzco8ELduMWSNIQ1sZw==
+Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com [209.85.214.198])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4dqggna7aj-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 18:02:42 +0000 (GMT)
+Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-2b242b9359aso69326915ad.0
+        for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 11:02:41 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1776967361; x=1777572161; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=qL5pkb9o0CCnuyrbw4vzw/oRB4wriojHDOoDpXabybI=;
+        b=gPsy2BGx5Rwr6IW0tgQBcuShzp67nyI1VLXjQWTxLavb2bFidI+v6w8uYwyYH6fgmg
+         SHjuCREdA5kVitcUFYuhPKKlmgcKQGSBMCuTgnmiVvQ5vAtnY17bzAb5YFXiZS3WCdSs
+         OaGhzPtXSnFh0cZn8USVVAz8XNok1qSXUgHVCg/WuN9rB7Nq+55kZocgL3jA8qz9lJoa
+         AwEwZFm0coEOe3wnQVStcQM4aeonz+ENzzq17f6CWJ8LOTzzLpe2LrBnMZJZoIPYaIgE
+         9Zf/THmmzLP+lIRG8K/JdDvWeVCHE20VHdWxQ0ihi1Tf52bvE221C61bB1oBPCV441sF
+         UjgA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1776967361; x=1777572161;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=qL5pkb9o0CCnuyrbw4vzw/oRB4wriojHDOoDpXabybI=;
+        b=mT7KpkFW0m+XZO8ujQ0LTSzYBMg/puGq6ehVSS87MYdS6A+PIxXNbylzx5YlpDIgOs
+         8nRfpRg8Ux+8tWxVltsA4ysd+oHvsm171xBIj/dXa+H/T3tEAQ7ITDqBOfNSDule3328
+         rdYICqNEIJfXc68BUD/xfcAqRdcEq/GAFeeTU/Fzvx1bw/90Zdo/R9n/038m96TbiXtu
+         N6R3u7C/U4Ir1HeOVDHLNM7vAGiGDiDIMWv+hOfpDa177Q15LRYDewmpUUbFjXWE5Uo9
+         pK+VfS+oGwl1AB8mM7JxgQI3ni/8cJejZxI8/83u3/SpQflWH7X7LhpboZ5ggx+ChT9D
+         Kq0g==
+X-Forwarded-Encrypted: i=1; AFNElJ/RBpXONvg1l5S0xS92WJDF58qAt3x1dWfv0HiqUYVIgC61Hu4O0txrZhRPmM/txqOvcLoi1g7IJcFfD1HX3A==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz9Y1rG4QcrnkFXjRPY3THpXQ/oUFpqp0IP4SK7hgTS5+7kAelj
+	RH3581CT1zcvutcwWj0cGaYfhMbEAY28pQTzj78kKMDZ5ojRZtDXb5dsCFcwF4I8J+f0b+p7cLl
+	mwfR0DtPQOFbVRAomrtVfLi1SYp2qukWS0mT1xt+4qK6kOeaB5o7sA5n+2LZEAeHXbXnL1g==
+X-Gm-Gg: AeBDiesfkEuvUcY/gBU6C84n7qeSFKLzYDx5wdux2QuI5aTflRYv74/7zUWD+ZM8paM
+	u/1lwdW6+4QHaGhlEuHbezIZS0tboOdsHng5uHKHKVAg9AsMqLJsuLxz6rpxSc0Gn2gXdPw8K2e
+	fDlAm6OQjzDKNv+SNmhUzReMKpY2iVmir63StmX+vI+R1/gGJoZaDcfZzHe8FRKd53Epke7Ty6O
+	ZiXsbTfvvzImCAH97OANiucTqFGq8NpbANgYFPJifxoVaC06wR4c3Ag3rcZ7p/ixGzXD/JDGZ0p
+	VkGDghEVARg4pozFiQr7iuvoJR7PZjS+XFN7HTfFnSp3JRzrMlLd6Pyh3iqkmG1jDEm223hdzGK
+	Rm+gQwrtEzRfQnmRPhhupROS5Eo90E3C5HpLgAJnv6cePYT2CU9cDGMcRyfzYUFKGmuM=
+X-Received: by 2002:a17:903:34cd:b0:2b0:7026:24c2 with SMTP id d9443c01a7336-2b5f9f6558bmr199759625ad.36.1776967361098;
+        Thu, 23 Apr 2026 11:02:41 -0700 (PDT)
+X-Received: by 2002:a17:903:34cd:b0:2b0:7026:24c2 with SMTP id d9443c01a7336-2b5f9f6558bmr199759095ad.36.1776967360383;
+        Thu, 23 Apr 2026 11:02:40 -0700 (PDT)
+Received: from QCOM-LDTZRie9bq.na.qualcomm.com ([212.136.9.4])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-ba455926c61sm670064866b.63.2026.04.23.11.02.38
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 23 Apr 2026 11:02:39 -0700 (PDT)
+Date: Thu, 23 Apr 2026 20:02:38 +0200
+From: Peter Hilber <peter.hilber@oss.qualcomm.com>
+To: JiaJia <physicalmtea@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+        virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] virtio: rtc: tear down old virtqueues before restore
+Message-ID: <iwb4axxcxti6bpgpde5cv3n7y46xaopvkbdd2kug3qhn2ehfim@ny45mixj7ncn>
+References: <20260417214953.793956-1-physicalmtea@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 7.2 v9 2/2] x86/tlb: skip redundant sync IPIs for native
- TLB flush
-To: Lance Yang <lance.yang@linux.dev>, akpm@linux-foundation.org
-Cc: peterz@infradead.org, david@kernel.org, dave.hansen@linux.intel.com,
- ypodemsk@redhat.com, hughd@google.com, will@kernel.org,
- aneesh.kumar@kernel.org, npiggin@gmail.com, tglx@linutronix.de,
- mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com,
- arnd@arndb.de, ljs@kernel.org, ziy@nvidia.com,
- baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com, npache@redhat.com,
- ryan.roberts@arm.com, dev.jain@arm.com, baohua@kernel.org,
- shy828301@gmail.com, riel@surriel.com, jannh@google.com, jgross@suse.com,
- seanjc@google.com, pbonzini@redhat.com, boris.ostrovsky@oracle.com,
- virtualization@lists.linux.dev, kvm@vger.kernel.org,
- linux-arch@vger.kernel.org, linux-mm@kvack.org,
- linux-kernel@vger.kernel.org, ioworker0@gmail.com
-References: <20260420030851.6735-1-lance.yang@linux.dev>
- <20260420030851.6735-3-lance.yang@linux.dev>
-Content-Language: en-US
-From: Dave Hansen <dave.hansen@intel.com>
-Autocrypt: addr=dave.hansen@intel.com; keydata=
- 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
-In-Reply-To: <20260420030851.6735-3-lance.yang@linux.dev>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260417214953.793956-1-physicalmtea@gmail.com>
+X-Proofpoint-ORIG-GUID: E9omZWYk9hDQfVBLY7DveRMd1542AjUm
+X-Authority-Analysis: v=2.4 cv=YZeNIQRf c=1 sm=1 tr=0 ts=69ea5ec2 cx=c_pps
+ a=MTSHoo12Qbhz2p7MsH1ifg==:117 a=dNlqnMcrdpbb+gQrTujlOQ==:17
+ a=kj9zAlcOel0A:10 a=A5OVakUREuEA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=_K5XuSEh1TEqbUxoQ0s3:22
+ a=pGLkceISAAAA:8 a=WY53yCBdcWsR-8r_lBEA:9 a=CjuIK1q_8ugA:10
+ a=GvdueXVYPmCkWapjIL-Q:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDIzMDE3NSBTYWx0ZWRfXzS2xzxa3fLvl
+ BaY0rPJ456wWckQTlItgHAeTzcqoBFB/WEy+t8M4dSsG9+Qk2Ws/gSzyRV5wuF+JDNSGxmr2Omr
+ ZqTe7XtYnMf5ixCwtf7vxbTZ9dK8cMkg98dfGaXi+66Xf5BG9ciInl5NfUpNKYUtoSnS8pJYMUf
+ dtOLRcQAoDHBiJ5dgsUAfGPZ3BhpCHxIgfAPuvQDsOc7wk1Av4SH6a2BnokZ8NMGXzK4D8BSzFD
+ Bc7mQxdhYHt6y0UFfmgdsJvP0IQbNV9MdIdNabvJwB3aWSdY01R0ZJA4l8Iv4USvV0J9W0oRaiY
+ 8WUAuhUEVESKOCkq1kPlOyBPnJvZg3uL3eUDTXlmVOb0nY8+vOjzuFMjNp4xexK+0T7c62/WV+x
+ 16bkOoEnMdYFRL9DdqHEaf9cAXMO62Mjf/lDAs1FvUFtj/Ih6rPx6qA5X5KyjCxSOSJHa5xRa1X
+ eh2WAb2HiGgC9aYLb3Q==
+X-Proofpoint-GUID: E9omZWYk9hDQfVBLY7DveRMd1542AjUm
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-04-23_03,2026-04-21_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ clxscore=1011 adultscore=0 bulkscore=0 phishscore=0 suspectscore=0
+ malwarescore=0 impostorscore=0 priorityscore=1501 lowpriorityscore=0
+ spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2604200000
+ definitions=main-2604230175
 
-This is a multi-part message in MIME format.
---------------TpncX0p2dB2Ohe6Tw0NCcsID
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+On Fri, Apr 17, 2026 at 05:08:31PM +0800, JiaJia wrote:
+> virtio_device_restore() resets the device and restores the negotiated
+> features before calling ->restore(). viortc_freeze() intentionally
+> leaves the existing virtqueues in place so the alarm queue can still
+> wake the system, but viortc_restore() immediately calls
+> viortc_init_vqs() without first deleting those old queues.
+> 
+> If virtqueue reinitialization fails on virtio-pci, the transport error
+> path runs vp_del_vqs() against a new vp_dev->vqs array while vdev->vqs
+> still holds the old virtqueues. vp_del_vqs() then looks up queue state
+> through that new array and can dereference a NULL info pointer in
+> vp_del_vq(), crashing the guest kernel during restore.
+> 
+> Delete any old virtqueues before rebuilding them, and clear the cached
+> queue pointers so later message requests fail cleanly if restore does
+> not complete.
+> 
+> Signed-off-by: JiaJia <physicalmtea@gmail.com>
 
-On 4/19/26 20:08, Lance Yang wrote:
-> -	flush_tlb_mm_range(tlb->mm, start, end, stride_shift, tlb->freed_tables);
-> +	/*
-> +	 * Treat unshared_tables just like freed_tables, such that lazy-TLB
-> +	 * CPUs also receive IPIs during unsharing of page tables, allowing
-> +	 * us to safely implement tlb_table_flush_implies_ipi_broadcast().
-> +	 */
-> +	flush_tlb_mm_range(tlb->mm, start, end, stride_shift,
-> +			   tlb->freed_tables || tlb->unshared_tables);
+Thanks for identifying the bug and providing a fix!  I had a look at the
+bugfix and I added some comments below on how I think the fix could be
+improved.
+
+> ---
+> Runtime evidence from a standard hibernation test_resume run on a guest
+> with virtio-rtc-pci (no fault injection):
+> 
+>   KASAN null-ptr-deref report in vp_del_vq.isra.0+0x70/0xd0
+> 
+>   Call trace:
+>     vp_del_vq.isra.0+0x70/0xd0
+>     vp_del_vqs+0xec/0x358
+>     vp_find_vqs_msix+0x24c/0x6a8
+>     vp_find_vqs+0x88/0x360
+>     vp_modern_find_vqs+0x20/0x90
+>     viortc_init_vqs+0xd0/0x128
+>     viortc_restore+0x28/0xb8
+>     virtio_device_restore_priv+0x184/0x288
+>     virtio_pci_restore+0x44/0x58
+> 
+>  drivers/virtio/virtio_rtc_driver.c | 38 ++++++++++++++++++++++++++----
+>  1 file changed, 33 insertions(+), 5 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_rtc_driver.c b/drivers/virtio/virtio_rtc_driver.c
+> index a57d5e06e..c1adde27d 100644
+> --- a/drivers/virtio/virtio_rtc_driver.c
+> +++ b/drivers/virtio/virtio_rtc_driver.c
+> @@ -427,6 +427,15 @@ static int viortc_msg_xfer(struct viortc_vq *vq, struct viortc_msg *msg,
+>  	sg_init_one(out_sg, msg->req, msg->req_size);
+>  	sg_init_one(in_sg, msg->resp, msg->resp_cap);
+>  
+> +	if (!vq->vq) {
+> +		/*
+> +		 * Keep runtime interfaces in a safe failed state if restore
+> +		 * teardown removed the virtqueues.
+> +		 */
+> +		viortc_msg_release(msg);
+> +		return -ENODEV;
+> +	}
+> +
+>  	spin_lock_irqsave(&vq->lock, flags);
+>  
+>  	ret = virtqueue_add_sgs(vq->vq, sgs, 1, 1, msg, GFP_ATOMIC);
+> @@ -478,6 +487,17 @@ static int viortc_msg_xfer(struct viortc_vq *vq, struct viortc_msg *msg,
+>  	return 0;
 >  }
-
-I've been staring at this trying to make sense of it for too long.
-
-Right now, flush_tlb_mm_range() literally has an argument named
-"freed_tables" and "tlb->freed_tables" is passed there. That seems
-totally sane. It's 100% straightforward to follow.
-
-But it makes zero logical sense to me to now mix "tlb->unshared_tables"
-in there. Sure, what you _want_ is the freed_tables==1 behavior from
-tlb->unshared_tables==1, and this obviously hacks that in there, but
-it's not explained well enough and not maintainable like this. IOW, it's
-still just hack.
-
-I think what's happened here is that info->freed_tables is being
-modified from being strictly related to page table freeing, and moved
-over to a bit which tells TLB flushing implementations whether they can
-respect CPUs in lazy TLB mode.
-
-It's mentioned in the comment, but then ever reflected into the code.
-
-Shouldn't we be doing something like the attached patch? Look at how
-that maps over to the flushing side, like in the hyperv code:
-
-> -       bool do_lazy = !info->freed_tables;
-> +       bool do_lazy = !info->wake_lazy_cpus;
 >  
->         trace_hyperv_mmu_flush_tlb_multi(cpus, info);
+> +static void viortc_del_vqs(struct viortc_dev *viortc)
+> +{
+> +	struct virtio_device *vdev = viortc->vdev;
+> +	unsigned int i;
+> +
+> +	vdev->config->del_vqs(vdev);
+> +
+> +	for (i = 0; i < ARRAY_SIZE(viortc->vqs); i++)
+> +		viortc->vqs[i].vq = NULL;
+> +}
+> +
+
+If keeping this (see my comment at the bottom), it should go further
+down, e.g. above viortc_probe().
+
+>  /*
+>   * common message handle macros for messages of different types
+>   */
+> @@ -1316,7 +1336,7 @@ static int viortc_probe(struct virtio_device *vdev)
+
+In order to delete virtqueues consistently everywhere, I think it makes
+sense to also "goto err_reset_vdev;" if viortc_init_vqs() fails in
+viortc_probe().
+
 >  
-> @@ -198,7 +198,7 @@ static u64 hyperv_flush_tlb_others_ex(co
+>  err_reset_vdev:
+>  	virtio_reset_device(vdev);
+> -	vdev->config->del_vqs(vdev);
+> +	viortc_del_vqs(viortc);
 >  
->         flush->hv_vp_set.format = HV_GENERIC_SET_SPARSE_4K;
->         nr_bank = cpumask_to_vpset_skip(&flush->hv_vp_set, cpus,
-> -                       info->freed_tables ? NULL : cpu_is_lazy);
-> +                       info->wake_lazy_cpus ? NULL : cpu_is_lazy);
+>  	return ret;
+>  }
+> @@ -1332,7 +1352,7 @@ static void viortc_remove(struct virtio_device *vdev)
+>  	viortc_clocks_deinit(viortc);
+>  
+>  	virtio_reset_device(vdev);
+> -	vdev->config->del_vqs(vdev);
+> +	viortc_del_vqs(viortc);
+>  }
+>  
+>  static int viortc_freeze(struct virtio_device *dev)
+> @@ -1353,9 +1373,11 @@ static int viortc_restore(struct virtio_device *dev)
+>  	bool notify = false;
+>  	int ret;
+>  
+> +	viortc_del_vqs(viortc);
+> +
+>  	ret = viortc_init_vqs(viortc);
+>  	if (ret)
+> -		return ret;
+> +		goto err_del_vqs;
+>  
+>  	alarm_viortc_vq = &viortc->vqs[VIORTC_ALARMQ];
+>  	alarm_vq = alarm_viortc_vq->vq;
+> @@ -1364,16 +1386,22 @@ static int viortc_restore(struct virtio_device *dev)
+>  		ret = viortc_populate_vq(viortc, alarm_viortc_vq,
+>  					 VIORTC_ALARMQ_BUF_CAP, false);
+>  		if (ret)
+> -			return ret;
+> +			goto err_del_vqs;
+>  
+>  		notify = virtqueue_kick_prepare(alarm_vq);
+>  	}
+>  
+>  	virtio_device_ready(dev);
+>  
+> -	if (notify && !virtqueue_notify(alarm_vq))
+> +	if (notify && !virtqueue_notify(alarm_vq)) {
+>  		ret = -EIO;
+> +		goto err_del_vqs;
+> +	}
+> +
+> +	return ret;
+>  
+> +err_del_vqs:
+> +	viortc_del_vqs(viortc);
 
-That even makes the hyperv code easier to read over what was there
-before, IMNHO.
+This looks racy to me, since we can end up here after
+virtio_device_ready(), when viortc_cb_alarmq() could run.  But after
+virtio_device_ready(), deleting the virtqueues does not seem to be
+required.  So directly returning an error after virtio_device_ready()
+should work.
 
-Thoughts?
---------------TpncX0p2dB2Ohe6Tw0NCcsID
-Content-Type: text/x-patch; charset=UTF-8;
- name="flush_tlb_mm_range-lazy.patch"
-Content-Disposition: attachment; filename="flush_tlb_mm_range-lazy.patch"
-Content-Transfer-Encoding: base64
+Alternatively, I'd suggest calling the logic from viortc_remove()
+instead of just viortc_del_vqs() (factored out as __viortc_remove()).
+This would have the benefit of using the same logic to stop the device
+in both cases.
 
-CgotLS0KCiBiL2FyY2gveDg2L2h5cGVydi9tbXUuYyAgICAgICAgICAgfCAgICA0ICsrLS0K
-IGIvYXJjaC94ODYvaW5jbHVkZS9hc20vdGxiLmggICAgICB8ICAgMTEgKysrKysrKysrKy0K
-IGIvYXJjaC94ODYvaW5jbHVkZS9hc20vdGxiZmx1c2guaCB8ICAgIDQgKystLQogYi9hcmNo
-L3g4Ni9tbS90bGIuYyAgICAgICAgICAgICAgIHwgICAyOSArKysrKysrKysrKysrLS0tLS0t
-LS0tLS0tLS0tLQogNCBmaWxlcyBjaGFuZ2VkLCAyNyBpbnNlcnRpb25zKCspLCAyMSBkZWxl
-dGlvbnMoLSkKCmRpZmYgLXB1TiBhcmNoL3g4Ni9tbS90bGIuY35mbHVzaF90bGJfbW1fcmFu
-Z2UtbGF6eSBhcmNoL3g4Ni9tbS90bGIuYwotLS0gYS9hcmNoL3g4Ni9tbS90bGIuY35mbHVz
-aF90bGJfbW1fcmFuZ2UtbGF6eQkyMDI2LTA0LTIzIDEwOjM3OjQ5Ljc0NTgzOTIyNCAtMDcw
-MAorKysgYi9hcmNoL3g4Ni9tbS90bGIuYwkyMDI2LTA0LTIzIDEwOjQ1OjI1LjY3MDg4MDIy
-NiAtMDcwMApAQCAtMTMzOSwxNiArMTMzOSwxMiBAQCBTVEFUSUNfTk9QViB2b2lkIG5hdGl2
-ZV9mbHVzaF90bGJfbXVsdGkoCiAJCQkJKGluZm8tPmVuZCAtIGluZm8tPnN0YXJ0KSA+PiBQ
-QUdFX1NISUZUKTsKIAogCS8qCi0JICogSWYgbm8gcGFnZSB0YWJsZXMgd2VyZSBmcmVlZCwg
-d2UgY2FuIHNraXAgc2VuZGluZyBJUElzIHRvCi0JICogQ1BVcyBpbiBsYXp5IFRMQiBtb2Rl
-LiBUaGV5IHdpbGwgZmx1c2ggdGhlIENQVSB0aGVtc2VsdmVzCi0JICogYXQgdGhlIG5leHQg
-Y29udGV4dCBzd2l0Y2guCi0JICoKLQkgKiBIb3dldmVyLCBpZiBwYWdlIHRhYmxlcyBhcmUg
-Z2V0dGluZyBmcmVlZCwgd2UgbmVlZCB0byBzZW5kIHRoZQotCSAqIElQSSBldmVyeXdoZXJl
-LCB0byBwcmV2ZW50IENQVXMgaW4gbGF6eSBUTEIgbW9kZSBmcm9tIHRyaXBwaW5nCi0JICog
-dXAgb24gdGhlIG5ldyBjb250ZW50cyBvZiB3aGF0IHVzZWQgdG8gYmUgcGFnZSB0YWJsZXMs
-IHdoaWxlCi0JICogZG9pbmcgYSBzcGVjdWxhdGl2ZSBtZW1vcnkgYWNjZXNzLgorCSAqIFNp
-bXBsZSBUTEIgZmx1c2hlcyBjYW4gYXZvaWQgc2VuZGluZyBJUElzIHRvIENQVXMgaW4gbGF6
-eQorCSAqIFRMQiBtb2RlLiBCdXQgc29tZSBvcGVyYXRpb25zIGxpa2UgZnJlZWluZyBwYWdl
-IHRhYmxlcworCSAqIGNvdWxkIGxlYXZlIGRhbmdlcm91cyBzdGF0ZSBpbiBwYWdpbmcgc3Ry
-dWN0dXJlIGNhY2hlcy4KKwkgKiBTZW5kIElQSXMgZXZlbiB0byBsYXp5IENQVXMgd2hlbiBu
-ZWNlc3NhcnkuCiAJICovCi0JaWYgKGluZm8tPmZyZWVkX3RhYmxlcyB8fCBtbV9pbl9hc2lk
-X3RyYW5zaXRpb24oaW5mby0+bW0pKQorCWlmIChpbmZvLT53YWtlX2xhenlfY3B1cyB8fCBt
-bV9pbl9hc2lkX3RyYW5zaXRpb24oaW5mby0+bW0pKQogCQlvbl9lYWNoX2NwdV9tYXNrKGNw
-dW1hc2ssIGZsdXNoX3RsYl9mdW5jLCAodm9pZCAqKWluZm8sIHRydWUpOwogCWVsc2UKIAkJ
-b25fZWFjaF9jcHVfY29uZF9tYXNrKHNob3VsZF9mbHVzaF90bGIsIGZsdXNoX3RsYl9mdW5j
-LApAQCAtMTM4MSw3ICsxMzc3LDcgQEAgc3RhdGljIERFRklORV9QRVJfQ1BVKHVuc2lnbmVk
-IGludCwgZmx1cwogCiBzdGF0aWMgc3RydWN0IGZsdXNoX3RsYl9pbmZvICpnZXRfZmx1c2hf
-dGxiX2luZm8oc3RydWN0IG1tX3N0cnVjdCAqbW0sCiAJCQl1bnNpZ25lZCBsb25nIHN0YXJ0
-LCB1bnNpZ25lZCBsb25nIGVuZCwKLQkJCXVuc2lnbmVkIGludCBzdHJpZGVfc2hpZnQsIGJv
-b2wgZnJlZWRfdGFibGVzLAorCQkJdW5zaWduZWQgaW50IHN0cmlkZV9zaGlmdCwgYm9vbCB3
-YWtlX2xhenlfY3B1cywKIAkJCXU2NCBuZXdfdGxiX2dlbikKIHsKIAlzdHJ1Y3QgZmx1c2hf
-dGxiX2luZm8gKmluZm8gPSB0aGlzX2NwdV9wdHIoJmZsdXNoX3RsYl9pbmZvKTsKQEAgLTE0
-MDgsNyArMTQwNCw3IEBAIHN0YXRpYyBzdHJ1Y3QgZmx1c2hfdGxiX2luZm8gKmdldF9mbHVz
-aF8KIAlpbmZvLT5lbmQJCT0gZW5kOwogCWluZm8tPm1tCQk9IG1tOwogCWluZm8tPnN0cmlk
-ZV9zaGlmdAk9IHN0cmlkZV9zaGlmdDsKLQlpbmZvLT5mcmVlZF90YWJsZXMJPSBmcmVlZF90
-YWJsZXM7CisJaW5mby0+d2FrZV9sYXp5X2NwdXMJPSB3YWtlX2xhenlfY3B1czsKIAlpbmZv
-LT5uZXdfdGxiX2dlbgk9IG5ld190bGJfZ2VuOwogCWluZm8tPmluaXRpYXRpbmdfY3B1CT0g
-c21wX3Byb2Nlc3Nvcl9pZCgpOwogCWluZm8tPnRyaW1fY3B1bWFzawk9IDA7CkBAIC0xNDI3
-LDcgKzE0MjMsNyBAQCBzdGF0aWMgdm9pZCBwdXRfZmx1c2hfdGxiX2luZm8odm9pZCkKIAog
-dm9pZCBmbHVzaF90bGJfbW1fcmFuZ2Uoc3RydWN0IG1tX3N0cnVjdCAqbW0sIHVuc2lnbmVk
-IGxvbmcgc3RhcnQsCiAJCQkJdW5zaWduZWQgbG9uZyBlbmQsIHVuc2lnbmVkIGludCBzdHJp
-ZGVfc2hpZnQsCi0JCQkJYm9vbCBmcmVlZF90YWJsZXMpCisJCQkJYm9vbCB3YWtlX2xhenlf
-Y3B1cykKIHsKIAlzdHJ1Y3QgZmx1c2hfdGxiX2luZm8gKmluZm87CiAJaW50IGNwdSA9IGdl
-dF9jcHUoKTsKQEAgLTE0MzYsNyArMTQzMiw3IEBAIHZvaWQgZmx1c2hfdGxiX21tX3Jhbmdl
-KHN0cnVjdCBtbV9zdHJ1Y3QKIAkvKiBUaGlzIGlzIGFsc28gYSBiYXJyaWVyIHRoYXQgc3lu
-Y2hyb25pemVzIHdpdGggc3dpdGNoX21tKCkuICovCiAJbmV3X3RsYl9nZW4gPSBpbmNfbW1f
-dGxiX2dlbihtbSk7CiAKLQlpbmZvID0gZ2V0X2ZsdXNoX3RsYl9pbmZvKG1tLCBzdGFydCwg
-ZW5kLCBzdHJpZGVfc2hpZnQsIGZyZWVkX3RhYmxlcywKKwlpbmZvID0gZ2V0X2ZsdXNoX3Rs
-Yl9pbmZvKG1tLCBzdGFydCwgZW5kLCBzdHJpZGVfc2hpZnQsIHdha2VfbGF6eV9jcHVzLAog
-CQkJCSAgbmV3X3RsYl9nZW4pOwogCiAJLyoKQEAgLTE1MjgsMTAgKzE1MjQsMTEgQEAgc3Rh
-dGljIHZvaWQga2VybmVsX3RsYl9mbHVzaF9yYW5nZShzdHJ1Ywogdm9pZCBmbHVzaF90bGJf
-a2VybmVsX3JhbmdlKHVuc2lnbmVkIGxvbmcgc3RhcnQsIHVuc2lnbmVkIGxvbmcgZW5kKQog
-ewogCXN0cnVjdCBmbHVzaF90bGJfaW5mbyAqaW5mbzsKKwlib29sIHdha2VfbGF6eV9jcHVz
-ID0gZmFsc2U7CiAKIAlndWFyZChwcmVlbXB0KSgpOwogCi0JaW5mbyA9IGdldF9mbHVzaF90
-bGJfaW5mbyhOVUxMLCBzdGFydCwgZW5kLCBQQUdFX1NISUZULCBmYWxzZSwKKwlpbmZvID0g
-Z2V0X2ZsdXNoX3RsYl9pbmZvKE5VTEwsIHN0YXJ0LCBlbmQsIFBBR0VfU0hJRlQsIHdha2Vf
-bGF6eV9jcHVzLAogCQkJCSAgVExCX0dFTkVSQVRJT05fSU5WQUxJRCk7CiAKIAlpZiAoaW5m
-by0+ZW5kID09IFRMQl9GTFVTSF9BTEwpCkBAIC0xNzA4LDEwICsxNzA1LDEwIEBAIEVYUE9S
-VF9TWU1CT0xfRk9SX0tWTShfX2ZsdXNoX3RsYl9hbGwpOwogdm9pZCBhcmNoX3RsYmJhdGNo
-X2ZsdXNoKHN0cnVjdCBhcmNoX3RsYmZsdXNoX3VubWFwX2JhdGNoICpiYXRjaCkKIHsKIAlz
-dHJ1Y3QgZmx1c2hfdGxiX2luZm8gKmluZm87Ci0KKwlib29sIHdha2VfbGF6eV9jcHVzID0g
-ZmFsc2U7CiAJaW50IGNwdSA9IGdldF9jcHUoKTsKIAotCWluZm8gPSBnZXRfZmx1c2hfdGxi
-X2luZm8oTlVMTCwgMCwgVExCX0ZMVVNIX0FMTCwgMCwgZmFsc2UsCisJaW5mbyA9IGdldF9m
-bHVzaF90bGJfaW5mbyhOVUxMLCAwLCBUTEJfRkxVU0hfQUxMLCAwLCB3YWtlX2xhenlfY3B1
-cywKIAkJCQkgIFRMQl9HRU5FUkFUSU9OX0lOVkFMSUQpOwogCS8qCiAJICogZmx1c2hfdGxi
-X211bHRpKCkgaXMgbm90IG9wdGltaXplZCBmb3IgdGhlIGNvbW1vbiBjYXNlIGluIHdoaWNo
-IG9ubHkKZGlmZiAtcHVOIGFyY2gveDg2L2luY2x1ZGUvYXNtL3RsYmZsdXNoLmh+Zmx1c2hf
-dGxiX21tX3JhbmdlLWxhenkgYXJjaC94ODYvaW5jbHVkZS9hc20vdGxiZmx1c2guaAotLS0g
-YS9hcmNoL3g4Ni9pbmNsdWRlL2FzbS90bGJmbHVzaC5ofmZsdXNoX3RsYl9tbV9yYW5nZS1s
-YXp5CTIwMjYtMDQtMjMgMTA6Mzg6MDIuMDg4Mjk1ODIwIC0wNzAwCisrKyBiL2FyY2gveDg2
-L2luY2x1ZGUvYXNtL3RsYmZsdXNoLmgJMjAyNi0wNC0yMyAxMDozOTo0MC45Nzk5NjU4NjMg
-LTA3MDAKQEAgLTI0Nyw3ICsyNDcsNyBAQCBzdHJ1Y3QgZmx1c2hfdGxiX2luZm8gewogCXU2
-NAkJCW5ld190bGJfZ2VuOwogCXVuc2lnbmVkIGludAkJaW5pdGlhdGluZ19jcHU7CiAJdTgJ
-CQlzdHJpZGVfc2hpZnQ7Ci0JdTgJCQlmcmVlZF90YWJsZXM7CisJdTgJCQl3YWtlX2xhenlf
-Y3B1czsKIAl1OAkJCXRyaW1fY3B1bWFzazsKIH07CiAKQEAgLTMzNyw3ICszMzcsNyBAQCBz
-dGF0aWMgaW5saW5lIGJvb2wgbW1faW5fYXNpZF90cmFuc2l0aW9uCiBleHRlcm4gdm9pZCBm
-bHVzaF90bGJfYWxsKHZvaWQpOwogZXh0ZXJuIHZvaWQgZmx1c2hfdGxiX21tX3JhbmdlKHN0
-cnVjdCBtbV9zdHJ1Y3QgKm1tLCB1bnNpZ25lZCBsb25nIHN0YXJ0LAogCQkJCXVuc2lnbmVk
-IGxvbmcgZW5kLCB1bnNpZ25lZCBpbnQgc3RyaWRlX3NoaWZ0LAotCQkJCWJvb2wgZnJlZWRf
-dGFibGVzKTsKKwkJCQlib29sIHdha2VfbGF6eV9jcHVzKTsKIGV4dGVybiB2b2lkIGZsdXNo
-X3RsYl9rZXJuZWxfcmFuZ2UodW5zaWduZWQgbG9uZyBzdGFydCwgdW5zaWduZWQgbG9uZyBl
-bmQpOwogCiBzdGF0aWMgaW5saW5lIHZvaWQgZmx1c2hfdGxiX3BhZ2Uoc3RydWN0IHZtX2Fy
-ZWFfc3RydWN0ICp2bWEsIHVuc2lnbmVkIGxvbmcgYSkKZGlmZiAtcHVOIGFyY2gveDg2L2lu
-Y2x1ZGUvYXNtL3RsYi5ofmZsdXNoX3RsYl9tbV9yYW5nZS1sYXp5IGFyY2gveDg2L2luY2x1
-ZGUvYXNtL3RsYi5oCi0tLSBhL2FyY2gveDg2L2luY2x1ZGUvYXNtL3RsYi5ofmZsdXNoX3Rs
-Yl9tbV9yYW5nZS1sYXp5CTIwMjYtMDQtMjMgMTA6NDc6MDEuMjIxNDgzODc4IC0wNzAwCisr
-KyBiL2FyY2gveDg2L2luY2x1ZGUvYXNtL3RsYi5oCTIwMjYtMDQtMjMgMTA6NDk6MjYuNzQ2
-OTg1NjE2IC0wNzAwCkBAIC0xNCwxMyArMTQsMjIgQEAgc3RhdGljIGlubGluZSB2b2lkIHRs
-Yl9mbHVzaChzdHJ1Y3QgbW11XwogewogCXVuc2lnbmVkIGxvbmcgc3RhcnQgPSAwVUwsIGVu
-ZCA9IFRMQl9GTFVTSF9BTEw7CiAJdW5zaWduZWQgaW50IHN0cmlkZV9zaGlmdCA9IHRsYl9n
-ZXRfdW5tYXBfc2hpZnQodGxiKTsKKwlib29sIHdha2VfbGF6eV9jcHVzOwogCiAJaWYgKCF0
-bGItPmZ1bGxtbSAmJiAhdGxiLT5uZWVkX2ZsdXNoX2FsbCkgewogCQlzdGFydCA9IHRsYi0+
-c3RhcnQ7CiAJCWVuZCA9IHRsYi0+ZW5kOwogCX0KIAotCWZsdXNoX3RsYl9tbV9yYW5nZSh0
-bGItPm1tLCBzdGFydCwgZW5kLCBzdHJpZGVfc2hpZnQsIHRsYi0+ZnJlZWRfdGFibGVzKTsK
-KwkvKgorCSAqIEVuc3VyZSBhbGwgcGFnaW5nIHN0cnVjdHVyZSBjYWNoZXMgb24gYWxsIENQ
-VXMgYXJlIGZsdXNoZWQKKwkgKiB3aGVuIGZyZWVpbmcgcGFnZSB0YWJsZXMuIE90aGVyd2lz
-ZSwgYSBsYXp5IENQVSBtaWdodCB3YWtlCisJICogdXAgYW5kIHN0YXJ0IHdhbGtpbmcgcHJl
-dmlvdXNseS1mcmVlZCBwYWdlIHRhYmxlcyBhbmQKKwkgKiBjYWNoaW5nIGdhcmJhZ2UuCisJ
-ICovCisJd2FrZV9sYXp5X2NwdXMgPSB0bGItPmZyZWVkX3RhYmxlczsKKworCWZsdXNoX3Rs
-Yl9tbV9yYW5nZSh0bGItPm1tLCBzdGFydCwgZW5kLCBzdHJpZGVfc2hpZnQsIHdha2VfbGF6
-eV9jcHVzKTsKIH0KIAogc3RhdGljIGlubGluZSB2b2lkIGludmxwZyh1bnNpZ25lZCBsb25n
-IGFkZHIpCmRpZmYgLXB1TiBhcmNoL3g4Ni9oeXBlcnYvbW11LmN+Zmx1c2hfdGxiX21tX3Jh
-bmdlLWxhenkgYXJjaC94ODYvaHlwZXJ2L21tdS5jCi0tLSBhL2FyY2gveDg2L2h5cGVydi9t
-bXUuY35mbHVzaF90bGJfbW1fcmFuZ2UtbGF6eQkyMDI2LTA0LTIzIDEwOjUzOjA1LjI1MTI2
-ODkxMSAtMDcwMAorKysgYi9hcmNoL3g4Ni9oeXBlcnYvbW11LmMJMjAyNi0wNC0yMyAxMDo1
-MzoyOC42MjIxNTYxMjEgLTA3MDAKQEAgLTYzLDcgKzYzLDcgQEAgc3RhdGljIHZvaWQgaHlw
-ZXJ2X2ZsdXNoX3RsYl9tdWx0aShjb25zdAogCXN0cnVjdCBodl90bGJfZmx1c2ggKmZsdXNo
-OwogCXU2NCBzdGF0dXM7CiAJdW5zaWduZWQgbG9uZyBmbGFnczsKLQlib29sIGRvX2xhenkg
-PSAhaW5mby0+ZnJlZWRfdGFibGVzOworCWJvb2wgZG9fbGF6eSA9ICFpbmZvLT53YWtlX2xh
-enlfY3B1czsKIAogCXRyYWNlX2h5cGVydl9tbXVfZmx1c2hfdGxiX211bHRpKGNwdXMsIGlu
-Zm8pOwogCkBAIC0xOTgsNyArMTk4LDcgQEAgc3RhdGljIHU2NCBoeXBlcnZfZmx1c2hfdGxi
-X290aGVyc19leChjbwogCiAJZmx1c2gtPmh2X3ZwX3NldC5mb3JtYXQgPSBIVl9HRU5FUklD
-X1NFVF9TUEFSU0VfNEs7CiAJbnJfYmFuayA9IGNwdW1hc2tfdG9fdnBzZXRfc2tpcCgmZmx1
-c2gtPmh2X3ZwX3NldCwgY3B1cywKLQkJCWluZm8tPmZyZWVkX3RhYmxlcyA/IE5VTEwgOiBj
-cHVfaXNfbGF6eSk7CisJCQlpbmZvLT53YWtlX2xhenlfY3B1cyA/IE5VTEwgOiBjcHVfaXNf
-bGF6eSk7CiAJaWYgKG5yX2JhbmsgPCAwKQogCQlyZXR1cm4gSFZfU1RBVFVTX0lOVkFMSURf
-UEFSQU1FVEVSOwogCl8K
+This should also make the viortc_del_vqs() wrapper and vq->vq check
+unnecessary due to viortc_clocks_deinit() having been called.
 
---------------TpncX0p2dB2Ohe6Tw0NCcsID--
+The tradeoff would be that self-healing on another restore would not be
+possible any more.
+
+Best regards,
+
+Peter
+
+>  	return ret;
+>  }
+>  
+> -- 
+> 2.34.1
