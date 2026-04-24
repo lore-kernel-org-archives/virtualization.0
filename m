@@ -1,135 +1,112 @@
-Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7060F3DA7C8
-	for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 13:55:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D37743DBD60;
+	Fri, 24 Apr 2026 14:15:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777038916; cv=none; b=EizO3kWUrf4YX3xiY4UhfnRs8xn2ml1iUZfeu1UMPo/nZn9e9432oiUNAkIIExzyKxbRaCVxdjLnU19pZRozdqOlUuEE/JT0poGxKPw7ZPKrTLm+IxhjmbHQAZLUEFhfWhUTT8wfRHWTLg59UC6UhqMFjpa14oWf+ut3Bta/oTk=
+	t=1777040135; cv=none; b=QvzhzvyrqvrQDh/fQ4agG2vBFK76CZDdI0UevYMvoBd0P7LW5hyHb1JnVRi7OJWacmnAHX/S77x0jC0yzTYL4oqKVPhGl7lW786tTbMHS1qK1FdXuR+Z1mNLGvgybo6kH/lOZ9ctqHqSitxOjXwuyf/TbNa2gufJOkctiVLV8xc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777038916; c=relaxed/simple;
-	bh=d4mxzTO2Ltl/eUXMBRQNyDiMx5nB3UU/ry0cuOPEU7c=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=e6oZxn0Dpb+Jbv29yXxmp8SdcTAdoivcX/U+KJXytOd9M+jCaTipORJG1m4RnzFW3kzwKAc+wyOHu2uIBFrs7/P84JFXfqdhWR94upBClzjLRXYr3pu19IeWeIzijXi3nICXLhXQmST+OtrZZMwTZkO4flUxl/cdlhkSH3Rkz3Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=eJPP5sYS; arc=none smtp.client-ip=209.85.216.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1777040135; c=relaxed/simple;
+	bh=L08wbD9RP1yIjusIkp7uHpvtDFAssJesg0vXbY3SOlo=;
+	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
+	 Mime-Version:Content-Type; b=QgRQFy1Ym88G6e65XNXbV/tBRO/8GO6H8rJqUTGEchkvPSpknxR49tmUB0DqqzT3DfKpfRXmZCIXnbUKAdpFHyDxvBmnY4OWN7K/ZyLK2DiyEyQ6uDhN41E5dkKVgKk66R0y2yKaNcmsjmIPq8f9XIuMMvIH0bupXr1Yg05gdS8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=uQNXKqM+; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="eJPP5sYS"
-Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-35d971fb6f1so6245472a91.0
-        for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 06:55:10 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777038907; x=1777643707; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=kMeiAHdTbFhy7JXd41HJZsYauWdI9RVH3tSuSNB+WCI=;
-        b=eJPP5sYS5UfSSjqURtmPQsjACHcXc1OKNTgz8XPh8zLsNIucL/ftRx6Q0d8NsLjL8R
-         yYs8YKE8NG9sLQ6nC2CDoz2zApqGYfo5dUrhD/KLeyoo0Nc3yWeHdCmL8QHFYPt6lHdx
-         2R5bhhwROG1uFxzCD5g00pVs5h+gtKoMMcr9wZRBQphQ/X8pxKjDb9XeqyhCfe93FAhs
-         G/0ZnOi450ayUY5fHE8h42kGpyuGjp0vJeChV5NlQa5YAEjzxsRLncjuc5kWY0BYYlxp
-         VwQZ4eZTaeQanIBDNF858fOo2n6FEgGBDz8FhyOVBODXkPSHg4md/+Pvx9OQqfWvBWJO
-         3LQA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777038907; x=1777643707;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=kMeiAHdTbFhy7JXd41HJZsYauWdI9RVH3tSuSNB+WCI=;
-        b=RMhU0TIAgMyikiEhiCZMM82m3eB1GNAlYpR2AbpfB+lPztF58ynCdD5LlccNavfNVK
-         u5xlgPOdnKCo2chYabHzDVLVMG2m4V9TQjgYYKR2YD0XdLMi0p4Pl6PNeBaSkugbpDv9
-         JKimJ8qNQLI5o7pSLRDOIMXlpYopudymzGo4+p4HmZvltLiFIJuneLW0jr6d85MEgwP8
-         Vl3w964UkMP9OQzNuj6dVTnULxFg7EiGM5lnqK9d0+ECr/gsGrL0jOE2n03mda4NOHlb
-         7lb4qa5N2l4Ah6lTEDcZKSt/Lmj1xtEaY2c461qI/V03nyRF1M29Fz/FAx+zoqOw7nrf
-         O5AA==
-X-Forwarded-Encrypted: i=1; AFNElJ+s4cH3iJ8nJVVeX1/uFxUZuH+eNMnRqFU1LOOxf+zJsf+OOrHNU4XyJVCfEf7UOMGoiFJeFkcYt8+mA5BoWQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywl6udDp1z/7euK874f3w4Uo8+yp8i3Ky/o0PG3QP9o1cSX4/nF
-	RBqUJLy06/s9rDYgPSbkedcFGvkMAM28xIAOZVwBoTaUWqpV1tpGEiw=
-X-Gm-Gg: AeBDiesZWAvBHgWb2RT9zTHzh4w459zOCaQ9qrTl2TqACzYyVdxilYOrgrlfWb5FvJz
-	ckdWGDBmEVIA4hTi4h3fTWHK9cGMgdFFZ9wMhXHs6L3E07zo00oAgJx/mPZTQtuesZNoR/zFgw6
-	5AGlTaqpoeoTllPt8Uw6lc5ACduk60/gOXLKpDPh1b1NBuK9Caz2FMSlGLTZQJkNwXh3azqZOcn
-	YiVailB5ABNxnI9MlrhfkEFdjysmkojA9fSLQSf/7MJnDMhmjsBvVid5yypb3TPUxE+EzOGKZnH
-	tGWWY0J1SVzTG2eVwfKzIm4ij6CR45a3bMz3ziBepa3S8EaNgS/ij2jdkZJs8pPGwqszlgN7aSc
-	8eVLCGjUH8TMycK0OQurDpYdF/sab2D5t5ZtPQWZr08Hx6kjtnn5dJ2ClgBLtNlSUJrICihLXZD
-	+xptH/wPSw5ie00BR3Su+VqNn+/zWB4yfJjwXMJ0MWnVPrtvtCUkE/k3PxbdNqU3NMbtnEYBtZk
-	zYDzGFEILevogA=
-X-Received: by 2002:a17:90b:2dc1:b0:35e:30bc:96e2 with SMTP id 98e67ed59e1d1-361403f1901mr33384481a91.10.1777038906954;
-        Fri, 24 Apr 2026 06:55:06 -0700 (PDT)
-Received: from localhost.localdomain ([1.226.165.54])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-36141990bb6sm24427479a91.17.2026.04.24.06.55.04
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Fri, 24 Apr 2026 06:55:06 -0700 (PDT)
-From: Myeonghun Pak <mhun512@gmail.com>
-To: Gerd Hoffmann <kraxel@redhat.com>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
-	Maxime Ripard <mripard@kernel.org>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	David Airlie <airlied@gmail.com>,
-	Simona Vetter <simona@ffwll.ch>
-Cc: Myeonghun Pak <mhun512@gmail.com>,
-	virtualization@lists.linux.dev,
-	dri-devel@lists.freedesktop.org,
-	stable@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH] drm/bochs: Drop manual put on probe error path
-Date: Fri, 24 Apr 2026 22:54:42 +0900
-Message-ID: <20260424135501.18483-1-mhun512@gmail.com>
-X-Mailer: git-send-email 2.47.1
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="uQNXKqM+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 450B1C19425;
+	Fri, 24 Apr 2026 14:15:34 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+	s=korg; t=1777040135;
+	bh=L08wbD9RP1yIjusIkp7uHpvtDFAssJesg0vXbY3SOlo=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=uQNXKqM+5mUhzXG3wrgwsljDXLTKkGCn8k++R/99g0dgBzwKo29qei3pipqEpVoSp
+	 HuV9V9S/Im3ZA6Vaz92WxkLH2DorTEPO8R4P/gHUl8PtrDg1axezxhJHT7OiIMHGd9
+	 KAwmmNczlPPrkQAfSbFnDc8IB/UfpxrsFV/tN4G0=
+Date: Fri, 24 Apr 2026 07:15:33 -0700
+From: Andrew Morton <akpm@linux-foundation.org>
+To: Pasha Tatashin <pasha.tatashin@soleen.com>
+Cc: Lance Yang <lance.yang@linux.dev>, peterz@infradead.org,
+ david@kernel.org, dave.hansen@intel.com, dave.hansen@linux.intel.com,
+ ypodemsk@redhat.com, hughd@google.com, will@kernel.org,
+ aneesh.kumar@kernel.org, npiggin@gmail.com, tglx@linutronix.de,
+ mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com,
+ arnd@arndb.de, ljs@kernel.org, ziy@nvidia.com,
+ baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com, npache@redhat.com,
+ ryan.roberts@arm.com, dev.jain@arm.com, baohua@kernel.org,
+ shy828301@gmail.com, riel@surriel.com, jannh@google.com, jgross@suse.com,
+ seanjc@google.com, pbonzini@redhat.com, boris.ostrovsky@oracle.com,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org,
+ linux-arch@vger.kernel.org, linux-mm@kvack.org,
+ linux-kernel@vger.kernel.org, ioworker0@gmail.com, roman.gushchin@linux.dev
+Subject: Re: [PATCH 7.2 v10 0/2] skip redundant sync IPIs when TLB flush
+ sent them
+Message-Id: <20260424071533.d28ce90126f05e1c6fc1b740@linux-foundation.org>
+In-Reply-To: <aetw4aoABYj3keMh@plex>
+References: <20260424062528.71951-1-lance.yang@linux.dev>
+	<20260424063024.ce42ee6a5546e4d9337dd007@linux-foundation.org>
+	<aetw4aoABYj3keMh@plex>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-bochs_pci_probe() allocates the DRM device with devm_drm_dev_alloc(),
-which registers a devres action to drop the initial DRM device reference
-on driver detach or probe failure.
+On Fri, 24 Apr 2026 13:37:04 +0000 Pasha Tatashin <pasha.tatashin@soleen.com> wrote:
 
-The error path currently calls drm_dev_put() manually. If probe then
-returns an error, devres will run the registered release action and put
-the same device again, after the first put may already have released it.
+> On 04-24 06:30, Andrew Morton wrote:
+> > On Fri, 24 Apr 2026 14:25:26 +0800 Lance Yang <lance.yang@linux.dev> wrote:
+> > 
+> > > When page table operations require synchronization with software/lockless
+> > > walkers, they call tlb_remove_table_sync_{one,rcu}() after flushing the
+> > > TLB (tlb->freed_tables or tlb->unshared_tables).
+> > > 
+> > > On architectures where the TLB flush already sends IPIs to all target CPUs,
+> > > the subsequent sync IPI broadcast is redundant. This is not only costly on
+> > > large systems where it disrupts all CPUs even for single-process page table
+> > > operations, but has also been reported to hurt RT workloads[1].
+> > > 
+> > > This series introduces tlb_table_flush_implies_ipi_broadcast() to check if
+> > > the prior TLB flush already provided the necessary synchronization. When
+> > > true, the sync calls can early-return.
+> > > 
+> > > A few cases rely on this synchronization:
+> > > 
+> > > 1) hugetlb PMD unshare[2]: The problem is not the freeing but the reuse
+> > >    of the PMD table for other purposes in the last remaining user after
+> > >    unsharing.
+> > > 
+> > > 2) khugepaged collapse[3]: Ensure no concurrent GUP-fast before collapsing
+> > >    and (possibly) freeing the page table / re-depositing it.
+> > 
+> > Sashiko questions:
+> > 	https://sashiko.dev/#/patchset/20260424062528.71951-1-lance.yang@linux.dev
+> > 
+> > (I never know if my Sashiko emails are welcome/useful.  Maybe Sashiko
+> > said the same stuff about v9 and it's all wrong.  But better safe than
+> > sorry!)
+> 
+> These emails are helpful; but, I do not believe you should have to 
+> manually follow up with a link to every new patch series.
+> 
+> Perhaps  Sashiko could automatically send a summary email in response to 
+> the cover letter, or provide a link once the reviews are complete. For 
+> the kexec ML, we opted-in with Roman to receive automated emails from 
+> sashiko.
 
-Return the probe error directly and let devres own the final put.
+Yep.  I'd be OK with an automatic reply-to-all.  Maybe some won't like
+that.
 
-Fixes: 04826f588682 ("drm/bochs: Allocate DRM device in struct bochs_device")
-Cc: stable@vger.kernel.org
-Signed-off-by: Myeonghun Pak <mhun512@gmail.com>
----
- drivers/gpu/drm/tiny/bochs.c | 10 +++-------
- 1 file changed, 3 insertions(+), 7 deletions(-)
+An alternative I've discussed with Roman is an automated
+reply-to-author with a cc to a dedicated list (we could use mm-commits
+for now).
 
-diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
-index 222e4ae1ab..5d8dc5efec 100644
---- a/drivers/gpu/drm/tiny/bochs.c
-+++ b/drivers/gpu/drm/tiny/bochs.c
-@@ -761,25 +761,21 @@ static int bochs_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent
- 
- 	ret = pcim_enable_device(pdev);
- 	if (ret)
--		goto err_free_dev;
-+		return ret;
- 
- 	pci_set_drvdata(pdev, dev);
- 
- 	ret = bochs_load(bochs);
- 	if (ret)
--		goto err_free_dev;
-+		return ret;
- 
- 	ret = drm_dev_register(dev, 0);
- 	if (ret)
--		goto err_free_dev;
-+		return ret;
- 
- 	drm_client_setup(dev, NULL);
- 
- 	return ret;
--
--err_free_dev:
--	drm_dev_put(dev);
--	return ret;
- }
- 
- static void bochs_pci_remove(struct pci_dev *pdev)
--- 
-2.39.5
+Preferences?
+
+(I'd suggest automated-reply-to-all, see who complains, then figure out
+why they can't figure out mail filtering ;))
+
