@@ -1,149 +1,163 @@
-Received: from out-182.mta1.migadu.com (out-182.mta1.migadu.com [95.215.58.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BFC457C9F
-	for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 05:03:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7295F2030A
+	for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 05:45:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777007035; cv=none; b=Ue/BbTfnRxsIUB7y5vPRB21oqAOwnWkkId8je6/UbqH7moU7GBTfvFmDWAbbx7+y3jfawsONeh/G3BNNNzfbsEKdbY/lxUeBkPqVhTBR/Y3SQ0Bf4rga/WuhjmgDDXZx2qsHOjLEzrOGp2cLwLqmOH9Zp3Fe3a8N9RFdpDdcjMQ=
+	t=1777009535; cv=none; b=TtT3a3Q8uaaz6Q73z3IwL0d0WBqKWsd7K+U3wPzolOVTsvBhKxUuE+6kc5VYe4V1bxY5x8pGatuwDgXydy4YV0OIEYrLD0B+uGpAgLru/z0D/+ycGJ/P3+t88TNQ/JrgIn9NaQEEvP2cTXbIh7cIDy56evCNuZqdLjKAJwHKQ9o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777007035; c=relaxed/simple;
-	bh=awHC7Ghsok5G40mNYDQmGxMPSQCdBf9nVUvG1OcuYEc=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=CNDDiR1CJyb4GK+Dw/Sp55e6aMWallB5DRSA4H4bTqrE5OgJZsu6uxrOb3RLYyTuwrX+i2KjRhzXcHRKiYH+qAY/rlUavVaqIq5ks6wDP46CTaHAXam4o+zfGJ/yZapFWVkC3JwJxkEOkbOmX1K4ErG9yax3PqCP1365NCFh8sE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=k6w7+Mgc; arc=none smtp.client-ip=95.215.58.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1777009535; c=relaxed/simple;
+	bh=HgQKvX/MQiImjdres3zV+GZ6STzueo6KF1Knoj4qF+8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=d+CyL79uU7iFo6cUkOaVzYZO8USDIq03F7G036w7M3BK0eNnWw6UOtD316mO6VNiJR8kt8CEBBmLWHw0JExrc6noyJ9XmA9Y+8zl4UbmMLqpZkFfE267EqOrAMKfYU3NrhSqMgHS+AvXE+PCcuctvVwCJ/a4YtEGciYjwIDqA8o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=FGNwJbQE; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=i1JgatN3; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=FGNwJbQE; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=i1JgatN3; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="k6w7+Mgc"
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1777007031;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="FGNwJbQE";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="i1JgatN3";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="FGNwJbQE";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="i1JgatN3"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id AC5916A864;
+	Fri, 24 Apr 2026 05:45:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1777009532; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=rF/14iOG/TKWQJ1iA5emqkLbN1JUZtyc7urLxXkKtYs=;
-	b=k6w7+MgcqYIlU+lFz2OOnnJETtGqStoZm15MrlwZJlFr80pOyWH6gZ6d2zM2guk98Kx4hw
-	tXCLb6gF/s7OF6Yz18Pc0TSuybZ8lAg9MR+ILu0Icc1wm4wkNrZjQ12wjGjJGxTsyLLXJc
-	mGIvQmB9tRHJGZ2PRed7SjpDnA1qOfM=
-From: Lance Yang <lance.yang@linux.dev>
-To: dave.hansen@intel.com
-Cc: lance.yang@linux.dev,
-	akpm@linux-foundation.org,
-	peterz@infradead.org,
-	david@kernel.org,
-	dave.hansen@linux.intel.com,
-	ypodemsk@redhat.com,
-	hughd@google.com,
-	will@kernel.org,
-	aneesh.kumar@kernel.org,
-	npiggin@gmail.com,
-	tglx@linutronix.de,
-	mingo@redhat.com,
-	bp@alien8.de,
-	x86@kernel.org,
-	hpa@zytor.com,
-	arnd@arndb.de,
-	ljs@kernel.org,
-	ziy@nvidia.com,
-	baolin.wang@linux.alibaba.com,
-	Liam.Howlett@oracle.com,
-	npache@redhat.com,
-	ryan.roberts@arm.com,
-	dev.jain@arm.com,
-	baohua@kernel.org,
-	shy828301@gmail.com,
-	riel@surriel.com,
-	jannh@google.com,
-	jgross@suse.com,
-	seanjc@google.com,
-	pbonzini@redhat.com,
-	boris.ostrovsky@oracle.com,
-	virtualization@lists.linux.dev,
-	kvm@vger.kernel.org,
-	linux-arch@vger.kernel.org,
-	linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org,
-	ioworker0@gmail.com
-Subject: Re: [PATCH 7.2 v9 2/2] x86/tlb: skip redundant sync IPIs for native TLB flush
-Date: Fri, 24 Apr 2026 13:03:29 +0800
-Message-Id: <20260424050329.96623-1-lance.yang@linux.dev>
-In-Reply-To: <f856051b-10c7-4d65-9dbe-6b1677af74bd@intel.com>
-References: <f856051b-10c7-4d65-9dbe-6b1677af74bd@intel.com>
+	bh=CQhgHGnANf2ouu43yT8/qCH+4ivxi8mRrhInrUB9nCw=;
+	b=FGNwJbQEUnSZN4qWY5opFLLCTFE9t498f3qPtgcRzZE1duOl9d95UKwglTUXmUp6FdlXKW
+	SwPAiBgxlI2oJMBGLc/31vTxhQME+epQKlKfY+UXvAKHQ8ujHKn2mLKZbI8YitE9EFX/pY
+	TJHqlzvLbk2IuTCN5MQMKelDgEja3e0=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1777009532;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=CQhgHGnANf2ouu43yT8/qCH+4ivxi8mRrhInrUB9nCw=;
+	b=i1JgatN3a084/kua+VsTDEwrbzadmNNcs+5EfXFziFeVnKqVGtig4Db1S4rpEJK83sVOXK
+	WKRavIzZQ3Z3THBw==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1777009532; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=CQhgHGnANf2ouu43yT8/qCH+4ivxi8mRrhInrUB9nCw=;
+	b=FGNwJbQEUnSZN4qWY5opFLLCTFE9t498f3qPtgcRzZE1duOl9d95UKwglTUXmUp6FdlXKW
+	SwPAiBgxlI2oJMBGLc/31vTxhQME+epQKlKfY+UXvAKHQ8ujHKn2mLKZbI8YitE9EFX/pY
+	TJHqlzvLbk2IuTCN5MQMKelDgEja3e0=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1777009532;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=CQhgHGnANf2ouu43yT8/qCH+4ivxi8mRrhInrUB9nCw=;
+	b=i1JgatN3a084/kua+VsTDEwrbzadmNNcs+5EfXFziFeVnKqVGtig4Db1S4rpEJK83sVOXK
+	WKRavIzZQ3Z3THBw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 47677593AE;
+	Fri, 24 Apr 2026 05:45:32 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id cvVAEHwD62mFYwAAD6G6ig
+	(envelope-from <hare@suse.de>); Fri, 24 Apr 2026 05:45:32 +0000
+Message-ID: <ba82106e-ee68-43e2-93da-bb215fc26acc@suse.de>
+Date: Fri, 24 Apr 2026 07:45:31 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 0/4] scsi: Support devices that don't have a cmd_per_lun
+ limit
+To: Bart Van Assche <bvanassche@acm.org>,
+ Mike Christie <michael.christie@oracle.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>
+Cc: martin.petersen@oracle.com, linux-scsi@vger.kernel.org,
+ james.bottomley@hansenpartnership.com, virtualization@lists.linux.dev,
+ mst@redhat.com, pbonzini@redhat.com, eperezma@redhat.com
+References: <20260417230751.117836-1-michael.christie@oracle.com>
+ <20260420173352.GB405461@fedora>
+ <603eee86-9914-4ac8-b937-a38922e69a45@oracle.com>
+ <9ce439b8-4e56-4a8c-8ef9-d8d9e93ab77a@suse.de>
+ <39585b28-64d8-42a4-afab-a88ca1eb83b6@acm.org>
+Content-Language: en-US
+From: Hannes Reinecke <hare@suse.de>
+In-Reply-To: <39585b28-64d8-42a4-afab-a88ca1eb83b6@acm.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+X-Spam-Score: -4.30
+X-Spam-Level: 
+X-Spamd-Result: default: False [-4.30 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-0.999];
+	MIME_GOOD(-0.10)[text/plain];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	ARC_NA(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	RCPT_COUNT_SEVEN(0.00)[10];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,suse.de:email,imap1.dmz-prg2.suse.org:helo]
+X-Spam-Flag: NO
 
-Hi Dave,
+On 4/23/26 18:40, Bart Van Assche wrote:
+> On 4/23/26 2:45 AM, Hannes Reinecke wrote:
+>> Ideally I would kill cmd_per_lun.
+>> This really is a poor man's fairness algorithm (sole purpose is to
+>> avoid starvation with many luns), and we really should look at if
+>> we cannot replace it with tagsets.
+> 
+> Hmm ... isn't cmd_per_lun essential since the introduction of scsi-mq?
+> Without a host-wide tagset, and with n hardware queues,
+> blk_mq_alloc_tag_set() allocates (number of hardware queues) *
+> (shost->can_queue + shost->nr_reserved_cmds) requests. Each request
+> maps to one SCSI command. Setting cmd_per_lun to shost->can_queue may
+> be essential to avoid BUSY responses from a SCSI device. Here is an
+> example from the ib_srp driver (there are many more SCSI LLDs that
+> follow this pattern):
+> * During connection establishment, the SCSI target reports the
+>    maximum queue depth it supports. This response is used to initialize
+>    can_queue and cmd_per_lun.
+> * Multiple hardware queues are allocated, all supporting can_queue
+>    commands.
+> * cmd_per_lun is set to can_queue to avoid BUSY responses from the SCSI
+>    target. My experience is that for high performance SCSI targets even
+>    1% BUSY responses cause a significant performance drop.
+> 
+My point being that cmd_per_lun is a single setting, and is extremely
+imprecise. At the same time we already have fine-grained request QoS
+available by virtue of tagsets.
+Seems like we need to have a 'device_tagset' setting, too.
+Hmm.
 
-On Thu, Apr 23, 2026 at 10:56:03AM -0700, Dave Hansen wrote:
-[...]
->On 4/19/26 20:08, Lance Yang wrote:
->> -	flush_tlb_mm_range(tlb->mm, start, end, stride_shift, tlb->freed_tables);
->> +	/*
->> +	 * Treat unshared_tables just like freed_tables, such that lazy-TLB
->> +	 * CPUs also receive IPIs during unsharing of page tables, allowing
->> +	 * us to safely implement tlb_table_flush_implies_ipi_broadcast().
->> +	 */
->> +	flush_tlb_mm_range(tlb->mm, start, end, stride_shift,
->> +			   tlb->freed_tables || tlb->unshared_tables);
->>  }
->
->I've been staring at this trying to make sense of it for too long.
->
->Right now, flush_tlb_mm_range() literally has an argument named
->"freed_tables" and "tlb->freed_tables" is passed there. That seems
->totally sane. It's 100% straightforward to follow.
->
->But it makes zero logical sense to me to now mix "tlb->unshared_tables"
->in there. Sure, what you _want_ is the freed_tables==1 behavior from
->tlb->unshared_tables==1, and this obviously hacks that in there, but
->it's not explained well enough and not maintainable like this. IOW, it's
->still just hack.
->
->I think what's happened here is that info->freed_tables is being
->modified from being strictly related to page table freeing, and moved
->over to a bit which tells TLB flushing implementations whether they can
->respect CPUs in lazy TLB mode.
->
->It's mentioned in the comment, but then ever reflected into the code.
->
->Shouldn't we be doing something like the attached patch? Look at how
->that maps over to the flushing side, like in the hyperv code:
+Cheers,
 
-Cool, thanks!
-
-I was trying to keep the change small by passing unshared_tables through
-the exsiting freed_tables argument, but that made the code a bit harder
-to follow ...
-
->
->> -       bool do_lazy = !info->freed_tables;
->> +       bool do_lazy = !info->wake_lazy_cpus;
->>  
->>         trace_hyperv_mmu_flush_tlb_multi(cpus, info);
->>  
->> @@ -198,7 +198,7 @@ static u64 hyperv_flush_tlb_others_ex(co
->>  
->>         flush->hv_vp_set.format = HV_GENERIC_SET_SPARSE_4K;
->>         nr_bank = cpumask_to_vpset_skip(&flush->hv_vp_set, cpus,
->> -                       info->freed_tables ? NULL : cpu_is_lazy);
->> +                       info->wake_lazy_cpus ? NULL : cpu_is_lazy);
->
->That even makes the hyperv code easier to read over what was there
->before, IMNHO.
->
->Thoughts?
-[...]
-
-Yeah, renaming the flush_tlb_info bit to wake_lazy_cpus reads much
-better. Will fold this into v10, Thanks for spelling it out!
-
-Lance
+Hannes
+-- 
+Dr. Hannes Reinecke                  Kernel Storage Architect
+hare@suse.de                                +49 911 74053 688
+SUSE Software Solutions GmbH, Frankenstr. 146, 90461 Nürnberg
+HRB 36809 (AG Nürnberg), GF: I. Totev, A. McDonald, W. Knoblich
