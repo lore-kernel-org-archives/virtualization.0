@@ -1,159 +1,111 @@
-Received: from mail-pl1-f169.google.com (mail-pl1-f169.google.com [209.85.214.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84C6A282F35
-	for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 15:03:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43C0A282F34;
+	Fri, 24 Apr 2026 15:05:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777043024; cv=none; b=Un68Xwgd/tSbtvuyufkT7J7htvg13Z+Z2oIH4DbTd6lJG+khAFhOxv2cGkyW94vHeMoifsz899AF5CmLk40ynTiQOyd2nYFFMW32HZ1Az+xLXBSz+fCbXYlgmqakXNpswU2gDUtkRBNd/ZFDuWzFgg5mWXHW7nxWBSFzK0OJIxk=
+	t=1777043115; cv=none; b=cRZQIxP4JErq2n8rK5OmmddB42/tWaKGFyU2HS8fZ+pXghhhbR5ps0/vOqLzumD0gBbw6Ggwv0VPjkZBoqahNFLvUDk8K9DibsykGki3+p0YhV4X3K+t0qJRUSzQ3ESJviEpIlu8BXHRa1syYHclUNeOEizs0j+eaU4nGwAWFvw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777043024; c=relaxed/simple;
-	bh=sam5CzX7hUFWo2rSuIUY9jL5rVRI1ZwRvCUUTaLpc/8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=YYWXTzcbUJ06AFn4ZzK2kIyUZoIy0BdBWPtQtWhjgoyRN3VCtb5jaEpbtBOj5jBZKI/d3S3b1yvyPx8kJgvZSn6vVWNtxJNEN0mPC+wNC36WuRDpnVHUPpLeSq9I/olfyQA/w8UNKc/E/jOpFtFNPmckcfjk5ctBHxwNFuScl7I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OXedOKCl; arc=none smtp.client-ip=209.85.214.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1777043115; c=relaxed/simple;
+	bh=9w2606aQeabbJIZdtf5lj1VrPlSyQZSZtKQ8LlTuxTA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=QrNAVHFmA91r07duKqD0eYmxSn97XWwRplzASSeH3EA738mcX3TMLxUvPFfYeNnHl1P6PUCOaLB/CeUIXdQFusgVDUWUl5icOyL7M8BdBrL8Hmy14hH1gH4V6JHjiHdBVPqJEgrUPHrvTtvytNbD6kmzrx0tu9srdEx9FTbKm+k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=GBm3gHMf; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OXedOKCl"
-Received: by mail-pl1-f169.google.com with SMTP id d9443c01a7336-2b24fede2acso52973715ad.3
-        for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 08:03:43 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777043023; x=1777647823; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=gdnOmdvYkq1xF25fAEazaVF6DIg+bGDl6V2EYI1zKDU=;
-        b=OXedOKClpTy+n6x1KAHsWsEln4HZdgt7tlgxUStkUtPx3MxZoY+BvaOtbaICZH74Zm
-         uh6k42Xd3IU3mc/xIXxebJWRNhjen4xw4A/V++w7LSkJyDiU1j28yl/cB+WKtUcKka80
-         JWIc/ygbcti4tqlkFCaFs5etX5ePympRC4/c5+vGGnp6ZYe9WDUnrzi0glofndOuaYFu
-         pVaXeUvu7bR7UVi5f/ynLuAgYKsiZa2JcJOH1v2Ht2/GNRzAJcRXQSrTgBsc0hBoF5Sv
-         QWrALP9yOhMxVDvHs4B9MTQ6KoHTeLcn9z2op80LNDLLHCeroAK7M2lpyDZXr6wBjjgk
-         H9cw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777043023; x=1777647823;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=gdnOmdvYkq1xF25fAEazaVF6DIg+bGDl6V2EYI1zKDU=;
-        b=jXvi6HzPbiPBYhyTevthb6jh8pA9p3u27VqiFzDC2pATNPpmcvgB38jY+Anab9MvDa
-         MrlUEpruP0qrGvUdpN9W8GmV69WaCK2EpB1FQnsSBnJzqNXft/SONbY6q4U0zSKZ0mGz
-         QAm1/shzaUOgGH13I8rTjD1lgx9KimI5S2KtvCo9exTTgzGiXWXyrvzU0lli6/hroBxQ
-         Au+I1ucTe/PRexuQSDhIfMJmRat7el/ppmZrWzZiywF4BhA9oljC3dy5bZ89m40f7Q0E
-         D+5c93U3l0tHTCJWpko7dLnVZiKZzNGAMecqCFQfD+AYYiSl/c8BWwfggBZopvb0kxHx
-         M4gw==
-X-Gm-Message-State: AOJu0YzO+4ln8mmM4dF2mbRcTVjmEhU+c0mWKB5GcJisx9HZ0Zu1hmEs
-	Ex2l+eQIW3bVgRvLp2ozahg8Ztlal1jqrH3lgdjCnapkan3LBtDkdadL
-X-Gm-Gg: AeBDietgia2u3W6hbDqFWZwirZIduFMovFNDifDGEKI1XTZmUokI1QYoYiPKeALgcNZ
-	y5jumskb3aUTdz9maS6A1a8gXBAUWvMxkQcgkNFxL5Vyrt9i4fAHezY9wW+XLGbi0zBa/aJAvpT
-	WYAg3NZWhyVsoI2QH+1wR/H1DjUxQ3g2dw6kiRISybrF6ogCQ7BodWCibVYjbvuCrc7SOeCpNCy
-	NExA59B5tCP5Og/QhEsINZrQnd5H+jBay77yWYA1XiIX7TuMEdGo5Q/ASoIHeOW1AjXjmEJ5rWD
-	Mu0hMdxC7dbE6s++9wvxmsFGO5PUtdrfqS9efYGHttJNPNRp8bOhuDj9YydP+TcJfvKKNmXiDGl
-	3Pw65sbLZpNc42HnJ3OwBykq6CyvNgRysmzDbTztFfycgdOxDlh4M7xIbHO6E+ETxgKqg2csoxQ
-	4tbeca94y9LRXp4g1F3AQI4GCf//nh614WBNejsomyjrkrB4XD+a4R/ggdEWrJ7kZM9658wJYCi
-	aZ6ZyZFujNUesco
-X-Received: by 2002:a17:903:286:b0:2b2:680c:2193 with SMTP id d9443c01a7336-2b5f9f64affmr349377755ad.31.1777043022350;
-        Fri, 24 Apr 2026 08:03:42 -0700 (PDT)
-Received: from deepanshu-kernel-hacker.. ([2405:201:682f:383f:ba99:851:d885:8271])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b5fab4cc47sm233257465ad.82.2026.04.24.08.03.35
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Apr 2026 08:03:41 -0700 (PDT)
-From: Deepanshu Kartikey <kartikey406@gmail.com>
-To: mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	stefanha@redhat.com,
-	sgarzare@redhat.com,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	horms@kernel.org
-Cc: virtualization@lists.linux.dev,
-	kvm@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Deepanshu Kartikey <kartikey406@gmail.com>,
-	syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com
-Subject: [PATCH] vsock/virtio: fix memory leak in virtio_transport_recv_listen()
-Date: Fri, 24 Apr 2026 20:33:10 +0530
-Message-ID: <20260424150310.57228-1-kartikey406@gmail.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="GBm3gHMf"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=+NqApcQrwdhaOtWhqBdoM6sLqZ2bCPI9lnI5VOoCdDg=; b=GBm3gHMfOVuha9S9cV0gdRX1yr
+	YcsRzjFVJFChaczV7xWUg5ocsiMLja9wCwp5Ve36UGe/gNs1EIRcmW2rdxVQ6S/dBxD5qmnQPhvmf
+	5U21nno16gogxpiGy+1qJeXBKtgHU8bR35ejMKPbsORtH5XVNUEN/5vQcZ6dyIKoqOMOrGOPELKDZ
+	wl8otUg1MRTIkW6pKcv3flWlUHnMZyCopyIXfGgnK1XG5Fb1dOgYyiC+r4vMmPw1oW5xYL1ZG0myt
+	VAkU6mqW+K3yF9kV+LpWrUvXsAeCSKveJOLDeejVyi85mDGUVGs3vF32tZmElrGMfcYYpl+qDoS4E
+	RfyT2c+Q==;
+Received: from 2001-1c00-8d85-4b00-266e-96ff-fe07-7dcc.cable.dynamic.v6.ziggo.nl ([2001:1c00:8d85:4b00:266e:96ff:fe07:7dcc] helo=noisy.programming.kicks-ass.net)
+	by casper.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
+	id 1wGI5O-0000000FNxB-407k;
+	Fri, 24 Apr 2026 15:04:55 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id 8B7E8301261; Fri, 24 Apr 2026 17:04:54 +0200 (CEST)
+Date: Fri, 24 Apr 2026 17:04:54 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+To: Lance Yang <lance.yang@linux.dev>
+Cc: akpm@linux-foundation.org, david@kernel.org, dave.hansen@intel.com,
+	dave.hansen@linux.intel.com, ypodemsk@redhat.com, hughd@google.com,
+	will@kernel.org, aneesh.kumar@kernel.org, npiggin@gmail.com,
+	tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org,
+	hpa@zytor.com, arnd@arndb.de, ljs@kernel.org, ziy@nvidia.com,
+	baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com,
+	npache@redhat.com, ryan.roberts@arm.com, dev.jain@arm.com,
+	baohua@kernel.org, shy828301@gmail.com, riel@surriel.com,
+	jannh@google.com, jgross@suse.com, seanjc@google.com,
+	pbonzini@redhat.com, boris.ostrovsky@oracle.com,
+	virtualization@lists.linux.dev, kvm@vger.kernel.org,
+	linux-arch@vger.kernel.org, linux-mm@kvack.org,
+	linux-kernel@vger.kernel.org, ioworker0@gmail.com
+Subject: Re: [PATCH 7.2 v10 1/2] mm/mmu_gather: prepare to skip redundant
+ sync IPIs
+Message-ID: <20260424150454.GF3126523@noisy.programming.kicks-ass.net>
+References: <20260424062528.71951-1-lance.yang@linux.dev>
+ <20260424062528.71951-2-lance.yang@linux.dev>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260424062528.71951-2-lance.yang@linux.dev>
 
-Two bugs exist in virtio_transport_recv_listen():
+On Fri, Apr 24, 2026 at 02:25:27PM +0800, Lance Yang wrote:
+> diff --git a/mm/mmu_gather.c b/mm/mmu_gather.c
+> index 3985d856de7f..37a6a711c37e 100644
+> --- a/mm/mmu_gather.c
+> +++ b/mm/mmu_gather.c
+> @@ -283,6 +283,14 @@ void tlb_remove_table_sync_one(void)
+>  	 * It is however sufficient for software page-table walkers that rely on
+>  	 * IRQ disabling.
+>  	 */
+> +
+> +	/*
+> +	 * Skip IPI if the preceding TLB flush already synchronized with
+> +	 * all CPUs that could be doing software/lockless page table walks.
+> +	 */
+> +	if (tlb_table_flush_implies_ipi_broadcast())
+> +		return;
+> +
+>  	smp_call_function(tlb_remove_table_smp_sync, NULL, 1);
+>  }
+>  
+> @@ -312,6 +320,13 @@ static void tlb_remove_table_free(struct mmu_table_batch *batch)
+>   */
+>  void tlb_remove_table_sync_rcu(void)
+>  {
+> +	/*
+> +	 * Skip RCU wait if the preceding TLB flush already synchronized
+> +	 * with all CPUs that could be doing software/lockless page table walks.
+> +	 */
+> +	if (tlb_table_flush_implies_ipi_broadcast())
+> +		return;
+> +
+>  	synchronize_rcu();
+>  }
 
-1. On the transport assignment error path, sk_acceptq_added() is called
-   but sk_acceptq_removed() is never called when vsock_assign_transport()
-   fails or assigns a different transport than expected. This causes the
-   parent listener's accept backlog counter to be permanently inflated,
-   eventually causing sk_acceptq_is_full() to reject legitimate incoming
-   connections.
+So I don't like this at all.... The comment says there is a preceding
+TLB flush, but there is nothing that guarantees there is. One would have
+to go audit all users and ensure this is always true.
 
-2. There is a race between __vsock_release() and vsock_enqueue_accept().
-   __vsock_release() sets sk->sk_shutdown to SHUTDOWN_MASK and flushes
-   the accept queue under the parent socket lock. However,
-   virtio_transport_recv_listen() checks sk_shutdown and subsequently
-   calls vsock_enqueue_accept() without holding the parent socket lock.
-   This means a child socket can be enqueued after __vsock_release() has
-   already flushed the queue, causing the child socket and its associated
-   resources to leak
-   permanently. The existing comment in the code hints at this race but
-   the fix was never implemented.
+This thing is incredibly fragile.
 
-Fix both issues: add sk_acceptq_removed() on the transport error path,
-and re-check sk->sk_shutdown under the parent socket lock before calling
-vsock_enqueue_accept() to close the race window. The child socket lock
-is released before acquiring the parent socket lock to maintain correct
-lock ordering (parent before child).
+Also, the comment in gup_fast() is nonsense, the local_irq_disable()
+isn't about tlb_remove_table_sync_one(), it is primarily about TLBI
+IPIs.
 
-Reported-by: syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=1b2c9c4a0f8708082678
-Tested-by: syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com
-Signed-off-by: Deepanshu Kartikey <kartikey406@gmail.com>
----
- net/vmw_vsock/virtio_transport_common.c | 13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
 
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index 416d533f493d..fad5fa4a4296 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -1578,6 +1578,7 @@ virtio_transport_recv_listen(struct sock *sk, struct sk_buff *skb,
- 	 */
- 	if (ret || vchild->transport != &t->transport) {
- 		release_sock(child);
-+		sk_acceptq_removed(sk);
- 		virtio_transport_reset_no_sock(t, skb, sock_net(sk));
- 		sock_put(child);
- 		return ret;
-@@ -1588,11 +1589,19 @@ virtio_transport_recv_listen(struct sock *sk, struct sk_buff *skb,
- 		child->sk_write_space(child);
- 
- 	vsock_insert_connected(vchild);
-+	release_sock(child);
-+	lock_sock(sk);
-+	if (sk->sk_shutdown == SHUTDOWN_MASK) {
-+		release_sock(sk);
-+		sk_acceptq_removed(sk);
-+		virtio_transport_reset_no_sock(t, skb, sock_net(sk));
-+		sock_put(child);
-+		return -ESHUTDOWN;
-+	}
- 	vsock_enqueue_accept(sk, child);
-+	release_sock(sk);
- 	virtio_transport_send_response(vchild, skb);
- 
--	release_sock(child);
--
- 	sk->sk_data_ready(sk);
- 	return 0;
- }
--- 
-2.43.0
 
