@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDE8E313550;
-	Fri, 24 Apr 2026 18:33:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BA9E3E5EDC;
+	Fri, 24 Apr 2026 18:36:29 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777055639; cv=none; b=QrbcwPIilikxTDnbSLp5dlCXnEUeEGTRr99KoZJKFwdKrfWr1dt0wc4/ZrCkW+hLwMrBK6pv5x3BNQ55ZdgLyBKb/Is9mgck6vNpfbyqaZwKv/jA35V7NxPix62mISAdSdqX1wTxtNhyqIG0Sh3sdhHirkhn/mDblA38SIyAoJk=
+	t=1777055789; cv=none; b=SnwckR3kBN8CEKlzR+jZv3HIkavCRF4s56eNidSpZ4im9MeNPQF6qYOa6ZrxullWMkwG80c3eotYWfk/ytw6Kqf+N43xxrOC2i7rpcXnTsIdT3aGeaK9mi71e51ymXEdTr3bSAs6pQtp+rkElzAsaqlXQQSChrg9XMKhE+cIm64=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777055639; c=relaxed/simple;
-	bh=/eLx7kUbMNf35MbwljFoEAxjWli6DbZEA0fmcECuzY4=;
+	s=arc-20240116; t=1777055789; c=relaxed/simple;
+	bh=L4jbMDY27DDz6+DS6kI4Qsu8AZq31/9+/cVOm1CDF24=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=VVM683Vv57e8aKWNuGEZdvkF1EmNAgy+XPS7S2tmcshT1a6kB0KVP9E2rwy6/WM6XvhVNU8WnrT7YvYLHl4VXtaGLhnYGjtxjfIgjtrR7g9i0/We1ze9NR6/TY3wDalF6QQRaiKyw7Ug/K0yZe4NfT8gy2ml6gw31/8bs8Y6JhU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=sKA0DITd; arc=none smtp.client-ip=10.30.226.201
+	 In-Reply-To:Content-Type; b=lE3Hvjr3ENJ85cNeRh4HZOhfi9B64vPY6zoUdUVMYrGSZTcfJyYPanLOWdNvbUGvkewccZeuvJWZ1UsBAMynxOIvBsnm3CfyPtbgCuiPsyBz5FHVA+FXKT7SPCWjL52S0bydb8UyxZ5ytpXfRMYIKzk+FQbIha21y4UM5WRoSJk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rL1BpIwr; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="sKA0DITd"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A2EC2C2BCB4;
-	Fri, 24 Apr 2026 18:33:48 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rL1BpIwr"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79AD4C19425;
+	Fri, 24 Apr 2026 18:36:19 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777055639;
-	bh=/eLx7kUbMNf35MbwljFoEAxjWli6DbZEA0fmcECuzY4=;
+	s=k20201202; t=1777055789;
+	bh=L4jbMDY27DDz6+DS6kI4Qsu8AZq31/9+/cVOm1CDF24=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=sKA0DITdxCODM2VDwZATIZV/+2Q9QtqKKTgXbCegYwXkeCv1Azbn8CqIHxt8LfhH1
-	 HPKO1kqtZgmbjfcua6vhYps3h6FiKiz57KHM71R+jRGGgRREvijLUAvzgyNlQHwAGW
-	 AxV/pmaBrSrFt9O5MG2keZoVNWRyuuq6Xh0DxndarOEmyqixLwoG6+nL+q02jy7f3P
-	 6gX3e1fWep/QK11+v9C6S3lrPJ/83Pi1E8v18aFPl5mZBohsULf15WQtjc33bNgD5p
-	 Pyc97vZWzSErPc9V1VxAIwwBCF3/pHOm5qoy9jZcf72RKKtl49JIuIEexQiCFAAwgt
-	 Q592MfBIXnWWw==
-Message-ID: <4e12d67b-60e3-4bf5-a229-43c0d2c62cfb@kernel.org>
-Date: Fri, 24 Apr 2026 20:33:45 +0200
+	b=rL1BpIwrTJNAvql1Vcp5x5Vv+xdwUtQ/JLUc71lzSiqRWO/R1/Sd2AzOoI2+qMGzz
+	 qAp1pSPvHgAFPeeZGcoIj6VYUoHG6TqWMrHXiBb0xqdx1bfBQ0559ZX6TxoJ31FD2v
+	 UXsObbvodX7PRYHBDe+Q1iG5pThWfqknVK6Dz2H03FAasVRv/640v+maaFx/sdGVbS
+	 DQpJEpkLiOyeuP6v9X1WoKe2m/ciWY3uTuodtKnxLOO+OlC+uqjAZghf/KHYn1Xkvl
+	 OujMFbWOYaPtf0W0etm++tRK65YxhknAEo0p2wcUrMqHAb6WZ1LjTXZGYcXhFMFwMX
+	 NbYPyoSa9Tx7A==
+Message-ID: <644e65dc-3d39-4137-b51f-51d953b67d50@kernel.org>
+Date: Fri, 24 Apr 2026 20:36:16 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -35,44 +35,28 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC v3 01/19] mm: thread user_addr through page allocator
- for cache-friendly zeroing
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Gregory Price <gourry@gourry.net>, linux-kernel@vger.kernel.org,
- Andrew Morton <akpm@linux-foundation.org>,
- Vlastimil Babka <vbabka@kernel.org>, Brendan Jackman <jackmanb@google.com>,
- Michal Hocko <mhocko@suse.com>, Suren Baghdasaryan <surenb@google.com>,
- Jason Wang <jasowang@redhat.com>, Andrea Arcangeli <aarcange@redhat.com>,
- linux-mm@kvack.org, virtualization@lists.linux.dev,
- Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
- Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
- "Liam R. Howlett" <Liam.Howlett@oracle.com>, Mike Rapoport
- <rppt@kernel.org>, "Matthew Wilcox (Oracle)" <willy@infradead.org>,
- Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
- Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <npache@redhat.com>,
- Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>,
- Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>,
- Matthew Brost <matthew.brost@intel.com>,
- Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
- Byungchul Park <byungchul@sk.com>, Ying Huang
- <ying.huang@linux.alibaba.com>, Alistair Popple <apopple@nvidia.com>,
- Hugh Dickins <hughd@google.com>, Christoph Lameter <cl@gentwo.org>,
- David Rientjes <rientjes@google.com>,
- Roman Gushchin <roman.gushchin@linux.dev>, Harry Yoo <harry.yoo@oracle.com>,
- Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
- Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham <nphamcs@gmail.com>,
- Baoquan He <bhe@redhat.com>, linux-fsdevel@vger.kernel.org
-References: <9dd9deabd42801f3c344326991d1431c3d8db39d.1776808210.git.mst@redhat.com>
- <aekluxNPxF8CN8fL@gourry-fedora-PF4VCD3F>
- <20260422171315-mutt-send-email-mst@kernel.org>
- <aemglPlcwFFHNj1A@gourry-fedora-PF4VCD3F>
- <c165d6af-4a35-4a41-9086-ee307640c044@kernel.org>
- <20260423074433-mutt-send-email-mst@kernel.org>
- <aeohzbmhQAoOODPm@gourry-fedora-PF4VCD3F>
- <88b0765f-7cfc-4e44-83d2-c01a1755c842@kernel.org>
- <20260423104120-mutt-send-email-mst@kernel.org>
- <1ab6e58f-d984-4bae-a343-1b0d3c973ad0@kernel.org>
- <20260423121222-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH 7.2 v10 0/2] skip redundant sync IPIs when TLB flush sent
+ them
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Pasha Tatashin <pasha.tatashin@soleen.com>,
+ Lance Yang <lance.yang@linux.dev>, peterz@infradead.org,
+ dave.hansen@intel.com, dave.hansen@linux.intel.com, ypodemsk@redhat.com,
+ hughd@google.com, will@kernel.org, aneesh.kumar@kernel.org,
+ npiggin@gmail.com, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
+ x86@kernel.org, hpa@zytor.com, arnd@arndb.de, ljs@kernel.org,
+ ziy@nvidia.com, baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com,
+ npache@redhat.com, ryan.roberts@arm.com, dev.jain@arm.com,
+ baohua@kernel.org, shy828301@gmail.com, riel@surriel.com, jannh@google.com,
+ jgross@suse.com, seanjc@google.com, pbonzini@redhat.com,
+ boris.ostrovsky@oracle.com, virtualization@lists.linux.dev,
+ kvm@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org,
+ linux-kernel@vger.kernel.org, ioworker0@gmail.com, roman.gushchin@linux.dev
+References: <20260424062528.71951-1-lance.yang@linux.dev>
+ <20260424063024.ce42ee6a5546e4d9337dd007@linux-foundation.org>
+ <aetw4aoABYj3keMh@plex>
+ <20260424071533.d28ce90126f05e1c6fc1b740@linux-foundation.org>
+ <80ab39c2-efb9-4a23-bd56-46d9bb4e41bb@kernel.org>
+ <20260424073145.b990fe9b925da304508aad71@linux-foundation.org>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -119,26 +103,33 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20260423121222-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20260424073145.b990fe9b925da304508aad71@linux-foundation.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 4/23/26 18:13, Michael S. Tsirkin wrote:
-> On Thu, Apr 23, 2026 at 05:54:26PM +0200, David Hildenbrand (Arm) wrote:
->> On 4/23/26 16:46, Michael S. Tsirkin wrote:
+On 4/24/26 16:31, Andrew Morton wrote:
+> On Fri, 24 Apr 2026 16:20:55 +0200 "David Hildenbrand (Arm)" <david@kernel.org> wrote:
+> 
+>> On 4/24/26 16:15, Andrew Morton wrote:
 >>>
->>> I just dislike it when things are non orthogonal.
->>> People are used to: hugetlb = same perf as THP but more predictable at the cost
->>> of being harder to use and using more resources.
->>> Here, suddenly, we have an optimization but only for THP.
+>>>
+>>> Yep.  I'd be OK with an automatic reply-to-all.  Maybe some won't like
+>>> that.
+>>>
+>>> An alternative I've discussed with Roman is an automated
+>>> reply-to-author with a cc to a dedicated list (we could use mm-commits
+>>> for now).
+>>>
+>>> Preferences?
 >>
->> Note that we also didn't care about user_alloc_needs_zeroing() with hugetlb so far.
+>> Reply-to-author would likely be better as a first step.
 > 
-> 
-> You mean, that it stays because of the reserved pool?
+> Why do you think so?
 
-I meant, that if we are running with init_on_free or init_on_alloc, that we end
-up double-zeroing right now upstream. So nobody cared to optimize that part so far.
+The most important part for me is that authors are aware of the reports.
+
+Sending them as a mail forces people to publicly reply to the feedback, and at
+this point in time, I am not convinced that that is the right approach.
 
 -- 
 Cheers,
