@@ -1,260 +1,201 @@
-Received: from mail-oa1-f80.google.com (mail-oa1-f80.google.com [209.85.160.80])
+Received: from mail-pf1-f169.google.com (mail-pf1-f169.google.com [209.85.210.169])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 768AC6FBF
-	for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 02:02:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.80
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6953303A04
+	for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 04:08:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1776996156; cv=none; b=kmj9OPggiaH7jnyNFodqehbrVba4cGG+BFCwNMHnB43B7Oef88YTJBdKQSQ0Hj20QZ15paelSvPu2ZY3L0HBzC9qy7rVgcArqsZ1KQd+vZe0FkD4Al0KYKwHjSuWYp3SN2opTgY0JwRMJjRL0upLoYxX0/Qn5wNJ/0o8E5mnixQ=
+	t=1777003684; cv=none; b=ZAdlcseYEh6X4hkwNxorRCArx3XFKZ1LzEkZhhK/5WeE4UZP1xedPwQEf3Wlu9ejly7gO2UABccJ1MPYTSMg6G85AgDao04x3qJZAKlC0ITNKsQfJvCRLthRS0ZHVZoPi8zuAs5x/vHiiDsKl2Is8c5flmSKu9CvqyuecVvp65U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1776996156; c=relaxed/simple;
-	bh=Ix1ii9fXrEzTcqkCz+c0607KCuN/OSfpHXVOLLAAlk8=;
-	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=HiKvI4EVdQ3XlTSofxNtQP2VmOv5Y7Qp4tiFqiRQKvxtXyb+voeS19AFD+bN0BQwCkqSaIRKqacPcQkimdEDl4L7MuyJVlAeVe9cUiEO1eNxDvK8upifpCDQHagpQlYq8lXEWWOXooyGsEQOoYeytM0mU8+qkbFoAB/BjTRNrPM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.160.80
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oa1-f80.google.com with SMTP id 586e51a60fabf-40f09403c56so15942463fac.1
-        for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 19:02:34 -0700 (PDT)
+	s=arc-20240116; t=1777003684; c=relaxed/simple;
+	bh=1jqgqePiCpWS5lWhDTPGPcI+gdO+taxTOjKbPiuxaMs=;
+	h=Message-ID:From:To:Cc:Date:Subject:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=a4qkKPcl5SpuXR8AM/faWWgTTodgaLfbgCi1YGAGVCri4dnvqkFCE1oJckY6Zw4AjuXxfYNXLgj0APPsM+bwHJVCc/mUr75eH8skPhFaK89KUYyGvmFGYtyRCR9YX/wYnyr6UZswZJfdZNfLGWAsiujORmamooim8FwbE5e/3jI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aUC17Qrh; arc=none smtp.client-ip=209.85.210.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aUC17Qrh"
+Received: by mail-pf1-f169.google.com with SMTP id d2e1a72fcca58-82f6b592fc7so3379619b3a.3
+        for <virtualization@lists.linux.dev>; Thu, 23 Apr 2026 21:08:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1777003682; x=1777608482; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :subject:date:cc:to:from:message-id:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ebTz24LbM5JUkJMnX0UTG9L5NdW7NGB2BYBIfLQKtDU=;
+        b=aUC17QrhsOhjMU+YFdXbPbeMokWu1ZYq+HSD7uIK2PUoeuXunBnbvzAkQmfvz4yTpp
+         lUkH+XyQRcehRJQlZSb5pMv+4Jf99Gccw/tN0vuFIon0tb5/h63m7daMfjKBiNmjyIa9
+         v2VyB7Q8wk7Hikth3Vky93/HAncnA3vdU0st3pHZkyJbFHv5DklV0m1B6VrPqONTBWSl
+         pkw9lVHE0TmihXFQtv2naJ8mbc6FW95lHaHQ3B+tU9Aoj2Y2Aadw7Bti4LhYqZ/USRKa
+         5OXPQj67I+WVGpnX9rG3U+WME6TGhkhBaZQtt1xcI0lDplprQAAfXdvh9dyoVZUc56Fm
+         36tw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1776996153; x=1777600953;
-        h=to:from:subject:message-id:date:mime-version:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=d3uC8NU4AwArWZSQvkNDOrhg+SGZrdOSXtX1ixWx9v0=;
-        b=awn6l2MsfD05PWrgyWdL8NpIaOWNMNW7a4El02rrWGnE6YIBzwhU+18odx89nAkJMy
-         QFyEXLbSKP5oqaf+JZXfm5ADUGO26VDflkIy/hb8TJF08H6CcSgAbtlXXwtmMq4aUmFc
-         JbmZkC7MZ4FUN06MsnpU476wWex5eJDbXQHHJmmAZO8jYj0qp6Nrrp2+wHu625xshDl4
-         DSc9F8hWJIMTl3qbBIx035vOHEese6X+CA9OEVmIebCP9osqNqIKfmdjK8ynqi6phfsN
-         Havc3ykEdReGqIjJ1dprydYbTPAqKvX4G64plUIOw9284wm3Z4Vzh9xEmew5g8c4TQBr
-         +Rtg==
-X-Forwarded-Encrypted: i=1; AFNElJ+ltBBeweetpPabL/RosHPWXD22Vak3LwlbUj/hvtSaVOBHx0GSNZEra10B/Gl/hAZHzsJMlnV+6yAhb71j4g==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy1WV0PxIhbyOlwD2XsSPXRhdpcKA1kHtsVNeoHKPSvX9kaoKO0
-	iBwcy97ZhepAlhY6rTxo9b/rIs4qHmOLw2l4dSro6n+i8ogE8ShrF4wXdHk9kXw5FOtmjg6C3hF
-	52u9MlOQk4R0Uyvxb7DC3/q7/3QgiogQ7ZbUUTeOV313e5e3c7lzg3OtNAak=
+        d=1e100.net; s=20251104; t=1777003682; x=1777608482;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :subject:date:cc:to:from:message-id:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=ebTz24LbM5JUkJMnX0UTG9L5NdW7NGB2BYBIfLQKtDU=;
+        b=plQR0YSMJpmppXSQOXROgCAWXeISyZf33v7WT1rQ3VNfFymJ/jZxWeNOmn09M9wMsT
+         C4qjK9sz4jpTTr9slj1WW+SaoR1Njya712egS8Z0ikSXcGL73A9Rj+DB5FR78IiHZgeL
+         X3qT+fcD2rq5O9u4sNxD4IaYveyYCX86tONyrcUgfTA2kOptrN/C/DnTrGzWiLGmg+2M
+         CgXWGPs3FzZE+ul8rgCcALyh5u8ukfXN57mMvR0H5IyiIi+6xICPyb597anTBG3yLmT8
+         ojmGvG7xCIXqGzi6nQGFr0MT7OwRZBTGx87s9N9r/zzoHcVfBq030u8p8gD8w6qIXqgH
+         m3xg==
+X-Forwarded-Encrypted: i=1; AFNElJ9XqKkbnnmD0rbOLdqr5phLMTKW5MNb5iSO94bjfEdZn1dhXaJ8+CKXebh9GUIEOLOBHLoVLB54O/jmd2o52A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxMI1dYplj2HZux6p+JrwIZNrbcJ6UCt39ztWUKIGCz3fItfkgw
+	jJ1VCrrk7VNIiaDgKnAetIYDvpqnWMAiV6IpkJoCMWDfJn1N2m0lRoed
+X-Gm-Gg: AeBDiesPnoVKRYFNnzhCV4WVyqZSl5ZpkHutQNm8EI+YTBXP2u4jXzo8QXF+JUd4o0P
+	5iY+svlXi2mopuqMmunKayjKNkpRFlie05SHdxNNyJYbrNWxphxOHeKClzLIbx/JhifRvdd/nHQ
+	glKvW8xs07uPLzLtNPKKXfIJk/zOe560NpSLbPay+ifiHZ+PrS+qM8fZMyZqZKshYcLeGcQNvEC
+	eoirJvm0uxB3OKjE6aTy1B/z8y0Ik8VMyNc1ooUiCGvc9Cs11pyxm1nkTWkvM9Nc58/IBhHe4dh
+	e8/n4M3Erw9dSGWoN20niKljD0FNBdInz58TE83aC6SQyT1v0AMYaJ5XZmTYHeoy8sjlS/9s/A4
+	Ug6s2NMs/HAGZLJUZGOEkycElw9dN7Zs0i/p3iO/PH+kBW/WKSroVWD/VHIdjCdSE25b1eb7dDE
+	XQIFWeAGx96Oou8B+11GQPVx3Ey/Bjm0r28i/U5wM=
+X-Received: by 2002:a05:6a00:aa08:b0:82c:66f2:1226 with SMTP id d2e1a72fcca58-82f8c8e4febmr30231789b3a.38.1777003681389;
+        Thu, 23 Apr 2026 21:08:01 -0700 (PDT)
+Received: from [127.0.1.1] ([188.253.126.216])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82f8e9d2f9asm23197324b3a.19.2026.04.23.21.07.58
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 23 Apr 2026 21:08:00 -0700 (PDT)
+Message-ID: <69eaeca0.050a0220.408e2.027b@mx.google.com>
+From: JiaJia <physicalmtea@gmail.com>
+To: Peter Hilber <peter.hilber@oss.qualcomm.com>
+Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, physicalmtea@gmail.com
+Date: Fri, 24 Apr 2026 11:14:53 +0800
+Subject: [PATCH v2] virtio: rtc: tear down old virtqueues before restore
+In-Reply-To: <iwb4axxcxti6bpgpde5cv3n7y46xaopvkbdd2kug3qhn2ehfim@ny45mixj7ncn>
+References: <iwb4axxcxti6bpgpde5cv3n7y46xaopvkbdd2kug3qhn2ehfim@ny45mixj7ncn>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6820:8589:20b0:687:5a16:dea1 with SMTP id
- 006d021491bc7-6946381984emr10914198eaf.28.1776996153506; Thu, 23 Apr 2026
- 19:02:33 -0700 (PDT)
-Date: Thu, 23 Apr 2026 19:02:33 -0700
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <69eacf39.a00a0220.17a17.004d.GAE@google.com>
-Subject: [syzbot] [virt?] [net?] memory leak in __vsock_create (2)
-From: syzbot <syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com>
-To: davem@davemloft.net, edumazet@google.com, horms@kernel.org, 
-	kuba@kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, 
-	pabeni@redhat.com, sgarzare@redhat.com, syzkaller-bugs@googlegroups.com, 
-	virtualization@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Hello,
+virtio_device_restore() resets the device and restores the negotiated
+features before calling ->restore(). viortc_freeze() intentionally
+leaves the existing virtqueues in place so the alarm queue can still
+wake the system, but viortc_restore() immediately calls
+viortc_init_vqs() without first deleting those old queues.
 
-syzbot found the following issue on:
+If virtqueue reinitialization fails on virtio-pci, the transport error
+path can run vp_del_vqs() against a newly allocated vp_dev->vqs array
+while vdev->vqs still contains the old virtqueues. vp_del_vqs() then
+looks up queue state through the new array and can dereference a NULL
+info pointer in vp_del_vq(), crashing the guest kernel during restore.
 
-HEAD commit:    1f318b96cc84 Linux 7.0-rc3
-git tree:       upstream
-console output: https://syzkaller.appspot.com/x/log.txt?x=14db28ba580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=2c6ad6fefffa76b1
-dashboard link: https://syzkaller.appspot.com/bug?extid=1b2c9c4a0f8708082678
-compiler:       gcc (Debian 14.2.0-19) 14.2.0, GNU ld (GNU Binutils for Debian) 2.44
-syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=12db28ba580000
-C reproducer:   https://syzkaller.appspot.com/x/repro.c?x=1215175a580000
+Delete the stale virtqueues before rebuilding them. If restore fails
+before virtio_device_ready(), reuse the remove path to stop the device.
+Once the device is ready, return errors directly instead of deleting the
+virtqueues again.
 
-Downloadable assets:
-disk image: https://storage.googleapis.com/syzbot-assets/d4ebd240d832/disk-1f318b96.raw.xz
-vmlinux: https://storage.googleapis.com/syzbot-assets/9548f49a7dec/vmlinux-1f318b96.xz
-kernel image: https://storage.googleapis.com/syzbot-assets/4e16f2bcfc7d/bzImage-1f318b96.xz
-
-IMPORTANT: if you fix the issue, please add the following tag to the commit:
-Reported-by: syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com
-
-2026/03/09 23:37:29 executed programs: 5
-BUG: memory leak
-unreferenced object 0xffff888128bb6d00 (size 1272):
-  comm "kworker/0:1", pid 10, jiffies 4294944453
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    28 00 0b 40 00 00 00 00 00 00 00 00 00 00 00 00  (..@............
-  backtrace (crc 31367ed9):
-    kmemleak_alloc_recursive include/linux/kmemleak.h:44 [inline]
-    slab_post_alloc_hook mm/slub.c:4547 [inline]
-    slab_alloc_node mm/slub.c:4869 [inline]
-    kmem_cache_alloc_noprof+0x372/0x480 mm/slub.c:4876
-    sk_prot_alloc+0x3e/0x1b0 net/core/sock.c:2239
-    sk_alloc+0x36/0x460 net/core/sock.c:2301
-    __vsock_create.constprop.0+0x38/0x2f0 net/vmw_vsock/af_vsock.c:893
-    virtio_transport_recv_listen net/vmw_vsock/virtio_transport_common.c:1557 [inline]
-    virtio_transport_recv_pkt+0x855/0xfc0 net/vmw_vsock/virtio_transport_common.c:1685
-    vsock_loopback_work+0x104/0x140 net/vmw_vsock/vsock_loopback.c:142
-    process_one_work+0x26c/0x5d0 kernel/workqueue.c:3275
-    process_scheduled_works kernel/workqueue.c:3358 [inline]
-    worker_thread+0x243/0x490 kernel/workqueue.c:3439
-    kthread+0x14e/0x1a0 kernel/kthread.c:436
-    ret_from_fork+0x23c/0x4b0 arch/x86/kernel/process.c:158
-    ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
-
-BUG: memory leak
-unreferenced object 0xffff8881141e93a0 (size 32):
-  comm "kworker/0:1", pid 10, jiffies 4294944453
-  hex dump (first 32 bytes):
-    f8 6e 0a 00 81 88 ff ff 00 00 00 00 00 00 00 00  .n..............
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace (crc e7f5c8b3):
-    kmemleak_alloc_recursive include/linux/kmemleak.h:44 [inline]
-    slab_post_alloc_hook mm/slub.c:4547 [inline]
-    slab_alloc_node mm/slub.c:4869 [inline]
-    __do_kmalloc_node mm/slub.c:5262 [inline]
-    __kmalloc_noprof+0x3bd/0x560 mm/slub.c:5275
-    kmalloc_noprof include/linux/slab.h:954 [inline]
-    kzalloc_noprof include/linux/slab.h:1188 [inline]
-    lsm_blob_alloc+0x4d/0x80 security/security.c:192
-    lsm_sock_alloc security/security.c:4375 [inline]
-    security_sk_alloc+0x2d/0x290 security/security.c:4391
-    sk_prot_alloc+0x8f/0x1b0 net/core/sock.c:2248
-    sk_alloc+0x36/0x460 net/core/sock.c:2301
-    __vsock_create.constprop.0+0x38/0x2f0 net/vmw_vsock/af_vsock.c:893
-    virtio_transport_recv_listen net/vmw_vsock/virtio_transport_common.c:1557 [inline]
-    virtio_transport_recv_pkt+0x855/0xfc0 net/vmw_vsock/virtio_transport_common.c:1685
-    vsock_loopback_work+0x104/0x140 net/vmw_vsock/vsock_loopback.c:142
-    process_one_work+0x26c/0x5d0 kernel/workqueue.c:3275
-    process_scheduled_works kernel/workqueue.c:3358 [inline]
-    worker_thread+0x243/0x490 kernel/workqueue.c:3439
-    kthread+0x14e/0x1a0 kernel/kthread.c:436
-    ret_from_fork+0x23c/0x4b0 arch/x86/kernel/process.c:158
-    ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
-
-BUG: memory leak
-unreferenced object 0xffff888128bfa8a0 (size 96):
-  comm "kworker/0:1", pid 10, jiffies 4294944453
-  hex dump (first 32 bytes):
-    00 6d bb 28 81 88 ff ff 00 00 00 00 00 00 00 00  .m.(............
-    00 00 00 00 00 00 00 00 00 00 04 00 00 00 00 00  ................
-  backtrace (crc 1fd60988):
-    kmemleak_alloc_recursive include/linux/kmemleak.h:44 [inline]
-    slab_post_alloc_hook mm/slub.c:4547 [inline]
-    slab_alloc_node mm/slub.c:4869 [inline]
-    __kmalloc_cache_noprof+0x377/0x480 mm/slub.c:5378
-    kmalloc_noprof include/linux/slab.h:950 [inline]
-    kzalloc_noprof include/linux/slab.h:1188 [inline]
-    virtio_transport_do_socket_init+0x2b/0xf0 net/vmw_vsock/virtio_transport_common.c:923
-    vsock_assign_transport+0x309/0x3a0 net/vmw_vsock/af_vsock.c:642
-    virtio_transport_recv_listen net/vmw_vsock/virtio_transport_common.c:1575 [inline]
-    virtio_transport_recv_pkt+0x8bc/0xfc0 net/vmw_vsock/virtio_transport_common.c:1685
-    vsock_loopback_work+0x104/0x140 net/vmw_vsock/vsock_loopback.c:142
-    process_one_work+0x26c/0x5d0 kernel/workqueue.c:3275
-    process_scheduled_works kernel/workqueue.c:3358 [inline]
-    worker_thread+0x243/0x490 kernel/workqueue.c:3439
-    kthread+0x14e/0x1a0 kernel/kthread.c:436
-    ret_from_fork+0x23c/0x4b0 arch/x86/kernel/process.c:158
-    ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
-
-BUG: memory leak
-unreferenced object 0xffff888129e1e800 (size 1272):
-  comm "kworker/1:3", pid 5832, jiffies 4294944454
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    28 00 0b 40 00 00 00 00 00 00 00 00 00 00 00 00  (..@............
-  backtrace (crc 4bfb7c57):
-    kmemleak_alloc_recursive include/linux/kmemleak.h:44 [inline]
-    slab_post_alloc_hook mm/slub.c:4547 [inline]
-    slab_alloc_node mm/slub.c:4869 [inline]
-    kmem_cache_alloc_noprof+0x372/0x480 mm/slub.c:4876
-    sk_prot_alloc+0x3e/0x1b0 net/core/sock.c:2239
-    sk_alloc+0x36/0x460 net/core/sock.c:2301
-    __vsock_create.constprop.0+0x38/0x2f0 net/vmw_vsock/af_vsock.c:893
-    virtio_transport_recv_listen net/vmw_vsock/virtio_transport_common.c:1557 [inline]
-    virtio_transport_recv_pkt+0x855/0xfc0 net/vmw_vsock/virtio_transport_common.c:1685
-    vsock_loopback_work+0x104/0x140 net/vmw_vsock/vsock_loopback.c:142
-    process_one_work+0x26c/0x5d0 kernel/workqueue.c:3275
-    process_scheduled_works kernel/workqueue.c:3358 [inline]
-    worker_thread+0x243/0x490 kernel/workqueue.c:3439
-    kthread+0x14e/0x1a0 kernel/kthread.c:436
-    ret_from_fork+0x23c/0x4b0 arch/x86/kernel/process.c:158
-    ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
-
-BUG: memory leak
-unreferenced object 0xffff888114372e80 (size 32):
-  comm "kworker/1:3", pid 5832, jiffies 4294944454
-  hex dump (first 32 bytes):
-    f8 6e 0a 00 81 88 ff ff 00 00 00 00 00 00 00 00  .n..............
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace (crc e7f5c8b3):
-    kmemleak_alloc_recursive include/linux/kmemleak.h:44 [inline]
-    slab_post_alloc_hook mm/slub.c:4547 [inline]
-    slab_alloc_node mm/slub.c:4869 [inline]
-    __do_kmalloc_node mm/slub.c:5262 [inline]
-    __kmalloc_noprof+0x3bd/0x560 mm/slub.c:5275
-    kmalloc_noprof include/linux/slab.h:954 [inline]
-    kzalloc_noprof include/linux/slab.h:1188 [inline]
-    lsm_blob_alloc+0x4d/0x80 security/security.c:192
-    lsm_sock_alloc security/security.c:4375 [inline]
-    security_sk_alloc+0x2d/0x290 security/security.c:4391
-    sk_prot_alloc+0x8f/0x1b0 net/core/sock.c:2248
-    sk_alloc+0x36/0x460 net/core/sock.c:2301
-    __vsock_create.constprop.0+0x38/0x2f0 net/vmw_vsock/af_vsock.c:893
-    virtio_transport_recv_listen net/vmw_vsock/virtio_transport_common.c:1557 [inline]
-    virtio_transport_recv_pkt+0x855/0xfc0 net/vmw_vsock/virtio_transport_common.c:1685
-    vsock_loopback_work+0x104/0x140 net/vmw_vsock/vsock_loopback.c:142
-    process_one_work+0x26c/0x5d0 kernel/workqueue.c:3275
-    process_scheduled_works kernel/workqueue.c:3358 [inline]
-    worker_thread+0x243/0x490 kernel/workqueue.c:3439
-    kthread+0x14e/0x1a0 kernel/kthread.c:436
-    ret_from_fork+0x23c/0x4b0 arch/x86/kernel/process.c:158
-    ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
-
-BUG: memory leak
-unreferenced object 0xffff8881054d0ea0 (size 96):
-  comm "kworker/1:3", pid 5832, jiffies 4294944454
-  hex dump (first 32 bytes):
-    00 e8 e1 29 81 88 ff ff 00 00 00 00 00 00 00 00  ...)............
-    00 00 00 00 00 00 00 00 00 00 04 00 00 00 00 00  ................
-  backtrace (crc 72501265):
-    kmemleak_alloc_recursive include/linux/kmemleak.h:44 [inline]
-    slab_post_alloc_hook mm/slub.c:4547 [inline]
-    slab_alloc_node mm/slub.c:4869 [inline]
-    __kmalloc_cache_noprof+0x377/0x480 mm/slub.c:5378
-    kmalloc_noprof include/linux/slab.h:950 [inline]
-    kzalloc_noprof include/linux/slab.h:1188 [inline]
-    virtio_transport_do_socket_init+0x2b/0xf0 net/vmw_vsock/virtio_transport_common.c:923
-    vsock_assign_transport+0x309/0x3a0 net/vmw_vsock/af_vsock.c:642
-    virtio_transport_recv_listen net/vmw_vsock/virtio_transport_common.c:1575 [inline]
-    virtio_transport_recv_pkt+0x8bc/0xfc0 net/vmw_vsock/virtio_transport_common.c:1685
-    vsock_loopback_work+0x104/0x140 net/vmw_vsock/vsock_loopback.c:142
-    process_one_work+0x26c/0x5d0 kernel/workqueue.c:3275
-    process_scheduled_works kernel/workqueue.c:3358 [inline]
-    worker_thread+0x243/0x490 kernel/workqueue.c:3439
-    kthread+0x14e/0x1a0 kernel/kthread.c:436
-    ret_from_fork+0x23c/0x4b0 arch/x86/kernel/process.c:158
-    ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
-
-connection error: failed to recv *flatrpc.ExecutorMessageRawT: EOF
-
-
+Signed-off-by: JiaJia <physicalmtea@gmail.com>
 ---
-This report is generated by a bot. It may contain errors.
-See https://goo.gl/tpsmEJ for more information about syzbot.
-syzbot engineers can be reached at syzkaller@googlegroups.com.
+Hi Peter,
 
-syzbot will keep track of this issue. See:
-https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+thanks for taking a look and for pointing this out. I took another look
+at the restore path and agree that deleting the virtqueues from that
+error path can race with `viortc_cb_alarmq()` once the device has been
+readied.
 
-If the report is already addressed, let syzbot know by replying with:
-#syz fix: exact-commit-title
+This v2 follows the direction you suggested. It factors out
+`__viortc_remove()`, reuses that path for restore failures before
+`virtio_device_ready()`, routes `viortc_init_vqs()` failures in probe
+through `err_reset_vdev` for consistent teardown, drops the
+`viortc_del_vqs()` helper and the `viortc_msg_xfer()` NULL-vq guard,
+and avoids deleting the virtqueues again after `virtio_device_ready()`.
 
-If you want syzbot to run the reproducer, reply with:
-#syz test: git://repo/address.git branch-or-commit-hash
-If you attach or paste a git patch, syzbot will apply it before testing.
+Thanks,
+JiaJia
 
-If you want to overwrite report's subsystems, reply with:
-#syz set subsystems: new-subsystem
-(See the list of subsystem names on the web dashboard)
+v2:
+- reuse the remove path for restore failures before virtio_device_ready()
+- route viortc_init_vqs() failures in probe through err_reset_vdev
+- drop the viortc_del_vqs() helper and the viortc_msg_xfer() NULL-vq guard
+- avoid deleting virtqueues again after virtio_device_ready()
 
-If the report is a duplicate of another one, reply with:
-#syz dup: exact-subject-of-another-report
+ drivers/virtio/virtio_rtc_driver.c | 28 ++++++++++++++++++++--------
+ 1 file changed, 20 insertions(+), 8 deletions(-)
 
-If you want to undo deduplication, reply with:
-#syz undup
+diff --git a/drivers/virtio/virtio_rtc_driver.c b/drivers/virtio/virtio_rtc_driver.c
+index a57d5e06e..4419735b0 100644
+--- a/drivers/virtio/virtio_rtc_driver.c
++++ b/drivers/virtio/virtio_rtc_driver.c
+@@ -1257,6 +1257,15 @@ static int viortc_init_vqs(struct viortc_dev *viortc)
+ 	return 0;
+ }
+ 
++static void __viortc_remove(struct viortc_dev *viortc)
++{
++	struct virtio_device *vdev = viortc->vdev;
++
++	viortc_clocks_deinit(viortc);
++	virtio_reset_device(vdev);
++	vdev->config->del_vqs(vdev);
++}
++
+ /**
+  * viortc_probe() - probe a virtio_rtc virtio device
+  * @vdev: virtio device
+@@ -1282,7 +1291,7 @@ static int viortc_probe(struct virtio_device *vdev)
+ 
+ 	ret = viortc_init_vqs(viortc);
+ 	if (ret)
+-		return ret;
++		goto err_reset_vdev;
+ 
+ 	virtio_device_ready(vdev);
+ 
+@@ -1329,10 +1338,7 @@ static void viortc_remove(struct virtio_device *vdev)
+ {
+ 	struct viortc_dev *viortc = vdev->priv;
+ 
+-	viortc_clocks_deinit(viortc);
+-
+-	virtio_reset_device(vdev);
+-	vdev->config->del_vqs(vdev);
++	__viortc_remove(viortc);
+ }
+ 
+ static int viortc_freeze(struct virtio_device *dev)
+@@ -1353,9 +1359,11 @@ static int viortc_restore(struct virtio_device *dev)
+ 	bool notify = false;
+ 	int ret;
+ 
++	dev->config->del_vqs(dev);
++
+ 	ret = viortc_init_vqs(viortc);
+ 	if (ret)
+-		return ret;
++		goto err_remove;
+ 
+ 	alarm_viortc_vq = &viortc->vqs[VIORTC_ALARMQ];
+ 	alarm_vq = alarm_viortc_vq->vq;
+@@ -1364,7 +1372,7 @@ static int viortc_restore(struct virtio_device *dev)
+ 		ret = viortc_populate_vq(viortc, alarm_viortc_vq,
+ 					 VIORTC_ALARMQ_BUF_CAP, false);
+ 		if (ret)
+-			return ret;
++			goto err_remove;
+ 
+ 		notify = virtqueue_kick_prepare(alarm_vq);
+ 	}
+@@ -1372,8 +1380,12 @@ static int viortc_restore(struct virtio_device *dev)
+ 	virtio_device_ready(dev);
+ 
+ 	if (notify && !virtqueue_notify(alarm_vq))
+-		ret = -EIO;
++		return -EIO;
++
++	return 0;
+ 
++err_remove:
++	__viortc_remove(viortc);
+ 	return ret;
+ }
+ 
+-- 
+2.34.1
