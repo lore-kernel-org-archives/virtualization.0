@@ -1,149 +1,162 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.13])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28258345CA3
-	for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 15:52:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.13
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6FA137880E
+	for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 16:31:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777045946; cv=none; b=GxuzY2EdPwpEuSkPiFTeEavLC4cP/rCfSD6/zrBb+XWaoXWRtnBBGC83F4r9LCZiIaHdf2tkF9CMPllzq6K/8HIS4VPdx+0KvSrXtFlx+AAR1aWq27UHc3mlK6OBU42TKYS4xMQ/sdeh7tzRPIVY3Z5ccKuWh9XL1kCfYvjySMw=
+	t=1777048320; cv=none; b=ZPCcmo4Q17on1Qdz0v79EmlXP91r5wY7QVg5Spb2aP7DgeaZOHszCBFrMTlDW+UbP/vHMJyDy63x2cAQ+rFy2T5oXr8MnwAUnQVg6ETJjYdxQhXCS6hzdDOIPWcq87kGNLS6J6mJkRZ5jcopOpnSZx8jfQ1OqNHnDcjgOVYse5Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777045946; c=relaxed/simple;
-	bh=HwsZeGTyjhLwKj6nQnbktyz6LRCvsAfioqPnhRfj+n8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=T6HhnWEwDjKHefJtf7fHvlefKC9pTifQ0dVRmP7wy/bopqR6ky6FXyl5gVqQapRozElVgMl9KpRB0VlCsx9EZl2x5gGnVZ8V95ZvbrUF4FFCPE/UaQk5Fu35GBX6JPQNAGv7EyEVtcjibbyemyVAnfLOw5z1idKQCYQ0KFlXDH8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=Yeicglqx; arc=none smtp.client-ip=192.198.163.13
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1777048320; c=relaxed/simple;
+	bh=LfPBzP7DHNUHCLEaohkuL/OUj/J9i4oMih4DMmKE8J0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=Sin1EOLd31Mgl3CAUqMQ6NrLdFEEvwAjmdvE61DfIJEZgMLMG+Gg8Na21HVscorHlyWUce1XvKKKcLDTYp4HIl9CtBpZCdQHTk3qLX3TuwnuIxkbhA3WE8Fj7RyyR8ns75RwZBN3gByzI3hPm6nsienjn6RWboAeIQBRoMF4QA8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TKKqNdRi; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="Yeicglqx"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1777045945; x=1808581945;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=HwsZeGTyjhLwKj6nQnbktyz6LRCvsAfioqPnhRfj+n8=;
-  b=YeicglqxObd6Mafiurey5f6T6fDYOEse3BNuasqY5DNg0Zo12hv3QXaU
-   R7gHQylilUh3rnVYF6YC+Y3HlpMmdYeOwaoFgYC5JVk6GuQWLOFFhH4v2
-   5Bwl8P+6SRVtXbv6rE8ZE5qoJcQ+Owg/wP2QcM9q+reOo/hSo5667zO2U
-   IIsB/0vOACZm8LCSViRMwlUKQmGvanK3ikttU+3WmF3XpxDR8Q4QEIM6r
-   zILFqX0xRPA42KQRg1tFgFIPbj9xlHq+X61/uKK3zrg9sLakTnGIK0v+H
-   41PccwPv3jAEfFUUNK209ezP9MXQfkTygy8luk7leFOKkF5gZodiQ52jy
-   A==;
-X-CSE-ConnectionGUID: NFy8LrtgT7ma/ctIjOnIyw==
-X-CSE-MsgGUID: Q0Vs8l+qR6aaHbtgiuieog==
-X-IronPort-AV: E=McAfee;i="6800,10657,11766"; a="80611087"
-X-IronPort-AV: E=Sophos;i="6.23,196,1770624000"; 
-   d="scan'208";a="80611087"
-Received: from fmviesa005.fm.intel.com ([10.60.135.145])
-  by fmvoesa107.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Apr 2026 08:52:25 -0700
-X-CSE-ConnectionGUID: E0Nx+DioSqmBoBKTm4PzUg==
-X-CSE-MsgGUID: czNrzks6Rq6tARJvsoUAxw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,196,1770624000"; 
-   d="scan'208";a="237987969"
-Received: from sghuge-mobl2.amr.corp.intel.com (HELO [10.125.108.73]) ([10.125.108.73])
-  by fmviesa005-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 24 Apr 2026 08:52:22 -0700
-Message-ID: <f437455d-1598-483d-9dcf-1932d265ef3f@intel.com>
-Date: Fri, 24 Apr 2026 08:52:16 -0700
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TKKqNdRi"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1777048317;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=GWUEY520tGPMzq0yC4BnOUgTkuV4SwdojhoysRAdt+k=;
+	b=TKKqNdRibgDllRA0NL8nsM1JOxC/s+ZHcA50M71ddOkhQWev9CjENAD16Vi+mfNPwcuEFe
+	OH+rFxUkThCanVlIMuTA6eA9rG5EXu+LQ7ZC2TD3itBIklc6kz2GSxYe108jq056rKjo5j
+	Y6EcxskRr018jNGkjScRXf7sI9OwZt4=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-375-PYsBoIbcPtejRLXohSJP5w-1; Fri, 24 Apr 2026 12:31:56 -0400
+X-MC-Unique: PYsBoIbcPtejRLXohSJP5w-1
+X-Mimecast-MFC-AGG-ID: PYsBoIbcPtejRLXohSJP5w_1777048315
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-48a588ff84eso31457615e9.1
+        for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 09:31:56 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777048315; x=1777653115;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=GWUEY520tGPMzq0yC4BnOUgTkuV4SwdojhoysRAdt+k=;
+        b=I508bF8HqmRhEPqcjqCSxP+6Z+nuF0ef5uV0G769HHQOUyO9OCUvMzq3jBlNIuEJXg
+         j5h1AkAzTFrN0q8GDc/HG1rUCwU+U1OCylgDmtzTxxywyz6cDNVrxDTpfZwV7QAA7OAi
+         sXeAAyKS/IVJrJw5IOmyf2YZtw2eizjnpns5jypkIAC9w+C2RdmL8tsXlLwUt/IHPUaF
+         iLI7J+wpMn1azGbKmZRQ1TSozTyd7UYyBfp3peG+frQPCAH9ZFn6xlp0Kvp9lLuIaRAX
+         Q7qCXBQ1QRIVrAInH5SgL1LEySaLleFQwatVbLDyVjZcD+6io7VGACekI68PkMqVVBos
+         mn2g==
+X-Forwarded-Encrypted: i=1; AFNElJ8wMCB2OB4wJiaA1WsrTaKcghfgvsCQef9/bGt6f0P9I9LoIiwHMl9gpgZ4w4m1qV3TmUmttbo4KCktnPs8Pg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxZfDuldL9L5A9/Z5fPYTvq9reG0bFsSgKmBul5gouMN+aN+7+s
+	EiyLQ6Pd1X0m4dvt4EbrdF9GHQ/75QX3mD3oqy3kGgoKFuGmf+BzqYjuZ5n8KbMV5uBNmrR4b+A
+	7OPg9k4a11N6YyzP6GEkOyfhF8VzEC2k06WFLf7HOWc2c7xNw5lriRiuuxR3/0Dv88CD6
+X-Gm-Gg: AeBDietkAhqJ3eogvBg7WGFSP2ZlQxjb6vu7f2NozCPiH9xu7pBzG/DJuEHkNFb9I4I
+	6IB2FcXffdtKw2kPQ0qoZkclPqId9IFpzkXJS32IT86z0v+AqNoBh3QM/krrmbCpRyjZNqKdgLB
+	ZvRSE5mWVlHE7gO4oMMF1rkno6wW+3ILFwWFjV63QqIFaAvOLktCw4VnJAFi0gPZVGgOCn7+tbe
+	lGsXG70e8a3SVQTYFfYM3VRkgUdeD3nFS6+WpeeFRgUFilQrRXDh9tAokTQlXjxo/1VwIctzOHr
+	gbcoFVS5nn3sG5L/89c3v/cdwImcP3OPgY9Dbog63QcwXtCDKbWI2cqY+n83+JRemFSv2yfK5j1
+	EeK4NesZpfJCrUXelLDSO9Mdmgk1kF/xLjQsVmFLzw3Bl365iIyvFkr3nFNfrfew=
+X-Received: by 2002:a05:600c:c085:b0:488:acbc:b2e with SMTP id 5b1f17b1804b1-488fb765b04mr385887595e9.17.1777048314902;
+        Fri, 24 Apr 2026 09:31:54 -0700 (PDT)
+X-Received: by 2002:a05:600c:c085:b0:488:acbc:b2e with SMTP id 5b1f17b1804b1-488fb765b04mr385887045e9.17.1777048314417;
+        Fri, 24 Apr 2026 09:31:54 -0700 (PDT)
+Received: from redhat.com (bzq-79-177-155-147.red.bezeqint.net. [79.177.155.147])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-488fb74c68asm188968435e9.3.2026.04.24.09.31.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 24 Apr 2026 09:31:53 -0700 (PDT)
+Date: Fri, 24 Apr 2026 12:31:50 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Albert Esteve <aesteve@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+	gnurou@gmail.com
+Subject: Re: [PATCH] virtio: Add ID for virtio media
+Message-ID: <20260424123123-mutt-send-email-mst@kernel.org>
+References: <20260310-virtio-media-id-v1-1-be211bcf682b@redhat.com>
+ <CADSE00+VyDf6hMAB79wP2koSQ3FznO_OJuGCZ6zN8zuCrwtZMg@mail.gmail.com>
+ <20260424090616-mutt-send-email-mst@kernel.org>
+ <CADSE00JEjrecyM==PyjX9LT5X62awYQOn3as-KFGYQrSD0+K_w@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 7.2 v10 1/2] mm/mmu_gather: prepare to skip redundant sync
- IPIs
-To: Peter Zijlstra <peterz@infradead.org>, Lance Yang <lance.yang@linux.dev>
-Cc: akpm@linux-foundation.org, david@kernel.org, dave.hansen@linux.intel.com,
- ypodemsk@redhat.com, hughd@google.com, will@kernel.org,
- aneesh.kumar@kernel.org, npiggin@gmail.com, tglx@linutronix.de,
- mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com,
- arnd@arndb.de, ljs@kernel.org, ziy@nvidia.com,
- baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com, npache@redhat.com,
- ryan.roberts@arm.com, dev.jain@arm.com, baohua@kernel.org,
- shy828301@gmail.com, riel@surriel.com, jannh@google.com, jgross@suse.com,
- seanjc@google.com, pbonzini@redhat.com, boris.ostrovsky@oracle.com,
- virtualization@lists.linux.dev, kvm@vger.kernel.org,
- linux-arch@vger.kernel.org, linux-mm@kvack.org,
- linux-kernel@vger.kernel.org, ioworker0@gmail.com
-References: <20260424062528.71951-1-lance.yang@linux.dev>
- <20260424062528.71951-2-lance.yang@linux.dev>
- <20260424150454.GF3126523@noisy.programming.kicks-ass.net>
-From: Dave Hansen <dave.hansen@intel.com>
-Content-Language: en-US
-Autocrypt: addr=dave.hansen@intel.com; keydata=
- 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
-In-Reply-To: <20260424150454.GF3126523@noisy.programming.kicks-ass.net>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <CADSE00JEjrecyM==PyjX9LT5X62awYQOn3as-KFGYQrSD0+K_w@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 16KgOfpTvtR9hoRwHe5PD9a-qp8z8mXcwf-BslCL-gU_1777048315
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On 4/24/26 08:04, Peter Zijlstra wrote:
-> So I don't like this at all.... The comment says there is a preceding
-> TLB flush, but there is nothing that guarantees there is. One would have
-> to go audit all users and ensure this is always true.
+On Fri, Apr 24, 2026 at 03:37:14PM +0200, Albert Esteve wrote:
+> On Fri, Apr 24, 2026 at 3:07 PM Michael S. Tsirkin <mst@redhat.com> wrote:
+> >
+> > On Thu, Apr 09, 2026 at 06:53:41PM +0200, Albert Esteve wrote:
+> > > Hi,
+> > >
+> > >
+> > > On Tue, Mar 10, 2026 at 9:41 AM Albert Esteve <aesteve@redhat.com> wrote:
+> > > >
+> > > > Add VIRTIO_ID_MEDIA definition for virtio-media.
+> > > >
+> > > > Signed-off-by: Albert Esteve <aesteve@redhat.com>
+> > >
+> > > Are there any thoughts on this patch, or any actions I need to take?
+> > >
+> > > Thanks,
+> > > Albert
+> >
+> > Create a github issue and request a vote as documented in README.md
 > 
-> This thing is incredibly fragile.
+> The inclusion of this ID was already voted and approved. The device
+> already appears in the VirtIO v1.4 specification, with the same ID (as
+> linked below). This patch is only meant to translate the decision to
+> the kernel header.
+> 
+> >
+> > > > ---
+> > > > While the Linux driver for virtio media is currently under active
+> > > > development and review [1], the VirtIO v1.4 specification has
+> > > > already been published and oficially defines the media device type [2].
+> > > >
+> > > > Adding the device ID now allows other components and tools to reference it
+> > > > before the driver lands, and ensures the kernel headers stay aligned
+> > > > with the specification.
+> > > >
+> > > > [1] https://lore.kernel.org/linux-media/20250412-virtio-media-v3-1-97dc94c18398@gmail.com/
+> > > > [2] https://docs.oasis-open.org/virtio/virtio/v1.4/virtio-v1.4.html#x1-82200022
+> > > > ---
+> > > >  include/uapi/linux/virtio_ids.h | 1 +
+> > > >  1 file changed, 1 insertion(+)
+> > > >
+> > > > diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/linux/virtio_ids.h
+> > > > index 6c12db16faa3a..f9056af0c6223 100644
+> > > > --- a/include/uapi/linux/virtio_ids.h
+> > > > +++ b/include/uapi/linux/virtio_ids.h
+> > > > @@ -69,6 +69,7 @@
+> > > >  #define VIRTIO_ID_BT                   40 /* virtio bluetooth */
+> > > >  #define VIRTIO_ID_GPIO                 41 /* virtio gpio */
+> > > >  #define VIRTIO_ID_SPI                  45 /* virtio spi */
+> > > > +#define VIRTIO_ID_MEDIA                        48 /* virtio media */
+> > > >
+> > > >  /*
+> > > >   * Virtio Transitional IDs
+> > > >
+> > > > ---
+> > > > base-commit: 6de23f81a5e08be8fbf5e8d7e9febc72a5b5f27f
+> > > > change-id: 20260310-virtio-media-id-b31179fcdc44
+> > > >
+> > > > Best regards,
+> > > > --
+> > > > Albert Esteve <aesteve@redhat.com>
+> > > >
+> >
 
-Yeah, this seems like an attempt to apply a code solution to a data
-structure problem.
 
-I think I talked about this in earlier iterations. But, ideally, what
-happens here is that the things doing the table freeing or collapsing or
-whatever would note in a data structure what they did.
+Oh my bad. I misfiled it into the spec folder. I will take care of this.
+Thanks!
 
-Then the actual flushing code can look at the data structure and figure
-out what kind of flush it needs. Things like "do I need to flush on lazy
-CPUs?" Or, "have I done an IPI since the last page table free?"
-
-But, if I remember from earlier in this thread, some of the callers of
-this stuff didn't have a nice data structure (like an mmu_gather) passed
-in to the places where it would be needed to exfiltrate the information.
-
-I think Lance gave up on that because it looked too invasive to him.
-
-But, I think this boils down to the code being too fragile as-is to
-support what Lance is trying to do. It actually needs some refactoring
-love before it can support the desired optimization. I'm not sure
-there's an easy way out here.
