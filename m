@@ -1,162 +1,178 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from fout-b1-smtp.messagingengine.com (fout-b1-smtp.messagingengine.com [202.12.124.144])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6FA137880E
-	for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 16:31:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAF493E51FD
+	for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 17:20:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.144
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777048320; cv=none; b=ZPCcmo4Q17on1Qdz0v79EmlXP91r5wY7QVg5Spb2aP7DgeaZOHszCBFrMTlDW+UbP/vHMJyDy63x2cAQ+rFy2T5oXr8MnwAUnQVg6ETJjYdxQhXCS6hzdDOIPWcq87kGNLS6J6mJkRZ5jcopOpnSZx8jfQ1OqNHnDcjgOVYse5Q=
+	t=1777051223; cv=none; b=GkJTTbEC61eSPDMK5AbC9aZ0SxerxMkp+F2UQsUwrNrTjPQaYUjreAtXYmKoP3/ybKmMfa0MDEbpLI1oqVHrG8XfA0D+5TYweEKxhIGrkm26PTfpjG+jHG2l3YA8vl31Oda7twL2EddNT7tHLEJTUt0AgE6CnP66tPl/0+Of04I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777048320; c=relaxed/simple;
-	bh=LfPBzP7DHNUHCLEaohkuL/OUj/J9i4oMih4DMmKE8J0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Sin1EOLd31Mgl3CAUqMQ6NrLdFEEvwAjmdvE61DfIJEZgMLMG+Gg8Na21HVscorHlyWUce1XvKKKcLDTYp4HIl9CtBpZCdQHTk3qLX3TuwnuIxkbhA3WE8Fj7RyyR8ns75RwZBN3gByzI3hPm6nsienjn6RWboAeIQBRoMF4QA8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TKKqNdRi; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1777051223; c=relaxed/simple;
+	bh=AxY1iBfldFApit6wrZ5QUICwTU+6rIbIaZnkDEgOhjU=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=HZfK0moqTLlej4QC7xtDOPzU3XINvtAJSMr2VY564Fu3E6cdNcT+zOvlWjj49ZEf2FaBO3slcyt744pV7Xg3tJLhNY3ad1SzzAtRBqfteIqQdmVMATtmawelgLFkz8oK8ur2lG3v8vQb05ovYm6NeWY7b1WO76dfp0APJsKmR6A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=JC+7GT5y; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=TY305PFk; arc=none smtp.client-ip=202.12.124.144
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TKKqNdRi"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1777048317;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=GWUEY520tGPMzq0yC4BnOUgTkuV4SwdojhoysRAdt+k=;
-	b=TKKqNdRibgDllRA0NL8nsM1JOxC/s+ZHcA50M71ddOkhQWev9CjENAD16Vi+mfNPwcuEFe
-	OH+rFxUkThCanVlIMuTA6eA9rG5EXu+LQ7ZC2TD3itBIklc6kz2GSxYe108jq056rKjo5j
-	Y6EcxskRr018jNGkjScRXf7sI9OwZt4=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-375-PYsBoIbcPtejRLXohSJP5w-1; Fri, 24 Apr 2026 12:31:56 -0400
-X-MC-Unique: PYsBoIbcPtejRLXohSJP5w-1
-X-Mimecast-MFC-AGG-ID: PYsBoIbcPtejRLXohSJP5w_1777048315
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-48a588ff84eso31457615e9.1
-        for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 09:31:56 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777048315; x=1777653115;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=GWUEY520tGPMzq0yC4BnOUgTkuV4SwdojhoysRAdt+k=;
-        b=I508bF8HqmRhEPqcjqCSxP+6Z+nuF0ef5uV0G769HHQOUyO9OCUvMzq3jBlNIuEJXg
-         j5h1AkAzTFrN0q8GDc/HG1rUCwU+U1OCylgDmtzTxxywyz6cDNVrxDTpfZwV7QAA7OAi
-         sXeAAyKS/IVJrJw5IOmyf2YZtw2eizjnpns5jypkIAC9w+C2RdmL8tsXlLwUt/IHPUaF
-         iLI7J+wpMn1azGbKmZRQ1TSozTyd7UYyBfp3peG+frQPCAH9ZFn6xlp0Kvp9lLuIaRAX
-         Q7qCXBQ1QRIVrAInH5SgL1LEySaLleFQwatVbLDyVjZcD+6io7VGACekI68PkMqVVBos
-         mn2g==
-X-Forwarded-Encrypted: i=1; AFNElJ8wMCB2OB4wJiaA1WsrTaKcghfgvsCQef9/bGt6f0P9I9LoIiwHMl9gpgZ4w4m1qV3TmUmttbo4KCktnPs8Pg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxZfDuldL9L5A9/Z5fPYTvq9reG0bFsSgKmBul5gouMN+aN+7+s
-	EiyLQ6Pd1X0m4dvt4EbrdF9GHQ/75QX3mD3oqy3kGgoKFuGmf+BzqYjuZ5n8KbMV5uBNmrR4b+A
-	7OPg9k4a11N6YyzP6GEkOyfhF8VzEC2k06WFLf7HOWc2c7xNw5lriRiuuxR3/0Dv88CD6
-X-Gm-Gg: AeBDietkAhqJ3eogvBg7WGFSP2ZlQxjb6vu7f2NozCPiH9xu7pBzG/DJuEHkNFb9I4I
-	6IB2FcXffdtKw2kPQ0qoZkclPqId9IFpzkXJS32IT86z0v+AqNoBh3QM/krrmbCpRyjZNqKdgLB
-	ZvRSE5mWVlHE7gO4oMMF1rkno6wW+3ILFwWFjV63QqIFaAvOLktCw4VnJAFi0gPZVGgOCn7+tbe
-	lGsXG70e8a3SVQTYFfYM3VRkgUdeD3nFS6+WpeeFRgUFilQrRXDh9tAokTQlXjxo/1VwIctzOHr
-	gbcoFVS5nn3sG5L/89c3v/cdwImcP3OPgY9Dbog63QcwXtCDKbWI2cqY+n83+JRemFSv2yfK5j1
-	EeK4NesZpfJCrUXelLDSO9Mdmgk1kF/xLjQsVmFLzw3Bl365iIyvFkr3nFNfrfew=
-X-Received: by 2002:a05:600c:c085:b0:488:acbc:b2e with SMTP id 5b1f17b1804b1-488fb765b04mr385887595e9.17.1777048314902;
-        Fri, 24 Apr 2026 09:31:54 -0700 (PDT)
-X-Received: by 2002:a05:600c:c085:b0:488:acbc:b2e with SMTP id 5b1f17b1804b1-488fb765b04mr385887045e9.17.1777048314417;
-        Fri, 24 Apr 2026 09:31:54 -0700 (PDT)
-Received: from redhat.com (bzq-79-177-155-147.red.bezeqint.net. [79.177.155.147])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-488fb74c68asm188968435e9.3.2026.04.24.09.31.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Apr 2026 09:31:53 -0700 (PDT)
-Date: Fri, 24 Apr 2026 12:31:50 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Albert Esteve <aesteve@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	gnurou@gmail.com
-Subject: Re: [PATCH] virtio: Add ID for virtio media
-Message-ID: <20260424123123-mutt-send-email-mst@kernel.org>
-References: <20260310-virtio-media-id-v1-1-be211bcf682b@redhat.com>
- <CADSE00+VyDf6hMAB79wP2koSQ3FznO_OJuGCZ6zN8zuCrwtZMg@mail.gmail.com>
- <20260424090616-mutt-send-email-mst@kernel.org>
- <CADSE00JEjrecyM==PyjX9LT5X62awYQOn3as-KFGYQrSD0+K_w@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="JC+7GT5y";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="TY305PFk"
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailfout.stl.internal (Postfix) with ESMTP id 066DA1D00221;
+	Fri, 24 Apr 2026 13:20:13 -0400 (EDT)
+Received: from phl-frontend-03 ([10.202.2.162])
+  by phl-compute-04.internal (MEProxy); Fri, 24 Apr 2026 13:20:14 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
+	cc:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm1; t=1777051213;
+	 x=1777137613; bh=TUFSU68QEk06VYkcHkAK1Vo9g8/0LlspZiKHCAsM4EA=; b=
+	JC+7GT5yxaMnam4UaNBzI+adixh8/LIqK+y6HrkjFQCEBTI73kVv/3yi7dYBTrYk
+	FpHPU4LjM1FEgPYFivJ7g1jcho8GZh49CIeDJK/2yszMll+kgvRf6bvk7o4QXIZ1
+	SJxPwKFAF64atr9RQox3L4iIOQeWYQ5z49AVl342l2CqbBz5GNpGwd7NWl+z+BJc
+	niBHqu39IciS2jMGseL3KSaXdW8LIQCWDe2ERRri2YxVisxcf14uu8gNIgYdbHGW
+	tFwJK+5lVic2KjUA6e5sKp69qwYl2ReXIXPVkKAXmcXCIq8Pk+GrIyfuR5TsCbWp
+	opBa9PNa9NebGdWVd5NhgA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1777051213; x=
+	1777137613; bh=TUFSU68QEk06VYkcHkAK1Vo9g8/0LlspZiKHCAsM4EA=; b=T
+	Y305PFkDP8MDR5LXJE7xXsiP0kdPYdfVgo4DIT6HA6flrs0/UiXpYvfaovEb54T9
+	VXAoOZyiInKco3UrhE6vnSbriLxaKNDxu4MmK3a5FbIFITeSo8RcDJR9o0/4D9qA
+	7pJhoUNZxUKlYZZPTgHs+lf0HXRStAN/CGZm0J5MFzIiZW8vyotQlnPsjZ8XKekk
+	k618by757PIwC9eN0CCTcdc0WNsRo5okRl14z29OjP/hXmFAOEEQ6zPXPYDMBczD
+	xwnCN8xPRbWElrjJ58O5WJDXRXKnDDEgvExsMcnFuhfGn/YOstAuoQ2dUz01iBRL
+	TAs7PRrnLT8VBCeq6/xrw==
+X-ME-Sender: <xms:TKbraXYK_q0k-qkGFWlXZNFoRBonI6skq77VkZNc8Uh6lZqWC9mMOw>
+    <xme:TKbraRFR_m0aaDOzkaErP6FuOGXNezbkfrDT2fboGqfUBJDRhgE-boONyW3rvD1bU
+    fHBqeHM7fZKJWyq3kNcJ-Hwtm8jqLtlgPlyDfijbRr9yq0PyyHPMw>
+X-ME-Received: <xmr:TKbraQl9idhYMdsG9OAZqu4PikXwOyni6KQHfhfC-U2Ng4LtGu1Pc5T0Rqk>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgdejtdeiudcutefuodetggdotefrod
+    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
+    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
+    hrpeffhffvvefukfgjfhfogggtgfesthejredtredtvdenucfhrhhomheptehlvgigucgh
+    ihhllhhirghmshhonhcuoegrlhgvgiesshhhrgiisghothdrohhrgheqnecuggftrfgrth
+    htvghrnhepvdekfeejkedvudfhudfhteekudfgudeiteetvdeukedvheetvdekgfdugeev
+    ueeunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
+    hlvgigsehshhgriigsohhtrdhorhhgpdhnsggprhgtphhtthhopedukedpmhhouggvpehs
+    mhhtphhouhhtpdhrtghpthhtohepmhgrthhtvghvsehmvghtrgdrtghomhdprhgtphhtth
+    hopehkvghvihhnrdhtihgrnhesihhnthgvlhdrtghomhdprhgtphhtthhopehjghhgseii
+    ihgvphgvrdgtrgdprhgtphhtthhopegrnhhkihhtrgesnhhvihguihgrrdgtohhmpdhrtg
+    hpthhtoheprghpohhpphhlvgesnhhvihguihgrrdgtohhmpdhrtghpthhtoheplhgvohhn
+    sehkvghrnhgvlhdrohhrghdprhgtphhtthhopehkvggvsheskhgvrhhnvghlrdhorhhgpd
+    hrtghpthhtohepshhkohhlohhthhhumhhthhhosehnvhhiughirgdrtghomhdprhgtphht
+    thhopeihihhshhgrihhhsehnvhhiughirgdrtghomh
+X-ME-Proxy: <xmx:TKbraYnuVGg_XjqZaofI-mOKf57VJPTd24qUxefAZUgt0MVsOd-LlA>
+    <xmx:TKbradXFY7mRYVhTI1QaA1iPaiHQeLZljV7brQD_u4Vbvy8Vmdqtfg>
+    <xmx:TKbrae8wrwserRFnxpHxlwKjFkIG3MtAHYJxz15EF5oMccK1uU9AoA>
+    <xmx:TKbraSpPmVl2p1BaZZ-4kP8V4j4irR2z7lJ6ZU-j_gmaUhn5skwuUQ>
+    <xmx:TabrabR_i0koucaHq70kgsxaCUnGUOVLU7rP3CRR5-A3s-eSOMArsF1e>
+Feedback-ID: i03f14258:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Fri,
+ 24 Apr 2026 13:20:10 -0400 (EDT)
+Date: Fri, 24 Apr 2026 11:20:07 -0600
+From: Alex Williamson <alex@shazbot.org>
+To: Matt Evans <mattev@meta.com>
+Cc: Kevin Tian <kevin.tian@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Ankit
+ Agrawal <ankita@nvidia.com>, Alistair Popple <apopple@nvidia.com>, Leon
+ Romanovsky <leon@kernel.org>, Kees Cook <kees@kernel.org>, Shameer Kolothum
+ <skolothumtho@nvidia.com>, Yishai Hadas <yishaih@nvidia.com>, Alexey
+ Kardashevskiy <aik@ozlabs.ru>, Eric Auger <eric.auger@redhat.com>, Peter Xu
+ <peterx@redhat.com>, Vivek Kasireddy <vivek.kasireddy@intel.com>, Zhi Wang
+ <zhiw@nvidia.com>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev, alex@shazbot.org
+Subject: Re: [PATCH v2 1/3] vfio/pci: Set up bar resources and maps in
+ vfio_pci_core_enable()
+Message-ID: <20260424112007.592fd6c0@shazbot.org>
+In-Reply-To: <729d6593-f88b-42bf-b3a0-8c364d9ca5b4@meta.com>
+References: <20260423182517.2286030-1-mattev@meta.com>
+	<20260423182517.2286030-2-mattev@meta.com>
+	<20260423153053.6833135e@shazbot.org>
+	<729d6593-f88b-42bf-b3a0-8c364d9ca5b4@meta.com>
+X-Mailer: Claws Mail 4.3.1 (GTK 3.24.51; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CADSE00JEjrecyM==PyjX9LT5X62awYQOn3as-KFGYQrSD0+K_w@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 16KgOfpTvtR9hoRwHe5PD9a-qp8z8mXcwf-BslCL-gU_1777048315
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Fri, Apr 24, 2026 at 03:37:14PM +0200, Albert Esteve wrote:
-> On Fri, Apr 24, 2026 at 3:07 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Thu, Apr 09, 2026 at 06:53:41PM +0200, Albert Esteve wrote:
-> > > Hi,
-> > >
-> > >
-> > > On Tue, Mar 10, 2026 at 9:41 AM Albert Esteve <aesteve@redhat.com> wrote:
-> > > >
-> > > > Add VIRTIO_ID_MEDIA definition for virtio-media.
-> > > >
-> > > > Signed-off-by: Albert Esteve <aesteve@redhat.com>
-> > >
-> > > Are there any thoughts on this patch, or any actions I need to take?
-> > >
-> > > Thanks,
-> > > Albert
-> >
-> > Create a github issue and request a vote as documented in README.md
+On Fri, 24 Apr 2026 16:15:06 +0100
+Matt Evans <mattev@meta.com> wrote:
+> On 23/04/2026 22:30, Alex Williamson wrote:
+> > On Thu, 23 Apr 2026 11:25:07 -0700
+> > Matt Evans <mattev@meta.com> wrote:
+> >> +
+> >> +		if (pci_resource_len(pdev, i) == 0)
+> >> +			continue;
+> >> +
+> >> +		ret = pci_request_selected_regions(pdev, 1 << bar, "vfio");
+> >> +		if (ret) {
+> >> +			pci_warn(vdev->pdev, "Failed to reserve region %d\n", bar);
+> >> +			continue;
+> >> +		}
+> >> +		vdev->have_bar_resource[bar] = true;
+> >> +
+> >> +		io = pci_iomap(pdev, bar, 0);
+> >> +		if (io)
+> >> +			vdev->barmap[bar] = io;
+> >> +		else
+> >> +			pci_warn(vdev->pdev, "Failed to iomap region %d\n", bar);
+> >> +	}
+> >> +}  
+> > 
+> > I see you making the point in the cover letter about the resource
+> > request vs the iomap resource, but we currently handle these together.
+> > If either fails, setup barmap fails and the path returns error.  I
+> > don't see any justification for now allowing the request resource to
+> > succeed but the iomap fails.  
 > 
-> The inclusion of this ID was already voted and approved. The device
-> already appears in the VirtIO v1.4 specification, with the same ID (as
-> linked below). This patch is only meant to translate the decision to
-> the kernel header.
+> The primary effect was to let consumers see -EBUSY for a resource 
+> reservation failure or -ENOMEM for an iomap failure (whether through 
+> this patch's vfio_pci_core_setup_barmap() or the next patch's helpers), 
+> and that keeps the error signatures identical.
 > 
-> >
-> > > > ---
-> > > > While the Linux driver for virtio media is currently under active
-> > > > development and review [1], the VirtIO v1.4 specification has
-> > > > already been published and oficially defines the media device type [2].
-> > > >
-> > > > Adding the device ID now allows other components and tools to reference it
-> > > > before the driver lands, and ensures the kernel headers stay aligned
-> > > > with the specification.
-> > > >
-> > > > [1] https://lore.kernel.org/linux-media/20250412-virtio-media-v3-1-97dc94c18398@gmail.com/
-> > > > [2] https://docs.oasis-open.org/virtio/virtio/v1.4/virtio-v1.4.html#x1-82200022
-> > > > ---
-> > > >  include/uapi/linux/virtio_ids.h | 1 +
-> > > >  1 file changed, 1 insertion(+)
-> > > >
-> > > > diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/linux/virtio_ids.h
-> > > > index 6c12db16faa3a..f9056af0c6223 100644
-> > > > --- a/include/uapi/linux/virtio_ids.h
-> > > > +++ b/include/uapi/linux/virtio_ids.h
-> > > > @@ -69,6 +69,7 @@
-> > > >  #define VIRTIO_ID_BT                   40 /* virtio bluetooth */
-> > > >  #define VIRTIO_ID_GPIO                 41 /* virtio gpio */
-> > > >  #define VIRTIO_ID_SPI                  45 /* virtio spi */
-> > > > +#define VIRTIO_ID_MEDIA                        48 /* virtio media */
-> > > >
-> > > >  /*
-> > > >   * Virtio Transitional IDs
-> > > >
-> > > > ---
-> > > > base-commit: 6de23f81a5e08be8fbf5e8d7e9febc72a5b5f27f
-> > > > change-id: 20260310-virtio-media-id-b31179fcdc44
-> > > >
-> > > > Best regards,
-> > > > --
-> > > > Albert Esteve <aesteve@redhat.com>
-> > > >
-> >
+> A weak secondary effect was that a BAR that gets resource but fails for 
+> whatever reason to iomap it can still be used by most clients (assuming 
+> the general usage is to mmap).  The system's pretty sick if this is the 
+> case, so as I say it's weak.
 
+Right, I don't see that's really a necessary add at this point.  In
+fact while we expect users to access through the mmap when available,
+we don't actually have a way to specify that mmap works w/o read/write,
+which is effectively what this proposes is a valid state.
 
-Oh my bad. I misfiled it into the spec folder. I will take care of this.
-Thanks!
+> 
+> OK, if you prefer the combined approach and don't feel the subsequent 
+> single-semantic check helpers (need mapping, need resource) are clearer 
+> to read then I'll recombine them, though:
+> 
+>   - If vfio_pci_core_map_bars() just sets barmap[n] iff both resource 
+> acquisition and iomap succeed, then a later check can only return one 
+> error from either cause.  I'll go with -ENOMEM unless you prefer -EBUSY. 
+>   Using something else can again make userspace see previously-unseen 
+> error values.
+> 
+>   - IMHO vfio_pci_core_setup_barmap() should still be renamed (in a 2nd 
+> patch) since it doesn't do any setting up anymore.  Cosmetic, but 
+> cleaner to parse when the callers use vfio_pci_core_check_barmap_valid() no?
 
+I'm not sure how important it is to preserve the identical errno, but
+we can actually do that too.  Make the enable time "setup" function
+store the ERR_PTR in the barmap and change the current callers from
+"setup" to "get-iomap", where get-iomap is a __must_check return that
+callers test against IS_ERR_OR_NULL().
+
+Or maybe better, collapse NULL into -ENODEV so callers only test
+IS_ERR().
+
+There's even one user in vfio_pci_bar_rw() where this provides a minor
+simplification.  Likely the others are just wrapping the get-iomap call
+in the ERR/NULL test to get the equivalent behavior.  Thoughts?  Thanks,
+
+Alex
