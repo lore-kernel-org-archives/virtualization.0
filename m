@@ -1,146 +1,225 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5ED7D3D3CF6
-	for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 13:06:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BD1903CAE84
+	for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 13:25:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777036022; cv=none; b=uTvVwQAmeVOypmmUCc1gxEyLJ0qa6yNmAI775/t+dazxjOq4WuEX2XDIpIgMW4S/A0WwjjoK27FpVGaeCQVL6TUwR8w8iI3z9ATfK8KX+TWLC+B2/ErXZv9Ke3QAvoy/VvapAL5bP1NWrM0jxJbIhnFAp87S4SQe9c8pz0MAshM=
+	t=1777037160; cv=none; b=N9SNJwD+AZvQyT8YjMGV0ebiCyNu9uZJL1E111S6kTohRd8rw1glXACvDvDIzmzGqqzsTcj6OAceESIKloRLUIosiJiGZzejrhYaNCBNyi6VLEYckeqgkRFNYKx6SKcXZ2KE5gG3m0kYhmzFeKA0K2X7hGnefq6QvE71ckrae3w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777036022; c=relaxed/simple;
-	bh=HYrObwUGONel2KVyTugEPEgHF0BBAak+YhOMa3x2Rx8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=EF/eVawRkBlvfjWbscDLQiP+3ZuFb90pqEg//tiFXyPCuRhR0l4/Ny7flvUDABABNj5Ty9whIT7YhpGJRwsW/7Zu3UMYjKjKIHlWDyolaer4a2As1BKcz8wlXS4jFK3syoN0pAeNq6ODUQ90/Ak99OCAS1+BV8ZWJYWG/sU9RW8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FlbCeT6v; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1777037160; c=relaxed/simple;
+	bh=okaP1QHWhxsOEkL1jNs5dFzjpmTXkHbWuPKNePO8FOs=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=gxApox/ppJ5OlQVoLKM76oP77R4EQsdUpW4FDYg7Dew9T4mnidUiX+G+fkasMaAN15VB2GUl7gAbcrbJzgS3wyvJG/fJeLdB4KlsxMoVj+mIfZE/x+qH5ivVcV5/ciZ2YTRI44FyQFPVEwuUWjLD99q04NcDA4Iuf4Gxd2Q+1Ls=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=JuW5JPhU; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=rUmLqfuc; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=KsCDSP1f; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=UiYJwB1y; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FlbCeT6v"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1777036016;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="JuW5JPhU";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="rUmLqfuc";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="KsCDSP1f";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="UiYJwB1y"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id E3CAB6A843;
+	Fri, 24 Apr 2026 13:25:56 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1777037157; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=uBZypVOsotvD3+IMpNvRN0vVXxcrH58VGXlMFrXewCc=;
-	b=FlbCeT6vjHvRVDD6HU3QDguY54mlPuNNPGp6OcO+WOisTiTsYUelNf4LME+uXZJo7vdcLH
-	Ghd8NTsT7QQOw5RkdILtjnaskXJMwfqrkPCGHZMFMIZnzeD0IB2QO1UKWzIMGpbQVpqrwv
-	BDqHgLam7RZ6YvX8yJ/+Hmjn06AACzs=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-319-ZW1QEQwaN9m8CLLAUr6tIQ-1; Fri, 24 Apr 2026 09:06:53 -0400
-X-MC-Unique: ZW1QEQwaN9m8CLLAUr6tIQ-1
-X-Mimecast-MFC-AGG-ID: ZW1QEQwaN9m8CLLAUr6tIQ_1777036012
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-441243ba35fso3286914f8f.0
-        for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 06:06:53 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777036012; x=1777640812;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=uBZypVOsotvD3+IMpNvRN0vVXxcrH58VGXlMFrXewCc=;
-        b=BX9OyMh7z8Lnx82ItWLUmn41wvu7TDb+qGx59Q60BMc4qUb2bz6nKds/dVYssxt3TY
-         vu/H3lRJjveWhBLv3HpaVqq/f4dCmf/u2+g3Bm1Vhbvpd/NIeMa0GMwa7BUhgzOs5uHa
-         JLAW8k2vS6h+aSwQrbQT6kB+TDmCSTvxKlw4OYkAG1v3V01pSCTY8WvS9ha17sc6g/YB
-         Uj/KRRcAeqEdKEhv1PiY6+/gdN0e4w7UnZjjy9ZCNAhm2G/MXFIGozvW6kdiiFt5KFjh
-         h3X/urZ85R699wTMtsm/MhYT59z6t7VcSZ2SW5BsM7xwlkmKayv4DOEbSLukQEuJ1FpA
-         8Rmg==
-X-Forwarded-Encrypted: i=1; AFNElJ8NVOrMKO9/OZ/LomT0FagYElTx8etbSvwWnCGiyEeombK2xzsea8alALOE4WUb+UmQT3LM7Tgz+Zc4SqlJsw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyK0Ffw2gGSScakFl4Tdb7xCEsrSeHdby2wNhXa/kzJ5Wf7ohrV
-	A4XQYeo8QJgYPRChCMNkywFdCW4NPaTwmCoyWCHU+1NT878ecBG+H4gYFCr22acXKOBRyBhmAcS
-	gW/kAQpPaXcWOkfYkBTLmbxO6KbdTRQqZ5ZDolnNaYiaD0Vr0oLeaBMyt3TJH/BajX2wj
-X-Gm-Gg: AeBDies7522QEYF1TA/X3f9U+GMvOgpTTgrNQXGm7bOybqpd/sRDR3JgT8+ZPvfDZlh
-	WdYAvjupojShDzPFla0DYIE9qvcrcncOkyi+u5flEAGWW9HgpFYzou3yqUYRldL14Cmpo434+SV
-	t8y4bX/kHORpDDQyBDz6jNMrIvOclMKUWIQ+FfeO124QiCmQ79vHh8bRZeNd5fgcXnnRA6aJilQ
-	S+kP6Rw6hKevzcecUo/igYRQCyqJO2MhYqCos955GfQgc9lGb2puUypc3N+R85V6Iy/y3QlKIPm
-	lhqhIV+EoRIUrqv2coGumwKRfGV6jSQmIfBNgtpr/Ut+4rHIJp3ANpX8f84CUPueHcbJQSXL3b0
-	yqLBlXSuC72b8XNybvcwkDd3jlNQmHHfr42nSubLNEQvgpkT6Aem1dg==
-X-Received: by 2002:a05:6000:250f:b0:43d:68ad:3b7f with SMTP id ffacd0b85a97d-43fe3dd397dmr50865194f8f.21.1777036011851;
-        Fri, 24 Apr 2026 06:06:51 -0700 (PDT)
-X-Received: by 2002:a05:6000:250f:b0:43d:68ad:3b7f with SMTP id ffacd0b85a97d-43fe3dd397dmr50865137f8f.21.1777036011334;
-        Fri, 24 Apr 2026 06:06:51 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-25-21.inter.net.il. [80.230.25.21])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43fe4e4daf2sm58374248f8f.33.2026.04.24.06.06.49
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Apr 2026 06:06:50 -0700 (PDT)
-Date: Fri, 24 Apr 2026 09:06:48 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Albert Esteve <aesteve@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	gnurou@gmail.com
-Subject: Re: [PATCH] virtio: Add ID for virtio media
-Message-ID: <20260424090616-mutt-send-email-mst@kernel.org>
-References: <20260310-virtio-media-id-v1-1-be211bcf682b@redhat.com>
- <CADSE00+VyDf6hMAB79wP2koSQ3FznO_OJuGCZ6zN8zuCrwtZMg@mail.gmail.com>
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=hXzxoW/FhdDOvsaLZ/AVSa7KkcUrVFugO8vdPWzUuwM=;
+	b=JuW5JPhUfo38juPBMiWU/1o5pbzOQ5kuMrwfHnooT1ebjL1L7+A102VwPaoSVcyWWJQXll
+	NVuLhXSB5LDe/SyLiayZcQZ+SZwIED8mIdHGb6lSVYSOgFI0x3jau/8JTzaLPitlhCgvX/
+	5KOz2Tsh1gRhdNeKquqzY0Bfso+fe3I=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1777037157;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=hXzxoW/FhdDOvsaLZ/AVSa7KkcUrVFugO8vdPWzUuwM=;
+	b=rUmLqfucZbSPEl2XKmLsknTYR+uXMBCtvDduDZ9Qmsclix1lawz+vFuhzcdEExZ0oSOsh9
+	qCqXop9wkLYv24Bw==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=KsCDSP1f;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=UiYJwB1y
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1777037156; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=hXzxoW/FhdDOvsaLZ/AVSa7KkcUrVFugO8vdPWzUuwM=;
+	b=KsCDSP1fgUBkbw3MI0MMybI8pwTEfq9B1a1QlEg8zN8mA3L50U15YckjRSpvF5wQ74yC9C
+	Mao6ssk/pZ0CjIlfU0cDq82db2v9lkN4LkTi2JQlKt7OYBCOkYHowS5OfQQ0iMnGXT0WAW
+	Zz2AFJn7QVsehrTCekmBYFiqK39VnWI=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1777037156;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=hXzxoW/FhdDOvsaLZ/AVSa7KkcUrVFugO8vdPWzUuwM=;
+	b=UiYJwB1yy7fpr1w9GlcLgzm4tw1dX8lqWQKGH41E+y7LJ48GfRUT3tCUNTPLTgoqllkqP2
+	/0X+YvSJxNsa98Aw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 9EA2F593A4;
+	Fri, 24 Apr 2026 13:25:56 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id cP4+JWRv62lGMwAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Fri, 24 Apr 2026 13:25:56 +0000
+Message-ID: <43bbfbcf-4a8d-4039-9ebf-24672b7e6d0a@suse.de>
+Date: Fri, 24 Apr 2026 15:25:56 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CADSE00+VyDf6hMAB79wP2koSQ3FznO_OJuGCZ6zN8zuCrwtZMg@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: MWcIJ313inQb4pGiILr9E-xOA1tDPhGkurLeXWJ9bXI_1777036012
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] drm/bochs: Drop manual put on probe error path
+To: Myeonghun Pak <mhun512@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, David Airlie <airlied@gmail.com>,
+ Simona Vetter <simona@ffwll.ch>
+Cc: virtualization@lists.linux.dev, dri-devel@lists.freedesktop.org,
+ linux-kernel@vger.kernel.org
+References: <20260424123506.32275-1-mhun512@gmail.com>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <20260424123506.32275-1-mhun512@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+X-Spamd-Result: default: False [-4.51 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FREEMAIL_TO(0.00)[gmail.com,redhat.com,linux.intel.com,kernel.org,ffwll.ch];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	TO_DN_SOME(0.00)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	RCPT_COUNT_SEVEN(0.00)[9];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:url,suse.de:dkim,suse.de:mid]
+X-Rspamd-Action: no action
+X-Spam-Flag: NO
+X-Spam-Score: -4.51
+X-Spam-Level: 
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Rspamd-Queue-Id: E3CAB6A843
 
-On Thu, Apr 09, 2026 at 06:53:41PM +0200, Albert Esteve wrote:
-> Hi,
-> 
-> 
-> On Tue, Mar 10, 2026 at 9:41 AM Albert Esteve <aesteve@redhat.com> wrote:
-> >
-> > Add VIRTIO_ID_MEDIA definition for virtio-media.
-> >
-> > Signed-off-by: Albert Esteve <aesteve@redhat.com>
-> 
-> Are there any thoughts on this patch, or any actions I need to take?
-> 
-> Thanks,
-> Albert
+Hi,
 
-Create a github issue and request a vote as documented in README.md
+please add fixes tags to all these patches you're sending. You also need 
+to CC stable so that they can be backported easily. Also list the AI 
+you're using to find and create these patches.
 
-> > ---
-> > While the Linux driver for virtio media is currently under active
-> > development and review [1], the VirtIO v1.4 specification has
-> > already been published and oficially defines the media device type [2].
-> >
-> > Adding the device ID now allows other components and tools to reference it
-> > before the driver lands, and ensures the kernel headers stay aligned
-> > with the specification.
-> >
-> > [1] https://lore.kernel.org/linux-media/20250412-virtio-media-v3-1-97dc94c18398@gmail.com/
-> > [2] https://docs.oasis-open.org/virtio/virtio/v1.4/virtio-v1.4.html#x1-82200022
-> > ---
-> >  include/uapi/linux/virtio_ids.h | 1 +
-> >  1 file changed, 1 insertion(+)
-> >
-> > diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/linux/virtio_ids.h
-> > index 6c12db16faa3a..f9056af0c6223 100644
-> > --- a/include/uapi/linux/virtio_ids.h
-> > +++ b/include/uapi/linux/virtio_ids.h
-> > @@ -69,6 +69,7 @@
-> >  #define VIRTIO_ID_BT                   40 /* virtio bluetooth */
-> >  #define VIRTIO_ID_GPIO                 41 /* virtio gpio */
-> >  #define VIRTIO_ID_SPI                  45 /* virtio spi */
-> > +#define VIRTIO_ID_MEDIA                        48 /* virtio media */
-> >
-> >  /*
-> >   * Virtio Transitional IDs
-> >
-> > ---
-> > base-commit: 6de23f81a5e08be8fbf5e8d7e9febc72a5b5f27f
-> > change-id: 20260310-virtio-media-id-b31179fcdc44
-> >
-> > Best regards,
-> > --
-> > Albert Esteve <aesteve@redhat.com>
-> >
+Best regards
+Thomas
+
+Am 24.04.26 um 14:34 schrieb Myeonghun Pak:
+> bochs_pci_probe() allocates the DRM device with devm_drm_dev_alloc(),
+> which registers a devres action to drop the initial DRM device reference
+> on driver detach or probe failure.
+>
+> The error path currently calls drm_dev_put() manually. If probe then
+> returns an error, devres will run the registered release action and put
+> the same device again, after the first put may already have released it.
+>
+> Return the probe error directly and let devres own the final put.
+>
+> Signed-off-by: Myeonghun Pak <mhun512@gmail.com>
+> ---
+>   drivers/gpu/drm/tiny/bochs.c | 10 +++-------
+>   1 file changed, 3 insertions(+), 7 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
+> index 222e4ae1ab..5d8dc5efec 100644
+> --- a/drivers/gpu/drm/tiny/bochs.c
+> +++ b/drivers/gpu/drm/tiny/bochs.c
+> @@ -761,25 +761,21 @@ static int bochs_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent
+>   
+>   	ret = pcim_enable_device(pdev);
+>   	if (ret)
+> -		goto err_free_dev;
+> +		return ret;
+>   
+>   	pci_set_drvdata(pdev, dev);
+>   
+>   	ret = bochs_load(bochs);
+>   	if (ret)
+> -		goto err_free_dev;
+> +		return ret;
+>   
+>   	ret = drm_dev_register(dev, 0);
+>   	if (ret)
+> -		goto err_free_dev;
+> +		return ret;
+>   
+>   	drm_client_setup(dev, NULL);
+>   
+>   	return ret;
+> -
+> -err_free_dev:
+> -	drm_dev_put(dev);
+> -	return ret;
+>   }
+>   
+>   static void bochs_pci_remove(struct pci_dev *pdev)
+
+-- 
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
+GF: Jochen Jaser, Andrew McDonald, Werner Knoblich, (HRB 36809, AG Nürnberg)
+
 
