@@ -1,341 +1,147 @@
-Received: from out-172.mta0.migadu.com (out-172.mta0.migadu.com [91.218.175.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f54.google.com (mail-ed1-f54.google.com [209.85.208.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7775D3537D4
-	for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 06:26:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.172
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777011994; cv=none; b=TEUORSyBRty4AiITEETHrS1Nc2sNuPT7lFp66MSt+uEdIpRFXOEDdbDqkPjJM1Of8+otdm9S+nVLekps9T729b82yA7zZ9LBNyb2ytjUqz/MIjVnSyqJGIffsY8qe+wIYsn95BGqehDIC1KngsCNrx/c7t7OGdAkyask5I9Yef0=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777011994; c=relaxed/simple;
-	bh=r3cX9/cKucEKI7jeSBF7ovZVeEBlaU54h0dr4Se14LI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=CqnDxnpRrVyOYa0limsiUkDBiWaDkd6+gLaoYfLqMQ9Wi2snGe3UYYILsLItpRpejtyPhbYHjA1OaYcmUW3gp9f6mv/jX2+YE8q1+jDRYW5Y2EZM2WZAHhtdlOKnHYVJIYW8VHEqABMPQB1s0gP7aLvYOsZctj6DYSukOYNtWJQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=lXFN78sr; arc=none smtp.client-ip=91.218.175.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FC152D63E5
+	for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 07:16:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.54
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777015020; cv=pass; b=MjXQweBbSbQ1VXzbmwVAYA7+EbxE1reYo88nr33HsywR6XufwqWaz165NUbeizTNoboeFowJejpPenTIn4GWq5mo8w00qvSvt1TblMgp6Gmm662Tea2/sRANT7ZRGUeHD8wtYibpnb+DuH8Rf+93eAAgH+wCnFDJO3yxDLvp55k=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777015020; c=relaxed/simple;
+	bh=W+ssi1VXndSbA3jTir7s/4LRoYtNUVNtJuZsueaDSGE=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=HW95EwgB6Gsok1dcfAQYgGF+aA+BQ1L+XTmM6LPqTkDmXRw/DyMZOjPN7aJFDdONObOhguPiLH6FNFqkZ60URtkRO3bd3VdJPTFXC4lkdPaSCtQ9CXEC3KnuK4xBnDJw3kVFSPIt87m97921XtMBP3oxQINo+DPsca/7TXjx8ls=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=LuiSxraO; arc=pass smtp.client-ip=209.85.208.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="lXFN78sr"
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1777011989;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=rTh+Yvx/G+4eA9lbJw6qEK4XyieG3LR31VvrGkRr96o=;
-	b=lXFN78sryZ4PB+yHSBlA0WPl5M4L4ogY1eH/biaBzsnxm7WNDoMkzHzGdk7QKgYfxNeOy0
-	5st7Qf4OgYppgPfZFHjFoqGEV8pmnNmBKnkB0JO8npFF6lWb+nYs/1TlvCaH5DfMx0R1aR
-	DISGE9gPZLPERc1OKnbM0iSsegCiaus=
-From: Lance Yang <lance.yang@linux.dev>
-To: akpm@linux-foundation.org
-Cc: peterz@infradead.org,
-	david@kernel.org,
-	dave.hansen@intel.com,
-	dave.hansen@linux.intel.com,
-	ypodemsk@redhat.com,
-	hughd@google.com,
-	will@kernel.org,
-	aneesh.kumar@kernel.org,
-	npiggin@gmail.com,
-	tglx@linutronix.de,
-	mingo@redhat.com,
-	bp@alien8.de,
-	x86@kernel.org,
-	hpa@zytor.com,
-	arnd@arndb.de,
-	ljs@kernel.org,
-	ziy@nvidia.com,
-	baolin.wang@linux.alibaba.com,
-	Liam.Howlett@oracle.com,
-	npache@redhat.com,
-	ryan.roberts@arm.com,
-	dev.jain@arm.com,
-	baohua@kernel.org,
-	shy828301@gmail.com,
-	riel@surriel.com,
-	jannh@google.com,
-	jgross@suse.com,
-	seanjc@google.com,
-	pbonzini@redhat.com,
-	boris.ostrovsky@oracle.com,
-	virtualization@lists.linux.dev,
-	kvm@vger.kernel.org,
-	linux-arch@vger.kernel.org,
-	linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org,
-	ioworker0@gmail.com,
-	Lance Yang <lance.yang@linux.dev>
-Subject: [PATCH 7.2 v10 2/2] x86/tlb: skip redundant sync IPIs for native TLB flush
-Date: Fri, 24 Apr 2026 14:25:28 +0800
-Message-ID: <20260424062528.71951-3-lance.yang@linux.dev>
-In-Reply-To: <20260424062528.71951-1-lance.yang@linux.dev>
-References: <20260424062528.71951-1-lance.yang@linux.dev>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="LuiSxraO"
+Received: by mail-ed1-f54.google.com with SMTP id 4fb4d7f45d1cf-67893fba9c3so2357678a12.2
+        for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 00:16:57 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1777015016; cv=none;
+        d=google.com; s=arc-20240605;
+        b=akokV/j2f2wy5OIW/BtujMEkU5gzxUv+tZgKbZfMn+YpyBV0FvwjufIWRNv8ws24/v
+         QRlcsAKhdbvVeKIBdHV5OQbOk8LAywVdcuC4EqMQN1ZUeTKACvkJbU3+4rHUO1V/7iW6
+         v01xB+KtY4KPA/G1Ghvo9aN+QuGaw+ZA7+7JRv+hYYBE/7bU0iEHsqvt6lWE1HUT4EBP
+         UgpZ08jxYbd4sXKbuKLjzrGO3iMf+B/bGMInaimnXukWpfvdXRkdj7fuvqE+mqSEZxfb
+         Yt3L0pbbQQz8AO8Dfvv7dNaEsLQA2OvBwgxRCYt1aejdE3nflvgunmudCVK/0WClIAZE
+         pRbQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=8uv1ap7wfpWSK/rjkumTWgHiVOSnLQXCSFDMADgPR1Y=;
+        fh=hA2TLpsYqin19epXrfHQsBfoyEqCnjlMIgwnVmyccSc=;
+        b=KROvvEH5vizWAuGp8fx7tRhqjPwF86FcWiBTpiqgr2XzwmStqZH0Zv8+fQt4OH0u/u
+         hoGAPCH0GSYiryob6oxmV8nvy7JVeyyovvANHq5Y2FVB0iVbXMmgDjW6k89Xlppf74VS
+         w/elqrtx/HSwpgVCPYgJB4ASfRPmwws95aqKU1NdVLrcBU6UJrOt17YAisYm4XgH+BKz
+         N2v9dwoW8xrMIC4KElF2qvzVhlYaZzUNd5brn9Bp0ebgX9QJFssfk2V0RJNIZvoE24rn
+         22RmM50vezFQTyxNGi7th/Q5sQ5LPC5MHYr1qIY3AkHFw/a9HT/bQUrYL5tpxutFtObk
+         2hrQ==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1777015016; x=1777619816; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=8uv1ap7wfpWSK/rjkumTWgHiVOSnLQXCSFDMADgPR1Y=;
+        b=LuiSxraObyNbODlMfBA1wQ5plxHBJRkTPI7muM3lbvrOYB4SiI1VbZV0k/PZhMdXvA
+         0ytm0/Dg/bN2HH3lh6exlw86geXA8eagxcFfWBxX/utBpKERzH8RHNxiyZtNpbCKVzMs
+         nM+Ca16m2Zue1lsp4iySMCNBDE8b/Wg6gpG6bvE11gdYPhhLSC4syr1so7aO0HtsQSsQ
+         veD8PfTqI7AdlMsIMnL3ihndPuKtqASlQmsu2cHOx5vx7vcpAU2/mIwlAWeNxtipn8je
+         G2mlJgYAyhLlIlcD+DlMmbxCV7Th5qRzF8d1TpKfXsjHXtb4cTkcaaDFI22sUqRCNbpB
+         23Ng==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777015016; x=1777619816;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=8uv1ap7wfpWSK/rjkumTWgHiVOSnLQXCSFDMADgPR1Y=;
+        b=hQn5zU81wS1w2AqkQeOt2vM2+NOrAonX70aXwt6f3WEnbwt+95sBB5e1YRbxpnfEzf
+         A55l09raWeHhsLJMbEQwAFx/VG6413pghcb20cPbf9dNG7aCYYw6bAxKEAncr74f+KwJ
+         ST6R0/xpwm05hnF1KL91y9s4Qs/ole8U1VIKAmTWO3agHbuKbCsAxcClAmItTPA9mWjl
+         X7amBDNSsvv6hqOxhxgtjAsuSbckukJQkZn191AU4KjhNSsjuzSatSQip8vxCFZKobW4
+         FWQ4BbO7tpmfDRUCAHA446JkgVWYpqw+0dyWX/CCHk23xx9D6LgpkOaFjzziwWE2BIZv
+         11ow==
+X-Forwarded-Encrypted: i=1; AFNElJ/AAR50PcRXuLlE97WEiAKXvqBZ7pXU87HRG1IZm1+YtgWyZp0HcGXzIRcTMJz0nksNkIw3Sphm2Q0JRi79kw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyRjNVEtcJDzMpYJKpFyQMmf6aCu+yPhy88qaEkvu4eTH2znZHS
+	SRNrkiF/wLSEXuuznTY1EhlUMuqB4ANO/Id73eq5SRQuzdccuyK830o3tFh87MpYrdfsmscrPtN
+	MFrCX5zKLzhhCDfmh7t44Ihmhrria84M=
+X-Gm-Gg: AeBDievcy0IthulnLIlkp/MHwpmVGOdrv/HGK69uo5LPPuHC83PvbmtUm2qg82+gYlW
+	I0n1/Go/cxGGViqrF7jWlsg9HNJGVDOhkpJrB9t09VUYQpLoMpYcen/Q5fudgcGpOhOepU5K8Fq
+	neJ6zBBOeIJAIqaool+SW5wGucRLxWNVcTR3iLsI7CGO8tljUVLfFpfqMqP1g8xFY/UOwmtTsrc
+	4x+wH3nChNOREs0xD+TXK7KeFh9YRJ+rnlFK66SUYCLwIm12Be7UjWBPtaOVKSsGHokOAIj8N29
+	plihMx5ZZ6Bb/6GXUe0K1Yxrjoc/OcptHBsYOQOM5XBTaL4dGEE=
+X-Received: by 2002:a17:907:1ca1:b0:bad:dfe1:6a56 with SMTP id
+ a640c23a62f3a-baddfe16c2dmr60367766b.30.1777015016077; Fri, 24 Apr 2026
+ 00:16:56 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
+References: <cover.1776808209.git.mst@redhat.com> <006f9142e591ba8c340c3b354aee76aec5c285b9.1776808210.git.mst@redhat.com>
+In-Reply-To: <006f9142e591ba8c340c3b354aee76aec5c285b9.1776808210.git.mst@redhat.com>
+From: Magnus Lindholm <linmag7@gmail.com>
+Date: Fri, 24 Apr 2026 09:16:43 +0200
+X-Gm-Features: AQROBzARFJV36R4zYM7xbfHPyy5Ua1V3EjGjDIipUn9qIBzgKGxem5ahIafz8os
+Message-ID: <CA+=Fv5T83qH-c0U4eXO84HQmG=225SepaxVYzrpQh_CWMhG5hg@mail.gmail.com>
+Subject: Re: [PATCH RFC v3 10/19] mm: remove arch vma_alloc_zeroed_movable_folio
+ overrides
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>, 
+	David Hildenbrand <david@kernel.org>, Vlastimil Babka <vbabka@kernel.org>, 
+	Brendan Jackman <jackmanb@google.com>, Michal Hocko <mhocko@suse.com>, 
+	Suren Baghdasaryan <surenb@google.com>, Jason Wang <jasowang@redhat.com>, 
+	Andrea Arcangeli <aarcange@redhat.com>, Gregory Price <gourry@gourry.net>, linux-mm@kvack.org, 
+	virtualization@lists.linux.dev, 
+	Richard Henderson <richard.henderson@linaro.org>, Matt Turner <mattst88@gmail.com>, 
+	Greg Ungerer <gerg@linux-m68k.org>, Geert Uytterhoeven <geert@linux-m68k.org>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Alexander Gordeev <agordeev@linux.ibm.com>, Christian Borntraeger <borntraeger@linux.ibm.com>, 
+	Sven Schnelle <svens@linux.ibm.com>, Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+	"H. Peter Anvin" <hpa@zytor.com>, linux-alpha@vger.kernel.org, 
+	linux-m68k@lists.linux-m68k.org, linux-s390@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Lance Yang <lance.yang@linux.dev>
+On Wed, Apr 22, 2026 at 12:01=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com=
+> wrote:
+>
+> Now that the generic vma_alloc_zeroed_movable_folio() uses
+> __GFP_ZERO, the arch-specific macros on alpha, m68k, s390, and
+> x86 that did the same thing are redundant.  Remove them.
+>
+> arm64 is not affected: it has a real function override that
+> handles MTE tag zeroing, not just __GFP_ZERO.
+>
+> Suggested-by: David Hildenbrand <david@kernel.org>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ---
+>  arch/alpha/include/asm/page.h   | 3 ---
+>  arch/m68k/include/asm/page_no.h | 3 ---
+>  arch/s390/include/asm/page.h    | 3 ---
+>  arch/x86/include/asm/page.h     | 3 ---
+>  4 files changed, 12 deletions(-)
+>
+> diff --git a/arch/alpha/include/asm/page.h b/arch/alpha/include/asm/page.=
+h
+> index 59d01f9b77f6..4327029cd660 100644
+> --- a/arch/alpha/include/asm/page.h
+> +++ b/arch/alpha/include/asm/page.h
+> @@ -12,9 +12,6 @@
+>
+>  extern void clear_page(void *page);
+>
+> -#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
+> -       vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
+> -
+>  extern void copy_page(void * _to, void * _from);
+>  #define copy_user_page(to, from, vaddr, pg)    copy_page(to, from)
+>
 
-Some page table operations need to synchronize with software/lockless
-walkers after a TLB flush by calling tlb_remove_table_sync_{one,rcu}().
-On x86, that extra synchronization is redundant when the preceding TLB
-flush already broadcast IPIs to all relevant CPUs.
+From an alpha perspective, this looks good to me.
 
-native_pv_tlb_init() checks whether native_flush_tlb_multi() is in use.
-On CONFIG_PARAVIRT systems, it checks pv_ops; on non-PARAVIRT, native
-flush is always in use.
-
-It decides once at boot whether to enable the optimization: if using
-native TLB flush and INVLPGB is not supported, we know IPIs were sent
-and can skip the redundant sync. The decision is fixed via a static
-key as Peter suggested[1].
-
-PV backends (KVM, Xen, Hyper-V) typically have their own implementations
-and don't call native_flush_tlb_multi() directly, so they cannot be trusted
-to provide the IPI guarantees we need.
-
-Also rename the x86 flush_tlb_info bit from freed_tables to wake_lazy_cpus,
-as Dave suggested[2], to match the behavior it controls: whether the remote
-flush may skip CPUs in lazy TLB mode. Both freed_tables and unshared_tables
-set it, because lazy-TLB CPUs must receive IPIs before page tables can be
-freed or reused. With that guarantee in place,
-tlb_table_flush_implies_ipi_broadcast() can safely skip the later sync IPI.
-
-Two-step plan as David suggested[3]:
-
-Step 1 (this patch): Skip redundant sync when we're 100% certain the TLB
-flush sent IPIs. INVLPGB is excluded because when supported, we cannot
-guarantee IPIs were sent, keeping it clean and simple.
-
-Step 2 (future work): Send targeted IPIs only to CPUs actually doing
-software/lockless page table walks, benefiting all architectures.
-
-Regarding Step 2, it obviously only applies to setups where Step 1 does
-not apply: like x86 with INVLPGB or arm64.
-
-[1] https://lore.kernel.org/linux-mm/20260302145652.GH1395266@noisy.programming.kicks-ass.net/
-[2] https://lore.kernel.org/linux-mm/f856051b-10c7-4d65-9dbe-6b1677af74bd@intel.com/
-[3] https://lore.kernel.org/linux-mm/bbfdf226-4660-4949-b17b-0d209ee4ef8c@kernel.org/
-
-Suggested-by: Dave Hansen <dave.hansen@intel.com>
-Suggested-by: Peter Zijlstra <peterz@infradead.org>
-Suggested-by: David Hildenbrand (Arm) <david@kernel.org>
-Signed-off-by: Lance Yang <lance.yang@linux.dev>
----
- arch/x86/hyperv/mmu.c           |  4 ++--
- arch/x86/include/asm/tlb.h      | 19 +++++++++++++++-
- arch/x86/include/asm/tlbflush.h |  6 +++--
- arch/x86/kernel/smpboot.c       |  1 +
- arch/x86/mm/tlb.c               | 39 +++++++++++++++++++++++----------
- 5 files changed, 52 insertions(+), 17 deletions(-)
-
-diff --git a/arch/x86/hyperv/mmu.c b/arch/x86/hyperv/mmu.c
-index cfcb60468b01..2cf1eeaffd6f 100644
---- a/arch/x86/hyperv/mmu.c
-+++ b/arch/x86/hyperv/mmu.c
-@@ -63,7 +63,7 @@ static void hyperv_flush_tlb_multi(const struct cpumask *cpus,
- 	struct hv_tlb_flush *flush;
- 	u64 status;
- 	unsigned long flags;
--	bool do_lazy = !info->freed_tables;
-+	bool do_lazy = !info->wake_lazy_cpus;
- 
- 	trace_hyperv_mmu_flush_tlb_multi(cpus, info);
- 
-@@ -198,7 +198,7 @@ static u64 hyperv_flush_tlb_others_ex(const struct cpumask *cpus,
- 
- 	flush->hv_vp_set.format = HV_GENERIC_SET_SPARSE_4K;
- 	nr_bank = cpumask_to_vpset_skip(&flush->hv_vp_set, cpus,
--			info->freed_tables ? NULL : cpu_is_lazy);
-+			info->wake_lazy_cpus ? NULL : cpu_is_lazy);
- 	if (nr_bank < 0)
- 		return HV_STATUS_INVALID_PARAMETER;
- 
-diff --git a/arch/x86/include/asm/tlb.h b/arch/x86/include/asm/tlb.h
-index 866ea78ba156..fb256fd95f95 100644
---- a/arch/x86/include/asm/tlb.h
-+++ b/arch/x86/include/asm/tlb.h
-@@ -5,22 +5,39 @@
- #define tlb_flush tlb_flush
- static inline void tlb_flush(struct mmu_gather *tlb);
- 
-+#define tlb_table_flush_implies_ipi_broadcast tlb_table_flush_implies_ipi_broadcast
-+static inline bool tlb_table_flush_implies_ipi_broadcast(void);
-+
- #include <asm-generic/tlb.h>
- #include <linux/kernel.h>
- #include <vdso/bits.h>
- #include <vdso/page.h>
- 
-+DECLARE_STATIC_KEY_FALSE(tlb_ipi_broadcast_key);
-+
-+static inline bool tlb_table_flush_implies_ipi_broadcast(void)
-+{
-+	return static_branch_likely(&tlb_ipi_broadcast_key);
-+}
-+
- static inline void tlb_flush(struct mmu_gather *tlb)
- {
- 	unsigned long start = 0UL, end = TLB_FLUSH_ALL;
- 	unsigned int stride_shift = tlb_get_unmap_shift(tlb);
- 
-+	/*
-+	 * Both freed_tables and unshared_tables must wake lazy-TLB CPUs, so
-+	 * they receive IPIs before reusing or freeing page tables, allowing
-+	 * us to safely implement tlb_table_flush_implies_ipi_broadcast().
-+	 */
-+	bool wake_lazy_cpus = tlb->freed_tables || tlb->unshared_tables;
-+
- 	if (!tlb->fullmm && !tlb->need_flush_all) {
- 		start = tlb->start;
- 		end = tlb->end;
- 	}
- 
--	flush_tlb_mm_range(tlb->mm, start, end, stride_shift, tlb->freed_tables);
-+	flush_tlb_mm_range(tlb->mm, start, end, stride_shift, wake_lazy_cpus);
- }
- 
- static inline void invlpg(unsigned long addr)
-diff --git a/arch/x86/include/asm/tlbflush.h b/arch/x86/include/asm/tlbflush.h
-index 5a3cdc439e38..39b9454781c3 100644
---- a/arch/x86/include/asm/tlbflush.h
-+++ b/arch/x86/include/asm/tlbflush.h
-@@ -18,6 +18,8 @@
- 
- DECLARE_PER_CPU(u64, tlbstate_untag_mask);
- 
-+void __init native_pv_tlb_init(void);
-+
- void __flush_tlb_all(void);
- 
- #define TLB_FLUSH_ALL	-1UL
-@@ -225,7 +227,7 @@ struct flush_tlb_info {
- 	u64			new_tlb_gen;
- 	unsigned int		initiating_cpu;
- 	u8			stride_shift;
--	u8			freed_tables;
-+	u8			wake_lazy_cpus;
- 	u8			trim_cpumask;
- };
- 
-@@ -315,7 +317,7 @@ static inline bool mm_in_asid_transition(struct mm_struct *mm) { return false; }
- extern void flush_tlb_all(void);
- extern void flush_tlb_mm_range(struct mm_struct *mm, unsigned long start,
- 				unsigned long end, unsigned int stride_shift,
--				bool freed_tables);
-+				bool wake_lazy_cpus);
- extern void flush_tlb_kernel_range(unsigned long start, unsigned long end);
- 
- static inline void flush_tlb_page(struct vm_area_struct *vma, unsigned long a)
-diff --git a/arch/x86/kernel/smpboot.c b/arch/x86/kernel/smpboot.c
-index 294a8ea60298..df776b645a9c 100644
---- a/arch/x86/kernel/smpboot.c
-+++ b/arch/x86/kernel/smpboot.c
-@@ -1256,6 +1256,7 @@ void __init native_smp_prepare_boot_cpu(void)
- 		switch_gdt_and_percpu_base(me);
- 
- 	native_pv_lock_init();
-+	native_pv_tlb_init();
- }
- 
- void __init native_smp_cpus_done(unsigned int max_cpus)
-diff --git a/arch/x86/mm/tlb.c b/arch/x86/mm/tlb.c
-index 621e09d049cb..3ce254a3982c 100644
---- a/arch/x86/mm/tlb.c
-+++ b/arch/x86/mm/tlb.c
-@@ -26,6 +26,8 @@
- 
- #include "mm_internal.h"
- 
-+DEFINE_STATIC_KEY_FALSE(tlb_ipi_broadcast_key);
-+
- #ifdef CONFIG_PARAVIRT
- # define STATIC_NOPV
- #else
-@@ -1360,16 +1362,16 @@ STATIC_NOPV void native_flush_tlb_multi(const struct cpumask *cpumask,
- 				(info->end - info->start) >> PAGE_SHIFT);
- 
- 	/*
--	 * If no page tables were freed, we can skip sending IPIs to
--	 * CPUs in lazy TLB mode. They will flush the CPU themselves
--	 * at the next context switch.
-+	 * If lazy-TLB CPUs do not need to be woken, we can skip sending
-+	 * IPIs to them. They will flush themselves at the next context
-+	 * switch.
- 	 *
--	 * However, if page tables are getting freed, we need to send the
--	 * IPI everywhere, to prevent CPUs in lazy TLB mode from tripping
--	 * up on the new contents of what used to be page tables, while
--	 * doing a speculative memory access.
-+	 * However, if page tables are getting freed or unshared, we need
-+	 * to send the IPI everywhere, to prevent CPUs in lazy TLB mode
-+	 * from tripping up on the new contents of what used to be page
-+	 * tables, while doing a speculative memory access.
- 	 */
--	if (info->freed_tables || mm_in_asid_transition(info->mm))
-+	if (info->wake_lazy_cpus || mm_in_asid_transition(info->mm))
- 		on_each_cpu_mask(cpumask, flush_tlb_func, (void *)info, true);
- 	else
- 		on_each_cpu_cond_mask(should_flush_tlb, flush_tlb_func,
-@@ -1402,7 +1404,7 @@ static DEFINE_PER_CPU(unsigned int, flush_tlb_info_idx);
- 
- static struct flush_tlb_info *get_flush_tlb_info(struct mm_struct *mm,
- 			unsigned long start, unsigned long end,
--			unsigned int stride_shift, bool freed_tables,
-+			unsigned int stride_shift, bool wake_lazy_cpus,
- 			u64 new_tlb_gen)
- {
- 	struct flush_tlb_info *info = this_cpu_ptr(&flush_tlb_info);
-@@ -1429,7 +1431,7 @@ static struct flush_tlb_info *get_flush_tlb_info(struct mm_struct *mm,
- 	info->end		= end;
- 	info->mm		= mm;
- 	info->stride_shift	= stride_shift;
--	info->freed_tables	= freed_tables;
-+	info->wake_lazy_cpus	= wake_lazy_cpus;
- 	info->new_tlb_gen	= new_tlb_gen;
- 	info->initiating_cpu	= smp_processor_id();
- 	info->trim_cpumask	= 0;
-@@ -1448,7 +1450,7 @@ static void put_flush_tlb_info(void)
- 
- void flush_tlb_mm_range(struct mm_struct *mm, unsigned long start,
- 				unsigned long end, unsigned int stride_shift,
--				bool freed_tables)
-+				bool wake_lazy_cpus)
- {
- 	struct flush_tlb_info *info;
- 	int cpu = get_cpu();
-@@ -1457,7 +1459,7 @@ void flush_tlb_mm_range(struct mm_struct *mm, unsigned long start,
- 	/* This is also a barrier that synchronizes with switch_mm(). */
- 	new_tlb_gen = inc_mm_tlb_gen(mm);
- 
--	info = get_flush_tlb_info(mm, start, end, stride_shift, freed_tables,
-+	info = get_flush_tlb_info(mm, start, end, stride_shift, wake_lazy_cpus,
- 				  new_tlb_gen);
- 
- 	/*
-@@ -1834,3 +1836,16 @@ static int __init create_tlb_single_page_flush_ceiling(void)
- 	return 0;
- }
- late_initcall(create_tlb_single_page_flush_ceiling);
-+
-+void __init native_pv_tlb_init(void)
-+{
-+#ifdef CONFIG_PARAVIRT
-+	if (pv_ops.mmu.flush_tlb_multi != native_flush_tlb_multi)
-+		return;
-+#endif
-+
-+	if (cpu_feature_enabled(X86_FEATURE_INVLPGB))
-+		return;
-+
-+	static_branch_enable(&tlb_ipi_broadcast_key);
-+}
--- 
-2.49.0
-
+Acked-by: Magnus Lindholm <linmag7@gmail.com>
