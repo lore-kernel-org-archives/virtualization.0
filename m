@@ -1,132 +1,157 @@
-Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EA0519A288
-	for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 13:37:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A6FC179A3
+	for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 13:37:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777037828; cv=none; b=TkHCSXQ7bOuR43E6Sg6UC6gYDoKTuZziyhpajjp53hJ1dXTwj1nXjf4hDWpk8zzYPDVFr+SAFUExsLufPUB3brXuHY9kCfeTlIQIPwjBSB3fJvbDdhhr8jtm18NAzYRumuavBkXMJD+pJnhbpi0K2AgSjpu99FP9ECHtqBBiOdc=
+	t=1777037851; cv=none; b=fWkkkcGUHmnJRJ/oY8fYuFiwDEyUaAoEiWJv4YCJEFDtXF++dFerFbSYqU4vlRSgJwTDrAUEJ5kjf+8Y79pEmjl6hx/+TaducZXXugOqEA/1DssyqZSDPgwceZfgJWmcEGXMU0oamLJBYu3zJun3dcf2YbxBD5DavTMrgD/2BRM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777037828; c=relaxed/simple;
-	bh=BSx3qFPNO/NMYwuSHNZB31nKRkS0Y90uuNokhVUvaPg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qGK9boRx2/8TjHbcuffCU9ri+Wf1Ulm1xhJXHAyJJfN8OJ9q/5rQPr14XATDT6gPoDYXV3qEtm9xzl8sAf/6Jg7HzQIZIcjzcNBWdoEmGN2D+l6mlCl6dO/qeLZjpy+HS3py70NyXDYw+7r878Id+3j9TK0X0iaB5Co+a/5zSuc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=soleen.com; spf=pass smtp.mailfrom=soleen.com; dkim=pass (2048-bit key) header.d=soleen.com header.i=@soleen.com header.b=HFC15QFW; arc=none smtp.client-ip=209.85.222.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=soleen.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=soleen.com
+	s=arc-20240116; t=1777037851; c=relaxed/simple;
+	bh=dUQQ8pFtZezmOFkHjVksdGw4qZjH1LIeyqVm6Lhy7lw=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=tj0hcfxbg5zZqPk64MO43XiyEuilSDX1V88a+WFyU9x2MH1sWS10vlusB544nvdMrrumPCDN4f3Hj/M3/h7foP457i61Jhdxz0HRHK1P29LzqoBbkdMU5HRmCXu17baM8NoY5KRGvPB+fcMYAn6OZlw6PPRNAC66Y3DlLbJtU/8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QLs3Qty1; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=soleen.com header.i=@soleen.com header.b="HFC15QFW"
-Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-8ee63e91acfso336532185a.2
-        for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 06:37:07 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=soleen.com; s=google; t=1777037827; x=1777642627; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=uWWbj/VPS78zqXVF7C00n2rbNCSFE3WHczyNV5IMoNo=;
-        b=HFC15QFWtiZZSH2LtD9RMqWxdGxFG1UfJGQ7I5EMzQJbkFHtbghS5g6rGzTdzyxywg
-         WyZwkMuyIWM/bI5lJtEf6dAu/0pO9JzBz4dlarPTQ8WUPNsrqMP+SvqxFMmZoPyhcnzo
-         rxuZv/QzO4Sb396SIq1/tOFDdOROO3tyT+s3mlmFBL3RduIliZieZFEpaa+4xlh36Y5K
-         9K982tRI8eDQJbYczusiPEIbJV8yx7t/UduFmMzYoGECf7jvbr3LLnc3UPOccE5cBfhO
-         ETN2q41YXtw811ErJaCfO7wAQGmQ/nUFPdczbsk0/81mN6ImZoQ0kiuJat+XLpbD9fmB
-         7GmQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QLs3Qty1"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1777037849;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=DtX66lT/W6prL5uqZLqwtLz4hKp3UqjA1u9XnUtN2Os=;
+	b=QLs3Qty1NhsXUVoGhZxJ/CWDGHC72QamyYMR/0V4eM6p8gLIhOZbfIDmtndD051QlaBQSD
+	5nfK/j8j41w+Kbi2/nUEQYcRDVt6dpgXKIo0ytPF9gDM63pjrivDjkCjd3+rbRPV+Ptequ
+	jVoWR5BEz0dGSuEcs4l84vQjXcmZCWc=
+Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
+ [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-332-OutpVRkpMoWV5iJYd49z7g-1; Fri, 24 Apr 2026 09:37:27 -0400
+X-MC-Unique: OutpVRkpMoWV5iJYd49z7g-1
+X-Mimecast-MFC-AGG-ID: OutpVRkpMoWV5iJYd49z7g_1777037846
+Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-7af89eabe49so165529437b3.0
+        for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 06:37:27 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777037827; x=1777642627;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=uWWbj/VPS78zqXVF7C00n2rbNCSFE3WHczyNV5IMoNo=;
-        b=hYdzgWrhXH+RBO5YswbtRX/vQuCwF51vVVGn5iDZWz9JNu4T+tc90N3mBPFxeMDDYv
-         OqT/xN1bLEi0ESN+LZ2olnGh0Nhv2lE6k3keV6cobBp/R0VHP4+6ccG36nOSNv9I9n4N
-         GGHMzMGZ1JuPlWRuKWaGFdzb1e/hpmXJL7/eIUecfUVCyQQwWGwBrJZmo2sEB+baZTE8
-         REKqIqhjj/JyyPLIItyIB/AFDJQkfSU7bX9iWSd+3CcCo5L33I8n84LjtWsXDCCoXEtD
-         usYQdMlDg7/Xls9guD/fg2TPyvzaiJ/zD81nxn2FtKWnokU7OgcAG1Uquiemic6CzojF
-         XHYQ==
-X-Forwarded-Encrypted: i=1; AFNElJ+xYZN+3bfThUkJwj35ujFW4x9o5f+tTQRSbkxCcuVx1TsHHMIJrhMbwpoklSJtGeTrxnLjq3OaaE1IgkAq5A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxCemQllDk3P1AsTbDCNzsIXDsCIvC8cubD/yh0yZ8dNKQbxf5t
-	ypWc9kNi3CLYCE6pgZx8iyT2DBcinVOjynOhqPMv0LQRP5v2fw9KKzLfskzoGnSBOes=
-X-Gm-Gg: AeBDietquS90oeeYTu1YHZhk/2YFmQLO5lAJTa7ZsFkTQHRP1VRbCiAGab9/TFAYHYn
-	CpxQWp8faQDCMFVxGo/n+bJ3L3vGuPu3LE7WxnDAOFOPqKZEAZ5uQGhCCBui0/RRZDmKZrENXlx
-	SEEhZZBuGNJoktOAxK3gpV8Y425AtYvWtesbmhEAW9w+/Om9RiLa9zY9n93kPGRyCNTyzPcHtjZ
-	eM1/T7D7UY9nO7c87gt34cSsAwwxHGnAhdT0kl58R6wXHRmlnDS1LGY2szZAZjHsDn12kqU5zdH
-	rz4bJ8Ec2/9sn9xTXY+KZdyBbwt1Rzw9EO0TGwUJsQnxI+jb02x87oKJ0bWbypSnpu0LVJ6bMMO
-	fyvmqPTcB18Cjck/t6UTP/L0nffF6mmrQriPUJxT+EAyqtJyjjaeLHXSwEaYy3ML/En5HgF+NGN
-	dMasbhLFhbRCxojqSSpgDBgHhKLu9f1NcqcsTxY9lO1Ge6h1ch23NJVt94/QckUw==
-X-Received: by 2002:a05:620a:17a3:b0:8d0:27b8:fb7 with SMTP id af79cd13be357-8e79246cd79mr4470598685a.46.1777037826446;
-        Fri, 24 Apr 2026 06:37:06 -0700 (PDT)
-Received: from plex ([71.181.43.54])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8e7d5fe98dcsm1992846185a.7.2026.04.24.06.37.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 24 Apr 2026 06:37:06 -0700 (PDT)
-Date: Fri, 24 Apr 2026 13:37:04 +0000
-From: Pasha Tatashin <pasha.tatashin@soleen.com>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Lance Yang <lance.yang@linux.dev>, peterz@infradead.org, 
-	david@kernel.org, dave.hansen@intel.com, dave.hansen@linux.intel.com, 
-	ypodemsk@redhat.com, hughd@google.com, will@kernel.org, aneesh.kumar@kernel.org, 
-	npiggin@gmail.com, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, 
-	x86@kernel.org, hpa@zytor.com, arnd@arndb.de, ljs@kernel.org, ziy@nvidia.com, 
-	baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com, npache@redhat.com, ryan.roberts@arm.com, 
-	dev.jain@arm.com, baohua@kernel.org, shy828301@gmail.com, riel@surriel.com, 
-	jannh@google.com, jgross@suse.com, seanjc@google.com, pbonzini@redhat.com, 
-	boris.ostrovsky@oracle.com, virtualization@lists.linux.dev, kvm@vger.kernel.org, 
-	linux-arch@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
-	ioworker0@gmail.com, roman.gushchin@linux.dev
-Subject: Re: [PATCH 7.2 v10 0/2] skip redundant sync IPIs when TLB flush sent
- them
-Message-ID: <aetw4aoABYj3keMh@plex>
-References: <20260424062528.71951-1-lance.yang@linux.dev>
- <20260424063024.ce42ee6a5546e4d9337dd007@linux-foundation.org>
+        d=1e100.net; s=20251104; t=1777037846; x=1777642646;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=DtX66lT/W6prL5uqZLqwtLz4hKp3UqjA1u9XnUtN2Os=;
+        b=G+cShZyENrdcsb67F8dON49OdVLLqXUq/A18x3+CKLNPGRFOmjm0/drfxgn7s350as
+         cRhkEaPMoSUc9+VWh0HYt6vSop2iTLgMxMXn94AkfYbUCpedhVxQ2PJLowzQC6R51XJN
+         ipQAFHoTbzQCUVvoin92dVmiZbXB1V6OxQCouvnLiDl2F+3/LhYHpMROcILkKqsUCy5X
+         iwXRf6QGvmYJ5r2ydzP7dVZbxG5IqEbJWOLYxlaQIIse5UA8QsBHWYDedWl++L7SkLng
+         iXi39q0l9NAsB907IJpavlsm/khFNDPkRj4yjfJcSXzEwZS6bUR/ujinU5yat+XOnJtz
+         4O0g==
+X-Forwarded-Encrypted: i=1; AFNElJ8T6Dd45yOh/OpzObkxO4H4RA5zZNIHpWIxgiQQjyxdaa8yN9Y3T8JVgY50AnEwLexQSOCQRI5vqnSqVbq9+A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzbKcBtR9AB4+qw/U5NC0YBBwj7yNvR2ULhHOX1Bt6PX0iJI20k
+	6CHmU1q56TWPTLI2vn6vpM0TBftWNYeOGogLEpjeVX9cgGhXoEN79WAFhTGix6EFxEOUuNxqRhJ
+	vyHTqL5+oa89ehvnIh5nZHvAS3hORUu8z/WAPC8MSsAS4SHkwuFNYHqlNwzuICJ2WdNaLQqwCvI
+	zqtXPIuRivbF2AjO/JgXxWzpuvJ68luwK3WuvvdQwVhPI=
+X-Gm-Gg: AeBDiesCkYMA9KzxEnITxcLH+YpKTHX5MjKQK9iNE7SoCdBNOAYfeASTLxI/XXIEuC3
+	CK0pmni5uta8pNsv2bghc8WSrvIuyw4p18yo9iufCa4is/U0z74OTWaHq097O+hSfTqxmD4Cte5
+	eRk84JFcKSz2o/An72d637hyU+Hn3yMny0h4yLZe403wjjiqASBYqNWBBLriTWeWAU5TIbKtC8n
+	jBro4WixYrPN578
+X-Received: by 2002:a05:690c:6b12:b0:7ba:f0ed:c5a6 with SMTP id 00721157ae682-7baf0edf1f6mr208138967b3.15.1777037846496;
+        Fri, 24 Apr 2026 06:37:26 -0700 (PDT)
+X-Received: by 2002:a05:690c:6b12:b0:7ba:f0ed:c5a6 with SMTP id
+ 00721157ae682-7baf0edf1f6mr208138587b3.15.1777037846048; Fri, 24 Apr 2026
+ 06:37:26 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260424063024.ce42ee6a5546e4d9337dd007@linux-foundation.org>
+References: <20260310-virtio-media-id-v1-1-be211bcf682b@redhat.com>
+ <CADSE00+VyDf6hMAB79wP2koSQ3FznO_OJuGCZ6zN8zuCrwtZMg@mail.gmail.com> <20260424090616-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20260424090616-mutt-send-email-mst@kernel.org>
+From: Albert Esteve <aesteve@redhat.com>
+Date: Fri, 24 Apr 2026 15:37:14 +0200
+X-Gm-Features: AQROBzAcYYySN2fayIUUaSV-I7pnifB2PVF_IgwJqIST63eaPPZiClrCmiTkhnc
+Message-ID: <CADSE00JEjrecyM==PyjX9LT5X62awYQOn3as-KFGYQrSD0+K_w@mail.gmail.com>
+Subject: Re: [PATCH] virtio: Add ID for virtio media
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	gnurou@gmail.com
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: n8AFuOBrRxIOvy-NY5v7bge_8Sn1P8q4gZZC_CTI2Sg_1777037846
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 04-24 06:30, Andrew Morton wrote:
-> On Fri, 24 Apr 2026 14:25:26 +0800 Lance Yang <lance.yang@linux.dev> wrote:
-> 
-> > When page table operations require synchronization with software/lockless
-> > walkers, they call tlb_remove_table_sync_{one,rcu}() after flushing the
-> > TLB (tlb->freed_tables or tlb->unshared_tables).
-> > 
-> > On architectures where the TLB flush already sends IPIs to all target CPUs,
-> > the subsequent sync IPI broadcast is redundant. This is not only costly on
-> > large systems where it disrupts all CPUs even for single-process page table
-> > operations, but has also been reported to hurt RT workloads[1].
-> > 
-> > This series introduces tlb_table_flush_implies_ipi_broadcast() to check if
-> > the prior TLB flush already provided the necessary synchronization. When
-> > true, the sync calls can early-return.
-> > 
-> > A few cases rely on this synchronization:
-> > 
-> > 1) hugetlb PMD unshare[2]: The problem is not the freeing but the reuse
-> >    of the PMD table for other purposes in the last remaining user after
-> >    unsharing.
-> > 
-> > 2) khugepaged collapse[3]: Ensure no concurrent GUP-fast before collapsing
-> >    and (possibly) freeing the page table / re-depositing it.
-> 
-> Sashiko questions:
-> 	https://sashiko.dev/#/patchset/20260424062528.71951-1-lance.yang@linux.dev
-> 
-> (I never know if my Sashiko emails are welcome/useful.  Maybe Sashiko
-> said the same stuff about v9 and it's all wrong.  But better safe than
-> sorry!)
+On Fri, Apr 24, 2026 at 3:07=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
+ wrote:
+>
+> On Thu, Apr 09, 2026 at 06:53:41PM +0200, Albert Esteve wrote:
+> > Hi,
+> >
+> >
+> > On Tue, Mar 10, 2026 at 9:41=E2=80=AFAM Albert Esteve <aesteve@redhat.c=
+om> wrote:
+> > >
+> > > Add VIRTIO_ID_MEDIA definition for virtio-media.
+> > >
+> > > Signed-off-by: Albert Esteve <aesteve@redhat.com>
+> >
+> > Are there any thoughts on this patch, or any actions I need to take?
+> >
+> > Thanks,
+> > Albert
+>
+> Create a github issue and request a vote as documented in README.md
 
-These emails are helpful; but, I do not believe you should have to 
-manually follow up with a link to every new patch series.
+The inclusion of this ID was already voted and approved. The device
+already appears in the VirtIO v1.4 specification, with the same ID (as
+linked below). This patch is only meant to translate the decision to
+the kernel header.
 
-Perhaps  Sashiko could automatically send a summary email in response to 
-the cover letter, or provide a link once the reviews are complete. For 
-the kexec ML, we opted-in with Roman to receive automated emails from 
-sashiko.
+>
+> > > ---
+> > > While the Linux driver for virtio media is currently under active
+> > > development and review [1], the VirtIO v1.4 specification has
+> > > already been published and oficially defines the media device type [2=
+].
+> > >
+> > > Adding the device ID now allows other components and tools to referen=
+ce it
+> > > before the driver lands, and ensures the kernel headers stay aligned
+> > > with the specification.
+> > >
+> > > [1] https://lore.kernel.org/linux-media/20250412-virtio-media-v3-1-97=
+dc94c18398@gmail.com/
+> > > [2] https://docs.oasis-open.org/virtio/virtio/v1.4/virtio-v1.4.html#x=
+1-82200022
+> > > ---
+> > >  include/uapi/linux/virtio_ids.h | 1 +
+> > >  1 file changed, 1 insertion(+)
+> > >
+> > > diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/linux/vir=
+tio_ids.h
+> > > index 6c12db16faa3a..f9056af0c6223 100644
+> > > --- a/include/uapi/linux/virtio_ids.h
+> > > +++ b/include/uapi/linux/virtio_ids.h
+> > > @@ -69,6 +69,7 @@
+> > >  #define VIRTIO_ID_BT                   40 /* virtio bluetooth */
+> > >  #define VIRTIO_ID_GPIO                 41 /* virtio gpio */
+> > >  #define VIRTIO_ID_SPI                  45 /* virtio spi */
+> > > +#define VIRTIO_ID_MEDIA                        48 /* virtio media */
+> > >
+> > >  /*
+> > >   * Virtio Transitional IDs
+> > >
+> > > ---
+> > > base-commit: 6de23f81a5e08be8fbf5e8d7e9febc72a5b5f27f
+> > > change-id: 20260310-virtio-media-id-b31179fcdc44
+> > >
+> > > Best regards,
+> > > --
+> > > Albert Esteve <aesteve@redhat.com>
+> > >
+>
 
-+Cc: Roman.
-
-> 
-> 
