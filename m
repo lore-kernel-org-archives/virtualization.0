@@ -1,128 +1,155 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oo1-f72.google.com (mail-oo1-f72.google.com [209.85.161.72])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B66DD3E3150;
-	Fri, 24 Apr 2026 20:12:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4209537C93C
+	for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 20:17:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.72
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777061543; cv=none; b=VO6ZPh75xLMt3HhSGRYXw5N5P6Z5wJleIDWMOxjn2Ud0FBkMdBexiLgDx76IUQ6OUCxV7i8nFUGoO0sdmZZURTaz+1x5Sj7Vbkm5R6QKi41+KjEqqIMQV+h4hLLF81odYocR64DlOvoMKGE5TYhyImFD7yiNaTakI7wwNkS8tMo=
+	t=1777061871; cv=none; b=WXrPJnPBdsmt5hJ3/8KW/Xu2RdzKGnP3CaUhcfYZYGXw00bzZ+1k8KNNzhwam2qV93ui8KDgLfzOTf3L5nqKUDYVOq4LEKVU7LurTofuplHgo8F9bXklMCc02gbAjNK2YBSbzOMfT7Som79NwV/UAqJhM518b19tn9uaZEsr/kw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777061543; c=relaxed/simple;
-	bh=RNMi8j69E6SyZYSTyxa4Rgeppp5kOvW/DVxpzRjMv8M=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=X5bqFaoGFVaAi2AkWmwXwYBt/k5CdPpDTetqLh4UfYG91n00UxgQ+UQvbvtqRVfZxYlcHHu4mwfPNeUMS6FcpU+x6HPt2Y80HhE0yCYNt+CSzEbIGvM6u0RRKrmj4G2jS7kuPphtMycF/ogQ1y4HIPkQ5zWq68QMdZsQNEnzST8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=ffWhi37p; arc=none smtp.client-ip=90.155.92.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="ffWhi37p"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=R2gaRjg/CIye/6fA05gchsWC8RdbQ511C4bcMcmE3UY=; b=ffWhi37pPSombHmnM7V2siTel6
-	XhOcC9uho2ip4uKGHzUY6KCWyA25VVTTIu+jmD6PKyw7uzEPPidXyBdTKpBF3db7hQ2CXEirPYM7d
-	mbOuK3/bq1/NWyyf7j4gAtJ1dikM9FQ4urbzO4xcmkGKMjK19qdLVoy75SILKV6DKjQOZ7IxoBCRw
-	rNusdzBNhnsOrlUg3KPcYHo++EPYC918x1pjSWji81mw1OCWux+8lta2a/0fBTFCp+0rmyJMk+gYJ
-	LmthHCuq/1mMFIcTpOpWJ1LoYXpqHHM/ov0DGrQ8OFeuJl/s4tVY3n3GMvDgz81Lb4EvvDnwfjifb
-	07TEMcGw==;
-Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
-	by desiato.infradead.org with esmtpsa (Exim 4.98.2 #2 (Red Hat Linux))
-	id 1wGMsb-0000000FR5i-1WST;
-	Fri, 24 Apr 2026 20:12:02 +0000
-Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id D3EA7301142; Fri, 24 Apr 2026 22:11:59 +0200 (CEST)
-Date: Fri, 24 Apr 2026 22:11:59 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-To: Roman Gushchin <roman.gushchin@linux.dev>
-Cc: Zi Yan <ziy@nvidia.com>, Yosry Ahmed <yosry@kernel.org>,
-	"David Hildenbrand (Arm)" <david@kernel.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Pasha Tatashin <pasha.tatashin@soleen.com>,
-	Lance Yang <lance.yang@linux.dev>, dave.hansen@intel.com,
-	dave.hansen@linux.intel.com, ypodemsk@redhat.com, hughd@google.com,
-	will@kernel.org, aneesh.kumar@kernel.org, npiggin@gmail.com,
-	tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org,
-	hpa@zytor.com, arnd@arndb.de, ljs@kernel.org,
-	baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com,
-	npache@redhat.com, ryan.roberts@arm.com, dev.jain@arm.com,
-	baohua@kernel.org, shy828301@gmail.com, riel@surriel.com,
-	jannh@google.com, jgross@suse.com, seanjc@google.com,
-	pbonzini@redhat.com, boris.ostrovsky@oracle.com,
-	virtualization@lists.linux.dev, kvm@vger.kernel.org,
-	linux-arch@vger.kernel.org, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org, ioworker0@gmail.com
-Subject: Re: [PATCH 7.2 v10 0/2] skip redundant sync IPIs when TLB flush sent
- them
-Message-ID: <20260424201159.GD3783056@noisy.programming.kicks-ass.net>
-References: <20260424071533.d28ce90126f05e1c6fc1b740@linux-foundation.org>
- <80ab39c2-efb9-4a23-bd56-46d9bb4e41bb@kernel.org>
- <20260424073145.b990fe9b925da304508aad71@linux-foundation.org>
- <644e65dc-3d39-4137-b51f-51d953b67d50@kernel.org>
- <CAO9r8zN1pRfyC0Rh+UdW-Lsret=z3oveT3=gnZftX-Sr_ubyyQ@mail.gmail.com>
- <20260424190141.GA3783056@noisy.programming.kicks-ass.net>
- <E375C69C-557E-44EB-9B3C-618C9F7BA9D8@nvidia.com>
- <20260424192250.GC3783056@noisy.programming.kicks-ass.net>
- <20260424193529.GA3853824@noisy.programming.kicks-ass.net>
- <7ia45x5gktx9.fsf@castle.c.googlers.com>
+	s=arc-20240116; t=1777061871; c=relaxed/simple;
+	bh=qQxl11pEiuSHAksUCACQvi1ky2YjfwOu6r0yo/RCIFg=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:Cc:
+	 Content-Type; b=H4sfRJNAqEodja+SGJxaQzRKMtgycAgibKUsg+drK8HKQCjp8JdVT0SVM6BdoWI/XnYZrI7dgZHZzaOJdPUzrgZnHbd0RruhJOadjyD/BjqAP69gzC4tyhp1opVOByKJaVEUTVTv4RxLp/MhzcgMI0angsNYFM/PoAdlydre3s0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.161.72
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oo1-f72.google.com with SMTP id 006d021491bc7-679c5ed0942so12591452eaf.1
+        for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 13:17:49 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777061868; x=1777666668;
+        h=cc:to:from:subject:message-id:in-reply-to:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=FtDPKkTm6UEDeYWPpWSRzW9tqH24Rk9NxnYdpKkM4Nc=;
+        b=D1nzNPj/mxSrwyupZuo7VI05jjJaUdBKUvvZ8ShSxxByaqqgbWij2E2+pQHGTtmu62
+         GWu+trUguGVtySbMOQjMENr+nOv1+A/OOhWSG9MIAof62rEDaUgy0RvcuKjPvQKw4bTt
+         QK/Gs0HxLpFehkeaQDXjv84+ESJKALsp+MhkquwHURsvIfQskZbVsONHd90TuvgkxuyF
+         xiHHhCEmkP8HN+a8rbSe+3Ot3GA8bkNUzNsiFkU+2OGsAWhVPMc4dftad7XvAFS9hZ39
+         5cIhcMkBxajaa92mh2oZHT5UJmtoGvlRS+NchH3Xcfwlv7GtMXMdGfMRVp59XhrE9MCY
+         zLqg==
+X-Forwarded-Encrypted: i=1; AFNElJ8zwvMlyV2hTIZFd2lysE3uMivX5hbxfu3bddfQOh4XB3ngcozjF/m7AHBqMX+VJf+4XnS1kaMf4huzbgHfaA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwQgEhNMUqmKEQdUZLMZdAWX2ADJaMJa0ZV9IyydCxNBrukPRSx
+	m8HCJMJzprUMxVYSUkEGsCvdvBakGY+2GHu6sxDuxqcsgEV3Qj8TTPViUCVvYLW/KIpU4LWSB5/
+	v5G9C8QrswzXjzS34ic/LRkFvrA6LkT1Av5bUtQhOkMOrBalGcOJpf7nxacw=
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7ia45x5gktx9.fsf@castle.c.googlers.com>
+X-Received: by 2002:a05:6820:6ad0:b0:696:29be:abd9 with SMTP id
+ 006d021491bc7-69629beb9d6mr1743278eaf.22.1777061868159; Fri, 24 Apr 2026
+ 13:17:48 -0700 (PDT)
+Date: Fri, 24 Apr 2026 13:17:48 -0700
+In-Reply-To: <20260424150310.57228-1-kartikey406@gmail.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <69ebcfec.a00a0220.7773.0006.GAE@google.com>
+Subject: [syzbot ci] Re: vsock/virtio: fix memory leak in virtio_transport_recv_listen()
+From: syzbot ci <syzbot+ciff083ac8f264c29f@syzkaller.appspotmail.com>
+To: davem@davemloft.net, edumazet@google.com, eperezma@redhat.com, 
+	horms@kernel.org, jasowang@redhat.com, kartikey406@gmail.com, kuba@kernel.org, 
+	kvm@vger.kernel.org, linux-kernel@vger.kernel.org, mst@redhat.com, 
+	netdev@vger.kernel.org, pabeni@redhat.com, sgarzare@redhat.com, 
+	stefanha@redhat.com, syzbot@syzkaller.appspotmail.com, 
+	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
+Cc: syzbot@lists.linux.dev, syzkaller-bugs@googlegroups.com
+Content-Type: text/plain; charset="UTF-8"
 
-On Fri, Apr 24, 2026 at 08:03:14PM +0000, Roman Gushchin wrote:
-> Peter Zijlstra <peterz@infradead.org> writes:
-> 
-> > On Fri, Apr 24, 2026 at 09:22:51PM +0200, Peter Zijlstra wrote:
-> >
-> >>     mdir = mailbox.Maildir('~/Maildir/');
-> >> 
-> >>     for i, r in enumerate(reviews):
-> >>         inline = r.get('inline_review', '') or ''
-> >>         if not inline:
-> >>             continue
-> >> 
-> >>         author_name = r.get('author_name', 'Sashiko Reviewer')
-> >>         author_email = r.get('author_email', 'noreply@sashiko.dev')
-> >> 
-> >>         msgid = msgids[r['patch_id']]
-> >>         subject = subjects[r['patch_id']]
-> >> 
-> >>         # Create the Email object
-> >>         msg = EmailMessage()
-> >>         msg['Subject'] = f"Re: {subject}"
-> >>         msg['From'] = f"{author_name} <{author_email}>"
-> >>         msg['To'] = "peterz@infradead.org"
-> >>         msg['Date'] = formatdate(localtime=True)
-> >> 
-> >>         # The critical threading headers
-> >>         msg['Message-ID'] = f"<review-{i}-{msgid}>"
-> >>         msg['References'] = f"<{msgid}>"
-> >>         msg['In-Reply-To'] = f"<{msgid}>"
-> >> 
-> >>         msg.set_content(inline)
-> >> 
-> >>         mdir.add(msg)
-> >> 
-> >>     mdir.flush()
-> >
-> > So Ideally I would have 'Reply-to' header set to the original sender and
-> > added 'Cc' like the original email. However, AFAICT the JSON does not
-> > contain this information, and while I could use the mdir object to find
-> > the original message in my Inbox, this is incredibly slow.
-> >
-> > I have a TODO to use python-notmuch to do this, but haven't gotten
-> > around to doing this yet.
-> >
-> > With that 'fixed' I could actually reply to these messages and it would
-> > all 'just' work. For now I copy/paste when needed.
-> 
-> I can add an api to return a json with the review and all
-> meta-information by the original msgid, will it be useful?
+syzbot ci has tested the following series
 
-Oh yes, that would be more convenient. Thanks!
+[v1] vsock/virtio: fix memory leak in virtio_transport_recv_listen()
+https://lore.kernel.org/all/20260424150310.57228-1-kartikey406@gmail.com
+* [PATCH] vsock/virtio: fix memory leak in virtio_transport_recv_listen()
+
+and found the following issue:
+possible deadlock in virtio_transport_recv_listen
+
+Full report is available here:
+https://ci.syzbot.org/series/e5f3f5f1-8e83-492f-833b-dc526b61d0ef
+
+***
+
+possible deadlock in virtio_transport_recv_listen
+
+tree:      net-next
+URL:       https://kernel.googlesource.com/pub/scm/linux/kernel/git/netdev/net-next.git
+base:      e728258debd553c95d2e70f9cd97c9fde27c7130
+arch:      amd64
+compiler:  Debian clang version 21.1.8 (++20251221033036+2078da43e25a-1~exp1~20251221153213.50), Debian LLD 21.1.8
+config:    https://ci.syzbot.org/builds/bcc67f3f-b441-4d11-8573-f26ca268da65/config
+syz repro: https://ci.syzbot.org/findings/fce9fa9b-692a-420c-956f-12c7e6d75e2e/syz_repro
+
+============================================
+WARNING: possible recursive locking detected
+syzkaller #0 Not tainted
+--------------------------------------------
+kworker/1:5/6007 is trying to acquire lock:
+ffff88817492e2a0 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1713 [inline]
+ffff88817492e2a0 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: virtio_transport_recv_listen+0x13a5/0x2230 net/vmw_vsock/virtio_transport_common.c:1593
+
+but task is already holding lock:
+ffff88817492e2a0 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1713 [inline]
+ffff88817492e2a0 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: virtio_transport_recv_pkt+0xfde/0x2bb0 net/vmw_vsock/virtio_transport_common.c:1671
+
+other info that might help us debug this:
+ Possible unsafe locking scenario:
+
+       CPU0
+       ----
+  lock(sk_lock-AF_VSOCK);
+  lock(sk_lock-AF_VSOCK);
+
+ *** DEADLOCK ***
+
+ May be due to missing lock nesting notation
+
+3 locks held by kworker/1:5/6007:
+ #0: ffff888112391940 ((wq_completion)vsock-loopback){+.+.}-{0:0}, at: process_one_work kernel/workqueue.c:3277 [inline]
+ #0: ffff888112391940 ((wq_completion)vsock-loopback){+.+.}-{0:0}, at: process_scheduled_works+0xa35/0x1860 kernel/workqueue.c:3385
+ #1: ffffc900030dfc40 ((work_completion)(&vsock->pkt_work)){+.+.}-{0:0}, at: process_one_work kernel/workqueue.c:3278 [inline]
+ #1: ffffc900030dfc40 ((work_completion)(&vsock->pkt_work)){+.+.}-{0:0}, at: process_scheduled_works+0xa70/0x1860 kernel/workqueue.c:3385
+ #2: ffff88817492e2a0 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1713 [inline]
+ #2: ffff88817492e2a0 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: virtio_transport_recv_pkt+0xfde/0x2bb0 net/vmw_vsock/virtio_transport_common.c:1671
+
+stack backtrace:
+CPU: 1 UID: 0 PID: 6007 Comm: kworker/1:5 Not tainted syzkaller #0 PREEMPT(full) 
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.2-debian-1.16.2-1 04/01/2014
+Workqueue: vsock-loopback vsock_loopback_work
+Call Trace:
+ <TASK>
+ dump_stack_lvl+0xe8/0x150 lib/dump_stack.c:120
+ print_deadlock_bug+0x279/0x290 kernel/locking/lockdep.c:3041
+ check_deadlock kernel/locking/lockdep.c:3093 [inline]
+ validate_chain kernel/locking/lockdep.c:3895 [inline]
+ __lock_acquire+0x253f/0x2cf0 kernel/locking/lockdep.c:5237
+ lock_acquire+0x106/0x350 kernel/locking/lockdep.c:5868
+ lock_sock_nested+0x41/0x100 net/core/sock.c:3783
+ lock_sock include/net/sock.h:1713 [inline]
+ virtio_transport_recv_listen+0x13a5/0x2230 net/vmw_vsock/virtio_transport_common.c:1593
+ virtio_transport_recv_pkt+0x174b/0x2bb0 net/vmw_vsock/virtio_transport_common.c:1695
+ vsock_loopback_work+0x32c/0x3f0 net/vmw_vsock/vsock_loopback.c:142
+ process_one_work kernel/workqueue.c:3302 [inline]
+ process_scheduled_works+0xb5d/0x1860 kernel/workqueue.c:3385
+ worker_thread+0xa53/0xfc0 kernel/workqueue.c:3466
+ kthread+0x388/0x470 kernel/kthread.c:436
+ ret_from_fork+0x514/0xb70 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+
+
+***
+
+If these findings have caused you to resend the series or submit a
+separate fix, please add the following tag to your commit message:
+  Tested-by: syzbot@syzkaller.appspotmail.com
+
+---
+This report is generated by a bot. It may contain errors.
+syzbot ci engineers can be reached at syzkaller@googlegroups.com.
+
+To test a patch for this bug, please reply with `#syz test`
+(should be on a separate line).
+
+The patch should be attached to the email.
+Note: arguments like custom git repos and branches are not supported.
