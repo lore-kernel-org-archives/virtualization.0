@@ -1,137 +1,153 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BA9E3E5EDC;
-	Fri, 24 Apr 2026 18:36:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24E1A3E928F
+	for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 18:37:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777055789; cv=none; b=SnwckR3kBN8CEKlzR+jZv3HIkavCRF4s56eNidSpZ4im9MeNPQF6qYOa6ZrxullWMkwG80c3eotYWfk/ytw6Kqf+N43xxrOC2i7rpcXnTsIdT3aGeaK9mi71e51ymXEdTr3bSAs6pQtp+rkElzAsaqlXQQSChrg9XMKhE+cIm64=
+	t=1777055824; cv=none; b=andyLL5vOnPII6ljW56KJeM4BwD+rx5aXzHjJ+BXpry1hVevlynffP4tI7PD7YNE1od5DaCLZR7aCm5JVzPwxXOSuqHIyJ4CKK9Y/ZaxErCy8yDdbwGFhLvsYwK2rxj1uFW+pMLA9oTqYkLuIcr9G8E79HTru0XUPYoBPzcO1/I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777055789; c=relaxed/simple;
-	bh=L4jbMDY27DDz6+DS6kI4Qsu8AZq31/9+/cVOm1CDF24=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=lE3Hvjr3ENJ85cNeRh4HZOhfi9B64vPY6zoUdUVMYrGSZTcfJyYPanLOWdNvbUGvkewccZeuvJWZ1UsBAMynxOIvBsnm3CfyPtbgCuiPsyBz5FHVA+FXKT7SPCWjL52S0bydb8UyxZ5ytpXfRMYIKzk+FQbIha21y4UM5WRoSJk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=rL1BpIwr; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1777055824; c=relaxed/simple;
+	bh=X3unbKjXkfIxpZgPYPCXBXdaO16pNyP21Y+UN+3Q6ys=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=MH+WVz6lHmNO1n9mxd4Weat0CepXrxP6H/FJE2rbGMZBFDE7ZQXoS3hz79KHaZT9/D66obRs1xqh+GfXDibT7NC8zHPsprhlkiu4HziwMC+XLvacds6Y8xDpK5V2SOcZ/jkDqUTocAvtrylal5tSs583A3l8iAzTHkaLnKL2O08=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MyMwCATa; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="rL1BpIwr"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 79AD4C19425;
-	Fri, 24 Apr 2026 18:36:19 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777055789;
-	bh=L4jbMDY27DDz6+DS6kI4Qsu8AZq31/9+/cVOm1CDF24=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
-	b=rL1BpIwrTJNAvql1Vcp5x5Vv+xdwUtQ/JLUc71lzSiqRWO/R1/Sd2AzOoI2+qMGzz
-	 qAp1pSPvHgAFPeeZGcoIj6VYUoHG6TqWMrHXiBb0xqdx1bfBQ0559ZX6TxoJ31FD2v
-	 UXsObbvodX7PRYHBDe+Q1iG5pThWfqknVK6Dz2H03FAasVRv/640v+maaFx/sdGVbS
-	 DQpJEpkLiOyeuP6v9X1WoKe2m/ciWY3uTuodtKnxLOO+OlC+uqjAZghf/KHYn1Xkvl
-	 OujMFbWOYaPtf0W0etm++tRK65YxhknAEo0p2wcUrMqHAb6WZ1LjTXZGYcXhFMFwMX
-	 NbYPyoSa9Tx7A==
-Message-ID: <644e65dc-3d39-4137-b51f-51d953b67d50@kernel.org>
-Date: Fri, 24 Apr 2026 20:36:16 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MyMwCATa"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1777055822;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=EzZh79GGJvnyX3o1poX9T4TAY2qDXkiWPDaOxeNq0iQ=;
+	b=MyMwCATa8nsPgevCg4hTMPeEE9XV7ryGf95FoozOdlmhuZOLT/olxYwPZ2UJTSL8V9DDN1
+	FnH6PgnpOqglWib6ZruBwN4STC3z4vzOMYkZjXuAgugN4JwstWSLJiZIIGzaZUzZEZKvf3
+	qCc5Efn+BBc8+n8zpwbdeFqki+xJJW0=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-443-OHQCq3Q_MLKRittdIe_kFw-1; Fri, 24 Apr 2026 14:36:59 -0400
+X-MC-Unique: OHQCq3Q_MLKRittdIe_kFw-1
+X-Mimecast-MFC-AGG-ID: OHQCq3Q_MLKRittdIe_kFw_1777055818
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4837bfcfe0dso88514815e9.1
+        for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 11:36:58 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777055818; x=1777660618;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=EzZh79GGJvnyX3o1poX9T4TAY2qDXkiWPDaOxeNq0iQ=;
+        b=j1QcnniWgxsR9uuJ+BUJkuWAa8tPNyPuOhJGQJje4yIUhc0dGxNY6lkdz+cEmkWY8e
+         p2x6ss5S0wyyk1+2ls7UuWV/ApBdUyx8wv8w1Saj4372uMvEOdRawVdNy3e0sSr/5U8j
+         7IL+BM97uwkRf8Bt7fMEL+mzos1MioWZqwZRjhpVHYOWx87l3p/JgrjmCCw5V7dbYmOH
+         Sm0rYYMPEnhxeyIVeqhTN6MbECPdxvmdpLian3OvVDTq7apHcZUdM5SlXeg7Jy2Zx7hh
+         s3GuNE4lEpj2xb/TgPbAmFAAXU0+MLh6NSeOhDsYA0Pv10yqgFumeyq5FyGsddz2qhY7
+         TTyQ==
+X-Forwarded-Encrypted: i=1; AFNElJ/CAB/sM8h+En/NFT2uoo4ktmwFW4qXnf07YpIE7kT89kN5xaaSUeg4u0MpEc0XgYJvciUGN4Icw/cXoWKQdA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YziHBa7fD9RQu4LnOtzMhlP6ynWODB2QQT9BaaDG0vjGTLY5pti
+	rLSX4VCqyt7CdqrCHX0WYzqZo3x0M8tBVo1+dK9m7O/zL0CHLw7gHqf2lgX7jisQxXYoUB52zly
+	LNQ6x4b4rpIpcPoHYbtMT+aLPeusZ5gujJkloj4XXMLCJWiskbreRoMAlcHZM5WatEXq0
+X-Gm-Gg: AeBDiev+YbQYbL0G9JnFM9cPpb3+WL96kTCTTj1zTzadjCZr6tMniuKIWzILOI9WeJw
+	p4P2wPBPwCBU1CU50p0ybxSUxdIyfdgLwsIaN5aYvC559RbDx3xkZNJSWuS8Q3eHAo794InujO3
+	88S9BIbmrz+ELoSBp0lx/6CuphmBDdD5nOjoOKJ/i9MGKinWTKd0IQ2CTtwMAbSggMAQ0zyxb3u
+	1Ilzoe/zvcnX8WiXXPuz95BbWaZIMhVUQ6XaNB1zST/pHrRzaGHVLKFNbly/C/ZPi1EPy+p96W7
+	ZQys26L92hHd52uFGQajsBYkij5tbPqNntS4UT+2lFFSnIdoske4hnZ04XTk2h14uMmKm1i1uXO
+	F93LFX1eqwLZrmqov97jWqvZfi6VFEAlSMqtq/LtVrBTM47svM+h2e9/Z0iJj9SA=
+X-Received: by 2002:a05:600c:5295:b0:485:30d4:6b9e with SMTP id 5b1f17b1804b1-488fb77facemr466165835e9.21.1777055817640;
+        Fri, 24 Apr 2026 11:36:57 -0700 (PDT)
+X-Received: by 2002:a05:600c:5295:b0:485:30d4:6b9e with SMTP id 5b1f17b1804b1-488fb77facemr466165305e9.21.1777055817177;
+        Fri, 24 Apr 2026 11:36:57 -0700 (PDT)
+Received: from redhat.com (bzq-79-177-155-147.red.bezeqint.net. [79.177.155.147])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48a55dc9f58sm607291535e9.6.2026.04.24.11.36.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 24 Apr 2026 11:36:56 -0700 (PDT)
+Date: Fri, 24 Apr 2026 14:36:51 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: Gregory Price <gourry@gourry.net>, linux-kernel@vger.kernel.org,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Brendan Jackman <jackmanb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Andrea Arcangeli <aarcange@redhat.com>, linux-mm@kvack.org,
+	virtualization@lists.linux.dev,
+	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Mike Rapoport <rppt@kernel.org>,
+	"Matthew Wilcox (Oracle)" <willy@infradead.org>,
+	Muchun Song <muchun.song@linux.dev>,
+	Oscar Salvador <osalvador@suse.de>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
+	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
+	Lance Yang <lance.yang@linux.dev>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+	Byungchul Park <byungchul@sk.com>,
+	Ying Huang <ying.huang@linux.alibaba.com>,
+	Alistair Popple <apopple@nvidia.com>,
+	Hugh Dickins <hughd@google.com>, Christoph Lameter <cl@gentwo.org>,
+	David Rientjes <rientjes@google.com>,
+	Roman Gushchin <roman.gushchin@linux.dev>,
+	Harry Yoo <harry.yoo@oracle.com>, Chris Li <chrisl@kernel.org>,
+	Kairui Song <kasong@tencent.com>,
+	Kemeng Shi <shikemeng@huaweicloud.com>,
+	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
+	linux-fsdevel@vger.kernel.org
+Subject: Re: [PATCH RFC v3 01/19] mm: thread user_addr through page allocator
+ for cache-friendly zeroing
+Message-ID: <20260424143541-mutt-send-email-mst@kernel.org>
+References: <20260422171315-mutt-send-email-mst@kernel.org>
+ <aemglPlcwFFHNj1A@gourry-fedora-PF4VCD3F>
+ <c165d6af-4a35-4a41-9086-ee307640c044@kernel.org>
+ <20260423074433-mutt-send-email-mst@kernel.org>
+ <aeohzbmhQAoOODPm@gourry-fedora-PF4VCD3F>
+ <88b0765f-7cfc-4e44-83d2-c01a1755c842@kernel.org>
+ <20260423104120-mutt-send-email-mst@kernel.org>
+ <1ab6e58f-d984-4bae-a343-1b0d3c973ad0@kernel.org>
+ <20260423121222-mutt-send-email-mst@kernel.org>
+ <4e12d67b-60e3-4bf5-a229-43c0d2c62cfb@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 7.2 v10 0/2] skip redundant sync IPIs when TLB flush sent
- them
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Pasha Tatashin <pasha.tatashin@soleen.com>,
- Lance Yang <lance.yang@linux.dev>, peterz@infradead.org,
- dave.hansen@intel.com, dave.hansen@linux.intel.com, ypodemsk@redhat.com,
- hughd@google.com, will@kernel.org, aneesh.kumar@kernel.org,
- npiggin@gmail.com, tglx@linutronix.de, mingo@redhat.com, bp@alien8.de,
- x86@kernel.org, hpa@zytor.com, arnd@arndb.de, ljs@kernel.org,
- ziy@nvidia.com, baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com,
- npache@redhat.com, ryan.roberts@arm.com, dev.jain@arm.com,
- baohua@kernel.org, shy828301@gmail.com, riel@surriel.com, jannh@google.com,
- jgross@suse.com, seanjc@google.com, pbonzini@redhat.com,
- boris.ostrovsky@oracle.com, virtualization@lists.linux.dev,
- kvm@vger.kernel.org, linux-arch@vger.kernel.org, linux-mm@kvack.org,
- linux-kernel@vger.kernel.org, ioworker0@gmail.com, roman.gushchin@linux.dev
-References: <20260424062528.71951-1-lance.yang@linux.dev>
- <20260424063024.ce42ee6a5546e4d9337dd007@linux-foundation.org>
- <aetw4aoABYj3keMh@plex>
- <20260424071533.d28ce90126f05e1c6fc1b740@linux-foundation.org>
- <80ab39c2-efb9-4a23-bd56-46d9bb4e41bb@kernel.org>
- <20260424073145.b990fe9b925da304508aad71@linux-foundation.org>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <20260424073145.b990fe9b925da304508aad71@linux-foundation.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <4e12d67b-60e3-4bf5-a229-43c0d2c62cfb@kernel.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: m3i63ZgvJUkwC1_YBmVwiX7E_CTKrKJZx_VfYKxdSGU_1777055818
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 4/24/26 16:31, Andrew Morton wrote:
-> On Fri, 24 Apr 2026 16:20:55 +0200 "David Hildenbrand (Arm)" <david@kernel.org> wrote:
+On Fri, Apr 24, 2026 at 08:33:45PM +0200, David Hildenbrand (Arm) wrote:
+> On 4/23/26 18:13, Michael S. Tsirkin wrote:
+> > On Thu, Apr 23, 2026 at 05:54:26PM +0200, David Hildenbrand (Arm) wrote:
+> >> On 4/23/26 16:46, Michael S. Tsirkin wrote:
+> >>>
+> >>> I just dislike it when things are non orthogonal.
+> >>> People are used to: hugetlb = same perf as THP but more predictable at the cost
+> >>> of being harder to use and using more resources.
+> >>> Here, suddenly, we have an optimization but only for THP.
+> >>
+> >> Note that we also didn't care about user_alloc_needs_zeroing() with hugetlb so far.
+> > 
+> > 
+> > You mean, that it stays because of the reserved pool?
 > 
->> On 4/24/26 16:15, Andrew Morton wrote:
->>>
->>>
->>> Yep.  I'd be OK with an automatic reply-to-all.  Maybe some won't like
->>> that.
->>>
->>> An alternative I've discussed with Roman is an automated
->>> reply-to-author with a cc to a dedicated list (we could use mm-commits
->>> for now).
->>>
->>> Preferences?
->>
->> Reply-to-author would likely be better as a first step.
+> I meant, that if we are running with init_on_free or init_on_alloc, that we end
+> up double-zeroing right now upstream. So nobody cared to optimize that part so far.
+
+on the aliasing arches you mean? that double zeroing?
+
+
+> -- 
+> Cheers,
 > 
-> Why do you think so?
+> David
 
-The most important part for me is that authors are aware of the reports.
-
-Sending them as a mail forces people to publicly reply to the feedback, and at
-this point in time, I am not convinced that that is the right approach.
-
--- 
-Cheers,
-
-David
