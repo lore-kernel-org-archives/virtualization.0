@@ -1,115 +1,148 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC2EF3F7868
-	for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 18:50:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1B0643F54BE;
+	Fri, 24 Apr 2026 18:51:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777056616; cv=none; b=Ya/vGRc0GSvDtlyHgHww3EwcSyOjRicpkz4UayLcEmIo+MqhmBf+wXXRUkzFz0P8njE6JRuKZ4EaA40TMBsPBrdPXKB8tAgk97fP1oU6c3iwl3MlSmdenxAI8IDl66wmxxICbXOkT97fWtsFmrgL87AfzaD/7t/KS9EN+NxP/sE=
+	t=1777056698; cv=none; b=Yf8VtWrCgxeXNzRAKHxsOCCnaXuhh1+p/ESzIw831CTTjbhvGEhvR8cKPNl26J4I3Ft1Kxgvc5pxCfGWtps+xQoOElKm8+BjD51a23ec8yxNCEjqU9hjlWLjvX7vdlVwLBdpFE842CVTK9NMJUOcD+RHJWlIzbZW2srXHzIUfzc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777056616; c=relaxed/simple;
-	bh=w5kUoCAdRW22OY51cZNgSK5N7Gpb3BDGbpsiHoe6xEA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=PFK028LMdnYG71KUygfhUrcVjqx8j82mUMd10H1rSdx3VjGaEJWvBWVeRF+yjpxRBNxLnZhcvdNLQHka7tTRq5ruG5+esuJ+wl0i4lyqsY/wvyu8ECnLBTxmpLKSaarZdD98LO5r8CDP6A/ULxZyKEb4fqHbzk767caKIKBlJEI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=pftDalM3; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1777056698; c=relaxed/simple;
+	bh=+gfjjzK2HjGlwyfcUBpjGFMM8VknhFJmUXv7rsRO1Tw=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=WRoOA4/HaEzOBrZJ/CSS63AxkkjeqlU9PJY82BCjA5E4zxZmkdD0/3Gb2embyyI8tbyl3uURbR3+Go+A/rkGaPJRlOoTA4cWtuJ43akUtcBugv1//sh+MBJmbyw3uHeeprrR42h/Mt27/Ck0Go+2WNyoeAQXH4Fnw9IyJUa3O5s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=I73QB/Yo; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="pftDalM3"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B4F97C2BCB9
-	for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 18:50:16 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="I73QB/Yo"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07EC2C19425;
+	Fri, 24 Apr 2026 18:51:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1777056616;
-	bh=w5kUoCAdRW22OY51cZNgSK5N7Gpb3BDGbpsiHoe6xEA=;
-	h=References:In-Reply-To:From:Date:Subject:To:Cc:From;
-	b=pftDalM3kJ9DPPvgqPonQ8Vuac/lSzURnxnvhHdDJpTgHP0CDrIvO8ljHgA/fBiH6
-	 12m42BYH8ANEfIcVa+brAYwt+ei5bXS84bXwbuc/W+GfHRNCHqqQdHtVJ2gH7VqiqY
-	 izqXhaLsSXtSq5Tx50f+kHKWJ3HhvIVdUh+IUxp9TpZG2WLyZ8aL4P/629m+/Q+ErU
-	 ZglR5Y9QZOOWcmcHa+C0vr7X8x1aH6uNqjNmdHhayQcuQM68oXiN6BGhm4WJSczF2Y
-	 DRugXmwBSroybC7MpT+/CqOhNAY3G3BQ39fm9SOKNxB6PPd7TK94BwTN1DEcqA6LTb
-	 ymVgyyrngrjug==
-Received: by mail-ej1-f47.google.com with SMTP id a640c23a62f3a-b9d9971d059so1196649866b.2
-        for <virtualization@lists.linux.dev>; Fri, 24 Apr 2026 11:50:16 -0700 (PDT)
-X-Forwarded-Encrypted: i=1; AFNElJ/k1U0CsxCnrugy1FGkcEc5kWIvwJ5o+WA3wKSGhcmOo3Bmkx36li2gOtGURODlI5blYKw4PFqxFIxJcDIZWw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxEr/eESWeDJk1YE4Wlx85Ofh2dIKMoAdpWQIS9Za0rCw7Mne6n
-	m9VL5qZBOMWq9kdXKaXStOCuWRaJqO/dQvIy3ghjN4bE+tikBAO44qH18rndZImgfBoFPRJm+nH
-	AB1cHiiwU6xUj3cRMgRdJtvfv+4n8uUc=
-X-Received: by 2002:a17:907:2d9e:b0:ba7:ade5:8605 with SMTP id
- a640c23a62f3a-ba7ade5873cmr1292114966b.6.1777056615011; Fri, 24 Apr 2026
- 11:50:15 -0700 (PDT)
+	s=k20201202; t=1777056697;
+	bh=+gfjjzK2HjGlwyfcUBpjGFMM8VknhFJmUXv7rsRO1Tw=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=I73QB/YoKiHDxTJYDQAZJJqd6DpiWso0Fv34A29QLEdUDh4e/9DIMBxEx6bjkHaME
+	 eSOcJ/kr8JheEFprhBsRAIYwP8ui81DS4Ec2MhWcAb3LTduz/Mw0tHH74Ypekkq31f
+	 tWzmRP1hbVGBek3ZImYupzEnyAgFtJkj8scXdz6NeXJZg3Emc4SM0scKvVwyE5Yvn8
+	 q6eVKd8YZlneyt/S+2klo8xFuk/s+iumOQMZw7M0YDjTBpq/xwQiLotDxKofUq2cRB
+	 aBUac+XxaFCMgRvSsJ+dlJnmUsVyLaWjS4/TIqP4CQ5v7roQrj8+LPbMHANxYsjaaB
+	 wpq3Yb5wx3O0g==
+Message-ID: <b289b4f8-391b-4748-b8e6-0acb0b21b0c0@kernel.org>
+Date: Fri, 24 Apr 2026 20:51:25 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260424062528.71951-1-lance.yang@linux.dev> <20260424063024.ce42ee6a5546e4d9337dd007@linux-foundation.org>
- <aetw4aoABYj3keMh@plex> <20260424071533.d28ce90126f05e1c6fc1b740@linux-foundation.org>
- <80ab39c2-efb9-4a23-bd56-46d9bb4e41bb@kernel.org> <20260424073145.b990fe9b925da304508aad71@linux-foundation.org>
- <644e65dc-3d39-4137-b51f-51d953b67d50@kernel.org>
-In-Reply-To: <644e65dc-3d39-4137-b51f-51d953b67d50@kernel.org>
-From: Yosry Ahmed <yosry@kernel.org>
-Date: Fri, 24 Apr 2026 11:50:03 -0700
-X-Gmail-Original-Message-ID: <CAO9r8zN1pRfyC0Rh+UdW-Lsret=z3oveT3=gnZftX-Sr_ubyyQ@mail.gmail.com>
-X-Gm-Features: AQROBzAzgmye5h2hgq6OujP1bhxfaF6hprGZxVf_6cZmOYHaxIkk2WQtzQUABGE
-Message-ID: <CAO9r8zN1pRfyC0Rh+UdW-Lsret=z3oveT3=gnZftX-Sr_ubyyQ@mail.gmail.com>
-Subject: Re: [PATCH 7.2 v10 0/2] skip redundant sync IPIs when TLB flush sent them
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Pasha Tatashin <pasha.tatashin@soleen.com>, 
-	Lance Yang <lance.yang@linux.dev>, peterz@infradead.org, dave.hansen@intel.com, 
-	dave.hansen@linux.intel.com, ypodemsk@redhat.com, hughd@google.com, 
-	will@kernel.org, aneesh.kumar@kernel.org, npiggin@gmail.com, 
-	tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org, 
-	hpa@zytor.com, arnd@arndb.de, ljs@kernel.org, ziy@nvidia.com, 
-	baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com, npache@redhat.com, 
-	ryan.roberts@arm.com, dev.jain@arm.com, baohua@kernel.org, 
-	shy828301@gmail.com, riel@surriel.com, jannh@google.com, jgross@suse.com, 
-	seanjc@google.com, pbonzini@redhat.com, boris.ostrovsky@oracle.com, 
-	virtualization@lists.linux.dev, kvm@vger.kernel.org, 
-	linux-arch@vger.kernel.org, linux-mm@kvack.org, linux-kernel@vger.kernel.org, 
-	ioworker0@gmail.com, roman.gushchin@linux.dev
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC v3 01/19] mm: thread user_addr through page allocator
+ for cache-friendly zeroing
+To: Matthew Wilcox <willy@infradead.org>, "Michael S. Tsirkin"
+ <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
+ Vlastimil Babka <vbabka@kernel.org>, Brendan Jackman <jackmanb@google.com>,
+ Michal Hocko <mhocko@suse.com>, Suren Baghdasaryan <surenb@google.com>,
+ Jason Wang <jasowang@redhat.com>, Andrea Arcangeli <aarcange@redhat.com>,
+ Gregory Price <gourry@gourry.net>, linux-mm@kvack.org,
+ virtualization@lists.linux.dev, Johannes Weiner <hannes@cmpxchg.org>,
+ Zi Yan <ziy@nvidia.com>, Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+ "Liam R. Howlett" <Liam.Howlett@oracle.com>, Mike Rapoport
+ <rppt@kernel.org>, Muchun Song <muchun.song@linux.dev>,
+ Oscar Salvador <osalvador@suse.de>,
+ Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <npache@redhat.com>,
+ Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>,
+ Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>,
+ Matthew Brost <matthew.brost@intel.com>,
+ Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+ Byungchul Park <byungchul@sk.com>, Ying Huang
+ <ying.huang@linux.alibaba.com>, Alistair Popple <apopple@nvidia.com>,
+ Hugh Dickins <hughd@google.com>, Christoph Lameter <cl@gentwo.org>,
+ David Rientjes <rientjes@google.com>,
+ Roman Gushchin <roman.gushchin@linux.dev>, Harry Yoo <harry.yoo@oracle.com>,
+ Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
+ Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham <nphamcs@gmail.com>,
+ Baoquan He <bhe@redhat.com>, linux-fsdevel@vger.kernel.org
+References: <cover.1776808209.git.mst@redhat.com>
+ <9dd9deabd42801f3c344326991d1431c3d8db39d.1776808210.git.mst@redhat.com>
+ <aeu5P1bZW3yEH54t@casper.infradead.org>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
+ dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
+ QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
+ XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
+ Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
+ PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
+ WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
+ UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
+ jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
+ B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABzS5EYXZpZCBIaWxk
+ ZW5icmFuZCAoQ3VycmVudCkgPGRhdmlkQGtlcm5lbC5vcmc+wsGQBBMBCAA6AhsDBQkmWAik
+ AgsJBBUKCQgCFgICHgUCF4AWIQQb2cqtc1xMOkYN/MpN3hD3AP+DWgUCaYJt/AIZAQAKCRBN
+ 3hD3AP+DWriiD/9BLGEKG+N8L2AXhikJg6YmXom9ytRwPqDgpHpVg2xdhopoWdMRXjzOrIKD
+ g4LSnFaKneQD0hZhoArEeamG5tyo32xoRsPwkbpIzL0OKSZ8G6mVbFGpjmyDLQCAxteXCLXz
+ ZI0VbsuJKelYnKcXWOIndOrNRvE5eoOfTt2XfBnAapxMYY2IsV+qaUXlO63GgfIOg8RBaj7x
+ 3NxkI3rV0SHhI4GU9K6jCvGghxeS1QX6L/XI9mfAYaIwGy5B68kF26piAVYv/QZDEVIpo3t7
+ /fjSpxKT8plJH6rhhR0epy8dWRHk3qT5tk2P85twasdloWtkMZ7FsCJRKWscm1BLpsDn6EQ4
+ jeMHECiY9kGKKi8dQpv3FRyo2QApZ49NNDbwcR0ZndK0XFo15iH708H5Qja/8TuXCwnPWAcJ
+ DQoNIDFyaxe26Rx3ZwUkRALa3iPcVjE0//TrQ4KnFf+lMBSrS33xDDBfevW9+Dk6IISmDH1R
+ HFq2jpkN+FX/PE8eVhV68B2DsAPZ5rUwyCKUXPTJ/irrCCmAAb5Jpv11S7hUSpqtM/6oVESC
+ 3z/7CzrVtRODzLtNgV4r5EI+wAv/3PgJLlMwgJM90Fb3CB2IgbxhjvmB1WNdvXACVydx55V7
+ LPPKodSTF29rlnQAf9HLgCphuuSrrPn5VQDaYZl4N/7zc2wcWM7BTQRVy5+RARAA59fefSDR
+ 9nMGCb9LbMX+TFAoIQo/wgP5XPyzLYakO+94GrgfZjfhdaxPXMsl2+o8jhp/hlIzG56taNdt
+ VZtPp3ih1AgbR8rHgXw1xwOpuAd5lE1qNd54ndHuADO9a9A0vPimIes78Hi1/yy+ZEEvRkHk
+ /kDa6F3AtTc1m4rbbOk2fiKzzsE9YXweFjQvl9p+AMw6qd/iC4lUk9g0+FQXNdRs+o4o6Qvy
+ iOQJfGQ4UcBuOy1IrkJrd8qq5jet1fcM2j4QvsW8CLDWZS1L7kZ5gT5EycMKxUWb8LuRjxzZ
+ 3QY1aQH2kkzn6acigU3HLtgFyV1gBNV44ehjgvJpRY2cC8VhanTx0dZ9mj1YKIky5N+C0f21
+ zvntBqcxV0+3p8MrxRRcgEtDZNav+xAoT3G0W4SahAaUTWXpsZoOecwtxi74CyneQNPTDjNg
+ azHmvpdBVEfj7k3p4dmJp5i0U66Onmf6mMFpArvBRSMOKU9DlAzMi4IvhiNWjKVaIE2Se9BY
+ FdKVAJaZq85P2y20ZBd08ILnKcj7XKZkLU5FkoA0udEBvQ0f9QLNyyy3DZMCQWcwRuj1m73D
+ sq8DEFBdZ5eEkj1dCyx+t/ga6x2rHyc8Sl86oK1tvAkwBNsfKou3v+jP/l14a7DGBvrmlYjO
+ 59o3t6inu6H7pt7OL6u6BQj7DoMAEQEAAcLBfAQYAQgAJgIbDBYhBBvZyq1zXEw6Rg38yk3e
+ EPcA/4NaBQJonNqrBQkmWAihAAoJEE3eEPcA/4NaKtMQALAJ8PzprBEXbXcEXwDKQu+P/vts
+ IfUb1UNMfMV76BicGa5NCZnJNQASDP/+bFg6O3gx5NbhHHPeaWz/VxlOmYHokHodOvtL0WCC
+ 8A5PEP8tOk6029Z+J+xUcMrJClNVFpzVvOpb1lCbhjwAV465Hy+NUSbbUiRxdzNQtLtgZzOV
+ Zw7jxUCs4UUZLQTCuBpFgb15bBxYZ/BL9MbzxPxvfUQIPbnzQMcqtpUs21CMK2PdfCh5c4gS
+ sDci6D5/ZIBw94UQWmGpM/O1ilGXde2ZzzGYl64glmccD8e87OnEgKnH3FbnJnT4iJchtSvx
+ yJNi1+t0+qDti4m88+/9IuPqCKb6Stl+s2dnLtJNrjXBGJtsQG/sRpqsJz5x1/2nPJSRMsx9
+ 5YfqbdrJSOFXDzZ8/r82HgQEtUvlSXNaXCa95ez0UkOG7+bDm2b3s0XahBQeLVCH0mw3RAQg
+ r7xDAYKIrAwfHHmMTnBQDPJwVqxJjVNr7yBic4yfzVWGCGNE4DnOW0vcIeoyhy9vnIa3w1uZ
+ 3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
+ CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
+ qIws/H2t
+In-Reply-To: <aeu5P1bZW3yEH54t@casper.infradead.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Fri, Apr 24, 2026 at 11:36=E2=80=AFAM David Hildenbrand (Arm)
-<david@kernel.org> wrote:
->
-> On 4/24/26 16:31, Andrew Morton wrote:
-> > On Fri, 24 Apr 2026 16:20:55 +0200 "David Hildenbrand (Arm)" <david@ker=
-nel.org> wrote:
-> >
-> >> On 4/24/26 16:15, Andrew Morton wrote:
-> >>>
-> >>>
-> >>> Yep.  I'd be OK with an automatic reply-to-all.  Maybe some won't lik=
-e
-> >>> that.
-> >>>
-> >>> An alternative I've discussed with Roman is an automated
-> >>> reply-to-author with a cc to a dedicated list (we could use mm-commit=
-s
-> >>> for now).
-> >>>
-> >>> Preferences?
-> >>
-> >> Reply-to-author would likely be better as a first step.
-> >
-> > Why do you think so?
->
-> The most important part for me is that authors are aware of the reports.
->
-> Sending them as a mail forces people to publicly reply to the feedback, a=
-nd at
-> this point in time, I am not convinced that that is the right approach.
+On 4/24/26 20:41, Matthew Wilcox wrote:
+> On Tue, Apr 21, 2026 at 06:01:10PM -0400, Michael S. Tsirkin wrote:
+>> Thread a user virtual address from vma_alloc_folio() down through
+>> the page allocator to post_alloc_hook().  This is plumbing preparation
+>> for a subsequent patch that will use user_addr to call folio_zero_user()
+>> for cache-friendly zeroing of user pages.
+>>
+>> The user_addr is stored in struct alloc_context and flows through:
+>>   vma_alloc_folio -> folio_alloc_mpol -> __alloc_pages_mpol ->
+>>   __alloc_frozen_pages -> get_page_from_freelist -> prep_new_page ->
+>>   post_alloc_hook
+> 
+> I don't like this.  I think we should instead lift the zeroing from
+> post_alloc_hook() to the callers of __alloc_frozen_pages().
 
-But I imagine it's useful for reviewers to see Sashiko's feedback as
-well (without having to go look on the website). It's possible that
-Sashiko is right but the author isn't convinced, so getting more eyes
-on the feedback would help. If Sashiko is wrong, it's still useful for
-more people to see it and point it out, instead of Sashiko privately
-misguiding the author, especially that reviewers are probably more
-likely to tell if Sashiko is right or wrong.
+I don't think so. In particular how zeroing optimizations are related to buddy
+details (tag zeroing, kasan unpoisoning, init_on_alloc/init_on_free, now
+pre-zeroing).
 
-I understand the fear of too much noise, but I think it's easy to
-ignore Sashiko if we want to. It's also a good exercise to spell out
-why Sashiko is wrong (e.g. improve changelogs/comments to document
-assumptions more obviously). We can always tune it down later if we
-think it's too much, right?
+> 
+> I don't understand why you want to remove the double-zeroing of memory
+> when the user has asked for zero_on_alloc.  They asked for stupid things,
+> let them bear the cost.
+
+That's not how the world works :)
+
+
+-- 
+Cheers,
+
+David
