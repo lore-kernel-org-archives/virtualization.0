@@ -1,91 +1,104 @@
-Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F1CAD303C87
-	for <virtualization@lists.linux.dev>; Sat, 25 Apr 2026 16:09:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFD832AE78
+	for <virtualization@lists.linux.dev>; Sat, 25 Apr 2026 17:03:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777133395; cv=none; b=mkAEyxOEyRVx16lcOOY3W3068dvsE6UDsm+cQmP6ENWbkBfTBgwYAKjLou3wQhlqjzHrUW9iLPHZRs8hh9U7GUh/HNaurjDOg9iCXEhAxsnDG6li57vmHGk6ZxnzWKpy6hHE/HEgG97pdDwgBh7Wr71ZOYX61GMLDEWaksj93tI=
+	t=1777136599; cv=none; b=gj23O7QiJe7H10+q77z55Y0af+ayVHQ9wPmIbwLFFsqZeKUeiKaF2GyO4YxS4Sh3t45zyfDjdT2lGvfiKWQwUB1PzQSIzQAfR7wE1/QvFDgHLx5+GlbfJltxMUQy77H1aroJZJLxuTHxOxlpLB+z7yGOPC8hdishIUxRekFd+wk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777133395; c=relaxed/simple;
-	bh=9kHSMQaE5l6w9t0vlfGjcZ3hUoHUWAPaOc1UavxBppw=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=qMpmnoPzFHDXlO3bQjcd3ozrLzTXZf7mFIIh1anOpLduLSvmEh+3TT/ZASsPBs+HMsGf3gdo9gBm28mDjUzjK7SXUV/+Rz/76Fcg0YykmLwNyr9hJWWu+A2SKbKBej+BHKf6ELXlEVp6ypWJeCf0JNQ9MKdvWCs+cFlUhZ3jQAk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XqChV/DF; arc=none smtp.client-ip=209.85.214.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1777136599; c=relaxed/simple;
+	bh=rFWJpKf2/UxIP3i+k/X72Xs6IstgW6mx17/JbpaoPLI=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=FNDA4Q4ITiDvT3/XJDd1bHo1Y1t7CFwOBA/47yGiOKdAoveF9lagVhoMPMfErFTr8eo3OADIOZGtr9fKBPTBCUCEpVgybPpcy2BDig78PffQqWa96xpkgmBPz9MTBuO9vMKATSUlgWcik/6JF/QK9T1qtRLL0P6ZApoQu/8EEKo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=R8j7RNNq; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XqChV/DF"
-Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2a9296b3926so52040695ad.1
-        for <virtualization@lists.linux.dev>; Sat, 25 Apr 2026 09:09:53 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777133393; x=1777738193; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=9kHSMQaE5l6w9t0vlfGjcZ3hUoHUWAPaOc1UavxBppw=;
-        b=XqChV/DF5DQpZtJhw97vY5uG2PhfJfhpNXPD4cHan+BFu3WmtKqGh7i2uI+AcCwdhh
-         Ppl6DqmNz0FrgSRSUT2QDGjb9SUODwe8RAJCHSCL6E9vvGPGjhZawH3OqiwbBPOudbqe
-         XIR+ahoM8WbgO77+urP+v1GAisH87bVfaeNC9NuGpov7bKfrvLX1COXiOte0Tnzlp6ut
-         aKtGIkdLzyGxVlkcfLxRj4BeHdiVlB3I7TbqJQbUvqsfjJ29ejgu+NlxuGcMVSzGOR96
-         VXfw7cTUfO1lwFGU2tG+qU8JCwLlpyVyuDuLEBsLo9b4p+2/Jep5o1xM6h5LWPnQ3mR+
-         z1IQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="R8j7RNNq"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1777136596;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=UydGENrV15JfC7+m6DqDLSAFqKV6Nf5fu8hzpCuZzco=;
+	b=R8j7RNNqnnNaO78N7BmKPaMoEkoRAN+nMyfIEJu1OlehzFKpo7phSiTAIMG2OkhITCOqmt
+	+b7ucW8oRwk9E1v/xv7OTRkAzDgv4oI1aNruwt5cWDCoz6DmvdzTZGu7LiJV1Z6p1WuH2v
+	mOSXsm9iK9BKkwnvh5zDGVRxRioGCyI=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-52-Dsb8PCjGOAyoxqEqO5p0Ug-1; Sat, 25 Apr 2026 13:03:15 -0400
+X-MC-Unique: Dsb8PCjGOAyoxqEqO5p0Ug-1
+X-Mimecast-MFC-AGG-ID: Dsb8PCjGOAyoxqEqO5p0Ug_1777136594
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-43d77286244so5924384f8f.1
+        for <virtualization@lists.linux.dev>; Sat, 25 Apr 2026 10:03:15 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777133393; x=1777738193;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=9kHSMQaE5l6w9t0vlfGjcZ3hUoHUWAPaOc1UavxBppw=;
-        b=D/EwXaWjk5daRxo5a1SlmilyNRI/QqYS7gwJuDo75GLvPNdHNb1eV5osvHhtbjapaX
-         lZefH/No4gUgQYSOaqwXiF80cLPFqorF73tfzjKCZMTPEccjYaH9ZgqRW3fhGrdyHkyG
-         zC+dX0TSsc/QwGG6TV9Alnv8Tp/MfSJW84ZTZHicg23kZezPhpeoURDlYua4q2Kt3+LT
-         oxVOqRxxojiD8U9STIGrqTu+KhOOlrBX51mwyapcJxCUH5r17PwjGO1yDWEaNZJERv84
-         a8d0x+BI+dYPXXMK60lyk1inbRACJ55AZ/OeS7uFfOADOrdQcaYojiyusQPsTBQRO2We
-         YvWw==
-X-Forwarded-Encrypted: i=1; AFNElJ/1lXnGmN/LWIV6lzJus6g8asq0E8uGQR5bzKNEvwpNzQ9rQ++JSo5NqrE1xMzh6U0heYuTTpJWeZtbXxIGng==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx0yt9m00TQ+H+Dh37VezZBaPzBwT1QbCqEgFd2FYDq5ek4GHRL
-	/30M6DgGdEdl4DwSFhcpGTEXXVvDFRNJnko3kVDrIAM+VkJC8w52x7fs
-X-Gm-Gg: AeBDiesJchjKl1jZ3AIh19ASU7wFrW5Sg2a6PVcP+1WcHqKCbi9hsZ6jh9scc2OTGNL
-	bvm2DvlgZqiV148LvlReaUJZSSnvETn6gcZ2IhBcZS7ljeAHj+QYWA7xzcl4KmW+RQ0BVtAoSbP
-	+33HKoYnI5I8ShIwJIqzCuESs3WwQtD0+4YjHxMRDQmgOc5z71eXWnDt4gO8DIOX/WriUaviXtF
-	U9B7lm8KwTx0E5fBzg0/TRO1fWKtVp6A1YmLS1KZINMlgrX9QMq5WZ8q9j67vJcT7fGlHnHe3rN
-	9T+SZckFgJ2PuP51EJUd6R3kp8WEDSVwHn9McK9qnyFLJrM+j+OBUE9GvQRBGZVXkB3hepE5/hx
-	lHWic+hA8u1MkXpsNGIptFWu9+PgDxdEUgVY25ScdHINTQNsC3BtLzugcuudTyTBumZW7knA6GX
-	Ibs0NGwk5BlkiboaTp8EIZdEeTdzzM/CyNyCGknDQd
-X-Received: by 2002:a17:903:1b6f:b0:2b2:4cd2:e16c with SMTP id d9443c01a7336-2b5f9f3c58amr348306735ad.20.1777133392435;
-        Sat, 25 Apr 2026 09:09:52 -0700 (PDT)
-Received: from jia.. ([114.249.134.218])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2b5faa4f092sm258631165ad.36.2026.04.25.09.09.43
+        d=1e100.net; s=20251104; t=1777136594; x=1777741394;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=UydGENrV15JfC7+m6DqDLSAFqKV6Nf5fu8hzpCuZzco=;
+        b=ULV++d6ZV3weKc6AbJI1uXgWnw2/mDdKkGIG3bvkEmSQII9YMPuRECb1qO9PXHsuT7
+         bUbCRShGM4NWz7KVqK10Uawv5U4k3937RvxgU8gMjgeML7Sqa/fUuYqC5Yzpgo75fKuu
+         EENNxRvR7Ahh2W95DNvPswOMzWDcgFWUn3hd9Ep8sN6RUbFEfqi2N9yIzoxN8aMvsGML
+         BGg24sH7dkQQwWx7avcSNkfEr3m3x3xxb36SB4QXdeW1/p/7BhpvdzHxrCPQDqjnee8N
+         iJ9ELmJg2O3mo/87LkHmSwbpmjiTAuEcfHKMjKQPmCiVDhgeljojuS1kaL57tYBGm8b9
+         VxKA==
+X-Forwarded-Encrypted: i=1; AFNElJ/ZmDxfW0Ild/+IlQwFDIs87vKLPKsbU4LFc0eWhjNTURmu2sgJi9lseYhu56xTHW5w2dQzliO4rggnH348jg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzRjnclvdph1fw+dGYkMRC3djzN8nrmHL8NYNf9Nw87lfZQqSYN
+	sa4WNuShdR9qejtKmvtQhZDr1SKWx7b2A15+H72Ra/cPn1aFOSvce/T2XKg+pfRSM/CkjGxk7cb
+	+zSQAhj9/hVYbCu3iYmvLZIVkRbjwEPbc+PqYFCvtiJm0zhw5zaJF/48KyVeVr1H1mCIL
+X-Gm-Gg: AeBDieua/imKQkppZ+gk1IPxS5oMr1+Z/fi4ohqk+ALhcssA8OTYPCdkUz83STEbNkU
+	3zocXR0YgRUoxaPKAxab2oMUwHVdC8GVCWfJYBO61lu8c6xz0nPxTDsJ/WNt5cZZIMj9Wqf2gCP
+	+9ujRXQEvYP+KLQ+Zfn9musbSCnFz5EX+Mv4zD7UrWbBhVSoa5HvCja/+SUyeDQi+fliLUFoY+q
+	LKu+ZkUJglj0NHEBcCup56fU6PxEMHhtN5Xk48QVvbwbmvPgTrTjmOXd1ZIpYF63RBiU3Bml7iR
+	0c6Rwn7s8lxDYyHj4WxLDooyYH/wNIcTSI8TKG35D1n0xQ1Rv49UTxPoFS3cBnZC4OFcPMbJitn
+	CeMCL3A6Qa+Hdk0F/O+DufEeV
+X-Received: by 2002:a05:600c:3110:b0:487:243f:dc3e with SMTP id 5b1f17b1804b1-488fb739cf6mr533680235e9.6.1777136594096;
+        Sat, 25 Apr 2026 10:03:14 -0700 (PDT)
+X-Received: by 2002:a05:600c:3110:b0:487:243f:dc3e with SMTP id 5b1f17b1804b1-488fb739cf6mr533679865e9.6.1777136593661;
+        Sat, 25 Apr 2026 10:03:13 -0700 (PDT)
+Received: from redhat.com ([147.235.221.19])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4412150a092sm31800942f8f.23.2026.04.25.10.03.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 25 Apr 2026 09:09:52 -0700 (PDT)
-From: Jia Jia <physicalmtea@gmail.com>
-To: "Michael S . Tsirkin" <mst@redhat.com>
-Cc: Peter Hilber <peter.hilber@oss.qualcomm.com>,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
+        Sat, 25 Apr 2026 10:03:13 -0700 (PDT)
+Date: Sat, 25 Apr 2026 13:03:10 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jia Jia <physicalmtea@gmail.com>
+Cc: Peter Hilber <peter.hilber@oss.qualcomm.com>, jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
 Subject: Re: [PATCH v3] virtio: rtc: tear down old virtqueues before restore
-Date: Sun, 26 Apr 2026 00:09:06 +0800
-Message-Id: <20260425160906.677660-1-physicalmtea@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260425110857-mutt-send-email-mst@kernel.org>
+Message-ID: <20260425130233-mutt-send-email-mst@kernel.org>
 References: <20260425110857-mutt-send-email-mst@kernel.org>
+ <20260425160906.677660-1-physicalmtea@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260425160906.677660-1-physicalmtea@gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: hqlFGTC074FHp5E-PEI98inV-4F4oLNokB34TcHzHV8_1777136594
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Hi Michael,
+On Sun, Apr 26, 2026 at 12:09:06AM +0800, Jia Jia wrote:
+> Hi Michael,
+> 
+> JiaJia is my full name. My family name is Jia and my given name is also Jia.
+> 
+> I wrote it as "JiaJia", but "Jia Jia" is probably clearer. I will use "Jia Jia"
+> in future postings.
+> 
+> Thanks,
+> Jia Jia
 
-JiaJia is my full name. My family name is Jia and my given name is also Jia.
+Beautiful. Yes, clearer, thank you so much.
 
-I wrote it as "JiaJia", but "Jia Jia" is probably clearer. I will use "Jia Jia"
-in future postings.
+-- 
+MST
 
-Thanks,
-Jia Jia
