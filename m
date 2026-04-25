@@ -1,202 +1,101 @@
-Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B603038838A
-	for <virtualization@lists.linux.dev>; Sat, 25 Apr 2026 07:09:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 680F036604F;
+	Sat, 25 Apr 2026 11:36:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777100965; cv=none; b=YfG1H19cSp8D/aS4AB1HOLbpLyjNHqiqyjzfN/KHrG6XL4a91auOV0D8V3hby+6Hk9QwAALoNJuzP1qhSO1ZxCBEAMNceDd9Q5s2eOjUKmAlxYZleRAEexHo/ot3ZEkrbwPg5UnWdZph7Ff0gKBHGmyiedqcmBtYa5rCZ12y9sQ=
+	t=1777116967; cv=none; b=fEeer+5HPLtD2YAitvLNL3b91Yc2/Ro2K/3YD7tSqDzX58Bf5Yd0bdcMnhnUH8fZerTjqmYS38ORFf075Kp6L4xskwBfXGze1rzqLOpCau+Mkuc1uimjzlhciD3G7t0q/aEeCnVxuD/VNWgOMOrcgSiGZxOWMa9anAMV85b3FPg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777100965; c=relaxed/simple;
-	bh=cXVnybCCIkpFfhCV7Pv9o+XLIu3aQHhlNZ/DsOTWcmY=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=PcrXKPvyFYHam4X0IhkezHc4GVNl7fdsjWNaKTNmWsHHRk0msnC8PW626d0L+mDAzVKJlMjFFTpUMN1FZtlAvoTyQvqwfufSdD97NJ37Keo1GzzYvJzT9JA1QRrMm1rRIAb/tjU9DRFfP7xkIjVU0Elci0nL+Be2ql6V4PAE4Do=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Z5YfVIVl; arc=none smtp.client-ip=209.85.210.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1777116967; c=relaxed/simple;
+	bh=+hCqOamL0vTewGf5qbkEKRyELe5agUwAhP+vk48QZYA=;
+	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
+	 Mime-Version:Content-Type; b=QqZ076lsIAhFnT0n38HC1QvQvBdQthjee5c72uhIRfraQUzn1gvHUJ1GZMkVQu5GJvGCNUJz3r9spaGo69nXwZ6AgrGyc/DnINe/jvaYN/9uLlP18L4CBsRIRJ4e7+Kgc1Uk0FfpfeuhZaY71Q0uL/ObTnsznN57rA3iIOvi3Qg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=VnDWnThi; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Z5YfVIVl"
-Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-82ce2e2880cso5822160b3a.0
-        for <virtualization@lists.linux.dev>; Sat, 25 Apr 2026 00:09:20 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777100958; x=1777705758; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=5C0AEzedHj5XKUPA0aaKf/p0DN4DYxSicdzohR/x6tU=;
-        b=Z5YfVIVlMzmwZwDOWUBv4OIm1tpBN/3NmEaY2AyHUzT6YPUrfaIm2qFge1qjpy6CVE
-         R83uz9Kxd4GLxAiM/7DIEEkNSyqBccL+IViqx2xUrsbkU+euVKnMbz0yJo+OTur/P8LK
-         l6ED1dTM3H2vr9KElLyVsVFFg0AaUyptE5dLCCqcVyg1oHJFyJB5BW5VapyTNtjy6wf+
-         L0r+/yW0e3dMQf5aJYNAGGSzJAFuVq1tXZYjfO/bMI0XOOm2RyqGyA8+yaJjJ/Jv8XiE
-         3KeAshedBob0qvPxky/2SH17RpSnnMnRrlxcM0o7m6O3RFiEd+sWR2n/3iDI3ccGUUq8
-         lGWg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777100958; x=1777705758;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=5C0AEzedHj5XKUPA0aaKf/p0DN4DYxSicdzohR/x6tU=;
-        b=sBFQD4Vn6FXh+OlWnk90s1mWN+TBDbmJvwomXIjMekLDMQUyWeYP5Gutb7fh96U6Fm
-         3TuLr9pWsaFJ6pqi5mfds+ojgxJLpQEEY3wT9M3nVvQie/VKm46/qtSmiZJjvaq7qKDV
-         SrfBXPBBtWqJ2ixrgtwf6yYFbHf+SRdxvOqEmzUbqU3jYM3GDBLiRzNPvasueh3A8n4a
-         OoaZHVdDPRAe9PKGm9WMEzu9CbbO0mc9zeCqvrOU7lLbarAhjkklLucQ3ASHCR7lB5JN
-         H2nQPSIYXeemvcDLIBaahNGo8EbwuRE0u6w50492j14XRbQRVUvVqEIlPQcOE6p8IqbZ
-         aFyQ==
-X-Forwarded-Encrypted: i=1; AFNElJ8MerTCpvJVZuccQ/u0XgFRHGqwzHIZXM/WvduAJBnMGuEhLeSsk2uw48d5aVdUOdnV8GwL/qYmhj3jdFog5A==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw0Cto2KeTuak/NUJ4HjFfbNIyb8v9c2iwIzmIvmGorbQ7CkkgZ
-	324+q9/39/Bz4nmQU3xkMymm8airuJOCyLl2L/0Vjsa9B2cLUNomIRen
-X-Gm-Gg: AeBDietRL67z9zOq34cORcTZefDE2NIJ2Gw9zrOShCE6S5NnpMWHM2zDoKBBtGiyY8q
-	h6gOCa8zd2LL4TCAqHu2rG7ZuRZNtH+KgREsAJ2rEJC7x6s6CggaAPxx5A+LDhmQC1KftDQVa/X
-	bbU7b/+c0Ek+KNlITkk9ED8tBYD2nsTEXh6Qp6H1T2cScKadcOMSpPFw/PZ5IiHKUfJTMv/IzMY
-	QvDq+Kmg6Jo8dmAHPhSDrqSyU4nYdST9J/mpRYk0jynNqKv4lskksr7hznomdKXtZMYifuZiBwA
-	ZPvj9fZDQN4iwkZXS3dUHOMQxw8HImjTUkUhHEvDb30oCR7urt1qIElNYHwc3XG6HIb2Skqb63m
-	czbTC5y9eiVoTB4vpDRA1a1FWp67nHlq9nUJjJZOeEDPu9uAPWsp3MNjrH1xulNDk5jS3jbJlQM
-	9uXdxdUxmNeyowjHaU68EhLdaX7Dw6IH9cOp5Uc+yT
-X-Received: by 2002:aa7:88cf:0:b0:82a:17b6:53ca with SMTP id d2e1a72fcca58-82f8c92e436mr36926514b3a.38.1777100957728;
-        Sat, 25 Apr 2026 00:09:17 -0700 (PDT)
-Received: from jia.. ([114.249.134.218])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-82f8ec24850sm26611107b3a.60.2026.04.25.00.09.14
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 25 Apr 2026 00:09:17 -0700 (PDT)
-From: physicalmtea <physicalmtea@gmail.com>
-To: Peter Hilber <peter.hilber@oss.qualcomm.com>
-Cc: mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	JiaJia <physicalmtea@gmail.com>
-Subject: [PATCH v3] virtio: rtc: tear down old virtqueues before restore
-Date: Sat, 25 Apr 2026 15:08:40 +0800
-Message-Id: <20260425070840.488634-1-physicalmtea@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <d2gtdzjz3bfs47rmeslo46dkwmjqpv2qjcxmpgbkcbxjrqbf6m@bkeeynnavvy3>
-References: <d2gtdzjz3bfs47rmeslo46dkwmjqpv2qjcxmpgbkcbxjrqbf6m@bkeeynnavvy3>
+	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="VnDWnThi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D2F8FC2BCB0;
+	Sat, 25 Apr 2026 11:36:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linux-foundation.org;
+	s=korg; t=1777116967;
+	bh=+hCqOamL0vTewGf5qbkEKRyELe5agUwAhP+vk48QZYA=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=VnDWnThi7x8C/ChyqkphLKT4CN2qhjn4bgVZRT3thU06/8VKJp4TXxTLKdd3W+/gI
+	 lwBurUwV1KTJLClJZCp62a4VPQyRP74hQNi50rzs+q3ioi2wUC6M6N4Cy28yLlKsn/
+	 tf044FWTbVqbl6W02n8H+OfPCTeQdT3tULq6Wgbg=
+Date: Sat, 25 Apr 2026 04:36:05 -0700
+From: Andrew Morton <akpm@linux-foundation.org>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: Yosry Ahmed <yosry@kernel.org>, Pasha Tatashin
+ <pasha.tatashin@soleen.com>, Lance Yang <lance.yang@linux.dev>,
+ peterz@infradead.org, dave.hansen@intel.com, dave.hansen@linux.intel.com,
+ ypodemsk@redhat.com, hughd@google.com, will@kernel.org,
+ aneesh.kumar@kernel.org, npiggin@gmail.com, tglx@linutronix.de,
+ mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com,
+ arnd@arndb.de, ljs@kernel.org, ziy@nvidia.com,
+ baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com, npache@redhat.com,
+ ryan.roberts@arm.com, dev.jain@arm.com, baohua@kernel.org,
+ shy828301@gmail.com, riel@surriel.com, jannh@google.com, jgross@suse.com,
+ seanjc@google.com, pbonzini@redhat.com, boris.ostrovsky@oracle.com,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org,
+ linux-arch@vger.kernel.org, linux-mm@kvack.org,
+ linux-kernel@vger.kernel.org, ioworker0@gmail.com, roman.gushchin@linux.dev
+Subject: Re: [PATCH 7.2 v10 0/2] skip redundant sync IPIs when TLB flush
+ sent them
+Message-Id: <20260425043605.a3a1819fb219c649eab0f3a1@linux-foundation.org>
+In-Reply-To: <872e752d-c7fa-4a75-a963-4e2f42ce468b@kernel.org>
+References: <20260424062528.71951-1-lance.yang@linux.dev>
+	<20260424063024.ce42ee6a5546e4d9337dd007@linux-foundation.org>
+	<aetw4aoABYj3keMh@plex>
+	<20260424071533.d28ce90126f05e1c6fc1b740@linux-foundation.org>
+	<80ab39c2-efb9-4a23-bd56-46d9bb4e41bb@kernel.org>
+	<20260424073145.b990fe9b925da304508aad71@linux-foundation.org>
+	<644e65dc-3d39-4137-b51f-51d953b67d50@kernel.org>
+	<CAO9r8zN1pRfyC0Rh+UdW-Lsret=z3oveT3=gnZftX-Sr_ubyyQ@mail.gmail.com>
+	<4e7699eb-e101-4a25-b585-79a777eb7cc2@kernel.org>
+	<CAO9r8zO4eSiAK9U-ijzWJMK80XsK+LmFxGAG+nTo+tmK6aLfYA@mail.gmail.com>
+	<872e752d-c7fa-4a75-a963-4e2f42ce468b@kernel.org>
+X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-From: JiaJia <physicalmtea@gmail.com>
+On Sat, 25 Apr 2026 07:17:18 +0200 "David Hildenbrand (Arm)" <david@kernel.org> wrote:
 
-virtio_device_restore() resets the device and restores the negotiated
-features before calling ->restore(). viortc_freeze() intentionally
-leaves the existing virtqueues in place so the alarm queue can still
-wake the system, but viortc_restore() immediately calls
-viortc_init_vqs() without first deleting those old queues.
+> > The usefulness of the mailing list posting is that it makes it easier
+> > to respond and discuss the review. Yes, what Zi did is great, but it
+> > would be nice if contributors/reviewers didn't need to manually quote
+> > Sashiko.
+> 
+> I think the most important part is the contributor side. A private posting is
+> sufficient for that.
 
-If virtqueue reinitialization fails on virtio-pci, the transport error
-path can run vp_del_vqs() against a newly allocated vp_dev->vqs array
-while vdev->vqs still contains the old virtqueues. vp_del_vqs() then
-looks up queue state through the new array and can dereference a NULL
-info pointer in vp_del_vq(), crashing the guest kernel during restore.
+Thinking through how is this going to work out.
 
-This can also happen during a non-faulty reinitialization, when one of
-the vp_find_vqs_msix() attempts is unsuccessful before a later attempt
-would succeed.
+- contributor sends patchset
 
-Delete the stale virtqueues before rebuilding them. If restore fails
-before virtio_device_ready(), reuse the remove path to stop the device.
-Once the device is ready, return errors directly instead of deleting the
-virtqueues again.
+- akpm looks at the Sashiko scan and thinks "huh, we might be seeing
+  a new version soon".
 
-Fixes: 0623c7592768 ("virtio_rtc: Add module and driver core")
-Signed-off-by: JiaJia <physicalmtea@gmail.com>
-Reviewed-by: Peter Hilber <peter.hilber@oss.qualcomm.com>
----
-v3:
-  - Add Fixes tag.
-  - Add Peter's Reviewed-by tag.
-  - Clarify commit message regarding reinitialization scenarios.
+- Now what?  Maybe contributor doesn't like AI, maybe contributor
+  thinks it was all nonsense.  But I don't know this!
 
-Apologies for missing the Fixes tag, and thanks for catching that! 
-I've also updated the commit message to include the scenario you 
-mentioned.
+  So I send the email "I see that Sashiko said stuff - can we expect
+  a new version?".  Which is no improvement over what's happening now.
 
- drivers/virtio/virtio_rtc_driver.c | 28 ++++++++++++++++++++--------
- 1 file changed, 20 insertions(+), 8 deletions(-)
 
-diff --git a/drivers/virtio/virtio_rtc_driver.c b/drivers/virtio/virtio_rtc_driver.c
-index a57d5e06e..4419735b0 100644
---- a/drivers/virtio/virtio_rtc_driver.c
-+++ b/drivers/virtio/virtio_rtc_driver.c
-@@ -1257,6 +1257,15 @@ static int viortc_init_vqs(struct viortc_dev *viortc)
- 	return 0;
- }
- 
-+static void __viortc_remove(struct viortc_dev *viortc)
-+{
-+	struct virtio_device *vdev = viortc->vdev;
-+
-+	viortc_clocks_deinit(viortc);
-+	virtio_reset_device(vdev);
-+	vdev->config->del_vqs(vdev);
-+}
-+
- /**
-  * viortc_probe() - probe a virtio_rtc virtio device
-  * @vdev: virtio device
-@@ -1282,7 +1291,7 @@ static int viortc_probe(struct virtio_device *vdev)
- 
- 	ret = viortc_init_vqs(viortc);
- 	if (ret)
--		return ret;
-+		goto err_reset_vdev;
- 
- 	virtio_device_ready(vdev);
- 
-@@ -1329,10 +1338,7 @@ static void viortc_remove(struct virtio_device *vdev)
- {
- 	struct viortc_dev *viortc = vdev->priv;
- 
--	viortc_clocks_deinit(viortc);
--
--	virtio_reset_device(vdev);
--	vdev->config->del_vqs(vdev);
-+	__viortc_remove(viortc);
- }
- 
- static int viortc_freeze(struct virtio_device *dev)
-@@ -1353,9 +1359,11 @@ static int viortc_restore(struct virtio_device *dev)
- 	bool notify = false;
- 	int ret;
- 
-+	dev->config->del_vqs(dev);
-+
- 	ret = viortc_init_vqs(viortc);
- 	if (ret)
--		return ret;
-+		goto err_remove;
- 
- 	alarm_viortc_vq = &viortc->vqs[VIORTC_ALARMQ];
- 	alarm_vq = alarm_viortc_vq->vq;
-@@ -1364,7 +1372,7 @@ static int viortc_restore(struct virtio_device *dev)
- 		ret = viortc_populate_vq(viortc, alarm_viortc_vq,
- 					 VIORTC_ALARMQ_BUF_CAP, false);
- 		if (ret)
--			return ret;
-+			goto err_remove;
- 
- 		notify = virtqueue_kick_prepare(alarm_vq);
- 	}
-@@ -1372,8 +1380,12 @@ static int viortc_restore(struct virtio_device *dev)
- 	virtio_device_ready(dev);
- 
- 	if (notify && !virtqueue_notify(alarm_vq))
--		ret = -EIO;
-+		return -EIO;
-+
-+	return 0;
- 
-+err_remove:
-+	__viortc_remove(viortc);
- 	return ret;
- }
- 
--- 
-2.34.1
+What I would like to have is some reasonably reliable and prompt means
+by which we all learn contributor's views on the Sashiko scan. 
 
+One way to bring this about might be to set suitable reply-to headers
+in the Sashiko->contributor email, along with a few words asking
+contributor to let everyone know the status.
+
+But whatever - let's not overthink this.  To start somewhere, let's
+send that private email, spend a few weeks evaluating then perhaps make
+adjustments.
