@@ -1,136 +1,172 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f175.google.com (mail-pf1-f175.google.com [209.85.210.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D8E030EF6B
-	for <virtualization@lists.linux.dev>; Sun, 26 Apr 2026 21:48:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777240127; cv=none; b=m15btAxyAgVHdYZaZi/cvr2laZBDty54y/KvTEAwb8N/LTCTq1zm7UpYjhj0dsojmMhOK/fetP8EAUL8sKnurexxodLkSu9JhaHiSO0vfoFOmWRN5gDoYgfpe5Pqhul6oj1mKsmDJhMJFPSTuISTfwsfaB4QYzUr1ATPUPgptCI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777240127; c=relaxed/simple;
-	bh=AwIv3WhJazU+sFjaROXcIit57FR98tq+do8n4h80ZYs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=TOoNIbo+8FepIqAOjl/Ox2SftCC3sgSY3I4+IcJ3poaxC+wKJQ3SClkwkfyYHl2gaKEqjNmu+JjhXl47+8HyNWCeH3+Lev+FX8uzZybDt6Mu1GbanKoM1/MPIq1h81Q22zfA0hLjQRYlQ4LmhQ3+/kztSxZbWO3XO0IwP9WWss8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QiyDtpd/; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9420030CDB6
+	for <virtualization@lists.linux.dev>; Sun, 26 Apr 2026 22:29:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.175
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777242571; cv=pass; b=I512JZmcQkNzM0eWug7RyWIte8Pvj0i4XKFat2BhPcXooRtC0Eo+8/29uxSlCOtOjBts8HhuQAnPiJm51eJAW42TMvQ5TtlrjnIRCLvscbfBzYVAKnd9ga3+Sc2lYMPWghRpTEryiEr8VDJOMh0BtWhx0HGqhHlXr3LoX1N0SKA=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777242571; c=relaxed/simple;
+	bh=A7r7XRJY+hhC5kiZrc8ENFje4+Sa0UR8cNn+QOFiEBk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=e50Q/0s6fvUp0Npe3k2bTJtcsixO9UQ8dxtfSc8iZoEeSr0wJX3tveKTMssss9xaCD0X3lPWosxijBMh/5stMbAp8bS/p5LOPtKwScgbQbnEO5s5u9R6BbOav/B9WCBg7LxMlQhMXmzB2Z0gypIfVWxdL0jXAvA9WNeVKobzB3k=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jd/sxM2E; arc=pass smtp.client-ip=209.85.210.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QiyDtpd/"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1777240125;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Sf8WIccv4sYUoC01taSJ6nrrobzratXFM4dveYAPw/U=;
-	b=QiyDtpd/lzCDcYBK0IJ3GQAGYZSTmtotUwgW1lSaxQ6atJrCqjQ2vJDfF6GKEwlEqpdkc0
-	gqe7NYXxReEqBe7ql3FkphfhBkakSGn6Qi11PVA6LW/Ko3+Vco9+M3FT1nK/2wR6MlCRR4
-	9KsFcG3XC2q1SQIt5kQGxeirhFb5vX0=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-94-0AnoJfsGPh685yVr7KHAUA-1; Sun, 26 Apr 2026 17:48:44 -0400
-X-MC-Unique: 0AnoJfsGPh685yVr7KHAUA-1
-X-Mimecast-MFC-AGG-ID: 0AnoJfsGPh685yVr7KHAUA_1777240123
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-43d7757463eso6129004f8f.0
-        for <virtualization@lists.linux.dev>; Sun, 26 Apr 2026 14:48:43 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jd/sxM2E"
+Received: by mail-pf1-f175.google.com with SMTP id d2e1a72fcca58-82f0884bcfaso6522926b3a.1
+        for <virtualization@lists.linux.dev>; Sun, 26 Apr 2026 15:29:29 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1777242569; cv=none;
+        d=google.com; s=arc-20240605;
+        b=fwlztGwSHmgTCY8FDp1l51y4Ty6apnOz+dUYveglN/bBISTMTsAoBPcxzWrMxbNI3z
+         w6qHIPDz3Cj/P7RXt+yNYbntvYBCSJLNV/cjt+JoqJF7cB/ExhVcHKRIDlZKxz0VDos2
+         sHN27r6Ab4CRGGarS6brnk2EEeyLjVMcwPfgHh/sLkDrJ7/1L3KQr33/ovkNmeebroke
+         9fYEEB9pt0bI/mY6PSe+uR+YlyqtiJEGCyiJnXQ3XYzZJxE+/i4WucukMcJsvY235zX3
+         T/qMIsT+UAHDv7JxikH2uA+ORJPYc1tCzF28+cdOyYsSJ4SpuztTXEBfQ/U3QTwiO8tQ
+         NpmQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=VftedRKkqiPB89NVqMIEMAMEI2iGphAK7wusBOKZlaQ=;
+        fh=7egY9EdLNIzipPRzZng0hnlmSGrUe5xSVVmVlT2ihUA=;
+        b=Z5kG7AdLAns/It8jk3bDOIlmNH1t3/hGTMTRh/IjxpMYepSVKIV4s701na6TtCW0z2
+         hIyazZtlBgTkBvMifCm5tRQJJJmlN5Yn+4MJJFZMtkbj84cyk750UqXrO8fPNDPz1Ni2
+         uUwVTzgblEt38F8cHYsbFoHpZuXYEaLtkkJKJF0n3I589owrB5z3bOKTQIUaChBoRYHc
+         yMOZ92N71OszR41EtQykUjy+17yfgtYsGU2aioLh95C/1RTPIZ88f/HJ96Q5zBMFaS0a
+         Cmg5Q+lhGOfKPC2KxvqbgBEw4ety/sPLuxVpHALoZt9Cu3hvnzYIt91UddfWa9Sb0NGJ
+         2q/w==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1777242569; x=1777847369; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=VftedRKkqiPB89NVqMIEMAMEI2iGphAK7wusBOKZlaQ=;
+        b=jd/sxM2EWTRnxdauEUgi1mg1a0P60WUp5rjL2gOmoV+9Bn45ZLeGuFf8lC8hAi3mXs
+         iJivnhiFmslWXjyjm2URwVzwHjVSu5cVdLgNZ/zuctyr6aA83pZMYpw1bJp4cAhvAlet
+         DDjhdInhtPywdZqIT2Kc2T22GnXf5iotleoND3UgrzYR6RIXNhxNKBxo8kQnSaKKRxrq
+         sCZuqTyT+NXBA9p/HeYpOwY6TRu8wh8zAESrAdY9x363anqDzcS7UJDdy+xNirMhocyW
+         iyjhV6g4UyfOKk03C1gRhwSr+pPYsriHTO73dPHeqtbenSRBp+tWFX6+K4gWho58We3t
+         SUJw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777240123; x=1777844923;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Sf8WIccv4sYUoC01taSJ6nrrobzratXFM4dveYAPw/U=;
-        b=QSAjMNJLy3FNKufYarHcUcKVwFo6DTC0buoWd5XoSwrUyDzbY1XrHUNQDi5q18zj7F
-         Kzhp1xakuOtRLhPLqb7RxaJpqxwNWJ2nPZVZ2UGf5Yasc5APBpSbf+P+qCU8cFVlK0gN
-         cn25iYAE8YWS6a2NsU5WkLAzNqkeHLE+Iwnuh/zJZt5ZM/YPREOCNoEdsWvBIUx805hN
-         NXWasmxcSoUqtYxgSAwCwUnBaqMzlg9ScmIvtM77ATLV3ZpLyXnDGneHnU75L0dmDEFT
-         6hh+RRbFVVxwem8xeJc9ImBuRKq/FIsceySd2FGUcibOCOMQliAI2BfJgTlqNMr/nelq
-         jThw==
-X-Forwarded-Encrypted: i=1; AFNElJ+fmo5y/jcLIYbQT+mhNuRmtYvSzQQjY3NDWL9NudY617BQfO0yO2ytnTQZa7M/koSKwi0pENy9zwdVmJ2/ew==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwKC1GcImBkoI5lbgGzwyexg6HxtOfoTg02eJVkHD7FJI/X6qtR
-	XUNLFacAZIuKfAiH9K8pkCNqS9AAQfNhfEmkm8Nzb+sAtJbH413juEk83wS9G1Y5fQP4lmiNDep
-	rqDmmR/jsz3+VopoBR7kpkK1DfQN44oLaEWm08/dphaVWsI4+7gN6xlnnaa46Ff8Ertt7
-X-Gm-Gg: AeBDiesh4Xpyv/cZihG9SCCvfREr7+tMx1lw0WRSYgN+B7+VcGNyx30xlTSzB4jW3vb
-	CpBZ1591w5vnBk3ylOUldr3Ek+DPj0Ea98p4V3VGXg0p0dHx0HrtIUkFnHquPhBYd4pK0TISqeF
-	Auv5K8IChg5Faj4lIu9s4srTqm50UZPjp34LwBLLLuoEgEbgW4F6heySurgPSePlJvLAS/Cjx1/
-	W4wbtnet7xucxKibKaTmR2wkrI7L9F2nqSpSxFIZJQXlqb90fo+lE5hzOr6RGrLbEEa9Ibx9WGN
-	rohpCjUv7+3p1Rt5X1iCXWSWI0Uih5+IXN8te/VwOGpC1aDd0GLNzFmu46R0Z/f9eOIpRgvDMZp
-	hSE2o/zLtgELEtCg0oE7nhSFkwkfQpam543076vodbmhfS8AdNj+Agviw
-X-Received: by 2002:a5d:6f13:0:b0:43e:a703:3675 with SMTP id ffacd0b85a97d-43fe40329ecmr53892355f8f.5.1777240122765;
-        Sun, 26 Apr 2026 14:48:42 -0700 (PDT)
-X-Received: by 2002:a5d:6f13:0:b0:43e:a703:3675 with SMTP id ffacd0b85a97d-43fe40329ecmr53892312f8f.5.1777240122338;
-        Sun, 26 Apr 2026 14:48:42 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-47-179.inter.net.il. [80.230.47.179])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43fe4e3a341sm81502808f8f.24.2026.04.26.14.48.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 26 Apr 2026 14:48:41 -0700 (PDT)
-Date: Sun, 26 Apr 2026 17:48:39 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	David Hildenbrand <david@kernel.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Brendan Jackman <jackmanb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Andrea Arcangeli <aarcange@redhat.com>,
-	Gregory Price <gourry@gourry.net>, linux-mm@kvack.org,
-	virtualization@lists.linux.dev,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>
-Subject: [PATCH RFC v4 22/22] virtio_balloon: mark deflated pages as zeroed
-Message-ID: <966969d970f95ee2a573e83ac26162e15f758261.1777223007.git.mst@redhat.com>
-References: <cover.1777223007.git.mst@redhat.com>
+        d=1e100.net; s=20251104; t=1777242569; x=1777847369;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=VftedRKkqiPB89NVqMIEMAMEI2iGphAK7wusBOKZlaQ=;
+        b=LCAgi5o5lHXOBywu0qoKAKmBnNOoZnAfnhuSHLldFp4k0bNW4gEhdcDgHyAcCwQhRE
+         GiX/k1t/JrOYz/nFUySu898WGQ+qEBt26e4zADyr0QnGb72fTtejh3l6hv433A5MUsiv
+         xopxwqRlAmC9mFY3k2I5SzHOqf8cbju1l8PmPss/bqj0+ZyYY8wik298etc1ood3aWik
+         a6mBoi7QmuRjOzbfiFmimqvVHFq0s7Xqi/DOmGfhyP5EuetyhDBmlq5dW3C1kmo6viA2
+         jYSz5VAtAqPMJJdSM+rb90juapO32zcvN39KugAdkaoU+ASL3azfOyJrtStcJwtm4uxa
+         9f6Q==
+X-Forwarded-Encrypted: i=1; AFNElJ/eWc5aWejdSpP/iCdTV2MdM+rKWyZrnlKNX6vytCpbRmXmZyx7oOArme+TJIfYuhKlPbCdGhyUvEe1fqCrtg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyKvfUowDZmslMHBLYyt4+h7C6UwGPNnUvXPK+C3sJ91Ct5XsRf
+	d1bYnpoL2RuqnN0ghL3E06dFj2sF2Xqco7UMX/X/LztrV+9uFz9wBEOt17+mN3AuCjdH1gk31lL
+	Y9dqSbBZUsZnML0XgkRCGvYJLgjfSs0s=
+X-Gm-Gg: AeBDieuUVLLXQ33CV23rXVRqUiHLiDAJadHhMOIetwF9X6CSoP7ldEMvYhR7Rscfgpq
+	VC6b1IyDV0ZylbXa63lwDxgLsO76MFY8o9jbiPNQ4dD2/pBGRTlIlEoHCDcpzGQq9kPmndLV4oa
+	kReKF2K8RFchMEYeKucIXlpauC1DH4NEfcRa67Oyh/IyvIsm6F52Na1kUWSi8zVk/4bA9KtCeDn
+	ps3z768xCOZMoBCkAtTMNhsX9jfmxPgV1Og5FjnVwvlG6vveocTucYCf6jRlud+k9B7g3vptSI5
+	oQsoY81FzW8vynlZHtK3qr0Jb2mdPyc0kK+tbTUHa6AF/P5BTMk9jkY721cjcA==
+X-Received: by 2002:a05:6a00:2d01:b0:82f:91f:bf35 with SMTP id
+ d2e1a72fcca58-82f8c7db32fmr41754967b3a.3.1777242569017; Sun, 26 Apr 2026
+ 15:29:29 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <cover.1777223007.git.mst@redhat.com>
-X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
-X-Mutt-Fcc: =sent
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: S4ccXmpvYUtDTEXh-VltE4TfKfX1IA1jMOOmPlvzTXg_1777240123
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <20260312105139.60811-1-kenner.linuxdev@gmail.com> <20260319112552-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20260319112552-mutt-send-email-mst@kernel.org>
+From: kenner azevedi <kenner.linuxdev@gmail.com>
+Date: Sun, 26 Apr 2026 18:29:17 -0400
+X-Gm-Features: AQROBzAnt0jYyeVT4PYshEQN0YBRGdKGLfoqOPBYKVwmVQqMl2UjlfGVL61aQes
+Message-ID: <CAFHy_wYa1FyxEShWWE0E3sifYF+pFqoqZLkrfue1DOb02NB3Rg@mail.gmail.com>
+Subject: Re: [PATCH] virtio: fix kernel-doc warnings for virtio_device
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-When host_zeroes_pages is set, the host has zeroed the balloon
-pages on reclaim.  Use put_page_zeroed() during deflation so
-the freed pages are marked as zeroed in the buddy allocator,
-allowing the next allocation to skip redundant zeroing.
+Hi team, good evening.
 
-put_page_zeroed() is best-effort: if the balloon is the sole
-holder (the common case), the zeroed hint reaches the buddy
-allocator via free_frozen_pages_zeroed().  If someone else
-holds a reference, the hint is silently lost.
+Is there any update regarding this patch?
 
-Once balloon pages are converted to frozen pages (no refcount),
-this can switch to free_frozen_pages_zeroed() directly.
+Thank you very much.
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Assisted-by: Claude:claude-opus-4-6
----
- drivers/virtio/virtio_balloon.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index 8c15530b51b3..cdc3c960397d 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -304,7 +304,10 @@ static void release_pages_balloon(struct virtio_balloon *vb,
- 
- 	list_for_each_entry_safe(page, next, pages, lru) {
- 		list_del(&page->lru);
--		put_page(page); /* balloon reference */
-+		if (host_zeroes_pages && !page_poisoning_enabled_static())
-+			put_page_zeroed(page);
-+		else
-+			put_page(page); /* balloon reference */
- 	}
- }
- 
--- 
-MST
-
+On Thu, Mar 19, 2026 at 11:26=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com=
+> wrote:
+>
+> On Thu, Mar 12, 2026 at 06:51:39AM -0400, Kenner de Azevedo dos Santos Mi=
+randa wrote:
+> > The following warnings were reported when running 'make htmldocs':
+> >
+> >   WARNING: ./include/linux/virtio.h:188 struct member 'map'
+> >   not described in 'virtio_device'
+> >
+> >   WARNING: ./include/linux/virtio.h:188 struct member
+> >   'VIRTIO_DECLARE_FEATURES(features' not described in
+> >   'virtio_device'
+> >
+> >   WARNING: ./include/linux/virtio.h:188 struct member 'vmap'
+> >   not described in 'virtio_device'
+> >
+> > Document the map and vmap fields in struct virtio_device.
+> >
+> > Also avoid kernel-doc confusion caused by the VIRTIO_DECLARE_FEATURES()
+> > macro by documenting the logical @features field.
+> >
+> > After these changes, running 'make htmldocs' no longer reports warnings
+> > for map, vmap, or VIRTIO_DECLARE_FEATURES().
+> >
+> > Signed-off-by: Kenner de Azevedo dos Santos Miranda <kenner.linuxdev@gm=
+ail.com>
+>
+>
+> I will queue this. Thanks!
+>
+> > ---
+> >  include/linux/virtio.h | 5 ++++-
+> >  1 file changed, 4 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/include/linux/virtio.h b/include/linux/virtio.h
+> > index 3bbc4cb6a672..074d36453177 100644
+> > --- a/include/linux/virtio.h
+> > +++ b/include/linux/virtio.h
+> > @@ -157,11 +157,13 @@ struct virtio_admin_cmd {
+> >   * @id: the device type identification (used to match it with a driver=
+).
+> >   * @config: the configuration ops for this device.
+> >   * @vringh_config: configuration ops for host vrings.
+> > + * @map: virtio specific mapping operations used by the device or tran=
+sport.
+> >   * @vqs: the list of virtqueues for this device.
+> >   * @features: the 64 lower features supported by both driver and devic=
+e.
+> >   * @features_array: the full features space supported by both driver a=
+nd
+> > - *               device.
+> > + *                device.
+> >   * @priv: private pointer for the driver's use.
+> > + * @vmap: mapping token passed to virtio mapping helpers and transport=
+ ops.
+> >   * @debugfs_dir: debugfs directory entry.
+> >   * @debugfs_filter_features: features to be filtered set by debugfs.
+> >   */
+> > @@ -179,6 +181,7 @@ struct virtio_device {
+> >       const struct vringh_config_ops *vringh_config;
+> >       const struct virtio_map_ops *map;
+> >       struct list_head vqs;
+> > +       /* See @features */
+> >       VIRTIO_DECLARE_FEATURES(features);
+> >       void *priv;
+> >       union virtio_map vmap;
+> > --
+> > 2.43.0
+>
