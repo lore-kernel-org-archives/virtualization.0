@@ -1,172 +1,141 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBDB332BF24
-	for <virtualization@lists.linux.dev>; Mon, 27 Apr 2026 15:18:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14EA92727EB
+	for <virtualization@lists.linux.dev>; Mon, 27 Apr 2026 15:21:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777303090; cv=none; b=Xvq4pMtX6/pdKYb+G5epi/AtcsYc/XHHLLaQ5qVWx1D0IJmhf1ZdTlRXQweaTTjTAPq6PQAiQjE3o9NH7622wtZX1qBdefpsuRrqywnkIJ08Zz/uyRHKbXWwJN4Doe0H2gSRsS0vjp1FeyT/9EDhwfR1s/68B56IW0+3RJKJjg8=
+	t=1777303270; cv=none; b=rwrds4RZYQOd6q0Y8zFstA8Z46kAnrDlPYNmPdKdUM3edCWwjgbKOEEppKJOLgB5qTdWg084weItnHIdmu1DqZAio8T8BLd72PhOz2rfcf7ljKabIDbJ+mxHmi1Mu6U5wdah4wBCXOmbDgBiIYxVxcD8oq4hb/0o/734YpENG0E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777303090; c=relaxed/simple;
-	bh=D+2h7xzpt7GbaEk60JIFREm5FvhK4UL6KmPvk8SIeTM=;
+	s=arc-20240116; t=1777303270; c=relaxed/simple;
+	bh=IM0L7Li42Io9EO72Qgi+hTcf6CviEJZMT8JzJOnRHac=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Zr+7ejwt0ZtQRzYFjpLCK2Xt9RBGU9gHp4G8V67CONvZks7DH5SUleUah2XThh7uW5y2/ZgxTLMcnc81+155biocBN+qdVgM+beaJi3th9QbbRrGLwu/H478kYPdwxmhhIRZplZ5oZVx1zpcXeBP3xgT4bnvzX8J/7yZZ0UzKPw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HlyZp5CZ; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=sRZvXGuVNB6TSf+7MpSxTmeT2VtI9XyjJOkYGU3z3eNmvc/nf5N5a0D6B7VI0kkYtxucEgvJ3BpWYovSOVsb6D3XeZTKU+MjyWIJCCHNKE90gxzb+vZKi/9s02P9tgEYCDqyxzChIlQ+Rfa87ux7aWmgJEYKAbMpg8cfvaki418=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=d2odqkFT; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=ddMw9PoH; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HlyZp5CZ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1777303087;
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="d2odqkFT";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="ddMw9PoH"
+Date: Mon, 27 Apr 2026 17:21:04 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1777303266;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=wsHOVCUXvaEIYIkpmuMRaDJg98RHwYpOJQfqxhVn1Is=;
-	b=HlyZp5CZlZhM5TAQz1JVsXjJjnWJQrjLo/le2mN/NMgyg4KG6N/vwLDEP1NK6AKz9jWMT+
-	98j43RwJ6NmIOHAY1y/Tbax86Wy9gEsZvGvK3278YE44YNls4q/P6r54MjryXc+mSKX0mK
-	L5NMOXYMXKdAPPWs2mSKLAzaJ4g2MxE=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-656-zjZoFcwdPGSoLzVENv6YWw-1; Mon, 27 Apr 2026 11:18:06 -0400
-X-MC-Unique: zjZoFcwdPGSoLzVENv6YWw-1
-X-Mimecast-MFC-AGG-ID: zjZoFcwdPGSoLzVENv6YWw_1777303085
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-43cff5ef652so6759605f8f.2
-        for <virtualization@lists.linux.dev>; Mon, 27 Apr 2026 08:18:06 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777303085; x=1777907885;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=wsHOVCUXvaEIYIkpmuMRaDJg98RHwYpOJQfqxhVn1Is=;
-        b=nAQy/qDpBDGQFqH8saU/bf/yZ0lmOIJwdJVkgJva1Jdg96EArnONKDfTO93LY/0foT
-         l8fhUI2FsvpX3NKvocBEL4/UjgCA/DB5MMl5MJNiYx51zm9xjYWNm+zDniKaLRSTtVsR
-         4pP/UFYc1w2bJXeGd1mvcKWRLoQB9Yi8+JpYOvoz9GiVkTiSe4rlQfLqaf7sI1BevwS4
-         UWfFk0aPhfFZklr/e+O+K3SLJ4oBtl0H1wALLgupbWino7EbR8bMhsPnQxvJh+78vNGg
-         8bcR5uG7/qCLsdR2t5ay4A9Np9m4XkskezeKlYLl0EK+LcHuZdtRjz03XVWjMGOIx8Ss
-         l0wA==
-X-Forwarded-Encrypted: i=1; AFNElJ/5RfQIx3ERqJq/FoLmq/V6BiwwIpIn6kaMfl20T/BkXnKY6tKIKSG0PhyZrRGWrbbClRcwaVkvKtCjxROkEA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywk8B1YHih04EZSc/bdt/f0edF5zjiMitexSaxa7Dic1qjgTEJb
-	wqvMh4Fzrx/VkI7hjY2/ZHdriIj8B5sYrr7G8oCjJ/Uv+04gJ6ieniMxB29rYupUQK7AAtMlUE0
-	JSwew9aTGP38zPlwl/F5uY7wgYyx6FG+Aeviy08f1/ByFi4DhgW1l7e+Bu4mbjMf7Q+7P
-X-Gm-Gg: AeBDiesH7OEMr4iEqK0d1WoNGqtfbFqidjHgNaBpbNlbbN/USWrid4+PCXA5A875LP1
-	X9yW0735UHmfyy2trgHyXH7gJDlZ9IQ43LsbJC/V5x6TWTZlZIbd+n43uvmMB76YB7+SCFW3Ka4
-	7uiVE5LLmf4qFGYNpuwKR1kYawOJEJZbvwUtbgA7i6+XZgEIk+ko0BaT0YdfEe6bYzXXIUX4K7a
-	6UqhPs33TRSWwFeo9FyvQJSwzhjaDshf0Qcs/WiBOFlcDn8s/crR/35GDSZkEV7XQo6ShuFBVbt
-	rAE+sVgCMdxxVTMoO+jNlMkpMChSY0fv2Pecy+sO520L8IW3EhWS+Mg5QMnZr6S2K1fcIFLFKW/
-	nalbmbixC2smb90fnrlBaPn6CPelKvz1+0xUw9cK+Y99VPAE2qYuJOJP0
-X-Received: by 2002:a05:6000:40de:b0:43d:7946:badc with SMTP id ffacd0b85a97d-43fe3e073dcmr66488032f8f.26.1777303085281;
-        Mon, 27 Apr 2026 08:18:05 -0700 (PDT)
-X-Received: by 2002:a05:6000:40de:b0:43d:7946:badc with SMTP id ffacd0b85a97d-43fe3e073dcmr66487949f8f.26.1777303084696;
-        Mon, 27 Apr 2026 08:18:04 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-47-179.inter.net.il. [80.230.47.179])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43fe4e44f69sm85358069f8f.25.2026.04.27.08.18.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Apr 2026 08:18:04 -0700 (PDT)
-Date: Mon, 27 Apr 2026 11:18:00 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Zi Yan <ziy@nvidia.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@linux-foundation.org>,
-	David Hildenbrand <david@kernel.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Brendan Jackman <jackmanb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Andrea Arcangeli <aarcange@redhat.com>,
-	Gregory Price <gourry@gourry.net>, linux-mm@kvack.org,
-	virtualization@lists.linux.dev,
-	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
-	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
-	Mike Rapoport <rppt@kernel.org>,
-	Johannes Weiner <hannes@cmpxchg.org>,
-	Matthew Wilcox <willy@infradead.org>
-Subject: Re: [PATCH RFC v4 14/22] mm: page_reporting: skip redundant zeroing
- of host-zeroed reported pages
-Message-ID: <20260427111724-mutt-send-email-mst@kernel.org>
-References: <cover.1777223007.git.mst@redhat.com>
- <788d5a09394ed1456beaab23f75d91846ceeb611.1777223007.git.mst@redhat.com>
- <DI419PSP5050.15VGMJFDMWBQU@nvidia.com>
+	bh=HLQrFz5Io0HWrBbPfgkDM3Mh0/GOTFIXHrUB8jjZJ7o=;
+	b=d2odqkFTtOfYMHI6l11Y5qQhA/SgclKDt28mdbZOL4QKwSBMCsVWgOaXpb+D3OD1S8sCMl
+	gp67+l5XCzoRpQ/3oTRyD21Y36dD3Ub7qcGdki+5UEcfdd62f9B02S/9uDFtQdFWWSGZWN
+	m4B9082FAFULSmXJfIGO4UYhh3NWiLHCIjdx2zNx9eCwuuXgUxx0gol0tfTWFMJuxsM78X
+	g1PWOd8cwwJy/dtYhZ9H5KOuEKSu+8d/Eeg6qig54XYbdQXI+ISOcg+7AeXpaIos6slIIq
+	Z0El3jx8p/AjP60KN5+rLkoBMz0Qn8ba3qWJhW0QGjK2ez776mOM8enhTVEQmg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1777303266;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=HLQrFz5Io0HWrBbPfgkDM3Mh0/GOTFIXHrUB8jjZJ7o=;
+	b=ddMw9PoHj38WUcP0Ahe1qRnWtNk7mF4VE4gCD/um/VTkXCw0TKFpzNLUdzZPWOOEnsfhdo
+	qsix0uECSoYIa/Bg==
+From: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
+To: Aaron Tomlin <atomlin@atomlin.com>
+Cc: axboe@kernel.dk, kbusch@kernel.org, hch@lst.de, sagi@grimberg.me,
+	mst@redhat.com, aacraid@microsemi.com,
+	James.Bottomley@hansenpartnership.com, martin.petersen@oracle.com,
+	liyihang9@h-partners.com, kashyap.desai@broadcom.com,
+	sumit.saxena@broadcom.com, shivasharan.srikanteshwara@broadcom.com,
+	chandrakanth.patil@broadcom.com, sathya.prakash@broadcom.com,
+	sreekanth.reddy@broadcom.com, suganath-prabu.subramani@broadcom.com,
+	ranjan.kumar@broadcom.com, jinpu.wang@cloud.ionos.com,
+	tglx@kernel.org, mingo@redhat.com, peterz@infradead.org,
+	juri.lelli@redhat.com, vincent.guittot@linaro.org,
+	akpm@linux-foundation.org, maz@kernel.org, ruanjinjie@huawei.com,
+	yphbchou0911@gmail.com, wagi@kernel.org, frederic@kernel.org,
+	longman@redhat.com, chenridong@huawei.com, hare@suse.de,
+	kch@nvidia.com, ming.lei@redhat.com, tom.leiming@gmail.com,
+	steve@abita.co, sean@ashe.io, chjohnst@gmail.com, neelx@suse.com,
+	mproche@gmail.com, nick.lange@gmail.com, marco.crivellari@suse.com,
+	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-nvme@lists.infradead.org,
+	linux-scsi@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
+	mpi3mr-linuxdrv.pdl@broadcom.com, MPT-FusionLinux.pdl@broadcom.com
+Subject: Re: [PATCH v12 02/13] lib/group_cpus: remove dead !SMP code
+Message-ID: <20260427152104.WTGAesGs@linutronix.de>
+References: <20260422185215.100929-1-atomlin@atomlin.com>
+ <20260422185215.100929-3-atomlin@atomlin.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <DI419PSP5050.15VGMJFDMWBQU@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: nh1t4FjHtvdnMsUYFSNYX_5DiqIxBc0Kts9HEbYhqHc_1777303085
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+In-Reply-To: <20260422185215.100929-3-atomlin@atomlin.com>
 
-On Mon, Apr 27, 2026 at 11:13:44AM -0400, Zi Yan wrote:
-> On Sun Apr 26, 2026 at 5:48 PM EDT, Michael S. Tsirkin wrote:
-> > When a guest reports free pages to the hypervisor via the page reporting
-> > framework (used by virtio-balloon and hv_balloon), the host typically
-> > zeros those pages when reclaiming their backing memory.  However, when
-> > those pages are later allocated in the guest, post_alloc_hook()
-> > unconditionally zeros them again if __GFP_ZERO is set.  This
-> > double-zeroing is wasteful, especially for large pages.
-> >
-> > Avoid redundant zeroing:
-> >
-> > - Add a host_zeroes_pages flag to page_reporting_dev_info, allowing
-> >   drivers to declare that their host zeros reported pages on reclaim.
-> >   A static key (page_reporting_host_zeroes) gates the fast path.
-> >
-> > - Add PG_zeroed page flag (sharing PG_private bit) to mark pages
-> >   that have been zeroed by the host.  Set it on reported pages during
-> >   allocation from the buddy in page_del_and_expand().
-> >
-> > - Thread the zeroed bool through rmqueue -> prep_new_page ->
-> >   post_alloc_hook, where it skips redundant zeroing for __GFP_ZERO
-> >   allocations.
-> >
-> > No driver sets host_zeroes_pages yet; a follow-up patch to
-> > virtio_balloon is needed to opt in.
-> >
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > Assisted-by: Claude:claude-opus-4-6
-> > Assisted-by: cursor-agent:GPT-5.4-xhigh
-> > ---
-> >  include/linux/page-flags.h     |  9 +++++
-> >  include/linux/page_reporting.h |  3 ++
-> >  mm/compaction.c                |  6 ++--
-> >  mm/internal.h                  |  2 +-
-> >  mm/page_alloc.c                | 66 +++++++++++++++++++++++-----------
-> >  mm/page_reporting.c            | 14 +++++++-
-> >  mm/page_reporting.h            | 12 +++++++
-> >  7 files changed, 87 insertions(+), 25 deletions(-)
-> >
-> > diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
-> > index f7a0e4af0c73..eef2499cba8b 100644
-> > --- a/include/linux/page-flags.h
-> > +++ b/include/linux/page-flags.h
-> > @@ -135,6 +135,8 @@ enum pageflags {
-> >  	PG_swapcache = PG_owner_priv_1, /* Swap page: swp_entry_t in private */
-> >  	/* Some filesystems */
-> >  	PG_checked = PG_owner_priv_1,
-> > +	/* Page contents are known to be zero */
-> > +	PG_zeroed = PG_private,
+On 2026-04-22 14:52:04 [-0400], Aaron Tomlin wrote:
+> From: Daniel Wagner <wagi@kernel.org>
 > 
-> +willy,
+> The support for the !SMP configuration has been removed from the core by
+> commit cac5cefbade9 ("sched/smp: Make SMP unconditional").
 > 
-> I was discussing with willy and David about removing PG_private and
-> repurposing it to PG_folio to identify folios. IIUC, PG_zeroed is only
-> set for PageBuddy, so it should not be an issue to set it for allocated
-> pages for folio identification. Let me know if I get it wrong.
+> While one can technically still compile a uniprocessor kernel, the core
+> scheduler now mandates SMP unconditionally, rendering this particular
+> !SMP fallback handling redundant. Therefore, remove the #ifdef CONFIG_SMP
+> guards and the fallback logic.
 > 
-> Thanks.
+> Signed-off-by: Daniel Wagner <wagi@kernel.org>
+> Reviewed-by: Martin K. Petersen <martin.petersen@oracle.com>
+> Reviewed-by: Hannes Reinecke <hare@suse.de>
+> [atomlin: Updated commit message to clarify !SMP removal context]
+
+This look unchanged vs previous submission. You could explain why you
+want to remove the !SMP case. It looks like the !SMP makes things
+easier ;) I don't know how much of this gets removed because of !SMP
+code elsewhere.
+
+The description still does not make sense/ is accurate.
+
+> Signed-off-by: Aaron Tomlin <atomlin@atomlin.com>
+> ---
+>  lib/group_cpus.c | 20 --------------------
+>  1 file changed, 20 deletions(-)
 > 
-> -- 
-> Best Regards,
-> Yan, Zi
+> diff --git a/lib/group_cpus.c b/lib/group_cpus.c
+> index e6e18d7a49bb..b8d54398f88a 100644
+> --- a/lib/group_cpus.c
+> +++ b/lib/group_cpus.c
+> @@ -9,8 +9,6 @@
+>  #include <linux/sort.h>
+>  #include <linux/group_cpus.h>
+>  
+> -#ifdef CONFIG_SMP
+> -
+>  static void grp_spread_init_one(struct cpumask *irqmsk, struct cpumask *nmsk,
+>  				unsigned int cpus_per_grp)
+>  {
+> @@ -564,22 +562,4 @@ struct cpumask *group_cpus_evenly(unsigned int numgrps, unsigned int *nummasks)
+>  	*nummasks = min(nr_present + nr_others, numgrps);
+>  	return masks;
+>  }
+> -#else /* CONFIG_SMP */
+> -struct cpumask *group_cpus_evenly(unsigned int numgrps, unsigned int *nummasks)
+> -{
+> -	struct cpumask *masks;
+> -
+> -	if (numgrps == 0)
+> -		return NULL;
+> -
+> -	masks = kzalloc_objs(*masks, numgrps);
+> -	if (!masks)
+> -		return NULL;
+> -
+> -	/* assign all CPUs(cpu 0) to the 1st group only */
+> -	cpumask_copy(&masks[0], cpu_possible_mask);
+> -	*nummasks = 1;
+> -	return masks;
+> -}
+> -#endif /* CONFIG_SMP */
+>  EXPORT_SYMBOL_GPL(group_cpus_evenly);
 
-
-Exactly. Trivial to switch to another bit, of course - most are
-unused in the buddy.
-
--- 
-MST
-
+Sebastian
