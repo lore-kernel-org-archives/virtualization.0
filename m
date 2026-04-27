@@ -1,223 +1,282 @@
-Received: from mail-pg1-f199.google.com (mail-pg1-f199.google.com [209.85.215.199])
+Received: from mail-pg1-f174.google.com (mail-pg1-f174.google.com [209.85.215.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 972A13112AB
-	for <virtualization@lists.linux.dev>; Mon, 27 Apr 2026 17:03:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3EA8B3DCDAD
+	for <virtualization@lists.linux.dev>; Mon, 27 Apr 2026 17:32:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777309385; cv=none; b=iMbE3dlkZZC4Kj9gMLmi+X4A9d2HEvZJALD2ogKIuwdk3L9u+KRn881x9IllIjnKgUcZcjZXbs0udKpxkn8xovacr810ag9p29ljkFi4OkzgVIz/P6qt4KgqxFuIkchpG8FVam/C3wfRiBCkIKsugAq2fw+hpJZOtpOb03EQk2M=
+	t=1777311124; cv=none; b=npzYesxhCfgsHqi+Vf/6AW6b919zCLPmono5lRdLLqcQ6EfUpcB4qMiq6yrsaUFlLTcwODK2JMbMZ8CxMXQFQdC/+4OityOeAnm+dNqi2DrSwWpW9hNP4L5V0gBut+8uT3ouWMndrXEiAhZZ9wKWQDCpZpwlrwJr+vurem58mF0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777309385; c=relaxed/simple;
-	bh=luA2KX0Z34rhPkgzK7yNqNk7xkX7wwA6aGAVl+/mfao=;
-	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
-	 Content-Type; b=Fp/O0ICOIVvMJl5eofdTe1ScoAuRUVWMdf9BGLeCPJDao12fsfFz12KeClj6ms7Ix8ght+68BJBH1bGe5k4o9OLDxRoL1O/OBcSmTSzoOtcjxVI6mzmz5STED01sgzW2sjm8d3M1bs/67rBUFeJ9JlJDMiegpgFBNPv+p2CTTWE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.215.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-pg1-f199.google.com with SMTP id 41be03b00d2f7-c76bfd7b9cdso4221628a12.3
-        for <virtualization@lists.linux.dev>; Mon, 27 Apr 2026 10:03:03 -0700 (PDT)
+	s=arc-20240116; t=1777311124; c=relaxed/simple;
+	bh=DADUCg14lrqizbuSgNlO+g8YvyCwVDckd5+HSKcC0E8=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=YSrcd9bevxyDDfJq8KyvZdfu0nJCFkP1d3SVTrMZ/0KPajmzXoej5Vq2PJkNsc7xTQDkPL7UaifDiUV8aUF8TfUlhnfWodYtUAeWrbVqM9wmxwoNFgQC4lRt857zDxtr1j20iX4qSydc4Y2pGKrlWUFW2yeo3HtQG5GKQVhcNIc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OILPP/yP; arc=none smtp.client-ip=209.85.215.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OILPP/yP"
+Received: by mail-pg1-f174.google.com with SMTP id 41be03b00d2f7-c795eacbeb0so4652030a12.2
+        for <virtualization@lists.linux.dev>; Mon, 27 Apr 2026 10:32:03 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1777311122; x=1777915922; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=HHqiWE8QEuqLZXF5BQhfJCY9yQPuREKG49UWrGiBPy8=;
+        b=OILPP/yPIuq05+FXOJpUekRjB7/0uXLQjSvm0w/uazBQK+aNogV2BfS8FvMXKxacDU
+         jt8cwFKIxpfEbLUGP2VQCOHHdrLlhr3tfMUzsFUACpgCuWd9khNR+HSpdfVMUmEcxgE8
+         lM43MsYt9E2ub+zaWg3xL5tS8+YYp8fM6QwCeMwQIeAAudfeuTube/jdv8UnQMEWSv76
+         kc7H1dqKOClGUeYCr4+pu9CB0Ul0BiMInb9j/OXuNeRZhP1oAKhulkl3H4anXvKcEHay
+         1uvWCHrjME+taHRDM/EHCGlY3tb4cAv13VZ1vYQ1tUMB/IKwpuysl6PP7Z8Ad43OCWY8
+         FYHg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777309383; x=1777914183;
-        h=to:from:subject:message-id:in-reply-to:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=gqkLNi8dFGLs0xZQNCmzoFuZ2bTIPgGk7WM+gkuVShA=;
-        b=k8dESzyW2IkNkuJAV6+pd7ZP6h0c7YOzg+Aj6DUuND20YK7ZVZuM0blAGGQAd3hAIX
-         /w0Z9yXAPzK3+cxlYXeI0B8w7Uid5Ouh+oAdLVTqSmF+FsaBMUMtJv33OG6GElRSLcfX
-         E0KT4OFAxKTQOjr2eZaEMEzlFYsXfsr3aTYvYTm1SW/jq/S/q+BBPAlD38BsPiEWdSVG
-         UrfVUE6hYx0AJT44ebwqq/7iHuJU+X3gY3Eexi27tpz3Ohlifh+m/NCHb2/s0ym5ptmD
-         yTBGz5MCIix9ldIqpHP4TJf8PTxei4xTM3PAH5Hi5fK+Ln02VxLNjBiF0xf+6gYnH1lL
-         EVNA==
-X-Forwarded-Encrypted: i=1; AFNElJ8k7WUIhbOqeUp3UeLUpQNBEydBEkjM+KWSEEcFdo9sW6tTFthNYgWk9snFlGY7zQRymz4BRkCiYNlfOOvAlw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxJPOTod32xZ37c+A8fKNMBuduf0QCt8jpfAdOdoQSb/K2hlzIE
-	HGQ3KX77Qi6THVAh7sqC0XmKsHuIr9TxPRc2d/1Ue/VFFWyuqprzh5EPr/YPav3ycxzorgxN+sw
-	Ud8m0sbD1EG3LcJBJiGNFh6BcAxtHVcbJQ6kQj45KNxmNCFvZTkcad5w2UjA=
+        d=1e100.net; s=20251104; t=1777311122; x=1777915922;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=HHqiWE8QEuqLZXF5BQhfJCY9yQPuREKG49UWrGiBPy8=;
+        b=jQ77/64M/o2oIvCMNXkJQcnMm5sSM8NkL+RamzQJVxGEck5gYIR88Qw2lm9AzMJn8h
+         5jl3dOXlGMLC4Qy6Qo9e3Xo/d7BT4AUyROcAlx7VOxCqIkQbbyeDAjETrcHhzsNHZk7V
+         Sn6HDvQ4Ejee94lq0+bqOmh26XAagfuQYEddpzTmso+fAYDFJhMt9vj2tg6J7RGJUa8i
+         axuQucegJrrvZLF5DZqa66hCCGFitVB+dai0zjnIYicPYlXUNA68PCyU7KEIHoj/uzvm
+         AxH1MVKlwxMNcY+obaHvXCIzsQ0FRGI0pZBlqWTstnh03Us7pDA+6jw3t3K7cw81pphR
+         mn3w==
+X-Forwarded-Encrypted: i=1; AFNElJ9TY5qV/2lNJbHpjGYpfxIAsZF05kHORxVupStZIBjzbOCiOfqqOdDtVwMoyZlzw2Z+rOtX0DCNHwKD50XKSw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzwyegLEJoXUMNmYf3pfgOeLaefk7Z1rY03NNRVMtQHSqyBo6u4
+	H6m19Tj1FjwoO0dH19Sewbc5tyVgtXKnSnctSnyTpJSboCW0NAg70/RH
+X-Gm-Gg: AeBDiesp0EvNHSvQRGe4iURIpgUzClQ6g7mLLIGmxwRASnL4KFcho+h4yWC7+XVOTLY
+	OLILozlODLwTqbtYRiKWsStqsX0soYUy53E0tMU+luxuAaoiqnaev5elHwpEgDQH5wjoC+FRHuV
+	9Ns0iWL5hn8QoWcAXC0EMvPMJd+NKm9QuKw6TafF48rz8TURW+w+1j8hXur8wEoBOwit0oKypzd
+	mQDryqdov7Io1ctAzqediZaBYYlW0mAN2F03s9jTW34or/E6wBRvwld0zPsklFUoUBoTonvJC85
+	Wwwqdxgsn9gJLnnY16J3xxzXsTn2/eYvz5Ui7XB6+grQvcl1xQuJB0fGvTvyObpdBYgRJsrqvuQ
+	5qH9vj/EkT5OizR1jUZMXArYIhl5z2jn2CBaL1u8kziVtpjRLiRVVV2MTzwYPRVaJGZrjfTiED1
+	MWn9iMqaayTnPrWLDIuNjw9DVadKtPaU7VzYQz3wY8dv+vOdHDE31/Q4SJG1wOKRnzd4Jsjtn6U
+	7Ub3XgchqRrqwKuNNKr0PmOMi9jWxAgPo0VUw==
+X-Received: by 2002:a05:6a20:3ca2:b0:398:787c:d2e4 with SMTP id adf61e73a8af0-3a398c893f4mr344793637.17.1777311122324;
+        Mon, 27 Apr 2026 10:32:02 -0700 (PDT)
+Received: from baver-zenith.localdomain ([124.49.88.131])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c7977031729sm26246246a12.25.2026.04.27.10.32.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 27 Apr 2026 10:32:01 -0700 (PDT)
+From: Sungho Bae <baver.bae@gmail.com>
+To: mst@redhat.com,
+	jasowang@redhat.com
+Cc: xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Sungho Bae <baver.bae@lge.com>
+Subject: [RFC PATCH v6 0/4] virtio: add noirq system sleep PM callbacks for virtio-mmio
+Date: Tue, 28 Apr 2026 02:30:41 +0900
+Message-Id: <20260427173045.28652-1-baver.bae@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6a20:4311:b0:39b:e40b:fcae with SMTP id
- adf61e73a8af0-3a398c0323fmr237146637.10.1777309382959; Mon, 27 Apr 2026
- 10:03:02 -0700 (PDT)
-Date: Mon, 27 Apr 2026 10:03:02 -0700
-In-Reply-To: <ae-MTiL0vf-y7Ygz@sgarzare-redhat>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <69ef96c6.a00a0220.38d690.0001.GAE@google.com>
-Subject: Re: [syzbot] [virt?] [net?] memory leak in __vsock_create (2)
-From: syzbot <syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com>
-To: davem@davemloft.net, edumazet@google.com, horms@kernel.org, 
-	kuba@kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, 
-	pabeni@redhat.com, sgarzare@redhat.com, syzkaller-bugs@googlegroups.com, 
-	virtualization@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-Hello,
+From: Sungho Bae <baver.bae@lge.com>
 
-syzbot has tested the proposed patch but the reproducer is still triggering an issue:
-memory leak in prepare_creds
+Hi all,
 
-2026/04/27 17:01:37 executed programs: 5
-BUG: memory leak
-unreferenced object 0xffff888103b7b900 (size 184):
-  comm "syz-executor", pid 6458, jiffies 4294946243
-  hex dump (first 32 bytes):
-    01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace (crc 5efbd4bc):
-    kmemleak_alloc_recursive include/linux/kmemleak.h:44 [inline]
-    slab_post_alloc_hook mm/slub.c:4574 [inline]
-    slab_alloc_node mm/slub.c:4898 [inline]
-    kmem_cache_alloc_noprof+0x36c/0x480 mm/slub.c:4905
-    prepare_creds+0x22/0x600 kernel/cred.c:185
-    copy_creds+0x44/0x290 kernel/cred.c:286
-    copy_process+0x920/0x2cf0 kernel/fork.c:2123
-    kernel_clone+0xde/0x700 kernel/fork.c:2723
-    __do_sys_clone+0x7f/0xb0 kernel/fork.c:2864
-    do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
-    do_syscall_64+0xee/0xf80 arch/x86/entry/syscall_64.c:94
-    entry_SYSCALL_64_after_hwframe+0x77/0x7f
+Some virtio-mmio based devices, such as virtio-clock or virtio-regulator,
+must become operational before other devices have their regular PM restore
+callbacks invoked, because those other devices depend on them.
 
-BUG: memory leak
-unreferenced object 0xffff88810ad103a0 (size 32):
-  comm "syz-executor", pid 6458, jiffies 4294946243
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    f8 56 0a 00 81 88 ff ff 00 00 00 00 00 00 00 00  .V..............
-  backtrace (crc 109407f3):
-    kmemleak_alloc_recursive include/linux/kmemleak.h:44 [inline]
-    slab_post_alloc_hook mm/slub.c:4574 [inline]
-    slab_alloc_node mm/slub.c:4898 [inline]
-    __do_kmalloc_node mm/slub.c:5294 [inline]
-    __kmalloc_noprof+0x3b7/0x550 mm/slub.c:5307
-    kmalloc_noprof include/linux/slab.h:954 [inline]
-    kzalloc_noprof include/linux/slab.h:1188 [inline]
-    lsm_blob_alloc+0x4d/0x80 security/security.c:218
-    lsm_cred_alloc security/security.c:235 [inline]
-    security_prepare_creds+0x2d/0x290 security/security.c:2866
-    prepare_creds+0x395/0x600 kernel/cred.c:215
-    copy_creds+0x44/0x290 kernel/cred.c:286
-    copy_process+0x920/0x2cf0 kernel/fork.c:2123
-    kernel_clone+0xde/0x700 kernel/fork.c:2723
-    __do_sys_clone+0x7f/0xb0 kernel/fork.c:2864
-    do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
-    do_syscall_64+0xee/0xf80 arch/x86/entry/syscall_64.c:94
-    entry_SYSCALL_64_after_hwframe+0x77/0x7f
+Generally, PM framework provides the three phases (freeze, freeze_late,
+freeze_noirq) for the system sleep sequence, and the corresponding resume
+phases. But, virtio core only supports the normal freeze/restore phase,
+so virtio drivers have no way to participate in the noirq phase, which runs
+with IRQs disabled and is guaranteed to run before any normal-phase restore
+callbacks.
 
-BUG: memory leak
-unreferenced object 0xffff888111516800 (size 1272):
-  comm "kworker/1:3", pid 5684, jiffies 4294946243
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    28 00 0b 40 00 00 00 00 00 00 00 00 00 00 00 00  (..@............
-  backtrace (crc 5e448183):
-    kmemleak_alloc_recursive include/linux/kmemleak.h:44 [inline]
-    slab_post_alloc_hook mm/slub.c:4574 [inline]
-    slab_alloc_node mm/slub.c:4898 [inline]
-    kmem_cache_alloc_noprof+0x36c/0x480 mm/slub.c:4905
-    sk_prot_alloc+0x3e/0x1b0 net/core/sock.c:2241
-    sk_alloc+0x36/0x460 net/core/sock.c:2303
-    __vsock_create.constprop.0+0x38/0x2f0 net/vmw_vsock/af_vsock.c:907
-    virtio_transport_recv_listen net/vmw_vsock/virtio_transport_common.c:1566 [inline]
-    virtio_transport_recv_pkt+0x88d/0xfb0 net/vmw_vsock/virtio_transport_common.c:1693
-    vsock_loopback_work+0x104/0x140 net/vmw_vsock/vsock_loopback.c:142
-    process_one_work+0x277/0x5b0 kernel/workqueue.c:3302
-    process_scheduled_works kernel/workqueue.c:3385 [inline]
-    worker_thread+0x255/0x4a0 kernel/workqueue.c:3466
-    kthread+0x14e/0x1a0 kernel/kthread.c:436
-    ret_from_fork+0x219/0x490 arch/x86/kernel/process.c:158
-    ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+This series adds the infrastructure and the virtio-mmio transport
+wiring so that virtio drivers can implement freeze_noirq/restore_noirq
+callbacks.
 
-BUG: memory leak
-unreferenced object 0xffff88812daab5e0 (size 32):
-  comm "kworker/1:3", pid 5684, jiffies 4294946243
-  hex dump (first 32 bytes):
-    f8 56 0a 00 81 88 ff ff 00 00 00 00 00 00 00 00  .V..............
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-  backtrace (crc 79381f4a):
-    kmemleak_alloc_recursive include/linux/kmemleak.h:44 [inline]
-    slab_post_alloc_hook mm/slub.c:4574 [inline]
-    slab_alloc_node mm/slub.c:4898 [inline]
-    __do_kmalloc_node mm/slub.c:5294 [inline]
-    __kmalloc_noprof+0x3b7/0x550 mm/slub.c:5307
-    kmalloc_noprof include/linux/slab.h:954 [inline]
-    kzalloc_noprof include/linux/slab.h:1188 [inline]
-    lsm_blob_alloc+0x4d/0x80 security/security.c:218
-    lsm_sock_alloc security/security.c:4478 [inline]
-    security_sk_alloc+0x2d/0x290 security/security.c:4494
-    sk_prot_alloc+0x8f/0x1b0 net/core/sock.c:2250
-    sk_alloc+0x36/0x460 net/core/sock.c:2303
-    __vsock_create.constprop.0+0x38/0x2f0 net/vmw_vsock/af_vsock.c:907
-    virtio_transport_recv_listen net/vmw_vsock/virtio_transport_common.c:1566 [inline]
-    virtio_transport_recv_pkt+0x88d/0xfb0 net/vmw_vsock/virtio_transport_common.c:1693
-    vsock_loopback_work+0x104/0x140 net/vmw_vsock/vsock_loopback.c:142
-    process_one_work+0x277/0x5b0 kernel/workqueue.c:3302
-    process_scheduled_works kernel/workqueue.c:3385 [inline]
-    worker_thread+0x255/0x4a0 kernel/workqueue.c:3466
-    kthread+0x14e/0x1a0 kernel/kthread.c:436
-    ret_from_fork+0x219/0x490 arch/x86/kernel/process.c:158
-    ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+Design overview
+===============
 
-BUG: memory leak
-unreferenced object 0xffff88810b1a75a0 (size 96):
-  comm "kworker/1:3", pid 5684, jiffies 4294946243
-  hex dump (first 32 bytes):
-    00 68 51 11 81 88 ff ff 00 00 00 00 00 00 00 00  .hQ.............
-    00 00 00 00 00 00 00 00 00 00 04 00 00 00 00 00  ................
-  backtrace (crc 428f2031):
-    kmemleak_alloc_recursive include/linux/kmemleak.h:44 [inline]
-    slab_post_alloc_hook mm/slub.c:4574 [inline]
-    slab_alloc_node mm/slub.c:4898 [inline]
-    __kmalloc_cache_noprof+0x371/0x480 mm/slub.c:5410
-    kmalloc_noprof include/linux/slab.h:950 [inline]
-    kzalloc_noprof include/linux/slab.h:1188 [inline]
-    virtio_transport_do_socket_init+0x2b/0xf0 net/vmw_vsock/virtio_transport_common.c:925
-    vsock_assign_transport+0x3a3/0x460 net/vmw_vsock/af_vsock.c:656
-    virtio_transport_recv_listen net/vmw_vsock/virtio_transport_common.c:1582 [inline]
-    virtio_transport_recv_pkt+0x8e5/0xfb0 net/vmw_vsock/virtio_transport_common.c:1693
-    vsock_loopback_work+0x104/0x140 net/vmw_vsock/vsock_loopback.c:142
-    process_one_work+0x277/0x5b0 kernel/workqueue.c:3302
-    process_scheduled_works kernel/workqueue.c:3385 [inline]
-    worker_thread+0x255/0x4a0 kernel/workqueue.c:3466
-    kthread+0x14e/0x1a0 kernel/kthread.c:436
-    ret_from_fork+0x219/0x490 arch/x86/kernel/process.c:158
-    ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+The noirq phase runs with device IRQ handlers disabled and must avoid
+sleepable operations. The main constraints addressed are:
 
-BUG: memory leak
-unreferenced object 0xffff888111516300 (size 1272):
-  comm "kworker/1:3", pid 5684, jiffies 4294946244
-  hex dump (first 32 bytes):
-    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00  ................
-    28 00 0b 40 00 00 00 00 00 00 00 00 00 00 00 00  (..@............
-  backtrace (crc e1cd45d1):
-    kmemleak_alloc_recursive include/linux/kmemleak.h:44 [inline]
-    slab_post_alloc_hook mm/slub.c:4574 [inline]
-    slab_alloc_node mm/slub.c:4898 [inline]
-    kmem_cache_alloc_noprof+0x36c/0x480 mm/slub.c:4905
-    sk_prot_alloc+0x3e/0x1b0 net/core/sock.c:2241
-    sk_alloc+0x36/0x460 net/core/sock.c:2303
-    __vsock_create.constprop.0+0x38/0x2f0 net/vmw_vsock/af_vsock.c:907
-    virtio_transport_recv_listen net/vmw_vsock/virtio_transport_common.c:1566 [inline]
-    virtio_transport_recv_pkt+0x88d/0xfb0 net/vmw_vsock/virtio_transport_common.c:1693
-    vsock_loopback_work+0x104/0x140 net/vmw_vsock/vsock_loopback.c:142
-    process_one_work+0x277/0x5b0 kernel/workqueue.c:3302
-    process_scheduled_works kernel/workqueue.c:3385 [inline]
-    worker_thread+0x255/0x4a0 kernel/workqueue.c:3466
-    kthread+0x14e/0x1a0 kernel/kthread.c:436
-    ret_from_fork+0x219/0x490 arch/x86/kernel/process.c:158
-    ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ - might_sleep() in virtio_add_status() and virtio_features_ok().
+ - virtio_synchronize_cbs() in virtio_reset_device() (IRQs are already
+   quiesced).
+ - spin_lock_irq() in virtio_config_core_enable() (not safe to call
+   with interrupts already disabled).
+ - Memory allocation during vq setup (virtqueue_reinit_vring() reuses
+   existing buffers instead).
 
-connection error: failed to recv *flatrpc.ExecutorMessageRawT: EOF
+The series provides noirq-safe variants for each of these, plus a new
+config_ops->reset_vqs() callback that lets the transport reprogram
+queue registers without freeing/reallocating vring memory.
+
+Not all transports can safely perform these operations in the noirq phase.
+Transports like virtio-ccw issue channel commands and wait for a completion
+interrupt, which will never arrive while device interrupts are masked at
+the interrupt controller. A new boolean field config_ops->noirq_safe marks
+transports that implement reset/status operations via simple MMIO
+reads/writes and are therefore safe to use in noirq context. The noirq
+helpers assert this flag at runtime, and virtio_device_freeze_noirq()
+enforces it at freeze time, returning -EOPNOTSUPP early to prevent
+a deadlock on resume.
+
+When a driver implements restore_noirq, the device bring-up (reset ->
+ACKNOWLEDGE -> DRIVER -> finalize_features -> FEATURES_OK) happens in
+the noirq phase. The subsequent normal-phase virtio_device_restore()
+detects this and skips the redundant re-initialization.
+
+Patch breakdown
+===============
+
+Patch 1 is a preparatory refactoring with no functional change.
+Patches 2-3 add the core infrastructure. Patch 4 wires it up for
+virtio-mmio.
+
+ 1. virtio: separate PM restore and reset_done paths
+
+    Splits virtio_device_restore_priv() into independent
+    virtio_device_restore() and virtio_device_reset_done() paths,
+    using a shared virtio_device_reinit() helper. This is a pure
+    refactoring to make the restore path independently extensible
+    without complicating the boolean dispatch.
+
+ 2. virtio_ring: export virtqueue_reinit_vring() for noirq restore
+
+    Adds virtqueue_reinit_vring(), an exported wrapper that resets
+    vring indices and descriptor state in place without any memory
+    allocation, making it safe to call from noirq context. Also
+    resets IN_ORDER-specific state (free_head, batch_last.id) in
+    virtqueue_init() to keep the ring consistent after reinit, and
+    adds runtime WARN_ON checks for unexpected in-flight descriptor
+    state and split-ring index consistency.
+
+ 3. virtio: add noirq system sleep PM infrastructure
+
+    Adds noirq-safe helpers (virtio_add_status_noirq,
+    virtio_features_ok_noirq, virtio_reset_device_noirq,
+    virtio_config_core_enable_noirq, virtio_device_ready_noirq) and
+    the freeze_noirq/restore_noirq driver callbacks plus the
+    config_ops->reset_vqs() transport hook. Introduces
+    config_ops->noirq_safe to mark transports whose reset/status
+    operations are safe in noirq context (e.g. simple MMIO), and
+    enforces early -EOPNOTSUPP in virtio_device_freeze_noirq() when
+    the transport does not meet noirq requirements. Modifies
+    virtio_device_restore() to skip bring-up when restore_noirq
+    already ran.
+
+ 4. virtio-mmio: wire up noirq system sleep PM callbacks
+
+    Implements vm_reset_vqs() which iterates existing virtqueues,
+    reinitializes the vring state via virtqueue_reinit_vring(), and
+    reprograms the MMIO queue registers. Adds
+    virtio_mmio_freeze_noirq/virtio_mmio_restore_noirq and registers
+    them via SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(). Sets .noirq_safe = true
+    in virtio_mmio_config_ops to declare that MMIO-based status and
+    reset operations are safe during the noirq PM phase.
+
+Testing
+=======
+
+Build-tested with arm64 cross-compilation.
+(make ARCH=arm64 M=drivers/virtio)
+
+Runtime-tested on an internal virtio-mmio platform with virtio-clock,
+confirming that the clock device works well before other devices' normal
+restore() callbacks run.
+
+Changes
+=======
+
+v6:
+  virtio_ring: export virtqueue_reinit_vring() for noirq restore
+   - Made virtqueue_reinit_vring() fail with -EBUSY on precondition
+     violations and propagate that error.
+
+  virtio: add noirq system sleep PM infrastructure
+   - Make noirq restore failure terminal for the same device:
+     .restore is not a same-device fallback for .restore_noirq failure.
+   - Decouple noirq failure from pre-freeze dev->failed snapshot.
+   - Add noirq_safe validation in virtio_device_freeze() to catch transport
+     mismatch early.
+
+  virtio-mmio: wire up noirq system sleep PM callbacks
+   - Make vm_reset_vqs() handle virtqueue_reinit_vring() failures
+     to prevent continuing noirq restore with a potentially corrupted
+     split free-list state.
+
+v5:
+  virtio: add noirq system sleep PM infrastructure
+   - Preserve FAILED across restore_noirq() failure by recording the
+     failure in dev->failed before falling back to the normal restore path.
+   - Document the restore/restore_noirq fallback contract more clearly,
+     especially for drivers that preserve virtqueues across suspend.
+
+v4:
+  virtio_ring: export virtqueue_reinit_vring() for noirq restore
+   - Reinit safety was tightened by resetting IN_ORDER-specific state.
+   - Added extra split-ring consistency WARN_ON checks.
+   - Clarified caller preconditions for noirq-safe vring reinit.
+
+  virtio: add noirq system sleep PM infrastructure
+   - Added config_ops->noirq_safe to explicitly mark transports that are
+     safe in noirq PM phase.
+   - Enforced early -EOPNOTSUPP checks in freeze_noirq for unsupported
+     transport combinations (noirq_safe/reset_vqs requirements).
+   - Added defensive runtime guards/warnings in noirq helper and restore
+     paths.
+   - Discussed the freeze-before-freeze_noirq abort scenario raised in
+     review and concluded that the fallback restore path is intentionally
+     handled by regular restore after core reinit/reset, so reset_vqs is
+     kept limited to the noirq restore flow.
+
+  virtio-mmio: wire up noirq system sleep PM callbacks
+   - Marked virtio-mmio transport as noirq-capable by setting .noirq_safe
+     in virtio_mmio_config_ops.
+
+v3:
+  virtio: separate PM restore and reset_done paths
+   - Refined restore flow to explicitly handle the no-driver case after
+     reinit, improving clarity and avoiding unnecessary driver-path
+     assumptions.
+
+  virtio_ring: export virtqueue_reinit_vring() for noirq restore
+   - Hardened virtqueue_reinit_vring() with stronger safety notes and
+     a runtime WARN_ON check to catch reinit with unexpected free-list
+     state.
+
+  virtio: add noirq system sleep PM infrastructure
+   - Added explicit noirq restore completion tracking noirq_restore_done
+     and updated PM sequencing to use it, plus early freeze_noirq
+     validation for missing reset_vqs support.
+
+  virtio-mmio: wire up noirq system sleep PM callbacks
+   - Updated virtio-mmio restore path to skip legacy GUEST_PAGE_SIZE
+     rewrite when noirq restore already completed.
+
+v2:
+  virtio-mmio: wire up noirq system sleep PM callbacks
+   - The code that was duplicated in vm_setup_vq() and vm_reset_vqs() has
+     been moved to vm_active_vq() function.
 
 
-Tested on:
+Sungho Bae (4):
+  virtio: separate PM restore and reset_done paths
+  virtio_ring: export virtqueue_reinit_vring() for noirq restore
+  virtio: add noirq system sleep PM infrastructure
+  virtio-mmio: wire up noirq system sleep PM callbacks
 
-commit:         39ff9a4a vsock/virtio: fix socket leak on close_timeou..
-git tree:       https://github.com/stefano-garzarella/linux.git fix-syzbot-memleak-vsock-create
-console output: https://syzkaller.appspot.com/x/log.txt?x=1742b896580000
-kernel config:  https://syzkaller.appspot.com/x/.config?x=dfcc8f993a958a78
-dashboard link: https://syzkaller.appspot.com/bug?extid=1b2c9c4a0f8708082678
-compiler:       gcc (Debian 14.2.0-19) 14.2.0, GNU ld (GNU Binutils for Debian) 2.44
+ drivers/virtio/virtio.c       | 318 +++++++++++++++++++++++++++++++---
+ drivers/virtio/virtio_mmio.c  | 136 ++++++++++-----
+ drivers/virtio/virtio_ring.c  |  58 +++++++
+ include/linux/virtio.h        |  24 +++
+ include/linux/virtio_config.h |  39 +++++
+ include/linux/virtio_ring.h   |   3 +
+ 6 files changed, 512 insertions(+), 66 deletions(-)
 
-Note: no patches were applied.
+-- 
+2.43.0
+
