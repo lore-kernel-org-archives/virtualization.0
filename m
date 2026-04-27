@@ -1,285 +1,203 @@
-Received: from mail-pg1-f173.google.com (mail-pg1-f173.google.com [209.85.215.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from BL0PR03CU003.outbound.protection.outlook.com (mail-eastusazon11022122.outbound.protection.outlook.com [52.101.53.122])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF9CE3E556C
-	for <virtualization@lists.linux.dev>; Mon, 27 Apr 2026 17:32:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.173
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777311135; cv=none; b=koS5KRAlW2sxA2djl9ED4Vl6Osxs63v7nlP/pTwfEVbar0UxDnH7il85UM/MX8Cpx8vuTTbygXSrsF5Arp61aHCSa007eCzb12qlQ3zC0wKr5vdoJLinlqH4iH/nQ7A0Iu41RRWF+mbsG+MvtOWUgEjQHotmN6cb+skNAU29odA=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777311135; c=relaxed/simple;
-	bh=NcY3/HYuL0HhUfal/SPd7W7TNW+k4WOElEB6PI8qU9k=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=NnsDFBP/4d4Zr1VliFPTg77CrlPcSeBBe/hyGvomRPZzRJ0mXZt+sG22wqG0sSBI1lFmAVw7sU8jb7VkbLVeT32Mjnuu7UO+maM2DNKSSgxvacmraw0g+QFDWcutyrhG+erABSt84ZNYAE7WxKML7AHao1yGbs1B17tAHeglUu8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Zq7Q2gAq; arc=none smtp.client-ip=209.85.215.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FB223E63B7
+	for <virtualization@lists.linux.dev>; Mon, 27 Apr 2026 18:42:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.53.122
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777315353; cv=fail; b=CIv/mNk0I+zqvYbUlaLd2VllRYtPiQuYdMgl4ZgKaPAoTEoz93Ht74EBV2zUVzOG0AyGRhnY56al2a1zrJ6hU6hwCBXxcCSdCnlHl6dw4kU1kA81q/dvDnN02WpzYXMMg/IVxNUrqLJ5X/LCGRx3uQ3lFPJaJHqQ1wDQWMyXJ0Q=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777315353; c=relaxed/simple;
+	bh=FUNibP/cO5R4cAD1JbO6RA2ULgVtis7iiBI/W9QhYPI=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=kMKswi8R/+0JvVfM+TdjnE7+67fOsFxj/Ima1o4PTfcM3ahiwd+uXnB2l/WU0Qf9p2fLxKzgA9EDEx43b/5QB34qZmIUqUrhgrMfuXGkqQG2f4wcRmrL7X3sGvJ4+uCeqCXl2tmz1GPNXyVeDiiWnbHy1kAQFelXcg1sJMGm5IM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microsoft.com; spf=pass smtp.mailfrom=microsoft.com; dkim=pass (1024-bit key) header.d=microsoft.com header.i=@microsoft.com header.b=PFBZxjiL; arc=fail smtp.client-ip=52.101.53.122
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Zq7Q2gAq"
-Received: by mail-pg1-f173.google.com with SMTP id 41be03b00d2f7-c70f91776fcso4096426a12.0
-        for <virtualization@lists.linux.dev>; Mon, 27 Apr 2026 10:32:13 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777311133; x=1777915933; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=cgov5pKPFmVmTdXq6mInFjiLm1BGL5Qb5uWZW3rhPvs=;
-        b=Zq7Q2gAqSFFjqbasi9NX74ZEYO2Qwk9jv3CYYmwJORsBR2vYQqgQVbtQ0k7FWEyIVU
-         iLYxi4DRj8G2SRYKKaujIMxAU95JKWDbgjr3roLOi5IjxPgQxWSWnsYCcn3SQZwJL2Bn
-         ePbQM2m5C0uv6NEmAnLaNZAeIK6cVf29hT/aF5i8GPBS47NUcZPQzwVNtaBZrfUCith0
-         30cIvlAC1Aley4IjIA1vDFwxRDypgUbUFiYyJHa4wVyQYIHdngDvI+TnIIOoo4c5sOh+
-         WEfTXg2rhhTLV46lATnwVBnMp8afCs1h+QSF7yFpirJdBB8nMCtY1sZZIwrpKv5HwrEr
-         0VEw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777311133; x=1777915933;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=cgov5pKPFmVmTdXq6mInFjiLm1BGL5Qb5uWZW3rhPvs=;
-        b=LvMN2dhhS/aOLVKuYcUbBr5i6udmd1JoTmltsTHJuYF4ByKB80z5N+EORJKQCP4zCD
-         YCWcW2+b/S5G8Ya4lrE2JKnraRqGZz58RULhSdxuUcoZISzBIMiFUMAyWlN2m5rig9yw
-         5RghmG93WxGv6WBEPAsKu9pabKQXaIatqPF9EQQc7SxywX+GhE3vpKb4gv5F7t50/JV4
-         cwDsRhGzqgSue/p+CdVsrkUkZIFetZYoJZ+bQpSu2oXDXRETk2MJk+6kLIW3UokbjjK6
-         X90G8ibjhYpHI7E4I77Ttn77BFLQJLIaRurO2gsyN1GwuqrRnViUoySR0Gn/W3C9au+g
-         Qj2g==
-X-Forwarded-Encrypted: i=1; AFNElJ+fpbiKUGhRQwwBLQW9x4inFZczNP/oQzChlZBZ5gNpaFOTDG+N8lC343raBj3LRIIx8UVd6dzobEvUra278Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxxYxSb1MK4Gl3gToKasBqrpo+ocoKnHS5CONio8Xi9AV4mBsEd
-	6Nxwq5zHQzdR7PwzogxmAlOpaj3+FUZdQmjvT/3vhysleMnYzgCMQgea
-X-Gm-Gg: AeBDieuhz/wvJqWFeXwpeGBwY7JcF/b2UhNNaTaH8IWMGvRAp6WMTh8hKZAol84nl7Z
-	nXOdCtBJL//Q7qozSdBMitiz0YC8U1SEt2Uz4KafyMy75zwBYdnv377Pfj/2Di+go58NWKQHIHG
-	H1C/GHE+NaC39N4IQMXTnt3EK51pCLfI/DCIOlWoRo07V414ibCVoC7G4f2/tzjOcJfw6pCrPVl
-	rl4x3lC+8U/CRda4cIiVtY0snaTayA0OmgJpWOUU/BAOadoE3wue+P3d0VNM9RxPkxPfOmepmm6
-	bRSxM1b3zQSAAsjqV5K6CSP/ALxXGZ5gG+eI/BlWcUw05qmuHpbQtp96kGpzwE4knTq8j5+0o95
-	u3wdLsqXHORO4s9Kp9Td6ltBv+ERON8SKbmvTNevDjFjwR+Z3OmrpLhp3ztfEfdpog1L6CB1DVy
-	NxHkZk6Il4V++kFEIg6pFk6WPoWERcyhzhY/q3DPOOsWLMHYjLm1tl3DPbOJli0clvxp4geQppv
-	McI2bJPuJqHclOFmc4MIxbi4F0Vy3d0eA60Fg==
-X-Received: by 2002:a05:6a21:3393:b0:3a2:bd1d:d684 with SMTP id adf61e73a8af0-3a398e05ec1mr359533637.33.1777311132902;
-        Mon, 27 Apr 2026 10:32:12 -0700 (PDT)
-Received: from baver-zenith.localdomain ([124.49.88.131])
-        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-c7977031729sm26246246a12.25.2026.04.27.10.32.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Apr 2026 10:32:12 -0700 (PDT)
-From: Sungho Bae <baver.bae@gmail.com>
-To: mst@redhat.com,
-	jasowang@redhat.com
-Cc: xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Sungho Bae <baver.bae@lge.com>
-Subject: [RFC PATCH v6 4/4] virtio-mmio: wire up noirq system sleep PM callbacks
-Date: Tue, 28 Apr 2026 02:30:45 +0900
-Message-Id: <20260427173045.28652-5-baver.bae@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260427173045.28652-1-baver.bae@gmail.com>
-References: <20260427173045.28652-1-baver.bae@gmail.com>
+	dkim=pass (1024-bit key) header.d=microsoft.com header.i=@microsoft.com header.b="PFBZxjiL"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=A6atEoWYkRAX4XRv2FedDChz4bleyri6VV4ZNmBF2M+L7RqlFSF4GE/uTlimN0DUUaKM/AcCgUziPYHc295QmACtX1f2WUFjqMXrStclZJZxigqlJM8rTLS2WIxYrmmpnz0+4GSlKlg36IC5d+5WS5zUhYqf+LYbrKmfJeIqk3inO3vmUfp5Qmdvlv3gHGFny6wzXri6xvwfGR8A9iF3cyNqRy3WB5OGh/8R+25u84AMdzhOcSOvBNv+ltHfAIsoOR8B4sb9EXQGsp9rQfCXvlZ/6Vfb5MtWU2EmpCUWd7VqSEk5496E8SNbEDmoFUz7tZe+uXbzSiwYy8s1AuL7ag==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=LqqPh8aSReHLCMn3DmKlF7XyaLBkZIYT6aLqF4ub1nI=;
+ b=LLep+/up7bEi0kUfU0wQ4Wf4+WyFvChWeCTMvoT18EiWcpbtdE+5oEs+e3dXdcnAKELhmZnYqvqZHN3xtt0l5S1sblqQvXmj92+s+myRa/8r6f017+yVDThpecqDtTJ0WYzs/Z6Rb5KmHYlG5u1OhXK/Yf3QGWzHQsuyrFUZYJbmW0I+MMgXYAX76XGwajfNgHRaKZ6e3wjqW89FQhfwjDdAPDJtub+X6/OK0noinhhjfZ3XzYcvFie+lC4F+n4Bdq5PbhQ8UUkO/Esuw8aBtvg0Yf6srCMqNg0DpilRgq5ch6wSP0UDv0o7uXwJneHMhAApZ52Vxb34kLPBXEY4mA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=microsoft.com; dmarc=pass action=none
+ header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=LqqPh8aSReHLCMn3DmKlF7XyaLBkZIYT6aLqF4ub1nI=;
+ b=PFBZxjiLxBsvIhgmX53Ff/yqcUqFBlfVSdqY+k8gj1fM+UFkeYbTHiWdLbHesg5OpfLIaQCzsLoN8jMeMkEJsTbgw3SAxCnKdOqgEitqoQ0Kz0kBGnImSWyFQwTpcsbtpsnA3fkibEXpKI6JafuZrpb7NiuUICbBcTxzGoIxfgQ=
+Received: from SA1PR21MB6921.namprd21.prod.outlook.com (2603:10b6:806:4a7::11)
+ by SA3PR21MB5696.namprd21.prod.outlook.com (2603:10b6:806:493::22) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9870.15; Mon, 27 Apr
+ 2026 18:42:27 +0000
+Received: from SA1PR21MB6921.namprd21.prod.outlook.com
+ ([fe80::51cf:497c:e5df:f6d]) by SA1PR21MB6921.namprd21.prod.outlook.com
+ ([fe80::51cf:497c:e5df:f6d%2]) with mapi id 15.20.9870.013; Mon, 27 Apr 2026
+ 18:42:27 +0000
+From: Dexuan Cui <DECUI@microsoft.com>
+To: Hamza Mahfooz <hamzamahfooz@linux.microsoft.com>, Saurabh Singh Sengar
+	<ssengar@microsoft.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, KY
+ Srinivasan <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Wei
+ Liu <wei.liu@kernel.org>, Long Li <longli@microsoft.com>, Stefano Garzarella
+	<sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet
+	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
+	<pabeni@redhat.com>, Simon Horman <horms@kernel.org>, Himadri Pandya
+	<himadrispandya@gmail.com>, Michael Kelley <mhklinux@outlook.com>,
+	"linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>, Saurabh Sengar
+	<ssengar@linux.microsoft.com>, Maarten Lankhorst
+	<maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>,
+	Simona Vetter <simona@ffwll.ch>, Deepak Rawat <drawat.floss@gmail.com>,
+	"dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+	"stable@kernel.vger.org" <stable@kernel.vger.org>
+Subject: RE: [PATCH 2/2] drm/hyperv: use VMBUS_RING_SIZE()
+Thread-Topic: [PATCH 2/2] drm/hyperv: use VMBUS_RING_SIZE()
+Thread-Index: AQHc1jw02yJrERFkmkeSl7gccH8LxLXzPWxQ
+Date: Mon, 27 Apr 2026 18:42:27 +0000
+Message-ID:
+ <SA1PR21MB6921B5A2441DB3E9A1312AC0BF362@SA1PR21MB6921.namprd21.prod.outlook.com>
+References: <20260425181719.1538483-1-hamzamahfooz@linux.microsoft.com>
+ <20260425181719.1538483-2-hamzamahfooz@linux.microsoft.com>
+ <KUZP153MB14445757C6A5DA5DEDA9A09CBE292@KUZP153MB1444.APCP153.PROD.OUTLOOK.COM>
+ <ae9NxmDBTkzPP3H6@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+In-Reply-To:
+ <ae9NxmDBTkzPP3H6@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+msip_labels:
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=866de344-17d1-4da0-ae37-df720ba729ed;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2026-04-27T18:37:48Z;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Tag=10,
+ 3, 0, 1;
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=microsoft.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: SA1PR21MB6921:EE_|SA3PR21MB5696:EE_
+x-ms-office365-filtering-correlation-id: 0cf98fbb-de6e-4f13-ea49-08dea48cbb18
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|366016|7416014|376014|1800799024|38070700021|56012099003|22082099003|18002099003;
+x-microsoft-antispam-message-info:
+ HZyTNBGw5pDp3DxMEyljCszlE9jJDXvDjXMufGASsRxujHBoVWg3NSmGu/N8dJwF/12OlRpbM26ErfJ9BrPPXHVWU6ZwjH+hwlEK2t4YxJMspKV6MKRR5FVxjTxr6KgtGKiKJ70cawtrHiW1OsgmmYDg/+znDI/hwjVmKZoO8ey6inZR43gnkPMoCuTmIvN+WtlNkfwSOGslB99+EusMt60vZny+g5cuTA6+kZKnqri9ZCCcP21bIeSNm1ihThdCwjoNGMeQd9VllLiTxxbvpsi+ppGn8quavSe63APetxSsDD1uteWxjjA7bVbD3wIO9K3PZGD/yS7WRZFnTfSXpbB34OcTbzGZU4qdYcV61RAAznYmOf0f5KINgw3N9CiaGZnUtkVshcfbJuyZFTbxkkyCELHQKQfLQty43+QsO97iXfEvfIjf1L4qHKgxG4c5Sj/xMEz70q+xYaFfdi+hZj7ccelpgIM4GaaUGAn0unIW7jhy0pU/kUyO+cwJq6In4E3LCTTa04LQfJzQPcfVoDrksJH9vSrFZ/7Unc69+XmZ4qxit4atZuypbAJkaKe6ARuDF5yeIoO8/0PVjrwtNCYnOg/TedqDk514Wui/WMP5EGvWyJL1C8H03J6RHhEouTQuvjbfUneJji5ik/JbrRuMcuRArp4dgtMiPm3UR7zaUOHjJq4IhuF84/RP0gfMAJjGEOP7s2XN1jPsaYkRPeB6zqbFFBoMBmjKzGqR3sgMTVS60Du3PB4oCie6bmMSFtUMjBSyNf3PVDyY1rJvZKWPEIY+aiw6NvG1M5xJHvc=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA1PR21MB6921.namprd21.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(376014)(1800799024)(38070700021)(56012099003)(22082099003)(18002099003);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?SPUXqpozLWgLQtrc8f8iWys7aY+CaXq9cRjdYO9ugfGE73flp1zlEWdrbMDt?=
+ =?us-ascii?Q?J9XlFzymWF7aV8jgnVqI6XbjhaKk6yvWigSAAbiijS4ybUFDVXkzzNMXB+XI?=
+ =?us-ascii?Q?Nftq5vA3kF1yDzhg+qII/v3iB3BOyIIN30522Ico5J+uTJdH7B8LnBTPBHGu?=
+ =?us-ascii?Q?e/8fA8ZdbWuJUI2qF0ExbiGzQNasDQaChnjNoOlOfu6fqO7B5Pf5sc3Y1fy/?=
+ =?us-ascii?Q?LDrj3hdZmz1Aote4NwqJ/rtFP60CuEdPSt7WcdXZtpjVRr/bFTKPwcxbJBvY?=
+ =?us-ascii?Q?i5Nt5nTsy+ymT00VfuJZfTDGrv8rBToJR7d5R1S05GQUf2BPO/y0IUjYVAHZ?=
+ =?us-ascii?Q?a48bp7hEmBOUbYf6L0DgayqaIobkGYO8ZwKcSIJfWJeTpaudYG+Bgq+pZQfu?=
+ =?us-ascii?Q?gZiWHmH/oOZevogPVWEZaTFsx+S5pWNNwZW6F0cBjgFkXgRbjTza6TgkxpBG?=
+ =?us-ascii?Q?0e4WWHZw15sDkbv6j+5cnAV/j6hw1CVImIDdAQc5St46GF4DXBWNwv4pLI/n?=
+ =?us-ascii?Q?Qm+Loak5ZoyC0Yos6CAT6rXruo5vCRrWQeUEHqvCYTH4Np25V00vvucrBYcY?=
+ =?us-ascii?Q?ZAkzdk864zmV7T49wRL6dXsARWTm64fyB7c3JBm1Z3+Oo4FUPhmfyLmpH1VB?=
+ =?us-ascii?Q?eM6aqXTe5p1MtxmMX8n0JyN6xxuFlCRUB4a0FcZcSQrTpgZkmWWnpnpNaSTc?=
+ =?us-ascii?Q?IOMkvNNOFkW9vnOpQ5zHziWluTt7t+Leb2dWmY7dZXqYuqTId3X2Rvk8dYXT?=
+ =?us-ascii?Q?Q0QdW9J81t/8BAGM1/tMOocrKSHuyHqdeyqpISSXYGY1rORssGZe6Lhcwpjc?=
+ =?us-ascii?Q?D7dWOUzT8NUrKBEnKfi2XU+ZwaB8GzCpGwpx5ScynbnzVzPBKMUThAFpygLO?=
+ =?us-ascii?Q?NGjnd5wet/3W3ADmmij2xiSs3vvr4pqbJfH7XrDo/sduZT8V6bjjYBiYslnm?=
+ =?us-ascii?Q?+A8uBE0qcVNF6B6oWNOh+UV7gvOBBFuT8+fd8XZBDXUY/xF4cEPYmhXhOSR5?=
+ =?us-ascii?Q?9N2k1UOyL2x3gLfm5q4QpG9kSYGAnBlRSNrt4YoSt2APUtZQDxNMxHzdSKpO?=
+ =?us-ascii?Q?5XLIElS3oFOGlCoI4jvNxKviy9tn8xtb9qAHKjT/Kbcs3yWB4OtJJDwJQj8p?=
+ =?us-ascii?Q?VeYGy25B/yWY0zbgQc8YM2oXpj7WflczMs913uz4svKfT8TDQW1bqbY3qgjG?=
+ =?us-ascii?Q?AWN2gsbcgOSP/wJK41hGNpCMohT0304JTlB3KUQKVP853xujph96U+KiuFYU?=
+ =?us-ascii?Q?qqeCxxhv3fP3fn85KWyzuL0IhMsporbSi7E7kLvuYQvdEm/IoKcQEgyN+hpH?=
+ =?us-ascii?Q?JfRV7usSqsUKfirMdpqlFaEWJUdBUSbLER+MIGnui5rHGfHTGKfmePW2yg9U?=
+ =?us-ascii?Q?P7wJugJEVdDc1hj+sNJTbXho7n2ZzwKKwOttC7eyJOZZaMewGHplJ17K6t7D?=
+ =?us-ascii?Q?/pjie3ibn24yZA4gvCV4tMDz6ikPUQVNczA0iydNEv19Fi5qUd+J6UqzqQ24?=
+ =?us-ascii?Q?hZ1/FyAib1dA7PFoApieXFw9UhnFtVupoEyt+7DMxPyTs5+OWit+berjTjls?=
+ =?us-ascii?Q?kbc/rKEBvbv3b0pF31JqCUhUxoJoxsJoeY5DVRd0DxwHBvwLPekeiBnSbPaR?=
+ =?us-ascii?Q?QECpJ7Y04GTHgg7nalt/Ya0cPMx+tw/yyfA7eH/2PDdQ1kDSP1zTawA+OTjE?=
+ =?us-ascii?Q?BeHhLbDcQHeSdV8S0xoyrTcnjzpXQeG3/QTrlD8jTqU4DvLE?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+X-OriginatorOrg: microsoft.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SA1PR21MB6921.namprd21.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 0cf98fbb-de6e-4f13-ea49-08dea48cbb18
+X-MS-Exchange-CrossTenant-originalarrivaltime: 27 Apr 2026 18:42:27.4455
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: AMKtozZnGWueXimcAAfFDjc1x/ET/61y8KX8x3/723m1J+pNC3+bIgE2G/xKgoIslK+gRXDZC44ArR+C434/sQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA3PR21MB5696
 
-From: Sungho Bae <baver.bae@lge.com>
+> From: Hamza Mahfooz <hamzamahfooz@linux.microsoft.com>
+> Sent: Monday, April 27, 2026 4:52 AM
+> To: Saurabh Singh Sengar <ssengar@microsoft.com>
+> ...
+> On Sun, Apr 26, 2026 at 05:00:24AM +0000, Saurabh Singh Sengar wrote:
+> > > Subject: [PATCH 2/2] drm/hyperv: use VMBUS_RING_SIZE()
+> > >
+> > > VMBUS ring buffers must be page aligned. So, use VMBUS_RING_SIZE() to
+> > > ensure they are always aligned and large enough to hold all of the re=
+levant
+> > > data.
+> > >
+> > > Cc: stable@kernel.vger.org
+> > > Fixes: 76c56a5affeb ("drm/hyperv: Add DRM driver for hyperv synthetic
+> > >  video device")
 
-Add noirq system-sleep PM support to the virtio-mmio transport.
+IMO the Fixes tag is unnecessary because the existing VMBUS_RING_BUFSIZE
+is 256KB, which is already aligned to 4KB, 16KB and 64KB.
 
-This change wires noirq freeze/restore callbacks into virtio-mmio and
-hooks queue reset/reactivation into the transport config ops so virtqueues
-can be reinitialized and reused across suspend/resume.
+VMBUS_RING_SIZE(256 * 1024) is still 256KB.
 
-For legacy (v1) devices, keep GUEST_PAGE_SIZE programming aligned with the
-noirq restore path while avoiding duplicate programming in normal restore.
+> > > Signed-off-by: Hamza Mahfooz <hamzamahfooz@linux.microsoft.com>
+> > > ---
+> > >  drivers/gpu/drm/hyperv/hyperv_drm_proto.c | 2 +-
+> > >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > >
+> > > diff --git a/drivers/gpu/drm/hyperv/hyperv_drm_proto.c
+> > > b/drivers/gpu/drm/hyperv/hyperv_drm_proto.c
+> > > index 051ecc526832..753d97bff76f 100644
+> > > --- a/drivers/gpu/drm/hyperv/hyperv_drm_proto.c
+> > > +++ b/drivers/gpu/drm/hyperv/hyperv_drm_proto.c
+> > > @@ -10,7 +10,7 @@
+> > >
+> > >  #include "hyperv_drm.h"
+> > >
+> > > -#define VMBUS_RING_BUFSIZE (256 * 1024)
+> > > +#define VMBUS_RING_BUFSIZE VMBUS_RING_SIZE(256 * 1024)
+> > >  #define VMBUS_VSP_TIMEOUT (10 * HZ)
+> > >
+> > >  #define SYNTHVID_VERSION(major, minor) ((minor) << 16 | (major))
+> > > --
+> > > 2.54.0
+> >
+> > Although this lgtm, but this may change the behaviour on ARM64 systems
+> with page size > 4K ?
 
-This enables virtio-mmio based devices to participate safely in the noirq
-PM phase, which is required for early-restore users.
+Actually the behavior won't change, because
+VMBUS_RING_SIZE(256 * 1024) is still 256KB.
 
-Signed-off-by: Sungho Bae <baver.bae@lge.com>
----
- drivers/virtio/virtio_mmio.c | 136 ++++++++++++++++++++++++-----------
- 1 file changed, 96 insertions(+), 40 deletions(-)
-
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 595c2274fbb5..71d13cb57c43 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -336,6 +336,77 @@ static void vm_del_vqs(struct virtio_device *vdev)
- 	free_irq(platform_get_irq(vm_dev->pdev, 0), vm_dev);
- }
- 
-+static int vm_active_vq(struct virtio_device *vdev, struct virtqueue *vq)
-+{
-+	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-+	int q_num = virtqueue_get_vring_size(vq);
-+
-+	writel(q_num, vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
-+	if (vm_dev->version == 1) {
-+		u64 q_pfn = virtqueue_get_desc_addr(vq) >> PAGE_SHIFT;
-+
-+		/*
-+		 * virtio-mmio v1 uses a 32bit QUEUE PFN. If we have something
-+		 * that doesn't fit in 32bit, fail the setup rather than
-+		 * pretending to be successful.
-+		 */
-+		if (q_pfn >> 32) {
-+			dev_err(&vdev->dev,
-+				"platform bug: legacy virtio-mmio must not be used with RAM above 0x%llxGB\n",
-+				0x1ULL << (32 + PAGE_SHIFT - 30));
-+			return -E2BIG;
-+		}
-+
-+		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_QUEUE_ALIGN);
-+		writel(q_pfn, vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
-+	} else {
-+		u64 addr;
-+
-+		addr = virtqueue_get_desc_addr(vq);
-+		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_LOW);
-+		writel((u32)(addr >> 32),
-+				vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_HIGH);
-+
-+		addr = virtqueue_get_avail_addr(vq);
-+		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_LOW);
-+		writel((u32)(addr >> 32),
-+				vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_HIGH);
-+
-+		addr = virtqueue_get_used_addr(vq);
-+		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_USED_LOW);
-+		writel((u32)(addr >> 32),
-+				vm_dev->base + VIRTIO_MMIO_QUEUE_USED_HIGH);
-+
-+		writel(1, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
-+	}
-+
-+	return 0;
-+}
-+
-+static int vm_reset_vqs(struct virtio_device *vdev)
-+{
-+	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-+	struct virtqueue *vq;
-+	int err;
-+
-+	virtio_device_for_each_vq(vdev, vq) {
-+		/* Re-initialize vring state */
-+		err = virtqueue_reinit_vring(vq);
-+		if (err < 0)
-+			return err;
-+
-+		/* Select the queue we're interested in */
-+		writel(vq->index, vm_dev->base + VIRTIO_MMIO_QUEUE_SEL);
-+
-+		/* Activate the queue */
-+		err = vm_active_vq(vdev, vq);
-+		if (err < 0)
-+			return err;
-+	}
-+
-+	return 0;
-+}
-+
- static void vm_synchronize_cbs(struct virtio_device *vdev)
- {
- 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-@@ -388,45 +459,9 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
- 	vq->num_max = num;
- 
- 	/* Activate the queue */
--	writel(virtqueue_get_vring_size(vq), vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
--	if (vm_dev->version == 1) {
--		u64 q_pfn = virtqueue_get_desc_addr(vq) >> PAGE_SHIFT;
--
--		/*
--		 * virtio-mmio v1 uses a 32bit QUEUE PFN. If we have something
--		 * that doesn't fit in 32bit, fail the setup rather than
--		 * pretending to be successful.
--		 */
--		if (q_pfn >> 32) {
--			dev_err(&vdev->dev,
--				"platform bug: legacy virtio-mmio must not be used with RAM above 0x%llxGB\n",
--				0x1ULL << (32 + PAGE_SHIFT - 30));
--			err = -E2BIG;
--			goto error_bad_pfn;
--		}
--
--		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_QUEUE_ALIGN);
--		writel(q_pfn, vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
--	} else {
--		u64 addr;
--
--		addr = virtqueue_get_desc_addr(vq);
--		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_LOW);
--		writel((u32)(addr >> 32),
--				vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_HIGH);
--
--		addr = virtqueue_get_avail_addr(vq);
--		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_LOW);
--		writel((u32)(addr >> 32),
--				vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_HIGH);
--
--		addr = virtqueue_get_used_addr(vq);
--		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_USED_LOW);
--		writel((u32)(addr >> 32),
--				vm_dev->base + VIRTIO_MMIO_QUEUE_USED_HIGH);
--
--		writel(1, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
--	}
-+	err = vm_active_vq(vdev, vq);
-+	if (err < 0)
-+		goto error_bad_pfn;
- 
- 	return vq;
- 
-@@ -528,11 +563,13 @@ static const struct virtio_config_ops virtio_mmio_config_ops = {
- 	.reset		= vm_reset,
- 	.find_vqs	= vm_find_vqs,
- 	.del_vqs	= vm_del_vqs,
-+	.reset_vqs	= vm_reset_vqs,
- 	.get_features	= vm_get_features,
- 	.finalize_features = vm_finalize_features,
- 	.bus_name	= vm_bus_name,
- 	.get_shm_region = vm_get_shm_region,
- 	.synchronize_cbs = vm_synchronize_cbs,
-+	.noirq_safe	= true,
- };
- 
- #ifdef CONFIG_PM_SLEEP
-@@ -547,14 +584,33 @@ static int virtio_mmio_restore(struct device *dev)
- {
- 	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
- 
--	if (vm_dev->version == 1)
-+	if (vm_dev->version == 1 && !vm_dev->vdev.noirq_restore_done)
- 		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
- 
- 	return virtio_device_restore(&vm_dev->vdev);
- }
- 
-+static int virtio_mmio_freeze_noirq(struct device *dev)
-+{
-+	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
-+
-+	return virtio_device_freeze_noirq(&vm_dev->vdev);
-+}
-+
-+static int virtio_mmio_restore_noirq(struct device *dev)
-+{
-+	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
-+
-+	if (vm_dev->version == 1)
-+		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
-+
-+	return virtio_device_restore_noirq(&vm_dev->vdev);
-+}
-+
- static const struct dev_pm_ops virtio_mmio_pm_ops = {
- 	SET_SYSTEM_SLEEP_PM_OPS(virtio_mmio_freeze, virtio_mmio_restore)
-+	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(virtio_mmio_freeze_noirq,
-+				      virtio_mmio_restore_noirq)
- };
- #endif
- 
--- 
-2.43.0
+> > Have we tested it ?
+>=20
+> Yup, I tested it on an ARM64 windows machine with a 64K page size guest
+> kernel.
+>=20
+> >
+> > Reviewed-by: Saurabh Sengar <ssengar@linux.microsoft.com>
+>=20
+> Pushed to drm-misc.
 
