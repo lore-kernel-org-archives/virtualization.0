@@ -1,149 +1,110 @@
-Received: from mta-64-225.siemens.flowmailer.net (mta-64-225.siemens.flowmailer.net [185.136.64.225])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F62A3B47FD
-	for <virtualization@lists.linux.dev>; Mon, 27 Apr 2026 10:55:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.136.64.225
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 5E345399039
+	for <virtualization@lists.linux.dev>; Mon, 27 Apr 2026 11:51:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777287330; cv=none; b=FULmNvkCrH5d1EiLOgqBRFomZVlXaQpkcuuaUOHb5hTeAkodyMkd6VPG4e7KVTdUWbyHNMwZPY/ytFi6VzpUwt+ZiWzSj1Ocv5W+NxYPB4TdjeuvRvkbwe0ZOUwUMGhZM8vlytyHviHrtma2SscMsV4fzRH20LdngGeMokx3Cvg=
+	t=1777290695; cv=none; b=V4pmj9PgrtqQXihYsFyybwkJuxyOE3MHvckobT6b0OyhDFpX0rMdZegSEibKkCy3n0oUXWleIAvH+djGxolq4V7xRfz8DrApddwFcmbtH5kKt4/8xxTJSv7ynN/I8jH12DyDW22GscUE9APz1VZ4f1ue7Vc7iuu+iK03gDJZ/cA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777287330; c=relaxed/simple;
-	bh=nHVmscofyLUA3h72V3w4Wiw5weFIr3NDQQmiE8AdAxg=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=pzFgFzuXBGKycExPKPmHG5+Co3p6X/J5mSNisIAXVgD8Zwhjs6CrRITNNtdWiKt3SVapa/7gk1tcTeFYCPVNtyYdF2rQqt1zLi7FUqSyqNvtcck9JCshDtMI6RvcH6aYvlX0UKgvbBb0qVW1Sk3sdnmJLP6TUuR3lev1rTaIA/g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=siemens.com; spf=pass smtp.mailfrom=rts-flowmailer.siemens.com; dkim=pass (2048-bit key) header.d=siemens.com header.i=florian.bezdeka@siemens.com header.b=EUbVq5FN; arc=none smtp.client-ip=185.136.64.225
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=siemens.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rts-flowmailer.siemens.com
+	s=arc-20240116; t=1777290695; c=relaxed/simple;
+	bh=55NqU6/Q4ArQrCtOYDO2EVlZcJ5uLmdn3BrT5kwTOPE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=GzWwfXug0KDPaWvvUad6hAM26b710lGgibATRO8uj2S5ERKgkSp4XNEshge+G4Jl6rxlRM7n0Vr+7nn3HhBCYfkOvn09UKhIq9/2lQq02KRJlFRW6apRKoaHAi3Ggqn47Q7diMdhMLmjY1DPdBPQJmp5stAiWEOn2QBKuDaj8UA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=VnsXT5KP; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=siemens.com header.i=florian.bezdeka@siemens.com header.b="EUbVq5FN"
-Received: by mta-64-225.siemens.flowmailer.net with ESMTPSA id 202604271055212d2a0bd52400020781
-        for <virtualization@lists.linux.dev>;
-        Mon, 27 Apr 2026 12:55:22 +0200
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; s=fm2;
- d=siemens.com; i=florian.bezdeka@siemens.com;
- h=Date:From:Subject:To:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:Cc:References:In-Reply-To;
- bh=P3IMh9zc4XqQrfVWFOK5zzy46NlRww98MNLYe1Fx+BM=;
- b=EUbVq5FNeThmPDQSfh8aKo91HZYE8p7RF4AdjrWartcxXiwJzqu/NIjalCA0+Rqsdawjc+
- aTYLS9cvzoSjt2zhTEZENSfHleFO1n5O/PBYA+jAhakrksykqURhoUDlei7lUTD6ZMlPEc+l
- VPBC3Gbf4V/4y7e8PttGnbhSmf6DHbzGmsjuqFx8J8DB8JqRytDpCUw8cfg93ZtAEwB3Pe5M
- 4e7OeJ3gdMnAvzs+wXn7Veo9wXdjTkYCno7jME9wpzSomoGCs/Rebx2eTvLPuTO0Wa0vTfnC
- ZKnXlXn5chALN5siZht7ggRS0nBgpTzJK998EecC3RhiQ7E/tgRofaTA==;
-Message-ID: <e350389a5a635660267a7a13f06529da102a95d8.camel@siemens.com>
-Subject: Re: [PATCH v12 00/13] blk: honor isolcpus configuration
-From: Florian Bezdeka <florian.bezdeka@siemens.com>
-To: Aaron Tomlin <atomlin@atomlin.com>, axboe@kernel.dk, kbusch@kernel.org, 
-	hch@lst.de, sagi@grimberg.me, mst@redhat.com
-Cc: aacraid@microsemi.com, James.Bottomley@HansenPartnership.com,
- martin.petersen@oracle.com, liyihang9@h-partners.com,
- kashyap.desai@broadcom.com, sumit.saxena@broadcom.com,
- shivasharan.srikanteshwara@broadcom.com, chandrakanth.patil@broadcom.com,
- sathya.prakash@broadcom.com, sreekanth.reddy@broadcom.com,
- suganath-prabu.subramani@broadcom.com, ranjan.kumar@broadcom.com,
- jinpu.wang@cloud.ionos.com, tglx@kernel.org, mingo@redhat.com,
- peterz@infradead.org, juri.lelli@redhat.com, vincent.guittot@linaro.org,
- akpm@linux-foundation.org, maz@kernel.org, ruanjinjie@huawei.com,
- bigeasy@linutronix.de, yphbchou0911@gmail.com, wagi@kernel.org,
- frederic@kernel.org, longman@redhat.com, chenridong@huawei.com,
- hare@suse.de, kch@nvidia.com, ming.lei@redhat.com, tom.leiming@gmail.com,
- steve@abita.co, sean@ashe.io, chjohnst@gmail.com, neelx@suse.com,
- mproche@gmail.com, nick.lange@gmail.com, marco.crivellari@suse.com,
- linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, linux-nvme@lists.infradead.org,
- linux-scsi@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
- mpi3mr-linuxdrv.pdl@broadcom.com, MPT-FusionLinux.pdl@broadcom.com
-Date: Mon, 27 Apr 2026 12:55:20 +0200
-In-Reply-To: <20260422185215.100929-1-atomlin@atomlin.com>
-References: <20260422185215.100929-1-atomlin@atomlin.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="VnsXT5KP"
+Received: by linux.microsoft.com (Postfix, from userid 1216)
+	id 8D55F20B7169; Mon, 27 Apr 2026 04:51:34 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 8D55F20B7169
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1777290694;
+	bh=u4fxCSX6+lkya8NkULSrVpIHMRpwmUGWqwp1lb66MDE=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=VnsXT5KPDTqb3PGZqTBaTFbTzX+ByVQgClsT65WKGJG2JZC9V16fL6Y4yQ78sHfFD
+	 B2ElV/SkAyffzpDCAWB9kzh+7kGOpd1z5oLvqvzzJbHPPokS4jV8EoCZ/9g9tJELoN
+	 GiJkCIdmaFtrl4gV4aiOAtcpa0RDwdJb6K967djY=
+Date: Mon, 27 Apr 2026 04:51:34 -0700
+From: Hamza Mahfooz <hamzamahfooz@linux.microsoft.com>
+To: Saurabh Singh Sengar <ssengar@microsoft.com>
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	KY Srinivasan <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <DECUI@microsoft.com>,
+	Long Li <longli@microsoft.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Himadri Pandya <himadrispandya@gmail.com>,
+	Michael Kelley <mhklinux@outlook.com>,
+	"linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+	Saurabh Sengar <ssengar@linux.microsoft.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+	Deepak Rawat <drawat.floss@gmail.com>,
+	"dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+	"stable@kernel.vger.org" <stable@kernel.vger.org>
+Subject: Re: [PATCH 2/2] drm/hyperv: use VMBUS_RING_SIZE()
+Message-ID: <ae9NxmDBTkzPP3H6@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+References: <20260425181719.1538483-1-hamzamahfooz@linux.microsoft.com>
+ <20260425181719.1538483-2-hamzamahfooz@linux.microsoft.com>
+ <KUZP153MB14445757C6A5DA5DEDA9A09CBE292@KUZP153MB1444.APCP153.PROD.OUTLOOK.COM>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Flowmailer-Platform: Siemens
-Feedback-ID: 519:519-68982:519-21489:flowmailer
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <KUZP153MB14445757C6A5DA5DEDA9A09CBE292@KUZP153MB1444.APCP153.PROD.OUTLOOK.COM>
 
-Hi all,
+On Sun, Apr 26, 2026 at 05:00:24AM +0000, Saurabh Singh Sengar wrote:
+> > Subject: [PATCH 2/2] drm/hyperv: use VMBUS_RING_SIZE()
+> > 
+> > VMBUS ring buffers must be page aligned. So, use VMBUS_RING_SIZE() to
+> > ensure they are always aligned and large enough to hold all of the relevant
+> > data.
+> > 
+> > Cc: stable@kernel.vger.org
+> > Fixes: 76c56a5affeb ("drm/hyperv: Add DRM driver for hyperv synthetic video
+> > device")
+> > Signed-off-by: Hamza Mahfooz <hamzamahfooz@linux.microsoft.com>
+> > ---
+> >  drivers/gpu/drm/hyperv/hyperv_drm_proto.c | 2 +-
+> >  1 file changed, 1 insertion(+), 1 deletion(-)
+> > 
+> > diff --git a/drivers/gpu/drm/hyperv/hyperv_drm_proto.c
+> > b/drivers/gpu/drm/hyperv/hyperv_drm_proto.c
+> > index 051ecc526832..753d97bff76f 100644
+> > --- a/drivers/gpu/drm/hyperv/hyperv_drm_proto.c
+> > +++ b/drivers/gpu/drm/hyperv/hyperv_drm_proto.c
+> > @@ -10,7 +10,7 @@
+> > 
+> >  #include "hyperv_drm.h"
+> > 
+> > -#define VMBUS_RING_BUFSIZE (256 * 1024)
+> > +#define VMBUS_RING_BUFSIZE VMBUS_RING_SIZE(256 * 1024)
+> >  #define VMBUS_VSP_TIMEOUT (10 * HZ)
+> > 
+> >  #define SYNTHVID_VERSION(major, minor) ((minor) << 16 | (major))
+> > --
+> > 2.54.0
+> 
+> Although this lgtm, but this may change the behaviour on ARM64 systems with page size > 4K ?
+> Have we tested it ?
 
-On Wed, 2026-04-22 at 14:52 -0400, Aaron Tomlin wrote:
-> Hi,
->=20
-> I have decided to drive this series forward on behalf of Daniel Wagner, t=
-he
-> original author. The series has been rebased on v7.0-12635-g6596a02b2078.
->=20
-> Building upon prior iterations, this series introduces critical
-> architectural refinements to the mapping and affinity spreading algorithm=
-s
-> to guarantee thread safety and resilience against concurrent CPU-hotplug
-> operations. Previously, the block layer relied on a shared global static
-> mask (i.e., blk_hk_online_mask), which proved vulnerable to race conditio=
-ns
-> during rapid hotplug events. This vulnerability was highlighted by the
-> kernel test robot, which encountered a NULL pointer dereference during
-> rcutorture (cpuhotplug) stress testing due to concurrent mask modificatio=
-n.
->=20
-> To resolve this, the architecture has been fundamentally hardened. The
-> global static state has been eradicated. Instead, the IRQ affinity core n=
-ow
-> employs a newly introduced irq_spread_hk_filter(), which safely intersect=
-s
-> the natively calculated affinity mask with the HK_TYPE_IO_QUEUE mask.
-> Crucially, this is achieved using a local, hotplug-safe snapshot via
-> data_race(cpu_online_mask). This approach circumvents the hotplug lock
-> deadlocks previously identified by Thomas Gleixner, while explicitly
-> avoiding CONFIG_CPUMASK_OFFSTACK stack bloat hazards on high-core-count
-> systems. A robust fallback mechanism guarantees that should an interrupt
-> vector be assigned exclusively to isolated cores, it is safely re-routed =
-to
-> the system's online housekeeping CPUs.
->=20
-> Following rigorous testing of multiple queue maps (such as NVMe poll
-> queues) alongside isolated CPUs, the tenth iteration resolved a critical
-> page fault regression. The multi-queue mapping logic has been corrected t=
-o
-> strictly maintain absolute hardware queue indices, ensuring faultless que=
-ue
-> initialisation and preventing out-of-bounds memory access.
->=20
-> Furthermore, following feedback from Ming Lei, the administrative
-> documentation for isolcpus=3Dio_queue has undergone a comprehensive overh=
-aul
-> to reflect this architectural reality. Previous iterations lacked the
-> required technical precision regarding subsystem impact. The expanded
-> kernel-parameters.txt now explicitly details that this parameter applies
-> strictly to managed IRQs. It thoroughly documents how the block layer
-> intercepts multiqueue allocation to match the housekeeping mask, actively
-> preventing MSI-X vector exhaustion on massive topologies and forcing queu=
-e
-> sharing. Most importantly, it cements the structural guarantee: while an
-> application on an isolated CPU may freely submit I/O, the hardware
-> completion interrupt is strictly and safely offloaded to a housekeeping
-> core.
->=20
-> Please let me know your thoughts.
+Yup, I tested it on an ARM64 windows machine with a 64K page size guest kernel.
 
-This topic reminds me of a discussion started by Tobias [1] some time
-ago about IRQ spreading of network drivers. The problem was (and still
-is) that network drivers ignore any CPU isolation when spreading out
-device IRQs.
+> 
+> Reviewed-by: Saurabh Sengar <ssengar@linux.microsoft.com>
 
-In general we have two different CPU isolation mechanisms:
-  - The static one, via isolcpus=3D cmdline parameter
-  - The dynamic one, via cgroups(v2) cpuset controller
+Pushed to drm-misc.
 
-This series is only taking the static "world" into account, right? Are
-there any plans to honor the CPU isolations configured the dynamic way?
-
-It has been a while since the last investigations on my end. Last time I
-went through the code, the IRQ core was completely decoupled from the
-dynamic configuration via cgroups. Are there any plans to fix that gap?
-
-Best regards,
-Florian
-
-[1] https://lore.kernel.org/all/a0cad8314124ca98d7c6763e3e08d7192598cf92.ca=
-mel@siemens.com/
+> 
