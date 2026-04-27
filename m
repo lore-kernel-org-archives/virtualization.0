@@ -1,223 +1,157 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 189183CD8C1
-	for <virtualization@lists.linux.dev>; Mon, 27 Apr 2026 13:45:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D5FCB37B019;
+	Mon, 27 Apr 2026 14:58:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777297532; cv=none; b=WPR9Fsk0MVX0gChf1Dx1kquFm9TxuYeFoLITQWeBEOq3vJRqe78SGIi8vkNTuYpfsgglqwd7FXM67jJPoD6V7pH/zPDgjcAQ3lg3zjKt7eSHhBjzG4dmYuL8voY7h9UQkbaYoQjMDi84UrgOO5ZsXcUzZRFz+8EcoVivX4SG/2o=
+	t=1777301930; cv=none; b=tDiiqbSepTodxpxVPfOXDqjZEPLD99ReCGh0L9XzHVaSaU8I0CPa+URpdh2/IcXDZgcToOwmGc+++PYQPZa6PO9cMaWsAUXTE+m68mdeskwypow1hjbJweKTHeVanwkvh2i606M9mHNNudrGmeUouTxowDBrZ487cTUsnd6HXxc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777297532; c=relaxed/simple;
-	bh=vdEge6E6gvHM8ffoINkybHalssstepUGTZdrRvykmLw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=j+AtWrKuOZaYVs9dKxmAo9VyzxYiooZnTskqdf/SOhc/Oz20u2vuNeF8pX7RWuDowIxd0Rtu0WYXPHrBlr8//1QnaGgDN0RYF5tK17UT1J77BsVaXEgzeR+5B6pEkxwFnBUsRUjcHYKHqvsbMoQ5haYGjZahplQXtJIR+GeCAKw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Yh2TvsmZ; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1777301930; c=relaxed/simple;
+	bh=+NTQq4xpBbgLkASh7hj0+PrTgY0Wsh0P5ylrq7ek6QE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=DEyg/aPbVHDWkcCFNY1baT2iXUPxZ/jirtoTrvoQm94qX6NkCeIVG7bacLz9CRYbryEND26WB8T7lfb2584bsYyPRJj7z6gHTsMro5zn8lOO1SnynVy7/Je5DjUZKgiGhp+R0PSZjqfnuesSRH7scd4db/h+8AQ8RFJocyVFgHw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cEKMulDi; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Yh2TvsmZ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1777297527;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=tnZE4tGGwssQvL+J9Xkflayp0lDMTh/2EiF7Li6rJVI=;
-	b=Yh2TvsmZa5lGirtFSkXowVPjK37Le9v7/hF4L4OKrXkIhMz8I5WZXNdCZs0bareI1mhNNe
-	hwFD5yeVuGSmyqrKyQ8zdMn/11414FLrNGVOtP9IK3eXjfKG2CzxYV6dOL6LWr1qAnICq0
-	2nRtOYiL0yQtMX4Xvlb9dd5Ng8uxmAM=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-660-PQxPnQ7nMf2HvJohH0OjpQ-1; Mon, 27 Apr 2026 09:45:26 -0400
-X-MC-Unique: PQxPnQ7nMf2HvJohH0OjpQ-1
-X-Mimecast-MFC-AGG-ID: PQxPnQ7nMf2HvJohH0OjpQ_1777297525
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-43d1dea12aaso676460f8f.1
-        for <virtualization@lists.linux.dev>; Mon, 27 Apr 2026 06:45:25 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777297521; x=1777902321;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=tnZE4tGGwssQvL+J9Xkflayp0lDMTh/2EiF7Li6rJVI=;
-        b=suM3d+UFTNUySexE58fAOXMqXUPgcLcWb7EQ5Vcm2XTWkHvaF5u74HnSGmgqh4x1TH
-         Jc2AMqXwbFzTMTUdI4kyeN1Z5hxY8qMT2ZwaBeTxMCZZ2PnIEfgsipFy3EU6h/vpz3Iz
-         ywtvL24RngcDUtYcgZvQOjuBs3rcPzZFrTAV21/Qamcqt3Qpjzks9RZ0FBgCYx1d4wYe
-         boUjEiPlBg7po2iO2Y3TjF5dBHbsjpnAd/+SF1V6Gkl+shbRCBNHKT7A4nxFiQ+kptQ9
-         JtILZAeMKCj5Dv3yUngYn5/89W93mle8W1KF9r4eEFx1Ma9PiUbX2o6S/VP+tB803mo9
-         Sn6Q==
-X-Forwarded-Encrypted: i=1; AFNElJ+jwa1QEd5h8EO2ieWVg9g49MW9Zld2C6e2Ue6MDzvg+iuIy6XrQH7zNmFCzxppj8bSzQ97YFuc+w/eynbszQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzdhMxPZN50M9nT1k9X/3U2tk/jIIxxrVe+kFe0icn8nniwyva8
-	SBBTZlmJzW/Vm5jWR4sRG4xRqqw6s8yurqsXef0Xzr2sqm7XWsnckA+joYOB0k1gCaTjMtvp1qy
-	EoCwusjyHS7ZtNylGbREO+0SYIjLVX85d2UcO5N2Q/AXwKo7EEKkDp+ZTqWwS9TfsmJE8
-X-Gm-Gg: AeBDieuRpzzemgqqNOWzOkYVQUFRm7XEVAe5n5Z2DWA6ePYqFQjlBMM+u3aghjllEgz
-	fqVvqUzPNCmJDRxC4m/NdEcqX0OeQztsxoWWR7grpnQjzw56mNE2qPOm3UbFQj2AuGTbq2ddtOz
-	0gN73nQWcAdMnVBoyyJAAkLYCww+v8VXOucPauXXYloPJ50yi7tGXDAEZ0Od0/GAyt/LE2W+KGo
-	7hosmHfKFHqaZvN3nB0Yqk+1R4g5pSHNVR5CvXjwH0W51ouyAje5TGLawyLIMhZkqegCrUhdELV
-	whuVO5DSEKBrIoY9Km0LyUdatIRDHzmlW3MxnKsQ3YO15tSu//PCBE/bdZFw0wHSe91GKOcSbYr
-	eBku/tXFRym1gbDo8CYImorxEmJtHd6Zejd+LwTQOCGU2RLifrj3Kpe2l66XlWRu+lnKfXQUPnN
-	yLep/dlQ==
-X-Received: by 2002:a05:6000:2888:b0:43d:7b23:bc99 with SMTP id ffacd0b85a97d-43fe3dc8152mr68258909f8f.15.1777297520879;
-        Mon, 27 Apr 2026 06:45:20 -0700 (PDT)
-X-Received: by 2002:a05:6000:2888:b0:43d:7b23:bc99 with SMTP id ffacd0b85a97d-43fe3dc8152mr68258832f8f.15.1777297520331;
-        Mon, 27 Apr 2026 06:45:20 -0700 (PDT)
-Received: from sgarzare-redhat (host-87-16-204-83.retail.telecomitalia.it. [87.16.204.83])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-43fe4cc0d51sm81966218f8f.10.2026.04.27.06.45.18
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 27 Apr 2026 06:45:19 -0700 (PDT)
-Date: Mon, 27 Apr 2026 15:44:57 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Deepanshu Kartikey <kartikey406@gmail.com>
-Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, 
-	eperezma@redhat.com, stefanha@redhat.com, davem@davemloft.net, edumazet@google.com, 
-	kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, 
-	virtualization@lists.linux.dev, kvm@vger.kernel.org, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com
-Subject: Re: [PATCH] vsock/virtio: fix memory leak in
- virtio_transport_recv_listen()
-Message-ID: <ae9ilWoZI_-EMdWQ@sgarzare-redhat>
-References: <20260424150310.57228-1-kartikey406@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cEKMulDi"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7FE43C19425;
+	Mon, 27 Apr 2026 14:58:50 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1777301930;
+	bh=+NTQq4xpBbgLkASh7hj0+PrTgY0Wsh0P5ylrq7ek6QE=;
+	h=From:To:Cc:Subject:Date:From;
+	b=cEKMulDiQZCliws/YM9QAmNp7rYUP+JWQu2eTUjvy+gIUl0I6Tc3hUzAmWLsRKvpk
+	 k+bL4HAIM9A5gLnvMWpZOvuJ+cJUCnogzvVG/SLh9EvSBaWhIyWzhfdydiGsaLSNKl
+	 3EyKCM96y+7Pd/ulYaFlDLVslh4XM1LLjzWkldGbo/PYLlKvVHL2RE2UxKC9c+qHmA
+	 HPkdyAwyu0Marikp0xmELBqmVYr62lCEgvTnUH8MJj1Xqkbcje/LvjS/18/azgXOkk
+	 1tPmLcnWKhcv8l08+PKH0od6mVVH29XKNinISa9UZ790ir8dS4QbW50zKw665GFBau
+	 5gy5gVeioMP2w==
+Received: from johan by theta with local (Exim 4.99.1)
+	(envelope-from <johan@kernel.org>)
+	id 1wHNQ6-000000004I4-2589;
+	Mon, 27 Apr 2026 16:58:46 +0200
+From: Johan Hovold <johan@kernel.org>
+To: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Cc: Johan Hovold <johan@kernel.org>,
+	stable@vger.kernel.org,
+	Pawel Moll <pawel.moll@arm.com>
+Subject: [PATCH v2] virtio-mmio: fix device release warning on module unload
+Date: Mon, 27 Apr 2026 16:37:10 +0200
+Message-ID: <20260427143710.14702-1-johan@kernel.org>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260424150310.57228-1-kartikey406@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: wPsmIuyQb7A-CIKp4RK5Ek-NExFvMwdlnShLqz94gDg_1777297525
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Fri, Apr 24, 2026 at 08:33:10PM +0530, Deepanshu Kartikey wrote:
->Two bugs exist in virtio_transport_recv_listen():
+Driver core expects devices to be allocated dynamically and complains
+loudly when a device that lacks a release function is freed.
 
-Two bugs, two fixes, two patches usually.
+Use __root_device_register() to allocate and register the root device
+instead of open coding using a static device.
 
->
->1. On the transport assignment error path, sk_acceptq_added() is called
->   but sk_acceptq_removed() is never called when vsock_assign_transport()
->   fails or assigns a different transport than expected. This causes the
->   parent listener's accept backlog counter to be permanently inflated,
->   eventually causing sk_acceptq_is_full() to reject legitimate incoming
->   connections.
+Note that root_device_register(), which also creates a link to the
+module, cannot be used as the device is registered when parsing the
+module parameters which happens before the module kobject has been set
+up.
 
-Wait, I can't see this issue. sk_acceptq_added() is called after the
-vsock_assign_transport(), so why we should call sk_acceptq_removed()
-in the error path of vsock_assign_transport()?
+Fixes: 81a054ce0b46 ("virtio-mmio: Devices parameter parsing")
+Cc: stable@vger.kernel.org	# 3.5
+Cc: Pawel Moll <pawel.moll@arm.com>
+Signed-off-by: Johan Hovold <johan@kernel.org>
+---
 
-Maybe I'm missing something.
+Changes in v2:
+ - add sanity check to vm_cmdline_get() to prevent root from
+   dereferencing an error pointer when reading back the module parameter
+   through sysfs should root device registration ever fail when the
+   driver is also built-in
 
->
->2. There is a race between __vsock_release() and vsock_enqueue_accept().
->   __vsock_release() sets sk->sk_shutdown to SHUTDOWN_MASK and flushes
->   the accept queue under the parent socket lock. However,
->   virtio_transport_recv_listen() checks sk_shutdown and subsequently
->   calls vsock_enqueue_accept() without holding the parent socket lock.
 
-Are you sure about this?
+ drivers/virtio/virtio_mmio.c | 26 +++++++++++++-------------
+ 1 file changed, 13 insertions(+), 13 deletions(-)
 
-virtio_transport_recv_listen() is called only by 
-virtio_transport_recv_pkt() after calling lock_sock(sk), so I'm really 
-confused.
-
->   This means a child socket can be enqueued after __vsock_release() has
->   already flushed the queue, causing the child socket and its associated
->   resources to leak
->   permanently. The existing comment in the code hints at this race but
->   the fix was never implemented.
-
-Are you referring to:
-	/* __vsock_release() might have already flushed accept_queue.
-	 * Subsequent enqueues would lead to a memory leak.
-	 */
-	if (sk->sk_shutdown == SHUTDOWN_MASK) {
-		virtio_transport_reset_no_sock(t, skb, sock_net(sk));
-		return -ESHUTDOWN;
-	}
-
-In this case I think we are saying that we are doing this check exactly 
-to avoid that issue.
-
->
->Fix both issues: add sk_acceptq_removed() on the transport error path,
-
-Again, better to fix the 2 issues with 2 patches (same series is fine).
-
->and re-check sk->sk_shutdown under the parent socket lock before calling
->vsock_enqueue_accept() to close the race window. The child socket lock
->is released before acquiring the parent socket lock to maintain correct
->lock ordering (parent before child).
->
-
-We are missing the Fixes tag, and I think we can target the `net` tree
-with this patch (i.e. [PATCH net]), see:
-https://www.kernel.org/doc/html/next/process/maintainer-netdev.html
-
->Reported-by: syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com
->Closes: https://syzkaller.appspot.com/bug?extid=1b2c9c4a0f8708082678
->Tested-by: syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com
->Signed-off-by: Deepanshu Kartikey <kartikey406@gmail.com>
->---
-> net/vmw_vsock/virtio_transport_common.c | 13 +++++++++++--
-> 1 file changed, 11 insertions(+), 2 deletions(-)
->
->diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->index 416d533f493d..fad5fa4a4296 100644
->--- a/net/vmw_vsock/virtio_transport_common.c
->+++ b/net/vmw_vsock/virtio_transport_common.c
->@@ -1578,6 +1578,7 @@ virtio_transport_recv_listen(struct sock *sk, struct sk_buff *skb,
-> 	 */
-> 	if (ret || vchild->transport != &t->transport) {
-> 		release_sock(child);
->+		sk_acceptq_removed(sk);
-
-Ditto, are we sure about this?
-
-> 		virtio_transport_reset_no_sock(t, skb, sock_net(sk));
-> 		sock_put(child);
-> 		return ret;
->@@ -1588,11 +1589,19 @@ virtio_transport_recv_listen(struct sock *sk, struct sk_buff *skb,
-> 		child->sk_write_space(child);
->
-> 	vsock_insert_connected(vchild);
->+	release_sock(child);
->+	lock_sock(sk);
-
-IMO this is a deadlock with the lock_sock(sk) called by the caller.
-
-Also a comment would be helpful here to explain why we're doing this.
-
->+	if (sk->sk_shutdown == SHUTDOWN_MASK) {
->+		release_sock(sk);
->+		sk_acceptq_removed(sk);
->+		virtio_transport_reset_no_sock(t, skb, sock_net(sk));
->+		sock_put(child);
->+		return -ESHUTDOWN;
-
-Since this is very similar to the error path of 
-vsock_assign_transport(), I think it would be better to start by 
-defining a common error path for the function and use labels to exit, so 
-we can avoid duplicating the code multiple times.
-
->+	}
-> 	vsock_enqueue_accept(sk, child);
->+	release_sock(sk);
-> 	virtio_transport_send_response(vchild, skb);
->
->-	release_sock(child);
->-
-
-TBH I'm really worried about this patch since both fixes are completely 
-wrong IMO.
-
-Thanks,
-Stefano
-
-> 	sk->sk_data_ready(sk);
-> 	return 0;
-> }
->-- 
->2.43.0
->
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index 595c2274fbb5..510b7c4efdff 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -662,9 +662,7 @@ static void virtio_mmio_remove(struct platform_device *pdev)
+ 
+ #if defined(CONFIG_VIRTIO_MMIO_CMDLINE_DEVICES)
+ 
+-static struct device vm_cmdline_parent = {
+-	.init_name = "virtio-mmio-cmdline",
+-};
++static struct device *vm_cmdline_parent;
+ 
+ static int vm_cmdline_parent_registered;
+ static int vm_cmdline_id;
+@@ -672,7 +670,6 @@ static int vm_cmdline_id;
+ static int vm_cmdline_set(const char *device,
+ 		const struct kernel_param *kp)
+ {
+-	int err;
+ 	struct resource resources[2] = {};
+ 	char *str;
+ 	long long base, size;
+@@ -704,11 +701,10 @@ static int vm_cmdline_set(const char *device,
+ 	resources[1].start = resources[1].end = irq;
+ 
+ 	if (!vm_cmdline_parent_registered) {
+-		err = device_register(&vm_cmdline_parent);
+-		if (err) {
+-			put_device(&vm_cmdline_parent);
++		vm_cmdline_parent = __root_device_register("virtio-mmio-cmdline", NULL);
++		if (IS_ERR(vm_cmdline_parent)) {
+ 			pr_err("Failed to register parent device!\n");
+-			return err;
++			return PTR_ERR(vm_cmdline_parent);
+ 		}
+ 		vm_cmdline_parent_registered = 1;
+ 	}
+@@ -719,7 +715,7 @@ static int vm_cmdline_set(const char *device,
+ 		       (unsigned long long)resources[0].end,
+ 		       (int)resources[1].start);
+ 
+-	pdev = platform_device_register_resndata(&vm_cmdline_parent,
++	pdev = platform_device_register_resndata(vm_cmdline_parent,
+ 			"virtio-mmio", vm_cmdline_id++,
+ 			resources, ARRAY_SIZE(resources), NULL, 0);
+ 
+@@ -743,8 +739,12 @@ static int vm_cmdline_get_device(struct device *dev, void *data)
+ static int vm_cmdline_get(char *buffer, const struct kernel_param *kp)
+ {
+ 	buffer[0] = '\0';
+-	device_for_each_child(&vm_cmdline_parent, buffer,
+-			vm_cmdline_get_device);
++
++	if (vm_cmdline_parent_registered) {
++		device_for_each_child(vm_cmdline_parent, buffer,
++				vm_cmdline_get_device);
++	}
++
+ 	return strlen(buffer) + 1;
+ }
+ 
+@@ -766,9 +766,9 @@ static int vm_unregister_cmdline_device(struct device *dev,
+ static void vm_unregister_cmdline_devices(void)
+ {
+ 	if (vm_cmdline_parent_registered) {
+-		device_for_each_child(&vm_cmdline_parent, NULL,
++		device_for_each_child(vm_cmdline_parent, NULL,
+ 				vm_unregister_cmdline_device);
+-		device_unregister(&vm_cmdline_parent);
++		root_device_unregister(vm_cmdline_parent);
+ 		vm_cmdline_parent_registered = 0;
+ 	}
+ }
+-- 
+2.53.0
 
