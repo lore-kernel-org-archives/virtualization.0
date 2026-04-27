@@ -1,81 +1,33 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA6B93559DF
-	for <virtualization@lists.linux.dev>; Mon, 27 Apr 2026 08:46:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 219273A6F12;
+	Mon, 27 Apr 2026 08:54:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777279599; cv=none; b=fxkqZMY1O6jStE4qs8Sy80Tflapo9nHrJAiiBU/70Zc3/0rS8eQusdL9zSYom3vwkqk1Ux4kyMQ/0ksi2nywQxlzhaJ173XpAH+rpIhwusTdJo313rUYjhbdnuENqlyCI/vg21wA0L3y41SsqGOdawCM7UOU03h6qd9qH/d7tRU=
+	t=1777280044; cv=none; b=BaLNcAg79PAqRvEfXABccMQSF2WDCl1mwe0SS29LoNMmuv0y/rNy1BJ2X54U/2FcrTLsQrGOc0gIJXGjhar0VIWj+XHcD1VbgPZzFoRTxV5OoR1WVaDUsfkWo3c/6TDzwiA9R1isPegYR0MBQiaIgq786ERFFDnpQv1bvFsiT0M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777279599; c=relaxed/simple;
-	bh=BMvt59EtHm8JPFmOATtmckCMLGa5GXi14SvN/NL7Doc=;
+	s=arc-20240116; t=1777280044; c=relaxed/simple;
+	bh=PtRJvasZkHp+/95b/vL94bJzCcFOTEky3Sgd0xF9RXI=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LK1s7vS/CnVAmieD8mqVfFj2vYbHOdyWIOZSEnCWTbO7qKuq6G5yCjMdzdRXGRkvfmvFkYjLqdoiqO+4TlZFSLpnSCa+xGnMv8tXM4jX+hDt/wcpMqMU7yKst5l9ULH9chdquJEbt9oAUwxSzbmNVpIa5zLP0AjhsTlAvMgVvSw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=TiaoGW5K; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=nRdnY5/8; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=k7A8AdDe; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=xgm3Fxdr; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	 In-Reply-To:Content-Type; b=DvHZh7r/H2jbxeVhVyQOKruJ5rc+vPkkjzjCQSNaTPvEtAdx/5d3stnkIjRbw0Q5XwKYIV6Vl6+ywBNa2RIJKDR7u39Wnlci30zokNfzVSuRP1z+DensFDkJyGpQxgP2W27MgEVlJwcn0oPbftY0s5PWQGfCS4kjODCWrS5dJ2Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=eGvBru2d; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="TiaoGW5K";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="nRdnY5/8";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="k7A8AdDe";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="xgm3Fxdr"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id E21A66A90F;
-	Mon, 27 Apr 2026 08:46:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1777279596; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=aT3bWaGty6roAN3aTDjYZz5fOesnLsc8KYSwHlB4jZg=;
-	b=TiaoGW5KIpGCK3dJqimJyTZC8+hpBK1WBR+6YmRRPqTMMnIih8sy2nksyEEFYsyVtIUa9H
-	jFCyeJKTVHPiqXk6BMdr5kgSk2E2xQVS/0nqPxT9v3qetqyE+/0WHBqd4WSE0tgStHnnoY
-	V5aKx3pGP4WR/8BGPAkx43n5wpAoj88=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1777279596;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=aT3bWaGty6roAN3aTDjYZz5fOesnLsc8KYSwHlB4jZg=;
-	b=nRdnY5/8BqzGi0nxIxVIBhaI9l1K9192rtVjLTvLbK+8m/3buXpjO1uGtw2pEIIhEl+T46
-	vDyEzj/1qmPJHgCw==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=k7A8AdDe;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=xgm3Fxdr
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1777279595; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=aT3bWaGty6roAN3aTDjYZz5fOesnLsc8KYSwHlB4jZg=;
-	b=k7A8AdDexuwX0UQgFOAVYmGJUqIpDceiDd2+9Vgoj0Q2RBuMZbHkXH+ctF95G1Bx73hy0U
-	xBgZptRM56YQ3HR1Ww7YqGmEbOEQhvRyT92siZcL4Ot4bsBQdUy8pAIc2Ohpv1fv/Id3gy
-	auGKeWTudXFR0iohnjhuOjSfYFJhnIM=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1777279595;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=aT3bWaGty6roAN3aTDjYZz5fOesnLsc8KYSwHlB4jZg=;
-	b=xgm3Fxdrf62yCdFEYvEdv0vXp3PBMt54R4Wj3FmhPzDwPcuZBl+/K+0twOBEKFplNKBqh1
-	py5d3ytA4gy51eBA==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 82487593B0;
-	Mon, 27 Apr 2026 08:46:35 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id ybZXHmsi72kvLAAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Mon, 27 Apr 2026 08:46:35 +0000
-Message-ID: <cd4ef74f-13db-4b4f-8f72-1b675dd19095@suse.de>
-Date: Mon, 27 Apr 2026 10:46:35 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="eGvBru2d"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id E2484C2BCB4;
+	Mon, 27 Apr 2026 08:53:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1777280043;
+	bh=PtRJvasZkHp+/95b/vL94bJzCcFOTEky3Sgd0xF9RXI=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=eGvBru2du1vkxSlCwhoF5+RD25f8/jipUj6nJW3i8PK5u+iKtE7HMW4CEIMfpJtrF
+	 t4vlM7yBSyANHHK9oRs+WpteFmnxx/pY4CiWv2DvIRdTy7NH8l6iqSU8uulGfHZpnu
+	 jHoCRsWLXcqMqU4MduvgenOdiT/Cz29l0WB7QwvIYnmuwerweo6WsOX1D/t6HScKtB
+	 xDrzEAavdqmEUyIYWUdKfkt4CbM+X/LhV88K1eNzOciCn6RzLjtRBAvgvz42689kfS
+	 bXHpum7jsoE+AHM0nJhJ6FT/Xi+ixk3KV8+2mqOOQcsIOlVaZm5DUUZjKYPPLK82t1
+	 TphzYQf1VbVDA==
+Message-ID: <9b02dc87-15e3-4f6b-af53-aeb1b3ef01e1@kernel.org>
+Date: Mon, 27 Apr 2026 10:53:49 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -83,137 +35,153 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] drm/qxl: Fix missing KMS poll cleanup
-To: Myeonghun Pak <mhun512@gmail.com>, Dave Airlie <airlied@redhat.com>,
- Gerd Hoffmann <kraxel@redhat.com>
-Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, David Airlie <airlied@gmail.com>,
- Simona Vetter <simona@ffwll.ch>, virtualization@lists.linux.dev,
- spice-devel@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
- linux-kernel@vger.kernel.org
-References: <20260424112543.57819-1-mhun512@gmail.com>
+Subject: Re: [PATCH 7.2 v10 0/2] skip redundant sync IPIs when TLB flush sent
+ them
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Yosry Ahmed <yosry@kernel.org>, Pasha Tatashin
+ <pasha.tatashin@soleen.com>, Lance Yang <lance.yang@linux.dev>,
+ peterz@infradead.org, dave.hansen@intel.com, dave.hansen@linux.intel.com,
+ ypodemsk@redhat.com, hughd@google.com, will@kernel.org,
+ aneesh.kumar@kernel.org, npiggin@gmail.com, tglx@linutronix.de,
+ mingo@redhat.com, bp@alien8.de, x86@kernel.org, hpa@zytor.com,
+ arnd@arndb.de, ljs@kernel.org, ziy@nvidia.com,
+ baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com, npache@redhat.com,
+ ryan.roberts@arm.com, dev.jain@arm.com, baohua@kernel.org,
+ shy828301@gmail.com, riel@surriel.com, jannh@google.com, jgross@suse.com,
+ seanjc@google.com, pbonzini@redhat.com, boris.ostrovsky@oracle.com,
+ virtualization@lists.linux.dev, kvm@vger.kernel.org,
+ linux-arch@vger.kernel.org, linux-mm@kvack.org,
+ linux-kernel@vger.kernel.org, ioworker0@gmail.com, roman.gushchin@linux.dev
+References: <20260424062528.71951-1-lance.yang@linux.dev>
+ <20260424063024.ce42ee6a5546e4d9337dd007@linux-foundation.org>
+ <aetw4aoABYj3keMh@plex>
+ <20260424071533.d28ce90126f05e1c6fc1b740@linux-foundation.org>
+ <80ab39c2-efb9-4a23-bd56-46d9bb4e41bb@kernel.org>
+ <20260424073145.b990fe9b925da304508aad71@linux-foundation.org>
+ <644e65dc-3d39-4137-b51f-51d953b67d50@kernel.org>
+ <CAO9r8zN1pRfyC0Rh+UdW-Lsret=z3oveT3=gnZftX-Sr_ubyyQ@mail.gmail.com>
+ <4e7699eb-e101-4a25-b585-79a777eb7cc2@kernel.org>
+ <CAO9r8zO4eSiAK9U-ijzWJMK80XsK+LmFxGAG+nTo+tmK6aLfYA@mail.gmail.com>
+ <872e752d-c7fa-4a75-a963-4e2f42ce468b@kernel.org>
+ <20260425043605.a3a1819fb219c649eab0f3a1@linux-foundation.org>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <20260424112543.57819-1-mhun512@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spamd-Result: default: False [-4.51 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-0.999];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	RCVD_TLS_ALL(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	ARC_NA(0.00)[];
-	TO_DN_SOME(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	FREEMAIL_TO(0.00)[gmail.com,redhat.com];
-	RCPT_COUNT_SEVEN(0.00)[11];
-	MID_RHS_MATCH_FROM(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[linux.intel.com,kernel.org,gmail.com,ffwll.ch,lists.linux.dev,lists.freedesktop.org,vger.kernel.org];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,suse.de:dkim,suse.de:email,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.com:url];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	DKIM_TRACE(0.00)[suse.de:+]
-X-Rspamd-Action: no action
-X-Spam-Flag: NO
-X-Spam-Score: -4.51
-X-Spam-Level: 
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Rspamd-Queue-Id: E21A66A90F
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <20260425043605.a3a1819fb219c649eab0f3a1@linux-foundation.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-Thanks for your patch.
+On 4/25/26 13:36, Andrew Morton wrote:
+> On Sat, 25 Apr 2026 07:17:18 +0200 "David Hildenbrand (Arm)" <david@kernel.org> wrote:
+> 
+>>> The usefulness of the mailing list posting is that it makes it easier
+>>> to respond and discuss the review. Yes, what Zi did is great, but it
+>>> would be nice if contributors/reviewers didn't need to manually quote
+>>> Sashiko.
+>>
+>> I think the most important part is the contributor side. A private posting is
+>> sufficient for that.
+> 
+> Thinking through how is this going to work out.
+> 
+> - contributor sends patchset
+> 
+> - akpm looks at the Sashiko scan and thinks "huh, we might be seeing
+>   a new version soon".
+> 
+> - Now what?  Maybe contributor doesn't like AI, maybe contributor
+>   thinks it was all nonsense.  But I don't know this!
 
-Am 24.04.26 um 13:25 schrieb Myeonghun Pak:
-> drm_kms_helper_poll_init() initializes the output polling work and
-> enables polling for the DRM device. qxl enables polling before calling
-> drm_dev_register(), but the drm_dev_register() failure path tears down
-> the modeset and device state without disabling the polling helper.
->
-> The remove path also unregisters and shuts down the DRM device without
-> first disabling the polling helper. Add matching drm_kms_helper_poll_fini()
-> calls in both paths so the delayed polling work is cancelled before qxl
-> tears down the associated modeset/device state.
->
-> Signed-off-by: Myeonghun Pak <mhun512@gmail.com>
+Right. In the common case, people will just read the output and process it in a
+reasonable way, like some people do today even without any notification.
 
-Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+But there will be cases where people ignore it, I am sure.
 
-Fixes: 5ff91e442652 ("qxl: use drm helper hotplug support")
-Cc: <stable@vger.kernel.org> # v3.11+
+> 
+>   So I send the email "I see that Sashiko said stuff - can we expect
+>   a new version?".  Which is no improvement over what's happening now.
+
+That only happens in the scenarios where there is no further feedback from other
+reviewers and there won't be a new revision.
+
+That's why I am saying that the AI review on the last upstream posting before
+merging is the most important one from a maintainer perspective.
+
+I agree that when we are about to merge something and AI review was not
+addressed (no feedback from contributor), that it's a problem.
+
+> 
+> What I would like to have is some reasonably reliable and prompt means
+> by which we all learn contributor's views on the Sashiko scan. 
+
+Right. At the same time I don't want full AI review posted to the mailing list
+immediately to each and every revision of a patch set.
 
 
-> ---
->   drivers/gpu/drm/qxl/qxl_drv.c | 6 ++++--
->   1 file changed, 4 insertions(+), 2 deletions(-)
->
-> diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
-> index 2bbb1168a3..1e6a2392d7 100644
-> --- a/drivers/gpu/drm/qxl/qxl_drv.c
-> +++ b/drivers/gpu/drm/qxl/qxl_drv.c
-> @@ -118,12 +118,13 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
->   	/* Complete initialization. */
->   	ret = drm_dev_register(&qdev->ddev, ent->driver_data);
->   	if (ret)
-> -		goto modeset_cleanup;
-> +		goto poll_fini;
->   
->   	drm_client_setup(&qdev->ddev, NULL);
->   	return 0;
->   
-> -modeset_cleanup:
-> +poll_fini:
-> +	drm_kms_helper_poll_fini(&qdev->ddev);
->   	qxl_modeset_fini(qdev);
->   unload:
->   	qxl_device_fini(qdev);
-> @@ -154,6 +155,7 @@ qxl_pci_remove(struct pci_dev *pdev)
->   {
->   	struct drm_device *dev = pci_get_drvdata(pdev);
->   
-> +	drm_kms_helper_poll_fini(dev);
->   	drm_dev_unregister(dev);
->   	drm_atomic_helper_shutdown(dev);
->   	if (pci_is_vga(pdev) && pdev->revision < 5)
+As  first step, I would be fine with having AI review send a review status in
+case it went into a problem to everyone as reply to each patch set, just stating
+whether it failed to apply, or if something was found etc. Paired with a link
+like you would send.
+
+> 
+> One way to bring this about might be to set suitable reply-to headers
+> in the Sashiko->contributor email, along with a few words asking
+> contributor to let everyone know the status.
+
+Yes, that's an alternative if we were to send the full AI review to
+contributors. Which might make sense in addition to the AI review status (above).
+
+> 
+> But whatever - let's not overthink this.  To start somewhere, let's
+> send that private email, spend a few weeks evaluating then perhaps make
+> adjustments.
+
+Right, let's do this step by step.
 
 -- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
-GF: Jochen Jaser, Andrew McDonald, Werner Knoblich, (HRB 36809, AG Nürnberg)
+Cheers,
 
-
+David
