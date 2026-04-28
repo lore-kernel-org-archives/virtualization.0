@@ -1,210 +1,142 @@
-Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4B1F44A708;
-	Tue, 28 Apr 2026 13:10:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6744C19992C
+	for <virtualization@lists.linux.dev>; Tue, 28 Apr 2026 13:12:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777381857; cv=none; b=c1nlmAzvYVCgpRzhQAeMVgaZ3hlEkY22Ax2Sd05IqTK11feDdYqfxhARGwOW/QTlYL3L8y4NE86wV1dQ2WuMqGIFcdwL/rRw+rVZ2YjeC8zEd/J7b+G+Zl/RQvrQbvNZn5GulzccHrsjuyfEuo3iSG4FgkPA18+3PFJB4pgy29U=
+	t=1777381974; cv=none; b=Rtix+fd7gmxmAdZkjvoflj9wEgmwrkAuq2frgFnwYlc4PtDIv+A8OI6pcvHCmmgILkV7XH7SHsOZESBD+bjZuNDW6rN+9cnHgEocs6UGBG7l54rJHsZjkq6mt9Vgaxv6Z1KWbgAEmQzXoV+vawg9c34y1BrKKDsspXKfsaXUmFI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777381857; c=relaxed/simple;
-	bh=nmszbhvlmW6fCGQOwQbFQYvBDmzyGhtjk20ogqwaHEE=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=mWnkvLQjYbnJpDCdrOG9eo7xEKghlTsesQ7zAhNkwL9V8Vmv+XtblzzocDggGIF3gRLKFKAJ2ib64aNhStLFMfvxlVEnnv/N7yreBDFO6UtfsZGI9Mhoimsr1Fk17g0ZcEh/Zhmfu6nGOKeNJikK6X/cJmFSiR9R5RmM2gsMv1w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; arc=none smtp.client-ip=129.217.128.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
-Received: from [129.217.186.62] ([129.217.186.62])
-	(authenticated bits=0)
-	by unimail.uni-dortmund.de (8.18.2/8.18.2) with ESMTPSA id 63SDAig6017192
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 28 Apr 2026 15:10:45 +0200 (CEST)
-Message-ID: <cdc3cbc8-cf6a-437c-b34c-dd8ced65d7f8@tu-dortmund.de>
-Date: Tue, 28 Apr 2026 15:10:44 +0200
+	s=arc-20240116; t=1777381974; c=relaxed/simple;
+	bh=ENP0+US9+uoSMKwsdCFAUa8StYi9uiDiDLxaqDcJiMg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=hTgNwJlF+bzMinlSNClgHL3oXRIw4NKT0xl7z2k7saEkfjo3GWs7z8AcYFrKu6GjHhmX3Fue0D7e2VSeHZIvsBUtSSIhy1IHoI/Igud9DWb4ThuPfaTYcXzGOEiEFRM55gIaQMGS1dGbZUuNppm/h9+eOCqzRzE4hcGfBlvqE3w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Q0H/R6oW; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Q0H/R6oW"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1777381972;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=j7GdUrfWfNS9OpD5GGiftL2t6uJKybTSHgDqr3QHoPs=;
+	b=Q0H/R6oWqIPkaU2SCF26uJ+379oAiiPXDxlY/edBIdjKy9qYEuO9WLMxRIEE+wgT55vkgV
+	WAnPuIYMnDBzCvHfL0KZU5H5qJH5HY5hG7U+bvK3lzqtQzadd+Qir92iAv4ngdD/oO94ES
+	yomSyfrTvIl3Nb/zN7AYc8dJrQADIeQ=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-111-cbNoNR_DO7S90TOMCeQ11Q-1; Tue, 28 Apr 2026 09:12:51 -0400
+X-MC-Unique: cbNoNR_DO7S90TOMCeQ11Q-1
+X-Mimecast-MFC-AGG-ID: cbNoNR_DO7S90TOMCeQ11Q_1777381970
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-4362197d1easo9329776f8f.2
+        for <virtualization@lists.linux.dev>; Tue, 28 Apr 2026 06:12:51 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777381970; x=1777986770;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=j7GdUrfWfNS9OpD5GGiftL2t6uJKybTSHgDqr3QHoPs=;
+        b=KM9SuEjX0w4lLaO9sgg0SkoTuZi7WKSpqg4/BUdnTXZmlNleox6EDc0TM5QAepD8QO
+         nr5IaA2/7M93cmZFNlCzR4XSpOrXjbSQPfbLmTw1DXVrwww0MwWHrtgNfu/V818KxIRU
+         SJYORC3kW81IgQw9V4wkQGCbbAcg/R/h0CCrdHs5MqnHM1eY4yF7yGalwLzQ7Sfm6Nv7
+         7JBXlPjY18qEji78iwblexF3fpd8qaCEUwrqmX4B2vHPTd/uLA4z6dJt4Bn858b72lTc
+         BOJuinIIMvQEZDuj6vbGHT1nL9yRuycl6FvP8ZJWdpi2zgje+xDmdYmQK5Bx3nrOMKeJ
+         mZ9Q==
+X-Forwarded-Encrypted: i=1; AFNElJ9qoqyy6CNSHhl/RO+40PXoDjyV3jkVAFasGmL/0GlbNMNPS+DE8NhMpu6l29n3rsHDwBbnvN3Fb65WMesU3w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxADMRkYL1NKKynXXtG0vQZE14P0KAXh/BlWyFySZtxmmH68Ka9
+	WDuWzSHadTScPBJz2+IQFhbeSuy3KR5kSL2MYS/nebCeQkWQbxmWXdNPYeVS7Gr11IenP2T85cr
+	I0PAHTsVEjk9Y5CAsO/NVZM7IWZiCyu0IqrwK9CBH34qLo4q+WPm3VKb0YUh7Ek9Q/Y7a
+X-Gm-Gg: AeBDiev+Fk0YASay7Oa9ZcRXl8br8/9gvGO4zmuopeuwxjqabYNrAzQES8pUAbxMQtm
+	ji970zYiRQb891NQZwsbwitL4+u+WKIV3JN5dHTKlSmx9w01YfNSeX6sxBCm+wTnretftWirPVh
+	YhQhP6dTSPQ9Cp6dH6bwJjpc0J/+dix3UC+kcBMpLc4j/opTCVebc+J732D46eplH3s1O9ED5uD
+	bOd64/llTMlankwcQd37IPKm0PCj0w9Q3LUF0OEbb/FMIurpN5g5JOitLQPSZs02JD0QrvaqOZe
+	cqRUodGbEnNVNBmhikaVDK17ZlI5Wq5YJUgx/sekFgJbcQ9KwzL4NNox7Knm/de4zFQkZFvitNQ
+	HNtm4IEQU/nLsFtCr/SWzFz85WTDlyvtNb+7bNpSQEV77+oU2GPZINmq/B2u1j/FOwFm4na6fR6
+	Kgn+kIIA==
+X-Received: by 2002:a05:600c:8b57:b0:489:1a65:dd6e with SMTP id 5b1f17b1804b1-48a77aed628mr53248845e9.8.1777381969868;
+        Tue, 28 Apr 2026 06:12:49 -0700 (PDT)
+X-Received: by 2002:a05:600c:8b57:b0:489:1a65:dd6e with SMTP id 5b1f17b1804b1-48a77aed628mr53248255e9.8.1777381969380;
+        Tue, 28 Apr 2026 06:12:49 -0700 (PDT)
+Received: from sgarzare-redhat (host-87-16-204-83.retail.telecomitalia.it. [87.16.204.83])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4463d02f270sm6398058f8f.9.2026.04.28.06.12.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 28 Apr 2026 06:12:48 -0700 (PDT)
+Date: Tue, 28 Apr 2026 15:12:40 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Hamza Mahfooz <hamzamahfooz@linux.microsoft.com>
+Cc: netdev@vger.kernel.org, "K. Y. Srinivasan" <kys@microsoft.com>, 
+	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>, 
+	Long Li <longli@microsoft.com>, "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	Michael Kelley <mhklinux@outlook.com>, Himadri Pandya <himadrispandya@gmail.com>, 
+	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] hv_sock: fix ARM64 support
+Message-ID: <afCxfHKA7hJilGM3@sgarzare-redhat>
+References: <20260428125339.13963-1-hamzamahfooz@linux.microsoft.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v9 4/4] tun/tap & vhost-net: avoid ptr_ring
- tail-drop when a qdisc is present
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
-        andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, eperezma@redhat.com,
-        leiyang@redhat.com, stephen@networkplumber.org, jon@nutanix.com,
-        tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        virtualization@lists.linux.dev
-References: <20260428123859.19578-1-simon.schippers@tu-dortmund.de>
- <20260428123859.19578-5-simon.schippers@tu-dortmund.de>
- <20260428084851-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-From: Simon Schippers <simon.schippers@tu-dortmund.de>
-In-Reply-To: <20260428084851-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20260428125339.13963-1-hamzamahfooz@linux.microsoft.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: ymXBMKIvKNzO2TUMbdX6n4uop9Z0GCdUp5YckMzDNJg_1777381970
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On 4/28/26 14:50, Michael S. Tsirkin wrote:
-> On Tue, Apr 28, 2026 at 02:38:59PM +0200, Simon Schippers wrote:
->> This commit prevents tail-drop when a qdisc is present and the ptr_ring
->> becomes full. Once an entry is successfully produced and the ptr_ring
->> reaches capacity, the netdev queue is stopped instead of dropping
->> subsequent packets.
->>
->> If producing an entry fails anyways due to a race, tun_net_xmit returns
->> NETDEV_TX_BUSY, again avoiding a drop. Such races are expected because
->> LLTX is enabled and the transmit path operates without the usual locking.
->>
->> If no qdisc is present, the previous tail-drop behavior is preserved.
->>
->> The existing __tun_wake_queue() function of the consumer races with the
->> producer for waking/stopping the netdev queue: the consumer may drain
->> the ring just as the producer stops the queue, leading to a permanent
->> stall. To avoid this, the producer re-checks the ring after stopping
->> and wakes the queue itself if space was just made. An
->> smp_mb__after_atomic() is required so the re-peek of the ring sees any
->> drain that the consumer performed.
->> smp_mb__after_atomic() pairs with the test_and_clear_bit() inside of
->> netif_wake_subqueue():
->>
->> Consumer CPU                  Producer CPU
->> ========================      =========================
->> __ptr_ring_consume()
->> netif_wake_subqueue()         netif_tx_stop_queue()
->>           /\                  smp_mb__after_atomic()
->>           ||                  __ptr_ring_produce_peek()
->> contains RMW operation
->>  test_and_clear_bit()
->>           /\
->>           ||
->>  "Fully ordered RMW:
->> smp_mb() before + after"
->>     - atomic_t.txt
->>
->> Benchmarks:
->> The benchmarks show a slight regression in raw transmission performance,
->> though no packets are lost anymore.
-> 
-> Could you include the packets received as well?
-> To demonstrate the gains/lack of loss. 
-> 
+No version number in the subject?
 
-Do you mean the number of packets received by the VM?
-They should just be the same as the number sent (shown below), right?
+Please next time follow 
+https://docs.kernel.org/process/submitting-patches.html#subject-line
 
-I assume they would be visible as RX-DRP for TAP.
-For TAP + vhost-net I would have to rewrite the XDP drop
-program to count the number of dropped packets...
-And I would have to automate it...
+   Common tags might include a version descriptor if the multiple 
+   versions of the patch have been sent out in response to comments 
+   (i.e., “v1, v2, v3”), or “RFC” to indicate a request for comments.
 
->>
->> The previously introduced threshold to only wake after the queue stopped
->> and half of the ring was consumed showed to be a descent choice:
->> Waking the queue whenever a consume made space in the ring strongly
->> degrades performance for tap, while waking only when the ring is empty
->> is too late and also hurts throughput for tap & tap+vhost-net.
->> Other ratios (3/4, 7/8) showed similar results (not shown here), so
->> 1/2 was chosen for the sake of simplicity for both tun/tap and
->> tun/tap+vhost-net.
->>
->> Test setup:
->> AMD Ryzen 5 5600X at 4.3 GHz, 3200 MHz RAM, isolated QEMU threads;
->> Average over 50 runs @ 100,000,000 packets. SRSO and spectre v2
->> mitigations disabled.
->>
->> Note for tap+vhost-net:
->> XDP drop program active in VM -> ~2.5x faster, slower for tap due to
->> more syscalls (high utilization of entry_SYSRETQ_unsafe_stack in perf)
->>
->> +--------------------------+--------------+----------------+----------+
->> | 1 thread                 | Stock        | Patched with   | diff     |
->> | sending                  |              | fq_codel qdisc |          |
->> +------------+-------------+--------------+----------------+----------+
->> | TAP        | Transmitted | 1.136 Mpps   | 1.130 Mpps     | -0.6%    |
->> |            +-------------+--------------+----------------+----------+
->> |            | Lost/s      | 3.758 Mpps   | 0 pps          |          |
->> +------------+-------------+--------------+----------------+----------+
->> | TAP        | Transmitted | 3.858 Mpps   | 3.816 Mpps     | -1.1%    |
->> |            +-------------+--------------+----------------+----------+
->> | +vhost-net | Lost/s      | 789.8 Kpps   | 0 pps          |          |
->> +------------+-------------+--------------+----------------+----------+
->>
->> +--------------------------+--------------+----------------+----------+
->> | 2 threads                | Stock        | Patched with   | diff     |
->> | sending                  |              | fq_codel qdisc |          |
->> +------------+-------------+--------------+----------------+----------+
->> | TAP        | Transmitted | 1.117 Mpps   | 1.087 Mpps     | -2.7%    |
->> |            +-------------+--------------+----------------+----------+
->> |            | Lost/s      | 8.476 Mpps   | 0 pps          |          |
->> +------------+-------------+--------------+----------------+----------+
->> | TAP        | Transmitted | 3.679 Mpps   | 3.464 Mpps     | -5.8%    |
->> |            +-------------+--------------+----------------+----------+
->> | +vhost-net | Lost/s      | 5.306 Mpps   | 0 pps          |          |
->> +------------+-------------+--------------+----------------+----------+
->>
->> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
->> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
->> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
->> ---
->>  drivers/net/tun.c | 30 ++++++++++++++++++++++++++++--
->>  1 file changed, 28 insertions(+), 2 deletions(-)
->>
->> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
->> index efe809597622..c2a1618cc9db 100644
->> --- a/drivers/net/tun.c
->> +++ b/drivers/net/tun.c
->> @@ -1011,6 +1011,8 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
->>  	struct netdev_queue *queue;
->>  	struct tun_file *tfile;
->>  	int len = skb->len;
->> +	bool qdisc_present;
->> +	int ret;
->>  
->>  	rcu_read_lock();
->>  	tfile = rcu_dereference(tun->tfiles[txq]);
->> @@ -1065,13 +1067,37 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
->>  
->>  	nf_reset_ct(skb);
->>  
->> -	if (ptr_ring_produce(&tfile->tx_ring, skb)) {
->> +	queue = netdev_get_tx_queue(dev, txq);
->> +	qdisc_present = !qdisc_txq_has_no_queue(queue);
->> +
->> +	spin_lock(&tfile->tx_ring.producer_lock);
->> +	ret = __ptr_ring_produce(&tfile->tx_ring, skb);
->> +	if (__ptr_ring_produce_peek(&tfile->tx_ring) && qdisc_present) {
->> +		netif_tx_stop_queue(queue);
->> +		/* Re-peek and wake if the consumer drained the ring
->> +		 * concurrently in a race. smp_mb__after_atomic() pairs
->> +		 * with the test_and_clear_bit() of netif_wake_subqueue()
->> +		 * in __tun_wake_queue().
->> +		 */
->> +		smp_mb__after_atomic();
->> +		if (!__ptr_ring_produce_peek(&tfile->tx_ring))
->> +			netif_tx_wake_queue(queue);
->> +	}
->> +	spin_unlock(&tfile->tx_ring.producer_lock);
->> +
->> +	if (ret) {
->> +		/* If a qdisc is attached to our virtual device,
->> +		 * returning NETDEV_TX_BUSY is allowed.
->> +		 */
->> +		if (qdisc_present) {
->> +			rcu_read_unlock();
->> +			return NETDEV_TX_BUSY;
->> +		}
->>  		drop_reason = SKB_DROP_REASON_FULL_RING;
->>  		goto drop;
->>  	}
->>  
->>  	/* dev->lltx requires to do our own update of trans_start */
->> -	queue = netdev_get_tx_queue(dev, txq);
->>  	txq_trans_cond_update(queue);
->>  
->>  	/* Notify and wake up reader process */
->> -- 
->> 2.43.0
-> 
+On Tue, Apr 28, 2026 at 08:53:39AM -0400, Hamza Mahfooz wrote:
+>VMBUS ring buffers must be page aligned. Therefore, the current value of
+>24K presents a challenge on ARM64 kernels (with 64K pages). So, use
+>VMBUS_RING_SIZE() to ensure they are always aligned and large enough to
+>hold all of the relevant data.
+>
+>Cc: stable@vger.kernel.org
+>Fixes: 77ffe33363c0 ("hv_sock: use HV_HYP_PAGE_SIZE for Hyper-V communication")
+>Tested-by: Dexuan Cui <decui@microsoft.com>
+>Reviewed-by: Dexuan Cui <decui@microsoft.com>
+>Signed-off-by: Hamza Mahfooz <hamzamahfooz@linux.microsoft.com>
+>---
+> net/vmw_vsock/hyperv_transport.c | 4 ++--
+> 1 file changed, 2 insertions(+), 2 deletions(-)
+
+Acked-by: Stefano Garzarella <sgarzare@redhat.com>
+
+>
+>diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
+>index 069386a74557..40f09b23efa3 100644
+>--- a/net/vmw_vsock/hyperv_transport.c
+>+++ b/net/vmw_vsock/hyperv_transport.c
+>@@ -375,10 +375,10 @@ static void hvs_open_connection(struct vmbus_channel *chan)
+> 	} else {
+> 		sndbuf = max_t(int, sk->sk_sndbuf, RINGBUFFER_HVS_SND_SIZE);
+> 		sndbuf = min_t(int, sndbuf, RINGBUFFER_HVS_MAX_SIZE);
+>-		sndbuf = ALIGN(sndbuf, HV_HYP_PAGE_SIZE);
+>+		sndbuf = VMBUS_RING_SIZE(sndbuf);
+> 		rcvbuf = max_t(int, sk->sk_rcvbuf, RINGBUFFER_HVS_RCV_SIZE);
+> 		rcvbuf = min_t(int, rcvbuf, RINGBUFFER_HVS_MAX_SIZE);
+>-		rcvbuf = ALIGN(rcvbuf, HV_HYP_PAGE_SIZE);
+>+		rcvbuf = VMBUS_RING_SIZE(rcvbuf);
+> 	}
+>
+> 	chan->max_pkt_size = HVS_MAX_PKT_SIZE;
+>-- 
+>2.54.0
+>
+
