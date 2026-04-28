@@ -1,145 +1,79 @@
-Received: from BN8PR05CU002.outbound.protection.outlook.com (mail-eastus2azon11021118.outbound.protection.outlook.com [52.101.57.118])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03F5E3A7855
-	for <virtualization@lists.linux.dev>; Tue, 28 Apr 2026 21:25:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.57.118
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777411507; cv=fail; b=tv0H1Ia4YhSq1i1SvqlxaQxcWD6EVr96rMtC01YQMHRSpTEiJFV09tCSnyv4TXwZ3HkGvsRfWgqsCE/SnixfnvglzLoi+v9zbiitPf0bew6DXnhqQSGaFxbv9ScWSwu4OfgoM1Dd4rBYfzO0yUNKHuXVanG0dx2xEsEsDbT166A=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777411507; c=relaxed/simple;
-	bh=wTQqV1cKlFSGaBtUj7EpjXCDCIT/6OzAwV/1n8q1BAM=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=Ad0dBSZ9y20hRjD14dgVCGPgYFvdKDKglMjuVfSfl9cmRipb23SX/DQhOgL00ZuaX0kisHOb5M/1KjYZyFVPP6lTwxG8LzS94M49jOvTc5lW3Ly5WI1oRyInkSOQILl5YZ9uogkEcbn45XPLgYnB1D3mLYN2BAvF7sPfRZTF5GM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microsoft.com; spf=pass smtp.mailfrom=microsoft.com; dkim=pass (1024-bit key) header.d=microsoft.com header.i=@microsoft.com header.b=e9lH51TV; arc=fail smtp.client-ip=52.101.57.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=microsoft.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DBF33149C7B;
+	Tue, 28 Apr 2026 23:48:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777420117; cv=none; b=sK/9xyTujgjxo820Hmqvajk7f8hlivKBd3IwDO80zLEuSvKHJOVEaPSX1JHmLFAfXkXwKPR7HI8wa0L1NbvPOpVsSA8hWjlwVeaeD2EDvsCw4Wo08kPmEf112k+3sqEY6buB0PylXrS4WoSzzWWCx+YwbupRn2ZRj9qGo4JYjS8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777420117; c=relaxed/simple;
+	bh=WKaEbQBSKMy7bS8qKyEcGakJ14grzPmcJjnKqt4AcDg=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=VKfnF0MbvhC2VKBgidgzuVwSphkVh9LAZfpg7QuoJG0EkPiGXVWHAMWosaKFych17KDu4hkxnwMPvU9tcK1xe5xR/BB1agQXdDeJzW6epz5R19auN622wye/tCvw17hGWhutMdzkzCuLLlqKZuX2V/glXiQs98DMUtbUoKa441I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Y5b3+glv; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=microsoft.com header.i=@microsoft.com header.b="e9lH51TV"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Sc2iVxNCMoxVieDu9sAnklh2ykH/XfeUu6DsJ/z/zpiYEKHfVxHW3rp7JUwZlRfGon3ARXwZr0NkeF/w6NtjuONvJOjubtj22Be8hHhMOevh13CJyhF8x12UapAeD9EtvuBVSFN0PaXQqOG6LE+QanC18kVyI4ZC8igu9cbX5EYty64PXJcYkZB76Mmd9ICo+1Segsffts2xMZ9K/RAYtZ91n6Bx3Yi5HNHMlZCXsOpfvNhHUcTzRkJg31Cv4134GV2jsJdX2KQW84UIWVTovVL1vrXuXYGiPNrYsuH/Ie0B1r7+p+OCPDFsxATdyJSXgYjh/dUnHHKtuvKnK8Un2g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=wTQqV1cKlFSGaBtUj7EpjXCDCIT/6OzAwV/1n8q1BAM=;
- b=kMlsZvPR/zhD7WgDvw+3P4qoUpTUKPQMz4I4PQamIxg6HiaPn0owu2YaFlRYOWYOtxm7fbJo331IP3Slqg4O/YiuXg3HqYtgpRdX+cMa6mv43tM7Gyg0b5ShtUGDMrcqZ0GWkyR3LeHvCNchl0HSIWReT98JTF1cMSkQ8KwkFMI/ugfg8PYkCFVjVk20KojuzHl3w36+0oVLL1cRA1GKv5UafNpKRZpEvR/iEBfCshZCpBPD6AqWdbe3Nxfep+M7nbgU9bNNJ7pdfP4QQ3QCixcT7076ocfJiA+ywNxe38ttPU7vxWVSLsQD5hRbYGpDesD9dc0P1ze9GDVhLC3Lxw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=microsoft.com; dmarc=pass action=none
- header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=wTQqV1cKlFSGaBtUj7EpjXCDCIT/6OzAwV/1n8q1BAM=;
- b=e9lH51TVGRC6AVfIXPKmKURBDY9MPZpMx1h1JSoUdF0PV3/wG44BWeTcOArD8TWoRbkNbFUnhTYydsnX6z9TXgHGLzi2LqTP4JMnlzmLOV8KD8cOv31GNEZ0FMpbyoi8D7kfj+2EipovFQQqsk6070XTWuZMsIRb2REnsWWwGAU=
-Received: from SA1PR21MB6921.namprd21.prod.outlook.com (2603:10b6:806:4a7::11)
- by SA1PR21MB6608.namprd21.prod.outlook.com (2603:10b6:806:4aa::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9891.3; Tue, 28 Apr
- 2026 21:24:59 +0000
-Received: from SA1PR21MB6921.namprd21.prod.outlook.com
- ([fe80::51cf:497c:e5df:f6d]) by SA1PR21MB6921.namprd21.prod.outlook.com
- ([fe80::51cf:497c:e5df:f6d%2]) with mapi id 15.20.9870.013; Tue, 28 Apr 2026
- 21:24:59 +0000
-From: Dexuan Cui <DECUI@microsoft.com>
-To: Hamza Mahfooz <hamzamahfooz@linux.microsoft.com>, "netdev@vger.kernel.org"
-	<netdev@vger.kernel.org>
-CC: KY Srinivasan <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Long Li <longli@microsoft.com>, Stefano
- Garzarella <sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo
- Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, Michael Kelley
-	<mhklinux@outlook.com>, Himadri Pandya <himadrispandya@gmail.com>,
-	"linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: RE: [PATCH] hv_sock: fix ARM64 support
-Thread-Topic: [PATCH] hv_sock: fix ARM64 support
-Thread-Index: AQHc1w4VcMw9r4DcdUu19JrBvAZyHbX0+55A
-Date: Tue, 28 Apr 2026 21:24:59 +0000
-Message-ID:
- <SA1PR21MB69211500C7F60FC29F1BAA79BF372@SA1PR21MB6921.namprd21.prod.outlook.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Y5b3+glv"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B76A6C2BCAF;
+	Tue, 28 Apr 2026 23:48:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1777420117;
+	bh=WKaEbQBSKMy7bS8qKyEcGakJ14grzPmcJjnKqt4AcDg=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=Y5b3+glvCs2C0EKnVY02M56x1Nm6YiYBLwqR5Gk/E8jImkdcHPSJFvVW6oWo0WLMu
+	 MS07sxBlYZ1dbRkvHCBQpt1pT4tjtgXq7olzJ2g5QCcicD/3mIDY8LiFBybaYhA4kp
+	 RHdMdokImpH1MrruMiRV1Y3Pu6DzU/WqKhn9xR7FM4kP6Yp0zyIm2WwmG2ODl5wF2c
+	 +fcCkHWcNWCIu92Lf0LRpzxlleRUidz81Czw6BLeq9nlx7g3J/RlqaLLxTuJyigSBv
+	 DxBH1NnZAyvkC9U3g5WckIUU5zCpwafcNHdgBpOO24glIDbPMGRtcw6DMS1wTdAxmI
+	 3tYRWfZryKv7Q==
+Date: Tue, 28 Apr 2026 16:48:35 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Dexuan Cui <DECUI@microsoft.com>
+Cc: Hamza Mahfooz <hamzamahfooz@linux.microsoft.com>,
+ "netdev@vger.kernel.org" <netdev@vger.kernel.org>, KY Srinivasan
+ <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu
+ <wei.liu@kernel.org>, Long Li <longli@microsoft.com>, Stefano Garzarella
+ <sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric
+ Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, Simon
+ Horman <horms@kernel.org>, Michael Kelley <mhklinux@outlook.com>, Himadri
+ Pandya <himadrispandya@gmail.com>, "linux-hyperv@vger.kernel.org"
+ <linux-hyperv@vger.kernel.org>, "virtualization@lists.linux.dev"
+ <virtualization@lists.linux.dev>, "linux-kernel@vger.kernel.org"
+ <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] hv_sock: fix ARM64 support
+Message-ID: <20260428164835.4420df64@kernel.org>
+In-Reply-To: <SA1PR21MB69211500C7F60FC29F1BAA79BF372@SA1PR21MB6921.namprd21.prod.outlook.com>
 References: <20260428125339.13963-1-hamzamahfooz@linux.microsoft.com>
-In-Reply-To: <20260428125339.13963-1-hamzamahfooz@linux.microsoft.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-msip_labels:
- MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=2abdef9e-2f78-4b65-bb68-708d7e661849;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2026-04-28T21:20:40Z;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Tag=10,
- 3, 0, 1;
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=microsoft.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: SA1PR21MB6921:EE_|SA1PR21MB6608:EE_
-x-ms-office365-filtering-correlation-id: 97d55ced-21dc-4318-9150-08dea56c9a2d
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam:
- BCL:0;ARA:13230040|366016|1800799024|376014|7416014|18002099003|22082099003|56012099003|38070700021;
-x-microsoft-antispam-message-info:
- QFWKgXgqzCOVwTCttl+WlPI71Iuxq3uz8XZ2P6/GbB0YRGLwqLMdVQDXT49Mqo3nl1/SJCpgrmWdmGTir/OBLcJoU79yIvXFyuQqTGumKZ6cJUbMVxA9zNNGM9ShfATOBNf2Hl+VZoWtsUcDyd6BrWZ7X2KoX0K+Cyz1XogQ85+eU9ZBR0YN1Iku+09Z6oWbcYPJZPyQ2Q+Yw7dNhrQlmBFVSAV4P6sw9mVwnd17hwMk3919BYfZgSN13maF2zd9/NG2nWlAIAKas1pEGlK8BfAphDwHap6JihfwC2tpXdWPtPWHJoG2tU2pDmOz3vuBXRFQnDk+xKZh6niF5kQsY9Dn2UeV6o3xXEBKjOMZJj8TZlxrTkMBGNClZBUJBTR3o9ySf3HFQVr+xkE/GwiaMmAFaQX02HAUlAclknfWAnSL3NIDUYGayLRUPWjGmucfcf+f/d2wR9GZnWor2lsgxoUxIaPLpSiZ/Y5PUPOmYUN+52LEZtI3JONbm0/ekZWU+WktMutUcYbxCwlRnrUhZSoQ7UUGBja5s/HuvjYakbSrHhrmqAaDmyt1NpwyKtWOmFEYVzi47CMVHnSy7Oc9wxoSEhw+JkbJMTfRSb1Ebs/ZvmZ9oYzbjApHLwImKKhf4jE2WYVC3xxa9Gzti6VeADeTuhb8oj9OuEs5SRvtJDGXZU0Q+6oVAOxkmNNxGhAzlOdiYjcu89cIVFEoA8kKZpsJrzs2DhuZgk4OsD4VounCPftElI4JyaEXUAxkEmg5guO+R3oPdwNuuORMHb5hcrOKW3UAZBj4Zv0Xlc47mjA=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA1PR21MB6921.namprd21.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(1800799024)(376014)(7416014)(18002099003)(22082099003)(56012099003)(38070700021);DIR:OUT;SFP:1102;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?6A+3TQcjNF5IXb+gI0eiO0BqS7t1z5RXyyRkhajwbiahVqLYFo0peegboER8?=
- =?us-ascii?Q?c27j98HSxZRos2hUWh8Fj3YCrAONCeQ6T99tO9VT9L3C0r8/fB5117PPJxX/?=
- =?us-ascii?Q?8hT1JPOIa/R6pxBSPK4rZFm+O3jSL+DNFdI8CNaU91McZ0xsr1PiIEuCbkxz?=
- =?us-ascii?Q?jmXeQPJkc2X+y/xNX0mI9m6aDsWx2nnE+sos3+kXhP0kTeR2AFczQKoPEfLj?=
- =?us-ascii?Q?TKUr094OtZO4SpLqlt+Mee/8Ow646NS+6/dMBRJE2G8ghz55J7KL0LdFU5SF?=
- =?us-ascii?Q?amYH3RmR+0tkQLIndn7PpkZfCE/uVP65HV09lK3y7YS61xInn6chzeYFR/lU?=
- =?us-ascii?Q?1LrrLnFtX44ukJGz0tXYSCDJxtMfGs1wCfitKQ/4NvPCIkfO97ZoAyxYJUb0?=
- =?us-ascii?Q?JdinXT1tvcQ4ks0k/j8Fs7mKVQAUxRvgHXHtlC0SWtmN+u2vaDKFQ7TFFFtt?=
- =?us-ascii?Q?zVHxxGowGZkao6fieoFEAO+QXtlAEJmGj8yHY7H+XBuWupJifly+REmikcRv?=
- =?us-ascii?Q?LbceSRWhzzlMjosMWr/eUI3/vfbgBeo79cTp+YT4pvQ+ZnWRvwFDitP7sm99?=
- =?us-ascii?Q?h5Sfr2zxLuuWVMupbPVpZaVtI5gux68IMfWT4bp0nj3anx3aw2KsS4FAlwxi?=
- =?us-ascii?Q?yW3lYGAU1oKG6jlJGFmywMGmQH0OBKFQimfCqEWm4dCZmnJex2g5uPlkcxeC?=
- =?us-ascii?Q?WMapleLPF4rToQc43wmc9AVjDRy0fY9EwStTyk09aua16PIBQMld31bNriFx?=
- =?us-ascii?Q?cNArl1NBJshjQl4bhHAlYCmaLlKKyhM1YkHZC9aTtq75vAcsxni43B56E787?=
- =?us-ascii?Q?P9H1aynOprrjg/Dc+BVtl+88EKyyWaq94NybsdbZkgKyXzoulNg07rzNen/A?=
- =?us-ascii?Q?rAZ9eW/ge9pcTn+qahbuScDMwqcxnsz7A6bQ40WNS7dth5MgqqQrlgeppog9?=
- =?us-ascii?Q?h4fyt2Qkz8l326upT2pfdaMBOwML6ykMaFI4J91pwSMeGfMZ7X/s5SkHH6qM?=
- =?us-ascii?Q?snMUzZbOi08qL/Est84b3R1g2UwJTlpHuD5k+t4/O+y39WaJSLAZZZlvL4bf?=
- =?us-ascii?Q?W4Jj3RWY0FIElg9VUmgqNmkSgniphbUUz/j9hLPkfOUVZZQeIoesgJajTqLl?=
- =?us-ascii?Q?hcQDc6KDfUplUhrymweq2ROXY2AS/jUdXjbre381EmsU7lrAdZuDSalsXYpb?=
- =?us-ascii?Q?KFHp1EWHHIL5zEvt0X4/HMu3KGHZGa/V1gjDZESuvnQm9bNhTI26jbtw21sS?=
- =?us-ascii?Q?/HrnZ451a2IXDHGmI/iSOt1ub7IPEekLYZ7sdTeXN2Lia+5U0H2hQps9Aedg?=
- =?us-ascii?Q?+lZErZ9kYnU9ogyUGclBGquLsHvRoVMxMpd6iMcI2cvdhKhziPeClO7boGsx?=
- =?us-ascii?Q?2g6ubFzC7JbxYP7QidlrERg8irOIjpDkWWkPyV1svPfRV+XyHDNtVovO5IcG?=
- =?us-ascii?Q?7K2mBP0SC57cztwL0QaVE2PNpDxoS8RBFGBf+jIJKWr00KLHPjhuSPWjGRut?=
- =?us-ascii?Q?GRwgq0lJgcsR5+FGLNUUVWyfi8ROJfLFToJ/wT/DGU4k/0z1ODMcg7IVcy4g?=
- =?us-ascii?Q?pmqhqll866tn6Vzgat0wKBBs4/6J+2sEno0i5cSpel2G1+7cw65YEB8HBUlA?=
- =?us-ascii?Q?3J7imX2f2aW8POXEdCNmKzP7NllsHLwOXyBA5fZaPSYgPjzrEem6Fh3lzcqO?=
- =?us-ascii?Q?D8oguNM9M7MUFIrmTiqGZNME34w+6OxT5cYjS9JbVZcoGpRR?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	<SA1PR21MB69211500C7F60FC29F1BAA79BF372@SA1PR21MB6921.namprd21.prod.outlook.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: microsoft.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: SA1PR21MB6921.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 97d55ced-21dc-4318-9150-08dea56c9a2d
-X-MS-Exchange-CrossTenant-originalarrivaltime: 28 Apr 2026 21:24:59.4805
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: yYvdvOBMHdpnz7xnzAd2CimSipR7gjqZ7lExdT51MX4aIhz8fjUUiAAAvQUgzzVa0P7Oe0sZbWkYKsUwpM97qA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR21MB6608
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-> From: Hamza Mahfooz <hamzamahfooz@linux.microsoft.com>
-> Sent: Tuesday, April 28, 2026 5:54 AM
-> Subject: [PATCH] hv_sock: fix ARM64 support
+On Tue, 28 Apr 2026 21:24:59 +0000 Dexuan Cui wrote:
+> > Sent: Tuesday, April 28, 2026 5:54 AM
+> > Subject: [PATCH] hv_sock: fix ARM64 support  
+> 
+> Typically, for a change to net/, you'd want to add a "net" or "net-next"
+> after the "PATCH", i.e.
+> 
+> [PATCH net] 
+> or 
+> [PATCH net v2]
+> 
+> See "Documentation/process/maintainer-netdev.rst"
 
-Typically, for a change to net/, you'd want to add a "net" or "net-next"
-after the "PATCH", i.e.
+Speaking of Documentation/process/maintainer-netdev.rst:
 
-[PATCH net]=20
-or=20
-[PATCH net v2]
-
-See "Documentation/process/maintainer-netdev.rst"
+  Reviewer guidance
+  -----------------
+  [...]
+  Reviewers are highly encouraged to do more in-depth review of submissions
+  and not focus exclusively on process issues, trivial or subjective
+  matters like code formatting, tags etc.
+  
+See: https://www.kernel.org/doc/html/next/process/maintainer-netdev.html#reviewer-guidance
