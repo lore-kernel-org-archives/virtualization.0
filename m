@@ -1,184 +1,244 @@
-Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE8C742B74B;
-	Tue, 28 Apr 2026 12:41:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C3E82C181
+	for <virtualization@lists.linux.dev>; Tue, 28 Apr 2026 12:50:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777380090; cv=none; b=j3AIpS3Xk3s7C0ZKvyzLwlbXvt39bU78w++ezcIh1MmV6gm+dKIkQvskE/kmIzgIVS1uwQLrZgDTHxlKuPnbH1pkowidL2xEU+uwWxBMd39mISfP/GriihJh24JPMYVPGwiNEvKoAxRYf8ASoukQtS3ew3NnvdiZlmEKdYuc7d0=
+	t=1777380635; cv=none; b=C6ZkvuSe0OOp+6FnhS4ChWBdW/SnGqHbBnZg5d+MnaAPMMLKsVgy4O3GX0u1ELVlcRxKUg3LpV8XrpKa4Qs2tuPoT5GSWD5ntewEds4CzN2bui7KrQ7Y1cEI3t84ZuBnDeQLMyhSfMGhOeOgW2sW7GoncrOZ+U2Fxvqup2f167A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777380090; c=relaxed/simple;
-	bh=2GZqu506fdpJaaUGgfRiqz39CQQLjdH0AShdfZIpsHQ=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=nltTW2t/CykxutdSRVZPKb0JXKQS37oESvsbgCD2XN0g3VEttK4EVCfp7wgPuD0reAYT2FAuV0RvmPECzYrCjvjrCinFc7RWqhcjjHTFLLatLXBTPoi0EBjPiKs1lj7JcVsKIdJCmFNzxCHzyDqCyceSQO9oja5KhdiO0bkmw4Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; arc=none smtp.client-ip=129.217.128.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
-Received: from simon-Latitude-5450.cni.e-technik.tu-dortmund.de ([129.217.186.62])
-	(authenticated bits=0)
-	by unimail.uni-dortmund.de (8.18.2/8.18.2) with ESMTPSA id 63SCewwe012433
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Tue, 28 Apr 2026 14:40:59 +0200 (CEST)
-From: Simon Schippers <simon.schippers@tu-dortmund.de>
-To: willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
-        andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, mst@redhat.com,
-        eperezma@redhat.com, leiyang@redhat.com, stephen@networkplumber.org,
-        jon@nutanix.com, tim.gebauer@tu-dortmund.de,
-        simon.schippers@tu-dortmund.de, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        virtualization@lists.linux.dev
-Subject: [PATCH net-next v9 0/4] tun/tap & vhost-net: apply qdisc backpressure on full ptr_ring to reduce TX drops
-Date: Tue, 28 Apr 2026 14:38:55 +0200
-Message-ID: <20260428123859.19578-1-simon.schippers@tu-dortmund.de>
-X-Mailer: git-send-email 2.43.0
+	s=arc-20240116; t=1777380635; c=relaxed/simple;
+	bh=4jJGYQxHBlAYam3pVZa37i0ecAp+T4koXg6IlslsR5Q=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=kamjmSnYoyZRjglhbvBsm+NDVYF7Ycyz2W5qVqzXrkQGiQTS7To+du1WL2SeuGgjqK9PC9JIid9VoUtWzxnCWFeS5adbzjSBl9f4yLab2ft1yzMMzxwduTK6dBn/u/ebCSpc6junmu6GWjvf3FGMVvPWvlY4Npy9IKUw2fTa34E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fqRP7aBp; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fqRP7aBp"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1777380630;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=0i0+P4zaB64MHfqqKp5K0u0CNckDs52Y4/4I9jpSM2g=;
+	b=fqRP7aBp3huqueXMATc7HgXUyfJvvlPH8ufZCIuH2gOCjwuX3gk/8cJuT7JB4cDhPyaYI7
+	nf5iUP5yzkpo+Y27G4efsD1BlDlJjhobw9t45ZGiRluv/Ay66m1FKEtWOweNADA8NA6yw6
+	i36E34i/ykqMD9uGW/StEW5+jlpoBI0=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-711-Xx6NisWNMm-PJ-uH_4hDxQ-1; Tue, 28 Apr 2026 08:50:28 -0400
+X-MC-Unique: Xx6NisWNMm-PJ-uH_4hDxQ-1
+X-Mimecast-MFC-AGG-ID: Xx6NisWNMm-PJ-uH_4hDxQ_1777380627
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-48a589c7879so42845095e9.1
+        for <virtualization@lists.linux.dev>; Tue, 28 Apr 2026 05:50:28 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777380627; x=1777985427;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=0i0+P4zaB64MHfqqKp5K0u0CNckDs52Y4/4I9jpSM2g=;
+        b=D2PH/pCBKKRE/Qy1z/mvHc8Z4TNYN4sMGVVLgodX7EoutY2H4i5z00zb8Pm8daxzdm
+         jBL05+P/h4McYdo6E9bZfZZ81RnFtGEUCixMqfpFtlD2nN2qBdOxAG6nz7qx/3bKSwdO
+         820wg6NKZ7iby9IWKbyV5cpx3GJ4Vj9t9FBmXTFyBdMsO6etO8ESGJtzuyJv/+L7P33Y
+         YQAnvPwGhvJ5NOwMqVJT3o2CXXSQUgxl9K/fBsdw+2S9TP9mRoZUVsMtvMdbI9L7aRDW
+         Rpvv+DzJ+u4tCSS8hs1wF+Oqc2HjRUpjPyEIZEoV73wT3CnUZNr0x4aGMPTp7XJKqIpA
+         n03w==
+X-Forwarded-Encrypted: i=1; AFNElJ8bkajQl2wi4br8N7Ud0VNRCTI89H9GwwWDc29X93QvIqnzte2F/VxonJc0ES3dMewjkpuTVWCQmVe2Urdcpg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzTqXYS4fEm6urg2pv1SG4CyM/wQv9BF/EIjMg2vzf6Ns5tY8bU
+	WOJ3i6nzXPGa4UTEAm1Rh88lJdf3q5AlxnGCB44rDl8foXandSHhqhPB/LHcBc0qeGjm6xIqOn2
+	MSjyiP2XvbJnHlrKGVBatpCHjb5A6YZpkp0zvwaXoFwD0KtwhYvUxdHmNUoHddZVjSWrc
+X-Gm-Gg: AeBDietKtVPAIyoj6GkBllF+0m6C23K3mbH3p3M21jcN0A3sgE4X4yEQPI5Whls9bXu
+	OUEgaGh+NgYQ4EuFARZ8zJD+IKYXHenzBXLu6e3fVSHP9HrfA3049qZNNE69jubEsgiCysCQZUM
+	/mfivWDp/gnH+RAtEDrGdIajJt3KANpMyswszSffy/6qtu0DQepO7EqqX1zNmIM78QouFF4q+AI
+	PXRLTBzuzTyt0AuxOZ8/RJB0zYafP/kY8g7+c+m8wpX7mb2F8QokUwy9DFxm5hXoJIcduYFwLHe
+	gkzhMzJuutasGClvgD3sigtNnhlQ26+6KE4rKAE3gvXElNc+HNLctWwd+qURasWlIKNeIgYNj2P
+	kiO1Ma9GD3H4Ms3g2kHpVfSimJ5ZRdkEWaVA3te3SV8oNJwvO73+3/0/p
+X-Received: by 2002:a05:600c:609a:b0:48a:5339:a46 with SMTP id 5b1f17b1804b1-48a78a33023mr30740355e9.9.1777380627121;
+        Tue, 28 Apr 2026 05:50:27 -0700 (PDT)
+X-Received: by 2002:a05:600c:609a:b0:48a:5339:a46 with SMTP id 5b1f17b1804b1-48a78a33023mr30739215e9.9.1777380625808;
+        Tue, 28 Apr 2026 05:50:25 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-47-179.inter.net.il. [80.230.47.179])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48a773efe38sm72509755e9.13.2026.04.28.05.50.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 28 Apr 2026 05:50:24 -0700 (PDT)
+Date: Tue, 28 Apr 2026 08:50:21 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Simon Schippers <simon.schippers@tu-dortmund.de>
+Cc: willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
+	andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+	kuba@kernel.org, pabeni@redhat.com, eperezma@redhat.com,
+	leiyang@redhat.com, stephen@networkplumber.org, jon@nutanix.com,
+	tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH net-next v9 4/4] tun/tap & vhost-net: avoid ptr_ring
+ tail-drop when a qdisc is present
+Message-ID: <20260428084851-mutt-send-email-mst@kernel.org>
+References: <20260428123859.19578-1-simon.schippers@tu-dortmund.de>
+ <20260428123859.19578-5-simon.schippers@tu-dortmund.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260428123859.19578-5-simon.schippers@tu-dortmund.de>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: emMkRJ_a0xBIPF8mshl-5-7NUVbd7cmZmDuVtJi3HVQ_1777380627
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-This patch series deals with tun/tap & vhost-net which drop incoming
-SKBs whenever their internal ptr_ring buffer is full. Instead, with this 
-patch series, the associated netdev queue is stopped - but only when a
-qdisc is attached. If no qdisc is present the existing behavior is
-preserved. This patch series touches tun/tap and vhost-net, as they
-share common logic and must be updated together. Modifying only one of
-them would break the other.
+On Tue, Apr 28, 2026 at 02:38:59PM +0200, Simon Schippers wrote:
+> This commit prevents tail-drop when a qdisc is present and the ptr_ring
+> becomes full. Once an entry is successfully produced and the ptr_ring
+> reaches capacity, the netdev queue is stopped instead of dropping
+> subsequent packets.
+> 
+> If producing an entry fails anyways due to a race, tun_net_xmit returns
+> NETDEV_TX_BUSY, again avoiding a drop. Such races are expected because
+> LLTX is enabled and the transmit path operates without the usual locking.
+> 
+> If no qdisc is present, the previous tail-drop behavior is preserved.
+> 
+> The existing __tun_wake_queue() function of the consumer races with the
+> producer for waking/stopping the netdev queue: the consumer may drain
+> the ring just as the producer stops the queue, leading to a permanent
+> stall. To avoid this, the producer re-checks the ring after stopping
+> and wakes the queue itself if space was just made. An
+> smp_mb__after_atomic() is required so the re-peek of the ring sees any
+> drain that the consumer performed.
+> smp_mb__after_atomic() pairs with the test_and_clear_bit() inside of
+> netif_wake_subqueue():
+> 
+> Consumer CPU                  Producer CPU
+> ========================      =========================
+> __ptr_ring_consume()
+> netif_wake_subqueue()         netif_tx_stop_queue()
+>           /\                  smp_mb__after_atomic()
+>           ||                  __ptr_ring_produce_peek()
+> contains RMW operation
+>  test_and_clear_bit()
+>           /\
+>           ||
+>  "Fully ordered RMW:
+> smp_mb() before + after"
+>     - atomic_t.txt
+> 
+> Benchmarks:
+> The benchmarks show a slight regression in raw transmission performance,
+> though no packets are lost anymore.
 
-By applying proper backpressure, this change allows the connected qdisc to 
-operate correctly, as reported in [1], and significantly improves
-performance in real-world scenarios, as demonstrated in our paper [2]. For 
-example, we observed a 36% TCP throughput improvement for an OpenVPN 
-connection between Germany and the USA.
+Could you include the packets received as well?
+To demonstrate the gains/lack of loss. 
 
-Synthetic pktgen benchmarks indicate a slight regression, but packet loss
-no longer occurs. Pktgen benchmarks are provided per commit, with the final
-commit showing the overall performance.
-
-Thanks!
-
-[1] Link: https://unix.stackexchange.com/questions/762935/traffic-shaping-ineffective-on-tun-device
-[2] Link: https://cni.etit.tu-dortmund.de/storages/cni-etit/r/Research/Publications/2025/Gebauer_2025_VTCFall/Gebauer_VTCFall2025_AuthorsVersion.pdf
-
----
-Changelog:
-V9:
-- Addressed minor nit by MST in patches 1 and 2.
-- Rebased patch 3 because of commit d748047
-  ("ptr_ring: disable KCSAN warnings").
-- Documented the pair of the smp_mb__after_atomic() in tun_net_xmit()
-  with tun_ring_consume().
-  --> It simply pairs with the test_and_clear_bit() inside of
-      netif_wake_subqueue().
-- Use 1 ptr_ring consumer spinlock instead of 2.
-- Ran pktgen benchmarks with pg_set SHARED for 50 iterations on
-  latest kernel
-  --> No significant performance difference noticed
-
-V8: https://lore.kernel.org/netdev/20260312130639.138988-1-simon.schippers@tu-dortmund.de/
-- Drop code changes in drivers/net/tap.c; The code there deals with
-  ipvtap/macvtap which are unrelated to the goal of this patch series
-  and I did not realize that before
--> Greatly simplified logic, 4 instead of 9 commits
--> No more duplicated logics and distinction in vhost required
-- Only wake after the queue stopped and half of the ring was consumed
-  as suggested by MST
--> Performance improvements for TAP, but still slightly slower
-- Better benchmarking with pinned threads, XDP drop program for
-  tap+vhost-net and disabling CPU mitigations (and newer Ryzen 5 5600X
-  processor) as suggested by Jason Wang
-
-V7: https://lore.kernel.org/netdev/20260107210448.37851-1-simon.schippers@tu-dortmund.de/
-- Switch to an approach similar to veth (excluding the recently fixed 
-variant), as suggested by MST, with minor adjustments discussed in V6
-- Rename the cover-letter title
-- Add multithreaded pktgen and iperf3 benchmarks, as suggested by Jason 
-Wang
-- Rework __ptr_ring_consume_created_space() so it can also be used after 
-batched consume
-
-V6: https://lore.kernel.org/netdev/20251120152914.1127975-1-simon.schippers@tu-dortmund.de/
-General:
-- Major adjustments to the descriptions. Special thanks to Jon Kohler!
-- Fix git bisect by moving most logic into dedicated functions and only 
-start using them in patch 7.
-- Moved the main logic of the coupled producer and consumer into a single 
-patch to avoid a chicken-and-egg dependency between commits :-)
-- Rebased to 6.18-rc5 and ran benchmarks again that now also include lost 
-packets (previously I missed a 0, so all benchmark results were higher by 
-factor 10...).
-- Also include the benchmark in patch 7.
-
-Producer:
-- Move logic into the new helper tun_ring_produce()
-- Added a smp_rmb() paired with the consumer, ensuring freed space of the 
-consumer is visible
-- Assume that ptr_ring is not full when __ptr_ring_full_next() is called
-
-Consumer:
-- Use an unpaired smp_rmb() instead of barrier() to ensure that the 
-netdev_tx_queue_stopped() call completes before discarding
-- Also wake the netdev queue if it was stopped before discarding and then 
-becomes empty
--> Fixes race with producer as identified by MST in V5
--> Waking the netdev queues upon resize is not required anymore
-- Use __ptr_ring_consume_created_space() instead of messing with ptr_ring 
-internals
--> Batched consume now just calls 
-__tun_ring_consume()/__tap_ring_consume() in a loop
-- Added an smp_wmb() before waking the netdev queue which is paired with 
-the smp_rmb() discussed above
-
-V5: https://lore.kernel.org/netdev/20250922221553.47802-1-simon.schippers@tu-dortmund.de/T/#u
-- Stop the netdev queue prior to producing the final fitting ptr_ring entry
--> Ensures the consumer has the latest netdev queue state, making it safe 
-to wake the queue
--> Resolves an issue in vhost-net where the netdev queue could remain 
-stopped despite being empty
--> For TUN/TAP, the netdev queue no longer needs to be woken in the 
-blocking loop
--> Introduces new helpers __ptr_ring_full_next and 
-__ptr_ring_will_invalidate for this purpose
-- vhost-net now uses wrappers of TUN/TAP for ptr_ring consumption rather 
-than maintaining its own rx_ring pointer
-
-V4: https://lore.kernel.org/netdev/20250902080957.47265-1-simon.schippers@tu-dortmund.de/T/#u
-- Target net-next instead of net
-- Changed to patch series instead of single patch
-- Changed to new title from old title
-"TUN/TAP: Improving throughput and latency by avoiding SKB drops"
-- Wake netdev queue with new helpers wake_netdev_queue when there is any 
-spare capacity in the ptr_ring instead of waiting for it to be empty
-- Use tun_file instead of tun_struct in tun_ring_recv as a more consistent 
-logic
-- Use smp_wmb() and smp_rmb() barrier pair, which avoids any packet drops 
-that happened rarely before
-- Use safer logic for vhost-net using RCU read locks to access TUN/TAP data
-
-V3: https://lore.kernel.org/netdev/20250825211832.84901-1-simon.schippers@tu-dortmund.de/T/#u
-- Added support for TAP and TAP+vhost-net.
-
-V2: https://lore.kernel.org/netdev/20250811220430.14063-1-simon.schippers@tu-dortmund.de/T/#u
-- Removed NETDEV_TX_BUSY return case in tun_net_xmit and removed 
-unnecessary netif_tx_wake_queue in tun_ring_recv.
-
-V1: https://lore.kernel.org/netdev/20250808153721.261334-1-simon.schippers@tu-dortmund.de/T/#u
----
-
-Simon Schippers (4):
-  tun/tap: add ptr_ring consume helper with netdev queue wakeup
-  vhost-net: wake queue of tun/tap after ptr_ring consume
-  ptr_ring: move free-space check into separate helper
-  tun/tap & vhost-net: avoid ptr_ring tail-drop when a qdisc is present
-
- drivers/net/tun.c        | 95 +++++++++++++++++++++++++++++++++++++---
- drivers/vhost/net.c      | 21 ++++++---
- include/linux/if_tun.h   |  3 ++
- include/linux/ptr_ring.h | 14 +++++-
- 4 files changed, 119 insertions(+), 14 deletions(-)
-
--- 
-2.43.0
+> 
+> The previously introduced threshold to only wake after the queue stopped
+> and half of the ring was consumed showed to be a descent choice:
+> Waking the queue whenever a consume made space in the ring strongly
+> degrades performance for tap, while waking only when the ring is empty
+> is too late and also hurts throughput for tap & tap+vhost-net.
+> Other ratios (3/4, 7/8) showed similar results (not shown here), so
+> 1/2 was chosen for the sake of simplicity for both tun/tap and
+> tun/tap+vhost-net.
+> 
+> Test setup:
+> AMD Ryzen 5 5600X at 4.3 GHz, 3200 MHz RAM, isolated QEMU threads;
+> Average over 50 runs @ 100,000,000 packets. SRSO and spectre v2
+> mitigations disabled.
+> 
+> Note for tap+vhost-net:
+> XDP drop program active in VM -> ~2.5x faster, slower for tap due to
+> more syscalls (high utilization of entry_SYSRETQ_unsafe_stack in perf)
+> 
+> +--------------------------+--------------+----------------+----------+
+> | 1 thread                 | Stock        | Patched with   | diff     |
+> | sending                  |              | fq_codel qdisc |          |
+> +------------+-------------+--------------+----------------+----------+
+> | TAP        | Transmitted | 1.136 Mpps   | 1.130 Mpps     | -0.6%    |
+> |            +-------------+--------------+----------------+----------+
+> |            | Lost/s      | 3.758 Mpps   | 0 pps          |          |
+> +------------+-------------+--------------+----------------+----------+
+> | TAP        | Transmitted | 3.858 Mpps   | 3.816 Mpps     | -1.1%    |
+> |            +-------------+--------------+----------------+----------+
+> | +vhost-net | Lost/s      | 789.8 Kpps   | 0 pps          |          |
+> +------------+-------------+--------------+----------------+----------+
+> 
+> +--------------------------+--------------+----------------+----------+
+> | 2 threads                | Stock        | Patched with   | diff     |
+> | sending                  |              | fq_codel qdisc |          |
+> +------------+-------------+--------------+----------------+----------+
+> | TAP        | Transmitted | 1.117 Mpps   | 1.087 Mpps     | -2.7%    |
+> |            +-------------+--------------+----------------+----------+
+> |            | Lost/s      | 8.476 Mpps   | 0 pps          |          |
+> +------------+-------------+--------------+----------------+----------+
+> | TAP        | Transmitted | 3.679 Mpps   | 3.464 Mpps     | -5.8%    |
+> |            +-------------+--------------+----------------+----------+
+> | +vhost-net | Lost/s      | 5.306 Mpps   | 0 pps          |          |
+> +------------+-------------+--------------+----------------+----------+
+> 
+> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
+> ---
+>  drivers/net/tun.c | 30 ++++++++++++++++++++++++++++--
+>  1 file changed, 28 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+> index efe809597622..c2a1618cc9db 100644
+> --- a/drivers/net/tun.c
+> +++ b/drivers/net/tun.c
+> @@ -1011,6 +1011,8 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
+>  	struct netdev_queue *queue;
+>  	struct tun_file *tfile;
+>  	int len = skb->len;
+> +	bool qdisc_present;
+> +	int ret;
+>  
+>  	rcu_read_lock();
+>  	tfile = rcu_dereference(tun->tfiles[txq]);
+> @@ -1065,13 +1067,37 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
+>  
+>  	nf_reset_ct(skb);
+>  
+> -	if (ptr_ring_produce(&tfile->tx_ring, skb)) {
+> +	queue = netdev_get_tx_queue(dev, txq);
+> +	qdisc_present = !qdisc_txq_has_no_queue(queue);
+> +
+> +	spin_lock(&tfile->tx_ring.producer_lock);
+> +	ret = __ptr_ring_produce(&tfile->tx_ring, skb);
+> +	if (__ptr_ring_produce_peek(&tfile->tx_ring) && qdisc_present) {
+> +		netif_tx_stop_queue(queue);
+> +		/* Re-peek and wake if the consumer drained the ring
+> +		 * concurrently in a race. smp_mb__after_atomic() pairs
+> +		 * with the test_and_clear_bit() of netif_wake_subqueue()
+> +		 * in __tun_wake_queue().
+> +		 */
+> +		smp_mb__after_atomic();
+> +		if (!__ptr_ring_produce_peek(&tfile->tx_ring))
+> +			netif_tx_wake_queue(queue);
+> +	}
+> +	spin_unlock(&tfile->tx_ring.producer_lock);
+> +
+> +	if (ret) {
+> +		/* If a qdisc is attached to our virtual device,
+> +		 * returning NETDEV_TX_BUSY is allowed.
+> +		 */
+> +		if (qdisc_present) {
+> +			rcu_read_unlock();
+> +			return NETDEV_TX_BUSY;
+> +		}
+>  		drop_reason = SKB_DROP_REASON_FULL_RING;
+>  		goto drop;
+>  	}
+>  
+>  	/* dev->lltx requires to do our own update of trans_start */
+> -	queue = netdev_get_tx_queue(dev, txq);
+>  	txq_trans_cond_update(queue);
+>  
+>  	/* Notify and wake up reader process */
+> -- 
+> 2.43.0
 
