@@ -1,169 +1,210 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EBECD450911
-	for <virtualization@lists.linux.dev>; Tue, 28 Apr 2026 13:08:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4B1F44A708;
+	Tue, 28 Apr 2026 13:10:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777381695; cv=none; b=NiIQpNk870x5t/SgUfXNBG3R9UUMtg0Vf10Qqa8ryenhH3f0wcT73VWISV4xM1LOblH+7sj5lQ3fNsApbCXBux2Cxa+rIoErCt2CROBQ+XjfmqpB1xmxGMzZ8io/AGMC/fgrQvqguqS6uoJX+035diD3QNr6grnm3G2Ph+HE9is=
+	t=1777381857; cv=none; b=c1nlmAzvYVCgpRzhQAeMVgaZ3hlEkY22Ax2Sd05IqTK11feDdYqfxhARGwOW/QTlYL3L8y4NE86wV1dQ2WuMqGIFcdwL/rRw+rVZ2YjeC8zEd/J7b+G+Zl/RQvrQbvNZn5GulzccHrsjuyfEuo3iSG4FgkPA18+3PFJB4pgy29U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777381695; c=relaxed/simple;
-	bh=v54lbtqgbX4GavD38ynkXgqip7rcSqTMvrGrfyGrDm0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=p+MrelS7LLVIqIyAVpNs/6GwiucqUjchnJ85O+jEg0bz+/AMOVHrFLlLsboW1VQds5bXynRiM3UhPDjAOyck2q/3Z15Hgb70/sMojKu6exllp7Hfp5R+tC/8DOzTGGcWEuT/htHxNaD5/pwPOvvvU0LvUQ7D1NPbolwYSTvbF60=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Jn4mLfqL; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=6EraTIXp; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=q+IWzqzK; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=MbASWYe+; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Jn4mLfqL";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="6EraTIXp";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="q+IWzqzK";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="MbASWYe+"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id D60CC5BCE1;
-	Tue, 28 Apr 2026 13:08:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1777381692; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qfHwNudJmxczCvGUPLLuGA5ZXHhapkdWdCgZlnCSfvo=;
-	b=Jn4mLfqL1Yne+LRTncOG/xG6TZ10rCWgJS9tV54YLPXVZY20eEa4GSsxrKSdy5HqeX8S8q
-	yEfPfKKno7m/KehSc1H3MYrfGj19D5YkQfPrM4leWSrk7HbB37bTXpy6Z7Mul5wtKy1sSr
-	uMqhwgWtCnc56h8wfXQ34v9rL2LWl6w=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1777381692;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qfHwNudJmxczCvGUPLLuGA5ZXHhapkdWdCgZlnCSfvo=;
-	b=6EraTIXpIKWlTiAwZb5Al0nEVUhM3n1R+WKiFZxL413mc7tCusd2r5uB1SnBve4HEmyIZ3
-	Kw5pp+YHhgYY5vCQ==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=q+IWzqzK;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=MbASWYe+
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1777381691; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qfHwNudJmxczCvGUPLLuGA5ZXHhapkdWdCgZlnCSfvo=;
-	b=q+IWzqzKmn2cj4UTrE1TJfZ2507WKmlfZ5SjuemF29Ajc8QvC22TI53JNy9ARHYmtIcnrz
-	shC80cTqdwJdCAzB3Td06ddHCljRiQC9BVCFAoltPDpFIW2Kc30xBxTKdcf5p6kSIfbVnV
-	HcS8m4UPFU4B4zjz7+rZvbx9BDyd0ts=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1777381691;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qfHwNudJmxczCvGUPLLuGA5ZXHhapkdWdCgZlnCSfvo=;
-	b=MbASWYe+cBY5TqwnP9VcBhX+VcZXXGxcLNZXH81VjmLrDZSkCqnLx5xQo2RJoHvKAjLm4V
-	BzCM97vrSFuE62Dw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id B55F6593B0;
-	Tue, 28 Apr 2026 13:08:11 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id dPbrKzux8GmoVgAAD6G6ig
-	(envelope-from <dwagner@suse.de>); Tue, 28 Apr 2026 13:08:11 +0000
-Date: Tue, 28 Apr 2026 15:08:10 +0200
-From: Daniel Wagner <dwagner@suse.de>
-To: Florian Bezdeka <florian.bezdeka@siemens.com>
-Cc: Aaron Tomlin <atomlin@atomlin.com>, axboe@kernel.dk, kbusch@kernel.org, 
-	hch@lst.de, sagi@grimberg.me, mst@redhat.com, aacraid@microsemi.com, 
-	James.Bottomley@hansenpartnership.com, martin.petersen@oracle.com, liyihang9@h-partners.com, 
-	kashyap.desai@broadcom.com, sumit.saxena@broadcom.com, 
-	shivasharan.srikanteshwara@broadcom.com, chandrakanth.patil@broadcom.com, sathya.prakash@broadcom.com, 
-	sreekanth.reddy@broadcom.com, suganath-prabu.subramani@broadcom.com, ranjan.kumar@broadcom.com, 
-	jinpu.wang@cloud.ionos.com, tglx@kernel.org, mingo@redhat.com, peterz@infradead.org, 
-	juri.lelli@redhat.com, vincent.guittot@linaro.org, akpm@linux-foundation.org, 
-	maz@kernel.org, ruanjinjie@huawei.com, bigeasy@linutronix.de, 
-	yphbchou0911@gmail.com, wagi@kernel.org, frederic@kernel.org, longman@redhat.com, 
-	chenridong@huawei.com, hare@suse.de, kch@nvidia.com, ming.lei@redhat.com, 
-	tom.leiming@gmail.com, steve@abita.co, sean@ashe.io, chjohnst@gmail.com, neelx@suse.com, 
-	mproche@gmail.com, nick.lange@gmail.com, marco.crivellari@suse.com, 
-	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
-	linux-nvme@lists.infradead.org, linux-scsi@vger.kernel.org, megaraidlinux.pdl@broadcom.com, 
-	mpi3mr-linuxdrv.pdl@broadcom.com, MPT-FusionLinux.pdl@broadcom.com
-Subject: Re: [PATCH v12 00/13] blk: honor isolcpus configuration
-Message-ID: <2d61b1f7-fc06-4fe1-8a6f-cc3a2f114ae1@flourine.local>
-References: <20260422185215.100929-1-atomlin@atomlin.com>
- <e350389a5a635660267a7a13f06529da102a95d8.camel@siemens.com>
+	s=arc-20240116; t=1777381857; c=relaxed/simple;
+	bh=nmszbhvlmW6fCGQOwQbFQYvBDmzyGhtjk20ogqwaHEE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=mWnkvLQjYbnJpDCdrOG9eo7xEKghlTsesQ7zAhNkwL9V8Vmv+XtblzzocDggGIF3gRLKFKAJ2ib64aNhStLFMfvxlVEnnv/N7yreBDFO6UtfsZGI9Mhoimsr1Fk17g0ZcEh/Zhmfu6nGOKeNJikK6X/cJmFSiR9R5RmM2gsMv1w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; arc=none smtp.client-ip=129.217.128.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
+Received: from [129.217.186.62] ([129.217.186.62])
+	(authenticated bits=0)
+	by unimail.uni-dortmund.de (8.18.2/8.18.2) with ESMTPSA id 63SDAig6017192
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Tue, 28 Apr 2026 15:10:45 +0200 (CEST)
+Message-ID: <cdc3cbc8-cf6a-437c-b34c-dd8ced65d7f8@tu-dortmund.de>
+Date: Tue, 28 Apr 2026 15:10:44 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e350389a5a635660267a7a13f06529da102a95d8.camel@siemens.com>
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Spamd-Result: default: False [-3.01 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	TO_DN_SOME(0.00)[];
-	FREEMAIL_CC(0.00)[atomlin.com,kernel.dk,kernel.org,lst.de,grimberg.me,redhat.com,microsemi.com,hansenpartnership.com,oracle.com,h-partners.com,broadcom.com,cloud.ionos.com,infradead.org,linaro.org,linux-foundation.org,huawei.com,linutronix.de,gmail.com,suse.de,nvidia.com,abita.co,ashe.io,suse.com,vger.kernel.org,lists.linux.dev,lists.infradead.org];
-	MIME_TRACE(0.00)[0:+];
-	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	ARC_NA(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_TRACE(0.00)[suse.de:+];
-	R_RATELIMIT(0.00)[to_ip_from(RLip3qrwmtdyuwmp1ydoxr43fi)];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_SOME(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	RCPT_COUNT_GT_50(0.00)[53];
-	TAGGED_RCPT(0.00)[];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	MISSING_XM_UA(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.de:dkim,flourine.local:mid]
-X-Rspamd-Queue-Id: D60CC5BCE1
-X-Spam-Flag: NO
-X-Spam-Score: -3.01
-X-Spam-Level: 
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v9 4/4] tun/tap & vhost-net: avoid ptr_ring
+ tail-drop when a qdisc is present
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
+        andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, eperezma@redhat.com,
+        leiyang@redhat.com, stephen@networkplumber.org, jon@nutanix.com,
+        tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        virtualization@lists.linux.dev
+References: <20260428123859.19578-1-simon.schippers@tu-dortmund.de>
+ <20260428123859.19578-5-simon.schippers@tu-dortmund.de>
+ <20260428084851-mutt-send-email-mst@kernel.org>
+Content-Language: en-US
+From: Simon Schippers <simon.schippers@tu-dortmund.de>
+In-Reply-To: <20260428084851-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Mon, Apr 27, 2026 at 12:55:20PM +0200, Florian Bezdeka wrote:
-> This topic reminds me of a discussion started by Tobias [1] some time
-> ago about IRQ spreading of network drivers. The problem was (and still
-> is) that network drivers ignore any CPU isolation when spreading out
-> device IRQs.
+On 4/28/26 14:50, Michael S. Tsirkin wrote:
+> On Tue, Apr 28, 2026 at 02:38:59PM +0200, Simon Schippers wrote:
+>> This commit prevents tail-drop when a qdisc is present and the ptr_ring
+>> becomes full. Once an entry is successfully produced and the ptr_ring
+>> reaches capacity, the netdev queue is stopped instead of dropping
+>> subsequent packets.
+>>
+>> If producing an entry fails anyways due to a race, tun_net_xmit returns
+>> NETDEV_TX_BUSY, again avoiding a drop. Such races are expected because
+>> LLTX is enabled and the transmit path operates without the usual locking.
+>>
+>> If no qdisc is present, the previous tail-drop behavior is preserved.
+>>
+>> The existing __tun_wake_queue() function of the consumer races with the
+>> producer for waking/stopping the netdev queue: the consumer may drain
+>> the ring just as the producer stops the queue, leading to a permanent
+>> stall. To avoid this, the producer re-checks the ring after stopping
+>> and wakes the queue itself if space was just made. An
+>> smp_mb__after_atomic() is required so the re-peek of the ring sees any
+>> drain that the consumer performed.
+>> smp_mb__after_atomic() pairs with the test_and_clear_bit() inside of
+>> netif_wake_subqueue():
+>>
+>> Consumer CPU                  Producer CPU
+>> ========================      =========================
+>> __ptr_ring_consume()
+>> netif_wake_subqueue()         netif_tx_stop_queue()
+>>           /\                  smp_mb__after_atomic()
+>>           ||                  __ptr_ring_produce_peek()
+>> contains RMW operation
+>>  test_and_clear_bit()
+>>           /\
+>>           ||
+>>  "Fully ordered RMW:
+>> smp_mb() before + after"
+>>     - atomic_t.txt
+>>
+>> Benchmarks:
+>> The benchmarks show a slight regression in raw transmission performance,
+>> though no packets are lost anymore.
 > 
-> In general we have two different CPU isolation mechanisms:
->   - The static one, via isolcpus= cmdline parameter
->   - The dynamic one, via cgroups(v2) cpuset controller
+> Could you include the packets received as well?
+> To demonstrate the gains/lack of loss. 
 > 
-> This series is only taking the static "world" into account, right? Are
-> there any plans to honor the CPU isolations configured the dynamic
-> way?
 
-Dynamic configuration would require every driver to fully support
-reconfiguration during runtime. Only a handful of drivers, such as
-nvme-pci, are currently able to handle this.
+Do you mean the number of packets received by the VM?
+They should just be the same as the number sent (shown below), right?
 
-The first task, teaching a wide range of drivers to honor CPU isolation
-at boot time, is already going to be a significant amount of work.
+I assume they would be visible as RX-DRP for TAP.
+For TAP + vhost-net I would have to rewrite the XDP drop
+program to count the number of dropped packets...
+And I would have to automate it...
 
-> It has been a while since the last investigations on my end. Last time I
-> went through the code, the IRQ core was completely decoupled from the
-> dynamic configuration via cgroups. Are there any plans to fix that gap?
-
-Which use case are you actually aiming to support? While dynamic
-reconfiguration would be ideal, the amount of work to get there is
-significant. I won't be signing up for it.
+>>
+>> The previously introduced threshold to only wake after the queue stopped
+>> and half of the ring was consumed showed to be a descent choice:
+>> Waking the queue whenever a consume made space in the ring strongly
+>> degrades performance for tap, while waking only when the ring is empty
+>> is too late and also hurts throughput for tap & tap+vhost-net.
+>> Other ratios (3/4, 7/8) showed similar results (not shown here), so
+>> 1/2 was chosen for the sake of simplicity for both tun/tap and
+>> tun/tap+vhost-net.
+>>
+>> Test setup:
+>> AMD Ryzen 5 5600X at 4.3 GHz, 3200 MHz RAM, isolated QEMU threads;
+>> Average over 50 runs @ 100,000,000 packets. SRSO and spectre v2
+>> mitigations disabled.
+>>
+>> Note for tap+vhost-net:
+>> XDP drop program active in VM -> ~2.5x faster, slower for tap due to
+>> more syscalls (high utilization of entry_SYSRETQ_unsafe_stack in perf)
+>>
+>> +--------------------------+--------------+----------------+----------+
+>> | 1 thread                 | Stock        | Patched with   | diff     |
+>> | sending                  |              | fq_codel qdisc |          |
+>> +------------+-------------+--------------+----------------+----------+
+>> | TAP        | Transmitted | 1.136 Mpps   | 1.130 Mpps     | -0.6%    |
+>> |            +-------------+--------------+----------------+----------+
+>> |            | Lost/s      | 3.758 Mpps   | 0 pps          |          |
+>> +------------+-------------+--------------+----------------+----------+
+>> | TAP        | Transmitted | 3.858 Mpps   | 3.816 Mpps     | -1.1%    |
+>> |            +-------------+--------------+----------------+----------+
+>> | +vhost-net | Lost/s      | 789.8 Kpps   | 0 pps          |          |
+>> +------------+-------------+--------------+----------------+----------+
+>>
+>> +--------------------------+--------------+----------------+----------+
+>> | 2 threads                | Stock        | Patched with   | diff     |
+>> | sending                  |              | fq_codel qdisc |          |
+>> +------------+-------------+--------------+----------------+----------+
+>> | TAP        | Transmitted | 1.117 Mpps   | 1.087 Mpps     | -2.7%    |
+>> |            +-------------+--------------+----------------+----------+
+>> |            | Lost/s      | 8.476 Mpps   | 0 pps          |          |
+>> +------------+-------------+--------------+----------------+----------+
+>> | TAP        | Transmitted | 3.679 Mpps   | 3.464 Mpps     | -5.8%    |
+>> |            +-------------+--------------+----------------+----------+
+>> | +vhost-net | Lost/s      | 5.306 Mpps   | 0 pps          |          |
+>> +------------+-------------+--------------+----------------+----------+
+>>
+>> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+>> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+>> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
+>> ---
+>>  drivers/net/tun.c | 30 ++++++++++++++++++++++++++++--
+>>  1 file changed, 28 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+>> index efe809597622..c2a1618cc9db 100644
+>> --- a/drivers/net/tun.c
+>> +++ b/drivers/net/tun.c
+>> @@ -1011,6 +1011,8 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
+>>  	struct netdev_queue *queue;
+>>  	struct tun_file *tfile;
+>>  	int len = skb->len;
+>> +	bool qdisc_present;
+>> +	int ret;
+>>  
+>>  	rcu_read_lock();
+>>  	tfile = rcu_dereference(tun->tfiles[txq]);
+>> @@ -1065,13 +1067,37 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
+>>  
+>>  	nf_reset_ct(skb);
+>>  
+>> -	if (ptr_ring_produce(&tfile->tx_ring, skb)) {
+>> +	queue = netdev_get_tx_queue(dev, txq);
+>> +	qdisc_present = !qdisc_txq_has_no_queue(queue);
+>> +
+>> +	spin_lock(&tfile->tx_ring.producer_lock);
+>> +	ret = __ptr_ring_produce(&tfile->tx_ring, skb);
+>> +	if (__ptr_ring_produce_peek(&tfile->tx_ring) && qdisc_present) {
+>> +		netif_tx_stop_queue(queue);
+>> +		/* Re-peek and wake if the consumer drained the ring
+>> +		 * concurrently in a race. smp_mb__after_atomic() pairs
+>> +		 * with the test_and_clear_bit() of netif_wake_subqueue()
+>> +		 * in __tun_wake_queue().
+>> +		 */
+>> +		smp_mb__after_atomic();
+>> +		if (!__ptr_ring_produce_peek(&tfile->tx_ring))
+>> +			netif_tx_wake_queue(queue);
+>> +	}
+>> +	spin_unlock(&tfile->tx_ring.producer_lock);
+>> +
+>> +	if (ret) {
+>> +		/* If a qdisc is attached to our virtual device,
+>> +		 * returning NETDEV_TX_BUSY is allowed.
+>> +		 */
+>> +		if (qdisc_present) {
+>> +			rcu_read_unlock();
+>> +			return NETDEV_TX_BUSY;
+>> +		}
+>>  		drop_reason = SKB_DROP_REASON_FULL_RING;
+>>  		goto drop;
+>>  	}
+>>  
+>>  	/* dev->lltx requires to do our own update of trans_start */
+>> -	queue = netdev_get_tx_queue(dev, txq);
+>>  	txq_trans_cond_update(queue);
+>>  
+>>  	/* Notify and wake up reader process */
+>> -- 
+>> 2.43.0
+> 
