@@ -1,269 +1,259 @@
-Received: from mail-yw1-f175.google.com (mail-yw1-f175.google.com [209.85.128.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB5E8138490
-	for <virtualization@lists.linux.dev>; Tue, 28 Apr 2026 08:24:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.175
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777364691; cv=pass; b=Ywea7dfw+tOBOJnkV4p0ryrlu4QPGtdq3sDyfc4CGp1y7AO+BDnmKoGxEXjQkfH9Sj+n0/g+IYJSYM+FcmfP8lmnTe0OzYdQ0PiMrm+QCxmbZY3arN4VDuJwFqPOSRFEKXpZDPNdyNVojzMBrEseix8SEoGrN5zwRo6n6BDgiLk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777364691; c=relaxed/simple;
-	bh=rflQkKHjNVxCVgZtglvz+DJcNmjV4gDXBMOsyusJUg4=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=WMC0s+OqHUqBdgiI8JJylN5R6106svVm6Y+FlWLRf9XSSXugVlGEKtI2qAGAlWnxYx5W3/Go4ltxeoCrj/CGh4KHTO/jxqybc1wtealkZ2zn/+halbzuykB9oWg92FHB031NMJEAV3eTs2yv5OMSH+m/IEaPE9MsJ42CgONt3+w=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HgX1nWtX; arc=pass smtp.client-ip=209.85.128.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB8AD330315
+	for <virtualization@lists.linux.dev>; Tue, 28 Apr 2026 08:58:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777366685; cv=none; b=ZXCk3YuGNVUuGCifggOzgfHsjhLE9DyQmqr9Dg87tGasy8ZTrbArzOao4jMmYhnj0pso1esESQm305Z2b1u5B8em6Bo8u0On+J92/4hXpIYOuiyp5+pbeuJ288SRYtQyTdoqeOCtJSp7Nm/uYgUQ7u7DQVnWzf4wKVwFPD8KY8E=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777366685; c=relaxed/simple;
+	bh=uRW8e72Rqzipki+9LHRLNLqQmu5KdCJEOG4HG3wjS9Q=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=WsT9SV1xFrHjkhKPqZbznGoHvABWN5gDtf8QaE8WP/Yx4VR7NE6choSb2eLtL03dYT4F4TuHMRY+K2G9ydsKTHelB3kRU2Kg07tKVW6Ou0F4HJLIpxuFjMrAqIbXe40sio/zd5V//2DN8UVAlFADJsrbXUYSOF0fcz3ckukv/ls=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=E3wtYt3e; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HgX1nWtX"
-Received: by mail-yw1-f175.google.com with SMTP id 00721157ae682-7986e0553bdso105979127b3.2
-        for <virtualization@lists.linux.dev>; Tue, 28 Apr 2026 01:24:49 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1777364689; cv=none;
-        d=google.com; s=arc-20240605;
-        b=cvMQ8nBIdWP/fzyj/TVk3SxD35kX/sBoZudvM8jYJ/iQvf2ib3YbOAsQyRhtr09Trr
-         loY0jQ+9MzqxI1xaMLGdHVZhaMj1EuwZSQR6STfBXI33gQHs6nJiafdHRtqEsRyq7YlR
-         cHhfyfTncau2jvkO1DzJRGg5tOE/VgNty8OMbZ8ukcD9BqwAWGG9y4d1w0hcNKjjhHsq
-         mURUXYK+H7f3G9GV0MssoZuG+MZedtuRNQ6m6cqwil9hXGAvrvkYDcoIm9eLwZ98rYDv
-         G+cenRRpF2sY9dvXMjR7UWah6HMofN7JFtFlUNmIvdWS1+E1xvjygp6zW1H4yqhO3AIz
-         6Ggg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=5nbTPPIa6lE5He4gxsryrRCR65xYKtTO0ggHOsJlUxQ=;
-        fh=FrnJgcpkZ6SRpoOO9yl7IifPEPe2pbNHfeJ9yfmMOzQ=;
-        b=CUwlt4bdovp3hgEPBdz+S8VrBORPqLqe1Xn14BVG/SlIYs6AZvRMh7qlO+X3AdQKth
-         /E3CCc1H7sN+0mPyOi+5a1F+LpBzsuaCJ5WDacqWSFpRSrPStL4nGICXdBtx8Amfn9Dr
-         3MzPoJFWb+NEC8EnlOmtKJrN1/Qd6ZJEbZZo06pPPDmK7T/lGomCgb9iR/eEB1tk4a5V
-         OW2lop0hQKdxfeeumKKvzq20DA2yJw6HDNWpYuFqAFRO84pCKSleNG+P326CNpUKxLlu
-         wa9glIo8b4wObSv0MAJufMR1hXgN4JnvfooKNOSPgO2yJ2cm1ooY6Zhl+39TU9i4lExU
-         bYXw==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777364689; x=1777969489; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=5nbTPPIa6lE5He4gxsryrRCR65xYKtTO0ggHOsJlUxQ=;
-        b=HgX1nWtXZKAbitojnstHPXctKczUDFV6FsFPCu/tOufOgV97hqFmThCiNOtzF4mVDg
-         pP0BQ4lgnYz65lgGECTWjqKZFa4Cp9W7WastInxFZ9QgVt/4bIxhMlwwKNahg47T4nG4
-         fWDv2BGkno01XlG+Syqk+MIjQCvkaRmZYz/o7gQG3IO9fqYNZtMNWXXbr6uhs59Oonjq
-         ID2X4HNlQo56FkofOLtfpeOTaB/WHYK+0HYXr3XgeLwuoJVChWBowW3A6V9JMI+zqSTD
-         yK5e8Yhc218WwkZEl9iSMVNHiMBsrAEHcXW0Fg4LNswFYuxpsrSI8LmNTyBzONW99vmX
-         ST7g==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="E3wtYt3e"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1777366682;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=eq86QjeYlD20o4XVhJa8zSjeSJAedvnhgfqIHlBbJ8s=;
+	b=E3wtYt3eUxBGj12tW/gIcz50/XmiZPJMM0HzbpTs3U7o5qgwidg+7DAfBSV6siDD0Fi8Gc
+	FnflyB0U9xEIiTOQof7fTtKlG09VTJytbYGkZHT0xcumbzFFCR41j4w/vxWJxp7rckVqsB
+	/OWxwKlpx1xmzcNHjGCmdSCT996c5+M=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-1-TCKZxdFXMX6ZF-oUtBV8pw-1; Tue, 28 Apr 2026 04:58:01 -0400
+X-MC-Unique: TCKZxdFXMX6ZF-oUtBV8pw-1
+X-Mimecast-MFC-AGG-ID: TCKZxdFXMX6ZF-oUtBV8pw_1777366680
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-43efc93e4f6so9028893f8f.3
+        for <virtualization@lists.linux.dev>; Tue, 28 Apr 2026 01:58:01 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777364689; x=1777969489;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=5nbTPPIa6lE5He4gxsryrRCR65xYKtTO0ggHOsJlUxQ=;
-        b=HTRHq1euhBMB9e+xn3koVupix15POMh3g0Ks0oiZWEmnQgEk5p/hDy7knafO/vWdoR
-         ip38Vs+ouEg+EZKCOzn0vIJGb3uOG0dEx+rcm1Cyfl0xWe8YD0Hl6Hpxb8YJ9U0qqjHp
-         2FOD8YQXiTw6jkfmsQzugHV/3u9Obcj17+mXAeiHEOb2ACK9Lqqz1LsnyDN2qmwRAk0d
-         /P3vr3TnAI9zZDLGKrKUR158bxNWY7cJMDBoBH2f+fJnKwg72WsXcUnq3/4jfclMk+wI
-         rYDzjB2lfpzhuPhIa+TRF4oikCRH1XL3gI+UsT+NF/IoR/0arcBatLLJsV9ORA/HAQId
-         BCxg==
-X-Forwarded-Encrypted: i=1; AFNElJ85yT+3cDZFm6sCzSEYcQAqAtK0Ru1RKEDQKrImmi6TlZAjgIvPQl/GvWhoMmSekdCb9YVRiGa8eAJcVMoKzQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw65WsppOXr5NlLsBMKAoFn/MDyYW0t1PJs/LJHywi6ZSQfxQB2
-	FqB6N13+D6TvDVkbevLao0GVDDW+Wu3XlGJq8p5EcNVhwSeQH/upfYXx7Bu9u9/roYUla6EseZz
-	YhJPEtL5YJWCgUSwU+2/NwUewC3Vrr1Q=
-X-Gm-Gg: AeBDievt89zPV3NGyjiZAw+T7vgNCCuwGCeK8zwtrW96rCHeShRDksI+EHSFL5lHGCD
-	TCHFO5O4RwkCDwskrlf7TqyLpllPBt+aWPVvhbPuq+pWEXdgUzbU/OoHpboU6RGEtlQaIJTbIbm
-	HDWpQIJK3D2k3iGTsJ/UlLlfrL6QKgVw6U+Kl4dlaPG2z2WBMTXt0dd87X+9XT1Bc8ml5nj0Fya
-	DgKTW5sSWuNLEZOIQkJSzONNmqVgRkQwXUz+z54uU/KHgGUigP21q+vKq5AzrV4xrBXK5dx+2sq
-	rZjln79I75Vcdv3V7wyASwdhN6ZH9feslv4Wo1JQvfhMLFJUuxcBol+w0a3G4ZMjC1Qu8b5YHl8
-	ZQ44xOTU=
-X-Received: by 2002:a05:690c:2607:b0:7b6:422d:7623 with SMTP id
- 00721157ae682-7bcf5212a91mr20867887b3.16.1777364688595; Tue, 28 Apr 2026
- 01:24:48 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1777366674; x=1777971474;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=eq86QjeYlD20o4XVhJa8zSjeSJAedvnhgfqIHlBbJ8s=;
+        b=q1TTSpBz0qEaOFQ+UwX9y6Az0wTjVV883ObntuXfHKXBVw+0KNWVDJcGAw2T8OBgm1
+         4Hc6ItJ050GZWpLUJyjGa07OI/IK0uoE0gNZ7zFEo/g8B2f8vI98DTK5mPFTY1+KERUI
+         XCW7HDoAYzT3oyO5ei0Gzt7KgU+foglwzUnA+S418ubcYD0H0RgsjVUqxwYtV8I1uTWv
+         b6LrSWRmG+lONqfQnqTp1W6InoBBxv8NWU5nUUiAoP0hT5vTUa+BM7gX9Oi8cwvzKKnW
+         iYYuPZG4VfWy7i+Z+tOv9loTLg1aFd6VM/hrFkQXRwfMYfSW5OzP/B6QodCxrY2kfilg
+         S12Q==
+X-Forwarded-Encrypted: i=1; AFNElJ9I1OxACPN9sYeAbvnCmjZ6dGrQw2UFFjst/hZrK7XEJt7PI9HKcx+nmJ1urXI6uI8UTW48LUuA2Lb8qT3zPA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwaiewKjjfX0wGOVbX+URiKUDd3F03KZ4RWr4c5ABNXdFDHICzu
+	KGo7qPF/593G5UOkE41UQgLKLzkeKaDaTXMujAvXU9rbJ5Yc2S5PfRu8KVH/gjHLBEQ9Hr1iAR9
+	Y4oeHByPvmx4OXMOBg8NmKOXDlkG3ZRKQLtoOFXaJOuRzOlv69JZeAZh+uh+2dZGY5BUv
+X-Gm-Gg: AeBDieueknsvpP1OGj0MhpU9UM+FfBbdMQuzAWmsyUa0uehFzEgFbt6q8kRd8283hiM
+	+KHOr0kQltHjqThYsvRP8qDTpXQ1vmF7O4YqbAZcc1aj+zjvVR2oqUufyjX6T/Jso8yQC+afRjx
+	t/T2QQ5qYE/i1dExU9ZaCxyJ4+Ml8up7ERR0liKnBPeWC+a1Oln5fQpfOOrmmEbKz6t1mjRYY0n
+	+nRoOhIKOmBPq443xUa4MfPyWm4x1T8o+68g+QKQCV1odF7A1AT8o9a/vm7D2oDg3ers1pZr2Fq
+	7gpxEoFniiJlOLWyDPcNvmg7XfzTEiqJ/j1kCk1KDt+0PielEW3/Tt81m1bMrK0r76s5SCn+VoY
+	BgrsiNhxpyrm7/zSN4PzqACOb2ioGykRlxf95yzY3Pt+BcjZyFFLx26b2BEcpxdPAAkxfrC0jbm
+	GCYRe0TA==
+X-Received: by 2002:a05:6000:2481:b0:441:362c:39c1 with SMTP id ffacd0b85a97d-4464a913403mr3894578f8f.33.1777366674230;
+        Tue, 28 Apr 2026 01:57:54 -0700 (PDT)
+X-Received: by 2002:a05:6000:2481:b0:441:362c:39c1 with SMTP id ffacd0b85a97d-4464a913403mr3894514f8f.33.1777366673658;
+        Tue, 28 Apr 2026 01:57:53 -0700 (PDT)
+Received: from sgarzare-redhat (host-87-16-204-83.retail.telecomitalia.it. [87.16.204.83])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4463fb7e2afsm4634086f8f.28.2026.04.28.01.57.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 28 Apr 2026 01:57:53 -0700 (PDT)
+Date: Tue, 28 Apr 2026 10:57:47 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Deepanshu Kartikey <kartikey406@gmail.com>
+Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, 
+	eperezma@redhat.com, stefanha@redhat.com, davem@davemloft.net, edumazet@google.com, 
+	kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, 
+	virtualization@lists.linux.dev, kvm@vger.kernel.org, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com
+Subject: Re: [PATCH] vsock/virtio: fix memory leak in
+ virtio_transport_recv_listen()
+Message-ID: <afB2QCHtoREOV6ml@sgarzare-redhat>
+References: <20260424150310.57228-1-kartikey406@gmail.com>
+ <ae9ilWoZI_-EMdWQ@sgarzare-redhat>
+ <CADhLXY6APdmMQLSxN9b66pV5mp5sDwJRR7_BJAh13BaK-qoa=w@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260424150310.57228-1-kartikey406@gmail.com> <ae9ilWoZI_-EMdWQ@sgarzare-redhat>
-In-Reply-To: <ae9ilWoZI_-EMdWQ@sgarzare-redhat>
-From: Deepanshu Kartikey <kartikey406@gmail.com>
-Date: Tue, 28 Apr 2026 13:54:36 +0530
-X-Gm-Features: AVHnY4LkfkfcAbNkAqMYMqsD9ddBBMlOtODTH4wKfniL5RjT_dtXJ2UJOta3HQA
-Message-ID: <CADhLXY6APdmMQLSxN9b66pV5mp5sDwJRR7_BJAh13BaK-qoa=w@mail.gmail.com>
-Subject: Re: [PATCH] vsock/virtio: fix memory leak in virtio_transport_recv_listen()
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, 
-	eperezma@redhat.com, stefanha@redhat.com, davem@davemloft.net, 
-	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, 
-	virtualization@lists.linux.dev, kvm@vger.kernel.org, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, 
-	syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <CADhLXY6APdmMQLSxN9b66pV5mp5sDwJRR7_BJAh13BaK-qoa=w@mail.gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: lc8nZnvEommIf7RiUFVCv7KvqiYjZZSlyAbVMUgug7s_1777366680
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Mon, Apr 27, 2026 at 7:15=E2=80=AFPM Stefano Garzarella <sgarzare@redhat=
-.com> wrote:
+On Tue, Apr 28, 2026 at 01:54:36PM +0530, Deepanshu Kartikey wrote:
+>On Mon, Apr 27, 2026 at 7:15 PM Stefano Garzarella <sgarzare@redhat.com> wrote:
+>>
+>> On Fri, Apr 24, 2026 at 08:33:10PM +0530, Deepanshu Kartikey wrote:
+>> >Two bugs exist in virtio_transport_recv_listen():
+>>
+>> Two bugs, two fixes, two patches usually.
+>>
+>> >
+>> >1. On the transport assignment error path, sk_acceptq_added() is called
+>> >   but sk_acceptq_removed() is never called when vsock_assign_transport()
+>> >   fails or assigns a different transport than expected. This causes the
+>> >   parent listener's accept backlog counter to be permanently inflated,
+>> >   eventually causing sk_acceptq_is_full() to reject legitimate incoming
+>> >   connections.
+>>
+>> Wait, I can't see this issue. sk_acceptq_added() is called after the
+>> vsock_assign_transport(), so why we should call sk_acceptq_removed()
+>> in the error path of vsock_assign_transport()?
+>>
+>> Maybe I'm missing something.
+>>
+>> >
+>> >2. There is a race between __vsock_release() and vsock_enqueue_accept().
+>> >   __vsock_release() sets sk->sk_shutdown to SHUTDOWN_MASK and flushes
+>> >   the accept queue under the parent socket lock. However,
+>> >   virtio_transport_recv_listen() checks sk_shutdown and subsequently
+>> >   calls vsock_enqueue_accept() without holding the parent socket lock.
+>>
+>> Are you sure about this?
+>>
+>> virtio_transport_recv_listen() is called only by
+>> virtio_transport_recv_pkt() after calling lock_sock(sk), so I'm really
+>> confused.
+>>
+>> >   This means a child socket can be enqueued after __vsock_release() has
+>> >   already flushed the queue, causing the child socket and its associated
+>> >   resources to leak
+>> >   permanently. The existing comment in the code hints at this race but
+>> >   the fix was never implemented.
+>>
+>> Are you referring to:
+>>         /* __vsock_release() might have already flushed accept_queue.
+>>          * Subsequent enqueues would lead to a memory leak.
+>>          */
+>>         if (sk->sk_shutdown == SHUTDOWN_MASK) {
+>>                 virtio_transport_reset_no_sock(t, skb, sock_net(sk));
+>>                 return -ESHUTDOWN;
+>>         }
+>>
+>> In this case I think we are saying that we are doing this check exactly
+>> to avoid that issue.
+>>
+>> >
+>> >Fix both issues: add sk_acceptq_removed() on the transport error path,
+>>
+>> Again, better to fix the 2 issues with 2 patches (same series is fine).
+>>
+>> >and re-check sk->sk_shutdown under the parent socket lock before calling
+>> >vsock_enqueue_accept() to close the race window. The child socket lock
+>> >is released before acquiring the parent socket lock to maintain correct
+>> >lock ordering (parent before child).
+>> >
+>>
+>> We are missing the Fixes tag, and I think we can target the `net` tree
+>> with this patch (i.e. [PATCH net]), see:
+>> https://www.kernel.org/doc/html/next/process/maintainer-netdev.html
+>>
+>> >Reported-by: syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com
+>> >Closes: https://syzkaller.appspot.com/bug?extid=1b2c9c4a0f8708082678
+>> >Tested-by: syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com
+>> >Signed-off-by: Deepanshu Kartikey <kartikey406@gmail.com>
+>> >---
+>> > net/vmw_vsock/virtio_transport_common.c | 13 +++++++++++--
+>> > 1 file changed, 11 insertions(+), 2 deletions(-)
+>> >
+>> >diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>> >index 416d533f493d..fad5fa4a4296 100644
+>> >--- a/net/vmw_vsock/virtio_transport_common.c
+>> >+++ b/net/vmw_vsock/virtio_transport_common.c
+>> >@@ -1578,6 +1578,7 @@ virtio_transport_recv_listen(struct sock *sk, struct sk_buff *skb,
+>> >        */
+>> >       if (ret || vchild->transport != &t->transport) {
+>> >               release_sock(child);
+>> >+              sk_acceptq_removed(sk);
+>>
+>> Ditto, are we sure about this?
+>>
+>> >               virtio_transport_reset_no_sock(t, skb, sock_net(sk));
+>> >               sock_put(child);
+>> >               return ret;
+>> >@@ -1588,11 +1589,19 @@ virtio_transport_recv_listen(struct sock *sk, struct sk_buff *skb,
+>> >               child->sk_write_space(child);
+>> >
+>> >       vsock_insert_connected(vchild);
+>> >+      release_sock(child);
+>> >+      lock_sock(sk);
+>>
+>> IMO this is a deadlock with the lock_sock(sk) called by the caller.
+>>
+>> Also a comment would be helpful here to explain why we're doing this.
+>>
+>> >+      if (sk->sk_shutdown == SHUTDOWN_MASK) {
+>> >+              release_sock(sk);
+>> >+              sk_acceptq_removed(sk);
+>> >+              virtio_transport_reset_no_sock(t, skb, sock_net(sk));
+>> >+              sock_put(child);
+>> >+              return -ESHUTDOWN;
+>>
+>> Since this is very similar to the error path of
+>> vsock_assign_transport(), I think it would be better to start by
+>> defining a common error path for the function and use labels to exit, so
+>> we can avoid duplicating the code multiple times.
+>>
+>> >+      }
+>> >       vsock_enqueue_accept(sk, child);
+>> >+      release_sock(sk);
+>> >       virtio_transport_send_response(vchild, skb);
+>> >
+>> >-      release_sock(child);
+>> >-
+>>
+>> TBH I'm really worried about this patch since both fixes are completely
+>> wrong IMO.
+>>
+>> Thanks,
+>> Stefano
+>>
+>> >       sk->sk_data_ready(sk);
+>> >       return 0;
+>> > }
+>> >--
+>> >2.43.0
+>> >
+>>
 >
-> On Fri, Apr 24, 2026 at 08:33:10PM +0530, Deepanshu Kartikey wrote:
-> >Two bugs exist in virtio_transport_recv_listen():
 >
-> Two bugs, two fixes, two patches usually.
+>Hi Stefano,
 >
-> >
-> >1. On the transport assignment error path, sk_acceptq_added() is called
-> >   but sk_acceptq_removed() is never called when vsock_assign_transport(=
-)
-> >   fails or assigns a different transport than expected. This causes the
-> >   parent listener's accept backlog counter to be permanently inflated,
-> >   eventually causing sk_acceptq_is_full() to reject legitimate incoming
-> >   connections.
+>Thank you for the detailed review!
 >
-> Wait, I can't see this issue. sk_acceptq_added() is called after the
-> vsock_assign_transport(), so why we should call sk_acceptq_removed()
-> in the error path of vsock_assign_transport()?
+>You are correct on both points. I apologize for the confusion — I was
+>looking at an older version of the code where sk_acceptq_added() was
+>called BEFORE vsock_assign_transport(), which made the
+>sk_acceptq_removed() fix appear necessary. In the current kernel,
+>sk_acceptq_added() is already moved to after vsock_assign_transport(),
+>so that issue no longer exists.
 >
-> Maybe I'm missing something.
+>Regarding the lock_sock(sk) fix — you are also correct that
+>virtio_transport_recv_pkt() already holds lock_sock(sk) before calling
+>virtio_transport_recv_listen(), so our second fix would indeed cause a
+>deadlock. I missed that completely.
 >
-> >
-> >2. There is a race between __vsock_release() and vsock_enqueue_accept().
-> >   __vsock_release() sets sk->sk_shutdown to SHUTDOWN_MASK and flushes
-> >   the accept queue under the parent socket lock. However,
-> >   virtio_transport_recv_listen() checks sk_shutdown and subsequently
-> >   calls vsock_enqueue_accept() without holding the parent socket lock.
->
-> Are you sure about this?
->
-> virtio_transport_recv_listen() is called only by
-> virtio_transport_recv_pkt() after calling lock_sock(sk), so I'm really
-> confused.
->
-> >   This means a child socket can be enqueued after __vsock_release() has
-> >   already flushed the queue, causing the child socket and its associate=
-d
-> >   resources to leak
-> >   permanently. The existing comment in the code hints at this race but
-> >   the fix was never implemented.
->
-> Are you referring to:
->         /* __vsock_release() might have already flushed accept_queue.
->          * Subsequent enqueues would lead to a memory leak.
->          */
->         if (sk->sk_shutdown =3D=3D SHUTDOWN_MASK) {
->                 virtio_transport_reset_no_sock(t, skb, sock_net(sk));
->                 return -ESHUTDOWN;
->         }
->
-> In this case I think we are saying that we are doing this check exactly
-> to avoid that issue.
->
-> >
-> >Fix both issues: add sk_acceptq_removed() on the transport error path,
->
-> Again, better to fix the 2 issues with 2 patches (same series is fine).
->
-> >and re-check sk->sk_shutdown under the parent socket lock before calling
-> >vsock_enqueue_accept() to close the race window. The child socket lock
-> >is released before acquiring the parent socket lock to maintain correct
-> >lock ordering (parent before child).
-> >
->
-> We are missing the Fixes tag, and I think we can target the `net` tree
-> with this patch (i.e. [PATCH net]), see:
-> https://www.kernel.org/doc/html/next/process/maintainer-netdev.html
->
-> >Reported-by: syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com
-> >Closes: https://syzkaller.appspot.com/bug?extid=3D1b2c9c4a0f8708082678
-> >Tested-by: syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com
-> >Signed-off-by: Deepanshu Kartikey <kartikey406@gmail.com>
-> >---
-> > net/vmw_vsock/virtio_transport_common.c | 13 +++++++++++--
-> > 1 file changed, 11 insertions(+), 2 deletions(-)
-> >
-> >diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/vir=
-tio_transport_common.c
-> >index 416d533f493d..fad5fa4a4296 100644
-> >--- a/net/vmw_vsock/virtio_transport_common.c
-> >+++ b/net/vmw_vsock/virtio_transport_common.c
-> >@@ -1578,6 +1578,7 @@ virtio_transport_recv_listen(struct sock *sk, stru=
-ct sk_buff *skb,
-> >        */
-> >       if (ret || vchild->transport !=3D &t->transport) {
-> >               release_sock(child);
-> >+              sk_acceptq_removed(sk);
->
-> Ditto, are we sure about this?
->
-> >               virtio_transport_reset_no_sock(t, skb, sock_net(sk));
-> >               sock_put(child);
-> >               return ret;
-> >@@ -1588,11 +1589,19 @@ virtio_transport_recv_listen(struct sock *sk, st=
-ruct sk_buff *skb,
-> >               child->sk_write_space(child);
-> >
-> >       vsock_insert_connected(vchild);
-> >+      release_sock(child);
-> >+      lock_sock(sk);
->
-> IMO this is a deadlock with the lock_sock(sk) called by the caller.
->
-> Also a comment would be helpful here to explain why we're doing this.
->
-> >+      if (sk->sk_shutdown =3D=3D SHUTDOWN_MASK) {
-> >+              release_sock(sk);
-> >+              sk_acceptq_removed(sk);
-> >+              virtio_transport_reset_no_sock(t, skb, sock_net(sk));
-> >+              sock_put(child);
-> >+              return -ESHUTDOWN;
->
-> Since this is very similar to the error path of
-> vsock_assign_transport(), I think it would be better to start by
-> defining a common error path for the function and use labels to exit, so
-> we can avoid duplicating the code multiple times.
->
-> >+      }
-> >       vsock_enqueue_accept(sk, child);
-> >+      release_sock(sk);
-> >       virtio_transport_send_response(vchild, skb);
-> >
-> >-      release_sock(child);
-> >-
->
-> TBH I'm really worried about this patch since both fixes are completely
-> wrong IMO.
->
-> Thanks,
-> Stefano
->
-> >       sk->sk_data_ready(sk);
-> >       return 0;
-> > }
-> >--
-> >2.43.0
-> >
->
+>I am still investigating the root cause of the memory leak reported by
+>syzbot. The backtrace points to the vsock loopback path
+>(vsock_loopback_work), so I am looking there next. I will send a v2
+>once I have a correct analysis and fix.
 
-
-Hi Stefano,
-
-Thank you for the detailed review!
-
-You are correct on both points. I apologize for the confusion =E2=80=94 I w=
-as
-looking at an older version of the code where sk_acceptq_added() was
-called BEFORE vsock_assign_transport(), which made the
-sk_acceptq_removed() fix appear necessary. In the current kernel,
-sk_acceptq_added() is already moved to after vsock_assign_transport(),
-so that issue no longer exists.
-
-Regarding the lock_sock(sk) fix =E2=80=94 you are also correct that
-virtio_transport_recv_pkt() already holds lock_sock(sk) before calling
-virtio_transport_recv_listen(), so our second fix would indeed cause a
-deadlock. I missed that completely.
-
-I am still investigating the root cause of the memory leak reported by
-syzbot. The backtrace points to the vsock loopback path
-(vsock_loopback_work), so I am looking there next. I will send a v2
-once I have a correct analysis and fix.
-
-Sorry again for the noise.
+Okay, thanks for looking into that issue, feel free to chat here, or in 
+reply to the syzbot report if you have some new findings.
 
 Thanks,
-Deeranshu Kartikey
+Stefano
+
