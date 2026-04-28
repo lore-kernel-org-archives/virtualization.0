@@ -1,45 +1,47 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C44D3B5304
-	for <virtualization@lists.linux.dev>; Wed, 29 Apr 2026 09:52:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0C82F3BE144
+	for <virtualization@lists.linux.dev>; Wed, 29 Apr 2026 09:52:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777456377; cv=none; b=WuRqj5UTPbM1sib1lCCfwedO9x8+XjdkcS8+XtGZ71Hr2dQ1c+GM3tgMkHtkj+6FaeO7xVMyLMJZ0rmdI94P97uiRhtmva4mznS2TvkCBdyNbegfcCQphAabFxVhw3vYZ8Y7/LlNb4Kh3KsA8sfEAkodLUYbZpoWPdn7VqPMCbc=
+	t=1777456381; cv=none; b=exowwIZw3v38M9mjxllV/RgQEEO4psSS/EN/084nrM6euaCTlAnrtgXRMemMBEfLAvWYhu4UVO/1wPlVrfcfBxbyJo4Rx8K4sa0lcdofVjDVHue6ol6ZdNHf4btgUSXbPTh/OrrDyVyZn8uVbH1puRuWFRSSFjPXsJl7P1KwX6s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777456377; c=relaxed/simple;
-	bh=iYiw0CmhW1uNO52r6h06DT39V6K9yOrh40nBJUPbNT4=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=tGfigsrYQE/aPWR318RN2yPbdFtkXMm0sh4DgZuZK4yoI9PxnSy5o7+Johj2Nz5ntoexqvO/MxpDNOfNfrAN9ZGBCS61Cvm2kOhXb87bwPh5zHR9bH1NDGXsjZomVznVAVoLTLeq8OiSlk6QhiRHqZ9d7IEszdLjeAguosGqwzE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MjILmRL+; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1777456381; c=relaxed/simple;
+	bh=XJMe2SxZosU5QmL4e24ONrrUGq9qrGZ9VXzkthzrqQQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:content-type; b=pJZLrJYa7GsrRI6dOZHQQ6OtstUTOJ4r5/SyVUI6fFi9RldJ2N0e0bqSM0hvHmshxdw5phR+HXMTFsx5ZCY38lONzycYWpvD13Jesa5Aqpnfn6O2Uy2ZLTh3v5Y6f2I2eu9di0Fvhk7X7KKWVzbAyMrt6mx97khL5UIG3PKYWvU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=E75wNvaI; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MjILmRL+"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="E75wNvaI"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1777456375;
+	s=mimecast20190719; t=1777456379;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=tEgMhSGkxaVa76ywFFeR7i2nWi7ewgciMk8C9+6QmjI=;
-	b=MjILmRL+nm79B1kxU4NIIdPmh9JFtjxrLEFN8SCrnMjM4zqXuqDoJggiz2NE5khxE+P+Zb
-	UdxUaZGbWWDVicWm+yL4/FOF7eGpQpY9vE7ss/DgQlonUFePKOpoHPgO6duOYk+rxRMBIK
-	5/7uFcFaQAqBiLQnCIjGhF54TJlpebQ=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=S7d9HRXIZr6YBjR7KSZJasFC5Toh9rkq+TmxxYCXJJ8=;
+	b=E75wNvaIfK+57CXtRNhc6fi/Ft3l32qNbhX3EwRuhRFY0npR3cwReZjstDtrSf5FX6nTZ8
+	DRWJE2MIfg0VdWTYKLdiJq/1cm2u+VwID8Yfy6+qbXiPhSDt1u8JlzU0gLgoInsEqOSiqL
+	81UfZMA6N5yPaAENE96Bc3ePAJ0Ia3s=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-19-zBYbRCtwO1m14iD81uuuJA-1; Wed,
- 29 Apr 2026 05:52:51 -0400
-X-MC-Unique: zBYbRCtwO1m14iD81uuuJA-1
-X-Mimecast-MFC-AGG-ID: zBYbRCtwO1m14iD81uuuJA_1777456369
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-450-c5r8KJh4NriXzCj1f9KJVA-1; Wed,
+ 29 Apr 2026 05:52:55 -0400
+X-MC-Unique: c5r8KJh4NriXzCj1f9KJVA-1
+X-Mimecast-MFC-AGG-ID: c5r8KJh4NriXzCj1f9KJVA_1777456373
 Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 5742D19560AE;
-	Wed, 29 Apr 2026 09:52:48 +0000 (UTC)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 299E5195606E;
+	Wed, 29 Apr 2026 09:52:53 +0000 (UTC)
 Received: from f43vm.redhat.corp (headnet01.pony-001.prod.iad2.dc.redhat.com [10.2.32.101])
-	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id A80FF1800345;
-	Wed, 29 Apr 2026 09:52:43 +0000 (UTC)
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id B56781800347;
+	Wed, 29 Apr 2026 09:52:48 +0000 (UTC)
 From: Sergio Lopez <slp@redhat.com>
 To: Chia-I Wu <olvaffe@gmail.com>,
 	Jason Wang <jasowang@redhat.com>,
@@ -58,9 +60,11 @@ To: Chia-I Wu <olvaffe@gmail.com>,
 	Maxime Ripard <mripard@kernel.org>,
 	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
 Cc: Sergio Lopez <slp@redhat.com>
-Subject: [PATCH v2 0/3] drm/virtio: introduce F_BLOB_ALIGNMENT support
-Date: Tue, 28 Apr 2026 21:44:47 +0200
-Message-ID: <20260428194450.518296-1-slp@redhat.com>
+Subject: [PATCH v2 1/3] drm/virtio: support VIRTIO_GPU_F_BLOB_ALIGNMENT
+Date: Tue, 28 Apr 2026 21:44:48 +0200
+Message-ID: <20260428194450.518296-2-slp@redhat.com>
+In-Reply-To: <20260428194450.518296-1-slp@redhat.com>
+References: <20260428194450.518296-1-slp@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -68,54 +72,121 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
-X-Mimecast-MFC-PROC-ID: 3AmdKVt59R0NvejrUDOVpFY0SpS-67c9WolQH7vWFpI_1777456369
+X-Mimecast-MFC-PROC-ID: fq8_y1fmSGlgbqyMvT4MG89e5WDocOeeWeb-dfp7cGg_1777456373
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
+content-type: text/plain; charset="US-ASCII"; x-default=true
 
-There's an increasing number of machines supporting multiple page sizes
-and on these machines the host and a guest can be running, each one,
-with a different page size.
+Support VIRTIO_GPU_F_BLOB_ALIGNMENT, a feature that indicates the device
+provides a valid blob_alignment field in its configuration, and that
+both RESOURCE_CREATE_BLOB and RESOURCE_MAP_BLOB requests must be aligned
+to that value.
 
-For what pertains to virtio-gpu, this is not a problem if the page size
-of the guest happens to be bigger or equal than the host, but will
-potentially lead to failures in memory allocations and/or mappings
-otherwise.
+Signed-off-by: Sergio Lopez <slp@redhat.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_drv.c |  1 +
+ drivers/gpu/drm/virtio/virtgpu_drv.h |  2 ++
+ drivers/gpu/drm/virtio/virtgpu_kms.c | 14 +++++++++++---
+ include/uapi/linux/virtio_gpu.h      |  9 +++++++++
+ 4 files changed, 23 insertions(+), 3 deletions(-)
 
-To deal with this, the virtio-spec was extended to introduce with the
-VIRTIO_GPU_F_BLOB_ALIGNMENT feature [1]. If this feature is negotiated,
-we must use the "blob_alignment" field in the config to ensure every
-CREATE_BLOB and MAP_BLOB is properly aligned before sending it to the
-device.
-
-We also introduce the VIRTGPU_PARAM_BLOB_ALIGNMENT parameter to allow
-userspace to query the alignment restrictions for blobs.
-
-This supersedes "drm/virtio: introduce the HOST_PAGE_SIZE feature" [2].
-
-[1] https://github.com/oasis-tcs/virtio-spec/commit/f9abfd55cb663837dda1153b826216dcf4d25b84
-[2] https://lkml.org/lkml/2024/7/23/438
-
-Changes in v2:
-- Rebased.
-- Moved blob size alignment validation to verify_blob(), rejecting
-misaligned sizes early in the ioctl path instead of checking in
-virtio_gpu_cmd_resource_create_blob() and virtio_gpu_cmd_map()
-(Dmitry Osipenko).
-
-Sergio Lopez (3):
-  drm/virtio: support VIRTIO_GPU_F_BLOB_ALIGNMENT
-  drm/virtio: honor blob_alignment requirements
-  drm/virtio: add VIRTGPU_PARAM_BLOB_ALIGNMENT to params
-
- drivers/gpu/drm/virtio/virtgpu_drv.c   |  1 +
- drivers/gpu/drm/virtio/virtgpu_drv.h   |  2 ++
- drivers/gpu/drm/virtio/virtgpu_ioctl.c | 10 ++++++++++
- drivers/gpu/drm/virtio/virtgpu_kms.c   | 14 +++++++++++---
- include/uapi/drm/virtgpu_drm.h         |  1 +
- include/uapi/linux/virtio_gpu.h        |  9 +++++++++
- 6 files changed, 34 insertions(+), 3 deletions(-)
-
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+index a5ce96fb8a1d..812ee3f5e4aa 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.c
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+@@ -163,6 +163,7 @@ static unsigned int features[] = {
+ 	VIRTIO_GPU_F_RESOURCE_UUID,
+ 	VIRTIO_GPU_F_RESOURCE_BLOB,
+ 	VIRTIO_GPU_F_CONTEXT_INIT,
++	VIRTIO_GPU_F_BLOB_ALIGNMENT,
+ };
+ static struct virtio_driver virtio_gpu_driver = {
+ 	.feature_table = features,
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index f17660a71a3e..d1fa386a5a99 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -257,6 +257,7 @@ struct virtio_gpu_device {
+ 	bool has_resource_blob;
+ 	bool has_host_visible;
+ 	bool has_context_init;
++	bool has_blob_alignment;
+ 	struct virtio_shm_region host_visible_region;
+ 	struct drm_mm host_visible_mm;
+ 
+@@ -270,6 +271,7 @@ struct virtio_gpu_device {
+ 	uint32_t num_capsets;
+ 	uint64_t capset_id_mask;
+ 	struct list_head cap_cache;
++	uint32_t blob_alignment;
+ 
+ 	/* protects uuid state when exporting */
+ 	spinlock_t resource_export_lock;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+index 80ba69b4860b..cfde9f573df6 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_kms.c
++++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+@@ -124,7 +124,7 @@ int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev)
+ 	struct virtio_gpu_device *vgdev;
+ 	/* this will expand later */
+ 	struct virtqueue *vqs[2];
+-	u32 num_scanouts, num_capsets;
++	u32 num_scanouts, num_capsets, blob_alignment;
+ 	int ret = 0;
+ 
+ 	if (!virtio_has_feature(vdev, VIRTIO_F_VERSION_1))
+@@ -198,14 +198,22 @@ int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev)
+ 	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_CONTEXT_INIT))
+ 		vgdev->has_context_init = true;
+ 
++	if (virtio_has_feature(vgdev->vdev, VIRTIO_GPU_F_BLOB_ALIGNMENT)) {
++		vgdev->has_blob_alignment = true;
++		virtio_cread_le(vgdev->vdev, struct virtio_gpu_config,
++				blob_alignment, &blob_alignment);
++		vgdev->blob_alignment = blob_alignment;
++	}
++
+ 	DRM_INFO("features: %cvirgl %cedid %cresource_blob %chost_visible",
+ 		 vgdev->has_virgl_3d    ? '+' : '-',
+ 		 vgdev->has_edid        ? '+' : '-',
+ 		 vgdev->has_resource_blob ? '+' : '-',
+ 		 vgdev->has_host_visible ? '+' : '-');
+ 
+-	DRM_INFO("features: %ccontext_init\n",
+-		 vgdev->has_context_init ? '+' : '-');
++	DRM_INFO("features: %ccontext_init %cblob_alignment\n",
++		 vgdev->has_context_init ? '+' : '-',
++		 vgdev->has_blob_alignment ? '+' : '-');
+ 
+ 	ret = virtio_find_vqs(vgdev->vdev, 2, vqs, vqs_info, NULL);
+ 	if (ret) {
+diff --git a/include/uapi/linux/virtio_gpu.h b/include/uapi/linux/virtio_gpu.h
+index be109777d10d..4f530d90058c 100644
+--- a/include/uapi/linux/virtio_gpu.h
++++ b/include/uapi/linux/virtio_gpu.h
+@@ -64,6 +64,14 @@
+  * context_init and multiple timelines
+  */
+ #define VIRTIO_GPU_F_CONTEXT_INIT        4
++/*
++ * The device provides a valid blob_alignment
++ * field in its configuration and both
++ * VIRTIO_GPU_CMD_RESOURCE_CREATE_BLOB and
++ * VIRTIO_GPU_CMD_RESOURCE_MAP_BLOB requests
++ * must be aligned to that value.
++ */
++#define VIRTIO_GPU_F_BLOB_ALIGNMENT      5
+ 
+ enum virtio_gpu_ctrl_type {
+ 	VIRTIO_GPU_UNDEFINED = 0,
+@@ -365,6 +373,7 @@ struct virtio_gpu_config {
+ 	__le32 events_clear;
+ 	__le32 num_scanouts;
+ 	__le32 num_capsets;
++	__le32 blob_alignment;
+ };
+ 
+ /* simple formats for fbcon/X use */
 -- 
 2.53.0
 
