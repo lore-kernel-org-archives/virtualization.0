@@ -1,111 +1,186 @@
-Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
-	by smtp.subspace.kernel.org (Postfix) with ESMTP id 61D2939FCBF
-	for <virtualization@lists.linux.dev>; Tue, 28 Apr 2026 17:15:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777396545; cv=none; b=AdmAyz6UUE/g0l8M+CkhBMX9xaG4J5HvobKYZtefnz8+0dmaw5r1OtFYc3AhHB3ZUZ2O8UccQLm8HumXDKdFzxe9sJe0YvFIk3otwo63N1Omi6cQ7RCeg0VqsbJtvj3GH8fTKiQ5co7hswOg5oX0vKSDJOb+Nf8TeAJBG0sJ4ec=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777396545; c=relaxed/simple;
-	bh=vjgyp9tJ4/Wf+X9huTEytK73DtIFpIiWSMRlvtfQD+4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UrZ0ndVsueenaygxTn3IE5KB3lRZlH/VEgNptzUvKbbhDej+Bw/qupbPg5HFUX3AgOMV5tG39DWwhebhHcQv1M0woEAZBx1123zn7x9fGV9/awXO3fthCpn7x9vBFp0TR4zTAPFS4DCNDIYueWhCIVZLbKvs92TqCO0aJ+JoKwA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=Xkl1tbXy; arc=none smtp.client-ip=13.77.154.182
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
+Received: from CY3PR05CU001.outbound.protection.outlook.com (mail-westcentralusazon11023140.outbound.protection.outlook.com [40.93.201.140])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+	(No client certificate requested)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 50F4A2475D0
+	for <virtualization@lists.linux.dev>; Tue, 28 Apr 2026 21:05:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.201.140
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777410354; cv=fail; b=C3HeyinwPdcUaixblc0LOic+p9kHLQf6sLlXmfOYc9z1KUCqXQdNBtMJ3M41r1vFPWGpSPh4f778+G78j6Fc6SFOQZfvWXx+AZTtDXxxEMRY0ptsc/IUFo1JWICwcx4da7I9mjFsma+QCod/rfnt+5H3UrXyVDrTJKTaav+kvMI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777410354; c=relaxed/simple;
+	bh=qFebeEiLlmls+mcA9zzR1j01vsjl1qN8MBoWiRUy/M0=;
+	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
+	 Content-Type:MIME-Version; b=s8i2YweJW8O/22t+CSsjvmMevTLoo1PXSANVNZ9SVUnrHJFIZCBl6nbt3+bPL8CxKjFnNQlpNmkRN1y47HTkh+2zkU+enRmxX+XpZUWiS308OTjAbEexQF1M65jj7uKcwTjHhxNpg3cMVq3o47tgMrS/99FQ/jYkY7vbzArOLGI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microsoft.com; spf=pass smtp.mailfrom=microsoft.com; dkim=pass (1024-bit key) header.d=microsoft.com header.i=@microsoft.com header.b=PUWBq055; arc=fail smtp.client-ip=40.93.201.140
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="Xkl1tbXy"
-Received: by linux.microsoft.com (Postfix, from userid 1216)
-	id 7EDB720B716C; Tue, 28 Apr 2026 10:15:43 -0700 (PDT)
-DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 7EDB720B716C
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
-	s=default; t=1777396543;
-	bh=fxu5AHc/WELco1y9bFcic9XUbLEgfysFbf90mc8R8uk=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=Xkl1tbXyHcnTOjE55XiNwGbSK5elXZdcXUqIrCCtj48iQZ+MB1JJjlpg0+9S4jN4K
-	 Tnk9qaoe5m5ASGkLrBkGqA+Bb9Jo+U3uwKILIt6O9lRJAxJqM2F/ta0Zz5Z8BUxL0q
-	 mfHr2oQzuzN0bVf2rojPuAdBvP/OuCBq/sIr+ipE=
-Date: Tue, 28 Apr 2026 13:15:43 -0400
-From: Hamza Mahfooz <hamzamahfooz@linux.microsoft.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: netdev@vger.kernel.org, "K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Long Li <longli@microsoft.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Michael Kelley <mhklinux@outlook.com>,
-	Himadri Pandya <himadrispandya@gmail.com>,
-	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] hv_sock: fix ARM64 support
-Message-ID: <afDrPyWVw2IY6AuF@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
-References: <20260428125339.13963-1-hamzamahfooz@linux.microsoft.com>
- <afCxfHKA7hJilGM3@sgarzare-redhat>
+	dkim=pass (1024-bit key) header.d=microsoft.com header.i=@microsoft.com header.b="PUWBq055"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=gUZ1GCSgnfJXohScMxfpDqqex1u+GE6cuJ+vGqn/dWYYnk4Bv3jyWQbp2oduGMZ+OHf1GX8bBz96QhQ3t8dWT08aGpAW0x+m2FRQCuNfKJAm78uzUMaYrS4UiJ02CVIrdjqzDqVnQ276pZzoE6n85ZSdjTsXVd1TvT23dbAPQxa/wSBUtjxHi666t7yKL1pQJDIFYZZhRig7kLBG3jIvtjYmnbUS2BR+THBRhKZVY9ikJsA9Op6430CC6D3HTB1xxwFAHBaoPkEn1KmbCPIvUYG84ifA7yVEiDOJgLDfM2DC47gw0YkXbPx815lE8q7ms/xz7gRbol1G7+LRgu616Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=lVEt/gVh2ZQCFjl+WCZI3ScYTDfHdOHmjSki4Vocg7k=;
+ b=cc83NCrK9HddIlK5RzLVi+JSB4nL4X64frtLDtcuWb5S21IZND2oeK/ft+MmR7VziQNwtpMFpeF7vZFbc/bxqZ5gAJYaFsOkTnlEVJj8+hEcHJ2pZgmWJJa60MIyItZRORUg7iMgufahRtyrQjpMwn9isgT7l6yHakW9miKWbJ9bgCAH2QaGULGUv+XfF3wmJNxStZ4GCEGfCSMmKdgbyQPS7eePU2Ft2YMr9KmMMbXtT3H1EeJQkEjXdEmZQwHtlmcOINbG9Zm8Ri8GiXlxtIriWKxvqhdnCMQAqd1FYfLGHIu7zUjBotbB7wFgLq4Sz9Avs6jat5YmcI5sVRNOGw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=microsoft.com; dmarc=pass action=none
+ header.from=microsoft.com; dkim=pass header.d=microsoft.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=lVEt/gVh2ZQCFjl+WCZI3ScYTDfHdOHmjSki4Vocg7k=;
+ b=PUWBq055rUeV6JJv4hR2ud2+Lulot+sZKeOeQjtqMvRfcTbzvXT1u+ipuTURPcaH91mDWLYk+NpzDZndgT8eiNX883fr7M8dphiYZtuj8bRAgBmFwOuijzC2bDBTHihjCEZFvqucbNOThfXFT8/Ss9AjeqFCcA6ZhUbO9NWJ2pQ=
+Received: from SA1PR21MB6921.namprd21.prod.outlook.com (2603:10b6:806:4a7::11)
+ by SA1PR21MB6417.namprd21.prod.outlook.com (2603:10b6:806:4b0::19) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9891.2; Tue, 28 Apr
+ 2026 21:05:48 +0000
+Received: from SA1PR21MB6921.namprd21.prod.outlook.com
+ ([fe80::51cf:497c:e5df:f6d]) by SA1PR21MB6921.namprd21.prod.outlook.com
+ ([fe80::51cf:497c:e5df:f6d%2]) with mapi id 15.20.9870.013; Tue, 28 Apr 2026
+ 21:05:47 +0000
+From: Dexuan Cui <DECUI@microsoft.com>
+To: Michael Kelley <mhklinux@outlook.com>, Hamza Mahfooz
+	<hamzamahfooz@linux.microsoft.com>, Saurabh Singh Sengar
+	<ssengar@microsoft.com>
+CC: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, KY
+ Srinivasan <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Wei
+ Liu <wei.liu@kernel.org>, Long Li <longli@microsoft.com>, Stefano Garzarella
+	<sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric Dumazet
+	<edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni
+	<pabeni@redhat.com>, Simon Horman <horms@kernel.org>, Himadri Pandya
+	<himadrispandya@gmail.com>, "linux-hyperv@vger.kernel.org"
+	<linux-hyperv@vger.kernel.org>, "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>, "netdev@vger.kernel.org"
+	<netdev@vger.kernel.org>, Saurabh Sengar <ssengar@linux.microsoft.com>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard
+	<mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, David Airlie
+	<airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, Deepak Rawat
+	<drawat.floss@gmail.com>, "dri-devel@lists.freedesktop.org"
+	<dri-devel@lists.freedesktop.org>, "stable@kernel.vger.org"
+	<stable@kernel.vger.org>
+Subject: RE: [PATCH 2/2] drm/hyperv: use VMBUS_RING_SIZE()
+Thread-Topic: [PATCH 2/2] drm/hyperv: use VMBUS_RING_SIZE()
+Thread-Index: AQHc1jw02yJrERFkmkeSl7gccH8LxLXzPWxQgAAHyACAAa+UEA==
+Date: Tue, 28 Apr 2026 21:05:47 +0000
+Message-ID:
+ <SA1PR21MB6921427C29C760AEB14D98F2BF372@SA1PR21MB6921.namprd21.prod.outlook.com>
+References: <20260425181719.1538483-1-hamzamahfooz@linux.microsoft.com>
+ <20260425181719.1538483-2-hamzamahfooz@linux.microsoft.com>
+ <KUZP153MB14445757C6A5DA5DEDA9A09CBE292@KUZP153MB1444.APCP153.PROD.OUTLOOK.COM>
+ <ae9NxmDBTkzPP3H6@linuxonhyperv3.guj3yctzbm1etfxqx2vob5hsef.xx.internal.cloudapp.net>
+ <SA1PR21MB6921B5A2441DB3E9A1312AC0BF362@SA1PR21MB6921.namprd21.prod.outlook.com>
+ <SN6PR02MB41571A5B77A5FDDFE17AEF19D4362@SN6PR02MB4157.namprd02.prod.outlook.com>
+In-Reply-To:
+ <SN6PR02MB41571A5B77A5FDDFE17AEF19D4362@SN6PR02MB4157.namprd02.prod.outlook.com>
+Accept-Language: en-US
+Content-Language: en-US
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+msip_labels:
+ MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ActionId=866de344-17d1-4da0-ae37-df720ba729ed;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_ContentBits=0;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Enabled=true;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Method=Standard;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Name=Internal;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SetDate=2026-04-27T18:37:48Z;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_SiteId=72f988bf-86f1-41af-91ab-2d7cd011db47;MSIP_Label_f42aa342-8706-4288-bd11-ebb85995028c_Tag=10,
+ 3, 0, 1;
+authentication-results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=microsoft.com;
+x-ms-publictraffictype: Email
+x-ms-traffictypediagnostic: SA1PR21MB6921:EE_|SA1PR21MB6417:EE_
+x-ms-office365-filtering-correlation-id: 67b39463-7336-44cf-3b3c-08dea569ebcc
+x-ms-exchange-senderadcheck: 1
+x-ms-exchange-antispam-relay: 0
+x-microsoft-antispam:
+ BCL:0;ARA:13230040|1800799024|366016|7416014|376014|38070700021|22082099003|56012099003|18002099003;
+x-microsoft-antispam-message-info:
+ jqHJRWR6XTaE+kgp9u8TOzPSP1u5MT3zZXWR9zHPq7z3bOd8ogBiQwNwZVQ4BQILBygIJ3/gchbymYvhga18+AwJND/di6hZEjDlqm17UfQAe0EnVBZOgMxkFiuWfgzWsCdXdtrXMYjgll1+urvkvFajr7w3BOMo52ecddmquSK1L6AvJlBaJTddLfINPPIYNLByoVpqGWY7MjsQtChJhkj+5ZOjb67q2prluiqHKq3GgrfMw+oHOYbsdBOifhMOElvkCdJSq8ueEVWbjJw9ebxrM+TFQDzYhV5fuqspdSn0Mhn01pUO1pL5jDXnnqZcresolIfKxMhKTHLlvCnGOS2u07v1QzGL1SS5K15d49w6ZabzLgdgVtL9dtpspRcMXqffD8fuOWT7U9/1jToLAJ+N50bk+Ao4QEAx7lv+UbwND5SLbcD3wOE64Xs4ziNNcEqYLS5VbPlmVFRoPOG7JjeUDXSVS8NaTNrgzOK2nWbRE0Sec6jNWPp9KhxgHjpk0G+nUdIovvP0eCPIrKEJUzlp7vsc0o4Fc+q1SmZ9Ia4iYtOIfyBW+j6Z0ZN//hW8+L0dVROgcfUkhJgXOr1ldgPGIxRbNddj+4/X+YByw5gFe9ImUooiFDV/zJSLAf+pP+5nAm2hhy2QrxlzdQlxGldrCfCLvYtfEaXV0BSETu3bViA3IJNr4/GV8/eR0QTd2hhb+3MggTaP88rm2x4yEGzvjMAV10DVt3K5GbSkGSioqAHsXlpYrsznmm/hK53PMOEeBBI9zjXF/R8tGYxTvfddZna3pR+F5JJLBMhpxsc=
+x-forefront-antispam-report:
+ CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:SA1PR21MB6921.namprd21.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(7416014)(376014)(38070700021)(22082099003)(56012099003)(18002099003);DIR:OUT;SFP:1102;
+x-ms-exchange-antispam-messagedata-chunkcount: 1
+x-ms-exchange-antispam-messagedata-0:
+ =?us-ascii?Q?GDSzZiX8geTn8USva/GENDdgXCSqGb++SUVjvLrDu4hZDmx6ZaWD/PVJyDXw?=
+ =?us-ascii?Q?lKmeIrcie97ui/gqbVfA4K9JnFL/Eu1zJofk1CoW+Uv3oBp56Lhsl0y9Yeyu?=
+ =?us-ascii?Q?jePcVfQaaSpXcdfCACnGq8qKOHgfkPXkTMT+dDgotoyqIol5Rdo40AIUbdNI?=
+ =?us-ascii?Q?qbppby2VDorEcCM7mCWcqXo++XPoSe20JKRtame98Y8pQj9GPoRetMa1Md5J?=
+ =?us-ascii?Q?gGp35T26KEsBFUIdOFTt1sIC+Bbj625Zav3/pkwD3mU3YjpQRmBWlAPa3cU9?=
+ =?us-ascii?Q?3T8l4++aD2ubw+Dm13gSL+lof1dRZ1qQtoxvenrDn2oATbU4fwDaMDXu0qcf?=
+ =?us-ascii?Q?xX2dN6zH5lCnC9izbgvdRSLfZ1ls38u2zpz1081xsHAF97qtyyV/xfCI9lz9?=
+ =?us-ascii?Q?iRV+Q5w43BGim+uyCRiGuD9dejTrCIXzbjlvAdC5p/yV5TDWxNcl4MRARI44?=
+ =?us-ascii?Q?miHagcMcJEV76pqWsCVfphb7Qp+n8tmTHYcbCMaGmHU6Hop0D2HeobFnGTFh?=
+ =?us-ascii?Q?OF3f5UM3a9OyxdGNvpX0mF5hqq/EdEpCz5TMRm9wgxl1cz6/0Fa8PS43qNxt?=
+ =?us-ascii?Q?+UJUOCZfOXcpuplgQqfIoG3JOgo30rmcf9pqn97nWkK0E1YeCONq1qDYBDcA?=
+ =?us-ascii?Q?Ycjp5xtsfquwp9XqxiajGecgbj6ZF2HpiYhtU9qKl/Tpe3UhxVQjvU7TCc7l?=
+ =?us-ascii?Q?aqCvZOXOPq3NrfEFrbaBOvahh96//tG4fObAepp8CqvmI4P9xkKUvrbrPTZQ?=
+ =?us-ascii?Q?jr/cvIhXEsKm8LQnwDNbDBTKIM0Sy4+6pxAfPjc8GnBj6bVjzJyQC7rf029g?=
+ =?us-ascii?Q?72qZY9OqXgPWqy4rTkwnXFlAexx1iTtsKgzYEL2L4YSmOG8DTuvDKjtugyF+?=
+ =?us-ascii?Q?HVF/HGuA3YgDlR0KcySwa4moQJcRVHZyLq0971DherYsCf8aJxlGaKhNhCK5?=
+ =?us-ascii?Q?gyrofLh8GclO/3KTSyVq8nMrlEydfoNGD1WeaH7JP8Zx0m0uWjbPyzSiuS0r?=
+ =?us-ascii?Q?bl4UZnlNNK7iMQjvRZiLaUa25WVUiPqD3um08/2AQZ4OIAD6N+8/L62xL84K?=
+ =?us-ascii?Q?MHySQ6Yq2/qxMZtf/Tpv2WnWEeRZs1diV0kMDfrrJqIs3KOxYssroHZTgDPM?=
+ =?us-ascii?Q?N32u3QvZxsrz1jBhzknPx553pUbjMxan9F+RoZDotHZfQgUSTW0BiuanvqkG?=
+ =?us-ascii?Q?Mz6Z17WRpWKxinrV+pERKjbCmPyy0UZv8Q4OMhHaY97WZIwzT9feGxy45xFT?=
+ =?us-ascii?Q?VbLdNTk2oGrX19wZmSjDgWWDlFVsm6jDkzVaMazeKBYjMEKkXLNTDDqHVdEg?=
+ =?us-ascii?Q?fxDqqd6SffJxfGX7Zdc6QPortKiWXLXvbrLs4wlVreI4HZMBFc8cd6BPYBkP?=
+ =?us-ascii?Q?3IFEAYxC3rrq77y+/zDQ+h7VRq+SzDEu2KZDmTDo1dOyxToudUac2NOL1H1f?=
+ =?us-ascii?Q?FU4bU2nrjWuWshVtUL7gbc7w5sZa54lL1X0hxzjuYL9FWe3qfRXW5ewLPa/f?=
+ =?us-ascii?Q?0GK/QM+4aegaBJU7MkPuQ5sbttAor5A0jcPOdtY7p+31ZwkwKJDISaiSg4XE?=
+ =?us-ascii?Q?Ae5vsVzlIoI6uQmeGKUe/dx+e0mTYLFYZeVZAuAAEvsF28zMusyoC+6duKLq?=
+ =?us-ascii?Q?7KNQWOQP4BNV2LnUt1Xb7Hdqzb+w+tuo7FNnYl2R8f9Q4aF1nPqpDVBnWew6?=
+ =?us-ascii?Q?UM5N3YZmL3yJ5/Kzbnlrm03RWbyDK6DU1ighn0LcVV/ru/Dt?=
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <afCxfHKA7hJilGM3@sgarzare-redhat>
+X-OriginatorOrg: microsoft.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-AuthSource: SA1PR21MB6921.namprd21.prod.outlook.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 67b39463-7336-44cf-3b3c-08dea569ebcc
+X-MS-Exchange-CrossTenant-originalarrivaltime: 28 Apr 2026 21:05:47.8902
+ (UTC)
+X-MS-Exchange-CrossTenant-fromentityheader: Hosted
+X-MS-Exchange-CrossTenant-id: 72f988bf-86f1-41af-91ab-2d7cd011db47
+X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
+X-MS-Exchange-CrossTenant-userprincipalname: 8W6tOQF8u35ggMMJf3sKDYM6n0Df1ECZhLGh4i1jdn9Vf/iy4k1663E8KyKjjJAEqwj2zbEd3C3zXGBvdIuJiA==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA1PR21MB6417
 
-On Tue, Apr 28, 2026 at 03:12:40PM +0200, Stefano Garzarella wrote:
-> No version number in the subject?
+> From: Michael Kelley <mhklinux@outlook.com>
+> Sent: Monday, April 27, 2026 12:06 PM
+> > IMO the Fixes tag is unnecessary because the existing
+> > VMBUS_RING_BUFSIZE
+> > is 256KB, which is already aligned to 4KB, 16KB and 64KB.
+> >
+> > VMBUS_RING_SIZE(256 * 1024) is still 256KB.
+>=20
+> Not always. If PAGE_SIZE is 64KiB, VMBUS_RING_SIZE(256 * 1024) is
+> 320KiB. If PAGE_SIZE is 16KiB or 4KiB, then VMBUS_RING_SIZE(256 * 1024)
+> is indeed 256 KiB. See the explanation in the comment for
+> VMBUS_RING_SIZE.
+>=20
+> Michael
 
-I generally on increment the version number if I make changes to the code
-itself I did try to change the subject prefix to "PATCH RESEND" but it
-appears something is off about my config that prevented from going
-through.
+Thanks for correcting me!
 
-> 
-> Please next time follow
-> https://docs.kernel.org/process/submitting-patches.html#subject-line
-> 
->   Common tags might include a version descriptor if the multiple   versions
-> of the patch have been sent out in response to comments   (i.e., “v1, v2,
-> v3”), or “RFC” to indicate a request for comments.
-> 
-> On Tue, Apr 28, 2026 at 08:53:39AM -0400, Hamza Mahfooz wrote:
-> > VMBUS ring buffers must be page aligned. Therefore, the current value of
-> > 24K presents a challenge on ARM64 kernels (with 64K pages). So, use
-> > VMBUS_RING_SIZE() to ensure they are always aligned and large enough to
-> > hold all of the relevant data.
-> > 
-> > Cc: stable@vger.kernel.org
-> > Fixes: 77ffe33363c0 ("hv_sock: use HV_HYP_PAGE_SIZE for Hyper-V communication")
-> > Tested-by: Dexuan Cui <decui@microsoft.com>
-> > Reviewed-by: Dexuan Cui <decui@microsoft.com>
-> > Signed-off-by: Hamza Mahfooz <hamzamahfooz@linux.microsoft.com>
-> > ---
-> > net/vmw_vsock/hyperv_transport.c | 4 ++--
-> > 1 file changed, 2 insertions(+), 2 deletions(-)
-> 
-> Acked-by: Stefano Garzarella <sgarzare@redhat.com>
-> 
-> > 
-> > diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
-> > index 069386a74557..40f09b23efa3 100644
-> > --- a/net/vmw_vsock/hyperv_transport.c
-> > +++ b/net/vmw_vsock/hyperv_transport.c
-> > @@ -375,10 +375,10 @@ static void hvs_open_connection(struct vmbus_channel *chan)
-> > 	} else {
-> > 		sndbuf = max_t(int, sk->sk_sndbuf, RINGBUFFER_HVS_SND_SIZE);
-> > 		sndbuf = min_t(int, sndbuf, RINGBUFFER_HVS_MAX_SIZE);
-> > -		sndbuf = ALIGN(sndbuf, HV_HYP_PAGE_SIZE);
-> > +		sndbuf = VMBUS_RING_SIZE(sndbuf);
-> > 		rcvbuf = max_t(int, sk->sk_rcvbuf, RINGBUFFER_HVS_RCV_SIZE);
-> > 		rcvbuf = min_t(int, rcvbuf, RINGBUFFER_HVS_MAX_SIZE);
-> > -		rcvbuf = ALIGN(rcvbuf, HV_HYP_PAGE_SIZE);
-> > +		rcvbuf = VMBUS_RING_SIZE(rcvbuf);
-> > 	}
-> > 
-> > 	chan->max_pkt_size = HVS_MAX_PKT_SIZE;
-> > -- 
-> > 2.54.0
-> > 
-> 
+I didn't realize that sizeof(struct hv_ring_buffer) is based on
+PAGE_SIZE, not on HV_HYP_PAGE_SIZE.
+
+However,  it looks like the Fixes tag is still not needed:
+
+without the patch, we always pass two arguments of 256KB to
+vmbus_open().
+
+with the patch, we still pass 256KB to vmbus_open() in the case of
+PAGE_SIZE=3D4KB or 16KB, and we pass 320KB in the case of
+PAGE_SIZE=3D64KB.
+
+Both 320K and 256KB are multiples of PAGE_SIZE, so
+vmbus_open() -> vmbus_alloc_ring() doesn't return -EINVAL.
+
+In the case of PAGE_SIZE=3D64KB, it's OK to pass 256KB to vmbus_open()
+here since the hyperv-drm driver doesn't really have to use a slightly
+bigger VMBus ringbuffer size.
+
+Thanks,
+Dexuan
+
