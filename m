@@ -1,64 +1,64 @@
-Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+Received: from mail-pj1-f42.google.com (mail-pj1-f42.google.com [209.85.216.42])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8C1042E01F
-	for <virtualization@lists.linux.dev>; Tue, 28 Apr 2026 15:08:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 40A2243D4ED
+	for <virtualization@lists.linux.dev>; Tue, 28 Apr 2026 15:08:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777388899; cv=none; b=CSDiecMsr4SGdbizo0UWgenfsCdEv2vUPZJLiH0e6kd6I3Qvb0GWPP0bhekVf5VCxTx51tuFHnw9Y9zC/zaIe32Q2Iwn4ytUAIbtX4a2eSmfKV0dSwkJop9m6TY7dRl2RLTbAzNJqAsMSc/hNO3vB8nxme5+vm6rssN/iawEIQE=
+	t=1777388900; cv=none; b=tryPoj672Z5a0XsWlGg6qQl+9QyHUjLoJoxxGhrQWbzhm3g7Pt+J7b+OsNqNsdSbTVC4+jSkPlSiOKObL/xDL5DWmLsNuzmfWKc8nIQcd39o+vIuKbM9wPIUIMhDQZyfWmgfSsEGJVKLeSpRcir97vhYawq5vUlwImm2wsI2Htc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777388899; c=relaxed/simple;
-	bh=kUL17ow9gatkJ5Q2fTN0VXTszcyTDQg4H2ZFw0+QBWA=;
+	s=arc-20240116; t=1777388900; c=relaxed/simple;
+	bh=IolL4RY97C9MSpLuk3s2ulTCNVbomPxJq0SB6QX/VVE=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=AFgysqCxoSSEKWhW0FV2UMNd/+d1XvRIQVv50X59BuBO3iypCgjyRUI/3wY1FHNJvxaNAgJ2MTctALDSly/aVwEyBaZhTUyMtn3p4cNiF3+qjQWkqd+iuBmNSW5BIv0PXpR6Mo+Eb2GYv4XuYtqyffbpY+eot0ib1uKemskMmK4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=A626Qk89; arc=none smtp.client-ip=209.85.216.48
+	 MIME-Version; b=Xy7iYTk8Rue7FP8sS5hOG2s3YqVGmjoXJSw8JOMwNfilde1i4h1LqB0M88R+ln8FrQgrWiFO/xMWCSrhKbPuqht7B95UNS5eIYISBb78MxcG1rF6VJe18NBldjt14Ndm3y0QjHh7+LUXHcD9y+P6fwKKBfOiJO04PKLQzBGEgf4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=oprMIVwL; arc=none smtp.client-ip=209.85.216.42
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="A626Qk89"
-Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-35fb0bb27e7so7726321a91.1
-        for <virtualization@lists.linux.dev>; Tue, 28 Apr 2026 08:08:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="oprMIVwL"
+Received: by mail-pj1-f42.google.com with SMTP id 98e67ed59e1d1-35da9692ec3so9715537a91.1
+        for <virtualization@lists.linux.dev>; Tue, 28 Apr 2026 08:08:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777388896; x=1777993696; darn=lists.linux.dev;
+        d=gmail.com; s=20251104; t=1777388898; x=1777993698; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=tsLVv1y3HuEkiecFQkNxqEahLsQhYdFU08TfdQwzyxY=;
-        b=A626Qk89F8bwrL+7YzK33fxggOITxyWQ6ZYEbjfIkamJKvG/wEgD0X4BUau1x3ni4J
-         JhPi186suVaLFBSx+CKl95EE7wmxX4InC4k763hxEyo1MENFp54gzXw4m6TFze7oZpub
-         BHU75WFQYty8nBWX/spqd7qCTVT3UAKf/OdbFLEwmSfX5yIdnJlpi5fuu/tXFwdaKFqa
-         wWOgCjSRNnY/rI4Yo5q56MY8X4YXUG0AGnfbGLjKHAxissvejwgTTt1e9SXCQW3A2VeO
-         8+mtOrsEXmBAqyPh1GMsyWA0zpWT5+AIwzl/m1kByt8C6jviEUWqXiZI8upXLy2+66pD
-         badw==
+        bh=GLZ6Q/p8ThasrMA2tuzRiOEHpqfxlyjFwiRgvxlFlJI=;
+        b=oprMIVwLDO1y+Cn3jS7STa+F7jj3r6NyP3JEa74rBgKo2IzQbfN9Inc5SmXdz0z7MK
+         yVFhnDpvnuCbmMupZ9EmkgytfWwvyAXN+ml2ufKLeQNyGCaQlVuU7ur6X/pRKEfXjll/
+         uG6yWTuJ6eaHrYAFzm+2HCg9FH1Z7AapvGPhZrPJ+NmRNkPbNpwNkum1+GQTYgyVtClg
+         r5TkzckCbAIAxxUM5jRbE7gpAmovtGisaWaWA6cIqXF3qO23p2KIYrujNGN0pX8gse9V
+         4doF5UtrXdKP/UyIQmMCAA7IlIkOiPxnDKNtbeYRzos/MAIyRg2M4WoBWul9dBJnZTVl
+         ChvA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777388896; x=1777993696;
+        d=1e100.net; s=20251104; t=1777388898; x=1777993698;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=tsLVv1y3HuEkiecFQkNxqEahLsQhYdFU08TfdQwzyxY=;
-        b=pSlWp8Rte6sXcrmLe2jaffaAhuupsSQOm+GB929NR2ectGYrJb0Y8ZrW/20Cl9PN3t
-         coAgkUlvkrXrfnf4Kike2IBezUSwJOI9E8F21/VkjC19NGr7J4g/V7DxpMvaBYYvITbQ
-         Bm6CVPL+zZIUfjuiZs3UA3R2Mq/oyM0UT9EPbkwcmwC1NH69uladIA1FxXSNz8x0jPsJ
-         yEfcsnthP10L2TF3iVGSsBptfnjhzZoLRTTemUhuf41IEfJu5hxNHcqVIvXFQS6fTSt3
-         CdiaRuLUWNBy9Z8UVmUjZMSXievnUTQ0VwFg2PZTY2E9NE2JXLV7dNhTAjBPm0v4Fv3w
-         88FQ==
-X-Forwarded-Encrypted: i=1; AFNElJ+mF8kEBnrebZtEzqVffql/ANO7qhSUOJXhFqwuj1sHP4CqtKE9EgUwVzqxbQqD9MnqL05VaAFdV2ksWW5cbw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxc9ZYksMTh53rP1L3CCqeuYbWWEdy2KDDZ2eTACpP3TyZIIOhd
-	9YG8qO0dvgtYNu5obxOjwJpbRMtC2zxYxh5oIBb42NH125q6TUhQu+Tp
-X-Gm-Gg: AeBDiev8Cf+om/O0TCh+H0ssqEAQzHOTegx+zVMuubasJMxzbi8ZyRrVUjO2OBdFVxM
-	kLsHjfqxPVlSFRkjrDqGwUnuwoJH8NEPPib8WMrgPC0EmqMYKEC7AGWBkODVBMH7DuaeF9WUu5k
-	aOyEhGTXI/eVcR7YdMLYhzmc/ALSwQc0kzIpPnULIectie1cAkH3nT1e8BcUcMtWOWwrZQBo8b+
-	qXebjw7WOjf8RHHtVGqHkkhavxiNfIBIu0PHwu70Udiqa2R8aGgfJa7hgviEwKzgOJN3a65mB7D
-	tJBy2KeJEqn/WSkKE/6wgz6tbei9WupW3iHYXWEIDn2iiRdHGajOehKCIH2LP8QpPoHZOc+tSF/
-	dMCFoKXwOM6ZEYDcCTGtQjy9KPPRJuBDwuLIrAeEAIgZrqonk0aiD3r6khvaeKnEd0uWk29jgTv
-	23kVMX9n4xQNqRGAJ+QkQyqMUwnGa2hvB+8kEAjEA4YQNN4aVdrlzDmdscrf3Oq8abcF2PNSqjL
-	mY//bS+6NKz0rauCUzhpDmHSuG+SSZ+sduisw==
-X-Received: by 2002:a17:90b:1802:b0:359:15c8:e8e1 with SMTP id 98e67ed59e1d1-36492078018mr3654631a91.25.1777388895658;
-        Tue, 28 Apr 2026 08:08:15 -0700 (PDT)
+        bh=GLZ6Q/p8ThasrMA2tuzRiOEHpqfxlyjFwiRgvxlFlJI=;
+        b=BcfxJJidk258FWF183BDy/Kpdv0224TRPaz0wk2gW3FEg7LHT/xoxAVkOnjbrcBiv+
+         VWo7D7yTSehCDl12uY+5MXXWU+/KCeRSajcrxoKcT2kPx9VK6NjV83SUYUN4P9zoS94u
+         eIUKQuAwmFLmQ7r4iVau++Ag7v1X/zR6wbP73cUq5QsuL/NizzcFVqx+9P9EGRj3yfRK
+         Hlop1k3eXFq2b7usBNswWZ2AH4b1pJhyGWGJ3ARSV6Er4x1GHlOI8ubKPjG8iNlvaGVI
+         u5Inue+3gf53bdsHqlFz7Ykj51sgRYAbUzhJvdoKt9E+FSxsEQWWPPw4ToMX2U8fHGw8
+         H8Ag==
+X-Forwarded-Encrypted: i=1; AFNElJ91IeM5IX1QP31qGaEspG6HUlnM7+mHV7qyc5Czx+aocsXTp7EvpIE9bbfl0H4NYuRxzbxtkFQhCu1/T8AHTQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywfb6/8i532z9L/a1/0vIKf5AtViudwlDyg5TgSVjdthvcUFBGN
+	8hEtN7qCxAKLIwJ0vc16buBrmCVycc32Dww+OFj3XqaF9NnpwcauOMhu
+X-Gm-Gg: AeBDievst9zF8itCv8c8v10J+oMZBXNRM7GYpajrZVLm5v2eK1W3IP93V1XSzaj/TgW
+	m8Z9nr0V/le4Y7FC3DtSLn8q75sa2/6ckIfyezLoxn/RtXSKlTrs5WtZ5h0iRIbj25i/qx5Sa8x
+	OAAq98muCYwHUCftJQXaXvNepsHZXpexa0gIDNNH8pUnqsGxabXqHLGFoagrT16uQ4DL0H0ZjiW
+	bOhn4b1Dr3y1WxUpFcrxQ4m9nUtnzAlJJlYwFQVoZQ0K2/F9WRJlu8NCqJMLMcsVcjN31/AmzhQ
+	VVkkUC7dah90F4CkOMJ/L7CnBGhMaLUxDUUQIzvPRPEujWm69j9gcRBa2RXLcPDj+YnHSJyI21v
+	KPXf7XQSJYXYrUvXwKjMH0d4aSPCLcspakG+hZurYeFKHtq61NI/J1MfL8Vw7QzUT/a5U40YCfz
+	88XH2F0N7GlNOvsSAUz8+wTbGP5l4BgxqSh9psU+P3IqhCrjBOiBrWfMxWoav5ydNuWS5rJmTsJ
+	MdGaW0eqHYfCubmH1wi7mxHjPbud7T0TilVmA==
+X-Received: by 2002:a17:90a:e7cc:b0:35f:9ab2:a5b4 with SMTP id 98e67ed59e1d1-36491f6cacamr3923091a91.6.1777388898478;
+        Tue, 28 Apr 2026 08:08:18 -0700 (PDT)
 Received: from baver-zenith.localdomain ([124.49.88.131])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-36490bd66f6sm1606127a91.3.2026.04.28.08.08.13
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-36490bd66f6sm1606127a91.3.2026.04.28.08.08.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 28 Apr 2026 08:08:15 -0700 (PDT)
+        Tue, 28 Apr 2026 08:08:18 -0700 (PDT)
 From: Sungho Bae <baver.bae@gmail.com>
 To: mst@redhat.com,
 	jasowang@redhat.com
@@ -67,9 +67,9 @@ Cc: xuanzhuo@linux.alibaba.com,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org,
 	Sungho Bae <baver.bae@lge.com>
-Subject: [RFC PATCH v7 3/4] virtio: add noirq system sleep PM infrastructure
-Date: Wed, 29 Apr 2026 00:07:41 +0900
-Message-Id: <20260428150742.23999-4-baver.bae@gmail.com>
+Subject: [RFC PATCH v7 4/4] virtio-mmio: wire up noirq system sleep PM callbacks
+Date: Wed, 29 Apr 2026 00:07:42 +0900
+Message-Id: <20260428150742.23999-5-baver.bae@gmail.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20260428150742.23999-1-baver.bae@gmail.com>
 References: <20260428150742.23999-1-baver.bae@gmail.com>
@@ -83,560 +83,205 @@ Content-Transfer-Encoding: 8bit
 
 From: Sungho Bae <baver.bae@lge.com>
 
-Some virtio-mmio devices, such as virtio-clock or virtio-regulator,
-must become operational before the regular PM restore callback runs
-because other devices may depend on them.
+Add noirq system-sleep PM support to the virtio-mmio transport.
 
-Add the core infrastructure needed to support noirq system-sleep PM
-callbacks for virtio transports:
+This change wires noirq freeze/restore callbacks into virtio-mmio and
+hooks queue reset/reactivation into the transport config ops so virtqueues
+can be reinitialized and reused across suspend/resume.
 
- - virtio_add_status_noirq(): status helper without might_sleep().
- - virtio_features_ok_noirq(): feature negotiation without might_sleep().
- - virtio_reset_device_noirq(): device reset that skips
-   virtio_synchronize_cbs() (IRQ handlers are already quiesced in the
-   noirq phase).
- - virtio_device_reinit_noirq(): full noirq bring-up sequence using the
-   above helpers.
- - virtio_config_core_enable_noirq(): config enable with irqsave
-   locking.
- - virtio_device_ready_noirq(): marks DRIVER_OK without
-   virtio_synchronize_cbs().
+For legacy (v1) devices, keep GUEST_PAGE_SIZE programming aligned with the
+noirq restore path while avoiding duplicate programming in normal restore.
 
-Not all transports can safely call reset, get_status, set_status, or
-finalize_features during the noirq phase: transports like virtio-ccw
-issue channel commands and wait for a completion interrupt, which will
-never be delivered because device interrupts are masked at the interrupt
-controller during noirq suspend/resume.  To address this, introduce a
-boolean field noirq_safe in struct virtio_config_ops.  Transports that
-implement the above operations via simple MMIO reads/writes (e.g.
-virtio-mmio) set this flag; all others leave it at the default false.
-
-The noirq helpers assert noirq_safe via WARN_ON at runtime.
-virtio_device_freeze_noirq() enforces the contract at freeze time,
-returning -EOPNOTSUPP early if the driver provides restore_noirq but
-the transport does not meet the requirements, to prevent a deadlock on
-resume. virtio_device_restore_noirq() performs a second check as a
-safety net in case freeze_noirq was not called.
-
-Add freeze_noirq/restore_noirq callbacks to struct virtio_driver and
-provide matching helper wrappers in the virtio core:
-
- - virtio_device_freeze_noirq(): validates noirq_safe and reset_vqs
-   requirements, then forwards to drv->freeze_noirq().
- - virtio_device_restore_noirq(): guards against unsafe transports,
-   runs the noirq bring-up sequence, resets existing vrings via the
-   new config_ops->reset_vqs() hook, then calls drv->restore_noirq().
-
-Modify virtio_device_restore() so that when a driver provides
-restore_noirq, the normal-phase restore skips the re-initialization
-that was already done in the noirq phase.
+This enables virtio-mmio based devices to participate safely in the noirq
+PM phase, which is required for early-restore users.
 
 Signed-off-by: Sungho Bae <baver.bae@lge.com>
 ---
- drivers/virtio/virtio.c       | 262 +++++++++++++++++++++++++++++++++-
- include/linux/virtio.h        |  42 ++++++
- include/linux/virtio_config.h |  39 +++++
- 3 files changed, 339 insertions(+), 4 deletions(-)
+ drivers/virtio/virtio_mmio.c | 137 +++++++++++++++++++++++++----------
+ 1 file changed, 97 insertions(+), 40 deletions(-)
 
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 98f1875f8df1..50e23f10be40 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -193,6 +193,17 @@ static void virtio_config_core_enable(struct virtio_device *dev)
- 	spin_unlock_irq(&dev->config_lock);
+diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+index 595c2274fbb5..4f4836103b88 100644
+--- a/drivers/virtio/virtio_mmio.c
++++ b/drivers/virtio/virtio_mmio.c
+@@ -336,6 +336,77 @@ static void vm_del_vqs(struct virtio_device *vdev)
+ 	free_irq(platform_get_irq(vm_dev->pdev, 0), vm_dev);
  }
  
-+static void virtio_config_core_enable_noirq(struct virtio_device *dev)
++static int vm_active_vq(struct virtio_device *vdev, struct virtqueue *vq)
 +{
-+	unsigned long flags;
++	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
++	int q_num = virtqueue_get_vring_size(vq);
 +
-+	spin_lock_irqsave(&dev->config_lock, flags);
-+	dev->config_core_enabled = true;
-+	if (dev->config_change_pending)
-+		__virtio_config_changed(dev);
-+	spin_unlock_irqrestore(&dev->config_lock, flags);
-+}
++	writel(q_num, vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
++	if (vm_dev->version == 1) {
++		u64 q_pfn = virtqueue_get_desc_addr(vq) >> PAGE_SHIFT;
 +
- void virtio_add_status(struct virtio_device *dev, unsigned int status)
- {
- 	might_sleep();
-@@ -200,6 +211,21 @@ void virtio_add_status(struct virtio_device *dev, unsigned int status)
- }
- EXPORT_SYMBOL_GPL(virtio_add_status);
- 
-+/*
-+ * Same as virtio_add_status() but without the might_sleep() assertion,
-+ * so it is safe to call from noirq context.
-+ *
-+ * Requires the transport to have set config_ops->noirq_safe, which declares
-+ * that reset, get_status, and set_status do not wait for a completion
-+ * interrupt and are therefore safe during the noirq PM phase.
-+ */
-+void virtio_add_status_noirq(struct virtio_device *dev, unsigned int status)
-+{
-+	WARN_ON(!dev->config->noirq_safe);
-+	dev->config->set_status(dev, dev->config->get_status(dev) | status);
-+}
-+EXPORT_SYMBOL_GPL(virtio_add_status_noirq);
-+
- /* Do some validation, then set FEATURES_OK */
- static int virtio_features_ok(struct virtio_device *dev)
- {
-@@ -234,6 +260,38 @@ static int virtio_features_ok(struct virtio_device *dev)
- 	return 0;
- }
- 
-+/* noirq-safe variant: no might_sleep(), uses virtio_add_status_noirq() */
-+static int virtio_features_ok_noirq(struct virtio_device *dev)
-+{
-+	unsigned int status;
-+
-+	if (virtio_check_mem_acc_cb(dev)) {
-+		if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1)) {
-+			dev_warn(&dev->dev,
-+				 "device must provide VIRTIO_F_VERSION_1\n");
-+			return -ENODEV;
++		/*
++		 * virtio-mmio v1 uses a 32bit QUEUE PFN. If we have something
++		 * that doesn't fit in 32bit, fail the setup rather than
++		 * pretending to be successful.
++		 */
++		if (q_pfn >> 32) {
++			dev_err(&vdev->dev,
++				"platform bug: legacy virtio-mmio must not be used with RAM above 0x%llxGB\n",
++				0x1ULL << (32 + PAGE_SHIFT - 30));
++			return -E2BIG;
 +		}
 +
-+		if (!virtio_has_feature(dev, VIRTIO_F_ACCESS_PLATFORM)) {
-+			dev_warn(&dev->dev,
-+				 "device must provide VIRTIO_F_ACCESS_PLATFORM\n");
-+			return -ENODEV;
-+		}
++		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_QUEUE_ALIGN);
++		writel(q_pfn, vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
++	} else {
++		u64 addr;
++
++		addr = virtqueue_get_desc_addr(vq);
++		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_LOW);
++		writel((u32)(addr >> 32),
++				vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_HIGH);
++
++		addr = virtqueue_get_avail_addr(vq);
++		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_LOW);
++		writel((u32)(addr >> 32),
++				vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_HIGH);
++
++		addr = virtqueue_get_used_addr(vq);
++		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_USED_LOW);
++		writel((u32)(addr >> 32),
++				vm_dev->base + VIRTIO_MMIO_QUEUE_USED_HIGH);
++
++		writel(1, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
 +	}
 +
-+	if (!virtio_has_feature(dev, VIRTIO_F_VERSION_1))
-+		return 0;
-+
-+	virtio_add_status_noirq(dev, VIRTIO_CONFIG_S_FEATURES_OK);
-+	status = dev->config->get_status(dev);
-+	if (!(status & VIRTIO_CONFIG_S_FEATURES_OK)) {
-+		dev_err(&dev->dev, "virtio: device refuses features: %x\n",
-+			status);
-+		return -ENODEV;
-+	}
 +	return 0;
 +}
 +
- /**
-  * virtio_reset_device - quiesce device for removal
-  * @dev: the device to reset
-@@ -267,6 +325,28 @@ void virtio_reset_device(struct virtio_device *dev)
- }
- EXPORT_SYMBOL_GPL(virtio_reset_device);
- 
-+/**
-+ * virtio_reset_device_noirq - noirq-safe variant of virtio_reset_device()
-+ * @dev: the device to reset
-+ *
-+ * Requires the transport to have set config_ops->noirq_safe.
-+ */
-+void virtio_reset_device_noirq(struct virtio_device *dev)
++static int vm_reset_vqs(struct virtio_device *vdev)
 +{
-+	WARN_ON(!dev->config->noirq_safe);
++	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
++	struct virtqueue *vq;
++	int err;
 +
-+#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-+	/*
-+	 * The noirq stage runs with device IRQ handlers disabled, so
-+	 * virtio_synchronize_cbs() must not be called here.
-+	 */
-+	virtio_break_device(dev);
-+#endif
++	virtio_device_for_each_vq(vdev, vq) {
++		/* Re-initialize vring state */
++		err = virtqueue_reinit_vring(vq);
++		if (err < 0)
++			return err;
 +
-+	dev->config->reset(dev);
-+}
-+EXPORT_SYMBOL_GPL(virtio_reset_device_noirq);
++		/* Select the queue we're interested in */
++		writel(vq->index, vm_dev->base + VIRTIO_MMIO_QUEUE_SEL);
 +
- static int virtio_dev_probe(struct device *_d)
- {
- 	int err, i;
-@@ -539,6 +619,7 @@ int register_virtio_device(struct virtio_device *dev)
- 	dev->config_driver_disabled = false;
- 	dev->config_core_enabled = false;
- 	dev->config_change_pending = false;
-+	dev->noirq_state = VIRTIO_NOIRQ_NONE;
- 
- 	INIT_LIST_HEAD(&dev->vqs);
- 	spin_lock_init(&dev->vqs_list_lock);
-@@ -618,6 +699,47 @@ static int virtio_device_reinit(struct virtio_device *dev)
- 	return virtio_features_ok(dev);
- }
- 
-+/*
-+ * noirq-safe variant of virtio_device_reinit().
-+ *
-+ * Requires the transport to declare config_ops->noirq_safe, which means
-+ * reset, get_status, set_status, and finalize_features are safe to call
-+ * during the noirq PM phase.
-+ */
-+static int virtio_device_reinit_noirq(struct virtio_device *dev)
-+{
-+	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
-+	int ret;
-+
-+	/*
-+	 * We always start by resetting the device, in case a previous
-+	 * driver messed it up.
-+	 */
-+	virtio_reset_device_noirq(dev);
-+
-+	/* Acknowledge that we've seen the device. */
-+	virtio_add_status_noirq(dev, VIRTIO_CONFIG_S_ACKNOWLEDGE);
-+
-+	/*
-+	 * Maybe driver failed before freeze.
-+	 * Restore the failed status, for debugging.
-+	 */
-+	if (dev->failed)
-+		virtio_add_status_noirq(dev, VIRTIO_CONFIG_S_FAILED);
-+
-+	if (!drv)
-+		return 0;
-+
-+	/* We have a driver! */
-+	virtio_add_status_noirq(dev, VIRTIO_CONFIG_S_DRIVER);
-+
-+	ret = dev->config->finalize_features(dev);
-+	if (ret)
-+		return ret;
-+
-+	return virtio_features_ok_noirq(dev);
-+}
-+
- #ifdef CONFIG_PM_SLEEP
- int virtio_device_freeze(struct virtio_device *dev)
- {
-@@ -627,6 +749,20 @@ int virtio_device_freeze(struct virtio_device *dev)
- 	virtio_config_core_disable(dev);
- 
- 	dev->failed = dev->config->get_status(dev) & VIRTIO_CONFIG_S_FAILED;
-+	dev->noirq_state = VIRTIO_NOIRQ_NONE;
-+
-+	/*
-+	 * If the driver provides restore_noirq, verify that the transport
-+	 * supports noirq PM. It will fail early so the PM core can abort
-+	 * the transition gracefully, rather than silently skipping noirq
-+	 * restore and then failing in the normal restore path.
-+	 */
-+	if (drv && drv->restore_noirq && !dev->config->noirq_safe) {
-+		dev_warn(&dev->dev,
-+			 "transport does not support noirq PM\n");
-+		virtio_config_core_enable(dev);
-+		return -EOPNOTSUPP;
++		/* Activate the queue */
++		err = vm_active_vq(vdev, vq);
++		if (err < 0)
++			return err;
 +	}
- 
- 	if (drv && drv->freeze) {
- 		ret = drv->freeze(dev);
-@@ -645,12 +781,35 @@ int virtio_device_restore(struct virtio_device *dev)
- 	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
- 	int ret;
- 
--	ret = virtio_device_reinit(dev);
--	if (ret)
-+	/*
-+	 * If the driver implements restore_noirq and the noirq phase was
-+	 * actually entered (freeze_noirq ran), but restore_noirq did not
-+	 * complete successfully, the noirq phase must have failed. PM core
-+	 * may continue later resume phases for global recovery, but virtio
-+	 * does not use the normal restore path as an implicit same-device
-+	 * fallback.
-+	 */
-+	if (drv && drv->restore_noirq &&
-+	    dev->noirq_state == VIRTIO_NOIRQ_ENTERED) {
-+		ret = -EIO;
- 		goto err;
-+	}
- 
--	if (!drv)
--		return 0;
-+	/*
-+	 * Re-initialization is needed only for drivers that do not
-+	 * implement restore_noirq. When restore_noirq exists, either:
-+	 *  - NOIRQ_NONE: noirq phase was never entered, so no noirq-specific
-+	 *    teardown occurred and the device is still live.
-+	 *  - NOIRQ_RESTORED: noirq phase already performed reinit.
-+	 * (NOIRQ_ENTERED is caught above as -EIO.)
-+	 */
-+	if (!drv || !drv->restore_noirq) {
-+		ret = virtio_device_reinit(dev);
-+		if (ret)
-+			goto err;
-+		if (!drv)
-+			return 0;
-+	}
- 
- 	if (drv->restore) {
- 		ret = drv->restore(dev);
-@@ -671,6 +830,101 @@ int virtio_device_restore(struct virtio_device *dev)
- 	return ret;
- }
- EXPORT_SYMBOL_GPL(virtio_device_restore);
-+
-+int virtio_device_freeze_noirq(struct virtio_device *dev)
-+{
-+	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
-+
-+	if (!drv)
-+		return 0;
-+
-+	/*
-+	 * restore_noirq requires that the transport's config ops
-+	 * (reset, get_status, set_status) are safe to call during the noirq
-+	 * PM phase. Catch the mismatch early at freeze time so the PM core
-+	 * can abort cleanly rather than deadlocking on resume.
-+	 */
-+	if (drv->restore_noirq && !dev->config->noirq_safe) {
-+		dev_warn(&dev->dev,
-+			 "transport does not support noirq PM\n");
-+		return -EOPNOTSUPP;
-+	}
-+
-+	/*
-+	 * If the driver provides restore_noirq and has active vqs,
-+	 * the transport must support reset_vqs to restore them.
-+	 * Fail here so the PM core can abort the transition gracefully,
-+	 * rather than hitting -EOPNOTSUPP on resume.
-+	 */
-+	if (drv->restore_noirq && !list_empty(&dev->vqs) &&
-+	    !dev->config->reset_vqs) {
-+		dev_warn(&dev->dev,
-+			 "transport does not support noirq PM restore with active vqs (missing reset_vqs)\n");
-+		return -EOPNOTSUPP;
-+	}
-+
-+	/* Mark that the noirq phase has been entered. */
-+	dev->noirq_state = VIRTIO_NOIRQ_ENTERED;
-+
-+	if (drv->freeze_noirq)
-+		return drv->freeze_noirq(dev);
 +
 +	return 0;
 +}
-+EXPORT_SYMBOL_GPL(virtio_device_freeze_noirq);
 +
-+int virtio_device_restore_noirq(struct virtio_device *dev)
-+{
-+	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
-+	int ret;
-+
-+	if (!drv || !drv->restore_noirq)
-+		return 0;
-+
-+	/*
-+	 * All transport ops called below (reset, get_status, set_status) must
-+	 * be noirq-safe. Return early if not - this should normally have
-+	 * been caught at freeze_noirq time.
-+	 */
-+	if (!dev->config->noirq_safe) {
-+		dev_warn(&dev->dev,
-+			 "transport does not support noirq PM; skipping restore\n");
-+		return -EOPNOTSUPP;
-+	}
-+
-+	ret = virtio_device_reinit_noirq(dev);
-+	if (ret)
-+		goto err;
-+
-+	if (!list_empty(&dev->vqs)) {
-+		if (!dev->config->reset_vqs) {
-+			ret = -EOPNOTSUPP;
-+			goto err;
-+		}
-+
-+		ret = dev->config->reset_vqs(dev);
-+		if (ret)
-+			goto err;
-+	}
-+
-+	ret = drv->restore_noirq(dev);
-+	if (ret)
-+		goto err;
-+
-+	/* Mark that noirq restore has completed successfully. */
-+	dev->noirq_state = VIRTIO_NOIRQ_RESTORED;
-+
-+	/* If restore_noirq set DRIVER_OK, enable config now. */
-+	if (dev->config->get_status(dev) & VIRTIO_CONFIG_S_DRIVER_OK)
-+		virtio_config_core_enable_noirq(dev);
-+
-+	return 0;
-+
-+err:
-+	virtio_add_status_noirq(dev, VIRTIO_CONFIG_S_FAILED);
-+	return ret;
-+}
-+EXPORT_SYMBOL_GPL(virtio_device_restore_noirq);
- #endif
+ static void vm_synchronize_cbs(struct virtio_device *vdev)
+ {
+ 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
+@@ -388,45 +459,9 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
+ 	vq->num_max = num;
  
- int virtio_device_reset_prepare(struct virtio_device *dev)
-diff --git a/include/linux/virtio.h b/include/linux/virtio.h
-index 3bbc4cb6a672..937bc3c56bb8 100644
---- a/include/linux/virtio.h
-+++ b/include/linux/virtio.h
-@@ -143,6 +143,18 @@ struct virtio_admin_cmd {
- 	int ret;
+ 	/* Activate the queue */
+-	writel(virtqueue_get_vring_size(vq), vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
+-	if (vm_dev->version == 1) {
+-		u64 q_pfn = virtqueue_get_desc_addr(vq) >> PAGE_SHIFT;
+-
+-		/*
+-		 * virtio-mmio v1 uses a 32bit QUEUE PFN. If we have something
+-		 * that doesn't fit in 32bit, fail the setup rather than
+-		 * pretending to be successful.
+-		 */
+-		if (q_pfn >> 32) {
+-			dev_err(&vdev->dev,
+-				"platform bug: legacy virtio-mmio must not be used with RAM above 0x%llxGB\n",
+-				0x1ULL << (32 + PAGE_SHIFT - 30));
+-			err = -E2BIG;
+-			goto error_bad_pfn;
+-		}
+-
+-		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_QUEUE_ALIGN);
+-		writel(q_pfn, vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
+-	} else {
+-		u64 addr;
+-
+-		addr = virtqueue_get_desc_addr(vq);
+-		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_LOW);
+-		writel((u32)(addr >> 32),
+-				vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_HIGH);
+-
+-		addr = virtqueue_get_avail_addr(vq);
+-		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_LOW);
+-		writel((u32)(addr >> 32),
+-				vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_HIGH);
+-
+-		addr = virtqueue_get_used_addr(vq);
+-		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_USED_LOW);
+-		writel((u32)(addr >> 32),
+-				vm_dev->base + VIRTIO_MMIO_QUEUE_USED_HIGH);
+-
+-		writel(1, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
+-	}
++	err = vm_active_vq(vdev, vq);
++	if (err < 0)
++		goto error_bad_pfn;
+ 
+ 	return vq;
+ 
+@@ -528,11 +563,13 @@ static const struct virtio_config_ops virtio_mmio_config_ops = {
+ 	.reset		= vm_reset,
+ 	.find_vqs	= vm_find_vqs,
+ 	.del_vqs	= vm_del_vqs,
++	.reset_vqs	= vm_reset_vqs,
+ 	.get_features	= vm_get_features,
+ 	.finalize_features = vm_finalize_features,
+ 	.bus_name	= vm_bus_name,
+ 	.get_shm_region = vm_get_shm_region,
+ 	.synchronize_cbs = vm_synchronize_cbs,
++	.noirq_safe	= true,
  };
  
-+/**
-+ * enum virtio_noirq_state - tracks noirq PM phase progress
-+ * @VIRTIO_NOIRQ_NONE: noirq phase was not entered (only freeze ran)
-+ * @VIRTIO_NOIRQ_ENTERED: freeze_noirq ran; restore_noirq is expected
-+ * @VIRTIO_NOIRQ_RESTORED: restore_noirq completed successfully
-+ */
-+enum virtio_noirq_state {
-+	VIRTIO_NOIRQ_NONE,
-+	VIRTIO_NOIRQ_ENTERED,
-+	VIRTIO_NOIRQ_RESTORED,
-+};
-+
- /**
-  * struct virtio_device - representation of a device using virtio
-  * @index: unique position on the virtio bus
-@@ -151,6 +163,7 @@ struct virtio_admin_cmd {
-  * @config_driver_disabled: configuration change reporting disabled by
-  *                          a driver
-  * @config_change_pending: configuration change reported while disabled
-+ * @noirq_state: tracks noirq PM phase progress for restore coordination
-  * @config_lock: protects configuration change reporting
-  * @vqs_list_lock: protects @vqs.
-  * @dev: underlying device.
-@@ -171,6 +184,7 @@ struct virtio_device {
- 	bool config_core_enabled;
- 	bool config_driver_disabled;
- 	bool config_change_pending;
-+	enum virtio_noirq_state noirq_state;
- 	spinlock_t config_lock;
- 	spinlock_t vqs_list_lock;
- 	struct device dev;
-@@ -209,8 +223,12 @@ void virtio_config_driver_enable(struct virtio_device *dev);
  #ifdef CONFIG_PM_SLEEP
- int virtio_device_freeze(struct virtio_device *dev);
- int virtio_device_restore(struct virtio_device *dev);
-+int virtio_device_freeze_noirq(struct virtio_device *dev);
-+int virtio_device_restore_noirq(struct virtio_device *dev);
- #endif
- void virtio_reset_device(struct virtio_device *dev);
-+void virtio_reset_device_noirq(struct virtio_device *dev);
-+void virtio_add_status_noirq(struct virtio_device *dev, unsigned int status);
- int virtio_device_reset_prepare(struct virtio_device *dev);
- int virtio_device_reset_done(struct virtio_device *dev);
+@@ -546,15 +583,35 @@ static int virtio_mmio_freeze(struct device *dev)
+ static int virtio_mmio_restore(struct device *dev)
+ {
+ 	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
++	struct virtio_driver *drv = drv_to_virtio(vm_dev->vdev.dev.driver);
  
-@@ -237,6 +255,28 @@ size_t virtio_max_dma_size(const struct virtio_device *vdev);
-  *    changes; may be called in interrupt context.
-  * @freeze: optional function to call during suspend/hibernation.
-  * @restore: optional function to call on resume.
-+ *    When @restore_noirq is not implemented, core resets and reinitializes
-+ *    the device before calling this. When @restore_noirq succeeded, core
-+ *    skips reinitialization; drivers should avoid calling virtio_device_ready()
-+ *    if DRIVER_OK was already set in the noirq phase.
-+ *    When @restore_noirq failed, this callback is not invoked for same-device
-+ *    recovery; the saved noirq error is propagated instead.
-+ *    When the noirq phase was entirely skipped (e.g. suspend aborted before
-+ *    suspend_noirq), core skips reinitialization for drivers that implement
-+ *    @restore_noirq and calls @restore (if provided) to undo the freeze()
-+ *    quiesce. Drivers without @restore_noirq follow the normal reinit +
-+ *    restore path.
-+ * @freeze_noirq: optional function to call during noirq suspend/hibernation.
-+ * @restore_noirq: optional function to call on noirq resume.
-+ *    If this callback fails, PM core may still continue later resume phases
-+ *    for global system recovery. Virtio does not treat @restore as an
-+ *    implicit same-device fallback for @restore_noirq failure; drivers should
-+ *    only implement @restore_noirq when noirq resume is their required
-+ *    recovery point.
-+ *    A noirq restore failure is detected by the normal restore path
-+ *    (noirq_state == VIRTIO_NOIRQ_ENTERED, meaning freeze_noirq ran but
-+ *    restore_noirq did not complete) and returns -EIO instead of attempting
-+ *    same-device recovery.
-  * @reset_prepare: optional function to call when a transport specific reset
-  *    occurs.
-  * @reset_done: optional function to call after transport specific reset
-@@ -258,6 +298,8 @@ struct virtio_driver {
- 	void (*config_changed)(struct virtio_device *dev);
- 	int (*freeze)(struct virtio_device *dev);
- 	int (*restore)(struct virtio_device *dev);
-+	int (*freeze_noirq)(struct virtio_device *dev);
-+	int (*restore_noirq)(struct virtio_device *dev);
- 	int (*reset_prepare)(struct virtio_device *dev);
- 	int (*reset_done)(struct virtio_device *dev);
- 	void (*shutdown)(struct virtio_device *dev);
-diff --git a/include/linux/virtio_config.h b/include/linux/virtio_config.h
-index 69f84ea85d71..0110b091f634 100644
---- a/include/linux/virtio_config.h
-+++ b/include/linux/virtio_config.h
-@@ -70,6 +70,9 @@ struct virtqueue_info {
-  *	vqs_info: array of virtqueue info structures
-  *	Returns 0 on success or error status
-  * @del_vqs: free virtqueues found by find_vqs().
-+ * @reset_vqs: reinitialize existing virtqueues without allocating or
-+ *	freeing them (optional). Used during noirq restore.
-+ *	Returns 0 on success or error status.
-  * @synchronize_cbs: synchronize with the virtqueue callbacks (optional)
-  *      The function guarantees that all memory operations on the
-  *      queue before it are visible to the vring_interrupt() that is
-@@ -108,6 +111,14 @@ struct virtqueue_info {
-  *	Returns 0 on success or error status
-  *	If disable_vq_and_reset is set, then enable_vq_after_reset must also be
-  *	set.
-+ * @noirq_safe: set to true if @reset, @get_status, @set_status, and
-+ *	@finalize_features are safe to call during the noirq phase of system
-+ *	suspend/resume. Transports that implement these operations via simple
-+ *	MMIO reads/writes (e.g. virtio-mmio) can set this flag. Transports
-+ *	that issue channel commands and wait for a completion interrupt (e.g.
-+ *	virtio-ccw) must NOT set it, because device interrupts are masked at
-+ *	the interrupt controller during the noirq phase, which would cause the
-+ *	wait to hang.
-  */
- struct virtio_config_ops {
- 	void (*get)(struct virtio_device *vdev, unsigned offset,
-@@ -123,6 +134,7 @@ struct virtio_config_ops {
- 			struct virtqueue_info vqs_info[],
- 			struct irq_affinity *desc);
- 	void (*del_vqs)(struct virtio_device *);
-+	int (*reset_vqs)(struct virtio_device *vdev);
- 	void (*synchronize_cbs)(struct virtio_device *);
- 	u64 (*get_features)(struct virtio_device *vdev);
- 	void (*get_extended_features)(struct virtio_device *vdev,
-@@ -137,6 +149,7 @@ struct virtio_config_ops {
- 			       struct virtio_shm_region *region, u8 id);
- 	int (*disable_vq_and_reset)(struct virtqueue *vq);
- 	int (*enable_vq_after_reset)(struct virtqueue *vq);
-+	bool noirq_safe;
- };
+-	if (vm_dev->version == 1)
++	if (vm_dev->version == 1 && (!drv || !drv->restore_noirq))
+ 		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
  
- /**
-@@ -371,6 +384,32 @@ void virtio_device_ready(struct virtio_device *dev)
- 	dev->config->set_status(dev, status | VIRTIO_CONFIG_S_DRIVER_OK);
+ 	return virtio_device_restore(&vm_dev->vdev);
  }
  
-+/**
-+ * virtio_device_ready_noirq - noirq-safe variant of virtio_device_ready()
-+ * @dev: the virtio device
-+ *
-+ * Requires the transport to have set config_ops->noirq_safe, which declares
-+ * that get_status and set_status do not wait for a completion interrupt.
-+ */
-+static inline
-+void virtio_device_ready_noirq(struct virtio_device *dev)
++static int virtio_mmio_freeze_noirq(struct device *dev)
 +{
-+	unsigned int status = dev->config->get_status(dev);
++	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
 +
-+	WARN_ON(!dev->config->noirq_safe);
-+	WARN_ON(status & VIRTIO_CONFIG_S_DRIVER_OK);
-+
-+#ifdef CONFIG_VIRTIO_HARDEN_NOTIFICATION
-+	/*
-+	 * The noirq stage runs with device IRQ handlers disabled, so
-+	 * virtio_synchronize_cbs() must not be called here.
-+	 */
-+	__virtio_unbreak_device(dev);
-+#endif
-+
-+	dev->config->set_status(dev, status | VIRTIO_CONFIG_S_DRIVER_OK);
++	return virtio_device_freeze_noirq(&vm_dev->vdev);
 +}
 +
- static inline
- const char *virtio_bus_name(struct virtio_device *vdev)
- {
++static int virtio_mmio_restore_noirq(struct device *dev)
++{
++	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
++
++	if (vm_dev->version == 1)
++		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
++
++	return virtio_device_restore_noirq(&vm_dev->vdev);
++}
++
+ static const struct dev_pm_ops virtio_mmio_pm_ops = {
+ 	SET_SYSTEM_SLEEP_PM_OPS(virtio_mmio_freeze, virtio_mmio_restore)
++	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(virtio_mmio_freeze_noirq,
++				      virtio_mmio_restore_noirq)
+ };
+ #endif
+ 
 -- 
 2.43.0
 
