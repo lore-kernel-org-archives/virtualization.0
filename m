@@ -1,231 +1,516 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FA093FCB2F
-	for <virtualization@lists.linux.dev>; Tue, 28 Apr 2026 10:42:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92A3C40B6CD
+	for <virtualization@lists.linux-foundation.org>; Tue, 28 Apr 2026 10:42:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777372932; cv=none; b=LWFmnN/iShsV2KDFhtrIXQfgfP14retwR3Bvw1zoUmYVaYFKkg2Zq7ib8gRy+hlqh4lyCsNczPO5v/YOVkgUhFOsQgv9AM+L5SciLulyAhPQd4vSprBzom6jrX5noDSbPLxukc0WQ3zweL16LlZx98Jsu1qO1A/tlv7ZuLJVod4=
+	t=1777372959; cv=none; b=IEjnkYjPa79Wa3r2CUP6BdM1e+KyQmASHeyny9fI2K/UK5cd6SfIFccGjPRXQhY3cd8Ls4VPec84gRQ6dYupw6MjfZV5R9E7iz6fHSOSSA8RMe1HK7qRyQAN6aodz6EBsCkliAgnRObHzErMhj1ZF4ddCc2fIueo0sgksuj1rNY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777372932; c=relaxed/simple;
-	bh=kS157A58dRZ/AD1vGLBnOz2jKRlOzCBgyNI/NvQZns8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=sCTukcHbcGoRUwxeorb2nWxAoKuhLc5lnwXr/pKFTjvmOHya37tSvy12ZrQr5TnaEceQPOL9d3xE48oY3R7AUryYhIrn4Bz7bz1oXFtMoGHEh8LRqywSCK1Me3rkAqjgRBs3bqWtJSVVKzQQlC+CaClHBjJepIUsIOGYKIk/mhs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=Ua4ibM8Q; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=Ua4ibM8Q; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1777372959; c=relaxed/simple;
+	bh=LPxp90wygznh+iB9GfB3SnpuT09Adhdr/GIGa1RwE/k=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=ZOAEB9e+aE4Xne6/CefRlY1mKcs9Zh0TaYzw0m8cWqpzNld1icXuvzxMSN6gfovJwWPt5uq0slnV3nmhzTKqSjdVPk6+eOI8nubFBe4ibS7+m+7oeyy2oBCtHNUoVqY5EqxUoqljs8/6BtzwuOGsBB3x9KSe1Kqa9HqDlHWh2L8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dyy6/nQI; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="Ua4ibM8Q";
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="Ua4ibM8Q"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 283706A82C;
-	Tue, 28 Apr 2026 10:42:08 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1777372928; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=qwt4ipVlicoVVQWHQjzY6HzZ6+MdaroGCJFvi9kZADc=;
-	b=Ua4ibM8QZY+H3I1nc2eszVzDEtWp+olRTLS56wBuy7EHYCYCNdw14spZxmVi8jp3RVVBmQ
-	RyMkEysv+PDJl9I8Ttrsi31xViL6fJigQy/SploNqieIjOmPpEPZdqmUNasQCFWBfSxhtz
-	rTCni29QIS964Io+5ySTOps6N+z0Gak=
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.com header.s=susede1 header.b=Ua4ibM8Q
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1777372928; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
-	bh=qwt4ipVlicoVVQWHQjzY6HzZ6+MdaroGCJFvi9kZADc=;
-	b=Ua4ibM8QZY+H3I1nc2eszVzDEtWp+olRTLS56wBuy7EHYCYCNdw14spZxmVi8jp3RVVBmQ
-	RyMkEysv+PDJl9I8Ttrsi31xViL6fJigQy/SploNqieIjOmPpEPZdqmUNasQCFWBfSxhtz
-	rTCni29QIS964Io+5ySTOps6N+z0Gak=
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 481E1593B0;
-	Tue, 28 Apr 2026 10:42:07 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id t8dHEP+O8GlrPQAAD6G6ig
-	(envelope-from <jgross@suse.com>); Tue, 28 Apr 2026 10:42:07 +0000
-From: Juergen Gross <jgross@suse.com>
-To: linux-kernel@vger.kernel.org,
-	x86@kernel.org,
-	linux-edac@vger.kernel.org,
-	linux-pm@vger.kernel.org,
-	linux-hwmon@vger.kernel.org,
-	linux-perf-users@vger.kernel.org,
-	platform-driver-x86@vger.kernel.org,
-	linux-acpi@vger.kernel.org,
-	virtualization@lists.linux.dev
-Cc: Juergen Gross <jgross@suse.com>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Tony Luck <tony.luck@intel.com>,
-	"Rafael J. Wysocki" <rafael@kernel.org>,
-	Viresh Kumar <viresh.kumar@linaro.org>,
-	Guenter Roeck <linux@roeck-us.net>,
-	Daniel Lezcano <daniel.lezcano@kernel.org>,
-	Zhang Rui <rui.zhang@intel.com>,
-	Lukasz Luba <lukasz.luba@arm.com>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Arnaldo Carvalho de Melo <acme@kernel.org>,
-	Namhyung Kim <namhyung@kernel.org>,
-	Mark Rutland <mark.rutland@arm.com>,
-	Alexander Shishkin <alexander.shishkin@linux.intel.com>,
-	Jiri Olsa <jolsa@kernel.org>,
-	Ian Rogers <irogers@google.com>,
-	Adrian Hunter <adrian.hunter@intel.com>,
-	James Clark <james.clark@linaro.org>,
-	Huang Rui <ray.huang@amd.com>,
-	Mario Limonciello <mario.limonciello@amd.com>,
-	Perry Yuan <perry.yuan@amd.com>,
-	K Prateek Nayak <kprateek.nayak@amd.com>,
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
-	Len Brown <lenb@kernel.org>,
-	Hans de Goede <hansg@kernel.org>,
-	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
-Subject: [PATCH RFC 00/11] x86/msr: Reduce MSR access interfaces
-Date: Tue, 28 Apr 2026 12:41:54 +0200
-Message-ID: <20260428104205.916924-1-jgross@suse.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dyy6/nQI"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 5D4BC406D7
+	for <virtualization@lists.linux-foundation.org>; Tue, 28 Apr 2026 10:42:37 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -2.101
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id GeWUrbsdgG4a for <virtualization@lists.linux-foundation.org>;
+ Tue, 28 Apr 2026 10:42:36 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2600:3c04:e001:324:0:1991:8:25; helo=tor.source.kernel.org; envelope-from=sashal@kernel.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org E29EB406CE
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org E29EB406CE
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20201202 header.b=dyy6/nQI
+Received: from tor.source.kernel.org (tor.source.kernel.org [IPv6:2600:3c04:e001:324:0:1991:8:25])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id E29EB406CE
+	for <virtualization@lists.linux-foundation.org>; Tue, 28 Apr 2026 10:42:35 +0000 (UTC)
+Received: from smtp.kernel.org (transwarp.subspace.kernel.org [100.75.92.58])
+	by tor.source.kernel.org (Postfix) with ESMTP id 99B1B60154;
+	Tue, 28 Apr 2026 10:42:33 +0000 (UTC)
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1F8F8C2BCB7;
+	Tue, 28 Apr 2026 10:42:32 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1777372953;
+	bh=LPxp90wygznh+iB9GfB3SnpuT09Adhdr/GIGa1RwE/k=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=dyy6/nQIahHi3PrlkCaqo7VPNnPUd+x6Tf2Hnz3JXHGJv2YaQzpWxglZAdLLpQxyS
+	 15M36NrwMYfliPNDbmAGTxmG/3CBdqiNOrtae1Wt2RxbnCv9Se9z8UkUfj5ZSBDDmX
+	 CWRMxKMm/ISxJDWduu/QtDrReF73/swRIGMQ2ETr0MOHPG4nYg0Xqkk0dnbUg6aaA1
+	 u8lgWfKE75VJvPb6rFG4Q2A1y0DJbKIQhMJqqYa0PHBjU+IvyAwEXvjxADjQjAU07B
+	 afDxzSIIhljyZIIwg+xOMNlUN+GH/U/ZWIEk2rSufNZmLqrawpDLPtSQ6n94xtCY/t
+	 QdmUlXQ68Phnw==
+From: Sasha Levin <sashal@kernel.org>
+To: patches@lists.linux.dev,
+	stable@vger.kernel.org
+Cc: Joshua Daley <jdaley@linux.ibm.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Sasha Levin <sashal@kernel.org>,
+	mst@redhat.com,
+	jasowang@redhat.com,
+	jejb@linux.ibm.com,
+	virtualization@lists.linux-foundation.org,
+	linux-scsi@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH AUTOSEL 7.0] scsi: virtio_scsi: Move INIT_WORK calls to virtscsi_probe()
+Date: Tue, 28 Apr 2026 06:40:53 -0400
+Message-ID: <20260428104133.2858589-42-sashal@kernel.org>
 X-Mailer: git-send-email 2.53.0
+In-Reply-To: <20260428104133.2858589-1-sashal@kernel.org>
+References: <20260428104133.2858589-1-sashal@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+X-stable: review
+X-Patchwork-Hint: Ignore
+X-stable-base: Linux 7.0.2
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-Spamd-Result: default: False [-3.01 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	MID_CONTAINS_FROM(1.00)[];
-	R_MISSING_CHARSET(0.50)[];
-	R_DKIM_ALLOW(-0.20)[suse.com:s=susede1];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	RCPT_COUNT_TWELVE(0.00)[42];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	ARC_NA(0.00)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	TO_DN_SOME(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	FROM_HAS_DN(0.00)[];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:dkim,suse.com:mid,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns];
-	RCVD_TLS_ALL(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from,2a07:de40:b281:106:10:150:64:167:received];
-	DKIM_SIGNED(0.00)[suse.com:s=susede1];
-	R_RATELIMIT(0.00)[to_ip_from(RLkdkdrsxe9hqhhs5ask8616i6)];
-	DKIM_TRACE(0.00)[suse.com:+]
-X-Rspamd-Action: no action
-X-Spam-Flag: NO
-X-Spam-Score: -3.01
-X-Spam-Level: 
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Rspamd-Queue-Id: 283706A82C
 
-After my first attempt to rework the MSR access functions [1] this is
-the result of the feedback I got.
+From: Joshua Daley <jdaley@linux.ibm.com>
 
-I have still followed the idea to:
+[ Upstream commit da3159a3b3fdc05c6bdba2fd4f4802a6718d879a ]
 
-- Reduce the number of MSR access functions by keeping the ones with
-  64-bit values only (instead of the dual 32-bit ones).
+The last step of virtscsi_handle_event() is to call
+virtscsi_kick_event(), which calls INIT_WORK on its own work
+item. INIT_WORK resets the work item's data bits to 0.
 
-- Try to have inline functions instead of macros for rdmsr*(), removing
-  the hard to read cases where parameters specified the variables for
-  the results.
+If this occurs while the work item is being flushed by
+cancel_work_sync(), then kernel/workqueue.c/work_offqd_enable triggers a
+kernel warning, as it expects the "disable" bit to be 1:
 
-One feedback I got was NOT to rename the access functions, which I
-avoided in my new approach.
+[   21.450115] workqueue: work disable count underflowed
+[   21.450117] WARNING: CPU: 1 PID: 56 at kernel/workqueue.c:4328 enable_work+0x10a/0x120
+...
+[   21.450171] Call Trace:
+[   21.450173]  [<000003db2e5bdc3e>] enable_work+0x10e/0x120
+[   21.450176] ([<000003db2e5bdc3a>] enable_work+0x10a/0x120)
+[   21.450178]  [<000003db2e5bdd86>] cancel_work_sync+0x86/0xa0
+[   21.450181]  [<000003daae97d9e4>] virtscsi_remove+0xb4/0xd0 [virtio_scsi]
+[   21.450184]  [<000003db2ef3b5ca>] virtio_dev_remove+0x6a/0xd0
+[   21.450186]  [<000003db2ef9106c>] device_release_driver_internal+0x1ac/0x260
+[   21.450190]  [<000003db2ef8edc8>] bus_remove_device+0xf8/0x190
+[   21.450192]  [<000003db2ef88d72>] device_del+0x142/0x340
+[   21.450194]  [<000003db2ef88fa0>] device_unregister+0x30/0xa0
+[   21.450196]  [<000003db2ef3b2fa>] unregister_virtio_device+0x2a/0x40
 
-The first 8 patches are a complete set for achieving especially the
-first point above for the *_on_cpu() functions.
+This warning may occur if a controller is detached immediately following
+a disk detach.
 
-Patch 9 is preparing the switch of the CPU-local MSR access functions
-to have only rdmsr(), rdmsr_safe(), wrmsr() and wrmsr_safe() (all with
-64-bit values and as inline functions) in the end. For this purpose
-the already existing functions/macros are overloaded via macros to
-accept both variants (64-bit and dual 32-bit values) during the phase
-switching the different subsystems to the new scheme. This has the
-advantage to avoid having to either patch all users of the current
-functions in one patch (like done in the first 8 patches), or having
-to use intermediate function names with need to be patched at the end
-another time. The resulting patches would be very hard to review due
-to their size.
+Move the INIT_WORK call to prevent this. Don't re-init event list work
+items in virtscsi_kick_event(), init them only once in virtscsi_probe()
+instead.
 
-The last 2 patches are examples how switches of subsystems would look
-like.
+Signed-off-by: Joshua Daley <jdaley@linux.ibm.com>
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+Link: https://patch.msgid.link/20260325180857.3675854-2-jdaley@linux.ibm.com
+Signed-off-by: Martin K. Petersen <martin.petersen@oracle.com>
+Signed-off-by: Sasha Levin <sashal@kernel.org>
+---
 
-Up to now all of that is compile tested only.
+LLM Generated explanations, may be completely bogus:
 
-[1]: https://lore.kernel.org/lkml/20260420091634.128787-1-jgross@suse.com/
+Now I have enough information to complete the analysis.
 
-Juergen Gross (11):
-  x86/msr: Switch rdmsr_on_cpu() to return a 64-bit quantity
-  x86/msr: Switch all callers of rdmsrq_on_cpu() to use rdmsr_on_cpu()
-  x86/msr: Switch wrmsr_on_cpu() to use a 64-bit quantity
-  x86/msr: Switch all callers of wrmsrq_on_cpu() to use wrmsr_on_cpu()
-  x86/msr: Switch rdmsr_safe_on_cpu() to return a 64-bit quantity
-  x86/msr: Switch all callers of rdmsrq_safe_on_cpu() to use
-    rdmsr_safe_on_cpu()
-  x86/msr: Switch wrmsr_safe_on_cpu() to use a 64-bit quantity
-  x86/msr: Switch all callers of wrmsrq_safe_on_cpu() to use
-    wrmsr_safe_on_cpu()
-  x86/msr: Add macros for preparing to switch rdmsr/wrmsr interfaces
-  x86/events: Switch core parts to use 64-bit rdmsr/wrmsr() variants
-  x86/cpu/mce: Switch code to use 64-bit rdmsr/wrmsr() variants
+---
 
- arch/x86/events/core.c                        |  42 ++++----
- arch/x86/events/intel/ds.c                    |  11 +-
- arch/x86/events/intel/pt.c                    |   2 +-
- arch/x86/events/intel/uncore_discovery.c      |   2 +-
- arch/x86/events/intel/uncore_snbep.c          |   2 +-
- arch/x86/events/msr.c                         |   2 +-
- arch/x86/events/perf_event.h                  |  26 ++---
- arch/x86/events/probe.c                       |   2 +-
- arch/x86/events/rapl.c                        |   8 +-
- arch/x86/include/asm/msr.h                    |  90 +++++++++-------
- arch/x86/include/asm/paravirt.h               |   6 +-
- arch/x86/kernel/acpi/cppc.c                   |   8 +-
- arch/x86/kernel/cpu/intel_epb.c               |   8 +-
- arch/x86/kernel/cpu/mce/amd.c                 | 101 +++++++++---------
- arch/x86/kernel/cpu/mce/core.c                |  18 ++--
- arch/x86/kernel/cpu/mce/inject.c              |  40 +++----
- arch/x86/kernel/cpu/mce/intel.c               |  32 +++---
- arch/x86/kernel/cpu/mce/p5.c                  |  16 +--
- arch/x86/kernel/cpu/mce/winchip.c             |  10 +-
- arch/x86/kernel/cpu/microcode/intel.c         |   2 +-
- arch/x86/kernel/msr.c                         |   8 +-
- arch/x86/lib/msr-smp.c                        |  79 ++------------
- drivers/cpufreq/acpi-cpufreq.c                |   4 +-
- drivers/cpufreq/amd-pstate-ut.c               |   2 +-
- drivers/cpufreq/amd-pstate.c                  |  21 ++--
- drivers/cpufreq/amd_freq_sensitivity.c        |   4 +-
- drivers/cpufreq/intel_pstate.c                |  64 +++++------
- drivers/cpufreq/p4-clockmod.c                 |  32 +++---
- drivers/cpufreq/speedstep-centrino.c          |  27 ++---
- drivers/hwmon/coretemp.c                      |  44 ++++----
- drivers/hwmon/via-cputemp.c                   |  16 +--
- drivers/platform/x86/amd/hfi/hfi.c            |   4 +-
- .../intel/speed_select_if/isst_if_common.c    |  13 ++-
- .../intel/uncore-frequency/uncore-frequency.c |  12 +--
- drivers/powercap/intel_rapl_msr.c             |   2 +-
- drivers/thermal/intel/intel_tcc.c             |  43 ++++----
- drivers/thermal/intel/x86_pkg_temp_thermal.c  |  22 ++--
- 37 files changed, 387 insertions(+), 438 deletions(-)
+## PHASE 1: COMMIT MESSAGE FORENSICS
 
+**Step 1.1: Subject Line**
+- Record: `scsi: virtio_scsi` "Move INIT_WORK calls to virtscsi_probe()"
+  — restructures INIT_WORK placement to avoid race with
+  `cancel_work_sync()` during controller removal.
+
+**Step 1.2: Tags**
+- Record:
+  - `Signed-off-by: Joshua Daley <jdaley@linux.ibm.com>` (author)
+  - `Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>` (subsystem
+    expert)
+  - `Link: https://patch.msgid.link/20260325180857.3675854-2-
+    jdaley@linux.ibm.com` (mailing list)
+  - `Signed-off-by: Martin K. Petersen` (SCSI maintainer, applied the
+    patch)
+  - No `Fixes:` tag, no `Cc: stable` (expected - this is why review is
+    needed)
+  - No `Reported-by:` but reproduction steps present in cover letter
+
+**Step 1.3: Commit Body Analysis**
+- Record: The commit describes a race where:
+  - `virtscsi_handle_event()` (work function) calls
+    `virtscsi_kick_event()` at the end
+  - `virtscsi_kick_event()` calls `INIT_WORK` on the SAME work item that
+    is currently executing
+  - `INIT_WORK` resets work->data bits (including the workqueue disable
+    count) to 0
+  - If this happens while `cancel_work_sync()` is flushing the work,
+    `work_offqd_enable` sees the disable count was cleared and triggers
+    "work disable count underflowed" WARN
+  - Includes a full stack trace on S390; trigger: "controller is
+    detached immediately following a disk detach"
+
+**Step 1.4: Hidden Bug Fix Detection**
+- Record: Not hidden - clearly labeled as fixing a warning. Race
+  condition fix disguised as "Move INIT_WORK".
+
+## PHASE 2: DIFF ANALYSIS
+
+**Step 2.1: Inventory**
+- Record: 1 file (`drivers/scsi/virtio_scsi.c`), ~5 net lines added.
+  Changed functions: `virtscsi_kick_event()` (INIT_WORK removed) and
+  `virtscsi_probe()` (INIT_WORK loop added). Single-file surgical fix.
+
+**Step 2.2: Code Flow**
+- Record:
+  - Before: `INIT_WORK(&event_node->work, virtscsi_handle_event)` called
+    in `virtscsi_kick_event()`, which is invoked from both
+    `virtscsi_kick_event_all()` (at probe/restore time) AND from
+    `virtscsi_handle_event()` itself (re-queueing at end of event
+    handling).
+  - After: `INIT_WORK` called once in `virtscsi_probe()` inside a `for`
+    loop over all 8 event_list entries (guarded by
+    VIRTIO_SCSI_F_HOTPLUG). `virtscsi_kick_event()` no longer resets the
+    work struct state.
+  - Forward declaration of `virtscsi_handle_event` removed (probe is
+    after the definition).
+
+**Step 2.3: Bug Mechanism**
+- Record: **Race condition fix** (category b from playbook). The issue
+  is that `INIT_WORK` resets all state bits in `work->data` (including
+  the disable count introduced in v6.10 by commit `86898fa6b8cd9`).
+  Internally, `cancel_work_sync()` now calls `__cancel_work_sync(work,
+  0)` → `__cancel_work(work, WORK_CANCEL_DISABLE)` which increments the
+  disable count via `work_offqd_disable()`, then `__flush_work()` waits
+  for the function to complete, then calls `enable_work()` to decrement.
+  If the work function calls `INIT_WORK` during the flush, disable count
+  goes 1→0; later `enable_work()` sees 0 and triggers `WARN_ONCE(true,
+  "workqueue: work disable count underflowed\n")` at
+  `kernel/workqueue.c:4422`.
+
+**Step 2.4: Fix Quality**
+- Record: Obviously correct. The INIT_WORK was redundant after the first
+  call (work's function pointer doesn't change between kicks). Moving it
+  to probe() eliminates the race. Low regression risk: the work struct
+  state is preserved across kicks (no need to re-init), and it persists
+  through freeze/resume cycles (virtscsi_freeze doesn't cancel work, so
+  state remains intact).
+
+## PHASE 3: GIT HISTORY INVESTIGATION
+
+**Step 3.1: Blame of Buggy Code**
+- Record: `INIT_WORK(&event_node->work, virtscsi_handle_event)` in
+  `virtscsi_kick_event()` was introduced by commit `365a715009411`
+  "[SCSI] virtio-scsi: hotplug support for virtio-scsi" (v3.6-rc1,
+  2012). The pattern has existed unchanged for 13+ years in all stable
+  trees.
+
+**Step 3.2: No Fixes: Tag to Follow**
+- Record: No Fixes: tag present. The WARN symptom was enabled by commit
+  `86898fa6b8cd9` "workqueue: Implement disable/enable for (delayed)
+  work items" which landed in **v6.10-rc1**. Before v6.10 the same race
+  existed but did not trigger this specific WARN (cancel_work_sync
+  didn't use the disable count).
+
+**Step 3.3: File History**
+- Record: Recent virtio_scsi.c history shows a related commit
+  `2678369e8efe0` "virtio_scsi: fix DMA cacheline issues for events" (by
+  Michael Tsirkin, Dec 2025) which restructured the event buffers. The
+  currently analyzed patch applies cleanly on top of that. No patch
+  dependencies required beyond the usual.
+
+**Step 3.4: Author Context**
+- Record: Joshua Daley (IBM); this is their first virtio_scsi fix.
+  However, the patch was Reviewed-by Stefan Hajnoczi (original virtio-
+  scsi author at IBM/RedHat and primary reviewer for virtio_scsi), and
+  applied by Martin K. Petersen (SCSI maintainer).
+
+**Step 3.5: Dependencies**
+- Record: Standalone fix. A second patch in the series (2/2 "kick
+  event_list unconditionally") is independent and addresses a different
+  cleanup - not required for this one to work. This patch doesn't depend
+  on the other.
+
+## PHASE 4: MAILING LIST AND EXTERNAL RESEARCH
+
+**Step 4.1: Patch Discussion**
+- Record: Retrieved full thread via `b4 mbox
+  20260325180857.3675854-2-jdaley@linux.ibm.com`. Series is at v4.
+  Previous versions (v1-v3) had different approaches (INIT_WORK moved to
+  `virtscsi_init()` initially). Changelog notes v4 addresses bisection
+  concerns (by placing this patch first in the series) and
+  suspend/resume concerns (by choosing `virtscsi_probe()` rather than
+  `virtscsi_init()`). **No stable nomination in the thread**, but the
+  patch is clearly framed as a bug fix.
+
+**Step 4.2: Reviewers**
+- Record: Cc'd: linux-scsi, linux-kernel, virtualization list, MST,
+  jasowang, pbonzini (QEMU/virtio maintainers), stefanha (virtio-scsi
+  expert), eperezma, Martin Petersen (SCSI maintainer), and multiple IBM
+  S390 engineers (mjrosato, farman, frankja). Stefan Hajnoczi's
+  Reviewed-by tag confirms subsystem expert review.
+
+**Step 4.3: Bug Report**
+- Record: No syzbot report. The reporter is the author himself running
+  tests on IBM S390 (evidenced by addresses in stack trace
+  `000003db2e5...`). The cover letter documents that the warning is
+  reliably reproducible by adding `msleep(1000)` before INIT_WORK and
+  running `virsh detach-device disk; virsh detach-device controller`.
+
+**Step 4.4: Related Patches**
+- Record: The series "scsi: virtio_scsi: move INIT_WORK calls to
+  virtscsi_probe" contains 2 patches, both applied by Martin K. Petersen
+  to `7.1/scsi-queue` (`[1/2] da3159a3b3fd` and `[2/2] 0019a3a5756b`).
+
+**Step 4.5: Stable-specific Discussion**
+- Record: No explicit stable discussion in the thread. The v4 changelog
+  does not mention stable.
+
+## PHASE 5: CODE SEMANTIC ANALYSIS
+
+**Step 5.1: Key Functions**
+- Record: `virtscsi_kick_event` (INIT_WORK removed), `virtscsi_probe`
+  (INIT_WORK loop added), `virtscsi_handle_event` (forward declaration
+  removed since probe is below it).
+
+**Step 5.2: Callers of `virtscsi_kick_event`**
+- Record: `virtscsi_kick_event_all()` (called at probe and restore) and
+  `virtscsi_handle_event()` (the work function itself, for re-queueing).
+  `virtscsi_kick_event_all` is called from `virtscsi_probe()` and
+  `virtscsi_restore()`.
+
+**Step 5.3: Callees**
+- Record: `virtscsi_kick_event` calls `sg_init_one`,
+  `virtqueue_add_inbuf_cache_clean`, `virtqueue_kick`. None of these
+  interact with work struct state.
+
+**Step 5.4: Reachability**
+- Record: The race path is reachable from userspace via standard device
+  hotplug operations (virsh detach-device or equivalent QEMU API calls).
+  Very common in cloud/virt environments.
+
+**Step 5.5: Similar Patterns**
+- Record: The anti-pattern of "calling INIT_WORK from within the work
+  function on its own work_struct" is known to be racy with
+  cancel_work_sync. This is why v6.10+ workqueue added the WARN to
+  detect it.
+
+## PHASE 6: STABLE TREE ANALYSIS
+
+**Step 6.1: Code in Stable Trees**
+- Record: Verified by reading
+  `remotes/stable/linux-6.6.y:drivers/scsi/virtio_scsi.c` and
+  `linux-6.12.y` — both have the exact same
+  `INIT_WORK(&event_node->work, virtscsi_handle_event)` pattern in
+  `virtscsi_kick_event()` and the same
+  `virtscsi_probe()`/`virtscsi_remove()` structure. Code exists
+  unchanged in all maintained stable trees (back to at least 5.15).
+
+**Step 6.2: Backport Difficulty**
+- Record: The patch should apply cleanly or with trivial adjustments.
+  The surrounding code in `virtscsi_probe()` is similar across stable
+  trees, though there was a recent reorganization (`2678369e8efe0`
+  "virtio_scsi: fix DMA cacheline issues for events" in mainline, not in
+  stable). In 6.12.y, `event_node->event` is still an inline struct (not
+  a pointer); the patch's INIT_WORK change is independent of that.
+
+**Step 6.3: Related Fixes in Stable**
+- Record: No prior fix for this race in stable. The WARN_ONCE at
+  kernel/workqueue.c:4422 was introduced in v6.10 (commit
+  `86898fa6b8cd9`).
+
+## PHASE 7: SUBSYSTEM CONTEXT
+
+**Step 7.1: Subsystem**
+- Record: `drivers/scsi/virtio_scsi.c` — virtio-scsi driver.
+  Criticality: **IMPORTANT**. Used by essentially every KVM/QEMU-based
+  virtualization stack (including cloud providers using KVM, libvirt,
+  AWS EC2, GCP GCE, OpenStack).
+
+**Step 7.2: Subsystem Activity**
+- Record: Moderately active (~20 commits in recent history, many
+  cleanup/refactoring). Core logic unchanged since v3.6.
+
+## PHASE 8: IMPACT AND RISK
+
+**Step 8.1: Affected Users**
+- Record: All users of virtio-scsi on v6.10+ kernels who perform hotplug
+  operations (disk/controller detach). This is a massive user base in
+  virtualization.
+
+**Step 8.2: Trigger Conditions**
+- Record: Normal administrative workflow: detach a disk, then detach the
+  controller immediately. Reproducible with standard virsh commands. Not
+  privileged-user-triggerable from guest, but a host-side operation.
+
+**Step 8.3: Failure Mode**
+- Record: Kernel `WARN_ONCE` with stack trace in dmesg. **Severity:
+  MEDIUM**. Not a crash, not data corruption, not security-relevant.
+  But: user-visible warning that could trigger monitoring alerts, CI
+  failures (many CI systems treat kernel WARN as failure), and user
+  concern. The pre-v6.10 race still exists but without the visible WARN
+  — potentially other subtle effects but not documented.
+
+**Step 8.4: Risk vs Benefit**
+- Record:
+  - BENEFIT: Eliminates a user-visible kernel warning in a very common
+    virtualization path. Moderate benefit.
+  - RISK: Very low — 5 net lines, moves a single INIT_WORK call,
+    reviewed by subsystem expert, applied by maintainer. The work struct
+    state is correctly preserved across freeze/resume cycles.
+  - Ratio: Favorable for backporting.
+
+## PHASE 9: FINAL SYNTHESIS
+
+**Step 9.1: Evidence Summary**
+
+FOR backporting:
+- Real race condition with reproducible user-visible WARN
+- Small, surgical fix (5 net lines)
+- Reviewed by subsystem expert (Stefan Hajnoczi)
+- Applied by SCSI maintainer (Martin K. Petersen)
+- Code pattern identical in all stable trees v6.10+ where the WARN is
+  triggered
+- Common workflow (VM hotplug) triggers this bug
+- Low regression risk
+
+AGAINST backporting:
+- Symptom is WARN, not crash/corruption
+- No explicit Cc: stable nomination
+- No Fixes: tag
+- Race has existed since v3.6 without major user impact reports
+
+**Step 9.2: Stable Rules**
+1. Obviously correct: YES — trivially correct (just relocates INIT_WORK
+   to run once)
+2. Fixes real bug: YES — triggers WARN in v6.10+
+3. Important issue: MEDIUM (WARN, not crash)
+4. Small and contained: YES (5 lines, one file)
+5. No new features: YES
+6. Applies cleanly: YES for recent stable trees
+
+**Step 9.3: Exception Categories**
+- Record: Not an exception category (not device ID, quirk, DT, build, or
+  doc fix). Regular bug fix.
+
+**Step 9.4: Decision**
+The fix addresses a reproducible race condition with a clear user-
+visible symptom on v6.10+ kernels (6.12, 6.17, 6.18, 6.19 stable trees).
+It has been reviewed by the virtio-scsi expert, applied by the SCSI
+maintainer, and affects a widely-deployed driver (used in virtually all
+KVM/QEMU VMs). The patch is minimal, correct, and low-risk. The symptom
+is only a WARN (not a crash), but it occurs in common hotplug workflows
+and the fix is safe.
+
+---
+
+## Verification
+
+- [Phase 1] Parsed tags: Reviewed-by Stefan Hajnoczi, Link to lore,
+  Signed-off-by Martin K. Petersen; no Fixes/Cc stable tags
+- [Phase 2] Diff analysis: 5 net lines changed in
+  `drivers/scsi/virtio_scsi.c`; INIT_WORK moved from
+  `virtscsi_kick_event` to a loop in `virtscsi_probe` guarded by
+  VIRTIO_SCSI_F_HOTPLUG
+- [Phase 3] `git log -S"INIT_WORK(&event_node->work"`: pattern
+  introduced by `365a715009411` in v3.6-rc1 (2012)
+- [Phase 3] `git describe --contains 365a715009411`: v3.6-rc1, confirmed
+  pattern has been stable for 13+ years
+- [Phase 3] `git log -S"work disable count underflowed"`: WARN
+  introduced by `86898fa6b8cd9` in v6.10-rc1 — this is why the visible
+  symptom only exists v6.10+
+- [Phase 3] Read kernel/workqueue.c lines 4407-4499 to verify
+  `enable_work()`/`__cancel_work_sync()` logic and confirm the race
+  mechanism
+- [Phase 3] Read include/linux/workqueue.h: confirmed `INIT_WORK` →
+  `__INIT_WORK_KEY` → resets `work->data = WORK_DATA_INIT()` (all bits
+  zeroed, clobbering disable count)
+- [Phase 4] `b4 mbox 20260325180857.3675854-2-jdaley@linux.ibm.com`:
+  retrieved full thread (7 messages, 2 reviewers, 1 apply confirmation)
+- [Phase 4] Thread content confirmed: v4 is latest, Reviewed-by tag
+  added, Martin K. Petersen applied to 7.1/scsi-queue
+  (git.kernel.org/mkp/scsi/c/da3159a3b3fd)
+- [Phase 4] No explicit stable nomination in the mailing list discussion
+- [Phase 5] `grep "virtscsi_kick_event\b"`: 3 hits — function
+  definition, call from `virtscsi_kick_event_all()` (probe/restore),
+  call from `virtscsi_handle_event()` (re-queue after event processing)
+- [Phase 6] Read `remotes/stable/linux-6.6.y:drivers/scsi/virtio_scsi.c`
+  and `linux-6.12.y`: confirmed identical `INIT_WORK(&event_node->work,
+  ...)` pattern in `virtscsi_kick_event()`, so fix applies conceptually
+  cleanly
+- [Phase 6] Confirmed via search that recent commit `2678369e8efe0`
+  "virtio_scsi: fix DMA cacheline issues for events" changed the event
+  buffer layout in mainline but doesn't affect the INIT_WORK move
+- [Phase 7] Subsystem: virtio-scsi — widely used in all KVM/QEMU
+  virtualization
+- [Phase 8] Failure mode: `WARN_ONCE` at kernel/workqueue.c:4422, stack
+  trace visible in dmesg; severity MEDIUM (not a
+  crash/corruption/security)
+- UNVERIFIED: Whether the pre-v6.10 race has any user-visible effect
+  beyond the post-v6.10 WARN. The fix is still logically correct for
+  pre-v6.10 but the symptom documentation only covers v6.10+.
+- UNVERIFIED: Whether the fix requires any adjustment for stable trees
+  (the diff in the thread differs slightly from the presented diff —
+  presented diff has a few whitespace/context differences from the v4
+  mailed patch, but the functional change is identical)
+
+The commit is a small, well-reviewed bug fix for a reproducible race
+condition that triggers a kernel WARN in a widely-deployed driver
+(virtio-scsi used in essentially all KVM/QEMU VMs) on v6.10+ kernels.
+The fix is minimal (5 net lines, one file), obviously correct (the work
+struct doesn't need to be re-initialized on every kick), reviewed by the
+subsystem expert (Stefan Hajnoczi), and applied by the SCSI maintainer.
+Regression risk is very low.
+
+**YES**
+
+ drivers/scsi/virtio_scsi.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/scsi/virtio_scsi.c b/drivers/scsi/virtio_scsi.c
+index 0ed8558dad724..64b6c942f5720 100644
+--- a/drivers/scsi/virtio_scsi.c
++++ b/drivers/scsi/virtio_scsi.c
+@@ -233,7 +233,6 @@ static void virtscsi_ctrl_done(struct virtqueue *vq)
+ 	virtscsi_vq_done(vscsi, &vscsi->ctrl_vq, virtscsi_complete_free);
+ };
+ 
+-static void virtscsi_handle_event(struct work_struct *work);
+ 
+ static int virtscsi_kick_event(struct virtio_scsi *vscsi,
+ 			       struct virtio_scsi_event_node *event_node)
+@@ -242,7 +241,6 @@ static int virtscsi_kick_event(struct virtio_scsi *vscsi,
+ 	struct scatterlist sg;
+ 	unsigned long flags;
+ 
+-	INIT_WORK(&event_node->work, virtscsi_handle_event);
+ 	sg_init_one(&sg, event_node->event, sizeof(struct virtio_scsi_event));
+ 
+ 	spin_lock_irqsave(&vscsi->event_vq.vq_lock, flags);
+@@ -984,8 +982,11 @@ static int virtscsi_probe(struct virtio_device *vdev)
+ 
+ 	virtio_device_ready(vdev);
+ 
+-	if (virtio_has_feature(vdev, VIRTIO_SCSI_F_HOTPLUG))
++	if (virtio_has_feature(vdev, VIRTIO_SCSI_F_HOTPLUG)) {
++		for (int i = 0; i < VIRTIO_SCSI_EVENT_LEN; i++)
++			INIT_WORK(&vscsi->event_list[i].work, virtscsi_handle_event);
+ 		virtscsi_kick_event_all(vscsi);
++	}
+ 
+ 	scsi_scan_host(shost);
+ 	return 0;
 -- 
 2.53.0
 
