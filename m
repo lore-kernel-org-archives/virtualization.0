@@ -1,183 +1,121 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBF431A9F8D
-	for <virtualization@lists.linux.dev>; Wed, 29 Apr 2026 07:15:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C44D3B5304
+	for <virtualization@lists.linux.dev>; Wed, 29 Apr 2026 09:52:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777446934; cv=none; b=KksHoj/pAqlpL5etmJT+EMzK6YtyYx888wDO2F1Bg8xck6kUMjdvNtakuFN1EFu8+2ZgRSxxuQP3YJ3BVy+Vx5e7oBnJKfE1RYoEyKVJ095awV8zFgx9bg1l9Y+gEhUC1zrbeZlp96LA0HumCPZYRQzRrhPG6ia132+OBZRRSp4=
+	t=1777456377; cv=none; b=WuRqj5UTPbM1sib1lCCfwedO9x8+XjdkcS8+XtGZ71Hr2dQ1c+GM3tgMkHtkj+6FaeO7xVMyLMJZ0rmdI94P97uiRhtmva4mznS2TvkCBdyNbegfcCQphAabFxVhw3vYZ8Y7/LlNb4Kh3KsA8sfEAkodLUYbZpoWPdn7VqPMCbc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777446934; c=relaxed/simple;
-	bh=oxqlNa2/y8qjO9ll8Dvgw+y4W7yKloCRO0IzaMmUHtM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=p+oVRFQoIBQsVaXPtZGhVpjh+ggnQeIQSWSwHAh6H1bXWuzC3ujkaQ0MLD7KlaZ6KsgB8rhfJs1dDJYIwgLyOaPVt+yrqcQmsmZxsqokMR848enWXU/ioTAuXn08z13GaX0uAeI0NKpjxFvZ9Y2w8WvWV2pWkL8VwiBtwFW0at0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=ui6dLRpP; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=J9qSfKVQ; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=eJAMAc2M; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=82O7nivf; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1777456377; c=relaxed/simple;
+	bh=iYiw0CmhW1uNO52r6h06DT39V6K9yOrh40nBJUPbNT4=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=tGfigsrYQE/aPWR318RN2yPbdFtkXMm0sh4DgZuZK4yoI9PxnSy5o7+Johj2Nz5ntoexqvO/MxpDNOfNfrAN9ZGBCS61Cvm2kOhXb87bwPh5zHR9bH1NDGXsjZomVznVAVoLTLeq8OiSlk6QhiRHqZ9d7IEszdLjeAguosGqwzE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MjILmRL+; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="ui6dLRpP";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="J9qSfKVQ";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="eJAMAc2M";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="82O7nivf"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MjILmRL+"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1777456375;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=tEgMhSGkxaVa76ywFFeR7i2nWi7ewgciMk8C9+6QmjI=;
+	b=MjILmRL+nm79B1kxU4NIIdPmh9JFtjxrLEFN8SCrnMjM4zqXuqDoJggiz2NE5khxE+P+Zb
+	UdxUaZGbWWDVicWm+yL4/FOF7eGpQpY9vE7ss/DgQlonUFePKOpoHPgO6duOYk+rxRMBIK
+	5/7uFcFaQAqBiLQnCIjGhF54TJlpebQ=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-19-zBYbRCtwO1m14iD81uuuJA-1; Wed,
+ 29 Apr 2026 05:52:51 -0400
+X-MC-Unique: zBYbRCtwO1m14iD81uuuJA-1
+X-Mimecast-MFC-AGG-ID: zBYbRCtwO1m14iD81uuuJA_1777456369
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id E3F8C5BCCB;
-	Wed, 29 Apr 2026 07:15:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1777446931; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=v+M0QKmMGibIDIev9gzuqJ8SGIZVpscaEkkEnzze7Wc=;
-	b=ui6dLRpP0xcrWBwX/lfIUf7GD+tHCXC9ln1tqSRB1n8NrRHyVJ6AKpmmNAeWhH6iRugEd5
-	3S77gah2+6FArlg5vnda64lZsz2Mq5sPY+FZBAROh+8h9vvAfepEugpK8BiF8V6rXddZf/
-	haF8w8MPcvG8+8knqxuFX0wfixz100w=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1777446931;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=v+M0QKmMGibIDIev9gzuqJ8SGIZVpscaEkkEnzze7Wc=;
-	b=J9qSfKVQOlRR2e42u2O4sh3a+DpgFA1j7+YzK29qcg8UrDik46lNrQIo7R5/U2TV6VQRBm
-	5zCyXms6rFblBdCA==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1777446930; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=v+M0QKmMGibIDIev9gzuqJ8SGIZVpscaEkkEnzze7Wc=;
-	b=eJAMAc2MwcwLKNCUwyEYkSaE7IFXYOGx5bGcZ1lxLylUQIhX4cT0AckPIyeEQqe4rXVwPC
-	cKRGvi5PVjxHEvVj505cu6vSwc0k0zywr8cw3Re+UlIEAvJeDw448mHroWZkF+27q0X39i
-	e2drt+KvUduHzCEd477cR4wf8FiqSfQ=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1777446930;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=v+M0QKmMGibIDIev9gzuqJ8SGIZVpscaEkkEnzze7Wc=;
-	b=82O7nivfzJX0mhE90On+lguBHnjxhhH2VEt66Axh7/exWHmXw29ZVf8rUmCXysZ/WGx5If
-	IqPbYMl5dolfC+DA==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 67944593B0;
-	Wed, 29 Apr 2026 07:15:29 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id eapEFxGw8WkzAwAAD6G6ig
-	(envelope-from <hare@suse.de>); Wed, 29 Apr 2026 07:15:29 +0000
-Message-ID: <3a606788-bd88-4249-bf1c-b0f99cf680e3@suse.de>
-Date: Wed, 29 Apr 2026 09:15:28 +0200
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 5742D19560AE;
+	Wed, 29 Apr 2026 09:52:48 +0000 (UTC)
+Received: from f43vm.redhat.corp (headnet01.pony-001.prod.iad2.dc.redhat.com [10.2.32.101])
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id A80FF1800345;
+	Wed, 29 Apr 2026 09:52:43 +0000 (UTC)
+From: Sergio Lopez <slp@redhat.com>
+To: Chia-I Wu <olvaffe@gmail.com>,
+	Jason Wang <jasowang@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	linux-kernel@vger.kernel.org,
+	Simona Vetter <simona@ffwll.ch>,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	David Airlie <airlied@redhat.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Gerd Hoffmann <kraxel@redhat.com>,
+	virtualization@lists.linux.dev,
+	dri-devel@lists.freedesktop.org,
+	Maxime Ripard <mripard@kernel.org>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Cc: Sergio Lopez <slp@redhat.com>
+Subject: [PATCH v2 0/3] drm/virtio: introduce F_BLOB_ALIGNMENT support
+Date: Tue, 28 Apr 2026 21:44:47 +0200
+Message-ID: <20260428194450.518296-1-slp@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v12 05/13] blk-mq: add
- blk_mq_{online|possible}_queue_affinity
-To: Daniel Wagner <dwagner@suse.de>,
- Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Aaron Tomlin <atomlin@atomlin.com>, axboe@kernel.dk, kbusch@kernel.org,
- hch@lst.de, sagi@grimberg.me, mst@redhat.com, aacraid@microsemi.com,
- James.Bottomley@hansenpartnership.com, martin.petersen@oracle.com,
- liyihang9@h-partners.com, kashyap.desai@broadcom.com,
- sumit.saxena@broadcom.com, shivasharan.srikanteshwara@broadcom.com,
- chandrakanth.patil@broadcom.com, sathya.prakash@broadcom.com,
- sreekanth.reddy@broadcom.com, suganath-prabu.subramani@broadcom.com,
- ranjan.kumar@broadcom.com, jinpu.wang@cloud.ionos.com, tglx@kernel.org,
- mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com,
- vincent.guittot@linaro.org, akpm@linux-foundation.org, maz@kernel.org,
- ruanjinjie@huawei.com, yphbchou0911@gmail.com, wagi@kernel.org,
- frederic@kernel.org, longman@redhat.com, chenridong@huawei.com,
- kch@nvidia.com, ming.lei@redhat.com, tom.leiming@gmail.com, steve@abita.co,
- sean@ashe.io, chjohnst@gmail.com, neelx@suse.com, mproche@gmail.com,
- nick.lange@gmail.com, marco.crivellari@suse.com,
- linux-block@vger.kernel.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev, linux-nvme@lists.infradead.org,
- linux-scsi@vger.kernel.org, megaraidlinux.pdl@broadcom.com,
- mpi3mr-linuxdrv.pdl@broadcom.com, MPT-FusionLinux.pdl@broadcom.com
-References: <20260422185215.100929-1-atomlin@atomlin.com>
- <20260422185215.100929-6-atomlin@atomlin.com>
- <20260427153416.MeVS8yxF@linutronix.de>
- <c4927a2b-c18d-42ce-8a60-d6d388155671@flourine.local>
-Content-Language: en-US
-From: Hannes Reinecke <hare@suse.de>
-In-Reply-To: <c4927a2b-c18d-42ce-8a60-d6d388155671@flourine.local>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
+X-Mimecast-MFC-PROC-ID: 3AmdKVt59R0NvejrUDOVpFY0SpS-67c9WolQH7vWFpI_1777456369
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-Spamd-Result: default: False [-6.80 / 50.00];
-	REPLY(-4.00)[];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-0.993];
-	MIME_GOOD(-0.10)[text/plain];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	TAGGED_RCPT(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	ARC_NA(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	URIBL_BLOCKED(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:mid,suse.de:email];
-	TO_DN_SOME(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	MID_RHS_MATCH_FROM(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[atomlin.com,kernel.dk,kernel.org,lst.de,grimberg.me,redhat.com,microsemi.com,hansenpartnership.com,oracle.com,h-partners.com,broadcom.com,cloud.ionos.com,infradead.org,linaro.org,linux-foundation.org,huawei.com,gmail.com,nvidia.com,abita.co,ashe.io,suse.com,vger.kernel.org,lists.linux.dev,lists.infradead.org];
-	R_RATELIMIT(0.00)[to_ip_from(RLxytqtu68cujj4wfi14kxder6)];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_SOME(0.00)[];
-	RCPT_COUNT_GT_50(0.00)[52];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:mid,suse.de:email]
-X-Spam-Flag: NO
-X-Spam-Score: -6.80
-X-Spam-Level: 
 
-On 4/28/26 14:53, Daniel Wagner wrote:
-> On Mon, Apr 27, 2026 at 05:34:16PM +0200, Sebastian Andrzej Siewior wrote:
->> Which driver uses cpu_possible_mask? This mask is assigned at boot time
->> once the kernel figured how many CPUs are possible based on ACPI or
->> whatever the system uses. This mask does not change.
->>
->> I only see drivers/scsi/lpfc/lpfc_init.c using it. Looking at
->> cpu_possible_mask might not be the right thing. It is usually the same
->> thing as "online" except on system where ACPI thinks that something
->> could be added via hotplug _or_ if the admin shuts down a CPU via
->> cpuhotplug _or_ boots with less (there a command line option for
->> that).
-> 
-> These HBAs are used on PowerPC which supports lpar (CPUs can be added
-> during runtime) I am told it's properly the only driver which is caring
-> about this type configuration, thus a bit of an odd ball.
-> 
->> In case cpu_possible_mask != cpu_online_mask the intention is to
->> allocate memory and setup irqs for the offline CPUs?
-> 
-> I can't answer this. The lpfc driver has several strategies implemented
-> how it spreads its resources.
+There's an increasing number of machines supporting multiple page sizes
+and on these machines the host and a guest can be running, each one,
+with a different page size.
 
-The intention is to setup the driver queue affinity only once (knowing 
-that all possible CPUs are handled correctly), avoiding a driver
-reconfiguration on CPU hotplug.
+For what pertains to virtio-gpu, this is not a problem if the page size
+of the guest happens to be bigger or equal than the host, but will
+potentially lead to failures in memory allocations and/or mappings
+otherwise.
 
-Not the most efficient one, sure.
+To deal with this, the virtio-spec was extended to introduce with the
+VIRTIO_GPU_F_BLOB_ALIGNMENT feature [1]. If this feature is negotiated,
+we must use the "blob_alignment" field in the config to ensure every
+CREATE_BLOB and MAP_BLOB is properly aligned before sending it to the
+device.
 
-Cheers,
+We also introduce the VIRTGPU_PARAM_BLOB_ALIGNMENT parameter to allow
+userspace to query the alignment restrictions for blobs.
 
-Hannes
+This supersedes "drm/virtio: introduce the HOST_PAGE_SIZE feature" [2].
+
+[1] https://github.com/oasis-tcs/virtio-spec/commit/f9abfd55cb663837dda1153b826216dcf4d25b84
+[2] https://lkml.org/lkml/2024/7/23/438
+
+Changes in v2:
+- Rebased.
+- Moved blob size alignment validation to verify_blob(), rejecting
+misaligned sizes early in the ioctl path instead of checking in
+virtio_gpu_cmd_resource_create_blob() and virtio_gpu_cmd_map()
+(Dmitry Osipenko).
+
+Sergio Lopez (3):
+  drm/virtio: support VIRTIO_GPU_F_BLOB_ALIGNMENT
+  drm/virtio: honor blob_alignment requirements
+  drm/virtio: add VIRTGPU_PARAM_BLOB_ALIGNMENT to params
+
+ drivers/gpu/drm/virtio/virtgpu_drv.c   |  1 +
+ drivers/gpu/drm/virtio/virtgpu_drv.h   |  2 ++
+ drivers/gpu/drm/virtio/virtgpu_ioctl.c | 10 ++++++++++
+ drivers/gpu/drm/virtio/virtgpu_kms.c   | 14 +++++++++++---
+ include/uapi/drm/virtgpu_drm.h         |  1 +
+ include/uapi/linux/virtio_gpu.h        |  9 +++++++++
+ 6 files changed, 34 insertions(+), 3 deletions(-)
+
 -- 
-Dr. Hannes Reinecke                  Kernel Storage Architect
-hare@suse.de                                +49 911 74053 688
-SUSE Software Solutions GmbH, Frankenstr. 146, 90461 Nürnberg
-HRB 36809 (AG Nürnberg), GF: I. Totev, A. McDonald, W. Knoblich
+2.53.0
+
