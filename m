@@ -1,154 +1,90 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D92F43DA5E
-	for <virtualization@lists.linux.dev>; Tue, 28 Apr 2026 12:53:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+Received: from linux.microsoft.com (linux.microsoft.com [13.77.154.182])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 72E3B449ECB
+	for <virtualization@lists.linux.dev>; Tue, 28 Apr 2026 12:53:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=13.77.154.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777380832; cv=none; b=oiwBpsw2gt31M/bQcT52fNXs0nfkTx9reN20TkQw2g+kED4GEFV4QrJEbreEB/t28oJaxO9zhssaSP+lsfmbRrLbZ0ZITtT1F1ZdM7d4EQEb8xAqjL0an0CndPRAtbKzQfvGwskgx3CZ+b1FekFCVjVoPxt+Uj5qXZM6jQ9PHDc=
+	t=1777380839; cv=none; b=QOGZNLKSi9A8BstlwQbrMHoIBfFxWfs4E3KT2Oju6BWiN/MnGjZhvh/etD1HY7EnUAvjtIopB8w1y+WjdoMCKLqSnR9s6m/aPBk4zmetv5/pAAHt2y9xTCRzSbO+W2jTaEvroSekHuxWBOiO3proD/wpWK7k73LT5pEJqLeiIig=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777380832; c=relaxed/simple;
-	bh=Rh7Kq8H/eSQ24EcQvilWdMKqZ9p4Ahck+Y2C05CRL2E=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=igd34yAN0P4rwxJSsRUFFI24Z++MdoE0usk9EniwvNlDuCwGDRfIj0jRTAbIPzIAhcXgJfQGwuNVTJEo2w2dX0Q+wb5C4ru7DmowNv9WcQzqpsYuqMr9KdVqvpIbgyD1j8fU225bAKTV5/hbFGIxCQHGm1FSSqFihA6hFAORAkU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=cRSf4YjR; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=dsHBhXA+; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=cRSf4YjR; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=dsHBhXA+; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1777380839; c=relaxed/simple;
+	bh=tjkzSjK4bQCrikbIAslVe4/vmiGEXnZ3QDnOrPl9cuk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=RoMe7pavCMNoknSPm+BOplpzuWw9Hg8UPS0uBV1z+A4SNl8r/1nujKd1DEJj2ST0odO9+i/pfrxSB4ZAiqlk07sVatzQeNgHuYFwukQUPSdgwtVZl6pk1uybVENGBu55Wy63XY3hT+LrDLVZjRqc77dfH8k2+CZMe/JiXZaudeA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com; spf=pass smtp.mailfrom=linux.microsoft.com; dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b=haI48wsf; arc=none smtp.client-ip=13.77.154.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.microsoft.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.microsoft.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="cRSf4YjR";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="dsHBhXA+";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="cRSf4YjR";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="dsHBhXA+"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 18BD55BD55;
-	Tue, 28 Apr 2026 12:53:44 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1777380824; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=oNmfGQaXydSNVp/wD+ZDk5eV1VFql8i87Ef0v+yEIJc=;
-	b=cRSf4YjRjRT9SmsdPEk3zl2zvIS93JUJW4kvlYYer+UL/ehPBz68JiN6aeLXLDsErOFcdE
-	hic8XTGYfwNANj8VwNlJIGjcn8tjAyGNtu+HqTL9J0y+E+0aNOhExWb2m/uO/LlvXk25L4
-	+qoqTG+U03m0e1IRsSAyQ5vhDGUr2r0=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1777380824;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=oNmfGQaXydSNVp/wD+ZDk5eV1VFql8i87Ef0v+yEIJc=;
-	b=dsHBhXA+c+Nr7Gwv+tgrjETsPTkf/4Pd/0f1FJj2eH+Y+kBsyjTaUJVvkyKkpDyioEpDoq
-	z0siPCkKk+rFHyAw==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1777380824; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=oNmfGQaXydSNVp/wD+ZDk5eV1VFql8i87Ef0v+yEIJc=;
-	b=cRSf4YjRjRT9SmsdPEk3zl2zvIS93JUJW4kvlYYer+UL/ehPBz68JiN6aeLXLDsErOFcdE
-	hic8XTGYfwNANj8VwNlJIGjcn8tjAyGNtu+HqTL9J0y+E+0aNOhExWb2m/uO/LlvXk25L4
-	+qoqTG+U03m0e1IRsSAyQ5vhDGUr2r0=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1777380824;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=oNmfGQaXydSNVp/wD+ZDk5eV1VFql8i87Ef0v+yEIJc=;
-	b=dsHBhXA+c+Nr7Gwv+tgrjETsPTkf/4Pd/0f1FJj2eH+Y+kBsyjTaUJVvkyKkpDyioEpDoq
-	z0siPCkKk+rFHyAw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id F3F2C593B0;
-	Tue, 28 Apr 2026 12:53:43 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id LRuNO9et8Gl9SAAAD6G6ig
-	(envelope-from <dwagner@suse.de>); Tue, 28 Apr 2026 12:53:43 +0000
-Date: Tue, 28 Apr 2026 14:53:43 +0200
-From: Daniel Wagner <dwagner@suse.de>
-To: Sebastian Andrzej Siewior <bigeasy@linutronix.de>
-Cc: Aaron Tomlin <atomlin@atomlin.com>, axboe@kernel.dk, kbusch@kernel.org, 
-	hch@lst.de, sagi@grimberg.me, mst@redhat.com, aacraid@microsemi.com, 
-	James.Bottomley@hansenpartnership.com, martin.petersen@oracle.com, liyihang9@h-partners.com, 
-	kashyap.desai@broadcom.com, sumit.saxena@broadcom.com, 
-	shivasharan.srikanteshwara@broadcom.com, chandrakanth.patil@broadcom.com, sathya.prakash@broadcom.com, 
-	sreekanth.reddy@broadcom.com, suganath-prabu.subramani@broadcom.com, ranjan.kumar@broadcom.com, 
-	jinpu.wang@cloud.ionos.com, tglx@kernel.org, mingo@redhat.com, peterz@infradead.org, 
-	juri.lelli@redhat.com, vincent.guittot@linaro.org, akpm@linux-foundation.org, 
-	maz@kernel.org, ruanjinjie@huawei.com, yphbchou0911@gmail.com, wagi@kernel.org, 
-	frederic@kernel.org, longman@redhat.com, chenridong@huawei.com, hare@suse.de, 
-	kch@nvidia.com, ming.lei@redhat.com, tom.leiming@gmail.com, steve@abita.co, 
-	sean@ashe.io, chjohnst@gmail.com, neelx@suse.com, mproche@gmail.com, 
-	nick.lange@gmail.com, marco.crivellari@suse.com, linux-block@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, linux-nvme@lists.infradead.org, 
-	linux-scsi@vger.kernel.org, megaraidlinux.pdl@broadcom.com, mpi3mr-linuxdrv.pdl@broadcom.com, 
-	MPT-FusionLinux.pdl@broadcom.com
-Subject: Re: [PATCH v12 05/13] blk-mq: add
- blk_mq_{online|possible}_queue_affinity
-Message-ID: <c4927a2b-c18d-42ce-8a60-d6d388155671@flourine.local>
-References: <20260422185215.100929-1-atomlin@atomlin.com>
- <20260422185215.100929-6-atomlin@atomlin.com>
- <20260427153416.MeVS8yxF@linutronix.de>
+	dkim=pass (1024-bit key) header.d=linux.microsoft.com header.i=@linux.microsoft.com header.b="haI48wsf"
+Received: from hm-arch (unknown [52.179.129.152])
+	by linux.microsoft.com (Postfix) with ESMTPSA id 25AD320B716C;
+	Tue, 28 Apr 2026 05:53:50 -0700 (PDT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 linux.microsoft.com 25AD320B716C
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.microsoft.com;
+	s=default; t=1777380831;
+	bh=+d4j3UI8KjnvndFqajKG/v3FQvgoX5uQK37+zEJ/g+Y=;
+	h=From:To:Cc:Subject:Date:From;
+	b=haI48wsfsny3FL74nbrGfxvd3frtywY+Z/ZZOMtgONexL0fduo0afpO9S7v3mFZGv
+	 SHNyZar1osUpUzqM0T2dwp/RgN8LZP+bJABkzjVEz0BDaAe59byKRdes/n6dwR4FlN
+	 RGjPC9cabV++XkOlS0ivLRwstYtXcsnFXVebGJTk=
+From: Hamza Mahfooz <hamzamahfooz@linux.microsoft.com>
+To: netdev@vger.kernel.org
+Cc: "K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>,
+	Dexuan Cui <decui@microsoft.com>,
+	Long Li <longli@microsoft.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Michael Kelley <mhklinux@outlook.com>,
+	Himadri Pandya <himadrispandya@gmail.com>,
+	linux-hyperv@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] hv_sock: fix ARM64 support
+Date: Tue, 28 Apr 2026 08:53:39 -0400
+Message-ID: <20260428125339.13963-1-hamzamahfooz@linux.microsoft.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260427153416.MeVS8yxF@linutronix.de>
-X-Spamd-Result: default: False [-2.80 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	TAGGED_RCPT(0.00)[];
-	TO_DN_SOME(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	ARC_NA(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	MISSING_XM_UA(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[atomlin.com,kernel.dk,kernel.org,lst.de,grimberg.me,redhat.com,microsemi.com,hansenpartnership.com,oracle.com,h-partners.com,broadcom.com,cloud.ionos.com,infradead.org,linaro.org,linux-foundation.org,huawei.com,gmail.com,suse.de,nvidia.com,abita.co,ashe.io,suse.com,vger.kernel.org,lists.linux.dev,lists.infradead.org];
-	R_RATELIMIT(0.00)[to_ip_from(RLkc91obuuiwe93nwph69c5cft)];
-	TO_MATCH_ENVRCPT_SOME(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	RCVD_TLS_ALL(0.00)[];
-	RCPT_COUNT_GT_50(0.00)[52];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo]
-X-Spam-Flag: NO
-X-Spam-Score: -2.80
-X-Spam-Level: 
+Content-Transfer-Encoding: 8bit
 
-On Mon, Apr 27, 2026 at 05:34:16PM +0200, Sebastian Andrzej Siewior wrote:
-> Which driver uses cpu_possible_mask? This mask is assigned at boot time
-> once the kernel figured how many CPUs are possible based on ACPI or
-> whatever the system uses. This mask does not change.
-> 
-> I only see drivers/scsi/lpfc/lpfc_init.c using it. Looking at
-> cpu_possible_mask might not be the right thing. It is usually the same
-> thing as "online" except on system where ACPI thinks that something
-> could be added via hotplug _or_ if the admin shuts down a CPU via
-> cpuhotplug _or_ boots with less (there a command line option for
-> that).
+VMBUS ring buffers must be page aligned. Therefore, the current value of
+24K presents a challenge on ARM64 kernels (with 64K pages). So, use
+VMBUS_RING_SIZE() to ensure they are always aligned and large enough to
+hold all of the relevant data.
 
-These HBAs are used on PowerPC which supports lpar (CPUs can be added
-during runtime) I am told it's properly the only driver which is caring
-about this type configuration, thus a bit of an odd ball.
+Cc: stable@vger.kernel.org
+Fixes: 77ffe33363c0 ("hv_sock: use HV_HYP_PAGE_SIZE for Hyper-V communication")
+Tested-by: Dexuan Cui <decui@microsoft.com>
+Reviewed-by: Dexuan Cui <decui@microsoft.com>
+Signed-off-by: Hamza Mahfooz <hamzamahfooz@linux.microsoft.com>
+---
+ net/vmw_vsock/hyperv_transport.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
-> In case cpu_possible_mask != cpu_online_mask the intention is to
-> allocate memory and setup irqs for the offline CPUs?
+diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
+index 069386a74557..40f09b23efa3 100644
+--- a/net/vmw_vsock/hyperv_transport.c
++++ b/net/vmw_vsock/hyperv_transport.c
+@@ -375,10 +375,10 @@ static void hvs_open_connection(struct vmbus_channel *chan)
+ 	} else {
+ 		sndbuf = max_t(int, sk->sk_sndbuf, RINGBUFFER_HVS_SND_SIZE);
+ 		sndbuf = min_t(int, sndbuf, RINGBUFFER_HVS_MAX_SIZE);
+-		sndbuf = ALIGN(sndbuf, HV_HYP_PAGE_SIZE);
++		sndbuf = VMBUS_RING_SIZE(sndbuf);
+ 		rcvbuf = max_t(int, sk->sk_rcvbuf, RINGBUFFER_HVS_RCV_SIZE);
+ 		rcvbuf = min_t(int, rcvbuf, RINGBUFFER_HVS_MAX_SIZE);
+-		rcvbuf = ALIGN(rcvbuf, HV_HYP_PAGE_SIZE);
++		rcvbuf = VMBUS_RING_SIZE(rcvbuf);
+ 	}
+ 
+ 	chan->max_pkt_size = HVS_MAX_PKT_SIZE;
+-- 
+2.54.0
 
-I can't answer this. The lpfc driver has several strategies implemented
-how it spreads its resources.
