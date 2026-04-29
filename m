@@ -1,371 +1,393 @@
-Received: from fhigh-b5-smtp.messagingengine.com (fhigh-b5-smtp.messagingengine.com [202.12.124.156])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com [209.85.208.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 076063FD15B
-	for <virtualization@lists.linux.dev>; Wed, 29 Apr 2026 14:14:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.156
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EF4A337BAC
+	for <virtualization@lists.linux.dev>; Wed, 29 Apr 2026 15:35:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777472054; cv=none; b=PHlhi7670thUoaNNP1ydkL4iK8mVINtSoZKOlkh/MpJ2VT5Do91sLXN+foG0j++eUY7I2ZmSxmIYt7r/4qyFB+6VlDjZCO3aIRduFQviU9jY6iUcbtjwV3Hm9uj0j1PlACqWyxvIvP5zFMzVXNPK+JEaWdZreyfyfUSyFW9Zmbo=
+	t=1777476938; cv=none; b=Vv5m50GDgk+bsYNB279uTu27dBB0xSCd8Uzzh//CmnAmn4MtGamdmhSxRA5gInaPhBX1HAl8YrfWDmmaNi2w8sYWBumqh00KStTuczE8g4XxvnMA6Jfbm5flaewVEPr34eHCR//220NRnnm8B8661Bwayf9vrr+McPGXqrtNtyA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777472054; c=relaxed/simple;
-	bh=6IYePC9mVPuBLjmvyass3h9zH+kXhifr6Gq04kZHrAM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=UIRz//5EaonNsRae4pOG8jqp1VH2GyRcD/MlYL76YGIg3+Orkc0kHLI9e3PhV6rd1O2+LD6x91SHx3sLrlk+jAxzRTQxogvwFtz6+J+DPzp9mzl3AXg/0yhAt59s9wTAeEsL1P8dGBvYWdX/+ZRFuYt64G0FKsC7xGaak/AUKBU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=invisiblethingslab.com; spf=pass smtp.mailfrom=invisiblethingslab.com; dkim=pass (2048-bit key) header.d=invisiblethingslab.com header.i=@invisiblethingslab.com header.b=Iu6B/GBf; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=UuVdds6z; arc=none smtp.client-ip=202.12.124.156
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=invisiblethingslab.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=invisiblethingslab.com
+	s=arc-20240116; t=1777476938; c=relaxed/simple;
+	bh=rhHfdQZE7ny9rQNg2FDMld30z0VMgFUh+gYPnSf3f88=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=bGl+zUeWKwbjvk4MMlElsqwSfQePankQevmChqUvuZkuVyq+hjfidAJVtIQKRwp7lZuNcFaDfL9mkKcscp+IafEQmz6MXc9ScLwMIW3mVEFo2OdLZvY6yNyLnRAKMCJfIVAYDBVZvuMg4e3SkgdTbdWhyTBjcHyKgzNUjvHtAns=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=gwg+YoYU; arc=none smtp.client-ip=209.85.208.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=invisiblethingslab.com header.i=@invisiblethingslab.com header.b="Iu6B/GBf";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="UuVdds6z"
-Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
-	by mailfhigh.stl.internal (Postfix) with ESMTP id C958C7A00D0;
-	Wed, 29 Apr 2026 10:14:10 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-05.internal (MEProxy); Wed, 29 Apr 2026 10:14:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	invisiblethingslab.com; h=cc:cc:content-transfer-encoding
-	:content-type:date:date:from:from:in-reply-to:message-id
-	:mime-version:reply-to:subject:subject:to:to; s=fm2; t=
-	1777472050; x=1777558450; bh=m91VKPh4PUBytU5kpYfhb4cVChEL8DyMvXK
-	Y3Xve3Rc=; b=Iu6B/GBfj+HguUmDDVmVY//ympuSkvgQQFeQAfq07KKIrMLXJ+0
-	sudJdqth9JicKBLFrihqDGb+n19HyqgCYfTy0DGSGUXXqO770uTVp9fZGPzIfRVA
-	1UHAl+6zBsIkOPpPjzxDVODNcZpMpT/DmjfF2gKHQQk8LhubPG8zAmX+hnx3VMh7
-	SnzXVZx2cf8fCpZ6nlpRZcoV4oiVNu0+WuOEs87s3e5Nk7JKWpSimflkpEeZVvCc
-	Ck+nu1DEZfzy8/PQD470quElAi/jaVx58ZLESZxsiLQSb1gInIB85/xT7XP4wrGC
-	ekBQ4PS40zY6hqRcRT6Oaqh0o27S18dm+CQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:date:date:feedback-id:feedback-id:from:from
-	:in-reply-to:message-id:mime-version:reply-to:subject:subject:to
-	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
-	1777472050; x=1777558450; bh=m91VKPh4PUBytU5kpYfhb4cVChEL8DyMvXK
-	Y3Xve3Rc=; b=UuVdds6zgumutc6n/Y4b3uziBXmJKtt1qwCJceMK/Sm/0jhz725
-	2TJDTPcJKEDlJFWWot9pz7wVwy71gWFoHfTLtfgKnyDj8oQp3BlavSANW6h/tAhJ
-	Ggz/woaxMBgYR2FYESeFNhl4gMBbaKVCvy5hQPcc4ZnngWzLLVomuKo9l2+H8Hif
-	ZyvXE4faqNUW/4cvY3CgoDujBin/raOj0xMMSo/v4H+QmPTvIiry7amK6DB3XQGz
-	k2F4eSdBgUHHbJ53sAQ7OOMFIqGxTmNh0ILKxzwxPAXVIIlUF8tXWvDhQSHqPUI/
-	F5HUr4GVRglaU4aqbBuiLewRPsw4jp+HVZw==
-X-ME-Sender: <xms:MRLyaSs1MhtiS_jwZWI-2NlNs3sgT3rLZJ8zpMdBwj4ew-AplPIc_Q>
-    <xme:MRLyafpVO8BbeGLvvNcpQrd5FJdKnXsc1W6Zlkfgsh54eNWE8d0BvRueGnwlba0cp
-    e4nzmrl-7c5zngl9fWRHbEh9wMYO6ze7ZF-1IgId4jXfp27EpA>
-X-ME-Received: <xmr:MRLyaZX5dMBF8Un69nktuOctJFwRs2Z9mnoE57ciaFexxrhOz9aC0dUrXkQ2khA1QF2l-uaaD9rRJDdl6DhyJ9gWJrgwNA>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgdekgeeihecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
-    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
-    hrpefhvfevufffkffoggfgsedtkeertdertddtnecuhfhrohhmpeggrghlucfrrggtkhgv
-    thhtuceovhgrlhesihhnvhhishhisghlvghthhhinhhgshhlrggsrdgtohhmqeenucggtf
-    frrghtthgvrhhnpefgiefgiefhveehgfegueevffdtleevueefjeekledtheevleevhedt
-    jeehteeuudenucffohhmrghinhepghhithhhuhgsrdgtohhmnecuvehluhhsthgvrhfuih
-    iivgeptdenucfrrghrrghmpehmrghilhhfrhhomhepvhgrlhesihhnvhhishhisghlvght
-    hhhinhhgshhlrggsrdgtohhmpdhnsggprhgtphhtthhopedutddpmhhouggvpehsmhhtph
-    houhhtpdhrtghpthhtohepmhhsthesrhgvughhrghtrdgtohhmpdhrtghpthhtohepjhgr
-    shhofigrnhhgsehrvgguhhgrthdrtghomhdprhgtphhtthhopeiguhgrnhiihhhuoheslh
-    hinhhugidrrghlihgsrggsrgdrtghomhdprhgtphhtthhopegvphgvrhgviihmrgesrhgv
-    ughhrghtrdgtohhmpdhrtghpthhtohepvhgrlhesihhnvhhishhisghlvghthhhinhhgsh
-    hlrggsrdgtohhmpdhrtghpthhtohepmhgrrhhmrghrvghksehinhhvihhsihgslhgvthhh
-    ihhnghhslhgrsgdrtghomhdprhgtphhtthhopehvihhrvghshhdrkhhumhgrrheslhhinh
-    grrhhordhorhhgpdhrtghpthhtohepgigvnhdquggvvhgvlheslhhishhtshdrgigvnhhp
-    rhhojhgvtghtrdhorhhgpdhrtghpthhtoheplhhinhhugidqkhgvrhhnvghlsehvghgvrh
-    drkhgvrhhnvghlrdhorhhg
-X-ME-Proxy: <xmx:MRLyaX2o3rePuDkcVRJtIX3KO6aFQc9kas8W1deys4oBZBr2ezxZKg>
-    <xmx:MRLyaetOuAW3EcarJ3iiQBG1FQtmvfhTYlWkd3gd2vC25WqWnQIOZw>
-    <xmx:MRLyafWO6Ydls2uwNepFNat0ZpIyzBkUaxYYyBCil1afsLEGJeGb8Q>
-    <xmx:MRLyaWwXicRoa71NbK9nLSihtHf1TV8dgLQCeYerQDHhTvmPAuKDag>
-    <xmx:MhLyafJkU4ddbYB5qDJgGuMC0TzjGeEtOSrHIQFjy3CzcQLxFwn3DQfx>
-Feedback-ID: i001e48d0:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
- 29 Apr 2026 10:14:07 -0400 (EDT)
-From: Val Packett <val@invisiblethingslab.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
-Cc: Val Packett <val@invisiblethingslab.com>,
-	=?UTF-8?q?Marek=20Marczykowski-G=C3=B3recki?= <marmarek@invisiblethingslab.com>,
-	Viresh Kumar <viresh.kumar@linaro.org>,
-	xen-devel@lists.xenproject.org,
-	linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: [RFC PATCH] virtio-mmio: add xenbus probing
-Date: Wed, 29 Apr 2026 10:52:17 -0300
-Message-ID: <20260429141339.74472-1-val@invisiblethingslab.com>
-X-Mailer: git-send-email 2.53.0
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="gwg+YoYU"
+Received: by mail-ed1-f41.google.com with SMTP id 4fb4d7f45d1cf-671ab90fc1fso23766625a12.0
+        for <virtualization@lists.linux.dev>; Wed, 29 Apr 2026 08:35:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1777476934; x=1778081734; darn=lists.linux.dev;
+        h=in-reply-to:autocrypt:from:content-language:references:cc:to
+         :subject:user-agent:mime-version:date:message-id:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=rhHfdQZE7ny9rQNg2FDMld30z0VMgFUh+gYPnSf3f88=;
+        b=gwg+YoYUXbiF8+kC2yvchviS6nQIlX7rGiLyhY1D0mRubsFM/ImfUgzQeyTAf9gbnV
+         YGAiy/rjgY5T57rskw0tMpLswOUbL9iuBD1TbZjCE5znsp3LMSAV0cAal0OriitD/X0s
+         939ymKHV63fE+YEy8gicCguwlUxl0CNO9GkO6gLrOO9JjnG5uKfQmcbycHHYgwkY78Dw
+         Mt2AcZmO7x6I+oo9rNiy2YgxoHajPYoq/pxlmKvOLFPjN7y41fyRiiwmJdw4vfo0mwC3
+         GDf9CQ/jkuLNKHJt5snI0JUrqJNolAPsHRjlUM5BIRM6+GITsRYxlXlgH0QzPcS1DlvF
+         y4jA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777476934; x=1778081734;
+        h=in-reply-to:autocrypt:from:content-language:references:cc:to
+         :subject:user-agent:mime-version:date:message-id:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=rhHfdQZE7ny9rQNg2FDMld30z0VMgFUh+gYPnSf3f88=;
+        b=XMpVi6x3lJuhu4CDon4FJTqoiPskEw5oBM123TBAtIpk37DwBGecAkVVpy8+OusSOf
+         gLPONyoe/lhnU/cisi+7tqXxt0cvCm8A1yDBkRAMcyVCa/a4adD//reybWlcDXYRveyL
+         sUN6sF/f0aUI31tbO8s+QUZYHYMyfJ6N5djpa72jYeUuMoUm1gMZgBpJrer+415Nu78o
+         ggNZM4WdYq7azQYJxYPujPZYq0BEY25IKONDtAER/f/D1uhI85Y474++aWFih4kdibsn
+         IjM0gg0geptpwsL3ctoRwzzEA9Lyei31TQ/iyPvZvb3ZfzDVC70K0js5L40jnZNRFeh6
+         8b+Q==
+X-Forwarded-Encrypted: i=1; AFNElJ+9Ljzue4jb/c2bHVabRoCrBHk21OrWT0GOEqNQrl1vwOsLFwXYx+zhRQFOBQrxlnvngbMITIXw+6/c2VP+Cw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxwTGoVLOJDL7DsN12b6I762Gv/v35wLLBoYMhWAVCZ15JWAe8S
+	xHOOpqJE2xsV6vnOTV+vVHLOkne4r4MphMJfBShFPpyQGEcjBaOV3XuCD3EjHK5cLkA=
+X-Gm-Gg: AeBDieviB0XZOGkmvqfcQEiqsBWpX6t6alaOd4Wwauvh2eR/mJK6VXSFWZ7TqqCp2ka
+	sRSMOhfctbSYA/3VdWYKGiQuh/trbO073V5hla5Neqbq61vTGuH9FykpAkJJSkXnOA+/14bT30o
+	HBxoLJckI4DxhVX3qWaryeOibpBcTwX2qRVFcaqOhfgnNlEPde7O11ui4Y0ftzEWc06TS0/Ptrx
+	tZQsExqPKnveysal6j2HLhacGcaRXEnX4feKrk6BBocDE3fRSUYqFdahUjPW9RvH2b+SNQ7ZGlI
+	SCarMtbSCuIgU0ejKJRr81EwyUN9C55eg63W9RSa4dZf371PTurPLemEBg6AuOVWbaOsAHGkhrP
+	uQYW1QASpgcaPXHeMG+SR32DCBsUHbMcX/NDxSUB1j64ltl3asEIqCHBt7JQ5eI7t/GMZMQ7JPG
+	eh+Xf/dHp1PuWeZzTGiU1cAkvOMtqNi1NC7u3K9yKyBdR7xoM9G+H1UiLA7OvUKMSFYszK4KCgZ
+	VOdXjDh7nyfjbwvuq9I8NyQB980wcvfzVlPWozat7uICtfqpJIr44DaGEt/7stl
+X-Received: by 2002:a05:6402:3897:b0:678:a507:e81e with SMTP id 4fb4d7f45d1cf-679bb0893fbmr4782609a12.22.1777476933708;
+        Wed, 29 Apr 2026 08:35:33 -0700 (PDT)
+Received: from ?IPV6:2a00:12d0:af5d:ad01:5d3f:14e6:9bcb:5112? (2a00-12d0-af5d-ad01-5d3f-14e6-9bcb-5112.ip.tng.de. [2a00:12d0:af5d:ad01:5d3f:14e6:9bcb:5112])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-67b220bb54csm886718a12.2.2026.04.29.08.35.32
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Wed, 29 Apr 2026 08:35:33 -0700 (PDT)
+Message-ID: <67632532-8421-4a10-a961-f7c4f05b177b@suse.com>
+Date: Wed, 29 Apr 2026 17:35:32 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC PATCH] virtio-mmio: add xenbus probing
+To: Val Packett <val@invisiblethingslab.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>
+Cc: =?UTF-8?Q?Marek_Marczykowski-G=C3=B3recki?=
+ <marmarek@invisiblethingslab.com>, Viresh Kumar <viresh.kumar@linaro.org>,
+ xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev
+References: <20260429141339.74472-1-val@invisiblethingslab.com>
+Content-Language: en-US
+From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+Autocrypt: addr=jgross@suse.com; keydata=
+ xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
+ ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
+ dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
+ NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
+ XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
+ AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
+ CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
+ mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
+ G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
+ kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
+ Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
+ RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
+ vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
+ sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
+ aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
+ w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
+ auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
+ 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
+ fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
+ HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
+ QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
+ ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
+In-Reply-To: <20260429141339.74472-1-val@invisiblethingslab.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------g0UC1Ck4AStDbbtB0H4eW8y7"
 
-The experimental virtio-mmio support for Xen was initially developed
-on aarch64, so device trees were used to configure the mmio devices,
-with arbitrary vGIC interrupts used by the hypervisor. On x86_64
-however, the only reasonable way to interrupt the guest is over Xen
-event channels, which can only be acquired by children of xenbus,
-the virtual bus driven by Xen's configuration database, XenStore.
-It is also a more convenient and "Xen-ish" way to provision devices.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------g0UC1Ck4AStDbbtB0H4eW8y7
+Content-Type: multipart/mixed; boundary="------------ue4BYSUfwU0oTBtHJ9in4V9z";
+ protected-headers="v1"
+From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+To: Val Packett <val@invisiblethingslab.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>
+Cc: =?UTF-8?Q?Marek_Marczykowski-G=C3=B3recki?=
+ <marmarek@invisiblethingslab.com>, Viresh Kumar <viresh.kumar@linaro.org>,
+ xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
+ virtualization@lists.linux.dev
+Message-ID: <67632532-8421-4a10-a961-f7c4f05b177b@suse.com>
+Subject: Re: [RFC PATCH] virtio-mmio: add xenbus probing
+References: <20260429141339.74472-1-val@invisiblethingslab.com>
+In-Reply-To: <20260429141339.74472-1-val@invisiblethingslab.com>
 
-Implement a xenbus client for virtio-mmio which negotiates an
-event channel and provides it as a platform IRQ to the
-virtio-mmio driver.
+--------------ue4BYSUfwU0oTBtHJ9in4V9z
+Content-Type: multipart/mixed; boundary="------------HCshP870xeA72w06G6OVMqA8"
 
+--------------HCshP870xeA72w06G6OVMqA8
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-Signed-off-by: Val Packett <val@invisiblethingslab.com>
----
+U29tZSBtaW5vciBkZXRhaWxzIGZyb20gdGhlIFhlbiBzaWRlIG9mIHRoaW5nczoNCg0KT24g
+MjkuMDQuMjYgMTU6NTIsIFZhbCBQYWNrZXR0IHdyb3RlOg0KPiBUaGUgZXhwZXJpbWVudGFs
+IHZpcnRpby1tbWlvIHN1cHBvcnQgZm9yIFhlbiB3YXMgaW5pdGlhbGx5IGRldmVsb3BlZA0K
+PiBvbiBhYXJjaDY0LCBzbyBkZXZpY2UgdHJlZXMgd2VyZSB1c2VkIHRvIGNvbmZpZ3VyZSB0
+aGUgbW1pbyBkZXZpY2VzLA0KPiB3aXRoIGFyYml0cmFyeSB2R0lDIGludGVycnVwdHMgdXNl
+ZCBieSB0aGUgaHlwZXJ2aXNvci4gT24geDg2XzY0DQo+IGhvd2V2ZXIsIHRoZSBvbmx5IHJl
+YXNvbmFibGUgd2F5IHRvIGludGVycnVwdCB0aGUgZ3Vlc3QgaXMgb3ZlciBYZW4NCj4gZXZl
+bnQgY2hhbm5lbHMsIHdoaWNoIGNhbiBvbmx5IGJlIGFjcXVpcmVkIGJ5IGNoaWxkcmVuIG9m
+IHhlbmJ1cywNCg0KTW9yZSBleGFjdDogaW50ZXJkb21haW4gZXZlbnQgY2hhbm5lbHMgbmVl
+ZCB0byBiZSBjb25uZWN0ZWQgdG8gYSB4ZW5idXMNCmRldmljZS4gQnV0IHlvdSBhcmUgbmVl
+ZGluZyB0aG9zZSwgc28gZm9yIHlvdXIgdXNlIGNhc2UgdGhlIGFib3ZlIHN0YXRlbWVudA0K
+aXMgY29ycmVjdC4NCg0KPiB0aGUgdmlydHVhbCBidXMgZHJpdmVuIGJ5IFhlbidzIGNvbmZp
+Z3VyYXRpb24gZGF0YWJhc2UsIFhlblN0b3JlLg0KPiBJdCBpcyBhbHNvIGEgbW9yZSBjb252
+ZW5pZW50IGFuZCAiWGVuLWlzaCIgd2F5IHRvIHByb3Zpc2lvbiBkZXZpY2VzLg0KPiANCj4g
+SW1wbGVtZW50IGEgeGVuYnVzIGNsaWVudCBmb3IgdmlydGlvLW1taW8gd2hpY2ggbmVnb3Rp
+YXRlcyBhbg0KPiBldmVudCBjaGFubmVsIGFuZCBwcm92aWRlcyBpdCBhcyBhIHBsYXRmb3Jt
+IElSUSB0byB0aGUNCj4gdmlydGlvLW1taW8gZHJpdmVyLg0KPiANCj4gDQo+IFNpZ25lZC1v
+ZmYtYnk6IFZhbCBQYWNrZXR0IDx2YWxAaW52aXNpYmxldGhpbmdzbGFiLmNvbT4NCj4gLS0t
+DQo+IA0KPiBIaSwNCj4gDQo+IEkndmUgYmVlbiB3b3JraW5nIG9uIHBvcnRpbmcgdmlydGlv
+LW1taW8gc3VwcG9ydCBmcm9tIEFybSB0byB4ODZfNjQsDQo+IHdpdGggdGhlIGdvYWwgb2Yg
+cnVubmluZyB2aG9zdC11c2VyLWdwdSB0byBwb3dlciBXYXlsYW5kL0dQVSBpbnRlZ3JhdGlv
+bg0KPiBmb3IgUXViZXMgT1MuIChJJ20gYXdhcmUgb2YgdmFyaW91cyBwcm9wb3NhbHMgZm9y
+IGFsdGVybmF0aXZlIHZpcnRpbw0KPiB0cmFuc3BvcnRzIGJ1dCB2aXJ0aW8tbW1pbyBzZWVt
+cyB0byBiZSB0aGUgb25seSBvbmUgdGhhdCAqaXMqIHVwc3RyZWFtDQo+IGFscmVhZHkgYW5k
+IGp1c3QgV29ya3MuLikgU2V0dGluZyB1cCB2aXJ0aW8tbW1pbyB0aHJvdWdoIHhlbmJ1cywg
+aW5pdGlhbGx5DQo+IG1vdGl2YXRlZCBqdXN0IGJ5IGV2ZW50IGNoYW5uZWxzIGJlaW5nIHRo
+ZSBvbmx5IHJlYWwgd2F5IHRvIGdldCBpbnRlcnJ1cHRzDQo+IHdvcmtpbmcgb24gSFZNLCB0
+dXJuZWQgb3V0IHRvIGdlbmVyYWxseSBiZSBxdWl0ZSBwbGVhc2FudCBhbmQgbmljZSA6KQ0K
+PiANCj4gSSdkIGxpa2UgdG8gZ2V0IHNvbWUgZWFybHkgZmVlZGJhY2sgZm9yIHRoaXMgcGF0
+Y2gsIHBhcnRpY3VsYXJseQ0KPiB0aGUgZ2VuZXJhbCBzdHVmZjoNCj4gDQo+ICogaXMgdGhp
+cyB3aG9sZSB0aGluZyBhY2NlcHRhYmxlIGluIGdlbmVyYWw/DQo+ICogc2hvdWxkIGl0IGJl
+IGV4dHJhY3RlZCBpbnRvIGEgZGlmZmVyZW50IGZpbGU/DQo+ICogKGZyb20gdGhlIFhlbiBz
+aWRlKSBhbnkgaW5wdXQgb24gdGhlIHhlbnN0b3JlIGtleXMsIHdoYXQgZ29lcyB3aGVyZT8N
+Cg0KWW91IHNob3VsZCBhZGQgc29tZSBkb2N1bWVudGF0aW9uIGluIHRoZSBYZW4gc291cmNl
+IHRyZWUgcmVnYXJkaW5nIHRoZQ0KWGVuc3RvcmUga2V5cyAoc2VlIGRvY3MvbWlzYy94ZW5z
+dG9yZS1wYXRocy5wYW5kb2MgdGhlcmUpLg0KDQo+ICogYW55dGhpbmcgZWxzZSB0byBrZWVw
+IGluIG1pbmQ/DQo+IA0KPiBJdCBkb2VzIHNlZW0gc2ltcGxlIGVub3VnaCwgc28gaG9wZWZ1
+bGx5IHRoaXMgY2FuIGJlIGRvbmU/DQo+IA0KPiBUaGUgY29ycmVzcG9uZGluZyB1c2Vyc3Bh
+Y2Utc2lkZSBXSVAgaXMgYXZhaWxhYmxlIGF0Og0KPiBodHRwczovL2dpdGh1Yi5jb20vUXVi
+ZXNPUy94ZW4tdmhvc3QtZnJvbnRlbmQNCj4gDQo+IEFuZCB0aGUgcmVxdWlyZWQgRE1PUCBm
+b3IgZmlyaW5nIHRoZSBldnRjaG4gZXZlbnRzIHdpbGwgYmUgc2VudA0KPiB0byB4ZW4tZGV2
+ZWwgc2hvcnRseSBhcyB3ZWxsLg0KPiANCj4gVGhhbmtzLA0KPiB+dmFsDQo+IA0KPiAtLS0N
+Cj4gICBkcml2ZXJzL3ZpcnRpby9LY29uZmlnICAgICAgIHwgICA3ICsrDQo+ICAgZHJpdmVy
+cy92aXJ0aW8vdmlydGlvX21taW8uYyB8IDE3NyArKysrKysrKysrKysrKysrKysrKysrKysr
+KysrKysrKysrLQ0KPiAgIDIgZmlsZXMgY2hhbmdlZCwgMTgzIGluc2VydGlvbnMoKyksIDEg
+ZGVsZXRpb24oLSkNCj4gDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby9LY29uZmln
+IGIvZHJpdmVycy92aXJ0aW8vS2NvbmZpZw0KPiBpbmRleCBjZTViYzBkOWVhMjguLjU2YmMy
+YjEwNTI2YiAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy92aXJ0aW8vS2NvbmZpZw0KPiArKysg
+Yi9kcml2ZXJzL3ZpcnRpby9LY29uZmlnDQo+IEBAIC0xNzEsNiArMTcxLDEzIEBAIGNvbmZp
+ZyBWSVJUSU9fTU1JT19DTURMSU5FX0RFVklDRVMNCj4gICANCj4gICAJIElmIHVuc3VyZSwg
+c2F5ICdOJy4NCj4gICANCj4gK2NvbmZpZyBWSVJUSU9fTU1JT19YRU5CVVMNCj4gKwlib29s
+ICJNZW1vcnkgbWFwcGVkIHZpcnRpbyBkZXZpY2VzIHBhcmFtZXRlciBwYXJzaW5nIg0KPiAr
+CWRlcGVuZHMgb24gVklSVElPX01NSU8gJiYgWEVODQo+ICsJc2VsZWN0IFhFTl9YRU5CVVNf
+RlJPTlRFTkQNCj4gKwloZWxwDQo+ICsJIEFsbG93IHZpcnRpby1tbWlvIGRldmljZXMgaW5z
+dGFudGlhdGlvbiBmb3IgWGVuIGd1ZXN0cyB2aWEgeGVuYnVzLg0KPiArDQo+ICAgY29uZmln
+IFZJUlRJT19ETUFfU0hBUkVEX0JVRkZFUg0KPiAgIAl0cmlzdGF0ZQ0KPiAgIAlkZXBlbmRz
+IG9uIERNQV9TSEFSRURfQlVGRkVSDQo+IGRpZmYgLS1naXQgYS9kcml2ZXJzL3ZpcnRpby92
+aXJ0aW9fbW1pby5jIGIvZHJpdmVycy92aXJ0aW8vdmlydGlvX21taW8uYw0KPiBpbmRleCA1
+OTVjMjI3NGZiYjUuLjMyMjk1Mjg0YmRiZiAxMDA2NDQNCj4gLS0tIGEvZHJpdmVycy92aXJ0
+aW8vdmlydGlvX21taW8uYw0KPiArKysgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fbW1pby5j
+DQo+IEBAIC03MCw2ICs3MCwxMSBAQA0KPiAgICNpbmNsdWRlIDx1YXBpL2xpbnV4L3ZpcnRp
+b19tbWlvLmg+DQo+ICAgI2luY2x1ZGUgPGxpbnV4L3ZpcnRpb19yaW5nLmg+DQo+ICAgDQo+
+ICsjaWZkZWYgQ09ORklHX1ZJUlRJT19NTUlPX1hFTkJVUw0KPiArI2luY2x1ZGUgPHhlbi94
+ZW4uaD4NCj4gKyNpbmNsdWRlIDx4ZW4veGVuYnVzLmg+DQo+ICsjaW5jbHVkZSA8eGVuL2V2
+ZW50cy5oPg0KPiArI2VuZGlmDQo+ICAgDQo+ICAgDQo+ICAgLyogVGhlIGFsaWdubWVudCB0
+byB1c2UgYmV0d2VlbiBjb25zdW1lciBhbmQgcHJvZHVjZXIgcGFydHMgb2YgdnJpbmcuDQo+
+IEBAIC04MTAsMTMgKzgxNSwxODMgQEAgc3RhdGljIHN0cnVjdCBwbGF0Zm9ybV9kcml2ZXIg
+dmlydGlvX21taW9fZHJpdmVyID0gew0KPiAgIAl9LA0KPiAgIH07DQo+ICAgDQo+ICsjaWZk
+ZWYgQ09ORklHX1ZJUlRJT19NTUlPX1hFTkJVUw0KPiArc3RydWN0IHZpcnRpb19tbWlvX3hl
+bl9pbmZvIHsNCj4gKwlzdHJ1Y3QgcmVzb3VyY2UgcmVzb3VyY2VzWzJdOw0KPiArCXVuc2ln
+bmVkIGludCBldnRjaG47DQo+ICsJc3RydWN0IHBsYXRmb3JtX2RldmljZSAqcGRldjsNCj4g
+K307DQo+ICsNCj4gK3N0YXRpYyBpbnQgdmlydGlvX21taW9feGVuX3Byb2JlKHN0cnVjdCB4
+ZW5idXNfZGV2aWNlICpkZXYsDQo+ICsJCQljb25zdCBzdHJ1Y3QgeGVuYnVzX2RldmljZV9p
+ZCAqaWQpDQo+ICt7DQo+ICsJaW50IGVycjsNCj4gKwlsb25nIGxvbmcgYmFzZSwgc2l6ZTsN
+Cj4gKwljaGFyICptZW07DQo+ICsJc3RydWN0IHZpcnRpb19tbWlvX3hlbl9pbmZvICppbmZv
+Ow0KPiArCXN0cnVjdCB4ZW5idXNfdHJhbnNhY3Rpb24geGJ0Ow0KPiArDQo+ICsJLyogVE9E
+TzogYWxsb2NhdGUgYW4gdW51c2VkIGFkZHJlc3MgaGVyZSBhbmQgcGFzcyBpdCB0byB0aGUg
+aG9zdCBpbnN0ZWFkICovDQoNCkluZGVlZC4NCg0KPiArCWVyciA9IHhlbmJ1c19zY2FuZihY
+QlRfTklMLCBkZXYtPm90aGVyZW5kLCAiYmFzZSIsICIweCVsbHgiLA0KPiArCQkJICAgJmJh
+c2UpOw0KPiArCWlmIChlcnIgPCAwKSB7DQo+ICsJCXhlbmJ1c19kZXZfZmF0YWwoZGV2LCBl
+cnIsICJyZWFkaW5nIGJhc2UiKTsNCj4gKwkJcmV0dXJuIC1FSU5WQUw7DQo+ICsJfQ0KPiAr
+DQo+ICsJbWVtID0geGVuYnVzX3JlYWQoWEJUX05JTCwgZGV2LT5vdGhlcmVuZCwgInNpemUi
+LCBOVUxMKTsNCj4gKwlpZiAoWEVOQlVTX0lTX0VSUl9SRUFEKG1lbSkpDQo+ICsJCXJldHVy
+biBQVFJfRVJSKG1lbSk7DQo+ICsJc2l6ZSA9IG1lbXBhcnNlKG1lbSwgTlVMTCk7DQo+ICsJ
+a2ZyZWUobWVtKTsNCj4gKw0KPiArCWluZm8gPSBremFsbG9jX29iaigqaW5mbyk7DQo+ICsJ
+aWYgKCFpbmZvKSB7DQo+ICsJCXhlbmJ1c19kZXZfZmF0YWwoZGV2LCAtRU5PTUVNLCAiYWxs
+b2NhdGluZyBpbmZvIHN0cnVjdHVyZSIpOw0KPiArCQlyZXR1cm4gLUVOT01FTTsNCj4gKwl9
+DQo+ICsNCj4gKwlpbmZvLT5yZXNvdXJjZXNbMF0uZmxhZ3MgPSBJT1JFU09VUkNFX01FTTsN
+Cj4gKwlpbmZvLT5yZXNvdXJjZXNbMF0uc3RhcnQgPSBiYXNlOw0KPiArCWluZm8tPnJlc291
+cmNlc1swXS5lbmQgPSBiYXNlICsgc2l6ZSAtIDE7DQo+ICsNCj4gKwllcnIgPSB4ZW5idXNf
+YWxsb2NfZXZ0Y2huKGRldiwgJmluZm8tPmV2dGNobik7DQo+ICsJaWYgKGVycikgew0KPiAr
+CQl4ZW5idXNfZGV2X2ZhdGFsKGRldiwgZXJyLCAieGVuYnVzX2FsbG9jX2V2dGNobiIpOw0K
+PiArCQlnb3RvIGVycm9yX2luZm87DQo+ICsJfQ0KPiArDQo+ICsJZXJyID0gYmluZF9ldnRj
+aG5fdG9faXJxKGluZm8tPmV2dGNobik7DQo+ICsJaWYgKGVyciA8PSAwKSB7DQo+ICsJCXhl
+bmJ1c19kZXZfZmF0YWwoZGV2LCBlcnIsICJiaW5kX2V2dGNobl90b19pcnEiKTsNCj4gKwkJ
+Z290byBlcnJvcl9ldnRjaGFuOw0KPiArCX0NCj4gKw0KPiArCWluZm8tPnJlc291cmNlc1sx
+XS5mbGFncyA9IElPUkVTT1VSQ0VfSVJROw0KPiArCWluZm8tPnJlc291cmNlc1sxXS5zdGFy
+dCA9IGluZm8tPnJlc291cmNlc1sxXS5lbmQgPSBlcnI7DQo+ICsNCj4gK2FnYWluOg0KPiAr
+CWVyciA9IHhlbmJ1c190cmFuc2FjdGlvbl9zdGFydCgmeGJ0KTsNCg0KTm8gbmVlZCB0byB1
+c2UgYSBYZW5zdG9yZSB0cmFuc2FjdGlvbiBoZXJlLiBUaGUgd3JpdHRlbiBub2RlKHMpIGFy
+ZQ0KcmVnYXJkZWQgdG8gYmUgdmFsaWQgb25seSBhZnRlciBjYWxsaW5nIHhlbmJ1c19zd2l0
+Y2hfc3RhdGUoKSB0byBzZXQNCnRoZSBmcm9udGVuZCBzdGF0ZSB0byBYZW5idXNTdGF0ZUlu
+aXRpYWxpc2VkLg0KDQo+ICsJaWYgKGVycikgew0KPiArCQl4ZW5idXNfZGV2X2ZhdGFsKGRl
+diwgZXJyLCAic3RhcnRpbmcgdHJhbnNhY3Rpb24iKTsNCj4gKwkJZ290byBlcnJvcl9pcnE7
+DQo+ICsJfQ0KPiArDQo+ICsJZXJyID0geGVuYnVzX3ByaW50Zih4YnQsIGRldi0+bm9kZW5h
+bWUsICJldmVudC1jaGFubmVsIiwgIiV1IiwNCj4gKwkJCSAgICBpbmZvLT5ldnRjaG4pOw0K
+DQpXaXRoIGFsbG9jYXRpb24gb2YgdGhlIGJhc2UgYWRkcmVzcyB5b3UnZCB3YW50IHRvIHdy
+aXRlIGl0IHRvIGFub3RoZXIgbm9kZSwNCm9mIGNvdXJzZS4NCg0KPiArCWlmIChlcnIpIHsN
+Cj4gKwkJeGVuYnVzX3RyYW5zYWN0aW9uX2VuZCh4YnQsIDEpOw0KPiArCQl4ZW5idXNfZGV2
+X2ZhdGFsKGRldiwgZXJyLCAiJXMiLCAid3JpdGluZyBldmVudC1jaGFubmVsIik7DQo+ICsJ
+CWdvdG8gZXJyb3JfaXJxOw0KPiArCX0NCj4gKw0KPiArCWVyciA9IHhlbmJ1c190cmFuc2Fj
+dGlvbl9lbmQoeGJ0LCAwKTsNCj4gKwlpZiAoZXJyKSB7DQo+ICsJCWlmIChlcnIgPT0gLUVB
+R0FJTikNCj4gKwkJCWdvdG8gYWdhaW47DQo+ICsJCXhlbmJ1c19kZXZfZmF0YWwoZGV2LCBl
+cnIsICJjb21wbGV0aW5nIHRyYW5zYWN0aW9uIik7DQo+ICsJCWdvdG8gZXJyb3JfaXJxOw0K
+PiArCX0NCj4gKw0KPiArCWRldl9zZXRfZHJ2ZGF0YSgmZGV2LT5kZXYsIGluZm8pOw0KPiAr
+CXhlbmJ1c19zd2l0Y2hfc3RhdGUoZGV2LCBYZW5idXNTdGF0ZUluaXRpYWxpc2VkKTsNCj4g
+KwlyZXR1cm4gMDsNCj4gKw0KPiArZXJyb3JfaXJxOg0KPiArCXVuYmluZF9mcm9tX2lycWhh
+bmRsZXIoaW5mby0+cmVzb3VyY2VzWzFdLnN0YXJ0LCBpbmZvKTsNCj4gK2Vycm9yX2V2dGNo
+YW46DQo+ICsJeGVuYnVzX2ZyZWVfZXZ0Y2huKGRldiwgaW5mby0+ZXZ0Y2huKTsNCj4gK2Vy
+cm9yX2luZm86DQo+ICsJa2ZyZWUoaW5mbyk7DQo+ICsNCj4gKwlyZXR1cm4gZXJyOw0KPiAr
+fQ0KPiArDQo+ICtzdGF0aWMgdm9pZCB2aXJ0aW9fbW1pb194ZW5fYmFja2VuZF9jaGFuZ2Vk
+KHN0cnVjdCB4ZW5idXNfZGV2aWNlICpkZXYsDQo+ICsJCQkJICAgZW51bSB4ZW5idXNfc3Rh
+dGUgYmFja2VuZF9zdGF0ZSkNCj4gK3sNCj4gKwlzdHJ1Y3QgdmlydGlvX21taW9feGVuX2lu
+Zm8gKmluZm8gPSBkZXZfZ2V0X2RydmRhdGEoJmRldi0+ZGV2KTsNCj4gKw0KPiArCXN3aXRj
+aCAoYmFja2VuZF9zdGF0ZSkgew0KPiArCWNhc2UgWGVuYnVzU3RhdGVJbml0aWFsaXNpbmc6
+DQo+ICsJY2FzZSBYZW5idXNTdGF0ZUluaXRXYWl0Og0KPiArCWNhc2UgWGVuYnVzU3RhdGVJ
+bml0aWFsaXNlZDoNCj4gKwljYXNlIFhlbmJ1c1N0YXRlUmVjb25maWd1cmluZzoNCj4gKwlj
+YXNlIFhlbmJ1c1N0YXRlUmVjb25maWd1cmVkOg0KPiArCWNhc2UgWGVuYnVzU3RhdGVVbmtu
+b3duOg0KPiArCQlicmVhazsNCj4gKw0KPiArCWNhc2UgWGVuYnVzU3RhdGVDb25uZWN0ZWQ6
+DQo+ICsJCWlmIChkZXYtPnN0YXRlICE9IFhlbmJ1c1N0YXRlSW5pdGlhbGlzZWQpIHsNCj4g
+KwkJCWRldl93YXJuKCZkZXYtPmRldiwgInN0YXRlICVkIG9uIGNvbm5lY3QiLCBkZXYtPnN0
+YXRlKTsNCj4gKwkJCWJyZWFrOw0KPiArCQl9DQo+ICsJCWluZm8tPnBkZXYgPSBwbGF0Zm9y
+bV9kZXZpY2VfcmVnaXN0ZXJfcmVzbmRhdGEoJmRldi0+ZGV2LA0KPiArCQkJCSJ2aXJ0aW8t
+bW1pbyIsIFBMQVRGT1JNX0RFVklEX0FVVE8sDQo+ICsJCQkJaW5mby0+cmVzb3VyY2VzLCBB
+UlJBWV9TSVpFKGluZm8tPnJlc291cmNlcyksIE5VTEwsIDApOw0KPiArCQl4ZW5idXNfc3dp
+dGNoX3N0YXRlKGRldiwgWGVuYnVzU3RhdGVDb25uZWN0ZWQpOw0KPiArCQlicmVhazsNCj4g
+Kw0KPiArCWNhc2UgWGVuYnVzU3RhdGVDbG9zZWQ6DQo+ICsJCWlmIChkZXYtPnN0YXRlID09
+IFhlbmJ1c1N0YXRlQ2xvc2VkKQ0KPiArCQkJYnJlYWs7DQo+ICsJCWZhbGx0aHJvdWdoOwkv
+KiBNaXNzZWQgdGhlIGJhY2tlbmQncyBDbG9zaW5nIHN0YXRlLiAqLw0KPiArCWNhc2UgWGVu
+YnVzU3RhdGVDbG9zaW5nOg0KPiArCQlwbGF0Zm9ybV9kZXZpY2VfdW5yZWdpc3RlcihpbmZv
+LT5wZGV2KTsNCj4gKwkJeGVuYnVzX3N3aXRjaF9zdGF0ZShkZXYsIFhlbmJ1c1N0YXRlQ2xv
+c2VkKTsNCj4gKwkJYnJlYWs7DQo+ICsNCj4gKwlkZWZhdWx0Og0KPiArCQl4ZW5idXNfZGV2
+X2ZhdGFsKGRldiwgLUVJTlZBTCwgInNhdyBzdGF0ZSAlZCBhdCBmcm9udGVuZCIsDQo+ICsJ
+CQkJIGJhY2tlbmRfc3RhdGUpOw0KPiArCQlicmVhazsNCj4gKwl9DQo+ICt9DQo+ICsNCj4g
+K3N0YXRpYyB2b2lkIHZpcnRpb19tbWlvX3hlbl9yZW1vdmUoc3RydWN0IHhlbmJ1c19kZXZp
+Y2UgKmRldikNCj4gK3sNCj4gKwlzdHJ1Y3QgdmlydGlvX21taW9feGVuX2luZm8gKmluZm8g
+PSBkZXZfZ2V0X2RydmRhdGEoJmRldi0+ZGV2KTsNCj4gKw0KPiArCWtmcmVlKGluZm8pOw0K
+PiArCWRldl9zZXRfZHJ2ZGF0YSgmZGV2LT5kZXYsIE5VTEwpOw0KPiArfQ0KPiArDQo+ICtz
+dGF0aWMgY29uc3Qgc3RydWN0IHhlbmJ1c19kZXZpY2VfaWQgdmlydGlvX21taW9feGVuX2lk
+c1tdID0gew0KPiArCXsgInZpcnRpbyIgfSwNCg0KUGxlYXNlIHVzZSAidmlydGlvLW1taW8i
+IGhlcmUsIGFzIEkgY291bGQgaW1hZ2luZSAidmlydGlvLXBjaSIgZGV2aWNlcywgdG9vLg0K
+DQoNCkp1ZXJnZW4NCg0KPiArCXsgIiIgfSwNCj4gK307DQo+ICsNCj4gK3N0YXRpYyBzdHJ1
+Y3QgeGVuYnVzX2RyaXZlciB2aXJ0aW9fbW1pb194ZW5fZHJpdmVyID0gew0KPiArCS5pZHMJ
+CQk9IHZpcnRpb19tbWlvX3hlbl9pZHMsDQo+ICsJLnByb2JlCQkJPSB2aXJ0aW9fbW1pb194
+ZW5fcHJvYmUsDQo+ICsJLm90aGVyZW5kX2NoYW5nZWQJPSB2aXJ0aW9fbW1pb194ZW5fYmFj
+a2VuZF9jaGFuZ2VkLA0KPiArCS5yZW1vdmUJCQk9IHZpcnRpb19tbWlvX3hlbl9yZW1vdmUs
+DQo+ICt9Ow0KPiArI2VuZGlmDQo+ICsNCj4gICBzdGF0aWMgaW50IF9faW5pdCB2aXJ0aW9f
+bW1pb19pbml0KHZvaWQpDQo+ICAgew0KPiAtCXJldHVybiBwbGF0Zm9ybV9kcml2ZXJfcmVn
+aXN0ZXIoJnZpcnRpb19tbWlvX2RyaXZlcik7DQo+ICsJaW50IHJldDsNCj4gKw0KPiArCXJl
+dCA9IHBsYXRmb3JtX2RyaXZlcl9yZWdpc3RlcigmdmlydGlvX21taW9fZHJpdmVyKTsNCj4g
+KwlpZiAocmV0KQ0KPiArCQlyZXR1cm4gcmV0Ow0KPiArDQo+ICsjaWZkZWYgQ09ORklHX1ZJ
+UlRJT19NTUlPX1hFTkJVUw0KPiArCWlmICh4ZW5fZG9tYWluKCkpDQo+ICsJCXJldCA9IHhl
+bmJ1c19yZWdpc3Rlcl9mcm9udGVuZCgmdmlydGlvX21taW9feGVuX2RyaXZlcik7DQo+ICsj
+ZW5kaWYNCj4gKw0KPiArCXJldHVybiByZXQ7DQo+ICAgfQ0KPiAgIA0KPiAgIHN0YXRpYyB2
+b2lkIF9fZXhpdCB2aXJ0aW9fbW1pb19leGl0KHZvaWQpDQo+ICAgew0KPiArI2lmZGVmIENP
+TkZJR19WSVJUSU9fTU1JT19YRU5CVVMNCj4gKwlpZiAoeGVuX2RvbWFpbigpKQ0KPiArCQl4
+ZW5idXNfdW5yZWdpc3Rlcl9kcml2ZXIoJnZpcnRpb19tbWlvX3hlbl9kcml2ZXIpOw0KPiAr
+I2VuZGlmDQo+ICsNCj4gICAJcGxhdGZvcm1fZHJpdmVyX3VucmVnaXN0ZXIoJnZpcnRpb19t
+bWlvX2RyaXZlcik7DQo+ICAgCXZtX3VucmVnaXN0ZXJfY21kbGluZV9kZXZpY2VzKCk7DQo+
+ICAgfQ0KDQo=
+--------------HCshP870xeA72w06G6OVMqA8
+Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
 
-Hi,
+-----BEGIN PGP PUBLIC KEY BLOCK-----
 
-I've been working on porting virtio-mmio support from Arm to x86_64,
-with the goal of running vhost-user-gpu to power Wayland/GPU integration
-for Qubes OS. (I'm aware of various proposals for alternative virtio
-transports but virtio-mmio seems to be the only one that *is* upstream
-already and just Works..) Setting up virtio-mmio through xenbus, initially
-motivated just by event channels being the only real way to get interrupts
-working on HVM, turned out to generally be quite pleasant and nice :)
+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
+kt+z4drzFUyEjLM1vVvIMjkUoJs=3D
+=3DeeAB
+-----END PGP PUBLIC KEY BLOCK-----
 
-I'd like to get some early feedback for this patch, particularly
-the general stuff:
+--------------HCshP870xeA72w06G6OVMqA8--
 
-* is this whole thing acceptable in general?
-* should it be extracted into a different file?
-* (from the Xen side) any input on the xenstore keys, what goes where?
-* anything else to keep in mind?
+--------------ue4BYSUfwU0oTBtHJ9in4V9z--
 
-It does seem simple enough, so hopefully this can be done?
+--------------g0UC1Ck4AStDbbtB0H4eW8y7
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
 
-The corresponding userspace-side WIP is available at:
-https://github.com/QubesOS/xen-vhost-frontend
+-----BEGIN PGP SIGNATURE-----
 
-And the required DMOP for firing the evtchn events will be sent
-to xen-devel shortly as well.
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmnyJUQFAwAAAAAACgkQsN6d1ii/Ey8y
+5wf+OSYxptSMIwRtv0BfGWnvgqRxhhz/qAXi2Xf4Ac68tm/bKDB5ENs4K31KTXygguBeDozZQWyJ
+mWsTDUccG+xXwhybnJtNCC6WPdwWrCIGpB0WtLb8yknuae45Gw0iMEwdBLgrd0aFvNboHvko0Amd
+vppIpkgM5a6dL9pjomVWuTdxS82PLya9DfPOOlo9SqWoQkt2tGnD8I8H8gm/UMtkqdb5Dpa0EtEl
+uBAXQrz49yOak+ewHBMpbsnMsbUpajQGAIUSTRNErB++QSmvnRgbMan9k/DEFDx8mOwHhtSWTJp9
+ONxSMuAo27K3cQ6RGK3mK0MFjG+SUyFACqhqSEuUSg==
+=wIXT
+-----END PGP SIGNATURE-----
 
-Thanks,
-~val
-
----
- drivers/virtio/Kconfig       |   7 ++
- drivers/virtio/virtio_mmio.c | 177 ++++++++++++++++++++++++++++++++++-
- 2 files changed, 183 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/virtio/Kconfig b/drivers/virtio/Kconfig
-index ce5bc0d9ea28..56bc2b10526b 100644
---- a/drivers/virtio/Kconfig
-+++ b/drivers/virtio/Kconfig
-@@ -171,6 +171,13 @@ config VIRTIO_MMIO_CMDLINE_DEVICES
- 
- 	 If unsure, say 'N'.
- 
-+config VIRTIO_MMIO_XENBUS
-+	bool "Memory mapped virtio devices parameter parsing"
-+	depends on VIRTIO_MMIO && XEN
-+	select XEN_XENBUS_FRONTEND
-+	help
-+	 Allow virtio-mmio devices instantiation for Xen guests via xenbus.
-+
- config VIRTIO_DMA_SHARED_BUFFER
- 	tristate
- 	depends on DMA_SHARED_BUFFER
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 595c2274fbb5..32295284bdbf 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -70,6 +70,11 @@
- #include <uapi/linux/virtio_mmio.h>
- #include <linux/virtio_ring.h>
- 
-+#ifdef CONFIG_VIRTIO_MMIO_XENBUS
-+#include <xen/xen.h>
-+#include <xen/xenbus.h>
-+#include <xen/events.h>
-+#endif
- 
- 
- /* The alignment to use between consumer and producer parts of vring.
-@@ -810,13 +815,183 @@ static struct platform_driver virtio_mmio_driver = {
- 	},
- };
- 
-+#ifdef CONFIG_VIRTIO_MMIO_XENBUS
-+struct virtio_mmio_xen_info {
-+	struct resource resources[2];
-+	unsigned int evtchn;
-+	struct platform_device *pdev;
-+};
-+
-+static int virtio_mmio_xen_probe(struct xenbus_device *dev,
-+			const struct xenbus_device_id *id)
-+{
-+	int err;
-+	long long base, size;
-+	char *mem;
-+	struct virtio_mmio_xen_info *info;
-+	struct xenbus_transaction xbt;
-+
-+	/* TODO: allocate an unused address here and pass it to the host instead */
-+	err = xenbus_scanf(XBT_NIL, dev->otherend, "base", "0x%llx",
-+			   &base);
-+	if (err < 0) {
-+		xenbus_dev_fatal(dev, err, "reading base");
-+		return -EINVAL;
-+	}
-+
-+	mem = xenbus_read(XBT_NIL, dev->otherend, "size", NULL);
-+	if (XENBUS_IS_ERR_READ(mem))
-+		return PTR_ERR(mem);
-+	size = memparse(mem, NULL);
-+	kfree(mem);
-+
-+	info = kzalloc_obj(*info);
-+	if (!info) {
-+		xenbus_dev_fatal(dev, -ENOMEM, "allocating info structure");
-+		return -ENOMEM;
-+	}
-+
-+	info->resources[0].flags = IORESOURCE_MEM;
-+	info->resources[0].start = base;
-+	info->resources[0].end = base + size - 1;
-+
-+	err = xenbus_alloc_evtchn(dev, &info->evtchn);
-+	if (err) {
-+		xenbus_dev_fatal(dev, err, "xenbus_alloc_evtchn");
-+		goto error_info;
-+	}
-+
-+	err = bind_evtchn_to_irq(info->evtchn);
-+	if (err <= 0) {
-+		xenbus_dev_fatal(dev, err, "bind_evtchn_to_irq");
-+		goto error_evtchan;
-+	}
-+
-+	info->resources[1].flags = IORESOURCE_IRQ;
-+	info->resources[1].start = info->resources[1].end = err;
-+
-+again:
-+	err = xenbus_transaction_start(&xbt);
-+	if (err) {
-+		xenbus_dev_fatal(dev, err, "starting transaction");
-+		goto error_irq;
-+	}
-+
-+	err = xenbus_printf(xbt, dev->nodename, "event-channel", "%u",
-+			    info->evtchn);
-+	if (err) {
-+		xenbus_transaction_end(xbt, 1);
-+		xenbus_dev_fatal(dev, err, "%s", "writing event-channel");
-+		goto error_irq;
-+	}
-+
-+	err = xenbus_transaction_end(xbt, 0);
-+	if (err) {
-+		if (err == -EAGAIN)
-+			goto again;
-+		xenbus_dev_fatal(dev, err, "completing transaction");
-+		goto error_irq;
-+	}
-+
-+	dev_set_drvdata(&dev->dev, info);
-+	xenbus_switch_state(dev, XenbusStateInitialised);
-+	return 0;
-+
-+error_irq:
-+	unbind_from_irqhandler(info->resources[1].start, info);
-+error_evtchan:
-+	xenbus_free_evtchn(dev, info->evtchn);
-+error_info:
-+	kfree(info);
-+
-+	return err;
-+}
-+
-+static void virtio_mmio_xen_backend_changed(struct xenbus_device *dev,
-+				   enum xenbus_state backend_state)
-+{
-+	struct virtio_mmio_xen_info *info = dev_get_drvdata(&dev->dev);
-+
-+	switch (backend_state) {
-+	case XenbusStateInitialising:
-+	case XenbusStateInitWait:
-+	case XenbusStateInitialised:
-+	case XenbusStateReconfiguring:
-+	case XenbusStateReconfigured:
-+	case XenbusStateUnknown:
-+		break;
-+
-+	case XenbusStateConnected:
-+		if (dev->state != XenbusStateInitialised) {
-+			dev_warn(&dev->dev, "state %d on connect", dev->state);
-+			break;
-+		}
-+		info->pdev = platform_device_register_resndata(&dev->dev,
-+				"virtio-mmio", PLATFORM_DEVID_AUTO,
-+				info->resources, ARRAY_SIZE(info->resources), NULL, 0);
-+		xenbus_switch_state(dev, XenbusStateConnected);
-+		break;
-+
-+	case XenbusStateClosed:
-+		if (dev->state == XenbusStateClosed)
-+			break;
-+		fallthrough;	/* Missed the backend's Closing state. */
-+	case XenbusStateClosing:
-+		platform_device_unregister(info->pdev);
-+		xenbus_switch_state(dev, XenbusStateClosed);
-+		break;
-+
-+	default:
-+		xenbus_dev_fatal(dev, -EINVAL, "saw state %d at frontend",
-+				 backend_state);
-+		break;
-+	}
-+}
-+
-+static void virtio_mmio_xen_remove(struct xenbus_device *dev)
-+{
-+	struct virtio_mmio_xen_info *info = dev_get_drvdata(&dev->dev);
-+
-+	kfree(info);
-+	dev_set_drvdata(&dev->dev, NULL);
-+}
-+
-+static const struct xenbus_device_id virtio_mmio_xen_ids[] = {
-+	{ "virtio" },
-+	{ "" },
-+};
-+
-+static struct xenbus_driver virtio_mmio_xen_driver = {
-+	.ids			= virtio_mmio_xen_ids,
-+	.probe			= virtio_mmio_xen_probe,
-+	.otherend_changed	= virtio_mmio_xen_backend_changed,
-+	.remove			= virtio_mmio_xen_remove,
-+};
-+#endif
-+
- static int __init virtio_mmio_init(void)
- {
--	return platform_driver_register(&virtio_mmio_driver);
-+	int ret;
-+
-+	ret = platform_driver_register(&virtio_mmio_driver);
-+	if (ret)
-+		return ret;
-+
-+#ifdef CONFIG_VIRTIO_MMIO_XENBUS
-+	if (xen_domain())
-+		ret = xenbus_register_frontend(&virtio_mmio_xen_driver);
-+#endif
-+
-+	return ret;
- }
- 
- static void __exit virtio_mmio_exit(void)
- {
-+#ifdef CONFIG_VIRTIO_MMIO_XENBUS
-+	if (xen_domain())
-+		xenbus_unregister_driver(&virtio_mmio_xen_driver);
-+#endif
-+
- 	platform_driver_unregister(&virtio_mmio_driver);
- 	vm_unregister_cmdline_devices();
- }
--- 
-2.53.0
-
+--------------g0UC1Ck4AStDbbtB0H4eW8y7--
