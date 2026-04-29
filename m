@@ -1,82 +1,117 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.21])
+Received: from mta-64-227.siemens.flowmailer.net (mta-64-227.siemens.flowmailer.net [185.136.64.227])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5685142314D
-	for <virtualization@lists.linux.dev>; Wed, 29 Apr 2026 18:45:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.21
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEFDF343D66
+	for <virtualization@lists.linux.dev>; Wed, 29 Apr 2026 21:01:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.136.64.227
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777488334; cv=none; b=YvKAK49jIXhgSENHsc8vLD5TODMfF2ehEveB3RFXBuHwe0Nw1/a/iK4ijo2YTlY1ISV+8cZAjvSjr729ZZmpKYnLJ1mn87TZttmhwBlzbrMdpU113yjO2UeHPIyaVOvCWZDD7rGlJqh5cOJ1uptPDxYzGPc83zrVsCqSeAJETEw=
+	t=1777496507; cv=none; b=B+TjzOWmH2F3fwwKlcTyWDzK51iPI472DLzvLtq/TPvlb9zrWHImPvyvJ6j5N+TFlaKJYJKeyKfqwjmRjIXyo7lqyJfhRMqIftSdpau+EtqJGswU3lVGOnTNmBl9B7bzaVh944KAdFBXffw2SjWvodu2yAp+qLUdzEO+IfYWIUc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777488334; c=relaxed/simple;
-	bh=dhcNJDDi3zQS9Nk/E4umfgiUZ3RFntrTQSozkeTfCIs=;
-	h=Subject:To:Cc:From:Date:References:In-Reply-To:Message-Id; b=lJGdFQDu5e7mz8fC8mmQw21b9QUgst5/ZxEamL442fxoikQB7IBz4AHNQ3riLLWcZ+EwN01g65+7PCvapKbajh3DTKoY9KtvWnERQ8Qo7LTF4XmViA9zB0qeO/EfOXPEHeVC86dgyIlc7Sv3qRKovdiH831miFDxnkN93JSaQHE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=linux.intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=HuxxFfrE; arc=none smtp.client-ip=198.175.65.21
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.intel.com
+	s=arc-20240116; t=1777496507; c=relaxed/simple;
+	bh=bA3q+aZyOQrT0FyDSNs/Uw/vG57DpeKjfZrlAyy96GI=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=Ryp+cY1p8Ru+dI7FTeCK2bsqLJ+owGFMpAG1+8SfWgdFKbjS332Ixi+UhYAc9Vzq40MQwY4Ae96EUi1bTTUzwpX8vDBDeATob2iy7cIvfu/buCTO6pcWQ77gKsYuJG6fzxu+4HBoH3fdbkbg7bvFlvCFr0xP3bM66j2YfRXLTMQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=siemens.com; spf=pass smtp.mailfrom=rts-flowmailer.siemens.com; dkim=pass (2048-bit key) header.d=siemens.com header.i=florian.bezdeka@siemens.com header.b=LMH79o94; arc=none smtp.client-ip=185.136.64.227
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=siemens.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rts-flowmailer.siemens.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="HuxxFfrE"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1777488331; x=1809024331;
-  h=subject:to:cc:from:date:references:in-reply-to:
-   message-id;
-  bh=dhcNJDDi3zQS9Nk/E4umfgiUZ3RFntrTQSozkeTfCIs=;
-  b=HuxxFfrEikC8BLKaTjeMOc6wfz1Sj3ow2gQ2RRoTGUhmLaW1xsrYo28U
-   /m2xV8CXkOH3CnA5N5G1mLKEsFr3+trOzy2s1Ys7tDd+0APXarJihIpkD
-   x5HPXu4Sf89lYHQVt+/CYaukzezTktjyph8PTjDg+S5HuZJvBmWh2k2wS
-   3UQseFb9bJjtTpsfWR845eKiZOhWPoobcQcXIF5wekrBm/tXlTlyDjXO7
-   UuJDO0TfWL0cvlUEE2pMl4PAoAHKfJQisozU040Q2AM7KnfeL5uDiKw0P
-   7r0O7yk3kJp8UmNcOE9SCk682HDRnJQbC9p3JGhbePPAvbeGH8o0Pfqad
-   A==;
-X-CSE-ConnectionGUID: P324TwlARuuztn9CHOGw6w==
-X-CSE-MsgGUID: AJNQrg9lQHWQv4PEusvYbQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11771"; a="78322309"
-X-IronPort-AV: E=Sophos;i="6.23,206,1770624000"; 
-   d="scan'208";a="78322309"
-Received: from fmviesa006.fm.intel.com ([10.60.135.146])
-  by orvoesa113.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 Apr 2026 11:45:31 -0700
-X-CSE-ConnectionGUID: jDYROiRVRFS1dReNxcCN5w==
-X-CSE-MsgGUID: +liPkOrQRZe+A4sdhMUsfQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,206,1770624000"; 
-   d="scan'208";a="229749686"
-Received: from davehans-spike.ostc.intel.com (HELO localhost.localdomain) ([10.165.164.11])
-  by fmviesa006.fm.intel.com with ESMTP; 29 Apr 2026 11:45:31 -0700
-Subject: [PATCH v2 8/8] x86/msr: Remove duplicate #include
-To: linux-kernel@vger.kernel.org
-Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, x86@kernel.org, Juergen Gross <jgross@suse.com>, virtualization@lists.linux.dev, Dave Hansen <dave.hansen@linux.intel.com>
-From: Dave Hansen <dave.hansen@linux.intel.com>
-Date: Wed, 29 Apr 2026 11:45:30 -0700
-References: <20260429184517.7E078510@davehans-spike.ostc.intel.com>
-In-Reply-To: <20260429184517.7E078510@davehans-spike.ostc.intel.com>
-Message-Id: <20260429184530.9FE585E8@davehans-spike.ostc.intel.com>
+	dkim=pass (2048-bit key) header.d=siemens.com header.i=florian.bezdeka@siemens.com header.b="LMH79o94"
+Received: by mta-64-227.siemens.flowmailer.net with ESMTPSA id 202604292101343f6c5b955900020725
+        for <virtualization@lists.linux.dev>;
+        Wed, 29 Apr 2026 23:01:35 +0200
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; s=fm2;
+ d=siemens.com; i=florian.bezdeka@siemens.com;
+ h=Date:From:Subject:To:Message-ID:MIME-Version:Content-Type:Content-Transfer-Encoding:Cc:References:In-Reply-To;
+ bh=lRg/MYq0K53L4Y4fGH1HiAxYK8CbmwlPUvmXGFjgSXI=;
+ b=LMH79o94bSn6Qm6x/tkJ5jiJERzPLvvPw/we8hHv+HTjm97vH4jpJ/v4o17P+6f47ud8Jb
+ WJfb/vPGNx0PT/+DoxppUmJ/WOqVr0PwpYa5zVNJZ1fWlGk+jddEiJ16OBun3WV+c8AvggSf
+ pylkylj4BN/ZZaLTU25IqyQtHWmyHEsNa9ydjDEykJHJQ0tNVg99dkpcbb7gbZZOp+7rQFeV
+ hXwJOqPW5wkAjLHyVQzIpIKAMyHDL/rVk6JIMTbjW9vCDfKt9ET0addeTDblLVB064IeAfWs
+ J6UA4A6mkJN785K9LjzGIh7v+tDMe5y7piVIui6Spy4mlqOV5m/icNMw==;
+Message-ID: <85415539137c61cdec145ac0ee299dbea7cdd2a1.camel@siemens.com>
+Subject: Re: [PATCH v12 00/13] blk: honor isolcpus configuration
+From: Florian Bezdeka <florian.bezdeka@siemens.com>
+To: Daniel Wagner <dwagner@suse.de>
+Cc: Aaron Tomlin <atomlin@atomlin.com>, axboe@kernel.dk, kbusch@kernel.org,
+ hch@lst.de, sagi@grimberg.me, mst@redhat.com, aacraid@microsemi.com,
+ James.Bottomley@hansenpartnership.com, martin.petersen@oracle.com,
+ liyihang9@h-partners.com, kashyap.desai@broadcom.com,
+ sumit.saxena@broadcom.com, shivasharan.srikanteshwara@broadcom.com,
+ chandrakanth.patil@broadcom.com, sathya.prakash@broadcom.com,
+ sreekanth.reddy@broadcom.com, suganath-prabu.subramani@broadcom.com,
+ ranjan.kumar@broadcom.com, jinpu.wang@cloud.ionos.com, tglx@kernel.org,
+ mingo@redhat.com, peterz@infradead.org, juri.lelli@redhat.com,
+ vincent.guittot@linaro.org, akpm@linux-foundation.org, maz@kernel.org,
+ ruanjinjie@huawei.com, bigeasy@linutronix.de, yphbchou0911@gmail.com,
+ wagi@kernel.org, frederic@kernel.org, longman@redhat.com,
+ chenridong@huawei.com, hare@suse.de, kch@nvidia.com, ming.lei@redhat.com,
+ tom.leiming@gmail.com, steve@abita.co, sean@ashe.io, chjohnst@gmail.com,
+ neelx@suse.com, mproche@gmail.com, nick.lange@gmail.com,
+ marco.crivellari@suse.com, linux-block@vger.kernel.org,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-nvme@lists.infradead.org, linux-scsi@vger.kernel.org,
+ megaraidlinux.pdl@broadcom.com, mpi3mr-linuxdrv.pdl@broadcom.com,
+ MPT-FusionLinux.pdl@broadcom.com, Jan Kiszka <jan.kiszka@siemens.com>
+Date: Wed, 29 Apr 2026 23:01:33 +0200
+In-Reply-To: <2d61b1f7-fc06-4fe1-8a6f-cc3a2f114ae1@flourine.local>
+References: <20260422185215.100929-1-atomlin@atomlin.com>
+	 <e350389a5a635660267a7a13f06529da102a95d8.camel@siemens.com>
+	 <2d61b1f7-fc06-4fe1-8a6f-cc3a2f114ae1@flourine.local>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+X-Flowmailer-Platform: Siemens
+Feedback-ID: 519:519-68982:519-21489:flowmailer
 
+On Tue, 2026-04-28 at 15:08 +0200, Daniel Wagner wrote:
+> On Mon, Apr 27, 2026 at 12:55:20PM +0200, Florian Bezdeka wrote:
+> > This topic reminds me of a discussion started by Tobias [1] some time
+> > ago about IRQ spreading of network drivers. The problem was (and still
+> > is) that network drivers ignore any CPU isolation when spreading out
+> > device IRQs.
+> >=20
+> > In general we have two different CPU isolation mechanisms:
+> >   - The static one, via isolcpus=3D cmdline parameter
+> >   - The dynamic one, via cgroups(v2) cpuset controller
+> >=20
+> > This series is only taking the static "world" into account, right? Are
+> > there any plans to honor the CPU isolations configured the dynamic
+> > way?
+>=20
+> Dynamic configuration would require every driver to fully support
+> reconfiguration during runtime. Only a handful of drivers, such as
+> nvme-pci, are currently able to handle this.
+>=20
+> The first task, teaching a wide range of drivers to honor CPU isolation
+> at boot time, is already going to be a significant amount of work.
+>=20
+> > It has been a while since the last investigations on my end. Last time =
+I
+> > went through the code, the IRQ core was completely decoupled from the
+> > dynamic configuration via cgroups. Are there any plans to fix that gap?
+>=20
+> Which use case are you actually aiming to support? While dynamic
+> reconfiguration would be ideal, the amount of work to get there is
+> significant. I won't be signing up for it.
 
-From: Dave Hansen <dave.hansen@linux.intel.com>
+The use case at hand is a RT enabled platform where the concrete RT
+workload is not known at boot time. RT applications are deployed "on-
+the-fly", nowadays using the existing container runtimes with some
+extended resource management on top.
 
-errno.h is already included for C code at the top of the header.
-Zap the duplicate.
+Applications can request certain resources like isolated CPU cores,
+special IRQ affinities, PCI devices to pass through, ...,  so that the
+resource management on the system can take care of proper system
+configuration.
 
-Signed-off-by: Dave Hansen <dave.hansen@linux.intel.com>
----
-
- b/arch/x86/include/asm/msr.h |    1 -
- 1 file changed, 1 deletion(-)
-
-diff -puN arch/x86/include/asm/msr.h~rdmsr-dups-11 arch/x86/include/asm/msr.h
---- a/arch/x86/include/asm/msr.h~rdmsr-dups-11	2026-04-29 11:38:57.838732405 -0700
-+++ b/arch/x86/include/asm/msr.h	2026-04-29 11:38:57.841732519 -0700
-@@ -172,7 +172,6 @@ static inline u64 native_read_pmc(int co
- #ifdef CONFIG_PARAVIRT_XXL
- #include <asm/paravirt.h>
- #else
--#include <linux/errno.h>
- 
- /* Short-circuit the paravirt MSR infrastructure when it is disabled: */
- #define paravirt_read_msr	native_read_msr
-_
+As you said, this requires that drivers are able to honor the system
+configuration during runtime. We already identified IRQ spreading of the
+network subsystem to be problematic. And yes, that will need some
+efforts to fix that. We are still in phase of searching for similar
+problems and a starting point for a discussion. Any input in that
+direction is highly appreciated.
