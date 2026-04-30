@@ -1,170 +1,123 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from mail-yw1-f202.google.com (mail-yw1-f202.google.com [209.85.128.202])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 401653FFADC
-	for <virtualization@lists.linux.dev>; Thu, 30 Apr 2026 12:09:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38A01402435
+	for <virtualization@lists.linux.dev>; Thu, 30 Apr 2026 12:26:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777550965; cv=none; b=ooJoZbvH0lH7Y6tM9mK3uAMwlvbCpDuvM+DHCaxMU4crhbUzxJbBYYVcpt2jt3SrJHyzrzgJL84/60sMW+WjUqPbMr0vHo2N31iKtlyN+muiDToOzDmAPinu30Rcnu22Y85jL5lflzOD/kW7f438Fz5EyxserhaUpvhE6QYPGZc=
+	t=1777552017; cv=none; b=fGXyEnD5gMy/fmgJw0SPzPSXDL9Q9jcRw726GfMTV6Iwwm+1J2Z1yaCylLUj2oPLF4Xq1LslUv8955Qt81SiDz0YDUmc1YC8UKlpIxzl4uoFbxJ+NNtOL/QWcFCx8zgrmFfr01Zk94HI1EUMa/Oi0iUWCHJOHvdZxuEA+nvXQuI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777550965; c=relaxed/simple;
-	bh=fJoAwCoy2K1XeQNEUAVcC6yclLqZ8LS5SUtuOzKPgcg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ujsVzWvK+C4fi5veDt8thEBRyDKssy2aNhdFesRcuPXK0BmPc7zttEHao5gEJJJDyEaTkPV/tl/oCcJywnmtDLx01I1KgumkzGmAS5E5HIf/g6ygN81WAR1p+1eUD18aEmnLwPCMMJZzzVijXLkdgDHMb3jKQvQDKByp6edq/gk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=TNcm5UCp; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=4IM0G4gR; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=TNcm5UCp; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=4IM0G4gR; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1777552017; c=relaxed/simple;
+	bh=Q+CUg+VsmZKjq366q44C8YuEEFsvKKcl8wiXNOwD0e0=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=CnazhaN85EYQ8QvaScOSjCNJmo2ALpsqkUmPVcDYzUxXhA+6EGmIDiSw/5lYj/sB4XQOPVO9mA9BCfL/WXLe94/dMEIS0qxabnZlVs6TJU3G5aujU/AIhudczZuCFM6/ugGwvyYpP9CyVBDVXxeOK4IsHAzidiHDYy6Z3cSxxI0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--edumazet.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=qwAko7zY; arc=none smtp.client-ip=209.85.128.202
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--edumazet.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="TNcm5UCp";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="4IM0G4gR";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="TNcm5UCp";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="4IM0G4gR"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 7ED296A803;
-	Thu, 30 Apr 2026 12:09:22 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1777550962; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=2Aa3+xJkIiFQ/HkoTGqknWirRkC4uQdhQ2e/brY0CSM=;
-	b=TNcm5UCpbnw+2gGvqCAGRfeD0cH38QV5yL+LXYPlsOtSG+xaNAl9iwMmKZe60OkiyvTzUE
-	MPbrMpilr3x+K1Xnw2Noo3Eu23pmJB+LSg7C87OfPc92b/oWN7iW89zIzEWGRKdFS2t+9b
-	KTms3z8JnAJNtr2spG8c3noa/cxyCZo=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1777550962;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=2Aa3+xJkIiFQ/HkoTGqknWirRkC4uQdhQ2e/brY0CSM=;
-	b=4IM0G4gRSzs4S7cZnW/tdU+quLXd8KPax9Zb9UyDXvquAiRwRIJd8/TZe8+HHRgQ/h/VcI
-	nObOSROkCj2SocCQ==
-Authentication-Results: smtp-out1.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=TNcm5UCp;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=4IM0G4gR
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1777550962; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=2Aa3+xJkIiFQ/HkoTGqknWirRkC4uQdhQ2e/brY0CSM=;
-	b=TNcm5UCpbnw+2gGvqCAGRfeD0cH38QV5yL+LXYPlsOtSG+xaNAl9iwMmKZe60OkiyvTzUE
-	MPbrMpilr3x+K1Xnw2Noo3Eu23pmJB+LSg7C87OfPc92b/oWN7iW89zIzEWGRKdFS2t+9b
-	KTms3z8JnAJNtr2spG8c3noa/cxyCZo=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1777550962;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=2Aa3+xJkIiFQ/HkoTGqknWirRkC4uQdhQ2e/brY0CSM=;
-	b=4IM0G4gRSzs4S7cZnW/tdU+quLXd8KPax9Zb9UyDXvquAiRwRIJd8/TZe8+HHRgQ/h/VcI
-	nObOSROkCj2SocCQ==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 63645593B0;
-	Thu, 30 Apr 2026 12:09:22 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id /0o+GHJG82kjZQAAD6G6ig
-	(envelope-from <dwagner@suse.de>); Thu, 30 Apr 2026 12:09:22 +0000
-Date: Thu, 30 Apr 2026 14:09:21 +0200
-From: Daniel Wagner <dwagner@suse.de>
-To: Florian Bezdeka <florian.bezdeka@siemens.com>
-Cc: Aaron Tomlin <atomlin@atomlin.com>, axboe@kernel.dk, kbusch@kernel.org, 
-	hch@lst.de, sagi@grimberg.me, mst@redhat.com, aacraid@microsemi.com, 
-	James.Bottomley@hansenpartnership.com, martin.petersen@oracle.com, liyihang9@h-partners.com, 
-	kashyap.desai@broadcom.com, sumit.saxena@broadcom.com, 
-	shivasharan.srikanteshwara@broadcom.com, chandrakanth.patil@broadcom.com, sathya.prakash@broadcom.com, 
-	sreekanth.reddy@broadcom.com, suganath-prabu.subramani@broadcom.com, ranjan.kumar@broadcom.com, 
-	jinpu.wang@cloud.ionos.com, tglx@kernel.org, mingo@redhat.com, peterz@infradead.org, 
-	juri.lelli@redhat.com, vincent.guittot@linaro.org, akpm@linux-foundation.org, 
-	maz@kernel.org, ruanjinjie@huawei.com, bigeasy@linutronix.de, 
-	yphbchou0911@gmail.com, wagi@kernel.org, frederic@kernel.org, longman@redhat.com, 
-	chenridong@huawei.com, hare@suse.de, kch@nvidia.com, ming.lei@redhat.com, 
-	tom.leiming@gmail.com, steve@abita.co, sean@ashe.io, chjohnst@gmail.com, neelx@suse.com, 
-	mproche@gmail.com, nick.lange@gmail.com, marco.crivellari@suse.com, 
-	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
-	linux-nvme@lists.infradead.org, linux-scsi@vger.kernel.org, megaraidlinux.pdl@broadcom.com, 
-	mpi3mr-linuxdrv.pdl@broadcom.com, MPT-FusionLinux.pdl@broadcom.com, 
-	Jan Kiszka <jan.kiszka@siemens.com>
-Subject: Re: [PATCH v12 00/13] blk: honor isolcpus configuration
-Message-ID: <8c074639-bb75-40be-a338-e80b93123477@flourine.local>
-References: <20260422185215.100929-1-atomlin@atomlin.com>
- <e350389a5a635660267a7a13f06529da102a95d8.camel@siemens.com>
- <2d61b1f7-fc06-4fe1-8a6f-cc3a2f114ae1@flourine.local>
- <85415539137c61cdec145ac0ee299dbea7cdd2a1.camel@siemens.com>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="qwAko7zY"
+Received: by mail-yw1-f202.google.com with SMTP id 00721157ae682-79472373f48so15100587b3.3
+        for <virtualization@lists.linux.dev>; Thu, 30 Apr 2026 05:26:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1777552014; x=1778156814; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:from:subject:message-id
+         :mime-version:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Ee+M/5NYR6efU5/2iPR/zMWzx0RQD/fTLUx2lJ5g5rk=;
+        b=qwAko7zY7Eya5nTT/XwqjlhAeoFEzLAi1Bhj3pvnAdc+piYvJIm8PM9tTbAq6M9nIZ
+         5TCUMo/CkSe59nXZnG8WagYH8GbWRfVM14l/M57Yr5MHndf3v+wJLmbl1yAdyO1FY3Zz
+         ZLmBbNAmaVH00XVnTV8a0CTfwgNjleDhJCAA7Bxf8eqf1mffaqWyh0uwApYtOfbomotJ
+         eCgrMCdADyJ8K7sIObP8dF9l729d4yfJdspUhrWnn7SdHk0D+vH/dMSj8XyjWVFPjuYZ
+         I10OTEl7DW5/HvvYkveB8tAelseRCfvnZeWV3Ujp/tIiGGzkFXKlgTUOFvHmHqDW9lA4
+         /miA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777552014; x=1778156814;
+        h=content-transfer-encoding:cc:to:from:subject:message-id
+         :mime-version:date:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Ee+M/5NYR6efU5/2iPR/zMWzx0RQD/fTLUx2lJ5g5rk=;
+        b=juCf5AvFtux0Cg6Y6G2UY8ind03APYv+HoJYpAZX57JSkbKxXif93BvfB6lpMwu7xg
+         Qfzy1za/Dwx547dTn/wiASdLvyAly9LYJ7UQ+xLZO9IjS//bNNppXLa9i/NT3hcNN91o
+         FoPwXlTHDVT6CUQh/lBSUz7yHoHVP2mVfSXfbNwjKLhpBeUhIzKlqgqNUiohIy44JHM1
+         IYgp0XQEmUvZy8huSWzDX4hy4tjCcylMkeG7N6HkGEv1N6LtriITVBI0dGSVTIfKOjE8
+         rlcfkyTHWO9VDJC+CN+Zafv8GpVaEtP0FeJchwGVfQHvCHYKIeVAilKS166/dNVmxJW6
+         8O5Q==
+X-Forwarded-Encrypted: i=1; AFNElJ+/TvGQ4xMiW1/1Iw6Rlad/9xTL8Vk+aBiJ2UoEazfzshVHJ8fD+yn//ZJF05uCvjyuXxiUXzutRJ1iW5uN6w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzFFH0n2FQHFZb7Dlaa9rB3kPCtZTMYu00vTqT5/rghuvWRMi11
+	I4Hl8iaoJ7peiKDB9Qdhrf74zhpYvpWNg0Se6pk1vbZd1tMvhWRfv0j928Wty3SCBBAp1dZkX75
+	XYncJC71v4mWC1Q==
+X-Received: from ywbnv28-n1.prod.google.com ([2002:a05:690c:931c:10b0:7ba:eed4:c262])
+ (user=edumazet job=prod-delivery.src-stubby-dispatcher) by
+ 2002:a81:8ac2:0:b0:7a1:3088:e528 with SMTP id 00721157ae682-7bd5286eebfmr19968607b3.18.1777552014025;
+ Thu, 30 Apr 2026 05:26:54 -0700 (PDT)
+Date: Thu, 30 Apr 2026 12:26:52 +0000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <85415539137c61cdec145ac0ee299dbea7cdd2a1.camel@siemens.com>
-X-Rspamd-Action: no action
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Spamd-Result: default: False [-3.01 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	FREEMAIL_CC(0.00)[atomlin.com,kernel.dk,kernel.org,lst.de,grimberg.me,redhat.com,microsemi.com,hansenpartnership.com,oracle.com,h-partners.com,broadcom.com,cloud.ionos.com,infradead.org,linaro.org,linux-foundation.org,huawei.com,linutronix.de,gmail.com,suse.de,nvidia.com,abita.co,ashe.io,suse.com,vger.kernel.org,lists.linux.dev,lists.infradead.org,siemens.com];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	TO_DN_SOME(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	MIME_TRACE(0.00)[0:+];
-	ARC_NA(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RLip3qrwmtdyuwmp1ydoxr43fi)];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_SOME(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	DKIM_TRACE(0.00)[suse.de:+];
-	DNSWL_BLOCKED(0.00)[2a07:de40:b281:106:10:150:64:167:received];
-	TAGGED_RCPT(0.00)[];
-	RCPT_COUNT_GT_50(0.00)[54];
-	MISSING_XM_UA(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns]
-X-Rspamd-Queue-Id: 7ED296A803
-X-Spam-Flag: NO
-X-Spam-Score: -3.01
-X-Spam-Level: 
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.54.0.545.g6539524ca2-goog
+Message-ID: <20260430122653.554058-1-edumazet@google.com>
+Subject: [PATCH net] vsock/virtio: fix potential unbounded skb queue
+From: Eric Dumazet <edumazet@google.com>
+To: "David S . Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>
+Cc: Simon Horman <horms@kernel.org>, netdev@vger.kernel.org, eric.dumazet@gmail.com, 
+	Eric Dumazet <edumazet@google.com>, Arseniy Krasnov <AVKrasnov@sberdevices.ru>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	"=?UTF-8?q?Eugenio=20P=C3=A9rez?=" <eperezma@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Apr 29, 2026 at 11:01:33PM +0200, Florian Bezdeka wrote:
-> > Which use case are you actually aiming to support? While dynamic
-> > reconfiguration would be ideal, the amount of work to get there is
-> > significant. I won't be signing up for it.
-> 
-> The use case at hand is a RT enabled platform where the concrete RT
-> workload is not known at boot time. RT applications are deployed "on-
-> the-fly", nowadays using the existing container runtimes with some
-> extended resource management on top.
-> 
-> Applications can request certain resources like isolated CPU cores,
-> special IRQ affinities, PCI devices to pass through, ...,  so that the
-> resource management on the system can take care of proper system
-> configuration.
+virtio_transport_inc_rx_pkt() checks vvs->rx_bytes + len > vvs->buf_alloc.
 
+virtio_transport_recv_enqueue() skips coalescing for packets
+with VIRTIO_VSOCK_SEQ_EOM.
 
-This is where I really question this use case. Currently, it takes quite
-a lot of time to tune a system to work properly for RT workloads.
-Between memory channel interference, GPU interference, and shared
-transports everywhere, you end up with a fixed split: a set of CPUs
-suitable for RT work and a set for housekeeping. This partitioning
-generally does not change during runtime, even if the way you utilize
-those two sets remains dynamic.
+If fed with packets with len =3D=3D 0 and VIRTIO_VSOCK_SEQ_EOM,
+a very large number of packets can be queued
+because vvs->rx_bytes stays at 0.
 
-Furthermore, reconfiguring a system while running an active RT workload
-is asking for trouble. I wouldn't be surprised if doing so triggered a
-wide range of unpredictable side effects.
+Fix this by estimating the skb metadata size:
+
+	(Number of skbs in the queue) * SKB_TRUESIZE(0)
+
+Fixes: 077706165717 ("virtio/vsock: don't use skbuff state to account credi=
+t")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: Stefano Garzarella <sgarzare@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: "Eugenio P=C3=A9rez" <eperezma@redhat.com>
+Cc: kvm@vger.kernel.org
+Cc: virtualization@lists.linux.dev
+---
+ net/vmw_vsock/virtio_transport_common.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio=
+_transport_common.c
+index 416d533f493d7b07e9c77c43f741d28cfcd0953e..9b8014516f4fb1130ae184635fb=
+ba4dfee58bd64 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -447,7 +447,9 @@ static int virtio_transport_send_pkt_info(struct vsock_=
+sock *vsk,
+ static bool virtio_transport_inc_rx_pkt(struct virtio_vsock_sock *vvs,
+ 					u32 len)
+ {
+-	if (vvs->buf_used + len > vvs->buf_alloc)
++	u64 skb_overhead =3D (skb_queue_len(&vvs->rx_queue) + 1) * SKB_TRUESIZE(0=
+);
++
++	if (skb_overhead + vvs->buf_used + len > vvs->buf_alloc)
+ 		return false;
+=20
+ 	vvs->rx_bytes +=3D len;
+--=20
+2.54.0.545.g6539524ca2-goog
+
