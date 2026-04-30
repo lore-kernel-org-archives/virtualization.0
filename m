@@ -1,83 +1,66 @@
-Received: from fout-a2-smtp.messagingengine.com (fout-a2-smtp.messagingengine.com [103.168.172.145])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f41.google.com (mail-ed1-f41.google.com [209.85.208.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D21A7282F06
-	for <virtualization@lists.linux.dev>; Thu, 30 Apr 2026 18:50:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.145
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B685E289340
+	for <virtualization@lists.linux.dev>; Thu, 30 Apr 2026 19:22:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777575014; cv=none; b=dlS2ErxscVr46Vq63bIxnymCqpWK6ocrbNLjPbvQ+fuWKCBYE/N2kmLrNPER99hVXHCrf1beqzrb3iEytb9+WVNgGJB0a8sk/HBqdEMzKXucZDx41xNAJQJW3LmNSAua2x1FwIrEAGcZKDSANStqKYFgVxh+YaPDvIaxwX6SY34=
+	t=1777576974; cv=none; b=joX0hbvHoCFm5cDeOpH8DvSok9z+vsGElpHH/hJXl7oS9lQ3oWCzJE1qUeDeUEAoolhd1cbAwAWrdlkA0iemVe8fayHoTaIUjHl5JdRvZJdZ4NU9wncNLt5VIqrwY7tVNvUWFQPR34yM7s2cUhMG+7137WgDkJRG/QYhV24CilE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777575014; c=relaxed/simple;
-	bh=WtobduLOS6TjAXp0bMctU+axRtnCk+aSW1NSZ8Ca5q8=;
+	s=arc-20240116; t=1777576974; c=relaxed/simple;
+	bh=4l7yJXhIseTiqcGMgxSn/s1EUUXfuxcB16GDG5sfbh0=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=fSPZGYs0sUPCjAXXwLHlz1ckopI+1JyuPnMHVJNZafBCRZrDNPulhc1wLGlQ9O+eMenADRHjVfjhvFoNfx7ENfpDR/s1vP3RNPIW66AZQrNvwmk6R2ifmY9rWxoMBhW0X1VkaTYChbp72KfWQIDvCuAtgpp2dtwY5dgETEhNs2Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=invisiblethingslab.com; spf=pass smtp.mailfrom=invisiblethingslab.com; dkim=pass (2048-bit key) header.d=invisiblethingslab.com header.i=@invisiblethingslab.com header.b=hADA0zpE; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=mTsfiq2A; arc=none smtp.client-ip=103.168.172.145
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=invisiblethingslab.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=invisiblethingslab.com
+	 In-Reply-To:Content-Type; b=mKyqAIgh12PZxrcet6QCUuJHmye86kx5wvRI8isUugHfBx7aLDoTVX4LvsURr9QerShFHFtqivyaVnGyB1R/xWfUMqsE2HbWIb7qnStM1oYkRw5Pqch6c60aPmcmzfRIdtppi3GtUb5Xu/Rqsji7dm/hju5+Zq1NngrXJ293HhM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=F8gK9bdO; arc=none smtp.client-ip=209.85.208.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=invisiblethingslab.com header.i=@invisiblethingslab.com header.b="hADA0zpE";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="mTsfiq2A"
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailfout.phl.internal (Postfix) with ESMTP id 2E99AEC0099;
-	Thu, 30 Apr 2026 14:50:11 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-04.internal (MEProxy); Thu, 30 Apr 2026 14:50:11 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	invisiblethingslab.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:from:from:in-reply-to
-	:in-reply-to:message-id:mime-version:references:reply-to:subject
-	:subject:to:to; s=fm2; t=1777575011; x=1777661411; bh=31eKb1GPyw
-	vbkiPuzXzAtZKxLoCKEG3Ll7hcfm5Uv+w=; b=hADA0zpE2YoZUJI7J58ncoiAEz
-	gdCloXPZ7RkXVRAYdsE61vycEs4dqhDKW/S2KaQi/TC2lVQ5NJcfCf+Jb3JZ7I6K
-	KQZU3K5Jm4n7U7tBE39TE6A+GBc0Yp/n/9U3qqDfgpjMnOiA5ZL6GQiA/8NThSYC
-	9qVTk69L7Vtlq8D/AS+ylouDUxdMXOcTnsGNI+q3RPUslU6Cnz4Y0+lpCB7+yl6V
-	W/sAfTGEiLsZdtBd6q8H6phv2DTOcwYSBMRI/lIXyieOrv/3Ffnd43XIEDpPyC0U
-	WJmELkWGgyyX6Cvk9XrkXVe4SdN9ZbbQGVWNhqLi2aOsTrVe2ghX8O2XKiCA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1777575011; x=
-	1777661411; bh=31eKb1GPywvbkiPuzXzAtZKxLoCKEG3Ll7hcfm5Uv+w=; b=m
-	Tsfiq2AL7mY211mEcqEwT+2vwIJQ/HtQBCYVB4lFqkTT0d5FkMJdK5hcB0MiYyga
-	640m+ufFgor2QVRAdNMK2dfS/7jyQOC5hJ4EP4tvM4OAz0cpJw9H8sFnEXwr2VsY
-	zfXJUNo0jQp5X1qUkAc7Yy5li18i1ar4U+Ma+h3C2p/ix0KmthnZseZBJek0ZRpQ
-	sh0MlJqew3GseGrzwd8f2hhGCO2qECUZ+WLEgYGJLFvE/NjdrRSalw1N7cEo3WJl
-	zTOZLZHPXdgXd1zffpUM1/jaCzLohLqWLw4VYbV+wST5YuDMFtMm6Woz8e2T2kkQ
-	cvP2phYFH3eEuanoOECMw==
-X-ME-Sender: <xms:YqTzaXUBYHSSjmi8ehtPFkUTVDvanc1C2xM37cO0KpOSZsjGTDIFsg>
-    <xme:YqTzaXzNfV71ll1jNbA0kR1JToKSLZ6l1Q1vBrvbyPgtnnEzVJeBB5nBAc5Xmluio
-    -A-hKPg0U7wMYVhWCbdP2lUf25B4-poMgQ61dIa321KeyQrF4c>
-X-ME-Received: <xmr:YqTzae-n-MFPEMn9IbUCMBtHYzzXufuFMkZD2HWINpaa5ecTV144WWPOkNf0o8kKAw>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgdekkedtkecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
-    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
-    hrpefkffggfgfuvfevfhfhjggtgfesthekredttddvjeenucfhrhhomhepgggrlhcurfgr
-    tghkvghtthcuoehvrghlsehinhhvihhsihgslhgvthhhihhnghhslhgrsgdrtghomheqne
-    cuggftrfgrthhtvghrnhepheekgfefveetkeethffhgeeivdffkeegueevkeefveeltefg
-    leehffegudegkedvnecuffhomhgrihhnpehgihhthhhusgdrtghomhenucevlhhushhtvg
-    hrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpehvrghlsehinhhvihhsihgs
-    lhgvthhhihhnghhslhgrsgdrtghomhdpnhgspghrtghpthhtohepuddtpdhmohguvgepsh
-    hmthhpohhuthdprhgtphhtthhopehtvgguugihrdgrshhtihgvsehvrghtvghsrdhtvggt
-    hhdprhgtphhtthhopehmshhtsehrvgguhhgrthdrtghomhdprhgtphhtthhopehjrghsoh
-    ifrghnghesrhgvughhrghtrdgtohhmpdhrtghpthhtohepgihurghniihhuhhosehlihhn
-    uhigrdgrlhhisggrsggrrdgtohhmpdhrtghpthhtohepvghpvghrvgiimhgrsehrvgguhh
-    grthdrtghomhdprhgtphhtthhopehmrghrmhgrrhgvkhesihhnvhhishhisghlvghthhhi
-    nhhgshhlrggsrdgtohhmpdhrtghpthhtohepvhhirhgvshhhrdhkuhhmrghrsehlihhnrg
-    hrohdrohhrghdprhgtphhtthhopeigvghnqdguvghvvghlsehlihhsthhsrdigvghnphhr
-    ohhjvggtthdrohhrghdprhgtphhtthhopehlihhnuhigqdhkvghrnhgvlhesvhhgvghrrd
-    hkvghrnhgvlhdrohhrgh
-X-ME-Proxy: <xmx:YqTzac_AjHKvXA36zYPO7mpL7WCtVF8h4yrJV5k80i1B6YRAfJBLGQ>
-    <xmx:YqTzadVVSnPGgTuGP7zuMk5_cAFf1Oep4Kw18Ky65JiSYPb-yxPaJw>
-    <xmx:YqTzaZe8BK1-pNUhq2QALHn9BNbvD3wih_hIqonJZlII6H7hnYNMqg>
-    <xmx:YqTzaWYRc4mwkSgPJVwFLhtit2XC2b2KD0HFEpCJ9kSH-XYkLXxd3w>
-    <xmx:Y6Tzad-W9K1K9gMyTK8AWY_EOa3OxDxN6FHYxEHlm-m6gSs5rnrayJDO>
-Feedback-ID: i001e48d0:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 30 Apr 2026 14:50:08 -0400 (EDT)
-Message-ID: <b3cfed78-15db-459a-9f69-155ea615ecf8@invisiblethingslab.com>
-Date: Thu, 30 Apr 2026 15:50:05 -0300
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="F8gK9bdO"
+Received: by mail-ed1-f41.google.com with SMTP id 4fb4d7f45d1cf-676a89de629so2042862a12.1
+        for <virtualization@lists.linux.dev>; Thu, 30 Apr 2026 12:22:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1777576971; x=1778181771; darn=lists.linux.dev;
+        h=in-reply-to:autocrypt:from:content-language:references:cc:to
+         :subject:user-agent:mime-version:date:message-id:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=4l7yJXhIseTiqcGMgxSn/s1EUUXfuxcB16GDG5sfbh0=;
+        b=F8gK9bdONCa3mmmlmJahbIs6mu4HNQ5yGRHD+i41W7J/jE8LZ88Z9SlyQpWdoQ0/vC
+         C0ycZQXljpuUt6JtZByYlteRo3fZdg+c7/siHQZ6r0BBla6xrLgWj9omI030kwmwERRA
+         FzR0NcfUK2Ox1lFd466W6ZcQ3dp4CcnDYl9TY+5nJIt778Nw5UUEf87V4GALyCInOgmA
+         iqjcEBCXabKZnGJbrr6fLMaY6fAln4AQmuDnmEDapHs4OTfrg/eWvzUeVgZxbkoo3EME
+         PZXXLkLjzVT4oOcGwtOvZ0e5Xcm4ERS3IeezjQSG6ge9oP/g5u/4ytr0qtsl3hV7GFC9
+         vDjA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1777576971; x=1778181771;
+        h=in-reply-to:autocrypt:from:content-language:references:cc:to
+         :subject:user-agent:mime-version:date:message-id:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=4l7yJXhIseTiqcGMgxSn/s1EUUXfuxcB16GDG5sfbh0=;
+        b=oMF9LeGyyoGOaFYjup6rS2HL6UXBTscUCPKZilpymtlwVDmgm6TEI/LJVgLpIAsdow
+         fPMqwn3BRzN+TBV8Ag//OBWRs/oQAgJdjKBru/ZpsL62FCQehZudVuL3CuYdCWwYRooj
+         Vj2sUZkTbA03PrxxpqGlhPqE1u0phWw841s4PCQHopq7xam/tD1w60It/F/qQ2iYOeGW
+         OCqyQUvExPM3DOgyZQfCGWI9jU2/hYtL+PsY8VOC9oh9Vb3tgP2SJzx20rRjv8tKkTtR
+         cKeokAvDph4Dr5r6UnLVgjxHZKipmsA4x4loywiphmRPXQ1ppIf1/zuC3+NojWxXnZ3Y
+         ruOw==
+X-Forwarded-Encrypted: i=1; AFNElJ+aMQYlLSOqP0nragVGTmiysEELCPVp7TKcfPhm3O8qen9DB2pG/qaE0IpUAQ/AQlwDyCaTRCkTwcpw39uzOw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx/hU5zFenzBPSLKm5XKMfgWtkMYKzVpRz26LgAX+r/iiEkbYDo
+	6b4Y6OaT/OA/a0c/maizAO+XR2+9RsDdJiUJ3VOUSKg3F+Vc7dD+FI4J8SCV5E1wR8w=
+X-Gm-Gg: AeBDietU/AGQAptFT0lUh8+5Y+9cAmObcg/+MZuzQkKItFm0YeJnKaNewzk2ykRiQCG
+	J+85g62h1vDPyabWex25bbp9NePiolFYXEgWmm5M0NQsJNv4hwIp7CU6EQh0+ubHhdnSPrLjs9V
+	57jL6hv+cdxmVvF06iF02jbckj763U07+U/Vb08mMzzM50i7YfybDeHRZTBz69jr+MU5lFV3Yw/
+	ZwHrFzdyIYJM6DxHoVmK7XyyrTeUfGezIJdTckrjR+RFIQKdHbaBs6WvNJ8OsAKornPePe7riNa
+	nlex24GlqGGK1VIGhqbx07/PAvGBEccLt50dSZys+Hfg62Nyg09goysGj4cMVvrqalp94KMUDbw
+	ds3wgH2GkZaGcNTrNXLtTigtwJZrqI+8Z3qzH1mxKljYWqF+Rf5rxkgTB/JBQq9WJo/mP+dLLQd
+	qhBeEMudtakoYlqQOLuWc5KvHP2sLH9keG0rKkc0N6OWycpOC61RYi5ZoVpW5i4NrN9tYoRNtZS
+	R/gC4AfKvFT0EMsdNwoQ/7Q+daDMaCv3UxF/UKap9F3RvkKTMrCDOsxLEgKPkur
+X-Received: by 2002:a05:6402:26d4:b0:678:a507:e837 with SMTP id 4fb4d7f45d1cf-67b5d7f0d84mr2149554a12.1.1777576970999;
+        Thu, 30 Apr 2026 12:22:50 -0700 (PDT)
+Received: from ?IPV6:2a00:12d0:af5d:ad01:5d3f:14e6:9bcb:5112? (2a00-12d0-af5d-ad01-5d3f-14e6-9bcb-5112.ip.tng.de. [2a00:12d0:af5d:ad01:5d3f:14e6:9bcb:5112])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-67b877d5ab2sm271423a12.14.2026.04.30.12.22.50
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 30 Apr 2026 12:22:50 -0700 (PDT)
+Message-ID: <4a772ebc-daf5-41c8-8419-03e0aad66a85@suse.com>
+Date: Thu, 30 Apr 2026 21:22:50 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -85,144 +68,175 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH] virtio-mmio: add xenbus probing
-To: Teddy Astie <teddy.astie@vates.tech>, "Michael S. Tsirkin"
- <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>
-Cc: =?UTF-8?Q?Marek_Marczykowski-G=C3=B3recki?=
- <marmarek@invisiblethingslab.com>, Viresh Kumar <viresh.kumar@linaro.org>,
- xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
+Subject: Re: [PATCH v2 8/8] x86/msr: Remove duplicate #include
+To: Dave Hansen <dave.hansen@intel.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org
+Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, x86@kernel.org,
  virtualization@lists.linux.dev
-References: <20260429141339.74472-1-val@invisiblethingslab.com>
- <1777473712.8631fc262581453bbf619ec5b2062170.19dd9b07146000f373@vates.tech>
- <fd6493ac-9d3e-475a-a844-6e53b0472820@invisiblethingslab.com>
- <1777536698.8631fc262581453bbf619ec5b2062170.19ddd7187da000f373@vates.tech>
- <74953b6a-d195-4a12-800d-af324ff35b29@invisiblethingslab.com>
- <1777556830.8631fc262581453bbf619ec5b2062170.19ddea4b728000f373@vates.tech>
+References: <20260429184517.7E078510@davehans-spike.ostc.intel.com>
+ <20260429184530.9FE585E8@davehans-spike.ostc.intel.com>
+ <5bd029fe-35ee-4bbc-8e05-0df8c4125b6a@suse.com>
+ <0037f910-2fee-4088-8ebd-c8a614f246b9@intel.com>
 Content-Language: en-US
-From: Val Packett <val@invisiblethingslab.com>
-Autocrypt: addr=val@invisiblethingslab.com; keydata=
- xm8EaFTEiRMFK4EEACIDAwQ+qzawvLuE95iu+QkRqp8P9z6XvFopWtYOaEnYf/nE8KWCnsCD
- jz82tdbKBpmVOdR6ViLD9tzHvaZ1NqZ9mbrszMXq09VfefoCfZp8jnA2yCT8Y4ykmv6902Ne
- NnlkVwrNKFZhbCBQYWNrZXR0IDx2YWxAaW52aXNpYmxldGhpbmdzbGFiLmNvbT7CswQTEwkA
- OxYhBAFMrro+oMGIFPc7Uc87uZxqzalRBQJoVMSJAhsDBQsJCAcCAiICBhUKCQgLAgQWAgMB
- Ah4HAheAAAoJEM87uZxqzalRlIIBf0cujzfSLhvib9iY8LBh8Tirgypm+hJHoY563xhP0YRS
- pmqZ6goIuSGpEKcW5mV3egF/TLLAOjsfroWae4giImTVOJvLOsUycxAP4O5b1Qiy+cCGsHKA
- nCRzrvqnPkyf4OeRznMEaFTEiRIFK4EEACIDAwSffe3tlMmmg3eKVp7SJ+CNZLN0M5qzHSCV
- dBBkIVvEJo+8SDg4jrx/832rxpvMCz2+x7+OHaeBHKafhOWUccYBLKqV/3nBftxCkbzXDbfY
- d02BY9H4wBIn0Y3GnwoIXRgDAQkJwpgEGBMJACAWIQQBTK66PqDBiBT3O1HPO7mcas2pUQUC
- aFTEiQIbDAAKCRDPO7mcas2pUaptAX9f7yUJLGU4C6XjMJvXd8Sz6cGTyxkngPtUyFiNqtad
- /GXBi3vHKYNfSrdqJ8wmZ8MBgOqWaaa1wE4/3qZU8d4RNR8mF7O40WYK/wdf1ycq1uGad8PN
- UDOwAqdfvuF3w8QMPw==
-In-Reply-To: <1777556830.8631fc262581453bbf619ec5b2062170.19ddea4b728000f373@vates.tech>
+From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+Autocrypt: addr=jgross@suse.com; keydata=
+ xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
+ ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
+ dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
+ NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
+ XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
+ AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
+ CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
+ mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
+ G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
+ kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
+ Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
+ RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
+ vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
+ sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
+ aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
+ w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
+ auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
+ 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
+ fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
+ HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
+ QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
+ ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
+In-Reply-To: <0037f910-2fee-4088-8ebd-c8a614f246b9@intel.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------GxMGLNxVxvMqiHUuk55igbvR"
+
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------GxMGLNxVxvMqiHUuk55igbvR
+Content-Type: multipart/mixed; boundary="------------GtYbbXXIOnHiuCI0E5Hbk9ZS";
+ protected-headers="v1"
+From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+To: Dave Hansen <dave.hansen@intel.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org
+Cc: Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, x86@kernel.org,
+ virtualization@lists.linux.dev
+Message-ID: <4a772ebc-daf5-41c8-8419-03e0aad66a85@suse.com>
+Subject: Re: [PATCH v2 8/8] x86/msr: Remove duplicate #include
+References: <20260429184517.7E078510@davehans-spike.ostc.intel.com>
+ <20260429184530.9FE585E8@davehans-spike.ostc.intel.com>
+ <5bd029fe-35ee-4bbc-8e05-0df8c4125b6a@suse.com>
+ <0037f910-2fee-4088-8ebd-c8a614f246b9@intel.com>
+In-Reply-To: <0037f910-2fee-4088-8ebd-c8a614f246b9@intel.com>
+
+--------------GtYbbXXIOnHiuCI0E5Hbk9ZS
+Content-Type: multipart/mixed; boundary="------------Gq1ovsTKmPtW9MAw04JeQA8k"
+
+--------------Gq1ovsTKmPtW9MAw04JeQA8k
 Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: base64
 
-On 4/30/26 10:47 AM, Teddy Astie wrote:
-> Le 30/04/2026 à 10:51, Val Packett a écrit :
->> On 4/30/26 5:11 AM, Teddy Astie wrote:
->>> Le 30/04/2026 à 06:06, Val Packett a écrit :
->>>> [..]
->>>>>> I'd like to get some early feedback for this patch, particularly
->>>>>> the general stuff:
->>>>>>
->>>>>> * is this whole thing acceptable in general?
->>>>>> * should it be extracted into a different file?
->>>>>> * (from the Xen side) any input on the xenstore keys, what goes where?
->>>>>> * anything else to keep in mind?
->>>>>>
->>>>>> It does seem simple enough, so hopefully this can be done?
->>>>>>
->>>>>> The corresponding userspace-side WIP is available at:
->>>>>> https://github.com/QubesOS/xen-vhost-frontend
->>>>>>
->>>>>> And the required DMOP for firing the evtchn events will be sent
->>>>>> to xen-devel shortly as well.
->>>>> Could that be done through evtchn_send (or its userland counterpart) ?
->>>> Actually, yes… The use of DMOPs is only dictated by the current Linux
->>>> privcmd.c code (the irqfds created by the kernel react to events by
->>>> executing HYPERVISOR_dm_op with a stored operation), we can avoid the
->>>> need to modify Xen by simply expanding the privcmd driver to make
->>>> "evtchn fds". Sounds good, will do.
->>>>
->>> Given that the event channel used by device models is exposed through
->>> ioreq.vp_eport ("evtchn for notifications to/from device model"). I
->>> don't think you need to expand the privcmd interface, and you should be
->>> able to do this instead :
->>>
->>> open /dev/xen/evtchn
->>> perform IOCTL_EVTCHN_BIND_INTERDOMAIN (for each guest vCPU)
->>>      with remote_domain=guest_domid, remote_port=ioreq.vp_eport
->>>
->>> Then interact with the event channel through IOCTL_EVTCHN_NOTIFY (with
->>> local port given by IOCTL_EVTCHN_BIND_INTERDOMAIN) and read/write on the
->>> file descriptor.
->> So the reason there's currently an ioctl to bind an eventfd to fire a
->> stored DMOP is that the whole idea is to (efficiently!) support generic,
->> hypervisor-neutral device server implementations via the vhost-user
->> protocol.
->>
->> Now of course, the current implementation isn't *entirely* hypervisor-
->> neutral as e.g. the vm-memory Rust crate (inside of the "neutral" vhost-
->> user device servers) does need to be built with the `xen` feature. But
->> still, that's how it works. What can be made generic is generic.
->>
->> xen-vhost-frontend, which is the thing that integrates these with Xen,
->> actually used to handle the interrupts in userspace[1] by firing the
->> DMOP itself (which is where I could "just replace that with
->> IOCTL_EVTCHN_NOTIFY") but that was offloaded to the kernel with the
->> introduction of IOCTL_PRIVCMD_IRQFD[2], similarly to KVM_IRQFD.
->>
-> I think what would be preferable for your usecase would be to have a way
-> to bind a event channel with a eventfd object, which should be a
-> primitive that lives in the evtchn device.
+T24gMzAuMDQuMjYgMTk6NDIsIERhdmUgSGFuc2VuIHdyb3RlOg0KPiBPbiA0LzMwLzI2IDAw
+OjIwLCBKw7xyZ2VuIEdyb8OfIHdyb3RlOg0KPj4gT24gMjkuMDQuMjYgMjA6NDUsIERhdmUg
+SGFuc2VuIHdyb3RlOg0KPj4+IEZyb206IERhdmUgSGFuc2VuIDxkYXZlLmhhbnNlbkBsaW51
+eC5pbnRlbC5jb20+DQo+Pj4NCj4+PiBlcnJuby5oIGlzIGFscmVhZHkgaW5jbHVkZWQgZm9y
+IEMgY29kZSBhdCB0aGUgdG9wIG9mIHRoZSBoZWFkZXIuDQo+Pg0KPj4gSSdtIHNlZWluZyBv
+bmx5IGFzbS9lcnJuby5oIGJlaW5nIGluY2x1ZGVkLg0KPj4NCj4+IEkgZG9uJ3Qgc2F5IGxp
+bnV4L2Vycm5vLmggaXMgbmVlZGVkLCBidXQgdGhlIHJlYXNvbmluZyBpcyBub3QgcmVhbGx5
+DQo+PiBjb252aW5jaW5nLg0KPiANCj4gWWVzLCBjb21wbGV0ZWx5IGFncmVlLiBJIGdvb2Zl
+ZCB0aGF0IG9uZSB3YXMgbGludXgvZXJybm8uaCBhbmQgdGhlIG90aGVyDQo+IHdhcyBhc20v
+ZXJybm8uaC4gU28gdGhlIHJlYXNvbmluZyB3YXMgYm9ndXMuIEJ1dCBJIGRvIHRoaW5rIGl0
+J3Mgc3RpbGwgYQ0KPiBnb29kIGlkZWEgZm9yIG90aGVyIHJlYXNvbnMuIEhvdyBhYm91dDoN
+Cj4gDQo+IAlsaW51eC9lcnJuby5oIHdhcyBwcmVzdW1hYmx5IGJlaW5nIGluY2x1ZGVkIGhl
+cmUgZm9yIHNvbWUgb2YNCj4gCXRoZSBNU1IgZnVuY3Rpb24gaW1wbGVtZW50YXRpb25zIGlu
+c2lkZSB0aGUgI2ZpZGVmLiBCdXQsIGV2ZW4NCj4gCWJlZm9yZSB0aG9zZSB3ZXJlIG1vdmVk
+IG91dCBvZiB0aGUgI2lmZGVmLCB0aGV5IHdlcmUgbm90IHVzaW5nDQo+IAlhbnl0aGluZyBm
+cm9tIGVycm5vLmguIFRoZXJlIGRvZXMgbm90IGFwcGVhciB0byBiZSBhbnkgcmVhc29uIHRv
+DQo+IAlpbmNsdWRlIGl0IGhlcmUuIEVzcGVjaWFsbHkgaW5zaWRlIHRoZSAocXVpdGUgc21h
+bGwgbm93KSAjaWZkZWYuDQo+IA0KPiAJUmVtb3ZlIHRoZSAjaW5jbHVkZS4NCj4gDQo+ID8N
+Cj4gDQoNCkZpbmUgd2l0aCBtZS4NCg0KDQpKdWVyZ2VuDQo=
+--------------Gq1ovsTKmPtW9MAw04JeQA8k
+Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
 
-Yeah, it would be an ioctl on the evtchn device, definitely. I wasn't 
-being exact when I said "extend privcmd", sorry. I just meant "handling 
-it on the Linux side" generally!
+-----BEGIN PGP PUBLIC KEY BLOCK-----
 
-> The current interface kinda assume that you're looking to emulate a
-> completely emulated virtio device with no Xen specifics, it looks like
-> it's not exactly what you're implementing.
-It's already implemented, and I'm not looking to change it much, just to 
-make it work on x86_64. The only thing that wasn't already compatible 
-was firing the host-to-guest interrupt, because on x86_64 we don't have 
-anything like the (v)GIC with its massive arbitrary IRQ number space. 
-Event channels are the only way to interrupt a PVH guest, hence using 
-xenbus in the guest to provision the device.
-> As you actually plan to switch to using event channels for notifying the
-> guest, I think it would be preferable to do the same the other way
-> (event channels to notify the host) so you only have event channels to
-> worry about here.
+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
+kt+z4drzFUyEjLM1vVvIMjkUoJs=3D
+=3DeeAB
+-----END PGP PUBLIC KEY BLOCK-----
 
-The other direction is already implemented perfectly well in 
-IOCTL_PRIVCMD_IOEVENTFD. The MMIO area is set up like so:
+--------------Gq1ovsTKmPtW9MAw04JeQA8k--
 
-- ioreq is mapped with 
-IOCTL_PRIVCMD_MMAP_RESOURCE(XENMEM_resource_ioreq_server, ..);
-- vp_eport event channels (per cpu) are bound to the current domain via 
-IOCTL_EVTCHN_BIND_INTERDOMAIN;
-- those are passed, along with the ioreq page itself, to 
-IOCTL_PRIVCMD_IOEVENTFD to get an eventfd that fires when a virtqueue is 
-ready;
-- which is an eventfd that xen-vhost-frontend passes to the vhost-user 
-device server.
+--------------GtYbbXXIOnHiuCI0E5Hbk9ZS--
 
-So for this direction, it's not a 1:1 mapping but rather a specific 
-contraption designed to efficiently handle this use case:
+--------------GxMGLNxVxvMqiHUuk55igbvR
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
 
-- when an ioreq event channel (for any of the vcpus) fires,
-- the kernel handler (ioeventfd_interrupt) checks if it's specifically 
-an IOREQ_WRITE write to the VIRTIO_MMIO_QUEUE_NOTIFY offset,
-- and if so, it signals the eventfd for any virtqueue that has new data 
-(waking the generic device server which has the eventfd, so bypassing 
-xen-vhost-frontend), pings the guest back via evtchn, and returns 
-IRQ_HANDLED;
-- otherwise the request is handled in userspace by xen-vhost-frontend 
-(virtio configuration register access).
+-----BEGIN PGP SIGNATURE-----
 
-It just works :)
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmnzrAoFAwAAAAAACgkQsN6d1ii/Ey89
+3Qf/aZcr9thopUVeqiC1Gzj5Py6RP24EMtlrRkyz4Y5slWwr4Dom2Wa+VUo/w4RFbVY9qjnr0u5N
+AWgNbf6xFyBd/QVMnhURTa+n13nwFHbz/+0v5swWWjM2f5jX+Tpb19xGNUROMV6Xdp4P1eDqP7p+
+jjFiGjz3NHE/HEnapvhzZqvVC71PW34TmLcMSx5fTN2gSrPldsxfli/EQ9EGeRn7pQYgPsBPMcEJ
+mhxCs8f9NBFvsXXGNispe6wwxBMvTxu7qoVhcMFa6YOr1uRPoNMULExixSXvFjgCSmxTU9O0mDmf
+uMhuTts9QKHy0nNBIW4S1uOpirQLbhjkJGchzvkrfw==
+=GZGZ
+-----END PGP SIGNATURE-----
 
-~val
-
+--------------GxMGLNxVxvMqiHUuk55igbvR--
