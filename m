@@ -1,137 +1,318 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6E251E8342
-	for <virtualization@lists.linux.dev>; Thu, 30 Apr 2026 13:04:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA40040629A
+	for <virtualization@lists.linux.dev>; Thu, 30 Apr 2026 14:15:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777554287; cv=none; b=pUv/2pu1qcXs6B9CXjB6UhiAKyEXPauAZqmbd0kY1sWPeXMRJ/YdAUCug3uBFgPSOUON0YCdPfGLSHi7Iaw/lgZKu6VS/USlI40cE1+5QgMD90x6HSlvEvEPOj/SEMTrXBLiXrxplnQK6UGNtFMOWoJ0/zC71TbfXSd5WxYkvM8=
+	t=1777558549; cv=none; b=gtVcq85BiLcCcZ6qN5oZTBAQHdfuQP14foG4PMg+vC4GA9XI+8UIK6joQMVz/QyrMMYOrtBg6051j9YnsVTnWVdSefxNbqNUzW5u8Q5evUPmERzjPgCj+1+iSyUypq1O/6VNj1wZMM8kCtlZ688iM68Y7Z/TUVvYVbz7wgMs7mU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777554287; c=relaxed/simple;
-	bh=Dk9brHbKfFNbGJGzioI4SNCia5lWoLEHi0LrGbaPeqU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=YyU4KjWOmFhURNRyhJvGj8CE725h2RUEehC5PRYN68ISGS6BcztBhPvpDscE//s+HD4Jm5w97LM/kI16QkLduOj62L0sD7cn6E/3o1MertNvFGrS6UAcVZzq/GiYB/2xKR6XzNwa1nNm9XJwb18PHO42wD3OArZTVb+pwljDKZ8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZGlUyu4r; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1777558549; c=relaxed/simple;
+	bh=NUgw9VtHhOH1SDxH2pZXbRmyq38I9DnKn/coZE2Y2ro=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=dusWOdnI44zi/etQZV7AzBpwjV5HOKbOqT4bieT4mxJYltJUxNVplOWsXGqIL1YQ4hVX47qY8siuB6+SOGk551Ke+Wg6GRpwHwS95NST/f4s32hhc8xMbHd+uhQYVQLpIyPsMWMLn1tIkMhcNx6RGIhECPB8hBCR5AYwm7l2+NI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=BbME/KEs; arc=none smtp.client-ip=209.85.128.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZGlUyu4r"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1777554284;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=4iM1C5bPOK6CsY7bMqOIntIdxAE/svN63ooTIzddU6M=;
-	b=ZGlUyu4rbOPVnW4Sr1iIvILnB3w43V+YJDxJ1yHvjiV/UlSXj1cD0OAZo3lmAdYseokGMb
-	rlgba/lLn2FVt5AmAN24j/uL6hIIk59CO6XG6vRpTIfmaI5REgQK9ORhIsMbv2k7hhCf80
-	qkshYq4W3135MLlOzZbdyc+5349FFSg=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-445-M0jDyxOJO9q-IlfTpSThxg-1; Thu, 30 Apr 2026 09:04:43 -0400
-X-MC-Unique: M0jDyxOJO9q-IlfTpSThxg-1
-X-Mimecast-MFC-AGG-ID: M0jDyxOJO9q-IlfTpSThxg_1777554282
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-48919890a95so6589625e9.2
-        for <virtualization@lists.linux.dev>; Thu, 30 Apr 2026 06:04:43 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="BbME/KEs"
+Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-4891ad5c074so113195e9.0
+        for <virtualization@lists.linux.dev>; Thu, 30 Apr 2026 07:15:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1777558541; x=1778163341; darn=lists.linux.dev;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=Vi8NDKusFCMVruLpinmrdqk1EXLTyT/eTQZyAXfJaw0=;
+        b=BbME/KEsunvOjA0LmjNkjNWRbAXTu+tn17llRQKbOtD1aakgYSVA0gIEpf5cTTJwTs
+         gp2LFrruk5HHJqc00o2RRNYgVJnfOoKu2RYDWqGltiZnywrBVbhDzY5yu7At/0MO8QIc
+         lFjsKXfbvXHrnHKq8XmCzZQNRHSH0prjLb3eDPfvBzaY7XtGl4gx8/afbvNoi11Xit6X
+         OZHYXn3vgIbmCNmHl4sak74Kwd39RIrSGdc11jskq63x+VvT/Skn2B6eu4fUWYZe7fdt
+         wB3I20RCHb3Ndgnqbq9nZVER1vQqqz9pUIcCTruuJfT6+LERSH6FmDkDFHUk2s1LFTdo
+         Y3iw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777554282; x=1778159082;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=4iM1C5bPOK6CsY7bMqOIntIdxAE/svN63ooTIzddU6M=;
-        b=JLXly2Wl7euqKhCqDq4k958Jnxk7UnW4pf0k0KN/s215mGn/AIixZVwE/AfeKu2L3e
-         RGpZDHk1EqZww2qswDTYwORpiSPEBuyyltRUtX0IT+HvM/Wiqfs4vubPOYRF3edN3QAk
-         CO73V0Cj5c167q8WJ/+pRn6Ac1DFjepAv8XAFhJqqA45eZi7dsvJZ5n8or497hB7mQ+5
-         sBz6K5wxSX5hvRP84pVerMN1PB3DDwHP2b36h/PZCjihg1WomjderxYXb6VwRMgt9tdI
-         OogHYno4oW2K0FuHcnZSYQ1b9owHMpzKXbN0lE7WZxuYB0nWJ+VrRcwbLsNYeajvzHVI
-         5V/w==
-X-Forwarded-Encrypted: i=1; AFNElJ8kZhtVCkurK5VW45qsnAV6oBvbXz3aUoIdeO8WSfxa51vohZHfq4VcSG+/MHIOIcQq0HsCaes//60DVPobvw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyjr9jA2Jbpsh749BpNJ+v9tn20pkLniii2tQyQ0jCAT9KiOcKL
-	Tol4irD+lfACLILG4cSZJbCoZ9bZJBOo6SkuZKHXOI+rDOa4ZFX8hnShLqyrvRvdMjdYbO/YX62
-	YtUR5OAJGcEklI8vOd4T68BFyteG/vl8D6IMnOiGgF5G8LT3FlO68fxqXeaqgrFtTkc4Q
-X-Gm-Gg: AeBDieuWixZ4FKB4y1FuZRYnTxrSI1/brTXUeTm58ptP8PFZTe4lF599ZbF8bNGqUW9
-	04EvQvSWsPLmeNSTpI3khh22AVavMuS4W7hWA5duEdK0fD4C1ceSPVdz2dFL2x/8SHwADQcu1DS
-	mmMNUTOp2nYCostRAlN6m3rYRHBC4g7v72YCPIa9spGIMSDdzNHpc80I+3h14obLhdrymbktyjB
-	in6/YSJn07T7pDbNkEMD66hiFLZoeOO0qEG/YU9go5/z7KlHNjwQDGZQHiCwb1mLBUbbgO92pY7
-	4t9FsgqP6sYg8wdnjrVERKq4NSAuoDisY4v5pMTX8W5m9t8k2Rez7dHZ3rSMkjVsJAWFdBw3gtB
-	mg/y79K7yrm7dlcWD7d8Y3d84HAwMsIeYNItS1A==
-X-Received: by 2002:a05:600c:6992:b0:48a:56de:d62a with SMTP id 5b1f17b1804b1-48a83d7b059mr51482245e9.11.1777554281987;
-        Thu, 30 Apr 2026 06:04:41 -0700 (PDT)
-X-Received: by 2002:a05:600c:6992:b0:48a:56de:d62a with SMTP id 5b1f17b1804b1-48a83d7b059mr51481435e9.11.1777554281407;
-        Thu, 30 Apr 2026 06:04:41 -0700 (PDT)
-Received: from leonardi-redhat ([176.206.19.176])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48a82301b7bsm71336415e9.11.2026.04.30.06.04.39
+        d=1e100.net; s=20251104; t=1777558541; x=1778163341;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Vi8NDKusFCMVruLpinmrdqk1EXLTyT/eTQZyAXfJaw0=;
+        b=CM3Crb1ZzHTyVsJYvfIV9to9joY5vVS36ugnXbwt4HqtPS+WGcDRkCr/1iScv3YIIg
+         GUjESKEvQ2mhvk8lxHjZeJoQXlKPuKX78BmDk63WIeZ+mR9qA6MkQt59gpzrzqNWZPco
+         U3dXLehW6c/8+/WEtVuUaesAHKelAO0nLmV5z5J9+4zPEfC9mcH2fB4ziY5CYlV92Ntb
+         2+7ByVpfQMGT7AxpNtHcky9lnENk3ZJ/dQAOPQ0abQ5igqaTbELB5RVW3k6iOmiLNR0p
+         lp8ixkmKaNkAqrB07h2O4UEylCaaSlqxQx2fyFhP5+oslvT35smPpCFgozGLF1QlT0Ri
+         opbQ==
+X-Forwarded-Encrypted: i=1; AFNElJ/a0G1PHIeMaD2+kEVHgM3Q+FTW41BvPnLr4Z9W19yYotdswYeGW5eshvE2nvvJ5fYKrYHDgeHawLi4PLqmnQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyW6g7WZLWbEKKqJx5+FBtqwjNMbuhbngo2NBwgQG1i5jM4LMzB
+	VhG5vk/n7nX0Mahp3D4BKCQBFSmZqE6Dl8GpNT3ivDTtIQtzE8qVJ0RFrWhPoAj4WA==
+X-Gm-Gg: AeBDieuq9DlKpsuqBG4GIDnDy7HRoOUUa435drOuBoECIofaBbxaEIW16MenpJl6+oa
+	GLwd0RZgAvGRbDO32KjeTtp3ZRD8b28NCEeQW0xPAclodEgPdpyVHl9bFUkfWFjyT4GRs/MQe/T
+	mtbz2XzTIoVqA8svR9BZbamFNI3A192MjOe4u6qV4RYd1lwDWkIJAV2RS8q8o1XwerMXAouebHz
+	czG6e9rqjp85WtVGdVHq5C4rL5OMF1GWBsFheRbaPdSHgpK97jzVhFjIRKXlbCpb7AhvLoO3xYz
+	k/dUBahGsyzXskBn9NDM1xfCc5n5EkptY8I5hg1Izl8Wt7bcS3pEf59eANKx2aguV0rCAm8Qppm
+	9MqVz+9XUkCST0YmbIoLvdvKbrxDwxUx4zia4aG1hE2FhV7eeNZnbRacXF9Lwr37MTdd/YZHgNm
+	Ri74pcAnYmOg4IBteK6rr4FoiA0M+lqAiEh6/O2rzezGj//tIEfSbX6CSlGo1iF1OXJDmnRn3ab
+	bCik2Kx0w==
+X-Received: by 2002:a05:600c:8a17:10b0:48a:6321:87f7 with SMTP id 5b1f17b1804b1-48a83089695mr956005e9.8.1777558540959;
+        Thu, 30 Apr 2026 07:15:40 -0700 (PDT)
+Received: from localhost ([2a00:79e0:288a:8:353:619f:ca87:2581])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48a7b9313c9sm44276955e9.11.2026.04.30.07.15.39
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 Apr 2026 06:04:40 -0700 (PDT)
-Date: Thu, 30 Apr 2026 15:04:37 +0200
-From: Luigi Leonardi <leonardi@redhat.com>
-To: Yiqi Sun <sunyiqixm@gmail.com>
-Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, stefanha@redhat.com, 
-	sgarzare@redhat.com, mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, 
-	eperezma@redhat.com, davem@davemloft.net, edumazet@google.com, kuba@kernel.org, 
-	pabeni@redhat.com, horms@kernel.org
-Subject: Re: [PATCH] vsock/virtio: fix vsockmon info leak in non-linear tap
- copy
-Message-ID: <afND89LDgovPpanE@leonardi-redhat>
-References: <20260430071110.380509-1-sunyiqixm@gmail.com>
+        Thu, 30 Apr 2026 07:15:39 -0700 (PDT)
+From: Jann Horn <jannh@google.com>
+Date: Thu, 30 Apr 2026 16:15:33 +0200
+Subject: [PATCH] kcov: refactor common handle ID into kcov_common_handle_id
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260430071110.380509-1-sunyiqixm@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: ypXkOZV0s8GloNbx68s8VxFJQnnvthdpzcrJuIldUEE_1777554282
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260430-kcov-refactor-common-handle-v1-1-23a0c7a0ba38@google.com>
+X-B4-Tracking: v=1; b=H4sIAAVk82kC/x3MTQqEMAxA4atI1gZq/Ru9irjQGjWMNtKKDIh3n
+ +Dywce7IVJgitAmNwS6OLJ4jSxNwK2DXwh50gZrbGWK3ODXyYWB5sGdEtDJvotHldNGaMus/hR
+ NOVoaQQ+HOv69965/nj/4b+jTbQAAAA==
+X-Change-ID: 20260430-kcov-refactor-common-handle-25178495b2eb
+To: Dmitry Vyukov <dvyukov@google.com>, 
+ Andrey Konovalov <andreyknvl@gmail.com>, kasan-dev@googlegroups.com, 
+ Andrew Morton <akpm@linux-foundation.org>
+Cc: Alexander Potapenko <glider@google.com>, 
+ Valentina Manea <valentina.manea.m@gmail.com>, 
+ Shuah Khan <shuah@kernel.org>, Shuah Khan <skhan@linuxfoundation.org>, 
+ Hongren Zheng <i@zenithal.me>, linux-usb@vger.kernel.org, 
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, kvm@vger.kernel.org, 
+ virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, Jann Horn <jannh@google.com>
+X-Mailer: b4 0.15-dev
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1777558537; l=7319;
+ i=jannh@google.com; s=20240730; h=from:subject:message-id;
+ bh=NUgw9VtHhOH1SDxH2pZXbRmyq38I9DnKn/coZE2Y2ro=;
+ b=w1wS50tB8THjaYvysUQGGWgnG9EF+LO73Pv68csEK5kfA8uYeJKksc86HaweNr0lcBbvU9z+c
+ 08zCfmGaVt/BP/BZ2F0vI+j8BtWW7AcZMbnkIlArjRuP127cTiY62qM
+X-Developer-Key: i=jannh@google.com; a=ed25519;
+ pk=AljNtGOzXeF6khBXDJVVvwSEkVDGnnZZYqfWhP1V+C8=
 
-On Thu, Apr 30, 2026 at 03:11:10PM +0800, Yiqi Sun wrote:
->vsockmon mirrors packets through virtio_transport_build_skb(), which
->builds a new skb and copies the payload into it. For non-linear skbs,
->this goes through virtio_transport_copy_nonlinear_skb().
->
->Helper manually initializes a iov_iter, but leaves iov_iter.count unset.
->As a result, skb_copy_datagram_iter() sees zero writable bytes
->in the destination iterator and copies no payload data.
->
->This becomes an info leak because virtio_transport_build_skb() has
->already reserved payload_len bytes in the new skb with skb_put(). The
->skb is then returned to the tap path with that payload area still
->uninitialized, so userspace reading from a vsockmon device can observe
->heap contents and potentially kernel address.
->
->Fix it by initializing iov_iter.count to the number of bytes to copy.
->
->Fixes: 4b0bf10eb077 ("vsock/virtio: non-linear skb handling for tap")
->Signed-off-by: Yiqi Sun <sunyiqixm@gmail.com>
->---
-> net/vmw_vsock/virtio_transport_common.c | 2 +-
-> 1 file changed, 1 insertion(+), 1 deletion(-)
->
->diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->index 416d533f493d..6b26ee57ccab 100644
->--- a/net/vmw_vsock/virtio_transport_common.c
->+++ b/net/vmw_vsock/virtio_transport_common.c
->@@ -152,7 +152,7 @@ static void virtio_transport_copy_nonlinear_skb(const struct sk_buff *skb,
-> 	iov_iter.nr_segs = 1;
->
-> 	to_copy = min_t(size_t, len, skb->len);
->-
->+	iov_iter.count = to_copy;
-> 	skb_copy_datagram_iter(skb, VIRTIO_VSOCK_SKB_CB(skb)->offset,
-> 			       &iov_iter, to_copy);
-> }
->-- 
->2.34.1
->
+Store common handle IDs in "struct kcov_common_handle_id", which consumes
+no space in non-KCOV builds.
+This cleanup removes #ifdef boilerplate code from subsystems that
+integrate with KCOV (in particular in usbip_common.h and skbuff.h, see the
+diffstat).
+This should also make it easier to add KCOV remote coverage to more
+subsystems in the future.
 
-Thanks for the fix!
+Signed-off-by: Jann Horn <jannh@google.com>
+---
+ drivers/usb/usbip/usbip_common.h | 29 +----------------------------
+ drivers/usb/usbip/vhci_rx.c      |  4 ++--
+ drivers/usb/usbip/vhci_sysfs.c   |  2 +-
+ drivers/vhost/vhost.h            |  2 +-
+ include/linux/kcov.h             | 12 ++++++------
+ include/linux/skbuff.h           | 14 +++-----------
+ include/linux/types.h            |  6 ++++++
+ kernel/kcov.c                    |  6 +++---
+ 8 files changed, 23 insertions(+), 52 deletions(-)
 
-Tested using vsock_loopback sending zero-copy packets. Payload is always
-zero before the fix.
+diff --git a/drivers/usb/usbip/usbip_common.h b/drivers/usb/usbip/usbip_common.h
+index 282efca64a01..be4c5e65a7f8 100644
+--- a/drivers/usb/usbip/usbip_common.h
++++ b/drivers/usb/usbip/usbip_common.h
+@@ -282,9 +282,7 @@ struct usbip_device {
+ 		void (*unusable)(struct usbip_device *);
+ 	} eh_ops;
+ 
+-#ifdef CONFIG_KCOV
+-	u64 kcov_handle;
+-#endif
++	struct kcov_common_handle_id kcov_handle;
+ };
+ 
+ #define kthread_get_run(threadfn, data, namefmt, ...)			   \
+@@ -339,29 +337,4 @@ static inline int interface_to_devnum(struct usb_interface *interface)
+ 	return udev->devnum;
+ }
+ 
+-#ifdef CONFIG_KCOV
+-
+-static inline void usbip_kcov_handle_init(struct usbip_device *ud)
+-{
+-	ud->kcov_handle = kcov_common_handle();
+-}
+-
+-static inline void usbip_kcov_remote_start(struct usbip_device *ud)
+-{
+-	kcov_remote_start_common(ud->kcov_handle);
+-}
+-
+-static inline void usbip_kcov_remote_stop(void)
+-{
+-	kcov_remote_stop();
+-}
+-
+-#else /* CONFIG_KCOV */
+-
+-static inline void usbip_kcov_handle_init(struct usbip_device *ud) { }
+-static inline void usbip_kcov_remote_start(struct usbip_device *ud) { }
+-static inline void usbip_kcov_remote_stop(void) { }
+-
+-#endif /* CONFIG_KCOV */
+-
+ #endif /* __USBIP_COMMON_H */
+diff --git a/drivers/usb/usbip/vhci_rx.c b/drivers/usb/usbip/vhci_rx.c
+index a75f4a898a41..a678e7c89837 100644
+--- a/drivers/usb/usbip/vhci_rx.c
++++ b/drivers/usb/usbip/vhci_rx.c
+@@ -261,9 +261,9 @@ int vhci_rx_loop(void *data)
+ 		if (usbip_event_happened(ud))
+ 			break;
+ 
+-		usbip_kcov_remote_start(ud);
++		kcov_remote_start_common(ud->kcov_handle);
+ 		vhci_rx_pdu(ud);
+-		usbip_kcov_remote_stop();
++		kcov_remote_stop();
+ 	}
+ 
+ 	return 0;
+diff --git a/drivers/usb/usbip/vhci_sysfs.c b/drivers/usb/usbip/vhci_sysfs.c
+index 5bc8c47788d4..b98d14c43d13 100644
+--- a/drivers/usb/usbip/vhci_sysfs.c
++++ b/drivers/usb/usbip/vhci_sysfs.c
+@@ -425,7 +425,7 @@ static ssize_t attach_store(struct device *dev, struct device_attribute *attr,
+ 	vdev->ud.tcp_rx     = tcp_rx;
+ 	vdev->ud.tcp_tx     = tcp_tx;
+ 	vdev->ud.status     = VDEV_ST_NOTASSIGNED;
+-	usbip_kcov_handle_init(&vdev->ud);
++	vdev->ud.kcov_handle = kcov_common_handle();
+ 
+ 	spin_unlock(&vdev->ud.lock);
+ 	spin_unlock_irqrestore(&vhci->lock, flags);
+diff --git a/drivers/vhost/vhost.h b/drivers/vhost/vhost.h
+index 4fe99765c5c7..0192ade6e749 100644
+--- a/drivers/vhost/vhost.h
++++ b/drivers/vhost/vhost.h
+@@ -44,7 +44,7 @@ struct vhost_worker {
+ 	/* Used to serialize device wide flushing with worker swapping. */
+ 	struct mutex		mutex;
+ 	struct llist_head	work_list;
+-	u64			kcov_handle;
++	struct kcov_common_handle_id kcov_handle;
+ 	u32			id;
+ 	int			attachment_cnt;
+ 	bool			killed;
+diff --git a/include/linux/kcov.h b/include/linux/kcov.h
+index 0143358874b0..cdb72b3859d8 100644
+--- a/include/linux/kcov.h
++++ b/include/linux/kcov.h
+@@ -43,11 +43,11 @@ do {						\
+ /* See Documentation/dev-tools/kcov.rst for usage details. */
+ void kcov_remote_start(u64 handle);
+ void kcov_remote_stop(void);
+-u64 kcov_common_handle(void);
++struct kcov_common_handle_id kcov_common_handle(void);
+ 
+-static inline void kcov_remote_start_common(u64 id)
++static inline void kcov_remote_start_common(struct kcov_common_handle_id id)
+ {
+-	kcov_remote_start(kcov_remote_handle(KCOV_SUBSYSTEM_COMMON, id));
++	kcov_remote_start(kcov_remote_handle(KCOV_SUBSYSTEM_COMMON, id.val));
+ }
+ 
+ static inline void kcov_remote_start_usb(u64 id)
+@@ -99,11 +99,11 @@ static inline void kcov_prepare_switch(struct task_struct *t) {}
+ static inline void kcov_finish_switch(struct task_struct *t) {}
+ static inline void kcov_remote_start(u64 handle) {}
+ static inline void kcov_remote_stop(void) {}
+-static inline u64 kcov_common_handle(void)
++static inline struct kcov_common_handle_id kcov_common_handle(void)
+ {
+-	return 0;
++	return (struct kcov_common_handle_id){};
+ }
+-static inline void kcov_remote_start_common(u64 id) {}
++static inline void kcov_remote_start_common(struct kcov_common_handle_id id) {}
+ static inline void kcov_remote_start_usb(u64 id) {}
+ static inline void kcov_remote_start_usb_softirq(u64 id) {}
+ static inline void kcov_remote_stop_softirq(void) {}
+diff --git a/include/linux/skbuff.h b/include/linux/skbuff.h
+index 2bcf78a4de7b..a3fe418f7ced 100644
+--- a/include/linux/skbuff.h
++++ b/include/linux/skbuff.h
+@@ -1082,9 +1082,7 @@ struct sk_buff {
+ 	__u16			network_header;
+ 	__u16			mac_header;
+ 
+-#ifdef CONFIG_KCOV
+-	u64			kcov_handle;
+-#endif
++	struct kcov_common_handle_id kcov_handle;
+ 
+ 	); /* end headers group */
+ 
+@@ -5437,20 +5435,14 @@ static inline void skb_reset_csum_not_inet(struct sk_buff *skb)
+ }
+ 
+ static inline void skb_set_kcov_handle(struct sk_buff *skb,
+-				       const u64 kcov_handle)
++				       struct kcov_common_handle_id kcov_handle)
+ {
+-#ifdef CONFIG_KCOV
+ 	skb->kcov_handle = kcov_handle;
+-#endif
+ }
+ 
+-static inline u64 skb_get_kcov_handle(struct sk_buff *skb)
++static inline struct kcov_common_handle_id skb_get_kcov_handle(struct sk_buff *skb)
+ {
+-#ifdef CONFIG_KCOV
+ 	return skb->kcov_handle;
+-#else
+-	return 0;
+-#endif
+ }
+ 
+ static inline void skb_mark_for_recycle(struct sk_buff *skb)
+diff --git a/include/linux/types.h b/include/linux/types.h
+index 608050dbca6a..93166b0b0617 100644
+--- a/include/linux/types.h
++++ b/include/linux/types.h
+@@ -224,6 +224,12 @@ struct ustat {
+ 	char			f_fpack[6];
+ };
+ 
++struct kcov_common_handle_id {
++#ifdef CONFIG_KCOV
++	u64 val;
++#endif
++};
++
+ /**
+  * struct callback_head - callback structure for use with RCU and task_work
+  * @next: next update requests in a list
+diff --git a/kernel/kcov.c b/kernel/kcov.c
+index 0b369e88c7c9..a43e33a28adb 100644
+--- a/kernel/kcov.c
++++ b/kernel/kcov.c
+@@ -1083,11 +1083,11 @@ void kcov_remote_stop(void)
+ EXPORT_SYMBOL(kcov_remote_stop);
+ 
+ /* See the comment before kcov_remote_start() for usage details. */
+-u64 kcov_common_handle(void)
++struct kcov_common_handle_id kcov_common_handle(void)
+ {
+ 	if (!in_task())
+-		return 0;
+-	return current->kcov_handle;
++		return (struct kcov_common_handle_id){ .val = 0 };
++	return (struct kcov_common_handle_id){ .val = current->kcov_handle };
+ }
+ EXPORT_SYMBOL(kcov_common_handle);
+ 
 
-Reviewed-by: Luigi Leonardi <leonardi@redhat.com>
+---
+base-commit: 57b8e2d666a31fa201432d58f5fe3469a0dd83ba
+change-id: 20260430-kcov-refactor-common-handle-25178495b2eb
+
+--  
+Jann Horn <jannh@google.com>
 
