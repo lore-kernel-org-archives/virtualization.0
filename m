@@ -1,121 +1,170 @@
-Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1CBD3A7855
-	for <virtualization@lists.linux.dev>; Thu, 30 Apr 2026 10:04:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.145.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 401653FFADC
+	for <virtualization@lists.linux.dev>; Thu, 30 Apr 2026 12:09:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777543445; cv=none; b=E1LjpFZUkIV1ASzLDP9DLRR+L9ALeUecXQbqp1YdHdcRqU/aWr+YLtY1bEyHiZE97UuVgjgEenTCjftxWX9wv7kui+qWcJ1FBzTgUkhDGt5OzAO1dOE6yJom4CCbiO4ZbVXIva+wZf8sXQPd10fHjeLaYybRpvA64dSP4ihK1zY=
+	t=1777550965; cv=none; b=ooJoZbvH0lH7Y6tM9mK3uAMwlvbCpDuvM+DHCaxMU4crhbUzxJbBYYVcpt2jt3SrJHyzrzgJL84/60sMW+WjUqPbMr0vHo2N31iKtlyN+muiDToOzDmAPinu30Rcnu22Y85jL5lflzOD/kW7f438Fz5EyxserhaUpvhE6QYPGZc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777543445; c=relaxed/simple;
-	bh=1iGbaAKSe1uA8apN3oBgpPr44XSzoe6+bbAM3hi0qYE=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=PiiFIhMMVubDd0ozk/RbwHs51y/luckwM7t9GlYrRC62J7wkdMDdFn77PD6IH2ZDnEwJFpe+NV2Lq+ZiQB8Gk8rG3/fe7cD58nGyZ3FSNeGi7uoDMIvbz9u6eq7PPVjQmr2VwSWro0cR9HFIWn+5729Uc63C7cUZHvLrAoaDPxA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=YmBIXFu/; arc=none smtp.client-ip=67.231.145.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
+	s=arc-20240116; t=1777550965; c=relaxed/simple;
+	bh=fJoAwCoy2K1XeQNEUAVcC6yclLqZ8LS5SUtuOzKPgcg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=ujsVzWvK+C4fi5veDt8thEBRyDKssy2aNhdFesRcuPXK0BmPc7zttEHao5gEJJJDyEaTkPV/tl/oCcJywnmtDLx01I1KgumkzGmAS5E5HIf/g6ygN81WAR1p+1eUD18aEmnLwPCMMJZzzVijXLkdgDHMb3jKQvQDKByp6edq/gk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=TNcm5UCp; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=4IM0G4gR; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=TNcm5UCp; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=4IM0G4gR; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="YmBIXFu/"
-Received: from pps.filterd (m0528008.ppops.net [127.0.0.1])
-	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63TFMHjB2529526;
-	Thu, 30 Apr 2026 03:03:59 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=s2048-2025-q2;
-	 bh=6y5xPQjarSGEV+y856igX3W4+XZQDOVNzN2cIpOJfv4=; b=YmBIXFu/IBR/
-	7U9n6cx/6lzIOIF9Bq+sFDB+sjrjMre5w5UsIE7qQEESry1Zo/JPjrQMSrDp1och
-	U+vVtBsL2TDi7IvsBW7Q/4fGOyioQeBDRFgtgCejh0ePq2/SCoa0if5eZOk6d7xo
-	3uZe9hdtuoEopKZrMUTwFtrak/dytZwSEvchkv1IALZQDM6afLJFQ0wuvHhZPl82
-	sahH2gV/k8ZaAwXm63hdGjezAaQ58bJ2JE22aQQSypW0B+SvBDhNWfAlXqv0Fw08
-	WqWeuIcFSo6ia099tq8NW4UL59LQwcNv0YShjpMU8t8ca3wpSDlMoJbUd0qDaqAj
-	IpYU1Me6pg==
-Received: from maileast.thefacebook.com ([163.114.135.16])
-	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4dty68g8dj-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
-	Thu, 30 Apr 2026 03:03:58 -0700 (PDT)
-Received: from localhost (2620:10d:c0a8:fe::f072) by mail.thefacebook.com
- (2620:10d:c0a9:6f::237c) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.37; Thu, 30 Apr
- 2026 10:03:57 +0000
-From: Matt Evans <mattev@meta.com>
-To: Alex Williamson <alex@shazbot.org>, Kevin Tian <kevin.tian@intel.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Ankit Agrawal <ankita@nvidia.com>,
-        Alistair
- Popple <apopple@nvidia.com>,
-        Leon Romanovsky <leon@kernel.org>, Kees Cook
-	<kees@kernel.org>,
-        Shameer Kolothum <skolothumtho@nvidia.com>,
-        Yishai Hadas
-	<yishaih@nvidia.com>
-CC: Alexey Kardashevskiy <aik@ozlabs.ru>, Eric Auger <eric.auger@redhat.com>,
-        Peter Xu <peterx@redhat.com>,
-        Vivek Kasireddy <vivek.kasireddy@intel.com>,
-        Zhi Wang <zhiw@nvidia.com>, <kvm@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <virtualization@lists.linux.dev>
-Subject: [PATCH v3 3/3] vfio/pci: Check BAR resources before exporting a DMABUF
-Date: Thu, 30 Apr 2026 03:03:22 -0700
-Message-ID: <20260430100340.2787446-4-mattev@meta.com>
-X-Mailer: git-send-email 2.52.0
-In-Reply-To: <20260430100340.2787446-1-mattev@meta.com>
-References: <20260430100340.2787446-1-mattev@meta.com>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="TNcm5UCp";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="4IM0G4gR";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="TNcm5UCp";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="4IM0G4gR"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 7ED296A803;
+	Thu, 30 Apr 2026 12:09:22 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1777550962; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=2Aa3+xJkIiFQ/HkoTGqknWirRkC4uQdhQ2e/brY0CSM=;
+	b=TNcm5UCpbnw+2gGvqCAGRfeD0cH38QV5yL+LXYPlsOtSG+xaNAl9iwMmKZe60OkiyvTzUE
+	MPbrMpilr3x+K1Xnw2Noo3Eu23pmJB+LSg7C87OfPc92b/oWN7iW89zIzEWGRKdFS2t+9b
+	KTms3z8JnAJNtr2spG8c3noa/cxyCZo=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1777550962;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=2Aa3+xJkIiFQ/HkoTGqknWirRkC4uQdhQ2e/brY0CSM=;
+	b=4IM0G4gRSzs4S7cZnW/tdU+quLXd8KPax9Zb9UyDXvquAiRwRIJd8/TZe8+HHRgQ/h/VcI
+	nObOSROkCj2SocCQ==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=TNcm5UCp;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=4IM0G4gR
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1777550962; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=2Aa3+xJkIiFQ/HkoTGqknWirRkC4uQdhQ2e/brY0CSM=;
+	b=TNcm5UCpbnw+2gGvqCAGRfeD0cH38QV5yL+LXYPlsOtSG+xaNAl9iwMmKZe60OkiyvTzUE
+	MPbrMpilr3x+K1Xnw2Noo3Eu23pmJB+LSg7C87OfPc92b/oWN7iW89zIzEWGRKdFS2t+9b
+	KTms3z8JnAJNtr2spG8c3noa/cxyCZo=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1777550962;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=2Aa3+xJkIiFQ/HkoTGqknWirRkC4uQdhQ2e/brY0CSM=;
+	b=4IM0G4gRSzs4S7cZnW/tdU+quLXd8KPax9Zb9UyDXvquAiRwRIJd8/TZe8+HHRgQ/h/VcI
+	nObOSROkCj2SocCQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 63645593B0;
+	Thu, 30 Apr 2026 12:09:22 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id /0o+GHJG82kjZQAAD6G6ig
+	(envelope-from <dwagner@suse.de>); Thu, 30 Apr 2026 12:09:22 +0000
+Date: Thu, 30 Apr 2026 14:09:21 +0200
+From: Daniel Wagner <dwagner@suse.de>
+To: Florian Bezdeka <florian.bezdeka@siemens.com>
+Cc: Aaron Tomlin <atomlin@atomlin.com>, axboe@kernel.dk, kbusch@kernel.org, 
+	hch@lst.de, sagi@grimberg.me, mst@redhat.com, aacraid@microsemi.com, 
+	James.Bottomley@hansenpartnership.com, martin.petersen@oracle.com, liyihang9@h-partners.com, 
+	kashyap.desai@broadcom.com, sumit.saxena@broadcom.com, 
+	shivasharan.srikanteshwara@broadcom.com, chandrakanth.patil@broadcom.com, sathya.prakash@broadcom.com, 
+	sreekanth.reddy@broadcom.com, suganath-prabu.subramani@broadcom.com, ranjan.kumar@broadcom.com, 
+	jinpu.wang@cloud.ionos.com, tglx@kernel.org, mingo@redhat.com, peterz@infradead.org, 
+	juri.lelli@redhat.com, vincent.guittot@linaro.org, akpm@linux-foundation.org, 
+	maz@kernel.org, ruanjinjie@huawei.com, bigeasy@linutronix.de, 
+	yphbchou0911@gmail.com, wagi@kernel.org, frederic@kernel.org, longman@redhat.com, 
+	chenridong@huawei.com, hare@suse.de, kch@nvidia.com, ming.lei@redhat.com, 
+	tom.leiming@gmail.com, steve@abita.co, sean@ashe.io, chjohnst@gmail.com, neelx@suse.com, 
+	mproche@gmail.com, nick.lange@gmail.com, marco.crivellari@suse.com, 
+	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
+	linux-nvme@lists.infradead.org, linux-scsi@vger.kernel.org, megaraidlinux.pdl@broadcom.com, 
+	mpi3mr-linuxdrv.pdl@broadcom.com, MPT-FusionLinux.pdl@broadcom.com, 
+	Jan Kiszka <jan.kiszka@siemens.com>
+Subject: Re: [PATCH v12 00/13] blk: honor isolcpus configuration
+Message-ID: <8c074639-bb75-40be-a338-e80b93123477@flourine.local>
+References: <20260422185215.100929-1-atomlin@atomlin.com>
+ <e350389a5a635660267a7a13f06529da102a95d8.camel@siemens.com>
+ <2d61b1f7-fc06-4fe1-8a6f-cc3a2f114ae1@flourine.local>
+ <85415539137c61cdec145ac0ee299dbea7cdd2a1.camel@siemens.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Proofpoint-ORIG-GUID: 7W9HOYZL-GCC9RGL966pvYUOVVUmgvqi
-X-Proofpoint-GUID: 7W9HOYZL-GCC9RGL966pvYUOVVUmgvqi
-X-Authority-Analysis: v=2.4 cv=XbS5Co55 c=1 sm=1 tr=0 ts=69f3290e cx=c_pps
- a=MfjaFnPeirRr97d5FC5oHw==:117 a=MfjaFnPeirRr97d5FC5oHw==:17
- a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22 a=7x6HtfJdh03M6CCDgxCd:22
- a=_1IyUuN4QrATX339ibzo:22 a=VabnemYjAAAA:8 a=Cv6RvFvLZYHFA_XSKfkA:9
- a=gKebqoRLp9LExxC7YDUY:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDMwMDEwMCBTYWx0ZWRfXynVzco6fl7gu
- wiT2yo6NFZ9QmshXN4+CLCYKen/PaeJSZYMkyXikY0l2EtSKlS363sibRcBth/exSEILPw3pC2Q
- bkvOgn9x5EpqTPdBCsfNTdQyKkTE6v5JUuUgt9bnv5TJs++jeiiIYeLGehoeGeV+urSeYsF6JXO
- 51Uab29yej9alCiKeD20g9ufhovywPsIyGJVjvtVBvIOOPUrGxIifenjOTYsLCD4Oacsin/xJqo
- DWyE93ZbJEY75KxvjM4uee61WO5XCnDgU69VOehZYGyi7038Cf9DnYkl3M8hMI4L4RFCDZi3shF
- 1M69nhaHiQiDKrQWaDd3R7QtRtT6m9tEEkf6n5Lu0w88YylKKa3fUHrPKqY5RlwZMrIa/xGI9md
- AOpMZOC5V89GZ8xKptzn6vijFTb8V5q+yXozCa9VZKiA4wc4+A/rk928IPQBQpA4BR3RjPo309O
- ni1+ZHCZIvGbjrQeOVw==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-04-30_03,2026-04-28_01,2025-10-01_01
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <85415539137c61cdec145ac0ee299dbea7cdd2a1.camel@siemens.com>
+X-Rspamd-Action: no action
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	FREEMAIL_CC(0.00)[atomlin.com,kernel.dk,kernel.org,lst.de,grimberg.me,redhat.com,microsemi.com,hansenpartnership.com,oracle.com,h-partners.com,broadcom.com,cloud.ionos.com,infradead.org,linaro.org,linux-foundation.org,huawei.com,linutronix.de,gmail.com,suse.de,nvidia.com,abita.co,ashe.io,suse.com,vger.kernel.org,lists.linux.dev,lists.infradead.org,siemens.com];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	TO_DN_SOME(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	MIME_TRACE(0.00)[0:+];
+	ARC_NA(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	R_RATELIMIT(0.00)[to_ip_from(RLip3qrwmtdyuwmp1ydoxr43fi)];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_SOME(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	TAGGED_RCPT(0.00)[];
+	RCPT_COUNT_GT_50(0.00)[54];
+	MISSING_XM_UA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns]
+X-Rspamd-Queue-Id: 7ED296A803
+X-Spam-Flag: NO
+X-Spam-Score: -3.01
+X-Spam-Level: 
 
-A DMABUF exports access to BAR resources and, although they are
-requested at startup time, we need to ensure they really were reserved
-before exporting.  Otherwise, it's possible to access unreserved
-resources through the export.
+On Wed, Apr 29, 2026 at 11:01:33PM +0200, Florian Bezdeka wrote:
+> > Which use case are you actually aiming to support? While dynamic
+> > reconfiguration would be ideal, the amount of work to get there is
+> > significant. I won't be signing up for it.
+> 
+> The use case at hand is a RT enabled platform where the concrete RT
+> workload is not known at boot time. RT applications are deployed "on-
+> the-fly", nowadays using the existing container runtimes with some
+> extended resource management on top.
+> 
+> Applications can request certain resources like isolated CPU cores,
+> special IRQ affinities, PCI devices to pass through, ...,  so that the
+> resource management on the system can take care of proper system
+> configuration.
 
-Add a check to the DMABUF-creation path.
 
-Fixes: 5d74781ebc86c ("vfio/pci: Add dma-buf export support for MMIO regions")
-Signed-off-by: Matt Evans <mattev@meta.com>
----
- drivers/vfio/pci/vfio_pci_dmabuf.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
+This is where I really question this use case. Currently, it takes quite
+a lot of time to tune a system to work properly for RT workloads.
+Between memory channel interference, GPU interference, and shared
+transports everywhere, you end up with a fixed split: a set of CPUs
+suitable for RT work and a set for housekeeping. This partitioning
+generally does not change during runtime, even if the way you utilize
+those two sets remains dynamic.
 
-diff --git a/drivers/vfio/pci/vfio_pci_dmabuf.c b/drivers/vfio/pci/vfio_pci_dmabuf.c
-index f87fd32e4a01..3bc7d850e258 100644
---- a/drivers/vfio/pci/vfio_pci_dmabuf.c
-+++ b/drivers/vfio/pci/vfio_pci_dmabuf.c
-@@ -244,9 +244,11 @@ int vfio_pci_core_feature_dma_buf(struct vfio_pci_core_device *vdev, u32 flags,
- 		return -EINVAL;
- 
- 	/*
--	 * For PCI the region_index is the BAR number like everything else.
-+	 * For PCI the region_index is the BAR number like everything
-+	 * else.  Check that PCI resources have been claimed for it.
- 	 */
--	if (get_dma_buf.region_index >= VFIO_PCI_ROM_REGION_INDEX)
-+	if (get_dma_buf.region_index >= VFIO_PCI_ROM_REGION_INDEX ||
-+	    !IS_ERR(vfio_pci_core_get_iomap(vdev, get_dma_buf.region_index)))
- 		return -ENODEV;
- 
- 	dma_ranges = memdup_array_user(&arg->dma_ranges, get_dma_buf.nr_ranges,
--- 
-2.47.3
-
+Furthermore, reconfiguring a system while running an active RT workload
+is asking for trouble. I wouldn't be surprised if doing so triggered a
+wide range of unpredictable side effects.
