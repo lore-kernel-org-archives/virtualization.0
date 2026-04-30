@@ -1,142 +1,125 @@
-Received: from fhigh-a4-smtp.messagingengine.com (fhigh-a4-smtp.messagingengine.com [103.168.172.155])
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03D1938F643
-	for <virtualization@lists.linux.dev>; Thu, 30 Apr 2026 20:13:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.155
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777580040; cv=none; b=pLoKoKowgMUG1XKXxu6HmcERkAimWp6GclLI//s8g05mYD/ALKg014L36rYMD0+GlwVHtcuB8jZLkzN+OLG3Z1louR+IDCwzXqFkfaTSMDChWJ28yFdIBad471IwGphobY5apwvUDdKd2rxGXDigNfqjk/agtCjIor2a4viGrG4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777580040; c=relaxed/simple;
-	bh=aDsCu3z80QPVoVoKfmhKYpp3qc/i+wge3CyQtaksykc=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=VLEcj2AsOrdqRrttFECmmqHVls51uy60/fHiROuQGUI4XW2DQka56HuM8tnhpxk+7GGM1OuTj6RyYXUjWYGmUfqi44BF7dj+3xyz6M5NDdwGhjxcX5dWpO9JgbXgrNOE+gadPZEpAK9aQR4lrmjqjGNaFc1MpHQV3PlEPX8irdE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=F7zDOruJ; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=QhcpOjG3; arc=none smtp.client-ip=103.168.172.155
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A261C2DA768
+	for <virtualization@lists.linux.dev>; Thu, 30 Apr 2026 22:49:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1777589384; cv=pass; b=shfV/Ysh0rXwLO6leauyycT34Z41SboZ2WZCMuBiLPLKYp+Vs1SgYqbQaAvgNF4mZK07XM/oOyc7k2UBS15qLZYQcn8O0v4ZRkhxXlbeICoC3utmQvGEVN1QWPWbdgKN5P9wHOwX4LPvXrKmBUF59j6HnwBDGdS3bYeIJHz4+Vg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1777589384; c=relaxed/simple;
+	bh=P4/EsWPXiMnJWB808Ki34Kr4J+2PXQy/pe1VQNdpUr8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=BsNQ1U5YDaXgjoyQWDsXOzxDaQEBaaANC6rcjCDDes3/27z8l65nJr7J3Vz3qr2ucS3JIYAvCKCdOwTikmkf6jTVyZqObYX1eyc5iY0sBFPnvmJYmAmjfOgZ/Ia1DTgc6LU7zpruxq9vwliHE1YJc8hwZY/qX60OIp/8h3PnS/s=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=LgOB2oQ3; arc=pass smtp.client-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="F7zDOruJ";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="QhcpOjG3"
-Received: from phl-compute-10.internal (phl-compute-10.internal [10.202.2.50])
-	by mailfhigh.phl.internal (Postfix) with ESMTP id 5F7B91400116;
-	Thu, 30 Apr 2026 16:13:58 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-10.internal (MEProxy); Thu, 30 Apr 2026 16:13:58 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1777580038;
-	 x=1777666438; bh=cIWUfOtmNgofCmZE+cELVNsQTIEZ0ZyUaH/wBFQLd3I=; b=
-	F7zDOruJQXQ8mLKLQJttYHVqPhz09unuo2SGsuJcrRI8wic60b5zgSYVPzIkrVQ5
-	+n+9LSAygmWqPOe2IXqaqDqPyZ2DHHL8CVkiqxCdAJFFjpeoVKK8CjgSWElz1vjM
-	WL7LF6XWshYPfKlWEe8vpcJkG2/4udHeF3FC5hnGxJR6sKSPkFxM/dIKcHVkzbH0
-	aDRvr1VFLhTTMZIII3ZNJ5T7401pK4Bg5KnFigcQDyQ93WGNxb4zLcWmHvDU3WlL
-	yY9m+eSxOQ8q+SX29el8e6Nr0lhWhSImA/RGib1Q/yKGKsB7lijvKFEPdJoGcSoZ
-	5WHg0aNfXuFzzbZnuD0IbA==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1777580038; x=
-	1777666438; bh=cIWUfOtmNgofCmZE+cELVNsQTIEZ0ZyUaH/wBFQLd3I=; b=Q
-	hcpOjG3lfcddc6eaEvhvdn6vYzAItFt6ozbIZQLaf3XPgRziuQkR+pCDXhpus3H6
-	9MZE+j+dC7uo5nwLEGC1GGTw+VJvXsGF0sIkWBvoyzSmqUyO/tPd9MS0LXplZrjl
-	9xXg8IYlZn/gy9VaASoolAV1zllMcBYHO+uqgRbf5UzwByXNgLpVQeLGtcV6MfXy
-	7Vk3N0JXTJK2+uyz1fm2zicskGmIZaPe0OfB6lQJanhCF4BG9y7GKgzBYiJiWHtI
-	vPpu4CEKFSiat/zaWKGVsyhSfH2CKdTRSnXrnHHsVvzgvwjdADfbrgA4vfNk0Jy6
-	j4x9jmpUeK6qYb98UtMAA==
-X-ME-Sender: <xms:Brjzacx-HVQm2Mn9FMGLs8sWrnaTacE-3jvv1UXr-Wk0UfQtRxXf3Q>
-    <xme:Brjzaa8dMD_KYvYPIDoUS68uqrkdPnzIsNlz0YA9w_KWKtiaBXxIcjrxa1K9q08-f
-    REAeEUDgX6wrTkwy3OQ4Cwb_ES75IFfGiN10e9Ub8ByhYhz5_XIog>
-X-ME-Received: <xmr:BrjzaU-QO04gCh9B3WRaXu8QMEpVu9C_d5gD2g-qmMkQCKQMN645cLvN6Ys>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgdekkedvhecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
-    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
-    hrpeffhffvvefukfgjfhfogggtgfesthejredtredtvdenucfhrhhomheptehlvgigucgh
-    ihhllhhirghmshhonhcuoegrlhgvgiesshhhrgiisghothdrohhrgheqnecuggftrfgrth
-    htvghrnhepvdekfeejkedvudfhudfhteekudfgudeiteetvdeukedvheetvdekgfdugeev
-    ueeunecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomheprg
-    hlvgigsehshhgriigsohhtrdhorhhgpdhnsggprhgtphhtthhopedukedpmhhouggvpehs
-    mhhtphhouhhtpdhrtghpthhtohepmhgrthhtvghvsehmvghtrgdrtghomhdprhgtphhtth
-    hopehkvghvihhnrdhtihgrnhesihhnthgvlhdrtghomhdprhgtphhtthhopehjghhgseii
-    ihgvphgvrdgtrgdprhgtphhtthhopegrnhhkihhtrgesnhhvihguihgrrdgtohhmpdhrtg
-    hpthhtoheprghpohhpphhlvgesnhhvihguihgrrdgtohhmpdhrtghpthhtoheplhgvohhn
-    sehkvghrnhgvlhdrohhrghdprhgtphhtthhopehkvggvsheskhgvrhhnvghlrdhorhhgpd
-    hrtghpthhtohepshhkohhlohhthhhumhhthhhosehnvhhiughirgdrtghomhdprhgtphht
-    thhopeihihhshhgrihhhsehnvhhiughirgdrtghomh
-X-ME-Proxy: <xmx:BrjzaVcHAPtVFjtDb_HWWqg6tTw7C8HolPzWF-Xba0bePE5AKq7LIw>
-    <xmx:BrjzaYtpbmYP8qkYjiF6xMtpAN5v5Ig1duBthFxWz43ngN3Tu-uZ3w>
-    <xmx:BrjzaW1pFAha9sv0dnSXQCY19H014t3qx5aSy9oTdN6myl_-DjucSg>
-    <xmx:BrjzadCQmxkOqmAMZNBIESxSI4NUc3NVOLYNwIjdjime7ghPfSzSww>
-    <xmx:BrjzaVKPw4NE4431AbwDHoDXn7jT24j5rxx7DCMG0ekhusPejP7mrUQG>
-Feedback-ID: i03f14258:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 30 Apr 2026 16:13:56 -0400 (EDT)
-Date: Thu, 30 Apr 2026 14:13:55 -0600
-From: Alex Williamson <alex@shazbot.org>
-To: Matt Evans <mattev@meta.com>
-Cc: Kevin Tian <kevin.tian@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Ankit
- Agrawal <ankita@nvidia.com>, Alistair Popple <apopple@nvidia.com>, Leon
- Romanovsky <leon@kernel.org>, Kees Cook <kees@kernel.org>, Shameer Kolothum
- <skolothumtho@nvidia.com>, Yishai Hadas <yishaih@nvidia.com>, Alexey
- Kardashevskiy <aik@ozlabs.ru>, Eric Auger <eric.auger@redhat.com>, Peter Xu
- <peterx@redhat.com>, Vivek Kasireddy <vivek.kasireddy@intel.com>, Zhi Wang
- <zhiw@nvidia.com>, <kvm@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
- <virtualization@lists.linux.dev>, alex@shazbot.org
-Subject: Re: [PATCH v3 3/3] vfio/pci: Check BAR resources before exporting a
- DMABUF
-Message-ID: <20260430141355.2751f9ff@shazbot.org>
-In-Reply-To: <20260430100340.2787446-4-mattev@meta.com>
-References: <20260430100340.2787446-1-mattev@meta.com>
-	<20260430100340.2787446-4-mattev@meta.com>
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.51; x86_64-pc-linux-gnu)
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="LgOB2oQ3"
+ARC-Seal: i=1; a=rsa-sha256; t=1777589373; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=ao51FAC8K72kOX0eU+98343y3kIElVEd6FVvxogQE8QgeYQudwpD7ktv9S+4oNLv0flgWwCqtyRs4zHsLPaTv0a7ZgR+SyLcPU/A+yiRawMEzSFeqo2ja0ZqhBW0+GW58/18pVkQzII3Ncnz6FHWdZJSuXuHaVD/0BCUCHci92c=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1777589373; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=wtQedf8kA57FZT4+/T3ghPhkGmrJtXPf+PUEudB759E=; 
+	b=idYrBxFKtploVdmOniCXLxfH5hobOTLGzwQPWoJFvFUZCJOJzZWcWM6EJwesrKWyXFgnJRins2QKZiIsFHdrX+tZnO6LIiom3qCrmsgehQkybB7NcVi3cek+bnJuNQ2TjmmbNwJhU1qXVf6A2LnQ1Z/SarxbaVOufbptlC8WubU=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1777589373;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=wtQedf8kA57FZT4+/T3ghPhkGmrJtXPf+PUEudB759E=;
+	b=LgOB2oQ3dXsZYg5sP0ePh17Oyqr4p+bSoIODW0TMmGOdB1UhF0kG421+MvewG3X1
+	ttDAroACj9nmnPgYgS+RvPnzHjGXjjwGmLWisKARVZxl8zONm/k+y2rUyDjYrpvD9MK
+	pGGZSNtrHSgljHEQgWeEPnlNfTkA3NmXgSdBajvA=
+Received: by mx.zohomail.com with SMTPS id 1777589370669654.7406887211924;
+	Thu, 30 Apr 2026 15:49:30 -0700 (PDT)
+Message-ID: <adc4edee-bc5e-4a65-86d0-c20b47aaa3d9@collabora.com>
+Date: Fri, 1 May 2026 01:49:25 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] drm/virtgpu: Add PM support for suspend/resume
+To: =?UTF-8?B?TW9ycmlzIFBhbiAo5r2Y5rOw54K6KQ==?= <Morris.Pan@mediatek.com>,
+ "airlied@redhat.com" <airlied@redhat.com>,
+ "kraxel@redhat.com" <kraxel@redhat.com>
+Cc: "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+ "srv_heupstream@mediatek.com" <srv_heupstream@mediatek.com>,
+ "simona@ffwll.ch" <simona@ffwll.ch>,
+ "gurchetansingh@chromium.org" <gurchetansingh@chromium.org>,
+ "tzimmermann@suse.de" <tzimmermann@suse.de>,
+ "olvaffe@gmail.com" <olvaffe@gmail.com>,
+ "dri-devel@lists.freedesktop.org" <dri-devel@lists.freedesktop.org>,
+ "maarten.lankhorst@linux.intel.com" <maarten.lankhorst@linux.intel.com>,
+ "mripard@kernel.org" <mripard@kernel.org>,
+ Dongwon Kim <dongwon.kim@intel.com>
+References: <20260401061050.1035881-1-morris.pan@mediatek.com>
+ <2175a05a-d83f-4252-bbf8-581ae652a6b8@collabora.com>
+ <26884a5a6043ce2d146456644cd7e37278b0edb0.camel@mediatek.com>
+Content-Language: en-US
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <26884a5a6043ce2d146456644cd7e37278b0edb0.camel@mediatek.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-ZohoMailClient: External
 
-On Thu, 30 Apr 2026 03:03:22 -0700
-Matt Evans <mattev@meta.com> wrote:
-
-> A DMABUF exports access to BAR resources and, although they are
-> requested at startup time, we need to ensure they really were reserved
-> before exporting.  Otherwise, it's possible to access unreserved
-> resources through the export.
+On 4/17/26 12:40, Morris Pan (潘泰為) wrote:
+> On Wed, 2026-04-08 at 15:59 +0300, Dmitry Osipenko wrote:
+>> Hi,
+>>
+>> On 4/1/26 09:10, Morris Pan wrote:
+>>> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c
+>>> b/drivers/gpu/drm/virtio/virtgpu_drv.c
+>>> index a5ce96fb8a1d..fbca0a82958c 100644
+>>> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
+>>> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+>>> @@ -145,6 +145,40 @@ static void virtio_gpu_config_changed(struct
+>>> virtio_device *vdev)
+>>>  	schedule_work(&vgdev->config_changed_work);
+>>>  }
+>>>  
+>>> +#ifdef CONFIG_PM_SLEEP
+>>> +static int virtgpu_freeze(struct virtio_device *vdev)
+>>> +{
+>>> +	vdev->config->del_vqs(vdev);
+>>> +	virtio_reset_device(vdev);
+>>> +
+>>> +	return 0;
+>>> +}
+>>
+>> VirtIO-GPU shouldn't be reset freely. See [1] and follow previous
+>> hibernation-support discussions on the ML.
+>>
+>> [1[
+>> https://lore.kernel.org/dri-devel/20260107182745.229481-1-dongwon.kim@intel.com/
+>>  
+>>
 > 
-> Add a check to the DMABUF-creation path.
+> Hi Dmitry,
 > 
-> Fixes: 5d74781ebc86c ("vfio/pci: Add dma-buf export support for MMIO regions")
-> Signed-off-by: Matt Evans <mattev@meta.com>
-> ---
->  drivers/vfio/pci/vfio_pci_dmabuf.c | 6 ++++--
->  1 file changed, 4 insertions(+), 2 deletions(-)
+> Thank you for the guidance and for pointing me to that thread.
 > 
-> diff --git a/drivers/vfio/pci/vfio_pci_dmabuf.c b/drivers/vfio/pci/vfio_pci_dmabuf.c
-> index f87fd32e4a01..3bc7d850e258 100644
-> --- a/drivers/vfio/pci/vfio_pci_dmabuf.c
-> +++ b/drivers/vfio/pci/vfio_pci_dmabuf.c
-> @@ -244,9 +244,11 @@ int vfio_pci_core_feature_dma_buf(struct vfio_pci_core_device *vdev, u32 flags,
->  		return -EINVAL;
->  
->  	/*
-> -	 * For PCI the region_index is the BAR number like everything else.
-> +	 * For PCI the region_index is the BAR number like everything
-> +	 * else.  Check that PCI resources have been claimed for it.
->  	 */
-> -	if (get_dma_buf.region_index >= VFIO_PCI_ROM_REGION_INDEX)
-> +	if (get_dma_buf.region_index >= VFIO_PCI_ROM_REGION_INDEX ||
-> +	    !IS_ERR(vfio_pci_core_get_iomap(vdev, get_dma_buf.region_index)))
+> I have looked into the series you mentioned, specifically "PATCH v7
+> 1/3: drm/virtio: Freeze and restore hooks to support suspend and
+> resume" (link).
+> I have verified that this change resolves the issue I was experiencing
+> in my envirronment.
+> 
+> I will keep an eye on that series and follow its progress. Thank you
+> for your time and help.
 
-Polarity of the test is wrong, should just be IS_ERR().
+You're welcome. There is now v8 sent by Kim [2], feel free to test it
+and reply with your review and/or tested-by on the patches.
 
-It would be good practice here to front-load the Fixes: patches in your
-series.  I'd suggest making this patch #2, using the existing
-setup_barmap API, then include it in the conversion to iomap in patch
-#3.  Thanks,
+[2]
+https://lore.kernel.org/dri-devel/20260429204729.993669-1-dongwon.kim@intel.com/
 
-Alex
+-- 
+Best regards,
+Dmitry
