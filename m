@@ -1,218 +1,173 @@
-Received: from fout-b4-smtp.messagingengine.com (fout-b4-smtp.messagingengine.com [202.12.124.147])
+Received: from mx0b-00082601.pphosted.com (mx0b-00082601.pphosted.com [67.231.153.30])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C01F03FE655
-	for <virtualization@lists.linux.dev>; Thu, 30 Apr 2026 08:49:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.147
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 704938834
+	for <virtualization@lists.linux.dev>; Thu, 30 Apr 2026 10:03:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.153.30
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777538948; cv=none; b=UBsR83HB+Wk/IRxsGkUy6ZVrN4yyQpqDTxOnHXacb9ZDDDrSRPGFhj3dJSkLkfUp84GSMabZmzZ7oc8W7dKGJzuVWtJYx5OV8eZMtXzmMloSxO9RBFOENda6ayjqCfdyRXAVy9p7/95l2nDX8BdddoH17/Uh4uu4y1xgPeJ5fys=
+	t=1777543436; cv=none; b=J2XIeHN/HXKOBXhHU61mCUiIEvXn7Qsx0xNuQRRH5ZzfGp2+c+BM0Xgyqg6ODzT2mphr10yxG+W5qMw5ITGumwhegsdCD32oDZLOMHC20jQS+82MD72i0NVssU2CtBtyOVLjn6BGf8On9E1gNNMe1xQ8bcJDjqXrFwlU0QYnTVE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777538948; c=relaxed/simple;
-	bh=POrQn/sbvZmGKXuNrFJKVEX3KSSAwld1Z5gUgZd/xgc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Y7nlcSJ6vDZr/fP6FqzCyL0Uqydf/PxoU/4aXqtxgkNhylnLSR4Kj6JDLJPnYMRyuW1vGrh53J3Y3qXEA/7hhK1PhgHx5KAACZP8z6bhJevmpWqEBqkUP7pClsotAlG71YmcssxB8R/0Br8XHRuJV3M5Q7LrUR5pwJiCt3M5ZtQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=invisiblethingslab.com; spf=pass smtp.mailfrom=invisiblethingslab.com; dkim=pass (2048-bit key) header.d=invisiblethingslab.com header.i=@invisiblethingslab.com header.b=CI/eJzN+; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=sZIM2f50; arc=none smtp.client-ip=202.12.124.147
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=invisiblethingslab.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=invisiblethingslab.com
+	s=arc-20240116; t=1777543436; c=relaxed/simple;
+	bh=oP1sNw3lOw6zB5Y/XHldmRoMKbeGbgHUXpQzx4+4Mq4=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=qOM//xgrEofCXhw8IKmaUcMjzKnC0q6TWBAfSnH/vD1ck0mP3hj3n5r36kU1jBBzdiu+4cfoD5c4GRNAKohzflDpo+LBnJnOBvcSPiRAgs1WuGFL3KsJZN7PuOYAspQScfVEyTe/42IwA2ga59qr7G21gBNeCdxKlWBzGIB0zHQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=kH3hSo2u; arc=none smtp.client-ip=67.231.153.30
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=invisiblethingslab.com header.i=@invisiblethingslab.com header.b="CI/eJzN+";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="sZIM2f50"
-Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
-	by mailfout.stl.internal (Postfix) with ESMTP id 81BCF1D00085;
-	Thu, 30 Apr 2026 04:49:04 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-05.internal (MEProxy); Thu, 30 Apr 2026 04:49:05 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	invisiblethingslab.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:from:from:in-reply-to
-	:in-reply-to:message-id:mime-version:references:reply-to:subject
-	:subject:to:to; s=fm2; t=1777538944; x=1777625344; bh=itJ09kw1rI
-	kq9vePbBZGgye6O4mab+wDcKEKpPA6Ruw=; b=CI/eJzN+QU+rVuluRmyQukY6gA
-	ft9znjEvkBtXSgpJuO6Zqt4KmHx3LnRtOurN1Wp1mlxntz4GoELXICVJur1ype6S
-	BtVpuYz1Qt5T9I0SvUtg+4yzLqFweH23Y6U8XxFcQeKpyolPmJUwFn9jURUNIQXp
-	qt24kiEUhpMPdzRUODxQEJ9ww4GD4KVFG2tP5jAY4cYkFFbFMUlqOFTmnxKUFj0E
-	5ux2KxC2e0bY+uvKDKUo0F6Xu7N+ORyXi9ypg0F1Px6sQrX8SZD62PIxeAf79pZ0
-	zwKMwXTg0ZbEJTl3JXb/TDBrf1OzisKtaZiRdtt1qi5QfrY8xKVOxQlycMZQ==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=1777538944; x=
-	1777625344; bh=itJ09kw1rIkq9vePbBZGgye6O4mab+wDcKEKpPA6Ruw=; b=s
-	ZIM2f50K+wFPnLYpbt1jDpWlmvb0lQAN8/8x2rubC4aUND4rtnmVHPGtFxVKF9hX
-	ROFX+J8PvyUkxpV/75cA05kmwOAyxxik1fSGVeJLY6+tyEUupxw3BwHB2+7QKryy
-	mXeyMYyy3vJVPCUffXPufxrUGp3y74w1iB7DBjnISVCULSwKf5nkllC3oIm0VC/P
-	Jc/CkglLk7ubJHpd041AFbw43ha4oWbY1MCxn2+dex9oZqKlh0ZWdaaKIJ8Ahm5p
-	oNNTH7jDu/FuMptycKTZQSaQHpqflxL3kGAW3A/nKtzcD2IjsGLW6LQRnXlF3sJ4
-	Icwv7nab5T9MxPvuisyHQ==
-X-ME-Sender: <xms:fxfzaa54m6jJXX4fNsH8OYzo0UtK8J5Fdj_KgeBLSHJp0swmFWs0LA>
-    <xme:fxfzaTl4gSYty0SqVz4Lm_Yjg_uXOq_zjYVSjzagN_2TJmAqroYw1x4HumnPRZ-Rx
-    ffhDRcslxeii5rietGGnAU6J36HTf0XCy0M30MIODiinDBjMw>
-X-ME-Received: <xmr:fxfzaVHsJ1waVWApTgN5LWvy59-HdCiSKYGFMoBZJP__MeOfzx-jVvSnRV4FuXX73Q>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgdekieekkecutefuodetggdotefrod
-    ftvfcurfhrohhfihhlvgemucfhrghsthforghilhdpuffrtefokffrpgfnqfghnecuuegr
-    ihhlohhuthemuceftddtnecusecvtfgvtghiphhivghnthhsucdlqddutddtmdenucfjug
-    hrpefkffggfgfuvfevfhfhjggtgfesthekredttddvjeenucfhrhhomhepgggrlhcurfgr
-    tghkvghtthcuoehvrghlsehinhhvihhsihgslhgvthhhihhnghhslhgrsgdrtghomheqne
-    cuggftrfgrthhtvghrnhepjeehkeffhedvffeffffflefgfeejudejiefhtdeijeeuteei
-    teejtdettdeuleevnecuffhomhgrihhnpehkvghrnhgvlhdrohhrghdpghhithhhuhgsrd
-    gtohhmnecuvehluhhsthgvrhfuihiivgeptdenucfrrghrrghmpehmrghilhhfrhhomhep
-    vhgrlhesihhnvhhishhisghlvghthhhinhhgshhlrggsrdgtohhmpdhnsggprhgtphhtth
-    hopedutddpmhhouggvpehsmhhtphhouhhtpdhrtghpthhtohepthgvugguhidrrghsthhi
-    vgesvhgrthgvshdrthgvtghhpdhrtghpthhtohepmhhsthesrhgvughhrghtrdgtohhmpd
-    hrtghpthhtohepjhgrshhofigrnhhgsehrvgguhhgrthdrtghomhdprhgtphhtthhopeig
-    uhgrnhiihhhuoheslhhinhhugidrrghlihgsrggsrgdrtghomhdprhgtphhtthhopegvph
-    gvrhgviihmrgesrhgvughhrghtrdgtohhmpdhrtghpthhtohepmhgrrhhmrghrvghksehi
-    nhhvihhsihgslhgvthhhihhnghhslhgrsgdrtghomhdprhgtphhtthhopehvihhrvghshh
-    drkhhumhgrrheslhhinhgrrhhordhorhhgpdhrtghpthhtohepgigvnhdquggvvhgvlhes
-    lhhishhtshdrgigvnhhprhhojhgvtghtrdhorhhgpdhrtghpthhtoheplhhinhhugidqkh
-    gvrhhnvghlsehvghgvrhdrkhgvrhhnvghlrdhorhhg
-X-ME-Proxy: <xmx:fxfzaS-oSito__s2A4LRHQPxKSW2ryP5NEMTTdGRKuk6f3f4lD15ug>
-    <xmx:fxfzaemoHEbPfWLUfJdODKrvZ-zejgXUY2_HB_xH1VVtXgeV6oG9hQ>
-    <xmx:fxfzaVBcjC6MCROghfGWzu4eY6opJYDBJzfMg37R5LNSRjatAZdL1w>
-    <xmx:fxfzafWYpCNKk2lbLM9VKFZvPp_AWhNh0h95Siq-owLyKLghm09HMA>
-    <xmx:gBfzaeidi626Hg46vBsfx6J90jhf44auaIdPPP3MpGET092Q64dmeDgJ>
-Feedback-ID: i001e48d0:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 30 Apr 2026 04:49:01 -0400 (EDT)
-Message-ID: <74953b6a-d195-4a12-800d-af324ff35b29@invisiblethingslab.com>
-Date: Thu, 30 Apr 2026 05:48:59 -0300
+	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="kH3hSo2u"
+Received: from pps.filterd (m0528006.ppops.net [127.0.0.1])
+	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 63U6NV2Z3593963;
+	Thu, 30 Apr 2026 03:03:49 -0700
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
+	:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=s2048-2025-q2; bh=GjFDQPDXNHcpO5qiMh
+	fQwTAt8BEUXKtlfSQH1GN4nOc=; b=kH3hSo2un8OHXX2nUVQZOxKZtnf7GjZs0w
+	4sspuH+9gpgZfi6CL/J1b9bd7MxdCFwGXtRiZaMvC8bqGNZwAFF3qNckFd7rpWUg
+	CrHrtjdbeuEvwwW2waMA2OCbhJhziU5dgsXqQG0RCb0Y4FT1vcbKG5CoAYCtfO7m
+	CSWLS/kNlfm50v8GOEZ/7NnKm07+DA1wuSQU8L1fA68y0/HDmLioWs3Ify2iZDIb
+	RAgmBn2ErBXpOPJWd3Hejd78cK/4fh64ROpM7jFnkE0NOogzP0WPjeGLHTcAQQ8u
+	RijYRXf3UpZkRe5LdVXVPRXwcd1ITL28AU10d6eQ1z1UabMofz1g==
+Received: from maileast.thefacebook.com ([163.114.135.16])
+	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4dse8nd67e-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
+	Thu, 30 Apr 2026 03:03:49 -0700 (PDT)
+Received: from localhost (2620:10d:c0a8:1b::8e35) by mail.thefacebook.com
+ (2620:10d:c0a9:6f::237c) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.37; Thu, 30 Apr
+ 2026 10:03:48 +0000
+From: Matt Evans <mattev@meta.com>
+To: Alex Williamson <alex@shazbot.org>, Kevin Tian <kevin.tian@intel.com>,
+        Jason Gunthorpe <jgg@ziepe.ca>, Ankit Agrawal <ankita@nvidia.com>,
+        Alistair
+ Popple <apopple@nvidia.com>,
+        Leon Romanovsky <leon@kernel.org>, Kees Cook
+	<kees@kernel.org>,
+        Shameer Kolothum <skolothumtho@nvidia.com>,
+        Yishai Hadas
+	<yishaih@nvidia.com>
+CC: Alexey Kardashevskiy <aik@ozlabs.ru>, Eric Auger <eric.auger@redhat.com>,
+        Peter Xu <peterx@redhat.com>,
+        Vivek Kasireddy <vivek.kasireddy@intel.com>,
+        Zhi Wang <zhiw@nvidia.com>, <kvm@vger.kernel.org>,
+        <linux-kernel@vger.kernel.org>, <virtualization@lists.linux.dev>
+Subject: [PATCH v3 0/3] vfio/pci: Request resources and map BARs at enable time
+Date: Thu, 30 Apr 2026 03:03:19 -0700
+Message-ID: <20260430100340.2787446-1-mattev@meta.com>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH] virtio-mmio: add xenbus probing
-To: Teddy Astie <teddy.astie@vates.tech>, "Michael S. Tsirkin"
- <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>
-Cc: =?UTF-8?Q?Marek_Marczykowski-G=C3=B3recki?=
- <marmarek@invisiblethingslab.com>, Viresh Kumar <viresh.kumar@linaro.org>,
- xen-devel@lists.xenproject.org, linux-kernel@vger.kernel.org,
- virtualization@lists.linux.dev
-References: <20260429141339.74472-1-val@invisiblethingslab.com>
- <1777473712.8631fc262581453bbf619ec5b2062170.19dd9b07146000f373@vates.tech>
- <fd6493ac-9d3e-475a-a844-6e53b0472820@invisiblethingslab.com>
- <1777536698.8631fc262581453bbf619ec5b2062170.19ddd7187da000f373@vates.tech>
-Content-Language: en-US
-From: Val Packett <val@invisiblethingslab.com>
-Autocrypt: addr=val@invisiblethingslab.com; keydata=
- xm8EaFTEiRMFK4EEACIDAwQ+qzawvLuE95iu+QkRqp8P9z6XvFopWtYOaEnYf/nE8KWCnsCD
- jz82tdbKBpmVOdR6ViLD9tzHvaZ1NqZ9mbrszMXq09VfefoCfZp8jnA2yCT8Y4ykmv6902Ne
- NnlkVwrNKFZhbCBQYWNrZXR0IDx2YWxAaW52aXNpYmxldGhpbmdzbGFiLmNvbT7CswQTEwkA
- OxYhBAFMrro+oMGIFPc7Uc87uZxqzalRBQJoVMSJAhsDBQsJCAcCAiICBhUKCQgLAgQWAgMB
- Ah4HAheAAAoJEM87uZxqzalRlIIBf0cujzfSLhvib9iY8LBh8Tirgypm+hJHoY563xhP0YRS
- pmqZ6goIuSGpEKcW5mV3egF/TLLAOjsfroWae4giImTVOJvLOsUycxAP4O5b1Qiy+cCGsHKA
- nCRzrvqnPkyf4OeRznMEaFTEiRIFK4EEACIDAwSffe3tlMmmg3eKVp7SJ+CNZLN0M5qzHSCV
- dBBkIVvEJo+8SDg4jrx/832rxpvMCz2+x7+OHaeBHKafhOWUccYBLKqV/3nBftxCkbzXDbfY
- d02BY9H4wBIn0Y3GnwoIXRgDAQkJwpgEGBMJACAWIQQBTK66PqDBiBT3O1HPO7mcas2pUQUC
- aFTEiQIbDAAKCRDPO7mcas2pUaptAX9f7yUJLGU4C6XjMJvXd8Sz6cGTyxkngPtUyFiNqtad
- /GXBi3vHKYNfSrdqJ8wmZ8MBgOqWaaa1wE4/3qZU8d4RNR8mF7O40WYK/wdf1ycq1uGad8PN
- UDOwAqdfvuF3w8QMPw==
-In-Reply-To: <1777536698.8631fc262581453bbf619ec5b2062170.19ddd7187da000f373@vates.tech>
-Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-Proofpoint-GUID: Ou6f_EeCtD1iu2B9KAFMNHRqQoh9NRWO
+X-Authority-Analysis: v=2.4 cv=XLQAjwhE c=1 sm=1 tr=0 ts=69f32905 cx=c_pps
+ a=MfjaFnPeirRr97d5FC5oHw==:117 a=MfjaFnPeirRr97d5FC5oHw==:17
+ a=A5OVakUREuEA:10 a=VkNPw1HP01LnGYTKEx00:22 a=7x6HtfJdh03M6CCDgxCd:22
+ a=kkcUborcUVj0H7zxAXTl:22 a=VwQbUJbxAAAA:8 a=VabnemYjAAAA:8
+ a=18-LhrYFQHd_5z6HW7oA:9 a=gKebqoRLp9LExxC7YDUY:22
+X-Proofpoint-ORIG-GUID: Ou6f_EeCtD1iu2B9KAFMNHRqQoh9NRWO
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNDMwMDEwMCBTYWx0ZWRfXz1bTEZeDZ7UD
+ cT5EUaGv6PQDJBywzI7qOIfiXCTFS8zlBccn8VG93IqRTqn1S2Uygh8tIpAwqt6tr5qZNYMjpHR
+ uZka/lGhis8/3IVvFhD65i7DqghznnQTJzAOR91XEvbqq1AX44SYcpMZu2AblIXVG2DgcBzinwh
+ rAPvJGXAZB3xxf3R86OKobWP3XUzjZ9l06rm/UE9wVsiiEg6q6zMEH0lYvR8qruvcfAg0v9mQlT
+ iv0gVPBwOZJOmlaBHBERp/8GYWqsERMhQX79SKb6Y257vlq+TKDbo4s1o6XgW20KkXKm2m+gQ9k
+ ueuf8KNq+Lzxb5o1B+s+Ea5QHdsbqsxISpjk0U/OB+DjUEARw4zaok1Ml94gJg8Mou77jBQPkXN
+ GB+k/M2oZhDK4nQIhGGBvpaC7b/zY5Me5KrRWsLPxEcecSz6Tod2sbrfu6dWCOt+jxwL9WT+HW6
+ mgamtLYa0sm9dSU9BjQ==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-04-30_03,2026-04-28_01,2025-10-01_01
 
+Hi,
 
-On 4/30/26 5:11 AM, Teddy Astie wrote:
-> Le 30/04/2026 à 06:06, Val Packett a écrit :
->> On 4/29/26 11:41 AM, Teddy Astie wrote:
->>> Hello,
->>>
->>> Le 29/04/2026 à 16:18, Val Packett a écrit :
->>>> […]
->>>>
->>>> I've been working on porting virtio-mmio support from Arm to x86_64,
->>>> with the goal of running vhost-user-gpu to power Wayland/GPU integration
->>>> for Qubes OS. (I'm aware of various proposals for alternative virtio
->>>> transports but virtio-mmio seems to be the only one that *is* upstream
->>>> already and just Works..) Setting up virtio-mmio through xenbus,
->>>> initially
->>>> motivated just by event channels being the only real way to get
->>>> interrupts
->>>> working on HVM, turned out to generally be quite pleasant and nice :)
->>> Is it HVM specific, or can we also make it work for PVH (we can actually
->>> attach a ioreq server to PVH guests) ?
->> Sorry, typo, I did mean PVH of course!
->>
->> I've been testing this with PVH guests + PV dom0, with my PV alloc_ioreq
->> fix:
->> https://lore.kernel.org/all/20251126062124.117425-1-
->> val@invisiblethingslab.com/
->>
->> (Time to resend that one as a non-RFC I guess…)
->>
->> HVM actually does have legacy ISA interrupts (which are often used with
->> virtio-mmio on KVM), funnily enough, and I've tried firing those from a
->> DMOP but that silly thing didn't work properly.
->>
->>>> I'd like to get some early feedback for this patch, particularly
->>>> the general stuff:
->>>>
->>>> * is this whole thing acceptable in general?
->>>> * should it be extracted into a different file?
->>>> * (from the Xen side) any input on the xenstore keys, what goes where?
->>>> * anything else to keep in mind?
->>>>
->>>> It does seem simple enough, so hopefully this can be done?
->>>>
->>>> The corresponding userspace-side WIP is available at:
->>>> https://github.com/QubesOS/xen-vhost-frontend
->>>>
->>>> And the required DMOP for firing the evtchn events will be sent
->>>> to xen-devel shortly as well.
->>> Could that be done through evtchn_send (or its userland counterpart) ?
->> Actually, yes… The use of DMOPs is only dictated by the current Linux
->> privcmd.c code (the irqfds created by the kernel react to events by
->> executing HYPERVISOR_dm_op with a stored operation), we can avoid the
->> need to modify Xen by simply expanding the privcmd driver to make
->> "evtchn fds". Sounds good, will do.
->>
-> Given that the event channel used by device models is exposed through
-> ioreq.vp_eport ("evtchn for notifications to/from device model"). I
-> don't think you need to expand the privcmd interface, and you should be
-> able to do this instead :
->
-> open /dev/xen/evtchn
-> perform IOCTL_EVTCHN_BIND_INTERDOMAIN (for each guest vCPU)
->     with remote_domain=guest_domid, remote_port=ioreq.vp_eport
->
-> Then interact with the event channel through IOCTL_EVTCHN_NOTIFY (with
-> local port given by IOCTL_EVTCHN_BIND_INTERDOMAIN) and read/write on the
-> file descriptor.
+These patches fix a potential race for concurrent calls to
+vfio_pci_core_setup_barmap(), and a DMABUF missing check for resource
+before the export.  Discussion on a previous series (different,
+replaced by this one) is here:
 
-So the reason there's currently an ioctl to bind an eventfd to fire a 
-stored DMOP is that the whole idea is to (efficiently!) support generic, 
-hypervisor-neutral device server implementations via the vhost-user 
-protocol.
+ https://lore.kernel.org/kvm/20260415181423.1008458-1-mattev@meta.com
 
-Now of course, the current implementation isn't *entirely* 
-hypervisor-neutral as e.g. the vm-memory Rust crate (inside of the 
-"neutral" vhost-user device servers) does need to be built with the 
-`xen` feature. But still, that's how it works. What can be made generic 
-is generic.
+Responses in that thread indicated there wasn't a strong historical
+reason to require the mapping to be performed on-demand at BAR
+reference time.  It's much simpler to move this earlier, to
+vfio_pci_core_enable(), and that then avoids having to deal with
+concurrent requests later.
 
-xen-vhost-frontend, which is the thing that integrates these with Xen, 
-actually used to handle the interrupts in userspace[1] by firing the 
-DMOP itself (which is where I could "just replace that with 
-IOCTL_EVTCHN_NOTIFY") but that was offloaded to the kernel with the 
-introduction of IOCTL_PRIVCMD_IRQFD[2], similarly to KVM_IRQFD.
+The first patch requests PCI resources and pci_iomap() of the BARs
+from vfio_pci_core_enable(), moving this out of
+vfio_pci_core_setup_barmap().
 
-Switching back to handling the eventfd in userspace would be a literal 
-deoptimization :)
+Some callers rely on vfio_pci_core_setup_barmap() for its ioremap()
+effect, and other callers use it for its resource-acquiring effect.
+The function turns into a cheap error check that both these actions
+have occurred and keeps the same error behaviour.
 
-While throwing away the whole generic layer to do a fully integrated 
-use-case-specific thing sounds more difficult/tedious than this, and not 
-necessarily desirable in general.
+The second patch refactors that function plus the various
+vdev->barmap[] accesses into vfio_pci_core_get_iomap() which returns
+either a pointer to the mapping or an ERR_PTR() describing why it
+doesn't exist.  This is used by callers that need the mapping, but
+also by other callers to check that the resource/mapping step was
+successful.
 
-[1]: 
-https://github.com/vireshk/xen-vhost-frontend/commit/06d59035f8a387c0f600931d09dfaa27b80ede7f
-[2]: 
-https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?id=f8941e6c4c712948663ec5d7bbb546f1a0f4e3f6
+NOTE: This removes the EXPORT_SYMBOL_GPL(vfio_pci_core_setup_barmap).
+It does not re-add an export for vfio_pci_core_get_iomap() yet.  (I
+wanted to check the preference/policy here.)
 
-~val
+The third patch adds the resource check to VFIO DMABUF export, which
+was previously able to export an unrequested resource.  Although patch
+1 at first appears to fix this by requesting resources at enable time,
+code using the BAR still needs to check the resource really was
+acquired.
+
+=== Changes ===
+
+v3:
+ - Remove the separate tracking of the BAR mapping versus the
+   acquiring its resource.  Errors from failing iomap vs resource
+   reservation are ERR_PTR()-elcoded into barmap[bar].
+
+ - Remove the separate test helper, and add vfio_pci_core_get_iomap().
+   This gets the iomap base or is used check for error/failure to
+   acquire the resource.  Added comments at call sites explaining
+   whether they want to just ensure the resource is reserved versus
+   actually use the mapping.
+
+v2:
+  https://lore.kernel.org/kvm/20260423182517.2286030-1-mattev@meta.com/
+
+ - Don't fail if resources can't be requested or iomapped, even for
+   valid BARs, as this would change the userspace-observable error
+   behaviour.  Specifically, if there was an issue with one particular
+   BAR which happened to never be used, then userspace would never
+   encounter an error for it.  Track iomap and resource-acquisition
+   status per BAR.
+
+ - Break out the checks for resource success from those for iomap
+   success, in the form of the two new helpers.
+
+ - Third patch to add the check to VFIO DMABUF export, because
+   init-time requests can now fail.
+
+v1:
+  https://lore.kernel.org/kvm/20260421174143.3883579-1-mattev@meta.com/
+
+Matt Evans (3):
+  vfio/pci: Set up bar resources and maps in vfio_pci_core_enable()
+  vfio/pci: Replace vfio_pci_core_setup_barmap() with
+    vfio_pci_core_get_iomap()
+  vfio/pci: Check BAR resources before exporting a DMABUF
+
+ drivers/vfio/pci/nvgrace-gpu/main.c | 17 ++++++-----
+ drivers/vfio/pci/vfio_pci_core.c    | 44 +++++++++++++++++++++++++----
+ drivers/vfio/pci/vfio_pci_dmabuf.c  |  6 ++--
+ drivers/vfio/pci/vfio_pci_rdwr.c    | 42 ++++++---------------------
+ drivers/vfio/pci/virtio/legacy_io.c | 13 ++++-----
+ include/linux/vfio_pci_core.h       | 19 ++++++++++++-
+ 6 files changed, 84 insertions(+), 57 deletions(-)
+
+-- 
+2.47.3
 
