@@ -1,81 +1,112 @@
-Received: from mail.ilvokhin.com (mail.ilvokhin.com [178.62.254.231])
+Received: from stravinsky.debian.org (stravinsky.debian.org [82.195.75.108])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BEE639B970
-	for <virtualization@lists.linux.dev>; Fri,  1 May 2026 13:32:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.62.254.231
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8ACA4308F1D;
+	Fri,  1 May 2026 15:53:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=82.195.75.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777642377; cv=none; b=fPVehykvpQ0rOL+U6il1S+IU7UbRzRfHmgyKXXTTBUU8ZnkxPXP82PmEWPiu51X5khr9gWoloQ3Cz2f3uBw2FTBCcxsB2LfHGnhXby7G1O3/nMFIdc1KYpo0DJ5ggp60064TfJEW1T6IMP67MM7O4vunnX2D3i3bFvo/aTEQP9Y=
+	t=1777650796; cv=none; b=Xjb3f/0B/XPwvGQE3zm4ragImX1HurSYbOVOF0PjHb/ySSjendsVspNswI7EosjzPHz3o5knA1S49vNiKPwbSQLD+/5JiLeLH4Xck5XdeS0p4gM5+4d1nMNBn3jn5oSMp4DAK9liucjDdgKYB02Ycz5jShzvE5C/s3+yWBkfZXo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777642377; c=relaxed/simple;
-	bh=AqyZXLeYzsJx+rZc7e1F5Sgu3BjZdoUpHMsJoKlvEcI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ZXfQFYjsBE7XZPVDCKILODpVPcgk1lOByqcXuqQat0yVnxS2zJ6GONer+jnmDFVChcMedml91e++Z7exXwGts5OXar5VaDa5MVIS3cbepNFkKr8pMaWlOGKGGGHHL0+k57HiTenX+oVgEY4o0yUKYdNfvFKGHXPtBPkWwcSQbAo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ilvokhin.com; spf=pass smtp.mailfrom=ilvokhin.com; dkim=pass (1024-bit key) header.d=ilvokhin.com header.i=@ilvokhin.com header.b=jTKGB8Ia; arc=none smtp.client-ip=178.62.254.231
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ilvokhin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ilvokhin.com
+	s=arc-20240116; t=1777650796; c=relaxed/simple;
+	bh=gduIzX2COqKi3echiOqVyeGo3D7A5nRe5hkExoahJTs=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=pciEr/1B1HDhp/S8rtW7mOFxZdP1dt8DL5ojtSCg+JIJrsjlUJJEeNvkkpKLKqm7CZoKbEr6tHzyrkOJvvrKNCECKQ0Pm0jnyALOibP+DT6iCjBcP44/okE1XgS4rSeXydrR+KU9Zk9DBBO9/9e2Ks9mEHAfcA1aMWY008tPq/I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org; spf=none smtp.mailfrom=debian.org; dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b=a/OaqmS2; arc=none smtp.client-ip=82.195.75.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=debian.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=debian.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ilvokhin.com header.i=@ilvokhin.com header.b="jTKGB8Ia"
-Received: from shell.ilvokhin.com (shell.ilvokhin.com [138.68.190.75])
-	(Authenticated sender: d@ilvokhin.com)
-	by mail.ilvokhin.com (Postfix) with ESMTPSA id ABB84C7B79;
-	Fri, 01 May 2026 13:32:47 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ilvokhin.com;
-	s=mail; t=1777642368;
-	bh=IszU0JG/WWa2O3f5MsRNZrb+ulmlJxnxUGQwsmnwYmU=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=jTKGB8Ia7D3+Zec5q4aruW2aznDUx+x2QbIxrQuVAh+HqJGpjaqhURhOBdhrZQbag
-	 IWI5DhN3gDaOvxMrnc27MCpjJCByfrwPcadWoUrn575D9wcu8ZvKMjWZVZYlBfomtK
-	 3l6KDosr8VPVi27Gi5jVQsMZxMlTisX765e0Z9hk=
-Date: Fri, 1 May 2026 13:32:44 +0000
-From: Dmitry Ilvokhin <d@ilvokhin.com>
-To: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
-	Will Deacon <will@kernel.org>, Boqun Feng <boqun@kernel.org>,
-	Waiman Long <longman@redhat.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Juergen Gross <jgross@suse.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Thomas Gleixner <tglx@kernel.org>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
-	Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
-	Christoph Lameter <cl@gentwo.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-arch@vger.kernel.org,
-	linux-mm@kvack.org, linux-trace-kernel@vger.kernel.org,
-	kernel-team@meta.com, "Paul E. McKenney" <paulmck@kernel.org>
-Subject: Re: [PATCH v5 0/7] locking: contended_release tracepoint
- instrumentation
-Message-ID: <afSrfOyn90vGC6ER@shell.ilvokhin.com>
-References: <cover.1776350944.git.d@ilvokhin.com>
+	dkim=pass (2048-bit key) header.d=debian.org header.i=@debian.org header.b="a/OaqmS2"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=debian.org;
+	s=smtpauto.stravinsky; h=X-Debian-User:Cc:To:Content-Transfer-Encoding:
+	Content-Type:MIME-Version:Message-Id:Date:Subject:From:Reply-To:Content-ID:
+	Content-Description:In-Reply-To:References;
+	bh=BM9TRss7pseX+5KsnKhBOYrrt8MuhcUMHzPX/Gdxhl8=; b=a/OaqmS29DgdUZ+aj09+krWGZx
+	1HPWQJKqJ8e5e0XH/Kk3NN5InLgYmcRGRDVtEnKQZEk2jtezUctodg6txSNpA8jMEW5LADC+yl1rG
+	TymrkAdJCAvTz4HbGczLkcu91r3VLnC0aKaqJ9s8/KYnRtoZzAWfsh1JzCC09DVQnYFr6jUZ5rThU
+	h1yaF30qVChT2nFx4aU0QBJsBIjkhfUpo5dMh+a+KibRFll9UaXsCuCw9sR860N0cT4zgp8VG2DTN
+	bURcwiPIvmQgjfDeFUrPIV+Y/ER+/HpVZw15Dbhh6G007oS4yMm47ZKMOacgJrNd/1LJ+UBovdLnp
+	L4hGsMxw==;
+Received: from authenticated user
+	by stravinsky.debian.org with esmtpsa (TLS1.3:ECDHE_X25519__RSA_PSS_RSAE_SHA256__AES_256_GCM:256)
+	(Exim 4.96)
+	(envelope-from <leitao@debian.org>)
+	id 1wIqAt-008gXm-2X;
+	Fri, 01 May 2026 15:53:08 +0000
+From: Breno Leitao <leitao@debian.org>
+Subject: [PATCH net-next 0/3] net: Convert AF_NETLINK and AF_VSOCK to
+ getsockopt_iter API
+Date: Fri, 01 May 2026 08:52:50 -0700
+Message-Id: <20260501-getsock_one-v1-0-810ce23ea70e@debian.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <cover.1776350944.git.d@ilvokhin.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAFLM9GkC/2WNywqDMBBFfyXM2kAMvppfKSIxHe20ENvMKIL47
+ 6WtdNP1PfecDRgTIYNTGyRciGmK4FSeKQhXH0fUdAGnwBpbmdLkekThKdy7KaL2la3Lxp96b0v
+ IFDwSDrR+bGeIKDriKtB+F577GwZ5yw424XMmJjkOv55TfzUSTN1AiUU39VD5ugi2QOOWHNp9f
+ wFx1vt+xgAAAA==
+X-Change-ID: 20260501-getsock_one-a62758a9ba25
+To: "David S. Miller" <davem@davemloft.net>, 
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+ Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>, 
+ sdf.kernel@gmail.com
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ virtualization@lists.linux.dev, linux-kselftest@vger.kernel.org, 
+ Breno Leitao <leitao@debian.org>, kernel-team@meta.com
+X-Mailer: b4 0.16-dev-453a6
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1362; i=leitao@debian.org;
+ h=from:subject:message-id; bh=gduIzX2COqKi3echiOqVyeGo3D7A5nRe5hkExoahJTs=;
+ b=owEBbQKS/ZANAwAIATWjk5/8eHdtAcsmYgBp9MxeFq/D7jFqIv11BP6BM9zPkXhUVb4scptVj
+ 6kq7ZILtcuJAjMEAAEIAB0WIQSshTmm6PRnAspKQ5s1o5Of/Hh3bQUCafTMXgAKCRA1o5Of/Hh3
+ bT8mEACrZTYte2TN8LU1uRVgKVKEPcHdCbkK2gAHbwefeNmAv9ubMeaeb4YzPlRlf5Lj2TR5iCn
+ D8VeM9NzxdRnUoQt3RbEjA+JcFxek8N6VCCiq6ih0pDcmp+xaxaECNJxUPGX1wb6QD22d65x9Ty
+ hkaB83VIa3lTLflpSd55xhuCmQLCh1/rua34UdxKrJc5fcHAj03xjS/wsT5VAPyJoWvRGh03Iqx
+ z4n1RiKNnnlVcOPzZC21GnOtIgvZGR7jPeVoUZPrrTlePdGHkp0KzmLiO9hxGtkn8A4GQWDCuZ2
+ 24bQjl9HfR+qcKs2b/DoFeNAT7aPEzW3qMaL4yN7ohnOsYLAcMPgj0ZIHTWasKYlFze2RuEMeIk
+ +ytbjV1MSJaTEJlN1v3rvWMrtnmE8jvfpImfhC54ZksEjBl7JdBcJvIjZw3A5qZqZW+hrDSUf/G
+ B1d5BfuDYK5xkWOsP0XfvbSBzYBNFaVUosd21BSoe6rczygT2XvLCEYO8sAjisBAsTZho10PRvw
+ vtlKQr5N5BKSBplDmaiS9bZAVIw9XS3Qg0oOapz7rlCg4LyGMPt7vho0rO7g/q4GkyCojotZNf2
+ S3z10H6L5dFFGp+Fie1z9TOUy+iRQfk/BfcUqD+8I5aePo0OUBLqlIEOszeiW4+M4Ee9Lbo+CyL
+ GvkA3kX0gRlmllw==
+X-Developer-Key: i=leitao@debian.org; a=openpgp;
+ fpr=AC8539A6E8F46702CA4A439B35A3939FFC78776D
+X-Debian-User: leitao
 
-I plan to rebase this series on top of Linus' tree to pick up Vineeth's
-patch [1], and send an updated version next week.
+Continue the work to convert protocols to the new getsockopt_iter API.
 
-In the meantime, I would appreciate feedback, especially on: 
+Convert AF_NETLINK and AF_VSOCK getsockopt implementations to the new
+sockopt_t/getsockopt_iter API, and add kselftests that verify the size
+and errno semantics are preserved across the conversion.
 
-- tracepoint semantics across different lock types
-- overhead concerns in hot paths (e.g. qspinlock)
+I chose these two socket families because they are probably one of the
+most used  protocols,, ensuring that any potential bugs will be
+discovered and reported quickly.
 
-As a follow-up, I am also working on an RFC to extend perf lock
-contention to make use of the contended_release tracepoint, so feedback
-in that context would also be helpful.
+The selftest was added as suggested by Stanislav Fomichev in [1].
+Link: https://lore.kernel.org/all/adkSnyihmD1Atfcf@devvm17672.vll0.facebook.com/ [1]
 
-Feedback from locking and tracing maintainers would be particularly
-appreciated before respinning.
+Signed-off-by: Breno Leitao <leitao@debian.org>
+---
+Breno Leitao (3):
+      netlink: convert to getsockopt_iter
+      vsock: convert to getsockopt_iter
+      net: selftests: add getsockopt_iter regression tests
 
-[1]: https://lore.kernel.org/all/20260323160052.17528-1-vineeth@bitbyteword.org/
+ net/netlink/af_netlink.c                      |  21 +--
+ net/vmw_vsock/af_vsock.c                      |  16 +-
+ tools/testing/selftests/net/Makefile          |   1 +
+ tools/testing/selftests/net/getsockopt_iter.c | 213 ++++++++++++++++++++++++++
+ 4 files changed, 232 insertions(+), 19 deletions(-)
+---
+base-commit: edf4bee4215a173c0534d1851d7523d827149f9e
+change-id: 20260501-getsock_one-a62758a9ba25
+prerequisite-change-id: 20260501-getsock_iter_first-87f6a74c24e0:v1
+
+Best regards,
+--  
+Breno Leitao <leitao@debian.org>
+
