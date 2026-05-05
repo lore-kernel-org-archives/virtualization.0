@@ -1,32 +1,32 @@
 Received: from mail.ilvokhin.com (mail.ilvokhin.com [178.62.254.231])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 136F64A2E15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1366B4A2E11
 	for <virtualization@lists.linux.dev>; Tue,  5 May 2026 17:10:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.62.254.231
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778001002; cv=none; b=KYK4oBVuv1WTg38WkheZ414XIQdtwjeWY7iRncOnO+ocpKrun/wibxmasZXJ+tfVR0jkHbzxNHjjXuuUWbOkTVah5uxiyeY58Vl+FnxJSuX9Z50xzU5hFYEsjKE6BVyJn8CPBx8CUOfc94TYbNzt/TTHvzNQCmyeL8cIxKY9cU4=
+	t=1778001002; cv=none; b=sNhgnYmF62jvSUXez4JR4MFW/4Txp0ICHwfa1wyrGDiTjf9K2sdnD1cY8LpcS2G0ZBNFSFt1oUhgAZAwID8wpbr10gF0afyWjMA4Uc44vX8wuBgHG9BCTy4q0Z7pL7h8B9+wSjoPeEGQJWSMweB+ZXjupSXhlKBdrBW4DLzketk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1778001002; c=relaxed/simple;
-	bh=4EDmDHbkx8sWstAxmN5dypJ1uHXNHsE+7kGZ6BrByBU=;
+	bh=nkS2FNHvuD93wdW/3Ky4EndgW9Xd2ntRYc4kP5U6umY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Nect6vdImRjoEtvVkzGdeRx/ZM154F0E0rceWUwyEX7o4Vn1ZhnIUecOj/SyrHMe+YWRl1qpgxmrYonkEIrRTKP2pbXkbrIQYf3uKUR5aKC7VsYx3/smYd9UhY+pr86nEFnaZMvO/YcB9lPOKx/WBQHnWF9QzErInKRDsGOP5hc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ilvokhin.com; spf=pass smtp.mailfrom=ilvokhin.com; dkim=pass (1024-bit key) header.d=ilvokhin.com header.i=@ilvokhin.com header.b=ssEo3Kfr; arc=none smtp.client-ip=178.62.254.231
+	 MIME-Version; b=E9h72AtWklIqcKh3qcHIEpGlDfjYdTo+b+ozRPd/eEZnLe4/sVPL4fmgQLzOgXbGbrWs2floNeTSPB6CLx1AcBZ+Wbul+N/EFoUIh4JiFEEpwJv04m7hdcEIKSCu/xk2YroIv2kVpO3lrSdxeT4c6Xb2NFgHz7++9y46kkLvSnI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ilvokhin.com; spf=pass smtp.mailfrom=ilvokhin.com; dkim=pass (1024-bit key) header.d=ilvokhin.com header.i=@ilvokhin.com header.b=sWU2rOJr; arc=none smtp.client-ip=178.62.254.231
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ilvokhin.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ilvokhin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ilvokhin.com header.i=@ilvokhin.com header.b="ssEo3Kfr"
+	dkim=pass (1024-bit key) header.d=ilvokhin.com header.i=@ilvokhin.com header.b="sWU2rOJr"
 Received: from localhost.localdomain (shell.ilvokhin.com [138.68.190.75])
 	(Authenticated sender: d@ilvokhin.com)
-	by mail.ilvokhin.com (Postfix) with ESMTPSA id 1BC05CFFEF;
+	by mail.ilvokhin.com (Postfix) with ESMTPSA id 8367ACFFF3;
 	Tue, 05 May 2026 17:09:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ilvokhin.com;
 	s=mail; t=1778000993;
-	bh=SxdOxmJ+WRA4zY3tyFP5+GgWLQ1rokSaYX9143EcXHM=;
+	bh=Jiq9HHreSKv9gJ1OxNDx05z/LXXiM1SwacfPI7vtSKY=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=ssEo3KfrvTzaYppTeR/9SbdtJSPaIVu1WuRcuxgZD6c7mHL+wbdWTgbH50oMX9Rx4
-	 jbiTDSsFgKtyohDLtiVfkwSixAPFGoCqLsroBDbbi8FZyVseJMQXFy3LQGSrAai9Nw
-	 1x1vAXnXREgWmxSZd9lkIwqxSPbEE82eVuY97/ms=
+	b=sWU2rOJrbDjkjTDizt2f9U5ELWqEaXAc5QmT9jVUAdoxkMtiiOnFCeUpOz6Z+KEGX
+	 0SGGytVFpYd8E/QFVq933R0++oX41r40I8M6oQeN7FEE8k4o5N+4nxr6ZIgiZbqxxR
+	 nQ05tef5x5Wsdba66GspFDa0eZI8GtHF/1JeTlVk=
 From: Dmitry Ilvokhin <d@ilvokhin.com>
 To: Peter Zijlstra <peterz@infradead.org>,
 	Ingo Molnar <mingo@redhat.com>,
@@ -59,9 +59,9 @@ Cc: linux-kernel@vger.kernel.org,
 	kernel-team@meta.com,
 	Dmitry Ilvokhin <d@ilvokhin.com>,
 	Usama Arif <usama.arif@linux.dev>
-Subject: [PATCH v6 1/7] tracing/lock: Remove unnecessary linux/sched.h include
-Date: Tue,  5 May 2026 17:09:30 +0000
-Message-ID: <16c1eccc88e1a1e67028086151c7fbffddf980e5.1777999826.git.d@ilvokhin.com>
+Subject: [PATCH v6 2/7] locking/percpu-rwsem: Extract __percpu_up_read()
+Date: Tue,  5 May 2026 17:09:31 +0000
+Message-ID: <0a30ed3ffebe5753aabc083bbe93cc123227da76.1777999826.git.d@ilvokhin.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <cover.1777999826.git.d@ilvokhin.com>
 References: <cover.1777999826.git.d@ilvokhin.com>
@@ -73,27 +73,76 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-None of the trace events in lock.h reference anything from
-linux/sched.h. Remove the unnecessary include.
+Move the percpu_up_read() slowpath out of the inline function into a new
+__percpu_up_read() to avoid binary size increase from adding a
+tracepoint to an inlined function.
 
 Signed-off-by: Dmitry Ilvokhin <d@ilvokhin.com>
 Acked-by: Usama Arif <usama.arif@linux.dev>
 ---
- include/trace/events/lock.h | 1 -
- 1 file changed, 1 deletion(-)
+ include/linux/percpu-rwsem.h  | 15 +++------------
+ kernel/locking/percpu-rwsem.c | 18 ++++++++++++++++++
+ 2 files changed, 21 insertions(+), 12 deletions(-)
 
-diff --git a/include/trace/events/lock.h b/include/trace/events/lock.h
-index 8e89baa3775f..da978f2afb45 100644
---- a/include/trace/events/lock.h
-+++ b/include/trace/events/lock.h
-@@ -5,7 +5,6 @@
- #if !defined(_TRACE_LOCK_H) || defined(TRACE_HEADER_MULTI_READ)
- #define _TRACE_LOCK_H
+diff --git a/include/linux/percpu-rwsem.h b/include/linux/percpu-rwsem.h
+index c8cb010d655e..39d5bf8e6562 100644
+--- a/include/linux/percpu-rwsem.h
++++ b/include/linux/percpu-rwsem.h
+@@ -107,6 +107,8 @@ static inline bool percpu_down_read_trylock(struct percpu_rw_semaphore *sem)
+ 	return ret;
+ }
  
--#include <linux/sched.h>
- #include <linux/tracepoint.h>
- 
- /* flags for lock:contention_begin */
++extern void __percpu_up_read(struct percpu_rw_semaphore *sem);
++
+ static inline void percpu_up_read(struct percpu_rw_semaphore *sem)
+ {
+ 	rwsem_release(&sem->dep_map, _RET_IP_);
+@@ -118,18 +120,7 @@ static inline void percpu_up_read(struct percpu_rw_semaphore *sem)
+ 	if (likely(rcu_sync_is_idle(&sem->rss))) {
+ 		this_cpu_dec(*sem->read_count);
+ 	} else {
+-		/*
+-		 * slowpath; reader will only ever wake a single blocked
+-		 * writer.
+-		 */
+-		smp_mb(); /* B matches C */
+-		/*
+-		 * In other words, if they see our decrement (presumably to
+-		 * aggregate zero, as that is the only time it matters) they
+-		 * will also see our critical section.
+-		 */
+-		this_cpu_dec(*sem->read_count);
+-		rcuwait_wake_up(&sem->writer);
++		__percpu_up_read(sem);
+ 	}
+ 	preempt_enable();
+ }
+diff --git a/kernel/locking/percpu-rwsem.c b/kernel/locking/percpu-rwsem.c
+index ef234469baac..f3ee7a0d6047 100644
+--- a/kernel/locking/percpu-rwsem.c
++++ b/kernel/locking/percpu-rwsem.c
+@@ -288,3 +288,21 @@ void percpu_up_write(struct percpu_rw_semaphore *sem)
+ 	rcu_sync_exit(&sem->rss);
+ }
+ EXPORT_SYMBOL_GPL(percpu_up_write);
++
++void __percpu_up_read(struct percpu_rw_semaphore *sem)
++{
++	lockdep_assert_preemption_disabled();
++	/*
++	 * slowpath; reader will only ever wake a single blocked
++	 * writer.
++	 */
++	smp_mb(); /* B matches C */
++	/*
++	 * In other words, if they see our decrement (presumably to
++	 * aggregate zero, as that is the only time it matters) they
++	 * will also see our critical section.
++	 */
++	this_cpu_dec(*sem->read_count);
++	rcuwait_wake_up(&sem->writer);
++}
++EXPORT_SYMBOL_GPL(__percpu_up_read);
 -- 
 2.52.0
 
