@@ -1,64 +1,39 @@
-Received: from mail-dl1-f45.google.com (mail-dl1-f45.google.com [74.125.82.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.nessuent.net (mail.nessuent.net [188.245.177.90])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 331CC3B9DA9
-	for <virtualization@lists.linux.dev>; Tue,  5 May 2026 04:40:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 287773E929B
+	for <virtualization@lists.linux.dev>; Tue,  5 May 2026 08:14:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=188.245.177.90
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1777956032; cv=none; b=JhJdzpRuTPqzQgJquXYFaDcSP6zj8/i43VDdskbs+VBVuwbIoVO0xxu/6hOPxNUWpmGbT/WVBt54hflTNhnxetV3iZW0ooP4mXVKlZsCmLCxMAySQkgziJQKM+dB59oNOC97xRufGEeR7PmNCfjuPZ0yr7NJ042cOQA8ShmPU0w=
+	t=1777968859; cv=none; b=IF1sLQiQuu4pVUOyvpFwPYm0YehC4In8qIbIVhAoGvA0wrSS7gjgC5Ygck2wie1R5cjn9nNBwU69yU0t7EBZU84jvb/eg6GJCbKpE7E26++lOerNTNy4O0ySp0AcaMecf/JhcilUMJl/dMFY6+lIzqvWX1qIJ/hOH8ghjj2DB38=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1777956032; c=relaxed/simple;
-	bh=xg+AzQSH02m2ChqkHlHOL0nslwkp1ELZhv5oYpTQd1Y=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=FY3xZA33hSckT8HhwztwlyGSWMJ5RFNHQxJAt1z632uf1/RWml8MLSsVyQ/v8MJGlaokYW5epw1hLUFnsjmGy3wgd2tM2N/TrWMvHXP8ALmp+lqgufVfTSRBvUQjbDjHJ+UY1uY7AUgE+PfYmLIHAqOL0J9QB3XUh9ULrCrgCvw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dqeMTmX2; arc=none smtp.client-ip=74.125.82.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1777968859; c=relaxed/simple;
+	bh=srS0KJY6aDDATKXTdP3+M8bPwx6xJgIYVSM8xP078/U=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=hCCul+csLBDpFCULF2ib3RDddtYd/x4balFf3bHAQWwS60AZofWP6bcPY01m/t3P6iRahhP7JB6Iw7vKw9jUKN49bzjabA6eUDx564mpGxBvwVA14c+dVlp6ES+u/wzQpMIQQmucuTP4Ij+bej1uqjlMeQ/AJrd1NMPM9ntBOaA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=pitsidianak.is; spf=pass smtp.mailfrom=pitsidianak.is; dkim=pass (4096-bit key) header.d=pitsidianak.is header.i=@pitsidianak.is header.b=aBIq1B+N; arc=none smtp.client-ip=188.245.177.90
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=pitsidianak.is
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pitsidianak.is
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dqeMTmX2"
-Received: by mail-dl1-f45.google.com with SMTP id a92af1059eb24-130b2295ed0so846959c88.0
-        for <virtualization@lists.linux.dev>; Mon, 04 May 2026 21:40:30 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1777956030; x=1778560830; darn=lists.linux.dev;
-        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
-         :date:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=wD6lG8b++LnD58VJ+TTawp1hDBka3Nn4267cv0Dov5Q=;
-        b=dqeMTmX2UuI50WwU312LNd4wgEKnm1+D8Pa50OqRJgi1qjXlmMNcy64uAnL4tXdp5v
-         iWAEDA2y/U6Pk9YV9dAMhaZnmKE6I+pKb28hNSIm12VyYq6aJFK83TjnfbZnbK11hRbt
-         42rQdQ/uo5WIuuJkvZIHrspCRVzP2CHmjRtyw5wrexdUvrxfDR6wvTHuUhexGdWJmiIj
-         c55KJjR0vV5IR436N1btDBK05qaFGxlcnT35fq+CGX5TuT7tyKh9ZE2oaWU2QJfO3cTW
-         EtbnzoAMc9Ib+CKWhs76HayIL+oF5BkTpGp1hYv+oeDmN6pJKCULb8xbya/1nvDrrsJ/
-         AF4Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1777956030; x=1778560830;
-        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
-         :date:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=wD6lG8b++LnD58VJ+TTawp1hDBka3Nn4267cv0Dov5Q=;
-        b=iuhq9QSp3WZHaHT17JfxmDhay2MMZFuWhMWCxFih3UdipxldLy5xzUBX46m+IExiiO
-         +Ooyu9bEatFepnZmp/QrpJyjsNODaWwyT5AiRDf1r6a4XUM5nRRrlEpecQwfAzj+LYaQ
-         yvylVYnN28lGe6OlmBXcykOKjlQVYHAY8nZZBvQhl/jB0cNFOMMg+NnSAHwWTVNnZ1WG
-         Z9lXU7hc+/bJlhZQ18S7rDMR1kbAAn+1s3WepZxU+duYz8X/NQzlhcLkro1NOvXL7hqK
-         z7D8xQg3OM+cy44z9bds9AL+FKZ443ebF6JKeK+87uwv8ke0OF9mpLOaTf+/qVbRl/t6
-         Vu4w==
-X-Gm-Message-State: AOJu0YxPRibas+jhNGcCCDhLV0/lkKocr9iOwH8ctCLgCHgIEd0fcyTG
-	XWopqNL3cXrycP5dBLVoXzdL241BuYy5iHfMbKeqPrl/eF5daVn7nT+O
-X-Gm-Gg: AeBDiesPNLZSh5RyP4+AXctxOWQjD6Rni57Wqr6JBHzRQ6EWxW7BjAXzutTtwaO6eaG
-	iBi5ypaWmuDSk4CeKSq8qjCvUp/7JUAcLO/FHidaoVZ4m6W5czMrJz83oO259wConQquzhNVjeH
-	/oJjmPKl75eTVXHlJ7iGhXV19YhFNadnyjggQlH+Yp5pOXDObmUrLwSSrjuWwU1pP0+87gpfJ+q
-	AVtqoaWeoTz0ZMkZs5czCxAlQYuATOEaMDAl/z/EtvaDRnLslix5FocEWLdSU0yy3Dc7UUhJXzu
-	e2c6p+ofdw7lw/ldNlqwypA0t+PZJNB+bO/05GyDQHTHe5gg8k+dmSbr9FSqqtp2WM/hsRQX4U+
-	9sL8FoeiuDpGYtmmdZvu6bjaVrdlzjaxeo9RB8/BcmBrUC0rZC9tRaLECFBX2Zny6pN3Pf9Z0SL
-	1DMLUCase3jAw3fsx2MdhiM1a6/Yotnf7V0P4c/yFchn+jixuKQfCY/YwESMNOfEX0GmM9PheqQ
-	pjUtyGh8Dyl
-X-Received: by 2002:a05:7022:4392:b0:11b:f056:a19b with SMTP id a92af1059eb24-130b1752467mr1065462c88.18.1777956029887;
-        Mon, 04 May 2026 21:40:29 -0700 (PDT)
-Received: from [192.168.1.18] (177-4-161-87.user3p.v-tal.net.br. [177.4.161.87])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2ee3b29b2casm18920019eec.14.2026.05.04.21.40.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 04 May 2026 21:40:29 -0700 (PDT)
-From: =?utf-8?q?C=C3=A1ssio_Gabriel?= <cassiogabrielcontato@gmail.com>
-Date: Tue, 05 May 2026 01:40:21 -0300
-Subject: [PATCH] ALSA: virtio: Add missing 384 kHz PCM rate mapping
+	dkim=pass (4096-bit key) header.d=pitsidianak.is header.i=@pitsidianak.is header.b="aBIq1B+N"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=pitsidianak.is;
+	s=mailSelector; t=1777968854;
+	bh=srS0KJY6aDDATKXTdP3+M8bPwx6xJgIYVSM8xP078/U=;
+	h=From:Subject:Date:To:Cc:From:Subject;
+	b=aBIq1B+Ni30ziPCzKq0IhQIpjE5Pza15AS1O1mCLhHwV9vEwoCWejCHM6ENNPUj5l
+	 xCxCO4fhoMEclQNvOd/NT1HZGIxdvOq0VhuKD8TEEC2m91B+l1CzD9DGodqmtLwWFO
+	 kVWcqlNe8d4VSqlmINFae92KI8gJJ2oesJGMXPSPjEf3EUUAgsT4PdD972vxv5CcGJ
+	 +7qiL4nDT+hd4dQkrdxM9P6pcj0zFfJWru+gVMOSl1aUD3jBYEZ74GKY+FlR3ZtxRY
+	 NMioAbh1CT0eIPhb57Xs/R9N8+vMAQzIP30BikAhG/EeomQ/LAScJJcCr4oOMtMABC
+	 GM5cSSW5tplKzT7U0gYKNggrC3Qq10n9XiCW+a1jXi4KGbxMLtoVj30cr60e8z+U2x
+	 kZUOiBYPcVtKQz3ymPCbOeDaa6mdR8HjCWzD3O1qW17ZFkH6RKFFz96cT8uLMI9qOo
+	 EbbINh0dRte8StkKZmSRg6I7+ey1SaXP6RArHPghr/mVOF6XJbCJ3OR1ecLVzySWGd
+	 dMNpAO55kBfUMj3JiyycC81X9zwlRep+1j4KAoxMjBpw0ovAU5XXOe8CgweS81EKTU
+	 2Vc5P64Rx9jQA22wOYNSYqcIt8YPqp/kmxkY02zE9eAqYyF3x1HNKChYQLfZAbTDpT
+	 3xZYZOTW14Qkt+cbtDUc5wBw=
+From: Manos Pitsidianakis <manos@pitsidianak.is>
+Subject: [PATCH RFC 0/6] Add Rust virtio bindings and sample device
+Date: Tue, 05 May 2026 11:14:00 +0300
+Message-Id: <20260505-rust-virtio-v1-0-9563383909e4@pitsidianak.is>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -66,83 +41,164 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
-Message-Id: <20260505-alsa-virtio-384k-rate-v1-1-ca092185bb03@gmail.com>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMQQ6CQAxA0auQrm2ChTDoVQyLih2oGjDtSEwId
- 3eU5Vv8v4KLqTicixVMFnWdp4zjoYB+5GkQ1Fs2UElNWRMhP51xUUs6Y9XWDzROgoGqKKcQKHI
- DuX2ZRP38v5dut7+vd+nTbwbb9gWphXDBeQAAAA==
-X-Change-ID: 20260422-alsa-virtio-384k-rate-723fe9772fa6
-To: Takashi Iwai <tiwai@suse.com>, 
- Anton Yakovlev <anton.yakovlev@opensynergy.com>, 
- "Michael S. Tsirkin" <mst@redhat.com>, Jaroslav Kysela <perex@perex.cz>
-Cc: virtualization@lists.linux.dev, linux-sound@vger.kernel.org, 
- linux-kernel@vger.kernel.org, stable@vger.kernel.org, 
- =?utf-8?q?C=C3=A1ssio_Gabriel?= <cassiogabrielcontato@gmail.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=2351;
- i=cassiogabrielcontato@gmail.com; h=from:subject:message-id;
- bh=xg+AzQSH02m2ChqkHlHOL0nslwkp1ELZhv5oYpTQd1Y=;
- b=owGbwMvMwCV2IdZeKur/u2bG02pJDJk/S3aFnYviPKy76r+C6bLPDEvun9saHRe3+O5Dt1K7P
- MbT7xu3d5SyMIhxMciKKbKsTlpkuafrwdX6uBUeMHNYmUCGMHBxCsBEFFwZGS5E8Yk32zOpbn3G
- +2Ujh8qBGSlftlWk3KkUXpelIPmvMI2R4defJeFKDCLdGtuZPu+qEvm5deurfXqcrccFJHzfPL3
- /hQEA
-X-Developer-Key: i=cassiogabrielcontato@gmail.com; a=openpgp;
- fpr=AB62A239BC8AE0D57F5EA848D05D3F1A5AFFEE83
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAMmm+WkC/6tWKk4tykwtVrJSqFYqSi3LLM7MzwNyDHUUlJIzE
+ vPSU3UzU4B8JSMDIzMDUwMT3aLS4hLdssyiksx8XQtTI+MkA8OUtJRkIyWgjoKi1LTMCrBp0Up
+ Bbs5KsUDBjMzikvyiSpANtbW1ANzQPI9xAAAA
+X-Change-ID: 20260504-rust-virtio-8523b01dfdc2
+To: Miguel Ojeda <ojeda@kernel.org>
+Cc: Manos Pitsidianakis <manos.pitsidianakis@linaro.org>, 
+ Peter Hilber <peter.hilber@oss.qualcomm.com>, 
+ Stefano Garzarella <sgarzare@redhat.com>, 
+ Stefan Hajnoczi <stefanha@redhat.com>, 
+ Viresh Kumar <viresh.kumar@linaro.org>, 
+ "Michael S. Tsirkin" <mst@redhat.com>, Boqun Feng <boqun@kernel.org>, 
+ Gary Guo <gary@garyguo.net>, 
+ =?utf-8?q?Bj=C3=B6rn_Roy_Baron?= <bjorn3_gh@protonmail.com>, 
+ Benno Lossin <lossin@kernel.org>, Andreas Hindborg <a.hindborg@kernel.org>, 
+ Alice Ryhl <aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>, 
+ Danilo Krummrich <dakr@kernel.org>, rust-for-linux@vger.kernel.org, 
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+ Manos Pitsidianakis <manos@pitsidianak.is>
+X-Developer-Signature: v=1; a=openpgp-sha256; l=6107; i=manos@pitsidianak.is;
+ h=from:subject:message-id; bh=srS0KJY6aDDATKXTdP3+M8bPwx6xJgIYVSM8xP078/U=;
+ b=LS0tLS1CRUdJTiBQR1AgTUVTU0FHRS0tLS0tCgpvd0VCYlFLUy9aQU5Bd0FLQVhjcHgzQi9mZ
+ 25RQWNzbVlnQnArYWJTMXdBd2tCWC9lSnNiZDRRZXFid1dpbmN5CldWYVRSZ2pYWDAwRVpwLzB2
+ enlKQWpNRUFBRUtBQjBXSVFUTVhCdE9SS0JXODRkd0hSQjNLY2R3ZjM0SjBBVUMKYWZtbTBnQUt
+ DUkIzS2Nkd2YzNEowUEJQRC80by9KY1hYbXpJNGtEakdVelV6WWNvZHVBbFJ1M3ZiTWhvelRjQg
+ pqcjhzODQyUjlJU1pvZElYU3V6eXdmTkJlcjhKNlFQQU5DL0N4SkRmTW5qaXFNMFFtR2dhRzUxQ
+ zFUUVAzWGNNCmdZTHVKOWVYdGduWEJHSjZjYVFaNVB1aml1a0ZIcC80MUt2N1F4bGJ0TVUxOVM2
+ SG1rdFBNNytHQ3hqVmRySTAKWXpHd1AxWjhqakVFMm1ET1J6ZENGR2twRU5lR2p2bG5WcEQveU9
+ scWN1Mk5mSFJxVkZodm9Ba0xjUWowNk51bwptbU5vTXVZZ3NPZ3EyT3N3MmFOWXoyc3l5eDZBWF
+ hVSWxqazhXekdLSS9WR3U2RVJ0KzNRdzNoenhSdWU0TURWClc2NWpoWS9nUEkyZ0NOMldjOUpmM
+ k5taTVlaFlZUWlsRUtFU3pCVmY2NWRtb3pWS1VMU1ZzOHlJTERnVVZzV1YKK01QMEYvaGRJNS9E
+ c1VIY0ZaRWxvZlg2S1NNazRkaGVmL2gvMVZDM1k2cW9RamoySktPODZiZ3VPYnFzUzg5awpNWTR
+ 3U0J6aFhKazJKUXc3TlBvbGQvNm9pTjczd2x2QWRhejRBTHJocHBwREZVRVJscmFkdUFxamF4c1
+ pEY0dICnR2elNISUVIcFNqOGluczgvc2hkSkZ6VTJvUFZuMVRrZW1wSmRTd3pPb0xpbnNaaFROS
+ ENYbVM0UkZVcGovQ00KSFZVc01ReTJhcFR6eE90ZUptSGJZcWJpazkzcUVhVW5BTTRyeDFjL3BP
+ d0tlRXZ3MXFLdGtlUHNYY0NSME40SAprVHk3eWFxc28wWTBDbUVhRGtOMStNeFVJemxSZ21YaWx
+ rby9scUhxcVpkRVZTNGFwbXp6SHFUVlIvbmFjL0NJCmFrQVRUZz09Cj1oalFMCi0tLS0tRU5EIF
+ BHUCBNRVNTQUdFLS0tLS0K
+X-Developer-Key: i=manos@pitsidianak.is; a=openpgp;
+ fpr=7C721DF9DB3CC7182311C0BF68BC211D47B421E1
 
-The VirtIO sound UAPI defines VIRTIO_SND_PCM_RATE_384000, and ALSA
-has SNDRV_PCM_RATE_384000. However, virtio-snd's rate conversion
-tables stop at 192 kHz.
+Hi all, this RFC series adds Rust bindings for Virtio drivers
+(frontends in virtio parlance).
 
-A device advertising only 384 kHz is rejected as having no supported
-PCM frame rates. A device advertising 384 kHz together with lower rates
-does not expose 384 kHz through the ALSA hardware constraints. The
-selected ALSA rate also needs a reverse mapping for SET_PARAMS.
+As a PoC, it also adds a sample virtio-rtc driver which performs
+capability discovery through the virtqueue without registering any clock.
 
-Add the missing 384 kHz entries to both conversion tables.
+Before I send a cleaned-up non-RFC I would like some initial feedback
+(i.e. is it something the upstream wants?)
 
-Fixes: 29b96bf50ba9 ("ALSA: virtio: build PCM devices and substream hardware descriptors")
-Fixes: da76e9f3e43a ("ALSA: virtio: PCM substream operators")
-Cc: stable@vger.kernel.org
-Signed-off-by: Cássio Gabriel <cassiogabrielcontato@gmail.com>
+This was tested with the rust-vmm vhost-device-rtc device backend that I
+wrote[^0]:
+
+[^0]: https://github.com/rust-vmm/vhost-device/tree/main/vhost-device-rtc
+
+Instructions:
+
+  Run the daemon in a separate terminal:
+
+  $ cargo run --bin vhost-device-rtc -- -s /tmp/rtc.sock
+
+  Then run the VM:
+
+  $ qemu-system-aarch64 \
+    -machine type=virt,virtualization=off,acpi=on \
+    -cpu host \
+    -smp 8 \
+    -accel kvm \
+    -drive if=virtio,format=qcow2,file=./debian-13-nocloud-arm64-daily.qcow2 \
+    -device virtio-net-pci,netdev=unet \
+    -device virtio-scsi-pci \
+    -serial mon:stdio \
+    -m 8192 \
+    -object memory-backend-memfd,id=mem,size=8G,share=on \
+    -numa node,memdev=mem \
+    -display none \
+    -vga none \
+    -kernel /path/to/linux/build/arch/arm64/boot/Image \
+    -device vhost-user-test-device,chardev=rtc,id=rtc,virtio-id=17,num_vqs=2,vq_size=1024 \
+    -chardev socket,path=/tmp/rtc.sock,id=rtc \
+    ...
+
+  Example output:
+    [    1.105238] rust_virtio_rtc: Probe Rust virtio driver sample.
+    [    1.105645] rust_virtio_rtc: Found 1 vqs.
+    [    1.136050] rust_virtio_rtc: process_requestq got buf 16 bytes
+    [    1.136125] rust_virtio_rtc: Got response! Ok(RespCfg { head: ReqHead { msg_type: Le16(0), reserved: [0, 0, 0, 0, 0, 0] }, num_clocks: Le16(3), reserved: [0, 0, 0, 0, 0, 0] })
+    [    1.136701] rust_virtio_rtc: Got response! Ok(RespClockCap { head: ReqHead { msg_type: Le16(0), reserved: [0, 0, 0, 0, 0, 0] }, clock_type: 3, leap_second_smearing: 0, flags: 0, reserved: [0, 0, 0, 0, 0] })
+    [    1.136724] rust_virtio_rtc virtio0: cannot expose clock 0 (type 3, variant 0, flags 0) to userspace
+    [    1.137259] rust_virtio_rtc: Got response! Ok(RespRead { head: ReqHead { msg_type: Le16(0), reserved: [0, 0, 0, 0, 0, 0] }, clock_reading: Le64(1777890485031060388) })
+    [    1.137277] rust_virtio_rtc: #0 clock reading = 1777890485031060388
+    [    1.137749] rust_virtio_rtc: Got response! Ok(RespClockCap { head: ReqHead { msg_type: Le16(0), reserved: [0, 0, 0, 0, 0, 0] }, clock_type: 1, leap_second_smearing: 0, flags: 0, reserved: [0, 0, 0, 0, 0] })
+    [    1.137769] rust_virtio_rtc virtio0: cannot expose clock 1 (type 1, variant 0, flags 0) to userspace
+    [    1.138247] rust_virtio_rtc: Got response! Ok(RespRead { head: ReqHead { msg_type: Le16(0), reserved: [0, 0, 0, 0, 0, 0] }, clock_reading: Le64(1777890485032086075) })
+    [    1.138264] rust_virtio_rtc: #1 clock reading = 1777890485032086075
+    [    1.138730] rust_virtio_rtc: Got response! Ok(RespClockCap { head: ReqHead { msg_type: Le16(0), reserved: [0, 0, 0, 0, 0, 0] }, clock_type: 2, leap_second_smearing: 0, flags: 0, reserved: [0, 0, 0, 0, 0] })
+    [    1.138751] rust_virtio_rtc virtio0: cannot expose clock 2 (type 2, variant 0, flags 0) to userspace
+    [    1.139253] rust_virtio_rtc: Got response! Ok(RespRead { head: ReqHead { msg_type: Le16(0), reserved: [0, 0, 0, 0, 0, 0] }, clock_reading: Le64(338567896865557) })
+    [    1.139270] rust_virtio_rtc: #2 clock reading = 338567896865557
+
+Concerns - Notes - TODOs
+========================
+
+- Virtqueue lifetimes don't neatly apply to Rust as expected, so a lot
+  of times we have to go through unsafe pointer dereferences (though
+  which are guaranteed by Virtio subsystem to be valid, for example when
+  a callback is called with the vq argument). There's a potential for
+  misuse and definitely could use better thinking.
+- `struct virtio_device` is not reference-counted like other implemented
+  device types in rust/kernel. Maybe we need to change C API first to
+  make them reference counted, assuming this doesn't break anything?
+- Not sure if adding data smaller than PAGE_SIZE to virtqueue is safe
+  (which current C code does a lot), so I made those allocations at
+  least PAGE_SIZE.
+- The sample driver obviously conflicts with the C implementation, so
+  this would either need to move out of samples/ or figure out some way
+  to handle this in kbuild.
+- kernel::virtio module and its types need a few rustdoc examples that I
+  will add in followup series
+- Note that the registration of RTC clocks etc in the sample driver is
+  not done, I'm putting it off until I receive some feedback first. The
+  sample driver otherwise does send and receive data from the virtqueue
+  as a PoC. The code and data structures can be cleaned up further
+  before followup series.
+
+PS: No LLMs used so any mistakes and goofs are solely written by me.
+
+Signed-off-by: Manos Pitsidianakis <manos@pitsidianak.is>
 ---
- sound/virtio/virtio_pcm.c     | 3 ++-
- sound/virtio/virtio_pcm_ops.c | 3 ++-
- 2 files changed, 4 insertions(+), 2 deletions(-)
+Manos Pitsidianakis (6):
+      rust/bindings: generate virtio bindings
+      rust/helpers: add virtio.c
+      rust: add virtio module
+      rust/scatterlist: add SGEntry::init_one
+      rust: impl interruptible waits for Completion
+      samples/rust: Add sample virtio-rtc driver [WIP]
 
-diff --git a/sound/virtio/virtio_pcm.c b/sound/virtio/virtio_pcm.c
-index eb9cc8131905..be3893de40a5 100644
---- a/sound/virtio/virtio_pcm.c
-+++ b/sound/virtio/virtio_pcm.c
-@@ -77,7 +77,8 @@ static const struct virtsnd_v2a_rate g_v2a_rate_map[] = {
- 	[VIRTIO_SND_PCM_RATE_88200] = { SNDRV_PCM_RATE_88200, 88200 },
- 	[VIRTIO_SND_PCM_RATE_96000] = { SNDRV_PCM_RATE_96000, 96000 },
- 	[VIRTIO_SND_PCM_RATE_176400] = { SNDRV_PCM_RATE_176400, 176400 },
--	[VIRTIO_SND_PCM_RATE_192000] = { SNDRV_PCM_RATE_192000, 192000 }
-+	[VIRTIO_SND_PCM_RATE_192000] = { SNDRV_PCM_RATE_192000, 192000 },
-+	[VIRTIO_SND_PCM_RATE_384000] = { SNDRV_PCM_RATE_384000, 384000 }
- };
- 
- /**
-diff --git a/sound/virtio/virtio_pcm_ops.c b/sound/virtio/virtio_pcm_ops.c
-index 6297a9c61e70..1105e7ff3523 100644
---- a/sound/virtio/virtio_pcm_ops.c
-+++ b/sound/virtio/virtio_pcm_ops.c
-@@ -90,7 +90,8 @@ static const struct virtsnd_a2v_rate g_a2v_rate_map[] = {
- 	{ 88200, VIRTIO_SND_PCM_RATE_88200 },
- 	{ 96000, VIRTIO_SND_PCM_RATE_96000 },
- 	{ 176400, VIRTIO_SND_PCM_RATE_176400 },
--	{ 192000, VIRTIO_SND_PCM_RATE_192000 }
-+	{ 192000, VIRTIO_SND_PCM_RATE_192000 },
-+	{ 384000, VIRTIO_SND_PCM_RATE_384000 }
- };
- 
- static int virtsnd_pcm_sync_stop(struct snd_pcm_substream *substream);
-
+ MAINTAINERS                     |   9 +
+ rust/bindings/bindings_helper.h |   5 +
+ rust/helpers/helpers.c          |   3 +
+ rust/helpers/virtio.c           |  35 +++
+ rust/kernel/lib.rs              |   2 +
+ rust/kernel/scatterlist.rs      |  20 +-
+ rust/kernel/sync/completion.rs  |  39 ++++
+ rust/kernel/virtio.rs           | 415 +++++++++++++++++++++++++++++++++++
+ rust/kernel/virtio/utils.rs     |  65 ++++++
+ rust/kernel/virtio/virtqueue.rs | 181 ++++++++++++++++
+ samples/rust/Kconfig            |  15 ++
+ samples/rust/Makefile           |   1 +
+ samples/rust/rust_virtio_rtc.rs | 470 ++++++++++++++++++++++++++++++++++++++++
+ 13 files changed, 1259 insertions(+), 1 deletion(-)
 ---
-base-commit: fac9a31701803e4e41fdb7b5c71582c65cf47176
-change-id: 20260422-alsa-virtio-384k-rate-723fe9772fa6
+base-commit: 028ef9c96e96197026887c0f092424679298aae8
+change-id: 20260504-rust-virtio-8523b01dfdc2
 
 Best regards,
---  
-Cássio Gabriel <cassiogabrielcontato@gmail.com>
+-- 
+Manos Pitsidianakis <manos@pitsidianak.is>
 
