@@ -1,287 +1,261 @@
-Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3371D48C8DE
-	for <virtualization@lists.linux.dev>; Wed,  6 May 2026 16:24:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE324331A76
+	for <virtualization@lists.linux.dev>; Wed,  6 May 2026 22:18:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778084664; cv=none; b=i/Jar/1us5+PApB35J8qCf3HNlrXWY9cSMtkWvco2Td8qkPoyMuaG7ANPh7b6G8RaOWjz2AJ7kym14K4wL3J0U8P37+AVikyjzICbaWxt5l4u/G25vpjUJ2Q/Im2bQ1uiqY+mTgdNF2g3dIJPQoP4oc7dOx8pNnXl1qY+qI97gU=
+	t=1778105941; cv=none; b=g+bdInaCdGt+FbZc95M1QF4qBmV7lrKfnX9TOCkTv/8sZvIU8Ig916wT5lL6I2xWfraEBHqagcKW4KLoqAwB/HBLb6+XDvi/t5FblhAtzRGKO2JXNLt9W8FFxB/++eG1VV2tqxQPr+1Iv8bRII8Qm5CCR8WnvD1uqNyaHOmroZ0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778084664; c=relaxed/simple;
-	bh=IolL4RY97C9MSpLuk3s2ulTCNVbomPxJq0SB6QX/VVE=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=rAM/myxgMg+rmBM98UPfiN/zE/tGoHh/pHol/ssj+OJ/mfWZ7pdcKfoUaI6HDREguYN6RWRFHvbEX9wDwGjPgA0qJNZy7rjlYTX3zs4kDAQKujCNvB4aqcLEZP8dhvEplZAk0Q46LEEebOaqZVbV2jbBF+HY3Qcip+fKkZUNdwk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gKQHpC5V; arc=none smtp.client-ip=209.85.210.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1778105941; c=relaxed/simple;
+	bh=xowx2aws2zk3Zd66+dpqpP2+/Ry8gOTMIEfy3bzK8SA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=uL/hOKQcMW4oS/pvoexipbJEg8it4CB48mPvwOMN/ab3zrIQBYEDgVV45wIN0oTr+s3UphoMXRWbiChWCPxbcwWti2Y9/6JmRyNqYMaFvJcMNiFJHoEgUUJz+DTDRp+PH67rBWx/uq8xbo/xEBWtauR1pUlmsEgZH8in13TpGRQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=agkgkIeW; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gKQHpC5V"
-Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-82f9fdfc965so3091940b3a.1
-        for <virtualization@lists.linux.dev>; Wed, 06 May 2026 09:24:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778084662; x=1778689462; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=GLZ6Q/p8ThasrMA2tuzRiOEHpqfxlyjFwiRgvxlFlJI=;
-        b=gKQHpC5VARo1WevW9xc6SBY0BrllB6rOv2vw6gJFWEKXhVqDkfYept5wb3WrLh6N9M
-         3MyPP9RMX+6nApVDF1mG6hrH+cok+NiNLhAOpKqEQgdh4IfOcwZg0HvAAH1lPIZWI/kP
-         mLlvFGQlpTWhFcQ3wO+m5NbzvlSc4CZOeFjU3QY+QEgTs0jz4Qnev5iEfquaPHi/A+3p
-         Ia6izjeDG1dGYarS/v3OsrJmBMNf4ECRy0mWaAlCKO+Dc09UIb9FrDzbt8lAxAXaz+wT
-         XJ7OShF1ayca6UZDp4ABo6Wd9MGqa53jzdl35iltFkQr8v42eWYml6mmGx4GHjOIvQCa
-         LOZg==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="agkgkIeW"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1778105938;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Y12GQ51sePHfLNuYSwUrWXfEMIUEYmPo7/Zy93R3cDo=;
+	b=agkgkIeWjaDcSXrk8RVVPv1barPTldwfY+botHynFMTaJAtgYRbeXqvbRcA9i/XpKZO8nz
+	qxK7tPkCE5ArhTr8J4xyGEYEeFsGcnu5yDJDqaMuRL90Od8GXtmxk4kPh+Z9e3FX/lK1e/
+	HUgjGuOl9Kvi6T3aEpCN7bx50KJixwI=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-73-IKCFrRD3NueqRpqWau-r1w-1; Wed, 06 May 2026 18:18:57 -0400
+X-MC-Unique: IKCFrRD3NueqRpqWau-r1w-1
+X-Mimecast-MFC-AGG-ID: IKCFrRD3NueqRpqWau-r1w_1778105936
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-44d83e45febso1085218f8f.0
+        for <virtualization@lists.linux.dev>; Wed, 06 May 2026 15:18:57 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778084662; x=1778689462;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=GLZ6Q/p8ThasrMA2tuzRiOEHpqfxlyjFwiRgvxlFlJI=;
-        b=n4FsAt2ylqEulMSVs0KpvLh6uCbJSDBlwwqG4vTV2dO3TKltcZHydHe6tpaMYivmvB
-         thTb6SglzbZ7Zj65tnIYPhEAGEoDL3FOe5ZIcIiqagvyNVvniPjB/qMwEKAOi1LquCl0
-         TkmidL0wbVZn5cdMQ8R7xUdWJUOrwqBV3TMKnJUF1ldU9Hw/ryYrAeijFVUKy1M+zO0n
-         k59pImpSJxRtuoJ7+ghnpDq63a4i/AT6FwVWnxPeGAreRV3k/2sNHCXJb8srwQc9i+PE
-         YTH5tMDICFjtvmKZiamqfDgbWxOmtA27QcGYQ+deLqV+YLhqEZVtgBJLMapzQagdFKRv
-         /AoQ==
-X-Forwarded-Encrypted: i=1; AFNElJ9GxH/SP/v3BjRtiwK0fp9TIelA2XBoXLbaOZfIInzdswdmpB57EuZ/bIHpuLA+nzygcLTMVIa8kPKTQbjhlg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzoopatGDYl/yREkguc7RDnayT+gFTsSDmp05xlPooAbQ/AUire
-	evuHcoZX0LlC4KvbRilR/gz6CoeNQHxnHVdil2mG33H/iiOy9IiMeqx4
-X-Gm-Gg: AeBDiet2HN2OMm2kIHN0XJxql6oXsqdV0GjeqvqWPo/nTnzoLfr5gScsm2xczWSa5A6
-	QOPZCOSGyZVsRy75o1JXXpmPtrkd4kkN6O7XM5t9TzqbXG8LeFSYY/YeDzXtRhRRrLhbWcFkaUb
-	Z2JWv8MwkZCr6trGUpvqujnC9tT3yPUVW/x7z8Ft0Ni1jVizDwQnd/eRBM1IbyGdYZ2QNd5rhAK
-	mpoPgMG2VVczNitw/xgKepmk46MSXTlpGPuggCdUZraGlLLzhdQ5RoSPkY7lISgF85UJ8OrcUaj
-	RePPSVArlZICMSEtG4iBb3nAZrUo0CEUwaPulSMVPJyosZv2C4WFwhErFiQBWPIMBFdVbYGyxxx
-	IRu4x5M/4Pv3rxZNq7YW1SJda94nKkRmXLxcy4Z+XAzyKM1bc7iV1HuK7Jy/qbWhMzPQMnkaX6e
-	DsADWD1Wo8T+J4JVV0zq8GLTR2dNTNaV/C/tXRv8iV0U3kPQ+1RiCpfTfp2CqEYHGZB92FCNGGy
-	jG7EdlM7+Z28tFdpGjVqcrTlnmCPVQgwoFQ4S8M6XGm6n7f
-X-Received: by 2002:a05:6a00:4655:b0:82f:38:a5b2 with SMTP id d2e1a72fcca58-83a5dd5582bmr3835165b3a.40.1778084662312;
-        Wed, 06 May 2026 09:24:22 -0700 (PDT)
-Received: from baver-zenith.localdomain ([124.49.88.131])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-839679c8629sm5980337b3a.36.2026.05.06.09.24.20
+        d=1e100.net; s=20251104; t=1778105936; x=1778710736;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Y12GQ51sePHfLNuYSwUrWXfEMIUEYmPo7/Zy93R3cDo=;
+        b=nS7AfK0p5zsRBl8hWDuPzZDiwqPRXQR6QQa2ozwBhM5Komyoty+CrqJPcKtjhLIGSi
+         BJ2IQQ++k3THR3qcsvB/rpK9cgSbQGRNodBGHBCY4oNHdKqb/BeKEocUGyVLf7UAqS63
+         T78gQ0yRyAinfQp8rV5fCBnmeNZKM2iM4hWlvn72wWaI60xqNX+RQ/wb2+uF/y2SQQVM
+         k+/EQxW2IYlINZYXNzFDF2A0j76i6uHhDDA/igE4FnFJDxIXTiYoPoEfPmHDmrWJUFhv
+         TyDhVCck7Gll6oo9kwuKw8OeWp+Avs6GKkeL3MNJx2aRSCdujbO3F7qpHwE21ARhvG0t
+         TrcQ==
+X-Forwarded-Encrypted: i=1; AFNElJ9oxxXPXekpM7mjLI606gmEyPMvMhbOpz5TxxcDZxY9UrKkO7HdCUYxe8xVmVnLnFhn7MHFTdud+2To2TMgZg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyjARgvWdKyrBtrZbfjpHKt9JPdPmEyj8SLeK95GPk3tFSzkkIx
+	Ffw8GTlBS0p8Y6hMVhO5V6vsI2h/6lSVxszv9iyWY/uglV7hh0Yq9pmnsQvfYFUbtH4VQrhR01V
+	qC/kd0iX41P7WpCkiLEG9zEf9OVgRpLX2tswa07EWSPTCbvW7m5STglL+HKXM77goRJph
+X-Gm-Gg: AeBDiesmGhbBrE2JP7tdAbHh7PkeskfeLpFcgBD0KOvsLs5OJ+M6FGj+lfaMp8Yfn+H
+	Sz49oLjpEUNLIpfB8adW9oeJ1QJz5c3aGEAp09zHTdiJwzlldYsu0pw0cXIE69HCozcp+eXq92M
+	qjS67ysE1IHhDyccUvS5UkluW+z8LRolBpgdQhPv+Ls5PoNsClGMfYjOh8HArYBE+cyoc3AZGLW
+	WKnoqaX1JdPgavIvyEPx0tD08/ljbszuJ6hPPeJ3viD/32U5PcfEhGK6Nzvwsf2JIV3vqdnvWlp
+	jsC+C34R1JM+7gAMv0355novyp+hoWMTLUNsf85++MoA4ex3/8kKn5oLiz7FDPz3/F5JuDAiWQv
+	JQCKG0DRdk5+6HqvKQga1BM4qPkVCYfpOSVJx8rjxYGblALipQbk=
+X-Received: by 2002:a05:6000:2383:b0:43e:a75e:352 with SMTP id ffacd0b85a97d-452e78b35a2mr564062f8f.4.1778105936393;
+        Wed, 06 May 2026 15:18:56 -0700 (PDT)
+X-Received: by 2002:a05:6000:2383:b0:43e:a75e:352 with SMTP id ffacd0b85a97d-452e78b35a2mr564023f8f.4.1778105935851;
+        Wed, 06 May 2026 15:18:55 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-48-7.inter.net.il. [80.230.48.7])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45052a48f63sm15004698f8f.16.2026.05.06.15.18.53
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 May 2026 09:24:21 -0700 (PDT)
-From: Sungho Bae <baver.bae@gmail.com>
-To: mst@redhat.com,
-	jasowang@redhat.com
-Cc: xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Sungho Bae <baver.bae@lge.com>
-Subject: [RFC PATCH v8 4/4] virtio-mmio: wire up noirq system sleep PM callbacks
-Date: Thu,  7 May 2026 01:22:54 +0900
-Message-Id: <20260506162254.25576-5-baver.bae@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260506162254.25576-1-baver.bae@gmail.com>
-References: <20260506162254.25576-1-baver.bae@gmail.com>
+        Wed, 06 May 2026 15:18:55 -0700 (PDT)
+Date: Wed, 6 May 2026 18:18:51 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Simon Schippers <simon.schippers@tu-dortmund.de>
+Cc: willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
+	andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+	kuba@kernel.org, pabeni@redhat.com, eperezma@redhat.com,
+	leiyang@redhat.com, stephen@networkplumber.org, jon@nutanix.com,
+	tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev
+Subject: Re: [PATCH net-next v10 1/4] tun/tap: add ptr_ring consume helper
+ with netdev queue wakeup
+Message-ID: <20260506181556-mutt-send-email-mst@kernel.org>
+References: <20260506141033.180450-1-simon.schippers@tu-dortmund.de>
+ <20260506141033.180450-2-simon.schippers@tu-dortmund.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260506141033.180450-2-simon.schippers@tu-dortmund.de>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: o60SEtICrRCz6pHl3wXGMICdwGiBARsVWvIMZ6IlD0Y_1778105936
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-From: Sungho Bae <baver.bae@lge.com>
+On Wed, May 06, 2026 at 04:10:30PM +0200, Simon Schippers wrote:
+> Introduce tun_ring_consume() that wraps ptr_ring_consume() and calls
+> __tun_wake_queue(). The latter wakes the stopped netdev subqueue once
+> half of the ring capacity has been consumed, tracked via the new
+> cons_cnt field in tun_file. cons_cnt is updated while holding the ring
+> consumer lock, avoiding races. As a safety net, the queue is also woken
+> when the ring becomes empty. The point is to allow the queue to be
+> stopped when it gets full, which is required for traffic shaping -
+> implemented by the following "avoid ptr_ring tail-drop when a qdisc
+> is present". That patch also explains the pairing of the smp_mb()
+> of __tun_wake_queue().
+> 
+> Without the corresponding queue stopping, this patch alone causes no
+> regression for a tap setup sending to a qemu VM: 1.132 Mpps
+> to 1.144 Mpps.
+> 
+> Details: AMD Ryzen 5 5600X at 4.3 GHz, 3200 MHz RAM, isolated QEMU
+> threads, pktgen sender; Avg over 50 runs @ 100,000,000 packets;
+> SRSO and spectre v2 mitigations disabled.
+> 
+> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
+> ---
+>  drivers/net/tun.c | 54 +++++++++++++++++++++++++++++++++++++++++++----
+>  1 file changed, 50 insertions(+), 4 deletions(-)
+> 
+> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+> index b183189f1853..00ecf128fe8e 100644
+> --- a/drivers/net/tun.c
+> +++ b/drivers/net/tun.c
+> @@ -145,6 +145,7 @@ struct tun_file {
+>  	struct list_head next;
+>  	struct tun_struct *detached;
+>  	struct ptr_ring tx_ring;
+> +	int cons_cnt;
+>  	struct xdp_rxq_info xdp_rxq;
+>  };
+>  
+> @@ -557,6 +558,13 @@ void tun_ptr_free(void *ptr)
+>  }
+>  EXPORT_SYMBOL_GPL(tun_ptr_free);
+>  
+> +static void tun_reset_cons_cnt(struct tun_file *tfile)
+> +{
+> +	spin_lock(&tfile->tx_ring.consumer_lock);
+> +	tfile->cons_cnt = 0;
+> +	spin_unlock(&tfile->tx_ring.consumer_lock);
+> +}
+> +
+>  static void tun_queue_purge(struct tun_file *tfile)
+>  {
+>  	void *ptr;
+> @@ -564,6 +572,7 @@ static void tun_queue_purge(struct tun_file *tfile)
+>  	while ((ptr = ptr_ring_consume(&tfile->tx_ring)) != NULL)
+>  		tun_ptr_free(ptr);
+>  
+> +	tun_reset_cons_cnt(tfile);
+>  	skb_queue_purge(&tfile->sk.sk_write_queue);
+>  	skb_queue_purge(&tfile->sk.sk_error_queue);
+>  }
+> @@ -730,6 +739,7 @@ static int tun_attach(struct tun_struct *tun, struct file *file,
+>  		goto out;
+>  	}
+>  
+> +	tun_reset_cons_cnt(tfile);
+>  	tfile->queue_index = tun->numqueues;
+>  	tfile->socket.sk->sk_shutdown &= ~RCV_SHUTDOWN;
+>  
+> @@ -2115,13 +2125,46 @@ static ssize_t tun_put_user(struct tun_struct *tun,
+>  	return total;
+>  }
+>  
+> -static void *tun_ring_recv(struct tun_file *tfile, int noblock, int *err)
+> +/* Callers must hold ring.consumer_lock */
+> +static void __tun_wake_queue(struct tun_struct *tun,
+> +			     struct tun_file *tfile, int consumed)
+> +{
+> +	struct netdev_queue *txq = netdev_get_tx_queue(tun->dev,
+> +						tfile->queue_index);
+> +
+> +	/* Paired with smp_mb__after_atomic() in tun_net_xmit() */
+> +	smp_mb();
+> +	if (netif_tx_queue_stopped(txq)) {
+> +		tfile->cons_cnt += consumed;
+> +		if (tfile->cons_cnt >= tfile->tx_ring.size / 2 ||
+> +		    __ptr_ring_empty(&tfile->tx_ring)) {
+> +			netif_tx_wake_queue(txq);
+> +			tfile->cons_cnt = 0;
+> +		}
+> +	}
+> +}
+> +
+> +static void *tun_ring_consume(struct tun_struct *tun, struct tun_file *tfile)
+> +{
+> +	void *ptr;
+> +
+> +	spin_lock(&tfile->tx_ring.consumer_lock);
+> +	ptr = __ptr_ring_consume(&tfile->tx_ring);
+> +	if (ptr)
+> +		__tun_wake_queue(tun, tfile, 1);
+> +
+> +	spin_unlock(&tfile->tx_ring.consumer_lock);
+> +	return ptr;
+> +}
+> +
+> +static void *tun_ring_recv(struct tun_struct *tun, struct tun_file *tfile,
+> +			   int noblock, int *err)
+>  {
+>  	DECLARE_WAITQUEUE(wait, current);
+>  	void *ptr = NULL;
+>  	int error = 0;
+>  
+> -	ptr = ptr_ring_consume(&tfile->tx_ring);
+> +	ptr = tun_ring_consume(tun, tfile);
+>  	if (ptr)
+>  		goto out;
+>  	if (noblock) {
+> @@ -2133,7 +2176,7 @@ static void *tun_ring_recv(struct tun_file *tfile, int noblock, int *err)
+>  
+>  	while (1) {
+>  		set_current_state(TASK_INTERRUPTIBLE);
+> -		ptr = ptr_ring_consume(&tfile->tx_ring);
+> +		ptr = tun_ring_consume(tun, tfile);
+>  		if (ptr)
+>  			break;
+>  		if (signal_pending(current)) {
 
-Add noirq system-sleep PM support to the virtio-mmio transport.
 
-This change wires noirq freeze/restore callbacks into virtio-mmio and
-hooks queue reset/reactivation into the transport config ops so virtqueues
-can be reinitialized and reused across suspend/resume.
+So based on commit log I expected all calls to ptr_ring_consume to
+be replaced with tun_ring_consume, but it looks like tun_queue_purge
+still calls ptr_ring_consume.
+I suspect that together with patch 4 it can sometimes leave us stuck
+with a stopped queue and an empty ring, forever.
 
-For legacy (v1) devices, keep GUEST_PAGE_SIZE programming aligned with the
-noirq restore path while avoiding duplicate programming in normal restore.
 
-This enables virtio-mmio based devices to participate safely in the noirq
-PM phase, which is required for early-restore users.
 
-Signed-off-by: Sungho Bae <baver.bae@lge.com>
----
- drivers/virtio/virtio_mmio.c | 137 +++++++++++++++++++++++++----------
- 1 file changed, 97 insertions(+), 40 deletions(-)
 
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 595c2274fbb5..4f4836103b88 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -336,6 +336,77 @@ static void vm_del_vqs(struct virtio_device *vdev)
- 	free_irq(platform_get_irq(vm_dev->pdev, 0), vm_dev);
- }
- 
-+static int vm_active_vq(struct virtio_device *vdev, struct virtqueue *vq)
-+{
-+	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-+	int q_num = virtqueue_get_vring_size(vq);
-+
-+	writel(q_num, vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
-+	if (vm_dev->version == 1) {
-+		u64 q_pfn = virtqueue_get_desc_addr(vq) >> PAGE_SHIFT;
-+
-+		/*
-+		 * virtio-mmio v1 uses a 32bit QUEUE PFN. If we have something
-+		 * that doesn't fit in 32bit, fail the setup rather than
-+		 * pretending to be successful.
-+		 */
-+		if (q_pfn >> 32) {
-+			dev_err(&vdev->dev,
-+				"platform bug: legacy virtio-mmio must not be used with RAM above 0x%llxGB\n",
-+				0x1ULL << (32 + PAGE_SHIFT - 30));
-+			return -E2BIG;
-+		}
-+
-+		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_QUEUE_ALIGN);
-+		writel(q_pfn, vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
-+	} else {
-+		u64 addr;
-+
-+		addr = virtqueue_get_desc_addr(vq);
-+		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_LOW);
-+		writel((u32)(addr >> 32),
-+				vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_HIGH);
-+
-+		addr = virtqueue_get_avail_addr(vq);
-+		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_LOW);
-+		writel((u32)(addr >> 32),
-+				vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_HIGH);
-+
-+		addr = virtqueue_get_used_addr(vq);
-+		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_USED_LOW);
-+		writel((u32)(addr >> 32),
-+				vm_dev->base + VIRTIO_MMIO_QUEUE_USED_HIGH);
-+
-+		writel(1, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
-+	}
-+
-+	return 0;
-+}
-+
-+static int vm_reset_vqs(struct virtio_device *vdev)
-+{
-+	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-+	struct virtqueue *vq;
-+	int err;
-+
-+	virtio_device_for_each_vq(vdev, vq) {
-+		/* Re-initialize vring state */
-+		err = virtqueue_reinit_vring(vq);
-+		if (err < 0)
-+			return err;
-+
-+		/* Select the queue we're interested in */
-+		writel(vq->index, vm_dev->base + VIRTIO_MMIO_QUEUE_SEL);
-+
-+		/* Activate the queue */
-+		err = vm_active_vq(vdev, vq);
-+		if (err < 0)
-+			return err;
-+	}
-+
-+	return 0;
-+}
-+
- static void vm_synchronize_cbs(struct virtio_device *vdev)
- {
- 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
-@@ -388,45 +459,9 @@ static struct virtqueue *vm_setup_vq(struct virtio_device *vdev, unsigned int in
- 	vq->num_max = num;
- 
- 	/* Activate the queue */
--	writel(virtqueue_get_vring_size(vq), vm_dev->base + VIRTIO_MMIO_QUEUE_NUM);
--	if (vm_dev->version == 1) {
--		u64 q_pfn = virtqueue_get_desc_addr(vq) >> PAGE_SHIFT;
--
--		/*
--		 * virtio-mmio v1 uses a 32bit QUEUE PFN. If we have something
--		 * that doesn't fit in 32bit, fail the setup rather than
--		 * pretending to be successful.
--		 */
--		if (q_pfn >> 32) {
--			dev_err(&vdev->dev,
--				"platform bug: legacy virtio-mmio must not be used with RAM above 0x%llxGB\n",
--				0x1ULL << (32 + PAGE_SHIFT - 30));
--			err = -E2BIG;
--			goto error_bad_pfn;
--		}
--
--		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_QUEUE_ALIGN);
--		writel(q_pfn, vm_dev->base + VIRTIO_MMIO_QUEUE_PFN);
--	} else {
--		u64 addr;
--
--		addr = virtqueue_get_desc_addr(vq);
--		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_LOW);
--		writel((u32)(addr >> 32),
--				vm_dev->base + VIRTIO_MMIO_QUEUE_DESC_HIGH);
--
--		addr = virtqueue_get_avail_addr(vq);
--		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_LOW);
--		writel((u32)(addr >> 32),
--				vm_dev->base + VIRTIO_MMIO_QUEUE_AVAIL_HIGH);
--
--		addr = virtqueue_get_used_addr(vq);
--		writel((u32)addr, vm_dev->base + VIRTIO_MMIO_QUEUE_USED_LOW);
--		writel((u32)(addr >> 32),
--				vm_dev->base + VIRTIO_MMIO_QUEUE_USED_HIGH);
--
--		writel(1, vm_dev->base + VIRTIO_MMIO_QUEUE_READY);
--	}
-+	err = vm_active_vq(vdev, vq);
-+	if (err < 0)
-+		goto error_bad_pfn;
- 
- 	return vq;
- 
-@@ -528,11 +563,13 @@ static const struct virtio_config_ops virtio_mmio_config_ops = {
- 	.reset		= vm_reset,
- 	.find_vqs	= vm_find_vqs,
- 	.del_vqs	= vm_del_vqs,
-+	.reset_vqs	= vm_reset_vqs,
- 	.get_features	= vm_get_features,
- 	.finalize_features = vm_finalize_features,
- 	.bus_name	= vm_bus_name,
- 	.get_shm_region = vm_get_shm_region,
- 	.synchronize_cbs = vm_synchronize_cbs,
-+	.noirq_safe	= true,
- };
- 
- #ifdef CONFIG_PM_SLEEP
-@@ -546,15 +583,35 @@ static int virtio_mmio_freeze(struct device *dev)
- static int virtio_mmio_restore(struct device *dev)
- {
- 	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
-+	struct virtio_driver *drv = drv_to_virtio(vm_dev->vdev.dev.driver);
- 
--	if (vm_dev->version == 1)
-+	if (vm_dev->version == 1 && (!drv || !drv->restore_noirq))
- 		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
- 
- 	return virtio_device_restore(&vm_dev->vdev);
- }
- 
-+static int virtio_mmio_freeze_noirq(struct device *dev)
-+{
-+	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
-+
-+	return virtio_device_freeze_noirq(&vm_dev->vdev);
-+}
-+
-+static int virtio_mmio_restore_noirq(struct device *dev)
-+{
-+	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
-+
-+	if (vm_dev->version == 1)
-+		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
-+
-+	return virtio_device_restore_noirq(&vm_dev->vdev);
-+}
-+
- static const struct dev_pm_ops virtio_mmio_pm_ops = {
- 	SET_SYSTEM_SLEEP_PM_OPS(virtio_mmio_freeze, virtio_mmio_restore)
-+	SET_NOIRQ_SYSTEM_SLEEP_PM_OPS(virtio_mmio_freeze_noirq,
-+				      virtio_mmio_restore_noirq)
- };
- #endif
- 
--- 
-2.43.0
+
+> @@ -2170,7 +2213,7 @@ static ssize_t tun_do_read(struct tun_struct *tun, struct tun_file *tfile,
+>  
+>  	if (!ptr) {
+>  		/* Read frames from ring */
+> -		ptr = tun_ring_recv(tfile, noblock, &err);
+> +		ptr = tun_ring_recv(tun, tfile, noblock, &err);
+>  		if (!ptr)
+>  			return err;
+>  	}
+> @@ -3406,6 +3449,8 @@ static int tun_chr_open(struct inode *inode, struct file * file)
+>  		return -ENOMEM;
+>  	}
+>  
+> +	tun_reset_cons_cnt(tfile);
+> +
+>  	mutex_init(&tfile->napi_mutex);
+>  	RCU_INIT_POINTER(tfile->tun, NULL);
+>  	tfile->flags = 0;
+> @@ -3614,6 +3659,7 @@ static int tun_queue_resize(struct tun_struct *tun)
+>  	for (i = 0; i < tun->numqueues; i++) {
+>  		tfile = rtnl_dereference(tun->tfiles[i]);
+>  		rings[i] = &tfile->tx_ring;
+> +		tun_reset_cons_cnt(tfile);
+>  	}
+>  	list_for_each_entry(tfile, &tun->disabled, next)
+>  		rings[i++] = &tfile->tx_ring;
+> -- 
+> 2.43.0
 
