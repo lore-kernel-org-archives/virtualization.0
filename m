@@ -1,64 +1,64 @@
-Received: from mail-pf1-f170.google.com (mail-pf1-f170.google.com [209.85.210.170])
+Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39DD147F2E9
-	for <virtualization@lists.linux.dev>; Wed,  6 May 2026 16:24:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.170
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD7EF47798D
+	for <virtualization@lists.linux.dev>; Wed,  6 May 2026 16:24:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778084656; cv=none; b=LHpA/1A4lxvDRffgu8c3CD7zdJglRWSNB8b3xswBmt9adjSz5vhJ6zwApxd8zUE0Bsntbn+VCOxKP87LypIxVWKsJliDv7YC0oIdhl3RtPG6guB31MBGzHqV4IBW6ajLEzyo04XZLWExWdVo+Wc2W/XJTmyVSJuhQFwiqE3hEe0=
+	t=1778084660; cv=none; b=fiGpFNniYwu4vQfcN6jHKs+ihZb2DVhEA1eVUmqbjzCxPJY//TDQiyucxcDZrg3CUNuHpX+kLFekpGTZTpb2scPSAMaGWn4bmwUWBWMFh4xUZJesj/NsJgMsjxff/cM7vz/FGWNTbVfmqmlHpGuOpRwxDKwdYhac5WCmoQy4yjo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778084656; c=relaxed/simple;
-	bh=ElyyymLN3BzEU2n3paseyXgS1oFdDA7FSr0KdZ24I/8=;
+	s=arc-20240116; t=1778084660; c=relaxed/simple;
+	bh=MWBv1DHfHJ5MORln2uC6zteVz62qSKn6Mmg1BPVPwwk=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=LDYiLSy9rnbhRUuGiXM4gUGtUb7XKLV+yvMrGzFAnkxW0L2X7of3WtsT7I2IFKa36POZfMtreX0o2lqJjBe2ILgHgZdPKU39kHNcSFbbobKWtOIi8W/JvoQGoTnX0UlenZ9nR25JggxHOvEXzuc0YCtMs9wxhHM+2dJp9HyBuJs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Ne6aOK/P; arc=none smtp.client-ip=209.85.210.170
+	 MIME-Version; b=gEALNFquC7QCSERnaEFaS/k2lVUbipiXajbNOjrhhHJ2QnJ/LmSom1mq2HfYJrOPCq22ht7M6raep4e6RNRQQ7h3OwzuEpyovvRkaY5XXzqU3QdvGR+4HL4SQXR8ITavysPMBZyUlP1m0Pg72RUeksQlDed1dJOqAap7wsja5W0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qkAPQ3KP; arc=none smtp.client-ip=209.85.210.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Ne6aOK/P"
-Received: by mail-pf1-f170.google.com with SMTP id d2e1a72fcca58-839dc688d6cso798816b3a.2
-        for <virtualization@lists.linux.dev>; Wed, 06 May 2026 09:24:14 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qkAPQ3KP"
+Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-82748257f5fso710141b3a.1
+        for <virtualization@lists.linux.dev>; Wed, 06 May 2026 09:24:17 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778084654; x=1778689454; darn=lists.linux.dev;
+        d=gmail.com; s=20251104; t=1778084657; x=1778689457; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=lmg393/U6YNbXTTx1LhzYWJYt4NvUfYyO+r0SFXM9Jg=;
-        b=Ne6aOK/P5sGeKZEGSait/p/XCngUcGRNUWwouE3LPoN2/7WrikXbY11DTJt05PnRW7
-         XI5EgzD5pFL+hCbbad9Y5awNY9b7/9DnEwW7tLcAjeNUkcirsL6Slgn2oGJicZk1WmHa
-         jpP8HD5U3vLw5AD8ieT8QMVk2vGwLz6FrY23oMrtdUw9xb2TJI8SwW4XZwJXOcXd5ytr
-         ZW/uAmd/KSvK0oSVoUHWZNRJ8hD8ouunZQNOe6oNfDO6v+EQzzGnwUarl1c6Sx1MoXX1
-         YE2lqDdG85srpfFSZz2kTD0oVb0r9W9W0kfzER/WoDXnKtSlCd+mt+Xyy1f/+7HDf7BP
-         2WiA==
+        bh=r0D2OjrENWJxNTLidObtJYsE1ofQWJtzpBHNBO0DSMM=;
+        b=qkAPQ3KPhC/IuYFdEaiQvwcPxfRIBM+eciN/9HD6BcueusFHjBW4LBiNuGahJo/bX+
+         +FuDAhYLss0e+ggfZdLf35d3vDK2rFQ2cn5roF2CDxjnjuE/ecX37h01gopDWmL9xdOf
+         s1jLT9+xkDvz92mc20aPpM6LoAM9H74pTSxnaUuyaxDtKmwpJVDFwsMQ4N1we3u+0y3I
+         9IV1dk0GpCHN2gO9KxpTuUs1IwX07LKBjI08izMRdZuARiz77jR4KInDtcu8BXSXEhBj
+         wOetAs8cTiLndUUBItPIA52sEFcM6iCes4zOv0fLQ+9sz0/CuAJVuMhDR9zJ4pGg3qqL
+         KvMQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778084654; x=1778689454;
+        d=1e100.net; s=20251104; t=1778084657; x=1778689457;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=lmg393/U6YNbXTTx1LhzYWJYt4NvUfYyO+r0SFXM9Jg=;
-        b=g1s+nMNQbwizL9eo57STtbfIVg2MJOHcEqVe6T+F+07oUUx0B3jya2XqHXoLpvH8yK
-         9vo4DcEdTArz4l+aOS9cW2bmRosksBCOa1+2rlfC3lIweruGwMY+9awL8HNQZPZQQ66Z
-         3EIROkgsEjDUTeKLWTdR71g9YL3EHdhukVtYCLcULvWdRz8p1WDiUZ73ibOnL+p/IkrZ
-         4uNyMy1hTgExqTBOKe/NWEOxRblfLtf5Cvtwourt4nBCyiqIq4VGbJhB7coXWkOx1MKN
-         gG7w0MmgGtwDiI2F+n3Wr+SGXP9KhhsFerR0aZBtwMGJcHDQroOVi0Zjbwgc0nirlH7u
-         dd7A==
-X-Forwarded-Encrypted: i=1; AFNElJ8uoZpF0e3XtIClfox3SKWkD2vcqPq/WDN53mUyboQF4broSFri/UxywwYFFvVCPK8bGQfmOf1XsoDwkN8raA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxEd1NC7KcwbjDz+at6X6Yv4oP2khE/yJku+szEsA5VIFxpG0BO
-	8+9NdAM43lq+hjwHXVHowlOMvupZ1n53Qks9lEW/DUFuzljZNuIXFTeZ
-X-Gm-Gg: AeBDievtxRzrlxhI4QirsqVTDyaJvUVjwIrE8Q1Z5jm6wu8hKfIWmhQw7KwXIR32wWz
-	HugKOjTqfXYrwJmqIvJflMj6CDJbiCWvztcVAxk5khT/hv9wr0Jn8RtOWUBmkfXdrTjJOpTaqr4
-	UGdnUkfV0MzasmtD/7CMb83MAjiCSnIchpPf1ILkyT9A3/xCCDKvM267T1jMPCd3R1Fc5H45Qjn
-	7wajBRHKVryRAFNGWMAZxPIFN4pMkd6hsZ1Vd/ErYnaLJ8OqLVYFakpsSRV6XfTD3YFqmKE9Apw
-	c4WCZTpqjljJGrR9yHTRu5J7fcVLVbGBUI5vwEmWOYaxkqXm6EwrpgOoWJaymqJV5fdW5xEJI5C
-	6DSUcrp71hdKbVjVBL2aj1T3MicB91eWMXLWrClXGMFE0gFsqlpWtndBgGK0zKtAkfG6JtO4lwR
-	taH9/OLDfgqw7hmEf33qlv6p4GgnnvSYOfUoLwazXiHFwkrXTyY5P6IXmYPPfwGUqX9NNiiRorZ
-	+Gh8j08kun/kzx4IYJQ0C/w6Iq1foDuQOpXkQ==
-X-Received: by 2002:a05:6a00:4616:b0:824:3bd9:aac6 with SMTP id d2e1a72fcca58-83a5b9d824bmr3948577b3a.16.1778084654372;
-        Wed, 06 May 2026 09:24:14 -0700 (PDT)
+        bh=r0D2OjrENWJxNTLidObtJYsE1ofQWJtzpBHNBO0DSMM=;
+        b=g6h+u6XcCGiJJKAwfjKSE6odqnmKthH7kbwjl1JQtbACdzNLjzBq3IL3/pNKrRXkJA
+         hmzWnJbcCCsf86CflPnC65rxiHKoF3JRt3Ls0bUeLiHxKrp6H73002iy/F/Cmua92/dK
+         LYzqjEnWFTk992fMMbfd6Y7fovzb1WJ4Tazvy8oCD3ByK6jtoxLlCYX9e07/dmYBAioQ
+         PoLVW+KC9mpRT0uR1zeHHBmjjAEJbyqhpBt4Nyq37UjGRCXmy5HBq1fwBQyv/7P2H3Zc
+         mSWzPElCaSC5/IdNqxxqJ05xE7gue6+7a+Ts28dZbGy5GDz3bhwEx0T24POGll3jcr79
+         TDLw==
+X-Forwarded-Encrypted: i=1; AFNElJ+i4qUedF2UqwF2MKlmQUnYJCcIxPxT/S6jVSSjwM53dHPShKFGCctG6oMaam3ThvJOO28SkpHYZvW0ho+DYw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxV6ciAiEZ08p3CY/iwNj2tgTEe61owmz3I7If5OMUiKx2KYHIG
+	jQ/sPO3O0kHq0mFL7GBLED1kn85/05mAzVm8uTCenhvcGsnp9L7x9LBr
+X-Gm-Gg: AeBDievy8nlI5yNzisWcVS2t79HicZSs67qw0KiOUIqYk3tJ4ARXUjDJRCc0rP1rQya
+	G/8fkl7VfqGBBdxsLdB82DORpVyvUkqBZLX5xPIepautPVPm3zLLxGLx+I6yyRvqXRobn/Z3YyM
+	iEQUqvga3K6zsD7D+ScXJRMUuUwNwIrwO8khkJXf7bt4oMed0Ps5u8lBiiGgGzdUWqMLmC3OMRC
+	0gB/P2avHAtDRbxPYJb6SCXxa+fIptuN9vZURrEpvY8g8WajknpNh9qQHog1FVcykIgIY+y1wi3
+	CIMZ+nGAtW3s9iRSC405zg9uQloN2/ngkfTOZb2aInl3DlkXR+mEYgVixh2Qo6s9FXcANRvcFJK
+	zhsZU/YXqi/NIo446Fw0Mr8aJRbJ3x4VcmakrsM6tAiBt9+g3q9U5awJVJF+KzHxVpiEXd7hlU9
+	KxpjG5pEP5cSAblli2SOP9lHbInY6qGNNCcgyRUiQRlmaGgYteS1Rs2n2NzNYbuOLoDlXgKw1Cu
+	rZnzNWQzwm3DFJpbDJCl4UtdvxIyQ4RDj4DUA==
+X-Received: by 2002:a05:6a00:3d08:b0:81f:5acb:55fc with SMTP id d2e1a72fcca58-83a54de4c38mr3284338b3a.10.1778084656982;
+        Wed, 06 May 2026 09:24:16 -0700 (PDT)
 Received: from baver-zenith.localdomain ([124.49.88.131])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-839679c8629sm5980337b3a.36.2026.05.06.09.24.12
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-839679c8629sm5980337b3a.36.2026.05.06.09.24.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 06 May 2026 09:24:14 -0700 (PDT)
+        Wed, 06 May 2026 09:24:16 -0700 (PDT)
 From: Sungho Bae <baver.bae@gmail.com>
 To: mst@redhat.com,
 	jasowang@redhat.com
@@ -67,9 +67,9 @@ Cc: xuanzhuo@linux.alibaba.com,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org,
 	Sungho Bae <baver.bae@lge.com>
-Subject: [RFC PATCH v8 1/4] virtio: separate PM restore and reset_done paths
-Date: Thu,  7 May 2026 01:22:51 +0900
-Message-Id: <20260506162254.25576-2-baver.bae@gmail.com>
+Subject: [RFC PATCH v8 2/4] virtio_ring: export virtqueue_reinit_vring() for noirq restore
+Date: Thu,  7 May 2026 01:22:52 +0900
+Message-Id: <20260506162254.25576-3-baver.bae@gmail.com>
 X-Mailer: git-send-email 2.34.1
 In-Reply-To: <20260506162254.25576-1-baver.bae@gmail.com>
 References: <20260506162254.25576-1-baver.bae@gmail.com>
@@ -83,145 +83,113 @@ Content-Transfer-Encoding: 8bit
 
 From: Sungho Bae <baver.bae@lge.com>
 
-Refactor virtio_device_restore_priv() by extracting the common device
-re-initialization sequence into virtio_device_reinit(). This helper
-performs the full bring-up sequence: reset, status acknowledgment,
-feature finalization, and feature negotiation.
+After a device reset in noirq context the existing vrings must be
+re-initialized without any memory allocation, because GFP_KERNEL is
+not available.
 
-virtio_device_restore() and virtio_device_reset_done() now each call
-virtio_device_reinit() directly instead of going through a boolean-
-dispatched wrapper. This makes each path independently readable and
-extensible without further complicating the dispatch logic.
+The internal helpers virtqueue_reset_split() and
+virtqueue_reset_packed() already reset vring indices and descriptor
+state in place.  Add a thin exported wrapper, virtqueue_reinit_vring(),
+that dispatches to the appropriate helper based on the ring layout.
 
-A follow-up series will add noirq PM callbacks that only affect the
-restore path; having the two paths separated avoids adding more
-conditionals to a shared function.
-
-No functional change.
+This will be used by a subsequent patch that adds noirq system-sleep
+PM callbacks for virtio-mmio.
 
 Signed-off-by: Sungho Bae <baver.bae@lge.com>
 ---
- drivers/virtio/virtio.c | 81 +++++++++++++++++++++++++----------------
- 1 file changed, 50 insertions(+), 31 deletions(-)
+ drivers/virtio/virtio_ring.c | 58 ++++++++++++++++++++++++++++++++++++
+ include/linux/virtio_ring.h  |  3 ++
+ 2 files changed, 61 insertions(+)
 
-diff --git a/drivers/virtio/virtio.c b/drivers/virtio/virtio.c
-index 5bdc6b82b30b..98f1875f8df1 100644
---- a/drivers/virtio/virtio.c
-+++ b/drivers/virtio/virtio.c
-@@ -588,7 +588,7 @@ void unregister_virtio_device(struct virtio_device *dev)
- }
- EXPORT_SYMBOL_GPL(unregister_virtio_device);
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index fbca7ce1c6bf..d3339b820f6b 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -506,6 +506,15 @@ static void virtqueue_init(struct vring_virtqueue *vq, u32 num)
+ 	vq->event_triggered = false;
+ 	vq->num_added = 0;
  
--static int virtio_device_restore_priv(struct virtio_device *dev, bool restore)
-+static int virtio_device_reinit(struct virtio_device *dev)
- {
- 	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
- 	int ret;
-@@ -613,35 +613,9 @@ static int virtio_device_restore_priv(struct virtio_device *dev, bool restore)
- 
- 	ret = dev->config->finalize_features(dev);
- 	if (ret)
--		goto err;
--
--	ret = virtio_features_ok(dev);
--	if (ret)
--		goto err;
--
--	if (restore) {
--		if (drv->restore) {
--			ret = drv->restore(dev);
--			if (ret)
--				goto err;
--		}
--	} else {
--		ret = drv->reset_done(dev);
--		if (ret)
--			goto err;
--	}
--
--	/* If restore didn't do it, mark device DRIVER_OK ourselves. */
--	if (!(dev->config->get_status(dev) & VIRTIO_CONFIG_S_DRIVER_OK))
--		virtio_device_ready(dev);
--
--	virtio_config_core_enable(dev);
--
--	return 0;
-+		return ret;
- 
--err:
--	virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
--	return ret;
-+	return virtio_features_ok(dev);
- }
- 
- #ifdef CONFIG_PM_SLEEP
-@@ -668,7 +642,33 @@ EXPORT_SYMBOL_GPL(virtio_device_freeze);
- 
- int virtio_device_restore(struct virtio_device *dev)
- {
--	return virtio_device_restore_priv(dev, true);
-+	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
-+	int ret;
-+
-+	ret = virtio_device_reinit(dev);
-+	if (ret)
-+		goto err;
-+
-+	if (!drv)
-+		return 0;
-+
-+	if (drv->restore) {
-+		ret = drv->restore(dev);
-+		if (ret)
-+			goto err;
++	/*
++	 * Keep IN_ORDER state aligned with a freshly initialized/reset queue.
++	 * For packed IN_ORDER, free_head is unused but harmlessly reset.
++	 */
++	if (virtqueue_is_in_order(vq)) {
++		vq->free_head = 0;
++		vq->batch_last.id = UINT_MAX;
 +	}
 +
-+	/* If restore didn't do it, mark device DRIVER_OK ourselves. */
-+	if (!(dev->config->get_status(dev) & VIRTIO_CONFIG_S_DRIVER_OK))
-+		virtio_device_ready(dev);
+ #ifdef DEBUG
+ 	vq->in_use = false;
+ 	vq->last_add_time_valid = false;
+@@ -3936,5 +3945,54 @@ void virtqueue_map_sync_single_range_for_device(const struct virtqueue *_vq,
+ }
+ EXPORT_SYMBOL_GPL(virtqueue_map_sync_single_range_for_device);
+ 
++/**
++ * virtqueue_reinit_vring - reinitialize vring state without reallocation
++ * @_vq: the virtqueue
++ *
++ * Reset the avail/used indices and descriptor state of an existing
++ * virtqueue so it can be reused after a device reset.  No memory is
++ * allocated or freed, making this safe for use in noirq context.
++ *
++ * Preconditions for callers:
++ * 1) The vq must be fully quiesced (no concurrent add/get/kick/IRQ callback).
++ * 2) Transport/device side must already have stopped/reset this queue.
++ * 3) All in-flight buffers must already be completed or detached.
++ *
++ * If called with outstanding descriptors, free-list state can be corrupted:
++ * num_free is restored to full capacity while desc_extra next-chain/free_head
++ * may still represent a partially consumed list.
++ *
++ * Return:
++ * 0 on success, or -EBUSY if preconditions are not met.
++ */
++int virtqueue_reinit_vring(struct virtqueue *_vq)
++{
++	struct vring_virtqueue *vq = to_vvq(_vq);
++	unsigned int num = virtqueue_is_packed(vq) ?
++		vq->packed.vring.num : vq->split.vring.num;
 +
-+	virtio_config_core_enable(dev);
++	/* All in-flight descriptors must be completed or detached */
++	if (WARN_ON(vq->vq.num_free != num))
++		return -EBUSY;
++
++	if (virtqueue_is_packed(vq)) {
++		virtqueue_reset_packed(vq);
++	} else {
++		/*
++		 * Split queue shadow index should match the visible avail
++		 * index when the queue is fully quiesced.
++		 */
++		if (WARN_ON(vq->split.avail_idx_shadow !=
++			virtio16_to_cpu(vq->vq.vdev,
++					vq->split.vring.avail->idx)))
++			return -EBUSY;
++
++		virtqueue_reset_split(vq);
++	}
 +
 +	return 0;
++}
++EXPORT_SYMBOL_GPL(virtqueue_reinit_vring);
 +
-+err:
-+	virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(virtio_device_restore);
- #endif
-@@ -698,11 +698,30 @@ EXPORT_SYMBOL_GPL(virtio_device_reset_prepare);
- int virtio_device_reset_done(struct virtio_device *dev)
- {
- 	struct virtio_driver *drv = drv_to_virtio(dev->dev.driver);
-+	int ret;
+ MODULE_DESCRIPTION("Virtio ring implementation");
+ MODULE_LICENSE("GPL");
+diff --git a/include/linux/virtio_ring.h b/include/linux/virtio_ring.h
+index c97a12c1cda3..8b421fef4fef 100644
+--- a/include/linux/virtio_ring.h
++++ b/include/linux/virtio_ring.h
+@@ -118,6 +118,9 @@ void vring_del_virtqueue(struct virtqueue *vq);
+ /* Filter out transport-specific feature bits. */
+ void vring_transport_features(struct virtio_device *vdev);
  
- 	if (!drv || !drv->reset_done)
- 		return -EOPNOTSUPP;
++/* Reinitialize a virtqueue without reallocation (safe in noirq context) */
++int virtqueue_reinit_vring(struct virtqueue *_vq);
++
+ irqreturn_t vring_interrupt(int irq, void *_vq);
  
--	return virtio_device_restore_priv(dev, false);
-+	ret = virtio_device_reinit(dev);
-+	if (ret)
-+		goto err;
-+
-+	ret = drv->reset_done(dev);
-+	if (ret)
-+		goto err;
-+
-+	/* If reset_done didn't do it, mark device DRIVER_OK ourselves. */
-+	if (!(dev->config->get_status(dev) & VIRTIO_CONFIG_S_DRIVER_OK))
-+		virtio_device_ready(dev);
-+
-+	virtio_config_core_enable(dev);
-+
-+	return 0;
-+
-+err:
-+	virtio_add_status(dev, VIRTIO_CONFIG_S_FAILED);
-+	return ret;
- }
- EXPORT_SYMBOL_GPL(virtio_device_reset_done);
- 
+ u32 vring_notification_data(struct virtqueue *_vq);
 -- 
 2.43.0
 
