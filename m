@@ -1,246 +1,232 @@
-Received: from mail-wm1-f47.google.com (mail-wm1-f47.google.com [209.85.128.47])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF9613EB813
-	for <virtualization@lists.linux.dev>; Wed,  6 May 2026 11:09:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2D81E425CFE
+	for <virtualization@lists.linux.dev>; Wed,  6 May 2026 14:01:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778065751; cv=none; b=V6MmoGC9Pu7e2PFXCPdURE8qvuA3pQ/xpOwq9VKmHzZ+oYwuIDdrGeB7IYCG3JCJ8LrGOsDXHh6mFs+zwkZ2nV/ubxyiCWBD5TKPD1mA/Vkt9MqFXtp3EMpqql7c+v/MjJnEQvDlFNi1l7uE6ZMuFOVe/F7hgarUW/Z3dgpFanc=
+	t=1778076065; cv=none; b=arjKoWenPmq47r13yDNXEoqj7I9vRaD0rHkprVMSm7dPO75u8/ulWTLRE3BO9hZsLAa1hjIT2nvaqMfYdqvpGjbdhKsfV9HiRfuS5l9hdFhVa1rWq0QA8Dwvx4XlLMw76xrgizXCkWVQCP6GcEicnwzgFhJmFeuIgOp1urZWfbI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778065751; c=relaxed/simple;
-	bh=oVfzOsTT/an2CQOSwx29znZfmc+2ruJ3lQqJSVimzzk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=apPxHm8r4ughqWJ8ellurMhFZ03nYR3YOSt1SeK5B72uPlKhf8hRASVHl1O/OrIflA0K1OzveWqg9KWd8lCdaxsJvVxsoM/nxvHPp7IR+u+42UqKf4wZndc0gET4PMmyIGD8KTQAQm9+M3TSvdQfD3gczLWC6Z/AM++hcrw8csA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=caPBF2I0; arc=none smtp.client-ip=209.85.128.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1778076065; c=relaxed/simple;
+	bh=SFiFDucNaRObAcaMrKWI6BPwF1qadwuDj2Vt2SN+ha0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=eeN/cjm88uEY8FFPPnoURrbKlCCDOfFI3ZGXBA7z2bMwE0X+IDs/LlpMeui7ZkrVKsv/IHPEggMkkdtvQMlMPmK99fzlASd1ymxVJPsScR9bWBnUK8Hfmp0TZ4iAPaD8QtW/TUBiM5Mn2Uqbab3DwlpGvMMiqb2LFGUwDajfMCk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=VnG++F4+; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="caPBF2I0"
-Received: by mail-wm1-f47.google.com with SMTP id 5b1f17b1804b1-4893940bb5eso34880605e9.3
-        for <virtualization@lists.linux.dev>; Wed, 06 May 2026 04:09:09 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1778065748; x=1778670548; darn=lists.linux.dev;
-        h=in-reply-to:autocrypt:from:content-language:references:to:subject
-         :user-agent:mime-version:date:message-id:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=oVfzOsTT/an2CQOSwx29znZfmc+2ruJ3lQqJSVimzzk=;
-        b=caPBF2I0b/M3aKVud8ZpSfxYGFxjcFilPwhjtjzio11XmzY3/5vgav3J4hkPTfUlxB
-         /JjgvPmEPPQLj1HigJxrBOGQPtQm/lkBRo9FGPjdPo/n+et8pd7g0izMD6l21rLbfxos
-         I9+GlY/hmk/BteiE4+UQndg6g0ZC0RUYoFfFjELLihtWGhoXSkhUYxl6ueR8Nvg9UboA
-         yNnA0ssxYvvBqLCtEfhyQsrdAaw8ssw4KZp2CKBRUCgWfcHEUkEikJcrprycU2gzoVY7
-         9ALSM9XVgWYikfVZZGSOBbJWYP93Ggx2+8DlDADicDN0UlohuEIuWrU01voup7RBEory
-         Bh6Q==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="VnG++F4+"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1778076063;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=cCRVTBZQDAEVaqanV0j4+1ERDgnWXkjidry1aEHpyPY=;
+	b=VnG++F4+qAcUHowyf+uyrQVrnL8vykawaSgup+HVcPu2jqO/unY195F++DD+W6t5O/clJf
+	WW6M68ILLdcjIuY0x9jK0648YWFw37GMfVYgU+jkfBUiOu9C0Gq5Tt7N1F7j5c76I2p/0f
+	Vp/nDhz77bn4EqZNk3PnbjgoUJVRgCk=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-681-NDxaK0RhPgO4ijExSkWNuw-1; Wed, 06 May 2026 10:00:59 -0400
+X-MC-Unique: NDxaK0RhPgO4ijExSkWNuw-1
+X-Mimecast-MFC-AGG-ID: NDxaK0RhPgO4ijExSkWNuw_1778076058
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-44d9ace59efso2749042f8f.1
+        for <virtualization@lists.linux.dev>; Wed, 06 May 2026 07:00:58 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778065748; x=1778670548;
-        h=in-reply-to:autocrypt:from:content-language:references:to:subject
-         :user-agent:mime-version:date:message-id:x-gm-gg:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=oVfzOsTT/an2CQOSwx29znZfmc+2ruJ3lQqJSVimzzk=;
-        b=cMZAsu4iWe0tEg+P+AqNLQyAOVKHKDtHasar8DtLL1hM3ZrIWEYpAwMjB2+Ydrm75z
-         S9Im+xN/29Ss7aFgJLvVYLfwRcgs64Fb0EjLma+8zffJbGaxu17f4YSRtHtG49FJdfTy
-         uYlkKtaco9PPz9ipVjRU12qCDo2sBjdw2HgDfwRREvRNBHe0JY9qHpTFcpwiiNW5r65O
-         m9/GNrlmTaPgAdFdhM2cucj1QTzcFMz7qign+ZPO8+k66rl6q4CqRF9IOLvzvVl3ylSr
-         OM941zivXIekOV+c0w4welRY3WVpXNMuvAyvKBYH/LZyq+HtnfV13GoyIuTliIo/ZQHV
-         2dVA==
-X-Forwarded-Encrypted: i=1; AFNElJ/IAV3UDoRnF/e1VSfs3pXYJkM0oETnTnKpvJNF7a8JdycLMZbRK7UZTAD5er8GXYR/i+mn6vw5BPxeTGDR2A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwDxLO5KofOmhUqbFEXDkxU/oxcfO3IiYpgmHcpSVb2MBBJrZAF
-	kaq53GONR3+RdJHgMVzsV7p5XUbCbTtzBzv5791sTZiMaBNfnC93T5nuDaMacNLPmDk=
-X-Gm-Gg: AeBDieurgy5DKEPKzYa4Ju/Sgn4q/dEEQFujPDxpKh/8jcLSbHjSy6GgMG7KjyAsHoE
-	WAv9SBaG+GUmUQKeuvinB3GJpCy2qy8j8qIoKtSpnd4FfoQlf1af8Yi4evfeeedjh8CMV1d5svt
-	3zvn6pnvF9TVDBUSNKQA3VqKGF3KtupTfUdZss1mmFBv39ARX7fc67MeYUNoixjbHa/eLYLFL6l
-	z7amCkKgnyI3JPXvzmZ7PZ+9FRjvkqpG2hZXLPOrxzQebNC3aAZq4pC+4R4m4BjqrvE4STIJasV
-	qUtCIgC26Fyz25FZytRj/pyXwK05OD07gHztgLx+xobEiHydsgXkhuo4vYk+imvri5j/lefCAg2
-	h2nX2dJt90m+OWLN5U7ZycHFqqyfjlCrXlrbSV7ih4F2HITG/YyYQ9lYc1erS8NDFVvfGrSVb5l
-	wVL1KV2Pr5hpRiozD7Ms1UQG3COOZ8e0qCm3LzpDYaXpGBM7l80Fgzgn2HZgynpf/LasaR3aWyT
-	SrvwtOjmrZtS2bNsKEij2X4PrA1Mxdx77Gz8SlyrB6BfRzMdufMnpse+cd5ExXC
-X-Received: by 2002:a05:600c:a10d:b0:488:aa33:dcbd with SMTP id 5b1f17b1804b1-48e51f483cdmr37717825e9.26.1778065748397;
-        Wed, 06 May 2026 04:09:08 -0700 (PDT)
-Received: from ?IPV6:2a00:12d0:af5d:ad01:5d3f:14e6:9bcb:5112? (2a00-12d0-af5d-ad01-5d3f-14e6-9bcb-5112.ip.tng.de. [2a00:12d0:af5d:ad01:5d3f:14e6:9bcb:5112])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48e530d8691sm32011935e9.2.2026.05.06.04.09.07
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Wed, 06 May 2026 04:09:07 -0700 (PDT)
-Message-ID: <c3d08fd7-4938-4db2-9962-1c87dab74a2f@suse.com>
-Date: Wed, 6 May 2026 13:09:07 +0200
+        d=1e100.net; s=20251104; t=1778076058; x=1778680858;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=cCRVTBZQDAEVaqanV0j4+1ERDgnWXkjidry1aEHpyPY=;
+        b=c1MTIl0vzTwKaQJsrhSoyTUtJqWuuTGj86bWzxPLiUPUssj9Bd/+2JWDSVyQKLffXk
+         ZsmLffSKM8yAOjEL43dqSyygolIfWbwc8lC2ZKqOq4fK1vB6iKxqJ8V9U/uQifgYoIst
+         7mJ/X3Ir3+CDhimZ0kZQEt/QL19FeAmYR1FqZTAN8PPhxCyBxuLW7W2b3poGkWnc+Okh
+         zH4HqSb/VR7vQG9FlFOZqbox2+agYnwKQ5pRaq+djibXIpNDMteo5aQXOECMErPmQESx
+         xZcSmUXYogjO6gNaPWxaymKjYEEnFSCj8TKKAC0RQb8LWOwMcxSDmezwyeYXYMdVN0hj
+         yPfg==
+X-Forwarded-Encrypted: i=1; AFNElJ+B+ggMdqOrDFHvxCmOEIwz3vXG9uHv1TElVBfhKmv3lzU8muh+LBbdKy5IaaUq9nxy3t0EDWuW2VKy1vcGaQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzFBflRtpMAJXhb3LUcTZ4TS8lH2Zh0ot6fMi8r4m2jpTPfutsq
+	VJ9u7yt5g1AqRADizS60sLufF5dRFShYPQ2aJHnksNG+R74Jdm/sID1KuvTQGL5RfPayfrekmF7
+	XzquDF9laKz4QmYzvAAXdnPJY/Xm4Po+qH4wYV+hCU34CUxVp4GW7bdJAaRUs3qkkNU2L
+X-Gm-Gg: AeBDieth0cDvGfvAGYbOTY1S3shi4VjjlyYZiE+czz0uGdo00Hbfj2Ki4RgOwhXtmxa
+	TrFsxNHU2tbB2jeepqZfGYAF/E7BBm5QIdSEr79QKFfOKg3t56fohJkMmhgOefvGTeK5lSly+o6
+	NdKI3F3Fqbb3/MSvFwUSBD5QPw+2aQSFZFEqELm+1OChVjDYsqPs0l6aGcytJdC9jrmDFPD8+1G
+	19wgtnJmHb38b8AbP9HeodU8zUcwWF7MWz6f3cS/m3SRM1HrPNwSxXT7PIVWGs+RfmTxR7lPqGd
+	wROfH0zQAtMJOtvJ7BoWM7TPbB+kWaLMY3+8Uk4FJrTsWSZ/YeOTMtulQFVm+aMVL4EE8JEItZ+
+	MxXKPGLxg9BwfZG8txCzmHus3Gyyn0xy2e9FsZaWbYkd+Q6qHWKVJS9XKv/emtQ+9e1CFhdtuog
+	==
+X-Received: by 2002:a05:6000:2c03:b0:43d:21a:9a3e with SMTP id ffacd0b85a97d-4515d5c54c0mr5877765f8f.32.1778076057316;
+        Wed, 06 May 2026 07:00:57 -0700 (PDT)
+X-Received: by 2002:a05:6000:2c03:b0:43d:21a:9a3e with SMTP id ffacd0b85a97d-4515d5c54c0mr5877593f8f.32.1778076056142;
+        Wed, 06 May 2026 07:00:56 -0700 (PDT)
+Received: from sgarzare-redhat (host-87-11-6-2.retail.telecomitalia.it. [87.11.6.2])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45055d36dacsm12654112f8f.32.2026.05.06.07.00.54
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 06 May 2026 07:00:55 -0700 (PDT)
+Date: Wed, 6 May 2026 16:00:48 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Arseniy Krasnov <avkrasnov@salutedevices.com>
+Cc: Bobby Eshleman <bobbyeshleman@gmail.com>, 
+	Eric Dumazet <edumazet@google.com>, Bobby Eshleman <bobbyeshleman@meta.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	"David S . Miller" <davem@davemloft.net>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, netdev@vger.kernel.org, 
+	eric.dumazet@gmail.com, Arseniy Krasnov <AVKrasnov@sberdevices.ru>, 
+	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, kvm@vger.kernel.org, virtualization@lists.linux.dev
+Subject: Re: [PATCH net] vsock/virtio: fix potential unbounded skb queue
+Message-ID: <afs9FsY51D3zRA5N@sgarzare-redhat>
+References: <20260430122653.554058-1-edumazet@google.com>
+ <afn0ZdvZWswBuDMm@sgarzare-redhat>
+ <CANn89iLs8DOWJwDpf_ARoMrV+6b2tbhEJ=VVzeC8gCm5dRGaig@mail.gmail.com>
+ <afoF_cHfl6ygcupM@sgarzare-redhat>
+ <afocwkfBHJ5u10rx@devvm29614.prn0.facebook.com>
+ <e1f32df5-b6a1-47a8-a783-fcc8e3c91f25@salutedevices.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 2/8] x86/msr: Consolidate rdmsr() definitions
-To: Yan Zhao <yan.y.zhao@intel.com>, Dave Hansen
- <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org,
- Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, x86@kernel.org,
- virtualization@lists.linux.dev
-References: <20260429184517.7E078510@davehans-spike.ostc.intel.com>
- <20260429184521.7AADEE4C@davehans-spike.ostc.intel.com>
- <afqhbl9pKKwsVjOy@yzhao56-desk.sh.intel.com>
- <afsXCIUjib70dBYz@yzhao56-desk.sh.intel.com>
-Content-Language: en-US
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-Autocrypt: addr=jgross@suse.com; keydata=
- xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
- ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
- dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
- NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
- XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
- AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
- CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
- mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
- G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
- kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
- Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
- RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
- vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
- sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
- aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
- w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
- auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
- 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
- fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
- HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
- QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
- ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
-In-Reply-To: <afsXCIUjib70dBYz@yzhao56-desk.sh.intel.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------CrBmqStcHQ99cTZsPCA000E2"
+In-Reply-To: <e1f32df5-b6a1-47a8-a783-fcc8e3c91f25@salutedevices.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: P2dNWNX7qPyUXXhEJ8tAtzhHxn_XrvMtoPiR9WhwlgY_1778076058
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------CrBmqStcHQ99cTZsPCA000E2
-Content-Type: multipart/mixed; boundary="------------Lk8caRrPxs0dol9WhnneIP1g";
- protected-headers="v1"
-From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
-To: Yan Zhao <yan.y.zhao@intel.com>, Dave Hansen
- <dave.hansen@linux.intel.com>, linux-kernel@vger.kernel.org,
- Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, x86@kernel.org,
- virtualization@lists.linux.dev
-Message-ID: <c3d08fd7-4938-4db2-9962-1c87dab74a2f@suse.com>
-Subject: Re: [PATCH v2 2/8] x86/msr: Consolidate rdmsr() definitions
-References: <20260429184517.7E078510@davehans-spike.ostc.intel.com>
- <20260429184521.7AADEE4C@davehans-spike.ostc.intel.com>
- <afqhbl9pKKwsVjOy@yzhao56-desk.sh.intel.com>
- <afsXCIUjib70dBYz@yzhao56-desk.sh.intel.com>
-In-Reply-To: <afsXCIUjib70dBYz@yzhao56-desk.sh.intel.com>
+On Wed, May 06, 2026 at 12:50:04PM +0300, Arseniy Krasnov wrote:
+>
+>
+>05.05.2026 19:37, Bobby Eshleman wrote:
+>> On Tue, May 05, 2026 at 06:11:13PM +0200, Stefano Garzarella wrote:
+>>> On Tue, May 05, 2026 at 07:14:36AM -0700, Eric Dumazet wrote:
+>>>> On Tue, May 5, 2026 at 6:52 AM Stefano Garzarella <sgarzare@redhat.com> wrote:
+>>>>>
+>>>>> On Thu, Apr 30, 2026 at 12:26:52PM +0000, Eric Dumazet wrote:
+>>>>>> virtio_transport_inc_rx_pkt() checks vvs->rx_bytes + len > vvs->buf_alloc.
+>>>>>>
+>>>>>> virtio_transport_recv_enqueue() skips coalescing for packets
+>>>>>> with VIRTIO_VSOCK_SEQ_EOM.
+>>>>>>
+>>>>>> If fed with packets with len == 0 and VIRTIO_VSOCK_SEQ_EOM,
+>>>>>> a very large number of packets can be queued
+>>>>>> because vvs->rx_bytes stays at 0.
+>>>>>>
+>>>>>> Fix this by estimating the skb metadata size:
+>>>>>>
+>>>>>>       (Number of skbs in the queue) * SKB_TRUESIZE(0)
+>>>>>>
+>>>>>> Fixes: 077706165717 ("virtio/vsock: don't use skbuff state to account credit")
+>>>>>> Signed-off-by: Eric Dumazet <edumazet@google.com>
+>>>>>> Cc: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
+>>>>>> Cc: Stefan Hajnoczi <stefanha@redhat.com>
+>>>>>> Cc: Stefano Garzarella <sgarzare@redhat.com>
+>>>>>> Cc: "Michael S. Tsirkin" <mst@redhat.com>
+>>>>>> Cc: Jason Wang <jasowang@redhat.com>
+>>>>>> Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+>>>>>> Cc: "Eugenio Pérez" <eperezma@redhat.com>
+>>>>>> Cc: kvm@vger.kernel.org
+>>>>>> Cc: virtualization@lists.linux.dev
+>>>>>> ---
+>>>>>> net/vmw_vsock/virtio_transport_common.c | 4 +++-
+>>>>>> 1 file changed, 3 insertions(+), 1 deletion(-)
+>>>>>>
+>>>>>> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>>>>>> index 416d533f493d7b07e9c77c43f741d28cfcd0953e..9b8014516f4fb1130ae184635fbba4dfee58bd64 100644
+>>>>>> --- a/net/vmw_vsock/virtio_transport_common.c
+>>>>>> +++ b/net/vmw_vsock/virtio_transport_common.c
+>>>>>> @@ -447,7 +447,9 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+>>>>>> static bool virtio_transport_inc_rx_pkt(struct virtio_vsock_sock *vvs,
+>>>>>>                                       u32 len)
+>>>>>> {
+>>>>>> -      if (vvs->buf_used + len > vvs->buf_alloc)
+>>>>>> +      u64 skb_overhead = (skb_queue_len(&vvs->rx_queue) + 1) * SKB_TRUESIZE(0);
+>>>>>> +
+>>>>>> +      if (skb_overhead + vvs->buf_used + len > vvs->buf_alloc)
+>>>>>>               return false;
+>>>>>
+>>>>> I'm not sure about this fix, I mean that maybe this is incomplete.
+>>>>> In virtio-vsock, there is a credit mechanism between the two peers:
+>>>>> https://docs.oasis-open.org/virtio/virtio/v1.3/csd01/virtio-v1.3-csd01.html#x1-4850003
+>>>>>
+>>>>> This takes only the payload into account, so it’s true that this problem
+>>>>> exists; however, perhaps we should also inform the other peer of a lower
+>>>>> credit balance, otherwise the other peer will believe it has much more
+>>>>> credit than it actually does, send a large payload, and then the packet
+>>>>> will be discarded and the data lost (there are no retransmissions,
+>>>>> etc.).
+>>>>
+>>>> I dunno, perhaps revert 077706165717 ("virtio/vsock: don't use skbuff
+>>>> state to account credit")
+>>>> and find a better fix then?
+>>>
+>>> IIRC the same issue was there before the commit fixed by that one (commit
+>>> 71dc9ec9ac7d ("virtio/vsock: replace virtio_vsock_pkt with sk_buff")), so
+>>> not sure about reverting it TBH.
+>>>
+>>> CCing Arseniy and Bobby.
+>
+>Thanks!
+>
+>>>
+>>>>
+>>>> There is always a discrepancy between skb->len and skb->truesize.
+>>>> You will not be able to announce a 1MB window, and accept one milliion
+>>>> skb of 1-byte each.
+>>>>
+>>>> This kind of contract is broken.
+>>>>
+>>>
+>>> Yep, I agree, but before we start discarding data (and losing it), IMHO we
+>>> should at least inform the other peer that we're out of space.
+>>>
+>>> @Stefan, @Michael, do you think we can do something in the spec to avoid
+>>> this issue and in some way take into account also the metadata in the
+>>> credit. I mean to avoid the 1-byte packets flooding.
+>>>
+>>> Thanks,
+>>> Stefano
+>>>
+>>>
+>>
+>> Indeed the old pre-fix skb code would have the same issue.
+>>
+>> I can't think of any way around this without extending the spec.
+>
+>Hi, thanks, agree with Bobby, that accounting metadata (e.g. skb size here) was not implemented "by
+>design" in credit logic - another side of data exchange knows nothing about that. Also the same
+>situation was before skb implementation was added by Bobby. So looks like need to update spec may be.
+>
 
---------------Lk8caRrPxs0dol9WhnneIP1g
-Content-Type: multipart/mixed; boundary="------------EEVWZ0rnLUZbonvFZKbB5X7Z"
+Even if we change the specifications, we still need to work with older 
+devices, so we should find a solution for this as well.
 
---------------EEVWZ0rnLUZbonvFZKbB5X7Z
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+My main concern is data loss, so I'm considering the following options:
 
-T24gMDYuMDUuMjYgMTI6MjUsIFlhbiBaaGFvIHdyb3RlOg0KPiBPbiBXZWQsIE1heSAwNiwg
-MjAyNiBhdCAxMDowMzoyNkFNICswODAwLCBZYW4gWmhhbyB3cm90ZToNCj4+IE9uIFdlZCwg
-QXByIDI5LCAyMDI2IGF0IDExOjQ1OjIxQU0gLTA3MDAsIERhdmUgSGFuc2VuIHdyb3RlOg0K
-Pj4+ICsvKg0KPj4+ICsgKiBDb21tb24gcGFyYXZpcnQgYW5kIG5hdGl2ZSBoZWxwZXJzOg0K
-Pj4+ICsgKi8NCj4+PiArI2RlZmluZSByZG1zcihtc3IsIGxvdywgaGlnaCkJCQkJCVwNCj4+
-PiArZG8gewkJCQkJCQkJXA0KPj4+ICsJdTY0IF9fdmFsID0gcGFyYXZpcnRfcmVhZF9tc3Io
-KG1zcikpOwkJCVwNCj4+PiArCSh2b2lkKSgobG93KSA9ICh1MzIpX192YWwpOwkJCQlcDQo+
-Pj4gKwkodm9pZCkoKGhpZ2gpID0gKHUzMikoX192YWwgPj4gMzIpKTsJCQlcDQo+Pj4gK30g
-d2hpbGUgKDApDQo+PiBSYXRoZXIgdGhhbiBkaXJlY3QgYWxsIChwYXJhdmlydCBhbmQgbmF0
-aXZlKSBpbnZvY2F0aW9ucyBvZiByZG1zcigpIHRvDQo+PiBwYXJhdmlydF8qKCksIGRvZXMg
-aXQgbWFrZSBzZW5zZSB0byBmaXJzdCBpbnRyb2R1Y2UgdGhlIGNvbW1vbiB2ZXJzaW9uIG9m
-DQo+PiBoZWxwZXJzIGFuZCBkaXJlY3QgdGhlIGNvbW1vbiB2ZXJzaW9uIG9mIGhlbHBlcnMg
-dG8gcGFyYXZpcnRfKiBvciBuYXRpdmVfKj8NCj4+IFNvLCB3ZSBjYW4gaGF2ZQ0KPj4NCj4+
-ICsvKg0KPj4gKyAqIENvbW1vbiBwYXJhdmlydCBhbmQgbmF0aXZlIGhlbHBlcnM6DQo+PiAr
-ICovDQo+PiArI2RlZmluZSByZG1zcihtc3IsIGxvdywgaGlnaCkgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgXA0KPj4gK2RvIHsgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIFwNCj4+ICsgICAgICAgdTY0IF9f
-dmFsID0gY29tbW9uX3JlYWRfbXNyKChtc3IpKTsgICAgICAgICAgICAgICAgICAgICBcDQo+
-PiArICAgICAgICh2b2lkKSgobG93KSA9ICh1MzIpX192YWwpOyAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgXA0KPj4gKyAgICAgICAodm9pZCkoKGhpZ2gpID0gKHUzMikoX192YWwg
-Pj4gMzIpKTsgICAgICAgICAgICAgICAgICAgIFwNCj4+ICt9IHdoaWxlICgwKQ0KPj4NCj4g
-T3IgbWF5YmUgcy9jb21tb24vdHJhbXBvbGluZSA/DQoNCkknZCBzdWdnZXN0IF9fcmVhZF9t
-c3IoKSBhbmQgZnJpZW5kcy4NCg0KDQpKdWVyZ2VuDQo=
---------------EEVWZ0rnLUZbonvFZKbB5X7Z
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
-Content-Transfer-Encoding: quoted-printable
+1. Notify the other peer of a smaller buf_alloc from the start, leave 
+some room for overhead, and when it's running out, notify them that 
+buf_alloc = 0. This way, the peer realizes it can’t send anything else.
 
------BEGIN PGP PUBLIC KEY BLOCK-----
+2. Or update buf_alloc each time by removing the overhead, similar to 
+what’s currently done in virtio_transport_inc_rx_pkt(), but also do it 
+in virtio_transport_inc_tx_pkt().
 
-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
-kt+z4drzFUyEjLM1vVvIMjkUoJs=3D
-=3DeeAB
------END PGP PUBLIC KEY BLOCK-----
+As I said, IMO this patch alone is incomplete; we need to communicate 
+with the peer somehow regarding space. I don’t think including the 
+overhead in fwd_cnt is spec compliant, since the other peer has no idea 
+how much overhead is needed, but reducing buf_alloc should be okay, even 
+though I’m concerned about packets in flight.
 
---------------EEVWZ0rnLUZbonvFZKbB5X7Z--
+As a quick fix, I think option 2 might be the easiest; I’ll run some 
+tests and send over a patch.
 
---------------Lk8caRrPxs0dol9WhnneIP1g--
+But in the long run, I think we absolutely need to improve memory 
+management in vsock, perhaps by avoiding custom solutions.
 
---------------CrBmqStcHQ99cTZsPCA000E2
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+Thanks,
+Stefano
 
------BEGIN PGP SIGNATURE-----
-
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmn7IVMFAwAAAAAACgkQsN6d1ii/Ey8H
-4gf/XMTEwlUsw8sLZ428GZw0KtwhchRhyfWAOgEJshEIzQruNn+uulyCOWd4cqiCQWp6fVGkqwU0
-hRibjS1rBpnPr7fRCqI0pLwe0eAHgdisMdjDT2XAmFWr0w0g2Xs/Q8UwiR8QMZXJhcA1o7wxYX09
-bHxYPiH9MvQg71qeFb81e21iRX7pinRi7jdegW0HruDcdrAHvKUStTD71oosAsZqqmUES+E1Gpfa
-LKEOxUGrwTjpoC7D3R01vcb8Pp0+M8nGB03BpcC1NRjaXT47ISynbtCm326zbqe8UHxvztPn2Wd8
-XT6bx908cjJfr9Xfn00Yzeg0zKzRN4Bm3vyyRTIqiA==
-=8slB
------END PGP SIGNATURE-----
-
---------------CrBmqStcHQ99cTZsPCA000E2--
