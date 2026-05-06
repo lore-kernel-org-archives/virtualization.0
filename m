@@ -1,621 +1,317 @@
-Received: from mail.nessuent.net (mail.nessuent.net [188.245.177.90])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2452368299
-	for <virtualization@lists.linux.dev>; Wed,  6 May 2026 07:16:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=188.245.177.90
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBCDC3DC4BD
+	for <virtualization@lists.linux.dev>; Wed,  6 May 2026 09:03:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778051803; cv=none; b=T0TJdW3qdK3gg0xk3OiFxEOq8IwDXk8XNJqcMK7eDACHlXGsUUY9Sww3JSQBT8AMWCofZDVQV1NlfBr/u+oWGWiYe57Acq5UAI09OpzrIU+C71M8dvMw8qwcG5R6Ti98sDyrt/NEvcDULxp/PsU7HWk5Ny45x8QloPExwfrDLbw=
+	t=1778058213; cv=none; b=pdoyc4WMiH/os/6ARisJQknHQ0yx2dJY6S5A833l04IClqAIclU/9B5iD3bVZHzpqBI+QFFhoFQpHn4K6i5w8VRaAiTZX0doQlrb0RV2oICowj7Iha0Wdwr3n3d2JZymfn7VanMjXJnlDAvhyL3/D6NFSn8L6F4DEnaiXs/4OLQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778051803; c=relaxed/simple;
-	bh=8NzBSu1VM5CoS14CeABZiPXqsWxSaGWbfkJJMnspN24=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:Message-ID:
-	 MIME-Version:Content-Type; b=tSQO9csmyZuWHA6otEwELbpJF12E2twlBBx9HdTq9q70c4CwJs30NXjCi+872enNfcZ84PGxpqaLSOvGnQoh9ahPZPM8euEzZp2tQ9FhvoGleXL5rPfXF++97wCS79UrCKK5W9Yd7sQwAdTsPajNpT5xkQsFTEWJFMRb+oZty54=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=pitsidianak.is; spf=pass smtp.mailfrom=pitsidianak.is; dkim=pass (4096-bit key) header.d=pitsidianak.is header.i=@pitsidianak.is header.b=QutfXHMB; arc=none smtp.client-ip=188.245.177.90
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=pitsidianak.is
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pitsidianak.is
+	s=arc-20240116; t=1778058213; c=relaxed/simple;
+	bh=iyACEZr9tNu0J6Ll/OsHtjOciu11vmKknt4AOlYRNOk=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=Le47wy0RtbP1163w/5VhriHCevokYWUzppGMuT1ATe4pBh7HKUJBvaUF78c0wz/d+tHzh2keqxofzbHYCNC4pXlYx5RdwlKZYtA9211sqc2asYt7oqVLoo/kVGZnrJzgkglL9nj3ACC5NsF8fe4XrQQjhHgYFc01wBcQdRxegQY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=a9Brw7sn; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=d4HOMx14; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=pitsidianak.is header.i=@pitsidianak.is header.b="QutfXHMB"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=pitsidianak.is;
-	s=mailSelector; t=1778051791;
-	bh=8NzBSu1VM5CoS14CeABZiPXqsWxSaGWbfkJJMnspN24=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From:Subject;
-	b=QutfXHMBJKV2YHj3am9Xumrt+IBfLDNFMtdlCz/0VhN8uUysKdRUq+RMDDEQUz8LG
-	 /M/gavunswULXZ8eGu7DOCATTPOyICI9qOrbs7ktnqwrNpDgrvmohhg7e5x9AAl+98
-	 Q8mAEo/LyID6GkgT3xpAD6t25TH8phDco1Y+MNGv94GytP6GOvUgZDQJf4cdCMrG3v
-	 E1N/MHhK8JX2N9TxK/jPZBI58rem1jJr4Vi9wyoBOL0Ho3xaSik9i6EvsaWI8P++I2
-	 yT9vpG5bHnpHMMomdihgw7AX/PtJRu4OeX4qA9Wks/9rtjmivh2nL+R90iVTjY7ScV
-	 EMoxzKL+wHTmadY9GQkX8/Zd8w7NlpmLLyCF0UKRp6P7StfbVs/MkEmCwzMLrJKAdV
-	 I/UclLn5DWYihAlLsbOlne2F/kSB2cHMcDyixlfz85cmCy/zmxfGZpSdEidrjCaDUl
-	 p77MpOjoEYdXSwRBbHgE4ra0B8BMs/VgQiokt05zjL1TMSTEFfOmU3DKMNSNLy/+HK
-	 Ii5qI4JyXre7zyqFN2NOog3QfZ01qlb4enUi6LOcHAW3tQO6rBe3VSyM1YKmtkhcNO
-	 JHQzhEAt/hDkAE4D4zmwkt3LDEQRzh+l+lSRG/mzfrLFAtzcQVsFIzFzb5lIj62hBH
-	 MKA1GefVYTCF0yLc++DDD9+Q=
-Date: Wed, 06 May 2026 10:09:34 +0300
-From: Manos Pitsidianakis <manos@pitsidianak.is>
-To: Miguel Ojeda <ojeda@kernel.org>
-Cc: Manos Pitsidianakis <manos.pitsidianakis@linaro.org>, Peter Hilber <peter.hilber@oss.qualcomm.com>, Stefano Garzarella <sgarzare@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Viresh Kumar <viresh.kumar@linaro.org>, "Michael S. Tsirkin" <mst@redhat.com>, Boqun Feng <boqun@kernel.org>, Gary Guo <gary@garyguo.net>, Bj=?UTF-8?B?w7Y=?=rn Roy Baron <bjorn3_gh@protonmail.com>, Benno Lossin <lossin@kernel.org>, Andreas Hindborg <a.hindborg@kernel.org>, Alice Ryhl <aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>, Danilo Krummrich <dakr@kernel.org>, rust-for-linux@vger.kernel.org, Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio P=?UTF-8?B?w6k=?=rez <eperezma@redhat.com>, virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, Manos Pitsidianakis <manos@pitsidianak.is>
-Subject: Re: [PATCH RFC 6/6] samples/rust: Add sample virtio-rtc driver [WIP]
-User-Agent: meli/0.8.13
-References: <20260505-rust-virtio-v1-0-9563383909e4@pitsidianak.is> <20260505-rust-virtio-v1-6-9563383909e4@pitsidianak.is>
-In-Reply-To: <20260505-rust-virtio-v1-6-9563383909e4@pitsidianak.is>
-Message-ID: <teltjh.vwspcx6omg52@pitsidianak.is>
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="a9Brw7sn";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="d4HOMx14"
+Received: from pps.filterd (m0279868.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 6467trI32427920
+	for <virtualization@lists.linux.dev>; Wed, 6 May 2026 09:03:30 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-transfer-encoding:content-type:date:from:message-id
+	:mime-version:subject:to; s=qcppdkim1; bh=xNHOgmPVFPAixApqaWJUYe
+	8lvxM9jzb7c9bkv+MyW04=; b=a9Brw7sny3EKlU+BlcL6QlOdaYkkkJ59TefCao
+	y/lOnxFlpD7SpbiQ0IhUB5qJdBqFnO+LgVZJzbN4qes8Os15tAmlD4rAAjI+8cVJ
+	QQ+gNIOytFA8hLxZLkNPPcdktWyRf8nUspTpY9i++pUQLEq1liaU3OLpNMkvEr26
+	w/LJCEK2hPtA/LaspBOkMfHqBsQOUxqLAstflDKOdz2u4I4JcOL5qwfJ1ER3t9Q8
+	BJU0V2SWrmhd3d6FlTdS/Mum93Oui0cxPuQPSpoEKVA+ebXMx0AC5By+1qzvgYIo
+	iupVOm/J8Sl+cKPT39NT4VQTz7XLLBJBSxQvVgYjwdd9KWyw==
+Received: from mail-dl1-f72.google.com (mail-dl1-f72.google.com [74.125.82.72])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4e01ph0b6v-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <virtualization@lists.linux.dev>; Wed, 06 May 2026 09:03:30 +0000 (GMT)
+Received: by mail-dl1-f72.google.com with SMTP id a92af1059eb24-12dc3d81736so3876453c88.1
+        for <virtualization@lists.linux.dev>; Wed, 06 May 2026 02:03:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1778058209; x=1778663009; darn=lists.linux.dev;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=xNHOgmPVFPAixApqaWJUYe8lvxM9jzb7c9bkv+MyW04=;
+        b=d4HOMx146PzYzTLBsRyumz8ZjsFEh8a0Yq1t+T9Ehx99gqHq/xnaFq5sbJoIZvPSmC
+         qe3O2R79MXuGwCDOc3D9jn9nQqxEJXwTRFllGZk/ibzC7mhyheMFj+sXkr5bY5doPeDa
+         q7yUKKcF8eoqjLI8BEuSri6gzwu+rMXiZsnlBedUtc1ztrDMWbX5gqRFPgTrcWAEbxY9
+         SxL5oBmf6wdeLBO9/21f7KVni6clKLYe3nJ7MIcOLYx9lJwDMSXuLSv936engcxzC9jX
+         MQBSln4hwMrbfOB76da0ge9v20x7TGzChc9o8IRwxNOqF2IbWW3/GQbU9iGObb3HW3JB
+         +zcA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778058209; x=1778663009;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=xNHOgmPVFPAixApqaWJUYe8lvxM9jzb7c9bkv+MyW04=;
+        b=soYd6xM9YZmqWtmd+3ospveBBAUfOMz2kDAYW+xR6HqSYeoO01jn8kWNhA6jRhQ0zA
+         /UCLvphI+a4SmdepI5zafftW8CgJasJY4oPPYgH+SdImsad/mIzliONIgYJrYNxpN7xM
+         UyGCS3NfAUknYZmwQXeXVahWobYy34XWyP3yeC7Jl4hkxlJ9f3Th3NqapadMz1hQ1tEY
+         9EX1qI0Mey4UsSW0hQw5SKQNjyZ/qyUCLWDo3YxV29zmJ4xL00pXKFWdkPJ+rtEJqJhn
+         iKEo6mcvOkKcSc2uW/vvPxx7pYLDjzh7TIKoEZgjbXcq6neHEyivta2KsQLHHlLAExIw
+         mnFw==
+X-Forwarded-Encrypted: i=1; AFNElJ9wDStQjda4BXAOpygZOEM9kZLZ+x/eNedWm5mnkhBXnGeyMjKWrbLxKhXfacfScoUiu5NZmjaTfgNfePyj9g==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw1KUlYey3BdV1R9k6mTUwfRXa+u8rCZ/uFf9Fa7MLGbQyXePO5
+	pzMrCFG7lRl8U4d9HXarbJcTXkb1+dtP2nd7vzk2Cax2daoMBDlMHtvPLN3AV+WGy+f0D2rgNY9
+	H4WDnq3SZtipYDE77REpfiKj4YjH9oEtLoIiv2RbNmKWmVsooYOA/Y/l3rKCF/GEgtztL0A==
+X-Gm-Gg: AeBDieuvrwmfL+Yxut2sq6h4XHZDn9C0w8T9dIsduikVejhFfxC4/BBd3aMeEQEV48S
+	TnTf48C82W0uiB6Ih9QF2wvl1Sll7I1MsHh97gtz1yXx/OoDpd1NuAmMB1qzXy0qFHQ083OSrFK
+	QFafZ7jojZ9MECIzXSOZ8oN2fGaZcRBnLZlaF1CUDbc4kGr1CBUxK7T6o6L+csbp44CJJIsLQrf
+	IDmghRP/+ufPX8c6hpNdJpy/YTAJGhiJfDWd+9o3JO7H7wUh7Wj7PdIk2Pj7D3F8i9TlArJcBYd
+	T9JOyi1oydMciTJvxUlRFZtd9cWuZUf6MjaF92iwLfq9T+jLUvgppxxBWNu2P6Dq6f3GK1JeXEj
+	EioQ3q1mPAoRusEP31aHz4FBePFdZzXEKqiOaYtbgqa+sp5xd3RWlaSx+34O1xOa3wQg9CVZikM
+	L4sD9a
+X-Received: by 2002:a05:7022:fa8:b0:12d:ccf5:271c with SMTP id a92af1059eb24-1319cf59173mr989113c88.22.1778058209388;
+        Wed, 06 May 2026 02:03:29 -0700 (PDT)
+X-Received: by 2002:a05:7022:fa8:b0:12d:ccf5:271c with SMTP id a92af1059eb24-1319cf59173mr989093c88.22.1778058208689;
+        Wed, 06 May 2026 02:03:28 -0700 (PDT)
+Received: from hu-penyan-lv.qualcomm.com (Global_NAT1.qualcomm.com. [129.46.96.20])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-131f9788eb4sm2473753c88.7.2026.05.06.02.03.27
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 06 May 2026 02:03:28 -0700 (PDT)
+From: Peng Yang <peng.yang@oss.qualcomm.com>
+Date: Wed, 06 May 2026 02:03:12 -0700
+Subject: [PATCH v3] virtio_console: bound __send_to_port() spin loop to
+ prevent watchdog bite
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset=utf-8; format=flowed
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260506-add_timeout_to___send_to_port-v3-1-8ad046fc3dc3@oss.qualcomm.com>
+X-B4-Tracking: v=1; b=H4sIAM8D+2kC/43OQQrCMBAF0KtI1qY0k1KrK+8hEtpkYiO2qUlal
+ NK7m9SNC0E3w3z4vJmZeHQGPTlsZuJwMt7YPga+3RDZ1v0FqVExE8ihzAvIaa2UCKZDOwYRrBD
+ CY6/SNlgXKMsLibtGaigYicbgUJvH6p/O7+zH5ooyJDQ1WuODdc/1gYml3r+3JkYZLSUHxXmjC
+ w1H6312H+ubtF2XxUHSyQk+0f0vFCLKFXDUqkReVV/QZVlexqjXUjgBAAA=
+X-Change-ID: 20260420-add_timeout_to___send_to_port-104ce7bcf241
+To: Amit Shah <amit@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+        Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: kernel@quicinc.com, virtualization@lists.linux.dev,
+        linux-kernel@vger.kernel.org, kernel@oss.qualcomm.com,
+        Peng Yang <peng.yang@oss.qualcomm.com>
+X-Mailer: b4 0.16-dev-3bfbc
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1778058207; l=6870;
+ i=peng.yang@oss.qualcomm.com; s=20260420; h=from:subject:message-id;
+ bh=iyACEZr9tNu0J6Ll/OsHtjOciu11vmKknt4AOlYRNOk=;
+ b=aB3Zn2LRG9GMh+WjxfeyAQoQyFSL888qgy6Gj5NmTWiVSDNFPFtFQ7C0aMN8YzAjwIvB1azui
+ Y00Ld113fgNCI09RgjsZpWUQ+6ulbedfVIBvfLWZpXpwNFiPew7Qthu
+X-Developer-Key: i=peng.yang@oss.qualcomm.com; a=ed25519;
+ pk=fY34c9+z3TbzFLgw2yql3bT/tbmxDEuxiVPTYAbRSTY=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTA2MDA4NyBTYWx0ZWRfX2SXQBKJiqOnW
+ l3dEsIhxG+//A8R9BQ4DTz62e5fkgyYNMp/G3wHqWOU+GoBxNnyYw+pU3Erved8AulBDNGI9bUX
+ CUfWinL1srwu578+HED6yhmOPvlKPys7donheSkjlh62AOPPlUCj5IbMAMl1kLUyOXbu+gNUhNN
+ x/wdhGfxM4f14bIEWJzGqv2RzDUI4P8NAR70TDEx6aFSeWkrPj3V9gAV6/ngHg2lO+UlzUNLMsG
+ G+8/7IOgOdlOLZHrS5Xr8OcASWLnK9JH/qLlmjbGgCNn1sNyIyNmnBYwpQZxH81J8zEPqFiu60Y
+ 8F2pVu6ZYnTEpSd6Ula8IUItPsTJVaBDgsomF0YKjSdLkma+SJcMvBm9fAmllGAZZKm2JcKrlL9
+ 1cn7HWJvNqDzzernCybf7Q9Hq6W6Ndax1gZ8KihU/TKFvV7T9RFhloG7XazL3h1WUtmABPD6Kf3
+ nKlewwR5carIvt8zFOg==
+X-Proofpoint-GUID: 21Kurj0LwLk73iLc5yM_djSs8TEEcgIX
+X-Proofpoint-ORIG-GUID: 21Kurj0LwLk73iLc5yM_djSs8TEEcgIX
+X-Authority-Analysis: v=2.4 cv=MYhcfZ/f c=1 sm=1 tr=0 ts=69fb03e2 cx=c_pps
+ a=bS7HVuBVfinNPG3f6cIo3Q==:117 a=ouPCqIW2jiPt+lZRy3xVPw==:17
+ a=IkcTkHD0fZMA:10 a=NGcC8JguVDcA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=ZpdpYltYx_vBUK5n70dp:22
+ a=bC-a23v3AAAA:8 a=EUspDBNiAAAA:8 a=VwQbUJbxAAAA:8 a=ag1SF4gXAAAA:8
+ a=NWbpyqog06wjIlyGQJwA:9 a=QEXdDO2ut3YA:10 a=vBUdepa8ALXHeOFLBtFW:22
+ a=FO4_E8m0qiDe52t0p3_H:22 a=Yupwre4RP9_Eg_Bd0iYG:22
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
+ definitions=2026-05-05_03,2026-04-30_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 bulkscore=0 clxscore=1015 impostorscore=0 adultscore=0
+ spamscore=0 priorityscore=1501 malwarescore=0 lowpriorityscore=0
+ suspectscore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2604200000
+ definitions=main-2605060087
 
-Some stuff that needs to be addressed:
+__send_to_port() acquires outvq_lock with IRQs disabled via
+spin_lock_irqsave(), then spins in virtqueue_get_buf() waiting for the
+host to consume the TX descriptor.  When the host is slow to respond
+(e.g. under heavy load from concurrent virtio_mem plug operations
+during secondary VM boot), the spin never exits.
 
-On Tue, 05 May 2026 11:14, Manos Pitsidianakis <manos@pitsidianak.is> wrote:
->While the driver queries clocks and capabilities for each clock, it
->doesn't actually register them yet (TODO).
->
->Until I implement missing functionality, there is some dead code and
->some missing SAFETY comments.
->
->Signed-off-by: Manos Pitsidianakis <manos@pitsidianak.is>
->---
-> MAINTAINERS                     |   1 +
-> samples/rust/Kconfig            |  15 ++
-> samples/rust/Makefile           |   1 +
-> samples/rust/rust_virtio_rtc.rs | 470 ++++++++++++++++++++++++++++++++++++++++
-> 4 files changed, 487 insertions(+)
->
->diff --git a/MAINTAINERS b/MAINTAINERS
->index e8012f708df5d4ee858c82aec3269e615fc8caad..3ed579e8d3cc64d1749cf261cd68f6338a830c4d 100644
->--- a/MAINTAINERS
->+++ b/MAINTAINERS
->@@ -27937,6 +27937,7 @@ S:	Maintained
-> F:	rust/helpers/virtio.c
-> F:	rust/kernel/virtio.rs
-> F:	rust/kernel/virtio/
->+F:	samples/rust/rust_virtio_rtc.rs
-> 
-> VIRTIO CRYPTO DRIVER
-> M:	Gonglei <arei.gonglei@huawei.com>
->diff --git a/samples/rust/Kconfig b/samples/rust/Kconfig
->index c49ab910634596aea4a1a73dac87585e084f420a..96a16aecc27198fd99f4ffd0ecdf0bc0876860c6 100644
->--- a/samples/rust/Kconfig
->+++ b/samples/rust/Kconfig
->@@ -179,4 +179,19 @@ config SAMPLE_RUST_HOSTPROGS
-> 
-> 	  If unsure, say N.
-> 
->+config SAMPLE_RUST_VIRTIO_RTC
->+	tristate "Rust Virtio RTC driver"
->+	depends on VIRTIO
->+	depends on PTP_1588_CLOCK_OPTIONAL
->+	help
->+	 This driver provides current time from a Virtio RTC device. The driver
->+	 provides the time through one or more clocks. The Virtio RTC PTP
->+	 clocks and/or the Real Time Clock driver for Virtio RTC must be
->+	 enabled to expose the clocks to userspace.
->+
->+	 To compile this code as a module, choose M here: the module will be
->+	 called rust_virtio_rtc.
->+
->+	 If unsure, say M.
->+
-> endif # SAMPLES_RUST
->diff --git a/samples/rust/Makefile b/samples/rust/Makefile
->index 6c0aaa58ccccfd12ef019f68ca784f6d977bc668..0142fd8656bb8cdc95b7ef54e3183b5e51358954 100644
->--- a/samples/rust/Makefile
->+++ b/samples/rust/Makefile
->@@ -16,6 +16,7 @@ obj-$(CONFIG_SAMPLE_RUST_DRIVER_FAUX)		+= rust_driver_faux.o
-> obj-$(CONFIG_SAMPLE_RUST_DRIVER_AUXILIARY)	+= rust_driver_auxiliary.o
-> obj-$(CONFIG_SAMPLE_RUST_CONFIGFS)		+= rust_configfs.o
-> obj-$(CONFIG_SAMPLE_RUST_SOC)			+= rust_soc.o
->+obj-$(CONFIG_SAMPLE_RUST_VIRTIO_RTC)		+= rust_virtio_rtc.o
-> 
-> rust_print-y := rust_print_main.o rust_print_events.o
-> 
->diff --git a/samples/rust/rust_virtio_rtc.rs b/samples/rust/rust_virtio_rtc.rs
->new file mode 100644
->index 0000000000000000000000000000000000000000..f580ed83a0a57a4b051372a51f56b787d53ed602
->--- /dev/null
->+++ b/samples/rust/rust_virtio_rtc.rs
->@@ -0,0 +1,470 @@
->+// SPDX-License-Identifier: GPL-2.0
->+
->+//! Rust virtio driver sample.
->+
->+use core::{
->+    cell::Cell,
->+    marker::PhantomData,
->+    ptr::NonNull, //
->+};
->+
->+use kernel::{
->+    device::{
->+        Core,
->+        CoreInternal, //
->+    },
->+    new_mutex, new_spinlock, page,
+The watchdog bark ISR fires on another CPU and tries to printk(), which
+calls hvc_console_print() -> put_chars() -> __send_to_port(), attempting
+to acquire outvq_lock.  With outvq_lock already held and IRQs disabled,
+all CPUs stall and the watchdog cannot be pet, triggering a bite.
 
-Formatting
+Add a 200ms deadline using ktime_get_mono_fast_ns() to break out of the
+spin loop as a fallback.  Since __send_to_port() may now return before
+the host has consumed the TX descriptor, put_chars() is changed to
+allocate a struct port_buffer (GFP_ATOMIC) as the virtqueue token
+instead of a raw kmemdup() pointer, so that reclaim_consumed_buffers()
+can safely call free_buf() on it regardless of whether a timeout
+occurred.  put_chars() frees the buffer only when
+virtqueue_add_outbuf() fails and the token was never submitted.
 
->+    prelude::*,
->+    scatterlist::SGEntry,
->+    sync::Completion,
->+    sync::{Mutex, SpinLock},
+Signed-off-by: Peng Yang <peng.yang@oss.qualcomm.com>
+---
+Changes in v3:
+- Fix token leak in __send_to_port(): capture virtqueue_get_buf() return
+  value and call free_buf() after the spin loop exits normally.
+- Link to v2: https://patch.msgid.link/20260429-add_timeout_to___send_to_port-v2-1-3d23efd6e388@oss.qualcomm.com
 
-Ditto
+Changes in v2:
+- Rework put_chars() to allocate full struct port_buffer (GFP_ATOMIC)
+  so free_buf() can safely reclaim the token on timeout.
+- Transfer buffer ownership to virtqueue on success; free immediately
+  on virtqueue_add_outbuf() failure.
+- Link to v1: https://patch.msgid.link/20260420-add_timeout_to___send_to_port-v1-1-6c32d33bf4f2@oss.qualcomm.com
 
->+    virtio::{
->+        self,
->+        utils::*,
->+        virtqueue::*, //
->+    },
->+};
->+
->+use pin_init::stack_try_pin_init;
->+
->+#[pin_data]
->+struct Token {
->+    resp_actual_size: u32,
->+    #[pin]
->+    responded: Completion,
->+}
->+
->+#[pin_data]
->+struct Message<Request: Zeroable, Response: Zeroable> {
->+    msg_type: u16,
->+    #[pin]
->+    req: KVec<u8>,
->+    #[pin]
->+    resp: KVec<u8>,
->+    req_ptr: NonNull<Request>,
->+    resp_ptr: NonNull<Response>,
->+    #[pin]
->+    token: Token,
->+    _ph_req: PhantomData<Request>,
->+    _ph_resp: PhantomData<Response>,
->+}
->+
->+#[derive(Copy, Clone, Debug, Zeroable)]
->+#[repr(C)]
->+#[doc(alias = "virtio_rtc_req_head")]
->+struct ReqHead {
->+    msg_type: Le16,
->+    reserved: [u8; 6],
->+}
->+
->+#[derive(Debug, Zeroable)]
->+#[repr(C)]
->+#[doc(alias = "virtio_rtc_resp_head")]
->+struct RespHead {
->+    status: u8,
->+    reserved: [u8; 7],
->+}
->+
->+#[derive(Debug, Zeroable)]
->+#[repr(C)]
->+#[doc(alias = "virtio_rtc_resp_cfg")]
->+struct RespCfg {
->+    head: ReqHead,
->+    /** # of clocks -> clock ids < num_clocks are valid */
->+    num_clocks: Le16,
->+    reserved: [u8; 6],
->+}
->+
->+#[derive(Debug, Zeroable)]
->+#[repr(C)]
->+#[doc(alias = "virtio_rtc_req_clock_cap")]
->+struct ReqClockCap {
->+    head: ReqHead,
->+    clock_id: Le16,
->+    reserved: [u8; 6],
->+}
->+
->+#[derive(Copy, Clone, Debug, Zeroable)]
->+#[repr(C)]
->+#[doc(alias = "virtio_rtc_resp_clock_cap")]
->+struct RespClockCap {
->+    head: ReqHead,
->+    clock_type: u8,
->+    leap_second_smearing: u8,
->+    flags: u8,
->+    reserved: [u8; 5],
->+}
->+
->+#[derive(Debug, Zeroable)]
->+#[repr(C)]
->+#[doc(alias = "virtio_rtc_req_read")]
->+struct ReqRead {
->+    head: ReqHead,
->+    clock_id: Le16,
->+    reserved: [u8; 6],
->+}
->+
->+#[derive(Copy, Clone, Debug, Zeroable)]
->+#[repr(C)]
->+#[doc(alias = "virtio_rtc_resp_read")]
->+struct RespRead {
->+    head: ReqHead,
->+    clock_reading: Le64,
->+}
->+
->+#[repr(u8)]
->+enum ClockType {
->+    #[doc(alias = "VIRTIO_RTC_CLOCK_UTC")]
->+    Utc = 0,
->+    #[doc(alias = "VIRTIO_RTC_CLOCK_TAI")]
->+    Tai = 1,
->+    #[doc(alias = "VIRTIO_RTC_CLOCK_MONOTONIC")]
->+    Monotonic = 2,
->+    #[doc(alias = "VIRTIO_RTC_CLOCK_UTC_SMEARED")]
->+    UtcSmeared = 3,
->+    #[doc(alias = "VIRTIO_RTC_CLOCK_UTC_MAYBE_SMEARED")]
->+    UtcMaybeSmeared = 4,
->+}
->+
->+// SAFETY: `Message` is safe to be send to any task.
->+unsafe impl<Request: Zeroable, Response: Zeroable> Send for Message<Request, Response> {}
->+
->+// SAFETY: `Message` is safe to be accessed concurrently.
->+unsafe impl<Request: Zeroable, Response: Zeroable> Sync for Message<Request, Response> {}
->+
->+impl<Request: Zeroable, Response: Zeroable> Message<Request, Response> {
->+    /// Create an initializer for a new [`Message`].
->+    fn new(req_data: Request, msg_type: u16) -> Result<impl PinInit<Self, Error>> {
->+        macro_rules! alloc_buf {
->+            ($t:ty) => {{
->+                let size = (core::mem::size_of::<$t>() / page::PAGE_SIZE + 1) * page::PAGE_SIZE;
->+                KVec::<u8>::with_capacity(size, GFP_KERNEL)
+To: Amit Shah <amit@kernel.org>
+To: Arnd Bergmann <arnd@arndb.de>
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: kernel@oss.qualcomm.com
+Cc: virtualization@lists.linux.dev
+Cc: linux-kernel@vger.kernel.org
+---
+ drivers/char/virtio_console.c | 81 +++++++++++++++++++++++++++++++++++--------
+ 1 file changed, 67 insertions(+), 14 deletions(-)
 
-Not sure if KVec is the proper allocation type here...
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 9a33217c68d9..4d6b3e144e7f 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -27,6 +27,7 @@
+ #include <linux/module.h>
+ #include <linux/dma-mapping.h>
+ #include <linux/string_choices.h>
++#include <linux/timekeeping.h>
+ #include "../tty/hvc/hvc_console.h"
+ 
+ #define is_rproc_enabled IS_ENABLED(CONFIG_REMOTEPROC)
+@@ -601,6 +602,8 @@ static ssize_t __send_to_port(struct port *port, struct scatterlist *sg,
+ 	int err;
+ 	unsigned long flags;
+ 	unsigned int len;
++	void *token;
++	u64 deadline;
+ 
+ 	out_vq = port->out_vq;
+ 
+@@ -632,10 +635,20 @@ static ssize_t __send_to_port(struct port *port, struct scatterlist *sg,
+ 	 * buffer and relax the spinning requirement.  The downside is
+ 	 * we need to kmalloc a GFP_ATOMIC buffer each time the
+ 	 * console driver writes something out.
++	 *
++	 * To avoid spinning forever if the host stops processing the
++	 * TX virtqueue (e.g. during VM shutdown), a 200ms deadline is
++	 * used to break out of the loop as a fallback.
+ 	 */
+-	while (!virtqueue_get_buf(out_vq, &len)
+-		&& !virtqueue_is_broken(out_vq))
++	deadline = ktime_get_mono_fast_ns() + 200ULL * NSEC_PER_MSEC;
++	while (!(token = virtqueue_get_buf(out_vq, &len)) &&
++	       !virtqueue_is_broken(out_vq)) {
++		if (ktime_get_mono_fast_ns() >= deadline)
++			break;
+ 		cpu_relax();
++	}
++	if (token)
++		free_buf(token, false);
+ done:
+ 	spin_unlock_irqrestore(&port->outvq_lock, flags);
+ 
+@@ -1097,31 +1110,71 @@ static const struct file_operations port_fops = {
+ };
+ 
+ /*
+- * The put_chars() callback is pretty straightforward.
++ * The put_chars() callback writes characters to the virtio console port.
+  *
+- * We turn the characters into a scatter-gather list, add it to the
+- * output queue and then kick the Host.  Then we sit here waiting for
+- * it to finish: inefficient in theory, but in practice
+- * implementations will do it immediately.
++ * We allocate a struct port_buffer (with GFP_ATOMIC) to wrap the data so
++ * that reclaim_consumed_buffers() can safely call free_buf() on the token
++ * returned by virtqueue_get_buf(), even if __send_to_port() timed out
++ * before observing the used-ring update.
++ *
++ * On success, ownership of the buffer is transferred to the virtqueue as
++ * the descriptor token; it will be reclaimed by reclaim_consumed_buffers().
++ * On failure (virtqueue_add_outbuf() error), the buffer was never submitted
++ * and must be freed explicitly here.
+  */
+ static ssize_t put_chars(u32 vtermno, const u8 *buf, size_t count)
+ {
+ 	struct port *port;
+ 	struct scatterlist sg[1];
+-	void *data;
+-	int ret;
++	struct port_buffer *pbuf;
++	ssize_t ret;
++
++	if (!count)
++		return 0;
+ 
+ 	port = find_port_by_vtermno(vtermno);
+ 	if (!port)
+ 		return -EPIPE;
+ 
+-	data = kmemdup(buf, count, GFP_ATOMIC);
+-	if (!data)
++	/*
++	 * Allocate a struct port_buffer with GFP_ATOMIC so that
++	 * reclaim_consumed_buffers() can safely call free_buf() on the token
++	 * returned by virtqueue_get_buf(), whether or not __send_to_port()
++	 * timed out.  alloc_buf() uses GFP_KERNEL internally, so we open-code
++	 * the allocation here.
++	 */
++	pbuf = kmalloc(struct_size(pbuf, sg, 0), GFP_ATOMIC);
++	if (!pbuf)
+ 		return -ENOMEM;
+ 
+-	sg_init_one(sg, data, count);
+-	ret = __send_to_port(port, sg, 1, count, data, false);
+-	kfree(data);
++	pbuf->buf = kmalloc(count, GFP_ATOMIC);
++	if (!pbuf->buf) {
++		kfree(pbuf);
++		return -ENOMEM;
++	}
++	pbuf->dev = NULL;
++	pbuf->sgpages = 0;
++	pbuf->len = count;
++	pbuf->offset = 0;
++	pbuf->size = count;
++	memcpy(pbuf->buf, buf, count);
++
++	sg_init_one(sg, pbuf->buf, count);
++	ret = __send_to_port(port, sg, 1, count, pbuf, false);
++
++	/*
++	 * If virtqueue_add_outbuf() failed inside __send_to_port() (ret <= 0),
++	 * the token was never submitted to the virtqueue, so reclaim_consumed_
++	 * buffers() will never see it.  Free pbuf explicitly in that case.
++	 *
++	 * On success (ret > 0), ownership of pbuf has been transferred to the
++	 * virtqueue as the descriptor token.  It will be reclaimed and freed
++	 * by reclaim_consumed_buffers() -> free_buf() when the host marks the
++	 * descriptor as used, even if __send_to_port() timed out before
++	 * observing the used-ring update.  Do NOT free pbuf here in that case.
++	 */
++	if (ret <= 0)
++		free_buf(pbuf, false);
+ 	return ret;
+ }
+ 
 
->+            }};
->+        }
->+        let mut req = alloc_buf!(Request)?;
->+        let mut resp = alloc_buf!(Response)?;
->+        let req_ptr: NonNull<Request> = NonNull::new(req.as_mut_ptr().cast()).unwrap();
->+        let resp_ptr = NonNull::new(resp.as_mut_ptr().cast()).unwrap();
->+        // SAFETY: `req_ptr` is a valid Request allocation
->+        unsafe {
->+            core::ptr::write(req_ptr.as_ptr(), req_data);
->+        }
->+        Ok(pin_init!(Self {
->+            req,
->+            resp,
->+            msg_type,
->+            req_ptr,
->+            resp_ptr,
->+            token <- pin_init!(Token {
->+                resp_actual_size: 0,
->+                responded <- Completion::new(),
->+            }),
->+            _ph_req: PhantomData,
->+            _ph_resp: PhantomData,
->+        }? Error))
->+    }
->+
->+    fn get_response(&self) -> Result<&Response, Error> {
->+        if self.token.resp_actual_size as usize != core::mem::size_of::<Response>() {
->+            if self.token.resp_actual_size as usize >= core::mem::size_of::<RespHead>() {
->+                let head: &RespHead = unsafe { self.resp_ptr.cast().as_ref() };
->+                return match head.status {
->+                    0 | 3 => Err(EINVAL),
->+                    1 => Err(ENOTSUPP),
->+                    2 => Err(ENODEV),
->+                    4 | 5_u8..=u8::MAX => Err(EIO),
->+                };
->+            }
->+            return Err(EINVAL);
->+        }
->+        Ok(unsafe { self.resp_ptr.as_ref() })
->+    }
->+
->+    fn send(&self, vq: &SpinLock<VirtioRtcVq>, timeout_jiffies: c_ulong) -> Result {
->+        let guard = vq.lock();
+---
+base-commit: 97e797263a5e963da3d1e66e743fd518567dfe37
+change-id: 20260420-add_timeout_to___send_to_port-104ce7bcf241
 
-This is a spinlock, but we don't disable interrupts (spin_lock_irqsave 
-in C). This method seems to be missing from 
-rust/kernel/sync/lock/spinlock.rs, I will try adding it.
+Best regards,
+--  
+Peng Yang <peng.yang@oss.qualcomm.com>
 
->+
->+        let mut sg_in = core::mem::MaybeUninit::zeroed();
->+        let mut sg_out = core::mem::MaybeUninit::zeroed();
->+        let req = unsafe {
->+            SGEntry::init_one(
->+                &mut sg_out,
->+                self.req_ptr.cast(),
->+                core::mem::size_of::<Request>() as u32,
->+            )
->+        };
->+        let resp = unsafe {
->+            SGEntry::init_one(
->+                &mut sg_in,
->+                self.resp_ptr.cast(),
->+                core::mem::size_of::<Response>() as u32,
->+            )
->+        };
->+        let sgs = [req, resp];
->+        guard.as_ref().add_sgs(
->+            &sgs,
->+            1,
->+            1,
->+            (&raw const self.token).cast_mut().cast(),
->+            GFP_ATOMIC,
->+        )?;
->+
->+        if guard.as_ref().kick_prepare() {
->+            guard.as_ref().notify();
->+        }
->+        drop(guard);
->+
->+        if timeout_jiffies > 0 {
->+            self.token
->+                .responded
->+                .wait_for_completion_interruptible_timeout(timeout_jiffies)?;
->+        } else {
->+            self.token.responded.wait_for_completion_interruptible()?;
->+        }
-
-Failure here should not Drop the message, it should be reference-counted 
-and dropped when the virtqueue callback gets a reply for that token (or 
-when the device is reset).
-
->+        Ok(())
->+    }
->+}
->+
->+// TODO: use a proper enum
->+
->+const VIRTIO_RTC_REQ_READ: u16 = 0x0001;
->+const VIRTIO_RTC_REQ_CFG: u16 = 0x1000;
->+const VIRTIO_RTC_REQ_CLOCK_CAP: u16 = 0x1001;
->+
->+struct VirtioRtcVq {
->+    ptr: NonNull<Virtqueue>,
->+}
->+
->+// SAFETY: `VirtioRtcVq` is safe to be send to any task.
->+unsafe impl Send for VirtioRtcVq {}
->+
->+impl VirtioRtcVq {
->+    fn new(ptr: *mut Virtqueue) -> impl PinInit<SpinLock<Self>> {
->+        let ptr = NonNull::new(ptr).unwrap();
->+        new_spinlock!(Self { ptr })
->+    }
->+
->+    fn as_ref(&self) -> &Virtqueue {
->+        unsafe { self.ptr.as_ref() }
->+    }
->+}
->+
->+struct VirtioRtcDriver {
->+    reqvq: Pin<KBox<SpinLock<VirtioRtcVq>>>,
->+    alarmvq: Option<Pin<KBox<SpinLock<VirtioRtcVq>>>>,
->+    num_clocks: Cell<u16>,
-
-Use atomic u16 here
-
->+    registered_clocks: Pin<KBox<Mutex<KVec<()>>>>,
->+}
->+
->+impl Drop for VirtioRtcDriver {
->+    fn drop(&mut self) {
->+        pr_info!("Remove Rust virtio driver sample.\n");
->+    }
->+}
->+
->+unsafe extern "C" fn vq_requestq_callback(vq: *mut kernel::bindings::virtqueue) {
->+    let vq = unsafe { Virtqueue::from_raw(vq) };
->+    let dev: &virtio::Device<CoreInternal> = vq.dev();
->+    let data = unsafe { dev.as_ref().drvdata_borrow::<VirtioRtcDriver>() };
->+    data.process_requestq();
->+}
->+
->+impl VirtioRtcDriver {
->+    /// Submit `VIRTIO_RTC_REQ_CFG` and return response (`num_clocks`)
->+    fn req_cfg(&self) -> Result<u16> {
->+        let head = ReqHead {
->+            msg_type: VIRTIO_RTC_REQ_CFG.into(),
->+            reserved: [0; 6],
->+        };
->+        stack_try_pin_init!(
->+            let msg: Message::<ReqHead, RespCfg> =
->+                Message::new(head, VIRTIO_RTC_REQ_CFG)?);
->+        let msg: core::pin::Pin<&mut Message<ReqHead, RespCfg>> = msg?;
->+        msg.send(&self.reqvq, 0)?;
->+        pr_info!("Got response! {:?}\n", msg.get_response());
->+
->+        let response: &RespCfg = msg.get_response()?;
->+        Ok(response.num_clocks.into())
->+    }
->+
->+    fn process_requestq(&self) {
->+        let mut cb_enabled = true;
->+        loop {
->+            let guard = self.reqvq.lock();
->+            if cb_enabled {
->+                guard.as_ref().disable_cb();
->+                cb_enabled = false;
->+            }
->+            if let Some((token, len)) = guard.as_ref().get_buf() {
->+                drop(guard);
->+                pr_info!("process_requestq got buf {len} bytes\n");
->+                let mut token = token.cast::<Token>();
->+
->+                unsafe { token.as_mut().resp_actual_size = len };
->+                unsafe { token.as_mut().responded.complete_all() };
->+            } else {
->+                if guard.as_ref().enable_cb() {
->+                    return;
->+                }
->+                cb_enabled = true;
->+            }
->+        }
->+    }
->+
->+    fn clock_cap(&self, clock_id: u16) -> Result<RespClockCap> {
->+        type ClockCapMsg = Message<ReqClockCap, RespClockCap>;
->+
->+        let req = ReqClockCap {
->+            head: ReqHead {
->+                msg_type: VIRTIO_RTC_REQ_CLOCK_CAP.into(),
->+                reserved: [0; 6],
->+            },
->+            clock_id: clock_id.into(),
->+            reserved: [0; 6],
->+        };
->+        stack_try_pin_init!(
->+            let msg: ClockCapMsg = Message::new(req, VIRTIO_RTC_REQ_CLOCK_CAP)?
->+        );
->+        let msg: core::pin::Pin<&mut ClockCapMsg> = msg?;
->+        msg.send(&self.reqvq, 0)?;
->+        pr_info!("Got response! {:?}\n", msg.get_response());
->+        let response: &RespClockCap = msg.get_response()?;
->+        Ok(*response)
->+    }
->+
->+    fn read(&self, clock_id: u16) -> Result<u64> {
->+        type ReadMsg = Message<ReqRead, RespRead>;
->+
->+        let req = ReqRead {
->+            head: ReqHead {
->+                msg_type: VIRTIO_RTC_REQ_READ.into(),
->+                reserved: [0; 6],
->+            },
->+            clock_id: clock_id.into(),
->+            reserved: [0; 6],
->+        };
->+        stack_try_pin_init!(
->+            let msg: ReadMsg = Message::new(req, VIRTIO_RTC_REQ_CLOCK_CAP)?
-
-s/CLOCK_CAP/READ (the Message type is messy, must polish it)
-
->+        );
->+        let msg: core::pin::Pin<&mut ReadMsg> = msg?;
->+        msg.send(&self.reqvq, 0)?;
->+        pr_info!("Got response! {:?}\n", msg.get_response());
->+        let response: &RespRead = msg.get_response()?;
->+        Ok(response.clock_reading.into())
->+    }
->+}
->+
->+impl virtio::Driver for VirtioRtcDriver {
->+    type IdInfo = ();
->+
->+    /// The table of device ids supported by the driver.
->+    const ID_TABLE: virtio::IdTable<Self::IdInfo> = &VIRTIO_RTC_TABLE;
->+
->+    fn probe(vdev: &virtio::Device<Core>) -> impl PinInit<Self, Error> {
->+        const VQS_INFO: [VirtqueueInfo; 1] = [
->+            VirtqueueInfo::new(c"requestq", false, vq_requestq_callback),
->+            //VirtqueueInfo::new(c"alarmq", false, vq_callback),
->+        ];
->+        let init_fn = move |slot: *mut Self| {
->+            pr_info!("Probe Rust virtio driver sample.\n");
->+            let vqs = match vdev.find_vqs(&VQS_INFO) {
->+                Ok(vqs) => {
->+                    pr_info!("Found {} vqs.\n", vqs.len());
->+                    vqs
->+                }
->+                Err(err) => {
->+                    pr_info!("Could not find vqs: {err:?}.\n");
->+
->+                    return Err(err);
->+                }
->+            };
->+            let reqvq = KBox::pin_init(VirtioRtcVq::new(vqs[0]), GFP_ATOMIC)?;
->+            let registered_clocks =
->+                KBox::pin_init(new_mutex!(KVec::with_capacity(0, GFP_KERNEL)?), GFP_KERNEL)?;
->+            unsafe {
->+                core::ptr::write(
->+                    slot,
->+                    Self {
->+                        num_clocks: Cell::new(0),
->+                        reqvq,
->+                        alarmvq: None,
->+                        registered_clocks,
->+                    },
->+                )
->+            };
->+            Ok(())
->+        };
->+        unsafe { pin_init::pin_init_from_closure(init_fn) }
->+    }
->+
->+    fn init(&self, vdev: &virtio::Device<Core>) -> Result {
->+        vdev.ready();
->+        self.num_clocks.set(self.req_cfg()?);
->+        for i in 0..(self.num_clocks.get()) {
->+            let mut is_exposed = false;
->+
->+            let resp = self.clock_cap(i)?;
->+            let (clock_type, leap_second_smearing, flags) =
->+                (resp.clock_type, resp.leap_second_smearing, resp.flags);
->+            if cfg!(CONFIG_VIRTIO_RTC_CLASS)
->+                && (clock_type == ClockType::Utc as u8
->+                    || clock_type == ClockType::UtcSmeared as u8
->+                    || clock_type == ClockType::UtcMaybeSmeared as u8)
->+            {
->+                // TODO:
->+
->+                // 	ret = viortc_init_rtc_class_clock(viortc, vio_clk_id,
->+                // 					  clock_type, flags);
->+                // 	if (ret < 0)
->+                // 		return ret;
->+                // 	if (ret > 0)
->+                // 		is_exposed = true;
->+                dev_warn!(vdev.as_ref(), "CONFIG_VIRTIO_RTC_CLASS TODO ");
->+            }
->+
->+            if cfg!(CONFIG_VIRTIO_RTC_PTP) {
->+                // TODO:
->+
->+                // 	ret = viortc_init_ptp_clock(viortc, vio_clk_id, clock_type,
->+                // 				    leap_second_smearing);
->+                // 	if (ret < 0)
->+                // 		return ret;
->+                // 	if (ret > 0)
->+                // 		is_exposed = true;
->+                // todo!()
->+                dev_warn!(vdev.as_ref(), "CONFIG_VIRTIO_RTC_PTP TODO ");
->+            }
->+
->+            if !is_exposed {
->+                dev_warn!(
->+                    vdev.as_ref(),
->+                    "cannot expose clock {i} (type {clock_type}, variant {leap_second_smearing}, \
->+                    flags {flags}) to userspace\n"
->+                );
->+            }
->+            let clock_reading = self.read(i)?;
->+            pr_info!("#{i} clock reading = {clock_reading}\n");
->+        }
->+        Ok(())
->+    }
->+
->+    fn remove(vdev: &virtio::Device, _this: Pin<&Self>) {
->+        pr_info!("Removing Rust virtio driver sample.\n");
->+        vdev.reset();
->+        vdev.del_vqs();
->+    }
->+}
->+
->+kernel::virtio_device_table!(
->+    VIRTIO_RTC_TABLE,
->+    MODULE_VIRTIO_RTC_TABLE,
->+    <VirtioRtcDriver as virtio::Driver>::IdInfo,
->+    [(virtio::DeviceId::new(virtio::VirtioID::Clock), ())]
->+);
->+
->+kernel::module_virtio_driver! {
->+    type: VirtioRtcDriver,
->+    name: "rust_virtio_rtc",
->+    authors: ["Manos Pitsidianakis"],
->+    description: "Rust virtio driver",
->+    license: "GPL v2",
->+}
->
->-- 
->2.47.3
->
