@@ -1,258 +1,621 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.20])
+Received: from mail.nessuent.net (mail.nessuent.net [188.245.177.90])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 216A12D7DD4
-	for <virtualization@lists.linux.dev>; Wed,  6 May 2026 02:43:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.20
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778035409; cv=fail; b=K0SndKQMMTByA+PsmydWQLJNZb8l/WKTm7iNHyCgeQEcTbVXhMymnbnACRWxuNp6NlvfVpHVM3EjyWUAuAoo3W1MeiJEIWDozu71PdlLVaa3bognlOdPU61PI1c/bQdwON5lU1IzZd7y1mNdtdJB4NEQWn3nsrXMx1uGVHpQgY0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778035409; c=relaxed/simple;
-	bh=bp8CgJvI/9SgYmEfpHgg5xq1Me2r7ODYX0I2+sV7QT0=;
-	h=Date:From:To:CC:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=kRtuqYxtHP4q5G/5grbT2ca/yBQXaGNBB4qT9+oinajpjNVXrkbJO78ceLT1XKFD5wgM0C+5O8P5CMyV8GyNBIsOfK/h2irB6AdAb4b4OEYFrPXKhjVqYFispVFXdJt9+Mv2x1c2RVtj8H6Gt7i3erzN+JCt6tVduFGnTTlGnPs=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=KZQ5z1gu; arc=fail smtp.client-ip=198.175.65.20
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2452368299
+	for <virtualization@lists.linux.dev>; Wed,  6 May 2026 07:16:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=188.245.177.90
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778051803; cv=none; b=T0TJdW3qdK3gg0xk3OiFxEOq8IwDXk8XNJqcMK7eDACHlXGsUUY9Sww3JSQBT8AMWCofZDVQV1NlfBr/u+oWGWiYe57Acq5UAI09OpzrIU+C71M8dvMw8qwcG5R6Ti98sDyrt/NEvcDULxp/PsU7HWk5Ny45x8QloPExwfrDLbw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778051803; c=relaxed/simple;
+	bh=8NzBSu1VM5CoS14CeABZiPXqsWxSaGWbfkJJMnspN24=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:Message-ID:
+	 MIME-Version:Content-Type; b=tSQO9csmyZuWHA6otEwELbpJF12E2twlBBx9HdTq9q70c4CwJs30NXjCi+872enNfcZ84PGxpqaLSOvGnQoh9ahPZPM8euEzZp2tQ9FhvoGleXL5rPfXF++97wCS79UrCKK5W9Yd7sQwAdTsPajNpT5xkQsFTEWJFMRb+oZty54=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=pitsidianak.is; spf=pass smtp.mailfrom=pitsidianak.is; dkim=pass (4096-bit key) header.d=pitsidianak.is header.i=@pitsidianak.is header.b=QutfXHMB; arc=none smtp.client-ip=188.245.177.90
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=pitsidianak.is
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pitsidianak.is
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="KZQ5z1gu"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1778035408; x=1809571408;
-  h=date:from:to:cc:subject:message-id:reply-to:references:
-   in-reply-to:mime-version;
-  bh=bp8CgJvI/9SgYmEfpHgg5xq1Me2r7ODYX0I2+sV7QT0=;
-  b=KZQ5z1guiR7lLn1j7dTokR26NTCb1Byj7+txN8hXD1OsI9qiiDQ8eldB
-   vo6ZBf42W/e830M+rF4Xb8bET2rnzbfOcqYNIzrXFJn9ozgOj1q9F0fji
-   sfLcWgNAgKAMMoBmT2zO9WUP5tELOlF3hnRb2un9r/Bry3304JJ1qNRdg
-   x24FfEBiPvLQ28vxLNwctcDIcSyKWsTtv5VbRHFzInOJ4iDIviEm+w0yg
-   y9p0GaPljZx5etmh+BxAQeG1mcPmywxW9WBkGSeypeU82D5pSkijALpnE
-   Qay9zis60wCHms6s2gN/yeNcDmwEwchLtjcBQyieLDFAJwEC1XjByz5JD
-   Q==;
-X-CSE-ConnectionGUID: WKlWrXViTECf+ALCFGtgTg==
-X-CSE-MsgGUID: xb6HK5BUTo2uVkD8dACdsg==
-X-IronPort-AV: E=McAfee;i="6800,10657,11777"; a="78632736"
-X-IronPort-AV: E=Sophos;i="6.23,218,1770624000"; 
-   d="scan'208";a="78632736"
-Received: from fmviesa002.fm.intel.com ([10.60.135.142])
-  by orvoesa112.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 May 2026 19:43:28 -0700
-X-CSE-ConnectionGUID: Xd0v5Ox4TPGgmwpBAUbACQ==
-X-CSE-MsgGUID: I9fxZYOaSDCP9928HAEfhg==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.23,218,1770624000"; 
-   d="scan'208";a="259353489"
-Received: from orsmsx901.amr.corp.intel.com ([10.22.229.23])
-  by fmviesa002.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 05 May 2026 19:43:27 -0700
-Received: from ORSMSX902.amr.corp.intel.com (10.22.229.24) by
- ORSMSX901.amr.corp.intel.com (10.22.229.23) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.37; Tue, 5 May 2026 19:43:26 -0700
-Received: from ORSEDG901.ED.cps.intel.com (10.7.248.11) by
- ORSMSX902.amr.corp.intel.com (10.22.229.24) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.37 via Frontend Transport; Tue, 5 May 2026 19:43:26 -0700
-Received: from PH8PR06CU001.outbound.protection.outlook.com (40.107.209.30) by
- edgegateway.intel.com (134.134.137.111) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.37; Tue, 5 May 2026 19:43:26 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=i7Otgx69UqFZbJdho/Jdxy+1mqhFRkgayq9INJNCdIBuhnUlk5TVxrAwQX3qmYtrMoBJBuZvusT3XzhTHQHH75IKaQXhGalihYV+WHBMJEfMNy9aT3WoWjavZG0VPxxxn7yQ6KALRdO7rk+dlQUtXBP7nJ2QzU1u7X1HXVrRyktRvCQ3wcaZu9WBJ2DlQNPqpcs9mAxx/KZe8M6IWFIMnlYloHc5GlPx4DK//t0l8qiatVlb6mjf/luz/ugpandk73c7i0OUQLZjKlMJ3b1dH1mUHHjd7MdlQilepe8oEtWft4toukM++zRlk4IwZhPJly8awDFBDsS55JwghqzsQw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=+I2QugXF0c4CR5RlMGdSUmqtcRem4s+ZuTvsfL+L2EY=;
- b=UCFIW4aAS8IU80MWC62IqEghd7g5CT9t1749Iuy4mX2tiszcnqb1I12NutU41dM6zxEqD3Qc19lMov0pZNyyDsgRIK4Lpw0B7I34LVkFP1iujm76D251qDFdusrM6v4N+189ZIb+PS5UGLscLpmY1cp0Ey3q0yxeop15bjGitQVT2KSCuFTUa6TXJSdv1GB7kfwqaOHy0z5lnHC5aYT8EzCRcnvIbaCcN4qTqFLOiwQ8dyErEulTxCuCqL9wUu6wyGIaXBsRxvXPZmh6V/FSfLt//tDDb7tVacHJ+jza7fz3egWgRYhHRWjEoyCRPM9W6iqJIxLEVOacitIhZg3hQw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-Received: from PH0PR11MB7472.namprd11.prod.outlook.com (2603:10b6:510:28c::12)
- by DM6PR11MB4755.namprd11.prod.outlook.com (2603:10b6:5:2ae::18) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9870.27; Wed, 6 May
- 2026 02:43:24 +0000
-Received: from PH0PR11MB7472.namprd11.prod.outlook.com
- ([fe80::1bad:44dd:4e60:6475]) by PH0PR11MB7472.namprd11.prod.outlook.com
- ([fe80::1bad:44dd:4e60:6475%5]) with mapi id 15.20.9870.016; Wed, 6 May 2026
- 02:43:24 +0000
-Date: Wed, 6 May 2026 10:03:26 +0800
-From: Yan Zhao <yan.y.zhao@intel.com>
-To: Dave Hansen <dave.hansen@linux.intel.com>
-CC: <linux-kernel@vger.kernel.org>, Thomas Gleixner <tglx@kernel.org>, "Ingo
- Molnar" <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, <x86@kernel.org>,
-	Juergen Gross <jgross@suse.com>, <virtualization@lists.linux.dev>
-Subject: Re: [PATCH v2 2/8] x86/msr: Consolidate rdmsr() definitions
-Message-ID: <afqhbl9pKKwsVjOy@yzhao56-desk.sh.intel.com>
-Reply-To: Yan Zhao <yan.y.zhao@intel.com>
-References: <20260429184517.7E078510@davehans-spike.ostc.intel.com>
- <20260429184521.7AADEE4C@davehans-spike.ostc.intel.com>
-Content-Type: text/plain; charset="us-ascii"
-Content-Disposition: inline
-In-Reply-To: <20260429184521.7AADEE4C@davehans-spike.ostc.intel.com>
-X-ClientProxiedBy: TP0P295CA0046.TWNP295.PROD.OUTLOOK.COM (2603:1096:910:3::9)
- To PH0PR11MB7472.namprd11.prod.outlook.com (2603:10b6:510:28c::12)
+	dkim=pass (4096-bit key) header.d=pitsidianak.is header.i=@pitsidianak.is header.b="QutfXHMB"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=pitsidianak.is;
+	s=mailSelector; t=1778051791;
+	bh=8NzBSu1VM5CoS14CeABZiPXqsWxSaGWbfkJJMnspN24=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From:Subject;
+	b=QutfXHMBJKV2YHj3am9Xumrt+IBfLDNFMtdlCz/0VhN8uUysKdRUq+RMDDEQUz8LG
+	 /M/gavunswULXZ8eGu7DOCATTPOyICI9qOrbs7ktnqwrNpDgrvmohhg7e5x9AAl+98
+	 Q8mAEo/LyID6GkgT3xpAD6t25TH8phDco1Y+MNGv94GytP6GOvUgZDQJf4cdCMrG3v
+	 E1N/MHhK8JX2N9TxK/jPZBI58rem1jJr4Vi9wyoBOL0Ho3xaSik9i6EvsaWI8P++I2
+	 yT9vpG5bHnpHMMomdihgw7AX/PtJRu4OeX4qA9Wks/9rtjmivh2nL+R90iVTjY7ScV
+	 EMoxzKL+wHTmadY9GQkX8/Zd8w7NlpmLLyCF0UKRp6P7StfbVs/MkEmCwzMLrJKAdV
+	 I/UclLn5DWYihAlLsbOlne2F/kSB2cHMcDyixlfz85cmCy/zmxfGZpSdEidrjCaDUl
+	 p77MpOjoEYdXSwRBbHgE4ra0B8BMs/VgQiokt05zjL1TMSTEFfOmU3DKMNSNLy/+HK
+	 Ii5qI4JyXre7zyqFN2NOog3QfZ01qlb4enUi6LOcHAW3tQO6rBe3VSyM1YKmtkhcNO
+	 JHQzhEAt/hDkAE4D4zmwkt3LDEQRzh+l+lSRG/mzfrLFAtzcQVsFIzFzb5lIj62hBH
+	 MKA1GefVYTCF0yLc++DDD9+Q=
+Date: Wed, 06 May 2026 10:09:34 +0300
+From: Manos Pitsidianakis <manos@pitsidianak.is>
+To: Miguel Ojeda <ojeda@kernel.org>
+Cc: Manos Pitsidianakis <manos.pitsidianakis@linaro.org>, Peter Hilber <peter.hilber@oss.qualcomm.com>, Stefano Garzarella <sgarzare@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Viresh Kumar <viresh.kumar@linaro.org>, "Michael S. Tsirkin" <mst@redhat.com>, Boqun Feng <boqun@kernel.org>, Gary Guo <gary@garyguo.net>, Bj=?UTF-8?B?w7Y=?=rn Roy Baron <bjorn3_gh@protonmail.com>, Benno Lossin <lossin@kernel.org>, Andreas Hindborg <a.hindborg@kernel.org>, Alice Ryhl <aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>, Danilo Krummrich <dakr@kernel.org>, rust-for-linux@vger.kernel.org, Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio P=?UTF-8?B?w6k=?=rez <eperezma@redhat.com>, virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, Manos Pitsidianakis <manos@pitsidianak.is>
+Subject: Re: [PATCH RFC 6/6] samples/rust: Add sample virtio-rtc driver [WIP]
+User-Agent: meli/0.8.13
+References: <20260505-rust-virtio-v1-0-9563383909e4@pitsidianak.is> <20260505-rust-virtio-v1-6-9563383909e4@pitsidianak.is>
+In-Reply-To: <20260505-rust-virtio-v1-6-9563383909e4@pitsidianak.is>
+Message-ID: <teltjh.vwspcx6omg52@pitsidianak.is>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH0PR11MB7472:EE_|DM6PR11MB4755:EE_
-X-MS-Office365-Filtering-Correlation-Id: 369e63f4-eaa6-47b7-108a-08deab193e56
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|366016|376014|1800799024|18002099003|56012099003|22082099003;
-X-Microsoft-Antispam-Message-Info: ypHnf4UIWdgMkirdhNZMQJghIVBIKa1qZPNOGYMwJ9/QoZkhV2ctCERqBWc0MuMe3ekh2GatZPerSdOK5XOKut7pr/GZnzX6ToFlNHYk7dqmQLSwAXcuCkw2y+aAk77SBg5OlxFRfgl2EXSjw5dQsj5awWiY+cVJ83QbAZSWXSaXmt9VeWxuK/SXUbw9eOiXdptF6+4sOwYI2abHjvXfHG3WNVWwvFBrtb7Sa4vDr7j+jJvtsn++IV3UgFnxA+2+gOFxGJQF7oWuUEPeq2CSt/+Jt1MC5RNVSRZDZNcPttzreS4G2GuyN1ZFNuUtoXpmRhXPbTSQ1/i6NzeYAje+YXZU9EjOx5gtb1X7GaF1sEGqqLbXZ39Ao1+hm5vx3XUZQUM4u8bgM1a2osOZJjZgF5dsbUfpPIHEwnv59UBux89/ho7rz5OykWpBAQtCdXsShAmUhmTreLMI9ThHPezy/a/hcYDilgExXHzPXu5b6qk/rC003B5tPhxhRrnwnJ6fLULWf3f03kgEM5kYo+aunz7oHJ4z3UmRep+Uz2Sj+n1HIQp7WygR1GwLMBwf3IPB31wCbCutdDL+/EqhjllUoHIDW0ybAKyGM0fdpXMz8DIr0mLqszX275nOzJ/McTUTQhFAyAeAaLEj03JqbWda3tFLUMfGaxoV54/WhxNLkhpuWPVtAnGp1YfUQEXv7c8T
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH0PR11MB7472.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(376014)(1800799024)(18002099003)(56012099003)(22082099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?us-ascii?Q?bqAc0OYyXmtoAlCXBNU7fuoQDcov3ucIMyFuroB8lsWvIo6e1S6cZaLvfkSx?=
- =?us-ascii?Q?tbZrtStyINl/y8Q0lscT5bL0GxkZ93PhEfE9RUsRoh1WsK1ERYsb6LsIMkUM?=
- =?us-ascii?Q?/h5FGjlGxKMDMjpE4y+c8RAy92xRsQj3lr3sJ/+srS2ff9YGgHqXwymkDENB?=
- =?us-ascii?Q?fVgsEIwIfH3qF4QdIfPy8d8j9LKx1lOVn3PGwPeyx+ssTTA1vCI/QvFYWiPt?=
- =?us-ascii?Q?nc2ARkd9650/xKQ+a5L8madnLqE19zQ2BKmp4c5tUW8451pjVAeheC9ia8zl?=
- =?us-ascii?Q?s+FKE+fAU0itvDybHo+9kA6TuOB83PsmYawm/KYZCoK1R4exAR/z++/PfJFE?=
- =?us-ascii?Q?V36eliJr3xrmB3KpL8LAmxRXfcxzkt8FHmOdIcVibymj0+qUHyaH+Pw2esgx?=
- =?us-ascii?Q?7gSfjVtk1mfR8MkuVTkJfUt4vNbbccZfhWVgFeTdvKTrWeRT+4W3zUGBmyxY?=
- =?us-ascii?Q?iIs0FGBJNsjaMxl5aUWgu9H8b+bo+YwjT+h59Ci+Djyhxsx2E+PWra9hXGcF?=
- =?us-ascii?Q?EjP6sZT/aHy+5fBjGkXYP0ytCMT2eGuV5usvD/xWRqgW8d/JcWGd7W6gcLuX?=
- =?us-ascii?Q?eDUraG488hzwvAvdFWKF2K7IGvpz7c3soC+QbzIb89y5M38dnAIHq2qIOi8/?=
- =?us-ascii?Q?VJTcAg0TEai64jgxJBNKXKoqTOv+CxcbP1Ba/TkgpkEXcelABWlzsdVHhwIQ?=
- =?us-ascii?Q?qyb6KjUBnMZcJcLP1FgzDPAg3bJ7/2CAoZm9JzKDchYMBBa996gqvUQ4M0dj?=
- =?us-ascii?Q?LztrkmPDpBXLd5TE4Q8a9ANLhxO5i8CiWbna/90wn505kND54ODnxZMGWaAL?=
- =?us-ascii?Q?xXanltcuNOjfhrYYX+yxiYrOlW1ZUzohjbkx/SlLXGhOrQYk04AcCSkWHCVE?=
- =?us-ascii?Q?IAV1Yw2FZDyjOQiqOwfKPj4/nKgQWOVRvQtxXd4CpJ0Z8ISOIuvW74P5ky2D?=
- =?us-ascii?Q?2Y9//gO51wczO7ccGiYcVeXYBDaTcsA2JDoPcOe7+G/mr9qAMdkBDzsQgi00?=
- =?us-ascii?Q?5At5NqmzI9m5t25nnP+WqWCxWP6vApWm893AwVnDpb4MF2EGhd1m9FdZ2Rqh?=
- =?us-ascii?Q?vFYwScxYffgvh9ne6dc1gnyCAwd+N7JIwYGpazEi2n92Mw960w00U61mX8ur?=
- =?us-ascii?Q?lb46b36FtQVb30jyCuozIIhVFE3SavC2Z1GWSJ6Iw1MB3V40hbfvjjdRcQQ+?=
- =?us-ascii?Q?Z8/yxV7cX0n8OBYvwTAzK0/Ivq5QZGtKlnrPz4HuJCyjX1Fs5LVWI63krD9H?=
- =?us-ascii?Q?9q3yt0Q99acPaYunmhJ/KdFKXFITwj10XA8dKaVjDBfUKWU8B7Qbeojxkh7o?=
- =?us-ascii?Q?+urqW1h5EROMqQ/UGxxC8Uy8NwpmvNolxLu2zZrtFKrTeAsnYmoTcxb6Wx/p?=
- =?us-ascii?Q?UX2cO4wZiOOuisZw38sKb2LVi1LVlqlsGIom4uAoTbFIuUZolRFQwLp0HZDt?=
- =?us-ascii?Q?hNeTQOYYPPJBxKg695cCOK2gCvKu1eNVaKaKzbwDL8qm9U/jJsopEnpq3I2a?=
- =?us-ascii?Q?3VbcYPYmKajptCOjjaS00cGwRQ5AL78KvKvz9FrhSBfFqPk8T1VGaD0v7UP5?=
- =?us-ascii?Q?s+HKumaMGte8hEkNBLtBI8Ap5J6LEGBxzeOEL4nZKzvOVDipHHsn50P9fuFu?=
- =?us-ascii?Q?0clKD4qDaXEaIFskiyPiNR+Gkl7aTSAlTqOg/xyujr6++dDHcBUHiNmTbYWh?=
- =?us-ascii?Q?5Pau3qcevBMRVXTC2AjN8+5tcbUkR28hoZHTMPjMsN+Eu4Ol4BnijztiO2rH?=
- =?us-ascii?Q?oK9Ypz27qw=3D=3D?=
-X-Exchange-RoutingPolicyChecked: iHlqkTS9YqO7JDM5FgaKckvqqcIzisdAKY7XlO2HWhOEPIqjF/iSeXWs1HzhzLrfqSKtH+DGIFGzoxe7a/Zp0OTywGA+4w77PWoFNqQ0mUCfrpstszr9NUDsiz2y7fjbsfWL8pvPkD3fTUuqR5A5xPj6JSiFYXuvGEFdapeXXc251NdrAmou2aabijZm3aXi4Frzgd8JH8PxEa6QPelS1czfZuQfqO8ALX2yeco00R99pxPE5MjLR+958k6E8KdwOB0UZ/PvgrqeDx0sW3JrY64T+x0TX0MQP4kvrSPXBAdDpTd4uVCvmW8d49D2dJqJjs3uT/kM4EIGLNbfGPB3Cw==
-X-MS-Exchange-CrossTenant-Network-Message-Id: 369e63f4-eaa6-47b7-108a-08deab193e56
-X-MS-Exchange-CrossTenant-AuthSource: PH0PR11MB7472.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 May 2026 02:43:24.4270
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 6uq3Q4R03txTOJM1iTJpSphMHPqnYi62ztyJRs8rv0M5znA4ULul8mdnd4Qmu+LnWKNXzR/Ir0Wi6sfrXuzC3g==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM6PR11MB4755
-X-OriginatorOrg: intel.com
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8; format=flowed
 
-On Wed, Apr 29, 2026 at 11:45:21AM -0700, Dave Hansen wrote:
-> +/*
-> + * Common paravirt and native helpers:
-> + */
-> +#define rdmsr(msr, low, high)					\
-> +do {								\
-> +	u64 __val = paravirt_read_msr((msr));			\
-> +	(void)((low) = (u32)__val);				\
-> +	(void)((high) = (u32)(__val >> 32));			\
-> +} while (0)
-Rather than direct all (paravirt and native) invocations of rdmsr() to
-paravirt_*(), does it make sense to first introduce the common version of
-helpers and direct the common version of helpers to paravirt_* or native_*?
-So, we can have
+Some stuff that needs to be addressed:
 
-+/*
-+ * Common paravirt and native helpers:
-+ */
-+#define rdmsr(msr, low, high)                                  \
-+do {                                                           \
-+       u64 __val = common_read_msr((msr));                     \
-+       (void)((low) = (u32)__val);                             \
-+       (void)((high) = (u32)(__val >> 32));                    \
-+} while (0)
+On Tue, 05 May 2026 11:14, Manos Pitsidianakis <manos@pitsidianak.is> wrote:
+>While the driver queries clocks and capabilities for each clock, it
+>doesn't actually register them yet (TODO).
+>
+>Until I implement missing functionality, there is some dead code and
+>some missing SAFETY comments.
+>
+>Signed-off-by: Manos Pitsidianakis <manos@pitsidianak.is>
+>---
+> MAINTAINERS                     |   1 +
+> samples/rust/Kconfig            |  15 ++
+> samples/rust/Makefile           |   1 +
+> samples/rust/rust_virtio_rtc.rs | 470 ++++++++++++++++++++++++++++++++++++++++
+> 4 files changed, 487 insertions(+)
+>
+>diff --git a/MAINTAINERS b/MAINTAINERS
+>index e8012f708df5d4ee858c82aec3269e615fc8caad..3ed579e8d3cc64d1749cf261cd68f6338a830c4d 100644
+>--- a/MAINTAINERS
+>+++ b/MAINTAINERS
+>@@ -27937,6 +27937,7 @@ S:	Maintained
+> F:	rust/helpers/virtio.c
+> F:	rust/kernel/virtio.rs
+> F:	rust/kernel/virtio/
+>+F:	samples/rust/rust_virtio_rtc.rs
+> 
+> VIRTIO CRYPTO DRIVER
+> M:	Gonglei <arei.gonglei@huawei.com>
+>diff --git a/samples/rust/Kconfig b/samples/rust/Kconfig
+>index c49ab910634596aea4a1a73dac87585e084f420a..96a16aecc27198fd99f4ffd0ecdf0bc0876860c6 100644
+>--- a/samples/rust/Kconfig
+>+++ b/samples/rust/Kconfig
+>@@ -179,4 +179,19 @@ config SAMPLE_RUST_HOSTPROGS
+> 
+> 	  If unsure, say N.
+> 
+>+config SAMPLE_RUST_VIRTIO_RTC
+>+	tristate "Rust Virtio RTC driver"
+>+	depends on VIRTIO
+>+	depends on PTP_1588_CLOCK_OPTIONAL
+>+	help
+>+	 This driver provides current time from a Virtio RTC device. The driver
+>+	 provides the time through one or more clocks. The Virtio RTC PTP
+>+	 clocks and/or the Real Time Clock driver for Virtio RTC must be
+>+	 enabled to expose the clocks to userspace.
+>+
+>+	 To compile this code as a module, choose M here: the module will be
+>+	 called rust_virtio_rtc.
+>+
+>+	 If unsure, say M.
+>+
+> endif # SAMPLES_RUST
+>diff --git a/samples/rust/Makefile b/samples/rust/Makefile
+>index 6c0aaa58ccccfd12ef019f68ca784f6d977bc668..0142fd8656bb8cdc95b7ef54e3183b5e51358954 100644
+>--- a/samples/rust/Makefile
+>+++ b/samples/rust/Makefile
+>@@ -16,6 +16,7 @@ obj-$(CONFIG_SAMPLE_RUST_DRIVER_FAUX)		+= rust_driver_faux.o
+> obj-$(CONFIG_SAMPLE_RUST_DRIVER_AUXILIARY)	+= rust_driver_auxiliary.o
+> obj-$(CONFIG_SAMPLE_RUST_CONFIGFS)		+= rust_configfs.o
+> obj-$(CONFIG_SAMPLE_RUST_SOC)			+= rust_soc.o
+>+obj-$(CONFIG_SAMPLE_RUST_VIRTIO_RTC)		+= rust_virtio_rtc.o
+> 
+> rust_print-y := rust_print_main.o rust_print_events.o
+> 
+>diff --git a/samples/rust/rust_virtio_rtc.rs b/samples/rust/rust_virtio_rtc.rs
+>new file mode 100644
+>index 0000000000000000000000000000000000000000..f580ed83a0a57a4b051372a51f56b787d53ed602
+>--- /dev/null
+>+++ b/samples/rust/rust_virtio_rtc.rs
+>@@ -0,0 +1,470 @@
+>+// SPDX-License-Identifier: GPL-2.0
+>+
+>+//! Rust virtio driver sample.
+>+
+>+use core::{
+>+    cell::Cell,
+>+    marker::PhantomData,
+>+    ptr::NonNull, //
+>+};
+>+
+>+use kernel::{
+>+    device::{
+>+        Core,
+>+        CoreInternal, //
+>+    },
+>+    new_mutex, new_spinlock, page,
 
+Formatting
 
-with below changes in patch 1.
+>+    prelude::*,
+>+    scatterlist::SGEntry,
+>+    sync::Completion,
+>+    sync::{Mutex, SpinLock},
 
-diff --git a/arch/x86/include/asm/msr.h b/arch/x86/include/asm/msr.h
-index 9c2ea29e12a9..7ba5bc921526 100644
---- a/arch/x86/include/asm/msr.h
-+++ b/arch/x86/include/asm/msr.h
-@@ -171,8 +171,19 @@ static inline u64 native_read_pmc(int counter)
+Ditto
 
- #ifdef CONFIG_PARAVIRT_XXL
- #include <asm/paravirt.h>
-+#define common_read_msr        paravirt_read_msr
-+#define common_read_msr_safe   paravirt_read_msr_safe
-+#define common_write_msr       paravirt_write_msr
-+#define common_write_msr_safe  paravirt_write_msr_safe
- #else
- #include <linux/errno.h>
-+
-+/* Short-circuit the paravirt MSR infrastructure when it is disabled: */
-+#define common_read_msr        native_read_msr
-+#define common_read_msr_safe   native_read_msr_safe
-+#define common_write_msr       native_write_msr
-+#define common_write_msr_safe  native_write_msr_safe
-+
+>+    virtio::{
+>+        self,
+>+        utils::*,
+>+        virtqueue::*, //
+>+    },
+>+};
+>+
+>+use pin_init::stack_try_pin_init;
+>+
+>+#[pin_data]
+>+struct Token {
+>+    resp_actual_size: u32,
+>+    #[pin]
+>+    responded: Completion,
+>+}
+>+
+>+#[pin_data]
+>+struct Message<Request: Zeroable, Response: Zeroable> {
+>+    msg_type: u16,
+>+    #[pin]
+>+    req: KVec<u8>,
+>+    #[pin]
+>+    resp: KVec<u8>,
+>+    req_ptr: NonNull<Request>,
+>+    resp_ptr: NonNull<Response>,
+>+    #[pin]
+>+    token: Token,
+>+    _ph_req: PhantomData<Request>,
+>+    _ph_resp: PhantomData<Response>,
+>+}
+>+
+>+#[derive(Copy, Clone, Debug, Zeroable)]
+>+#[repr(C)]
+>+#[doc(alias = "virtio_rtc_req_head")]
+>+struct ReqHead {
+>+    msg_type: Le16,
+>+    reserved: [u8; 6],
+>+}
+>+
+>+#[derive(Debug, Zeroable)]
+>+#[repr(C)]
+>+#[doc(alias = "virtio_rtc_resp_head")]
+>+struct RespHead {
+>+    status: u8,
+>+    reserved: [u8; 7],
+>+}
+>+
+>+#[derive(Debug, Zeroable)]
+>+#[repr(C)]
+>+#[doc(alias = "virtio_rtc_resp_cfg")]
+>+struct RespCfg {
+>+    head: ReqHead,
+>+    /** # of clocks -> clock ids < num_clocks are valid */
+>+    num_clocks: Le16,
+>+    reserved: [u8; 6],
+>+}
+>+
+>+#[derive(Debug, Zeroable)]
+>+#[repr(C)]
+>+#[doc(alias = "virtio_rtc_req_clock_cap")]
+>+struct ReqClockCap {
+>+    head: ReqHead,
+>+    clock_id: Le16,
+>+    reserved: [u8; 6],
+>+}
+>+
+>+#[derive(Copy, Clone, Debug, Zeroable)]
+>+#[repr(C)]
+>+#[doc(alias = "virtio_rtc_resp_clock_cap")]
+>+struct RespClockCap {
+>+    head: ReqHead,
+>+    clock_type: u8,
+>+    leap_second_smearing: u8,
+>+    flags: u8,
+>+    reserved: [u8; 5],
+>+}
+>+
+>+#[derive(Debug, Zeroable)]
+>+#[repr(C)]
+>+#[doc(alias = "virtio_rtc_req_read")]
+>+struct ReqRead {
+>+    head: ReqHead,
+>+    clock_id: Le16,
+>+    reserved: [u8; 6],
+>+}
+>+
+>+#[derive(Copy, Clone, Debug, Zeroable)]
+>+#[repr(C)]
+>+#[doc(alias = "virtio_rtc_resp_read")]
+>+struct RespRead {
+>+    head: ReqHead,
+>+    clock_reading: Le64,
+>+}
+>+
+>+#[repr(u8)]
+>+enum ClockType {
+>+    #[doc(alias = "VIRTIO_RTC_CLOCK_UTC")]
+>+    Utc = 0,
+>+    #[doc(alias = "VIRTIO_RTC_CLOCK_TAI")]
+>+    Tai = 1,
+>+    #[doc(alias = "VIRTIO_RTC_CLOCK_MONOTONIC")]
+>+    Monotonic = 2,
+>+    #[doc(alias = "VIRTIO_RTC_CLOCK_UTC_SMEARED")]
+>+    UtcSmeared = 3,
+>+    #[doc(alias = "VIRTIO_RTC_CLOCK_UTC_MAYBE_SMEARED")]
+>+    UtcMaybeSmeared = 4,
+>+}
+>+
+>+// SAFETY: `Message` is safe to be send to any task.
+>+unsafe impl<Request: Zeroable, Response: Zeroable> Send for Message<Request, Response> {}
+>+
+>+// SAFETY: `Message` is safe to be accessed concurrently.
+>+unsafe impl<Request: Zeroable, Response: Zeroable> Sync for Message<Request, Response> {}
+>+
+>+impl<Request: Zeroable, Response: Zeroable> Message<Request, Response> {
+>+    /// Create an initializer for a new [`Message`].
+>+    fn new(req_data: Request, msg_type: u16) -> Result<impl PinInit<Self, Error>> {
+>+        macro_rules! alloc_buf {
+>+            ($t:ty) => {{
+>+                let size = (core::mem::size_of::<$t>() / page::PAGE_SIZE + 1) * page::PAGE_SIZE;
+>+                KVec::<u8>::with_capacity(size, GFP_KERNEL)
 
- /*
-  * Access to machine-specific registers (available on 586 and better only)
-  * Note: the rd* operations modify the parameters directly (without using
-@@ -181,35 +192,35 @@ static inline u64 native_read_pmc(int counter)
+Not sure if KVec is the proper allocation type here...
 
- #define rdmsr(msr, low, high)                                  \
- do {                                                           \
--       u64 __val = native_read_msr((msr));                     \
-+       u64 __val = common_read_msr((msr));                     \
-        (void)((low) = (u32)__val);                             \
-        (void)((high) = (u32)(__val >> 32));                    \
- } while (0)
+>+            }};
+>+        }
+>+        let mut req = alloc_buf!(Request)?;
+>+        let mut resp = alloc_buf!(Response)?;
+>+        let req_ptr: NonNull<Request> = NonNull::new(req.as_mut_ptr().cast()).unwrap();
+>+        let resp_ptr = NonNull::new(resp.as_mut_ptr().cast()).unwrap();
+>+        // SAFETY: `req_ptr` is a valid Request allocation
+>+        unsafe {
+>+            core::ptr::write(req_ptr.as_ptr(), req_data);
+>+        }
+>+        Ok(pin_init!(Self {
+>+            req,
+>+            resp,
+>+            msg_type,
+>+            req_ptr,
+>+            resp_ptr,
+>+            token <- pin_init!(Token {
+>+                resp_actual_size: 0,
+>+                responded <- Completion::new(),
+>+            }),
+>+            _ph_req: PhantomData,
+>+            _ph_resp: PhantomData,
+>+        }? Error))
+>+    }
+>+
+>+    fn get_response(&self) -> Result<&Response, Error> {
+>+        if self.token.resp_actual_size as usize != core::mem::size_of::<Response>() {
+>+            if self.token.resp_actual_size as usize >= core::mem::size_of::<RespHead>() {
+>+                let head: &RespHead = unsafe { self.resp_ptr.cast().as_ref() };
+>+                return match head.status {
+>+                    0 | 3 => Err(EINVAL),
+>+                    1 => Err(ENOTSUPP),
+>+                    2 => Err(ENODEV),
+>+                    4 | 5_u8..=u8::MAX => Err(EIO),
+>+                };
+>+            }
+>+            return Err(EINVAL);
+>+        }
+>+        Ok(unsafe { self.resp_ptr.as_ref() })
+>+    }
+>+
+>+    fn send(&self, vq: &SpinLock<VirtioRtcVq>, timeout_jiffies: c_ulong) -> Result {
+>+        let guard = vq.lock();
 
- static inline void wrmsr(u32 msr, u32 low, u32 high)
- {
--       native_write_msr(msr, (u64)high << 32 | low);
-+       common_write_msr(msr, (u64)high << 32 | low);
- }
+This is a spinlock, but we don't disable interrupts (spin_lock_irqsave 
+in C). This method seems to be missing from 
+rust/kernel/sync/lock/spinlock.rs, I will try adding it.
 
- #define rdmsrq(msr, val)                       \
--       ((val) = native_read_msr((msr)))
-+       ((val) = common_read_msr((msr)))
+>+
+>+        let mut sg_in = core::mem::MaybeUninit::zeroed();
+>+        let mut sg_out = core::mem::MaybeUninit::zeroed();
+>+        let req = unsafe {
+>+            SGEntry::init_one(
+>+                &mut sg_out,
+>+                self.req_ptr.cast(),
+>+                core::mem::size_of::<Request>() as u32,
+>+            )
+>+        };
+>+        let resp = unsafe {
+>+            SGEntry::init_one(
+>+                &mut sg_in,
+>+                self.resp_ptr.cast(),
+>+                core::mem::size_of::<Response>() as u32,
+>+            )
+>+        };
+>+        let sgs = [req, resp];
+>+        guard.as_ref().add_sgs(
+>+            &sgs,
+>+            1,
+>+            1,
+>+            (&raw const self.token).cast_mut().cast(),
+>+            GFP_ATOMIC,
+>+        )?;
+>+
+>+        if guard.as_ref().kick_prepare() {
+>+            guard.as_ref().notify();
+>+        }
+>+        drop(guard);
+>+
+>+        if timeout_jiffies > 0 {
+>+            self.token
+>+                .responded
+>+                .wait_for_completion_interruptible_timeout(timeout_jiffies)?;
+>+        } else {
+>+            self.token.responded.wait_for_completion_interruptible()?;
+>+        }
 
- static inline void wrmsrq(u32 msr, u64 val)
- {
--       native_write_msr(msr, val);
-+       common_write_msr(msr, val);
- }
+Failure here should not Drop the message, it should be reference-counted 
+and dropped when the virtqueue callback gets a reply for that token (or 
+when the device is reset).
 
- /* wrmsr with exception handling */
- static inline int wrmsrq_safe(u32 msr, u64 val)
- {
--       return native_write_msr_safe(msr, val);
-+       return common_write_msr_safe(msr, val);
- }
+>+        Ok(())
+>+    }
+>+}
+>+
+>+// TODO: use a proper enum
+>+
+>+const VIRTIO_RTC_REQ_READ: u16 = 0x0001;
+>+const VIRTIO_RTC_REQ_CFG: u16 = 0x1000;
+>+const VIRTIO_RTC_REQ_CLOCK_CAP: u16 = 0x1001;
+>+
+>+struct VirtioRtcVq {
+>+    ptr: NonNull<Virtqueue>,
+>+}
+>+
+>+// SAFETY: `VirtioRtcVq` is safe to be send to any task.
+>+unsafe impl Send for VirtioRtcVq {}
+>+
+>+impl VirtioRtcVq {
+>+    fn new(ptr: *mut Virtqueue) -> impl PinInit<SpinLock<Self>> {
+>+        let ptr = NonNull::new(ptr).unwrap();
+>+        new_spinlock!(Self { ptr })
+>+    }
+>+
+>+    fn as_ref(&self) -> &Virtqueue {
+>+        unsafe { self.ptr.as_ref() }
+>+    }
+>+}
+>+
+>+struct VirtioRtcDriver {
+>+    reqvq: Pin<KBox<SpinLock<VirtioRtcVq>>>,
+>+    alarmvq: Option<Pin<KBox<SpinLock<VirtioRtcVq>>>>,
+>+    num_clocks: Cell<u16>,
 
- /* rdmsr with exception handling */
- #define rdmsr_safe(msr, low, high)                             \
- ({                                                             \
-        u64 __val;                                              \
--       int __err = native_read_msr_safe((msr), &__val);        \
-+       int __err = common_read_msr_safe((msr), &__val);                \
-        (*low) = (u32)__val;                                    \
-        (*high) = (u32)(__val >> 32);                           \
-        __err;                                                  \
-@@ -217,7 +228,7 @@ static inline int wrmsrq_safe(u32 msr, u64 val)
+Use atomic u16 here
 
- static inline int rdmsrq_safe(u32 msr, u64 *p)
- {
--       return native_read_msr_safe(msr, p);
-+       return common_read_msr_safe(msr, p);
- }
+>+    registered_clocks: Pin<KBox<Mutex<KVec<()>>>>,
+>+}
+>+
+>+impl Drop for VirtioRtcDriver {
+>+    fn drop(&mut self) {
+>+        pr_info!("Remove Rust virtio driver sample.\n");
+>+    }
+>+}
+>+
+>+unsafe extern "C" fn vq_requestq_callback(vq: *mut kernel::bindings::virtqueue) {
+>+    let vq = unsafe { Virtqueue::from_raw(vq) };
+>+    let dev: &virtio::Device<CoreInternal> = vq.dev();
+>+    let data = unsafe { dev.as_ref().drvdata_borrow::<VirtioRtcDriver>() };
+>+    data.process_requestq();
+>+}
+>+
+>+impl VirtioRtcDriver {
+>+    /// Submit `VIRTIO_RTC_REQ_CFG` and return response (`num_clocks`)
+>+    fn req_cfg(&self) -> Result<u16> {
+>+        let head = ReqHead {
+>+            msg_type: VIRTIO_RTC_REQ_CFG.into(),
+>+            reserved: [0; 6],
+>+        };
+>+        stack_try_pin_init!(
+>+            let msg: Message::<ReqHead, RespCfg> =
+>+                Message::new(head, VIRTIO_RTC_REQ_CFG)?);
+>+        let msg: core::pin::Pin<&mut Message<ReqHead, RespCfg>> = msg?;
+>+        msg.send(&self.reqvq, 0)?;
+>+        pr_info!("Got response! {:?}\n", msg.get_response());
+>+
+>+        let response: &RespCfg = msg.get_response()?;
+>+        Ok(response.num_clocks.into())
+>+    }
+>+
+>+    fn process_requestq(&self) {
+>+        let mut cb_enabled = true;
+>+        loop {
+>+            let guard = self.reqvq.lock();
+>+            if cb_enabled {
+>+                guard.as_ref().disable_cb();
+>+                cb_enabled = false;
+>+            }
+>+            if let Some((token, len)) = guard.as_ref().get_buf() {
+>+                drop(guard);
+>+                pr_info!("process_requestq got buf {len} bytes\n");
+>+                let mut token = token.cast::<Token>();
+>+
+>+                unsafe { token.as_mut().resp_actual_size = len };
+>+                unsafe { token.as_mut().responded.complete_all() };
+>+            } else {
+>+                if guard.as_ref().enable_cb() {
+>+                    return;
+>+                }
+>+                cb_enabled = true;
+>+            }
+>+        }
+>+    }
+>+
+>+    fn clock_cap(&self, clock_id: u16) -> Result<RespClockCap> {
+>+        type ClockCapMsg = Message<ReqClockCap, RespClockCap>;
+>+
+>+        let req = ReqClockCap {
+>+            head: ReqHead {
+>+                msg_type: VIRTIO_RTC_REQ_CLOCK_CAP.into(),
+>+                reserved: [0; 6],
+>+            },
+>+            clock_id: clock_id.into(),
+>+            reserved: [0; 6],
+>+        };
+>+        stack_try_pin_init!(
+>+            let msg: ClockCapMsg = Message::new(req, VIRTIO_RTC_REQ_CLOCK_CAP)?
+>+        );
+>+        let msg: core::pin::Pin<&mut ClockCapMsg> = msg?;
+>+        msg.send(&self.reqvq, 0)?;
+>+        pr_info!("Got response! {:?}\n", msg.get_response());
+>+        let response: &RespClockCap = msg.get_response()?;
+>+        Ok(*response)
+>+    }
+>+
+>+    fn read(&self, clock_id: u16) -> Result<u64> {
+>+        type ReadMsg = Message<ReqRead, RespRead>;
+>+
+>+        let req = ReqRead {
+>+            head: ReqHead {
+>+                msg_type: VIRTIO_RTC_REQ_READ.into(),
+>+                reserved: [0; 6],
+>+            },
+>+            clock_id: clock_id.into(),
+>+            reserved: [0; 6],
+>+        };
+>+        stack_try_pin_init!(
+>+            let msg: ReadMsg = Message::new(req, VIRTIO_RTC_REQ_CLOCK_CAP)?
 
- static __always_inline u64 rdpmc(int counter)
+s/CLOCK_CAP/READ (the Message type is messy, must polish it)
 
-
+>+        );
+>+        let msg: core::pin::Pin<&mut ReadMsg> = msg?;
+>+        msg.send(&self.reqvq, 0)?;
+>+        pr_info!("Got response! {:?}\n", msg.get_response());
+>+        let response: &RespRead = msg.get_response()?;
+>+        Ok(response.clock_reading.into())
+>+    }
+>+}
+>+
+>+impl virtio::Driver for VirtioRtcDriver {
+>+    type IdInfo = ();
+>+
+>+    /// The table of device ids supported by the driver.
+>+    const ID_TABLE: virtio::IdTable<Self::IdInfo> = &VIRTIO_RTC_TABLE;
+>+
+>+    fn probe(vdev: &virtio::Device<Core>) -> impl PinInit<Self, Error> {
+>+        const VQS_INFO: [VirtqueueInfo; 1] = [
+>+            VirtqueueInfo::new(c"requestq", false, vq_requestq_callback),
+>+            //VirtqueueInfo::new(c"alarmq", false, vq_callback),
+>+        ];
+>+        let init_fn = move |slot: *mut Self| {
+>+            pr_info!("Probe Rust virtio driver sample.\n");
+>+            let vqs = match vdev.find_vqs(&VQS_INFO) {
+>+                Ok(vqs) => {
+>+                    pr_info!("Found {} vqs.\n", vqs.len());
+>+                    vqs
+>+                }
+>+                Err(err) => {
+>+                    pr_info!("Could not find vqs: {err:?}.\n");
+>+
+>+                    return Err(err);
+>+                }
+>+            };
+>+            let reqvq = KBox::pin_init(VirtioRtcVq::new(vqs[0]), GFP_ATOMIC)?;
+>+            let registered_clocks =
+>+                KBox::pin_init(new_mutex!(KVec::with_capacity(0, GFP_KERNEL)?), GFP_KERNEL)?;
+>+            unsafe {
+>+                core::ptr::write(
+>+                    slot,
+>+                    Self {
+>+                        num_clocks: Cell::new(0),
+>+                        reqvq,
+>+                        alarmvq: None,
+>+                        registered_clocks,
+>+                    },
+>+                )
+>+            };
+>+            Ok(())
+>+        };
+>+        unsafe { pin_init::pin_init_from_closure(init_fn) }
+>+    }
+>+
+>+    fn init(&self, vdev: &virtio::Device<Core>) -> Result {
+>+        vdev.ready();
+>+        self.num_clocks.set(self.req_cfg()?);
+>+        for i in 0..(self.num_clocks.get()) {
+>+            let mut is_exposed = false;
+>+
+>+            let resp = self.clock_cap(i)?;
+>+            let (clock_type, leap_second_smearing, flags) =
+>+                (resp.clock_type, resp.leap_second_smearing, resp.flags);
+>+            if cfg!(CONFIG_VIRTIO_RTC_CLASS)
+>+                && (clock_type == ClockType::Utc as u8
+>+                    || clock_type == ClockType::UtcSmeared as u8
+>+                    || clock_type == ClockType::UtcMaybeSmeared as u8)
+>+            {
+>+                // TODO:
+>+
+>+                // 	ret = viortc_init_rtc_class_clock(viortc, vio_clk_id,
+>+                // 					  clock_type, flags);
+>+                // 	if (ret < 0)
+>+                // 		return ret;
+>+                // 	if (ret > 0)
+>+                // 		is_exposed = true;
+>+                dev_warn!(vdev.as_ref(), "CONFIG_VIRTIO_RTC_CLASS TODO ");
+>+            }
+>+
+>+            if cfg!(CONFIG_VIRTIO_RTC_PTP) {
+>+                // TODO:
+>+
+>+                // 	ret = viortc_init_ptp_clock(viortc, vio_clk_id, clock_type,
+>+                // 				    leap_second_smearing);
+>+                // 	if (ret < 0)
+>+                // 		return ret;
+>+                // 	if (ret > 0)
+>+                // 		is_exposed = true;
+>+                // todo!()
+>+                dev_warn!(vdev.as_ref(), "CONFIG_VIRTIO_RTC_PTP TODO ");
+>+            }
+>+
+>+            if !is_exposed {
+>+                dev_warn!(
+>+                    vdev.as_ref(),
+>+                    "cannot expose clock {i} (type {clock_type}, variant {leap_second_smearing}, \
+>+                    flags {flags}) to userspace\n"
+>+                );
+>+            }
+>+            let clock_reading = self.read(i)?;
+>+            pr_info!("#{i} clock reading = {clock_reading}\n");
+>+        }
+>+        Ok(())
+>+    }
+>+
+>+    fn remove(vdev: &virtio::Device, _this: Pin<&Self>) {
+>+        pr_info!("Removing Rust virtio driver sample.\n");
+>+        vdev.reset();
+>+        vdev.del_vqs();
+>+    }
+>+}
+>+
+>+kernel::virtio_device_table!(
+>+    VIRTIO_RTC_TABLE,
+>+    MODULE_VIRTIO_RTC_TABLE,
+>+    <VirtioRtcDriver as virtio::Driver>::IdInfo,
+>+    [(virtio::DeviceId::new(virtio::VirtioID::Clock), ())]
+>+);
+>+
+>+kernel::module_virtio_driver! {
+>+    type: VirtioRtcDriver,
+>+    name: "rust_virtio_rtc",
+>+    authors: ["Manos Pitsidianakis"],
+>+    description: "Rust virtio driver",
+>+    license: "GPL v2",
+>+}
+>
+>-- 
+>2.47.3
+>
