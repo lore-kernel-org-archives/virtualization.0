@@ -1,275 +1,249 @@
-Received: from fhigh-a5-smtp.messagingengine.com (fhigh-a5-smtp.messagingengine.com [103.168.172.156])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 87AE1351C3D
-	for <virtualization@lists.linux.dev>; Thu,  7 May 2026 22:21:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.156
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5F06239B495
+	for <virtualization@lists.linux.dev>; Thu,  7 May 2026 22:23:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778192506; cv=none; b=Y4duuumC1SaVbb7kTcX5/l8wqDEHYopv/GDdtbWtP7KaYnOucfKRME6LSaUm6Izcr6A2hKPQp+7wuP615+mgS5wWh1AWuOm4sHXuUrrBfllRZwJmmherkWtgAr5fK/JkxGoIMPcWVXANnMj9KURtiHhhPisYuNgXUNkb9irubOw=
+	t=1778192597; cv=none; b=AF4Kf2pdq0vwbxafQg6w5rDC76qaNEwL24/B4DWrOHaogjFwgT9DvPAx9KYbH7RnQDuxsIXlW9irXDIa9yZqBpsUCfWJUkzbld17rK2Bg3wWUfJFjdws4x3rZgYfbAq+pkoEkNEqguklb4WMjMRXsTvckS65OLYCI6+1VlwvVIg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778192506; c=relaxed/simple;
-	bh=B6PkRFnBwULiKTLVeHPqJePBw2wjZKORS2+nLlQEVno=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=WHe7X2NnRh1jdZNbxuyKFOCmiAXy9nU1WOe2PAZ9+ZyLyUirGj2W/w4mhYJBBTEv1FSHqCM6iE16t7MRe2diQ9frnxRfR8LzedFmyDrlMq+qUsVMtwz/u4S8dgkIqPCU7WnLymGuT5HYJpSighYhl0Iabp1Rz8H1SZxGGAlH5mI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=dpopOEHI; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=fOBiXlTx; arc=none smtp.client-ip=103.168.172.156
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
+	s=arc-20240116; t=1778192597; c=relaxed/simple;
+	bh=IqcJvUNNbK1XhZiTXLCyFfQD4uhQUIj8/4+m+H9660U=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=mE9UR4pJcH2zmgL0OgEBxDgjJihFfLztFwgaNSLQW6D12jcrAg1W3aXikvIUvF496MK8xQ7I1vqxBy0E/eDH7uryGspExB2e7IS4NvyKmS7m5iE9yXaz6jwGXDTAZ87urBI+uT0jYQ8GUQ8LsAbEgN/WPdKMdF/Mu6O/KNxUTmI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TWeDV7Pe; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="dpopOEHI";
-	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="fOBiXlTx"
-Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
-	by mailfhigh.phl.internal (Postfix) with ESMTP id B468C1400160;
-	Thu,  7 May 2026 18:21:43 -0400 (EDT)
-Received: from phl-frontend-04 ([10.202.2.163])
-  by phl-compute-04.internal (MEProxy); Thu, 07 May 2026 18:21:43 -0400
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
-	cc:cc:content-transfer-encoding:content-type:content-type:date
-	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to; s=fm2; t=1778192503;
-	 x=1778278903; bh=m8qT/uG2/sqQFesEBYSUx1JIfzriE/AaKRh6WVZOQ7I=; b=
-	dpopOEHINIRq3CQlaThXbIqSQQcvUpv/g/OYAioUi3IogtOYvopm3LRz9KsMhBlz
-	3+wPho+I1njtwS2pc4sYfCoBFWTBErjU9J4vXrH17td98HeEVeFY4nE0VJXDGOlq
-	jSzlypPU0bVMUCklXlbBtXp5zDuBz3zPVeINEI7IHQCdOjYWYhYxPkg+eLL/b6Fl
-	tR82DkYNU/5Ei8i0R7DpU0GDL5IwOfsx44tu0emE1gxBTGLi900QXC2Jr3EzlKj5
-	qUIX6CqzDP/pam3HnAK5yxWWS25+Lbj3M+7LO4ueGu7gE/aQ3a6l+yi4NetpWnRQ
-	C5hs5POtBXC4Su1dzVnLhw==
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	messagingengine.com; h=cc:cc:content-transfer-encoding
-	:content-type:content-type:date:date:feedback-id:feedback-id
-	:from:from:in-reply-to:in-reply-to:message-id:mime-version
-	:references:reply-to:subject:subject:to:to:x-me-proxy
-	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1778192503; x=
-	1778278903; bh=m8qT/uG2/sqQFesEBYSUx1JIfzriE/AaKRh6WVZOQ7I=; b=f
-	OBiXlTx97TnP69OwkduqaR+Lbw8wHPuOvfzKVsEmAFOEtjzc0OLZAdPcYx2kU/oR
-	UrQjsVqizCYWgSgf3wkGDWSlaYBKjhnCSq3tGO5YnnIm1vTwwFYu2o2wRBtaMnyl
-	aQUvbUxKlgU0BONS4ZcBMlaEFwgQLu30fDGr9qQKsYrOAip28VW5QcIvxrqHON2v
-	SGJArHxJj1bxYtvMq9itA+7w1Q1j0yT1LBnDvioOl8DfKuFg9I9HMH7l5WtC8+K1
-	yCWEj8OzZmZRjwRsVVInrjIbMQKpNjSw6PJMPjijUlYkPw76uzwI5pAdB6BglQUl
-	DYlV9zXhptT0gsZpDGNig==
-X-ME-Sender: <xms:dxD9acGRPXtoY-8mBy3zzKRyWC5U8lk8Eoabb82JBvrEqEU2sqmExg>
-    <xme:dxD9aQBOvKhJ7ImQYM5liFkGmxTaINBgKLOI3QmF2w90ijrjehyj1mhe-ou5y-C4i
-    96hE_dWVxx6t-Z0MjlkRSqaW9F-qRZ057a_Rzg9VozJ9pZEVAsSKA>
-X-ME-Received: <xmr:dxD9aczoAPsfmF6zHbe84Qo1B_kUB7v4eSLeRM6qZBb9KTSEiLKLETmh7eU>
-X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgddutdekieeiucetufdoteggodetrf
-    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
-    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
-    gurhepfffhvfevuffkjghfofggtgfgsehtjeertdertddvnecuhfhrohhmpeetlhgvgicu
-    hghilhhlihgrmhhsohhnuceorghlvgigsehshhgriigsohhtrdhorhhgqeenucggtffrrg
-    htthgvrhhnpedvkeefjeekvdduhfduhfetkedugfduieettedvueekvdehtedvkefgudeg
-    veeuueenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
-    grlhgvgiesshhhrgiisghothdrohhrghdpnhgspghrtghpthhtohepudekpdhmohguvgep
-    shhmthhpohhuthdprhgtphhtthhopehmrghtthgvvhesmhgvthgrrdgtohhmpdhrtghpth
-    htohepkhgvvhhinhdrthhirghnsehinhhtvghlrdgtohhmpdhrtghpthhtohepjhhgghes
-    iihivghpvgdrtggrpdhrtghpthhtoheprghnkhhithgrsehnvhhiughirgdrtghomhdprh
-    gtphhtthhopegrphhophhplhgvsehnvhhiughirgdrtghomhdprhgtphhtthhopehlvgho
-    nheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepkhgvvghssehkvghrnhgvlhdrohhrgh
-    dprhgtphhtthhopehskhholhhothhhuhhmthhhohesnhhvihguihgrrdgtohhmpdhrtghp
-    thhtohephihishhhrghihhesnhhvihguihgrrdgtohhm
-X-ME-Proxy: <xmx:dxD9aZACw9GV6VsKtbpXDd68U24Lb8osFQT285NBtnhcKQ6-NHvRqA>
-    <xmx:dxD9adCWtAsuqXDj5FZtVuF9PN1TM-BEYz_ervqtTLhjo_nEiM00oQ>
-    <xmx:dxD9ac6tPQVBdCiIe94TxzJSD0QptvMySvseVLnL_sqIt6bO8ntiGA>
-    <xmx:dxD9aR3UCB8i4xb5U-6DA5OERAMDFISRGm96aV8ahmrlbrPFx-ik2w>
-    <xmx:dxD9aSOui77DmPrQ7HMF5mhCTDZhC2IXm1p0qIInTR_4lDCvxrrkEC8G>
-Feedback-ID: i03f14258:Fastmail
-Received: by mail.messagingengine.com (Postfix) with ESMTPA; Thu,
- 7 May 2026 18:21:42 -0400 (EDT)
-Date: Thu, 7 May 2026 16:21:41 -0600
-From: Alex Williamson <alex@shazbot.org>
-To: Matt Evans <mattev@meta.com>
-Cc: Kevin Tian <kevin.tian@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Ankit
- Agrawal <ankita@nvidia.com>, Alistair Popple <apopple@nvidia.com>, Leon
- Romanovsky <leon@kernel.org>, Kees Cook <kees@kernel.org>, Shameer Kolothum
- <skolothumtho@nvidia.com>, Yishai Hadas <yishaih@nvidia.com>, Alexey
- Kardashevskiy <aik@ozlabs.ru>, Eric Auger <eric.auger@redhat.com>, Peter Xu
- <peterx@redhat.com>, Vivek Kasireddy <vivek.kasireddy@intel.com>, Zhi Wang
- <zhiw@nvidia.com>, <kvm@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
- <virtualization@lists.linux.dev>, alex@shazbot.org
-Subject: Re: [PATCH v4 3/3] vfio/pci: Replace vfio_pci_core_setup_barmap()
- with vfio_pci_core_get_iomap()
-Message-ID: <20260507162141.072483ce@shazbot.org>
-In-Reply-To: <20260505173835.2324179-4-mattev@meta.com>
-References: <20260505173835.2324179-1-mattev@meta.com>
-	<20260505173835.2324179-4-mattev@meta.com>
-X-Mailer: Claws Mail 4.3.1 (GTK 3.24.51; x86_64-pc-linux-gnu)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TWeDV7Pe"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1778192594;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=bXud0h6YxK7twmSfS1n2EW2FIV5pqeOXrOEyMytphT4=;
+	b=TWeDV7Pe8eAITOLCuBKfNHhGUvnz9lGMVhhkm38PNsu8XQ4TCWYCvl131NJG9YBnEuNKYF
+	QxhzXeRPSOvH1NJtKI0KdVqkSqZ8OTXKlHarQuztIcxrwLCivFs+y34vlJWeYapppJBlv+
+	TZxxS5jRc6FZmR966Wvg+sZKxGUka94=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-338--rbGfCvLMLSCvHFQ_XTPuA-1; Thu, 07 May 2026 18:23:11 -0400
+X-MC-Unique: -rbGfCvLMLSCvHFQ_XTPuA-1
+X-Mimecast-MFC-AGG-ID: -rbGfCvLMLSCvHFQ_XTPuA_1778192590
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-488d2cd2674so10427575e9.0
+        for <virtualization@lists.linux.dev>; Thu, 07 May 2026 15:23:10 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778192590; x=1778797390;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=bXud0h6YxK7twmSfS1n2EW2FIV5pqeOXrOEyMytphT4=;
+        b=jNjBKlghRenp89WGSSUgkHyNAlXCyXkMKwDs2B9mCzgaOB9HorphFGU6WzrO7bN/Qj
+         1b9gSR9iKvrcytpzBilOXwD8AylScp3Qkcr3ySDEi1EiLfbDht20JsCX/vjVBWDqvyoB
+         ngyTAyVC7MMqzKTORt9bE0WjQV1C1aFfL9XMbDBfD4x4iC0p78T8mOXxaC+njeYKmqUY
+         fup5xsvCDK98G81d62r0hzFDfda/7+lUyObUVrqRheN1N0SryDgF6FL9PoefI1IOsenp
+         zu2Id+4v34nUy4O18k5CutKrHmgOSIjlpVXr3HD1/hc8+CgqfT6GhKPIS/I3o6IdXQCj
+         +ujg==
+X-Forwarded-Encrypted: i=1; AFNElJ+WcqrrdwWYR9FSB8gSzO84Q7jhsK1YLZVESKdbk2WGZHvNgU9boo4QK0QsNo5yDzY8JNzlRjHNnySDMkpF8w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwdUIN4MWrd9iW4nlUxPGPqSIF+amtszLJlZqaaG+ki5odSAjEZ
+	X0iy1+x/Cp+Qn9lkJp9iVyNKVP4rwNranktel2rabOc8TtAOiEQoUy5ovtTIUrt9CT+dHrh3ini
+	HgisVSN+6rxxR/X7/XRnB395s9mchBuA/oE56NGui+xOzZuS14AvSmUGVjWhHdsMAfjAm
+X-Gm-Gg: AeBDievxla7JY+JscddnogWEIDn1kPxvLasfiEjXR1RFM4UOzN8QuO3kMODoyJ9Qr9Y
+	RchA9AR9QtUe6w5ipzHG3+sqEZVgja6CkwQPxzxTsL0XGWIAk48vFPDOQ168nVT1jQeEgljgE5b
+	wcSCgo5aTcHeM5JQd2K2FEdg3uiWGrBApUPDgEbr5d0xdMf0yqYIl13xwfeGuduTRLsqetK0yzd
+	DBfCgkpwB7jHeYLlgn+mkqDKpAuOdaMwj3P2qkuVTFo+5zL3fLnefhukW+GfWcia3A/QIFerm87
+	5RZM9mkDp8KhuIeOC+MiwQ5Ws0iSmvenLP7mHKQ/KwX2XhUPQhXXL6Iai5/QfjRext4pEQ/qdqY
+	KDNdrt0qDY1vvER6JcmRuD28f+ssFDY1NI/nJB4lm
+X-Received: by 2002:a05:600c:4c25:b0:48a:65a5:750f with SMTP id 5b1f17b1804b1-48e51f46ddamr94972165e9.21.1778192589741;
+        Thu, 07 May 2026 15:23:09 -0700 (PDT)
+X-Received: by 2002:a05:600c:4c25:b0:48a:65a5:750f with SMTP id 5b1f17b1804b1-48e51f46ddamr94971895e9.21.1778192589203;
+        Thu, 07 May 2026 15:23:09 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-48-7.inter.net.il. [80.230.48.7])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48e53895effsm150472825e9.3.2026.05.07.15.23.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 07 May 2026 15:23:08 -0700 (PDT)
+Date: Thu, 7 May 2026 18:23:06 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: David Hildenbrand <david@kernel.org>, Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Lorenzo Stoakes <lorenzo.stoakes@oracle.com>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Brendan Jackman <jackmanb@google.com>,
+	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
+	virtualization@lists.linux.dev, linux-mm@kvack.org
+Subject: [PATCH v5 14/28] mm: page_reporting: allow driver to set batch
+ capacity
+Message-ID: <e90045272621711a7dc1ba9ce0f949dde5f7c2f4.1778192416.git.mst@redhat.com>
+References: <cover.1778192416.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <cover.1778192416.git.mst@redhat.com>
+X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
+X-Mutt-Fcc: =sent
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: dNq7zX4kImG9QD8quG2vNuK29YZ6OXZyYSGJHFyChdU_1778192590
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Tue, 5 May 2026 10:38:31 -0700
-Matt Evans <mattev@meta.com> wrote:
+Add a capacity field to page_reporting_dev_info so drivers can
+control the maximum number of pages per report batch. This is
+useful when the driver needs to reserve virtqueue descriptors for
+metadata (e.g., a bitmap buffer) alongside the page buffers.
 
-> Since "vfio/pci: Set up barmap in vfio_pci_core_enable()", the
-> resource request and iomap for the BARs was performed early, and
-> vfio_pci_core_setup_barmap() just checks those actions succeeded.
-> 
-> Move this logic to a new helper that checks success and returns the
-> iomap address, replacing the various bare vdev->barmap[] lookups.
-> This maintains the error behaviour of the previous on-demand
-> vfio_pci_core_setup_barmap() scheme.
-> 
-> Signed-off-by: Matt Evans <mattev@meta.com>
-> ---
->  drivers/vfio/pci/nvgrace-gpu/main.c | 11 ++++-------
->  drivers/vfio/pci/vfio_pci_core.c    | 11 +++++------
->  drivers/vfio/pci/vfio_pci_dmabuf.c  |  2 +-
->  drivers/vfio/pci/vfio_pci_rdwr.c    | 30 ++++++++---------------------
->  drivers/vfio/pci/virtio/legacy_io.c | 13 ++++++-------
->  include/linux/vfio_pci_core.h       | 20 ++++++++++++++++++-
->  6 files changed, 43 insertions(+), 44 deletions(-)
-> 
-> diff --git a/drivers/vfio/pci/nvgrace-gpu/main.c b/drivers/vfio/pci/nvgrace-gpu/main.c
-> index fa056b69f899..e153002258ce 100644
-> --- a/drivers/vfio/pci/nvgrace-gpu/main.c
-> +++ b/drivers/vfio/pci/nvgrace-gpu/main.c
-> @@ -184,13 +184,10 @@ static int nvgrace_gpu_open_device(struct vfio_device *core_vdev)
->  
->  	/*
->  	 * GPU readiness is checked by reading the BAR0 registers.
-> -	 *
-> -	 * ioremap BAR0 to ensure that the BAR0 mapping is present before
-> -	 * register reads on first fault before establishing any GPU
-> -	 * memory mapping.
-> +	 * The BAR map was just set up by vfio_pci_core_enable(), so
-> +	 * check that was successful and bail early if not:
->  	 */
-> -	ret = vfio_pci_core_setup_barmap(vdev, 0);
-> -	if (ret)
-> +	if (IS_ERR(vfio_pci_core_get_iomap(vdev, 0)))
->  		goto error_exit;
+The value is capped at PAGE_REPORTING_CAPACITY and rounded down
+to a power of 2. If unset (0), defaults to PAGE_REPORTING_CAPACITY.
 
-Sashiko notes we're not setting ret here.  The bots are also paranoid
-about the unreachable condition that the get_iomap below could return an
-ERR_PTR.  Maybe head off both by adding an __iomem pointer to the
-nvgrace_gpu_pci_core_device struct and a temporary one here.  Store the
-iomap in the temporary variable, use it to test for IS_ERR() and
-PTR_ERR(), then set the pointer in the structure after the last error
-condition here.  Add one line in the close_device to set it NULL.  Then
-just use nvdev->bar0_io below.
+The virtio_balloon driver sets capacity to the reporting virtqueue
+size, letting page_reporting adapt to whatever the device provides.
 
->  
->  	if (nvdev->resmem.memlength) {
-> @@ -275,7 +272,7 @@ nvgrace_gpu_check_device_ready(struct nvgrace_gpu_pci_core_device *nvdev)
->  	if (!__vfio_pci_memory_enabled(vdev))
->  		return -EIO;
->  
-> -	ret = nvgrace_gpu_wait_device_ready(vdev->barmap[0]);
-> +	ret = nvgrace_gpu_wait_device_ready(vfio_pci_core_get_iomap(vdev, 0));
->  	if (ret)
->  		return ret;
->  
-> diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-> index 62931dc381d8..5c8bd13f10d0 100644
-> --- a/drivers/vfio/pci/vfio_pci_core.c
-> +++ b/drivers/vfio/pci/vfio_pci_core.c
-> @@ -1761,7 +1761,7 @@ int vfio_pci_core_mmap(struct vfio_device *core_vdev, struct vm_area_struct *vma
->  	struct pci_dev *pdev = vdev->pdev;
->  	unsigned int index;
->  	u64 phys_len, req_len, pgoff, req_start;
-> -	int ret;
-> +	void __iomem *bar_io;
->  
->  	index = vma->vm_pgoff >> (VFIO_PCI_OFFSET_SHIFT - PAGE_SHIFT);
->  
-> @@ -1795,12 +1795,11 @@ int vfio_pci_core_mmap(struct vfio_device *core_vdev, struct vm_area_struct *vma
->  		return -EINVAL;
->  
->  	/*
-> -	 * Even though we don't make use of the barmap for the mmap,
-> -	 * we need to request the region and the barmap tracks that.
-> +	 * Ensure the BAR resource region is reserved for use.
->  	 */
-> -	ret = vfio_pci_core_setup_barmap(vdev, index);
-> -	if (ret)
-> -		return ret;
-> +	bar_io = vfio_pci_core_get_iomap(vdev, index);
-> +	if (IS_ERR(bar_io))
-> +		return PTR_ERR(bar_io);
->  
->  	vma->vm_private_data = vdev;
->  	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
-> diff --git a/drivers/vfio/pci/vfio_pci_dmabuf.c b/drivers/vfio/pci/vfio_pci_dmabuf.c
-> index 69a5c2d511e6..46cd44b22c9c 100644
-> --- a/drivers/vfio/pci/vfio_pci_dmabuf.c
-> +++ b/drivers/vfio/pci/vfio_pci_dmabuf.c
-> @@ -248,7 +248,7 @@ int vfio_pci_core_feature_dma_buf(struct vfio_pci_core_device *vdev, u32 flags,
->  	 * else.  Check that PCI resources have been claimed for it.
->  	 */
->  	if (get_dma_buf.region_index >= VFIO_PCI_ROM_REGION_INDEX ||
-> -	    vfio_pci_core_setup_barmap(vdev, get_dma_buf.region_index))
-> +	    IS_ERR(vfio_pci_core_get_iomap(vdev, get_dma_buf.region_index)))
->  		return -ENODEV;
->  
->  	dma_ranges = memdup_array_user(&arg->dma_ranges, get_dma_buf.nr_ranges,
-> diff --git a/drivers/vfio/pci/vfio_pci_rdwr.c b/drivers/vfio/pci/vfio_pci_rdwr.c
-> index 3bfbb879a005..7f14dd46de17 100644
-> --- a/drivers/vfio/pci/vfio_pci_rdwr.c
-> +++ b/drivers/vfio/pci/vfio_pci_rdwr.c
-> @@ -198,19 +198,6 @@ ssize_t vfio_pci_core_do_io_rw(struct vfio_pci_core_device *vdev, bool test_mem,
->  }
->  EXPORT_SYMBOL_GPL(vfio_pci_core_do_io_rw);
->  
-> -/*
-> - * The barmap is set up in vfio_pci_core_enable().  Callers use this
-> - * function to check that the BAR resources are requested or that the
-> - * pci_iomap() was done.
-> - */
-> -int vfio_pci_core_setup_barmap(struct vfio_pci_core_device *vdev, int bar)
-> -{
-> -	if (IS_ERR(vdev->barmap[bar]))
-> -		return PTR_ERR(vdev->barmap[bar]);
-> -	return 0;
-> -}
-> -EXPORT_SYMBOL_GPL(vfio_pci_core_setup_barmap);
-> -
->  ssize_t vfio_pci_bar_rw(struct vfio_pci_core_device *vdev, char __user *buf,
->  			size_t count, loff_t *ppos, bool iswrite)
->  {
-> @@ -262,13 +249,11 @@ ssize_t vfio_pci_bar_rw(struct vfio_pci_core_device *vdev, char __user *buf,
->  		 */
->  		max_width = VFIO_PCI_IO_WIDTH_4;
->  	} else {
-> -		int ret = vfio_pci_core_setup_barmap(vdev, bar);
-> -		if (ret) {
-> -			done = ret;
-> +		io = vfio_pci_core_get_iomap(vdev, bar);
-> +		if (IS_ERR(io)) {
-> +			done = PTR_ERR(io);
->  			goto out;
->  		}
-> -
-> -		io = vdev->barmap[bar];
->  	}
->  
->  	if (bar == vdev->msix_bar) {
-> @@ -423,6 +408,7 @@ int vfio_pci_ioeventfd(struct vfio_pci_core_device *vdev, loff_t offset,
->  	loff_t pos = offset & VFIO_PCI_OFFSET_MASK;
->  	int ret, bar = VFIO_PCI_OFFSET_TO_INDEX(offset);
->  	struct vfio_pci_ioeventfd *ioeventfd;
-> +	void __iomem *io;
->  
->  	/* Only support ioeventfds into BARs */
->  	if (bar > VFIO_PCI_BAR5_REGION_INDEX)
-> @@ -440,9 +426,9 @@ int vfio_pci_ioeventfd(struct vfio_pci_core_device *vdev, loff_t offset,
->  	if (count == 8)
->  		return -EINVAL;
->  
-> -	ret = vfio_pci_core_setup_barmap(vdev, bar);
-> -	if (ret)
-> -		return ret;
-> +	io = vfio_pci_core_get_iomap(vdev, bar);
-> +	if (IS_ERR(io))
-> +		return PTR_ERR(io);
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Assisted-by: Claude:claude-opus-4-6
+---
+ drivers/virtio/virtio_balloon.c |  5 +----
+ include/linux/page_reporting.h  |  3 +++
+ mm/page_reporting.c             | 26 +++++++++++++++-----------
+ 3 files changed, 19 insertions(+), 15 deletions(-)
 
-Sashiko seems to note a real existing error here that should also be
-pulled out to a separate fix.  Given the right offset, this could
-generate a negative BAR value.  The test at the end of the previous
-chunk should should be expanded to `if (bar < 0 || bar > ...BAR5...)`.
-Do you want to pick that up in this series?  I think it's the only case
-that lets that slip through.  Thanks,
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index d1fbc8fe8470..7ed024315539 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -1017,10 +1017,6 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 		unsigned int capacity;
+ 
+ 		capacity = virtqueue_get_vring_size(vb->reporting_vq);
+-		if (capacity < PAGE_REPORTING_CAPACITY) {
+-			err = -ENOSPC;
+-			goto out_unregister_oom;
+-		}
+ 
+ 		/*
+ 		 * The default page reporting order is @pageblock_order, which
+@@ -1039,6 +1035,7 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 		vb->pr_dev_info.order = 5;
+ #endif
+ 
++		vb->pr_dev_info.capacity = capacity;
+ 		err = page_reporting_register(&vb->pr_dev_info);
+ 		if (err)
+ 			goto out_unregister_oom;
+diff --git a/include/linux/page_reporting.h b/include/linux/page_reporting.h
+index fe648dfa3a7c..306468b6c7d8 100644
+--- a/include/linux/page_reporting.h
++++ b/include/linux/page_reporting.h
+@@ -21,6 +21,9 @@ struct page_reporting_dev_info {
+ 
+ 	/* Minimal order of page reporting */
+ 	unsigned int order;
++
++	/* Max pages per report batch (default PAGE_REPORTING_CAPACITY) */
++	unsigned int capacity;
+ };
+ 
+ /* Tear-down and bring-up for page reporting devices */
+diff --git a/mm/page_reporting.c b/mm/page_reporting.c
+index f0042d5743af..247cda44e9de 100644
+--- a/mm/page_reporting.c
++++ b/mm/page_reporting.c
+@@ -174,10 +174,10 @@ page_reporting_cycle(struct page_reporting_dev_info *prdev, struct zone *zone,
+ 	 * list processed. This should result in us reporting all pages on
+ 	 * an idle system in about 30 seconds.
+ 	 *
+-	 * The division here should be cheap since PAGE_REPORTING_CAPACITY
+-	 * should always be a power of 2.
++	 * The division here should be cheap since capacity should
++	 * always be a power of 2.
+ 	 */
+-	budget = DIV_ROUND_UP(area->nr_free, PAGE_REPORTING_CAPACITY * 16);
++	budget = DIV_ROUND_UP(area->nr_free, prdev->capacity * 16);
+ 
+ 	/* loop through free list adding unreported pages to sg list */
+ 	list_for_each_entry_safe(page, next, list, lru) {
+@@ -222,10 +222,10 @@ page_reporting_cycle(struct page_reporting_dev_info *prdev, struct zone *zone,
+ 		spin_unlock_irq(&zone->lock);
+ 
+ 		/* begin processing pages in local list */
+-		err = prdev->report(prdev, sgl, PAGE_REPORTING_CAPACITY);
++		err = prdev->report(prdev, sgl, prdev->capacity);
+ 
+ 		/* reset offset since the full list was reported */
+-		*offset = PAGE_REPORTING_CAPACITY;
++		*offset = prdev->capacity;
+ 
+ 		/* update budget to reflect call to report function */
+ 		budget--;
+@@ -234,7 +234,7 @@ page_reporting_cycle(struct page_reporting_dev_info *prdev, struct zone *zone,
+ 		spin_lock_irq(&zone->lock);
+ 
+ 		/* flush reported pages from the sg list */
+-		page_reporting_drain(prdev, sgl, PAGE_REPORTING_CAPACITY, !err);
++		page_reporting_drain(prdev, sgl, prdev->capacity, !err);
+ 
+ 		/*
+ 		 * Reset next to first entry, the old next isn't valid
+@@ -260,13 +260,13 @@ static int
+ page_reporting_process_zone(struct page_reporting_dev_info *prdev,
+ 			    struct scatterlist *sgl, struct zone *zone)
+ {
+-	unsigned int order, mt, leftover, offset = PAGE_REPORTING_CAPACITY;
++	unsigned int order, mt, leftover, offset = prdev->capacity;
+ 	unsigned long watermark;
+ 	int err = 0;
+ 
+ 	/* Generate minimum watermark to be able to guarantee progress */
+ 	watermark = low_wmark_pages(zone) +
+-		    (PAGE_REPORTING_CAPACITY << page_reporting_order);
++		    (prdev->capacity << page_reporting_order);
+ 
+ 	/*
+ 	 * Cancel request if insufficient free memory or if we failed
+@@ -290,7 +290,7 @@ page_reporting_process_zone(struct page_reporting_dev_info *prdev,
+ 	}
+ 
+ 	/* report the leftover pages before going idle */
+-	leftover = PAGE_REPORTING_CAPACITY - offset;
++	leftover = prdev->capacity - offset;
+ 	if (leftover) {
+ 		sgl = &sgl[offset];
+ 		err = prdev->report(prdev, sgl, leftover);
+@@ -322,11 +322,11 @@ static void page_reporting_process(struct work_struct *work)
+ 	atomic_set(&prdev->state, state);
+ 
+ 	/* allocate scatterlist to store pages being reported on */
+-	sgl = kmalloc_objs(*sgl, PAGE_REPORTING_CAPACITY);
++	sgl = kmalloc_objs(*sgl, prdev->capacity);
+ 	if (!sgl)
+ 		goto err_out;
+ 
+-	sg_init_table(sgl, PAGE_REPORTING_CAPACITY);
++	sg_init_table(sgl, prdev->capacity);
+ 
+ 	for_each_zone(zone) {
+ 		err = page_reporting_process_zone(prdev, sgl, zone);
+@@ -376,6 +376,10 @@ int page_reporting_register(struct page_reporting_dev_info *prdev)
+ 			page_reporting_order = pageblock_order;
+ 	}
+ 
++	if (!prdev->capacity || prdev->capacity > PAGE_REPORTING_CAPACITY)
++		prdev->capacity = PAGE_REPORTING_CAPACITY;
++	prdev->capacity = rounddown_pow_of_two(prdev->capacity);
++
+ 	/* initialize state and work structures */
+ 	atomic_set(&prdev->state, PAGE_REPORTING_IDLE);
+ 	INIT_DELAYED_WORK(&prdev->work, &page_reporting_process);
+-- 
+MST
 
-Alex
