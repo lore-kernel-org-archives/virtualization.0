@@ -1,226 +1,198 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-dl1-f54.google.com (mail-dl1-f54.google.com [74.125.82.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC56A3E958D
-	for <virtualization@lists.linux.dev>; Thu,  7 May 2026 12:59:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E82223ACA6F
+	for <virtualization@lists.linux.dev>; Thu,  7 May 2026 14:28:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=74.125.82.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778158793; cv=none; b=dWEOMSnZUIi2czzyd9tcf6lq547wXLGusTIkjyHG5I+dgyss2JXyx7WQXdMq2AbfITCgWIqWvQv5cvCDW8sLTAf6EaXo4Y0ukMvFFlwDVTxpg2oBo2Nk8POBI0SDk11h5SjZcRu8Qnw6BfPOzVV0W/FOINgMqnWnvuUpLJamIrs=
+	t=1778164124; cv=none; b=D/jkOXgADQ2Re+iELHMBf3Imp/3KHmk4cATYLja0qTn4e26q382HLo6yf+SfE5xh55hb1othGk3MNsNSfrEgAV+PFZPHgTNGj4OnZFN8vBZOz2cWRgrBUCi97PtaVyX9lINErd6u3UQHYViM+YkumbyKCImXqlm3Y1w2fj4ojPs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778158793; c=relaxed/simple;
-	bh=a1ipHP4vJKqQ1PCjSE2XOtkD4KIsGKmi/PHR4V/X8j4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=r+zcwU3JWwREXUKKe85YP+v0fTKscPPas9pV/bL/rYU6PfQ8rylJWQgeLIM8Wwld4oaIpKVrfzhwxH4+1ECiTjJ/H6TsNsvHPWUejPpY8oC+87RpiQ5Ma4zp+9y6UlyH1bLYdt+0WBWeJsvT2IR56VAV7UuCeCa5NTsJJ+Mh4pg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CIDM7Pvx; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1778164124; c=relaxed/simple;
+	bh=PCbwbQNt4FGuy1Mx/UEcWlVmDbt9jGbh+cLIMf+sZ+o=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=tbZ7YrsyXE+VMY/EP8aLJQnFp5Q1MOdK7bnO9XD14jbzuM4xz/RucAEBuagNc4LsUa/n0ftuYSfoJh22i6EABy0sG6ulrMqGoMuAlqo8TjEV2dcxbEmsyE30VW5rrVpxRvTdbERz/YVWxTgSpILb83otKRceS6q/zi5Zyt2J32o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=I/wPjoYm; arc=none smtp.client-ip=74.125.82.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CIDM7Pvx"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1778158789;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=6a38SeOw0jKuyeFe5c6jTpEyvp+0L5OzxyUUit2nySo=;
-	b=CIDM7PvxaB/92BFSQQq61oXocNmEx8gNQCRArFTpft9gsQGLJTa7GjMgM5GwQ/o+x2Z3NY
-	S07D1Sf9J86ZShwoCZ0BgRVr2PNyAHz4Pe4dZ7/0jv6JF/KjoMCKtnwWyZ/iVBdF8XwSd4
-	lEKwTILUfzYoc8PgTTHnw1nSHh87ees=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-92-9bVBGDAeOXSFP64rDzMluQ-1; Thu, 07 May 2026 08:59:48 -0400
-X-MC-Unique: 9bVBGDAeOXSFP64rDzMluQ-1
-X-Mimecast-MFC-AGG-ID: 9bVBGDAeOXSFP64rDzMluQ_1778158787
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-43d103e46c3so517886f8f.3
-        for <virtualization@lists.linux.dev>; Thu, 07 May 2026 05:59:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="I/wPjoYm"
+Received: by mail-dl1-f54.google.com with SMTP id a92af1059eb24-12c19d23b19so1683413c88.0
+        for <virtualization@lists.linux.dev>; Thu, 07 May 2026 07:28:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778164122; x=1778768922; darn=lists.linux.dev;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=m52C9FnSjkJyGIM2Iz6ci+a0fVJqmhLXSC8+wk7x+s0=;
+        b=I/wPjoYmSno8Mh15dMQYRmlGExunR6gI+HMXPst0ZxIvwHXCJHNUzKuAAX73IamTfD
+         e/O4bUuNQ5yw173QFURwwxFNt7HO6m0gt6Us1QCCw70B7MpTUxn6e3CuVURZwNm/jeXQ
+         jICscgh41IZPRF8ISoEoxEKj5BEgUr4XbuJzatzu413y+39EWutTKn2kaFuIvrMuPq1S
+         fvrhQaTqGIzEVleXDTFewd4wyyR4MW5AtXOmjBcVS/1Y2ha4cvvLnMxL4XxiicjZN8WO
+         hqFf8Zijewlx7GvC1LI0Ibk9Fj1PtQzvazd4eWjyiEG7fuqIsNjpTbgSI94iavMpzSVe
+         SIvw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778158787; x=1778763587;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=6a38SeOw0jKuyeFe5c6jTpEyvp+0L5OzxyUUit2nySo=;
-        b=ajS7Oiu3p3Zjb6HQKfvBrlbWSfObceMLuzlj1wt+sf7UZmltKr13lhsqWyP5zpy7PV
-         TtL7wqN53P2TRGCr8oLeDdlCzPN6uahNB+6x8e6xPvoGj9kd0mF7+PXZizvP4LPleByC
-         qo9FVAaIJ18l/mC7wmDGp7vpC5EsvUO38kmEe/qUZ52QLto/4DF28+eM615t48myYeeK
-         y8jXaMkvG6JbzK5tJVNR+z16QaV0Bq/K4ERmFsfPSt4LuSdPKTTO3b15sGse/VGs8EDd
-         plaRE2URpivyVwPZbYEdKZheWX6dsjeS8c579HNCaz0Uk6iKLLCwMQ64duzRiOxPiR/+
-         qmZA==
-X-Forwarded-Encrypted: i=1; AFNElJ+632GtHqFuB1H8+1Ju5YO66E3RagReDt3wJo+SiGCbBwoVz15LSQS1m2EZE4MVu3o7E+LRieYjqr5NgAw3QA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyGuTFgOPqU6mVVfDlZnWUdiBfpCGazVtg60ZijujM5nQin2F6i
-	LPs0usjeG41Ig621z0WfSaky9eOgempF0oA4eqDqNNrrJ+bUO1fS5GI21A4uFEGeE9uIcB0y1uo
-	FMd6IAHhSmuXfe162Toq+9YUgYJxLELEefmWxhn5EINQQMAah4St7QsQi+Qk/s9NYBJO1
-X-Gm-Gg: AeBDiespSL0Tza3l+XkHfi5iS435bbq12G6J05pzSOELKYv+mgi0F7yRFF3ozQ41zk2
-	cZ/EdD7O8jaBlc6g0um1E09FZ8QItVQQmJoxC3yALlU3RuB+lhaDcmlNPyXDXwrSp1zBgD6/Soh
-	j29cQ0T0dU5o3FI5h2JPos5skDAflQXb2+hjIV83BHMDEHAi9BLRRwMjPRoD6GZFsx2PJHDYHP+
-	7T8/M1fpRFhHyvPbtwLkFMocFMR0icc5cKMKZOquUAZwbQ91KUHa3F/Om3RUZo4nV78VR72ZIm3
-	2IyHO3+pMwIYKSQo4MdF2NgX/OeV105SX280LNIe+J5ay5nwk2/mGMmUfWUrAABuBdWQpC6mcDF
-	SHCZatQ7+EEPKIF7ZTk7hjVC4HUzB2Po/QIOvsUChPmdfqjwCxr2zXyNS9sNmlp/9TtoTqIuqLA
-	==
-X-Received: by 2002:a5d:5d89:0:b0:449:4079:4c39 with SMTP id ffacd0b85a97d-4515d5c5750mr12867088f8f.29.1778158787136;
-        Thu, 07 May 2026 05:59:47 -0700 (PDT)
-X-Received: by 2002:a5d:5d89:0:b0:449:4079:4c39 with SMTP id ffacd0b85a97d-4515d5c5750mr12867018f8f.29.1778158786505;
-        Thu, 07 May 2026 05:59:46 -0700 (PDT)
-Received: from sgarzare-redhat (host-87-11-6-2.retail.telecomitalia.it. [87.11.6.2])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45055f2203csm20313623f8f.37.2026.05.07.05.59.44
+        d=1e100.net; s=20251104; t=1778164122; x=1778768922;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=m52C9FnSjkJyGIM2Iz6ci+a0fVJqmhLXSC8+wk7x+s0=;
+        b=PTKjEF978TCJPX7yL3fVSZ19J95lqfVGLsQpg2zK6fA9JAz/WM0NoF3O26KiMb4ouU
+         fvWm/09uz7Sx74IobNk0BwodO5YLucnrODFzqh5O1JZ083UJqPodVXvtlx/zew6xFNyO
+         802Vzx4SsrO5TR6gCUjtcqFrK7eb2HEmh3dCoz6fH9awO4zL6meBo242hYwdBnu7hBy9
+         KkYyMxahPB0W2FlZbuxcv5dImt6IcG2nGp902F82Btaz8c99pYwnOtQpvCFJ7UuNYwZD
+         BEY49cg1gzRgrqog4IliGASH8GO6H0mx6FR0nrawh8ycPL88tEyLnPaVoYDT3japkGkx
+         tBOw==
+X-Gm-Message-State: AOJu0YzJZcAJfI/QYluHHCQF4t6LbUZ9W81PzfkDFvzmqJ7klNmj3vh7
+	fVI1xjtNRPAL3WN5ovI7YxHF5wNMHq/za7iGf1uUKgBtnVP7Rp8RJ0mb4cnC9e48
+X-Gm-Gg: AeBDies/MywyiGDBwaQSmCE7bRa4pzP1kyCgiOZs1X38VszCcg5Y53yYaPYQljxttjn
+	HXE+fMd/oxsAzLZ3DU+HZK8RPZIvXC2KHGVTnDBBJufM7QDxCoMxvFHJ4gYX0DCNV8CX6WtsBdW
+	rBeXW6rFeQzs6Z/exLOZgoXTL/HF3NcVhVb1iofOpXzBK9JO1zkhjunjoAwhC6xS+mgeAVeUgSU
+	/X30bMJjnKGUhZH22QLhoalrfOpysUscvh8IrjyeATU+iokK6obpmKATFL6QoFjZf9/ZExv0Ph0
+	b+IShAnPCdi8dJ9AFs+XZFlSVgFJ0B/tzkgK7yDFBxX++cM3S0/u7lerBO2fK9onS8G8tYGEO4h
+	GjNV2J0m6Iy8yivg0DnsmXx5gqJpyGapBJk5uWZQk4nZm7vb3MgPgGwjFsFvGVdgTVcx+Cthgmd
+	4ZveVD93WmFbbr8KLQJBey9bmnpeIe7GE6d0G1V/PTuL1M5dTjGIULSECQnhVfsFXWzHl+OPAEI
+	KdIKNn+8ON9
+X-Received: by 2002:a05:7022:6899:b0:132:5e72:43d3 with SMTP id a92af1059eb24-1325e724784mr399692c88.29.1778164121302;
+        Thu, 07 May 2026 07:28:41 -0700 (PDT)
+Received: from [192.168.1.18] (177-4-161-87.user3p.v-tal.net.br. [177.4.161.87])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-2f570384e46sm8829554eec.26.2026.05.07.07.28.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 May 2026 05:59:45 -0700 (PDT)
-Date: Thu, 7 May 2026 14:59:13 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Eric Dumazet <edumazet@google.com>, 
-	Arseniy Krasnov <avkrasnov@salutedevices.com>, Bobby Eshleman <bobbyeshleman@meta.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, "David S . Miller" <davem@davemloft.net>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	netdev@vger.kernel.org, eric.dumazet@gmail.com, 
-	Arseniy Krasnov <AVKrasnov@sberdevices.ru>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
-	kvm@vger.kernel.org, virtualization@lists.linux.dev
-Subject: Re: [PATCH net] vsock/virtio: fix potential unbounded skb queue
-Message-ID: <afyMCyBvZpzWrLtO@sgarzare-redhat>
-References: <20260430122653.554058-1-edumazet@google.com>
- <afn0ZdvZWswBuDMm@sgarzare-redhat>
- <CANn89iLs8DOWJwDpf_ARoMrV+6b2tbhEJ=VVzeC8gCm5dRGaig@mail.gmail.com>
- <afoF_cHfl6ygcupM@sgarzare-redhat>
- <20260506113554-mutt-send-email-mst@kernel.org>
- <afxVH2So9BbZ3Gta@sgarzare-redhat>
- <20260507074113-mutt-send-email-mst@kernel.org>
+        Thu, 07 May 2026 07:28:40 -0700 (PDT)
+From: =?utf-8?q?C=C3=A1ssio_Gabriel?= <cassiogabrielcontato@gmail.com>
+Date: Thu, 07 May 2026 11:28:30 -0300
+Subject: [PATCH] ALSA: virtio: Validate control metadata from the device
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260507074113-mutt-send-email-mst@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Bn_nCW1C6fjQU0KJMOtu6iHLfqAIN8uef4hzLvTFJX8_1778158787
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Disposition: inline
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
+Message-Id: <20260507-alsa-virtio-validate-kctl-info-v1-1-7404fb12ec37@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXNQQ7CIBBA0as0s3aSiqULr2JcDDDVUQKGocSk6
+ d1FXb7N/xsoF2GF87BB4SYqOXUcDwP4O6Ubo4RuMKOZx8lMSFEJm5QqGRtFCVQZn75GlLRkNM7
+ xydlgw2yhR16FF3n/Bpfr37q6B/v6rcK+fwDp1AvdggAAAA==
+X-Change-ID: 20260424-alsa-virtio-validate-kctl-info-2bbe3b5d5d65
+To: Takashi Iwai <tiwai@suse.com>, 
+ Anton Yakovlev <anton.yakovlev@opensynergy.com>, 
+ "Michael S. Tsirkin" <mst@redhat.com>, 
+ Aiswarya Cyriac <aiswarya.cyriac@opensynergy.com>, 
+ Jaroslav Kysela <perex@perex.cz>
+Cc: virtualization@lists.linux.dev, linux-sound@vger.kernel.org, 
+ linux-kernel@vger.kernel.org, stable@vger.kernel.org, 
+ =?utf-8?q?C=C3=A1ssio_Gabriel?= <cassiogabrielcontato@gmail.com>
+X-Mailer: b4 0.15.2
+X-Developer-Signature: v=1; a=openpgp-sha256; l=3816;
+ i=cassiogabrielcontato@gmail.com; h=from:subject:message-id;
+ bh=PCbwbQNt4FGuy1Mx/UEcWlVmDbt9jGbh+cLIMf+sZ+o=;
+ b=owGbwMvMwCV2IdZeKur/u2bG02pJDJl/Fk7cXbMuuOnqBrbkK5Ix27yez6pyilfSjmraorb7I
+ N/70/t8O0pZGMS4GGTFFFlWJy2y3NP14Gp93AoPmDmsTCBDGLg4BWAiS7oYGc6kRSboX3+SH/6F
+ oS2pb88fnj+h641Oul1etjx0/azE2MeMDEun6J4L0D14TXz53ZuvshrnLWZaalcjymqbkbdmRnp
+ wGgsA
+X-Developer-Key: i=cassiogabrielcontato@gmail.com; a=openpgp;
+ fpr=AB62A239BC8AE0D57F5EA848D05D3F1A5AFFEE83
 
-On Thu, May 07, 2026 at 07:45:10AM -0400, Michael S. Tsirkin wrote:
->On Thu, May 07, 2026 at 11:09:47AM +0200, Stefano Garzarella wrote:
->> On Wed, May 06, 2026 at 11:37:45AM -0400, Michael S. Tsirkin wrote:
->> > On Tue, May 05, 2026 at 06:11:13PM +0200, Stefano Garzarella wrote:
->> > > On Tue, May 05, 2026 at 07:14:36AM -0700, Eric Dumazet wrote:
->> > > > On Tue, May 5, 2026 at 6:52 AM Stefano Garzarella <sgarzare@redhat.com> wrote:
->> > > > >
->> > > > > On Thu, Apr 30, 2026 at 12:26:52PM +0000, Eric Dumazet wrote:
->> > > > > >virtio_transport_inc_rx_pkt() checks vvs->rx_bytes + len > vvs->buf_alloc.
->> > > > > >
->> > > > > >virtio_transport_recv_enqueue() skips coalescing for packets
->> > > > > >with VIRTIO_VSOCK_SEQ_EOM.
->> > > > > >
->> > > > > >If fed with packets with len == 0 and VIRTIO_VSOCK_SEQ_EOM,
->> > > > > >a very large number of packets can be queued
->> > > > > >because vvs->rx_bytes stays at 0.
->> > > > > >
->> > > > > >Fix this by estimating the skb metadata size:
->> > > > > >
->> > > > > >       (Number of skbs in the queue) * SKB_TRUESIZE(0)
->> > > > > >
->> > > > > >Fixes: 077706165717 ("virtio/vsock: don't use skbuff state to account credit")
->> > > > > >Signed-off-by: Eric Dumazet <edumazet@google.com>
->> > > > > >Cc: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
->> > > > > >Cc: Stefan Hajnoczi <stefanha@redhat.com>
->> > > > > >Cc: Stefano Garzarella <sgarzare@redhat.com>
->> > > > > >Cc: "Michael S. Tsirkin" <mst@redhat.com>
->> > > > > >Cc: Jason Wang <jasowang@redhat.com>
->> > > > > >Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
->> > > > > >Cc: "Eugenio Pérez" <eperezma@redhat.com>
->> > > > > >Cc: kvm@vger.kernel.org
->> > > > > >Cc: virtualization@lists.linux.dev
->> > > > > >---
->> > > > > > net/vmw_vsock/virtio_transport_common.c | 4 +++-
->> > > > > > 1 file changed, 3 insertions(+), 1 deletion(-)
->> > > > > >
->> > > > > >diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->> > > > > >index 416d533f493d7b07e9c77c43f741d28cfcd0953e..9b8014516f4fb1130ae184635fbba4dfee58bd64 100644
->> > > > > >--- a/net/vmw_vsock/virtio_transport_common.c
->> > > > > >+++ b/net/vmw_vsock/virtio_transport_common.c
->> > > > > >@@ -447,7 +447,9 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
->> > > > > > static bool virtio_transport_inc_rx_pkt(struct virtio_vsock_sock *vvs,
->> > > > > >                                       u32 len)
->> > > > > > {
->> > > > > >-      if (vvs->buf_used + len > vvs->buf_alloc)
->> > > > > >+      u64 skb_overhead = (skb_queue_len(&vvs->rx_queue) + 1) * SKB_TRUESIZE(0);
->> > > > > >+
->> > > > > >+      if (skb_overhead + vvs->buf_used + len > vvs->buf_alloc)
->> > > > > >               return false;
->> > > > >
->> > > > > I'm not sure about this fix, I mean that maybe this is incomplete.
->> > > > > In virtio-vsock, there is a credit mechanism between the two peers:
->> > > > > https://docs.oasis-open.org/virtio/virtio/v1.3/csd01/virtio-v1.3-csd01.html#x1-4850003
->> > > > >
->> > > > > This takes only the payload into account, so it’s true that this problem
->> > > > > exists; however, perhaps we should also inform the other peer of a lower
->> > > > > credit balance, otherwise the other peer will believe it has much more
->> > > > > credit than it actually does, send a large payload, and then the packet
->> > > > > will be discarded and the data lost (there are no retransmissions,
->> > > > > etc.).
->> > > >
->> > > > I dunno, perhaps revert 077706165717 ("virtio/vsock: don't use skbuff
->> > > > state to account credit")
->> > > > and find a better fix then?
->> > >
->> > > IIRC the same issue was there before the commit fixed by that one (commit
->> > > 71dc9ec9ac7d ("virtio/vsock: replace virtio_vsock_pkt with sk_buff")), so
->> > > not sure about reverting it TBH.
->> > >
->> > > CCing Arseniy and Bobby.
->> > >
->> > > >
->> > > > There is always a discrepancy between skb->len and skb->truesize.
->> > > > You will not be able to announce a 1MB window, and accept one milliion
->> > > > skb of 1-byte each.
->> > > >
->> > > > This kind of contract is broken.
->> > > >
->> > >
->> > > Yep, I agree, but before we start discarding data (and losing it), IMHO we
->> > > should at least inform the other peer that we're out of space.
->> > >
->> > > @Stefan, @Michael, do you think we can do something in the spec to avoid
->> > > this issue and in some way take into account also the metadata in the
->> > > credit. I mean to avoid the 1-byte packets flooding.
->> > >
->> > > Thanks,
->> > > Stefano
->> >
->> > Why do we need the metadata? Just don't keep it around if you begin
->> > running low on memory.
->>
->> I don't think removing the skuffs will be easy; we added them for ebpf,
->> zero-copy, and seqpacket as well.
->
->You do not need to remove them completely.
->
->> For now, we're already doing something:
->> merging the skuffs if they don't have EOM set.
->
->
->Right that's good. You could go further and merge with EOM too
->if you stick the info about message boundaries somewhere else.
+virtio-snd control handling trusts the device-provided control type and
+value count returned by the device.
 
-This adds a lot of complexity IMO, but we can try.
+That metadata is then used directly to index g_v2a_type_map[] in
+virtsnd_kctl_info(), and to size loops and memcpy() operations in
+virtsnd_kctl_get() and virtsnd_kctl_put() against fixed-size
+virtio_snd_ctl_value and snd_ctl_elem_value arrays.
 
-Do you have something in mind?
+A buggy or malicious device can therefore trigger out-of-bounds access by
+advertising an invalid control type or an oversized value count.
 
->
->> As a quick fix, I'm thinking of reducing the `buf_alloc` value to account
->> for the overhead and notifying the other peer, at least until we find a
->> better solution.
->>
->> Stefano
->
->well if you want to support pathological cases such as 1 byte messages
->that would mean like 100x reduction no?
->
+Validate control type and count once in virtsnd_kctl_parse_cfg(), before
+querying enumerated items or exposing the control to ALSA.
 
-Yep, but since this patch is already merged, IMHO that is better than 
-losing data in those pathological cases.
+Fixes: d6568e3de42d ("ALSA: virtio: add support for audio controls")
+Cc: stable@vger.kernel.org
+Signed-off-by: Cássio Gabriel <cassiogabrielcontato@gmail.com>
+---
+ sound/virtio/virtio_kctl.c | 50 ++++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 50 insertions(+)
 
-Thanks,
-Stefano
+diff --git a/sound/virtio/virtio_kctl.c b/sound/virtio/virtio_kctl.c
+index ffb903d56297..45f7b6a5b308 100644
+--- a/sound/virtio/virtio_kctl.c
++++ b/sound/virtio/virtio_kctl.c
+@@ -18,6 +18,21 @@ static const snd_ctl_elem_type_t g_v2a_type_map[] = {
+ 	[VIRTIO_SND_CTL_TYPE_IEC958] = SNDRV_CTL_ELEM_TYPE_IEC958
+ };
+ 
++/* Map for converting VirtIO types to maximum value counts. */
++static const unsigned int g_v2a_count_map[] = {
++	[VIRTIO_SND_CTL_TYPE_BOOLEAN] =
++		ARRAY_SIZE(((struct virtio_snd_ctl_value *)0)->value.integer),
++	[VIRTIO_SND_CTL_TYPE_INTEGER] =
++		ARRAY_SIZE(((struct virtio_snd_ctl_value *)0)->value.integer),
++	[VIRTIO_SND_CTL_TYPE_INTEGER64] =
++		ARRAY_SIZE(((struct virtio_snd_ctl_value *)0)->value.integer64),
++	[VIRTIO_SND_CTL_TYPE_ENUMERATED] =
++		ARRAY_SIZE(((struct virtio_snd_ctl_value *)0)->value.enumerated),
++	[VIRTIO_SND_CTL_TYPE_BYTES] =
++		ARRAY_SIZE(((struct virtio_snd_ctl_value *)0)->value.bytes),
++	[VIRTIO_SND_CTL_TYPE_IEC958] = 1
++};
++
+ /* Map for converting VirtIO access rights to ALSA access rights. */
+ static const unsigned int g_v2a_access_map[] = {
+ 	[VIRTIO_SND_CTL_ACCESS_READ] = SNDRV_CTL_ELEM_ACCESS_READ,
+@@ -36,6 +51,37 @@ static const unsigned int g_v2a_mask_map[] = {
+ 	[VIRTIO_SND_CTL_EVT_MASK_TLV] = SNDRV_CTL_EVENT_MASK_TLV
+ };
+ 
++static int virtsnd_kctl_validate_info(struct virtio_snd *snd, u32 cid,
++				      struct virtio_snd_ctl_info *kinfo)
++{
++	struct virtio_device *vdev = snd->vdev;
++	unsigned int type = le32_to_cpu(kinfo->type);
++	unsigned int count = le32_to_cpu(kinfo->count);
++
++	if (type >= ARRAY_SIZE(g_v2a_type_map)) {
++		dev_err(&vdev->dev, "control #%u: unknown type %u\n",
++			cid, type);
++		return -EINVAL;
++	}
++
++	if (count > g_v2a_count_map[type] ||
++	    (type == VIRTIO_SND_CTL_TYPE_IEC958 && count != 1)) {
++		dev_err(&vdev->dev, "control #%u: invalid count %u for type %u\n",
++			cid, count, type);
++		return -EINVAL;
++	}
++
++	if (type == VIRTIO_SND_CTL_TYPE_ENUMERATED &&
++	    !le32_to_cpu(kinfo->value.enumerated.items)) {
++		dev_err(&vdev->dev,
++			"control #%u: no items for enumerated control\n",
++			cid);
++		return -EINVAL;
++	}
++
++	return 0;
++}
++
+ /**
+  * virtsnd_kctl_info() - Returns information about the control.
+  * @kcontrol: ALSA control element.
+@@ -385,6 +431,10 @@ int virtsnd_kctl_parse_cfg(struct virtio_snd *snd)
+ 		struct virtio_snd_ctl_info *kinfo = &snd->kctl_infos[i];
+ 		unsigned int type = le32_to_cpu(kinfo->type);
+ 
++		rc = virtsnd_kctl_validate_info(snd, i, kinfo);
++		if (rc)
++			return rc;
++
+ 		if (type == VIRTIO_SND_CTL_TYPE_ENUMERATED) {
+ 			rc = virtsnd_kctl_get_enum_items(snd, i);
+ 			if (rc)
+
+---
+base-commit: 5bddc5123566e6431fff826fe76a8e378ae9db78
+change-id: 20260424-alsa-virtio-validate-kctl-info-2bbe3b5d5d65
+
+Best regards,
+--  
+Cássio Gabriel <cassiogabrielcontato@gmail.com>
 
