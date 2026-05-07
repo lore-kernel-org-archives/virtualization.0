@@ -1,214 +1,223 @@
-Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1E1EE32AABC;
-	Thu,  7 May 2026 06:32:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF83231A7EA
+	for <virtualization@lists.linux.dev>; Thu,  7 May 2026 07:57:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778135560; cv=none; b=f20tW6F4C1zJVeFkg/HBSvXaTwkXd3mIICdJdjZPlI4pGtC/3gkb+MTO3Br4AEy3JaeRXzLiGK73X6deQrN4Z4mhlDqOUP6x6DOehuLA8HE5x/4VrYEaKJboVI0r1qS9ugopwHYx4lviyvJxeffMIxCjRXN/kMIAz7Kw0Zwc7Hk=
+	t=1778140653; cv=none; b=TSQ9zVMLOTEuPG42t9M9PcidrlSxC4+ZqJH6MQcur9JRotybbh9lMCSazzopqBc5GRnpgF7ExhEBpCVf6PLKPZBnceln+7r4ng4bkC+m0XcixsjHu3yfcEuBHOJzbXpBtXLX8cs5gPnjwKBT01W3w5XDhyF03sAlf658kNYnv1Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778135560; c=relaxed/simple;
-	bh=Ti8yEkrhkt81vSIOjm0xwK4bAht5BORVIbZaPrf40m0=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=dfOttXtJAYrVM60PnCXeA+eLGR6F1IT/rlq/E9f6FEWj1Kz7ymi2YEzZG7GdwdpSTeK8xV7OxnIZh5URBHTE+l0WkLWwYqYlScNbCTVxjYFz4sG+mz2blMVBjT3SrqAVzMPYd4a4hdntlCGqjNcRNiSJiSv36Xt+9opURKpsqiA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=Uv+XNuwt; arc=none smtp.client-ip=129.217.128.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
+	s=arc-20240116; t=1778140653; c=relaxed/simple;
+	bh=yujdvPSM9ch00gHnpM1s0RYymXhXXKJCbf3YomfLLOw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=pjh66poTq1gE7UIVjAPg8573RTHCDwCaWn74GGyDvC+BZtUuAg7Wf8xKFtquiiRQmfIlb/8qcghf7iAVjFQ0cpVpSsiYNIsII+ugQx+zKrwpqwO64zZK0B383HI49z8/Xxk3WIbt4I1ZxO/nO7lrC9tXNHlZotMyADDuuJ2FLwE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=2OkjnZeq; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=5KgvGOkr; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=2OkjnZeq; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=5KgvGOkr; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="Uv+XNuwt"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tu-dortmund.de;
-	s=unimail; t=1778135549;
-	bh=Ti8yEkrhkt81vSIOjm0xwK4bAht5BORVIbZaPrf40m0=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=Uv+XNuwtbUeMpiL0iHzDpIOLs6uQ1lSmFxXTFym1g6jJa9dxfubuQC2Rfej538INX
-	 kU/U2fgNiIlCC9C3Wl4vSim/gIANmqOxIVSsEfoeUqKlFIZJ0WeL6xTSKf5e6VoYCv
-	 iRZdCi0CHu2UUHgiai3JyDMZXdGrpyvSzWZDnQDA=
-Received: from [129.217.186.46] ([129.217.186.46])
-	(authenticated bits=0)
-	by unimail.uni-dortmund.de (8.19.0.1/8.19.0.1) with ESMTPSA id 6476WSQi019222
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 7 May 2026 08:32:28 +0200 (CEST)
-Message-ID: <c9fc9e0a-0837-49b4-91b9-4adb54c1a037@tu-dortmund.de>
-Date: Thu, 7 May 2026 08:32:28 +0200
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="2OkjnZeq";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="5KgvGOkr";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="2OkjnZeq";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="5KgvGOkr"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 347DB6C1C3;
+	Thu,  7 May 2026 07:57:30 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1778140650; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=7jF9J+Wg7SinKJYid/BjcHCj3FnLa9dFlCRWThIMBJM=;
+	b=2OkjnZeqJ0kBEFk7Qymm4/k/Zp891wkoAg2xbc7nNbLIEnzz+ZmfTUFTu5EhZBQVMU2Bke
+	yO5/D9+eos5p4rQtjfjqLroyyl1Q8JelwC557YyehUTxjZguHTe/+G1eP99cFm8DvFHF10
+	mRDe/jXHpCpq93LpE+eCtHNx2yIgzGo=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1778140650;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=7jF9J+Wg7SinKJYid/BjcHCj3FnLa9dFlCRWThIMBJM=;
+	b=5KgvGOkrd//70d7JmxMFvds/ySAryapij+MQVX9J8KfcYZeXMcYTtCHv27MYx7GcWETgjw
+	YMPX4NjFOvxYBeAw==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1778140650; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=7jF9J+Wg7SinKJYid/BjcHCj3FnLa9dFlCRWThIMBJM=;
+	b=2OkjnZeqJ0kBEFk7Qymm4/k/Zp891wkoAg2xbc7nNbLIEnzz+ZmfTUFTu5EhZBQVMU2Bke
+	yO5/D9+eos5p4rQtjfjqLroyyl1Q8JelwC557YyehUTxjZguHTe/+G1eP99cFm8DvFHF10
+	mRDe/jXHpCpq93LpE+eCtHNx2yIgzGo=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1778140650;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=7jF9J+Wg7SinKJYid/BjcHCj3FnLa9dFlCRWThIMBJM=;
+	b=5KgvGOkrd//70d7JmxMFvds/ySAryapij+MQVX9J8KfcYZeXMcYTtCHv27MYx7GcWETgjw
+	YMPX4NjFOvxYBeAw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id B5110593A7;
+	Thu,  7 May 2026 07:57:29 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id EFrCKulF/GnZJAAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Thu, 07 May 2026 07:57:29 +0000
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: mripard@kernel.org,
+	maarten.lankhorst@linux.intel.com,
+	airlied@redhat.com,
+	airlied@gmail.com,
+	simona@ffwll.ch,
+	admin@kodeit.net,
+	gargaditya08@proton.me,
+	paul@crapouillou.net,
+	zack.rusin@broadcom.com,
+	bcm-kernel-feedback-list@broadcom.com
+Cc: dri-devel@lists.freedesktop.org,
+	linux-hyperv@vger.kernel.org,
+	intel-gfx@lists.freedesktop.org,
+	intel-xe@lists.freedesktop.org,
+	linux-mips@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH 00/10] drm: Improve logic behind damage handling
+Date: Thu,  7 May 2026 09:12:19 +0200
+Message-ID: <20260507075725.29738-1-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v10 4/4] tun/tap & vhost-net: avoid ptr_ring
- tail-drop when a qdisc is present
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
-        andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, eperezma@redhat.com,
-        leiyang@redhat.com, stephen@networkplumber.org, jon@nutanix.com,
-        tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        virtualization@lists.linux.dev
-References: <20260506141033.180450-1-simon.schippers@tu-dortmund.de>
- <20260506141033.180450-5-simon.schippers@tu-dortmund.de>
- <20260506181909-mutt-send-email-mst@kernel.org>
- <20260506185515-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-From: Simon Schippers <simon.schippers@tu-dortmund.de>
-In-Reply-To: <20260506185515-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-Spam-Flag: NO
+X-Spam-Score: -2.80
+X-Spamd-Result: default: False [-2.80 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	MID_CONTAINS_FROM(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_MISSING_CHARSET(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	ARC_NA(0.00)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	FREEMAIL_TO(0.00)[kernel.org,linux.intel.com,redhat.com,gmail.com,ffwll.ch,kodeit.net,proton.me,crapouillou.net,broadcom.com];
+	RCVD_COUNT_TWO(0.00)[2];
+	RCPT_COUNT_TWELVE(0.00)[17];
+	MIME_TRACE(0.00)[0:+];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:mid];
+	FROM_EQ_ENVFROM(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com]
+X-Spam-Level: 
 
-On 5/7/26 00:56, Michael S. Tsirkin wrote:
-> On Wed, May 06, 2026 at 06:28:06PM -0400, Michael S. Tsirkin wrote:
->> On Wed, May 06, 2026 at 04:10:33PM +0200, Simon Schippers wrote:
->>> This commit prevents tail-drop when a qdisc is present and the ptr_ring
->>> becomes full. Once an entry is successfully produced and the ptr_ring
->>> reaches capacity, the netdev queue is stopped instead of dropping
->>> subsequent packets. If no qdisc is present, the previous tail-drop
->>> behavior is preserved.
->>>
->>> If producing an entry fails anyways due to a race, tun_net_xmit() drops
->>> the packet. Such races are expected because LLTX is enabled and the
->>> transmit path operates without the usual locking.
->>>
->>> The __tun_wake_queue() function of the consumer races with the producer
->>> for waking/stopping the netdev queue, which could result in a stalled
->>> queue. Therefore, an smp_mb__after_atomic() is introduced that pairs
->>> with the smp_mb() of the consumer. It follows the principle of store
->>> buffering described in tools/memory-model/Documentation/recipes.txt:
->>>
->>> - The producer in tun_net_xmit() first sets __QUEUE_STATE_DRV_XOFF,
->>>   followed by an smp_mb__after_atomic() (= smp_mb()), and then reads the
->>>   ring with __ptr_ring_produce_peek().
->>>
->>> - The consumer in __tun_wake_queue() first writes zero to the ring in
->>>   __ptr_ring_consume(), followed by an smp_mb(), and then reads the queue
->>>   status with netif_tx_queue_stopped().
->>>
->>> => Following the aforementioned principle, it is impossible for the
->>>    producer to see a full ring (and therefore not wake the queue on the
->>>    re-check) while the consumer simultaneously fails to see a stopped
->>>    queue (and therefore also does not wake it).
->>>
->>> Benchmarks:
->>> The benchmarks show a slight regression in raw transmission performance
->>> when using two sending threads. Packet loss also occurs only in the
->>> two-thread sending case; no packet loss was observed with a single
->>> sending thread.
->>>
->>> Test setup:
->>> AMD Ryzen 5 5600X at 4.3 GHz, 3200 MHz RAM, isolated QEMU threads;
->>> Average over 50 runs @ 100,000,000 packets. SRSO and spectre v2
->>> mitigations disabled.
->>>
->>> Note for tap+vhost-net:
->>> XDP drop program active in VM -> ~2.5x faster; slower for tap due to
->>> more syscalls (high utilization of entry_SYSRETQ_unsafe_stack in perf)
->>>
->>> +--------------------------+--------------+----------------+----------+
->>> | 1 thread                 | Stock        | Patched with   | diff     |
->>> | sending                  |              | fq_codel qdisc |          |
->>> +------------+-------------+--------------+----------------+----------+
->>> | TAP        | Received    | 1.132 Mpps   | 1.133 Mpps     | +0.1%    |
->>> |            +-------------+--------------+----------------+----------+
->>> |            | Lost/s      | 3.765 Mpps   | 0 pps          |          |
->>> +------------+-------------+--------------+----------------+----------+
->>> | TAP        | Received    | 3.857 Mpps   | 3.905 Mpps     | +1.2%    |
->>> |            +-------------+--------------+----------------+----------+
->>> | +vhost-net | Lost/s      | 0.802 Mpps   | 0 pps          |          |
->>> +------------+-------------+--------------+----------------+----------+
->>>
->>> +--------------------------+--------------+----------------+----------+
->>> | 2 threads                | Stock        | Patched with   | diff     |
->>> | sending                  |              | fq_codel qdisc |          |
->>> +------------+-------------+--------------+----------------+----------+
->>> | TAP        | Received    | 1.115 Mpps   | 1.092 Mpps     | -2.1%    |
->>> |            +-------------+--------------+----------------+----------+
->>> |            | Lost/s      | 8.490 Mpps   | 359 pps        |          |
->>> +------------+-------------+--------------+----------------+----------+
->>> | TAP        | Received    | 3.664 Mpps   | 3.549 Mpps     | -3.1%    |
->>> |            +-------------+--------------+----------------+----------+
->>> | +vhost-net | Lost/s      | 5.330 Mpps   | 832 pps        |          |
->>> +------------+-------------+--------------+----------------+----------+
->>>
->>> Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
->>> Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
->>> Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
->>> ---
->>>  drivers/net/tun.c | 25 +++++++++++++++++++++++--
->>>  1 file changed, 23 insertions(+), 2 deletions(-)
->>>
->>> diff --git a/drivers/net/tun.c b/drivers/net/tun.c
->>> index fc358c4c355b..d9ffbf88cfd8 100644
->>> --- a/drivers/net/tun.c
->>> +++ b/drivers/net/tun.c
->>> @@ -1018,6 +1018,7 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
->>>  	struct netdev_queue *queue;
->>>  	struct tun_file *tfile;
->>>  	int len = skb->len;
->>> +	int ret;
->>>  
->>>  	rcu_read_lock();
->>>  	tfile = rcu_dereference(tun->tfiles[txq]);
->>> @@ -1072,13 +1073,33 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
->>>  
->>>  	nf_reset_ct(skb);
->>>  
->>> -	if (ptr_ring_produce(&tfile->tx_ring, skb)) {
->>> +	queue = netdev_get_tx_queue(dev, txq);
->>> +
->>> +	spin_lock(&tfile->tx_ring.producer_lock);
->>> +	ret = __ptr_ring_produce(&tfile->tx_ring, skb);
->>> +	if (!qdisc_txq_has_no_queue(queue) &&
->>> +	    (__ptr_ring_produce_peek(&tfile->tx_ring) || ret)) {
->>> +		netif_tx_stop_queue(queue);
->>> +		/* Paired with smp_mb() in __tun_wake_queue() */
->>> +		smp_mb__after_atomic();
->>> +		if (!__ptr_ring_produce_peek(&tfile->tx_ring))
->>> +			netif_tx_wake_queue(queue);
->>> +	}
->>> +	spin_unlock(&tfile->tx_ring.producer_lock);
->>> +
->>
->> There's a weird corner case here when tx_queue_len is 0
->> but a qdisc has been configured - it looks like that
->> currently it just drops all packets, with this change,
->> the qdisc will get stuck permanently.
->>
->> I suspect just checking tx_ring.size should fix it.
->> Or if you feel adventurous, change return code for __ptr_ring_produce
->> to distinguish between "no ring" and "no space".
-> 
-> 
-> __ptr_ring_produce_peek really.
-> 
+DRM clients can supply information on framebuffer areas to update as
+part of each page flip, called damage clipping rectangles. But DRM's
+processing of this information is inconsistent and prone to errors.
 
-Yes, I like the approach of returning this from
-__ptr_ring_produce_peek(). Then I will do a switch on the return value
-in tun_net_xmit().
+- There are multiple fields and tests that decide if damage clips
+should be taken or ignored.
 
-Additionally, I should wake up in tun_queue_resize() after calling
-ptr_ring_resize_multiple_bh(). For a new dev->tx_queue_len > 0, it
-should be fine without waking, but for 0 it is not.
+- Sometimes, damage clips are removed behind the back of the DRM client.
 
-> 
->>
->>> +	if (ret) {
->>> +		/* This should be a rare case if a qdisc is present, but
->>> +		 * can happen due to lltx.
->>> +		 * Since skb_tx_timestamp(), skb_orphan(),
->>> +		 * run_ebpf_filter() and pskb_trim() could have tinkered
->>> +		 * with the SKB, returning NETDEV_TX_BUSY is unsafe and
->>> +		 * we must drop instead.
->>> +		 */
->>>  		drop_reason = SKB_DROP_REASON_FULL_RING;
->>>  		goto drop;
->>>  	}
->>>  
->>>  	/* dev->lltx requires to do our own update of trans_start */
->>> -	queue = netdev_get_tx_queue(dev, txq);
->>>  	txq_trans_cond_update(queue);
->>>  
->>>  	/* Notify and wake up reader process */
->>> -- 
->>> 2.43.0
-> 
+- Atomic helpers evaluate damage clipping in the middle of the atomic
+check: after connectors and encoders, but before planes and CRTCs. Hence
+pipeline stages have an inconsistent view.
+
+- Which leads to drivers (ingenic) doing a re-evaluation if necessary.
+
+- Tests of plane source coordinates only happen during commits. At this
+point, the driver should already know if damage clips are to be taken or
+not. Because of this, some drivers (appletbdrm) might operate on incorrect
+damage information for their internal workings. This also leads to excessive
+use of the old plane state.
+
+Got through DRM helpers and drivers to fix up the logic.
+
+- Run all of the atomic checks with the damage information supplied by
+DRM clients. Afterwards evaluate plane and CRTC states on whether to
+take or ignore damage clips. Do all related tests in a single atomic
+helper.
+
+- Do not discard damage clips. Set ignore_damage_clips in struct
+drm_plane_state instead. This includes changes to plane source-coordinates.
+The damage iterator now only has to look at this flag to detect if it
+should use the damage clips. 
+
+- Go over drivers and fix up the damage handling in the plane's
+atomic_update helpers. Most drivers no longer need the old plane state
+in their update.
+
+- The appletbdrm driver require a fix in how it uses damage information.
+Ingenic and vmwgfx can be simplified. These changes make the drivers better
+structured.
+
+- Kunit tests require some changes. Drop some obsolete tests and add a new
+one for ignore_damage_flags.
+
+Tested with bochs, mgag200, Kunit tests.
+
+Thomas Zimmermann (10):
+  drm/damage-helper: Do not alter damage clips on modeset, but ignore
+    them
+  drm/atomic-helpers: Evaluate plane damage after atomic_check
+  drm/ingenic: Remove calls to drm_atomic_helper_check_plane_damage()
+  drm/damage-helper: Test src coord in
+    drm_atomic_helper_check_plane_damage()
+  drm/appletbdrm: Allocate request/response buffers in begin_fb_access
+  drm/damage-helper: Remove old state from
+    drm_atomic_helper_damage_iter_init()
+  drm/damage-helper: Remove old state from
+    drm_atomic_helper_damage_merged()
+  drm/atomic_helper: Do not evaluate plane damage before atomic_check
+  drm/damage-helper: Rename state parameters in damage helpers
+  drm/vmwgfx: Remove unused field struct
+    vmwgfx_du_update_plane.old_state
+
+ drivers/gpu/drm/ast/ast_cursor.c              |   3 +-
+ drivers/gpu/drm/ast/ast_mode.c                |   2 +-
+ drivers/gpu/drm/drm_atomic_helper.c           |   6 +-
+ drivers/gpu/drm/drm_atomic_state_helper.c     |   1 +
+ drivers/gpu/drm/drm_damage_helper.c           |  44 ++--
+ drivers/gpu/drm/drm_fb_dma_helper.c           |   2 +-
+ drivers/gpu/drm/drm_mipi_dbi.c                |   3 +-
+ drivers/gpu/drm/gud/gud_pipe.c                |   3 +-
+ drivers/gpu/drm/hyperv/hyperv_drm_modeset.c   |   3 +-
+ drivers/gpu/drm/i915/display/intel_plane.c    |  11 +-
+ drivers/gpu/drm/i915/display/intel_psr.c      |   3 +-
+ drivers/gpu/drm/ingenic/ingenic-drm-drv.c     |   3 -
+ drivers/gpu/drm/ingenic/ingenic-ipu.c         |   8 +-
+ drivers/gpu/drm/mgag200/mgag200_mode.c        |   3 +-
+ drivers/gpu/drm/sitronix/st7571.c             |   3 +-
+ drivers/gpu/drm/sitronix/st7586.c             |   3 +-
+ drivers/gpu/drm/sitronix/st7920.c             |   3 +-
+ drivers/gpu/drm/solomon/ssd130x.c             |   9 +-
+ drivers/gpu/drm/sysfb/drm_sysfb_modeset.c     |   3 +-
+ .../gpu/drm/tests/drm_damage_helper_test.c    | 200 +++---------------
+ drivers/gpu/drm/tiny/appletbdrm.c             |  56 +++--
+ drivers/gpu/drm/tiny/bochs.c                  |   3 +-
+ drivers/gpu/drm/tiny/cirrus-qemu.c            |   2 +-
+ drivers/gpu/drm/tiny/gm12u320.c               |   2 +-
+ drivers/gpu/drm/tiny/ili9225.c                |   3 +-
+ drivers/gpu/drm/tiny/repaper.c                |   2 +-
+ drivers/gpu/drm/tiny/sharp-memory.c           |   3 +-
+ drivers/gpu/drm/udl/udl_modeset.c             |   3 +-
+ drivers/gpu/drm/virtio/virtgpu_plane.c        |   2 +-
+ drivers/gpu/drm/vmwgfx/vmwgfx_kms.c           |   5 +-
+ drivers/gpu/drm/vmwgfx/vmwgfx_kms.h           |   2 -
+ drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c          |  12 +-
+ drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c          |  15 +-
+ include/drm/drm_damage_helper.h               |   9 +-
+ 34 files changed, 124 insertions(+), 311 deletions(-)
+
+-- 
+2.54.0
+
