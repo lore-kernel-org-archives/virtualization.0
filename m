@@ -1,160 +1,100 @@
-Received: from mail-pf1-f175.google.com (mail-pf1-f175.google.com [209.85.210.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6516451069
-	for <virtualization@lists.linux.dev>; Thu,  7 May 2026 18:38:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF752481664
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 May 2026 19:57:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778179122; cv=none; b=IuWvph+z0tmBv4PPdY0Iy7zZqe7oMJVPq1KjWpVxRR/sXtejgFa4Ug6+Ae0owKQtQcIVCvk8QI+MHfV2XrdUVAd4+0JpnrRp2tO56o3nkArSlaWkKdAubtSgvf8et1vDb4oF9XoG3e0BLaCu58LvYqhBugLydKaAuDFfQ/67/ZE=
+	t=1778183862; cv=none; b=qqgOGXzTCfyBvYeCUqkgf4RuYED0KE0gc1bf6zdVKTpBQbDfmBwvP8sKk7N28Gt9ln23Kn4v4o9fv1JYCFNvsBRYqnwLVi8fM+udsmjKfwnyHwejBzhFiynYNCn83brHNNKh9Si0RxZLqGS3HA8c5ssT9viVHWIJ8NES+bdyY1U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778179122; c=relaxed/simple;
-	bh=4GrsCCPahhxyGz9IfFdXG4lPM39+qQCAQa6kwwfmcoE=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=XR4ioZ152QvpjOlUAQaMRwXjNipJ9FINJH+1hKdoThlVuJEdeea1b5SzheavwObe4ndWQV16rlt/6//QOdcYKuE/8k50eNc26CCM6o4jsjxijgduexnpXrcmtcNqI4+Jo9jf1EYTdnOOLrHdFL6ds1yeZVqOkuw9DHrvFmIcWfQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=luOQYtze; arc=none smtp.client-ip=209.85.210.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1778183862; c=relaxed/simple;
+	bh=FM3JyjULX1lnlZXdQ5PBZlEcLXNCfI0RfxPxmmxvNMg=;
+	h=Date:From:To:Cc:Subject:Message-ID; b=JKorwBKaHchwhpjBqTTuCZcjn/wCLUrhVH1L6WH9uJGAFrSLYqO7g6kEHC/p6BuDFCfFtgs5DzaqT5rF5mSSB2QiPgzYuLn+PQE7dO6V8zNm9jHlQwXXjx17NsAOCZzrpUWeXw5whkK7NJDfDspinaHVIzVUenX0vKAoFFU/jnw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=D8LIwPDG; arc=none smtp.client-ip=140.211.166.137
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="luOQYtze"
-Received: by mail-pf1-f175.google.com with SMTP id d2e1a72fcca58-837cd669be0so866545b3a.0
-        for <virtualization@lists.linux.dev>; Thu, 07 May 2026 11:38:40 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778179120; x=1778783920; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=csDUDl+objecmrzJgOYyRiiDYmfFHBJwcWFBOaJXMVM=;
-        b=luOQYtzebP/D6RzO+6X4RWVdGXjUGm2g7nbRlnj3FOT0PhsMTgy9j+Q0NqRkVcf64U
-         tx6D12dYOdzEEm1U/u9Mc0LckW5qYI+0A3L6uuoexjgBLBEJzJZEWbs8in1lLiuuymkB
-         dVr0hfE83ifTJPz8SIk9wIkiqJ4HvhR1UJfTXUPoV73HfGF4JNKqzXwjwg2U+aOk5nlg
-         J4zDg8Md1ezcZ/6oJs/Z5yRItSSARmtyzqwuhKAyUtehBPvs7Qread8tuTIC/eryti+5
-         v9P7fgL1wm6v7pak1SooslwyHaD0PKGt5OTFvyNf/w1x/i+8hW1ALW/pA/6d4U4ol9d6
-         Y3+w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778179120; x=1778783920;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=csDUDl+objecmrzJgOYyRiiDYmfFHBJwcWFBOaJXMVM=;
-        b=pa3RL7SqSgyEjyLvV90Mld9LgMoYWPuX4TT5p7YgL3M21WRgbIJFEa1QYxz52QwlAm
-         uRG++JVBrQFWGOd6B9jKxN18/MasjEOPfT55MDpC4AUkz+Fbaz9Ak/Dre9uMJSKWfHTc
-         1St8O64r5RRUvRx1pahcsN9n9T2CB4LW8CGPagY7Qhr5dJudWtdZq80mUytPnBD2ubzj
-         PeXRqugoDwOUbWRzo2RvBGASRM8Dqx5gTujl0cry6i5Tf+aH+7pmYrosQ+PgFqUK/aC2
-         obfGDNfNRRdH5I7VI4wPdhDLk8/Jh1u3W7rTAvLnqXOFJGBjJODfLFSqDTaLIrbGe2jS
-         6x/g==
-X-Forwarded-Encrypted: i=1; AFNElJ+URvxJQX8E1Uvji64D23ILMSoWf9Rk9ITJeOBzjep5WHeqmMnRjIAlGE/o9mhun5dZ7LhFPsjRLGtQofKggA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwZn1xQBDc8QyDtfVs3Jk9vvvS6gNb5iE+25Of4SODZHJM4HmTo
-	VkXv20MupZXkGXu1mcKN43R4UEuQ4BU+VnEPwLOl5Vg/k8pBS/+77Nr9
-X-Gm-Gg: AeBDiev0A94wyOqyg+mtBUzwHAdi2if1qK/aSmpD74XY5BxmnT6KlPKhsLPVUx9HEQV
-	1fo7BEPsLl7qI00Vodz+1tD9Z4P+vjiRISMTsBfYY/Nlx9nobm+Z8RPfvib8VZx9z8hZAM+DRPm
-	OLYIKfj0eG5QZ1lYXEHxdCwhedOnhOL4A92UUsnCaYgQle8jtTE3JtqDSZnS2OJ2yKLQd2Ln1om
-	3HcEcwyZNU/IiCC424uyGo1Bo0gmeeZoswtCyBtvptP0YrlQ74rbFGlUK3xQJ2x30wBZWxDo2iQ
-	7uUXxv9NLYHg5CxbWXOa6pWoAZYF63VlsxCYcJmTlnhNqxRx4VuJN19UOBZ0JBVpI7GKOuKnvvs
-	0+/lu5QYzh+y+yvhn/LlDk+f4WvUm1D5OVm2uB51JQJzNkR5XvlI+RVvipgYkR1Wnz7rZsOEGkJ
-	t5BvF08LtrchN0J5Rgln1zLlPtKKFL74tjwvyCgDitAWEpIkXUnHJJEbPxqhEh8SJbsnqDU2DPo
-	SVCQtRp8I6qssyZV8hQNL+YvYg=
-X-Received: by 2002:a05:6a00:2e87:b0:82f:5034:77a4 with SMTP id d2e1a72fcca58-83a5c4be2eemr9265031b3a.21.1778179119797;
-        Thu, 07 May 2026 11:38:39 -0700 (PDT)
-Received: from baver-zenith.localdomain ([124.49.88.131])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-83967dbcf16sm11272744b3a.40.2026.05.07.11.38.37
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 May 2026 11:38:39 -0700 (PDT)
-From: Sungho Bae <baver.bae@gmail.com>
-To: mst@redhat.com,
-	jasowang@redhat.com
-Cc: xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	stephan.gerhold@kernkonzept.com,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Sungho Bae <baver.bae@lge.com>
-Subject: [PATCH] virtio-mmio: move guest page size setting into vm_reset()
-Date: Fri,  8 May 2026 03:38:07 +0900
-Message-Id: <20260507183807.22007-1-baver.bae@gmail.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="D8LIwPDG"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp4.osuosl.org (Postfix) with ESMTP id AC72441211
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 May 2026 19:57:41 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -8.092
+X-Spam-Level:
+Received: from smtp4.osuosl.org ([127.0.0.1])
+ by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id tOq5GQviruAF for <virtualization@lists.linux-foundation.org>;
+ Thu,  7 May 2026 19:57:41 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=192.198.163.9; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org D2E8E4120F
+Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=none dis=none) header.from=intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org D2E8E4120F
+Authentication-Results: smtp4.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=D8LIwPDG
+Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.9])
+	by smtp4.osuosl.org (Postfix) with ESMTPS id D2E8E4120F
+	for <virtualization@lists.linux-foundation.org>; Thu,  7 May 2026 19:57:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1778183861; x=1809719861;
+  h=date:from:to:cc:subject:message-id;
+  bh=FM3JyjULX1lnlZXdQ5PBZlEcLXNCfI0RfxPxmmxvNMg=;
+  b=D8LIwPDGQTu5KObbo2/SXPEQzHbNYDcW4KeF5LPFO8kmYmm0xuapfdd6
+   4Ue68QR0Mlv0e2lxzKmiAul3t616nW7/TX1HMTXn8AbH4HHnMwBiFf7L/
+   9IPXWokSHzwZ2RTm+TyaH4VEGZDKcr860zfl3RkrxVpS9pBFAAlc82ZjC
+   23408aEz1S9R9jZYXa6ZN6/nlutH1VXhJgtAXlYqaSjJxm9shoUhYighw
+   uIqPA8b+du2qjzWiauV4EUNbkJUusKb6ejr3zlrKmtGi56LiAwV7YYtcG
+   pH8EiCOx/bdoGxkAshbNKr6ZevNf8nQzMV7MAhs6hSAevHaq1qM0cJXmR
+   Q==;
+X-CSE-ConnectionGUID: jrNDxYuCRXueAyH4sEWDLw==
+X-CSE-MsgGUID: K8Xe1SS+SdOGmb75Wj1ydA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11779"; a="89843717"
+X-IronPort-AV: E=Sophos;i="6.23,222,1770624000"; 
+   d="scan'208";a="89843717"
+Received: from orviesa003.jf.intel.com ([10.64.159.143])
+  by fmvoesa103.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 07 May 2026 12:57:39 -0700
+X-CSE-ConnectionGUID: I+tRP0nlSeq5mV0tNF4FlQ==
+X-CSE-MsgGUID: 217bik8QQIKLZ+7A8FhSDw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.23,222,1770624000"; 
+   d="scan'208";a="240549811"
+Received: from lkp-server01.sh.intel.com (HELO d6e19f2f5857) ([10.239.97.150])
+  by orviesa003.jf.intel.com with ESMTP; 07 May 2026 12:57:37 -0700
+Received: from kbuild by d6e19f2f5857 with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1wL4ql-000000000Pd-0Exh;
+	Thu, 07 May 2026 19:57:35 +0000
+Date: Fri, 08 May 2026 03:56:56 +0800
+From: kernel test robot <lkp@intel.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: oe-kbuild-all@lists.linux.dev, kvm@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
+Subject: [mst-vhost:balloon 4/30] Warning: mm/mempolicy.c:2527
+ expecting prototype for vma_alloc_folio(). Prototype was for
+ alloc_frozen_pages() instead
+Message-ID: <202605080331.y1eIdVUC-lkp@intel.com>
+User-Agent: s-nail v14.9.25
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-From: Sungho Bae <baver.bae@lge.com>
+tree:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git balloon
+head:   9f56ee36fbf6a6d336dc6a9eaeb4f8a67cb42a31
+commit: 95744e0e9c4df79c6bc8ec96306b29c7a8e8984e [4/30] mm: move vma_alloc_folio to page_alloc.c
+config: powerpc-allmodconfig (https://download.01.org/0day-ci/archive/20260508/202605080331.y1eIdVUC-lkp@intel.com/config)
+compiler: powerpc64-linux-gcc (GCC) 15.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260508/202605080331.y1eIdVUC-lkp@intel.com/reproduce)
 
-The virtio-mmio legacy spec (Section 4.2.4) requires the driver to
-write the guest page size "during initialization, before any queues
-are used". Reset is step 1 of the initialization sequence
-(Section 3.1), so setting GuestPageSize immediately after the status
-register reset in vm_reset() is more proper.
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202605080331.y1eIdVUC-lkp@intel.com/
 
-Currently the GuestPageSize write lives in two separate call sites:
+All warnings (new ones prefixed by >>):
 
- - virtio_mmio_probe(), before register_virtio_device()
- - virtio_mmio_restore(), before virtio_device_restore()
+>> Warning: mm/mempolicy.c:2527 expecting prototype for vma_alloc_folio(). Prototype was for alloc_frozen_pages() instead
 
-Both of these write the value *before* the reset that happens inside
-register_virtio_device()/virtio_device_restore(), so a device
-implementation that clears GuestPageSize on reset would lose the
-value. QEMU's virtio_mmio_reset() for example zeroes guest_page_shift
-on a full device reset.
-
-The current code happens to work because the Linux driver triggers
-only a "soft reset" (STATUS register write of 0), and QEMU's
-soft-reset path does not clear guest_page_shift. But relying on
-this is fragile and not guaranteed by the spec.
-
-Move the GuestPageSize write into vm_reset(), right after the status
-reset. This ensures the value is set:
-
- - at the correct point in the initialization sequence per spec,
- - after every reset (probe, restore, or any future path), and
- - exactly once, removing the duplication.
-
-Fixes: e0c2ce821795 ("virtio_mmio: Restore guest page size on resume")
-Signed-off-by: Sungho Bae <baver.bae@lge.com>
----
- drivers/virtio/virtio_mmio.c | 15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 595c2274fbb5..daa65b269a36 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -254,6 +254,16 @@ static void vm_reset(struct virtio_device *vdev)
- 
- 	/* 0 status means a reset. */
- 	writel(0, vm_dev->base + VIRTIO_MMIO_STATUS);
-+
-+	/*
-+	 * The virtio-mmio legacy spec requires the driver to write the
-+	 * guest page size during initialization, before any queues are
-+	 * used.  Since reset is step 1 of initialization (Section 3.1),
-+	 * set it here so it is always in place for subsequent queue setup
-+	 * in every code path (probe, restore, etc.).
-+	 */
-+	if (vm_dev->version == 1)
-+		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
- }
- 
- 
-@@ -547,9 +557,6 @@ static int virtio_mmio_restore(struct device *dev)
- {
- 	struct virtio_mmio_device *vm_dev = dev_get_drvdata(dev);
- 
--	if (vm_dev->version == 1)
--		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
--
- 	return virtio_device_restore(&vm_dev->vdev);
- }
- 
-@@ -619,8 +626,6 @@ static int virtio_mmio_probe(struct platform_device *pdev)
- 	vm_dev->vdev.id.vendor = readl(vm_dev->base + VIRTIO_MMIO_VENDOR_ID);
- 
- 	if (vm_dev->version == 1) {
--		writel(PAGE_SIZE, vm_dev->base + VIRTIO_MMIO_GUEST_PAGE_SIZE);
--
- 		rc = dma_set_mask(&pdev->dev, DMA_BIT_MASK(64));
- 		/*
- 		 * In the legacy case, ensure our coherently-allocated virtio
 -- 
-2.43.0
-
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
