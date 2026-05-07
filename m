@@ -1,102 +1,224 @@
-Received: from mail.nessuent.net (mail.nessuent.net [188.245.177.90])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76DBF38229C
-	for <virtualization@lists.linux.dev>; Thu,  7 May 2026 08:30:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=188.245.177.90
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 75B44391845
+	for <virtualization@lists.linux.dev>; Thu,  7 May 2026 08:44:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778142652; cv=none; b=qyhyX494Fp1kFuvk0C6RtBOcBgr897IUAAPzGkzb7FcwwoWd1Om7THH+Wr1A6ClU+OHk1SAKaGVUJucTbuEby6Af77oO8GRmcNcmVmvKdPvukGpISirXkiQeKH/+/6RIUM1R3DzYVijjk9r1muJcETv/Tc+WQZr3Mx9WMteeT3g=
+	t=1778143461; cv=none; b=ERMyBQR4DsOsulKgllLvVkaE4Ex+mG5/wszwFGvfnt9314fu6/o7BI2JBU4cPbgB/e1GPrxHTVHV8xmpnX7zydG85QlYfwoDkMAmriBKQ0z3wablJCfxC8T53u9e/chfIi/B0UlZxwYyfCsQvnz7FfIUQV+rMB+no7aIpkszFF8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778142652; c=relaxed/simple;
-	bh=sPUiUe3/ZahPWTv6ouQhacPk4e52CC7I+mZAhz62OY0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:Message-ID:
-	 MIME-Version:Content-Type; b=Tf+vIB7zDiiKAf77OjiTKe5989f38IJHBWqUbK8kSXcNbah0mIuP2kXVt+EUS9a6bd74NduEcvE0jdbpP8wTl1LdhS6ymZ85puQ3A6rurm8PWpe0LLpKXdqwCrvg5aWGj4iYtML8Zl0L3YBdTaTnnR19oFdEUsS6mcZes90UzJU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=pitsidianak.is; spf=pass smtp.mailfrom=pitsidianak.is; dkim=pass (4096-bit key) header.d=pitsidianak.is header.i=@pitsidianak.is header.b=3dQKr2SF; arc=none smtp.client-ip=188.245.177.90
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=pitsidianak.is
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pitsidianak.is
+	s=arc-20240116; t=1778143461; c=relaxed/simple;
+	bh=MoSUJMVXOu7eE5XC0tKjw+ilYcfoBqepO+Bmuf861ug=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=pQMVP7SKc7ibaxI7cNZYEhT+aG04gw0yOgBejtMHIp2TA5iqB5sb4hwIKPvjWJmDEx8s7z4GYTP+otUnoWJfDjARqRgVOjoSc3pypyoCNZpiJZpQH+1/lQ2XbSi6ELwY9vpy7Btjbucv3XzZY9ZlM6bpTlKPnmnS2IJIq+LneDk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=2J93Nt/B; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=yV9hJX4c; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=bM0E5Grc; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=3AVpuDmk; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=pitsidianak.is header.i=@pitsidianak.is header.b="3dQKr2SF"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=pitsidianak.is;
-	s=mailSelector; t=1778142639;
-	bh=sPUiUe3/ZahPWTv6ouQhacPk4e52CC7I+mZAhz62OY0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From:Subject;
-	b=3dQKr2SFbNxypy+u0hyj8OUDwv8m8ATwhEeyKzxY1Daj74MeyscsGoIf610mJRo8f
-	 nTq7UY3qkErNi9JjSe2ns0A7YgXmoXsGXX6AsYSFZCSARvjlSnsFLqYVTF+FqBKjHR
-	 nM4Fqo3HRuDl0nrS5gKBLVZXdHiipL/3TL77uwWxE2oWgdpZY4PIQ1zuzNJ22seN82
-	 p4AB7X8vRJt813PbH7lru0XWas81JrjMPDR6xhZ1aYqxhi/z5NUP98GXpNn4HMmZTh
-	 jei3/bgADJgqJ1M7Y2EU+UE9MAsZPkOq8c8V1l+Qb/pf7CyMC0zG+JiTUYa7+/6hh2
-	 iT5FyHzCGXBggCRcK0+jxnPfPHG0d66pSrZ4yJ7Lp9ku4kDL9VX6ffcrpDANUv5rKv
-	 I0C+8yteS3dfMFUINOTDMXNtexN38gzQJz4CO0bShlklqx2LK6/DJJNG7FZXyU8Azx
-	 9Sp5p7TxqlXtStYIa/VDwg29cAa6aQGYAdfTG0SnmTIYikI5aW28XUx+g7I566Nf1d
-	 RZ4vg95KD9V23J03mNjAaIkt3K928q0aTCmJ4eqezSuvhx3388dOBaWIX6pnTLq8Lz
-	 kwb3+181CXqo5jzjkyXlPjYlu0DbMup+cuUovIujMkKoeMbps9bgiNPysQUm943K0B
-	 pV6ZOHTST9DG9/bTBypC5HBk=
-Date: Thu, 07 May 2026 11:29:37 +0300
-From: Manos Pitsidianakis <manos@pitsidianak.is>
-To: Alice Ryhl <aliceryhl@google.com>
-Cc: Miguel Ojeda <ojeda@kernel.org>, Manos Pitsidianakis <manos.pitsidianakis@linaro.org>, Peter Hilber <peter.hilber@oss.qualcomm.com>, Stefano Garzarella <sgarzare@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Viresh Kumar <viresh.kumar@linaro.org>, "Michael S. Tsirkin" <mst@redhat.com>, Boqun Feng <boqun@kernel.org>, Gary Guo <gary@garyguo.net>, Bj=?UTF-8?B?w7Y=?=rn Roy Baron <bjorn3_gh@protonmail.com>, Benno Lossin <lossin@kernel.org>, Andreas Hindborg <a.hindborg@kernel.org>, Trevor Gross <tmgross@umich.edu>, Danilo Krummrich <dakr@kernel.org>, rust-for-linux@vger.kernel.org, Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio P=?UTF-8?B?w6k=?=rez <eperezma@redhat.com>, virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RFC 2/6] rust/helpers: add virtio.c
-User-Agent: meli/0.8.13
-References: <20260505-rust-virtio-v1-0-9563383909e4@pitsidianak.is> <20260505-rust-virtio-v1-2-9563383909e4@pitsidianak.is> <CAH5fLgjFLBx3DDE7yGNSHmaW9w5GyzSOi4o=avGrMni1a0yS3A@mail.gmail.com>
-In-Reply-To: <CAH5fLgjFLBx3DDE7yGNSHmaW9w5GyzSOi4o=avGrMni1a0yS3A@mail.gmail.com>
-Message-ID: <tenrn1.131epks1cmid2@pitsidianak.is>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="2J93Nt/B";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="yV9hJX4c";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="bM0E5Grc";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="3AVpuDmk"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id D63E15D7F7;
+	Thu,  7 May 2026 08:44:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1778143451; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=mvanPMNhA16wlsm5OZWUR2ZtqGGdbZ7gyn4M0hO9OW8=;
+	b=2J93Nt/BBAT3Vekys9uxSCVKdMhyoEO76KwW9G+tzEhrW79cbQM7x0eriwfY3GNdk7sfzp
+	gck+52pjRTk+dvISJIjOy153RH5D5OivHKmsuzAQ0WxuK4OWVoK2gIp2hUeLLZcd+TjhDs
+	KupQCPtRa+1dqYUhjhjBk9wucmzpNGU=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1778143451;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=mvanPMNhA16wlsm5OZWUR2ZtqGGdbZ7gyn4M0hO9OW8=;
+	b=yV9hJX4cz8O7F5YODeYbARCp9F2lKk6QwloyLm8E8TBdtSpbNRJAUTH/qDIqOpnJxcNkoU
+	Rin8Svx6glnkU7Cg==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=bM0E5Grc;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=3AVpuDmk
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1778143450; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=mvanPMNhA16wlsm5OZWUR2ZtqGGdbZ7gyn4M0hO9OW8=;
+	b=bM0E5GrcAsuplc6zXGbZxFUlVjplu+dp42Efh/o3Oc0W4a5Li8Zu4+/K80tgHXf3PTvZcR
+	9eZTegIOotjQGoSjh9QX1QPssfAppX8ZywHtD84svRVEbrmDGx+r0ADRGZBgoGVClPQAjr
+	v49bnarP1oYA1+HnULxNqtNsnWyJYQs=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1778143450;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=mvanPMNhA16wlsm5OZWUR2ZtqGGdbZ7gyn4M0hO9OW8=;
+	b=3AVpuDmk1sDQJzA4QXSjaO9xZoZE0lreLzUwDRuW/HyaPKBI166E2534qqOLe1wnOkpALN
+	JvBCJ52lrTyTpOBQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 9193D593A7;
+	Thu,  7 May 2026 08:44:10 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id 1FqkIdpQ/Gk9VAAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Thu, 07 May 2026 08:44:10 +0000
+Message-ID: <da9ecab6-063f-4c29-a685-7b776234905a@suse.de>
+Date: Thu, 7 May 2026 10:44:10 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] drm/bochs: Drop manual put on probe error path
+To: Myeonghun Pak <mhun512@gmail.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, David Airlie <airlied@gmail.com>,
+ Simona Vetter <simona@ffwll.ch>
+Cc: virtualization@lists.linux.dev, dri-devel@lists.freedesktop.org,
+ linux-kernel@vger.kernel.org
+References: <20260424123506.32275-1-mhun512@gmail.com>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <20260424123506.32275-1-mhun512@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-Content-Type: text/plain; charset=utf-8; format=flowed
+X-Spam-Level: 
+X-Rspamd-Action: no action
+X-Spamd-Result: default: False [-4.51 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	ARC_NA(0.00)[];
+	FREEMAIL_TO(0.00)[gmail.com,redhat.com,linux.intel.com,kernel.org,ffwll.ch];
+	TO_DN_SOME(0.00)[];
+	MIME_TRACE(0.00)[0:+];
+	RCPT_COUNT_SEVEN(0.00)[9];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCVD_TLS_ALL(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	DKIM_TRACE(0.00)[suse.de:+]
+X-Rspamd-Queue-Id: D63E15D7F7
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Spam-Flag: NO
+X-Spam-Score: -4.51
 
-On Thu, 07 May 2026 11:28, Alice Ryhl <aliceryhl@google.com> wrote:
->On Tue, May 5, 2026 at 10:14 AM Manos Pitsidianakis
-><manos@pitsidianak.is> wrote:
->>
->> Some internal kernel virtio API functions are inline macros, so define
->> their symbols in a helper file.
->>
->> Signed-off-by: Manos Pitsidianakis <manos@pitsidianak.is>
->> ---
->>  MAINTAINERS            |  6 ++++++
->>  rust/helpers/helpers.c |  3 +++
->>  rust/helpers/virtio.c  | 35 +++++++++++++++++++++++++++++++++++
->>  3 files changed, 44 insertions(+)
->>
->> diff --git a/MAINTAINERS b/MAINTAINERS
->> index d1cc0e12fe1f004da89b1aa339116908f642e894..48c9c666d90b5a256ab6fae1f42508b789a0ce50 100644
->> --- a/MAINTAINERS
->> +++ b/MAINTAINERS
->> @@ -27930,6 +27930,12 @@ F:     include/uapi/linux/virtio_*.h
->>  F:     net/vmw_vsock/virtio*
->>  F:     tools/virtio/
->>
->> +VIRTIO CORE API BINDINGS [RUST]
->> +M:     Manos Pitsidianakis <manos@pitsidianak.is>
->> +L:     virtualization@lists.linux.dev
->> +S:     Maintained
->> +F:     rust/helpers/virtio.c
->> +
->>  VIRTIO CRYPTO DRIVER
->>  M:     Gonglei <arei.gonglei@huawei.com>
->>  L:     virtualization@lists.linux.dev
->> diff --git a/rust/helpers/helpers.c b/rust/helpers/helpers.c
->> index a3c42e51f00a0990bea81ebce6e99bb397ce7533..84b54690d95be37699ef9a9c4d7cedec0bbae6d3 100644
->> --- a/rust/helpers/helpers.c
->> +++ b/rust/helpers/helpers.c
->> @@ -62,6 +62,9 @@
->>  #include "uaccess.c"
->>  #include "usb.c"
->>  #include "vmalloc.c"
->> +#if defined(CONFIG_VIRTIO)
->> +#include "virtio.c"
->> +#endif /* defined(CONFIG_VIRTIO) */
+
+
+Am 24.04.26 um 14:34 schrieb Myeonghun Pak:
+> bochs_pci_probe() allocates the DRM device with devm_drm_dev_alloc(),
+> which registers a devres action to drop the initial DRM device reference
+> on driver detach or probe failure.
 >
->Please move this ifdef inside the file instead, to match all other
->files with similar ifdefs.
+> The error path currently calls drm_dev_put() manually. If probe then
+> returns an error, devres will run the registered release action and put
+> the same device again, after the first put may already have released it.
 >
->Alice
+> Return the probe error directly and let devres own the final put.
+>
+> Signed-off-by: Myeonghun Pak <mhun512@gmail.com>
 
-Will do, thanks. Should this also be IS_ENABLED(CONFIG_VIRTIO) btw?
+Fixes: 04826f588682 ("drm/bochs: Allocate DRM device in struct 
+bochs_device")
+Cc: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: Gerd Hoffmann <kraxel@redhat.com>
+Cc: virtualization@lists.linux.dev
+Cc: <stable@vger.kernel.org> # v6.13+
 
-Manos
+
+> ---
+>   drivers/gpu/drm/tiny/bochs.c | 10 +++-------
+>   1 file changed, 3 insertions(+), 7 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
+> index 222e4ae1ab..5d8dc5efec 100644
+> --- a/drivers/gpu/drm/tiny/bochs.c
+> +++ b/drivers/gpu/drm/tiny/bochs.c
+> @@ -761,25 +761,21 @@ static int bochs_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent
+>   
+>   	ret = pcim_enable_device(pdev);
+>   	if (ret)
+> -		goto err_free_dev;
+> +		return ret;
+>   
+>   	pci_set_drvdata(pdev, dev);
+>   
+>   	ret = bochs_load(bochs);
+>   	if (ret)
+> -		goto err_free_dev;
+> +		return ret;
+>   
+>   	ret = drm_dev_register(dev, 0);
+>   	if (ret)
+> -		goto err_free_dev;
+> +		return ret;
+>   
+>   	drm_client_setup(dev, NULL);
+>   
+>   	return ret;
+> -
+> -err_free_dev:
+> -	drm_dev_put(dev);
+> -	return ret;
+>   }
+>   
+>   static void bochs_pci_remove(struct pci_dev *pdev)
+
+-- 
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
+GF: Jochen Jaser, Andrew McDonald, Werner Knoblich, (HRB 36809, AG Nürnberg)
+
+
