@@ -1,31 +1,31 @@
 Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D3003FA5E5;
-	Fri,  8 May 2026 15:11:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 665683FAE14;
+	Fri,  8 May 2026 15:11:13 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778253077; cv=none; b=ItNwBluEOGHiD570wJ9zHdz8+hA/bEj30PZ9rWXv+mSF4pePbAaBV7vBeP8vS1Ej4la2uluxdCxw+wJuntQ61E0TjdVS7dEq/GyiI1FEmSuMLUv5Lqq9xdDUqOiwFBWSMH5ZcWhDyN6rdfH6j6qjocAaCnlvXV5nY18jGuU3EWE=
+	t=1778253077; cv=none; b=aqkmVPNt9o+NfMGQtTmon/7v8Fa8aMtI6YAh3HjigoBtzvs1XWc9j9A3/hOvtRJgPQE+QbgcqXwm+2BQykRAQVPmFo881hYGf29YWYoTxJYPx38yFo9Ip9W7Vzq/VrsrCo9zDuIWnefOiYgqIcLtZdgy8i5iefSTDdDv7ruKRf8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1778253077; c=relaxed/simple;
-	bh=inU863N1S0Wz3nqs95hMQKdZEMGNYnr8+oPFXullAts=;
+	bh=I2O0T2eYFulZKylEoO0v4gBamN5yaUKK+tD29ErWUNQ=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Sku3fqjXJP9zlxsKJ30q7qz+9RYdXDdAKdiFm3HCUX8N95clEw+eQpNvq5hDFs6NDoXxhbMfBtqGZXGKopgmGqoek30Zw6aRg3FnXlA/5K830JtXUjomUviRRklk11d2/bmknKNKEyztUT7rNcWCVPXH41L13DIto7yED7tpvnY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=HF8Mdl6B; arc=none smtp.client-ip=129.217.128.51
+	 MIME-Version; b=oQKotYkHPCHvtNmIROwvDWNa1j21JkjKIBmZyR5vfMNpDMNtaYzuCJFV83GTDZQOG8qvBEILobGy07gAJ+KbV2JHP6ZXOjOeo1q52d4V0KrkdwkeYcyvjEsDMI7wLi6n6Wy1efWxc2k3sVVRgolR6+PeVNUfl/Edb6STVyOoiiM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=q1tZP+Dk; arc=none smtp.client-ip=129.217.128.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="HF8Mdl6B"
+	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="q1tZP+Dk"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tu-dortmund.de;
 	s=unimail; t=1778253064;
-	bh=inU863N1S0Wz3nqs95hMQKdZEMGNYnr8+oPFXullAts=;
+	bh=I2O0T2eYFulZKylEoO0v4gBamN5yaUKK+tD29ErWUNQ=;
 	h=From:To:Subject:Date:In-Reply-To:References;
-	b=HF8Mdl6BuAbowRtZ95aqKLr6ndy2tKUUdrFnUDaeMNQg3CnjB6vuN5DNlMxjRI4s1
-	 talmPy2JbzcsxEn8lB+SPg1i1FC418LySzOdyG392OCJFweYDIVeJEyiW90qyGVaw8
-	 WJKjQSSPmyz1Us7vncklUUdzWaX1t7M9F0/9/K68=
+	b=q1tZP+DkfNZfNBIU3ATSMuh9IeG+zoDcPPjaBULS4ITMq9KnFun29T0bwcY3dX4kR
+	 gU1sozq2l1nudBz8M2IU/dqyjz+62XyrvOg5ITrVKi7vSaYXi9SnxnZB6O+V/+3QHh
+	 9adeXhR3KQEpFS/rsQ0/euiAIpRNLWvYbBlPaM18=
 Received: from simon-Latitude-5450.cni.e-technik.tu-dortmund.de ([129.217.186.131])
 	(authenticated bits=0)
-	by unimail.uni-dortmund.de (8.19.0.1/8.19.0.1) with ESMTPSA id 648FB270013311
+	by unimail.uni-dortmund.de (8.19.0.1/8.19.0.1) with ESMTPSA id 648FB26u013311
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
 	Fri, 8 May 2026 17:11:04 +0200 (CEST)
 From: Simon Schippers <simon.schippers@tu-dortmund.de>
@@ -37,9 +37,9 @@ To: willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
         simon.schippers@tu-dortmund.de, netdev@vger.kernel.org,
         linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
         virtualization@lists.linux.dev
-Subject: [PATCH net-next v11 3/4] ptr_ring: move free-space check into separate helper
-Date: Fri,  8 May 2026 17:10:47 +0200
-Message-ID: <20260508151048.183125-4-simon.schippers@tu-dortmund.de>
+Subject: [PATCH net-next v11 1/4] tun/tap: add ptr_ring consume helper with netdev queue wakeup
+Date: Fri,  8 May 2026 17:10:45 +0200
+Message-ID: <20260508151048.183125-2-simon.schippers@tu-dortmund.de>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260508151048.183125-1-simon.schippers@tu-dortmund.de>
 References: <20260508151048.183125-1-simon.schippers@tu-dortmund.de>
@@ -51,60 +51,215 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This patch moves the check for available free space for a new entry into
-a separate function. Existing callers that only check for a non-zero
-return value are unaffected; __ptr_ring_produce() now returns -EINVAL
-for a zero-size ring and -ENOSPC when full, whereas before both cases
-returned -ENOSPC. The new helper allows callers to determine in advance
-whether subsequent __ptr_ring_produce() calls will succeed. This
-information can, for example, be used to temporarily stop producing until
-__ptr_ring_check_produce() indicates that space is available again.
+Introduce tun_ring_consume() that wraps ptr_ring_consume() and calls
+__tun_wake_queue(). The latter wakes the stopped netdev subqueue once
+half of the ring capacity has been consumed, tracked via the new
+cons_cnt field in tun_file. As a safety net, the queue is also woken on
+the last consumed entry if it leaves the ring empty. The point is to
+allow the queue to be stopped when it gets full, which is required for
+traffic shaping - implemented by the following "avoid ptr_ring tail-drop
+when a qdisc is present".
+
+Some implementation details:
+- tun_ring_recv() replaces ptr_ring_consume() with tun_ring_consume()
+  to properly wake the queue on purge.
+- tun_queue_purge() also replaces ptr_ring_consume()
+  with tun_ring_consume().
+- __tun_detach() locks the tx_ring.consumer_lock to avoid races with
+  the consumer on the queue_index.
+- Reset cons_cnt in tun_attach() so the half-ring wake threshold is
+  valid for the new ring size after ptr_ring_resize().
+- The upcoming patch explains the pairing of the smp_mb() of
+  __tun_wake_queue().
+- tun_queue_resize() wakes all queues after resizing with the proper
+  tx_ring.consumer_lock and resets the cons_cnt to avoid a possible
+  stale queue.
+
+Without the corresponding queue stopping, this patch alone causes no
+regression for a tap setup sending to a qemu VM: 1.132 Mpps
+to 1.134 Mpps.
+
+Details: AMD Ryzen 5 5600X at 4.3 GHz, 3200 MHz RAM, isolated QEMU
+threads, pktgen sender; Avg over 50 runs @ 100,000,000 packets;
+SRSO and spectre v2 mitigations disabled.
 
 Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
 Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
 Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
 ---
- include/linux/ptr_ring.h | 20 ++++++++++++++++++--
- 1 file changed, 18 insertions(+), 2 deletions(-)
+ drivers/net/tun.c | 73 +++++++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 64 insertions(+), 9 deletions(-)
 
-diff --git a/include/linux/ptr_ring.h b/include/linux/ptr_ring.h
-index d2c3629bbe45..c95e891903f0 100644
---- a/include/linux/ptr_ring.h
-+++ b/include/linux/ptr_ring.h
-@@ -96,6 +96,20 @@ static inline bool ptr_ring_full_bh(struct ptr_ring *r)
- 	return ret;
- }
+diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+index b183189f1853..b24cc899a890 100644
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -145,6 +145,8 @@ struct tun_file {
+ 	struct list_head next;
+ 	struct tun_struct *detached;
+ 	struct ptr_ring tx_ring;
++	/* Protected by tx_ring.consumer_lock */
++	int cons_cnt;
+ 	struct xdp_rxq_info xdp_rxq;
+ };
  
-+/* Note: callers invoking this in a loop must use a compiler barrier,
-+ * for example cpu_relax(). Callers must hold producer_lock.
-+ */
-+static inline int __ptr_ring_check_produce(struct ptr_ring *r)
+@@ -557,11 +559,43 @@ void tun_ptr_free(void *ptr)
+ }
+ EXPORT_SYMBOL_GPL(tun_ptr_free);
+ 
+-static void tun_queue_purge(struct tun_file *tfile)
++/* Callers must hold ring.consumer_lock */
++static void __tun_wake_queue(struct tun_struct *tun,
++			     struct tun_file *tfile, int consumed)
 +{
-+	if (unlikely(!r->size))
-+		return -EINVAL;
++	struct netdev_queue *txq = netdev_get_tx_queue(tun->dev,
++						tfile->queue_index);
 +
-+	if (data_race(r->queue[r->producer]))
-+		return -ENOSPC;
-+
-+	return 0;
++	/* Paired with smp_mb__after_atomic() in tun_net_xmit() */
++	smp_mb();
++	if (netif_tx_queue_stopped(txq)) {
++		tfile->cons_cnt += consumed;
++		if (tfile->cons_cnt >= tfile->tx_ring.size / 2 ||
++		    __ptr_ring_empty(&tfile->tx_ring)) {
++			netif_tx_wake_queue(txq);
++			tfile->cons_cnt = 0;
++		}
++	}
 +}
 +
- /* Note: callers invoking this in a loop must use a compiler barrier,
-  * for example cpu_relax(). Callers must hold producer_lock.
-  * Callers are responsible for making sure pointer that is being queued
-@@ -103,8 +117,10 @@ static inline bool ptr_ring_full_bh(struct ptr_ring *r)
-  */
- static inline int __ptr_ring_produce(struct ptr_ring *r, void *ptr)
- {
--	if (unlikely(!r->size) || data_race(r->queue[r->producer]))
--		return -ENOSPC;
-+	int p = __ptr_ring_check_produce(r);
++static void *tun_ring_consume(struct tun_struct *tun, struct tun_file *tfile)
++{
++	void *ptr;
 +
-+	if (p)
-+		return p;
++	spin_lock(&tfile->tx_ring.consumer_lock);
++	ptr = __ptr_ring_consume(&tfile->tx_ring);
++	if (ptr)
++		__tun_wake_queue(tun, tfile, 1);
++
++	spin_unlock(&tfile->tx_ring.consumer_lock);
++	return ptr;
++}
++
++static void tun_queue_purge(struct tun_struct *tun, struct tun_file *tfile)
+ {
+ 	void *ptr;
  
- 	/* Make sure the pointer we are storing points to a valid data. */
- 	/* Pairs with the dependency ordering in __ptr_ring_consume. */
+-	while ((ptr = ptr_ring_consume(&tfile->tx_ring)) != NULL)
++	while ((ptr = tun_ring_consume(tun, tfile)) != NULL)
+ 		tun_ptr_free(ptr);
+ 
+ 	skb_queue_purge(&tfile->sk.sk_write_queue);
+@@ -588,8 +622,10 @@ static void __tun_detach(struct tun_file *tfile, bool clean)
+ 		rcu_assign_pointer(tun->tfiles[index],
+ 				   tun->tfiles[tun->numqueues - 1]);
+ 		ntfile = rtnl_dereference(tun->tfiles[index]);
++		spin_lock(&ntfile->tx_ring.consumer_lock);
+ 		ntfile->queue_index = index;
+ 		ntfile->xdp_rxq.queue_index = index;
++		spin_unlock(&ntfile->tx_ring.consumer_lock);
+ 		rcu_assign_pointer(tun->tfiles[tun->numqueues - 1],
+ 				   NULL);
+ 
+@@ -605,7 +641,7 @@ static void __tun_detach(struct tun_file *tfile, bool clean)
+ 		synchronize_net();
+ 		tun_flow_delete_by_queue(tun, tun->numqueues + 1);
+ 		/* Drop read queue */
+-		tun_queue_purge(tfile);
++		tun_queue_purge(tun, tfile);
+ 		tun_set_real_num_queues(tun);
+ 	} else if (tfile->detached && clean) {
+ 		tun = tun_enable_queue(tfile);
+@@ -670,14 +706,14 @@ static void tun_detach_all(struct net_device *dev)
+ 		tfile = rtnl_dereference(tun->tfiles[i]);
+ 		tun_napi_del(tfile);
+ 		/* Drop read queue */
+-		tun_queue_purge(tfile);
++		tun_queue_purge(tun, tfile);
+ 		xdp_rxq_info_unreg(&tfile->xdp_rxq);
+ 		sock_put(&tfile->sk);
+ 	}
+ 	list_for_each_entry_safe(tfile, tmp, &tun->disabled, next) {
+ 		tun_napi_del(tfile);
+ 		tun_enable_queue(tfile);
+-		tun_queue_purge(tfile);
++		tun_queue_purge(tun, tfile);
+ 		xdp_rxq_info_unreg(&tfile->xdp_rxq);
+ 		sock_put(&tfile->sk);
+ 	}
+@@ -687,6 +723,13 @@ static void tun_detach_all(struct net_device *dev)
+ 		module_put(THIS_MODULE);
+ }
+ 
++static void tun_reset_cons_cnt(struct tun_file *tfile)
++{
++	spin_lock(&tfile->tx_ring.consumer_lock);
++	tfile->cons_cnt = 0;
++	spin_unlock(&tfile->tx_ring.consumer_lock);
++}
++
+ static int tun_attach(struct tun_struct *tun, struct file *file,
+ 		      bool skip_filter, bool napi, bool napi_frags,
+ 		      bool publish_tun)
+@@ -730,6 +773,7 @@ static int tun_attach(struct tun_struct *tun, struct file *file,
+ 		goto out;
+ 	}
+ 
++	tun_reset_cons_cnt(tfile);
+ 	tfile->queue_index = tun->numqueues;
+ 	tfile->socket.sk->sk_shutdown &= ~RCV_SHUTDOWN;
+ 
+@@ -2115,13 +2159,14 @@ static ssize_t tun_put_user(struct tun_struct *tun,
+ 	return total;
+ }
+ 
+-static void *tun_ring_recv(struct tun_file *tfile, int noblock, int *err)
++static void *tun_ring_recv(struct tun_struct *tun, struct tun_file *tfile,
++			   int noblock, int *err)
+ {
+ 	DECLARE_WAITQUEUE(wait, current);
+ 	void *ptr = NULL;
+ 	int error = 0;
+ 
+-	ptr = ptr_ring_consume(&tfile->tx_ring);
++	ptr = tun_ring_consume(tun, tfile);
+ 	if (ptr)
+ 		goto out;
+ 	if (noblock) {
+@@ -2133,7 +2178,7 @@ static void *tun_ring_recv(struct tun_file *tfile, int noblock, int *err)
+ 
+ 	while (1) {
+ 		set_current_state(TASK_INTERRUPTIBLE);
+-		ptr = ptr_ring_consume(&tfile->tx_ring);
++		ptr = tun_ring_consume(tun, tfile);
+ 		if (ptr)
+ 			break;
+ 		if (signal_pending(current)) {
+@@ -2170,7 +2215,7 @@ static ssize_t tun_do_read(struct tun_struct *tun, struct tun_file *tfile,
+ 
+ 	if (!ptr) {
+ 		/* Read frames from ring */
+-		ptr = tun_ring_recv(tfile, noblock, &err);
++		ptr = tun_ring_recv(tun, tfile, noblock, &err);
+ 		if (!ptr)
+ 			return err;
+ 	}
+@@ -3622,6 +3667,16 @@ static int tun_queue_resize(struct tun_struct *tun)
+ 					  dev->tx_queue_len, GFP_KERNEL,
+ 					  tun_ptr_free);
+ 
++	if (!ret) {
++		for (i = 0; i < tun->numqueues; i++) {
++			tfile = rtnl_dereference(tun->tfiles[i]);
++			spin_lock(&tfile->tx_ring.consumer_lock);
++			netif_wake_subqueue(tun->dev, tfile->queue_index);
++			tfile->cons_cnt = 0;
++			spin_unlock(&tfile->tx_ring.consumer_lock);
++		}
++	}
++
+ 	kfree(rings);
+ 	return ret;
+ }
 -- 
 2.43.0
 
