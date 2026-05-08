@@ -1,67 +1,70 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4F338635D
-	for <virtualization@lists.linux.dev>; Fri,  8 May 2026 16:44:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F37D940DFC2
+	for <virtualization@lists.linux.dev>; Fri,  8 May 2026 16:44:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778258660; cv=none; b=H5QFl+KHI01+tO9IiiU6by/cQ3YnnSJh0p1m/20bHowNVFRtz3CZZMfy3PnGA+HU3sFsXvT6bewpTTegveHKrSy+HsLT5x054L5qEQoqvXILNBLmIPNuZUOBiDn6FnplJHSEWGk/MW9HAgqKPgv+QGSjQxbuGx29Gbrdwc5csOk=
+	t=1778258664; cv=none; b=MATj3lLVtNdaaODoNB5gzRjtBtUDrb/1cpFRGYTB7rGP+xGn38TDLsrKWc72H1/Nz44Z4gub6pLk26s562bUVVHq4NEBKShSYMe710lK4zzcyv4DsS/hdbIB5EyWzJda9vY6wEWbCcx2349o7yqMWj+fsy/8w0kvJNv/P06ee5Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778258660; c=relaxed/simple;
-	bh=6HxONNuo9hUowvo/qEANYYQGQ+cuOD5myJfGdZBXDF8=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=sJDxZQd1lzRMXzYUUAX4LXhIdJRtNqiMYHVX2hbNm+p5icWy1HTscZIWJk1nwonedtvE1oLsLmmkFw57V52HJAoX9C1Kg7ahKZ6nXsD0uMvul0mdoSRkHpkoN9W/mSUfJ73KZXzQhpmwDMvcnZF8VlBChqlw29IZASl3AZcDMwA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=akgeV0Hd; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1778258664; c=relaxed/simple;
+	bh=GmB8OB8MBui7lDml76JA2BxvhthP+WnYVp2rivY7tPg=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:content-type; b=X0ac4hB49+4PTtIVu4gkweLa0rHCSYFqVart//Va6khJ2PLl89coBfa9No7ysr4kt1dOt22Y2aJ93GbSePovTzLpntxiv+8jCkd08DNECioM/mldnI8CVF2d+M6hNYJ9olRo6jzOonCSXJmc4hz+fegPpdvrsJi8NzGEgQpEG+U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OISjPRLA; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="akgeV0Hd"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OISjPRLA"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1778258657;
+	s=mimecast20190719; t=1778258662;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=N/FCT893ObSbmlIhFuQ0JD4F9cxfAK4253dqNQw9BmM=;
-	b=akgeV0HdsS5FbID1c58wJ6FoW2yVLptu2P9rrXFeNd4sXRTRKHBn4Tk7vwAgai4pTG/WU2
-	j8TZlGPKVMsWmOJgULz69MfVFG8zgXf5kpUJnmQvJSXbzkLKBo7AI0tmDK1USkwRS86Zj2
-	ydz47kvOVwbxdd39PnAoUotepQmz6p0=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=eRysknO3j16TQFAanFHTedpULbyeYuuxZEHDUwxrXrA=;
+	b=OISjPRLAOUKsuWrrQ2qtvN8lfhHkznELRsTCVTvcNul5u4qu8SzhRUVwl9SHawSoAIl6US
+	0vi1zbTLVi1m1d9vTCgPetdtZs90T/OmQJP6SGOs9ppwL0CUjn9FGyjuyw9Xq+EGmwEULb
+	m//rPEof/zW9ou9xLRg/JNA4lB+by/k=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-118-FjLt3XkUMbieQR2Ta-225A-1; Fri, 08 May 2026 12:44:16 -0400
-X-MC-Unique: FjLt3XkUMbieQR2Ta-225A-1
-X-Mimecast-MFC-AGG-ID: FjLt3XkUMbieQR2Ta-225A_1778258655
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-48a589c7879so23945385e9.1
-        for <virtualization@lists.linux.dev>; Fri, 08 May 2026 09:44:15 -0700 (PDT)
+ us-mta-179-soVugxN-NH6zIYhtKW58Gw-1; Fri, 08 May 2026 12:44:20 -0400
+X-MC-Unique: soVugxN-NH6zIYhtKW58Gw-1
+X-Mimecast-MFC-AGG-ID: soVugxN-NH6zIYhtKW58Gw_1778258659
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-44ffa15dc8cso1419165f8f.1
+        for <virtualization@lists.linux.dev>; Fri, 08 May 2026 09:44:20 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778258655; x=1778863455;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=N/FCT893ObSbmlIhFuQ0JD4F9cxfAK4253dqNQw9BmM=;
-        b=Wrjzr7GfBYqkCR8ErrMq77Tb3YPmG2WQEBembTubO5l0cbo/jg1ZkWJ44HUCwQWIsF
-         C5+6Ic5ZbQWKyJJ3rzp74RsvM7isn9lDYddhTaWM8INXQnfuO5W4yVkfXQvrxDaIX+qI
-         vOXj3i41cgkpLBKKoCwf8MTD9COMyE9goCuFHYmluBOOA+cIb/NISQXLtLlX8lG87WkS
-         KseXkeOwvYBnElS/ZNUCLLRTkaWsvi7YhklZRGvHH7yPIUskSuRRYO78kCjs0bHK8eq5
-         segtGHu6cjmMI4KOgOb3ulgyf6p+z8Rr0AFozRAJiDo1e+cPmBLVSsX0U1NUxSxDcCm3
-         FKaA==
-X-Forwarded-Encrypted: i=1; AFNElJ+8Pc79pkM3FYB6JyZzQeTk8qSvi0EwGqL7hp94SQ0ler9NHsXLsIQixfG4dLjSODTay4JEvXdAV3eSe5bSIA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwEXCdh7CaFJW8uinr2kNnf/JksKluUFLnaSm6HyqiDPqmtvm5I
-	QmREUVSiTtisfCIXdlMwE2RwzHib04JXiBU/F0FvSssPrNj7p9xPbRFG1BVkKXZkVhRx9tLLvit
-	4EKScFaoYaW0JnDd2IwDysiswhbk9LRJ2KWxLPewuPhSOrKmqRJ6fvWPjArsPcQs7J7rP
-X-Gm-Gg: AeBDiesNdNfTmfLvx05eNd9Urc9ozABsttGdb+AsiwL34xZuO9POyzqo3gYeLsfIqpQ
-	Rq8XfKXbN8TuJh7YLjA726SKakFAwQAm+akrey92SQ2aCrG0MUReGjmJmEXUdldXFIQ06Z9ODfw
-	WUp/+z43VHu27ikrcw1kz7iQMJsOHm50vNyq5TsNoJ4y7vW/hwMatr9rHtoGbuhzaLeQRIXwBQm
-	2ZCPBLAqSGK7UHxekHhA6nTjLNNQY55GfYFxvjUJC6Zj1IVW8feqNehHjxBkW1H/jdaHDT6aNd0
-	PnJRYIt83rrsxh11tjSvz43aioxO4APjn1XJ6/oLIMF7OUI7+7XclkDcW/DXdxsaJgqQ5uLWZy9
-	H3nYQIo2wP6uLWRH5NOGPsRF6fViVU7dbei2j7BW+MSJ5r0JuzY31i2pqhORhcmcBMw==
-X-Received: by 2002:a05:600c:c0d8:b0:486:faa8:9e4 with SMTP id 5b1f17b1804b1-48e5e000c1cmr89000895e9.12.1778258654658;
-        Fri, 08 May 2026 09:44:14 -0700 (PDT)
-X-Received: by 2002:a05:600c:c0d8:b0:486:faa8:9e4 with SMTP id 5b1f17b1804b1-48e5e000c1cmr89000315e9.12.1778258654041;
-        Fri, 08 May 2026 09:44:14 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1778258659; x=1778863459;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=eRysknO3j16TQFAanFHTedpULbyeYuuxZEHDUwxrXrA=;
+        b=lGrUJ7vaU8upyMXaWOKw6wwpWnrI07uwNzqfjVuUY3pFmVhIC7f/3Vvu5bM4Lv5A3j
+         QotylgApUknBGttXVB0B8kK+kARD2e2iahIzQBxqeSgZaKsEJKH5kKORMmZi4Gu4GaZx
+         H4/rWCHGNyg6ykQsMuN3P6RKp+49armdn5J7gROVN94NQElGASWONJlwwCSb445Bc4LQ
+         VkFvwNu480u5zlb/zQb+aNkjyCJiB0QLabjgYz6epBMFwtjONqahVNyUgp2enk1FjN2p
+         zhWv3FZ5d66azrIRDTyHJtPYB23GA3vEl1/oOzl7SFQuR2PWGH4kuHA2HU4kfsQp/1P6
+         RtgA==
+X-Forwarded-Encrypted: i=1; AFNElJ+NYdLvUl0Cl3CBq+E+AyKraVwGeze5N/y2DgSRDEzI4N224mvdPlY5VF4uwwprb7DkpG6y22+q8f7aCPRi7g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwgqR3IshCAAtSOrK2WA2JWciDwsVgdHh/Lb26bXfulfk3/5EiU
+	o1n2NUXdPMytqM72m2Uibn/syf5xgCGTzZAk2Vr6BGmKIMmyJvFq7yvsAYYiINej5g7VCf89MDJ
+	Bg0Df6YzrbsIuoUVFG8VwgSruxWr4zATE3NOJD7G/W2o/HQk63WJjN7uB+qNh+G6E6GAJ
+X-Gm-Gg: Acq92OFOEC0ymWaA7udokkU9LfqeJdJuNWUFEMuE9h3s90JTGCSPzyK6gIgK+WRwPI6
+	l9FEwlMPGHqAnSXxQcvevQ1HFJF8ybBzfSgqsWXtKlCwbNloDdAj+Ku5nvZC+JBy14ZEONmFvau
+	nojmkGNLdGhBpvnJCqchrNT4C+uMZ/LtGKieif1Z5lvU5lHKVvqPGWLSzvGILJ4/+07kng79ZJE
+	VHZcroYcusW4RTVZyztVNluscXcC2fZHgn5qEM79jPmVZsSj/Ko30PybdLNm6WpMvMdDY9tIsYI
+	s62IqZoJ4lMhPR0iqPzTO2pH8RpPWW1b7/I3aG0MiRYTaMrEpX62p32/Y9By264sMeyspjcUovh
+	sj6DIp2TDQItnYfER3Pcsv419Lb25uQFdAjINS5qJKs/vJtMSMwYOlkxyVVEfMeg7pPSlTnte5+
+	n5
+X-Received: by 2002:a05:6000:420c:b0:43d:7508:c9c9 with SMTP id ffacd0b85a97d-4515c5752d8mr21832387f8f.27.1778258659237;
+        Fri, 08 May 2026 09:44:19 -0700 (PDT)
+X-Received: by 2002:a05:6000:420c:b0:43d:7508:c9c9 with SMTP id ffacd0b85a97d-4515c5752d8mr21832302f8f.27.1778258658503;
+        Fri, 08 May 2026 09:44:18 -0700 (PDT)
 Received: from stex1.redhat.corp (host-87-11-6-2.retail.telecomitalia.it. [87.11.6.2])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48e6dd3b31bsm6561025e9.10.2026.05.08.09.44.12
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-454916df968sm5477523f8f.25.2026.05.08.09.44.16
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 08 May 2026 09:44:13 -0700 (PDT)
+        Fri, 08 May 2026 09:44:17 -0700 (PDT)
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: netdev@vger.kernel.org
 Cc: Yiqi Sun <sunyiqixm@gmail.com>,
@@ -82,10 +85,12 @@ Cc: Yiqi Sun <sunyiqixm@gmail.com>,
 	Arseniy Krasnov <avkrasnov@salutedevices.com>,
 	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
 	Bobby Eshleman <bobby.eshleman@bytedance.com>
-Subject: [PATCH net 0/2] vsock/virtio: fix vsockmon tap skb construction
-Date: Fri,  8 May 2026 18:44:09 +0200
-Message-ID: <20260508164411.261440-1-sgarzare@redhat.com>
+Subject: [PATCH net 1/2] vsock/virtio: fix length and offset in tap skb for split packets
+Date: Fri,  8 May 2026 18:44:10 +0200
+Message-ID: <20260508164411.261440-2-sgarzare@redhat.com>
 X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260508164411.261440-1-sgarzare@redhat.com>
+References: <20260508164411.261440-1-sgarzare@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -93,34 +98,64 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 5Oq3ZTE4uK7peLMD2LI1PD3N3oqfB1eH5ekDrTKCeXI_1778258655
+X-Mimecast-MFC-PROC-ID: pz66J12O3uR6cJE7wuAFsz73v-25fURtQB_Vq5ZYg-s_1778258659
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
+content-type: text/plain; charset="US-ASCII"; x-default=true
 
-While reviewing the patch posted by Yiqi Sun [1] to fix an issue in
-virtio_transport_build_skb(), I discovered another issue related to
-the offset and length of the payload to be copied in the new skb.
-This was introduced when we did the skb conversion, and fixed by
-patch 1.
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-Patch 2 fixes the issue found by Yiqi Sun in a different way: using
-iov_iter_kvec() to properly initialize all the iov_iter fields and
-removing the linear vs non-linear split like we alredy do in
-vhost-vsock.
+virtio_transport_build_skb() builds a new skb to be delivered to the
+vsockmon tap device. To build the new skb, it uses the original skb
+data length as payload length, but as the comment notes, the original
+packet stored in the skb may have been split in multiple packets, so we
+need to use the length in the header, which is correctly updated before
+the packet is delivered to the tap, and the offset for the data.
 
-It could have been a single patch, but since there were two affected
-commits, I decided to keep the fixes separate.
+This was also similar to what we did before commit 71dc9ec9ac7d
+("virtio/vsock: replace virtio_vsock_pkt with sk_buff") where we probably
+missed something during the skb conversion.
 
-[1] https://lore.kernel.org/netdev/20260430071110.380509-1-sunyiqixm@gmail.com/
+Also update the comment above, which was left stale by the skb
+conversion and still mentioned a buffer pointer that no longer exists.
 
-Stefano Garzarella (2):
-  vsock/virtio: fix length and offset in tap skb for split packets
-  vsock/virtio: fix empty payload in tap skb for non-linear buffers
+Fixes: 71dc9ec9ac7d ("virtio/vsock: replace virtio_vsock_pkt with sk_buff")
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+---
+ net/vmw_vsock/virtio_transport_common.c | 11 ++++++-----
+ 1 file changed, 6 insertions(+), 5 deletions(-)
 
- net/vmw_vsock/virtio_transport_common.c | 47 +++++++++----------------
- 1 file changed, 16 insertions(+), 31 deletions(-)
-
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index 9b8014516f4f..a678d5d75704 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -166,12 +166,12 @@ static struct sk_buff *virtio_transport_build_skb(void *opaque)
+ 	struct sk_buff *skb;
+ 	size_t payload_len;
+ 
+-	/* A packet could be split to fit the RX buffer, so we can retrieve
+-	 * the payload length from the header and the buffer pointer taking
+-	 * care of the offset in the original packet.
++	/* A packet could be split to fit the RX buffer, so we use
++	 * the payload length from the header, which has been updated
++	 * by the sender to reflect the fragment size.
+ 	 */
+ 	pkt_hdr = virtio_vsock_hdr(pkt);
+-	payload_len = pkt->len;
++	payload_len = le32_to_cpu(pkt_hdr->len);
+ 
+ 	skb = alloc_skb(sizeof(*hdr) + sizeof(*pkt_hdr) + payload_len,
+ 			GFP_ATOMIC);
+@@ -219,7 +219,8 @@ static struct sk_buff *virtio_transport_build_skb(void *opaque)
+ 
+ 			virtio_transport_copy_nonlinear_skb(pkt, data, payload_len);
+ 		} else {
+-			skb_put_data(skb, pkt->data, payload_len);
++			skb_put_data(skb, pkt->data + VIRTIO_VSOCK_SKB_CB(pkt)->offset,
++				     payload_len);
+ 		}
+ 	}
+ 
 -- 
 2.54.0
 
