@@ -1,131 +1,154 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
+Received: from mout.web.de (mout.web.de [212.227.15.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 66B51371CE2
-	for <virtualization@lists.linux-foundation.org>; Fri,  8 May 2026 06:16:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ECEB533260E
+	for <virtualization@lists.linux.dev>; Fri,  8 May 2026 07:43:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=212.227.15.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778221023; cv=none; b=dbpK+l0AzzRbh48xeSaDca9OTBl8asKGG1ByhEGVuKQAj4zq8ekGeqLQZXOXW+88IKXPU/yaRflpPlfsjrh70K95v9r0M4pZ5N0p+9SR2uIwCOz8HGyD7PAMR16XadoSt/eAeLw7ylYmQT5EPc0wlfb0yW7aI5+aoEtLC3R5Mx4=
+	t=1778226215; cv=none; b=b7mZb52Wjz4vsvvv5UQaHKtuLqifUAHgorex39fGjNw/sDbSrEeYp3BR1getJypkJCapEj1vYYJ6Fh+utBYZJnCHVm3E0h7i6Z2scYJnSkCbUCbrnVkUE2xsWD3Tc9VuBGLrilq+H1EFlT9xeBgNe05Xyivc9EWdDeVVRMujv/M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778221023; c=relaxed/simple;
-	bh=maMKpG5JtsahwCoCistRB9wzcOXtXjO7nbLwk2IXAhg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=eU6zb/56cVLQsxgdzdoL3QNVOQGHnbwrBzYq+bc8W95IxDS8iYEyIjy1fJoTP3JqVxMyRgfV9p7afaXanSGw/wlpvZLnqKZGXRgq/QDrE7rJ+bTRbF8mage7wpq+XQh1azxBmcXFzVhSNjWK1FggKEuZ8MhyiSw2PZmuPbNX2Gk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KM4KFiy3; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1778226215; c=relaxed/simple;
+	bh=+Os89qT9lWZoyf0ho5AZI9aaHqEOG1x9v4JqfTAOc7I=;
+	h=Message-ID:Date:MIME-Version:To:Cc:References:Subject:From:
+	 In-Reply-To:Content-Type; b=UWek5P3ZNjTepSH56oWY7Em7SIvxIDPT9/TydwXOTIZnM8Wn1gql7PBFFZgRAq4Ak+mB5lLnR/tL+4LE0XccF3crHMZR5LZ96Gu6Tv5cRYdTNWW5uFi/6F7WJ1jt1UL5CBFBo4xoH8OxA6hvUNosiQEE4hTVA8DerpMiSm0X1hA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de; spf=pass smtp.mailfrom=web.de; dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b=Nr7sws1Y; arc=none smtp.client-ip=212.227.15.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KM4KFiy3"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 52830416C5
-	for <virtualization@lists.linux-foundation.org>; Fri,  8 May 2026 06:16:54 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.792
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id qi9LSr5zK8lu for <virtualization@lists.linux-foundation.org>;
- Fri,  8 May 2026 06:16:53 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org 4AF69416C2
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org 4AF69416C2
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=KM4KFiy3
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id 4AF69416C2
-	for <virtualization@lists.linux-foundation.org>; Fri,  8 May 2026 06:16:52 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1778221011;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=2unXq22HY2FnCjKT6qtydtFufJI+AwXDzC5gFdjej0M=;
-	b=KM4KFiy3W6T+yPa/+5TBYd1nyixpSjiBEJeevhfbKczLBojqwwkjOZLUt2rw0Ippl6mMJO
-	yfKH2GOb9iIeVrJVZMfkS6Wc5kPOkuifcWfQXjSCfMObaClabjHAnD5TLiFT9O6ezCZ8ia
-	sCxxM31/M5PT44GCBVKwju3q0slF5KA=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-113-kltfxTRKOUK6a-1KLN0RrQ-1; Fri, 08 May 2026 02:16:49 -0400
-X-MC-Unique: kltfxTRKOUK6a-1KLN0RrQ-1
-X-Mimecast-MFC-AGG-ID: kltfxTRKOUK6a-1KLN0RrQ_1778221009
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-44dad1b938fso1020768f8f.1
-        for <virtualization@lists.linux-foundation.org>; Thu, 07 May 2026 23:16:49 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778221009; x=1778825809;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=2unXq22HY2FnCjKT6qtydtFufJI+AwXDzC5gFdjej0M=;
-        b=T/HutPg3KBsC8owozmC8WvUJHmiO9nXyPs9Fb4YHEQSeR3793GBcds4wGfg55C4cPP
-         CvjEfLMdN/U6pWUZeM67WQkVIhksZZfCX0dGwdfsV8aWj0T8eVsanP/2KG8FxNkyNdGU
-         r1Er//x6fwn5c1tcoys2P6CxesFwsmvh2yM20n4TgYRZ78bzBm/DT7207c6Vjni6b18q
-         BSuPO542LSl8HjHM0Bw7ziBl+PG9hDgFyR7yKMh42ss0hHOGWw+BhKZUpUnckQZJ+AIn
-         JvejRvh3x6J5iviqUhXykjcPjSDrhQvoxDkcsMoCJHQxdPMRp/enq7pbLH23m3JgBwxm
-         bZAQ==
-X-Forwarded-Encrypted: i=1; AFNElJ9dDI0UM9iEfS7pHm2LJ5WgH3Ce8PSnXeHNwijbABRqxVVuQv3+NKzDZ7vAmzkfT9fBXjWL/4UlaYAQiwSu2Q==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YxD+va93Ih/KtsDZiUP8iP7M6zmkBAWQ2iMvZixX7s0QUD0EB3Z
-	fU0jpEAJrY3RvSsz0qCFTqVsi11LG22D2Loiqvrq6t6CjuIBraFJUkLLW7FK1rCMjuOIRLQXt5o
-	mo9xi5vIpkOa46yb3Q3Z5A2vtr9NjyXaWSIkTxZtXr/AtfAuelvCjdgz3y+rz8rIQV3wcWvEZay
-	70x+hVimE=
-X-Gm-Gg: AeBDiev7J7rTnjvhmt0DqLcC/M/p+2IsFkoCWfE2MpVL+8rIy0GheePmzd3c/a/tQ48
-	2JmuW3PycAzfkYsluoPP61wY6MCa3jSyvGiBX7bi8HPiuWOGHLyr0/KAMAr70yxJSA7GFuY2M62
-	zkVeH2hnHaOrULOi4NzZYqiquhwbkOLgln87D3RA/48DvZ6C4kUaa9I1mr3mVDtdwTJ7HaHxLiO
-	98lJoCbggg0V+79N7O3Xg1gLmvjt14BY4SE3ZHo07xF3tDbrrhHGVVUgzb26/bsiEG7XL4ONYTP
-	U2qocy3eN5BNLEMhFXQra2MDloajPQE9w+Sw37tyto7nYTZiUOGgyaGGngvaXBZ7WYeQaadmsGw
-	ckRy9tPD8XapxKDK4qfQ2ubAQGGiqTa58wi+l18ul
-X-Received: by 2002:a05:600c:a47:b0:48a:75b9:5e07 with SMTP id 5b1f17b1804b1-48e6767e04fmr19385195e9.11.1778221008544;
-        Thu, 07 May 2026 23:16:48 -0700 (PDT)
-X-Received: by 2002:a05:600c:a47:b0:48a:75b9:5e07 with SMTP id 5b1f17b1804b1-48e6767e04fmr19384575e9.11.1778221007973;
-        Thu, 07 May 2026 23:16:47 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-48-7.inter.net.il. [80.230.48.7])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48e68eef558sm15122585e9.7.2026.05.07.23.16.46
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 07 May 2026 23:16:47 -0700 (PDT)
-Date: Fri, 8 May 2026 02:16:45 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: kernel test robot <lkp@intel.com>
-Cc: oe-kbuild-all@lists.linux.dev, kvm@vger.kernel.org,
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org
-Subject: Re: [mst-vhost:balloon 4/30] Warning: mm/mempolicy.c:2527 expecting
- prototype for vma_alloc_folio(). Prototype was for alloc_frozen_pages()
- instead
-Message-ID: <20260508021630-mutt-send-email-mst@kernel.org>
-References: <202605080331.y1eIdVUC-lkp@intel.com>
+	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="Nr7sws1Y"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=web.de;
+	s=s29768273; t=1778226203; x=1778831003; i=markus.elfring@web.de;
+	bh=+Os89qT9lWZoyf0ho5AZI9aaHqEOG1x9v4JqfTAOc7I=;
+	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:To:Cc:References:
+	 Subject:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:
+	 cc:content-transfer-encoding:content-type:date:from:message-id:
+	 mime-version:reply-to:subject:to;
+	b=Nr7sws1YEWbgPX1iuRiH4vT3F+V3pNbFynHdQIAZZQIcg6yVsm4r1IainMtWOMrh
+	 A7JWQGRvLHmOhM7GrwzQqRz1CgBVPvVOd/zAB3o9+Bej/AWtEqsvmbiUjYDr8F01t
+	 vQRhK4+D5zR1EBCj9/ZGht3h7H2RCDBPH96GlGeruDsAKuxWeLvQTz0/3gnOQU2ow
+	 VeL5+G7gVVTVfQgTi41R5JAZoJmKLlb6jROavc+C1jbXjFCb6ZZ6Oc4wnsuljjTVw
+	 IZXMEo7QK1+YcPDMgVXo9hS7Ba6RyIg2RuEZaBoo1cWpXaUX282zWkJVFOXvTMwHj
+	 bLHvo57Z2VeiMg84Lw==
+X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
+Received: from client.hidden.invalid by smtp.web.de (mrweb006
+ [213.165.67.108]) with ESMTPSA (Nemesis) id 1MXoca-1vnFPr061c-00JVks; Fri, 08
+ May 2026 09:43:23 +0200
+Message-ID: <c565ab8a-edcd-48fe-8ae4-e788febb4208@web.de>
+Date: Fri, 8 May 2026 09:43:12 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <202605080331.y1eIdVUC-lkp@intel.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: GAMia4F7c8jxx6GOa7kkdQd9pNPidlhO2fO97k583Is_1778221009
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+To: Thomas Zimmermann <tzimmermann@suse.de>, Myeonghun Pak
+ <mhun512@gmail.com>, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux.dev, David Airlie <airlied@gmail.com>,
+ Gerd Hoffmann <kraxel@redhat.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Simona Vetter <simona@ffwll.ch>
+Cc: LKML <linux-kernel@vger.kernel.org>
+References: <da9ecab6-063f-4c29-a685-7b776234905a@suse.de>
+Subject: Re: drm/bochs: Drop manual put on probe error path
+Content-Language: en-GB, de-DE
+From: Markus Elfring <Markus.Elfring@web.de>
+In-Reply-To: <da9ecab6-063f-4c29-a685-7b776234905a@suse.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:F/3giASq9svOJyDZkN2hAZH1lLD5yErkrMd5Hb3JAx1BuNTJ3si
+ GjHq+dd3lsfwBVa/ZAGjiwdC9kFhIBqfuDvWwIhGnSCefUlh8ocEuB6o9hyhH565RIKjNdn
+ S1ZpD3/CQMfgbRZU0GfWXgaA0K1SxZ8TJtus6oZeE0uUdECaVGpLC/B9oN1y+8HXnjAGhYZ
+ /4r28RdJ1pTwYFsy5Updw==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:Z2tgfpUidK8=;OUNkxQTzilunVGrQ5jlXIfOB5zX
+ kQ4903Fcjsz6IGXiZ2jcC/hMAqqIG/n0l4OjlHzlo7Quh6iZUPtVw8rTsJNieQh3cY+zK5h12
+ v00C6bdCy62LzGlo/WrtXgu3MEAWlHkHtRBMZU6M/O0r438yXM2tlv34VXyxFOmfDUBmk3zut
+ h9UgrLF0/Ijko8e0P5yeTlLrq/DI7tHULKeTM2ja9nTPxGnj7YEmcqXXFtdro37c3yq6wDk1b
+ oBOOrs+50Bb/eowPKE+sTjgvtwWMkpQxcpW0BWnj8zPk7WDk6Oktd0KHfuJ5LAT8IlSuXGOrz
+ CI6wmk+2Nix1t+JIrVdHjLjyvk4VKzfJDKk/60up0HjaEMG5/+SCTFscGJ3JUnhV+Q9q20zII
+ nCrXxr56XCvdH5giie9lUOzI/9mPUAWWssCQvKoGe8o63iisjfAfv4znjt/wlJea8lzwyGgo5
+ rW/3hecxdALUvkKGYb9ZNRjNzx53DpwjrUG5TdP3dCTsguSxrXxyiVZSeE4emXX8RTvIfSDPc
+ pkB2WdqAfE/5GEqNSqOLZedT7bL97yItgGo4gLW3eNsppH8Po/VABrNJHewQUZ9LiAJFHONFd
+ ha17t763UU3hZQ9mJ1p/VUQ0V9ZdPeI6+WMkCcCGNAbVvfdd89n+5/PS1bL6gp1LiRIgGLpNI
+ P8XpJKCbzeBOwFswPr2yfrmDnZ2hjO4jfv2QaV3z9auNZF2sTxieADOyhM/IjsGIgo21jDaSg
+ 7vMHOdacDgxU07dUQmovFAXLJD6iw/C7E4T6KuOjb0LYR4SrLIv8Wetm4XL1ukm30Q1qnH+/a
+ 6XqqERG9+AYQsxK20DIFnbsNlShI2B7ECD3fp2K1xgy3EKApc7gun0D6Yf5f5bhELQI7zdybA
+ SDn5lHru3+a0uPE/JDJzGPrRo7wc4n5F1v8L4MVe7WnzDLTvqUF5jG1qfFWOPpmtdtJ+fWtKm
+ yb+SHghkZtj8E7jDoPH4XHmPOoJiLrwb6mc6XDcXzwsbjmc+wPbed7nSuVtLoN18ZWirX9hNN
+ SR/NFh8a4dINDk3qTGYCfZVyGJs+58VT2xvM+LOhpA6wp4SrZX5CTzf+1EIpJK8hDyDTv8jfn
+ LG/slj9Te9+xeLDzIamrJrxLoJhUb1KYKMEtLj93ugEVJUeJNq+WUIN/rKenPs9hOLxUcJwW6
+ yrsXHQeV88gL2xTjnlsRMxakGb1Aa6NZCUWm+DJD2K9T/663da8U4/0a7gnj0WwQKGd+/oZlu
+ fzViTYaXPwp8UZTzJbEpVIuMgMp4ePlC+//Dv1ygHkkk31mpwjHQyQttHPdaKlWn5znuw0+/6
+ CvU4Ms3hCN5OVAn5cI97s/67E606qXFYssl8HZ4fxLKol2e6VzP6+KeV+IjLof5Gx3UpPR8fK
+ slrIrHyKzOjBKD4fLCliV8k/M2nO2rdnajbJCtT8dTdrhZ7VpoyS/tLZ1bWjBMh7btSO++pFA
+ tVU8IOeMdItZ8k686fCMiJVDUXJG4YW/DbI36/8HsGvntZR0biy8pfNUBb9AFaXUxnnylrcoH
+ +CIlvznMvr7UB2gH+m5KxgTG+493QUJJ/sH80rpGEXeresqO+NwcSzv10qoNK4h8vWCCzXqSw
+ Wn36lCRCeLTsYM3DxiFMCQvsWXQQEB28/8OoAiaHJxeHeM60jaF8voXhog9cAZEf0PMpv2ZMS
+ qdwSBpttIfRxw0JoGX9yuvPtOq1+cD+Cb93v3WsaBSBVxpjbt4FxzHVPRMkZTcgEZzlW4G9Uw
+ 5NNynA5uT6xKD87Kz02B/MYJKskv33QCkA9v5QZUwkWpyv6GRJSp3/p/r1HL61tDXIg2s86V3
+ mc5L7V8es17CH2c0fSbRXZA/cF377bezeyAsfjN7X0nniI2pW+eyIHgnXzBpHG/gsanWK0ZPZ
+ 4Dt1WpkDR+0wympHN9hQ0QIVWqSFJw7EA0fghZoRqJjf7s9lrB8wEkml8nCF4d60iQTE5PY6n
+ Gpm9afeGu45pr5MD43u0eevPpZafCV8RJgdQaAgnBUzngIzRVt3wLS6o60NTSKtnxrL4fE3i+
+ 7P91GHZ1ev9calXxrvtLpZVVxlq6afYMBU927G1ywl/7C8JIjx4NICxJqJyQrJ1QnQOIbijEt
+ B3vklUVgg14pdsEGrWH9jxhsSt6BoGSHI7bVmDgvXhxc6oIwXLGq2yCU42q6uFUKoK28HWMN5
+ Fna2efhu/FaMt/B1fF13B3ifBOO4Z7YE0Rwb084KnvQ4fG5t5QDXQ1pHGwGG874WbXxu6IMn/
+ 0u0/wo2R8GxvZTYqUimi8IISDTVU56Jnu4wCE2Xck4eLyejB8bsYJHBgW+uj+2fUpf+eUBUcK
+ kZBMfhidlWItddkZ8wNDTDpKEk8GJzCW1KdFFNuhVw0JCy05+2kPbzWD4EO19vucgNxf9Gztg
+ 6/ZiWJtJK/VEj4GqZ+CnvsuLxqxDDHjYyps/x65Lf7aa7zs8yE01kOcXlGrjoYsdbl27q6ivc
+ xNqAteWVLf5Aof8+XZCnCB8ThiOoXwsJO7oh+NglwdfLqs5ZW/fOPeAN0PghOBxMQwVjsxG3k
+ p1AerZMq90Dc26gFkMU1oyT1ZYxdv9OI6t9Rq3YRtxgMDK9Ncjebo7EvrlUmuxmPU+ar83Yys
+ fycmdBsquhT/n0zk7uRDMWLaTiIlkFxqD779TT1o6ElI2n9mA2RKwIwLrnBKByx5RJ2CIiNfe
+ 2j8c8Pv/MjYjpW0YVGu2VIhj1EobGH1/CL9/7Bs6CjnEneHD2WSPnmBYN8Lb6DjF81wgq62Ni
+ enCBWLswwOVDlDOzUz9aFTvB1G+tB/w0nXo1sN559FFP+O4ZrgqNmNIexYFsvi7pZbS4ygixA
+ kE2C+0fvqSheZVf87iqeKeUf5klhmuKM63WaXHEN5JTENGqv4mW9Bp9iKeAdST3oEj8KFCCfz
+ gAl3JAHQzMo0M8bf5MlXCk4tmH9b3DUjCvJfo/otv6kL7JRGrWkRv3UmnSJ+oYAau/c+1xogl
+ 582TNtbMr9KceaboNgto6y5EfEAdOyi/IPKGhYRF2IJleK5u60a9UN8L25b2Hx7Ptvtp8caEF
+ 8wSQqK41KJ+MUY1/oJ2oHUGP24+bwixzkW21a1h6eUCfyNX7Jv+2UeGQXXeDjBr67/Es3ZVcs
+ kzD8c/HF8pt7apKMIT+jHsNLVtJgQdvTFDzgpO18+9vSYgv2AqD/AzgRATGQPMP90Z1FOIXSm
+ T8KMpXZBZuA/vRdEaH1MAxCsjwssHt0MsLvsjcANT6kbtDhXiJf6VO/jajATEn5UvM7XV/w6g
+ ATpzk0fjqLbu5wtfaDI8aRUxKBRiALBjJMpa9QPQFHB0HEIm89cMorwQBZNnYEl2jsE/awHz7
+ J7YsZ2xklSg1IzwIBwDIev/qUmAry8Ur3QActCNhlmsepd75qAyEgbDTeorfn/Pwd5WT5baky
+ 7BGBaYkV9un4kIDzSvGZ6mBLTSDztc0DEIxPw9MAe9ejkaDzZw5iUKklH3am8MQRD2NlyRMNH
+ rutVIyeGANHRg/kJ51/xczxaIPNCEB0v5O3/mQcqoWc5OLM/fIQA87IKslNeFZLnATpCiEsva
+ iEJR//TQM5JHBk+TBJN5KTrRyx6k7EWnJpebrF1kv+6EVSpuMnbjHug6qL5up2olDKbnNdXXF
+ t6/N5s7DQOOvAWgpnLrIW8sU9bhDh3ETRrQ6L1t/6HWL9iKERmGkXWiHSmcUQjNhPs8zrTBNs
+ IOPXmcP04reAnph5Yu0rrV+gtnpnK3IwwBb2xu7s7dBKn32kdd806cq9211MPBGgY/JXmo91R
+ E5cSsFWmiDoTnYDdNjTBlf7OgRt5MZszgoGND7DWmizj6wmaPbTfE0UMOkIRKYK56/CZDQu+K
+ mqMvFiIHhmak8C/SgDoYkmulJ3IdgS4hURIPcjyzsdERVtf7rXMuSudcBbunGm5gTbbRva+Ml
+ x273Pl3DCM44TRUw1TNkTMD1jXskHK8E79rK9VnlyEW/see76FFDQCIyuCUdKdoi7c9K8lnpN
+ zigGj8/xbiGF5n+XW577qZihbldnriu0vSedqvP+baVHk8jOkZLLDi4ylYtPH8ZsS3YKNt3ma
+ 90pmZ381cmWd2jylZ1wiHIYe2VqCSbxnTtmU04AENhHF2g9UmPxBLDY1x8hWDbw7F5r5mbkd4
+ /RK6D6vDYJEbpK5dEQ8am8i0nT2cetSrZFJtGopiwx2EdeK53QjZkugtC8mc5VoLFVYjN9JgW
+ MuJ77dgf/l2UxyTH00cAi5MxSXww/hc5uvBYjPFEK51O15w+4uZFWYc3c22BJCxe44XJwH39X
+ Y9LCLGtmGwHehI7OPxJTDNpkqYFIbp9cItEMHjLo8mM/AxUIol5KrUiGzfdbESyPlIFoGGriO
+ awEsWRkIKkH5nPhpcp1ul7ltEV2gH+FRjnBIQbt6tXYM52nB2FClOgGNMPg60nFicY0uYAAyo
+ hvSussXnb9IcBAS69YILQa8EqbrvHvvMAayfczb2pGp1wI2/z1+VXR2dUYYckB5hJw+tZWCRa
+ w7g4CrSgaTlKl9M2T6WRD8IKvuUJEj4X1WFQH30PPVq4L1rQWkmMjpsU/g9s0Ili0ffUchD/L
+ blI1mOBXVOCTjqDnXYM2r6rdbrc1MbmX6RqiC6b6uSET7NoXDiyana5PvcDh6SZ7WIETAf4kT
+ X0L9kwUa/zqOOlxZw1KuAmddDGiyvid1mUTYZHy4Mn4rwmOhg+D0shBK9fuJdXBcvRrQe+d//
+ 8nA0ezG6NnGRozW1CS2zKvp+dvUytTS9m40fefesNrQt7xO0EOeLofPDXYYhGM81EgQGEiSvs
+ 9EH7FgT9jjEIMS26jowXMbw/27pzKqrxixfthJGqVx6Fy2qFMIMdCEVWozzZmCDVpjN/yH+Sv
+ TUZyfWKEag39sdyTFZww+B2OC3ChT4BYFLT24ZWVNmGqejXuzUavGnM+RAC/ivRbQvxWfHufY
+ WKTeHl8orRiAxWW1qjWED5QyDX4aoUuBA3fOG3XTuEfP8JTIyMEPVO3bNrlsAyRBi0cQQ8hKq
+ kjbstwbYT+52Q3lV/l+1BfhtA2gVUPptLzK7MRguFjmKAzKGAPctBwStqXp655g0sNmZJM4fw
+ M4de8yn+mvvTn665VB0NEQVMkkkmMLgZkmt42mVlJwUan1H1malaMFi/AKDwRk8g7D6tfWbgf
+ 0cjFoaQ86BIMB6rhDRgEXfWZJTDlol0mGhMC8E2zCV+S05Ozc6XeCGDOY776U3AQHO9zRtU85
+ e9W12nLypBJanDQKvc3TPEa7mJKzfrA8t1TAZ5D9S9KY8zqag3w9TYOSJsklgmVsE8AO3U+XL
+ QkpYUBDaXRS5h2x8NF4SyPFvbpK+YwRVT7OwdubP15KdoEagDy0KhwIcLpDUddIhff2etII3K
+ WHFKzDlPnAnJw8Otlg4ACI1FIQx1uqFpM1B0jAMBfGVmLrpw3UH28FExwn4k3yWFjOwRksCc8
+ mg
 
-On Fri, May 08, 2026 at 03:56:56AM +0800, kernel test robot wrote:
-> tree:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git balloon
-> head:   9f56ee36fbf6a6d336dc6a9eaeb4f8a67cb42a31
-> commit: 95744e0e9c4df79c6bc8ec96306b29c7a8e8984e [4/30] mm: move vma_alloc_folio to page_alloc.c
-> config: powerpc-allmodconfig (https://download.01.org/0day-ci/archive/20260508/202605080331.y1eIdVUC-lkp@intel.com/config)
-> compiler: powerpc64-linux-gcc (GCC) 15.2.0
-> reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260508/202605080331.y1eIdVUC-lkp@intel.com/reproduce)
-> 
-> If you fix the issue in a separate patch/commit (i.e. not just a new version of
-> the same patch/commit), kindly add following tags
-> | Reported-by: kernel test robot <lkp@intel.com>
-> | Closes: https://lore.kernel.org/oe-kbuild-all/202605080331.y1eIdVUC-lkp@intel.com/
-> 
-> All warnings (new ones prefixed by >>):
-> 
-> >> Warning: mm/mempolicy.c:2527 expecting prototype for vma_alloc_folio(). Prototype was for alloc_frozen_pages() instead
-> 
-> -- 
-> 0-DAY CI Kernel Test Service
-> https://github.com/intel/lkp-tests/wiki
+=E2=80=A6
+> > Return the probe error directly and let devres own the final put.
+=E2=80=A6
+> Fixes: 04826f588682 ("drm/bochs: Allocate DRM device in struct=20
+> bochs_device")
+=E2=80=A6
 
+See also once more:
+https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/Do=
+cumentation/process/submitting-patches.rst?h=3Dv7.1-rc2#n145
 
-kerneldoc messed up by a rebase. will fix up.
-
+Regards,
+Markus
