@@ -1,39 +1,39 @@
 Received: from mail.nessuent.net (mail.nessuent.net [188.245.177.90])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45AC226B777
-	for <virtualization@lists.linux.dev>; Sat,  9 May 2026 14:47:43 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22E8E36655F
+	for <virtualization@lists.linux.dev>; Sat,  9 May 2026 14:47:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=188.245.177.90
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778338065; cv=none; b=JTHKwDScg0UMvBmIM1MeJSymCL2TbKFqCBRV8O1MeE8yF/FTIHelJVBbsh2pF5pNnsA8lPvwcXCr72S/MZiKn5ugkFG6SkLcxTPQiyhe3nvruIT1qe5ZYNyg5bwsTpXlSgweqI6tGk17t1dI8kZxNKDmked17EQBiOREYXPt22A=
+	t=1778338066; cv=none; b=ATy72i32xz8l9gqvRPTWCuhoOjjUzL55vAEcEupjb2708Mga8aWycoh9vnIri2j1LxoTmoykfIq10B/KeLLh+c+QxvPodhK9xdIYdIc6edt92NGiTrpblZR/Z6/Ndc/I2ucajORARoDvZ+Cuxs5hkwcVU+HC1hpPATpgtSumjCc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778338065; c=relaxed/simple;
-	bh=jbzi2Emj0Xf9BmoPlY0PU4j/8PVZ/5uK5OX2z0vqwIQ=;
+	s=arc-20240116; t=1778338066; c=relaxed/simple;
+	bh=rSVMrHdXXMPOdNSzrMYHYbcWyiA/ND/D3nfYFJ1b2Bw=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=KAqr9F7NG+8v1XXvrV86kCbcJWsBtYsZf85RzxWHOqgqjQXkCrit7H1440yRxt2+MpOFVhwvOCBcO5A8DnqJZcanQlwzuSBXi+VbfwZwVpFgGCfSf6WLe+ReZQTfrEF9yODl2edn3CkY7lt5A6B5jbtEOUzfQw+HyG2Rai4f7eg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=pitsidianak.is; spf=pass smtp.mailfrom=pitsidianak.is; dkim=pass (4096-bit key) header.d=pitsidianak.is header.i=@pitsidianak.is header.b=IFWvEHVq; arc=none smtp.client-ip=188.245.177.90
+	 In-Reply-To:To:Cc; b=tvyKvCbCoAn4VFsH7mZu3uhDhueOkAqgZpRF2j6IjL8+TZ6BWwQbHihAKVrwFPotbLIe3+YVyPDy94APne6Rf53WSeg58fH10FSXKrqu1R0JhMKdUP/1GezC5ADMHtceYUrayXNlek9vZy81zvLmdmxOd1/xh7XBp7OxEfOaEOg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=pitsidianak.is; spf=pass smtp.mailfrom=pitsidianak.is; dkim=pass (4096-bit key) header.d=pitsidianak.is header.i=@pitsidianak.is header.b=wBPLPVks; arc=none smtp.client-ip=188.245.177.90
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=pitsidianak.is
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pitsidianak.is
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=pitsidianak.is header.i=@pitsidianak.is header.b="IFWvEHVq"
+	dkim=pass (4096-bit key) header.d=pitsidianak.is header.i=@pitsidianak.is header.b="wBPLPVks"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=pitsidianak.is;
-	s=mailSelector; t=1778338055;
-	bh=jbzi2Emj0Xf9BmoPlY0PU4j/8PVZ/5uK5OX2z0vqwIQ=;
+	s=mailSelector; t=1778338057;
+	bh=rSVMrHdXXMPOdNSzrMYHYbcWyiA/ND/D3nfYFJ1b2Bw=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From:Subject;
-	b=IFWvEHVqRN+dbqESIEPH8cTPJG/YquOkq1iOSQhwNhJoqAwDsOMD+MocZakkJLfJT
-	 f9LPZPOA0r/ODpNCAWtQtwek+6bRf0aIIchTvX9rAqj5tjm87VGlSpmK3Gy1mMH0x+
-	 KCc5deYIUIxNphOrgqlYIlOCaJnT1aZBdI1yhtKLF7xzkdYC0/EwOtYKP0DdcKuKjV
-	 K3KPxEiOBYlDZqT2FMzxb4p4u82C3XlR+VsGqNZltGTzG2vWAs9/5n9+ekKuSxUkX2
-	 DA7+cvt+U2MitF+SIrGnvWPuW12JOABcwVRl5n35lBZYlmDsyCwHpRP63i5133vcA1
-	 8NgHjtws5koyhsjMzz+C2RzUTF09Fw981qFvRHoNH1nvGSAi2sW5bUG3jqnTNhZ6oy
-	 h3sWx/tfB+R4OEefhOAej30fDTzCOjfXKD0Fyo8lpXZZ7fs7fpejJmMSNdpxHYpmFl
-	 I+hbOZ9LL9t84sLWjj7nHzlZriXQlHe69fm6VJlf3E3YgJ2ymvcYU93Bpf1MWaua5R
-	 +h6ZTuRIxQvi9qAoYP6q6Y1vO6vDWxbNqkSQvuFohcx7rDgm7BW1yWEDwfVopzHwkS
-	 0CyYOcEHSeo23NBBTXE1XS3y7xtW4BXVbCyX/7cHQch2TBX8gE5/beFo5FNn/WlrRi
-	 V/ZvJY3pRggvCK0i0BGZfBJs=
+	b=wBPLPVkssrX+lU+fe8Z6SpIssvJflNfNz+56bvRhqvoQ29K7OL2k08FT3Qf15mbO9
+	 ieGMGNF9IQwNArNB0FJ5WvYvCfpBdN4vMsQlgXe+etzkTkU+DjbkCBfgYuJqHzVBIb
+	 mtrbc+ajaKUmErsLx4rMTEYdkKmhyaEQw9eecS0Eh59lTsGwcgSHMKHBQZU/8e1dTI
+	 C/IWpyQweaw5lUkWPry0mEykmsc8I6g3oo5qLbjuQDS1aqhjB/o01B+8/Nifc3pvD+
+	 MJZQt8psdrGydsk15+8hlx8gqdxlWd7JHlIFa9PctdUuT0g3k/AAgVE/mJodXwnfYX
+	 LohFPaS7TCJWUluALg35lXyYUM10Sjsh7LzIe6TTSmTWTMSfEjoWclwiv+Xne/kCOs
+	 itpdtPd0JQOPT1PZBpyB8obGuvqqwvmsD+AJ8LXb0vBu1M57h3+zPijDP/sMTMYpoM
+	 TXPdU03rGrTc62CJ9zopTEk9vyySe9vEsAIWqsHdWHjI11nuUNytOrRAGkwpM8MIH0
+	 wD4fzWSfi7N8ue2AT9AcQ2GthAwFHi5ej54ZVaYyPUeu1Fi0+rvaMtmKVbDM4y2/1W
+	 MNiAA9+PJsxsbTHjH+uTlp72Wfi3s43zri4mm7qqbFSvvJgTMePH/pGtXUyaT9pAmS
+	 1Iwg6+ubWbQvQsOhJVLrG8BM=
 From: Manos Pitsidianakis <manos@pitsidianak.is>
-Date: Sat, 09 May 2026 17:46:55 +0300
-Subject: [PATCH RFC v2 1/6] rust/bindings: generate virtio bindings
+Date: Sat, 09 May 2026 17:46:56 +0300
+Subject: [PATCH RFC v2 2/6] rust/helpers: add virtio.c
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -42,7 +42,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260509-rust-virtio-v2-1-c1e30ec2bd21@pitsidianak.is>
+Message-Id: <20260509-rust-virtio-v2-2-c1e30ec2bd21@pitsidianak.is>
 References: <20260509-rust-virtio-v2-0-c1e30ec2bd21@pitsidianak.is>
 In-Reply-To: <20260509-rust-virtio-v2-0-c1e30ec2bd21@pitsidianak.is>
 To: Miguel Ojeda <ojeda@kernel.org>
@@ -61,47 +61,109 @@ Cc: Manos Pitsidianakis <manos.pitsidianakis@linaro.org>,
  =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
  virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
  Manos Pitsidianakis <manos@pitsidianak.is>
-X-Developer-Signature: v=1; a=openpgp-sha256; l=834; i=manos@pitsidianak.is;
- h=from:subject:message-id; bh=jbzi2Emj0Xf9BmoPlY0PU4j/8PVZ/5uK5OX2z0vqwIQ=;
- b=LS0tLS1CRUdJTiBQR1AgTUVTU0FHRS0tLS0tCgpvd0VCYkFLVC9aQU5Bd0FLQVhjcHgzQi9mZ
- 25RQWNzbVlnQnAvMGtDUGloZ1VPNXRrc1RZc1hRWDJzQTdsV01VCnA2T2Q0Mm5UZnVBd2RJdnlR
- d3lKQWpJRUFBRUtBQjBXSVFUTVhCdE9SS0JXODRkd0hSQjNLY2R3ZjM0SjBBVUMKYWY5SkFnQUt
- DUkIzS2Nkd2YzNEowRHRTRC9VWEhZaEpQNnZnMVY3eER3bWVMMDNPbWNXQ0xPTFd1WWg0VXY2MA
- preDQxRFU2NC8xb2xDcFk2T2RGb21HV04xOExwSVlMcWsyNk1WNGQvUUd3V2J0UjViZlJOYjhid
- nBQb3dQNlduCjV0YXBSS0s3Q3l4azgxSXBVelpld3ZuUWRYODhmL01ZcXRiN1BheXVMN1ErN3Bn
- b21aR0pLd2RoV3pVNEpqR2EKc0Nqd2lhT0pKVDU4Q0loZjUzbXNBdDlzbjlaM0kwMElsTWp0a1h
- pTHlOSnFRbWo2ZlAvNDJCOUdCSXRoU3lnVQpYK1M2bU1DMXN1S2s3a2pIbkN1VDk0R0U4R2Y3UF
- dFZW1sQzdyMmwyZVJxc0hRVDRvbjdkWXJ6Tmd6M2lFUnRICnV3U3lqeWN4MHc1RHJxZjY2QktNT
- UlLK2lTMnZVdDlVVUpIWXV0TktOU3hXbU5acmZUVW02SUdJVWZTaVQ2UUMKbGp6UnJQQW9kbG1O
- VVI4RE92VmN0cHlMRHV0RHJYR0dMYXdGT1lsQUZNdkk1VVpjdmZGVkpPSGtNRDZlVEVDOApWZkt
- ka0pjSkRrQzRySnd0N1V0bFFTaDFIUFlId3VLcjhQcjBiNWpUaGdOMTJiZHZSclRDUGRwQnJGNU
- FEaGI5CjZVbGdCM3VyRWxReDcxU3Z6U2dIT0F6UmJtS1dLbW10UVJ3L1ZuZWJpdVMrdmVWeW1qM
- DZabHF2TjlRbTlFZm4KSDQzcHlBd29NWjZNSmUwZTlUODVHbjlRRE5HaERES0VDWlNDL2tTV25Y
- S2hkalUwdHQvdkhNdTdrdi9mVmhkaAo4TTMrSFJvWXMxS1B4UUFXWmZqTUpDQ04yUG5PcnozNkF
- 1RG1uY3Rrb2c1QUQyYlNRcTlOY2hacDZITWxXZVJZCmtSUE4KPTkxaFUKLS0tLS1FTkQgUEdQIE
- 1FU1NBR0UtLS0tLQo=
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2591; i=manos@pitsidianak.is;
+ h=from:subject:message-id; bh=rSVMrHdXXMPOdNSzrMYHYbcWyiA/ND/D3nfYFJ1b2Bw=;
+ b=LS0tLS1CRUdJTiBQR1AgTUVTU0FHRS0tLS0tCgpvd0VCYlFLUy9aQU5Bd0FLQVhjcHgzQi9mZ
+ 25RQWNzbVlnQnAvMGtDR1N2V015WlJlRHRsdWp4TVZyOGlHdzFsCnJLYUtMa1dqMEJmT0ZySy9t
+ NFNKQWpNRUFBRUtBQjBXSVFUTVhCdE9SS0JXODRkd0hSQjNLY2R3ZjM0SjBBVUMKYWY5SkFnQUt
+ DUkIzS2Nkd2YzNEowQkx3RC85c3p5dlJVSHpHMVBWNHBIVHlFeWlhQTNoYWRIZ0JIVGlKWUVnNw
+ o2NU1YZTB6RmpEdE9SRFdqZ3FwV0IrVWYvMlZhM3dxRUtwVFZmbkptS0xkVGpaa2orODZRL0tKQ
+ TkvM0NiVDZkCmZEaU54UVFBS2U1Q2hCcFg5eXJJaGIybU5JTTZKeng2dmFBQnJ5a2w1UWpTdlcw
+ d1Q0VGNLVUJkM0lhckMwZUsKTVl2dnExWU13SjlhaERITmxSZlFRSGxHQ0JQMkRsSm81Q3RwM0R
+ acmlXUWlNN2V0OHFYeHVsY3JWL3l6eTA0ZwpRNzloQm1wTE9abGVKb0I4SEswNlg0SmZiYUE2an
+ RSUEhHMWlPZ2xQZmxZeGRHMFU4ODZHRHkrQ2c2TE4xcnIzCnlsYU5GWDZQY0p3aGpDNS82MXpqK
+ 0pJcy8wTW1TSGNCV1pKamVpUkU1R0U0UFVkdC9FMFg3bWpwWmkrVkNsL2wKeHEvMGNoL1F4UU1I
+ SUNtT0ZFL013SFUvQWJjOVFwMDRyc2xCbmI5alBFMjR5YXQ0V09oT0ZTNmxtcGl2R1lnZApBYk8
+ yVmFOTDFYNUREcHBqbzJKU0QvTTJLYVdIdVpGbTZYcUMwb0dLUFMyaGdCK3NJNjYyV1kxU2p3Z3
+ QxS2RJCk1WMVZPTkFQQzYzclFncW91WWpLUnplY0xkaFJXVXBwU1FkcjZqTUgzZXhGWFNqNnR2Z
+ Td2bjJFcTZVSXdkMkYKaldNV0ltVFFxRE8rRklaV1kyQ3EzelozcU5sZnQrRVNCRHZtd1AzZUxC
+ ZWlwcU5qc2l3SVJxUncwVDVHSGoyRApEcjBDQUd2UWdhK3VQZU1PamJJZEgxVXpKOUZWaElkM1Q
+ wZ3FrVXFOT1JkbElHeE15dG9sSWF6ajV6ek8wNnlNCkRIbXV6dz09Cj0vSG9zCi0tLS0tRU5EIF
+ BHUCBNRVNTQUdFLS0tLS0K
 X-Developer-Key: i=manos@pitsidianak.is; a=openpgp;
  fpr=7C721DF9DB3CC7182311C0BF68BC211D47B421E1
 
-Add virtio headers if CONFIG_VIRTIO is enabled.
+Some internal kernel virtio API functions are inline macros, so define
+their symbols in a helper file.
 
 Signed-off-by: Manos Pitsidianakis <manos@pitsidianak.is>
 ---
- rust/bindings/bindings_helper.h | 5 +++++
- 1 file changed, 5 insertions(+)
+ MAINTAINERS            |  6 ++++++
+ rust/helpers/helpers.c |  1 +
+ rust/helpers/virtio.c  | 37 +++++++++++++++++++++++++++++++++++++
+ 3 files changed, 44 insertions(+)
 
-diff --git a/rust/bindings/bindings_helper.h b/rust/bindings/bindings_helper.h
-index 083cc44aa952c2b29ab82d5d481063a1cf48bccf..1cbe1a4b5647fd646c1be3c5c80fb24ae7b97a4a 100644
---- a/rust/bindings/bindings_helper.h
-+++ b/rust/bindings/bindings_helper.h
-@@ -151,3 +151,8 @@ const vm_flags_t RUST_CONST_HELPER_VM_NOHUGEPAGE = VM_NOHUGEPAGE;
- #include "../../drivers/android/binder/rust_binder_events.h"
- #include "../../drivers/android/binder/page_range_helper.h"
- #endif
+diff --git a/MAINTAINERS b/MAINTAINERS
+index d1cc0e12fe1f004da89b1aa339116908f642e894..48c9c666d90b5a256ab6fae1f42508b789a0ce50 100644
+--- a/MAINTAINERS
++++ b/MAINTAINERS
+@@ -27930,6 +27930,12 @@ F:	include/uapi/linux/virtio_*.h
+ F:	net/vmw_vsock/virtio*
+ F:	tools/virtio/
+ 
++VIRTIO CORE API BINDINGS [RUST]
++M:	Manos Pitsidianakis <manos@pitsidianak.is>
++L:	virtualization@lists.linux.dev
++S:	Maintained
++F:	rust/helpers/virtio.c
++
+ VIRTIO CRYPTO DRIVER
+ M:	Gonglei <arei.gonglei@huawei.com>
+ L:	virtualization@lists.linux.dev
+diff --git a/rust/helpers/helpers.c b/rust/helpers/helpers.c
+index a3c42e51f00a0990bea81ebce6e99bb397ce7533..5dc0d2f2ee6bd2ae8e6abfe4baa247c1963967f6 100644
+--- a/rust/helpers/helpers.c
++++ b/rust/helpers/helpers.c
+@@ -61,6 +61,7 @@
+ #include "time.c"
+ #include "uaccess.c"
+ #include "usb.c"
++#include "virtio.c"
+ #include "vmalloc.c"
+ #include "wait.c"
+ #include "workqueue.c"
+diff --git a/rust/helpers/virtio.c b/rust/helpers/virtio.c
+new file mode 100644
+index 0000000000000000000000000000000000000000..92185d7b8bd97b66f7b7b825390fdd1173de313d
+--- /dev/null
++++ b/rust/helpers/virtio.c
+@@ -0,0 +1,37 @@
++// SPDX-License-Identifier: GPL-2.0
 +
 +#if IS_ENABLED(CONFIG_VIRTIO)
 +#include <linux/virtio_config.h>
-+#include <uapi/linux/virtio_ids.h>
++
++__rust_helper bool
++rust_helper_virtio_has_feature(const struct virtio_device *vdev,
++			       unsigned int fbit)
++{
++	return virtio_has_feature(vdev, fbit);
++}
++__rust_helper void rust_helper_virtio_get_features(struct virtio_device *vdev,
++						   u64 *features_out)
++{
++	return virtio_get_features(vdev, features_out);
++}
++
++__rust_helper int rust_helper_virtio_find_vqs(struct virtio_device *vdev,
++					      unsigned int nvqs,
++					      struct virtqueue *vqs[],
++					      struct virtqueue_info vqs_info[],
++					      struct irq_affinity *desc)
++{
++	return virtio_find_vqs(vdev, nvqs, vqs, vqs_info, desc);
++}
++
++__rust_helper void rust_helper_virtio_device_ready(struct virtio_device *dev)
++{
++	return virtio_device_ready(dev);
++}
++
++__rust_helper bool
++rust_helper_virtio_is_little_endian(struct virtio_device *vdev)
++{
++	return virtio_is_little_endian(vdev);
++}
 +#endif /* IS_ENABLED(CONFIG_VIRTIO) */
 
 -- 
