@@ -1,126 +1,160 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97AFE399017
-	for <virtualization@lists.linux.dev>; Sat,  9 May 2026 22:44:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 343C534575D
+	for <virtualization@lists.linux.dev>; Sun, 10 May 2026 05:30:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778366701; cv=none; b=pmOnH8+z4rAJtNv6aJdvC4O6EtJRmgnsvcPLE4+1FTWjn08i41cPhMd3nxJYuVWG0K8ksiNinra/Hic0+9Eo0NwfzqFm9o+4zt53jJg6m3pgD9G0gY8mMgkOx2SorciLbyH0To16KGbG2YtAJlp/Di7lpwsHXjryVfrt53iP5zU=
+	t=1778391038; cv=none; b=Gp379+loNRYW2M1zy1E6Hquviy4ZlVmI7paiKAPPS/lnx/IDYAevoRV1rC3G1lO16iBgdX/EhkQ+YmOz/gQ/d7i2UtL5OOXiFFooSk7lxOn8g8W3KyTkFqlLD2WyH6SXZsTfTsC3P5/LXO6OpXWnMEPZ2jMMyPQmm78CtrQF2rc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778366701; c=relaxed/simple;
-	bh=I1uaCfP7MUFzA0C5hMsAjutKxQqou3ouWa1Ws0Uyyh0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=JIDjcesrcPdATr8Q5Ed9SDwCrLfedA1nMGngabtkiH1GQXUhKM1PY4E2OVOOf7godzLhFEPGnFbMOa2CcmRBmJjDv7kee+Rjpe/w+XDWOz2Xm6iWrVxv0i4+Q05TKVBpUfogD1eX8CGha3v3WeHsj4DNGg7bJ4Vjq1gKFUGHQv0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=icDk8l7h; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1778391038; c=relaxed/simple;
+	bh=KIsmtJOEOeNGwnrSKy5ZyFdD72rmOYFJWN7TY1z7kXc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=QkX5AAUJyiRBZRJFF5oj5tjOttMzG77ocsoHvKibubI1+73ibkb1Zuy5EryStk+BuAw3+n9RFVRAfZSmB996jGo7DGjM+xb9p+/85ftrDnd8OwSoxqX2s9cba08i0GnuEjccpq70LCnTvSa9Q31n6Emohxe2kOCTIacFG38RDLA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pUmz51GE; arc=none smtp.client-ip=209.85.214.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="icDk8l7h"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1778366698;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=RMLC0/7OpZlfwin12rT49rU9O67TrMCpNs0CyOiqETU=;
-	b=icDk8l7h68RejWheeD+g0aFYJIrCKMwIiNdTqPW1b2mTWwwTiq8xLLmilDf0g3aqdf4W3m
-	qF7M2S7WmboAxUh6FqW89t9HyqWDIg6o0GXS9W/f1rFWhMSCuFed5DAKMsMTNFZ+g4wCmG
-	cYPeaflLnpAbfV+qKlo8ihmE9UbZ3jU=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-212-p-aekxHLMWOMc0Va3SbkqA-1; Sat, 09 May 2026 18:44:57 -0400
-X-MC-Unique: p-aekxHLMWOMc0Va3SbkqA-1
-X-Mimecast-MFC-AGG-ID: p-aekxHLMWOMc0Va3SbkqA_1778366696
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-48a589c7879so32149285e9.1
-        for <virtualization@lists.linux.dev>; Sat, 09 May 2026 15:44:57 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pUmz51GE"
+Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2b7d3ecc10dso32150775ad.2
+        for <virtualization@lists.linux.dev>; Sat, 09 May 2026 22:30:37 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778391036; x=1778995836; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=HiZtT3KiED6Ar39Wsw4WFRof7QOLYq294txhwcfCtho=;
+        b=pUmz51GEX3obAEP+ptp+pq/4P0fccS9bM9+PpLHCfCm+YIPIhnSsusE5+OvtQIRoZl
+         XAcLjDe3h7rOWQ/b1O/+9/zUioc/ibh+hTCEKa/wGE5RIhNrmv6Lc9ImomlGRzX0OKbk
+         J1WVms2nqnpXZa1aY0wPTmsyEFUOmPBQyLgPBnQG1bImUWMp9faY2+JeZbNCOjTEwbCk
+         GGV7C0jgCU8r1dJgE0XJ50544YurKTExFn7kGwh/zYgc9rfEv+3nvKRc6wnaPJ8N6+oV
+         n9UvxUyZ9Cz2Jtlz6ui5WDHKkyRm37OLvDLrCtfh7Qn3Ubu+A/H8YJdVV95WzcLoDsLI
+         /rgg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778366696; x=1778971496;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=RMLC0/7OpZlfwin12rT49rU9O67TrMCpNs0CyOiqETU=;
-        b=As3T/V0A87nXG1SDt+mHnTF/h44Jo2bmgacFDhIabOKVkGRxWYZZ61spnEfTNJG7xh
-         gjHUEjv6RHWXbqtVbhSgefIhzINjzzXTEqUwW5Ov5F0cqC09tmDfHBL0wdWt+J+c7MK2
-         awNe6ZmLp8DpzKd6KXpJlKErzzE253Ov1uc4MttAcqtTFGmoiyLvgqNLzBNTO02e44Zm
-         zWoJk/SM8o4zsJPJ5Rpa9WbGLSELMnbZFfsAcr29B0E0TPMvG3BhuEp6DUdP3FgE9iip
-         3Uiu5HuS0KvB2zPuV86bQXgBQWk/44qgYGy92JQ+n1+LWmQuyrVYR81SsvbaBnPPkxcc
-         YrzA==
-X-Forwarded-Encrypted: i=1; AFNElJ/bPkw87r3c9SuoVOqnc07gyEr4YpDBKj3d33/YFRNI5o4KXEn8O784J5hmSzfldp9KlA8FGn5pI/l8rECtGg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyDRyF7tYvy1CQQvcMamRM0kxm9+QNlJ5zLgKJw3EB2lQ5XEznE
-	BZBO17UTRQaah6BFWRSXVvhVdd0KPUxnHOgsehyTtFpMjFcE5WVT5AUHFmXSd6cebyoV39s83jc
-	sVryzA/M9PlhbR3t/Ts4VYBNQN2CWKDpPCmRXMv0FnxQSb41BpJ/xqbkYyL/7Dv962zHM
-X-Gm-Gg: Acq92OEph8/Vv0iVNirW6rQcrhv8lzctoY1egDxdX9PWHZr0U9JxwFoQr/zqjW6ZkU3
-	8KSPrnv3LmGC33Mj62DYJRAIIRePbCbZp6tzTaYvbENQeOf1nZgMFyBqlZZlCXdqYWQ9xsMwgGD
-	tE51Rx0cuhHs9/Ub6UkSx02P6lZZCclqRRwwBblW0sVNAH+PttH1LQ4e5Sf9nt23Pe0jPlGXA4t
-	SJu9Nd6x6lZM/AZLhT+tlZ4hHmBmCrXJggEVw3oelz/iB6JdF2ZnwEnpa2xELl7bOsZ3fzLuS6g
-	dydai+1fpq/3qCkj/NU3+oeNzkgc7EL5se/yI/hmRN8y9zcOSvWekEh+JVG+cZ8wqKLHHS++/tB
-	OLbXH7X/8qUoX1ubRL85qxfK3vepDbYvi2vmpQWrd
-X-Received: by 2002:a05:600c:3b8f:b0:48a:79d8:a8d6 with SMTP id 5b1f17b1804b1-48e642deefamr148087295e9.7.1778366695916;
-        Sat, 09 May 2026 15:44:55 -0700 (PDT)
-X-Received: by 2002:a05:600c:3b8f:b0:48a:79d8:a8d6 with SMTP id 5b1f17b1804b1-48e642deefamr148086915e9.7.1778366695323;
-        Sat, 09 May 2026 15:44:55 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-48-7.inter.net.il. [80.230.48.7])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48e6dafa6c2sm42673165e9.5.2026.05.09.15.44.51
+        d=1e100.net; s=20251104; t=1778391036; x=1778995836;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=HiZtT3KiED6Ar39Wsw4WFRof7QOLYq294txhwcfCtho=;
+        b=A9BATGKVd5IluvBqdFCiyCo+CjoUdaBjd59aAhv4mgoL4okIArfTYZH6+Wfz2y5F+c
+         FuTMO4fyYMGW2ciSOKj8ErWrp1HdZhG+yNY8IZQuxvRcuTe2pkheCvw3TatCl1EIDrg9
+         g0rMNmJM+imEIQzwQlzp/WEfGGPhQ0MbQfZ5lQJOSEbzb6CNlxCp0AZzdQsq52+zE983
+         0iczbvfwTBAJTT3Gmz+LChZtWI8VHGFdmso3QvLI5kVta1vpYOuM0T6NmyemMz47ITXl
+         cevEOWXpuYnjQ3bLZqIec5Nf3Utfiqr96jMS0fqfyJ3ct+QYOfSjQ8uv7Q0KYcxWcMt8
+         T2OQ==
+X-Forwarded-Encrypted: i=1; AFNElJ9nAgfgoSFL2vkDzP6Q48HroPoGUe+E5Q1M2E6vK1zeKF7uJCpOCChy1hwSH+l2E/4nOcwy/Qm2CbJoxuVBDw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxFGRW71ZNdYu/z02ZkNgGeiWAog2QhQHaUeNhyV3J+RPjcdnP6
+	5Z+QhAx7nAtZnCxmBJLsUPgDQgUTaqQOKWQdI/HetoyMszul0ulRRY9d
+X-Gm-Gg: Acq92OHshST5rLXla8PP2dR0sG921hP/AQ17zE6skWVr8GlCuniomgDrEhumfd4TfnA
+	d/mQWytqBHVd3KRa5v9Fi+F8ESevSQCcAiml28F/2MmKdufmX9m4kVTUhIyHo9CAWMOUzt0JVup
+	hyfJnt5cigZD3SoqYWeNuyy0Nt2P3f3Iayg3hdWvhbn/UfCKvEf/luJf11c6afMnQTqF6DPCTYp
+	WWohjbe1Ua3RipzFIwr38LoUSR0o9Hdc5/uGGqMgcmF0h5uaeXRFjon7EgqTE3FQ8JOJhiFuXiD
+	E0cI2IWuJ2+OkP1ZqLpSKmMijZgaE/Bm9Rknuas/THsFSt1rRI6uAgmKQSCLBrggPCLqjnERbVv
+	oiIpNcgCx3XDZRjCLdcmTlSZoj4Si8lwfi7UR8izI4S/MkIGYFZSEirG4HQJpr/EmsOwM+Npwci
+	ed2u0obqhLeMpJcDeuoG8aakNQHpdLJun5U4iKyGz3SeD9wyaxYBLkq4UobLErSplQWg/83M5fb
+	PsSgdM=
+X-Received: by 2002:a17:903:388c:b0:2ba:307:4584 with SMTP id d9443c01a7336-2bc7aa40967mr50895195ad.32.1778391036502;
+        Sat, 09 May 2026 22:30:36 -0700 (PDT)
+Received: from deepanshu-kernel-hacker.. ([2405:201:682f:383f:5d23:3a35:10d1:5ed6])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2baf1ebea72sm67859095ad.77.2026.05.09.22.30.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 09 May 2026 15:44:54 -0700 (PDT)
-Date: Sat, 9 May 2026 18:44:49 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Simon Schippers <simon.schippers@tu-dortmund.de>
-Cc: willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
-	andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
-	kuba@kernel.org, pabeni@redhat.com, eperezma@redhat.com,
-	leiyang@redhat.com, stephen@networkplumber.org, jon@nutanix.com,
-	tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH net-next v11 1/4] tun/tap: add ptr_ring consume helper
- with netdev queue wakeup
-Message-ID: <20260509183518-mutt-send-email-mst@kernel.org>
-References: <20260508151048.183125-1-simon.schippers@tu-dortmund.de>
- <20260508151048.183125-2-simon.schippers@tu-dortmund.de>
- <dd0a3ef1-d623-4e09-a391-b56fa4bf95af@tu-dortmund.de>
+        Sat, 09 May 2026 22:30:36 -0700 (PDT)
+From: Deepanshu Kartikey <kartikey406@gmail.com>
+To: airlied@redhat.com,
+	kraxel@redhat.com,
+	dmitry.osipenko@collabora.com,
+	gurchetansingh@chromium.org,
+	olvaffe@gmail.com,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	tzimmermann@suse.de,
+	simona@ffwll.ch,
+	sumit.semwal@linaro.org,
+	christian.koenig@amd.com
+Cc: dri-devel@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	linux-media@vger.kernel.org,
+	linaro-mm-sig@lists.linaro.org,
+	Deepanshu Kartikey <kartikey406@gmail.com>,
+	syzbot+72bd3dd3a5d5f39a0271@syzkaller.appspotmail.com,
+	stable@vger.kernel.org
+Subject: [PATCH] drm/virtio: check virtio_gpu_array_lock_resv() return in cursor update
+Date: Sun, 10 May 2026 11:00:25 +0530
+Message-ID: <20260510053025.100224-1-kartikey406@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <dd0a3ef1-d623-4e09-a391-b56fa4bf95af@tu-dortmund.de>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: xJh56QjSMWCAk4o2RD2K-t4VifA4KrqQIMrWkl1W2p4_1778366696
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Sat, May 09, 2026 at 06:31:47PM +0200, Simon Schippers wrote:
-> On 5/8/26 17:10, Simon Schippers wrote:
-> > +static void tun_queue_purge(struct tun_struct *tun, struct tun_file *tfile)
-> >  {
-> >  	void *ptr;
-> >  
-> > -	while ((ptr = ptr_ring_consume(&tfile->tx_ring)) != NULL)
-> > +	while ((ptr = tun_ring_consume(tun, tfile)) != NULL)
-> >  		tun_ptr_free(ptr);
-> >  
-> >  	skb_queue_purge(&tfile->sk.sk_write_queue);
-> 
-> Sashiko is right once again. tun_ring_consume() in tun_queue_purge()
-> operates on a tfile that is being torn down. Its queue_index is no
-> longer valid. After the swap in __tun_detach(), it points to the
-> netdev subqueue of a different tfile.
-> --> We should not wake there.
+virtio_gpu_cursor_plane_update() calls virtio_gpu_array_lock_resv()
+but ignores its return value. The function can fail in two ways:
 
-Does it not exactly point at ntfile which is what we want to wake?
+  - dma_resv_lock_interruptible() returns -ERESTARTSYS when a signal
+    is delivered while waiting for the reservation lock.
+  - dma_resv_reserve_fences() returns -ENOMEM if it fails to allocate
+    a fence slot; in this case lock_resv unlocks before returning.
 
+In both cases the resv lock is not held on return. The cursor path
+proceeds to queue a fenced transfer command. The queue path then
+walks the object array and calls dma_resv_add_fence() on the cursor
+BO's reservation. dma_resv_add_fence() requires the resv lock to be
+held; with lockdep enabled the missing lock trips
+dma_resv_assert_held():
 
-> I will swap tun_ring_consume() with ptr_ring_consume() again and
-> submit a v12 :)
+  WARNING: drivers/dma-buf/dma-resv.c:296 at dma_resv_add_fence+0x71e/0x840
+  Call Trace:
+   virtio_gpu_array_add_fence+0xcd/0x140
+   virtio_gpu_queue_ctrl_sgs
+   virtio_gpu_queue_fenced_ctrl_buffer+0x578/0xfb0
+   virtio_gpu_cursor_plane_update+0x411/0xbc0
+   drm_atomic_helper_commit_planes+0x497/0xf10
+   ...
+   drm_mode_cursor_ioctl+0xd4/0x110
+   drm_ioctl+0x5e6/0xc60
+   __x64_sys_ioctl+0x18e/0x210
 
-If so then maybe
-netif_tx_wake_queue(netdev_get_tx_queue(tun->dev, index));
+Beyond the WARN, mutating the dma_resv fence list without the lock
+races with concurrent readers/writers and can corrupt the list.
 
+Check the return value of virtio_gpu_array_lock_resv(). On failure,
+drop the references taken by virtio_gpu_array_add_obj() with
+virtio_gpu_array_put_free() (which does not unlock, matching the
+not-locked state) and return without queueing the command. A
+skipped cursor frame is harmless; the WARN and the underlying race
+are not.
 
+The bug was reported by syzbot, triggered via fault injection
+(fail_nth) on the DRM_IOCTL_MODE_CURSOR path, which forces the
+-ENOMEM branch in dma_resv_reserve_fences().
 
+Reported-by: syzbot+72bd3dd3a5d5f39a0271@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=72bd3dd3a5d5f39a0271
+Fixes: 5cfd31c5b3a3 ("drm/virtio: fix virtio_gpu_cursor_plane_update().")
+Cc: stable@vger.kernel.org
+Signed-off-by: Deepanshu Kartikey <kartikey406@gmail.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index a126d1b25f46..ca379b08b9ec 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -459,7 +459,10 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
+ 		if (!objs)
+ 			return;
+ 		virtio_gpu_array_add_obj(objs, vgfb->base.obj[0]);
+-		virtio_gpu_array_lock_resv(objs);
++		if (virtio_gpu_array_lock_resv(objs)) {
++			virtio_gpu_array_put_free(objs);
++			return;
++		}
+ 		virtio_gpu_cmd_transfer_to_host_2d
+ 			(vgdev, 0,
+ 			 plane->state->crtc_w,
 -- 
-MST
+2.43.0
 
