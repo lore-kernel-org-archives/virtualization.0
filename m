@@ -1,40 +1,39 @@
 Received: from mail.nessuent.net (mail.nessuent.net [188.245.177.90])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90ACD38F65C
-	for <virtualization@lists.linux.dev>; Sun, 10 May 2026 13:38:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36CCF38F638
+	for <virtualization@lists.linux.dev>; Sun, 10 May 2026 13:38:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=188.245.177.90
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778420322; cv=none; b=XkfvcTOBOB8mq8XqvosBylODD/YvbtLA/O0x6zMnLbjmzVEIbilWipGqw07DLVrlBKWF8aKwrtkPDK5Ge0R0Io3RXU1HuC65S5olVEjrYeGKrhcNNSqoPMCwo51gPiKnleZUKZMUmACmxBSLXggTBzC19lZzlnPEYbDkO62evqE=
+	t=1778420326; cv=none; b=qQ8l75fZCs99/je7ob+rANeqsFICoisaIll2aLSKoP/Trg09hygFjk5yHHlP49wzXH9CB/oepi6AmxnTfkzTzEcdvrUhS6vHcApnQ+H4PDJrr84aMgqTxt3KVcK7O+Dk1ZDUVuujuOSMYrP+mQ3GTJ/0HolkvtDJ/lRD/JZ9jv4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778420322; c=relaxed/simple;
-	bh=hcTYlDg84gZsUt1opDAEy/hJk/exwjLlY5Z3TwHRPGc=;
+	s=arc-20240116; t=1778420326; c=relaxed/simple;
+	bh=msIA3QDkNRl5CiYMJuFdB8gcwSF6bQ5gs2Bh4tXdmNA=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=C5g3kt0lHXYo8G0Ou1B4xfmcBcV2UX0Tl7VVo4JOlUpLwLCmuO8iIxkbaifDdXX0QFSz9izUrTd5sEUNYe0lNN9URWM3eqPJUev/UjjAClPJlFRU8DscamsTnXE5VqtVn4fPuFYRek/6A/tmKzSC+pKRqoiqSFUCOPivLbbpOuQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=pitsidianak.is; spf=pass smtp.mailfrom=pitsidianak.is; dkim=pass (4096-bit key) header.d=pitsidianak.is header.i=@pitsidianak.is header.b=tPEShpZz; arc=none smtp.client-ip=188.245.177.90
+	 In-Reply-To:To:Cc; b=YifQcD9PHB0JV2ZKgxboml6D9V5kihbIrR+TpJXRDcSOvK+p7IYpGkpOmt4DRCtbAOMzQwwA852S5bFQ1+oloFvLNRgNAenUBjG/r9PcJBfc+pjhDfMaj2BRvXNksyTDeBaMe20FD8cTil3hBOxbc3bPdtw8Bk7ldpgs/iy+ssc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=pitsidianak.is; spf=pass smtp.mailfrom=pitsidianak.is; dkim=pass (4096-bit key) header.d=pitsidianak.is header.i=@pitsidianak.is header.b=gLj+oYy4; arc=none smtp.client-ip=188.245.177.90
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=pitsidianak.is
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pitsidianak.is
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=pitsidianak.is header.i=@pitsidianak.is header.b="tPEShpZz"
+	dkim=pass (4096-bit key) header.d=pitsidianak.is header.i=@pitsidianak.is header.b="gLj+oYy4"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=pitsidianak.is;
-	s=mailSelector; t=1778420314;
-	bh=hcTYlDg84gZsUt1opDAEy/hJk/exwjLlY5Z3TwHRPGc=;
+	s=mailSelector; t=1778420316;
+	bh=msIA3QDkNRl5CiYMJuFdB8gcwSF6bQ5gs2Bh4tXdmNA=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc:From:Subject;
-	b=tPEShpZzjQzwhkTB5MUsoX4PaeYFzQAUxy2cjTA0rOJRhtsgzZDJYMiCxfshvDfj/
-	 o3JQAs3vVh/nDvWQFhplIrC43zgmp6W0n2IlMsRiTD2sQonOXwW1uUzhCHlOZ+qurm
-	 qbq46DWamJfe5Esd8WoI9cVOkyQ2WR4j6aIV7ZKVB9/2PqUvfUKOmLNt8MQqGe6O52
-	 EIDTIPS+jJKU9Zu5vaNIDzU5olAGZ9N6B33jbJrWGYuvWVPwnlMx1t7hFxquGURVxQ
-	 3OCUBf6Y439S2UumliFY0Dy+y7aIVyaRQXAap/qv3jTRaMOzvclIZBw1MxXEm0u2oc
-	 JgRv51KXIU8nTu0aZeV/SY9R9qxqflbtPpepqFO3B7a4rAswO/YFLZZxVjYV+Wbh/W
-	 HAgKN49gzL5fuKi/KfVsjRzvGrrJ+6TPLrvXL19Q1mOyHr9LA02TeLAaqOkv3BsS3o
-	 vRaCpW1+AUPKLnjFfiovHGvW9DewWnsmOIiCByBOc4YQFDjdNjgzdplD8TZSTq2Ais
-	 P1X5eC6GKcBvMDNjF+hjcKPQ1hy3QivqLyR8XH9Eb4moawb3vhneFhebSZ6TBtGK6g
-	 EfjqG/Uqf1TpiLvup312PQwNk6mkyQLRmjBHle862poe45vXBxWIzzAkLLZris/sqE
-	 miFjup22BCzQY3P8A7fZTW/0=
+	b=gLj+oYy4O5i+m33NxYSFhA0eIGBoRBt6XpUYtMiRzEgkFRWNfC88dvUzvdchjg5Os
+	 bYjT409u+zjnVrAmVm4AKXhKTmpTrbzB+nXZmFq8oi8YH8eM1qPEXGlkIP28AhxT/m
+	 pBF7DCnnmod51igXs0MFZDtS/EqbTVhbNCqs8Ex1fAi5LMGQEw2IEkVuzexA7fxtU2
+	 lULwiWSZNT/OlqzbCbLq5bcEkeotQ+jlxKpm86N4yhCwasL8vapgyexvyu4tWAn/go
+	 mZyQZRfUeAjDDgqA0fEgOaL9joCKjehzk/AGWeWJ7fu6jjzYklcf7QYzv8oYnGNtc8
+	 lgG+qugDTdEpgLEbb/bc1UBMesirur4yQByjGd7CpONu+Q0TuSZ4N5QLGagTFUvLbp
+	 OkwC3CcBuQYUCXJMX53um51f6dPJ8z3KLyfVUOoOgd6l0acyJEzgbfpiQIHG5lKa2O
+	 bq6ghgmPgRJUv9JHPxJ0Gr5+2MkPHKyeUnsqCS4Ac88lD5IshamK6Pg2P3mEXyBNXn
+	 0G1KGd1rguQ3QCYFdZA5+T8dFzsZvfg6fvcn0/LLwwGJvIqpl59RrRfPB92XkNFthe
+	 +nUA4kKoEsth/gz+o0fc7CFCWy7lsDdu4sDVAkIlGDzEYTaoCXWHsBvmqI0U6aJIVX
+	 EoutaNAKlpozT6GCaMzXg4gA=
 From: Manos Pitsidianakis <manos@pitsidianak.is>
-Date: Sun, 10 May 2026 16:38:16 +0300
-Subject: [PATCH RFC v3 3/6] rust/kernel/device: return parent at same
- context
+Date: Sun, 10 May 2026 16:38:18 +0300
+Subject: [PATCH RFC v3 5/6] rust: impl interruptible waits for Completion
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -43,7 +42,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260510-rust-virtio-v3-3-1427f14d67e1@pitsidianak.is>
+Message-Id: <20260510-rust-virtio-v3-5-1427f14d67e1@pitsidianak.is>
 References: <20260510-rust-virtio-v3-0-1427f14d67e1@pitsidianak.is>
 In-Reply-To: <20260510-rust-virtio-v3-0-1427f14d67e1@pitsidianak.is>
 To: Miguel Ojeda <ojeda@kernel.org>
@@ -64,49 +63,93 @@ Cc: Manos Pitsidianakis <manos.pitsidianakis@linaro.org>,
  =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
  virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
  Manos Pitsidianakis <manos@pitsidianak.is>
-X-Developer-Signature: v=1; a=openpgp-sha256; l=984; i=manos@pitsidianak.is;
- h=from:subject:message-id; bh=hcTYlDg84gZsUt1opDAEy/hJk/exwjLlY5Z3TwHRPGc=;
+X-Developer-Signature: v=1; a=openpgp-sha256; l=2340; i=manos@pitsidianak.is;
+ h=from:subject:message-id; bh=msIA3QDkNRl5CiYMJuFdB8gcwSF6bQ5gs2Bh4tXdmNA=;
  b=LS0tLS1CRUdJTiBQR1AgTUVTU0FHRS0tLS0tCgpvd0VCYlFLUy9aQU5Bd0FLQVhjcHgzQi9mZ
- 25RQWNzbVlnQnFBSXBTY081VG9jamluSWVGRlRXS3R5NUtWaUIzCnZhNmZpSkNXajZiaThzZHYw
- c1dKQWpNRUFBRUtBQjBXSVFUTVhCdE9SS0JXODRkd0hSQjNLY2R3ZjM0SjBBVUMKYWdDS1VnQUt
- DUkIzS2Nkd2YzNEowT29FRC85bmZaTCtmVm9DeHpFWVdyZ3Bpc3JxUzN5Q05HTUpKTWZKMXdKMQ
- pWVi9NZG9rSVppU3pjdXJvZnhZZ1NMNUVRWFgyZDNKTmNDVWh5dzBCdytYNHIybDEwMFRnTm5QV
- TJyOFVNYVo4CkZoSCtaNFFORTNZVTZXNEZseDlVZWxNYVZMcWJ0dDRJK2p0MlI2TFdTc21xMEVa
- bGZnSHYyZlVxb3lsTUNsaDQKS0c2Y05Kb21hODNwelVheDVQME1zZXdJY2hKVTRvMCtUbklMcjd
- HOXg2ejQ4SHczb3U2N3FzSHNWVFF0MXhnawpNbkdDbVh2U3VVc0dxSkdiUngrMmZtVVdXTUNLMn
- VYMFdZNVhDTmlJeXpBeVlxNXNPQnhNU2pidnhaVnZWKy9kCmhIZzdhQzFSeGVxck5VaStxM1B4L
- 0hKYVMzWWdud1F1ZG95QncrVDNra29LZHpiRzFMa01PL0JCZE9zMkhlNE0KZmN4ZlZtTlpTNlQ5
- TzJDKzFhdjdPMDUzSFIxc2pyZmtPTWFZUVN5M1V3amhBVkRPQmgreEE1VXFLejd2SnlHQwppWWt
- CU2EwbmJGaGFiTy91TW5GNk5ya0s5eTlFbG0rZDlwcVNMVGxaWTNxUklQZCtMZ24wODc2bHpLaG
- k4NEhqCkUzMFB0V1k3OFZVMGg0ZDhNMmJhVjhiS0w5bHVXOHM1YnFMRU5UdG96TEo0ZW9HQmU0Y
- UJQZnJmYTJNOHpKVEsKY0ZVZkd2M1djUEdTNGF4alNXcERoOUkycldZOHlReGhDWUZ5YnNtVER3
- QVcyR201dndveWVOdGloNithYWRrRwpyTlRaN01PUXN2dDRRdUNVTVF3NVJzTzE0VDcyU1RhQmJ
- 2Y0IzRWdodTVQRFNmclk1V29ycVFzbjExVzJreVNaCklqZXNPQT09Cj1PVGlxCi0tLS0tRU5EIF
+ 25RQWNzbVlnQnFBSXBUanRweDRET2FzWmJPa1dkRDAydU42eEpVCk1wMFFVV3RVWHNrWHdXZWhz
+ QldKQWpNRUFBRUtBQjBXSVFUTVhCdE9SS0JXODRkd0hSQjNLY2R3ZjM0SjBBVUMKYWdDS1V3QUt
+ DUkIzS2Nkd2YzNEowRWVORC85UXdiOFJuU2J1Zi93dkhDekJ3L1J4cWdicGg5SjBZUURRR0lHNg
+ pQazJGTnhXTVE0K1JVVTY4NURFM2ViTUdnbUxBL1NSUWFEL0ZkNkJrQzJTcll3dHl3NkVJYnNyV
+ Wp2eWVzWHZVCnp0Zk53WWl3ZEgwZTVORjJQR1VaaXdDZkx2eFdFYTMxZk55SENyMTgzR2h0RHBU
+ NU9mRUN5UXUxRXZpN2RkZlUKS0d0V2hweGhSYldMSGdkR2IvRncvNTErY1NEOWpzb29SYzVaQkc
+ 0cTlsWktFeWRBWXdsSHk3bWxUZUNORisyKwo1bjZHWXdYR0tUNjZoTkd6ZGl5N090MnBPVFZvbD
+ lDODVYUnBKTUd4Y1ZWT3dmR04rbVdrOVNZSnJQRWx6VTdJCkh3WTg0d05UWmFoMzl6RGNYRDNVR
+ DFEVEp2dmhTL0V6ZFFlSlNOb1pqbWFuTmp4NjlLL0NDeTE2NDB4enBUOGEKZWVNZ1FzU3VFRlRK
+ dHRDNzFZbEIrak83bkd1Y1ZRbkdzWXVtalp3eXQyckVlUlR2Z3JiRHRMTWs2clJzeDkreAptM1d
+ KUlRiY3FmQlBSWlkwb01Uei9mcVl2NDJrS2lRcjBvMlNQbUd6MmpNeDlZNi9IK3VoV01LMVNpdy
+ tjMnU4CklCeW51WDZKYlZBbkdWOXFGM2czc0NYYW94N2F4MGRpVHRUS3FEMnVVNUN0a0JvcFdwQ
+ 1RlVUtGanpINHU0dVIKQ3VjQThkazVqYklhckRnYStTM1orbXZaL2piMjdWY2VPTEFRVVZKVGRs
+ SG9UTnpDdE9SMmdlNHk4eGplaEgyTQpLdUdJZjZWUTlFWFJ0QzVVcUdBdVRwb2RkUXdXemtCajJ
+ DMTB1ZE9EQkg4MkUvTndFYWp3bjFWcyt3dks1Wk96ClVnN2dTQT09Cj1MemZGCi0tLS0tRU5EIF
  BHUCBNRVNTQUdFLS0tLS0K
 X-Developer-Key: i=manos@pitsidianak.is; a=openpgp;
  fpr=7C721DF9DB3CC7182311C0BF68BC211D47B421E1
 
-The return value of `Device::parent` method was defaulting to `Normal`
-context, instead of having the same context as `self`.
+Allow Completion to wait interruptibly.
 
 Signed-off-by: Manos Pitsidianakis <manos@pitsidianak.is>
 ---
- rust/kernel/device.rs | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ rust/kernel/sync/completion.rs | 42 +++++++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 41 insertions(+), 1 deletion(-)
 
-diff --git a/rust/kernel/device.rs b/rust/kernel/device.rs
-index 94e0548e76871d8b7de309c1f1c7b77bb49738ed..07d2f1225cd87f4fc091a5d6cb626726ae175894 100644
---- a/rust/kernel/device.rs
-+++ b/rust/kernel/device.rs
-@@ -341,7 +341,7 @@ pub(crate) fn as_raw(&self) -> *mut bindings::device {
+diff --git a/rust/kernel/sync/completion.rs b/rust/kernel/sync/completion.rs
+index c50012a940a3c7a3e0edf302c8f833bdc4415200..17c9e48a5359c0c885be9ebf6843e74d5abe56e5 100644
+--- a/rust/kernel/sync/completion.rs
++++ b/rust/kernel/sync/completion.rs
+@@ -6,7 +6,12 @@
+ //!
+ //! C header: [`include/linux/completion.h`](srctree/include/linux/completion.h)
  
-     /// Returns a reference to the parent device, if any.
-     #[cfg_attr(not(CONFIG_AUXILIARY_BUS), expect(dead_code))]
--    pub(crate) fn parent(&self) -> Option<&Device> {
-+    pub(crate) fn parent(&self) -> Option<&Device<Ctx>> {
-         // SAFETY:
-         // - By the type invariant `self.as_raw()` is always valid.
-         // - The parent device is only ever set at device creation.
+-use crate::{bindings, prelude::*, types::Opaque};
++use crate::{
++    bindings,
++    prelude::*,
++    time::Jiffies,
++    types::Opaque, //
++};
+ 
+ /// Synchronization primitive to signal when a certain task has been completed.
+ ///
+@@ -109,4 +114,39 @@ pub fn wait_for_completion(&self) {
+         // SAFETY: `self.as_raw()` is a pointer to a valid `struct completion`.
+         unsafe { bindings::wait_for_completion(self.as_raw()) };
+     }
++
++    /// Wait for completion of an interruptible task without a timeout.
++    ///
++    /// See also [`Completion::complete_all`].
++    #[inline]
++    pub fn wait_for_completion_interruptible(&self) -> Result {
++        // SAFETY: `self.as_raw()` is a pointer to a valid `struct completion`.
++        let err = unsafe { bindings::wait_for_completion_interruptible(self.as_raw()) };
++        if err < 0 {
++            Err(Error::from_errno(err))
++        } else {
++            Ok(())
++        }
++    }
++
++    /// Wait for completion of an interruptible task with a timeout.
++    ///
++    /// See also [`Completion::complete_all`].
++    #[inline]
++    pub fn wait_for_completion_interruptible_timeout(
++        &self,
++        timeout_jiffies: Jiffies,
++    ) -> Result<Jiffies> {
++        // SAFETY: `self.as_raw()` is a pointer to a valid `struct completion`.
++        let ret: c_long = unsafe {
++            bindings::wait_for_completion_interruptible_timeout(self.as_raw(), timeout_jiffies)
++        };
++        if ret == 0 {
++            return Err(ETIMEDOUT);
++        }
++        match Jiffies::try_from(ret) {
++            Ok(ret) => Ok(ret),
++            Err(_) => Err(Error::from_errno(ret as c_int)),
++        }
++    }
+ }
 
 -- 
 2.47.3
