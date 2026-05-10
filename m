@@ -1,144 +1,195 @@
 Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97DB538F248;
-	Sun, 10 May 2026 14:01:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CAB539DBF8;
+	Sun, 10 May 2026 15:17:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778421715; cv=none; b=uP+Ye/aKcydEEh1Z4l7rFOqqcPyhaKy96Vum2GWeG8z9XGybexTBtr6XuV95uP73pdxeeIywDtMs31pgLMaUWsxLEWAmfnEcYwxwJSHa+uWF6LcNQ/Rz3LIqcBK1q42GzHjAuDE4Oke/hZWolIY6QAKy7ADIJ5AZz6yihemdDys=
+	t=1778426276; cv=none; b=OCGauEssoPoEjSHQSM5VYx2e7sAYJWo9kkin9IWD5k9zm0qrrB7Rh82vFUWfByzfbUaLJz208opTy53DyP+reCaeGerdp60jycdK54BURY9akY2+mQ4uTxuSOQ6R8kc7L+WvBBDU26Bvxfd96ZIXhLPiP3v89ak4E4LzoJcpI3E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778421715; c=relaxed/simple;
-	bh=pw/uO6m0Sg2bglCT9rAWris8gNtorzr200PzIc8N47E=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=PUPWNN+8SWCPvXu5BezComBnOjiUaGnqRGgGh2Z84z/p2OCrZCUmsaXGG5/h5jSEtzqOqCpC//un+TXUyFygaqv4tf+DfqnljRZMQsRKhvPVnyR/8u3EhHFfhzCP6yQ0kF90jCFtzBHNwEep3QeJl8woDgOoeH3AY+PlfKwwsJs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=nEv/p7Eg; arc=none smtp.client-ip=129.217.128.51
+	s=arc-20240116; t=1778426276; c=relaxed/simple;
+	bh=PPGChutAfdYqD7gZH/q4QqxUFXW+Kr5JP5A7AS7ojtc=;
+	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=H8OuvSLa0V39++GLGKsWl5c/nFAsSznXaQqEZ3IiXbOQSpp0LpeGmlXMh/9r2OKoINQW7HCf5lrgZH5NxujQbnohxEmSA0sU9b9RT/ONBjFE5cHwuMKqPHD6KOfnLNMfgz/EDys1+qWpM0kx1QGSeopBzdkz0bl1PwWl3pjFyxU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=H2nRBrpt; arc=none smtp.client-ip=129.217.128.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="nEv/p7Eg"
+	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="H2nRBrpt"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tu-dortmund.de;
-	s=unimail; t=1778421701;
-	bh=pw/uO6m0Sg2bglCT9rAWris8gNtorzr200PzIc8N47E=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=nEv/p7EgjFYW6Q54yovVjH8J+5O91CXq0eC6Tl+VYu5Ah7pGQOhku3C1iYXcSb7wd
-	 SMiCA3gXFsb/cp4uvQpMglqLjaPjIhJ+Aqb+HtlJ5+B9Z+mXe1VCkU+uTizJ/3fV75
-	 +x9NGCSo370EFkTLKBzqIdTPdyWrcc9ZHCXCO4V8=
-Received: from [192.168.178.127] (pd9eaa57d.dip0.t-ipconnect.de [217.234.165.125])
+	s=unimail; t=1778426259;
+	bh=PPGChutAfdYqD7gZH/q4QqxUFXW+Kr5JP5A7AS7ojtc=;
+	h=From:To:Subject:Date:In-Reply-To:References;
+	b=H2nRBrptDNjaF/w7tavJXMWjtHZ/r3vapPC9Wbge8gPG3IPJjus4BRI6kNxVIzojd
+	 n3nCgOgC9GyRPn0vl8mx51JoFROzAUqrBdxc2ir3oZRpbU61+SaIxDdH6lmIrb98b9
+	 MrEvvFkzPVEkQNrQ95a/qrlki46VvEw1QFgBAxj8=
+Received: from simon-Latitude-5450.fritz.box (pd9eaa57d.dip0.t-ipconnect.de [217.234.165.125])
 	(authenticated bits=0)
-	by unimail.uni-dortmund.de (8.19.0.1/8.19.0.1) with ESMTPSA id 64AE1eEY013681
+	by unimail.uni-dortmund.de (8.19.0.1/8.19.0.1) with ESMTPSA id 64AFHaTC009831
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Sun, 10 May 2026 16:01:40 +0200 (CEST)
-Message-ID: <e5d69f44-4483-49f3-b7fc-aca2cdb24792@tu-dortmund.de>
-Date: Sun, 10 May 2026 16:01:39 +0200
+	Sun, 10 May 2026 17:17:38 +0200 (CEST)
+From: Simon Schippers <simon.schippers@tu-dortmund.de>
+To: willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
+        andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, mst@redhat.com,
+        eperezma@redhat.com, leiyang@redhat.com, stephen@networkplumber.org,
+        jon@nutanix.com, tim.gebauer@tu-dortmund.de,
+        simon.schippers@tu-dortmund.de, netdev@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        virtualization@lists.linux.dev
+Subject: [PATCH net-next v12 2/4] vhost-net: wake queue of tun/tap after ptr_ring consume
+Date: Sun, 10 May 2026 17:15:27 +0200
+Message-ID: <20260510151529.43895-3-simon.schippers@tu-dortmund.de>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260510151529.43895-1-simon.schippers@tu-dortmund.de>
+References: <20260510151529.43895-1-simon.schippers@tu-dortmund.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v11 1/4] tun/tap: add ptr_ring consume helper
- with netdev queue wakeup
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
-        andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, eperezma@redhat.com,
-        leiyang@redhat.com, stephen@networkplumber.org, jon@nutanix.com,
-        tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        virtualization@lists.linux.dev
-References: <20260508151048.183125-1-simon.schippers@tu-dortmund.de>
- <20260508151048.183125-2-simon.schippers@tu-dortmund.de>
- <dd0a3ef1-d623-4e09-a391-b56fa4bf95af@tu-dortmund.de>
- <20260509183518-mutt-send-email-mst@kernel.org>
- <a14b700a-94e8-44c0-bde0-d8307761c0f1@tu-dortmund.de>
- <9a4458fc-61f2-469b-8260-f144d3827b5d@tu-dortmund.de>
- <20260510094020-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-From: Simon Schippers <simon.schippers@tu-dortmund.de>
-In-Reply-To: <20260510094020-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On 5/10/26 15:40, Michael S. Tsirkin wrote:
-> On Sun, May 10, 2026 at 10:55:34AM +0200, Simon Schippers wrote:
->> On 5/10/26 09:03, Simon Schippers wrote:
->>> On 5/10/26 00:44, Michael S. Tsirkin wrote:
->>>> On Sat, May 09, 2026 at 06:31:47PM +0200, Simon Schippers wrote:
->>>>> On 5/8/26 17:10, Simon Schippers wrote:
->>>>>> +static void tun_queue_purge(struct tun_struct *tun, struct tun_file *tfile)
->>>>>>  {
->>>>>>  	void *ptr;
->>>>>>  
->>>>>> -	while ((ptr = ptr_ring_consume(&tfile->tx_ring)) != NULL)
->>>>>> +	while ((ptr = tun_ring_consume(tun, tfile)) != NULL)
->>>>>>  		tun_ptr_free(ptr);
->>>>>>  
->>>>>>  	skb_queue_purge(&tfile->sk.sk_write_queue);
->>>>>
->>>>> Sashiko is right once again. tun_ring_consume() in tun_queue_purge()
->>>>> operates on a tfile that is being torn down. Its queue_index is no
->>>>> longer valid. After the swap in __tun_detach(), it points to the
->>>>> netdev subqueue of a different tfile.
->>>>> --> We should not wake there.
->>>>
->>>> Does it not exactly point at ntfile which is what we want to wake?
->>>>
->>>
->>> I see your point. But calling tun_ring_consume() as done here is
->>> wrong, because it does not wake if the tx_ring of the tfile 
->>> (that is currently torn down) is empty. We could change
->>> tun_ring_consume() to call __tun_wake_queue()
->>> with consumed=0 if !ptr but I think this would slow down the consumer
->>> path.
->>>
->>
->> My statement is wrong:
->> There is no way that the tx_ring is empty and the queue is stopped
->> at the same time. So we do not need to touch tun_ring_consume() and
->> this works just fine.
->>
->>>>
->>>>> I will swap tun_ring_consume() with ptr_ring_consume() again and
->>>>> submit a v12 :)
->>>>
->>>> If so then maybe
->>>> netif_tx_wake_queue(netdev_get_tx_queue(tun->dev, index));
->>>>
->>>
->>> But we should only do this if there is space in the ntfile.
->>> My approach:
->>>
->>> @@ -586,12 +588,18 @@ static void __tun_detach(struct tun_file *tfile, bool clean)
->>>  		BUG_ON(index >= tun->numqueues);
->>>  
->>>  		rcu_assign_pointer(tun->tfiles[index],
->>>  				   tun->tfiles[tun->numqueues - 1]);
->>>  		ntfile = rtnl_dereference(tun->tfiles[index]);
->>> +		spin_lock(&ntfile->tx_ring.consumer_lock);
->>>  		ntfile->queue_index = index;
->>>  		ntfile->xdp_rxq.queue_index = index;
->>> +		ntfile->cons_cnt = 0;
->>> +		if (__ptr_ring_empty(&ntfile->tx_ring)) {
->>> +			netif_wake_subqueue(tun->dev, index);
->>> +		}
->>> +		spin_unlock(&ntfile->tx_ring.consumer_lock);
->>>  		rcu_assign_pointer(tun->tfiles[tun->numqueues - 1],
->>>  				   NULL);
->>>
->>> ntfile->cons_cnt is unvalid, because the new queue might not be stopped.
->>> That is the reason why I reset it to 0.
->>
->> However, I still prefer this approach because the code is easier to
->> understand.
-> 
-> 
-> So do you want me to finish review of this one and ack, or want to
-> post v12?
-> 
+Add tun_wake_queue() to tun.c and export it for use by vhost-net. The
+function validates that the file belongs to a tun/tap device and that
+the tfile exists, dereferences the tun_struct under RCU, and delegates
+to __tun_wake_queue().
 
-I will post a v12 with the proposed changes for patch 1.
-No other changes.
+vhost_net_buf_produce() now calls tun_wake_queue() after a successful
+batched consume of the ring to allow the netdev subqueue to be woken up.
+The point is to allow the queue to be stopped when it gets full, which
+is required for traffic shaping - implemented by the following
+"avoid ptr_ring tail-drop when a qdisc is present".
 
-Thanks!
+Without the corresponding queue stopping, this patch alone causes no
+throughput regression for a tap+vhost-net setup sending to a qemu VM:
+3.857 Mpps to 3.891 Mpps.
+
+Details: AMD Ryzen 5 5600X at 4.3 GHz, 3200 MHz RAM, isolated QEMU
+threads, XDP drop program active in VM, pktgen sender; Avg over
+50 runs @ 100,000,000 packets. SRSO and spectre v2 mitigations disabled.
+
+Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
+Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
+---
+ drivers/net/tun.c      | 23 +++++++++++++++++++++++
+ drivers/vhost/net.c    | 21 +++++++++++++++------
+ include/linux/if_tun.h |  3 +++
+ 3 files changed, 41 insertions(+), 6 deletions(-)
+
+diff --git a/drivers/net/tun.c b/drivers/net/tun.c
+index 3dded7c7d12d..cbec66646a4b 100644
+--- a/drivers/net/tun.c
++++ b/drivers/net/tun.c
+@@ -3783,6 +3783,29 @@ struct ptr_ring *tun_get_tx_ring(struct file *file)
+ }
+ EXPORT_SYMBOL_GPL(tun_get_tx_ring);
+ 
++/* Callers must hold ring.consumer_lock */
++void tun_wake_queue(struct file *file, int consumed)
++{
++	struct tun_file *tfile;
++	struct tun_struct *tun;
++
++	if (file->f_op != &tun_fops)
++		return;
++
++	tfile = file->private_data;
++	if (!tfile)
++		return;
++
++	rcu_read_lock();
++
++	tun = rcu_dereference(tfile->tun);
++	if (tun)
++		__tun_wake_queue(tun, tfile, consumed);
++
++	rcu_read_unlock();
++}
++EXPORT_SYMBOL_GPL(tun_wake_queue);
++
+ module_init(tun_init);
+ module_exit(tun_cleanup);
+ MODULE_DESCRIPTION(DRV_DESCRIPTION);
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 80965181920c..ee583d6cc0fa 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -176,13 +176,21 @@ static void *vhost_net_buf_consume(struct vhost_net_buf *rxq)
+ 	return ret;
+ }
+ 
+-static int vhost_net_buf_produce(struct vhost_net_virtqueue *nvq)
++static int vhost_net_buf_produce(struct sock *sk,
++				 struct vhost_net_virtqueue *nvq)
+ {
++	struct file *file = sk->sk_socket->file;
+ 	struct vhost_net_buf *rxq = &nvq->rxq;
+ 
+ 	rxq->head = 0;
+-	rxq->tail = ptr_ring_consume_batched(nvq->rx_ring, rxq->queue,
+-					      VHOST_NET_BATCH);
++	spin_lock(&nvq->rx_ring->consumer_lock);
++	rxq->tail = __ptr_ring_consume_batched(nvq->rx_ring, rxq->queue,
++					       VHOST_NET_BATCH);
++
++	if (rxq->tail)
++		tun_wake_queue(file, rxq->tail);
++
++	spin_unlock(&nvq->rx_ring->consumer_lock);
+ 	return rxq->tail;
+ }
+ 
+@@ -209,14 +217,15 @@ static int vhost_net_buf_peek_len(void *ptr)
+ 	return __skb_array_len_with_tag(ptr);
+ }
+ 
+-static int vhost_net_buf_peek(struct vhost_net_virtqueue *nvq)
++static int vhost_net_buf_peek(struct sock *sk,
++			      struct vhost_net_virtqueue *nvq)
+ {
+ 	struct vhost_net_buf *rxq = &nvq->rxq;
+ 
+ 	if (!vhost_net_buf_is_empty(rxq))
+ 		goto out;
+ 
+-	if (!vhost_net_buf_produce(nvq))
++	if (!vhost_net_buf_produce(sk, nvq))
+ 		return 0;
+ 
+ out:
+@@ -995,7 +1004,7 @@ static int peek_head_len(struct vhost_net_virtqueue *rvq, struct sock *sk)
+ 	unsigned long flags;
+ 
+ 	if (rvq->rx_ring)
+-		return vhost_net_buf_peek(rvq);
++		return vhost_net_buf_peek(sk, rvq);
+ 
+ 	spin_lock_irqsave(&sk->sk_receive_queue.lock, flags);
+ 	head = skb_peek(&sk->sk_receive_queue);
+diff --git a/include/linux/if_tun.h b/include/linux/if_tun.h
+index 80166eb62f41..5f3e206c7a73 100644
+--- a/include/linux/if_tun.h
++++ b/include/linux/if_tun.h
+@@ -22,6 +22,7 @@ struct tun_msg_ctl {
+ #if defined(CONFIG_TUN) || defined(CONFIG_TUN_MODULE)
+ struct socket *tun_get_socket(struct file *);
+ struct ptr_ring *tun_get_tx_ring(struct file *file);
++void tun_wake_queue(struct file *file, int consumed);
+ 
+ static inline bool tun_is_xdp_frame(void *ptr)
+ {
+@@ -55,6 +56,8 @@ static inline struct ptr_ring *tun_get_tx_ring(struct file *f)
+ 	return ERR_PTR(-EINVAL);
+ }
+ 
++static inline void tun_wake_queue(struct file *f, int consumed) {}
++
+ static inline bool tun_is_xdp_frame(void *ptr)
+ {
+ 	return false;
+-- 
+2.43.0
 
