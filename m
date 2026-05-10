@@ -1,130 +1,111 @@
-Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
+Received: from mail.nessuent.net (mail.nessuent.net [188.245.177.90])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ED100261B9B;
-	Sun, 10 May 2026 08:55:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B439338F633
+	for <virtualization@lists.linux.dev>; Sun, 10 May 2026 13:38:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=188.245.177.90
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778403349; cv=none; b=ezZcLlRllgS9t7qMZyb5v/Uhr04VlHUSc0mX8eYOYoF8KPctnYv1bX8wv70rZ74tJnjRiCQjS2WpeOfcwWu4nItwe3tCaxNC5HnUa14rMNX3oV9MJBxxGzegjO9RQgWrj4869RhPZj66YAj5Aj07s8pcTuKB8UPFpuIEAYOU1x8=
+	t=1778420317; cv=none; b=tYH6e1ndT5Zpwqr6tz6JDpHvEV/+1MlIcgDnNArjgLE7/bruZMVchZDep4rWlc3GltYY8N7FqXjiQuY9nfGHMqW/ean9kTsSKD34lb3LZ5TxtDkMCvLruBG7I0C5Rs6OzEKdz57l7iKBAW9gquRAvnPCqUJk7RWr750R8gVwFw0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778403349; c=relaxed/simple;
-	bh=SMtUBZVMpeWH0EUz8sz4vwGLAJFddGEKbluqXrcLqGs=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=OGeoQn0+11wYlUBlfCozZsw2ACves9HS3ohlx5X5RPeot8Py1HzYfz6gHMnqETgME0W+lkafvJ58ev8T2cDmiUbyTB+7YF3BDc5ocg2SQyn7e+889mycvZ1sPEa1da8wuFnyjw6I1GPcQwPG3PpHCU3epoQBbjdZVYwdCC6zJkA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=q2M+ss8G; arc=none smtp.client-ip=129.217.128.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
+	s=arc-20240116; t=1778420317; c=relaxed/simple;
+	bh=jbzi2Emj0Xf9BmoPlY0PU4j/8PVZ/5uK5OX2z0vqwIQ=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=EAh/I1F2D+H1rZqx8R87m5Nuq8hy5ZXXvH+5jgZUjfkj2EpEOCW1F9gwkrBEkY0B/U++CQ1nySyaMJhQYRB7JmrhXX8Jniaww9NQQ06b078QBc1Yh/krHlqgGf67EE0VS11Pc9GQ0sxXISL6ClXXUcViyBzstRjcgOTUvEpGIqI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=pitsidianak.is; spf=pass smtp.mailfrom=pitsidianak.is; dkim=pass (4096-bit key) header.d=pitsidianak.is header.i=@pitsidianak.is header.b=jJIMakZc; arc=none smtp.client-ip=188.245.177.90
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=pitsidianak.is
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pitsidianak.is
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="q2M+ss8G"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tu-dortmund.de;
-	s=unimail; t=1778403337;
-	bh=SMtUBZVMpeWH0EUz8sz4vwGLAJFddGEKbluqXrcLqGs=;
-	h=Date:Subject:From:To:Cc:References:In-Reply-To;
-	b=q2M+ss8GMuJQwsh+4igsxbIxovcV/Uph7HK0UOCwH2lX3SUERqFdBv9KZyvXH4mmV
-	 /PvWT1RklQGsWaPYv2WMXRmOPafE4IUW1EyLK3Zm1B4pqRsSWw20B7Ngnko1aQKKrc
-	 XG57hSspQw4AfBzZZeMltdH1BKMRKhXvfuaJ1wws=
-Received: from [192.168.178.180] (pd9eaa57d.dip0.t-ipconnect.de [217.234.165.125])
-	(authenticated bits=0)
-	by unimail.uni-dortmund.de (8.19.0.1/8.19.0.1) with ESMTPSA id 64A8tY2l026597
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Sun, 10 May 2026 10:55:34 +0200 (CEST)
-Message-ID: <9a4458fc-61f2-469b-8260-f144d3827b5d@tu-dortmund.de>
-Date: Sun, 10 May 2026 10:55:34 +0200
+	dkim=pass (4096-bit key) header.d=pitsidianak.is header.i=@pitsidianak.is header.b="jJIMakZc"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=pitsidianak.is;
+	s=mailSelector; t=1778420311;
+	bh=jbzi2Emj0Xf9BmoPlY0PU4j/8PVZ/5uK5OX2z0vqwIQ=;
+	h=From:Date:Subject:References:In-Reply-To:To:Cc:From:Subject;
+	b=jJIMakZcxlbV8Ybl4Auad0TDT3lBvL/RKO9V6WwdXme2Q2hfootp44qFASSeyHSOq
+	 jyQmYPxwz7HOYwtq9ExGlA0L6CoV5ILOTCWUb63qrPtrBjHNpBjLtcrPl8gv6BXSHD
+	 IEWNShN3D3yYl8F449fexjjLsUaZ9/zhum4ckwNClZyq5RiQvcqJUnYFRfxQy5okJh
+	 OwDCZupK9Kjee5k+bwqFrcR62w0cNbAEQXQkEsWmradN9+91skF0arltt5C0IA8Ojh
+	 M3FdzyayIlSzUkxwB8PbMsRBcyTRS22eVSF6flFdkxkM35dg1pP+gDSTWU40uGELLX
+	 1ium59N5c1NYF6kNTT/+VzBQP71t/7MQkOZWF9I83epv7hMgTJO5EK5BNJ70Fo4efd
+	 gtLm27J3RPZw92pX62HZYrMQIg/eE2cl0wluIXNv5j1oVu0ZzM/n6az4nRrtGsVPae
+	 hgRJkuJyeeFscR4isjOQjJ5pIJ68ksO/uDZMGo0ktSWU0BvMdi6zOL2YO8o+n4ECWJ
+	 hC6XFqXVpgUxO6rXFJtO126tn8AgXcgE3HtsI0iQvNTQiFDgpGIWsRdPuqPP+gPBsi
+	 Wr/g5mD1qY1a4GoZoWImMvwEXH5gGlnwVVDcWXPkfqFn40jHtiUth7L+anN51ZRd7W
+	 8b21CzZyocL89UtLm9gqUr/w=
+From: Manos Pitsidianakis <manos@pitsidianak.is>
+Date: Sun, 10 May 2026 16:38:14 +0300
+Subject: [PATCH RFC v3 1/6] rust/bindings: generate virtio bindings
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v11 1/4] tun/tap: add ptr_ring consume helper
- with netdev queue wakeup
-From: Simon Schippers <simon.schippers@tu-dortmund.de>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
-        andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, eperezma@redhat.com,
-        leiyang@redhat.com, stephen@networkplumber.org, jon@nutanix.com,
-        tim.gebauer@tu-dortmund.de, netdev@vger.kernel.org,
-        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
-        virtualization@lists.linux.dev
-References: <20260508151048.183125-1-simon.schippers@tu-dortmund.de>
- <20260508151048.183125-2-simon.schippers@tu-dortmund.de>
- <dd0a3ef1-d623-4e09-a391-b56fa4bf95af@tu-dortmund.de>
- <20260509183518-mutt-send-email-mst@kernel.org>
- <a14b700a-94e8-44c0-bde0-d8307761c0f1@tu-dortmund.de>
-Content-Language: en-US
-In-Reply-To: <a14b700a-94e8-44c0-bde0-d8307761c0f1@tu-dortmund.de>
-Content-Type: text/plain; charset=UTF-8
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Message-Id: <20260510-rust-virtio-v3-1-1427f14d67e1@pitsidianak.is>
+References: <20260510-rust-virtio-v3-0-1427f14d67e1@pitsidianak.is>
+In-Reply-To: <20260510-rust-virtio-v3-0-1427f14d67e1@pitsidianak.is>
+To: Miguel Ojeda <ojeda@kernel.org>
+Cc: Manos Pitsidianakis <manos.pitsidianakis@linaro.org>, 
+ Peter Hilber <peter.hilber@oss.qualcomm.com>, 
+ Stefano Garzarella <sgarzare@redhat.com>, 
+ Stefan Hajnoczi <stefanha@redhat.com>, 
+ Viresh Kumar <viresh.kumar@linaro.org>, 
+ "Michael S. Tsirkin" <mst@redhat.com>, Boqun Feng <boqun@kernel.org>, 
+ Gary Guo <gary@garyguo.net>, 
+ =?utf-8?q?Bj=C3=B6rn_Roy_Baron?= <bjorn3_gh@protonmail.com>, 
+ Benno Lossin <lossin@kernel.org>, Andreas Hindborg <a.hindborg@kernel.org>, 
+ Alice Ryhl <aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>, 
+ Danilo Krummrich <dakr@kernel.org>, 
+ Daniel Almeida <daniel.almeida@collabora.com>, 
+ rust-for-linux@vger.kernel.org, Jason Wang <jasowang@redhat.com>, 
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+ Manos Pitsidianakis <manos@pitsidianak.is>
+X-Developer-Signature: v=1; a=openpgp-sha256; l=834; i=manos@pitsidianak.is;
+ h=from:subject:message-id; bh=jbzi2Emj0Xf9BmoPlY0PU4j/8PVZ/5uK5OX2z0vqwIQ=;
+ b=LS0tLS1CRUdJTiBQR1AgTUVTU0FHRS0tLS0tCgpvd0VCYlFLUy9aQU5Bd0FLQVhjcHgzQi9mZ
+ 25RQWNzbVlnQnFBSXBSZk1GbzVEdFd3eWc3WEIrOSt5elYvbTR3CkJjSzZnSkZLVFptbUY4OHhi
+ dWVKQWpNRUFBRUtBQjBXSVFUTVhCdE9SS0JXODRkd0hSQjNLY2R3ZjM0SjBBVUMKYWdDS1VRQUt
+ DUkIzS2Nkd2YzNEowSm5SRC85WVFtdlhCTDl5a21iRXhhMTVHZ21odlNWRERSNVYwa1duUk01Vg
+ o2ZUFFeE9YWm1BK0t5eUhRNEFLellIdHBXS25hbjVwT01NcTI2YkhobTJHTUlFUVRlc2hRYnVwa
+ DBKbC9VTktQCno0anFUVUlKRkc4MTRzR0hGdEZFUi93L1pNMWJiOW9mMVlJL3JpT0xta1RFbDRM
+ ZVFwNE9GN2h6WTV5aXllRW4KTjdhNDhuOU1wVnkwbTE0THdTcWlLOEloQ3gycUJFTG9wUDdjOFF
+ yM1FqWloyOHhzdjk5WGxEZUxkRkxaNHdSbApwZm9yU3JKaHNBQ2JkcWRkeUFJOEVwUURTb1Uwdl
+ BZNGxGMUYvT1B2RE4ydzhFWkloWGFHTXBGRG5XUG0yODJZClJ4Y1RmK1h1N0dsTDNXWERWYkVEb
+ VVHaGJwVk9jb3JRUldLZkxGSmFQZitTWUd6Q2h1UXU1WGF2U2dYVkZSVzgKZGtycWZTMXN2K29R
+ SFFTR1hnVkVzQytZT1dPZ3VqbWk4SXQ1ak55SlV0dVUwNDUxT1RhdEhUQ0pBWVFCdmtOYgpkTDB
+ BYVRQbGJ1UjhrcTV4cjlIRUQ0VlZhbTdOQ0Z6UkFySEFjaWd1ZVJzQStURGlBM2tpYVMzTzhIWU
+ I5eE1hClZ5S0hpQnBmOHNGZ3YyemlwU01zNDZJWmFYajM1WUNyRXB3Nk9BUW5DQkIwc0tjdDVyS
+ HF5TzluY3d0bWZsVk8KaGNTK1EyZ1dGSmd4RDl6bDBKZzVOYVFRVzhETlEwZkpDdXNHcStVZnRN
+ RnhXRjJzZVZjWjJzMjEvdmRJVnZobApoRStSTi9KUjlBSTZLaHk2UTVOSTQxdXhPTGxhcm5YdVh
+ LVjVhcjRST0VSM29UNWdyMnJpWVo1UVU5WkpHQUJHCkVXaFFSdz09Cj1xQ0dxCi0tLS0tRU5EIF
+ BHUCBNRVNTQUdFLS0tLS0K
+X-Developer-Key: i=manos@pitsidianak.is; a=openpgp;
+ fpr=7C721DF9DB3CC7182311C0BF68BC211D47B421E1
 
-On 5/10/26 09:03, Simon Schippers wrote:
-> On 5/10/26 00:44, Michael S. Tsirkin wrote:
->> On Sat, May 09, 2026 at 06:31:47PM +0200, Simon Schippers wrote:
->>> On 5/8/26 17:10, Simon Schippers wrote:
->>>> +static void tun_queue_purge(struct tun_struct *tun, struct tun_file *tfile)
->>>>  {
->>>>  	void *ptr;
->>>>  
->>>> -	while ((ptr = ptr_ring_consume(&tfile->tx_ring)) != NULL)
->>>> +	while ((ptr = tun_ring_consume(tun, tfile)) != NULL)
->>>>  		tun_ptr_free(ptr);
->>>>  
->>>>  	skb_queue_purge(&tfile->sk.sk_write_queue);
->>>
->>> Sashiko is right once again. tun_ring_consume() in tun_queue_purge()
->>> operates on a tfile that is being torn down. Its queue_index is no
->>> longer valid. After the swap in __tun_detach(), it points to the
->>> netdev subqueue of a different tfile.
->>> --> We should not wake there.
->>
->> Does it not exactly point at ntfile which is what we want to wake?
->>
-> 
-> I see your point. But calling tun_ring_consume() as done here is
-> wrong, because it does not wake if the tx_ring of the tfile 
-> (that is currently torn down) is empty. We could change
-> tun_ring_consume() to call __tun_wake_queue()
-> with consumed=0 if !ptr but I think this would slow down the consumer
-> path.
->
+Add virtio headers if CONFIG_VIRTIO is enabled.
 
-My statement is wrong:
-There is no way that the tx_ring is empty and the queue is stopped
-at the same time. So we do not need to touch tun_ring_consume() and
-this works just fine.
+Signed-off-by: Manos Pitsidianakis <manos@pitsidianak.is>
+---
+ rust/bindings/bindings_helper.h | 5 +++++
+ 1 file changed, 5 insertions(+)
 
->>
->>> I will swap tun_ring_consume() with ptr_ring_consume() again and
->>> submit a v12 :)
->>
->> If so then maybe
->> netif_tx_wake_queue(netdev_get_tx_queue(tun->dev, index));
->>
-> 
-> But we should only do this if there is space in the ntfile.
-> My approach:
-> 
-> @@ -586,12 +588,18 @@ static void __tun_detach(struct tun_file *tfile, bool clean)
->  		BUG_ON(index >= tun->numqueues);
->  
->  		rcu_assign_pointer(tun->tfiles[index],
->  				   tun->tfiles[tun->numqueues - 1]);
->  		ntfile = rtnl_dereference(tun->tfiles[index]);
-> +		spin_lock(&ntfile->tx_ring.consumer_lock);
->  		ntfile->queue_index = index;
->  		ntfile->xdp_rxq.queue_index = index;
-> +		ntfile->cons_cnt = 0;
-> +		if (__ptr_ring_empty(&ntfile->tx_ring)) {
-> +			netif_wake_subqueue(tun->dev, index);
-> +		}
-> +		spin_unlock(&ntfile->tx_ring.consumer_lock);
->  		rcu_assign_pointer(tun->tfiles[tun->numqueues - 1],
->  				   NULL);
-> 
-> ntfile->cons_cnt is unvalid, because the new queue might not be stopped.
-> That is the reason why I reset it to 0.
+diff --git a/rust/bindings/bindings_helper.h b/rust/bindings/bindings_helper.h
+index 083cc44aa952c2b29ab82d5d481063a1cf48bccf..1cbe1a4b5647fd646c1be3c5c80fb24ae7b97a4a 100644
+--- a/rust/bindings/bindings_helper.h
++++ b/rust/bindings/bindings_helper.h
+@@ -151,3 +151,8 @@ const vm_flags_t RUST_CONST_HELPER_VM_NOHUGEPAGE = VM_NOHUGEPAGE;
+ #include "../../drivers/android/binder/rust_binder_events.h"
+ #include "../../drivers/android/binder/page_range_helper.h"
+ #endif
++
++#if IS_ENABLED(CONFIG_VIRTIO)
++#include <linux/virtio_config.h>
++#include <uapi/linux/virtio_ids.h>
++#endif /* IS_ENABLED(CONFIG_VIRTIO) */
 
-However, I still prefer this approach because the code is easier to
-understand.
+-- 
+2.47.3
 
