@@ -1,33 +1,33 @@
 Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CB3139E19C;
-	Sun, 10 May 2026 15:17:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C8BA39EF1E;
+	Sun, 10 May 2026 15:17:54 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778426277; cv=none; b=dX8L7OwRO4H4jhJpUdEww5Abf3ciIqgTuBD3aXDxLijhTd85GVdUFyVSrHtbvV6UPmspBdcPWGYmrx7S7dIH9BB1n5QQUP+2LssBy0M0WjST04odfcA8vktWuiJVZ9hlbt2svnZwD5P9fF59Vgp0+5xgkmrfJkHmJJzh3wxdLa8=
+	t=1778426278; cv=none; b=n8KWzI3YUBcV5lTS4VMLrjLVO4BXXSTaOB3xZk337tpqN5cdkhJBFUmUzwIbpv2Vcf71n4OkdtIRYBGui1cR18jw6OrynSLeDBhbD5iLK+PeIjvFXpFyeg+mmJGIOq5AU4AVWT25ltN+ASWt4pRgQKkmkDU4+FXlL+tccvA2d48=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778426277; c=relaxed/simple;
-	bh=Vy7iPcU6h0IBTmamxg16YIZGUkfgxD2PzxMOQTuNbMI=;
+	s=arc-20240116; t=1778426278; c=relaxed/simple;
+	bh=+mcQTZU20sAWYXW9EG7YpT2irSTxXUzAf5dqIb6jXm4=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=A6Y43jYXUDM055MqTMnca7puEBIU8pgop+nKeHhDfNA3LAXf9nKNIppnCxCq+ctVyvvMQG1F9XA7kvRTJeEorC99addyCJmEVGrtUP1Q/Q8TCOXa2Ogqyh6zIgLSmN09n2faBv5eWU1XOGXrECuq1gYD1oiSCwJ8VQZ+VG6Jcy4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=U5KUi7ac; arc=none smtp.client-ip=129.217.128.51
+	 MIME-Version; b=UUcphPVhUQPRB6PBvPJlyYGFCoOnOkbYTNrl6rcnD7wIv5LBRZprCkrmO+E7BEHxEZvLV4m8Gzaiw5HSV/22gp3oj1sNCmzoNwFLJCRZvAa3LQGwoMaztMbXrplwerISmHyAONlGfVwg+7r4uuw/LB/iUDM9nBX4YaaIK9iGa4Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=JfrOTYLw; arc=none smtp.client-ip=129.217.128.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="U5KUi7ac"
+	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="JfrOTYLw"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=tu-dortmund.de;
-	s=unimail; t=1778426258;
-	bh=Vy7iPcU6h0IBTmamxg16YIZGUkfgxD2PzxMOQTuNbMI=;
+	s=unimail; t=1778426260;
+	bh=+mcQTZU20sAWYXW9EG7YpT2irSTxXUzAf5dqIb6jXm4=;
 	h=From:To:Subject:Date:In-Reply-To:References;
-	b=U5KUi7acVUG1pECA697Xe5WTE3SEbtvrBN4yTjHN8ziRo4YnQ4fr1aLsPl6/jwDsY
-	 Bz6kttjtfiuD94TbTBByJhgVnXbYAj8lQUgLLlTWEyuz23dKBLpp7GGWhm4/9aq3cA
-	 L5dDO10a8vu9zenOAodrGZKV6vyuGavwVtM5ZURc=
+	b=JfrOTYLwvlTRFJQfheFjDwLdrq7sYgTFwJ/ehOf2gmY2R7/LOIwQJnOnapiktoDt/
+	 E+WLzqY+k7z5p0YpDi4YKhL6hpzcdnLx29FOduagrhrdwvEaGPbWzoZ796iBoVKQBg
+	 pXs7JYTpY34ZHL8LrVGb1BjkpwiHyGPXGFYeG5/0=
 Received: from simon-Latitude-5450.fritz.box (pd9eaa57d.dip0.t-ipconnect.de [217.234.165.125])
 	(authenticated bits=0)
-	by unimail.uni-dortmund.de (8.19.0.1/8.19.0.1) with ESMTPSA id 64AFHaTA009831
+	by unimail.uni-dortmund.de (8.19.0.1/8.19.0.1) with ESMTPSA id 64AFHaTG009831
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Sun, 10 May 2026 17:17:38 +0200 (CEST)
+	Sun, 10 May 2026 17:17:40 +0200 (CEST)
 From: Simon Schippers <simon.schippers@tu-dortmund.de>
 To: willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
         andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
@@ -37,9 +37,9 @@ To: willemdebruijn.kernel@gmail.com, jasowang@redhat.com,
         simon.schippers@tu-dortmund.de, netdev@vger.kernel.org,
         linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
         virtualization@lists.linux.dev
-Subject: [PATCH net-next v12 1/4] tun/tap: add ptr_ring consume helper with netdev queue wakeup
-Date: Sun, 10 May 2026 17:15:26 +0200
-Message-ID: <20260510151529.43895-2-simon.schippers@tu-dortmund.de>
+Subject: [PATCH net-next v12 4/4] tun/tap & vhost-net: avoid ptr_ring tail-drop when a qdisc is present
+Date: Sun, 10 May 2026 17:15:29 +0200
+Message-ID: <20260510151529.43895-5-simon.schippers@tu-dortmund.de>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260510151529.43895-1-simon.schippers@tu-dortmund.de>
 References: <20260510151529.43895-1-simon.schippers@tu-dortmund.de>
@@ -51,170 +51,130 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Introduce tun_ring_consume() that wraps ptr_ring_consume() and calls
-__tun_wake_queue(). The latter wakes the stopped netdev subqueue once
-half of the ring capacity has been consumed, tracked via the new
-cons_cnt field in tun_file. As a safety net, the queue is also woken on
-the last consumed entry if it leaves the ring empty. The point is to
-allow the queue to be stopped when it gets full, which is required for
-traffic shaping - implemented by the following "avoid ptr_ring tail-drop
-when a qdisc is present".
+This commit prevents tail-drop when a qdisc is present and the ptr_ring
+becomes full. Once the ring reaches capacity after a produce attempt,
+the netdev queue is stopped instead of dropping subsequent packets.
+If no qdisc is present, the previous tail-drop behavior is preserved.
 
-Some implementation details:
-- tun_ring_recv() replaces ptr_ring_consume() with tun_ring_consume()
-  to properly wake the queue.
-- __tun_detach() locks the tx_ring.consumer_lock to avoid races with
-  the consumer on the queue_index.
-- The ptr_ring_consume() call in tun_queue_purge() is not replaced with
-  tun_ring_consume(). Instead, within the same tx_ring.consumer_lock
-  in __tun_detach(), the netdev queue is woken for the ntfile taking
-  it over, to avoid a possible stall. This does not matter for
-  tun_detach_all(), as it is called during device teardown and no tfile
-  takes over any queue.
-- Reset cons_cnt in tun_attach() so the half-ring wake threshold is
-  valid for the new ring size after ptr_ring_resize().
-- tun_queue_resize() wakes all queues after resizing with the proper
-  tx_ring.consumer_lock and resets the cons_cnt to avoid a possible
-  stale queue.
-- The aforementioned upcoming patch explains the pairing of the smp_mb()
-  of __tun_wake_queue().
+If producing an entry fails anyway due to a race, tun_net_xmit() drops
+the packet. Such races are expected because LLTX is enabled and the
+transmit path operates without the usual locking.
 
-Without the corresponding queue stopping, this patch alone causes no
-regression for a tap setup sending to a qemu VM: 1.132 Mpps
-to 1.134 Mpps.
+The __tun_wake_queue() function of the consumer races with the producer
+for waking/stopping the netdev queue, which could result in a stalled
+queue. Therefore, an smp_mb__after_atomic() is introduced that pairs
+with the smp_mb() of the consumer. It follows the principle of store
+buffering described in tools/memory-model/Documentation/recipes.txt:
 
-Details: AMD Ryzen 5 5600X at 4.3 GHz, 3200 MHz RAM, isolated QEMU
-threads, pktgen sender; Avg over 50 runs @ 100,000,000 packets;
-SRSO and spectre v2 mitigations disabled.
+- The producer in tun_net_xmit() first sets __QUEUE_STATE_DRV_XOFF,
+  followed by an smp_mb__after_atomic() (= smp_mb()), and then reads the
+  ring with __ptr_ring_check_produce().
+
+- The consumer in __tun_wake_queue() first writes zero to the ring in
+  __ptr_ring_consume(), followed by an smp_mb(), and then reads the queue
+  status with netif_tx_queue_stopped().
+
+=> Following the aforementioned principle, it is impossible for the
+   producer to see a full ring (and therefore not wake the queue on the
+   re-check) while the consumer simultaneously fails to see a stopped
+   queue (and therefore also does not wake it).
+
+Benchmarks:
+The benchmarks show a slight regression in raw transmission performance
+when using two sending threads. Packet loss also occurs only in the
+two-thread sending case; no packet loss was observed with a single
+sending thread.
+
+Test setup:
+AMD Ryzen 5 5600X at 4.3 GHz, 3200 MHz RAM, isolated QEMU threads;
+Average over 50 runs @ 100,000,000 packets. SRSO and spectre v2
+mitigations disabled.
+
+Note for tap+vhost-net:
+XDP drop program active in VM -> ~2.5x faster; slower for tap due to
+more syscalls (high utilization of entry_SYSRETQ_unsafe_stack in perf)
+
++--------------------------+--------------+----------------+----------+
+| 1 thread                 | Stock        | Patched with   | diff     |
+| sending                  |              | fq_codel qdisc |          |
++------------+-------------+--------------+----------------+----------+
+| TAP        | Received    | 1.132 Mpps   | 1.123 Mpps     | -0.8%    |
+|            +-------------+--------------+----------------+----------+
+|            | Lost/s      | 3.765 Mpps   | 0 pps          |          |
++------------+-------------+--------------+----------------+----------+
+| TAP        | Received    | 3.857 Mpps   | 3.901 Mpps     | +1.1%    |
+|            +-------------+--------------+----------------+----------+
+| +vhost-net | Lost/s      | 0.802 Mpps   | 0 pps          |          |
++------------+-------------+--------------+----------------+----------+
+
++--------------------------+--------------+----------------+----------+
+| 2 threads                | Stock        | Patched with   | diff     |
+| sending                  |              | fq_codel qdisc |          |
++------------+-------------+--------------+----------------+----------+
+| TAP        | Received    | 1.115 Mpps   | 1.081 Mpps     | -3.0%    |
+|            +-------------+--------------+----------------+----------+
+|            | Lost/s      | 8.490 Mpps   | 391 pps        |          |
++------------+-------------+--------------+----------------+----------+
+| TAP        | Received    | 3.664 Mpps   | 3.555 Mpps     | -3.0%    |
+|            +-------------+--------------+----------------+----------+
+| +vhost-net | Lost/s      | 5.330 Mpps   | 938 pps        |          |
++------------+-------------+--------------+----------------+----------+
 
 Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
 Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
 Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
 ---
- drivers/net/tun.c | 61 +++++++++++++++++++++++++++++++++++++++++++----
- 1 file changed, 57 insertions(+), 4 deletions(-)
+ drivers/net/tun.c | 25 +++++++++++++++++++++++--
+ 1 file changed, 23 insertions(+), 2 deletions(-)
 
 diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index b183189f1853..3dded7c7d12d 100644
+index cbec66646a4b..bfa49fa9e3a1 100644
 --- a/drivers/net/tun.c
 +++ b/drivers/net/tun.c
-@@ -145,6 +145,8 @@ struct tun_file {
- 	struct list_head next;
- 	struct tun_struct *detached;
- 	struct ptr_ring tx_ring;
-+	/* Protected by tx_ring.consumer_lock */
-+	int cons_cnt;
- 	struct xdp_rxq_info xdp_rxq;
- };
+@@ -1018,6 +1018,7 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
+ 	struct netdev_queue *queue;
+ 	struct tun_file *tfile;
+ 	int len = skb->len;
++	int ret;
  
-@@ -588,8 +590,13 @@ static void __tun_detach(struct tun_file *tfile, bool clean)
- 		rcu_assign_pointer(tun->tfiles[index],
- 				   tun->tfiles[tun->numqueues - 1]);
- 		ntfile = rtnl_dereference(tun->tfiles[index]);
-+		spin_lock(&ntfile->tx_ring.consumer_lock);
- 		ntfile->queue_index = index;
- 		ntfile->xdp_rxq.queue_index = index;
-+		ntfile->cons_cnt = 0;
-+		if (__ptr_ring_empty(&ntfile->tx_ring))
-+			netif_wake_subqueue(tun->dev, index);
-+		spin_unlock(&ntfile->tx_ring.consumer_lock);
- 		rcu_assign_pointer(tun->tfiles[tun->numqueues - 1],
- 				   NULL);
+ 	rcu_read_lock();
+ 	tfile = rcu_dereference(tun->tfiles[txq]);
+@@ -1072,13 +1073,33 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
  
-@@ -730,6 +737,9 @@ static int tun_attach(struct tun_struct *tun, struct file *file,
- 		goto out;
+ 	nf_reset_ct(skb);
+ 
+-	if (ptr_ring_produce(&tfile->tx_ring, skb)) {
++	queue = netdev_get_tx_queue(dev, txq);
++
++	spin_lock(&tfile->tx_ring.producer_lock);
++	ret = __ptr_ring_produce(&tfile->tx_ring, skb);
++	if (!qdisc_txq_has_no_queue(queue) &&
++	    __ptr_ring_check_produce(&tfile->tx_ring) == -ENOSPC) {
++		netif_tx_stop_queue(queue);
++		/* Paired with smp_mb() in __tun_wake_queue() */
++		smp_mb__after_atomic();
++		if (!__ptr_ring_check_produce(&tfile->tx_ring))
++			netif_tx_wake_queue(queue);
++	}
++	spin_unlock(&tfile->tx_ring.producer_lock);
++
++	if (ret) {
++		/* This should be a rare case if a qdisc is present, but
++		 * can happen due to lltx.
++		 * Since skb_tx_timestamp(), skb_orphan(),
++		 * run_ebpf_filter() and pskb_trim() could have tinkered
++		 * with the SKB, returning NETDEV_TX_BUSY is unsafe and
++		 * we must drop instead.
++		 */
+ 		drop_reason = SKB_DROP_REASON_FULL_RING;
+ 		goto drop;
  	}
  
-+	spin_lock(&tfile->tx_ring.consumer_lock);
-+	tfile->cons_cnt = 0;
-+	spin_unlock(&tfile->tx_ring.consumer_lock);
- 	tfile->queue_index = tun->numqueues;
- 	tfile->socket.sk->sk_shutdown &= ~RCV_SHUTDOWN;
+ 	/* dev->lltx requires to do our own update of trans_start */
+-	queue = netdev_get_tx_queue(dev, txq);
+ 	txq_trans_cond_update(queue);
  
-@@ -2115,13 +2125,46 @@ static ssize_t tun_put_user(struct tun_struct *tun,
- 	return total;
- }
- 
--static void *tun_ring_recv(struct tun_file *tfile, int noblock, int *err)
-+/* Callers must hold ring.consumer_lock */
-+static void __tun_wake_queue(struct tun_struct *tun,
-+			     struct tun_file *tfile, int consumed)
-+{
-+	struct netdev_queue *txq = netdev_get_tx_queue(tun->dev,
-+						tfile->queue_index);
-+
-+	/* Paired with smp_mb__after_atomic() in tun_net_xmit() */
-+	smp_mb();
-+	if (netif_tx_queue_stopped(txq)) {
-+		tfile->cons_cnt += consumed;
-+		if (tfile->cons_cnt >= tfile->tx_ring.size / 2 ||
-+		    __ptr_ring_empty(&tfile->tx_ring)) {
-+			netif_tx_wake_queue(txq);
-+			tfile->cons_cnt = 0;
-+		}
-+	}
-+}
-+
-+static void *tun_ring_consume(struct tun_struct *tun, struct tun_file *tfile)
-+{
-+	void *ptr;
-+
-+	spin_lock(&tfile->tx_ring.consumer_lock);
-+	ptr = __ptr_ring_consume(&tfile->tx_ring);
-+	if (ptr)
-+		__tun_wake_queue(tun, tfile, 1);
-+
-+	spin_unlock(&tfile->tx_ring.consumer_lock);
-+	return ptr;
-+}
-+
-+static void *tun_ring_recv(struct tun_struct *tun, struct tun_file *tfile,
-+			   int noblock, int *err)
- {
- 	DECLARE_WAITQUEUE(wait, current);
- 	void *ptr = NULL;
- 	int error = 0;
- 
--	ptr = ptr_ring_consume(&tfile->tx_ring);
-+	ptr = tun_ring_consume(tun, tfile);
- 	if (ptr)
- 		goto out;
- 	if (noblock) {
-@@ -2133,7 +2176,7 @@ static void *tun_ring_recv(struct tun_file *tfile, int noblock, int *err)
- 
- 	while (1) {
- 		set_current_state(TASK_INTERRUPTIBLE);
--		ptr = ptr_ring_consume(&tfile->tx_ring);
-+		ptr = tun_ring_consume(tun, tfile);
- 		if (ptr)
- 			break;
- 		if (signal_pending(current)) {
-@@ -2170,7 +2213,7 @@ static ssize_t tun_do_read(struct tun_struct *tun, struct tun_file *tfile,
- 
- 	if (!ptr) {
- 		/* Read frames from ring */
--		ptr = tun_ring_recv(tfile, noblock, &err);
-+		ptr = tun_ring_recv(tun, tfile, noblock, &err);
- 		if (!ptr)
- 			return err;
- 	}
-@@ -3622,6 +3665,16 @@ static int tun_queue_resize(struct tun_struct *tun)
- 					  dev->tx_queue_len, GFP_KERNEL,
- 					  tun_ptr_free);
- 
-+	if (!ret) {
-+		for (i = 0; i < tun->numqueues; i++) {
-+			tfile = rtnl_dereference(tun->tfiles[i]);
-+			spin_lock(&tfile->tx_ring.consumer_lock);
-+			netif_wake_subqueue(tun->dev, tfile->queue_index);
-+			tfile->cons_cnt = 0;
-+			spin_unlock(&tfile->tx_ring.consumer_lock);
-+		}
-+	}
-+
- 	kfree(rings);
- 	return ret;
- }
+ 	/* Notify and wake up reader process */
 -- 
 2.43.0
 
