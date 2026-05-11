@@ -1,71 +1,66 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f172.google.com (mail-qk1-f172.google.com [209.85.222.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D792E371CFF
-	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 21:47:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3D5F337E30D
+	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 21:52:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778536081; cv=none; b=Gqteik84RhOOGvSR5PMfnsTwKQitywONW3cpi6sXy2viOywBKqyQInBwgtyCxMYZBaEfE8ioVDH6+CQdcFpRZA7garvZzDqbvcwLvcHUyR3tmHBLsbEUIOwq+LrTbiT5g3cR/VaYfJlII2BFFcmHYhCBM5ZDa+nceJy7tJdZM1s=
+	t=1778536364; cv=none; b=Z914kyvJ6TuwK4Ga1Lz0Jfv5+KSR/aLj3nUSsfEozk6zVPV9jSndwS/J3C/8XhkKjh8nAwY+rrv+YyQo8lfVJT1xctCkXdyrcehm0oynaT3HkmnAIw/cXYGSI+lxhsmF1x+akJzDqeuypvhr1NEvrGDouKImzrXU/7F+/ayU17E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778536081; c=relaxed/simple;
-	bh=66iH2gLYu4zQZAcOaJ3NTaFrvEJ477mi4pa9WQaFGSU=;
+	s=arc-20240116; t=1778536364; c=relaxed/simple;
+	bh=Kdicn9IKL6UNg+h69nOhQoEg/Jknb996+Pv+LBMMEAQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=jo/x/YrYnhsHC0EvRBTq0UBSwGLaWRnq/Jb1ULRnQ1nHEKxmIxUMPtLc0xVjOMn6I/6srI+StKTi3PfoGp0bBrs6bnJrPCYGTlFvBbxrRGEId0IYxA5ctcV9wJFb68d1Klm+Zj8ldb/JxiEmZ3PTOuBJ67Ovj2cyx3wxd8xPZXY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=We3Jcm0z; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=buFfB4ipSFwlmvBragRqXloljr07RILVs69RXVYTBxC1YG/K9gqU+sVElHegqVKQtsFAqAviYjD1iWXkJX78u9CgZ8+N09u0dnuLTNVBRzXkfoVRwKNZRKMlBW+VQ45ujQUoj/8eyC34XXnYtDFMlrUaWPbFEqzGCfs7GqUAELs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=Ys97uiKJ; arc=none smtp.client-ip=209.85.222.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="We3Jcm0z"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1778536077;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=H1xQri7WeZK2KoP5ZA3AQxtudqmOYwmsKhoFrsVAKDU=;
-	b=We3Jcm0z0zWTR2lMgmkqZKpcJZCLmyi5HzfpYAf+169bQVb4V5eQ++IiWTv9+mMsVNlfx0
-	169+IsQODI7NpOforTUtjg9jL4S8ofaXfbkhDCpyXVxW6XUYkIJ2ZwSQVmHonvkGYn0aWs
-	LfwM/gQv8zET5vSledQsSIlIqiDVDAw=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-367-ozQNaI_bM6OzhU1uqhYLUA-1; Mon, 11 May 2026 17:47:56 -0400
-X-MC-Unique: ozQNaI_bM6OzhU1uqhYLUA-1
-X-Mimecast-MFC-AGG-ID: ozQNaI_bM6OzhU1uqhYLUA_1778536075
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-48906aa28cbso42591305e9.0
-        for <virtualization@lists.linux.dev>; Mon, 11 May 2026 14:47:56 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="Ys97uiKJ"
+Received: by mail-qk1-f172.google.com with SMTP id af79cd13be357-8e8c0c2d2bcso632510685a.1
+        for <virtualization@lists.linux.dev>; Mon, 11 May 2026 14:52:43 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gourry.net; s=google; t=1778536362; x=1779141162; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=zawmE/mtpN2n4/3m+Q4HP4926MV70apZ3swxtsElHX8=;
+        b=Ys97uiKJ6T/lPbn5T1o5ptubv/YscbFhCFIdE/5ZRGLK95lIL/Z4k7PWjDPMk1pTNu
+         pGJ8GVH9CIrWeNT269NLSGX7UZny8vfJQsXRqbxIO09h2p9eFIu5sA1Bbv1B+9QcZZ/t
+         e8FyZWP5E5ptu06KlLm13kNcEPOiDkIx6y+heXV6MkEot4qIXOo7n/xE6IPcqJf2pU9Y
+         6AwJnkOEvC5DX91+EFp49pg1sSyfbQpy5wCSCtsy4Qvqd3t/bVbHKlUKmGQJU0uuFBQf
+         bRCOC+wPA9J5cPeLO+NZWSPVY3laXygtKmW/u+OB1pxj4Ko19TnDMizz3lPgmDrJ4uD7
+         w/0w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778536075; x=1779140875;
+        d=1e100.net; s=20251104; t=1778536362; x=1779141162;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=H1xQri7WeZK2KoP5ZA3AQxtudqmOYwmsKhoFrsVAKDU=;
-        b=N0+pu3FxsIate9lRAa0s9AWF9LPvwN91qvOM+vvI8okD/oh0B+semaqHfpQBzQ/+3S
-         L7VuN7XEBQ4bu6oyWcOu7XyFwJwKxKEWqNY9yf2UoFI7gp4TBddBf63UdCnNoerf9ovf
-         gogd+w6TCDwugp5cUzO/26ZYqtvks4etNDZuT0b/KbqUQzqP51PHo6E3WOcDMS3J6qNC
-         w5H2SFNDbAWx21jQCwgfGy9lqzi/YRfqLSAQjJDFXvkBT8HUKVn0gebV2EE7cXHrgprX
-         qCp6G0sU8gYJSyvQTTpj7MBLbB7U5shFPflRVA1OJDdpp/AqQqOhth49Vnowk17elmv8
-         zlgw==
-X-Forwarded-Encrypted: i=1; AFNElJ+PIKPSik5QJqF90Pqq6M1RGpL2/Bw/yYcRvBamUKjmk6STUNGKGe6CftsMwPv/MucQTrWjwmTPpCxtTTpeBw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxtt3Sevgc9bLli/byLXbcHq0U06YtCEPoiYUdscZ8ZV1YxOFEw
-	gt9Tz8qNeERExP8Ty0AhoL7+uArFnZ/uPWv2Na8hLJwLCddlpAygcUWchTYmjmODh8mJkbF5GNq
-	jp11PZRdoZRLPhZdN1E6Iid3PpiAwknE7PH9i0znaERbOi7G9Q2nbee+6aSR1zXFpvx3U
-X-Gm-Gg: Acq92OEAGXRskc0+MVboTieIKyf4//LAjR8jcWGCXWiQpjwoWNKQeaU9dnJ3jvoeDUK
-	JizQhtKFG47ATJ8JU2uQgF/4YlnuswKn4q/OW4N//GQze0Fwi1kA+LInNb9Q3bcMvkN4msUhzaE
-	jkWEuYFoby4c7jGQAo3o0sQ2utLcWIOmttG5Tt3E6vT0sRR10VMcwkAgqGJrLcVJH2R88Z1GM3N
-	1TZZEmLI00wcWLr21cwIoYVY+iWq08HDsMYBGONLDINxb+PRkURDGlWvyMdMbzhzRUEvasUNr1f
-	uoN+ZRgnZqL7/XSfLJf1QyvvODXyatJOrbpXJ1hPWCXRpzyTPz3OkCRxo1frUc1vHQTZuiG63Kp
-	Gif7PKWfPP/GYYQapc1ePONuuREyQAAtB9+UpKBPe
-X-Received: by 2002:a05:600c:3f0a:b0:48a:5339:a46 with SMTP id 5b1f17b1804b1-48e8e208ec7mr17163625e9.9.1778536075146;
-        Mon, 11 May 2026 14:47:55 -0700 (PDT)
-X-Received: by 2002:a05:600c:3f0a:b0:48a:5339:a46 with SMTP id 5b1f17b1804b1-48e8e208ec7mr17163285e9.9.1778536074640;
-        Mon, 11 May 2026 14:47:54 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-48-7.inter.net.il. [80.230.48.7])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48e8e5dd3e1sm8561305e9.1.2026.05.11.14.47.50
+        bh=zawmE/mtpN2n4/3m+Q4HP4926MV70apZ3swxtsElHX8=;
+        b=DH1e7uMxJdASfmSntgHtLBMfyWzkGrs7EP3J86fLpXt7uwoZqSY9W6OwH2FMeeM6u+
+         pOw0Yw08JTRFSRILA/IvEfy7LN0Vtq163ib+v91cCOuP4qJ8ru2+0rH2mxxNC0QwNoHd
+         YEj1baqCdGQ+pMF0pcyIYyd59a3WHa4AjxZkB0mNBVs9DmbTjnXN616FGtdH8ult3tCo
+         05Mj0xTTCzJjBvQelCt3bzhViv7gTPiUodOSFw99Jq/FNfYc3SZbSFNj4ecRTsAyuR1U
+         m+UqRAAhetpTyDn6A4qL8FriELd9aFbb7dB2lttMBCLNAuzE8gQdrnWlhFUhr7jbk6Pq
+         AMgw==
+X-Forwarded-Encrypted: i=1; AFNElJ9bN1MTOQgKsmTgcMVc6VwNnuAYFDZKAEGNSXZoq08NqmvDHN9tQSic2Q/wSEI3Ap80eeo773vuYCqfn2huiw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwG7dyixPdwwf0xWr/5v1cOYRsEl9/S6ZSFqF1O42D6EIWp32so
+	wnGc2rXZvzxI+PwIkaih4NehNZQdb8wOdTsSLmSkDxjB9rIt2VcwqwKDpnLNtOTyC0Y=
+X-Gm-Gg: Acq92OEX2mR+ynjwHDV3O6AIKihak2TNLWxNKID9p/L2A/UiwA4sj3omErfKBgMU+Km
+	c4M08+Gvri/58Nj/9e1sZOFYP8pIR6KVwKCUA7rEpDegu0EpIKYCNwBaOihyQoi1lc4+hLdiRLZ
+	ccdtzMe2WtwBd4l9Ie5uhjwPGhEyfWt+6/+3j4wDIcNb8EgCvyi5Xo/ydxDM6dCxmLf/zrd3N0N
+	QcboRS1ihn3bG/Ai3OlZHcgN6VTJUc/QQF2orCjGOL6PGdk6mMlMbM8XuoK32PBC7wlXGYWR1MH
+	6psVSSByO3KDgS/IIpBEXfPkwZaM1sXqSzzFptlYAItkhyNknJ2KHmQOrX3gccVnz7DLSu7DYxs
+	JNYdYkU6cikdcRPjyk8BGrstP3kyK5EeVVdpHjyWTLXBvJO8LYsViakOzVOx+4VYrK0AlJ+MkuZ
+	M+LxEjQAFgJYqXBX4momMGpqcRDoMW7hepH3erftygT8n8/0RG7+FiPFkbmdhWeHvEk//dkQQAT
+	jtvQFpVTkzv
+X-Received: by 2002:a05:620a:4003:b0:8ef:3953:7d0 with SMTP id af79cd13be357-90cfd3568e1mr38106785a.51.1778536362049;
+        Mon, 11 May 2026 14:52:42 -0700 (PDT)
+Received: from gourry-fedora-PF4VCD3F (pool-100-36-248-188.washdc.fios.verizon.net. [100.36.248.188])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-90cc338d234sm74534785a.43.2026.05.11.14.52.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 May 2026 14:47:54 -0700 (PDT)
-Date: Mon, 11 May 2026 17:47:48 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Gregory Price <gourry@gourry.net>
+        Mon, 11 May 2026 14:52:41 -0700 (PDT)
+Date: Mon, 11 May 2026 17:52:39 -0400
+From: Gregory Price <gourry@gourry.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-kernel@vger.kernel.org,
 	"David Hildenbrand (Arm)" <david@kernel.org>,
 	Jason Wang <jasowang@redhat.com>,
@@ -101,92 +96,46 @@ Cc: linux-kernel@vger.kernel.org,
 	Kemeng Shi <shikemeng@huaweicloud.com>,
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
-	Andrea Arcangeli <aarcange@redhat.com>
-Subject: Re: [PATCH resend v6 14/30] mm: hugetlb: use __GFP_ZERO and skip
- zeroing for zeroed pages
-Message-ID: <20260511174337-mutt-send-email-mst@kernel.org>
+	Andrea Arcangeli <aarcange@redhat.com>,
+	"Liam R. Howlett" <liam@infradead.org>
+Subject: Re: [PATCH resend v6 10/30] mm: alloc_swap_folio: pass raw fault
+ address to vma_alloc_folio
+Message-ID: <agJPpxyu4gKqq8rj@gourry-fedora-PF4VCD3F>
 References: <cover.1778489843.git.mst@redhat.com>
- <fe1d24d4deafe0f5d1a9c51fcc040d9561c8592a.1778489843.git.mst@redhat.com>
- <agIFq63QZugkWcXJ@gourry-fedora-PF4VCD3F>
+ <369a08b86f51572b2715a9ec577de27ea98000d3.1778489843.git.mst@redhat.com>
+ <agH-PrpY269pyuJQ@gourry-fedora-PF4VCD3F>
+ <20260511174032-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <agIFq63QZugkWcXJ@gourry-fedora-PF4VCD3F>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Vd7HnajzVTKFv3vEIUIkvOUcAFldtUV4P5luNeOc7QI_1778536075
-X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20260511174032-mutt-send-email-mst@kernel.org>
 
-On Mon, May 11, 2026 at 12:36:59PM -0400, Gregory Price wrote:
-> On Mon, May 11, 2026 at 05:03:02AM -0400, Michael S. Tsirkin wrote:
-> > Convert the hugetlb fault and fallocate paths to use __GFP_ZERO.
-> > For pages allocated from the buddy allocator, post_alloc_hook()
-> > handles zeroing.
+On Mon, May 11, 2026 at 05:41:16PM -0400, Michael S. Tsirkin wrote:
+> On Mon, May 11, 2026 at 12:05:18PM -0400, Gregory Price wrote:
+> > On Mon, May 11, 2026 at 05:02:39AM -0400, Michael S. Tsirkin wrote:
+> > > Same change as the previous patch but for alloc_swap_folio:
+> > > pass vmf->address directly instead of ALIGN_DOWN(vmf->address, ...).
+> > > 
 > > 
-> > Hugetlb surplus pages need special handling because they can be
-> > pre-allocated into the pool during mmap (by hugetlb_acct_memory)
-> > before any page fault.  Pool pages are kept around and may need
-> > zeroing long after buddy allocation, so a buddy-level zeroed
-> > hint (consumed at allocation time) cannot track their state.
+> > Starting to seem like this should all just get squashed into once patch.
 > > 
-> > Add a bool *zeroed output parameter to alloc_hugetlb_folio()
-> > so callers know whether the page needs zeroing.  Buddy-allocated
-> > pages are always zeroed (zeroed by post_alloc_hook).  Pool
-> > pages use a new HPG_zeroed flag to track whether the page is
-> > known-zero (freshly buddy-allocated, never mapped to userspace).
-> > The flag is set in alloc_surplus_hugetlb_folio() after buddy
-> > allocation and cleared in free_huge_folio() when a user-mapped
-> > page returns to the pool.
-> > 
-> > Callers that do not need zeroing (CoW, migration) pass NULL for
-> > zeroed and 0 for gfp.
-> > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > Assisted-by: Claude:claude-opus-4-6
-> > Assisted-by: cursor-agent:GPT-5.4-xhigh
-> > ---
-> >  fs/hugetlbfs/inode.c    | 10 ++++++--
-> >  include/linux/hugetlb.h |  8 +++++--
-> >  mm/hugetlb.c            | 52 ++++++++++++++++++++++++++++++-----------
-> >  3 files changed, 53 insertions(+), 17 deletions(-)
-> > 
-> > diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
-> > index 8b05bec08e04..24e42cb10ade 100644
-> > --- a/fs/hugetlbfs/inode.c
-> > +++ b/fs/hugetlbfs/inode.c
-> > @@ -810,14 +810,20 @@ static long hugetlbfs_fallocate(struct file *file, int mode, loff_t offset,
-> >  		 * folios in these areas, we need to consume the reserves
-> >  		 * to keep reservation accounting consistent.
-> >  		 */
-> > -		folio = alloc_hugetlb_folio(&pseudo_vma, addr, false);
-> > +		{
-> > +		bool zeroed;
-> > +
-> > +		folio = alloc_hugetlb_folio(&pseudo_vma, addr, false,
-> > +					   __GFP_ZERO, &zeroed);
+> > ~Gregory
 > 
-> This feels like a very odd pattern:
-> 
->   1) ask for __GFP_ZERO
->   2) Have to check whether it was actually zeroed
-> 
-> Seems like the zeroing piece should just be sunk in if you're going to
-> ask for __GFP_ZERO anyway.  And in that case, maybe just `bool zero` as
-> an argument, rather than GFP (to avoid future overloading of flags).
-> 
-> ~Gregory
+> I mean I was told the patches are too big and too hard to review.
+> It's just same, independent changes made in several places.
+> Does it matter if they are squashed or not?
+>
 
-Heh. The reason is that it either allocates from buddy - using gfp flags
-or from the pool, in which case it zeroes.
+Mostly i think the ordering of the patches thrashes from one set
+(alignment) to another set (USER_ADDR_NONE).  If all of one set was
+pulled ahead of the other then it would be easier to follow.
 
-We could even avoid the bool - just test __GFP_ZERO inside
-alloc_hugetlb_folio. Would that be better?
+This particular set seemed trivial enough to just be one patch, but i
+don't think it matters all that much.
 
-
--- 
-MST
-
+~Gregory
