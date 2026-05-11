@@ -1,212 +1,209 @@
-Received: from CY7PR03CU001.outbound.protection.outlook.com (mail-westcentralusazon11010045.outbound.protection.outlook.com [40.93.198.45])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C539339B3D
-	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 09:45:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.198.45
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778492760; cv=fail; b=IaqLN78VKDpjNcMAXOXMEBJKfDs+RHJbpiu9ksbDQqahl2ARQusMHsT/5vEFYiALTI0mLtfO2OJpDCJ3Ui1z1Ezt/eg56JYYsyQv58MCVq22GEw30BUv1aJDlCjfg6md3yHuarbQ5b+9HLIUDWmg85+vsbtpkOUGOT7UpT0XRBg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778492760; c=relaxed/simple;
-	bh=7oSuAU0xkftyD4Vo8X/Zb2Xd5EN957etOevIuGFtEeg=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=N+bDg3AkbhcKvrkF+5Vn0RJW5VdFE1VroWIcPeeTWFsxWme4p8QvuYDjew4cqp9xw4BhiAMyPpHtMxmTzoUXqS9A5YeKUdCE4cnPbdly6cVu6qfcRFiqUiNzg0QWsdLcl+2ns6oufWvETe0IuHhTFVTcqr7StY3DGjlJAh0jgtM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=Nt+zIsAM; arc=fail smtp.client-ip=40.93.198.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BADA374178
+	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 10:54:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778496898; cv=none; b=UMwSWAAR73r8GM+Q1mfkvtMWvjhKIzMWRz8P2Z+saR+Zom3rQGSRVz8fx636jRwt5DITkhiXlDr6daolNXQAfEGXdMeGGidaP74LqVwx+y01sFB9IF8MdQDM1FCjsw2FHHscd7DVBlzmlq3M5Lk5dCgOMHhM3q+GdFWyZWgRRnI=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778496898; c=relaxed/simple;
+	bh=V8eg8l9LTNxtrgGj41tiN9oiWfET/lpJ8WKuJ9lm5aU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=VJVDKZGRx45eG6G0IwhYMww8sMuU5Oysh0Mf6d0VgY4Cqvg2EL+OzWVpyrZt4DgodtEzTAEPSTwgOH4v/B0Zns+JzaaxcWgO2ih0fYkl3rHXMdB90vJ94NVWmoGvgi0TaKtW4ZSQNwUNDvSVJEKFzd74mCS6+VTUt9xJCAJwLL4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cOcR0HU2; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="Nt+zIsAM"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=OKmSumm+O1yl9klNgYzjeYz/7FPeGX7MWiDUCQrpmhjogHJfyB9zpCEjBALeznWB9OpWbDxGlSqx4xNzre7u3gTktlo0THD+tWmvAJRxfziV4vuJfRLUSsY9IApJSEdCW5Bv0oZdve0ivZeV5McXI2kQZN2t6MJ73YxTQ06SXIrvECOvEL39E7eA4SZOl2E60Ewf3pujbXtFH5Y2O5Zfy0mjIjLxoXmLPiXsMILiaQglBbArkdFZBsfkdVL3l60LI52yecOBH3CtzIK98QbViAkmkrpN2HI4Cem4Q2Z9Voe1UMli0zPJM1oqbxh4fIcxlxsAHepoBzdYXu+Y3Bhs3A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=cekWc08cdXy2tU6vDBoKExg3U0YiKx108Li5vIt0enw=;
- b=lO59YUGcljm2MPqx0Y/dCLbA2QspqJU8qaqkOnQZA20EwzCrt304QKB8xE/e/rzM51Jo2yL/ebt2MJvHgO9PlLONjsmLezB+9AovtdGkbByme2z2nHwz/1wUKu47TbjmUw4X3JSCc0JHIu0MRonFMbyYFjbJeilkCeDqNzVDSjZl967RECIKHzCqvOLg7tb9FEwtwRBJcK+Viu5/bPko9YSd9Uzgggpu3khvbgD1j+kn9XNusy2R7v4mL7qAhi/1lfxnQDj0hH6zmzlXZsE/JZS7eXNmsuzsmQa7NfEZV46KUj54SwjSAoG7G1JcUYN2CswxdDAominpMxECw8fFjg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 216.228.117.160) smtp.rcpttodomain=lists.linux.dev smtp.mailfrom=nvidia.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none header.from=nvidia.com;
- dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=cekWc08cdXy2tU6vDBoKExg3U0YiKx108Li5vIt0enw=;
- b=Nt+zIsAM28scjsr1MHbYgMvKmC/kFHa61eq58Fp9jPX/LeWd6Z3ohfCGd8JE8UspF+7AgIQOsWZmAB8aEb0tC7z70MZm++QxyNhRsLY64kVpP+ylpZSYRV1gbMRxlChPBrdb16Yr7nFp3LKJNFImP0P79FJ6Jewo1NWE3h3zOgnEtudjiIOhx2+cFwDt/aN2edxkFDYNfpSzl7FPiWpGl/va9vFd6UwgZwDLXSQDKfhoPHiFUVl/73uIGXVJG7l3t8BqPRMX/VKSo2hNa6O6cj4MP4axcwBmSvW0vqaoho0G93TOMrz6UuBqqWCMN9b0J3iKv77T4yqa4CbVB86mQg==
-Received: from PH7P221CA0070.NAMP221.PROD.OUTLOOK.COM (2603:10b6:510:328::22)
- by MN2PR12MB4207.namprd12.prod.outlook.com (2603:10b6:208:1d9::23) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9891.23; Mon, 11 May
- 2026 09:45:53 +0000
-Received: from MW1PEPF0001615A.namprd21.prod.outlook.com
- (2603:10b6:510:328:cafe::e0) by PH7P221CA0070.outlook.office365.com
- (2603:10b6:510:328::22) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.20.9891.23 via Frontend Transport; Mon,
- 11 May 2026 09:45:53 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 216.228.117.160)
- smtp.mailfrom=nvidia.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nvidia.com;
-Received-SPF: Pass (protection.outlook.com: domain of nvidia.com designates
- 216.228.117.160 as permitted sender) receiver=protection.outlook.com;
- client-ip=216.228.117.160; helo=mail.nvidia.com; pr=C
-Received: from mail.nvidia.com (216.228.117.160) by
- MW1PEPF0001615A.mail.protection.outlook.com (10.167.249.85) with Microsoft
- SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.21.48.3 via Frontend Transport; Mon, 11 May 2026 09:45:52 +0000
-Received: from rnnvmail203.nvidia.com (10.129.68.9) by mail.nvidia.com
- (10.129.200.66) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Mon, 11 May
- 2026 02:45:33 -0700
-Received: from rnnvmail202.nvidia.com (10.129.68.7) by rnnvmail203.nvidia.com
- (10.129.68.9) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.2.2562.20; Mon, 11 May
- 2026 02:45:33 -0700
-Received: from f43.com (10.127.8.9) by mail.nvidia.com (10.129.68.7) with
- Microsoft SMTP Server id 15.2.2562.20 via Frontend Transport; Mon, 11 May
- 2026 02:45:30 -0700
-From: Dragos Tatulea <dtatulea@nvidia.com>
-To: <virtualization@lists.linux.dev>, Dragos Tatulea <dtatulea@nvidia.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-	"Xuan Zhuo" <xuanzhuo@linux.alibaba.com>, =?UTF-8?q?Eugenio=20P=C3=A9rez?=
-	<eperezma@redhat.com>
-CC: Tariq Toukan <tariqt@nvidia.com>, Shahar Shitrit <shshitrit@nvidia.com>,
-	<linux-kernel@vger.kernel.org>, <kvm@vger.kernel.org>,
-	<netdev@vger.kernel.org>
-Subject: [PATCH] vhost-vdpa: Expose ASID group change after DRIVER_OK via backend feature
-Date: Mon, 11 May 2026 12:45:03 +0300
-Message-ID: <20260511094504.1619893-2-dtatulea@nvidia.com>
-X-Mailer: git-send-email 2.54.0
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cOcR0HU2"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1778496896;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=DNWy/CV2WRe1jDYLvFjqxiC49eSLSSASB8hrdzj5ZF0=;
+	b=cOcR0HU2c2KM+Rj99XNjcn47AKPmN3ndK2tYcblXyomIRx5Uq6/SAorL6MJmhq15T8KWCq
+	06eEOtDQ/t8MKwy/z7luA6jwXht64X1QtTgPkAl29opaofQ5N+TniqxtU7iz/d/y4ioIu2
+	pWNUwKU7KZlVLXAEUBWabLuFtkXabZI=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-651--iLoCIX8NUGreBSYXGZKCg-1; Mon, 11 May 2026 06:54:54 -0400
+X-MC-Unique: -iLoCIX8NUGreBSYXGZKCg-1
+X-Mimecast-MFC-AGG-ID: -iLoCIX8NUGreBSYXGZKCg_1778496894
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-449b2a183d3so3093180f8f.0
+        for <virtualization@lists.linux.dev>; Mon, 11 May 2026 03:54:54 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778496893; x=1779101693;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=DNWy/CV2WRe1jDYLvFjqxiC49eSLSSASB8hrdzj5ZF0=;
+        b=OL1XnX6Db/N0N871X2PtY/7dppeorHW12uwhEHeZs1uvdyiqxznOAkOgOACU/yD38b
+         mkL/vOLe6+L1DF8lhijVtv73uJqP8uij2lup6hZujqKNSZfMER/FqI6WeO/Ow9LEYLro
+         WFYNMkh+FSPgolJShfXr8tkyjC0EqNqG1ySoA0TyO1qjqSO7ZpJm1sdZiYyUK51TWT1q
+         4JGuU4k+EaBongaEoogCU1tVxW073DEn9i5g/gqzVe02w5mshg3C+qt6y3VYq6DCeL/u
+         kXP6L5Wq3jUniDc8sJiA8MDfG/tJe7CzT0S49454obWeeelWKh3b97AwEBUwZYZ0745m
+         Ff3Q==
+X-Forwarded-Encrypted: i=1; AFNElJ+291peliRDaYT0OBQlwHo0jDWsEqeBisYM5GoYHVL0/e1p+dosUj9HbHOj/N+EO6TBSXaTIzEYV+d3asn4VA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx2t/KlhQW/LOLGTwoOf45p6i/3wrBw137+L75wvHLm0PtvF7Dy
+	giPEDJfLvbhMFf2TgARvi1L05Wye1502v7DDi0HsgrtWNtQCHfQKuSWmzDUytL1HAwWgcUf+yIf
+	qQim0F7C5gdQYkNc2iDI3+eV+R9A2AeBF0iAADHZk+YJxZe0UlH6IAymM2kOhBC/Dwg6S
+X-Gm-Gg: Acq92OEvAJ46OgDa2T/AvwzlvW6fUjfBKXCcGYh4n4hzAEnwil97z/OXJC8j++cVsxw
+	kB/E3HSlcFABkLK8uwdcYAhvGti0St7xlwTeJALYRKUAG03VxwTCSlahEwL2deO+3euVbh9/C47
+	gJ3L2gImOHyXoEgJp1BdXTR683m6CvAlz2HI7mbCRL6FBkCZU1PRyx8L3W4pGa66KKcyb20bR9u
+	OMnMPHTK7y+F0J0A4wZ3VIA3xOJHnlcHJqzflemK/fyu7urlrfSPjKP7OwVEobA1DryTToUVFkB
+	tjCKpJF+d81kMJEL313yXK71HG5fLLl81Df8uPdYOyc5MnsAnf+IoFRVSkogThwbXb72Docse/V
+	9hpZtllZbO3TaF0bInS+P5DRE7MvGMPfM4jf+0kvFLrxOZ5Dz/1WdJwY1TCPuret+agXuRSMRul
+	ptE52ouXVC
+X-Received: by 2002:a05:6000:270f:b0:457:d27e:e4ee with SMTP id ffacd0b85a97d-457d27ee505mr6306176f8f.8.1778496893536;
+        Mon, 11 May 2026 03:54:53 -0700 (PDT)
+X-Received: by 2002:a05:6000:270f:b0:457:d27e:e4ee with SMTP id ffacd0b85a97d-457d27ee505mr6306143f8f.8.1778496892956;
+        Mon, 11 May 2026 03:54:52 -0700 (PDT)
+Received: from sgarzare-redhat (host-87-16-204-231.retail.telecomitalia.it. [87.16.204.231])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4548ec6cd75sm23669841f8f.16.2026.05.11.03.54.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 11 May 2026 03:54:52 -0700 (PDT)
+Date: Mon, 11 May 2026 12:54:44 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: netdev@vger.kernel.org, Eric Dumazet <edumazet@google.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux.dev, 
+	"David S. Miller" <davem@davemloft.net>, Jason Wang <jasowang@redhat.com>, 
+	Simon Horman <horms@kernel.org>, linux-kernel@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, kvm@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, 
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>
+Subject: Re: [PATCH net] vsock/virtio: fix skb overhead accounting to
+ preserve full buf_alloc
+Message-ID: <CAGxU2F65pw0P1uKOOJpBc4p6KjCz8iePEh9aPybUyECBm1=otg@mail.gmail.com>
+References: <20260508092330.69690-1-sgarzare@redhat.com>
+ <20260508055125-mutt-send-email-mst@kernel.org>
+ <af2y2Fyp7H-om-ur@sgarzare-redhat>
+ <20260508063104-mutt-send-email-mst@kernel.org>
+ <af28MAV0LF4qHVmB@sgarzare-redhat>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-NV-OnPremToCloud: ExternallySecured
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: MW1PEPF0001615A:EE_|MN2PR12MB4207:EE_
-X-MS-Office365-Filtering-Correlation-Id: f072defb-dd69-4d05-f5df-08deaf42177a
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|36860700016|1800799024|376014|56012099003|18002099003;
-X-Microsoft-Antispam-Message-Info:
-	wWGHtHu8uG85UCNyn5IQ2Mn+xSzmERJt+4vM+6TarUEMA+npUijU6Ty6koGEJ2x5Xc6khP5Zx8RAyH4gIBfs3yuUD7UnxQFOc1tVmsByH9PDnt9vRVfr2YSyQXO0ZV2Egb0KSn+uKPlbHitwRxoi3EqG5Z9OzD5tKeu9nBjY8giAjSdHt4voke6x0o9VoabRNzugbw505SzifmhUBE+PkKI+z8YfJV9aiU1uuyR14Xb5znGq49rXjf2Pd+iacY0G4IMnBqSSWlFjmr8FWRTGiWAJDWKMeKM6+9JWPtdSL499No65JSTA2I6UGW83ATueBdOvELgusBmhbFHoMgVrH5xj6bTBhco9GLVYW7M+1gwAso4dbXz8Zna0HKuigr7vkxdm6AnTB14tjNimvh3e6+ZfuTjefNxSP5aXDt0XF0WNbtLhdQd0MGCDMtBxR4Wzu80yo+/Q38nEeqwLseWRY0EXsukg+lMJI/Cq2cCpbTCGztOTkOVzf/kG5BT7Zz5uMeh/t2F5XHsHNtnGwN13JqdCRuPz9Uh6LGo9TXeDupRtxZTWfrCpkqyMsnWJcFOk5sQ1zU7a+7ywD2pQvt1btU916prm7J6MoQ72jEcojWhtZWNE6levvgMEvrVPxFQLjBOAOblMGn+aKnKmo4sydqt3oqO3i5xVAbWeIfyd6/2kAozqhTYZflVVa9GfVaQFqZRUYZWYx93p/jwlHdq9jyU90D7MzcGgHoAmQS989Jw=
-X-Forefront-Antispam-Report:
-	CIP:216.228.117.160;CTRY:US;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:mail.nvidia.com;PTR:dc6edge1.nvidia.com;CAT:NONE;SFS:(13230040)(82310400026)(36860700016)(1800799024)(376014)(56012099003)(18002099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	ng0Fq4Vck5y6wTRCl6gY7VHf0niA3YEE4BiRVLllc2gjfXKaH8pNdrEyEF4dGNO0Vj27Wp5zubb0PG68vleuqdF53OrRm2b5sa2qUksxSy8NQ37BKG9HgsamWawJUOD6O4WSSPcn7RJUwM0RzwJc6seS0w15o+H8w9apH8rku1mDnVRi+x0BU8zsAhxyHQaERYNeEl9gG0oPH7by0xqUJb0HNZQN3B8tweE4R76hOaHF9rrPVdprPexmGXzYJgjYFHOJ0IS+ZqWnVZl1bEnIxyL4vhwOUeUqH62CkEpswsTIKWEN7V4Kx0sBvAC8aA1V8O/tGYsB99UAdmcBBtmIRTipaq3STMKGJv+2v0usQ5Go2gV9sOqsuhKnWSp1RlVVVESGbpa6PTfpyWvm83DOH/C1r5dpW1pWwudxhACFa9orqyj54vCJo3kg6uad8r9G
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 11 May 2026 09:45:52.8879
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: f072defb-dd69-4d05-f5df-08deaf42177a
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=43083d15-7273-40c1-b7db-39efd9ccc17a;Ip=[216.228.117.160];Helo=[mail.nvidia.com]
-X-MS-Exchange-CrossTenant-AuthSource:
-	MW1PEPF0001615A.namprd21.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Anonymous
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MN2PR12MB4207
+In-Reply-To: <af28MAV0LF4qHVmB@sgarzare-redhat>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: ESk8jMi1lpxHlVSp9s6do36Y5JaK6V6MqFtO2A7vLmk_1778496894
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-The commit in the fixes tag blocked VHOST_VDPA_SET_GROUP_ASID operations
-once DRIVER_OK is set. That is too strict for devices which can safely
-handle this during live migration flows.
+On Fri, 8 May 2026 at 12:38, Stefano Garzarella <sgarzare@redhat.com> 
+wrote:
+>
+> On Fri, May 08, 2026 at 06:33:13AM -0400, Michael S. Tsirkin wrote:
+> >On Fri, May 08, 2026 at 12:01:50PM +0200, Stefano Garzarella wrote:
+> >> On Fri, May 08, 2026 at 05:53:07AM -0400, Michael S. Tsirkin wrote:
+> >> > On Fri, May 08, 2026 at 11:23:30AM +0200, Stefano Garzarella wrote:
+> >> > > From: Stefano Garzarella <sgarzare@redhat.com>
+> >> > >
+> >> > > After commit 059b7dbd20a6 ("vsock/virtio: fix potential unbounded skb
+> >> > > queue"), virtio_transport_inc_rx_pkt() subtracts per-skb overhead from
+> >> > > buf_alloc when checking whether a new packet fits. This reduces the
+> >> > > effective receive buffer below what the user configured via
+> >> > > SO_VM_SOCKETS_BUFFER_SIZE, causing legitimate data packets to be
+> >> > > silently dropped and applications that rely on the full buffer size
+> >> > > to deadlock.
+> >> > >
+> >> > > Also, the reduced space is not communicated to the remote peer, so
+> >> > > its credit calculation accounts more credit than the receiver will
+> >> > > actually accept, causing data loss (there is no retransmission).
+> >> > >
+> >> > > This also causes failures in tools/testing/vsock/vsock_test.c.
+> >> > > Test 18 sometimes fails, while test 22 always fails in this way:
+> >> > >     18 - SOCK_STREAM MSG_ZEROCOPY...hash mismatch
+> >> > >
+> >> > >     22 - SOCK_STREAM virtio credit update + SO_RCVLOWAT...send failed:
+> >> > >     Resource temporarily unavailable
+> >> > >
+> >> > > Fix this by introducing virtio_transport_rx_buf_size() to calculate the
+> >> > > size of the RX buffer based on the overhead. Using it in the acceptance
+> >> > > check, the advertised buf_alloc, and the credit update decision.
+> >> > > Use buf_alloc * 2 as total budget (payload + overhead), similar to how
+> >> > > SO_RCVBUF is doubled to reserve space for sk_buff metadata.
+> >> > > The function returns buf_alloc as long as overhead fits within the
+> >> > > reservation, then gradually reduces toward 0 as overhead exceeds
+> >> > > buf_alloc (e.g. under small-packet flooding), informing the peer to
+> >> > > slow down.
+> >> > >
+> >> > > Fixes: 059b7dbd20a6 ("vsock/virtio: fix potential unbounded skb queue")
+> >> > > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> >> >
+> >> >
+> >> > unfortunately, this is a bit of a spec violation and there is no guarantee
+> >> > it helps.
+> >>
+> >> Loosing data like we are doing in 059b7dbd20a6 is even worse IMHO.
+> >>
+> >> >
+> >> > a spec violation because the spec says:
+> >> > Only payload bytes are counted and header bytes are not
+> >> > included
+> >> >
+> >> > and the implication is that a side can not reduce its own buf_alloc.
+> >> >
+> >> > no guarantee because the other side is not required to process your
+> >> > packets, so it might not see your buf alloc reduction.
+> >> >
+> >> > as designed in the current spec, you can only increase your buf alloc,
+> >> > not decrease it.
+> >>
+> >> We never enforced this, currently an user can reduce it by
+> >> SO_VM_SOCKETS_BUFFER_SIZE and we haven't blocked it since virtio-vsock was
+> >> introduced, should we update the spec?
+> >
+> >
+> >it's not that we need to enforce it, it's that all synchronization
+> >assumes this. as in, anyone can use an old copy until they run out
+> >of credits.
+> >
+> >
+> >> >
+> >> > what can be done:
+> >> > - more efficient storage for small packets (poc i posted)
+> >> > - reduce buf alloc ahead of the time
+> >>
+> >> That's basically what I'm doing here: I'm using twice the size of
+> >> `buf_alloc` (just like `SO_RCVBUF` does for other socket types) and telling
+> >> the other peer just `buf_alloc`.
+> >>
+> >> But then, somehow, we have to let the other person know that we're running
+> >> out of space. With this patch that only happens when the other peer isn't
+> >> behaving properly, sending so many small packets that the overhead exceeds
+> >> `buf_alloc`.
+> >>
+> >> Stefano
+> >
+> >what is "not proper" here, it is up to the application what to send.
+>
+> Sure, but here we're just slowing down the application by telling it we
+> don't have any more space.
+>
+> Again, without this patch we are just dropping data, which IMO is even
+> worse.
+>
+> So I think we should merge this for now, while we handle better the EOM.
+> If you prefer, I can drop the part where we reduce the buf_alloc
+> advertised to the other peer, but at least we should drop data after
+> `buf_alloc * 2` IMO.
 
-Bring back this behavior under a new vhost backend feature flag. The
-feature is supported by mlx5 and vdpa_sim devices.
+Okay, I thought it over over the weekend, and I agree that this patch 
+still doesn't solve the problem and would still result in packet loss.
+So, until we resolve the issue permanently, and since 059b7dbd20a6 is 
+coming to stable, I'd like to rework this patch so that we only start 
+dropping packets when the overhead plus the queued bytes exceeds 
+`buf_alloc * 2`.
+Removing the other changes to reduce the buf_alloc advertised, but 
+terminating the connection so that both peers are aware that something 
+went wrong.
 
-Fixes: 3543b04a4ea3 ("vhost: forbid change vq groups ASID if DRIVER_OK is set")
-Signed-off-by: Dragos Tatulea <dtatulea@nvidia.com>
-Reviewed-by: Shahar Shitrit <shshitrit@nvidia.com>
----
- drivers/vdpa/mlx5/net/mlx5_vnet.c |  3 ++-
- drivers/vdpa/vdpa_sim/vdpa_sim.c  |  3 ++-
- drivers/vhost/vdpa.c              | 13 +++++++++++--
- include/uapi/linux/vhost_types.h  |  4 ++++
- 4 files changed, 19 insertions(+), 4 deletions(-)
+Any objections?
 
-diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-index ad0d5fbbbca8..f89177957c76 100644
---- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-+++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-@@ -2906,7 +2906,8 @@ static void unregister_link_notifier(struct mlx5_vdpa_net *ndev)
- 
- static u64 mlx5_vdpa_get_backend_features(const struct vdpa_device *vdpa)
- {
--	return BIT_ULL(VHOST_BACKEND_F_ENABLE_AFTER_DRIVER_OK);
-+	return BIT_ULL(VHOST_BACKEND_F_ENABLE_AFTER_DRIVER_OK) |
-+	       BIT_ULL(VHOST_BACKEND_F_GROUP_ASID_AFTER_DRIVER_OK);
- }
- 
- static int mlx5_vdpa_set_driver_features(struct vdpa_device *vdev, u64 features)
-diff --git a/drivers/vdpa/vdpa_sim/vdpa_sim.c b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-index 8cb1cc2ea139..253c7fb35ea0 100644
---- a/drivers/vdpa/vdpa_sim/vdpa_sim.c
-+++ b/drivers/vdpa/vdpa_sim/vdpa_sim.c
-@@ -428,7 +428,8 @@ static u64 vdpasim_get_device_features(struct vdpa_device *vdpa)
- 
- static u64 vdpasim_get_backend_features(const struct vdpa_device *vdpa)
- {
--	return BIT_ULL(VHOST_BACKEND_F_ENABLE_AFTER_DRIVER_OK);
-+	return BIT_ULL(VHOST_BACKEND_F_ENABLE_AFTER_DRIVER_OK) |
-+	       BIT_ULL(VHOST_BACKEND_F_GROUP_ASID_AFTER_DRIVER_OK);
- }
- 
- static int vdpasim_set_driver_features(struct vdpa_device *vdpa, u64 features)
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index 692564b1bcbb..67b3f49fa709 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -682,7 +682,8 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
- 			return -EFAULT;
- 		if (idx >= vdpa->ngroups || s.num >= vdpa->nas)
- 			return -EINVAL;
--		if (ops->get_status(vdpa) & VIRTIO_CONFIG_S_DRIVER_OK)
-+		if ((ops->get_status(vdpa) & VIRTIO_CONFIG_S_DRIVER_OK) &&
-+		    !vhost_backend_has_feature(vq, VHOST_BACKEND_F_GROUP_ASID_AFTER_DRIVER_OK))
- 			return -EBUSY;
- 		if (!ops->set_group_asid)
- 			return -EOPNOTSUPP;
-@@ -791,7 +792,8 @@ static long vhost_vdpa_unlocked_ioctl(struct file *filep,
- 				 BIT_ULL(VHOST_BACKEND_F_IOTLB_PERSIST) |
- 				 BIT_ULL(VHOST_BACKEND_F_SUSPEND) |
- 				 BIT_ULL(VHOST_BACKEND_F_RESUME) |
--				 BIT_ULL(VHOST_BACKEND_F_ENABLE_AFTER_DRIVER_OK)))
-+				 BIT_ULL(VHOST_BACKEND_F_ENABLE_AFTER_DRIVER_OK) |
-+				 BIT_ULL(VHOST_BACKEND_F_GROUP_ASID_AFTER_DRIVER_OK)))
- 			return -EOPNOTSUPP;
- 		if ((features & BIT_ULL(VHOST_BACKEND_F_SUSPEND)) &&
- 		     !vhost_vdpa_can_suspend(v))
-@@ -805,6 +807,13 @@ static long vhost_vdpa_unlocked_ioctl(struct file *filep,
- 		if ((features & BIT_ULL(VHOST_BACKEND_F_DESC_ASID)) &&
- 		     !vhost_vdpa_has_desc_group(v))
- 			return -EOPNOTSUPP;
-+		if (features & BIT_ULL(VHOST_BACKEND_F_GROUP_ASID_AFTER_DRIVER_OK)) {
-+			if (!(features & BIT_ULL(VHOST_BACKEND_F_IOTLB_ASID)))
-+				return -EINVAL;
-+			if (!(vhost_vdpa_get_backend_features(v) &
-+				BIT_ULL(VHOST_BACKEND_F_GROUP_ASID_AFTER_DRIVER_OK)))
-+				return -EOPNOTSUPP;
-+		}
- 		if ((features & BIT_ULL(VHOST_BACKEND_F_IOTLB_PERSIST)) &&
- 		     !vhost_vdpa_has_persistent_map(v))
- 			return -EOPNOTSUPP;
-diff --git a/include/uapi/linux/vhost_types.h b/include/uapi/linux/vhost_types.h
-index 1c39cc5f5a31..ec1ff8a2e260 100644
---- a/include/uapi/linux/vhost_types.h
-+++ b/include/uapi/linux/vhost_types.h
-@@ -197,5 +197,9 @@ struct vhost_vdpa_iova_range {
- #define VHOST_BACKEND_F_DESC_ASID    0x7
- /* IOTLB don't flush memory mapping across device reset */
- #define VHOST_BACKEND_F_IOTLB_PERSIST  0x8
-+/* Device supports changing the group ASID after DRIVER_OK.
-+ * Requires VHOST_BACKEND_F_IOTLB_ASID.
-+ */
-+#define VHOST_BACKEND_F_GROUP_ASID_AFTER_DRIVER_OK  0x9
- 
- #endif
--- 
-2.54.0
+Stefano
 
