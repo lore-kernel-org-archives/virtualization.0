@@ -1,69 +1,69 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C47B3BFE42
-	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 08:54:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1EFEC3D413B
+	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 08:54:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778489685; cv=none; b=DX/Iq4Vj3bfYINOZ00Z3WbaJgWwLkStcCWs5uZ0EYKjaQaQbbrGoMu4MlU8O0Wornvt3rGifjU2xZxJ4MFgw+CCi8UqR2nbttXpvBgfXMgk5gdpdCTXssQyX5WZwRxu3jjgsS1Cf0IFiX6pViw5F8MfAgT5bvMWpHtwL4CMtAlU=
+	t=1778489690; cv=none; b=Yz413nazpAKx+a9Wcr5UZcK4T3ZBbZFx8pQ0rBzaw22lmFPkgnsFL3aQQb4Y1EcgbgeiySNyB28eu1dEnSeRCxb2mrHXsT06A3cD0C84yC8j8kmOfhM0draO07VNZLV2d3wxf+ERITdzeLZhZJDYjnKJ5I007vxBlL08HBypoU8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778489685; c=relaxed/simple;
+	s=arc-20240116; t=1778489690; c=relaxed/simple;
 	bh=uae5V1T54mMZVBXPfWqdPxGd95+bgq8V6VITT9f8SnY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=i8GFr0zMDqhPU1lGiRrA0mA3ruoKuiKAkn/PpwYcvZ69NFWBcTcaUvsMUUdtfP9Ha1C9YF9LMJr5Qv30dfyXj/HlH9OeC6vGQE8VzypLkFFWGY/NbVUB0LGaoJwLsVtwN19uxeMNXyXvjqEGKlWATxxIOR828WZ+TZvvYq9GiIQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BcCmkCae; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=Hixa8uIy9TGrfbvYHLfOuNOIH/p/eT/iBZlEMTCZ0mkoJxTsla/nMPpykM5T5cnPhaWaAr/Z5QJjKoKl8irJfurO6FHmcT5JVkmGHjKvh9h46yDKCrNzDQbbQVwm0TZYXuwZWtiRQ6ePZ5Iv8j3EPbZmIJQlkjvsPFGvzTFKOoo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=c/FvhzjW; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BcCmkCae"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="c/FvhzjW"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1778489682;
+	s=mimecast20190719; t=1778489687;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
 	bh=q0Jd/7EvCnA8N9ANiNsWM9FOCa/+r1oqSAVkRa3NTmw=;
-	b=BcCmkCaeYICE+zznTb7akuTOjhSSnILtyzhF+Y5zpQSaWwX3C07rn/HqSoFEUclb3ozGlJ
-	gm2fLNp34gR5rMNkyyJV04fX4jBTgB3X0AH9UjsNnfn0vUXgEJ9UcYAQ837E7TafXQ9hTt
-	ILOc27xGrwtY2F2nC6rRQPV839K2atY=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	b=c/FvhzjWE6oV5T3O3TugyXPiRGcmr4vwSVuzokUs0bkIbF0Mz7yAL0QiTnvp5cEQa4ZpFU
+	UM0VFZaiE+SMfAQqoJd29d664K7T6WScG0Zh3sogp/9JbeqILLhXZwb5gBImjwqMn1H0SJ
+	SeL/xSATGll+WLE6t6OlemkQWWvDopI=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-528-7K7qT2LyNNCBNaInSk_yHA-1; Mon, 11 May 2026 04:54:41 -0400
-X-MC-Unique: 7K7qT2LyNNCBNaInSk_yHA-1
-X-Mimecast-MFC-AGG-ID: 7K7qT2LyNNCBNaInSk_yHA_1778489680
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-486fa07f2bbso24285525e9.2
-        for <virtualization@lists.linux.dev>; Mon, 11 May 2026 01:54:41 -0700 (PDT)
+ us-mta-649-f570m6TOOFm-teGI4TgAwQ-1; Mon, 11 May 2026 04:54:46 -0400
+X-MC-Unique: f570m6TOOFm-teGI4TgAwQ-1
+X-Mimecast-MFC-AGG-ID: f570m6TOOFm-teGI4TgAwQ_1778489686
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-44d68ed8f95so3202548f8f.1
+        for <virtualization@lists.linux.dev>; Mon, 11 May 2026 01:54:46 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778489680; x=1779094480;
+        d=1e100.net; s=20251104; t=1778489685; x=1779094485;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
         bh=q0Jd/7EvCnA8N9ANiNsWM9FOCa/+r1oqSAVkRa3NTmw=;
-        b=MRZvvlZpXgBq10j5u3G8TGcym2CKyk0aBdA0KSQt0sdu87iz3pgTLVsEdg4dcdT2lG
-         eyiwzrJ8Amst8o5c24MBKAPqwenh2x/YrNDkwwmeDanmO6eA6BRx3Ll+oTGHJyNVMGt6
-         f3xlvfGrPhx0BVqpG3DiP0E60ek4vA0E7mgxemVHugY8rZUYRv9OleTyfNn5qalrfmRt
-         LHkJBmWYZVoK7bUqwrIAE/DZIx8MWEfLJNZzeqq3zcxzIZaP0JTvP1DQWUcvc4UIwaTD
-         HwsMiMvOlR18zEM4mj3dhx0ueRrF53WdVRroQoUDs5nKad0fLtlcGoGIH9ZDS5x/+bp7
-         oKSA==
-X-Forwarded-Encrypted: i=1; AFNElJ+hMVlWp1JeNIowvw9lXK4ZuTeXGbskhbG0K/F4Uy2GiZzdYT+JIgVbGS/MP4qOP2H7wjxHCPSaIXUe2P9BRw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxmcACt+mHK03T9zwd8IfT4TOmWVvssyGMGqjuv08GxqARqJTlm
-	AdFh3HhZeK7EYuyuas645k6EXpRcrlNIrLqKZ8fuuRsB1zL86CZam75Xkyteg6UcW8bDlQtUNFI
-	+K0XrEdgQfjpH/YMy1JziUBUPt2fViLEKNVej07XUeN5mH9fLVzerokjH4mnL31S+MY5b
-X-Gm-Gg: Acq92OEB9/t9knSGyhlega5v4177b9WLlOntduzLbTdJ1rEhk0+shSZh31lZrRfdnU4
-	a7ejTnIdJrUPg9S/ZCYfnkgGB0y73YdUgmGBSQrPE7ARaVHbvaI8PnCU7ObIpMgpq/xfbGHNseX
-	Mzaw/qbip0YWo6KgwDY3/y5s1yQmZGpVP/N1ze6goD1YLiEGHzZg8moZV0KodqZi1Zbi+OLYmkq
-	8iTI/iHl+swiW3HqVXStuVqwkaeQDGia38Fvl52wOZ2VW9+H8Xxz34qGX9U4GlMy+UOHO7lghbY
-	oFLxbw3rODQjRudgG77fKa1PIevcSrMouXUR6/ME1989ob4hSIUWOltGWMXXlo9zKkufTWH16U5
-	0fOvSsxW4RE7D3XtR+c64HzK5x+yj3xlsEa783pqR
-X-Received: by 2002:a05:600c:c094:b0:48a:599a:3716 with SMTP id 5b1f17b1804b1-48e51f40a29mr268729135e9.23.1778489680008;
-        Mon, 11 May 2026 01:54:40 -0700 (PDT)
-X-Received: by 2002:a05:600c:c094:b0:48a:599a:3716 with SMTP id 5b1f17b1804b1-48e51f40a29mr268728595e9.23.1778489679389;
-        Mon, 11 May 2026 01:54:39 -0700 (PDT)
+        b=SQL6tyoCxdooujeC+qCkg/ss8oFs/2U50M1mMgLuS3tkeEklLNoyuXGI/7uVoGRzfF
+         YkGvT21nBQOuNEYfoZLTJBR3QFMc8unV6Amu53X8xscHCaj8rMOOfdbPaBU6yLN/wI/6
+         ZPdqV8sweLV/pKhO9zbx8koJgt4f0z1Fkb5WjVIcBuKUVsZJUboAtRollzIk/gz79sc4
+         L8uUCirtKX05gLTp41ynE9cIY3DxaUYhwG3bpgfUL0qBMt9Rtq7M7i4m9X304lEmeP4K
+         MiOz9+bFkbRWP2d/qN/1Kfq5cl7lyVBSlhK1DSIEz6X90opRGDRvrKV01+kAoNuHyCix
+         jkaQ==
+X-Forwarded-Encrypted: i=1; AFNElJ/5ieTcG0UapeUdmVynpA+TD04krRkEoODvmPi2iPPcssRDFc8hASk52C32PkdzAkfXvjfwVzZi/KoCbJc8yA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyy+4rG5APWf761h7YCizd/oFs0GYQcupbbbsVqKkZUmSSyfchm
+	T92r5OWoSw1FnnDLsCa69awcCGg8QGNuAHWH8c+3jZLsgWgKco+vyONJIgRqcwbQngzs1YP9TOt
+	HJuK9QNIu86nTICXocXxmBovWy279R1o+BOZiJP3Ss7uq17dbBX1EYIEx5hhHwPgOYRWn
+X-Gm-Gg: Acq92OEI6MgaiAgez/GOihJbvAw/CPI8d40qJNL/KjeYfXDR4Ce1z4eSps7vzamRtHE
+	aZ0FLi3AHozdBbKUXqPhabLb8jkGo/uALPN/cb8h+RiT7u/2mxMthSUrtFa6K3vIQCsyYors4yV
+	mqITNDGv2vYkn3XaCpdbzNtLwIH+KzX6TMg0IWW6COV1onwuEHa5j+yFtfixPBRzSlHp0zad3hW
+	BysxdURCz9qIdaQDJCAKfNfT/esT5f7SFbvoTfHCTYi9Eb+kbWU3CFbw8rkqZ8l3xfTq34PSyUw
+	87TrqkyMWjgYeFUKX+uPc/fWum/wxLiRrZStisTN7LPOeLSqMgLXUhhydUcLhnXJTnerIDWs0qa
+	YXkpAQQ1WbVN013xE9Emao7h0ifHpe2grHe5dYJBsQmqpkNCTmJ4=
+X-Received: by 2002:adf:e905:0:b0:43d:210:2b2d with SMTP id ffacd0b85a97d-452eaa28388mr19585534f8f.31.1778489685352;
+        Mon, 11 May 2026 01:54:45 -0700 (PDT)
+X-Received: by 2002:adf:e905:0:b0:43d:210:2b2d with SMTP id ffacd0b85a97d-452eaa28388mr19585465f8f.31.1778489684785;
+        Mon, 11 May 2026 01:54:44 -0700 (PDT)
 Received: from redhat.com (IGLD-80-230-48-7.inter.net.il. [80.230.48.7])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48e6dafa6c2sm81289945e9.5.2026.05.11.01.54.34
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4548e6a68ebsm22598211f8f.1.2026.05.11.01.54.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 May 2026 01:54:38 -0700 (PDT)
-Date: Mon, 11 May 2026 04:54:34 -0400
+        Mon, 11 May 2026 01:54:44 -0700 (PDT)
+Date: Mon, 11 May 2026 04:54:39 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
@@ -102,21 +102,21 @@ Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
 	Andrea Arcangeli <aarcange@redhat.com>
-Subject: [PATCH v6 14/30] mm: memfd: skip zeroing for zeroed hugetlb pool
+Subject: [PATCH v6 15/30] mm: memfd: skip zeroing for zeroed hugetlb pool
  pages
-Message-ID: <8f111e92b512bf59570021fc0e71eef013289992.1778487000.git.mst@redhat.com>
-References: <cover.1778487000.git.mst@redhat.com>
+Message-ID: <a39ab8288aceb244bdb31141aa9cf67106c0e042.1778488966.git.mst@redhat.com>
+References: <cover.1778488966.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <cover.1778487000.git.mst@redhat.com>
+In-Reply-To: <cover.1778488966.git.mst@redhat.com>
 X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
 X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: GAY3HSs2fZ70KVo3mkOWvs5dlaAglbGjmeynQBEpgCQ_1778489680
+X-Mimecast-MFC-PROC-ID: 2zj4lYFHerZulEWlwOvVBljcF1vofruALt4HjSU-bmE_1778489686
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
