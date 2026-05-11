@@ -1,66 +1,71 @@
-Received: from mail-qv1-f44.google.com (mail-qv1-f44.google.com [209.85.219.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 623F940B6F3
-	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 15:54:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B11E3402435
+	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 15:55:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778514850; cv=none; b=FykBWWVrOWAa7YVmkCL6wYqSa/zRHtCxJjvHqfn5wl31YVeYtCXH77hPG70lgQsdy7f+6pXCc5LlgzjVHHuLNVvUWyOPcozQiq4W0XZTlN544CVZCtH7HBTJFN3XiT45xwrJZ3AdkNpmH/5n8wm7qR5PaJ6MiEQq4oe7k9P32rI=
+	t=1778514953; cv=none; b=N/YqiaLF8BVLAqEmgfrNQA/JVcHSF2ojnzn9M4TZKGvBdvO6F7AtRmn39P8TJJPUGeJvVlY1AhB9VIOU8RgJWRypWeryHDnvyh1fQoCFs0mPDWNWfp5Qu6YeIEykdVR9CjoabF0jUvbH8MtvvjSCvCTfCINSoYwPNmbnkdQt9TQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778514850; c=relaxed/simple;
-	bh=aiGFJQW61WDqG9XpD7Ci1ql3gHNF+E9K3gUxwH/LCHs=;
+	s=arc-20240116; t=1778514953; c=relaxed/simple;
+	bh=TsGQPJnPEkYvT01y/40nouZgrDE845oWx7rogITeQEA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=cF8asW+PBWoad2B2/r/ScoDBDeqb+IMz1+awelvsnuav83NTBoaujovZniOcq8XrIPZjnkq3GcD3g/h03WTVjP073ah2pFdUTwDT+rDb6w9PGi7gttvkba3aW0mE20rxzgaR38EOXxcbvjT0c9W3fwuAHJs4HNTgMxFfb9g1JHM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=mkjyhrVj; arc=none smtp.client-ip=209.85.219.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
+	 In-Reply-To:Content-Type:Content-Disposition; b=biUSQPf5LCkT3pRjV6ynH2JPtbIwPtDu/l5QkhgPN+sJJ/zAHCPZ5xmkoVJvebeIzYvc/gmmsA0lJiSrJL71r7+ArA1IcDDGzwFtvqam3CLzcxlyAPpC8OmoZag+lf5upYhv7YuqV9do+YeWdCfl18naRDg/wg7Fm+BqU0zWmKk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RQavqM0K; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="mkjyhrVj"
-Received: by mail-qv1-f44.google.com with SMTP id 6a1803df08f44-8b7dccd6fe4so33358066d6.1
-        for <virtualization@lists.linux.dev>; Mon, 11 May 2026 08:54:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1778514846; x=1779119646; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=20yoGM3whVtKvNYZZgGIezStzCSDmI46twhVwHYN4Ew=;
-        b=mkjyhrVjW0IKyvdchw4HZLxIf+V6y2B4AiBynATUSdRXML0WYsJfPKCBFQT+BOa72C
-         AYTv6V8AbnUqqOeTBpMro/0WlmBzEBIGyCk0d4vz/t6a0sd08ItOHo40jHbFDYcbCFQK
-         wl0QfoNZmO5+9NSsOURZAFNL5DyygFlInu1r4umVzFoPwUq4fT31hoRnNZ3zeXspB9Mu
-         PufmZJSDNJBJL7vTpbdO368XwT6eA5sr1/kY2JvXv2rgrhwaIAkkobsf20/M+OIr/0z6
-         bk3g8FVz2XNDbhZBzD9Q5ya6cOjYvXkmsKxZkCHQFG4dENAAZOLG9NzrmqMHMcCR/acL
-         dbvQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RQavqM0K"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1778514950;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=vh4TZQwOj1LDvIW+49RnIFBfwPgx5sko4Nvxu6iVtR8=;
+	b=RQavqM0KnbA4RGAbhfMr90gmoCQqqZ88gE9FsdIJIKL5Ymc+0Nejaf1GzeKRpRs+nKwsz6
+	NLTm6Ryea86mL2Z+2p9EYGc/ovgtFVMZnZEF4eleA+yitliP0K61KG2w/nHOOrylAEdqEm
+	u/5p9lef1TQxWEF0RRhpGiGyjvj5igM=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-246-3MoRDy0QPh6rvggSHJlyuQ-1; Mon, 11 May 2026 11:55:49 -0400
+X-MC-Unique: 3MoRDy0QPh6rvggSHJlyuQ-1
+X-Mimecast-MFC-AGG-ID: 3MoRDy0QPh6rvggSHJlyuQ_1778514948
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-48906aa28cbso40843425e9.0
+        for <virtualization@lists.linux.dev>; Mon, 11 May 2026 08:55:49 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778514846; x=1779119646;
+        d=1e100.net; s=20251104; t=1778514948; x=1779119748;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=20yoGM3whVtKvNYZZgGIezStzCSDmI46twhVwHYN4Ew=;
-        b=oM0KT09X/aplAnucl3AEzvDicrzTCsO6kad6/LR4wWFOM+ugXH+h3osoZqAtk1nr+8
-         FWafe+9qHELejeuTzZly/9IvI86YxksXWbFOVuYUZ6BaNzuslr0aotOlLSfRDry6iTzm
-         0VjLrAJnV1+eOoDx4wYFTBkELP3a2XqupKz9d90OPzjDjS5nNUS2OYkWPgKMNNyW4B2O
-         Z4JUv/A618aMFzsp7Pu1RRwe86aMgm3jb4KCrNAa+z/4XArSIdBKN8kyUjU7wUawHNGq
-         sLhdG4K/mvffi3o1zTp+cpn02LiU54+f4OLclAD1FTfFPrksZ0esHsQKRmdS7KxatFR8
-         bE2A==
-X-Forwarded-Encrypted: i=1; AFNElJ/JayfVZDXo5+Ob0CNMCpYoSocSoDMHTYipBP7JaPp6oqf/vw+ocOIfUayIpz4DHUTajRFXQMV58NlPS0709A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxISbrP8lCDmzIX4/9BtKvLQnjlBwdD9CeohA/d2Ryx57+pmXnV
-	/Xztf86zKa7ZBdWu9aP6nwJhHyHLF5xAsALJq5kUfqPXu5FenTNaFDPt4i60iy4WrA0=
-X-Gm-Gg: Acq92OERQd9/tz9eec4ClzUmHh2htWSMpe6Tj8TsNiGJ+X6iLDgtMO+XU36zstD9A0n
-	ZiXZaFR+UjYSEy2Ri7GuWYQq6nkr6yxw5sPu/Gx1qw+MIUPsugsbufJ1Rwc6DPkOSXMY8gBdahG
-	VExosPX5O/yDohtG3I9fPA+mNTflDUASRDuewi9XGswKlzaswRro1KQsZkm3PPRlKjJiuFpHv1u
-	JzMBl5nmv6YZ4QF3RYGD7f5tvsP8ShkYCi5QKGxBfNeW1AcVeFyacr9RwnxrJFUQ3OjQihpr78B
-	rdn5SIrXLkO/+8mCkXsIPQ9ScE6iNCecrbWu0zZXufNc/G0rQFOJ+hGmt9gRYXrK+WEUaUZMu23
-	Rt/xcAMjnOnTrz8JFNMELaazgCbvETkSeBAsF5tnzzahyyzCztcV1LWhbKk/fsM01d31HcIam59
-	qRJ7YTVJ2lF5oDLIID5+UKLMvUTXJ/K1km8Iol5pEMpaxELRUwNGxn64vSi/A4hq9F/jWoDaGWN
-	YG1Ghdbwkmy
-X-Received: by 2002:a05:6214:c45:b0:8bd:7192:9506 with SMTP id 6a1803df08f44-8bd71929608mr325423396d6.7.1778514845601;
-        Mon, 11 May 2026 08:54:05 -0700 (PDT)
-Received: from gourry-fedora-PF4VCD3F (pool-100-36-248-188.washdc.fios.verizon.net. [100.36.248.188])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8b53d831ac7sm309701326d6.49.2026.05.11.08.54.03
+        bh=vh4TZQwOj1LDvIW+49RnIFBfwPgx5sko4Nvxu6iVtR8=;
+        b=V+EXy6Oasz4oBfCKcCONtS58Imo1HOCKsaYYN0YSbHytX6xIJ4qAlFZCkfXAFyV7ij
+         mL4TXRRC+m38AslKugqeudTha7YEwXECmcFqilmSJ/wNEuzI59/9D7cPLwGw03sSLQif
+         jy3hbkwep7qBlhiuC7dSeZD/wBC7jRgzKXF2HyvPPrFYY3W1XPI1sfpGXQAR2k8WTi5v
+         HlWr0x39gjm+cMxpSFarssH64KfrkuIbh5Z7teo2p5uuT1Re2z6/o7nlNe+TtZWI/x55
+         8y2MEzZgC8vVZ+jzQIHAOtJBTNZdgzxdTGUAL/4OXKdRTefwG9HnaYF4xO2XivcDLWZr
+         9kbQ==
+X-Forwarded-Encrypted: i=1; AFNElJ8V1qiC9DEtMjZeUwCQFdf2+fY9n0RmvMhTjVhVPEQugPID5OZYpuEgthXDIqAzD/ibwjwrobXcd1NcxfBR/Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxxicZCBAP5WWgdIZj4g0WyjF3gMZoMH1ABoUqdTJ8VmOG4He6q
+	vgxiBcN0mGqDvzw35kGWcjjdOvT0spoJ2maUk+Fzs1OfjVovwer+gdUgvz2mEzZPXc0nslPZdgJ
+	hEkZ1kwZbVWsqp2x0cJjlzur0n2JNtP5ToduMWljkwZtg5Ko3cU106XiK5zu/ttlDk95a
+X-Gm-Gg: Acq92OHb/UTl7JpO5cCbznZ7XIru2PXKrTZwqqh+piB4gwTe9I2H2XtVbr418X//SAb
+	05DV5iILRuDD/PysRscEUdPiHStUKJ+YQWAwdKKR7b9DUYxnXVCCjZMzwZCDKsQaBSG2UivWklu
+	a3KEmdGiv3er7a+BAok6tOcECSl5HO8V4wpraeTYHYzG9YgO1IHP/ayPEjOPCRl5dKDBuY93vLk
+	Vq9L/ggCP9NVh66g0TovhVX/vCq++YVcJJr0HcpzKYlZdJA1PGJpA+kVVE3IQgVMAuMSJlhojMI
+	fRDjaJU2bsEYZCJESR46jajkD/4N+UwMPehxbBIrsu6LzzxjBV5+5ZlyW8jFnDt9HddFxV1wn9H
+	WF2VJi2Cnq+K8p+SWpFExUn5i4GqwSTUf7wOUm4m+
+X-Received: by 2002:a05:600c:3547:b0:485:3c2e:60d5 with SMTP id 5b1f17b1804b1-48e8e1e6eb9mr1618905e9.2.1778514948215;
+        Mon, 11 May 2026 08:55:48 -0700 (PDT)
+X-Received: by 2002:a05:600c:3547:b0:485:3c2e:60d5 with SMTP id 5b1f17b1804b1-48e8e1e6eb9mr1618285e9.2.1778514947593;
+        Mon, 11 May 2026 08:55:47 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-48-7.inter.net.il. [80.230.48.7])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48e6fff9ab8sm203070735e9.2.2026.05.11.08.55.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 May 2026 08:54:04 -0700 (PDT)
-Date: Mon, 11 May 2026 11:54:02 -0400
-From: Gregory Price <gourry@gourry.net>
-To: "Michael S. Tsirkin" <mst@redhat.com>
+        Mon, 11 May 2026 08:55:46 -0700 (PDT)
+Date: Mon, 11 May 2026 11:55:40 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Gregory Price <gourry@gourry.net>
 Cc: linux-kernel@vger.kernel.org,
 	"David Hildenbrand (Arm)" <david@kernel.org>,
 	Jason Wang <jasowang@redhat.com>,
@@ -96,53 +101,146 @@ Cc: linux-kernel@vger.kernel.org,
 	Kemeng Shi <shikemeng@huaweicloud.com>,
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
-	Andrea Arcangeli <aarcange@redhat.com>
-Subject: Re: [PATCH resend v6 05/30] mm: page_alloc: move prep_compound_page
- before post_alloc_hook
-Message-ID: <agH7mtbcEzogYuk3@gourry-fedora-PF4VCD3F>
+	Andrea Arcangeli <aarcange@redhat.com>,
+	"Liam R. Howlett" <liam@infradead.org>,
+	Harry Yoo <harry@kernel.org>, Hao Li <hao.li@linux.dev>
+Subject: Re: [PATCH resend v6 03/30] mm: thread user_addr through page
+ allocator for cache-friendly zeroing
+Message-ID: <20260511114853-mutt-send-email-mst@kernel.org>
 References: <cover.1778489843.git.mst@redhat.com>
- <6345727fdfa76157ba0518e2148d1848e0bdbc16.1778489843.git.mst@redhat.com>
+ <9b53972f4854c1064b92cefc464f51949afeb83f.1778489843.git.mst@redhat.com>
+ <agH3wceKcPNmixCj@gourry-fedora-PF4VCD3F>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <agH3wceKcPNmixCj@gourry-fedora-PF4VCD3F>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: hFhbeSD5qh_p90bWLH3QBcqH9rPKCw9CHL3RFM65vBQ_1778514948
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <6345727fdfa76157ba0518e2148d1848e0bdbc16.1778489843.git.mst@redhat.com>
 
-On Mon, May 11, 2026 at 05:02:06AM -0400, Michael S. Tsirkin wrote:
-> Move prep_compound_page() before post_alloc_hook() in prep_new_page().
+On Mon, May 11, 2026 at 11:37:37AM -0400, Gregory Price wrote:
+> On Mon, May 11, 2026 at 05:01:55AM -0400, Michael S. Tsirkin wrote:
+> > Thread a user virtual address from vma_alloc_folio() down through
+> > the page allocator to post_alloc_hook(). This is plumbing
+> > preparation for a subsequent patch that will use user_addr to
+> > call folio_zero_user() for cache-friendly zeroing of user pages.
+> > 
+> > The user_addr is stored in struct alloc_context and flows through:
+> >   vma_alloc_folio -> folio_alloc_mpol -> __alloc_pages_mpol ->
+> >   __alloc_frozen_pages -> get_page_from_freelist -> prep_new_page ->
+> >   post_alloc_hook
 > 
-> The next patch adds a folio_zero_user() call to post_alloc_hook(),
-> which uses folio_nr_pages() to determine how many pages to zero.
-> Without compound metadata set up first, folio_nr_pages() returns 1
-> for higher-order allocations, so only the first page would be zeroed.
+> This is the nitty-est of all nits, but when doing this can we please
+> prefer stack style?
 > 
-> All other operations in post_alloc_hook() (arch_alloc_page, KASAN,
-> debug, page owner, etc.) use raw page pointers with explicit order
-> counts and are unaffected by this reordering.
+>   vma_alloc_folio 
+>     folio_alloc_mpol 
+>       __alloc_pages_mpol 
+>         __alloc_frozen_pages 
+>           get_page_from_freelist 
+>             prep_new_page 
+>               post_alloc_hook
 > 
-> Note: compaction_alloc_noprof() has the opposite ordering
-> (post_alloc_hook before prep_compound_page).  This is fine because
-> compaction always passes USER_ADDR_NONE, so folio_zero_user() is
-> never called there and folio_nr_pages() is never reached inside
-> post_alloc_hook().
->
+> Claude has a bad habit of writing changelog changes this way, and it's
+> painful for a human to try to read.
 
-We can't really know that this will stay true forever, may as well
-change the ordering there to prevent a tripping hazard.
+Sure.
 
-Possibly you might want to just squash this change with the next patch
-and add a comment that the ordering is now explicit and required that
-way to be correct.
+> > 
+> > USER_ADDR_NONE ((unsigned long)-1) is used for non-user
+> > allocations, since address 0 is a valid userspace mapping.
+> > 
+> 
+> > +/*
+> > + * Sentinel for user_addr: indicates a non-user allocation.
+> > + * Cannot use 0 because address 0 is a valid userspace mapping.
+> > + */
+> > +#define USER_ADDR_NONE	((unsigned long)-1)
+> 
+> Ehm, hm.  Does -1 hold as a non-user address across all architectures?
+> 
+> What about in linear addressing / no VM mode?
 
-(possibly patches 4-5-6 should just be one patch, since it's all really
- the same change, but 4 seems fine by itself).
 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Assisted-by: Claude:claude-opus-4-6
-> Assisted-by: cursor-agent:GPT-5.4-xhigh
+this is used on a fault. I don't think there are any faults then?
+But maybe FAULT_ADDR_NONE would be clearer.
 
-Reviewed-by: Gregory Price <gourry@gourry.net>
+> > diff --git a/include/linux/gfp.h b/include/linux/gfp.h
+> > index 7ccbda35b9ad..ee35c5367abc 100644
+> > --- a/include/linux/gfp.h
+> > +++ b/include/linux/gfp.h
+> > @@ -337,7 +337,7 @@ static inline struct folio *folio_alloc_noprof(gfp_t gfp, unsigned int order)
+> >  static inline struct folio *folio_alloc_mpol_noprof(gfp_t gfp, unsigned int order,
+> >  		struct mempolicy *mpol, pgoff_t ilx, int nid)
+> >  {
+> > -	return folio_alloc_noprof(gfp, order);
+> > +	return __folio_alloc_noprof(gfp, order, numa_node_id(), NULL);
+> >  }
+> >  #endif
+> >  
+> 
+> This change seems out of place unless i'm missing something.
+> 
+
+Don't remember. Could be from a change I reverted. I'll look.
+
+> > diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+> > index f24bf49be047..a999f3ead852 100644
+> > --- a/mm/hugetlb.c
+> > +++ b/mm/hugetlb.c
+> > @@ -1806,7 +1806,8 @@ struct address_space *hugetlb_folio_mapping_lock_write(struct folio *folio)
+> >  }
+> >  
+> >  static struct folio *alloc_buddy_frozen_folio(int order, gfp_t gfp_mask,
+> > -		int nid, nodemask_t *nmask, nodemask_t *node_alloc_noretry)
+> > +		int nid, nodemask_t *nmask, nodemask_t *node_alloc_noretry,
+> > +		unsigned long addr)
+> 
+>                        user_addr?  uaddr?
+
+ok
+
+
+> > @@ -1823,7 +1824,7 @@ static struct folio *alloc_buddy_frozen_folio(int order, gfp_t gfp_mask,
+> >  	if (alloc_try_hard)
+> >  		gfp_mask |= __GFP_RETRY_MAYFAIL;
+> >  
+> > -	folio = (struct folio *)__alloc_frozen_pages(gfp_mask, order, nid, nmask);
+> > +	folio = (struct folio *)__alloc_frozen_pages(gfp_mask, order, nid, nmask, addr);
+> 
+> Not on you, but the changes in hugetlb.c as a whole are :[
+> 
+> We do all of this to pass USER_ADDR_NONE all over the place, but the
+> alternative is having a separate function specifically for user-land
+> bound allocations.
+> 
+> So the trade off is:
+>    a) churn the current interface for everyone
+>    b) add a user_ variant and know people will just get it wrong
+
+I was also explicitly asked not to proliferate too many new APIs.
+
+
+> IIRC you said the consequence of getting wrong here is subtle corruption
+> if a caller got it wrong, and this was related to cache flushing for the
+> provided user address?
+
+Yes.
+
+> Stupid question: Does this not apply to kernel allocations as well? Or
+> is it simply a matter of the cache having stale data that could leak,
+> and therefore it's not a concern in-kernel?
+> 
+> ~Gregory
+
+
+Not a concern since we zero through the kernel address.
+
+-- 
+MST
+
