@@ -1,64 +1,64 @@
-Received: from mail-qk1-f177.google.com (mail-qk1-f177.google.com [209.85.222.177])
+Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA5E7423167
-	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 16:05:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C0544218BB
+	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 16:15:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778515525; cv=none; b=HHtwaPtT7P8F8b+GHnvd0/KTWHGaZFWuUcRHuDZDoAd2esF6FNWrFBbV/PUkkJeeG2ZtSqeHPLrhrYK4cXXW380zLKUxKKN1fb4CmzzPHTMgezYbAJU7BMUBb3yEpcZGhBFm3JDFSahmQvuWkTP4ZN2XxhYE2U3CG+J8gCevrOo=
+	t=1778516151; cv=none; b=i6LR+XtJn7ptouGaorTEw+L6Q5BGb3Q86T3LXTpVKuTmWDuDUC4ylRh5JiAcSBGmoFDRS9GBOqy/8PStSg0LeheIfaS2/9p5dY3voMf1qsNMLDLxS50F/HGlPU3qmnaiZnPaHuUV3PE7vQ9erDc0TbqdVl/1eHDPmZ1+3Cl3tvU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778515525; c=relaxed/simple;
-	bh=Oeq9eGMwi8w2iSQxQvmpmvZO/I9zsD0MGIULQ6JiCwk=;
+	s=arc-20240116; t=1778516151; c=relaxed/simple;
+	bh=tp3s7XsWeHMzVvK3ORsvPhXsl5xuNWgYBmhjhQzA0y4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mj/tioHMXQorVNfPZzTh4faGFT510qV4aMMB8Zg3hpXxZMdxkWhjjtYIgt2oHifQPJT3PweSOJREkLIu1+zl6ElKsN01hHkEd+5Wef8Kov3KNw8jtDaHhHd4wfTeF7RffwV8EQn4P3Z6POpQPfDfegOpXscM9hzCD0Bz6f720sE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=Kzh+gYjD; arc=none smtp.client-ip=209.85.222.177
+	 Content-Type:Content-Disposition:In-Reply-To; b=Crd0qxyFxq5FcQ9fCdo+rNfc33togmfLDizN/B4zIrMsApitYY+qucubrKm4mbA8LQVFHDoWjzFmU0m91mDMbfjyqPXJET4W/VZODcgJlpOsiumrsxICZo6Qi5b71GrYaM9NHSs3Yg7s0PRZjCEkk8w59DFv5fpEukr3Lc6qGvE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=OopHcI+s; arc=none smtp.client-ip=209.85.160.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="Kzh+gYjD"
-Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-8d6d5e45c43so492561485a.3
-        for <virtualization@lists.linux.dev>; Mon, 11 May 2026 09:05:23 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="OopHcI+s"
+Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-50fbd79350dso41778141cf.3
+        for <virtualization@lists.linux.dev>; Mon, 11 May 2026 09:15:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1778515523; x=1779120323; darn=lists.linux.dev;
+        d=gourry.net; s=google; t=1778516149; x=1779120949; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=53pN36zCncMLyKGWGnOoIrxzjGZ1bpiQo8EJw90qZwk=;
-        b=Kzh+gYjDTvhsyKxKXpl/RsZEf2I9hFJVCTQLEddUla5qG9RcQE3K+5n46ClWboa37q
-         3T9XHp0/Hvym78He/UwWxs1L6tBwspqAOZdZtKObQmg4h1M/rmHN6Cw0NQCOlO1Tujjl
-         a8w6m7TtIVcl6FzqDGz/GBI8/p3S1QDn/6xtUE3UuK4z/E5zAo/8YtL0fKvsElmf6T1h
-         6jTN5KcdZFQWdQKqd+i5Yp4DvlqzTd5dAtbChdT5yR3uiW50kTJ9xD3O/DNCEI++5UuT
-         kgb8+sA8QKss7dJg8z0aP5cYo3ISZ6FydwdcJ+A/gn2JHCQ7R6NL0wlPdMC32UE2RUAz
-         Sv8g==
+        bh=TjyPQOMxfBGAFix2OI3ZEchIRFpO76FTqe+eu0C6CpQ=;
+        b=OopHcI+sW16kG6qF7UrT4V95DHzXclgo1Mf0yM7C+7Kt5IarH6B3KBculNo1uMH0hV
+         Euto09Bk/1iljvEd6yUUYNxHfHN5v3JuhQi7QB+O/kjGUKFqlP4hBZm+fdv0joyo7kVv
+         yhPSqMF0hYcHi2KcGdrBX4puYDLv2yiviTyL19C1E8K/WDpkJ2lMR4gxXQktDT4OrXxf
+         bMDmqeSLBXIY0u6dQ423UeupYJhQfM1gGcj7CzbFjf5U/NdJsJ86LHMFO+2bE+eegmya
+         MwHUKrAkSQcxR+mI5F8V/7nitl7V3belrecdKhzj/skTqAQabQ+drU9q97MTbZU1FBQy
+         6Fmg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778515523; x=1779120323;
+        d=1e100.net; s=20251104; t=1778516149; x=1779120949;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=53pN36zCncMLyKGWGnOoIrxzjGZ1bpiQo8EJw90qZwk=;
-        b=Tnt24CtFevNtpxHF8ExcUm8jHSzSzKIdw3375VCXCUZts3qG52XFzz+/4xBOvVaAfh
-         sVy73ArRliyE2SaU74Ns39RGCRC+QNdaEWj8bnSFZLKKzv1PwKiaGmsKChZmemk99zDF
-         Fonehao6RCFNoJbRO5wF94Z77LJqj2w16KhJA7bn8nwN2dIXKfXxYjUvoOVHgC70XDWL
-         McLGG+Gus6yIfI62h3Cpq/LH9tIUxyXwFp0FwXGsvFOrlBeC0x/IWr+SuWlFgOG7J35m
-         Q977zmso5XPakRf/Qz8Lvq2EH9Czl3sFfp9tSAgBsGTQ+s3lxeLjnNQvsNZA1bQWtabg
-         KxAQ==
-X-Forwarded-Encrypted: i=1; AFNElJ+XoV/F25nfjorLxP9SyF5KZjccJqPwnFLFiEzGupYMfCX6fRBn69jcl2a+iTj+2zlap6Zwh7JL+JDUKvRaNA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz9WXTPf+8OwqZ5TyTs/xOwJSqIidLfSuio9BdmS3uU+wPYTIzL
-	3Cwe5qmRV1S8uaZAawn2POkuSdZ5GwPb/hiC6fsxxJeXr5dub2Uwe+BOf57ZEYxrKPk=
-X-Gm-Gg: Acq92OHilxv5ORhIUv1NaR5kpxlyYPK6INAMlKxV94uw3PrbmNOndhE9ulSi67MJ890
-	4l6h83w42iCKxgDnbHJiLLDuYxrkDn0T9yrSpDkkKNRWZPfGN7g7joxkEouuATkAfuItrrnDzrH
-	d5IXyaoinbz4aez0hK2jOwr+gtQlMy7J5yZ9pBRYtJJfEA0VouKdersEK3ebf5ABzZBJh6Z9ksW
-	+6nAjtqTSNxAoZu8A8jQzr2yeolKxx5nsrJ+aUTtZ7ww1ABvfFZwvwxavbNXmcmqyHQljm3P2OF
-	Jt9mk5i8ip+4HFRH7cLvT/tThBB6wJUuuCKfHk5CZcUCSYlQIPDgfGbZ8Y9yQz35aTLAY0fFR1p
-	3h7woyBa3AMRi/qTrZ0ZB+cM1kR2wp9dS0Aq0Ehv1Oe2ycZEvJStTTYQ454Zij+rz8j3rcYonHF
-	o0geXbPG5naQNu+ndpeHPeiPR98xz9szO4n+g25HRu2vzs/jTkO6NwYQ3Z+10Ezd1wL7xE1gYci
-	Dx5DK7IPqGdPiPtHKRv01c=
-X-Received: by 2002:a05:620a:2916:b0:8ed:f377:96e8 with SMTP id af79cd13be357-907badfb617mr2055265985a.38.1778515522494;
-        Mon, 11 May 2026 09:05:22 -0700 (PDT)
+        bh=TjyPQOMxfBGAFix2OI3ZEchIRFpO76FTqe+eu0C6CpQ=;
+        b=jsryZ/iZ+LXdVLSf5PpVT21Jj9y0a6zuVgnY6m69p9h8/sHJOqluIn/tZHxFuSv/bh
+         oQ1VonxgCYJPhzpjguC4pxYbnOpt2jffcacUlaap8D7I4eOefMn8tAnlEhNnjtzBox4S
+         JNBuoee6G3G+7caJsAncu2XjSEElj0tSMjHTH4GU4WCYlUHkLvbHaS5CWtAWQCYhqRFH
+         Oin/jJ4/Z974S95Mpls26/PopiShbipGsYXWK8UxXw5WWc9ao6UQx5EhYeNHJLU0c0L2
+         4AanQ165jjbnlz4GAadRlHBPsnb83yGNooQuHLEs5/JkK76r1C3UF0fvGKeiyWUbPFZ5
+         UCnA==
+X-Forwarded-Encrypted: i=1; AFNElJ+fsIj6mhapxVtO4+T8e3LC6k3FbzPeIkbeOUVoHOoowc+BID40Oy6T15fw3WyLfGFyUEtPGOSU2ALpxHguQw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yya6/ABCw8obb6wMcw+KUvrtG/c37Hn0hwokKcfJBqcjm622AUT
+	30Sx6sXUZENqGJ9qLsrFFsp2oTCXi1sQaSNbOxh1hKUMw5DaL1mhC7GUOoWNmR5HdlE=
+X-Gm-Gg: Acq92OHLTn6+pLEm8q3c25QWAG4d+JagDmd+yAUOs0khetTuMJTP+XJfz8ZXpy4z9Ix
+	+2cvFKb8faNzXQ6ifVhrooqlxPXkW0U58dOs21k2rip/xbjc0XOLVtn+9STangKF9Ecipnf/QqW
+	sakh5AHgogoraW4qhne7xFbj/PBxiVYnicVneEU+j7GEtHcQOTJK7t3reJDV14Qhi1yqBl1ViG3
+	oDUroMKuRg0Npqyr+3VPrYL77cmbQHBZbqJDwoPx7pXjHD+EXF7wxoDgXPNsjjtsbFKBbUsUZxD
+	FVJI9dQfGzZ1ppBJxLfGvPYMYzI5ZnTuGo01lAm8uKL3FvSVa8MtKC72BP8EPPcfyXMueo4Z2dn
+	ppz93xvzoZamTfRs5n3YDMfso7zwYC74/zwaGB6YCf6FXcRIYVrAz+uhZysEDVBTyojMCKz6JSt
+	fFBnQSdtzrcC2oZkQ3/q7ndk/Hpr6wk1jXtQQM4AOMxUKeq4QOTcvykmWMxR3RQ22RT0MSMOjmq
+	A3JRaJ3fUyf
+X-Received: by 2002:a05:622a:2612:b0:50d:9efe:97e2 with SMTP id d75a77b69052e-514a0b6ef2fmr155357011cf.44.1778516149163;
+        Mon, 11 May 2026 09:15:49 -0700 (PDT)
 Received: from gourry-fedora-PF4VCD3F (pool-100-36-248-188.washdc.fios.verizon.net. [100.36.248.188])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8fc2cd04de9sm3186408485a.44.2026.05.11.09.05.20
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-5148fa78723sm89504691cf.3.2026.05.11.09.15.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 May 2026 09:05:21 -0700 (PDT)
-Date: Mon, 11 May 2026 12:05:18 -0400
+        Mon, 11 May 2026 09:15:47 -0700 (PDT)
+Date: Mon, 11 May 2026 12:15:45 -0400
 From: Gregory Price <gourry@gourry.net>
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-kernel@vger.kernel.org,
@@ -98,11 +98,10 @@ Cc: linux-kernel@vger.kernel.org,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
 	Andrea Arcangeli <aarcange@redhat.com>,
 	"Liam R. Howlett" <liam@infradead.org>
-Subject: Re: [PATCH resend v6 10/30] mm: alloc_swap_folio: pass raw fault
- address to vma_alloc_folio
-Message-ID: <agH-PrpY269pyuJQ@gourry-fedora-PF4VCD3F>
+Subject: Re: [PATCH resend v6 11/30] mm: use __GFP_ZERO in alloc_anon_folio
+Message-ID: <agIAsVO2o4_gIxHL@gourry-fedora-PF4VCD3F>
 References: <cover.1778489843.git.mst@redhat.com>
- <369a08b86f51572b2715a9ec577de27ea98000d3.1778489843.git.mst@redhat.com>
+ <99c79224ca94e63dfcbe8523cedb2a8d658bdce1.1778489843.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -111,13 +110,14 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <369a08b86f51572b2715a9ec577de27ea98000d3.1778489843.git.mst@redhat.com>
+In-Reply-To: <99c79224ca94e63dfcbe8523cedb2a8d658bdce1.1778489843.git.mst@redhat.com>
 
-On Mon, May 11, 2026 at 05:02:39AM -0400, Michael S. Tsirkin wrote:
-> Same change as the previous patch but for alloc_swap_folio:
-> pass vmf->address directly instead of ALIGN_DOWN(vmf->address, ...).
+On Mon, May 11, 2026 at 05:02:45AM -0400, Michael S. Tsirkin wrote:
+> Convert alloc_anon_folio() to pass __GFP_ZERO instead of zeroing
+> at the callsite. post_alloc_hook uses the fault address passed
+> through vma_alloc_folio for cache-friendly zeroing.
 > 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Assisted-by: Claude:claude-opus-4-6
 
-Starting to seem like this should all just get squashed into once patch.
-
-~Gregory
+Reviewed-by: Gregory Price <gourry@gourry.net>
