@@ -1,69 +1,69 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 410FD3C9EF3
-	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 08:54:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A8DC3C197E
+	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 08:55:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778489697; cv=none; b=SkhUeFsrHgOJcP9WvqIH4xd/RqPr2tV/GP0Xfwz9u7DxnHjaUQkMU0y+/ifXDWD89X3MUFIvmdTJAmn9YU3yE7clwiaGo1nyK5gE5PI4cEPOIOdHFRX4oRsjYUnv1WLVcXZEgfK7Fxk7NauE0qqlO7WvQBReX+xFvJQzjxl3dQE=
+	t=1778489702; cv=none; b=YFqkxEvuKf91hu6WI+US5XJpy9Jpc22ERgOMeCs8gddi3Lp43Ct0d2nIh6LlemO84J72YccaofnsqSxE9PZxpcqBaIbYUAMW4VX95mvieaH5wpcgOkKlbx0e/+ZNbOaZ0gPIO/qNVTD3AlJ95tbz+fgB1QLI9wDyZ7QiGKYp5WY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778489697; c=relaxed/simple;
-	bh=xVZpENOTPSkcCw9H72WToBvwV1ZsJAWZkigdtcUbLLU=;
+	s=arc-20240116; t=1778489702; c=relaxed/simple;
+	bh=jAEaO4JfYvTZh0h5rRrKJYMGQ45gKsBKH3AVbKj8c00=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=GRiKjS9gLbB2jc/cf/kBldvrjvHb/wM4AxKm/3iUogv6991e6RiAMnY+OCI7WS6n6mDp8Bgyo1ziV98oHMWCrKrSmcZgqmg+VheuTMUVfB+6TMt/dMe+oeKwMy5HyrmtNk7K9+JJ2Ac0RJhTML+2bKrTJbvVxuU7LjwJZBxQFdw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=M2es8Z0f; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=SY5XIYq+14aA+uGOc5cAdfpoUXN0rxrUzjbvtK3KTn6kSDq2chlIQ8xQsh9hzlXyzYp8mxVVzaN2G7myumAYOav/JZQJ6/FVt3BtgKZZOf23gXJCyg+n9oQ4/za7sFX/SepVj4NCVFZJJSm52goNW+TDn4cnp7N1crbd34goEVQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IUijVVil; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="M2es8Z0f"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IUijVVil"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1778489695;
+	s=mimecast20190719; t=1778489700;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=+4kzhpMcne9QL/iUfytpcOnuwyhDfw3DKjMmXnNjefM=;
-	b=M2es8Z0fR81f9xl6NPaBs2Q70yl5V0+AF0gQpDBziSXf/vpy62fI5iYDsS+HhoU4WbNLjS
-	PSKeMrVsXPIzLdeJ9vsVhbqk9clXKgDeYhOmslwysHM+qm/iDyjEMtq3OEs7GF2mQuhHEf
-	OPUD0Jl2QnwSnWEsoh1fAY56L/XYjR4=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=dLzVjPl4JuXWdYl/OMkyXvKlFkDQF6qpB2cxYBp2hXA=;
+	b=IUijVVilAM6p5Eb6Vtu6uQHoG/AwvHmR+cii/ttZIpkQRwA3uZ/xfMwHZlWuhcEJamoSPd
+	Qg1HkouB9YlmdEjYn/FI9l2ifvmn8sL5k/dmKcnvMBVVEJc8n+3rssZijAX6XepCpKs/dZ
+	kHTod5bjF3ZK3UfIaddlxHBd6QdNhjA=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-335-xRCHakqWO4KfhI6WkTSNqg-1; Mon, 11 May 2026 04:54:53 -0400
-X-MC-Unique: xRCHakqWO4KfhI6WkTSNqg-1
-X-Mimecast-MFC-AGG-ID: xRCHakqWO4KfhI6WkTSNqg_1778489692
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-488f973ddfeso28715395e9.3
-        for <virtualization@lists.linux.dev>; Mon, 11 May 2026 01:54:53 -0700 (PDT)
+ us-mta-617-EPkwQZpaP9aiWHTA_kQReQ-1; Mon, 11 May 2026 04:54:59 -0400
+X-MC-Unique: EPkwQZpaP9aiWHTA_kQReQ-1
+X-Mimecast-MFC-AGG-ID: EPkwQZpaP9aiWHTA_kQReQ_1778489698
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-4891f97aef0so21353055e9.2
+        for <virtualization@lists.linux.dev>; Mon, 11 May 2026 01:54:58 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778489692; x=1779094492;
+        d=1e100.net; s=20251104; t=1778489698; x=1779094498;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=+4kzhpMcne9QL/iUfytpcOnuwyhDfw3DKjMmXnNjefM=;
-        b=hO39zcVl36vfqBUV/FXmyKA45Sjqp+TwICUe6RXK9RS4784cTM4tWlTuC1haaOjXPl
-         Mf6rNJlfhELjxrHuXuORXMn3T/V/l0oPLwtHa8clDJdd7lUVZclwJSsCRtZFy9rdkd1C
-         Q1QzyJw9HR7PaAq1Ol9Q6P1OHfRivoyvLsNzNwW5AiKBF+ulFK8Ys/BAYRE4V0uaypzH
-         RJRSn+mLCvqSsi7/VJlZXFZcBEyLvheOcFAyj3OOAB1JBxdDchpxYy4UTA6U4MyaAGOZ
-         VqI+WaBPBTdvs8DZnYrIxu3P5cANL8fa49Mkt7KGLDhsynMw35qj4slhJTfuFgbLZHkc
-         xJGw==
-X-Forwarded-Encrypted: i=1; AFNElJ87MHzCO0Wv/0zgJZlEaz/TTssVJN+4Iho3o/CMw67efP/xW4jfWyf630inIWitk4MMC4pwNk0WnrRVfDzVXQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzt9gQFHZDYGIAB+1DiAtFBNUXWHjPOfo2sWLQD0eVy8W0WD1jk
-	+jqL3n0uFGmKKgka7lXDmKlJQvrWmo2pKtaTz+VczS3V0I5+QO8l7fBpqLSWFIsvCVGcN7i+l80
-	cBsr84s/BT+d3tinJdBUaml5m0gCM0yaz6asiEfIYx2U0k/9Gi7Rhap4O0IfAUp6MRRKQ
-X-Gm-Gg: Acq92OFziGIaooDDgrbSZTSCPz5nVzuSF17dG/9EqDjFkW6jyoY2C2FuSR4s3MZefhe
-	BOK23K6tHUB6hGPiOVfzMWjAvUsbGyHq8Ge0sDC6Ie/51QwRr5ZHtw8TRUd1Bfo3hO2ehoQvyOt
-	y69Q/uvAFlBy7gGl1+THkQOldo0YEAe1LF+eQBQ15ESFpQsDQZ0VsOz54RHJf7nuYgPYRUp+09D
-	oatitMi2dlhPYDNVCPLNbcoV/2zRZ2VAdJ3iEtIxaweHIOJ87Wj6mD7PhxbmegPpg3fI0wUPPun
-	CidjfdPJ7B738lfPDy+mkHP5cl7noNf9d4JFU2r39gVeZlTvnvEocoyNiBFwvoPih3VHCDiTyuj
-	wqaN8WCot3myGvtrpKhUAkw0x8/38Pb7O0864UDsS
-X-Received: by 2002:a05:600c:1da8:b0:48e:635a:18d7 with SMTP id 5b1f17b1804b1-48e635a1ba0mr253243555e9.0.1778489692261;
-        Mon, 11 May 2026 01:54:52 -0700 (PDT)
-X-Received: by 2002:a05:600c:1da8:b0:48e:635a:18d7 with SMTP id 5b1f17b1804b1-48e635a1ba0mr253242975e9.0.1778489691662;
-        Mon, 11 May 2026 01:54:51 -0700 (PDT)
+        bh=dLzVjPl4JuXWdYl/OMkyXvKlFkDQF6qpB2cxYBp2hXA=;
+        b=Z+JE2VsvDivu9lZVP0jSJsThjlG9Vskt0edbRFQs9tdYOOKqKTPx2vsMKmvf0oQsc7
+         27VQ55EcNkD59TRIjDc0FhmfqbHUDQaPnbnvIVKnOS6jFMgLfZd/z/sZSaPjY0c2hCeS
+         1KOQfH2o6xdwOIOn+JSRrf7C8NOetnemYZuCBQ+GYmgXBOtPdTCYdhZ7vIBU5waDOE0W
+         aZccmd16wDYaqOW7gWyP3654UgJUrEp93ZGVRaLJ5iC0/h/TBZstlljGzTAzoOnIdzHi
+         1SN3UE+sQIZarpGVgm6Km72x4KTQCjSzxMO0W925p96PFJ03fZTGr0j++w+/AOOEuGLz
+         t2pA==
+X-Forwarded-Encrypted: i=1; AFNElJ/5ZgO0/nZy1eAOkC5aZTdLVZfCFLXR78FUCqrxfitPmHptQ7ciLk27Cmw7C6MT/QwPI/Iqx+5woJdm/jbEIw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzxGhR3Q4WFBNbyRUyjyiznD07x/UmT1VkAAP3ykj2s2vMsjizS
+	1FRHhPKTb9pR40hsh2XVxVaoNxqYdzoac4nODoz1jXaqpuWd3MCPLxNO4uNmDE/zGG5cMC+xart
+	YQ3sxYVCDhWfpeNIP5r0P7dtJEVW20jh7AjDibXfr2CN1oRzMWQBWSkIMa9bzlffGauYN
+X-Gm-Gg: Acq92OFCVLdFig/0PysgxuxMOL7D9uIFP8oE03sWPLs8cnM0sMh5bJKEGaDGxdLpRtO
+	6NWI6j7lUM+cjElyyAxOwQP2HFoAdd+TFuCo1CpTrXq9K9aN+VsybLGUa88M6PUSWZsALaW4pW/
+	13pCFqoQ8VzWzXgj6KaEfBPY1I9yJ9bzpKmNNFrP9aglgylyKW9ecHrN4flOnZpSDTde9ltqnUq
+	pYz/Oxg4+8pCsLooas24eHl4sqRpXG3lAMEIq4ld7cGhBsSmWJwA+VnwB7ehA/GXVKJ+SLxW7X+
+	JnhHg1rAtsjsInIf2YuJASLwlGxRq/4D5NRLKAgQy3I/gfflTbGsubN8gM5HNIG7Hmv7PkNBwIw
+	9S+mb61w7SiH4OtT2Jrrie/SYaCGqF1dwmQbahSPOns1kFlq6+KY=
+X-Received: by 2002:a05:600c:8b28:b0:489:149a:f9e7 with SMTP id 5b1f17b1804b1-48e706e1ce9mr154143195e9.27.1778489697559;
+        Mon, 11 May 2026 01:54:57 -0700 (PDT)
+X-Received: by 2002:a05:600c:8b28:b0:489:149a:f9e7 with SMTP id 5b1f17b1804b1-48e706e1ce9mr154142155e9.27.1778489696924;
+        Mon, 11 May 2026 01:54:56 -0700 (PDT)
 Received: from redhat.com (IGLD-80-230-48-7.inter.net.il. [80.230.48.7])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-454919c13c9sm23822939f8f.27.2026.05.11.01.54.45
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48e702e0c70sm189372845e9.6.2026.05.11.01.54.52
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 May 2026 01:54:51 -0700 (PDT)
-Date: Mon, 11 May 2026 04:54:44 -0400
+        Mon, 11 May 2026 01:54:56 -0700 (PDT)
+Date: Mon, 11 May 2026 04:54:51 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
@@ -102,115 +102,172 @@ Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
 	Andrea Arcangeli <aarcange@redhat.com>,
-	Magnus Lindholm <linmag7@gmail.com>,
-	Greg Ungerer <gerg@linux-m68k.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Richard Henderson <richard.henderson@linaro.org>,
-	Matt Turner <mattst88@gmail.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, linux-alpha@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org, linux-s390@vger.kernel.org
-Subject: [PATCH v6 15/30] mm: remove arch vma_alloc_zeroed_movable_folio
- overrides
-Message-ID: <64e3432a5982607dc886f5943f556f54c0612e3e.1778487000.git.mst@redhat.com>
-References: <cover.1778487000.git.mst@redhat.com>
+	"Liam R. Howlett" <liam@infradead.org>
+Subject: [PATCH v6 16/30] mm: page_reporting: allow driver to set batch
+ capacity
+Message-ID: <ba8b43363217b662a9eda6c2b47b6c95f710d3c7.1778488966.git.mst@redhat.com>
+References: <cover.1778488966.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <cover.1778487000.git.mst@redhat.com>
+In-Reply-To: <cover.1778488966.git.mst@redhat.com>
 X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
 X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: OWZo3CoyGqotRYhhP7_057LT-RccsNU5MYNr5R2qivQ_1778489692
+X-Mimecast-MFC-PROC-ID: xvOhDC5KR9WQVDCb68xQmFyc96X90nC6gEmKPpCgCGU_1778489698
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Now that the generic vma_alloc_zeroed_movable_folio() uses
-__GFP_ZERO, the arch-specific macros on alpha, m68k, s390, and
-x86 that did the same thing are redundant.  Remove them.
+Add a capacity field to page_reporting_dev_info so drivers can
+control the maximum number of pages per report batch. This is
+useful when the driver needs to reserve virtqueue descriptors for
+metadata (e.g., a bitmap buffer) alongside the page buffers.
 
-arm64 is not affected: it has a real function override that
-handles MTE tag zeroing, not just __GFP_ZERO.
+The value is capped at PAGE_REPORTING_CAPACITY and rounded down
+to a power of 2. If unset (0), defaults to PAGE_REPORTING_CAPACITY.
 
-Suggested-by: David Hildenbrand <david@kernel.org>
-Acked-by: Magnus Lindholm <linmag7@gmail.com>
-Acked-by: Greg Ungerer <gerg@linux-m68k.org>
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org> # m68k
+The virtio_balloon driver sets capacity to the reporting virtqueue
+size, letting page_reporting adapt to whatever the device provides.
+
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Assisted-by: Claude:claude-opus-4-6
 ---
- arch/alpha/include/asm/page.h   | 3 ---
- arch/m68k/include/asm/page_no.h | 3 ---
- arch/s390/include/asm/page.h    | 3 ---
- arch/x86/include/asm/page.h     | 3 ---
- 4 files changed, 12 deletions(-)
+ drivers/virtio/virtio_balloon.c |  5 +----
+ include/linux/page_reporting.h  |  3 +++
+ mm/page_reporting.c             | 26 +++++++++++++++-----------
+ 3 files changed, 19 insertions(+), 15 deletions(-)
 
-diff --git a/arch/alpha/include/asm/page.h b/arch/alpha/include/asm/page.h
-index 59d01f9b77f6..4327029cd660 100644
---- a/arch/alpha/include/asm/page.h
-+++ b/arch/alpha/include/asm/page.h
-@@ -12,9 +12,6 @@
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index f6c2dff33f8a..6a1a610c2cb1 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -1017,10 +1017,6 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 		unsigned int capacity;
  
- extern void clear_page(void *page);
+ 		capacity = virtqueue_get_vring_size(vb->reporting_vq);
+-		if (capacity < PAGE_REPORTING_CAPACITY) {
+-			err = -ENOSPC;
+-			goto out_unregister_oom;
+-		}
  
--#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
--	vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
--
- extern void copy_page(void * _to, void * _from);
- #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+ 		vb->pr_dev_info.order = PAGE_REPORTING_ORDER_UNSPECIFIED;
  
-diff --git a/arch/m68k/include/asm/page_no.h b/arch/m68k/include/asm/page_no.h
-index d2532bc407ef..f511b763a235 100644
---- a/arch/m68k/include/asm/page_no.h
-+++ b/arch/m68k/include/asm/page_no.h
-@@ -12,9 +12,6 @@ extern unsigned long memory_end;
- 
- #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
- 
--#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
--	vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
--
- #define __pa(vaddr)		((unsigned long)(vaddr))
- #define __va(paddr)		((void *)((unsigned long)(paddr)))
- 
-diff --git a/arch/s390/include/asm/page.h b/arch/s390/include/asm/page.h
-index 56da819a79e6..e995d2a413f9 100644
---- a/arch/s390/include/asm/page.h
-+++ b/arch/s390/include/asm/page.h
-@@ -67,9 +67,6 @@ static inline void copy_page(void *to, void *from)
- 
- #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
- 
--#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
--	vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
--
- #ifdef CONFIG_STRICT_MM_TYPECHECKS
- #define STRICT_MM_TYPECHECKS
+@@ -1041,6 +1037,7 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 		vb->pr_dev_info.order = 5;
  #endif
-diff --git a/arch/x86/include/asm/page.h b/arch/x86/include/asm/page.h
-index 416dc88e35c1..92fa975b46f3 100644
---- a/arch/x86/include/asm/page.h
-+++ b/arch/x86/include/asm/page.h
-@@ -28,9 +28,6 @@ static inline void copy_user_page(void *to, void *from, unsigned long vaddr,
- 	copy_page(to, from);
- }
  
--#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
--	vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
--
- #ifndef __pa
- #define __pa(x)		__phys_addr((unsigned long)(x))
- #endif
++		vb->pr_dev_info.capacity = capacity;
+ 		err = page_reporting_register(&vb->pr_dev_info);
+ 		if (err)
+ 			goto out_unregister_oom;
+diff --git a/include/linux/page_reporting.h b/include/linux/page_reporting.h
+index 9d4ca5c218a0..5ab5be02fa15 100644
+--- a/include/linux/page_reporting.h
++++ b/include/linux/page_reporting.h
+@@ -22,6 +22,9 @@ struct page_reporting_dev_info {
+ 
+ 	/* Minimal order of page reporting */
+ 	unsigned int order;
++
++	/* Max pages per report batch (default PAGE_REPORTING_CAPACITY) */
++	unsigned int capacity;
+ };
+ 
+ /* Tear-down and bring-up for page reporting devices */
+diff --git a/mm/page_reporting.c b/mm/page_reporting.c
+index 7418f2e500bb..006f7cdddc18 100644
+--- a/mm/page_reporting.c
++++ b/mm/page_reporting.c
+@@ -174,10 +174,10 @@ page_reporting_cycle(struct page_reporting_dev_info *prdev, struct zone *zone,
+ 	 * list processed. This should result in us reporting all pages on
+ 	 * an idle system in about 30 seconds.
+ 	 *
+-	 * The division here should be cheap since PAGE_REPORTING_CAPACITY
+-	 * should always be a power of 2.
++	 * The division here should be cheap since capacity should
++	 * always be a power of 2.
+ 	 */
+-	budget = DIV_ROUND_UP(area->nr_free, PAGE_REPORTING_CAPACITY * 16);
++	budget = DIV_ROUND_UP(area->nr_free, prdev->capacity * 16);
+ 
+ 	/* loop through free list adding unreported pages to sg list */
+ 	list_for_each_entry_safe(page, next, list, lru) {
+@@ -222,10 +222,10 @@ page_reporting_cycle(struct page_reporting_dev_info *prdev, struct zone *zone,
+ 		spin_unlock_irq(&zone->lock);
+ 
+ 		/* begin processing pages in local list */
+-		err = prdev->report(prdev, sgl, PAGE_REPORTING_CAPACITY);
++		err = prdev->report(prdev, sgl, prdev->capacity);
+ 
+ 		/* reset offset since the full list was reported */
+-		*offset = PAGE_REPORTING_CAPACITY;
++		*offset = prdev->capacity;
+ 
+ 		/* update budget to reflect call to report function */
+ 		budget--;
+@@ -234,7 +234,7 @@ page_reporting_cycle(struct page_reporting_dev_info *prdev, struct zone *zone,
+ 		spin_lock_irq(&zone->lock);
+ 
+ 		/* flush reported pages from the sg list */
+-		page_reporting_drain(prdev, sgl, PAGE_REPORTING_CAPACITY, !err);
++		page_reporting_drain(prdev, sgl, prdev->capacity, !err);
+ 
+ 		/*
+ 		 * Reset next to first entry, the old next isn't valid
+@@ -260,13 +260,13 @@ static int
+ page_reporting_process_zone(struct page_reporting_dev_info *prdev,
+ 			    struct scatterlist *sgl, struct zone *zone)
+ {
+-	unsigned int order, mt, leftover, offset = PAGE_REPORTING_CAPACITY;
++	unsigned int order, mt, leftover, offset = prdev->capacity;
+ 	unsigned long watermark;
+ 	int err = 0;
+ 
+ 	/* Generate minimum watermark to be able to guarantee progress */
+ 	watermark = low_wmark_pages(zone) +
+-		    (PAGE_REPORTING_CAPACITY << page_reporting_order);
++		    (prdev->capacity << page_reporting_order);
+ 
+ 	/*
+ 	 * Cancel request if insufficient free memory or if we failed
+@@ -290,7 +290,7 @@ page_reporting_process_zone(struct page_reporting_dev_info *prdev,
+ 	}
+ 
+ 	/* report the leftover pages before going idle */
+-	leftover = PAGE_REPORTING_CAPACITY - offset;
++	leftover = prdev->capacity - offset;
+ 	if (leftover) {
+ 		sgl = &sgl[offset];
+ 		err = prdev->report(prdev, sgl, leftover);
+@@ -322,11 +322,11 @@ static void page_reporting_process(struct work_struct *work)
+ 	atomic_set(&prdev->state, state);
+ 
+ 	/* allocate scatterlist to store pages being reported on */
+-	sgl = kmalloc_objs(*sgl, PAGE_REPORTING_CAPACITY);
++	sgl = kmalloc_objs(*sgl, prdev->capacity);
+ 	if (!sgl)
+ 		goto err_out;
+ 
+-	sg_init_table(sgl, PAGE_REPORTING_CAPACITY);
++	sg_init_table(sgl, prdev->capacity);
+ 
+ 	for_each_zone(zone) {
+ 		err = page_reporting_process_zone(prdev, sgl, zone);
+@@ -377,6 +377,10 @@ int page_reporting_register(struct page_reporting_dev_info *prdev)
+ 			page_reporting_order = pageblock_order;
+ 	}
+ 
++	if (!prdev->capacity || prdev->capacity > PAGE_REPORTING_CAPACITY)
++		prdev->capacity = PAGE_REPORTING_CAPACITY;
++	prdev->capacity = rounddown_pow_of_two(prdev->capacity);
++
+ 	/* initialize state and work structures */
+ 	atomic_set(&prdev->state, PAGE_REPORTING_IDLE);
+ 	INIT_DELAYED_WORK(&prdev->work, &page_reporting_process);
 -- 
 MST
 
