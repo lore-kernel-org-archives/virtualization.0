@@ -1,78 +1,78 @@
 Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2EE8E3806D3
-	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 12:24:33 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CAEB3815D2
+	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 12:24:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778502274; cv=none; b=kkovr15fonzQUzpP8lExt2zRaHVxetQ5sqZvbliWPmSPIrpS9eurdKhPZ/vgLJ5TH/qfDFkWh8k2tHjCiy/cZ/aipZHKGLXtGIGTfP39Z5TMTNmcaT/e37L4RfeTC2zqxE3pPSbACCJJDIg3NJCqar32m2TuYTJZdtOrVmsVLSU=
+	t=1778502280; cv=none; b=fvo5y0FrY/JeKSycw5NdfQmf62ArYridzLl2lHFvCxHjK3G4wMepQ6F5mHfZpEM6r3c0+5/iML6tFCVsQ8AoK/o44sy/KOJLWkQ/hgIM429ok7kWeGiHnHS2Chq3ldIU5mmJjeh1B6YEB8nREHTU4eWZI7v2Wduct/O+ILcQA2A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778502274; c=relaxed/simple;
-	bh=J1wgyImkUCbYTBUeRD6/TbMQgT7G/nWQJnGr5i5B8fs=;
+	s=arc-20240116; t=1778502280; c=relaxed/simple;
+	bh=4dKNxrjFTMVgKvv1gCsOMZADYI4YeWzL28we7S5SOWQ=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=iJwti+CZ4s3NRNecTaBN8IS8RpwzRdBnyA9xV7Q13OEiChck7lz9PPOapDdw8knZIblwHED0c0+aWsIh3QYz9s5JViHxBzqkzs0Emwo8QNWwXd6LVuEoy+uOqMTlfIZBdbi8Q8Jdm9Qc57D43WevI2GBFPFBg5fK+/9HpXgSSS8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Lw5l2Al/; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=rDPERZcs; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Lw5l2Al/; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=rDPERZcs; arc=none smtp.client-ip=195.135.223.131
+	 MIME-Version; b=K0FQEzHddNNAcyvTTkumzZ5QcLJpJeAZ21EXf+Ten2Ma3NA9G6wvITk9fU8xSJ+xZPJ909BT5mFxyEv2WB8beZHmUthWWOkryQwjUlIie53h559Un4NhNL4iYiCqwjgiRE/16vBVivU3EiDFkX1cEvPjkiVZk5mOqekKSEeWmIE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=1TliH582; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=7tQo485y; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=1TliH582; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=7tQo485y; arc=none smtp.client-ip=195.135.223.131
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Lw5l2Al/";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="rDPERZcs";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Lw5l2Al/";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="rDPERZcs"
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="1TliH582";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="7tQo485y";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="1TliH582";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="7tQo485y"
 Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 14ED9674DF;
-	Mon, 11 May 2026 12:24:26 +0000 (UTC)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 0492E67DFC;
+	Mon, 11 May 2026 12:24:27 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1778502266; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1778502267; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=AZQFRfJuIUA5DXSJJMhmYNGtobw+HMI9pkdavuyyOmA=;
-	b=Lw5l2Al/R13dLrNENXhTMT/72s9BDjTWvCRP7Ka0UzSrWSeEwYh/Aq3qH8sLiN5DOIcK2c
-	93qU0L5R0OSRet3Hn/d9sLfxv1gMYSS+PfKJcanQGQ29by1cwcNbcs+1+X+ob+UvqVzyEf
-	tt/PTiZHEhU+RmZzfORCK6rhwqS6TYc=
+	bh=uAYse+Ps61+kDgO4XkZV97cS1iTBoGPx4O/MZSrB+Z8=;
+	b=1TliH582DmTvHR1uJ4nn/OQgHjDmjmT+/YF5kLSzN5/92V2f1c+yZZlEMGRn0todO2LCUD
+	c1RozhFP61LIVIEc0ER+tBZSkxzlZsXWsZFzrDBT2/JUTf4Vayd70NqldMruOUPpGzR/ZB
+	jLERSk2f5H04uY4k0XVHDVWm7QkpoTo=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1778502266;
+	s=susede2_ed25519; t=1778502267;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=AZQFRfJuIUA5DXSJJMhmYNGtobw+HMI9pkdavuyyOmA=;
-	b=rDPERZcsNDQfdFL8CAkV0LivoSigyMYsTtyj/30+tMr+R39gDNEFd8g7K5ZTjccY3nVEd6
-	f0d5twoAuj7/JEDw==
+	bh=uAYse+Ps61+kDgO4XkZV97cS1iTBoGPx4O/MZSrB+Z8=;
+	b=7tQo485yt123uCG2fjtVmM0hUknGqp5BweC+J4hgrqyk2lLrDFOFmaOjJe4PSMAc9ozIeG
+	xs+2YCN4ffdMz2Aw==
 Authentication-Results: smtp-out2.suse.de;
 	none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1778502266; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	t=1778502267; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=AZQFRfJuIUA5DXSJJMhmYNGtobw+HMI9pkdavuyyOmA=;
-	b=Lw5l2Al/R13dLrNENXhTMT/72s9BDjTWvCRP7Ka0UzSrWSeEwYh/Aq3qH8sLiN5DOIcK2c
-	93qU0L5R0OSRet3Hn/d9sLfxv1gMYSS+PfKJcanQGQ29by1cwcNbcs+1+X+ob+UvqVzyEf
-	tt/PTiZHEhU+RmZzfORCK6rhwqS6TYc=
+	bh=uAYse+Ps61+kDgO4XkZV97cS1iTBoGPx4O/MZSrB+Z8=;
+	b=1TliH582DmTvHR1uJ4nn/OQgHjDmjmT+/YF5kLSzN5/92V2f1c+yZZlEMGRn0todO2LCUD
+	c1RozhFP61LIVIEc0ER+tBZSkxzlZsXWsZFzrDBT2/JUTf4Vayd70NqldMruOUPpGzR/ZB
+	jLERSk2f5H04uY4k0XVHDVWm7QkpoTo=
 DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1778502266;
+	s=susede2_ed25519; t=1778502267;
 	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
 	 mime-version:mime-version:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=AZQFRfJuIUA5DXSJJMhmYNGtobw+HMI9pkdavuyyOmA=;
-	b=rDPERZcsNDQfdFL8CAkV0LivoSigyMYsTtyj/30+tMr+R39gDNEFd8g7K5ZTjccY3nVEd6
-	f0d5twoAuj7/JEDw==
+	bh=uAYse+Ps61+kDgO4XkZV97cS1iTBoGPx4O/MZSrB+Z8=;
+	b=7tQo485yt123uCG2fjtVmM0hUknGqp5BweC+J4hgrqyk2lLrDFOFmaOjJe4PSMAc9ozIeG
+	xs+2YCN4ffdMz2Aw==
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 9D6A1593A9;
-	Mon, 11 May 2026 12:24:25 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 8AFC4593A9;
+	Mon, 11 May 2026 12:24:26 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id qI8+JXnKAWolYwAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Mon, 11 May 2026 12:24:25 +0000
+	id wGLLIHrKAWolYwAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Mon, 11 May 2026 12:24:26 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: mripard@kernel.org,
 	maarten.lankhorst@linux.intel.com,
@@ -91,9 +91,9 @@ Cc: dri-devel@lists.freedesktop.org,
 	linux-mips@vger.kernel.org,
 	virtualization@lists.linux.dev,
 	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v2 03/10] drm/ingenic: Remove calls to drm_atomic_helper_check_plane_damage()
-Date: Mon, 11 May 2026 14:22:27 +0200
-Message-ID: <20260511122421.114014-4-tzimmermann@suse.de>
+Subject: [PATCH v2 05/10] drm/appletbdrm: Allocate request/response buffers in begin_fb_access
+Date: Mon, 11 May 2026 14:22:29 +0200
+Message-ID: <20260511122421.114014-6-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260511122421.114014-1-tzimmermann@suse.de>
 References: <20260511122421.114014-1-tzimmermann@suse.de>
@@ -116,7 +116,7 @@ X-Spamd-Result: default: False [-6.80 / 50.00];
 	MIME_GOOD(-0.10)[text/plain];
 	ARC_NA(0.00)[];
 	RCVD_VIA_SMTP_AUTH(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:email,suse.de:mid];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:helo,suse.de:email,suse.de:mid,proton.me:email];
 	RCPT_COUNT_TWELVE(0.00)[17];
 	MIME_TRACE(0.00)[0:+];
 	TO_DN_SOME(0.00)[];
@@ -132,63 +132,114 @@ X-Spamd-Result: default: False [-6.80 / 50.00];
 	FREEMAIL_ENVRCPT(0.00)[gmail.com]
 X-Spam-Level: 
 
-Atomic helpers call drm_atomic_helper_check_plane_damage() after the
-atomic_check anyway. See atomic_helper_check_planes(). Remove the calls
-from the planes' atomic_check.
+In atomic_check, damage handling is not fully evaluated. Another
+atomic_check helper could trigger a full modeset and thus invalidate
+damage clips.
+
+Allocation of the request/response buffers in appletbdrm depends on
+correct damage information. Otherwise it might allocate incorrectly
+sized buffers. Allocate the buffers in the driver's begin_fb_access
+helper. It runs early during the commit when damage clipping has been
+fully evaluated.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Acked-by: Aditya Garg <gargaditya08@proton.me>
 ---
- drivers/gpu/drm/ingenic/ingenic-drm-drv.c | 3 ---
- drivers/gpu/drm/ingenic/ingenic-ipu.c     | 8 ++------
- 2 files changed, 2 insertions(+), 9 deletions(-)
+ drivers/gpu/drm/tiny/appletbdrm.c | 50 +++++++++++++++++++------------
+ 1 file changed, 31 insertions(+), 19 deletions(-)
 
-diff --git a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-index 42c86f195c66..e99b44e3ac92 100644
---- a/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-+++ b/drivers/gpu/drm/ingenic/ingenic-drm-drv.c
-@@ -519,9 +519,6 @@ static int ingenic_drm_plane_atomic_check(struct drm_plane *plane,
- 	     old_plane_state->fb->format->format != new_plane_state->fb->format->format))
- 		crtc_state->mode_changed = true;
+diff --git a/drivers/gpu/drm/tiny/appletbdrm.c b/drivers/gpu/drm/tiny/appletbdrm.c
+index cdd35af49892..65d1796252e9 100644
+--- a/drivers/gpu/drm/tiny/appletbdrm.c
++++ b/drivers/gpu/drm/tiny/appletbdrm.c
+@@ -315,33 +315,21 @@ static const u32 appletbdrm_primary_plane_formats[] = {
+ 	DRM_FORMAT_XRGB8888, /* emulated */
+ };
  
--	if (priv->soc_info->map_noncoherent)
--		drm_atomic_helper_check_plane_damage(state, new_plane_state);
+-static int appletbdrm_primary_plane_helper_atomic_check(struct drm_plane *plane,
+-						   struct drm_atomic_commit *state)
++static int appletbdrm_primary_plane_helper_begin_fb_access(struct drm_plane *plane,
++							   struct drm_plane_state *new_plane_state)
+ {
+-	struct drm_plane_state *new_plane_state = drm_atomic_get_new_plane_state(state, plane);
+-	struct drm_plane_state *old_plane_state = drm_atomic_get_old_plane_state(state, plane);
+-	struct drm_crtc *new_crtc = new_plane_state->crtc;
+-	struct drm_crtc_state *new_crtc_state = NULL;
+ 	struct appletbdrm_plane_state *appletbdrm_state = to_appletbdrm_plane_state(new_plane_state);
++	size_t frames_size = 0;
+ 	struct drm_atomic_helper_damage_iter iter;
+ 	struct drm_rect damage;
+-	size_t frames_size = 0;
+ 	size_t request_size;
+ 	int ret;
+ 
+-	if (new_crtc)
+-		new_crtc_state = drm_atomic_get_new_crtc_state(state, new_crtc);
 -
+-	ret = drm_atomic_helper_check_plane_state(new_plane_state, new_crtc_state,
+-						  DRM_PLANE_NO_SCALING,
+-						  DRM_PLANE_NO_SCALING,
+-						  false, false);
++	ret = drm_gem_begin_shadow_fb_access(plane, new_plane_state);
+ 	if (ret)
+ 		return ret;
+-	else if (!new_plane_state->visible)
+-		return 0;
+ 
+-	drm_atomic_helper_damage_iter_init(&iter, old_plane_state, new_plane_state);
++	drm_atomic_helper_damage_iter_init(&iter, NULL, new_plane_state);
+ 	drm_atomic_for_each_plane_damage(&iter, &damage) {
+ 		frames_size += struct_size((struct appletbdrm_frame *)0, buf, rect_size(&damage));
+ 	}
+@@ -369,6 +357,29 @@ static int appletbdrm_primary_plane_helper_atomic_check(struct drm_plane *plane,
  	return 0;
  }
  
-diff --git a/drivers/gpu/drm/ingenic/ingenic-ipu.c b/drivers/gpu/drm/ingenic/ingenic-ipu.c
-index 56143a191f36..fd17c642c7ac 100644
---- a/drivers/gpu/drm/ingenic/ingenic-ipu.c
-+++ b/drivers/gpu/drm/ingenic/ingenic-ipu.c
-@@ -594,7 +594,7 @@ static int ingenic_ipu_plane_atomic_check(struct drm_plane *plane,
- 
- 	if (!new_plane_state->crtc ||
- 	    !crtc_state->mode.hdisplay || !crtc_state->mode.vdisplay)
--		goto out_check_damage;
++static int appletbdrm_primary_plane_helper_atomic_check(struct drm_plane *plane,
++							struct drm_atomic_commit *state)
++{
++	struct drm_plane_state *new_plane_state = drm_atomic_get_new_plane_state(state, plane);
++	struct drm_crtc *new_crtc = new_plane_state->crtc;
++	struct drm_crtc_state *new_crtc_state = NULL;
++	int ret;
++
++	if (new_crtc)
++		new_crtc_state = drm_atomic_get_new_crtc_state(state, new_crtc);
++
++	ret = drm_atomic_helper_check_plane_state(new_plane_state, new_crtc_state,
++						  DRM_PLANE_NO_SCALING,
++						  DRM_PLANE_NO_SCALING,
++						  false, false);
++	if (ret)
++		return ret;
++	else if (!new_plane_state->visible)
 +		return 0;
- 
- 	/* Plane must be fully visible */
- 	if (new_plane_state->crtc_x < 0 || new_plane_state->crtc_y < 0 ||
-@@ -611,7 +611,7 @@ static int ingenic_ipu_plane_atomic_check(struct drm_plane *plane,
- 		return -EINVAL;
- 
- 	if (!osd_changed(new_plane_state, old_plane_state))
--		goto out_check_damage;
-+		return 0;
- 
- 	crtc_state->mode_changed = true;
- 
-@@ -645,10 +645,6 @@ static int ingenic_ipu_plane_atomic_check(struct drm_plane *plane,
- 	ipu_state->denom_w = denom_w;
- 	ipu_state->denom_h = denom_h;
- 
--out_check_damage:
--	if (ingenic_drm_map_noncoherent(ipu->master))
--		drm_atomic_helper_check_plane_damage(state, new_plane_state);
--
- 	return 0;
++
++	return 0;
++}
++
+ static int appletbdrm_flush_damage(struct appletbdrm_device *adev,
+ 				   struct drm_plane_state *old_state,
+ 				   struct drm_plane_state *state)
+@@ -468,7 +479,7 @@ static int appletbdrm_flush_damage(struct appletbdrm_device *adev,
  }
  
+ static void appletbdrm_primary_plane_helper_atomic_update(struct drm_plane *plane,
+-						     struct drm_atomic_commit *old_state)
++							  struct drm_atomic_commit *old_state)
+ {
+ 	struct appletbdrm_device *adev = drm_to_adev(plane->dev);
+ 	struct drm_device *drm = plane->dev;
+@@ -552,7 +563,8 @@ static void appletbdrm_primary_plane_destroy_state(struct drm_plane *plane,
+ }
+ 
+ static const struct drm_plane_helper_funcs appletbdrm_primary_plane_helper_funcs = {
+-	DRM_GEM_SHADOW_PLANE_HELPER_FUNCS,
++	.begin_fb_access = appletbdrm_primary_plane_helper_begin_fb_access,
++	.end_fb_access = drm_gem_end_shadow_fb_access,
+ 	.atomic_check = appletbdrm_primary_plane_helper_atomic_check,
+ 	.atomic_update = appletbdrm_primary_plane_helper_atomic_update,
+ 	.atomic_disable = appletbdrm_primary_plane_helper_atomic_disable,
 -- 
 2.54.0
 
