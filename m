@@ -1,209 +1,228 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BADA374178
-	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 10:54:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5258A3815DB
+	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 12:24:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778496898; cv=none; b=UMwSWAAR73r8GM+Q1mfkvtMWvjhKIzMWRz8P2Z+saR+Zom3rQGSRVz8fx636jRwt5DITkhiXlDr6daolNXQAfEGXdMeGGidaP74LqVwx+y01sFB9IF8MdQDM1FCjsw2FHHscd7DVBlzmlq3M5Lk5dCgOMHhM3q+GdFWyZWgRRnI=
+	t=1778502267; cv=none; b=A/bY4lLWvsSJEhW/NYXh1vJ2WI69Umq/s4UyDI1ZGiOmnrPgDfmrDl4E4K912AzNKp67ihXMm6v80L3xW7vMzFP2KpNTaQicEY/z3VzpW1cPsViCgHfRMGNi9tvmIwiINRqlTvncj77aYnbQLaa22I7m/J2A4RtWT9/LrZ6MhP4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778496898; c=relaxed/simple;
-	bh=V8eg8l9LTNxtrgGj41tiN9oiWfET/lpJ8WKuJ9lm5aU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=VJVDKZGRx45eG6G0IwhYMww8sMuU5Oysh0Mf6d0VgY4Cqvg2EL+OzWVpyrZt4DgodtEzTAEPSTwgOH4v/B0Zns+JzaaxcWgO2ih0fYkl3rHXMdB90vJ94NVWmoGvgi0TaKtW4ZSQNwUNDvSVJEKFzd74mCS6+VTUt9xJCAJwLL4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cOcR0HU2; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1778502267; c=relaxed/simple;
+	bh=eTMXBlY+XlS9VFV1e/RK8WvjGVVtsrTEHf04NAs/exY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=I6jMvUTOWUy7XBHz3x+42OcBIr9NHkux67kcdV4EZEg8ikHHF0yKxDxJDzT2FqMOZgHtxqJmeiOVkgsGj9xvRw/AGA9j49cx0dM2XwjQ+SXZv9s8nFsTb6Jc3Ddlv1p41k5CiNYyRETM4w+6LqH0+VmRDZd8FJt/EaMvYAiyRz8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=OxbVFp+o; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=bKTz+jP8; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=OxbVFp+o; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=bKTz+jP8; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cOcR0HU2"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1778496896;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=DNWy/CV2WRe1jDYLvFjqxiC49eSLSSASB8hrdzj5ZF0=;
-	b=cOcR0HU2c2KM+Rj99XNjcn47AKPmN3ndK2tYcblXyomIRx5Uq6/SAorL6MJmhq15T8KWCq
-	06eEOtDQ/t8MKwy/z7luA6jwXht64X1QtTgPkAl29opaofQ5N+TniqxtU7iz/d/y4ioIu2
-	pWNUwKU7KZlVLXAEUBWabLuFtkXabZI=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-651--iLoCIX8NUGreBSYXGZKCg-1; Mon, 11 May 2026 06:54:54 -0400
-X-MC-Unique: -iLoCIX8NUGreBSYXGZKCg-1
-X-Mimecast-MFC-AGG-ID: -iLoCIX8NUGreBSYXGZKCg_1778496894
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-449b2a183d3so3093180f8f.0
-        for <virtualization@lists.linux.dev>; Mon, 11 May 2026 03:54:54 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778496893; x=1779101693;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=DNWy/CV2WRe1jDYLvFjqxiC49eSLSSASB8hrdzj5ZF0=;
-        b=OL1XnX6Db/N0N871X2PtY/7dppeorHW12uwhEHeZs1uvdyiqxznOAkOgOACU/yD38b
-         mkL/vOLe6+L1DF8lhijVtv73uJqP8uij2lup6hZujqKNSZfMER/FqI6WeO/Ow9LEYLro
-         WFYNMkh+FSPgolJShfXr8tkyjC0EqNqG1ySoA0TyO1qjqSO7ZpJm1sdZiYyUK51TWT1q
-         4JGuU4k+EaBongaEoogCU1tVxW073DEn9i5g/gqzVe02w5mshg3C+qt6y3VYq6DCeL/u
-         kXP6L5Wq3jUniDc8sJiA8MDfG/tJe7CzT0S49454obWeeelWKh3b97AwEBUwZYZ0745m
-         Ff3Q==
-X-Forwarded-Encrypted: i=1; AFNElJ+291peliRDaYT0OBQlwHo0jDWsEqeBisYM5GoYHVL0/e1p+dosUj9HbHOj/N+EO6TBSXaTIzEYV+d3asn4VA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx2t/KlhQW/LOLGTwoOf45p6i/3wrBw137+L75wvHLm0PtvF7Dy
-	giPEDJfLvbhMFf2TgARvi1L05Wye1502v7DDi0HsgrtWNtQCHfQKuSWmzDUytL1HAwWgcUf+yIf
-	qQim0F7C5gdQYkNc2iDI3+eV+R9A2AeBF0iAADHZk+YJxZe0UlH6IAymM2kOhBC/Dwg6S
-X-Gm-Gg: Acq92OEvAJ46OgDa2T/AvwzlvW6fUjfBKXCcGYh4n4hzAEnwil97z/OXJC8j++cVsxw
-	kB/E3HSlcFABkLK8uwdcYAhvGti0St7xlwTeJALYRKUAG03VxwTCSlahEwL2deO+3euVbh9/C47
-	gJ3L2gImOHyXoEgJp1BdXTR683m6CvAlz2HI7mbCRL6FBkCZU1PRyx8L3W4pGa66KKcyb20bR9u
-	OMnMPHTK7y+F0J0A4wZ3VIA3xOJHnlcHJqzflemK/fyu7urlrfSPjKP7OwVEobA1DryTToUVFkB
-	tjCKpJF+d81kMJEL313yXK71HG5fLLl81Df8uPdYOyc5MnsAnf+IoFRVSkogThwbXb72Docse/V
-	9hpZtllZbO3TaF0bInS+P5DRE7MvGMPfM4jf+0kvFLrxOZ5Dz/1WdJwY1TCPuret+agXuRSMRul
-	ptE52ouXVC
-X-Received: by 2002:a05:6000:270f:b0:457:d27e:e4ee with SMTP id ffacd0b85a97d-457d27ee505mr6306176f8f.8.1778496893536;
-        Mon, 11 May 2026 03:54:53 -0700 (PDT)
-X-Received: by 2002:a05:6000:270f:b0:457:d27e:e4ee with SMTP id ffacd0b85a97d-457d27ee505mr6306143f8f.8.1778496892956;
-        Mon, 11 May 2026 03:54:52 -0700 (PDT)
-Received: from sgarzare-redhat (host-87-16-204-231.retail.telecomitalia.it. [87.16.204.231])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4548ec6cd75sm23669841f8f.16.2026.05.11.03.54.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 May 2026 03:54:52 -0700 (PDT)
-Date: Mon, 11 May 2026 12:54:44 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, Eric Dumazet <edumazet@google.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux.dev, 
-	"David S. Miller" <davem@davemloft.net>, Jason Wang <jasowang@redhat.com>, 
-	Simon Horman <horms@kernel.org>, linux-kernel@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, kvm@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>
-Subject: Re: [PATCH net] vsock/virtio: fix skb overhead accounting to
- preserve full buf_alloc
-Message-ID: <CAGxU2F65pw0P1uKOOJpBc4p6KjCz8iePEh9aPybUyECBm1=otg@mail.gmail.com>
-References: <20260508092330.69690-1-sgarzare@redhat.com>
- <20260508055125-mutt-send-email-mst@kernel.org>
- <af2y2Fyp7H-om-ur@sgarzare-redhat>
- <20260508063104-mutt-send-email-mst@kernel.org>
- <af28MAV0LF4qHVmB@sgarzare-redhat>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="OxbVFp+o";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="bKTz+jP8";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="OxbVFp+o";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="bKTz+jP8"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id ABF896B8CC;
+	Mon, 11 May 2026 12:24:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1778502264; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=Y8wfNNjm4i9r8GtfyBbZs0VUjeP7LrjfrNBh2349GDE=;
+	b=OxbVFp+oTMH9+QD5Eb9Kf8kDjmVxGoUScTldO4QeCdA8Jlp6xFl9BSwIPEEHRcLu0YXVh9
+	t24txUmz3juC5bKxl8GDseLhpEAgslJMRSnZgppnKc+O0sqDbROCFCGvAuIk5m69XgWJEq
+	aiK58OIqRRn44FIQxaCarRLLMLjwqcE=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1778502264;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=Y8wfNNjm4i9r8GtfyBbZs0VUjeP7LrjfrNBh2349GDE=;
+	b=bKTz+jP8dtoMHsEcW9WczsSbMhcYr6VPnPJ2HlCqI5uxHQTJYpoVghSPkDpNxANhNvUWMH
+	6AeaGJtUOfwUjcBw==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1778502264; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=Y8wfNNjm4i9r8GtfyBbZs0VUjeP7LrjfrNBh2349GDE=;
+	b=OxbVFp+oTMH9+QD5Eb9Kf8kDjmVxGoUScTldO4QeCdA8Jlp6xFl9BSwIPEEHRcLu0YXVh9
+	t24txUmz3juC5bKxl8GDseLhpEAgslJMRSnZgppnKc+O0sqDbROCFCGvAuIk5m69XgWJEq
+	aiK58OIqRRn44FIQxaCarRLLMLjwqcE=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1778502264;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=Y8wfNNjm4i9r8GtfyBbZs0VUjeP7LrjfrNBh2349GDE=;
+	b=bKTz+jP8dtoMHsEcW9WczsSbMhcYr6VPnPJ2HlCqI5uxHQTJYpoVghSPkDpNxANhNvUWMH
+	6AeaGJtUOfwUjcBw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 4209D593A3;
+	Mon, 11 May 2026 12:24:24 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id AuumDnjKAWolYwAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Mon, 11 May 2026 12:24:24 +0000
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: mripard@kernel.org,
+	maarten.lankhorst@linux.intel.com,
+	airlied@redhat.com,
+	airlied@gmail.com,
+	simona@ffwll.ch,
+	admin@kodeit.net,
+	gargaditya08@proton.me,
+	paul@crapouillou.net,
+	zack.rusin@broadcom.com,
+	bcm-kernel-feedback-list@broadcom.com
+Cc: dri-devel@lists.freedesktop.org,
+	linux-hyperv@vger.kernel.org,
+	intel-gfx@lists.freedesktop.org,
+	intel-xe@lists.freedesktop.org,
+	linux-mips@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH v2 00/10] drm: Improve logic behind damage handling
+Date: Mon, 11 May 2026 14:22:24 +0200
+Message-ID: <20260511122421.114014-1-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <af28MAV0LF4qHVmB@sgarzare-redhat>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: ESk8jMi1lpxHlVSp9s6do36Y5JaK6V6MqFtO2A7vLmk_1778496894
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+X-Spam-Flag: NO
+X-Spam-Score: -2.80
+X-Spamd-Result: default: False [-2.80 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	MID_CONTAINS_FROM(1.00)[];
+	R_MISSING_CHARSET(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	ARC_NA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[17];
+	MIME_TRACE(0.00)[0:+];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,imap1.dmz-prg2.suse.org:helo];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	FROM_EQ_ENVFROM(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	FREEMAIL_TO(0.00)[kernel.org,linux.intel.com,redhat.com,gmail.com,ffwll.ch,kodeit.net,proton.me,crapouillou.net,broadcom.com];
+	RCVD_TLS_ALL(0.00)[];
+	TO_DN_SOME(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com]
+X-Spam-Level: 
 
-On Fri, 8 May 2026 at 12:38, Stefano Garzarella <sgarzare@redhat.com> 
-wrote:
->
-> On Fri, May 08, 2026 at 06:33:13AM -0400, Michael S. Tsirkin wrote:
-> >On Fri, May 08, 2026 at 12:01:50PM +0200, Stefano Garzarella wrote:
-> >> On Fri, May 08, 2026 at 05:53:07AM -0400, Michael S. Tsirkin wrote:
-> >> > On Fri, May 08, 2026 at 11:23:30AM +0200, Stefano Garzarella wrote:
-> >> > > From: Stefano Garzarella <sgarzare@redhat.com>
-> >> > >
-> >> > > After commit 059b7dbd20a6 ("vsock/virtio: fix potential unbounded skb
-> >> > > queue"), virtio_transport_inc_rx_pkt() subtracts per-skb overhead from
-> >> > > buf_alloc when checking whether a new packet fits. This reduces the
-> >> > > effective receive buffer below what the user configured via
-> >> > > SO_VM_SOCKETS_BUFFER_SIZE, causing legitimate data packets to be
-> >> > > silently dropped and applications that rely on the full buffer size
-> >> > > to deadlock.
-> >> > >
-> >> > > Also, the reduced space is not communicated to the remote peer, so
-> >> > > its credit calculation accounts more credit than the receiver will
-> >> > > actually accept, causing data loss (there is no retransmission).
-> >> > >
-> >> > > This also causes failures in tools/testing/vsock/vsock_test.c.
-> >> > > Test 18 sometimes fails, while test 22 always fails in this way:
-> >> > >     18 - SOCK_STREAM MSG_ZEROCOPY...hash mismatch
-> >> > >
-> >> > >     22 - SOCK_STREAM virtio credit update + SO_RCVLOWAT...send failed:
-> >> > >     Resource temporarily unavailable
-> >> > >
-> >> > > Fix this by introducing virtio_transport_rx_buf_size() to calculate the
-> >> > > size of the RX buffer based on the overhead. Using it in the acceptance
-> >> > > check, the advertised buf_alloc, and the credit update decision.
-> >> > > Use buf_alloc * 2 as total budget (payload + overhead), similar to how
-> >> > > SO_RCVBUF is doubled to reserve space for sk_buff metadata.
-> >> > > The function returns buf_alloc as long as overhead fits within the
-> >> > > reservation, then gradually reduces toward 0 as overhead exceeds
-> >> > > buf_alloc (e.g. under small-packet flooding), informing the peer to
-> >> > > slow down.
-> >> > >
-> >> > > Fixes: 059b7dbd20a6 ("vsock/virtio: fix potential unbounded skb queue")
-> >> > > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-> >> >
-> >> >
-> >> > unfortunately, this is a bit of a spec violation and there is no guarantee
-> >> > it helps.
-> >>
-> >> Loosing data like we are doing in 059b7dbd20a6 is even worse IMHO.
-> >>
-> >> >
-> >> > a spec violation because the spec says:
-> >> > Only payload bytes are counted and header bytes are not
-> >> > included
-> >> >
-> >> > and the implication is that a side can not reduce its own buf_alloc.
-> >> >
-> >> > no guarantee because the other side is not required to process your
-> >> > packets, so it might not see your buf alloc reduction.
-> >> >
-> >> > as designed in the current spec, you can only increase your buf alloc,
-> >> > not decrease it.
-> >>
-> >> We never enforced this, currently an user can reduce it by
-> >> SO_VM_SOCKETS_BUFFER_SIZE and we haven't blocked it since virtio-vsock was
-> >> introduced, should we update the spec?
-> >
-> >
-> >it's not that we need to enforce it, it's that all synchronization
-> >assumes this. as in, anyone can use an old copy until they run out
-> >of credits.
-> >
-> >
-> >> >
-> >> > what can be done:
-> >> > - more efficient storage for small packets (poc i posted)
-> >> > - reduce buf alloc ahead of the time
-> >>
-> >> That's basically what I'm doing here: I'm using twice the size of
-> >> `buf_alloc` (just like `SO_RCVBUF` does for other socket types) and telling
-> >> the other peer just `buf_alloc`.
-> >>
-> >> But then, somehow, we have to let the other person know that we're running
-> >> out of space. With this patch that only happens when the other peer isn't
-> >> behaving properly, sending so many small packets that the overhead exceeds
-> >> `buf_alloc`.
-> >>
-> >> Stefano
-> >
-> >what is "not proper" here, it is up to the application what to send.
->
-> Sure, but here we're just slowing down the application by telling it we
-> don't have any more space.
->
-> Again, without this patch we are just dropping data, which IMO is even
-> worse.
->
-> So I think we should merge this for now, while we handle better the EOM.
-> If you prefer, I can drop the part where we reduce the buf_alloc
-> advertised to the other peer, but at least we should drop data after
-> `buf_alloc * 2` IMO.
+DRM clients can supply information on framebuffer areas to update as
+part of each page flip, called damage clipping rectangles. But DRM's
+processing of this information is inconsistent and prone to errors.
 
-Okay, I thought it over over the weekend, and I agree that this patch 
-still doesn't solve the problem and would still result in packet loss.
-So, until we resolve the issue permanently, and since 059b7dbd20a6 is 
-coming to stable, I'd like to rework this patch so that we only start 
-dropping packets when the overhead plus the queued bytes exceeds 
-`buf_alloc * 2`.
-Removing the other changes to reduce the buf_alloc advertised, but 
-terminating the connection so that both peers are aware that something 
-went wrong.
+- There are multiple fields and tests that decide if damage clips
+should be taken or ignored.
 
-Any objections?
+- Sometimes damage clips are removed behind the back of the DRM client.
 
-Stefano
+- Atomic helpers evaluate damage clipping in the middle of the atomic
+check: after connectors and encoders, but before planes and CRTCs. Hence
+pipeline stages have an inconsistent view.
+
+- Which leads to drivers (ingenic) doing a re-evaluation if necessary.
+
+- Tests of plane source coordinates only happen during commits. At this
+point, the driver should already know if damage clips are to be taken or
+not. Because of this, some drivers (appletbdrm) might operate on incorrect
+damage information for their internal workings. This also leads to excessive
+use of the old plane state.
+
+Got through DRM helpers and drivers to fix up the logic.
+
+- Run all of the atomic checks with the damage information supplied by
+DRM clients. Afterwards evaluate plane and CRTC states on whether to
+take or ignore damage clips. Do all related tests in a single atomic
+helper.
+
+- Do not discard damage clips. Set ignore_damage_clips in struct
+drm_plane_state instead. This includes changes to plane source-coordinates.
+The damage iterator now only has to look at this flag to detect if it
+should use the damage clips. 
+
+- Go over drivers and fix up the damage handling in the plane's
+atomic_update helpers. Most drivers no longer need the old plane state
+in their update.
+
+- The appletbdrm driver require a fix in how it uses damage information.
+Ingenic and vmwgfx can be simplified. These changes make the drivers better
+structured.
+
+- Kunit tests require some changes. Drop some obsolete tests and add a new
+one for ignore_damage_flags.
+
+Tested with bochs, mgag200, Kunit tests.
+
+v2:
+- rebase on latest upstream
+
+Thomas Zimmermann (10):
+  drm/damage-helper: Do not alter damage clips on modeset, but ignore
+    them
+  drm/atomic-helpers: Evaluate plane damage after atomic_check
+  drm/ingenic: Remove calls to drm_atomic_helper_check_plane_damage()
+  drm/damage-helper: Test src coord in
+    drm_atomic_helper_check_plane_damage()
+  drm/appletbdrm: Allocate request/response buffers in begin_fb_access
+  drm/damage-helper: Remove old state from
+    drm_atomic_helper_damage_iter_init()
+  drm/damage-helper: Remove old state from
+    drm_atomic_helper_damage_merged()
+  drm/atomic_helper: Do not evaluate plane damage before atomic_check
+  drm/damage-helper: Rename state parameters in damage helpers
+  drm/vmwgfx: Remove unused field struct
+    vmwgfx_du_update_plane.old_state
+
+ drivers/gpu/drm/ast/ast_cursor.c              |   3 +-
+ drivers/gpu/drm/ast/ast_mode.c                |   2 +-
+ drivers/gpu/drm/drm_atomic_helper.c           |   6 +-
+ drivers/gpu/drm/drm_atomic_state_helper.c     |   1 +
+ drivers/gpu/drm/drm_damage_helper.c           |  44 ++--
+ drivers/gpu/drm/drm_fb_dma_helper.c           |   2 +-
+ drivers/gpu/drm/drm_mipi_dbi.c                |   3 +-
+ drivers/gpu/drm/gud/gud_pipe.c                |   3 +-
+ drivers/gpu/drm/hyperv/hyperv_drm_modeset.c   |   3 +-
+ drivers/gpu/drm/i915/display/intel_plane.c    |  11 +-
+ drivers/gpu/drm/i915/display/intel_psr.c      |   3 +-
+ drivers/gpu/drm/ingenic/ingenic-drm-drv.c     |   3 -
+ drivers/gpu/drm/ingenic/ingenic-ipu.c         |   8 +-
+ drivers/gpu/drm/mgag200/mgag200_mode.c        |   3 +-
+ drivers/gpu/drm/sitronix/st7571.c             |   3 +-
+ drivers/gpu/drm/sitronix/st7586.c             |   3 +-
+ drivers/gpu/drm/sitronix/st7920.c             |   3 +-
+ drivers/gpu/drm/solomon/ssd130x.c             |   9 +-
+ drivers/gpu/drm/sysfb/drm_sysfb_modeset.c     |   3 +-
+ .../gpu/drm/tests/drm_damage_helper_test.c    | 200 +++---------------
+ drivers/gpu/drm/tiny/appletbdrm.c             |  56 +++--
+ drivers/gpu/drm/tiny/bochs.c                  |   3 +-
+ drivers/gpu/drm/tiny/cirrus-qemu.c            |   2 +-
+ drivers/gpu/drm/tiny/gm12u320.c               |   2 +-
+ drivers/gpu/drm/tiny/ili9225.c                |   3 +-
+ drivers/gpu/drm/tiny/repaper.c                |   2 +-
+ drivers/gpu/drm/tiny/sharp-memory.c           |   3 +-
+ drivers/gpu/drm/udl/udl_modeset.c             |   3 +-
+ drivers/gpu/drm/virtio/virtgpu_plane.c        |   2 +-
+ drivers/gpu/drm/vmwgfx/vmwgfx_kms.c           |   5 +-
+ drivers/gpu/drm/vmwgfx/vmwgfx_kms.h           |   2 -
+ drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c          |  12 +-
+ drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c          |  15 +-
+ include/drm/drm_damage_helper.h               |   9 +-
+ 34 files changed, 124 insertions(+), 311 deletions(-)
+
+
+base-commit: 680a4832a8182b13ac5d55ab0c03c54ebc2baadd
+-- 
+2.54.0
 
