@@ -1,64 +1,64 @@
-Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
+Received: from mail-qk1-f177.google.com (mail-qk1-f177.google.com [209.85.222.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 371A3402B89
-	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 16:04:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA5E7423167
+	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 16:05:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778515441; cv=none; b=JEtIUBSD+GzIYZAMUgjLmISQIf8NaF13qyqwN0SSh57eUBuNCT/xDjOyJVUFehDe+Vo2kaoy7Vy1qLUvOyJOl245hueCqbrV8kbtgu82AQa+M5h+hqBs5KdTee71yn8RUBFVuMy/ia4t3FMeaocs/mxuwGuJUnNhyoC94vgogC8=
+	t=1778515525; cv=none; b=HHtwaPtT7P8F8b+GHnvd0/KTWHGaZFWuUcRHuDZDoAd2esF6FNWrFBbV/PUkkJeeG2ZtSqeHPLrhrYK4cXXW380zLKUxKKN1fb4CmzzPHTMgezYbAJU7BMUBb3yEpcZGhBFm3JDFSahmQvuWkTP4ZN2XxhYE2U3CG+J8gCevrOo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778515441; c=relaxed/simple;
-	bh=ZOhCqyox8od94l1n2MQHg0B7xGhyCrDi4HynyRd67Cw=;
+	s=arc-20240116; t=1778515525; c=relaxed/simple;
+	bh=Oeq9eGMwi8w2iSQxQvmpmvZO/I9zsD0MGIULQ6JiCwk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=YjP8NMpsh3ILyFg5LC1SdLHy/m2dHGRK2nNj9lpltcn6cgjeSh1ChIg7YnS5o2CG8P8Wh/EvwQKeiyN2lROb7YZA5nQ3wcj6hZq26PI4KFMAssz+TNzedD3JncMUthOH4arau0o6mD4WruH+IndwYaCrutwPPjc4BcTBywm7VZg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=k1Pp+thw; arc=none smtp.client-ip=209.85.222.174
+	 Content-Type:Content-Disposition:In-Reply-To; b=mj/tioHMXQorVNfPZzTh4faGFT510qV4aMMB8Zg3hpXxZMdxkWhjjtYIgt2oHifQPJT3PweSOJREkLIu1+zl6ElKsN01hHkEd+5Wef8Kov3KNw8jtDaHhHd4wfTeF7RffwV8EQn4P3Z6POpQPfDfegOpXscM9hzCD0Bz6f720sE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=Kzh+gYjD; arc=none smtp.client-ip=209.85.222.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="k1Pp+thw"
-Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-8e8c0c2d2bcso587299285a.1
-        for <virtualization@lists.linux.dev>; Mon, 11 May 2026 09:04:00 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="Kzh+gYjD"
+Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-8d6d5e45c43so492561485a.3
+        for <virtualization@lists.linux.dev>; Mon, 11 May 2026 09:05:23 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1778515439; x=1779120239; darn=lists.linux.dev;
+        d=gourry.net; s=google; t=1778515523; x=1779120323; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=dApXG6ORKOxT92uQJAxaYBkfzHSro0hmS5CsQzIt91A=;
-        b=k1Pp+thwiDDmKt39CCPR0f59Jx70Xzz8dZu5iIH0dChukK0D1I9SMT4PinyUOeyg+j
-         MyoOYezo+3klMzMcXcTX0AWgvZJRgLQthxLfTO7V3z9qB/dQNuBbjyZSCqgBv/zTP6L6
-         8tQNqJyUKYVENOb6GBjYs7FvC8220iK7kF6f9mvG6mi75HAX2yLfO+P+tNT3VSGOUQdx
-         lGBLktmj3uytS3Pl80vwkO2RqKqEuCgUx13P7WSxgdOVGl1zdpyGOv+KOQJCu0OtIL0W
-         fRzMf+T/3nlj8nxmFuJLu/qrRlh6uXlBuWU8FfLbQF9Gi83NiEVl4/rd5ywo/hPbiHA/
-         Gfxg==
+        bh=53pN36zCncMLyKGWGnOoIrxzjGZ1bpiQo8EJw90qZwk=;
+        b=Kzh+gYjDTvhsyKxKXpl/RsZEf2I9hFJVCTQLEddUla5qG9RcQE3K+5n46ClWboa37q
+         3T9XHp0/Hvym78He/UwWxs1L6tBwspqAOZdZtKObQmg4h1M/rmHN6Cw0NQCOlO1Tujjl
+         a8w6m7TtIVcl6FzqDGz/GBI8/p3S1QDn/6xtUE3UuK4z/E5zAo/8YtL0fKvsElmf6T1h
+         6jTN5KcdZFQWdQKqd+i5Yp4DvlqzTd5dAtbChdT5yR3uiW50kTJ9xD3O/DNCEI++5UuT
+         kgb8+sA8QKss7dJg8z0aP5cYo3ISZ6FydwdcJ+A/gn2JHCQ7R6NL0wlPdMC32UE2RUAz
+         Sv8g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778515439; x=1779120239;
+        d=1e100.net; s=20251104; t=1778515523; x=1779120323;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=dApXG6ORKOxT92uQJAxaYBkfzHSro0hmS5CsQzIt91A=;
-        b=ODQiJGIcPRtPTo3718mjTyP78Pn7qHJpa/NnOS+aIGGV4uoQVH/yS77XdZIgXH3qk7
-         zMEEoE5AqEciB18aLz96aWiwkyWKEitPoOpnfDXYJkvubtCyiU0W98M8vXWT0j2j1v8h
-         JVWWR/f/Jfyf+QHFNjUWd6/QzEZeiMbVzCd9x0/X780f9MQxef4yt5i+bnHbmO7waZVR
-         TfZqC/vHL6wpKzDJpnUkBkvMM/ubD14AopteMY/ldE113PuXInXAQSknEjsQQb3G6Rl8
-         ZX4jNClrQUOcxMVgfcKuauuciZPrh1wOEQTT7ie08kCTLxrlUK6qcla5EI1NEgf19rb6
-         /hlg==
-X-Forwarded-Encrypted: i=1; AFNElJ9T9g2QO7am83OUEQAbHfgNhEfxNn+skbHZztU3uJNOJV2AaYw+raiFAAYUz8nOq06SM4VFFogwIt8xD3/gLQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzDw1pnnHgC3G9Bnxn7lNp46rQlV7mz0B1WgnQyYcZmdEsPP1sf
-	D/rnGEnkRl69QgYsg6uQ9krPeSefQRRZVlTH79lJYkpxEHRqyVD75B/OkeoyO3IZyZQ=
-X-Gm-Gg: Acq92OEO00Mxyj/ehSZjIWNI6hgOUs/UvNKBPXjQI2/4Y4NmlhR28lu4V9OnEPKL8OB
-	4eLUsmR1ZUKQsvGix4MR6JROhT7pVbP1kZI2RZoXQOQWQ44beKrtHJsG1e+EkaQab2ISKI1p+6p
-	EIkKEnXOw00zuSYugtczjA1e/+PgrXm+ToSv6yANTcCHWxQ1rHTwG7uXA1ROc5XrAz64ky5XvSQ
-	95Azx6nmP0WWmqIsfCWC9j/MLyYqlb+tRXMhaq2ZazdxDIov3gbpT3I0PNux6QFeAcg3oY3xVcS
-	wy+BNLVfNyab5XQlzcoI+rA77fHhBNZaowJ4kOLb4IAK+mMOvIzHDNJOBqFmtFvmXeBErgOPhcy
-	flyVe+GsW7S5J9Pnf8URUldeBhVbAsW7SFQ4t1MXyjZ77lhE5qSrY6tzkiyS7wrITJQHzLcKwrw
-	DBoOpC7HmFqRg1zjvS4mX7KNxL65i8q6qAC6atOjD8vXkQPZ0iR21FXkk0BZJSbkHm2u5g05K9y
-	dt+m5prCjEX
-X-Received: by 2002:a05:620a:410c:b0:8f8:c91a:212 with SMTP id af79cd13be357-904d3fa3d5emr3775977985a.13.1778515437606;
-        Mon, 11 May 2026 09:03:57 -0700 (PDT)
+        bh=53pN36zCncMLyKGWGnOoIrxzjGZ1bpiQo8EJw90qZwk=;
+        b=Tnt24CtFevNtpxHF8ExcUm8jHSzSzKIdw3375VCXCUZts3qG52XFzz+/4xBOvVaAfh
+         sVy73ArRliyE2SaU74Ns39RGCRC+QNdaEWj8bnSFZLKKzv1PwKiaGmsKChZmemk99zDF
+         Fonehao6RCFNoJbRO5wF94Z77LJqj2w16KhJA7bn8nwN2dIXKfXxYjUvoOVHgC70XDWL
+         McLGG+Gus6yIfI62h3Cpq/LH9tIUxyXwFp0FwXGsvFOrlBeC0x/IWr+SuWlFgOG7J35m
+         Q977zmso5XPakRf/Qz8Lvq2EH9Czl3sFfp9tSAgBsGTQ+s3lxeLjnNQvsNZA1bQWtabg
+         KxAQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+XoV/F25nfjorLxP9SyF5KZjccJqPwnFLFiEzGupYMfCX6fRBn69jcl2a+iTj+2zlap6Zwh7JL+JDUKvRaNA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz9WXTPf+8OwqZ5TyTs/xOwJSqIidLfSuio9BdmS3uU+wPYTIzL
+	3Cwe5qmRV1S8uaZAawn2POkuSdZ5GwPb/hiC6fsxxJeXr5dub2Uwe+BOf57ZEYxrKPk=
+X-Gm-Gg: Acq92OHilxv5ORhIUv1NaR5kpxlyYPK6INAMlKxV94uw3PrbmNOndhE9ulSi67MJ890
+	4l6h83w42iCKxgDnbHJiLLDuYxrkDn0T9yrSpDkkKNRWZPfGN7g7joxkEouuATkAfuItrrnDzrH
+	d5IXyaoinbz4aez0hK2jOwr+gtQlMy7J5yZ9pBRYtJJfEA0VouKdersEK3ebf5ABzZBJh6Z9ksW
+	+6nAjtqTSNxAoZu8A8jQzr2yeolKxx5nsrJ+aUTtZ7ww1ABvfFZwvwxavbNXmcmqyHQljm3P2OF
+	Jt9mk5i8ip+4HFRH7cLvT/tThBB6wJUuuCKfHk5CZcUCSYlQIPDgfGbZ8Y9yQz35aTLAY0fFR1p
+	3h7woyBa3AMRi/qTrZ0ZB+cM1kR2wp9dS0Aq0Ehv1Oe2ycZEvJStTTYQ454Zij+rz8j3rcYonHF
+	o0geXbPG5naQNu+ndpeHPeiPR98xz9szO4n+g25HRu2vzs/jTkO6NwYQ3Z+10Ezd1wL7xE1gYci
+	Dx5DK7IPqGdPiPtHKRv01c=
+X-Received: by 2002:a05:620a:2916:b0:8ed:f377:96e8 with SMTP id af79cd13be357-907badfb617mr2055265985a.38.1778515522494;
+        Mon, 11 May 2026 09:05:22 -0700 (PDT)
 Received: from gourry-fedora-PF4VCD3F (pool-100-36-248-188.washdc.fios.verizon.net. [100.36.248.188])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-907b9c542cdsm1091199885a.0.2026.05.11.09.03.55
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8fc2cd04de9sm3186408485a.44.2026.05.11.09.05.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 May 2026 09:03:56 -0700 (PDT)
-Date: Mon, 11 May 2026 12:03:53 -0400
+        Mon, 11 May 2026 09:05:21 -0700 (PDT)
+Date: Mon, 11 May 2026 12:05:18 -0400
 From: Gregory Price <gourry@gourry.net>
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-kernel@vger.kernel.org,
@@ -98,11 +98,11 @@ Cc: linux-kernel@vger.kernel.org,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
 	Andrea Arcangeli <aarcange@redhat.com>,
 	"Liam R. Howlett" <liam@infradead.org>
-Subject: Re: [PATCH resend v6 09/30] mm: alloc_anon_folio: pass raw fault
+Subject: Re: [PATCH resend v6 10/30] mm: alloc_swap_folio: pass raw fault
  address to vma_alloc_folio
-Message-ID: <agH96dQDtDR_qYHU@gourry-fedora-PF4VCD3F>
+Message-ID: <agH-PrpY269pyuJQ@gourry-fedora-PF4VCD3F>
 References: <cover.1778489843.git.mst@redhat.com>
- <96bbd5dcc37aed93a9b7733780bdcba4fdacfa3d.1778489843.git.mst@redhat.com>
+ <369a08b86f51572b2715a9ec577de27ea98000d3.1778489843.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -111,23 +111,13 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <96bbd5dcc37aed93a9b7733780bdcba4fdacfa3d.1778489843.git.mst@redhat.com>
+In-Reply-To: <369a08b86f51572b2715a9ec577de27ea98000d3.1778489843.git.mst@redhat.com>
 
-On Mon, May 11, 2026 at 05:02:32AM -0400, Michael S. Tsirkin wrote:
-> Pass vmf->address directly instead of ALIGN_DOWN(vmf->address, ...).
-> vma_alloc_folio_noprof now aligns internally for NUMA interleave,
-> and post_alloc_hook will use the raw address for cache-friendly
-> zeroing via folio_zero_user().
+On Mon, May 11, 2026 at 05:02:39AM -0400, Michael S. Tsirkin wrote:
+> Same change as the previous patch but for alloc_swap_folio:
+> pass vmf->address directly instead of ALIGN_DOWN(vmf->address, ...).
 > 
 
-This patch seems rather far detatched from alignment change.
+Starting to seem like this should all just get squashed into once patch.
 
-I wonder whether this particular improvement should just be pulled out
-ahead to shorten the series.  It doesn't seem like it would cause you
-too much churn?
-
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Assisted-by: Claude:claude-opus-4-6
-> Assisted-by: cursor-agent:GPT-5.4-xhigh
-
-Reviewed-by: Gregory Price <gourry@gourry.net>
+~Gregory
