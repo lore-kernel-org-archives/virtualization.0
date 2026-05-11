@@ -1,69 +1,69 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEC9A3BF680
-	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 08:53:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 402573C060E
+	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 08:53:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778489609; cv=none; b=MeKaHmEALbaoZOMLkQSUtEEEX3vbRMqtlBilaKv3OXMxno/j7JUvL3yuUjyta98OKDlxf1edCcmenDTK/aYej3sQLtJsnnlE195krhVsECtyhdzGxrZlsn01I/kJigU0h+1kEvsKt6GOkU/LzfpbEeV3q/wKiKN8e5f58D91BT8=
+	t=1778489616; cv=none; b=ABQwd7N76BrSIs4jskeN5MWzzuDplNaar+ZoeNWOjvgpXy7tod55BHdwPWSA89Iaj8+/aCxRqtYCFF1juOKT6P5axjAzr6RaXAufXlvxtodFYXO+MC4ZDJ3aThn4dmtFDwLfr+yO4MEr3a2zp7cNiozTPR+ak7gnNKg/Zaod1LU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778489609; c=relaxed/simple;
-	bh=B4v7SD6SJ84KapLgBy+iXreANiiaF75HE81bu1RBt3E=;
+	s=arc-20240116; t=1778489616; c=relaxed/simple;
+	bh=MamMMWXXtV18pX2Nm4tlwaTMDaamkDfpCh9w7kBXTEw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=NsPIhS9WMG58c/NQcf3pwcLzcaP9qFGF0rhoi5SGqj8Ad6Mx3xU0lv0a+mbX47SL0kQ8wZSTkmBLGP3lA8z3dr0/H/Rx1qPZ9YDw8I6YBFhyPCLTVPsT4MMwZJjhj9Aa3PhOfaBQY0+0CkJKUJdY7PQJDyy5oVlbnIIyDE5sHhY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Rfxv7xcj; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=CUqH9AmklJaXX8DhuqNkmOzxnqazM+22ty/AhBsyD7Alwd0ylFpLQKdnCed4VuwKgT/p2+fqBSHldpOoUM2usjfU0Wb8dWA1eZjPukQs1tj9Rh22g6psGmxGDsEujgIJmh0h044afa163A3yY8X+il4TmG7G/iElRP5JaWfUGNQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UP7zIgjs; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Rfxv7xcj"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UP7zIgjs"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1778489606;
+	s=mimecast20190719; t=1778489614;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=jpAQ9O1oMgUNlo5ukg9OEno1SM1k+70VK2/jH7/8vVM=;
-	b=Rfxv7xcjCS6XIiynohFflQRyjn2Y28lXJNp1YKRt18vWybmV5jveeLHQYYHsbIIKqP2dQY
-	p2IFRXwsB1DJ27emowztMWLZFT5ffljHKPGs+Wn4Ja2pkU4FZwtyOW1emzb6du14XsyrOv
-	013zzAMcxeBJLj4XmVx5Gy2SKQXvN08=
+	bh=PyhJPD76XSlXOLIxrgX26vlRXB2m99TPkgzm+4tnrhY=;
+	b=UP7zIgjsDYuqfZffq+BqUZ8G5KPYSa8esW5yi5WUmtE06mILBCKyxKWpVdPehcimA5GXo7
+	m8WQxuZuRkfKQruTPhHokLyooPGBGTmT8sP1RbqUz44kBBKi2+MbSgIyGHpnDfl9Ch6+Vn
+	BajS44Agx3s7uhGqH07ZsKs9cqOof5A=
 Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
  [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-532-RIJ2RhqJNG2MO1o1thaMRg-1; Mon, 11 May 2026 04:53:25 -0400
-X-MC-Unique: RIJ2RhqJNG2MO1o1thaMRg-1
-X-Mimecast-MFC-AGG-ID: RIJ2RhqJNG2MO1o1thaMRg_1778489604
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-44ffa15dc73so3678791f8f.1
-        for <virtualization@lists.linux.dev>; Mon, 11 May 2026 01:53:25 -0700 (PDT)
+ us-mta-605-Sc2rQONFNgOpO4VAWYRZ8A-1; Mon, 11 May 2026 04:53:32 -0400
+X-MC-Unique: Sc2rQONFNgOpO4VAWYRZ8A-1
+X-Mimecast-MFC-AGG-ID: Sc2rQONFNgOpO4VAWYRZ8A_1778489612
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-43d7d0947aeso2523030f8f.3
+        for <virtualization@lists.linux.dev>; Mon, 11 May 2026 01:53:32 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778489604; x=1779094404;
+        d=1e100.net; s=20251104; t=1778489610; x=1779094410;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=jpAQ9O1oMgUNlo5ukg9OEno1SM1k+70VK2/jH7/8vVM=;
-        b=mQul1qWWbDEVbP/1rXYVusRf+vUAQexjK0yDx34lup8+PFdq6dTdxVRX7nRbj/sbJJ
-         rociAwp0v+p7Y7L8xT1FheLnADRnQ8nVRmmKs8v068KBzEHUUFSeWi0hAOKKgpcT5OKF
-         2ku+YWZA+GyZfsjhWt6geiycbkaYyjvqmTHcE5b0rw2x98oR8iqZ1DVTcphYn71LVMpH
-         8d5unNpS5DLrenRqsEONPYJt4xfpTHBhzFI6khs9yQWiSpOt2fP38xD7Y/okvKRhFKNJ
-         BoH3a0X0Mih/RDJ9sHgjxac525SXcONgibpvHrcnRF1f6FaDITxY2ttYLNSqWVh4sxdX
-         kI/A==
-X-Forwarded-Encrypted: i=1; AFNElJ+VCW5GTJtdq3vP9U7X+ZYyL+xEYNJAGCA0MD+IremjHGuY+RZUagy2dwcYoVIHlXbV/lwwS/LTEOcSYqwK3g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxKtgtQzsT6a9lq0pIuN55BktfhyN0tNSQMXmbEe720Omq6nRHh
-	lTRJWgmsYcQUWU+AI4+IkX+8PfHKk/slr64/eEezY4gaiLFIqqh+aC4EQZca8xHmgzkP9SWZWMK
-	24myDOGGckTdNPIO+ZB+nh17CYLRKj/HEyw+RwviIX7dJxy7UZmKE8vs5S4irGxvcLFo6
-X-Gm-Gg: Acq92OFj6fNaOF5bpDb6WScuQSY8mzCJ+iMInqw2L/2Cm+4VUN7dYKQA7kU4D8NswEO
-	afxeYy6jbMqgkoYex9FtnfCT1DFgkjFvnzPEl8BE9vbGc/eZ4EdPVdpncRT7AozVkOWe8D7IWz6
-	zU+iYShDHJN/OXj2i/rUUGsoIm49lZDKlUvybo4eWrHuf2TsIkE8MKLD5LgIfBoOAjQPNQ1jQTK
-	PtVEl3aekP1ncEyxT8vjCrn6Zv9k50nP+Znl/+byS1tgnzUS9tkQaFd1IUmn25gVyWbXmfqWaE9
-	HddLXviwVYs8ClvB4+0C1ebRshRjEzTcu6C/wRIfrrcD+qdsAFfdwceW7TKnpSAkBySQwBLwMgE
-	2bLX/hpHCQTduNoNDAum3AXZqUM8kt9fP2ewrAXLk
-X-Received: by 2002:a05:6000:24ca:b0:441:1e41:19c with SMTP id ffacd0b85a97d-4515ce1c372mr35489652f8f.20.1778489604245;
-        Mon, 11 May 2026 01:53:24 -0700 (PDT)
-X-Received: by 2002:a05:6000:24ca:b0:441:1e41:19c with SMTP id ffacd0b85a97d-4515ce1c372mr35489577f8f.20.1778489603627;
-        Mon, 11 May 2026 01:53:23 -0700 (PDT)
+        bh=PyhJPD76XSlXOLIxrgX26vlRXB2m99TPkgzm+4tnrhY=;
+        b=E8UYID0g0liB8T5dC/TUH/ftBrM4RthK33aPsoikBwwn44cwASmC4QbsCJLdkfxbs2
+         n7A3OjB62k0V9KM/X5fI+tkxqzmRHzlnvGMU5IamAIaj8zrzip2Y5cSwCSNYOwTeyFXN
+         XH6wHJIblQsNERGkP4NOKkXYGWEvN72QSajVs0l2Mmyb5YU/ZK5o7fcDrO+akykf9MrL
+         dMpWiOnIguks0nxGmWr7htisGoGJ+3xK7pWuUCGp7q8Xg+ZdpB1YNcpBVC3oAI7Hk+xx
+         Z3cGTZlVQj5uAO8sqAGzi+YEcxJwQnrjxRhutbatiBNhBzidCAmVvenCh9q2GDUNw8hG
+         vobw==
+X-Forwarded-Encrypted: i=1; AFNElJ+c0+hc0GTDkYwRfvW81L3QzOuSIUedahjQu8+c/DgsROXb3RmRuKbNcPlBvrvjVhxRmbauiIq24JMTNwpmVA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxL36YtQcFZAO96h3VaBlu6uQFieWQ8xDaY/OyfV7fxOHQTy1Sr
+	+AkrGtpD2iKr0sEhaOCO7tjpLChJAiCcrIX164uKBHIpt2hrAc/g0UcxGNM0IyhsGDldgWtqz4l
+	d1bKvazb848p6tpUbzJSIeImsBsrAXh/YzNr/RMsYGODO4RZpVyiggIG9VCUxpvoMAR5z
+X-Gm-Gg: Acq92OGzKOK+ZVHnN0Cr2aLLk2GWN0Yi/hI4776lx8N92breN2QF4xybzWEJCUE6nyH
+	xf5lKfxn5ZetD3jS5MCuR95m+iTUlSL/MNIPNT1KipX3G55DJ92vYpyS/HTtpnTQUiaCnfuaJ7J
+	Qjq0ahYb//dYc69xdLEnuaEiFTdMX+hutML5Ccz7sEG4P4Af+jY6rS+KOSZxVuCEC4ehI0gizpW
+	cqfG30LGipWoSDELZSmlfJ6xd7XL1C6nZD7FrdHtgBnCgsxSwG4ntWCL3BTxHlW9rVLr/whqyic
+	iHg8kBgqNXjpRz6LWoQYT6FSby2BNXS1IgDEPuo/zftMUJXjPK/HMxYN4fQiFJ1qKb6GnIyG5O1
+	ukIahjo7MRLYWs40MyGQDtlLZ3iczbeC9HtwYJ2UfBVY1Gz4bSHQ=
+X-Received: by 2002:a05:6000:24c9:b0:43f:dc54:9493 with SMTP id ffacd0b85a97d-4515c575364mr37802026f8f.21.1778489609609;
+        Mon, 11 May 2026 01:53:29 -0700 (PDT)
+X-Received: by 2002:a05:6000:24c9:b0:43f:dc54:9493 with SMTP id ffacd0b85a97d-4515c575364mr37801957f8f.21.1778489608944;
+        Mon, 11 May 2026 01:53:28 -0700 (PDT)
 Received: from redhat.com (IGLD-80-230-48-7.inter.net.il. [80.230.48.7])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45491f8d4c3sm23522307f8f.34.2026.05.11.01.53.19
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45491da03a7sm24453888f8f.33.2026.05.11.01.53.24
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 May 2026 01:53:23 -0700 (PDT)
-Date: Mon, 11 May 2026 04:53:18 -0400
+        Mon, 11 May 2026 01:53:28 -0700 (PDT)
+Date: Mon, 11 May 2026 04:53:23 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
@@ -103,54 +103,51 @@ Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
 	Andrea Arcangeli <aarcange@redhat.com>,
 	"Liam R. Howlett" <liam@infradead.org>
-Subject: [PATCH v6 07/30] mm: use __GFP_ZERO in vma_alloc_zeroed_movable_folio
-Message-ID: <c9448249c53681297f44d18c3396a3329b50d7eb.1778488966.git.mst@redhat.com>
-References: <cover.1778488966.git.mst@redhat.com>
+Subject: [PATCH v6 08/30] mm: alloc_anon_folio: pass raw fault address to
+ vma_alloc_folio
+Message-ID: <a48bd110f808ef8df6cef819b11580bc10ff38d3.1778487000.git.mst@redhat.com>
+References: <cover.1778487000.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <cover.1778488966.git.mst@redhat.com>
+In-Reply-To: <cover.1778487000.git.mst@redhat.com>
 X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
 X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: -wG0n_8rc6YHR6B33WCF4jbzt30r_KQi3H9uQ-2UTJ0_1778489604
+X-Mimecast-MFC-PROC-ID: kTuyy8BEnTt7tm2zlC_j4N8aFziHtILJgdGHhizmixY_1778489612
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Now that post_alloc_hook() handles cache-friendly user page
-zeroing via folio_zero_user(), convert vma_alloc_zeroed_movable_folio()
-to pass __GFP_ZERO instead of zeroing at the callsite.
+Pass vmf->address directly instead of ALIGN_DOWN(vmf->address, ...).
+vma_alloc_folio_noprof now aligns internally for NUMA interleave,
+and post_alloc_hook will use the raw address for cache-friendly
+zeroing via folio_zero_user().
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Assisted-by: Claude:claude-opus-4-6
+Assisted-by: cursor-agent:GPT-5.4-xhigh
 ---
- include/linux/highmem.h | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ mm/memory.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/include/linux/highmem.h b/include/linux/highmem.h
-index af03db851a1d..ffa683f64f1d 100644
---- a/include/linux/highmem.h
-+++ b/include/linux/highmem.h
-@@ -320,13 +320,8 @@ static inline
- struct folio *vma_alloc_zeroed_movable_folio(struct vm_area_struct *vma,
- 				   unsigned long vaddr)
- {
--	struct folio *folio;
--
--	folio = vma_alloc_folio(GFP_HIGHUSER_MOVABLE, 0, vma, vaddr);
--	if (folio && user_alloc_needs_zeroing())
--		clear_user_highpage(&folio->page, vaddr);
--
--	return folio;
-+	return vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO,
-+			      0, vma, vaddr);
- }
- #endif
- 
+diff --git a/mm/memory.c b/mm/memory.c
+index ea6568571131..0824441a6ba1 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -5252,8 +5252,7 @@ static struct folio *alloc_anon_folio(struct vm_fault *vmf)
+ 	/* Try allocating the highest of the remaining orders. */
+ 	gfp = vma_thp_gfp_mask(vma);
+ 	while (orders) {
+-		addr = ALIGN_DOWN(vmf->address, PAGE_SIZE << order);
+-		folio = vma_alloc_folio(gfp, order, vma, addr);
++		folio = vma_alloc_folio(gfp, order, vma, vmf->address);
+ 		if (folio) {
+ 			if (mem_cgroup_charge(folio, vma->vm_mm, gfp)) {
+ 				count_mthp_stat(order, MTHP_STAT_ANON_FAULT_FALLBACK_CHARGE);
 -- 
 MST
 
