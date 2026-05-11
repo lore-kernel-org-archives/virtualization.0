@@ -1,66 +1,71 @@
-Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 716DB3DA7E5
-	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 14:59:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8A3AD332634
+	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 15:09:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778511593; cv=none; b=Qczbb0xMT1aeLyHYHM1COanDNTOkwoN99n2jkN++3wDkTO5Li9NxE+eQix/yDGK6N0/+S/SbjfAzuBE5DP69SKm9pJVGq2iSQ+OFWk9T5nwCYHthfSR42kQsCfNOQ0qKZQrqCwXUxs6jvGg7ENG2cfa1Ob7xtjOl4WsLoIXZ/ck=
+	t=1778512184; cv=none; b=XYdB2BKlRVNBGohGZ3BjjoX4cxpNK4ChrezCt/8K52GU1IibgHFp+8m5RGplyXdcVtHMNwSoJ3B/1MxRRB2zzWqU0ejHGEPOHj/QlH6+ira+knRdSMz/uPpI9URm8JDaSUvqJo91wniekRn1sJtTiRD+Z5UlKRX18iVCTMl94xE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778511593; c=relaxed/simple;
-	bh=wpi1AMcW2tPPmZcxQdUUPjQAl76NDRV9zcdDLvVS+oU=;
+	s=arc-20240116; t=1778512184; c=relaxed/simple;
+	bh=Dnf4+DfJsVd4W+XYmvPc8kClnijoEAXClbX5eCs6Bdc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mRioaRdpCT9bMtfokC3E3M0PI5aYkfMK/6d/TXFiePC8UbdL6o2HLNXq/CHtGpcQhGVuP/rpCJCC5B3hQcxesTIwyyW53AY9nXyEBLWtxGOwyYR6HZO8X5d8f8cz2+gZMP1zF35hjH8SRgA3fsF9oLdJ7gXohPuUOSS9EbrfzuQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=KZkjH9kC; arc=none smtp.client-ip=209.85.222.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
+	 In-Reply-To:Content-Type:Content-Disposition; b=iuKUTOGOWMM16scNppzERoYkTtsd9iI7egKm06pBWW9s/ncj1+PGJvjKg9afhoiQeMsXLvwc6zUWOPeZHj3AZ966ZwJEBoyQa3NNeG5c7gDM9zHP+h+etdtFBBd+TcNhZEhajL/2SSBVTINx2SeBZ4ihLUrTEOhZOfQfRCJvveE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UVs/ohIz; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="KZkjH9kC"
-Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-8ea8563c693so480319085a.2
-        for <virtualization@lists.linux.dev>; Mon, 11 May 2026 07:59:50 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1778511589; x=1779116389; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=7h6hiVH0/NZ6Qfi9mJnbfpbwuzxv04Y7rZxb6Vb37aU=;
-        b=KZkjH9kC7VVm5cdIvWXBwtBxbG3vcWtBCJwyeTAKjY1JWS/PA7LB73TI5Xdxvg6/ry
-         MpHXJgP30USP8nysXhWiQ5ANgFBUOv8VzW8mW2tfp5GG1sH4bv/rC/qeXfx85ClzpIFy
-         Sy2NavnLenK/lWLFB6ylN3EEWZYR/qVZ/8Ykyo+b4/7GKKM88Z/NXCdOFbMYeyaR96bH
-         rtLEI0x6+kdMAPUFmYN3lJFkLu5GmvzH9Bd4rtxxUrhEEazHIriLrQFMBpQFI6aszez0
-         iyZ1qVSPGTy9GQgH1nMgk2dDPyp5e49ysjZmN2znvZ5iSTflu0BJSY7+MnNt8CvtS3+G
-         kvug==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UVs/ohIz"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1778512182;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=AizvbhkaHZmbiszzPT3Ur4sT9Sy5a6af0Jfvs/KZVvM=;
+	b=UVs/ohIzwCjCd4bswKveO1Xnxnx8+pHzVR/1UhIQj/0gv7GMHesQV528oYlmCGZR6kCKfi
+	sRJMOrJl3msI5pPMLc1MnNMBEJQryE3Kq4ZdRyive3bj0WW9aTDLCWs3Y5oW5T3HmqHcVl
+	Iy3ATPjvFUEP8ZC38MaNvACHSS/2mS4=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-581-aMHpWluUP4an2zy21ttq1g-1; Mon, 11 May 2026 11:09:39 -0400
+X-MC-Unique: aMHpWluUP4an2zy21ttq1g-1
+X-Mimecast-MFC-AGG-ID: aMHpWluUP4an2zy21ttq1g_1778512178
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-48e5eecd0aaso25304345e9.0
+        for <virtualization@lists.linux.dev>; Mon, 11 May 2026 08:09:38 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778511589; x=1779116389;
+        d=1e100.net; s=20251104; t=1778512178; x=1779116978;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=7h6hiVH0/NZ6Qfi9mJnbfpbwuzxv04Y7rZxb6Vb37aU=;
-        b=CPaXmcI7vp91ClA1VzV6oA6EG5LvVriSmfihttv11dADByqKhz3/coiakmRx/kJvtu
-         b6am6b/WJDbYgecQkTgjhOa8tGhbZjjmLZl9jPKNCMES6Oi8iZXx4vN7BCslCjX7aOv+
-         FGuhAAKauKcBsaO0HipDOBXfQV5dSNdXWhV+HmFbhMa7FJNCfWOTbm1yE+0U3uQC0xsB
-         5zhjwJ0A74o/ou1glVmrBzhlmBRFYNGmuakxHXpqWhpo4juJ1/2rkIRqvUe3anWzR5N0
-         XAREYuhvvROparsTfoOtK2RXZJJpA745Z87UeK/mH1Yp4mBYum+1KfWmENpK6hLvn5YZ
-         NM8A==
-X-Forwarded-Encrypted: i=1; AFNElJ+RUHJoIDJTNgW8LaXDpq/ggouLsJ5HFwzVr9LRscbMs1GLlZybe1n7lPbH/MRwt6NpPBO0Hcdud/pPjuRt+Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwIHeXwqsZAOq/q8Izi5yH97gZGeSftfcry7jCqX7NQ22Fdv2ze
-	7TuRtIHCRKeaIwfLW9399oHPY4HfEiAKMkh3tM6Kvz34ocgNDyTPi8AtnqKYGvzGHQY=
-X-Gm-Gg: Acq92OEFHz66vh+ETN2HOBj0jYwDimiFwz9KuHz0Ji7xQvYVkbWiKymcI8LIgdlqf5Q
-	fMhLWFLXFM5vCkoYqxFQ+/85RdXY4vD9iq7V7uOZumALgRY+T0j63VHWtJtfu1V6XFdD0uMkUyw
-	4s6bguoMnXX4Mys1Lhcqir2hsCG93Nx7P8bDQf58UzT0ZmGnZKg7MAkEyTjISVbGxn3CTwVISWF
-	bDTrfWuV8Gcku6mxcgy449kXVV/7sjSIYx/FPtlAFaWIUpxX9h0bQxiqkKhtEEv1PpFT6BF09Fw
-	ImT6Xx88u9Qk84gQUBplQQer4bixoHMANBdv3aPIXVfIWV9D/OA5jnl/1ycoKmErIaW4X60TRj+
-	pXFj/eDNeJkfS1V6vFuwlo6jqxGqnoUn+sX8k4G41Zu1cHzab7uIyWWSZlg70g1o++aO/kmOEA3
-	CZvWbY+76iHSOIwJoptC/wPuBLNhssbD5hUhR9qDyAXbIhVXjxtvHkUWhFpVkyFb3mGEGDYKQax
-	Fc3dGVhLqm8E3Hp+LHYX9c=
-X-Received: by 2002:a05:620a:1788:b0:902:afae:fd39 with SMTP id af79cd13be357-904d70c4754mr3575981085a.57.1778511589271;
-        Mon, 11 May 2026 07:59:49 -0700 (PDT)
-Received: from gourry-fedora-PF4VCD3F (pool-100-36-248-188.washdc.fios.verizon.net. [100.36.248.188])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8fc2c91c813sm3112985985a.33.2026.05.11.07.59.47
+        bh=AizvbhkaHZmbiszzPT3Ur4sT9Sy5a6af0Jfvs/KZVvM=;
+        b=fn4hY9Z+rjh+jQJ0WQ1+Bkeb6g0P9odfV5+bH2p+1kqu0hkmy9/AOAh3rLPCe/gjSz
+         FqIk0Hm+O7DMgii7sDxoyK81z93wSmFCfkl/D1j7rGS8ntnHjdck2issjBHJnW4FX2YU
+         sfwzQBdMoDEc8RLr0RmCe/CmS4EPGn9s520gecrvjJFbd019w4HvOTjm5gUpvs729CkT
+         vI43K+a8+dPdy6pPgYuYAoR7cFHraKvECQamCb4/v/lKOccUhgc16TgV5gVFi9DnFVMd
+         m942DG5Y7uDFHMJqIw68ByVx4MXRQeDtEi7YPxRUkH2pxaJJeD7lB7rmnbRslX7VUBzF
+         QCrQ==
+X-Forwarded-Encrypted: i=1; AFNElJ9kQbqfe04tJ7bSNiipiUgyCv+ncTcnUJzFWT2Jw7HiCAuJGa08M8/BlLvr3tp+COBTWZQ4Ag/utUndDI4NXA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzNzwyLDrL1B9zoqQE1A5mtPghQo9apIdw0HEUMX+GoUrVLaA8F
+	WXv3fhbZ7kKq99rf5a6u8RWj+cuNMlsDtzfp5cqmU/pBAH0yijeHIgVHSwkzz42mkVA9hV5TKUG
+	zQMZW2u3cWUkxEsnrEghEZgM9PmNBQ3n4wxbDVG3j5NngN0DODCrZlO+Q/b/Q6E01siDh
+X-Gm-Gg: Acq92OG/WSHC3XPUD+xcuVzhOnobgsaRJ3sOlZ2Jb8BstGFhIR+iPfqCXvR6ka+O9n7
+	+qsal72Eih/r74FlT/S6yAgB6hjD1DkWsvvMhLNt5YS2dd+ECtoXHNJ63aN8o/+6nwMMZ7INHr/
+	Xe/r/9SPcxI9Jmd7CHVOR2NE1JCS2QZBd9T4aeY0tYUV97tu9j9XrbGMK9m6EcrdYOreEiBpcwI
+	i+m2VqwFDdxVIgFhSErSsK2No8A4k88QEArVkQOy0EnHF2ov/nN+0TSa+Mgeq1LNAiSADj8YQ9Z
+	Ul8EpLKnX38NldeQBbEP880Y61W0e43xKVSdPi51cc0P7Fxbe/Vc4Fu7O/gcfO3na/szt3ohBFI
+	3mRoxpFj8Xs83cHgDgMfarABwqCJwEbVOiZxhr/ZU
+X-Received: by 2002:a05:600c:34c8:b0:486:fd5c:2b35 with SMTP id 5b1f17b1804b1-48e51f2f85emr427543935e9.13.1778512177753;
+        Mon, 11 May 2026 08:09:37 -0700 (PDT)
+X-Received: by 2002:a05:600c:34c8:b0:486:fd5c:2b35 with SMTP id 5b1f17b1804b1-48e51f2f85emr427543085e9.13.1778512177160;
+        Mon, 11 May 2026 08:09:37 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-48-7.inter.net.il. [80.230.48.7])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48e702e0bf2sm334546605e9.4.2026.05.11.08.09.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 May 2026 07:59:48 -0700 (PDT)
-Date: Mon, 11 May 2026 10:59:46 -0400
-From: Gregory Price <gourry@gourry.net>
-To: "Michael S. Tsirkin" <mst@redhat.com>
+        Mon, 11 May 2026 08:09:36 -0700 (PDT)
+Date: Mon, 11 May 2026 11:09:31 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Gregory Price <gourry@gourry.net>
 Cc: linux-kernel@vger.kernel.org,
 	"David Hildenbrand (Arm)" <david@kernel.org>,
 	Jason Wang <jasowang@redhat.com>,
@@ -96,66 +101,81 @@ Cc: linux-kernel@vger.kernel.org,
 	Kemeng Shi <shikemeng@huaweicloud.com>,
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
-	Andrea Arcangeli <aarcange@redhat.com>
-Subject: Re: [PATCH resend v6 02/30] mm: mempolicy: fix interleave index for
- unaligned VMA start
-Message-ID: <agHu4iaL-3By0YuC@gourry-fedora-PF4VCD3F>
+	Andrea Arcangeli <aarcange@redhat.com>,
+	"Liam R. Howlett" <liam@infradead.org>
+Subject: Re: [PATCH resend v6 01/30] mm: move vma_alloc_folio_noprof to
+ page_alloc.c
+Message-ID: <20260511110719-mutt-send-email-mst@kernel.org>
 References: <cover.1778489843.git.mst@redhat.com>
- <41bd50fdaae943e1a79215ea4000322e74a823be.1778489843.git.mst@redhat.com>
+ <a26c5850219e349f8a666282aa8003a82a4819b8.1778489843.git.mst@redhat.com>
+ <agHsFsEIU8b9RiJr@gourry-fedora-PF4VCD3F>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <agHsFsEIU8b9RiJr@gourry-fedora-PF4VCD3F>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: lc_b-qmVWtGQoM1Xkl0LipVSZ3NE6ZPXQ_BuRUQ7bgk_1778512178
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <41bd50fdaae943e1a79215ea4000322e74a823be.1778489843.git.mst@redhat.com>
 
-On Mon, May 11, 2026 at 05:01:49AM -0400, Michael S. Tsirkin wrote:
-> The NUMA interleave index formula (addr - vm_start) >> shift
-> gives wrong results when vm_start is not aligned to the folio
-> size: the subtraction before the shift allows low bits to
-> affect the result via borrows.
+On Mon, May 11, 2026 at 10:47:50AM -0400, Gregory Price wrote:
+> On Mon, May 11, 2026 at 05:01:44AM -0400, Michael S. Tsirkin wrote:
+> > +#ifdef CONFIG_NUMA
+> > +/**
+> > + * vma_alloc_folio - Allocate a folio for a VMA.
+> > + * @gfp: GFP flags.
+> > + * @order: Order of the folio.
+> > + * @vma: Pointer to VMA.
+> > + * @addr: Virtual address of the allocation.  Must be inside @vma.
+> > + *
+> > + * Allocate a folio for a specific address in @vma, using the appropriate
+> > + * NUMA policy.  The caller must hold the mmap_lock of the mm_struct of the
+> > + * VMA to prevent it from going away.  Should be used for all allocations
+> > + * for folios that will be mapped into user space, excepting hugetlbfs, and
+> > + * excepting where direct use of folio_alloc_mpol() is more appropriate.
+> > + *
+> > + * Return: The folio on success or NULL if allocation fails.
+> > + */
+> > +struct folio *vma_alloc_folio_noprof(gfp_t gfp, int order,
+> > +		struct vm_area_struct *vma, unsigned long addr)
+> > +{
+> > +	struct mempolicy *pol;
+> > +	pgoff_t ilx;
+> > +	struct folio *folio;
+> > +
+> > +	if (vma->vm_flags & VM_DROPPABLE)
+> > +		gfp |= __GFP_NOWARN;
+> > +
+> > +	pol = get_vma_policy(vma, addr, order, &ilx);
+> > +	folio = folio_alloc_mpol_noprof(gfp, order, pol, ilx, numa_node_id());
+> > +	mpol_cond_put(pol);
+> > +	return folio;
+> > +}
+> > +#else
+> > +struct folio *vma_alloc_folio_noprof(gfp_t gfp, int order,
+> > +		struct vm_area_struct *vma, unsigned long addr)
+> > +{
+> > +	if (vma->vm_flags & VM_DROPPABLE)
+> > +		gfp |= __GFP_NOWARN;
+> > +
+> > +	return folio_alloc_noprof(gfp, order);
+> > +}
+> > +#endif
 > 
-> Use (addr >> shift) - (vm_start >> shift) instead, which
-> independently aligns both values before computing the
-> difference.
+> Can this ifdef not reasonably be done in a header?
+
+It can't :(
+In patch 3 this will need to call __alloc_frozen_pages_noprof, and
+that's in internal.h
+
+
+> I know the old path relied on basically mempolicy.c being in/out of
+> scope based on CONFIG_NUMA, but we should make an attempt at keeping
+> page_alloc.c clean on this if possible.
 > 
-> No functional change for current callers: the fix only affects
-> NUMA interleave and weighted-interleave policies. Current
-> large-order callers either pre-align the address
-> (vma_alloc_anon_folio_pmd) or do not use NUMA interleave
-> (drm_pagemap). All other callers use order 0 where the old
-> and new formulas are equivalent. However subsequent patches
-> in this series add large-order callers that pass unaligned
-> fault addresses, making this fix necessary.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> ~Gregory
 
-Reviewed-by: Gregory Price <gourry@gourry.net>
-
-Should this just be pulled out ahead as a fix (assuming this
-set takes more time to bake)?  I get it's not causing issues today,
-but the interface is otherwise technicaly broken either way.
-
-> ---
->  mm/mempolicy.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
-> 
-> diff --git a/mm/mempolicy.c b/mm/mempolicy.c
-> index 6832cc68120f..39e556e3d263 100644
-> --- a/mm/mempolicy.c
-> +++ b/mm/mempolicy.c
-> @@ -2049,7 +2049,8 @@ struct mempolicy *get_vma_policy(struct vm_area_struct *vma,
->  	if (pol->mode == MPOL_INTERLEAVE ||
->  	    pol->mode == MPOL_WEIGHTED_INTERLEAVE) {
->  		*ilx += vma->vm_pgoff >> order;
-> -		*ilx += (addr - vma->vm_start) >> (PAGE_SHIFT + order);
-> +		*ilx += (addr >> (PAGE_SHIFT + order)) -
-> +			(vma->vm_start >> (PAGE_SHIFT + order));
-
-There's enough (PAGE_SHIFT + ...) spread around the kernel, i wonder if
-it's worth a define or a function (not in scope, just pondering).
-
-~Gregory
