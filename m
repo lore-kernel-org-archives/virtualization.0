@@ -1,359 +1,161 @@
-Received: from mx0a-00082601.pphosted.com (mx0a-00082601.pphosted.com [67.231.145.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 97C9B4014AD
-	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 14:59:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=67.231.145.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 716DB3DA7E5
+	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 14:59:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778511547; cv=none; b=JSQW6f/39BEv6DK1KeBho2XiljQIjtSWbBoMrDzMYxCb1+0wWb/BOTMdSQS5+YjV3E5MDsQVALYRONKRrryF9eaj6wpDf4ERN58q0U7QMn7vx+cJXqGM+GrlgujgZCyx2VTBhOwRAI1F1sWTzJg84b7oDnbFJ/OJCCRAMmMleD4=
+	t=1778511593; cv=none; b=Qczbb0xMT1aeLyHYHM1COanDNTOkwoN99n2jkN++3wDkTO5Li9NxE+eQix/yDGK6N0/+S/SbjfAzuBE5DP69SKm9pJVGq2iSQ+OFWk9T5nwCYHthfSR42kQsCfNOQ0qKZQrqCwXUxs6jvGg7ENG2cfa1Ob7xtjOl4WsLoIXZ/ck=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778511547; c=relaxed/simple;
-	bh=GH7OEUo0CSzSES0dKOKQScZ8FigFog7YHguLc3TLiZA=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=bCdOYONY86B2F+F4toaeaGks/N0J3EsYjTL/Eu5DlHZ0p7GGOPjsadrsH8PHPbFTXt9q1Qzl790a1HzIU7u0vaeRy3YSPYZ2QJBrrQiK4aHqm+7qs1t2x/AHoMOAjlEUKVtYjJvZvRGcn1sGW8sDbkvE+dahOiNpeen6tXSiEtg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com; spf=pass smtp.mailfrom=meta.com; dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b=vBOfU7gB; arc=none smtp.client-ip=67.231.145.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=meta.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=meta.com
+	s=arc-20240116; t=1778511593; c=relaxed/simple;
+	bh=wpi1AMcW2tPPmZcxQdUUPjQAl76NDRV9zcdDLvVS+oU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=mRioaRdpCT9bMtfokC3E3M0PI5aYkfMK/6d/TXFiePC8UbdL6o2HLNXq/CHtGpcQhGVuP/rpCJCC5B3hQcxesTIwyyW53AY9nXyEBLWtxGOwyYR6HZO8X5d8f8cz2+gZMP1zF35hjH8SRgA3fsF9oLdJ7gXohPuUOSS9EbrfzuQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=KZkjH9kC; arc=none smtp.client-ip=209.85.222.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=meta.com header.i=@meta.com header.b="vBOfU7gB"
-Received: from pps.filterd (m0528008.ppops.net [127.0.0.1])
-	by mx0a-00082601.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 64BEvfSo1143196;
-	Mon, 11 May 2026 07:59:02 -0700
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=meta.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=s2048-2025-q2;
-	 bh=VcB1y3QSglxI0gdP4uVXu3IQj3YglwiZAldWcHbVHp8=; b=vBOfU7gB8bso
-	1IjeUiKjgzPJqR/YtpjbYj+OsBoLzuf3DWgpU5K7Ck3wFlWBRHkfGttXjBMMhbPd
-	e7WBa7+H3Wwovs5USWqWJZhmeHcWzckKlCcakzfGiW/JFwo6T8c6hWDKx0FFoi9J
-	HoSnLuoC/+bo+LHt5YBa5i90hjrvZPUFfNOvAZcOUrfNouY6u+CxQVJbp56Q5E7F
-	v+hAa/DYX9x1ve9sce0aRMEJUWxFZUKQRvbxGjxthPqewb6397fHXhUxY5AZ117F
-	sjnN3EbYuvflMpWEJVcbdwkxWM2Z8+fS0mQyMImx2OMwJVre/9ldgZp+/tdQOO7s
-	GEl9Zt4DHQ==
-Received: from maileast.thefacebook.com ([163.114.135.16])
-	by mx0a-00082601.pphosted.com (PPS) with ESMTPS id 4e2shhwxjx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES128-GCM-SHA256 bits=128 verify=NOT);
-	Mon, 11 May 2026 07:59:02 -0700 (PDT)
-Received: from localhost (2620:10d:c0a8:1c::1b) by mail.thefacebook.com
- (2620:10d:c0a9:6f::237c) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256) id 15.2.2562.37; Mon, 11 May
- 2026 14:59:00 +0000
-From: Matt Evans <mattev@meta.com>
-To: Alex Williamson <alex@shazbot.org>, Kevin Tian <kevin.tian@intel.com>,
-        Jason Gunthorpe <jgg@ziepe.ca>, Ankit Agrawal <ankita@nvidia.com>,
-        Alistair
- Popple <apopple@nvidia.com>,
-        Leon Romanovsky <leon@kernel.org>, Kees Cook
-	<kees@kernel.org>,
-        Shameer Kolothum <skolothumtho@nvidia.com>,
-        Yishai Hadas
-	<yishaih@nvidia.com>
-CC: Alexey Kardashevskiy <aik@ozlabs.ru>, Eric Auger <eric.auger@redhat.com>,
-        Peter Xu <peterx@redhat.com>,
-        Vivek Kasireddy <vivek.kasireddy@intel.com>,
-        Zhi Wang <zhiw@nvidia.com>, <kvm@vger.kernel.org>,
-        <linux-kernel@vger.kernel.org>, <virtualization@lists.linux.dev>
-Subject: [PATCH v5 3/3] vfio/pci: Replace vfio_pci_core_setup_barmap() with vfio_pci_core_get_iomap()
-Date: Mon, 11 May 2026 07:58:25 -0700
-Message-ID: <20260511145829.2993601-4-mattev@meta.com>
-X-Mailer: git-send-email 2.52.0
-In-Reply-To: <20260511145829.2993601-1-mattev@meta.com>
-References: <20260511145829.2993601-1-mattev@meta.com>
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="KZkjH9kC"
+Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-8ea8563c693so480319085a.2
+        for <virtualization@lists.linux.dev>; Mon, 11 May 2026 07:59:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gourry.net; s=google; t=1778511589; x=1779116389; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=7h6hiVH0/NZ6Qfi9mJnbfpbwuzxv04Y7rZxb6Vb37aU=;
+        b=KZkjH9kC7VVm5cdIvWXBwtBxbG3vcWtBCJwyeTAKjY1JWS/PA7LB73TI5Xdxvg6/ry
+         MpHXJgP30USP8nysXhWiQ5ANgFBUOv8VzW8mW2tfp5GG1sH4bv/rC/qeXfx85ClzpIFy
+         Sy2NavnLenK/lWLFB6ylN3EEWZYR/qVZ/8Ykyo+b4/7GKKM88Z/NXCdOFbMYeyaR96bH
+         rtLEI0x6+kdMAPUFmYN3lJFkLu5GmvzH9Bd4rtxxUrhEEazHIriLrQFMBpQFI6aszez0
+         iyZ1qVSPGTy9GQgH1nMgk2dDPyp5e49ysjZmN2znvZ5iSTflu0BJSY7+MnNt8CvtS3+G
+         kvug==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778511589; x=1779116389;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=7h6hiVH0/NZ6Qfi9mJnbfpbwuzxv04Y7rZxb6Vb37aU=;
+        b=CPaXmcI7vp91ClA1VzV6oA6EG5LvVriSmfihttv11dADByqKhz3/coiakmRx/kJvtu
+         b6am6b/WJDbYgecQkTgjhOa8tGhbZjjmLZl9jPKNCMES6Oi8iZXx4vN7BCslCjX7aOv+
+         FGuhAAKauKcBsaO0HipDOBXfQV5dSNdXWhV+HmFbhMa7FJNCfWOTbm1yE+0U3uQC0xsB
+         5zhjwJ0A74o/ou1glVmrBzhlmBRFYNGmuakxHXpqWhpo4juJ1/2rkIRqvUe3anWzR5N0
+         XAREYuhvvROparsTfoOtK2RXZJJpA745Z87UeK/mH1Yp4mBYum+1KfWmENpK6hLvn5YZ
+         NM8A==
+X-Forwarded-Encrypted: i=1; AFNElJ+RUHJoIDJTNgW8LaXDpq/ggouLsJ5HFwzVr9LRscbMs1GLlZybe1n7lPbH/MRwt6NpPBO0Hcdud/pPjuRt+Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwIHeXwqsZAOq/q8Izi5yH97gZGeSftfcry7jCqX7NQ22Fdv2ze
+	7TuRtIHCRKeaIwfLW9399oHPY4HfEiAKMkh3tM6Kvz34ocgNDyTPi8AtnqKYGvzGHQY=
+X-Gm-Gg: Acq92OEFHz66vh+ETN2HOBj0jYwDimiFwz9KuHz0Ji7xQvYVkbWiKymcI8LIgdlqf5Q
+	fMhLWFLXFM5vCkoYqxFQ+/85RdXY4vD9iq7V7uOZumALgRY+T0j63VHWtJtfu1V6XFdD0uMkUyw
+	4s6bguoMnXX4Mys1Lhcqir2hsCG93Nx7P8bDQf58UzT0ZmGnZKg7MAkEyTjISVbGxn3CTwVISWF
+	bDTrfWuV8Gcku6mxcgy449kXVV/7sjSIYx/FPtlAFaWIUpxX9h0bQxiqkKhtEEv1PpFT6BF09Fw
+	ImT6Xx88u9Qk84gQUBplQQer4bixoHMANBdv3aPIXVfIWV9D/OA5jnl/1ycoKmErIaW4X60TRj+
+	pXFj/eDNeJkfS1V6vFuwlo6jqxGqnoUn+sX8k4G41Zu1cHzab7uIyWWSZlg70g1o++aO/kmOEA3
+	CZvWbY+76iHSOIwJoptC/wPuBLNhssbD5hUhR9qDyAXbIhVXjxtvHkUWhFpVkyFb3mGEGDYKQax
+	Fc3dGVhLqm8E3Hp+LHYX9c=
+X-Received: by 2002:a05:620a:1788:b0:902:afae:fd39 with SMTP id af79cd13be357-904d70c4754mr3575981085a.57.1778511589271;
+        Mon, 11 May 2026 07:59:49 -0700 (PDT)
+Received: from gourry-fedora-PF4VCD3F (pool-100-36-248-188.washdc.fios.verizon.net. [100.36.248.188])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8fc2c91c813sm3112985985a.33.2026.05.11.07.59.47
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 11 May 2026 07:59:48 -0700 (PDT)
+Date: Mon, 11 May 2026 10:59:46 -0400
+From: Gregory Price <gourry@gourry.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org,
+	"David Hildenbrand (Arm)" <david@kernel.org>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Muchun Song <muchun.song@linux.dev>,
+	Oscar Salvador <osalvador@suse.de>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Lorenzo Stoakes <ljs@kernel.org>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Brendan Jackman <jackmanb@google.com>,
+	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
+	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
+	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+	Byungchul Park <byungchul@sk.com>,
+	Ying Huang <ying.huang@linux.alibaba.com>,
+	Alistair Popple <apopple@nvidia.com>,
+	Christoph Lameter <cl@gentwo.org>,
+	David Rientjes <rientjes@google.com>,
+	Roman Gushchin <roman.gushchin@linux.dev>,
+	Harry Yoo <harry.yoo@oracle.com>,
+	Axel Rasmussen <axelrasmussen@google.com>,
+	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
+	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
+	Kemeng Shi <shikemeng@huaweicloud.com>,
+	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
+	virtualization@lists.linux.dev, linux-mm@kvack.org,
+	Andrea Arcangeli <aarcange@redhat.com>
+Subject: Re: [PATCH resend v6 02/30] mm: mempolicy: fix interleave index for
+ unaligned VMA start
+Message-ID: <agHu4iaL-3By0YuC@gourry-fedora-PF4VCD3F>
+References: <cover.1778489843.git.mst@redhat.com>
+ <41bd50fdaae943e1a79215ea4000322e74a823be.1778489843.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNTExMDE2NCBTYWx0ZWRfXx1l9Nw81tlKS
- raj+ZdjZqr1TFthp/LdgJMTobrq9ByO2gOkyZcz9Drit55aCDxAgbQ6jW+goqM3JFoZ0F40ceS/
- QIeWaHdn/rYv3OYpL8zcP04523/Hx+5UJ7R/7BgZ9LrUyeiVi0nnHqdNE+fdX88h5Zd8DbcysI8
- rYWUymvE7TlMFjKyJb2EzHD5ViKArmtQw3edJjEljIOBLqoUCmcakKvYjS/VYBrrjnhB3FAeMKl
- gj4kjh03davrQBypKbhTathmjDyWn4G0Lp2dkT7tN+LnZabAHxu8KXitDsDZjpXewENwKHvi5J+
- ecvSWiAbgs3kZEGpfd6OzwVKwYtpYKNruqEgjy15Ad3s9NnFuzCeCy6tnjUk7GIBNBoEZe9NQ0e
- bnLxk5EnEzVTJF+yq/m19t+dUE6g0M+iqt2GqmjsGs9VFXsTYtwOBac8cMpoFTffaX/Ecs0KBhm
- 9BgCkYx/2cRcqFuojhQ==
-X-Proofpoint-GUID: c73VIVWMBdTH9NasIsyQrHKwxxnepNAS
-X-Authority-Analysis: v=2.4 cv=euzvCIpX c=1 sm=1 tr=0 ts=6a01eeb6 cx=c_pps
- a=MfjaFnPeirRr97d5FC5oHw==:117 a=MfjaFnPeirRr97d5FC5oHw==:17
- a=NGcC8JguVDcA:10 a=VkNPw1HP01LnGYTKEx00:22 a=7x6HtfJdh03M6CCDgxCd:22
- a=_1IyUuN4QrATX339ibzo:22 a=VabnemYjAAAA:8 a=Dxuz5bgbLrCaPi_g5IEA:9
- a=gKebqoRLp9LExxC7YDUY:22
-X-Proofpoint-ORIG-GUID: c73VIVWMBdTH9NasIsyQrHKwxxnepNAS
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.51,FMLib:17.12.100.49
- definitions=2026-05-11_04,2026-05-08_02,2025-10-01_01
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <41bd50fdaae943e1a79215ea4000322e74a823be.1778489843.git.mst@redhat.com>
 
-Since "vfio/pci: Set up barmap in vfio_pci_core_enable()", the
-resource request and iomap for the BARs was performed early, and
-vfio_pci_core_setup_barmap() just checks those actions succeeded.
+On Mon, May 11, 2026 at 05:01:49AM -0400, Michael S. Tsirkin wrote:
+> The NUMA interleave index formula (addr - vm_start) >> shift
+> gives wrong results when vm_start is not aligned to the folio
+> size: the subtraction before the shift allows low bits to
+> affect the result via borrows.
+> 
+> Use (addr >> shift) - (vm_start >> shift) instead, which
+> independently aligns both values before computing the
+> difference.
+> 
+> No functional change for current callers: the fix only affects
+> NUMA interleave and weighted-interleave policies. Current
+> large-order callers either pre-align the address
+> (vma_alloc_anon_folio_pmd) or do not use NUMA interleave
+> (drm_pagemap). All other callers use order 0 where the old
+> and new formulas are equivalent. However subsequent patches
+> in this series add large-order callers that pass unaligned
+> fault addresses, making this fix necessary.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-Move this logic to a new helper that checks success and returns the
-iomap address, replacing the various bare vdev->barmap[] lookups.
-This maintains the error behaviour of the previous on-demand
-vfio_pci_core_setup_barmap() scheme.
+Reviewed-by: Gregory Price <gourry@gourry.net>
 
-Signed-off-by: Matt Evans <mattev@meta.com>
----
- drivers/vfio/pci/nvgrace-gpu/main.c | 20 ++++++++++++-------
- drivers/vfio/pci/vfio_pci_core.c    | 11 +++++------
- drivers/vfio/pci/vfio_pci_dmabuf.c  |  2 +-
- drivers/vfio/pci/vfio_pci_rdwr.c    | 30 ++++++++---------------------
- drivers/vfio/pci/virtio/legacy_io.c | 13 ++++++-------
- include/linux/vfio_pci_core.h       | 20 ++++++++++++++++++-
- 6 files changed, 52 insertions(+), 44 deletions(-)
+Should this just be pulled out ahead as a fix (assuming this
+set takes more time to bake)?  I get it's not causing issues today,
+but the interface is otherwise technicaly broken either way.
 
-diff --git a/drivers/vfio/pci/nvgrace-gpu/main.c b/drivers/vfio/pci/nvgrace-gpu/main.c
-index fa056b69f899..15e2f03c6cd4 100644
---- a/drivers/vfio/pci/nvgrace-gpu/main.c
-+++ b/drivers/vfio/pci/nvgrace-gpu/main.c
-@@ -61,6 +61,7 @@ struct nvgrace_gpu_pci_core_device {
- 	struct mem_region resmem;
- 	/* Lock to control device memory kernel mapping */
- 	struct mutex remap_lock;
-+	void __iomem *bar0_base;
- 	bool has_mig_hw_bug;
- 	/* GPU has just been reset */
- 	bool reset_done;
-@@ -171,6 +172,7 @@ static int nvgrace_gpu_open_device(struct vfio_device *core_vdev)
- 	struct nvgrace_gpu_pci_core_device *nvdev =
- 		container_of(core_vdev, struct nvgrace_gpu_pci_core_device,
- 			     core_device.vdev);
-+	void __iomem *io;
- 	int ret;
- 
- 	ret = vfio_pci_core_enable(vdev);
-@@ -184,14 +186,14 @@ static int nvgrace_gpu_open_device(struct vfio_device *core_vdev)
- 
- 	/*
- 	 * GPU readiness is checked by reading the BAR0 registers.
--	 *
--	 * ioremap BAR0 to ensure that the BAR0 mapping is present before
--	 * register reads on first fault before establishing any GPU
--	 * memory mapping.
-+	 * The BAR map was just set up by vfio_pci_core_enable(), so
-+	 * bail early if that wasn't successful:
- 	 */
--	ret = vfio_pci_core_setup_barmap(vdev, 0);
--	if (ret)
-+	io = vfio_pci_core_get_iomap(vdev, 0);
-+	if (IS_ERR(io)) {
-+		ret = PTR_ERR(io);
- 		goto error_exit;
-+	}
- 
- 	if (nvdev->resmem.memlength) {
- 		ret = nvgrace_gpu_vfio_pci_register_pfn_range(core_vdev, &nvdev->resmem);
-@@ -204,6 +206,8 @@ static int nvgrace_gpu_open_device(struct vfio_device *core_vdev)
- 		goto register_mem_failed;
- 
- 	vfio_pci_core_finish_enable(vdev);
-+	nvdev->bar0_base = io;
-+
- 	return 0;
- 
- register_mem_failed:
-@@ -220,6 +224,8 @@ static void nvgrace_gpu_close_device(struct vfio_device *core_vdev)
- 		container_of(core_vdev, struct nvgrace_gpu_pci_core_device,
- 			     core_device.vdev);
- 
-+	nvdev->bar0_base = NULL;
-+
- 	if (nvdev->resmem.memlength)
- 		unregister_pfn_address_space(&nvdev->resmem.pfn_address_space);
- 
-@@ -275,7 +281,7 @@ nvgrace_gpu_check_device_ready(struct nvgrace_gpu_pci_core_device *nvdev)
- 	if (!__vfio_pci_memory_enabled(vdev))
- 		return -EIO;
- 
--	ret = nvgrace_gpu_wait_device_ready(vdev->barmap[0]);
-+	ret = nvgrace_gpu_wait_device_ready(nvdev->bar0_base);
- 	if (ret)
- 		return ret;
- 
-diff --git a/drivers/vfio/pci/vfio_pci_core.c b/drivers/vfio/pci/vfio_pci_core.c
-index 0e4fc17d360f..b1b7fc5183a7 100644
---- a/drivers/vfio/pci/vfio_pci_core.c
-+++ b/drivers/vfio/pci/vfio_pci_core.c
-@@ -1762,7 +1762,7 @@ int vfio_pci_core_mmap(struct vfio_device *core_vdev, struct vm_area_struct *vma
- 	struct pci_dev *pdev = vdev->pdev;
- 	unsigned int index;
- 	u64 phys_len, req_len, pgoff, req_start;
--	int ret;
-+	void __iomem *bar_io;
- 
- 	index = vma->vm_pgoff >> (VFIO_PCI_OFFSET_SHIFT - PAGE_SHIFT);
- 
-@@ -1796,12 +1796,11 @@ int vfio_pci_core_mmap(struct vfio_device *core_vdev, struct vm_area_struct *vma
- 		return -EINVAL;
- 
- 	/*
--	 * Even though we don't make use of the barmap for the mmap,
--	 * we need to request the region and the barmap tracks that.
-+	 * Ensure the BAR resource region is reserved for use.
- 	 */
--	ret = vfio_pci_core_setup_barmap(vdev, index);
--	if (ret)
--		return ret;
-+	bar_io = vfio_pci_core_get_iomap(vdev, index);
-+	if (IS_ERR(bar_io))
-+		return PTR_ERR(bar_io);
- 
- 	vma->vm_private_data = vdev;
- 	vma->vm_page_prot = pgprot_noncached(vma->vm_page_prot);
-diff --git a/drivers/vfio/pci/vfio_pci_dmabuf.c b/drivers/vfio/pci/vfio_pci_dmabuf.c
-index 69a5c2d511e6..46cd44b22c9c 100644
---- a/drivers/vfio/pci/vfio_pci_dmabuf.c
-+++ b/drivers/vfio/pci/vfio_pci_dmabuf.c
-@@ -248,7 +248,7 @@ int vfio_pci_core_feature_dma_buf(struct vfio_pci_core_device *vdev, u32 flags,
- 	 * else.  Check that PCI resources have been claimed for it.
- 	 */
- 	if (get_dma_buf.region_index >= VFIO_PCI_ROM_REGION_INDEX ||
--	    vfio_pci_core_setup_barmap(vdev, get_dma_buf.region_index))
-+	    IS_ERR(vfio_pci_core_get_iomap(vdev, get_dma_buf.region_index)))
- 		return -ENODEV;
- 
- 	dma_ranges = memdup_array_user(&arg->dma_ranges, get_dma_buf.nr_ranges,
-diff --git a/drivers/vfio/pci/vfio_pci_rdwr.c b/drivers/vfio/pci/vfio_pci_rdwr.c
-index 3bfbb879a005..7f14dd46de17 100644
---- a/drivers/vfio/pci/vfio_pci_rdwr.c
-+++ b/drivers/vfio/pci/vfio_pci_rdwr.c
-@@ -198,19 +198,6 @@ ssize_t vfio_pci_core_do_io_rw(struct vfio_pci_core_device *vdev, bool test_mem,
- }
- EXPORT_SYMBOL_GPL(vfio_pci_core_do_io_rw);
- 
--/*
-- * The barmap is set up in vfio_pci_core_enable().  Callers use this
-- * function to check that the BAR resources are requested or that the
-- * pci_iomap() was done.
-- */
--int vfio_pci_core_setup_barmap(struct vfio_pci_core_device *vdev, int bar)
--{
--	if (IS_ERR(vdev->barmap[bar]))
--		return PTR_ERR(vdev->barmap[bar]);
--	return 0;
--}
--EXPORT_SYMBOL_GPL(vfio_pci_core_setup_barmap);
--
- ssize_t vfio_pci_bar_rw(struct vfio_pci_core_device *vdev, char __user *buf,
- 			size_t count, loff_t *ppos, bool iswrite)
- {
-@@ -262,13 +249,11 @@ ssize_t vfio_pci_bar_rw(struct vfio_pci_core_device *vdev, char __user *buf,
- 		 */
- 		max_width = VFIO_PCI_IO_WIDTH_4;
- 	} else {
--		int ret = vfio_pci_core_setup_barmap(vdev, bar);
--		if (ret) {
--			done = ret;
-+		io = vfio_pci_core_get_iomap(vdev, bar);
-+		if (IS_ERR(io)) {
-+			done = PTR_ERR(io);
- 			goto out;
- 		}
--
--		io = vdev->barmap[bar];
- 	}
- 
- 	if (bar == vdev->msix_bar) {
-@@ -423,6 +408,7 @@ int vfio_pci_ioeventfd(struct vfio_pci_core_device *vdev, loff_t offset,
- 	loff_t pos = offset & VFIO_PCI_OFFSET_MASK;
- 	int ret, bar = VFIO_PCI_OFFSET_TO_INDEX(offset);
- 	struct vfio_pci_ioeventfd *ioeventfd;
-+	void __iomem *io;
- 
- 	/* Only support ioeventfds into BARs */
- 	if (bar > VFIO_PCI_BAR5_REGION_INDEX)
-@@ -440,9 +426,9 @@ int vfio_pci_ioeventfd(struct vfio_pci_core_device *vdev, loff_t offset,
- 	if (count == 8)
- 		return -EINVAL;
- 
--	ret = vfio_pci_core_setup_barmap(vdev, bar);
--	if (ret)
--		return ret;
-+	io = vfio_pci_core_get_iomap(vdev, bar);
-+	if (IS_ERR(io))
-+		return PTR_ERR(io);
- 
- 	mutex_lock(&vdev->ioeventfds_lock);
- 
-@@ -479,7 +465,7 @@ int vfio_pci_ioeventfd(struct vfio_pci_core_device *vdev, loff_t offset,
- 	}
- 
- 	ioeventfd->vdev = vdev;
--	ioeventfd->addr = vdev->barmap[bar] + pos;
-+	ioeventfd->addr = io + pos;
- 	ioeventfd->data = data;
- 	ioeventfd->pos = pos;
- 	ioeventfd->bar = bar;
-diff --git a/drivers/vfio/pci/virtio/legacy_io.c b/drivers/vfio/pci/virtio/legacy_io.c
-index 1ed349a55629..c868b2177310 100644
---- a/drivers/vfio/pci/virtio/legacy_io.c
-+++ b/drivers/vfio/pci/virtio/legacy_io.c
-@@ -299,19 +299,18 @@ int virtiovf_pci_ioctl_get_region_info(struct vfio_device *core_vdev,
- static int virtiovf_set_notify_addr(struct virtiovf_pci_core_device *virtvdev)
- {
- 	struct vfio_pci_core_device *core_device = &virtvdev->core_device;
--	int ret;
-+	void __iomem *io;
- 
- 	/*
- 	 * Setup the BAR where the 'notify' exists to be used by vfio as well
- 	 * This will let us mmap it only once and use it when needed.
- 	 */
--	ret = vfio_pci_core_setup_barmap(core_device,
--					 virtvdev->notify_bar);
--	if (ret)
--		return ret;
-+	io = vfio_pci_core_get_iomap(core_device,
-+				     virtvdev->notify_bar);
-+	if (IS_ERR(io))
-+		return PTR_ERR(io);
- 
--	virtvdev->notify_addr = core_device->barmap[virtvdev->notify_bar] +
--			virtvdev->notify_offset;
-+	virtvdev->notify_addr = io + virtvdev->notify_offset;
- 	return 0;
- }
- 
-diff --git a/include/linux/vfio_pci_core.h b/include/linux/vfio_pci_core.h
-index 89165b769e5c..7accd0eac457 100644
---- a/include/linux/vfio_pci_core.h
-+++ b/include/linux/vfio_pci_core.h
-@@ -188,7 +188,6 @@ int vfio_pci_core_match_token_uuid(struct vfio_device *core_vdev,
- int vfio_pci_core_enable(struct vfio_pci_core_device *vdev);
- void vfio_pci_core_disable(struct vfio_pci_core_device *vdev);
- void vfio_pci_core_finish_enable(struct vfio_pci_core_device *vdev);
--int vfio_pci_core_setup_barmap(struct vfio_pci_core_device *vdev, int bar);
- pci_ers_result_t vfio_pci_core_aer_err_detected(struct pci_dev *pdev,
- 						pci_channel_state_t state);
- ssize_t vfio_pci_core_do_io_rw(struct vfio_pci_core_device *vdev, bool test_mem,
-@@ -234,6 +233,25 @@ static inline bool is_aligned_for_order(struct vm_area_struct *vma,
- 			   !IS_ALIGNED(pfn, 1 << order)));
- }
- 
-+/*
-+ * Returns a BAR's iomap base or an ERR_PTR() if, for example, the
-+ * BAR isn't valid, its resource wasn't acquired, or its iomap
-+ * failed.  This shall only be used after vfio_pci_core_enable()
-+ * has set up the BAR maps and before vfio_pci_core_disable()
-+ * tears them down.
-+ */
-+static inline void __iomem __must_check *
-+vfio_pci_core_get_iomap(struct vfio_pci_core_device *vdev, unsigned int bar)
-+{
-+	if (WARN_ON_ONCE(bar >= PCI_STD_NUM_BARS))
-+		return ERR_PTR(-EINVAL);
-+
-+	if (WARN_ON_ONCE(!vdev->barmap[bar]))
-+		return ERR_PTR(-ENODEV);
-+
-+	return vdev->barmap[bar];
-+}
-+
- int vfio_pci_dma_buf_iommufd_map(struct dma_buf_attachment *attachment,
- 				 struct phys_vec *phys);
- 
--- 
-2.47.3
+> ---
+>  mm/mempolicy.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/mm/mempolicy.c b/mm/mempolicy.c
+> index 6832cc68120f..39e556e3d263 100644
+> --- a/mm/mempolicy.c
+> +++ b/mm/mempolicy.c
+> @@ -2049,7 +2049,8 @@ struct mempolicy *get_vma_policy(struct vm_area_struct *vma,
+>  	if (pol->mode == MPOL_INTERLEAVE ||
+>  	    pol->mode == MPOL_WEIGHTED_INTERLEAVE) {
+>  		*ilx += vma->vm_pgoff >> order;
+> -		*ilx += (addr - vma->vm_start) >> (PAGE_SHIFT + order);
+> +		*ilx += (addr >> (PAGE_SHIFT + order)) -
+> +			(vma->vm_start >> (PAGE_SHIFT + order));
 
+There's enough (PAGE_SHIFT + ...) spread around the kernel, i wonder if
+it's worth a define or a function (not in scope, just pondering).
+
+~Gregory
