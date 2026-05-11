@@ -1,69 +1,69 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E978D3C4576
-	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 09:02:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFB833CB2E9
+	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 09:02:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778490158; cv=none; b=SQeeey2Pb1SJvKX5X/lAc5KZK/37aaxT2scpqJANBgurprxrQtxXg7PgVZeE1jy+WFPG095CYAhVqx0vU+hnQMEML2Pu0sTPqow4caWuNkpOKDvM3DhtRhEumQah1xaQUF7zy6BKfsNoDV1g9fEzkmQjxt+/QuXdKQQQZNT47dY=
+	t=1778490167; cv=none; b=GHRzFGyjRwkPV+g41vQ14Uxf6NRJM19JwehtlaQouxaxPENfbRD+M2NsB2xH82TPhXAk1YOCycSVr/dVLQotn89FONZapQp7WlSCoaIDvdGT0M8mGt5KhCKINpaIXLeBJBn9giSr8rIlgIFT36g2Hfbjt/Xj1J43DPxpiXQsWTU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778490158; c=relaxed/simple;
-	bh=xVZpENOTPSkcCw9H72WToBvwV1ZsJAWZkigdtcUbLLU=;
+	s=arc-20240116; t=1778490167; c=relaxed/simple;
+	bh=MamMMWXXtV18pX2Nm4tlwaTMDaamkDfpCh9w7kBXTEw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=FgB/VAF/lOMwu7FfLUDYmAQRVoKkKAW/WpX/zqG6lq61gg3LbB4Jg9WE13yr1IsAB9N0j4/Zjm9i0Vd3E2Gfm4Nkv3IzCbMYxsWDFqIYKtY4bvL0Dq/8ZJwfa3heNdrw9JL3PpBl+HiSOGEUKdF1H/KRRV3BsWeeFc0T7EkcZbc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LhUUdbXU; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=ZQ4EJ3ynaFw+Q9je5Na2N2mp/s1M9y/eDkGg26RqEs/l3NP4rGKL2/gl5Y7u8mc5fAK+Xe2Uz+sm2tHu7XRNUMt8q5Xh3RyNB3QBsIgx9Gg2OjNgJDhWQ4da9OANe6SbBfA5RytP1i3rNIGtrDUGTjXOq6HgVx8LUXZOcgqLgO4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Yrpvdk95; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LhUUdbXU"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Yrpvdk95"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1778490156;
+	s=mimecast20190719; t=1778490165;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=+4kzhpMcne9QL/iUfytpcOnuwyhDfw3DKjMmXnNjefM=;
-	b=LhUUdbXU5rLV8LcGjKMJ7r6KcdK7v0VpU8kl2gujOLfEBw1QcpFZdU6JKHVXp4MytvGz30
-	+y5eg9IbWLKL9LXyBi6mjJwCJ6W1WtJLqPjv/iGnJ12xGqKZgn2ppJxahTHKMc6w/iweU7
-	iGCkJvSUZhFRT6AySbmuZVbnoaDdzwE=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=PyhJPD76XSlXOLIxrgX26vlRXB2m99TPkgzm+4tnrhY=;
+	b=Yrpvdk952whr7Rz8q0zxP7rjySwb9WgbWFP0HMEj9bmZ9SViQX8/qoIyTWMAfLbAq45Tat
+	agKWMIOXTwhVy6E1ZIBiqZrRtc7cuFPRrLXMovVagdUxCKB8XqDPCiK2PoMen7wOToQMsJ
+	1vj1s5R08QNf0x9/+Abz/kIbx3nqONQ=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-144-Q3hOoEZDO_mcYStcRTEZTQ-1; Mon, 11 May 2026 05:02:34 -0400
-X-MC-Unique: Q3hOoEZDO_mcYStcRTEZTQ-1
-X-Mimecast-MFC-AGG-ID: Q3hOoEZDO_mcYStcRTEZTQ_1778490154
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-488c2aa6becso34020855e9.2
-        for <virtualization@lists.linux.dev>; Mon, 11 May 2026 02:02:34 -0700 (PDT)
+ us-mta-571-I9MRam1QOHCCzjXGK-nJdQ-1; Mon, 11 May 2026 05:02:43 -0400
+X-MC-Unique: I9MRam1QOHCCzjXGK-nJdQ-1
+X-Mimecast-MFC-AGG-ID: I9MRam1QOHCCzjXGK-nJdQ_1778490162
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-44d9ace59efso2739252f8f.1
+        for <virtualization@lists.linux.dev>; Mon, 11 May 2026 02:02:42 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778490153; x=1779094953;
+        d=1e100.net; s=20251104; t=1778490160; x=1779094960;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=+4kzhpMcne9QL/iUfytpcOnuwyhDfw3DKjMmXnNjefM=;
-        b=GnGDNfDGPYBaQgHrMzXz1CoRk7jkqujM9o2PLeV63iWNl6sM/me58S0817Bxnx+7fJ
-         I9jzmv43FsodTn9IhPIV/VaVaAZWFfpNsX4EcaTaat2jBHpm3cyE5SfzhOBcbY4ssKFe
-         iBKmwUb8WfgoUmnVrOXU2HtEtec7bz7AJzT1qxQg5D1vIc3Kt28VqFFGcbjnVvgoJiMc
-         Yn3B4e3Hm7JYRpJQxmA7ZVXPhFi524u9DejnE74idZX9GOjQE2TZ4wv+N6CSz7owbOKc
-         K4i+tTEjqAWeyydQRXpUQHlTM0GxhPX28XyHbcoRwL954OZ20quWQBaL3p0Kg1ERrpna
-         58IQ==
-X-Forwarded-Encrypted: i=1; AFNElJ+B9WSlufAaOUgKG4S84R9tz5caVp9U/HM4r9Ty74G4LMfl4LNMJyOHRVLSYv/hQLnDU8PUkEPUECKC69vgRA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzoxpzCnH26TwqMRHySpMoR+tpHTMhAWFDZtFqdCMMwBZHFwi+g
-	XT5LUuCMdlpKwck/q7e8b3nmWmgaxnpc7WGYZajPYN9kHYHgizdveOmgKC2UyiF+9n+n/eKCMGm
-	TuQ4P1uUbhP55jJDGC87H3nHYmVAHuscog5liwzh8++Ahw+Dkv9jK7OVc1SdT8K17tC9v
-X-Gm-Gg: Acq92OF6DT4FtDxEKjOTQfN9T1jYhSq1sjo5/FWbKqO6k7EXKpWWmjAmLqzbU66sNRn
-	sOtdZMqKX53fqVrab8wn3p+I1jdvOIwmTzKG+k3IT29+KTU5Yu3Z2w5sG2V4AB8irn3mEUc7dsd
-	ff57HWgJT/hR/VBhh/GjMPZs9fUJcX+CleY2LScylaLIuLphoTobQ0XLYIkmyPKhP6IWGUtmlE9
-	3+6t9jHk/wuaOi2X/WwnWz0tktD2Otc+zB8fjiburBNWHtQq8IltPGicXwPjw5S21RC7GBrslh+
-	XfdPDyLUYBxiM7owj9G83BSGCy0KY44VbOH61PMPbMM8N8dFo0nRQ+x75GqzutApLxJ3bU/j0UI
-	1dokOSVaKhOXbPbynGpCsIy+7UFXgsKXabajmBF8q
-X-Received: by 2002:a05:600c:1d18:b0:48a:906b:14ca with SMTP id 5b1f17b1804b1-48e51f46e46mr365112645e9.20.1778490153248;
-        Mon, 11 May 2026 02:02:33 -0700 (PDT)
-X-Received: by 2002:a05:600c:1d18:b0:48a:906b:14ca with SMTP id 5b1f17b1804b1-48e51f46e46mr365111235e9.20.1778490152468;
-        Mon, 11 May 2026 02:02:32 -0700 (PDT)
+        bh=PyhJPD76XSlXOLIxrgX26vlRXB2m99TPkgzm+4tnrhY=;
+        b=NmIqbhhCS4Tm5Y2+ZkLxsOKZx4JvBSG1Nt64sSYHgHkb288sw0nURSjt6T68ws+RHX
+         nHS4NS74a4xIhQ9Y5fAbUUK8iPIc7/gVFZX0P0k/6E1/JyJM+AuOyJSWyh2HdTBUHIJj
+         CJOP84NC4utZLpM+Y0+PQ+laz3jqNk0FB025r+yFVKklopPzjhvwDhEGmkukTZYFRKW7
+         OhtCyIJpMrtpHOxeB2VIZ4g3Ge8sdSBD+/eud5kVwF/OTR/KiCB33SmhQwjttMt1kODA
+         P0MJ51XV0P5CcJ6QOKLRLSPJl9Ywp0KAHrab7ZncYF0BGlLtkkBdUUdphj+Vq8px+dmi
+         O4VA==
+X-Forwarded-Encrypted: i=1; AFNElJ8G7rqrCWf0rjr9z2LFeocFYk8FpSNNOrb/zYY8gLfjg17Xz+9MQbxBkEzd+p4wt0+6nC1Ae3pAQBDkVZwgxA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwZPEqinBhArluKIaQ1sOsRrLE6TNfqNdX4Ica0ygtveZQGlIAI
+	9CuYN74Idmhnva61UEATQrfZxGC+Yb92lEE6gpBsbpVpkx5aaKYOLqeoL++F5PB/HvuxcFU39Wx
+	PY/pErKNSsUQJtRXaZB5PCmpJWrSPCXJX4rp7D37thHZqVdbzlAc4cLJGz2csOG0vyRkL
+X-Gm-Gg: Acq92OEJuXpoP/SsZlwCLPjFGyEGd1x/hEnyEO0/9/lOSvkDquBxk6xhKSBYfjR5J26
+	QCFCMycpfUx/PXcqeEzjIjKlkmEZipX/vZK+n7aHVmUEgkwkY4zCbhWJoop0Z55LIRTyHHAdfn8
+	Bo2rPvGOm6xEzFr9pD6YRaWLCPrWncoTFgFx36YXLDkGm9Chv7i9qHd0NSszdC+ETcr9qnL2RkY
+	5SCxA2SCgxEE3+JRYEuuiJtFmZbTkj2ke9LtGDs5rGLJ3TfwX7RN4Sl+/RCpiWSkvmJ4dmrsocY
+	qwm62nTj/GvJ2yzbN+se1I+EQr6G9Ru1Gmgpn02OUAssX7+quFkcb5ruUVm4xsoCy9xGttvV3yP
+	axcG5fznSMccxTQdeYlJ77oLC66SqkEdVTWnaw/1p
+X-Received: by 2002:a05:600c:628b:b0:48a:557e:6b4f with SMTP id 5b1f17b1804b1-48e706cd77dmr153153265e9.23.1778490159963;
+        Mon, 11 May 2026 02:02:39 -0700 (PDT)
+X-Received: by 2002:a05:600c:628b:b0:48a:557e:6b4f with SMTP id 5b1f17b1804b1-48e706cd77dmr153152205e9.23.1778490159368;
+        Mon, 11 May 2026 02:02:39 -0700 (PDT)
 Received: from redhat.com (IGLD-80-230-48-7.inter.net.il. [80.230.48.7])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48e7040a9a9sm297049045e9.9.2026.05.11.02.02.26
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48e702e5516sm264424385e9.7.2026.05.11.02.02.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 May 2026 02:02:32 -0700 (PDT)
-Date: Mon, 11 May 2026 05:02:25 -0400
+        Mon, 11 May 2026 02:02:37 -0700 (PDT)
+Date: Mon, 11 May 2026 05:02:32 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
@@ -102,24 +102,10 @@ Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
 	Andrea Arcangeli <aarcange@redhat.com>,
-	Magnus Lindholm <linmag7@gmail.com>,
-	Greg Ungerer <gerg@linux-m68k.org>,
-	Geert Uytterhoeven <geert@linux-m68k.org>,
-	Richard Henderson <richard.henderson@linaro.org>,
-	Matt Turner <mattst88@gmail.com>,
-	Heiko Carstens <hca@linux.ibm.com>,
-	Vasily Gorbik <gor@linux.ibm.com>,
-	Alexander Gordeev <agordeev@linux.ibm.com>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	Sven Schnelle <svens@linux.ibm.com>,
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, linux-alpha@vger.kernel.org,
-	linux-m68k@lists.linux-m68k.org, linux-s390@vger.kernel.org
-Subject: [PATCH resend v6 08/30] mm: remove arch
- vma_alloc_zeroed_movable_folio overrides
-Message-ID: <24a1b25f4f1cf31fc5bc053e475958ed5e1bf8bd.1778489843.git.mst@redhat.com>
+	"Liam R. Howlett" <liam@infradead.org>
+Subject: [PATCH resend v6 09/30] mm: alloc_anon_folio: pass raw fault address
+ to vma_alloc_folio
+Message-ID: <96bbd5dcc37aed93a9b7733780bdcba4fdacfa3d.1778489843.git.mst@redhat.com>
 References: <cover.1778489843.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -131,86 +117,37 @@ In-Reply-To: <cover.1778489843.git.mst@redhat.com>
 X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
 X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: HISom9gTYFUPG2NvxSgf39dt9Hy5eyeWW8X_VNut5AI_1778490154
+X-Mimecast-MFC-PROC-ID: 9ALC-vEzwncf90V5kmk4AACQimQHTBaCjXtOb5N5JVI_1778490162
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Now that the generic vma_alloc_zeroed_movable_folio() uses
-__GFP_ZERO, the arch-specific macros on alpha, m68k, s390, and
-x86 that did the same thing are redundant.  Remove them.
+Pass vmf->address directly instead of ALIGN_DOWN(vmf->address, ...).
+vma_alloc_folio_noprof now aligns internally for NUMA interleave,
+and post_alloc_hook will use the raw address for cache-friendly
+zeroing via folio_zero_user().
 
-arm64 is not affected: it has a real function override that
-handles MTE tag zeroing, not just __GFP_ZERO.
-
-Suggested-by: David Hildenbrand <david@kernel.org>
-Acked-by: Magnus Lindholm <linmag7@gmail.com>
-Acked-by: Greg Ungerer <gerg@linux-m68k.org>
-Acked-by: Geert Uytterhoeven <geert@linux-m68k.org> # m68k
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Assisted-by: Claude:claude-opus-4-6
+Assisted-by: cursor-agent:GPT-5.4-xhigh
 ---
- arch/alpha/include/asm/page.h   | 3 ---
- arch/m68k/include/asm/page_no.h | 3 ---
- arch/s390/include/asm/page.h    | 3 ---
- arch/x86/include/asm/page.h     | 3 ---
- 4 files changed, 12 deletions(-)
+ mm/memory.c | 3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
 
-diff --git a/arch/alpha/include/asm/page.h b/arch/alpha/include/asm/page.h
-index 59d01f9b77f6..4327029cd660 100644
---- a/arch/alpha/include/asm/page.h
-+++ b/arch/alpha/include/asm/page.h
-@@ -12,9 +12,6 @@
- 
- extern void clear_page(void *page);
- 
--#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
--	vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
--
- extern void copy_page(void * _to, void * _from);
- #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
- 
-diff --git a/arch/m68k/include/asm/page_no.h b/arch/m68k/include/asm/page_no.h
-index d2532bc407ef..f511b763a235 100644
---- a/arch/m68k/include/asm/page_no.h
-+++ b/arch/m68k/include/asm/page_no.h
-@@ -12,9 +12,6 @@ extern unsigned long memory_end;
- 
- #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
- 
--#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
--	vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
--
- #define __pa(vaddr)		((unsigned long)(vaddr))
- #define __va(paddr)		((void *)((unsigned long)(paddr)))
- 
-diff --git a/arch/s390/include/asm/page.h b/arch/s390/include/asm/page.h
-index 56da819a79e6..e995d2a413f9 100644
---- a/arch/s390/include/asm/page.h
-+++ b/arch/s390/include/asm/page.h
-@@ -67,9 +67,6 @@ static inline void copy_page(void *to, void *from)
- 
- #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
- 
--#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
--	vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
--
- #ifdef CONFIG_STRICT_MM_TYPECHECKS
- #define STRICT_MM_TYPECHECKS
- #endif
-diff --git a/arch/x86/include/asm/page.h b/arch/x86/include/asm/page.h
-index 416dc88e35c1..92fa975b46f3 100644
---- a/arch/x86/include/asm/page.h
-+++ b/arch/x86/include/asm/page.h
-@@ -28,9 +28,6 @@ static inline void copy_user_page(void *to, void *from, unsigned long vaddr,
- 	copy_page(to, from);
- }
- 
--#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
--	vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
--
- #ifndef __pa
- #define __pa(x)		__phys_addr((unsigned long)(x))
- #endif
+diff --git a/mm/memory.c b/mm/memory.c
+index ea6568571131..0824441a6ba1 100644
+--- a/mm/memory.c
++++ b/mm/memory.c
+@@ -5252,8 +5252,7 @@ static struct folio *alloc_anon_folio(struct vm_fault *vmf)
+ 	/* Try allocating the highest of the remaining orders. */
+ 	gfp = vma_thp_gfp_mask(vma);
+ 	while (orders) {
+-		addr = ALIGN_DOWN(vmf->address, PAGE_SIZE << order);
+-		folio = vma_alloc_folio(gfp, order, vma, addr);
++		folio = vma_alloc_folio(gfp, order, vma, vmf->address);
+ 		if (folio) {
+ 			if (mem_cgroup_charge(folio, vma->vm_mm, gfp)) {
+ 				count_mthp_stat(order, MTHP_STAT_ANON_FAULT_FALLBACK_CHARGE);
 -- 
 MST
 
