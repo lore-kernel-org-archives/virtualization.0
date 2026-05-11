@@ -1,64 +1,64 @@
-Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
+Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E9A58407562
-	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 16:26:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52CA444102E
+	for <virtualization@lists.linux.dev>; Mon, 11 May 2026 16:37:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778516787; cv=none; b=Xqvn8FzWSJl/KNA3hgEzUte/9kyFHXHkNr1U17sfEynaFugBp+jwzRGnWAtlbLTG2xjLTh/CR7EsHo30lh3tysXXEy5zcQo3y77ZpfC2nvQLWWejyyrdYg0zLsDapMYyids8qnYlVegRoTAe03DXlM4hm2P5QuDI17jg+qGEWjk=
+	t=1778517425; cv=none; b=kuQ9LCJrOF9F5mWzfdnR6xVlYqmf1PbwSqIijjx/EYXtMerwWc+nkz+Fa83pn3KX4rT6lK4fmKIEvEASDn/6E4nIhcHJoFQYo8Me+FJ1SufNFMpZ77q8HM6YudZxyXjV3mF23twLcwIlkYX6f8yJunRNDNlV6EVV3OkmVl7s7w4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778516787; c=relaxed/simple;
-	bh=BGuKCJKu2Ze2cpCK7EZk9megGER4Jsu0/UhoeukgwOE=;
+	s=arc-20240116; t=1778517425; c=relaxed/simple;
+	bh=32rtVjsBu7bs/E7DjCga1Xn78UtvzNsnqDjSRttbyRc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jqetuzcBhpep0tS2QhR1B6DoPUNBxN5njturXvyU1BmWRE1vkgM0/4i3p/JLlyNoNls8OD3w9KDQjStiHcmhhXUiaw+wCQh+mtqUuujMIyi5kRyMdlOY1NtGehn3eqejJU8Ey+zpRzX/93Eh4yTuziYRoT0jkcRi/HQ7MObolAU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=JpFs4uZO; arc=none smtp.client-ip=209.85.222.178
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ob5QZf+30S/j4omSzTGDmhNz7blzIlzr+ECfNcb0yht11QF3w0P7xooaMOosuEuR3wCnRQ4jVhA+h4RkC05oOmCfuWCo9KOaEyKNxW9qMR1E5fZDTu8HoKUuU+Qfhatno2DEDRwd8esNWgiLTGkdLHoyFD1VTbtVYBXoSkYvZLA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=pEH8B1PT; arc=none smtp.client-ip=209.85.222.182
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="JpFs4uZO"
-Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-8e8c0c2d2bcso589929885a.1
-        for <virtualization@lists.linux.dev>; Mon, 11 May 2026 09:26:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="pEH8B1PT"
+Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-8ef5776530bso436794085a.0
+        for <virtualization@lists.linux.dev>; Mon, 11 May 2026 09:37:04 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1778516785; x=1779121585; darn=lists.linux.dev;
+        d=gourry.net; s=google; t=1778517423; x=1779122223; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Hqw8rV27s2rIaaJU5shbxCCsz/N1fl7ypBY0wN8aHj4=;
-        b=JpFs4uZOjkx7cCdzOf/1OVUrwGKjcTF7TCCTJ2kAx4d9mReQOBBvCSpzLkLxCEfRBu
-         yzFAdvmfdvp5t5eQlxn2Hlk7fy0xQJnlKFoffQnz2c5W9AULWmktDHZ2jmQoywhLXtG6
-         FPcOJggGOwxPxY7fhEDiMKITv5ZS/VXhib8v6AW7p9BMQbOMiK7uin8UEHj5jSEPeMQN
-         zXU5mS9sRx/69jdKKJwJynn0vCNS87P2/kU0jKJA5OulH3++5FglBWQ6IcxHXARBpTwm
-         9fTnKK4tBghdMhhTZOEX5u+xSW0pCrQvbDet4gbSsrgK1csvMy0VDQD1K8F4jNk0IqDT
-         tbEA==
+        bh=DPk5XHw7qn/fXCccKXVO5r2Z4HwdHblAfBNUt8aXN5s=;
+        b=pEH8B1PTk6ISP5n4hTf9HUYfV9OyhIUg/JVomTzQoJenFy9n+6LGijoaQV+00EbDwC
+         /KLauJkElEGrr3qNjxIg21z4gMB7tmHS7uc59WbwMsSjv3WtReG9JrWFm4VLbCnKogBi
+         8rd0Pe6UYBPDe5Z991lqroilSGN6A5e7Rnk4B6okhj3gC1TIaLWGGqLZGHNSt3urqLW8
+         snStdWcxNLTrthdzs1Bkwb9oi7L7yMDNwPRwT6RYrONY5M1Chu9cFUrokbeJdKQkB5iB
+         iXJ6lxr4xV6tCNfC0tvzaHeBPNHkMgNvure3nRo1IoC3jHEjXvOt40FtvIPOHsz0eeUm
+         SV9Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778516785; x=1779121585;
+        d=1e100.net; s=20251104; t=1778517423; x=1779122223;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Hqw8rV27s2rIaaJU5shbxCCsz/N1fl7ypBY0wN8aHj4=;
-        b=s79hm4xhqBW87Vmg1AthQd9lqdOf0+uT5tQhbB3P5voY/uwpZ1MAlq+i0P03ude+ns
-         baT2jkgkyMQde1M9t3dPs2QDTCf9m/bQ8Jd0WyDGEAgLOUCVMYfLFKceYY7/mD/hFt6K
-         hZOX2ZgsrwDS9ixq5igE8pcsrYm5S1yOMnusZ0dXonQ+QTr3oNPG9eDw9/DFaGL2uqgN
-         AiJxEscA6sst4HnG+SUR1evi7yiK3G/8T1VyTqrRafmISC47LtOsWhvU4u9UfGg3XVCf
-         VkqAiMd7cIS/xAkGHiS7Q+rT9/DyfzHDpcPFjBdp1gBOBrL2i96H/RKbpbuniFrL4BOR
-         l9yA==
-X-Forwarded-Encrypted: i=1; AFNElJ8Bx4xH8cmwy+eaLhEtoWcMzvOCfvAUlYYHALdRTradPMGW19T+n3m46ubE1l5AuxIRQPJzc5FRTPSX1fgEWQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyhpb7H4gNgjzvNI5FJ/9pg64hUUCcLUni3JgGFmBB4JaK95DeZ
-	gZgyRhpJDx5ntaTyompcJp04pU+9tpD4nImVrLDquxOS/pT2ETglpB1bMLR5MCWFdcs=
-X-Gm-Gg: Acq92OH9TloR9GFPubev7CudmDvp8NmTgS9v5rLdeUnF2RiQij+aFZzaXCbmw/jAWSg
-	JqeCIb5VTjUHdzuUXFwr67JX/14opYO2vnjgI5RG3aIyjfMrlI4V9T5c9dHhLWxUjSAh4AnkIx1
-	aTT4frrSATPRnTGDC7WAl2U8YEYsBJitjjRFN21KmvKcFFqAkj+upy/VoMyztJ4l2z1Yzexi4bw
-	Nb/D1GuhZHH/iIPJ0Ii/fguBnYdV+xtkLGTKQReWR/J5TSRldN6vLpCteuk//ArcnpoCHeSZamd
-	jmjyGF7P2UFBLbq+PO1CiBeAWVXrXRRtAzUJm2oKxZ7fY+R/1uX0TVfWmAVCZcKzydgZj3EZAFM
-	Tze7sZnUwcnbYlKIhFsW/qywa+b9HA6s0zJFoDIQTjjT8H5ohnIiEMDC2+HPi3HQQ3rmXTM2gsE
-	6ldRHykEDdkXYCmJM6/Xd9yZgoPxNYczrg0OS8Re74tWJnDYkNTaXjNvYLRd8CuMPNz93zISM/I
-	dVAgF7rW+MH
-X-Received: by 2002:a05:620a:25d0:b0:909:e4dc:fb30 with SMTP id af79cd13be357-909e4dd008cmr1293290885a.38.1778516784603;
-        Mon, 11 May 2026 09:26:24 -0700 (PDT)
+        bh=DPk5XHw7qn/fXCccKXVO5r2Z4HwdHblAfBNUt8aXN5s=;
+        b=m23kH8uqy2ppvBI4TaCzvwmh7q6FPgrwhFwyztgF6dwXRZgBBbgloxj6CYuvBX1M8h
+         DZS0RpwUPuZHSs2Wfi2MBreDMx+Vev+sPX65OpB3L7WsFu8qimsjOEgcGegSeCBTTQmR
+         wQ2WyUv3WKb4a4Vt7gPmgNzJFiOn8xRix4iPwH+Qw0FBNmb7+DlI7x5Brwdh/jwWeG9Q
+         dbBoOQLXw6MMe7cksZBSb4ROZotyFLKreSsR3FLZeyCFUiXOWY7mlUC0o64YBSkH/aDz
+         39hi8tEnseWTF2LXgol6uxhDnhuZ4WGY1T71j63SzNT9AbsqPpFaXRsLqAENIezdUyZX
+         5FqQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+6JiPrbW37VTtgXuzLa0AC82VLIqhvuAXK5r+o2wAqTPOrDO2BgNeevQ5I/J9EXTu52VnsF5/dYgvgDagK5w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzV3V6eR4H6joV7h31idWeAaGuabNGBMOB/JXKecBAW3OTLGKUY
+	3uaVrZGTelqtBQjSaq09xdtVGyyncyvC+tG0EivGz4BnlSTrrpicOhr+S60rMkW+vkE=
+X-Gm-Gg: Acq92OEAkqfh/FGcMOluEeGgldzmnao2I8B9/G7+C5gJfLv+V5HnfNcNHCwexrmF/nF
+	CSE9uzAgnB8ixGISl51A1LcVCeu964Abq9nDcAtvtq5HMWXCd3PbeAJevDiZ3efTnAsyFStv/5i
+	KD5/FP7h2IevCE5COHxtPFgQHLS7DziYehx0stAU1PKztaY8cXZOAl+3TSWZTdQAVd/vVJtg57m
+	5Nm+Q0Fr8sSBBg3dpMvjNCa11wI3b7KOum8ml985cC1RRScwAdg1KmS3AoIUQwW9MyeI51CptlP
+	kpIrPRNYNhDf5GM6zFXKiOG81S8HthooN2wkGtJswMGl177tdBRzIDtHgepzqGwQ73nZ2pP1CKF
+	lZdi4qKMFKchS3Resnpuo3sUpw2+OzK7VyqH2kqG0X01IYkwfzyBOhAiziCGDprOpBkVw/Y8vSK
+	Zj4H36FnI1LXnPhswJlen4eY671zJYVW3/FgEHZT2yYoCZjzH5mlq5uBFQSHji9RyAvEognzqB1
+	skoQOnS6RqV
+X-Received: by 2002:a05:620a:17aa:b0:8cf:f2ec:c52c with SMTP id af79cd13be357-9090dfffe49mr1442495885a.7.1778517422959;
+        Mon, 11 May 2026 09:37:02 -0700 (PDT)
 Received: from gourry-fedora-PF4VCD3F (pool-100-36-248-188.washdc.fios.verizon.net. [100.36.248.188])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-907b9772b87sm1059935485a.5.2026.05.11.09.26.22
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-907b87bd588sm1178556285a.29.2026.05.11.09.37.00
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 May 2026 09:26:23 -0700 (PDT)
-Date: Mon, 11 May 2026 12:26:20 -0400
+        Mon, 11 May 2026 09:37:01 -0700 (PDT)
+Date: Mon, 11 May 2026 12:36:59 -0400
 From: Gregory Price <gourry@gourry.net>
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-kernel@vger.kernel.org,
@@ -96,13 +96,12 @@ Cc: linux-kernel@vger.kernel.org,
 	Kemeng Shi <shikemeng@huaweicloud.com>,
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
-	Andrea Arcangeli <aarcange@redhat.com>,
-	"Liam R. Howlett" <liam@infradead.org>
-Subject: Re: [PATCH resend v6 13/30] mm: use __GFP_ZERO in
- vma_alloc_anon_folio_pmd
-Message-ID: <agIDLD77wTF8ZN1Y@gourry-fedora-PF4VCD3F>
+	Andrea Arcangeli <aarcange@redhat.com>
+Subject: Re: [PATCH resend v6 14/30] mm: hugetlb: use __GFP_ZERO and skip
+ zeroing for zeroed pages
+Message-ID: <agIFq63QZugkWcXJ@gourry-fedora-PF4VCD3F>
 References: <cover.1778489843.git.mst@redhat.com>
- <c8768c7c2a4965b5e2dd78680c936b82606cc034.1778489843.git.mst@redhat.com>
+ <fe1d24d4deafe0f5d1a9c51fcc040d9561c8592a.1778489843.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -111,15 +110,62 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <c8768c7c2a4965b5e2dd78680c936b82606cc034.1778489843.git.mst@redhat.com>
+In-Reply-To: <fe1d24d4deafe0f5d1a9c51fcc040d9561c8592a.1778489843.git.mst@redhat.com>
 
-On Mon, May 11, 2026 at 05:02:57AM -0400, Michael S. Tsirkin wrote:
-> Convert vma_alloc_anon_folio_pmd() to pass __GFP_ZERO instead of
-> zeroing at the callsite. post_alloc_hook uses the fault address
-> passed through vma_alloc_folio for cache-friendly zeroing.
+On Mon, May 11, 2026 at 05:03:02AM -0400, Michael S. Tsirkin wrote:
+> Convert the hugetlb fault and fallocate paths to use __GFP_ZERO.
+> For pages allocated from the buddy allocator, post_alloc_hook()
+> handles zeroing.
+> 
+> Hugetlb surplus pages need special handling because they can be
+> pre-allocated into the pool during mmap (by hugetlb_acct_memory)
+> before any page fault.  Pool pages are kept around and may need
+> zeroing long after buddy allocation, so a buddy-level zeroed
+> hint (consumed at allocation time) cannot track their state.
+> 
+> Add a bool *zeroed output parameter to alloc_hugetlb_folio()
+> so callers know whether the page needs zeroing.  Buddy-allocated
+> pages are always zeroed (zeroed by post_alloc_hook).  Pool
+> pages use a new HPG_zeroed flag to track whether the page is
+> known-zero (freshly buddy-allocated, never mapped to userspace).
+> The flag is set in alloc_surplus_hugetlb_folio() after buddy
+> allocation and cleared in free_huge_folio() when a user-mapped
+> page returns to the pool.
+> 
+> Callers that do not need zeroing (CoW, migration) pass NULL for
+> zeroed and 0 for gfp.
 > 
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > Assisted-by: Claude:claude-opus-4-6
+> Assisted-by: cursor-agent:GPT-5.4-xhigh
+> ---
+>  fs/hugetlbfs/inode.c    | 10 ++++++--
+>  include/linux/hugetlb.h |  8 +++++--
+>  mm/hugetlb.c            | 52 ++++++++++++++++++++++++++++++-----------
+>  3 files changed, 53 insertions(+), 17 deletions(-)
+> 
+> diff --git a/fs/hugetlbfs/inode.c b/fs/hugetlbfs/inode.c
+> index 8b05bec08e04..24e42cb10ade 100644
+> --- a/fs/hugetlbfs/inode.c
+> +++ b/fs/hugetlbfs/inode.c
+> @@ -810,14 +810,20 @@ static long hugetlbfs_fallocate(struct file *file, int mode, loff_t offset,
+>  		 * folios in these areas, we need to consume the reserves
+>  		 * to keep reservation accounting consistent.
+>  		 */
+> -		folio = alloc_hugetlb_folio(&pseudo_vma, addr, false);
+> +		{
+> +		bool zeroed;
+> +
+> +		folio = alloc_hugetlb_folio(&pseudo_vma, addr, false,
+> +					   __GFP_ZERO, &zeroed);
 
-Reviewed-by: Gregory Price <gourry@gourry.net>
+This feels like a very odd pattern:
 
+  1) ask for __GFP_ZERO
+  2) Have to check whether it was actually zeroed
+
+Seems like the zeroing piece should just be sunk in if you're going to
+ask for __GFP_ZERO anyway.  And in that case, maybe just `bool zero` as
+an argument, rather than GFP (to avoid future overloading of flags).
+
+~Gregory
