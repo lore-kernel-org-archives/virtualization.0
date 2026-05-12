@@ -1,69 +1,69 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A0C3274652
-	for <virtualization@lists.linux.dev>; Tue, 12 May 2026 21:05:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E1C623C1978
+	for <virtualization@lists.linux.dev>; Tue, 12 May 2026 21:05:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778619941; cv=none; b=oF49IR9vs+hvcfbG4k9HN4Jm54lKrt7A+7pUxWZhxAXhSvvU4ctKHOB9ul9NQ3kZaO6hQiiQgVwn75QxjsPO6LItDwWD4ndo/kizWHA1fpBgNtxOuxz6f8zlVZIq0SEr5hwYEBhDBpK5NwrD3sKGQuTSD/2tNMIXqpF2ENGs9mM=
+	t=1778619942; cv=none; b=rArYF0T/jvXRkvnnVKc8kpF8qYNP4TNN01+jd/ADB2DSttAH6qQ+lAusRo/kG7GjDgFjlNBHTk/T1wkkcjghS54M62IavxoQsyQQABUNUxRqZ60g/xM1k0oyy3IN3EH2reEM7fkDRiuaLKY5XmnZ+4Jk+/hg3qVYOFkDX1iSmrg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778619941; c=relaxed/simple;
-	bh=dbqodEtBSdW6l7fSNG3X+ow9g33S1jhVrQg2Ca7vU3g=;
+	s=arc-20240116; t=1778619942; c=relaxed/simple;
+	bh=ePR7uNlotrezAJookcUJ/8DLykTQxnwcGZYCYwhIa5o=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=AnKqRci8bgzbh2bCETPjSZ/YH8a3/0E5pKKfL4V+5IYKj/rL5n570FEostli7yjeFc4HDCB1kETAzj/AAZxZVtLoP7q+xrtX98x/nNgtgBVA1rWNfra3A8JAFxKeTGy3dWqOComKwhM4Tip7u6Fxfi3bxLQ8DMt+8QRP9MH0F00=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BM5RCl7m; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=FwX9ewPtnnSMtXCIMf5lbrHTo9JON3RanaiIi/fT41/mAFpctqd0sJd29TWYIf1sVEWu9pc0LBX5lBRbINyPn9wysffojaVR+uGjuwElS+hJOAxmKG0FrX6oSUBZ7G6NIkJb+777B+MNEVqPfWZIG4jeyyxTv60p17E+evhiaMY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iutyET05; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BM5RCl7m"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iutyET05"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1778619937;
+	s=mimecast20190719; t=1778619939;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=73ni6E1OiylZPcnUbU0EX/Y/PdtoGvrjv7tOovuvhS8=;
-	b=BM5RCl7m3gpNZoDhC2mlAqqWa8FzLsLsOFJugBc+3DVECwncmbPd8/PwrQO9u3IwpswD6Q
-	noZ7EQJ2dEjeoQbr9g314GziCCT6HJvC4tgaTm+OcVyEVSaBeazyjCK2UOA2Q9P2pwB2rF
-	Zv/EP01yYbX/T/gwnMgsEfZbZXSWkZA=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=uXm+f+MkYB5oL4CzdS91ST7c4wCcchxSd9UlyIAHNL0=;
+	b=iutyET05D3a2zgKfoNyzSsBbR+GKdiCBvOci2CkQtfEK8P83PMoANgtaKJfUtqLxvUV19a
+	1sE58vpbv2WrSeKWW9J0nmUdcWqxzhPKaMSi57TPeGYuAo51JCQjPPT3FMjOsTUGGLjlht
+	jkppYS21ycZhVuRNyNum0czBwOIIq7I=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-678-zzcEaa9VM7-NUdNqJlaZtw-1; Tue, 12 May 2026 17:05:33 -0400
-X-MC-Unique: zzcEaa9VM7-NUdNqJlaZtw-1
-X-Mimecast-MFC-AGG-ID: zzcEaa9VM7-NUdNqJlaZtw_1778619932
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-43ff19e54beso4179557f8f.2
-        for <virtualization@lists.linux.dev>; Tue, 12 May 2026 14:05:33 -0700 (PDT)
+ us-mta-184-XIvwFnUJM0OxdXetJY_76g-1; Tue, 12 May 2026 17:05:38 -0400
+X-MC-Unique: XIvwFnUJM0OxdXetJY_76g-1
+X-Mimecast-MFC-AGG-ID: XIvwFnUJM0OxdXetJY_76g_1778619937
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-43d7730e9e3so3818736f8f.2
+        for <virtualization@lists.linux.dev>; Tue, 12 May 2026 14:05:38 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778619932; x=1779224732;
+        d=1e100.net; s=20251104; t=1778619937; x=1779224737;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=73ni6E1OiylZPcnUbU0EX/Y/PdtoGvrjv7tOovuvhS8=;
-        b=cbTvy6C2r9z+pna8iricKqe9TBlk8UI3oyeb40zA9vtPkV3gF0gznD5/h6jVQwTsv/
-         aaVp8yOp2+bB8gVjhfbeeGKT3DovOlWR7QZniDwhu5kIOLkA+T31IbhjhykUlvNimN9i
-         zsK/JL60F6F58gy5cL4ZUNPHQBm1kETPV/NukQHEw664yfgrq56yY118tiPRElBUbCTL
-         lOMgfDmgo5/jMfTRH1BE7kxdsHeonA/kKS71u7BJeGv5ourEBfWi6YP+I/4Vd5K+IrvE
-         QGLrFw6X0dsDkJXwIa3GGc+ybqbEKLpUsWvl909wArwq/QHOpXvH1+3/RCOBdE68HcOj
-         48DQ==
-X-Forwarded-Encrypted: i=1; AFNElJ8ex07PyDYaImjBVFBcwae/gqLLOGr4+TmZDhTl8JgkqpEvvVznZyAQEBgn7OKfZneq7+Grm1kry97+MV0CTA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzhcWl4FL3a+s/3hQOmGHqLi1XLWoJ5UZ8g155nVx+HyHHiKx44
-	LHv68s4aZ0jK0rQBKbTirHDbtd7Z+m96oaE7F1XA3K+iS72DeFP61AVpfuoaP1V277UaIs70Fe/
-	iB41U3CkJtncqqYK0od9bFD1cllKgUCQfTCKtEqSh9IRNjm72uDyhAmt77ixevyTYlOwM
-X-Gm-Gg: Acq92OGnJsYwTdNR7B8cBTeNfXc9MvqmF0OpUOgf4+nelFKhhjhxc2gj0aDgnida4B4
-	MsP3VER3fBTOYAb8v/I7Tk2bg2Fh4U3nJPXhBAviczsfixc1AFNPZZoYGSHO3EBBfT3kivZvww1
-	17ex/kWNDHU7U+eKPrYhPC4oFJ6lRSiCYmVkxE3XpK+K3HzrueD74GpMkcr0NVAUx0X9RsVKwtX
-	mgTRpqfGkQlo9iaox4v9kJUSegsy6AFMsYzHC4A7O8n6J3jxLfGWyHlyL7En5/tG48xXQTEexyW
-	+jwLPItqDan3hQU2EorRbMtY8F9zyGvo+lidzXPrtguw66ihJTg55qQ33FGALrFHO78tOj9Z9xO
-	ps3OG+OtGLJJ0WwFUpAPt+xxMcE+3h0KgeAYy413R
-X-Received: by 2002:a5d:64c6:0:b0:448:659b:abec with SMTP id ffacd0b85a97d-45c580ce38cmr505592f8f.8.1778619931858;
-        Tue, 12 May 2026 14:05:31 -0700 (PDT)
-X-Received: by 2002:a5d:64c6:0:b0:448:659b:abec with SMTP id ffacd0b85a97d-45c580ce38cmr505522f8f.8.1778619931288;
-        Tue, 12 May 2026 14:05:31 -0700 (PDT)
+        bh=uXm+f+MkYB5oL4CzdS91ST7c4wCcchxSd9UlyIAHNL0=;
+        b=kt3x+xcGZv9cVKaJTw3m6W9QVIbMHR+4afY8sn4r05em3X6Q/BoS5fotQcQErAQQ+P
+         ooy8OTdkOpi4QCM+maq+fUj76tv1vzZdwLt+EOQrU2EQAtXjGb3nTDVjt6C1wqAEiSqw
+         X2jI6YZv2v2fQAwim5dLF62fmQX6RGyg6pckL98+sfuwXfCzRzAF+kG8Aa18RdMkZUa/
+         l5VoNfZgFKxvgba/LVkhcdE6XeZ2Cyl2lWs6j9WrZ3TQJEQ9hZ0OORL9UT/KglzLaJO1
+         7ELh3z8l9aJgoCyv/pDi99juAtf5oMgI3k/UPMqcXiWcL9PStvUyJAp6Eo2Vq0oPEtXt
+         H0yw==
+X-Forwarded-Encrypted: i=1; AFNElJ/YVDVnJA03pPWcr+C7pTFEr8fI7P8c9BK6VZdb5pP9CmtlhM9cmyd3aUZCvjtIBKNRy8B0lEd8jzb5lySHxg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyI6KfqkDLTSMpQvq9TTtA1L1RKQIV8YwGgSi900iOlWA9gNFD8
+	LsvZwe5a3vgwLrtybKVBo31RebdSuV0Iir5W2nGzKwEZsqEwTt63fmKAhjg+3KONbDFODMt8oL1
+	5ankouBqSW0IV1uRCpikp1axVc/dogcCYBO5+muX8aGuL7U4jRK92OlbbeEzLrwrPJHoI
+X-Gm-Gg: Acq92OF80l0Fo9Adjj49N4cQ5JZQuekCSpCV2VwoVv2CGxgBc9kHmWoSsXGcUz2H0QE
+	P+bhdqgVr+UMfQMcFxs0rqPSQEsLBz1OsJQvJOoQ3GUfgT3eMpuOpBk2UBE8f4Dfxf0V53fLW57
+	l8l6VDbypteopVX7V9m4MeODDCpcrt3g3HQ+qv+7kvr5mqaHGAxTFuNby4Hz6G2h6RRzt6Yz5JN
+	GlU3TfubZawqRht3Bza9d4snpzG1FE91Ss2AF51LNFsK+h2rfFjXaLmJ7uvjm5QCz6ODdGMgHm6
+	8n+62DdJOR7OKOI+Fgu/7vsBuo8CdtJUigx5GBGNrKhz6NOWkbepON1Fq5rW8KpYHiJlc9pFKgm
+	JpYce5vOx/WiMmtxxFQQW6a9vushlmSEddV55+i4h
+X-Received: by 2002:a05:6000:26cf:b0:45a:ff7d:9800 with SMTP id ffacd0b85a97d-45c584a868bmr548636f8f.15.1778619937182;
+        Tue, 12 May 2026 14:05:37 -0700 (PDT)
+X-Received: by 2002:a05:6000:26cf:b0:45a:ff7d:9800 with SMTP id ffacd0b85a97d-45c584a868bmr548593f8f.15.1778619936563;
+        Tue, 12 May 2026 14:05:36 -0700 (PDT)
 Received: from redhat.com (IGLD-80-230-48-7.inter.net.il. [80.230.48.7])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4548eb75c29sm34124809f8f.9.2026.05.12.14.05.27
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4548ec6aea4sm40612389f8f.10.2026.05.12.14.05.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 May 2026 14:05:30 -0700 (PDT)
-Date: Tue, 12 May 2026 17:05:26 -0400
+        Tue, 12 May 2026 14:05:36 -0700 (PDT)
+Date: Tue, 12 May 2026 17:05:31 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
@@ -102,8 +102,8 @@ Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
 	Andrea Arcangeli <aarcange@redhat.com>
-Subject: [PATCH v7 04/31] mm: hugetlb: remove dead alloc_hugetlb_folio stub
-Message-ID: <0143c5e2086fccb05703500c9269a899d4784768.1778616612.git.mst@redhat.com>
+Subject: [PATCH v7 05/31] mm: move vma_alloc_folio_noprof to page_alloc.c
+Message-ID: <17711d281fa0cb9751da2c856e693e9da6d1efa9.1778616612.git.mst@redhat.com>
 References: <cover.1778616612.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -115,50 +115,161 @@ In-Reply-To: <cover.1778616612.git.mst@redhat.com>
 X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
 X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: fmKbPqO54AAdWqjYdt4I-F2MoT44KXuI-1S-NmffVDA_1778619932
+X-Mimecast-MFC-PROC-ID: w-HSzBQ4K1HpgUB1BoYepQnA1cBxa1T1LjA2AASKab8_1778619937
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Remove the !CONFIG_HUGETLB_PAGE stub for alloc_hugetlb_folio().
+Move vma_alloc_folio_noprof() from an inline in gfp.h (for !NUMA)
+and mempolicy.c (for NUMA) to page_alloc.c.
 
-The stub is dead code: all callers are in mm/hugetlb.c
-(CONFIG_HUGETLB_PAGE) or fs/hugetlbfs/inode.c (CONFIG_HUGETLBFS),
-and CONFIG_HUGETLB_PAGE is def_bool HUGETLBFS with nothing
-selecting it independently.
+This prepares for a subsequent patch that will thread user_addr
+through the allocator: having vma_alloc_folio_noprof in page_alloc.c
+means user_addr can be passed to the internal allocation path
+without changing public API signatures or duplicating plumbing
+in both gfp.h and mempolicy.c.
 
-The stub is also broken: it returns NULL, but all callers check
-IS_ERR(folio), so a NULL return would not be caught and would
-crash on the subsequent folio dereference.
-
-Remove it now since follow-up patches change the signature of
-alloc_hugetlb_folio and would otherwise need to update the
-broken stub too.
+The !NUMA path gains the VM_DROPPABLE -> __GFP_NOWARN check
+that the NUMA path already had.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Assisted-by: Claude:claude-opus-4-6
+Assisted-by: cursor-agent:GPT-5.4-xhigh
 ---
- include/linux/hugetlb.h | 7 -------
- 1 file changed, 7 deletions(-)
+ include/linux/gfp.h |  9 ++-------
+ mm/mempolicy.c      | 32 --------------------------------
+ mm/page_alloc.c     | 43 +++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 45 insertions(+), 39 deletions(-)
 
-diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
-index 93418625d3c5..f016bc2e8936 100644
---- a/include/linux/hugetlb.h
-+++ b/include/linux/hugetlb.h
-@@ -1129,13 +1129,6 @@ static inline void wait_for_freed_hugetlb_folios(void)
+diff --git a/include/linux/gfp.h b/include/linux/gfp.h
+index 51ef13ed756e..7ccbda35b9ad 100644
+--- a/include/linux/gfp.h
++++ b/include/linux/gfp.h
+@@ -318,13 +318,13 @@ static inline struct page *alloc_pages_node_noprof(int nid, gfp_t gfp_mask,
+ 
+ #define  alloc_pages_node(...)			alloc_hooks(alloc_pages_node_noprof(__VA_ARGS__))
+ 
++struct folio *vma_alloc_folio_noprof(gfp_t gfp, int order,
++		struct vm_area_struct *vma, unsigned long addr);
+ #ifdef CONFIG_NUMA
+ struct page *alloc_pages_noprof(gfp_t gfp, unsigned int order);
+ struct folio *folio_alloc_noprof(gfp_t gfp, unsigned int order);
+ struct folio *folio_alloc_mpol_noprof(gfp_t gfp, unsigned int order,
+ 		struct mempolicy *mpol, pgoff_t ilx, int nid);
+-struct folio *vma_alloc_folio_noprof(gfp_t gfp, int order, struct vm_area_struct *vma,
+-		unsigned long addr);
+ #else
+ static inline struct page *alloc_pages_noprof(gfp_t gfp_mask, unsigned int order)
  {
+@@ -339,11 +339,6 @@ static inline struct folio *folio_alloc_mpol_noprof(gfp_t gfp, unsigned int orde
+ {
+ 	return folio_alloc_noprof(gfp, order);
+ }
+-static inline struct folio *vma_alloc_folio_noprof(gfp_t gfp, int order,
+-		struct vm_area_struct *vma, unsigned long addr)
+-{
+-	return folio_alloc_noprof(gfp, order);
+-}
+ #endif
+ 
+ #define alloc_pages(...)			alloc_hooks(alloc_pages_noprof(__VA_ARGS__))
+diff --git a/mm/mempolicy.c b/mm/mempolicy.c
+index b2c21ed1fd84..39e556e3d263 100644
+--- a/mm/mempolicy.c
++++ b/mm/mempolicy.c
+@@ -2516,38 +2516,6 @@ struct folio *folio_alloc_mpol_noprof(gfp_t gfp, unsigned int order,
+ 	return page_rmappable_folio(page);
  }
  
--static inline struct folio *alloc_hugetlb_folio(struct vm_area_struct *vma,
--					   unsigned long addr,
--					   bool cow_from_owner)
+-/**
+- * vma_alloc_folio - Allocate a folio for a VMA.
+- * @gfp: GFP flags.
+- * @order: Order of the folio.
+- * @vma: Pointer to VMA.
+- * @addr: Virtual address of the allocation.  Must be inside @vma.
+- *
+- * Allocate a folio for a specific address in @vma, using the appropriate
+- * NUMA policy.  The caller must hold the mmap_lock of the mm_struct of the
+- * VMA to prevent it from going away.  Should be used for all allocations
+- * for folios that will be mapped into user space, excepting hugetlbfs, and
+- * excepting where direct use of folio_alloc_mpol() is more appropriate.
+- *
+- * Return: The folio on success or NULL if allocation fails.
+- */
+-struct folio *vma_alloc_folio_noprof(gfp_t gfp, int order, struct vm_area_struct *vma,
+-		unsigned long addr)
 -{
--	return NULL;
--}
+-	struct mempolicy *pol;
+-	pgoff_t ilx;
+-	struct folio *folio;
 -
- static inline struct folio *
- alloc_hugetlb_folio_reserve(struct hstate *h, int preferred_nid,
- 			    nodemask_t *nmask, gfp_t gfp_mask)
+-	if (vma->vm_flags & VM_DROPPABLE)
+-		gfp |= __GFP_NOWARN;
+-
+-	pol = get_vma_policy(vma, addr, order, &ilx);
+-	folio = folio_alloc_mpol_noprof(gfp, order, pol, ilx, numa_node_id());
+-	mpol_cond_put(pol);
+-	return folio;
+-}
+-EXPORT_SYMBOL(vma_alloc_folio_noprof);
+-
+ struct page *alloc_frozen_pages_noprof(gfp_t gfp, unsigned order)
+ {
+ 	struct mempolicy *pol = &default_policy;
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index e40fd39acbd0..4c5610b45de5 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -5285,6 +5285,49 @@ struct folio *__folio_alloc_noprof(gfp_t gfp, unsigned int order, int preferred_
+ }
+ EXPORT_SYMBOL(__folio_alloc_noprof);
+ 
++#ifdef CONFIG_NUMA
++/**
++ * vma_alloc_folio - Allocate a folio for a VMA.
++ * @gfp: GFP flags.
++ * @order: Order of the folio.
++ * @vma: Pointer to VMA.
++ * @addr: Virtual address of the allocation.  Must be inside @vma.
++ *
++ * Allocate a folio for a specific address in @vma, using the appropriate
++ * NUMA policy.  The caller must hold the mmap_lock of the mm_struct of the
++ * VMA to prevent it from going away.  Should be used for all allocations
++ * for folios that will be mapped into user space, excepting hugetlbfs, and
++ * excepting where direct use of folio_alloc_mpol() is more appropriate.
++ *
++ * Return: The folio on success or NULL if allocation fails.
++ */
++struct folio *vma_alloc_folio_noprof(gfp_t gfp, int order,
++		struct vm_area_struct *vma, unsigned long addr)
++{
++	struct mempolicy *pol;
++	pgoff_t ilx;
++	struct folio *folio;
++
++	if (vma->vm_flags & VM_DROPPABLE)
++		gfp |= __GFP_NOWARN;
++
++	pol = get_vma_policy(vma, addr, order, &ilx);
++	folio = folio_alloc_mpol_noprof(gfp, order, pol, ilx, numa_node_id());
++	mpol_cond_put(pol);
++	return folio;
++}
++#else
++struct folio *vma_alloc_folio_noprof(gfp_t gfp, int order,
++		struct vm_area_struct *vma, unsigned long addr)
++{
++	if (vma->vm_flags & VM_DROPPABLE)
++		gfp |= __GFP_NOWARN;
++
++	return folio_alloc_noprof(gfp, order);
++}
++#endif
++EXPORT_SYMBOL(vma_alloc_folio_noprof);
++
+ /*
+  * Common helper functions. Never use with __GFP_HIGHMEM because the returned
+  * address cannot represent highmem pages. Use alloc_pages and then kmap if
 -- 
 MST
 
