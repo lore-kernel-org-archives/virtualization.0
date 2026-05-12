@@ -1,64 +1,64 @@
-Received: from mail-qv1-f48.google.com (mail-qv1-f48.google.com [209.85.219.48])
+Received: from mail-qk1-f171.google.com (mail-qk1-f171.google.com [209.85.222.171])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3DA743C2BB4
-	for <virtualization@lists.linux.dev>; Tue, 12 May 2026 15:56:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.48
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF1FE3B813E
+	for <virtualization@lists.linux.dev>; Tue, 12 May 2026 15:58:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778601367; cv=none; b=bvkcZRNqpQLALoORpKpUxA9OcmlSLFtKpi/fOgTLMflzD5/yVF25XrpNJknOrAhdqC9NDZ87KqN85kKuo8yjjczfpiqSeTWJvvvOMgHuRgAELygRwgYRz1LJ1eKzL1M5GQaJ9oltyIiuUK5G2Jr4EHpTfLBi5AcB6xABS2/rTro=
+	t=1778601504; cv=none; b=oh+tF5q13eVznrAmH2u4fnm1acmWWa/5x+Yk+9c7WmFb80hMJAzFAkpU9a69/vMtbZmbS0mcBs/oCx8D1tSX2R04K6gHXzZYZth3cUuAAKARRfLPqp5Y5zeRTv90pAIwJ+14v7BPrTmogiHgs247T4qKF2c4dTzpOHfzAr24Ndc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778601367; c=relaxed/simple;
-	bh=1EQ6J44yYhZWgn/zkYAncpsUX5MIcPYdUQgdHICoVmY=;
+	s=arc-20240116; t=1778601504; c=relaxed/simple;
+	bh=NzD4h2kSUF+6CRseCSre92wX0gOpPLHk9AG9LuS8TK4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RBck2hxOZxogWSu3xnJtdLKY9QuYvKEK9ycA6wNqgkNnA13VgDTTP5iHLo2IXhXR6n2wJBaf3qUTmNAi9FgItny0RnJDkX5RWypTHsAibeYBWLW1/P6b4FQA29nhv1z5Py2iF1p4EYKqL4iZ2K0N0YU0c6jClkBIVVhXL0f8MoE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=BJiSxcEG; arc=none smtp.client-ip=209.85.219.48
+	 Content-Type:Content-Disposition:In-Reply-To; b=UkQqA1KZ+4PXX6E5o9Byie64tmIXRuzznHLQ/9oJukylG7pM3fyhujEb5N2mO2pF/O2x4MBRMqvG+EqXggKVrQ01tUQmvfuQD2id0OrMErxGXM/9Uk97kdYjSG9GEblZTRTH7b1THVAfsZFdIKdVUj9n4gfN7dEM17pRIj6SSOA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=H3uYFwo/; arc=none smtp.client-ip=209.85.222.171
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="BJiSxcEG"
-Received: by mail-qv1-f48.google.com with SMTP id 6a1803df08f44-8b98482b253so77227536d6.1
-        for <virtualization@lists.linux.dev>; Tue, 12 May 2026 08:56:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="H3uYFwo/"
+Received: by mail-qk1-f171.google.com with SMTP id af79cd13be357-8d4f78fc9f6so579579885a.3
+        for <virtualization@lists.linux.dev>; Tue, 12 May 2026 08:58:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1778601365; x=1779206165; darn=lists.linux.dev;
+        d=gourry.net; s=google; t=1778601501; x=1779206301; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Su8Okdv9QVtgiODRxP6QoL4RhbVAvigNNa5QAGhM4ag=;
-        b=BJiSxcEGOdClzNAUxqrO7RjdSknRfPqzl2G9oFH1BUIm+/JXLQdXI1PhE78pOgRa+x
-         RgtAJxzvpsaYC8xqtgwczIiKTQhNdRI9tu0IGKRGfrXHOjhpxW+8JTsOLkQXZ0bMHFaq
-         RXEiCMvC7hRTU2bpH8u9/+riXvBj2Da725BKlF15/qvGc3jG+59geXvnfigDAXJmKP2a
-         IH0VbVQCY0qeyjqdE03Tz5tTGv/pOFVbEBc556TxxMaW8mVjxVRNEtU6zlx/PrcmR8Da
-         FzLNUAlXd1RgAX1jL5wb+GteQQF3uRH9ucTo8zQrI09zu8n6iLl9P4kHlKxLKonl13D/
-         HC1A==
+        bh=fEDDU+f7CbkQFEw8YKAGo16eQTvjIgO+nLY/Z+AdBuk=;
+        b=H3uYFwo/lgmUyyUtek3NPLc6LbOMmyjfRk0EPYSsZvjEX/OltY5hyunGRYIMmdu+wX
+         k4r05NThnlGIz4bwkJAStqMdYr+KJA/9+BhTGFcpJJkKlaV1Yt2Ds/YrjRy3LF2XUpFZ
+         t6Smr3tKAZoBfmPCpuw2q39U6ybuTGqU5+nYAq9gn/CtBtsxNAHJwr6LqVztFY7P2mcX
+         1GytKrrZF+MdHkIzFRQ2zHznSZvBq2eTtnFSGYyb09OttqOq7C1no3lJGkYU9+joEk/4
+         jbN5q5JS8bFVHdbDY489CS9nVkPH7WbNUGMaVY1qvHr1BTDa466+1YndIuwyIp4azTfB
+         BOEw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778601365; x=1779206165;
+        d=1e100.net; s=20251104; t=1778601501; x=1779206301;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Su8Okdv9QVtgiODRxP6QoL4RhbVAvigNNa5QAGhM4ag=;
-        b=AtrsJr09qzpK9gXvHZuYd/a7YATOluSjEtvJgpXI4GBlku9bezIEHKLc8pU2pPc+1o
-         FLP0yeGaibtUKjDzYPC03JsrCkQIimYLEZP5tDnSJc9EnmqMif9wpEEbkeWWgloqZt0F
-         H1uIDJcCDq4c1GqCzOBZzq4c6hYaeli6lgxa803i6jv5WsEpSwxA1cnrgO+25DkqePXV
-         yU9xvuYal8FXX74Oda4AsXCSLO4D9mJx5Tl/GjlVIhHnpHpdbVTUBSGMKbNJWPhAMkwn
-         3pexHEy3jLQCLZZpBfsoHdctTVeXEse3NE/WX4pPk0ZZ3//+vRcciztCZ69a7yDcMREb
-         LBgA==
-X-Forwarded-Encrypted: i=1; AFNElJ8JW0cGfG7y50fGLjOmmTFgYUH7ZoCcNLNV+qSlzIN90HfuT3VkP560mZ7txa1MmP0NxE8SspIxrbNj8i2yOQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw2ql0dOeoAbaTdoWQX1VPK08FXVxTORuSyaNp+c02WEADmY/Gk
-	gbjKAWpuNTvyGssSbPAJ4upSibpWJvH7vLEy4/ucN7CghxmNtzvFppppWyWjNUbg9pI=
-X-Gm-Gg: Acq92OFAD+c7zDDSF9qelcLSAo+5/31YucngBvQ6sf0CXMgSw5menn1FazASMa7LEqa
-	5pW3H70UVfdGv5VL/A6ScgTRPQWZV9L+If5JShqOhAdDag3fb2Nt2IWUQBg2k5Dy9hk+lUpdDq1
-	16zLst6tbsS/8ArcgorqHa1m09Of0mH1to0Xt4gJ8OknMrq0EvWoUCLQ8W7TDoSIEyAU7IEEmsZ
-	6nW4LdUYLlEhSJZbfoCgAUFAl+ni10MYaDOf8Ggt0edap/Nn3qRf3HSNmACRNGCFoifKreEt25y
-	qfj17zWah2sy9D04snLinnTm2C7xWjRCJZuLf5/D6vWHq0z0E0HrzBMhVxTC7L48wejp0r+bsd0
-	tHKpJA/GJ3cRR9IuRbJ4d6y6D1COuowx+UBgmfnIfNryYcuuR5ZkKgWURT/yJ9famY38V4ZOFVX
-	mwQZx4ynS791tZQjNVxJD0y6etDYMTEjmUPlBjVYm0o/u1hnkgacRFX43Y28XO9MbRkJHDCDmC8
-	0qPGMBDUJ4Q
-X-Received: by 2002:a05:6214:319a:b0:8b0:2017:958e with SMTP id 6a1803df08f44-8c6614dec3cmr60146186d6.13.1778601365090;
-        Tue, 12 May 2026 08:56:05 -0700 (PDT)
+        bh=fEDDU+f7CbkQFEw8YKAGo16eQTvjIgO+nLY/Z+AdBuk=;
+        b=OlfJTA5hVMh57l/9U7TAyHaShzGbYDn7AZcub3m4VZxbB0QJWiAYVY3n/8lgaGFM7C
+         xo26XTVAV6I5UobILYt7nFSfjHqTsEPTFHMg+EMkA2ByuPrZZq2vMflYIbexzAZCLEH5
+         2WnJt6xaMCUUvxB3ygEbfc8/nsonK4qltbIDCCseRjaTbzwyG+syO9Sr2qNLIjVcpOOX
+         9KBWszQQGb6t9YAvI1joD9Syb7c0rJcvvfj5RiF/wemzKeiBLea5WY4CgHOektzBHiX2
+         XByagG9vLsofAHFaQu8WJhp7xrpxo2iD1S3/Qr7lBUk4dGXN0+nCwkHoGW2L4Q2nvxfG
+         zFZQ==
+X-Forwarded-Encrypted: i=1; AFNElJ9SK1YkGv05M1bZVDdpypN2rA4w0QN4lnMKAf95Iw5cLbh9+OGQdsi6z023kUN7Qt9IJ0eCjmP1+Ac/LjAAyw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyvocEaM/wE6JHvEIH/3EFoYSRX/yVJdLL1pnfu/AUHJT5xZntU
+	EfKSHQzCUSOVc4HJX6VZMAHHlfGSR/XsAXBmuHpNzCjiVpGsj/7LLK9lTqa5Gj684c4=
+X-Gm-Gg: Acq92OEmDrQuutH/f9Bc3OFnSxgUA8Os3fgYSrMm7AaD8+4DQSMZTKu40yS8sfGHT8u
+	U7PhxsYc9YWDoNHbrL1Pwab0hhz2gq7EFEnKRJ9Vq1MDNIcX9TF2D8AtDgooALMBPeh8X8zn9Zy
+	B/BZRIsEEYtt3MhzMQ+pEakfsFdawQf7LOlsNt7BlAiTowxOiNoS76Ypn92XTvtdSp/aigITL2z
+	SYh/3ixKFioB6OOIxnJgdf+mRv3+CMWK9FaBaD4XV45cj+ElPDonSIvNArO0jhGY7XXpGsYqw40
+	oZFL3QrvJayLQ+3o2uqwpxBrPWEWMYNwSRtGaOyb7oBuDxUxxf+VCGH7ZVmaAsjJZbHLXlc+0gd
+	V9fyc1JOPuOcSVI66oJ6aOrPKlDguOsuaKyvN/IBd+FANIM2x1u/i+o69EetuymSJu6h3rArfyA
+	abm3D7ZygTJ3fC+IbmgDepb2cMeum3pf9Loxu54tTE+TBc5cz7Z35/Amjq8GM+EtByX6lqYqhen
+	SQ7G8FAAAzw
+X-Received: by 2002:a05:620a:46a5:b0:8cf:d6f8:599f with SMTP id af79cd13be357-90cffa5b9a3mr483433885a.57.1778601500616;
+        Tue, 12 May 2026 08:58:20 -0700 (PDT)
 Received: from gourry-fedora-PF4VCD3F (pool-100-36-248-188.washdc.fios.verizon.net. [100.36.248.188])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8bf3a438e3csm129340316d6.19.2026.05.12.08.56.03
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-907b8e9b24asm1421777085a.18.2026.05.12.08.58.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 May 2026 08:56:04 -0700 (PDT)
-Date: Tue, 12 May 2026 11:56:02 -0400
+        Tue, 12 May 2026 08:58:19 -0700 (PDT)
+Date: Tue, 12 May 2026 11:58:17 -0400
 From: Gregory Price <gourry@gourry.net>
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-kernel@vger.kernel.org,
@@ -97,11 +97,11 @@ Cc: linux-kernel@vger.kernel.org,
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
 	Andrea Arcangeli <aarcange@redhat.com>
-Subject: Re: [PATCH resend v6 20/30] mm: page_alloc: clear PG_zeroed on buddy
- merge if not both zero
-Message-ID: <agNNkvRK128bYhrf@gourry-fedora-PF4VCD3F>
+Subject: Re: [PATCH resend v6 21/30] mm: page_alloc: preserve PG_zeroed in
+ page_del_and_expand
+Message-ID: <agNOGSyndMSU33WO@gourry-fedora-PF4VCD3F>
 References: <cover.1778489843.git.mst@redhat.com>
- <a09c1848702368c3545b980c17101b5185ab774d.1778489843.git.mst@redhat.com>
+ <57d30ce615c23d3f3737e38d300f4613b3ebadbc.1778489843.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -110,42 +110,75 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <a09c1848702368c3545b980c17101b5185ab774d.1778489843.git.mst@redhat.com>
+In-Reply-To: <57d30ce615c23d3f3737e38d300f4613b3ebadbc.1778489843.git.mst@redhat.com>
 
-On Mon, May 11, 2026 at 05:03:35AM -0400, Michael S. Tsirkin wrote:
-> When two buddy pages merge in __free_one_page(), preserve
-> PG_zeroed on the merged page only if both buddies have the
-> flag set.  Otherwise clear it.
-> 
-> The merged page would inherit PG_zeroed, and a later __GFP_ZERO
-> allocation would skip zeroing stale data in the non-zero half.
+On Mon, May 11, 2026 at 05:03:41AM -0400, Michael S. Tsirkin wrote:
+> Propagate PG_zeroed through buddy splits in page_del_and_expand()
+> and try_to_claim_block().  When a zeroed high-order page is split
+> to satisfy a smaller allocation, the sub-pages placed back on the
+> free lists keep PG_zeroed.
 > 
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > Assisted-by: Claude:claude-opus-4-6
 > Assisted-by: cursor-agent:GPT-5.4-xhigh
+
+Reviewed-by: Gregory Price <gourry@gourry.net>
+
 > ---
->  mm/page_alloc.c | 15 ++++++++++++++-
->  1 file changed, 14 insertions(+), 1 deletion(-)
+>  mm/page_alloc.c | 12 +++++++++---
+>  1 file changed, 9 insertions(+), 3 deletions(-)
 > 
 > diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> index bd3b909cacdf..d70c9ba6b329 100644
+> index d70c9ba6b329..468e8bde7d34 100644
 > --- a/mm/page_alloc.c
 > +++ b/mm/page_alloc.c
-> @@ -940,10 +940,14 @@ static inline void __free_one_page(struct page *page,
->  	unsigned long buddy_pfn = 0;
->  	unsigned long combined_pfn;
->  	struct page *buddy;
-> +	bool buddy_zeroed;
-> +	bool page_zeroed;
-
-If you want to play some code golf, i think you can get away with a
-single bool here:
-
-    bool zeroed;
-    zeroed = PageZeroed(buddy);
-    zeroed &= PageZeroed(page);
-
-    if (zeroed)
-        __SetPageZeroed(page);
-
-~Gregory
+> @@ -1712,7 +1712,8 @@ struct page *__pageblock_pfn_to_page(unsigned long start_pfn,
+>   * -- nyc
+>   */
+>  static inline unsigned int expand(struct zone *zone, struct page *page, int low,
+> -				  int high, int migratetype, bool reported)
+> +				  int high, int migratetype, bool reported,
+> +				  bool zeroed)
+>  {
+>  	unsigned int size = 1 << high;
+>  	unsigned int nr_added = 0;
+> @@ -1743,6 +1744,8 @@ static inline unsigned int expand(struct zone *zone, struct page *page, int low,
+>  		 */
+>  		if (reported)
+>  			__SetPageReported(&page[size]);
+> +		if (zeroed)
+> +			__SetPageZeroed(&page[size]);
+>  	}
+>  
+>  	return nr_added;
+> @@ -1754,10 +1757,12 @@ static __always_inline void page_del_and_expand(struct zone *zone,
+>  {
+>  	int nr_pages = 1 << high;
+>  	bool was_reported = page_reported(page);
+> +	bool was_zeroed = PageZeroed(page);
+>  
+>  	__del_page_from_free_list(page, zone, high, migratetype);
+>  
+> -	nr_pages -= expand(zone, page, low, high, migratetype, was_reported);
+> +	nr_pages -= expand(zone, page, low, high, migratetype, was_reported,
+> +			   was_zeroed);
+>  	account_freepages(zone, -nr_pages, migratetype);
+>  }
+>  
+> @@ -2335,11 +2340,12 @@ try_to_claim_block(struct zone *zone, struct page *page,
+>  	if (current_order >= pageblock_order) {
+>  		unsigned int nr_added;
+>  		bool was_reported = page_reported(page);
+> +		bool was_zeroed = PageZeroed(page);
+>  
+>  		del_page_from_free_list(page, zone, current_order, block_type);
+>  		change_pageblock_range(page, current_order, start_type);
+>  		nr_added = expand(zone, page, order, current_order, start_type,
+> -				  was_reported);
+> +				  was_reported, was_zeroed);
+>  		account_freepages(zone, nr_added, start_type);
+>  		return page;
+>  	}
+> -- 
+> MST
+> 
