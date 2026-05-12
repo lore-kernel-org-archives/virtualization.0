@@ -1,242 +1,218 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f178.google.com (mail-qk1-f178.google.com [209.85.222.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4989E3C81A9
-	for <virtualization@lists.linux.dev>; Tue, 12 May 2026 16:02:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9488F3B8407
+	for <virtualization@lists.linux.dev>; Tue, 12 May 2026 16:06:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778601732; cv=none; b=cnlYT72C40wguCkAKWglr/lxe94c6jmKcShXq933esxlsVSDX9aXGLPw4pY9cRsGBuj3n8x0CYf61lXYuz9DqzVPpoWFQZNfOa2t7J68wEmWFl6RxttHGoz2V2cKB3ea2kOzwWKD9gqGRc+Qv+Qloe4/x5HbwqXNEJ7f+Gr6tS8=
+	t=1778601962; cv=none; b=syFH0IDY+5UElII11yEHyHTPRzzlcZsEH0YnqolaUmZgoYDijuBbAy4R6rHltmB9F9RLBLqZr7crHFlht2iS4FIvuUzZf7GenEJdLhrX+sZAxtRTMaXFfv2wS/lLB9JL5c7B+AiyU/sdJ7LaBlw3NdTQW3opVTqRB8Was3S3Z9U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778601732; c=relaxed/simple;
-	bh=vWr9cfyQCOSfH7IJmIj+myZeDwfb59BivVN4VpsvMRA=;
+	s=arc-20240116; t=1778601962; c=relaxed/simple;
+	bh=Yi6Rp7UIARB3eBJI/atclf4lpHati2LJs9UFypZbkaQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=B5hrilVxOJlOHw/yEprpXwd057v3L4qKMFpmi9m0BJXLq3YWIEwBrFUrzd6E3yjK2dqeiUTdy76h9jhplz44ioiB+RjEHh3K4BiGlBTI0dFeKsF6XbGoNB1KEhazDzV9W1uXSW9FyT6o5AU4B6aAC26bkL+XwhKrhoL/80Dgv+s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BvEOKVK7; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=ThwaHBtbt4QXHT6NhRkOqFLuXUbJif0FF9VZgxf+tPWPWexsbQn2PHFIuOJq7GM3g0ZrdCWGrLwevjQtVoZXCJf3paHqwrUvMRBScAL3cmzpH/byyi5OSs6U4Wz5xJvxYsY3g5t5T59qf6BU/bUZ/QIEcCaH1xD4dWTptVUMZDA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=S85VesGK; arc=none smtp.client-ip=209.85.222.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BvEOKVK7"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1778601730;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=FIUiJKhl00kL6+7DmOinctS+OWNE7gekD3egzsDj+sI=;
-	b=BvEOKVK77kFv+y+Pw798HkuBhyHGT5BMinQ0Bpfcs4nCNkvddBWUBrFWz4WB1s/HbUaLkc
-	ILkuXXaapO+9WDzUwB5vuw70dwuNSxUBMr2QHf7P+6xA39AueN7VmHcoCJ8fuk+qe1WMiC
-	6ext2djKmcGS9SjsBxX6VusNEjS4nEg=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-648-fC3g_QmFOfSeb7WjqKArfw-1; Tue, 12 May 2026 12:02:07 -0400
-X-MC-Unique: fC3g_QmFOfSeb7WjqKArfw-1
-X-Mimecast-MFC-AGG-ID: fC3g_QmFOfSeb7WjqKArfw_1778601727
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-44f56d5523eso4681606f8f.1
-        for <virtualization@lists.linux.dev>; Tue, 12 May 2026 09:02:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="S85VesGK"
+Received: by mail-qk1-f178.google.com with SMTP id af79cd13be357-8ef2118b478so586559485a.0
+        for <virtualization@lists.linux.dev>; Tue, 12 May 2026 09:06:00 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gourry.net; s=google; t=1778601959; x=1779206759; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=vN4J9MHI2MOI8oQ+XLl0/GT7idJevwCHKcj7tn/iahY=;
+        b=S85VesGKvydPY08iKvuqAnseqIjCR1STB94gaTxuc/iOJLI26XLcKFEMGhTZUa1Srn
+         iYUZZMWXO3esWMPBpd0r7HmQB4eNVYYq9wI3pXF8YzRsvniN8s4hr12LU0p8Pu5Zk4cN
+         mjykmKAQIXoeYPsKtCKKRib7zV1Sn5qxG+NkYCZFeJtZMoKrVMa1uWebCKWhOb2mVZrp
+         TxhK8gHKx26zxrEmZo+E+IKyF9CaFMUm4AJx+Jo72ARfabXVB+oAnmgsdM2DRWopEqu/
+         GBVWb95VoqMkZMh7pJu1WTPbABtzv9MpezMkoCy7qqtP0LfpVOsapGAPb/u4Cv+YKg2D
+         3svA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778601726; x=1779206526;
+        d=1e100.net; s=20251104; t=1778601959; x=1779206759;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=FIUiJKhl00kL6+7DmOinctS+OWNE7gekD3egzsDj+sI=;
-        b=HnV5VSgD4FZlNXqOPE8SZ5gFmraTtOKOS8Fw25+jEzs49AQMiyTK1Bp2eEBYSHyQle
-         zEb4HOmsYTunD8yj5suc73JfvifvQ8Muq36R/1p2+Q9P9/sRx5e1ZYBr/TF5rNrzXAAj
-         F/SalNROC4chhwvZ/0YMBSvXgVVcVBXql4qQtZvWUK4DTUVrhce12Ne8h2qonxMRGHTD
-         TlbnQtuaXrwXHtrUoBzHnXTsgLYIJSQ9bVOKM/Vv2pKazGN0sDdI+WaaTvCvTOkjcog5
-         RDrKnDeMZ6INm8ttjdBZ3jvRnXbzZ2RsX51xHIjx9+A+CE/za8ntSnfOrb7N0ARF9P+d
-         fbnA==
-X-Forwarded-Encrypted: i=1; AFNElJ8gjqfXposhp9msGSA9Vi5idkMULpPaXM/oRn+8RpMjYnUk/v4oP4gtVhcj9cSdT9shtao+xhbD0Ue/HMkszA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwU4hul+o6wpMtVSe9zJCbiNGV2xLsd362EY6sdE1ol4UZBe381
-	oCPYlm7fz6+nQvHnwFdihLSHps6wtP01t5O3VobiGw12oSMuxBoN4BTCuHCls5A7jku72BPZzX7
-	VFMa7ZGUPacTcLkCJRajtMum3bEeVR/uteLisKNThdGYBNuvCNxcS8m3maQcy/Kb4i21g
-X-Gm-Gg: Acq92OHroWuyMBjgPMxvPay/uJL+VvCmt9k2Iwevo8cwqDPTyfL+ZCB3wsqYOkIgkHf
-	YBuIEUypsKHTr6GahTeY3iL4ew9Th3FgniFXUko0nfzluBHOKiew5R1MYA6SQ7ymMmBAzNL3AwO
-	c1eLH4Owcti0AzZVyX1FUHz7Zbg6wsgpd93HwMlTVJD9lJTJPUBJtPXrSQ9ib9wklEruifjHnIK
-	+k/Np2F1F3nWVwIk7LPEwYZpWYNuZrQKyhkGNQm4b0zBJcrNuKJaIUXK3b21VaFn8bVRUf+4HmW
-	JQ7HFa2fj6K0eHgEpv8NXUooIutrS2zPdgAs94OhQPOXw+mqox7cIBe8Et1MS+da/jvm0DWUb71
-	gfyG5QSRjIR7TuT2/ucU39yK/ULo+CrC95C458k7W
-X-Received: by 2002:a05:600c:444f:b0:488:9439:880d with SMTP id 5b1f17b1804b1-48e8fe84e0bmr59315705e9.29.1778601726349;
-        Tue, 12 May 2026 09:02:06 -0700 (PDT)
-X-Received: by 2002:a05:600c:444f:b0:488:9439:880d with SMTP id 5b1f17b1804b1-48e8fe84e0bmr59313645e9.29.1778601724684;
-        Tue, 12 May 2026 09:02:04 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-48-7.inter.net.il. [80.230.48.7])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48e8e64385bsm22758065e9.12.2026.05.12.09.02.02
+        bh=vN4J9MHI2MOI8oQ+XLl0/GT7idJevwCHKcj7tn/iahY=;
+        b=GLy59/WYh+FFBM65sSQF1Dat1ZssnpnTzsj8FdjBpCWh4iR90L4c0PHk92LH/bZThz
+         RczPtGWkxKyOxcuxQ+6T5fGItoZ1AQ3x31MfJ/v0g5+/dsn2XeYZWeoNeXhZwZOIHAXE
+         oGxlyTzIfXs+Dcug4cPZRO/qipY6hdcByX5gFOVPRrJqH/SJy8vpHhX03m1A0QKW55xS
+         LHlW2ansBZuI0GwsdK5FBHx7JHjpZjWiDOaOwGlcK9yUXxSD0b13VF8H1hEEMrQmr2Lh
+         AJPMQdehPIXYtLfQDxvuwcszDkyjrij7Lnn/iI+9FzyvP4BZG2gMuD/l/lYqW4ITeomT
+         tS+A==
+X-Forwarded-Encrypted: i=1; AFNElJ/M5Zk3o45+R6WgyLlYfPuPSYhFbJ4KCNmIgytEsnH0G9ZKypwlPaWIxKxImUKPIEaOtbzUbB9rA02x4/hWGw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyVmHk2e/2BBpwuQAtJnl/vInfuCJvemuIlJG/GqLpqIY0/E1u9
+	luSC/3SMm8pEPN70KWcyZDd+BCvmJ4OY4mCoFzv3jUJuX1XZYSV8sfp3HH3v1G7FlvY=
+X-Gm-Gg: Acq92OFm/MXN4nSHk0nM6tMB0/1LS/YTjdETewblvuYJXbA+KLhQa8TMVwwDBSK2WxW
+	0irGvtpkPQR89F2sManpThudlgS2QkEqatx4i1SWxRxS8TnKLgrkFq2oIOkNvMjgMBH32H45EZE
+	YZGJrN4bIx2JtOB4Qjme9/lKc5IcBQyUyjP14PClICcHck2/F+h+US1arvoW+kVJiWkqC4jm1Cr
+	urUYlGvVuYjKQMhZ47dEsB3Bqbo9hVL1NNC2Wjrq1ZwPKYp8ZlD0PyJfusACNbU925xf7mu8C+d
+	2n/uYt0faSwC6KVLXl+Hh92lg6oi4R0WohCechqPYs9urc8DyQBcUG7YLea/qF4OdaXQPGs/Sxh
+	iw6iab7qMhsFYNVm013q96CrK2i+cmq4wC18nFKh7YXn2mnh1EyallnlhsxPGR7KmjUX5455shz
+	fGSzblQrcl7rBWu3Uc3hFzt2FrtE5WgZu4ElYReIuBVKFGK03tjjEyMBaAHs5gTOZ9TZa1AAUOc
+	cqcJbrOdAkv
+X-Received: by 2002:a05:620a:2584:b0:8f8:d217:f46a with SMTP id af79cd13be357-904d3fa500bmr4114490285a.8.1778601959278;
+        Tue, 12 May 2026 09:05:59 -0700 (PDT)
+Received: from gourry-fedora-PF4VCD3F (pool-100-36-248-188.washdc.fios.verizon.net. [100.36.248.188])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-8fc2c91c807sm3755667685a.32.2026.05.12.09.05.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 May 2026 09:02:03 -0700 (PDT)
-Date: Tue, 12 May 2026 12:02:00 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: Polina Vishneva <polina.vishneva@virtuozzo.com>,
-	"den@openvz.org" <den@openvz.org>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"stefanha@redhat.com" <stefanha@redhat.com>,
-	"eperezma@redhat.com" <eperezma@redhat.com>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
-	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
-	"kvm@vger.kernel.org" <kvm@vger.kernel.org>,
-	"jasowang@redhat.com" <jasowang@redhat.com>
-Subject: Re: [PATCH] vhost/vsock: Refuse the connection immediately when
- guest isn't ready
-Message-ID: <20260512120019-mutt-send-email-mst@kernel.org>
-References: <20260511145610.413210-1-polina.vishneva@virtuozzo.com>
- <agH3WvJtAsQ_5zx4@sgarzare-redhat>
- <962b26d2d1daa9411fb71efab6af2c75d1c5f0d0.camel@virtuozzo.com>
- <agM8cxqUCJNjBDlm@sgarzare-redhat>
+        Tue, 12 May 2026 09:05:58 -0700 (PDT)
+Date: Tue, 12 May 2026 12:05:55 -0400
+From: Gregory Price <gourry@gourry.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org,
+	"David Hildenbrand (Arm)" <david@kernel.org>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Muchun Song <muchun.song@linux.dev>,
+	Oscar Salvador <osalvador@suse.de>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Lorenzo Stoakes <ljs@kernel.org>,
+	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Brendan Jackman <jackmanb@google.com>,
+	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
+	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
+	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+	Byungchul Park <byungchul@sk.com>,
+	Ying Huang <ying.huang@linux.alibaba.com>,
+	Alistair Popple <apopple@nvidia.com>,
+	Christoph Lameter <cl@gentwo.org>,
+	David Rientjes <rientjes@google.com>,
+	Roman Gushchin <roman.gushchin@linux.dev>,
+	Harry Yoo <harry.yoo@oracle.com>,
+	Axel Rasmussen <axelrasmussen@google.com>,
+	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
+	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
+	Kemeng Shi <shikemeng@huaweicloud.com>,
+	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
+	virtualization@lists.linux.dev, linux-mm@kvack.org,
+	Andrea Arcangeli <aarcange@redhat.com>,
+	"Liam R. Howlett" <liam@infradead.org>,
+	Youngjun Park <youngjun.park@lge.com>,
+	Qi Zheng <qi.zheng@linux.dev>,
+	Shakeel Butt <shakeel.butt@linux.dev>
+Subject: Re: [PATCH resend v6 28/30] mm: add put_page_zeroed and
+ folio_put_zeroed
+Message-ID: <agNP4x4oobMra1PH@gourry-fedora-PF4VCD3F>
+References: <cover.1778489843.git.mst@redhat.com>
+ <450465e4a03e63381a4bb8a1799a25859d7fdd83.1778489843.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <agM8cxqUCJNjBDlm@sgarzare-redhat>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: SmVaYggkRjLq5JzQYBciPfoTUaE4lICqE592s0K-VGw_1778601727
-X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <450465e4a03e63381a4bb8a1799a25859d7fdd83.1778489843.git.mst@redhat.com>
 
-On Tue, May 12, 2026 at 05:39:48PM +0200, Stefano Garzarella wrote:
-> On Tue, May 12, 2026 at 02:32:14PM +0000, Polina Vishneva wrote:
-> > On Mon, 2026-05-11 at 17:56 +0200, Stefano Garzarella wrote:
-> > > On Mon, May 11, 2026 at 04:56:10PM +0200, Polina Vishneva wrote:
-> > > > From: "Denis V. Lunev" <den@openvz.org>
-> > > >
-> > > > When the host initiates an AF_VSOCK connect() to a guest that has not
-> > > > yet loaded the virtio-vsock transport (i.e. still booting), the caller
-> > > > blocks for VSOCK_DEFAULT_CONNECT_TIMEOUT (2 seconds), because
-> > > > vhost_transport_do_send_pkt() silently exits when
-> > > > vhost_vq_get_backend(vq) returns NULL.
-> > > 
-> > > Can SO_VM_SOCKETS_CONNECT_TIMEOUT helps on this?
-> > 
-> > It can, but it might be difficult to find a correct timeout.
-> > 
-> > And, generally, there's no way to distinguish "the guest hasn't yet initialized
-> > the vq" from "the guest is up and running, but didn't reply to connect() in
-> > time". That's exactly what this patch is attempting to fix.
+On Mon, May 11, 2026 at 05:04:19AM -0400, Michael S. Tsirkin wrote:
+> Add put_page_zeroed() / folio_put_zeroed() for callers that hold
+> a reference to a page known to be zeroed.
 > 
-> Okay, so please mention this in the commit message, I mean why
-> SO_VM_SOCKETS_CONNECT_TIMEOUT can't really help.
+> If this drops the last reference, the page goes through
+> __folio_put_zeroed() which calls free_frozen_pages_zeroed() so
+> the zeroed hint is preserved.  If someone else still holds a
+> reference, the hint is simply lost - this is best-effort.
 > 
-> > 
-> > > 
-> > > >
-> > > > If the guest doesn't start listening within this timeout, connect()
-> > > > returns ETIMEDOUT.
-> > > >
-> > > > This delay is usually pointless and it doesn't well align with our
+> This is useful for balloon drivers during deflation: the host
+> has already zeroed the pages, and the balloon is typically the
+> sole owner.  But if the page happens to be shared, silently
+> dropping the hint is safe and avoids the need for callers to
+> check the refcount.
 > 
-> I still don't understand why this is pointless. If an application wants to
-> wait while sleeping, it can simply increase the timeout long enough to wait
-> for the VM to start up and use a single `connect()` call, instead of
-> continuing to try and wasting CPU cycles unnecessarily.
-> 
-> Hmm, or maybe not, because the driver will definitely be initialized before
-> the application that wants to listen on that port, so it will respond that
-> no one is listening, and the `connect()` call will fail with an `ECONNRESET`
-> error in any case. Right?
-> 
-> If it is the case, is the following line in the commit description correct?
-> 
->     If the guest doesn't start listening within this timeout, connect()
->     returns ETIMEDOUT.
-> 
-> I mean, also if the application starts to listen within the timeout, I think
-> the connect() will fail in any case as I pointed out above (this should be
-> another point in favour of this change)
-> 
-> 
-> BTW, I think we should explain this more clearly both here and briefly in
-> the code as well.
-> 
-> > > > behavior at other initialization stages: for example, if a connection is
-> > > > attempted when the guest driver is already loaded, but when nothing is
-> > > > listening yet, it returns ECONNRESET immediately without any wait.
-> > > >
-> > > > Fix this by checking the RX virtqueue backend in
-> > > > vhost_transport_send_pkt() before queuing. If the backend is NULL,
-> > > > return -ECONNREFUSED immediately.
-> > > >
-> > > > Signed-off-by: Denis V. Lunev <den@openvz.org>
-> > > > Co-developed-by: Polina Vishneva <polina.vishneva@virtuozzo.com>
-> > > > Signed-off-by: Polina Vishneva <polina.vishneva@virtuozzo.com>
-> > > > ---
-> > > > drivers/vhost/vsock.c | 10 ++++++++++
-> > > > 1 file changed, 10 insertions(+)
-> > > >
-> > > > diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-> > > > index 1d8ec6bed53e..a3f218292c3a 100644
-> > > > --- a/drivers/vhost/vsock.c
-> > > > +++ b/drivers/vhost/vsock.c
-> > > > @@ -302,6 +302,16 @@ vhost_transport_send_pkt(struct sk_buff *skb, struct net *net)
-> > > > 		return -ENODEV;
-> > > > 	}
-> > > >
-> > > > +	/* Fast-fail if the guest hasn't enabled the RX vq yet. Reading
-> > > > +	 * private_data without vq->mutex is deliberate: even if the backend becomes
-> > > > +	 * NULL right after that check, do_send_pkt() checks it under the mutex.
-> > > > +	 */
-> > > > +	if (!data_race(READ_ONCE(vsock->vqs[VSOCK_VQ_RX].private_data)))
-> > > 
-> > > Why not using vhost_vq_get_backend() ?
-> > 
-> > Because it locks the mutex, which is slow and unacceptable in this hot
-> > path.
-> 
-> ehm, sorry, which mutex are you talking about?
-> 
-> I see just a comment about the mutex to be acquired by the caller, but I
-> don't see any lock there.
-> 
-> > 
-> > > 
-> > > Also is READ_ONCE() okay without WRITE_ONCE() where it is set ?
-> > 
-> > It's racy, but as described here in the comment and in the commit message,
-> > any possible race outcome is covered by the subsequent checks.
-> 
-> Okay, so what is the point to call READ_ONCE()?
-> 
-> > 
-> > > > {
-> > > > +		rcu_read_unlock();
-> > > > +		kfree_skb(skb);
-> > > > +		return -ECONNREFUSED;
-> > > 
-> > > This is a generic send_pkt, is it okay to return ECONNREFUSED in any
-> > > case?
-> > 
-> > EHOSTUNREACH would probably be better.
-> > All the current send_pkt functions only return ENODEV, but it has different
-> > semantics: they mean that the local device isn't yet ready, while there we're
-> > dealing with the opposite end not being ready.
-> 
-> In the AF_VSOCK prespective, I see ENODEV like the transport is not ready,
-> so I think it can eventually fit here too, but also EHOSTUNREACH is fine,
-> for sure better than ECONNREFUSED.
-> 
-> Thanks,
-> Stefano
 
-I think it's worth trying to do the same thing with e.g. TCP
-and see what error, if any, we get. Match that.
+I see this gets used in mm/balloon.c not the driver itself,
+should these be in include/linux/mm.h or mm/internal.h ?
 
+Just wondering the utility of this being exported for drivers.
 
-> > 
-> > Best regards, Polina.
-> > 
-> > > 
-> > > Thanks,
-> > > Stefano
-> > > 
-> > > > +	}
-> > > > +
-> > > > 	if (virtio_vsock_skb_reply(skb))
-> > > > 		atomic_inc(&vsock->queued_replies);
-> > > >
-> > > >
-> > > > base-commit: 8ab992f815d6736b5c7a6f5fd7bfe7bc106bb3dc
-> > > > --
-> > > > 2.53.0
-> > > >
-
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Assisted-by: Claude:claude-opus-4-6
+> ---
+>  include/linux/mm.h | 12 ++++++++++++
+>  mm/swap.c          | 18 ++++++++++++++++--
+>  2 files changed, 28 insertions(+), 2 deletions(-)
+> 
+> diff --git a/include/linux/mm.h b/include/linux/mm.h
+> index 3b1ca90fd435..4c51b7bd7576 100644
+> --- a/include/linux/mm.h
+> +++ b/include/linux/mm.h
+> @@ -1913,6 +1913,7 @@ static inline struct folio *virt_to_folio(const void *x)
+>  }
+>  
+>  void __folio_put(struct folio *folio);
+> +void __folio_put_zeroed(struct folio *folio);
+>  
+>  void split_page(struct page *page, unsigned int order);
+>  void folio_copy(struct folio *dst, struct folio *src);
+> @@ -2090,6 +2091,17 @@ static inline void folio_put(struct folio *folio)
+>  		__folio_put(folio);
+>  }
+>  
+> +static inline void folio_put_zeroed(struct folio *folio)
+> +{
+> +	if (folio_put_testzero(folio))
+> +		__folio_put_zeroed(folio);
+> +}
+> +
+> +static inline void put_page_zeroed(struct page *page)
+> +{
+> +	folio_put_zeroed(page_folio(page));
+> +}
+> +
+>  /**
+>   * folio_put_refs - Reduce the reference count on a folio.
+>   * @folio: The folio.
+> diff --git a/mm/swap.c b/mm/swap.c
+> index 5cc44f0de987..8d57223dfe34 100644
+> --- a/mm/swap.c
+> +++ b/mm/swap.c
+> @@ -94,7 +94,7 @@ static void page_cache_release(struct folio *folio)
+>  		lruvec_unlock_irqrestore(lruvec, flags);
+>  }
+>  
+> -void __folio_put(struct folio *folio)
+> +static void ___folio_put(struct folio *folio, bool zeroed)
+>  {
+>  	if (unlikely(folio_is_zone_device(folio))) {
+>  		free_zone_device_folio(folio);
+> @@ -109,10 +109,24 @@ void __folio_put(struct folio *folio)
+>  	page_cache_release(folio);
+>  	folio_unqueue_deferred_split(folio);
+>  	mem_cgroup_uncharge(folio);
+> -	free_frozen_pages(&folio->page, folio_order(folio));
+> +	if (zeroed)
+> +		free_frozen_pages_zeroed(&folio->page, folio_order(folio));
+> +	else
+> +		free_frozen_pages(&folio->page, folio_order(folio));
+> +}
+> +
+> +void __folio_put(struct folio *folio)
+> +{
+> +	___folio_put(folio, false);
+>  }
+>  EXPORT_SYMBOL(__folio_put);
+>  
+> +void __folio_put_zeroed(struct folio *folio)
+> +{
+> +	___folio_put(folio, true);
+> +}
+> +EXPORT_SYMBOL(__folio_put_zeroed);
+> +
+>  typedef void (*move_fn_t)(struct lruvec *lruvec, struct folio *folio);
+>  
+>  static void lru_add(struct lruvec *lruvec, struct folio *folio)
+> -- 
+> MST
+> 
