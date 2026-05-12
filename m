@@ -1,69 +1,69 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0D1E03C8C51
-	for <virtualization@lists.linux.dev>; Tue, 12 May 2026 21:06:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1AF613C8C73
+	for <virtualization@lists.linux.dev>; Tue, 12 May 2026 21:06:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778619994; cv=none; b=aJdUpDljvJBlfBEv19MIzrsitpXdODBA46VuSb5pgSDWoOxwILINHg9n+h4myww5TfGF0mqu4QdiOq0iro1+CgGEM6c6xOrNyfr+RttbWb/+s9/hBjO1u7V3a+5vfg6Vg77TxQ2/KPYlm0zw0R1LzY902eQIRAOQy9e9UG/p6C8=
+	t=1778619998; cv=none; b=PPo9eEsl+M5OinxS6WKP6bvHytw+L/KYLx639QHJbxacMtWvfwPRMl5F9CHGtUiUGAfy8uY8cDcH9tncI0VylZAe2Paol+ebeiPg11Xr+xSejMpt9csktwdii5uBZSyGEB9yWc8KgmKFtScNEFY0whvas0vJ/9ncH/GGacbI784=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778619994; c=relaxed/simple;
-	bh=Y4i87gvPLne8uDYdZdRz0YtVJ2giC7sgZxD0jT2a23c=;
+	s=arc-20240116; t=1778619998; c=relaxed/simple;
+	bh=m8forpKa92wSEANoV2LwX8iYn506Fg/3SPdqojZoxqY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Dup6H86SY63+oBny4VY6UnhjFS5+5CB3HHgYxUeywUwojOgAcJW7HbVQvBnfY7dMpjYSZUyd0zThNERN0VYkKLRbNTILlZaXqOpT/ZxPStc9qJXtw2u3wWqjO3U+VYL6iPZeQnLWAfPgrIQrDzfmzUxwvPbgikhpnwa1+rKBWZY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DjWLJlcq; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=YRUiaU5gH9yDny8MLvpz8phLa3uyl+M78gRz2Mq+jjOLFlU9rqDn7h9+RmHuIDzKbmOQoUSch+TzfMPG+Ijd3qUEgQEjLl+r03eSUr+wiTCX0BZgiNXueji0mmz1+If5CP9Z+Qjnu3vWduNQe5RMRBbWOw/kIawc/kEwR0by3yE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TVKJim5q; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DjWLJlcq"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TVKJim5q"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1778619992;
+	s=mimecast20190719; t=1778619996;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=kWQzvk6rjiRPyM3eAZla3ajwvkAoYuOsF+wH5y3nY6E=;
-	b=DjWLJlcq2873ifJxugTv6lpwOsWoRy6YPVsq0adrl+mWFL3pmFQz2sJw7k/kPoKt+vDiyJ
-	V42U+I4kHvFF0ESflhJ8cTSieSwRZTp3bWbvbpf1MrL3hrB7aYfSPK3kauBi4aotq/SgX0
-	6FjQF1jgGxE++MDCcqTvoO2VOOVztfc=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=awVRqRC+b/AmjARdxVJbu/50IYPO1xelbVaktsnFd6g=;
+	b=TVKJim5qqLTzAZP9o/QRetb0rz1LO20TgxBF+otvEJWUdc+jvyjfanNqKF/ETs/PvY1yqJ
+	nf6dQ+uHujlAiy9roMI00wpaAc3UzVZ9kvE18NtowNZTAg/9PBve3GDjbZXUQUScziwqvs
+	SNUbTu9EjdcMBG6ZeIXv9wi1icG3GpU=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-247-sb5KMiAcMXWR44QRRZhPRg-1; Tue, 12 May 2026 17:06:29 -0400
-X-MC-Unique: sb5KMiAcMXWR44QRRZhPRg-1
-X-Mimecast-MFC-AGG-ID: sb5KMiAcMXWR44QRRZhPRg_1778619988
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-488c0120047so34769715e9.0
-        for <virtualization@lists.linux.dev>; Tue, 12 May 2026 14:06:28 -0700 (PDT)
+ us-mta-591-0ANOQeFVNXKIUG0TdkgPMw-1; Tue, 12 May 2026 17:06:35 -0400
+X-MC-Unique: 0ANOQeFVNXKIUG0TdkgPMw-1
+X-Mimecast-MFC-AGG-ID: 0ANOQeFVNXKIUG0TdkgPMw_1778619993
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-486fa07f2bbso35893685e9.2
+        for <virtualization@lists.linux.dev>; Tue, 12 May 2026 14:06:35 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778619988; x=1779224788;
+        d=1e100.net; s=20251104; t=1778619993; x=1779224793;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=kWQzvk6rjiRPyM3eAZla3ajwvkAoYuOsF+wH5y3nY6E=;
-        b=VwV8sCNcKuAGqqxLnqvwxmKGbzkcKAM9IwJCTugizUq16EZ0jfrNKXr7SwSL91FbEs
-         jsFqsSE18HUMNVgmBvA9zVjpdrLtu05JITaBVQFfplD9w1PQPxQO6+8k/KCvpfqO1K5s
-         hepH+ixyYcp5xrSDq1xWERenRR0esD+F44gMYDJR65V/HcFeKpN7FkU+Nj4RtpfgfYTz
-         10c3Ls8TIFhDyXMU1TSd8g0VKCnXb1WNIgPrSUvjWpMvVD0PV9wDd4EJ88aVQsPTCmFZ
-         j9at07cjG9Q88SV5rM6ihJcAtmxbVQdVhru3jGjng31czuVTp+yXFTYBxVjMPfsnZfos
-         0ogw==
-X-Forwarded-Encrypted: i=1; AFNElJ8twUJ9VxSb/rygMDqNY/8k+w3Mp1wEJ+38Bq5xRA/Qh3yC8HFoXs+mA925eMuTrFEfKeH9kb0GnThmyuZUEg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwhpqMjGo/+E6zDYP432QKxnWKj667UdtJAZgVME/NvHCAZzBTB
-	zgf9lRkWglgy8LBEvJYcIXO9yLxvsAIOrdU59LHUOPlR0jnNYAN2sI3iXMxVOBfOtYydHcKOsf1
-	80ITXYERRM1lJn+2Gin0MkSB9A5qPFKeCN9CojgAf0VnG61qsdzAH7NyE+xJ5QPw8is9U
-X-Gm-Gg: Acq92OGrW1IXXVWJE/43RmkMHMHPy2PJzlmNPijE3TjVYbFLh5PXmGw4DvzZ+a8joEK
-	/TII4lg48N1BjNkXpvpraPyfiStcWhhVmtbMNhtpF2KiCG4iEzBCRgSAH4JhAnV8YudOBqtDwZv
-	8XqkM2L3IS+N70wx9/5oS3k8+mUGYtAHRev7+ANzdHH9SvMivtrYsMabzmKyD9byr/uJzr9OO/M
-	oI1ESNveTKUboW1s5x51U68lADhcoqivU38jC3SvfsuAG7iRMBLqiiKGTYxqRE03Yfgq7qDKcd+
-	6YgRI77UA5raYwhx5AacbGgjfMtqbm49XN3h75dFqLE8fp2zmjsvMmbwgy6vSsZq9cWs8A2NYCc
-	f78XDg9v765yhN84UY/xhp3NhsLmt2dZVRpJ1UCoS
-X-Received: by 2002:a05:600c:4fc9:b0:48a:7a10:4f47 with SMTP id 5b1f17b1804b1-48fc9a023a6mr5599195e9.3.1778619987590;
-        Tue, 12 May 2026 14:06:27 -0700 (PDT)
-X-Received: by 2002:a05:600c:4fc9:b0:48a:7a10:4f47 with SMTP id 5b1f17b1804b1-48fc9a023a6mr5598765e9.3.1778619987004;
-        Tue, 12 May 2026 14:06:27 -0700 (PDT)
+        bh=awVRqRC+b/AmjARdxVJbu/50IYPO1xelbVaktsnFd6g=;
+        b=ZyYrg4PSAmweH8yoCMOwV4akAR472nqUCCezrhOtzz6zfFKpqlhkmSqaG7IKyzPe24
+         WbR2zo7XGkNy5rZ/Qfrx1i0ct0T1ZiEYBiaZVekYCHmr77DX2RsQAibB7qep6+hwPBm6
+         lVObdmsTle0NozWEKagNKFn5RSr82/Bu8Ep5qV0U5/wbYELZb46TeGOAsmdUmrG/jPjc
+         vrspKKsREBwjoxj4vmk019Cq9gzIr+pIcQm0Ob/d61cNJUHiIilyBhDRRhGmn3KSVTOb
+         3DReIvfpqQwN5r1ojzkLaJz07iqbN0dYtqVjbQA56zHon+/SrbgtuZ/XLckn28TL2q7r
+         4GhQ==
+X-Forwarded-Encrypted: i=1; AFNElJ8YrGa6joqWiiLo2PZC7HXrNiRbRDpKAMlGD/i8XGj2ghTKZda1BSD1eEtJPp/5i7/adFgV9alwp87V9eGUSQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwktUaWKHsLtnMRj2lDwXi2rT46XCJOGKX0JkjS8kZ0nrG2nvAZ
+	DKN1ApS4gKMoIEjtTdKv7zDNfDd/NpjmvfVcGSl6G1g4snCabdZjVj4WaTwHEqAHM2NeT+zoMWJ
+	LvCEjQvV1vz3t5STj1vYrj5yiOaQL7b/9fR36IUxa4WggqRiEaoL573WAVNooTwmKNNMP
+X-Gm-Gg: Acq92OF3kKkjkCPaX0TeO4FfjCa+eODN4Yt8Wy+SsOAd+juKq7KRQ0vhLmX1+mPFFQP
+	RC6AVch/luNL0WKEzI2JBWqYiu2wNZ7TxowcA5X6kpGtKXNGghkJIu4oIDQjVpoHIEwe+xQuSx2
+	4gDuRRVIoEjMR4vFzYjOY0kMh/gEIFcQKc8c1YgNvHbty/jmkRzxrVQyBl/6Lf+suvmelbPPo0G
+	oWbg/FS5NGKKjv7LMLQOI3nwBbX8YU3VM1qy5U1ye1Rk+m4pRXvRC3+Juoi2StrIxM2Qvfx2Njh
+	slF1hR/QRGkOH/Tnf7I5KvJCGf1VxskB2Omk+iREPgyah5j6Mk08zfnbmMJeO3CgRJ+3YjttUj9
+	kr5fHMrMH+Ye1FsocUADIK9CCn0BLwew4EVI81OmP
+X-Received: by 2002:a05:600c:871b:b0:48a:75b9:b0bc with SMTP id 5b1f17b1804b1-48fc9a5ed3amr5818085e9.29.1778619992869;
+        Tue, 12 May 2026 14:06:32 -0700 (PDT)
+X-Received: by 2002:a05:600c:871b:b0:48a:75b9:b0bc with SMTP id 5b1f17b1804b1-48fc9a5ed3amr5817805e9.29.1778619992358;
+        Tue, 12 May 2026 14:06:32 -0700 (PDT)
 Received: from redhat.com (IGLD-80-230-48-7.inter.net.il. [80.230.48.7])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48e8f3f5174sm40737105e9.5.2026.05.12.14.06.22
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48fc8d19854sm24100025e9.1.2026.05.12.14.06.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 May 2026 14:06:26 -0700 (PDT)
-Date: Tue, 12 May 2026 17:06:22 -0400
+        Tue, 12 May 2026 14:06:31 -0700 (PDT)
+Date: Tue, 12 May 2026 17:06:27 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
@@ -102,8 +102,9 @@ Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
 	Andrea Arcangeli <aarcange@redhat.com>
-Subject: [PATCH v7 14/31] mm: use __GFP_ZERO in alloc_anon_folio
-Message-ID: <b74f5e68c5879e2a9d28df1af71ec3d798b74dc4.1778616612.git.mst@redhat.com>
+Subject: [PATCH v7 15/31] mm: vma_alloc_anon_folio_pmd: pass raw fault
+ address to vma_alloc_folio
+Message-ID: <411a7b6a750c1904b99be92fad0e678ad791ca82.1778616612.git.mst@redhat.com>
 References: <cover.1778616612.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -115,51 +116,32 @@ In-Reply-To: <cover.1778616612.git.mst@redhat.com>
 X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
 X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: keI4Q8u5vjUvUqT9g0AZNBgw6iscyCyzYsaZsmXGqf4_1778619988
+X-Mimecast-MFC-PROC-ID: d7juKe_Tt2mu8TNLnCyCfytwOsyvXLRmy0WeoJuaVXQ_1778619993
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Convert alloc_anon_folio() to pass __GFP_ZERO instead of zeroing
-at the callsite. post_alloc_hook uses the fault address passed
-through vma_alloc_folio for cache-friendly zeroing.
+Now that vma_alloc_folio aligns the address internally, drop the
+redundant HPAGE_PMD_MASK alignment at the callsite.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Gregory Price <gourry@gourry.net>
-Assisted-by: Claude:claude-opus-4-6
 ---
- mm/memory.c | 11 +----------
- 1 file changed, 1 insertion(+), 10 deletions(-)
+ mm/huge_memory.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/mm/memory.c b/mm/memory.c
-index 74523bc00d8a..f3f1bc66366d 100644
---- a/mm/memory.c
-+++ b/mm/memory.c
-@@ -5249,7 +5249,7 @@ static struct folio *alloc_anon_folio(struct vm_fault *vmf)
- 		goto fallback;
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index 970e077019b7..d689e6491ddb 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -1337,7 +1337,7 @@ static struct folio *vma_alloc_anon_folio_pmd(struct vm_area_struct *vma,
+ 	const int order = HPAGE_PMD_ORDER;
+ 	struct folio *folio;
  
- 	/* Try allocating the highest of the remaining orders. */
--	gfp = vma_thp_gfp_mask(vma);
-+	gfp = vma_thp_gfp_mask(vma) | __GFP_ZERO;
- 	while (orders) {
- 		folio = vma_alloc_folio(gfp, order, vma, vmf->address);
- 		if (folio) {
-@@ -5259,15 +5259,6 @@ static struct folio *alloc_anon_folio(struct vm_fault *vmf)
- 				goto next;
- 			}
- 			folio_throttle_swaprate(folio, gfp);
--			/*
--			 * When a folio is not zeroed during allocation
--			 * (__GFP_ZERO not used) or user folios require special
--			 * handling, folio_zero_user() is used to make sure
--			 * that the page corresponding to the faulting address
--			 * will be hot in the cache after zeroing.
--			 */
--			if (user_alloc_needs_zeroing())
--				folio_zero_user(folio, vmf->address);
- 			return folio;
- 		}
- next:
+-	folio = vma_alloc_folio(gfp, order, vma, addr & HPAGE_PMD_MASK);
++	folio = vma_alloc_folio(gfp, order, vma, addr);
+ 
+ 	if (unlikely(!folio)) {
+ 		count_vm_event(THP_FAULT_FALLBACK);
 -- 
 MST
 
