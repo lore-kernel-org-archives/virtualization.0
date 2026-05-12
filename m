@@ -1,167 +1,242 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 222AB3C7697
-	for <virtualization@lists.linux.dev>; Tue, 12 May 2026 15:58:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4989E3C81A9
+	for <virtualization@lists.linux.dev>; Tue, 12 May 2026 16:02:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778601521; cv=none; b=uVAjsq1nXQFbwbi+e/95aNpud/ExVDQctShDoVQjYMyj/4TX8nl3y6SQV5ncHM6ZdJa5O0cP9FYDchcdGjox+hkMlva4p/PxnnQWYh/3gKmX/Jk3HmXUAQwGzJ2k4/TkSoLX0LPhxVVeRMoO/bch5cJfJ30wBTNLZabCQ5DVMW0=
+	t=1778601732; cv=none; b=cnlYT72C40wguCkAKWglr/lxe94c6jmKcShXq933esxlsVSDX9aXGLPw4pY9cRsGBuj3n8x0CYf61lXYuz9DqzVPpoWFQZNfOa2t7J68wEmWFl6RxttHGoz2V2cKB3ea2kOzwWKD9gqGRc+Qv+Qloe4/x5HbwqXNEJ7f+Gr6tS8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778601521; c=relaxed/simple;
-	bh=mFetL9IY8I56RXGEOxBcuN5Aswd7wGUXfiI2cWEQz1g=;
+	s=arc-20240116; t=1778601732; c=relaxed/simple;
+	bh=vWr9cfyQCOSfH7IJmIj+myZeDwfb59BivVN4VpsvMRA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=UVTA5OoxysKMOvpMPBZI2zGpYhXldz4+enZITHgvi25iCzS5pLe/brac56U3l2IYvtDNhyiZvAHMnf1ADNoRM0p0s9HkUxYMYuimq1jY84/o5rrgzB+Uw2GrlAtVyyYnTl4EwYStgkdl88u7huy6tZMvBD6JdRq0kDQI6BxWL1k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PeIJBkw2; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=B5hrilVxOJlOHw/yEprpXwd057v3L4qKMFpmi9m0BJXLq3YWIEwBrFUrzd6E3yjK2dqeiUTdy76h9jhplz44ioiB+RjEHh3K4BiGlBTI0dFeKsF6XbGoNB1KEhazDzV9W1uXSW9FyT6o5AU4B6aAC26bkL+XwhKrhoL/80Dgv+s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BvEOKVK7; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PeIJBkw2"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BvEOKVK7"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1778601516;
+	s=mimecast20190719; t=1778601730;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=XJW4f8tXo6Lfw2obSKyz1GioGSG/zB4IqguSnk2BuqQ=;
-	b=PeIJBkw2++2FsHg1LRSRKHyaeWtpPa05VL0aCXgw7igSpm2jg5uK8xKdfi2Tj79zwRVvE0
-	IfhISITcTs5KX4Ea/d8mq98ub4tLED34z1dC/mSSfVjhFxD6pSoDZOkKj/SvgEOlMqU0qU
-	9zYU3xguq4sxOgoRz+u1fbe6jRxM51s=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=FIUiJKhl00kL6+7DmOinctS+OWNE7gekD3egzsDj+sI=;
+	b=BvEOKVK77kFv+y+Pw798HkuBhyHGT5BMinQ0Bpfcs4nCNkvddBWUBrFWz4WB1s/HbUaLkc
+	ILkuXXaapO+9WDzUwB5vuw70dwuNSxUBMr2QHf7P+6xA39AueN7VmHcoCJ8fuk+qe1WMiC
+	6ext2djKmcGS9SjsBxX6VusNEjS4nEg=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-422-ahauIIXiNFSTI75sYIaqGg-1; Tue, 12 May 2026 11:58:35 -0400
-X-MC-Unique: ahauIIXiNFSTI75sYIaqGg-1
-X-Mimecast-MFC-AGG-ID: ahauIIXiNFSTI75sYIaqGg_1778601514
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-48fc8dd6be2so580195e9.1
-        for <virtualization@lists.linux.dev>; Tue, 12 May 2026 08:58:34 -0700 (PDT)
+ us-mta-648-fC3g_QmFOfSeb7WjqKArfw-1; Tue, 12 May 2026 12:02:07 -0400
+X-MC-Unique: fC3g_QmFOfSeb7WjqKArfw-1
+X-Mimecast-MFC-AGG-ID: fC3g_QmFOfSeb7WjqKArfw_1778601727
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-44f56d5523eso4681606f8f.1
+        for <virtualization@lists.linux.dev>; Tue, 12 May 2026 09:02:07 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778601514; x=1779206314;
+        d=1e100.net; s=20251104; t=1778601726; x=1779206526;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=XJW4f8tXo6Lfw2obSKyz1GioGSG/zB4IqguSnk2BuqQ=;
-        b=Xt6UJkBZIwSIBVnJXzx1zfA4UBbz61slZaClQ8dWgsT1WktxtCku/l0xi6E/jDfXgu
-         i9Dj4UnzYAy6Iqdo/94G90U9WjrRgO8vNS881uQQGNlYR7SIp00VKjVKQ2zOGUEJfVsW
-         PPd5s0c+59MPzGe4eAjnJVN0zxJFIiokfGo79kqDnh8Dh5TWFJDzVkUXeHTKsq7Q2U9T
-         RzNxgU4WpLy1rjZTjQ6Iw4UFLZs1LcDJELzRcO3MZ8aZ9oAIO1DG1esQR4ltai5UUL7D
-         bA8oWKgfs3aJ1MJeyAnJyW7GCzsvkWvNIToMBWCdmxCKsfe+Q2id2RJ1vx8wRJT11sFV
-         ZdjA==
-X-Forwarded-Encrypted: i=1; AFNElJ+vnDyZ8XXp4oBytcwfHD3CHZausdb1yZZ0u9aJNkEgg3xy9eIQDapG+8ERMr4aVLa3vYdVyh7yrU5NZq2hRQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxWVBjxr6VKi2jUwBxh+XOsZv4y2Mk+SIY0il5th1IMmCi2yBlz
-	vW8K09TEAhvMF1npVgjRIMSn18AelmlBwpZ6I4mFIHUwsmxwaUhHWktaH65/j2NUstFY68tnBxY
-	A46DT/VsxU3uYHioOqG4ynmmR9YPQBdLecMnGxojWfN1OKUFFWVZmXymUBtWwmmK4VWl6
-X-Gm-Gg: Acq92OF1xProNlDqg16uX4jubSY/QFzonlSU8J+TzD/T+a+UIi0j29h6kET0Twrx1uw
-	YjAT4EWkKQ6q+U+koUxMG4c0QoyoMdeKb9s0GDHBrsR7XjdJftHqRNhQ3mBvSkYqASuEZNCjzYO
-	ACz80OyB4HkbIfRFQukOpxQ7NjtNPUPxpq8BSc7rmQv90kCVFvhvEeyx/xqk1rwE7zYw6EMDlbc
-	KYvOaIKcbNyONNkpUTzpO+atJJLA0QEpKElwU5HxEtihxWpiwg92fs/mTYFY11hHKKlMKR8WFiz
-	we4pYUoqd1kJ05vPYz84aE2GcWGP4Y419RoulYyOaTuy9eE3IRP61wcQMePpWcA2/uJj4BigX31
-	7/uneG6/zzvGuloXJkTFrmO9pt/49ULmOTOQXcTGH
-X-Received: by 2002:a05:600d:e:b0:489:ad:7b5b with SMTP id 5b1f17b1804b1-48e706d24e3mr228848235e9.24.1778601513785;
-        Tue, 12 May 2026 08:58:33 -0700 (PDT)
-X-Received: by 2002:a05:600d:e:b0:489:ad:7b5b with SMTP id 5b1f17b1804b1-48e706d24e3mr228847285e9.24.1778601513245;
-        Tue, 12 May 2026 08:58:33 -0700 (PDT)
+        bh=FIUiJKhl00kL6+7DmOinctS+OWNE7gekD3egzsDj+sI=;
+        b=HnV5VSgD4FZlNXqOPE8SZ5gFmraTtOKOS8Fw25+jEzs49AQMiyTK1Bp2eEBYSHyQle
+         zEb4HOmsYTunD8yj5suc73JfvifvQ8Muq36R/1p2+Q9P9/sRx5e1ZYBr/TF5rNrzXAAj
+         F/SalNROC4chhwvZ/0YMBSvXgVVcVBXql4qQtZvWUK4DTUVrhce12Ne8h2qonxMRGHTD
+         TlbnQtuaXrwXHtrUoBzHnXTsgLYIJSQ9bVOKM/Vv2pKazGN0sDdI+WaaTvCvTOkjcog5
+         RDrKnDeMZ6INm8ttjdBZ3jvRnXbzZ2RsX51xHIjx9+A+CE/za8ntSnfOrb7N0ARF9P+d
+         fbnA==
+X-Forwarded-Encrypted: i=1; AFNElJ8gjqfXposhp9msGSA9Vi5idkMULpPaXM/oRn+8RpMjYnUk/v4oP4gtVhcj9cSdT9shtao+xhbD0Ue/HMkszA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwU4hul+o6wpMtVSe9zJCbiNGV2xLsd362EY6sdE1ol4UZBe381
+	oCPYlm7fz6+nQvHnwFdihLSHps6wtP01t5O3VobiGw12oSMuxBoN4BTCuHCls5A7jku72BPZzX7
+	VFMa7ZGUPacTcLkCJRajtMum3bEeVR/uteLisKNThdGYBNuvCNxcS8m3maQcy/Kb4i21g
+X-Gm-Gg: Acq92OHroWuyMBjgPMxvPay/uJL+VvCmt9k2Iwevo8cwqDPTyfL+ZCB3wsqYOkIgkHf
+	YBuIEUypsKHTr6GahTeY3iL4ew9Th3FgniFXUko0nfzluBHOKiew5R1MYA6SQ7ymMmBAzNL3AwO
+	c1eLH4Owcti0AzZVyX1FUHz7Zbg6wsgpd93HwMlTVJD9lJTJPUBJtPXrSQ9ib9wklEruifjHnIK
+	+k/Np2F1F3nWVwIk7LPEwYZpWYNuZrQKyhkGNQm4b0zBJcrNuKJaIUXK3b21VaFn8bVRUf+4HmW
+	JQ7HFa2fj6K0eHgEpv8NXUooIutrS2zPdgAs94OhQPOXw+mqox7cIBe8Et1MS+da/jvm0DWUb71
+	gfyG5QSRjIR7TuT2/ucU39yK/ULo+CrC95C458k7W
+X-Received: by 2002:a05:600c:444f:b0:488:9439:880d with SMTP id 5b1f17b1804b1-48e8fe84e0bmr59315705e9.29.1778601726349;
+        Tue, 12 May 2026 09:02:06 -0700 (PDT)
+X-Received: by 2002:a05:600c:444f:b0:488:9439:880d with SMTP id 5b1f17b1804b1-48e8fe84e0bmr59313645e9.29.1778601724684;
+        Tue, 12 May 2026 09:02:04 -0700 (PDT)
 Received: from redhat.com (IGLD-80-230-48-7.inter.net.il. [80.230.48.7])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48e8f4247fasm29156585e9.9.2026.05.12.08.58.29
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48e8e64385bsm22758065e9.12.2026.05.12.09.02.02
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 May 2026 08:58:32 -0700 (PDT)
-Date: Tue, 12 May 2026 11:58:27 -0400
+        Tue, 12 May 2026 09:02:03 -0700 (PDT)
+Date: Tue, 12 May 2026 12:02:00 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Gregory Price <gourry@gourry.net>
-Cc: linux-kernel@vger.kernel.org,
-	"David Hildenbrand (Arm)" <david@kernel.org>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Muchun Song <muchun.song@linux.dev>,
-	Oscar Salvador <osalvador@suse.de>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Lorenzo Stoakes <ljs@kernel.org>,
-	"Liam R. Howlett" <Liam.Howlett@oracle.com>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Brendan Jackman <jackmanb@google.com>,
-	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
-	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
-	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
-	Byungchul Park <byungchul@sk.com>,
-	Ying Huang <ying.huang@linux.alibaba.com>,
-	Alistair Popple <apopple@nvidia.com>,
-	Christoph Lameter <cl@gentwo.org>,
-	David Rientjes <rientjes@google.com>,
-	Roman Gushchin <roman.gushchin@linux.dev>,
-	Harry Yoo <harry.yoo@oracle.com>,
-	Axel Rasmussen <axelrasmussen@google.com>,
-	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
-	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
-	Kemeng Shi <shikemeng@huaweicloud.com>,
-	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
-	virtualization@lists.linux.dev, linux-mm@kvack.org,
-	Andrea Arcangeli <aarcange@redhat.com>
-Subject: Re: [PATCH resend v6 20/30] mm: page_alloc: clear PG_zeroed on buddy
- merge if not both zero
-Message-ID: <20260512115805-mutt-send-email-mst@kernel.org>
-References: <cover.1778489843.git.mst@redhat.com>
- <a09c1848702368c3545b980c17101b5185ab774d.1778489843.git.mst@redhat.com>
- <agNNkvRK128bYhrf@gourry-fedora-PF4VCD3F>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: Polina Vishneva <polina.vishneva@virtuozzo.com>,
+	"den@openvz.org" <den@openvz.org>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"stefanha@redhat.com" <stefanha@redhat.com>,
+	"eperezma@redhat.com" <eperezma@redhat.com>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+	"netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+	"kvm@vger.kernel.org" <kvm@vger.kernel.org>,
+	"jasowang@redhat.com" <jasowang@redhat.com>
+Subject: Re: [PATCH] vhost/vsock: Refuse the connection immediately when
+ guest isn't ready
+Message-ID: <20260512120019-mutt-send-email-mst@kernel.org>
+References: <20260511145610.413210-1-polina.vishneva@virtuozzo.com>
+ <agH3WvJtAsQ_5zx4@sgarzare-redhat>
+ <962b26d2d1daa9411fb71efab6af2c75d1c5f0d0.camel@virtuozzo.com>
+ <agM8cxqUCJNjBDlm@sgarzare-redhat>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <agNNkvRK128bYhrf@gourry-fedora-PF4VCD3F>
+In-Reply-To: <agM8cxqUCJNjBDlm@sgarzare-redhat>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: dmpyRXztndBaiK9bjXE93zIZPAd6j54BmMAcK0xUu-s_1778601514
+X-Mimecast-MFC-PROC-ID: SmVaYggkRjLq5JzQYBciPfoTUaE4lICqE592s0K-VGw_1778601727
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Tue, May 12, 2026 at 11:56:02AM -0400, Gregory Price wrote:
-> On Mon, May 11, 2026 at 05:03:35AM -0400, Michael S. Tsirkin wrote:
-> > When two buddy pages merge in __free_one_page(), preserve
-> > PG_zeroed on the merged page only if both buddies have the
-> > flag set.  Otherwise clear it.
+On Tue, May 12, 2026 at 05:39:48PM +0200, Stefano Garzarella wrote:
+> On Tue, May 12, 2026 at 02:32:14PM +0000, Polina Vishneva wrote:
+> > On Mon, 2026-05-11 at 17:56 +0200, Stefano Garzarella wrote:
+> > > On Mon, May 11, 2026 at 04:56:10PM +0200, Polina Vishneva wrote:
+> > > > From: "Denis V. Lunev" <den@openvz.org>
+> > > >
+> > > > When the host initiates an AF_VSOCK connect() to a guest that has not
+> > > > yet loaded the virtio-vsock transport (i.e. still booting), the caller
+> > > > blocks for VSOCK_DEFAULT_CONNECT_TIMEOUT (2 seconds), because
+> > > > vhost_transport_do_send_pkt() silently exits when
+> > > > vhost_vq_get_backend(vq) returns NULL.
+> > > 
+> > > Can SO_VM_SOCKETS_CONNECT_TIMEOUT helps on this?
 > > 
-> > The merged page would inherit PG_zeroed, and a later __GFP_ZERO
-> > allocation would skip zeroing stale data in the non-zero half.
+> > It can, but it might be difficult to find a correct timeout.
 > > 
-> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > Assisted-by: Claude:claude-opus-4-6
-> > Assisted-by: cursor-agent:GPT-5.4-xhigh
-> > ---
-> >  mm/page_alloc.c | 15 ++++++++++++++-
-> >  1 file changed, 14 insertions(+), 1 deletion(-)
+> > And, generally, there's no way to distinguish "the guest hasn't yet initialized
+> > the vq" from "the guest is up and running, but didn't reply to connect() in
+> > time". That's exactly what this patch is attempting to fix.
+> 
+> Okay, so please mention this in the commit message, I mean why
+> SO_VM_SOCKETS_CONNECT_TIMEOUT can't really help.
+> 
 > > 
-> > diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> > index bd3b909cacdf..d70c9ba6b329 100644
-> > --- a/mm/page_alloc.c
-> > +++ b/mm/page_alloc.c
-> > @@ -940,10 +940,14 @@ static inline void __free_one_page(struct page *page,
-> >  	unsigned long buddy_pfn = 0;
-> >  	unsigned long combined_pfn;
-> >  	struct page *buddy;
-> > +	bool buddy_zeroed;
-> > +	bool page_zeroed;
+> > > 
+> > > >
+> > > > If the guest doesn't start listening within this timeout, connect()
+> > > > returns ETIMEDOUT.
+> > > >
+> > > > This delay is usually pointless and it doesn't well align with our
 > 
-> If you want to play some code golf, i think you can get away with a
-> single bool here:
+> I still don't understand why this is pointless. If an application wants to
+> wait while sleeping, it can simply increase the timeout long enough to wait
+> for the VM to start up and use a single `connect()` call, instead of
+> continuing to try and wasting CPU cycles unnecessarily.
 > 
->     bool zeroed;
->     zeroed = PageZeroed(buddy);
->     zeroed &= PageZeroed(page);
+> Hmm, or maybe not, because the driver will definitely be initialized before
+> the application that wants to listen on that port, so it will respond that
+> no one is listening, and the `connect()` call will fail with an `ECONNRESET`
+> error in any case. Right?
 > 
->     if (zeroed)
->         __SetPageZeroed(page);
+> If it is the case, is the following line in the commit description correct?
 > 
-> ~Gregory
+>     If the guest doesn't start listening within this timeout, connect()
+>     returns ETIMEDOUT.
+> 
+> I mean, also if the application starts to listen within the timeout, I think
+> the connect() will fail in any case as I pointed out above (this should be
+> another point in favour of this change)
+> 
+> 
+> BTW, I think we should explain this more clearly both here and briefly in
+> the code as well.
+> 
+> > > > behavior at other initialization stages: for example, if a connection is
+> > > > attempted when the guest driver is already loaded, but when nothing is
+> > > > listening yet, it returns ECONNRESET immediately without any wait.
+> > > >
+> > > > Fix this by checking the RX virtqueue backend in
+> > > > vhost_transport_send_pkt() before queuing. If the backend is NULL,
+> > > > return -ECONNREFUSED immediately.
+> > > >
+> > > > Signed-off-by: Denis V. Lunev <den@openvz.org>
+> > > > Co-developed-by: Polina Vishneva <polina.vishneva@virtuozzo.com>
+> > > > Signed-off-by: Polina Vishneva <polina.vishneva@virtuozzo.com>
+> > > > ---
+> > > > drivers/vhost/vsock.c | 10 ++++++++++
+> > > > 1 file changed, 10 insertions(+)
+> > > >
+> > > > diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+> > > > index 1d8ec6bed53e..a3f218292c3a 100644
+> > > > --- a/drivers/vhost/vsock.c
+> > > > +++ b/drivers/vhost/vsock.c
+> > > > @@ -302,6 +302,16 @@ vhost_transport_send_pkt(struct sk_buff *skb, struct net *net)
+> > > > 		return -ENODEV;
+> > > > 	}
+> > > >
+> > > > +	/* Fast-fail if the guest hasn't enabled the RX vq yet. Reading
+> > > > +	 * private_data without vq->mutex is deliberate: even if the backend becomes
+> > > > +	 * NULL right after that check, do_send_pkt() checks it under the mutex.
+> > > > +	 */
+> > > > +	if (!data_race(READ_ONCE(vsock->vqs[VSOCK_VQ_RX].private_data)))
+> > > 
+> > > Why not using vhost_vq_get_backend() ?
+> > 
+> > Because it locks the mutex, which is slow and unacceptable in this hot
+> > path.
+> 
+> ehm, sorry, which mutex are you talking about?
+> 
+> I see just a comment about the mutex to be acquired by the caller, but I
+> don't see any lock there.
+> 
+> > 
+> > > 
+> > > Also is READ_ONCE() okay without WRITE_ONCE() where it is set ?
+> > 
+> > It's racy, but as described here in the comment and in the commit message,
+> > any possible race outcome is covered by the subsequent checks.
+> 
+> Okay, so what is the point to call READ_ONCE()?
+> 
+> > 
+> > > > {
+> > > > +		rcu_read_unlock();
+> > > > +		kfree_skb(skb);
+> > > > +		return -ECONNREFUSED;
+> > > 
+> > > This is a generic send_pkt, is it okay to return ECONNREFUSED in any
+> > > case?
+> > 
+> > EHOSTUNREACH would probably be better.
+> > All the current send_pkt functions only return ENODEV, but it has different
+> > semantics: they mean that the local device isn't yet ready, while there we're
+> > dealing with the opposite end not being ready.
+> 
+> In the AF_VSOCK prespective, I see ENODEV like the transport is not ready,
+> so I think it can eventually fit here too, but also EHOSTUNREACH is fine,
+> for sure better than ECONNREFUSED.
+> 
+> Thanks,
+> Stefano
 
-Does it matter? It makes my head hurt.
+I think it's worth trying to do the same thing with e.g. TCP
+and see what error, if any, we get. Match that.
 
--- 
-MST
+
+> > 
+> > Best regards, Polina.
+> > 
+> > > 
+> > > Thanks,
+> > > Stefano
+> > > 
+> > > > +	}
+> > > > +
+> > > > 	if (virtio_vsock_skb_reply(skb))
+> > > > 		atomic_inc(&vsock->queued_replies);
+> > > >
+> > > >
+> > > > base-commit: 8ab992f815d6736b5c7a6f5fd7bfe7bc106bb3dc
+> > > > --
+> > > > 2.53.0
+> > > >
 
