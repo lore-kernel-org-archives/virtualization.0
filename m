@@ -1,66 +1,71 @@
-Received: from mail-qt1-f177.google.com (mail-qt1-f177.google.com [209.85.160.177])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B132360ED6
-	for <virtualization@lists.linux.dev>; Tue, 12 May 2026 16:32:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15C753D0BE5
+	for <virtualization@lists.linux.dev>; Tue, 12 May 2026 16:35:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778603546; cv=none; b=Z6F6YVpYWed17gRI7d3WzA2JYUIOA+ivJa6lSHS1BGU97hqip0iHAy3diCKwE+sG69c+GDitp1Y8AmyMq4XYGWj3KKE3YChsaTZ8ol3nXSKZHzYENf+bg6CSa6s7Y8Yham/uI3Vio37zYvEshHXeLzTVd3sVZhWQ8fkBB334M0Q=
+	t=1778603721; cv=none; b=rbCg6NKNW/y/l1UbyQmgQrKADHU8afgtbKHOblmExFYiYABhcGL0B1ca7bBXuF1GYrNoFWX75oKS1zuUUMaMnY7nx9m0DdYaouiHwDZC9gOjiiJaYffV0ndBwFtf8knEsxLcXme62103T/9ZieG9SEI8Tv3/bOucKPAM7tP5fbY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778603546; c=relaxed/simple;
-	bh=JRKdZeY+vE61wMluB5D7aDBZ1E8VEWRJfkASzlOm6KU=;
+	s=arc-20240116; t=1778603721; c=relaxed/simple;
+	bh=toIc/eGnHpz4oNmG4SoUoA8H0T58hi7Ie/JgIxH78hQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MdIxgiUnW7d/xTDKwp95YeUBI1be/q4c2a/9SCYa3IqtJQ4+dJ2tIhTDtheKDSqyDChCLERIF08dgBiD03Ldw1pkfY8xDbkheFiFAyts9hZBhLwLdCBVVyGfjjOtj2bPerVnYFKaEoAseLHqjAdkSyvO8n88r2U4ZQbE12sv9fE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=TYRY5XSz; arc=none smtp.client-ip=209.85.160.177
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
+	 In-Reply-To:Content-Type:Content-Disposition; b=oEV+mQYe5+orkbKQs7oY9lSuR3ebbTagLV3tYnyS4hDgHiqRiv37dwWLCtMwvSAttGOxfaEk78k9LJMOYUkM+shNN5cyltp61cM6jw7YvynYbzfnvOZBbHD7oK+uCb2N2NH3bIHfhdC1QBcgVvuBxvE5Projp63+7XPrqmwIaNo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=jUO6HLgg; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="TYRY5XSz"
-Received: by mail-qt1-f177.google.com with SMTP id d75a77b69052e-515226c0cdbso5202171cf.3
-        for <virtualization@lists.linux.dev>; Tue, 12 May 2026 09:32:24 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1778603543; x=1779208343; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=AUBFCivNGlkf0q4LVho8uONOLnLA2U/Jo+KB+lWOcJQ=;
-        b=TYRY5XSz13MeJ4tiw3GhJsHoBDOOIWkKSLa3BnezBdfFQviAFacWZkedcvDDZvuKIq
-         421qP4MGGa5tid+ns6COVKrdHo84Vq8Ma/vWcFI6xJeZh4TzOGxdJxd9+4K+zkbHv3kv
-         z4/HBlPsemyi5QNT8EaN26jUCL2RX70FtKx8Oo0gukfAXquxIgKwsiEWJsoD/A/+u1ty
-         Hky8Pe/ku3xVkFBfLzz390HgwzhLHA7YYA7F42h0tfKx/ErPj8Jfwr/RZyWjUNHz31oM
-         cdeQ8IZCyPPKiDacO1CDsT9AvW/SVF8uSt5eFS3BCxyqpiJ9FhnyW4uOj4ZD15ey95/F
-         OYiQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jUO6HLgg"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1778603717;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=fcCfUoqbPzi0QdWN4h/jl5Vlg/FOqMT66yAiEmc3y1Y=;
+	b=jUO6HLggSTbaJ7vvRveIgwkFXyim6PjRlkAgP7wZHBhu1pKnNrsD2FPGIhjuUcVS/BiO81
+	QQ21JOKoXbNRjCP6PG1pgi6JSvXWh/RTDB9GjNp7B4hfa8z1aVgc4Ur0ys0+lL/gdtHkBZ
+	Mq52KEsEsP2I8VsbjZ468rEFKFK+QPY=
+Received: from mail-qk1-f200.google.com (mail-qk1-f200.google.com
+ [209.85.222.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-641-uX0VtkAWMe2LUtc2rA3YbA-1; Tue, 12 May 2026 12:35:16 -0400
+X-MC-Unique: uX0VtkAWMe2LUtc2rA3YbA-1
+X-Mimecast-MFC-AGG-ID: uX0VtkAWMe2LUtc2rA3YbA_1778603716
+Received: by mail-qk1-f200.google.com with SMTP id af79cd13be357-8eb04352924so1108577885a.1
+        for <virtualization@lists.linux.dev>; Tue, 12 May 2026 09:35:16 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778603543; x=1779208343;
+        d=1e100.net; s=20251104; t=1778603716; x=1779208516;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=AUBFCivNGlkf0q4LVho8uONOLnLA2U/Jo+KB+lWOcJQ=;
-        b=AVn8udBF+4PHKE5LX8y1AR2RiVK41Sg3ruqMo3HK7iNezvfY+4mp64ywm+XDFYgav/
-         iolAlFY3mueXXPtg8YAYXZrNTNckFPL2LDiWxprMVDACCOQg+HAxAEjHImMERJAS/6lx
-         YSeEDPETs2814misq1WplDeMrU+YAh+/MyXdeUZdhTcqq+tIX2Gd8xwB6fecp93b4S+D
-         5bOefgaKaLcipDsvwleJOcv/XVzqceGxO53n24vk7QZHIDwbmOqpGzYLAD59RVwbaWZN
-         dwXDGJsSJxGFEr6BMbzMS6Kbvdskk+sqXA/Z0miD13d0uKDnwq4/a6MCj09vOUqA5mpi
-         o6NQ==
-X-Forwarded-Encrypted: i=1; AFNElJ9NPwx3ipB//7gdN1Un27nluw/XqfBLF3oAGGCYaVFVSecxG6XoCk/u8cpNSYh2GocWbcgqLpwIII7axbIt1w==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwwkKj7fJ0WSBgMyCXknTYNZchqjtGccB4Z7MwvK3O4pCYik0DZ
-	Qo0JK4s59HLJMIUI5oSXV87Nh6Yn8/XkDyAeqXs4y0oOWDJY8k55u4vXnAroHYKpJBM=
-X-Gm-Gg: Acq92OFzfuK9bhgKln4D4yXqDL9ZoFrX/qWDggWJ2d2dnYfpMI9QnrWbi6BI8txhEof
-	FFL7Mqu7n9jg/fvVRC0csPOVFGyfqhCa4K3FmdClN8UOVc0GUjOhEdyQklClGQB7Zg/hrIFiTUT
-	c1hIBxh2Iy4WMHGs+se/EuD3PK4EQNLSZFKlr1G47oI4pIG7asj/dXiAm//xsP4n6b5EyIMV/Jr
-	B4y2ppvniBv9KtOtnbDeC8/ZBMzfcKQArAOBBqU2qlD7kreABFCkNDhrD7Q7KRwZjV55wFWAmat
-	5U5yv7zOYHAYiUv9DHtLXtw6iSXJun8na3Wga6I3ZRlIlwONJBUfOhOcEz3z+OjgKEIQRhDRCVT
-	774qDVRm3a+JyIlsno7hnbUy9UWBpOIg/6upAVC4HZjLTWnlodSTguDQXVMzALrfROPJKM0yPQb
-	JJgLgBlLWlbAYvfE6+jJ0+/0K20Nb/+8U/cJQIA7mfDcCm+dxob9O7vnkIyn/4zfqv1lIoKQfJR
-	03OQxufOSte
-X-Received: by 2002:a05:622a:14e:b0:50e:5e8d:87d2 with SMTP id d75a77b69052e-514d1c1fb5cmr54799371cf.1.1778603543444;
-        Tue, 12 May 2026 09:32:23 -0700 (PDT)
-Received: from gourry-fedora-PF4VCD3F (pool-100-36-248-188.washdc.fios.verizon.net. [100.36.248.188])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-5148e68a963sm123339831cf.13.2026.05.12.09.32.22
+        bh=fcCfUoqbPzi0QdWN4h/jl5Vlg/FOqMT66yAiEmc3y1Y=;
+        b=gnWYxTSozk1zEZ8237EjrO6+jbkOkHr+F/olp3n+qUSULJEd7FTWsNsCxZO8VPK1J6
+         HlvtlpTN3XNoZIKU2h8ce0q1FjWdvvGZGje/F9kXkU6yzk+Oo742wpF/EQVl5Dm2rYvX
+         RxWSvfTDwrnbBUzaMog/gh9vss5RBH2grDTFy50/9+LFnj9aVYESt8y9V2+8sRjGQJdV
+         56LdEDjvWMzaHwIbenUi5GpVWSeEhz0AZTgI8zOAC1IKMkyBovoLPTZxy7sHEyIX/m4t
+         qEa0mJcnTgFox3J9kCZecZ2RKsQN6NVeMC9b59if/6aaV3FekMH0vUnfUjL4DuHh6vKs
+         2fwQ==
+X-Forwarded-Encrypted: i=1; AFNElJ8tycg0VgS3oH96DQLjsZCdVZHu3leRYlVx6H+0V4MBRLewP/qPYHu8Bvh7HPfZ4h55T0bE2B/wG9p8Jfvzew==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yze4JybqWcQPGmh8k/e+hRXNnBovZp6ucSUGwvQFOArs6P2Lj/d
+	duVyrrpOtRqHwSImh0J5nziu45PNpEqA44A7vcLux8XOryiXuDSoGoDnqsu9/UQ3Ub0bAQMpDCG
+	WwlUaHkreQeu2sUFZNJUPlz07sQRnbMMXkUHeWsLtcHGaJzPZGqj4v4xKpFQexKX99+gx
+X-Gm-Gg: Acq92OGf3/7e9QpDX1zqJQ8H4c3JR/PZBNHqk3apOeDquico1W+srmffXAArTN7cdit
+	oMj+uXqiaP96BMBOCB3jn1TdRjUqrddLURLpLodHSXtE53qAepiWHFCwyLVN/5wLqzqUWKMednw
+	4U+xdPdA1MUd8C6El8esA9oMN/Ojlp9CNx5obfsc2NiHGRi3FojpB29dBWsc86h0axBRjhYgp1a
+	pfG0PwocAXb8qBht7v8wC/6PdZNpNkt9hHudS5B6uLgePcp/PULgmkh6TxEfbpIo1UXVjmYLB7p
+	dVm58Ok/IO4lOqWENN/TNU0vcrL28Z2z8nOhHaZ2xahdq6sIaVcEMcNyXQy8NPFsQnF2WX3TswS
+	Ddcb0MUrYIKEDZSwPhXotXQUbQYvZoMVDLEZVPupZ
+X-Received: by 2002:a05:620a:bc8:b0:8f4:3895:25da with SMTP id af79cd13be357-90cfd3510fbmr518773585a.25.1778603715447;
+        Tue, 12 May 2026 09:35:15 -0700 (PDT)
+X-Received: by 2002:a05:620a:bc8:b0:8f4:3895:25da with SMTP id af79cd13be357-90cfd3510fbmr518761985a.25.1778603714550;
+        Tue, 12 May 2026 09:35:14 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-48-7.inter.net.il. [80.230.48.7])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-907b8e9b24asm1430902685a.18.2026.05.12.09.35.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 May 2026 09:32:22 -0700 (PDT)
-Date: Tue, 12 May 2026 12:32:20 -0400
-From: Gregory Price <gourry@gourry.net>
-To: "Michael S. Tsirkin" <mst@redhat.com>
+        Tue, 12 May 2026 09:35:13 -0700 (PDT)
+Date: Tue, 12 May 2026 12:35:04 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Gregory Price <gourry@gourry.net>
 Cc: linux-kernel@vger.kernel.org,
 	"David Hildenbrand (Arm)" <david@kernel.org>,
 	Jason Wang <jasowang@redhat.com>,
@@ -97,69 +102,61 @@ Cc: linux-kernel@vger.kernel.org,
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
 	Andrea Arcangeli <aarcange@redhat.com>
-Subject: Re: [PATCH resend v6 20/30] mm: page_alloc: clear PG_zeroed on buddy
- merge if not both zero
-Message-ID: <agNWFPBTBszcq5GP@gourry-fedora-PF4VCD3F>
+Subject: Re: [PATCH resend v6 14/30] mm: hugetlb: use __GFP_ZERO and skip
+ zeroing for zeroed pages
+Message-ID: <20260512123246-mutt-send-email-mst@kernel.org>
 References: <cover.1778489843.git.mst@redhat.com>
- <a09c1848702368c3545b980c17101b5185ab774d.1778489843.git.mst@redhat.com>
- <agNNkvRK128bYhrf@gourry-fedora-PF4VCD3F>
- <20260512115805-mutt-send-email-mst@kernel.org>
+ <fe1d24d4deafe0f5d1a9c51fcc040d9561c8592a.1778489843.git.mst@redhat.com>
+ <agIFq63QZugkWcXJ@gourry-fedora-PF4VCD3F>
+ <20260511174337-mutt-send-email-mst@kernel.org>
+ <agKVIjvNwVajYwjz@gourry-fedora-PF4VCD3F>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <agKVIjvNwVajYwjz@gourry-fedora-PF4VCD3F>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 9dR_LOLKONdeklMxo1brGPBi7vikKpyjQ_4VrvG02Os_1778603716
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260512115805-mutt-send-email-mst@kernel.org>
 
-On Tue, May 12, 2026 at 11:58:27AM -0400, Michael S. Tsirkin wrote:
-> On Tue, May 12, 2026 at 11:56:02AM -0400, Gregory Price wrote:
-> > On Mon, May 11, 2026 at 05:03:35AM -0400, Michael S. Tsirkin wrote:
-> > > When two buddy pages merge in __free_one_page(), preserve
-> > > PG_zeroed on the merged page only if both buddies have the
-> > > flag set.  Otherwise clear it.
+On Mon, May 11, 2026 at 10:49:06PM -0400, Gregory Price wrote:
+> On Mon, May 11, 2026 at 05:47:48PM -0400, Michael S. Tsirkin wrote:
+> > On Mon, May 11, 2026 at 12:36:59PM -0400, Gregory Price wrote:
 > > > 
-> > > The merged page would inherit PG_zeroed, and a later __GFP_ZERO
-> > > allocation would skip zeroing stale data in the non-zero half.
+> > > This feels like a very odd pattern:
 > > > 
-> > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > > Assisted-by: Claude:claude-opus-4-6
-> > > Assisted-by: cursor-agent:GPT-5.4-xhigh
-> > > ---
-> > >  mm/page_alloc.c | 15 ++++++++++++++-
-> > >  1 file changed, 14 insertions(+), 1 deletion(-)
+> > >   1) ask for __GFP_ZERO
+> > >   2) Have to check whether it was actually zeroed
 > > > 
-> > > diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> > > index bd3b909cacdf..d70c9ba6b329 100644
-> > > --- a/mm/page_alloc.c
-> > > +++ b/mm/page_alloc.c
-> > > @@ -940,10 +940,14 @@ static inline void __free_one_page(struct page *page,
-> > >  	unsigned long buddy_pfn = 0;
-> > >  	unsigned long combined_pfn;
-> > >  	struct page *buddy;
-> > > +	bool buddy_zeroed;
-> > > +	bool page_zeroed;
+> > > Seems like the zeroing piece should just be sunk in if you're going to
+> > > ask for __GFP_ZERO anyway.  And in that case, maybe just `bool zero` as
+> > > an argument, rather than GFP (to avoid future overloading of flags).
+> > > 
+> > > ~Gregory
 > > 
-> > If you want to play some code golf, i think you can get away with a
-> > single bool here:
+> > Heh. The reason is that it either allocates from buddy - using gfp flags
+> > or from the pool, in which case it zeroes.
 > > 
-> >     bool zeroed;
-> >     zeroed = PageZeroed(buddy);
-> >     zeroed &= PageZeroed(page);
+> > We could even avoid the bool - just test __GFP_ZERO inside
+> > alloc_hugetlb_folio. Would that be better?
 > > 
-> >     if (zeroed)
-> >         __SetPageZeroed(page);
-> > 
-> > ~Gregory
 > 
-> Does it matter? It makes my head hurt.
->
+> Hard to know until we see the full shape of things, but it seems
+> reasonable if we can eliminate one or both new arguments that this would
+> be a good thing and the logic should just be sunk into hugetlb.
+> 
+> ~Gregory
 
-Less code generally means less bugs, but this is more style nits than
-anything.  Either way
 
-Reviewed-by: Gregory Price <gourry@gourry.net>
+BTW it does mean we need to use vmf->real_address there as user_addr
+as opposed to vmf->address which is HP aligned.
+I guess I'll switch everyone to use real_address then, for consistency.
 
-~Gregory
+
+-- 
+MST
+
