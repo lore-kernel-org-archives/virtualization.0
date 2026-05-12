@@ -1,64 +1,64 @@
-Received: from mail-qk1-f172.google.com (mail-qk1-f172.google.com [209.85.222.172])
+Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 797C9356765
-	for <virtualization@lists.linux.dev>; Tue, 12 May 2026 02:49:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A208D383327
+	for <virtualization@lists.linux.dev>; Tue, 12 May 2026 02:50:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778554151; cv=none; b=jhPBDflHoi/ONuS3T2Hz7ab0f9dBtIhEes1Dbzf8vLnDXdo/7I3GH7njOGHqAE8JVy2duxWJ51Zy9IFtbtBPEH5FAnld28L476yUDW1kITkNuCX3wFPKhot9mP6R/UscYIjo74EP+dTHAkh+XJ/+qu1T9tyf1l2wnr1TOPhlpOY=
+	t=1778554253; cv=none; b=WY50KihO/TLR8pItJ6cJ8qcLxlSBHUsZxEPPVO+M11Q26VkzML8vBUp5IEoWWkS1t0o50U9WRCdSBrh3lFIq1ILbG4zgAcD1ABCiinHhsydW5h4vw/t3mWH9U45MZTouiwz5FAO0hj3VWELuOk98EiAkMW8yShtTmKzIbfW29qI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778554151; c=relaxed/simple;
-	bh=fuQT2rqsnTCIwFqCU9ySXXBL7BsZDUXRJOhM5fhGb+0=;
+	s=arc-20240116; t=1778554253; c=relaxed/simple;
+	bh=ySpwvVwjaoz00brCrpac1ZXRE/yYfz3CspW4d8/R0Gk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=XHfrx5xY61rC5QCaL5+lV2+6SMc1vZiahf4DNd9hd2IQ3iIoiY0cYTkh69qwGZlI68/plGedQMh33RqaT4QvpXlsoLtytFGGxG9eO8wojxbW2cqKnuzO7Y9RPWO49FcxlKEIODhfDC9/vJ7i4SXciPolOaTOMgWPDB9m3BR40RI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=FyZ4Vt3J; arc=none smtp.client-ip=209.85.222.172
+	 Content-Type:Content-Disposition:In-Reply-To; b=u5psiEQ9/BQStVoh137p366+1v+Lr67JMnRja2k+kUDgx7sTOcieh1pf8g9G6sQztA+X1Y+GiEn0ZPzkVnxXxxsBDVj9Ek8bjU87jY53N4kImowgb1rncpZUT0uMlnBuyTlBqab5g6ZoS+qiCrnFg+oRDzVSp31HbpGDnuxRlpk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=lMHvFrcs; arc=none smtp.client-ip=209.85.222.179
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="FyZ4Vt3J"
-Received: by mail-qk1-f172.google.com with SMTP id af79cd13be357-8ee9ec26edaso597569285a.2
-        for <virtualization@lists.linux.dev>; Mon, 11 May 2026 19:49:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="lMHvFrcs"
+Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-8f231f3b130so385793185a.3
+        for <virtualization@lists.linux.dev>; Mon, 11 May 2026 19:50:52 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1778554149; x=1779158949; darn=lists.linux.dev;
+        d=gourry.net; s=google; t=1778554251; x=1779159051; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=S2BCFtdY8BstYcwPGt1OMwetfWeUvCIyaDq4u2dkV4Y=;
-        b=FyZ4Vt3JhDY8dfy+oCBuidehd/qXVPL4AiyLD9EC7i0fHMgYPo5dVKxL9731Np3Sla
-         4QR3pbw4asMnhRk2I0HJcsCSI6nWm+MId8WL0D7Voz2yRgW/4J+QIVCrA0eEsmb/X9hL
-         AGhakK1jzsbrX7YqoPmt5G3yxlR0owS5ZOgb0vnupxjCg6T1lhk3pjAWfIKzN5trxFEv
-         Cppp3+/ySQ8DgvyO7nMycli9h7l4dXBpppuPnNnTLORPy8pTWDl8VXe7yeE1K9L1/wjW
-         OvyHfaDpot4edPrACRk6hbYi3tekAodZbY5voa5YR3eH8gUuwvvtfHtIxt45psPNCW3h
-         i2mA==
+        bh=SkMrOM/wJbu6CYfcf0w3cGY5A4GXI3y3nMw7LLmua6c=;
+        b=lMHvFrcs/zsptoMKa6b7xh8N+9Fyg3BWps/v7BGe0whdk8lECg6s88kXDtRbewmUCq
+         AJSBPWJiaWgmzfXIBbSIhcTd/6+R75vLF8469bo12oRKD+C5cQKeM70l4D1PLfDoP0DW
+         SXATKcaplDAiuUu2jwV/l6I2g6S6knhB23jH0fQ69mFRwfWokiCZ1UelpfgJQgOmMeYE
+         ODSDg1YSq3IYTFk65uhU6fIp6gwwMCTGCtt1fh8vLU/3wTn981ZF8m+XFrXqyTXBdZND
+         N9I7l4hB1xCrJvBRL/M2ACHM7UVz9qjmJHXWpH6GuLcDg9sLE+Rg6JVYpLVedWvLV7gV
+         fhFg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778554149; x=1779158949;
+        d=1e100.net; s=20251104; t=1778554251; x=1779159051;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=S2BCFtdY8BstYcwPGt1OMwetfWeUvCIyaDq4u2dkV4Y=;
-        b=pPUxdqLbtyGvU1F3QoZqYK4kNhvZYUVpcOQOvhueOhvPLrniNUIBPBa+ZOjZCO2xa/
-         ZOw4fQ11nDIFDdPj8oZGrQIuS5WnC3zEnbyNAgv7muLZSUB7Mo5rmMsKYDNhSbVq0R8T
-         XL/TnZKMLfWp733EPkNMODNW4/wYdazhcj4Ng/y0fHVnDbxD6/a7StnUWQs/3OJNmEtg
-         WmsqtHDQhZoKw0llcG2SshgFbzb7A7ZtDkFo9ffqwyn33I4kWV7FbvLz6LOqmAoH0d7a
-         buYsAJ64tXFA0SZim6MXdziQZW60Sjg4fabIuXkQOvEXDzIFtNbg9qjklyPNVlmNVXq9
-         31zA==
-X-Forwarded-Encrypted: i=1; AFNElJ+UH61G2UfDt3t0pRhVzg4GdtB3LRXRFLDDnIxOcnlmDnQsJJ5EBvc/4nCD7KuMFG5j1YzZSBRgnuCDLkD8Zw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz5O5oVs8O8Uq5NHv6BgGxFyt9PEGBrn/YCLlRdtIPOUfVVXk/M
-	E8Hho2ZzNNM2kanrMUFwm8a8eMUKZfbqnnFGwt8xckzDG3s7dKKkv0dbk8O9xAevjE4=
-X-Gm-Gg: Acq92OFiySverdNWj+QnWJZukiCO96ywepFNCG5d9NSbcGxhW1kFPyF6iCrUCSEBsn0
-	onckY6aONEW4QFAiAUpm8aRZ/z18UxSNjLlHLEenoLaW/mL5od+LBU+k/Vj7vas6tOaTqKpUv0J
-	34wERSj5UaSwZEmij1e/d+miGgtOcuguD+XGiQz8BAxDuHtySeDEqb9eR7vXU0c7uVzLA3QMhkK
-	od6zVUO4dzyxHw3Us/iA+3wORtOX5IfIbG2oNHB5SfVBNHDyYRknENCyB/f9Pif1zg50P7friUU
-	hnYasdCjImbofCpKzBAyCmfmURUh9pjs59gxjushlpvwovR7/5blWxoODHhroqElWqA7ZaIcTfR
-	9nS3kqdqbjtrTe+ni1YhFdAzdsEuvyyLTTf0Zgen46HXOV/hLZD7jnJRjfUcGmJdCOWYqEs4EAf
-	eJNKUbXPN57lpXb+Hjpg5rdemY5pFVNCe6r6GnYFI2ZTeHourpAziLLIYahPBjUkuwMkoZaBsl2
-	biO61FZGyS1
-X-Received: by 2002:a05:620a:710c:b0:908:a758:baa7 with SMTP id af79cd13be357-90cfd34a203mr155310885a.35.1778554149388;
-        Mon, 11 May 2026 19:49:09 -0700 (PDT)
+        bh=SkMrOM/wJbu6CYfcf0w3cGY5A4GXI3y3nMw7LLmua6c=;
+        b=p0u+x/KQ85oWlJQtN1yTmn6f3OjEYIn66PVXM2EgS4nVrH9nAvJc6aOSZoYHzZKRkk
+         IL21oI46VIjkhnCd8JbPA1gF9CaOrM+BuFF1C73nmGwhToK3z0Ybwf9z/97Y6T4VmCch
+         38ugN48CH83sm07R3v85FhhtMptDXA2gTST793252A6B9MCtXObc6o2AdGebZj3WEeJT
+         T+BfoFyGFirNJH5I514KRwqvxieNASeEJxhpR5b3T5YYGNfFfAiWpc121x89E3EGjdUp
+         nv/74czxug/0PrUO6ev+3eZOVYdpzZfLjNKfRQOC7Y041ILt1LNUGHpdE/FUcznggS49
+         iC+g==
+X-Forwarded-Encrypted: i=1; AFNElJ8TL5LFd4kDdJL1xQP03hsHflrcv3Ia74wudA7nW8/yF1mN6fwHZbyt2NF00nqRHsyHST92mCGCzsvrdGe9JQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxZ0Yk8taKvABw1adC/oz5Uu0IvNC4KbH4HqakoSzvloKOIGCQ7
+	EBtOEWuP9ypguqvNYgeVNZzuDE/sltuOe/0qyt680jJXtpE/6jpIQL0pEguS47+E+Uw=
+X-Gm-Gg: Acq92OEWERbL7ZTYSTPXIHw0QS7QgBb9uDcEO2xHhgIIBnGdeFU33IosO7k5c603Yny
+	BXFHHdhzXM2VxfqmjAx1m/OJjtf/oXAYrE2/4OvUpa+4gkPTP4ORK7SikQZ6WV15WyEUUsslMjI
+	sCskU4MBhYvWCAsL/srqGJQ3uk4nBtuYMHlnrdrt8BYnWccCHy7PTDdNtcIWNYPzQ5idH4hLhK8
+	0dg4LZ586a5VodESUxBOVuyjSpLpWrXA5KznfDnqnNrZWgedvUUDI5DKDcGJg4SvnztIGH2Ium5
+	1T2u3xt56MZQMWB2n6+O6AI95pYQ0GMBQ7veybwWB4RBJnU0xgpkwoYnPEv/D9k+Hm+T85TjDk5
+	SxLxxX/D4um5fXXMGagk1R+IBYu+Q4ac+rMAqE2OsRcMJn+MMpWOah7KOslD/KYgpX6kOOrV0k1
+	HlXgEsX9q8hyOZ3d0zLFpJBIBMFbeqKpMWCZDlymfMVa0d2+th4/6gwFMUQ4K/56TB4jurXfz4F
+	M4TwUSt6lkb
+X-Received: by 2002:a05:620a:44c7:b0:8cd:b61f:2f48 with SMTP id af79cd13be357-904d64ea04amr4159360985a.42.1778554251519;
+        Mon, 11 May 2026 19:50:51 -0700 (PDT)
 Received: from gourry-fedora-PF4VCD3F (pool-100-36-248-188.washdc.fios.verizon.net. [100.36.248.188])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-8fc2cd04c68sm3293903085a.46.2026.05.11.19.49.07
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-907b9772b87sm1195078585a.5.2026.05.11.19.50.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 11 May 2026 19:49:08 -0700 (PDT)
-Date: Mon, 11 May 2026 22:49:06 -0400
+        Mon, 11 May 2026 19:50:51 -0700 (PDT)
+Date: Mon, 11 May 2026 22:50:48 -0400
 From: Gregory Price <gourry@gourry.net>
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-kernel@vger.kernel.org,
@@ -96,14 +96,18 @@ Cc: linux-kernel@vger.kernel.org,
 	Kemeng Shi <shikemeng@huaweicloud.com>,
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
-	Andrea Arcangeli <aarcange@redhat.com>
-Subject: Re: [PATCH resend v6 14/30] mm: hugetlb: use __GFP_ZERO and skip
- zeroing for zeroed pages
-Message-ID: <agKVIjvNwVajYwjz@gourry-fedora-PF4VCD3F>
+	Andrea Arcangeli <aarcange@redhat.com>,
+	"Liam R. Howlett" <liam@infradead.org>,
+	Harry Yoo <harry@kernel.org>, Hao Li <hao.li@linux.dev>
+Subject: Re: [PATCH resend v6 03/30] mm: thread user_addr through page
+ allocator for cache-friendly zeroing
+Message-ID: <agKViOG_YQci0ffN@gourry-fedora-PF4VCD3F>
 References: <cover.1778489843.git.mst@redhat.com>
- <fe1d24d4deafe0f5d1a9c51fcc040d9561c8592a.1778489843.git.mst@redhat.com>
- <agIFq63QZugkWcXJ@gourry-fedora-PF4VCD3F>
- <20260511174337-mutt-send-email-mst@kernel.org>
+ <9b53972f4854c1064b92cefc464f51949afeb83f.1778489843.git.mst@redhat.com>
+ <agH3wceKcPNmixCj@gourry-fedora-PF4VCD3F>
+ <20260511114853-mutt-send-email-mst@kernel.org>
+ <agIJOkLhTOsvJs1-@gourry-fedora-PF4VCD3F>
+ <20260511175032-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -112,31 +116,50 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260511174337-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20260511175032-mutt-send-email-mst@kernel.org>
 
-On Mon, May 11, 2026 at 05:47:48PM -0400, Michael S. Tsirkin wrote:
-> On Mon, May 11, 2026 at 12:36:59PM -0400, Gregory Price wrote:
+On Mon, May 11, 2026 at 05:59:23PM -0400, Michael S. Tsirkin wrote:
+> On Mon, May 11, 2026 at 12:52:10PM -0400, Gregory Price wrote:
+> > On Mon, May 11, 2026 at 11:55:40AM -0400, Michael S. Tsirkin wrote:
+> > > On Mon, May 11, 2026 at 11:37:37AM -0400, Gregory Price wrote:
+> > > > On Mon, May 11, 2026 at 05:01:55AM -0400, Michael S. Tsirkin wrote:
+> > > > 
+> > > > > +/*
+> > > > > + * Sentinel for user_addr: indicates a non-user allocation.
+> > > > > + * Cannot use 0 because address 0 is a valid userspace mapping.
+> > > > > + */
+> > > > > +#define USER_ADDR_NONE	((unsigned long)-1)
+> > > > 
+> > > > Ehm, hm.  Does -1 hold as a non-user address across all architectures?
+> > > > 
+> > > > What about in linear addressing / no VM mode?
+> > > 
+> > > this is used on a fault. I don't think there are any faults then?
+> > > But maybe FAULT_ADDR_NONE would be clearer.
+> > >
 > > 
-> > This feels like a very odd pattern:
+> > Meh, naming here is less relevant than the sentinel correctness.
 > > 
-> >   1) ask for __GFP_ZERO
-> >   2) Have to check whether it was actually zeroed
+> > My only concern is really whether -1 could end up being a valid address
+> > in some horrid future timeline and this all going belly up.
 > > 
-> > Seems like the zeroing piece should just be sunk in if you're going to
-> > ask for __GFP_ZERO anyway.  And in that case, maybe just `bool zero` as
-> > an argument, rather than GFP (to avoid future overloading of flags).
-> > 
-> > ~Gregory
+> > Is why I asked about whether this is correct on all architectures.
 > 
-> Heh. The reason is that it either allocates from buddy - using gfp flags
-> or from the pool, in which case it zeroes.
+> I think the answer is yes: on all architectures Linux supports, the last
+> page of the address space is never a valid user mapping. The kernel
+> enforces this -- mmap will not create a mapping whose end wraps past -1.
 > 
-> We could even avoid the bool - just test __GFP_ZERO inside
-> alloc_hugetlb_folio. Would that be better?
+>   if (addr > TASK_SIZE - len)
+>       return -ENOMEM;
+> 
+> 
+> So the maximum vm_end = addr + len <= TASK_SIZE.
+> On every architecture TASK_SIZE <= (unsigned long)-1, so vm_end can
+> never wrap around to 0 and address -1 can never be within any
+> VMA.
 > 
 
-Hard to know until we see the full shape of things, but it seems
-reasonable if we can eliminate one or both new arguments that this would
-be a good thing and the logic should just be sunk into hugetlb.
+That is worth documenting at least in the changelog if not the comment
+with the define there's a clue if anything ever changes.
 
 ~Gregory
