@@ -1,66 +1,71 @@
-Received: from mail-qt1-f169.google.com (mail-qt1-f169.google.com [209.85.160.169])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BD5A3C37BA
-	for <virtualization@lists.linux.dev>; Tue, 12 May 2026 15:40:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.169
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A51A23655E9
+	for <virtualization@lists.linux.dev>; Tue, 12 May 2026 15:46:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778600414; cv=none; b=WD1RQscExYSLftJhLrmkwyj2EKVDdtyB+vwrWs/3LBO8DYxBae10Eibx6q80U41RW2WREE24DvqZ1/tX3lk01pwp9JVRKor7Kcuq08u2tu8XHieDJeo5A1i+aZfkiFx4V+Aj2bve6PZoVVyZfI6ScoXR3a1TvbpCoC12BzVRWig=
+	t=1778600820; cv=none; b=VqIw34snKxLqipYW33cwiutB3Ro5RwThriAqSnxBDrWIpUztQhQBXWf8lVoZ14ir8OqyNY3vz/OEcPgzObZtGwEMThHA4p9Au9eLYAOkb1gGsCd6LmwQNL1eUBWek3gLD6KaNosJW4WvWovTst0bUNvCu8K5TlxbbJxvLoQL+P4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778600414; c=relaxed/simple;
-	bh=37/0dGsKGXLdxrESXaIymxbV6EGpsUKGLfdf2277/wI=;
+	s=arc-20240116; t=1778600820; c=relaxed/simple;
+	bh=85MVWieRjIr9XeWPe00hVIwtpgpudGUooADPlWLQ24Q=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=jvYQF3OXTxg7Uy36Mju7P6AodRn5jmEy8mKN513zbu56+AAmX1gQfKTq0h6sulaANgzCx+H1f05oCTw8HzJERIhrRc/ZGAEX23dAO32O7YrRdTAyr7Tz6onN0QAVRgYPgX/Bq1tescoBU3LmIvFkNkmFlAnCu0PPB/YX5jxKwPE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=h4g8W5cS; arc=none smtp.client-ip=209.85.160.169
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
+	 In-Reply-To:Content-Type:Content-Disposition; b=XL0RC7rjOeKJS3vyzeMaxfDyDBvQ+Z5hK6i8KThsV8GdeA3Pi7gOZjm6elFrNlzSPqQJTC6jFnIdxMxJOJbcY3XQUhfsGHtkxC5E2rBZhK7yRrnJ3q7f3bEfefsUvaODtMjlbttbysIXyQh8Y4IjBY7s1Vy03IMXpmxozL7raJk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=iYwkEbu8; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="h4g8W5cS"
-Received: by mail-qt1-f169.google.com with SMTP id d75a77b69052e-50fb1ad3734so68588471cf.1
-        for <virtualization@lists.linux.dev>; Tue, 12 May 2026 08:40:12 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1778600412; x=1779205212; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=nRmPo6ChRyQRQvzU7w1RFJ68U7NrVdIIy+TpNNJLR10=;
-        b=h4g8W5cSNgJT06UidxCGhfCy8m6DuRFQl56eIoz892meCCP8AnAcsLeiLTSny8xI6O
-         e94snOA3WO7oh1Ycx/i/CKvUy5/azmdgCDQ6X5G2bk7yb9kSm8E3ukRk8mbaga+XU0rb
-         FjBaoHkSnKrGWxKrvCMeZsYtO9tn9pgbtzUSWrDiSkwK6wXmfD/5qQwoaDImiJicOSow
-         EG6yzcmIYq1InBI/r4lNduDg1mSVAK0cIdezGc8LrEAJn6kIcnKQQSFDbaDhUvyXampn
-         cNredfsX1SR8VskiEoHVxq6uLMn1GXocVLTig4KiHrRjmZcTVKIxGUqJhlZjJEEVMulz
-         TXlQ==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="iYwkEbu8"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1778600817;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=bz4SWbhgAVm51cXT8NXKcag9UUTqJROZ/+vdmfbYWAM=;
+	b=iYwkEbu8ofxRHC3kDpGFd3nrWbs9OCNzXaErMkIJrsA6d5piSSO8hqsWfpA+f4nXmbIpwL
+	CTeg/Jct1lS0maqjko7e5tIbHcSTP3sFGQVJusOBLTWkHHon1t8k47TGWftRguF+KJO1x/
+	jDsqHjGuyrHas7ICMmWAPqFEt+4q3C0=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-41-C3Fn9dnJMm-k-lXLmlZ4Cw-1; Tue, 12 May 2026 11:46:54 -0400
+X-MC-Unique: C3Fn9dnJMm-k-lXLmlZ4Cw-1
+X-Mimecast-MFC-AGG-ID: C3Fn9dnJMm-k-lXLmlZ4Cw_1778600813
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-4411a36715dso4134051f8f.2
+        for <virtualization@lists.linux.dev>; Tue, 12 May 2026 08:46:54 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778600412; x=1779205212;
+        d=1e100.net; s=20251104; t=1778600813; x=1779205613;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=nRmPo6ChRyQRQvzU7w1RFJ68U7NrVdIIy+TpNNJLR10=;
-        b=BYaph+2ywWIF684keHxVBNCB0u9/9qsQq8JHnQaj0INS3s0/qcJO+3JZcBLd3HhoKe
-         9Ui1GJpNXayhMZoGdGjH8ZLMej8aumsV9AoimMrLRLxJup7/2L7jjC5kT4gxcCut0LnT
-         UFFpc++KJ5oDNFyBFpyrOO3kWu/NOXaRDSRk5QM98AoSNFEdMEQLmbn2fC5FG7vSjMWt
-         Q9qlQrdoVZFDw2b71STyyxwrjd0KW2QP6PV77QEbiRuMXDPFXjT8c+3rlh5n3ZxSUtGY
-         e0H85pN47MKS0fXkYBgaG95bgM3CW6n3Xplvh2LHVBeTR0FXEMsySAtLItiUkoAqSkH0
-         5xiw==
-X-Forwarded-Encrypted: i=1; AFNElJ9/VnRVilutjKChiZS0YKmgwaKdqzjgeVreiIbbZ1I9U3xaMLjjH3jIryf0cZUsfIrarEb6r04rzjnxjX2UPw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzZyjokOADL0PKSnVlYWGhlf69yd0qTA8Xs3VZZkX+fLeDiizZC
-	Up85rjkewv3Ip4hmavoojdOlM6TgA7IDRI8pcQ3xoYL0X/v3WBk/9pjsyi4Cyhv/djU=
-X-Gm-Gg: Acq92OG5ubw2QdnY7G1CMp9OloaVOQUP68XmnHGYVVFu90mFR6x7+tHChBhoRKP7PMm
-	tfQF+AB8wTmOdy2TdrPb13iy81q6CTN75fPeZWXxFhTIzPfHuoj66Giwe0PcHMPdURC4K4RmLU4
-	4HVBxaRnTJoJK6KuTQpS+Lpsl5cOmBEZaWCIjQp9utD/kjOFvMZ+Z5O2PXq8/oEvvXh9RErpj19
-	XjcK3tptWWhPuEXDKAlLwcZGzjd9psunPoCJ7IMKDOK+05OqRyNqnxJrH34E74hKCEg/rvQl04f
-	mMa76z/7MV8vvUAQ7bDT56sCvl2azOKXwexjat3VpG90XBS8fzzN5RG4l45vQIclNC5dDy5+mQw
-	/wVZvCxaawiIwFYPRcsUTJp0WVPz3d3HT9vmMhSkz76sfP7n42czlwNON4tk50sl+aKMK4GsesT
-	ntjLwuATTjwqrN/XILIelKD76csgXNPB4CnaL3knUrw7L/6zGRe4K7Oj1jLg5HNGoY55NADrYpj
-	xwkWDkwLNsj
-X-Received: by 2002:a05:622a:1a85:b0:50d:af03:c9ca with SMTP id d75a77b69052e-514cf02bcabmr55182511cf.38.1778600411826;
-        Tue, 12 May 2026 08:40:11 -0700 (PDT)
-Received: from gourry-fedora-PF4VCD3F (pool-100-36-248-188.washdc.fios.verizon.net. [100.36.248.188])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-5148e83dd35sm121584711cf.29.2026.05.12.08.40.09
+        bh=bz4SWbhgAVm51cXT8NXKcag9UUTqJROZ/+vdmfbYWAM=;
+        b=SdUGDHFUpP6w9gWUVW5azSvesLX0bCW7diJOz/ZzGb5b9S350/cZgjp7ecnyVTt6sf
+         gGJ6PG1WX4qZU2BOCWk/zRGwmYMauwtLimViB8q/Rx18IpZc1QFIy9PQS+WS6UNB7dth
+         jaTveOb5eRtzJB4MEPFHa4G7WF3/ugzDMSnf2gFM/Mv2SCNkYL9bOoZXuoQD2ynUvHi+
+         F+4FzxOBeMXCUj4LSghYxqvpW8ix9x58idImsIeHjnHQ670ZtWoWS6WRKgBPwE/nRTVj
+         BfKAKD/X9kU0Yg/QPKcm69mMnFETFOVIZNM60A4PNCUa6kTw8fm5jn96ZOXPfkTYtZRd
+         e3Ag==
+X-Forwarded-Encrypted: i=1; AFNElJ8QcGxC+MUxJ45LJdtG0J9hIYKgcT4q56VuKE6BHIDNa55o7nZ5q6p+MKMLOua9nSSrrR8GLryXBKQYOD22qA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwRNrcvi3yGF6StmMkdhdNCV4RRKIW9LNptaMmzymlsWQApX4v6
+	04LOfksweDPyhYuX7125cnUdGhY0ht7lxdNREysOoZb09Tr1pGE1bBhuW3XiYvcanPB/Cc4tuiC
+	cIqfAjP1itQ8Gj/2BodhZu4sn+m1e2BpjCHT+Z2bbh2Dvt7l5R53G0WG9tiLNwqDwF+Wd
+X-Gm-Gg: Acq92OGSKcheEj9NXls63BU0kdZoMYTajI25rl+ZmGDEiE0mkA7X3wBfZL1Thr6qWOc
+	2yErc+mh7Axy+871jY01ziY71j5QeCeC6ND9nXRaiy8trwZYje6/MXKQhExQHEHN/Wus4CWHbSq
+	BRgMEp6kyhTpXP9DZfLaywNI8T0PztXe6OejZpV4TsJlX1AXuG296mJrhPGPbl89PLO09jY/N+5
+	gx00DsobLiWqG6ITRG/Y10Z+a02+mrFpg0tz0URxHTGojOp1vLPayH1G40jSf1JmvD8tQK+Yoo9
+	nfhhmYKHrubCQvmvk0Z7zDIA1RTVPoHXmsSHY+RrOFBwsQYW/rsM75fPZV8vC6gDQd3zSutP2MY
+	F11/ge0UEwe4N9yTLdEX1oRUbZ+xYwCOG0o3dHorA
+X-Received: by 2002:a05:600c:198a:b0:489:1c1f:35f9 with SMTP id 5b1f17b1804b1-48e8fe50bbbmr58590555e9.9.1778600812916;
+        Tue, 12 May 2026 08:46:52 -0700 (PDT)
+X-Received: by 2002:a05:600c:198a:b0:489:1c1f:35f9 with SMTP id 5b1f17b1804b1-48e8fe50bbbmr58589455e9.9.1778600812271;
+        Tue, 12 May 2026 08:46:52 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-48-7.inter.net.il. [80.230.48.7])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-454913049ecsm32654384f8f.19.2026.05.12.08.46.47
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 May 2026 08:40:11 -0700 (PDT)
-Date: Tue, 12 May 2026 11:40:08 -0400
-From: Gregory Price <gourry@gourry.net>
-To: "Michael S. Tsirkin" <mst@redhat.com>
+        Tue, 12 May 2026 08:46:51 -0700 (PDT)
+Date: Tue, 12 May 2026 11:46:46 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Gregory Price <gourry@gourry.net>
 Cc: linux-kernel@vger.kernel.org,
 	"David Hildenbrand (Arm)" <david@kernel.org>,
 	Jason Wang <jasowang@redhat.com>,
@@ -99,35 +104,53 @@ Cc: linux-kernel@vger.kernel.org,
 	Andrea Arcangeli <aarcange@redhat.com>
 Subject: Re: [PATCH resend v6 17/30] mm: page_alloc: propagate PageReported
  flag across buddy splits
-Message-ID: <agNJ2BFRVTKINliT@gourry-fedora-PF4VCD3F>
+Message-ID: <20260512114352-mutt-send-email-mst@kernel.org>
 References: <cover.1778489843.git.mst@redhat.com>
  <6d98a35c94fa44b550afa66923c620511e2826f0.1778489843.git.mst@redhat.com>
+ <agNJ2BFRVTKINliT@gourry-fedora-PF4VCD3F>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <agNJ2BFRVTKINliT@gourry-fedora-PF4VCD3F>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 2izB9NthwtQhbtUBvjiLsbnZxMxrf7F27PTrQW3WCKw_1778600813
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <6d98a35c94fa44b550afa66923c620511e2826f0.1778489843.git.mst@redhat.com>
 
-On Mon, May 11, 2026 at 05:03:19AM -0400, Michael S. Tsirkin wrote:
-> When a reported free page is split via expand() to satisfy a
-> smaller allocation, the sub-pages placed back on the free lists
-> lose the PageReported flag.  This means they will be unnecessarily
-> re-reported to the hypervisor in the next reporting cycle, wasting
-> work.
->
+On Tue, May 12, 2026 at 11:40:08AM -0400, Gregory Price wrote:
+> On Mon, May 11, 2026 at 05:03:19AM -0400, Michael S. Tsirkin wrote:
+> > When a reported free page is split via expand() to satisfy a
+> > smaller allocation, the sub-pages placed back on the free lists
+> > lose the PageReported flag.  This means they will be unnecessarily
+> > re-reported to the hypervisor in the next reporting cycle, wasting
+> > work.
+> >
+> 
+> Is this issue generated by the changes in the overall patch set, or an
+> issue present regardless of the proposed zeroing avoidance feature?
+> 
+> If the former, then maybe just submit as a standalone patch, seems like
+> a useful improvement regardless.
 
-Is this issue generated by the changes in the overall patch set, or an
-issue present regardless of the proposed zeroing avoidance feature?
+The former but then the only issue is more reporting, and
+I couldn't find a benchmark that would quantify the performance
+difference.
 
-If the former, then maybe just submit as a standalone patch, seems like
-a useful improvement regardless.
+So the value of pushing a fix by itself is pretty low.
 
-If fundamentally tied to the zeroing-avoidance feature, then nudging
-this to the front or end of the series (depending on conflicts) would
-help focus the review of the core new feature.
 
-~Gregory
+> If fundamentally tied to the zeroing-avoidance feature, then nudging
+> this to the front or end of the series (depending on conflicts) would
+> help focus the review of the core new feature.
+> 
+> ~Gregory
+
+I can nudge it forward sure.
+
+-- 
+MST
+
