@@ -1,163 +1,261 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE346449EBB
-	for <virtualization@lists.linux.dev>; Tue, 12 May 2026 07:20:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3C05135A53
+	for <virtualization@lists.linux.dev>; Tue, 12 May 2026 07:35:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.2
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778570412; cv=none; b=oRDQP4jNuSpGwK38/oR+JVTRDS22kTqK7IjbVAhXHw0we7p7FV+2+sPPM+lDHiM2aFkWkkV3zk+0A2zXcY0NnTn6Fd1f+s31U92j/jLY2W32khcRMxGU15WGLCiPoD35vP5ms9yqPuQpR+YNsBnRG8b7uR98pQoZZ6kOMQTIB3M=
+	t=1778571311; cv=none; b=UJ0EoNtJGC+8JCU+wT2lhldCGUHf0+6jADUj6V5bk/23S+JaEatuMYgCLJhJDWMb+0bMS7Atu4jK9kmPVbuHAnchh5SD5mGggOF43ZzdJXUAZ6vjnxsAne5zXEG9X9Oj+NAH2FcN5e6td3+QmJ6i4sp1jvIb5SGKn2BjIkazp5Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778570412; c=relaxed/simple;
-	bh=C9nOtZphHGvpRbbB1mh095pYAR4HXW7ByitF0l7nAq0=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=b2u7mculKbbVc80N+pUXd/tRr4HbMbh/HUabkw2axSRbRDflOZ3+RCV5l77/GRs4atwSmCeOp7SawkmDA9/vAtWAAaZWBXoi8vjGTBMWzuZgy6p1jFqyNv7xtOQfxF3+JFP1EOL2eloIRCYFJPADTDWy4NwH3LxxmG3OQu2B0Z8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=a/qLRcRr; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1778571311; c=relaxed/simple;
+	bh=K5GwSgcN5nOwQNxe7zU+DNNa3FQh2k7ElRe7tMQ+39s=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=EtPYg2s099Z3nnBn9vmpkLycW/1f5uiChgLY3I/s51gBI2gljRWxafhX5IGQCXr1btyJYJoV6f6ILhavHFj7g6cr/Eyi852V2CVYhbqjcIdpm842uJJ+MYsUbn85knWI5drH+5oZRal3V9iPv96NRYAXs/pOV1eOpY/U/5InRpk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=TanoH8Rr; arc=none smtp.client-ip=220.197.31.2
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="a/qLRcRr"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1778570406;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=QjTia8hEEWTMEUzJIZRRaWOPCFQqnc9xnPKI05ARaEw=;
-	b=a/qLRcRrpV7bC6S1euMGgPpBYOi/lVZ3WoGPZefAZ5arSzWMlsi/v9pIopdBvpcRqqOsTP
-	TazwQYW0Act/DJuN4vxWi4FXbT/tYIXvZHaha03usQakdu6yE0SPyIhAvEiO/yKfOUeNSy
-	BeL0j7jroPSe/yLV0hVlv6meuGDacrk=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-457-3Yxe1zOzPbKX3Tj74J8LFg-1; Tue, 12 May 2026 03:20:05 -0400
-X-MC-Unique: 3Yxe1zOzPbKX3Tj74J8LFg-1
-X-Mimecast-MFC-AGG-ID: 3Yxe1zOzPbKX3Tj74J8LFg_1778570404
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-48d1b294dfeso46753355e9.0
-        for <virtualization@lists.linux.dev>; Tue, 12 May 2026 00:20:05 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778570404; x=1779175204;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=QjTia8hEEWTMEUzJIZRRaWOPCFQqnc9xnPKI05ARaEw=;
-        b=oL5MSPOZue0kQ/2QmMHu8lRp7diYhljuOMpX+s7pQCyC2YJLQNtfG3s3B4EofV8lJi
-         iHsvmwdcmAVk6rNoXHC5Y1Cu/mVeQIx8mOwdFK//zMBWbAj95qrNCJoAARpXRZGxMqFw
-         nP2chweF1EmyQGMzE9jEl31AkEz8ap3RET4HBNfKEw6x4TT9i79Ohihi+xD3v3i2fx9/
-         wNbCBuZnSnSqyTzHOrMiWm3QOfPXl5MJZsnFr+twp7PvY0qUe1zaustpiT+4ivN/h3e+
-         tfqwnM2o3Jd2Bq68jaAFTtscRtGw1QXObayeaiStjaBPBUYXOeb8JEzmSudle179J4oX
-         LXmw==
-X-Forwarded-Encrypted: i=1; AFNElJ9ys7+c8zhwr/dCUaDDfDGe3i+lq81VKevxhTSyAF+LWBKCDZLcZhqD5dPbLJldB2nSYCOG/Q6/lXTj4i9K1A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxklLLokoOyQL6NL8IW+KkVpzjOCItfausxLbK4YX+Sbn+DGg4C
-	7jq/4LvuDMKyMjUQiWg0W/qkumSMEUt9tFOZTUODGWM6KM62f1F/+I2ibGylNsAZpWKS2S8S7Nn
-	rH6kcGWV59OJW/JNnz7HTmeUbxJmdEfgin6HqV+zzVIIVMK3DNsi5IqLq26k4DpbrEMLi
-X-Gm-Gg: Acq92OG5eEkSTCu9VU7JNrzwHLiFgSw/E2gWDhyGCwzrv68vlX25kXqV+/8QIDwtSgh
-	pPgN3FTtKkcqe5F2ZrfFmsfJ+GQE6AW5FMicr1teCo9sTt+2/v1XHMrfxHINwOdlXgsHyaFORMs
-	dQAJr/dTG/cvIkWrmizIhUjST+E/a+TpKsxMRSRin0XzlJwjWJ75GfmTTphOT9cER9lfcs+35Zr
-	UMlg7wVnsd7RxyoGo8xJHmN5eSXsPNVZ48qVxhgmXz9SnV1cLmrd2yvOopIWETEP9kvithR1Vpt
-	C9ETwR/3UHggLaphLvt1j5+JPX0yzhUqseHJaadbJFOmE/WDmt3kPDNaYPeg+y9TnkIULC+F+0O
-	9rzgylVlacCG8N405l+WkL45RotRKOx8NbE+YjXq3mnym4GwwaoGA2br1rVHKarfgq5+XX6MwDQ
-	==
-X-Received: by 2002:a05:600c:3ba8:b0:48a:97b6:7420 with SMTP id 5b1f17b1804b1-48e707fbac7mr215489095e9.24.1778570403965;
-        Tue, 12 May 2026 00:20:03 -0700 (PDT)
-X-Received: by 2002:a05:600c:3ba8:b0:48a:97b6:7420 with SMTP id 5b1f17b1804b1-48e707fbac7mr215488205e9.24.1778570403394;
-        Tue, 12 May 2026 00:20:03 -0700 (PDT)
-Received: from sgarzare-redhat (host-87-16-204-231.retail.telecomitalia.it. [87.16.204.231])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48e906ae8b5sm44119615e9.6.2026.05.12.00.20.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 May 2026 00:20:02 -0700 (PDT)
-Date: Tue, 12 May 2026 09:19:58 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Jakub Kicinski <kuba@kernel.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, 
-	Eric Dumazet <edumazet@google.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
-	virtualization@lists.linux.dev, "David S. Miller" <davem@davemloft.net>, 
-	Jason Wang <jasowang@redhat.com>, Simon Horman <horms@kernel.org>, linux-kernel@vger.kernel.org, 
-	Paolo Abeni <pabeni@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, kvm@vger.kernel.org, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>
-Subject: Re: [PATCH net] vsock/virtio: fix skb overhead accounting to
- preserve full buf_alloc
-Message-ID: <agLR7RkX_3kvL_qw@sgarzare-redhat>
-References: <20260508092330.69690-1-sgarzare@redhat.com>
- <20260508055125-mutt-send-email-mst@kernel.org>
- <af2y2Fyp7H-om-ur@sgarzare-redhat>
- <20260508063104-mutt-send-email-mst@kernel.org>
- <af28MAV0LF4qHVmB@sgarzare-redhat>
- <CAGxU2F65pw0P1uKOOJpBc4p6KjCz8iePEh9aPybUyECBm1=otg@mail.gmail.com>
- <20260511084551-mutt-send-email-mst@kernel.org>
- <CAGxU2F6TPfRxZ7SX20vXiqDM4_sY3yUQBUSfEM=Nr+TKXwT9mA@mail.gmail.com>
- <20260511164841.7f7ff557@kernel.org>
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="TanoH8Rr"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version; bh=cq
+	b7f6qTbZ1JS45iQgifhY0a9cuj5tIaD912vws6kYs=; b=TanoH8RrPvWMFWPxni
+	aD06mdl9cWJfrmqNe9fhoYo/F7GcuuTZ3q+1eCijS7yV2EoCCkey+7JPwtzoZEtb
+	spSBu6kAFbeHOKM7dTY5rmR7R+B/FaD//M0HQs9UH3YuQb5y/c1FAbQDiysBDV5L
+	7VNPSsZngbsNlqHCmB6/W5afE=
+Received: from neo-TianYi510Pro-15ICK.. (unknown [])
+	by gzga-smtp-mtada-g0-0 (Coremail) with SMTP id _____wDHj9n_1wJqBw1gAw--.30116S2;
+	Tue, 12 May 2026 15:34:23 +0800 (CST)
+From: liuqiangneo@163.com
+To: kraxel@redhat.com,
+	airlied@redhat.com
+Cc: airlied@gmail.com,
+	simona@ffwll.ch,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	tzimmermann@suse.de,
+	virtualization@lists.linux.dev,
+	spice-devel@lists.freedesktop.org,
+	dri-devel@lists.freedesktop.org,
+	linux-kernel@vger.kernel.org,
+	Qiang Liu <liuqiang@kylinos.cn>
+Subject: [RESEND PATCH v3] drm/qxl: Convert qxl release idr to xarray
+Date: Tue, 12 May 2026 15:34:19 +0800
+Message-ID: <20260512073420.146826-1-liuqiangneo@163.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260511164841.7f7ff557@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: H72zQblACCCUt-EAOJEufh13c-PZte8tB4pvzOVwxo0_1778570404
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:_____wDHj9n_1wJqBw1gAw--.30116S2
+X-Coremail-Antispam: 1Uf129KBjvJXoW3Gr1Dtw1fJFy5Cw18XrWfuFg_yoWxCF1xpF
+	W8JFW5Ar4UJr4qgFnrAanrXF1Sv3W5Kay5GFW7ta43Zw15try5Jr15JF4qqrZ0yFZ5Aa17
+	Xa1UKryUCF1UWaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jna93UUUUU=
+X-CM-SenderInfo: 5olx1xxdqj0vrr6rljoofrz/xtbC-B9QsWoC1-8YqQAA3z
 
-On Mon, May 11, 2026 at 04:48:41PM -0700, Jakub Kicinski wrote:
->On Mon, 11 May 2026 15:17:56 +0200 Stefano Garzarella wrote:
->> > > Okay, I thought it over over the weekend, and I agree that this patch
->> > > still doesn't solve the problem and would still result in packet loss.
->> > > So, until we resolve the issue permanently, and since 059b7dbd20a6 is
->> > > coming to stable, I'd like to rework this patch so that we only start
->> > > dropping packets when the overhead plus the queued bytes exceeds
->> > > `buf_alloc * 2`.
->> > > Removing the other changes to reduce the buf_alloc advertised, but
->> > > terminating the connection so that both peers are aware that something
->> > > went wrong.
->> > >
->> > > Any objections?
->> > >
->> > > Stefano
->> >
->> > Let's try to first fix it upstream properly please. Discuss backporting
->> > later.
->>
->> Commit 059b7dbd20a6 ("vsock/virtio: fix potential unbounded skb
->> queue") is already in Linus tree and will land soon on stable. Which
->> issue do you see on having a patch on top of that to close the
->> connection instead of losing data and breaking our test suite?
->>
->> IMO we need that change in any case, because the previous code also
->> discarded packets without any notification, whereas breaking the
->> connection would be better in that case.
->
->Sorry if I'm speaking out of turn or misunderstanding but, like Michael
->says, let's focus on fixing this the way we want it to be fixed?
+From: Qiang Liu <liuqiang@kylinos.cn>
 
-IMHO, these are two separate issues (related but still separated):
+Replace the release_idr + release_idr_lock to an XArray.
+IDR internally uses xarray so we can use it directly which simplifies our
+code by removing the IDR wrapper.
 
-1. taking overhead into account and setting a limit (which Eric started 
-doing in 059b7dbd20a6)
+Signed-off-by: Qiang Liu <liuqiang@kylinos.cn>
+---
+RESEND v3:
+- Address Sashiko's review.
+- DRM atomic_update does not run in a no-sleep atomic context;
+  the "atomic" means DRM state update semantics, not CPU atomicity,
+  so GFP_KERNEL is safe to use here.
+- In current qxl_kms.c, it appears to be avoided by XA_FLAGS_ALLOC1.
+- Request maintainers'further review. Thanks
 
-2. reducing overhead by also merging SEQPACKET as Michael proposed (we 
-already do this for STREAM).
+v3:
+- Change the type of 'handle' to u32.
+  'xa_limit_31b' restricts the range of 'handle',
+  so an implicit cast to 'int' is safe.
+- Keep xa_lock in xa_lock due to concurrent access.
 
-Even with option 2, the overhead won’t disappear, and we should maintain 
-a limit as Eric rightly pointed out, especially since the initial 
-problem was a flood of EOMs with 0 or 1 bytes, which option 2 doesn’t 
-solve, since the overhead will eventually explode.
+v2:
+- Use xa_limit_31b instead of xa_limit_32b to keep IDs within INT_MAX.
+- Use GFP_KERNEL instead of GFP_NOWAIT because the context is sleepable.
+- Cast to u32 to avoid sign extension when atomic counter wraps above INT_MAX.
+---
+ drivers/gpu/drm/qxl/qxl_drv.h     |  6 ++--
+ drivers/gpu/drm/qxl/qxl_kms.c     |  4 +--
+ drivers/gpu/drm/qxl/qxl_release.c | 49 ++++++++++++++-----------------
+ 3 files changed, 27 insertions(+), 32 deletions(-)
 
-So I agree that we should implement 2 as Michael proposed, but I think 
-we also need to fix 1 by improving it slightly (as I’ve tried here, and 
-would like to do in v2).
-
-Since I have v2 ready and tested, I'll send it because I think we should 
-have it in any case, even with option 2 implemented.
-
->IIUC you are trying to minimize the size of the fix, please don't worry
->about the LoC in the diff at this stage.
->
-
-Okay, I'll try to work on it, but this week is a nightmare. I hope to 
-come up with something by building on Michael's idea.
-
-Thanks,
-Stefano
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.h b/drivers/gpu/drm/qxl/qxl_drv.h
+index cc02b5f10ad9..cf9decf39022 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.h
++++ b/drivers/gpu/drm/qxl/qxl_drv.h
+@@ -35,6 +35,7 @@
+ #include <linux/firmware.h>
+ #include <linux/platform_device.h>
+ #include <linux/workqueue.h>
++#include <linux/xarray.h>
+ 
+ #include <drm/drm_crtc.h>
+ #include <drm/drm_encoder.h>
+@@ -208,11 +209,10 @@ struct qxl_device {
+ 	struct qxl_memslot surfaces_slot;
+ 
+ 	spinlock_t	release_lock;
+-	struct idr	release_idr;
+-	uint32_t	release_seqno;
++	struct xarray	release_xa;
++	atomic_t	release_seqno;
+ 	atomic_t	release_count;
+ 	wait_queue_head_t release_event;
+-	spinlock_t release_idr_lock;
+ 	struct mutex	async_io_mutex;
+ 	unsigned int last_sent_io_cmd;
+ 
+diff --git a/drivers/gpu/drm/qxl/qxl_kms.c b/drivers/gpu/drm/qxl/qxl_kms.c
+index 461b7ab9ad5c..0cebaf88f407 100644
+--- a/drivers/gpu/drm/qxl/qxl_kms.c
++++ b/drivers/gpu/drm/qxl/qxl_kms.c
+@@ -227,8 +227,8 @@ int qxl_device_init(struct qxl_device *qdev,
+ 		goto cursor_ring_free;
+ 	}
+ 
+-	idr_init_base(&qdev->release_idr, 1);
+-	spin_lock_init(&qdev->release_idr_lock);
++	xa_init_flags(&qdev->release_xa, XA_FLAGS_ALLOC1);
++	atomic_set(&qdev->release_seqno, 0);
+ 	spin_lock_init(&qdev->release_lock);
+ 
+ 	idr_init_base(&qdev->surf_id_idr, 1);
+diff --git a/drivers/gpu/drm/qxl/qxl_release.c b/drivers/gpu/drm/qxl/qxl_release.c
+index 06979d0e8a9f..afed1096cf7b 100644
+--- a/drivers/gpu/drm/qxl/qxl_release.c
++++ b/drivers/gpu/drm/qxl/qxl_release.c
+@@ -88,8 +88,9 @@ qxl_release_alloc(struct qxl_device *qdev, int type,
+ 		  struct qxl_release **ret)
+ {
+ 	struct qxl_release *release;
+-	int handle;
++	u32 handle;
+ 	size_t size = sizeof(*release);
++	int r;
+ 
+ 	release = kmalloc(size, GFP_KERNEL);
+ 	if (!release) {
+@@ -102,19 +103,15 @@ qxl_release_alloc(struct qxl_device *qdev, int type,
+ 	release->surface_release_id = 0;
+ 	INIT_LIST_HEAD(&release->bos);
+ 
+-	idr_preload(GFP_KERNEL);
+-	spin_lock(&qdev->release_idr_lock);
+-	handle = idr_alloc(&qdev->release_idr, release, 1, 0, GFP_NOWAIT);
+-	release->base.seqno = ++qdev->release_seqno;
+-	spin_unlock(&qdev->release_idr_lock);
+-	idr_preload_end();
+-	if (handle < 0) {
++	r = xa_alloc(&qdev->release_xa, &handle, release, xa_limit_31b, GFP_KERNEL);
++	release->base.seqno = (u32)atomic_inc_return(&qdev->release_seqno);
++	if (r < 0) {
+ 		kfree(release);
+ 		*ret = NULL;
+-		return handle;
++		return r;
+ 	}
+ 	*ret = release;
+-	DRM_DEBUG_DRIVER("allocated release %d\n", handle);
++	DRM_DEBUG_DRIVER("allocated release %u\n", handle);
+ 	release->id = handle;
+ 	return handle;
+ }
+@@ -143,9 +140,7 @@ qxl_release_free(struct qxl_device *qdev,
+ 	if (release->surface_release_id)
+ 		qxl_surface_id_dealloc(qdev, release->surface_release_id);
+ 
+-	spin_lock(&qdev->release_idr_lock);
+-	idr_remove(&qdev->release_idr, release->id);
+-	spin_unlock(&qdev->release_idr_lock);
++	xa_erase(&qdev->release_xa, release->id);
+ 
+ 	if (dma_fence_was_initialized(&release->base)) {
+ 		WARN_ON(list_empty(&release->bos));
+@@ -261,14 +256,14 @@ int qxl_alloc_surface_release_reserved(struct qxl_device *qdev,
+ 				       struct qxl_release **release)
+ {
+ 	if (surface_cmd_type == QXL_SURFACE_CMD_DESTROY && create_rel) {
+-		int idr_ret;
++		int xa_ret;
+ 		struct qxl_bo *bo;
+ 		union qxl_release_info *info;
+ 
+ 		/* stash the release after the create command */
+-		idr_ret = qxl_release_alloc(qdev, QXL_RELEASE_SURFACE_CMD, release);
+-		if (idr_ret < 0)
+-			return idr_ret;
++		xa_ret = qxl_release_alloc(qdev, QXL_RELEASE_SURFACE_CMD, release);
++		if (xa_ret < 0)
++			return xa_ret;
+ 		bo = create_rel->release_bo;
+ 
+ 		(*release)->release_bo = bo;
+@@ -277,7 +272,7 @@ int qxl_alloc_surface_release_reserved(struct qxl_device *qdev,
+ 		qxl_release_list_add(*release, bo);
+ 
+ 		info = qxl_release_map(qdev, *release);
+-		info->id = idr_ret;
++		info->id = xa_ret;
+ 		qxl_release_unmap(qdev, *release, info);
+ 		return 0;
+ 	}
+@@ -291,7 +286,7 @@ int qxl_alloc_release_reserved(struct qxl_device *qdev, unsigned long size,
+ 				       struct qxl_bo **rbo)
+ {
+ 	struct qxl_bo *bo, *free_bo = NULL;
+-	int idr_ret;
++	int xa_ret;
+ 	int ret = 0;
+ 	union qxl_release_info *info;
+ 	int cur_idx;
+@@ -312,11 +307,11 @@ int qxl_alloc_release_reserved(struct qxl_device *qdev, unsigned long size,
+ 		return -EINVAL;
+ 	}
+ 
+-	idr_ret = qxl_release_alloc(qdev, type, release);
+-	if (idr_ret < 0) {
++	xa_ret = qxl_release_alloc(qdev, type, release);
++	if (xa_ret < 0) {
+ 		if (rbo)
+ 			*rbo = NULL;
+-		return idr_ret;
++		return xa_ret;
+ 	}
+ 	atomic_inc(&qdev->release_count);
+ 
+@@ -362,7 +357,7 @@ int qxl_alloc_release_reserved(struct qxl_device *qdev, unsigned long size,
+ 	}
+ 
+ 	info = qxl_release_map(qdev, *release);
+-	info->id = idr_ret;
++	info->id = xa_ret;
+ 	qxl_release_unmap(qdev, *release, info);
+ 
+ 	return ret;
+@@ -373,11 +368,11 @@ struct qxl_release *qxl_release_from_id_locked(struct qxl_device *qdev,
+ {
+ 	struct qxl_release *release;
+ 
+-	spin_lock(&qdev->release_idr_lock);
+-	release = idr_find(&qdev->release_idr, id);
+-	spin_unlock(&qdev->release_idr_lock);
++	xa_lock(&qdev->release_xa);
++	release = xa_load(&qdev->release_xa, id);
++	xa_unlock(&qdev->release_xa);
+ 	if (!release) {
+-		DRM_ERROR("failed to find id in release_idr\n");
++		DRM_ERROR("failed to find id in release_xa\n");
+ 		return NULL;
+ 	}
+ 
+-- 
+2.43.0
 
