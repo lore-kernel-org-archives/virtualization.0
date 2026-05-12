@@ -1,66 +1,71 @@
-Received: from mail-qk1-f171.google.com (mail-qk1-f171.google.com [209.85.222.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF1FE3B813E
-	for <virtualization@lists.linux.dev>; Tue, 12 May 2026 15:58:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 222AB3C7697
+	for <virtualization@lists.linux.dev>; Tue, 12 May 2026 15:58:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778601504; cv=none; b=oh+tF5q13eVznrAmH2u4fnm1acmWWa/5x+Yk+9c7WmFb80hMJAzFAkpU9a69/vMtbZmbS0mcBs/oCx8D1tSX2R04K6gHXzZYZth3cUuAAKARRfLPqp5Y5zeRTv90pAIwJ+14v7BPrTmogiHgs247T4qKF2c4dTzpOHfzAr24Ndc=
+	t=1778601521; cv=none; b=uVAjsq1nXQFbwbi+e/95aNpud/ExVDQctShDoVQjYMyj/4TX8nl3y6SQV5ncHM6ZdJa5O0cP9FYDchcdGjox+hkMlva4p/PxnnQWYh/3gKmX/Jk3HmXUAQwGzJ2k4/TkSoLX0LPhxVVeRMoO/bch5cJfJ30wBTNLZabCQ5DVMW0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778601504; c=relaxed/simple;
-	bh=NzD4h2kSUF+6CRseCSre92wX0gOpPLHk9AG9LuS8TK4=;
+	s=arc-20240116; t=1778601521; c=relaxed/simple;
+	bh=mFetL9IY8I56RXGEOxBcuN5Aswd7wGUXfiI2cWEQz1g=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=UkQqA1KZ+4PXX6E5o9Byie64tmIXRuzznHLQ/9oJukylG7pM3fyhujEb5N2mO2pF/O2x4MBRMqvG+EqXggKVrQ01tUQmvfuQD2id0OrMErxGXM/9Uk97kdYjSG9GEblZTRTH7b1THVAfsZFdIKdVUj9n4gfN7dEM17pRIj6SSOA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=H3uYFwo/; arc=none smtp.client-ip=209.85.222.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
+	 In-Reply-To:Content-Type:Content-Disposition; b=UVTA5OoxysKMOvpMPBZI2zGpYhXldz4+enZITHgvi25iCzS5pLe/brac56U3l2IYvtDNhyiZvAHMnf1ADNoRM0p0s9HkUxYMYuimq1jY84/o5rrgzB+Uw2GrlAtVyyYnTl4EwYStgkdl88u7huy6tZMvBD6JdRq0kDQI6BxWL1k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PeIJBkw2; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="H3uYFwo/"
-Received: by mail-qk1-f171.google.com with SMTP id af79cd13be357-8d4f78fc9f6so579579885a.3
-        for <virtualization@lists.linux.dev>; Tue, 12 May 2026 08:58:21 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1778601501; x=1779206301; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=fEDDU+f7CbkQFEw8YKAGo16eQTvjIgO+nLY/Z+AdBuk=;
-        b=H3uYFwo/lgmUyyUtek3NPLc6LbOMmyjfRk0EPYSsZvjEX/OltY5hyunGRYIMmdu+wX
-         k4r05NThnlGIz4bwkJAStqMdYr+KJA/9+BhTGFcpJJkKlaV1Yt2Ds/YrjRy3LF2XUpFZ
-         t6Smr3tKAZoBfmPCpuw2q39U6ybuTGqU5+nYAq9gn/CtBtsxNAHJwr6LqVztFY7P2mcX
-         1GytKrrZF+MdHkIzFRQ2zHznSZvBq2eTtnFSGYyb09OttqOq7C1no3lJGkYU9+joEk/4
-         jbN5q5JS8bFVHdbDY489CS9nVkPH7WbNUGMaVY1qvHr1BTDa466+1YndIuwyIp4azTfB
-         BOEw==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PeIJBkw2"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1778601516;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=XJW4f8tXo6Lfw2obSKyz1GioGSG/zB4IqguSnk2BuqQ=;
+	b=PeIJBkw2++2FsHg1LRSRKHyaeWtpPa05VL0aCXgw7igSpm2jg5uK8xKdfi2Tj79zwRVvE0
+	IfhISITcTs5KX4Ea/d8mq98ub4tLED34z1dC/mSSfVjhFxD6pSoDZOkKj/SvgEOlMqU0qU
+	9zYU3xguq4sxOgoRz+u1fbe6jRxM51s=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-422-ahauIIXiNFSTI75sYIaqGg-1; Tue, 12 May 2026 11:58:35 -0400
+X-MC-Unique: ahauIIXiNFSTI75sYIaqGg-1
+X-Mimecast-MFC-AGG-ID: ahauIIXiNFSTI75sYIaqGg_1778601514
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-48fc8dd6be2so580195e9.1
+        for <virtualization@lists.linux.dev>; Tue, 12 May 2026 08:58:34 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778601501; x=1779206301;
+        d=1e100.net; s=20251104; t=1778601514; x=1779206314;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=fEDDU+f7CbkQFEw8YKAGo16eQTvjIgO+nLY/Z+AdBuk=;
-        b=OlfJTA5hVMh57l/9U7TAyHaShzGbYDn7AZcub3m4VZxbB0QJWiAYVY3n/8lgaGFM7C
-         xo26XTVAV6I5UobILYt7nFSfjHqTsEPTFHMg+EMkA2ByuPrZZq2vMflYIbexzAZCLEH5
-         2WnJt6xaMCUUvxB3ygEbfc8/nsonK4qltbIDCCseRjaTbzwyG+syO9Sr2qNLIjVcpOOX
-         9KBWszQQGb6t9YAvI1joD9Syb7c0rJcvvfj5RiF/wemzKeiBLea5WY4CgHOektzBHiX2
-         XByagG9vLsofAHFaQu8WJhp7xrpxo2iD1S3/Qr7lBUk4dGXN0+nCwkHoGW2L4Q2nvxfG
-         zFZQ==
-X-Forwarded-Encrypted: i=1; AFNElJ9SK1YkGv05M1bZVDdpypN2rA4w0QN4lnMKAf95Iw5cLbh9+OGQdsi6z023kUN7Qt9IJ0eCjmP1+Ac/LjAAyw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyvocEaM/wE6JHvEIH/3EFoYSRX/yVJdLL1pnfu/AUHJT5xZntU
-	EfKSHQzCUSOVc4HJX6VZMAHHlfGSR/XsAXBmuHpNzCjiVpGsj/7LLK9lTqa5Gj684c4=
-X-Gm-Gg: Acq92OEmDrQuutH/f9Bc3OFnSxgUA8Os3fgYSrMm7AaD8+4DQSMZTKu40yS8sfGHT8u
-	U7PhxsYc9YWDoNHbrL1Pwab0hhz2gq7EFEnKRJ9Vq1MDNIcX9TF2D8AtDgooALMBPeh8X8zn9Zy
-	B/BZRIsEEYtt3MhzMQ+pEakfsFdawQf7LOlsNt7BlAiTowxOiNoS76Ypn92XTvtdSp/aigITL2z
-	SYh/3ixKFioB6OOIxnJgdf+mRv3+CMWK9FaBaD4XV45cj+ElPDonSIvNArO0jhGY7XXpGsYqw40
-	oZFL3QrvJayLQ+3o2uqwpxBrPWEWMYNwSRtGaOyb7oBuDxUxxf+VCGH7ZVmaAsjJZbHLXlc+0gd
-	V9fyc1JOPuOcSVI66oJ6aOrPKlDguOsuaKyvN/IBd+FANIM2x1u/i+o69EetuymSJu6h3rArfyA
-	abm3D7ZygTJ3fC+IbmgDepb2cMeum3pf9Loxu54tTE+TBc5cz7Z35/Amjq8GM+EtByX6lqYqhen
-	SQ7G8FAAAzw
-X-Received: by 2002:a05:620a:46a5:b0:8cf:d6f8:599f with SMTP id af79cd13be357-90cffa5b9a3mr483433885a.57.1778601500616;
-        Tue, 12 May 2026 08:58:20 -0700 (PDT)
-Received: from gourry-fedora-PF4VCD3F (pool-100-36-248-188.washdc.fios.verizon.net. [100.36.248.188])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-907b8e9b24asm1421777085a.18.2026.05.12.08.58.19
+        bh=XJW4f8tXo6Lfw2obSKyz1GioGSG/zB4IqguSnk2BuqQ=;
+        b=Xt6UJkBZIwSIBVnJXzx1zfA4UBbz61slZaClQ8dWgsT1WktxtCku/l0xi6E/jDfXgu
+         i9Dj4UnzYAy6Iqdo/94G90U9WjrRgO8vNS881uQQGNlYR7SIp00VKjVKQ2zOGUEJfVsW
+         PPd5s0c+59MPzGe4eAjnJVN0zxJFIiokfGo79kqDnh8Dh5TWFJDzVkUXeHTKsq7Q2U9T
+         RzNxgU4WpLy1rjZTjQ6Iw4UFLZs1LcDJELzRcO3MZ8aZ9oAIO1DG1esQR4ltai5UUL7D
+         bA8oWKgfs3aJ1MJeyAnJyW7GCzsvkWvNIToMBWCdmxCKsfe+Q2id2RJ1vx8wRJT11sFV
+         ZdjA==
+X-Forwarded-Encrypted: i=1; AFNElJ+vnDyZ8XXp4oBytcwfHD3CHZausdb1yZZ0u9aJNkEgg3xy9eIQDapG+8ERMr4aVLa3vYdVyh7yrU5NZq2hRQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxWVBjxr6VKi2jUwBxh+XOsZv4y2Mk+SIY0il5th1IMmCi2yBlz
+	vW8K09TEAhvMF1npVgjRIMSn18AelmlBwpZ6I4mFIHUwsmxwaUhHWktaH65/j2NUstFY68tnBxY
+	A46DT/VsxU3uYHioOqG4ynmmR9YPQBdLecMnGxojWfN1OKUFFWVZmXymUBtWwmmK4VWl6
+X-Gm-Gg: Acq92OF1xProNlDqg16uX4jubSY/QFzonlSU8J+TzD/T+a+UIi0j29h6kET0Twrx1uw
+	YjAT4EWkKQ6q+U+koUxMG4c0QoyoMdeKb9s0GDHBrsR7XjdJftHqRNhQ3mBvSkYqASuEZNCjzYO
+	ACz80OyB4HkbIfRFQukOpxQ7NjtNPUPxpq8BSc7rmQv90kCVFvhvEeyx/xqk1rwE7zYw6EMDlbc
+	KYvOaIKcbNyONNkpUTzpO+atJJLA0QEpKElwU5HxEtihxWpiwg92fs/mTYFY11hHKKlMKR8WFiz
+	we4pYUoqd1kJ05vPYz84aE2GcWGP4Y419RoulYyOaTuy9eE3IRP61wcQMePpWcA2/uJj4BigX31
+	7/uneG6/zzvGuloXJkTFrmO9pt/49ULmOTOQXcTGH
+X-Received: by 2002:a05:600d:e:b0:489:ad:7b5b with SMTP id 5b1f17b1804b1-48e706d24e3mr228848235e9.24.1778601513785;
+        Tue, 12 May 2026 08:58:33 -0700 (PDT)
+X-Received: by 2002:a05:600d:e:b0:489:ad:7b5b with SMTP id 5b1f17b1804b1-48e706d24e3mr228847285e9.24.1778601513245;
+        Tue, 12 May 2026 08:58:33 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-48-7.inter.net.il. [80.230.48.7])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48e8f4247fasm29156585e9.9.2026.05.12.08.58.29
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 12 May 2026 08:58:19 -0700 (PDT)
-Date: Tue, 12 May 2026 11:58:17 -0400
-From: Gregory Price <gourry@gourry.net>
-To: "Michael S. Tsirkin" <mst@redhat.com>
+        Tue, 12 May 2026 08:58:32 -0700 (PDT)
+Date: Tue, 12 May 2026 11:58:27 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Gregory Price <gourry@gourry.net>
 Cc: linux-kernel@vger.kernel.org,
 	"David Hildenbrand (Arm)" <david@kernel.org>,
 	Jason Wang <jasowang@redhat.com>,
@@ -97,88 +102,66 @@ Cc: linux-kernel@vger.kernel.org,
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
 	Andrea Arcangeli <aarcange@redhat.com>
-Subject: Re: [PATCH resend v6 21/30] mm: page_alloc: preserve PG_zeroed in
- page_del_and_expand
-Message-ID: <agNOGSyndMSU33WO@gourry-fedora-PF4VCD3F>
+Subject: Re: [PATCH resend v6 20/30] mm: page_alloc: clear PG_zeroed on buddy
+ merge if not both zero
+Message-ID: <20260512115805-mutt-send-email-mst@kernel.org>
 References: <cover.1778489843.git.mst@redhat.com>
- <57d30ce615c23d3f3737e38d300f4613b3ebadbc.1778489843.git.mst@redhat.com>
+ <a09c1848702368c3545b980c17101b5185ab774d.1778489843.git.mst@redhat.com>
+ <agNNkvRK128bYhrf@gourry-fedora-PF4VCD3F>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <agNNkvRK128bYhrf@gourry-fedora-PF4VCD3F>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: dmpyRXztndBaiK9bjXE93zIZPAd6j54BmMAcK0xUu-s_1778601514
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <57d30ce615c23d3f3737e38d300f4613b3ebadbc.1778489843.git.mst@redhat.com>
 
-On Mon, May 11, 2026 at 05:03:41AM -0400, Michael S. Tsirkin wrote:
-> Propagate PG_zeroed through buddy splits in page_del_and_expand()
-> and try_to_claim_block().  When a zeroed high-order page is split
-> to satisfy a smaller allocation, the sub-pages placed back on the
-> free lists keep PG_zeroed.
+On Tue, May 12, 2026 at 11:56:02AM -0400, Gregory Price wrote:
+> On Mon, May 11, 2026 at 05:03:35AM -0400, Michael S. Tsirkin wrote:
+> > When two buddy pages merge in __free_one_page(), preserve
+> > PG_zeroed on the merged page only if both buddies have the
+> > flag set.  Otherwise clear it.
+> > 
+> > The merged page would inherit PG_zeroed, and a later __GFP_ZERO
+> > allocation would skip zeroing stale data in the non-zero half.
+> > 
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > Assisted-by: Claude:claude-opus-4-6
+> > Assisted-by: cursor-agent:GPT-5.4-xhigh
+> > ---
+> >  mm/page_alloc.c | 15 ++++++++++++++-
+> >  1 file changed, 14 insertions(+), 1 deletion(-)
+> > 
+> > diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> > index bd3b909cacdf..d70c9ba6b329 100644
+> > --- a/mm/page_alloc.c
+> > +++ b/mm/page_alloc.c
+> > @@ -940,10 +940,14 @@ static inline void __free_one_page(struct page *page,
+> >  	unsigned long buddy_pfn = 0;
+> >  	unsigned long combined_pfn;
+> >  	struct page *buddy;
+> > +	bool buddy_zeroed;
+> > +	bool page_zeroed;
 > 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Assisted-by: Claude:claude-opus-4-6
-> Assisted-by: cursor-agent:GPT-5.4-xhigh
+> If you want to play some code golf, i think you can get away with a
+> single bool here:
+> 
+>     bool zeroed;
+>     zeroed = PageZeroed(buddy);
+>     zeroed &= PageZeroed(page);
+> 
+>     if (zeroed)
+>         __SetPageZeroed(page);
+> 
+> ~Gregory
 
-Reviewed-by: Gregory Price <gourry@gourry.net>
+Does it matter? It makes my head hurt.
 
-> ---
->  mm/page_alloc.c | 12 +++++++++---
->  1 file changed, 9 insertions(+), 3 deletions(-)
-> 
-> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> index d70c9ba6b329..468e8bde7d34 100644
-> --- a/mm/page_alloc.c
-> +++ b/mm/page_alloc.c
-> @@ -1712,7 +1712,8 @@ struct page *__pageblock_pfn_to_page(unsigned long start_pfn,
->   * -- nyc
->   */
->  static inline unsigned int expand(struct zone *zone, struct page *page, int low,
-> -				  int high, int migratetype, bool reported)
-> +				  int high, int migratetype, bool reported,
-> +				  bool zeroed)
->  {
->  	unsigned int size = 1 << high;
->  	unsigned int nr_added = 0;
-> @@ -1743,6 +1744,8 @@ static inline unsigned int expand(struct zone *zone, struct page *page, int low,
->  		 */
->  		if (reported)
->  			__SetPageReported(&page[size]);
-> +		if (zeroed)
-> +			__SetPageZeroed(&page[size]);
->  	}
->  
->  	return nr_added;
-> @@ -1754,10 +1757,12 @@ static __always_inline void page_del_and_expand(struct zone *zone,
->  {
->  	int nr_pages = 1 << high;
->  	bool was_reported = page_reported(page);
-> +	bool was_zeroed = PageZeroed(page);
->  
->  	__del_page_from_free_list(page, zone, high, migratetype);
->  
-> -	nr_pages -= expand(zone, page, low, high, migratetype, was_reported);
-> +	nr_pages -= expand(zone, page, low, high, migratetype, was_reported,
-> +			   was_zeroed);
->  	account_freepages(zone, -nr_pages, migratetype);
->  }
->  
-> @@ -2335,11 +2340,12 @@ try_to_claim_block(struct zone *zone, struct page *page,
->  	if (current_order >= pageblock_order) {
->  		unsigned int nr_added;
->  		bool was_reported = page_reported(page);
-> +		bool was_zeroed = PageZeroed(page);
->  
->  		del_page_from_free_list(page, zone, current_order, block_type);
->  		change_pageblock_range(page, current_order, start_type);
->  		nr_added = expand(zone, page, order, current_order, start_type,
-> -				  was_reported);
-> +				  was_reported, was_zeroed);
->  		account_freepages(zone, nr_added, start_type);
->  		return page;
->  	}
-> -- 
-> MST
-> 
+-- 
+MST
+
