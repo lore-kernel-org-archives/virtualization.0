@@ -1,75 +1,84 @@
-Received: from mail-oa1-f72.google.com (mail-oa1-f72.google.com [209.85.160.72])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4F4763BF68F
-	for <virtualization@lists.linux.dev>; Wed, 13 May 2026 21:41:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.72
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778708473; cv=none; b=PYd/CxWnPFb3ZM1WgH9LcxlQVYBmBM8LXczkeAbZslxTgEcFdS35a4h207U9Uj+89fSlaKvZCgRu5DT1WYKEZgAvLRtW1y8QcEsqQSnc9PQhbcesPkDBdTb6rWuPu8xQfSkw8Yw6+HhR/35VSeNfZ/6rR6dOHt2x2/7gLGVoQ78=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778708473; c=relaxed/simple;
-	bh=cGXqcrOJv/yyElce22I9PLZQTvhW2A8Q4mBvFtC4P1o=;
-	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:Cc:
-	 Content-Type; b=RZShIn5C7eh1YPIl83/iDDSAC2b6G6DYnoGucaGS5hoJOyvNsmI9sAZ44gMVj3IZ8wsBhtxzFOneaP2COI+oj5nYDNfAPGDslMJh0KSa1yGZ+tXT2ukEz+CdVMU8woo5Lsn55XeyNYwNe1EXJe5PRhJmpwZ90dH/dcYiYXg7Q+A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.160.72
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oa1-f72.google.com with SMTP id 586e51a60fabf-4346755f7dcso9429608fac.3
-        for <virtualization@lists.linux.dev>; Wed, 13 May 2026 14:41:11 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778708470; x=1779313270;
-        h=cc:to:from:subject:message-id:in-reply-to:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Tqk0Slr65mDNKAZF2Vaic14WCI6WBEKE9EJXBGKW5II=;
-        b=Kkf2PaSrkNaPFEMFSrf79AxdbFnwidx9mY6rwUGQT2s8noaDd9O5xGPnQDNls4zY7N
-         ItQ2S8ns7jT6tMHRAzUKRhtC4mih0a0hbo6SWgMKiVJ7j742qUFiwYIiEi/pNg6o3jjB
-         YRJ7r6oYOFhNKCRY9nhpC9+IqGcFL/LzWFCWDRiw02y84Bgr1zeSmylqgp/+pC2CNbTx
-         3ohlgGrkMg8iXoE2YWXFJn7N62tLL9F/0fYiwcUGss+yJWF3y6exeLw7mS2dK/wTxl6B
-         NfXaBl8TXjwVxIJzucQK1/HEfY9lTDPYWMuvOKUxcp2a3B8FSaRL3kpxHwfXejQh4Zhw
-         hBCw==
-X-Forwarded-Encrypted: i=1; AFNElJ+ypCOW+0BX9Q5Tokd1tjn0IICu6kO0qnyABfGx9V2VliZ6ADD6RE96ehEm5rc38sxhzv/u7Sxj/S2Vn3I6Zw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywbp6q+H1zIel+pE1EQ15oqbTIAF/kVxBLaijaoGfe4KWLzQ+Po
-	rjytLueP3/K6k1DxT5b/+U0u6sMPKO+tgPo9cCR9nDYOgaSllo/j8E9Zy54knZr1zoHLpdsrYrR
-	7q/8WAMfHzHK4n33DESrllI2UZneshLXAy9ixxxb64frBy0jpQJzZjbG5Nok=
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71E813B27CA
+	for <virtualization@lists.linux.dev>; Wed, 13 May 2026 21:54:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778709274; cv=pass; b=Zzl4C04nYie8FVzJxJW0T0XvEFJrM9et2UKh8RulOOZp9JBfyjVKL0CV9YSKAuzS+fWcrqxfc+NE1OPYnEzhKQpZBRpa+33fZyhEPM36yq2rT1FuKZcpic5kt7ZCKX9DZx7lng7iIlLJtwhtf7Xr49nnA4xafbz1P5TJS7cnVdM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778709274; c=relaxed/simple;
+	bh=blRWwGF8HdShsCVV+9t1BLaFe9zKh1o7Gm3ha6WxFS8=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=WJVfrsi+IKLqn6OO02tb+4cdM06oppviHUe4eR9Z8aW5kdBeQy+9PNQsm7OWiWSfAtF++TR+FJdjGSlNj6VDsJ8V4Q4anLNZ0+O2b3y/hEClOrdlqH2c9Ste9n2F/+49THtBmiu/M9S6doscUP4JSLYm0e0WIas47+PKRzczJLQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=NDxen76W; arc=pass smtp.client-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="NDxen76W"
+ARC-Seal: i=1; a=rsa-sha256; t=1778709265; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=aNSnV93oxeSja22MsEvLyWiZoJzMBmEm9eKTfBJB+egi4r7i7NU17+97eYEFpXwpxkmC+bbtDkAtpP06rkmqR4C3cqDB/g7W/BUjJiL+P00jUE53a8JCLrnmGZ4tXs880CDoMPgzL4DUpxz4r1h6cArJQ94Gn2ObhbbpKhoCDyM=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1778709265; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=qoFWKqXZsC4n+E9tB5UYBR7txBwkhdlz6HD0mf/7Ujs=; 
+	b=TgHafZyLNtW/P0DrFaUXuKy7RifFIeFGtWisvx1CaERD/62Q2btiEByq66Wky+dcv2JEUIWh25octfizO24kg7ayJC98dScilyP8dmLUzN+Mrl+2y2PEWESQrjPrZftpBfZzm2qacUsyiXYkE5iN6Wub+P4BsX4YUziTVwXdTs8=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1778709264;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:From:From:To:To:Cc:Cc:References:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=qoFWKqXZsC4n+E9tB5UYBR7txBwkhdlz6HD0mf/7Ujs=;
+	b=NDxen76WjO/i53fhYdVeHIOY+3XGbaE2bAx8SB4IL/t442UPkwzOsb5ypcBHrr5B
+	HICCJJ+bqxKqxmKsCB5cX2wMH6ObFZezA7i9LjSAOGfXL0kg+xH9IdmqhUWhhDVvlez
+	vyCj5V0IEgt1QUOE+fUFEcy9RTbuACcQRbzHODZE=
+Received: by mx.zohomail.com with SMTPS id 1778709263404877.5235059423231;
+	Wed, 13 May 2026 14:54:23 -0700 (PDT)
+Message-ID: <8a986c52-964f-42a5-b063-fbe2b242ca36@collabora.com>
+Date: Thu, 14 May 2026 00:54:19 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6820:178f:b0:68e:b81b:d81b with SMTP id
- 006d021491bc7-69b78dfac2amr2764182eaf.31.1778708470309; Wed, 13 May 2026
- 14:41:10 -0700 (PDT)
-Date: Wed, 13 May 2026 14:41:10 -0700
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] drm/virtio: add timeout to virtqueue wait to avoid hung
+ task
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+To: Ryosuke Yasuoka <ryasuoka@redhat.com>, David Airlie <airlied@redhat.com>,
+ Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Simona Vetter <simona@ffwll.ch>
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org
+References: <20260512-virtio-gpu_wait_event-v1-1-207eb4c1a69a@redhat.com>
+ <82aeba42-7872-4e92-ade8-2b7b6a8a5e43@collabora.com>
+Content-Language: en-US
 In-Reply-To: <82aeba42-7872-4e92-ade8-2b7b6a8a5e43@collabora.com>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6a04eff6.050a0220.190576.0001.GAE@google.com>
-Subject: Re: [PATCH] drm/virtio: add timeout to virtqueue wait to avoid hung task
-From: syzbot <syzbot@syzkaller.appspotmail.com>
-To: dmitry.osipenko@collabora.com
-Cc: airlied@redhat.com, dmitry.osipenko@collabora.com, 
-	dri-devel@lists.freedesktop.org, gurchetansingh@chromium.org, 
-	kraxel@redhat.com, linux-kernel@vger.kernel.org, 
-	maarten.lankhorst@linux.intel.com, mripard@kernel.org, olvaffe@gmail.com, 
-	ryasuoka@redhat.com, simona@ffwll.ch, tzimmermann@suse.de, 
-	virtualization@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ZohoMailClient: External
 
+On 5/14/26 00:40, Dmitry Osipenko wrote:
 > Hi,
->
+> 
 > On 5/12/26 11:59, Ryosuke Yasuoka wrote:
 >> virtio_gpu_queue_ctrl_sgs() and virtio_gpu_queue_cursor() use
 >> wait_event() without timeout when waiting for virtqueue space. If the
 >> host device stops processing commands, these waits block indefinitely.
 >> Since callers may hold DRM locks, this can make the entire system
 >> unresponsive.
->> 
+>>
 >> Replace wait_event() with wait_event_timeout() using a 5-second timeout,
 >> consistent with the existing timeout pattern in the driver. On timeout,
 >> clean up and return -ENODEV, following the same error path as
 >> drm_dev_enter() failure.
->> 
+>>
 >> Reported-by: syzbot+d6dd6f86d3aaf7eebe7406e45c1c6e549453f224@syzkaller.appspotmail.com
 >> Closes: https://syzkaller.appspot.com/bug?id=d6dd6f86d3aaf7eebe7406e45c1c6e549453f224
 >> Reported-by: syzbot+908bd910da5dd79b88de4cf7baf376cc873a922e@syzkaller.appspotmail.com
@@ -78,15 +87,19 @@ Content-Type: text/plain; charset="UTF-8"
 >> ---
 >>  drivers/gpu/drm/virtio/virtgpu_vq.c | 20 ++++++++++++++++++--
 >>  1 file changed, 18 insertions(+), 2 deletions(-)
->
+> 
 > If host stops processing commands, this is a problem on host side. Isn't it?
->
-> -- 
-> Best regards,
-> Dmitry
 
-I see the command but can't find the corresponding bug.
-The email is sent to  syzbot+HASH@syzkaller.appspotmail.com address
-but the HASH does not correspond to any known bug.
-Please double check the address.
+It may be acceptable to have wait_event_timeout() in a loop, printing
+warnings about unresponsive host.
 
+Don't think we can assume that 5 seconds is enough to say that host is
+busted, unless spec says so.
+
+There could be a driver module parameter, specifying the timeoout. This
+will be acceptable as user takes responsibility for the special timeout
+behaviour.
+
+-- 
+Best regards,
+Dmitry
