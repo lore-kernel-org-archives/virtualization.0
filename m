@@ -1,141 +1,148 @@
-Received: from mail-yw1-f172.google.com (mail-yw1-f172.google.com [209.85.128.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4280136AB5B
-	for <virtualization@lists.linux.dev>; Wed, 13 May 2026 01:55:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.172
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778637354; cv=pass; b=GQOVHqqKugfnMcguXZPM0OWW28PkuF6EsB19KKhQXdlK9MmXz5yOpVlwkPjUT8W+n6mdskmjKfQvFilnTUXmDCWM2tDuqDgsPothuUsqpUApc1B2w5Y3oDQVDWQHZWDJYS7NkhanqkO4Y7R2pMkcuUAxRrksUX9DW89fmQBJZd0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778637354; c=relaxed/simple;
-	bh=9tiV4ZhfIE1AVrGBMXro5/HVKMSjT0yIr89kHRQQJAI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=NKxCZcsBWSdhLNSa2H6/iDOzDukC6EwlMrQJOqamk+dAa9Zxt3NXfCzs3UGeOQrkOBRp1qhcO532WS+2pyQrwg7Qzfq869Z2afbTXo3vzCAq6J+e0mTIb2XdvKnZcn4sFE55c9Kgd6A+1Syw1u8W1GCe4Wz2aUPYWc3djKy6A3Y=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=q5E9o7xm; arc=pass smtp.client-ip=209.85.128.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A77423D3D15;
+	Wed, 13 May 2026 07:36:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778657780; cv=none; b=aJIDONhnvsqKub/wnLEonIs89tdVTbQwzRDzS7/Ply173wTGPe1H2gcL7S787wPD9gA6OgXyU8JqxlbYxNJtq4IaNpouIcy9uWjBAGKsYbfGhbpSpOiQY+CvvxTr5PKUtNTWj7i5GVuTi3D9fAdnbnuhZ+nWP97Y6uNNQPFI9AU=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778657780; c=relaxed/simple;
+	bh=vLsbboLlHeO2mJITfXZX206T+M8KqwAaBTQYO+UyOug=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=rUO2yoCJ1/jtLPffZiJV8tyYPaexi7Em/WFo53BBIihm6lEqTVMcu8mkugqY+J1i1gm+GcNHdgy8hlMDJk/k7re+CPG3+x+xxOqql4/WZTASi7DrEuyER23ZW7/KHiF6KqsQhwwrkT4DnELrSsAoyEui0cyX59B+iNsBu6AN71g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=L8zG3dE+; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="q5E9o7xm"
-Received: by mail-yw1-f172.google.com with SMTP id 00721157ae682-7bd6f65c781so56785147b3.1
-        for <virtualization@lists.linux.dev>; Tue, 12 May 2026 18:55:49 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1778637349; cv=none;
-        d=google.com; s=arc-20240605;
-        b=GyahrC0JzE9YSpJ6X5xlvYVSAU/ey8fIJkxFTo++B1SrJG8SDm4SAUs389FavSjt5I
-         4o/MxNoG7i/3gKU1bH3CNuK3XgPYyrDF3Bhbm7JcHFSzJz05pSHtLl9Kx92M8J+wC/Z4
-         vtdAJwVo5EbO6T5yuh0Uy3wyujghH7hxv/q0/JESsUSXBwN9EagCKClDcOjYs+XNtdJo
-         Rw5sih7eZXtcIkD3K4nbP72yP6AtFz8Tuvg288LCfj12lfvXMjnaiNrgy4DRjEepf0p9
-         7mYCU93Tvj4hSs0CJ6fsUgiV+XihkEUgQ7ycG9DhSefbOxJ74tGRRsC6splckfZfPG5F
-         Eg9Q==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=5xRhLCcP3JBRN1MwY6Q9q9IhNYwNr7l9QAT6ZuSm7sQ=;
-        fh=i55YglpqlavY6/lM0zk/IjhCa4DrqJiQ64HX+YofpeY=;
-        b=cmlPbiakNIuAzzHqYehAVfB9UyN/sIAs8GUDmzEFxy+6fcVAsBYrtXPGDJhfBlRkWp
-         KEbLId9on9k5pS+bwcrftvbodrxnNCAiabUqPypoVPK0tl1niXwMPWrXyG6zEoGsIJO/
-         I6XZzzOjUsU+s9qnzxijRb+AVa0Lw2M8ymTO5G+Dh7W3+4kRZs7JfmabtycbC8HPfrWl
-         eNRCZkR30HihK0nRJ94pr9kg+01j6+sszHGbblcp8vISaXh8dcIbeb2NRtFYpBfndr80
-         32ivUSS8niq2U6Cw3ymFKil+pA3W8oKgbEmCwPFmXTEVR2AhMIfnDap5ra+NrdLV2FX5
-         bSWw==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778637349; x=1779242149; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=5xRhLCcP3JBRN1MwY6Q9q9IhNYwNr7l9QAT6ZuSm7sQ=;
-        b=q5E9o7xm0KxTboJ7yP04jwtEK3mFZVFNhpzZg29BT1lje9KcX4oHVR/hCfxvX4+pS5
-         f/LNU22Fn6E22CzurOz9ZiMArg+3QsKq6LvSPWORSJPchQsTzN/JSpclz2Yk4EVw6LYH
-         TnvRacQT+u3WDIh5W2jqRPtKGvcX69BXHCxIzl3z6/B5giyfbMj+POQEfjnTTRayDsaO
-         SmCmmP96/qupEGarijh7PSNHzs7q3vn5dgJalLVE+mkD9KEGHtR4JVRWJex2hjCO1Pi0
-         lhQvJ5EMUtNM/AWRExxVemGQv47HmrfnETRcl9eKPkNY/pT3xb0kS5+tVjxbHwfMxvq6
-         tpXg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778637349; x=1779242149;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=5xRhLCcP3JBRN1MwY6Q9q9IhNYwNr7l9QAT6ZuSm7sQ=;
-        b=QmjxoUaR4JSOR59Fjs+ZaI3d21/sKIlDjVDun7T764ZmI83FjvOEwB9WRITWfngRrD
-         PpSHdVm5fAJe8+5aaBbBsHp5B7IcDcbYfXKlvTh/K2CCJu363hHIV73rZCZ0Qhg2uqnR
-         V1NyCbNkkzNHUQdTXldbh5FRCpSk2p4PMjtoLR4kDqXHjgOoBZZJ65QW84EFh3BKi42q
-         TwkFKBI0pPARim8lhc0SEHbqaTemU4uEFuMfazGOoZ6bwL4xZpnLKViQbY59s5rDXFnO
-         k1DMpnylqe0blWkcJ0B5qhOYBu1q4lHMsTkXPnTgfjjubohgVfgzaz6YK67WcHj66/Vo
-         RGHA==
-X-Forwarded-Encrypted: i=1; AFNElJ9f8qTb2LL7VoYu0xeD4FiXkbZgPyios5oQ9r14JfsMbY+vnJd8s32ZUVIvavVt4C8L7XYQJqBPpsQbFV2jhw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx27Y12F1aBY69OhjdLDBJeRi6PGnEId04SaOagUMpeqQMFUvfa
-	RSeMaMxwxfUVg3NZOCup6q3C6qn+9HWQJhPZU/gNfsRdytTAQ6R3QTF+sCyjk572FT+XlEHX2aQ
-	MrG+AZS4UhgGgbqpaXeF5T1RHYKezjzo=
-X-Gm-Gg: Acq92OEdTI6lG5QUsXjgDVCYa/A9uqB2httgMaALzgquH7XgDn8E94sFkk758iEa4gO
-	SZSOb/AWXpS0KxcHummLbgsSYYacDvqwODGzIaCAFuSnDxa7XKN66ig4waw7HrLTSlBG8p5LNNq
-	XpYv3ITAjrs4it2yGA4Fg8brF4MPCVHkSK9TGEzyCWfAmBjXyavTfRUSU2Y6cr5Ajlqkp2brIpN
-	B5ElmFx1d2dOhx8qWum6vgkxMC3GZyVQX39Doyy/JW/6IfvWyEOeJcGsHdX39SLFKoYvdmZF9Sl
-	FRJ0Hf6dJ11g9oYaDnDyHDDKw3YpZMU7nWPyGvpyypwMah6vOKoXtTWWb0M3D5FCKdoFZmXa
-X-Received: by 2002:a05:690c:e28d:20b0:7ba:ded4:df69 with SMTP id
- 00721157ae682-7c6985e165dmr12151727b3.1.1778637348672; Tue, 12 May 2026
- 18:55:48 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="L8zG3dE+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 94552C2BCB7;
+	Wed, 13 May 2026 07:36:08 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1778657780;
+	bh=vLsbboLlHeO2mJITfXZX206T+M8KqwAaBTQYO+UyOug=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=L8zG3dE+OeUEavwTv6BTWbVjH9YUqVwyLQTIasOjFV1ekneg/AsXWUg2znRC4HZBm
+	 /9ab8RVKzuGgZFNnQTi1PT3Blkni5X7AcZqulqJcBTSS/+NmNt5sz7xbIGRCIF3RZo
+	 b9JWF/ehMlFwCJA4B655aVRATWZCByPxFWZ9gmk+AGDYi2OeZgNAwZVapoPRR3RBWL
+	 vWSL8mnyV1UxFY7BgpokNf4qhuOrXOQVIZRNbNBe2XNevxMbNdF2F5M2EypZhEYKbI
+	 A7J2HyleSWdX/KlAM5ysvtQQ0pLEBF8QGDUNGrl5oaV+Z+dfakMeL1rOhFqmhZEwWX
+	 s6jSLesNY1EhA==
+Message-ID: <e7e9b30f-ee5c-44c4-b377-d70156be41e9@kernel.org>
+Date: Wed, 13 May 2026 09:36:06 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260512020718.108044-1-kartikey406@gmail.com> <d1bc8d7d-3a4f-4ede-8266-81cc66bf11b5@collabora.com>
-In-Reply-To: <d1bc8d7d-3a4f-4ede-8266-81cc66bf11b5@collabora.com>
-From: Deepanshu Kartikey <kartikey406@gmail.com>
-Date: Wed, 13 May 2026 07:25:36 +0530
-X-Gm-Features: AVHnY4LCDlccPve3ZLzzDvN9woFw3uS561jxG504DrY4p0Whnei59B3Wu16XydA
-Message-ID: <CADhLXY7N0eLpA30eV4Rb=F4vzCf9XYtDjMpxBSJtGeMWNi6Cwg@mail.gmail.com>
-Subject: Re: [PATCH v2] drm/virtio: move cursor resv lock acquisition to prepare_fb
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-Cc: airlied@redhat.com, kraxel@redhat.com, gurchetansingh@chromium.org, 
-	olvaffe@gmail.com, maarten.lankhorst@linux.intel.com, mripard@kernel.org, 
-	tzimmermann@suse.de, simona@ffwll.ch, sumit.semwal@linaro.org, 
-	christian.koenig@amd.com, dri-devel@lists.freedesktop.org, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	linux-media@vger.kernel.org, linaro-mm-sig@lists.linaro.org, 
-	syzbot+72bd3dd3a5d5f39a0271@syzkaller.appspotmail.com, stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v7 00/31] mm/virtio: skip redundant zeroing of host-zeroed
+ pages
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
+ Andrew Morton <akpm@linux-foundation.org>, Lorenzo Stoakes <ljs@kernel.org>,
+ "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
+ Michal Hocko <mhocko@suse.com>, Brendan Jackman <jackmanb@google.com>,
+ Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
+ Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <npache@redhat.com>,
+ Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>,
+ Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>,
+ Hugh Dickins <hughd@google.com>, Matthew Brost <matthew.brost@intel.com>,
+ Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+ Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
+ Ying Huang <ying.huang@linux.alibaba.com>,
+ Alistair Popple <apopple@nvidia.com>, Christoph Lameter <cl@gentwo.org>,
+ David Rientjes <rientjes@google.com>,
+ Roman Gushchin <roman.gushchin@linux.dev>, Harry Yoo <harry.yoo@oracle.com>,
+ Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>,
+ Wei Xu <weixugc@google.com>, Chris Li <chrisl@kernel.org>,
+ Kairui Song <kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>,
+ Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
+ virtualization@lists.linux.dev, linux-mm@kvack.org,
+ Andrea Arcangeli <aarcange@redhat.com>
+References: <cover.1778616612.git.mst@redhat.com>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <cover.1778616612.git.mst@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Tue, May 12, 2026 at 12:04=E2=80=AFPM Dmitry Osipenko
-<dmitry.osipenko@collabora.com> wrote:
->
-> I'm getting lockup with this patch applied and now see that
-> virtio_gpu_resource_flush() also locks BO.
->
-> Easiest option might be to add uninterruptible variant of
-> virtio_gpu_array_lock_resv(). Could you please try it for v3?
->
-> --
-> Best regards,
-> Dmitry
+> Changes since v6 (address review by Gregory Price):
+> - Rework hugetlb: use gfp_t parameter instead of bool zero /
+>   bool *zeroed.  Sink zeroing inside alloc_hugetlb_folio().
+>   Pass raw fault address (user_addr) for cache-friendly zeroing
+>   on both pool-page and fresh allocation
+>   paths.  (Suggested by Gregory Price)
+> - Reorder compaction_alloc_noprof() to call prep_compound_page
+>   before post_alloc_hook for consistency.
+>   (Suggested by Gregory Price)
+> - Reorder: interleave fix first, PageReported propagation and
+>   capacity fix moved to front as dependencies.
+> - Add USER_ADDR_NONE comments in mmap.c and internal.h explaining why -1 is
+>   never a valid userspace address.
+> - Fix err uninitialized warning in virtballoon_free_page_report().
+> - Lots of commit log tweaks.
+> 
+> Also in v7:
+> - Fix hugetlb pool page zeroing to use vmf->real_address
+>   (the actual faulting subpage) instead of vmf->address
+>   (hugepage-aligned), preserving cache-friendly zeroing
+>   locality that upstream had at the callsite.
+> - Remove dead/broken alloc_hugetlb_folio !CONFIG_HUGETLB_PAGE
+>   stub (returned NULL but callers check IS_ERR).
 
-Hi Dmitry,
+Please wait at least a week before sending out new versions of this size.
 
-Thanks for testing and catching the lockup. Before I send v3, want
-to confirm the approach:
+It's just a lot of noise in people's inbox, and as raised, a lot of people won't
+manage to review this before next month.
 
-  1. Revert v2's prepare_fb / cleanup_fb / plane_state changes;
-     keep the lock acquisition inside cursor_plane_update like
-     the original code.
+-- 
+Cheers,
 
-  2. Add virtio_gpu_array_lock_resv_uninterruptible() in
-     virtgpu_gem.c, mirroring the existing helper but using
-     dma_resv_lock() instead of dma_resv_lock_interruptible() on
-     the nents=3D=3D1 path. Declare it in virtgpu_drv.h.
-
-  3. In cursor_plane_update, call the new helper and check its
-     return. The signal path is closed; -ENOMEM from
-     dma_resv_reserve_fences() remains and is handled by freeing
-     objs and skipping the cursor update for that frame.
-
-A skipped cursor frame on ENOMEM is the remaining failure mode in
-.atomic_update; this avoids the lockup with virtio_gpu_resource_flush()
-that v2's broader lock scope caused.
-
-Does that match what you had in mind?
-
-Thanks,
-Deepanshu
+David
