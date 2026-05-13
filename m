@@ -1,108 +1,95 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 584143B388D;
-	Wed, 13 May 2026 19:33:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778700837; cv=none; b=UvVGg4YleMsQW6pL4dET4PsP6i8fM/CI1FfuBAeqTnKjy31e2xHNaLYhMjOj20YWvmrZnIXukDGEIaCJQXVnsGEdXlUgJcMSCRInGX5+ZxoUAXywEXIWttCBU7k+sZLUDMJmjOo7YjhwwxVfPxWNp5WZrab0po0GijGkMfxCxoc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778700837; c=relaxed/simple;
-	bh=j1JEHlrTvGEOQFmJ5ZIsgKmd2Mcej2xwdRx5348KrEo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hMQXr78OzPsVEu3LvIgDzE7LclPm5jshwguKCAUFzi7XjAF6fZxgWWjOckxqZCY+fSUYrEkKZPhHt8XX1PqiVb5AOwGFjEJ962bzoEVmqnRLh4UdNXCANTFrSVpwlx8gLQxU7ECA2CPYmKjX6juH7SgZ3YwGONmVX4SYrhSKL8M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=DwCb+dbP; arc=none smtp.client-ip=90.155.92.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=infradead.org
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61464395AF5
+	for <virtualization@lists.linux.dev>; Wed, 13 May 2026 21:41:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778708462; cv=pass; b=d5RddzBVlea+blmnC98kGy8bq7dYtPESpi3nwxDvUZigpdgLjF/DQLUtp8daY57fvKtnOFFy/547bJdfnD4XjtguH/GCi0SStUyscEVtEPLRqSl7jwmfUpGflvHmH97W9R6PsW4klGNNr6g7+lX8SPHoA6jn/Z5mDAD1KgyjxWU=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778708462; c=relaxed/simple;
+	bh=ETkiCTij01WwnFgrtIMFxbWfdrQRnRcCgmfJKkAkS3s=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=BQF0Wrx0duQ5deNfhF3HRFSEUG53w4IRisbLe+QAI0ewJVw1LlOkO3EJ9E9aXbu4AxHQ3Vkl7lVxVl9N1LVMlc2BbeSATfUahkeGHxo7pSjeHtqGIHWm03J1ZL5hXabzmV+2pZbMCKEOFsrCdcIS0zZxxknPwQeojhT4HTML3zU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=ekRMWwLY; arc=pass smtp.client-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="DwCb+dbP"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=/9TdtldHzNE7j+/4s+2YCCT8ngCUlQOuToREEg+F5TU=; b=DwCb+dbPa0wzuTk6GcWyENhx5N
-	DqOykNrfwT12kOMsNHgtU4BKoYUf8cjsi85xS/dtpDbadpxSCYQAbuC+QX3xutphPt1GY5mB25sTh
-	eXJTawxBtTdXWjZiR2hmIe1OBBVRgSrSHTcKs4g+ZM9OQwGLMprwlTcJr5ZPH1uCfT4frbg4jDW7U
-	fVeke0e/PchLRNhRRlj7JBA5+3hImMzyYRnyKocf/mXnz8EcuQJWrpJ8uhTfp5/z8iwA28wnPEg9s
-	qdu806EmYoORgx3aQEqSP5I+xYdfas6Bg+6U/Ss3VpYFrgy9CDhSrIzZYsVbxKVfhgIy0M+bURhDJ
-	aHqzhNmg==;
-Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
-	by desiato.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1wNFKx-00000001AlP-1Tj3;
-	Wed, 13 May 2026 19:33:43 +0000
-Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id 23A0730063F; Wed, 13 May 2026 21:33:43 +0200 (CEST)
-Date: Wed, 13 May 2026 21:33:42 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-To: Dmitry Ilvokhin <d@ilvokhin.com>
-Cc: Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
-	Boqun Feng <boqun@kernel.org>, Waiman Long <longman@redhat.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Juergen Gross <jgross@suse.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Thomas Gleixner <tglx@kernel.org>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
-	Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
-	Christoph Lameter <cl@gentwo.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-arch@vger.kernel.org,
-	linux-mm@kvack.org, linux-trace-kernel@vger.kernel.org,
-	kernel-team@meta.com, "Paul E. McKenney" <paulmck@kernel.org>
-Subject: Re: [PATCH v6 5/7] locking: Add contended_release tracepoint to
- qspinlock
-Message-ID: <20260513193342.GB2545104@noisy.programming.kicks-ass.net>
-References: <cover.1777999826.git.d@ilvokhin.com>
- <5d7ea75ffe74a785e6b234ada9f23c6373d4b4c1.1777999826.git.d@ilvokhin.com>
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="ekRMWwLY"
+ARC-Seal: i=1; a=rsa-sha256; t=1778708450; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=CUCNlIDTzpC85wfIH8PeaV6qNZl70nQT0vhjX3RNxFsa/9j6wFaiRWVzoMQ2y8fIjxyqKpcVTvJIOQlHJ/S/mZENDcewi5Yr+oOaz41mrk2oYs8o1st1aJ2Hi+9B9YENA8dVYZJ9Oig+a+yXr0xT0tQx7WMatxPThPLr/gjbMjM=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1778708450; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=AAfkCdUncn2lwPDL1s9t85c0zO4+110KbKaWrEKLqBg=; 
+	b=bp29dGNPOwh84pqU6Z8EkzH2Sn/3uZaCy836/fynPzy7Kr3rL1HjegCuOXS6oDXUtVs4Tw9dTRKIA68oZZzeEGXVb0+nzRtTFwc6khu1NijHsNptXAokuslwC/fJ5M7nSF+6cFvm4DOF4cw10j90rmKdO3B6oPvfNbHZVL7teDo=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1778708450;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=AAfkCdUncn2lwPDL1s9t85c0zO4+110KbKaWrEKLqBg=;
+	b=ekRMWwLY598KP3V0fqX0v0nrmF8cXBLkDOSfLHD1KgrJ6K+HS5ElsQAzxRi6SrfL
+	ceKzxRo7CKFOpC22dHWade5FYnkg4w0L51YymjuTsZZCie1M18wNLCuHE2dLDBvPXdI
+	hWW8NOjosh592xr89ZGN7KOm/hhcThxgDVh423nI=
+Received: by mx.zohomail.com with SMTPS id 1778708446967774.4798640957364;
+	Wed, 13 May 2026 14:40:46 -0700 (PDT)
+Message-ID: <82aeba42-7872-4e92-ade8-2b7b6a8a5e43@collabora.com>
+Date: Thu, 14 May 2026 00:40:41 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5d7ea75ffe74a785e6b234ada9f23c6373d4b4c1.1777999826.git.d@ilvokhin.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] drm/virtio: add timeout to virtqueue wait to avoid hung
+ task
+To: Ryosuke Yasuoka <ryasuoka@redhat.com>, David Airlie <airlied@redhat.com>,
+ Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Simona Vetter <simona@ffwll.ch>
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org,
+ syzbot+d6dd6f86d3aaf7eebe7406e45c1c6e549453f224@syzkaller.appspotmail.com,
+ syzbot+908bd910da5dd79b88de4cf7baf376cc873a922e@syzkaller.appspotmail.com
+References: <20260512-virtio-gpu_wait_event-v1-1-207eb4c1a69a@redhat.com>
+Content-Language: en-US
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <20260512-virtio-gpu_wait_event-v1-1-207eb4c1a69a@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ZohoMailClient: External
 
-On Tue, May 05, 2026 at 05:09:34PM +0000, Dmitry Ilvokhin wrote:
-> Use the arch-overridable queued_spin_release(), introduced in the
-> previous commit, to ensure the tracepoint works correctly across all
-> architectures, including those with custom unlock implementations (e.g.
-> x86 paravirt).
+Hi,
+
+On 5/12/26 11:59, Ryosuke Yasuoka wrote:
+> virtio_gpu_queue_ctrl_sgs() and virtio_gpu_queue_cursor() use
+> wait_event() without timeout when waiting for virtqueue space. If the
+> host device stops processing commands, these waits block indefinitely.
+> Since callers may hold DRM locks, this can make the entire system
+> unresponsive.
 > 
-> When the tracepoint is disabled, the only addition to the hot path is a
-> single NOP instruction (the static branch). When enabled, the contention
-> check, trace call, and unlock are combined in an out-of-line function to
-> minimize hot path impact, avoiding the compiler needing to preserve the
-> lock pointer in a callee-saved register across the trace call.
+> Replace wait_event() with wait_event_timeout() using a 5-second timeout,
+> consistent with the existing timeout pattern in the driver. On timeout,
+> clean up and return -ENODEV, following the same error path as
+> drm_dev_enter() failure.
 > 
-> Binary size impact (x86_64, defconfig):
->   uninlined unlock (common case): +680 bytes  (+0.00%)
->   inlined unlock (worst case):    +83659 bytes (+0.21%)
-> 
-> The inlined unlock case could not be achieved through Kconfig options on
-> x86_64 as PREEMPT_BUILD unconditionally selects UNINLINE_SPIN_UNLOCK on
-> x86_64. The UNINLINE_SPIN_UNLOCK guards were manually inverted to force
-> inline the unlock path and estimate the worst case binary size increase.
-> 
-> In practice, configurations with UNINLINE_SPIN_UNLOCK=n have already
-> opted against binary size optimization, so the inlined worst case is
-> unlikely to be a concern.
+> Reported-by: syzbot+d6dd6f86d3aaf7eebe7406e45c1c6e549453f224@syzkaller.appspotmail.com
+> Closes: https://syzkaller.appspot.com/bug?id=d6dd6f86d3aaf7eebe7406e45c1c6e549453f224
+> Reported-by: syzbot+908bd910da5dd79b88de4cf7baf376cc873a922e@syzkaller.appspotmail.com
+> Closes: https://syzkaller.appspot.com/bug?id=908bd910da5dd79b88de4cf7baf376cc873a922e
+> Signed-off-by: Ryosuke Yasuoka <ryasuoka@redhat.com>
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_vq.c | 20 ++++++++++++++++++--
+>  1 file changed, 18 insertions(+), 2 deletions(-)
 
-This is not quite accurate. You add the (5byte) NOP for the static
-branch, but then you also add another 5 bytes for the CALL and at least
-another 2 bytes (possibly 5) for a JMP back into the previous stream.
-That is 12-15 bytes added to what was a single MOV instruction.
+If host stops processing commands, this is a problem on host side. Isn't it?
 
-That is quite ludicrous.
-
-I disagree that UNINLINE_SPIN_UNLOCK=n opts against binary size. For x86
-the unlock is smaller than a function call.
-
-
-I really don't see how this is worth it.
+-- 
+Best regards,
+Dmitry
