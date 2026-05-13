@@ -1,203 +1,91 @@
-Received: from DU2PR03CU002.outbound.protection.outlook.com (mail-northeuropeazon11021074.outbound.protection.outlook.com [52.101.65.74])
+Received: from relay.hostedemail.com (smtprelay0010.hostedemail.com [216.40.44.10])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2E383161BF
-	for <virtualization@lists.linux.dev>; Wed, 13 May 2026 14:59:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.65.74
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778684348; cv=fail; b=pFkI0hVc1VHhq/TRB4kcpVrOW5EaiW1YB9ADynDekOKNjHBQANNIovr8CTDeK2awGGj6eSBc/zjTYyh3BZBrf/qekEQR2GGrB4d7zbd0xmdM63mOVuD6WSapis4oEYS3cBw5ZWgdSWPbYmjg211c8U7B2LzIqibcFa8LDvnwHKg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778684348; c=relaxed/simple;
-	bh=k50an/bzxA24sXgrQXvagovMHQyUnplpYZVKxL3mO14=;
-	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=aJkBKbM4mGBsxm9TwLEqz9TV9bvu0QFr7hW6yBLVX0hTsgE7mzIlYK0txq3c4Mj+YDdRZ8gUZPG1MXwBElP0odesrCVHeCeN+OLTUtTR54UPeyy0B/mwvLvuCaykJlJxR844fjmzZyAEFkp6Lp/cmQqX8EeQPeZxjdC3CkK1H9s=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=virtuozzo.com; spf=pass smtp.mailfrom=virtuozzo.com; dkim=pass (2048-bit key) header.d=virtuozzo.com header.i=@virtuozzo.com header.b=MKzKOFBh; arc=fail smtp.client-ip=52.101.65.74
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=virtuozzo.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=virtuozzo.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=virtuozzo.com header.i=@virtuozzo.com header.b="MKzKOFBh"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=dioxhRuKAENiZ3ls86Guij7svAjVOj25iQi86RFIQOaYw9f180LY4S9z/PoeNeK/LRJQxjmUlqxJJMJZvL6yeVPRuzABt0QWdQAk2zx2LfgDLL2G96UI2gV0pKatnEe+3Qts9L4NlYwyur2t/UhMwr4W0imnKwtu5/f+7muZAmNRtisjKRWlh2GkruF3Jar570GPQBrj4zAFBmkIcK0f23DTK49Nd1wS1FIEF/N9rRqOwLgW4ueBVrU8plk3NRDRkFac2VEgGoCz57WQoU2p6dhIhjrvaB/SiTOJ0GTY4nn+laZzzN47wCpJvTUrPRM2M2GLUeSUgKOyHy7fviY7FQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=F1WWIBmF231KEPRcdyUPH0TFIY8CYw/rtqxljMtCITU=;
- b=o5WGmJADSpGVxa1Bjq5ESCBglbBATG5CtljBHdbvOGGS/DdLJQ2teocfxEEbo5t9KPjKKqvhCueU+v1hQX5MCgkaej5Qr/7u2SC6siDshlN8Jmv11ZxzHaqc9t4LNUBJmamAryrS5Oy+720AI76sn+U2CYixPlx+G/d29yCnCQ31Iz7s++vWtMtAu9BSvc2NfJfSs4i5g8MpnG33XqRcDWo3uESPssG7A514TN/gZ7sRbvG9lNbkpdl/JxbG2BgIKFrOknJYULLKIRi+SWdQK0NNcdaLUXvjmV5Uojjij8+HGnsPNd4EXKVcXIQeHyx+5IJYn7fFez89Lba7lSvqwQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=virtuozzo.com; dmarc=pass action=none
- header.from=virtuozzo.com; dkim=pass header.d=virtuozzo.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=virtuozzo.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=F1WWIBmF231KEPRcdyUPH0TFIY8CYw/rtqxljMtCITU=;
- b=MKzKOFBhShDV9bRJaIK/Sb5PL10nBErLIM3f64fwvBo285DDVUWwTBqiq7tTV7ElmfgFE2Et5x3BLb6C+OwhplaQmDr0EvwrwAk17owysTxiKziQlDVDwQnvqrOlxRNHKDs5ys2/2ZUZyRVXc5v2NYrR5v4f8XrJ0DJKJBHsEjO9r+KebyjohSwdj6ZjQtHYrPXDOkfyu0jBII2jY0zvCmi2eKRBq3p6pbQSd+vtJaahpqHyerWsVbnSI7HcEsXIwf1vtnulD/WWNPIF4yoHTB1nENEaH7AahUndV4r40rpLgXoe04jpdE7fYjCuDIVutvuoHzqPGMg7OYeNPKQ1Dw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=virtuozzo.com;
-Received: from VI0PR08MB10828.eurprd08.prod.outlook.com
- (2603:10a6:800:204::20) by PA4PR08MB6255.eurprd08.prod.outlook.com
- (2603:10a6:102:f1::6) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.20.9913.11; Wed, 13 May
- 2026 14:59:02 +0000
-Received: from VI0PR08MB10828.eurprd08.prod.outlook.com
- ([fe80::2a8a:fe48:6ba2:f774]) by VI0PR08MB10828.eurprd08.prod.outlook.com
- ([fe80::2a8a:fe48:6ba2:f774%4]) with mapi id 15.20.9913.009; Wed, 13 May 2026
- 14:59:02 +0000
-From: Polina Vishneva <polina.vishneva@virtuozzo.com>
-To: linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	kvm@vger.kernel.org,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Polina Vishneva <polina.vishneva@virtuozzo.com>,
-	"Denis V . Lunev" <den@openvz.org>
-Subject: [PATCH v2] vhost/vsock: Refuse the connection immediately when guest isn't ready
-Date: Wed, 13 May 2026 16:50:04 +0200
-Message-ID: <20260513145842.809404-1-polina.vishneva@virtuozzo.com>
-X-Mailer: git-send-email 2.53.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: FR4P281CA0195.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:ca::20) To VI0PR08MB10828.eurprd08.prod.outlook.com
- (2603:10a6:800:204::20)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB4B648122E
+	for <virtualization@lists.linux.dev>; Wed, 13 May 2026 15:37:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.40.44.10
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778686681; cv=none; b=l4BN3H3xeOxGEgwjYzIY4rKry6I18rGcW3tvJZVwiM/6we47HikmLwNGFWOvGR7ZqWvN+8ZOYRF1lXVdqJAG+HMgziJC0mtl5oW+YAzHlxMR/ZyRNLTxbNnLvxWfqlcXI3Ug43KVOS7M+qYROUAcrQi5AfgtNOTwv7lw0hfzAmk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778686681; c=relaxed/simple;
+	bh=y8NfF3OMajZVMwfCULKb6I7Sxnei84iMNXs5shGDIEM=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=JonR2vbM0+YiOKFwmC3RtpF/d4HHMb35MKpkxhJ7/y0ViFWBN2XF0at5SM3khNi4npweH6L44PDBE3ZDUNLAu+agsKVt589ghNOIP2XJmLGlH+jZYG+Q5TmPQqsmnQtjI0ZhJhx3awUR41a4eeHsel9WCQcv6mvBf4u3AWQjICQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org; spf=pass smtp.mailfrom=goodmis.org; arc=none smtp.client-ip=216.40.44.10
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=goodmis.org
+Received: from omf14.hostedemail.com (lb01a-stub [10.200.18.249])
+	by unirelay01.hostedemail.com (Postfix) with ESMTP id B530B1C0437;
+	Wed, 13 May 2026 15:37:56 +0000 (UTC)
+Received: from [HIDDEN] (Authenticated sender: rostedt@goodmis.org) by omf14.hostedemail.com (Postfix) with ESMTPA id E2CAB30;
+	Wed, 13 May 2026 15:37:50 +0000 (UTC)
+Date: Wed, 13 May 2026 11:37:54 -0400
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Dmitry Ilvokhin <d@ilvokhin.com>
+Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
+ Will Deacon <will@kernel.org>, Boqun Feng <boqun@kernel.org>, Waiman Long
+ <longman@redhat.com>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Juergen Gross <jgross@suse.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
+ Alexey Makhalov <alexey.makhalov@broadcom.com>, Broadcom internal kernel
+ review list <bcm-kernel-feedback-list@broadcom.com>, Thomas Gleixner
+ <tglx@kernel.org>, Borislav Petkov <bp@alien8.de>, Dave Hansen
+ <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin"
+ <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>, Dennis Zhou
+ <dennis@kernel.org>, Tejun Heo <tj@kernel.org>, Christoph Lameter
+ <cl@gentwo.org>, Masami Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers
+ <mathieu.desnoyers@efficios.com>, linux-kernel@vger.kernel.org,
+ linux-mips@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-arch@vger.kernel.org, linux-mm@kvack.org,
+ linux-trace-kernel@vger.kernel.org, kernel-team@meta.com, "Paul E.
+ McKenney" <paulmck@kernel.org>
+Subject: Re: [PATCH v6 4/7] locking: Factor out queued_spin_release()
+Message-ID: <20260513113754.051c50e9@gandalf.local.home>
+In-Reply-To: <64c202b8a76a7d98515cf10cc1f99ecb0a9a7ccf.1777999826.git.d@ilvokhin.com>
+References: <cover.1777999826.git.d@ilvokhin.com>
+	<64c202b8a76a7d98515cf10cc1f99ecb0a9a7ccf.1777999826.git.d@ilvokhin.com>
+X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: VI0PR08MB10828:EE_|PA4PR08MB6255:EE_
-X-MS-Office365-Filtering-Correlation-Id: 9f9d6540-7b61-4692-e636-08deb1002b7f
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|376014|7416014|366016|56012099003|18002099003;
-X-Microsoft-Antispam-Message-Info:
-	kESsNHiuSlvgr4bhxDlIF+fk+FVQCHt8mhrUVqVWkBpEdZcifs8hCmZ6X0WK6sgkql+RN8+kFux0o3UDecrqC0URqAn9eiKogwnLsfqow3HpSIJYyP0qObJF3Uw5on+5ZiChkVHKOFWaZyVO7lwlK3+LVh6f0ygvze2xzbK5qwgwnFu3EtieeRs3I9Uf6VwpHPBMcBNZAMdbMybCRGYgrDc4j4MEv3cmn6O0AZ82BSVgMjmieO4EXi+07SdE2FZSbpEfj5cC+TPwpt49Js8nVe4eSYHShtENpQf8hsLGy5A7ld13cgscGFkATRs/g2/Jbl/gSInfJAlYjM3Cyi3BRMrjb4s29CrTpYHOQWfkwx6MeJd9bjeOdn/B58W/oEBdmMEa6PWAdkW0+54H1gFx6Fp4tCk+oIyAyC72Pxd/GN9Ii864ib8+CaCfuudmsZ394sYI1hL2eB+FrQzAoXLsswkdXyb02cZdG6/vaW7cZGhErdiOVJNG/764OGHBxt1CiroQxL9CIihDDHrPpNmyHjbkkD1QoSwrhTufWYL3h1DBGqsnGyuHzHQjXg7+u292wDq4HcqOeJ5V9nMzXSR4pftO6RYc+cdAZkCsiX6RR1wTcmO3kguFXBBNWSduOKiuZVQQnemtx265N4ZC+hyGQNUK+8Qpphr2hsQJvzOmkoUBWX7xL70/HpYPxyBJdW1A
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI0PR08MB10828.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(376014)(7416014)(366016)(56012099003)(18002099003);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?Ik7LG6PDfUxiaTEt03utlDbBbe9kWnhl0bwTfjVJJxPetbMXTwt83U6AXsym?=
- =?us-ascii?Q?ZqnNQx5qAS7+QlU/4Z3wkfXDkSSWI2fyLzmCibU8lld1m6u8H4+WBbzNQSW1?=
- =?us-ascii?Q?01a9gANiDopf4X5z0EsaKcDH21PeQm5wDbC3TCLWNuObMMkMHPnkujDNLm0B?=
- =?us-ascii?Q?89AFQl6XuTT+XGLLg+ufZUIhHS6hk/VOW4fMuLemkVQBj6OcJ4Jbyfat9z3z?=
- =?us-ascii?Q?T3IRuVND6T9r+NLL8pVfzGIB6b5AnvvloSqEMUFdYNQAb1476u9n4W90iuvW?=
- =?us-ascii?Q?Lt4Xpl7U0bQ5Xa8F5rFLAU5Ed0CvWqxvM8O4XKg0i2lv96/bl91ylc9iQm4W?=
- =?us-ascii?Q?2L8Cm+WUzxYLi3Mzs5SLy9R4R9k6ic0MlUsqxGr4kWtO23PbVpd2HxSiMkVc?=
- =?us-ascii?Q?lTHhPTdXfLT6J2k0fYjLKaLXVO3WjEHpvnNytzkXtgqkabQgAT0uUIRzn+4C?=
- =?us-ascii?Q?qICJJ7YDDFt8fm3WBGFnMkuSqKn31lTOZH2q06gETuWOIHAPYlb0elI1RmDD?=
- =?us-ascii?Q?HzxNdDb293thxehFViU50ciX+BzG4noKpJGxauCjkvmtZrYOxBubXPD9NMqj?=
- =?us-ascii?Q?ccs4qj7oqp+HEjcyVg6vG+MDEC8dD8dT04+tFzp4Qf1JEofUbxPcOHYm6erZ?=
- =?us-ascii?Q?WF2SsJcNRb0urPEy1WNj103Rkh/RlFJ2gqPtgdISdPnHGtzu+bN01pv72JOY?=
- =?us-ascii?Q?krLl5EewoWcl5CnFiLOtxazNO7ldE3+EK6VUQEAUJ9ae473vj/vCfXhujK4b?=
- =?us-ascii?Q?H9bKUz5KvtRXXxW0veQeAfdd99F9drVkSWfJZAeNHx8/CkgUNL3s8M20hkWk?=
- =?us-ascii?Q?BdOJVzLbROoV30f7aWY/k/Y+gm2U2cnlw87BZNRvsqVXq6w6zzqMDfpz4viT?=
- =?us-ascii?Q?l3xH97f/NKNDP/J/U4RoIpYzN/v43ck8lLJAu//ERWg2WwJW1Tt4scPfHSGE?=
- =?us-ascii?Q?l2tOuKk8+l6n1m/C8uzq8ENCeRpGPkxL1A1Pi4TW4RtucbWzbZIFlzkcXleo?=
- =?us-ascii?Q?XC7Luq6K4t+8gkou9P2Rnk958rkIR/Cv6ZApYNlkBWuT5St8yBfiubx5bgfR?=
- =?us-ascii?Q?e52+Tr9whmmJi8bTdCA8oXE/QIQycb9jt/CGbgwfpN1Hrq3n01rVUoE7U5Bt?=
- =?us-ascii?Q?ZOxUfa1Xy9feIluflS9f0MohcxgxZr21sEUvbe9OES0U4/UUMiCS7NP8bZnW?=
- =?us-ascii?Q?7+KqUH6niqmCM4jTBXv/ylCYhynfK9PahRftH9+QUo8Zkmx9Q4c6KouA6MGB?=
- =?us-ascii?Q?VJJrBsOOW1NzUTwyPak6zlgj7spE2knVwr7evtX1xvmPHva6TOROBe1p2ybg?=
- =?us-ascii?Q?qb5knhMwXtqIWi2D7WqUtJyrvmwjpw7xpOwhZEYIoXt02WcDJVMNuxdh9joV?=
- =?us-ascii?Q?SJxASVydTHUEGdYSzcb87YBxV5vc8fG/X+yTKxHumLfSmOMZKIyVEkuXlmDL?=
- =?us-ascii?Q?GNMvDKlqtNJKGEMNXj3CHKj16y2mSRq3ecc34QaLou2WZlgoysrMtV09DD4l?=
- =?us-ascii?Q?dCUOQ/eOa5A1V+glK0Zo/+gew7OmNe/z7raCeILf1dQHQcfBt8zACBUy45iM?=
- =?us-ascii?Q?EE6OcIq1McL2QCtxf+r4UW7PU68gP2O8red8p2Zgu+XSNylSQblAg8kwDN3h?=
- =?us-ascii?Q?oSp2YIi8NnqMZa1vuUY8u8ruVjjnrc8kv6Srg9ep7WvrvUVCC9vfdjtilyIe?=
- =?us-ascii?Q?e95HsN0eDG34XYky4FZuL4qMEiIGt5s2v9qrWGzakVahMplGO8lqDn2244j2?=
- =?us-ascii?Q?LkKsVz4QJF3QrzaYHeiiyNXdWZJULMQ=3D?=
-X-OriginatorOrg: virtuozzo.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 9f9d6540-7b61-4692-e636-08deb1002b7f
-X-MS-Exchange-CrossTenant-AuthSource: VI0PR08MB10828.eurprd08.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 13 May 2026 14:59:02.2819
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 0bc7f26d-0264-416e-a6fc-8352af79c58f
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 6gCmM9W9e0hXKnqfbSh2kKazavrCfZmAqQE8TepG6IYU/osb7Yp7s1ijPs+Dx9D3GG65R1LZfKNAXUmlOmX+tjbcvyoSrQgisu8JXLGslaE=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PA4PR08MB6255
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Rspamd-Server: rspamout05
+X-Rspamd-Queue-Id: E2CAB30
+X-Stat-Signature: uew54cpg7odf4hwzm1e8ogr5uztk4ec5
+X-Session-Marker: 726F737465647440676F6F646D69732E6F7267
+X-Session-ID: U2FsdGVkX191fRG9JHtupJy9pd45jNQyIWUqbihg3Yg=
+X-HE-Tag: 1778686670-783690
+X-HE-Meta: U2FsdGVkX1/Xz0KsUrlgbQ6P0jqSsi0BuOOQ57BSdsiBmiHSiqcnhQ8GGF/57kY5vcJ/Kp/3f3hVXhFX4GKJd6dUHccPq7zIEHyQxn5yDoVxMijnzCiN8wJ8SDaVYwf66HqkJmTiFdJ7pJh3X3xBeD26+lUuy34LqT1aZOLssrwR5BQSZZo9PBde81EORMGBaUxWkhXB2CrVDuixHOOyqducHcecosvvnTb/fZrh00Esfpaocrvm/lYF5zhG0N+LkOPDBCjYZcjvOuGc0vZBxMjXiv4M4p/fDszLwC/Cm9LBow3UCP5Zi/qp3HetYEBByXLUrv4ZuTRn2iP6b3iT/wWWHo+jNXq7lo9cNMgRiATjmxEOnW30JzPGPSXoL4wAt8retxoe8y0BmTSkSH3xzQ==
 
-From: "Denis V. Lunev" <den@openvz.org>
+On Tue,  5 May 2026 17:09:33 +0000
+Dmitry Ilvokhin <d@ilvokhin.com> wrote:
 
-When the host initiates an AF_VSOCK connect() to a guest that has not
-yet loaded the virtio-vsock transport (i.e. still booting), the caller
-blocks for VSOCK_DEFAULT_CONNECT_TIMEOUT.
+> Introduce queued_spin_release() as an arch-overridable unlock primitive,
+> and make queued_spin_unlock() a generic wrapper around it.
+> 
+> This is a preparatory refactoring for the next commit, which adds
+> contended_release tracepoint instrumentation to queued_spin_unlock().
 
-A caller that wants to know if the guest is up yet instead of waiting
-could theoretically tune SO_VM_SOCKETS_CONNECT_TIMEOUT, but it's tricky
-to find the right timeout, if not impossible: there's no way to
-distinguish "guest won't reply because it's not up yet" vs "guest is up
-and tried to reply, but was too slow".
+In change logs, do not use "next commit". Instead say something like:
 
-Furthermore, this delay is pointless:
-- If the guest doesn't initialize within this timeout, connect()
-  returns ETIMEDOUT.
-- If the guest **does** initialize, it'll reply with RST immediately,
-  because there won't be a listener on the port yet; connect() returns
-  ECONNRESET.
+  In preparation for adding contended_release tracepoint instrumentation to
+  queued_spin_unlock(), refactor the code to allow out of line calls when
+  the tracepoint is enabled.
 
-That's also inconsistent with the behavior at other initialization
-stages: if a connection is attempted when the guest driver is already
-loaded, but nothing is listening yet, we return ECONNRESET immediately
-without waiting.
+Or something like that.
 
-Fix this by checking the RX virtqueue backend in
-vhost_transport_send_pkt() before queuing. If it's NULL, return
--EHOSTUNREACH immediately.
+-- Steve
 
-Callers that used to get ETIMEDOUT will now usually get EHOSTUNREACH.
 
-Signed-off-by: Denis V. Lunev <den@openvz.org>
-Co-developed-by: Polina Vishneva <polina.vishneva@virtuozzo.com>
-Signed-off-by: Polina Vishneva <polina.vishneva@virtuozzo.com>
----
-v2:
-- ECONNREFUSED -> EHOSTUNREACH.
-- Use vhost_transport_do_send_pkt() instead of raw .private_data access.
-- Removed READ_ONCE().
-- Wrapped the condition with unlikely().
-- Updated the comment and the commit message.
 
-v1: https://lore.kernel.org/netdev/20260511145610.413210-1-polina.vishneva@virtuozzo.com
-
- drivers/vhost/vsock.c | 16 ++++++++++++++++
- 1 file changed, 16 insertions(+)
-
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index 1d8ec6bed53e..9aaab6bb8061 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -302,6 +302,22 @@ vhost_transport_send_pkt(struct sk_buff *skb, struct net *net)
- 		return -ENODEV;
- 	}
- 
-+	/* Fast-fail if the guest hasn't enabled the RX vq yet. Queuing the packet
-+	 * and making the caller wait is pointless: even if the guest manages to init
-+	 * within the timeout, it'll immediately reply with RST, because there's no
-+	 * listener on the port yet.
-+	 *
-+	 * vhost_vq_get_backend() without vq->mutex is acceptable here: locking
-+	 * the mutex would be too expensive in this hot path, and we already have
-+	 * all the outcomes covered: if the backend becomes NULL right after the check,
-+	 * vhost_transport_do_send_pkt() will check it under the mutex anyway.
-+	 */
-+	if (unlikely(!data_race(vhost_vq_get_backend(&vsock->vqs[VSOCK_VQ_RX])))) {
-+		rcu_read_unlock();
-+		kfree_skb(skb);
-+		return -EHOSTUNREACH;
-+	}
-+
- 	if (virtio_vsock_skb_reply(skb))
- 		atomic_inc(&vsock->queued_replies);
- 
-
-base-commit: 8ab992f815d6736b5c7a6f5fd7bfe7bc106bb3dc
--- 
-2.53.0
-
+> 
+> Rename the existing arch-specific queued_spin_unlock() overrides on
+> x86 (paravirt) and MIPS to queued_spin_release().
+> 
+> No functional change.
+> 
+> Signed-off-by: Dmitry Ilvokhin <d@ilvokhin.com>
+> Reviewed-by: Paul E. McKenney <paulmck@kernel.org>
