@@ -1,167 +1,129 @@
-Received: from relay.hostedemail.com (smtprelay0010.hostedemail.com [216.40.44.10])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D9FE342532
-	for <virtualization@lists.linux.dev>; Wed, 13 May 2026 15:43:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.40.44.10
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 878633939AE
+	for <virtualization@lists.linux.dev>; Wed, 13 May 2026 16:34:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778686992; cv=none; b=aNJn1osOGAZMOHsL0f1r90O9Gjalyle47XHkFX3/omkDWtouaEAU8qEtenhQcLP4rzz7dlem2wRDqlGrmx1UgahhyAT5Y1g0G1/QTPh4Dz62T09UW8Bvs9Bpepl9hVlBZw9sQcULKhZT3nlMg7QWqT5SEgQA8uBEzkKOxZNaZHQ=
+	t=1778690068; cv=none; b=c6Z8VchWjn9UKnq8+ociubq8LIbzpfudndEodI3g5T7vlR20WSJmWFFVlPzPVLhwqXUfAf48xky+4H/YkBryz0XhZQc/jT1oCNlcvUsUD9yYF7OH6HwhFNCPc2cQsHdQtCjyLU2ydEN9eF57fGb/UmKRMkY0k85KwT/4+ZxRYPs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778686992; c=relaxed/simple;
-	bh=gkRQjgXAOUtsQDsoJPrjl1J5lhzGoe8KMasfHcOGNSk=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=ibsvkR95Ck2rvxlPGpzC5FWlYnMorvDzGUiurxdev6XVaVrU4+VV4TuEovbkuJRqrkj0VLlOVpZIRtvCP1Dv6wQau+k/Z90YZ7C6tBx0zzwGv6aKCVRBVY75kZ1Vg7qPgZZtdZK9jihoZiAT5ZYAPpTqMM3PDrHptuj5dKgktP8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org; spf=pass smtp.mailfrom=goodmis.org; arc=none smtp.client-ip=216.40.44.10
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=goodmis.org
-Received: from omf02.hostedemail.com (lb01a-stub [10.200.18.249])
-	by unirelay10.hostedemail.com (Postfix) with ESMTP id 49B49C0439;
-	Wed, 13 May 2026 15:43:08 +0000 (UTC)
-Received: from [HIDDEN] (Authenticated sender: rostedt@goodmis.org) by omf02.hostedemail.com (Postfix) with ESMTPA id AF64F8000F;
-	Wed, 13 May 2026 15:43:02 +0000 (UTC)
-Date: Wed, 13 May 2026 11:43:05 -0400
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Dmitry Ilvokhin <d@ilvokhin.com>
-Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
- Will Deacon <will@kernel.org>, Boqun Feng <boqun@kernel.org>, Waiman Long
- <longman@redhat.com>, Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Juergen Gross <jgross@suse.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
- Alexey Makhalov <alexey.makhalov@broadcom.com>, Broadcom internal kernel
- review list <bcm-kernel-feedback-list@broadcom.com>, Thomas Gleixner
- <tglx@kernel.org>, Borislav Petkov <bp@alien8.de>, Dave Hansen
- <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin"
- <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>, Dennis Zhou
- <dennis@kernel.org>, Tejun Heo <tj@kernel.org>, Christoph Lameter
- <cl@gentwo.org>, Masami Hiramatsu <mhiramat@kernel.org>, Mathieu Desnoyers
- <mathieu.desnoyers@efficios.com>, linux-kernel@vger.kernel.org,
- linux-mips@vger.kernel.org, virtualization@lists.linux.dev,
- linux-arch@vger.kernel.org, linux-mm@kvack.org,
- linux-trace-kernel@vger.kernel.org, kernel-team@meta.com
-Subject: Re: [PATCH v6 7/7] locking: Add contended_release tracepoint to
- qrwlock
-Message-ID: <20260513114305.21ffc98f@gandalf.local.home>
-In-Reply-To: <b67fda8e847fff72da05eff7f799019f8d17ce21.1777999826.git.d@ilvokhin.com>
-References: <cover.1777999826.git.d@ilvokhin.com>
-	<b67fda8e847fff72da05eff7f799019f8d17ce21.1777999826.git.d@ilvokhin.com>
-X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	s=arc-20240116; t=1778690068; c=relaxed/simple;
+	bh=OrGxMK5IgeLgMmIL9OUUMGzryRfyptrGuaaJwcYBniE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=OrFbJmQ68OtArNioFLoSfHaAlxeZE4qg49R9OdASOfUqqrelWbKxxzO0QM2h+u2lWEVBgNHKQtH2cBWaDKq902EDhzO3HOoWOgCyBrFoJyelRlV66cYEu+PJtB2oWEspv2jvoeXQ/PFKmgy2hSkQ+4wKV4AObJd2vXDBVeGOG/8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=HO8OvUBM; arc=none smtp.client-ip=209.85.222.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="HO8OvUBM"
+Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-8d7e7f48499so765043485a.1
+        for <virtualization@lists.linux.dev>; Wed, 13 May 2026 09:34:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gourry.net; s=google; t=1778690065; x=1779294865; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=B+BIQ14oFJRJRvF17iizm1a/CWsNJ6gKyfT66tKDwfg=;
+        b=HO8OvUBMnq+jfSa3SUUj7bbFH6gNG42znQqk5zLq3Fmap9RRDvQVxgYKqXF6kNjat0
+         DMY4aCeDdpHMv07/QdupCJ/oZGI1CQDio3Qhf6eSTp0I9tnLREQH7+wPnobv9WIOxLG4
+         DIN8XgMyt9lCGA7mHYyjt/bCG+BaLm5cdTNJZ9gYMUisYjzCUV03ILHnxZZy4VQT+h9L
+         R814dY3MrbZWJZr/xBzJJsgX9ISJ53Bn9BkhEgLTpIUjV6l7Sp7rY+CJONqBG+EShkgS
+         t00iM+LVasXYByVaa48ozxhprKhqOmDA2nC6wpx/OBKVzLp+PMecfN1jE7upVdWtZf5r
+         IBvQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778690065; x=1779294865;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=B+BIQ14oFJRJRvF17iizm1a/CWsNJ6gKyfT66tKDwfg=;
+        b=R0tGDphZsAYN/6FOwikcWilFJQ8Z1JHA9Ydb++hmjIu08KxRdMjNR/oW5X03wpmhTH
+         W1Ssoe1kIG/jSxUTtrUGiktr354/QKD/+XSolmTvYKqaXOST4aGYKAbwmItFbyvVHkIc
+         IvEBAOa3Kzcpo+6Zc+xeJnhBB/XaxP6pQ3gkPz3o8o/9HYuluB0xis6j5Azw8P9OoBbz
+         7GcN3x0MfFdOMFmBXF5sEFROulKsHEd2CjHvT1GWEnFJAkay7M4dv/fL0Z4ySeh63zZI
+         xwQ8wufg9xKUH4dnNxna8/LwMB+RLsqFQ7DbF29ZPHYfFjD8UExMVgVX8e8CD+UHH1Io
+         hXgA==
+X-Forwarded-Encrypted: i=1; AFNElJ8oj/9usVCHnk6djER0GD9QCdtvBtU+Tv++YYZb4R4ZsvDNM2rMSfOJuK5m5alWbCZFOtsUC2cwu617hqM0bw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw50bkYpP2RuwN16DDEj6jRdT1c2hZrZ5uYVhaz/G8xShA6Jv3a
+	vqVeJ4bb+0Sz/f0SA2Hv7fuNVOgQknKNUSJRIxAlhOfikyQT1kuDRUgio3qtvyy36Xw=
+X-Gm-Gg: Acq92OHV6jT7nMXYx07Fq84R64/Rrv9njnaSPXHx4jFM8BcIjHWIPb5zcuUoRTaE8I4
+	Fd84DSGSud91bNRMoklBi1MX1D8aMGicmwDpneD1m96sHgp34rriwdtARrxOxwKUmaR37uOgkEt
+	tlCoh5eIQ9MVWURmgXRS090dmyHhNTVkKj8FmR5HKvSXQqBZGU499Snf3TFGGZV+ivv0INpeljE
+	gYJHCI4Oi+iTfnnolUOlNtavHWpDbxBHVTfpdq41jNeJc54mNdORyEaoYMAhBfeLHKdxny6mJOL
+	8A+s2SJ05OqEL8daKUPzTOYV1Xr3wOhnpDgcZktN797+UdfA+JFUMjAiBwq+50lQmqSClEjghdu
+	fUm4Z2+u/Z80iwalFfrxrDQy2gcbUj4C/NBnasBTAnhD3GlgL0M4Xha2fOjQCNBsMt5fh7XbWmi
+	RenkAYHbPS8WaVi0X1ySIM/3pgGe/gnEPSpezet/YCbIiRzzjrorSWU5DKgC8hvPpImkpv+3zQN
+	sdIhYfHrYBP
+X-Received: by 2002:a05:620a:d8e:b0:8ee:630e:351a with SMTP id af79cd13be357-90fabcfd5a7mr529500385a.27.1778690065464;
+        Wed, 13 May 2026 09:34:25 -0700 (PDT)
+Received: from gourry-fedora-PF4VCD3F (pool-100-36-248-188.washdc.fios.verizon.net. [100.36.248.188])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-910b785935bsm7101985a.0.2026.05.13.09.34.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 13 May 2026 09:34:25 -0700 (PDT)
+Date: Wed, 13 May 2026 12:34:22 -0400
+From: Gregory Price <gourry@gourry.net>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Muchun Song <muchun.song@linux.dev>,
+	Oscar Salvador <osalvador@suse.de>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Lorenzo Stoakes <ljs@kernel.org>,
+	"Liam R. Howlett" <liam@infradead.org>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Brendan Jackman <jackmanb@google.com>,
+	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
+	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
+	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+	Byungchul Park <byungchul@sk.com>,
+	Ying Huang <ying.huang@linux.alibaba.com>,
+	Alistair Popple <apopple@nvidia.com>,
+	Christoph Lameter <cl@gentwo.org>,
+	David Rientjes <rientjes@google.com>,
+	Roman Gushchin <roman.gushchin@linux.dev>,
+	Harry Yoo <harry.yoo@oracle.com>,
+	Axel Rasmussen <axelrasmussen@google.com>,
+	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
+	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
+	Kemeng Shi <shikemeng@huaweicloud.com>,
+	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
+	virtualization@lists.linux.dev, linux-mm@kvack.org,
+	Andrea Arcangeli <aarcange@redhat.com>
+Subject: Re: [PATCH v7 00/31] mm/virtio: skip redundant zeroing of
+ host-zeroed pages
+Message-ID: <agSoDnbk5rjx9yM1@gourry-fedora-PF4VCD3F>
+References: <cover.1778616612.git.mst@redhat.com>
+ <e7e9b30f-ee5c-44c4-b377-d70156be41e9@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Rspamd-Queue-Id: AF64F8000F
-X-Rspamd-Server: rspamout06
-X-Stat-Signature: w86rrez7eqwjzfhgqoxgq67qhkb7x9up
-X-Session-Marker: 726F737465647440676F6F646D69732E6F7267
-X-Session-ID: U2FsdGVkX19Ry8RzWesZfFcKD7J3lfQK7el56ZbsoNM=
-X-HE-Tag: 1778686982-257566
-X-HE-Meta: U2FsdGVkX191OTt5Ksd6rUOT63By4bRHO3knmbxlImxeNwSRm6MiHtOjFX4vJPI7crm7BSyrSIbvYT2WqOIcyORlXBEY2Q745H1gRnZgzxFxnZc2Bi+ODYvQqGyzbt0gxBvY2ORVu7Y4GQ21a4wpv6/a90k23BYL7etn+PwAjOo5gxJiydIgCFloW6Mpqm0UrvbWwABEN81N7oFp14CVTY728nkwzhqSyPCqbUhdm6Gp7kGkEzhfOsmKyTBnoEo7WZmXFfbv5M1ZAKLN8diVSXcT2j7/QCb3HvSSmT0BmXISJ4AvPIW0Eh8Dhn0nmq6iowz0POq6263XgbEXZQ9JarrVBkMeNNzrxBaehT1mK01cf9rA6EvFjUu8THAnEVExi+n7p8EX5+Ja1SfaAhM8P576YgkfJW2f
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <e7e9b30f-ee5c-44c4-b377-d70156be41e9@kernel.org>
 
-On Tue,  5 May 2026 17:09:36 +0000
-Dmitry Ilvokhin <d@ilvokhin.com> wrote:
-
-> Extend the contended_release tracepoint to queued rwlocks, using the
-> same out-of-line traced unlock approach as queued spinlocks.
+On Wed, May 13, 2026 at 09:36:06AM +0200, David Hildenbrand (Arm) wrote:
 > 
-> Signed-off-by: Dmitry Ilvokhin <d@ilvokhin.com>
-> ---
->  include/asm-generic/qrwlock.h | 22 ++++++++++++++++++++++
->  kernel/locking/qrwlock.c      | 16 ++++++++++++++++
->  2 files changed, 38 insertions(+)
+> Please wait at least a week before sending out new versions of this size.
 > 
-> diff --git a/include/asm-generic/qrwlock.h b/include/asm-generic/qrwlock.h
-> index 4b627bafba8b..274c19006125 100644
-> --- a/include/asm-generic/qrwlock.h
-> +++ b/include/asm-generic/qrwlock.h
-> @@ -14,6 +14,7 @@
->  #define __ASM_GENERIC_QRWLOCK_H
->  
->  #include <linux/atomic.h>
-> +#include <linux/tracepoint-defs.h>
->  #include <asm/barrier.h>
->  #include <asm/processor.h>
->  
-> @@ -35,6 +36,10 @@
->   */
->  extern void queued_read_lock_slowpath(struct qrwlock *lock);
->  extern void queued_write_lock_slowpath(struct qrwlock *lock);
-> +extern void queued_read_unlock_traced(struct qrwlock *lock);
-> +extern void queued_write_unlock_traced(struct qrwlock *lock);
-> +
-> +DECLARE_TRACEPOINT(contended_release);
->  
->  /**
->   * queued_read_trylock - try to acquire read lock of a queued rwlock
-> @@ -115,6 +120,17 @@ static __always_inline void __queued_read_unlock(struct qrwlock *lock)
->   */
->  static inline void queued_read_unlock(struct qrwlock *lock)
->  {
-> +	/*
-> +	 * Trace and unlock are combined in the traced unlock variant so
-> +	 * the compiler does not need to preserve the lock pointer across
-> +	 * the function call, avoiding callee-saved register save/restore
-> +	 * on the hot path.
-> +	 */
-> +	if (tracepoint_enabled(contended_release)) {
-> +		queued_read_unlock_traced(lock);
+> It's just a lot of noise in people's inbox, and as raised, a lot of people won't
+> manage to review this before next month.
+> 
 
-Same issue here about duplicating the code.
-> +		return;
-> +	}
-> +
->  	__queued_read_unlock(lock);
->  }
->  
-> @@ -129,6 +145,12 @@ static __always_inline void __queued_write_unlock(struct qrwlock *lock)
->   */
->  static inline void queued_write_unlock(struct qrwlock *lock)
->  {
-> +	/* See comment in queued_read_unlock(). */
-> +	if (tracepoint_enabled(contended_release)) {
-> +		queued_write_unlock_traced(lock);
+Also I wasn't even done reviewing what you had previously sent lol.
 
-And here.
+I can only spare so much time each week on upstream patch review :]
 
-> +		return;
-> +	}
-> +
->  	__queued_write_unlock(lock);
->  }
->  
-> diff --git a/kernel/locking/qrwlock.c b/kernel/locking/qrwlock.c
-> index d2ef312a8611..5ae4b0372719 100644
-> --- a/kernel/locking/qrwlock.c
-> +++ b/kernel/locking/qrwlock.c
-> @@ -90,3 +90,19 @@ void __lockfunc queued_write_lock_slowpath(struct qrwlock *lock)
->  	trace_contention_end(lock, 0);
->  }
->  EXPORT_SYMBOL(queued_write_lock_slowpath);
-> +
-> +void __lockfunc queued_read_unlock_traced(struct qrwlock *lock)
-> +{
-> +	if (queued_rwlock_is_contended(lock))
-> +		trace_call__contended_release(lock);
+(This is also the pot calling the kettle black, I am guilty of doing
+ this same thing so uh... lesson learned, sorry David and Andrew!)
 
-Just have this trace and not actually do any locking.
-
-
-> +	__queued_read_unlock(lock);
-> +}
-> +EXPORT_SYMBOL(queued_read_unlock_traced);
-> +
-> +void __lockfunc queued_write_unlock_traced(struct qrwlock *lock)
-> +{
-> +	if (queued_rwlock_is_contended(lock))
-> +		trace_call__contended_release(lock);
-
-Ditto.
-
--- Steve
-
-> +	__queued_write_unlock(lock);
-> +}
-> +EXPORT_SYMBOL(queued_write_unlock_traced);
-
+~Gregory
