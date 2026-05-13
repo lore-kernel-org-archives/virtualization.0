@@ -1,199 +1,150 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AE8CF3CDBD8
-	for <virtualization@lists.linux.dev>; Wed, 13 May 2026 22:11:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778710284; cv=pass; b=CWP53ank7XQozm4o9HVuAK+KMis4vYD8hlqQHNem3FT7FcZb9FoqEDcI7olnZ0BNpWAdK7Q7GGEETRm5+vxQY9Wby/GqprrZi+u3XVHxHAo/ncZLBDv6lZ9641V+up58hKemtgDZu31CCv7909rdfR36rrBIFQURJXrWDHglKF0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778710284; c=relaxed/simple;
-	bh=/bqKGyIPeubYkSgZk34fsooAYDeCACSv3mGOGMDEtNY=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=NJFmtxtw3mV2337Fi5vsERhsugsavgDDzWnRMBj7/pDPnRbg3P8QwVTcaqq6U871BbTQ9OqfWU0RT3H8uwynozIxUB0wbAVwpmctuutTNvB+BnwyQcYphXyZofTJ9cyNBFR45CpoWBeP5X7ulxe9i+ZACTm3/S6BQ36QHlhbJLU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=PhoABMFY; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43CE8392C3D
+	for <virtualization@lists.linux.dev>; Wed, 13 May 2026 23:29:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778714960; cv=none; b=HkXd0mERSUZc3wBNcJr8+K4gYQxbzIKdoVaxNGBsHdCBtq19xCbBzG0/fW6iHJppuOT318p1el8Fq+xFIrqzuAXOVfksFbIeC8qJOo5RkAd1KkFEtcMLEALJwc/OEiTPmKVBbTPiMojHVH189jSlRvsJQEPBvIYZMk0BICnCgXo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778714960; c=relaxed/simple;
+	bh=epeYZJKmJEyEKFK4D/WW8l8OB0uwtne8cu+lAHSRqXs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=SbLpxiZ0evwRp5cmTnOaeMSzFVfkMaE/96XM0otRIc3bLXVjICKXvrJmxF0Z6eJPvaeQIC9YIZ1GlgOkMVh6BiDchB17ZTsRInza213IGQBu/HgBJ+6exKBU790Z5MOv4IGIAkmynjJYviqVuCQ6RvYGyMdnJ36Mr2SblSFepv0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ephJ37MO; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="PhoABMFY"
-ARC-Seal: i=1; a=rsa-sha256; t=1778710254; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=kFljbuvpV4epFUawsak7ZSItkFX5IsO3UR87Fh2IgaeBUxt2RVOrNp4SsGNarm1dn7U+cG38YoRdUUmQgd7QlfuF+hTuq5PA2enJ/oTmWDMgzP7VD6uHXTCS4fA7cCAp2pOlowm8UiQB3MKZ7mlgeKwKWqQ2BT/X0sn0JP3CqOU=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1778710254; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=H66DJfTkzSFXK5GN5OZ2jS7pJA/U3BZtWdfWJMHG7FI=; 
-	b=RyF/UBmkk6rghU+EMzKrN8z75wv+tvR0nf7uZh33vaUo2UYk6KdpgRS4YVx3dMma2BBV/JC0rpmdKVyMj7h60wGtsL03Sy3xWBc/lSBi88RF3FBcMGJRb4XrGU/B0up41Nn9C1hEeszRbcS2j0rOBA+FoPjD5+VUmeb8MVMR4Rs=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1778710254;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:From:From:To:To:Cc:Cc:References:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=H66DJfTkzSFXK5GN5OZ2jS7pJA/U3BZtWdfWJMHG7FI=;
-	b=PhoABMFYuXpDQjW/CK40/Km2TEebbMpr2Nb9mdG8XUKibnTQRRA2y54SyqIbid+z
-	6jTCOHlZ41G/IgLuzcKpXpFjJVKvmVrTrseCPrv5esWDwGPkIwTJm6ExLAYdOFHfWme
-	ahFFUN0izX/WkudQatSRGbat4TtguQ15BpiwB46s=
-Received: by mx.zohomail.com with SMTPS id 1778710252955760.417482599686;
-	Wed, 13 May 2026 15:10:52 -0700 (PDT)
-Message-ID: <1efb8795-3345-46ae-8195-1b391159b90b@collabora.com>
-Date: Thu, 14 May 2026 01:10:48 +0300
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ephJ37MO"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1778714958;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=izvY07KqS+wf5+fN6802J9TRTtuhLJpx997g9sZkIas=;
+	b=ephJ37MOXlflLCJdNeO0M+4A7r0qyj5SsjDuimd+uc3gkVDvkDjZ35bj2828tg+nWIp4qP
+	EvtqObbxdPj/U7ZwXktmlgf7+1x+QtcOLstFlSU9s8S6kHqdhdNORK+OiEPwbU+0opUo+o
+	WLiAbqHkE4ZcVMVxTKOuddDELit7Ezc=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-88-lkoVI1pSN8yt9MlPuZV7bw-1; Wed, 13 May 2026 19:29:17 -0400
+X-MC-Unique: lkoVI1pSN8yt9MlPuZV7bw-1
+X-Mimecast-MFC-AGG-ID: lkoVI1pSN8yt9MlPuZV7bw_1778714956
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-44d9ace59efso4869732f8f.1
+        for <virtualization@lists.linux.dev>; Wed, 13 May 2026 16:29:16 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778714956; x=1779319756;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=izvY07KqS+wf5+fN6802J9TRTtuhLJpx997g9sZkIas=;
+        b=tXEfFt8R+SHlA+FMNnCSXfvwamXWWPlf5upa0jILTBjwn8vnqAUUqn/ryCHuHVdNf9
+         7a47ot8QnWBcXGIDfWjHcz/prEjn2PRjFOAgQEFrb/la3eURg3e6fnFgxkY6yerkV4tz
+         t0gIFuYNiIeXTG9G2+2ZwKV2f2aVa09YptlGAwO60FfEuITSVGku6UjFqHpM/3qTOCc3
+         JP5/mnZ8VTcv97Nj0gt2az5OONjlH1VSbxcUP8IJ6O9/tsU1KwcLi8dd3SgN0mf0Swzn
+         5Zws4aRruTypBaaxV8JuKxhxhhnLuebslcNgRGNQvQpt1zIb6GNkFNpACxdo0qt90gSJ
+         tamg==
+X-Forwarded-Encrypted: i=1; AFNElJ90Q5I1PPOY/ArL5RW60hPUWF17AQZ6p4pw4QKumNPGF3gml7MNuT+5C0g7gUcuEfj03xRtbKACryIIRC/UKw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwxfQd+3tVZ/sfjPhy/Bbnsv1SkjGuGqrE9vzKL58nx+QTm6KtP
+	vneEF7cYoqRJ5sztBUdIQJ0CHcCnaESHHX//eEb5PvnpHRACeFD05HAA/dD7/ojMNgVsZ10Yel3
+	QpVDMhe4JTATLNVHYPM6oPeJ0PI8eM5Tmwzsrzvq2EhMcSMejbBCtJ8B1xdCcAVutgrKf
+X-Gm-Gg: Acq92OH0Ow2yNOnfc3Z+bGJ7souOOzktmwKC+mdbeUEoRSjJHhdaWU6ZikpdCtK9fdX
+	x4T8UDW3HqFMbzyzX5fPXVEW9fJ4Nh2PaMCw9QyDR/nTeVkZSm5kfU8wgQfZbmG4AF1O/Qbk+e6
+	JUG6QFP2VvcJlJq2NLCaM6hUx8YGk19eX3GY5b100Hiv25ZacDwumUy5tSs7L5GnNtooAbdG0JJ
+	yanF2lVs4BMuS7zsITH85KWNNIejRmNTPIrsuun8oueBiqGZZlMun3IxQ12PeJUvK9My26MaObx
+	vDK/DXK3eUonuNgARVcHlOwdAclTNQajJ8y7sMNw16jnmVIddmuwSsY7mR3xexg23fBhT/xQyAX
+	FuXRW8bu5iEotQufCANHZYRl3xld3qYXTMUYrE7Bbh1WN9chdKes=
+X-Received: by 2002:a5d:5d87:0:b0:441:1c18:f779 with SMTP id ffacd0b85a97d-45c59cce4demr8601859f8f.37.1778714955722;
+        Wed, 13 May 2026 16:29:15 -0700 (PDT)
+X-Received: by 2002:a5d:5d87:0:b0:441:1c18:f779 with SMTP id ffacd0b85a97d-45c59cce4demr8601791f8f.37.1778714955170;
+        Wed, 13 May 2026 16:29:15 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-48-7.inter.net.il. [80.230.48.7])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45d9ed2ffdfsm2070342f8f.15.2026.05.13.16.29.09
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 13 May 2026 16:29:14 -0700 (PDT)
+Date: Wed, 13 May 2026 19:29:08 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Gregory Price <gourry@gourry.net>
+Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
+	linux-kernel@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Muchun Song <muchun.song@linux.dev>,
+	Oscar Salvador <osalvador@suse.de>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Lorenzo Stoakes <ljs@kernel.org>,
+	"Liam R. Howlett" <liam@infradead.org>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Brendan Jackman <jackmanb@google.com>,
+	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
+	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
+	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+	Byungchul Park <byungchul@sk.com>,
+	Ying Huang <ying.huang@linux.alibaba.com>,
+	Alistair Popple <apopple@nvidia.com>,
+	Christoph Lameter <cl@gentwo.org>,
+	David Rientjes <rientjes@google.com>,
+	Roman Gushchin <roman.gushchin@linux.dev>,
+	Harry Yoo <harry.yoo@oracle.com>,
+	Axel Rasmussen <axelrasmussen@google.com>,
+	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
+	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
+	Kemeng Shi <shikemeng@huaweicloud.com>,
+	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
+	virtualization@lists.linux.dev, linux-mm@kvack.org,
+	Andrea Arcangeli <aarcange@redhat.com>
+Subject: Re: [PATCH v7 00/31] mm/virtio: skip redundant zeroing of
+ host-zeroed pages
+Message-ID: <20260513192734-mutt-send-email-mst@kernel.org>
+References: <cover.1778616612.git.mst@redhat.com>
+ <e7e9b30f-ee5c-44c4-b377-d70156be41e9@kernel.org>
+ <agSoDnbk5rjx9yM1@gourry-fedora-PF4VCD3F>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] drm/virtio: Extend blob UAPI with deferred-mapping
- hinting
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-To: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>,
- Pierre-Eric Pelloux-Prayer <pierre-eric.pelloux-prayer@amd.com>,
- Alyssa Rosenzweig <alyssa@rosenzweig.io>
-Cc: Rob Clark <robdclark@gmail.com>, dri-devel@lists.freedesktop.org,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- kernel@collabora.com, Nagapuri Ramesh <ram.nagapuri@gmail.com>
-References: <20260501000043.2483678-1-dmitry.osipenko@collabora.com>
-Content-Language: en-US
-In-Reply-To: <20260501000043.2483678-1-dmitry.osipenko@collabora.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ZohoMailClient: External
+In-Reply-To: <agSoDnbk5rjx9yM1@gourry-fedora-PF4VCD3F>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: F6UON01emCNm8ayBUagcnFxUIaohnOPabVHbdDHo4mc_1778714956
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 5/1/26 03:00, Dmitry Osipenko wrote:
-> If userspace never maps GEM object, then BO wastes hostmem space
-> because VirtIO-GPU driver maps VRAM BO at the BO's creating time.
+On Wed, May 13, 2026 at 12:34:22PM -0400, Gregory Price wrote:
+> On Wed, May 13, 2026 at 09:36:06AM +0200, David Hildenbrand (Arm) wrote:
+> > 
+> > Please wait at least a week before sending out new versions of this size.
+> > 
+> > It's just a lot of noise in people's inbox, and as raised, a lot of people won't
+> > manage to review this before next month.
+> > 
 > 
-> Make mappings on-demand by adding new RESOURCE_CREATE_BLOB IOCTL/UAPI
-> hinting flag telling that host mapping should be deferred until first
-> mapping is made when the flag is set by userspace.
-> 
-> Signed-off-by: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-> Reviewed-by: Rob Clark <robdclark@gmail.com>
-> ---
-> 
-> Changelog:
-> 
-> v2: Rebased on recent kernel. Intel i915 native ctx landed to Mesa, lets to
->     proceed with merging the mapping hint as a first user of the feature.
-> 
->  drivers/gpu/drm/virtio/virtgpu_drv.h   |  2 ++
->  drivers/gpu/drm/virtio/virtgpu_ioctl.c |  1 +
->  drivers/gpu/drm/virtio/virtgpu_vram.c  | 30 +++++++++++++++++++++-----
->  include/uapi/drm/virtgpu_drm.h         |  4 ++++
->  4 files changed, 32 insertions(+), 5 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> index f17660a71a3e..6f49213e23f8 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> @@ -84,6 +84,7 @@ struct virtio_gpu_object_params {
->  	uint32_t blob_mem;
->  	uint32_t blob_flags;
->  	uint64_t blob_id;
-> +	uint32_t blob_hints;
->  };
->  
->  struct virtio_gpu_object {
-> @@ -507,6 +508,7 @@ struct sg_table *virtio_gpu_vram_map_dma_buf(struct virtio_gpu_object *bo,
->  void virtio_gpu_vram_unmap_dma_buf(struct device *dev,
->  				   struct sg_table *sgt,
->  				   enum dma_data_direction dir);
-> +void virtio_gpu_vram_map_deferred(struct virtio_gpu_object_vram *vram);
->  
->  /* virtgpu_submit.c */
->  int virtio_gpu_execbuffer_ioctl(struct drm_device *dev, void *data,
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> index c33c057365f8..01daa72b1310 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> @@ -489,6 +489,7 @@ static int verify_blob(struct virtio_gpu_device *vgdev,
->  	params->size = rc_blob->size;
->  	params->blob = true;
->  	params->blob_flags = rc_blob->blob_flags;
-> +	params->blob_hints = rc_blob->blob_hints;
->  	return 0;
->  }
->  
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_vram.c b/drivers/gpu/drm/virtio/virtgpu_vram.c
-> index 084e80227433..4ae3cbc35dd3 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_vram.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_vram.c
-> @@ -3,6 +3,8 @@
->  
->  #include <linux/dma-mapping.h>
->  
-> +static DEFINE_MUTEX(map_lock);
-> +
->  static void virtio_gpu_vram_free(struct drm_gem_object *obj)
->  {
->  	struct virtio_gpu_object *bo = gem_to_virtio_gpu_obj(obj);
-> @@ -42,6 +44,11 @@ static int virtio_gpu_vram_mmap(struct drm_gem_object *obj,
->  	if (!(bo->blob_flags & VIRTGPU_BLOB_FLAG_USE_MAPPABLE))
->  		return -EINVAL;
->  
-> +	virtio_gpu_vram_map_deferred(vram);
-> +
-> +	if (vram->map_state == STATE_INITIALIZING)
-> +		virtio_gpu_notify(vgdev);
-> +
->  	wait_event(vgdev->resp_wq, vram->map_state != STATE_INITIALIZING);
->  	if (vram->map_state != STATE_OK)
->  		return -EINVAL;
-> @@ -218,14 +225,27 @@ int virtio_gpu_vram_create(struct virtio_gpu_device *vgdev,
->  
->  	virtio_gpu_cmd_resource_create_blob(vgdev, &vram->base, params, NULL,
->  					    0);
-> -	if (params->blob_flags & VIRTGPU_BLOB_FLAG_USE_MAPPABLE) {
-> -		ret = virtio_gpu_vram_map(&vram->base);
-> -		if (ret) {
-> -			virtio_gpu_vram_free(obj);
-> -			return ret;
-> +	if (!(params->blob_hints & DRM_VIRTGPU_BLOB_FLAG_HINT_DEFER_MAPPING)) {
-> +		if (params->blob_flags & VIRTGPU_BLOB_FLAG_USE_MAPPABLE) {
-> +			ret = virtio_gpu_vram_map(&vram->base);
-> +			if (ret) {
-> +				virtio_gpu_vram_free(obj);
-> +				return ret;
-> +			}
->  		}
->  	}
->  
->  	*bo_ptr = &vram->base;
->  	return 0;
->  }
-> +
-> +void virtio_gpu_vram_map_deferred(struct virtio_gpu_object_vram *vram)
-> +{
-> +	if (!(vram->base.blob_flags & VIRTGPU_BLOB_FLAG_USE_MAPPABLE))
-> +		return;
-> +
-> +	mutex_lock(&map_lock);
-> +	if (!drm_mm_node_allocated(&vram->vram_node))
-> +		virtio_gpu_vram_map(&vram->base);
-> +	mutex_unlock(&map_lock);
-> +}
-> diff --git a/include/uapi/drm/virtgpu_drm.h b/include/uapi/drm/virtgpu_drm.h
-> index 9debb320c34b..ba09a4ee3e77 100644
-> --- a/include/uapi/drm/virtgpu_drm.h
-> +++ b/include/uapi/drm/virtgpu_drm.h
-> @@ -200,6 +200,10 @@ struct drm_virtgpu_resource_create_blob {
->  	__u32 cmd_size;
->  	__u64 cmd;
->  	__u64 blob_id;
-> +
-> +#define DRM_VIRTGPU_BLOB_FLAG_HINT_DEFER_MAPPING        0x0001
-> +	__u32 blob_hints;
-> +	__u32 pad2;
->  };
->  
->  #define VIRTGPU_CONTEXT_PARAM_CAPSET_ID       0x0001
+> Also I wasn't even done reviewing what you had previously sent lol.
 
-Applied patch to misc-next
+Sorry thought you were.
+
+> I can only spare so much time each week on upstream patch review :]
+
+
+You certainly invested more than a fair share on this one, thanks a lot!
+
+> (This is also the pot calling the kettle black, I am guilty of doing
+>  this same thing so uh... lesson learned, sorry David and Andrew!)
+> 
+> ~Gregory
+
+Ya I clearly overdid it. I'll wait at least a week. Thanks!
 
 -- 
-Best regards,
-Dmitry
+MST
+
