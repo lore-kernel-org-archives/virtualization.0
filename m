@@ -1,69 +1,69 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B4BD3806A7
-	for <virtualization@lists.linux.dev>; Wed, 13 May 2026 10:54:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C56C3D47AD
+	for <virtualization@lists.linux.dev>; Wed, 13 May 2026 10:54:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778669676; cv=none; b=KBmuL/nO4oq4z3XO5QQ+1UMWdezrr7mot7Fo57WchIkZyMPbnUsX7hxunZvEbISXCWoFM12ZiYuoCu+EnQpQIavXKEam9uOXXkcHkxql5Fy7gNUbIYGqCuDjHD23JSbVSNf2R0HuQP6884QXsCXNfnU+xtRoPSYW6/3igClW3a8=
+	t=1778669676; cv=none; b=bO9GwWIlBebnt45hjkcswShzT4mzjtlsx9cHHxsZ3yjkhxWe92aI1/NPPh1XzPgefUuLnwFPLAswEQ8jhAypuhsE/VYzGI1VyCREerWvp1nHP5SJXWIpiBcKRr4FB+nxP+ZN+oQ9ejAb5/Vaa3X7R9rjoBI41REsKMUDX+qcKlw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1778669676; c=relaxed/simple;
-	bh=ttq2nGPLIE/1il8H5a57hLhcGZjBjCwtRxosBU4xsEM=;
+	bh=IvdEZvwln3zcfx+cvlKQindvsy3EmR5EckwkcdVQXFY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:content-type; b=cKwei7FE7SpktdVsOaqdgjzOieyEW0TWHPy1TuuXNnuTAKHiLECjiiwDNkOBvi7jE4IKXNWafFVFD+Mn2OBJAQ379tqjB/MecAobipyui3cJA8W1cFo5uS7nLjiWaeyzhBfJaYbP6Cdh1TH92KDVfJzaTJ6u91n1mqdEPNcmKMg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Beja0nS8; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version:content-type; b=KSMajMMOZyCBxK7U39MMxfRVoBTDv1emjd5WZpd7UgKwELO/yy4x6eQy2mRoVORlGTgorHJFWC2KlQvx1KBmzjjf1Ar5C43uh0Nm31kCL0Gzz3gIdHoF74N+rxM9y01TSyLINDgKdjMA0IA/4a++E+G4j8kDnHblCjqVFvXLuVE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UqjB6YyE; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Beja0nS8"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UqjB6YyE"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1778669671;
+	s=mimecast20190719; t=1778669673;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=PAFSeIkpvfQYT7wQ2CerCQBM43nlr6dVNS3iNHBRyXI=;
-	b=Beja0nS8adiWT0QQXdCduJqnPwt9V3ihgpG5reMWhahw3R/+aCID+OFm/FjVJFM6Ojht3W
-	ok8BXQE81GPdOp8dwudNUS/cmpTdxreyK/aeZxJuI+UmF2WVs97aKZwlQ9O4DieEJURSYH
-	RvHyOvHNHo2TJSSzjkG1ZI/Zi/+pA6Q=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=aGSDbvLykcv2buTIXBcK0yd8xK4cY9P0ZJuiRfh0cTI=;
+	b=UqjB6YyEyWGXOW/u+3o3be+wcCiGqpALlp09kry46qo//Iw+vbiWJS3Ot9Md1q9GoeTcxh
+	zAliSS2oRB0JUHJnqJxol6eIH7+8NwO7GIPZYRPePhrx0wzZEbsKv+0Itvto+l9YTbgwnz
+	8+XTFjh5pKcAVpwu8J+EhisqSdtEK9M=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-444-XXbsC-tXM0WvJLlbT6KwJA-1; Wed, 13 May 2026 06:54:27 -0400
-X-MC-Unique: XXbsC-tXM0WvJLlbT6KwJA-1
-X-Mimecast-MFC-AGG-ID: XXbsC-tXM0WvJLlbT6KwJA_1778669667
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-48fb4ffebe7so5955465e9.0
-        for <virtualization@lists.linux.dev>; Wed, 13 May 2026 03:54:27 -0700 (PDT)
+ us-mta-605-dncU1UDaPe6p03VYSb8aww-1; Wed, 13 May 2026 06:54:32 -0400
+X-MC-Unique: dncU1UDaPe6p03VYSb8aww-1
+X-Mimecast-MFC-AGG-ID: dncU1UDaPe6p03VYSb8aww_1778669671
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-43efc93e4f6so4344392f8f.3
+        for <virtualization@lists.linux.dev>; Wed, 13 May 2026 03:54:31 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778669666; x=1779274466;
+        d=1e100.net; s=20251104; t=1778669671; x=1779274471;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=PAFSeIkpvfQYT7wQ2CerCQBM43nlr6dVNS3iNHBRyXI=;
-        b=J3a0c19W4nFiq6vq7RMeS43dnC1M8+3KcnxpQD90o3d37B9WyDTQ7smg79kqhopwjI
-         lTwxwive9UY/zuDk0hJu8/N3GprIzJoYNEQf2HFKjCfMTnFFNg0sCyyXtWUfCeB2Y95z
-         +TON8ophHxZzVwGdYXc467lPK/VIjEHALBPrhng8bfDzfPr7fDL2qQ28dDgv3h11KBEI
-         cSfkWxmrO2iAmFcTg/cgQvS7CGftmqA+Apd3ChX4ubXNTirZuzWKuXylVV4O9RHvtLxV
-         JhMFh2HJTBjiyRfNFCKEx+bRKhPtZ7rMyxfqIMiHHEOw/l5gD8vFfd/ZKyO8Q8e/mYuf
-         VMPg==
-X-Forwarded-Encrypted: i=1; AFNElJ/pl5nwXcw3Zlj8rNEVVgKySpsRrb/3f1qMFgRdKRrW7ME8720wMzHCj0zTITJCRGivRymhQ9QdSAxc+st3GQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxLW5xT1BVkkVtUPgztjBJEmH77T4L9Q7pSDgS0dx7KHtMbq8tA
-	Pbdz0HiIgCKVLMK/QHegXgcIbWnrhFzNT5kQ5scxt5xy9T9z/Yr+5YK0LCdy1od62jA4Ke2ECqb
-	LYeYWzaiE6+NtpA9fPgjdOrGhd6+GAl2i1aejPshE2DcRg5ZluRGxl8bzu076AlkcOsw0
-X-Gm-Gg: Acq92OH5HbTFWzgnptaMcS0yBTbWlo5TpE/y8wKO14OjOR4Vdc5C5vIiuENKQRs/O2O
-	bIHA426FtyZWGv0HHvOZsICag8zcwdCO1sPUXclUYTKxuxHkorh8qMvLTk8/41GWwDnmANpGOau
-	F8GX+J2Fjd2gHjUEs0E749FU38fcRESIUUIxBkrW+PLI88jphDsdTMDHmsQgTXhx6JQ01ApZYxc
-	/yzVJ7J9WfCDkTt0Gnnls6lT7o0pBowFzYfWG+/GuVgNJnyXunIy34AYP4H8uJE0iCdDIKrAopE
-	sI//BAIwBUoHWJVlmI8dAv/cdkN90OZh4pAK83BP7QThQqfxC9eOQ8sDR488iyNEzOupneknl6T
-	xgpbfikJDMWOHj65rG1BfUjXo9yOPQ3Dh/tmqDd4BxxxFabAcajz/4ocNNWDC
-X-Received: by 2002:a05:600c:4f54:b0:488:ab1d:dcc5 with SMTP id 5b1f17b1804b1-48fc9a4b276mr40460155e9.27.1778669666576;
-        Wed, 13 May 2026 03:54:26 -0700 (PDT)
-X-Received: by 2002:a05:600c:4f54:b0:488:ab1d:dcc5 with SMTP id 5b1f17b1804b1-48fc9a4b276mr40459645e9.27.1778669666028;
-        Wed, 13 May 2026 03:54:26 -0700 (PDT)
+        bh=aGSDbvLykcv2buTIXBcK0yd8xK4cY9P0ZJuiRfh0cTI=;
+        b=fyG3zyjdgDz7iAmnynQVLKtExqCM+xJSK3Imk1S0p1dKeaaUVa8IpmyzyDLuw4y9b2
+         PQi02X5R8RbDRLXnxBUD8sf8Dq7hFDEBKqXTPGhh9KSz3r7s2RT/18HmhoXYNv+wNYr7
+         OElcSuae+Egt9goo/+Im9LIachpQjoZe7BvlVe94poNcrx0DlWoWVchcHoUnHlB8/Vnx
+         p04I9h7x3Hm+iF5k9Dwu7a3/TYvrKsK9C/5TwKamSPfYSrEodcHfFRmDKlb5N6pWJ7V0
+         OUYzhNz/CFueHeImctkKTiaN6CpUru4v+Oock8/0aogkv/seRluAqOnnXzjERfuBmjT0
+         L6aQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+H7TDAmL/EVGWF5wijOhywDcqi3ss0YFMDlzy+JOXT4+o8djKE4CApSNYAgblOiGwTTak/oyrx72JlsaRshw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx9b2xERaaJgl16MRrGj+XBo9/G/6KIT0PgKMQ7Q4xxQ+pw3Pir
+	rRR7HWk3Tl8w5tZb0xX+fjj48IWTWj5R0zPvouR1lAVB91/WMf6vIO7IAD7mVieRPrBhvhP6nen
+	SQuwmRBAtw70oSV2OIxaKq/BPi5ySKeNpQXqboLXKef0Ucmjayh59h0Enawymt93VKFfz
+X-Gm-Gg: Acq92OE9CRe4oe4cNJsgC5QKhEmJrJoif2NgPgp1X+wp84dp/poxTM26TNXqj1vXEAZ
+	QKgPxy3chAW8ecDv4HGGfk4O84zlrLwRRrJcYP73I399A/rczfbFxlC4UhaFZdPlIR+J0QTb9DV
+	2IyUx7SiNM+EeiPC/CjpyT3DB0pDBuAK0kL+O/hlLa0vDbT8TSnA6v0++hgRRMTeAX40Elt8402
+	mvgWDIVT+szooE1u091aNpwjlq6t+QOYBiWjwaLc8qjwqVJUT9B+aZyw+zk/opiPHyNvVuI2HR0
+	0XubUhiW8yckMmr6N7RjJ/fgAYnhF2ZqDuvF81LmrdeJckkPQBQRUcfrfGGI0yQ36+ATj/T1GU2
+	rE0PPp22hgVC8XUlyAb2eyq2sfcOfx+tTt0OA68jDdQ8HRu3afzSsM92EacbD
+X-Received: by 2002:a5d:64c7:0:b0:43d:68ad:3b7f with SMTP id ffacd0b85a97d-45c59228b05mr4395334f8f.21.1778669670771;
+        Wed, 13 May 2026 03:54:30 -0700 (PDT)
+X-Received: by 2002:a5d:64c7:0:b0:43d:68ad:3b7f with SMTP id ffacd0b85a97d-45c59228b05mr4395279f8f.21.1778669670260;
+        Wed, 13 May 2026 03:54:30 -0700 (PDT)
 Received: from stex1 (host-87-16-204-231.retail.telecomitalia.it. [87.16.204.231])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48fc8d27d31sm106419235e9.8.2026.05.13.03.54.23
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-454917d57aesm40237869f8f.26.2026.05.13.03.54.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 May 2026 03:54:24 -0700 (PDT)
+        Wed, 13 May 2026 03:54:29 -0700 (PDT)
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: netdev@vger.kernel.org
 Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
@@ -80,9 +80,9 @@ Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	virtualization@lists.linux.dev,
 	Eric Dumazet <edumazet@google.com>,
 	"David S. Miller" <davem@davemloft.net>
-Subject: [PATCH net v3 1/2] vsock/virtio: reset connection on receiving queue overflow
-Date: Wed, 13 May 2026 12:54:16 +0200
-Message-ID: <20260513105417.56761-2-sgarzare@redhat.com>
+Subject: [PATCH net v3 2/2] vsock/virtio: fix skb overhead accounting to preserve full buf_alloc
+Date: Wed, 13 May 2026 12:54:17 +0200
+Message-ID: <20260513105417.56761-3-sgarzare@redhat.com>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260513105417.56761-1-sgarzare@redhat.com>
 References: <20260513105417.56761-1-sgarzare@redhat.com>
@@ -93,86 +93,64 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: wMZmWspJRqzi7qHjMpv3DgSmzEP8fN5pNm6fdVBRWa8_1778669667
+X-Mimecast-MFC-PROC-ID: f7nw5TIkyDsx2CgFaOPK4fP3WT7LMKVgjDZehN20za0_1778669671
 X-Mimecast-Originator: redhat.com
 Content-Transfer-Encoding: 8bit
 content-type: text/plain; charset="US-ASCII"; x-default=true
 
 From: Stefano Garzarella <sgarzare@redhat.com>
 
-When there is no more space to queue an incoming packet, the packet is
-silently dropped. This causes data loss without any notification to
-either peer, since there is no retransmission.
+After commit 059b7dbd20a6 ("vsock/virtio: fix potential unbounded skb
+queue"), virtio_transport_inc_rx_pkt() subtracts per-skb overhead from
+buf_alloc when checking whether a new packet fits. This reduces the
+effective receive buffer below what the user configured via
+SO_VM_SOCKETS_BUFFER_SIZE, causing legitimate data packets to be
+silently dropped and applications that rely on the full buffer size
+to deadlock.
 
-Under normal circumstances, this should never happen. However, it could
-happen if the other peer doesn't respect the credit, or if the skb
-overhead, which we recently began to take into account with commit
-059b7dbd20a6 ("vsock/virtio: fix potential unbounded skb queue"),
-is too high.
+Also, the reduced space is not communicated to the remote peer, so
+its credit calculation accounts more credit than the receiver will
+actually accept, causing data loss (there is no retransmission).
 
-Fix this by resetting the connection and setting the local socket error
-to ENOBUFS when virtio_transport_recv_enqueue() can no longer queue a
-packet, so both peers are explicitly notified of the failure rather than
-silently losing data.
+With this approach we currently have failures in
+tools/testing/vsock/vsock_test.c. Test 18 sometimes fails, while
+test 22 always fails in this way:
+    18 - SOCK_STREAM MSG_ZEROCOPY...hash mismatch
 
-Fixes: ae6fcfbf5f03 ("vsock/virtio: discard packets if credit is not respected")
+    22 - SOCK_STREAM virtio credit update + SO_RCVLOWAT...send failed:
+    Resource temporarily unavailable
+
+Fix this by using `buf_alloc * 2` as the total budget for payload plus
+skb overhead in virtio_transport_inc_rx_pkt(), similar to how SO_RCVBUF
+is doubled to reserve space for sk_buff metadata. This preserves the
+full buf_alloc for payload under normal operation, while still bounding
+the skb queue growth.
+
+With this patch, all tests in tools/testing/vsock/vsock_test.c are
+now passing again.
+
+Fixes: 059b7dbd20a6 ("vsock/virtio: fix potential unbounded skb queue")
 Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 ---
- net/vmw_vsock/virtio_transport_common.c | 19 ++++++++++++++-----
- 1 file changed, 14 insertions(+), 5 deletions(-)
+ net/vmw_vsock/virtio_transport_common.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
 diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index 989cc252d3d3..4a4ac69d1ad1 100644
+index 4a4ac69d1ad1..e22117bf5dcd 100644
 --- a/net/vmw_vsock/virtio_transport_common.c
 +++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -1350,7 +1350,7 @@ virtio_transport_recv_connecting(struct sock *sk,
- 	return err;
- }
- 
--static void
-+static bool
- virtio_transport_recv_enqueue(struct vsock_sock *vsk,
- 			      struct sk_buff *skb)
+@@ -434,7 +434,10 @@ static bool virtio_transport_inc_rx_pkt(struct virtio_vsock_sock *vvs,
  {
-@@ -1365,10 +1365,8 @@ virtio_transport_recv_enqueue(struct vsock_sock *vsk,
- 	spin_lock_bh(&vvs->rx_lock);
+ 	u64 skb_overhead = (skb_queue_len(&vvs->rx_queue) + 1) * SKB_TRUESIZE(0);
  
- 	can_enqueue = virtio_transport_inc_rx_pkt(vvs, len);
--	if (!can_enqueue) {
--		free_pkt = true;
-+	if (!can_enqueue)
- 		goto out;
--	}
+-	if (skb_overhead + vvs->buf_used + len > vvs->buf_alloc)
++	/* Use buf_alloc * 2 as total budget (payload + overhead), similar to
++	 * how SO_RCVBUF is doubled to reserve space for sk_buff metadata.
++	 */
++	if (skb_overhead + vvs->buf_used + len > (u64)vvs->buf_alloc * 2)
+ 		return false;
  
- 	if (le32_to_cpu(hdr->flags) & VIRTIO_VSOCK_SEQ_EOM)
- 		vvs->msg_count++;
-@@ -1408,6 +1406,8 @@ virtio_transport_recv_enqueue(struct vsock_sock *vsk,
- 	spin_unlock_bh(&vvs->rx_lock);
- 	if (free_pkt)
- 		kfree_skb(skb);
-+
-+	return can_enqueue;
- }
- 
- static int
-@@ -1420,7 +1420,16 @@ virtio_transport_recv_connected(struct sock *sk,
- 
- 	switch (le16_to_cpu(hdr->op)) {
- 	case VIRTIO_VSOCK_OP_RW:
--		virtio_transport_recv_enqueue(vsk, skb);
-+		if (!virtio_transport_recv_enqueue(vsk, skb)) {
-+			/* There is no more space to queue the packet, so let's
-+			 * close the connection; otherwise, we'll lose data.
-+			 */
-+			(void)virtio_transport_reset(vsk, skb);
-+			sk->sk_state = TCP_CLOSE;
-+			sk->sk_err = ENOBUFS;
-+			sk_error_report(sk);
-+			break;
-+		}
- 		vsock_data_ready(sk);
- 		return err;
- 	case VIRTIO_VSOCK_OP_CREDIT_REQUEST:
+ 	vvs->rx_bytes += len;
 -- 
 2.54.0
 
