@@ -1,129 +1,135 @@
-Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
+Received: from mail-qt1-f175.google.com (mail-qt1-f175.google.com [209.85.160.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 878633939AE
-	for <virtualization@lists.linux.dev>; Wed, 13 May 2026 16:34:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8629E377018
+	for <virtualization@lists.linux.dev>; Wed, 13 May 2026 16:50:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778690068; cv=none; b=c6Z8VchWjn9UKnq8+ociubq8LIbzpfudndEodI3g5T7vlR20WSJmWFFVlPzPVLhwqXUfAf48xky+4H/YkBryz0XhZQc/jT1oCNlcvUsUD9yYF7OH6HwhFNCPc2cQsHdQtCjyLU2ydEN9eF57fGb/UmKRMkY0k85KwT/4+ZxRYPs=
+	t=1778691018; cv=none; b=EysZy1qnyFBLW5HwhLP0w0ZNz99icJV3ZVWGzU7XOTW7ZktMt7iEXx5ggSIckbqotTboS7cSTMWICSGEg44t9wbcJ38Eo4vpFLO0jT7N+YZSpJ8/dspGKw/ScfKteJipo+kij6YBhegaMMwQyU3juJ41kkJMDVZVJCiR9bznaGw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778690068; c=relaxed/simple;
-	bh=OrGxMK5IgeLgMmIL9OUUMGzryRfyptrGuaaJwcYBniE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OrFbJmQ68OtArNioFLoSfHaAlxeZE4qg49R9OdASOfUqqrelWbKxxzO0QM2h+u2lWEVBgNHKQtH2cBWaDKq902EDhzO3HOoWOgCyBrFoJyelRlV66cYEu+PJtB2oWEspv2jvoeXQ/PFKmgy2hSkQ+4wKV4AObJd2vXDBVeGOG/8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=HO8OvUBM; arc=none smtp.client-ip=209.85.222.173
+	s=arc-20240116; t=1778691018; c=relaxed/simple;
+	bh=J5KWjkitWaa+zQXzjM8xPWkBFBQtvwfJCJCRx/KA3es=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=CAKd+n6nD/y/IVLjOiMgNmmdR13buKVWg55FGM0i5Jn9TC/4K6veeYmscLQAndmSq+8Z7M/2fZfzIjH86Tyy4v6RuOVdntSY7Hc4p74+aYWkQN7wCWqg7VH1j0uc7kXzofHFQh8gCkIGAcN/01jVeO/2ofK9OB2fmHqKuo2Em8c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=XIP40PPv; arc=none smtp.client-ip=209.85.160.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="HO8OvUBM"
-Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-8d7e7f48499so765043485a.1
-        for <virtualization@lists.linux.dev>; Wed, 13 May 2026 09:34:26 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="XIP40PPv"
+Received: by mail-qt1-f175.google.com with SMTP id d75a77b69052e-50fc496c8baso66146211cf.3
+        for <virtualization@lists.linux.dev>; Wed, 13 May 2026 09:50:12 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1778690065; x=1779294865; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=B+BIQ14oFJRJRvF17iizm1a/CWsNJ6gKyfT66tKDwfg=;
-        b=HO8OvUBMnq+jfSa3SUUj7bbFH6gNG42znQqk5zLq3Fmap9RRDvQVxgYKqXF6kNjat0
-         DMY4aCeDdpHMv07/QdupCJ/oZGI1CQDio3Qhf6eSTp0I9tnLREQH7+wPnobv9WIOxLG4
-         DIN8XgMyt9lCGA7mHYyjt/bCG+BaLm5cdTNJZ9gYMUisYjzCUV03ILHnxZZy4VQT+h9L
-         R814dY3MrbZWJZr/xBzJJsgX9ISJ53Bn9BkhEgLTpIUjV6l7Sp7rY+CJONqBG+EShkgS
-         t00iM+LVasXYByVaa48ozxhprKhqOmDA2nC6wpx/OBKVzLp+PMecfN1jE7upVdWtZf5r
-         IBvQ==
+        d=gourry.net; s=google; t=1778691009; x=1779295809; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZukIZMATp2JtRDTJ//Dl/unJCRFuE8eMZ0H6/2Yk9z8=;
+        b=XIP40PPvT9jo8CYA4P5SABw4diIaC1YiZpiIYN53tlOJnoHbOO5dmwQ+9usP2TbvkV
+         7ffNMA/e7TiTHT6NDTFeGHKVXF/06X8ArrNG9keueYdfukxEzhmptM1I80frrfM8XSv9
+         65OSGHSouPt84yzHKAbh7iOlXXxH40CyLgtGmHMMGzq5Z+sZb0de/6a/EtC1cCMs0qrY
+         B1xKBBM1AOTJoS6aGvct5w6keq2c7PaONsyM9LHkGRhkFAsUGKVTeqjHAUQ6Nbuxa1wN
+         1D1mOR3ZwxJpPhNvXY8h6RH7pos1TcholXwFVev2GfY+E/GE4kp1y/9DkEgOddFGxMgV
+         604Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778690065; x=1779294865;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=B+BIQ14oFJRJRvF17iizm1a/CWsNJ6gKyfT66tKDwfg=;
-        b=R0tGDphZsAYN/6FOwikcWilFJQ8Z1JHA9Ydb++hmjIu08KxRdMjNR/oW5X03wpmhTH
-         W1Ssoe1kIG/jSxUTtrUGiktr354/QKD/+XSolmTvYKqaXOST4aGYKAbwmItFbyvVHkIc
-         IvEBAOa3Kzcpo+6Zc+xeJnhBB/XaxP6pQ3gkPz3o8o/9HYuluB0xis6j5Azw8P9OoBbz
-         7GcN3x0MfFdOMFmBXF5sEFROulKsHEd2CjHvT1GWEnFJAkay7M4dv/fL0Z4ySeh63zZI
-         xwQ8wufg9xKUH4dnNxna8/LwMB+RLsqFQ7DbF29ZPHYfFjD8UExMVgVX8e8CD+UHH1Io
-         hXgA==
-X-Forwarded-Encrypted: i=1; AFNElJ8oj/9usVCHnk6djER0GD9QCdtvBtU+Tv++YYZb4R4ZsvDNM2rMSfOJuK5m5alWbCZFOtsUC2cwu617hqM0bw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw50bkYpP2RuwN16DDEj6jRdT1c2hZrZ5uYVhaz/G8xShA6Jv3a
-	vqVeJ4bb+0Sz/f0SA2Hv7fuNVOgQknKNUSJRIxAlhOfikyQT1kuDRUgio3qtvyy36Xw=
-X-Gm-Gg: Acq92OHV6jT7nMXYx07Fq84R64/Rrv9njnaSPXHx4jFM8BcIjHWIPb5zcuUoRTaE8I4
-	Fd84DSGSud91bNRMoklBi1MX1D8aMGicmwDpneD1m96sHgp34rriwdtARrxOxwKUmaR37uOgkEt
-	tlCoh5eIQ9MVWURmgXRS090dmyHhNTVkKj8FmR5HKvSXQqBZGU499Snf3TFGGZV+ivv0INpeljE
-	gYJHCI4Oi+iTfnnolUOlNtavHWpDbxBHVTfpdq41jNeJc54mNdORyEaoYMAhBfeLHKdxny6mJOL
-	8A+s2SJ05OqEL8daKUPzTOYV1Xr3wOhnpDgcZktN797+UdfA+JFUMjAiBwq+50lQmqSClEjghdu
-	fUm4Z2+u/Z80iwalFfrxrDQy2gcbUj4C/NBnasBTAnhD3GlgL0M4Xha2fOjQCNBsMt5fh7XbWmi
-	RenkAYHbPS8WaVi0X1ySIM/3pgGe/gnEPSpezet/YCbIiRzzjrorSWU5DKgC8hvPpImkpv+3zQN
-	sdIhYfHrYBP
-X-Received: by 2002:a05:620a:d8e:b0:8ee:630e:351a with SMTP id af79cd13be357-90fabcfd5a7mr529500385a.27.1778690065464;
-        Wed, 13 May 2026 09:34:25 -0700 (PDT)
-Received: from gourry-fedora-PF4VCD3F (pool-100-36-248-188.washdc.fios.verizon.net. [100.36.248.188])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-910b785935bsm7101985a.0.2026.05.13.09.34.24
+        d=1e100.net; s=20251104; t=1778691009; x=1779295809;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ZukIZMATp2JtRDTJ//Dl/unJCRFuE8eMZ0H6/2Yk9z8=;
+        b=VhThJ24Z9hgBiWgMPL0FO9ZgquMmjqY+GR98meFrQRTx+4Q4vf7p0H8Z0ohlq5QA8A
+         kpuqgLykBTkOYojKE1BwtVgjpSLXsVG6dazsAlcKWsnGKDZ+4UgL8jvzbtFQTpuK2AKY
+         o1z0mkC8D15V11KRdccuQqNsoqLLsXXbD5xxFLIQAIyOioV2copzreFbUYB59eYZrDEf
+         xNuc3QuArA+h2M8F5MpuElq2d5zjrvEypfP4eHSlJBxU05KileUboNV85rVc6FHmyrA9
+         YOUP6LxProQsnp4xsX/wsRNE+6PnLY5fKPi8cZ0CWj0wsKOJAaZ5Ww8V5x1HnUNoGg0c
+         +dYQ==
+X-Gm-Message-State: AOJu0YwB4NwsFmgareawhA4MbFKrPEJ5j29rAqXq6uJ6Sfq1fX9Av1k5
+	rfho/LUX7moMLE89q8qMYVPvbVSMo5k7037hPbkSHImSr2azfgzSL23yxHiz09FGhtZUjSsfe2T
+	Bz12T
+X-Gm-Gg: Acq92OGwz/pfImdBt1oRECGiEY6gzskRSBfqUDy/RQlGpyYiUcEd9YYXw1kPO/u4hVT
+	MPAtOYfT9I4FSIXWw91H3b1yEguSMNBR/02krzTvRgzYi6Sx7Yc/neGB8N6FmFZyFCnHg9PrQA1
+	uJZYYRZ5OqMh9F8DyqODpMNZuaqtU7BtfRKeShVJ+aK8zjL+lPx7q2WpjlUimqBMNjgARwMhHC/
+	0dOPVoZ/LMnsbHO0MYlYjBd7Q/Yp/d73VGcDwGPFbAgtufmpTaLCR0ctP9YCaDuhojBZRNifMzy
+	zIWjmHy/LrHILEGXRB4GE4wyXweQsdicQtU1vzqW089z/+N3C5B2Rl8Bchvp+0qxTBRvWwFw/Jv
+	ZxJ44+rZClhg4Iyoy7MgpaasXcbOCEHda2s2EW7uqsGwXOFzsEEmGAF3sVj4t512l3S3ScC2/R9
+	shB4Fruilgj3g3wf/Mb2EVN/S9D/74eyLOq33SJ75ePyrbLYHrNfp8nIhxE3nl7Z9ho7mwiPA9v
+	32gI9nHVXN4xe/IEw==
+X-Received: by 2002:a05:622a:6185:b0:50b:6b21:2a83 with SMTP id d75a77b69052e-5162f443304mr54244261cf.3.1778691009483;
+        Wed, 13 May 2026 09:50:09 -0700 (PDT)
+Received: from gourry-fedora-PF4VCD3F.lan (pool-100-36-248-188.washdc.fios.verizon.net. [100.36.248.188])
+        by smtp.gmail.com with ESMTPSA id d75a77b69052e-5148e677e63sm152498891cf.12.2026.05.13.09.50.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 May 2026 09:34:25 -0700 (PDT)
-Date: Wed, 13 May 2026 12:34:22 -0400
+        Wed, 13 May 2026 09:50:09 -0700 (PDT)
 From: Gregory Price <gourry@gourry.net>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Muchun Song <muchun.song@linux.dev>,
-	Oscar Salvador <osalvador@suse.de>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Lorenzo Stoakes <ljs@kernel.org>,
-	"Liam R. Howlett" <liam@infradead.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Brendan Jackman <jackmanb@google.com>,
-	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
-	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
-	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
-	Byungchul Park <byungchul@sk.com>,
-	Ying Huang <ying.huang@linux.alibaba.com>,
-	Alistair Popple <apopple@nvidia.com>,
-	Christoph Lameter <cl@gentwo.org>,
-	David Rientjes <rientjes@google.com>,
-	Roman Gushchin <roman.gushchin@linux.dev>,
-	Harry Yoo <harry.yoo@oracle.com>,
-	Axel Rasmussen <axelrasmussen@google.com>,
-	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
-	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
-	Kemeng Shi <shikemeng@huaweicloud.com>,
-	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
-	virtualization@lists.linux.dev, linux-mm@kvack.org,
-	Andrea Arcangeli <aarcange@redhat.com>
-Subject: Re: [PATCH v7 00/31] mm/virtio: skip redundant zeroing of
- host-zeroed pages
-Message-ID: <agSoDnbk5rjx9yM1@gourry-fedora-PF4VCD3F>
-References: <cover.1778616612.git.mst@redhat.com>
- <e7e9b30f-ee5c-44c4-b377-d70156be41e9@kernel.org>
+To: virtualization@lists.linux.dev
+Cc: linux-kernel@vger.kernel.org,
+	kernel-team@meta.com,
+	mst@redhat.com,
+	david@kernel.org,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com,
+	hannes@cmpxchg.org,
+	surenb@google.com,
+	peterz@infradead.org,
+	mingo@redhat.com,
+	juri.lelli@redhat.com,
+	vincent.guittot@linaro.org,
+	dietmar.eggemann@arm.com,
+	rostedt@goodmis.org,
+	bsegall@google.com,
+	mgorman@suse.de,
+	vschneid@redhat.com,
+	kprateek.nayak@amd.com
+Subject: [RFC PATCH 0/2] virtio-balloon: extended stats and push mode
+Date: Wed, 13 May 2026 12:50:04 -0400
+Message-ID: <20260513165006.2790857-1-gourry@gourry.net>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <e7e9b30f-ee5c-44c4-b377-d70156be41e9@kernel.org>
+Content-Transfer-Encoding: 8bit
 
-On Wed, May 13, 2026 at 09:36:06AM +0200, David Hildenbrand (Arm) wrote:
-> 
-> Please wait at least a week before sending out new versions of this size.
-> 
-> It's just a lot of noise in people's inbox, and as raised, a lot of people won't
-> manage to review this before next month.
-> 
+This series extends the virtio-balloon stats virtqueue with new tags
+for memory composition and pressure data, and adds an optional push
+mode for guest-initiated stat reporting.
 
-Also I wasn't even done reviewing what you had previously sent lol.
+Patch 1 adds 11 new stat tags to the existing stats VQ.
 
-I can only spare so much time each week on upstream patch review :]
+  These use the same tag/value format and require no feature negotiation.
+  Old hosts ignore unknown tags.
 
-(This is also the pot calling the kettle black, I am guilty of doing
- this same thing so uh... lesson learned, sorry David and Andrew!)
+  The new tags provide data needed for better balloon sizing:
 
-~Gregory
+  a) dirty/writeback pages (more accurate reclaimable estimates)
+  b) workingset refault counters (balloon overshoot before PSI spikes)
+  c) PSI pressure stats
+
+  Also exports psi_system for module builds.
+
+Patch 2 adds VIRTIO_BALLOON_F_STATS_PUSH.
+
+  Stats push is a new feature that lets the host configure the guest
+  to push stats on a timer. The host sets stats_push_interval_ms in
+  the balloon config space; when non-zero, the guest pushes stats at
+  that cadence without waiting for the host to return the buffer. 
+
+  This serves two purposes: 
+    a) latency-sensitive consumers get stats at a guaranteed cadence
+    b) absence of expected stats provides guest liveness detection.
+
+  STATS_PUSH requires STATS_VQ and suppresses the pull callback when
+  active to avoid racing on buffer submission.
+
+Gregory Price (2):
+  virtio-balloon: extend stats with memory composition and pressure data
+  virtio-balloon: add stats push mode
+
+ drivers/virtio/virtio_balloon.c     | 104 ++++++++++++++++++++++++++++
+ include/uapi/linux/virtio_balloon.h |  33 ++++++++-
+ kernel/sched/psi.c                  |   1 +
+ 3 files changed, 136 insertions(+), 2 deletions(-)
+
+-- 
+2.54.0
+
