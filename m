@@ -1,129 +1,150 @@
-Received: from mail-01.1984.is (mail-01.1984.is [185.112.145.69])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABBED145A1F;
-	Thu, 14 May 2026 10:45:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=185.112.145.69
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1947A3A542A
+	for <virtualization@lists.linux.dev>; Thu, 14 May 2026 11:51:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778755528; cv=none; b=VEDBN/9oyAWy01yGH72sN2H8XcOaPmr6R5Hiu0Sb2gSou3LsGFH4AoDQGXs1uR8CKJWvUevHk+LeM9Kp+M4qywtSFXiOtBuBL1KGeXowwWCXqVg0GlvBSrVtcq3tKikdlMALjHiIoCvXCPJiF5zRi/hSYOOEI0OJmBnbQKle1Jc=
+	t=1778759469; cv=none; b=fBJ8wn7xF3Bke4WBVCxd2C9nXfhY6lemWzW1MQg+ynZnLwBNWmVrTuQSNmEiDaLko7bo7WV2Yikl9WkRLfioHJBhsXCwddHJRAdVpMkxw+PUDxjtNlsplBW8ZrMgOCrOZT70wrGyFufX+Ex6I5Fw/16+O68Qf0R98ujLr9w8McE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778755528; c=relaxed/simple;
-	bh=2Xy/uOEwjIdS1BuwcJydzBd1CPrsbg0kCWkIVa3N494=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=CqfpY9f5RIQx8KWPgqLTR/tmKs5sMPesRlutykOd5yeJjwRlAvCfOJ5z8sbzXQBxX3dV43pGodHMtdynWbKJTCqlch44TO9MvDwRzE4wDSQB+Q4qrDhyg0+k3uX5pcdqBQMHPiqI8liBYIqG6OyyWC0V3HXRU47p/ntD7JWNLkE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=berkoc.com; spf=pass smtp.mailfrom=berkoc.com; dkim=pass (2048-bit key) header.d=berkoc.com header.i=@berkoc.com header.b=IpMASfUb; arc=none smtp.client-ip=185.112.145.69
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=berkoc.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=berkoc.com
+	s=arc-20240116; t=1778759469; c=relaxed/simple;
+	bh=TDT8hciE5by+7p1FA4NNR45GEo+DRpRqNs9hjNu/cxg=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=rMQOB1P+mzez4YyvuJ1+h4PMVUsbb7j5QqQnWIvRyw7PTaWf3BbQapG4jsVN//S2HHyK9VKk73KkjTqMIBZrAAw0LL2wX7H1W/UkVkA0AL9EPEJR9e1K4K9DbwojquHL+WU9wJuu0xJJOSjfWarziPb+D2GVXlGFlJVlc56QfKs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=m6/d9uQg; arc=none smtp.client-ip=209.85.222.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=berkoc.com header.i=@berkoc.com header.b="IpMASfUb"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=berkoc.com;
-	s=1984; h=Content-Transfer-Encoding:Content-Type:MIME-Version:Message-ID:Date
-	:Subject:Cc:To:From:Sender:Reply-To:Content-ID:Content-Description:
-	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
-	In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
-	List-Post:List-Owner:List-Archive;
-	bh=UhfR0/ZvF83ZUidAa86k1A146BHo3+5dN86/KotPlUA=; b=IpMASfUb/MJykO5z5m6hGBV9MT
-	D572dGWdme4s9SvJRQfNyDCZQcQAMH4/tQgX+0BBImN5BqDJ2LxU1N3WRB7Lxh+wJaIcFubGEcmOZ
-	EbvR1RGPYrEUgkmRY2un3UPhKRJykI3kgwQjD1tKUH2VtTA3mC6wbFX09ErctTCpCldsHMpvTqeRz
-	VWEF8BO+eyn4U1sgQGAsv944/Mhe3OJvqVs65URnOZx7rrLE/dRIVp6TltOg1hvvUaWs4Kwj8T2Ya
-	p3yF8E+PMagcgf7YWDWMFsbQecIr34zAD7h4E1iSSsLFBfLQ4mM9zl1cfDGkeWG1ocwHpdLkwjSwm
-	OUwBfJUg==;
-Received: from localhost
-	by mail-01.1984.is with utf8esmtp (Exim 4.96)
-	(envelope-from <me@berkoc.com>)
-	id 1wNSzB-005gW0-0l;
-	Thu, 14 May 2026 10:08:10 +0000
-From: Berkant Koc <me@berkoc.com>
-To: Dave Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>
-Cc: virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] drm/qxl: validate dst_offset in apply_reloc against BO size
-Date: Thu, 14 May 2026 12:07:40 +0200
-Message-ID: <1778753260.e30adb21c660@berkoc.com>
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="m6/d9uQg"
+Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-90ca6f20872so349433785a.0
+        for <virtualization@lists.linux.dev>; Thu, 14 May 2026 04:51:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gourry.net; s=google; t=1778759467; x=1779364267; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=3otPrX8ylWiqgm/t2ct4ZpbOY2TynCo6XoPa75Eeyno=;
+        b=m6/d9uQgR3qZNbX0QKa5kryZEMJay8TPP+RWLIH2fifIBJDVb1iLmLySKRL/rL/21v
+         l8va0HOSYqAX2H/UNFihxwCVb0cW3V6Q/5LYtjk4EGZPm3vevUHOm2pYU2Y7fkjclEPK
+         3zsyshW3wd47fR4xy7h5kOSe3m8KHKub7ODZ8Xo1dHM/dHNydPyaBn3+hYAjebiH+yrg
+         36kl/s2XM/OqAXYcWJVYVx9hewDGEQ4tIb5dbUbHMDiJ1tK72mALefR1ZYGj8g1rQbZR
+         sLaKAbdW1IPhqp0j3ntgo3EguF625UftspMQl1MOtGVs+ehondIWQ932u8X+5e2AJHxu
+         du2g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778759467; x=1779364267;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=3otPrX8ylWiqgm/t2ct4ZpbOY2TynCo6XoPa75Eeyno=;
+        b=eLcrmuhperc+TEBdPPP3SbE7hWQ0v5Psrn1GcrbyKHlzHrFuaaH4FhK6PVeLACps2y
+         BlOW/mjf468/kX9xnDwkC505oJJ4EZbC9+8RRYloWHrBqWhdaMDiixK2HbBu6vzJ/HAH
+         W0Evz6TwVNRtfWrlRq/T3pH6Yt3WNR1JOXahQtdd+UyBXq4F06ZpTE6XVII5CEibeylP
+         jj5ByNrEhHJKXWp2Z0uY+a5/PSDrQJHmE0EsrOaozksBD8b1i7i6lpNbsivA182SErh/
+         ehk+2YhYM3fQYZ+UrljlbNBaaQHmK41rB356/VHgvu/Akmhp4frkbQgSZieovUDFdFYQ
+         Pw/Q==
+X-Forwarded-Encrypted: i=1; AFNElJ/7hhTXJn5z3A5gWOT40WH4IZVp6iC7Hpr6vxTBqFYjqYeXKuFvwt6XIT0HTvydKPnJLz7UX0wgx/dsTXgYzg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxs/cNsft3VuT5WBWOO2ijPd8RpxNHGovhHRPek6yOH/zCevsR2
+	9ngDWIegwhONY/Hi4j03I74qaNMD+FMvKqSr+UfOqJ70KuDu1LKkRPNSvbq0ul6IbTE=
+X-Gm-Gg: Acq92OEMBk9+7Uj15FgISP3ZB8oWP6ZyUJ93EJBFOuhNpbnZtSmVPdcO89LoiDq9q6S
+	Kqh59OA41fUAwoxXPUkB7U+S3jKgK3ntbnVfNpiosk9CkwOE+/pH3m/wtfo3Hhw9tHV58FQgR11
+	IisVemoPcRHFn8K8KIAHBmnRDGkkPv/tq8hhotTaVoOzrX5RegwlqLCQbFzhGG8X3oSdL9lW5o3
+	YEKCdKz5lVVc4Ma5VVxWkvPh1hs5/CInNEFxY6iuykKkhbAtYkAaCEBomeQ1YDqHOZfY06vM4bX
+	ZuUg0UAj5XE/eX8X9HZRMwrHEJt+3yhhf8p0jRD2IQ/7UEq0VW1eV7Yoa5EQJUpM/jJUR7RxoVk
+	M2kESQE6f756daWJ3QvxwROBL9NHZ8n949DFOhBZCvv2LkAYJ13LVy1FdfYZJi/ec+cVDZswS58
+	judCZzFyT08coMapnSBm70I5m9vSUotjDN+CqoMmeDqwFTYsp8Xse7GfHMJ3sXPNKnSOzO5B6zQ
+	wCGVHc7G1YfqrAtfetrL3Q=
+X-Received: by 2002:a05:620a:448a:b0:8d6:d217:96a0 with SMTP id af79cd13be357-910abf49b96mr451245385a.0.1778759466839;
+        Thu, 14 May 2026 04:51:06 -0700 (PDT)
+Received: from gourry-fedora-PF4VCD3F (pool-100-36-248-188.washdc.fios.verizon.net. [100.36.248.188])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-910bd620fbcsm229997985a.42.2026.05.14.04.51.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 14 May 2026 04:51:06 -0700 (PDT)
+Date: Thu, 14 May 2026 07:51:03 -0400
+From: Gregory Price <gourry@gourry.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org,
+	"David Hildenbrand (Arm)" <david@kernel.org>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Muchun Song <muchun.song@linux.dev>,
+	Oscar Salvador <osalvador@suse.de>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Lorenzo Stoakes <ljs@kernel.org>,
+	"Liam R. Howlett" <liam@infradead.org>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Brendan Jackman <jackmanb@google.com>,
+	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
+	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
+	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+	Byungchul Park <byungchul@sk.com>,
+	Ying Huang <ying.huang@linux.alibaba.com>,
+	Alistair Popple <apopple@nvidia.com>,
+	Christoph Lameter <cl@gentwo.org>,
+	David Rientjes <rientjes@google.com>,
+	Roman Gushchin <roman.gushchin@linux.dev>,
+	Harry Yoo <harry.yoo@oracle.com>,
+	Axel Rasmussen <axelrasmussen@google.com>,
+	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
+	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
+	Kemeng Shi <shikemeng@huaweicloud.com>,
+	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
+	virtualization@lists.linux.dev, linux-mm@kvack.org,
+	Andrea Arcangeli <aarcange@redhat.com>
+Subject: Re: [PATCH v7 02/31] mm: page_alloc: propagate PageReported flag
+ across buddy splits
+Message-ID: <agW3JyLAwVsCZ2qR@gourry-fedora-PF4VCD3F>
+References: <cover.1778616612.git.mst@redhat.com>
+ <feab82b370b3e66b58b9cfbc1efaf26fe6061d2f.1778616612.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Mailer: git-send-email/skynet 1.0
-X-Spam-Score: -0.0 (/)
-X-Authenticated-User: me@berkoc.com
-X-Sender-Address: me@berkoc.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <feab82b370b3e66b58b9cfbc1efaf26fe6061d2f.1778616612.git.mst@redhat.com>
 
-The QXL DRM relocation handlers apply_reloc() and apply_surf_reloc() in
-drivers/gpu/drm/qxl/qxl_ioctl.c perform user-controlled writes at
-reloc_page + (info->dst_offset & ~PAGE_MASK), where dst_offset comes
-verbatim from the drm_qxl_reloc ioctl argument. An aspirational comment
-above apply_reloc explicitly states "dst must be validated, i.e. whole
-bo on vram/surfacesram", but the validation has never been implemented
-since the driver was merged in v3.10 (2013).
+On Tue, May 12, 2026 at 05:05:16PM -0400, Michael S. Tsirkin wrote:
+> When a reported free page is split via expand() to satisfy a
+> smaller allocation, the sub-pages placed back on the free lists
+> lose the PageReported flag.  This means they will be unnecessarily
+> re-reported to the hypervisor in the next reporting cycle, wasting
+> work.
+> 
+> While I was unable to quantify the performance difference, it is
+> an obvious waste, even if small.
+> 
+> Propagate the PageReported flag to sub-pages during expand(),
+> both in page_del_and_expand() and try_to_claim_block(), so
+> that they are recognized as already-reported.
+> 
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Assisted-by: Claude:claude-opus-4-6
+... snip ...
+> @@ -1731,9 +1740,10 @@ static __always_inline void page_del_and_expand(struct zone *zone,
+>  						int high, int migratetype)
+>  {
+>  	int nr_pages = 1 << high;
+> +	bool was_reported = page_reported(page);
+>  
+>  	__del_page_from_free_list(page, zone, high, migratetype);
+> -	nr_pages -= expand(zone, page, low, high, migratetype);
+> +	nr_pages -= expand(zone, page, low, high, migratetype, was_reported);
+>  	account_freepages(zone, -nr_pages, migratetype);
+>  }
+>  
 
-qxl_process_single_command() copies the user drm_qxl_reloc array into
-qxl_reloc_info, narrowing dst_offset from __u64 to uint32_t. This still
-gives the caller (any DRM_AUTH client) the full 32-bit / 4 GiB range and
-no bounds check against dst_bo->tbo.base.size happens before the writes.
+Maybe mildly out of scope but worth asking:  Are there other flags that
+should be retained/propogated on a split?  If so, rather than pass
+was_reported, should we just take a temporary copy of the page flags and
+pass them all in?
 
-The kmap target is io_mapping_map_atomic_wc() over the QXL device's full
-VRAM aperture (vram_mapping). The BUG_ON inside io-mapping.h only fires
-when the offset exceeds the entire aperture, not the specific BO, so
-writes within the aperture but outside the resolved BO succeed and land
-on whatever data occupies those pages -- including other guest processes'
-QXL BOs, queued QXL release-command BOs, and ring buffers that QEMU
-consumes.
-
-The kernel-side primitive is a guest-local OOB write (CWE-787) against
-guest VRAM, not a host escape. Corrupting QXL command structures that
-QEMU/SPICE then parses moves the attack surface to QEMU's QXL parser
-(separate codebase, historically vulnerable), so this is a viable
-priming primitive for guest-to-host chains whose terminal step lives in
-userspace QEMU. The kernel bug stands as a defense-in-depth concern
-independent of any QEMU chain.
-
-Public discussion of this issue is at:
-https://lore.kernel.org/virtualization/36acd33982bfdce04090e17294596ff8@berkoc.com/T/#u
-
-Add an explicit bound check in the per-reloc fill loop in
-qxl_process_single_command() so that both apply_reloc (8-byte write) and
-apply_surf_reloc (4-byte write) refuse out-of-BO offsets and the
-arithmetic overflow case (dst_offset close to U32_MAX) with -EINVAL.
-
-Signed-off-by: Berkant Koc <me@berkoc.com>
----
- drivers/gpu/drm/qxl/qxl_ioctl.c | 20 ++++++++++++++++++++
- 1 file changed, 20 insertions(+)
-
-diff --git a/drivers/gpu/drm/qxl/qxl_ioctl.c b/drivers/gpu/drm/qxl/qxl_ioctl.c
-index 591b026..c65d468 100644
---- a/drivers/gpu/drm/qxl/qxl_ioctl.c
-+++ b/drivers/gpu/drm/qxl/qxl_ioctl.c
-@@ -231,6 +231,26 @@ static int qxl_process_single_command(struct qxl_device *qdev,
- 			reloc_info[i].dst_offset = reloc.dst_offset + release->release_offset;
- 		}
- 
-+		/*
-+		 * dst must be validated, i.e. whole bo on vram/surfacesram.
-+		 * Refuse offsets that would write past the end of the bo, or
-+		 * where dst_offset + write_size would overflow uint32_t.
-+		 */
-+		if (reloc_info[i].type == QXL_RELOC_TYPE_BO &&
-+		    (reloc_info[i].dst_offset > U32_MAX - sizeof(uint64_t) ||
-+		     reloc_info[i].dst_offset + sizeof(uint64_t) >
-+		     reloc_info[i].dst_bo->tbo.base.size)) {
-+			ret = -EINVAL;
-+			goto out_free_bos;
-+		}
-+		if (reloc_info[i].type == QXL_RELOC_TYPE_SURF &&
-+		    (reloc_info[i].dst_offset > U32_MAX - sizeof(uint32_t) ||
-+		     reloc_info[i].dst_offset + sizeof(uint32_t) >
-+		     reloc_info[i].dst_bo->tbo.base.size)) {
-+			ret = -EINVAL;
-+			goto out_free_bos;
-+		}
-+
- 		/* reserve and validate the reloc dst bo */
- 		if (reloc.reloc_type == QXL_RELOC_TYPE_BO || reloc.src_handle) {
- 			ret = qxlhw_handle_to_bo(file_priv, reloc.src_handle, release,
--- 
-2.43.0
-
+~Gregory
