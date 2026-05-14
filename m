@@ -1,167 +1,255 @@
-Received: from mta1.formilux.org (mta1.formilux.org [51.159.59.229])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9F90C2BB1D
-	for <virtualization@lists.linux.dev>; Thu, 14 May 2026 04:57:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=51.159.59.229
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BD793A6EEB
+	for <virtualization@lists.linux.dev>; Thu, 14 May 2026 09:29:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778734630; cv=none; b=Q3MurkQSselTom9bq3addRluQu7l6VlEagwZc0XgGYS57UM8HEVHNs6XOgoGePYpZXqFy0S5xPxo9hwJDmp6535onZEy+Wc7Hwa0oFPJjpPlGzv5qZxCYdjSETewSh2M53Tstouorlqfh+BXpBQNv4OARXZ2+gRZ+CaXxMSjjx4=
+	t=1778750998; cv=none; b=imNeRaA96YE6JqG14C0zkG0bgh8yCV1Tsdef9cZF6xUoQJrQYBt/aqXhvP6K0daNuWtWbm4jtkh0p6hKfPEcptY862sCluFqWsjL3Uumqdk81TY8hKQatO0Xc+4VvjgkvPYX5/9ZdYA/ReTeNTctTAjJ4Pni/gy21/2nrBkwfm8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778734630; c=relaxed/simple;
-	bh=3fI1e8YW6ckftDaKPUNAmL/WzscuyEM9rt2IRJzL6pk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qXMMbYyR5UVT/NBs+P4jnOFDRNEbPWyBVB52r4LHYgQiAAGYNEH3aDO8eSiAoFJif+ytUOgGaSvzl9Crva8agM8xkOSLIutHdQeonBzWbVh3cXCHZ0oHduSrZFBUOcUbg/lUPw+2TLEhcNQXHCiOxfNRUwkpVumoUbjt7mwkPok=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=1wt.eu; spf=pass smtp.mailfrom=1wt.eu; dkim=pass (1024-bit key) header.d=1wt.eu header.i=@1wt.eu header.b=LjJ08WAZ; arc=none smtp.client-ip=51.159.59.229
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=1wt.eu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=1wt.eu
+	s=arc-20240116; t=1778750998; c=relaxed/simple;
+	bh=giBrJRQN2VMMjCh/yoL5SJRMxEqzegUg6O8u4pivPpg=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:content-type; b=rLgTvmeyF5YlF2FMQgCftyIND41XENiEixbaCze5oAQTNOP4936yXk+vi0UItG1rapdwn5GrSb5JrDFxubyPgFjLqhHipFRhzc0ojuo7pKIHdlAwNSBomJyWgQ8fgIwRUVLekvt/AAeIwRZuQwucQcVwvgHZvZUSCG3DZwJszlU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MXR8aNlX; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=1wt.eu header.i=@1wt.eu header.b="LjJ08WAZ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=1wt.eu; s=mail;
-	t=1778734625; bh=VPP+hrS/MC4SAEG50qlVD7UkNB32c4pO9Og/0ICGMxk=;
-	h=From:Message-ID:From;
-	b=LjJ08WAZLLMMmtzTYVzxXruiJnCi56PyKUrHKlSQFErTlGTFd3Nz/+i4a7S4LbWFC
-	 8DLQDFbs090UzR4Dk5cTQrdMtxvgmUDLq2/L82a8tVJT5TrSxW0H+Wovz0CkbtJFaU
-	 UIwi7BwrWZFlhXiGLRWlNljJ4CS6ChgYyVPx1Tlk=
-Received: from 1wt.eu (ded1.1wt.eu [163.172.96.212])
-	by mta1.formilux.org (Postfix) with ESMTP id 6C427C0B5D;
-	Thu, 14 May 2026 06:57:05 +0200 (CEST)
-Date: Thu, 14 May 2026 06:57:05 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: me@berkoc.com
-Cc: security@kernel.org, virtualization@lists.linux.dev, berkantkoc@proton.me
-Subject: Re: [Hardening] drm/qxl: apply_reloc/apply_surf_reloc write
- dst_offset without validating against BO size
-Message-ID: <agVWIV5RGACx9GP-@1wt.eu>
-References: <36acd33982bfdce04090e17294596ff8@berkoc.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MXR8aNlX"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1778750996;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=X7d0CywKsZQfA/8iHBsstOBzlQ/bG9Xhxh5p1dy0nCs=;
+	b=MXR8aNlXDfNLWQsPTiTDnae1nE/9rYrAzRh9/rj26bLTw/0EjcvaB88yHc4OExrNAnto5h
+	EzEVcZ7/NN4k8Hbb1JZ+MpieQL7PUwttVU8517PbgA4HvMTxoka9UACxQjpVWQoe4Vexxl
+	M+1x9KAKxEzzdFcx/2ejdP59GliDRfQ=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-682-VFaU0S8LM0qyvaiCnov48w-1; Thu, 14 May 2026 05:29:53 -0400
+X-MC-Unique: VFaU0S8LM0qyvaiCnov48w-1
+X-Mimecast-MFC-AGG-ID: VFaU0S8LM0qyvaiCnov48w_1778750992
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-48fdad6cce4so4332575e9.1
+        for <virtualization@lists.linux.dev>; Thu, 14 May 2026 02:29:52 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778750992; x=1779355792;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=X7d0CywKsZQfA/8iHBsstOBzlQ/bG9Xhxh5p1dy0nCs=;
+        b=KJISiHpVS5TEeWy7z/BCaEaJTjSI2sEHPdnRAww8s3uoXEXn23HIwZJBHHL5YvIyZ9
+         irS9/BIKY94ORySJ7mGaoYLyPcclQk4XuDwrWMiZP1zBkG4Af4Bn7YF/ziqonw22fThf
+         tNU1Lbjso9gnHkKOrMHKREoLjR6+he5hwAEjPf0Kiq1Z8b1xfb1LpMLCAGpJ/YiRp2Hq
+         XrjLqEsQCRd69EQMLQ72XS59SiDLEjFPwQ3RmQtL+ckAqli3rUy9p4cqRxjMFrQTeQtA
+         sd8hRQfBbBVSbS/fa0AP7OT50INarFHu4XDwW2TX+hBEen1ta2fX8qyR8KVi5msDXYmi
+         Hmxw==
+X-Forwarded-Encrypted: i=1; AFNElJ8mYTTIExF2dKPowGo1P4VFEh+EWnmOvY8bMsYSRuf1ILb62c8qsMDC3r8gAZCCpWA4ip95VWg+7V0xlOvW+w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyOI4HGJer8f1mmQFtdBFANBYW3jnwg71SbQd22rAhoyTuk75Hc
+	M9k1v+vGiNVANRTVv/xVWRacHfdTq5Va5IiqGse92LLZoaVfZ7jRfnC0IuzZASZukmb9B5vdnBG
+	NDjJYy5zNvXiw3woZM2gfd8OXrWkuHelGWWBV0TRprfskXo+HMW2jNLQKQ7dFY6qB+gyu
+X-Gm-Gg: Acq92OHh7oXIGnp5g6Cjc7XQA1uOWZpiZd1SDGLyhhwr0PkSVKzQhPZLS5yhuHV9vKL
+	QOKq1QS5zHllxnioes2J3Ty/Y9I3rErIvvQXDfFt9A89uMuwUoWXYaRyvpvgCg70oLi7xWVREdO
+	H2XGGp3YLphZdZYcQJoi+hSHrq13/jE1C9/RTbkVHY4JbcXUg4IKMFW1Kff0oHsQsjAmQ2te1jT
+	4XN1DQzJbZhTcN8bCUYNr0EBmTc2TOfHfnW5zlxSdC/Q8NFOy/O8KK1sc0f28nre+DI+I1gpoIw
+	maWxdDxlh9BWk7ti5CCRwKHMkjiFL0yOlKK5nua61/6MPOJdadrrp2ZriuqBI7rp0eY3AirpT3N
+	TMXNBHqZw5tVvJYw08lF6vLzwPbxMLI0PDuKgX3fZch7evINhOCC2H1qaBYB5pn/qv/Bqxi0=
+X-Received: by 2002:a05:600c:a305:b0:485:3cef:d6ea with SMTP id 5b1f17b1804b1-48fe24960bemr2343655e9.13.1778750991761;
+        Thu, 14 May 2026 02:29:51 -0700 (PDT)
+X-Received: by 2002:a05:600c:a305:b0:485:3cef:d6ea with SMTP id 5b1f17b1804b1-48fe24960bemr2343285e9.13.1778750991254;
+        Thu, 14 May 2026 02:29:51 -0700 (PDT)
+Received: from stex1 (host-87-16-204-231.retail.telecomitalia.it. [87.16.204.231])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48fd7672ae9sm19873735e9.6.2026.05.14.02.29.49
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 14 May 2026 02:29:50 -0700 (PDT)
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: netdev@vger.kernel.org
+Cc: Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Arseniy Krasnov <avkrasnov@salutedevices.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	kvm@vger.kernel.org,
+	Eric Dumazet <edumazet@google.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	virtualization@lists.linux.dev,
+	"David S. Miller" <davem@davemloft.net>,
+	Jason Wang <jasowang@redhat.com>,
+	linux-kernel@vger.kernel.org,
+	Maher Azzouzi <maherazz04@gmail.com>
+Subject: [PATCH net] vsock/virtio: fix zerocopy completion for multi-skb sends
+Date: Thu, 14 May 2026 11:29:48 +0200
+Message-ID: <20260514092948.268720-1-sgarzare@redhat.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: w6A1ZXtcNTLdpSsMyvvmPtMokmSqPMPA-391EJtRUjE_1778750992
+X-Mimecast-Originator: redhat.com
 Content-Transfer-Encoding: 8bit
-In-Reply-To: <36acd33982bfdce04090e17294596ff8@berkoc.com>
+content-type: text/plain; charset="US-ASCII"; x-default=true
 
-Hello,
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-On Thu, May 14, 2026 at 02:07:47AM +0200, me@berkoc.com wrote:
-> # QXL DRM: `apply_reloc` and `apply_surf_reloc` write to `info->dst_offset` without validating against BO size
-> 
-> ## Summary
-> 
-> The QXL DRM driver's relocation processing in `drivers/gpu/drm/qxl/qxl_ioctl.c` writes 64-bit and 32-bit values to `reloc_page + (info->dst_offset & ~PAGE_MASK)` after mapping `info->dst_offset & PAGE_MASK` into kernel space via `qxl_bo_kmap_atomic_page`. The `dst_offset` is taken verbatim from the user-supplied `drm_qxl_reloc` ioctl argument and is never validated against the destination buffer object's size before the write.
-> 
-> An aspirational comment at the top of `apply_reloc` explicitly notes that "`dst` must be validated, i.e. whole bo on vram/surfacesram", but the validation has not been implemented since the driver was introduced in 2013.
-> 
-> ## Impact
-> 
-> This is **not** a host-VM-escape primitive (the writes hit guest-controlled VRAM emulated by QEMU, not host kernel memory). It is a **guest-side memory corruption** primitive:
-> 
-> - A guest userspace process with `DRM_AUTH` (any logged-in user) can write attacker-chosen 64-bit/32-bit values to arbitrary offsets within the QXL VRAM aperture.
-> - Targets reachable within the aperture include other guest processes' QXL buffer objects, QXL release-command BOs queued for the host, and ring buffers that QEMU consumes.
-> - Corrupting QXL command structures that QEMU/SPICE then parses **moves the attack surface** to QEMU's QXL parser (separate codebase; historically vulnerable). This kernel bug is therefore a viable priming primitive for a guest-to-host escape chain whose terminal step lives in QEMU.
-> 
-> CWE-787 (Out-of-bounds Write). Realistic CVSS 3.1: `AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:H` ≈ **5.5 Medium** for the kernel-side bug in isolation. If chained with a QEMU QXL parser bug: higher.
-> 
-> This is submitted as **hardening / defense-in-depth**, not as a self-contained RCE/VM-escape claim.
-> 
-> ## Affected versions
-> 
-> Linux mainline HEAD (audited 2026-05-13). The pattern is unchanged since the QXL DRM driver merged in v3.10 (2013). Commit history is sparse on this file; the issue is structural.
-> 
-> ## Vulnerable code
-> 
-> `drivers/gpu/drm/qxl/qxl_ioctl.c:73-110`:
-> 
-> ```c
-> struct qxl_reloc_info {
->     int type;
->     struct qxl_bo *dst_bo;
->     uint32_t dst_offset;          /* <-- user-controlled, copied from drm_qxl_reloc.dst_offset (__u64) */
->     struct qxl_bo *src_bo;
->     int src_offset;
-> };
-> 
-> /*
->  * dst must be validated, i.e. whole bo on vram/surfacesram (right now all bo's
->  * are on vram).
->  * *(dst + dst_off) = qxl_bo_physical_address(src, src_off)
->  */
-> static void
-> apply_reloc(struct qxl_device *qdev, struct qxl_reloc_info *info)
-> {
->     void *reloc_page;
-> 
->     reloc_page = qxl_bo_kmap_atomic_page(qdev, info->dst_bo,
->                                          info->dst_offset & PAGE_MASK);
->     *(uint64_t *)(reloc_page + (info->dst_offset & ~PAGE_MASK)) =
->         qxl_bo_physical_address(qdev, info->src_bo, info->src_offset);
->     qxl_bo_kunmap_atomic_page(qdev, info->dst_bo, reloc_page);
-> }
-> ```
-> 
-> `apply_surf_reloc` (Lines 98-110) has the identical pattern for a `uint32_t` write.
-> 
-> ### How `dst_offset` reaches `apply_reloc`
-> 
-> The user-space struct is defined in `include/uapi/drm/qxl_drm.h`:
-> 
-> ```c
-> struct drm_qxl_reloc {
->     __u64 src_offset;
->     __u64 dst_offset;        /* user-controlled */
->     __u32 src_handle;
->     __u32 dst_handle;
->     __u32 reloc_type;
->     __u32 pad;
-> };
-> ```
-> 
-> `qxl_process_single_command` (`qxl_ioctl.c:141-269`) copies the user `drm_qxl_reloc` array into `reloc_info`, narrows `dst_offset` from `__u64` to `uint32_t` (silent truncation -- still gives the attacker the full 32-bit / 4 GB range), and then calls `apply_reloc`/`apply_surf_reloc`. No bounds check against `dst_bo->tbo.base.size` exists anywhere in the call chain. `qxl_release_reserve_list` only handles TTM placement validation.
-> 
-> ### Mapping behaviour
-> 
-> `qxl_bo_kmap_atomic_page` (`drivers/gpu/drm/qxl/qxl_object.c`) computes `offset = (bo->tbo.resource->start << PAGE_SHIFT) + page_offset` and maps via `io_mapping_map_atomic_wc` on the QXL device's full VRAM aperture (`vram_mapping`). The `BUG_ON(offset >= mapping->size)` inside `io_mapping_map_atomic_wc` (see `include/linux/io-mapping.h`) only fires if the offset exceeds the *entire* aperture, not the specific BO. Writes within the aperture but outside the BO succeed and land on whatever data occupies those pages.
-> 
-> ## Proposed fix
-> 
-> Add the validation the comment promised, in the per-reloc-info-fill loop in `qxl_process_single_command` (around line 228-244):
-> 
-> ```c
-> +   if (reloc_info[i].type == QXL_RELOC_TYPE_BO &&
-> +       (reloc_info[i].dst_offset + sizeof(uint64_t) > reloc_info[i].dst_bo->tbo.base.size ||
-> +        reloc_info[i].dst_offset > U32_MAX - sizeof(uint64_t))) {
-> +       ret = -EINVAL;
-> +       goto out_free_bos;
-> +   }
-> +   if (reloc_info[i].type == QXL_RELOC_TYPE_SURF &&
-> +       (reloc_info[i].dst_offset + sizeof(uint32_t) > reloc_info[i].dst_bo->tbo.base.size ||
-> +        reloc_info[i].dst_offset > U32_MAX - sizeof(uint32_t))) {
-> +       ret = -EINVAL;
-> +       goto out_free_bos;
-> +   }
-> ```
+When a large message is fragmented into multiple skbs, the zerocopy
+uarg is only allocated and attached to the last skb in the loop.
+Non-final skbs carry pinned user pages with no completion tracking,
+so the kernel has no way to notify userspace when those pages are safe
+to reuse. If the loop breaks early the uarg is never allocated at all,
+leaking pinned pages with no completion notification.
 
-Please turn this fix into a regular patch that can be applied. If it's
-accepted by maintainers, it will save them some time and will have you
-credited for finding and fixing this bug.
+Fix this by following the approach used by TCP: allocate the zerocopy
+uarg (if not provided by the caller) before the send loop and attach
+it to every skb via skb_zcopy_set(), which takes a reference per skb.
+Each skb's completion properly decrements the refcount, and the
+notification only fires after the last skb is freed.
+On failure, if no data was sent, the uarg is cleanly aborted via
+net_zcopy_put_abort().
 
-> Equivalent to checking `dst_offset` plus the write size fits inside the resolved BO. Also enforce a reasonable upper bound on `cmd->relocs_num` to prevent allocation DoS.
-> 
-> ## Discovery
-> 
-> Static analysis of QXL DRM ioctl handlers.
-> 
-> ## Disclosure
-> 
-> Per Linux kernel security policy, report to `security@kernel.org` and the QXL maintainers (Gerd Hoffmann, virtualization@lists.linux.dev).
+This issue was initially discovered by sashiko while reviewing commit
+1cb36e252211 ("vsock/virtio: fix MSG_ZEROCOPY pinned-pages accounting")
+but was pre-existing.
 
-Thanks for your report. However, this report is already public via the
-virtualization list, so no need to involve security@, and it can be
-dropped from future responses:
+Fixes: 581512a6dc93 ("vsock/virtio: MSG_ZEROCOPY flag support")
+Cc: Arseniy Krasnov <avkrasnov@salutedevices.com>
+Closes: https://sashiko.dev/#/patchset/20260420132051.217589-1-sgarzare%40redhat.com
+Reported-by: Maher Azzouzi <maherazz04@gmail.com>
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+---
+ net/vmw_vsock/virtio_transport_common.c | 83 ++++++++++---------------
+ 1 file changed, 34 insertions(+), 49 deletions(-)
 
-   https://lore.kernel.org/virtualization/36acd33982bfdce04090e17294596ff8@berkoc.com/T/#u
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index 989cc252d3d3..1e3409d28164 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -70,34 +70,6 @@ static bool virtio_transport_can_zcopy(const struct virtio_transport *t_ops,
+ 	return true;
+ }
+ 
+-static int virtio_transport_init_zcopy_skb(struct vsock_sock *vsk,
+-					   struct sk_buff *skb,
+-					   struct msghdr *msg,
+-					   size_t pkt_len,
+-					   bool zerocopy)
+-{
+-	struct ubuf_info *uarg;
+-
+-	if (msg->msg_ubuf) {
+-		uarg = msg->msg_ubuf;
+-		net_zcopy_get(uarg);
+-	} else {
+-		struct ubuf_info_msgzc *uarg_zc;
+-
+-		uarg = msg_zerocopy_realloc(sk_vsock(vsk),
+-					    pkt_len, NULL, false);
+-		if (!uarg)
+-			return -1;
+-
+-		uarg_zc = uarg_to_msgzc(uarg);
+-		uarg_zc->zerocopy = zerocopy ? 1 : 0;
+-	}
+-
+-	skb_zcopy_init(skb, uarg);
+-
+-	return 0;
+-}
+-
+ static int virtio_transport_fill_skb(struct sk_buff *skb,
+ 				     struct virtio_vsock_pkt_info *info,
+ 				     size_t len,
+@@ -317,8 +289,10 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+ 	u32 src_cid, src_port, dst_cid, dst_port;
+ 	const struct virtio_transport *t_ops;
+ 	struct virtio_vsock_sock *vvs;
++	struct ubuf_info *uarg = NULL;
+ 	u32 pkt_len = info->pkt_len;
+ 	bool can_zcopy = false;
++	bool have_uref = false;
+ 	u32 rest_len;
+ 	int ret;
+ 
+@@ -360,6 +334,25 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+ 		if (can_zcopy)
+ 			max_skb_len = min_t(u32, VIRTIO_VSOCK_MAX_PKT_BUF_SIZE,
+ 					    (MAX_SKB_FRAGS * PAGE_SIZE));
++
++		if (info->msg->msg_flags & MSG_ZEROCOPY &&
++		    info->op == VIRTIO_VSOCK_OP_RW) {
++			uarg = info->msg->msg_ubuf;
++
++			if (!uarg) {
++				uarg = msg_zerocopy_realloc(sk_vsock(vsk),
++							    pkt_len, NULL, false);
++				if (!uarg) {
++					virtio_transport_put_credit(vvs, pkt_len);
++					return -ENOMEM;
++				}
++
++				if (!can_zcopy)
++					uarg_to_msgzc(uarg)->zerocopy = 0;
++
++				have_uref = true;
++			}
++		}
+ 	}
+ 
+ 	rest_len = pkt_len;
+@@ -378,27 +371,7 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+ 			break;
+ 		}
+ 
+-		/* We process buffer part by part, allocating skb on
+-		 * each iteration. If this is last skb for this buffer
+-		 * and MSG_ZEROCOPY mode is in use - we must allocate
+-		 * completion for the current syscall.
+-		 *
+-		 * Pass pkt_len because msg iter is already consumed
+-		 * by virtio_transport_fill_skb(), so iter->count
+-		 * can not be used for RLIMIT_MEMLOCK pinned-pages
+-		 * accounting done by msg_zerocopy_realloc().
+-		 */
+-		if (info->msg && info->msg->msg_flags & MSG_ZEROCOPY &&
+-		    skb_len == rest_len && info->op == VIRTIO_VSOCK_OP_RW) {
+-			if (virtio_transport_init_zcopy_skb(vsk, skb,
+-							    info->msg,
+-							    pkt_len,
+-							    can_zcopy)) {
+-				kfree_skb(skb);
+-				ret = -ENOMEM;
+-				break;
+-			}
+-		}
++		skb_zcopy_set(skb, uarg, NULL);
+ 
+ 		virtio_transport_inc_tx_pkt(vvs, skb);
+ 
+@@ -422,6 +395,18 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+ 
+ 	virtio_transport_put_credit(vvs, rest_len);
+ 
++	/* msg_zerocopy_realloc() initializes the ubuf_info refcnt to 1.
++	 * skb_zcopy_set() increases it for each skb, so we can drop that
++	 * initial reference to keep it balanced.
++	 */
++	if (have_uref) {
++		if (rest_len == pkt_len)
++			/* No data sent, abort the notification. */
++			net_zcopy_put_abort(uarg, true);
++		else
++			net_zcopy_put(uarg);
++	}
++
+ 	/* Return number of bytes, if any data has been sent. */
+ 	if (rest_len != pkt_len)
+ 		ret = pkt_len - rest_len;
+-- 
+2.54.0
 
-Willy
