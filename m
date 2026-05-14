@@ -1,64 +1,64 @@
-Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
+Received: from mail-qk1-f174.google.com (mail-qk1-f174.google.com [209.85.222.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D13B63F9F39
-	for <virtualization@lists.linux.dev>; Thu, 14 May 2026 13:54:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56FE03F1669
+	for <virtualization@lists.linux.dev>; Thu, 14 May 2026 13:55:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778766883; cv=none; b=TN2QKSpcwtZkfE+oCIvWOM2Z8B27HSDgzQl8mn6N5olsWh2FM8+DtPtY1AS0HJTPWJ7yRUQuO4kCtNZw/4QlzYGF0p6cEqcCEFReJK1XUt2eHi2CFm3qV4n+vOCp5zmP/rFwphiQYTfcL64hevHbRtO9OrhQdTnU1vyCCpCkn9A=
+	t=1778766922; cv=none; b=tDlwId1s4DjfNEezS10yIkZh1DKHCCSDTTOtH2vCcsUKTOesS3VphgvQ/k1zP2pH1rCaJZNWa4bh1jtGaCvRHYDhe+o0/AW1FPZtxrjMdSBENMY9wwqKmlJTPh6CCDER5rOt71o/xL/T+zOWpgSVcIXTTDPJiGjP2WOMZ1uVw+Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778766883; c=relaxed/simple;
-	bh=D00ilq+euMFH6w/lJjs5RWESbbOAzr8/PYOgGDIN55I=;
+	s=arc-20240116; t=1778766922; c=relaxed/simple;
+	bh=NvNTTK7oVqMi+Oc1tLQ8KX1F49PSOBt3JtRnBB5mvFc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OWp4AJOj+4nPNoFPHwlcFNI8lw3n4kMquBmvTiEJomfKQ38Ilq6prY/DLoAwsw1GZdRMpvsyjGHgC2JiswxvCZNazX+21WfJ07tBzNDeof3+R/zz7gmdfX3f6gd2zsQWmPVFGZ+jLTRYN/QXszEGnRmb78dTzwVbO7ChhXkEgPo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=reQDATcx; arc=none smtp.client-ip=209.85.160.173
+	 Content-Type:Content-Disposition:In-Reply-To; b=KeREta5XuWffnt+KAbXBS7cQDCPoVg+X7enxkrF4JnRCHSp0OfjVRSsU8IJQXOIjVskCgI12iFs9gU/W5ylKRWFNOkil5uNyBmC0o/y6pbAivRKm6i+bC6iztCuzhbq50d+DazhBCxElSKVAxI6AFrGTNSKKKWYN4O7cbu/IXwU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=ci/3O8R2; arc=none smtp.client-ip=209.85.222.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="reQDATcx"
-Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-50faeb8317bso59107701cf.2
-        for <virtualization@lists.linux.dev>; Thu, 14 May 2026 06:54:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="ci/3O8R2"
+Received: by mail-qk1-f174.google.com with SMTP id af79cd13be357-9102e90bcbeso188253885a.1
+        for <virtualization@lists.linux.dev>; Thu, 14 May 2026 06:55:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1778766880; x=1779371680; darn=lists.linux.dev;
+        d=gourry.net; s=google; t=1778766920; x=1779371720; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=sc+w8y4pA95T78hoAVZ6GrlC/xHuPVJr/YU1joizSQ0=;
-        b=reQDATcx6WZwF5WLMcck/h1lnoN0uFjZwhi5UCUCpYEG8lf0TEugVUnvIcDF2h9yb/
-         Yrh28uzTy5C1ayluxEzQSrNzAe9n88P0wD9uPP/h6f9nkFqLi1MS1CJqLrYPjnYx6fhA
-         pPxhBJHAaPtDARquKb7FT32/ZzgUAHeutHioweRyr68ZK0WJkcV1fNBjV96tfP5d7GIL
-         iY88aa0FV95uR1zlgzsEs5Ycb3w9Tv6+tIUWe3j7RefNUcTKruW46PsuzK52IhfjOZ6n
-         ofZgxVcuZIzkxGyLnmNMZpPk8/WETfYe8hz5NCXDKfWK2joPpRlIeg9cRqhK4IL8ixAU
-         QpLQ==
+        bh=gqYGPZxgNRcYPxPA7WQ/pm4xhwUDd+98HNryuL77oaw=;
+        b=ci/3O8R2Abu+f+/ZBITJTibWBHhsI/tPmcoNdKZrLRsbnc+iyqp2rkj+UwXtTLZQ4q
+         7AmHX/2mZtRccRZEq1Dr0rXpPXoMs8QQRbCU4RUGvvNu3U0/8XRakWjxUYoaNwDVYz3U
+         fqgazYAQjNJ8xcVvh/TCeYUq1N8zqsPZUgYUlAyARimG8h6Cw39qh7pcK4F+XUFlu4+I
+         bnSwJv29ziSr3CIWAexreozBF6rQINGIThL4p0SL8/yXtZpoKgfO58CVPpjN0j0Enc6d
+         /BRp5y1/Tiz1UHDxwhZo66iwOfdqmGSLZEA/z2C6T5CNpdHKv/zpQbBcS9alH0bz+lOj
+         06MQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778766880; x=1779371680;
+        d=1e100.net; s=20251104; t=1778766920; x=1779371720;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=sc+w8y4pA95T78hoAVZ6GrlC/xHuPVJr/YU1joizSQ0=;
-        b=DTb7/Z0LzkhzJLnOkFCo4OQqRUgbP7FxyPrrvpjOWKyp7TynWz2LmcjJdf1XaqK44s
-         W015C4Fsp7PxMB1CX7surFxq2LKxH5DETLIUmS77GkPaGytrczVWrynPYvvqRgj4/TeX
-         FcCyApkbCUB+w/oL8aTLqwEUdAvPyCPiXUShEyZXvi7k6JscdK8kulHPeKRuqJ9JABT8
-         mQFn174bCpUydHByaYWfBl6thuJZ6C9qM1kluok5tXLVrmPE5JdDA0Ao4EkF37ZJvYNk
-         0HgG1pAo86K3S/D4uaZb93lVqr/W6jTEUn4sMj10T1vOpQ+P3vR4YxaZJ3kSZxDFMP/V
-         /uGQ==
-X-Forwarded-Encrypted: i=1; AFNElJ8oFepnh+x72ZHg+/k9/tOPKqH9diWYxQ5COelXcx3FHKY/kUPjGGZNy1izUeoBu8L/n7V9/hXbgmdyd3Ax3w==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyv6X5FNjFBMau/ixSI4EZU3nA1BqCAgrOoO0C9S9Vb9l4dr6QJ
-	cppNPCy2HwjSSHyo933GgTNLvlqasF1z2tKH4CeVBiJhFC5KQzAgLNwyP1eRBKKEjSI=
-X-Gm-Gg: Acq92OHxQCQQ9Rh882YXiMdKFD4ITJNui0tc7FP/6zhJ8jvhVMcORsyKRx6hq7aPg/D
-	ilNOPW/SH0MQs8KiniTw7IXNYKBTs2rWb48yy3VEdwyTkzG1hEMKuDagAlxOAEaXZ11VeYBJYO1
-	AELNqZUAqbCpL+iYgmitCwJ8ujRq8LVZzPJvruv+L1Cy+PfDq11CPvaeWz/jhmVU99WZ8x1kHpy
-	S/IgdXcgBodWdUP1JdbH7VTLwdqqp8//xTKyCMcgrdK7oGIXZ90brstZbtXj7A65+hcLVajzlre
-	g7Tsozz39K4jeRNSnO8fw9oSeQX/IMM1e4HfnE2HzP3R2b6bICmG+06/dEumIasVf9JDi91hNK5
-	HeiDdmOYvS6M+9tMfnz7BOcYjd9Cbd6fTJrAYKMSh7K5JoInBPU8OvtnFF+e0viA8QAgqCh/pik
-	cTIFbeMWcNvAKbql2f72/mNi+ZrnJMnFa+qrETAWLfbAvINnq/T1JzoXf9qWptp5kBmmfMFOdud
-	+Wvc0uJzAv9K9JXGBLyt6s=
-X-Received: by 2002:ac8:5fc6:0:b0:510:dc4:942d with SMTP id d75a77b69052e-5162f5e3f73mr100495801cf.46.1778766879208;
-        Thu, 14 May 2026 06:54:39 -0700 (PDT)
+        bh=gqYGPZxgNRcYPxPA7WQ/pm4xhwUDd+98HNryuL77oaw=;
+        b=KAavKxMJJZDk4wKuWPlKtYXvJJeFDZFUpsg0JsWw841e34ECBJ0ALNHPpjlZob0Nvj
+         qLN50XrYVTelWEaxi33CgDyBYLL9jD+IBoak/yo6Nj1hyKIgNf5AzVAtrfFkecDxqA/4
+         CGGOvjavYYMsX6P7zhUIDNelQluCfeu8aZKoSkcIUQm35T9FE5/9AnhRmKYqgLYCtWRe
+         NiFtJHbucigdKrZ+R8mh2Js+BNyUfTTeWuQ4PYHg9oNpxSevHysqMRvxzPhiCdIjZi6R
+         +gmrmnbAhcXjAfTUCRx6yQDBnOunW2cXvhkOutI6CzzylD38Kopr/033ODHX+UPzRzuj
+         w52w==
+X-Forwarded-Encrypted: i=1; AFNElJ/8N3Wt0M0pK1+5kEzwV766rd+5oXa+37B7NQhX1x20UAzhszrOPBBscAlV3lQqmpF/5wJ6obZaIO0KD3Hr3w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzdaKTKMoRiD044bi0xirp6AN+Tinao8V96zPGGtMylK2z19axs
+	SW8Nx35ZLBydElc2WCrWrlGgFsYHup0W0o5r6LTn1T9L58PliKr1QWRSoQrahU6ZS/s=
+X-Gm-Gg: Acq92OESM3xZjD+wzb/4+zrLLNwxTPpygRSw4amNIuwssE62VbzolWXTL9lQuVaMN7N
+	8AMeOXV6wCZI3mg8G20Oa7f1F/v/IUJuXUaDd4yZrDWtH/nAnET7k8Gnmi4Fmt8G7Rql7bIEDIs
+	P6jPPmhk/xHErctOA6HZxDJhwwVnyfITy6KhJWRV8NU15IArtQHsIRjogMW4AWvJrTghWwR6Vuz
+	O4Z3Mf/PlSXWRARDfcWrQ80u/7O5kSKwgi/iNZZROLx56JljaKq5m4uq0DsTJcWI7YaYxO6bGIr
+	KHug+anarZJg8B8nVF59y5qZ5kO4kIi8P0jwoKgT1c986uIdrtanD6QuZ5PDpxJrNSEX3+HVHuJ
+	L2FkSAx2XWrQPexY42vwz1SKPHwdfOe39VyqQXQJKA97NK1KukESUCU2hkDqnq0tHCdVxwYDLmm
+	D1MbnDXbw1ycLh8nWktmmaHZsVqVnXcNKHofzMWma9wAywKAjBh7eaji/B6Oxh7+fWrknTJ7H6h
+	Llv9rJlGRgL
+X-Received: by 2002:a05:620a:2a0c:b0:8cd:9033:1724 with SMTP id af79cd13be357-90f880ffccemr1218244185a.9.1778766920104;
+        Thu, 14 May 2026 06:55:20 -0700 (PDT)
 Received: from gourry-fedora-PF4VCD3F (pool-100-36-248-188.washdc.fios.verizon.net. [100.36.248.188])
-        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8c90bb80ed0sm23810396d6.35.2026.05.14.06.54.38
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-910c0ec392bsm238411385a.41.2026.05.14.06.55.18
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 May 2026 06:54:38 -0700 (PDT)
-Date: Thu, 14 May 2026 09:54:36 -0400
+        Thu, 14 May 2026 06:55:19 -0700 (PDT)
+Date: Thu, 14 May 2026 09:55:17 -0400
 From: Gregory Price <gourry@gourry.net>
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-kernel@vger.kernel.org,
@@ -97,11 +97,11 @@ Cc: linux-kernel@vger.kernel.org,
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
 	Andrea Arcangeli <aarcange@redhat.com>
-Subject: Re: [PATCH v7 13/31] mm: alloc_swap_folio: pass raw fault address to
- vma_alloc_folio
-Message-ID: <agXUHItfxSwtriRF@gourry-fedora-PF4VCD3F>
+Subject: Re: [PATCH v7 15/31] mm: vma_alloc_anon_folio_pmd: pass raw fault
+ address to vma_alloc_folio
+Message-ID: <agXURY4899YxaEXn@gourry-fedora-PF4VCD3F>
 References: <cover.1778616612.git.mst@redhat.com>
- <66119d3bab318d74c1586b99dd70fb74e2da1ec0.1778616612.git.mst@redhat.com>
+ <411a7b6a750c1904b99be92fad0e678ad791ca82.1778616612.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -110,40 +110,33 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <66119d3bab318d74c1586b99dd70fb74e2da1ec0.1778616612.git.mst@redhat.com>
+In-Reply-To: <411a7b6a750c1904b99be92fad0e678ad791ca82.1778616612.git.mst@redhat.com>
 
-On Tue, May 12, 2026 at 05:06:16PM -0400, Michael S. Tsirkin wrote:
-> Same change as the previous patch but for alloc_swap_folio:
-> pass vmf->address directly instead of ALIGN_DOWN(vmf->address, ...).
+On Tue, May 12, 2026 at 05:06:27PM -0400, Michael S. Tsirkin wrote:
+> Now that vma_alloc_folio aligns the address internally, drop the
+> redundant HPAGE_PMD_MASK alignment at the callsite.
 > 
-
-Rather than reference other patches, just explain the contents of this
-patch.  otherwise...
-
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Assisted-by: Claude:claude-opus-4-6
-> Assisted-by: cursor-agent:GPT-5.4-xhigh
 
 Reviewed-by: Gregory Price <gourry@gourry.net>
 
 > ---
->  mm/memory.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
+>  mm/huge_memory.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 > 
-> diff --git a/mm/memory.c b/mm/memory.c
-> index 0824441a6ba1..74523bc00d8a 100644
-> --- a/mm/memory.c
-> +++ b/mm/memory.c
-> @@ -4734,8 +4734,7 @@ static struct folio *alloc_swap_folio(struct vm_fault *vmf)
->  	/* Try allocating the highest of the remaining orders. */
->  	gfp = vma_thp_gfp_mask(vma);
->  	while (orders) {
-> -		addr = ALIGN_DOWN(vmf->address, PAGE_SIZE << order);
-> -		folio = vma_alloc_folio(gfp, order, vma, addr);
-> +		folio = vma_alloc_folio(gfp, order, vma, vmf->address);
->  		if (folio) {
->  			if (!mem_cgroup_swapin_charge_folio(folio, vma->vm_mm,
->  							    gfp, entry))
+> diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+> index 970e077019b7..d689e6491ddb 100644
+> --- a/mm/huge_memory.c
+> +++ b/mm/huge_memory.c
+> @@ -1337,7 +1337,7 @@ static struct folio *vma_alloc_anon_folio_pmd(struct vm_area_struct *vma,
+>  	const int order = HPAGE_PMD_ORDER;
+>  	struct folio *folio;
+>  
+> -	folio = vma_alloc_folio(gfp, order, vma, addr & HPAGE_PMD_MASK);
+> +	folio = vma_alloc_folio(gfp, order, vma, addr);
+>  
+>  	if (unlikely(!folio)) {
+>  		count_vm_event(THP_FAULT_FALLBACK);
 > -- 
 > MST
 > 
