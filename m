@@ -1,150 +1,156 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mail-03.1984.is (mail-03.1984.is [93.95.224.70])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43CE8392C3D
-	for <virtualization@lists.linux.dev>; Wed, 13 May 2026 23:29:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E445190473
+	for <virtualization@lists.linux.dev>; Thu, 14 May 2026 00:24:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=93.95.224.70
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778714960; cv=none; b=HkXd0mERSUZc3wBNcJr8+K4gYQxbzIKdoVaxNGBsHdCBtq19xCbBzG0/fW6iHJppuOT318p1el8Fq+xFIrqzuAXOVfksFbIeC8qJOo5RkAd1KkFEtcMLEALJwc/OEiTPmKVBbTPiMojHVH189jSlRvsJQEPBvIYZMk0BICnCgXo=
+	t=1778718251; cv=none; b=AP86C9dCQUb1gcl/p6uexJRPNMr82d2vD2uW41RlmKEUwof0qeBcGtxUIBy3TO0ynjJWvOZTtHncbExOKzk4UyTFKa7J3DCpU0API3hkfblXac6LcSWxMraykee0+d1I+NRBSzuIYZ0O9PzpcIuAihX/xkfB+5MFdadq6TQT+vs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778714960; c=relaxed/simple;
-	bh=epeYZJKmJEyEKFK4D/WW8l8OB0uwtne8cu+lAHSRqXs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=SbLpxiZ0evwRp5cmTnOaeMSzFVfkMaE/96XM0otRIc3bLXVjICKXvrJmxF0Z6eJPvaeQIC9YIZ1GlgOkMVh6BiDchB17ZTsRInza213IGQBu/HgBJ+6exKBU790Z5MOv4IGIAkmynjJYviqVuCQ6RvYGyMdnJ36Mr2SblSFepv0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ephJ37MO; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1778718251; c=relaxed/simple;
+	bh=1lSxn84Masa10X1bQBBHncJrbpXCih2ed4ZA9iqfu+k=;
+	h=Date:Message-ID:From:To:Cc:Subject; b=eN577WoQJAyuaHKZMK+1TknyE+d3koTmwfVaPEvCfm8b6ocNnaf93Lc7RBqsMIwVN8Vdu6uFwereXXO/SNLhDMd7mIYj1b9uwNzL/WCKxSu+0RjcQ02MtS0pE2HsFUpH8MfI1Dpzuzs8ufBnF/vWZ8imambU71inFMlKiUsTzUE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=berkoc.com; spf=pass smtp.mailfrom=berkoc.com; dkim=pass (2048-bit key) header.d=berkoc.com header.i=@berkoc.com header.b=F/Zp4HUs; arc=none smtp.client-ip=93.95.224.70
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=berkoc.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=berkoc.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ephJ37MO"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1778714958;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=izvY07KqS+wf5+fN6802J9TRTtuhLJpx997g9sZkIas=;
-	b=ephJ37MOXlflLCJdNeO0M+4A7r0qyj5SsjDuimd+uc3gkVDvkDjZ35bj2828tg+nWIp4qP
-	EvtqObbxdPj/U7ZwXktmlgf7+1x+QtcOLstFlSU9s8S6kHqdhdNORK+OiEPwbU+0opUo+o
-	WLiAbqHkE4ZcVMVxTKOuddDELit7Ezc=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-88-lkoVI1pSN8yt9MlPuZV7bw-1; Wed, 13 May 2026 19:29:17 -0400
-X-MC-Unique: lkoVI1pSN8yt9MlPuZV7bw-1
-X-Mimecast-MFC-AGG-ID: lkoVI1pSN8yt9MlPuZV7bw_1778714956
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-44d9ace59efso4869732f8f.1
-        for <virtualization@lists.linux.dev>; Wed, 13 May 2026 16:29:16 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778714956; x=1779319756;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=izvY07KqS+wf5+fN6802J9TRTtuhLJpx997g9sZkIas=;
-        b=tXEfFt8R+SHlA+FMNnCSXfvwamXWWPlf5upa0jILTBjwn8vnqAUUqn/ryCHuHVdNf9
-         7a47ot8QnWBcXGIDfWjHcz/prEjn2PRjFOAgQEFrb/la3eURg3e6fnFgxkY6yerkV4tz
-         t0gIFuYNiIeXTG9G2+2ZwKV2f2aVa09YptlGAwO60FfEuITSVGku6UjFqHpM/3qTOCc3
-         JP5/mnZ8VTcv97Nj0gt2az5OONjlH1VSbxcUP8IJ6O9/tsU1KwcLi8dd3SgN0mf0Swzn
-         5Zws4aRruTypBaaxV8JuKxhxhhnLuebslcNgRGNQvQpt1zIb6GNkFNpACxdo0qt90gSJ
-         tamg==
-X-Forwarded-Encrypted: i=1; AFNElJ90Q5I1PPOY/ArL5RW60hPUWF17AQZ6p4pw4QKumNPGF3gml7MNuT+5C0g7gUcuEfj03xRtbKACryIIRC/UKw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwxfQd+3tVZ/sfjPhy/Bbnsv1SkjGuGqrE9vzKL58nx+QTm6KtP
-	vneEF7cYoqRJ5sztBUdIQJ0CHcCnaESHHX//eEb5PvnpHRACeFD05HAA/dD7/ojMNgVsZ10Yel3
-	QpVDMhe4JTATLNVHYPM6oPeJ0PI8eM5Tmwzsrzvq2EhMcSMejbBCtJ8B1xdCcAVutgrKf
-X-Gm-Gg: Acq92OH0Ow2yNOnfc3Z+bGJ7souOOzktmwKC+mdbeUEoRSjJHhdaWU6ZikpdCtK9fdX
-	x4T8UDW3HqFMbzyzX5fPXVEW9fJ4Nh2PaMCw9QyDR/nTeVkZSm5kfU8wgQfZbmG4AF1O/Qbk+e6
-	JUG6QFP2VvcJlJq2NLCaM6hUx8YGk19eX3GY5b100Hiv25ZacDwumUy5tSs7L5GnNtooAbdG0JJ
-	yanF2lVs4BMuS7zsITH85KWNNIejRmNTPIrsuun8oueBiqGZZlMun3IxQ12PeJUvK9My26MaObx
-	vDK/DXK3eUonuNgARVcHlOwdAclTNQajJ8y7sMNw16jnmVIddmuwSsY7mR3xexg23fBhT/xQyAX
-	FuXRW8bu5iEotQufCANHZYRl3xld3qYXTMUYrE7Bbh1WN9chdKes=
-X-Received: by 2002:a5d:5d87:0:b0:441:1c18:f779 with SMTP id ffacd0b85a97d-45c59cce4demr8601859f8f.37.1778714955722;
-        Wed, 13 May 2026 16:29:15 -0700 (PDT)
-X-Received: by 2002:a5d:5d87:0:b0:441:1c18:f779 with SMTP id ffacd0b85a97d-45c59cce4demr8601791f8f.37.1778714955170;
-        Wed, 13 May 2026 16:29:15 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-48-7.inter.net.il. [80.230.48.7])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45d9ed2ffdfsm2070342f8f.15.2026.05.13.16.29.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 13 May 2026 16:29:14 -0700 (PDT)
-Date: Wed, 13 May 2026 19:29:08 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Gregory Price <gourry@gourry.net>
-Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
-	linux-kernel@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Muchun Song <muchun.song@linux.dev>,
-	Oscar Salvador <osalvador@suse.de>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Lorenzo Stoakes <ljs@kernel.org>,
-	"Liam R. Howlett" <liam@infradead.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Brendan Jackman <jackmanb@google.com>,
-	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
-	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
-	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
-	Byungchul Park <byungchul@sk.com>,
-	Ying Huang <ying.huang@linux.alibaba.com>,
-	Alistair Popple <apopple@nvidia.com>,
-	Christoph Lameter <cl@gentwo.org>,
-	David Rientjes <rientjes@google.com>,
-	Roman Gushchin <roman.gushchin@linux.dev>,
-	Harry Yoo <harry.yoo@oracle.com>,
-	Axel Rasmussen <axelrasmussen@google.com>,
-	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
-	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
-	Kemeng Shi <shikemeng@huaweicloud.com>,
-	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
-	virtualization@lists.linux.dev, linux-mm@kvack.org,
-	Andrea Arcangeli <aarcange@redhat.com>
-Subject: Re: [PATCH v7 00/31] mm/virtio: skip redundant zeroing of
- host-zeroed pages
-Message-ID: <20260513192734-mutt-send-email-mst@kernel.org>
-References: <cover.1778616612.git.mst@redhat.com>
- <e7e9b30f-ee5c-44c4-b377-d70156be41e9@kernel.org>
- <agSoDnbk5rjx9yM1@gourry-fedora-PF4VCD3F>
+	dkim=pass (2048-bit key) header.d=berkoc.com header.i=@berkoc.com header.b="F/Zp4HUs"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; d=berkoc.com;
+	s=1984; h=Subject:Reply-To:Cc:To:From:Message-ID:Date:Sender:MIME-Version:
+	Content-Type:Content-Transfer-Encoding:Content-ID:Content-Description:
+	Resent-Date:Resent-From:Resent-Sender:Resent-To:Resent-Cc:Resent-Message-ID:
+	In-Reply-To:References:List-Id:List-Help:List-Unsubscribe:List-Subscribe:
+	List-Post:List-Owner:List-Archive;
+	bh=RYtJUrFo8+8tWjBXE9igp7MAI+rioIToXtESNe9qICs=; b=F/Zp4HUstCkZzsivKPMvxgWXmg
+	V6uZ8D7NMP5qxLxLyJ+diiiygguRvZRLKMDaWmsO+hbceRDxPA7CJJTEzTFVhB25qNEjnz2rtXHpo
+	FUlxa1l0CMjGejV9D9ynxAnCoRQuI+BkJ4tiQZr9tjiTHcvmKZkjoQDjin3Zv9aXNiGKxe0R/fLM4
+	ynZXFoaEuqIMzdp8/pS4kmvKZIUieOJIX/a95lbXFW+ZV4Bhl3e21tngYcS5D7Bd+305Lvj5YhaI3
+	cgG3mjs6evTOZpQybc2JT5qsqfL7OehMW18EjUwZ9+cJQTG3+TaUdySaYDIfaIub5XgNjSk/LRHO/
+	QqwWcVxg==;
+Received: from localhost
+	by mail-03.1984.is with utf8esmtp (Exim 4.96)
+	(envelope-from <me@berkoc.com>)
+	id 1wNJcE-0035Lu-0U;
+	Thu, 14 May 2026 00:07:51 +0000
+Date: Thu, 14 May 2026 02:07:47 +0200
+Message-ID: <36acd33982bfdce04090e17294596ff8@berkoc.com>
+From: me@berkoc.com
+To: security@kernel.org
+Cc: virtualization@lists.linux.dev, berkantkoc@proton.me
+Reply-To: me@berkoc.com
+Subject: [Hardening] drm/qxl: apply_reloc/apply_surf_reloc write dst_offset without validating against BO size
+X-Spam-Score: 1.0 (+)
+X-Authenticated-User: me@berkoc.com
+X-Sender-Address: me@berkoc.com
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-In-Reply-To: <agSoDnbk5rjx9yM1@gourry-fedora-PF4VCD3F>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: F6UON01emCNm8ayBUagcnFxUIaohnOPabVHbdDHo4mc_1778714956
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
 
-On Wed, May 13, 2026 at 12:34:22PM -0400, Gregory Price wrote:
-> On Wed, May 13, 2026 at 09:36:06AM +0200, David Hildenbrand (Arm) wrote:
-> > 
-> > Please wait at least a week before sending out new versions of this size.
-> > 
-> > It's just a lot of noise in people's inbox, and as raised, a lot of people won't
-> > manage to review this before next month.
-> > 
-> 
-> Also I wasn't even done reviewing what you had previously sent lol.
+# QXL DRM: `apply_reloc` and `apply_surf_reloc` write to `info->dst_offset` without validating against BO size
 
-Sorry thought you were.
+## Summary
 
-> I can only spare so much time each week on upstream patch review :]
+The QXL DRM driver's relocation processing in `drivers/gpu/drm/qxl/qxl_ioctl.c` writes 64-bit and 32-bit values to `reloc_page + (info->dst_offset & ~PAGE_MASK)` after mapping `info->dst_offset & PAGE_MASK` into kernel space via `qxl_bo_kmap_atomic_page`. The `dst_offset` is taken verbatim from the user-supplied `drm_qxl_reloc` ioctl argument and is never validated against the destination buffer object's size before the write.
 
+An aspirational comment at the top of `apply_reloc` explicitly notes that "`dst` must be validated, i.e. whole bo on vram/surfacesram", but the validation has not been implemented since the driver was introduced in 2013.
 
-You certainly invested more than a fair share on this one, thanks a lot!
+## Impact
 
-> (This is also the pot calling the kettle black, I am guilty of doing
->  this same thing so uh... lesson learned, sorry David and Andrew!)
-> 
-> ~Gregory
+This is **not** a host-VM-escape primitive (the writes hit guest-controlled VRAM emulated by QEMU, not host kernel memory). It is a **guest-side memory corruption** primitive:
 
-Ya I clearly overdid it. I'll wait at least a week. Thanks!
+- A guest userspace process with `DRM_AUTH` (any logged-in user) can write attacker-chosen 64-bit/32-bit values to arbitrary offsets within the QXL VRAM aperture.
+- Targets reachable within the aperture include other guest processes' QXL buffer objects, QXL release-command BOs queued for the host, and ring buffers that QEMU consumes.
+- Corrupting QXL command structures that QEMU/SPICE then parses **moves the attack surface** to QEMU's QXL parser (separate codebase; historically vulnerable). This kernel bug is therefore a viable priming primitive for a guest-to-host escape chain whose terminal step lives in QEMU.
 
--- 
-MST
+CWE-787 (Out-of-bounds Write). Realistic CVSS 3.1: `AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:H/A:H` ≈ **5.5 Medium** for the kernel-side bug in isolation. If chained with a QEMU QXL parser bug: higher.
 
+This is submitted as **hardening / defense-in-depth**, not as a self-contained RCE/VM-escape claim.
+
+## Affected versions
+
+Linux mainline HEAD (audited 2026-05-13). The pattern is unchanged since the QXL DRM driver merged in v3.10 (2013). Commit history is sparse on this file; the issue is structural.
+
+## Vulnerable code
+
+`drivers/gpu/drm/qxl/qxl_ioctl.c:73-110`:
+
+```c
+struct qxl_reloc_info {
+    int type;
+    struct qxl_bo *dst_bo;
+    uint32_t dst_offset;          /* <-- user-controlled, copied from drm_qxl_reloc.dst_offset (__u64) */
+    struct qxl_bo *src_bo;
+    int src_offset;
+};
+
+/*
+ * dst must be validated, i.e. whole bo on vram/surfacesram (right now all bo's
+ * are on vram).
+ * *(dst + dst_off) = qxl_bo_physical_address(src, src_off)
+ */
+static void
+apply_reloc(struct qxl_device *qdev, struct qxl_reloc_info *info)
+{
+    void *reloc_page;
+
+    reloc_page = qxl_bo_kmap_atomic_page(qdev, info->dst_bo,
+                                         info->dst_offset & PAGE_MASK);
+    *(uint64_t *)(reloc_page + (info->dst_offset & ~PAGE_MASK)) =
+        qxl_bo_physical_address(qdev, info->src_bo, info->src_offset);
+    qxl_bo_kunmap_atomic_page(qdev, info->dst_bo, reloc_page);
+}
+```
+
+`apply_surf_reloc` (Lines 98-110) has the identical pattern for a `uint32_t` write.
+
+### How `dst_offset` reaches `apply_reloc`
+
+The user-space struct is defined in `include/uapi/drm/qxl_drm.h`:
+
+```c
+struct drm_qxl_reloc {
+    __u64 src_offset;
+    __u64 dst_offset;        /* user-controlled */
+    __u32 src_handle;
+    __u32 dst_handle;
+    __u32 reloc_type;
+    __u32 pad;
+};
+```
+
+`qxl_process_single_command` (`qxl_ioctl.c:141-269`) copies the user `drm_qxl_reloc` array into `reloc_info`, narrows `dst_offset` from `__u64` to `uint32_t` (silent truncation -- still gives the attacker the full 32-bit / 4 GB range), and then calls `apply_reloc`/`apply_surf_reloc`. No bounds check against `dst_bo->tbo.base.size` exists anywhere in the call chain. `qxl_release_reserve_list` only handles TTM placement validation.
+
+### Mapping behaviour
+
+`qxl_bo_kmap_atomic_page` (`drivers/gpu/drm/qxl/qxl_object.c`) computes `offset = (bo->tbo.resource->start << PAGE_SHIFT) + page_offset` and maps via `io_mapping_map_atomic_wc` on the QXL device's full VRAM aperture (`vram_mapping`). The `BUG_ON(offset >= mapping->size)` inside `io_mapping_map_atomic_wc` (see `include/linux/io-mapping.h`) only fires if the offset exceeds the *entire* aperture, not the specific BO. Writes within the aperture but outside the BO succeed and land on whatever data occupies those pages.
+
+## Proposed fix
+
+Add the validation the comment promised, in the per-reloc-info-fill loop in `qxl_process_single_command` (around line 228-244):
+
+```c
++   if (reloc_info[i].type == QXL_RELOC_TYPE_BO &&
++       (reloc_info[i].dst_offset + sizeof(uint64_t) > reloc_info[i].dst_bo->tbo.base.size ||
++        reloc_info[i].dst_offset > U32_MAX - sizeof(uint64_t))) {
++       ret = -EINVAL;
++       goto out_free_bos;
++   }
++   if (reloc_info[i].type == QXL_RELOC_TYPE_SURF &&
++       (reloc_info[i].dst_offset + sizeof(uint32_t) > reloc_info[i].dst_bo->tbo.base.size ||
++        reloc_info[i].dst_offset > U32_MAX - sizeof(uint32_t))) {
++       ret = -EINVAL;
++       goto out_free_bos;
++   }
+```
+
+Equivalent to checking `dst_offset` plus the write size fits inside the resolved BO. Also enforce a reasonable upper bound on `cmd->relocs_num` to prevent allocation DoS.
+
+## Discovery
+
+Static analysis of QXL DRM ioctl handlers.
+
+## Disclosure
+
+Per Linux kernel security policy, report to `security@kernel.org` and the QXL maintainers (Gerd Hoffmann, virtualization@lists.linux.dev).
