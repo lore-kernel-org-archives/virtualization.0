@@ -1,191 +1,164 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-vs1-f45.google.com (mail-vs1-f45.google.com [209.85.217.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20C2E3FF8B7
-	for <virtualization@lists.linux.dev>; Thu, 14 May 2026 15:16:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E47D30BBBC
+	for <virtualization@lists.linux.dev>; Thu, 14 May 2026 15:32:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.217.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778771793; cv=none; b=hXspvzVEaYZILlSXdMndnnm2KmbECbqbWAUWAee4UbWTPkh6f8knfX9NZosNvJPg1sGWOt/vTJEmXxPFduQCSXP51q2Dq4e62HAksEOTYC12Hxf/GygcHVwsu25QnFYzJf1QGdhl5w26Q0rcHhY7KOgvAey6RJrq8xnu6Hya4Hk=
+	t=1778772752; cv=none; b=aTCouJWq54PIfDc9JpF6F16+5EfuqK4qdOSt1yCCiBBjMPgyuH9F2xdhAm8+jdco8KdDBeCDTsapoIVTfFXbIMqhd8pssg5ePSC/ids2vh0CII8btPy0H/zV0Mc8lxYdUL0Ecq48QiVZhCc1K5RHltTFH8KQXTEPGQl5hpoqIGQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778771793; c=relaxed/simple;
-	bh=q7uNPrD0eUP4HNkAIIdlYAOXifDzpyw/ZOQANdgddGY=;
+	s=arc-20240116; t=1778772752; c=relaxed/simple;
+	bh=DNEzxhCO1K+15YArSw9FozqwIgcFAXLLbX9mz/RoBls=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=gRaP4NdYmvmd90xV4xS/1CZicp0cXagQCwQw6cXdm05ooUk5Djqs47DoSB0KjKydO5cmwDAUjGsmgU8yap8UZ3eucKUawNcBig66NTrGLqn/2F1A2tl/xEtdi4oJoLrcFnHHx8/9kK28hVU0MZzOpWF8eIaL7ChEdazIeUxmXbY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GAVRkAaS; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=Dt4bF4tR5vRUbO4GkTDxW6hsYelb8OiN5TUlTid8ntqA7hwKVQ/9G45872DhFJce/jrUqcZUoFfn0NQi6kKtuxYlR+8WsPSaXbZ758avq9zS4xFPokZ7ir2Q57BLL+Xs9UMGOqrXhDBM6lWalqxWYjq8cGRjshS0Wobw71wyN84=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=N35SnYQp; arc=none smtp.client-ip=209.85.217.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GAVRkAaS"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1778771790;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=s6SqjJFaYe/G8HVu0q1mvVzTnaE1hb029hYuoyhIe+M=;
-	b=GAVRkAaShD1YrlSwka6pg5vvD0Rl9ve68a1ulF/VEsCHsSbAbC8xC85u2MvaQzQHaEgGxo
-	tpDAGFqv95otJcIU06UOSKS85SmOZ+j2i0BFcD0zwua4B4d9mCvsNVtELtD8Pf7gMz+/Ma
-	WOjqqYGUER4gU6/qjpNfC0Sm3oq9BGM=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-576-DBJMIO92P9q0JWLko8h4Fw-1; Thu, 14 May 2026 11:16:29 -0400
-X-MC-Unique: DBJMIO92P9q0JWLko8h4Fw-1
-X-Mimecast-MFC-AGG-ID: DBJMIO92P9q0JWLko8h4Fw_1778771788
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-48d1b294dfeso70628905e9.0
-        for <virtualization@lists.linux.dev>; Thu, 14 May 2026 08:16:28 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="N35SnYQp"
+Received: by mail-vs1-f45.google.com with SMTP id ada2fe7eead31-628086439b6so6148122137.2
+        for <virtualization@lists.linux.dev>; Thu, 14 May 2026 08:32:30 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gourry.net; s=google; t=1778772749; x=1779377549; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=p0Jrdww3R9YJMBWZEBaj/2VHLPNdS7oRIHQummGxhrc=;
+        b=N35SnYQpvzxJtNOVCBJ5QRuOk/7uJlvn28vYVQuT36s9DwhHXgqfYRu0UBj511wy47
+         0r1+pDTV5/Z3PXSNFHU44Oa43bHFPvriq44crxfxyTxF6dlMxD5yGGWRNJUzVVoVmmc9
+         iTmd9SZTAGaO972TiRu7MXZ2V6LuNEZmQKRrtiP1iBlSjYORAMAKUbCHqbPfuE2yy14L
+         LoGDL69P2q+V9nDnl1LDggrGyKO4+vBKr5js2UVgcN1xWq+YZcVVU7kT7QAEHDM4nrlU
+         SKb5FB4ubCKjtOfgG4q+VdpEEan0UGSCs1Y5cBlBeWpcBfdlgepGSo4wwRKB7fpki1bS
+         NTLA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778771788; x=1779376588;
+        d=1e100.net; s=20251104; t=1778772749; x=1779377549;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=s6SqjJFaYe/G8HVu0q1mvVzTnaE1hb029hYuoyhIe+M=;
-        b=AhG24P2pCxpRE/fUaULYtuyU/VDA1CnQKIR/TfkBj2FoVc8Qh9e6+uevlhJzIuxBzW
-         mfn5P5sn02bIzpdp6lye4663o5CGjbkOxQtiBhY2AA4WOqjkZ/tukS9Firkw+xvEbXXC
-         Hr3M303Ax4CiwlIozRJNXRZGQONZpHD4GqN9ITrKuQasX2mN314aE0a7MHPubvuqA/48
-         /4qZEfYnoX16K3Z6SvddAKyNQ2tE6KzQK54eR/QfB6whhHUcoKro7Ua12Icj6wmPgpJY
-         JCHTl8R2f47XmGrl2xBt8OlQV4MRqyFp1x9liF9rQIscgYk1Y+UzmlmBGje+zXjdQA3z
-         tanw==
-X-Forwarded-Encrypted: i=1; AFNElJ/e84BzPxFSCxQvgVrjpsuyPrbTWMZOU9yw8YTb+l7oAt/b0jOJi8vAo4LN1W02OsvdUJiTMj9xFRsFp/3O8Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw4ZxTjs4AESkORjHwBtqQApWbMSXhyHP6Ghkirz8DHn1PaX0I/
-	/ef8lfRZsC7NbYvaefWQBgz9EcT1Z2p63Fyh3ULgdBkxj8aVJd5mQTgIFVw95idTSvQVlwTEe0v
-	tnMDpV9DnXMz/UOcn3C8lNiGyAszNRFWF9cA76IyRvhiaWKJIU2M4/18jocpJdgdtJ2BS
-X-Gm-Gg: Acq92OFZHWK5fN6vfnX7Vy1d5FZA6o/2f0mgwqFAhtCfKr290nfXYL/EXT/yMlKaMib
-	ktJx3NLvTgKKjaNugp25AWAMeTZB4EaflGF7IL/T5n0VAqslQrXeKAMnPSYpNrr/xqSL1I1Oj3c
-	EvVYGZXBOs6uRvIxtqEENR3Cuya5OK32nxksRQhAU/rgTSj0n0TX9GkDuga0as7RCSRjbmwjpxc
-	ppng+asXABXW0Dci75IJGCRsh60M5eeRTXuL2ABZYtGlrc4lSlVAUIh/ClkXe0ZzDzc6F5thJZ9
-	tWQsTiDqxqJszHGqDOmhDF/9szKobWiU7y6CL/qtx83H9lFXBIX67OmR+3a4ziFAyCEFuHWBFD3
-	itaAkXbhVcZ7Yy0tqGZsl7u4OfEb0njmmTuJtj6i2
-X-Received: by 2002:a05:600c:4fc9:b0:489:1c1f:35f1 with SMTP id 5b1f17b1804b1-48fc9a030eemr107778285e9.4.1778771787728;
-        Thu, 14 May 2026 08:16:27 -0700 (PDT)
-X-Received: by 2002:a05:600c:4fc9:b0:489:1c1f:35f1 with SMTP id 5b1f17b1804b1-48fc9a030eemr107777655e9.4.1778771787145;
-        Thu, 14 May 2026 08:16:27 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-48-7.inter.net.il. [80.230.48.7])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45d9e767d0bsm6761145f8f.3.2026.05.14.08.16.24
+        bh=p0Jrdww3R9YJMBWZEBaj/2VHLPNdS7oRIHQummGxhrc=;
+        b=fBt4bDUMOGQjSL19UQTi6mZ0ZPKCiIKTxpZdjd4uO0quIKdlK07V3NfllzT2JVVDHH
+         3fU4xqNlypZzDGoSV4iIauB36lVZVkGr52obLg5o9RRJhbAj77Qag/k9bh8uph0NUGcN
+         uDi27phVi6/Hnxogz1a+Dxqlcs4fKg5ssUDc5dKDJkWIco9UhomNBWooW7uc2IqbWv+y
+         DtUrOD4c6aEQr3AgI1QC7NuZ796qQ9Vvv1Hk/0AM1YX2LOrTT+RbsxR26Q+fNf5xY4KO
+         V8IUgKsyKw+4rXGLfGiYbv19OgH1bQTDNSZS9HqITBe8NKxhDMrH1F0+6St7kt2nxYWo
+         jzeA==
+X-Forwarded-Encrypted: i=1; AFNElJ9X089exvhdEN6LvwnGToVVGd/BaJLKTce5eOovimsmyCNmduOj6OoQ9avW5is+fAvJqRJQ1Q8kD+pUaUQ7pw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxzqw1SEjDtcBnNzv7mwAVXRW0zVNBTyN22RXQ2AnsFkNyoVBUG
+	AtTHUhSi9aaByB2cbknnw/plB2WFzHG5kVZzx1UXouq1xqJUFq1zlonfnkcEIXcs9L8=
+X-Gm-Gg: Acq92OEVA3xGT1hKXszCXdXMEUmkWXM9CO4HqoEYd/w+lCU5yZxG5sUNhIWaLPekV1B
+	fkYgCJ/+6mVuwCEkuKC/3KTf32izQIMgwdHG1h2I3+4HwZ6oOo1hgmrFZsUdp3yqRB5heV5lkJd
+	dsL/5QfXHQ5jWrjYz73zbZRITBGDpAIpL6gjz8RWWgx3nYeYM/B94lmBjZANNJpNh9T4W0F9zIt
+	LX31AdfzqJUkoxwmovJCvLf17LN/u85HjxNwYtwk5+9JWVr3JFd6GJpjqZniQI2Mkxh89fkAt3x
+	p0QO+vhSpTqpupO7nheMnnd8sPBIT97LWqBjD5YbiMbAB9m5xgt75mzGLjsn0ahqNrRcUf1+Av6
+	qQeZJ6amG+R7e2cmJ48MCLgWUGmnF3L1YW8lR+3jZk9oUTZuIb8mmegOp7DwujUO396U5HnvZSv
+	cEOlT6rBMGQysaT0vG/VW/m1UeSJcy6Px/qycee0QaujcvsMdGDPdcj+gBR10431OxLrjuflYR+
+	M7hB9hH7oFY0kQ2spz3lo0=
+X-Received: by 2002:a05:6102:604d:b0:632:eef7:4b7f with SMTP id ada2fe7eead31-63775d3d1b5mr4496453137.22.1778772749628;
+        Thu, 14 May 2026 08:32:29 -0700 (PDT)
+Received: from gourry-fedora-PF4VCD3F (pool-100-36-248-188.washdc.fios.verizon.net. [100.36.248.188])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-910ba36e638sm275535485a.9.2026.05.14.08.32.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 May 2026 08:16:26 -0700 (PDT)
-Date: Thu, 14 May 2026 11:16:23 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: netdev@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Thu, 14 May 2026 08:32:29 -0700 (PDT)
+Date: Thu, 14 May 2026 11:32:26 -0400
+From: Gregory Price <gourry@gourry.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org,
+	"David Hildenbrand (Arm)" <david@kernel.org>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	linux-kernel@vger.kernel.org, Simon Horman <horms@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
-	Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	virtualization@lists.linux.dev, Eric Dumazet <edumazet@google.com>,
-	"David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH net v3 1/2] vsock/virtio: reset connection on receiving
- queue overflow
-Message-ID: <20260514111513-mutt-send-email-mst@kernel.org>
-References: <20260513105417.56761-1-sgarzare@redhat.com>
- <20260513105417.56761-2-sgarzare@redhat.com>
- <agXh36gUe1K6__Bk@sgarzare-redhat>
+	Muchun Song <muchun.song@linux.dev>,
+	Oscar Salvador <osalvador@suse.de>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Lorenzo Stoakes <ljs@kernel.org>,
+	"Liam R. Howlett" <liam@infradead.org>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Brendan Jackman <jackmanb@google.com>,
+	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
+	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
+	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+	Byungchul Park <byungchul@sk.com>,
+	Ying Huang <ying.huang@linux.alibaba.com>,
+	Alistair Popple <apopple@nvidia.com>,
+	Christoph Lameter <cl@gentwo.org>,
+	David Rientjes <rientjes@google.com>,
+	Roman Gushchin <roman.gushchin@linux.dev>,
+	Harry Yoo <harry.yoo@oracle.com>,
+	Axel Rasmussen <axelrasmussen@google.com>,
+	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
+	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
+	Kemeng Shi <shikemeng@huaweicloud.com>,
+	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
+	virtualization@lists.linux.dev, linux-mm@kvack.org,
+	Andrea Arcangeli <aarcange@redhat.com>
+Subject: Re: [PATCH v7 02/31] mm: page_alloc: propagate PageReported flag
+ across buddy splits
+Message-ID: <agXrCinY2HmJmhT6@gourry-fedora-PF4VCD3F>
+References: <cover.1778616612.git.mst@redhat.com>
+ <feab82b370b3e66b58b9cfbc1efaf26fe6061d2f.1778616612.git.mst@redhat.com>
+ <agW3JyLAwVsCZ2qR@gourry-fedora-PF4VCD3F>
+ <20260514104735-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <agXh36gUe1K6__Bk@sgarzare-redhat>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: vl_xKOaAGx5uplYjVvQwM_Ul1Ydg3gi6vymPK7tfF0w_1778771788
-X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20260514104735-mutt-send-email-mst@kernel.org>
 
-On Thu, May 14, 2026 at 04:57:16PM +0200, Stefano Garzarella wrote:
-> On Wed, May 13, 2026 at 12:54:16PM +0200, Stefano Garzarella wrote:
-> > From: Stefano Garzarella <sgarzare@redhat.com>
+On Thu, May 14, 2026 at 10:48:28AM -0400, Michael S. Tsirkin wrote:
+> On Thu, May 14, 2026 at 07:51:03AM -0400, Gregory Price wrote:
+> > On Tue, May 12, 2026 at 05:05:16PM -0400, Michael S. Tsirkin wrote:
+> > > When a reported free page is split via expand() to satisfy a
+> > > smaller allocation, the sub-pages placed back on the free lists
+> > > lose the PageReported flag.  This means they will be unnecessarily
+> > > re-reported to the hypervisor in the next reporting cycle, wasting
+> > > work.
+> > > 
+> > > While I was unable to quantify the performance difference, it is
+> > > an obvious waste, even if small.
+> > > 
+> > > Propagate the PageReported flag to sub-pages during expand(),
+> > > both in page_del_and_expand() and try_to_claim_block(), so
+> > > that they are recognized as already-reported.
+> > > 
+> > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > > Assisted-by: Claude:claude-opus-4-6
+> > ... snip ...
+> > > @@ -1731,9 +1740,10 @@ static __always_inline void page_del_and_expand(struct zone *zone,
+> > >  						int high, int migratetype)
+> > >  {
+> > >  	int nr_pages = 1 << high;
+> > > +	bool was_reported = page_reported(page);
+> > >  
+> > >  	__del_page_from_free_list(page, zone, high, migratetype);
+> > > -	nr_pages -= expand(zone, page, low, high, migratetype);
+> > > +	nr_pages -= expand(zone, page, low, high, migratetype, was_reported);
+> > >  	account_freepages(zone, -nr_pages, migratetype);
+> > >  }
+> > >  
 > > 
-> > When there is no more space to queue an incoming packet, the packet is
-> > silently dropped. This causes data loss without any notification to
-> > either peer, since there is no retransmission.
+> > Maybe mildly out of scope but worth asking:  Are there other flags that
+> > should be retained/propogated on a split?  If so, rather than pass
+> > was_reported, should we just take a temporary copy of the page flags and
+> > pass them all in?
 > > 
-> > Under normal circumstances, this should never happen. However, it could
-> > happen if the other peer doesn't respect the credit, or if the skb
-> > overhead, which we recently began to take into account with commit
-> > 059b7dbd20a6 ("vsock/virtio: fix potential unbounded skb queue"),
-> > is too high.
-> > 
-> > Fix this by resetting the connection and setting the local socket error
-> > to ENOBUFS when virtio_transport_recv_enqueue() can no longer queue a
-> > packet, so both peers are explicitly notified of the failure rather than
-> > silently losing data.
-> > 
-> > Fixes: ae6fcfbf5f03 ("vsock/virtio: discard packets if credit is not respected")
-> > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-> > ---
-> > net/vmw_vsock/virtio_transport_common.c | 19 ++++++++++++++-----
-> > 1 file changed, 14 insertions(+), 5 deletions(-)
-> > 
-> > diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-> > index 989cc252d3d3..4a4ac69d1ad1 100644
-> > --- a/net/vmw_vsock/virtio_transport_common.c
-> > +++ b/net/vmw_vsock/virtio_transport_common.c
-> > @@ -1350,7 +1350,7 @@ virtio_transport_recv_connecting(struct sock *sk,
-> > 	return err;
-> > }
-> > 
-> > -static void
-> > +static bool
-> > virtio_transport_recv_enqueue(struct vsock_sock *vsk,
-> > 			      struct sk_buff *skb)
-> > {
-> > @@ -1365,10 +1365,8 @@ virtio_transport_recv_enqueue(struct vsock_sock *vsk,
-> > 	spin_lock_bh(&vvs->rx_lock);
-> > 
-> > 	can_enqueue = virtio_transport_inc_rx_pkt(vvs, len);
-> > -	if (!can_enqueue) {
-> > -		free_pkt = true;
-> > +	if (!can_enqueue)
-> > 		goto out;
-> > -	}
-> > 
-> > 	if (le32_to_cpu(hdr->flags) & VIRTIO_VSOCK_SEQ_EOM)
-> > 		vvs->msg_count++;
-> > @@ -1408,6 +1406,8 @@ virtio_transport_recv_enqueue(struct vsock_sock *vsk,
-> > 	spin_unlock_bh(&vvs->rx_lock);
-> > 	if (free_pkt)
-> > 		kfree_skb(skb);
-> > +
-> > +	return can_enqueue;
-> > }
-> > 
-> > static int
-> > @@ -1420,7 +1420,16 @@ virtio_transport_recv_connected(struct sock *sk,
-> > 
-> > 	switch (le16_to_cpu(hdr->op)) {
-> > 	case VIRTIO_VSOCK_OP_RW:
-> > -		virtio_transport_recv_enqueue(vsk, skb);
-> > +		if (!virtio_transport_recv_enqueue(vsk, skb)) {
-> > +			/* There is no more space to queue the packet, so let's
-> > +			 * close the connection; otherwise, we'll lose data.
-> > +			 */
-> > +			(void)virtio_transport_reset(vsk, skb);
-> > +			sk->sk_state = TCP_CLOSE;
-> > +			sk->sk_err = ENOBUFS;
-> > +			sk_error_report(sk);
+> > ~Gregory
 > 
-> sashiko reported some issues related to setting TCP_CLOSE state and not
-> removing the socket from the connect table:
-> https://sashiko.dev/#/patchset/20260513105417.56761-1-sgarzare%40redhat.com
 > 
-> I'll change this by calling virtio_transport_do_close() and
-> vsock_remove_sock() in the next version.
+> Not that I can see, no.
 > 
-> Stefano
-> 
-> > +			break;
-> > +		}
-> > 		vsock_data_ready(sk);
-> > 		return err;
-> > 	case VIRTIO_VSOCK_OP_CREDIT_REQUEST:
-> > -- 
-> > 2.54.0
-> > 
 
+You do this exact thing again later :]
 
-And so the bag of hacks grows. I feel this is energy not well spent.
-Please, let us fix this properly *first*. And then worry about how to
-backport.  Maybe it will not be so terrible to backport after all.
+https://lore.kernel.org/linux-mm/9a22e0f9bbe1278913754db6df76e291a006181a.1778616612.git.mst@redhat.com/
 
+~Gregory
