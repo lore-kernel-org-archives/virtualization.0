@@ -1,60 +1,108 @@
-Received: from mail.ilvokhin.com (mail.ilvokhin.com [178.62.254.231])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oo1-f41.google.com (mail-oo1-f41.google.com [209.85.161.41])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 78C1441C31D
-	for <virtualization@lists.linux.dev>; Thu, 14 May 2026 14:13:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.62.254.231
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 576AC3FD135
+	for <virtualization@lists.linux.dev>; Thu, 14 May 2026 14:16:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778768025; cv=none; b=qac6Dv1rI+EDa9+34wi0rcUGb54Z50bpLetjEWaT8TjQgKXSKkf3IlP8jGx/RzaU2H4AD2JmMwqi3SM2i4usExqd0TpayThqy2wPGfiRxiTDGoFVw1KmYUmC9awDA9GSCdT1pKR++1uK0wY3aN05XnpbhAhpt7AmtcDZWENI5i8=
+	t=1778768181; cv=none; b=FceT3ybwQCE6Oc7vG3dHGHIMKbE8/n8vb6lJ1U/6Aif4IjIp3hOvZxLKjZXD5ycqnuQF1CZNSw8rN/WlOXrK0dKe4JoKAwdi4qYysPSE9s04roNXvuteirYW0OhcFZVsmHiNFUROjzsNLmDn6LLoCOpmzOl92OiOTrDy5deCY6g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778768025; c=relaxed/simple;
-	bh=RZ497f2MkBSfcDNRv07WOD93tdragrIfUhY+O1zJISk=;
+	s=arc-20240116; t=1778768181; c=relaxed/simple;
+	bh=7LY9rfL74rDmyNKIONUHS+WulH4uKCOzdJH8u/psLT8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=qF8aym7EtoNBXTY1Mjsge/TbLhaFBzcT+O1UDmftTVkWLe1EdyvPGTfpEVFNeX5x53niqqEhHlKlDXFE5QN0ZI2LbBgN5L3rh/DNRlGN5WT6dKQ4fZs/8MdleWuxuDP0V6k7hZ3bO0QMfGAYJoha925lhOOV/39OStevASvWDtY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ilvokhin.com; spf=pass smtp.mailfrom=ilvokhin.com; dkim=pass (1024-bit key) header.d=ilvokhin.com header.i=@ilvokhin.com header.b=2LqHdCq5; arc=none smtp.client-ip=178.62.254.231
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ilvokhin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ilvokhin.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=V2VND8B70oCQTu3xuOksz1KxX8kO1NLQ5/ZxizONs60EaYcO4selFuzdwtB1WXBGTWPo233Zyk0qcqLyJ1+RJH4Io1WjJGR0v8tpcUTcPGClTScJ7C+c6fK7Y/e65dBasDWdT+ejKH/h78UXmYpANTwfSmYz9QNhI/WqGUk5SsI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=qdxE6Q4u; arc=none smtp.client-ip=209.85.161.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ilvokhin.com header.i=@ilvokhin.com header.b="2LqHdCq5"
-Received: from shell.ilvokhin.com (shell.ilvokhin.com [138.68.190.75])
-	(Authenticated sender: d@ilvokhin.com)
-	by mail.ilvokhin.com (Postfix) with ESMTPSA id 92774D0572;
-	Thu, 14 May 2026 14:13:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ilvokhin.com;
-	s=mail; t=1778768016;
-	bh=CEtEQitvr5ZkBK9ei+U84T7UAt16YdxOYlqifuRSuCs=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=2LqHdCq5tSBQ3BZqU0GmdOcvGsRqUa4wcPdAHu8hjvMz6CYEy0/FcUOv3IiSY6ajb
-	 LJ3OiABsNiurRx+c2LFTGtfo/wrG5XGj49b8jVqXLWLHz8oq3JNDQsDBaYJg6nMv4k
-	 SnM09PPyXc4AO4h3CaPUrJA/LHwqYctv2hZXMW48=
-Date: Thu, 14 May 2026 14:13:35 +0000
-From: Dmitry Ilvokhin <d@ilvokhin.com>
-To: Steven Rostedt <rostedt@goodmis.org>
-Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
-	Will Deacon <will@kernel.org>, Boqun Feng <boqun@kernel.org>,
-	Waiman Long <longman@redhat.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Juergen Gross <jgross@suse.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Thomas Gleixner <tglx@kernel.org>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
-	Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="qdxE6Q4u"
+Received: by mail-oo1-f41.google.com with SMTP id 006d021491bc7-6969c864c89so4544785eaf.2
+        for <virtualization@lists.linux.dev>; Thu, 14 May 2026 07:16:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gourry.net; s=google; t=1778768177; x=1779372977; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=D/aRcyReAB/yBt5Ujgx4hlVRsrvunB+iUEF0sUUUSTA=;
+        b=qdxE6Q4uZXg0I4BkgTNDGM+rx0Pn0MF62EDYDYCwG6prsYnDT/efGWP5tEOd2k1nlB
+         QuR1h8dVnvEZCEKxUyWW4MojwgXtuaJQsOmjSON5+xNcJ54dq0w7ZxZfXLMNhqdKhnmH
+         5a/G9E4DOZ7nh1FaxneSuAxGtGSgh6xKYKGOAKO5cFlIgzyrzLzhNIVDZd9pU79f/kvX
+         fFPx0U62fcV7Bp9rA01zFKgUfLmuBlOW23X8dIO526E/24EvQtXJprkhPN3QgQTpa4t/
+         qWHqin4GLMAvrFIx/Tm5Xjxqzt7jVbEJuPlxws573AUm7N3FkTI/hkdVM2H43Q38WWtX
+         AU2g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778768177; x=1779372977;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=D/aRcyReAB/yBt5Ujgx4hlVRsrvunB+iUEF0sUUUSTA=;
+        b=oKBotl2gK4dXVOAcceVrk7YDJVIB7wFNcpVMzT9BRUcxE5fQciNRga1CA9QLF+u3kq
+         PLnG3JZX1AdJvBHgUfyXUSqT4aFb4KSbxPM/zGfx93fmHo+d54aITK0776VSQkumyxdu
+         8rpq02TeqhaYKdpno5Z6v8zboYQ19dk6fJR/agJ8VWAdNWax4a6s2m6cLTzTVuHBeOs8
+         He7XQJoLrvi8M97z1tnkZ/S+HdjdUtcW+Q2+jqO1smVt1Y88c7jtnT1ozshARdOS8Xtg
+         liC6bjK1weB0FjLJIyin3/IxQZead/P1jFnapzDsPAR3gVK61j1kbkJkjuXHRtKdMccO
+         0gTg==
+X-Forwarded-Encrypted: i=1; AFNElJ94st4pM+c1kD39ilvcmUZY040UChUfIKoS+r45AIqTd8rF7ZFAHoms71TkNzqH/89KJe2fdShWjDrB3CTUkA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwEqV0UstSciUBruHTszrm9o1uSMSR6zMqziTBEzt65kClCHRV6
+	l2IwK+D0/zXVEfCjwt4sOh8a61/K5VldKtDOszJXzcndA/ReEJlRbRs9Y3rDuE7wlrDUaGSUeU5
+	lY+DN
+X-Gm-Gg: Acq92OEcUlatD/pO3tYUw1KCzFl3kurX1KJJrT1bYwDsFfJrI/PSuOu2Ry6ubE/qELd
+	wbDYtOQaH1EKUfWlEMKxcHCczyMBBoHKbrSqGSOodRly3dO45B7rmFBybi0ySani7S7PTtEM/eD
+	MG6TUN8bvl0OUG4KQgb4X3UBu3zc4RNp9RenLebSqjCtMZzrW/YeM11+93IWGjCKRD8s/Q2n4vy
+	fSxByJ/LNS1UVPZ0AYWv+bNl0mEZ/rbkIQMzBSRv3+8O4g3YMuu0D8eZNbK+MIIGLRiVx3ogszb
+	eXTnnNfMFbhJSMojNUj9rcJsqLwUpGu32v+YBxmXD+B1IrUYRFEBnmiGfonW/NSbE2484kjuSIb
+	B74bBWd8lHaoXO3NY3mNJ1RtEwCBJZmIkp/koORg6Vki3h3lylgU2ROtiBj2aaYg5iuqSKyNbKA
+	gCF9gxXnPZb8RnWbunFxv97bz+XMSyVgxp9C73Vrpq0QwJFtC8vGAT5qCv99ZOf86jVMg8N8IKr
+	d3NM/tQn3Ue
+X-Received: by 2002:a05:6214:4291:b0:8ae:6460:c544 with SMTP id 6a1803df08f44-8c7bc05a2b9mr122449846d6.41.1778768157667;
+        Thu, 14 May 2026 07:15:57 -0700 (PDT)
+Received: from gourry-fedora-PF4VCD3F (pool-100-36-248-188.washdc.fios.verizon.net. [100.36.248.188])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8c90c359c74sm24280456d6.45.2026.05.14.07.15.56
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 14 May 2026 07:15:57 -0700 (PDT)
+Date: Thu, 14 May 2026 10:15:55 -0400
+From: Gregory Price <gourry@gourry.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org,
+	"David Hildenbrand (Arm)" <david@kernel.org>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Muchun Song <muchun.song@linux.dev>,
+	Oscar Salvador <osalvador@suse.de>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Lorenzo Stoakes <ljs@kernel.org>,
+	"Liam R. Howlett" <liam@infradead.org>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Brendan Jackman <jackmanb@google.com>,
+	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
+	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
+	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+	Byungchul Park <byungchul@sk.com>,
+	Ying Huang <ying.huang@linux.alibaba.com>,
+	Alistair Popple <apopple@nvidia.com>,
 	Christoph Lameter <cl@gentwo.org>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-arch@vger.kernel.org,
-	linux-mm@kvack.org, linux-trace-kernel@vger.kernel.org,
-	kernel-team@meta.com, "Paul E. McKenney" <paulmck@kernel.org>
-Subject: Re: [PATCH v6 5/7] locking: Add contended_release tracepoint to
- qspinlock
-Message-ID: <agXYjw3GM15WtC-H@shell.ilvokhin.com>
-References: <cover.1777999826.git.d@ilvokhin.com>
- <5d7ea75ffe74a785e6b234ada9f23c6373d4b4c1.1777999826.git.d@ilvokhin.com>
- <20260513114102.50f4ca68@gandalf.local.home>
+	David Rientjes <rientjes@google.com>,
+	Roman Gushchin <roman.gushchin@linux.dev>,
+	Harry Yoo <harry.yoo@oracle.com>,
+	Axel Rasmussen <axelrasmussen@google.com>,
+	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
+	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
+	Kemeng Shi <shikemeng@huaweicloud.com>,
+	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
+	virtualization@lists.linux.dev, linux-mm@kvack.org,
+	Andrea Arcangeli <aarcange@redhat.com>
+Subject: Re: [PATCH v7 22/31] mm: page_alloc: preserve PG_zeroed in
+ page_del_and_expand
+Message-ID: <agXZGjyvs0AHCpnZ@gourry-fedora-PF4VCD3F>
+References: <cover.1778616612.git.mst@redhat.com>
+ <9a22e0f9bbe1278913754db6df76e291a006181a.1778616612.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -63,102 +111,78 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260513114102.50f4ca68@gandalf.local.home>
+In-Reply-To: <9a22e0f9bbe1278913754db6df76e291a006181a.1778616612.git.mst@redhat.com>
 
-On Wed, May 13, 2026 at 11:41:02AM -0400, Steven Rostedt wrote:
-> On Tue,  5 May 2026 17:09:34 +0000
-> Dmitry Ilvokhin <d@ilvokhin.com> wrote:
+On Tue, May 12, 2026 at 05:07:05PM -0400, Michael S. Tsirkin wrote:
+> Propagate PG_zeroed through buddy splits in page_del_and_expand()
+> and try_to_claim_block().  When a zeroed high-order page is split
+> to satisfy a smaller allocation, the sub-pages placed back on the
+> free lists keep PG_zeroed.
 > 
-> > Use the arch-overridable queued_spin_release(), introduced in the
-> > previous commit, to ensure the tracepoint works correctly across all
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Reviewed-by: Gregory Price <gourry@gourry.net>
+> Assisted-by: Claude:claude-opus-4-6
+> Assisted-by: cursor-agent:GPT-5.4-xhigh
+
+Already reviewed this, but noticing the same pattern - wondering if we
+should just snapshot all the flags and plumb it through instead of just
+extending functions like this to have infinite bools.
+
+> ---
+>  mm/page_alloc.c | 12 +++++++++---
+>  1 file changed, 9 insertions(+), 3 deletions(-)
 > 
-> Remove the ", introduced in the previous commit," That's useless in git
-> change logs.
-
-Thanks for the suggestion, will do here and in other places.
-
-[...]
-
-> >  /**
-> >   * queued_spin_unlock - unlock a queued spinlock
-> >   * @lock : Pointer to queued spinlock structure
-> > + *
-> > + * Generic tracing wrapper around the arch-overridable
-> > + * queued_spin_release().
-> >   */
-> >  static __always_inline void queued_spin_unlock(struct qspinlock *lock)
-> >  {
-> > +	/*
-> > +	 * Trace and release are combined in queued_spin_release_traced() so
-> > +	 * the compiler does not need to preserve the lock pointer across the
-> > +	 * function call, avoiding callee-saved register save/restore on the
-> > +	 * hot path.
-> > +	 */
-> > +	if (tracepoint_enabled(contended_release)) {
-> > +		queued_spin_release_traced(lock);
-> > +		return;
+> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> index d70c9ba6b329..468e8bde7d34 100644
+> --- a/mm/page_alloc.c
+> +++ b/mm/page_alloc.c
+> @@ -1712,7 +1712,8 @@ struct page *__pageblock_pfn_to_page(unsigned long start_pfn,
+>   * -- nyc
+>   */
+>  static inline unsigned int expand(struct zone *zone, struct page *page, int low,
+> -				  int high, int migratetype, bool reported)
+> +				  int high, int migratetype, bool reported,
+> +				  bool zeroed)
+>  {
+>  	unsigned int size = 1 << high;
+>  	unsigned int nr_added = 0;
+> @@ -1743,6 +1744,8 @@ static inline unsigned int expand(struct zone *zone, struct page *page, int low,
+>  		 */
+>  		if (reported)
+>  			__SetPageReported(&page[size]);
+> +		if (zeroed)
+> +			__SetPageZeroed(&page[size]);
+>  	}
+>  
+>  	return nr_added;
+> @@ -1754,10 +1757,12 @@ static __always_inline void page_del_and_expand(struct zone *zone,
+>  {
+>  	int nr_pages = 1 << high;
+>  	bool was_reported = page_reported(page);
+> +	bool was_zeroed = PageZeroed(page);
+>  
+>  	__del_page_from_free_list(page, zone, high, migratetype);
+>  
+> -	nr_pages -= expand(zone, page, low, high, migratetype, was_reported);
+> +	nr_pages -= expand(zone, page, low, high, migratetype, was_reported,
+> +			   was_zeroed);
+>  	account_freepages(zone, -nr_pages, migratetype);
+>  }
+>  
+> @@ -2335,11 +2340,12 @@ try_to_claim_block(struct zone *zone, struct page *page,
+>  	if (current_order >= pageblock_order) {
+>  		unsigned int nr_added;
+>  		bool was_reported = page_reported(page);
+> +		bool was_zeroed = PageZeroed(page);
+>  
+>  		del_page_from_free_list(page, zone, current_order, block_type);
+>  		change_pageblock_range(page, current_order, start_type);
+>  		nr_added = expand(zone, page, order, current_order, start_type,
+> -				  was_reported);
+> +				  was_reported, was_zeroed);
+>  		account_freepages(zone, nr_added, start_type);
+>  		return page;
+>  	}
+> -- 
+> MST
 > 
-> Get rid of the "return;". What does it save you? It just makes it that you
-> need to duplicate the code. Even though it's a one liner, it can cause bugs
-> in the future if this changes. You could call the function:
-> 
->   do_trace_queued_spin_release_traced(lock);
-> 
-> 
-> > +	}
-> >  	queued_spin_release(lock);
-> >  }
-> >  
-> > diff --git a/kernel/locking/qspinlock.c b/kernel/locking/qspinlock.c
-> > index af8d122bb649..649fdca69288 100644
-> > --- a/kernel/locking/qspinlock.c
-> > +++ b/kernel/locking/qspinlock.c
-> > @@ -104,6 +104,14 @@ static __always_inline u32  __pv_wait_head_or_lock(struct qspinlock *lock,
-> >  #define queued_spin_lock_slowpath	native_queued_spin_lock_slowpath
-> >  #endif
-> >  
-> > +void __lockfunc queued_spin_release_traced(struct qspinlock *lock)
-> > +{
-> > +	if (queued_spin_is_contended(lock))
-> > +		trace_call__contended_release(lock);
-> > +	queued_spin_release(lock);
-> 
-> And then remove the duplicate call of "queued_spin_release()" here.
-
-This is the scenario the comment above the static branch describes.
-Here's what it looks like in practice on x86_64 (defconfig, compiled
-with GCC 11).
-
-Current design (trace + unlock combined, with return):
-  
-    endbr64
-    xchg %ax,%ax                     ; NOP (static branch)
-    movb $0x0,(%rdi)                 ; unlock
-    decl %gs:__preempt_count
-    je   preempt
-    jmp  __x86_return_thunk
-    call queued_spin_release_traced  ; cold
-    jmp  preempt_handling            ; cold
-    call __SCT__preempt_schedule
-    jmp  __x86_return_thunk
-
-With the trace-only function (no return, unlock after the call):
-  
-    endbr64
-    push %rbx                        ; saves callee-saved rbx (!)
-    mov  %rdi,%rbx                   ; preserve lock across call (!)
-    xchg %ax,%ax                     ; NOP (static branch)
-    movb $0x0,(%rbx)                 ; unlock
-    decl %gs:__preempt_count
-    je   preempt
-    pop  %rbx                        ; callee-saved restore (!)
-    jmp  __x86_return_thunk
-    call queued_spin_release_traced  ; cold
-    jmp  unlock                      ; cold
-    call __SCT__preempt_schedule
-    pop  %rbx
-    jmp  __x86_return_thunk
-
-Three extra instructions marked by "!" on the hot path (push, mov, pop),
-all wasted when the tracepoint is off. That's the main reason for
-combining trace and unlock in the same out-of-line function.
