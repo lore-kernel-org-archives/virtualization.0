@@ -1,171 +1,257 @@
-Received: from mail-qk1-f175.google.com (mail-qk1-f175.google.com [209.85.222.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC13B3E51F7
-	for <virtualization@lists.linux.dev>; Thu, 14 May 2026 14:07:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 86AFE3FBED0
+	for <virtualization@lists.linux.dev>; Thu, 14 May 2026 14:08:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778767676; cv=none; b=iHst78bgs/p4ouOZjjsjKr3CofhXOfYt0BDEJEeeSeOktWxfmlV8EVygQmcnTdW5fG7uMKHriCV+cfknFoEpxqRvhsuR194wjawrJVd8khYdSi9KKafkkfscEoJZnYfIbHPP2mIUQX+Sllfh+Vn8tQ9/NlaoBGLy5fQx1nOMqS0=
+	t=1778767689; cv=none; b=Epo/jm4RXMZHyael0fGMDiBPR85KxPH9cf/2g7u09WAFO9meNOs27PuHrRcQXfOTfafbkFtP9GTVtQJCPEUfJe1JYlUQbZpyCm17/HMqHtGww3KSVC+z4wXlCq9Cn05wx4Yhdc00uxUeVSd8AkdT8ttuE42maNAZCEjlyeM/SsA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778767676; c=relaxed/simple;
-	bh=gxxWJB/qB/J8fJqa5y8sKRNuXpYzfb0WmIuH/Ebl/eQ=;
+	s=arc-20240116; t=1778767689; c=relaxed/simple;
+	bh=zmu7aRd64dS4ZKw6Wk+/frG+xsLmxSMAdItjKBGOrdU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=iloD1xv3BCOjOXfNV09m+RHrfgvKTzcgpuxGIdTI/eFU8QOiDcO1DOHbJMjkz9uzUnRlMcas5mcj9A8fJjfH6V7/n0+9X+zUGUvYApgP/8MLXCQuaOklnehm0Fnr2cmNQyORLuIsGRqHdqxQyE31sCqJ6Cmrq0yaZkJ0iNCw3IM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=qZ94IWAB; arc=none smtp.client-ip=209.85.222.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
+	 In-Reply-To:Content-Type:Content-Disposition; b=B6SlnAHAnm623NGWBBElwhai4chmahzLXFW+04BkqmL9AUGGRojUk4fmk2HXu15jWM61xnlOeXcEN43NuVL9Sg2NK3uXcsJklmtyTLSqTs2ieHnwd4pjeFG1DxZ3qtCZlzCxDExCkx/DR86z32TpimPGnDDTn6dPU2DzPhbR138=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LLF3Art0; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="qZ94IWAB"
-Received: by mail-qk1-f175.google.com with SMTP id af79cd13be357-911796e9885so27374885a.0
-        for <virtualization@lists.linux.dev>; Thu, 14 May 2026 07:07:52 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1778767671; x=1779372471; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=uzkmFh1ZQqsmfN+ZQzPcPofqB0NQiVM+nge3NejXpRM=;
-        b=qZ94IWABlzbBeBqt8K2BrMWWigtx7XJCtUmFwMiJOkAeP9CFgt/k/xi78FcnY95fCP
-         7e1T5xLZDsTAOLB7fm2DpcZv5R05//Mpcc6M+9hcsp88kgBqPW1W2POSxtzoAXkHH716
-         Dc3GkZWuOHuwntIa/4DM/wDfdg7jgtojOq4ed4gdy47ShebanPm6QGV8NGuqyoexCcoJ
-         bTgUpOlXdWsPOcbAMFWbiX2r+VhyhynejoPxEqX0/A4TFaRRZ9CYIXH/FgFKQDl6VpV7
-         w5+DEd27vrIFiiS5euV4qy4T22ynz+43o4IiOSmsRg8ezJAxbjf792hYlRejdFEHKI//
-         hvyg==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LLF3Art0"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1778767683;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=8A0YZSg/W/8L4/eAOnDT46SJMA7wk53CPNNj0OoZovs=;
+	b=LLF3Art0zlCjlmc8wr42UynHFMui+sG4z2NCGBYlDXfb1cxHhAbx5wjzMoRAoj17t4r40s
+	YIcQMIPw1akB9XFdnLbaCwNsp46KSlhjA0qw0yYIzbl0AbK8n9+ROc+9lbvX2Un0sYP1+/
+	JILnjZHfhbvpvVd1jpC6BHYQZw3hKlY=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-495-Kva3q6qqMOmYZEIhmy-XUA-1; Thu, 14 May 2026 10:08:01 -0400
+X-MC-Unique: Kva3q6qqMOmYZEIhmy-XUA-1
+X-Mimecast-MFC-AGG-ID: Kva3q6qqMOmYZEIhmy-XUA_1778767680
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-44a122a5128so6149877f8f.0
+        for <virtualization@lists.linux.dev>; Thu, 14 May 2026 07:08:01 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778767671; x=1779372471;
+        d=1e100.net; s=20251104; t=1778767680; x=1779372480;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=uzkmFh1ZQqsmfN+ZQzPcPofqB0NQiVM+nge3NejXpRM=;
-        b=NoZMQaiR5WqHxY9OpJnTbH72qJFG1TqYyHp9wRr2YHw93O+pSnd5TyYb4OZcnaqK3I
-         s7bzrUL8htZsvptNtCK5dFDfbDRL8BP6bD4mx3hvHEufIe+EuYlKrbs53I9rCKH/+PXK
-         UbPu4Cs+QIU9H58ceGl8dgPwJvLa3dNoC626lvPyRzZKShTBW80ru8n2HAfUluEjdD3r
-         t4qMRBw8LoWSrgdiqGUNTGXE+SLwhzUJydEppWzQPdOvHdiwBmVioP9eT3sEupTBEnvq
-         w5voygA7bQsEKTjf987RI2sw7gnEL+fYvWyo0xaC/7dlfgHwI7Kl6LVTSu/2VSV1RtHR
-         rzqQ==
-X-Forwarded-Encrypted: i=1; AFNElJ8Ne9RhHPIo2Z7KMzwm2DpcfHfAHhdT2oil1pdzQOOkdt34t0yuB4dcsIB1WGHTV6hN/IV0FGtXF0c6WrPokQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YydrFkSxzvedY2FM426bm35fFEqGWLF+rFT8K0EMQVaIc5JuEoc
-	px7Zv/d+JwzBxHTU3t+RrrGjtBEilvN3W+ZpN3I4IdqLdfNFZGgxT03k+tj74sirRzM=
-X-Gm-Gg: Acq92OEo0JmWWOnVerofsTEQRNIr4R32smeMaf0SkX1yl4sYLMQxmAVqTH82efeZkb+
-	RODw8B5wErGp0d0Qcwnr8ktAXvWTEDc+rfBGfAkPO9hd72+KirE3hx5+GFxJKMYiAVq0SCPjnJK
-	6sBwAYV712INlQu9Sgoechy/mGUjinQCWzSNI3TIy0tFQ5U8F+SUwnybS07LA78TA+cqjfVAHBD
-	dnYfhh9k7NhV1aCMGU4sIL4JkiFDW3q3KIKyIcJOea8XDLHggJxG5RGgYvTEkRXFagbnUWjfJWz
-	uY42v4NTAl/K76IhhnO2YmVQhYsgP7Z4KBQraWto6sXheheIpiKUoSKvfcnhFamdUcl28bRukyr
-	C0OG4bEQQuuFDGDb4rHVq4Qe4+A1tXVPf12/IXK8axxJJzixAFdqnpCs99CLPn5sRRb5qjEvC6M
-	PdslVadoFxONk2e6C9IA3BgtkXFspehpV5ykF/2gDplwUcfQBB4RytnGjGh3l9kJFAvyfBDIKy7
-	YVQmoEUvgMA
-X-Received: by 2002:a05:620a:4809:b0:8ee:b817:9a03 with SMTP id af79cd13be357-910af5599c8mr528786685a.9.1778767671219;
-        Thu, 14 May 2026 07:07:51 -0700 (PDT)
-Received: from gourry-fedora-PF4VCD3F (pool-100-36-248-188.washdc.fios.verizon.net. [100.36.248.188])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-910bae27359sm271238485a.17.2026.05.14.07.07.49
+        bh=8A0YZSg/W/8L4/eAOnDT46SJMA7wk53CPNNj0OoZovs=;
+        b=pQW3C5YUpsylGL2PL7vdSlpbtctpwZFWHtO/pRzApY7/F6v8GBdcD12zbhpdmYKYOg
+         cDAnkSjaz0f4YOd4Jh2b9P2CU6brIfXIus1wRv025Rbgta/Uhc3BYNXWex0gZgsgNqKP
+         QpwuzRbWIA1WaCWuOEChvRBppGcB2DWMVCDXI1sHNINDhx4uLdWsIrFlonn1719XMj+J
+         0+PEMBX0P0vhx/I/B6MAcs9eqD+tOjCB+SXwQ8M1VDH/KnHgy1D3PYk3nkNZp4/Xch16
+         NtWRv3UH3hWt5Ed9M1yzyVDtEAGiXR98sLE4j2dBzm9K6MElHKHO22ol48Mg4v4L7jv/
+         bJGg==
+X-Forwarded-Encrypted: i=1; AFNElJ8w6U2TwhAf1aiOgJXbNq7hALzWDfBQcJ9rwAhxQeHXTHRAP0KuptAqC5boV6LNTWIazO9xrZAyXtqXveDbmA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyjJFdMm+xzGn02rQj8QBZrcM4KWXkBetzgOAXLzA+ktxf8mKl2
+	XNIFlwxr0FRtv7FRm3rvfB+9C3ewDyWam3lUwZfzmvNZZFCCsS2NAq5XC8tfu6A8Hj+PkfYlwzC
+	yRmDTJtOi5TcXC2+um4Y069BLoq1rhAK9gzjqex1g+8ByCWx0eDd/Eul/Z6cjgleFzYpl
+X-Gm-Gg: Acq92OENngTBw0IroMvn9SC+vIdHQOhTmMB7Ts7iPpIcwvqJSS8dF7Kw02AEiH8Bb3/
+	U9e3qazXe3ucKeM3Pi85RCDyoTpmEwg+vhIKVxnVTQYjSQ+ketsseIlaORtyj0thkPlGUgx58j8
+	JZlt33742Y9fbJAyOh3fbv6FSF/LsIqa9eaeBYeViuuBJPI8Fwbsdpz5g9mK4gfAzfxzoVxF6My
+	DO/Uyc5g1DFVxCO+qy87+4K6BGR8u7vjkLOnKqS3V0zyl62sd2lY8oSybtFkJW99Zezoddb5Zzz
+	X3gzs80YgEzafoD1BVTwj1TPbXyQTF3JuLv+HFAWDTNG34l5KvHolB0U8Yi2T5t3XlVXux1uuYo
+	u8PbDs3Ht6zSLZdt/2f9VqRnHlHgldDCpJtZFzeYd
+X-Received: by 2002:a05:6000:2486:b0:451:bee9:17c8 with SMTP id ffacd0b85a97d-45c580ce320mr12909357f8f.6.1778767680120;
+        Thu, 14 May 2026 07:08:00 -0700 (PDT)
+X-Received: by 2002:a05:6000:2486:b0:451:bee9:17c8 with SMTP id ffacd0b85a97d-45c580ce320mr12909290f8f.6.1778767679530;
+        Thu, 14 May 2026 07:07:59 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-48-7.inter.net.il. [80.230.48.7])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45da0a19b1dsm6741686f8f.17.2026.05.14.07.07.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 14 May 2026 07:07:50 -0700 (PDT)
-Date: Thu, 14 May 2026 10:07:48 -0400
-From: Gregory Price <gourry@gourry.net>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org,
-	"David Hildenbrand (Arm)" <david@kernel.org>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Thu, 14 May 2026 07:07:58 -0700 (PDT)
+Date: Thu, 14 May 2026 10:07:53 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+	Arseniy Krasnov <avkrasnov@salutedevices.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org,
+	Eric Dumazet <edumazet@google.com>,
 	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Muchun Song <muchun.song@linux.dev>,
-	Oscar Salvador <osalvador@suse.de>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Lorenzo Stoakes <ljs@kernel.org>,
-	"Liam R. Howlett" <liam@infradead.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Brendan Jackman <jackmanb@google.com>,
-	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
-	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
-	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
-	Byungchul Park <byungchul@sk.com>,
-	Ying Huang <ying.huang@linux.alibaba.com>,
-	Alistair Popple <apopple@nvidia.com>,
-	Christoph Lameter <cl@gentwo.org>,
-	David Rientjes <rientjes@google.com>,
-	Roman Gushchin <roman.gushchin@linux.dev>,
-	Harry Yoo <harry.yoo@oracle.com>,
-	Axel Rasmussen <axelrasmussen@google.com>,
-	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
-	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
-	Kemeng Shi <shikemeng@huaweicloud.com>,
-	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
-	virtualization@lists.linux.dev, linux-mm@kvack.org,
-	Andrea Arcangeli <aarcange@redhat.com>
-Subject: Re: [PATCH v7 18/31] mm: memfd: skip zeroing for zeroed hugetlb pool
- pages
-Message-ID: <agXXNJNR9CV_dlwl@gourry-fedora-PF4VCD3F>
-References: <cover.1778616612.git.mst@redhat.com>
- <0ec51a9091b5ed3f61a49935953dd537d6c87428.1778616612.git.mst@redhat.com>
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	virtualization@lists.linux.dev,
+	"David S. Miller" <davem@davemloft.net>,
+	Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org,
+	Maher Azzouzi <maherazz04@gmail.com>
+Subject: Re: [PATCH net] vsock/virtio: fix zerocopy completion for multi-skb
+ sends
+Message-ID: <20260514100747-mutt-send-email-mst@kernel.org>
+References: <20260514092948.268720-1-sgarzare@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <20260514092948.268720-1-sgarzare@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 5rG-5nWGWXs0DMQd_4bd6gIg22EVdfIbW9YAxrwoKHg_1778767680
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <0ec51a9091b5ed3f61a49935953dd537d6c87428.1778616612.git.mst@redhat.com>
 
-On Tue, May 12, 2026 at 05:06:43PM -0400, Michael S. Tsirkin wrote:
-> gather_surplus_pages() pre-allocates hugetlb pages into the pool
-> during mmap.  Pass __GFP_ZERO so these pages are zeroed by the
-> buddy allocator, and HPG_zeroed is set by alloc_surplus_hugetlb_folio.
+On Thu, May 14, 2026 at 11:29:48AM +0200, Stefano Garzarella wrote:
+> From: Stefano Garzarella <sgarzare@redhat.com>
 > 
-> Add bool *zeroed output to alloc_hugetlb_folio_reserve() so
-> callers can check whether the pool page is known-zero.  memfd's
-> memfd_alloc_folio() uses this to skip the explicit folio_zero_user()
-> when the page is already zero.
+> When a large message is fragmented into multiple skbs, the zerocopy
+> uarg is only allocated and attached to the last skb in the loop.
+> Non-final skbs carry pinned user pages with no completion tracking,
+> so the kernel has no way to notify userspace when those pages are safe
+> to reuse. If the loop breaks early the uarg is never allocated at all,
+> leaking pinned pages with no completion notification.
 > 
-> This avoids redundant zeroing for memfd hugetlb pages that were
-> pre-allocated into the pool and never mapped to userspace.
+> Fix this by following the approach used by TCP: allocate the zerocopy
+> uarg (if not provided by the caller) before the send loop and attach
+> it to every skb via skb_zcopy_set(), which takes a reference per skb.
+> Each skb's completion properly decrements the refcount, and the
+> notification only fires after the last skb is freed.
+> On failure, if no data was sent, the uarg is cleanly aborted via
+> net_zcopy_put_abort().
 > 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Assisted-by: Claude:claude-opus-4-6
+> This issue was initially discovered by sashiko while reviewing commit
+> 1cb36e252211 ("vsock/virtio: fix MSG_ZEROCOPY pinned-pages accounting")
+> but was pre-existing.
+> 
+> Fixes: 581512a6dc93 ("vsock/virtio: MSG_ZEROCOPY flag support")
+> Cc: Arseniy Krasnov <avkrasnov@salutedevices.com>
+> Closes: https://sashiko.dev/#/patchset/20260420132051.217589-1-sgarzare%40redhat.com
+> Reported-by: Maher Azzouzi <maherazz04@gmail.com>
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
 > ---
->  include/linux/hugetlb.h |  6 ++++--
->  mm/hugetlb.c            | 11 +++++++++--
->  mm/memfd.c              | 14 ++++++++------
->  3 files changed, 21 insertions(+), 10 deletions(-)
+>  net/vmw_vsock/virtio_transport_common.c | 83 ++++++++++---------------
+>  1 file changed, 34 insertions(+), 49 deletions(-)
 > 
-... snip ...
-> @@ -2221,6 +2221,12 @@ struct folio *alloc_hugetlb_folio_reserve(struct hstate *h, int preferred_nid,
->  		h->resv_huge_pages--;
+> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+> index 989cc252d3d3..1e3409d28164 100644
+> --- a/net/vmw_vsock/virtio_transport_common.c
+> +++ b/net/vmw_vsock/virtio_transport_common.c
+> @@ -70,34 +70,6 @@ static bool virtio_transport_can_zcopy(const struct virtio_transport *t_ops,
+>  	return true;
+>  }
 >  
->  	spin_unlock_irq(&hugetlb_lock);
+> -static int virtio_transport_init_zcopy_skb(struct vsock_sock *vsk,
+> -					   struct sk_buff *skb,
+> -					   struct msghdr *msg,
+> -					   size_t pkt_len,
+> -					   bool zerocopy)
+> -{
+> -	struct ubuf_info *uarg;
+> -
+> -	if (msg->msg_ubuf) {
+> -		uarg = msg->msg_ubuf;
+> -		net_zcopy_get(uarg);
+> -	} else {
+> -		struct ubuf_info_msgzc *uarg_zc;
+> -
+> -		uarg = msg_zerocopy_realloc(sk_vsock(vsk),
+> -					    pkt_len, NULL, false);
+> -		if (!uarg)
+> -			return -1;
+> -
+> -		uarg_zc = uarg_to_msgzc(uarg);
+> -		uarg_zc->zerocopy = zerocopy ? 1 : 0;
+> -	}
+> -
+> -	skb_zcopy_init(skb, uarg);
+> -
+> -	return 0;
+> -}
+> -
+>  static int virtio_transport_fill_skb(struct sk_buff *skb,
+>  				     struct virtio_vsock_pkt_info *info,
+>  				     size_t len,
+> @@ -317,8 +289,10 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+>  	u32 src_cid, src_port, dst_cid, dst_port;
+>  	const struct virtio_transport *t_ops;
+>  	struct virtio_vsock_sock *vvs;
+> +	struct ubuf_info *uarg = NULL;
+>  	u32 pkt_len = info->pkt_len;
+>  	bool can_zcopy = false;
+> +	bool have_uref = false;
+>  	u32 rest_len;
+>  	int ret;
+>  
+> @@ -360,6 +334,25 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+>  		if (can_zcopy)
+>  			max_skb_len = min_t(u32, VIRTIO_VSOCK_MAX_PKT_BUF_SIZE,
+>  					    (MAX_SKB_FRAGS * PAGE_SIZE));
 > +
-> +	if (zeroed && folio) {
-> +		*zeroed = folio_test_hugetlb_zeroed(folio);
-> +		folio_clear_hugetlb_zeroed(folio);
+> +		if (info->msg->msg_flags & MSG_ZEROCOPY &&
+> +		    info->op == VIRTIO_VSOCK_OP_RW) {
+> +			uarg = info->msg->msg_ubuf;
+> +
+> +			if (!uarg) {
+> +				uarg = msg_zerocopy_realloc(sk_vsock(vsk),
+> +							    pkt_len, NULL, false);
+> +				if (!uarg) {
+> +					virtio_transport_put_credit(vvs, pkt_len);
+> +					return -ENOMEM;
+> +				}
+> +
+> +				if (!can_zcopy)
+> +					uarg_to_msgzc(uarg)->zerocopy = 0;
+> +
+> +				have_uref = true;
+> +			}
+> +		}
+>  	}
+>  
+>  	rest_len = pkt_len;
+> @@ -378,27 +371,7 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+>  			break;
+>  		}
+>  
+> -		/* We process buffer part by part, allocating skb on
+> -		 * each iteration. If this is last skb for this buffer
+> -		 * and MSG_ZEROCOPY mode is in use - we must allocate
+> -		 * completion for the current syscall.
+> -		 *
+> -		 * Pass pkt_len because msg iter is already consumed
+> -		 * by virtio_transport_fill_skb(), so iter->count
+> -		 * can not be used for RLIMIT_MEMLOCK pinned-pages
+> -		 * accounting done by msg_zerocopy_realloc().
+> -		 */
+> -		if (info->msg && info->msg->msg_flags & MSG_ZEROCOPY &&
+> -		    skb_len == rest_len && info->op == VIRTIO_VSOCK_OP_RW) {
+> -			if (virtio_transport_init_zcopy_skb(vsk, skb,
+> -							    info->msg,
+> -							    pkt_len,
+> -							    can_zcopy)) {
+> -				kfree_skb(skb);
+> -				ret = -ENOMEM;
+> -				break;
+> -			}
+> -		}
+> +		skb_zcopy_set(skb, uarg, NULL);
+>  
+>  		virtio_transport_inc_tx_pkt(vvs, skb);
+>  
+> @@ -422,6 +395,18 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+>  
+>  	virtio_transport_put_credit(vvs, rest_len);
+>  
+> +	/* msg_zerocopy_realloc() initializes the ubuf_info refcnt to 1.
+> +	 * skb_zcopy_set() increases it for each skb, so we can drop that
+> +	 * initial reference to keep it balanced.
+> +	 */
+> +	if (have_uref) {
+> +		if (rest_len == pkt_len)
+> +			/* No data sent, abort the notification. */
+> +			net_zcopy_put_abort(uarg, true);
+> +		else
+> +			net_zcopy_put(uarg);
 > +	}
 > +
->  	return folio;
->  }
+>  	/* Return number of bytes, if any data has been sent. */
+>  	if (rest_len != pkt_len)
+>  		ret = pkt_len - rest_len;
+> -- 
+> 2.54.0
 
-Hmmm...
-
-if the intent is to simply communicate to the next function up whether
-the folio has been zeroed just so that function can zero it - does it
-make sense instead to just zero it in this function instead?
-
-Also the only user is memfd, and that appears to always want the folio
-zeroed, so i think it simplifies this entire patch to:
-
-struct folio* alloc_hugetlb_folio_reserve() {
-... 
-    if (folio && !folio_test_hugetlb_zeroed(folio))
-        folio_zero_user(folio, 0);
-    else if (folio)
-        folio_clear_hugetlb_zeroed(folio);
-    return folio;
-...
-}
-
-with no API changes
-
-~Gregory
