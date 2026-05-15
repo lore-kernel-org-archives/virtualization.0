@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C8463C5DBA;
-	Fri, 15 May 2026 15:15:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C87F5495508;
+	Fri, 15 May 2026 15:21:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778858149; cv=none; b=mcAn15iMKUOYFX3N9iRyZ7FeKLsz9cLku3BZyIKGQgdv22aZUsBEOEB4fkcvKH2Go5DNklEgwP40pgkfzP1j3UDACEJsg4sK0DbrXTJZZYz24drCQx0FGhsgF37G2HLZN4ONFyeSaSuC/AxXYYRFs7WiWs5zuLW4Ezs3LOfQgtI=
+	t=1778858517; cv=none; b=ucE32IqpWdepOMqETK/Ug0OiwIWcTX1M2ePifkFuWweIVWnlb4PBqgKQ+ORkF5ECgkLGSGeQlSefnCtIoGZwuz2wjIeIKUf31+lIhA8CC5z0XYfaouGuvaN6W3dnO53FMY9PbAWOc4YEwt5ukPBcIhHXKzGDZNgM3LfvkKvs87k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778858149; c=relaxed/simple;
-	bh=c5ClffTnySMmtKO32e6NyTWxEj0CJvMun/I4jZ6aGzw=;
-	h=Subject:To:Cc:From:Date:Message-ID:MIME-Version:Content-Type; b=ELEOzlbqOEJ5b7109g3PKty1zNWB4DUaSli3wS2XJVWc52IDqhMLBTuRMwUZYGYuo6npuAMcaojCS3qxrguWpe3LZBBLOKlgHVc/n6Th2GU+OjR0qfsDWIh9r8DFeKLJYNWCvW6gJGBloLg632Z6zj4p8irudUendFhuKXGhJL4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=0OB5Yl12; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778858517; c=relaxed/simple;
+	bh=7SBXD7B50cHDAkxRq5IleKTgbEVZ99E4nNX15mGG1zg=;
+	h=Subject:To:Cc:From:Date:Message-ID:MIME-Version:Content-Type; b=KCuguj+NZrayzbti3/ndLHATSkTNCbUeYB7pQ849bnKrZpSpi91w9nxpbahOI9OKaNw1bZhSJflcikOFyPNSfcM4siFPzz/WwSJ90lzNDtBTU4xjrx0GOw6NJHTuTe49QfeIMXRU4a+WyZEewFy1nnRMpxS9tCtln2RBIs1GqSo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=yxTaf85A; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="0OB5Yl12"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id A7F4EC2BCB0;
-	Fri, 15 May 2026 15:15:48 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="yxTaf85A"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 30B19C2BCB0;
+	Fri, 15 May 2026 15:21:57 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1778858149;
-	bh=c5ClffTnySMmtKO32e6NyTWxEj0CJvMun/I4jZ6aGzw=;
+	s=korg; t=1778858517;
+	bh=7SBXD7B50cHDAkxRq5IleKTgbEVZ99E4nNX15mGG1zg=;
 	h=Subject:To:Cc:From:Date:From;
-	b=0OB5Yl124k4a40BsuSpj+vcXdWBi85mf1tujMBus6LkIlh1jidyPaeu/4Je8H2ZZe
-	 xKidTrKUtSiS2froPSHDFdlP9sIq5waaXh5JhHnMpFQFDYufz+ner9NAAitbZzCNDu
-	 +i41jTJDlry5sG/dtdQfdaJfprkols/9Lfy1FGkw=
-Subject: Patch "vsock/virtio: fix potential unbounded skb queue" has been added to the 7.0-stable tree
+	b=yxTaf85AVhXZVSlk8tBP+9jaDr1A7q0uBV3S1n5gV3OKedRdVQtIb1GgPvH8mD3C3
+	 Phaix741S4rns/jalLW8uqwQpmRy9prwT0qK3bbYTVyM7jRtURT4RNyGuCJCLttYV3
+	 KXTaDrx7gsCxfdKeUfNT1NWPDYwuPt75C41SviuQ=
+Subject: Patch "vsock/virtio: fix potential unbounded skb queue" has been added to the 6.6-stable tree
 To: AVKrasnov@sberdevices.ru,edumazet@google.com,eperezma@redhat.com,gregkh@linuxfoundation.org,jasowang@redhat.com,kuba@kernel.org,leonardi@redhat.com,mst@redhat.com,sgarzare@redhat.com,stefanha@redhat.com,virtualization@lists.linux.dev,xuanzhuo@linux.alibaba.com
 Cc: <stable-commits@vger.kernel.org>
 From: <gregkh@linuxfoundation.org>
-Date: Fri, 15 May 2026 17:15:27 +0200
-Message-ID: <2026051527-chaffing-sanction-4c1d@gregkh>
+Date: Fri, 15 May 2026 17:21:53 +0200
+Message-ID: <2026051553-santa-unretired-a417@gregkh>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -44,12 +44,12 @@ This is a note to let you know that I've just added the patch titled
 
     vsock/virtio: fix potential unbounded skb queue
 
-to the 7.0-stable tree which can be found at:
+to the 6.6-stable tree which can be found at:
     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 
 The filename of the patch is:
      vsock-virtio-fix-potential-unbounded-skb-queue.patch
-and it can be found in the queue-7.0 subdirectory.
+and it can be found in the queue-6.6 subdirectory.
 
 If you, or anyone else, feels it should not be added to the stable tree,
 please let <stable@vger.kernel.org> know about it.
@@ -92,7 +92,9 @@ Cc: "Eugenio Pérez" <eperezma@redhat.com>
 Cc: virtualization@lists.linux.dev
 Link: https://patch.msgid.link/20260430122653.554058-1-edumazet@google.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Cc: Luigi Leonardi <leonardi@redhat.com>
+[LL: Fixed conflict since this tree does not use buf_used added by commit
+ 45ca7e9f0730 ("vsock/virtio: fix `rx_bytes` accounting for stream sockets")]
+Signed-off-by: Luigi Leonardi <leonardi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  net/vmw_vsock/virtio_transport_common.c |    4 +++-
@@ -100,14 +102,14 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/vmw_vsock/virtio_transport_common.c
 +++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -429,7 +429,9 @@ static int virtio_transport_send_pkt_inf
+@@ -283,7 +283,9 @@ static int virtio_transport_send_pkt_inf
  static bool virtio_transport_inc_rx_pkt(struct virtio_vsock_sock *vvs,
  					u32 len)
  {
--	if (vvs->buf_used + len > vvs->buf_alloc)
+-	if (vvs->rx_bytes + len > vvs->buf_alloc)
 +	u64 skb_overhead = (skb_queue_len(&vvs->rx_queue) + 1) * SKB_TRUESIZE(0);
 +
-+	if (skb_overhead + vvs->buf_used + len > vvs->buf_alloc)
++	if (skb_overhead + vvs->rx_bytes + len > vvs->buf_alloc)
  		return false;
  
  	vvs->rx_bytes += len;
@@ -115,4 +117,8 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 Patches currently in stable-queue which might be from edumazet@google.com are
 
-queue-7.0/vsock-virtio-fix-potential-unbounded-skb-queue.patch
+queue-6.6/net-fix-icmp-host-relookup-triggering-ip_rt_bug.patch
+queue-6.6/tcp-call-sk_data_ready-after-listener-migration.patch
+queue-6.6/net-sched-sch_red-replace-direct-dequeue-call-with-peek-and-qdisc_dequeue_peeked.patch
+queue-6.6/ip6_gre-use-cached-t-net-in-ip6erspan_changelink.patch
+queue-6.6/vsock-virtio-fix-potential-unbounded-skb-queue.patch
