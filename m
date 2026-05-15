@@ -1,158 +1,147 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A14C143DA4B
-	for <virtualization@lists.linux.dev>; Fri, 15 May 2026 09:21:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9676F43D4EC
+	for <virtualization@lists.linux.dev>; Fri, 15 May 2026 09:33:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778836921; cv=none; b=eIRl+p2QNdN5DF5aaVm3Fg+BRQ0OvX26f0AsLRMRasx+FP66YUIPSSxC0VlShrKt5lHatHphQIq/K+76OFXm6K2kh3UhebVRFJmJh6j5uaWEojgW3xkuTsDyZd1C5yTVfFsoJyOD8cHw35vGTiy8Zrojs0oztE0CLxXjOReUZjc=
+	t=1778837622; cv=none; b=fE+g4K1djIFj2HKaoy2xSj+veFmBs+K2o1Q6T5yADY/2g8AqH1IN7yrZbPOlf/z4UWYbwXJmentTjyVYppsiAOxTKyOlfxpot8KNsfiEqkiDg/AVk8TCo/6ix+8mO5QYTOlMyRKOS1L/mdg8PmIoXx1nCM6riW21mzJXHxgoCO4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778836921; c=relaxed/simple;
-	bh=BzIZ2Js6Ee3WqJhSyTJNHhDtTiyLZnraCSY+K9Ta9X0=;
-	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=syyWNMnPYp8cCS9ryPINR1SJzu3URBlkYfgEszoCkZALqQwagUMhOmQlnjH1HZKvI3dbBbJJnyZjoeMghNnsG2bQnVTNlpDsa7JYqg3Nbbjv97Nt2m27nTxAsu9brj2hLgc9TlXSlutLWkEGHJPOVs9KMp0Sz72kEoOxfhbYz0I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=FECjXTAB; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=LM3vZH3u; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=tF5tMWAh; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=/UL8X7Vg; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1778837622; c=relaxed/simple;
+	bh=HzcXf6Wv0llfWEbLwfcl50s7dD+w0VdR0+2YgR8e0cw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=ho8oI/AQe720FmdTm/RCOyjjftXldFgJM2aFfZPNKQpV9TGqiym/9/4wLCF4lH7otQmORxKoKRs5LmgEpJp0/ClGWuylFvKDpmHR6yKeNVpHZJS9aKfg2RzVs5mFLjbA2kpTrg0Nn1q/pmCpuAw5A3HdrDRVIBhEMQ2bs2wei+U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JprKPrdI; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="FECjXTAB";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="LM3vZH3u";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="tF5tMWAh";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="/UL8X7Vg"
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id B379A5CFC9;
-	Fri, 15 May 2026 09:21:57 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1778836918; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JprKPrdI"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1778837619;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=qgsCfFEjyOA/Igt3r/ROXBd/VbetbI06f99NuQF6Hwk=;
-	b=FECjXTABr4ThkQ+cxBcfFo3FJIW8Vr8VEVyKAsBU8IiRWuzy+YsDbSBGkkg2Ln4MSNYzoc
-	NYlhN0EV/Csbse+Q05sQmoafkYnh/sA831R5x9XTxKnxbLPuXE9hiUysyKV+Np9OiYvreI
-	mBTkKjhAS54Bk/soTA++G3SFL8u8JfM=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1778836918;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qgsCfFEjyOA/Igt3r/ROXBd/VbetbI06f99NuQF6Hwk=;
-	b=LM3vZH3u9yuLa7+udBWkkEm5Bz1JxIbH0NCLySJ9yp5/j0AqF+nV+CESsywn+7HEheOomB
-	rxcKPcNiJPA30jDQ==
-Authentication-Results: smtp-out2.suse.de;
-	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=tF5tMWAh;
-	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b="/UL8X7Vg"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1778836917; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qgsCfFEjyOA/Igt3r/ROXBd/VbetbI06f99NuQF6Hwk=;
-	b=tF5tMWAhHY0+eirCEkDkyM1L5NQMmB0zVumlVNFt/KLBy9e6ctigH3XdtH+x8ybNQf1z8l
-	OfbzRmpjmKge+5/g1x66ETUAp8NxzBgA7TWDOMfntB70V+jx3d5nRsH9fonH1OaHFRahjX
-	ZCkoNE03rlAR0j2Hpp3suWplixc7rBc=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1778836917;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=qgsCfFEjyOA/Igt3r/ROXBd/VbetbI06f99NuQF6Hwk=;
-	b=/UL8X7VgEB9fszJkueKxUSpN8+Z8kQ8q6Xa7FnEDYL1g4Tzx+Y6kM15/jHIn9clITnyffB
-	MInAcVhg10sOzSAg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 692B6593A9;
-	Fri, 15 May 2026 09:21:57 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id p2BhGLXlBmowaQAAD6G6ig
-	(envelope-from <tiwai@suse.de>); Fri, 15 May 2026 09:21:57 +0000
-Date: Fri, 15 May 2026 11:21:56 +0200
-Message-ID: <87h5o9t4cr.wl-tiwai@suse.de>
-From: Takashi Iwai <tiwai@suse.de>
-To: =?ISO-8859-1?Q?C=E1ssio?= Gabriel <cassiogabrielcontato@gmail.com>
-Cc: Takashi Iwai <tiwai@suse.com>,
-	Anton Yakovlev <anton.yakovlev@opensynergy.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Aiswarya Cyriac <aiswarya.cyriac@opensynergy.com>,
-	Jaroslav Kysela <perex@perex.cz>,
-	virtualization@lists.linux.dev,
-	linux-sound@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: Re: [PATCH] ALSA: virtio: Validate control metadata from the device
-In-Reply-To: <20260507-alsa-virtio-validate-kctl-info-v1-1-7404fb12ec37@gmail.com>
-References: <20260507-alsa-virtio-validate-kctl-info-v1-1-7404fb12ec37@gmail.com>
-User-Agent: Wanderlust/2.15.9 (Almost Unreal) Emacs/30.2 Mule/6.0
+	bh=hZ42ILoPPEodEg6ZEuswA8B5A9RnneHFtROSVsVKJFY=;
+	b=JprKPrdI/EqzNS0ZT+/pc7IqUlYuReltXPj23IGXzOWf9xCI+CHJ8zFVVkUZp4U0pKzBj8
+	N9Siu/FyW1FZCbwiBnKVLpobx4FhSryhjboKZLiRRbn2M4IBbAdN872XEnx7kXibHmef1C
+	diXU0jgFwiSM78n+OUd/4K0RcbadL+0=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-275-RLrekLsCP9uDncHO5Mkb8Q-1; Fri, 15 May 2026 05:33:38 -0400
+X-MC-Unique: RLrekLsCP9uDncHO5Mkb8Q-1
+X-Mimecast-MFC-AGG-ID: RLrekLsCP9uDncHO5Mkb8Q_1778837617
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-45ae994d9aaso4607780f8f.1
+        for <virtualization@lists.linux.dev>; Fri, 15 May 2026 02:33:37 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778837617; x=1779442417;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=hZ42ILoPPEodEg6ZEuswA8B5A9RnneHFtROSVsVKJFY=;
+        b=leQQ/YsHL5+bTZ1sEGj1QxK+J+Oy6gBINSe8Tjw29K15lWAOOjL7P5e0vnfvfi9dMn
+         KSAsUXqfKCZ6hduKaTznDFEFARhwApvg/4KNwyHPUDXCYoC5L8INauMoNUGVWixbMxJv
+         CSHDFhKs2mFTpKJ7eNF0CNmCsxwJfJj1UW/CBQfkmkWTEo69Dnm5G0+pR4k4+GilyMqg
+         rma+tmm1Kk6hSnHI3fdCgTobM3Z+f4Y/47lI7dirzAKFmrA5lMGVIOdYA8RqsQIzyudm
+         l6cnWHTsWz2jHyfyx0X2xWuT083qA1aivDsLwwJKI/7Tys/PaTvJKcnY9Va3Pepxbna3
+         WTEQ==
+X-Forwarded-Encrypted: i=1; AFNElJ9qybTG7VlRRfl4rPIEwMfOcZGEDzcX7i0RQMeLAOlKALs+EF//QcHwFQs3U/YhhkGiibeK6+toh03FppmR/A==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxvz8eeW2a/ZmiPVDY8mN6m30duIUd8EdlbyZYOz8JZXPqmpURh
+	oWdqYktg/MatPHb7sm8xbIhKA1514/rgd8KJet+a4PrARYMiCXExYhiENOxzLS12h4V5Qdu9zaO
+	ncVm6kSU31+uryERL+Mvu5c7mEQjHH23ROy59ZwhJKk1HTpYLUTj15vVZFdU/4RaBhPow
+X-Gm-Gg: Acq92OFyA9MKiEoVclZjA7tejG4qtnLK7H5gPtYMiSe0QaHVeAhC425OUHTQqVRKKCs
+	R1CtFJ7X8/AQhz+9KjkKNrK/asdB5jz1qpFwU8/iq1GHEKoJ0Lyjba0K5H/3mn5dz8jqoxSwkrE
+	L94+RyobopeZjRRkfqcjTrL00c8NznB2qjCTNcCf1twLv6rUqAFWxhw0PMoRxYLaX35mZV+85sz
+	t7E262aDLB3bma5t/qa9hsULcmihJe7NSg7vielw4DIGJA8q+4/uDQnHKinlFBBFO/V9fKfWMSd
+	JS/Iaht8z48fXmMp3O0ufC8ixJW37H1Xv5/D+lawyq91Z4TpN8fkcQq6rYnWaUjfl/HRVx98+G2
+	A95GgSNXX7u3iMJiD2PyfuXHlrDeRW+HN4Jh+jQTP6XGxcdicB4D3iLWH4peOTxMKlzYcr65dMA
+	==
+X-Received: by 2002:a05:6000:2288:b0:45d:4532:5d98 with SMTP id ffacd0b85a97d-45e5c57d2f2mr3913455f8f.8.1778837616858;
+        Fri, 15 May 2026 02:33:36 -0700 (PDT)
+X-Received: by 2002:a05:6000:2288:b0:45d:4532:5d98 with SMTP id ffacd0b85a97d-45e5c57d2f2mr3913404f8f.8.1778837616358;
+        Fri, 15 May 2026 02:33:36 -0700 (PDT)
+Received: from sgarzare-redhat (host-87-16-204-231.retail.telecomitalia.it. [87.16.204.231])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45d9e768bcesm14392867f8f.4.2026.05.15.02.33.34
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 15 May 2026 02:33:35 -0700 (PDT)
+Date: Fri, 15 May 2026 11:33:31 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Polina Vishneva <polina.vishneva@virtuozzo.com>, mst@redhat.com
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, 
+	virtualization@lists.linux.dev, kvm@vger.kernel.org, 
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
+	"Denis V . Lunev" <den@openvz.org>
+Subject: Re: [PATCH v2] vhost/vsock: Refuse the connection immediately when
+ guest isn't ready
+Message-ID: <agbn_R2XtH8K7aH1@sgarzare-redhat>
+References: <20260513145842.809404-1-polina.vishneva@virtuozzo.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8bit
-X-Spam-Flag: NO
-X-Spam-Score: -3.51
-X-Rspamd-Action: no action
-X-Spamd-Result: default: False [-3.51 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
-	MID_CONTAINS_FROM(1.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	MIME_GOOD(-0.10)[text/plain];
-	MX_GOOD(-0.01)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	ARC_NA(0.00)[];
-	FREEMAIL_TO(0.00)[gmail.com];
-	TO_DN_SOME(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	RCVD_TLS_ALL(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
-	RCVD_COUNT_TWO(0.00)[2];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	RCPT_COUNT_SEVEN(0.00)[10];
-	DKIM_TRACE(0.00)[suse.de:+];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,suse.de:dkim,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo]
-X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
-X-Rspamd-Queue-Id: B379A5CFC9
-X-Spam-Level: 
+MIME-Version: 1.0
+In-Reply-To: <20260513145842.809404-1-polina.vishneva@virtuozzo.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: eziQoiigDnGY5JyPOn6IS1Pge8717h2QSzAs8EK4IWo_1778837617
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On Thu, 07 May 2026 16:28:30 +0200,
-Cássio Gabriel wrote:
-> 
-> virtio-snd control handling trusts the device-provided control type and
-> value count returned by the device.
-> 
-> That metadata is then used directly to index g_v2a_type_map[] in
-> virtsnd_kctl_info(), and to size loops and memcpy() operations in
-> virtsnd_kctl_get() and virtsnd_kctl_put() against fixed-size
-> virtio_snd_ctl_value and snd_ctl_elem_value arrays.
-> 
-> A buggy or malicious device can therefore trigger out-of-bounds access by
-> advertising an invalid control type or an oversized value count.
-> 
-> Validate control type and count once in virtsnd_kctl_parse_cfg(), before
-> querying enumerated items or exposing the control to ALSA.
-> 
-> Fixes: d6568e3de42d ("ALSA: virtio: add support for audio controls")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Cássio Gabriel <cassiogabrielcontato@gmail.com>
+On Wed, May 13, 2026 at 04:50:04PM +0200, Polina Vishneva wrote:
+>From: "Denis V. Lunev" <den@openvz.org>
+>
+>When the host initiates an AF_VSOCK connect() to a guest that has not
+>yet loaded the virtio-vsock transport (i.e. still booting), the caller
+>blocks for VSOCK_DEFAULT_CONNECT_TIMEOUT.
+>
+>A caller that wants to know if the guest is up yet instead of waiting
+>could theoretically tune SO_VM_SOCKETS_CONNECT_TIMEOUT, but it's tricky
+>to find the right timeout, if not impossible: there's no way to
+>distinguish "guest won't reply because it's not up yet" vs "guest is up
+>and tried to reply, but was too slow".
+>
+>Furthermore, this delay is pointless:
+>- If the guest doesn't initialize within this timeout, connect()
+>  returns ETIMEDOUT.
+>- If the guest **does** initialize, it'll reply with RST immediately,
+>  because there won't be a listener on the port yet; connect() returns
+>  ECONNRESET.
+>
+>That's also inconsistent with the behavior at other initialization
+>stages: if a connection is attempted when the guest driver is already
+>loaded, but nothing is listening yet, we return ECONNRESET immediately
+>without waiting.
+>
+>Fix this by checking the RX virtqueue backend in
+>vhost_transport_send_pkt() before queuing. If it's NULL, return
+>-EHOSTUNREACH immediately.
+>
+>Callers that used to get ETIMEDOUT will now usually get EHOSTUNREACH.
+>
+>Signed-off-by: Denis V. Lunev <den@openvz.org>
+>Co-developed-by: Polina Vishneva <polina.vishneva@virtuozzo.com>
+>Signed-off-by: Polina Vishneva <polina.vishneva@virtuozzo.com>
+>---
+>v2:
+>- ECONNREFUSED -> EHOSTUNREACH.
+>- Use vhost_transport_do_send_pkt() instead of raw .private_data access.
+>- Removed READ_ONCE().
+>- Wrapped the condition with unlikely().
+>- Updated the comment and the commit message.
+>
+>v1: https://lore.kernel.org/netdev/20260511145610.413210-1-polina.vishneva@virtuozzo.com
+>
+> drivers/vhost/vsock.c | 16 ++++++++++++++++
+> 1 file changed, 16 insertions(+)
 
-Applied to for-next branch now.  Thanks.
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
+@Michael I think this can go with your tree, right?
 
-Takashi
+(I don't see it in https://patchwork.kernel.org/project/netdevbpf/list/)
+
+Thanks,
+Stefano
+
