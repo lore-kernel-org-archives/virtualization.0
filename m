@@ -1,57 +1,56 @@
-Received: from mail-pl1-f201.google.com (mail-pl1-f201.google.com [209.85.214.201])
+Received: from mail-pg1-f202.google.com (mail-pg1-f202.google.com [209.85.215.202])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A442C389452
-	for <virtualization@lists.linux.dev>; Fri, 15 May 2026 19:20:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0EE4391E7E
+	for <virtualization@lists.linux.dev>; Fri, 15 May 2026 19:20:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778872833; cv=none; b=cfycwiKyB8eSwmzjsl/743ifHb2fGtCF5tjbtfWYQz52+bARzZu1zkEjJHU6QoC6vt9wCnTv6qS3tbraoW3g4uK3qLsXbOf0m+P6BnqU4Q3Ex8KWGkRfnVxIls/XkqDzmycr9dVK9OdnxLgCNsGVaBjO9AGfq1IA7N9h+GziPlU=
+	t=1778872835; cv=none; b=nOZce8gZYuOpX6jdT7cmYXOX8UreOEge5wxh4LQK8edR9E2If2N1bs11PVLLFkX6JQujx592rDMDk8XH4HfPsotOtEULbF/I6lAtPNEENjMpb16an3eIe4EirbkmI0GOmQszi7cdYJ6Jj+L4OL1pIx2IwFPk51eaFRoP5UvDfWk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778872833; c=relaxed/simple;
-	bh=a/C0vtyL90QijKFqEXuRoJ0Idw3MprCujvV9iw9j0eQ=;
+	s=arc-20240116; t=1778872835; c=relaxed/simple;
+	bh=JiniyiHqLkNeMouNxSmIKJrAhaDkGLDvcienLMupPPk=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=jPXeTU9UFvdxBZO2Mwkcb6uXwEIImiAQBjghw9KNpnV7g55ERj34XhFFyFzCL7U71aWCBS+Hk/eQo6vIJDJPFtyyzRPSIRODzJSr4YAY9lHErrVxFth/La7Js0MOMi54U2lHiJkT79e8myufE6DbPTwjSxQu16lUvVQxp9Ii3yU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=OOed9lYa; arc=none smtp.client-ip=209.85.214.201
+	 To:Cc:Content-Type; b=E5hIV3qq4lJ1cSLTRxN2bZXAnj1gCpmijPGVGLfuCtOIk75HNnm6Un8LLZGiEGjEHlfqfzUxbcAI0VwEgliPXAqyzAH0ruyxWz8gf9VNMb0eYQJZxi/PPupgZvKskD5mxehnU5BAaAMb+Pd8/5KCNFmiP0oXabnUDCQvTn3CtCE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=JXddG6ab; arc=none smtp.client-ip=209.85.215.202
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="OOed9lYa"
-Received: by mail-pl1-f201.google.com with SMTP id d9443c01a7336-2bd15c00a1fso15031155ad.1
-        for <virtualization@lists.linux.dev>; Fri, 15 May 2026 12:20:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="JXddG6ab"
+Received: by mail-pg1-f202.google.com with SMTP id 41be03b00d2f7-c8279604464so193242a12.1
+        for <virtualization@lists.linux.dev>; Fri, 15 May 2026 12:20:32 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1778872830; x=1779477630; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:from:subject:message-id:references
-         :mime-version:in-reply-to:date:reply-to:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=uYn60803QiVrZ6qwk1MLFZ7C4I/KRQoL9rhTP31HXeM=;
-        b=OOed9lYaj+ptmY+nGfKo1J9T8z/w+sM49EX3R84+chXkudurYnMyDBGe2fLZCFXzRa
-         +GsXRUNSYaOcJVow1L2IxuZcUHf7UgC5gUAO/rOXeEcq8yzdtLo7Dd6JqWNz5Rt/F1Zm
-         Ya1eyOJMH3/XGGdA3ZKnt+6USGUV0PtWc6pboIIEGbZTg4xTC+wT0MOYp5EIFCQUeL+c
-         OyQNpHv0JIWgoxGlNtYnZDL/yE5vR6fmQd90g89jR5SmN0+EkUxYfO8pAjnnVJrJW6Az
-         YHP1xrFbnmsJG85r5J+uu5jHR1sB8XcPZ6kKwGGo83QyR5yhJD4aO0LNt65cjj1NgiIZ
-         fC5A==
+        d=google.com; s=20251104; t=1778872832; x=1779477632; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:reply-to:from:to:cc:subject:date:message-id:reply-to;
+        bh=a7rFpf+FBNzzfzzETx/AclsYanbj3gnBq18rs01MCT0=;
+        b=JXddG6abDDCmdFY/W0LihXHw+X98wbJmGjC7WH6Koj4yvzptFmYwhsBgo6aOHrsNRr
+         qt+IaZir+SbjzVQes/s23FZ8xhhAapZEK8xH7RIspdGZWYbo/QA7nKTQwSdHs1dPOB3F
+         pquR02XAk+a2+0ZxKEZQQyWV/CLaMFf4c405iODIGKA9RigYYxxkI99EbJJf3eeo8bn6
+         AI/yoBmPXSTeWzPfJVw2JVTv8DGMMvqfx7Dn9I7QZMvqHIsVPG0wutlSNbkK56RlbD/Z
+         E/dVZVZUJvgLqD1tW4ccYVX+GjaYSu0t5zC3cHfGIwhkEugq+cAZzfL82puYYL5rrvhB
+         5GKQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778872830; x=1779477630;
-        h=content-transfer-encoding:cc:to:from:subject:message-id:references
-         :mime-version:in-reply-to:date:reply-to:x-gm-message-state:from:to
-         :cc:subject:date:message-id:reply-to;
-        bh=uYn60803QiVrZ6qwk1MLFZ7C4I/KRQoL9rhTP31HXeM=;
-        b=lcxZZ1bo+DCoq/E6s+8ZUTbdq42NRlgT8ad+d8Mzbm+lCDCu4qthGIIaRhXBXmm5o4
-         TzG5Hp1zG2c52vJYsjjlF7uaWgHEc6nmzxXAQV2OOPa7owb7kVpqeNrcpFLcYRyJl8fN
-         eWcTWWQKOTzpHEmd2IVmbb82rJdhrlzwy86Ygj5HbvLYozWEjKPSl0iOVPQNlUraFL5c
-         /80tWc+5a9GcsNujv2jEsOd9bPElebHGXO+LwifRaVpZoABE64oM3WKh0IicsVCeZBkf
-         qxCzuz9HolmeW1+wy1k6QSGE0i6E/GUQiKZvatFvh63h/bCdKA3JtH5UreUEYPhcECs4
-         WDMg==
-X-Forwarded-Encrypted: i=1; AFNElJ/341zd0+HecgubfIiGRGwSC/+nMVbgu/0dJl8lOUZY9fby72c+/9XG19FzlOrFpW3hi86pGdyRvnjIJg/Lsg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxc47LkQzJEP3Kfo0+PK6Pc+x3xm5YFtpFwWrgnJhQ7RxAidI8w
-	SA1Mga47FJ0j8YxgPTGiQG410izuVQLuM6kIcP33kdDzxcr8vKkx3kgGgC9kFU/XvXgVz10Anqd
-	j/T7w7Q==
-X-Received: from plkj6.prod.google.com ([2002:a17:902:6906:b0:2bd:a0e6:1a81])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:903:3843:b0:2b0:6068:4c5f
- with SMTP id d9443c01a7336-2bd526ed865mr87328355ad.8.1778872829653; Fri, 15
- May 2026 12:20:29 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1778872832; x=1779477632;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=a7rFpf+FBNzzfzzETx/AclsYanbj3gnBq18rs01MCT0=;
+        b=fLXrDv9VMPCeJZDeBOk/OV5aWtLatBTGmO1H8RCwOqZqBuIQFcvUIZqDOyWcuEo+D/
+         0DT5aM1+sTwL8WxAJ1GZtp1qEj/ZNds2ZwWf6/bnPAs8EtUKVSaNMNa6ZgltnRgslYTr
+         EyvbmmCCvDbmeOKt2axJherdXqlKYp3alQaF/v9Sk7aSRsQ1tryqp+1ciNKAsddM72tG
+         LYXADXcHB9KLWXrmpoz4nK0tArZvy31t5hrKcSfTG4YH2mlIqRuOoRwTN8x0lrnw/fm/
+         v+hhZg7gEEssMQNOFh/zXPOEAOli+5itBdLEjlWYEiGf5a0heq6C9SaDFP2XHkI+k3Zs
+         GxJA==
+X-Forwarded-Encrypted: i=1; AFNElJ8tnycXCVjCZ0n9pAv5ZPXXUA2c31dAGw8uS6HyTjh5+njx7n8ePRZzFWzi81q2ebTFcFTg40/422UgKOXsQw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywu3qZY3jgipJm9ff2ahok/+v9O72wTJghK0x+RmUoZ8YkAy44R
+	2U3KrIdmQvziXCKngxZDjyzB7o7l8ggvRhW2lB3JNccofHVEKwfiuG2oZ5NLAp1YzLFIMyEVUVx
+	QLHbbPg==
+X-Received: from pfbfk26.prod.google.com ([2002:a05:6a00:3a9a:b0:83e:fb05:9740])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:3689:b0:837:7e7d:3c8
+ with SMTP id d2e1a72fcca58-83f33df5086mr5912339b3a.39.1778872831848; Fri, 15
+ May 2026 12:20:31 -0700 (PDT)
 Reply-To: Sean Christopherson <seanjc@google.com>
-Date: Fri, 15 May 2026 12:19:06 -0700
+Date: Fri, 15 May 2026 12:19:08 -0700
 In-Reply-To: <20260515191942.1892718-1-seanjc@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -61,9 +60,9 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 Mime-Version: 1.0
 References: <20260515191942.1892718-1-seanjc@google.com>
 X-Mailer: git-send-email 2.54.0.563.g4f69b47b94-goog
-Message-ID: <20260515191942.1892718-6-seanjc@google.com>
-Subject: [PATCH v3 05/41] x86/tdx: Override PV calibration routines with
- CPUID-based calibration
+Message-ID: <20260515191942.1892718-8-seanjc@google.com>
+Subject: [PATCH v3 07/41] clocksource: hyper-v: Register sched_clock
+ save/restore iff it's necessary
 From: Sean Christopherson <seanjc@google.com>
 To: Kiryl Shutsemau <kas@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, 
 	Sean Christopherson <seanjc@google.com>, "K. Y. Srinivasan" <kys@microsoft.com>, 
@@ -83,148 +82,175 @@ Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>, Vitaly Kuznetsov <vkuznets@redh
 	Tom Lendacky <thomas.lendacky@amd.com>, Nikunj A Dadhania <nikunj@amd.com>, 
 	Thomas Gleixner <tglx@linutronix.de>, David Woodhouse <dwmw@amazon.co.uk>
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-When running as a TDX guest, explicitly override the TSC frequency
-calibration routine with CPUID-based calibration instead of potentially
-relying on a hypervisor-controlled PV routine.  For TDX guests, CPUID.0x15
-is always emulated by the TDX-Module, i.e. the information from CPUID is
-more trustworthy than the information provided by the hypervisor.
+Register the Hyper-V reference counter (refcounter) callbacks for saving
+and restoring its PV sched_clock, if and only if the refcounter is
+actually being used for sched_clock.  Currently, Hyper-V overrides the
+save/restore hooks if the reference TSC available, whereas the Hyper-V
+refcounter code only overrides sched_clock if the reference TSC is
+available *and* it's not invariant.  The flaw is effectively papered over
+by invoking the "old" save/restore callbacks as part of save/restore, but
+that's unnecessary and fragile.
 
-To maintain backwards compatibility with TDX guest kernels that use native
-calibration, and because it's the least awful option, retain
-native_calibrate_tsc()'s stuffing of the local APIC bus period using the
-core crystal frequency.  While it's entirely possible for the hypervisor
-to emulate the APIC timer at a different frequency than the core crystal
-frequency, the commonly accepted interpretation of Intel's SDM is that APIC
-timer runs at the core crystal frequency when that latter is enumerated via
-CPUID:
+To avoid introducing more complexity, and to allow for additional cleanups
+of the PV sched_clock code, move the save/restore hooks and logic into
+hyperv_timer.c and simply wire up the hooks when overriding sched_clock
+itself.
 
-  The APIC timer frequency will be the processor=E2=80=99s bus clock or cor=
-e
-  crystal clock frequency (when TSC/core crystal clock ratio is enumerated
-  in CPUID leaf 0x15).
+Note, while the Hyper-V refcounter code is intended to be architecture
+neutral, CONFIG_PARAVIRT is firmly x86-only, i.e. adding a small amount of
+x86 specific code (which will be reduced in future cleanups) doesn't
+meaningfully pollute generic code.
 
-If the hypervisor is malicious and deliberately runs the APIC timer at the
-wrong frequency, nothing would stop the hypervisor from modifying the
-frequency at any time, i.e. attempting to manually calibrate the frequency
-out of paranoia would be futile.
-
-Deliberately leave the CPU frequency calibration routine as is, since the
-TDX-Module doesn't provide any guarantees with respect to CPUID.0x16.
-
-Opportunistically add a comment explaining that CoCo TSC initialization
-needs to come after hypervisor specific initialization.
-
-Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
+Reviewed-by: Michael Kelley <mhklinux@outlook.com>
+Tested-by: Michael Kelley <mhklinux@outlook.com>
 Signed-off-by: Sean Christopherson <seanjc@google.com>
 ---
- arch/x86/coco/tdx/tdx.c    | 30 +++++++++++++++++++++++++++---
- arch/x86/include/asm/tdx.h |  2 ++
- arch/x86/kernel/tsc.c      |  8 ++++++++
- 3 files changed, 37 insertions(+), 3 deletions(-)
+ arch/x86/kernel/cpu/mshyperv.c     | 58 ------------------------------
+ drivers/clocksource/hyperv_timer.c | 50 ++++++++++++++++++++++++++
+ 2 files changed, 50 insertions(+), 58 deletions(-)
 
-diff --git a/arch/x86/coco/tdx/tdx.c b/arch/x86/coco/tdx/tdx.c
-index 29b6f1ed59ec..26890cea790b 100644
---- a/arch/x86/coco/tdx/tdx.c
-+++ b/arch/x86/coco/tdx/tdx.c
-@@ -8,6 +8,7 @@
- #include <linux/export.h>
- #include <linux/io.h>
- #include <linux/kexec.h>
-+#include <asm/apic.h>
- #include <asm/coco.h>
- #include <asm/tdx.h>
- #include <asm/vmx.h>
-@@ -1123,9 +1124,6 @@ void __init tdx_early_init(void)
-=20
- 	setup_force_cpu_cap(X86_FEATURE_TDX_GUEST);
-=20
--	/* TSC is the only reliable clock in TDX guest */
--	setup_force_cpu_cap(X86_FEATURE_TSC_RELIABLE);
--
- 	cc_vendor =3D CC_VENDOR_INTEL;
-=20
- 	/* Configure the TD */
-@@ -1195,3 +1193,29 @@ void __init tdx_early_init(void)
-=20
- 	tdx_announce();
+diff --git a/arch/x86/kernel/cpu/mshyperv.c b/arch/x86/kernel/cpu/mshyperv.c
+index 8d2401be420c..5ca139ae50b4 100644
+--- a/arch/x86/kernel/cpu/mshyperv.c
++++ b/arch/x86/kernel/cpu/mshyperv.c
+@@ -275,63 +275,6 @@ static void hv_guest_crash_shutdown(struct pt_regs *regs)
  }
+ #endif /* CONFIG_CRASH_DUMP */
+ 
+-static u64 hv_ref_counter_at_suspend;
+-static void (*old_save_sched_clock_state)(void);
+-static void (*old_restore_sched_clock_state)(void);
+-
+-/*
+- * Hyper-V clock counter resets during hibernation. Save and restore clock
+- * offset during suspend/resume, while also considering the time passed
+- * before suspend. This is to make sure that sched_clock using hv tsc page
+- * based clocksource, proceeds from where it left off during suspend and
+- * it shows correct time for the timestamps of kernel messages after resume.
+- */
+-static void save_hv_clock_tsc_state(void)
+-{
+-	hv_ref_counter_at_suspend = hv_read_reference_counter();
+-}
+-
+-static void restore_hv_clock_tsc_state(void)
+-{
+-	/*
+-	 * Adjust the offsets used by hv tsc clocksource to
+-	 * account for the time spent before hibernation.
+-	 * adjusted value = reference counter (time) at suspend
+-	 *                - reference counter (time) now.
+-	 */
+-	hv_adj_sched_clock_offset(hv_ref_counter_at_suspend - hv_read_reference_counter());
+-}
+-
+-/*
+- * Functions to override save_sched_clock_state and restore_sched_clock_state
+- * functions of x86_platform. The Hyper-V clock counter is reset during
+- * suspend-resume and the offset used to measure time needs to be
+- * corrected, post resume.
+- */
+-static void hv_save_sched_clock_state(void)
+-{
+-	old_save_sched_clock_state();
+-	save_hv_clock_tsc_state();
+-}
+-
+-static void hv_restore_sched_clock_state(void)
+-{
+-	restore_hv_clock_tsc_state();
+-	old_restore_sched_clock_state();
+-}
+-
+-static void __init x86_setup_ops_for_tsc_pg_clock(void)
+-{
+-	if (!(ms_hyperv.features & HV_MSR_REFERENCE_TSC_AVAILABLE))
+-		return;
+-
+-	old_save_sched_clock_state = x86_platform.save_sched_clock_state;
+-	x86_platform.save_sched_clock_state = hv_save_sched_clock_state;
+-
+-	old_restore_sched_clock_state = x86_platform.restore_sched_clock_state;
+-	x86_platform.restore_sched_clock_state = hv_restore_sched_clock_state;
+-}
+-
+ #ifdef CONFIG_X86_64
+ DEFINE_STATIC_CALL(hv_hypercall, hv_std_hypercall);
+ EXPORT_STATIC_CALL_TRAMP_GPL(hv_hypercall);
+@@ -739,7 +682,6 @@ static void __init ms_hyperv_init_platform(void)
+ 
+ 	/* Register Hyper-V specific clocksource */
+ 	hv_init_clocksource();
+-	x86_setup_ops_for_tsc_pg_clock();
+ 	hv_vtl_init_platform();
+ #endif
+ 	/*
+diff --git a/drivers/clocksource/hyperv_timer.c b/drivers/clocksource/hyperv_timer.c
+index e9f5034a1bc8..72b966340a46 100644
+--- a/drivers/clocksource/hyperv_timer.c
++++ b/drivers/clocksource/hyperv_timer.c
+@@ -537,10 +537,60 @@ static __always_inline void hv_setup_sched_clock(void *sched_clock)
+ #elif defined CONFIG_PARAVIRT
+ #include <asm/timer.h>
+ 
++static u64 hv_ref_counter_at_suspend;
++static void (*old_save_sched_clock_state)(void);
++static void (*old_restore_sched_clock_state)(void);
 +
-+static unsigned long tdx_get_tsc_khz(void)
++/*
++ * Hyper-V clock counter resets during hibernation. Save and restore clock
++ * offset during suspend/resume, while also considering the time passed
++ * before suspend. This is to make sure that sched_clock using hv tsc page
++ * based clocksource, proceeds from where it left off during suspend and
++ * it shows correct time for the timestamps of kernel messages after resume.
++ */
++static void save_hv_clock_tsc_state(void)
 +{
-+	struct cpuid_tsc_info info;
-+
-+	if (WARN_ON_ONCE(cpuid_get_tsc_freq(&info)))
-+		return 0;
-+
-+	lapic_timer_period =3D info.crystal_khz * 1000 / HZ;
-+
-+	return info.tsc_khz;
++	hv_ref_counter_at_suspend = hv_read_reference_counter();
 +}
 +
-+void __init tdx_tsc_init(void)
++static void restore_hv_clock_tsc_state(void)
 +{
-+	/* TSC is the only reliable clock in TDX guest */
-+	setup_force_cpu_cap(X86_FEATURE_TSC_RELIABLE);
-+	setup_force_cpu_cap(X86_FEATURE_TSC_KNOWN_FREQ);
-+
 +	/*
-+	 * Override the PV calibration routines (if set) with more trustworthy
-+	 * CPUID-based calibration.  The TDX module emulates CPUID, whereas any
-+	 * PV information is provided by the hypervisor.
++	 * Adjust the offsets used by hv tsc clocksource to
++	 * account for the time spent before hibernation.
++	 * adjusted value = reference counter (time) at suspend
++	 *                - reference counter (time) now.
 +	 */
-+	tsc_register_calibration_routines(tdx_get_tsc_khz, NULL);
++	hv_adj_sched_clock_offset(hv_ref_counter_at_suspend - hv_read_reference_counter());
 +}
-diff --git a/arch/x86/include/asm/tdx.h b/arch/x86/include/asm/tdx.h
-index 15eac89b0afb..60deab0ed979 100644
---- a/arch/x86/include/asm/tdx.h
-+++ b/arch/x86/include/asm/tdx.h
-@@ -57,6 +57,7 @@ struct ve_info {
- #ifdef CONFIG_INTEL_TDX_GUEST
-=20
- void __init tdx_early_init(void);
-+void __init tdx_tsc_init(void);
-=20
- void tdx_get_ve_info(struct ve_info *ve);
-=20
-@@ -78,6 +79,7 @@ void __init tdx_dump_td_ctls(u64 td_ctls);
- #else
-=20
- static inline void tdx_early_init(void) { };
-+static inline void tdx_tsc_init(void) { }
- static inline void tdx_halt(void) { };
-=20
- static inline bool tdx_early_handle_ve(struct pt_regs *regs) { return fals=
-e; }
-diff --git a/arch/x86/kernel/tsc.c b/arch/x86/kernel/tsc.c
-index 243999692aea..e00f53e3dd8d 100644
---- a/arch/x86/kernel/tsc.c
-+++ b/arch/x86/kernel/tsc.c
-@@ -34,6 +34,7 @@
- #include <asm/topology.h>
- #include <asm/uv/uv.h>
- #include <asm/sev.h>
-+#include <asm/tdx.h>
-=20
- unsigned int __read_mostly cpu_khz;	/* TSC clocks / usec, not used here */
- EXPORT_SYMBOL(cpu_khz);
-@@ -1559,8 +1560,15 @@ void __init tsc_early_init(void)
- 	if (is_early_uv_system())
- 		return;
-=20
-+	/*
-+	 * Do CoCo specific "secure" TSC initialization *after* hypervisor
-+	 * platform initialization so that the secure variant can override the
-+	 * hypervisor's PV calibration routine with a more trusted method.
-+	 */
- 	if (cc_platform_has(CC_ATTR_GUEST_SNP_SECURE_TSC))
- 		snp_secure_tsc_init();
-+	else if (boot_cpu_has(X86_FEATURE_TDX_GUEST))
-+		tdx_tsc_init();
-=20
- 	if (!determine_cpu_tsc_frequencies(true))
- 		return;
---=20
++/*
++ * Functions to override save_sched_clock_state and restore_sched_clock_state
++ * functions of x86_platform. The Hyper-V clock counter is reset during
++ * suspend-resume and the offset used to measure time needs to be
++ * corrected, post resume.
++ */
++static void hv_save_sched_clock_state(void)
++{
++	old_save_sched_clock_state();
++	save_hv_clock_tsc_state();
++}
++
++static void hv_restore_sched_clock_state(void)
++{
++	restore_hv_clock_tsc_state();
++	old_restore_sched_clock_state();
++}
++
+ static __always_inline void hv_setup_sched_clock(void *sched_clock)
+ {
+ 	/* We're on x86/x64 *and* using PV ops */
+ 	paravirt_set_sched_clock(sched_clock);
++
++	old_save_sched_clock_state = x86_platform.save_sched_clock_state;
++	x86_platform.save_sched_clock_state = hv_save_sched_clock_state;
++
++	old_restore_sched_clock_state = x86_platform.restore_sched_clock_state;
++	x86_platform.restore_sched_clock_state = hv_restore_sched_clock_state;
+ }
+ #else /* !CONFIG_GENERIC_SCHED_CLOCK && !CONFIG_PARAVIRT */
+ static __always_inline void hv_setup_sched_clock(void *sched_clock) {}
+-- 
 2.54.0.563.g4f69b47b94-goog
 
