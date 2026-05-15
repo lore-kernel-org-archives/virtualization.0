@@ -1,112 +1,101 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mout-p-102.mailbox.org (mout-p-102.mailbox.org [80.241.56.152])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D25263D47A1;
-	Fri, 15 May 2026 16:33:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 690ED4CA264
+	for <virtualization@lists.linux.dev>; Fri, 15 May 2026 16:56:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.152
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778862828; cv=none; b=MrR87lrd4bUATBG2Cr/hv9xTeUmCZmixgLa3sBu/eFo+zv6ulJ9zZ5ikrIcn964rOdVemBnjSpbc9rLccNk5Lpq4PnFB1Li4kQnJ+hN+UxL4SuiVbl1kecO700libZnKMecCcksxdxp917SyKvqmjE5DfuMeAv4inHn40vQWOMg=
+	t=1778864220; cv=none; b=gJQxudH6RhAiipKJILAGs1xqw2A2LJDntdMBEHSUGMzR3d1Hp4OvFEg/Qc/Y0BDRY6pfHJjhub+UXB7k+bWjsLf6d9E6wv/a6RuV8HUs46OxA01/GwUhcOcFLQ8Fw4kLjz5W58x+js6XKf6FejRULVeZyzMnHZmTXrLxR7u3TNY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778862828; c=relaxed/simple;
-	bh=t7/HL5V/HpW4Va7wMNCuvUzjBpG40tsWE1DOaamudRA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=nhfBoAFc+QkW6/sowMJyb51fpK7CyXzmMFE7YDvY94NVu4K4ETKiQ2RaVWPcFTb+QQ/N0q4CGnDShNvwwEDGj+338zMQOmOSFFfFKrtZMPnGlcvJhCdl8r7ij6Iat8qRGyMa4Qd5J/WmdCzlHugFWumfzUevpRE2yapQNppzR8E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=YsQTg2td; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1778864220; c=relaxed/simple;
+	bh=dhptysQuSATSNbitwVA0RUi7lY73OfdGHsWXJQ9N5cw=;
+	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
+	 In-Reply-To:Content-Type; b=ZUfF8411tSFa1/XF9XpulE3X4Z7f4ueYWSiwNYn5IvENLe7JxhaY09T1R4Rgpy4R6WhYdtYjf8nXtUMOeCzuDDn52LelAXGfr2fCvbFfn+8a244GBh5to5lKiKeJ/ElVugBTMxWi1A+zDrno4yh5mTU2ukuh56eTWhp05+PtpjQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=UvGbHkwM; arc=none smtp.client-ip=80.241.56.152
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="YsQTg2td"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 09EB3C2BCC7;
-	Fri, 15 May 2026 16:33:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1778862828;
-	bh=t7/HL5V/HpW4Va7wMNCuvUzjBpG40tsWE1DOaamudRA=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=YsQTg2tdROD5eg65pNSS8p5ROfvOLRoZmbPXGqnKJoDHJtvE1uyH52y14m44ht8mX
-	 ebWLglNokDa3LxR3Iv9rIP+CVGN4Gvk3k0PLI79xw7qa+wRsn0XlC/Qu8N1BNZR0we
-	 cSz3LPGsRszvw0rDyZLzUevYD8/EXUBTOvya010Y=
-From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: stable@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	patches@lists.linux.dev,
-	Eric Dumazet <edumazet@google.com>,
-	Arseniy Krasnov <AVKrasnov@sberdevices.ru>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev,
-	Jakub Kicinski <kuba@kernel.org>,
-	Luigi Leonardi <leonardi@redhat.com>
-Subject: [PATCH 7.0 198/201] vsock/virtio: fix potential unbounded skb queue
-Date: Fri, 15 May 2026 17:50:16 +0200
-Message-ID: <20260515154702.869952298@linuxfoundation.org>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260515154658.538039039@linuxfoundation.org>
-References: <20260515154658.538039039@linuxfoundation.org>
-User-Agent: quilt/0.69
-X-stable: review
-X-Patchwork-Hint: ignore
+	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="UvGbHkwM"
+Received: from smtp2.mailbox.org (smtp2.mailbox.org [IPv6:2001:67c:2050:b231:465::2])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mout-p-102.mailbox.org (Postfix) with ESMTPS id 4gHCz53wg2z9vGy;
+	Fri, 15 May 2026 18:56:49 +0200 (CEST)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
+	t=1778864209;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=THjYyH3uKjG/pqf0jTnTgVB5bOzHeeCO4NiACkPzCAA=;
+	b=UvGbHkwMnE9NToXjbUNAsRia0LLJVuP/0ZjKLW6ppzyZhQjhcZMz+u2V8owicjpL+qc90x
+	pT7ZRQpu3L7J/espeI8XH0yqUTi+/i2ei6D7Q8t89DylkuCkHKVKrHCQEmuwomb8THbO3P
+	91TGgfWvRRM9aDNcdFxJddbLX7rHhYCfeEQM9BMv8jVPLYkLJttn+s8blSnzZrQ7w4Zngr
+	WguOA7Ic/8jY+ANKQcdlrSdKDBFHC01WR1Sd0WAXYVjIJ/2tvmWFCYnG6mUGIFsWN9Ov4o
+	dEMrs8Wdc8pkp+8WiAxu+ggIsRS0RPxrIimKc2/m8fDZxG3ZR6G22gMMbLpY/Q==
+Message-ID: <cb461424-e4c1-4d2c-934b-ffd7374e2a56@mailbox.org>
+Date: Fri, 15 May 2026 18:56:45 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Subject: Re: [PATCH 0/9] drm: Limit DRM_IOCTL_WAIT_VBLANK to vblank interrupts
+From: =?UTF-8?Q?Michel_D=C3=A4nzer?= <michel.daenzer@mailbox.org>
+To: Thomas Zimmermann <tzimmermann@suse.de>, simona@ffwll.ch,
+ airlied@gmail.com, pekka.paalanen@collabora.com, jadahl@gmail.com,
+ contact@emersion.fr, maarten.lankhorst@linux.intel.com, mripard@kernel.org
+Cc: amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+ linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
+ spice-devel@lists.freedesktop.org, wayland-devel@lists.freedesktop.org
+References: <20260515120916.333614-1-tzimmermann@suse.de>
+ <b5d03921-1e6f-4c4f-900e-fc9e28222176@mailbox.org>
+Content-Language: en-CA
+In-Reply-To: <b5d03921-1e6f-4c4f-900e-fc9e28222176@mailbox.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-
-7.0-stable review patch.  If anyone has any objections, please let me know.
-
-------------------
-
-From: Eric Dumazet <edumazet@google.com>
-
-commit 059b7dbd20a6f0c539a45ddff1573cb8946685b5 upstream.
-
-virtio_transport_inc_rx_pkt() checks vvs->rx_bytes + len > vvs->buf_alloc.
-
-virtio_transport_recv_enqueue() skips coalescing for packets
-with VIRTIO_VSOCK_SEQ_EOM.
-
-If fed with packets with len == 0 and VIRTIO_VSOCK_SEQ_EOM,
-a very large number of packets can be queued
-because vvs->rx_bytes stays at 0.
-
-Fix this by estimating the skb metadata size:
-
-	(Number of skbs in the queue) * SKB_TRUESIZE(0)
-
-Fixes: 077706165717 ("virtio/vsock: don't use skbuff state to account credit")
-Signed-off-by: Eric Dumazet <edumazet@google.com>
-Cc: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>
-Cc: Stefano Garzarella <sgarzare@redhat.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-Cc: "Eugenio Pérez" <eperezma@redhat.com>
-Cc: virtualization@lists.linux.dev
-Link: https://patch.msgid.link/20260430122653.554058-1-edumazet@google.com
-Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Cc: Luigi Leonardi <leonardi@redhat.com>
-Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
----
- net/vmw_vsock/virtio_transport_common.c |    4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -429,7 +429,9 @@ static int virtio_transport_send_pkt_inf
- static bool virtio_transport_inc_rx_pkt(struct virtio_vsock_sock *vvs,
- 					u32 len)
- {
--	if (vvs->buf_used + len > vvs->buf_alloc)
-+	u64 skb_overhead = (skb_queue_len(&vvs->rx_queue) + 1) * SKB_TRUESIZE(0);
-+
-+	if (skb_overhead + vvs->buf_used + len > vvs->buf_alloc)
- 		return false;
- 
- 	vvs->rx_bytes += len;
+X-MBO-RS-ID: de84221aa493230eab5
+X-MBO-RS-META: 9sey5mwxehe7tcisizu96h4qcw6kgr1r
 
 
+[ Adding the wayland-devel list for awareness ]
+
+On 5/15/26 17:12, Michel Dänzer wrote:
+> On 5/15/26 13:55, Thomas Zimmermann wrote:
+>> DRM's WAIT_VBLANK ioctl synchronizes user-space clients to display
+>> refresh. This is meaningless with vblank timers, which run unrelated
+>> to the hardware's vblank.
+>>
+>> Disable the ioctl for simulated vblanks. Set DRM_VBLANK_FLAG_SIMULATED
+>> for CRTCs with simulated vblank events in all such drivers. The vblank
+>> timers of these devices still rate-limit the number of page-flip events
+>> to match the display refresh.
+>>
+>> According to maintainers, user-space compositors do not require the ioctl
+>> for rate-limitting display output. Weston and Kwin rely on page-flip
+>> events. Mutter uses and internal timer to limit the number of display
+>> updates per second.
+> 
+> Actually mutter fundamentally relies on atomic commit completion events for that, same as Weston & KWin. Mutter uses the WAIT_VBLANK ioctl only for minimizing input → output latency (which can hide issues when completion of atomic commits isn't properly throttled).
+> 
+> 
+> (Just a side not on the cover letter, no objections to the patches themselves)
+
+After more discussion on IRC, I have some concerns.
+
+
+The big one first: For drivers with no strict refresh cycle (i.e. an atomic commit can take effect more or less anytime after at least one "refresh cycle" has passed since the last one), does this change really make sense / what's the actual benefit?
+
+In the case of the asahi & nvidia drivers, the problem with exposing this functionality to user space is that if the timestamps aren't accurate, it can result in missing display refresh cycles, which are dictated by hardware. That's why it makes sense to reject it there.
+
+When there's no strict refresh cycle, that issue doesn't apply though.
+
+
+Any changes made to the WAIT_VBLANK ioctl should also be made to the CRTC_GET_SEQUENCE / CRTC_QUEUE_SEQUENCE ioctls, which are slightly different UAPI for the same functionality.
+
+
+-- 
+Earthling Michel Dänzer       \        GNOME / Xwayland / Mesa developer
+https://redhat.com             \               Libre software enthusiast
