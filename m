@@ -1,157 +1,138 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mail.ilvokhin.com (mail.ilvokhin.com [178.62.254.231])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CE8F13B293
-	for <virtualization@lists.linux.dev>; Fri, 15 May 2026 14:24:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9391D39B94F
+	for <virtualization@lists.linux.dev>; Fri, 15 May 2026 14:40:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.62.254.231
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778855041; cv=none; b=IOBFyry9Y2UYrJHfy/6o7u7NeEbbatOHBuINLE4FbFbsieOsGb1AEgZcXRQ/zxvkf21xdII4S9kzlNr8e1BZ62bPlcGt59SKTP54px2NfdBkv8WXd6Ol722OlLl/O937mtv8ZFbPOf4Vk07e/ajSinod4BA1wKUtqNNCWsgArEA=
+	t=1778856015; cv=none; b=U4FYxO1r/tF8lR4OmYXCWWf+Il/klfq7sZBwXDadnvP0GQxQ64c36SsbXOUmrd32cCF1ObBF0ssHD7gHKlnBFwS1H6UlH1P4F0S44W1by9oRKZdr3CLRWfOa5cCVgiks1vEtzWFazwvBpPfCqm1BRBPDisLwVnUMDlyXEezmzb8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778855041; c=relaxed/simple;
-	bh=8tMd4kBQi6Hy9PmLRVOHEXCV4eeVaKBxaPfChs5q6/o=;
+	s=arc-20240116; t=1778856015; c=relaxed/simple;
+	bh=oVTQLdQPgm78z3vvyrR2it6wa49pRkZSjf6vJ0zKe60=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=fdVGmJzrvw7VLp+iuwe42ufgqZxSKGObPtmsum7Mp0JFG0KL9sI+zrpoCGuQk3+/pofeCqcJFzOXvfFJr9nBb1Z+TAy3/646pUei+gtK8kpyuhs5Fk8CJFQ2InN7arpKYohLIQh+yAvpAd/GeIV9Q1c2EbtgA7L+fCPI20N+1IY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CXjxnACs; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=KtlP/bjvMXDO6rdYMfDhO4dz32i/ZrWbyKiMa3pSFRCMpD6Spv7nQlp3qBWmk2b9kKb1JmsSrP72Qq7JzSxs4lTo/eGi/O58M3guBBnk4vG56vYz47RD7DNjrkepNMToBaMQ9nDDMHqIROxHd0LG5v+IJmRaH3Unmz6xgOxdgoM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ilvokhin.com; spf=pass smtp.mailfrom=ilvokhin.com; dkim=pass (1024-bit key) header.d=ilvokhin.com header.i=@ilvokhin.com header.b=RRKzNl+V; arc=none smtp.client-ip=178.62.254.231
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ilvokhin.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ilvokhin.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CXjxnACs"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1778855039;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=lIVZ/gYLJQUpRzC6abUVWLp7JCDoikQOBxMDIsDaUrM=;
-	b=CXjxnACs22vjibw4orU1K+aJe1+7zoyB9xZ1nLDoq/XIwADT/+yQ0PQdhSMcNqBb4asMjE
-	Eu/DiWKS2yfmtvO9TZittt3PBTjKJS/usJ6tz49tRHLLaCCz39QiFuDSu4yshncC6jEwCe
-	1Xvu3heLzf0H+NrgOV/xKA38jc2iwIc=
-Received: from mail-qk1-f197.google.com (mail-qk1-f197.google.com
- [209.85.222.197]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-128-mGnjvsAJMgSpmupyYqdMbw-1; Fri, 15 May 2026 10:23:58 -0400
-X-MC-Unique: mGnjvsAJMgSpmupyYqdMbw-1
-X-Mimecast-MFC-AGG-ID: mGnjvsAJMgSpmupyYqdMbw_1778855038
-Received: by mail-qk1-f197.google.com with SMTP id af79cd13be357-90fb1490e2cso698009785a.2
-        for <virtualization@lists.linux.dev>; Fri, 15 May 2026 07:23:58 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778855038; x=1779459838;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=lIVZ/gYLJQUpRzC6abUVWLp7JCDoikQOBxMDIsDaUrM=;
-        b=m2iO8tv1aWgSS6L/5y7eI3lOndAff0s6mvKlFrzx0FtvufoevW/kCiuxW+Wk9uHaCi
-         O0sAnRrk7Q87FHQwNZ2pKnp58dN9owzjdu7A9ijHROwwOf8I3+d3FG8IHGgtgDKblthQ
-         blpoHHD3IXIJKQ9Pw66w/5lUnrn9Rvd1kyHXM5+aLcgIp0RuuwnbRLTfqa33ycF7m4iF
-         H7H9Vu/G8DOSSEt/SYP5Z1+Gql7vNlOJP8zpveTtmmCNB0qO32X5L1Qm3DSpjLIwOzUB
-         tLiH002Z+0rLkaYus7ZNoJtPzupzPDlyWMtQHnkreB0EYSL7Pv2UIqQEh7LFNzJ60EVD
-         HuWw==
-X-Forwarded-Encrypted: i=1; AFNElJ+DE3ZfWybZN43M/Kuc5rAI5s/x5ZF4B/VC2AcVwr/N06fYXWA8BwtdsCqAGSQWrsTxxODUxumRL6abUk6ikA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwKn7MZ/4P2JSSVskzCoNTA+rWXCdrBSb4hYnnEqoIRUsX7PF+1
-	6XeIOSdr0vha+iEiOwzdK16m249AFtcgrJ7dgzvwQx0k3K/pAJ5d4eKVkc1jhNudc0aSWPqYVfT
-	eMM794/641ZGHAa+iSY0hh6rA8stS3vmOn479dV6VKZwhbNSpOR2rv4UiIF+hnX+VV/ab
-X-Gm-Gg: Acq92OG/P6ozyfnDXM/FOl7DdMn6cvCH91hdJ673Au6svVQCD1PPoHhHFu/TteBYOLi
-	RYmeCGBcfl3S8JJhZtVJqqeWCwyoi4Wex8RfQEKzneDhAz/+YPv1WpwWl2YBiFV6HlR7lHQdZ06
-	u4IZvcWvABEa78gjOSnp6w/VeJ4GlNsZJSfvu7mVSmRIRzbGU2fl2xbdZcyY3wa/pcPmbgqzKbt
-	iSXPKXHuy7PH5dEHSk30XV8uVZ+TI1GI9V3UzxRa9QnGPP1Pexs6i84j0a9SSuIxobglnCe6LvT
-	43nphnxbBJ0DMlZooCKP9Dpn2mUOdf+CIoO5TbqnI6L8Zf3EJOpDCQi/Zfj5t8sR7eVM8whNpl4
-	C3BB9YCkLIMoT6lIKpWws2LIf1CCQegzGAfqG8IHrTuG5ah5gMOfNgZrd4k4=
-X-Received: by 2002:a05:620a:ac0a:b0:912:61f8:cab1 with SMTP id af79cd13be357-91261f8d5b2mr222477085a.25.1778855037713;
-        Fri, 15 May 2026 07:23:57 -0700 (PDT)
-X-Received: by 2002:a05:620a:ac0a:b0:912:61f8:cab1 with SMTP id af79cd13be357-91261f8d5b2mr222472385a.25.1778855037128;
-        Fri, 15 May 2026 07:23:57 -0700 (PDT)
-Received: from leonardi-redhat ([176.206.19.176])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-910bd620fbcsm570309485a.42.2026.05.15.07.23.55
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 May 2026 07:23:56 -0700 (PDT)
-Date: Fri, 15 May 2026 16:23:53 +0200
-From: Luigi Leonardi <leonardi@redhat.com>
-To: stable@vger.kernel.org
-Cc: Stefano Garzarella <sgarzare@redhat.com>, 
-	Eric Dumazet <edumazet@google.com>, Arseniy Krasnov <AVKrasnov@sberdevices.ru>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, virtualization@lists.linux.dev, Jakub Kicinski <kuba@kernel.org>
-Subject: Re: [PATCH] vsock/virtio: fix potential unbounded skb queue
-Message-ID: <agcsQ4LlG9ZsvBGR@leonardi-redhat>
-References: <20260515-dumazet-v1-1-73468c902889@redhat.com>
+	dkim=pass (1024-bit key) header.d=ilvokhin.com header.i=@ilvokhin.com header.b="RRKzNl+V"
+Received: from shell.ilvokhin.com (shell.ilvokhin.com [138.68.190.75])
+	(Authenticated sender: d@ilvokhin.com)
+	by mail.ilvokhin.com (Postfix) with ESMTPSA id A6BBDD05D9;
+	Fri, 15 May 2026 14:40:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ilvokhin.com;
+	s=mail; t=1778856006;
+	bh=LjG5aYhzzCdGlhgt68FcixNTeEbd8ZYVpF7B/Blnyp4=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=RRKzNl+VV4JDQiTUTKJ02htUMGGPz54aJtGB88rZY2lugizfNL4xXA0Miw5TsKpcf
+	 D4TSVDE/+biY08/6wdh797My6cEELDA9ZfGm2JSTat+ZT93VbFxGJpNSW1q6kQ8PKV
+	 QKxA7ZfwkUZg+o+FdxV6aIyGaEILsAXINCAZcSpI=
+Date: Fri, 15 May 2026 14:40:04 +0000
+From: Dmitry Ilvokhin <d@ilvokhin.com>
+To: Steven Rostedt <rostedt@goodmis.org>
+Cc: Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
+	Will Deacon <will@kernel.org>, Boqun Feng <boqun@kernel.org>,
+	Waiman Long <longman@redhat.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Juergen Gross <jgross@suse.com>,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Thomas Gleixner <tglx@kernel.org>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
+	Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
+	Christoph Lameter <cl@gentwo.org>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-arch@vger.kernel.org,
+	linux-mm@kvack.org, linux-trace-kernel@vger.kernel.org,
+	kernel-team@meta.com, "Paul E. McKenney" <paulmck@kernel.org>
+Subject: Re: [PATCH v6 5/7] locking: Add contended_release tracepoint to
+ qspinlock
+Message-ID: <agcwRNNgoYVSpDKq@shell.ilvokhin.com>
+References: <cover.1777999826.git.d@ilvokhin.com>
+ <5d7ea75ffe74a785e6b234ada9f23c6373d4b4c1.1777999826.git.d@ilvokhin.com>
+ <20260513114102.50f4ca68@gandalf.local.home>
+ <agXYjw3GM15WtC-H@shell.ilvokhin.com>
+ <20260514120348.7a64facc@gandalf.local.home>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260515-dumazet-v1-1-73468c902889@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: RyXUN4U9fc2YejAPBVQWzrjOtLm9J0DbdWDzFh8LCHI_1778855038
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260514120348.7a64facc@gandalf.local.home>
 
-On Fri, May 15, 2026 at 04:22:12PM +0200, Luigi Leonardi wrote:
->From: Eric Dumazet <edumazet@google.com>
->
->Upstream commit 059b7dbd20a6f0c539a45ddff1573cb8946685b5
->
->virtio_transport_inc_rx_pkt() checks vvs->rx_bytes + len > vvs->buf_alloc.
->
->virtio_transport_recv_enqueue() skips coalescing for packets
->with VIRTIO_VSOCK_SEQ_EOM.
->
->If fed with packets with len == 0 and VIRTIO_VSOCK_SEQ_EOM,
->a very large number of packets can be queued
->because vvs->rx_bytes stays at 0.
->
->Fix this by estimating the skb metadata size:
->
->	(Number of skbs in the queue) * SKB_TRUESIZE(0)
->
->Fixes: 077706165717 ("virtio/vsock: don't use skbuff state to account credit")
->Signed-off-by: Eric Dumazet <edumazet@google.com>
->Cc: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
->Cc: Stefan Hajnoczi <stefanha@redhat.com>
->Cc: Stefano Garzarella <sgarzare@redhat.com>
->Cc: Michael S. Tsirkin <mst@redhat.com>
->Cc: Jason Wang <jasowang@redhat.com>
->Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
->Cc: Eugenio Pérez <eperezma@redhat.com>
->Cc: virtualization@lists.linux.dev
->Link: https://patch.msgid.link/20260430122653.554058-1-edumazet@google.com
->Signed-off-by: Jakub Kicinski <kuba@kernel.org>
->[LL: Fixed conflict since this tree does not use buf_used added by commit
-> 45ca7e9f0730 ("vsock/virtio: fix `rx_bytes` accounting for stream sockets")]
->Signed-off-by: Luigi Leonardi <leonardi@redhat.com>
->---
-> net/vmw_vsock/virtio_transport_common.c | 4 +++-
-> 1 file changed, 3 insertions(+), 1 deletion(-)
->
->diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->index 4c374c36c29d..86e3051d000e 100644
->--- a/net/vmw_vsock/virtio_transport_common.c
->+++ b/net/vmw_vsock/virtio_transport_common.c
->@@ -283,7 +283,9 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
-> static bool virtio_transport_inc_rx_pkt(struct virtio_vsock_sock *vvs,
-> 					u32 len)
-> {
->-	if (vvs->rx_bytes + len > vvs->buf_alloc)
->+	u64 skb_overhead = (skb_queue_len(&vvs->rx_queue) + 1) * SKB_TRUESIZE(0);
->+
->+	if (skb_overhead + vvs->rx_bytes + len > vvs->buf_alloc)
-> 		return false;
->
-> 	vvs->rx_bytes += len;
->
->---
->base-commit: 3b9f64db049687c0d38b4b3ef2f297f0642179af
->change-id: 20260515-dumazet-07c0c855a9e2
->
->Best regards,
->--
->Luigi Leonardi <leonardi@redhat.com>
->
+On Thu, May 14, 2026 at 12:03:48PM -0400, Steven Rostedt wrote:
+> On Thu, 14 May 2026 14:13:35 +0000
+> Dmitry Ilvokhin <d@ilvokhin.com> wrote:
+> 
+> > > > +void __lockfunc queued_spin_release_traced(struct qspinlock *lock)
+> > > > +{
+> > > > +	if (queued_spin_is_contended(lock))
+> > > > +		trace_call__contended_release(lock);
+> > > > +	queued_spin_release(lock);  
+> > > 
+> > > And then remove the duplicate call of "queued_spin_release()" here.  
+> > 
+> > This is the scenario the comment above the static branch describes.
+> > Here's what it looks like in practice on x86_64 (defconfig, compiled
+> > with GCC 11).
+> > 
+> > Current design (trace + unlock combined, with return):
+> >   
+> >     endbr64
+> >     xchg %ax,%ax                     ; NOP (static branch)
+> >     movb $0x0,(%rdi)                 ; unlock
+> >     decl %gs:__preempt_count
+> >     je   preempt
+> >     jmp  __x86_return_thunk
+> >     call queued_spin_release_traced  ; cold
+> >     jmp  preempt_handling            ; cold
+> >     call __SCT__preempt_schedule
+> >     jmp  __x86_return_thunk
+> > 
+> > With the trace-only function (no return, unlock after the call):
+> >   
+> >     endbr64
+> >     push %rbx                        ; saves callee-saved rbx (!)
+> >     mov  %rdi,%rbx                   ; preserve lock across call (!)
+> >     xchg %ax,%ax                     ; NOP (static branch)
+> >     movb $0x0,(%rbx)                 ; unlock
+> >     decl %gs:__preempt_count
+> >     je   preempt
+> >     pop  %rbx                        ; callee-saved restore (!)
+> >     jmp  __x86_return_thunk
+> >     call queued_spin_release_traced  ; cold
+> >     jmp  unlock                      ; cold
+> >     call __SCT__preempt_schedule
+> >     pop  %rbx
+> >     jmp  __x86_return_thunk
+> > 
+> > Three extra instructions marked by "!" on the hot path (push, mov, pop),
+> > all wasted when the tracepoint is off. That's the main reason for
+> > combining trace and unlock in the same out-of-line function.
+> 
+> Ah, because the return makes it into two tail calls.
+> 
+> I still don't like the duplication, perhaps add some more comments about
+> needing to update the other location if anything changes here? And perhaps
+> comment that this duplicate code helps the assembly.
 
-Forgot to add this is material for 6.6.y stable tree.
+My idea was that queued_spin_release() serves the same role that the old
+queued_spin_unlock() had: a pure lock-release primitive without tracing.
+That was the primary motivation for extracting queued_spin_release() in
+the first place (it is just one line of code), so the common release
+logic between the traced and non-traced paths is shared explicitly
+rather than duplicated semantically.
 
-Luigi
+I agree that this could be explained better. I'll add more comments
+there to clarify the rationale. Thanks for the suggestion, Steve.
 
+> 
+> -- Steve
+> 
