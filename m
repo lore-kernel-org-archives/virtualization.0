@@ -1,227 +1,247 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28FA7401481
-	for <virtualization@lists.linux.dev>; Fri, 15 May 2026 08:30:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4239423144
+	for <virtualization@lists.linux.dev>; Fri, 15 May 2026 08:40:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778833806; cv=none; b=q6GIqZS5+7JMqFdR+dvxRAoEj13bPwwBpp3mMTZxk7/7qclFZd+mtMo8enXePFeJ+w4wGCk5yVSIS735tS/5MmZVKNhCE18VGc7/F7iZkJovnJ7+wRCIuLnnvigir+7N5na77IpbylPyFPdMaacrVN/RfpM478GsUw4uzQ5+w1g=
+	t=1778834444; cv=none; b=GaMtU3gKoJRcYoZkR6lCHo70opcD03WY0sQAlGMMoGUTvwra/mnYE+cf/+7HtB7S6E2Wmin8royr4WfnvIYH4M2g/cikPN1ESZWfn34dB2haP0X1zRRnyhOsrZph0coAk4Ju7CMll2TYX1z/BwEkBAOcVEW4dxFDJI5g/4NSExs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778833806; c=relaxed/simple;
-	bh=EQ7IwlxGHE0J1foFsB+9uj3saln4eg27mwKY3T8VjcA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=gbVfJVP763LEWU/LJY5h9MEsRbdpzdg0YpztO4eYkuiQDON97+ocYzzUaKen/1uS6dXme9ulP7qLLcVuVJ8y1NJaVNmRzznx52NkoQaDCdTr/7XPx8EWtzJTCqPo0ejAmAxEeThhnYfhMk1id/jXVuCG9Kyc73mC8RKuKCDUS6U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=T1Z6FtJz; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1778834444; c=relaxed/simple;
+	bh=bMjgEAA1AihAMMTwD1pxLHmMxEIVCiAxGqmaIQ/5jHA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=e8JmyHsx1hEtyyj87spEpxHjz4WjfiWyvUCoJK4TyQn71N2abVucSRP70M0kaKk68paU2IFTCacwZUOJAtRoh2lx6gS6isR1+0P0rkDYhgUIPDscsH52LXJYe+pPWjOKIVGpRgw+VOgXdbfj+fMiJ62N51HIEVE//oVuFtNRdHs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=D8nGNAt9; arc=none smtp.client-ip=209.85.216.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="T1Z6FtJz"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1778833804;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=muOsFm1ckUowqiVN5FPZIYRSKzSTI/TAawbrF7fG7TI=;
-	b=T1Z6FtJzHblNELunaucrHq7N4H+6PsGFvBrKwYSz997ShFg4NcKQAyD7L6r35UYvGAwpcZ
-	tl4zBk2He7aYCbwyhIVQiOrhZ0n1ywvbhBOL1B0x49xhaQBgbr/HuRv6f5VsGJao8nIzRa
-	RhqYY7Jiam5Lb3YvJNTfy9wLoELa6U0=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-654-cR4AQzeQNpuRf5kGSF29qA-1; Fri, 15 May 2026 04:30:02 -0400
-X-MC-Unique: cR4AQzeQNpuRf5kGSF29qA-1
-X-Mimecast-MFC-AGG-ID: cR4AQzeQNpuRf5kGSF29qA_1778833801
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-48d127eb013so48365615e9.1
-        for <virtualization@lists.linux.dev>; Fri, 15 May 2026 01:30:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="D8nGNAt9"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-366375c4076so4325522a91.3
+        for <virtualization@lists.linux.dev>; Fri, 15 May 2026 01:40:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1778834442; x=1779439242; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=BcNd3ITFWzMqmrli28Wy6nyBCrJ36rIyJ26nJuqd1AM=;
+        b=D8nGNAt9q/3Y0ZFCob0ex8dpchFHZ+rTjmi5E+Bs+2QXbHDuqIuEPNQau0c1bPhG3f
+         hZouBUoh0jriz2q9zVTyEtVHt16I2UagkNKrvk/LrkqO1m+0m/XFPU3MXckXoNGA2xBq
+         MAFqVAL8rF1WTm14KixW+ojEs6RkchsZYxHBFkGeUIsUMIhYb3CKPFWNi/scDAXJ5Dxe
+         0jt1yOWSFCg/P06e88NH5c2nDUN7Z/bYoYOoWS6HBJhnTZdm5/LlWSd9iG9r0WMjVHPN
+         FI2mmhPunauNT58jQYmMXSuwvUq0+wP7ngPjsPuG1RRevTm8mJ0d0+4zc+W2YBvvI6VK
+         xVbQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778833801; x=1779438601;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=muOsFm1ckUowqiVN5FPZIYRSKzSTI/TAawbrF7fG7TI=;
-        b=h0ot0nLR2u84hPtUXnl0VNpphLJ5JSFK3tUAZKipitxcqo50HJNy8sQy5khSf1WCSF
-         VBKR8txiUwBUUyMQCOltMnFX0BtSOxQw5lMC8q2sPq+YgNOwmI8fs+6Y8vvSC25JeqYA
-         hxunUpcI5KLHejGRT0nKPbZuL7c+AiQXF4oqqS4chlxw/Wh7jzPF++oskFWp5sIV5yZO
-         lW1dBmqt5/21llCfekphtpXlFStniNzUcbshX/97QyT4kAdB+3rW2OEqVafRzLGATXbK
-         SVLoXrRYA/ucYdmnxCH5UFmlmVPmv8qn5dUf0dSOVAsQERVvsdLwqI2DjJ95RQMXxlCP
-         g6PQ==
-X-Forwarded-Encrypted: i=1; AFNElJ+yMh8E6RqAXdgM4EecEW9ozIkxTkHSnSyg8gmJ+OnYuhFBArdcoFbDJj2hktYlHG7vnSgPMRB9jaUBV6cZPw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxhwHmFhvudzwrOUtzDAVu19b2L9P80P/Av9G7a6BNBcXqKgrxV
-	1WCNXLr/rQwhcn5ObUCWctLNHDz9TM3G2Vs1NhtovjQIE3Y6PgqO02RYPgmFzWCxg7BgHjrx1sj
-	DiGXCZyetR18vJuBZWx7fkQEP1NjTGDfsAh+4Jgkx0x+tjSaZgVSgOnyTQxs5wD4bU6aT
-X-Gm-Gg: Acq92OHt54VzFXFL59idbmDkePiexsQYcawgCEAPkuN2HUyKGCd5+dipjcHKeouSeM1
-	xWyShPqCKAmvG2A8bOZ8Cu2qC4HkjnvDd2SS+EHv2s1yAtjPf14Njp2i1Al+SYCB/FP3TBj5yM2
-	2nTcO5ItaNpTJk0Exz2apiD3jD6PgUv7XtG1m65O0uSWK/4VvYYVUQBFw9Sv31Qw4g9q5Ty1b6y
-	44x68Ww8qqyLTvfB9ywypKYVQOytBnM+CSRUVk8ij1sHbiPEdzlKxO0mjcWRERuAHsZOjaN5wdc
-	5gyPcjBmQO1tCUT/dxNpU4ZMQRbrGfCqgpvjdrntvtSUajthG+VjKT5EMc3DX/EV7mF6ex/rWtL
-	qwzqquoTOhVkTvbkG+mOX22myQkhMmbQ3flRpicXtzmDrkpYmxi6ges4l/wfqlY9JH7v+RiJKfw
-	==
-X-Received: by 2002:a05:600c:a11c:b0:48a:5970:2003 with SMTP id 5b1f17b1804b1-48fe5fd483amr29432125e9.3.1778833800727;
-        Fri, 15 May 2026 01:30:00 -0700 (PDT)
-X-Received: by 2002:a05:600c:a11c:b0:48a:5970:2003 with SMTP id 5b1f17b1804b1-48fe5fd483amr29431715e9.3.1778833800267;
-        Fri, 15 May 2026 01:30:00 -0700 (PDT)
-Received: from sgarzare-redhat (host-87-16-204-231.retail.telecomitalia.it. [87.16.204.231])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45da0fe2464sm13729817f8f.32.2026.05.15.01.29.59
+        d=1e100.net; s=20251104; t=1778834442; x=1779439242;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=BcNd3ITFWzMqmrli28Wy6nyBCrJ36rIyJ26nJuqd1AM=;
+        b=OzLNKSFXXicz6szLaQOWeIEsidL2jQ+JBH5V2E19OaqO0hd03fuWX4vOIs4SYiZdpG
+         PTSADyqTTP96QEhHS7YPL9FO8QmlE2V0DlFqi86CPeX+RzDHclBnTBDuyozKXmhnkqlJ
+         SuWHlhWFfMMHgKjnB49HCCeKZL7QgoxSopFbynO89M+G+zD8yeT2LZ1bvA7YXlRtx0q/
+         mEPlAJ2tRwclnMUq5l63V8gqDmW+l+OrCvNcXBQJsvNlhTQf/hlXw7mpy81U8Vgxf9Ph
+         +QXrBWgHBXFIU2vqHttJMgGG3/6YKdvuowV/v+TTrc7n5UP7hEWNHttGYitmZoqY5Bfs
+         zwzQ==
+X-Forwarded-Encrypted: i=1; AFNElJ8uhXkGSqisSvM6p5Y+zmtc0dwnpI2PwgGEhv9LTXt4fR1gWF2wCAbbfTe5VOc2wWcJCowJe6jFO0UL0wzNrg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyGC1ESNznc8FBbQSybUvZeqglIIj9Tq1STFcU98nGQ3jgDX1jm
+	IbVKvn16luQPWb+EuDok5C2AhoFSMjizM7BX9RXMW976gDUJNW8HUmFC
+X-Gm-Gg: Acq92OEIYLFaNPZdqDuBEhsqFZHc/2PHUOi5+a9uL6L1vM8vZdvpTOC3m4H/0lXLoHp
+	m6wHltnAy07DMLhZpwAmHGTHtnF3bJeej3WC1brpn0fwMC/nycOZLn01SJOK9ErhkEiVlIh+Cu3
+	T3FP392dAziTCaZMirRvkzB4HeW4AgvRRPWXCp/eQJmJJ21HKDsGpLfzZMPZzV2R9ZD5DgoOXY6
+	qQTkR1KivgBHCqWMLjrq9XkSZMRFsfHr34j4s9t53S8uAuU7BPcktv3Bbx0B0nRs2RK+TTKrKrP
+	sBOReeVL4TnpQDC1USEbrUosp5zlxWcdujTeQQ9hICJTGJ6zI0L2H4sHEtFgktcIVzXG+toTSc3
+	PLi2kJR5pvg0HimeQaHz0xH27cMbV6Aj5rPBvBAxTMT4/U55YkNz8xMz4dHqlnNJyM04KrU/Qd3
+	WJCMc/r77mEhX21aXETWKVr9DAuqtS+q9vZqUBdKs9IhMctmc69LOmEselESjBu4lL12rvxNBEk
+	tTXnG8=
+X-Received: by 2002:a17:90b:134b:b0:368:78da:803 with SMTP id 98e67ed59e1d1-36951a01748mr3017625a91.12.1778834441878;
+        Fri, 15 May 2026 01:40:41 -0700 (PDT)
+Received: from deepanshu-kernel-hacker.. ([2405:201:682f:383f:ad23:b1a5:6537:1208])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-36956535742sm637091a91.3.2026.05.15.01.40.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 May 2026 01:29:59 -0700 (PDT)
-Date: Fri, 15 May 2026 10:29:55 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: netdev@vger.kernel.org, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, linux-kernel@vger.kernel.org, Simon Horman <horms@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>, 
-	virtualization@lists.linux.dev, Eric Dumazet <edumazet@google.com>, 
-	"David S. Miller" <davem@davemloft.net>
-Subject: Re: [PATCH net v3 1/2] vsock/virtio: reset connection on receiving
- queue overflow
-Message-ID: <agbWNqhzvEHVBvC2@sgarzare-redhat>
-References: <20260513105417.56761-1-sgarzare@redhat.com>
- <20260513105417.56761-2-sgarzare@redhat.com>
- <agXh36gUe1K6__Bk@sgarzare-redhat>
- <20260514111513-mutt-send-email-mst@kernel.org>
- <CAGxU2F4qWcQTmXnH74V8xZKADLiEMUmCc0+ktW5fZOXdTP4Bdw@mail.gmail.com>
- <20260514134347-mutt-send-email-mst@kernel.org>
+        Fri, 15 May 2026 01:40:41 -0700 (PDT)
+From: Deepanshu Kartikey <kartikey406@gmail.com>
+To: airlied@redhat.com,
+	kraxel@redhat.com,
+	dmitry.osipenko@collabora.com,
+	gurchetansingh@chromium.org,
+	olvaffe@gmail.com,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	tzimmermann@suse.de,
+	simona@ffwll.ch,
+	sumit.semwal@linaro.org,
+	christian.koenig@amd.com
+Cc: dri-devel@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	linux-media@vger.kernel.org,
+	linaro-mm-sig@lists.linaro.org,
+	Deepanshu Kartikey <kartikey406@gmail.com>,
+	syzbot+72bd3dd3a5d5f39a0271@syzkaller.appspotmail.com,
+	stable@vger.kernel.org
+Subject: [PATCH v3] drm/virtio: use uninterruptible resv lock for plane updates
+Date: Fri, 15 May 2026 14:10:30 +0530
+Message-ID: <20260515084030.21986-1-kartikey406@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260514134347-mutt-send-email-mst@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: augd_alEz9uiHKUO3jWRZ0UBjj2oWnValTzUaJQbyKY_1778833801
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Thu, May 14, 2026 at 01:44:53PM -0400, Michael S. Tsirkin wrote:
->On Thu, May 14, 2026 at 06:45:00PM +0200, Stefano Garzarella wrote:
->> On Thu, 14 May 2026 at 17:16, Michael S. Tsirkin <mst@redhat.com> wrote:
->> >
->> > On Thu, May 14, 2026 at 04:57:16PM +0200, Stefano Garzarella wrote:
->> > > On Wed, May 13, 2026 at 12:54:16PM +0200, Stefano Garzarella wrote:
->> > > > From: Stefano Garzarella <sgarzare@redhat.com>
->> > > >
->> > > > When there is no more space to queue an incoming packet, the packet is
->> > > > silently dropped. This causes data loss without any notification to
->> > > > either peer, since there is no retransmission.
->> > > >
->> > > > Under normal circumstances, this should never happen. However, it could
->> > > > happen if the other peer doesn't respect the credit, or if the skb
->> > > > overhead, which we recently began to take into account with commit
->> > > > 059b7dbd20a6 ("vsock/virtio: fix potential unbounded skb queue"),
->> > > > is too high.
->> > > >
->> > > > Fix this by resetting the connection and setting the local socket error
->> > > > to ENOBUFS when virtio_transport_recv_enqueue() can no longer queue a
->> > > > packet, so both peers are explicitly notified of the failure rather than
->> > > > silently losing data.
->> > > >
->> > > > Fixes: ae6fcfbf5f03 ("vsock/virtio: discard packets if credit is not respected")
->> > > > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
->> > > > ---
->> > > > net/vmw_vsock/virtio_transport_common.c | 19 ++++++++++++++-----
->> > > > 1 file changed, 14 insertions(+), 5 deletions(-)
->> > > >
->> > > > diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->> > > > index 989cc252d3d3..4a4ac69d1ad1 100644
->> > > > --- a/net/vmw_vsock/virtio_transport_common.c
->> > > > +++ b/net/vmw_vsock/virtio_transport_common.c
->> > > > @@ -1350,7 +1350,7 @@ virtio_transport_recv_connecting(struct sock *sk,
->> > > >     return err;
->> > > > }
->> > > >
->> > > > -static void
->> > > > +static bool
->> > > > virtio_transport_recv_enqueue(struct vsock_sock *vsk,
->> > > >                           struct sk_buff *skb)
->> > > > {
->> > > > @@ -1365,10 +1365,8 @@ virtio_transport_recv_enqueue(struct vsock_sock *vsk,
->> > > >     spin_lock_bh(&vvs->rx_lock);
->> > > >
->> > > >     can_enqueue = virtio_transport_inc_rx_pkt(vvs, len);
->> > > > -   if (!can_enqueue) {
->> > > > -           free_pkt = true;
->> > > > +   if (!can_enqueue)
->> > > >             goto out;
->> > > > -   }
->> > > >
->> > > >     if (le32_to_cpu(hdr->flags) & VIRTIO_VSOCK_SEQ_EOM)
->> > > >             vvs->msg_count++;
->> > > > @@ -1408,6 +1406,8 @@ virtio_transport_recv_enqueue(struct vsock_sock *vsk,
->> > > >     spin_unlock_bh(&vvs->rx_lock);
->> > > >     if (free_pkt)
->> > > >             kfree_skb(skb);
->> > > > +
->> > > > +   return can_enqueue;
->> > > > }
->> > > >
->> > > > static int
->> > > > @@ -1420,7 +1420,16 @@ virtio_transport_recv_connected(struct sock *sk,
->> > > >
->> > > >     switch (le16_to_cpu(hdr->op)) {
->> > > >     case VIRTIO_VSOCK_OP_RW:
->> > > > -           virtio_transport_recv_enqueue(vsk, skb);
->> > > > +           if (!virtio_transport_recv_enqueue(vsk, skb)) {
->> > > > +                   /* There is no more space to queue the packet, so let's
->> > > > +                    * close the connection; otherwise, we'll lose data.
->> > > > +                    */
->> > > > +                   (void)virtio_transport_reset(vsk, skb);
->> > > > +                   sk->sk_state = TCP_CLOSE;
->> > > > +                   sk->sk_err = ENOBUFS;
->> > > > +                   sk_error_report(sk);
->> > >
->> > > sashiko reported some issues related to setting TCP_CLOSE state and not
->> > > removing the socket from the connect table:
->> > > https://sashiko.dev/#/patchset/20260513105417.56761-1-sgarzare%40redhat.com
->> > >
->> > > I'll change this by calling virtio_transport_do_close() and
->> > > vsock_remove_sock() in the next version.
->> > >
->> > > Stefano
->> > >
->> > > > +                   break;
->> > > > +           }
->> > > >             vsock_data_ready(sk);
->> > > >             return err;
->> > > >     case VIRTIO_VSOCK_OP_CREDIT_REQUEST:
->> > > > --
->> > > > 2.54.0
->> > > >
->> >
->> >
->> > And so the bag of hacks grows. I feel this is energy not well spent.
->> > Please, let us fix this properly *first*. And then worry about how to
->> > backport.  Maybe it will not be so terrible to backport after all.
->> >
->>
->> TBH I don't think this is an hack, but an issue we should fix in any case.
->> Regarding the second patch, I see your point, but it's a big change
->> that worries me. I'd like some more time to fix it properly without
->> rushing. Staying calm without realizing that userspace is broken like
->> we are now without this series :-(
->>
->> That said, evaluating further, I think we have a similar issue also
->> with STREAM on the host side where the skb usually doesn't free space,
->> so we need a merge strategy also there.
->>
->> So, I'd like to have time to fix both definitely. If you have time and
->> want to go ahead, please do.
->>
->> Thanks,
->> Stefano
->
->Well my patch was a start, we just need a strategy how to avoid copying
->everything, right?
+virtio_gpu_cursor_plane_update() and virtio_gpu_resource_flush() lock
+the framebuffer BO's dma_resv via virtio_gpu_array_lock_resv() and
+ignore its return value. The function can fail with -EINTR from
+dma_resv_lock_interruptible() (signal during lock wait) or with
+-ENOMEM from dma_resv_reserve_fences() (fence slot allocation),
+leaving the resv lock not held. The queue path then walks the object
+array and calls dma_resv_add_fence(), which requires the lock held;
+with lockdep enabled this trips dma_resv_assert_held():
 
-Yep, and then there's the question of how to handle EOM without a 
-payload, but I think that's a special case. In theory, we don't support 
-sending it, but I'm not sure if POSIX allows it or not.
+  WARNING: drivers/dma-buf/dma-resv.c:296 at dma_resv_add_fence+0x71e/0x840
+  Call Trace:
+   virtio_gpu_array_add_fence
+   virtio_gpu_queue_ctrl_sgs
+   virtio_gpu_queue_fenced_ctrl_buffer
+   virtio_gpu_cursor_plane_update
+   drm_atomic_helper_commit_planes
+   drm_atomic_helper_commit_tail
+   commit_tail
+   drm_atomic_helper_commit
+   drm_atomic_commit
+   drm_atomic_helper_update_plane
+   __setplane_atomic
+   drm_mode_cursor_universal
+   drm_mode_cursor_common
+   drm_mode_cursor_ioctl
+   drm_ioctl
+   __x64_sys_ioctl
 
-That said, is it okay if I send a v4 of this series?
+Beyond the WARN, mutating the dma_resv fence list without the lock
+races with concurrent readers/writers and can corrupt the list.
 
-(I'm not sure if I'll be able to work on the merging next week)
+Both call sites run inside the .atomic_update plane callback, which
+DRM atomic helpers do not allow to fail (by the time it runs, the
+commit has been signed off to userspace and there is no clean
+rollback path). Moving the lock acquisition to .prepare_fb (v2) was
+rejected because the broader lock scope deadlocks against other
+BO locking paths in the same atomic commit.
 
-Stefano
+Introduce virtio_gpu_array_lock_resv_uninterruptible() that uses
+dma_resv_lock() instead of dma_resv_lock_interruptible() on the
+nents==1 path. This eliminates the -EINTR failure mode -- the
+realistic syzbot trigger -- without extending the lock hold across
+the commit. Use it from both virtio_gpu_cursor_plane_update() and
+virtio_gpu_resource_flush(); check the return value to handle the
+remaining -ENOMEM case by freeing the objs and skipping the plane
+update for that frame. The framebuffer BOs touched here are not
+shared with other contexts and lock contention is expected to be
+brief, so the loss of signal-interruptibility is acceptable.
+
+Other callers of virtio_gpu_array_lock_resv() (the ioctl paths)
+continue to use the interruptible variant.
+
+The bug was reported by syzbot, triggered via fault injection
+(fail_nth) on the DRM_IOCTL_MODE_CURSOR path, which forces the
+-ENOMEM branch in dma_resv_reserve_fences().
+
+Reported-by: syzbot+72bd3dd3a5d5f39a0271@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=72bd3dd3a5d5f39a0271
+Fixes: 5cfd31c5b3a3 ("drm/virtio: fix virtio_gpu_cursor_plane_update().")
+Cc: stable@vger.kernel.org
+Signed-off-by: Deepanshu Kartikey <kartikey406@gmail.com>
+---
+v3: Per maintainer feedback on v2 (lockup caused by the broader
+    lock scope in prepare_fb conflicting with other BO locking in
+    the same atomic commit): drop the prepare_fb/cleanup_fb
+    approach, introduce an uninterruptible variant of
+    virtio_gpu_array_lock_resv(), and use it in both
+    virtio_gpu_cursor_plane_update() and virtio_gpu_resource_flush().
+v2: Move resv lock acquisition from .atomic_update (which must not
+    fail) to .prepare_fb (which may), per maintainer review of v1.
+    The previous approach of silently skipping the cursor update on
+    lock failure violated the atomic-commit contract with userspace.
+---
+ drivers/gpu/drm/virtio/virtgpu_drv.h   |  1 +
+ drivers/gpu/drm/virtio/virtgpu_gem.c   | 24 ++++++++++++++++++++++++
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 10 ++++++++--
+ 3 files changed, 33 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index f17660a71a3e..43a7eb568e15 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -317,6 +317,7 @@ virtio_gpu_array_from_handles(struct drm_file *drm_file, u32 *handles, u32 nents
+ void virtio_gpu_array_add_obj(struct virtio_gpu_object_array *objs,
+ 			      struct drm_gem_object *obj);
+ int virtio_gpu_array_lock_resv(struct virtio_gpu_object_array *objs);
++int virtio_gpu_array_lock_resv_uninterruptible(struct virtio_gpu_object_array *objs);
+ void virtio_gpu_array_unlock_resv(struct virtio_gpu_object_array *objs);
+ void virtio_gpu_array_add_fence(struct virtio_gpu_object_array *objs,
+ 				struct dma_fence *fence);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
+index f22dc5c21cd4..08c4b7ef8d44 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_gem.c
++++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
+@@ -238,6 +238,30 @@ int virtio_gpu_array_lock_resv(struct virtio_gpu_object_array *objs)
+ 	return ret;
+ }
+ 
++int virtio_gpu_array_lock_resv_uninterruptible(struct virtio_gpu_object_array *objs)
++{
++	unsigned int i;
++	int ret = 0;
++
++	if (objs->nents == 1) {
++		dma_resv_lock(objs->objs[0]->resv, NULL);
++	} else {
++		ret = drm_gem_lock_reservations(objs->objs, objs->nents,
++						&objs->ticket);
++		if (ret)
++			return ret;
++	}
++
++	for (i = 0; i < objs->nents; ++i) {
++		ret = dma_resv_reserve_fences(objs->objs[i]->resv, 1);
++		if (ret) {
++			virtio_gpu_array_unlock_resv(objs);
++			return ret;
++		}
++	}
++	return 0;
++}
++
+ void virtio_gpu_array_unlock_resv(struct virtio_gpu_object_array *objs)
+ {
+ 	if (objs->nents == 1) {
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index a126d1b25f46..ef118cb4f0fa 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -215,7 +215,10 @@ static void virtio_gpu_resource_flush(struct drm_plane *plane,
+ 		if (!objs)
+ 			return;
+ 		virtio_gpu_array_add_obj(objs, vgfb->base.obj[0]);
+-		virtio_gpu_array_lock_resv(objs);
++		if (virtio_gpu_array_lock_resv_uninterruptible(objs)) {
++			virtio_gpu_array_put_free(objs);
++			return;
++		}
+ 		virtio_gpu_cmd_resource_flush(vgdev, bo->hw_res_handle, x, y,
+ 					      width, height, objs,
+ 					      vgplane_st->fence);
+@@ -459,7 +462,10 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
+ 		if (!objs)
+ 			return;
+ 		virtio_gpu_array_add_obj(objs, vgfb->base.obj[0]);
+-		virtio_gpu_array_lock_resv(objs);
++		if (virtio_gpu_array_lock_resv_uninterruptible(objs)) {
++			virtio_gpu_array_put_free(objs);
++			return;
++		}
+ 		virtio_gpu_cmd_transfer_to_host_2d
+ 			(vgdev, 0,
+ 			 plane->state->crtc_w,
+-- 
+2.43.0
 
