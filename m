@@ -1,247 +1,120 @@
-Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
+Received: from mail-yx1-f52.google.com (mail-yx1-f52.google.com [74.125.224.52])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4239423144
-	for <virtualization@lists.linux.dev>; Fri, 15 May 2026 08:40:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778834444; cv=none; b=GaMtU3gKoJRcYoZkR6lCHo70opcD03WY0sQAlGMMoGUTvwra/mnYE+cf/+7HtB7S6E2Wmin8royr4WfnvIYH4M2g/cikPN1ESZWfn34dB2haP0X1zRRnyhOsrZph0coAk4Ju7CMll2TYX1z/BwEkBAOcVEW4dxFDJI5g/4NSExs=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778834444; c=relaxed/simple;
-	bh=bMjgEAA1AihAMMTwD1pxLHmMxEIVCiAxGqmaIQ/5jHA=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=e8JmyHsx1hEtyyj87spEpxHjz4WjfiWyvUCoJK4TyQn71N2abVucSRP70M0kaKk68paU2IFTCacwZUOJAtRoh2lx6gS6isR1+0P0rkDYhgUIPDscsH52LXJYe+pPWjOKIVGpRgw+VOgXdbfj+fMiJ62N51HIEVE//oVuFtNRdHs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=D8nGNAt9; arc=none smtp.client-ip=209.85.216.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71E3E3932EE
+	for <virtualization@lists.linux.dev>; Fri, 15 May 2026 08:41:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=74.125.224.52
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1778834515; cv=pass; b=hwf/xNQw0MWqQ3C/9/GPnWrbVbN7uhQXXsTieCtswZJbtp7XROls1hHx+LM+doxfQYqmM/eOPGihsk8PofpxATl0tr/jzdWB4jbqNF6Geg3c1QumCoaAkL+A9/pjegqgXh8TsY+JbUqrVBHRo+FkRO34vCTx77iOHWGGgdUJdXY=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1778834515; c=relaxed/simple;
+	bh=I877MRSe9H5vPYZq5yiCD/TiLGWBm9ufbCGIjpcsS6I=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=sZoJI7NyLkYA1iZujxdyZkpMRqVelIlvr96Ov1qaqLYHKfzSh434K9Fng57grCnrsusgTThY2d//5hxLwnsLoGRuBCkjsmd68PN5M9tvh8IgwH3HB6uBeIOD6RofWqJF6fWHayvfLW7S2WCtuBvGhi8cyY45OXaq+Luj1WjeqbU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FMY5VX7P; arc=pass smtp.client-ip=74.125.224.52
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="D8nGNAt9"
-Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-366375c4076so4325522a91.3
-        for <virtualization@lists.linux.dev>; Fri, 15 May 2026 01:40:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FMY5VX7P"
+Received: by mail-yx1-f52.google.com with SMTP id 956f58d0204a3-65d071aac6eso10214745d50.0
+        for <virtualization@lists.linux.dev>; Fri, 15 May 2026 01:41:54 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1778834513; cv=none;
+        d=google.com; s=arc-20240605;
+        b=h+0zlnrQaIFlOOMum8DzSiIa2+AvGdMXuBRjbkXaCLbW/oCkcxdjvUmNtmWJf9YI2j
+         7fBX2dfDcqi5n570NuacxvRS5LbC32Xb5MGHWUmzo5yJsbPEfefQeYVtTLfREzFRR5DY
+         LJ2pOjVG6CEUc20vfNu/ZSGqRzfmFOuPHc5lWYPiaO9dfKldSnJwIcelZG2MO5ziFu8g
+         tlpQ46WwgWPRZBpluxQVJtfTZ6IrpQPlbSRl3V4BJjdEjOtM8RfWDLBh2vwISvvrCXPg
+         SfmaXNTmyzE25t5vCioAk40DGLfKzyPBrM+b5ueKkdV5pxMnpg2mTXGarcilR20Eeqdg
+         GyYw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=PBSjZR3vBTrgdu+SMltlDgYPuNOIji8ITlL8pViUrIo=;
+        fh=CW3FbIa/rqhj8Dkz4pjy4DSOmKson7y5jRk6p1WAmKU=;
+        b=KLKMvUtCkQjAbm6ZLNvwFWYqK+HYGMb+bA9gNxyeYxWhqL7bghqpYglwG5YDH/NyWC
+         2DyBeoMjbITxmM7koxsTXlHDiuGt4/57C/QtYG7tVxdyrRzQEBy8OF5TMLx58CoyeC/r
+         fk+ufuSOBHpcwybZweaLPHKSvYCbMAkoFPavXq2BSz0wPyqy8dhy1/Kz2hPWb1gUzKOc
+         6g2IabWNwaNlAw+4TqNiW9Q1midzS/QmTbWAbs6yyOqr0odIcQ+6jzziPSNVJpOshwNy
+         LiiYgKqF3s6iMjWTmM7RoY2oO/2PP9A/UQzrd5Fi3P/28f1EqolwdRfaxoLxEDIPrjsz
+         TF6Q==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1778834442; x=1779439242; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=BcNd3ITFWzMqmrli28Wy6nyBCrJ36rIyJ26nJuqd1AM=;
-        b=D8nGNAt9q/3Y0ZFCob0ex8dpchFHZ+rTjmi5E+Bs+2QXbHDuqIuEPNQau0c1bPhG3f
-         hZouBUoh0jriz2q9zVTyEtVHt16I2UagkNKrvk/LrkqO1m+0m/XFPU3MXckXoNGA2xBq
-         MAFqVAL8rF1WTm14KixW+ojEs6RkchsZYxHBFkGeUIsUMIhYb3CKPFWNi/scDAXJ5Dxe
-         0jt1yOWSFCg/P06e88NH5c2nDUN7Z/bYoYOoWS6HBJhnTZdm5/LlWSd9iG9r0WMjVHPN
-         FI2mmhPunauNT58jQYmMXSuwvUq0+wP7ngPjsPuG1RRevTm8mJ0d0+4zc+W2YBvvI6VK
-         xVbQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778834442; x=1779439242;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1778834513; x=1779439313; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=BcNd3ITFWzMqmrli28Wy6nyBCrJ36rIyJ26nJuqd1AM=;
-        b=OzLNKSFXXicz6szLaQOWeIEsidL2jQ+JBH5V2E19OaqO0hd03fuWX4vOIs4SYiZdpG
-         PTSADyqTTP96QEhHS7YPL9FO8QmlE2V0DlFqi86CPeX+RzDHclBnTBDuyozKXmhnkqlJ
-         SuWHlhWFfMMHgKjnB49HCCeKZL7QgoxSopFbynO89M+G+zD8yeT2LZ1bvA7YXlRtx0q/
-         mEPlAJ2tRwclnMUq5l63V8gqDmW+l+OrCvNcXBQJsvNlhTQf/hlXw7mpy81U8Vgxf9Ph
-         +QXrBWgHBXFIU2vqHttJMgGG3/6YKdvuowV/v+TTrc7n5UP7hEWNHttGYitmZoqY5Bfs
-         zwzQ==
-X-Forwarded-Encrypted: i=1; AFNElJ8uhXkGSqisSvM6p5Y+zmtc0dwnpI2PwgGEhv9LTXt4fR1gWF2wCAbbfTe5VOc2wWcJCowJe6jFO0UL0wzNrg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyGC1ESNznc8FBbQSybUvZeqglIIj9Tq1STFcU98nGQ3jgDX1jm
-	IbVKvn16luQPWb+EuDok5C2AhoFSMjizM7BX9RXMW976gDUJNW8HUmFC
-X-Gm-Gg: Acq92OEIYLFaNPZdqDuBEhsqFZHc/2PHUOi5+a9uL6L1vM8vZdvpTOC3m4H/0lXLoHp
-	m6wHltnAy07DMLhZpwAmHGTHtnF3bJeej3WC1brpn0fwMC/nycOZLn01SJOK9ErhkEiVlIh+Cu3
-	T3FP392dAziTCaZMirRvkzB4HeW4AgvRRPWXCp/eQJmJJ21HKDsGpLfzZMPZzV2R9ZD5DgoOXY6
-	qQTkR1KivgBHCqWMLjrq9XkSZMRFsfHr34j4s9t53S8uAuU7BPcktv3Bbx0B0nRs2RK+TTKrKrP
-	sBOReeVL4TnpQDC1USEbrUosp5zlxWcdujTeQQ9hICJTGJ6zI0L2H4sHEtFgktcIVzXG+toTSc3
-	PLi2kJR5pvg0HimeQaHz0xH27cMbV6Aj5rPBvBAxTMT4/U55YkNz8xMz4dHqlnNJyM04KrU/Qd3
-	WJCMc/r77mEhX21aXETWKVr9DAuqtS+q9vZqUBdKs9IhMctmc69LOmEselESjBu4lL12rvxNBEk
-	tTXnG8=
-X-Received: by 2002:a17:90b:134b:b0:368:78da:803 with SMTP id 98e67ed59e1d1-36951a01748mr3017625a91.12.1778834441878;
-        Fri, 15 May 2026 01:40:41 -0700 (PDT)
-Received: from deepanshu-kernel-hacker.. ([2405:201:682f:383f:ad23:b1a5:6537:1208])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-36956535742sm637091a91.3.2026.05.15.01.40.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 May 2026 01:40:41 -0700 (PDT)
-From: Deepanshu Kartikey <kartikey406@gmail.com>
-To: airlied@redhat.com,
-	kraxel@redhat.com,
-	dmitry.osipenko@collabora.com,
-	gurchetansingh@chromium.org,
-	olvaffe@gmail.com,
-	maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org,
-	tzimmermann@suse.de,
-	simona@ffwll.ch,
-	sumit.semwal@linaro.org,
-	christian.koenig@amd.com
-Cc: dri-devel@lists.freedesktop.org,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	linux-media@vger.kernel.org,
-	linaro-mm-sig@lists.linaro.org,
-	Deepanshu Kartikey <kartikey406@gmail.com>,
-	syzbot+72bd3dd3a5d5f39a0271@syzkaller.appspotmail.com,
-	stable@vger.kernel.org
-Subject: [PATCH v3] drm/virtio: use uninterruptible resv lock for plane updates
-Date: Fri, 15 May 2026 14:10:30 +0530
-Message-ID: <20260515084030.21986-1-kartikey406@gmail.com>
-X-Mailer: git-send-email 2.43.0
+        bh=PBSjZR3vBTrgdu+SMltlDgYPuNOIji8ITlL8pViUrIo=;
+        b=FMY5VX7PEwl7edo6mDOVhupVzlNo3PsARFAHH2Jlh6IXseXFenYdBecvQSGQqWe57L
+         TMDyR1AzcpfL1TErEa+DiWVkMBAyh+xLdc+c0fNa1O5Tl4RZxY4ggJUefApT5nFZhL6j
+         tU34S0817wsEcPAstT/uHBMMmGrnxt+Z6R/ZAkg2KB/NPs7eZZaYv371ke85JihpCkG4
+         hNY1GIqwGkwG4ELjQHotE7ze/V4n+xeVDMcdrRfzvN7AFcGCtHDuEcGT9CbogkqA1fde
+         PrNsVFpTcfVr1pM2P5V1bD3Y0HXt2oFq4IS/52EHU8qENsecGPILWEqMnoU11vsy2hiJ
+         nnJw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1778834513; x=1779439313;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=PBSjZR3vBTrgdu+SMltlDgYPuNOIji8ITlL8pViUrIo=;
+        b=UNw9du3RG2M3CM9nHGP8Wg5KJwou6vaK+YTB0KXU7ODAZD28TmFE8Qjf7R4GDR32QL
+         3sxAJ/1/0oGmqA0alD0bptoyIqOY/4X4STYjJGvW25DukSTDuW7D5N422f5Vc/riTs03
+         PFk65j3+DEWAmD6Gz0jFiOCXJkVpvfTLrRlRp/ZNU5bdhDkMqmbfLYJMENeIq7M36A6U
+         nxvTrnhJGbWOCiJnGPdZL5LNGLUEzCRGfqUsP2WXgwG7J5XLJ5qRCGIckvMyld7jn+7y
+         D8b8Fnp4lqNEU/6AQyOnpiHry6LG6DaQGQRbLweq9p5iyaHRms5U0iFJHNLhG1TuFtsF
+         q59w==
+X-Forwarded-Encrypted: i=1; AFNElJ8rGn5lOEnHax030CpBV8mFPpayLzf3qpiPmic9JK3VoolPOAoAsH+238R7zjKeJVvOyQoFIZZfqaKyIaMhPQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YymUcXnZDQHYk8A9vyiKv8s9FsajiuCswD8k8m2xdQXErNK3ekU
+	Un2GmvFPuDSqfXRgb5U5XK8sXAPEkpmf+9xY7tp9Q9hGKfOEpeWz4uPek6XuKM5I3UnrXUFX70u
+	Qq2wcUrHh2QzpK6t4UVpqNjsi3muhVsI=
+X-Gm-Gg: Acq92OG/TDtYpsRy0ZeJi9ePDiRwE3ICNReiDfcCjxzXcJCNmBbp/Z3lS3n0tQyz9wc
+	zLF9YWReqixYonMglorvs6Z7HjAR5lY7Ugr4NhPEcz5lvlP0pHnbvymUnHAHF2o6tl6iCNvcGiL
+	PbA+HuSOTZfAQlbXSnrII6T/4TBFegoSAQF5f9QCEiDy5fQGv9X7e87d8vwiNoPZgitGPm3XcYf
+	VvQAGzmKA6aKp1V8GA73R5jtRG9rNV/Rf899aoogiJLrlq0IxBgSU8o8gTlyYGaFarWlMEIyo0H
+	MI4ylnoc8Yir5ZebYQmSwpoyyqA6fLutfGUlTk41KJLEcKdPSZ297utChpkFYiQvwysF5rFu
+X-Received: by 2002:a05:690c:4:b0:79f:d961:47bf with SMTP id
+ 00721157ae682-7c9594b0105mr32678827b3.8.1778834513472; Fri, 15 May 2026
+ 01:41:53 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260512020718.108044-1-kartikey406@gmail.com>
+ <d1bc8d7d-3a4f-4ede-8266-81cc66bf11b5@collabora.com> <CADhLXY7N0eLpA30eV4Rb=F4vzCf9XYtDjMpxBSJtGeMWNi6Cwg@mail.gmail.com>
+ <65da2ce9-a2ab-4800-a73e-1a26082d0605@collabora.com>
+In-Reply-To: <65da2ce9-a2ab-4800-a73e-1a26082d0605@collabora.com>
+From: Deepanshu Kartikey <kartikey406@gmail.com>
+Date: Fri, 15 May 2026 14:11:42 +0530
+X-Gm-Features: AVHnY4IGHTZnfpb9msWE08vJttVqhQ6G8dsaF1hRX2r-HcKGXn0VdlxicBL5ZuQ
+Message-ID: <CADhLXY6L1RJvgfMGuogmw7bx5Sj-_6G2C7zR5q+xLQXu_M-Tjw@mail.gmail.com>
+Subject: Re: [PATCH v2] drm/virtio: move cursor resv lock acquisition to prepare_fb
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+Cc: airlied@redhat.com, kraxel@redhat.com, gurchetansingh@chromium.org, 
+	olvaffe@gmail.com, maarten.lankhorst@linux.intel.com, mripard@kernel.org, 
+	tzimmermann@suse.de, simona@ffwll.ch, sumit.semwal@linaro.org, 
+	christian.koenig@amd.com, dri-devel@lists.freedesktop.org, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	linux-media@vger.kernel.org, linaro-mm-sig@lists.linaro.org, 
+	syzbot+72bd3dd3a5d5f39a0271@syzkaller.appspotmail.com, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-virtio_gpu_cursor_plane_update() and virtio_gpu_resource_flush() lock
-the framebuffer BO's dma_resv via virtio_gpu_array_lock_resv() and
-ignore its return value. The function can fail with -EINTR from
-dma_resv_lock_interruptible() (signal during lock wait) or with
--ENOMEM from dma_resv_reserve_fences() (fence slot allocation),
-leaving the resv lock not held. The queue path then walks the object
-array and calls dma_resv_add_fence(), which requires the lock held;
-with lockdep enabled this trips dma_resv_assert_held():
+On Wed, May 13, 2026 at 2:40=E2=80=AFPM Dmitry Osipenko
+<dmitry.osipenko@collabora.com> wrote:
+>
+> > Does that match what you had in mind?
+>
+> Sounds good. The virtio_gpu_resource_flush() also should be updated to
+> use uninterruptible() variant.
+>
+> --
+> Best regards,
+> Dmitry
 
-  WARNING: drivers/dma-buf/dma-resv.c:296 at dma_resv_add_fence+0x71e/0x840
-  Call Trace:
-   virtio_gpu_array_add_fence
-   virtio_gpu_queue_ctrl_sgs
-   virtio_gpu_queue_fenced_ctrl_buffer
-   virtio_gpu_cursor_plane_update
-   drm_atomic_helper_commit_planes
-   drm_atomic_helper_commit_tail
-   commit_tail
-   drm_atomic_helper_commit
-   drm_atomic_commit
-   drm_atomic_helper_update_plane
-   __setplane_atomic
-   drm_mode_cursor_universal
-   drm_mode_cursor_common
-   drm_mode_cursor_ioctl
-   drm_ioctl
-   __x64_sys_ioctl
+I  have sent patch v3.
 
-Beyond the WARN, mutating the dma_resv fence list without the lock
-races with concurrent readers/writers and can corrupt the list.
+Thanks
 
-Both call sites run inside the .atomic_update plane callback, which
-DRM atomic helpers do not allow to fail (by the time it runs, the
-commit has been signed off to userspace and there is no clean
-rollback path). Moving the lock acquisition to .prepare_fb (v2) was
-rejected because the broader lock scope deadlocks against other
-BO locking paths in the same atomic commit.
-
-Introduce virtio_gpu_array_lock_resv_uninterruptible() that uses
-dma_resv_lock() instead of dma_resv_lock_interruptible() on the
-nents==1 path. This eliminates the -EINTR failure mode -- the
-realistic syzbot trigger -- without extending the lock hold across
-the commit. Use it from both virtio_gpu_cursor_plane_update() and
-virtio_gpu_resource_flush(); check the return value to handle the
-remaining -ENOMEM case by freeing the objs and skipping the plane
-update for that frame. The framebuffer BOs touched here are not
-shared with other contexts and lock contention is expected to be
-brief, so the loss of signal-interruptibility is acceptable.
-
-Other callers of virtio_gpu_array_lock_resv() (the ioctl paths)
-continue to use the interruptible variant.
-
-The bug was reported by syzbot, triggered via fault injection
-(fail_nth) on the DRM_IOCTL_MODE_CURSOR path, which forces the
--ENOMEM branch in dma_resv_reserve_fences().
-
-Reported-by: syzbot+72bd3dd3a5d5f39a0271@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=72bd3dd3a5d5f39a0271
-Fixes: 5cfd31c5b3a3 ("drm/virtio: fix virtio_gpu_cursor_plane_update().")
-Cc: stable@vger.kernel.org
-Signed-off-by: Deepanshu Kartikey <kartikey406@gmail.com>
----
-v3: Per maintainer feedback on v2 (lockup caused by the broader
-    lock scope in prepare_fb conflicting with other BO locking in
-    the same atomic commit): drop the prepare_fb/cleanup_fb
-    approach, introduce an uninterruptible variant of
-    virtio_gpu_array_lock_resv(), and use it in both
-    virtio_gpu_cursor_plane_update() and virtio_gpu_resource_flush().
-v2: Move resv lock acquisition from .atomic_update (which must not
-    fail) to .prepare_fb (which may), per maintainer review of v1.
-    The previous approach of silently skipping the cursor update on
-    lock failure violated the atomic-commit contract with userspace.
----
- drivers/gpu/drm/virtio/virtgpu_drv.h   |  1 +
- drivers/gpu/drm/virtio/virtgpu_gem.c   | 24 ++++++++++++++++++++++++
- drivers/gpu/drm/virtio/virtgpu_plane.c | 10 ++++++++--
- 3 files changed, 33 insertions(+), 2 deletions(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index f17660a71a3e..43a7eb568e15 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -317,6 +317,7 @@ virtio_gpu_array_from_handles(struct drm_file *drm_file, u32 *handles, u32 nents
- void virtio_gpu_array_add_obj(struct virtio_gpu_object_array *objs,
- 			      struct drm_gem_object *obj);
- int virtio_gpu_array_lock_resv(struct virtio_gpu_object_array *objs);
-+int virtio_gpu_array_lock_resv_uninterruptible(struct virtio_gpu_object_array *objs);
- void virtio_gpu_array_unlock_resv(struct virtio_gpu_object_array *objs);
- void virtio_gpu_array_add_fence(struct virtio_gpu_object_array *objs,
- 				struct dma_fence *fence);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
-index f22dc5c21cd4..08c4b7ef8d44 100644
---- a/drivers/gpu/drm/virtio/virtgpu_gem.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
-@@ -238,6 +238,30 @@ int virtio_gpu_array_lock_resv(struct virtio_gpu_object_array *objs)
- 	return ret;
- }
- 
-+int virtio_gpu_array_lock_resv_uninterruptible(struct virtio_gpu_object_array *objs)
-+{
-+	unsigned int i;
-+	int ret = 0;
-+
-+	if (objs->nents == 1) {
-+		dma_resv_lock(objs->objs[0]->resv, NULL);
-+	} else {
-+		ret = drm_gem_lock_reservations(objs->objs, objs->nents,
-+						&objs->ticket);
-+		if (ret)
-+			return ret;
-+	}
-+
-+	for (i = 0; i < objs->nents; ++i) {
-+		ret = dma_resv_reserve_fences(objs->objs[i]->resv, 1);
-+		if (ret) {
-+			virtio_gpu_array_unlock_resv(objs);
-+			return ret;
-+		}
-+	}
-+	return 0;
-+}
-+
- void virtio_gpu_array_unlock_resv(struct virtio_gpu_object_array *objs)
- {
- 	if (objs->nents == 1) {
-diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
-index a126d1b25f46..ef118cb4f0fa 100644
---- a/drivers/gpu/drm/virtio/virtgpu_plane.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
-@@ -215,7 +215,10 @@ static void virtio_gpu_resource_flush(struct drm_plane *plane,
- 		if (!objs)
- 			return;
- 		virtio_gpu_array_add_obj(objs, vgfb->base.obj[0]);
--		virtio_gpu_array_lock_resv(objs);
-+		if (virtio_gpu_array_lock_resv_uninterruptible(objs)) {
-+			virtio_gpu_array_put_free(objs);
-+			return;
-+		}
- 		virtio_gpu_cmd_resource_flush(vgdev, bo->hw_res_handle, x, y,
- 					      width, height, objs,
- 					      vgplane_st->fence);
-@@ -459,7 +462,10 @@ static void virtio_gpu_cursor_plane_update(struct drm_plane *plane,
- 		if (!objs)
- 			return;
- 		virtio_gpu_array_add_obj(objs, vgfb->base.obj[0]);
--		virtio_gpu_array_lock_resv(objs);
-+		if (virtio_gpu_array_lock_resv_uninterruptible(objs)) {
-+			virtio_gpu_array_put_free(objs);
-+			return;
-+		}
- 		virtio_gpu_cmd_transfer_to_host_2d
- 			(vgdev, 0,
- 			 plane->state->crtc_w,
--- 
-2.43.0
-
+Deepanshu
