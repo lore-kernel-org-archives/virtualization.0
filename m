@@ -1,56 +1,56 @@
-Received: from mail-pg1-f202.google.com (mail-pg1-f202.google.com [209.85.215.202])
+Received: from mail-pf1-f202.google.com (mail-pf1-f202.google.com [209.85.210.202])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 085473E1200
-	for <virtualization@lists.linux.dev>; Fri, 15 May 2026 19:20:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DD063E1227
+	for <virtualization@lists.linux.dev>; Fri, 15 May 2026 19:20:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778872849; cv=none; b=ldhCtxjtvh2ApCsxj3Tae30iULiO+8FD97B/2ERP/odix1uDwsnZUgG4Nh4BRnpGrSUUKqylCMxbVcfStPeq8Xp0AX1uZ4GBRtMQq98Prbuo3fJnA+xde78Cf4D2rYYjWj2puX3SSnmzrnIym/0NVxwx6RNSvmkpNhkOQlN1qKk=
+	t=1778872850; cv=none; b=JksqSzxdJgdBGrg9I/AL3nSlgOA6I+LVdn3F8TKP75D/F3H7IpddUORgP/eQl2bPVKz4AiiM8KlKcL+HGzWbQDwoUAZbL8snWLntnvDbvYDHw2AGyYYYNwn6EfvhVD0O0Qexqz3Cja79Wqacfx06kxRHG/nXzB4LlrWUxVeJPE0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778872849; c=relaxed/simple;
-	bh=bIvGpEwSZtu1dFGmRrUgP1xhupYQhI4tOk7weRcJRgU=;
+	s=arc-20240116; t=1778872850; c=relaxed/simple;
+	bh=7t7bZAkjWH8tEuvlMroGRphDuT5a2BO5RqjwXybBung=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=GeQBX5sLR9/avZU4jj8rwIRn+jv/RVfaJYRmvsHO+6IA+LxCewwuq+eoSzOHLMU47pYWMzJ0FxQCatyXph6/EEYrBpi8JtG6y/m4GF3TxJ/DCQ5Q8dF5lOOXnybmhUxSfDWmzuDLWeaH0j2XV1x4wfw2xc8Ydw/YST5GNEcJkYc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=wGtyso6U; arc=none smtp.client-ip=209.85.215.202
+	 To:Cc:Content-Type; b=I5F9cTT1emUpECFfmpOLGXfoayyTgpO/IBaZiYqCRmItL0gWhFj6/8GzSanJo6wjgHb6N01S2GXkhkkESCwoFhMlR9P/rwhidctVIsnkfV1Iqh22U2E6luCpny0b9t/5/+twDjBCLVJb6tB0S6m1qRILACu7mtJ1X/6rg1jHP9I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=ICEgfvG9; arc=none smtp.client-ip=209.85.210.202
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="wGtyso6U"
-Received: by mail-pg1-f202.google.com with SMTP id 41be03b00d2f7-c828ab3b033so211318a12.3
-        for <virtualization@lists.linux.dev>; Fri, 15 May 2026 12:20:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ICEgfvG9"
+Received: by mail-pf1-f202.google.com with SMTP id d2e1a72fcca58-83536dc3be5so248213b3a.1
+        for <virtualization@lists.linux.dev>; Fri, 15 May 2026 12:20:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1778872847; x=1779477647; darn=lists.linux.dev;
+        d=google.com; s=20251104; t=1778872848; x=1779477648; darn=lists.linux.dev;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:from:to:cc:subject:date:message-id:reply-to;
-        bh=eVzC+1NNlxe1k/R0gBkxcy+TPbGnZzPB3ftmmd4+5ik=;
-        b=wGtyso6Uqxty1AiB9MEoJ7TFW/JGcjvBIfH9n/kdRgsJ2LNOzDvZYg23OD5FWesSRC
-         mOkoW7/jY+FQdR409lGivhhDFD7xmKog8XwkPgpICSDqS1+NvVBnyVJ640qVNR3J5pif
-         F2tSrxuv/zcLAjmCPjBf1ONAMrMgYv6MpcbIgQHuhMLoOVLWE/VT2Ml6Mj4WYGl9itZ4
-         JMOi45bisFe+KHkXtx50BZPbavRr7K41hHlMpduBm88vlKafh6PboU3UR0YbrQy4kd8t
-         Cyosat61oKKh3Uw1V50ZNUUU2MVZxcvDBi5B22mtK0Q/HaIt3/h7PsMAJySYtGCPMOXl
-         7QkQ==
+        bh=c0VSXuwvwTL0EdvBxlPRCLOC48TzlA2S3UU4EaITdRg=;
+        b=ICEgfvG9mscE7boNRUqgd9ZHKO7hf/Gv/vMoImo9dKy86hCDEAqzp7rK0fCz5PKRQM
+         nbG1ltUvirc+/RY9DAoW4SnTx5tzqnWnkmA+8tbEVPZnQUel68bWX15t9VJTG8nhdARF
+         Y0reArQg9ZBJFoh1IN1AadXFTe94A+r7nlidXo8SsR+OW+S0ZA9074M54x5SGUsBxGYB
+         KPUOrJp+dzp5JvZ0U4Xebv+nCZRmjQOUZxBOHoHEEHD01MNOUDrj/wT7AR2mCRWTGh0w
+         b23ktxvyZCz9QXmbUfziJFUcjQ21gMRrkdD+mkLRQJa8Pg0bTK6I3rdv/8cJNMn/zAWn
+         iTdg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778872847; x=1779477647;
+        d=1e100.net; s=20251104; t=1778872848; x=1779477648;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=eVzC+1NNlxe1k/R0gBkxcy+TPbGnZzPB3ftmmd4+5ik=;
-        b=ay7rp1+1n4ay8GvwYF3cID6v6/0cl2IJ2fEvPLB1l50/QPwqBGYTRFSKZaZQXZsnrA
-         IACpqON4OpwN3K5w/ax/exbzScmnV465FZHUb1he+KZklwcA9DXYlySCIQzu+SzZg7C0
-         LvOBO5BrigrDU1SoOvMhdOE2GXJlozgoUNBKRu1nzqBdJjidmeFk7oKMleDolwQ0eylE
-         HMAN3pHwnk05Ec2O/LyUlfOnDOmAaF8kLencU3+scx+yoc4wxdmszehm2XlaM0UI9N+u
-         tUIxHoHWy5z4YAwHa2xL6JXj5/aLH1RQ3SJPZjD06GFsyVvTu7J3XssM5FqL02jN0K0h
-         AhTw==
-X-Forwarded-Encrypted: i=1; AFNElJ9q21E42maMLTWVDCJNoWvU0vYflABDaLnDtJ0slyLK5F12MB1icZNpBawDBGuOcMvk5WOrkVISNH9iMANdyg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwiAW6G9mm30qDGi2RzIJ3ddzanogyO0+mbE4DHE0SJ0wLtQo4x
-	6RlmfAIbzrCglUGYAPtmtfW9wVoTWepbuRD3wE8Erq6aNpnS7G3Q1q2jrq2loBeEpBpY20e+S/5
-	QdAP/zg==
-X-Received: from pfblu4.prod.google.com ([2002:a05:6a00:7484:b0:83a:58c1:f5e2])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:1404:b0:829:9a7b:db84
- with SMTP id d2e1a72fcca58-83f33f30bf8mr5787888b3a.49.1778872846903; Fri, 15
- May 2026 12:20:46 -0700 (PDT)
+        bh=c0VSXuwvwTL0EdvBxlPRCLOC48TzlA2S3UU4EaITdRg=;
+        b=KL3KOqEHdsdiViPtITdwl5xZfdIaMttwJRhNUnZtqUkSvZXehBlNFvMQLIEv1gAuQM
+         9NzoY4AmBOI2+BobUFCYxQwb7nz0+tVelyhRm90VHvIoeEkDmdP+y5mBUvmS+2zegBxa
+         +Xl3u1z11WgkD97h4ASaobiB2FC3jVsVV+mRRQ4mXzOUDh5Kq7cb2wYEVyjTlaaTpa1+
+         8e1FSso7ior22ihfoBn6xRcmjraZxJBlF8xmsnJr/y2unnBCy8cik8HeKOhhF2UUDdRD
+         GyJb5Ed9rO5HUcHEtpERe3lSH28zJ4cHhZdiUw+rycAEh+U3N1qobo5/lKvMD5Qb52UU
+         wvkg==
+X-Forwarded-Encrypted: i=1; AFNElJ8pBDi/jrPmnOuJGtYV35I7J2vcteAt3R96b1yp3XX+Y9M/on/h5KlKWOP13FCBhbn9FiTAfbCczfIM/aLwOw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy6DHqWK6lby/sAUrR0s4ZdRVHJ2+GqY63NNSpKRqlr84Dpf+QR
+	FQ1JL6e3PQaAy5x1ueJt92R/D8VMgrKDo3li0SXSO08kN1E1bYsZOlTrzKNl7jFCHWyxZHNAxTa
+	xlioX8g==
+X-Received: from pfbff26.prod.google.com ([2002:a05:6a00:2f5a:b0:83e:dfc6:971])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:1908:b0:82f:50cd:e586
+ with SMTP id d2e1a72fcca58-83f33cb2c40mr5886442b3a.13.1778872848066; Fri, 15
+ May 2026 12:20:48 -0700 (PDT)
 Reply-To: Sean Christopherson <seanjc@google.com>
-Date: Fri, 15 May 2026 12:19:16 -0700
+Date: Fri, 15 May 2026 12:19:17 -0700
 In-Reply-To: <20260515191942.1892718-1-seanjc@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -60,9 +60,9 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 Mime-Version: 1.0
 References: <20260515191942.1892718-1-seanjc@google.com>
 X-Mailer: git-send-email 2.54.0.563.g4f69b47b94-goog
-Message-ID: <20260515191942.1892718-16-seanjc@google.com>
-Subject: [PATCH v3 15/41] x86/xen/time: Nullify x86_platform's sched_clock
- save/restore hooks
+Message-ID: <20260515191942.1892718-17-seanjc@google.com>
+Subject: [PATCH v3 16/41] x86/vmware: Nullify save/restore hooks when using
+ VMware's sched_clock
 From: Sean Christopherson <seanjc@google.com>
 To: Kiryl Shutsemau <kas@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, 
 	Sean Christopherson <seanjc@google.com>, "K. Y. Srinivasan" <kys@microsoft.com>, 
@@ -83,32 +83,37 @@ Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>, Vitaly Kuznetsov <vkuznets@redh
 	Thomas Gleixner <tglx@linutronix.de>, David Woodhouse <dwmw@amazon.co.uk>
 Content-Type: text/plain; charset="UTF-8"
 
-Nullify the x86_platform sched_clock save/restore hooks when setting up
-Xen's PV clock to make it somewhat obvious the hooks aren't used when
-running as a Xen guest (Xen uses a paravirtualized suspend/resume flow).
+Nullify the sched_clock save/restore hooks when using VMware's version of
+sched_clock.  This will allow extending paravirt_set_sched_clock() to set
+the save/restore hooks, without having to simultaneously change the
+behavior of VMware guests.
+
+Note, it's not at all obvious that it's safe/correct for VMware guests to
+do nothing on suspend/resume, but that's a pre-existing problem.  Leave it
+for a VMware expert to sort out.
 
 Signed-off-by: Sean Christopherson <seanjc@google.com>
 ---
- arch/x86/xen/time.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+ arch/x86/kernel/cpu/vmware.c | 5 ++++-
+ 1 file changed, 4 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/xen/time.c b/arch/x86/xen/time.c
-index 3d3165eef821..21d366d01985 100644
---- a/arch/x86/xen/time.c
-+++ b/arch/x86/xen/time.c
-@@ -568,6 +568,12 @@ static void __init xen_init_time_common(void)
- 	xen_sched_clock_offset = xen_clocksource_read();
- 	static_call_update(pv_steal_clock, xen_steal_clock);
- 	paravirt_set_sched_clock(xen_sched_clock);
-+	/*
-+	 * Xen has paravirtualized suspend/resume and so doesn't use the common
-+	 * x86 sched_clock save/restore hooks.
-+	 */
-+	x86_platform.save_sched_clock_state = NULL;
-+	x86_platform.restore_sched_clock_state = NULL;
+diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
+index b88d9ca01202..b5cb66ca022b 100644
+--- a/arch/x86/kernel/cpu/vmware.c
++++ b/arch/x86/kernel/cpu/vmware.c
+@@ -347,8 +347,11 @@ static void __init vmware_paravirt_ops_setup(void)
  
- 	tsc_register_calibration_routines(xen_tsc_khz, NULL);
- 	x86_platform.get_wallclock = xen_get_wallclock;
+ 	vmware_cyc2ns_setup();
+ 
+-	if (vmw_sched_clock)
++	if (vmw_sched_clock) {
+ 		paravirt_set_sched_clock(vmware_sched_clock);
++		x86_platform.save_sched_clock_state = NULL;
++		x86_platform.restore_sched_clock_state = NULL;
++	}
+ 
+ 	if (vmware_is_stealclock_available()) {
+ 		has_steal_clock = true;
 -- 
 2.54.0.563.g4f69b47b94-goog
 
