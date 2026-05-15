@@ -1,101 +1,220 @@
-Received: from mout-p-102.mailbox.org (mout-p-102.mailbox.org [80.241.56.152])
+Received: from mail.rulkc.org (mail.rulkc.org [155.212.184.193])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 690ED4CA264
-	for <virtualization@lists.linux.dev>; Fri, 15 May 2026 16:56:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.152
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8653E3D902E
+	for <virtualization@lists.linux.dev>; Fri, 15 May 2026 17:18:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=155.212.184.193
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778864220; cv=none; b=gJQxudH6RhAiipKJILAGs1xqw2A2LJDntdMBEHSUGMzR3d1Hp4OvFEg/Qc/Y0BDRY6pfHJjhub+UXB7k+bWjsLf6d9E6wv/a6RuV8HUs46OxA01/GwUhcOcFLQ8Fw4kLjz5W58x+js6XKf6FejRULVeZyzMnHZmTXrLxR7u3TNY=
+	t=1778865526; cv=none; b=Kc8w4U8lvvvEXh1wYTW96/eDgCmViUeHX7rZEeCnm0afxVFOByE5PDOuLJYPpuG1mMSL3CrcGhu9LsSc3i23I8DLKn6VrGP1375dePSAhw3oy7rVnlpAhYpx5+JUWKnYuforRc7BsFa4c+bt9KZriTnUApaERsze9LZZLpL2GA0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778864220; c=relaxed/simple;
-	bh=dhptysQuSATSNbitwVA0RUi7lY73OfdGHsWXJQ9N5cw=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=ZUfF8411tSFa1/XF9XpulE3X4Z7f4ueYWSiwNYn5IvENLe7JxhaY09T1R4Rgpy4R6WhYdtYjf8nXtUMOeCzuDDn52LelAXGfr2fCvbFfn+8a244GBh5to5lKiKeJ/ElVugBTMxWi1A+zDrno4yh5mTU2ukuh56eTWhp05+PtpjQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=UvGbHkwM; arc=none smtp.client-ip=80.241.56.152
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
+	s=arc-20240116; t=1778865526; c=relaxed/simple;
+	bh=AThb4VcvVIl2q1HLSzrRx+pOQEogMqaBF6o78sY7O9k=;
+	h=Message-ID:Date:MIME-Version:In-Reply-To:To:Cc:From:Subject:
+	 Content-Type; b=gdcErAGZDc+f4cenwtMCTl+Hedle1W+fCSHJZrMGgo74xIJfQ3VwaYzxIHxH4xnkv5rKe9QOJnmsyQUnO9uqDoKwTurs+tQQ8s9GARFMRzKmwYaGIUMX2ll5LDEtyFjyO39HYu8ipwfPwRF4PAMiNdytMHumcts7AuYEzBUyuzg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=rulkc.org; spf=pass smtp.mailfrom=rulkc.org; dkim=pass (2048-bit key) header.d=rulkc.org header.i=@rulkc.org header.b=bMjmi7p3; arc=none smtp.client-ip=155.212.184.193
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=rulkc.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=rulkc.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="UvGbHkwM"
-Received: from smtp2.mailbox.org (smtp2.mailbox.org [IPv6:2001:67c:2050:b231:465::2])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mout-p-102.mailbox.org (Postfix) with ESMTPS id 4gHCz53wg2z9vGy;
-	Fri, 15 May 2026 18:56:49 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1778864209;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=THjYyH3uKjG/pqf0jTnTgVB5bOzHeeCO4NiACkPzCAA=;
-	b=UvGbHkwMnE9NToXjbUNAsRia0LLJVuP/0ZjKLW6ppzyZhQjhcZMz+u2V8owicjpL+qc90x
-	pT7ZRQpu3L7J/espeI8XH0yqUTi+/i2ei6D7Q8t89DylkuCkHKVKrHCQEmuwomb8THbO3P
-	91TGgfWvRRM9aDNcdFxJddbLX7rHhYCfeEQM9BMv8jVPLYkLJttn+s8blSnzZrQ7w4Zngr
-	WguOA7Ic/8jY+ANKQcdlrSdKDBFHC01WR1Sd0WAXYVjIJ/2tvmWFCYnG6mUGIFsWN9Ov4o
-	dEMrs8Wdc8pkp+8WiAxu+ggIsRS0RPxrIimKc2/m8fDZxG3ZR6G22gMMbLpY/Q==
-Message-ID: <cb461424-e4c1-4d2c-934b-ffd7374e2a56@mailbox.org>
-Date: Fri, 15 May 2026 18:56:45 +0200
+	dkim=pass (2048-bit key) header.d=rulkc.org header.i=@rulkc.org header.b="bMjmi7p3"
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id 18E0310113F;
+	Fri, 15 May 2026 20:18:26 +0300 (MSK)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=rulkc.org; s=dkim;
+	t=1778865514; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:content-language:in-reply-to;
+	bh=y4uy4Pn148gEWMp6CsBHAvnIqyb+WyfkRqF4BSbh4/E=;
+	b=bMjmi7p3G3dFTYfn9vrSaMz3B4xgHlRxlpV/RN1261UCXil+PYgyODOy8Fsdo0qFG2p9hQ
+	ykboWeIQBNEhnUTG1AIrWpk1KPoB8bbx2KnpXNKUQI3wohBPlA9m34jr9d63oe3kEapVaZ
+	jSyV2bNO9YKyQhkDgjJKvyAsN++/CAjnkjEPU54gIwUi+qPhDF5J/EqOmLG8od0x4MpvSp
+	mQLOoCCekeefOpefQCWsqXBuMnAYrqezaDw0sycVuFNct/RA/vxir36l35FeAQZIwe70VL
+	WlJoS0AxqtjZ6kzufsdF+KOqaJ2cCcj1NY+e9crweb8KF62BsTeB10kSc06gZQ==
+Message-ID: <1546ca10-e85b-4a67-a5b9-cf2623d11e7c@rulkc.org>
+Date: Fri, 15 May 2026 20:18:18 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Subject: Re: [PATCH 0/9] drm: Limit DRM_IOCTL_WAIT_VBLANK to vblank interrupts
-From: =?UTF-8?Q?Michel_D=C3=A4nzer?= <michel.daenzer@mailbox.org>
-To: Thomas Zimmermann <tzimmermann@suse.de>, simona@ffwll.ch,
- airlied@gmail.com, pekka.paalanen@collabora.com, jadahl@gmail.com,
- contact@emersion.fr, maarten.lankhorst@linux.intel.com, mripard@kernel.org
-Cc: amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
- linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
- spice-devel@lists.freedesktop.org, wayland-devel@lists.freedesktop.org
-References: <20260515120916.333614-1-tzimmermann@suse.de>
- <b5d03921-1e6f-4c4f-900e-fc9e28222176@mailbox.org>
-Content-Language: en-CA
-In-Reply-To: <b5d03921-1e6f-4c4f-900e-fc9e28222176@mailbox.org>
+User-Agent: Mozilla Thunderbird
+Content-Language: ru
+In-Reply-To: <20260514092948.268720-1-sgarzare@redhat.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>,
+ "Paolo Abeni," <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+ Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org,
+ Eric Dumazet <edumazet@google.com>, "Xuan Zhuo,"
+ <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev,
+ "David S., Miller" <davem@davemloft.net>, Jason Wang <jasowang@redhat.com>,
+ linux-kernel@vger.kernel.org, Maher Azzouzi <maherazz04@gmail.com>,
+ eperezma@redhat.com
+From: Arseniy Krasnov <avkrasnov@rulkc.org>
+Subject: Re: [PATCH net] vsock/virtio: fix zerocopy completion for multi-skb
+ sends
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-MBO-RS-ID: de84221aa493230eab5
-X-MBO-RS-META: 9sey5mwxehe7tcisizu96h4qcw6kgr1r
+Content-Transfer-Encoding: 7bit
+X-Last-TLS-Session-Version: TLSv1.3
+
+> From: Stefano Garzarella <sgarzare@redhat.com>
+>
+> When a large message is fragmented into multiple skbs, the zerocopy
+> uarg is only allocated and attached to the last skb in the loop.
+> Non-final skbs carry pinned user pages with no completion tracking,
+> so the kernel has no way to notify userspace when those pages are safe
+> to reuse. If the loop breaks early the uarg is never allocated at all,
+> leaking pinned pages with no completion notification.
+>
+> Fix this by following the approach used by TCP: allocate the zerocopy
+> uarg (if not provided by the caller) before the send loop and attach
+> it to every skb via skb_zcopy_set(), which takes a reference per skb.
+> Each skb's completion properly decrements the refcount, and the
+> notification only fires after the last skb is freed.
+> On failure, if no data was sent, the uarg is cleanly aborted via
+> net_zcopy_put_abort().
+>
+> This issue was initially discovered by sashiko while reviewing commit
+> 1cb36e252211 ("vsock/virtio: fix MSG_ZEROCOPY pinned-pages accounting")
+> but was pre-existing.
+>
+> Fixes: 581512a6dc93 ("vsock/virtio: MSG_ZEROCOPY flag support")
+> Cc: Arseniy Krasnov <avkrasnov@salutedevices.com>
+> Closes: https://sashiko.dev/#/patchset/20260420132051.217589-1-sgarzare%40redhat.com
+> Reported-by: Maher Azzouzi <maherazz04@gmail.com>
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 
 
-[ Adding the wayland-devel list for awareness ]
-
-On 5/15/26 17:12, Michel Dänzer wrote:
-> On 5/15/26 13:55, Thomas Zimmermann wrote:
->> DRM's WAIT_VBLANK ioctl synchronizes user-space clients to display
->> refresh. This is meaningless with vblank timers, which run unrelated
->> to the hardware's vblank.
->>
->> Disable the ioctl for simulated vblanks. Set DRM_VBLANK_FLAG_SIMULATED
->> for CRTCs with simulated vblank events in all such drivers. The vblank
->> timers of these devices still rate-limit the number of page-flip events
->> to match the display refresh.
->>
->> According to maintainers, user-space compositors do not require the ioctl
->> for rate-limitting display output. Weston and Kwin rely on page-flip
->> events. Mutter uses and internal timer to limit the number of display
->> updates per second.
-> 
-> Actually mutter fundamentally relies on atomic commit completion events for that, same as Weston & KWin. Mutter uses the WAIT_VBLANK ioctl only for minimizing input → output latency (which can hide issues when completion of atomic commits isn't properly throttled).
-> 
-> 
-> (Just a side not on the cover letter, no objections to the patches themselves)
-
-After more discussion on IRC, I have some concerns.
+Acked-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
 
 
-The big one first: For drivers with no strict refresh cycle (i.e. an atomic commit can take effect more or less anytime after at least one "refresh cycle" has passed since the last one), does this change really make sense / what's the actual benefit?
+> ---
+>  net/vmw_vsock/virtio_transport_common.c | 83 ++++++++++---------------
+>  1 file changed, 34 insertions(+), 49 deletions(-)
+>
+> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+> index 989cc252d3d3..1e3409d28164 100644
+> --- a/net/vmw_vsock/virtio_transport_common.c
+> +++ b/net/vmw_vsock/virtio_transport_common.c
+> @@ -70,34 +70,6 @@ static bool virtio_transport_can_zcopy(const struct virtio_transport *t_ops,
+>  	return true;
+>  }
+>  
+> -static int virtio_transport_init_zcopy_skb(struct vsock_sock *vsk,
+> -					   struct sk_buff *skb,
+> -					   struct msghdr *msg,
+> -					   size_t pkt_len,
+> -					   bool zerocopy)
+> -{
+> -	struct ubuf_info *uarg;
+> -
+> -	if (msg->msg_ubuf) {
+> -		uarg = msg->msg_ubuf;
+> -		net_zcopy_get(uarg);
+> -	} else {
+> -		struct ubuf_info_msgzc *uarg_zc;
+> -
+> -		uarg = msg_zerocopy_realloc(sk_vsock(vsk),
+> -					    pkt_len, NULL, false);
+> -		if (!uarg)
+> -			return -1;
+> -
+> -		uarg_zc = uarg_to_msgzc(uarg);
+> -		uarg_zc->zerocopy = zerocopy ? 1 : 0;
+> -	}
+> -
+> -	skb_zcopy_init(skb, uarg);
+> -
+> -	return 0;
+> -}
+> -
+>  static int virtio_transport_fill_skb(struct sk_buff *skb,
+>  				     struct virtio_vsock_pkt_info *info,
+>  				     size_t len,
+> @@ -317,8 +289,10 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+>  	u32 src_cid, src_port, dst_cid, dst_port;
+>  	const struct virtio_transport *t_ops;
+>  	struct virtio_vsock_sock *vvs;
+> +	struct ubuf_info *uarg = NULL;
+>  	u32 pkt_len = info->pkt_len;
+>  	bool can_zcopy = false;
+> +	bool have_uref = false;
+>  	u32 rest_len;
+>  	int ret;
+>  
+> @@ -360,6 +334,25 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+>  		if (can_zcopy)
+>  			max_skb_len = min_t(u32, VIRTIO_VSOCK_MAX_PKT_BUF_SIZE,
+>  					    (MAX_SKB_FRAGS * PAGE_SIZE));
+> +
+> +		if (info->msg->msg_flags & MSG_ZEROCOPY &&
+> +		    info->op == VIRTIO_VSOCK_OP_RW) {
+> +			uarg = info->msg->msg_ubuf;
+> +
+> +			if (!uarg) {
+> +				uarg = msg_zerocopy_realloc(sk_vsock(vsk),
+> +							    pkt_len, NULL, false);
+> +				if (!uarg) {
+> +					virtio_transport_put_credit(vvs, pkt_len);
+> +					return -ENOMEM;
+> +				}
+> +
+> +				if (!can_zcopy)
+> +					uarg_to_msgzc(uarg)->zerocopy = 0;
+> +
+> +				have_uref = true;
+> +			}
+> +		}
+>  	}
+>  
+>  	rest_len = pkt_len;
+> @@ -378,27 +371,7 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+>  			break;
+>  		}
+>  
+> -		/* We process buffer part by part, allocating skb on
+> -		 * each iteration. If this is last skb for this buffer
+> -		 * and MSG_ZEROCOPY mode is in use - we must allocate
+> -		 * completion for the current syscall.
+> -		 *
+> -		 * Pass pkt_len because msg iter is already consumed
+> -		 * by virtio_transport_fill_skb(), so iter->count
+> -		 * can not be used for RLIMIT_MEMLOCK pinned-pages
+> -		 * accounting done by msg_zerocopy_realloc().
+> -		 */
+> -		if (info->msg && info->msg->msg_flags & MSG_ZEROCOPY &&
+> -		    skb_len == rest_len && info->op == VIRTIO_VSOCK_OP_RW) {
+> -			if (virtio_transport_init_zcopy_skb(vsk, skb,
+> -							    info->msg,
+> -							    pkt_len,
+> -							    can_zcopy)) {
+> -				kfree_skb(skb);
+> -				ret = -ENOMEM;
+> -				break;
+> -			}
+> -		}
+> +		skb_zcopy_set(skb, uarg, NULL);
+>  
+>  		virtio_transport_inc_tx_pkt(vvs, skb);
+>  
+> @@ -422,6 +395,18 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+>  
+>  	virtio_transport_put_credit(vvs, rest_len);
+>  
+> +	/* msg_zerocopy_realloc() initializes the ubuf_info refcnt to 1.
+> +	 * skb_zcopy_set() increases it for each skb, so we can drop that
+> +	 * initial reference to keep it balanced.
+> +	 */
+> +	if (have_uref) {
+> +		if (rest_len == pkt_len)
+> +			/* No data sent, abort the notification. */
+> +			net_zcopy_put_abort(uarg, true);
+> +		else
+> +			net_zcopy_put(uarg);
+> +	}
+> +
+>  	/* Return number of bytes, if any data has been sent. */
+>  	if (rest_len != pkt_len)
+>  		ret = pkt_len - rest_len;
+> -- 
+> 2.54.0
+>
+>
 
-In the case of the asahi & nvidia drivers, the problem with exposing this functionality to user space is that if the timestamps aren't accurate, it can result in missing display refresh cycles, which are dictated by hardware. That's why it makes sense to reject it there.
-
-When there's no strict refresh cycle, that issue doesn't apply though.
-
-
-Any changes made to the WAIT_VBLANK ioctl should also be made to the CRTC_GET_SEQUENCE / CRTC_QUEUE_SEQUENCE ioctls, which are slightly different UAPI for the same functionality.
-
-
--- 
-Earthling Michel Dänzer       \        GNOME / Xwayland / Mesa developer
-https://redhat.com             \               Libre software enthusiast
