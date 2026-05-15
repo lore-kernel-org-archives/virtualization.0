@@ -1,182 +1,167 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f177.google.com (mail-qk1-f177.google.com [209.85.222.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 00F9B3FBB62
-	for <virtualization@lists.linux.dev>; Fri, 15 May 2026 15:36:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEE04305668
+	for <virtualization@lists.linux.dev>; Fri, 15 May 2026 15:39:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.177
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778859388; cv=none; b=g4/qH56F0IoKoGGdjis1+e7pzbv9X8A/EyuGDLfYaBd/UI1mLSVzX71AJ3yPKoWXbe78HCqirrt/1Kzbd/W5fv+2iGzq91Uvg/WQxIqzAbTKW+QmY29V+0i4ea2mJ6/RVC0Na2i5B+k5G6pu2mcwtFDH29fgsMIb9TY1LTMhYUg=
+	t=1778859566; cv=none; b=MxV86ufLuEToHcNDY1gAOp2B9zUC5SfMzxEof2GC3fm9Q93y8EtPMlGo0PYJ03co3AZIuttSsmKmqEUGxHWX9I2NcwAgwCgcpxC7UMOnsJxsRk1fZiq6Y7xjYnevuYDWzKkAQxCKE0pRmrFwBVG31e2qyoatfRpe0DgzK3odcuM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778859388; c=relaxed/simple;
-	bh=KxLABsT4GW6xy83byG9jRVMNzNmX8FC8tAkv3Z+4gY8=;
+	s=arc-20240116; t=1778859566; c=relaxed/simple;
+	bh=TZ6FN0evsU83Qkybe8h8Hy8iiimz3lCzOXtq52eCjv4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=D/9sSZyjB1xM4/+qCuqb9KM0/xsBmbwyfm6cxa2f7ZIXyt05QB5oeIgT7sjcRwP+YnIjyC004+DlL4HGpt72/oZUiEDrCwed7h0cJ131jipV3ZcZIvDV08u9stASSniEtcTLG6ESr4FucG58BBqAVr4YxeF26tksnOtF1hQAGTo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IJSM0K5h; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=KqLSq/KHa4vFMCRx/PejIOCPLehvwdcBO1v2V4CAt3w1EeOa6hAKxSVJOlJOLfWlh9pPAdvGlLo8OS4gJv4KMBmQz18Do+WrWVoIh5pdzmYs/fTr9pbR1DsNn6NJbSJYqd8uBGZhSdEs+1QkWK63FAJBOwU4+SpoyJVfuHncTHE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=DehHxkTB; arc=none smtp.client-ip=209.85.222.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IJSM0K5h"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1778859383;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=CSUwP/nePskW3SE3+3GAjWBn5fs5Ffp9tDDPc7lUU/I=;
-	b=IJSM0K5hk/IlGk6IxCAsbS0PBBgbt6nV88iGInDPCupUPsjdfcssq6AAQYLhTCbp/w/ebm
-	D6iG/eR70b70UigVSIYF3GoUNyZiUpzFfKEbD12hmhmE8jLfLP5J1s/Juf0fWqqY2pIGsl
-	ODCioWWjmzTuMTot4zmXqiiyc89ZoUI=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-669-ZdsXc6gPOcOEYpuRFxvDjg-1; Fri, 15 May 2026 11:36:18 -0400
-X-MC-Unique: ZdsXc6gPOcOEYpuRFxvDjg-1
-X-Mimecast-MFC-AGG-ID: ZdsXc6gPOcOEYpuRFxvDjg_1778859377
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-48feb0298d7so7128335e9.1
-        for <virtualization@lists.linux.dev>; Fri, 15 May 2026 08:36:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="DehHxkTB"
+Received: by mail-qk1-f177.google.com with SMTP id af79cd13be357-911449d9d03so200524585a.1
+        for <virtualization@lists.linux.dev>; Fri, 15 May 2026 08:39:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gourry.net; s=google; t=1778859564; x=1779464364; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=vcnoZCj9StmYM28UVGL5OD3x4745ox3PgFdBX56PHJ8=;
+        b=DehHxkTBNl8aJPsjiGT7FJNhA97McE5LsZLUWNBYQe5uJAzhIPtgd+jyzd2x3RLw9C
+         huOZVFh3EvbEfSJ76Gikhj6NHGOiKKxs1UdpEqHVzwkYim+dCu/LYxbdAb0BkEUSWHqx
+         BVM8JXey4r2ncJSPNEovq4fDSq60hFW7OggAklin4XOG8Y68Rf7OYhJYHc/yHiVV7EQZ
+         q9JvB4cd5xWq9nl3BbUeeREc8kRuAnhdZMDG/s/BXMflQ30SN2+cIAVJpveXpPdsYfpa
+         RDAJoM8HYgaAwu0ssInT0mU2IVnfe4wIYGN2rMco2/UfHCI14UVG8Lz0NiJKO4zXVROw
+         /3eA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778859377; x=1779464177;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=CSUwP/nePskW3SE3+3GAjWBn5fs5Ffp9tDDPc7lUU/I=;
-        b=N6zsHqhyO13YQeu9h6PVmcaRBvN6vZ1Qyf+d1OsCuF9J2rsVrUw6Dq7kJ20QSZDHYh
-         ExiOOBNkkoOAUOLubfbP6XIKnDe2QHmc8/W7sVgvAa5LBCZ/e/WoV4z7IBp7bhI1RTo7
-         WMxvZgX5ALTlDQaBNGAoWTNUpy5At3Z0Iyf/c+pNpIbzUdjSOqmgokTzUpbPv2ACPACS
-         K8H7qfWw1IBX9E5JgqOZ0PHuXe6Uo4Hog0jIR8CjSjt1njhhMEPqqGGCLcAm1bPZ5Ors
-         XerZV8W+OSnarFhvUDZUBLTizq/wHl2CKmosT95+OLoDJ1VDhobu97l6s8UqpHJU9N9k
-         4zzA==
-X-Forwarded-Encrypted: i=1; AFNElJ8TzN3oSRVqXc4x/FVzcSgYxggd5hAziinhBOo6/qBDOJ2LC+VhUkF7KnJhZxnH5oWKqL6rysQFDnzpZN4V3Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz1l0bJ5Jn84+Qv1Kj2LhYlpRgj6TwiainExBXOTZpWinZTncsX
-	+ouOcrYNj8Z4aK2WH0P/8ayC0KvcSmg88dvZsqx5hjRilS7GN9BWZFvmVbhpYXQTk/UBUUDbJxy
-	0+OAMJXZ8gGb3rEpXYh2V2tn17qwgdO4VB3dD7viIwPI2l8NNu0g8NbyWV+EZpTum5IPq
-X-Gm-Gg: Acq92OFndDPJDuAmiV4YH9KjvNChsctBZuZeoednRSm3SsbBvTOWH//GXPA5xn159h9
-	Jv6yiXwuQwEm2zPQh+vKsJKBSLfumor6S7mvyzgGj6CphrUolZMnbdhUCgVlJbdSl57cbtdnDAQ
-	iUDECnybG6xKiidu4RAcRJ3ZZGFpwXUtKkg8rROtHIcZdotO0w5B4A00NWMvSc/lydLCKkrkc87
-	55XAZEVd9qTgmcRsUVuf5fWh0leCXatJU003OgopWu9zbTDX7wDvBYK2TstTwcCosZIpntL/CzE
-	sDCKWgg+4+86wE0y55xEDoz/V01XMqGR6aNaBFY0fpQB24DLe1rqRtyJ2I0IDgySmsWN4/TMhPE
-	SXdBD6zWHR5q1ee9ja2NJLtUg7SOXOqlsP8xermQx
-X-Received: by 2002:a05:600c:c10b:b0:48f:d612:3c59 with SMTP id 5b1f17b1804b1-48fe60eb0f6mr44773455e9.9.1778859376435;
-        Fri, 15 May 2026 08:36:16 -0700 (PDT)
-X-Received: by 2002:a05:600c:c10b:b0:48f:d612:3c59 with SMTP id 5b1f17b1804b1-48fe60eb0f6mr44772895e9.9.1778859375931;
-        Fri, 15 May 2026 08:36:15 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-48-7.inter.net.il. [80.230.48.7])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48febe78aadsm15492085e9.29.2026.05.15.08.36.13
+        d=1e100.net; s=20251104; t=1778859564; x=1779464364;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=vcnoZCj9StmYM28UVGL5OD3x4745ox3PgFdBX56PHJ8=;
+        b=geWMCYUYXQaxI8SIuzSASCh11mb9kxkjQUJuSrkfMXD2Q9jukSz3FGlBmkHR8bQEg8
+         Rxx4cpcHGTw3gJNYrqgTW0wYv1EyPIjoH13U9Xr8mH+36yDNf5oBwPo3ZWY+ULsHiHfX
+         PNvLd5+yvjJCFOVaobwSODqtaqJxups18ECVJQ8BFKCnJlgHoZTEcszMs/OpQukWHSd4
+         qAw+Lj3mQKLg3fdyKOtxv35s7BWFVbD3yD3xkjqtlcjQylj2uola//kEy0wm4BzVQ7hW
+         MPhTJU3N2xsaILRemk13F7A7k0kuRjwPXhfmRvXkSUJHUujkvIjS+8UcfCe/ys5sHdzT
+         SWzA==
+X-Forwarded-Encrypted: i=1; AFNElJ9JkIMaS0mPlDfg4x4yJiJb0+oDaaaBj8byrwHWfkR93jmFP/CFW4l36Dj02j9zTiHPWfs22yyMSGqDFPRO3w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwHFBU+lQBVgnIdqbbckUlNDjN/9qDgPs+ccyO78uLpgZ5esHRM
+	kknGn3+FrT9/2oZ+VpkYP06yilTxeN7nDz1E645D8saxmbG0gu9Hj1XvQTgncLhvpsQ=
+X-Gm-Gg: Acq92OFWI5p89KS7aJAD77LYf7RDdtJM0DsaWPZoTgKw1AIlI1EJiQMV/Pj3OemzcPD
+	JPQmuwmuHrY8D6MQQZwuSzSD5wpP1sQyVPhUFJ7wULY5jXtjYwRWkswKmdlyF5ZXZfmAP2VyaiP
+	AXTC+7HaQ5l8VcaDCfMMLSK6h7ig21vDSe/FQvlVRf+GlXhKn6l5zx2Pa9ZaREO0vtDd10gXGoG
+	13cYM4cxXzYpKFgUsY2PCa8SNMey37UIPJnayJuA/KaW0JB3GiAqNja+F61+9KC8D6X1Y3qWZHA
+	LlytuBvOURgRiz62vb1iOicdoXEcd6eRrot2M0fkq1vAbB1/enJU4lvQR749F4mbe3qAbOkWgC5
+	I2dDlmfE2T6Ey6LHG3CNVedEh83630c0uONi7DDXPAd2Sy+kRNhWO1Oia6nwybQVjeUfccvLFCt
+	NQDUBcbyIDK96o3bqNQDETNWLD/M52Q0BykcvD8oTVQZtYhm6B+JNy9UzWY1m5tN6HGzCI1PAX4
+	lPWZoDUT6N6oIjxgQy3gW0ELd9aPrHpww==
+X-Received: by 2002:a05:620a:12da:b0:912:67ca:bab7 with SMTP id af79cd13be357-91267cac05amr271493385a.2.1778859563525;
+        Fri, 15 May 2026 08:39:23 -0700 (PDT)
+Received: from gourry-fedora-PF4VCD3F (pool-100-36-248-188.washdc.fios.verizon.net. [100.36.248.188])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-910ba36d137sm564275585a.1.2026.05.15.08.39.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 15 May 2026 08:36:15 -0700 (PDT)
-Date: Fri, 15 May 2026 11:36:12 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: gregkh@linuxfoundation.org
-Cc: AVKrasnov@sberdevices.ru, edumazet@google.com, eperezma@redhat.com,
-	jasowang@redhat.com, kuba@kernel.org, leonardi@redhat.com,
-	sgarzare@redhat.com, stefanha@redhat.com,
-	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com,
-	stable-commits@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: Patch "vsock/virtio: fix potential unbounded skb queue" has been
- added to the 6.6-stable tree
-Message-ID: <20260515113503-mutt-send-email-mst@kernel.org>
-References: <2026051553-santa-unretired-a417@gregkh>
+        Fri, 15 May 2026 08:39:22 -0700 (PDT)
+Date: Fri, 15 May 2026 11:39:20 -0400
+From: Gregory Price <gourry@gourry.net>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org,
+	"David Hildenbrand (Arm)" <david@kernel.org>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Muchun Song <muchun.song@linux.dev>,
+	Oscar Salvador <osalvador@suse.de>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Lorenzo Stoakes <ljs@kernel.org>,
+	"Liam R. Howlett" <liam@infradead.org>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Brendan Jackman <jackmanb@google.com>,
+	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
+	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
+	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+	Byungchul Park <byungchul@sk.com>,
+	Ying Huang <ying.huang@linux.alibaba.com>,
+	Alistair Popple <apopple@nvidia.com>,
+	Christoph Lameter <cl@gentwo.org>,
+	David Rientjes <rientjes@google.com>,
+	Roman Gushchin <roman.gushchin@linux.dev>,
+	Harry Yoo <harry.yoo@oracle.com>,
+	Axel Rasmussen <axelrasmussen@google.com>,
+	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
+	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
+	Kemeng Shi <shikemeng@huaweicloud.com>,
+	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
+	virtualization@lists.linux.dev, linux-mm@kvack.org,
+	Andrea Arcangeli <aarcange@redhat.com>
+Subject: Re: [PATCH v7 09/31] mm: use folio_zero_user for user pages in
+ post_alloc_hook
+Message-ID: <agc-KFwvSDxEImVt@gourry-fedora-PF4VCD3F>
+References: <cover.1778616612.git.mst@redhat.com>
+ <45d1ea85b574399459a64fdba28fcf04abfa3e7e.1778616612.git.mst@redhat.com>
+ <agXS7dMmtJrPhu9W@gourry-fedora-PF4VCD3F>
+ <20260514135214-mutt-send-email-mst@kernel.org>
+ <agYa9s5B7OWG-kjR@gourry-fedora-PF4VCD3F>
+ <20260514150750-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <2026051553-santa-unretired-a417@gregkh>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: CApZrJSgPRS8moxe_DJT6k9BhKY4u13j8MmEBmzV6Bc_1778859377
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260514150750-mutt-send-email-mst@kernel.org>
 
-On Fri, May 15, 2026 at 05:21:53PM +0200, gregkh@linuxfoundation.org wrote:
+On Thu, May 14, 2026 at 03:08:13PM -0400, Michael S. Tsirkin wrote:
+> On Thu, May 14, 2026 at 02:56:54PM -0400, Gregory Price wrote:
+> > On Thu, May 14, 2026 at 02:00:31PM -0400, Michael S. Tsirkin wrote:
+> > > On Thu, May 14, 2026 at 09:49:33AM -0400, Gregory Price wrote:
+> > > 
+> > > There are calls with no __GFP_ZERO but they do not allocate userspace pages.
+> > > 
+> > >   - drm_pagemap.c: GFP_HIGHUSER -- no zero. But this is a DRM device
+> > >     page migration, the page content is preserved from the source.
+> > > 
+> > >   - test_hmm.c: GFP_HIGHUSER_MOVABLE -- no zero. Test driver, pages get
+> > >     content from device.
+> > > 
+> > >   - mm/ksm.c: GFP_HIGHUSER_MOVABLE -- no zero. KSM merges identical
+> > >     pages, content comes from the source page (copy).
+> > > 
+> > >   - mm/memory.c new_folio = GFP_HIGHUSER_MOVABLE
+> > >     - no zero. This is CoW, content is copied from old page.
+> > > 
+> > >   - mm/userfaultfd.c: GFP_HIGHUSER_MOVABLE - no zero. Content comes from userspace via userfaultfd.
+> > > 
+> > >   - arm64/fault.c: __GFP_ZEROTAGS not __GFP_ZERO. MTE tag zeroing, not page zeroing. Page is zeroed separately.
+> > > 
+> > 
+> > Right, so in all of these cases, it would be just as correct to pass
+> > USER_ADDR_NONE I imagine :]
 > 
-> This is a note to let you know that I've just added the patch titled
-> 
->     vsock/virtio: fix potential unbounded skb queue
-> 
-> to the 6.6-stable tree which can be found at:
->     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
-> 
-> The filename of the patch is:
->      vsock-virtio-fix-potential-unbounded-skb-queue.patch
-> and it can be found in the queue-6.6 subdirectory.
-> 
-> If you, or anyone else, feels it should not be added to the stable tree,
-> please let <stable@vger.kernel.org> know about it.
+> Hmm. Are you sure? Isn't the address used for numa policy?
 > 
 
-Yea I have some doubts. It fixes the DoS at the cost of losing
-messages. We are trying to fix that upstream now, maybe wait
-for that?
+You said "They do not allocate userspace pages" - so wouldn't uaddr be
+USER_ADDR_NONE anyway?
 
+Even if they do allocate userspace pages, they weren't passing
+__GFP_ZERO before, so either:
 
-> >From 059b7dbd20a6f0c539a45ddff1573cb8946685b5 Mon Sep 17 00:00:00 2001
-> From: Eric Dumazet <edumazet@google.com>
-> Date: Thu, 30 Apr 2026 12:26:52 +0000
-> Subject: vsock/virtio: fix potential unbounded skb queue
-> MIME-Version: 1.0
-> Content-Type: text/plain; charset=UTF-8
-> Content-Transfer-Encoding: 8bit
-> 
-> From: Eric Dumazet <edumazet@google.com>
-> 
-> commit 059b7dbd20a6f0c539a45ddff1573cb8946685b5 upstream.
-> 
-> virtio_transport_inc_rx_pkt() checks vvs->rx_bytes + len > vvs->buf_alloc.
-> 
-> virtio_transport_recv_enqueue() skips coalescing for packets
-> with VIRTIO_VSOCK_SEQ_EOM.
-> 
-> If fed with packets with len == 0 and VIRTIO_VSOCK_SEQ_EOM,
-> a very large number of packets can be queued
-> because vvs->rx_bytes stays at 0.
-> 
-> Fix this by estimating the skb metadata size:
-> 
-> 	(Number of skbs in the queue) * SKB_TRUESIZE(0)
-> 
-> Fixes: 077706165717 ("virtio/vsock: don't use skbuff state to account credit")
-> Signed-off-by: Eric Dumazet <edumazet@google.com>
-> Cc: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
-> Cc: Stefan Hajnoczi <stefanha@redhat.com>
-> Cc: Stefano Garzarella <sgarzare@redhat.com>
-> Cc: "Michael S. Tsirkin" <mst@redhat.com>
-> Cc: Jason Wang <jasowang@redhat.com>
-> Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> Cc: "Eugenio Pérez" <eperezma@redhat.com>
-> Cc: virtualization@lists.linux.dev
-> Link: https://patch.msgid.link/20260430122653.554058-1-edumazet@google.com
-> Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-> [LL: Fixed conflict since this tree does not use buf_used added by commit
->  45ca7e9f0730 ("vsock/virtio: fix `rx_bytes` accounting for stream sockets")]
-> Signed-off-by: Luigi Leonardi <leonardi@redhat.com>
-> Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-> ---
->  net/vmw_vsock/virtio_transport_common.c |    4 +++-
->  1 file changed, 3 insertions(+), 1 deletion(-)
-> 
-> --- a/net/vmw_vsock/virtio_transport_common.c
-> +++ b/net/vmw_vsock/virtio_transport_common.c
-> @@ -283,7 +283,9 @@ static int virtio_transport_send_pkt_inf
->  static bool virtio_transport_inc_rx_pkt(struct virtio_vsock_sock *vvs,
->  					u32 len)
->  {
-> -	if (vvs->rx_bytes + len > vvs->buf_alloc)
-> +	u64 skb_overhead = (skb_queue_len(&vvs->rx_queue) + 1) * SKB_TRUESIZE(0);
-> +
-> +	if (skb_overhead + vvs->rx_bytes + len > vvs->buf_alloc)
->  		return false;
->  
->  	vvs->rx_bytes += len;
-> 
-> 
-> Patches currently in stable-queue which might be from edumazet@google.com are
-> 
-> queue-6.6/net-fix-icmp-host-relookup-triggering-ip_rt_bug.patch
-> queue-6.6/tcp-call-sk_data_ready-after-listener-migration.patch
-> queue-6.6/net-sched-sch_red-replace-direct-dequeue-call-with-peek-and-qdisc_dequeue_peeked.patch
-> queue-6.6/ip6_gre-use-cached-t-net-in-ip6erspan_changelink.patch
-> queue-6.6/vsock-virtio-fix-potential-unbounded-skb-queue.patch
+  1) They did not depend on the buddy to do zeroing before, and
+     user_addr is just a dead variable in those cases anyway.
 
+     or
+
+  2) There is a bug, and they should be zeroing the page.
+
+I just see an interesting hardening opportunity.
+
+Not suggesting you actually implement this, to be clear, maybe just
+documenting the idea on the thread as a potential follow up.
+
+~Gregory
