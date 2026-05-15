@@ -1,28 +1,28 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52647282F1A;
-	Fri, 15 May 2026 15:56:15 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DDE763E0091;
+	Fri, 15 May 2026 16:16:43 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778860575; cv=none; b=IT4r6N3hThpayMuwrnG2Yq58sb8Mq4oTkKdS5Fat5TVrbZIvThWYvjQEDzwuCWPQN1LvctSRP3KXQ/ZujkONLwNCKj67okdfvza+LpY28Oqo0VzvW+6x0LzBauWY0EOZI0lZrfunwHyHGlyLMBNLqLqnzL7K4pOKLarTHc1GEBc=
+	t=1778861803; cv=none; b=aKh+W2HwFir3epG5meqHKl7ogY18IfFpX9dSqadQEGcEj2FkY84L2PdiOPL873nPGtw6+nKYwGNC3Na3y/EE90/k+u4AjtnhPGukXO0nD9Kl+GetOflUJNNZX5umKgr9b2Z/000WmzuIRW9vRwkyfe7rzNqt6VrMu7nrzLIms5I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778860575; c=relaxed/simple;
-	bh=5hJWP3YID+vi0QYbbhSs+uwcyddLNvcFV3499sbkAOw=;
+	s=arc-20240116; t=1778861803; c=relaxed/simple;
+	bh=0L4pScPUyIT0tCQ8XyF3Dw7v1MBs4nt9C55wNiBLG7o=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=NPfbSq02IIdA9crPWe9HsA48qOCkQS9SPHrCto3V+oRphmTqZv4HQm/0vrXKyMnqbI65hIlWt4gy5v1kpVWvV6FEIDshlsDB+aVd2Cdx0Xhs/TGX9d6FkrRD84KzAFDcEHxrmImvVERSNM69aNbjZrI3jlh8qS2OC8RS5vKjJIs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=J5Zvjigi; arc=none smtp.client-ip=10.30.226.201
+	 MIME-Version:Content-Type; b=ujbZa0q2YbrIYN+MetsgElXgiEIdq+VlcY15G0y3RPG3LopUKGm2o9epd0vQS86Mow2XAVx/qpNu4L+4zHccsuR7dYUOpnXDh3SW3BrLEHJOcb7wWHyjxf0baU6VGaXKARNNprGw5WZB6oq8i3oxH1i77v2aa6WEWbsOWgEFBGM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=v6GeyY53; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="J5Zvjigi"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B7092C2BCB3;
-	Fri, 15 May 2026 15:56:14 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="v6GeyY53"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4DCF2C2BCB3;
+	Fri, 15 May 2026 16:16:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=linuxfoundation.org;
-	s=korg; t=1778860575;
-	bh=5hJWP3YID+vi0QYbbhSs+uwcyddLNvcFV3499sbkAOw=;
+	s=korg; t=1778861803;
+	bh=0L4pScPUyIT0tCQ8XyF3Dw7v1MBs4nt9C55wNiBLG7o=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
-	b=J5ZvjigiopohKImvb1Y2I18Zj+2B8nWGeE4q6FNBUmNr4KoA/Pa92eI1LpNufKCnL
-	 n++aYlectq/uXhkXP0jkblkYxzkIcbiN7ca0ExpCmix4/C5+DcrkBsbMExJHU3WWfd
-	 4uED58cRBNadZ3eQKjmkVLB9uQC/jpSe5hA4NpAk=
+	b=v6GeyY53Zy4JBo3ea/K8G/W1oV2+63mqQb5h3yZWU2lyuAeybpNo4iWvxX2m0N4Kd
+	 qMdUkJDFM+Zv5rnT09CWHKwWUBQjhQ/j2Pv+VBwOsntrvy+4Fb+VmX92dLT8K+71At
+	 kcAdXtc9AF/fVYJKAOXiAMbqRM8mSzL5ptJUY23E=
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 To: stable@vger.kernel.org
 Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
@@ -38,12 +38,12 @@ Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	virtualization@lists.linux.dev,
 	Jakub Kicinski <kuba@kernel.org>,
 	Luigi Leonardi <leonardi@redhat.com>
-Subject: [PATCH 6.12 141/144] vsock/virtio: fix potential unbounded skb queue
-Date: Fri, 15 May 2026 17:49:27 +0200
-Message-ID: <20260515154656.794584978@linuxfoundation.org>
+Subject: [PATCH 6.6 467/474] vsock/virtio: fix potential unbounded skb queue
+Date: Fri, 15 May 2026 17:49:36 +0200
+Message-ID: <20260515154725.211770846@linuxfoundation.org>
 X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260515154653.469907118@linuxfoundation.org>
-References: <20260515154653.469907118@linuxfoundation.org>
+In-Reply-To: <20260515154715.053014143@linuxfoundation.org>
+References: <20260515154715.053014143@linuxfoundation.org>
 User-Agent: quilt/0.69
 X-stable: review
 X-Patchwork-Hint: ignore
@@ -56,7 +56,7 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-6.12-stable review patch.  If anyone has any objections, please let me know.
+6.6-stable review patch.  If anyone has any objections, please let me know.
 
 ------------------
 
@@ -89,7 +89,9 @@ Cc: "Eugenio Pérez" <eperezma@redhat.com>
 Cc: virtualization@lists.linux.dev
 Link: https://patch.msgid.link/20260430122653.554058-1-edumazet@google.com
 Signed-off-by: Jakub Kicinski <kuba@kernel.org>
-Cc: Luigi Leonardi <leonardi@redhat.com>
+[LL: Fixed conflict since this tree does not use buf_used added by commit
+ 45ca7e9f0730 ("vsock/virtio: fix `rx_bytes` accounting for stream sockets")]
+Signed-off-by: Luigi Leonardi <leonardi@redhat.com>
 Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 ---
  net/vmw_vsock/virtio_transport_common.c |    4 +++-
@@ -97,14 +99,14 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 --- a/net/vmw_vsock/virtio_transport_common.c
 +++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -430,7 +430,9 @@ static int virtio_transport_send_pkt_inf
+@@ -283,7 +283,9 @@ static int virtio_transport_send_pkt_inf
  static bool virtio_transport_inc_rx_pkt(struct virtio_vsock_sock *vvs,
  					u32 len)
  {
--	if (vvs->buf_used + len > vvs->buf_alloc)
+-	if (vvs->rx_bytes + len > vvs->buf_alloc)
 +	u64 skb_overhead = (skb_queue_len(&vvs->rx_queue) + 1) * SKB_TRUESIZE(0);
 +
-+	if (skb_overhead + vvs->buf_used + len > vvs->buf_alloc)
++	if (skb_overhead + vvs->rx_bytes + len > vvs->buf_alloc)
  		return false;
  
  	vvs->rx_bytes += len;
