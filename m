@@ -1,56 +1,56 @@
 Received: from mail-pf1-f202.google.com (mail-pf1-f202.google.com [209.85.210.202])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0DD063E1227
-	for <virtualization@lists.linux.dev>; Fri, 15 May 2026 19:20:49 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64A3638D3E4
+	for <virtualization@lists.linux.dev>; Fri, 15 May 2026 19:20:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1778872850; cv=none; b=JksqSzxdJgdBGrg9I/AL3nSlgOA6I+LVdn3F8TKP75D/F3H7IpddUORgP/eQl2bPVKz4AiiM8KlKcL+HGzWbQDwoUAZbL8snWLntnvDbvYDHw2AGyYYYNwn6EfvhVD0O0Qexqz3Cja79Wqacfx06kxRHG/nXzB4LlrWUxVeJPE0=
+	t=1778872852; cv=none; b=Eh1YHBtMmAi8pjEypzsXLH7sem8KIbRerslTqb1YDv40Icr9IA9Zkl18dq5+oViXyv4J+TP1nXZKRJuPbaQV/Pzzp4ufq8T2GKbnpCZ2zN4jPgizIFudRctlWxe/9kinrHZss9VeSu1g/PILZRT8wC+88JYgyuRflOlrmt2l84Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1778872850; c=relaxed/simple;
-	bh=7t7bZAkjWH8tEuvlMroGRphDuT5a2BO5RqjwXybBung=;
+	s=arc-20240116; t=1778872852; c=relaxed/simple;
+	bh=VGy+qLRWGOmAxsBGFeiFDyGswDSrJi4JQ5o9B+Fv8MU=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=I5F9cTT1emUpECFfmpOLGXfoayyTgpO/IBaZiYqCRmItL0gWhFj6/8GzSanJo6wjgHb6N01S2GXkhkkESCwoFhMlR9P/rwhidctVIsnkfV1Iqh22U2E6luCpny0b9t/5/+twDjBCLVJb6tB0S6m1qRILACu7mtJ1X/6rg1jHP9I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=ICEgfvG9; arc=none smtp.client-ip=209.85.210.202
+	 To:Cc:Content-Type; b=NY4E4GjTLrdV1vM1fNhiv576kD1rBVl33BO6f1pgkc9kTJ0vfRcDPHOLh4ePPsvLVC9a5ztYJBI0Oj/tzshZdtc8VZRxhAM/KqTdlwb5tVZSSUEJsKhJ/kQWyqqQtfotnMqgJrw+HTsA7rBQrzZ3OlfdTT+0tHxvr+OHcNw6aTg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=prrmj8WT; arc=none smtp.client-ip=209.85.210.202
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ICEgfvG9"
-Received: by mail-pf1-f202.google.com with SMTP id d2e1a72fcca58-83536dc3be5so248213b3a.1
-        for <virtualization@lists.linux.dev>; Fri, 15 May 2026 12:20:49 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="prrmj8WT"
+Received: by mail-pf1-f202.google.com with SMTP id d2e1a72fcca58-837cc5bc6deso94373b3a.3
+        for <virtualization@lists.linux.dev>; Fri, 15 May 2026 12:20:50 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1778872848; x=1779477648; darn=lists.linux.dev;
+        d=google.com; s=20251104; t=1778872849; x=1779477649; darn=lists.linux.dev;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:from:to:cc:subject:date:message-id:reply-to;
-        bh=c0VSXuwvwTL0EdvBxlPRCLOC48TzlA2S3UU4EaITdRg=;
-        b=ICEgfvG9mscE7boNRUqgd9ZHKO7hf/Gv/vMoImo9dKy86hCDEAqzp7rK0fCz5PKRQM
-         nbG1ltUvirc+/RY9DAoW4SnTx5tzqnWnkmA+8tbEVPZnQUel68bWX15t9VJTG8nhdARF
-         Y0reArQg9ZBJFoh1IN1AadXFTe94A+r7nlidXo8SsR+OW+S0ZA9074M54x5SGUsBxGYB
-         KPUOrJp+dzp5JvZ0U4Xebv+nCZRmjQOUZxBOHoHEEHD01MNOUDrj/wT7AR2mCRWTGh0w
-         b23ktxvyZCz9QXmbUfziJFUcjQ21gMRrkdD+mkLRQJa8Pg0bTK6I3rdv/8cJNMn/zAWn
-         iTdg==
+        bh=HUz/DYTZsMDp3XmDdx4uAZCV01b5NalrmHfGrDrQY4I=;
+        b=prrmj8WTn9wcERs264A1wlzPWbtFdwCl5pyjd6y01RajvT8AlMIT8q8WILxTU6J9IH
+         4sKAJvny9EphoRZCynwCKKw/MYXVT+I/q1vHyZP68aUeMxANwffIEmQoW55fNUNIcxPi
+         71onQ2s+N4eyksOwhm3fodes9feZh9mjl9zHAmyK1RG6mE7KlH+5pTdK1ieJ4wHR2bk8
+         Ha/pisoXjewzK24ihrUf8bwjKk5RecSxOo9CcNjgUoDngDgsvNae2a4sXvr8P3/cTGkR
+         Ep2eig8wzoENrii1jXF4yzszOAz42D4lmxHQaaIVyz0x79uQ+/h06xFH1hJHqj4ZJG7J
+         WBug==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1778872848; x=1779477648;
+        d=1e100.net; s=20251104; t=1778872849; x=1779477649;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=c0VSXuwvwTL0EdvBxlPRCLOC48TzlA2S3UU4EaITdRg=;
-        b=KL3KOqEHdsdiViPtITdwl5xZfdIaMttwJRhNUnZtqUkSvZXehBlNFvMQLIEv1gAuQM
-         9NzoY4AmBOI2+BobUFCYxQwb7nz0+tVelyhRm90VHvIoeEkDmdP+y5mBUvmS+2zegBxa
-         +Xl3u1z11WgkD97h4ASaobiB2FC3jVsVV+mRRQ4mXzOUDh5Kq7cb2wYEVyjTlaaTpa1+
-         8e1FSso7ior22ihfoBn6xRcmjraZxJBlF8xmsnJr/y2unnBCy8cik8HeKOhhF2UUDdRD
-         GyJb5Ed9rO5HUcHEtpERe3lSH28zJ4cHhZdiUw+rycAEh+U3N1qobo5/lKvMD5Qb52UU
-         wvkg==
-X-Forwarded-Encrypted: i=1; AFNElJ8pBDi/jrPmnOuJGtYV35I7J2vcteAt3R96b1yp3XX+Y9M/on/h5KlKWOP13FCBhbn9FiTAfbCczfIM/aLwOw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy6DHqWK6lby/sAUrR0s4ZdRVHJ2+GqY63NNSpKRqlr84Dpf+QR
-	FQ1JL6e3PQaAy5x1ueJt92R/D8VMgrKDo3li0SXSO08kN1E1bYsZOlTrzKNl7jFCHWyxZHNAxTa
-	xlioX8g==
-X-Received: from pfbff26.prod.google.com ([2002:a05:6a00:2f5a:b0:83e:dfc6:971])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:1908:b0:82f:50cd:e586
- with SMTP id d2e1a72fcca58-83f33cb2c40mr5886442b3a.13.1778872848066; Fri, 15
- May 2026 12:20:48 -0700 (PDT)
+        bh=HUz/DYTZsMDp3XmDdx4uAZCV01b5NalrmHfGrDrQY4I=;
+        b=HF/Oo/yGFKzwvyMNY4Drv4YNXyEm672K9V0f7rHCUybnxtlj3+fkZftBTtpwo+TJPO
+         XUhMf4dM9/yL+VEEl8S6icn2A1ZHGQ6r5rawYdRfR6fFCW6XVZF1S4246neGpmFuthH/
+         q4fpjmbuvcBrMaulkdFHC0Lvw7DZKO/i1QxNK0YBAKNkDAqh6xb4Q5MioZ7VmR8bsmXp
+         Y5YlMEHEgKJg1NoFzL1jWaDh7FBFDvwTOyOFtfBHq29cJ0XolGshYlQAWUnCcW+pndrA
+         6wb7sdCP+imiG9io3bGGpT420UiGQljTUmltdZTKHwqvNWLG1bzkAsUuNUrIBzh06g8c
+         HWvg==
+X-Forwarded-Encrypted: i=1; AFNElJ9pXkzYQ/9CV+oOCeofJFmGF2EBqkuD+BvKByS+i6Q5TqsHtGuqwtm1fppW4l15xAQUgTptOLGlzPo8M1wO3A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzGeDuGc4ZZOvxKW0jnwGuOmb6Vg8IlQ4zRd2bp4BJk9kLRZHoy
+	c6ngDOqY9UBbx48m5+ZP0YQBKiKGYtw7a8c7xQsQlmZC7iPyis6TPGWQSzIndvvtUH0LKSzLd1A
+	sx4i6RQ==
+X-Received: from pfmm20.prod.google.com ([2002:a05:6a00:2494:b0:835:43a4:4aaa])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:6ca2:b0:83d:b11f:7979
+ with SMTP id d2e1a72fcca58-83f33c60deemr6247193b3a.29.1778872849160; Fri, 15
+ May 2026 12:20:49 -0700 (PDT)
 Reply-To: Sean Christopherson <seanjc@google.com>
-Date: Fri, 15 May 2026 12:19:17 -0700
+Date: Fri, 15 May 2026 12:19:18 -0700
 In-Reply-To: <20260515191942.1892718-1-seanjc@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -60,9 +60,9 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 Mime-Version: 1.0
 References: <20260515191942.1892718-1-seanjc@google.com>
 X-Mailer: git-send-email 2.54.0.563.g4f69b47b94-goog
-Message-ID: <20260515191942.1892718-17-seanjc@google.com>
-Subject: [PATCH v3 16/41] x86/vmware: Nullify save/restore hooks when using
- VMware's sched_clock
+Message-ID: <20260515191942.1892718-18-seanjc@google.com>
+Subject: [PATCH v3 17/41] x86/tsc: WARN if TSC sched_clock save/restore used
+ with PV sched_clock
 From: Sean Christopherson <seanjc@google.com>
 To: Kiryl Shutsemau <kas@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, 
 	Sean Christopherson <seanjc@google.com>, "K. Y. Srinivasan" <kys@microsoft.com>, 
@@ -83,37 +83,47 @@ Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>, Vitaly Kuznetsov <vkuznets@redh
 	Thomas Gleixner <tglx@linutronix.de>, David Woodhouse <dwmw@amazon.co.uk>
 Content-Type: text/plain; charset="UTF-8"
 
-Nullify the sched_clock save/restore hooks when using VMware's version of
-sched_clock.  This will allow extending paravirt_set_sched_clock() to set
-the save/restore hooks, without having to simultaneously change the
-behavior of VMware guests.
-
-Note, it's not at all obvious that it's safe/correct for VMware guests to
-do nothing on suspend/resume, but that's a pre-existing problem.  Leave it
-for a VMware expert to sort out.
+Now that all PV clocksources override the sched_clock save/restore hooks
+when overriding sched_clock, WARN if the "default" TSC hooks are invoked
+when using a PV sched_clock, e.g. to guard against regressions.
 
 Signed-off-by: Sean Christopherson <seanjc@google.com>
 ---
- arch/x86/kernel/cpu/vmware.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ arch/x86/kernel/tsc.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-diff --git a/arch/x86/kernel/cpu/vmware.c b/arch/x86/kernel/cpu/vmware.c
-index b88d9ca01202..b5cb66ca022b 100644
---- a/arch/x86/kernel/cpu/vmware.c
-+++ b/arch/x86/kernel/cpu/vmware.c
-@@ -347,8 +347,11 @@ static void __init vmware_paravirt_ops_setup(void)
+diff --git a/arch/x86/kernel/tsc.c b/arch/x86/kernel/tsc.c
+index 567d30b30a5a..b14c4ada89a3 100644
+--- a/arch/x86/kernel/tsc.c
++++ b/arch/x86/kernel/tsc.c
+@@ -984,9 +984,17 @@ EXPORT_SYMBOL_GPL(recalibrate_cpu_khz);
  
- 	vmware_cyc2ns_setup();
+ static unsigned long long cyc2ns_suspend;
  
--	if (vmw_sched_clock)
-+	if (vmw_sched_clock) {
- 		paravirt_set_sched_clock(vmware_sched_clock);
-+		x86_platform.save_sched_clock_state = NULL;
-+		x86_platform.restore_sched_clock_state = NULL;
-+	}
++static __always_inline bool tsc_is_save_restore_needed(void)
++{
++	if (WARN_ON_ONCE(!using_native_sched_clock()))
++		return false;
++
++	return static_branch_likely(&__use_tsc) || sched_clock_stable();
++}
++
+ void tsc_save_sched_clock_state(void)
+ {
+-	if (!static_branch_likely(&__use_tsc) && !sched_clock_stable())
++	if (!tsc_is_save_restore_needed())
+ 		return;
  
- 	if (vmware_is_stealclock_available()) {
- 		has_steal_clock = true;
+ 	cyc2ns_suspend = sched_clock();
+@@ -1006,7 +1014,7 @@ void tsc_restore_sched_clock_state(void)
+ 	unsigned long flags;
+ 	int cpu;
+ 
+-	if (!static_branch_likely(&__use_tsc) && !sched_clock_stable())
++	if (!tsc_is_save_restore_needed())
+ 		return;
+ 
+ 	local_irq_save(flags);
 -- 
 2.54.0.563.g4f69b47b94-goog
 
