@@ -1,141 +1,109 @@
-Received: from mail-wm1-f53.google.com (mail-wm1-f53.google.com [209.85.128.53])
+Received: from mail-pl1-f201.google.com (mail-pl1-f201.google.com [209.85.214.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73895382394
-	for <virtualization@lists.linux.dev>; Mon, 18 May 2026 18:50:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.53
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779130214; cv=pass; b=Q6XjDa9rucMtC1mfq1dIJgvz75Ot0QY/Is2ys2499iy88ZkId9Rv3tzQ061dBnBZLtCfOIyBqrfgfnWaJJg0rItvLbWaQNVAyulwxUrY5LB66NTimjC5kspVvV6I3zy0bPXdwgihYDE59IAHDsxk8EN1KoDpePl2pehz+VaAiSk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779130214; c=relaxed/simple;
-	bh=ntjLPEYi5GRPAiZuo7cclkhEyY2tz4aKN8Y6WdSUrUE=;
-	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=QplcNSVOkUDviwcs3LDCZvdASbttMqtV9L9/E4uY3ALe2BoQhpoA7frhbnzb8wXkdb25/FxGqmIUqMwwpozl+expI+wHH0QjP5g1KJLxMtX87b58qSqOyWxngHBt6wQhbSXN1UmrnguM07naCibsBnIJxivmd02th/aUezjklkg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PTC2mDR2; arc=pass smtp.client-ip=209.85.128.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6337A391E74
+	for <virtualization@lists.linux.dev>; Mon, 18 May 2026 21:11:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779138707; cv=none; b=cOaW3Rg+t6zk9bavIPu9WJogRbgknp7Wi4vogk4Rp+uepHSjlkPccq3TDIFAXMtChPHbWRrhuzifNQzSqHSc/8D1xQVy6zIurA2CflPRDM+gHYHK30fx/nKr13lAJOGtZZ+Qyogfxecs8BRd7QBy3uxvHKqNqaW7H/lCMmf4QU8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779138707; c=relaxed/simple;
+	bh=Y9WlSbz5Rarbpnp6OSXzG8yVO1DRu83ex3iEeD+K0qo=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Content-Type; b=p/xxvWNXB4kcFFIAx+zqREqZGusIZN3oIm/sg8evXxHcE9xraK6TTaRjmFDEVSTAlzimHbkKgXI04aEj3n0aRNqM3lInEqVv5SkzXvuPBkH7KV6MJ7vxiIcvgcCsHNqxhB0o1igMphbbH/FXcJsegsDa7wb0UJC3D59TOQ7DM3U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=R+AZGfwn; arc=none smtp.client-ip=209.85.214.201
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PTC2mDR2"
-Received: by mail-wm1-f53.google.com with SMTP id 5b1f17b1804b1-48ff4f8ef0dso30453905e9.3
-        for <virtualization@lists.linux.dev>; Mon, 18 May 2026 11:50:13 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1779130212; cv=none;
-        d=google.com; s=arc-20240605;
-        b=I+sYfdTmwNfXgOVsp8h+WujluGF4RevePFbG1sS7vfo1rpCuxBWNN3a+CgCriozGBe
-         VN5TvEPqNnqsgMtleUddK2Rrw7bZt4n3fB9SLRcfkLekvrtb0Lb+4W8m9jEu/VvAl9F3
-         jHfFo4Z3qlGFJA210lmW1EyKOCAmni+77h6p+soWhDlmWUbnZyG7vdjK6JbeaLCNnzCY
-         FkqcRnz9SHm9dTfCtKoKaWe4RND2I+Fu9JIYwQt3uS/OKushesw9Qp+h7MVqh9gatgP4
-         Wst/w8NUBF/JmdP7BlvjRWvHcTUHZJ7WtP7qvK/22P3E0TMCfENtEffoe/fSPl1lrk/8
-         BCzg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=cc:to:subject:message-id:date:from:mime-version:dkim-signature;
-        bh=VqNnxkjBMmJhXWFpK+NCwtLhzLfiA5Rwy9PxwlrjgDo=;
-        fh=3hY+3mC8rw9/pOd7uUDO4ZX/uZq30dRc32juj/PyXQk=;
-        b=dSAGKZR9dmMwItL3EPiMaPwQXXMLTIrttM9R2lZ38GQMf+i/LCqJIxu8zxzs3TXyCl
-         hFEN0Mw0McDjIqaU5gt4+/dy8TeCbhdt+kZiOnV1ZrV7QTjDvMRshOC0RmOKkKW/0EBc
-         vntniXb7gn8XJpFHkPZnI5CJdKmvCvru9Fg4iIhwIAPZIIdDgNf59eP1GifZ4p6qlUAy
-         b9EwTWiSRtzk5R8r6XSnyHo6hs60+HaEhsOFJMw1PawmirdiMtNdp/ghaM610rouuIVQ
-         /Mc7sEbaodJ53l2sNcXaNYX9qlA43Gr3hlkCHUeByRqPwlsH+KQafF08UrkRJFAcAMPx
-         oSnQ==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="R+AZGfwn"
+Received: by mail-pl1-f201.google.com with SMTP id d9443c01a7336-2ba3245a43dso29500005ad.0
+        for <virtualization@lists.linux.dev>; Mon, 18 May 2026 14:11:46 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779130212; x=1779735012; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:mime-version:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=VqNnxkjBMmJhXWFpK+NCwtLhzLfiA5Rwy9PxwlrjgDo=;
-        b=PTC2mDR24Kj/ogG4JyNXjKCIlz71UcZhD1db2WEBdT1X1PgKeN+nSR0IpIgrynnkAP
-         Tu0/fn70LiULoZMKIPjrj7iuV/XObqA3MG4htoawrG6WWsy4u/NJHRvldPX+UXxubO5E
-         YEsJT7DMWRFvxAGPz8ds3O6diUE28MnoGFG1h/cq1tngGbZInVV+AFZBsz29FVNb2mD1
-         j5AdzNKRuKIUl8E7uYoKu8nWTiSTWqnd5kFLf6sKitQx74q0lFCd2MKJ4loIfWH30CET
-         sH9GkartMf8RRx+O0HGhbWrQ7Q4UD2QHkkhVtylWfTeW6Uknsgsy2KwH8ztaAbOqzi7s
-         aXsA==
+        d=google.com; s=20251104; t=1779138706; x=1779743506; darn=lists.linux.dev;
+        h=to:from:subject:message-id:references:mime-version:in-reply-to:date
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=M0HR0/OeCt5J6wDdP6oTOA3/U+zZIegjjUJa8wpeaiw=;
+        b=R+AZGfwnYMkptUTeORL5P6KLGpfSGKJF2V8Q2TKfO5Yw3li7XvezuSWgsjRUo6XL5j
+         CXhSGNhT83GHjeAB6z/zpn68+uWGlM1zJPuf8MBBXQLJS3s0MXLqbP0O/Jfu3GBHocqh
+         kJIIjEDuaNrHUsj35RwY+o5xb7FqAWJt4QpZv127FbGddtRksz7d4x4hKimB4KrE2VcV
+         0DyCvzeqOlPZcP0dUbOUTfCLidFY1o8cttAv1PN2wV6kdPFAenQy06DDnCInm4LNoZne
+         qrXDnoMYiXb/UIpzwfA/thK3T3r1s7M0wNQOLkNOwgt2TRs00oNLTDYXPNbvhDnOHmKU
+         AA7Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779130212; x=1779735012;
-        h=cc:to:subject:message-id:date:from:mime-version:x-gm-gg
+        d=1e100.net; s=20251104; t=1779138706; x=1779743506;
+        h=to:from:subject:message-id:references:mime-version:in-reply-to:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=VqNnxkjBMmJhXWFpK+NCwtLhzLfiA5Rwy9PxwlrjgDo=;
-        b=W2g1PFXcGWLnpW0owzvnOK0uM+qzyW4Ee8gmDEyPPefNxn86lIiyaFFyBb6GT3aXBb
-         a3EEmlZNsjBBwso6kQGlRT/cSjFRFw82+JVe3lJOYQxIiBRI0jhtNR/vJ2II8Srjfbgi
-         GxWnIYZE7lKrLrmXcOi7OLp3GZDdjJTGLrCKNOizyo4zUYyfHXGko9I5ewX8+R7ZJ92K
-         OPtwxbFGBlfF36doqCzmil3kJvGBAcRab21VFOLcrkBp+WSwYU0CmePBTqZKITGmThFM
-         Lrch4rEc3aeWkLs2qmLHiEHWWdQZV/2XOL6vAxelSc2/dbVdukX7RpuYAGnVWtS1C4+/
-         qjSA==
-X-Forwarded-Encrypted: i=1; AFNElJ+xEAsZXez7bfmrXvpEzVGXRF1Le+aq1Ynrn3bDEUXZRY9GXvRioylF+DHofKRrl5xHggLe6U5igFr16caJtw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwrxjCeeh9ZV9HBRanw7VTr4FdyefOAKdnboZkLwypmbOWmI06d
-	e6KAnPMEksb8dJ95c0h9165wzZL0Bvg/vnStp92pcKzW+jg+A1OKk1947mQRsaMvk3DYK0r0ZrU
-	HnRR+0kQaoUlxihztSPRDjATPOU7IVtI=
-X-Gm-Gg: Acq92OGHyLx68n0/h5NJlVtXkSmxfXDDlURxIwIPjhzZMS7aTCzwTkgwT0M6WE0LATz
-	6ukdVtXA68DnCAbCxaEvNCtm535jJGYyy3mdXaPv6296cOY9hV5b4Zv+YCJ9KUvDI77b4VmUyTK
-	hr/7ZKK4V0RBlL2yvWi4kmV4O9QR5s5jZUa9pto9oxQitfKqk2wQSsCDvonDjwQNI8P8H7qXKKM
-	mSu5QjIZzdS47Eu0b+NukTIhYAV5aI+mcvORmKt0iysV33HWXWp/601u1+Mn1umFlpp1Rk5z0gP
-	laULYlC52BGEq6WOEqg=
-X-Received: by 2002:a05:600c:3506:b0:48f:e44c:e058 with SMTP id
- 5b1f17b1804b1-48fe60e13e7mr243263145e9.1.1779130211678; Mon, 18 May 2026
- 11:50:11 -0700 (PDT)
+        bh=M0HR0/OeCt5J6wDdP6oTOA3/U+zZIegjjUJa8wpeaiw=;
+        b=cKIFNO2/lu2gXBjSIQzc/VSHLDM3D4TrUiOBbTDovIsxwByiMKRlIch8rHZUks7rfY
+         m2/ottOEkz7l/JlpTt6zjNSXkTfA4m11DiPBIuO14LkqFHP4cohjS5KWs/W6y2FljSiZ
+         ZwJ9b6psgdhjmgc/OAthphrZt+IYCnQCfG7nJQFnRlvNcfj1CRW2jS2HEdBPYKyomPCf
+         5/nn0k9IlLFcsIco1KlL//yUszlzNWVHFRK0OGuBFcm6kG2+E10YjsAVZU9a19Ed+/uS
+         bO8rGAgJhFKZ8vE9vKiyU2eyMTIx0tWkEirG292q6xHMY9mrpeLoZR2mt7Em319GaDEa
+         YjMg==
+X-Forwarded-Encrypted: i=1; AFNElJ9eSPGOJEJ3DCepbVvHYkj94FLAbkWQA+vzbZxmmF9wwHn+VWLdbWFuOduo7gq1OnRuxeMFvg03eoaOWLD8tQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxphIXn4kgr/O5562c/yXfdFFuyUcN1u0KeGMVFS+oShCTf4Nmr
+	CcElr+cMfREreRqqNdwOxNOlctD029GHO6QmB/Hnv55cemcnfJLpW891i2wI5v5Vl8w0PMNKtpb
+	beqHvOg==
+X-Received: from plhq16.prod.google.com ([2002:a17:903:11d0:b0:2b2:43c2:a183])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:903:11c4:b0:2bd:9766:bd2b
+ with SMTP id d9443c01a7336-2bd9766be37mr135740745ad.19.1779138705542; Mon, 18
+ May 2026 14:11:45 -0700 (PDT)
+Date: Mon, 18 May 2026 14:11:44 -0700
+In-Reply-To: <20260515191942.1892718-1-seanjc@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-From: Maoyi Xie <maoyixie.tju@gmail.com>
-Date: Tue, 19 May 2026 02:49:58 +0800
-X-Gm-Features: AVHnY4LP4WEjN53zWIvLnqiUH8Ng1-ziqjtJncIzUtEbTdyAtpzVtgYcIetns8s
-Message-ID: <CAHPEe=G-FZvEXjkE+vAXN5MHXCtsOaUoKwg2RQL6m=om+c20hQ@mail.gmail.com>
-Subject: iommu: iterator used after loop end in resv region insertion?
-To: joro@8bytes.org, will@kernel.org, robin.murphy@arm.com, jpb@kernel.org
-Cc: iommu@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	virtualization@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+References: <20260515191942.1892718-1-seanjc@google.com>
+Message-ID: <aguAkMTrkSVPthal@google.com>
+Subject: Re: [PATCH v3 00/41] x86: Try to wrangle PV clocks vs. TSC
+From: Sean Christopherson <seanjc@google.com>
+To: Kiryl Shutsemau <kas@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, 
+	"K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
+	Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>, 
+	Ajay Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.makhalov@broadcom.com>, 
+	Jan Kiszka <jan.kiszka@siemens.com>, Dave Hansen <dave.hansen@linux.intel.com>, 
+	Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Juergen Gross <jgross@suse.com>, 
+	Daniel Lezcano <daniel.lezcano@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
+	John Stultz <jstultz@google.com>, Rick Edgecombe <rick.p.edgecombe@intel.com>, 
+	Vitaly Kuznetsov <vkuznets@redhat.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stephen Boyd <sboyd@kernel.org>, x86@kernel.org, 
+	linux-coco@lists.linux.dev, kvm@vger.kernel.org, linux-hyperv@vger.kernel.org, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	xen-devel@lists.xenproject.org, Michael Kelley <mhklinux@outlook.com>, 
+	Tom Lendacky <thomas.lendacky@amd.com>, Nikunj A Dadhania <nikunj@amd.com>, 
+	Thomas Gleixner <tglx@linutronix.de>, David Woodhouse <dwmw@amazon.co.uk>
+Content-Type: text/plain; charset="us-ascii"
 
-Hi all,
+On Fri, May 15, 2026, Sean Christopherson wrote:
+> Dave/Thomas/Peter/Boris, what's the going rate for bribes to take something
+> like this through the tip tree?  
+> 
+> The bulk of the changes are in kvmclock and TSC, but pretty much every
+> hypervisor's guest-side code gets touched at some point.  I am reaonsably
+> confident in the correctness of the KVM changes.  Michael tested Hyper-V in
+> v2, and while there were conflicts when rebasing, they were largely
+> superficial (and I've just jinxed myself).  For all other hypervisors, assume
+> the code is compile-tested only, but those changes are all quite small and
+> straightforward.
+> 
+> The only changes that are questionable/contentious are the last two patches,
+> which have KVM-as-a-guest use CPUID 0x16 to get the CPU frequency, even on
+> AMD (that's the dubious part).  I very deliberately put them last, so that
+> they can be dropped at will (I don't care terribly if those patches land).
+> To merge them, I would want explicit Acks from Paolo and David W.
+> 
+> So, except for the last two patches, to get the stuff I really care about
+> landed, I think/hope it's just the TSC and guest-side CoCo changes that need
+> reviews/acks?
 
-While reading drivers/iommu/ I noticed two places that look
-like a past the end iterator pattern. I would appreciate it
-if you could take a look and let me know whether these are
-real issues and whether they are worth fixing.
+FYI, don't bother reviewing this version.  Sashiko found several glaring flaws,
+but I just realized that sashiko-bot's emails are only being sent to myself and
+linux-hyperv@vger.kernel.org.  I'll make sure to highlight the changes in the
+next version.
 
-The first is iommu_insert_resv_region() in drivers/iommu/iommu.c
-(linux-7.1-rc1, around line 873):
-
-    list_for_each_entry(iter, regions, list) {
-            if (nr->start < iter->start ||
-                (nr->start == iter->start && nr->type <= iter->type))
-                    break;
-    }
-    list_add_tail(&nr->list, &iter->list);
-
-The second is viommu_add_resv_mem() in drivers/iommu/virtio-iommu.c
-(linux-7.1-rc1, around line 523):
-
-    list_for_each_entry(next, &vdev->resv_regions, list) {
-            if (next->start > region->start)
-                    break;
-    }
-    list_add_tail(&region->list, &next->list);
-
-In both cases, when the loop walks all entries without break,
-the iterator has gone one step past the last entry. &iter->list
-then aliases the list head via container_of offset cancellation,
-so the insert lands at the list tail. That is the intended
-behaviour, but the access is undefined per C11.
-
-Jakob Koschel cleaned up many such sites in 2022, for example
-commits 99d8ae4ec8a (tracing: Remove usage of list iterator
-variable after the loop), 2966a9918df (clockevents: Use dedicated
-list iterator variable) and dc1acd5c946 (dlm: replace usage of
-found with dedicated list iterator variable). These two sites
-in drivers/iommu/ were not covered.
-
-A candidate fix would track an explicit insert_before pointer
-initialised to the list head and overwritten to &iter->list
-only when the loop breaks early. The observable behaviour is
-unchanged.
-
-If this is intentional or already known, please disregard.
-Otherwise, I am happy to send a [PATCH] or to leave the fix to
-you. Thank you for your time, and sorry for the noise if this
-is not actually worth fixing or has already been spotted.
-
-Thanks,
-Maoyi Xie
-https://maoyixie.com/
+In the meantime, Sashiko's feedback is archived on lore if you want to see me
+get torched by AI :-)
