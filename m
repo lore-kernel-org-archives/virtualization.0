@@ -1,293 +1,139 @@
-Received: from mx4.sberdevices.ru (mx4.sberdevices.ru [152.89.196.46])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 626D437DE9B
-	for <virtualization@lists.linux.dev>; Tue, 19 May 2026 06:37:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=152.89.196.46
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB6B93DDDBE
+	for <virtualization@lists.linux.dev>; Tue, 19 May 2026 08:00:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779172659; cv=none; b=J7J1KFDnL/9q5hcPZVE2HfVBPswJ1aR+TBTZoqN5thfTcH1TAXg/szRob/k90I72cGOH1i259pQzu3kHh+2h7iTImYSoP5MFXK49QQfZW5Fn9rPYBMdT0+vbsKl4MgdDL2c9diwXUfEbczNJIAvA3E8fO0k70/T+mE/JtxxU3rU=
+	t=1779177641; cv=none; b=ihPPHn9I91HFW1i/y8Ic5y+NX1jdyMgnWfRqlmIpZ9hL1x8I1fUtwgoTSbB6odfkPduRhOqrAsu9F2hZPS7u+gxLxLjbR4ubJNcviktbOz/ERZtVtqSxNWIgDEj0borhAyr8aK+4+jm01ZdJlp0QONT2UFVm73VCfEYhjsLb4Os=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779172659; c=relaxed/simple;
-	bh=Ba54tlaLzVS0tnkEUiadMTQemQZTXU53H6g52Xw1Q4g=;
-	h=Message-ID:Date:MIME-Version:Subject:To:CC:References:From:
-	 In-Reply-To:Content-Type; b=pqd58jaPaE6BjcTBYg91s7SfSGyXBX7p+KeZwHKggSh1mJ+QdaXVz2WN2b35r5qbnXJOHuDNac3RYw53G8tED2KyKI7usTwMfoxA4Tw20v+iJIH0xRYCI88iqPY4okDYVb0BlrnUSyrR0AjtVoBB/IBzhzc2zLzK+smqSUF5qFE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=salutedevices.com; spf=pass smtp.mailfrom=salutedevices.com; dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b=axi1jPDH; arc=none smtp.client-ip=152.89.196.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=salutedevices.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=salutedevices.com
+	s=arc-20240116; t=1779177641; c=relaxed/simple;
+	bh=3d4rILdlilDFDSw76hiIyNlmPop0Z7DV66rhMlxLZi4=;
+	h=MIME-Version:From:To:In-Reply-To:Cc:Subject:Message-ID:Date:
+	 Content-Type; b=ha6PmH3Hn1tKVTErYtLngZhh4FjCtSEbIH3pjzJqmkPCoG4XLz6SoVEEiLUO4Pkilqrrm0H2o8QkvG+7HjhR4iXz+gjgrC5ESfCsftmiu7fbrgskn64lX/1CPXUV7BCFv74e8WS5zPtFbwr8fFMFpJs5qkOPtRjzsGQZ19hTJQM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IDTiDwIH; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=salutedevices.com header.i=@salutedevices.com header.b="axi1jPDH"
-Received: from p-antispam-ksmg-sc-msk02.sberdevices.ru (localhost [127.0.0.1])
-	by mx4.sberdevices.ru (Postfix) with ESMTP id 43BCD40017;
-	Tue, 19 May 2026 09:37:27 +0300 (MSK)
-DKIM-Filter: OpenDKIM Filter v2.11.0 mx4.sberdevices.ru 43BCD40017
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=salutedevices.com;
-	s=post; t=1779172647;
-	bh=wq2XHzZwQG7ofdjqejV+Sf3LE4yTZqvjhYHDHUch4Us=;
-	h=Message-ID:Date:MIME-Version:Subject:To:From:Content-Type:From;
-	b=axi1jPDHTZTyrBusIdQ53XIbLeNr4/1b269hdRGnUBfLwu9zM+unxUUGrT4WOqI97
-	 B618CgvWiJo24vVwBOBmrudFNAZU5B4Q5dyrriWUcPUmXORlYe/EgeHHTWZrq7N35h
-	 S9b1B58xPMB7g1QAsk204Kx3XaOZuxlBWPUnJTpIzMyZXlhMA+NtNhrGZ3rCl7JZ0H
-	 4Ly9UtzZgl8Zam0NRScxYxI/5xlB25yFvpdJAwe0JGGeP5n28NimXVDLZjIq6WsplU
-	 0m/5kRvW3J6H4G0Zct0aH9f2JNFneaLmRnZPjjNZXF9YMNLaTesiNRn5l69XOurGbn
-	 h0yjJqevvOcYg==
-Received: from smtp.sberdevices.ru (p-exch-cas-a-m1.sberdevices.ru [172.24.201.216])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(Client CN "sberdevices.ru", Issuer "R12" (not verified))
-	by mx4.sberdevices.ru (Postfix) with ESMTPS;
-	Tue, 19 May 2026 09:37:25 +0300 (MSK)
-Message-ID: <aea2227c-3011-4457-b909-d16de1596a6d@salutedevices.com>
-Date: Tue, 19 May 2026 09:37:23 +0300
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IDTiDwIH"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1779177639;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:  in-reply-to:in-reply-to;
+	bh=3d4rILdlilDFDSw76hiIyNlmPop0Z7DV66rhMlxLZi4=;
+	b=IDTiDwIHQW8ZjVzFv2ZS2kAV/E4T6nRSFHDr+5tKfC8pczz+zUCHJ+Eb1gJRtELRbuCyaE
+	o/qQbnyx8c3XvMIwfETAQFEWL61g8aiowGXC3AXhT6Cp7ZIP/IcCkdtVQTpPEGCq1QmJZ+
+	efRCiGvWKfI8q4BzTQYDpsR0wfy0PqQ=
+Received: from mail-pl1-f197.google.com (mail-pl1-f197.google.com
+ [209.85.214.197]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-321-fOu2KWo4MriBjUKxlvNMNA-1; Tue, 19 May 2026 04:00:37 -0400
+X-MC-Unique: fOu2KWo4MriBjUKxlvNMNA-1
+X-Mimecast-MFC-AGG-ID: fOu2KWo4MriBjUKxlvNMNA_1779177636
+Received: by mail-pl1-f197.google.com with SMTP id d9443c01a7336-2bd6aeb3637so84659105ad.2
+        for <virtualization@lists.linux.dev>; Tue, 19 May 2026 01:00:37 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779177636; x=1779782436;
+        h=content-transfer-encoding:date:message-id:subject:cc:in-reply-to:to
+         :from:mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=gE08M1SuyC2hJeQGP9oQiMi2Xo7VgIAhPzD+PrSXSZY=;
+        b=JltnvkqMr5Cw/8wi1fYmlV0Mfo/aGzRmd0sBNKeJfErUWl84wjqqcFR241K5i3BsU5
+         IEPqzZZRyEmuWRGVoo1RRNPOt9Zr4MeSKk5F59u3eWAbOCxZT+lTPXlUXnLKgVIOYQK+
+         qPDFGU7pIOmzBmadPbJ7b7usDNqLY6rkzshRu0SYk70QvnIiIhJK37zAr/47V7FY5n6K
+         dRoHKvHe1o0KWG5bGJUOSshKaNtUnB8dI5RkvtvryyXxBJOU+eQSb4ktqdd52htM6O2e
+         598UmU/P9jOxkPSgrcjdpxCiTs40k+WsoMjQYC2jFrfMPPNOrmpdhlBkN5LV8ZfSFHON
+         V2RA==
+X-Forwarded-Encrypted: i=1; AFNElJ9dzDJ25FQHZgjo7fZcs8WughZqP7iE0p3Gb9rRT6ns7I2n+njTlcjtdPi+/5Nys6fJ7uXTu2m4xJL82jlYaA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzF9v4bMJOF2FD4nNLNQuVTTR8fgROxJwFL5VxQey2lCLaTqN+g
+	K6+gNoZSs3pf/zXe0i+3tHAi75D0+s2ZhELMwH2JlMaFeg9f6P9YJccN8863pZx8NCyhQX1m0qG
+	qVQtkh3/4nyqR4O9E9w8eu3Y2mS6Sv5FSdHm27Anzpg32ytoAacf6kiDUEKIbBp8Nzm9R
+X-Gm-Gg: Acq92OF1S3VaE/OHvTrvqJ/LfTSY6A/4WFYIDWkdTR+80qKHkC3AfpLPEqCq6ViTqPE
+	dtJPdiF+G7idt/84jmL1C+Phi7V5zpHHOm1+TmoA3MeRgiGqF60r9xpxUpdYduzVj7rfUNK9+7M
+	47El3ByutgI3gGC2hsKxdNQ5kubeCvdtWI/5FueBi1mdiQRSmYus9Xm8QC0Dl2nQzSAyJ2rlTJT
+	vLpraeAdtq9TNpeOYr0Ps+O1Do18snsp3o+c0y1kNH/HX2AUcYJ18svhUGFfpxNbVFldnUi7KD4
+	4440OHMbmRjUDHhwD8NLc4SUnbh0PdTe3BbXF+qZ0aXTfUUczflpl2/fF560LEeyLIB0/bupDLX
+	zaHgIGC2gbmrO+2MB/3HVPFQHPvRn9tMTuiAb+q+wAagMkfII0mPagfwqaCQ=
+X-Received: by 2002:a17:903:1b70:b0:2bc:810b:5c0c with SMTP id d9443c01a7336-2bd7e8cbd1dmr212913155ad.34.1779177636014;
+        Tue, 19 May 2026 01:00:36 -0700 (PDT)
+X-Received: by 2002:a17:903:1b70:b0:2bc:810b:5c0c with SMTP id d9443c01a7336-2bd7e8cbd1dmr212912815ad.34.1779177635540;
+        Tue, 19 May 2026 01:00:35 -0700 (PDT)
+Received: from ryasuoka-thinkpadx1carbongen9.tokyo.csb ([126.143.164.49])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2bd5cfe49a4sm161905065ad.38.2026.05.19.01.00.31
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 19 May 2026 01:00:34 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net] vsock/virtio: fix zerocopy completion for multi-skb
- sends
-Content-Language: ru
-To: Stefano Garzarella <sgarzare@redhat.com>, David Laight
-	<david.laight.linux@gmail.com>
-CC: "Michael S. Tsirkin" <mst@redhat.com>, <netdev@vger.kernel.org>, Jakub
- Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman
-	<horms@kernel.org>, Stefan Hajnoczi <stefanha@redhat.com>,
-	<kvm@vger.kernel.org>, Eric Dumazet <edumazet@google.com>,
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, Xuan Zhuo
-	<xuanzhuo@linux.alibaba.com>, <virtualization@lists.linux.dev>, "David S.
- Miller" <davem@davemloft.net>, Jason Wang <jasowang@redhat.com>,
-	<linux-kernel@vger.kernel.org>, Maher Azzouzi <maherazz04@gmail.com>
-References: <20260514092948.268720-1-sgarzare@redhat.com>
- <20260516125329.7b699c6f@pumpkin> <agrXvCtNRlySlwgx@sgarzare-redhat>
- <20260518053223-mutt-send-email-mst@kernel.org>
- <agrg1GVzoJWtNuSd@sgarzare-redhat> <20260518115005.5f13bd2b@pumpkin>
- <20260519053951.1C60440015@mx4.sberdevices.ru>
-From: Arseniy Krasnov <avkrasnov@salutedevices.com>
-In-Reply-To: <20260519053951.1C60440015@mx4.sberdevices.ru>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: p-exch-cas-s-m2.sberdevices.ru (172.16.210.3) To
- p-exch-cas-a-m1.sberdevices.ru (172.24.201.216)
-X-KSMG-AntiPhishing: NotDetected, bases: 2026/05/19 06:19:00
-X-KSMG-AntiSpam-Auth: dkim=none
-X-KSMG-AntiSpam-Envelope-From: avkrasnov@salutedevices.com
-X-KSMG-AntiSpam-Info: LuaCore: 105 0.3.105 c7fb587251b1312ef0d9243823bef7335f8fcbef, {Tracking_phishing_log_reg_50_60}, {Tracking_uf_ne_domains}, {Tracking_from_domain_doesnt_match_to}, salutedevices.com:7.1.1;127.0.0.199:7.1.2;git.kernel.org:7.1.1;d41d8cd98f00b204e9800998ecf8427e.com:7.1.1;sashiko.dev:7.1.1;smtp.sberdevices.ru:5.0.1,7.1.1, FromAlignment: s
-X-KSMG-AntiSpam-Interceptor-Info: scan successful
-X-KSMG-AntiSpam-Lua-Profiles: 203239 [May 19 2026]
-X-KSMG-AntiSpam-Method: none
-X-KSMG-AntiSpam-Rate: 0
-X-KSMG-AntiSpam-Status: not_detected
-X-KSMG-AntiSpam-Version: 6.1.1.22
-X-KSMG-AntiVirus: Kaspersky Secure Mail Gateway, version 2.1.1.8310, bases: 2026/05/19 04:09:00 #28206517
-X-KSMG-AntiVirus-Status: NotDetected, skipped
-X-KSMG-KATA-Status: Not Scanned
-X-KSMG-LinksScanning: NotDetected, bases: 2026/05/19 06:18:00
-X-KSMG-Message-Action: skipped
-X-KSMG-Rule-ID: 5
+From: "Ryosuke Yasuoka" <ryasuoka@redhat.com>
+To: "Dmitry Osipenko" <dmitry.osipenko@collabora.com>, 
+	"David Airlie" <airlied@redhat.com>, "Gerd Hoffmann" <kraxel@redhat.com>, 
+	"Gurchetan Singh" <gurchetansingh@chromium.org>, 
+	"Chia-I Wu" <olvaffe@gmail.com>, 
+	"Maarten Lankhorst" <maarten.lankhorst@linux.intel.com>, 
+	"Maxime Ripard" <mripard@kernel.org>, 
+	"Thomas Zimmermann" <tzimmermann@suse.de>, 
+	"Simona Vetter" <simona@ffwll.ch>
+In-Reply-To: <70e966d1-ca74-4f5c-8527-9e34ffe19095@collabora.com>
+Cc: <dri-devel@lists.freedesktop.org>, <virtualization@lists.linux.dev>, 
+	<linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] drm/virtio: add timeout to virtqueue wait to avoid hung
+	 task
+Message-ID: <18b0e8a0fd7e47ff.9be20be20a12ad9a.4495158120858bb1@ryasuoka-thinkpadx1carbongen9.tokyo.csb>
+Date: Tue, 19 May 2026 08:00:30 +0000
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: ziISpbJuvRQ1alco4Vdka4fOdL5X_j4PJbK2abfAdz0_1779177636
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
+Thank you for the suggestions.
 
+On 19/05/2026 09:11, Dmitry Osipenko wrote:
+> On 5/18/26 09:45, Ryosuke Yasuoka wrote:
+>>> It may be acceptable to have wait_event_timeout() in a loop, printing
+>>> warnings about unresponsive host.
+>> I considered this approach, but it does not solve the recovery problem
+>> described above. The guest would still be stuck in the loop with no way
+>> to remove the device or shut down gracefully.
+>=20
+> Could `system_state !=3D SYSTEM_RUNNING` be checked in the wait loop? Thi=
+s
+> may allow to handle system shutdown, aborting the timed out wait in the
+> special case.
 
-On 18/05/2026 14:08, Stefano Garzarella wrote:
-> On Mon, May 18, 2026 at 11:50:05AM +0100, David Laight wrote:
->> On Mon, 18 May 2026 11:54:19 +0200
->> Stefano Garzarella <sgarzare@redhat.com> wrote:
->>
->>> On Mon, May 18, 2026 at 05:33:08AM -0400, Michael S. Tsirkin wrote:
->>> >On Mon, May 18, 2026 at 11:18:24AM +0200, Stefano Garzarella wrote:
->>> >> On Sat, May 16, 2026 at 12:53:29PM +0100, David Laight wrote:
->>> >> > On Thu, 14 May 2026 11:29:48 +0200
->>> >> > Stefano Garzarella <sgarzare@redhat.com> wrote:
->>> >> >
->>> >> > > From: Stefano Garzarella <sgarzare@redhat.com>
->>> >> > >
->>> >> > > When a large message is fragmented into multiple skbs, the zerocopy
->>> >> > > uarg is only allocated and attached to the last skb in the loop.
->>> >> > > Non-final skbs carry pinned user pages with no completion tracking,
->>> >> > > so the kernel has no way to notify userspace when those pages are safe
->>> >> > > to reuse. If the loop breaks early the uarg is never allocated at all,
->>> >> > > leaking pinned pages with no completion notification.
->>> >> > >
->>> >> > > Fix this by following the approach used by TCP: allocate the zerocopy
->>> >> > > uarg (if not provided by the caller) before the send loop and attach
->>> >> > > it to every skb via skb_zcopy_set(), which takes a reference per skb.
->>> >> > > Each skb's completion properly decrements the refcount, and the
->>> >> > > notification only fires after the last skb is freed.
->>> >> > > On failure, if no data was sent, the uarg is cleanly aborted via
->>> >> > > net_zcopy_put_abort().
->>> >> > >
->>> >> > > This issue was initially discovered by sashiko while reviewing commit
->>> >> > > 1cb36e252211 ("vsock/virtio: fix MSG_ZEROCOPY pinned-pages accounting")
->>> >> > > but was pre-existing.
->>> >> > >
->>> >> > > Fixes: 581512a6dc93 ("vsock/virtio: MSG_ZEROCOPY flag support")
->>> >> > > Cc: Arseniy Krasnov <avkrasnov@salutedevices.com>
->>> >> > > Closes: https://sashiko.dev/#/patchset/20260420132051.217589-1-sgarzare%40redhat.com
->>> >> > > Reported-by: Maher Azzouzi <maherazz04@gmail.com>
->>> >> > > Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
->>> >> > > ---
->>> >> > >  net/vmw_vsock/virtio_transport_common.c | 83 ++++++++++---------------
->>> >> > >  1 file changed, 34 insertions(+), 49 deletions(-)
->>> >> > >
->>> >> > > diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->>> >> > > index 989cc252d3d3..1e3409d28164 100644
->>> >> > > --- a/net/vmw_vsock/virtio_transport_common.c
->>> >> > > +++ b/net/vmw_vsock/virtio_transport_common.c
->>> >> > > @@ -70,34 +70,6 @@ static bool virtio_transport_can_zcopy(const struct virtio_transport *t_ops,
->>> >> > >      return true;
->>> >> > >  }
->>> >> > >
->>> >> > > -static int virtio_transport_init_zcopy_skb(struct vsock_sock *vsk,
->>> >> > > -                       struct sk_buff *skb,
->>> >> > > -                       struct msghdr *msg,
->>> >> > > -                       size_t pkt_len,
->>> >> > > -                       bool zerocopy)
->>> >> > > -{
->>> >> > > -    struct ubuf_info *uarg;
->>> >> > > -
->>> >> > > -    if (msg->msg_ubuf) {
->>> >> > > -        uarg = msg->msg_ubuf;
->>> >> > > -        net_zcopy_get(uarg);
->>> >> > > -    } else {
->>> >> > > -        struct ubuf_info_msgzc *uarg_zc;
->>> >> > > -
->>> >> > > -        uarg = msg_zerocopy_realloc(sk_vsock(vsk),
->>> >> > > -                        pkt_len, NULL, false);
->>> >> > > -        if (!uarg)
->>> >> > > -            return -1;
->>> >> > > -
->>> >> > > -        uarg_zc = uarg_to_msgzc(uarg);
->>> >> > > -        uarg_zc->zerocopy = zerocopy ? 1 : 0;
->>> >> > > -    }
->>> >> > > -
->>> >> > > -    skb_zcopy_init(skb, uarg);
->>> >> > > -
->>> >> > > -    return 0;
->>> >> > > -}
->>> >> > > -
->>> >> > >  static int virtio_transport_fill_skb(struct sk_buff *skb,
->>> >> > >                       struct virtio_vsock_pkt_info *info,
->>> >> > >                       size_t len,
->>> >> > > @@ -317,8 +289,10 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
->>> >> > >      u32 src_cid, src_port, dst_cid, dst_port;
->>> >> > >      const struct virtio_transport *t_ops;
->>> >> > >      struct virtio_vsock_sock *vvs;
->>> >> > > +    struct ubuf_info *uarg = NULL;
->>> >> > >      u32 pkt_len = info->pkt_len;
->>> >> > >      bool can_zcopy = false;
->>> >> > > +    bool have_uref = false;
->>> >> > >      u32 rest_len;
->>> >> > >      int ret;
->>> >> > >
->>> >> > > @@ -360,6 +334,25 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
->>> >> > >          if (can_zcopy)
->>> >> > >              max_skb_len = min_t(u32, VIRTIO_VSOCK_MAX_PKT_BUF_SIZE,
->>> >> > >                          (MAX_SKB_FRAGS * PAGE_SIZE));
->>> >> > > +
->>> >> > > +        if (info->msg->msg_flags & MSG_ZEROCOPY &&
->>> >> > > +            info->op == VIRTIO_VSOCK_OP_RW) {
->>> >> > > +            uarg = info->msg->msg_ubuf;
->>> >> > > +
->>> >> > > +            if (!uarg) {
->>> >> > > +                uarg = msg_zerocopy_realloc(sk_vsock(vsk),
->>> >> > > +                                pkt_len, NULL, false);
->>> >> > > +                if (!uarg) {
->>> >> > > +                    virtio_transport_put_credit(vvs, pkt_len);
->>> >> > > +                    return -ENOMEM;
->>> >> > > +                }
->>> >> > > +
->>> >> > > +                if (!can_zcopy)
->>> >> > > +                    uarg_to_msgzc(uarg)->zerocopy = 0;
->>> >> > > +
->>> >> > > +                have_uref = true;
->>> >> > > +            }
->>> >> > > +        }
->>> >> >
+Instead of checking system_state directly, I'm planning to add a driver
+flag (e.g. vqs_released) to struct virtio_gpu_device. The shutdown path
+(virtio_gpu_shutdown) will set this flag and wake up the wait queues
+before calling drm_dev_unplug(). The wait loop checks the flag and
+aborts if set. This may cover both the shutdown and the unbind cases
+with a sinble check, so I believe a separate system_state check is not
+needed. If my plan turns out to have issues, I will use system_state
+check.
 
-Hi guys! Just some replies after quick look:
+> Userspace may also get stuck in a zombie state. For that, code should
+> use wait_event_interruptible(). But driver has code unprepared to be
+> interrupted, it all needs to be reworked first [1].
 
->>> >> > Surely that block should only be done if can_zcopy is true?
+Agreed. I will leave wait_event_interruptible() for follow-up once the
+interruptible is prepared. For now, userspace stuck in D state remains a
+pre-exsiting limitation.
 
-I guess no, since TCP also allocates uarg even if zerocopy is impossible -
-it just sets uarg_to_msgzc(uarg)->zerocopy = 0;
+> Similarly, for unbind there could a driver flag that the wait loop will
+> check and handle specially.
 
->>> >> > And shouldn't something unset it if info->op != VIRTIO_VSOCK_OP_RW ?
+Yes, the driver flag described above will handle this as well.
 
-Hm, we can't enter block 'if (info->msg) {' when 'info->op' is not equal to 'VIRTIO_VSOCK_OP_RW',
-because 'msg' is not NULL only for 'VIRTIO_VSOCK_OP_RW'. But anyway You point to right thing - check for
-'VIRTIO_VSOCK_OP_RW' could be removed here. Just with comment why.
+Best regards,
+Ryosuke
 
->>> >> > If the msg_zerocopy_realloc() fails then can't you just set can_zcopy to false.
-
-Here I guess it is better to follow TCP way to make same behaviour, because exact
-logic for MSG_ZEROCOPY is not documented. TCP also returns error and stops tx loop.
-
->>> >> >
->>> >> > It info->msg->msg_buf is already set then I think you have to disable zero-copy.
->>> >> > The caller has already requested a callback - and you can't add another.
-
-In TCP implementation if 'msg_ubuf' is set they just use it and check for zerocopy in
-the same way as 'msg_ubuf' is NULL.
-
->>> >> >
->>> >> > In any case by the end of this can_zcopy and have_uref are really the same flag.
->>> >>
-
-Need to check it more. But 'can_zcopy' means that we fill frags in skb, have_uref means that we
-allocated completion (but it could be reported with not set 'SO_EE_CODE_ZEROCOPY_COPIED' if
-'can_zcopy' was false).
-
-
-@Stefano, I guess current implementation differs from TCP in two cases (at least from first
-view):
-1) When 'msg_ubuf' is set: in TCP, already set 'msg_ubuf' is passed to 'skb_zerocopy_iter_stream()'
-   (if zerocopy is possible) where it is used as in vsock in call 'skb_zcopy_set()'. In vsock case if
-   'msg_ubuf' is not NULL we will pass just NULL to 'skb_zcopy_set()'. Yes this is will be
-   no-effect call today (due to checks in 'skb_zcopy_set()'), but anyway - in future may be not.
-2) Also i see that 'skb_zerocopy_iter_stream()' in TCP version has some extra checks which are
-   missed in vsock - we only just call '__zerocopy_sg_from_iter()' to fill skb in zerocopy way.
-
-But, I think, instead of trying to compare vsock and TCP versions best way is to just copy
-current TCP flow as close as possible:
-https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net.git/tree/net/ipv4/tcp.c#n1144
-1) Use same flow of checks for 'msg_flags', 'msg_ubuf', SOCK_ZEROCOPY etc.
-2) To copy data we can use 'skb_zerocopy_iter_stream()'.
-3) The only thing that we don't need in vsock is dev mem related code from TCP implementation.
-
-I can take this task, but pls need some time - may be two/three weeks due to another tasks. 
-
-What do You think?
-
-Thanks
-
->>> >> I kept the same approach we had before, trying to make as few changes as
->>> >> possible.
->>> >>
->>> >> All these potential issues seem to be pre-existing and should be eventually
->>> >> addressed in other patches IMHO. This patch one only resolves the main issue
->>> >> of calling `skb_zcopy_set()` for every skb to avoid leaking pages, etc.
->>> >
->>> >the patch is upstream now, right? So pretty much have to be patches on
->>> >top.
->>>
->>> If those are actual issues, then yes. TBH, I didn’t look into that
->>> aspect and left it as it was before. We should take a closer look at how
->>> MSG_ZEROCOPY is handled.
->>>
->>> David, if you think it needs fixing and you have time, feel free to send
->>> patches on top.
->>
->> I'm not fully sure how it all works.
-> 
-> Same here, so I pinged Arseniy who worked on that, since it seemed deliberate to have `can_zcopy` (and set `uarg->zerocopy` accordingly) only when it was supported by the transport.
-> 
->> Especially the paths where msg->msg_ubuf is non-NULL, I suspect it should
->> be added to all the skb even if the ZEROCOPY flag isn't set.
->> I was just reading the one function.
->> But there did look like some very dodgy conditionals.
-> 
-> I see, let's wait for Arseniy's feedback; otherwise, I'll try to fix it next week. As mentioned, this issue existed before this patch, so it shouldn't be a regression.
-> 
-> Thanks,
-> Stefano
-> 
+> WDYT?
+>=20
+> [1]
+> https://lore.kernel.org/dri-devel/20260515084030.21986-1-kartikey406@gmai=
+l.com/
 
