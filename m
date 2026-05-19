@@ -1,173 +1,175 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73B603EFD34
-	for <virtualization@lists.linux.dev>; Tue, 19 May 2026 09:49:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 867664ADD97
+	for <virtualization@lists.linux.dev>; Tue, 19 May 2026 10:16:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779184183; cv=none; b=BhRVzagYUBYdbSXLLaF7rfrBQqLZIZ0z/ovp9Z8OzHVLIG28Pt90P/3ctgcr3Pdgz3oeQWUjH8R06//307GGNtCd/Gn+mQRV/1R1utvzRKPDgsJLGK5lW/xOA7QLJus3Rx/j7rYoYbWcGAGOPBtHrh/tPoQOXi6X7tY4Af94yME=
+	t=1779185793; cv=none; b=n1RJ/mgVEYV0MM+sm8ZFLKwXRQETWqqIPWPrEFK5UnyPdIVZnqRLxrc4OKRejGebZ87AVWp0taq1alw5ewedwgaOZOti/YEnAsgitBPwTt2BMTOYTWUOSzLfDWBPTBa2MR6WPjTolPHPlxIaMJmjKyLK8EqalzLZ+M8UA33GubY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779184183; c=relaxed/simple;
-	bh=A3kYDVRcCv+l5IYdjIvqMz4NtZd1ehaoUU/Tc+OxqTM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=kh0WZLn9Hjk61NCE0DIOmHtreI6nSeKMl/26RHmqI+bZqQLP5KCFDb7VICqd2CEdouzIAnPJIKvzlcGV+PixPurNt+4yJsqG2W9JzHG1cg5C8sEV847kD9NyEqzHPtvHhWkWrHGTWscqBg4W2f4WPiEiRnVi8X4HAylx0yMRDIQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=M0heET/Z; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1779185793; c=relaxed/simple;
+	bh=A8lCk64tyDutpdWygpqGjJXORX5zZQ3IQ4DQQhG5Q8o=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=qwYLI/vJ6ONh/NuZvDcPLpnI0TkqQR4FgKvCgJTPtKlkgXP6Nhi0zkGrjFsN+df93251uh12SByedpx/5mnBf1z1It1ICfWKVxUkxoCiC+0uo6y7GjZnZTjGu6idm+FY9MBCTCatrHpfyh2qz17w+Tts/SoumbJn7oK8ixayyMM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ZfQJwZsa; arc=none smtp.client-ip=209.85.216.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="M0heET/Z"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1779184180;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=zj2k4OlZU7xwNJcXmWQpbVh/b6JWeCsbljlDYkhC2cc=;
-	b=M0heET/Z+kggfrXdhnLXocESv95SAULrGRU/fv1PkQbnrjuCmgnH82QMx7zKT9peOFNgRV
-	pVxLxrC3lL6g/btH61xXctxGcbiNKZJsycRCjzJcRsrLV+ihihH7CsdOu4oMv7o5AOq3kR
-	O4K7aoKXn2lFsgTnzZdHNFFuDp1Ya4U=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-636-l5H9Qs8XPm-hLDU8yQGB2w-1; Tue, 19 May 2026 05:49:39 -0400
-X-MC-Unique: l5H9Qs8XPm-hLDU8yQGB2w-1
-X-Mimecast-MFC-AGG-ID: l5H9Qs8XPm-hLDU8yQGB2w_1779184178
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-48fdca5c638so27004985e9.1
-        for <virtualization@lists.linux.dev>; Tue, 19 May 2026 02:49:39 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ZfQJwZsa"
+Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-369576666d5so1506384a91.0
+        for <virtualization@lists.linux.dev>; Tue, 19 May 2026 03:16:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1779185786; x=1779790586; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=a6PE6oczvQzlzFTW3XERm2G8PX98I8qUZJMdLKZ7oFc=;
+        b=ZfQJwZsaSwB4MzpN3W99Y20R4qHqdrDbDRp+2eJw3CILzrzUVjPfmYkdMksEOE0dXI
+         Gz8NiG/X8no1Jku4mtpzG9cuSZmJDZu4GDN1Wubb3hAfdDDKiEsFYim7uyZjvsdwhCSj
+         Mzf5mRZdumJ+rEGLbs7BynwOGbgAOhgCr6OhfvbOaA+jiskVzj8KUyX6ipfdiX26MD4o
+         Gp9TbV6C1tsOUu4rz4g/hJdVAa5sJemWZHOX5kn5ncrxWELRvTria6L1c5TiYUYaXj8e
+         YM+OzpVdGlnf5cBC6f18ZOVvFCTw9KCxQpCx6Eui+mHI5gILrHsGt3yB7iz+DYGH6x1/
+         Yc5A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779184178; x=1779788978;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=zj2k4OlZU7xwNJcXmWQpbVh/b6JWeCsbljlDYkhC2cc=;
-        b=fn9utJtEIXhJjdbvq56x1/mV9B9BF8WIG3wrZJZZo2I345KUaGDynWMsIuqb9AM5h3
-         UT9h5L0XK6fKyiv2ey9QRE1xY6F/Rm2zd5m6gHrFww2GBzD3m89M89asBZ5iKTYgKE/o
-         PbiO2tI0uLgSlI2UdBi1ZIrYEG89XhVxZ/6pcNl97UPQQxGz151dCMlQ9pV1udNMYv48
-         sbGhE4o2qw4TyFkkJr4OBwv1c17UNh8Psbs9ctZKbvncehguDEUYNgKiNdYdF8+Eh8pp
-         0BvPsmK00HCU6nR+4lCNtLGv/ur9+NbxUoa1dAM0vrodTdCb8trKlDDb0jrMJ2KNZZbS
-         GQvw==
-X-Forwarded-Encrypted: i=1; AFNElJ8UkLgjo/y/AgywC7yY2nNHaaIJE+STsNtckTSJwy/zOZ/sFWV+C5SLMpP4yA7vwypc2/izGm7mq3m27cQftg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz9NWgpRlPxvp6PgMEJaWttl8d977gYhXTEt1uvmfUW/+rsOKJs
-	fyzeKHNjtKvUooqO4JpUiDJYZRkUG8tZWCZg7rg+nxpjwpWjVuPLbF/tXgWLqsujooHGz/BUYmI
-	m12ObOpcNaxYktehiCzQMQQ/Q0NX8ssiMmswDkCnJcGIf62H8ucBoZyWQzwZK0UV4ckRR
-X-Gm-Gg: Acq92OEdZPI1YUC0DDniik2NkVrud3TU1Q1yussHY0L0y8mOeGoZfZl096MmAqyir/i
-	Q9kYsJnC3QWMHE8gtNyOKEN1qf447OP2U7gdnmVrqAv6CvHnWP2ItfyOfioxj/Zv3nSt6EW5iNy
-	qinb5v+94n2+FQCpDMsJi1SDfvkKs4fcv04YKIvS1L3D23tnjb+Cr3STWo19NSBlJnGlMWHRMDa
-	ilVAvwGpt7xMbTWv0+pLkufChHq9A03VaGZWocUdgExzfdAmC8hjxAsQPMFVLjM851hgl5mzwBv
-	KyUGawJXoDM+uPS8iiI062o+ly3+11an+C6ajJ4GsEPoY9RdtHM43MyKXTTJXcMYi4AZikuOfEp
-	CPVuxUPz/jvE1qiMu2DfRNKUzkPwMx3J2J6Lbl++aL1DMB+XTVWPUt2bqwCSlqN33GW/xhfDeo2
-	t3jAFj4eZW
-X-Received: by 2002:a05:600c:4e55:b0:488:ac01:72de with SMTP id 5b1f17b1804b1-48fe60e510bmr285210385e9.5.1779184178098;
-        Tue, 19 May 2026 02:49:38 -0700 (PDT)
-X-Received: by 2002:a05:600c:4e55:b0:488:ac01:72de with SMTP id 5b1f17b1804b1-48fe60e510bmr285209745e9.5.1779184177542;
-        Tue, 19 May 2026 02:49:37 -0700 (PDT)
-Received: from sgarzare-redhat (host-87-16-204-231.retail.telecomitalia.it. [87.16.204.231])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-48fe5cab7c5sm334163125e9.12.2026.05.19.02.49.36
+        d=1e100.net; s=20251104; t=1779185786; x=1779790586;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=a6PE6oczvQzlzFTW3XERm2G8PX98I8qUZJMdLKZ7oFc=;
+        b=k7dJUc/WH31gxxaoQhB5oWqTI6aP4sOFIN/Z4MqPXgO/uBTWUwTz+tIJvX5Eqh0R4b
+         QFjMPyzNAOVZzDA5jobuppYwVjGZqzYCvnqUgvwr8uqJEbJCWe0WJrX0WJNPctbSEGHK
+         dqAwqcGf8LOlJp4VS+YQYRi9gGYrxoQ/w1LVlAFKmnOKPFQb9UwW8COEZXDaFtKg3Fsr
+         5PLqiNXL8MGaRH2U/PPqdGuFJHcm94XCKwyLBcG3ZfnhUqMbrJokEU/slnAg02ioo8oD
+         lZpSYo7QX5byc3kP4ueAVO756g5mWqpVwMYlRL3KFIuQR1U/nkOBQAtrpldHPtAWcxdE
+         UtAQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+R/4JfL209LQXiEZ3N+yc3A2OTySdS1Fe84dPjM/Mn4IGADPfTiPILkIsYeo3XUQI79V9b0EHR9tN1Jg5yqA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YymK+TeP1f54pw0FubV+u1Nz5wf0haZwu1ku8tzFrqzm5Vjx1en
+	hYM+gx6eA1doZCV0NPvlOqslt64j4+YZohW4Jc4Ixdn9OjFprsU0JNP7pHnYVMwxEcI=
+X-Gm-Gg: Acq92OEsbPXlhjRTsJZNli+54HJ9YiyxshwdmgcAL3EkdqpXGgT4QUk9v8cnE4/Si/+
+	/XOxQnoHOEo/yro+1g1TeZ7NBoG566vBzytmqyXrjluyWMBOQOKo2IPUa5/MBMsCWSVeDWz/8qp
+	4IPzAXgtP/V8AmKgF1mLo6jPGN03KQfmYNh4sF3db/npBlbN/8M+vfmcAV675A4vuPCKS9t8SlG
+	Zvr8s6T1mFRXFp0SCbo5m9qgHpxQloIxG/w5l2O1SsAhVErd0jci9F0VuO5iG1c25nomkwo1mte
+	GLaCKmFw9Ub8eMHnKfyHdyLKig7X7PZeUeLpcG8eRnrwGK/whz2UBWZiZDEeOqABMM29NkMTOWC
+	pP25O/RGXNIdtz4WTJu9jeMj4ZwwVCdQnN9Sg7MgIUR7In0WGUmUC/x4aZXBvYKDyOFE37U6Z92
+	72xDmsxo3yhRI72Mc8Qt9FWiGmcw==
+X-Received: by 2002:a17:90b:2742:b0:368:cefe:ddd0 with SMTP id 98e67ed59e1d1-36951b82f8fmr19522119a91.15.1779185785623;
+        Tue, 19 May 2026 03:16:25 -0700 (PDT)
+Received: from fedora ([171.243.49.69])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2bd5d234540sm177683165ad.79.2026.05.19.03.16.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 19 May 2026 02:49:36 -0700 (PDT)
-Date: Tue, 19 May 2026 11:49:28 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Arseniy Krasnov <avkrasnov@salutedevices.com>
-Cc: David Laight <david.laight.linux@gmail.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, netdev@vger.kernel.org, Jakub Kicinski <kuba@kernel.org>, 
-	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, kvm@vger.kernel.org, Eric Dumazet <edumazet@google.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	virtualization@lists.linux.dev, "David S. Miller" <davem@davemloft.net>, 
-	Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org, 
-	Maher Azzouzi <maherazz04@gmail.com>
-Subject: Re: [PATCH net] vsock/virtio: fix zerocopy completion for multi-skb
- sends
-Message-ID: <agwwxuQlIWjwXtMN@sgarzare-redhat>
-References: <20260514092948.268720-1-sgarzare@redhat.com>
- <20260516125329.7b699c6f@pumpkin>
- <agrXvCtNRlySlwgx@sgarzare-redhat>
- <20260518053223-mutt-send-email-mst@kernel.org>
- <agrg1GVzoJWtNuSd@sgarzare-redhat>
- <20260518115005.5f13bd2b@pumpkin>
- <20260519053951.1C60440015@mx4.sberdevices.ru>
- <aea2227c-3011-4457-b909-d16de1596a6d@salutedevices.com>
+        Tue, 19 May 2026 03:16:24 -0700 (PDT)
+From: Minh Nguyen <minhnguyen.080505@gmail.com>
+To: pabeni@redhat.com,
+	bryan-bt.tan@broadcom.com
+Cc: sgarzare@redhat.com,
+	vishnu.dasa@broadcom.com,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	horms@kernel.org,
+	bcm-kernel-feedback-list@broadcom.com,
+	netdev@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: [PATCH net v3] vsock/vmci: fix UAF when peer resets connection during handshake
+Date: Tue, 19 May 2026 17:16:10 +0700
+Message-ID: <20260519101610.233070-1-minhnguyen.080505@gmail.com>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <agwv3YkxYIC7mvyj@sgarzare-redhat>
+References: <agwv3YkxYIC7mvyj@sgarzare-redhat>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <aea2227c-3011-4457-b909-d16de1596a6d@salutedevices.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 4D-B_qJrbBIv-X15t_dNDBPJwbrYvIn_FKlPqiB2KCk_1779184178
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Tue, May 19, 2026 at 09:37:23AM +0300, Arseniy Krasnov wrote:
->On 18/05/2026 14:08, Stefano Garzarella wrote:
->> On Mon, May 18, 2026 at 11:50:05AM +0100, David Laight wrote:
->>> On Mon, 18 May 2026 11:54:19 +0200
->>> Stefano Garzarella <sgarzare@redhat.com> wrote:
+vmci_transport_recv_connecting_server() returned err = 0 for a peer
+RST in its default switch arm:
 
-[...]
+	err = pkt->type == VMCI_TRANSPORT_PACKET_TYPE_RST ? 0 : -EINVAL;
 
->
->Hi guys! Just some replies after quick look:
->
->>>> >> > Surely that block should only be done if can_zcopy is true?
->
->I guess no, since TCP also allocates uarg even if zerocopy is impossible -
->it just sets uarg_to_msgzc(uarg)->zerocopy = 0;
->
->>>> >> > And shouldn't something unset it if info->op != VIRTIO_VSOCK_OP_RW ?
->
->Hm, we can't enter block 'if (info->msg) {' when 'info->op' is not equal to 'VIRTIO_VSOCK_OP_RW',
->because 'msg' is not NULL only for 'VIRTIO_VSOCK_OP_RW'. But anyway You point to right thing - check for
->'VIRTIO_VSOCK_OP_RW' could be removed here. Just with comment why.
->
->>>> >> > If the msg_zerocopy_realloc() fails then can't you just set can_zcopy to false.
->
->Here I guess it is better to follow TCP way to make same behaviour, because exact
->logic for MSG_ZEROCOPY is not documented. TCP also returns error and stops tx loop.
->
->>>> >> >
->>>> >> > It info->msg->msg_buf is already set then I think you have to disable zero-copy.
->>>> >> > The caller has already requested a callback - and you can't add another.
->
->In TCP implementation if 'msg_ubuf' is set they just use it and check for zerocopy in
->the same way as 'msg_ubuf' is NULL.
->
->>>> >> >
->>>> >> > In any case by the end of this can_zcopy and have_uref are really the same flag.
->>>> >>
->
->Need to check it more. But 'can_zcopy' means that we fill frags in skb, have_uref means that we
->allocated completion (but it could be reported with not set 'SO_EE_CODE_ZEROCOPY_COPIED' if
->'can_zcopy' was false).
->
->
->@Stefano, I guess current implementation differs from TCP in two cases (at least from first
->view):
->1) When 'msg_ubuf' is set: in TCP, already set 'msg_ubuf' is passed to 'skb_zerocopy_iter_stream()'
->   (if zerocopy is possible) where it is used as in vsock in call 'skb_zcopy_set()'. In vsock case if
->   'msg_ubuf' is not NULL we will pass just NULL to 'skb_zcopy_set()'. Yes this is will be
->   no-effect call today (due to checks in 'skb_zcopy_set()'), but anyway - in future may be not.
->2) Also i see that 'skb_zerocopy_iter_stream()' in TCP version has some 
->extra checks which are
->   missed in vsock - we only just call '__zerocopy_sg_from_iter()' to fill skb in zerocopy way.
->
->But, I think, instead of trying to compare vsock and TCP versions best way is to just copy
->current TCP flow as close as possible:
->https://git.kernel.org/pub/scm/linux/kernel/git/netdev/net.git/tree/net/ipv4/tcp.c#n1144
->1) Use same flow of checks for 'msg_flags', 'msg_ubuf', SOCK_ZEROCOPY etc.
->2) To copy data we can use 'skb_zerocopy_iter_stream()'.
->3) The only thing that we don't need in vsock is dev mem related code from TCP implementation.
->
->I can take this task, but pls need some time - may be two/three weeks due to another tasks.
->
->What do You think?
+That made vmci_transport_recv_listen() skip vsock_remove_pending(),
+leaving the pending socket on the listener's pending_links with
+sk_state = TCP_CLOSE while destroy: still dropped the explicit
+reference taken before schedule_delayed_work().
 
-If you can work on it, please go head. They seems all pre-existing, so 
-2/3 weeks are fine. Please let me know if you can't and I'll try to 
-allocate some time.
+One second later vsock_pending_work() observed is_pending=true and
+performed full cleanup: vsock_remove_pending() then the two trailing
+sock_put(sk) calls -- the first reached refcount 0 and __sk_freed
+the socket, and the second wrote into the freed object:
 
-Thanks for the help!
+  BUG: KASAN: slab-use-after-free in refcount_warn_saturate
+  Write of size 4 at addr ffff88800b1cac80 by task kworker
+  Workqueue: events vsock_pending_work
 
-Stefano
+Treat peer RST like any other unexpected packet type (err = -EINVAL).
+All destroy: arms now return err < 0, so vmci_transport_recv_listen()
+removes pending from pending_links synchronously and
+vsock_pending_work() takes the is_pending=false / !rejected branch,
+dropping only its own work reference.  This also closes the
+multi-packet race Sashiko reported on v2: pending is removed from
+the list before any subsequent packet can find it.
+
+The pre-existing sk_acceptq_removed() gap on the err < 0 path of
+vmci_transport_recv_listen() that Sashiko also noted is not
+introduced or changed by this patch.
+
+Tested on lts-6.12.79 with KASAN: 52/100 unpatched -> 0/100 patched.
+
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Cc: stable@vger.kernel.org
+Signed-off-by: Minh Nguyen <minhnguyen.080505@gmail.com>
+Assisted-by: Claude:claude-opus-4-7
+---
+v3:
+  - Different approach to Sashiko/Paolo's "trading UAF for leak"
+    concern: normalize RST to err = -EINVAL so all destroy: arms
+    take the same err < 0 cleanup path -- no special case, no
+    multi-packet race.
+  - Sashiko's secondary observation ("while not introduced by this
+    patch, does this error path leak sk_ack_backlog slots on failed
+    handshakes?") is correct: the sk_acceptq_removed() gap on the
+    err < 0 branch of vmci_transport_recv_listen() is pre-existing
+    and is not introduced or changed by this patch.  v3 stays
+    focused on the UAF; a separate fix for that gap is needed and
+    would be welcome from anyone closer to that area.
+
+v2: https://lore.kernel.org/netdev/20260512025851.189140-1-minhnguyen.080505@gmail.com/
+
+v1 was sent to security@kernel.org on 2026-05-10 (not on lore).
+
+ net/vmw_vsock/vmci_transport.c | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+index 4296ca1..ba3a66e 100644
+--- a/net/vmw_vsock/vmci_transport.c
++++ b/net/vmw_vsock/vmci_transport.c
+@@ -1161,10 +1161,17 @@ vmci_transport_recv_connecting_server(struct sock *listener,
+ 		}
+ 		break;
+ 	default:
+-		/* Close and cleanup the connection. */
++		/* Close and cleanup the connection.  Peer RST is treated like
++		 * any other unexpected packet type in this state so that the
++		 * pending socket follows the same cleanup path as other
++		 * handshake failures, instead of being left on the pending
++		 * list for vsock_pending_work() to find later (which races
++		 * with subsequent packets and was the source of a UAF when
++		 * the cleanup work observed an inconsistent ref count).
++		 */
+ 		vmci_transport_send_reset(pending, pkt);
+ 		skerr = EPROTO;
+-		err = pkt->type == VMCI_TRANSPORT_PACKET_TYPE_RST ? 0 : -EINVAL;
++		err = -EINVAL;
+ 		goto destroy;
+ 	}
+ 
+
+base-commit: be48e5fe51a5864566307998286a699d6b986934
+-- 
+2.54.0
 
