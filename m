@@ -1,69 +1,69 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88FA73CC33F
-	for <virtualization@lists.linux.dev>; Wed, 20 May 2026 22:22:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6B5B3C1973
+	for <virtualization@lists.linux.dev>; Wed, 20 May 2026 22:22:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779315768; cv=none; b=oTYJkkEAFWFJDnMDSfnaT16J5Pk77oq8yx6Ql8sU0hPNMzZ/kx5bw9Bp3I1zVNmgsfHjTdEgRoopJAI1Mx6X88LWrLUu9V5FozCuIxOb8/LYRVPVK6TzrxoedeKhQOZJF7o1xLAiJO5+x8Vf85qVlJopUoYnsHNFxshLB02i6nY=
+	t=1779315773; cv=none; b=AeY9LJAtHC+tXkS4OWqmma9d3Gi60T2v1LRuQF3uxDtFZ19l4PyV0H4j2k5HlPJJcFHzn0ptj2NWxTBuc5fCDDhqAUT49ekZVxU8+4NEsD9lv16B/kma+bINQvmDk90hJ/5GXMvBeXbKWV1g9JwfA0IW+MoSZHhsF+QAwL8i8Ys=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779315768; c=relaxed/simple;
-	bh=c6xJpyp5zpjmRc9jnwYRt4nCMF1SinUlHasxCFwTPkI=;
+	s=arc-20240116; t=1779315773; c=relaxed/simple;
+	bh=5mf25/lf1DdZ8laPTDH+Cdq3xa7RrEIj1yvI/mG2wH0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=R9Tx2+VYCY3g6B7FsJTwpYK+8Cj1Z/qbJfSIIAC4oW48xtMZOwY+ZD9wFVL/cpMtdW4YMv75rIdSNrSUASfpLoPQlvK757sm4jVsCg9zrq79iYev8wKRqTMwJN9Kc+NIJam2GS6SGqVRpSb4yYha9tjotu7G2XSBUROIIFBFxJk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Sow1jMbS; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=EP8CUShtGitOuBpfypshZDEgBsUTgo186hmLuRA5qLJLdLlaY06+wdfZ+Bai6qjLRsWi/+RpPyAnCVM8A8FtYNzOV2caqqgEdafGx1+usmUKSult4miDupHTfkjpVmARgugjU/0uhgyvB0SDapxnooocaJcxtDT8nlQ9iupMiXk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=A0s/s0mN; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Sow1jMbS"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="A0s/s0mN"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1779315765;
+	s=mimecast20190719; t=1779315771;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=qdOI4mS59hNGv2oV9kd67xyAhp7b5Wts0l8Olu5Azv0=;
-	b=Sow1jMbSo7ZN7nO7vn+mmMQV/fXuVtVuJjONeLyxiXsqzoUIuMYQEI9fKVBGtyCPvwgITr
-	jBkSo1rRrh33eHgg+kykRQJ9xDUR8VaMFA55e9q9eRCzyIwunRo6BuMjE0n3piAStIz2IO
-	iwupDhM4qzdBoOpmAlHNVgapKpe3h3s=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=19buVa4Rma7mh18uS22QrkEHb5BZSKvMOxe4gXL+M+k=;
+	b=A0s/s0mNsU5e3257f9jBWEdIehKR1/Yd9UY5zabkUgAPLHiIr83hzPQiat67k2vLjlKsoX
+	+LsHx2hXmnPaEbLVxB84qYRFGApXiwq8T2kqHhTe5mEettWYfIUQch6zg1+mTq2T1HuUD4
+	ZkXXlKEU2qJyR7DEbcxoX26isQV70YU=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-219-UUaf2j6ENUyvfrPBd8QdLQ-1; Wed, 20 May 2026 18:22:44 -0400
-X-MC-Unique: UUaf2j6ENUyvfrPBd8QdLQ-1
-X-Mimecast-MFC-AGG-ID: UUaf2j6ENUyvfrPBd8QdLQ_1779315763
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-44cc3c9b2feso5149805f8f.1
-        for <virtualization@lists.linux.dev>; Wed, 20 May 2026 15:22:43 -0700 (PDT)
+ us-mta-390-lG4DH7MpPS2mJTEu2FEWqA-1; Wed, 20 May 2026 18:22:49 -0400
+X-MC-Unique: lG4DH7MpPS2mJTEu2FEWqA-1
+X-Mimecast-MFC-AGG-ID: lG4DH7MpPS2mJTEu2FEWqA_1779315768
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-488d3eec9bcso37130555e9.3
+        for <virtualization@lists.linux.dev>; Wed, 20 May 2026 15:22:48 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779315763; x=1779920563;
+        d=1e100.net; s=20251104; t=1779315768; x=1779920568;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=qdOI4mS59hNGv2oV9kd67xyAhp7b5Wts0l8Olu5Azv0=;
-        b=T4PENNWegL6r7JfzWGp2dpk7tsQ3UOEs0ipyQVj/XISx9p7FAKSWC03qUpJFRjIsWk
-         6q/dct5SIGbympFu6yipAKbh1LIn+PGMJ5KZjLnHxV8w7URXdtVBinv1ToTSwuMG8y6s
-         Rb/q7pdjzLTjPmr+IWuR/pUNbdYFDWgId8TkDUUK7BrrAOEOkQ7Z1YF5lN29lP1V+cb9
-         w+Ip56VDNZu02aqWikSFgCG6TaKsjgvPgTUVP3qRRu5bU0/71ex/ZRaQxG4t8viJ23aP
-         JLDx9O0LJuTuPiAScHITKtfZnZJWE9uVbkQkkv/t5NOxEQlfRXLG9U6YnqzNGTNDOsfY
-         H2Lw==
-X-Forwarded-Encrypted: i=1; AFNElJ9797R9bN2s5FaFte+c35MOUV5T9k1J8csO4DcssiZ6ucmu9lce3ge5FFI66aZwr7i/NRAjmQr0+qg6+7lMkQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwjfQg+MaivSO5zBv6e/v4KlPrey5Rhut9DrhWlH7zYyG79zgCw
-	aVWqbaYZBmaJTXwDBT7PGG46E810w7NPKNuFgKz8cHwd0GAe+hM2JXo0MvjTS5uatraSXBlkntu
-	Xrqa4kTINm0gA1joAQ2m5rLYZUUpzDRomFcexM0BwhFPVTbXvCIbwTyVuYFLTHSbnvAX5
-X-Gm-Gg: Acq92OEH1umo9FZjLNv4gz2FZ9EwcyBfdBQFRsvCERZcIlKe7MRj61rbe3ERRBA3iH7
-	BHgSkwfkQqOiWtZtXaPkvgMimhi+uKlovRmGrPwnaOGti1WQSW17YDCoOtmljQ7kRkaKqjHOOh5
-	sZ1bonigaW05O1ZeMnfPxP+BdHHMQkuplBDJspBMYptxGBQ67JyNxqTkpYFra01M9083zVzRq4w
-	3Y5x3M/v4MgwjQSREBw0y+Rs9Z8u8bwd4qRBB9dEpyDqfCp9OKXl5wvL0y27Fh3NUhQMMCG7CvU
-	ZbUeDJDkTnMLTEJOFSbgEwA3sRjPok6VD3Nv6UaiAatLOq60FDDsI+WApg5mj14eEZCtTWqdITJ
-	xk6GaS6fml3UuzfhOLSDaAwBxcF+Nz4dInxgIWy6Bx6YEnEA3/3kyPQ==
-X-Received: by 2002:a5d:5e92:0:b0:456:15fa:9eba with SMTP id ffacd0b85a97d-45ea3df6cebmr217157f8f.43.1779315762674;
-        Wed, 20 May 2026 15:22:42 -0700 (PDT)
-X-Received: by 2002:a5d:5e92:0:b0:456:15fa:9eba with SMTP id ffacd0b85a97d-45ea3df6cebmr217100f8f.43.1779315762157;
-        Wed, 20 May 2026 15:22:42 -0700 (PDT)
+        bh=19buVa4Rma7mh18uS22QrkEHb5BZSKvMOxe4gXL+M+k=;
+        b=ooBQRGyorp9SK7GosVSD/CdjwX3MWp3NEdWu9iXlFpDAa56CahqnfsMXhKB0H9rgHy
+         I4oCtmUHNpgxIvxo3oAkP7stak/2zs4cMHMb8MMkpdJgiGY5aFiXnGnRJt3KEePIYGM6
+         k2D+Id7J4B23k+y7I4O6cOhJQht/9wNTe3uXSG10ihAOR4A3aT0nBoPZyCsIxAve4P+0
+         hnNBSfja1plG9z8yMTYpMQ1mBcpb8kcX8CNdOe2JEhDaFIv9F5XdbKEmVv1Sewj7leAj
+         XQKXr+tVJF32qMKaoCysGolhF1S8Yka+IcWJFHvN/JSET7qkuoEyGLMr9ulGrDV3oxiT
+         9dng==
+X-Forwarded-Encrypted: i=1; AFNElJ/hACOkNqU0fTMn5V/e7LktyOANvLnqxnIPjEDCu8RQBRFZ7YK2y47RVqdwMOBKzKQiomAO089KljvaQvzdaw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzsBm1bSK6e7lvxcUWYftoWFm8npkvEajKxFUoQcQXRpdAFjPXT
+	RHrOafemTAU71WCs2S0FUxG9pOwOnQY77dL05xFKur5KX6hh3DqyRjQFREQhwnGVy3mWnMjB991
+	4bHHoaGqq2CKoDXvD7iNbR6zDWmzDnpaIu/xBVRLuNxb80fmdJSZk5woTtlz7dfTGqy51
+X-Gm-Gg: Acq92OHuoUyPH+WtROcqk24p+Yh/8KLqKTHjzHZOLFV86hLKK4khnrXJpibEEsuQWEK
+	Pm+NIWcQ8mfFD+KFqxu2Zb7Uh9hNiB2O3PSUrmCT4+dJR4Sz2TP3biGrCHJmyRXcWb8MIk8XR+X
+	0Btjjwac4KoYuhBddRHVHNjsa6KbKFp3BDX+bHwPXtBe4IDIJB2vkrhzuseLtAOZHYLoE+wVwPi
+	nDPXcL1XF/eJBD8QxZlPP3CmL78UL2eoGnwCnQFKS01XY1dk4xWM+dWRtIzIojj9qP4YOakyFwH
+	gCVYAKj4VFXY54pyqv59ae8ZqM9hjDvAVWZJINw5XEfVh3TyBFEA1jFTk7EbBZqwfcqgIfUaLSx
+	sjEPVQv/lS0lMzqmwetGQKRONYs9NuUeqs1VtlZSUGfw=
+X-Received: by 2002:a05:600c:c086:b0:489:1c5f:3a9e with SMTP id 5b1f17b1804b1-4903606bb2cmr2183305e9.13.1779315767667;
+        Wed, 20 May 2026 15:22:47 -0700 (PDT)
+X-Received: by 2002:a05:600c:c086:b0:489:1c5f:3a9e with SMTP id 5b1f17b1804b1-4903606bb2cmr2182985e9.13.1779315767276;
+        Wed, 20 May 2026 15:22:47 -0700 (PDT)
 Received: from redhat.com (IGLD-80-230-25-45.inter.net.il. [80.230.25.45])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45d9adc2209sm54072453f8f.0.2026.05.20.15.22.37
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49035f52a0dsm1490795e9.24.2026.05.20.15.22.43
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 20 May 2026 15:22:41 -0700 (PDT)
-Date: Wed, 20 May 2026 18:22:36 -0400
+        Wed, 20 May 2026 15:22:46 -0700 (PDT)
+Date: Wed, 20 May 2026 18:22:42 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
@@ -102,9 +102,9 @@ Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
 	Andrea Arcangeli <aarcange@redhat.com>
-Subject: [PATCH v8 25/37] mm: page_alloc: clear PG_zeroed on buddy merge if
- not both zero
-Message-ID: <68d88e8d227865ec4f8513d47bdbe06d0482851a.1779315441.git.mst@redhat.com>
+Subject: [PATCH v8 26/37] mm: page_alloc: preserve PG_zeroed in
+ page_del_and_expand
+Message-ID: <c260659c001161c5630d36a466dcdb293790917e.1779315441.git.mst@redhat.com>
 References: <cover.1779315441.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -116,86 +116,75 @@ In-Reply-To: <cover.1779315441.git.mst@redhat.com>
 X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
 X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: ZYer3ZEXk_xyB6xhr8lMxZSyfQ9-gzWLInelWwZxpQU_1779315763
+X-Mimecast-MFC-PROC-ID: 1jyVfNM2Foxo_6qnJLmDZ31QjBOBOGXvDVZcSpDgSL4_1779315768
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-When two buddy pages merge in __free_one_page(), preserve
-PG_zeroed on the merged page only if both buddies have the
-flag set.  Otherwise clear it.
-
-The merged page would inherit PG_zeroed, and a later __GFP_ZERO
-allocation would skip zeroing stale data in the non-zero half.
+Propagate PG_zeroed through buddy splits in page_del_and_expand()
+and try_to_claim_block().  When a zeroed high-order page is split
+to satisfy a smaller allocation, the sub-pages placed back on the
+free lists keep PG_zeroed.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Reviewed-by: Gregory Price <gourry@gourry.net>
 Assisted-by: Claude:claude-opus-4-6
 Assisted-by: cursor-agent:GPT-5.4-xhigh
 ---
- include/linux/page-flags.h |  1 +
- mm/page_alloc.c            | 15 ++++++++++++++-
- 2 files changed, 15 insertions(+), 1 deletion(-)
+ mm/page_alloc.c | 12 +++++++++---
+ 1 file changed, 9 insertions(+), 3 deletions(-)
 
-diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
-index 4ee64134acc3..ff0b192b38e5 100644
---- a/include/linux/page-flags.h
-+++ b/include/linux/page-flags.h
-@@ -680,6 +680,7 @@ FOLIO_FLAG_FALSE(idle)
-  * uses this to skip redundant zeroing in post_alloc_hook().
-  */
- __PAGEFLAG(Zeroed, zeroed, PF_NO_COMPOUND)
-+CLEARPAGEFLAG(Zeroed, zeroed, PF_NO_COMPOUND)
- #define __PG_ZEROED (1UL << PG_zeroed)
- 
- /*
 diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 4cb7e779a6c5..ff614e422eec 100644
+index ff614e422eec..72e52f049cf0 100644
 --- a/mm/page_alloc.c
 +++ b/mm/page_alloc.c
-@@ -940,10 +940,14 @@ static inline void __free_one_page(struct page *page,
- 	unsigned long buddy_pfn = 0;
- 	unsigned long combined_pfn;
- 	struct page *buddy;
-+	bool buddy_zeroed;
-+	bool page_zeroed;
- 	bool to_tail;
- 
- 	VM_BUG_ON(!zone_is_initialized(zone));
--	VM_BUG_ON_PAGE(page->flags.f & PAGE_FLAGS_CHECK_AT_PREP, page);
-+	/* PG_zeroed (aliased to PG_private) is valid on free-list pages */
-+	VM_BUG_ON_PAGE(page->flags.f &
-+		       (PAGE_FLAGS_CHECK_AT_PREP & ~__PG_ZEROED), page);
- 
- 	VM_BUG_ON(migratetype == -1);
- 	VM_BUG_ON_PAGE(pfn & ((1 << order) - 1), page);
-@@ -978,6 +982,8 @@ static inline void __free_one_page(struct page *page,
- 				goto done_merging;
- 		}
- 
-+		buddy_zeroed = PageZeroed(buddy);
-+
- 		/*
- 		 * Our buddy is free or it is CONFIG_DEBUG_PAGEALLOC guard page,
- 		 * merge with it and move up one order.
-@@ -996,10 +1002,17 @@ static inline void __free_one_page(struct page *page,
- 			change_pageblock_range(buddy, order, migratetype);
- 		}
- 
-+		page_zeroed = PageZeroed(page);
-+		__ClearPageZeroed(page);
-+		__ClearPageZeroed(buddy);
-+
- 		combined_pfn = buddy_pfn & pfn;
- 		page = page + (combined_pfn - pfn);
- 		pfn = combined_pfn;
- 		order++;
-+
-+		if (page_zeroed && buddy_zeroed)
-+			__SetPageZeroed(page);
+@@ -1715,7 +1715,8 @@ struct page *__pageblock_pfn_to_page(unsigned long start_pfn,
+  * -- nyc
+  */
+ static inline unsigned int expand(struct zone *zone, struct page *page, int low,
+-				  int high, int migratetype, bool reported)
++				  int high, int migratetype, bool reported,
++				  bool zeroed)
+ {
+ 	unsigned int size = 1 << high;
+ 	unsigned int nr_added = 0;
+@@ -1746,6 +1747,8 @@ static inline unsigned int expand(struct zone *zone, struct page *page, int low,
+ 		 */
+ 		if (reported)
+ 			__SetPageReported(&page[size]);
++		if (zeroed)
++			__SetPageZeroed(&page[size]);
  	}
  
- done_merging:
+ 	return nr_added;
+@@ -1757,10 +1760,12 @@ static __always_inline void page_del_and_expand(struct zone *zone,
+ {
+ 	int nr_pages = 1 << high;
+ 	bool was_reported = page_reported(page);
++	bool was_zeroed = PageZeroed(page);
+ 
+ 	__del_page_from_free_list(page, zone, high, migratetype);
+ 
+-	nr_pages -= expand(zone, page, low, high, migratetype, was_reported);
++	nr_pages -= expand(zone, page, low, high, migratetype, was_reported,
++			   was_zeroed);
+ 	account_freepages(zone, -nr_pages, migratetype);
+ }
+ 
+@@ -2356,11 +2361,12 @@ try_to_claim_block(struct zone *zone, struct page *page,
+ 	if (current_order >= pageblock_order) {
+ 		unsigned int nr_added;
+ 		bool was_reported = page_reported(page);
++		bool was_zeroed = PageZeroed(page);
+ 
+ 		del_page_from_free_list(page, zone, current_order, block_type);
+ 		change_pageblock_range(page, current_order, start_type);
+ 		nr_added = expand(zone, page, order, current_order, start_type,
+-				  was_reported);
++				  was_reported, was_zeroed);
+ 		account_freepages(zone, nr_added, start_type);
+ 		return page;
+ 	}
 -- 
 MST
 
