@@ -1,135 +1,97 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69B3C31328C
-	for <virtualization@lists.linux.dev>; Wed, 20 May 2026 08:13:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779264814; cv=pass; b=lToUEnPhazpL4Mzm4axEo3EpVyoVm/PCkH8apQ3ivTpkZp9990UbcHX5HXdlBtrKrwRNeLT44JI2hsPMPza+UpVf1qccDDRYvXdUXyZ7u6JJuwMfy2H+7r4cQBAqHtZ7TzqTSxEZt2grkqOnx1NaJ3ZFs984rv0H5bZ/9XT/mwI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779264814; c=relaxed/simple;
-	bh=UuHZN8bLdDb35hsZfOIbiCsj2GNcJv+JahtKBFao7JM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=oBlv7jmiVkawC0o9X1cf2epSMbF5wDnlcYPlPVOAFOwcfLsCO8z6lN/34Z/AJHC59haUF0navruBUqnzncMrpNSCphr1YwjcnUQ7OAut13BXxEF6L0zgASzSFFr1QwKaxTv2NQIyh/gQ3H4DP5PPezjv1GcectxwnkUE+/dlfrg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=Uh3wbPHC; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="Uh3wbPHC"
-ARC-Seal: i=1; a=rsa-sha256; t=1779264795; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=fhoFZAGE734g7YrwnK69+Fp+SlBP+e532/rwFxqqOg8FV5tdEIfaFORTiqM7n7YHad3es+GlWxlzsGHFrGKmdpYlnHvbmI07PynfxC0MmNg3KoTVLwV5hv//8Qm7A/9yCp5Bqp5lY06N0LRgOXEXr1Tm2J2d+40YejVZHso/9qc=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1779264795; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=1DaCzDhRImq3pbfy2r8JVXerCF/X/rQL52mfTWicG4k=; 
-	b=K3aH/+VmSSz2zNU3CCHPtj8w3HqysMSbIPKHzatggDefM46va4bIfeUqv9Yi8u7NpUttUonl5naq6Pn/swZE223u1Adj+zj2Zvh30+EWyGv6ZzG7yNetKASukVSTLQVsaovI58YmPid6/GP6ZYkLAv9PWmFKpTYTPnzTcqVhyL4=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1779264795;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=1DaCzDhRImq3pbfy2r8JVXerCF/X/rQL52mfTWicG4k=;
-	b=Uh3wbPHCLetqao1sJ7Ww936T/0G+TEuQ9eZT1Mp+poKOwsOIjUnwdOOdRXAk4InP
-	Uaty3nP1NfXa2mETMeGvPFJJqqvNUqPmcIWGCohU4EwEQ1nDdkykQdd/R7m2KjrSQ51
-	g2CJSVyOSfXMx1O01zyUaaPNsikI0NgfwcNfxCrI=
-Received: by mx.zohomail.com with SMTPS id 1779264793673372.72174741381184;
-	Wed, 20 May 2026 01:13:13 -0700 (PDT)
-Message-ID: <f37bdc63-3575-49e5-aa5b-7b93428b293d@collabora.com>
-Date: Wed, 20 May 2026 11:12:53 +0300
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1895C3A3E9C
+	for <virtualization@lists.linux.dev>; Wed, 20 May 2026 10:23:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779272622; cv=none; b=gasDwv6qjtemQQXrNIWRVGD4vTr7AMx+3oNNY4+G8DRKiSymu3w3mE8Ncs0P80agSIbnEWWah4YWJbFdPIk+Kb1zKqkGQ8nZgwbHXHu8ZDEnJNRZWqz9yDwY0XgkF2l98ApV9VcPGGsZKf4sAFfZF1bxY590CiP1uFjtH7rMGaY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779272622; c=relaxed/simple;
+	bh=buFAK622RUf2B99NU5lPay+j4O6wt+YVG6kZtAFnMGE=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=mjGDifiJ8hpw2prQelMeNOiABORwegIkxi3ZWPszpFgret6DyyqQef8TjcIlwk7lcX92bWl0DSyCnCwmBosdBr7xux4PhVrYxwB+iQnw4fzBYvqc6JoO9uX9n7NCYc3duNdX/YnTk27HqsTrCrqIpRyIlDmJ0Ofl2yZGi4IU/KE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
+X-UUID: f15b7f48543511f1aa26b74ffac11d73-20260520
+X-CTIC-Tags:
+	HR_CC_CHARSET, HR_CC_CHARSET_NUM, HR_CC_COUNT, HR_CC_DOMAIN_COUNT, HR_CC_NAME
+	HR_CC_NO_NAME, HR_CHARSET, HR_CHARSET_NUM, HR_CTE_8B, HR_CTT_MISS
+	HR_DATE_H, HR_DATE_WKD, HR_DATE_ZONE, HR_FROM_NAME, HR_SJ_LANG
+	HR_SJ_LEN, HR_SJ_LETTER, HR_SJ_NOR_SYM, HR_SJ_PHRASE, HR_SJ_PHRASE_LEN
+	HR_SJ_WS, HR_TO_COUNT, HR_TO_DOMAIN_COUNT, HR_TO_NAME, IP_TRUSTED
+	SRC_TRUSTED, DN_TRUSTED, SA_TRUSTED, SA_EXISTED, SN_TRUSTED
+	SN_EXISTED, SPF_NOPASS, DKIM_NOPASS, DMARC_NOPASS, CIE_GOOD
+	CIE_GOOD_SPF, GTI_FG_BS, GTI_RG_INFO, GTI_C_BU, AMN_GOOD
+	ABX_MISS_RDNS
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.12,REQID:458f69c0-8246-461d-9447-c485a63d6094,IP:10,
+	URL:0,TC:0,Content:-5,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTIO
+	N:release,TS:5
+X-CID-INFO: VERSION:1.3.12,REQID:458f69c0-8246-461d-9447-c485a63d6094,IP:10,UR
+	L:0,TC:0,Content:-5,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
+	release,TS:5
+X-CID-META: VersionHash:e7bac3a,CLOUDID:1aeb9567a38d2aff9bf5a5fc5380f29c,BulkI
+	D:2605201823297I8PVFTJ,BulkQuantity:0,Recheck:0,SF:17|19|66|78|102|127|865
+	|898,TC:nil,Content:0|15|50,EDM:-3,IP:-2,URL:0,File:nil,RT:nil,Bulk:nil,QS
+	:nil,BEC:nil,COL:0,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,A
+	RC:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR,TF_CID_SPAM_FAS,TF_CID_SPAM_FSD
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: f15b7f48543511f1aa26b74ffac11d73-20260520
+X-User: liwang@kylinos.cn
+Received: from computer.. [(116.128.244.169)] by mailgw.kylinos.cn
+	(envelope-from <liwang@kylinos.cn>)
+	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
+	with ESMTP id 1216649932; Wed, 20 May 2026 18:23:28 +0800
+From: Li Wang <liwang@kylinos.cn>
+To: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	netdev@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Li Wang <liwang@kylinos.cn>
+Subject: [PATCH] virtio_net: drop redundant err assignment in virtnet_probe()
+Date: Wed, 20 May 2026 18:23:09 +0800
+Message-Id: <20260520102309.281616-1-liwang@kylinos.cn>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4] drm/virtio: use uninterruptible resv lock for plane
- updates
-To: =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
- Deepanshu Kartikey <kartikey406@gmail.com>, airlied@redhat.com,
- kraxel@redhat.com, gurchetansingh@chromium.org, olvaffe@gmail.com,
- maarten.lankhorst@linux.intel.com, mripard@kernel.org, tzimmermann@suse.de,
- simona@ffwll.ch, sumit.semwal@linaro.org
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
- linaro-mm-sig@lists.linaro.org,
- syzbot+72bd3dd3a5d5f39a0271@syzkaller.appspotmail.com, stable@vger.kernel.org
-References: <20260519082247.34470-1-kartikey406@gmail.com>
- <2e23513c-9d59-4891-acfe-9f1fbcbce778@amd.com>
- <f6bcef23-5510-4aad-bf6a-4e1ecfc8d474@collabora.com>
- <a0f2cfd5-d4df-4e50-a52b-d5befbc2e481@amd.com>
-Content-Language: en-US
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <a0f2cfd5-d4df-4e50-a52b-d5befbc2e481@amd.com>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
 
-On 5/20/26 10:05, Christian König wrote:
-> On 5/20/26 08:50, Dmitry Osipenko wrote:
->> On 5/19/26 11:27, Christian König wrote:
->>> On 5/19/26 10:22, Deepanshu Kartikey wrote:
->>>> virtio_gpu_cursor_plane_update() and virtio_gpu_resource_flush() lock
->>>> the framebuffer BO's dma_resv via virtio_gpu_array_lock_resv() and
->>>> ignore its return value. The function can fail with -EINTR from
->>>> dma_resv_lock_interruptible() (signal during lock wait) or with
->>>> -ENOMEM from dma_resv_reserve_fences() (fence slot allocation),
->>>> leaving the resv lock not held. The queue path then walks the object
->>>> array and calls dma_resv_add_fence(), which requires the lock held;
->>>> with lockdep enabled this trips dma_resv_assert_held():
->>>>
->>>>   WARNING: drivers/dma-buf/dma-resv.c:296 at dma_resv_add_fence+0x71e/0x840
->>>>   Call Trace:
->>>>    virtio_gpu_array_add_fence
->>>>    virtio_gpu_queue_ctrl_sgs
->>>>    virtio_gpu_queue_fenced_ctrl_buffer
->>>>    virtio_gpu_cursor_plane_update
->>>>    drm_atomic_helper_commit_planes
->>>>    drm_atomic_helper_commit_tail
->>>>    commit_tail
->>>>    drm_atomic_helper_commit
->>>>    drm_atomic_commit
->>>>    drm_atomic_helper_update_plane
->>>>    __setplane_atomic
->>>>    drm_mode_cursor_universal
->>>>    drm_mode_cursor_common
->>>>    drm_mode_cursor_ioctl
->>>>    drm_ioctl
->>>>    __x64_sys_ioctl
->>>>
->>>> Beyond the WARN, mutating the dma_resv fence list without the lock
->>>> races with concurrent readers/writers and can corrupt the list.
->>>
->>> Well why are you trying to add a fence on an atomic mode set in the first place?
->>>
->>> That is usually an illegal operation here.
->> That is pre-existing in the driver. It performs draw operation and in
->> some cases waits for the completion during atomic. Whether all that
->> syncing is correct is hard to say immediately as some of it may be
->> historical edge cases.
-> 
-> I'm not not so deeply in the atomic mode setting stuff but it strongly sounds like that this is seriously broken.
-> 
-> The background is that the atomic mode set framework allows an output dma_fence which is signaled when the commit is finished.
-> 
-> So when you allocate a fence slot and add a new fence to finish the atomic commit it is trivially possible that this cycles back and waits for the atomic commit to finish. In other words you have a deadlock.
-> 
-> You probably need specially crafted userspace with the right timing to trigger that, but such issues are usually a rather big no-no and need to be fixed in the long term.
-> 
-> Try to add dma_fence_begin_signaling() and dma_fence_end_signaling() annotation and enable lockdep, the tool should be able to point out if and what exactly goes wrong.
-> 
-> The usual fix is to prepare everything before commit_tail is called (alloc memory, create, reserve slot, add dma_fence etc....) and then just send out the prepared commands later on.
+err is initialized to -ENOMEM at the start of virtnet_probe(), and no
+code path between that and the devm_kzalloc() failure can change
+err. Assigning -ENOMEM again before goto free therefore is redundant.
 
-We tried with moving resv alloc to prepare_fb() in a previous patch
-version, it resulted in a non-trivial deadlocks. The goal of this patch
-is to fix immediate problem with a minimal code change.
+Signed-off-by: Li Wang <liwang@kylinos.cn>
+---
+ drivers/net/virtio_net.c | 4 +---
+ 1 file changed, 1 insertion(+), 3 deletions(-)
 
-What you're saying is correct, but it may require a rather big
-refactoring of the code. In general, everything works okay today, so not
-really an urgent problem.
-
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index f4adcfee7a80..1fbafca90e4c 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -6853,10 +6853,8 @@ static int virtnet_probe(struct virtio_device *vdev)
+ 				rss_max_indirection_table_length));
+ 	}
+ 	vi->rss_hdr = devm_kzalloc(&vdev->dev, virtnet_rss_hdr_size(vi), GFP_KERNEL);
+-	if (!vi->rss_hdr) {
+-		err = -ENOMEM;
++	if (!vi->rss_hdr)
+ 		goto free;
+-	}
+ 
+ 	if (vi->has_rss || vi->has_rss_hash_report) {
+ 		key_sz = virtio_cread8(vdev, offsetof(struct virtio_net_config, rss_max_key_size));
 -- 
-Best regards,
-Dmitry
+2.34.1
+
