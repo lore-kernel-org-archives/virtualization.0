@@ -1,166 +1,128 @@
-Received: from mail-pj1-f74.google.com (mail-pj1-f74.google.com [209.85.216.74])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from fout-b1-smtp.messagingengine.com (fout-b1-smtp.messagingengine.com [202.12.124.144])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69DCD37999D
-	for <virtualization@lists.linux.dev>; Wed, 20 May 2026 21:02:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.74
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F05FD37B03E
+	for <virtualization@lists.linux.dev>; Wed, 20 May 2026 21:12:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.12.124.144
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779310949; cv=none; b=RA0nPiN4pEfT11VtMTvWhsYzfliWYWJKFiSppsuVYkKmkRAGRRQGKwKf4lMU8TYXGmBjsVKQOZt+8tIDbFm+1sQ8bXYBV3+IkS6RXIPPQCPguiZAJJfebPfyKWIzsjPm/vem1A7u/XRmde8GJMOdrULIYBw8rgC+VcX99atc6Y8=
+	t=1779311547; cv=none; b=oi2Dhs6xX40PrIEEjSe9+zdfG0cykdw5dDcoGr9BanwnWds0XcrHL5LGWTNtffk8ovqT5TfNd5FjKREMbswSkxXi3QiBqR1Xofynza0sGBf/q1ZE+pK/4AYZ1MXig+WZbx7frmNtldFM2Ztb2Y4hWO+bbUj0bk0JDzA5vwd1h6E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779310949; c=relaxed/simple;
-	bh=/SyQLtBraYhS5/8VMnaEdQSNY3tBbZxFagWmgPcJqrU=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=vEncfllw55kybBrYltRcVJsPZ42pAFHOfNG4xFzsvlaSgwe7G62MnZQTv7bpyCCVTLRzDIF1SfiZ7swo4luxynxqbR+VogNiYWLSO7Mya3FY8822rBVwJw+AXXwX1dXRvYPZiYOVY2IyrFUxFVNw0pAlRq7lI6IVZL0Q5Jcer3A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=CflIEcPo; arc=none smtp.client-ip=209.85.216.74
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1779311547; c=relaxed/simple;
+	bh=nDLsWbBRmSKXN8sVjY8h1PBcs6FHyOb6mfb9ibmI4xs=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=VVd0RGkUAQ8zB0rqd4b5LWbvzSp+lVLBuyBcLos/ToSalRohIMoURgNVyaj3UVwiQVm6/KoSU1/QnhAT9biV1OWZRAFChJ8eSOQ1eEZ0sV7YBnX3bKYpxLN7f3V9fd8S4DLtBuu4nd5oTMLRVRxHjmgguznvuB1oTodT+/5hlps=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org; spf=pass smtp.mailfrom=shazbot.org; dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b=VhcCgi+x; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=UszFXeQ3; arc=none smtp.client-ip=202.12.124.144
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=shazbot.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=shazbot.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="CflIEcPo"
-Received: by mail-pj1-f74.google.com with SMTP id 98e67ed59e1d1-3692f395339so5250195a91.1
-        for <virtualization@lists.linux.dev>; Wed, 20 May 2026 14:02:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1779310947; x=1779915747; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:from:subject:message-id:references
-         :mime-version:in-reply-to:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=IMxqN6rGG5Sakxt9VTCj2ZelG+Z0Re7U8JKIeB5aot8=;
-        b=CflIEcPoNYZthWQXxa8UkgedgV8V9qi3pFvC06Szx70uPOoU38ySo6Fpy1nhxCpfIO
-         7DXZC0ypcLaT+6ejPLdVGTekT0nepaW5dKgzDH9fTVxfdDyAjPH0GsRA23gicKSNy0sc
-         bDavOMkDMZyxzpSKidLZZnoYtSsj1WIC38cyEjxSq7BWdqO46/2y/CNECzwtFWlrJ2ux
-         io/Zk9IPIGv42a0XHOcXBoIHvkoP+xrEOkJ7A5Nge9i1DDRUu/JKsZu77KceTTgFhdfE
-         vWt5XCNU5aOzEZglS+I2JfDlWqsr+JRi5+Gh4jpL8JypkW6Gn+VhfIohaHmslW/oFrrl
-         zmaQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779310947; x=1779915747;
-        h=content-transfer-encoding:cc:to:from:subject:message-id:references
-         :mime-version:in-reply-to:date:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=IMxqN6rGG5Sakxt9VTCj2ZelG+Z0Re7U8JKIeB5aot8=;
-        b=T7opp3NebWGToGET9mQyttm1W5oQVvis/My8LIHZMK5KRxS31kUxDfAMfrUU++tDQQ
-         TiVLI+AB/kE01V0BC0oWhBLk1yNIIkbIXKjxVGMBgfgKRfum75Lja2CAt2RItf5KO/oR
-         pH6pkpVaE6VSrlx/bLrsSQPgH4JHBeZGY3ya88DlR98ICAdWV3xKAcc14F+hsdb45hP1
-         sg3i39BbYnugookUnxgGtdpdbBt140Y075sX590lHagv9C50XIf4/EfzpklkIOtgX0yu
-         BVjEQzUi2aye+d349iHUdQRozqfqnv83Y1vXGpo0ccr8Wxt1AaS3cDhmjKWs3Uhxqu5h
-         TuzA==
-X-Forwarded-Encrypted: i=1; AFNElJ9CzY9Y6Zi7QcTgW6lWmkev6VqdmQeEldOUU1y7HwsCe2pXODXipo1kVLRf4+g7VL1041+xBcEcBptxMCPb1w==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzf/A9lRWkWvXFdTLWDBwXR0p0TjhoPHeY0JVEJeFRh0SFviw6A
-	3iuMp+tbRs2sTq77/lPqqaOFDVKK9xPIWSexQLlkgmB3UBzQu4WahFV3b2KvTY1aj703kImh4hu
-	U9VjYGw==
-X-Received: from pgnp19.prod.google.com ([2002:a63:7f53:0:b0:c82:7805:9e4d])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6300:279a:10b0:39b:dea7:5626
- with SMTP id adf61e73a8af0-3b308856ca4mr1798637.35.1779310947183; Wed, 20 May
- 2026 14:02:27 -0700 (PDT)
-Date: Wed, 20 May 2026 14:02:26 -0700
-In-Reply-To: <c347d65f555ad1e10a0e87ee57c5879c7046d0e7.camel@infradead.org>
+	dkim=pass (2048-bit key) header.d=shazbot.org header.i=@shazbot.org header.b="VhcCgi+x";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="UszFXeQ3"
+Received: from phl-compute-06.internal (phl-compute-06.internal [10.202.2.46])
+	by mailfout.stl.internal (Postfix) with ESMTP id BC23F1D00098;
+	Wed, 20 May 2026 17:12:23 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-06.internal (MEProxy); Wed, 20 May 2026 17:12:24 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=shazbot.org; h=
+	cc:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm2; t=1779311543;
+	 x=1779397943; bh=wMt1jtg/w5e/s1bQZEbp5IGIMFsOdz4buZTavjf/LF4=; b=
+	VhcCgi+xqsKH8VqHD5cHpd4+O47draH/DdCq6Pk6dJGMSml4QOOq/WzEZR8Xx/Zf
+	A46dbu83/wv7d1Y9wwCAq8V/02x7GAtv1XadfkGig2p74Yb+WqZ+PL1fjoMyKWul
+	VhkpTUlBKqw8WBpGKvsQOIcevPzyYywx3mG+JsV32GYvMBpOQ9QTicOfUzQGt+D/
+	7uwYhDWR/y7lQUcrfXXUsbYxA9h7Yf5H9wchLuHIxz96vGyoxo+BMnPwh3lZOTX8
+	m4i+xDzEord830n5ks4RrvGskqIpvMryRsDtzQCLhhfatIVC2LsdCQvtoZieZk02
+	OQkXKBN0A7UzEI2a+pwLTQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm3; t=1779311543; x=
+	1779397943; bh=wMt1jtg/w5e/s1bQZEbp5IGIMFsOdz4buZTavjf/LF4=; b=U
+	szFXeQ3UMMHjINda6VlBvd1fvb7jEQJFtKebezzOrxUVo9Z0RnSRUonoIrzsGGP9
+	AMe1/TEVuurARnXXmq3nqvBKr3HACqJCcQOiMaP0s9vnvTYZrWE4uM8w2BhoVZ1g
+	pRDHIEwabhCy81WOJhRwW0TxH5VMyBa+oIEWmJFUN7XhQY9es/YmQyDxtOCPiHAc
+	nuEipJsZLNzOZRl4ailkinU43lloreUENbS4XOEHwawRkbFNoKuCRUnVIXvBSKMX
+	3Bv0iz1CWGknhWedYwg+dRp+mr5MrcUiC6M8pkckZojMOASG/EEOWBIA1Z7aTUIS
+	UyDUZ4//LYoEF2VezicjA==
+X-ME-Sender: <xms:tyMOarSzSIWCBilJk_LFbg61kfnXIQgtJu7J0cfnrRdvuKl0Jej1RQ>
+    <xme:tyMOanDuF-D-SXaC8UvIUrCK4y2_QpWJUcreTPyZjUrJTT-Q7Ew_OLb5YnVmBXFJs
+    BAEk1wwcjYkIaW3YbBS1oCYuyMogvMC48-qOERS6AfPm2aQd91z5hY>
+X-ME-Received: <xmr:tyMOamTB0XY4dGokyyZY0tPGR9zjJLabSlkdEhMPpgD4NQpHYKbKCG9fnlo>
+X-ME-Proxy-Cause: gggruggvucftvghtrhhoucdtuddrgeefhedrtddtgddugeehieekucetufdoteggodetrf
+    dotffvucfrrhhofhhilhgvmecuhfgrshhtofgrihhlpdfurfetoffkrfgpnffqhgenuceu
+    rghilhhouhhtmecufedttdenucesvcftvggtihhpihgvnhhtshculddquddttddmnecujf
+    gurhepfffhvfevuffkjghfofggtgfgsehtjeertdertddvnecuhfhrohhmpeetlhgvgicu
+    hghilhhlihgrmhhsohhnuceorghlvgigsehshhgriigsohhtrdhorhhgqeenucggtffrrg
+    htthgvrhhnpedvkeefjeekvdduhfduhfetkedugfduieettedvueekvdehtedvkefgudeg
+    veeuueenucevlhhushhtvghrufhiiigvpedtnecurfgrrhgrmhepmhgrihhlfhhrohhmpe
+    grlhgvgiesshhhrgiisghothdrohhrghdpnhgspghrtghpthhtohepudekpdhmohguvgep
+    shhmthhpohhuthdprhgtphhtthhopehmrghtthgvvhesmhgvthgrrdgtohhmpdhrtghpth
+    htohepkhgvvhhinhdrthhirghnsehinhhtvghlrdgtohhmpdhrtghpthhtohepjhhgghes
+    iihivghpvgdrtggrpdhrtghpthhtoheprghnkhhithgrsehnvhhiughirgdrtghomhdprh
+    gtphhtthhopegrphhophhplhgvsehnvhhiughirgdrtghomhdprhgtphhtthhopehlvgho
+    nheskhgvrhhnvghlrdhorhhgpdhrtghpthhtohepkhgvvghssehkvghrnhgvlhdrohhrgh
+    dprhgtphhtthhopehskhholhhothhhuhhmthhhohesnhhvihguihgrrdgtohhmpdhrtghp
+    thhtohephihishhhrghihhesnhhvihguihgrrdgtohhm
+X-ME-Proxy: <xmx:tyMOahRP3lVoQuAMGwjXHJiTnNPuf8Wc0OVvRP4ITCbamCAtzzOn5g>
+    <xmx:tyMOasI6PusRw5r5kmaCJZrqjrxW1scUJCzh4oPRIAgR_9pld7v1qw>
+    <xmx:tyMOagEQ2BTGwG3Hcq9E6Z1ViCRCqYt47ZKuTFkT6Wie1jqx7mWQOw>
+    <xmx:tyMOahRtQqHV7ga-pT-CpHxda9FPkfVEwauGeZy-90nnUxCo4eZHjg>
+    <xmx:tyMOajNmW-o4VpyIwQ4XudQqwoqhwIVYqtI9WYsyQxIM6yPkl_xfJSQ0>
+Feedback-ID: i03f14258:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 20 May 2026 17:12:21 -0400 (EDT)
+Date: Wed, 20 May 2026 15:11:52 -0600
+From: Alex Williamson <alex@shazbot.org>
+To: Matt Evans <mattev@meta.com>
+Cc: Kevin Tian <kevin.tian@intel.com>, Jason Gunthorpe <jgg@ziepe.ca>, Ankit
+ Agrawal <ankita@nvidia.com>, Alistair Popple <apopple@nvidia.com>, Leon
+ Romanovsky <leon@kernel.org>, Kees Cook <kees@kernel.org>, Shameer Kolothum
+ <skolothumtho@nvidia.com>, Yishai Hadas <yishaih@nvidia.com>, Alexey
+ Kardashevskiy <aik@ozlabs.ru>, Eric Auger <eric.auger@redhat.com>, Peter Xu
+ <peterx@redhat.com>, Vivek Kasireddy <vivek.kasireddy@intel.com>, Zhi Wang
+ <zhiw@nvidia.com>, <kvm@vger.kernel.org>, <linux-kernel@vger.kernel.org>,
+ <virtualization@lists.linux.dev>, alex@shazbot.org
+Subject: Re: [PATCH v5 3/3] vfio/pci: Replace vfio_pci_core_setup_barmap()
+ with vfio_pci_core_get_iomap()
+Message-ID: <20260520151152.68a1435d@shazbot.org>
+In-Reply-To: <20260511145829.2993601-4-mattev@meta.com>
+References: <20260511145829.2993601-1-mattev@meta.com>
+	<20260511145829.2993601-4-mattev@meta.com>
+X-Mailer: Claws Mail 4.3.1 (GTK 3.24.51; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20260515191942.1892718-1-seanjc@google.com> <20260515191942.1892718-7-seanjc@google.com>
- <c347d65f555ad1e10a0e87ee57c5879c7046d0e7.camel@infradead.org>
-Message-ID: <ag4hYu0O71QrLW2y@google.com>
-Subject: Re: [PATCH v3 06/41] x86/acrn: Mark TSC frequency as known when using
- ACRN for calibration
-From: Sean Christopherson <seanjc@google.com>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Kiryl Shutsemau <kas@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, 
-	"K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
-	Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>, 
-	Ajay Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.makhalov@broadcom.com>, 
-	Jan Kiszka <jan.kiszka@siemens.com>, Dave Hansen <dave.hansen@linux.intel.com>, 
-	Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Juergen Gross <jgross@suse.com>, 
-	Daniel Lezcano <daniel.lezcano@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
-	John Stultz <jstultz@google.com>, Rick Edgecombe <rick.p.edgecombe@intel.com>, 
-	Vitaly Kuznetsov <vkuznets@redhat.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stephen Boyd <sboyd@kernel.org>, x86@kernel.org, 
-	linux-coco@lists.linux.dev, kvm@vger.kernel.org, linux-hyperv@vger.kernel.org, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	xen-devel@lists.xenproject.org, Michael Kelley <mhklinux@outlook.com>, 
-	Tom Lendacky <thomas.lendacky@amd.com>, Nikunj A Dadhania <nikunj@amd.com>, 
-	Thomas Gleixner <tglx@linutronix.de>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Wed, May 20, 2026, David Woodhouse wrote:
-> On Fri, 2026-05-15 at 12:19 -0700, Sean Christopherson wrote:
-> > Mark the TSC frequency as known when using ACRN's PV CPUID information.
-> > Per commit 81a71f51b89e ("x86/acrn: Set up timekeeping") and common sen=
-se,
-> > the TSC freq is explicitly provided by the hypervisor.
-> >=20
-> > Signed-off-by: Sean Christopherson <seanjc@google.com>
-> > ---
-> > =C2=A0arch/x86/kernel/cpu/acrn.c | 1 +
-> > =C2=A01 file changed, 1 insertion(+)
-> >=20
-> > diff --git a/arch/x86/kernel/cpu/acrn.c b/arch/x86/kernel/cpu/acrn.c
-> > index c1506cb87d8c..2da3de4d470e 100644
-> > --- a/arch/x86/kernel/cpu/acrn.c
-> > +++ b/arch/x86/kernel/cpu/acrn.c
-> > @@ -29,6 +29,7 @@ static void __init acrn_init_platform(void)
-> > =C2=A0	/* Install system interrupt handler for ACRN hypervisor callback=
- */
-> > =C2=A0	sysvec_install(HYPERVISOR_CALLBACK_VECTOR, sysvec_acrn_hv_callba=
-ck);
-> > =C2=A0
-> > +	setup_force_cpu_cap(X86_FEATURE_TSC_KNOWN_FREQ);
-> > =C2=A0	tsc_register_calibration_routines(acrn_get_tsc_khz,
-> > =C2=A0					=C2=A0 acrn_get_tsc_khz);
->=20
-> I'd feel slightly happier doing that from within acrn_get_tsc_khz()
-> itself....
+On Mon, 11 May 2026 07:58:25 -0700
+Matt Evans <mattev@meta.com> wrote:
 
-Ya, though as you note below, this is really a comment on the overall serie=
-s.
+> Since "vfio/pci: Set up barmap in vfio_pci_core_enable()", the
+> resource request and iomap for the BARs was performed early, and
+> vfio_pci_core_setup_barmap() just checks those actions succeeded.
+> 
+> Move this logic to a new helper that checks success and returns the
+> iomap address, replacing the various bare vdev->barmap[] lookups.
+> This maintains the error behaviour of the previous on-demand
+> vfio_pci_core_setup_barmap() scheme.
+> 
+> Signed-off-by: Matt Evans <mattev@meta.com>
+> ---
+>  drivers/vfio/pci/nvgrace-gpu/main.c | 20 ++++++++++++-------
+>  drivers/vfio/pci/vfio_pci_core.c    | 11 +++++------
+>  drivers/vfio/pci/vfio_pci_dmabuf.c  |  2 +-
+>  drivers/vfio/pci/vfio_pci_rdwr.c    | 30 ++++++++---------------------
+>  drivers/vfio/pci/virtio/legacy_io.c | 13 ++++++-------
+>  include/linux/vfio_pci_core.h       | 20 ++++++++++++++++++-
+>  6 files changed, 52 insertions(+), 44 deletions(-)
 
-Waiting to set the cap until the calibration routine is actually run does p=
-revent
-the case where the something registers a calibration routine, but its routi=
-ne is
-never run.
+Applied to vfio next branch for v7.2, based on v7.1-rc4 which includes
+the remainder of the series.  Thanks,
 
-However, because the cap is sticky, it doesn't handle the scenario where it=
-s
-routine _does_ run, but the kernel ultimately throws away its calibration i=
-n favor
-of something else.
-
-Further complicating things is that ~half of the paravirt flows already for=
-ce set
-caps before their routines are invoked:
-
-  snp_secure_tsc_init(), jailhouse_init_platform(), ms_hyperv_init_platform=
-(),
-  vmware_set_capabilities()
-
-Rather than trying to convince everyone that waiting is better, despite tha=
-t
-approach still being flawed, I chose to handle this by ensuring that once t=
-he TSC
-is marked known and/or reliable, the kernel won't replace the calibration r=
-outine
-with a "lesser" source:
-
-  x86/tsc: Rejects attempts to override TSC calibration with lesser routine
-
-That doesn't completely prevent the kernel from being stupid, but it should=
- prevent
-both the case where X's routine is registered but never run, as well as the=
- case
-where it's run but ultimately ignored.
-
-> which I note is 'static inline'. I'm vaguely surprised that even builds
-> (although it does).
-
-Heh, KVM x86 (in the host) does stupid things like this too.  E.g. kvm_pdpt=
-r_read()
-is a static inline, but then wired up as a function pointer in three differ=
-ent
-places.
-
-> Probably nicer to move it explicitly out of line in acrn.c though.
->=20
-> Most of that should be a comment on patch  2 of the series, I guess?
+Alex
