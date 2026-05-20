@@ -1,348 +1,111 @@
-Received: from mail-pg1-f171.google.com (mail-pg1-f171.google.com [209.85.215.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DB9040911C
-	for <virtualization@lists.linux.dev>; Tue, 19 May 2026 16:57:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.171
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779209852; cv=none; b=bm0I91pJJHO0QcXDBTVG0x/EdTKPQr4YwS7zWsEGSvVTk4gvk65rhLUAe8u5i00Sh00qcaGTByANYT9vwrm8kDVMf6DPVHMPrKGUfsBEhgr14PiX86eehJWefZbzTDOk5WDp0THqLJ+EvGNT+wnpiPaF9GmZBNAozwnDxTJJyos=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779209852; c=relaxed/simple;
-	bh=/dxqY7vF83zqkB9TeiJY/hUNAh4ZjWZkHbYyxtAuPwA=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Mw28CZwEFOK7pN2K6ZJZMDKrRUJutjJ163/LrLRnu0WyFDAfRosSdqTzU8PpdlstXmh+cCL0QM7O9CKBZIMsJXmhO9Jmm64/RhuFzLgGeBDrf51pk/V0vIuIUZTFM5vu9DzoeloxhMv5US9vVHCkmG+QIPPekNUlt1CAw9+BEpo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kuHlz/0T; arc=none smtp.client-ip=209.85.215.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A558A365A14
+	for <virtualization@lists.linux.dev>; Wed, 20 May 2026 06:51:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779259881; cv=pass; b=EAgyuPVDDYsKgr2wGCxdODgnMYvh7vQhnQsQxipbqIQErd2ytvcF2uBsc4q/cD4j/MKYhFxsi1XBfFBhFWRm6Pqc77nrtTKGT3ZWjXw50KPwyss5AXTsC35FqWujRBUfG2xCbl7r0T9AvVnkeQaqd+qVsDsY8ZIc78Mp2PS8X5A=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779259881; c=relaxed/simple;
+	bh=hjmjJgRAJge/Gcp0b3nocweBDpeY80SE4udUFeY0rfU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=EGFcWntsbIv7sa/0lE4nWQumVLtU/bELTbfhFC8DiEP9V/3a4KsbPZr79Tn08W08Tzywq6tdNRqGaork6e/Xw4+ASQStM3K3IkIyAuiWmcVpIKi+ozREmpKi4M037/25kmZTvmB3KtnsMuJWW7VFUUfDkP1jhn27hxQSQ5UJbiM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=VyBRdddL; arc=pass smtp.client-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kuHlz/0T"
-Received: by mail-pg1-f171.google.com with SMTP id 41be03b00d2f7-c70e3eb3af1so108516a12.2
-        for <virtualization@lists.linux.dev>; Tue, 19 May 2026 09:57:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779209846; x=1779814646; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=TXSSb+QnSoLncqTyl5C1Wf9KSszK/YhT+NIcZleisWI=;
-        b=kuHlz/0TEe3HTmMTPR+Kvvl6WarhuY8BHVd+Z2lPaxcOKM99pqWsDWc8Qyg0Y9/c7b
-         iyMCM3yr8mD6UOF/oJGovHPIvJutsBMpKAKBY+DpcPpTM7/1Rbr+g52MqslVZvBP2ZHB
-         yGwOmJt2EKVcZv5xQ62dhk52WQ6FUhVNVeJeZ83qPRiAybkJZWAkRLrhLmOIBthA59bk
-         +U1wkyZ3GQydynPXZ57Mz+QZCs3c38KFhCRTdV8l869ju8Fe3FCTri8dMwgmUuvShmN1
-         XvAXKan0OPQtdzm603okraq+883105Xp+tZZgrdD5gzVQ/uv0mLdmfQ3822rur7kJjmi
-         gAUA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779209846; x=1779814646;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=TXSSb+QnSoLncqTyl5C1Wf9KSszK/YhT+NIcZleisWI=;
-        b=lwnzdSeQtJWXUwSHgBAYmYLowIDsS8O6pT/dmgQmOXdPeusXLvgPIiIJl+fd28iFLe
-         C0Nj6V1HqjxD1kolq/OHeRX6QMJ4swpF8yYDgypviTWZVyTV6kr72p6eIYa8zLDicSxn
-         XN5xn7WQYB8PvXKyOhguzav7s0xS5wD7VwQBKGRv/X7qC2Ta/rckrC+CdcYIM2odirTV
-         tBj83VM96qUisohLFNJlpk8si7iIIgUpNQIAo5Uzumahl6NigrBoJ+VDkXCBRkPoVf5p
-         xrafYUHc6O75oa46K5evfKA4jeQiYi89XjsRd4R++uUq+3NB9fRWNlY0yNVpPoSnnMuD
-         2nYA==
-X-Forwarded-Encrypted: i=1; AFNElJ/ZYC0lAj7bYD/PKZ5Ag69xK7SJshyz3sfz230lEtlvmO/IJw/+CmdQRNXjFCY5hjTdcM+F8HDLHKrmkXGr9Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxzM49i6btiQEyMa+lmCsDlCgssZdfnk8XwyG1zoHrdPLCbrBkr
-	yy+vAvPUmggzOpQAxQ2tMA6ac8JyI+u9Sy56SZX8IFUt9vtyCZqXv9RM
-X-Gm-Gg: Acq92OHu7YE3Yn4+p0DcWb+C+5CWs+DYb/5Jz5+RuiJV561b82iOwSoQMa1eWvi7j88
-	JVjgg/PuyxehNM9av+GYWJF7jZpgVHJirdya6z4fR6bhLqhzxHGKY1z1JBuQDi1A3qNAN8hXI2h
-	F2ZioAg9NQ8KLVWLpVYUJuDE9rs1ZVsd3fBv0ArfSBzvlVpkbOjrNP4X18ke4H7XpmG853ITZ6V
-	DWs7qsvSLbjuESll5mwzXhcj3pU6yJp9AHdXhC8fmGqtvi4YyHhJeawQGS++pzcF0/4k7YOB71M
-	6XhANxDo4Z1MhuUf4udpwhT99yRcP1F1CYpCwoMNQJ7ocHn1rqwqKkclIkpvLldJLexmz8Fug7L
-	CPhk4s8zeU4owMDxea++YNvXHUvRo82dm+LjclMOCWOQMjbw2NQqx5Aoqjx+FyHZGWKKu1yn+dD
-	b3ITdGxnO0BGLoaarjU+cTcr31h8BAI2VZW2UAJ1lKA/EQ
-X-Received: by 2002:a17:903:2ec7:b0:2bd:9875:d457 with SMTP id d9443c01a7336-2bd9875d4fdmr109091215ad.8.1779209846248;
-        Tue, 19 May 2026 09:57:26 -0700 (PDT)
-Received: from gmail.com ([117.133.78.208])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2bd5bd5fe67sm204597705ad.3.2026.05.19.09.57.17
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Tue, 19 May 2026 09:57:25 -0700 (PDT)
-From: Ziyu Zhang <ziyuzhang201@gmail.com>
-To: Stefano Garzarella <sgarzare@redhat.com>,
-	"David S . Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>
-Cc: Simon Horman <horms@kernel.org>,
-	Andy King <acking@vmware.com>,
-	George Zhang <georgezhang@vmware.com>,
-	Dmitry Torokhov <dtor@vmware.com>,
-	"K . Y . Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>,
-	Dexuan Cui <decui@microsoft.com>,
-	Long Li <longli@microsoft.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	"Michael S . Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Bryan Tan <bryan-bt.tan@broadcom.com>,
-	Vishnu Dasa <vishnu.dasa@broadcom.com>,
-	bcm-kernel-feedback-list@broadcom.com,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	linux-hyperv@vger.kernel.org,
-	kvm@vger.kernel.org,
-	baijiaju1990@gmail.com,
-	r33s3n6@gmail.com,
-	gality369@gmail.com,
-	zhenghaoran154@gmail.com,
-	hanguidong02@gmail.com,
-	zzzccc427@gmail.com,
-	Ziyu Zhang <ziyuzhang201@gmail.com>
-Subject: [PATCH net v2] vsock: keep poll shutdown state consistent
-Date: Wed, 20 May 2026 00:56:36 +0800
-Message-Id: <20260519165636.62542-1-ziyuzhang201@gmail.com>
-X-Mailer: git-send-email 2.39.5 (Apple Git-154)
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="VyBRdddL"
+ARC-Seal: i=1; a=rsa-sha256; t=1779259867; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=KLBTvPulm89Uhd0hrY1hQxXpIYJTSoEldAsWjb56Om/sPBEyUexkg5UYpxkjSIk1Tx3YG4JCbfdh8YTIPVlDM648iQOWxDquMJesPQzQ1s7tWNmdTKndnH3qvAMDXU7EGxZBtv7NsMBN23KUsSXVwWwQ0guDs+qdzXfxl33EynE=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1779259867; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=QB0aBnlsYuDj3KTGtL3n3HDsaBFK9L6LJNUmMJHUjY4=; 
+	b=TQ4oJAJ5bv64cMiBCvxeYed1fC9/kbkPzdecrFlE/ugUI2IfR8DX8iWgrLWnKVSKl4dr7qwDZfIZnvn7uZtrrqmJ2VX12BDTTIxworgPS5sKSNt3gB/zsyJ0J4OBDGDUqHiIz4ne1ULiW8oWwJbNqpky+i4eJTHT/vpTs56Uu8A=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1779259867;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=QB0aBnlsYuDj3KTGtL3n3HDsaBFK9L6LJNUmMJHUjY4=;
+	b=VyBRdddLQLmNW2QZQ1V6CEYZt7nEdTgavdMYB1VurOPR3uoTzn/Njegc8oYzgnEi
+	mtKQuEWzIzHS0ewTEdnXWjWXclzSQloH9N7gOvvhx4GhpUqSfJd8GKNonSYeD/ppXd3
+	6mN7WVM9Azu9aLYjLp/XnYTR32QL+/zIiNg2Xbmg=
+Received: by mx.zohomail.com with SMTPS id 1779259866052944.3067294851667;
+	Tue, 19 May 2026 23:51:06 -0700 (PDT)
+Message-ID: <f6bcef23-5510-4aad-bf6a-4e1ecfc8d474@collabora.com>
+Date: Wed, 20 May 2026 09:50:54 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4] drm/virtio: use uninterruptible resv lock for plane
+ updates
+To: =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
+ Deepanshu Kartikey <kartikey406@gmail.com>, airlied@redhat.com,
+ kraxel@redhat.com, gurchetansingh@chromium.org, olvaffe@gmail.com,
+ maarten.lankhorst@linux.intel.com, mripard@kernel.org, tzimmermann@suse.de,
+ simona@ffwll.ch, sumit.semwal@linaro.org
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
+ linaro-mm-sig@lists.linaro.org,
+ syzbot+72bd3dd3a5d5f39a0271@syzkaller.appspotmail.com, stable@vger.kernel.org
+References: <20260519082247.34470-1-kartikey406@gmail.com>
+ <2e23513c-9d59-4891-acfe-9f1fbcbce778@amd.com>
+Content-Language: en-US
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <2e23513c-9d59-4891-acfe-9f1fbcbce778@amd.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-ZohoMailClient: External
 
-vsock_poll() reads vsk->peer_shutdown before taking the socket lock
-to set EPOLLHUP and EPOLLRDHUP, then reads it again after taking
-the lock to report EOF readability. A shutdown packet can update
-peer_shutdown while poll is waiting for the lock, so one poll invocation
-can report EOF readability without the corresponding HUP/RDHUP bits.
+On 5/19/26 11:27, Christian König wrote:
+> On 5/19/26 10:22, Deepanshu Kartikey wrote:
+>> virtio_gpu_cursor_plane_update() and virtio_gpu_resource_flush() lock
+>> the framebuffer BO's dma_resv via virtio_gpu_array_lock_resv() and
+>> ignore its return value. The function can fail with -EINTR from
+>> dma_resv_lock_interruptible() (signal during lock wait) or with
+>> -ENOMEM from dma_resv_reserve_fences() (fence slot allocation),
+>> leaving the resv lock not held. The queue path then walks the object
+>> array and calls dma_resv_add_fence(), which requires the lock held;
+>> with lockdep enabled this trips dma_resv_assert_held():
+>>
+>>   WARNING: drivers/dma-buf/dma-resv.c:296 at dma_resv_add_fence+0x71e/0x840
+>>   Call Trace:
+>>    virtio_gpu_array_add_fence
+>>    virtio_gpu_queue_ctrl_sgs
+>>    virtio_gpu_queue_fenced_ctrl_buffer
+>>    virtio_gpu_cursor_plane_update
+>>    drm_atomic_helper_commit_planes
+>>    drm_atomic_helper_commit_tail
+>>    commit_tail
+>>    drm_atomic_helper_commit
+>>    drm_atomic_commit
+>>    drm_atomic_helper_update_plane
+>>    __setplane_atomic
+>>    drm_mode_cursor_universal
+>>    drm_mode_cursor_common
+>>    drm_mode_cursor_ioctl
+>>    drm_ioctl
+>>    __x64_sys_ioctl
+>>
+>> Beyond the WARN, mutating the dma_resv fence list without the lock
+>> races with concurrent readers/writers and can corrupt the list.
+> 
+> Well why are you trying to add a fence on an atomic mode set in the first place?
+> 
+> That is usually an illegal operation here.
+That is pre-existing in the driver. It performs draw operation and in
+some cases waits for the completion during atomic. Whether all that
+syncing is correct is hard to say immediately as some of it may be
+historical edge cases.
 
-For connectible sockets, take one peer_shutdown snapshot after
-lock_sock() and use it for all peer-shutdown-derived poll bits. For
-datagram sockets, which do not take lock_sock() in poll(), take one
-lockless READ_ONCE() snapshot and pair it with WRITE_ONCE() on the
-writer side.
-
-This keeps the peer-shutdown-derived bits internally consistent for each
-poll pass.
-
-Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
-Signed-off-by: Ziyu Zhang <ziyuzhang201@gmail.com>
----
-Link: https://lore.kernel.org/netdev/20260516034745.260442-1-ziyuzhang201@gmail.com/
-
-v2:
-- Pair lockless READ_ONCE() users with WRITE_ONCE() on peer_shutdown writers.
-- Move datagram shutdown handling into the SOCK_DGRAM branch and add a comment.
-- Keep one connectible peer_shutdown snapshot after lock_sock() and
-  restore the previous shutdown-derived mask ordering.
-
- net/vmw_vsock/af_vsock.c                | 49 ++++++++++++++++---------
- net/vmw_vsock/hyperv_transport.c        |  9 +++--
- net/vmw_vsock/virtio_transport_common.c | 14 ++++---
- net/vmw_vsock/vmci_transport.c          |  8 ++--
- 4 files changed, 52 insertions(+), 28 deletions(-)
-
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index adcba1b7b..789b00f6e 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -523,7 +523,7 @@ int vsock_assign_transport(struct vsock_sock *vsk, struct vsock_sock *psk)
- 		 */
- 		sock_reset_flag(sk, SOCK_DONE);
- 		sk->sk_state = TCP_CLOSE;
--		vsk->peer_shutdown = 0;
-+		WRITE_ONCE(vsk->peer_shutdown, 0);
- 	}
- 
- 	if (sk->sk_type == SOCK_SEQPACKET) {
-@@ -814,7 +814,7 @@ static struct sock *__vsock_create(struct net *net,
- 	vsk->rejected = false;
- 	vsk->sent_request = false;
- 	vsk->ignore_connecting_rst = false;
--	vsk->peer_shutdown = 0;
-+	WRITE_ONCE(vsk->peer_shutdown, 0);
- 	INIT_DELAYED_WORK(&vsk->connect_work, vsock_connect_timeout);
- 	INIT_DELAYED_WORK(&vsk->pending_work, vsock_pending_work);
- 
-@@ -1122,6 +1122,25 @@ static int vsock_shutdown(struct socket *sock, int mode)
- 	return err;
- }
- 
-+static __poll_t vsock_poll_shutdown(struct sock *sk, u32 peer_shutdown)
-+{
-+	__poll_t mask = 0;
-+
-+	/* INET sockets treat local write shutdown and peer write shutdown as a
-+	 * case of EPOLLHUP set.
-+	 */
-+	if (sk->sk_shutdown == SHUTDOWN_MASK ||
-+	    ((sk->sk_shutdown & SEND_SHUTDOWN) &&
-+	     (peer_shutdown & SEND_SHUTDOWN)))
-+		mask |= EPOLLHUP;
-+
-+	if (sk->sk_shutdown & RCV_SHUTDOWN ||
-+	    peer_shutdown & SEND_SHUTDOWN)
-+		mask |= EPOLLRDHUP;
-+
-+	return mask;
-+}
-+
- static __poll_t vsock_poll(struct file *file, struct socket *sock,
- 			       poll_table *wait)
- {
-@@ -1139,24 +1158,17 @@ static __poll_t vsock_poll(struct file *file, struct socket *sock,
- 		/* Signify that there has been an error on this socket. */
- 		mask |= EPOLLERR;
- 
--	/* INET sockets treat local write shutdown and peer write shutdown as a
--	 * case of EPOLLHUP set.
--	 */
--	if ((sk->sk_shutdown == SHUTDOWN_MASK) ||
--	    ((sk->sk_shutdown & SEND_SHUTDOWN) &&
--	     (vsk->peer_shutdown & SEND_SHUTDOWN))) {
--		mask |= EPOLLHUP;
--	}
--
--	if (sk->sk_shutdown & RCV_SHUTDOWN ||
--	    vsk->peer_shutdown & SEND_SHUTDOWN) {
--		mask |= EPOLLRDHUP;
--	}
--
- 	if (sk_is_readable(sk))
- 		mask |= EPOLLIN | EPOLLRDNORM;
- 
- 	if (sock->type == SOCK_DGRAM) {
-+		u32 peer_shutdown = READ_ONCE(vsk->peer_shutdown);
-+
-+		/* DGRAM sockets do not take lock_sock() in poll(), so use one
-+		 * lockless snapshot for all shutdown-derived mask bits.
-+		 */
-+		mask |= vsock_poll_shutdown(sk, peer_shutdown);
-+
- 		/* For datagram sockets we can read if there is something in
- 		 * the queue and write as long as the socket isn't shutdown for
- 		 * sending.
-@@ -1171,6 +1183,7 @@ static __poll_t vsock_poll(struct file *file, struct socket *sock,
- 
- 	} else if (sock_type_connectible(sk->sk_type)) {
- 		const struct vsock_transport *transport;
-+		u32 peer_shutdown;
- 
- 		lock_sock(sk);
- 
-@@ -1203,8 +1216,10 @@ static __poll_t vsock_poll(struct file *file, struct socket *sock,
- 		 * terminated should also be considered read, and we check the
- 		 * shutdown flag for that.
- 		 */
-+		peer_shutdown = READ_ONCE(vsk->peer_shutdown);
-+		mask |= vsock_poll_shutdown(sk, peer_shutdown);
- 		if (sk->sk_shutdown & RCV_SHUTDOWN ||
--		    vsk->peer_shutdown & SEND_SHUTDOWN) {
-+		    peer_shutdown & SEND_SHUTDOWN) {
- 			mask |= EPOLLIN | EPOLLRDNORM;
- 		}
- 
-diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
-index 432fcbbd1..16b981566 100644
---- a/net/vmw_vsock/hyperv_transport.c
-+++ b/net/vmw_vsock/hyperv_transport.c
-@@ -264,7 +264,7 @@ static void hvs_do_close_lock_held(struct vsock_sock *vsk,
- 	struct sock *sk = sk_vsock(vsk);
- 
- 	sock_set_flag(sk, SOCK_DONE);
--	vsk->peer_shutdown = SHUTDOWN_MASK;
-+	WRITE_ONCE(vsk->peer_shutdown, SHUTDOWN_MASK);
- 	if (vsock_stream_has_data(vsk) <= 0)
- 		sk->sk_state = TCP_CLOSING;
- 	sk->sk_state_change(sk);
-@@ -593,7 +593,9 @@ static int hvs_update_recv_data(struct hvsock *hvs)
- 		return -EIO;
- 
- 	if (payload_len == 0)
--		hvs->vsk->peer_shutdown |= SEND_SHUTDOWN;
-+		WRITE_ONCE(hvs->vsk->peer_shutdown,
-+			   READ_ONCE(hvs->vsk->peer_shutdown) |
-+			   SEND_SHUTDOWN);
- 
- 	hvs->recv_data_len = payload_len;
- 	hvs->recv_data_off = 0;
-@@ -715,7 +717,8 @@ static s64 hvs_stream_has_data(struct vsock_sock *vsk)
- 			return ret;
- 		return hvs->recv_data_len;
- 	case 0:
--		vsk->peer_shutdown |= SEND_SHUTDOWN;
-+		WRITE_ONCE(vsk->peer_shutdown,
-+			   READ_ONCE(vsk->peer_shutdown) | SEND_SHUTDOWN);
- 		ret = 0;
- 		break;
- 	default: /* -1 */
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index dcc8a1d58..71d8eac82 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -1220,7 +1220,7 @@ static void virtio_transport_do_close(struct vsock_sock *vsk,
- 	struct sock *sk = sk_vsock(vsk);
- 
- 	sock_set_flag(sk, SOCK_DONE);
--	vsk->peer_shutdown = SHUTDOWN_MASK;
-+	WRITE_ONCE(vsk->peer_shutdown, SHUTDOWN_MASK);
- 	if (vsock_stream_has_data(vsk) <= 0)
- 		sk->sk_state = TCP_CLOSING;
- 	sk->sk_state_change(sk);
-@@ -1411,12 +1411,15 @@ virtio_transport_recv_connected(struct sock *sk,
- 	case VIRTIO_VSOCK_OP_CREDIT_UPDATE:
- 		sk->sk_write_space(sk);
- 		break;
--	case VIRTIO_VSOCK_OP_SHUTDOWN:
-+	case VIRTIO_VSOCK_OP_SHUTDOWN: {
-+		u32 peer_shutdown = READ_ONCE(vsk->peer_shutdown);
-+
- 		if (le32_to_cpu(hdr->flags) & VIRTIO_VSOCK_SHUTDOWN_RCV)
--			vsk->peer_shutdown |= RCV_SHUTDOWN;
-+			peer_shutdown |= RCV_SHUTDOWN;
- 		if (le32_to_cpu(hdr->flags) & VIRTIO_VSOCK_SHUTDOWN_SEND)
--			vsk->peer_shutdown |= SEND_SHUTDOWN;
--		if (vsk->peer_shutdown == SHUTDOWN_MASK) {
-+			peer_shutdown |= SEND_SHUTDOWN;
-+		WRITE_ONCE(vsk->peer_shutdown, peer_shutdown);
-+		if (peer_shutdown == SHUTDOWN_MASK) {
- 			if (vsock_stream_has_data(vsk) <= 0 && !sock_flag(sk, SOCK_DONE)) {
- 				(void)virtio_transport_reset(vsk, NULL);
- 				virtio_transport_do_close(vsk, true);
-@@ -1431,6 +1434,7 @@ virtio_transport_recv_connected(struct sock *sk,
- 		if (le32_to_cpu(virtio_vsock_hdr(skb)->flags))
- 			sk->sk_state_change(sk);
- 		break;
-+	}
- 	case VIRTIO_VSOCK_OP_RST:
- 		virtio_transport_do_close(vsk, true);
- 		break;
-diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
-index 7eccd6708..c2231c402 100644
---- a/net/vmw_vsock/vmci_transport.c
-+++ b/net/vmw_vsock/vmci_transport.c
-@@ -811,7 +811,7 @@ static void vmci_transport_handle_detach(struct sock *sk)
- 		/* On a detach the peer will not be sending or receiving
- 		 * anymore.
- 		 */
--		vsk->peer_shutdown = SHUTDOWN_MASK;
-+		WRITE_ONCE(vsk->peer_shutdown, SHUTDOWN_MASK);
- 
- 		/* We should not be sending anymore since the peer won't be
- 		 * there to receive, but we can still receive if there is data
-@@ -1534,7 +1534,9 @@ static int vmci_transport_recv_connected(struct sock *sk,
- 		if (pkt->u.mode) {
- 			vsk = vsock_sk(sk);
- 
--			vsk->peer_shutdown |= pkt->u.mode;
-+			WRITE_ONCE(vsk->peer_shutdown,
-+				   READ_ONCE(vsk->peer_shutdown) |
-+				   pkt->u.mode);
- 			sk->sk_state_change(sk);
- 		}
- 		break;
-@@ -1551,7 +1553,7 @@ static int vmci_transport_recv_connected(struct sock *sk,
- 		 * a clean shutdown.
- 		 */
- 		sock_set_flag(sk, SOCK_DONE);
--		vsk->peer_shutdown = SHUTDOWN_MASK;
-+		WRITE_ONCE(vsk->peer_shutdown, SHUTDOWN_MASK);
- 		if (vsock_stream_has_data(vsk) <= 0)
- 			sk->sk_state = TCP_CLOSING;
- 
 -- 
-2.43.0
-
+Best regards,
+Dmitry
