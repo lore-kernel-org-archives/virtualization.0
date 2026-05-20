@@ -1,210 +1,294 @@
-Received: from SA9PR02CU001.outbound.protection.outlook.com (mail-southcentralusazon11013015.outbound.protection.outlook.com [40.93.196.15])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-yw1-f228.google.com (mail-yw1-f228.google.com [209.85.128.228])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52A7E2E8B64
-	for <virtualization@lists.linux.dev>; Wed, 20 May 2026 11:00:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.196.15
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779274826; cv=fail; b=BBxD6+UhCBqWYgCTRuHk7VSw+vwiBfQamedSphHYgBlihTFgfevNIaTENTBZqrFJAzt7I22WtjKE5flG8sCobZeX1m2VqUGMwR98jeDpA5eOcVy4hhe446tOgRcjYUNW0XGDraPVhsRpW6z8WvSMRgqLYFjNA4r/dQKGVJZ9w8g=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779274826; c=relaxed/simple;
-	bh=JSXWbFYNpsCm6JYQtxjpuksunc9r3wEWYu5BhzaM5S8=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=eq3x0S1aCSFgVg5CzRMtkOVZSSYc3tpCAgelUP9a/i6NlZisAOnxAp9GrCFGKc96gSiFKW00nYkXoQPgLLicXO2h84U1zciJK37w1nQf4+xv0IqGhx3WTv/bYso64XIlZOYIdyM1aOLi2PGxeC6d7Z9vCV+1UdeXDqT4t3oQgnE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=o6txoL/I; arc=fail smtp.client-ip=40.93.196.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAA661F5437
+	for <virtualization@lists.linux.dev>; Wed, 20 May 2026 13:51:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.228
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779285115; cv=none; b=XhAo1LDPo3pKMbfjyfOQB1HCqg/OysZrcnQbLzvtyLmT6T2qGacx65zDZ+QXp91/HHbtOxOMfZTy48CKJ3pWI205N8sYMumm5kutn+HI22RC8gjkolhigNE0M1kwCVtZuLrYIGYfN3o99Xg/znilQiTPHwPbTCQ60/ucDeaoSbo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779285115; c=relaxed/simple;
+	bh=aPMmbiDsOq7Sx16htsxcLmzMDPuR4CPEeXDfbGVZEZQ=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=NHVdy+zW7AalkRvnQxr17HME6vL47vwBVaNbUlMCZ0Q6a0w+FQ2G31H4GJMfC7sDgZUd3mI1xBvYr2RF1q2hgx6rOzDOAxDl4rTA9mD6uRH9jiiHBvDhA4cEb60i9WGRq6nTZa6n2j/nfUryBtQ2wqwrntoMXoPOFRIGc1dABWw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=REReq5F3; arc=none smtp.client-ip=209.85.128.228
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="o6txoL/I"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=l4THSbgkMpYmJA1DvPx3LICOD1aqdcH4kdp7UyXcaHoZONJ+nXgmIoNVYa6WZ6sg8O8jqmge2TYJjVKqjBT60IAc/bb1K8UVzpMN2T7Lgcz6tPOq460TJV0GBR7UT1Wz/HkJk/HFx4m9LFu3PZWMegW5jp0wFEgsVSWAYU2EXePWmDH/GoHDLuMNbL8mh/C5glLu5MM7av7rkn76cFMVWGx++Zm+ll4lIHZU6vYjw1Nx5tkDsxJy8sE3i/ci+8YWuNM71lFcSZhMXu8NNnE1QmjX7i2pPI1NwHqJ/b2lt0IZwu9i2yOn+iydB/5B3Nvwr5jo0raVpftRgCB2ZU0mOA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=cfTfZjFO8mbhEiCu+l1R9CuG+d1AtNZs3+W5W4/KP6U=;
- b=jcAnLRS8pybm0mxahSzIF1eQnRwel155A+tHUoBrKzVljlEtrh/Jaq9b9jC0cBkP4cSc/5ZAiXBB00hB+xQrP1W9+l96X/FAMstpO5uhoc+LTJSKVAencQGKGIhs+Ym8Afx96qjrnzKTS0cCBqjwAP+YgvqIY5Xd5ybj7Otwbwt37IZ2ldWIRLlk0Zgye3dy9MZmNbCA0qng0mdnIgibZVWxe94bv/tt9t50H/THOSWfLXkNjJsBjdFQkN6E+btug9oMH1tzAp7ZMulPb/htmo7yWLAq7m9wIZTnjzCjQxigKM5IsbsMwwdMRv+WdwI9BXoUskzMI7dX1XSyWIkR2Q==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=cfTfZjFO8mbhEiCu+l1R9CuG+d1AtNZs3+W5W4/KP6U=;
- b=o6txoL/IJds3fbV0BvHLD2lyfpQl4nrDqdns5DveHhayUywHwM4cAMwBmYhOUBWfyBMRX6l4FPfz2ZPNNMDP7M3FAS3/qXqdNX2Kx28C0GoZ6Urzh2ASvuy/yeFlyRmnEoHwdkg2cOFkb6Bs/7GevUf096/r7Hz0BFdfARYA9K4=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from PH7PR12MB5685.namprd12.prod.outlook.com (2603:10b6:510:13c::22)
- by DS0PR12MB8441.namprd12.prod.outlook.com (2603:10b6:8:123::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.25.22; Wed, 20 May
- 2026 11:00:18 +0000
-Received: from PH7PR12MB5685.namprd12.prod.outlook.com
- ([fe80::ce69:cfae:774d:a65c]) by PH7PR12MB5685.namprd12.prod.outlook.com
- ([fe80::ce69:cfae:774d:a65c%5]) with mapi id 15.21.0025.022; Wed, 20 May 2026
- 11:00:18 +0000
-Message-ID: <1832e5a8-db85-4b66-a5f0-08043c4aed54@amd.com>
-Date: Wed, 20 May 2026 13:00:10 +0200
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4] drm/virtio: use uninterruptible resv lock for plane
- updates
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- Deepanshu Kartikey <kartikey406@gmail.com>, airlied@redhat.com,
- kraxel@redhat.com, gurchetansingh@chromium.org, olvaffe@gmail.com,
- maarten.lankhorst@linux.intel.com, mripard@kernel.org, tzimmermann@suse.de,
- simona@ffwll.ch, sumit.semwal@linaro.org
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, linux-media@vger.kernel.org,
- linaro-mm-sig@lists.linaro.org,
- syzbot+72bd3dd3a5d5f39a0271@syzkaller.appspotmail.com, stable@vger.kernel.org
-References: <20260519082247.34470-1-kartikey406@gmail.com>
- <2e23513c-9d59-4891-acfe-9f1fbcbce778@amd.com>
- <f6bcef23-5510-4aad-bf6a-4e1ecfc8d474@collabora.com>
- <a0f2cfd5-d4df-4e50-a52b-d5befbc2e481@amd.com>
- <f37bdc63-3575-49e5-aa5b-7b93428b293d@collabora.com>
-Content-Language: en-US
-From: =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
-In-Reply-To: <f37bdc63-3575-49e5-aa5b-7b93428b293d@collabora.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: MN2PR06CA0025.namprd06.prod.outlook.com
- (2603:10b6:208:23d::30) To PH7PR12MB5685.namprd12.prod.outlook.com
- (2603:10b6:510:13c::22)
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="REReq5F3"
+Received: by mail-yw1-f228.google.com with SMTP id 00721157ae682-7c58e6eb3edso44097617b3.2
+        for <virtualization@lists.linux.dev>; Wed, 20 May 2026 06:51:53 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779285113; x=1779889913;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=vkV4PKiW6G5XIeFlF2mBw+0yF2ttKBELA8+E8ZCk71M=;
+        b=mXgxGSHBE6lR6nNBaHPdppeIN5snth/R1BXhOkQcS7wA4etPEEu6W3aD7mK3cwj5Su
+         GRfIgVOwhkopQdBaE2eoEpv4U6rx2RBxOPj3Yldc2H2x+998y+GN/p5irQE715l9BLiX
+         SZHsIZdxopslIlEmFfPyyfG5BDl379kW2BmhTUh+nlpXZXQKdCP7+GjorKGbX4bLxzzt
+         TkBuwCdnZRZAsSNRzpaOF/6rsScWpfG3ER4J7rBkOA022OGS3yLGFjWwxyQsXlZSYmT2
+         EV3mt9SE7ZsYFeqJjMRYBVCRNT4OEVewnOUMgmqjNcg0lUUYyx0JsmGEH8zugmHVT0fy
+         WeTQ==
+X-Forwarded-Encrypted: i=1; AFNElJ/CUZZ9ix/PPt3hzySQ5HVXiJkVT+X68PvjSaK8P+GJWZlZ5JSIJsGsi7D+cuMQELLp7hHWsZEaolmOmjWm9w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzvySn3rBWW2qf10sCnxHjsLNEc6LFqd9PxadkRdjeqP2QT3aWw
+	54jDuke1CVIl5NAjeiFMNI8ePQnKZPJ1Jq85Is17BxOi3GsW6Acn4xIWg3uS35Q+yj/9Q/5cRkL
+	L9ZD7v9mrgU4ABMIRKRrEsmME0PKAjly9oAba/8ry6t/x4crBl7stu+3PTOK92RrDEy7MDpDeEq
+	kP3ereqUQSWJg1fCNyeiGq/drr7xGq4BOlVLwgN7+ghC0+WwvAH64Wu7RT8DMjNTFCki0YKlrmr
+	46kqG7Kec9GNW1KbsSZPO6g
+X-Gm-Gg: Acq92OE8F202mXbCxIqqoaTe4cZF4e5KuwknDEL5qKAHxFy+aEQL2AtC1GttwacPNZJ
+	uCcF5AKl4uglGUv+QgFRDEvtCqCBZc0CE/dMBkYT+Hw8u7O+68TXg0NMoBo5VAeAtMJspJuMiCl
+	BGAOzAPNHIUJDzuy+mY6XR/n6nGDKAwkEh9hj8GgwhbQ0mBShzHZEiSpC6vzju+TQjHH3Jxv/Hd
+	T0zgZgdqk1Zx7/jtFEbscfyFuiUIoXVnpAuFy7oC0ex1YJAsCY22vRBGFG8kEnn8ILUPRqlRzwi
+	Qj1Od98g6tyQScaUehCHzVQxKxSKYaxJjJolUikwa/8zbmv9Q60Sb8yF/xuV109/7vn9y1YGnqO
+	PP5PUboxsWtj9knIUXIVtxjXW7g2tZOAMzK8zWpK4Ugp8ZEPZquT17ygDz7fx+h7QJERSUUcg91
+	JoT2+XNsBo5tAHVNaH4WpvpzM9B1NxhBog5RcMTg7fLzCPn9ZYhQz7ttJRQdA=
+X-Received: by 2002:a05:690e:418a:b0:654:5d65:9ff4 with SMTP id 956f58d0204a3-65e22674e00mr20890912d50.10.1779285112606;
+        Wed, 20 May 2026 06:51:52 -0700 (PDT)
+Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-102.dlp.protect.broadcom.com. [144.49.247.102])
+        by smtp-relay.gmail.com with ESMTPS id 956f58d0204a3-65e8ee26bd9sm208406d50.26.2026.05.20.06.51.52
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Wed, 20 May 2026 06:51:52 -0700 (PDT)
+X-Relaying-Domain: broadcom.com
+X-CFilter-Loop: Reflected
+Received: by mail-lj1-f198.google.com with SMTP id 38308e7fff4ca-393adad635dso30535261fa.3
+        for <virtualization@lists.linux.dev>; Wed, 20 May 2026 06:51:51 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google; t=1779285111; x=1779889911; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=vkV4PKiW6G5XIeFlF2mBw+0yF2ttKBELA8+E8ZCk71M=;
+        b=REReq5F3sbhpC8EgKg/cFSzkWOZm1QZ8ikXzN6AoIyi8aDIVM4Zk2tjBd273EgVYqG
+         xBSmxgXJq3b4kOfd40s97gETkf0JZB2mQ/qbVZ4v0XapMjUXJWIYQRhLxdQT3liC2Qe6
+         bz2WXCRpTyM2NGjPl+fdHwyipTnv2/VBcydBw=
+X-Forwarded-Encrypted: i=1; AFNElJ+KBmM5IDS6K2fIv8M/BgEJ5nQoX0TR9wsD2zkYvKD6K9ngP8EfgTYhL5FEtYb2nCH0bhc/TwPUTzjK/SdtLA==@lists.linux.dev
+X-Received: by 2002:a05:651c:987:b0:393:c254:20c6 with SMTP id 38308e7fff4ca-39561c04d52mr76572171fa.1.1779285110679;
+        Wed, 20 May 2026 06:51:50 -0700 (PDT)
+X-Received: by 2002:a05:651c:987:b0:393:c254:20c6 with SMTP id
+ 38308e7fff4ca-39561c04d52mr76572091fa.1.1779285110211; Wed, 20 May 2026
+ 06:51:50 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH7PR12MB5685:EE_|DS0PR12MB8441:EE_
-X-MS-Office365-Filtering-Correlation-Id: 22d59778-09b0-43bf-011b-08deb65efaa7
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|7416014|376014|366016|1800799024|18002099003|11063799006|921020|4143699003|22082099003|56012099003|3023799007;
-X-Microsoft-Antispam-Message-Info:
-	DYVAcUBO/AOfVREIe31HM3srn1blo7KOP4k0bIiuzW3m2vFQCiTqqGPMS87xJkmZURPReydk89CTyTGX2ZFCmHRGOfWmS9B7TLCyV/ezg3FdDIj6ZtUS01IrQZhgM4jjRxu3w2dfbLi0m/pylDDKlaSVKXFdKXycWxf7NIg6tYengY21mPvA/1xHbENUfVibKfEY4yn4439yjidnEg/Z42teS20LQDt4ouOerPEd+YOAKyHnK8wHLpGxdUDsg7JIbUAu5UXxilkLWLreVATgPiGYfUkj6D0RBDPdBqfuTsGRq8h6evMPdFAkIihUJwzC5q4RvNqFCncdtLsL6i9JflynG3noMhESv2i6YDmu4ubKF3mJSXHTk7xjgkYiE8ajgpeHI5cpCODPQTu93SU1rA3i0hhynJPT6SVIFnRQId1hfGGXReNhlZS+NTTkHCbgU3CpLWU2hfcWjDIm1FxSxjqFsqQ0g+vet+u2V9gZYaJfSzogm03OCnZd6Guyuv/8lJJA+4vMizAGbMWWtvb9jAF48GxJb9hZuxjiySBbxXYOyLAsoAi0EusekRPMGBcQaY+VieOhclQmjuRtA53/R6pCUt/oYW4bsR7u3KKZB9RKB5Qky94sBrpROxAuu0cca0IWtBIPA2f/RnKp0zX6pUrK8gU0vvoNdX6y6YD/QwjSFQaHj9HDJ6eRPumshxJgUomle9QTCxYc42rdeGT9xNaqm7442UxLDO6Z7q/KzV0=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH7PR12MB5685.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(366016)(1800799024)(18002099003)(11063799006)(921020)(4143699003)(22082099003)(56012099003)(3023799007);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?MEFtK3FkMmRpMm0vRWpiTm1GTWpFVEFXeXlLSnMrYXZPV3hTSkc5dGhYc2F4?=
- =?utf-8?B?c0NiOFVoNTJuQnJnVU9xd1FaeERGRHQzeDBoSHNNbGE4TFZaKzY3bkpmbkx4?=
- =?utf-8?B?R3ozMEJucU9PdkQySTdPQWM1WlVvcG9obGN5dzJnU1c1MitDZjNkcVVkeStO?=
- =?utf-8?B?UWxnV2JId2tCUlF0ZzFMdUx2RHFtN2t3cHBYdmduUnFSSng1YzhRY1dtMkNT?=
- =?utf-8?B?bFBScVlCaUhINEh1bkFmME0wNHRERnQxQW8yTFBKR2o1Rkg2ajc0Qjd2ei9q?=
- =?utf-8?B?Ym8xV29OTTlTU3ZPVzVPbVJYcWZPb1g1eCtOZ1lOUDM0QXozU2ZoNVpEZmtX?=
- =?utf-8?B?VWdBd3dDSFN3eXYrbDZVYzlMUmFCbXo1bHpvZzJvNU5kMFVzMW5nYUg3UEFj?=
- =?utf-8?B?Z081MDZxSU1OY2p5VkllaFozYkNDM2YxY2VNTm9lMVJYbVJHbHVTQWF3ZWVI?=
- =?utf-8?B?MnFqMGNTMVllUVJFZ0lxa2t6b0ZiWmZlTkJPQ0k2ZHgxUnUyOW96ZThmNHNz?=
- =?utf-8?B?US9KcEl0VzU2dzZBaGd1anAvL2pnYTFJMHZXT01FeXBOR2VnWi9jOENaTWZj?=
- =?utf-8?B?Z3pFd2s5SVhPbDRWWFF6emFiYTQ4QU9mRkRHdXhCTzZRdDFVNE1BSnRJM0FC?=
- =?utf-8?B?bkxjMFF1Mk05b0lvSWxkeWJvd2lwbDc3Z2x0Q3o0NHZhUXhLTDdBelFJcCta?=
- =?utf-8?B?K2p5dWdPbFB3YXNsSmlwTzNwaWhkei9ScFBQdkVaV3U1TTZReHNRZ2NTcnJD?=
- =?utf-8?B?Zm5nZTBkUEJ1M3ZzckhwUEhoL3llUmNnRnNEN1hwdC9hVkt6WEFyb0Nha0Fu?=
- =?utf-8?B?ZU12TjNvY016V1M4NVZPRXNOS3dEWEc5R2VkV0Y4Rzc4dnA5NzVsakg1MzVy?=
- =?utf-8?B?K09XemhWRDNCKzRSbUJNRE83K2RwVisybVgzM0d3OExnTXJCS3QxMGlWZmxn?=
- =?utf-8?B?Z1ZwMU9sODU1NVBMZDN6am1ERkNjWUEyY1Nxek0zVy84aEFmc29EaG9iY1Ba?=
- =?utf-8?B?ZFpaOWh5MzNGV1lUblpzOTJiNzNEZnd2dFgyR291OUJuSjdrU2N0c0c5bTFV?=
- =?utf-8?B?Y3FXc2Zyc2xuWFUvMTdyeUN2MzZBL3oyQnIwZkpWM0NVbGxhaU5hdHlYWEs4?=
- =?utf-8?B?eGtoWlRtK0oyUHUxK29XNXZzMmdCSU00RFlPdlZjRmVtaG43Yk52Q1ZNR1NZ?=
- =?utf-8?B?QnAzQmE1eFBCTkYvUnNvVDlnQTZmZVlSTEc1cm5uL3FBSCtSeUl2UDZNM2M2?=
- =?utf-8?B?dm02WElrR0FmMVhZOS91OVpjRm9PUEhIZ3l5eHd5TmxiKzRwUUVoMEdIL0hw?=
- =?utf-8?B?S1FJVk5MeXdNOG1IRkhTS1JZaVRnWnVXSXBGam13Z3ZDT1FEQ2h5Y2hlTThJ?=
- =?utf-8?B?c2UyZUpxZnV4ZXBSc0RSM3pBdVB4SWNza1JsYmxLTDZxNyt6aW1qUU1QSEJv?=
- =?utf-8?B?dVl1V2J3a3crblVtMW4yY1ZIeU9Jd25lZVdCS2pnRFJwV1hNcThzdWxVR0JP?=
- =?utf-8?B?dUM0NWVrOXZ1SHFTZ2E3TFpBZVAxUWhpN2xTSHk4TUxiZm5CZmF1Q1RiV1F1?=
- =?utf-8?B?NEZnb1dNKzFjZFdBY3JhT3ZWOXFOVFVWY3U0MWh5d3RMa1BHRGkwaGFpT2NY?=
- =?utf-8?B?V1dVcDh4SEdNbGVqNjR6dnk0RHFzclN0Zy9QL3M4SU4zVDk1V0YxZk1tc0pZ?=
- =?utf-8?B?YmE3bXdzMlN5RUVUTlNVdStaRVdqcnZodzUyZk1FR1BGQTg4aEFvaGR6MUJh?=
- =?utf-8?B?d0Y5Y05kb2kySXhiMnFkNDg4QkFnemUwTUxGMlZSVGI0d29ZZjA0QmxtOCtM?=
- =?utf-8?B?RkJHMk05enAwSW1UejF6QXErNEYrb2RObTZYUXMxYW5wMk0yaER0emwyL1pj?=
- =?utf-8?B?MEpPYjFvQ0ZZNElxbzBOR21GWWI0U0JHQXpXTDBnYTIxQUtUNi9jd3R3cDdM?=
- =?utf-8?B?bll4UDFRTm9CakV3MW10Ty9haUNxSVRCaHRvYTdVMDA5bXlBSFhxOG4xb3Aw?=
- =?utf-8?B?RklQUklsTnRVMmVkbmUxbTZLbk1ZQUM5RWx1RFQxSXZDOWVPS3B4dlpST3JK?=
- =?utf-8?B?b1VMaUoxQ05FaGpsT3VSNHlBaHZQb3BDZEJmMWMrZnRFYk9kTkxWMkRaTm4x?=
- =?utf-8?B?TWhUT09MWVVKbk1abDNkNlBSclFSRFdZYytOV1Q0c3kvMTJockNlcVVvVkVs?=
- =?utf-8?B?cHFkZndLNmpyeWEvVFU3N1BzczlpMUtHSDcvd3lnRFc5a2xiVDV2S3hndXJP?=
- =?utf-8?B?Y2tJaEo5QkNyamI3YW5aMWN0cmI3djBWTkw5ellkV25SMUdBeDFGYUJlQzZi?=
- =?utf-8?Q?fy3ybZw0NHjxYc+5CZ?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 22d59778-09b0-43bf-011b-08deb65efaa7
-X-MS-Exchange-CrossTenant-AuthSource: PH7PR12MB5685.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 May 2026 11:00:18.2804
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 8lrN/A3XyxzTpivp4xHUXTiAxoPEz5MElyS9qr/POnEAfoErPDe2Yf5lSiWzDq6n
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB8441
+References: <20260519102310.237181-1-minhnguyen.080505@gmail.com>
+In-Reply-To: <20260519102310.237181-1-minhnguyen.080505@gmail.com>
+From: Bryan Tan <bryan-bt.tan@broadcom.com>
+Date: Wed, 20 May 2026 14:51:38 +0100
+X-Gm-Features: AVHnY4Lj4twVB9bPJ2sY9gZT5RkqQB77iMFrkQTMYdpfgXCvej8miR3ijvgbEwc
+Message-ID: <CAOuBmuZRxEMm=H6Xy3PWh1O5h30PV=jpQxHYXXCyZSJwf1GHsw@mail.gmail.com>
+Subject: Re: [PATCH net v4] vsock/vmci: fix UAF when peer resets connection
+ during handshake
+To: Minh Nguyen <minhnguyen.080505@gmail.com>
+Cc: pabeni@redhat.com, sgarzare@redhat.com, vishnu.dasa@broadcom.com, 
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org, horms@kernel.org, 
+	bcm-kernel-feedback-list@broadcom.com, netdev@vger.kernel.org, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	stable@vger.kernel.org
+X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
+Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256;
+	boundary="0000000000000060c8065240190e"
 
-On 5/20/26 10:12, Dmitry Osipenko wrote:
-> On 5/20/26 10:05, Christian König wrote:
->> On 5/20/26 08:50, Dmitry Osipenko wrote:
->>> On 5/19/26 11:27, Christian König wrote:
->>>> On 5/19/26 10:22, Deepanshu Kartikey wrote:
->>>>> virtio_gpu_cursor_plane_update() and virtio_gpu_resource_flush() lock
->>>>> the framebuffer BO's dma_resv via virtio_gpu_array_lock_resv() and
->>>>> ignore its return value. The function can fail with -EINTR from
->>>>> dma_resv_lock_interruptible() (signal during lock wait) or with
->>>>> -ENOMEM from dma_resv_reserve_fences() (fence slot allocation),
->>>>> leaving the resv lock not held. The queue path then walks the object
->>>>> array and calls dma_resv_add_fence(), which requires the lock held;
->>>>> with lockdep enabled this trips dma_resv_assert_held():
->>>>>
->>>>>   WARNING: drivers/dma-buf/dma-resv.c:296 at dma_resv_add_fence+0x71e/0x840
->>>>>   Call Trace:
->>>>>    virtio_gpu_array_add_fence
->>>>>    virtio_gpu_queue_ctrl_sgs
->>>>>    virtio_gpu_queue_fenced_ctrl_buffer
->>>>>    virtio_gpu_cursor_plane_update
->>>>>    drm_atomic_helper_commit_planes
->>>>>    drm_atomic_helper_commit_tail
->>>>>    commit_tail
->>>>>    drm_atomic_helper_commit
->>>>>    drm_atomic_commit
->>>>>    drm_atomic_helper_update_plane
->>>>>    __setplane_atomic
->>>>>    drm_mode_cursor_universal
->>>>>    drm_mode_cursor_common
->>>>>    drm_mode_cursor_ioctl
->>>>>    drm_ioctl
->>>>>    __x64_sys_ioctl
->>>>>
->>>>> Beyond the WARN, mutating the dma_resv fence list without the lock
->>>>> races with concurrent readers/writers and can corrupt the list.
->>>>
->>>> Well why are you trying to add a fence on an atomic mode set in the first place?
->>>>
->>>> That is usually an illegal operation here.
->>> That is pre-existing in the driver. It performs draw operation and in
->>> some cases waits for the completion during atomic. Whether all that
->>> syncing is correct is hard to say immediately as some of it may be
->>> historical edge cases.
->>
->> I'm not not so deeply in the atomic mode setting stuff but it strongly sounds like that this is seriously broken.
->>
->> The background is that the atomic mode set framework allows an output dma_fence which is signaled when the commit is finished.
->>
->> So when you allocate a fence slot and add a new fence to finish the atomic commit it is trivially possible that this cycles back and waits for the atomic commit to finish. In other words you have a deadlock.
->>
->> You probably need specially crafted userspace with the right timing to trigger that, but such issues are usually a rather big no-no and need to be fixed in the long term.
->>
->> Try to add dma_fence_begin_signaling() and dma_fence_end_signaling() annotation and enable lockdep, the tool should be able to point out if and what exactly goes wrong.
->>
->> The usual fix is to prepare everything before commit_tail is called (alloc memory, create, reserve slot, add dma_fence etc....) and then just send out the prepared commands later on.
-> 
-> We tried with moving resv alloc to prepare_fb() in a previous patch
-> version, it resulted in a non-trivial deadlocks. The goal of this patch
-> is to fix immediate problem with a minimal code change.
+--0000000000000060c8065240190e
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Yeah, totally fine with me to get that fixed first.
+On Tue, May 19, 2026 at 11:23=E2=80=AFAM Minh Nguyen
+<minhnguyen.080505@gmail.com> wrote:
+>
+> vmci_transport_recv_connecting_server() returned err =3D 0 for a peer
+> RST in its default switch arm:
+>
+>         err =3D pkt->type =3D=3D VMCI_TRANSPORT_PACKET_TYPE_RST ? 0 : -EI=
+NVAL;
+>
+> That made vmci_transport_recv_listen() skip vsock_remove_pending(),
+> leaving the pending socket on the listener's pending_links with
+> sk_state =3D TCP_CLOSE while destroy: still dropped the explicit
+> reference taken before schedule_delayed_work().
+>
+> One second later vsock_pending_work() observed is_pending=3Dtrue and
+> performed full cleanup: vsock_remove_pending() then the two trailing
+> sock_put(sk) calls -- the first reached refcount 0 and __sk_freed
+> the socket, and the second wrote into the freed object:
+>
+>   BUG: KASAN: slab-use-after-free in refcount_warn_saturate
+>   Write of size 4 at addr ffff88800b1cac80 by task kworker
+>   Workqueue: events vsock_pending_work
+>
+> Treat peer RST like any other unexpected packet type (err =3D -EINVAL).
+> All destroy: arms now return err < 0, so vmci_transport_recv_listen()
+> removes pending from pending_links synchronously and
+> vsock_pending_work() takes the is_pending=3Dfalse / !rejected branch,
+> dropping only its own work reference.  This also closes the
+> multi-packet race Sashiko reported on v2: pending is removed from
+> the list before any subsequent packet can find it.
+>
+> The pre-existing sk_acceptq_removed() gap on the err < 0 path of
+> vmci_transport_recv_listen() that Sashiko also noted is not
+> introduced or changed by this patch.
+>
+> Tested on lts-6.12.79 with KASAN: 52/100 unpatched -> 0/100 patched.
+>
+> Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+> Cc: stable@vger.kernel.org
+> Signed-off-by: Minh Nguyen <minhnguyen.080505@gmail.com>
+> Assisted-by: Claude:claude-opus-4-7
+> ---
+> v4:
+>   - Resend as an independent thread per netdev workflow (v3 was
+>     incorrectly posted in-reply-to the v2 thread).
+>   - Drop the inline comment expansion; keep the original
+>     /* Close and cleanup the connection. */.  No functional change.
+>
+> v3:
+>   - Different approach to Sashiko/Paolo's "trading UAF for leak"
+>     concern: normalize RST to err =3D -EINVAL so all destroy: arms
+>     take the same err < 0 cleanup path -- no special case, no
+>     multi-packet race.
+>   - Sashiko's secondary observation ("while not introduced by this
+>     patch, does this error path leak sk_ack_backlog slots on failed
+>     handshakes?") is correct: the sk_acceptq_removed() gap on the
+>     err < 0 branch of vmci_transport_recv_listen() is pre-existing
+>     and is not introduced or changed by this patch.  A separate fix
+>     for that gap is needed and would be welcome.
+>
+> v2: https://lore.kernel.org/netdev/20260512025851.189140-1-minhnguyen.080=
+505@gmail.com/
+>
+> v1 was sent to security@kernel.org on 2026-05-10 (not on lore).
+>
+>  net/vmw_vsock/vmci_transport.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 
-> What you're saying is correct, but it may require a rather big
-> refactoring of the code. In general, everything works okay today, so not
-> really an urgent problem.
+Acked-by: Bryan Tan <bryan-bt.tan@broadcom.com>
 
-It's just a potential issue and when the AI bots keep evolving like they already do they will sooner or later start to point that out as well.
+>
+> diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transpor=
+t.c
+> index 4296ca1..d257938 100644
+> --- a/net/vmw_vsock/vmci_transport.c
+> +++ b/net/vmw_vsock/vmci_transport.c
+> @@ -1164,7 +1164,7 @@ vmci_transport_recv_connecting_server(struct sock *=
+listener,
+>                 /* Close and cleanup the connection. */
+>                 vmci_transport_send_reset(pending, pkt);
+>                 skerr =3D EPROTO;
+> -               err =3D pkt->type =3D=3D VMCI_TRANSPORT_PACKET_TYPE_RST ?=
+ 0 : -EINVAL;
+> +               err =3D -EINVAL;
+>                 goto destroy;
+>         }
+>
+>
+> base-commit: be48e5fe51a5864566307998286a699d6b986934
+> --
+> 2.54.0
+>
 
-Regards,
-Christian.
+--0000000000000060c8065240190e
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
+
+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
+kKXUf8BmgVwrm4J21BIjpK/E9/meSALtIG7FIMpiIKpgHf1MRTzmYywQIWohaXxPRAEIYZK2DSMY
+n+fDChhou4ePAtzo6/x8PTSWPrJbH05U1DQt9FRG7+xcvkNqnjJq+XZK0kiDDFD8BzIKO/cq3ziS
+50EhbzFKXPpa46ztpJqQ+UJTJod2dB7SexAYJlBkjKlGc+niNQIDAQABo4IB2jCCAdYwDgYDVR0P
+AQH/BAQDAgWgMIGTBggrBgEFBQcBAQSBhjCBgzBGBggrBgEFBQcwAoY6aHR0cDovL3NlY3VyZS5n
+bG9iYWxzaWduLmNvbS9jYWNlcnQvZ3NnY2NyNnNtaW1lY2EyMDIzLmNydDA5BggrBgEFBQcwAYYt
+aHR0cDovL29jc3AuZ2xvYmFsc2lnbi5jb20vZ3NnY2NyNnNtaW1lY2EyMDIzMGUGA1UdIAReMFww
+CQYHZ4EMAQUDATALBgkrBgEEAaAyASgwQgYKKwYBBAGgMgoDAjA0MDIGCCsGAQUFBwIBFiZodHRw
+czovL3d3dy5nbG9iYWxzaWduLmNvbS9yZXBvc2l0b3J5LzAJBgNVHRMEAjAAMEEGA1UdHwQ6MDgw
+NqA0oDKGMGh0dHA6Ly9jcmwuZ2xvYmFsc2lnbi5jb20vZ3NnY2NyNnNtaW1lY2EyMDIzLmNybDAk
+BgNVHREEHTAbgRlicnlhbi1idC50YW5AYnJvYWRjb20uY29tMBMGA1UdJQQMMAoGCCsGAQUFBwME
+MB8GA1UdIwQYMBaAFAApNp5ceroPry1QLdugI4UYsKCSMB0GA1UdDgQWBBQWxgja/oUqPdrOSir6
+U+YDJVND/DANBgkqhkiG9w0BAQsFAAOCAgEAIL+CGrIYdRkQ80Psq9FtFG65/EZQH8dFSXv3AJTk
+220m3Q98q4NHh+AkBRw/pvzVQMJlRKEBKgM1qYw5FYYoC3IRpeqQ9NqnJHsEAHX2p7Hfkt3l8zd7
+rT9DuQ4Tws1Fjxo4L7OcRz8NDD9f0Y+LHADvcMUHoex2PldpXkGuWd4K1eMjga8xPOrKKYYdvWYw
+cX/rc+AYfo3B0OnjSWXjdsufMPVDDK23uGYfti1djyVhYG7hOCKjW3fg9QdDcVjVa4q7spoCPGnQ
+HGghAH5+ZauOJU1r26oGjwR/73xvsig9pX887/zvEM5WdbTXK82mciLRR4iQB0UlV+8UxxpJzfGd
+j/6onem1o3e1fTH0owcQEn59i7Ygo5cWJm0qnT7zPTS6pgkXJ4xmskj6Dcqi/hRkMlxovq3K05uN
++lgAFg6F7ugpiGTUcxngHsGMRlj8cXIhg8KZO0gBU5KthBSvioQgN2JpAyE5gUV7stnVCu8l+SAr
+Oo+OqcCeAc14zE+TlRnoQVn/xF+q0zAyONDNmQO4uyl0EyLpTIYLK7wFxC6IDrz2FsEzlioH2cBJ
+lUyNMZuhR7c1KUj3dr4qBG1506iDiJ5qqn2rBKJAvk0ph2Irlh+82seX1iL/wX+M+Wwkzoo34GGq
+6CGv4ffBr8W+eQ2/QT4X10tgfAgSZ+Sag3gxggJXMIICUwIBATBiMFIxCzAJBgNVBAYTAkJFMRkw
+FwYDVQQKExBHbG9iYWxTaWduIG52LXNhMSgwJgYDVQQDEx9HbG9iYWxTaWduIEdDQyBSNiBTTUlN
+RSBDQSAyMDIzAgx+bIvtS2ArBR9RakkwDQYJYIZIAWUDBAIBBQCggccwLwYJKoZIhvcNAQkEMSIE
+ILDAnCmVZLW4gqfDqkJQ2XAvcDzjyPBluBCb9Ki10VFqMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0B
+BwEwHAYJKoZIhvcNAQkFMQ8XDTI2MDUyMDEzNTE1MVowXAYJKoZIhvcNAQkPMU8wTTALBglghkgB
+ZQMEASowCwYJYIZIAWUDBAEWMAsGCWCGSAFlAwQBAjAKBggqhkiG9w0DBzALBgkqhkiG9w0BAQcw
+CwYJYIZIAWUDBAIBMA0GCSqGSIb3DQEBAQUABIIBAFZSTMZKHDSzW1r6kAPFhYWWqk74YqAvRey6
+Us6ujwaIn8FPahu2l8IUFZk5BCGerpOiDmdScWmPltpLgj2PBCE3rijWImqfoss2WnN6trH9bIwW
+XZrr3mrOl9AmQRGpzPKAGQmqgGl1k3zdDie3NOAxyF1hdbOocNQ2j2B52LMQdVDHjy5T4GfsmlUy
+xgogJLD/NNVG4Sb8bL3/0M7+8LvGd2tmyOoix+rXG57xslCYqqFmFsqf9a/LAUo4lwQD644sRm6C
+WYZmuPKNAyBREQsU4WLhu8pSOAT5IroCtIFnGqUqy+lEBX0KtQaspPpH5irmO5AGBdqOxiB9bGSl
+MF8=
+--0000000000000060c8065240190e--
