@@ -1,69 +1,69 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 738DB3C3420
-	for <virtualization@lists.linux.dev>; Wed, 20 May 2026 22:22:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B55273C1986
+	for <virtualization@lists.linux.dev>; Wed, 20 May 2026 22:22:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779315756; cv=none; b=E20z28HB11z/13qkii4rK4G1tgSjv3w2RjG6d5OcrnMxVbZdujwAxEHE2tYs4W33lzaKhI7Quxaugok/mUjQNhhIhhHMHBlZiKWZpfyzgVgRkQ9r3K0XLkCZBjQbMP5OKxgA8JAJ9IxKgXNTpb68v9+6BDPJ4N+Q0C8fM8HC8ZY=
+	t=1779315762; cv=none; b=DX+HnlsVZdWoPENS7zVTtIp0hmyEvdfVajbXd9GZhWQXViavInaNlOIsQwUq8XBM38x7nSd0nLBIWBRKBeh9wbqmkKxDHSiYwJVFWesOO0xiBrfl+Q4KCj9p+4B+b+E4WQ3V9o/cbvTEzKzZf9zjIV7fHMDYqZye1SYyNTYnUZc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779315756; c=relaxed/simple;
-	bh=v8XIPZddn0cM1ZAYTFFDjJe4mcF8BIRTQpXVMkTIuNs=;
+	s=arc-20240116; t=1779315762; c=relaxed/simple;
+	bh=h05Q2nCn+o78fr2Uz8tfGJ7k+kZvskvt29CW+J/CzdE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=hU9ryBP5gO2L/Pk82kkfZNLKZToG+MIU46V0/8vJOV55FqJlib1uKDjiFJBYk/InDy4dW+6z1xCYt2JU9jIeu0YDxRoAHUKN2A2oOI4qvOXg5BOvW/dQMuYpG02Z2wmhlX8oksYuGYmSJvnjLAshwa3zwi35wOpUBZbDKAQ/ry4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Tv1qTEPa; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=Iw5JoydIljCFbtag+ls1DkgiiYSGuJ0iezK4LdulT/3uonLSPgLUM69PhN0V+lSLtUZQhpamBUXIoOmke6lE+hR8D6eShcEjcXxB3NtQm4zKmE0nb0GKS1g0CM0cBxmMJapy1XB+kP9yN4os99LKrFRYIwnEk1KtxMzxHEQN9T4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SnQIQfPe; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Tv1qTEPa"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SnQIQfPe"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1779315754;
+	s=mimecast20190719; t=1779315759;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Fkdba+Ei5cbofNgiigEWYwJVG7QGPYteKxTN237/DT4=;
-	b=Tv1qTEPa7hIQ2mAfBgYWcJbCz1ysnfMOTCh9cyFrBkgM0sbv6f7rgTYF68ENNeUzo6uEef
-	Ma01FiRGcOxXAKWX1elg+uRXn3MgI6qWxAon7bitQROc5IJq6/MrZ0ALcLJMqKyJp126ya
-	syWxEEEiOGBsYJxomAosDkZW+27JwlM=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=ZUJUQcTEBW8Gz9Bvs58sr0Q3FF0IZpsM1OCMvoStcIE=;
+	b=SnQIQfPekwx3WUJI6XlVlApvTGuyUMTttq/3IgawxE57zhnwDz0C3YnytfaBwGwNkadWMA
+	mWIvN8yC7IgHVuhsWj0rjaI3od+GL22tU1chEd1CA7f0yWxZk5I0gPE7av0gFx06vwmkY6
+	EPhTJrndAgubRTWSNpSfWTPao5cG7aM=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-237-MUsSWOhfMq2FIaFynL0YWQ-1; Wed, 20 May 2026 18:22:33 -0400
-X-MC-Unique: MUsSWOhfMq2FIaFynL0YWQ-1
-X-Mimecast-MFC-AGG-ID: MUsSWOhfMq2FIaFynL0YWQ_1779315752
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-43d789cebcfso4212064f8f.1
-        for <virtualization@lists.linux.dev>; Wed, 20 May 2026 15:22:33 -0700 (PDT)
+ us-mta-637-39iFsJXrNhiumIFNlhcMKg-1; Wed, 20 May 2026 18:22:38 -0400
+X-MC-Unique: 39iFsJXrNhiumIFNlhcMKg-1
+X-Mimecast-MFC-AGG-ID: 39iFsJXrNhiumIFNlhcMKg_1779315757
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-447f2ce5556so4363726f8f.2
+        for <virtualization@lists.linux.dev>; Wed, 20 May 2026 15:22:38 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779315752; x=1779920552;
+        d=1e100.net; s=20251104; t=1779315757; x=1779920557;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Fkdba+Ei5cbofNgiigEWYwJVG7QGPYteKxTN237/DT4=;
-        b=nzcVj+021wpYLtu/lLKO2ex5fPdxWtyyXS2d+T+1TU4/ytHnmcXfFoCweE2VqrjwUN
-         Kcg+DirNMZG2esr2mV96tnFiLZVSAT9CPFU2v8T3dJPXkfhhvBMLWAPsNwVbZVsTjDlJ
-         2sqJCcySD94ygSXZDcPVzZsyuFIlxH45xA+TSHhACOkWMIaYZUaofmoeQSTU0ltkf2cS
-         wLluhMCtkQsLg+FNCsQrigKGTlwnJrcn5r3StAvkPGV88xKtJBxdaWXnklPnH7CN/eKP
-         kGG0S70B/kYS55cLt5SNQE4yi/NtyELUs78axlBeTR/Ku9X8fRCCUk8FjH1HLGNuN09j
-         XE6w==
-X-Forwarded-Encrypted: i=1; AFNElJ+2hepyAxtCyvVRpGHxTMgD/co2jJcsMkhd4UFM5QTaVX+rCaGhFLuDr/lXwZd4WXRXNLr1/kfyJF8OmFYdQw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx/oDRx0OpZavXLUEwsXlbz7egmnJYK2BjpFkhO+70+NaoxORxY
-	eYx60/zfRKh40WJlgOMIi0lSNyhz+27HqfrzhGL3PHj0PR1syl5YdptXjoTqYvhB9LnTi06Gg0y
-	3r0B7Rf2QEMVLSNWCXzySGuiarMiUW1FWQJtyGNqk89i5kMSDjf5tDq+8gAQ2WMNhNAXe
-X-Gm-Gg: Acq92OE29lR87U//Z8kjBqp/a4KdjKr3+ZhMwPPQ9XtZUuKgW3TBz+KXPv00MAc1aOW
-	tIeWQ0I9hd45aGWAyIrj3YgQHLGszL5IYALpPkXHswJfpcrQz9b1BpXT2h/ghJFXDswO7jYzQK4
-	5FCNyxphjov4tLmoLvhUkNX1O5CCV1bQYizf6+Cd26z2DuUV52NYV5XUaQkKqOloChh1Sccn1Vu
-	Jv2j9KfhcxfOQolh3pEWofQvNE/Ox+gV/PFY1ESrYw5y/CJbUtC9pRdkBuTma+e3eQgEgnQ5DIv
-	/PEOib5mkO152dQS7Ceo6evlr7v/iZg228wHVYa6DMaLRf50d2WLBNbG/okaauSjCxYy4A/6k9Q
-	x0JxXS7Y79VtmVwNdxJeqhzny63Zj+ddTzTi4inw345w=
-X-Received: by 2002:a05:600c:6b12:b0:488:7d5b:125d with SMTP id 5b1f17b1804b1-49035f2e4f2mr2683495e9.7.1779315751921;
-        Wed, 20 May 2026 15:22:31 -0700 (PDT)
-X-Received: by 2002:a05:600c:6b12:b0:488:7d5b:125d with SMTP id 5b1f17b1804b1-49035f2e4f2mr2683135e9.7.1779315751494;
-        Wed, 20 May 2026 15:22:31 -0700 (PDT)
+        bh=ZUJUQcTEBW8Gz9Bvs58sr0Q3FF0IZpsM1OCMvoStcIE=;
+        b=Mi27AbiaMOSyKrIuDcyicm3+X47rb8PSvyvWszmz14Wz/Thownx9a9Fc8jEqVuh+XQ
+         csAPVoWsAJjJLHFz0yU+TTmtbxtqNUwuhHezmNwlZZVryFmTCGRR+rdkOyD+gyymrOSg
+         Y2LG8Fq51gbGs/6CMsqRAmqmTKxXJVTOOPM0zpxywnnXhm7W9ACRCYlxAD960NzCN2+h
+         mPEaeSpCO9rprrkWgTS6ETC4TkUxNjTvrGB8qz9mGRBYHJ/t3ZnLQAw7jeULVV3Y2kCl
+         ndXYBj4UzVl4lR0mZjBHk2b3NUpmW06BrUEeQ+NwPcUplaufztFIz/cSFInuDKvpMehM
+         0jGw==
+X-Forwarded-Encrypted: i=1; AFNElJ8xwtOQAPaeaJ9i7o11bgYWUSX1fHWK7PHqBDJjhrMoT57YLVPgiWPVlF9ynpWk2PbdvO42wpI9N0By+vfGwQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzdkOgHFNp9uLUdEsSubxBT+pbrNwRDTre8867aQ/ML+pAlGXH6
+	bTNLvV6oENYVN2JCA6v0kcjtIC9Ll3UnT2AwT6HPFXfi5q4vp7Jp2/dynvCgtj00QNSXePXg+VM
+	R0De2y2u2ys8MvdIMhbF/ht/9oQn4ls1R/CSRF2LvYz48FEw8l2gEVfBBGY07z0reWi+r
+X-Gm-Gg: Acq92OHvY56/GWStCj4Fjjiftup3sjVDoODkGyT/MDcbJwZiWoE0+WKQLeKHGOaTFFu
+	QNeGBphPjZqf8NjgAxe7b64gXUjJuAFr4rNS0rThVCYRfV3X6au5rYO8Ealenfbd9LHyLbxkS1Q
+	yI9CuYmBXQ1XEGV/FU2uwjyfrmn+pbwp3UULhQ1ZdJQgwr3NBB7RkFYeXa5DEBBKreRhCY0wibm
+	aZ63F/xs6qRB9fz0OyEcHUnBKqdu0irEqFANd1UjOayKg0zfZaDzqOwqCwM7J7ekOMNVshaYwKS
+	EGUhGXMwThT5ik5XyT+Ud3ZvHrIubdygpbvYNEA61JILBgjAf5+coSrK9zAoyEnVcaC8Fc22Ai7
+	rKLTx+rGoA4zT/0oNEn3jmzCtgo72VnRNC7vh0fBmR1g=
+X-Received: by 2002:a05:6000:2883:b0:43d:67d1:2022 with SMTP id ffacd0b85a97d-45ea38be3aemr335081f8f.19.1779315756990;
+        Wed, 20 May 2026 15:22:36 -0700 (PDT)
+X-Received: by 2002:a05:6000:2883:b0:43d:67d1:2022 with SMTP id ffacd0b85a97d-45ea38be3aemr335047f8f.19.1779315756519;
+        Wed, 20 May 2026 15:22:36 -0700 (PDT)
 Received: from redhat.com (IGLD-80-230-25-45.inter.net.il. [80.230.25.45])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45d9ed2ffdfsm53025915f8f.15.2026.05.20.15.22.27
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45da15a6454sm58643722f8f.34.2026.05.20.15.22.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 20 May 2026 15:22:31 -0700 (PDT)
-Date: Wed, 20 May 2026 18:22:26 -0400
+        Wed, 20 May 2026 15:22:36 -0700 (PDT)
+Date: Wed, 20 May 2026 18:22:31 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
@@ -102,9 +102,9 @@ Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
 	Andrea Arcangeli <aarcange@redhat.com>
-Subject: [PATCH v8 23/37] mm: page_alloc: use aliasing checks instead of
- user_alloc_needs_zeroing
-Message-ID: <51265bb3f8374b093b91b07628d418375faacb9f.1779315441.git.mst@redhat.com>
+Subject: [PATCH v8 24/37] mm: page_reporting: add per-page zeroed bitmap for
+ host feedback
+Message-ID: <56b8f941ffcdef444d8c2aee62846bb8ad53ed14.1779315441.git.mst@redhat.com>
 References: <cover.1779315441.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -116,46 +116,89 @@ In-Reply-To: <cover.1779315441.git.mst@redhat.com>
 X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
 X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: sosr5HYK7Qo5yOh7yJ1SUz_egTljIGm8bQTlfvHEisc_1779315752
+X-Mimecast-MFC-PROC-ID: L9l-GhfzyZXmgjY4FwAAtdhcrYt26yZ2Etw3WJlnO6M_1779315757
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Replace user_alloc_needs_zeroing() with the direct aliasing checks
-(cpu_dcache_is_aliasing() || cpu_icache_is_aliasing()) in the
-post_alloc_hook aliasing guard.
+The host may skip zeroing some reported pages (e.g., due to alignment
+constraints or bounce buffer fallback in QEMU).  Currently, when
+host_zeroes_pages is set, all reported pages are unconditionally
+marked PG_zeroed - even ones the host did not actually zero.
 
-user_alloc_needs_zeroing() includes a !init_on_alloc term that
-means "allocator didn't zero this page."  But in this guard's
-context (!zeroed && !init && __GFP_ZERO), we already know the page
-is zero; init incorporates init_on_alloc via want_init_on_alloc().
-The only question left is whether the cache architecture needs
-the data re-zeroed through a congruent mapping, which is purely
-cpu_dcache_is_aliasing() || cpu_icache_is_aliasing().
+Add a zeroed_bitmap to page_reporting_dev_info that the report()
+callback can use to indicate which pages were actually zeroed.
+The driver's report() callback is responsible for managing the
+bitmap: zeroing it before sending pages to the host, then setting
+bits for pages the host actually zeroed.
 
-On non-aliasing architectures with init_on_free=true and
-init_on_alloc=false, this avoids a redundant re-zero of an
-already-zero page.
+page_reporting_drain() checks the bitmap per-page in addition to the
+global host_zeroes_pages flag.
+
+No driver sets host_zeroes_pages yet, so the static key is
+off and the bitmap is never read.  Behavior is unchanged.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Assisted-by: Claude:claude-opus-4-6
+Assisted-by: cursor-agent:GPT-5.4-xhigh
 ---
- mm/page_alloc.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ include/linux/page_reporting.h | 7 +++++++
+ mm/page_reporting.c            | 8 ++++++--
+ 2 files changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 5158f7e23d18..4cb7e779a6c5 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -1883,7 +1883,7 @@ inline void post_alloc_hook(struct page *page, unsigned int order,
- 	 */
- 	if (!zeroed && !init && (gfp_flags & __GFP_ZERO) &&
- 	    user_addr != USER_ADDR_NONE &&
--	    user_alloc_needs_zeroing())
-+	    (cpu_dcache_is_aliasing() || cpu_icache_is_aliasing()))
- 		init = true;
+diff --git a/include/linux/page_reporting.h b/include/linux/page_reporting.h
+index c331c6b36687..e2e6a487ddab 100644
+--- a/include/linux/page_reporting.h
++++ b/include/linux/page_reporting.h
+@@ -17,6 +17,13 @@ struct page_reporting_dev_info {
+ 	/* If true, host zeros reported pages on reclaim */
+ 	bool host_zeroes_pages;
+ 
++	/*
++	 * Per-page zeroed status, indexed by scatterlist position.
++	 * The driver's report() callback must clear the bitmap,
++	 * then set bits for pages that were actually zeroed.
++	 */
++	DECLARE_BITMAP(zeroed_bitmap, PAGE_REPORTING_CAPACITY);
++
+ 	/* work struct for processing reports */
+ 	struct delayed_work work;
+ 
+diff --git a/mm/page_reporting.c b/mm/page_reporting.c
+index e42f857485ce..691a9e66aa5b 100644
+--- a/mm/page_reporting.c
++++ b/mm/page_reporting.c
+@@ -108,6 +108,7 @@ page_reporting_drain(struct page_reporting_dev_info *prdev,
+ 		     struct scatterlist *sgl, unsigned int nents, bool reported)
+ {
+ 	struct scatterlist *sg = sgl;
++	unsigned int i = 0;
+ 
  	/*
- 	 * If memory is still not initialized, initialize it now.
+ 	 * Drain the now reported pages back into their respective
+@@ -122,7 +123,7 @@ page_reporting_drain(struct page_reporting_dev_info *prdev,
+ 
+ 		/* If the pages were not reported due to error skip flagging */
+ 		if (!reported)
+-			continue;
++			goto next;
+ 
+ 		/*
+ 		 * If page was not commingled with another page we can
+@@ -133,9 +134,12 @@ page_reporting_drain(struct page_reporting_dev_info *prdev,
+ 		 */
+ 		if (PageBuddy(page) && buddy_order(page) == order) {
+ 			__SetPageReported(page);
+-			if (page_reporting_host_zeroes_pages())
++			if (page_reporting_host_zeroes_pages() &&
++			    test_bit(i, prdev->zeroed_bitmap))
+ 				__SetPageZeroed(page);
+ 		}
++next:
++		i++;
+ 	} while ((sg = sg_next(sg)));
+ 
+ 	/* reinitialize scatterlist now that it is empty */
 -- 
 MST
 
