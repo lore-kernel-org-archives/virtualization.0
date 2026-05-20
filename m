@@ -1,38 +1,38 @@
 Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9BF593328FC;
-	Wed, 20 May 2026 19:16:23 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C58C6352026;
+	Wed, 20 May 2026 19:52:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779304584; cv=none; b=t8DHwuQWgGZ60JCTY1YX4lfSyk5GqvwLV74lfUVgD7+VVTwLqIMx+f1mSERMi4X0LJ1rmO7ciCBMfB8RqGoU26z66Ss5qWuitdhOBl3sUOjMhiG7BJp1SbNM+cuxqJKXl4s3QyVk2a6alMM1aPeawkvcrVlTn/kcxeXMVzy0v3g=
+	t=1779306772; cv=none; b=eTidalINumHJdfXAztfvLWFB/np1mxZReC+5ANCGdUdZ5Dg7pk8324ZFLmCsizgMYWygA5fTGxs4PODGnvt29J+CNjzhgmKekf5CnYI62MuHzYH+HKxMqzy18iYYhif7XsF0A/8rHdaeInI5oC2cUVHtr7bcho8a5QUyDVQT3b4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779304584; c=relaxed/simple;
-	bh=9DXK3vuF2YCkTc2OlQDicr0ftdse5wXqLiL3ouHr4ms=;
+	s=arc-20240116; t=1779306772; c=relaxed/simple;
+	bh=NfDpWCHNwCELYmlOslr/nQ3b8qR5PBi6+oTunXmBd4o=;
 	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=Tad5UHWU+HR9dlO5R3QKP3kK8+U3mnxzlmIGH5HBykf/xOfEmbo3MUOh9epF38VcRd8MoQrGyC6ER5873E3tWQ8lDDcxiOMvghqj/QFRUwpw7OajfFmdki81dWpA+sTXufeEC3C/1jHLbFdKGAzvXelsLEzOkHbC1/VdW5QvSvM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=casper.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=VE5Yl6Zh; arc=none smtp.client-ip=90.155.50.34
+	 Content-Type:MIME-Version; b=QYC5D8JSPl6n/+5+9NHkYI//2+QsyQeY/7rXut3yAl+2hr3fZaInURYW9mVtVn32UJomgGMR0apdrYTLIOK2GQtJ2/OYYFmaOkrraGcrZCG/3inCOu8VF/jYKMAJnGnq+Aoi2gDKkkMSbga2hksjyqBlfOr0FDs9qdz8V7e1/9o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=casper.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=DkoJ/w1P; arc=none smtp.client-ip=90.155.50.34
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
 Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=casper.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="VE5Yl6Zh"
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="DkoJ/w1P"
 DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
 	d=infradead.org; s=casper.20170209; h=MIME-Version:Content-Type:References:
 	In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:
 	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=9DXK3vuF2YCkTc2OlQDicr0ftdse5wXqLiL3ouHr4ms=; b=VE5Yl6ZhrWBXN0rkkMgd1i5Lrb
-	/e2rPlMT7Mb3GqHa+oX3i6w94pFC89AjuOqCgc1nooRFQyYx6dBbwsQtYGtniSDaMP3aVKVQM9xPv
-	6TQzcW3f5akieX8W/8kbw8fN7AHERtGlv1aGw9OwkeDiCUTUPWriwTrNGKzDcSJfOeiAk0ZkRNeu/
-	6T3LJesThKwF+slByTbXW8z3S+f8lP/fWXPQ+Uh4eYGqiqcTRb4jshPwMnuLbdWYtBdjCgCKaA1oi
-	D3DrQ0uSzxTAHw6kTVBGBkAiQ8fM6ekQOv8skb/cQyr/zoo7dqYLKHBUChPS6tXFlRaXnEb5w+I78
-	jLR5Hp0w==;
-Received: from 54-240-197-227.amazon.com ([54.240.197.227] helo=freeip.amazon.com)
+	bh=NfDpWCHNwCELYmlOslr/nQ3b8qR5PBi6+oTunXmBd4o=; b=DkoJ/w1PPPOjo84eaBmK3YrnUk
+	9H1j54dtNQaWS9aYKjJOV4LaeDeHzYJ8wV/KR7UGTuxRrRQylp1GWU6k1H+s5w+eWsWwmmqxdybuH
+	gbtoAQOU+y7SeDsiyFcCl2IfVipHbaSO3RiSLrS2oaDiAd+Abl2Smbu93cLi9/vTIw/JMe5RK897z
+	ZBi1VceUgVrtC6pGP+YpmzNDSNqVjVkou6NYUlB7ZUQYrezAJVmCXwGu/ph/hOuIrt1W+H572McTe
+	9nbmgL7H4CD3jaFTXtPFuXwG8PtQOd7d5siZIRaz2wm2lCJhwyriFq7UeEck7P0P1/rHzSB1WP72H
+	DdxKO+PA==;
+Received: from 54-240-197-235.amazon.com ([54.240.197.235] helo=freeip.amazon.com)
 	by casper.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1wPmOr-00000007VRU-2Tk4;
-	Wed, 20 May 2026 19:16:13 +0000
-Message-ID: <5136c8a3d03d33f0d249ebcf72b956d15ab80757.camel@infradead.org>
-Subject: Re: [PATCH v3 04/41] x86/sev: Move check for SNP Secure TSC support
- to tsc_early_init()
+	id 1wPmy6-00000007X3w-0iI8;
+	Wed, 20 May 2026 19:52:38 +0000
+Message-ID: <cbb47751c74ea07298b87145c65b12850d731ff7.camel@infradead.org>
+Subject: Re: [PATCH v3 05/41] x86/tdx: Override PV calibration routines with
+ CPUID-based calibration
 From: David Woodhouse <dwmw2@infradead.org>
 To: Sean Christopherson <seanjc@google.com>, Kiryl Shutsemau
  <kas@kernel.org>,  Paolo Bonzini <pbonzini@redhat.com>, "K. Y. Srinivasan"
@@ -54,12 +54,12 @@ Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>, Vitaly Kuznetsov
  linux-kernel@vger.kernel.org,  xen-devel@lists.xenproject.org, Michael
  Kelley <mhklinux@outlook.com>, Tom Lendacky <thomas.lendacky@amd.com>,
  Nikunj A Dadhania <nikunj@amd.com>, Thomas Gleixner <tglx@linutronix.de>
-Date: Wed, 20 May 2026 20:16:11 +0100
-In-Reply-To: <20260515191942.1892718-5-seanjc@google.com>
+Date: Wed, 20 May 2026 20:52:36 +0100
+In-Reply-To: <20260515191942.1892718-6-seanjc@google.com>
 References: <20260515191942.1892718-1-seanjc@google.com>
-	 <20260515191942.1892718-5-seanjc@google.com>
+	 <20260515191942.1892718-6-seanjc@google.com>
 Content-Type: multipart/signed; micalg="sha-256"; protocol="application/pkcs7-signature";
-	boundary="=-SwdCHlOnxZcQ2QC94Edp"
+	boundary="=-5uq1B3Al8/yI7wiKnpz0"
 User-Agent: Evolution 3.52.3-0ubuntu1.1 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -70,25 +70,60 @@ MIME-Version: 1.0
 X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 
 
---=-SwdCHlOnxZcQ2QC94Edp
+--=-5uq1B3Al8/yI7wiKnpz0
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
 On Fri, 2026-05-15 at 12:19 -0700, Sean Christopherson wrote:
-> Move the check on having a Secure TSC to the common tsc_early_init() so
-> that it's obvious that having a Secure TSC is conditional, and to prepare
-> for adding TDX to the mix (blindly initializing *both* SNP and TDX TSC
-> logic looks especially weird).
+> When running as a TDX guest, explicitly override the TSC frequency
+> calibration routine with CPUID-based calibration instead of potentially
+> relying on a hypervisor-controlled PV routine.=C2=A0 For TDX guests, CPUI=
+D.0x15
+> is always emulated by the TDX-Module, i.e. the information from CPUID is
+> more trustworthy than the information provided by the hypervisor.
 >=20
-> No functional change intended.
+> To maintain backwards compatibility with TDX guest kernels that use nativ=
+e
+> calibration, and because it's the least awful option, retain
+> native_calibrate_tsc()'s stuffing of the local APIC bus period using the
+> core crystal frequency.=C2=A0 While it's entirely possible for the hyperv=
+isor
+> to emulate the APIC timer at a different frequency than the core crystal
+> frequency, the commonly accepted interpretation of Intel's SDM is that AP=
+IC
+> timer runs at the core crystal frequency when that latter is enumerated v=
+ia
+> CPUID:
 >=20
-> Cc: Tom Lendacky <thomas.lendacky@amd.com>
-> Reviewed-by: Nikunj A Dadhania <nikunj@amd.com>
+> =C2=A0 The APIC timer frequency will be the processor=E2=80=99s bus clock=
+ or core
+> =C2=A0 crystal clock frequency (when TSC/core crystal clock ratio is enum=
+erated
+> =C2=A0 in CPUID leaf 0x15).
+>=20
+> If the hypervisor is malicious and deliberately runs the APIC timer at th=
+e
+> wrong frequency, nothing would stop the hypervisor from modifying the
+> frequency at any time, i.e. attempting to manually calibrate the frequenc=
+y
+> out of paranoia would be futile.
+>=20
+> Deliberately leave the CPU frequency calibration routine as is, since the
+> TDX-Module doesn't provide any guarantees with respect to CPUID.0x16.
+>=20
+> Opportunistically add a comment explaining that CoCo TSC initialization
+> needs to come after hypervisor specific initialization.
+>=20
+> Cc: Kirill A. Shutemov <kirill.shutemov@linux.intel.com>
 > Signed-off-by: Sean Christopherson <seanjc@google.com>
+
+I don't much like stuffing the lapic_timer_period... but I'll give you
+'least awful option'. For now.
 
 Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
 
---=-SwdCHlOnxZcQ2QC94Edp
+
+--=-5uq1B3Al8/yI7wiKnpz0
 Content-Type: application/pkcs7-signature; name="smime.p7s"
 Content-Disposition: attachment; filename="smime.p7s"
 Content-Transfer-Encoding: base64
@@ -167,21 +202,21 @@ QzKEy4PylxurHmRG/K0k+xYFDO/UOx2/YsM8s138lQqEdKCvudtSvj5oA/Y8dNcZwQGHyVN5h5r2
 nh3mT3r2l7Q4dgxXlovERGpNqCZJ624jCiWQC4ELMD2+6WDxjj03PbOulQZ8oY4PQUyp6djF0keA
 MYIDuzCCA7cCAQEwVTBBMQswCQYDVQQGEwJBVTEQMA4GA1UEChMHVmVyb2tleTEgMB4GA1UEAxMX
 VmVyb2tleSBTZWN1cmUgRW1haWwgRzICEAfkkQ9qA1FdgOJE92VzW+AwDQYJYIZIAWUDBAIBBQCg
-ggE3MBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTI2MDUyMDE5MTYx
-MVowLwYJKoZIhvcNAQkEMSIEIHiKGacM4TY5tAUAqrO3AjQIwXDmEtGGTmDAuObCgEqWMGQGCSsG
+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
-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
+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
 
 
---=-SwdCHlOnxZcQ2QC94Edp--
+--=-5uq1B3Al8/yI7wiKnpz0--
