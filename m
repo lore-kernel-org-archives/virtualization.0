@@ -1,52 +1,53 @@
-Received: from BL2PR02CU003.outbound.protection.outlook.com (mail-eastusazon11011062.outbound.protection.outlook.com [52.101.52.62])
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C20C375F80
-	for <virtualization@lists.linux.dev>; Wed, 20 May 2026 07:05:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.52.62
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 69B3C31328C
+	for <virtualization@lists.linux.dev>; Wed, 20 May 2026 08:13:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779260759; cv=fail; b=cBw/w5GxYUXPuyQ1H9WtJctS+fGNT7nHpHwIwc3QdII+L8kvYoCuMZyUMOi1oeRDH7Onlsvq9Lbdi6U+oqMx4YXyzD23ygjhIJHFVXimsVWT5MSJhJHgwtpu+c43ZV95VWnmvO2ay0PMPmo3PeC16EGbKhBkcBAFbfDc5yaFu30=
+	t=1779264814; cv=pass; b=lToUEnPhazpL4Mzm4axEo3EpVyoVm/PCkH8apQ3ivTpkZp9990UbcHX5HXdlBtrKrwRNeLT44JI2hsPMPza+UpVf1qccDDRYvXdUXyZ7u6JJuwMfy2H+7r4cQBAqHtZ7TzqTSxEZt2grkqOnx1NaJ3ZFs984rv0H5bZ/9XT/mwI=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779260759; c=relaxed/simple;
-	bh=wQtexVcnPpH40yDR8V9jQZU9wqVbUYlsR2FXw3yxkTI=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=o6V6k8vPLF1AROSTGsWjR5zU7rtY1ZB7XW6R8qI1dvqaLjRo82VRgAn8k60LvRTb1PRFv5BbXvIPbXNwiHk9Bn/sfhswjGNLVH+RQLaOF6xGQ5uH4vYw0almUCiSk0R+UsDp9rjCVJG5t4kHcfD+feEzOpagmTpgRtOQBuxL04Q=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=Jrf6VkZc; arc=fail smtp.client-ip=52.101.52.62
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	s=arc-20240116; t=1779264814; c=relaxed/simple;
+	bh=UuHZN8bLdDb35hsZfOIbiCsj2GNcJv+JahtKBFao7JM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=oBlv7jmiVkawC0o9X1cf2epSMbF5wDnlcYPlPVOAFOwcfLsCO8z6lN/34Z/AJHC59haUF0navruBUqnzncMrpNSCphr1YwjcnUQ7OAut13BXxEF6L0zgASzSFFr1QwKaxTv2NQIyh/gQ3H4DP5PPezjv1GcectxwnkUE+/dlfrg=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=Uh3wbPHC; arc=pass smtp.client-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="Jrf6VkZc"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=k7ZQzDGKqCbqtAT3ALpKj0kch3jHKyVghb6v2PEnMZEMG4cYqEJjOQDR1edEr3NmPk9ie9XayzLW4zeEfqj/+BC7Tc3XgwyltKseqeCuXivhpLfydUoKXD4f1wQm/h+jsd5LSiz81x/RcILGsBDFxtK1RYb3jEsNokPBnFuVMKvdRasKYl0N4daEOzcRfmXaR8TvwOR3qfskRISgfaSPGAb0GHZV1cT0Xevbkcy18QLZe/oQ2MNppxfDgFZo0G+KOkWJ/eha6VGVhsMDFLtU0vzUK4J3Jm4S/2sPVHbXBS2+pPsBDuWIjzNnKoulaiZvisuLp34Ju3FfKAbrhZGEdw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=KF74rf0vudxEU7djBAMlucGnT96Vba+Q8vZdd5leGdg=;
- b=kNbTIC3lKQo/kiN+GYuuLWsRGoLe08/4etz2EyIGXr3CsuetsNmdrIg0uZB9zjY+n2YqFIJG0FlLXXc/Zk4pWRmJ38bqZd0MfRENb0L4xquX9tT9K1gWJSE2CPI91tMqeGZvMaf8hWz5ByQ8FU8/z6D8os4ghnPZozWCTAryk9msL1dfnAz3Qk5hzlQCjYe0XQU0fcvulkxasEh5Kng0V/QO1T6mtSQzJwLu0GFe42B3IQIO4CBpQeqCS0LT+iMg0rS6D5BCLrGEe3WfiBRdAsJFC4mC+gL6+LjRd+H7o5F8n5IIc6wKfKeud05uHa3lWTrHjf9RpeGfF3gWXClqLA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=KF74rf0vudxEU7djBAMlucGnT96Vba+Q8vZdd5leGdg=;
- b=Jrf6VkZczTye+v6a5OoLIxK1UmpDvge+4wiHcqZuDWSzwdL6vt8p4s/nAgBtSgeSLW7ZbxSQjtxaLPC0Knc/Iv+wtOfww3Bs8Q5JdHtgeFdlD9xl6D15H8AuFav9PE8kTld0SgdBqn0A01x8bYxluXSTG/WMDhP2FLCfBPjq0fY=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from PH7PR12MB5685.namprd12.prod.outlook.com (2603:10b6:510:13c::22)
- by MW4PR12MB5603.namprd12.prod.outlook.com (2603:10b6:303:16a::17) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.48.14; Wed, 20 May
- 2026 07:05:13 +0000
-Received: from PH7PR12MB5685.namprd12.prod.outlook.com
- ([fe80::ce69:cfae:774d:a65c]) by PH7PR12MB5685.namprd12.prod.outlook.com
- ([fe80::ce69:cfae:774d:a65c%5]) with mapi id 15.21.0025.022; Wed, 20 May 2026
- 07:05:12 +0000
-Message-ID: <a0f2cfd5-d4df-4e50-a52b-d5befbc2e481@amd.com>
-Date: Wed, 20 May 2026 09:05:03 +0200
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="Uh3wbPHC"
+ARC-Seal: i=1; a=rsa-sha256; t=1779264795; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=fhoFZAGE734g7YrwnK69+Fp+SlBP+e532/rwFxqqOg8FV5tdEIfaFORTiqM7n7YHad3es+GlWxlzsGHFrGKmdpYlnHvbmI07PynfxC0MmNg3KoTVLwV5hv//8Qm7A/9yCp5Bqp5lY06N0LRgOXEXr1Tm2J2d+40YejVZHso/9qc=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1779264795; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=1DaCzDhRImq3pbfy2r8JVXerCF/X/rQL52mfTWicG4k=; 
+	b=K3aH/+VmSSz2zNU3CCHPtj8w3HqysMSbIPKHzatggDefM46va4bIfeUqv9Yi8u7NpUttUonl5naq6Pn/swZE223u1Adj+zj2Zvh30+EWyGv6ZzG7yNetKASukVSTLQVsaovI58YmPid6/GP6ZYkLAv9PWmFKpTYTPnzTcqVhyL4=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1779264795;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=1DaCzDhRImq3pbfy2r8JVXerCF/X/rQL52mfTWicG4k=;
+	b=Uh3wbPHCLetqao1sJ7Ww936T/0G+TEuQ9eZT1Mp+poKOwsOIjUnwdOOdRXAk4InP
+	Uaty3nP1NfXa2mETMeGvPFJJqqvNUqPmcIWGCohU4EwEQ1nDdkykQdd/R7m2KjrSQ51
+	g2CJSVyOSfXMx1O01zyUaaPNsikI0NgfwcNfxCrI=
+Received: by mx.zohomail.com with SMTPS id 1779264793673372.72174741381184;
+	Wed, 20 May 2026 01:13:13 -0700 (PDT)
+Message-ID: <f37bdc63-3575-49e5-aa5b-7b93428b293d@collabora.com>
+Date: Wed, 20 May 2026 11:12:53 +0300
+Precedence: bulk
+X-Mailing-List: virtualization@lists.linux.dev
+List-Id: <virtualization.lists.linux.dev>
+List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
+List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
 Subject: Re: [PATCH v4] drm/virtio: use uninterruptible resv lock for plane
  updates
-To: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+To: =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
  Deepanshu Kartikey <kartikey406@gmail.com>, airlied@redhat.com,
  kraxel@redhat.com, gurchetansingh@chromium.org, olvaffe@gmail.com,
  maarten.lankhorst@linux.intel.com, mripard@kernel.org, tzimmermann@suse.de,
@@ -58,137 +59,77 @@ Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
 References: <20260519082247.34470-1-kartikey406@gmail.com>
  <2e23513c-9d59-4891-acfe-9f1fbcbce778@amd.com>
  <f6bcef23-5510-4aad-bf6a-4e1ecfc8d474@collabora.com>
+ <a0f2cfd5-d4df-4e50-a52b-d5befbc2e481@amd.com>
 Content-Language: en-US
-From: =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>
-In-Reply-To: <f6bcef23-5510-4aad-bf6a-4e1ecfc8d474@collabora.com>
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <a0f2cfd5-d4df-4e50-a52b-d5befbc2e481@amd.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-ClientProxiedBy: FR2P281CA0135.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:9e::19) To PH7PR12MB5685.namprd12.prod.outlook.com
- (2603:10b6:510:13c::22)
-Precedence: bulk
-X-Mailing-List: virtualization@lists.linux.dev
-List-Id: <virtualization.lists.linux.dev>
-List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
-List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: PH7PR12MB5685:EE_|MW4PR12MB5603:EE_
-X-MS-Office365-Filtering-Correlation-Id: bf816e99-9a5c-4c4b-a78b-08deb63e22a8
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|7416014|1800799024|376014|366016|921020|22082099003|18002099003|56012099003|11063799006|3023799007|4143699003;
-X-Microsoft-Antispam-Message-Info:
-	tIcb0Gu1V3bF5FjmDurbYpcg/LJELZjVWGH29JPOR7iOJ33584sODuaXTSrYl2U+2yN+WYHV+pJSzs4vVtI1cNqc6Tgql0t/BtO3NHGVCwGWwsRA2iuKlUqQr+pG5IsnUi7hERv9xzXmnijRGGPNrZZr4jiOE+0HQMjIpiIF203v2MRHdvgpGBgxbYT3ygGQSbR5eHGBvAgYOld3s/CrMzCzryCNhLQ5GglzuT6BGIVSW1keXCWeced4RPqkq2RyINi+16bHBiEFTWtf9/SidgDpIaLljsxS3lCCsbnfQisuRrfBMm5kwCC3TwplII/wVryw3kYWl7tdLMeaz6XItzESsYcaJu1QFdcAlQJeg9k/789DKUq1XmNCi9MEetQd8oxeRMbzCvhkpEOkzrjm8j7/BBy4/oiSjcnlLQ2W8zbb6Phw7NmROEsCEnnMWESt+r3IxtN3YKInc5vnIxUbjkyQQOIOrvEmLHRdqS/COFGPjBDuOhnj26jKAUYuYeIazHj85gTwH6XgfdlorzaoIIdrJpBP/B6WZzPMAOz6WR8CQLgyKEIilU4H/Y9/OUjoTSrQJdJtXCJyVyzY8NLQKQFySslrNS197oMjjzUSfb+1LBcNUXq+mbXrS8WwTWYLzU1MmJFDevKCezmJa9D2IfZxZlAJGvFKLGzGOZ73LlZBp445XKI9fJjmPfDiWyOhfbpDC7ODPZgw4zh40FULfBLr7LsBtmgT8jh4MfXZMWA=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PH7PR12MB5685.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(1800799024)(376014)(366016)(921020)(22082099003)(18002099003)(56012099003)(11063799006)(3023799007)(4143699003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?MHlQbHNUcEZiajNubTJsT1NGeUhpdVdFMHhCSEVLbG02YzAzVmN6TlJ3SG5V?=
- =?utf-8?B?MVIvdXVpL2NCNXpsNTVpUFA4aHptYUZRQVlCRTdXQUowblkzZktNZ1RsQWxM?=
- =?utf-8?B?bjNZckpqOXRBUjkrWFBrRW1OTGRhalBpbUMxZUlaTG9ibHM3T21iVnFXK0xj?=
- =?utf-8?B?LzJMMEVnZ09UdFpGdkNYRms1MU10M0s1MVJUU1kzaGU4QWJYVWpIdVB3WmdR?=
- =?utf-8?B?eERHaHFDd21XYi9sTFB1YTJEQnovcG1LMEVURzIwMGp4UjFaRjZLNFhqeG1Z?=
- =?utf-8?B?eDVQSDdOV29XdDRXRENaaDkwVGJST1RrVWRXZ0l1ZGUwaWpnNTVMa2MzVlF3?=
- =?utf-8?B?TnlGdDdWamVieFFLRVgwSTAyNk5oV3ZLL0plUHY5eFUzeFRhd0RCUHBvZkM0?=
- =?utf-8?B?dk5vUlAzQ0lteDZnS0JkaVJqVHlhZHdBSVVEdFhyV040OEVaYW9qakJ2VW9j?=
- =?utf-8?B?T2dwSjQ0ZGZyNEV2cWhMZFhqbXpJM0w2STZ6Zm8wTTh6TEdOb2U2dU42MFNz?=
- =?utf-8?B?T1BKdEFhS3BWZitxZ0ppKy9IY1BJT1lPbXBFYktPZnJOTWdmN25SdnJ4dk9H?=
- =?utf-8?B?bkNSKzdyZFdVaTlBY2h5REVna3ZPd2gra0VjeG1SY0dURG1Vem5JSjZnb0dH?=
- =?utf-8?B?NUswa0pvQVA3YkpXdDJ0Nm1KanAweTByZFJ3OUZLVitBQzNFai91RGk0L0Zl?=
- =?utf-8?B?UHBpSUxrRitlQ2FnVTY0ZUpPVkUrNWR5bXY3UXRNMHVUMUN3aS9IaWppTTcx?=
- =?utf-8?B?aUttYjdVWUNiOVlBUmpjYlNrUHh4MVNoOW44czRoKy9KK0NYMDlKd0ZLSkZN?=
- =?utf-8?B?ZDBNQ0NXNUpNdWV6bFhpcjFKVnNwb2o4QmlIQzZmOFVHYkJSaElGMnZnL3dW?=
- =?utf-8?B?a1ZyeWk1dmQ2THhjbXNnemxzMm9hMUpMVFZ0Qy9xa1BpbWRlN000dk03cnVj?=
- =?utf-8?B?SWZ0ajlIaHBkQ1A2QzlGQVdJTFdsU0dlWEl3TkdwMU1NOG53VzBob29CWGc1?=
- =?utf-8?B?QUtncitsNHMzK3Q3OWFJb0dJb2l5M2djNjZLYTIyTHZOZWN6bUVHYkNUeFFv?=
- =?utf-8?B?SlpSQjFMSVg0QnRCQWkvaTZuNHV1NExqSXBKODRrOGwrME5zL3Z0bVl2em9h?=
- =?utf-8?B?aHh2bi9GcHV4QWtQTnBCNWtycWxFQnJrUFczUGpnUWFNMjF5aEZ0bkpXbm56?=
- =?utf-8?B?aE15ZURjb1hQaWd0c2Z4clRUektOOERjZFRZSmk0OWpTMjRrSGNYUmlpZEtr?=
- =?utf-8?B?QlNtVGIrNjlTMk5nVmdTdHlHZkRSTksrOU1MSG4zRm5rNm1JdENnZGlZQVIy?=
- =?utf-8?B?RTl5Z2JQdElraVJ5anFPNXFjMGpUSlpxQmhNY09EN3hZR3BJUlpmM1lsR3pv?=
- =?utf-8?B?bHoycW8wQ0o0TFJCS1grL2syOUdZazdBQmRTdXl2RFFxc1lvSmZKeFgwNm54?=
- =?utf-8?B?VVplL3B6T2Q4Qm1jd0p6R0ttZ2F0blhXMm9Gc3BGWGFyUytIMGRGeG80UmQx?=
- =?utf-8?B?cVo2S0JNbjhGeWl0OTJCSDB4WGhVOW95WjMxWnMwMFNzU1A3VnF4QzBaU2Er?=
- =?utf-8?B?akd5b1llRzAzZTZPTlhIN0wvNUpheHAxYnpHQ0JHQzVVZHFnNXFaRitiUEVq?=
- =?utf-8?B?NVpSd2dFVDRnVzVaSWMwOUVCNkFkZUpoclN0T3ZEWDJEU2pQbmU4dllDUmpN?=
- =?utf-8?B?QjBnR1RseHpIZVR0OEMxNVV2YmJNaU1obndtcW9INDU1VExZMDdyVGVnSmM2?=
- =?utf-8?B?dFphZ2pEYk1XLzA2MDVNbjQ0ME1zU1VEZGJaajNKOGdadlpDVkNhK3ovWURN?=
- =?utf-8?B?amZja0E4aElaSFNzWFdqWHBJWXEwbXFvVytqY3oxMXBuZ0padGlqOUdSZ3JB?=
- =?utf-8?B?blJnYjBjV3pSVkl3Wk51andCY3pZWlE1Nk0wbkNlUzF3SWZURTlYTDQ3dHBl?=
- =?utf-8?B?OTFMOS9CR1F5Nis0eXZZaUU1WWtDRXZKY0JFQlRwSG03a01KWHRkVHZ5MGlY?=
- =?utf-8?B?R3JySjZRU0FYeGlMc2xTNC8vVitsY3dwcFZ5Z25naWhyejhHTzhTUW5rd1pE?=
- =?utf-8?B?YXZFSVk2LzVTQXV3MmRhZFVXT01mMlYxYzZMTWRhUkdWRWZLY0Jqd2VpbnVF?=
- =?utf-8?B?NldCbFNxNlZXQTA3YTVTUFpabkp2c0JrQkxjWDdlUStFVUVIRlFyVm54YUJv?=
- =?utf-8?B?SFpGUEFHZHRjVnJWak1VVHp5Rlh2S05GSE9sanhOdGdqZDVKY3RnY3FxVFdr?=
- =?utf-8?B?ZWpLbGZiTlVMOXc2bDAzSElFQjBpUC9ZL21CaHVJNXE4L3ZtSWROdVpUOGk1?=
- =?utf-8?Q?0Lj1PQ+skOgi6EaxPg?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: bf816e99-9a5c-4c4b-a78b-08deb63e22a8
-X-MS-Exchange-CrossTenant-AuthSource: PH7PR12MB5685.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 May 2026 07:05:12.0750
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: elxi1F7PVDjnXxgNip9eysKtODo3NvSXdlsXWi9KonSXanMKHFxLX7NQH8Fs4u89
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR12MB5603
+X-ZohoMailClient: External
 
-On 5/20/26 08:50, Dmitry Osipenko wrote:
-> On 5/19/26 11:27, Christian König wrote:
->> On 5/19/26 10:22, Deepanshu Kartikey wrote:
->>> virtio_gpu_cursor_plane_update() and virtio_gpu_resource_flush() lock
->>> the framebuffer BO's dma_resv via virtio_gpu_array_lock_resv() and
->>> ignore its return value. The function can fail with -EINTR from
->>> dma_resv_lock_interruptible() (signal during lock wait) or with
->>> -ENOMEM from dma_resv_reserve_fences() (fence slot allocation),
->>> leaving the resv lock not held. The queue path then walks the object
->>> array and calls dma_resv_add_fence(), which requires the lock held;
->>> with lockdep enabled this trips dma_resv_assert_held():
+On 5/20/26 10:05, Christian König wrote:
+> On 5/20/26 08:50, Dmitry Osipenko wrote:
+>> On 5/19/26 11:27, Christian König wrote:
+>>> On 5/19/26 10:22, Deepanshu Kartikey wrote:
+>>>> virtio_gpu_cursor_plane_update() and virtio_gpu_resource_flush() lock
+>>>> the framebuffer BO's dma_resv via virtio_gpu_array_lock_resv() and
+>>>> ignore its return value. The function can fail with -EINTR from
+>>>> dma_resv_lock_interruptible() (signal during lock wait) or with
+>>>> -ENOMEM from dma_resv_reserve_fences() (fence slot allocation),
+>>>> leaving the resv lock not held. The queue path then walks the object
+>>>> array and calls dma_resv_add_fence(), which requires the lock held;
+>>>> with lockdep enabled this trips dma_resv_assert_held():
+>>>>
+>>>>   WARNING: drivers/dma-buf/dma-resv.c:296 at dma_resv_add_fence+0x71e/0x840
+>>>>   Call Trace:
+>>>>    virtio_gpu_array_add_fence
+>>>>    virtio_gpu_queue_ctrl_sgs
+>>>>    virtio_gpu_queue_fenced_ctrl_buffer
+>>>>    virtio_gpu_cursor_plane_update
+>>>>    drm_atomic_helper_commit_planes
+>>>>    drm_atomic_helper_commit_tail
+>>>>    commit_tail
+>>>>    drm_atomic_helper_commit
+>>>>    drm_atomic_commit
+>>>>    drm_atomic_helper_update_plane
+>>>>    __setplane_atomic
+>>>>    drm_mode_cursor_universal
+>>>>    drm_mode_cursor_common
+>>>>    drm_mode_cursor_ioctl
+>>>>    drm_ioctl
+>>>>    __x64_sys_ioctl
+>>>>
+>>>> Beyond the WARN, mutating the dma_resv fence list without the lock
+>>>> races with concurrent readers/writers and can corrupt the list.
 >>>
->>>   WARNING: drivers/dma-buf/dma-resv.c:296 at dma_resv_add_fence+0x71e/0x840
->>>   Call Trace:
->>>    virtio_gpu_array_add_fence
->>>    virtio_gpu_queue_ctrl_sgs
->>>    virtio_gpu_queue_fenced_ctrl_buffer
->>>    virtio_gpu_cursor_plane_update
->>>    drm_atomic_helper_commit_planes
->>>    drm_atomic_helper_commit_tail
->>>    commit_tail
->>>    drm_atomic_helper_commit
->>>    drm_atomic_commit
->>>    drm_atomic_helper_update_plane
->>>    __setplane_atomic
->>>    drm_mode_cursor_universal
->>>    drm_mode_cursor_common
->>>    drm_mode_cursor_ioctl
->>>    drm_ioctl
->>>    __x64_sys_ioctl
+>>> Well why are you trying to add a fence on an atomic mode set in the first place?
 >>>
->>> Beyond the WARN, mutating the dma_resv fence list without the lock
->>> races with concurrent readers/writers and can corrupt the list.
->>
->> Well why are you trying to add a fence on an atomic mode set in the first place?
->>
->> That is usually an illegal operation here.
-> That is pre-existing in the driver. It performs draw operation and in
-> some cases waits for the completion during atomic. Whether all that
-> syncing is correct is hard to say immediately as some of it may be
-> historical edge cases.
+>>> That is usually an illegal operation here.
+>> That is pre-existing in the driver. It performs draw operation and in
+>> some cases waits for the completion during atomic. Whether all that
+>> syncing is correct is hard to say immediately as some of it may be
+>> historical edge cases.
+> 
+> I'm not not so deeply in the atomic mode setting stuff but it strongly sounds like that this is seriously broken.
+> 
+> The background is that the atomic mode set framework allows an output dma_fence which is signaled when the commit is finished.
+> 
+> So when you allocate a fence slot and add a new fence to finish the atomic commit it is trivially possible that this cycles back and waits for the atomic commit to finish. In other words you have a deadlock.
+> 
+> You probably need specially crafted userspace with the right timing to trigger that, but such issues are usually a rather big no-no and need to be fixed in the long term.
+> 
+> Try to add dma_fence_begin_signaling() and dma_fence_end_signaling() annotation and enable lockdep, the tool should be able to point out if and what exactly goes wrong.
+> 
+> The usual fix is to prepare everything before commit_tail is called (alloc memory, create, reserve slot, add dma_fence etc....) and then just send out the prepared commands later on.
 
-I'm not not so deeply in the atomic mode setting stuff but it strongly sounds like that this is seriously broken.
+We tried with moving resv alloc to prepare_fb() in a previous patch
+version, it resulted in a non-trivial deadlocks. The goal of this patch
+is to fix immediate problem with a minimal code change.
 
-The background is that the atomic mode set framework allows an output dma_fence which is signaled when the commit is finished.
+What you're saying is correct, but it may require a rather big
+refactoring of the code. In general, everything works okay today, so not
+really an urgent problem.
 
-So when you allocate a fence slot and add a new fence to finish the atomic commit it is trivially possible that this cycles back and waits for the atomic commit to finish. In other words you have a deadlock.
-
-You probably need specially crafted userspace with the right timing to trigger that, but such issues are usually a rather big no-no and need to be fixed in the long term.
-
-Try to add dma_fence_begin_signaling() and dma_fence_end_signaling() annotation and enable lockdep, the tool should be able to point out if and what exactly goes wrong.
-
-The usual fix is to prepare everything before commit_tail is called (alloc memory, create, reserve slot, add dma_fence etc....) and then just send out the prepared commands later on.
-
-Regards,
-Christian.
+-- 
+Best regards,
+Dmitry
