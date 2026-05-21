@@ -1,65 +1,65 @@
 Received: from mail-pg1-f201.google.com (mail-pg1-f201.google.com [209.85.215.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2501E3E2741
-	for <virtualization@lists.linux.dev>; Thu, 21 May 2026 13:45:06 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C387C3C9429
+	for <virtualization@lists.linux.dev>; Thu, 21 May 2026 13:59:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779371110; cv=none; b=syWvN5tgTPLCPasI74ntQeqHemQUjdBLLMDgk//2Xe41bm/pnCUkc7km+FgDYjYJw5xmWeXacmIw0nndxkYkNBYPXzu9aWmOgxj3IxhdQVVWntPxwlQKjgpKat1NFaR0S7Kn1hPpvNrd7OKOUZ6ISSML2SSPfj6h/ZNzfqRnPcA=
+	t=1779371977; cv=none; b=Few586zcqIA2+D7a8mwCtqtondh0v+dn/D9I4U+70otG6cRqSjV/V71PBVBp4gMnVmbE3tpBFhuc4+KVy2V2eZCI/H84c7ZZxcsmQSTHZakYHH4tYk54Wiulg0ttIpkRflgSkhHiJ6BqOFZfHacg3t4V+rd2zh5X3nWVEk3O9uw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779371110; c=relaxed/simple;
-	bh=JmKBkku/kD8/n/a4gtEJvwwFH5TVoQOZ+eRQ7DUmO1k=;
+	s=arc-20240116; t=1779371977; c=relaxed/simple;
+	bh=h+4NVJo3wpAjspHwkhwsyzZn+zEl2CEEOehXzRGNdBY=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=V1ZBBqb4NBKerumrWovGMiLunVOojhY0JDfsw7ILjlwRwGiUab37oP6cnEEMxa89V9PZC2FZJJntGmfhSFxX3oSGOuMipaS/EavoFIsQbHSvS62kfuXIKNLaPAn+qy3uZAn26tdEP8ETJkA7O1X/g7KG8bHw8Bm67fXqbPoDphs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=PlXDcyo3; arc=none smtp.client-ip=209.85.215.201
+	 To:Cc:Content-Type; b=Rb6AStXAjwInma3+fw2/SVmSBWCS4J8A2ersYXTqkvlVDSsS9WxxDg0nh9d+BTiTXJvKZuFNZntOt/38XODFqMgzzhYQOi0ZEfXu18T38AIxiXezv7LMk3wF5PjNE1CotpNh7FvYDEo4Wxf2kOp1i6TmVw+Gr0VtlMH61NjXGoY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=jqdP0Rw5; arc=none smtp.client-ip=209.85.215.201
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="PlXDcyo3"
-Received: by mail-pg1-f201.google.com with SMTP id 41be03b00d2f7-c828b1b7fddso3492912a12.3
-        for <virtualization@lists.linux.dev>; Thu, 21 May 2026 06:45:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="jqdP0Rw5"
+Received: by mail-pg1-f201.google.com with SMTP id 41be03b00d2f7-c709551ec08so9438515a12.3
+        for <virtualization@lists.linux.dev>; Thu, 21 May 2026 06:59:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1779371106; x=1779975906; darn=lists.linux.dev;
+        d=google.com; s=20251104; t=1779371975; x=1779976775; darn=lists.linux.dev;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=Dnh9Qdh/Ek2SFmUD3YQQhAJ1lm8lFb5yTi3rkZyIV7s=;
-        b=PlXDcyo396LC9Ddaa6H1P+LCuhsn6NjBQr8/cCxXh1RwDkm4Bs+NyiXk4TEGEXdzvt
-         QVbYSZofINv4/y2ZnUbAUJr94DsWSYKZi0ClJJwhrpJGO4pUQslMHTFiuqa4lkQLUo6K
-         kAqh3tvI2byt5qVQq5EuVrOf4W+sJKZHL7/+fmlsxopI67LcjjAgz+ik3PKJn2ymLaXm
-         b3NFYkNzwArYvxCYkLej1DNLiIhmn/E71AAuR7R8YTODMDdROAuTVkLNGDd9e3YTT+bj
-         oaDTlFANCkDgt0xYupca8SS9RzzSz18o9kzHHyO1yaCsdSBeu9TLW/HcxlBSkEZC1ohX
-         9E8A==
+        bh=tqeEG6FXEKElqAGUt/Z2qfbIbuB++N7b4Fh1Zt6D5dk=;
+        b=jqdP0Rw59w9oKxIrmiLen3tOYkBFSerOXwyErMsL28PPDpJp9Hnn5oQZNdw3cFwTFw
+         W5gfrDDuqa9NcELyESSwz2fGCHTmumNePkoDrSnsJ0C9bLd+xfiWCEO0XMaOCRSzbPPS
+         nIB7kXSITJS4+ULmRdzAQE8VpkK6I4N8OA7n7yXxu9kCCzrNejj+JWxTL3/lciSKcnZG
+         PDH58RvybYbrF5nDa4XAAYEMonjwQJxgDrNWTWq4wLIMJ/0skLk2vjAQltrpgW4yldHw
+         Xrai7AXX+UfN+m9ckDCODI8ybVb/woUkHKJmbr3lXof5ItjVk4SAipi0Vkx2sRaailek
+         F6ww==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779371106; x=1779975906;
+        d=1e100.net; s=20251104; t=1779371975; x=1779976775;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Dnh9Qdh/Ek2SFmUD3YQQhAJ1lm8lFb5yTi3rkZyIV7s=;
-        b=Epktzqyti//haCoRGZl8elgleerwYs5Ga9EmbsB3pXGl3HZjuuGTE+JJQoqN1T/UIf
-         sKTi715F1hKBRSK9mMNcpb/hAhnP3LDDThhMV8YDI2SqCnmQ4HvKwjTEhEdAj/w0zs2Y
-         MBdXZAejYcCF+Ruo9C1iQVaOhU4t0PqCI13SMyX4OoT41EkOmzNjVdSO4N+7X7dxJg4Z
-         Bz+YSB1u3I8zkXZ5qXMNumCiNkQkKZR6nQyppQtFn8DRiceyXQs1BFrcU851xcXewSbz
-         qOhAWvn4kkZwKubl/ZwRM3j8jGOYQHXS8vJSCQVOzeVoMCS0FeJup3sEQ0a1m5b1JsnL
-         ACog==
-X-Forwarded-Encrypted: i=1; AFNElJ+ZH3XsPfBdQ9JIhegeW0szoWWJPxJpPSpEtrfC/XMdSEOhOJTX/Zyc4R1Svp2IdcPlGAmDf28erc4MQC7nxg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzAtuaJeQ1rxkhpgX/aGQ0w9lUoL/9KvrfHrIsmvpir9sx7NYSw
-	Rj1E2ZkZyC//mM/vKPfhDIhcqYQvWUA/gyQRJMwovYSyoX4gGjGBS6dBQRqtI6b+fgF9Uocaxhr
-	2w7QB7w==
-X-Received: from pgvm13.prod.google.com ([2002:a65:62cd:0:b0:c85:1159:ffbd])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a20:7491:b0:3a0:bc61:62e5
- with SMTP id adf61e73a8af0-3b30883a17bmr3700528637.44.1779371104725; Thu, 21
- May 2026 06:45:04 -0700 (PDT)
-Date: Thu, 21 May 2026 06:45:04 -0700
-In-Reply-To: <20260521133326.2465264-9-kees@kernel.org>
+        bh=tqeEG6FXEKElqAGUt/Z2qfbIbuB++N7b4Fh1Zt6D5dk=;
+        b=EuUYvwj3g4PuqITxGjxXRhylVBKK8svsyFqpoqAQgw/xPTVfGUKEq4f1F2rl1+RshS
+         LOssXjfm79muidgXU3KUd8c5s/7z/IePXoglAy/G6jKXhUZOPi5gDa58SvNYuIWMqJTk
+         76qRoDpDfPf13f6apPQIILTyIdUYm3UsVHHqJL8udDtJVBA7O9T9vDn0KpmV352IYGQ1
+         +BbZKfbp6akms7QNwN3uphADqNGBSnK0fhwAwodlbM0v8ULH/JyHCKxG4csg82I9FwRB
+         lwRrHKkcSrDGBdCha14bOJxV6+jj/35yiIkXA+imVOtmyEx+yW3rNS1KS7DIFjlZrEIE
+         r89Q==
+X-Forwarded-Encrypted: i=1; AFNElJ+MwL15XWYjXKwjFN2k9FNBtlHmuex9f281Z0iQIZxNmkOO/obhOW8dwDqP1VyelAmR4wPCtrCrTlaw+uEUeA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx4xRzbfkqpYEbQSauXEkDYdK7+fZqR3GCsejN58diaj4/fVfos
+	zaMw8HAU+tV69n1JlYqNKk9q/Qf+p78YXtvyhehT+ep/4CHiCHuoFM2Lywe2sjw17BgL90lWePg
+	fI3+3dQ==
+X-Received: from pge1.prod.google.com ([2002:a05:6a02:2d01:b0:c79:83b3:cdf8])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a20:431a:b0:39c:a78e:dba9
+ with SMTP id adf61e73a8af0-3b308ac1b14mr3725831637.40.1779371973881; Thu, 21
+ May 2026 06:59:33 -0700 (PDT)
+Date: Thu, 21 May 2026 06:59:33 -0700
+In-Reply-To: <20260521133326.2465264-4-kees@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 Mime-Version: 1.0
-References: <20260521133315.work.845-kees@kernel.org> <20260521133326.2465264-9-kees@kernel.org>
-Message-ID: <ag8MYC6pOZvvYHMp@google.com>
-Subject: Re: [PATCH 09/11] treewide: Convert custom kernel_param_ops .get
- callbacks to seq_buf via cocci
+References: <20260521133315.work.845-kees@kernel.org> <20260521133326.2465264-4-kees@kernel.org>
+Message-ID: <ag8PxTTi5NxT51EW@google.com>
+Subject: Re: [PATCH 04/11] treewide: Convert struct kernel_param_ops
+ initializers to DEFINE_KERNEL_PARAM_OPS
 From: Sean Christopherson <seanjc@google.com>
 To: Kees Cook <kees@kernel.org>
 Cc: Luis Chamberlain <mcgrof@kernel.org>, Pengpeng Hou <pengpeng@iscas.ac.cn>, 
@@ -113,50 +113,20 @@ Cc: Luis Chamberlain <mcgrof@kernel.org>, Pengpeng Hou <pengpeng@iscas.ac.cn>,
 Content-Type: text/plain; charset="us-ascii"
 
 On Thu, May 21, 2026, Kees Cook wrote:
-> diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
-> index 07f4c7209ac0..00317774a90b 100644
-> --- a/arch/x86/kvm/vmx/vmx.c
-> +++ b/arch/x86/kvm/vmx/vmx.c
-> @@ -368,12 +368,16 @@ static int vmentry_l1d_flush_set(const char *s, const struct kernel_param *kp)
->  	return ret;
->  }
->  
-> -static int vmentry_l1d_flush_get(char *s, const struct kernel_param *kp)
-> +static int vmentry_l1d_flush_get(struct seq_buf *s,
-> +				 const struct kernel_param *kp)
->  {
-> -	if (WARN_ON_ONCE(l1tf_vmx_mitigation >= ARRAY_SIZE(vmentry_l1d_param)))
-> -		return sysfs_emit(s, "???\n");
-> +	if (WARN_ON_ONCE(l1tf_vmx_mitigation >= ARRAY_SIZE(vmentry_l1d_param))) {
-> +		seq_buf_printf(s, "???\n");
-> +		return 0;
-> +	}
->  
-> -	return sysfs_emit(s, "%s\n", vmentry_l1d_param[l1tf_vmx_mitigation].option);
-> +	seq_buf_printf(s, "%s\n", vmentry_l1d_param[l1tf_vmx_mitigation].option);
-> +	return 0;
+> Using Coccinelle, rewrite every struct kernel_param_ops initializer that
+> sets .get into a DEFINE_KERNEL_PARAM_OPS-family macro invocation,
+> for example:
+> 
+> @@
+> declarer name DEFINE_KERNEL_PARAM_OPS;
+> identifier OPS;
+> expression SET, GET;
+> @@
+> - const struct kernel_param_ops OPS = {
+> -       .set = SET,
+> -       .get = GET,
+> - };
+> + DEFINE_KERNEL_PARAM_OPS(OPS, SET, GET);
 
-For this one, can you manually change it to this?
-
-	if (WARN_ON_ONCE(l1tf_vmx_mitigation >= ARRAY_SIZE(vmentry_l1d_param)))
-		seq_buf_printf(s, "???\n");
-	else
-		seq_buf_printf(s, "%s\n", vmentry_l1d_param[l1tf_vmx_mitigation].option);
-	return 0;
-
->  }
->  
->  /*
-> @@ -459,9 +463,11 @@ static int vmentry_l1d_flush_set(const char *s, const struct kernel_param *kp)
->  	pr_warn_once("Kernel compiled without mitigations, ignoring vmentry_l1d_flush\n");
->  	return 0;
->  }
-> -static int vmentry_l1d_flush_get(char *s, const struct kernel_param *kp)
-> +static int vmentry_l1d_flush_get(struct seq_buf *s,
-> +				 const struct kernel_param *kp)
->  {
-> -	return sysfs_emit(s, "never\n");
-> +	seq_buf_printf(s, "never\n");
-> +	return 0;
->  }
->  #endif
+IMO, "OPS, GET, SET" is more intuitive, especially since that's the order used
+by DEFINE_SIMPLE_ATTRIBUTE and DEFINE_DEBUGFS_ATTRIBUTE.
