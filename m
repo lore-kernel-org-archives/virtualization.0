@@ -1,83 +1,65 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 523703655E5;
-	Thu, 21 May 2026 02:19:59 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3EEB368D55;
+	Thu, 21 May 2026 02:23:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779330019; cv=none; b=k8GgBJyOBeoQEAk7wZ9bQbdsGnkroAhrmVuk/fs1raVD842/tfvmUWKiM0tS13ERQcR0+/HMYLrFtET6cqpcV047EfDJzOnu0JgHk7FWX+Y/lZpRyrwNZrk34pXSK7Zwv6+hCRk4cSyPI3TYeLO6iqMJE9w/PpaTCKd0CkdNiVE=
+	t=1779330230; cv=none; b=mHVY0rL5LlzT63jnN9utHF5u7E+xKNTT/DMD7ae/xbMhZ0u8R8F4TzPOMPIp6tRDRssEnZ/qePq7OQHj48Hq47YvXeYrNWdyj/4clsi5MKmtUoZh4TFJJiQ+JveXtJkvVuWCvYHkwAyymJuA85qjBo6i2C6bvoaUjffjYJ8RPqA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779330019; c=relaxed/simple;
-	bh=BjlukyP5bTQHvs0L2QCUfZaNLjb0pmJmzWqNyPaH4x8=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=FYufTrqNLKpuKPDgIHd774X0A0ZtFqwvr2ZlN8z2gvQ+jJX8DPYJ0ab6ojLQ77mJFFMZuNHgr2B72DQuHjbJat1PXke0EfKzOn0vv37JnQBez+I9vyUQQND0BAx+WskoSageO6vnqGc23qhuTypplzsMOUCmSWXotK1axsn/4Fo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=c+qMr8Yn; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779330230; c=relaxed/simple;
+	bh=vjD7QP+F8UtbNNzbw+Gn1YXbvKp50UxS0eIUj76kOxY=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=bps/qi0njaoUigdGtEfUaaLtzTKV2/1//5r70cwC+9B8tPVxB4ERtTxRuAMopAR1yfU6ulbQ9SuIt6qJ7R8xO3etCA9yDP8KKzCFG9lGjAbs7olGMEK3xiq4a5H+7vwL6ea2LBQk8L6QW4OLmfv4kjmFQTBhXdnRldyxrGW24ZA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=T4WSv3b1; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="c+qMr8Yn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E3F101F00A3B;
-	Thu, 21 May 2026 02:19:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="T4WSv3b1"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 59B631F000E9;
+	Thu, 21 May 2026 02:23:38 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779329996;
-	bh=oxGAPtkWo6+OlSRC8RjNsfV13vDMRjGxMBTahMYmMYM=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc;
-	b=c+qMr8Yn8HYJbW/OjWYlXsWHr7hZ9p2k9OaCW0c8ykfn5HxUDGsEKyZPmDDcWemUC
-	 XkOGMjxPVzC+87W4pelYHsLKyHaaCjrZXRwaEYBVhHZBkkElLjtJadp/yx+pgXUniF
-	 RcZrHDU1e5yyQColjQ7PfYfPXQBR34kpbZRX+tYMlcDhc0VIiNaAv3OBvSLFBHHQfi
-	 Ee4V58Ae4FXzZ3Zx39k9HWGnYlwFGnLUzhFcSwE9Nv+5jLiGzDBV2qXTMYwiJ664Zn
-	 0tFMU4QRGXQXjA0kzn3svXEze0vdUjUMSqioUncQciImvWIn5D0uuQqHtgqOkzSZL9
-	 PsdCMj90IocNA==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 569183930C38;
-	Thu, 21 May 2026 02:20:08 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=k20260515; t=1779330219;
+	bh=NZp6P8lPPZbAifBf0Dh9aAsJwHiBG50LhLLFbg82cBs=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=T4WSv3b1epuU0Gh0LGbVAt/2OHobGbzRnWplrWx7FyeaD0+oymf4p6HoElIuVU+Gj
+	 FOMQLSF4JoaYr+C9Fnckle3E03GnUNs7lawjXD6VcWFWkP/ohwDoFetpU6lTA6ZdtF
+	 IB3k3Y0YjIVJBDgSyFXvM+5HcZflQT/ZO1jIRXUgjr2+VB2xiBlkIRkSMChxpZCjt5
+	 n35eAjloQPuuj3neak3uGxH1JvWM1RPP+UZ7GdlhYLfZOCQP0nfPAubJTSPEtfBYAL
+	 Z9hfrqbADmFJHj9rh2lP3k8Q11RjrHrAK2caNF45giGg0ivKNJ31s3tlfdLV4WUm8R
+	 LEJzXrcO6rOnA==
+Date: Wed, 20 May 2026 19:23:37 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Stefano Garzarella <sgarzare@redhat.com>, netdev@vger.kernel.org, Simon
+ Horman <horms@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Jason Wang
+ <jasowang@redhat.com>, "David S. Miller" <davem@davemloft.net>,
+ kvm@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
+ linux-kernel@vger.kernel.org, Eric Dumazet <edumazet@google.com>, Xuan Zhuo
+ <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev, Eugenio
+ =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>
+Subject: Re: [PATCH net v4 0/2] vsock/virtio: fix skb overhead accounting to
+ preserve full buf_alloc
+Message-ID: <20260520192337.626ba49c@kernel.org>
+In-Reply-To: <20260518090656.134588-1-sgarzare@redhat.com>
+References: <20260518090656.134588-1-sgarzare@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net v4] vsock/vmci: fix UAF when peer resets connection
- during
- handshake
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <177933000715.3834961.4605675753542747762.git-patchwork-notify@kernel.org>
-Date: Thu, 21 May 2026 02:20:07 +0000
-References: <20260519102310.237181-1-minhnguyen.080505@gmail.com>
-In-Reply-To: <20260519102310.237181-1-minhnguyen.080505@gmail.com>
-To: Minh Nguyen <minhnguyen.080505@gmail.com>
-Cc: pabeni@redhat.com, bryan-bt.tan@broadcom.com, sgarzare@redhat.com,
- vishnu.dasa@broadcom.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, horms@kernel.org, bcm-kernel-feedback-list@broadcom.com,
- netdev@vger.kernel.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, stable@vger.kernel.org
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Hello:
-
-This patch was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
-
-On Tue, 19 May 2026 17:23:10 +0700 you wrote:
-> vmci_transport_recv_connecting_server() returned err = 0 for a peer
-> RST in its default switch arm:
+On Mon, 18 May 2026 11:06:54 +0200 Stefano Garzarella wrote:
+> Patch 1 resets the connection when we can no longer queue packets,
+> this prevents silent data loss, and both peers are notified.
 > 
-> 	err = pkt->type == VMCI_TRANSPORT_PACKET_TYPE_RST ? 0 : -EINVAL;
-> 
-> That made vmci_transport_recv_listen() skip vsock_remove_pending(),
-> leaving the pending socket on the listener's pending_links with
-> sk_state = TCP_CLOSE while destroy: still dropped the explicit
-> reference taken before schedule_delayed_work().
-> 
-> [...]
+> Patch 2 increases the total budget to `buf_alloc * 2` for payload
+> plus skb overhead similar to how SO_RCVBUF is doubled to reserve
+> space for sk_buff metadata. This preserves the full buf_alloc for
+> payload under normal operation, while still bounding the skb queue
+> growth.
 
-Here is the summary with links:
-  - [net,v4] vsock/vmci: fix UAF when peer resets connection during handshake
-    https://git.kernel.org/netdev/net/c/99e22ddf4edb
+Hi Michael!
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Are you okay with these fixes? A bandaid but not too outrageous..
