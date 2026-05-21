@@ -1,203 +1,200 @@
-Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.7])
+Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4A41E3D810F
-	for <virtualization@lists.linux.dev>; Thu, 21 May 2026 17:45:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.7
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779385511; cv=none; b=SwUpndATc97mqdDunoVk5pmhLNz7+XuaYOXZc0fqOT2OIEDDcjo4a30HVSrre74VWczJ+awre9uSXDJcXWVFsyC+OTmq+QDxHrcI25D76lT0T8OoWq+46S5fPwVUOB8x2YMfVlgK5d2Nr4rVxwA6byKNHCEk1NMEv7OzQcIdJd4=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779385511; c=relaxed/simple;
-	bh=sU3q4ei5VqXFeemg2pdBcbpXy8Z2qTRY4hHBwMHyr+A=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=I5VemjC8tNPsOFG/yt8vxNVmvKftc53qZd2Mr9eCU/OJUeqHL7x0cOR3FXdtpNul2f2z4WGi3cvLXFTY3X2ILV/dU4AaKtxgstfXrS7EVosx5UKQNO2oi6ZV3MIl2DOcN4RYGpep8j2DEXNK3qHHzF9mRkQMSWi3hiqWeJ4acys=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=hdSpjgdg; arc=none smtp.client-ip=192.198.163.7
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3C7C38D3E6
+	for <virtualization@lists.linux.dev>; Thu, 21 May 2026 19:02:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779390166; cv=pass; b=SansJO8MFYyn9tP9XCEobf0fd0SfJ8u+6rcyRrYHhhMs4CArKnzX+x/IaoAsD+icfWjrmXf7q5bc3bHHLgxFMGnoeX2BmuvM3R5pmxbo1fOa0g9NQAKrs+rpXYxBpEF4m7PMQW1AUE0A6shMVUJc3MW9KzRN4y8FuHBzJ0ROILc=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779390166; c=relaxed/simple;
+	bh=1o3/7jMbKccrWu7DqgXsxhPdzDzfANr1twNySgQk1fg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Sjm4ZnttgWoZq+X//Q4hBseOHmQ4aCkj2PaNOJ+An2o3nmi+OHuT62IHLk8AD/g6ltS4pvhuI+r7ZDPvZxQ0tYQOAzDZmF0TOeRyNs6aslDatDw+fl95X3a8A7gn7Df3kI0Vkgri+dvj1Xj19L+zS6cvDGzWH7fi82opf+ZB3yk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=O35bPHXR; arc=pass smtp.client-ip=136.143.188.112
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="hdSpjgdg"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1779385509; x=1810921509;
-  h=from:to:cc:subject:in-reply-to:references:date:
-   message-id:mime-version;
-  bh=sU3q4ei5VqXFeemg2pdBcbpXy8Z2qTRY4hHBwMHyr+A=;
-  b=hdSpjgdgQy8Dv11B1A29+atwuX3QoSxvUkfTpEvpFUdvBtjPMLJTzhhu
-   VhOaBKJIEKnGMXAFUNdgagcvty9PkpedpAtUaw+fZxyQkfgEvbb8NQlGl
-   g2lb1lBIxqUnjCov5+BoTJC9CjVwSX1Ydjf98EpvXJt42lZio3SbIUrBb
-   YWyflp2oWcgolFiSMmQp9VXPl8eYoiBlOTkTzI9RSFCDyC87zY1wl32Er
-   ZjwANT+kGCSh8pwWFRm9Aw47sq1MB9gKYhl3mw8lDUQ4d8flduOAxnQP+
-   CRFyE9DWx3vWFA1aueFpvxigUcooyj4Njx4seuoZkCpfd1bkT3ram7ea/
-   w==;
-X-CSE-ConnectionGUID: Jfy7/0QPRj+qA29FKatrbw==
-X-CSE-MsgGUID: NavHQJG+RCW99uJoFF4VIA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11793"; a="105773544"
-X-IronPort-AV: E=Sophos;i="6.24,160,1774335600"; 
-   d="scan'208";a="105773544"
-Received: from fmviesa010.fm.intel.com ([10.60.135.150])
-  by fmvoesa101.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 May 2026 10:45:08 -0700
-X-CSE-ConnectionGUID: sVvxl8W3QX2Yx8AK13BLJw==
-X-CSE-MsgGUID: XZM0S5M8QcaTj4wM3UKoHA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.24,160,1774335600"; 
-   d="scan'208";a="236347421"
-Received: from hrotuna-mobl2.ger.corp.intel.com (HELO localhost) ([10.245.244.167])
-  by fmviesa010-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 21 May 2026 10:44:41 -0700
-From: Jani Nikula <jani.nikula@linux.intel.com>
-To: Kees Cook <kees@kernel.org>, Luis Chamberlain <mcgrof@kernel.org>
-Cc: Kees Cook <kees@kernel.org>, Pengpeng Hou <pengpeng@iscas.ac.cn>, Petr
- Pavlu <petr.pavlu@suse.com>, Richard Weinberger <richard@nod.at>, Anton
- Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg
- <johannes@sipsolutions.net>, "Rafael J. Wysocki" <rafael@kernel.org>, Len
- Brown <lenb@kernel.org>, Corey Minyard <corey@minyard.net>, Gabriel Somlo
- <somlo@cmu.edu>, "Michael S. Tsirkin" <mst@redhat.com>, Joonas Lahtinen
- <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>,
- Tvrtko Ursulin <tursulin@ursulin.net>, David Airlie <airlied@gmail.com>,
- Simona Vetter <simona@ffwll.ch>, Bart Van Assche <bvanassche@acm.org>,
- Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>, Laurent
- Pinchart <laurent.pinchart@ideasonboard.com>, Hans de Goede
- <hansg@kernel.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, Bjorn
- Helgaas <bhelgaas@google.com>, Hannes Reinecke <hare@suse.de>, "James E.J.
- Bottomley" <James.Bottomley@HansenPartnership.com>, "Martin K. Petersen"
- <martin.petersen@oracle.com>, Daniel Lezcano <daniel.lezcano@kernel.org>,
- Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>, Greg
- Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby
- <jirislaby@kernel.org>, Alan Stern <stern@rowland.harvard.edu>, Jason Wang
- <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio
- =?utf-8?Q?P=C3=A9rez?= <eperezma@redhat.com>, Jason Baron
- <jbaron@akamai.com>, Jim Cromie
- <jim.cromie@gmail.com>, Tiwei Bie <tiwei.btw@antgroup.com>, Benjamin Berg
- <benjamin.berg@intel.com>, Ilpo =?utf-8?Q?J=C3=A4rvinen?=
- <ilpo.jarvinen@linux.intel.com>,
- "David E. Box" <david.e.box@linux.intel.com>, "Maciej W. Rozycki"
- <macro@orcam.me.uk>, Srinivas Pandruvada
- <srinivas.pandruvada@linux.intel.com>, Peter Zijlstra
- <peterz@infradead.org>, Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik
- <gor@linux.ibm.com>, Sean Christopherson <seanjc@google.com>, Paolo
- Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@kernel.org>, Ingo
- Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen
- <dave.hansen@linux.intel.com>, x86@kernel.org, "H. Peter Anvin"
- <hpa@zytor.com>, Vinod Koul <vkoul@kernel.org>, Frank Li
- <Frank.Li@kernel.org>, Daniel Gomez <da.gomez@kernel.org>, Sami Tolvanen
- <samitolvanen@google.com>, Aaron Tomlin <atomlin@atomlin.com>, Alexander
- Potapenko <glider@google.com>, Marco Elver <elver@google.com>, Dmitry
- Vyukov <dvyukov@google.com>, Andrew Morton <akpm@linux-foundation.org>,
- John Johansen <john.johansen@canonical.com>, Paul Moore
- <paul@paul-moore.com>, James Morris <jmorris@namei.org>, "Serge E. Hallyn"
- <serge@hallyn.com>, Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
- Georgia Garcia <georgia.garcia@canonical.com>, kvm@vger.kernel.org,
- dmaengine@vger.kernel.org, linux-modules@vger.kernel.org,
- kasan-dev@googlegroups.com, linux-mm@kvack.org, apparmor@lists.ubuntu.com,
- linux-security-module@vger.kernel.org, linux-um@lists.infradead.org,
- linux-acpi@vger.kernel.org, openipmi-developer@lists.sourceforge.net,
- qemu-devel@nongnu.org, intel-gfx@lists.freedesktop.org,
- dri-devel@lists.freedesktop.org, linux-rdma@vger.kernel.org,
- linux-media@vger.kernel.org, linux-pci@vger.kernel.org,
- linux-scsi@vger.kernel.org, linux-pm@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, linux-serial@vger.kernel.org,
- linux-usb@vger.kernel.org, usb-storage@lists.one-eyed-alien.net,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- linux-arch@vger.kernel.org, netdev@vger.kernel.org,
- linux-fsdevel@vger.kernel.org, linux-hardening@vger.kernel.org
-Subject: Re: [PATCH 10/11] treewide: Manually convert custom
- kernel_param_ops .get callbacks
-In-Reply-To: <20260521133326.2465264-10-kees@kernel.org>
-Organization: Intel Finland Oy - BIC 0357606-4 - c/o Alberga Business Park,
- 6 krs Bertel Jungin Aukio 5, 02600 Espoo, Finland
-References: <20260521133315.work.845-kees@kernel.org>
- <20260521133326.2465264-10-kees@kernel.org>
-Date: Thu, 21 May 2026 20:44:37 +0300
-Message-ID: <5cd0c8dde3687d0aea765f2f21f5e1cd8ba83028@intel.com>
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="O35bPHXR"
+ARC-Seal: i=1; a=rsa-sha256; t=1779390083; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=QtFQnWfrqDSOpJKVk6QTILMbQ48kcsCTcVO2qOUOrdNx5yUljoNL8mQ3AuOABkJdT7XFGvG57OgYNiJ6BOTiQWGlRRsDqGaMtWfR2EBA7xlrPEcpAo7rmU/ClLWISMCLnGY36ySlNf1qqt3jt6k6O3hnpcOaFJ+ECwfpCNE8h68=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1779390083; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=1kRt4VWbNQdDPdtCvmC+JOTMWdntqKcIlWHLvpo213Y=; 
+	b=BBb6ojXcp+UGCKaTRp5F+NfMGnJ8HF6OfwrO3a06ImyKsvEvdPLE7sxABi+fsIlIE0h+4vdsaNuYIcr3kiNRjXwgdjeZc16yHgisDFTf4rnHXTVcBHbmDrG0t/VKSZaLcXGk7M+yHEMOBQmCw8k5FdWItWXH1aqrN8H8tBIVudQ=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1779390083;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=1kRt4VWbNQdDPdtCvmC+JOTMWdntqKcIlWHLvpo213Y=;
+	b=O35bPHXRavWJh44wjuVH1z3A1U/gj5uBH8Ztgek046pR3eH3GB8J8XbOkxUaWnHl
+	tGP1JR0fHcc9PORoBRGoAWGf+YSMsf6epu4Mi/Wabiawb6ZhLGJhppep1MpvQ2rb524
+	nbhh8Dnt9nwfkDR+4hhArnCIjspqxI/8Bi/+mTZY=
+Received: by mx.zohomail.com with SMTPS id 177939008156683.21234787815092;
+	Thu, 21 May 2026 12:01:21 -0700 (PDT)
+Message-ID: <4bc3709f-21bc-49f5-8fcf-972dec1397f7@collabora.com>
+Date: Thu, 21 May 2026 22:01:15 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] drm/virtio: abort virtqueue wait on device removal to
+ avoid hung task
+To: Ryosuke Yasuoka <ryasuoka@redhat.com>, David Airlie <airlied@redhat.com>,
+ Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Simona Vetter <simona@ffwll.ch>
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org,
+ syzbot+d6dd6f86d3aaf7eebe7406e45c1c6e549453f224@syzkaller.appspotmail.com,
+ syzbot+908bd910da5dd79b88de4cf7baf376cc873a922e@syzkaller.appspotmail.com
+References: <20260521-virtio-gpu_wait_event-v2-1-5796b3a71d03@redhat.com>
+Content-Language: en-US
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <20260521-virtio-gpu_wait_event-v2-1-5796b3a71d03@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-ZohoMailClient: External
 
-On Thu, 21 May 2026, Kees Cook <kees@kernel.org> wrote:
-> diff --git a/drivers/gpu/drm/i915/i915_mitigations.c b/drivers/gpu/drm/i915/i915_mitigations.c
-> index 6061eae84e9c..99cb38f355b6 100644
-> --- a/drivers/gpu/drm/i915/i915_mitigations.c
-> +++ b/drivers/gpu/drm/i915/i915_mitigations.c
-> @@ -95,33 +95,37 @@ static int mitigations_set(const char *val, const struct kernel_param *kp)
->  	return 0;
+21.05.2026 05:19, Ryosuke Yasuoka пишет:
+> virtio_gpu_queue_ctrl_sgs() and virtio_gpu_queue_cursor() use
+> wait_event() without any abort condition when waiting for virtqueue
+> space. If the host device stops processing commands, these waits block
+> indefinitely inside a drm_dev_enter/exit() critical section. Since
+> drm_dev_unplug(), which is called in device removal and system shutdown
+> call path, blocks on synchronize_srcu() until all critical sections
+> complete, device removal and system shutdown also hang.
+> 
+> Add a vqs_released flag to virtio_gpu_device and include it in the
+> wait_event() condition. Set the flag and wake up both queues in a new
+> virtio_gpu_release_vqs() helper, called before drm_dev_unplug() in both
+> virtio_gpu_remove() and virtio_gpu_shutdown(). When the flag is set, the
+> wait returns immediately and the command is aborted, following the same
+> cleanup path as drm_dev_enter() failure.
+> 
+> Reported-by: syzbot+d6dd6f86d3aaf7eebe7406e45c1c6e549453f224@syzkaller.appspotmail.com
+> Closes: https://syzkaller.appspot.com/bug?id=d6dd6f86d3aaf7eebe7406e45c1c6e549453f224
+> Reported-by: syzbot+908bd910da5dd79b88de4cf7baf376cc873a922e@syzkaller.appspotmail.com
+> Closes: https://syzkaller.appspot.com/bug?id=908bd910da5dd79b88de4cf7baf376cc873a922e
+> Signed-off-by: Ryosuke Yasuoka <ryasuoka@redhat.com>
+> ---
+> Changes in v2:
+> - Update the commit message.
+> - Replace wait_event_timeout() with wait_event() using a compound
+> condition that includes a new vqs_released flag.
+> - Add virtio_gpu_release_vqs() helper to set the flag and wake up
+> both queues, called before drm_dev_unplug() in remove and shutdown
+> paths.
+> - Remove the hardcoded 5-second timeout. Recovery is now driven by
+> the driver flag instead of an arbitrary timeout value.
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_drv.c | 15 +++++++++++++++
+>  drivers/gpu/drm/virtio/virtgpu_drv.h |  1 +
+>  drivers/gpu/drm/virtio/virtgpu_vq.c  | 23 +++++++++++++++++++++--
+>  3 files changed, 37 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> index a5ce96fb8a1d..e4fe5e0780f9 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> @@ -119,10 +119,24 @@ static int virtio_gpu_probe(struct virtio_device *vdev)
+>  	return ret;
 >  }
 >  
-> -static int mitigations_get(char *buffer, const struct kernel_param *kp)
-> +static int mitigations_get(struct seq_buf *buffer,
-> +			   const struct kernel_param *kp)
->  {
->  	unsigned long local = READ_ONCE(mitigations);
-> -	int count, i;
->  	bool enable;
-> +	int i;
-
-I'm fine with what you have, and I can do these as a follow-up later if
-it's too much trouble, but I suggest something like this:
-
-	const char *sep = "";
-
->  
-> -	if (!local)
-> -		return scnprintf(buffer, PAGE_SIZE, "%s\n", "off");
-> +	if (!local) {
-> +		seq_buf_printf(buffer, "%s\n", "off");
-> +		return 0;
-> +	}
->  
->  	if (local & BIT(BITS_PER_LONG - 1)) {
-> -		count = scnprintf(buffer, PAGE_SIZE, "%s,", "auto");
-> +		seq_buf_printf(buffer, "%s,", "auto");
-
-		seq_buf_printf(buffer, "%s%s", sep, "auto");
-		sep = ",";
-
-(In the printf the sep is just for future expansion, though I don't
-expect one.)
-
->  		enable = false;
->  	} else {
->  		enable = true;
-> -		count = 0;
->  	}
->  
->  	for (i = 0; i < ARRAY_SIZE(names); i++) {
->  		if ((local & BIT(i)) != enable)
->  			continue;
-> -
-> -		count += scnprintf(buffer + count, PAGE_SIZE - count,
-> -				   "%s%s,", enable ? "" : "!", names[i]);
-> +		seq_buf_printf(buffer, "%s%s,", enable ? "" : "!", names[i]);
-
-		seq_buf_printf(buffer, "%s%s%s", sep, enable ? "" : "!", names[i]);
-		sep = ",";
-
->  	}
-
-	seq_buf_puts(buffer, "\n");
-
->  
-> -	buffer[count - 1] = '\n';
-> -	return count;
-> +	/* Replace the trailing comma with a newline. */
-> +	if (!seq_buf_has_overflowed(buffer) && buffer->len > 0 &&
-> +	    buffer->buffer[buffer->len - 1] == ',')
-> +		buffer->buffer[buffer->len - 1] = '\n';
-
-Drop the above.
-
-I.e. keep track of sep while printing to avoid removing it later.
-
-BR,
-Jani.
-
+> +/*
+> + * Release pending virtqueue waits so the drm_dev_enter/exit() critical
+> + * sections complete before drm_dev_unplug() blocks on synchronize_srcu().
+> + */
+> +static void virtio_gpu_release_vqs(struct drm_device *dev)
+> +{
+> +	struct virtio_gpu_device *vgdev = dev->dev_private;
 > +
-> +	return 0;
->  }
+> +	vgdev->vqs_released = true;
+> +	wake_up_all(&vgdev->ctrlq.ack_queue);
+> +	wake_up_all(&vgdev->cursorq.ack_queue);
+> +}
+> +
+>  static void virtio_gpu_remove(struct virtio_device *vdev)
+>  {
+>  	struct drm_device *dev = vdev->priv;
 >  
->  static DEFINE_KERNEL_PARAM_OPS(ops, mitigations_set, mitigations_get);
+> +	virtio_gpu_release_vqs(dev);
+>  	drm_dev_unplug(dev);
+>  	drm_atomic_helper_shutdown(dev);
+>  	virtio_gpu_deinit(dev);
+> @@ -133,6 +147,7 @@ static void virtio_gpu_shutdown(struct virtio_device *vdev)
+>  {
+>  	struct drm_device *dev = vdev->priv;
+>  
+> +	virtio_gpu_release_vqs(dev);
+>  	/* stop talking to the device */
+>  	drm_dev_unplug(dev);
+>  }
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+> index f17660a71a3e..0bd69a40857e 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
+> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+> @@ -235,6 +235,7 @@ struct virtio_gpu_device {
+>  
+>  	struct virtio_gpu_queue ctrlq;
+>  	struct virtio_gpu_queue cursorq;
+> +	bool vqs_released;
+>  	struct kmem_cache *vbufs;
+>  
+>  	atomic_t pending_commands;
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+> index 67865810a2e7..8057a9b7356d 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+> @@ -396,7 +396,19 @@ static int virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
+>  	if (vq->num_free < elemcnt) {
+>  		spin_unlock(&vgdev->ctrlq.qlock);
+>  		virtio_gpu_notify(vgdev);
+> -		wait_event(vgdev->ctrlq.ack_queue, vq->num_free >= elemcnt);
+> +		wait_event(vgdev->ctrlq.ack_queue,
+> +			   vq->num_free >= elemcnt || vgdev->vqs_released);
+> +		/*
+> +		 * Set by virtio_gpu_release_vqs() to unblock
+> +		 * synchronize_srcu() wait in drm_dev_unplug().
+> +		 */
+> +		if (vgdev->vqs_released) {
+> +			if (fence && vbuf->objs)
+> +				virtio_gpu_array_unlock_resv(vbuf->objs);
+> +			free_vbuf(vgdev, vbuf);
+> +			drm_dev_exit(idx);
+> +			return -ENODEV;
+> +		}
+>  		goto again;
+>  	}
+>  
+> @@ -566,7 +578,14 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
+>  	ret = virtqueue_add_sgs(vq, sgs, outcnt, 0, vbuf, GFP_ATOMIC);
+>  	if (ret == -ENOSPC) {
+>  		spin_unlock(&vgdev->cursorq.qlock);
+> -		wait_event(vgdev->cursorq.ack_queue, vq->num_free >= outcnt);
+> +		wait_event(vgdev->cursorq.ack_queue,
+> +			   vq->num_free >= outcnt || vgdev->vqs_released);
+> +		/* See comment in virtio_gpu_queue_ctrl_sgs(). */
+> +		if (vgdev->vqs_released) {
+> +			free_vbuf(vgdev, vbuf);
+> +			drm_dev_exit(idx);
+> +			return;
+> +		}
+>  		spin_lock(&vgdev->cursorq.qlock);
+>  		goto retry;
+>  	} else {
+
+What about other wait_event in the driver? Why only these?
 
 -- 
-Jani Nikula, Intel
+Best regards,
+Dmitry
