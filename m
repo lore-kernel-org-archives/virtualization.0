@@ -1,212 +1,123 @@
-Received: from mail-ot1-f70.google.com (mail-ot1-f70.google.com [209.85.210.70])
+Received: from mail-pl1-f201.google.com (mail-pl1-f201.google.com [209.85.214.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 493993914E8
-	for <virtualization@lists.linux.dev>; Thu, 21 May 2026 19:02:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.70
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D40BF3C7689
+	for <virtualization@lists.linux.dev>; Thu, 21 May 2026 20:34:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779390180; cv=none; b=S6QGXTXVr7GvzrWfyo2suQLYwKD7hICa+780Dgs94kxuvIOGl1FHv+KzNpEOCA6Qf3bl13NLOtH46JO7wFHmdbUgtC2M6Vy6wSHp15N0ILTtk6EOlIVbKCeDkr+te2SHK5S7D0JnHqYvxAUjTQ64Qqu5i7wBL2RYvurj+GqjG+k=
+	t=1779395668; cv=none; b=svF+X+NvR86mR5HrjoXsq5lgIMZHqoQPuicvYJ8C0PKOCs5ff9qpTssdyGXbq6adeVyZWXBop+8EUhyqsxE1kPAU3YASmzNPj4EzqdWR9qCarfIG1LdW+20+g0YLZW5mHDTL3vH0ZRoF2yH/2Auo6HPgFqeLnw5w7N7HH4r4kJs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779390180; c=relaxed/simple;
-	bh=lamLueXQs2j9rC4MhRl8BlvILn6+G8yNbXVTCUJVdoA=;
-	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:Cc:
-	 Content-Type; b=Fke6AWiJ+DwMj/hJDOdAtP9JaKgZG7DDUi5pR3PLWGxw54T+3VrSzuF3JSyHysPZfuksk92Q87GozjVDRnrGqoPzgTN1F1gAO/aXpJf/Fy38vWuoVkap4HXyENqez1sxa05FGc1nx/taWd4NxEIZIZyVbVl+oxjeTKghIoBmC4o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.210.70
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-ot1-f70.google.com with SMTP id 46e09a7af769-7dccdbdf5c2so10426573a34.3
-        for <virtualization@lists.linux.dev>; Thu, 21 May 2026 12:02:57 -0700 (PDT)
+	s=arc-20240116; t=1779395668; c=relaxed/simple;
+	bh=Vidk3LDEKL2XnrVS0/5PJ+6dbEOeauOpV9iuOcmzzjI=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=qHTRBvwx57mbtYz2bZitfhR+tO/dy7rz5I/dNfr6SgHvBzyyDy714BAlI4SBbJsnHEeFJkq1IaH2KmnKoBITl3xo58zz7DHz7eh5537v6SmagOvNTCB7zXq0R/bIndXgmrq0jpIPII/QoIM7LQSAlemL/1hDyxr/nL3MnLYFqtM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=pgG6B3ab; arc=none smtp.client-ip=209.85.214.201
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="pgG6B3ab"
+Received: by mail-pl1-f201.google.com with SMTP id d9443c01a7336-2bc763c7256so150496135ad.3
+        for <virtualization@lists.linux.dev>; Thu, 21 May 2026 13:34:26 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1779395666; x=1780000466; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=dIireasEnp8AQZjS+o0HC63+VEosuYCnO+TKDPQR05s=;
+        b=pgG6B3abg1ZdTgdD1TaZylbtnj7eudX7FgzRoFBLnv4TA7oVPzCzSQgX+dREw28kI+
+         zzhyURzjAFp9TqyEmhtVXu6ikVnDWipou3xEf1rqEgfAinHDCjHyExDAQ3pyHoy8cDRL
+         EsNlNqovVki0UVF4L3kKpIBNjOzx8wuENtlKFjJFml6nk9ON6rGImtvQ2ctNNqjWry5M
+         dPuezohJmPyis+p3jS0jdBIz3cPvyuuoDkacBZYWJ1lBjIZozpqreYxSP94kiMYpAZTm
+         00jwk2BhFN0dmu0jVWGfD+TQZfnwozdje5lJdDlgFmRNWhm6hg6VpV+cW4zmmUVsMF47
+         R75Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779390176; x=1779994976;
-        h=content-transfer-encoding:cc:to:from:subject:message-id:in-reply-to
-         :date:mime-version:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=0krv0nUw1/ioDEFf9ZMQESopIiNp/OLFryuhF9m9kKI=;
-        b=XTkJyYBizQJuNfMPJp5zRN2LJ8EsJsXMwMiJamlr/ntQDj2ug0qTNtln8XpMupEnrs
-         FP41QkNIrFUSKIqG0K3Xqb0Czi2PRd1pas1MZUiatdpPM5qtIhZZlJhqVkj4rmK67Be1
-         IG/PZa1USH5dgfVc5lPtaPpHCMurgOcgw98rWPHPjZYwk1U1K2xmlTn6AmLtRRajUxpx
-         jjLTKSM02AyrnhRN0nslLmNDjGGoL80TyQE4rIEp9vBdEAyAqvDiFsFpNMKRRfSASNzr
-         NyGlvboEyQrPyGjylX+x8/9TeLZ3QyDm0XXkXHe+iQZEtl6gYAcv6Rd9t5LjzOkBlTMr
-         KnlQ==
-X-Forwarded-Encrypted: i=1; AFNElJ8sdc7iE7Oe1G9RYT4qeIFUtAQACdxLdFujEoSBgPGGTfZERAe4LiQuEv5YfaVcEssqF6tT/d1HjlTxFPKZsw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxv5Lf73szgxhEsW6LVhn7u4VzSaLipRW7PAJfbSWVaZk4ld/A5
-	LXHcuCKxVRji1Rpwpg9cqLz5QpFNW9uL35f3+ygesZomFJfAjZ6zAc3CDtXoX4qYo1+eh8h54vb
-	c+k3ahIzAiSlxEXL2Tu6L+FdBtYBmDdtglQqMtNRtOJY0vC/lHGnI7acNUPQ=
+        d=1e100.net; s=20251104; t=1779395666; x=1780000466;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=dIireasEnp8AQZjS+o0HC63+VEosuYCnO+TKDPQR05s=;
+        b=l3cNkAiNj7RrZb1BubEBXysRW7Tr1HtcDck8fu6oZe4Xx0+Txb5tee2/TA1qJAD3Zw
+         eFLfX+C+Y0aVGQCjAQgMGkNZKX0rZWnkeABoZ7zNkYZ6x5fJYRxRKZjeC8LZAUaU/knG
+         QKzbNRsdXA5d+L/zwMEUp47yIYOsg2xN04KVqbB15n4dncvdybjSzOBBp6NtLmV6rqdb
+         SRrqg+1z2BQuH0prmBNSvdhGYTotb1/rugi4wKxxkrTKxjL1qv0tXlU9NFIBZBpa+vtE
+         6lckASC/5dbRyA/WwJHimKWK8AjvST+CDLWWvhPQBFPZ68V1YkVr+/aPQYVMIfzAz5rr
+         iTZw==
+X-Forwarded-Encrypted: i=1; AFNElJ9ihRucc079hsBUNvTI/ztuerrbhvqKgLgrZlCI8pwyn9ZR2+elO1TOl5yjVpvzQ1zrb2ngCsIfu9yC6LZq8Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwCJgMN09BQgbaNtaFeWCUfYKz748VSD0tQSFmJFKeKPny8Ga91
+	Lrw4tOExQ3NWoWMCdPDhqyqPhYD9Gtqg5hbh41weaNbMsekpP80LGDXSUxjlGtlToqfVDFj7Qte
+	zXu0wsA==
+X-Received: from plip15.prod.google.com ([2002:a17:903:38cf:b0:2bc:ae06:63be])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:903:4405:b0:2b9:6458:1a2c
+ with SMTP id d9443c01a7336-2beb06733bemr4530925ad.13.1779395665926; Thu, 21
+ May 2026 13:34:25 -0700 (PDT)
+Date: Thu, 21 May 2026 13:34:24 -0700
+In-Reply-To: <7489ff3cc1ff402bf0ade38272fc52dcbcc75fc1.camel@amazon.co.uk>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-X-Received: by 2002:a05:6830:6d0c:b0:7dc:d99c:c441 with SMTP id
- 46e09a7af769-7e5fedc8241mr302592a34.8.1779390176127; Thu, 21 May 2026
- 12:02:56 -0700 (PDT)
-Date: Thu, 21 May 2026 12:02:56 -0700
-In-Reply-To: <4bc3709f-21bc-49f5-8fcf-972dec1397f7@collabora.com>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6a0f56e0.050a0220.3a257.0000.GAE@google.com>
-Subject: Re: [PATCH v2] drm/virtio: abort virtqueue wait on device removal to
- avoid hung task
-From: syzbot <syzbot@syzkaller.appspotmail.com>
-To: dmitry.osipenko@collabora.com
-Cc: airlied@redhat.com, dmitry.osipenko@collabora.com, 
-	dri-devel@lists.freedesktop.org, gurchetansingh@chromium.org, 
-	kraxel@redhat.com, linux-kernel@vger.kernel.org, 
-	maarten.lankhorst@linux.intel.com, mripard@kernel.org, olvaffe@gmail.com, 
-	ryasuoka@redhat.com, simona@ffwll.ch, tzimmermann@suse.de, 
-	virtualization@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Mime-Version: 1.0
+References: <20260515191942.1892718-1-seanjc@google.com> <20260515191942.1892718-37-seanjc@google.com>
+ <7489ff3cc1ff402bf0ade38272fc52dcbcc75fc1.camel@amazon.co.uk>
+Message-ID: <ag9sUI8pBJda0Ml5@google.com>
+Subject: Re: [PATCH v3 36/41] x86/kvmclock: Get local APIC bus frequency from
+ PV CPUID Timing Info
+From: Sean Christopherson <seanjc@google.com>
+To: David Woodhouse <dwmw@amazon.co.uk>
+Cc: "tglx@kernel.org" <tglx@kernel.org>, "longli@microsoft.com" <longli@microsoft.com>, 
+	"luto@kernel.org" <luto@kernel.org>, 
+	"alexey.makhalov@broadcom.com" <alexey.makhalov@broadcom.com>, "jstultz@google.com" <jstultz@google.com>, 
+	"dave.hansen@linux.intel.com" <dave.hansen@linux.intel.com>, 
+	"ajay.kaher@broadcom.com" <ajay.kaher@broadcom.com>, "jan.kiszka@siemens.com" <jan.kiszka@siemens.com>, 
+	"haiyangz@microsoft.com" <haiyangz@microsoft.com>, "kas@kernel.org" <kas@kernel.org>, 
+	"pbonzini@redhat.com" <pbonzini@redhat.com>, "kys@microsoft.com" <kys@microsoft.com>, 
+	"decui@microsoft.com" <decui@microsoft.com>, 
+	"daniel.lezcano@kernel.org" <daniel.lezcano@kernel.org>, "wei.liu@kernel.org" <wei.liu@kernel.org>, 
+	"peterz@infradead.org" <peterz@infradead.org>, "jgross@suse.com" <jgross@suse.com>, 
+	"boris.ostrovsky@oracle.com" <boris.ostrovsky@oracle.com>, 
+	"linux-coco@lists.linux.dev" <linux-coco@lists.linux.dev>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, 
+	"mhklinux@outlook.com" <mhklinux@outlook.com>, "thomas.lendacky@amd.com" <thomas.lendacky@amd.com>, 
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
+	"bcm-kernel-feedback-list@broadcom.com" <bcm-kernel-feedback-list@broadcom.com>, 
+	"tglx@linutronix.de" <tglx@linutronix.de>, "nikunj@amd.com" <nikunj@amd.com>, 
+	"xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, 
+	"linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, "vkuznets@redhat.com" <vkuznets@redhat.com>, 
+	"rick.p.edgecombe@intel.com" <rick.p.edgecombe@intel.com>, 
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, "sboyd@kernel.org" <sboyd@kernel.org>, 
+	"x86@kernel.org" <x86@kernel.org>
+Content-Type: text/plain; charset="us-ascii"
 
-> 21.05.2026 05:19, Ryosuke Yasuoka =D0=BF=D0=B8=D1=88=D0=B5=D1=82:
->> virtio_gpu_queue_ctrl_sgs() and virtio_gpu_queue_cursor() use
->> wait_event() without any abort condition when waiting for virtqueue
->> space. If the host device stops processing commands, these waits block
->> indefinitely inside a drm_dev_enter/exit() critical section. Since
->> drm_dev_unplug(), which is called in device removal and system shutdown
->> call path, blocks on synchronize_srcu() until all critical sections
->> complete, device removal and system shutdown also hang.
->>=20
->> Add a vqs_released flag to virtio_gpu_device and include it in the
->> wait_event() condition. Set the flag and wake up both queues in a new
->> virtio_gpu_release_vqs() helper, called before drm_dev_unplug() in both
->> virtio_gpu_remove() and virtio_gpu_shutdown(). When the flag is set, the
->> wait returns immediately and the command is aborted, following the same
->> cleanup path as drm_dev_enter() failure.
->>=20
->> Reported-by: syzbot+d6dd6f86d3aaf7eebe7406e45c1c6e549453f224@syzkaller.a=
-ppspotmail.com
->> Closes: https://syzkaller.appspot.com/bug?id=3Dd6dd6f86d3aaf7eebe7406e45=
-c1c6e549453f224
->> Reported-by: syzbot+908bd910da5dd79b88de4cf7baf376cc873a922e@syzkaller.a=
-ppspotmail.com
->> Closes: https://syzkaller.appspot.com/bug?id=3D908bd910da5dd79b88de4cf7b=
-af376cc873a922e
->> Signed-off-by: Ryosuke Yasuoka <ryasuoka@redhat.com>
->> ---
->> Changes in v2:
->> - Update the commit message.
->> - Replace wait_event_timeout() with wait_event() using a compound
->> condition that includes a new vqs_released flag.
->> - Add virtio_gpu_release_vqs() helper to set the flag and wake up
->> both queues, called before drm_dev_unplug() in remove and shutdown
->> paths.
->> - Remove the hardcoded 5-second timeout. Recovery is now driven by
->> the driver flag instead of an arbitrary timeout value.
->> ---
->>  drivers/gpu/drm/virtio/virtgpu_drv.c | 15 +++++++++++++++
->>  drivers/gpu/drm/virtio/virtgpu_drv.h |  1 +
->>  drivers/gpu/drm/virtio/virtgpu_vq.c  | 23 +++++++++++++++++++++--
->>  3 files changed, 37 insertions(+), 2 deletions(-)
->>=20
->> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virt=
-io/virtgpu_drv.c
->> index a5ce96fb8a1d..e4fe5e0780f9 100644
->> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
->> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
->> @@ -119,10 +119,24 @@ static int virtio_gpu_probe(struct virtio_device *=
-vdev)
->>  	return ret;
->>  }
->> =20
->> +/*
->> + * Release pending virtqueue waits so the drm_dev_enter/exit() critical
->> + * sections complete before drm_dev_unplug() blocks on synchronize_srcu=
-().
->> + */
->> +static void virtio_gpu_release_vqs(struct drm_device *dev)
->> +{
->> +	struct virtio_gpu_device *vgdev =3D dev->dev_private;
->> +
->> +	vgdev->vqs_released =3D true;
->> +	wake_up_all(&vgdev->ctrlq.ack_queue);
->> +	wake_up_all(&vgdev->cursorq.ack_queue);
->> +}
->> +
->>  static void virtio_gpu_remove(struct virtio_device *vdev)
->>  {
->>  	struct drm_device *dev =3D vdev->priv;
->> =20
->> +	virtio_gpu_release_vqs(dev);
->>  	drm_dev_unplug(dev);
->>  	drm_atomic_helper_shutdown(dev);
->>  	virtio_gpu_deinit(dev);
->> @@ -133,6 +147,7 @@ static void virtio_gpu_shutdown(struct virtio_device=
- *vdev)
->>  {
->>  	struct drm_device *dev =3D vdev->priv;
->> =20
->> +	virtio_gpu_release_vqs(dev);
->>  	/* stop talking to the device */
->>  	drm_dev_unplug(dev);
->>  }
->> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virt=
-io/virtgpu_drv.h
->> index f17660a71a3e..0bd69a40857e 100644
->> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
->> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
->> @@ -235,6 +235,7 @@ struct virtio_gpu_device {
->> =20
->>  	struct virtio_gpu_queue ctrlq;
->>  	struct virtio_gpu_queue cursorq;
->> +	bool vqs_released;
->>  	struct kmem_cache *vbufs;
->> =20
->>  	atomic_t pending_commands;
->> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virti=
-o/virtgpu_vq.c
->> index 67865810a2e7..8057a9b7356d 100644
->> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
->> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
->> @@ -396,7 +396,19 @@ static int virtio_gpu_queue_ctrl_sgs(struct virtio_=
-gpu_device *vgdev,
->>  	if (vq->num_free < elemcnt) {
->>  		spin_unlock(&vgdev->ctrlq.qlock);
->>  		virtio_gpu_notify(vgdev);
->> -		wait_event(vgdev->ctrlq.ack_queue, vq->num_free >=3D elemcnt);
->> +		wait_event(vgdev->ctrlq.ack_queue,
->> +			   vq->num_free >=3D elemcnt || vgdev->vqs_released);
->> +		/*
->> +		 * Set by virtio_gpu_release_vqs() to unblock
->> +		 * synchronize_srcu() wait in drm_dev_unplug().
->> +		 */
->> +		if (vgdev->vqs_released) {
->> +			if (fence && vbuf->objs)
->> +				virtio_gpu_array_unlock_resv(vbuf->objs);
->> +			free_vbuf(vgdev, vbuf);
->> +			drm_dev_exit(idx);
->> +			return -ENODEV;
->> +		}
->>  		goto again;
->>  	}
->> =20
->> @@ -566,7 +578,14 @@ static void virtio_gpu_queue_cursor(struct virtio_g=
-pu_device *vgdev,
->>  	ret =3D virtqueue_add_sgs(vq, sgs, outcnt, 0, vbuf, GFP_ATOMIC);
->>  	if (ret =3D=3D -ENOSPC) {
->>  		spin_unlock(&vgdev->cursorq.qlock);
->> -		wait_event(vgdev->cursorq.ack_queue, vq->num_free >=3D outcnt);
->> +		wait_event(vgdev->cursorq.ack_queue,
->> +			   vq->num_free >=3D outcnt || vgdev->vqs_released);
->> +		/* See comment in virtio_gpu_queue_ctrl_sgs(). */
->> +		if (vgdev->vqs_released) {
->> +			free_vbuf(vgdev, vbuf);
->> +			drm_dev_exit(idx);
->> +			return;
->> +		}
->>  		spin_lock(&vgdev->cursorq.qlock);
->>  		goto retry;
->>  	} else {
->
-> What about other wait_event in the driver? Why only these?
->
-> --=20
-> Best regards,
-> Dmitry
+On Wed, May 20, 2026, David Woodhouse wrote:
+> On Fri, 2026-05-15 at 12:19 -0700, Sean Christopherson wrote:
+> > When running as a KVM guest with kvmclock support enabled, stuff the APIC
+> > timer period/frequency with the local APIC bus frequency reported in
+> > CPUID.0x40000010.EBX instead of trying to calibrate/guess the frequency.
+> > 
+> > See Documentation/virt/kvm/x86/cpuid.rst for details.
+> > 
+> > Signed-off-by: Sean Christopherson <seanjc@google.com>
+> 
+> I still don't much like the way this is done inside kvm_get_tsc_khz().
 
-I see the command but can't find the corresponding bug.
-The email is sent to  syzbot+HASH@syzkaller.appspotmail.com address
-but the HASH does not correspond to any known bug.
-Please double check the address.
+Yeah, I don't like it either (understatement).  Aha!  native_calibrate_tsc() is
+the oddball, all of the PV flows stuff lapic_timer_period when parsing the initial
+timing info.  I'll just do that.  Blindly writing a global is all kinds of fugly,
+but that's a future
+problem to solve.
+
+> We also probably ought to be looking for the timing leaf on other
+> hypervisors including VMware 
+
+VMware gets the frequency via hypercall.  Why, I have no idea.  I'll let the
+VMware folks deal with that.
+
+	eax = vmware_hypercall3(VMWARE_CMD_GETHZ, UINT_MAX, &ebx, &ecx);
+
+> and probably Bhyve too.  Should it be done somewhere else?
+
+I'm not opposed to that, though I don't know that it'd be a net positive. The
+"hard" part of getting the info is finding the CPUID base and checking if the
+leaf is available.  Unlike the native CPUID leaf, no math is necessary, and so
+once the leaf is obtained, getting the frequency is trivial.
+
+Regardless, I definitely don't want to take it on in this series. :-)
 
