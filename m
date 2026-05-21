@@ -1,134 +1,162 @@
-Received: from mail-pf1-f202.google.com (mail-pf1-f202.google.com [209.85.210.202])
+Received: from mail-pg1-f201.google.com (mail-pg1-f201.google.com [209.85.215.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B28113F0750
-	for <virtualization@lists.linux.dev>; Thu, 21 May 2026 13:38:34 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2501E3E2741
+	for <virtualization@lists.linux.dev>; Thu, 21 May 2026 13:45:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779370716; cv=none; b=OKlXU0fpTXa/7U+iErvZLl3a2uvd1nKOVPK+9nSM34/LRFTfXGvM2+6d0Xw8qXNLaug3+8Lwdrn7l+e9XKZeqf+pM74syLGWowMNMze2l2uBQpAv2YlzNj5V5s31CCkUV+0Ia57QJUDbSvVouKUIY03xI47Q6QuoIHFkhtugRy0=
+	t=1779371110; cv=none; b=syWvN5tgTPLCPasI74ntQeqHemQUjdBLLMDgk//2Xe41bm/pnCUkc7km+FgDYjYJw5xmWeXacmIw0nndxkYkNBYPXzu9aWmOgxj3IxhdQVVWntPxwlQKjgpKat1NFaR0S7Kn1hPpvNrd7OKOUZ6ISSML2SSPfj6h/ZNzfqRnPcA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779370716; c=relaxed/simple;
-	bh=rZ1N/KoZeh9+iAw5VzELz8I+bOlFA8dDM2e99AiyYKk=;
+	s=arc-20240116; t=1779371110; c=relaxed/simple;
+	bh=JmKBkku/kD8/n/a4gtEJvwwFH5TVoQOZ+eRQ7DUmO1k=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=gg7ABZSCLZ7R8FjMuSHzn4PmQlN+bWSSxhg9EME1P73bw6Lrgmuc96xC+uU88luhw5OvcvK4R3b33uA9Rvc9yHEcX61LpH/1aToWDQw2QWNrzJYRMJJD7l/5ClNHaciMje/DOyS0JiO386k+Qf4iqOMSOpAC9mDJnoTHa6bHB8U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=kQJXDqD9; arc=none smtp.client-ip=209.85.210.202
+	 To:Cc:Content-Type; b=V1ZBBqb4NBKerumrWovGMiLunVOojhY0JDfsw7ILjlwRwGiUab37oP6cnEEMxa89V9PZC2FZJJntGmfhSFxX3oSGOuMipaS/EavoFIsQbHSvS62kfuXIKNLaPAn+qy3uZAn26tdEP8ETJkA7O1X/g7KG8bHw8Bm67fXqbPoDphs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=PlXDcyo3; arc=none smtp.client-ip=209.85.215.201
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="kQJXDqD9"
-Received: by mail-pf1-f202.google.com with SMTP id d2e1a72fcca58-82f7bec24fdso3175897b3a.2
-        for <virtualization@lists.linux.dev>; Thu, 21 May 2026 06:38:34 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="PlXDcyo3"
+Received: by mail-pg1-f201.google.com with SMTP id 41be03b00d2f7-c828b1b7fddso3492912a12.3
+        for <virtualization@lists.linux.dev>; Thu, 21 May 2026 06:45:06 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1779370714; x=1779975514; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:from:subject:message-id:references
-         :mime-version:in-reply-to:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=jbJ4F8kl/6/QcBmB9dNne3NQOqe79KuT470iYfI7huM=;
-        b=kQJXDqD9YuK/zK0M0cFNFd3/kmz0GB41I/ARrqfu2s+E2zydJMBBoqrQicxgfi6KxK
-         W8UQUUV11Onoe5x2gv+aVhQWfJKDLDPsp0DakqFvS+et2Q/95zzYc4ie616MWv93Ap6G
-         wsUUpLTNeye1qT7723eoYNTXFtj3BzJUSAhZi9fHIvwXw/hWuEWcjE+HaB0ZL+LiAXWR
-         z2SRlVdf+pO6Dhs5MoA80QClp+Srk9Oe2uXtvarMEdmIHoetWfnBiDElKH/hPg+IpEa2
-         NfwH/neXfyUqoGhYhhlaOABNo7cQ5rOEYMWN0JdvWtHunMvnMC3xpeWw6D7WK4WdxYfu
-         DWcw==
+        d=google.com; s=20251104; t=1779371106; x=1779975906; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=Dnh9Qdh/Ek2SFmUD3YQQhAJ1lm8lFb5yTi3rkZyIV7s=;
+        b=PlXDcyo396LC9Ddaa6H1P+LCuhsn6NjBQr8/cCxXh1RwDkm4Bs+NyiXk4TEGEXdzvt
+         QVbYSZofINv4/y2ZnUbAUJr94DsWSYKZi0ClJJwhrpJGO4pUQslMHTFiuqa4lkQLUo6K
+         kAqh3tvI2byt5qVQq5EuVrOf4W+sJKZHL7/+fmlsxopI67LcjjAgz+ik3PKJn2ymLaXm
+         b3NFYkNzwArYvxCYkLej1DNLiIhmn/E71AAuR7R8YTODMDdROAuTVkLNGDd9e3YTT+bj
+         oaDTlFANCkDgt0xYupca8SS9RzzSz18o9kzHHyO1yaCsdSBeu9TLW/HcxlBSkEZC1ohX
+         9E8A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779370714; x=1779975514;
-        h=content-transfer-encoding:cc:to:from:subject:message-id:references
-         :mime-version:in-reply-to:date:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=jbJ4F8kl/6/QcBmB9dNne3NQOqe79KuT470iYfI7huM=;
-        b=WL65qEFoChYXOu7THsvXvSyXKFuoj77YO5xQWh6zg16tOzLonFtgmM93kxoo5vFC88
-         G1x7+WsRaVNxCOoGND6LIcCEmD1oYxTD/UtV9ElCOyXYG1NVaSiaCaRc0sIPJswi+8s3
-         +Jy8QoQUV1ze7N7MqinLBQLWJZs+y8qowjAcS5jvMQbbQ8KN819q/1bNUNooX/O4vja6
-         RyrXIM0jHQ7RoK5vkEly1su/X5bd6TuIMyWo/9k8k6LYrF/qlQKEQmJG6DSBdSkUEaPF
-         jCRJNHq5nMLm+WX/E8exmQoQCUj0GyGq6X6Yda75OOD36v0zyEcFUpOMF/eJKz/znK2Z
-         pVoQ==
-X-Forwarded-Encrypted: i=1; AFNElJ/hnVN54nM+O8VbmV9c1dcHMzKrsFfzYuXndShA6NcruGF/cQyV227vOZTWfrpqXpehPxC0vSVYluC7JI7ORw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyjG2MOeWq+L0k4FWC6aRkONofCHoYnBuaw7mRZgbE++HP1M8G7
-	uGx/nofK3zSogKddgIQSclNgP0yurdcJlx7uPDaq/dyR369U6BtVtFjdGZ+B+TU6QplH0Q/ZtLC
-	oH30ASQ==
-X-Received: from pfbem15.prod.google.com ([2002:a05:6a00:374f:b0:83d:3c25:eb8b])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:4c8c:b0:827:3b1b:43e6
- with SMTP id d2e1a72fcca58-8414acc6e8emr3123916b3a.21.1779370713612; Thu, 21
- May 2026 06:38:33 -0700 (PDT)
-Date: Thu, 21 May 2026 06:38:32 -0700
-In-Reply-To: <20260521131019.GI3126523@noisy.programming.kicks-ass.net>
+        d=1e100.net; s=20251104; t=1779371106; x=1779975906;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Dnh9Qdh/Ek2SFmUD3YQQhAJ1lm8lFb5yTi3rkZyIV7s=;
+        b=Epktzqyti//haCoRGZl8elgleerwYs5Ga9EmbsB3pXGl3HZjuuGTE+JJQoqN1T/UIf
+         sKTi715F1hKBRSK9mMNcpb/hAhnP3LDDThhMV8YDI2SqCnmQ4HvKwjTEhEdAj/w0zs2Y
+         MBdXZAejYcCF+Ruo9C1iQVaOhU4t0PqCI13SMyX4OoT41EkOmzNjVdSO4N+7X7dxJg4Z
+         Bz+YSB1u3I8zkXZ5qXMNumCiNkQkKZR6nQyppQtFn8DRiceyXQs1BFrcU851xcXewSbz
+         qOhAWvn4kkZwKubl/ZwRM3j8jGOYQHXS8vJSCQVOzeVoMCS0FeJup3sEQ0a1m5b1JsnL
+         ACog==
+X-Forwarded-Encrypted: i=1; AFNElJ+ZH3XsPfBdQ9JIhegeW0szoWWJPxJpPSpEtrfC/XMdSEOhOJTX/Zyc4R1Svp2IdcPlGAmDf28erc4MQC7nxg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzAtuaJeQ1rxkhpgX/aGQ0w9lUoL/9KvrfHrIsmvpir9sx7NYSw
+	Rj1E2ZkZyC//mM/vKPfhDIhcqYQvWUA/gyQRJMwovYSyoX4gGjGBS6dBQRqtI6b+fgF9Uocaxhr
+	2w7QB7w==
+X-Received: from pgvm13.prod.google.com ([2002:a65:62cd:0:b0:c85:1159:ffbd])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a20:7491:b0:3a0:bc61:62e5
+ with SMTP id adf61e73a8af0-3b30883a17bmr3700528637.44.1779371104725; Thu, 21
+ May 2026 06:45:04 -0700 (PDT)
+Date: Thu, 21 May 2026 06:45:04 -0700
+In-Reply-To: <20260521133326.2465264-9-kees@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 Mime-Version: 1.0
-References: <20260515191942.1892718-1-seanjc@google.com> <20260515191942.1892718-28-seanjc@google.com>
- <423b37f056f0d4d596d5f4cc73802fb1079ecf63.camel@infradead.org>
- <ag8Bpc_uVNrNWqfX@google.com> <20260521131019.GI3126523@noisy.programming.kicks-ass.net>
-Message-ID: <ag8K2FRGcoEa-D2Y@google.com>
-Subject: Re: [PATCH v3 27/41] x86/kvmclock: Enable kvmclock on APs during
- onlining if kvmclock isn't sched_clock
+References: <20260521133315.work.845-kees@kernel.org> <20260521133326.2465264-9-kees@kernel.org>
+Message-ID: <ag8MYC6pOZvvYHMp@google.com>
+Subject: Re: [PATCH 09/11] treewide: Convert custom kernel_param_ops .get
+ callbacks to seq_buf via cocci
 From: Sean Christopherson <seanjc@google.com>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: David Woodhouse <dwmw2@infradead.org>, Kiryl Shutsemau <kas@kernel.org>, 
-	Paolo Bonzini <pbonzini@redhat.com>, "K. Y. Srinivasan" <kys@microsoft.com>, 
-	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
-	Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>, 
-	Ajay Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.makhalov@broadcom.com>, 
-	Jan Kiszka <jan.kiszka@siemens.com>, Dave Hansen <dave.hansen@linux.intel.com>, 
-	Andy Lutomirski <luto@kernel.org>, Juergen Gross <jgross@suse.com>, 
-	Daniel Lezcano <daniel.lezcano@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
-	John Stultz <jstultz@google.com>, Rick Edgecombe <rick.p.edgecombe@intel.com>, 
-	Vitaly Kuznetsov <vkuznets@redhat.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stephen Boyd <sboyd@kernel.org>, x86@kernel.org, 
-	linux-coco@lists.linux.dev, kvm@vger.kernel.org, linux-hyperv@vger.kernel.org, 
+To: Kees Cook <kees@kernel.org>
+Cc: Luis Chamberlain <mcgrof@kernel.org>, Pengpeng Hou <pengpeng@iscas.ac.cn>, 
+	Petr Pavlu <petr.pavlu@suse.com>, Richard Weinberger <richard@nod.at>, 
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, 
+	"Rafael J. Wysocki" <rafael@kernel.org>, Len Brown <lenb@kernel.org>, Corey Minyard <corey@minyard.net>, 
+	Gabriel Somlo <somlo@cmu.edu>, "Michael S. Tsirkin" <mst@redhat.com>, 
+	Jani Nikula <jani.nikula@linux.intel.com>, 
+	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, 
+	Tvrtko Ursulin <tursulin@ursulin.net>, David Airlie <airlied@gmail.com>, 
+	Simona Vetter <simona@ffwll.ch>, Bart Van Assche <bvanassche@acm.org>, Jason Gunthorpe <jgg@ziepe.ca>, 
+	Leon Romanovsky <leon@kernel.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, 
+	Hans de Goede <hansg@kernel.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, 
+	Bjorn Helgaas <bhelgaas@google.com>, Hannes Reinecke <hare@suse.de>, 
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
+	"Martin K. Petersen" <martin.petersen@oracle.com>, Daniel Lezcano <daniel.lezcano@kernel.org>, 
+	Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>, 
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jirislaby@kernel.org>, 
+	Alan Stern <stern@rowland.harvard.edu>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	"Eugenio =?utf-8?B?UMOpcmV6?=" <eperezma@redhat.com>, Jason Baron <jbaron@akamai.com>, 
+	Jim Cromie <jim.cromie@gmail.com>, Tiwei Bie <tiwei.btw@antgroup.com>, 
+	Benjamin Berg <benjamin.berg@intel.com>, 
+	"Ilpo =?utf-8?B?SsOkcnZpbmVu?=" <ilpo.jarvinen@linux.intel.com>, 
+	"David E. Box" <david.e.box@linux.intel.com>, "Maciej W. Rozycki" <macro@orcam.me.uk>, 
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, 
+	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
+	Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+	"H. Peter Anvin" <hpa@zytor.com>, Vinod Koul <vkoul@kernel.org>, Frank Li <Frank.Li@kernel.org>, 
+	Daniel Gomez <da.gomez@kernel.org>, Sami Tolvanen <samitolvanen@google.com>, 
+	Aaron Tomlin <atomlin@atomlin.com>, Alexander Potapenko <glider@google.com>, Marco Elver <elver@google.com>, 
+	Dmitry Vyukov <dvyukov@google.com>, Andrew Morton <akpm@linux-foundation.org>, 
+	John Johansen <john.johansen@canonical.com>, Paul Moore <paul@paul-moore.com>, 
+	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
+	Georgia Garcia <georgia.garcia@canonical.com>, kvm@vger.kernel.org, 
+	dmaengine@vger.kernel.org, linux-modules@vger.kernel.org, 
+	kasan-dev@googlegroups.com, linux-mm@kvack.org, apparmor@lists.ubuntu.com, 
+	linux-security-module@vger.kernel.org, linux-um@lists.infradead.org, 
+	linux-acpi@vger.kernel.org, openipmi-developer@lists.sourceforge.net, 
+	qemu-devel@nongnu.org, intel-gfx@lists.freedesktop.org, 
+	dri-devel@lists.freedesktop.org, linux-rdma@vger.kernel.org, 
+	linux-media@vger.kernel.org, linux-pci@vger.kernel.org, 
+	linux-scsi@vger.kernel.org, linux-pm@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, linux-serial@vger.kernel.org, 
+	linux-usb@vger.kernel.org, usb-storage@lists.one-eyed-alien.net, 
 	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	xen-devel@lists.xenproject.org, Michael Kelley <mhklinux@outlook.com>, 
-	Tom Lendacky <thomas.lendacky@amd.com>, Nikunj A Dadhania <nikunj@amd.com>, 
-	Thomas Gleixner <tglx@linutronix.de>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+	linux-arch@vger.kernel.org, netdev@vger.kernel.org, 
+	linux-fsdevel@vger.kernel.org, linux-hardening@vger.kernel.org
+Content-Type: text/plain; charset="us-ascii"
 
-On Thu, May 21, 2026, Peter Zijlstra wrote:
-> On Thu, May 21, 2026 at 05:59:17AM -0700, Sean Christopherson wrote:
-> > On Thu, May 21, 2026, David Woodhouse wrote:
-> > > On Fri, 2026-05-15 at 12:19 -0700, Sean Christopherson wrote:
-> > > > In anticipation of making x86_cpuinit.early_percpu_clock_init(), i.=
-e.
-> > > > kvm_setup_secondary_clock(), a dedicated sched_clock hook that will=
- be
-> > > > invoked if and only if kvmclock is set as sched_clock, ensure APs e=
-nable
-> > > > their kvmclock during CPU online.=C2=A0 While a redundant write to =
-the MSR is
-> > > > technically ok, skip the registration when kvmclock is sched_clock =
-so that
-> > > > it's somewhat obvious that kvmclock *needs* to be enabled during ea=
-rly
-> > > > bringup when it's being used as sched_clock.
-> > > >=20
-> > > > Plumb in the BSP's resume path purely for documentation purposes.=
-=C2=A0 Both
-> > > > KVM (as-a-guest) and timekeeping/clocksource hook syscore_ops, and =
-it's
-> > > > not super obvious that using KVM's hooks would be flawed.=C2=A0 E.g=
-. it would
-> > > > work today, because KVM's hooks happen to run after/before timekeep=
-ing's
-> > > > hooks during suspend/resume, but that's sheer dumb luck as the orde=
-r in
-> > > > which syscore_ops are invoked depends entirely on when a subsystem =
-is
-> > > > initialized and thus registers its hooks.
-> > > >=20
-> > > > Opportunsitically make the registration messages more precise to he=
-lp
-> > > > debug issues where kvmclock is enabled too late.
-> > >=20
-> > > That's a hard word to type, isn't it?
-> >=20
-> > Heh, you have no idea.  I've been "this" close to creating a VIM bindin=
-g for a
-> > while, it is time...
->=20
-> 'z=3D' not good enough?
+On Thu, May 21, 2026, Kees Cook wrote:
+> diff --git a/arch/x86/kvm/vmx/vmx.c b/arch/x86/kvm/vmx/vmx.c
+> index 07f4c7209ac0..00317774a90b 100644
+> --- a/arch/x86/kvm/vmx/vmx.c
+> +++ b/arch/x86/kvm/vmx/vmx.c
+> @@ -368,12 +368,16 @@ static int vmentry_l1d_flush_set(const char *s, const struct kernel_param *kp)
+>  	return ret;
+>  }
+>  
+> -static int vmentry_l1d_flush_get(char *s, const struct kernel_param *kp)
+> +static int vmentry_l1d_flush_get(struct seq_buf *s,
+> +				 const struct kernel_param *kp)
+>  {
+> -	if (WARN_ON_ONCE(l1tf_vmx_mitigation >= ARRAY_SIZE(vmentry_l1d_param)))
+> -		return sysfs_emit(s, "???\n");
+> +	if (WARN_ON_ONCE(l1tf_vmx_mitigation >= ARRAY_SIZE(vmentry_l1d_param))) {
+> +		seq_buf_printf(s, "???\n");
+> +		return 0;
+> +	}
+>  
+> -	return sysfs_emit(s, "%s\n", vmentry_l1d_param[l1tf_vmx_mitigation].option);
+> +	seq_buf_printf(s, "%s\n", vmentry_l1d_param[l1tf_vmx_mitigation].option);
+> +	return 0;
 
-You people and your fancy ways.  I'm just happy I can get in and out of the=
- editor :-)
+For this one, can you manually change it to this?
+
+	if (WARN_ON_ONCE(l1tf_vmx_mitigation >= ARRAY_SIZE(vmentry_l1d_param)))
+		seq_buf_printf(s, "???\n");
+	else
+		seq_buf_printf(s, "%s\n", vmentry_l1d_param[l1tf_vmx_mitigation].option);
+	return 0;
+
+>  }
+>  
+>  /*
+> @@ -459,9 +463,11 @@ static int vmentry_l1d_flush_set(const char *s, const struct kernel_param *kp)
+>  	pr_warn_once("Kernel compiled without mitigations, ignoring vmentry_l1d_flush\n");
+>  	return 0;
+>  }
+> -static int vmentry_l1d_flush_get(char *s, const struct kernel_param *kp)
+> +static int vmentry_l1d_flush_get(struct seq_buf *s,
+> +				 const struct kernel_param *kp)
+>  {
+> -	return sysfs_emit(s, "never\n");
+> +	seq_buf_printf(s, "never\n");
+> +	return 0;
+>  }
+>  #endif
