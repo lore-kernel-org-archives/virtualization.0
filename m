@@ -1,225 +1,237 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D1D91F2B8D
-	for <virtualization@lists.linux.dev>; Thu, 21 May 2026 14:09:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 604F32BE7BE;
+	Thu, 21 May 2026 14:13:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779372566; cv=none; b=iKkV2VmlMqBwe94vPomq3C4fHDZLlzxVQulf4GZGfkg2x3WZ7ZdEBvIXIm7GhZW5hqE5ADfuax91VJ/RRlY0rUyGcNhVwM/zY6fSEnTAoXWslOqbPt3lrBNpmpBhjWbh9dKAef7uBPw/Zvga3fkEd7R01e+VteLS2kyex8a7R3w=
+	t=1779372828; cv=none; b=OAqL7AG0XudzdByqNcKpTMKjzg8LGFQOnGwJSN1oKMcSLoDWnrlsfVa0fnoR2YYNzRMKp9SEyX06NGS71nEwJnVgvD/5a7w/BlbvuRxaf7d+EpgodM63rUzadw0aOOOONCiNv+YIidxbGHBBKIB6a0misppAz6dKK7J36M/e/w0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779372566; c=relaxed/simple;
-	bh=zVWai+7lGIvjl6SkZBpll6gJb+jxqobnMbSWMceYjNA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=NBpwC86WqhIQupOEXou3NHLqwp7oQPiMe+ww0OG87z+evAmdFtrleiF+/wwEJTH1gSp/TJkJqDvaHyEkpmPAUpKHxv5TLDuCpfSlRmHLnPw5i9H1+2Ff5ke3lUZblqadDGzLOd8QiREcwIrnetUa0sHd53p5dQNtp7acfoyancg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Vct6ra0N; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1779372828; c=relaxed/simple;
+	bh=Ma4rUXxctxkBftmjMkUa1ZjNAzu1G4mVje5WD9fbAWQ=;
+	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=VKEdYBxyaEJb2+7fykB1RDMh5/+PXwdw3jFa4HynZyYKWGL0iauNAicZMT8Wyu5XAQM3dW7ACjJ9jnhkpev/odZSw3+ecIemcGVLvRixdrDEceyE0BufOn2Fs59dzusO4hW7k6zTeSwle3ORFXfOMcaHuQ+dnELlhT/WEmCMUZs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=casper.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=CSe7eIl3; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=casper.srs.infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Vct6ra0N"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1779372563;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=E82Z22wc78DWFtKs22Dwf10Uc2AV6EGoZcG/joqub6E=;
-	b=Vct6ra0NH6nH4gBZFIjDfwKIDfUeotUzCK74H6H/a5kOjzU/YrsAAYBGF3ntHbZD1ne2c4
-	5ohIe+ivTxEF32OOB7HHvVhCDDij9BE2G13DTYOa8ON6rNueN8E3xcXz9K4yY5E7hN67IQ
-	HH8/bn4l0kj1cZB/7vha9bGifmrk/SQ=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-680-QuQ96MPCN_-D4KpzlSY5Cw-1; Thu, 21 May 2026 10:09:19 -0400
-X-MC-Unique: QuQ96MPCN_-D4KpzlSY5Cw-1
-X-Mimecast-MFC-AGG-ID: QuQ96MPCN_-D4KpzlSY5Cw_1779372558
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-48fd233d1e2so56956845e9.1
-        for <virtualization@lists.linux.dev>; Thu, 21 May 2026 07:09:19 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779372558; x=1779977358;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=E82Z22wc78DWFtKs22Dwf10Uc2AV6EGoZcG/joqub6E=;
-        b=jPdW1znsaR+mhv3nDD3IFAOy2KUJff/eeLoWqbfPjMVxJmB8Y3f1YQQrwnxCFdUwhe
-         EYp0QuRCt94ur5dmwm93Qcj5Emg/koX/ePVHjKsozEWbli4tuVJY5EXKyjwsDmtez05L
-         cgf4G3ZdnYVu7oR1NiVEJRHbHmBunGAE+jFeDaF0FR5A+ANcSrnzupbO+OlB0RFVDRuc
-         TcaKUFM2/z9bOCAkFtXzXAZOUnO+a9yI08lcNQ99zMwL7oSxOGsj5n3AOiyAqUyE9+y/
-         cxNq4xaGaa+P3RQZ6iCc6jniSbAHde6f79wod3iT58UbzhpAYTfFB29+nvo2tSTmLPoa
-         /BJA==
-X-Forwarded-Encrypted: i=1; AFNElJ8DMt8fE4Ho+/YxPRT1+N8WbHTMFYH91wMlJQPcsV1sTOsNeJqyMAKF0OMmfvpw+UqP8ybRtBHuF7TBOB48+g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzJdjIGQdHTyhE5dBExmIyvwN4kgnbfF/NxLL4fwhV8K4RewJVq
-	YRJNcRIscmCghy30UnbfQCTDtcNBktvxUAHgg2juX1Hg8le49TEk5oElyizJtIextdM5HjOBPJT
-	LwJRfyR2tSaZLphlIsvVRktaf8fN6Fop1t6qxneEUlASk2pnoNBj2K0Ndza4OPZBrIkKo
-X-Gm-Gg: Acq92OFKsXtYm+MBR/N7mDGY+JD4x3rRxzlC4HpwJ5fOEw+CfTwGMM+Mekr5rjQrAw6
-	M5t5f9LScksO1ppU6P9HQ7mWilQprHkY/MvrMvHvMMSMkXiAaQKf/Ukv0v6S7+eNcp0R75q2/4+
-	mL+LRcQAr/Wvag/6l9SxxN3RGJp33uoJcvXkTjrc7eCBdJPTT5/UCfBGIlRZ5Vvnx0HgBbxjr6k
-	XaIA0qzrEhcUuGmfQsUWSQVRrcxk3FfSOMGApRGu8JbuJaMaZa12gkQqvHzQrnaBv9A3EKU5qW9
-	gHjPONnd2i4shweAMVzpKN3K2+i3ljSsl6bLhRAv97EmUnSJTielvv8jE0yDFb3GZtRrY4iWwmo
-	1I6tSigAraS+mhnHV1sfHDYDQOR2HXEiG8KNRebWbA0qlelLlYlHMSw==
-X-Received: by 2002:a05:600c:4e92:b0:490:3b84:c106 with SMTP id 5b1f17b1804b1-4903b84c8ffmr34030235e9.26.1779372557807;
-        Thu, 21 May 2026 07:09:17 -0700 (PDT)
-X-Received: by 2002:a05:600c:4e92:b0:490:3b84:c106 with SMTP id 5b1f17b1804b1-4903b84c8ffmr34029025e9.26.1779372557076;
-        Thu, 21 May 2026 07:09:17 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-25-45.inter.net.il. [80.230.25.45])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4903ad2ee77sm25394465e9.0.2026.05.21.07.09.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 21 May 2026 07:09:16 -0700 (PDT)
-Date: Thu, 21 May 2026 10:09:11 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Muchun Song <muchun.song@linux.dev>,
-	Oscar Salvador <osalvador@suse.de>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Lorenzo Stoakes <ljs@kernel.org>,
-	"Liam R. Howlett" <liam@infradead.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Brendan Jackman <jackmanb@google.com>,
-	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
-	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
-	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
-	Byungchul Park <byungchul@sk.com>,
-	Gregory Price <gourry@gourry.net>,
-	Ying Huang <ying.huang@linux.alibaba.com>,
-	Alistair Popple <apopple@nvidia.com>,
-	Christoph Lameter <cl@gentwo.org>,
-	David Rientjes <rientjes@google.com>,
-	Roman Gushchin <roman.gushchin@linux.dev>,
-	Harry Yoo <harry.yoo@oracle.com>,
-	Axel Rasmussen <axelrasmussen@google.com>,
-	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
-	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
-	Kemeng Shi <shikemeng@huaweicloud.com>,
-	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
-	virtualization@lists.linux.dev, linux-mm@kvack.org,
-	Andrea Arcangeli <aarcange@redhat.com>
-Subject: Re: [PATCH v8 00/37] mm/virtio: skip redundant zeroing of
- host-zeroed pages
-Message-ID: <20260521100313-mutt-send-email-mst@kernel.org>
-References: <cover.1779315441.git.mst@redhat.com>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="CSe7eIl3"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=MIME-Version:Content-Type:References:
+	In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=Ma4rUXxctxkBftmjMkUa1ZjNAzu1G4mVje5WD9fbAWQ=; b=CSe7eIl3b9aaKU3qvbReR7GGlx
+	TvFYVP+wbeuYlAI6cAn2jdlkw0yqpFub5sWNPQghqq18UMXyDmvmuuGjf2wgJ/7aUedA3wf+XZtg8
+	QuDlLJmdEedu/ZAx2g6D4kwFpgXbVAnC6lIEho0XzXjHYPWGD07pN9WW4VGTrBH3Q3jWU4pa2uUon
+	phWtYIwJitJTjVUKaZLrfVfWZlx4wmJ1oGiaY3Vrggo1gK9O5Ex50Iz6MlEhhr2ZtFM9ab8IWHn6/
+	gvrmLjB3inwVsMPCOtkjq1d2NWIb+P1kLFDGXJqHbtHBRgX3/HzVyxucukR1qdEVr0GzxxVDPBUP1
+	SVeYlqIw==;
+Received: from 54-240-197-239.amazon.com ([54.240.197.239] helo=u09cd745991455d.ant.amazon.com)
+	by casper.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1wQ49a-00000008Zoj-333x;
+	Thu, 21 May 2026 14:13:38 +0000
+Message-ID: <6d37802ec33601d6be0eb648156e985545b2364a.camel@infradead.org>
+Subject: Re: [PATCH v3 27/41] x86/kvmclock: Enable kvmclock on APs during
+ onlining if kvmclock isn't sched_clock
+From: David Woodhouse <dwmw2@infradead.org>
+To: Sean Christopherson <seanjc@google.com>, Peter Zijlstra
+	 <peterz@infradead.org>
+Cc: Kiryl Shutsemau <kas@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, 
+ "K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang
+ <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, Dexuan Cui
+ <decui@microsoft.com>, Long Li <longli@microsoft.com>, Ajay Kaher
+ <ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.makhalov@broadcom.com>,
+ Jan Kiszka <jan.kiszka@siemens.com>, Dave Hansen
+ <dave.hansen@linux.intel.com>, Andy Lutomirski <luto@kernel.org>, Juergen
+ Gross <jgross@suse.com>, Daniel Lezcano <daniel.lezcano@kernel.org>, Thomas
+ Gleixner <tglx@kernel.org>, John Stultz <jstultz@google.com>, Rick
+ Edgecombe <rick.p.edgecombe@intel.com>, Vitaly Kuznetsov
+ <vkuznets@redhat.com>,  Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>, Boris Ostrovsky
+ <boris.ostrovsky@oracle.com>, Stephen Boyd <sboyd@kernel.org>,
+ x86@kernel.org,  linux-coco@lists.linux.dev, kvm@vger.kernel.org,
+ linux-hyperv@vger.kernel.org,  virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org,  xen-devel@lists.xenproject.org, Michael
+ Kelley <mhklinux@outlook.com>, Tom Lendacky <thomas.lendacky@amd.com>,
+ Nikunj A Dadhania <nikunj@amd.com>, Thomas Gleixner <tglx@linutronix.de>
+Date: Thu, 21 May 2026 15:13:37 +0100
+In-Reply-To: <ag8K2FRGcoEa-D2Y@google.com>
+References: <20260515191942.1892718-1-seanjc@google.com>
+	 <20260515191942.1892718-28-seanjc@google.com>
+	 <423b37f056f0d4d596d5f4cc73802fb1079ecf63.camel@infradead.org>
+	 <ag8Bpc_uVNrNWqfX@google.com>
+	 <20260521131019.GI3126523@noisy.programming.kicks-ass.net>
+	 <ag8K2FRGcoEa-D2Y@google.com>
+Content-Type: multipart/signed; micalg="sha-256"; protocol="application/pkcs7-signature";
+	boundary="=-/luWii/cRDq/zhkGKorZ"
+User-Agent: Evolution 3.52.3-0ubuntu1.1 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <cover.1779315441.git.mst@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: PkHafRtJl4J8dBh9rAUSqnkQC0Nw6RKmFwcEDcQPBe4_1779372558
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
 
-On Wed, May 20, 2026 at 06:20:13PM -0400, Michael S. Tsirkin wrote:
-> When a guest reports free pages to the hypervisor via virtio-balloon's
-> free page reporting, the host typically zeros those pages when reclaiming
-> their backing memory (e.g., via MADV_DONTNEED on anonymous mappings).
-> When the guest later reallocates those pages, the kernel zeros them
-> again, redundantly.
 
-FYI Sashiko reported a couple of issues. Mostly false positives but
-I tweaked commit log to make it clearer. But also a couple of
-real issues. So far I have this diff on top:
+--=-/luWii/cRDq/zhkGKorZ
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
---->
+On Thu, 2026-05-21 at 06:38 -0700, Sean Christopherson wrote:
+> On Thu, May 21, 2026, Peter Zijlstra wrote:
+> > On Thu, May 21, 2026 at 05:59:17AM -0700, Sean Christopherson wrote:
+> > > On Thu, May 21, 2026, David Woodhouse wrote:
+> > > > On Fri, 2026-05-15 at 12:19 -0700, Sean Christopherson wrote:
+> > > > > In anticipation of making x86_cpuinit.early_percpu_clock_init(), =
+i.e.
+> > > > > kvm_setup_secondary_clock(), a dedicated sched_clock hook that wi=
+ll be
+> > > > > invoked if and only if kvmclock is set as sched_clock, ensure APs=
+ enable
+> > > > > their kvmclock during CPU online.=C2=A0 While a redundant write t=
+o the MSR is
+> > > > > technically ok, skip the registration when kvmclock is sched_cloc=
+k so that
+> > > > > it's somewhat obvious that kvmclock *needs* to be enabled during =
+early
+> > > > > bringup when it's being used as sched_clock.
+> > > > >=20
+> > > > > Plumb in the BSP's resume path purely for documentation purposes.=
+=C2=A0 Both
+> > > > > KVM (as-a-guest) and timekeeping/clocksource hook syscore_ops, an=
+d it's
+> > > > > not super obvious that using KVM's hooks would be flawed.=C2=A0 E=
+.g. it would
+> > > > > work today, because KVM's hooks happen to run after/before timeke=
+eping's
+> > > > > hooks during suspend/resume, but that's sheer dumb luck as the or=
+der in
+> > > > > which syscore_ops are invoked depends entirely on when a subsyste=
+m is
+> > > > > initialized and thus registers its hooks.
+> > > > >=20
+> > > > > Opportunsitically make the registration messages more precise to =
+help
+> > > > > debug issues where kvmclock is enabled too late.
+> > > >=20
+> > > > That's a hard word to type, isn't it?
+> > >=20
+> > > Heh, you have no idea.=C2=A0 I've been "this" close to creating a VIM=
+ binding for a
+> > > while, it is time...
+> >=20
+> > 'z=3D' not good enough?
+>=20
+> You people and your fancy ways.=C2=A0 I'm just happy I can get in and out=
+ of the editor :-)
 
-Changes from v8 to v9 candidate (code only):
+I reached the peak of my vi knowledge in about 1995 when I learned that
+I could log in on another terminal, kill it from there, and then set
+EDITOR=3Demacs.
 
-1. mm/mempolicy.c (patch 1: mm: mempolicy: fix interleave index calculation)
-   Combine vm_pgoff and VMA offset into a single expression before
-   shifting, fixing carry loss for file-backed VMAs with unaligned
-   vm_pgoff.
+Ironically I still find myself doing that kind of thing when I'm
+composing a git-send-email cover letter and decide I don't want to send
+the series as-is at all. Maybe there's a way to put a poison pill in
+the message (or save it unchanged?) to make git *NOT* send anything...
+but I always err on the side of caution and just nuke it from orbit, or
+at least from another terminal.
 
-2. mm/memory-failure.c (patch 2: mm: memory-failure: serialize TestSetPageHWPoison with zone->lock)
-   Wrap ClearPageHWPoison in retry path with zone->lock too.
 
-3. mm/huge_memory.c (patch 19: mm: use __GFP_ZERO in vma_alloc_anon_folio_pmd)
-   Fix stale comment: "folio_zero_user writes" -> "page zeroing".
+--=-/luWii/cRDq/zhkGKorZ
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Transfer-Encoding: base64
 
-4. mm/page_reporting.c (patch 4: mm: page_reporting: allow driver to set batch capacity)
-   Drop rounddown_pow_of_two: compiler cannot optimize division
-   by runtime variable anyway, and rounding halves batch size for
-   non-power-of-2 capacity values.
+MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCCD9Aw
+ggSOMIIDdqADAgECAhAOmiw0ECVD4cWj5DqVrT9PMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYT
+AlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xJDAi
+BgNVBAMTG0RpZ2lDZXJ0IEFzc3VyZWQgSUQgUm9vdCBDQTAeFw0yNDAxMzAwMDAwMDBaFw0zMTEx
+MDkyMzU5NTlaMEExCzAJBgNVBAYTAkFVMRAwDgYDVQQKEwdWZXJva2V5MSAwHgYDVQQDExdWZXJv
+a2V5IFNlY3VyZSBFbWFpbCBHMjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMjvgLKj
+jfhCFqxYyRiW8g3cNFAvltDbK5AzcOaR7yVzVGadr4YcCVxjKrEJOgi7WEOH8rUgCNB5cTD8N/Et
+GfZI+LGqSv0YtNa54T9D1AWJy08ZKkWvfGGIXN9UFAPMJ6OLLH/UUEgFa+7KlrEvMUupDFGnnR06
+aDJAwtycb8yXtILj+TvfhLFhafxroXrflspavejQkEiHjNjtHnwbZ+o43g0/yxjwnarGI3kgcak7
+nnI9/8Lqpq79tLHYwLajotwLiGTB71AGN5xK+tzB+D4eN9lXayrjcszgbOv2ZCgzExQUAIt98mre
+8EggKs9mwtEuKAhYBIP/0K6WsoMnQCcCAwEAAaOCAVwwggFYMBIGA1UdEwEB/wQIMAYBAf8CAQAw
+HQYDVR0OBBYEFIlICOogTndrhuWByNfhjWSEf/xwMB8GA1UdIwQYMBaAFEXroq/0ksuCMS1Ri6en
+IZ3zbcgPMA4GA1UdDwEB/wQEAwIBhjAdBgNVHSUEFjAUBggrBgEFBQcDBAYIKwYBBQUHAwIweQYI
+KwYBBQUHAQEEbTBrMCQGCCsGAQUFBzABhhhodHRwOi8vb2NzcC5kaWdpY2VydC5jb20wQwYIKwYB
+BQUHMAKGN2h0dHA6Ly9jYWNlcnRzLmRpZ2ljZXJ0LmNvbS9EaWdpQ2VydEFzc3VyZWRJRFJvb3RD
+QS5jcnQwRQYDVR0fBD4wPDA6oDigNoY0aHR0cDovL2NybDMuZGlnaWNlcnQuY29tL0RpZ2lDZXJ0
+QXNzdXJlZElEUm9vdENBLmNybDARBgNVHSAECjAIMAYGBFUdIAAwDQYJKoZIhvcNAQELBQADggEB
+ACiagCqvNVxOfSd0uYfJMiZsOEBXAKIR/kpqRp2YCfrP4Tz7fJogYN4fxNAw7iy/bPZcvpVCfe/H
+/CCcp3alXL0I8M/rnEnRlv8ItY4MEF+2T/MkdXI3u1vHy3ua8SxBM8eT9LBQokHZxGUX51cE0kwa
+uEOZ+PonVIOnMjuLp29kcNOVnzf8DGKiek+cT51FvGRjV6LbaxXOm2P47/aiaXrDD5O0RF5SiPo6
+xD1/ClkCETyyEAE5LRJlXtx288R598koyFcwCSXijeVcRvBB1cNOLEbg7RMSw1AGq14fNe2cH1HG
+W7xyduY/ydQt6gv5r21mDOQ5SaZSWC/ZRfLDuEYwggWbMIIEg6ADAgECAhAH5JEPagNRXYDiRPdl
+c1vgMA0GCSqGSIb3DQEBCwUAMEExCzAJBgNVBAYTAkFVMRAwDgYDVQQKEwdWZXJva2V5MSAwHgYD
+VQQDExdWZXJva2V5IFNlY3VyZSBFbWFpbCBHMjAeFw0yNDEyMzAwMDAwMDBaFw0yODAxMDQyMzU5
+NTlaMB4xHDAaBgNVBAMME2R3bXcyQGluZnJhZGVhZC5vcmcwggIiMA0GCSqGSIb3DQEBAQUAA4IC
+DwAwggIKAoICAQDali7HveR1thexYXx/W7oMk/3Wpyppl62zJ8+RmTQH4yZeYAS/SRV6zmfXlXaZ
+sNOE6emg8WXLRS6BA70liot+u0O0oPnIvnx+CsMH0PD4tCKSCsdp+XphIJ2zkC9S7/yHDYnqegqt
+w4smkqUqf0WX/ggH1Dckh0vHlpoS1OoxqUg+ocU6WCsnuz5q5rzFsHxhD1qGpgFdZEk2/c//ZvUN
+i12vPWipk8TcJwHw9zoZ/ZrVNybpMCC0THsJ/UEVyuyszPtNYeYZAhOJ41vav1RhZJzYan4a1gU0
+kKBPQklcpQEhq48woEu15isvwWh9/+5jjh0L+YNaN0I//nHSp6U9COUG9Z0cvnO8FM6PTqsnSbcc
+0j+GchwOHRC7aP2t5v2stVx3KbptaYEzi4MQHxm/0+HQpMEVLLUiizJqS4PWPU6zfQTOMZ9uLQRR
+ci+c5xhtMEBszlQDOvEQcyEG+hc++fH47K+MmZz21bFNfoBxLP6bjR6xtPXtREF5lLXxp+CJ6KKS
+blPKeVRg/UtyJHeFKAZXO8Zeco7TZUMVHmK0ZZ1EpnZbnAhKE19Z+FJrQPQrlR0gO3lBzuyPPArV
+hvWxjlO7S4DmaEhLzarWi/ze7EGwWSuI2eEa/8zU0INUsGI4ywe7vepQz7IqaAovAX0d+f1YjbmC
+VsAwjhLmveFjNwIDAQABo4IBsDCCAawwHwYDVR0jBBgwFoAUiUgI6iBOd2uG5YHI1+GNZIR//HAw
+HQYDVR0OBBYEFFxiGptwbOfWOtMk5loHw7uqWUOnMDAGA1UdEQQpMCeBE2R3bXcyQGluZnJhZGVh
+ZC5vcmeBEGRhdmlkQHdvb2Rob3Uuc2UwFAYDVR0gBA0wCzAJBgdngQwBBQEBMA4GA1UdDwEB/wQE
+AwIF4DAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwQwewYDVR0fBHQwcjA3oDWgM4YxaHR0
+cDovL2NybDMuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNybDA3oDWgM4YxaHR0
+cDovL2NybDQuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNybDB2BggrBgEFBQcB
+AQRqMGgwJAYIKwYBBQUHMAGGGGh0dHA6Ly9vY3NwLmRpZ2ljZXJ0LmNvbTBABggrBgEFBQcwAoY0
+aHR0cDovL2NhY2VydHMuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNydDANBgkq
+hkiG9w0BAQsFAAOCAQEAQXc4FPiPLRnTDvmOABEzkIumojfZAe5SlnuQoeFUfi+LsWCKiB8Uextv
+iBAvboKhLuN6eG/NC6WOzOCppn4mkQxRkOdLNThwMHW0d19jrZFEKtEG/epZ/hw/DdScTuZ2m7im
+8ppItAT6GXD3aPhXkXnJpC/zTs85uNSQR64cEcBFjjoQDuSsTeJ5DAWf8EMyhMuD8pcbqx5kRvyt
+JPsWBQzv1Dsdv2LDPLNd/JUKhHSgr7nbUr4+aAP2PHTXGcEBh8lTeYea9p4d5k969pe0OHYMV5aL
+xERqTagmSetuIwolkAuBCzA9vulg8Y49Nz2zrpUGfKGOD0FMqenYxdJHgDCCBZswggSDoAMCAQIC
+EAfkkQ9qA1FdgOJE92VzW+AwDQYJKoZIhvcNAQELBQAwQTELMAkGA1UEBhMCQVUxEDAOBgNVBAoT
+B1Zlcm9rZXkxIDAeBgNVBAMTF1Zlcm9rZXkgU2VjdXJlIEVtYWlsIEcyMB4XDTI0MTIzMDAwMDAw
+MFoXDTI4MDEwNDIzNTk1OVowHjEcMBoGA1UEAwwTZHdtdzJAaW5mcmFkZWFkLm9yZzCCAiIwDQYJ
+KoZIhvcNAQEBBQADggIPADCCAgoCggIBANqWLse95HW2F7FhfH9bugyT/danKmmXrbMnz5GZNAfj
+Jl5gBL9JFXrOZ9eVdpmw04Tp6aDxZctFLoEDvSWKi367Q7Sg+ci+fH4KwwfQ8Pi0IpIKx2n5emEg
+nbOQL1Lv/IcNiep6Cq3DiyaSpSp/RZf+CAfUNySHS8eWmhLU6jGpSD6hxTpYKye7PmrmvMWwfGEP
+WoamAV1kSTb9z/9m9Q2LXa89aKmTxNwnAfD3Ohn9mtU3JukwILRMewn9QRXK7KzM+01h5hkCE4nj
+W9q/VGFknNhqfhrWBTSQoE9CSVylASGrjzCgS7XmKy/BaH3/7mOOHQv5g1o3Qj/+cdKnpT0I5Qb1
+nRy+c7wUzo9OqydJtxzSP4ZyHA4dELto/a3m/ay1XHcpum1pgTOLgxAfGb/T4dCkwRUstSKLMmpL
+g9Y9TrN9BM4xn24tBFFyL5znGG0wQGzOVAM68RBzIQb6Fz758fjsr4yZnPbVsU1+gHEs/puNHrG0
+9e1EQXmUtfGn4InoopJuU8p5VGD9S3Ikd4UoBlc7xl5yjtNlQxUeYrRlnUSmdlucCEoTX1n4UmtA
+9CuVHSA7eUHO7I88CtWG9bGOU7tLgOZoSEvNqtaL/N7sQbBZK4jZ4Rr/zNTQg1SwYjjLB7u96lDP
+sipoCi8BfR35/ViNuYJWwDCOEua94WM3AgMBAAGjggGwMIIBrDAfBgNVHSMEGDAWgBSJSAjqIE53
+a4blgcjX4Y1khH/8cDAdBgNVHQ4EFgQUXGIam3Bs59Y60yTmWgfDu6pZQ6cwMAYDVR0RBCkwJ4ET
+ZHdtdzJAaW5mcmFkZWFkLm9yZ4EQZGF2aWRAd29vZGhvdS5zZTAUBgNVHSAEDTALMAkGB2eBDAEF
+AQEwDgYDVR0PAQH/BAQDAgXgMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDB7BgNVHR8E
+dDByMDegNaAzhjFodHRwOi8vY3JsMy5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVtYWlsRzIu
+Y3JsMDegNaAzhjFodHRwOi8vY3JsNC5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVtYWlsRzIu
+Y3JsMHYGCCsGAQUFBwEBBGowaDAkBggrBgEFBQcwAYYYaHR0cDovL29jc3AuZGlnaWNlcnQuY29t
+MEAGCCsGAQUFBzAChjRodHRwOi8vY2FjZXJ0cy5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVt
+YWlsRzIuY3J0MA0GCSqGSIb3DQEBCwUAA4IBAQBBdzgU+I8tGdMO+Y4AETOQi6aiN9kB7lKWe5Ch
+4VR+L4uxYIqIHxR7G2+IEC9ugqEu43p4b80LpY7M4KmmfiaRDFGQ50s1OHAwdbR3X2OtkUQq0Qb9
+6ln+HD8N1JxO5nabuKbymki0BPoZcPdo+FeRecmkL/NOzzm41JBHrhwRwEWOOhAO5KxN4nkMBZ/w
+QzKEy4PylxurHmRG/K0k+xYFDO/UOx2/YsM8s138lQqEdKCvudtSvj5oA/Y8dNcZwQGHyVN5h5r2
+nh3mT3r2l7Q4dgxXlovERGpNqCZJ624jCiWQC4ELMD2+6WDxjj03PbOulQZ8oY4PQUyp6djF0keA
+MYIDuzCCA7cCAQEwVTBBMQswCQYDVQQGEwJBVTEQMA4GA1UEChMHVmVyb2tleTEgMB4GA1UEAxMX
+VmVyb2tleSBTZWN1cmUgRW1haWwgRzICEAfkkQ9qA1FdgOJE92VzW+AwDQYJYIZIAWUDBAIBBQCg
+ggE3MBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTI2MDUyMTE0MTMz
+N1owLwYJKoZIhvcNAQkEMSIEIEgkkw1Zfu2OudnG8cU+MVWgyG8a1j0D52Qh8hHReT5yMGQGCSsG
+AQQBgjcQBDFXMFUwQTELMAkGA1UEBhMCQVUxEDAOBgNVBAoTB1Zlcm9rZXkxIDAeBgNVBAMTF1Zl
+cm9rZXkgU2VjdXJlIEVtYWlsIEcyAhAH5JEPagNRXYDiRPdlc1vgMGYGCyqGSIb3DQEJEAILMVeg
+VTBBMQswCQYDVQQGEwJBVTEQMA4GA1UEChMHVmVyb2tleTEgMB4GA1UEAxMXVmVyb2tleSBTZWN1
+cmUgRW1haWwgRzICEAfkkQ9qA1FdgOJE92VzW+AwDQYJKoZIhvcNAQEBBQAEggIA036HTeiItcPn
+bSvgswYeD77jdEe/2Kl5P0nyJ5bE+UOLwkXom7KRUxdoA+vd1+MqFMDWoAywMwXgm9rKNwQK/1ZG
+yNGaNy9GqbZcvleefr4PwFHO2gN5+H86tX3gkF+at+Q4gAHTGjSUR5xR1ZWMDXsTbhGsy24uw0yL
+h2lillfsgvUWUmRbUKq9CLitnxg4m+un1nD/bvfB8VEHuj+q8CTnsVgPAB6z215sMgsImO6yPDEZ
+iu7wFELTqO6S1v1wWO9omEeRhxPk4cHG+to5ukTJQKwaXEljtLIeDMn/BwHlCwUPOzzE70ayjJno
+pn/DjnCu2E3n9kbLtnYrv64OX6szqz9x1Xc9Rud0rJABnrSZvGWlRo7f0CZmNI8QQ9gh65lHaMG9
+uhi9BYdqC1mea9cAKo0j7UIY8pm4O5CKb2zdepOfxUUIqhi7zleSh0/S9UlSdZrOIvXO8uEgxZig
+izjZ4+U8vo5LVQlUD57qnry3duXa4nDpBqVv6T3mPdd5XEoKiGp62m5ka/aov2kYr3LW56PFA/Sp
+c/4CAC3140Hdf4wmHAuWheEclOgI5A6diLJ9h/E9e5J3YbDbL3kOMejlhbkEfnPMwycZ76PqIalG
+A9mD189d0OO2dtY20lQnVGKuq0UuheZji+6yoMwpRYuE0MKMIs2z0otc7Il591QAAAAAAAA=
 
-Commit log improvements (no code change):
-- Patch 1: rewritten to explain new single-expression formula (fixes patch 1)
-- Patch 2: mention ClearPageHWPoison in retry path (fixes patch 2)
-- Patch 4: drop "rounded down to a power of 2" (fixes patch 4)
-- Patch 10: "stub" wording simplified (fixes patch 10)
-- Patch 22: note PG_zeroed hint loss is harmless (fixes patch 22)
-- Patch 23: add PowerPC note (fixes patch 23)
-- Patch 28: explain DEVICE_INIT_ON_INFLATE is a follow-up (fixes patch 28)
-- Patch 29: explain flush over-reporting is by design (fixes patch 29)
-- Patch 33: note __SetPageZeroed is safe on frozen pages (fixes patch 33)
-- Patch 36: note __SetPageZeroed is safe on balloon-owned pages (fixes patch 36)
 
----
-
-diff --git a/mm/huge_memory.c b/mm/huge_memory.c
-index 9845c920c29c..4978d34532ea 100644
---- a/mm/huge_memory.c
-+++ b/mm/huge_memory.c
-@@ -1358,7 +1358,7 @@ static struct folio *vma_alloc_anon_folio_pmd(struct vm_area_struct *vma,
- 
- 	/*
- 	 * The memory barrier inside __folio_mark_uptodate makes sure that
--	 * folio_zero_user writes become visible before the set_pmd_at()
-+	 * page zeroing becomes visible before the set_pmd_at()
- 	 * write.
- 	 */
- 	__folio_mark_uptodate(folio);
-diff --git a/mm/memory-failure.c b/mm/memory-failure.c
-index a6b61172dd13..d106f2c135c7 100644
---- a/mm/memory-failure.c
-+++ b/mm/memory-failure.c
-@@ -2426,7 +2426,9 @@ int memory_failure(unsigned long pfn, int flags)
- 			} else {
- 				/* We lost the race, try again */
- 				if (retry) {
-+					spin_lock_irqsave(&zone->lock, mf_flags);
- 					ClearPageHWPoison(p);
-+					spin_unlock_irqrestore(&zone->lock, mf_flags);
- 					retry = false;
- 					goto try_again;
- 				}
-diff --git a/mm/mempolicy.c b/mm/mempolicy.c
-index ea3043e0075b..f573ff32e94d 100644
---- a/mm/mempolicy.c
-+++ b/mm/mempolicy.c
-@@ -2048,9 +2048,9 @@ struct mempolicy *get_vma_policy(struct vm_area_struct *vma,
- 		pol = get_task_policy(current);
- 	if (pol->mode == MPOL_INTERLEAVE ||
- 	    pol->mode == MPOL_WEIGHTED_INTERLEAVE) {
--		*ilx += vma->vm_pgoff >> order;
--		*ilx += (addr >> (PAGE_SHIFT + order)) -
--			(vma->vm_start >> (PAGE_SHIFT + order));
-+		*ilx += (vma->vm_pgoff +
-+			(addr >> PAGE_SHIFT) -
-+			(vma->vm_start >> PAGE_SHIFT)) >> order;
- 	}
- 	return pol;
- }
-diff --git a/mm/page_reporting.c b/mm/page_reporting.c
-index 8b278a494ea5..3f584f538c68 100644
---- a/mm/page_reporting.c
-+++ b/mm/page_reporting.c
-@@ -443,9 +443,6 @@ int page_reporting_register(struct page_reporting_dev_info *prdev)
- 	if (!prdev->capacity || prdev->capacity > PAGE_REPORTING_CAPACITY)
- 		prdev->capacity = PAGE_REPORTING_CAPACITY;
- 
--	/* Power of 2 so division by capacity in the budget calc is cheap */
--	prdev->capacity = rounddown_pow_of_two(prdev->capacity);
--
- 	/* initialize state and work structures */
- 	atomic_set(&prdev->state, PAGE_REPORTING_IDLE);
- 	INIT_DELAYED_WORK(&prdev->work, &page_reporting_process);
-
+--=-/luWii/cRDq/zhkGKorZ--
