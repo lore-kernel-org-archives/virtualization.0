@@ -1,185 +1,200 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ot1-f72.google.com (mail-ot1-f72.google.com [209.85.210.72])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A07334D8CE;
-	Thu, 21 May 2026 00:00:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB0903655C1
+	for <virtualization@lists.linux.dev>; Thu, 21 May 2026 02:19:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.72
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779321646; cv=none; b=dSmgh/5eY1w/AQfLkgtzQPmt5aQjpY18KDvAP/Kyloli9SNVou8uPg9dTIMPVb3UrCZf73rikQY/z5Vp0OvYlSrFuLdCr43MZxl0N+nw9u2mMYUQPBsBE2/TI/mFm0JTX4D/2PPjYkGsvBLbqpyxiGTqoja/GCrWk0b9fC+8Xmk=
+	t=1779329999; cv=none; b=IFa2Emckh6YvXebUDUfgk2frbU1fpisB3ndW6w7qWsNp3OlLRLhgF4bvFnkfqWX4tyzOFWnfdNJtCpJBMy7wyKVvlutQKj4bj+XGFXmw80JJ+srJwQTeFZNC4+cUpOYqTU8omLwu2AE87tmaYbY2xDsW4rQ5aOq/P3l8T1fDvK8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779321646; c=relaxed/simple;
-	bh=NcLTLf1gFZKiWmIuS7GLhIukpMn7F7oeQMFwKhor2Fo=;
-	h=Message-ID:Subject:From:To:Cc:Date:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=aXsXk/mTpxh6aSHSOyj5uITembB8JHoy3JUcydTnyXRB1Ho5x6raPzIlYsI2FkduP1XD/QJt/AgMEtNPSz0kci8MuNyzeuLVbO3Yxm+/MDmXjDNbmtl5EDMySG5RKLzjQvKImbzh90TOgf2n7cG5K1wNUY63ievOA8AK0ljIShc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=none smtp.mailfrom=casper.srs.infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=I274JKVR; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=none smtp.mailfrom=casper.srs.infradead.org
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="I274JKVR"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=MIME-Version:Content-Type:References:
-	In-Reply-To:Date:Cc:To:From:Subject:Message-ID:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=NcLTLf1gFZKiWmIuS7GLhIukpMn7F7oeQMFwKhor2Fo=; b=I274JKVRB2I/bX5KQZ/FAu7eqx
-	FLGKxaMejPeMzVDE/qSz0O7KMiR1POozKjF06k6O/jqCb8/SY49SKTXEUCLDshZD3ClU+TqRrBDRc
-	o+FrB7CtLXMyq949MVy7aHfg5/JfjRnZ19Bi4HB2kIKXZmOOMxCvrKsk0ovH4iD7YEgUcdhmRJobi
-	FzpG9v9OZNFvun6V54L7lv0mWd23T1lJwkQljap41WA/klem5AAOa+6WKisZrZ9+pOLoAxqHuS4fP
-	uNshhLpKWfre8yGZo6sKOTlwgbxu5EY/EDqKythb1g7ttYh5ZVSJplq/x9PBZ9z1VDWr1WywKyxc1
-	zipb6mVg==;
-Received: from 54-240-197-235.amazon.com ([54.240.197.235] helo=freeip.amazon.com)
-	by casper.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1wPqq4-00000007ltE-268x;
-	Thu, 21 May 2026 00:00:36 +0000
-Message-ID: <d5633d91efb5c43b3618bd2f6c43c6017086bcda.camel@infradead.org>
-Subject: Re: [PATCH v3 39/41] x86/paravirt: Move using_native_sched_clock()
- stub into timer.h
-From: David Woodhouse <dwmw2@infradead.org>
-To: Sean Christopherson <seanjc@google.com>, Kiryl Shutsemau
- <kas@kernel.org>,  Paolo Bonzini <pbonzini@redhat.com>, "K. Y. Srinivasan"
- <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu
- <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>, Long Li
- <longli@microsoft.com>, Ajay Kaher <ajay.kaher@broadcom.com>, Alexey
- Makhalov <alexey.makhalov@broadcom.com>,  Jan Kiszka
- <jan.kiszka@siemens.com>, Dave Hansen <dave.hansen@linux.intel.com>, Andy
- Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>,
- Juergen Gross <jgross@suse.com>, Daniel Lezcano
- <daniel.lezcano@kernel.org>, Thomas Gleixner <tglx@kernel.org>, John Stultz
- <jstultz@google.com>
-Cc: Rick Edgecombe <rick.p.edgecombe@intel.com>, Vitaly Kuznetsov
- <vkuznets@redhat.com>, Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Boris Ostrovsky
- <boris.ostrovsky@oracle.com>, Stephen Boyd <sboyd@kernel.org>,
- x86@kernel.org,  linux-coco@lists.linux.dev, kvm@vger.kernel.org,
- linux-hyperv@vger.kernel.org,  virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org,  xen-devel@lists.xenproject.org, Michael
- Kelley <mhklinux@outlook.com>, Tom Lendacky <thomas.lendacky@amd.com>,
- Nikunj A Dadhania <nikunj@amd.com>, Thomas Gleixner <tglx@linutronix.de>
-Date: Thu, 21 May 2026 01:00:34 +0100
-In-Reply-To: <20260515191942.1892718-40-seanjc@google.com>
-References: <20260515191942.1892718-1-seanjc@google.com>
-	 <20260515191942.1892718-40-seanjc@google.com>
-Content-Type: multipart/signed; micalg="sha-256"; protocol="application/pkcs7-signature";
-	boundary="=-BsKJxp2uQuWPK9KQHUFW"
-User-Agent: Evolution 3.52.3-0ubuntu1.1 
+	s=arc-20240116; t=1779329999; c=relaxed/simple;
+	bh=e01sUmtqptcbpiITOqFL51AmDNNUNQagGvzWUTvcNgw=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:Cc:
+	 Content-Type; b=f/QSGGB79QjFABvpAolvOJkXOMN2SNl/afVHf35jjudOYJT5RtanY7H57U2A2RlWPEN90uDAx0ukTCEbo5iXwTU7WfXe9f7IYwjbCrubFrvhELCybOkA1Yj6orfvB4hsZql9x27Ozf/ciRj305VvNt1YWmE1RIQpQbAZFqRIY00=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.210.72
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-ot1-f72.google.com with SMTP id 46e09a7af769-7e3dbd97fe3so11004033a34.1
+        for <virtualization@lists.linux.dev>; Wed, 20 May 2026 19:19:52 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779329987; x=1779934787;
+        h=cc:to:from:subject:message-id:in-reply-to:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=CzDENP6IjMuE+dFgbF5yX5xWJgBQqW+B+xC/YsKt82Y=;
+        b=ri/nG5aRzOsMrjlkRyJRbirdU7LYecALK3YFzfxvYkx/PIMZK0VPqpOdTT9aczI5pa
+         LVuZhGgS9yRoLr/cXkh0SF495LA9MUjT37dczK7XV06Pii+9nQ6xVbInZMpL30Rb508u
+         1fjrvTPRbZ/KN9YFiEjX3hISE0khWHmqYTw5hqegLG1ssUX9oWpMluCYFewsChoXQRce
+         kQSw+yGikyggWQ30jh2+4g9yXWZz1WNUZPUJUc5rRli8FqlMgNQMZlh3zrRsMaorNTpH
+         J4akD0cLlu7Xt7VPDmzRSmSLqrFWMkRZblA8ZTLnCkYDFwKGQxRhXBKFSSBeAJWLh3uP
+         leOA==
+X-Forwarded-Encrypted: i=1; AFNElJ87hD0st7imVPA3o5VcynC09k5oQ8jTfvJ0TONYFf1JD/etpmFGkvD9XEmHmy25l518vgZVM1URYAwEItaIkw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxwnBA7c5qMEPc8o47ZxCPpOWVr2q5h0HQOCxZCCNitAlk/DSuv
+	T9NAQRclJwFcenirEMW7Ku64u4F7a5hJ12cHlIqMosYxImwgHXJGKvk9k4udXugtNQUCf9DO2xi
+	Zeeb6ltbEJ1sYORxdnphIcTsn8ymQWExhU9k/HJhP2hnIrjPqY9DLwPxJlGY=
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by casper.infradead.org. See http://www.infradead.org/rpr.html
-
-
---=-BsKJxp2uQuWPK9KQHUFW
+X-Received: by 2002:a05:6820:151f:b0:69b:56e5:cd6b with SMTP id
+ 006d021491bc7-69d6ee0c9cbmr457677eaf.11.1779329987249; Wed, 20 May 2026
+ 19:19:47 -0700 (PDT)
+Date: Wed, 20 May 2026 19:19:47 -0700
+In-Reply-To: <20260521-virtio-gpu_wait_event-v2-1-5796b3a71d03@redhat.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <6a0e6bc3.170a0220.303405.4ce1.GAE@google.com>
+Subject: Re: [PATCH v2] drm/virtio: abort virtqueue wait on device removal to
+ avoid hung task
+From: syzbot <syzbot@syzkaller.appspotmail.com>
+To: ryasuoka@redhat.com
+Cc: airlied@redhat.com, dmitry.osipenko@collabora.com, 
+	dri-devel@lists.freedesktop.org, gurchetansingh@chromium.org, 
+	kraxel@redhat.com, linux-kernel@vger.kernel.org, 
+	maarten.lankhorst@linux.intel.com, mripard@kernel.org, olvaffe@gmail.com, 
+	ryasuoka@redhat.com, simona@ffwll.ch, tzimmermann@suse.de, 
+	virtualization@lists.linux.dev
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, 2026-05-15 at 12:19 -0700, Sean Christopherson wrote:
-> Now that timer.h ended up with CONFIG_PARAVIRT #ifdeffery anyways, move t=
-he
-> PARAVIRT=3Dn using_native_sched_clock() stub into timer.h as a "free"
-> optimization.
->=20
-> No functional change intended.
->=20
-> Signed-off-by: Sean Christopherson <seanjc@google.com>
+> virtio_gpu_queue_ctrl_sgs() and virtio_gpu_queue_cursor() use
+> wait_event() without any abort condition when waiting for virtqueue
+> space. If the host device stops processing commands, these waits block
+> indefinitely inside a drm_dev_enter/exit() critical section. Since
+> drm_dev_unplug(), which is called in device removal and system shutdown
+> call path, blocks on synchronize_srcu() until all critical sections
+> complete, device removal and system shutdown also hang.
+>
+> Add a vqs_released flag to virtio_gpu_device and include it in the
+> wait_event() condition. Set the flag and wake up both queues in a new
+> virtio_gpu_release_vqs() helper, called before drm_dev_unplug() in both
+> virtio_gpu_remove() and virtio_gpu_shutdown(). When the flag is set, the
+> wait returns immediately and the command is aborted, following the same
+> cleanup path as drm_dev_enter() failure.
+>
+> Reported-by: syzbot+d6dd6f86d3aaf7eebe7406e45c1c6e549453f224@syzkaller.appspotmail.com
+> Closes: https://syzkaller.appspot.com/bug?id=d6dd6f86d3aaf7eebe7406e45c1c6e549453f224
+> Reported-by: syzbot+908bd910da5dd79b88de4cf7baf376cc873a922e@syzkaller.appspotmail.com
+> Closes: https://syzkaller.appspot.com/bug?id=908bd910da5dd79b88de4cf7baf376cc873a922e
+> Signed-off-by: Ryosuke Yasuoka <ryasuoka@redhat.com>
+> ---
+> Changes in v2:
+> - Update the commit message.
+> - Replace wait_event_timeout() with wait_event() using a compound
+> condition that includes a new vqs_released flag.
+> - Add virtio_gpu_release_vqs() helper to set the flag and wake up
+> both queues, called before drm_dev_unplug() in remove and shutdown
+> paths.
+> - Remove the hardcoded 5-second timeout. Recovery is now driven by
+> the driver flag instead of an arbitrary timeout value.
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_drv.c | 15 +++++++++++++++
+>  drivers/gpu/drm/virtio/virtgpu_drv.h |  1 +
+>  drivers/gpu/drm/virtio/virtgpu_vq.c  | 23 +++++++++++++++++++++--
+>  3 files changed, 37 insertions(+), 2 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> index a5ce96fb8a1d..e4fe5e0780f9 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+> @@ -119,10 +119,24 @@ static int virtio_gpu_probe(struct virtio_device *vdev)
+>  	return ret;
+>  }
+>  
+> +/*
+> + * Release pending virtqueue waits so the drm_dev_enter/exit() critical
+> + * sections complete before drm_dev_unplug() blocks on synchronize_srcu().
+> + */
+> +static void virtio_gpu_release_vqs(struct drm_device *dev)
+> +{
+> +	struct virtio_gpu_device *vgdev = dev->dev_private;
+> +
+> +	vgdev->vqs_released = true;
+> +	wake_up_all(&vgdev->ctrlq.ack_queue);
+> +	wake_up_all(&vgdev->cursorq.ack_queue);
+> +}
+> +
+>  static void virtio_gpu_remove(struct virtio_device *vdev)
+>  {
+>  	struct drm_device *dev = vdev->priv;
+>  
+> +	virtio_gpu_release_vqs(dev);
+>  	drm_dev_unplug(dev);
+>  	drm_atomic_helper_shutdown(dev);
+>  	virtio_gpu_deinit(dev);
+> @@ -133,6 +147,7 @@ static void virtio_gpu_shutdown(struct virtio_device *vdev)
+>  {
+>  	struct drm_device *dev = vdev->priv;
+>  
+> +	virtio_gpu_release_vqs(dev);
+>  	/* stop talking to the device */
+>  	drm_dev_unplug(dev);
+>  }
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+> index f17660a71a3e..0bd69a40857e 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
+> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+> @@ -235,6 +235,7 @@ struct virtio_gpu_device {
+>  
+>  	struct virtio_gpu_queue ctrlq;
+>  	struct virtio_gpu_queue cursorq;
+> +	bool vqs_released;
+>  	struct kmem_cache *vbufs;
+>  
+>  	atomic_t pending_commands;
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+> index 67865810a2e7..8057a9b7356d 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+> @@ -396,7 +396,19 @@ static int virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
+>  	if (vq->num_free < elemcnt) {
+>  		spin_unlock(&vgdev->ctrlq.qlock);
+>  		virtio_gpu_notify(vgdev);
+> -		wait_event(vgdev->ctrlq.ack_queue, vq->num_free >= elemcnt);
+> +		wait_event(vgdev->ctrlq.ack_queue,
+> +			   vq->num_free >= elemcnt || vgdev->vqs_released);
+> +		/*
+> +		 * Set by virtio_gpu_release_vqs() to unblock
+> +		 * synchronize_srcu() wait in drm_dev_unplug().
+> +		 */
+> +		if (vgdev->vqs_released) {
+> +			if (fence && vbuf->objs)
+> +				virtio_gpu_array_unlock_resv(vbuf->objs);
+> +			free_vbuf(vgdev, vbuf);
+> +			drm_dev_exit(idx);
+> +			return -ENODEV;
+> +		}
+>  		goto again;
+>  	}
+>  
+> @@ -566,7 +578,14 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
+>  	ret = virtqueue_add_sgs(vq, sgs, outcnt, 0, vbuf, GFP_ATOMIC);
+>  	if (ret == -ENOSPC) {
+>  		spin_unlock(&vgdev->cursorq.qlock);
+> -		wait_event(vgdev->cursorq.ack_queue, vq->num_free >= outcnt);
+> +		wait_event(vgdev->cursorq.ack_queue,
+> +			   vq->num_free >= outcnt || vgdev->vqs_released);
+> +		/* See comment in virtio_gpu_queue_ctrl_sgs(). */
+> +		if (vgdev->vqs_released) {
+> +			free_vbuf(vgdev, vbuf);
+> +			drm_dev_exit(idx);
+> +			return;
+> +		}
+>  		spin_lock(&vgdev->cursorq.qlock);
+>  		goto retry;
+>  	} else {
+>
+> ---
+> base-commit: 5200f5f493f79f14bbdc349e402a40dfb32f23c8
+> change-id: 20260518-virtio-gpu_wait_event-5aa060754f12
+>
+> Best regards,
+> -- 
+> Ryosuke Yasuoka <ryasuoka@redhat.com>
+>
 
-Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
+I see the command but can't find the corresponding bug.
+The email is sent to  syzbot+HASH@syzkaller.appspotmail.com address
+but the HASH does not correspond to any known bug.
+Please double check the address.
 
---=-BsKJxp2uQuWPK9KQHUFW
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Transfer-Encoding: base64
-
-MIAGCSqGSIb3DQEHAqCAMIACAQExDzANBglghkgBZQMEAgEFADCABgkqhkiG9w0BBwEAAKCCD9Aw
-ggSOMIIDdqADAgECAhAOmiw0ECVD4cWj5DqVrT9PMA0GCSqGSIb3DQEBCwUAMGUxCzAJBgNVBAYT
-AlVTMRUwEwYDVQQKEwxEaWdpQ2VydCBJbmMxGTAXBgNVBAsTEHd3dy5kaWdpY2VydC5jb20xJDAi
-BgNVBAMTG0RpZ2lDZXJ0IEFzc3VyZWQgSUQgUm9vdCBDQTAeFw0yNDAxMzAwMDAwMDBaFw0zMTEx
-MDkyMzU5NTlaMEExCzAJBgNVBAYTAkFVMRAwDgYDVQQKEwdWZXJva2V5MSAwHgYDVQQDExdWZXJv
-a2V5IFNlY3VyZSBFbWFpbCBHMjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAMjvgLKj
-jfhCFqxYyRiW8g3cNFAvltDbK5AzcOaR7yVzVGadr4YcCVxjKrEJOgi7WEOH8rUgCNB5cTD8N/Et
-GfZI+LGqSv0YtNa54T9D1AWJy08ZKkWvfGGIXN9UFAPMJ6OLLH/UUEgFa+7KlrEvMUupDFGnnR06
-aDJAwtycb8yXtILj+TvfhLFhafxroXrflspavejQkEiHjNjtHnwbZ+o43g0/yxjwnarGI3kgcak7
-nnI9/8Lqpq79tLHYwLajotwLiGTB71AGN5xK+tzB+D4eN9lXayrjcszgbOv2ZCgzExQUAIt98mre
-8EggKs9mwtEuKAhYBIP/0K6WsoMnQCcCAwEAAaOCAVwwggFYMBIGA1UdEwEB/wQIMAYBAf8CAQAw
-HQYDVR0OBBYEFIlICOogTndrhuWByNfhjWSEf/xwMB8GA1UdIwQYMBaAFEXroq/0ksuCMS1Ri6en
-IZ3zbcgPMA4GA1UdDwEB/wQEAwIBhjAdBgNVHSUEFjAUBggrBgEFBQcDBAYIKwYBBQUHAwIweQYI
-KwYBBQUHAQEEbTBrMCQGCCsGAQUFBzABhhhodHRwOi8vb2NzcC5kaWdpY2VydC5jb20wQwYIKwYB
-BQUHMAKGN2h0dHA6Ly9jYWNlcnRzLmRpZ2ljZXJ0LmNvbS9EaWdpQ2VydEFzc3VyZWRJRFJvb3RD
-QS5jcnQwRQYDVR0fBD4wPDA6oDigNoY0aHR0cDovL2NybDMuZGlnaWNlcnQuY29tL0RpZ2lDZXJ0
-QXNzdXJlZElEUm9vdENBLmNybDARBgNVHSAECjAIMAYGBFUdIAAwDQYJKoZIhvcNAQELBQADggEB
-ACiagCqvNVxOfSd0uYfJMiZsOEBXAKIR/kpqRp2YCfrP4Tz7fJogYN4fxNAw7iy/bPZcvpVCfe/H
-/CCcp3alXL0I8M/rnEnRlv8ItY4MEF+2T/MkdXI3u1vHy3ua8SxBM8eT9LBQokHZxGUX51cE0kwa
-uEOZ+PonVIOnMjuLp29kcNOVnzf8DGKiek+cT51FvGRjV6LbaxXOm2P47/aiaXrDD5O0RF5SiPo6
-xD1/ClkCETyyEAE5LRJlXtx288R598koyFcwCSXijeVcRvBB1cNOLEbg7RMSw1AGq14fNe2cH1HG
-W7xyduY/ydQt6gv5r21mDOQ5SaZSWC/ZRfLDuEYwggWbMIIEg6ADAgECAhAH5JEPagNRXYDiRPdl
-c1vgMA0GCSqGSIb3DQEBCwUAMEExCzAJBgNVBAYTAkFVMRAwDgYDVQQKEwdWZXJva2V5MSAwHgYD
-VQQDExdWZXJva2V5IFNlY3VyZSBFbWFpbCBHMjAeFw0yNDEyMzAwMDAwMDBaFw0yODAxMDQyMzU5
-NTlaMB4xHDAaBgNVBAMME2R3bXcyQGluZnJhZGVhZC5vcmcwggIiMA0GCSqGSIb3DQEBAQUAA4IC
-DwAwggIKAoICAQDali7HveR1thexYXx/W7oMk/3Wpyppl62zJ8+RmTQH4yZeYAS/SRV6zmfXlXaZ
-sNOE6emg8WXLRS6BA70liot+u0O0oPnIvnx+CsMH0PD4tCKSCsdp+XphIJ2zkC9S7/yHDYnqegqt
-w4smkqUqf0WX/ggH1Dckh0vHlpoS1OoxqUg+ocU6WCsnuz5q5rzFsHxhD1qGpgFdZEk2/c//ZvUN
-i12vPWipk8TcJwHw9zoZ/ZrVNybpMCC0THsJ/UEVyuyszPtNYeYZAhOJ41vav1RhZJzYan4a1gU0
-kKBPQklcpQEhq48woEu15isvwWh9/+5jjh0L+YNaN0I//nHSp6U9COUG9Z0cvnO8FM6PTqsnSbcc
-0j+GchwOHRC7aP2t5v2stVx3KbptaYEzi4MQHxm/0+HQpMEVLLUiizJqS4PWPU6zfQTOMZ9uLQRR
-ci+c5xhtMEBszlQDOvEQcyEG+hc++fH47K+MmZz21bFNfoBxLP6bjR6xtPXtREF5lLXxp+CJ6KKS
-blPKeVRg/UtyJHeFKAZXO8Zeco7TZUMVHmK0ZZ1EpnZbnAhKE19Z+FJrQPQrlR0gO3lBzuyPPArV
-hvWxjlO7S4DmaEhLzarWi/ze7EGwWSuI2eEa/8zU0INUsGI4ywe7vepQz7IqaAovAX0d+f1YjbmC
-VsAwjhLmveFjNwIDAQABo4IBsDCCAawwHwYDVR0jBBgwFoAUiUgI6iBOd2uG5YHI1+GNZIR//HAw
-HQYDVR0OBBYEFFxiGptwbOfWOtMk5loHw7uqWUOnMDAGA1UdEQQpMCeBE2R3bXcyQGluZnJhZGVh
-ZC5vcmeBEGRhdmlkQHdvb2Rob3Uuc2UwFAYDVR0gBA0wCzAJBgdngQwBBQEBMA4GA1UdDwEB/wQE
-AwIF4DAdBgNVHSUEFjAUBggrBgEFBQcDAgYIKwYBBQUHAwQwewYDVR0fBHQwcjA3oDWgM4YxaHR0
-cDovL2NybDMuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNybDA3oDWgM4YxaHR0
-cDovL2NybDQuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNybDB2BggrBgEFBQcB
-AQRqMGgwJAYIKwYBBQUHMAGGGGh0dHA6Ly9vY3NwLmRpZ2ljZXJ0LmNvbTBABggrBgEFBQcwAoY0
-aHR0cDovL2NhY2VydHMuZGlnaWNlcnQuY29tL1Zlcm9rZXlTZWN1cmVFbWFpbEcyLmNydDANBgkq
-hkiG9w0BAQsFAAOCAQEAQXc4FPiPLRnTDvmOABEzkIumojfZAe5SlnuQoeFUfi+LsWCKiB8Uextv
-iBAvboKhLuN6eG/NC6WOzOCppn4mkQxRkOdLNThwMHW0d19jrZFEKtEG/epZ/hw/DdScTuZ2m7im
-8ppItAT6GXD3aPhXkXnJpC/zTs85uNSQR64cEcBFjjoQDuSsTeJ5DAWf8EMyhMuD8pcbqx5kRvyt
-JPsWBQzv1Dsdv2LDPLNd/JUKhHSgr7nbUr4+aAP2PHTXGcEBh8lTeYea9p4d5k969pe0OHYMV5aL
-xERqTagmSetuIwolkAuBCzA9vulg8Y49Nz2zrpUGfKGOD0FMqenYxdJHgDCCBZswggSDoAMCAQIC
-EAfkkQ9qA1FdgOJE92VzW+AwDQYJKoZIhvcNAQELBQAwQTELMAkGA1UEBhMCQVUxEDAOBgNVBAoT
-B1Zlcm9rZXkxIDAeBgNVBAMTF1Zlcm9rZXkgU2VjdXJlIEVtYWlsIEcyMB4XDTI0MTIzMDAwMDAw
-MFoXDTI4MDEwNDIzNTk1OVowHjEcMBoGA1UEAwwTZHdtdzJAaW5mcmFkZWFkLm9yZzCCAiIwDQYJ
-KoZIhvcNAQEBBQADggIPADCCAgoCggIBANqWLse95HW2F7FhfH9bugyT/danKmmXrbMnz5GZNAfj
-Jl5gBL9JFXrOZ9eVdpmw04Tp6aDxZctFLoEDvSWKi367Q7Sg+ci+fH4KwwfQ8Pi0IpIKx2n5emEg
-nbOQL1Lv/IcNiep6Cq3DiyaSpSp/RZf+CAfUNySHS8eWmhLU6jGpSD6hxTpYKye7PmrmvMWwfGEP
-WoamAV1kSTb9z/9m9Q2LXa89aKmTxNwnAfD3Ohn9mtU3JukwILRMewn9QRXK7KzM+01h5hkCE4nj
-W9q/VGFknNhqfhrWBTSQoE9CSVylASGrjzCgS7XmKy/BaH3/7mOOHQv5g1o3Qj/+cdKnpT0I5Qb1
-nRy+c7wUzo9OqydJtxzSP4ZyHA4dELto/a3m/ay1XHcpum1pgTOLgxAfGb/T4dCkwRUstSKLMmpL
-g9Y9TrN9BM4xn24tBFFyL5znGG0wQGzOVAM68RBzIQb6Fz758fjsr4yZnPbVsU1+gHEs/puNHrG0
-9e1EQXmUtfGn4InoopJuU8p5VGD9S3Ikd4UoBlc7xl5yjtNlQxUeYrRlnUSmdlucCEoTX1n4UmtA
-9CuVHSA7eUHO7I88CtWG9bGOU7tLgOZoSEvNqtaL/N7sQbBZK4jZ4Rr/zNTQg1SwYjjLB7u96lDP
-sipoCi8BfR35/ViNuYJWwDCOEua94WM3AgMBAAGjggGwMIIBrDAfBgNVHSMEGDAWgBSJSAjqIE53
-a4blgcjX4Y1khH/8cDAdBgNVHQ4EFgQUXGIam3Bs59Y60yTmWgfDu6pZQ6cwMAYDVR0RBCkwJ4ET
-ZHdtdzJAaW5mcmFkZWFkLm9yZ4EQZGF2aWRAd29vZGhvdS5zZTAUBgNVHSAEDTALMAkGB2eBDAEF
-AQEwDgYDVR0PAQH/BAQDAgXgMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDBDB7BgNVHR8E
-dDByMDegNaAzhjFodHRwOi8vY3JsMy5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVtYWlsRzIu
-Y3JsMDegNaAzhjFodHRwOi8vY3JsNC5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVtYWlsRzIu
-Y3JsMHYGCCsGAQUFBwEBBGowaDAkBggrBgEFBQcwAYYYaHR0cDovL29jc3AuZGlnaWNlcnQuY29t
-MEAGCCsGAQUFBzAChjRodHRwOi8vY2FjZXJ0cy5kaWdpY2VydC5jb20vVmVyb2tleVNlY3VyZUVt
-YWlsRzIuY3J0MA0GCSqGSIb3DQEBCwUAA4IBAQBBdzgU+I8tGdMO+Y4AETOQi6aiN9kB7lKWe5Ch
-4VR+L4uxYIqIHxR7G2+IEC9ugqEu43p4b80LpY7M4KmmfiaRDFGQ50s1OHAwdbR3X2OtkUQq0Qb9
-6ln+HD8N1JxO5nabuKbymki0BPoZcPdo+FeRecmkL/NOzzm41JBHrhwRwEWOOhAO5KxN4nkMBZ/w
-QzKEy4PylxurHmRG/K0k+xYFDO/UOx2/YsM8s138lQqEdKCvudtSvj5oA/Y8dNcZwQGHyVN5h5r2
-nh3mT3r2l7Q4dgxXlovERGpNqCZJ624jCiWQC4ELMD2+6WDxjj03PbOulQZ8oY4PQUyp6djF0keA
-MYIDuzCCA7cCAQEwVTBBMQswCQYDVQQGEwJBVTEQMA4GA1UEChMHVmVyb2tleTEgMB4GA1UEAxMX
-VmVyb2tleSBTZWN1cmUgRW1haWwgRzICEAfkkQ9qA1FdgOJE92VzW+AwDQYJYIZIAWUDBAIBBQCg
-ggE3MBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEwHAYJKoZIhvcNAQkFMQ8XDTI2MDUyMTAwMDAz
-NFowLwYJKoZIhvcNAQkEMSIEIG/tb5oHS69DXoPShiAfo2aoOWoJE5oNgVwA+aqkZngOMGQGCSsG
-AQQBgjcQBDFXMFUwQTELMAkGA1UEBhMCQVUxEDAOBgNVBAoTB1Zlcm9rZXkxIDAeBgNVBAMTF1Zl
-cm9rZXkgU2VjdXJlIEVtYWlsIEcyAhAH5JEPagNRXYDiRPdlc1vgMGYGCyqGSIb3DQEJEAILMVeg
-VTBBMQswCQYDVQQGEwJBVTEQMA4GA1UEChMHVmVyb2tleTEgMB4GA1UEAxMXVmVyb2tleSBTZWN1
-cmUgRW1haWwgRzICEAfkkQ9qA1FdgOJE92VzW+AwDQYJKoZIhvcNAQEBBQAEggIAtGkkp7+gTp0m
-emEfPuqG5QfODGFUCdmtbaG+7ajA00e5WZppAE0MO01AyAmagcs+FXyPRBOsB/i6Mn/0xYi1ib0Z
-jXpAz/gC+TOzeq32X0+Sw808+JHin2UiKX0OzJNd9GZSqHt8pIFcVBZapucupBdw3rH0KZj5cgxa
-0SDzChe/rB2Y4HsEilEpxrBeCO2E7vPCTQymDRWVL572p/hHk0FZ3FWHT0PGWudrCRNFZWcnZz1u
-+uth0I2ecGc+rJdDA/Y1VZeFjOS7mYKBU2hc0I6FAljp9xWUbTmuxSpOoJnRccivMZE8bjhX6pP0
-euVibnrPUFKCDYSdrkDN1GAPSdGlevwI4ue2xYS/Z/I/KE8daom03b1IhP/hcczwcJw+Zexv5xkl
-JNN+NlrVfKSmpq7w8tfRBp9TB3ssSXwYrxNMrRx7UUjYiXxbrXFkyzsFyVA6vUIpLuqhG/1D24zh
-w+uqNi0UF3srIKVkKFLfDEqU17Ipr2iGdMcUHM3FCKUL7//7QMDmCUZSKjFAQ0Zw51J6t1IJUV6f
-rqW5xEQAukHvZr5ZaDfFPBLnPLA+eymvn3mx/oTAfaLreeDjh0On1VnkWWuJdakzbYEH/nIY4GQp
-i4gvJyiNW1p5Rswz5ZSe3gwlx0nYgjHxeri4KJFX1FW1wernAUiSRdB8UVkKwtMAAAAAAAA=
-
-
---=-BsKJxp2uQuWPK9KQHUFW--
