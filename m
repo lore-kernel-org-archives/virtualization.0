@@ -1,132 +1,225 @@
-Received: from mail-pg1-f201.google.com (mail-pg1-f201.google.com [209.85.215.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C387C3C9429
-	for <virtualization@lists.linux.dev>; Thu, 21 May 2026 13:59:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7D1D91F2B8D
+	for <virtualization@lists.linux.dev>; Thu, 21 May 2026 14:09:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779371977; cv=none; b=Few586zcqIA2+D7a8mwCtqtondh0v+dn/D9I4U+70otG6cRqSjV/V71PBVBp4gMnVmbE3tpBFhuc4+KVy2V2eZCI/H84c7ZZxcsmQSTHZakYHH4tYk54Wiulg0ttIpkRflgSkhHiJ6BqOFZfHacg3t4V+rd2zh5X3nWVEk3O9uw=
+	t=1779372566; cv=none; b=iKkV2VmlMqBwe94vPomq3C4fHDZLlzxVQulf4GZGfkg2x3WZ7ZdEBvIXIm7GhZW5hqE5ADfuax91VJ/RRlY0rUyGcNhVwM/zY6fSEnTAoXWslOqbPt3lrBNpmpBhjWbh9dKAef7uBPw/Zvga3fkEd7R01e+VteLS2kyex8a7R3w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779371977; c=relaxed/simple;
-	bh=h+4NVJo3wpAjspHwkhwsyzZn+zEl2CEEOehXzRGNdBY=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=Rb6AStXAjwInma3+fw2/SVmSBWCS4J8A2ersYXTqkvlVDSsS9WxxDg0nh9d+BTiTXJvKZuFNZntOt/38XODFqMgzzhYQOi0ZEfXu18T38AIxiXezv7LMk3wF5PjNE1CotpNh7FvYDEo4Wxf2kOp1i6TmVw+Gr0VtlMH61NjXGoY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=jqdP0Rw5; arc=none smtp.client-ip=209.85.215.201
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1779372566; c=relaxed/simple;
+	bh=zVWai+7lGIvjl6SkZBpll6gJb+jxqobnMbSWMceYjNA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=NBpwC86WqhIQupOEXou3NHLqwp7oQPiMe+ww0OG87z+evAmdFtrleiF+/wwEJTH1gSp/TJkJqDvaHyEkpmPAUpKHxv5TLDuCpfSlRmHLnPw5i9H1+2Ff5ke3lUZblqadDGzLOd8QiREcwIrnetUa0sHd53p5dQNtp7acfoyancg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Vct6ra0N; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="jqdP0Rw5"
-Received: by mail-pg1-f201.google.com with SMTP id 41be03b00d2f7-c709551ec08so9438515a12.3
-        for <virtualization@lists.linux.dev>; Thu, 21 May 2026 06:59:35 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1779371975; x=1779976775; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=tqeEG6FXEKElqAGUt/Z2qfbIbuB++N7b4Fh1Zt6D5dk=;
-        b=jqdP0Rw59w9oKxIrmiLen3tOYkBFSerOXwyErMsL28PPDpJp9Hnn5oQZNdw3cFwTFw
-         W5gfrDDuqa9NcELyESSwz2fGCHTmumNePkoDrSnsJ0C9bLd+xfiWCEO0XMaOCRSzbPPS
-         nIB7kXSITJS4+ULmRdzAQE8VpkK6I4N8OA7n7yXxu9kCCzrNejj+JWxTL3/lciSKcnZG
-         PDH58RvybYbrF5nDa4XAAYEMonjwQJxgDrNWTWq4wLIMJ/0skLk2vjAQltrpgW4yldHw
-         Xrai7AXX+UfN+m9ckDCODI8ybVb/woUkHKJmbr3lXof5ItjVk4SAipi0Vkx2sRaailek
-         F6ww==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Vct6ra0N"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1779372563;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=E82Z22wc78DWFtKs22Dwf10Uc2AV6EGoZcG/joqub6E=;
+	b=Vct6ra0NH6nH4gBZFIjDfwKIDfUeotUzCK74H6H/a5kOjzU/YrsAAYBGF3ntHbZD1ne2c4
+	5ohIe+ivTxEF32OOB7HHvVhCDDij9BE2G13DTYOa8ON6rNueN8E3xcXz9K4yY5E7hN67IQ
+	HH8/bn4l0kj1cZB/7vha9bGifmrk/SQ=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-680-QuQ96MPCN_-D4KpzlSY5Cw-1; Thu, 21 May 2026 10:09:19 -0400
+X-MC-Unique: QuQ96MPCN_-D4KpzlSY5Cw-1
+X-Mimecast-MFC-AGG-ID: QuQ96MPCN_-D4KpzlSY5Cw_1779372558
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-48fd233d1e2so56956845e9.1
+        for <virtualization@lists.linux.dev>; Thu, 21 May 2026 07:09:19 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779371975; x=1779976775;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=tqeEG6FXEKElqAGUt/Z2qfbIbuB++N7b4Fh1Zt6D5dk=;
-        b=EuUYvwj3g4PuqITxGjxXRhylVBKK8svsyFqpoqAQgw/xPTVfGUKEq4f1F2rl1+RshS
-         LOssXjfm79muidgXU3KUd8c5s/7z/IePXoglAy/G6jKXhUZOPi5gDa58SvNYuIWMqJTk
-         76qRoDpDfPf13f6apPQIILTyIdUYm3UsVHHqJL8udDtJVBA7O9T9vDn0KpmV352IYGQ1
-         +BbZKfbp6akms7QNwN3uphADqNGBSnK0fhwAwodlbM0v8ULH/JyHCKxG4csg82I9FwRB
-         lwRrHKkcSrDGBdCha14bOJxV6+jj/35yiIkXA+imVOtmyEx+yW3rNS1KS7DIFjlZrEIE
-         r89Q==
-X-Forwarded-Encrypted: i=1; AFNElJ+MwL15XWYjXKwjFN2k9FNBtlHmuex9f281Z0iQIZxNmkOO/obhOW8dwDqP1VyelAmR4wPCtrCrTlaw+uEUeA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx4xRzbfkqpYEbQSauXEkDYdK7+fZqR3GCsejN58diaj4/fVfos
-	zaMw8HAU+tV69n1JlYqNKk9q/Qf+p78YXtvyhehT+ep/4CHiCHuoFM2Lywe2sjw17BgL90lWePg
-	fI3+3dQ==
-X-Received: from pge1.prod.google.com ([2002:a05:6a02:2d01:b0:c79:83b3:cdf8])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a20:431a:b0:39c:a78e:dba9
- with SMTP id adf61e73a8af0-3b308ac1b14mr3725831637.40.1779371973881; Thu, 21
- May 2026 06:59:33 -0700 (PDT)
-Date: Thu, 21 May 2026 06:59:33 -0700
-In-Reply-To: <20260521133326.2465264-4-kees@kernel.org>
+        d=1e100.net; s=20251104; t=1779372558; x=1779977358;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=E82Z22wc78DWFtKs22Dwf10Uc2AV6EGoZcG/joqub6E=;
+        b=jPdW1znsaR+mhv3nDD3IFAOy2KUJff/eeLoWqbfPjMVxJmB8Y3f1YQQrwnxCFdUwhe
+         EYp0QuRCt94ur5dmwm93Qcj5Emg/koX/ePVHjKsozEWbli4tuVJY5EXKyjwsDmtez05L
+         cgf4G3ZdnYVu7oR1NiVEJRHbHmBunGAE+jFeDaF0FR5A+ANcSrnzupbO+OlB0RFVDRuc
+         TcaKUFM2/z9bOCAkFtXzXAZOUnO+a9yI08lcNQ99zMwL7oSxOGsj5n3AOiyAqUyE9+y/
+         cxNq4xaGaa+P3RQZ6iCc6jniSbAHde6f79wod3iT58UbzhpAYTfFB29+nvo2tSTmLPoa
+         /BJA==
+X-Forwarded-Encrypted: i=1; AFNElJ8DMt8fE4Ho+/YxPRT1+N8WbHTMFYH91wMlJQPcsV1sTOsNeJqyMAKF0OMmfvpw+UqP8ybRtBHuF7TBOB48+g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzJdjIGQdHTyhE5dBExmIyvwN4kgnbfF/NxLL4fwhV8K4RewJVq
+	YRJNcRIscmCghy30UnbfQCTDtcNBktvxUAHgg2juX1Hg8le49TEk5oElyizJtIextdM5HjOBPJT
+	LwJRfyR2tSaZLphlIsvVRktaf8fN6Fop1t6qxneEUlASk2pnoNBj2K0Ndza4OPZBrIkKo
+X-Gm-Gg: Acq92OFKsXtYm+MBR/N7mDGY+JD4x3rRxzlC4HpwJ5fOEw+CfTwGMM+Mekr5rjQrAw6
+	M5t5f9LScksO1ppU6P9HQ7mWilQprHkY/MvrMvHvMMSMkXiAaQKf/Ukv0v6S7+eNcp0R75q2/4+
+	mL+LRcQAr/Wvag/6l9SxxN3RGJp33uoJcvXkTjrc7eCBdJPTT5/UCfBGIlRZ5Vvnx0HgBbxjr6k
+	XaIA0qzrEhcUuGmfQsUWSQVRrcxk3FfSOMGApRGu8JbuJaMaZa12gkQqvHzQrnaBv9A3EKU5qW9
+	gHjPONnd2i4shweAMVzpKN3K2+i3ljSsl6bLhRAv97EmUnSJTielvv8jE0yDFb3GZtRrY4iWwmo
+	1I6tSigAraS+mhnHV1sfHDYDQOR2HXEiG8KNRebWbA0qlelLlYlHMSw==
+X-Received: by 2002:a05:600c:4e92:b0:490:3b84:c106 with SMTP id 5b1f17b1804b1-4903b84c8ffmr34030235e9.26.1779372557807;
+        Thu, 21 May 2026 07:09:17 -0700 (PDT)
+X-Received: by 2002:a05:600c:4e92:b0:490:3b84:c106 with SMTP id 5b1f17b1804b1-4903b84c8ffmr34029025e9.26.1779372557076;
+        Thu, 21 May 2026 07:09:17 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-25-45.inter.net.il. [80.230.25.45])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4903ad2ee77sm25394465e9.0.2026.05.21.07.09.12
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 21 May 2026 07:09:16 -0700 (PDT)
+Date: Thu, 21 May 2026 10:09:11 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: linux-kernel@vger.kernel.org
+Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Muchun Song <muchun.song@linux.dev>,
+	Oscar Salvador <osalvador@suse.de>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Lorenzo Stoakes <ljs@kernel.org>,
+	"Liam R. Howlett" <liam@infradead.org>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Brendan Jackman <jackmanb@google.com>,
+	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
+	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
+	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+	Byungchul Park <byungchul@sk.com>,
+	Gregory Price <gourry@gourry.net>,
+	Ying Huang <ying.huang@linux.alibaba.com>,
+	Alistair Popple <apopple@nvidia.com>,
+	Christoph Lameter <cl@gentwo.org>,
+	David Rientjes <rientjes@google.com>,
+	Roman Gushchin <roman.gushchin@linux.dev>,
+	Harry Yoo <harry.yoo@oracle.com>,
+	Axel Rasmussen <axelrasmussen@google.com>,
+	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
+	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
+	Kemeng Shi <shikemeng@huaweicloud.com>,
+	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
+	virtualization@lists.linux.dev, linux-mm@kvack.org,
+	Andrea Arcangeli <aarcange@redhat.com>
+Subject: Re: [PATCH v8 00/37] mm/virtio: skip redundant zeroing of
+ host-zeroed pages
+Message-ID: <20260521100313-mutt-send-email-mst@kernel.org>
+References: <cover.1779315441.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20260521133315.work.845-kees@kernel.org> <20260521133326.2465264-4-kees@kernel.org>
-Message-ID: <ag8PxTTi5NxT51EW@google.com>
-Subject: Re: [PATCH 04/11] treewide: Convert struct kernel_param_ops
- initializers to DEFINE_KERNEL_PARAM_OPS
-From: Sean Christopherson <seanjc@google.com>
-To: Kees Cook <kees@kernel.org>
-Cc: Luis Chamberlain <mcgrof@kernel.org>, Pengpeng Hou <pengpeng@iscas.ac.cn>, 
-	Petr Pavlu <petr.pavlu@suse.com>, Richard Weinberger <richard@nod.at>, 
-	Anton Ivanov <anton.ivanov@cambridgegreys.com>, Johannes Berg <johannes@sipsolutions.net>, 
-	"Rafael J. Wysocki" <rafael@kernel.org>, Len Brown <lenb@kernel.org>, Corey Minyard <corey@minyard.net>, 
-	Gabriel Somlo <somlo@cmu.edu>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Jani Nikula <jani.nikula@linux.intel.com>, 
-	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, Rodrigo Vivi <rodrigo.vivi@intel.com>, 
-	Tvrtko Ursulin <tursulin@ursulin.net>, David Airlie <airlied@gmail.com>, 
-	Simona Vetter <simona@ffwll.ch>, Bart Van Assche <bvanassche@acm.org>, Jason Gunthorpe <jgg@ziepe.ca>, 
-	Leon Romanovsky <leon@kernel.org>, Laurent Pinchart <laurent.pinchart@ideasonboard.com>, 
-	Hans de Goede <hansg@kernel.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, 
-	Bjorn Helgaas <bhelgaas@google.com>, Hannes Reinecke <hare@suse.de>, 
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>, 
-	"Martin K. Petersen" <martin.petersen@oracle.com>, Daniel Lezcano <daniel.lezcano@kernel.org>, 
-	Zhang Rui <rui.zhang@intel.com>, Lukasz Luba <lukasz.luba@arm.com>, 
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>, Jiri Slaby <jirislaby@kernel.org>, 
-	Alan Stern <stern@rowland.harvard.edu>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	"Eugenio =?utf-8?B?UMOpcmV6?=" <eperezma@redhat.com>, Jason Baron <jbaron@akamai.com>, 
-	Jim Cromie <jim.cromie@gmail.com>, Tiwei Bie <tiwei.btw@antgroup.com>, 
-	Benjamin Berg <benjamin.berg@intel.com>, 
-	"Ilpo =?utf-8?B?SsOkcnZpbmVu?=" <ilpo.jarvinen@linux.intel.com>, 
-	"David E. Box" <david.e.box@linux.intel.com>, "Maciej W. Rozycki" <macro@orcam.me.uk>, 
-	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>, Peter Zijlstra <peterz@infradead.org>, 
-	Heiko Carstens <hca@linux.ibm.com>, Vasily Gorbik <gor@linux.ibm.com>, 
-	Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
-	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
-	"H. Peter Anvin" <hpa@zytor.com>, Vinod Koul <vkoul@kernel.org>, Frank Li <Frank.Li@kernel.org>, 
-	Daniel Gomez <da.gomez@kernel.org>, Sami Tolvanen <samitolvanen@google.com>, 
-	Aaron Tomlin <atomlin@atomlin.com>, Alexander Potapenko <glider@google.com>, Marco Elver <elver@google.com>, 
-	Dmitry Vyukov <dvyukov@google.com>, Andrew Morton <akpm@linux-foundation.org>, 
-	John Johansen <john.johansen@canonical.com>, Paul Moore <paul@paul-moore.com>, 
-	James Morris <jmorris@namei.org>, "Serge E. Hallyn" <serge@hallyn.com>, 
-	Andy Shevchenko <andriy.shevchenko@linux.intel.com>, 
-	Georgia Garcia <georgia.garcia@canonical.com>, kvm@vger.kernel.org, 
-	dmaengine@vger.kernel.org, linux-modules@vger.kernel.org, 
-	kasan-dev@googlegroups.com, linux-mm@kvack.org, apparmor@lists.ubuntu.com, 
-	linux-security-module@vger.kernel.org, linux-um@lists.infradead.org, 
-	linux-acpi@vger.kernel.org, openipmi-developer@lists.sourceforge.net, 
-	qemu-devel@nongnu.org, intel-gfx@lists.freedesktop.org, 
-	dri-devel@lists.freedesktop.org, linux-rdma@vger.kernel.org, 
-	linux-media@vger.kernel.org, linux-pci@vger.kernel.org, 
-	linux-scsi@vger.kernel.org, linux-pm@vger.kernel.org, 
-	linuxppc-dev@lists.ozlabs.org, linux-serial@vger.kernel.org, 
-	linux-usb@vger.kernel.org, usb-storage@lists.one-eyed-alien.net, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	linux-arch@vger.kernel.org, netdev@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-hardening@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+In-Reply-To: <cover.1779315441.git.mst@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: PkHafRtJl4J8dBh9rAUSqnkQC0Nw6RKmFwcEDcQPBe4_1779372558
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Thu, May 21, 2026, Kees Cook wrote:
-> Using Coccinelle, rewrite every struct kernel_param_ops initializer that
-> sets .get into a DEFINE_KERNEL_PARAM_OPS-family macro invocation,
-> for example:
-> 
-> @@
-> declarer name DEFINE_KERNEL_PARAM_OPS;
-> identifier OPS;
-> expression SET, GET;
-> @@
-> - const struct kernel_param_ops OPS = {
-> -       .set = SET,
-> -       .get = GET,
-> - };
-> + DEFINE_KERNEL_PARAM_OPS(OPS, SET, GET);
+On Wed, May 20, 2026 at 06:20:13PM -0400, Michael S. Tsirkin wrote:
+> When a guest reports free pages to the hypervisor via virtio-balloon's
+> free page reporting, the host typically zeros those pages when reclaiming
+> their backing memory (e.g., via MADV_DONTNEED on anonymous mappings).
+> When the guest later reallocates those pages, the kernel zeros them
+> again, redundantly.
 
-IMO, "OPS, GET, SET" is more intuitive, especially since that's the order used
-by DEFINE_SIMPLE_ATTRIBUTE and DEFINE_DEBUGFS_ATTRIBUTE.
+FYI Sashiko reported a couple of issues. Mostly false positives but
+I tweaked commit log to make it clearer. But also a couple of
+real issues. So far I have this diff on top:
+
+--->
+
+Changes from v8 to v9 candidate (code only):
+
+1. mm/mempolicy.c (patch 1: mm: mempolicy: fix interleave index calculation)
+   Combine vm_pgoff and VMA offset into a single expression before
+   shifting, fixing carry loss for file-backed VMAs with unaligned
+   vm_pgoff.
+
+2. mm/memory-failure.c (patch 2: mm: memory-failure: serialize TestSetPageHWPoison with zone->lock)
+   Wrap ClearPageHWPoison in retry path with zone->lock too.
+
+3. mm/huge_memory.c (patch 19: mm: use __GFP_ZERO in vma_alloc_anon_folio_pmd)
+   Fix stale comment: "folio_zero_user writes" -> "page zeroing".
+
+4. mm/page_reporting.c (patch 4: mm: page_reporting: allow driver to set batch capacity)
+   Drop rounddown_pow_of_two: compiler cannot optimize division
+   by runtime variable anyway, and rounding halves batch size for
+   non-power-of-2 capacity values.
+
+Commit log improvements (no code change):
+- Patch 1: rewritten to explain new single-expression formula (fixes patch 1)
+- Patch 2: mention ClearPageHWPoison in retry path (fixes patch 2)
+- Patch 4: drop "rounded down to a power of 2" (fixes patch 4)
+- Patch 10: "stub" wording simplified (fixes patch 10)
+- Patch 22: note PG_zeroed hint loss is harmless (fixes patch 22)
+- Patch 23: add PowerPC note (fixes patch 23)
+- Patch 28: explain DEVICE_INIT_ON_INFLATE is a follow-up (fixes patch 28)
+- Patch 29: explain flush over-reporting is by design (fixes patch 29)
+- Patch 33: note __SetPageZeroed is safe on frozen pages (fixes patch 33)
+- Patch 36: note __SetPageZeroed is safe on balloon-owned pages (fixes patch 36)
+
+---
+
+diff --git a/mm/huge_memory.c b/mm/huge_memory.c
+index 9845c920c29c..4978d34532ea 100644
+--- a/mm/huge_memory.c
++++ b/mm/huge_memory.c
+@@ -1358,7 +1358,7 @@ static struct folio *vma_alloc_anon_folio_pmd(struct vm_area_struct *vma,
+ 
+ 	/*
+ 	 * The memory barrier inside __folio_mark_uptodate makes sure that
+-	 * folio_zero_user writes become visible before the set_pmd_at()
++	 * page zeroing becomes visible before the set_pmd_at()
+ 	 * write.
+ 	 */
+ 	__folio_mark_uptodate(folio);
+diff --git a/mm/memory-failure.c b/mm/memory-failure.c
+index a6b61172dd13..d106f2c135c7 100644
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -2426,7 +2426,9 @@ int memory_failure(unsigned long pfn, int flags)
+ 			} else {
+ 				/* We lost the race, try again */
+ 				if (retry) {
++					spin_lock_irqsave(&zone->lock, mf_flags);
+ 					ClearPageHWPoison(p);
++					spin_unlock_irqrestore(&zone->lock, mf_flags);
+ 					retry = false;
+ 					goto try_again;
+ 				}
+diff --git a/mm/mempolicy.c b/mm/mempolicy.c
+index ea3043e0075b..f573ff32e94d 100644
+--- a/mm/mempolicy.c
++++ b/mm/mempolicy.c
+@@ -2048,9 +2048,9 @@ struct mempolicy *get_vma_policy(struct vm_area_struct *vma,
+ 		pol = get_task_policy(current);
+ 	if (pol->mode == MPOL_INTERLEAVE ||
+ 	    pol->mode == MPOL_WEIGHTED_INTERLEAVE) {
+-		*ilx += vma->vm_pgoff >> order;
+-		*ilx += (addr >> (PAGE_SHIFT + order)) -
+-			(vma->vm_start >> (PAGE_SHIFT + order));
++		*ilx += (vma->vm_pgoff +
++			(addr >> PAGE_SHIFT) -
++			(vma->vm_start >> PAGE_SHIFT)) >> order;
+ 	}
+ 	return pol;
+ }
+diff --git a/mm/page_reporting.c b/mm/page_reporting.c
+index 8b278a494ea5..3f584f538c68 100644
+--- a/mm/page_reporting.c
++++ b/mm/page_reporting.c
+@@ -443,9 +443,6 @@ int page_reporting_register(struct page_reporting_dev_info *prdev)
+ 	if (!prdev->capacity || prdev->capacity > PAGE_REPORTING_CAPACITY)
+ 		prdev->capacity = PAGE_REPORTING_CAPACITY;
+ 
+-	/* Power of 2 so division by capacity in the budget calc is cheap */
+-	prdev->capacity = rounddown_pow_of_two(prdev->capacity);
+-
+ 	/* initialize state and work structures */
+ 	atomic_set(&prdev->state, PAGE_REPORTING_IDLE);
+ 	INIT_DELAYED_WORK(&prdev->work, &page_reporting_process);
+
