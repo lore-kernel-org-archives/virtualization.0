@@ -1,218 +1,115 @@
-Received: from mail-pg1-f201.google.com (mail-pg1-f201.google.com [209.85.215.201])
+Received: from mail-pl1-f201.google.com (mail-pl1-f201.google.com [209.85.214.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DCF9438332D
-	for <virtualization@lists.linux.dev>; Thu, 21 May 2026 20:53:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9332F2FC876
+	for <virtualization@lists.linux.dev>; Thu, 21 May 2026 21:01:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779396819; cv=none; b=MNoPNAJXMEeg0UYI1xDvp85srXQbQ87GI9FqlHqSZpkxpJ+ri9i2fHlGz/AJpRejEAqvbQ6PUgQaFAKQa1KKGeq1ym+4r7ysMOn84T3x05uusiJbq9FWtz3GG8NUE4kEC6u75vJMtJA/7DiLzRLTOd4uWp7V6Q13Nzb8EfBZtek=
+	t=1779397299; cv=none; b=P3JasKSot/zpsOq3Oo9kZthTbDLsZRf7t4GLfQqenOeKPitTNV4fUdt4Cp1S9owKIBQuaW7+ODWY5Acv3qF+TZHa6TpCztKR6ALm7+QHH32Is5uczZ+N2wHSpwXFpJsQ+YRmwFS9prXB2BWCz0yGc2ZWx+fZ9oHWtlkzhrMCM3g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779396819; c=relaxed/simple;
-	bh=fLtEKBB9bXOUmjY2enVlgjls3t7C38yhOeuHPIwcPQA=;
+	s=arc-20240116; t=1779397299; c=relaxed/simple;
+	bh=UTNkbHY7Wjr/dyzbQ6GvUNv1NaEz32luLYEXfy53m6g=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=Tm9+26hjucZOaHSdGbmo7YyKKVQx8/oiMnRTYvRhurpTPa7+5MfoMGJvsPsxNcHu2VZdIxA9ZNTOJA2otgNhajmIzX9A6uM8M/vaVg7W5o8XWlLOy/j+AIxd6YYmRkXwqyw9yuHRYNyxdfa4Vtxemn3usNR12L+CYAHvRxpSlK8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=i5iN/MEJ; arc=none smtp.client-ip=209.85.215.201
+	 To:Cc:Content-Type; b=lCtrfSV2MfEI5inZbwmpDRcqlSQtBSKDUDAXyo5jijwgsf9qPJqsXQdj2tR2W/TEn7CGD3giWDQTzJaB2rjSL//7LBA1m9j3GBKXHSzONybU6fPahPCBOlxfjOF+Z866mUtDzgXEsP+JCf+hKClLzTxC98LxBbP/C+ehBrgmx00=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=krXqT5rH; arc=none smtp.client-ip=209.85.214.201
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="i5iN/MEJ"
-Received: by mail-pg1-f201.google.com with SMTP id 41be03b00d2f7-c828cee4fcdso3239464a12.3
-        for <virtualization@lists.linux.dev>; Thu, 21 May 2026 13:53:37 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="krXqT5rH"
+Received: by mail-pl1-f201.google.com with SMTP id d9443c01a7336-2bd04e4fe3dso117368185ad.3
+        for <virtualization@lists.linux.dev>; Thu, 21 May 2026 14:01:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1779396817; x=1780001617; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:from:subject:message-id:references
-         :mime-version:in-reply-to:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=mtuSO9Df1yE7JlouGMlcWCEpEnvAH6qlC/HYl6ROkD4=;
-        b=i5iN/MEJcfyIQcYUxt4SU1qFPwNxZr3me8gaXIiRucYgTCy45XsLy1mW7KyvgTeKNz
-         8iQ6BgcFYGaLvrOQO62WjoJLkDjNMKihPAC2UR6/zcXdddVs0qNvSHkwRQoeYg59TaGj
-         o9vKWxx9nh0OY7z6g2sPLn4GmeIfsu8f82GBXzmCIv+uCG+rPptCMQgbV7JsDlo0HPjy
-         ysc/+o7CBzS8xM3GhvTZ8XQ4rf0hBAZ1JYOGbLljuKQA4URdrzd+GW3uJUW37vus6BYe
-         XsQSfFW5TvBFzhFt3quJ6q28Wn9MHLShdrr/846VUWoYpbNnphbdb6JUKr+PkYEf1KQZ
-         TDKA==
+        d=google.com; s=20251104; t=1779397297; x=1780002097; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=iN4mR6FXbVUwqAWLl+PlqYFyvLBNkg9d4d7Akdf1bJQ=;
+        b=krXqT5rHcUGfzMufFvLUrUfftfp9ZEx4fn012f/SMkUNiwCHTYfb443S057/OITIlV
+         ymcUVIu+Fc9UsmzIJpZJpdaR982OKL8vsgluOCJVCR1YqsTbYErQ1SWFwo682C/9T/WK
+         C0zOTzMoFmzUPry/u69WXNPmE6VRDPKIj2mK+OmjS5wxcItSl0mGa+KgQW33VMUNUnN6
+         lYtcqwTL0einmu/FEfy6kZQpjGI8Aiv4eII5qdP5x8WunBFe7eCQg55cPOv8rDYVU4ko
+         w81o8JW0ODpg8bxHu7PXbs7TjRBU5qwxNmsd2f8H45/4GNjjj7fdFWIt1rMDKOlaE3nQ
+         BjUQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779396817; x=1780001617;
-        h=content-transfer-encoding:cc:to:from:subject:message-id:references
-         :mime-version:in-reply-to:date:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=mtuSO9Df1yE7JlouGMlcWCEpEnvAH6qlC/HYl6ROkD4=;
-        b=nY/SGdki44OpU7ToAyfy+ajFSzrZYwscztjldI6SOThNdUWwcdLUkY4s0/y9uPXKaY
-         BqUGimbG/YPtvh5dW4fURC/c9SXO5JhlZL9WNqKGjR6LyHhGO3dSDf0C2OW5PG2dS/fc
-         jKmcguOnCMQvKb4DmJwPQC4EjLeTKmwaqSnRnfLHsIRjia5fqfCG9V+QUxp42RE9oZqd
-         OfXG9r13ep0mRHtSijsx1qDBOnqiESq81rbgHvV7Wz8BkwYomyR+9MyJP2+OXy8wDV+g
-         tH1a0N+FQ4PRSE2nU0A1mbTYEZC21OB+oUB9EPiU1/5sPSmmFdygA2wWfsL/B4hhEVqm
-         QZbw==
-X-Forwarded-Encrypted: i=1; AFNElJ+RXRo6E0fi7I49Nd9hGjZyQFQ2wSuRqgaMldmjL2LVJrol8Y6mzgTprLT3mFtK+ezQWPD260a3EtogQh12VA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwZghz9MEEGugOMB9SCZSLkaljIVJnKqKOMyLdjC1eGkEmOPopl
-	bB9Hj+ozj+wIIGxvyQzy69aRAMeml4Fi6HH+bbp0jhUn/XRXaLX7Ef/wSjTMQINJ1fQAQfKZfnu
-	uEdt2vg==
-X-Received: from pfbg21.prod.google.com ([2002:a05:6a00:ae15:b0:82f:915e:291f])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:3e06:b0:837:b97d:2fe
- with SMTP id d2e1a72fcca58-8415f18b012mr734843b3a.18.1779396816710; Thu, 21
- May 2026 13:53:36 -0700 (PDT)
-Date: Thu, 21 May 2026 13:53:35 -0700
-In-Reply-To: <44e0d60548d317fd59895f18bd17220dfb2f834b.camel@infradead.org>
+        d=1e100.net; s=20251104; t=1779397297; x=1780002097;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=iN4mR6FXbVUwqAWLl+PlqYFyvLBNkg9d4d7Akdf1bJQ=;
+        b=LeKlJSGsEJeXtCWg12x7YMV/PctDUUChPncaup/Z4uFt7zs59mmKupmr7l830VBcSU
+         EOAa4HTfXkb80pL09jzGlUmYBQbHgIZ7q2566sSWzyNBd8uBDNY0HUYVnTFOHXiwrW6Y
+         bnMWzkmR4MZbNTa3FTzGO78U6o3KJXfrhunsYEHHEfgLYqcwnyvcldWmoqmv6hkEsCHf
+         S/9BZ77UPmMi3soZv9Gq7fVte4aaG4iwAkKIvkv8DMD345VWUTpmEcgr/H0JZPjADfKU
+         88u2nfPkFwR0JO8L+QQj+ECRrnY2OY25wi1umg8dXioDBzuhQI7NGSDM+BhiX378GOmK
+         kY5g==
+X-Forwarded-Encrypted: i=1; AFNElJ+DBEggyu0Waq17fSjhsXJB6skrvcc/qgfKdRdhRu/8qrQ/ADMnUNtJdGV3NZ1nY6TcrdfntZQZDXqri2v6Qw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzia8h397QQcPTpJt6HAPr3cC5Xh1Rk56a9k6/DRBKauIVqR3Tp
+	HFlm8UbpG87J2hSAihMSKftCxEeQfNnFJMy8716xx2+UrItun8eVr7b/Gs/IxfkfZg73wznSuJg
+	oeYIXaQ==
+X-Received: from plge10.prod.google.com ([2002:a17:902:cf4a:b0:2bd:40d4:e407])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:902:e84c:b0:2ba:4ad9:70f6
+ with SMTP id d9443c01a7336-2beb06aa272mr6036375ad.31.1779397296608; Thu, 21
+ May 2026 14:01:36 -0700 (PDT)
+Date: Thu, 21 May 2026 14:01:35 -0700
+In-Reply-To: <c54fd01b-fe22-4c9c-8d5f-5b317de07a40@oracle.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 Mime-Version: 1.0
-References: <20260515191942.1892718-1-seanjc@google.com> <20260515191942.1892718-3-seanjc@google.com>
- <44e0d60548d317fd59895f18bd17220dfb2f834b.camel@infradead.org>
-Message-ID: <ag9wz3RiJOtVZrK0@google.com>
-Subject: Re: [PATCH v3 02/41] x86/tsc: Add helper to register CPU and TSC freq
- calibration routines
+References: <20260515191942.1892718-1-seanjc@google.com> <20260515191942.1892718-38-seanjc@google.com>
+ <c54fd01b-fe22-4c9c-8d5f-5b317de07a40@oracle.com>
+Message-ID: <ag9yryEe0A7_AZCT@google.com>
+Subject: Re: [PATCH v3 37/41] x86/kvmclock: Use TSC for sched_clock if it's
+ constant and non-stop
 From: Sean Christopherson <seanjc@google.com>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Kiryl Shutsemau <kas@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, 
-	"K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
+To: Dongli Zhang <dongli.zhang@oracle.com>
+Cc: kvm@vger.kernel.org, Rick Edgecombe <rick.p.edgecombe@intel.com>, 
+	Vitaly Kuznetsov <vkuznets@redhat.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stephen Boyd <sboyd@kernel.org>, x86@kernel.org, 
+	linux-coco@lists.linux.dev, linux-hyperv@vger.kernel.org, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	xen-devel@lists.xenproject.org, Kiryl Shutsemau <kas@kernel.org>, 
+	Paolo Bonzini <pbonzini@redhat.com>, "K. Y. Srinivasan" <kys@microsoft.com>, 
+	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
 	Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>, 
 	Ajay Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.makhalov@broadcom.com>, 
 	Jan Kiszka <jan.kiszka@siemens.com>, Dave Hansen <dave.hansen@linux.intel.com>, 
 	Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Juergen Gross <jgross@suse.com>, 
 	Daniel Lezcano <daniel.lezcano@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
-	John Stultz <jstultz@google.com>, Rick Edgecombe <rick.p.edgecombe@intel.com>, 
-	Vitaly Kuznetsov <vkuznets@redhat.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stephen Boyd <sboyd@kernel.org>, x86@kernel.org, 
-	linux-coco@lists.linux.dev, kvm@vger.kernel.org, linux-hyperv@vger.kernel.org, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	xen-devel@lists.xenproject.org, Michael Kelley <mhklinux@outlook.com>, 
+	John Stultz <jstultz@google.com>, Michael Kelley <mhklinux@outlook.com>, 
 	Tom Lendacky <thomas.lendacky@amd.com>, Nikunj A Dadhania <nikunj@amd.com>, 
-	Thomas Gleixner <tglx@linutronix.de>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+	Thomas Gleixner <tglx@linutronix.de>, David Woodhouse <dwmw@amazon.co.uk>
+Content-Type: text/plain; charset="us-ascii"
 
-On Wed, May 20, 2026, David Woodhouse wrote:
-> On Fri, 2026-05-15 at 12:19 -0700, Sean Christopherson wrote:
-> > Add a helper to register non-native, i.e. PV and CoCo, CPU and TSC
-> > frequency calibration routines.=C2=A0 This will allow consolidating han=
-dling
-> > of common TSC properties that are forced by hypervisor (PV routines),
-> > and will also allow adding sanity checks to guard against overriding a
-> > TSC calibration routine with a routine that is less robust/trusted.
-> >=20
-> > Make the CPU calibration routine optional, as Xen (very sanely) doesn't
-> > assume the CPU runs as the same frequency as the TSC.
-> >=20
-> > Wrap the helper in an #ifdef to document that the kernel overrides
-> > the native routines when running as a VM, and to guard against unwanted
-> > usage.=C2=A0 Add a TODO to call out that AMD_MEM_ENCRYPT is a mess and =
-doesn't
-> > depend on HYPERVISOR_GUEST because it gates both guest and host code.
-> >=20
-> > No functional change intended.
-> >=20
-> > Reviewed-by: Michael Kelley <mhklinux@outlook.com>
-> > Tested-by: Michael Kelley <mhklinux@outlook.com>
-> > Signed-off-by: Sean Christopherson <seanjc@google.com>
->=20
-> Mildly concerned that we might want to support multiple options =E2=80=94=
- does
-> it have CPUID 0x15? Does it have 0x40000x10? Does it have a pvclock?
-> There are various permutations of those which are perhaps best handled
-> by *trying* each one, in some order, and populating a struct with the
-> answers?
->=20
-> But on the basis that perfect is the enemy of good,
+On Thu, May 21, 2026, Dongli Zhang wrote:
+> On 2026-05-15 12:19 PM, Sean Christopherson wrote:
+> > Prefer the TSC over kvmclock for sched_clock if the TSC is constant,
+> > nonstop, and not marked unstable via command line.  I.e. use the same
+> > criteria as tweaking the clocksource rating so that TSC is preferred over
+> > kvmclock.  Per the below comment from native_sched_clock(), sched_clock
+> > is more tolerant of slop than clocksource; using TSC for clocksource but
+> > not sched_clock makes little to no sense, especially now that KVM CoCo
+> > guests with a trusted TSC use TSC, not kvmclock.
+> > 
+> >         /*
+> >          * Fall back to jiffies if there's no TSC available:
+> >          * ( But note that we still use it if the TSC is marked
+> >          *   unstable. We do this because unlike Time Of Day,
+> >          *   the scheduler clock tolerates small errors and it's
+> >          *   very important for it to be as fast as the platform
+> >          *   can achieve it. )
+> >          */
+> > 
+> > The only advantage of using kvmclock is that doing so allows for early
+> > and common detection of PVCLOCK_GUEST_STOPPED, but that code has been
+> > broken for over two years with nary a complaint, i.e. it can't be
+> > _that_ valuable.  And as above, certain types of KVM guests are losing
+> > the functionality regardless, i.e. acknowledging PVCLOCK_GUEST_STOPPED
+> > needs to be decoupled from sched_clock() no matter what.
+> 
+> Has it been broken for two years because of pvclock_clocksource_read_nowd()?
 
-This has been bothering me too.
-
-Aha!  AHA!  Idea.
-
-... 4 hours later ...
-
-Mhahahaahah, victory is mine!!!!
-
-TL;DR: Overriding x86_platform_ops hooks is dumb.
-
-To your point about making an informed decision, that's essentialy what thi=
-s series
-is already doing, just in a very roundabout way:
-
-  1. x86_platform.calibrate_{cpu,tsc}() are initialized to "native" version=
-s
-  2. Hypervisor init code runs and conditionally overrides calibrate_{cpu,t=
-sc}()
-  3. CoCo init code runs and conditionally overrides calibrate_{cpu,tsc}()
-
-So the ordering you want is already there, as is "trying" each source to so=
-me
-extent, in the form of steps #2 and #3 overriding the hooks if and only if =
-their
-source of information is valid.  For all intents and purposes, the hardenin=
-g I
-was adding by formalizing the calibration overrides was to enforce the abov=
-e ordering.
-
-But that's obviously all but impossible to follow, _and_ it's pointless.
-
-For every PV case, including TDX and SNP, "calibration" is simply informati=
-on
-retrieval, i.e. it never changes (barring broken hypervisors/firmware), and=
- the
-information is always available during early boot.
-
-Contrast that with the pre-CPUID CPU frequency calibration, where the frequ=
-ency
-might change, the kernel is making a best guest based on other timekeeping =
-sources,
-and not all timekeeping sources are available during early boot.
-
-And so overriding x86_platform.calibrate_{cpu,tsc}() for PV code is complet=
-ely
-unecessary, because steps #2 and #3 already know the frequency when they ov=
-erride
-the hooks, and "success" is guaranteed, i.e. the kernel won't have to switc=
-h to a
-"late" calibration flow.
-
-If we provide x86_hyper_init hooks:
-
-	unsigned int (*get_tsc_khz)(void);
-	unsigned int (*get_cpu_khz)(void);
-
-then we can kill off x86_platform.calibrate_{cpu,tsc}() entirely, explicitl=
-y
-define the preferred ordering (user-forced =3D> CoCo =3D> Hypervisor =3D> n=
-ative), and
-depup some of the hypervisor code.
-
-E.g. this is what I've got for the early flow.  Testing now.=20
-
-  void __init tsc_early_init(void)
-  {
-	unsigned int known_cpu_khz =3D 0, known_tsc_khz =3D 0;
-
-	if (!boot_cpu_has(X86_FEATURE_TSC))
-		return;
-	/* Don't change UV TSC multi-chassis synchronization */
-	if (is_early_uv_system())
-		return;
-
-	if (x86_init.hyper.get_cpu_khz)
-		known_cpu_khz =3D x86_init.hyper.get_cpu_khz();
-
-	if (tsc_early_khz)
-		known_tsc_khz =3D tsc_early_khz;
-	else if (cc_platform_has(CC_ATTR_GUEST_SNP_SECURE_TSC))
-		known_tsc_khz =3D snp_secure_tsc_init();
-	else if (boot_cpu_has(X86_FEATURE_TDX_GUEST))
-		known_tsc_khz =3D tdx_tsc_init();
-
-	/*
-	 * If the TSC frequency is still unknown, i.e. not provided by the user
-	 * or by trusted firmware, try to get it from the hypervisor (which is
-	 * untrusted when running as a CoCo guest).
-	 */
-	if (!known_tsc_khz && x86_init.hyper.get_tsc_khz)
-		known_tsc_khz =3D x86_init.hyper.get_tsc_khz();
-
-	if (known_tsc_khz)
-		setup_force_cpu_cap(X86_FEATURE_TSC_KNOWN_FREQ);
-
-	if (!determine_cpu_tsc_frequencies(true, known_cpu_khz, known_tsc_khz))
-		return;
-	tsc_enable_sched_clock();
-  }
+Yep.  Because pvclock_clocksource_read_nowd() ignores PVCLOCK_GUEST_STOPPED, the
+flag only ever gets recognized when the kernel reads WALL_CLOCK, which AFAICT
+only happens at initial boot, and during suspend and resume.
