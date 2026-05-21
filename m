@@ -1,133 +1,118 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f202.google.com (mail-pf1-f202.google.com [209.85.210.202])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE8AF3D47C6
-	for <virtualization@lists.linux.dev>; Thu, 21 May 2026 12:47:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ABC5F3C4B91
+	for <virtualization@lists.linux.dev>; Thu, 21 May 2026 12:59:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779367661; cv=none; b=OeLQFu7ItMFWfRGcP3WeA4lmbQxQmLSNZJZlGBWeFJ3f2LpJJBaf0yLcudk8j5iN0kWoDMmUoX+zDbzkQD8oxIpdxPMMRgdRHhxSat2B34jvt4uxIL/CVqPWgsLe9k0kHul3ww6d2vF+KK+hiBqFkG5K7Z4vxFv7KAxRPYEezAk=
+	t=1779368359; cv=none; b=KCQr+20YAOhWIZ4YAhYS1J4ix4SnVnPCkd4oapzvm4ZNgw8QedOOi6nwWiNuNLEUM/1q6IlnBajVoUE6lziOFtg5XO2t2CE/x3HeY/IMMI/lFT0vusMknF/6AyOoHZi3olLHO5ujXSXFGNPyYpk2vc2IJpPGOKaD6PPsCTy3PBc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779367661; c=relaxed/simple;
-	bh=Dn6P2bkc/bzBUKXTydPjxy5n5j2Gvoyaa6sXWWpGFqs=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:content-type; b=PAvoNacgrWFSUnA3GgeC6FGKV1Un/lyoDyyamVrsx+qWSPeOoQQOCmnJrzn0UiXw6Os89eZ0priYr/nXET6RqyfnB4aZ//u5RuuK94Z5Xi6mcAQ0+S8vM4vr9RzVAEWPTudBuSoh2bGbEmgGbmRi+iFJjakNB70SmHRykU4KWW4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BsJRVmIR; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1779368359; c=relaxed/simple;
+	bh=0rVVosXepCYQeGWe7dkZUA8zbJznpObfcXBvPIXEpbY=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=bok4J3SIFMUnyg7nNEZc3rGb+kPLULY0Uiij8Ysw7LgvZh63cjYRTL2OHewGgywBYLZqBO4UX1StbSeztJ5b+S36Z/c6mI4QGYJ9hPSvos3TDSgL0BiyV4LpWZPbTs653UItvmqJXlnLUt3A6MINAmEnjT4zCjTGRty7ZrBjprY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=OmQGIKsE; arc=none smtp.client-ip=209.85.210.202
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BsJRVmIR"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1779367658;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=HUBSvYNIEeXrti7M5Q7uqS37K22xV9FH6FOTxmrZ3+g=;
-	b=BsJRVmIRxO5gbieI2uYdC/xo8TMMSZHzGqZ2ZFGBfuY4pPrwUx1pJ8ebnb/kkbPAtn+cgA
-	wu3ITd00zr46jXAFjPNakIZ1MCPcg5SaLUPhZehJAt5ZcrQobOPuC+Upv4I8T3XT8rAW2v
-	5WHux8GdkMdIaV7fwcHLZf8Iq4kuJwQ=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-530-B_uAUlhEPmeKQULXrGNEgQ-1; Thu, 21 May 2026 08:47:37 -0400
-X-MC-Unique: B_uAUlhEPmeKQULXrGNEgQ-1
-X-Mimecast-MFC-AGG-ID: B_uAUlhEPmeKQULXrGNEgQ_1779367656
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-44ffa15dc8cso3809047f8f.1
-        for <virtualization@lists.linux.dev>; Thu, 21 May 2026 05:47:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="OmQGIKsE"
+Received: by mail-pf1-f202.google.com with SMTP id d2e1a72fcca58-83cecc22d5fso3141570b3a.2
+        for <virtualization@lists.linux.dev>; Thu, 21 May 2026 05:59:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1779368358; x=1779973158; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:from:subject:message-id:references
+         :mime-version:in-reply-to:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=GqcHY/DvmkAZ9QjHGP0kTeF7mk7WkCMN/ZHV20HdBXo=;
+        b=OmQGIKsE89QeeEVCMAkhpEep014jMePmLgZ09K06BvS2ZfzRAPpUMnduv/y5hHD0bn
+         Xg4wu7cVjY6IUoQCzG4CgTQLGhETp6UTpZPTdsjHnHd4k04P22GIPZdU5x/H/SsBqMS3
+         rz13kAeyoRerlLGErGF4RhItPCJQBXngGfg5Eln8yQkVOoHiLtHCtPUYpD+SltAwz2BN
+         kKDfxhgXyzPufaAAi4LVVSiOlOBI6ilL+wCao5lyZNUjzxHMS4MVje8DgFMWy6a7f7lX
+         QGhzIHAFk++ia6QTxtRotM+fx1iwgbY3v0LzX1DM19X6RO1xdD4utmvLWnzI7+5rXZMC
+         iaUg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779367656; x=1779972456;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=HUBSvYNIEeXrti7M5Q7uqS37K22xV9FH6FOTxmrZ3+g=;
-        b=WuqnFud6rudEDtAUglujt1cJJAhHM6FhPWaxb69RzPB6FYziE3nb9mzGCgIX97rEbZ
-         TYkmz3jYt4/NpvPt/PD6+9G77jDxCD14cl2g6CLpo5qpr8MEQWlVOaRKjyQhnroIqrIY
-         TAuGelx0RqXN14u1vjt8PQZjUot7HpTJb0tlzEQXxwiICvaV8TJEvc/gNr8SHPbsF21x
-         k4aqBnBY4XgnaCvsdVRt1G2VuBL8j6LMdumxbljI7jNfmGHbd9zHn8g9OfCaxacILe54
-         xU+U4mkjWgO1+hN0uLwtaXAdGT4CAUMcAqOQuEKdAgbA87jXScIPFUphMI1y9KpzmjNN
-         m7lw==
-X-Forwarded-Encrypted: i=1; AFNElJ8hISDBg1LjaGm4gQTw0NYf/3cpCHIca3Av3XwvoyJeJO2wgNHoKmSuEsK0V7VukFivYMZ6n4JDwEJCKWBlcg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxqDXEdRpE1TJBcEy3GDsrdld1PqZkPexk68g+BZ2l4OvAe5vLz
-	Xv6em3BYfvoTJrmQ1JnXIgnc54De6cOnd+k4Sphj0/IBehPic3Mmr0AodQafJ4XaKdjVnhsukFL
-	zvMFjXFEBcKl8Wccw77IY3v+UzUh5MCJWx9Lp9TROnoByJg8uQIf8O1g33bBuv76m/0Tb
-X-Gm-Gg: Acq92OHGo6UPiLQo0uhEmjU3VrzlH/1J2xJGNi5affUIbAhe8tWUuxVJHajEucUxdHx
-	E+J5zLEACxIkg1KURtjmaHkwJ5vNKWoCYy72+wLAHB2k3kX0p9JvDzPE/zn4F9IGy6JDZkutaFh
-	JzUR0BCvQbVfD9jAGV6lhYZNdZTl3frOce8Q73SNzy4JfWciGXgoR7+TehjwB7VCq+pu66tmsfZ
-	HbN0MqhMgR4UwGC2SvsxOq98v5Mz9ex0sv3sP/XN+Rt+lHN/8rtjwRtBwyOvMhI1TWLboi55SPP
-	s4YC+ks/dsBqytqoCkDvLU7WD0w1DAlqUMhfWR5GJnNYXHFZvJHO/48nWEEDnC4/XKAYBTH6UKL
-	dWTQEo0lhtK7EQkHWf1WDmR2UNTUSJ+BBf75VCzTQCop64H40oi7wXVY+YFc2IeRGvOq5+43iWk
-	J0kLgv/zcdHIA=
-X-Received: by 2002:a05:600c:3513:b0:48a:75b9:b0bc with SMTP id 5b1f17b1804b1-490360cce5fmr38604545e9.29.1779367655722;
-        Thu, 21 May 2026 05:47:35 -0700 (PDT)
-X-Received: by 2002:a05:600c:3513:b0:48a:75b9:b0bc with SMTP id 5b1f17b1804b1-490360cce5fmr38603965e9.29.1779367655227;
-        Thu, 21 May 2026 05:47:35 -0700 (PDT)
-Received: from stex1.redhat.corp (host-87-16-204-231.retail.telecomitalia.it. [87.16.204.231])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49033d52c8bsm69391315e9.8.2026.05.21.05.47.33
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 21 May 2026 05:47:34 -0700 (PDT)
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: netdev@vger.kernel.org
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	kvm@vger.kernel.org,
-	Jakub Kicinski <kuba@kernel.org>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Paolo Abeni <pabeni@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Jason Wang <jasowang@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Eric Dumazet <edumazet@google.com>,
-	stable@vger.kernel.org
-Subject: [PATCH net] vsock/virtio: fix skb overhead overflow on 32-bit builds
-Date: Thu, 21 May 2026 14:47:32 +0200
-Message-ID: <20260521124732.125771-1-sgarzare@redhat.com>
-X-Mailer: git-send-email 2.54.0
+        d=1e100.net; s=20251104; t=1779368358; x=1779973158;
+        h=content-transfer-encoding:cc:to:from:subject:message-id:references
+         :mime-version:in-reply-to:date:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=GqcHY/DvmkAZ9QjHGP0kTeF7mk7WkCMN/ZHV20HdBXo=;
+        b=RS4vxg+gBQZydWCz/qt/tAnfLpR1JKHTNEVxeUuffKKRvbOxLBj8G3p2+nACRj7AVZ
+         PnPiLWqZQ9hRIttM534CEyib9WP0bnjGESArbCGkQARjAiM9L732Z7dir4kwl20v1sh2
+         qI8XlUrwG0NI6Hqt1oLthN8AZPVwPMfmUv9GYJqPxOwdWlRl4Ddzjbh9TfGYRUHp0bZf
+         JV+G1IEPWY2oT8Ee7oTqDrr94Wirt5CSI+JZA6BhipcoECguLLnJDt6JWpW33EU5+swO
+         1DyF67rQssjTyeKcy4eWT9mrSBRzXcu0Ha7GC0CoA4+m9UoG+5vhXF8c6XuLD3wkF1dj
+         6RIA==
+X-Forwarded-Encrypted: i=1; AFNElJ8OV/ZxqJZ3HZYelPXqQnxS+P/R+0riWpKkJ+sBs3FOF5zdjkCfHQoIyYum3IYF3xT3PZ5ss0WPSTACEP1xrw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwXAuWxooATUyBgiXTpJVlutSZfTFY3l/tQJ/yKmgrBy6viGTCt
+	toXQWmiKP9Q3n05yjHuTMoaLAwq2TuW7z744nIIPvTX/SatYtqmfkbmcJdmBx6N60Nr/FBKDWN8
+	vuP+LaQ==
+X-Received: from pfdc18.prod.google.com ([2002:aa7:8c12:0:b0:834:df9e:8e02])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:4655:b0:82f:de7:d29
+ with SMTP id d2e1a72fcca58-8414ae013a1mr2977074b3a.31.1779368357753; Thu, 21
+ May 2026 05:59:17 -0700 (PDT)
+Date: Thu, 21 May 2026 05:59:17 -0700
+In-Reply-To: <423b37f056f0d4d596d5f4cc73802fb1079ecf63.camel@infradead.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: fZT7FCBw1Wr2iRcrh0OS-U3MJT_kPSDMhqt8WDSJaKE_1779367656
-X-Mimecast-Originator: redhat.com
-Content-Transfer-Encoding: 8bit
-content-type: text/plain; charset="US-ASCII"; x-default=true
+Mime-Version: 1.0
+References: <20260515191942.1892718-1-seanjc@google.com> <20260515191942.1892718-28-seanjc@google.com>
+ <423b37f056f0d4d596d5f4cc73802fb1079ecf63.camel@infradead.org>
+Message-ID: <ag8Bpc_uVNrNWqfX@google.com>
+Subject: Re: [PATCH v3 27/41] x86/kvmclock: Enable kvmclock on APs during
+ onlining if kvmclock isn't sched_clock
+From: Sean Christopherson <seanjc@google.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Kiryl Shutsemau <kas@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, 
+	"K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
+	Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>, 
+	Ajay Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.makhalov@broadcom.com>, 
+	Jan Kiszka <jan.kiszka@siemens.com>, Dave Hansen <dave.hansen@linux.intel.com>, 
+	Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Juergen Gross <jgross@suse.com>, 
+	Daniel Lezcano <daniel.lezcano@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
+	John Stultz <jstultz@google.com>, Rick Edgecombe <rick.p.edgecombe@intel.com>, 
+	Vitaly Kuznetsov <vkuznets@redhat.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stephen Boyd <sboyd@kernel.org>, x86@kernel.org, 
+	linux-coco@lists.linux.dev, kvm@vger.kernel.org, linux-hyperv@vger.kernel.org, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	xen-devel@lists.xenproject.org, Michael Kelley <mhklinux@outlook.com>, 
+	Tom Lendacky <thomas.lendacky@amd.com>, Nikunj A Dadhania <nikunj@amd.com>, 
+	Thomas Gleixner <tglx@linutronix.de>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-From: Stefano Garzarella <sgarzare@redhat.com>
+On Thu, May 21, 2026, David Woodhouse wrote:
+> On Fri, 2026-05-15 at 12:19 -0700, Sean Christopherson wrote:
+> > In anticipation of making x86_cpuinit.early_percpu_clock_init(), i.e.
+> > kvm_setup_secondary_clock(), a dedicated sched_clock hook that will be
+> > invoked if and only if kvmclock is set as sched_clock, ensure APs enabl=
+e
+> > their kvmclock during CPU online.=C2=A0 While a redundant write to the =
+MSR is
+> > technically ok, skip the registration when kvmclock is sched_clock so t=
+hat
+> > it's somewhat obvious that kvmclock *needs* to be enabled during early
+> > bringup when it's being used as sched_clock.
+> >=20
+> > Plumb in the BSP's resume path purely for documentation purposes.=C2=A0=
+ Both
+> > KVM (as-a-guest) and timekeeping/clocksource hook syscore_ops, and it's
+> > not super obvious that using KVM's hooks would be flawed.=C2=A0 E.g. it=
+ would
+> > work today, because KVM's hooks happen to run after/before timekeeping'=
+s
+> > hooks during suspend/resume, but that's sheer dumb luck as the order in
+> > which syscore_ops are invoked depends entirely on when a subsystem is
+> > initialized and thus registers its hooks.
+> >=20
+> > Opportunsitically make the registration messages more precise to help
+> > debug issues where kvmclock is enabled too late.
+>=20
+> That's a hard word to type, isn't it?
 
-On 32-bit architectures, both skb_queue_len() and SKB_TRUESIZE(0) evaluate
-to 32-bit values. The multiplication can overflow before being assigned to
-the u64 skb_overhead variable, making the skb overhead check ineffective.
-
-Cast skb_queue_len() to u64 so the multiplication is always performed in
-64-bit arithmetic.
-
-This issue was reported by Sashiko while reviewing another patch.
-
-Fixes: 059b7dbd20a6 ("vsock/virtio: fix potential unbounded skb queue")
-Closes: https://sashiko.dev/#/patchset/20260518090656.134588-1-sgarzare%40redhat.com
-Cc: stable@vger.kernel.org
-Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
----
- net/vmw_vsock/virtio_transport_common.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index df3b418e0392..71198bf23fc4 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -417,7 +417,7 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
- static bool virtio_transport_inc_rx_pkt(struct virtio_vsock_sock *vvs,
- 					u32 len)
- {
--	u64 skb_overhead = (skb_queue_len(&vvs->rx_queue) + 1) * SKB_TRUESIZE(0);
-+	u64 skb_overhead = ((u64)skb_queue_len(&vvs->rx_queue) + 1) * SKB_TRUESIZE(0);
- 
- 	/* Allow at most buf_alloc * 2 total budget (payload + overhead),
- 	 * similar to how SO_RCVBUF is doubled to reserve space for sk_buff
--- 
-2.54.0
-
+Heh, you have no idea.  I've been "this" close to creating a VIM binding fo=
+r a
+while, it is time...
