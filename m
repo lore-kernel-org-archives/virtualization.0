@@ -1,51 +1,51 @@
 Received: from mail-ot1-f70.google.com (mail-ot1-f70.google.com [209.85.210.70])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6314D3FD147
-	for <virtualization@lists.linux.dev>; Thu, 21 May 2026 19:02:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 493993914E8
+	for <virtualization@lists.linux.dev>; Thu, 21 May 2026 19:02:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.70
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779390180; cv=none; b=XOfgtS8LAoUV/CGj1dmbDGuNupDtBPPYqFNvG48lkCbWnY2Zxr9mf2MKMbtLjg+JTvK9eV8ZDr3NX6/NCwjSbaybADu3OP/TeeEh45vY10+yKe8Dg276XZJxgz817PGNqF088fpy0O1zFAaiLOjZhUZUcMzYLx1p/nTdRJjterg=
+	t=1779390180; cv=none; b=S6QGXTXVr7GvzrWfyo2suQLYwKD7hICa+780Dgs94kxuvIOGl1FHv+KzNpEOCA6Qf3bl13NLOtH46JO7wFHmdbUgtC2M6Vy6wSHp15N0ILTtk6EOlIVbKCeDkr+te2SHK5S7D0JnHqYvxAUjTQ64Qqu5i7wBL2RYvurj+GqjG+k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1779390180; c=relaxed/simple;
 	bh=lamLueXQs2j9rC4MhRl8BlvILn6+G8yNbXVTCUJVdoA=;
 	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:Cc:
-	 Content-Type; b=OH0GLb10iLjxizLkZfB7m2ICgBmlpmCV3BkqkV3XLPK4A8pp1RWMQNQb6sBQKUHLq8wRWqBJ2MT2nhTKesccFLQuu1e3V2LpWntJK35o+bNyjlVHV769nWdpPfq8TmdhI30pnxRIebjJC4Pn3tcmUzWo7jyba/qx9ryUHNPy/Kc=
+	 Content-Type; b=Fke6AWiJ+DwMj/hJDOdAtP9JaKgZG7DDUi5pR3PLWGxw54T+3VrSzuF3JSyHysPZfuksk92Q87GozjVDRnrGqoPzgTN1F1gAO/aXpJf/Fy38vWuoVkap4HXyENqez1sxa05FGc1nx/taWd4NxEIZIZyVbVl+oxjeTKghIoBmC4o=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.210.70
 Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-ot1-f70.google.com with SMTP id 46e09a7af769-7dcc8f071b3so16983047a34.2
-        for <virtualization@lists.linux.dev>; Thu, 21 May 2026 12:02:56 -0700 (PDT)
+Received: by mail-ot1-f70.google.com with SMTP id 46e09a7af769-7dccdbdf5c2so10426573a34.3
+        for <virtualization@lists.linux.dev>; Thu, 21 May 2026 12:02:57 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
         d=1e100.net; s=20251104; t=1779390176; x=1779994976;
         h=content-transfer-encoding:cc:to:from:subject:message-id:in-reply-to
          :date:mime-version:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
         bh=0krv0nUw1/ioDEFf9ZMQESopIiNp/OLFryuhF9m9kKI=;
-        b=Zko6ohXHXLgcOWXPm0N4UNf//M1Y068KxV2tcilKXLVE0YZHJW5aHspSAmy+M8Me1i
-         xIBvvvYQqxWC1358u96TSK6P8kE6EOUoz2n6MLr+BLpYCGs/qyfst/q5SIkfjqF3oT0u
-         OPiRFb2FPN7/6FQNS7NetscWzLj0Qw7usidmh0OY2mWPYNBbwnW7zhC7YYPFNyg4u/Kt
-         t/htoiMsgXW1dU/cGfm2TyHEEq4yqn5DAfaq1ghZ/4d+PdP/AUzL1CGL2ZRt6/X70Xjb
-         cPmp224vI5UZtT7bD6W0lEaK+GefoDc+qgMQ3wPeny+ZOAYLWo1oO4lv7G66G6xShZTI
-         4bww==
-X-Forwarded-Encrypted: i=1; AFNElJ/ITd7BqUPnz6YngKrYJ3tPOt5aMQ2Sm3teNR560t/93Gn8P9sibwNpvfZIiH3D9wPtS9t6VeF4+kC7IUqouQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxr35CSBtTFR/7BRPFHBaA+oWtpByN5h667B0wyYN8AHAHMcWY0
-	aS133suwHuQMzfurNTrGPua5JxY9NIy+/n6q7jjfuwclUw3wG4R6OiR3DCGvfaR+/tlCm2qyL56
-	0vqmwLOXKUPJz5AkIhQ3kQA8z/IKO6XLY8l8UPuEmCbz/BY5iawC1/Wokxys=
+        b=XTkJyYBizQJuNfMPJp5zRN2LJ8EsJsXMwMiJamlr/ntQDj2ug0qTNtln8XpMupEnrs
+         FP41QkNIrFUSKIqG0K3Xqb0Czi2PRd1pas1MZUiatdpPM5qtIhZZlJhqVkj4rmK67Be1
+         IG/PZa1USH5dgfVc5lPtaPpHCMurgOcgw98rWPHPjZYwk1U1K2xmlTn6AmLtRRajUxpx
+         jjLTKSM02AyrnhRN0nslLmNDjGGoL80TyQE4rIEp9vBdEAyAqvDiFsFpNMKRRfSASNzr
+         NyGlvboEyQrPyGjylX+x8/9TeLZ3QyDm0XXkXHe+iQZEtl6gYAcv6Rd9t5LjzOkBlTMr
+         KnlQ==
+X-Forwarded-Encrypted: i=1; AFNElJ8sdc7iE7Oe1G9RYT4qeIFUtAQACdxLdFujEoSBgPGGTfZERAe4LiQuEv5YfaVcEssqF6tT/d1HjlTxFPKZsw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxv5Lf73szgxhEsW6LVhn7u4VzSaLipRW7PAJfbSWVaZk4ld/A5
+	LXHcuCKxVRji1Rpwpg9cqLz5QpFNW9uL35f3+ygesZomFJfAjZ6zAc3CDtXoX4qYo1+eh8h54vb
+	c+k3ahIzAiSlxEXL2Tu6L+FdBtYBmDdtglQqMtNRtOJY0vC/lHGnI7acNUPQ=
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6830:2404:b0:7e3:9d19:1e47 with SMTP id
- 46e09a7af769-7e5fef3460dmr257848a34.25.1779390176067; Thu, 21 May 2026
+X-Received: by 2002:a05:6830:6d0c:b0:7dc:d99c:c441 with SMTP id
+ 46e09a7af769-7e5fedc8241mr302592a34.8.1779390176127; Thu, 21 May 2026
  12:02:56 -0700 (PDT)
 Date: Thu, 21 May 2026 12:02:56 -0700
 In-Reply-To: <4bc3709f-21bc-49f5-8fcf-972dec1397f7@collabora.com>
 X-Google-Appengine-App-Id: s~syzkaller
 X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6a0f56e0.050a0220.31b25.0001.GAE@google.com>
+Message-ID: <6a0f56e0.050a0220.3a257.0000.GAE@google.com>
 Subject: Re: [PATCH v2] drm/virtio: abort virtqueue wait on device removal to
  avoid hung task
 From: syzbot <syzbot@syzkaller.appspotmail.com>
