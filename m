@@ -1,35 +1,138 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9DE6E2F1FDE;
-	Fri, 22 May 2026 18:29:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8B0DFC0A;
+	Sat, 23 May 2026 00:38:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779474597; cv=none; b=ly1dQlvLoc4y2WGpYv7OgZ/FRTW2tL0Guy2Nb1xhUpySF71RlcteC4UoTVG6yK80A5s4ayPot4SKXokWg7AHN9s51BcLUwM+lpmFIwCyims9xmjqqPEBkEegr2I57xZB7JSfbPEOdHlV5YrMfGn9i+5DPjn17ICG5X14FcpNi8E=
+	t=1779496689; cv=none; b=IQaTe+gCPBiaxl9+p3IJ+Q2Dnx8XI+G+pTfJVka1+ANrXw66sfyQdzcpuLaHEvymnKjBn4j8AgF7NkyhUJA3G8LQBrUOAEOrft/w5Uk+2yxOqunFajPet5mztBeQyJJmebCAyRUdnTttV2eezOlU7cYtWqfHllQ9ue2Vu82L7Y4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779474597; c=relaxed/simple;
-	bh=5/AhXF9kGVhULDok/+rh/JjfPACpT4ecZvgjeEKRBIk=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=GOeq2KdjlvbJ8c9pUdCNeyJ3wXFPDEUIuvn2gVR1yHlC7yMBeTzJWb6Lfw/TkaqJpCy2HMhzi3OQqt4Ho4R9diHNxdqSlYNl2Of9FQ15++dfQeQ+FxAljBD9CRfbLjzmOQjEvsL7HuJr718htowmRmhb7EpoPxENLd3a8J/XfZ0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YfIvkdJi; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779496689; c=relaxed/simple;
+	bh=5mcnBS5MtgC9UfAOoDlmY0BQO+Ao/SdQLXT9dBQtNkk=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=rNlIIwOGjatOkritxjJNEUAlz2vwjWZJ9JMwAJxKdCkcyRKjimih0PPF61skI2pMDAiLsTReITEBhwjWSn7QL5XDnPnSbMfHBgGBXEpi6C3SGDhBlbluVCZk9doqKgOCp8tV3xZgEeRSgcBIPobl/b95etFlgHkeUg3y6JsD5d0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=W/qwAMS1; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YfIvkdJi"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 406351F000E9;
-	Fri, 22 May 2026 18:29:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="W/qwAMS1"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EDCE81F000E9;
+	Sat, 23 May 2026 00:38:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779474596;
-	bh=o8IBLuCs7YOJ3hdmxOMAExhPHKvXLTD+QeFBC0POzSQ=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc;
-	b=YfIvkdJi7cgsO3LpTKzl01+X3T1RD/v8HXscwZOe99Cy/0vW0rSevxv46G9+fylPX
-	 TVspgAhcerPGGr+LoM8c8tnd0WRnVdr90loef39n7lMg6xuikTObFs7VziqNKwWmfR
-	 X+Gc34lAYlT8/gWjgrtQPSr5vrgqu4MlYRNKw/UPJ/yb39642samKAzxPkwF8F519d
-	 PEGhu9XTCyyxBKo0ss5yEG0Jbmnz2/Y3TvgMTF2rE6LvnXfBuEZ+bAmhYINwX1Pr5Q
-	 2JjvwlLGA2N0CKzudI4ToKoO6WxjOLK+beL2JQjY25PfvfGfOhF5K/F9AdTN1GANiV
-	 6JJ3ftimjX3Fg==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 93B683930FB9;
-	Fri, 22 May 2026 18:30:06 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	s=k20260515; t=1779496688;
+	bh=ke0QgGP72oU1/KHDzVSs1lh/gkg7Mw8fFDTolKbzoHA=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=W/qwAMS1ok+56HAwvYiYz0R5wmKsD0RscuUhy5BVEzThMnr+wQxbKIW0Yk+lqtg0R
+	 dxN4FM+nLAHenqFi1JvSelOt20CYFnYpdSX3hvz5/mvzq/JXO7gcBTjSStG/A5FM8j
+	 0Dk4RFZ90/nX0Xzby8V+5D3uQDTYP8o1bo3XSKlx4rKPB6vCO/Oui18woqanoP+n4U
+	 enXhw+/EJeP6Kw2ZiII29eiMOdyHFC3VD0U1T97Mm+aD6rZa6A+hyeA7zcgLPdsptw
+	 8LWGxoojes1mewesgkVxxy+dLIhtJlwu3XyRYodcKxBzIRSnWjQs++a/owD5p2CmBM
+	 RNz3sazG7iMhQ==
+From: SeongJae Park <sj@kernel.org>
+To: Kees Cook <kees@kernel.org>
+Cc: SeongJae Park <sj@kernel.org>,
+	Luis Chamberlain <mcgrof@kernel.org>,
+	Pengpeng Hou <pengpeng@iscas.ac.cn>,
+	Petr Pavlu <petr.pavlu@suse.com>,
+	Richard Weinberger <richard@nod.at>,
+	Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+	Johannes Berg <johannes@sipsolutions.net>,
+	"Rafael J. Wysocki" <rafael@kernel.org>,
+	Len Brown <lenb@kernel.org>,
+	Corey Minyard <corey@minyard.net>,
+	Gabriel Somlo <somlo@cmu.edu>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jani Nikula <jani.nikula@linux.intel.com>,
+	Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+	Rodrigo Vivi <rodrigo.vivi@intel.com>,
+	Tvrtko Ursulin <tursulin@ursulin.net>,
+	David Airlie <airlied@gmail.com>,
+	Simona Vetter <simona@ffwll.ch>,
+	Bart Van Assche <bvanassche@acm.org>,
+	Jason Gunthorpe <jgg@ziepe.ca>,
+	Leon Romanovsky <leon@kernel.org>,
+	Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+	Hans de Goede <hansg@kernel.org>,
+	Mauro Carvalho Chehab <mchehab@kernel.org>,
+	Bjorn Helgaas <bhelgaas@google.com>,
+	Hannes Reinecke <hare@suse.de>,
+	"James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	Daniel Lezcano <daniel.lezcano@kernel.org>,
+	Zhang Rui <rui.zhang@intel.com>,
+	Lukasz Luba <lukasz.luba@arm.com>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Jiri Slaby <jirislaby@kernel.org>,
+	Alan Stern <stern@rowland.harvard.edu>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Jason Baron <jbaron@akamai.com>,
+	Jim Cromie <jim.cromie@gmail.com>,
+	Tiwei Bie <tiwei.btw@antgroup.com>,
+	Benjamin Berg <benjamin.berg@intel.com>,
+	=?UTF-8?q?Ilpo=20J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+	"David E. Box" <david.e.box@linux.intel.com>,
+	"Maciej W. Rozycki" <macro@orcam.me.uk>,
+	Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Heiko Carstens <hca@linux.ibm.com>,
+	Vasily Gorbik <gor@linux.ibm.com>,
+	Sean Christopherson <seanjc@google.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Vinod Koul <vkoul@kernel.org>,
+	Frank Li <Frank.Li@kernel.org>,
+	Daniel Gomez <da.gomez@kernel.org>,
+	Sami Tolvanen <samitolvanen@google.com>,
+	Aaron Tomlin <atomlin@atomlin.com>,
+	Alexander Potapenko <glider@google.com>,
+	Marco Elver <elver@google.com>,
+	Dmitry Vyukov <dvyukov@google.com>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	John Johansen <john.johansen@canonical.com>,
+	Paul Moore <paul@paul-moore.com>,
+	James Morris <jmorris@namei.org>,
+	"Serge E. Hallyn" <serge@hallyn.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	Georgia Garcia <georgia.garcia@canonical.com>,
+	kvm@vger.kernel.org,
+	dmaengine@vger.kernel.org,
+	linux-modules@vger.kernel.org,
+	kasan-dev@googlegroups.com,
+	linux-mm@kvack.org,
+	apparmor@lists.ubuntu.com,
+	linux-security-module@vger.kernel.org,
+	linux-um@lists.infradead.org,
+	linux-acpi@vger.kernel.org,
+	openipmi-developer@lists.sourceforge.net,
+	qemu-devel@nongnu.org,
+	intel-gfx@lists.freedesktop.org,
+	dri-devel@lists.freedesktop.org,
+	linux-rdma@vger.kernel.org,
+	linux-media@vger.kernel.org,
+	linux-pci@vger.kernel.org,
+	linux-scsi@vger.kernel.org,
+	linux-pm@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	linux-serial@vger.kernel.org,
+	linux-usb@vger.kernel.org,
+	usb-storage@lists.one-eyed-alien.net,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	linux-arch@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-hardening@vger.kernel.org
+Subject: Re: [PATCH 04/11] treewide: Convert struct kernel_param_ops initializers to DEFINE_KERNEL_PARAM_OPS
+Date: Fri, 22 May 2026 17:38:01 -0700
+Message-ID: <20260523003801.86344-1-sj@kernel.org>
+X-Mailer: git-send-email 2.47.3
+In-Reply-To: <20260521133326.2465264-4-kees@kernel.org>
+References: 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -37,54 +140,45 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net v2] vsock: keep poll shutdown state consistent
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <177947460540.1324219.4145730624585924301.git-patchwork-notify@kernel.org>
-Date: Fri, 22 May 2026 18:30:05 +0000
-References: <20260519165636.62542-1-ziyuzhang201@gmail.com>
-In-Reply-To: <20260519165636.62542-1-ziyuzhang201@gmail.com>
-To: Ziyu Zhang <ziyuzhang201@gmail.com>
-Cc: sgarzare@redhat.com, davem@davemloft.net, edumazet@google.com,
- kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, acking@vmware.com,
- georgezhang@vmware.com, dtor@vmware.com, kys@microsoft.com,
- haiyangz@microsoft.com, wei.liu@kernel.org, decui@microsoft.com,
- longli@microsoft.com, stefanha@redhat.com, mst@redhat.com,
- jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
- bryan-bt.tan@broadcom.com, vishnu.dasa@broadcom.com,
- bcm-kernel-feedback-list@broadcom.com, virtualization@lists.linux.dev,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-hyperv@vger.kernel.org, kvm@vger.kernel.org, baijiaju1990@gmail.com,
- r33s3n6@gmail.com, gality369@gmail.com, zhenghaoran154@gmail.com,
- hanguidong02@gmail.com, zzzccc427@gmail.com
 
-Hello:
+On Thu, 21 May 2026 06:33:17 -0700 Kees Cook <kees@kernel.org> wrote:
 
-This patch was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
-
-On Wed, 20 May 2026 00:56:36 +0800 you wrote:
-> vsock_poll() reads vsk->peer_shutdown before taking the socket lock
-> to set EPOLLHUP and EPOLLRDHUP, then reads it again after taking
-> the lock to report EOF readability. A shutdown packet can update
-> peer_shutdown while poll is waiting for the lock, so one poll invocation
-> can report EOF readability without the corresponding HUP/RDHUP bits.
+> Using Coccinelle, rewrite every struct kernel_param_ops initializer that
+> sets .get into a DEFINE_KERNEL_PARAM_OPS-family macro invocation,
+> for example:
 > 
-> For connectible sockets, take one peer_shutdown snapshot after
-> lock_sock() and use it for all peer-shutdown-derived poll bits. For
-> datagram sockets, which do not take lock_sock() in poll(), take one
-> lockless READ_ONCE() snapshot and pair it with WRITE_ONCE() on the
-> writer side.
+> @@
+> declarer name DEFINE_KERNEL_PARAM_OPS;
+> identifier OPS;
+> expression SET, GET;
+> @@
+> - const struct kernel_param_ops OPS = {
+> -       .set = SET,
+> -       .get = GET,
+> - };
+> + DEFINE_KERNEL_PARAM_OPS(OPS, SET, GET);
 > 
-> [...]
+> Using the macro for initialization means future changes can manipulate
+> the struct layout and callback prototypes without having to change every
+> initializer.
+> 
+> Signed-off-by: Kees Cook <kees@kernel.org>
+> ---
+[...]
+>  mm/damon/lru_sort.c                           | 19 ++---
+>  mm/damon/reclaim.c                            | 19 ++---
+>  mm/damon/stat.c                               |  6 +-
+[...]
+>  samples/damon/mtier.c                         |  6 +-
+>  samples/damon/prcl.c                          |  6 +-
+>  samples/damon/wsse.c                          |  6 +-
 
-Here is the summary with links:
-  - [net,v2] vsock: keep poll shutdown state consistent
-    https://git.kernel.org/netdev/net/c/aae9d8a5528b
+For the above DAMON part changes,
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
+Reviewed-by: SeongJae Park <sj@kernel.org>
 
 
+Thanks,
+SJ
+
+[...]
