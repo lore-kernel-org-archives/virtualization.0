@@ -1,182 +1,204 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C7F9384253
-	for <virtualization@lists.linux.dev>; Mon, 25 May 2026 13:10:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91FC83859CC
+	for <virtualization@lists.linux.dev>; Mon, 25 May 2026 13:27:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779714625; cv=none; b=j3UHpSWxXPKNWoA1XZiiEPjRKe6JJfP4V6s90cJNrb5hd7beUnXCFhdyJVKqy1bTGhv+MKhD28zdVab7G6EBROCtGZJR2rhVYLIisuHbFyYpf2mNTV27PAGTTLLnk3tdEXevMEqFS5/MNV4kV4mvTpxRnXkqL7byeEP8VWIrXE8=
+	t=1779715641; cv=none; b=MUymlqsqQihPMerJafmN09FXw+NLrwK4SSqu3iMhbcvyJ4A+AGSsJqau63FpaazTpFyJsEfVDuJHvVNTur2Op/thBK70ZmasHJ1dlryf44x+znfdErdzYhJFYev6ytS/m113IyPlvIHnNMKElln/qmcVXOLrJaKySz7wwjDiL44=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779714625; c=relaxed/simple;
-	bh=BGZXA1mN8FhVP5FiDTI8b7j+Ir1HdkD6PebA7BvFpSE=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=DEbGV9nYUo1u5xe2LZGXqt4POVNClzq3noYNZCDrikIWPzs3wiB2jMZs09gLqz2T+W6xjdQKE62lWFs44u0B2gox82LbhQV3EuFF173ZTQ3mqFYRpeW5tRXnMkFKNAPJT6QYvPDR7N3LPcNKJinH5FVYhyKyfiq7Dx1GLy3HRfs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gJqt2KlH; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1779715641; c=relaxed/simple;
+	bh=C94U0R51pf0+NwK55ZN6EU/K9cssUS28krlgs1NAXvo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=tSQPE9cBpZ+Y7oaAuUAOE+zD9ROydr1d8P2bfM4h8JTNkJCM0ysXIQsCe4DgNhrj9eL6V9ghbmgKq+XK5LfAEcgBPEaeCxQvmtYEsGzJrjxbHcZPuwJ+6Y7JqRY41f1j7ChZTSS4LPibiSsfcH5IMio0aESM6vfs+VS7/CzrgKc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=YiMsSREI; arc=none smtp.client-ip=209.85.128.42
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gJqt2KlH"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1779714613;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=jwxIhTGbJtS9kc5tnabyAFBYHC9dUEXdNvoWrVinQAY=;
-	b=gJqt2KlHQ7/8fTa6bPelFllEfeUJ6f3LmBisFEF5UivNDOgqigiVN+OLZ7GxlXKJTYzkEY
-	jWlcd8lXohnxSj0aGH4r4lAsQdzVZKA4Kq8V4gdMdmA44uBjlHV0o+hgx03mG05FPtvv10
-	3WRhT38u5cYxNukbrrQs2slNC7rAXic=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-288-yGbSJ2vJPYWLK-u4Y3qkHg-1; Mon, 25 May 2026 09:10:09 -0400
-X-MC-Unique: yGbSJ2vJPYWLK-u4Y3qkHg-1
-X-Mimecast-MFC-AGG-ID: yGbSJ2vJPYWLK-u4Y3qkHg_1779714607
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-49051422d55so18952645e9.2
-        for <virtualization@lists.linux.dev>; Mon, 25 May 2026 06:10:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="YiMsSREI"
+Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-49050bfe053so23453975e9.3
+        for <virtualization@lists.linux.dev>; Mon, 25 May 2026 06:27:18 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1779715637; x=1780320437; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=Ij+l12dR+ISDUAaA9eJOw0SDQ47xwS4UQDqlRXMB76c=;
+        b=YiMsSREIYiDwWVwS5+FV1m5T1GU+lM54vLzHoE0tcgiHMXruqZKiEfTWpmOEEtpj/W
+         1DQsyeJ0GYBOO8hWocKox5b00FE1mLIUm7egrzUpWvMwAarohupq8cH1+EFmvSULMVjZ
+         r1BVobG/TSzsPzVI4pbjwbAc1F+1yT9bVl768EuL4RVRgi8MJAiMa7X0WjRXPgKgjArR
+         KnuyYSYZXWmxsm38zXktrcHG7kE42uh6WMJD42QSohzs9OJ2xWTW7wHOGyFU3No+7NkA
+         ERhBfVpvHLK/jSdGoiegAdjcoimfTo5bkL9CylLjNH8B/ggDAPesAlrwisyhc0S5QFhV
+         NNRw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779714607; x=1780319407;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=jwxIhTGbJtS9kc5tnabyAFBYHC9dUEXdNvoWrVinQAY=;
-        b=DU1fR51wGFW30NS/2xNNnuBUrUHKVdZS10T7zxgaDqLJ48SjSp1n87Vr5c7tjWCSwx
-         CPv7gqv+3Ku2BqNG3R7ppHf6TJ0KxmOQ0c3GyPW3bGJImonxh8LdZJGLbeIhwM4kbGgo
-         9u1Pvo+x4OrAFcLkte9hsmcOhBAMuiqwcHgk/VRLJaCUJyHc5s5J1laD25V5cikD5qIG
-         lSEhx9tRPGJF7ef//HgtQvpknBU0AiQAA9q1WM8LfR2nIjUtIvf4AKjrJ6HZkymxza2k
-         gacw6g4mrnM8b9fQKP4+Yes43Ge8KiUXf9NRhPv39rgbt50YR8HBhzGCJghab73NdIIs
-         TA5g==
-X-Forwarded-Encrypted: i=1; AFNElJ+tHs78KtcQdNl2mZAZH8AjDuVCKLq7Y/8EuvKEoVIx9qz9EL8tsEwjFRuWqKuMzpX6FL5VsYarGuyktLevZQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzjaCMuu54vvVpUOuk5+NOzJpYdzG7tQOFLzmi4OR+bxK419Dpo
-	HXPNaHBeGtgxVIO9tgsm7dl916Sysn6tUi0z5qLKJ8gcrg33vaEacuph6h2wpuCOe2safa0c6Uq
-	yogkd8fHDm72DHfUUGIqr64M2ZGSh+zZ8texVwyzWmYtkDiNQroE+NZVwkwvfdK9XuM3OvKtbE/
-	jF
-X-Gm-Gg: Acq92OFeL4Cvx9xN5bYD7xCnHhOmuFstcvIHe30HUpLrNnUIH01DgIhXy4dnD/HxF5s
-	p5l403yOcbNWaRjo42oIjwdxKa0R7sdF89b1VcGRjZ2kgslIbE75mpDjOa1U3fi9BzCVyxOxIgp
-	a+oJWS8sBxzJxBCN4Yzt20pbC/BdTpHSzJr1BM8N7ylyjFjvtddOwa4Kk9mEFQfrdQfPUL5P/93
-	XUsGcr68QI3U/3YYQLBVs6KieH2iwKx9eH8Ei35wbg/mueFx8aGlyvQxg9dPU/GQrM/R/MEeT6+
-	JFJTbaq/PvnUFx03x3PY7TiLMGvkBoMoUCmEd3VfyZE6bgFi+c4aOAQmSwb6oLIelCuVBbIBjP/
-	PtPnvLqeTyQixB4G3JvvaX8Pcq5V2InY+E0VIQUGBa8xSSRG7AF5pSj0mhWVlUpZtB9nsvsbfmt
-	ARY40n9g==
-X-Received: by 2002:a05:600c:35cf:b0:490:3bad:3784 with SMTP id 5b1f17b1804b1-490426bc6demr270213785e9.18.1779714604272;
-        Mon, 25 May 2026 06:10:04 -0700 (PDT)
-X-Received: by 2002:a05:600c:35cf:b0:490:3bad:3784 with SMTP id 5b1f17b1804b1-490426bc6demr270211505e9.18.1779714602516;
-        Mon, 25 May 2026 06:10:02 -0700 (PDT)
-Received: from sgarzare-redhat (host-82-53-135-12.retail.telecomitalia.it. [82.53.135.12])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490424aa561sm118548825e9.5.2026.05.25.06.09.57
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 May 2026 06:10:00 -0700 (PDT)
-Date: Mon, 25 May 2026 15:09:54 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: David Laight <david.laight.linux@gmail.com>, 
-	patchwork-bot+netdevbpf@kernel.org, netdev@vger.kernel.org, xuanzhuo@linux.alibaba.com, 
-	horms@kernel.org, virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	kvm@vger.kernel.org, kuba@kernel.org, eperezma@redhat.com, pabeni@redhat.com, 
-	davem@davemloft.net, jasowang@redhat.com, stefanha@redhat.com, edumazet@google.com, 
-	stable@vger.kernel.org
-Subject: Re: [PATCH net] vsock/virtio: fix skb overhead overflow on 32-bit
- builds
-Message-ID: <ahRJS2bN9Bw_AKyo@sgarzare-redhat>
-References: <20260521124732.125771-1-sgarzare@redhat.com>
- <177950282964.1445071.6600517211632117224.git-patchwork-notify@kernel.org>
- <20260523173557.5cc4f4f6@pumpkin>
- <ahQbVxvbBEJZ3TBU@sgarzare-redhat>
- <20260525115314.3cf310e6@pumpkin>
- <20260525083859-mutt-send-email-mst@kernel.org>
+        d=1e100.net; s=20251104; t=1779715637; x=1780320437;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=Ij+l12dR+ISDUAaA9eJOw0SDQ47xwS4UQDqlRXMB76c=;
+        b=LWnkG0en6WOrU9Nnmd6jiseUDcvHlQloW31edWqAvDMSuYfUjd/lk4DRex9aL+guhI
+         L3766byyLqxNnw6U2aoPpOqyANOIBPHmj9TC4Sr8J32zBHJ9iXK03Twrwj8VYLFkuVvE
+         YT1m6ZLmv+oUSSkUtoBfOgN29oXhTzfY3nAA/1ca3cbOJYQNxXPsaAThR+ir7xEp/8SR
+         JPfbZQ/cSjt0PAU0H8/vnwXjkgA9iumhOrDnAT0LgfbUZwaXfPVbaRDeaurf8ndnHU+F
+         yPxPcG6P56rjaqRitejqOGuy/CuboRl0ra6nBo9nvgNiEFrkzE67K7WIQuUl0gjIlGBN
+         JIhg==
+X-Forwarded-Encrypted: i=1; AFNElJ/P9AEwv3tGbSn/b31hoUskV3umVnhRj2Ieq2dN5cJNJTsgmbGAr1Bh/Cdit5D3D3kNNVBltIYHjagdpzK7pQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyTZTRA7JMM2yzAB07ekzACOwhmf7d7s0u/4fIFfR1EdVSxqirG
+	D5DhUqmmM9uAfPAtrVf7/V5uxBW0zhgEbkYbriGtMlNrVxyJkdaIvJx37oyLw/dA5TE=
+X-Gm-Gg: Acq92OG1I7050dTexfX7Zo/6ln0Bmuadk6Loj8nEKr5EiiS16CmnoYRPwlOtIpspP0e
+	tfTyJuCaJtnMGWxmo8e7t4H273nJuqpGcHUYLQFBjb37oMgqDLOpbbPTpWI7QiHypTeCLG0C1WG
+	Ia0k7WW/H/NMIgzux7iTMx4FHnpmjJNTjduMJSGVDypQPAQocA2ScTyG/Hym5BXdacu+CJJqWsO
+	F7eQi/zm71Uul+y6+y2MmqyeHp/UNolQ4U/6yWXKrXarIB9f8dx1VuuKAgVp+QLSeWESA/aijfm
+	UFoT2ba02hAIk4Jy96W1avL2w07/gtCrzBO6ZdLy5xlgCAEEC7IPg3VDgLK5yd0QJ3shU81N8KZ
+	ow3SGg6A8qWaBsnSBOsI7WW7KaLCUGsx3vYRQkD6B92KXHZS2Z6wmUPL1YIrM51cm9bCVf6iei3
+	vGoJeP6QTg168NkBShSDoU1s6rXVlqMvWw1EfL8PnGxasBRQfZm2kKZqzS1R/HqTAxus18PO2mc
+	TWJy2MWBFZXM9bpH7Vs6AFW7AA5HAwzh7s7dVNwTz4oXgbsjZYoRTKOQMetZ739DYOL7TSA9fsH
+	oXEb
+X-Received: by 2002:a05:600c:3b02:b0:48f:e1ac:c94f with SMTP id 5b1f17b1804b1-490424b3938mr247672645e9.10.1779715636631;
+        Mon, 25 May 2026 06:27:16 -0700 (PDT)
+Received: from ?IPV6:2a00:1028:838d:271e:8e3b:4aff:fe4c:a100? (dynamic-2a00-1028-838d-271e-8e3b-4aff-fe4c-a100.ipv6.o2.cz. [2a00:1028:838d:271e:8e3b:4aff:fe4c:a100])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490454b1ab3sm284841905e9.14.2026.05.25.06.27.13
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 25 May 2026 06:27:16 -0700 (PDT)
+Message-ID: <1c21f66f-0d0f-4a8b-835b-23408242cff1@suse.com>
+Date: Mon, 25 May 2026 15:27:13 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260525083859-mutt-send-email-mst@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: wziKpIkepx8Bo8__-4HZelGy689CsgcxSNvzTIRXEqI_1779714607
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 03/11] moduleparam: Add DEFINE_KERNEL_PARAM_OPS macro
+ family
+To: Kees Cook <kees@kernel.org>
+Cc: Luis Chamberlain <mcgrof@kernel.org>, Pengpeng Hou
+ <pengpeng@iscas.ac.cn>, Richard Weinberger <richard@nod.at>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ "Rafael J. Wysocki" <rafael@kernel.org>, Len Brown <lenb@kernel.org>,
+ Corey Minyard <corey@minyard.net>, Gabriel Somlo <somlo@cmu.edu>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Jani Nikula <jani.nikula@linux.intel.com>,
+ Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+ Rodrigo Vivi <rodrigo.vivi@intel.com>, Tvrtko Ursulin
+ <tursulin@ursulin.net>, David Airlie <airlied@gmail.com>,
+ Simona Vetter <simona@ffwll.ch>, Bart Van Assche <bvanassche@acm.org>,
+ Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>,
+ Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+ Hans de Goede <hansg@kernel.org>, Mauro Carvalho Chehab
+ <mchehab@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>,
+ Hannes Reinecke <hare@suse.de>,
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+ "Martin K. Petersen" <martin.petersen@oracle.com>,
+ Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
+ Lukasz Luba <lukasz.luba@arm.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Jiri Slaby <jirislaby@kernel.org>, Alan Stern <stern@rowland.harvard.edu>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Jason Baron <jbaron@akamai.com>, Jim Cromie <jim.cromie@gmail.com>,
+ Tiwei Bie <tiwei.btw@antgroup.com>, Benjamin Berg <benjamin.berg@intel.com>,
+ =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ "David E. Box" <david.e.box@linux.intel.com>,
+ "Maciej W. Rozycki" <macro@orcam.me.uk>,
+ Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+ Peter Zijlstra <peterz@infradead.org>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Sean Christopherson <seanjc@google.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@kernel.org>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+ "H. Peter Anvin" <hpa@zytor.com>, Vinod Koul <vkoul@kernel.org>,
+ Frank Li <Frank.Li@kernel.org>, Daniel Gomez <da.gomez@kernel.org>,
+ Sami Tolvanen <samitolvanen@google.com>, Aaron Tomlin <atomlin@atomlin.com>,
+ Alexander Potapenko <glider@google.com>, Marco Elver <elver@google.com>,
+ Dmitry Vyukov <dvyukov@google.com>, Andrew Morton
+ <akpm@linux-foundation.org>, John Johansen <john.johansen@canonical.com>,
+ Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
+ "Serge E. Hallyn" <serge@hallyn.com>,
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+ Georgia Garcia <georgia.garcia@canonical.com>, kvm@vger.kernel.org,
+ dmaengine@vger.kernel.org, linux-modules@vger.kernel.org,
+ kasan-dev@googlegroups.com, linux-mm@kvack.org, apparmor@lists.ubuntu.com,
+ linux-security-module@vger.kernel.org, linux-um@lists.infradead.org,
+ linux-acpi@vger.kernel.org, openipmi-developer@lists.sourceforge.net,
+ qemu-devel@nongnu.org, intel-gfx@lists.freedesktop.org,
+ dri-devel@lists.freedesktop.org, linux-rdma@vger.kernel.org,
+ linux-media@vger.kernel.org, linux-pci@vger.kernel.org,
+ linux-scsi@vger.kernel.org, linux-pm@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-serial@vger.kernel.org,
+ linux-usb@vger.kernel.org, usb-storage@lists.one-eyed-alien.net,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ linux-arch@vger.kernel.org, netdev@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, linux-hardening@vger.kernel.org
+References: <20260521133315.work.845-kees@kernel.org>
+ <20260521133326.2465264-3-kees@kernel.org>
+Content-Language: en-US
+From: Petr Pavlu <petr.pavlu@suse.com>
+In-Reply-To: <20260521133326.2465264-3-kees@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Mon, May 25, 2026 at 08:42:01AM -0400, Michael S. Tsirkin wrote:
->On Mon, May 25, 2026 at 11:53:14AM +0100, David Laight wrote:
->> On Mon, 25 May 2026 11:57:45 +0200
->> Stefano Garzarella <sgarzare@redhat.com> wrote:
->>
->> > On Sat, May 23, 2026 at 05:35:57PM +0100, David Laight wrote:
->> > >On Sat, 23 May 2026 02:20:29 +0000
->> > >patchwork-bot+netdevbpf@kernel.org wrote:
->> > >
->> > >> Hello:
->> > >>
->> > >> This patch was applied to netdev/net.git (main)
->> > >> by Jakub Kicinski <kuba@kernel.org>:
->> > >
->> > >Did anyone else notice that is isn't a bug?
->> > >
->> > >There is no way that a 'count of bytes of kernel memory' can overflow
->> > >the size of 'long'.
->> >
->> > It's more of an estimate than an actual calculation of memory usage if
->> > we queue the incoming packet. In theory, an overflow could occur if the
->> > user sets `buf_alloc` to 4GB. In practice, though, I think you're right:
->> > the memory should run out before we get to that check.
->>
->> The calculation is:
->>
->> 	u64 skb_overhead = (skb_queue_len(&vvs->rx_queue) + 1) * SKB_TRUESIZE(0);
->>
->> skb_queue_len() will be the number of items on the queue.
->> SKB_TRUESIZE(0) is the memory taken up by a zero length skb (basically sizeof(skb)).
->>
->> Unless you either corrupt the queue length or manage to allocate skb that use
->> less than the minimum about of memory that product can't overflow 'unsigned long'.
->>
->> The later calculations might wrap - but the multiply can't.
->>
->> -- David
->
->
->Indeed, I wasn't thinking. For this to even get close to overflowing
->we'd have to have almost all of 4G available to the 32 bit kernel taken
->up by this single queue.
->
->Revert, I'd say.
+On 5/21/26 3:33 PM, Kees Cook wrote:
+> Add macros that define a struct kernel_param_ops initializer through a
+> macro so the underlying field layout can evolve without touching every
+> call site. Three variants cover the three cases:
+> 
+>  DEFINE_KERNEL_PARAM_OPS(name, set, get) // basic
+>  DEFINE_KERNEL_PARAM_OPS_NOARG(name, set, get) // set KERNEL_PARAM_OPS_FL_NOARG
+>  DEFINE_KERNEL_PARAM_OPS_FREE(name, set, get, free) // also set .free
+> 
+> Callers prefix their own visibility qualifiers, e.g.:
+> 
+>   static DEFINE_KERNEL_PARAM_OPS(my_ops, my_set, my_get);
+> 
+> Also update module_param_call() and STANDARD_PARAM_DEF() to use
+> DEFINE_KERNEL_PARAM_OPS internally so the generated ops table will go
+> through the same macro as everything else.
+> 
+> Subsequent commits convert all open-coded struct kernel_param_ops
+> definitions to use these macros, in preparation for migrating to a
+> seq_buf .get API.
+> 
+> Signed-off-by: Kees Cook <kees@kernel.org>
+> ---
+>  include/linux/moduleparam.h | 36 ++++++++++++++++++++++++++++++++++--
+>  kernel/params.c             |  6 ++----
+>  2 files changed, 36 insertions(+), 6 deletions(-)
+> 
+> diff --git a/include/linux/moduleparam.h b/include/linux/moduleparam.h
+> index 075f28585074..26bf45b36d02 100644
+> --- a/include/linux/moduleparam.h
+> +++ b/include/linux/moduleparam.h
+> @@ -68,6 +68,39 @@ struct kernel_param_ops {
+>  	void (*free)(void *arg);
+>  };
+>  
+> +/*
+> + * Define a const struct kernel_param_ops initializer. Callers prefix with
+> + * any required visibility qualifiers (typically "static"):
+> + *
+> + *   static DEFINE_KERNEL_PARAM_OPS(my_ops, my_set, my_get);
+> + *
+> + * Routing the @_set and @_get function pointers through the macro
+> + * (rather than naming the struct fields at every call site) lets the
+> + * field layout change in one place when callbacks are migrated to a
+> + * new signature.
+> + */
 
-I also blindly added the cast to silence sashiko :-(
-I see now that it could never actually happen, but semantically it’s 
-correct, so maybe we can avoid the revert.
+Nit: The newly introduced DEFINE_KERNEL_PARAM_OPS*() macros remain in
+place at the end of the series after the migration is complete and this
+comment is removed in patch 7. It would be helpful to describe in the
+commit message why these macros are generally preferable to defining
+kernel_param_ops instances directly.
 
+I assume the motivation is that the structure is simple enough and using
+macros then makes defining kernel_param_ops instances a bit more
+concise. A minor disadvantage is that some analysis tools, such as
+ctags, may no longer see the generated definition, but that is also the
+case for DEFINE_MUTEX() and other similar macros.
+
+-- 
 Thanks,
-Stefano
-
->
->> >
->> > Thanks,
->> > Stefano
->> >
->> > >
->> > >-- David
->> > >
->> > >>
->> > >> On Thu, 21 May 2026 14:47:32 +0200 you wrote:
->> > >> > From: Stefano Garzarella <sgarzare@redhat.com>
->> > >> >
->> > >> > On 32-bit architectures, both skb_queue_len() and SKB_TRUESIZE(0) evaluate
->> > >> > to 32-bit values. The multiplication can overflow before being assigned to
->> > >> > the u64 skb_overhead variable, making the skb overhead check ineffective.
->> > >> >
->> > >> > Cast skb_queue_len() to u64 so the multiplication is always performed in
->> > >> > 64-bit arithmetic.
->> > >> >
->> > >> > [...]
->> > >>
->> > >> Here is the summary with links:
->> > >>   - [net] vsock/virtio: fix skb overhead overflow on 32-bit builds
->> > >>     https://git.kernel.org/netdev/net/c/4157501b9a8f
->> > >>
->> > >> You are awesome, thank you!
->> > >
->> >
->
-
+Petr
