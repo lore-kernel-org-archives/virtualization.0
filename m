@@ -1,192 +1,170 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D0CE3F4121
-	for <virtualization@lists.linux.dev>; Mon, 25 May 2026 15:16:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C88A4382F14
+	for <virtualization@lists.linux.dev>; Mon, 25 May 2026 16:19:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779722191; cv=none; b=fxoEs0JrZkwU16dWHrBegDauiqJKjGbdDnA00snYBepJJhqcZJKdi3d/nyIvK979+O2wyCKd5q7vxMNuiNVxmsv7wfF5JNHZS0cTxFmWiBGx2Xuyur2V/a5Kqba2GmwQARClMVbLMve4WFUX6Je8EJWpeS6n1L8xfDk3EkoEegc=
+	t=1779725968; cv=none; b=F3V0Vo/CQZBvgeEfvKtvMj5WuOqF9xsAHPDG/XjE3pykq15jSUwsHeZ6eMgoziKXUTicZy4NLZuIRARjW+uVdjFtWRdy89HmL7zY/Ty8VzH0Slk0+WDZpI3CkJUx7UEop4GTfUXO4tcq7rh61Ntdl4P2ND9PV2R87lYYZ5BqHLE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779722191; c=relaxed/simple;
-	bh=AJUSWFiE6Q27sPZdsP0TJj9XuNjCnHJMEQ5y+0iZRbU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=mI3NzSg0iAIwJo3eQhMOC7ZQN5Pzle5p4gaZAqZUAR/Rbi5QNBLvjSOXvJ+aOKSt6k5YoDocybfd5u9veBlCsHjRq0jEZ22w8W2/ahT9aBhA51gb748h3IWs2JzHXicyQNBdX2Cxflqps73F0KPV9OxaEgKWYPrTablUA/D6cRA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LguTpTI6; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1779725968; c=relaxed/simple;
+	bh=6ATTepTt/W1eTfJKlZcOEC7miXlLa4M2ScAL84EJqWk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=iUNsy4sOmePP4fvv3kalJoSZvnDJZsLVLn0RXY1K8zXLQQti/YjqjHqPXzr+T7BtpyMd2zuY0JFZhTcnqjdA6MX0QcGFDeFJO2RijcCBdkFKinxUYW+t+tfknHMktkKuxKmbRqAzYggfs1ipHZ5NCUn4c066KgUyZ27SAdbIf8Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=VAZOZI17; arc=none smtp.client-ip=209.85.128.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LguTpTI6"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1779722188;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=LRIUymRBu2V1hz/h+nW5xnuAvIV3Q2kXa6qoE0y+ue8=;
-	b=LguTpTI6BWaTZH5ABb/3/RebpIGBfLjK8R2TXfxdx4gqJ3ZxGF/6fJ2KhhQ1dVqwTZrYGf
-	kzOPyntBBL5YHpIzhPsAdtnOpwG7d60gFU4kaXOJfH6r9CPB5QMnxXhnlC7Zg21QB5KE+b
-	9rPyz8oFIz5Yhi3RXpJKv3+uC/caXyw=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-665-wbeHvuQTOAKI6lRV2jqtww-1; Mon, 25 May 2026 11:16:27 -0400
-X-MC-Unique: wbeHvuQTOAKI6lRV2jqtww-1
-X-Mimecast-MFC-AGG-ID: wbeHvuQTOAKI6lRV2jqtww_1779722186
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-44cc3c9b2feso8545850f8f.1
-        for <virtualization@lists.linux.dev>; Mon, 25 May 2026 08:16:27 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="VAZOZI17"
+Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-49041e84237so26867505e9.1
+        for <virtualization@lists.linux.dev>; Mon, 25 May 2026 09:19:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1779725963; x=1780330763; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=6YA+/JJXQ9abERc/NViF0XyaL5qdJ2pUb4chRkVwshY=;
+        b=VAZOZI17xCOa3KNKIpbe9HNXEEgn9cwWe9MUeKXn7T5iXOpAerhvttpFf5G0BE/My8
+         YGLrtdU3PkihjalVF1wR6EzjfTdWABt17eIcJ0WC7qs/Z6WTZ3Nu91euQvGodsGmvY/s
+         6UbUGb9jJ5b/QiDBjq3Y+/rLrZgFmFl9katahS4DKiyqxlYGDZyABTh5nKGjl6icmkpt
+         /8SRQI/Sd8y11ebVd9Lrc04pohPOQqypNRD3/0Bj3PMMtID7NoQqjpH82/2Pvsrg8w78
+         8bjXv+AeJPZRV0/sOIKLdixZo49gOC/6orfkDudASnr3pQwROjqlp5ag6dJ4iBv6DAcU
+         jvKA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779722186; x=1780326986;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=LRIUymRBu2V1hz/h+nW5xnuAvIV3Q2kXa6qoE0y+ue8=;
-        b=ZDjUCho+OS49dcBXym5oonNxQVXfpngZ8JYGVvXfuALuv8uRSbeqbog/y/XU/LT4lt
-         QzWwqHrHY6QzwGsQJTqrk9DW+bpp8ia9gYC2sZFDYtCzh7KQewokESDhH+WJvMWT6YBq
-         lWnC540yh9VNaW5wtQ9QiS8KlzH4i1IDUL/YM8+v8AV8b6CmHJtimga5m8tdUtIbAgRi
-         C7DNyP856vsCdTU8ORmwDAQ5M2cSCvpBCGCGctsYt+cQ3UcGo6Hv/udaelyMJx4f0LFH
-         JZCvczdOk9NmdQidcyh9r0JXPqAIBp6hrLf6zSPIjvwKxZh99OMxGCILf85VrJu0qtZm
-         Pe7Q==
-X-Forwarded-Encrypted: i=1; AFNElJ8gUqbh5TsAVu7WIuc1iaMzc0dJjB2XRF1zRXlUNrcJ1Kdo+0vzUUQi0Gw3ViLp7xZeK+vVAZcossRpyhbCfA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyV7xsHiBiEVKCkQ9njqYCVfHVbG7RrOonm53ZJwGHpU1MCPQEr
-	blpE5ahOwa7cy7u0BwrSb8coxpUa435yqn+GqZBZPJVguZSUwRDfecOfTQYeuZAj9DepjLtt03e
-	ocfik29BVoml2iagUZPF9+lRUlERGvOACJn31XdgaWi5+E0TN58xrZVtc+34aNJrCEsvM
-X-Gm-Gg: Acq92OEtT9Vi6wHqaNN3VeYotInohhzvpqeCYWoBt7vnD5TMmwhy39xn2LRdlwXwjLu
-	3GErrZ9WrqXcLLWqdJzGD5+DVxX45XxJ9oskebBhFkpoTp4yv42zY2SRAIN96gm7p/S1knEtVqn
-	5bEd583Bczkc1SynHYKRMHzuN8wcrkJ8pQHMBJhuSevWRAz3juZmYifpEVOoMziV5GrNqPWaaVD
-	y0iAtiQUIbfaImTRoivOYj7ubE2gcKtrSjBoocl4J5kJFnrstVd7EggMLsNuWtTwZtjC/Cm5kfD
-	AI8EvclYgAz38NPgLDx617k13y1v+yuxrMNI29kLfI9+vOntLN3U1Cj0l9dmaIxMuBByslB+kbG
-	DnQfdCpHMs7Ud37OgWfCpW2/oeV5Y1nObOo+6iHcUaDv8eFnaKs1G5xAk8fLTik7IsVLazt0=
-X-Received: by 2002:a05:6000:29c8:b0:45e:8526:7dc5 with SMTP id ffacd0b85a97d-45eb38b3902mr16847538f8f.28.1779722186152;
-        Mon, 25 May 2026 08:16:26 -0700 (PDT)
-X-Received: by 2002:a05:6000:29c8:b0:45e:8526:7dc5 with SMTP id ffacd0b85a97d-45eb38b3902mr16847494f8f.28.1779722185615;
-        Mon, 25 May 2026 08:16:25 -0700 (PDT)
-Received: from sgarzare-redhat (host-82-53-135-12.retail.telecomitalia.it. [82.53.135.12])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45eb6c9de2dsm26855784f8f.4.2026.05.25.08.16.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 May 2026 08:16:24 -0700 (PDT)
-Date: Mon, 25 May 2026 17:16:18 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: David Laight <david.laight.linux@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, 
-	patchwork-bot+netdevbpf@kernel.org, netdev@vger.kernel.org, xuanzhuo@linux.alibaba.com, 
-	horms@kernel.org, virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	kvm@vger.kernel.org, kuba@kernel.org, eperezma@redhat.com, pabeni@redhat.com, 
-	davem@davemloft.net, jasowang@redhat.com, stefanha@redhat.com, edumazet@google.com, 
-	stable@vger.kernel.org
-Subject: Re: [PATCH net] vsock/virtio: fix skb overhead overflow on 32-bit
- builds
-Message-ID: <ahRmBTnNMrg-oano@sgarzare-redhat>
-References: <20260521124732.125771-1-sgarzare@redhat.com>
- <177950282964.1445071.6600517211632117224.git-patchwork-notify@kernel.org>
- <20260523173557.5cc4f4f6@pumpkin>
- <ahQbVxvbBEJZ3TBU@sgarzare-redhat>
- <20260525115314.3cf310e6@pumpkin>
- <20260525083859-mutt-send-email-mst@kernel.org>
- <ahRJS2bN9Bw_AKyo@sgarzare-redhat>
- <20260525155322.240fbd87@pumpkin>
+        d=1e100.net; s=20251104; t=1779725963; x=1780330763;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=6YA+/JJXQ9abERc/NViF0XyaL5qdJ2pUb4chRkVwshY=;
+        b=XHqhRfJl4mfg2BGPLk6VbJdBQMPGxEH1+wYebXbJUttTvqU2xM1zVFv8rogBig+eT/
+         +N9NN3j3O1aEV9M++43/8qqA+ZYlcGhJZcC3xcYJQECbZdu2zE6tGp97KQu7ZLP7+UnH
+         ydC/zTQir30hFVMOAq6fCtIoN86l3L8efKwP3cYMakV3ToyckgHVSP38gD+KIL/2AneC
+         iyf31UrdBWlglMUdiiPyQaUfEV1C3DNzJ7LQUA4oSO8U1qNSAC0gnk7QPD0kIER80ouo
+         iAnsKZME0W97wIJ300pghnOqepiBnGWIfQrYJI5nqsyoP3g4Hhs1ul3k3Brv70xBpSEc
+         4HtA==
+X-Forwarded-Encrypted: i=1; AFNElJ+A4KH8Hiu68AAqjURdRuuUhCmEqvBzOMRPCGyzkHZWjHQhDS/eZoX+BUfwaORQJQRmbnTGAT6a4WkulD7e/g==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw89urS0YcfaKcS36o3uMskdGuPCT2Chythb9ftkzE1Bw8z3mu+
+	2WTI4RNueFI5K/ij1jmeSGIGOhg7OKGo7fNtn0cn/XMDu1knWc5xncPexA2nZVGxrlw=
+X-Gm-Gg: Acq92OGV9tWNUjH8rLs2xCR7+7Zx/kB5BZWnerZO3wama6kmWosDfx573OSSnFpQkJK
+	awZNxiXwT6XSbSnDFfRQgp3L7A7jaMt9y1H5SXXdidnQd3L97//J9iup1F3GzgfE7px+ZECKFFA
+	AjqDj+QrkshiCLj1AhCTgJwA2mP2QNUm1dxrcRa4SRsqt0Hz2VCaoAe5u4mkALHcXaf/86CWpA8
+	D3jguXg414MuzxvvZ0WWWCX3C5NyZe1ON27Jn2W+74cf5S5j5rScI/iaGiSBoy9J6W6JPKPBEY1
+	xTWEphT3Spa0jK8yJ6aS150pH3HIU918c3rktMs4n1Ut16ScHE+OY90WATVvcnDLVRULhgxQDa9
+	bViSehdxABv/Guz3Nele3sLQtjhAD4fSGWgThTe16kV63ChICA/euL3PgHC0IpSec75vav6Ajtg
+	/V0hKcSb6w5ll5O25VC/b6Ay8WTfl503NK+1d2XU4/VbOaCCcyEvUWuzuFmIxVEUYqZaV//Cf3q
+	tDvnTGq0wIru2duhiNFoyCfu4GGYboQ4xj+d8hHtHGb154+h4gtD155V93Yp7z33R2hJQ==
+X-Received: by 2002:a05:600c:3b07:b0:490:f7c:b19 with SMTP id 5b1f17b1804b1-490420f67f5mr197977845e9.0.1779725963153;
+        Mon, 25 May 2026 09:19:23 -0700 (PDT)
+Received: from ?IPV6:2a00:1028:838d:271e:8e3b:4aff:fe4c:a100? (dynamic-2a00-1028-838d-271e-8e3b-4aff-fe4c-a100.ipv6.o2.cz. [2a00:1028:838d:271e:8e3b:4aff:fe4c:a100])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49059cc9a91sm48939425e9.1.2026.05.25.09.19.19
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 25 May 2026 09:19:22 -0700 (PDT)
+Message-ID: <a4c7ccee-6189-4c74-bad8-57d1438c7d8d@suse.com>
+Date: Mon, 25 May 2026 18:19:19 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260525155322.240fbd87@pumpkin>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 0aCHHuinM-5binI5KvijWVWScC5s-bXjyjcp4sPRMjo_1779722186
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8; format=flowed
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 06/11] moduleparam: Add seq_buf-based .get callback
+ alongside .get_str
+To: Kees Cook <kees@kernel.org>
+Cc: Luis Chamberlain <mcgrof@kernel.org>, Pengpeng Hou
+ <pengpeng@iscas.ac.cn>, Richard Weinberger <richard@nod.at>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ "Rafael J. Wysocki" <rafael@kernel.org>, Len Brown <lenb@kernel.org>,
+ Corey Minyard <corey@minyard.net>, Gabriel Somlo <somlo@cmu.edu>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Jani Nikula <jani.nikula@linux.intel.com>,
+ Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+ Rodrigo Vivi <rodrigo.vivi@intel.com>, Tvrtko Ursulin
+ <tursulin@ursulin.net>, David Airlie <airlied@gmail.com>,
+ Simona Vetter <simona@ffwll.ch>, Bart Van Assche <bvanassche@acm.org>,
+ Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>,
+ Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+ Hans de Goede <hansg@kernel.org>, Mauro Carvalho Chehab
+ <mchehab@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>,
+ Hannes Reinecke <hare@suse.de>,
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+ "Martin K. Petersen" <martin.petersen@oracle.com>,
+ Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
+ Lukasz Luba <lukasz.luba@arm.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Jiri Slaby <jirislaby@kernel.org>, Alan Stern <stern@rowland.harvard.edu>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Jason Baron <jbaron@akamai.com>, Jim Cromie <jim.cromie@gmail.com>,
+ Tiwei Bie <tiwei.btw@antgroup.com>, Benjamin Berg <benjamin.berg@intel.com>,
+ =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ "David E. Box" <david.e.box@linux.intel.com>,
+ "Maciej W. Rozycki" <macro@orcam.me.uk>,
+ Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+ Peter Zijlstra <peterz@infradead.org>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Sean Christopherson <seanjc@google.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@kernel.org>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+ "H. Peter Anvin" <hpa@zytor.com>, Vinod Koul <vkoul@kernel.org>,
+ Frank Li <Frank.Li@kernel.org>, Daniel Gomez <da.gomez@kernel.org>,
+ Sami Tolvanen <samitolvanen@google.com>, Aaron Tomlin <atomlin@atomlin.com>,
+ Alexander Potapenko <glider@google.com>, Marco Elver <elver@google.com>,
+ Dmitry Vyukov <dvyukov@google.com>, Andrew Morton
+ <akpm@linux-foundation.org>, John Johansen <john.johansen@canonical.com>,
+ Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
+ "Serge E. Hallyn" <serge@hallyn.com>,
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+ Georgia Garcia <georgia.garcia@canonical.com>, kvm@vger.kernel.org,
+ dmaengine@vger.kernel.org, linux-modules@vger.kernel.org,
+ kasan-dev@googlegroups.com, linux-mm@kvack.org, apparmor@lists.ubuntu.com,
+ linux-security-module@vger.kernel.org, linux-um@lists.infradead.org,
+ linux-acpi@vger.kernel.org, openipmi-developer@lists.sourceforge.net,
+ qemu-devel@nongnu.org, intel-gfx@lists.freedesktop.org,
+ dri-devel@lists.freedesktop.org, linux-rdma@vger.kernel.org,
+ linux-media@vger.kernel.org, linux-pci@vger.kernel.org,
+ linux-scsi@vger.kernel.org, linux-pm@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-serial@vger.kernel.org,
+ linux-usb@vger.kernel.org, usb-storage@lists.one-eyed-alien.net,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ linux-arch@vger.kernel.org, netdev@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, linux-hardening@vger.kernel.org
+References: <20260521133315.work.845-kees@kernel.org>
+ <20260521133326.2465264-6-kees@kernel.org>
+Content-Language: en-US
+From: Petr Pavlu <petr.pavlu@suse.com>
+In-Reply-To: <20260521133326.2465264-6-kees@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Mon, May 25, 2026 at 03:53:22PM +0100, David Laight wrote:
->On Mon, 25 May 2026 15:09:54 +0200
->Stefano Garzarella <sgarzare@redhat.com> wrote:
->
->> On Mon, May 25, 2026 at 08:42:01AM -0400, Michael S. Tsirkin wrote:
->> >On Mon, May 25, 2026 at 11:53:14AM +0100, David Laight wrote:
->> >> On Mon, 25 May 2026 11:57:45 +0200
->> >> Stefano Garzarella <sgarzare@redhat.com> wrote:
->> >>
->> >> > On Sat, May 23, 2026 at 05:35:57PM +0100, David Laight wrote:
->> >> > >On Sat, 23 May 2026 02:20:29 +0000
->> >> > >patchwork-bot+netdevbpf@kernel.org wrote:
->> >> > >
->> >> > >> Hello:
->> >> > >>
->> >> > >> This patch was applied to netdev/net.git (main)
->> >> > >> by Jakub Kicinski <kuba@kernel.org>:
->> >> > >
->> >> > >Did anyone else notice that is isn't a bug?
->> >> > >
->> >> > >There is no way that a 'count of bytes of kernel memory' can overflow
->> >> > >the size of 'long'.
->> >> >
->> >> > It's more of an estimate than an actual calculation of memory usage if
->> >> > we queue the incoming packet. In theory, an overflow could occur if the
->> >> > user sets `buf_alloc` to 4GB. In practice, though, I think you're right:
->> >> > the memory should run out before we get to that check.
->> >>
->> >> The calculation is:
->> >>
->> >> 	u64 skb_overhead = (skb_queue_len(&vvs->rx_queue) + 1) * SKB_TRUESIZE(0);
->> >>
->> >> skb_queue_len() will be the number of items on the queue.
->> >> SKB_TRUESIZE(0) is the memory taken up by a zero length skb (basically sizeof(skb)).
->> >>
->> >> Unless you either corrupt the queue length or manage to allocate skb that use
->> >> less than the minimum about of memory that product can't overflow 'unsigned long'.
->> >>
->> >> The later calculations might wrap - but the multiply can't.
->> >>
->> >> -- David
->> >
->> >
->> >Indeed, I wasn't thinking. For this to even get close to overflowing
->> >we'd have to have almost all of 4G available to the 32 bit kernel taken
->> >up by this single queue.
->
->Except there is usually only 1G or 2G available to the kernel.
->And all the skb would have to contain no data.
+On 5/21/26 3:33 PM, Kees Cook wrote:
+> Add a new struct kernel_param_ops::get callback whose signature
+> takes a struct seq_buf instead of a raw char buffer:
+> 
+>   int (*get)(struct seq_buf *sb, const struct kernel_param *kp);
+> 
+> The previously-legacy .get field is now .get_str (char *buffer);
+> .get is the new seq_buf-aware form.  param_attr_show() prefers .get
+> when set, otherwise falls back to .get_str.  WARN_ON_ONCE() if both
+> are set.  Return contract for .get:
+> 
+>   < 0 : errno propagated to userspace; seq_buf contents discarded
+>   = 0 : success; length derived from seq_buf_used()
+>   > 0 : forbidden; the dispatcher WARN_ON_ONCE()s and treats as 0
+> 
+> The default policy on seq_buf_has_overflowed() is silent truncation,
+> matching scnprintf()/sysfs_emit() behaviour.  Callbacks that want a
+> specific overflow errno can check seq_buf_has_overflowed() and
+> return their preferred error.
+> 
+> No callbacks use .get yet; the legacy path is still the only one in use
+> after this commit. A subsequent commit teaches DEFINE_KERNEL_PARAM_OPS
+> to route initializers by type.
+> 
+> Signed-off-by: Kees Cook <kees@kernel.org>
 
-`skb_overhead` was introduced to prevent exactly queueing skb without 
-any data (essentially containing just the EOM for SEQPACKET) that we 
-plan to fix properly in some other way instead of queueing empty skb.
+Reviewed-by: Petr Pavlu <petr.pavlu@suse.com>
 
->
->> >
->> >Revert, I'd say.
->>
->> I also blindly added the cast to silence sashiko :-(
->> I see now that it could never actually happen, but semantically it’s
->> correct, so maybe we can avoid the revert.
->
->Lots of things are semantically correct :-)
-
-I see :-)
-
->
->I didn't look any further down the function to see if it could be
->'unsigned long' (or even size_t - but I like 'proper' types when they
->are always correct, I have to remember that size_t is unsigned long).
-
-IIRC here the main reason was to handle the next check with u64 to avoid 
-overflows (buf_alloc is u32) when it was introduce, but maybe, after 
-commit c6087c5aaad6 ("vsock/virtio: fix skb overhead accounting to 
-preserve full buf_alloc") it could be size_t.
-
->
->The problem with the (u64) cast is that gcc is very likely to make a
->'pigs breakfast' of it and do a full 64x64 multiply.
->It'll then try to keep the 64bit value in a register-pair which ends
->up being spilled to stack as a pair.
->I've seen it spill a constant zero and do a multiply by an immediate
->zero when doing 64bit maths on 32bit x86.
->I think gcc can hold a 64bit value as two separate 32bit values; that
->can generate reasonable code. But if they get merged (eg because of an
->"=A" asm constraint) it all goes horribly wrong.
->This is why there are some asm 'helpers' for mixed 32bit/64bit maths.
-
-Thanks for the details, I'll keep these in mind, really useful!
-
-Stefano
-
+-- Petr
