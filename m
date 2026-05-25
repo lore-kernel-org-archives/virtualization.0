@@ -1,233 +1,138 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A77BD361DD9
-	for <virtualization@lists.linux.dev>; Mon, 25 May 2026 09:14:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CFB163955C8
+	for <virtualization@lists.linux.dev>; Mon, 25 May 2026 09:57:58 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779700478; cv=none; b=dyhfMQGDfGihYHyr/iJwaJciVDhN9RoPOAr2JRNs9j79+Tg/YAQnIwvjr8dWQQeW+ebARfAendSZyZsurW3FJpHoUJ91HgmME+Wpdhe0svRzJQs2m2PW9DhPtFdckNGyZ+1itnzv50URMEHfJ0VX8MURM7gwuMXNfIDv0z11ngY=
+	t=1779703080; cv=none; b=RmyyHmgUcCeacIFJ5SfN6Iz8Jut0jvH3zoCoEUPaLUr7RsJotnbz39+hULa4+6tJpIN8GybpFR5dlFIzISy5dYxkAszz+aAmHJR30hMytxM4Qc3LKGqgTh8YzUM2325yujcYVEJgeoGVfNnlG3a9HEv4+rll/Kt63gEATl/TKe0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779700478; c=relaxed/simple;
-	bh=bz6HId41xY9V16r3H/1IHSbtq+kVTBX+AzuUuy8We88=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=PzxL2bjbTYIQFTPPwU4Bzn4Lhc9HCpQ73EIkigINmaWOYWK16Wq+0/SaknPHaWsf/av7Wxc8MflGcSvglsOK60BISdCG+yuLhXxgh3O4AFXudMDkTP3lb5e1UBwIDgj7uNc9zAQ3lHnASX+10MbuWdvf5G+1hFB0KlIc8HNLxqg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ID/rHZ4Y; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1779703080; c=relaxed/simple;
+	bh=uK/vt7eLnOx5l8lJnbIVpEjTM2YvSAf8nXV0EaVRzsk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=UO8GZgfPiW0VPlSUaqGAy2lxJuQ+gcRUyxAz5+K5MZw97e7JWr3jr5PRcygQjsmYCmO72MHp9Mnh2dm+2YtSRhB3R+U0OAN1HiGqB1EGg+T6tn1DCpRxhcD6cJ9H5+QLmIBupLGZQyXNZYs2zsJugANK/PP/t36hZV5NMUaY3ac=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Az1LV/CU; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ID/rHZ4Y"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Az1LV/CU"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1779700473;
+	s=mimecast20190719; t=1779703077;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=XCa6LzOtgQIffaGGFzBaXF3Q8bJnjAULK2FkHdc8+UE=;
-	b=ID/rHZ4YXC9qwtn2HME1FgQSNjSjft1XaNKa8H/PJoInOonSh0KCEXujyywrs8Dc0FG6Mt
-	k/tGd8vTT7R+jjFX/XED+dBtpsORQodO7IoU/cOIC140XTsa8jU0ZHHAvOeL0Y+tFDHg27
-	OvkVfl5RLI8s8TO4FA7MM0kFpmlWmj0=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=c1gLqb9yQcrxGhMm5dozqHasfJujBtBwy62H+RJqRdg=;
+	b=Az1LV/CU70xT/auOthh/c4+7ns967wk7FFRsQU9kEoVuw1z3JMABeJzPqohSwEbUh8phQs
+	Y6wQ0ArccV8aCVS6kAu74the80x7QkCW3tEtn2A27hCS4qQMkCUU5zwYEL8sHDfSiAJmfM
+	QqQCC03HOzHaoOg7CepENeDesNxvRU8=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-618-jKMGld5JMSy-IcjQ64BzGA-1; Mon, 25 May 2026 05:14:31 -0400
-X-MC-Unique: jKMGld5JMSy-IcjQ64BzGA-1
-X-Mimecast-MFC-AGG-ID: jKMGld5JMSy-IcjQ64BzGA_1779700471
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-36865d109dcso8699521a91.1
-        for <virtualization@lists.linux.dev>; Mon, 25 May 2026 02:14:31 -0700 (PDT)
+ us-mta-344-d0_py-YqNmu0VkNXsPs36w-1; Mon, 25 May 2026 05:57:56 -0400
+X-MC-Unique: d0_py-YqNmu0VkNXsPs36w-1
+X-Mimecast-MFC-AGG-ID: d0_py-YqNmu0VkNXsPs36w_1779703075
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-49051422d55so17006665e9.2
+        for <virtualization@lists.linux.dev>; Mon, 25 May 2026 02:57:56 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779700470; x=1780305270;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=XCa6LzOtgQIffaGGFzBaXF3Q8bJnjAULK2FkHdc8+UE=;
-        b=HV+LsN1IDyiYxgXfORyBPnTB9k93N/+ZHxjVLYOfUoe0zaZswi8BEg68UABIGlxSj6
-         7y+tog31HApldqXycUw9XC35sRW1XnBNQGr8MBgX7ybgLfIdWqztGkUzy0vJv69CuRYR
-         QpcPzaU6EDLPKtt321435dMSwWqhkZ863oCAEjgAlNWgxcYyUSPtZA5aDJ9NF1lg2m/y
-         KD6TkOefTpizYUAUDfnxhbzuUZs0qzUbMUmdXzX/r3eNvPUnY7NKrrFSe6aaJ5gigUnn
-         UAoD5mOfUnuRmRiHRxdfLRBCzwZv1xU4//QmSxxjCTkmrbFcMd+/Hy6TZUQ1kjapxknx
-         lX5w==
-X-Forwarded-Encrypted: i=1; AFNElJ+dIe1eZ8YYMqTbg5x3wWJSopl/oa8PGr4Ng4JW/hDwHbFUjpldLqReX8yObzIx/zN7pq1nsFyL/nxXSscSIg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxKT2U5a3ajGTMRSSENamM7JqapH5ZsAogMu6R5GdFlkQ1yWYZs
-	YMOTu580z2C+IN1ZcvzYxgu9f2rCERCo4vGFxRaz5e6+Ih9srdphY2x8EYbF7eyP2Dft8DHYBTG
-	t/rZpO8paFBXsLTnhZF033cA3g6ysqwGdaWgpOZ2hVXPHD4lYjeuyP+ksrOqYRXbZeUS0xvYAJL
-	5seHXWNzuGYAssuK065qy/plp6avb/1ACCVlkNqD1N0+0=
-X-Gm-Gg: Acq92OGB0f2fv8fVLjxC3UAW/bR0cPsiVqIAA7+GcApvpil7cKl0uE3UkN75OhPU+cZ
-	9M27Ok2k9ObKsPq5Dwj3h1NluiqtNgwRpA+3eXvCVbsSGhREQMZ1UKsZPIk0txH1a8KhNEM47qu
-	XbmHuUpIYN2B6f05vEZdATUgeOs8KwBMLaOrYZ3r2Jb490WdwNhD4v4iS2zs2x3W/PIn6+822tZ
-	2RP
-X-Received: by 2002:a17:90b:2585:b0:366:3ac:f730 with SMTP id 98e67ed59e1d1-36a6788e0abmr12403290a91.25.1779700470420;
-        Mon, 25 May 2026 02:14:30 -0700 (PDT)
-X-Received: by 2002:a17:90b:2585:b0:366:3ac:f730 with SMTP id
- 98e67ed59e1d1-36a6788e0abmr12403244a91.25.1779700469810; Mon, 25 May 2026
- 02:14:29 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1779703075; x=1780307875;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=c1gLqb9yQcrxGhMm5dozqHasfJujBtBwy62H+RJqRdg=;
+        b=KKLnU9x5wIMD4VRFtKakE8N2KQgP/32INpLaTomEnNfR0KOTdCy694bvn1bVLDQ+7y
+         PTrR/bnso5PJNoL7XwuZjJpMHOfmwQKvGZk8ZEydVBof5SYPyRSzaMICXieOIzSON0dm
+         9jlkvbXDHCRwv9nmkqOJ4Q8dym291crbyrn/f0E4SsYzk5GRkkxwvkk2scqAtrLH6lE0
+         xlP0kg0mD23U0yoZQGtEOC8AKgMe9uPfaqBQcZO+I9aXDmS1O1ILRL6Jt0OGgYREZrIR
+         7Bn/A5TGORFNVohTz0uwVERn56SKWWV2zBAuO9YJX35Ge4DXGYIe4Qyx6Sqkq+OKuI0b
+         P/0w==
+X-Forwarded-Encrypted: i=1; AFNElJ+zaqV9mU7nveQsO5R8u5xIJha8IhIeSd+GQb2krRvIamFpZAxurEr3fP1ims452diX/nSJ4+QzcfigOmu/dA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzQ7AaFCHnuwN5XpsWc5WAL7qR/IoqEjJx1u7mvHm1h2kGtJ0Gp
+	+RYOUQAHuysjbDFHVNA7OFQjYyhDDe4UWik4gEzJMH5hrWgILRcuOZUzg6PePb/GbTcKYxAnnVl
+	A8BtSiMPuQdNG2+FJaM5z9ph9NJSgrtl0EzReH1XYteNchsmx8vsmANX4b7LAglSLXVWl
+X-Gm-Gg: Acq92OGTFx9lnnIRAbZ/k4tlRjf8FtGgaHd/6GLB82GA1011whPGBeFRlTw9uzcjxsI
+	jW0u6Rk2Nz3rzcS1HHSBP9K1rv4qZ3Gl68z+hZFge42IKU5yvTnIkQ8AyfPw8WvM0KgUXzu31h8
+	AVxzMYlN4YOTYOTzb/gB1ULtosHMC8PsWtdmTc8RrZd4AIUj+WpFJgajVOxV641VqYw6zPVReD3
+	oRabimi36tXJQwTB6TGzXPDhWStVUYWqnPuedWa51xX0Spba0MFKivrkQcfO6pEqStaY7L4USi+
+	6cxY1R1z9n7/Y7U4OF3AfAGcn7k7wTA9quTsy4qoLOAUmGQYPC1uggxWOA4UEKo+3PQmbTFfY9S
+	mkaJyBkdgym3iaI5BtHwHpdFKA3O4rD4VE735P3zJMddP3R76o9fcaKPxV5X22Y1E+zTQiKM5f6
+	OWEAfM7g==
+X-Received: by 2002:a05:600c:6995:b0:490:482c:4384 with SMTP id 5b1f17b1804b1-490482c44ddmr216835785e9.24.1779703075151;
+        Mon, 25 May 2026 02:57:55 -0700 (PDT)
+X-Received: by 2002:a05:600c:6995:b0:490:482c:4384 with SMTP id 5b1f17b1804b1-490482c44ddmr216835185e9.24.1779703074518;
+        Mon, 25 May 2026 02:57:54 -0700 (PDT)
+Received: from sgarzare-redhat (host-82-53-135-12.retail.telecomitalia.it. [82.53.135.12])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490417b0680sm83957175e9.8.2026.05.25.02.57.51
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 25 May 2026 02:57:53 -0700 (PDT)
+Date: Mon, 25 May 2026 11:57:45 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: David Laight <david.laight.linux@gmail.com>
+Cc: patchwork-bot+netdevbpf@kernel.org, netdev@vger.kernel.org, 
+	xuanzhuo@linux.alibaba.com, horms@kernel.org, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, kvm@vger.kernel.org, kuba@kernel.org, eperezma@redhat.com, 
+	pabeni@redhat.com, mst@redhat.com, davem@davemloft.net, jasowang@redhat.com, 
+	stefanha@redhat.com, edumazet@google.com, stable@vger.kernel.org
+Subject: Re: [PATCH net] vsock/virtio: fix skb overhead overflow on 32-bit
+ builds
+Message-ID: <ahQbVxvbBEJZ3TBU@sgarzare-redhat>
+References: <20260521124732.125771-1-sgarzare@redhat.com>
+ <177950282964.1445071.6600517211632117224.git-patchwork-notify@kernel.org>
+ <20260523173557.5cc4f4f6@pumpkin>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <afn0ZdvZWswBuDMm@sgarzare-redhat> <CANn89iLs8DOWJwDpf_ARoMrV+6b2tbhEJ=VVzeC8gCm5dRGaig@mail.gmail.com>
- <afoF_cHfl6ygcupM@sgarzare-redhat> <20260506113554-mutt-send-email-mst@kernel.org>
- <afxVH2So9BbZ3Gta@sgarzare-redhat> <20260507074113-mutt-send-email-mst@kernel.org>
- <afyMCyBvZpzWrLtO@sgarzare-redhat> <20260507163710-mutt-send-email-mst@kernel.org>
- <af2sXvVCBT05XF0D@sgarzare-redhat> <20260508055343-mutt-send-email-mst@kernel.org>
- <af21ZGlANY6UUCKx@sgarzare-redhat> <baf184f6-fefd-45ca-a437-1505533e3c81@gmail.com>
- <96977898-81a0-4c79-a95f-0b288e0572a6@gmail.com>
-In-Reply-To: <96977898-81a0-4c79-a95f-0b288e0572a6@gmail.com>
-From: Stefano Garzarella <sgarzare@redhat.com>
-Date: Mon, 25 May 2026 11:14:17 +0200
-X-Gm-Features: AVHnY4Lhts8wIDTXHhuzia8dvW2K6_DuNl7PB_LxKTgmjoNxj80dGuhGdtyu2k0
-Message-ID: <CAGxU2F5yG1VJ6eeawAtxcgE-uEQugsG00ZrTBmqz6=AF3JyksA@mail.gmail.com>
-Subject: Re: [PATCH net] vsock/virtio: fix potential unbounded skb queue
-To: Demi Marie Obenour <demiobenour@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Eric Dumazet <edumazet@google.com>, 
-	Arseniy Krasnov <avkrasnov@salutedevices.com>, Bobby Eshleman <bobbyeshleman@meta.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, "David S . Miller" <davem@davemloft.net>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	netdev@vger.kernel.org, eric.dumazet@gmail.com, 
-	Arseniy Krasnov <AVKrasnov@sberdevices.ru>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	kvm@vger.kernel.org, virtualization@lists.linux.dev, 
-	"virtio-comment@lists.linux.dev" <virtio-comment@lists.linux.dev>, Manuel Stoeckl <code@mstoeckl.com>, 
-	Alyssa Ross <hi@alyssa.is>, Spectrum Development <devel@spectrum-os.org>, 
-	systemd development <systemd-devel@lists.freedesktop.org>, 
-	Val Packett <val@invisiblethingslab.com>
+In-Reply-To: <20260523173557.5cc4f4f6@pumpkin>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 1dLhitpp6UX-yKFmrZa8m7zQq2Ugb0tmWfXJTA4RkAo_1779700471
+X-Mimecast-MFC-PROC-ID: tWjN6JmR6wj3lMaLbPZ0fYq3EozFgoJzIdyHV_FzMj4_1779703075
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On Mon, 25 May 2026 at 04:37, Demi Marie Obenour <demiobenour@gmail.com> wrote:
+On Sat, May 23, 2026 at 05:35:57PM +0100, David Laight wrote:
+>On Sat, 23 May 2026 02:20:29 +0000
+>patchwork-bot+netdevbpf@kernel.org wrote:
 >
-> On 5/23/26 17:00, Demi Marie Obenour wrote:
-> > On 5/8/26 06:11, Stefano Garzarella wrote:
-> >> On Fri, May 08, 2026 at 05:58:06AM -0400, Michael S. Tsirkin wrote:
-> >>> On Fri, May 08, 2026 at 11:41:21AM +0200, Stefano Garzarella wrote:
-> >>>> On Thu, May 07, 2026 at 06:48:47PM -0400, Michael S. Tsirkin wrote:
-> >>>>> On Thu, May 07, 2026 at 02:59:13PM +0200, Stefano Garzarella wrote:
-> >>>>>> On Thu, May 07, 2026 at 07:45:10AM -0400, Michael S. Tsirkin wrote:
-> >>>>>>> On Thu, May 07, 2026 at 11:09:47AM +0200, Stefano Garzarella wrote:
-> >>>>
-> >>>> [...]
-> >>>>
-> >>>>>>>> For now, we're already doing something:
-> >>>>>>>> merging the skuffs if they don't have EOM set.
-> >>>>>>>
-> >>>>>>>
-> >>>>>>> Right that's good. You could go further and merge with EOM too
-> >>>>>>> if you stick the info about message boundaries somewhere else.
-> >>>>>>
-> >>>>>> This adds a lot of complexity IMO, but we can try.
-> >>>>>>
-> >>>>>> Do you have something in mind?
-> >>>>>
-> >>>>> BER is clearly overkill but here's a POC that claude made for me,
-> >>>>> just to give u an idea. It's clearly has a ton of issues,
-> >>>>> for example I dislike how GFP_ATOMIC is handled.
-> >>>>
-> >>>> Okay, I somewhat understand, but clearly this isn't net material
-> >>>
-> >>> I doubt we have many other options given reverting the regression was
-> >>> ruled out.
-> >>
-> >> As Eric pointed out, we can't revert it.
-> >
-> > Could there be an option to disable the mitigation in guests, for the
-> > situation where the host is trusted?  There are VMMs that implement
-> > AF_VSOCK in userspace with a backing AF_UNIX socket.
-
-Here the main problem was an attack to the host from the guest.
-
-Can the application set the max (IIRC 4G) of SO_VM_SOCKETS_BUFFER_SIZE ?
-
-> >
-> >>>> so for now
-> >>>> I think the best thing to do is to merge the fixup I sent (or something
-> >>>> similar):
-> >>>> https://lore.kernel.org/netdev/20260508092330.69690-1-sgarzare@redhat.com/
-> >>>
-> >>> I reviewed that one, problem is it's a spec violation/change that we'll
-> >>> have to support forever.
-> >>
-> >> I have a few points to make on this, but let's discuss them there.
-> >>
-> >>>
-> >>>> This is a major change that should be merged with more caution.
-> >>>> Could this have too much of an impact on performance?
-> >>>>
-> >>>> Thanks,
-> >>>> Stefano
-> >>>
-> >>> It's really a POC, real patch is left as an excersise for the reader
-> >>> :).
-> >>
-> >> eheh, I see, but honestly, this overcomplication scares me. I'll try to
-> >> think it over.
-> >>
-> >>> The correct approach IMHO is to only start using this
-> >>> when we wasted a lot of memory on small packets.
-> >>>
-> >>> For example, if sum(truesize) >= buf size.
-> >>>
-> >>> then we'll not see a perf impact unless it's already pathological.
-> >>
-> >> Agree on this, which is similar to what I'm doing in that patch.
-> >> Reducing the advertised buf_alloc only in pathological cases (e.g.
-> >> overhead > buf_alloc).
-> >
-> > This isn't enough to prevent data loss due to race conditions.
-
-Yep, we didn't go in that direction.
-
-> >
-> > I'm CCing the virtio-comment list and a few others.
-> >
-> > Right now, any application that needs to send massive amount of
-> > data over a vsock is simply broken.  This isn't just theoretical.
-> > It's causing real-world problems for users of Waypipe.
-> > Waypipe forwards Wayland protocol messages over AF_VSOCK,
-> > so it can send a large amount of traffic over the socket.
-> > See https://gitlab.freedesktop.org/mstoceckl/waypipe/work_items/165.
-> >
-> > If one is willing to mutate the ring buffer in-place, or to maintain
-> > an auxiliary counter, it's possible to store all messages with bounded
-> > (in practice) overhead.  Specifically:
-> >
-> > - If the first byte of a block of data is nonzero, it's a
-> >   variable-length length.  1 byte for messages less than 128 bytes.
-> >
-> > - If the first byte of a block of data is zero, the subsequent bytes
-> >   are a variable-length counter that stores the number of consecutive
-> >   zero-byte messages.
-> >
-> > That adds a lot of complexity, which is very unfortunate for something
-> > that needs to be backported to stable kernels.  I also suspect it
-> > requires all access to the ring buffer to take a lock rather than
-> > being lock-free.  But it's the only approach that I can think of that
-> > can work with the current spec.
-
-Yep, we were discussing something like that in this thread, but we are
-still working on that.
-That said, any help on preparing patches for this would be more than welcome.
-
-> >
-> > Could there at least be a normative note stating that drivers and
-> > devices should treat each message as consuming 1024 bytes + the size
-> > of the message itself, and warning that anything that doesn't is
-> > going to be broken in practice?
-
-We would like to fix the issue. This is a transitive situation.
-
-> >
-> > I'm CCing Val Packet (of Invisible Things Lab) and Alyssa Ross
-> > (of Spectrum) because both of them are working on systems that rely
-> > critically on vsock.
+>> Hello:
+>>
+>> This patch was applied to netdev/net.git (main)
+>> by Jakub Kicinski <kuba@kernel.org>:
 >
-> Update: I see that patches have been upstreamed (with CC: stable) that
-> reset the connection instead of data loss.
+>Did anyone else notice that is isn't a bug?
+>
+>There is no way that a 'count of bytes of kernel memory' can overflow
+>the size of 'long'.
 
-Yep, hope that helps the situation. But again, can setting the max
-SO_VM_SOCKETS_BUFFER_SIZE helps those applications?
+It's more of an estimate than an actual calculation of memory usage if 
+we queue the incoming packet. In theory, an overflow could occur if the 
+user sets `buf_alloc` to 4GB. In practice, though, I think you're right: 
+the memory should run out before we get to that check.
 
 Thanks,
 Stefano
+
+>
+>-- David
+>
+>>
+>> On Thu, 21 May 2026 14:47:32 +0200 you wrote:
+>> > From: Stefano Garzarella <sgarzare@redhat.com>
+>> >
+>> > On 32-bit architectures, both skb_queue_len() and SKB_TRUESIZE(0) evaluate
+>> > to 32-bit values. The multiplication can overflow before being assigned to
+>> > the u64 skb_overhead variable, making the skb overhead check ineffective.
+>> >
+>> > Cast skb_queue_len() to u64 so the multiplication is always performed in
+>> > 64-bit arithmetic.
+>> >
+>> > [...]
+>>
+>> Here is the summary with links:
+>>   - [net] vsock/virtio: fix skb overhead overflow on 32-bit builds
+>>     https://git.kernel.org/netdev/net/c/4157501b9a8f
+>>
+>> You are awesome, thank you!
+>
 
