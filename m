@@ -1,152 +1,155 @@
-Received: from mail-wm1-f44.google.com (mail-wm1-f44.google.com [209.85.128.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from canpmsgout08.his.huawei.com (canpmsgout08.his.huawei.com [113.46.200.223])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 330CA3E9C0B
-	for <virtualization@lists.linux.dev>; Mon, 25 May 2026 10:53:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC24637C102
+	for <virtualization@lists.linux.dev>; Mon, 25 May 2026 11:15:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.223
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779706400; cv=none; b=NdHJgC0YGmw/IpL+RJwe6aCZzM99iyEm2Lyiq3vCUt1pQmMSiRAVMIAmkHsb0qylXGbsOrTmhRjGcHZRMy/wgPbS6OTTdKuPKgL+CdIfuzf05OrAn8aFKrBlQuMpQxVL45LLlKYTNmqCVdt4r8jO+N/2kqY6d+fVaxTyEoycr+w=
+	t=1779707728; cv=none; b=PMJHUdnylZ3dIE0C3i3Tyd2mR3KE0EUBmE95cmEfsaSzk+4hv2cI7J7U6xG64+zKCTOb3hZ4gcjyFvs2/a1HlI/iN+wytg5MPY+6UlLwD4S+qTlNryqL5/UB9tNnE2azlQu5yDVAbOKiBcmUwBGZTECrwjFUBzA2Wr9EUvJgJyc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779706400; c=relaxed/simple;
-	bh=rCoOpEyyUCy5izIH7PFgiOzmcy6juASzPqw0DoJcH0A=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=TKtu3gRG43FkJY+NX1yR9mDTuwRQMW9OP/rqcXBa1e+cKAenra7jKzPvRNrLGEV1Zikr0hGiDaOFshEUkK4ki29+d2L5nx5qXsiZEgOXOHutJFP029kfRXAqRsx849xHk1GbVGUKAhENddUjs5w0WvJX+tA+jGO9V2RJdrHTK40=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=nVvxSFym; arc=none smtp.client-ip=209.85.128.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1779707728; c=relaxed/simple;
+	bh=EbzlufNXW6YBgeATlTQezHzXvQyS5Z8qWV+S44goOcU=;
+	h=From:To:CC:Subject:Date:Message-ID:Content-Type:MIME-Version; b=k66vQEnSmkmc6+nqajAoeZcai8VxteXYVT2vG+mgT3Q6lsK37MukxBvKlPdUbj7pR4yFTZeKFnIOh72uw8vpLreBQ84ViuZNuURXuvOOgjJtqMjeTsAPsXIhwgeif9IlbxEAvRCrLm3ncfoG/FH8fDp2VnCCmv46QCk/JSsbtd4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=mPQs3cdK; arc=none smtp.client-ip=113.46.200.223
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="nVvxSFym"
-Received: by mail-wm1-f44.google.com with SMTP id 5b1f17b1804b1-4904c1ce4c1so28384175e9.3
-        for <virtualization@lists.linux.dev>; Mon, 25 May 2026 03:53:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779706396; x=1780311196; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=hIaUsl5OR/SB9imIspw1g7Ej0mCc49YZbthvw9ulBV0=;
-        b=nVvxSFymLHRnZXimBJZKDkm0OIh7bjmoN38yMhmzsYRSjU57Y8wLdv0VfGwVl4HFbQ
-         kWwJfVr7a7bTjtdBYgWBsLvfk+LtoAeGoNYQSObT4t2Hu3xRZD4CeERv0xKPFQXuK2Pf
-         je0aWJZ0OLOzQmrQlacZR/d5DMohtWLwlz1aQK6uFT2C5ulU/Xm2KB6xvQqUBM7oWofq
-         EhRfMbCSKPpSbQs8rLmlHgynjL7cshglwyTaECONr633/kFFoZyRf30V5VoBJ6ZDg+zi
-         c4kpNv2krD9TkkXPk+bdh2tq/OtOXHGmZTaes80MGqVfKIeFewOWjKbi/SAqCDiIpcNZ
-         0srw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779706396; x=1780311196;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=hIaUsl5OR/SB9imIspw1g7Ej0mCc49YZbthvw9ulBV0=;
-        b=JnkZnjOCrcLmEgYw2iMBsEOWlxX38C/SoOGQF221lWs71iV0RUxqOVU9+dtpQTRwaU
-         ZYtVEbfpRQyEbCQ8Wm1JV4V2ty6Ys6ys4pQD8/5BmHji5SXUVhotXA9LlA2PW7fxNqBT
-         UJNA+084pYkYnyNvNmGaNOB1LFvx25nP392EHKg8k1o5aj63gLBU+7rO+rbcnaFj2LXF
-         u1GFx0bp04Ftr+2+GUQeTfLxtzQXHQNABPcA83iJKUjluxMexQ+8vTZvfMKNEb9ZB45+
-         s9nnStYGH6W61cr8HUSq7/t7NH2n4KD+M4TEJv2lXjYGHrQBOnfgtp29DtRlJWweaOuC
-         hsaQ==
-X-Forwarded-Encrypted: i=1; AFNElJ802P3jKEgyWU/w8VAPmsVhu0+z3rXNaDHIBZ7wbm+TbOUqFg/3e+Tg5g01Wz2RuKqeTJeicpmVWtr2qbM2lw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwunDCRxb/ZR2Q19rFrF4etbu8NCEtOsshEJcbBJnCtwlZzDziE
-	1pGhXhpWNehNbsmI+GD0M/xSXVwQKTqsGO+EDEZ1P8nPvsOLJ68/inS2
-X-Gm-Gg: Acq92OF2Gb9lpozsEN2hI+ZvuwCtDzuFmwQRcF63nrkf80FWNeaEJ+MAPhbtsIyPBxf
-	znqX4QDM8w60/Jp8V61Fu8u12JhMzUEbt3kOllOftzUAKmagEx2jd7OtWaIAvEUoVOu3id6VCJp
-	UsvZHmxQlKJkWD7WXYmrsNnxRHP0+Dzr/hX7j9VdaNg864MOMod7GYfHZg4vR/xUQoD1tRqCXwK
-	rCS1sMDkygvIDaT5ToK73TkO5K6YBP8bMlMJ9/Pn5y3aSMbEQmTyB1ulTRvlqgoT2z5m5RGXHLn
-	kyqo8P0mdzpT3910YzC99QR2cUDAwQ5/YaJDsnQ1V2cT2us/MHMM7MOL8Nc9Drvz4ckuVPEGP08
-	x0Kw0JiD9ojukB4+l5VKIlHWKPJhoShO8+WoA6lVsbnwFvMA9IrIjJEJpgR6c6TJANc9Rq/2Qb9
-	0zLTJrg/9ZVuLEwRTrFO+v9Ths9gNmEt5IHJ72Oc5b2RgkMeZlggrPoFh+5ZdqFE1e
-X-Received: by 2002:a05:600c:468a:b0:490:3d62:f5df with SMTP id 5b1f17b1804b1-490428e5a6amr234019415e9.30.1779706396365;
-        Mon, 25 May 2026 03:53:16 -0700 (PDT)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4904561a33dsm222417485e9.11.2026.05.25.03.53.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 25 May 2026 03:53:15 -0700 (PDT)
-Date: Mon, 25 May 2026 11:53:14 +0100
-From: David Laight <david.laight.linux@gmail.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: patchwork-bot+netdevbpf@kernel.org, netdev@vger.kernel.org,
- xuanzhuo@linux.alibaba.com, horms@kernel.org,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- kvm@vger.kernel.org, kuba@kernel.org, eperezma@redhat.com,
- pabeni@redhat.com, mst@redhat.com, davem@davemloft.net,
- jasowang@redhat.com, stefanha@redhat.com, edumazet@google.com,
- stable@vger.kernel.org
-Subject: Re: [PATCH net] vsock/virtio: fix skb overhead overflow on 32-bit
- builds
-Message-ID: <20260525115314.3cf310e6@pumpkin>
-In-Reply-To: <ahQbVxvbBEJZ3TBU@sgarzare-redhat>
-References: <20260521124732.125771-1-sgarzare@redhat.com>
-	<177950282964.1445071.6600517211632117224.git-patchwork-notify@kernel.org>
-	<20260523173557.5cc4f4f6@pumpkin>
-	<ahQbVxvbBEJZ3TBU@sgarzare-redhat>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="mPQs3cdK"
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=Un59sVCYBVbCELbPAJniZwPhDx+Hpg7qitcILgjJSZo=;
+	b=mPQs3cdKtpmGn+KOuFPZGV+r7Uk+h7yeuJ57vWiCIxhAip7CNQ0vK09k7WGHCMXoRi1lxQHmo
+	JCYabtvaQbvWAfgtqk8utmV1YbkC67gDNh5EapUrYd/GGXzoAMPJ49rtvVxtg8n2S6B1BAhfInw
+	K5Ij0nIl63hX1u/d51wcV9c=
+Received: from mail.maildlp.com (unknown [172.19.162.92])
+	by canpmsgout08.his.huawei.com (SkyGuard) with ESMTPS id 4gPClM3p7JzmV6J;
+	Mon, 25 May 2026 19:07:27 +0800 (CST)
+Received: from kwepemr200009.china.huawei.com (unknown [7.202.195.137])
+	by mail.maildlp.com (Postfix) with ESMTPS id 3912640562;
+	Mon, 25 May 2026 19:15:13 +0800 (CST)
+Received: from kwepemr200017.china.huawei.com (7.202.195.7) by
+ kwepemr200009.china.huawei.com (7.202.195.137) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Mon, 25 May 2026 19:15:12 +0800
+Received: from kwepemr200017.china.huawei.com ([7.202.195.7]) by
+ kwepemr200017.china.huawei.com ([7.202.195.7]) with mapi id 15.02.1544.011;
+ Mon, 25 May 2026 19:15:12 +0800
+From: "malin (R)" <malin89@huawei.com>
+To: Arseniy Krasnov <avkrasnov@salutedevices.com>, tanjingguo
+	<tanjingguo@huawei.com>, "mst@redhat.com" <mst@redhat.com>,
+	"jasowang@redhat.com" <jasowang@redhat.com>, "xuanzhuo@linux.alibaba.com"
+	<xuanzhuo@linux.alibaba.com>, "eperezma@redhat.com" <eperezma@redhat.com>,
+	"stefanha@redhat.com" <stefanha@redhat.com>, "sgarzare@redhat.com"
+	<sgarzare@redhat.com>, "davem@davemloft.net" <davem@davemloft.net>,
+	"edumazet@google.com" <edumazet@google.com>, "kuba@kernel.org"
+	<kuba@kernel.org>, "pabeni@redhat.com" <pabeni@redhat.com>,
+	"horms@kernel.org" <horms@kernel.org>
+CC: Chenzhe <chenzhe@huawei.com>, cenxianlong <cenxianlong@huawei.com>,
+	cuirongzhen <cuirongzhen@huawei.com>, "virtualization@lists.linux.dev"
+	<virtualization@lists.linux.dev>, "kvm@vger.kernel.org"
+	<kvm@vger.kernel.org>, "netdev@vger.kernel.org" <netdev@vger.kernel.org>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, tanjingguo
+	<tanjingguo@huawei.com>
+Subject: [PATCH net] vsock/virtio: bind uarg before filling zerocopy skb
+Thread-Topic: [PATCH net] vsock/virtio: bind uarg before filling zerocopy skb
+Thread-Index: AdzsNwDXM3GXlP0rSUS4BU76FCpiCg==
+Date: Mon, 25 May 2026 11:15:12 +0000
+Message-ID: <9fece5ea269049f883f367642c07eaa0@huawei.com>
+Accept-Language: zh-CN, en-US
+Content-Language: zh-CN
+X-MS-Has-Attach:
+X-MS-TNEF-Correlator:
+Content-Type: text/plain; charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
 
-On Mon, 25 May 2026 11:57:45 +0200
-Stefano Garzarella <sgarzare@redhat.com> wrote:
+From 9eea4f61a4dca97f56c23e12267219bf791a20d1 Mon Sep 17 00:00:00 2001
+From: Jingguo Tan <tanjingguo@huawei.com>
+Date: Fri, 22 May 2026 19:53:45 +0800
+Subject: [PATCH net] vsock/virtio: bind uarg before filling zerocopy skb
 
-> On Sat, May 23, 2026 at 05:35:57PM +0100, David Laight wrote:
-> >On Sat, 23 May 2026 02:20:29 +0000
-> >patchwork-bot+netdevbpf@kernel.org wrote:
-> >  
-> >> Hello:
-> >>
-> >> This patch was applied to netdev/net.git (main)
-> >> by Jakub Kicinski <kuba@kernel.org>:  
-> >
-> >Did anyone else notice that is isn't a bug?
-> >
-> >There is no way that a 'count of bytes of kernel memory' can overflow
-> >the size of 'long'.  
-> 
-> It's more of an estimate than an actual calculation of memory usage if 
-> we queue the incoming packet. In theory, an overflow could occur if the 
-> user sets `buf_alloc` to 4GB. In practice, though, I think you're right: 
-> the memory should run out before we get to that check.
+virtio_transport_send_pkt_info() allocates or reuses the zerocopy uarg
+before entering the send loop, but virtio_transport_alloc_skb() still
+fills the skb before it inherits that uarg. When fixed-buffer vectored
+zerocopy hits MAX_SKB_FRAGS, io_sg_from_iter() may partially attach
+managed frags and return -EMSGSIZE. The rollback path calls kfree_skb()
+to free an skb that carries SKBFL_MANAGED_FRAG_REFS but no uarg, so
+skb_release_data() falls through to ordinary frag unref.
 
-The calculation is:
+Pass the uarg into virtio_transport_alloc_skb() and bind it immediately
+before virtio_transport_fill_skb(). This keeps control or no-payload skbs
+untouched while ensuring success and rollback share one lifetime rule.
 
-	u64 skb_overhead = (skb_queue_len(&vvs->rx_queue) + 1) * SKB_TRUESIZE(0); 
+Fixes: 581512a6dc93 ("vsock/virtio: MSG_ZEROCOPY flag support")
+Signed-off-by: Lin Ma <malin89@huawei.com>
+Signed-off-by: Rongzhen Cui <cuirongzhen@huawei.com>
+Signed-off-by: Jingguo Tan <tanjingguo@huawei.com>
+---
 
-skb_queue_len() will be the number of items on the queue.
-SKB_TRUESIZE(0) is the memory taken up by a zero length skb (basically sizeof(skb)).
+ net/vmw_vsock/virtio_transport_common.c | 11 ++++++++---
+ 1 file changed, 8 insertions(+), 3 deletions(-)
 
-Unless you either corrupt the queue length or manage to allocate skb that use
-less than the minimum about of memory that product can't overflow 'unsigned long'.
-
-The later calculations might wrap - but the multiply can't.
-
--- David
-
-> 
-> Thanks,
-> Stefano
-> 
-> >
-> >-- David
-> >  
-> >>
-> >> On Thu, 21 May 2026 14:47:32 +0200 you wrote:  
-> >> > From: Stefano Garzarella <sgarzare@redhat.com>
-> >> >
-> >> > On 32-bit architectures, both skb_queue_len() and SKB_TRUESIZE(0) evaluate
-> >> > to 32-bit values. The multiplication can overflow before being assigned to
-> >> > the u64 skb_overhead variable, making the skb overhead check ineffective.
-> >> >
-> >> > Cast skb_queue_len() to u64 so the multiplication is always performed in
-> >> > 64-bit arithmetic.
-> >> >
-> >> > [...]  
-> >>
-> >> Here is the summary with links:
-> >>   - [net] vsock/virtio: fix skb overhead overflow on 32-bit builds
-> >>     https://git.kernel.org/netdev/net/c/4157501b9a8f
-> >>
-> >> You are awesome, thank you!  
-> >  
-> 
-
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio=
+_transport_common.c
+index df3b418e0392..73f58925ff72 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -205,6 +205,7 @@ static u16 virtio_transport_get_type(struct sock *sk)
+ static struct sk_buff *virtio_transport_alloc_skb(struct virtio_vsock_pkt_=
+info *info,
+ 						  size_t payload_len,
+ 						  bool zcopy,
++						  struct ubuf_info *uarg,
+ 						  u32 src_cid,
+ 						  u32 src_port,
+ 						  u32 dst_cid,
+@@ -245,6 +246,11 @@ static struct sk_buff *virtio_transport_alloc_skb(stru=
+ct virtio_vsock_pkt_info *
+ 	if (info->msg && payload_len > 0) {
+ 		int err;
+=20
++		/* Bind the zerocopy lifetime before filling frags so error rollback
++		 * frees managed fixed-buffer pages through the uarg-aware path.
++		 */
++		skb_zcopy_set(skb, uarg, NULL);
++
+ 		err =3D virtio_transport_fill_skb(skb, info, payload_len, zcopy);
+ 		if (err)
+ 			goto out;
+@@ -364,6 +370,7 @@ static int virtio_transport_send_pkt_info(struct vsock_=
+sock *vsk,
+ 		skb_len =3D min(max_skb_len, rest_len);
+=20
+ 		skb =3D virtio_transport_alloc_skb(info, skb_len, can_zcopy,
++						 uarg,
+ 						 src_cid, src_port,
+ 						 dst_cid, dst_port);
+ 		if (!skb) {
+@@ -371,8 +378,6 @@ static int virtio_transport_send_pkt_info(struct vsock_=
+sock *vsk,
+ 			break;
+ 		}
+=20
+-		skb_zcopy_set(skb, uarg, NULL);
+-
+ 		virtio_transport_inc_tx_pkt(vvs, skb);
+=20
+ 		ret =3D t_ops->send_pkt(skb, info->net);
+@@ -1183,7 +1188,7 @@ static int virtio_transport_reset_no_sock(const struc=
+t virtio_transport *t,
+ 	if (!t)
+ 		return -ENOTCONN;
+=20
+-	reply =3D virtio_transport_alloc_skb(&info, 0, false,
++	reply =3D virtio_transport_alloc_skb(&info, 0, false, NULL,
+ 					   le64_to_cpu(hdr->dst_cid),
+ 					   le32_to_cpu(hdr->dst_port),
+ 					   le64_to_cpu(hdr->src_cid),
+--=20
+2.53.0
