@@ -1,75 +1,84 @@
-Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34F853DD863
-	for <virtualization@lists.linux.dev>; Tue, 26 May 2026 10:44:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AD3523FF1D5
+	for <virtualization@lists.linux.dev>; Tue, 26 May 2026 15:08:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779792270; cv=none; b=V1KzY2i5nSlHwbfEV7pFd2eXxdh1RbdFoGfE5tMFl/vf0/IN7Uj/NqO9FwBAl2ulnIC6kZ972+HiiAEQ0r82GuVnjT7UiZNDZVClRWCXAEf7JCVGl7HYMNJdUacq73w5GPJilW6Cww2wv5yjtlskiQKl38x5u1iJGtD/t12J4bA=
+	t=1779808086; cv=none; b=JFNqmJDonpc/2VG+7jI198+yvd/DCbCNH9V+k8vIhFMbqj8h5+0icPE4d81HeqzH6C7ZlWRD0H0CP0CTZqB5hQ2KoElbNO8mUUPGabTRbEHwpdmuRBDuA7w+Mv9R0D7YnMEfA/3Gophjic/pu/yKPpVe+I0Sq+K7EkhiTk/SC1Q=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779792270; c=relaxed/simple;
-	bh=mRpirCObCLZqN6l4iv03pml9AZxIqV3ehKRFmi90YGo=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Fgf2+UwuePf5gtTCD+Vfpa9DRc1DB7CBwi5+A7Lr7/NKtK/XVdyfQpUK2AUo7bFh6q46eS6Kjcyy40Qy6F0OpQ2W9sX8c38r3Z2+5Q0hPV+Sj+flMB8EZNcaAyaiFVMMfVOhixAafpvS3X80hQalBZ4AO/8WPPJ16xFhcUpV+Ww=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gs+acFLh; arc=none smtp.client-ip=209.85.210.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1779808086; c=relaxed/simple;
+	bh=nrTiJ4QhvayZhulcBgYGEtWQscRvgCvMgseK0WjAtFY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=hnkjPoW0Ux378y8ekamhtjGkUbFiOYJVP2Kk3jdWZrj+2ne4xIYfiXbEI+mjtAYatuyrKLmuYBvazoglSBHbsTmES92BISbbjFsYnwMkxciqv4eUFKM3HGRNY6JgDCxET0dYl3FSG2CcI3fiHt1IROpVWutlvCDP12Bh8Ihb+vA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=X0hCaH5O; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=mAHAXM8U; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gs+acFLh"
-Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-83ea84df1d0so3442100b3a.2
-        for <virtualization@lists.linux.dev>; Tue, 26 May 2026 03:44:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1779792267; x=1780397067; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=PsmUW9tamcq3E3x3Xj8H36QoMdq6sDlAu1sIPsLwdow=;
-        b=gs+acFLhr5XsehvBI54BIpkETkHfFNHAqapJTKVZTqtbO5Nw01MUr1549b8aMY0TmT
-         0DI/6VqiXM/vzk/pWGANOMtlpbVJb/pUYwxbgRLzw9/WEXl0vtOmOoxwMLuzAPvneWIp
-         c2TAE2JHYl075oUc+lZ/+gEHFLsUxq0X/1bhxBPCI89EXmWuEHJ+MGxoPwovkSA3vNB/
-         j+PlzkhJJEF3+Rr4d7MKMZI2CGap42+p4CjEPF3idOiVpHfnNzhIH4eHX5ZcR8A1OCX+
-         e4apZmJ0YJ/qqa6yMl3xZt0eub9kB+BWpqV+lDV2grLXK/qixOkAaX3G3XOAlS4CaPR9
-         Dcfg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1779792267; x=1780397067;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=PsmUW9tamcq3E3x3Xj8H36QoMdq6sDlAu1sIPsLwdow=;
-        b=Gfup7sj9wj2ipMne5Gz+CQAwefG+P6VuElhHvRo5poU/WuHweriV7Xbg1hGc1YDc7v
-         86hkkWMSyi/Xj+O+QKvANf/U3FFLol+oPx++sZ5PRjX3zcpnAjyB5+w8IA85XVLLM7Cy
-         RZXqplovuDTS9p3Z/JXn+DfSfndEYxusPblyTXPPfjY0fHJyW4Fmq3WhxMK6v+bQraEn
-         Qkv9/fFalMoVsmJCQrIOegZULWYnIe6wUThp9KoiLa/lwg92evdLNV05IQnBwCZeEE4+
-         kL9+SoQlSyi6H6GSL+9nk0D34GDSxHXlrEV2HTDN/cvIV5p+cdxxuz7P4xkHXOKMzmy5
-         /Sww==
-X-Forwarded-Encrypted: i=1; AFNElJ+KOLbEhrw/1AmE6mEPL8Wjbfwh8tObB+4msmjghtzYaMsQDTg5Epvc9aoyj5KP6M1dxFrLmxu2p/AZU9zuQQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxiuE9fx6NfT6rqHpUUxSoRAwZG2fEz+O33XKA3Upv2J4ZHbjHV
-	/xJZH498/WVypKSbpipH89o8X6a/XazVONxSKdBHJqHjO7EGr+RI7A8=
-X-Gm-Gg: Acq92OHglgDXQrZQ9pYDHRcCYKRBTOWBxFFRh+352jxr33QcuXQvP6mxYQrGt94NzgE
-	TfUI1eR5UotVc9QUh9JxhcWMqhua5lW4Zpgb9+pGQCyE6FzRM0CTia5eCWtQLnBXPnyNMD7xyf5
-	Y2S+/iCAI9iqAaPYKcw3yfMNVnKWk3MbPQ6lX+m69J+32jO4xUtSyveXX3UoIcKxXyy8hiEu3aT
-	80JbZf3HTz4z5I439mfwYo+J8Kec2FAwP4F0Erj6vK5J3G5UwIqCvWFtbwIjdrHZ3Nvqbb4/7W8
-	gc3mDY3Dfj+fATGBgemjZIIv5RJskopV6gda9JlWY+QRPMlpiaeCqcKBe/ItYPIfZA1ZoOMFEaP
-	9tK6CEQhMpiRMY2gg8C+sGRXJeFauKLMl7RXkaUoBjbhETb+hS+neKE4LKTPwjr/bmJTfZyvXjy
-	RjHI3vBdr/w4SkJZuBiYFzuNHtFkjuDXyKkntPlU+HFwijKMKbgMMN6xr6KFTJi6rUXTo=
-X-Received: by 2002:a05:6a00:4c07:b0:82c:6b23:6d10 with SMTP id d2e1a72fcca58-8415f580e58mr17482367b3a.3.1779792267413;
-        Tue, 26 May 2026 03:44:27 -0700 (PDT)
-Received: from raf.tailb4a862.ts.net ([153.124.163.116])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84164affc22sm12235270b3a.21.2026.05.26.03.44.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 26 May 2026 03:44:26 -0700 (PDT)
-From: Raf Dickson <rafdog35@gmail.com>
-To: netdev@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Cc: sgarzare@redhat.com,
-	stefanha@redhat.com,
-	bryan-bt.tan@broadcom.com,
-	vishnu.dasa@broadcom.com,
-	bcm-kernel-feedback-list@broadcom.com,
-	stable@vger.kernel.org,
-	Raf Dickson <rafdog35@gmail.com>
-Subject: [PATCH] vsock/vmci: fix sk_ack_backlog leak on failed handshake
-Date: Tue, 26 May 2026 10:43:56 +0000
-Message-ID: <20260526104356.469928-1-rafdog35@gmail.com>
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="X0hCaH5O";
+	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="mAHAXM8U"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id C673F75EE0;
+	Tue, 26 May 2026 15:08:01 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+	t=1779808082; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=yHeVRInwBdhPTyeUIDm80iXzexAaKjc6iJ7mRCvzf0o=;
+	b=X0hCaH5Ou04bGdmMjYXA7Yqxh3MId+vNVUstba3gVRcIA6NAUvBiDiV4u4ukWBTJ2S8fp3
+	m2ehEj3GKRUju2JgDxSEKJeiLovzeWykcBmopzGBkLtNoozneGCoBPWZUO6XGChOz5Ud+S
+	+KJFFKXJG6hyXvKgCRwzQynUUt8+qkk=
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.com header.s=susede1 header.b=mAHAXM8U
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
+	t=1779808081; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:  content-transfer-encoding:content-transfer-encoding;
+	bh=yHeVRInwBdhPTyeUIDm80iXzexAaKjc6iJ7mRCvzf0o=;
+	b=mAHAXM8Ueb0PCWr1RCbutCZZ08Xj5nRqwQhdLaSrM6zsJ2Mb3Iv4zOofJwXY71hi2F2Gs4
+	sWCh8bDq4rd/fYAHkzUW1mO64zXFnilEpth71ndsfqpvE26qeA3jbJtDXb427q4/XcHR9a
+	+Vmtr4/LRyq8Ntr92MIUzmQgIv46/gc=
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id F41F75A280;
+	Tue, 26 May 2026 15:08:00 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id Nu2JOlC3FWqKVQAAD6G6ig
+	(envelope-from <jgross@suse.com>); Tue, 26 May 2026 15:08:00 +0000
+From: Juergen Gross <jgross@suse.com>
+To: linux-kernel@vger.kernel.org,
+	x86@kernel.org,
+	linux-trace-kernel@vger.kernel.org,
+	linux-mm@kvack.org,
+	virtualization@lists.linux.dev
+Cc: Juergen Gross <jgross@suse.com>,
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>,
+	"H. Peter Anvin" <hpa@zytor.com>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	xen-devel@lists.xenproject.org,
+	Andrew Morton <akpm@linux-foundation.org>,
+	David Hildenbrand <david@kernel.org>,
+	Lorenzo Stoakes <ljs@kernel.org>,
+	"Liam R. Howlett" <liam@infradead.org>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>
+Subject: [PATCH 0/5] x86/xen: Get rid of Xen private lazy MMU mode tracking
+Date: Tue, 26 May 2026 17:05:09 +0200
+Message-ID: <20260526150514.129330-1-jgross@suse.com>
 X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -78,49 +87,69 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Rspamd-Action: no action
+X-Rspamd-Queue-Id: C673F75EE0
+X-Spam-Flag: NO
+X-Spam-Score: -3.01
+X-Spam-Level: 
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	MID_CONTAINS_FROM(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_MISSING_CHARSET(0.50)[];
+	R_DKIM_ALLOW(-0.20)[suse.com:s=susede1];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	ARC_NA(0.00)[];
+	URIBL_BLOCKED(0.00)[imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,suse.com:mid,suse.com:dkim];
+	MIME_TRACE(0.00)[0:+];
+	RCPT_COUNT_TWELVE(0.00)[27];
+	DKIM_SIGNED(0.00)[suse.com:s=susede1];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.com:+];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	DWL_DNSWL_BLOCKED(0.00)[suse.com:dkim];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	R_RATELIMIT(0.00)[to_ip_from(RLkdkdrsxe9hqhhs5ask8616i6)];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo]
 
-When vmci_transport_recv_connecting_server() returns an error,
-vmci_transport_recv_listen() calls vsock_remove_pending() but never
-calls sk_acceptq_removed(). This leaves sk_ack_backlog incremented
-permanently.
+With generic lazy MMU mode tracking being available, there is no real
+need for having Xen PV specific code to track lazy MMU mode, too.
 
-Repeated handshake failures (malformed packets, queue pair alloc
-failure, event subscribe failure) cause sk_ack_backlog to climb
-toward sk_max_ack_backlog. Once it reaches the limit the listener
-permanently refuses all new connections with -ECONNREFUSED, a
-silent denial of service requiring a process restart to recover.
+This makes it possible to drop two paravirt hooks.
 
-The two existing sk_acceptq_removed() calls in af_vsock.c do not
-cover this path: line 764 checks vsock_is_pending() which returns
-false after vsock_remove_pending(), and line 1889 is only reached
-on successful accept().
+Note that this series is based on my series "x86/xen: Do some Xen-PV
+related cleanups" [1].
 
-Fix by balancing sk_acceptq_added() with sk_acceptq_removed() on
-the error path.
+[1]: https://lore.kernel.org/lkml/20260522152114.77319-1-jgross@suse.com/
 
-Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
-Cc: stable@vger.kernel.org
-Signed-off-by: Raf Dickson <rafdog35@gmail.com>
----
- net/vmw_vsock/vmci_transport.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+Juergen Gross (5):
+  x86/xen: Drop lazy mode from trace entries
+  x86/xen: Change interface of xen_mc_issue()
+  mm: Refactor lazy_mmu_mode_pause() and lazy_mmu_mode_resume()
+  x86/xen: Get rid of last XEN_LAZY_MMU uses
+  x86/xen: Replace generic lazy tracking with cpu specific one
 
-diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
-index d2579380f5..88ccc55455 100644
---- a/net/vmw_vsock/vmci_transport.c
-+++ b/net/vmw_vsock/vmci_transport.c
-@@ -980,8 +980,10 @@ static int vmci_transport_recv_listen(struct sock *sk,
- 			err = -EINVAL;
- 		}
- 
--		if (err < 0)
-+		if (err < 0) {
- 			vsock_remove_pending(sk, pending);
-+			sk_acceptq_removed(sk);
-+		}
- 
- 		release_sock(pending);
- 		vmci_transport_release_pending(pending);
+ arch/x86/include/asm/paravirt.h       |  9 ++--
+ arch/x86/include/asm/paravirt_types.h | 11 +----
+ arch/x86/include/asm/xen/hypervisor.h | 25 +---------
+ arch/x86/kernel/paravirt.c            |  6 +--
+ arch/x86/xen/enlighten_pv.c           | 30 +++++-------
+ arch/x86/xen/mmu_pv.c                 | 66 +++++++++------------------
+ arch/x86/xen/xen-ops.h                | 12 +++--
+ include/linux/pgtable.h               | 56 ++++++++++++++++++-----
+ include/trace/events/xen.h            | 33 ++++++++------
+ 9 files changed, 112 insertions(+), 136 deletions(-)
+
 -- 
 2.54.0
 
