@@ -1,247 +1,126 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f178.google.com (mail-pf1-f178.google.com [209.85.210.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7CB8F18050
-	for <virtualization@lists.linux.dev>; Tue, 26 May 2026 10:24:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779791096; cv=pass; b=FaLQrl7Qxanoy3GLSUZdmIVY7VobS/JR1WPjqcehLe2wfXaUSnyH4VItQPnScZC3z6UeeE47SVIu6BURFmJfHgPWCxi8EHrJQB0n3jhx3AssC/evgfM9yYL6Gw9TUq2kjbRfyvQqt5aM9E4GmM97+X1QDzHPpUcD+qVNI1MLNLE=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779791096; c=relaxed/simple;
-	bh=3dHMUEaeZ30gWLho9Ve4yTrv1Gm1MGlaG8PWIlIKOus=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=PtAHovaWe2InFlOznDrZaU4CP5AI6QFdkXoeCQmfbvjjSWvb18/dlGn8i8NwicvVIQj8uMG82i1wucut9vM62MAIJGGwxKKDPpJgv6mmaIwQcZiEdGdj+QTi90oegPKDqjiJR0ufhwD+c39M91UdnzPYRJ36gRI3qjAESo0EiJY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=VUlBoxOS; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 34F853DD863
+	for <virtualization@lists.linux.dev>; Tue, 26 May 2026 10:44:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.178
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779792270; cv=none; b=V1KzY2i5nSlHwbfEV7pFd2eXxdh1RbdFoGfE5tMFl/vf0/IN7Uj/NqO9FwBAl2ulnIC6kZ972+HiiAEQ0r82GuVnjT7UiZNDZVClRWCXAEf7JCVGl7HYMNJdUacq73w5GPJilW6Cww2wv5yjtlskiQKl38x5u1iJGtD/t12J4bA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779792270; c=relaxed/simple;
+	bh=mRpirCObCLZqN6l4iv03pml9AZxIqV3ehKRFmi90YGo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Fgf2+UwuePf5gtTCD+Vfpa9DRc1DB7CBwi5+A7Lr7/NKtK/XVdyfQpUK2AUo7bFh6q46eS6Kjcyy40Qy6F0OpQ2W9sX8c38r3Z2+5Q0hPV+Sj+flMB8EZNcaAyaiFVMMfVOhixAafpvS3X80hQalBZ4AO/8WPPJ16xFhcUpV+Ww=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=gs+acFLh; arc=none smtp.client-ip=209.85.210.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="VUlBoxOS"
-ARC-Seal: i=1; a=rsa-sha256; t=1779791087; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=NOlIH75qqa25JWfAzCjVhpwWxIA32hgCADvtVH+num61w0z6sTh82SHZIb1YIVYVH4kbfBQeF038k9l7PQFMv4Ot5CuV5I0DhWe/pzXqWij1DLxt5agML8W+T+cuv0hcCsb0dnya17bbYQZWKMCnByoxxNWSaZWtQ0aVxoTcTMY=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1779791087; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=TDVXsSWvApJd6i2RkpLsXQc7NgLFn0Lda0b1N9smog0=; 
-	b=VJefMagrXWU6x9sFNy94uvQvpq5t6FoTrTAcUdSSjBOQNXoaaRdQrzmSCSFYB8WqM7m+FX+0JO/wcv0RV7jWczMYoB3SNIjVFdKDcJwRWpLXMqYfhTpFNn27Tjh13G7Xt3KZpqn0N8I7UklRxRcs7mOEgH0z4Xa+pRc5SHpSJ0E=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1779791087;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=TDVXsSWvApJd6i2RkpLsXQc7NgLFn0Lda0b1N9smog0=;
-	b=VUlBoxOSF4MJy/oB1Obqy7TcIjq0Y+FstJUHYZNRfs3aP2Vj2AzB8Lb5epKfCDbN
-	G+FMX+EY7jizlvwBFUFQYsmxyptjFyo8NvJ5EYAKWwbRQSMeMIpItBt3UzHVHgEKz0Q
-	oCiBKbNNG2900ZRZ2xKhbOvm/XFWdlqKH7/IHLro=
-Received: by mx.zohomail.com with SMTPS id 1779791085350818.9103831316124;
-	Tue, 26 May 2026 03:24:45 -0700 (PDT)
-Message-ID: <f684508b-ec0e-4e71-80be-95ae874d8e85@collabora.com>
-Date: Tue, 26 May 2026 13:24:40 +0300
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="gs+acFLh"
+Received: by mail-pf1-f178.google.com with SMTP id d2e1a72fcca58-83ea84df1d0so3442100b3a.2
+        for <virtualization@lists.linux.dev>; Tue, 26 May 2026 03:44:28 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1779792267; x=1780397067; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=PsmUW9tamcq3E3x3Xj8H36QoMdq6sDlAu1sIPsLwdow=;
+        b=gs+acFLhr5XsehvBI54BIpkETkHfFNHAqapJTKVZTqtbO5Nw01MUr1549b8aMY0TmT
+         0DI/6VqiXM/vzk/pWGANOMtlpbVJb/pUYwxbgRLzw9/WEXl0vtOmOoxwMLuzAPvneWIp
+         c2TAE2JHYl075oUc+lZ/+gEHFLsUxq0X/1bhxBPCI89EXmWuEHJ+MGxoPwovkSA3vNB/
+         j+PlzkhJJEF3+Rr4d7MKMZI2CGap42+p4CjEPF3idOiVpHfnNzhIH4eHX5ZcR8A1OCX+
+         e4apZmJ0YJ/qqa6yMl3xZt0eub9kB+BWpqV+lDV2grLXK/qixOkAaX3G3XOAlS4CaPR9
+         Dcfg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779792267; x=1780397067;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=PsmUW9tamcq3E3x3Xj8H36QoMdq6sDlAu1sIPsLwdow=;
+        b=Gfup7sj9wj2ipMne5Gz+CQAwefG+P6VuElhHvRo5poU/WuHweriV7Xbg1hGc1YDc7v
+         86hkkWMSyi/Xj+O+QKvANf/U3FFLol+oPx++sZ5PRjX3zcpnAjyB5+w8IA85XVLLM7Cy
+         RZXqplovuDTS9p3Z/JXn+DfSfndEYxusPblyTXPPfjY0fHJyW4Fmq3WhxMK6v+bQraEn
+         Qkv9/fFalMoVsmJCQrIOegZULWYnIe6wUThp9KoiLa/lwg92evdLNV05IQnBwCZeEE4+
+         kL9+SoQlSyi6H6GSL+9nk0D34GDSxHXlrEV2HTDN/cvIV5p+cdxxuz7P4xkHXOKMzmy5
+         /Sww==
+X-Forwarded-Encrypted: i=1; AFNElJ+KOLbEhrw/1AmE6mEPL8Wjbfwh8tObB+4msmjghtzYaMsQDTg5Epvc9aoyj5KP6M1dxFrLmxu2p/AZU9zuQQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxiuE9fx6NfT6rqHpUUxSoRAwZG2fEz+O33XKA3Upv2J4ZHbjHV
+	/xJZH498/WVypKSbpipH89o8X6a/XazVONxSKdBHJqHjO7EGr+RI7A8=
+X-Gm-Gg: Acq92OHglgDXQrZQ9pYDHRcCYKRBTOWBxFFRh+352jxr33QcuXQvP6mxYQrGt94NzgE
+	TfUI1eR5UotVc9QUh9JxhcWMqhua5lW4Zpgb9+pGQCyE6FzRM0CTia5eCWtQLnBXPnyNMD7xyf5
+	Y2S+/iCAI9iqAaPYKcw3yfMNVnKWk3MbPQ6lX+m69J+32jO4xUtSyveXX3UoIcKxXyy8hiEu3aT
+	80JbZf3HTz4z5I439mfwYo+J8Kec2FAwP4F0Erj6vK5J3G5UwIqCvWFtbwIjdrHZ3Nvqbb4/7W8
+	gc3mDY3Dfj+fATGBgemjZIIv5RJskopV6gda9JlWY+QRPMlpiaeCqcKBe/ItYPIfZA1ZoOMFEaP
+	9tK6CEQhMpiRMY2gg8C+sGRXJeFauKLMl7RXkaUoBjbhETb+hS+neKE4LKTPwjr/bmJTfZyvXjy
+	RjHI3vBdr/w4SkJZuBiYFzuNHtFkjuDXyKkntPlU+HFwijKMKbgMMN6xr6KFTJi6rUXTo=
+X-Received: by 2002:a05:6a00:4c07:b0:82c:6b23:6d10 with SMTP id d2e1a72fcca58-8415f580e58mr17482367b3a.3.1779792267413;
+        Tue, 26 May 2026 03:44:27 -0700 (PDT)
+Received: from raf.tailb4a862.ts.net ([153.124.163.116])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84164affc22sm12235270b3a.21.2026.05.26.03.44.23
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 26 May 2026 03:44:26 -0700 (PDT)
+From: Raf Dickson <rafdog35@gmail.com>
+To: netdev@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Cc: sgarzare@redhat.com,
+	stefanha@redhat.com,
+	bryan-bt.tan@broadcom.com,
+	vishnu.dasa@broadcom.com,
+	bcm-kernel-feedback-list@broadcom.com,
+	stable@vger.kernel.org,
+	Raf Dickson <rafdog35@gmail.com>
+Subject: [PATCH] vsock/vmci: fix sk_ack_backlog leak on failed handshake
+Date: Tue, 26 May 2026 10:43:56 +0000
+Message-ID: <20260526104356.469928-1-rafdog35@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] drm/virtio: abort virtqueue wait on device removal to
- avoid hung task
-To: Ryosuke Yasuoka <ryasuoka@redhat.com>, David Airlie <airlied@redhat.com>,
- Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Simona Vetter <simona@ffwll.ch>
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
-References: <18b1d7267ace8b76.329809b8dd1e13b3.4134c0f069791aa6@ryasuoka-thinkpadx1carbongen9.tokyo.csb>
-Content-Language: en-US
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <18b1d7267ace8b76.329809b8dd1e13b3.4134c0f069791aa6@ryasuoka-thinkpadx1carbongen9.tokyo.csb>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
 
-On 5/22/26 11:51, Ryosuke Yasuoka wrote:
-> Hi Dmitry,
-> Thank you for your review and the comment.
-> 
-> On 21/05/2026 22:01, Dmitry Osipenko wrote:
->> 21.05.2026 05:19, Ryosuke Yasuoka пишет:
->>> virtio_gpu_queue_ctrl_sgs() and virtio_gpu_queue_cursor() use
->>> wait_event() without any abort condition when waiting for virtqueue
->>> space. If the host device stops processing commands, these waits block
->>> indefinitely inside a drm_dev_enter/exit() critical section. Since
->>> drm_dev_unplug(), which is called in device removal and system shutdown
->>> call path, blocks on synchronize_srcu() until all critical sections
->>> complete, device removal and system shutdown also hang.
->>>
->>> Add a vqs_released flag to virtio_gpu_device and include it in the
->>> wait_event() condition. Set the flag and wake up both queues in a new
->>> virtio_gpu_release_vqs() helper, called before drm_dev_unplug() in both
->>> virtio_gpu_remove() and virtio_gpu_shutdown(). When the flag is set, the
->>> wait returns immediately and the command is aborted, following the same
->>> cleanup path as drm_dev_enter() failure.
->>>
->>> Reported-by: syzbot+d6dd6f86d3aaf7eebe7406e45c1c6e549453f224@syzkaller.appspotmail.com
->>> Closes: https://syzkaller.appspot.com/bug?id=d6dd6f86d3aaf7eebe7406e45c1c6e549453f224
->>> Reported-by: syzbot+908bd910da5dd79b88de4cf7baf376cc873a922e@syzkaller.appspotmail.com
->>> Closes: https://syzkaller.appspot.com/bug?id=908bd910da5dd79b88de4cf7baf376cc873a922e
->>> Signed-off-by: Ryosuke Yasuoka <ryasuoka@redhat.com>
->>> ---
->>> Changes in v2:
->>> - Update the commit message.
->>> - Replace wait_event_timeout() with wait_event() using a compound
->>> condition that includes a new vqs_released flag.
->>> - Add virtio_gpu_release_vqs() helper to set the flag and wake up
->>> both queues, called before drm_dev_unplug() in remove and shutdown
->>> paths.
->>> - Remove the hardcoded 5-second timeout. Recovery is now driven by
->>> the driver flag instead of an arbitrary timeout value.
->>> ---
->>>  drivers/gpu/drm/virtio/virtgpu_drv.c | 15 +++++++++++++++
->>>  drivers/gpu/drm/virtio/virtgpu_drv.h |  1 +
->>>  drivers/gpu/drm/virtio/virtgpu_vq.c  | 23 +++++++++++++++++++++--
->>>  3 files changed, 37 insertions(+), 2 deletions(-)
->>>
->>> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
->>> index a5ce96fb8a1d..e4fe5e0780f9 100644
->>> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
->>> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
->>> @@ -119,10 +119,24 @@ static int virtio_gpu_probe(struct virtio_device *vdev)
->>>  	return ret;
->>>  }
->>>  
->>> +/*
->>> + * Release pending virtqueue waits so the drm_dev_enter/exit() critical
->>> + * sections complete before drm_dev_unplug() blocks on synchronize_srcu().
->>> + */
->>> +static void virtio_gpu_release_vqs(struct drm_device *dev)
->>> +{
->>> +	struct virtio_gpu_device *vgdev = dev->dev_private;
->>> +
->>> +	vgdev->vqs_released = true;
->>> +	wake_up_all(&vgdev->ctrlq.ack_queue);
->>> +	wake_up_all(&vgdev->cursorq.ack_queue);
->>> +}
->>> +
->>>  static void virtio_gpu_remove(struct virtio_device *vdev)
->>>  {
->>>  	struct drm_device *dev = vdev->priv;
->>>  
->>> +	virtio_gpu_release_vqs(dev);
->>>  	drm_dev_unplug(dev);
->>>  	drm_atomic_helper_shutdown(dev);
->>>  	virtio_gpu_deinit(dev);
->>> @@ -133,6 +147,7 @@ static void virtio_gpu_shutdown(struct virtio_device *vdev)
->>>  {
->>>  	struct drm_device *dev = vdev->priv;
->>>  
->>> +	virtio_gpu_release_vqs(dev);
->>>  	/* stop talking to the device */
->>>  	drm_dev_unplug(dev);
->>>  }
->>> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
->>> index f17660a71a3e..0bd69a40857e 100644
->>> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
->>> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
->>> @@ -235,6 +235,7 @@ struct virtio_gpu_device {
->>>  
->>>  	struct virtio_gpu_queue ctrlq;
->>>  	struct virtio_gpu_queue cursorq;
->>> +	bool vqs_released;
->>>  	struct kmem_cache *vbufs;
->>>  
->>>  	atomic_t pending_commands;
->>> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
->>> index 67865810a2e7..8057a9b7356d 100644
->>> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
->>> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
->>> @@ -396,7 +396,19 @@ static int virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
->>>  	if (vq->num_free < elemcnt) {
->>>  		spin_unlock(&vgdev->ctrlq.qlock);
->>>  		virtio_gpu_notify(vgdev);
->>> -		wait_event(vgdev->ctrlq.ack_queue, vq->num_free >= elemcnt);
->>> +		wait_event(vgdev->ctrlq.ack_queue,
->>> +			   vq->num_free >= elemcnt || vgdev->vqs_released);
->>> +		/*
->>> +		 * Set by virtio_gpu_release_vqs() to unblock
->>> +		 * synchronize_srcu() wait in drm_dev_unplug().
->>> +		 */
->>> +		if (vgdev->vqs_released) {
->>> +			if (fence && vbuf->objs)
->>> +				virtio_gpu_array_unlock_resv(vbuf->objs);
->>> +			free_vbuf(vgdev, vbuf);
->>> +			drm_dev_exit(idx);
->>> +			return -ENODEV;
->>> +		}
->>>  		goto again;
->>>  	}
->>>  
->>> @@ -566,7 +578,14 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
->>>  	ret = virtqueue_add_sgs(vq, sgs, outcnt, 0, vbuf, GFP_ATOMIC);
->>>  	if (ret == -ENOSPC) {
->>>  		spin_unlock(&vgdev->cursorq.qlock);
->>> -		wait_event(vgdev->cursorq.ack_queue, vq->num_free >= outcnt);
->>> +		wait_event(vgdev->cursorq.ack_queue,
->>> +			   vq->num_free >= outcnt || vgdev->vqs_released);
->>> +		/* See comment in virtio_gpu_queue_ctrl_sgs(). */
->>> +		if (vgdev->vqs_released) {
->>> +			free_vbuf(vgdev, vbuf);
->>> +			drm_dev_exit(idx);
->>> +			return;
->>> +		}
->>>  		spin_lock(&vgdev->cursorq.qlock);
->>>  		goto retry;
->>>  	} else {
->>
->> What about other wait_event in the driver? Why only these?
-> 
-> There are other wait_event() calls on vgdev->resp_wq in virtgpu_prime.c
-> and virtgpu_vram.c. These can also cause a stuck process when the host
-> device stops or does not respond and should be fixed. However, they are
-> not related to the issue being fixed here. I think they should be
-> addressed in a separate commit.
-> 
-> The wait_event(vgdev->resp_wq) calls wait for a host response, not for
-> virtqueue ring space. They are not inside a drm_dev_enter/exit()
-> critical section, so they don't block drm_dev_unplug() ->
-> synchronize_srcu() and are not part of the deadlock reported by syzbot.
-> 
-> However, if a process is stuck in wait_event(vgdev->resp_wq), there is
-> no way to recover other than host device recovery itself. We can still
-> remove the device and destroy the virtqueues while the process is stuck,
-> so the host response can never arrive. IIUC, the stuck thread holds a
-> drm_device reference, preventing vgdev from being freed; this is a
-> resource leak.
-> 
-> This can be fixed by adding a wake_up_all() and a vqs_released check
-> similar to what is done for ctrlq/cursorq. However, I think this should
-> be a separate commit since the root cause and problem are different.
-> 
-> Alternatively, the resp_wq wait_event() calls could be converted to
-> wait_event_interruptible() to fix the issue. But as you mentioned
-> earlier in the v1 comment, we need the wait_event_interruptible()
-> rework.
-> 
-> What do you think? Should I include the resp_wq fix as a separate commit
-> in this patch series, or leave it for the _interruptible() rework?
+When vmci_transport_recv_connecting_server() returns an error,
+vmci_transport_recv_listen() calls vsock_remove_pending() but never
+calls sk_acceptq_removed(). This leaves sk_ack_backlog incremented
+permanently.
 
-Let's leave it for the later rework.
+Repeated handshake failures (malformed packets, queue pair alloc
+failure, event subscribe failure) cause sk_ack_backlog to climb
+toward sk_max_ack_backlog. Once it reaches the limit the listener
+permanently refuses all new connections with -ECONNREFUSED, a
+silent denial of service requiring a process restart to recover.
 
-I briefly tried testing this patch and it's not apparent what exact
-problem this patch solves.
+The two existing sk_acceptq_removed() calls in af_vsock.c do not
+cover this path: line 764 checks vsock_is_pending() which returns
+false after vsock_remove_pending(), and line 1889 is only reached
+on successful accept().
 
-With a regular Linux OS running systemd, during normal shutdown, systemd
-waits for processes to be terminated before it would perform kernel
-shutdown, hence virtio_gpu_shutdown() doesn't have a chance to be
-invoked in my scenario.
+Fix by balancing sk_acceptq_added() with sk_acceptq_removed() on
+the error path.
 
-In the referenced syzkaller reports, I don't see anything related to
-shutdown or driver removal. Could you please clarify how to reproduce
-and test the original issue?
+Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
+Cc: stable@vger.kernel.org
+Signed-off-by: Raf Dickson <rafdog35@gmail.com>
+---
+ net/vmw_vsock/vmci_transport.c | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
+diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+index d2579380f5..88ccc55455 100644
+--- a/net/vmw_vsock/vmci_transport.c
++++ b/net/vmw_vsock/vmci_transport.c
+@@ -980,8 +980,10 @@ static int vmci_transport_recv_listen(struct sock *sk,
+ 			err = -EINVAL;
+ 		}
+ 
+-		if (err < 0)
++		if (err < 0) {
+ 			vsock_remove_pending(sk, pending);
++			sk_acceptq_removed(sk);
++		}
+ 
+ 		release_sock(pending);
+ 		vmci_transport_release_pending(pending);
 -- 
-Best regards,
-Dmitry
+2.54.0
+
