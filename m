@@ -1,59 +1,171 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E69D372054;
-	Mon, 25 May 2026 18:49:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A01A3C4161
+	for <virtualization@lists.linux.dev>; Tue, 26 May 2026 06:53:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779734953; cv=none; b=usvXwlSkXrkL4TiNuEy65VVKp6HBsu2NR1e88OoL57QQ+zaCsJ4AHMMTDoAZtWjiL5jBIHaNw88m00Jlvp3/fXK6dwoVleMSd75T7KhJnLEEt7qptDzKWAh812K2t7xc9sOFvqdUyy6+6JcHYrxZU6HM4VCY11h2v9D2IGGfWqA=
+	t=1779778393; cv=none; b=HvghwcmcQ7ogkRkOloY4RxT/NIqwO9/QF9uXih6btTc9IMI76RqWhJEQkUwkfrKrbCWZn1+87JaQuDuOJ5ptzfUzIQM+Sa102co7lOdDG+en3yx4aV1cZ+EK8ELYWSLDGCsLxo9ddxDxJj6zY5qSQQLvQqrMTIKxvTPhxS/GTMQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779734953; c=relaxed/simple;
-	bh=H72zRI8cP/KffugqxL7L36mJRek0Vxk/13r9uYCI66o=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=qzlPIaW+l/S7Q7rNgn3AmrOaIUsEE0xscNHAytHjVZX0h7LofbTu2MERM/3tBEzzMlpyUsrzN4yBZEdqoCjDXo7hsE36lrv8jA0fu59W4/nBFe0B9MmO+EJD4LOkwtSHa4DdDYDts8BQ9nqEtNXqEF9lrOTcJ2i7XcMctBPR5GE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Udn7zL8H; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779778393; c=relaxed/simple;
+	bh=lI94k3K5Kcc20pekEfGAOaAomJ1QgkYtP6G74MUe9gk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=pVKToj7FU4QSwJwyxycc01G0JGIz4f4zM8PjfXkQY5/dwfzfUEoOuU4emvoIrb0JeVnb/omCvsY/7gc/jih5lpTGOEsu461IKOuWesmzL9QhR4ZL4vzECD/9bh09EklIlAmeyJ6RZKehAR51F/qqDuXng2rs+MuvHnw0vI+BfI8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=TZO0B4O7; arc=none smtp.client-ip=209.85.221.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Udn7zL8H"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 863251F000E9;
-	Mon, 25 May 2026 18:49:11 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779734951;
-	bh=gayMRpTAXCPOoFKUyUtLNpFZ8RKzjHieHL0byLqgm6E=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=Udn7zL8Htl476+mo5A7cVaYMhE+iaRkAb14xIaxb6930Af2EnBLlq4FmuMGkMNqSN
-	 Twn1s4xV9buYw+lE+/OfIs1whhSWBRZ7b2J16oK8KZgGcvsFnktitRAejQz7fySlOf
-	 G+e7Piwy7pmy1L/FoVzNg35cNTbjtWSmLHZL1PtfexkCk3krlewoS/Q7tzgIAeCJYw
-	 JdUGX5jIXvZaY51NaRfIU1DkecSJ0eijhe5Okk50SWDOp1AY51rCdwLBX4yIBp1jL8
-	 3W/TWc6NxEu1kjvAvqPKMVhsgpqg8hgYV4T4yIIeK2OL/QCRWWxb6hgcHruy9Fw9GQ
-	 P+Y36pZlWuwZQ==
-Date: Mon, 25 May 2026 11:49:10 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Li Wang <liwang@kylinos.cn>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang
- <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio
- =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>, netdev@vger.kernel.org,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] virtio_net: drop redundant err assignment in
- virtnet_probe()
-Message-ID: <20260525114910.47806c7b@kernel.org>
-In-Reply-To: <20260520102309.281616-1-liwang@kylinos.cn>
-References: <20260520102309.281616-1-liwang@kylinos.cn>
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="TZO0B4O7"
+Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-45ea19f412aso2824958f8f.3
+        for <virtualization@lists.linux.dev>; Mon, 25 May 2026 23:53:10 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1779778389; x=1780383189; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=yXWASYjT/jE4WzpKhE8nVhHkzGwmPlTITkkcMF0D8BI=;
+        b=TZO0B4O7iUMvbqIt7NQSABb62p2lsOX9XzzaWsfSHL5gwS9kH37v1h6DgSuiEDhON0
+         qzabjxxTUGXjvZvc8i+hhkWU5j42hYYPPtF+3O0/SvLiiC044Dy433iLkHKZaPiz68JJ
+         +HYEnm6WM8n0UKqQWnmXD2KywUsGfK1lwPQ+SmEI0rpqOnvsSsh0z77cSykmFGxB23yn
+         e9x+HBFkcpPRVljVKD470KWVRdgg96A+3rN4eUed8cYItovUpO0QoD/zf1QWXw2/qZkt
+         6VIVAg5tHZM3HgfE2WyJSLsrKqp5C4NHGXKSabKokb6Pv9SVTZ9EAJHXrQsqmJ8mrzbN
+         7HSQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1779778389; x=1780383189;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=yXWASYjT/jE4WzpKhE8nVhHkzGwmPlTITkkcMF0D8BI=;
+        b=X0cQaFogXSiVsO2LoqO/sO+ZF4PNb/Vg1msiLJPX019A/8DimpAxab+74xenEUNXVC
+         G/5CupgirWNeShWLEkniSN8K9PY9JmGFzneJjuX5q9FpguDSiv2ykBOL+pRiF4UV1MSf
+         ow/hOvP87SYUrmCnYccKqojTTI1RiyVRM3hqs/tpZLvosoafTBC8SPkTSFk/nM6SxsRD
+         Nro5eIBLiVSxaT957cjNj/YFBXm5wKZq/pEfWGeT6s5VHzcESC5hbqKvKgsBRSWfKZRx
+         sAyrA951QzZqjPL/pM9aiLKSBNe4Z7cjXQV1acLiGavntTpqFWAwrP4p8z8by1Aukm4B
+         Vj7Q==
+X-Forwarded-Encrypted: i=1; AFNElJ89SsIKwS8XUD111dRbrYPkgXc2DqJihuJfjgtW08Xf/iOHr4QBnav5Szox1TcHqmHk9Idy3ig2spTkqCNfEQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyhoqu+NRWRXsj1xgzQooPu4J8xZ/csGpvZ63OCBLdohaQCqTI0
+	trWfB68TJvmxuSmyp/NsM6hKWgNcGaTHd/Nu706Ltqps8Rzi0iXGmTFuhOaf7SZDidQ=
+X-Gm-Gg: Acq92OEsrm4SFkRGNc3bCRUkGGRCFPWAQ3RqRzhnBAHAG2HzJ8HcYVLlMc05jKuDLhi
+	/A3PLYE21R9Iu6BIUt1YoRUsbQ9vSSEcfFrXZsVgqCJ1pEOg2fGQy/VJn1dkJKUfF0s80CzTwV1
+	+Ww4OWJAOMSSW1+Dv17H0040QxgUWP7WsK2Tq6Fz9V0Vi/Amw4yns2adSfYize9rEvTsC11+eaG
+	MaF1OQh9dlVFcG15V0+ezsTe45I58TzQwnui6PxJZ4LZTpw8zrQsaLpiwRC7J1qQBMTGHkYDXuq
+	TJGdFpb4Q/QK+S5KyHG1Ah46YnB0HVVDQ70MUoRiLm7RO1RJ0kZb5Z6KxvlznFX14VRn4ZrMUsb
+	wnx9Qg2n7OMNvUL3isYIA0mmu9Mi7eCgELUT5WLxpbcfQ8lxLh7aN3fXvlyVefXhckRAe9QwGhf
+	wfz37llm6vXVBkkJYktgGxfgvC/DAIivr6ddJ5bCoXugKedMOq+S/8moeU4WB9cDdbIW/vnSoZJ
+	LxGIu5zHA14KsGV+L8Gajq2qQFDk9GuOc1dxJD+BLkYrncGqbaHZJ7F5mGViMa/JC8N+V8YTuer
+	PQrP
+X-Received: by 2002:a05:6000:2003:b0:43b:4136:1e6f with SMTP id ffacd0b85a97d-45eb38e4b46mr29516257f8f.38.1779778389230;
+        Mon, 25 May 2026 23:53:09 -0700 (PDT)
+Received: from ?IPV6:2a00:1028:838d:271e:8e3b:4aff:fe4c:a100? (dynamic-2a00-1028-838d-271e-8e3b-4aff-fe4c-a100.ipv6.o2.cz. [2a00:1028:838d:271e:8e3b:4aff:fe4c:a100])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45eb6c9ba2esm33848641f8f.8.2026.05.25.23.53.06
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 25 May 2026 23:53:08 -0700 (PDT)
+Message-ID: <88c5ca1d-eeda-4023-bc7a-397b92780db9@suse.com>
+Date: Tue, 26 May 2026 08:53:06 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 00/11] Convert moduleparams to seq_buf
+To: Kees Cook <kees@kernel.org>
+Cc: Luis Chamberlain <mcgrof@kernel.org>, Pengpeng Hou
+ <pengpeng@iscas.ac.cn>, Richard Weinberger <richard@nod.at>,
+ Anton Ivanov <anton.ivanov@cambridgegreys.com>,
+ Johannes Berg <johannes@sipsolutions.net>,
+ "Rafael J. Wysocki" <rafael@kernel.org>, Len Brown <lenb@kernel.org>,
+ Corey Minyard <corey@minyard.net>, Gabriel Somlo <somlo@cmu.edu>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Jani Nikula <jani.nikula@linux.intel.com>,
+ Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+ Rodrigo Vivi <rodrigo.vivi@intel.com>, Tvrtko Ursulin
+ <tursulin@ursulin.net>, David Airlie <airlied@gmail.com>,
+ Simona Vetter <simona@ffwll.ch>, Bart Van Assche <bvanassche@acm.org>,
+ Jason Gunthorpe <jgg@ziepe.ca>, Leon Romanovsky <leon@kernel.org>,
+ Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+ Hans de Goede <hansg@kernel.org>, Mauro Carvalho Chehab
+ <mchehab@kernel.org>, Bjorn Helgaas <bhelgaas@google.com>,
+ Hannes Reinecke <hare@suse.de>,
+ "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
+ "Martin K. Petersen" <martin.petersen@oracle.com>,
+ Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
+ Lukasz Luba <lukasz.luba@arm.com>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Jiri Slaby <jirislaby@kernel.org>, Alan Stern <stern@rowland.harvard.edu>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Jason Baron <jbaron@akamai.com>, Jim Cromie <jim.cromie@gmail.com>,
+ Tiwei Bie <tiwei.btw@antgroup.com>, Benjamin Berg <benjamin.berg@intel.com>,
+ =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ "David E. Box" <david.e.box@linux.intel.com>,
+ "Maciej W. Rozycki" <macro@orcam.me.uk>,
+ Srinivas Pandruvada <srinivas.pandruvada@linux.intel.com>,
+ Peter Zijlstra <peterz@infradead.org>, Heiko Carstens <hca@linux.ibm.com>,
+ Vasily Gorbik <gor@linux.ibm.com>, Sean Christopherson <seanjc@google.com>,
+ Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@kernel.org>,
+ Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+ "H. Peter Anvin" <hpa@zytor.com>, Vinod Koul <vkoul@kernel.org>,
+ Frank Li <Frank.Li@kernel.org>, Daniel Gomez <da.gomez@kernel.org>,
+ Sami Tolvanen <samitolvanen@google.com>, Aaron Tomlin <atomlin@atomlin.com>,
+ Alexander Potapenko <glider@google.com>, Marco Elver <elver@google.com>,
+ Dmitry Vyukov <dvyukov@google.com>, Andrew Morton
+ <akpm@linux-foundation.org>, John Johansen <john.johansen@canonical.com>,
+ Paul Moore <paul@paul-moore.com>, James Morris <jmorris@namei.org>,
+ "Serge E. Hallyn" <serge@hallyn.com>,
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+ Georgia Garcia <georgia.garcia@canonical.com>, kvm@vger.kernel.org,
+ dmaengine@vger.kernel.org, linux-modules@vger.kernel.org,
+ kasan-dev@googlegroups.com, linux-mm@kvack.org, apparmor@lists.ubuntu.com,
+ linux-security-module@vger.kernel.org, linux-um@lists.infradead.org,
+ linux-acpi@vger.kernel.org, openipmi-developer@lists.sourceforge.net,
+ qemu-devel@nongnu.org, intel-gfx@lists.freedesktop.org,
+ dri-devel@lists.freedesktop.org, linux-rdma@vger.kernel.org,
+ linux-media@vger.kernel.org, linux-pci@vger.kernel.org,
+ linux-scsi@vger.kernel.org, linux-pm@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, linux-serial@vger.kernel.org,
+ linux-usb@vger.kernel.org, usb-storage@lists.one-eyed-alien.net,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ linux-arch@vger.kernel.org, netdev@vger.kernel.org,
+ linux-fsdevel@vger.kernel.org, linux-hardening@vger.kernel.org
+References: <20260521133315.work.845-kees@kernel.org>
+Content-Language: en-US
+From: Petr Pavlu <petr.pavlu@suse.com>
+In-Reply-To: <20260521133315.work.845-kees@kernel.org>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On Wed, 20 May 2026 18:23:09 +0800 Li Wang wrote:
-> err is initialized to -ENOMEM at the start of virtnet_probe(), and no
-> code path between that and the devm_kzalloc() failure can change
-> err. Assigning -ENOMEM again before goto free therefore is redundant.
+On 5/21/26 3:33 PM, Kees Cook wrote:
+> Hi,
+> 
+> I tried to trim the CC list here, but it's still pretty huge...
+> 
+> We've had a long-standing issue with "write to a string pointer" callbacks
+> that don't bounds check the destination (and for which the bounds is
+> also not part of the callback prototype, even if it is "known" to be
+> PAGE_SIZE, which sysfs_emit() depends on). Both moduleparams and sysfs
+> use this pattern. As a first step, and to test the migration method,
+> migrate moduleparams first.
+> 
+> There are 2 "mechanical" treewide patches that are handled by Coccinelle:
+> - treewide: Convert struct kernel_param_ops initializers to DEFINE_KERNEL_PARAM_OPS
+> - treewide: Convert custom kernel_param_ops .get callbacks to seq_buf via cocci
+> 
+> The last treewide patch is manual, and may need to be broken up into
+> per-subsystem patches, though I'd prefer to avoid this, as it would
+> extend the migration from 1 relase to at least 2 releases. (1 to
+> release the migration infrastructure, then 1 release to collect all the
+> subsystem changes, and possibly 1 more release to remove the migration
+> infrastructure.)
+> 
+> Thoughts, questions?
 
-This is asking for a bug, someone may add code before this 
-if () overriding err to 0. They are 130 lines apart!
+This looks reasonable to me. I added a few minor comments on the patches
+but they already look solid.
 
-If you want to removing something remove the inline init at the start
-of the function. But FTR I think that'd also be pointless churn.
+-- 
+Thanks,
+Petr
