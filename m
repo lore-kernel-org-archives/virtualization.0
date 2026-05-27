@@ -1,90 +1,76 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ACC4235F17D;
-	Wed, 27 May 2026 22:50:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A6A441EEA3C;
+	Wed, 27 May 2026 23:56:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779922241; cv=none; b=MN9KUb/RVlbx/feJyF0gwvhK2D+mKVOJ+lf+2qtkcFPbI4QzOiszncO032ycJkaPt5PAOy3vDWr8c98IBJAYdHOLRYoFcsVpQebPx8jO4DzJxWinVExzIm35Sa7S26Q65hOyWMp4UKS5MhqOFoh3e4fGNPEvgvXOmEguPR64SaM=
+	t=1779926184; cv=none; b=kTMQT9aSDr9ebEk8em4okD/x/XaABRloNqpiW3HQRK5Jb7A5s0gL4WBondwPnsmdM2RlvBiIBtLIzTNzNMpCkP6XWna4x4XS1em2E0gn+j7fFz2+w+24xUOpYEeGgzn+xY98q16tI4qt0NdSq5Zx4MUBRJ0PJB/ms/OjFhCJis8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779922241; c=relaxed/simple;
-	bh=rWwyGqzEcc1rl4gmeL5NkuvI/2yXQskzT3jCS38aDtI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WF0ZtPmalijuth+U+0l/dssPkzQfR2mSwLP0nfIMG47YiEpevFNeyH202HxXN0YyirMsILMzZKTXwMOB2xnKM9qdngUlVS41HCa/1xd+LjyLBQPXorvq4tx3irYW/PUhzJ8cEP44zPb4VvGfzcSlU6TZ22wAem1NPzGdKJqBZJE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fhw7S3jJ; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779926184; c=relaxed/simple;
+	bh=sPSGRnZwEDtCNxNuR/Ew8u6W8IXBxXVISGkllm9YKSk=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=AkO8A5f5V8BX26FbGYF4fA9p4RJvKXIICFR55Yh36VWfTodN4lkDfGk72fnQ13ZY8Ufd+llNkyUyCySAD2vKEXLY2+J5O7nhzuVyBTsiWwil6BZOmFLsj5yCBGGFBOh0vSKs0UeHf98F5JI10ZqEaVYAQY01CV8UFAV5xUfsqlI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Nn+baHMK; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fhw7S3jJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 07C7B1F000E9;
-	Wed, 27 May 2026 22:50:40 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Nn+baHMK"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3EA271F000E9;
+	Wed, 27 May 2026 23:56:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779922240;
-	bh=9ySTpxezoAiBFX0/7zEUiI4eNm+Oaylf4HMVPn8Ys+k=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=fhw7S3jJcbuIlgSOp29WFGHzJGB8ddxj21QfNQC7Kt+/DuNhL3vzkfrKDOK2vHXpU
-	 9u3VGq1FBhaFxNhXtDsHCGmQxkVUA9Ohv3lMJq9Az76x2nDOwUB6XMvehUlh9tTFoC
-	 EGh04Ya+JrGSncmzc441tVrPR6j2TzwyfIIw08LxXSPeFPEe6h/434pSvOdwDDpKsf
-	 7oDoNQaqM5EhSla92HypgPbcuB4wUC2Nf3obbHOjWriw5lRJevLfjOdPHN4Upktnyr
-	 vdvGgOrWVDC3Yq5FtR1nZ8EZ9nncfapF6wZnVzmeAn8Aci91MUqjjSrAfcng/qGtOj
-	 ZNfnnt/SxyJXg==
-Date: Wed, 27 May 2026 15:50:38 -0700
-From: Wei Liu <wei.liu@kernel.org>
-To: Sean Christopherson <seanjc@google.com>
-Cc: Kiryl Shutsemau <kas@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Long Li <longli@microsoft.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Jan Kiszka <jan.kiszka@siemens.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	Andy Lutomirski <luto@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Juergen Gross <jgross@suse.com>,
-	Daniel Lezcano <daniel.lezcano@kernel.org>,
-	Thomas Gleixner <tglx@kernel.org>, John Stultz <jstultz@google.com>,
-	Rick Edgecombe <rick.p.edgecombe@intel.com>,
-	Vitaly Kuznetsov <vkuznets@redhat.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-	Stephen Boyd <sboyd@kernel.org>, x86@kernel.org,
-	linux-coco@lists.linux.dev, kvm@vger.kernel.org,
-	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org, xen-devel@lists.xenproject.org,
-	Michael Kelley <mhklinux@outlook.com>,
-	Tom Lendacky <thomas.lendacky@amd.com>,
-	Nikunj A Dadhania <nikunj@amd.com>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	David Woodhouse <dwmw@amazon.co.uk>
-Subject: Re: [PATCH v3 09/41] clocksource: hyper-v: Don't save/restore TSC
- offset when using HV sched_clock
-Message-ID: <20260527225038.GG3518940@liuwe-devbox-debian-v2.local>
-References: <20260515191942.1892718-1-seanjc@google.com>
- <20260515191942.1892718-10-seanjc@google.com>
+	s=k20260515; t=1779926183;
+	bh=6uiNi3282/xysyZQ5mrfKqAcPmlYIkJ9X4mVBnTuqS4=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=Nn+baHMKiXuFlXO5oBAM1kfeHAcuTp1w6q9Ft/MeDbyWe41yYDtxE9TFRb44McdP2
+	 8Fj4O9wfPdeF1CY0QNb5gZZWM/cdIfyYZVsarST9wmGLGz+//lps5eOpw7NeOA5oSd
+	 onYpqDDH41keyDe/cpzsycjLKmRHvJedgUjx0MkYAazjZeZxUG6k7L76M/45ur5ySM
+	 jheN8Do+8GC8oZBLMKjHCaUDhB+ljc/AW5Q38dKPzj3sEI6Uu1S0oAI/7kbBtwEITs
+	 5qIkhxyuvFuqcRLfSHDSaoXGRxvFu6Xy8cYSpjn/q5Hpc3JPYgXa084u8JaVEju5jD
+	 BS9S/X6o5n59Q==
+Date: Wed, 27 May 2026 16:56:21 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Thomas Gleixner <tglx@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, David Woodhouse
+ <dwmw2@infradead.org>, Miroslav Lichvar <mlichvar@redhat.com>, John Stultz
+ <jstultz@google.com>, Stephen Boyd <sboyd@kernel.org>, Anna-Maria Behnsen
+ <anna-maria@linutronix.de>, Frederic Weisbecker <frederic@kernel.org>,
+ thomas.weissschuh@linutronix.de, Arthur Kiyanovski <akiyano@amazon.com>,
+ Rodolfo Giometti <giometti@enneenne.com>, Vincent Donnefort
+ <vdonnefort@google.com>, Marc Zyngier <maz@kernel.org>, Oliver Upton
+ <oliver.upton@linux.dev>, kvmarm@lists.linux.dev, Oliver Upton
+ <oupton@kernel.org>, Richard Cochran <richardcochran@gmail.com>,
+ netdev@vger.kernel.org, Takashi Iwai <tiwai@suse.com>, Miri Korenblit
+ <miriam.rachel.korenblit@intel.com>, Johannes Berg
+ <johannes.berg@intel.com>, Jacob Keller <jacob.e.keller@intel.com>, Tony
+ Nguyen <anthony.l.nguyen@intel.com>, Saeed Mahameed <saeedm@nvidia.com>,
+ Peter Hilber <peter.hilber@oss.qualcomm.com>, "Michael S. Tsirkin"
+ <mst@redhat.com>, virtualization@lists.linux.dev,
+ linux-wireless@vger.kernel.org, linux-sound@vger.kernel.org
+Subject: Re: [patch 24/24] ptp: Switch to ktime_get_snapshot_id() for
+ pre/post timestamps
+Message-ID: <20260527165621.0ddad586@kernel.org>
+In-Reply-To: <20260526171224.499777655@kernel.org>
+References: <20260526165826.392227559@kernel.org>
+	<20260526171224.499777655@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260515191942.1892718-10-seanjc@google.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Fri, May 15, 2026 at 12:19:10PM -0700, Sean Christopherson wrote:
-> Now that Hyper-V overrides the sched_clock save/restore hooks if and only
-> sched_clock itself is set to the Hyper-V reference counter, drop the
-> invocation of the "old" save/restore callbacks.  When the registration of
-> the PV sched_clock was done separately from overriding the save/restore
-> hooks, it was possible for Hyper-V to clobber the TSC save/restore
-> callbacks without actually switching to the Hyper-V refcounter.
-> 
-> Enabling a PV sched_clock is a one-way street, i.e. the kernel will never
-> revert to using TSC for sched_clock, and so there is no need to invoke the
-> TSC save/restore hooks (and if there was, it belongs in common PV code).
-> 
-> Reviewed-by: Michael Kelley <mhklinux@outlook.com>
-> Tested-by: Michael Kelley <mhklinux@outlook.com>
-> Signed-off-by: Sean Christopherson <seanjc@google.com>
+On Tue, 26 May 2026 19:15:27 +0200 Thomas Gleixner wrote:
+> -	if (sts && bp->ts_window_adjust) {
+> -		s64 ns = timespec64_to_ns(&sts->post_ts);
+> -
+> -		sts->post_ts = ns_to_timespec64(ns - bp->ts_window_adjust);
+> -	}
+> +	if (sts && bp->ts_window_adjust)
+> +		sts->post_ts.sys -= bp->ts_window_adjust;
 
-Acked-by: Wei Liu <wei.liu@kernel.org>
+FWIW build says:
+
+drivers/ptp/ptp_ocp.c:1495:8: error: no member named 'post_ts' in 'struct ptp_system_timestamp'
+ 1495 |                 sts->post_ts.sys -= bp->ts_window_adjust;
+      |                 ~~~  ^
