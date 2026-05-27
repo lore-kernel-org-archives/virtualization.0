@@ -1,16 +1,16 @@
 Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C27A140FDB6
-	for <virtualization@lists.linux.dev>; Wed, 27 May 2026 13:39:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39DFE8F7D
+	for <virtualization@lists.linux.dev>; Wed, 27 May 2026 13:39:45 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779889180; cv=none; b=f5xNj+seC5sEfbROn2o6VlgNPjUnpivQV5rMEdCBLCwP8zIOw5Z73ICdJBFXRP2UgEemqcFiyvqjeoAwlWpx8VumEflmHfULg6Nq7WTPSP/NMWGkNtrr6LBOpTiiFLZ/JHWziY1yL4/cFFAo48k9mlXbjD7nD3ZJZcyKec0DJmM=
+	t=1779889189; cv=none; b=G6g0JJ+zfJIbcFHnMl6xq0qLmW0Mopmf2cP5nue373Hgctqu724/jNa2fNdHsC4Sa+F0pavpxTjn6bdZ70YPuPMrCzr4tMaNJP/0izy4Oso4H/Cghgtc3KAcne/p8kY/Jg6QBl3Tgp7WoZNf3E7iuPiqi4Uvs7g4x7XFxCg7xMA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779889180; c=relaxed/simple;
-	bh=uJsGW54sY/kYHimF9+lX79RJmTpQR+L9nooBsYIf7pY=;
+	s=arc-20240116; t=1779889189; c=relaxed/simple;
+	bh=5muZx7ZKtWKfT2xMi4uc54n5CV7CfYnmx22neV2+9+s=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=hj5uAzjPCPfvHQkaKhP0BcnjpMUaRzDgq/pKcSNA0U7tr7BrprPw8VR4ykbmicBAodS0sLP+IxJGtqE4iDr1gHKrCmkcfJLIHNGPCYgRb3FItyGUVOIws/+dgJr02yOC7eMHdPG/k0zg1jyLacekMuxfuIt0a+KPJn8gQyMjeq0=
+	 MIME-Version; b=QKAr1leLq7VfWu/kcaNz5QO1tR7fjq0GCFCVRbzt4vo4VweCgamMfLYtoQDbFC/bwYh+FjpaEiu5G88Yxiw16G5fJmY03qjsOZADuZboIb0oKjCZHa2y5jbvlHTZoa7BGPKfEI5zug5yeNTBBn6KyZbo+nVk4uow4WK8IiDhWio=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; arc=none smtp.client-ip=195.135.223.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
@@ -18,19 +18,19 @@ Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 86ED56BA6A;
-	Wed, 27 May 2026 13:39:25 +0000 (UTC)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 07EA36BA91;
+	Wed, 27 May 2026 13:39:26 +0000 (UTC)
 Authentication-Results: smtp-out1.suse.de;
 	none
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 257FE5A861;
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 8D17C5A863;
 	Wed, 27 May 2026 13:39:25 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id 2H3KBw30FmrpMQAAD6G6ig
+	id QAE5IQ30FmrpMQAAD6G6ig
 	(envelope-from <tzimmermann@suse.de>); Wed, 27 May 2026 13:39:25 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: simona@ffwll.ch,
@@ -49,9 +49,9 @@ Cc: amd-gfx@lists.freedesktop.org,
 	virtualization@lists.linux.dev,
 	spice-devel@lists.freedesktop.org,
 	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v2 4/9] drm/bochs: Set DRM_VBLANK_FLAG_SIMULATED
-Date: Wed, 27 May 2026 15:32:45 +0200
-Message-ID: <20260527133917.207150-5-tzimmermann@suse.de>
+Subject: [PATCH v2 5/9] drm/cirrus: Set DRM_VBLANK_FLAG_SIMULATED
+Date: Wed, 27 May 2026 15:32:46 +0200
+Message-ID: <20260527133917.207150-6-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260527133917.207150-1-tzimmermann@suse.de>
 References: <20260527133917.207150-1-tzimmermann@suse.de>
@@ -71,28 +71,28 @@ X-Spamd-Result: default: False [-4.00 / 50.00];
 X-Rspamd-Pre-Result: action=no action;
 	module=replies;
 	Message is reply to one we originated
-X-Rspamd-Queue-Id: 86ED56BA6A
+X-Rspamd-Queue-Id: 07EA36BA91
 X-Spam-Flag: NO
 X-Spam-Score: -4.00
 X-Spam-Level: 
 X-Rspamd-Action: no action
 
-Mark the vblank event on bochs as simulated, so that the WAIT_VBLANK
+Mark the vblank event on cirrus as simulated, so that the WAIT_VBLANK
 ioctl fails with an error. The ioctl should not be supported because
 the output is not synchronized to a display refresh.
 
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/tiny/bochs.c | 2 +-
+ drivers/gpu/drm/tiny/cirrus-qemu.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
-index e2d957e51505..b5955ef39e31 100644
---- a/drivers/gpu/drm/tiny/bochs.c
-+++ b/drivers/gpu/drm/tiny/bochs.c
-@@ -677,7 +677,7 @@ static int bochs_kms_init(struct bochs_device *bochs)
- 	drm_connector_attach_edid_property(connector);
- 	drm_connector_attach_encoder(connector, encoder);
+diff --git a/drivers/gpu/drm/tiny/cirrus-qemu.c b/drivers/gpu/drm/tiny/cirrus-qemu.c
+index 075221b431d3..01522d1158b2 100644
+--- a/drivers/gpu/drm/tiny/cirrus-qemu.c
++++ b/drivers/gpu/drm/tiny/cirrus-qemu.c
+@@ -501,7 +501,7 @@ static int cirrus_pipe_init(struct cirrus_device *cirrus)
+ 	if (ret)
+ 		return ret;
  
 -	ret = drm_vblank_init(dev, 1);
 +	ret = drmm_vblank_init(dev, 1, DRM_VBLANK_FLAG_SIMULATED);
