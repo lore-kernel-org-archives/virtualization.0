@@ -1,95 +1,298 @@
-Received: from mail.ilvokhin.com (mail.ilvokhin.com [178.62.254.231])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B465D410D01
-	for <virtualization@lists.linux.dev>; Wed, 27 May 2026 13:31:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.62.254.231
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3B056413255
+	for <virtualization@lists.linux.dev>; Wed, 27 May 2026 13:39:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779888662; cv=none; b=TKA3QiGDJQx8qx775pfkDYqm41koAIijRw8FO47lXX1lBVrgfuMJKLdEUtzq8P1kkMi+d3rSL+9LG71bR8DvazjPDun71NUvdddVpk8nAjChbuEyKoD0i5iqWDL6m2ooujRAmhPuVceJqvIcukqB5cjfp9Avg+it3vpjlNjaEEw=
+	t=1779889170; cv=none; b=tsNhx6rzAKykBqiwO+Y3yGgDT2WAeMWGTDr4JNglk7kpLrUQl+p08fst8+Ok74tBTPaaepXofvLdFVruhPFXaTgQt5ZHkTKk2BQgKnM9EWts7pCApkareLr9LwjevcFLQ9facDjtBF/GsAlLbbEmQLIWIdPyUmTA6eM2znK0uW4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779888662; c=relaxed/simple;
-	bh=1wytUo+2Aeq9VGu4j/kp+Z/iRR4RMhRU4MM8FIkyicA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=JBrqX78bzEEVc/Y4nyC/0YHTP2IpiwKyQL0wX374TtmYdwcos0C56I/kqsKzn1zv4s9iLm0CG8vOoWsMH5sC5nrbgj4CtCkrI8iaLMYdI+uW4L1YEDrB1hCNKdRH/ImNokTBc+LkIcc+NRlSc/S2fYLCygnjziYgH3TzDFfdd/s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ilvokhin.com; spf=pass smtp.mailfrom=ilvokhin.com; dkim=pass (1024-bit key) header.d=ilvokhin.com header.i=@ilvokhin.com header.b=tD9Y95jH; arc=none smtp.client-ip=178.62.254.231
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ilvokhin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ilvokhin.com
+	s=arc-20240116; t=1779889170; c=relaxed/simple;
+	bh=kIXoXq3gYCeLYkYOvUsKlv7nZ3Gk00tErWaKGrTCzvk=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=eQ1LqoGXQrIoCwTWWhQQZxBDhDBbH4cw1srA8zf2eRskWUsm3ZltWa3DQCp8HWID7fq/WjsycP0UM6MR0Pw9uNfjGOGDCXqFwTp096CcHTAgrh0WOa4EUCWOZPGA9Zqf1Bj6CdyE+tmuwc4KXNVyPVmSsQAiPfwyNLezTmydvmk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=MYaQyBqz; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=kh8H3Z5y; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=MYaQyBqz; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=kh8H3Z5y; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ilvokhin.com header.i=@ilvokhin.com header.b="tD9Y95jH"
-Received: from shell.ilvokhin.com (shell.ilvokhin.com [138.68.190.75])
-	(Authenticated sender: d@ilvokhin.com)
-	by mail.ilvokhin.com (Postfix) with ESMTPSA id A4CA2D0D06;
-	Wed, 27 May 2026 13:30:58 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ilvokhin.com;
-	s=mail; t=1779888658;
-	bh=kUtPQMqnGRZK4WtBtal4fkwqBGL1onBAC0FZaenXB+Y=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=tD9Y95jHJ7FHOR/3K3r+mZ2uCwLkbP7wrlCEb9kG3J6t+6n9iKA3+dtPEa4P98bh/
-	 o5ovibdCKYI+Qo2jmZQ0eu+Zv4aRy24lOcvlMPgLYo/rPTGo6fKNw9U9ZrOf+VboDg
-	 XtEX60Utm7kiii60sP4mieyLYPGASkfm5fIew4eo=
-Date: Wed, 27 May 2026 13:30:57 +0000
-From: Dmitry Ilvokhin <d@ilvokhin.com>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
-	Boqun Feng <boqun@kernel.org>, Waiman Long <longman@redhat.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Juergen Gross <jgross@suse.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Thomas Gleixner <tglx@kernel.org>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
-	Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
-	Christoph Lameter <cl@gentwo.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-arch@vger.kernel.org,
-	linux-mm@kvack.org, linux-trace-kernel@vger.kernel.org,
-	kernel-team@meta.com, "Paul E. McKenney" <paulmck@kernel.org>
-Subject: Re: [PATCH v6 5/7] locking: Add contended_release tracepoint to
- qspinlock
-Message-ID: <ahbyERN5PICY6qxm@shell.ilvokhin.com>
-References: <cover.1777999826.git.d@ilvokhin.com>
- <5d7ea75ffe74a785e6b234ada9f23c6373d4b4c1.1777999826.git.d@ilvokhin.com>
- <20260513193342.GB2545104@noisy.programming.kicks-ass.net>
- <agXBb0ga_6HJrrnm@shell.ilvokhin.com>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="MYaQyBqz";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="kh8H3Z5y";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="MYaQyBqz";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="kh8H3Z5y"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 3A6366AEAB;
+	Wed, 27 May 2026 13:39:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1779889164; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=tkFzuG/sYYx6WIe7zLxbB3YnbN+OJD7lXRTEH4WXPnA=;
+	b=MYaQyBqzpd7dr1BQLUQfF4gNJKdpVp3rlZWAJY/x4zpGq/JpmzHCPcazxI8Wlc3UTLD8qF
+	PF2LTLMER0uZiuYRuB/hTT1fV3bjgxX9JxjstaAM6KiAmJKI/HBGBKfTF6Np+mSVhU8ErD
+	2LRlUhexd1cuSITBab6CjEjkdm6hvRo=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1779889164;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=tkFzuG/sYYx6WIe7zLxbB3YnbN+OJD7lXRTEH4WXPnA=;
+	b=kh8H3Z5yRkETWTuzy/00wtvHqYaQjF53nFyOvGspaCvrfYcv89CdAlx5Xi9OD+aKAFb85G
+	DhLQyJkTBeenIEBw==
+Authentication-Results: smtp-out1.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1779889164; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=tkFzuG/sYYx6WIe7zLxbB3YnbN+OJD7lXRTEH4WXPnA=;
+	b=MYaQyBqzpd7dr1BQLUQfF4gNJKdpVp3rlZWAJY/x4zpGq/JpmzHCPcazxI8Wlc3UTLD8qF
+	PF2LTLMER0uZiuYRuB/hTT1fV3bjgxX9JxjstaAM6KiAmJKI/HBGBKfTF6Np+mSVhU8ErD
+	2LRlUhexd1cuSITBab6CjEjkdm6hvRo=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1779889164;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=tkFzuG/sYYx6WIe7zLxbB3YnbN+OJD7lXRTEH4WXPnA=;
+	b=kh8H3Z5yRkETWTuzy/00wtvHqYaQjF53nFyOvGspaCvrfYcv89CdAlx5Xi9OD+aKAFb85G
+	DhLQyJkTBeenIEBw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id CCBBB5A863;
+	Wed, 27 May 2026 13:39:23 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id YD7HMAv0FmrpMQAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Wed, 27 May 2026 13:39:23 +0000
+From: Thomas Zimmermann <tzimmermann@suse.de>
+To: simona@ffwll.ch,
+	airlied@gmail.com,
+	mdaenzer@redhat.com,
+	pekka.paalanen@collabora.com,
+	jadahl@gmail.com,
+	contact@emersion.fr,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	mhklinux@outlook.com
+Cc: amd-gfx@lists.freedesktop.org,
+	dri-devel@lists.freedesktop.org,
+	wayland-devel@lists.freedesktop.org,
+	linux-hyperv@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	spice-devel@lists.freedesktop.org,
+	Thomas Zimmermann <tzimmermann@suse.de>
+Subject: [PATCH v2 1/9] drm/vblank: Add drmm_vblank_init() to indicate managed cleanup
+Date: Wed, 27 May 2026 15:32:42 +0200
+Message-ID: <20260527133917.207150-2-tzimmermann@suse.de>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260527133917.207150-1-tzimmermann@suse.de>
+References: <20260527133917.207150-1-tzimmermann@suse.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <agXBb0ga_6HJrrnm@shell.ilvokhin.com>
+Content-Transfer-Encoding: 8bit
+X-Spam-Flag: NO
+X-Spam-Score: -6.80
+X-Spam-Level: 
+X-Spamd-Result: default: False [-6.80 / 50.00];
+	REPLY(-4.00)[];
+	BAYES_HAM(-3.00)[100.00%];
+	MID_CONTAINS_FROM(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_MISSING_CHARSET(0.50)[];
+	NEURAL_HAM_SHORT(-0.20)[-0.994];
+	MIME_GOOD(-0.10)[text/plain];
+	ARC_NA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,suse.de:mid,imap1.dmz-prg2.suse.org:helo];
+	RCPT_COUNT_TWELVE(0.00)[16];
+	MIME_TRACE(0.00)[0:+];
+	TO_DN_SOME(0.00)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	FROM_HAS_DN(0.00)[];
+	FREEMAIL_TO(0.00)[ffwll.ch,gmail.com,redhat.com,collabora.com,emersion.fr,linux.intel.com,kernel.org,outlook.com];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	R_RATELIMIT(0.00)[to_ip_from(RL9d8yydhbkx9sasttcqzahbbr)];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com,outlook.com]
 
-Hi Peter,
+Rename drm_vblank_init() to drmm_vblank_init(). As the initializer
+function sets up managed cleanup, it should use the drmm prefix. Keep
+the old name around until all callers have been converted.
 
-Gentle ping on this. I wanted to check if the assembly analysis in my
-previous reply changed the picture at all.
+Also add a flags argument to the function. The first use of the flags
+will be to distinguish between hardware vblank interrupts and simulated
+vblank timeouts.
 
-You were right that the commit message was misleading about the total
-size increase: it's 9 bytes per call site, not just the NOP.
+Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+---
+ drivers/gpu/drm/drm_vblank.c        | 16 +++++++++-------
+ drivers/gpu/drm/drm_vblank_helper.c |  2 +-
+ include/drm/drm_crtc.h              |  2 +-
+ include/drm/drm_device.h            |  2 +-
+ include/drm/drm_vblank.h            | 10 +++++++++-
+ 5 files changed, 21 insertions(+), 11 deletions(-)
 
-That said, when I looked at the executed path with the tracepoint
-disabled, the only addition is the 2-byte NOP (xchg %ax,%ax).
+diff --git a/drivers/gpu/drm/drm_vblank.c b/drivers/gpu/drm/drm_vblank.c
+index f90fb2d13e42..21ca91b4c014 100644
+--- a/drivers/gpu/drm/drm_vblank.c
++++ b/drivers/gpu/drm/drm_vblank.c
+@@ -117,7 +117,7 @@
+  * optionally provide a hardware vertical blanking counter.
+  *
+  * Drivers must initialize the vertical blanking handling core with a call to
+- * drm_vblank_init(). Minimally, a driver needs to implement
++ * drmm_vblank_init(). Minimally, a driver needs to implement
+  * &drm_crtc_funcs.enable_vblank and &drm_crtc_funcs.disable_vblank plus call
+  * drm_crtc_handle_vblank() in its vblank interrupt handler for working vblank
+  * support.
+@@ -146,7 +146,7 @@
+  * See also DRM vblank helpers for more information.
+  *
+  * Drivers without support for vertical-blanking interrupts nor timers must
+- * not call drm_vblank_init(). For these drivers, atomic helpers will
++ * not call drmm_vblank_init(). For these drivers, atomic helpers will
+  * automatically generate fake vblank events as part of the display update.
+  * This functionality also can be controlled by the driver by enabling and
+  * disabling struct drm_crtc_state.no_vblank.
+@@ -519,7 +519,7 @@ static void vblank_disable_fn(struct timer_list *t)
+ 	spin_unlock_irqrestore(&dev->vbl_lock, irqflags);
+ }
+ 
+-static void drm_vblank_init_release(struct drm_device *dev, void *ptr)
++static void drmm_vblank_init_release(struct drm_device *dev, void *ptr)
+ {
+ 	struct drm_vblank_crtc *vblank = ptr;
+ 
+@@ -534,9 +534,10 @@ static void drm_vblank_init_release(struct drm_device *dev, void *ptr)
+ }
+ 
+ /**
+- * drm_vblank_init - initialize vblank support
++ * drmm_vblank_init - initialize vblank support
+  * @dev: DRM device
+  * @num_crtcs: number of CRTCs supported by @dev
++ * @flags: flags for vblank handling
+  *
+  * This function initializes vblank support for @num_crtcs display pipelines.
+  * Cleanup is handled automatically through a cleanup function added with
+@@ -545,7 +546,7 @@ static void drm_vblank_init_release(struct drm_device *dev, void *ptr)
+  * Returns:
+  * Zero on success or a negative error code on failure.
+  */
+-int drm_vblank_init(struct drm_device *dev, unsigned int num_crtcs)
++int drmm_vblank_init(struct drm_device *dev, unsigned int num_crtcs, unsigned int flags)
+ {
+ 	int ret;
+ 	unsigned int i;
+@@ -564,11 +565,12 @@ int drm_vblank_init(struct drm_device *dev, unsigned int num_crtcs)
+ 
+ 		vblank->dev = dev;
+ 		vblank->pipe = i;
++		vblank->flags = flags;
+ 		init_waitqueue_head(&vblank->queue);
+ 		timer_setup(&vblank->disable_timer, vblank_disable_fn, 0);
+ 		seqlock_init(&vblank->seqlock);
+ 
+-		ret = drmm_add_action_or_reset(dev, drm_vblank_init_release,
++		ret = drmm_add_action_or_reset(dev, drmm_vblank_init_release,
+ 					       vblank);
+ 		if (ret)
+ 			return ret;
+@@ -580,7 +582,7 @@ int drm_vblank_init(struct drm_device *dev, unsigned int num_crtcs)
+ 
+ 	return 0;
+ }
+-EXPORT_SYMBOL(drm_vblank_init);
++EXPORT_SYMBOL(drmm_vblank_init);
+ 
+ /**
+  * drm_dev_has_vblank - test if vblanking has been initialized for
+diff --git a/drivers/gpu/drm/drm_vblank_helper.c b/drivers/gpu/drm/drm_vblank_helper.c
+index d3f8147ecdc1..5b05ab72e133 100644
+--- a/drivers/gpu/drm/drm_vblank_helper.c
++++ b/drivers/gpu/drm/drm_vblank_helper.c
+@@ -25,7 +25,7 @@
+  * for drivers without further requirements. The initializer macro
+  * DRM_CRTC_HELPER_VBLANK_FUNCS sets them coveniently.
+  *
+- * Once the driver enables vblank support with drm_vblank_init(), each
++ * Once the driver enables vblank support with drmm_vblank_init(), each
+  * CRTC's vblank timer fires according to the programmed display mode. By
+  * default, the vblank timer invokes drm_crtc_handle_vblank(). Drivers with
+  * more specific requirements can set their own handler function in
+diff --git a/include/drm/drm_crtc.h b/include/drm/drm_crtc.h
+index c6dbe8b7db9e..f981468d9a00 100644
+--- a/include/drm/drm_crtc.h
++++ b/include/drm/drm_crtc.h
+@@ -163,7 +163,7 @@ struct drm_crtc_state {
+ 	 *
+ 	 * One usage is for drivers and/or hardware without support for VBLANK
+ 	 * interrupts. Such drivers typically do not initialize vblanking
+-	 * (i.e., call drm_vblank_init() with the number of CRTCs). For CRTCs
++	 * (i.e., call drmm_vblank_init() with the number of CRTCs). For CRTCs
+ 	 * without initialized vblanking, this field is set to true in
+ 	 * drm_atomic_helper_check_modeset(), and a fake VBLANK event will be
+ 	 * send out on each update of the display pipeline by
+diff --git a/include/drm/drm_device.h b/include/drm/drm_device.h
+index 768a8dae83c5..742996576313 100644
+--- a/include/drm/drm_device.h
++++ b/include/drm/drm_device.h
+@@ -283,7 +283,7 @@ struct drm_device {
+ 	 * Array of vblank tracking structures, one per &struct drm_crtc. For
+ 	 * historical reasons (vblank support predates kernel modesetting) this
+ 	 * is free-standing and not part of &struct drm_crtc itself. It must be
+-	 * initialized explicitly by calling drm_vblank_init().
++	 * initialized explicitly by calling drmm_vblank_init().
+ 	 */
+ 	struct drm_vblank_crtc *vblank;
+ 
+diff --git a/include/drm/drm_vblank.h b/include/drm/drm_vblank.h
+index 2fcef9c0f5b1..39a201b83781 100644
+--- a/include/drm/drm_vblank.h
++++ b/include/drm/drm_vblank.h
+@@ -282,10 +282,12 @@ struct drm_vblank_crtc {
+ 	 * @vblank_timer: Holds the state of the vblank timer
+ 	 */
+ 	struct drm_vblank_crtc_timer vblank_timer;
++
++	unsigned int flags;
+ };
+ 
+ struct drm_vblank_crtc *drm_crtc_vblank_crtc(struct drm_crtc *crtc);
+-int drm_vblank_init(struct drm_device *dev, unsigned int num_crtcs);
++int drmm_vblank_init(struct drm_device *dev, unsigned int num_crtcs, unsigned int flags);
+ bool drm_dev_has_vblank(const struct drm_device *dev);
+ u64 drm_crtc_vblank_count(struct drm_crtc *crtc);
+ u64 drm_crtc_vblank_count_and_time(struct drm_crtc *crtc,
+@@ -321,6 +323,12 @@ int drm_crtc_vblank_start_timer(struct drm_crtc *crtc);
+ void drm_crtc_vblank_cancel_timer(struct drm_crtc *crtc);
+ void drm_crtc_vblank_get_vblank_timeout(struct drm_crtc *crtc, ktime_t *vblank_time);
+ 
++/* deprecated; use drmm_vblank_init() instead */
++static inline int drm_vblank_init(struct drm_device *dev, unsigned int num_crtcs)
++{
++	return drmm_vblank_init(dev, num_crtcs, 0);
++}
++
+ /*
+  * Helpers for struct drm_crtc_funcs
+  */
+-- 
+2.54.0
 
-Both the baseline and instrumented _raw_spin_unlock() fit within a
-single 64-byte cache line, and I wasn't able to measure any difference
-with locktorture: lock() cost completely dominates, unlock() accounts
-for less than 1% of the total, so any overhead is indistinguishable from
-noise.
-
-If the cost is still a concern, I see two possible paths forward:
-
-1. Guard the spinlock/qrwlock instrumentation behind a Kconfig option
-   (disabled by default), so only kernels that explicitly opt in pay
-   the cost.
-
-2. Drop the spinlock/qrwlock instrumentation entirely and keep
-   contended_release for sleepable locks only.
-  
-Happy to go whichever direction you prefer.
