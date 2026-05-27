@@ -1,267 +1,88 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 83B14309F00
-	for <virtualization@lists.linux.dev>; Wed, 27 May 2026 15:17:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C46937757D;
+	Wed, 27 May 2026 15:58:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779895051; cv=none; b=gdFP7BcGg1mnTJT+X1QIU2kMcZ9NNUDX5G7S1EEmuP19kCKcO3sHysJtM8O9BFER4EESuWpy5RHAikoIr3+PVMl85djxKozVoUaybOmKzRCG7B0UPB1E1sbBn9fIWAkgxPlEIaZFkzlpQy3p+tKZMLe2CWGxuXNj+atXZ5J8mAE=
+	t=1779897532; cv=none; b=abM4fMZzBW3Fbgi6Y2K3TD0kpB4TOvVTGYxzG/g9LUXkkXpv6B8PK35NvNsEo+q2phy3p+AzuqYw4mLX4Fc9cf4pPcNw+26yxDeCNGobdSeM+T6HFVk/HuTqOS4uUK2Y4c6F83IdnD+COeXFINSibN+6osPgvdOa4ruNhWe0zCo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779895051; c=relaxed/simple;
-	bh=OoMgu8lc4ZCQhTa+NKdwxlwIbrqthTdX7mEVcaRKtLA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Ajvxh4+J0rTrgLbC228E0T28A2VZACfcZ1yB/VfFNwuw4dXVhtSINwTvbZetDVfsRunLZlonQZPh1yDbENul8qvqVCsqm+DkkuXiwm0SAMzm7UDsTPMjSmfUFVPumTrpzQNzSvYx1btcBLRPFaaAsaQH8MP2u4ZcTgD/dj71Axk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Zd4OU75J; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=hflNZb+8; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Zd4OU75J; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=hflNZb+8; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1779897532; c=relaxed/simple;
+	bh=P/q0FkPCbOqbUkrw+u8nkYD8bm9IFRA3W532/HwIFe8=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=senNA22VjHmcauyrG5eyK2oc/GivUlWT0J7AYrLUO8Veh03wIbBzgGq8KnCDzAh7gMV4uWfgZoRo9fGc3WLLwX+15Clw1iu7tqLg21EeKxod1zr9p/lsCGfzv5fe52QJKbMrzXHC4YOWxjr0ijWPicsk0G8HqaMPaqDRWGgc0MA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HI52qeAa; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Zd4OU75J";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="hflNZb+8";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Zd4OU75J";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="hflNZb+8"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 053AB6AA37;
-	Wed, 27 May 2026 15:17:28 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1779895048; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=GpmrI14U1zRKg9Ft8HCdKifIOo3atbqffDM/wjrE0sE=;
-	b=Zd4OU75JnmqVM0QH1YVMAYVh2GO3JhgIo2g5fzm5k8Yy9+AGyj0XfK3nr/B69yzYq/YFXm
-	t4Cw/q9r27+oXrEK2AfPuY77Eq/wfHyNjPqBrIIIE+pS7B1IsnZl+mSWQ7uXT4GhwWSJXI
-	IAjKhNkm8jQ4HFYexUNiZ3u4Gn0U3UA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1779895048;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=GpmrI14U1zRKg9Ft8HCdKifIOo3atbqffDM/wjrE0sE=;
-	b=hflNZb+8oVB2a+7/Iz3RBlSMhoxMfTaSZ13xqcKmRCZMT30z3xcle53Dk+i3EUsTjraod+
-	m8MtH/jWlalsJgCw==
-Authentication-Results: smtp-out1.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1779895048; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=GpmrI14U1zRKg9Ft8HCdKifIOo3atbqffDM/wjrE0sE=;
-	b=Zd4OU75JnmqVM0QH1YVMAYVh2GO3JhgIo2g5fzm5k8Yy9+AGyj0XfK3nr/B69yzYq/YFXm
-	t4Cw/q9r27+oXrEK2AfPuY77Eq/wfHyNjPqBrIIIE+pS7B1IsnZl+mSWQ7uXT4GhwWSJXI
-	IAjKhNkm8jQ4HFYexUNiZ3u4Gn0U3UA=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1779895048;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=GpmrI14U1zRKg9Ft8HCdKifIOo3atbqffDM/wjrE0sE=;
-	b=hflNZb+8oVB2a+7/Iz3RBlSMhoxMfTaSZ13xqcKmRCZMT30z3xcle53Dk+i3EUsTjraod+
-	m8MtH/jWlalsJgCw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 7B0845A8C2;
-	Wed, 27 May 2026 15:17:27 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id dT6MHAcLF2qmFgAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Wed, 27 May 2026 15:17:27 +0000
-Message-ID: <ed56eba9-8a34-4f17-b400-0ebf538ebcb4@suse.de>
-Date: Wed, 27 May 2026 17:17:27 +0200
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HI52qeAa"
+Received: by smtp.kernel.org (Postfix) with UTF8SMTPSA id 46A771F000E9;
+	Wed, 27 May 2026 15:58:47 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1779897528;
+	bh=qOiVUORxGHoXQHdIH/CnzYXWd5lz7K5U1INIbRfRKIg=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date;
+	b=HI52qeAaRyO4Q6E0LSwfS3Av/xt9S4iwpw7+92v2eByeb1/+L10PUigEtdcxRbB2T
+	 YamtaviZWmfWO49VVYpBvsZfAQLf4EIQDIuCnYG206Ok8ubXohZhWnl4ooKkdSbZPX
+	 nq5OyQE2Cv2aFfDXQrhbVQ2piHDtY7tLnafJ5P/lgg6q3JmI+T2NjGEYRUTE780w8L
+	 ANFQ+NC2szcnuVHU9Z+XZSgz5mQX59RNQe0PkzPWiGCzdlNm6frITdN3acntNrp0rQ
+	 6ph4g1ryHdSYDHURey1Z734BfqKq7UHQI5R0mMZFypz+G8tSOzLnlTg0XMqsEEfjyX
+	 yhgW9ueoXM6yQ==
+From: Thomas Gleixner <tglx@kernel.org>
+To: Jacob Keller <jacob.e.keller@intel.com>, LKML
+ <linux-kernel@vger.kernel.org>
+Cc: David Woodhouse <dwmw2@infradead.org>, Miroslav Lichvar
+ <mlichvar@redhat.com>, John Stultz <jstultz@google.com>, Stephen Boyd
+ <sboyd@kernel.org>, Anna-Maria Behnsen <anna-maria@linutronix.de>,
+ Frederic
+ Weisbecker <frederic@kernel.org>, thomas.weissschuh@linutronix.de, Arthur
+ Kiyanovski <akiyano@amazon.com>, Rodolfo Giometti <giometti@enneenne.com>,
+ Vincent Donnefort <vdonnefort@google.com>, Marc Zyngier <maz@kernel.org>,
+ Oliver Upton <oliver.upton@linux.dev>, kvmarm@lists.linux.dev, Oliver
+ Upton <oupton@kernel.org>, Richard Cochran <richardcochran@gmail.com>,
+ netdev@vger.kernel.org, Takashi Iwai <tiwai@suse.com>, Miri Korenblit
+ <miriam.rachel.korenblit@intel.com>, Johannes Berg
+ <johannes.berg@intel.com>, Tony Nguyen <anthony.l.nguyen@intel.com>, Saeed
+ Mahameed <saeedm@nvidia.com>, Peter Hilber
+ <peter.hilber@oss.qualcomm.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ virtualization@lists.linux.dev, linux-wireless@vger.kernel.org,
+ linux-sound@vger.kernel.org
+Subject: Re: [patch 01/24] timekeeping: Provide ktime_get_snapshot_id()
+In-Reply-To: <5b082d25-9a57-4612-a93e-a4591acd0ea6@intel.com>
+References: <20260526165826.392227559@kernel.org>
+ <20260526171222.769770418@kernel.org>
+ <5b082d25-9a57-4612-a93e-a4591acd0ea6@intel.com>
+Date: Wed, 27 May 2026 17:58:44 +0200
+Message-ID: <87ldd4lu8b.ffs@tglx>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3 00/10] drm: Improve logic behind damage handling
-To: mripard@kernel.org, maarten.lankhorst@linux.intel.com,
- airlied@redhat.com, airlied@gmail.com, simona@ffwll.ch, admin@kodeit.net,
- gargaditya08@proton.me, paul@crapouillou.net, jani.nikula@linux.intel.com,
- mhklinux@outlook.com, zack.rusin@broadcom.com,
- bcm-kernel-feedback-list@broadcom.com
-Cc: dri-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org,
- intel-gfx@lists.freedesktop.org, intel-xe@lists.freedesktop.org,
- linux-mips@vger.kernel.org, virtualization@lists.linux.dev
-References: <20260527145113.241595-1-tzimmermann@suse.de>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <20260527145113.241595-1-tzimmermann@suse.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Flag: NO
-X-Spam-Score: -4.30
-X-Spam-Level: 
-X-Spamd-Result: default: False [-4.30 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	FREEMAIL_TO(0.00)[kernel.org,linux.intel.com,redhat.com,gmail.com,ffwll.ch,kodeit.net,proton.me,crapouillou.net,outlook.com,broadcom.com];
-	MID_RHS_MATCH_FROM(0.00)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	ARC_NA(0.00)[];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com,outlook.com];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	RCPT_COUNT_TWELVE(0.00)[18];
-	RCVD_TLS_ALL(0.00)[];
-	TO_DN_NONE(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:mid,suse.com:url]
+Content-Type: text/plain
 
+On Tue, May 26 2026 at 14:41, Jacob Keller wrote:
+> On 5/26/2026 10:13 AM, Thomas Gleixner wrote:
+>> -void ktime_get_snapshot(struct system_time_snapshot *systime_snapshot)
+>> +bool ktime_get_snapshot_id(struct system_time_snapshot *systime_snapshot, clockid_t clock_id)
+>>  {
+>
+> Since this function now returns a bool would it make sense to add a
+> "Return:" comment to the kdoc to help explain what the return value means?
+>
+> I saw that you have a WARN_ON with the ktime_get_snapshot wrapper. I
+> guess it returns false if timekeeping_suspended.
 
+...
 
-Am 27.05.26 um 16:46 schrieb Thomas Zimmermann:
-> DRM clients can supply information on framebuffer areas to update as
-> part of each page flip, called damage clipping rectangles. But DRM's
-> processing of this information is inconsistent and prone to errors.
->
-> - There are multiple fields and tests that decide if damage clips
-> should be taken or ignored.
->
-> - Sometimes damage clips are removed behind the back of the DRM client.
->
-> - Atomic helpers evaluate damage clipping in the middle of the atomic
-> check: after connectors and encoders, but before planes and CRTCs. Hence
-> pipeline stages have an inconsistent view.
->
-> - Which leads to drivers (ingenic) doing a re-evaluation if necessary.
->
-> - Tests of plane source coordinates only happen during commits. At this
-> point, the driver should already know if damage clips are to be taken or
-> not. Because of this, some drivers (appletbdrm) might operate on incorrect
-> damage information for their internal workings. This also leads to excessive
-> use of the old plane state.
->
-> Therefore go through DRM helpers and drivers and fix the logic.
->
-> - Run all of the atomic checks with the damage information supplied by
-> DRM clients. Afterwards evaluate plane and CRTC states on whether to
-> take or ignore damage clips. Do all related tests in a single atomic
-> helper.
->
-> - Do not discard damage clips. Set ignore_damage_clips in struct
-> drm_plane_state instead. This includes changes to plane source-coordinates.
-> The damage iterator now only has to look at this flag to detect if it
-> should use the damage clips.
->
-> - Go over drivers and fix the damage handling in the plane's
-> atomic_update helpers. Most drivers no longer need the old plane state
-> in their update.
->
-> - The appletbdrm driver requires a fix in how it uses damage information.
-> Ingenic and vmwgfx can be simplified. These changes improve the drivers'
-> code organization.
->
-> - Kunit tests require some changes. Drop some obsolete tests and add a new
-> one for ignore_damage_flags.
->
-> Tested with bochs, mgag200, Kunit tests.
->
-> v3:
-> - fix error path in appletbdrm
-> v2:
-> - rebase on latest upstream
->
-> Thomas Zimmermann (10):
->    drm/damage-helper: Do not alter damage clips on modeset, but ignore
->      them
->    drm/atomic-helpers: Evaluate plane damage after atomic_check
->    drm/ingenic: Remove calls to drm_atomic_helper_check_plane_damage()
->    drm/damage-helper: Test src coord in
->      drm_atomic_helper_check_plane_damage()
->    drm/appletbdrm: Allocate request/response buffers in begin_fb_access
->    drm/damage-helper: Remove old state from
->      drm_atomic_helper_damage_iter_init()
->    drm/damage-helper: Remove old state from
->      drm_atomic_helper_damage_merged()
->    drm/atomic_helper: Do not evaluate plane damage before atomic_check
->    drm/damage-helper: Rename state parameters in damage helpers
->    drm/vmwgfx: Remove unused field struct
->      vmwgfx_du_update_plane.old_state
->
->   drivers/gpu/drm/ast/ast_cursor.c              |   3 +-
->   drivers/gpu/drm/ast/ast_mode.c                |   2 +-
->   drivers/gpu/drm/drm_atomic_helper.c           |   6 +-
->   drivers/gpu/drm/drm_atomic_state_helper.c     |   1 +
->   drivers/gpu/drm/drm_damage_helper.c           |  44 ++--
->   drivers/gpu/drm/drm_fb_dma_helper.c           |   2 +-
->   drivers/gpu/drm/drm_mipi_dbi.c                |   3 +-
->   drivers/gpu/drm/gud/gud_pipe.c                |   3 +-
->   drivers/gpu/drm/hyperv/hyperv_drm_modeset.c   |   3 +-
->   drivers/gpu/drm/i915/display/intel_plane.c    |  11 +-
->   drivers/gpu/drm/i915/display/intel_psr.c      |   3 +-
->   drivers/gpu/drm/ingenic/ingenic-drm-drv.c     |   3 -
->   drivers/gpu/drm/ingenic/ingenic-ipu.c         |   8 +-
->   drivers/gpu/drm/mgag200/mgag200_mode.c        |   3 +-
->   drivers/gpu/drm/sitronix/st7571.c             |   3 +-
->   drivers/gpu/drm/sitronix/st7586.c             |   3 +-
->   drivers/gpu/drm/sitronix/st7920.c             |   3 +-
->   drivers/gpu/drm/solomon/ssd130x.c             |   9 +-
->   drivers/gpu/drm/sysfb/drm_sysfb_modeset.c     |   3 +-
->   .../gpu/drm/tests/drm_damage_helper_test.c    | 200 +++---------------
->   drivers/gpu/drm/tiny/appletbdrm.c             |  59 +++---
->   drivers/gpu/drm/tiny/bochs.c                  |   3 +-
->   drivers/gpu/drm/tiny/cirrus-qemu.c            |   2 +-
->   drivers/gpu/drm/tiny/gm12u320.c               |   2 +-
->   drivers/gpu/drm/tiny/ili9225.c                |   3 +-
->   drivers/gpu/drm/tiny/repaper.c                |   2 +-
->   drivers/gpu/drm/tiny/sharp-memory.c           |   3 +-
->   drivers/gpu/drm/udl/udl_modeset.c             |   3 +-
->   drivers/gpu/drm/virtio/virtgpu_plane.c        |   2 +-
->   drivers/gpu/drm/vmwgfx/vmwgfx_kms.c           |   5 +-
->   drivers/gpu/drm/vmwgfx/vmwgfx_kms.h           |   2 -
->   drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c          |  12 +-
->   drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c          |  15 +-
->   include/drm/drm_damage_helper.h               |   9 +-
->   34 files changed, 123 insertions(+), 315 deletions(-)
->
->
-> base-commit: 5fb5a9a63cf5ece68e0eeb6fa397da27712bccf0
+> This warns here, and the wrapper ktime_get_snapshot also warns. Does
+> that make sense? I guess eventually the ktime_get_snapshot will be removed?
 
--- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
-GF: Jochen Jaser, Andrew McDonald, Werner Knoblich, (HRB 36809, AG Nürnberg)
+No it does not and it's a leftover from an early version. I later
+switched to have a valid bit in the struct because otherwise I'd need to
+modify a gazillion call sites to propagate the return value through.
 
+Let me remove it.
 
+Thanks,
+
+        tglx
