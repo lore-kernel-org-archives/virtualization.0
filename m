@@ -1,50 +1,81 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E4C13BB673
-	for <virtualization@lists.linux.dev>; Wed, 27 May 2026 10:22:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 61763409E1B
+	for <virtualization@lists.linux.dev>; Wed, 27 May 2026 13:07:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779877329; cv=none; b=qAT/ikQFADA5mBA4I8Wa8vVjOaLLzA4aiq+g7usKm98TqY5f+OWusJuL6RPEZZ2p+N5oXF7qhY25udxD5oMAJsZBXCHNsEohxZfDLsCSxGpahZr4zZ73oqfUOlqkplA03YQYIecWCcOyznoPEm2ypCarji1dncNwVfxKlxIAIbg=
+	t=1779887240; cv=none; b=AjG1gkJ1BC9E8tjnW9bJxwlTUpHRnZPPaowxvf6ZcnI0gKEh4cqTTu5/xeo372xAfoV8Kvwzhl4WAwO8ZR7tXWITCgV2RGUBv3jPPnhmQlCwb7CKRHUxAAeC2pILF4fkaXDKnqf65SumErjUo1FiRXU1EX1dLW6uTZlQ5zo+AVI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779877329; c=relaxed/simple;
-	bh=81mP1Qu+OcfsmnmEx6OYjyoC65sZHp22hNqfi1yGwBQ=;
+	s=arc-20240116; t=1779887240; c=relaxed/simple;
+	bh=e0VXPthwaahApSLrRt8nO9+n5Hl5i3TjwyDLZ0EoyB8=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=uEFJL6v2Q7Zdwma2NG5sviFkCdKIGpCAdyu0H9EK9iU2Z8RI9HR12au7vL8PeWSeOi5km7kts0knF+N6W2SWQTJfLC7v4cDoXWRkbU8rsq8c93MYtXok4BOYVk+/zMh72fTz7BQT579CtteaUAhMhVuPJYn9lcwAPudGQ1+QXz0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=isiqo2vf; arc=none smtp.client-ip=198.175.65.14
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	 In-Reply-To:Content-Type; b=oKQyhCiC/yjHzDdQevxXJsD/dOFRQmWJPV059gjdinmGjTkVKabHBORuazQ2qbVMBg652rZxBwzkxuu3l8rPxiTwaSgmDa+Yjs1EO6yazLTW0V/SwpGMSi3FXM1dpQ97bLQIaOMq9qubStVduXaFMka/7hJpMQIUxX56HCUOLPE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=esP9OcSl; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Fw2483cY; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=esP9OcSl; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Fw2483cY; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="isiqo2vf"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1779877327; x=1811413327;
-  h=message-id:date:mime-version:subject:to:cc:references:
-   from:in-reply-to:content-transfer-encoding;
-  bh=81mP1Qu+OcfsmnmEx6OYjyoC65sZHp22hNqfi1yGwBQ=;
-  b=isiqo2vf1rmLENND8xT6iimsCB1T7eEJR1kfpCwiB3hhGkPDybsfWIp8
-   rCqN2dXSSkhxhlVLWzF+w+puMAwNlv9l7e/191K9rulnUIqYrU3zixj/E
-   ToMGYsTPKIOHNdLyM14wSBBohFwi0dzUAvxFM9Yv1L1Rkdp7byXTaaQX/
-   Qb1WCTVXW7D7ObYqBpqzhPINE5J2SD1JeccwifZlKt5QIAbiDKzvAtrjS
-   Mi7OSQWSVxUfGgyS6352JOTyo8SINwibak9RkBebm5SWFKByQRj8mKuGS
-   ZfhcZKQ8yzm/IKxa5tovbJbHn/Zz7kfWovlu0H/779TdbSRaywfjmlj72
-   A==;
-X-CSE-ConnectionGUID: 5R+WshTvRGunAmE6HrGmEg==
-X-CSE-MsgGUID: mBNnU1cfS926m03Qs3eeBw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11798"; a="84595080"
-X-IronPort-AV: E=Sophos;i="6.24,171,1774335600"; 
-   d="scan'208";a="84595080"
-Received: from fmviesa006.fm.intel.com ([10.60.135.146])
-  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 May 2026 03:22:07 -0700
-X-CSE-ConnectionGUID: tL663z+aTqaEJwFUkBULkg==
-X-CSE-MsgGUID: 39jNYRuFSnmaemdLcL5QNw==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.24,171,1774335600"; 
-   d="scan'208";a="237760858"
-Received: from unknown (HELO [10.239.158.45]) ([10.239.158.45])
-  by fmviesa006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 May 2026 03:22:04 -0700
-Message-ID: <523b346d-4f7d-4d89-9839-42a5c167fed3@intel.com>
-Date: Wed, 27 May 2026 18:22:02 +0800
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="esP9OcSl";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Fw2483cY";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="esP9OcSl";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Fw2483cY"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id A932667569;
+	Wed, 27 May 2026 13:07:10 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1779887230; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=vlT+/BAQdkxbWapVyZUuqzz0p8aDpSmVgE3x+y2I7Sc=;
+	b=esP9OcSlpxOulRHCToW7/6cyCoN5yti/xmoyKd9e79MetL1+XOpIVFuo08ayfmAVG3kFKU
+	96TyKKE2tuzmH1p/j3TlrcUUCUFVn+MqHwZcEny6ll9fplJa8mREBHZtbOf1nHi0r0n4Oq
+	/SSa2NUcUdqXBVb50nbVXUtWZYyvay0=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1779887230;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=vlT+/BAQdkxbWapVyZUuqzz0p8aDpSmVgE3x+y2I7Sc=;
+	b=Fw2483cYiiddYwEeOWJJ9pkkLNDS3rNaWDj/sBPwTYlpeqkmEC5ULJGJNMrsiXTLvbcRt/
+	q8Hs+4yIXg3FhhCg==
+Authentication-Results: smtp-out2.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=esP9OcSl;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=Fw2483cY
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1779887230; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=vlT+/BAQdkxbWapVyZUuqzz0p8aDpSmVgE3x+y2I7Sc=;
+	b=esP9OcSlpxOulRHCToW7/6cyCoN5yti/xmoyKd9e79MetL1+XOpIVFuo08ayfmAVG3kFKU
+	96TyKKE2tuzmH1p/j3TlrcUUCUFVn+MqHwZcEny6ll9fplJa8mREBHZtbOf1nHi0r0n4Oq
+	/SSa2NUcUdqXBVb50nbVXUtWZYyvay0=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1779887230;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=vlT+/BAQdkxbWapVyZUuqzz0p8aDpSmVgE3x+y2I7Sc=;
+	b=Fw2483cYiiddYwEeOWJJ9pkkLNDS3rNaWDj/sBPwTYlpeqkmEC5ULJGJNMrsiXTLvbcRt/
+	q8Hs+4yIXg3FhhCg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 4970C5A843;
+	Wed, 27 May 2026 13:07:10 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id kaqgEH7sFmq5EQAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Wed, 27 May 2026 13:07:10 +0000
+Message-ID: <4a7c2f87-60fd-458c-a579-a36799b86557@suse.de>
+Date: Wed, 27 May 2026 15:07:09 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -52,89 +83,152 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH RFC] virtio-mem: support Confidential Computing (CoCo)
- environments
-To: =?UTF-8?Q?Marc-Andr=C3=A9_Lureau?= <marcandre.lureau@redhat.com>,
- David Hildenbrand <david@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
- Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
-Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- Chenyi Qiang <chenyi.qiang@intel.com>
-References: <20260401-coco-v1-1-b9c3072e2d9c@redhat.com>
+Subject: Re: [PATCH 0/9] drm: Limit DRM_IOCTL_WAIT_VBLANK to vblank interrupts
+To: =?UTF-8?Q?Michel_D=C3=A4nzer?= <michel.daenzer@mailbox.org>,
+ simona@ffwll.ch, airlied@gmail.com, pekka.paalanen@collabora.com,
+ jadahl@gmail.com, contact@emersion.fr, maarten.lankhorst@linux.intel.com,
+ mripard@kernel.org
+Cc: amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+ linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
+ spice-devel@lists.freedesktop.org, wayland-devel@lists.freedesktop.org
+References: <20260515120916.333614-1-tzimmermann@suse.de>
+ <b5d03921-1e6f-4c4f-900e-fc9e28222176@mailbox.org>
+ <cb461424-e4c1-4d2c-934b-ffd7374e2a56@mailbox.org>
 Content-Language: en-US
-From: Xiaoyao Li <xiaoyao.li@intel.com>
-In-Reply-To: <20260401-coco-v1-1-b9c3072e2d9c@redhat.com>
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <cb461424-e4c1-4d2c-934b-ffd7374e2a56@mailbox.org>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+X-Spam-Level: 
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Queue-Id: A932667569
+X-Rspamd-Action: no action
+X-Spamd-Result: default: False [-4.51 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	FREEMAIL_TO(0.00)[mailbox.org,ffwll.ch,gmail.com,collabora.com,emersion.fr,linux.intel.com,kernel.org];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	ARC_NA(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[14];
+	MIME_TRACE(0.00)[0:+];
+	MID_RHS_MATCH_FROM(0.00)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	RCVD_TLS_ALL(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:dkim,suse.de:mid,suse.com:url,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	DKIM_TRACE(0.00)[suse.de:+]
+X-Spam-Flag: NO
+X-Spam-Score: -4.51
 
-On 4/1/2026 7:12 PM, Marc-André Lureau wrote:
-> In Confidential Computing (CoCo) environments such as Intel TDX or AMD
-> SEV-SNP, hotplugged memory must be explicitly "accepted" (transitioned to
-> a private/encrypted state) before it can be safely used by the guest.
-> Conversely, before returning memory to the hypervisor during an unplug
-> operation, it must be converted back to a shared/decrypted state.
+Hi
 
-It's not a must to convert it back to shared. The memory is going to be 
-unplugged, the guest doesn't need to care the state of it unless there 
-is restriction that private memory cannot be unplugged. But we don't 
-have such restriction.
+Am 15.05.26 um 18:56 schrieb Michel Dänzer:
+> [ Adding the wayland-devel list for awareness ]
+>
+> On 5/15/26 17:12, Michel Dänzer wrote:
+>> On 5/15/26 13:55, Thomas Zimmermann wrote:
+>>> DRM's WAIT_VBLANK ioctl synchronizes user-space clients to display
+>>> refresh. This is meaningless with vblank timers, which run unrelated
+>>> to the hardware's vblank.
+>>>
+>>> Disable the ioctl for simulated vblanks. Set DRM_VBLANK_FLAG_SIMULATED
+>>> for CRTCs with simulated vblank events in all such drivers. The vblank
+>>> timers of these devices still rate-limit the number of page-flip events
+>>> to match the display refresh.
+>>>
+>>> According to maintainers, user-space compositors do not require the ioctl
+>>> for rate-limitting display output. Weston and Kwin rely on page-flip
+>>> events. Mutter uses and internal timer to limit the number of display
+>>> updates per second.
+>> Actually mutter fundamentally relies on atomic commit completion events for that, same as Weston & KWin. Mutter uses the WAIT_VBLANK ioctl only for minimizing input → output latency (which can hide issues when completion of atomic commits isn't properly throttled).
+>>
+>>
+>> (Just a side not on the cover letter, no objections to the patches themselves)
+> After more discussion on IRC, I have some concerns.
+>
+>
+> The big one first: For drivers with no strict refresh cycle (i.e. an atomic commit can take effect more or less anytime after at least one "refresh cycle" has passed since the last one), does this change really make sense / what's the actual benefit?
 
-As I explained in the QEMU thread[1], the VMM needs to discard the 
-memory (both shared and private) on unplug. If the VMM fails to do so, 
-the memory is actually not unplugged and the guest is still able to 
-access them.
+I don't have a strong opinion on that matter. I just think we should 
+clarify the meaning of these ioctls.
 
-If the VMM fails to discard/remove the private memory, either 
-unintentionally or intentionally, it's the bug of the VMM. For TDX, this 
-kind of VMM bug can lead to re-accept error. To make TDX guest more 
-robust, we can let the guest release the memory itself on unplug, as 
-suggested by Paolo[2] and Kiryl[3], so that it can survive even with 
-buggy vmm. Converting the memory to shared is another approach for guest 
-to proactively "release" the private memory. But the justification of it 
-is not "guest must do so".
+Timing page flip is currently not supported on any driver without 
+hardware vblank IRQ or a vblank timer. The situation might vary among 
+compositors, but there have been plenty of reports of animation and 
+frame rates either being too high or too low. So I think we should 
+rollout vblank timers for all drivers without hardware vblank IRQ.
 
-[1] 
-https://lore.kernel.org/qemu-devel/7a9fe710-679e-4366-9eeb-3aba148773d7@intel.com/
-[2] 
-https://lore.kernel.org/lkml/CABgObfZ7_w8Q-dW=Sd4YA3P==BuN1edPv7Ty4EpPyU8ctW6RLg@mail.gmail.com/
-[3] https://lore.kernel.org/lkml/acprNlPP7J_ttMrz@thinkstation/
+Right now, vblank timers act like a vblank IRQ in these ioctls. That's a 
+convenient position for user space.
 
-> Attempting to handle memory acceptance automatically using generic
-> architecture-level memory hotplug notifiers (e.g., MEM_GOING_ONLINE)
-> is not viable for devices like virtio-mem:
-> 
-> 1. Granularity Mismatch: virtio-mem can dynamically hot(un)plug memory
->     at a subblock granularity (e.g., 2MB chunks within a 128MB memory
->     block). Generic memory notifiers operate on the entire memory block.
-> 2. Lifecycle Control: Memory must be explicitly accepted *before* it is
->     handed to the core memory management subsystem (the buddy allocator),
->     and it must be decrypted *before* being handed back to the device.
-> 3. State Tracking (Offline -> Re-online): If memory is offlined and
->     re-onlined without proper state transitions, TDX will panic on
->     attempting to accept an already-accepted page (TDX_EPT_ENTRY_STATE_INCORRECT).
-> 
-> To address this, this patch implements explicit CoCo memory conversions
-> directly within the virtio-mem driver using set_memory_encrypted() and
-> set_memory_decrypted():
-> 
-> - During hotplug, explicitly accepts only the physically plugged subblocks
->    right before fake-onlining them into the buddy allocator.
-> - During unplug, memory is explicitly transitioned to the shared state
->    before being handed back to the host. If the unplug operation fails,
->    the driver attempts to re-accept (encrypt) the memory. If this
->    re-acceptance fails, the memory is intentionally leaked to prevent
->    confidentiality breaches or fatal hypervisor faults.
-> 
-> This was discovered while testing virtio-mem resize with TDX guests.
-> The associated QEMU virtio-mem + TDX patch series is under review at:
-> https://patchew.org/QEMU/20260226140001.3622334-1-marcandre.lureau@redhat.com/
-> 
-> Note that QEMU punches the guest_memfd on KVM_HC_MAP_GPA_RANGE, when the
-> guest memory is decrypted. There is thus no need to discard the guest_memfd
-> in the virtio-mem device.
-> 
-> This patch is a follow-up and supersedes "[PATCH 0/2] x86/tdx: Fix
-> memory hotplug in TDX guests".
-> 
+But we don't really sync anything with hardware here, so the alternate 
+proposal is to not support them.  This also appears to be the original 
+intention of these ioctls.  Vblank timers would just limit the internal 
+page-flip rate, but nothing else. That's the more defensive approach. 
+I'd prefer this, as it does not give out guarantees to user space that 
+future drivers might not be able to fulfill.
+
+
+
+
+>
+> In the case of the asahi & nvidia drivers, the problem with exposing this functionality to user space is that if the timestamps aren't accurate, it can result in missing display refresh cycles, which are dictated by hardware. That's why it makes sense to reject it there.
+>
+> When there's no strict refresh cycle, that issue doesn't apply though.
+>
+>
+> Any changes made to the WAIT_VBLANK ioctl should also be made to the CRTC_GET_SEQUENCE / CRTC_QUEUE_SEQUENCE ioctls, which are slightly different UAPI for the same functionality.
+
+I'll send out an update with that fixed in a bit.
+
+Best regards
+Thomas
+
+
+>
+>
+
+-- 
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
+GF: Jochen Jaser, Andrew McDonald, Werner Knoblich, (HRB 36809, AG Nürnberg)
 
 
