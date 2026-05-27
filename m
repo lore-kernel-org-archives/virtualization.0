@@ -1,111 +1,140 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.14])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4B343CA490;
-	Wed, 27 May 2026 09:03:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8E4C13BB673
+	for <virtualization@lists.linux.dev>; Wed, 27 May 2026 10:22:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.14
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779872598; cv=none; b=HWONJl9VUp2ngLNvFAxtK/+kuFoNlGxrdA7LTZ2bcvEItr9uk7z0B75WYa6DcUo2DY6p723BZNRHG79K9vQYEJPLWcE58UNdfeln+AJIr94o6yXwc01y7aJWathmSDa8BSpysGbwbemw8wYKgcAFTZNBPUO5rmbTeZt4Bh457aA=
+	t=1779877329; cv=none; b=qAT/ikQFADA5mBA4I8Wa8vVjOaLLzA4aiq+g7usKm98TqY5f+OWusJuL6RPEZZ2p+N5oXF7qhY25udxD5oMAJsZBXCHNsEohxZfDLsCSxGpahZr4zZ73oqfUOlqkplA03YQYIecWCcOyznoPEm2ypCarji1dncNwVfxKlxIAIbg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779872598; c=relaxed/simple;
-	bh=1QPGxVe2YVjIdUHB6ZQpNIFZJ/tNHjuloIjcC5WL6yk=;
-	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=K+h1sOIhVAW0vdBIQcaaaEJBGvUfTfXo7qDMxx7mkDfyfG59r2EBKeHKEszaAcAUB4udYq7cgs1w1WD9b+jt20+eKladFeSvHBVOf3LX4hYzFNTY3o/mmChwh6bD3soCBWhZ/XB7cEOoMgyX6WLv3WQlUc+NAt69qlN8ftd+5V4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZSmOoBi5; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1779877329; c=relaxed/simple;
+	bh=81mP1Qu+OcfsmnmEx6OYjyoC65sZHp22hNqfi1yGwBQ=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=uEFJL6v2Q7Zdwma2NG5sviFkCdKIGpCAdyu0H9EK9iU2Z8RI9HR12au7vL8PeWSeOi5km7kts0knF+N6W2SWQTJfLC7v4cDoXWRkbU8rsq8c93MYtXok4BOYVk+/zMh72fTz7BQT579CtteaUAhMhVuPJYn9lcwAPudGQ1+QXz0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=isiqo2vf; arc=none smtp.client-ip=198.175.65.14
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZSmOoBi5"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 78BE91F000E9;
-	Wed, 27 May 2026 09:03:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1779872597;
-	bh=BLbsXnBlvM3iwIqe2tGZckughDYZqFaWG4pE/G8Jl5w=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=ZSmOoBi534c+Apdrr5BrPxD+73gSRd0jaT/awagOLp3NQC1vdv1yed9m7118mI8zW
-	 N40WhYoaFqbI/0ARxsfyAuno7PslZyegv5sBVoHcD7o5jBMUusY/wE0zWeN1U8oKBL
-	 T9wf0q2/4OrR1aBDayH8jsf8CwAeR9ozQx8Qoyjs2KEiTpAsUsNuf2w/Hcsv2F91zX
-	 T2Eb9ifBaCNZuTncW4sp44fcTY9YzI69o3BAR1tmddC3Z9zSyt26eVFsvo8J61yG/O
-	 s9EOf4W8b6kCQ3NL3qqqdCtXUuw4jf8IKfZRiCzelFdXkEf/W2/B8oy3HIPgbSjZST
-	 FGh6JaxjC8WQQ==
-Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
-	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-	(Exim 4.98.2)
-	(envelope-from <maz@kernel.org>)
-	id 1wSAAV-00000006bac-1rBt;
-	Wed, 27 May 2026 09:03:15 +0000
-Date: Wed, 27 May 2026 10:03:14 +0100
-Message-ID: <86pl2husvh.wl-maz@kernel.org>
-From: Marc Zyngier <maz@kernel.org>
-To: Thomas Gleixner <tglx@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Miroslav Lichvar <mlichvar@redhat.com>,
-	John Stultz <jstultz@google.com>,
-	Stephen Boyd <sboyd@kernel.org>,
-	Anna-Maria Behnsen <anna-maria@linutronix.de>,
-	Frederic Weisbecker <frederic@kernel.org>,
-	thomas.weissschuh@linutronix.de,
-	Arthur Kiyanovski <akiyano@amazon.com>,
-	Oliver Upton <oupton@kernel.org>,
-	kvmarm@lists.linux.dev,
-	Rodolfo Giometti <giometti@enneenne.com>,
-	Vincent Donnefort <vdonnefort@google.com>,
-	Oliver Upton <oliver.upton@linux.dev>,
-	Richard Cochran <richardcochran@gmail.com>,
-	netdev@vger.kernel.org,
-	Takashi Iwai <tiwai@suse.com>,
-	Miri Korenblit <miriam.rachel.korenblit@intel.com>,
-	Johannes Berg <johannes.berg@intel.com>,
-	Jacob Keller <jacob.e.keller@intel.com>,
-	Tony Nguyen <anthony.l.nguyen@intel.com>,
-	Saeed Mahameed <saeedm@nvidia.com>,
-	Peter Hilber <peter.hilber@oss.qualcomm.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	virtualization@lists.linux.dev,
-	linux-wireless@vger.kernel.org,
-	linux-sound@vger.kernel.org
-Subject: Re: [patch 06/24] KVM: arm64: Use ktime_get_snapshot_id() to snapshot CLOCK_REALTIME
-In-Reply-To: <20260526171223.144327185@kernel.org>
-References: <20260526165826.392227559@kernel.org>
-	<20260526171223.144327185@kernel.org>
-User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
- FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
- (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="isiqo2vf"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1779877327; x=1811413327;
+  h=message-id:date:mime-version:subject:to:cc:references:
+   from:in-reply-to:content-transfer-encoding;
+  bh=81mP1Qu+OcfsmnmEx6OYjyoC65sZHp22hNqfi1yGwBQ=;
+  b=isiqo2vf1rmLENND8xT6iimsCB1T7eEJR1kfpCwiB3hhGkPDybsfWIp8
+   rCqN2dXSSkhxhlVLWzF+w+puMAwNlv9l7e/191K9rulnUIqYrU3zixj/E
+   ToMGYsTPKIOHNdLyM14wSBBohFwi0dzUAvxFM9Yv1L1Rkdp7byXTaaQX/
+   Qb1WCTVXW7D7ObYqBpqzhPINE5J2SD1JeccwifZlKt5QIAbiDKzvAtrjS
+   Mi7OSQWSVxUfGgyS6352JOTyo8SINwibak9RkBebm5SWFKByQRj8mKuGS
+   ZfhcZKQ8yzm/IKxa5tovbJbHn/Zz7kfWovlu0H/779TdbSRaywfjmlj72
+   A==;
+X-CSE-ConnectionGUID: 5R+WshTvRGunAmE6HrGmEg==
+X-CSE-MsgGUID: mBNnU1cfS926m03Qs3eeBw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11798"; a="84595080"
+X-IronPort-AV: E=Sophos;i="6.24,171,1774335600"; 
+   d="scan'208";a="84595080"
+Received: from fmviesa006.fm.intel.com ([10.60.135.146])
+  by orvoesa106.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 May 2026 03:22:07 -0700
+X-CSE-ConnectionGUID: tL663z+aTqaEJwFUkBULkg==
+X-CSE-MsgGUID: 39jNYRuFSnmaemdLcL5QNw==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.24,171,1774335600"; 
+   d="scan'208";a="237760858"
+Received: from unknown (HELO [10.239.158.45]) ([10.239.158.45])
+  by fmviesa006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 27 May 2026 03:22:04 -0700
+Message-ID: <523b346d-4f7d-4d89-9839-42a5c167fed3@intel.com>
+Date: Wed, 27 May 2026 18:22:02 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
-Content-Type: text/plain; charset=US-ASCII
-X-SA-Exim-Connect-IP: 185.219.108.64
-X-SA-Exim-Rcpt-To: tglx@kernel.org, linux-kernel@vger.kernel.org, dwmw2@infradead.org, mlichvar@redhat.com, jstultz@google.com, sboyd@kernel.org, anna-maria@linutronix.de, frederic@kernel.org, thomas.weissschuh@linutronix.de, akiyano@amazon.com, oupton@kernel.org, kvmarm@lists.linux.dev, giometti@enneenne.com, vdonnefort@google.com, oliver.upton@linux.dev, richardcochran@gmail.com, netdev@vger.kernel.org, tiwai@suse.com, miriam.rachel.korenblit@intel.com, johannes.berg@intel.com, jacob.e.keller@intel.com, anthony.l.nguyen@intel.com, saeedm@nvidia.com, peter.hilber@oss.qualcomm.com, mst@redhat.com, virtualization@lists.linux.dev, linux-wireless@vger.kernel.org, linux-sound@vger.kernel.org
-X-SA-Exim-Mail-From: maz@kernel.org
-X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH RFC] virtio-mem: support Confidential Computing (CoCo)
+ environments
+To: =?UTF-8?Q?Marc-Andr=C3=A9_Lureau?= <marcandre.lureau@redhat.com>,
+ David Hildenbrand <david@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ Chenyi Qiang <chenyi.qiang@intel.com>
+References: <20260401-coco-v1-1-b9c3072e2d9c@redhat.com>
+Content-Language: en-US
+From: Xiaoyao Li <xiaoyao.li@intel.com>
+In-Reply-To: <20260401-coco-v1-1-b9c3072e2d9c@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-On Tue, 26 May 2026 18:13:58 +0100,
-Thomas Gleixner <tglx@kernel.org> wrote:
-> 
-> ktime_get_snapshot() is replaced by ktime_get_snapshot_id() which allows to
-> request a particular CLOCK ID to be captured along with the clocksource
-> counter.
-> 
-> Convert the usage in kvm_get_ptp_time() over and use the new
-> system_time_snapshot::sys field, which holds the system timestamp selected
-> by the CLOCK ID argument.
-> 
-> No functional change intended.
-> 
-> Signed-off-by: Thomas Gleixner <tglx@kernel.org>
-> Cc: Marc Zyngier <maz@kernel.org>
-> Cc: Oliver Upton <oupton@kernel.org>
-> Cc: kvmarm@lists.linux.dev
-> ---
->  arch/arm64/kvm/hypercalls.c |    6 +++---
->  1 file changed, 3 insertions(+), 3 deletions(-)
+On 4/1/2026 7:12 PM, Marc-André Lureau wrote:
+> In Confidential Computing (CoCo) environments such as Intel TDX or AMD
+> SEV-SNP, hotplugged memory must be explicitly "accepted" (transitioned to
+> a private/encrypted state) before it can be safely used by the guest.
+> Conversely, before returning memory to the hypervisor during an unplug
+> operation, it must be converted back to a shared/decrypted state.
 
-Acked-by: Marc Zyngier <maz@kernel.org>
+It's not a must to convert it back to shared. The memory is going to be 
+unplugged, the guest doesn't need to care the state of it unless there 
+is restriction that private memory cannot be unplugged. But we don't 
+have such restriction.
 
-	M.
+As I explained in the QEMU thread[1], the VMM needs to discard the 
+memory (both shared and private) on unplug. If the VMM fails to do so, 
+the memory is actually not unplugged and the guest is still able to 
+access them.
 
--- 
-Without deviation from the norm, progress is not possible.
+If the VMM fails to discard/remove the private memory, either 
+unintentionally or intentionally, it's the bug of the VMM. For TDX, this 
+kind of VMM bug can lead to re-accept error. To make TDX guest more 
+robust, we can let the guest release the memory itself on unplug, as 
+suggested by Paolo[2] and Kiryl[3], so that it can survive even with 
+buggy vmm. Converting the memory to shared is another approach for guest 
+to proactively "release" the private memory. But the justification of it 
+is not "guest must do so".
+
+[1] 
+https://lore.kernel.org/qemu-devel/7a9fe710-679e-4366-9eeb-3aba148773d7@intel.com/
+[2] 
+https://lore.kernel.org/lkml/CABgObfZ7_w8Q-dW=Sd4YA3P==BuN1edPv7Ty4EpPyU8ctW6RLg@mail.gmail.com/
+[3] https://lore.kernel.org/lkml/acprNlPP7J_ttMrz@thinkstation/
+
+> Attempting to handle memory acceptance automatically using generic
+> architecture-level memory hotplug notifiers (e.g., MEM_GOING_ONLINE)
+> is not viable for devices like virtio-mem:
+> 
+> 1. Granularity Mismatch: virtio-mem can dynamically hot(un)plug memory
+>     at a subblock granularity (e.g., 2MB chunks within a 128MB memory
+>     block). Generic memory notifiers operate on the entire memory block.
+> 2. Lifecycle Control: Memory must be explicitly accepted *before* it is
+>     handed to the core memory management subsystem (the buddy allocator),
+>     and it must be decrypted *before* being handed back to the device.
+> 3. State Tracking (Offline -> Re-online): If memory is offlined and
+>     re-onlined without proper state transitions, TDX will panic on
+>     attempting to accept an already-accepted page (TDX_EPT_ENTRY_STATE_INCORRECT).
+> 
+> To address this, this patch implements explicit CoCo memory conversions
+> directly within the virtio-mem driver using set_memory_encrypted() and
+> set_memory_decrypted():
+> 
+> - During hotplug, explicitly accepts only the physically plugged subblocks
+>    right before fake-onlining them into the buddy allocator.
+> - During unplug, memory is explicitly transitioned to the shared state
+>    before being handed back to the host. If the unplug operation fails,
+>    the driver attempts to re-accept (encrypt) the memory. If this
+>    re-acceptance fails, the memory is intentionally leaked to prevent
+>    confidentiality breaches or fatal hypervisor faults.
+> 
+> This was discovered while testing virtio-mem resize with TDX guests.
+> The associated QEMU virtio-mem + TDX patch series is under review at:
+> https://patchew.org/QEMU/20260226140001.3622334-1-marcandre.lureau@redhat.com/
+> 
+> Note that QEMU punches the guest_memfd on KVM_HC_MAP_GPA_RANGE, when the
+> guest memory is decrypted. There is thus no need to discard the guest_memfd
+> in the virtio-mem device.
+> 
+> This patch is a follow-up and supersedes "[PATCH 0/2] x86/tdx: Fix
+> memory hotplug in TDX guests".
+> 
+
+
