@@ -1,80 +1,112 @@
-Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CCBB82BE621;
-	Wed, 27 May 2026 07:25:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE91C3C1966;
+	Wed, 27 May 2026 09:02:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779866703; cv=none; b=XtUhOZp7sSB2uccRsm1FqFQ46tKnU530KAh7kwpzb2dpGDMLuRmWZATu5oBChQ1KRsIk1BVMfGmKCRceUFG/DMQHWU1pp+fHtNysi+gCCNaxGxE2JR7ua9gQqjZ7IdOmGPHIJ+urBcZpMz8JZadf+Wqcq8/jT6FoUkWzoz5wokc=
+	t=1779872554; cv=none; b=U+oIelv8LvP9A3yUbDK2XLLKn9YZKb7R42QxpB8vOS1xyrQ51RCG8100CX63ZQAr2sJ0bEDz+aiydzFEXUqh4L20jle92kTkYVlwVxMRqTQx3FKf2/im09qlb3woWdrnpUNMytZdMhtQi1uF+IUmedDgraeGPjWTZy4pB5eZqzs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779866703; c=relaxed/simple;
-	bh=H286pH0XEVaTBl11NoF476tTyCrePsNa+hNCO4h58i8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Sd44LyeStKyAviOE3fu+2V8O99FBJ+dIMzustA+ag4FBfktrEb+e0CYyhkkdys7zc8j6cwd1GkImU+pw1WlD7J0N/gtjR2IAm8X68WsnHKWGyqFL7WftSU7lgjh5Gj7w7KRolyMl6S2cbDv/DfcXHh771gA2SuC7Gz7IvzHJW9I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=yxICJRlV; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=SWxeWBwT; arc=none smtp.client-ip=193.142.43.55
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
+	s=arc-20240116; t=1779872554; c=relaxed/simple;
+	bh=lYTCTvgHVGcOtmEb6DtcZqY+WYkGeywCYM+ml7rXFjE=;
+	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=kjDrGQsxzQgW8rMH2xX6u94dkc4htlS1TNp4OZ19WwpfCaXTHiWiiBCrNQX7j5xv98YCfKcVar/Kz/ipe0mbwLkS5QjlHtm2PDSMt3+NZJ/DVyatVaIpWxMrj+aQ9+sRvj0xdfpseQJcUmwHRrghqNNThHanD2Qbmg9ZkwyRmQM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YniFvG6k; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="yxICJRlV";
-	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="SWxeWBwT"
-Date: Wed, 27 May 2026 09:24:59 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020; t=1779866700;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Wbgh1lph/Cw9cQ2P7yfOnakbfAXz1iVADCAMap9VS2s=;
-	b=yxICJRlVnrHFs7DxFJvW+0S+eTDuoFTKh6YKulHGTjwvy/voHWsGUCGCmM2ZhTZG+Ndcor
-	RdcmpLsSec38GmQ2YaTGdsz2w5LwBhJb4gMKodn8snCpxniL57+0pJluvJpHzA7MUL7VVo
-	kVh4Tyqw6jo4K3JO8WBjyCVePOW/pzxo5MKaIg4/NXj7A5qEOUDHm4V00aqkTeP/ZumqaM
-	lFoFI9XJ88pWL8jqoFkCmw4gy5CVZRx7Qi8MnE+tLY8k8lpCCuCXgE+5JtOnmWZaD9YGiy
-	JIivgwPtV24GGWDMhY+u5LNb3Nc5U+W95ZW9JGJkX/3jw2G6c2ViiYkNdB0rpQ==
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
-	s=2020e; t=1779866700;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Wbgh1lph/Cw9cQ2P7yfOnakbfAXz1iVADCAMap9VS2s=;
-	b=SWxeWBwTBBmK1D3E1cPJ4Sod+C/sOqkqJA4Z5RxQ7r7sOrEyKlkQsh95tLQxrSeGcl1j0y
-	an/Z0sm1XLeeUkCg==
-From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YniFvG6k"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 834C21F000E9;
+	Wed, 27 May 2026 09:02:33 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1779872553;
+	bh=rGBmGJCMxMcgGStc79JIYyj7AKuKN8bicGaaCMmbyKY=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=YniFvG6k5xKd0A6GeC8pPRc/reZCdHFtynazZq9U+gt0A9E0M5ORd9cEHzzrgdLeW
+	 5ceW3Vm2y9mgjnu3Ek9VCYr4cDz+19BF4pXMpio4m3yABRGeS7LygoAqnS47D2pjTa
+	 1dsm3Zerwgdhnp3RQvje6dzBK3XmUkftErkh558/WulLjoMynMURzF2IgczBrKO9PJ
+	 Bg6RljEryqlQL/KnDosOjzZtpBdG7rp7bn1CZbVKe+205Ov+7+pu2bn0HMTxaQGmre
+	 CqGS/T1ea9WMzyXz1l0TkA8QoNy5nzJkvJWwH/AXjjRzvy5tZfOGvysxMRxB4AFGgf
+	 075Ue+38WjJEg==
+Received: from sofa.misterjones.org ([185.219.108.64] helo=goblin-girl.misterjones.org)
+	by disco-boy.misterjones.org with esmtpsa  (TLS1.3) tls TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+	(Exim 4.98.2)
+	(envelope-from <maz@kernel.org>)
+	id 1wSA9n-00000006bZj-19Do;
+	Wed, 27 May 2026 09:02:31 +0000
+Date: Wed, 27 May 2026 10:02:30 +0100
+Message-ID: <86qzmxuswp.wl-maz@kernel.org>
+From: Marc Zyngier <maz@kernel.org>
 To: Thomas Gleixner <tglx@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, 
-	David Woodhouse <dwmw2@infradead.org>, Miroslav Lichvar <mlichvar@redhat.com>, 
-	John Stultz <jstultz@google.com>, Stephen Boyd <sboyd@kernel.org>, 
-	Anna-Maria Behnsen <anna-maria@linutronix.de>, Frederic Weisbecker <frederic@kernel.org>, 
-	Arthur Kiyanovski <akiyano@amazon.com>, Rodolfo Giometti <giometti@enneenne.com>, 
-	Vincent Donnefort <vdonnefort@google.com>, Marc Zyngier <maz@kernel.org>, 
-	Oliver Upton <oliver.upton@linux.dev>, kvmarm@lists.linux.dev, Oliver Upton <oupton@kernel.org>, 
-	Richard Cochran <richardcochran@gmail.com>, netdev@vger.kernel.org, Takashi Iwai <tiwai@suse.com>, 
-	Miri Korenblit <miriam.rachel.korenblit@intel.com>, Johannes Berg <johannes.berg@intel.com>, 
-	Jacob Keller <jacob.e.keller@intel.com>, Tony Nguyen <anthony.l.nguyen@intel.com>, 
-	Saeed Mahameed <saeedm@nvidia.com>, Peter Hilber <peter.hilber@oss.qualcomm.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, linux-wireless@vger.kernel.org, 
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Miroslav Lichvar <mlichvar@redhat.com>,
+	John Stultz <jstultz@google.com>,
+	Stephen Boyd <sboyd@kernel.org>,
+	Anna-Maria Behnsen <anna-maria@linutronix.de>,
+	Frederic Weisbecker <frederic@kernel.org>,
+	thomas.weissschuh@linutronix.de,
+	Arthur Kiyanovski <akiyano@amazon.com>,
+	Vincent Donnefort <vdonnefort@google.com>,
+	Oliver Upton <oliver.upton@linux.dev>,
+	kvmarm@lists.linux.dev,
+	Rodolfo Giometti <giometti@enneenne.com>,
+	Oliver Upton <oupton@kernel.org>,
+	Richard Cochran <richardcochran@gmail.com>,
+	netdev@vger.kernel.org,
+	Takashi Iwai <tiwai@suse.com>,
+	Miri Korenblit <miriam.rachel.korenblit@intel.com>,
+	Johannes Berg <johannes.berg@intel.com>,
+	Jacob Keller <jacob.e.keller@intel.com>,
+	Tony Nguyen <anthony.l.nguyen@intel.com>,
+	Saeed Mahameed <saeedm@nvidia.com>,
+	Peter Hilber <peter.hilber@oss.qualcomm.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	virtualization@lists.linux.dev,
+	linux-wireless@vger.kernel.org,
 	linux-sound@vger.kernel.org
-Subject: Re: [patch 23/24] timekeeping: Add support for AUX clock cross
- timestamping
-Message-ID: <20260527092439-18ac09b4-d62f-4215-bb20-fe3ad7b0e77b@linutronix.de>
+Subject: Re: [patch 05/24] KVM: arm64: Use ktime_get_snapshot_id() to retrieve CLOCK_BOOTTIME
+In-Reply-To: <20260526171223.070087856@kernel.org>
 References: <20260526165826.392227559@kernel.org>
- <20260526171224.423155175@kernel.org>
+	<20260526171223.070087856@kernel.org>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) SEMI-EPG/1.14.7 (Harue)
+ FLIM-LB/1.14.9 (=?UTF-8?B?R29qxY0=?=) APEL-LB/10.8 EasyPG/1.0.0 Emacs/30.1
+ (aarch64-unknown-linux-gnu) MULE/6.0 (HANACHIRUSATO)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260526171224.423155175@kernel.org>
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-SA-Exim-Connect-IP: 185.219.108.64
+X-SA-Exim-Rcpt-To: tglx@kernel.org, linux-kernel@vger.kernel.org, dwmw2@infradead.org, mlichvar@redhat.com, jstultz@google.com, sboyd@kernel.org, anna-maria@linutronix.de, frederic@kernel.org, thomas.weissschuh@linutronix.de, akiyano@amazon.com, vdonnefort@google.com, oliver.upton@linux.dev, kvmarm@lists.linux.dev, giometti@enneenne.com, oupton@kernel.org, richardcochran@gmail.com, netdev@vger.kernel.org, tiwai@suse.com, miriam.rachel.korenblit@intel.com, johannes.berg@intel.com, jacob.e.keller@intel.com, anthony.l.nguyen@intel.com, saeedm@nvidia.com, peter.hilber@oss.qualcomm.com, mst@redhat.com, virtualization@lists.linux.dev, linux-wireless@vger.kernel.org, linux-sound@vger.kernel.org
+X-SA-Exim-Mail-From: maz@kernel.org
+X-SA-Exim-Scanned: No (on disco-boy.misterjones.org); SAEximRunCond expanded to false
 
-On Tue, May 26, 2026 at 07:15:22PM +0200, Thomas Gleixner wrote:
-> Now that all prerequisites are in place add the final support for AUX
-> clocks in get_device_system_crosststamp(), which enables the PTP layer to
-> support hardware cross timestamps with a new IOTCL.
+On Tue, 26 May 2026 18:13:53 +0100,
+Thomas Gleixner <tglx@kernel.org> wrote:
+> 
+> ktime_get_snapshot() is replaced by ktime_get_snapshot_id() which allows to
+> request a particular CLOCK ID to be captured along with the clocksource
+> counter.
+> 
+> Convert the tracing mechanism over and use the new
+> system_time_snapshot::sys field, which holds the system timestamp selected
+> by the CLOCK ID argument.
+> 
+> No functional change intended.
 > 
 > Signed-off-by: Thomas Gleixner <tglx@kernel.org>
+> Cc: Vincent Donnefort <vdonnefort@google.com>
+> Cc: Marc Zyngier <maz@kernel.org>
+> Cc: Oliver Upton <oliver.upton@linux.dev>
+> Cc: kvmarm@lists.linux.dev
+> ---
+>  arch/arm64/kvm/hyp_trace.c |    8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
 
-Reviewed-by: Thomas Weiﬂschuh <thomas.weissschuh@linutronix.de>
+Acked-by: Marc Zyngier <maz@kernel.org>
+
+	M.
+
+-- 
+Without deviation from the norm, progress is not possible.
