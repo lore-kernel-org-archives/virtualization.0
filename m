@@ -1,37 +1,37 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B25113EDAD3
-	for <virtualization@lists.linux.dev>; Wed, 27 May 2026 13:39:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C27A140FDB6
+	for <virtualization@lists.linux.dev>; Wed, 27 May 2026 13:39:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779889180; cv=none; b=HzrtB+QfLIhDAHyj7sX3C1NK0LT6gYQgcGmESQJxrZckDrCECRq9Z135E9pgwJTNsEEvZf9IXdqvcwM4p3AL+tl2O5qWLcpoMcRfmIN9+XbO91giaTPet6Ms6s4gMRLP5sv0dBFbHL3qK7bSm9nLtAsKn5vofPCV1qlaF8zF4eY=
+	t=1779889180; cv=none; b=f5xNj+seC5sEfbROn2o6VlgNPjUnpivQV5rMEdCBLCwP8zIOw5Z73ICdJBFXRP2UgEemqcFiyvqjeoAwlWpx8VumEflmHfULg6Nq7WTPSP/NMWGkNtrr6LBOpTiiFLZ/JHWziY1yL4/cFFAo48k9mlXbjD7nD3ZJZcyKec0DJmM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1779889180; c=relaxed/simple;
-	bh=AOB3jdrJgU94euS3KTCgpwCuGtR85fB9/bXpxCAa3ZI=;
+	bh=uJsGW54sY/kYHimF9+lX79RJmTpQR+L9nooBsYIf7pY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=lznt5dMp/K6OTuD6BxF221Ous5fAB3x15lNrD9NormvZ/5kKFyS9k7XRPA07+XcV6K9IrpYc7fJeUuZlKs2Aocg/e9mven4MzZGP6/dnO7jjxfOSE+gN1gGVsu3RrPGsHlg3WVWcluuAWLyZ1XGxtsy3/EI9U7jdCbHrPitmZCs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; arc=none smtp.client-ip=195.135.223.131
+	 MIME-Version; b=hj5uAzjPCPfvHQkaKhP0BcnjpMUaRzDgq/pKcSNA0U7tr7BrprPw8VR4ykbmicBAodS0sLP+IxJGtqE4iDr1gHKrCmkcfJLIHNGPCYgRb3FItyGUVOIws/+dgJr02yOC7eMHdPG/k0zg1jyLacekMuxfuIt0a+KPJn8gQyMjeq0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; arc=none smtp.client-ip=195.135.223.130
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id A9B6A676DD;
-	Wed, 27 May 2026 13:39:24 +0000 (UTC)
-Authentication-Results: smtp-out2.suse.de;
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 86ED56BA6A;
+	Wed, 27 May 2026 13:39:25 +0000 (UTC)
+Authentication-Results: smtp-out1.suse.de;
 	none
 Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
 	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 42D495A861;
-	Wed, 27 May 2026 13:39:24 +0000 (UTC)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 257FE5A861;
+	Wed, 27 May 2026 13:39:25 +0000 (UTC)
 Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
 	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id +EXgDgz0FmrpMQAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Wed, 27 May 2026 13:39:24 +0000
+	id 2H3KBw30FmrpMQAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Wed, 27 May 2026 13:39:25 +0000
 From: Thomas Zimmermann <tzimmermann@suse.de>
 To: simona@ffwll.ch,
 	airlied@gmail.com,
@@ -49,9 +49,9 @@ Cc: amd-gfx@lists.freedesktop.org,
 	virtualization@lists.linux.dev,
 	spice-devel@lists.freedesktop.org,
 	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v2 2/9] drm/vblank: Add DRM_VBLANK_FLAG_SIMULATED
-Date: Wed, 27 May 2026 15:32:43 +0200
-Message-ID: <20260527133917.207150-3-tzimmermann@suse.de>
+Subject: [PATCH v2 4/9] drm/bochs: Set DRM_VBLANK_FLAG_SIMULATED
+Date: Wed, 27 May 2026 15:32:45 +0200
+Message-ID: <20260527133917.207150-5-tzimmermann@suse.de>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260527133917.207150-1-tzimmermann@suse.de>
 References: <20260527133917.207150-1-tzimmermann@suse.de>
@@ -65,92 +65,40 @@ Content-Transfer-Encoding: 8bit
 X-Rspamd-Pre-Result: action=no action;
 	module=replies;
 	Message is reply to one we originated
-X-Rspamd-Queue-Id: A9B6A676DD
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+X-Spamd-Result: default: False [-4.00 / 50.00];
+	REPLY(-4.00)[]
 X-Rspamd-Pre-Result: action=no action;
 	module=replies;
 	Message is reply to one we originated
+X-Rspamd-Queue-Id: 86ED56BA6A
 X-Spam-Flag: NO
-X-Rspamd-Action: no action
-X-Spam-Level: 
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
 X-Spam-Score: -4.00
-X-Spamd-Result: default: False [-4.00 / 50.00];
-	REPLY(-4.00)[]
+X-Spam-Level: 
+X-Rspamd-Action: no action
 
-Add DRM_VBLANK_FLAG_SIMULATED for CRTCs that do not have a hardware
-vblank interrupt. Setting the flag tells DRM to not report vblank
-capabilities from the WAIT_VBLANK ioctl.
+Mark the vblank event on bochs as simulated, so that the WAIT_VBLANK
+ioctl fails with an error. The ioctl should not be supported because
+the output is not synchronized to a display refresh.
 
-DRM_IOCTL_WAIT_VBLANK queries timestamps from a vblank event or waits
-for the next vblank event to occur. DRM clients use this functionality
-to synchronize their output with the display's vblank phase. Hence this
-is only supported for hardware implementations.
-
-Software implementations are not synchronized to the display and merely
-act as a rate limiter for page-flip events. The WAIT_VBLANK ioctl thus
-should fail with an error.
-
-v2:
-- add filter in CRTC_GET_SEQUENCE and CRTC_QUEUE_SEQUENCE ioctls (Michel)
-
-Suggested-by: Simona Vetter <simona@ffwll.ch>
 Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 ---
- drivers/gpu/drm/drm_vblank.c | 10 ++++++++++
- include/drm/drm_vblank.h     |  5 +++++
- 2 files changed, 15 insertions(+)
+ drivers/gpu/drm/tiny/bochs.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/drm_vblank.c b/drivers/gpu/drm/drm_vblank.c
-index 21ca91b4c014..3ef4ed08e7f6 100644
---- a/drivers/gpu/drm/drm_vblank.c
-+++ b/drivers/gpu/drm/drm_vblank.c
-@@ -1794,6 +1794,9 @@ int drm_wait_vblank_ioctl(struct drm_device *dev, void *data,
+diff --git a/drivers/gpu/drm/tiny/bochs.c b/drivers/gpu/drm/tiny/bochs.c
+index e2d957e51505..b5955ef39e31 100644
+--- a/drivers/gpu/drm/tiny/bochs.c
++++ b/drivers/gpu/drm/tiny/bochs.c
+@@ -677,7 +677,7 @@ static int bochs_kms_init(struct bochs_device *bochs)
+ 	drm_connector_attach_edid_property(connector);
+ 	drm_connector_attach_encoder(connector, encoder);
  
- 	vblank = drm_vblank_crtc(dev, pipe);
+-	ret = drm_vblank_init(dev, 1);
++	ret = drmm_vblank_init(dev, 1, DRM_VBLANK_FLAG_SIMULATED);
+ 	if (ret)
+ 		return ret;
  
-+	if (vblank->flags & DRM_VBLANK_FLAG_SIMULATED)
-+		return -EOPNOTSUPP;
-+
- 	/* If the counter is currently enabled and accurate, short-circuit
- 	 * queries to return the cached timestamp of the last vblank.
- 	 */
-@@ -2035,6 +2038,10 @@ int drm_crtc_get_sequence_ioctl(struct drm_device *dev, void *data,
- 	pipe = drm_crtc_index(crtc);
- 
- 	vblank = drm_crtc_vblank_crtc(crtc);
-+
-+	if (vblank->flags & DRM_VBLANK_FLAG_SIMULATED)
-+		return -EOPNOTSUPP;
-+
- 	vblank_enabled = READ_ONCE(vblank->config.disable_immediate) &&
- 		READ_ONCE(vblank->enabled);
- 
-@@ -2102,6 +2109,9 @@ int drm_crtc_queue_sequence_ioctl(struct drm_device *dev, void *data,
- 
- 	vblank = drm_crtc_vblank_crtc(crtc);
- 
-+	if (vblank->flags & DRM_VBLANK_FLAG_SIMULATED)
-+		return -EOPNOTSUPP;
-+
- 	e = kzalloc_obj(*e);
- 	if (e == NULL)
- 		return -ENOMEM;
-diff --git a/include/drm/drm_vblank.h b/include/drm/drm_vblank.h
-index 39a201b83781..03fa7259b6ac 100644
---- a/include/drm/drm_vblank.h
-+++ b/include/drm/drm_vblank.h
-@@ -37,6 +37,11 @@ struct drm_device;
- struct drm_crtc;
- struct drm_vblank_work;
- 
-+/**
-+ * DRM_VBLANK_FLAG_SIMULATED - vblank uses a software timer
-+ */
-+#define DRM_VBLANK_FLAG_SIMULATED	BIT(1)
-+
- /**
-  * struct drm_pending_vblank_event - pending vblank event tracking
-  */
 -- 
 2.54.0
 
