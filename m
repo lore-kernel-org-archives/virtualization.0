@@ -1,43 +1,81 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5999DCA4E
-	for <virtualization@lists.linux.dev>; Thu, 28 May 2026 04:18:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1779941908; cv=pass; b=BKanfHLn7yk1HBZ1pcxHLeYn20l51FMpyp27Itcj5lVoRJudLMPpzg0fwwfCniMRt5IRfSL1rYVSgBteGJp0GOhl4/2qtQP8ZHm58EmWOTb278XcudAz8YiLL84Bxlmt8sPBg8bJ88fKKEIDYTuCTnrpscXjAea5rYnOB5uDugc=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1779941908; c=relaxed/simple;
-	bh=n5MONX/LjWXxfKF+9OG5n9D35bKsWP2UD/miqlSUADk=;
-	h=Message-ID:Date:MIME-Version:Subject:From:To:Cc:References:
-	 In-Reply-To:Content-Type; b=XTXAiuKDrSZ7GMJB/ypkLMu65PrZ/NMXo1SQL48plb9qM8mpPA5ZmacgMFTDm+2THP7YPqpTOFCR63M3ZKPMul6tZtGwiuvDCWas77N49NOFx9DZy6x/h/cX11svoaLbQ3u8Zu94fP8CKipQ4/N17yLjC2GMJJ3fgzUB1nu8KEw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=Xq44ZgXD; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 685223546ED
+	for <virtualization@lists.linux.dev>; Thu, 28 May 2026 07:54:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1779954862; cv=none; b=nZKBIoZUoLeTCwqmjzHy4O+yv20bZhBF7CrjMoFnegFA66hHYNyYMyPDTUaT/1KrpD+kv0IZnNQRtvNPIx/8xy41V7HT2LJSid58gtr/dUQIOdgICg03p77KbbjtnZE/fwiWUF7dADvn0EFbV7Vw1XOBGBnnzLu7C2vL4jSUvqA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1779954862; c=relaxed/simple;
+	bh=EV8yF7IKuRIViS0hsn4EyG1MflkEMwKRmcSfp15QYYA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=P30UyFO4fT7XLJp+mKqCfPo3366KhX+6uDQcC5uTAUPsCFSKN8MzJXwg7jKU/Eo1NCujr+Wem8Q6b0jXQgDdzo91T9nOZ4pEcp+MuvHIDX0TxAfqJoNO4eeN0S1lEKl0csnvSbWJq+MQXZgTBfWNPz4tc5JFn6YS50SP9Hg3Wuc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=Vibv4b2t; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=N9krKUA1; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=iPU0Jk9T; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=GjZHsRQG; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="Xq44ZgXD"
-ARC-Seal: i=1; a=rsa-sha256; t=1779941899; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=Sc+mORCUgAvGazUVYLDJeMUMDw6upf4YXvSa879GXGHyEQIruuykY4ZrpRAM7TQxWtx9HB2oIyaMV04ze8r/bJi4U1E9CTBozi7b2zo4QVKOzjCPwm/ChFfg423W4xfY14TVGey4HBZnbESZlRr3HWJvs0Ak/KtgI7MwSH+si4I=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1779941899; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=8o1XLSa5F/j62VrWfLWilpe1LiNSehmG9D20djbFbCU=; 
-	b=Nrp6gQY9sOLy2/u+S0YNCdNNKoyVDFSYEZrxtYpqEhJDRZa+gUIaNDZYDp6gqBeF0SgQOwcxMCpUMfR+lXER82lnUfsef4qNJfFgX16Jtx8WpiaJ3oAodg04V9282ytx7b1d8DsEi43xWUmJAojTGBA1SPaiTsXkJ/eIZV185lw=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1779941898;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:From:From:To:To:Cc:Cc:References:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=8o1XLSa5F/j62VrWfLWilpe1LiNSehmG9D20djbFbCU=;
-	b=Xq44ZgXDo/kRUl/B3V2oBtmllM6wCwtAklzvxHwSUZsZumJvM7wCYJVAneAqGPcE
-	Gsit15XMb/VyV+5TcYJTDsam9YuX5B/CUW3FSPaFkwGSetlMA28veT8kjkM4MBYGe8A
-	TMXjQFc5gvJNe2gZcpF7XRRUl1wwmKVFiiRLYqKU=
-Received: by mx.zohomail.com with SMTPS id 1779941897157316.1392316428663;
-	Wed, 27 May 2026 21:18:17 -0700 (PDT)
-Message-ID: <e6b414a1-db9e-45a1-9cb8-e9459c028f6f@collabora.com>
-Date: Thu, 28 May 2026 07:18:12 +0300
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="Vibv4b2t";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="N9krKUA1";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="iPU0Jk9T";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="GjZHsRQG"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 7382D6AAFF;
+	Thu, 28 May 2026 07:54:17 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1779954858; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=nIFtEp8XNRLMDTgplchOXvBKr/AWJ8CoFKLco2rj1TI=;
+	b=Vibv4b2tN84Hue1lY0RmmIbay0Lyx5VmfDU2oMVp7/9PUXR9frjPzjsYaCKNT17GVHsOhU
+	HeKNhTpIS/M1AxPNzQ3nLjM+krKdc9Q+Rfj5krHroMUW5F1xFqQPKrzlS34obps7+TNV9E
+	A5jnPk4chUG8b73qNbd9OuRt7x3jACg=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1779954858;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=nIFtEp8XNRLMDTgplchOXvBKr/AWJ8CoFKLco2rj1TI=;
+	b=N9krKUA1KgGc3J0zgor7SkZxGamN7dtY2O19CnV4Tb0qVyM411Dc+5BTPDISA6oUV2ogl5
+	c9PvWIvgPZ+zLPBw==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=iPU0Jk9T;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=GjZHsRQG
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1779954857; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=nIFtEp8XNRLMDTgplchOXvBKr/AWJ8CoFKLco2rj1TI=;
+	b=iPU0Jk9TcyIT1jIz4sLNnE0aYJ6qPawt/UPUXEN9yt4ROET6SvgUupWCqOWqX7gSciX/+V
+	e2eNcD7XgFoh9NTjUQzBCeduNHPCs76dFrrq6aS7OX0CWEF8C2I8SmZewmj9yl86SGls42
+	ZLXAD8MvE/napEwcK4CKF58H7CHeztE=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1779954857;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=nIFtEp8XNRLMDTgplchOXvBKr/AWJ8CoFKLco2rj1TI=;
+	b=GjZHsRQGDCs4T6IyCm2heJ2vbAHLAVE4iA2S5CeM0lxNwxHGurTJT6nr8jkHYI+tFIMVEK
+	hgktSEDhRZFqQLDQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 0A3715AC99;
+	Thu, 28 May 2026 07:54:17 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id w30pAan0F2qvZgAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Thu, 28 May 2026 07:54:17 +0000
+Message-ID: <1d399c2d-b50f-4d19-8170-9db8961e4227@suse.de>
+Date: Thu, 28 May 2026 09:54:16 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -45,209 +83,202 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] drm/virtio: abort virtqueue wait on device removal to
- avoid hung task
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-To: Ryosuke Yasuoka <ryasuoka@redhat.com>, David Airlie <airlied@redhat.com>,
- Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Simona Vetter <simona@ffwll.ch>
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
-References: <18b1d7267ace8b76.329809b8dd1e13b3.4134c0f069791aa6@ryasuoka-thinkpadx1carbongen9.tokyo.csb>
- <f684508b-ec0e-4e71-80be-95ae874d8e85@collabora.com>
+Subject: Re: [PATCH v2 0/9] drm: Limit DRM_IOCTL_WAIT_VBLANK to vblank
+ interrupts
+To: Julian Orth <ju.orth@gmail.com>
+Cc: simona@ffwll.ch, airlied@gmail.com, mdaenzer@redhat.com,
+ pekka.paalanen@collabora.com, jadahl@gmail.com, contact@emersion.fr,
+ maarten.lankhorst@linux.intel.com, mripard@kernel.org, mhklinux@outlook.com,
+ amd-gfx@lists.freedesktop.org, dri-devel@lists.freedesktop.org,
+ wayland-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org,
+ virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org
+References: <20260527133917.207150-1-tzimmermann@suse.de>
+ <CAHijbEVZBRTK7yhZy8gaZwb19JMzUD_nA2S1LOKX2NrK19RBsQ@mail.gmail.com>
 Content-Language: en-US
-In-Reply-To: <f684508b-ec0e-4e71-80be-95ae874d8e85@collabora.com>
-Content-Type: text/plain; charset=UTF-8
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <CAHijbEVZBRTK7yhZy8gaZwb19JMzUD_nA2S1LOKX2NrK19RBsQ@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
+X-Spam-Level: 
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Queue-Id: 7382D6AAFF
+X-Rspamd-Action: no action
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	ARC_NA(0.00)[];
+	RCPT_COUNT_TWELVE(0.00)[16];
+	FREEMAIL_TO(0.00)[gmail.com];
+	MIME_TRACE(0.00)[0:+];
+	SPAMHAUS_XBL(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com,outlook.com];
+	FREEMAIL_CC(0.00)[ffwll.ch,gmail.com,redhat.com,collabora.com,emersion.fr,linux.intel.com,kernel.org,outlook.com,lists.freedesktop.org,vger.kernel.org,lists.linux.dev];
+	RCVD_TLS_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:104:10:150:64:97:from,2a07:de40:b281:106:10:150:64:167:received];
+	TAGGED_RCPT(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:url,people.freedesktop.org:url,imap1.dmz-prg2.suse.org:rdns,imap1.dmz-prg2.suse.org:helo,suse.de:email,suse.de:dkim,suse.de:mid]
+X-Spam-Flag: NO
+X-Spam-Score: -3.01
 
-On 5/26/26 13:24, Dmitry Osipenko wrote:
-> On 5/22/26 11:51, Ryosuke Yasuoka wrote:
->> Hi Dmitry,
->> Thank you for your review and the comment.
+Hi
+
+Am 27.05.26 um 18:31 schrieb Julian Orth:
+> On Wed, May 27, 2026 at 3:39 PM Thomas Zimmermann <tzimmermann@suse.de> wrote:
+>> DRM's WAIT_VBLANK ioctl synchronizes user-space clients to display
+>> refresh. This is meaningless with vblank timers, which run unrelated
+>> to the hardware's vblank.
 >>
->> On 21/05/2026 22:01, Dmitry Osipenko wrote:
->>> 21.05.2026 05:19, Ryosuke Yasuoka пишет:
->>>> virtio_gpu_queue_ctrl_sgs() and virtio_gpu_queue_cursor() use
->>>> wait_event() without any abort condition when waiting for virtqueue
->>>> space. If the host device stops processing commands, these waits block
->>>> indefinitely inside a drm_dev_enter/exit() critical section. Since
->>>> drm_dev_unplug(), which is called in device removal and system shutdown
->>>> call path, blocks on synchronize_srcu() until all critical sections
->>>> complete, device removal and system shutdown also hang.
->>>>
->>>> Add a vqs_released flag to virtio_gpu_device and include it in the
->>>> wait_event() condition. Set the flag and wake up both queues in a new
->>>> virtio_gpu_release_vqs() helper, called before drm_dev_unplug() in both
->>>> virtio_gpu_remove() and virtio_gpu_shutdown(). When the flag is set, the
->>>> wait returns immediately and the command is aborted, following the same
->>>> cleanup path as drm_dev_enter() failure.
->>>>
->>>> Reported-by: syzbot+d6dd6f86d3aaf7eebe7406e45c1c6e549453f224@syzkaller.appspotmail.com
->>>> Closes: https://syzkaller.appspot.com/bug?id=d6dd6f86d3aaf7eebe7406e45c1c6e549453f224
->>>> Reported-by: syzbot+908bd910da5dd79b88de4cf7baf376cc873a922e@syzkaller.appspotmail.com
->>>> Closes: https://syzkaller.appspot.com/bug?id=908bd910da5dd79b88de4cf7baf376cc873a922e
->>>> Signed-off-by: Ryosuke Yasuoka <ryasuoka@redhat.com>
->>>> ---
->>>> Changes in v2:
->>>> - Update the commit message.
->>>> - Replace wait_event_timeout() with wait_event() using a compound
->>>> condition that includes a new vqs_released flag.
->>>> - Add virtio_gpu_release_vqs() helper to set the flag and wake up
->>>> both queues, called before drm_dev_unplug() in remove and shutdown
->>>> paths.
->>>> - Remove the hardcoded 5-second timeout. Recovery is now driven by
->>>> the driver flag instead of an arbitrary timeout value.
->>>> ---
->>>>  drivers/gpu/drm/virtio/virtgpu_drv.c | 15 +++++++++++++++
->>>>  drivers/gpu/drm/virtio/virtgpu_drv.h |  1 +
->>>>  drivers/gpu/drm/virtio/virtgpu_vq.c  | 23 +++++++++++++++++++++--
->>>>  3 files changed, 37 insertions(+), 2 deletions(-)
->>>>
->>>> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
->>>> index a5ce96fb8a1d..e4fe5e0780f9 100644
->>>> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
->>>> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
->>>> @@ -119,10 +119,24 @@ static int virtio_gpu_probe(struct virtio_device *vdev)
->>>>  	return ret;
->>>>  }
->>>>  
->>>> +/*
->>>> + * Release pending virtqueue waits so the drm_dev_enter/exit() critical
->>>> + * sections complete before drm_dev_unplug() blocks on synchronize_srcu().
->>>> + */
->>>> +static void virtio_gpu_release_vqs(struct drm_device *dev)
->>>> +{
->>>> +	struct virtio_gpu_device *vgdev = dev->dev_private;
->>>> +
->>>> +	vgdev->vqs_released = true;
->>>> +	wake_up_all(&vgdev->ctrlq.ack_queue);
->>>> +	wake_up_all(&vgdev->cursorq.ack_queue);
->>>> +}
->>>> +
->>>>  static void virtio_gpu_remove(struct virtio_device *vdev)
->>>>  {
->>>>  	struct drm_device *dev = vdev->priv;
->>>>  
->>>> +	virtio_gpu_release_vqs(dev);
->>>>  	drm_dev_unplug(dev);
->>>>  	drm_atomic_helper_shutdown(dev);
->>>>  	virtio_gpu_deinit(dev);
->>>> @@ -133,6 +147,7 @@ static void virtio_gpu_shutdown(struct virtio_device *vdev)
->>>>  {
->>>>  	struct drm_device *dev = vdev->priv;
->>>>  
->>>> +	virtio_gpu_release_vqs(dev);
->>>>  	/* stop talking to the device */
->>>>  	drm_dev_unplug(dev);
->>>>  }
->>>> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
->>>> index f17660a71a3e..0bd69a40857e 100644
->>>> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
->>>> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
->>>> @@ -235,6 +235,7 @@ struct virtio_gpu_device {
->>>>  
->>>>  	struct virtio_gpu_queue ctrlq;
->>>>  	struct virtio_gpu_queue cursorq;
->>>> +	bool vqs_released;
->>>>  	struct kmem_cache *vbufs;
->>>>  
->>>>  	atomic_t pending_commands;
->>>> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
->>>> index 67865810a2e7..8057a9b7356d 100644
->>>> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
->>>> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
->>>> @@ -396,7 +396,19 @@ static int virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
->>>>  	if (vq->num_free < elemcnt) {
->>>>  		spin_unlock(&vgdev->ctrlq.qlock);
->>>>  		virtio_gpu_notify(vgdev);
->>>> -		wait_event(vgdev->ctrlq.ack_queue, vq->num_free >= elemcnt);
->>>> +		wait_event(vgdev->ctrlq.ack_queue,
->>>> +			   vq->num_free >= elemcnt || vgdev->vqs_released);
->>>> +		/*
->>>> +		 * Set by virtio_gpu_release_vqs() to unblock
->>>> +		 * synchronize_srcu() wait in drm_dev_unplug().
->>>> +		 */
->>>> +		if (vgdev->vqs_released) {
->>>> +			if (fence && vbuf->objs)
->>>> +				virtio_gpu_array_unlock_resv(vbuf->objs);
->>>> +			free_vbuf(vgdev, vbuf);
->>>> +			drm_dev_exit(idx);
->>>> +			return -ENODEV;
->>>> +		}
->>>>  		goto again;
->>>>  	}
->>>>  
->>>> @@ -566,7 +578,14 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
->>>>  	ret = virtqueue_add_sgs(vq, sgs, outcnt, 0, vbuf, GFP_ATOMIC);
->>>>  	if (ret == -ENOSPC) {
->>>>  		spin_unlock(&vgdev->cursorq.qlock);
->>>> -		wait_event(vgdev->cursorq.ack_queue, vq->num_free >= outcnt);
->>>> +		wait_event(vgdev->cursorq.ack_queue,
->>>> +			   vq->num_free >= outcnt || vgdev->vqs_released);
->>>> +		/* See comment in virtio_gpu_queue_ctrl_sgs(). */
->>>> +		if (vgdev->vqs_released) {
->>>> +			free_vbuf(vgdev, vbuf);
->>>> +			drm_dev_exit(idx);
->>>> +			return;
->>>> +		}
->>>>  		spin_lock(&vgdev->cursorq.qlock);
->>>>  		goto retry;
->>>>  	} else {
->>>
->>> What about other wait_event in the driver? Why only these?
+>> Disable the ioctl for simulated vblanks. Set DRM_VBLANK_FLAG_SIMULATED
+>> for CRTCs with simulated vblank events in all such drivers. The vblank
+>> timers of these devices still rate-limit the number of page-flip events
+>> to match the display refresh.
 >>
->> There are other wait_event() calls on vgdev->resp_wq in virtgpu_prime.c
->> and virtgpu_vram.c. These can also cause a stuck process when the host
->> device stops or does not respond and should be fixed. However, they are
->> not related to the issue being fixed here. I think they should be
->> addressed in a separate commit.
+>> According to maintainers, user-space compositors do not require the ioctl
+>> for rate-limitting display output. Weston, Kwin and Mutter rely on completion
+>> events. Mutter optionally uses the WAIT_VBLANK ioctl only to optimize the
+>> time from input to output.
 >>
->> The wait_event(vgdev->resp_wq) calls wait for a host response, not for
->> virtqueue ring space. They are not inside a drm_dev_enter/exit()
->> critical section, so they don't block drm_dev_unplug() ->
->> synchronize_srcu() and are not part of the deadlock reported by syzbot.
+>> When testing with mutter and weston, the page-flip rate appears correct
+>> with the patch set applied.
+> To avoid this being a regression, you need to test that this change
+> does not regress input latency.
+
+Let me stress that the current situation is that there's high-quality, 
+and low-quality and no timing information. Depends on the driver and 
+hardware.
+
+>
+> As discussed on IRC, compositors use vblank data to predict the time
+> of the next flip event. For each device that you are touching here,
+> there are two possibilities:
+>
+> - The vblank data is related to the flip timing, i.e. flip events and
+> vblank events are sent at almost the same time. In this case removing
+> these apis removes the path for compositors to predict the time of the
+> next flip event. Input latency will therefore regress after idle
+> periods when the compositor no longer has the time of the last vblank.
+
+User-space compositors seem to operate under this assumption. That, I 
+think, makes sense on better hardware with rendering and vblank IRQs. 
+Page flips are fast on such systems.
+
+>
+> - The vblank data has nothing to do with the time of the next flip
+> event. In this case this series could in fact improve latency because
+> it removes the incorrect data from the compositor.
+
+Most of the hardware that would use vblank timers falls in this 
+category. Page flips often consist of memcpys into video memory, or they 
+transfer pixel data over slow peripheral busses. The amount of work per 
+page flip varies with the size of the damage rectangles.
+
+Any vblank timing information here is therefore of low quality. For some 
+scenarios, it would be common to miss a vblank or even the one after it.
+
+
+IMHO, the first thing to discuss is whether having possibly low-quality 
+timing information is preferable to having either high-quality timing or 
+none. I have no strong opinion, but would tend to the latter.
+
+Best regards
+Thomas
+
+
+>
+> Whether the times of the flip events correspond to hardware timings is
+> not relevant. Everything in wayland compositors is scheduled against
+> flip event timings and they are also forwarded to clients for their
+> frame scheduling. If the flip timings are wrong/out of sync with the
+> hardware, then removing the vblank apis does not improve this
+> situation.
+>
+>> This change has been discussed at length on IRC recently.
 >>
->> However, if a process is stuck in wait_event(vgdev->resp_wq), there is
->> no way to recover other than host device recovery itself. We can still
->> remove the device and destroy the virtqueues while the process is stuck,
->> so the host response can never arrive. IIUC, the stuck thread holds a
->> drm_device reference, preventing vgdev from being freed; this is a
->> resource leak.
+>> https://people.freedesktop.org/~cbrill/dri-log/?channel=dri-devel&highlight_names=&date=2026-05-08&show_html=true
+>> https://people.freedesktop.org/~cbrill/dri-log/?channel=dri-devel&highlight_names=&date=2026-05-12&show_html=true
+>> https://people.freedesktop.org/~cbrill/dri-log/?channel=dri-devel&highlight_names=&date=2026-05-13&show_html=true
+>> https://people.freedesktop.org/~cbrill/dri-log/?channel=dri-devel&highlight_names=&date=2026-05-15&show_html=true
 >>
->> This can be fixed by adding a wake_up_all() and a vqs_released check
->> similar to what is done for ctrlq/cursorq. However, I think this should
->> be a separate commit since the root cause and problem are different.
+>> v2:
+>> - add filter to CRTC_GET_SEQUENCE and CRTC_QUEUE_SEQUENCE ioctls (Michel)
+>> - clarify Mutter's behavior in cover letter (Michel)
 >>
->> Alternatively, the resp_wq wait_event() calls could be converted to
->> wait_event_interruptible() to fix the issue. But as you mentioned
->> earlier in the v1 comment, we need the wait_event_interruptible()
->> rework.
+>> Thomas Zimmermann (9):
+>>    drm/vblank: Add drmm_vblank_init() to indicate managed cleanup
+>>    drm/vblank: Add DRM_VBLANK_FLAG_SIMULATED
+>>    drm/amdgpu: vkms: Set DRM_VBLANK_FLAG_SIMULATED
+>>    drm/bochs: Set DRM_VBLANK_FLAG_SIMULATED
+>>    drm/cirrus: Set DRM_VBLANK_FLAG_SIMULATED
+>>    drm/hypervdrm: Set DRM_VBLANK_FLAG_SIMULATED
+>>    drm/qxl: Set DRM_VBLANK_FLAG_SIMULATED
+>>    drm/virtgpu: Set DRM_VBLANK_FLAG_SIMULATED
+>>    drm/vkms: Set DRM_VBLANK_FLAG_SIMULATED
 >>
->> What do you think? Should I include the resp_wq fix as a separate commit
->> in this patch series, or leave it for the _interruptible() rework?
-> 
-> Let's leave it for the later rework.
-> 
-> I briefly tried testing this patch and it's not apparent what exact
-> problem this patch solves.
-> 
-> With a regular Linux OS running systemd, during normal shutdown, systemd
-> waits for processes to be terminated before it would perform kernel
-> shutdown, hence virtio_gpu_shutdown() doesn't have a chance to be
-> invoked in my scenario.
-> 
-> In the referenced syzkaller reports, I don't see anything related to
-> shutdown or driver removal. Could you please clarify how to reproduce
-> and test the original issue?
-To make it more clear, the patch looks okay, but I'm not convinced that
-it fixes the reported issue. We likely need a full solution with
-handling interrupt signals, using a reasonable timeout and etc for all
-wake_event().
+>>   drivers/gpu/drm/amd/amdgpu/amdgpu_vkms.c    |  3 ++-
+>>   drivers/gpu/drm/drm_vblank.c                | 26 +++++++++++++++------
+>>   drivers/gpu/drm/drm_vblank_helper.c         |  2 +-
+>>   drivers/gpu/drm/hyperv/hyperv_drm_modeset.c |  2 +-
+>>   drivers/gpu/drm/qxl/qxl_display.c           |  2 +-
+>>   drivers/gpu/drm/tiny/bochs.c                |  2 +-
+>>   drivers/gpu/drm/tiny/cirrus-qemu.c          |  2 +-
+>>   drivers/gpu/drm/virtio/virtgpu_display.c    |  2 +-
+>>   drivers/gpu/drm/vkms/vkms_drv.c             |  4 ++--
+>>   include/drm/drm_crtc.h                      |  2 +-
+>>   include/drm/drm_device.h                    |  2 +-
+>>   include/drm/drm_vblank.h                    | 15 +++++++++++-
+>>   12 files changed, 45 insertions(+), 19 deletions(-)
+>>
+>>
+>> base-commit: 5fb5a9a63cf5ece68e0eeb6fa397da27712bccf0
+>> --
+>> 2.54.0
+>>
 
 -- 
-Best regards,
-Dmitry
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
+GF: Jochen Jaser, Andrew McDonald, Werner Knoblich, (HRB 36809, AG Nürnberg)
+
+
