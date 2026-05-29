@@ -1,132 +1,104 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55E7C3CA4AD;
-	Fri, 29 May 2026 11:10:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0C5321A453;
+	Fri, 29 May 2026 14:28:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780053047; cv=none; b=E+Niyw6j6fSWmiLxXzEfeqUB6qX3Y2/A3LJVSOvUXBvQQr5a7vG+p7c1c1uplB+ADiiuEngUANVKW5iKP/SgGd87NiOBMZ07qzV+sbxCRFjgkZo+z7Je93iCFwDMSD8swcpvqXOQpAPDFNWVntnbkRrvzuSfCbICRlKaWYbz1go=
+	t=1780064894; cv=none; b=UIGhJblWdS9hDpi2POj72m3awssRVGXqPHHLgf0keGRa5nlTW39xqHRxcAKMZ/qmVBHL9Bh9BdG7b6dyqsAD+hvMcVoT3eQ7TZuXTQUv2qjeqjhoro9+AgrGofBcADnLH6jfaX3kbWE2YwdlSy5x9ODid6UHcJ/2viREhOwnSBc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780053047; c=relaxed/simple;
-	bh=fJayk0vMTMoSBTWxfwn6ztHUTYZZzQABYav/VKCvz2Q=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=FRR6Vs0E81W7X4XQq9K+pDCM4kfqq7iBVZp5xRrsYqUGIhSGt0zMJFAd96XuHznXuP7j2gosMj5aZzBxCdo2UUrn5XZMl/lCybDpiXHsSsXtKJ/QBaB2j2oEsEpE5gKcwCHreNnpwqpnriIcBNQFrguKC6Qqtv0ds2Vv0+4bb6I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=jD0ZTL7V; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
+	s=arc-20240116; t=1780064894; c=relaxed/simple;
+	bh=cIgfnw1Odn1bnUkmebwDdRVFvHzn1+LqD5i5OE9f8Eo=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=pTUKiUXi4U24Yr7SHd0hFHb0S38CxlW06DsopTJf1nUXn3CHpoLefaCMZxo5bUOqV8yAR7DNl8SDt0OiLMV5RcY2SkNRAquLJWx9tWZepcbKEQEfIozgYw+jHUfTfD4KgAjDHF69XkzoMzXpT49aFKwJBvaa2eGglyQnWy1b3Hc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fhXNXhQ7; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="jD0ZTL7V"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=nRkEGXP11hFVJhyK9fz69KbA7K+xdDcBYB3fNOZPNoc=; b=jD0ZTL7VZL3PdRN8lqnvI7EMm/
-	cwIN41nkcKFCkXuhq9JMAaNjzoF5EmP/5hSA05BsKqCwFXKlPpqQ3u5dKlnO99GUuV8jyO/fBaCCB
-	Z0Zwa2NDhkxXBQYRoGqPjbM7LC47WJhSdvG3dKwaq7/KYnyZGmGCvZAMOKGQ8A26r1pfNONyyvwon
-	BsJuSJfYSNH+AGaBXjF2Ei01nwJmWB36T8VzStOmpSdRy6iK2xTXjFsRIqCr+oiIoUyBpbHvtX2U/
-	e9OfFFdrv44Dl78xJDJ48IN6BEynEF9gXrR75FToAdOYZyF/e2EQRuSseX39PW3HzEDSJ/tATWsdn
-	VCnlsYlQ==;
-Received: from 2001-1c00-8d85-4b00-266e-96ff-fe07-7dcc.cable.dynamic.v6.ziggo.nl ([2001:1c00:8d85:4b00:266e:96ff:fe07:7dcc] helo=noisy.programming.kicks-ass.net)
-	by casper.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1wSv6S-000000060Uo-2N4R;
-	Fri, 29 May 2026 11:10:12 +0000
-Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id 06D5E30036F; Fri, 29 May 2026 13:10:12 +0200 (CEST)
-Date: Fri, 29 May 2026 13:10:11 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-To: Roman Gushchin <roman.gushchin@linux.dev>
-Cc: Zi Yan <ziy@nvidia.com>, Yosry Ahmed <yosry@kernel.org>,
-	"David Hildenbrand (Arm)" <david@kernel.org>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Pasha Tatashin <pasha.tatashin@soleen.com>,
-	Lance Yang <lance.yang@linux.dev>, dave.hansen@intel.com,
-	dave.hansen@linux.intel.com, ypodemsk@redhat.com, hughd@google.com,
-	will@kernel.org, aneesh.kumar@kernel.org, npiggin@gmail.com,
-	tglx@linutronix.de, mingo@redhat.com, bp@alien8.de, x86@kernel.org,
-	hpa@zytor.com, arnd@arndb.de, ljs@kernel.org,
-	baolin.wang@linux.alibaba.com, Liam.Howlett@oracle.com,
-	npache@redhat.com, ryan.roberts@arm.com, dev.jain@arm.com,
-	baohua@kernel.org, shy828301@gmail.com, riel@surriel.com,
-	jannh@google.com, jgross@suse.com, seanjc@google.com,
-	pbonzini@redhat.com, boris.ostrovsky@oracle.com,
-	virtualization@lists.linux.dev, kvm@vger.kernel.org,
-	linux-arch@vger.kernel.org, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org, ioworker0@gmail.com
-Subject: Re: [PATCH 7.2 v10 0/2] skip redundant sync IPIs when TLB flush sent
- them
-Message-ID: <20260529111011.GH3493090@noisy.programming.kicks-ass.net>
-References: <80ab39c2-efb9-4a23-bd56-46d9bb4e41bb@kernel.org>
- <20260424073145.b990fe9b925da304508aad71@linux-foundation.org>
- <644e65dc-3d39-4137-b51f-51d953b67d50@kernel.org>
- <CAO9r8zN1pRfyC0Rh+UdW-Lsret=z3oveT3=gnZftX-Sr_ubyyQ@mail.gmail.com>
- <20260424190141.GA3783056@noisy.programming.kicks-ass.net>
- <E375C69C-557E-44EB-9B3C-618C9F7BA9D8@nvidia.com>
- <20260424192250.GC3783056@noisy.programming.kicks-ass.net>
- <20260424193529.GA3853824@noisy.programming.kicks-ass.net>
- <7ia45x5gktx9.fsf@castle.c.googlers.com>
- <20260424201159.GD3783056@noisy.programming.kicks-ass.net>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fhXNXhQ7"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 4C8E7C2BCB8;
+	Fri, 29 May 2026 14:28:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
+	s=k20201202; t=1780064894;
+	bh=cIgfnw1Odn1bnUkmebwDdRVFvHzn1+LqD5i5OE9f8Eo=;
+	h=From:Date:Subject:To:Cc:Reply-To:From;
+	b=fhXNXhQ7/cTf/jGuEsDd4DuyikxelyNVgl4bHmHHM1zyN8ncsMyI9iTX/v2d7czWt
+	 QpjG2rCMFeI0TSlIlEqQsT2NdNwt5Fe2NXbV6Eto9vnoF/5hHedCIO/q84oZGYl9WC
+	 vvtanUv+SJ6REUivd7uHSK2AWDFsAJygUxnb/oADtoGwhw9FWNwa30wVF2mSPobp8s
+	 m1GbiwYwcGQ1LB7pM+LjrkZji4yvIeMfaZL7xL6blik858HEWZGTR/CjErsKPr4tw1
+	 zdRJZlMkxBRGq6TAI4P1NKQkGw84Dk4B6Phqp92TkZVzVO3G697n/Dm/R02oTE1Daw
+	 33cN9+Zo++rQg==
+Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
+	by smtp.lore.kernel.org (Postfix) with ESMTP id 401ACCD6E4A;
+	Fri, 29 May 2026 14:28:14 +0000 (UTC)
+From: Alexis Bouzigues via B4 Relay <devnull+BouziguesAlexis.JohnDeere.com@kernel.org>
+Date: Fri, 29 May 2026 09:28:14 -0500
+Subject: [PATCH] i2c: virtio: mark device ready before registering the
+ adapter
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260424201159.GD3783056@noisy.programming.kicks-ass.net>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260529-virtio-i2c-driver-ok-v1-1-ecf2504f6a56@JohnDeere.com>
+X-B4-Tracking: v=1; b=H4sIAH2iGWoC/x3MQQqDMBBG4avIrB3QaZTGq4iLkoztT8HIRIIg3
+ r2hy2/x3kVZDZppai4yLchIW0XfNhQ+r+2tjFhN0snYDeK5wA4khgSOhqLG6ct+dM4F0eHhn1T
+ T3XTF+d/Oy33/ABQZNFdmAAAA
+To: Viresh Kumar <viresh.kumar@linaro.org>, 
+ Andi Shyti <andi.shyti@kernel.org>
+Cc: linux-i2c@vger.kernel.org, virtualization@lists.linux.dev, 
+ linux-kernel@vger.kernel.org, 
+ Alexis Bouzigues <BouziguesAlexis@JohnDeere.com>
+X-Mailer: b4 0.13.0
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1780064893; l=1298;
+ i=BouziguesAlexis@JohnDeere.com; s=20260527; h=from:subject:message-id;
+ bh=iPwimaClnP4+pM+SMSAbPbbHxIEK/XLSHtxDtApz4AY=;
+ b=eToR/52uFUF29AE4RN1+uvqSOsg3sZ2bMRNc1c29cCgA5nCagFpEEoIkP0QMJovGBAwjUJQeS
+ oMRbCXyXn2GA7QEhvCEG3Sea87kyPPzWzbuJFXhdqGPnqma3u/p2TJD
+X-Developer-Key: i=BouziguesAlexis@JohnDeere.com; a=ed25519;
+ pk=5KJ7ArL00x5flpPhi9zRLC2p88V1rZXDQ5SXhpRvTDk=
+X-Endpoint-Received: by B4 Relay for BouziguesAlexis@JohnDeere.com/20260527
+ with auth_id=797
+X-Original-From: Alexis Bouzigues <BouziguesAlexis@JohnDeere.com>
+Reply-To: BouziguesAlexis@JohnDeere.com
 
-On Fri, Apr 24, 2026 at 10:11:59PM +0200, Peter Zijlstra wrote:
-> On Fri, Apr 24, 2026 at 08:03:14PM +0000, Roman Gushchin wrote:
-> > Peter Zijlstra <peterz@infradead.org> writes:
-> > 
-> > > On Fri, Apr 24, 2026 at 09:22:51PM +0200, Peter Zijlstra wrote:
-> > >
-> > >>     mdir = mailbox.Maildir('~/Maildir/');
-> > >> 
-> > >>     for i, r in enumerate(reviews):
-> > >>         inline = r.get('inline_review', '') or ''
-> > >>         if not inline:
-> > >>             continue
-> > >> 
-> > >>         author_name = r.get('author_name', 'Sashiko Reviewer')
-> > >>         author_email = r.get('author_email', 'noreply@sashiko.dev')
-> > >> 
-> > >>         msgid = msgids[r['patch_id']]
-> > >>         subject = subjects[r['patch_id']]
-> > >> 
-> > >>         # Create the Email object
-> > >>         msg = EmailMessage()
-> > >>         msg['Subject'] = f"Re: {subject}"
-> > >>         msg['From'] = f"{author_name} <{author_email}>"
-> > >>         msg['To'] = "peterz@infradead.org"
-> > >>         msg['Date'] = formatdate(localtime=True)
-> > >> 
-> > >>         # The critical threading headers
-> > >>         msg['Message-ID'] = f"<review-{i}-{msgid}>"
-> > >>         msg['References'] = f"<{msgid}>"
-> > >>         msg['In-Reply-To'] = f"<{msgid}>"
-> > >> 
-> > >>         msg.set_content(inline)
-> > >> 
-> > >>         mdir.add(msg)
-> > >> 
-> > >>     mdir.flush()
-> > >
-> > > So Ideally I would have 'Reply-to' header set to the original sender and
-> > > added 'Cc' like the original email. However, AFAICT the JSON does not
-> > > contain this information, and while I could use the mdir object to find
-> > > the original message in my Inbox, this is incredibly slow.
-> > >
-> > > I have a TODO to use python-notmuch to do this, but haven't gotten
-> > > around to doing this yet.
-> > >
-> > > With that 'fixed' I could actually reply to these messages and it would
-> > > all 'just' work. For now I copy/paste when needed.
-> > 
-> > I can add an api to return a json with the review and all
-> > meta-information by the original msgid, will it be useful?
-> 
-> Oh yes, that would be more convenient. Thanks!
+From: Alexis Bouzigues <BouziguesAlexis@JohnDeere.com>
 
-Roman, did you find time to do this? If not, I'll patiently wait :-)
+virtio_i2c_probe() synchronously probes child i2c drivers on the bus,
+but peripherals may use the bus at probe for tasks like reading a chip
+id. The vhost-user-i2c backend stalls at such probes unless DRIVER_OK
+is already set before the virtqueue is first kicked.
+
+Set DRIVER_OK explicitly before i2c_add_adapter(), as done for the
+same reason in commit f5866db64f34 ("virtio_console: enable VQs
+early") and commit 71e4b8bf0482 ("virtio_rpmsg: set DRIVER_OK before
+using device").
+
+Signed-off-by: Alexis Bouzigues <BouziguesAlexis@JohnDeere.com>
+---
+ drivers/i2c/busses/i2c-virtio.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
+index 7b0b0bff8000..5da6fef92bec 100644
+--- a/drivers/i2c/busses/i2c-virtio.c
++++ b/drivers/i2c/busses/i2c-virtio.c
+@@ -222,6 +222,8 @@ static int virtio_i2c_probe(struct virtio_device *vdev)
+ 	 */
+ 	ACPI_COMPANION_SET(&vi->adap.dev, ACPI_COMPANION(vdev->dev.parent));
+ 
++	virtio_device_ready(vdev);
++
+ 	ret = i2c_add_adapter(&vi->adap);
+ 	if (ret)
+ 		virtio_i2c_del_vqs(vdev);
+
+---
+base-commit: 7fd2df204f342fc17d1a0bfcd474b24232fb0f32
+change-id: 20260529-virtio-i2c-driver-ok-96444c2e5398
+
+Best regards,
+-- 
+Alexis Bouzigues <BouziguesAlexis@JohnDeere.com>
+
 
