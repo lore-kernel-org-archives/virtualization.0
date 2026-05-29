@@ -1,69 +1,69 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32F1E42E000
-	for <virtualization@lists.linux.dev>; Fri, 29 May 2026 15:24:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 240AF42EEBB
+	for <virtualization@lists.linux.dev>; Fri, 29 May 2026 15:25:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780068299; cv=none; b=pP+WF258ys6qn1Ci7K2+gG+ejk840N3IrtCtvXFEnimlMvdYYHbcuNxdo+I2XYo+JOwxt7BwNKCQyTQU/PTnmZ2aC3bDaEC/B0xvlzxizTRAMZhgX1+uSUiDI5XsAZt8FO7rjxjfWfgUfAfZgHe0endfEikB+lB6vyMYUqGuo4w=
+	t=1780068304; cv=none; b=i9n9Uydms2uktFrd1w+7Ej40xAf3zeVHTVYFifHD3ZYCWzTuWeCtENMLB9P8cAZ3I8+AYX/uRJ6ZIyfzhczsUuqa/DCx0/rk4od3OumY1LKqogmEXO9HoaNNSdyzDEAJazD/adFQ0xlOQswivLY0FiFQwLqUB9TtcSzIlgeXRMU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780068299; c=relaxed/simple;
-	bh=6BBhnidGx3LLixACksZDtaGP5p7mfI6f8MPPVr2Gwnw=;
+	s=arc-20240116; t=1780068304; c=relaxed/simple;
+	bh=gX3aTYbHX/GyGonutM5PlW3FkeXMFkBsDPOEXbSa+qI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=HKCUcexTBoCkWmygjbzq74Q0DAZZxKUUCNh0oz7B+OwM/Rin+kYD+jxPT50BjZMAXgukQJ9Uqc2RhLaVOa9Cl02L9uGMsKMAyYcDxF0iYtghfDuUVlLK80MsQan6QMVGr1/JRvwI5vCQpHDz2lqseyJ9oDihKuHKCLQSked0ZEQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Eja1pvMt; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=jEApuyE+0HpOjyqFpEq5r5egkqXzmFMpLGm2+FzDk2UpmJO+RZN7RleQmpQxmB7rs2gzzWfoIarDNawZvmxpPUlyxb81UOS9SUrWE1PBHRh9ycvbMplFA871NOLOyea7v0ZzAFV4gwtDU/KsmK82GbG0YSeQ90z8lIZ2eBdpmms=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BFKURluI; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Eja1pvMt"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BFKURluI"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1780068297;
+	s=mimecast20190719; t=1780068302;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=A+sAoCfzYzafV/AuzgTCD2HmceB0XqeceJe9byk3cHc=;
-	b=Eja1pvMtErU1Q9wFY9H7hca69JtRdcByouMS2dIuolvWWXUVdsAWfQCH82AO/ArHaT3TrP
-	IUfApfFmwyZPj3OHr1IwmzX3nUFswou9fxOm2BKDMscpa9GdAU2Q+XTDoMNWkajc9TWdHg
-	AOgtgdfbaI25wJSBjWye/lrLgeiwBPY=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=yuucL8pRyKGlavgC043yPLfH9MArN/0/T/V0zfd6qpo=;
+	b=BFKURluIe3y2KQWW3uCqt6yCGENYSjLGSk1Js0e9M03MnSzsdbZQwWrls90NV6jW2cFV/p
+	nZLDE7w+1gYs6Gp4Mp1O5tKJ4566MegCT9eO1OK0A8c1AWw9QUWpd/8NsJyOv24siyB7QI
+	KDrIOG9RwGicf5Tp0UyyUr6c6DDbA6Q=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-691-67g6134qNV-CUOJZVOTenA-1; Fri, 29 May 2026 11:24:55 -0400
-X-MC-Unique: 67g6134qNV-CUOJZVOTenA-1
-X-Mimecast-MFC-AGG-ID: 67g6134qNV-CUOJZVOTenA_1780068294
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-490261c79fcso55625475e9.0
-        for <virtualization@lists.linux.dev>; Fri, 29 May 2026 08:24:55 -0700 (PDT)
+ us-mta-265-GYeE8ptdOL28g-fDPJ0_-A-1; Fri, 29 May 2026 11:25:00 -0400
+X-MC-Unique: GYeE8ptdOL28g-fDPJ0_-A-1
+X-Mimecast-MFC-AGG-ID: GYeE8ptdOL28g-fDPJ0_-A_1780068300
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-49045f93baeso55197915e9.1
+        for <virtualization@lists.linux.dev>; Fri, 29 May 2026 08:25:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780068294; x=1780673094;
+        d=1e100.net; s=20251104; t=1780068299; x=1780673099;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=A+sAoCfzYzafV/AuzgTCD2HmceB0XqeceJe9byk3cHc=;
-        b=pXv9jg/QHvNye9ctq1nleFbsyX6DI6zRzjnjAFlwFAOdcuwyRD3ZV9VrxvgKkL0l1h
-         DPDU/GRCqmCJRP2oAY8QVAKINCB+bwtueyxDO+d0bodQTVVPfK76BY7ogsj0vZbJArdr
-         Wrqfo0S7WwW1w7HW7gblx6jutXIGV7LX/BSkc6aq/KxqiF0cYg0kecMgiWMNP2s7rU3U
-         8eB1AuMOZJh4aAkj9G36tlLJu4p48HHFPyOJY0R4GbePLq+v7nVxGDstdteCMULCzgY/
-         Xav0VC2fBw+73+RCVHmbnycOXEmtPuW03wIb43YCXZYPbdhYOPPalGnZK9kBN2jk9bMR
-         xzvA==
-X-Forwarded-Encrypted: i=1; AFNElJ9+iPwAJj50cVnQ/zyQDD/PcwdtQmafwmmnx8eAJufX6t5TmQLotS1l8dfeS4e/5TbgLIDlhZpQzs2nPQoyAA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw7ZiobZ/p4fsG5F1RkvQbLhKm48p94FzI2Acj6PJcJt5jWsOdR
-	EgQvoOTsNcjw693e+89ZF17cinNpCGWHdcrEG8kjO+aXNhvhJ2hLOF1U85lW4s7dAEcy8t4QTWA
-	/1AGSWZVpN4XsabVtlIPbF4V62xZf3zCL0GkD+EUz4HgKylT4IpN5BmjUUlCmJXmfQD2F
-X-Gm-Gg: Acq92OGJt/2crL2BYeJEG+pgJfZMSLTkvOwEo3LXYZkeyJCutFWHWl9lJHmZw7NMPbV
-	weCnQGOnzQsXpUedoeWkBAkJ6JiDSKqmLQLGvpB1S4cQCW59ZNqSu0IXETq0MjIBIRbNdpP9YDZ
-	1nqk4g9N9mmV8oqAMNNPVAE81ihL8wacoqd1d+BFJpH3FEsEAyszmZNRhb3/WlEQQghzBK5i2A6
-	XzPXE0LuooPu9Oto1hRMEf1qAwikGrBZKfmaN+AyEO+dxkjhiz/0Dz0aZzzJxP8++RZ/7ET0rTz
-	7aRwgkq16bebevMmytpAQGlSalOkPRVAnzxf4KhrQHe4uvtDReIXWr4DfxCN8JY1Ms1E94Tuf2X
-	hmfaevfyqvbgpt64N9nIvk4rVWIkbE2rEmrmXXnYx7/IO4t9UNi9kng==
-X-Received: by 2002:a05:600c:1c1b:b0:48f:e230:29f4 with SMTP id 5b1f17b1804b1-4909c639d91mr48523525e9.15.1780068294302;
-        Fri, 29 May 2026 08:24:54 -0700 (PDT)
-X-Received: by 2002:a05:600c:1c1b:b0:48f:e230:29f4 with SMTP id 5b1f17b1804b1-4909c639d91mr48522645e9.15.1780068293714;
-        Fri, 29 May 2026 08:24:53 -0700 (PDT)
+        bh=yuucL8pRyKGlavgC043yPLfH9MArN/0/T/V0zfd6qpo=;
+        b=gUO5ZgbIZWS8zbIp8vg63TBAjea0y2hQAWftj9ktUD//nlgJeVsSnN7TdIREyDlDqp
+         mdgiRI+b8Z7tKtIHsCUxa8w93gsoxpv5H+pbz3jKf5iXRlqop0tkhS7zgpTQNsCJ2rRN
+         FvboRHm0gCmCEafZ1H4YzRZOQO+kIvljQQWPvIQqCjwgF4X2PNbNf3bBWkiLGwp8HwI2
+         7jMFGBY9ZMYqSfPoVM0F0/YQc/Saogcw1qiuUanIHPaRI8IxVxmmpugWOPQ8AvXHAEC7
+         Yequ++aQ9ISMvqq5sKeJWzD4JqxKQCc7H872BV9h6+nGsp01jiV0S+AjlXLQ/vKD57N6
+         LA6A==
+X-Forwarded-Encrypted: i=1; AFNElJ9cxTzeR4dXHR0chmKJmEsWxsi+OdDLhtFRuxQWvhaYIJ2bpw2Bf8TkjXvj4JOnHWiLk9NiNSrvM1rriDxFrg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxeMWImGZBqQ0xWj0E3nrA1yHLAYP/77+6KldBIHfNBHxNqTB5D
+	wlQrSjRY31SaJgtd9Qi8SxRdoCqmVCUgM3FYCAtYD3G7IMqSbVaWJIN7GgMYUWJRRN8lSUHRG8u
+	fADli1Qtdl8V5nkJDsAFBFfxuQBWB2irKzW3L6aOcCilotE6WROLcDBUHwBw6vKOdOECj
+X-Gm-Gg: Acq92OHb7k3PT4UaIByxd2oDNKZpioUMmTbLcXf4DNprjXWIHymys57G9K9cEA1K1o2
+	nQYH+AJieXR7sFCJuswK6vioGc+5/mKIMzUkIMssiMu3S7fgmRPjEoAjr6G6qta9/kwpcPIoxAz
+	2l9h02M7NC4ajIeBTVTWbxaZtmVLR7x45xzI0KZvUk0g7GC+FQUDeTYbQyTq6v58x7RjuxlC0k9
+	oJNKDDEznTlg4fXOhfHGaAuChG3tE76yfmkHGc+dasfPs1cKiNhu132XaCe8zO1ksF4jVs04IhB
+	Yd6+X+mPuA77DBevqnF5NcAY4/k2KGNXVchMKqWkYrmcDCf7fkQKX3Ms2+mYh6Zeuz0nmVuadpB
+	svmeSwubXNKW8MhqAwhMMxySwJq0GFRha705Cotz1n2IutWZKqyjNJg==
+X-Received: by 2002:a05:600c:4f08:b0:48a:581c:ead with SMTP id 5b1f17b1804b1-490a290da24mr2201315e9.10.1780068299409;
+        Fri, 29 May 2026 08:24:59 -0700 (PDT)
+X-Received: by 2002:a05:600c:4f08:b0:48a:581c:ead with SMTP id 5b1f17b1804b1-490a290da24mr2200735e9.10.1780068298871;
+        Fri, 29 May 2026 08:24:58 -0700 (PDT)
 Received: from redhat.com (IGLD-80-230-25-45.inter.net.il. [80.230.25.45])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4909ca6575csm82033265e9.4.2026.05.29.08.24.49
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4909d68b853sm49196885e9.3.2026.05.29.08.24.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 May 2026 08:24:53 -0700 (PDT)
-Date: Fri, 29 May 2026 11:24:48 -0400
+        Fri, 29 May 2026 08:24:58 -0700 (PDT)
+Date: Fri, 29 May 2026 11:24:53 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
@@ -102,9 +102,9 @@ Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
 	Andrea Arcangeli <aarcange@redhat.com>
-Subject: [PATCH v9 29/37] mm: page_reporting: add flush parameter with page
- budget
-Message-ID: <b40a2db51c2ac3a69219c467389165a0a53d9ac4.1780067978.git.mst@redhat.com>
+Subject: [PATCH v9 30/37] mm: page_alloc: propagate PG_zeroed in
+ split_large_buddy
+Message-ID: <64f9b0a9c5b1a3db23b4e4d0b11c3609c248708b.1780067978.git.mst@redhat.com>
 References: <cover.1780067977.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -116,100 +116,47 @@ In-Reply-To: <cover.1780067977.git.mst@redhat.com>
 X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
 X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: uR2BMik1lB5G8FXJ7akq4eWAOZui26dtgy3C0Cz2940_1780068294
+X-Mimecast-MFC-PROC-ID: usLbDl7ymRzjQqvvM5ELRooAc1JSxePBXGrjcyDiBMs_1780068300
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Add a write-only module parameter 'flush' that triggers immediate
-page reporting.  The value specifies a page budget: at least
-this many pages (at page_reporting_order) will be reported,
-or all unreported pages if fewer remain.  The actual number
-reported may exceed the budget since each reporting pass
-processes a full cycle across all zones.
+When splitting a large buddy page, propagate the PG_zeroed flag
+to each sub-page before freeing it.  __free_pages_prepare clears
+all flags (including PG_zeroed), so the flag must be re-set on
+each fragment after the split.  This ensures that the buddy merge
+logic can see PG_zeroed on pages that were part of a larger
+zeroed block.
 
-This is helpful when there is a lot of memory freed quickly,
-and a single cycle may not process all free pages due to
-internal budget limits.
-
-  echo 512 > /sys/module/page_reporting/parameters/flush
-
-Note: the set callback runs under kernel param_lock,
-so writing this parameter blocks other built-in parameter
-writes until the flush loop completes.  This is acceptable
-for a privileged debug/test parameter.
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+Reviewed-by: Gregory Price <gourry@gourry.net>
 Assisted-by: Claude:claude-opus-4-6
 Assisted-by: cursor-agent:GPT-5.4-xhigh
 ---
- mm/page_reporting.c | 54 +++++++++++++++++++++++++++++++++++++++++++++
- 1 file changed, 54 insertions(+)
+ mm/page_alloc.c | 3 +++
+ 1 file changed, 3 insertions(+)
 
-diff --git a/mm/page_reporting.c b/mm/page_reporting.c
-index f68c79e57427..3f584f538c68 100644
---- a/mm/page_reporting.c
-+++ b/mm/page_reporting.c
-@@ -358,6 +358,60 @@ static void page_reporting_process(struct work_struct *work)
- static DEFINE_MUTEX(page_reporting_mutex);
- DEFINE_STATIC_KEY_FALSE(page_reporting_enabled);
- 
-+static int page_reporting_flush_set(const char *val,
-+				    const struct kernel_param *kp)
-+{
-+	struct page_reporting_dev_info *prdev;
-+	unsigned int budget;
-+	int err;
-+
-+	err = kstrtouint(val, 0, &budget);
-+	if (err)
-+		return err;
-+	if (!budget)
-+		return 0;
-+
-+	mutex_lock(&page_reporting_mutex);
-+	prdev = rcu_dereference_protected(pr_dev_info,
-+				lockdep_is_held(&page_reporting_mutex));
-+	if (prdev) {
-+		unsigned int reported;
-+		bool interrupted = false;
-+
-+		for (reported = 0; reported < budget;
-+		     reported += min(prdev->capacity, budget - reported)) {
-+			/*
-+			 * First flush completes any previously scheduled
-+			 * reporting work.  Then request a new reporting
-+			 * cycle and flush again to execute it.
-+			 */
-+			flush_delayed_work(&prdev->work);
-+			__page_reporting_request(prdev);
-+			flush_delayed_work(&prdev->work);
-+			if (atomic_read(&prdev->state) == PAGE_REPORTING_IDLE)
-+				break;
-+			if (signal_pending(current)) {
-+				interrupted = true;
-+				break;
-+			}
-+		}
-+		if (interrupted) {
-+			mutex_unlock(&page_reporting_mutex);
-+			return -EINTR;
-+		}
-+	}
-+	mutex_unlock(&page_reporting_mutex);
-+	return 0;
-+}
-+
-+static const struct kernel_param_ops flush_ops = {
-+	.set = page_reporting_flush_set,
-+	.get = param_get_uint,
-+};
-+static unsigned int page_reporting_flush;
-+module_param_cb(flush, &flush_ops, &page_reporting_flush, 0200);
-+MODULE_PARM_DESC(flush, "Report at least N pages at page_reporting_order, or until all reported");
-+
- int page_reporting_register(struct page_reporting_dev_info *prdev)
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 72e52f049cf0..702fa2ced1e1 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -1524,6 +1524,7 @@ static void split_large_buddy(struct zone *zone, struct page *page,
  {
- 	int err = 0;
+ 	unsigned long end = pfn + (1 << order);
+ 	bool reported = PageReported(page);
++	bool zeroed = PageZeroed(page);
+ 
+ 	VM_WARN_ON_ONCE(!IS_ALIGNED(pfn, 1 << order));
+ 	/* Caller removed page from freelist, buddy info cleared! */
+@@ -1537,6 +1538,8 @@ static void split_large_buddy(struct zone *zone, struct page *page,
+ 
+ 		if (reported)
+ 			__SetPageReported(page);
++		if (zeroed)
++			__SetPageZeroed(page);
+ 		__free_one_page(page, pfn, zone, order, mt, fpi);
+ 		pfn += 1 << order;
+ 		if (pfn == end)
 -- 
 MST
 
