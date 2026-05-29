@@ -1,69 +1,69 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 240AF42EEBB
-	for <virtualization@lists.linux.dev>; Fri, 29 May 2026 15:25:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 22B133F2118
+	for <virtualization@lists.linux.dev>; Fri, 29 May 2026 15:25:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780068304; cv=none; b=i9n9Uydms2uktFrd1w+7Ej40xAf3zeVHTVYFifHD3ZYCWzTuWeCtENMLB9P8cAZ3I8+AYX/uRJ6ZIyfzhczsUuqa/DCx0/rk4od3OumY1LKqogmEXO9HoaNNSdyzDEAJazD/adFQ0xlOQswivLY0FiFQwLqUB9TtcSzIlgeXRMU=
+	t=1780068309; cv=none; b=Fljtb6uGTbUu1LkaUXmixubmtdmNILJh9Aar/n+T56rdmykhwGN8xfHhaoZM1qCWltLQUzaP0jnA5uoZihcItQy8qCvObJHoIPdAbwA0QjjAildU8p5gxcK7965wjTBh++D5XF266YKX095kxiZFnEujDl/HY/mbcL/7AFCfu7g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780068304; c=relaxed/simple;
-	bh=gX3aTYbHX/GyGonutM5PlW3FkeXMFkBsDPOEXbSa+qI=;
+	s=arc-20240116; t=1780068309; c=relaxed/simple;
+	bh=o1q520LUtIf3WEFA+mnt5VZVOCpKdiGNtHAvZKuDwl4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=jEApuyE+0HpOjyqFpEq5r5egkqXzmFMpLGm2+FzDk2UpmJO+RZN7RleQmpQxmB7rs2gzzWfoIarDNawZvmxpPUlyxb81UOS9SUrWE1PBHRh9ycvbMplFA871NOLOyea7v0ZzAFV4gwtDU/KsmK82GbG0YSeQ90z8lIZ2eBdpmms=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BFKURluI; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=CjWZkcppabL4xZ2lr/q/9jSUg0KJ+8glwdfohSRS3lao+bFCkNFmrPjcwlp96ZjdQu2tGwM04PrRY8fOOnZhR3XpxMeg4fIJctCMZktiyatX3oWoZmSyETyRGFHUMcjKqxoD4/Naxqac8Umsn25QlB7H1sSLhOO2F2HCL8GmnTU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fYVEgBqE; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BFKURluI"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fYVEgBqE"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1780068302;
+	s=mimecast20190719; t=1780068307;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=yuucL8pRyKGlavgC043yPLfH9MArN/0/T/V0zfd6qpo=;
-	b=BFKURluIe3y2KQWW3uCqt6yCGENYSjLGSk1Js0e9M03MnSzsdbZQwWrls90NV6jW2cFV/p
-	nZLDE7w+1gYs6Gp4Mp1O5tKJ4566MegCT9eO1OK0A8c1AWw9QUWpd/8NsJyOv24siyB7QI
-	KDrIOG9RwGicf5Tp0UyyUr6c6DDbA6Q=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=PhUe/N+eFNvMvlBoMUh1oQQhfmsYB8gjnR/tug0hsFs=;
+	b=fYVEgBqEe1qSgXWuALGrKjW3mmSCrUARkkCVUtGUU40ktLfKASxU3618FN5qF5AMh5satp
+	iIZoxo2ZrIIwrz9Ycr3j26U0aKuIIHw4ErMbJJ1zcN9KyqprNE/PDnYY8bH/gL0vbo9Epr
+	6wJjriPBK3oIY8Y/I+hpWt9hWZp6Zik=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-265-GYeE8ptdOL28g-fDPJ0_-A-1; Fri, 29 May 2026 11:25:00 -0400
-X-MC-Unique: GYeE8ptdOL28g-fDPJ0_-A-1
-X-Mimecast-MFC-AGG-ID: GYeE8ptdOL28g-fDPJ0_-A_1780068300
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-49045f93baeso55197915e9.1
-        for <virtualization@lists.linux.dev>; Fri, 29 May 2026 08:25:00 -0700 (PDT)
+ us-mta-299-4GmNysKRNCGb70kBqwAVzw-1; Fri, 29 May 2026 11:25:06 -0400
+X-MC-Unique: 4GmNysKRNCGb70kBqwAVzw-1
+X-Mimecast-MFC-AGG-ID: 4GmNysKRNCGb70kBqwAVzw_1780068305
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-45ef6ad76bfso45881f8f.0
+        for <virtualization@lists.linux.dev>; Fri, 29 May 2026 08:25:05 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780068299; x=1780673099;
+        d=1e100.net; s=20251104; t=1780068305; x=1780673105;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=yuucL8pRyKGlavgC043yPLfH9MArN/0/T/V0zfd6qpo=;
-        b=gUO5ZgbIZWS8zbIp8vg63TBAjea0y2hQAWftj9ktUD//nlgJeVsSnN7TdIREyDlDqp
-         mdgiRI+b8Z7tKtIHsCUxa8w93gsoxpv5H+pbz3jKf5iXRlqop0tkhS7zgpTQNsCJ2rRN
-         FvboRHm0gCmCEafZ1H4YzRZOQO+kIvljQQWPvIQqCjwgF4X2PNbNf3bBWkiLGwp8HwI2
-         7jMFGBY9ZMYqSfPoVM0F0/YQc/Saogcw1qiuUanIHPaRI8IxVxmmpugWOPQ8AvXHAEC7
-         Yequ++aQ9ISMvqq5sKeJWzD4JqxKQCc7H872BV9h6+nGsp01jiV0S+AjlXLQ/vKD57N6
-         LA6A==
-X-Forwarded-Encrypted: i=1; AFNElJ9cxTzeR4dXHR0chmKJmEsWxsi+OdDLhtFRuxQWvhaYIJ2bpw2Bf8TkjXvj4JOnHWiLk9NiNSrvM1rriDxFrg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxeMWImGZBqQ0xWj0E3nrA1yHLAYP/77+6KldBIHfNBHxNqTB5D
-	wlQrSjRY31SaJgtd9Qi8SxRdoCqmVCUgM3FYCAtYD3G7IMqSbVaWJIN7GgMYUWJRRN8lSUHRG8u
-	fADli1Qtdl8V5nkJDsAFBFfxuQBWB2irKzW3L6aOcCilotE6WROLcDBUHwBw6vKOdOECj
-X-Gm-Gg: Acq92OHb7k3PT4UaIByxd2oDNKZpioUMmTbLcXf4DNprjXWIHymys57G9K9cEA1K1o2
-	nQYH+AJieXR7sFCJuswK6vioGc+5/mKIMzUkIMssiMu3S7fgmRPjEoAjr6G6qta9/kwpcPIoxAz
-	2l9h02M7NC4ajIeBTVTWbxaZtmVLR7x45xzI0KZvUk0g7GC+FQUDeTYbQyTq6v58x7RjuxlC0k9
-	oJNKDDEznTlg4fXOhfHGaAuChG3tE76yfmkHGc+dasfPs1cKiNhu132XaCe8zO1ksF4jVs04IhB
-	Yd6+X+mPuA77DBevqnF5NcAY4/k2KGNXVchMKqWkYrmcDCf7fkQKX3Ms2+mYh6Zeuz0nmVuadpB
-	svmeSwubXNKW8MhqAwhMMxySwJq0GFRha705Cotz1n2IutWZKqyjNJg==
-X-Received: by 2002:a05:600c:4f08:b0:48a:581c:ead with SMTP id 5b1f17b1804b1-490a290da24mr2201315e9.10.1780068299409;
-        Fri, 29 May 2026 08:24:59 -0700 (PDT)
-X-Received: by 2002:a05:600c:4f08:b0:48a:581c:ead with SMTP id 5b1f17b1804b1-490a290da24mr2200735e9.10.1780068298871;
-        Fri, 29 May 2026 08:24:58 -0700 (PDT)
+        bh=PhUe/N+eFNvMvlBoMUh1oQQhfmsYB8gjnR/tug0hsFs=;
+        b=didbkLCm6+C2BnkZFSY7oiPvKt3a+JhC4r+I4jjJfRx3b5c84KTudclDXG4QciyesV
+         4REZIXvOJbS71XOvYChbL+rmALKL0t1ZRWWaadEg/1N2DKlkksv89TNkTVcz/QUgrEUP
+         pLP7q9hxv2HxWCd7C3h4fanZhP/1wwI6N75a2OsYGdX0qwGO9ylxoGzpm3mhC4DKXGJP
+         H+0lF1bOd5svlsYUf9y01J5qU7mXVtSrICl/HOzyD32iCC+T+MxszcbHoXCEuqs6amVb
+         fg1FKydwD9ZEJaRPGi5yrg1g+ZP4M7K2INSSvSS5BlrZdWmFI6eEzXvjZ9MpTecFHMAZ
+         az+Q==
+X-Forwarded-Encrypted: i=1; AFNElJ+6RxHDdvA1paEJ1zjVTa8SqzVI1ABk7/lmzFhoDhfCOaG3Vm9ZnE6PcWnFM7+FKJOASfvBu7wTKlEb2MNTfg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxccs9rTgNI/iH1RPL9SoFh7RfFRNzeuULunV56oTJnpiEHAq/z
+	asxVe9CJz3uG8uyDkFZGi1taylDgZYngOYm9i25G+yQda3gCafobjDo3DdOc0FzyTwMOC36KvFm
+	pD2VWllegyFwtJ63t+giJ5LmCLC9T1CIlMZNTqpxTLy6Z+cISUfP6u5AeNhhrB6/768Na
+X-Gm-Gg: Acq92OFIUXOlzKt+fAYlin/fc0FlG0yVjg2yR/dXIdJrYo5DlW4NGEaxPg3nzQFeYIQ
+	eb6H2HbgKJE7Rn+lf5J1rQOyI6XT8oWE095zQiMvF/NU+iZrfteVXs1SVEYDJtj8/wo5A1xjoRC
+	Pbr2OVpP6wqm+/jhgfxN+dmHBdSsod+OVvAHsemz39IqgtJ45cQc1MGkJ4Cip9sO3PVtpfH5H5A
+	QQva+0GxHOiSw3/05aLxpH/UK17m7O2vdQA6+pmcVogzaBvBIDnm5wSvGf0Xb/gO7g5ZGyDIQUy
+	thaLcMLdDXhgmnZS+HYHY9t4sNVbdXHoAW37IpLf/8NW80w42S5nVL36RffXos8NkKUGaMmvwEZ
+	AK3uzH0CaD0ZXS3NDVhcb5b5zLHo0AEo1MWfhSXfgJk7RYEq6rYj+1w==
+X-Received: by 2002:adf:f690:0:b0:45e:73b4:85cc with SMTP id ffacd0b85a97d-45ef6b815f2mr388321f8f.35.1780068304562;
+        Fri, 29 May 2026 08:25:04 -0700 (PDT)
+X-Received: by 2002:adf:f690:0:b0:45e:73b4:85cc with SMTP id ffacd0b85a97d-45ef6b815f2mr388225f8f.35.1780068303965;
+        Fri, 29 May 2026 08:25:03 -0700 (PDT)
 Received: from redhat.com (IGLD-80-230-25-45.inter.net.il. [80.230.25.45])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4909d68b853sm49196885e9.3.2026.05.29.08.24.54
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-45ef34b47eesm4828235f8f.9.2026.05.29.08.24.59
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 May 2026 08:24:58 -0700 (PDT)
-Date: Fri, 29 May 2026 11:24:53 -0400
+        Fri, 29 May 2026 08:25:03 -0700 (PDT)
+Date: Fri, 29 May 2026 11:24:59 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
@@ -102,9 +102,9 @@ Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
 	Andrea Arcangeli <aarcange@redhat.com>
-Subject: [PATCH v9 30/37] mm: page_alloc: propagate PG_zeroed in
- split_large_buddy
-Message-ID: <64f9b0a9c5b1a3db23b4e4d0b11c3609c248708b.1780067978.git.mst@redhat.com>
+Subject: [PATCH v9 31/37] virtio_balloon: skip zeroing for host-zeroed
+ reported pages
+Message-ID: <6bff99e8890ea91c93e3e8f0c27ddb3b5b2528eb.1780067978.git.mst@redhat.com>
 References: <cover.1780067977.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -116,47 +116,113 @@ In-Reply-To: <cover.1780067977.git.mst@redhat.com>
 X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
 X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: usLbDl7ymRzjQqvvM5ELRooAc1JSxePBXGrjcyDiBMs_1780068300
+X-Mimecast-MFC-PROC-ID: rZUhfdLkIFuGJSsdXDtonR3qmRL0BtgDotBVv185kZQ_1780068305
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-When splitting a large buddy page, propagate the PG_zeroed flag
-to each sub-page before freeing it.  __free_pages_prepare clears
-all flags (including PG_zeroed), so the flag must be re-set on
-each fragment after the split.  This ensures that the buddy merge
-logic can see PG_zeroed on pages that were part of a larger
-zeroed block.
+Implement VIRTIO_BALLOON_F_DEVICE_INIT_REPORTED (per virtio spec
+proposal): when negotiated, the device initializes reported pages
+(zeros, or poison_val if PAGE_POISON).
+
+Check per-page used length returned by the device to determine
+which reported pages were zeroed. If used_len matches the page
+size, the device successfully initialized the page (e.g. via
+MADV_DONTNEED), and we set the corresponding zeroed_bitmap bit.
+
+Gate host_zeroes_pages on the feature bit and page content:
+when PAGE_POISON is negotiated with non-zero poison_val, the
+device fills with poison not zeros, so pages are not zeroed.
+
+Clear the feature in validate() if REPORTING is not present
+or if PAGE_POISON is active with non-zero poison_val.
+
+See the virtio spec change:
+https://github.com/oasis-tcs/virtio-spec/issues/244
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Reviewed-by: Gregory Price <gourry@gourry.net>
 Assisted-by: Claude:claude-opus-4-6
 Assisted-by: cursor-agent:GPT-5.4-xhigh
 ---
- mm/page_alloc.c | 3 +++
- 1 file changed, 3 insertions(+)
+ drivers/virtio/virtio_balloon.c     | 22 ++++++++++++++++++++--
+ include/uapi/linux/virtio_balloon.h |  1 +
+ 2 files changed, 21 insertions(+), 2 deletions(-)
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 72e52f049cf0..702fa2ced1e1 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -1524,6 +1524,7 @@ static void split_large_buddy(struct zone *zone, struct page *page,
- {
- 	unsigned long end = pfn + (1 << order);
- 	bool reported = PageReported(page);
-+	bool zeroed = PageZeroed(page);
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 1fa1c7fa285f..e3afa6f32ba5 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -207,6 +207,8 @@ static int virtballoon_free_page_report(struct page_reporting_dev_info *pr_dev_i
+ 	struct virtqueue *vq = vb->reporting_vq;
+ 	unsigned int i, err = 0;
  
- 	VM_WARN_ON_ONCE(!IS_ALIGNED(pfn, 1 << order));
- 	/* Caller removed page from freelist, buddy info cleared! */
-@@ -1537,6 +1538,8 @@ static void split_large_buddy(struct zone *zone, struct page *page,
++	bitmap_zero(pr_dev_info->zeroed_bitmap, nents);
++
+ 	/* We should always be able to add these buffers to an empty queue. */
+ 	for (i = 0; i < nents; i++) {
+ 		struct scatterlist one;
+@@ -226,10 +228,14 @@ static int virtballoon_free_page_report(struct page_reporting_dev_info *pr_dev_i
  
- 		if (reported)
- 			__SetPageReported(page);
-+		if (zeroed)
-+			__SetPageZeroed(page);
- 		__free_one_page(page, pfn, zone, order, mt, fpi);
- 		pfn += 1 << order;
- 		if (pfn == end)
+ 		/* When host has read buffer, this completes via balloon_ack */
+ 		for (i = 0; i < nents; i++) {
+-			unsigned int unused;
++			struct scatterlist *entry;
++			unsigned int used_len;
+ 
+ 			wait_event(vb->acked,
+-				   virtqueue_get_buf(vq, &unused));
++				   (entry = virtqueue_get_buf(vq, &used_len)));
++			if (used_len == entry->length)
++				set_bit(entry - sg,
++					pr_dev_info->zeroed_bitmap);
+ 		}
+ 	}
+ 
+@@ -1051,6 +1057,9 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ #endif
+ 
+ 		vb->pr_dev_info.capacity = capacity;
++		vb->pr_dev_info.host_zeroes_pages =
++			virtio_has_feature(vdev,
++					   VIRTIO_BALLOON_F_DEVICE_INIT_REPORTED);
+ 		err = page_reporting_register(&vb->pr_dev_info);
+ 		if (err)
+ 			goto out_unregister_oom;
+@@ -1176,6 +1185,14 @@ static int virtballoon_validate(struct virtio_device *vdev)
+ 	else if (!virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON))
+ 		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING);
+ 
++	if (!virtio_has_feature(vdev, VIRTIO_BALLOON_F_REPORTING))
++		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_DEVICE_INIT_REPORTED);
++
++	/* Device fills with poison_val, not zeros; disable zeroed hint */
++	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON) &&
++	    !want_init_on_free())
++		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_DEVICE_INIT_REPORTED);
++
+ 	/*
+ 	 * Balloon submits 1-2 sg entries max per buffer, virtqueue
+ 	 * sizes are 128+.  Disable indirect descriptors to avoid
+@@ -1194,6 +1211,7 @@ static unsigned int features[] = {
+ 	VIRTIO_BALLOON_F_FREE_PAGE_HINT,
+ 	VIRTIO_BALLOON_F_PAGE_POISON,
+ 	VIRTIO_BALLOON_F_REPORTING,
++	VIRTIO_BALLOON_F_DEVICE_INIT_REPORTED,
+ };
+ 
+ static struct virtio_driver virtio_balloon_driver = {
+diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
+index ee35a372805d..13074631f300 100644
+--- a/include/uapi/linux/virtio_balloon.h
++++ b/include/uapi/linux/virtio_balloon.h
+@@ -37,6 +37,7 @@
+ #define VIRTIO_BALLOON_F_FREE_PAGE_HINT	3 /* VQ to report free pages */
+ #define VIRTIO_BALLOON_F_PAGE_POISON	4 /* Guest is using page poisoning */
+ #define VIRTIO_BALLOON_F_REPORTING	5 /* Page reporting virtqueue */
++#define VIRTIO_BALLOON_F_DEVICE_INIT_REPORTED	6 /* Device initializes reported pages */
+ 
+ /* Size of a PFN in the balloon interface. */
+ #define VIRTIO_BALLOON_PFN_SHIFT 12
 -- 
 MST
 
