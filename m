@@ -1,104 +1,263 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f202.google.com (mail-pf1-f202.google.com [209.85.210.202])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A0C5321A453;
-	Fri, 29 May 2026 14:28:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 358843EB7F1
+	for <virtualization@lists.linux.dev>; Fri, 29 May 2026 14:44:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780064894; cv=none; b=UIGhJblWdS9hDpi2POj72m3awssRVGXqPHHLgf0keGRa5nlTW39xqHRxcAKMZ/qmVBHL9Bh9BdG7b6dyqsAD+hvMcVoT3eQ7TZuXTQUv2qjeqjhoro9+AgrGofBcADnLH6jfaX3kbWE2YwdlSy5x9ODid6UHcJ/2viREhOwnSBc=
+	t=1780065893; cv=none; b=pp/wBuN01wrdKm+wbIF+2r9Tc4UdDe4QFG7fTkZf0FY06fBnsitx/YwiNZEITZrdLD1CVq1dRC8LPxVwCM39DOG413sN/IFLKaxlBTDs5X7AWwAbPNCWVPts46r2/Xl7cY3+Y2Dju+soI/g7KN34rRMCciAMmGu6JuBgbGWCzxE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780064894; c=relaxed/simple;
-	bh=cIgfnw1Odn1bnUkmebwDdRVFvHzn1+LqD5i5OE9f8Eo=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=pTUKiUXi4U24Yr7SHd0hFHb0S38CxlW06DsopTJf1nUXn3CHpoLefaCMZxo5bUOqV8yAR7DNl8SDt0OiLMV5RcY2SkNRAquLJWx9tWZepcbKEQEfIozgYw+jHUfTfD4KgAjDHF69XkzoMzXpT49aFKwJBvaa2eGglyQnWy1b3Hc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fhXNXhQ7; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1780065893; c=relaxed/simple;
+	bh=3cpMbzFFqk1fqsz2bupF/ffg3SDdqCGa7/msOxpC62s=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=IORGsvuSjZjuVsiZRNPscMRhJ5cuiJC+1OlbjUI92N2bvSxaOgYT1AoU2eWvgHSXrxrVRyOHiP+grhCn5GByDt6kDViVzzDEuk45ckNiLFA5h7EInosjIMoUWVxgotPEMfUf+BwT0jrOWAaWD24gPRmabcl+TlVeAwTNWHMNLfk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=JSlayFHC; arc=none smtp.client-ip=209.85.210.202
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fhXNXhQ7"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 4C8E7C2BCB8;
-	Fri, 29 May 2026 14:28:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1780064894;
-	bh=cIgfnw1Odn1bnUkmebwDdRVFvHzn1+LqD5i5OE9f8Eo=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=fhXNXhQ7/cTf/jGuEsDd4DuyikxelyNVgl4bHmHHM1zyN8ncsMyI9iTX/v2d7czWt
-	 QpjG2rCMFeI0TSlIlEqQsT2NdNwt5Fe2NXbV6Eto9vnoF/5hHedCIO/q84oZGYl9WC
-	 vvtanUv+SJ6REUivd7uHSK2AWDFsAJygUxnb/oADtoGwhw9FWNwa30wVF2mSPobp8s
-	 m1GbiwYwcGQ1LB7pM+LjrkZji4yvIeMfaZL7xL6blik858HEWZGTR/CjErsKPr4tw1
-	 zdRJZlMkxBRGq6TAI4P1NKQkGw84Dk4B6Phqp92TkZVzVO3G697n/Dm/R02oTE1Daw
-	 33cN9+Zo++rQg==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 401ACCD6E4A;
-	Fri, 29 May 2026 14:28:14 +0000 (UTC)
-From: Alexis Bouzigues via B4 Relay <devnull+BouziguesAlexis.JohnDeere.com@kernel.org>
-Date: Fri, 29 May 2026 09:28:14 -0500
-Subject: [PATCH] i2c: virtio: mark device ready before registering the
- adapter
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="JSlayFHC"
+Received: by mail-pf1-f202.google.com with SMTP id d2e1a72fcca58-8421fa54cf9so130807b3a.0
+        for <virtualization@lists.linux.dev>; Fri, 29 May 2026 07:44:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1780065891; x=1780670691; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:mime-version:date:reply-to:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=4ZSmySQjJHcnKIUXjsIIs83nT6d2RU++b42lJ4OxIH4=;
+        b=JSlayFHCPMRF5Ga5zQ4ffyE3X9niS8FXAzGZUHJyJaf+R6dA5iAs+sfzu14PM1tAEZ
+         DLmR8DemlRq7N8EJuhZeATd53CJd+stljKuzUao6AmIFzQjgDDAQcsClPEgkCZDEj0Xo
+         H9lhtp4gsHNvVH8eNUqL2uK1uYHrg4JTB3gfZrOjXCbRAtp/MUbYg2mLtLD7C2U2z7M+
+         dmXoIBN5otAYa0F1nA/9lnwvTriYLT9KZOfbxYmpACAv+u/VbVcPjQzfsBApGr703FU0
+         cEbnE/Uy3RbYQazaTHc4807F/Q/4HeFa2bSQ/gKHZpOBIPvHD5Urtjob8olHp1eMdxLk
+         lRjA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780065891; x=1780670691;
+        h=cc:to:from:subject:message-id:mime-version:date:reply-to
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=4ZSmySQjJHcnKIUXjsIIs83nT6d2RU++b42lJ4OxIH4=;
+        b=le4Yhl9TPKA6uKFJ39iaqC1x8DSplYmCeMW8jPf2v2g6/XbIcgxbDOHMAA8huCE/jP
+         HhGL2rT7ZlsQO+TImEUPk+nv5Lk/qASARAMh5GRtOOKK8f+RcylN6SCNrjGYxli51jwA
+         Tlifu83rD6r0Q8VuVxrOb/wI95/5PpekdhyyyvFVs6xmQQuTIHP+/tj+7V0XxTx+Ng/k
+         WIXcncvDfxVjBGfT1aVJMCnwq4Bzdp7kpXhGo82n3AFawypoX+yPMRNseeOluGldgp5w
+         D8avFMFOSwrv9EZ6TTiQJyElHiUoPKf6FuAwheAZqKpcP0Cimqw/uGOu3rEGEunEVPr2
+         wCYQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+A2oY6bHBQPe4s/KNFPEBMc5ibPhvw77aTUjPG5OlUvLs6NY5Gywgljh3PL/Q8ZpnbsCnaJVyhl9PXSJBAnQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx6K3Zopz8ets6nPqpZRHqBI5DkbQSQ/6Ohb14cPSrGV69beFxq
+	v8OXanghc+M+Nf+hKQ3djpnJoyOAiW8jOUHaDLzddrU8fucPJSgCG3/N+IToM2ib7leUgBqlsMB
+	+qb0JMA==
+X-Received: from pfbgg3.prod.google.com ([2002:a05:6a00:6303:b0:838:ec6d:449c])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:140f:b0:83e:ccd6:2dc8
+ with SMTP id d2e1a72fcca58-84212ce3e9emr3273017b3a.27.1780065890910; Fri, 29
+ May 2026 07:44:50 -0700 (PDT)
+Reply-To: Sean Christopherson <seanjc@google.com>
+Date: Fri, 29 May 2026 07:43:47 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260529-virtio-i2c-driver-ok-v1-1-ecf2504f6a56@JohnDeere.com>
-X-B4-Tracking: v=1; b=H4sIAH2iGWoC/x3MQQqDMBBG4avIrB3QaZTGq4iLkoztT8HIRIIg3
- r2hy2/x3kVZDZppai4yLchIW0XfNhQ+r+2tjFhN0snYDeK5wA4khgSOhqLG6ct+dM4F0eHhn1T
- T3XTF+d/Oy33/ABQZNFdmAAAA
-To: Viresh Kumar <viresh.kumar@linaro.org>, 
- Andi Shyti <andi.shyti@kernel.org>
-Cc: linux-i2c@vger.kernel.org, virtualization@lists.linux.dev, 
- linux-kernel@vger.kernel.org, 
- Alexis Bouzigues <BouziguesAlexis@JohnDeere.com>
-X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1780064893; l=1298;
- i=BouziguesAlexis@JohnDeere.com; s=20260527; h=from:subject:message-id;
- bh=iPwimaClnP4+pM+SMSAbPbbHxIEK/XLSHtxDtApz4AY=;
- b=eToR/52uFUF29AE4RN1+uvqSOsg3sZ2bMRNc1c29cCgA5nCagFpEEoIkP0QMJovGBAwjUJQeS
- oMRbCXyXn2GA7QEhvCEG3Sea87kyPPzWzbuJFXhdqGPnqma3u/p2TJD
-X-Developer-Key: i=BouziguesAlexis@JohnDeere.com; a=ed25519;
- pk=5KJ7ArL00x5flpPhi9zRLC2p88V1rZXDQ5SXhpRvTDk=
-X-Endpoint-Received: by B4 Relay for BouziguesAlexis@JohnDeere.com/20260527
- with auth_id=797
-X-Original-From: Alexis Bouzigues <BouziguesAlexis@JohnDeere.com>
-Reply-To: BouziguesAlexis@JohnDeere.com
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.54.0.823.g6e5bcc1fc9-goog
+Message-ID: <20260529144435.704127-1-seanjc@google.com>
+Subject: [PATCH v4 00/47] x86: Try to wrangle PV clocks vs. TSC
+From: Sean Christopherson <seanjc@google.com>
+To: Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+	Kiryl Shutsemau <kas@kernel.org>, Sean Christopherson <seanjc@google.com>, 
+	"K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
+	Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>, 
+	Ajay Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.makhalov@broadcom.com>, 
+	Jan Kiszka <jan.kiszka@siemens.com>, Andy Lutomirski <luto@kernel.org>, 
+	Peter Zijlstra <peterz@infradead.org>, Juergen Gross <jgross@suse.com>, 
+	Daniel Lezcano <daniel.lezcano@kernel.org>, John Stultz <jstultz@google.com>
+Cc: "H. Peter Anvin" <hpa@zytor.com>, Rick Edgecombe <rick.p.edgecombe@intel.com>, 
+	Vitaly Kuznetsov <vkuznets@redhat.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stephen Boyd <sboyd@kernel.org>, kvm@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev, 
+	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev, 
+	xen-devel@lists.xenproject.org, David Woodhouse <dwmw@amazon.co.uk>, 
+	Tom Lendacky <thomas.lendacky@amd.com>, Nikunj A Dadhania <nikunj@amd.com>, 
+	David Woodhouse <dwmw2@infradead.org>, Michael Kelley <mhklinux@outlook.com>, 
+	Thomas Gleixner <tglx@linutronix.de>
+Content-Type: text/plain; charset="UTF-8"
 
-From: Alexis Bouzigues <BouziguesAlexis@JohnDeere.com>
+Well, the number of patches in the series is going in the wrong direction,
+but I'm much happier with this version, which eschews the x86_platform
+overrides entirely in favor of a fixed sequence for selecting the TSC/CPU
+frequency "routine".
 
-virtio_i2c_probe() synchronously probes child i2c drivers on the bus,
-but peripherals may use the bus at probe for tasks like reading a chip
-id. The vhost-user-i2c backend stalls at such probes unless DRIVER_OK
-is already set before the virtqueue is first kicked.
+Given that previous versions had fatal NULL pointer deref bugs that affected
+VMware and Xen, this series needs testing and acks from those maintainers.
 
-Set DRIVER_OK explicitly before i2c_add_adapter(), as done for the
-same reason in commit f5866db64f34 ("virtio_console: enable VQs
-early") and commit 71e4b8bf0482 ("virtio_rpmsg: set DRIVER_OK before
-using device").
+The primary goal of this series to fix flaws with SNP and TDX guests where a
+PV clock provided by the untrusted hypervisor is used instead of the secure
+TSC that is controlled by trusted firmware.
 
-Signed-off-by: Alexis Bouzigues <BouziguesAlexis@JohnDeere.com>
----
- drivers/i2c/busses/i2c-virtio.c | 2 ++
- 1 file changed, 2 insertions(+)
+The secondary goal is modernize running under KVM.  Currently, KVM guests will
+use TSC for clocksource, but not sched_clock.  And Linux-as-a-KVM-guest doesn't
+support paravirt enumeration of the TSC/APIC frequencies, even though QEMU
+provides that information by default.
 
-diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
-index 7b0b0bff8000..5da6fef92bec 100644
---- a/drivers/i2c/busses/i2c-virtio.c
-+++ b/drivers/i2c/busses/i2c-virtio.c
-@@ -222,6 +222,8 @@ static int virtio_i2c_probe(struct virtio_device *vdev)
- 	 */
- 	ACPI_COMPANION_SET(&vi->adap.dev, ACPI_COMPANION(vdev->dev.parent));
- 
-+	virtio_device_ready(vdev);
-+
- 	ret = i2c_add_adapter(&vi->adap);
- 	if (ret)
- 		virtio_i2c_del_vqs(vdev);
+The tertiary goal is to clean up the PV clock code to deduplicate logic across
+hypervisors, and to hopefully make it all easier to maintain going forward.
 
----
-base-commit: 7fd2df204f342fc17d1a0bfcd474b24232fb0f32
-change-id: 20260529-virtio-i2c-driver-ok-96444c2e5398
+v4 also adds a quaternary goal of cleaning up the TSC calibration code, which
+was made stupidly hard to follow by hypervisor code mixing in with the native
+calibration routines, instead of being implemented as a pure alternative.
 
-Best regards,
+Lots more background on the SNP/TDX motiviation:
+https://lore.kernel.org/all/20250106124633.1418972-13-nikunj@amd.com
+
+As before, I deliberately omitted jailhouse-dev@googlegroups.com from the To/Cc,
+as those emails bounced on v1, AFAICT nothing has changed.
+
+Note, I deliberately didn't collect a few reviews as the patches changed quite
+a bit from what was reviewed in v3.
+
+v4:
+ - Use x86_init_noop() to skip save/restore on VMware and Xen instead of
+   nullifying x86_platform.{save,restore}_sched_clock_state. [Sashiko]
+ - Use '0' to indicate "failure" when getting the CPU frequency from CPUID, to
+   avoid using an out-param and thus make it all but impossible to
+   unintentionally clobber the global cpu_khz (which v3 did). [Sashiko]
+ - Rename cpuid_get_cpu_freq() => __cpu_khz_from_cpuid() to capture its
+   relationship with cpu_khz_from_cpuid().
+ - Compute lapic_timer_period in units of ticks, not Khz. [Sashiko]
+ - Kill off x86_platform_ops.calibrate_{cpu,tsc}(), and instead use dedicated
+   hooks for hypervisor code, and direct calls for TDX and SNP. [David, loosely]
+ - Drop SNP's secure TSC override of _CPU_ calibration, as there's zero
+   evidence it's justified or a net positive.
+ - Collect reviews/acks. [David, Wei]
+ - Decouple getting TSC/APIC frequencies from KVM PV CPUID from kvmclock. [David]
+ - Fix an amusing number of Opportunistically misspellings. [David]
+ - Set kvm_sched_clock_offset _before_ registering kvmclock as sched_clock,
+   and add a comment to guard against future goofs. [Sashiko]
+ - Keep "setup_force_cpu_cap(X86_FEATURE_TSC_RELIABLE)" in Hyper-V's handling
+   of HV_ACCESS_TSC_INVARIANT, as it's technically possible to have a VM
+   with HV_ACCESS_TSC_INVARIANT but not HV_ACCESS_FREQUENCY_MSRS.  Though as
+   a _very_ nice side effect of using dedicated sequencing for selecting the
+   TSC frequency source, this would have naturally happened anyways. [Sashiko]
+
+v3:
+ - https://lore.kernel.org/all/20260515191942.1892718-1-seanjc@google.com
+ - Collect reviews. [Michael, Thomas]
+ - Use Hyper-V reference counter / refcounter instead of Hyper-V timer. [Michael]
+ - Use the paravirt CPUID interface first proposed by VMware for KVM's
+   "official" mechanism for communicating frequency to KVM-aware guests,
+   instead of abusing Intel's CPUID leafs. [David]
+ - Deal with paravirt code being moved into asm/timers.h and
+   arch/x86/kernel/tsc.c.
+
+v2:
+ - https://lore.kernel.org/all/Z8YWttWDtvkyCtdJ@google.com
+ - Add struct to hold the TSC CPUID output. [Boris]
+ - Don't pointlessly inline the TSC CPUID helpers. [Boris]
+ - Fix a variable goof in a helper, hopefully for real this time. [Dan]
+ - Collect reviews. [Nikunj]
+ - Override the sched_clock save/restore hooks if and only if a PV clock
+   is successfully registered.
+ - During resome, restore clocksources before reading persistent time.
+ - Clean up more warts created by kvmclock.
+ - Fix more bugs in kvmclock's suspend/resume handling.
+ - Try to harden kvmclock against future bugs.
+
+v1: https://lore.kernel.org/all/20250201021718.699411-1-seanjc@google.com
+
+David Woodhouse (3):
+  KVM: x86: Officially define CPUID 0x40000010 as PV Timing Info (TSC
+    and Bus)
+  x86/kvm: Obtain TSC frequency from PV CPUID if present
+  x86/xen: Obtain TSC frequency from CPUID if present
+
+Sean Christopherson (44):
+  x86/tsc: Never re-calibrate TSC frequency if its exact timing is known
+  x86/tsc: Add a standalone helpers for getting TSC info from CPUID.0x15
+  x86/sev: Mark TSC as reliable when configuring Secure TSC
+  x86/sev: Don't override CPU frequency calibration for SNP's Secure TSC
+  x86/sev: Move check for SNP Secure TSC support to tsc_early_init()
+  x86/sev: Shove SNP's secure/trusted TSC frequency directly into
+    "calibration"
+  x86/tdx: Force TSC frequency with CPUID-based info provided by the
+    TDX-Module
+  x86/tsc: Add dedicated hypervisor hooks for getting known TSC/CPU
+    frequencies
+  x86/acrn: Mark TSC frequency as known when using ACRN for calibration
+  x86/tsc: Consolidate forcing of X86_FEATURE_TSC_KNOWN_FREQ for PV code
+  x86/tsc: Kill off x86_platform_ops.calibrate_{cpu,tsc}() hooks
+  x86/tsc: Rename pit_hpet_ptimer_calibrate_cpu() =>
+    native_calibrate_cpu_late()
+  x86/tsc: Fold native_calibrate_cpu() into recalibrate_cpu_khz()
+  x86/kvmclock: Rename kvm_get_tsc_khz() to kvmclock_get_tsc_khz()
+  x86/kvm: Mark TSC as reliable when it's constant and nonstop
+  x86/kvm: Get local APIC bus frequency from PV CPUID Timing Info
+  x86/tsc: Add standalone helper for getting CPU frequency from CPUID
+  x86/kvm: Get CPU base frequency from CPUID when it's available
+  clocksource: hyper-v: Register sched_clock save/restore iff it's
+    necessary
+  clocksource: hyper-v: Drop wrappers to sched_clock save/restore
+    helpers
+  clocksource: hyper-v: Don't save/restore TSC offset when using HV
+    sched_clock
+  x86/kvmclock: Setup kvmclock for secondary CPUs iff CONFIG_SMP=y
+  x86/kvm: Don't disable kvmclock on BSP in syscore_suspend()
+  x86/paravirt: Remove unnecessary PARAVIRT=n stub for
+    paravirt_set_sched_clock()
+  x86/paravirt: Move handling of unstable PV clocks into
+    paravirt_set_sched_clock()
+  x86/kvmclock: Move sched_clock save/restore helpers up in kvmclock.c
+  x86/xen/time: NOP-ify x86_platform's sched_clock save/restore hooks
+  x86/vmware: NOP-ify save/restore hooks when using VMware's sched_clock
+  x86/tsc: WARN if TSC sched_clock save/restore used with PV sched_clock
+  x86/paravirt: Pass sched_clock save/restore helpers during
+    registration
+  x86/kvmclock: Move kvm_sched_clock_init() down in kvmclock.c
+  x86/xen/time: Mark xen_setup_vsyscall_time_info() as __init
+  x86/pvclock: Mark setup helpers and related various as
+    __init/__ro_after_init
+  x86/pvclock: WARN if pvclock's valid_flags are overwritten
+  x86/kvmclock: Refactor handling of PVCLOCK_TSC_STABLE_BIT during
+    kvmclock_init()
+  timekeeping: Resume clocksources before reading persistent clock
+  x86/kvmclock: Hook clocksource.suspend/resume when kvmclock isn't
+    sched_clock
+  x86/kvmclock: WARN if wall clock is read while kvmclock is suspended
+  x86/paravirt: Mark __paravirt_set_sched_clock() as __init
+  x86/paravirt: Plumb a return code into __paravirt_set_sched_clock()
+  x86/paravirt: Don't use a PV sched_clock in CoCo guests with trusted
+    TSC
+  x86/kvmclock: Use TSC for sched_clock if it's constant and non-stop
+  x86/kvmclock: Plumb in AP-online and BSP-resume to kvmlock, for
+    documentation
+  x86/paravirt: Move using_native_sched_clock() stub into timer.h
+
+ Documentation/virt/kvm/x86/cpuid.rst |  12 ++
+ arch/x86/coco/sev/core.c             |  21 +--
+ arch/x86/coco/tdx/tdx.c              |  19 ++-
+ arch/x86/include/asm/acrn.h          |   5 -
+ arch/x86/include/asm/kvm_para.h      |  12 +-
+ arch/x86/include/asm/sev.h           |   4 +-
+ arch/x86/include/asm/tdx.h           |   2 +
+ arch/x86/include/asm/timer.h         |  15 +-
+ arch/x86/include/asm/tsc.h           |  11 +-
+ arch/x86/include/asm/x86_init.h      |   8 +-
+ arch/x86/include/uapi/asm/kvm_para.h |  11 ++
+ arch/x86/kernel/cpu/acrn.c           |  10 +-
+ arch/x86/kernel/cpu/mshyperv.c       |  65 +-------
+ arch/x86/kernel/cpu/vmware.c         |  13 +-
+ arch/x86/kernel/jailhouse.c          |   7 +-
+ arch/x86/kernel/kvm.c                | 108 +++++++++++--
+ arch/x86/kernel/kvmclock.c           | 208 ++++++++++++++++---------
+ arch/x86/kernel/pvclock.c            |   9 +-
+ arch/x86/kernel/tsc.c                | 218 +++++++++++++++++----------
+ arch/x86/kernel/x86_init.c           |   2 -
+ arch/x86/mm/mem_encrypt_amd.c        |   3 -
+ arch/x86/xen/time.c                  |  25 ++-
+ drivers/clocksource/hyperv_timer.c   |  38 +++--
+ include/clocksource/hyperv_timer.h   |   2 -
+ kernel/time/timekeeping.c            |   9 +-
+ 25 files changed, 533 insertions(+), 304 deletions(-)
+
+
+base-commit: 4678d11f294de0fd295a265e02955b5d1a4a2684
 -- 
-Alexis Bouzigues <BouziguesAlexis@JohnDeere.com>
-
+2.54.0.823.g6e5bcc1fc9-goog
 
