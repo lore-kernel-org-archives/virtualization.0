@@ -1,361 +1,332 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f202.google.com (mail-qt1-f202.google.com [209.85.160.202])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32E423F88BA
-	for <virtualization@lists.linux.dev>; Fri, 29 May 2026 15:25:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 731413F928E
+	for <virtualization@lists.linux.dev>; Fri, 29 May 2026 16:03:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780068341; cv=none; b=kfzR8kFDZlvj3FgtugKb9+YWk39Iavd3y8tkZv+O/7nTI+1zBiCtAa4KJxhHdp/tJ8CRcrmxp7sC4qoP25Wlwy3HdI+cDihpTN7muqgCgNnGTsAIkpjCfWBMOoUOxiEiByFsFMmDuHOVh9FttzuQS9q88gpsPBGUuwfscYOiCxU=
+	t=1780070599; cv=none; b=k9fCsWDtVYKH0/5WgJV5AwQaIABbXSRgMdjfDMkSFWl4D9hjj9EZ24jggHp46plWCpgDioonBS3BvnbBf+eoLbohY5LDEFSZUptm5K9So/Nv4KfoA3CNk5MK97KmGfWr0g5E1Fv3dOdSLq8BHGkZt6TJxukp9KPtbM+bfuivwZ8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780068341; c=relaxed/simple;
-	bh=6pCnJ6k6szHuGciBTfw9TfV267L0cdUbYVFf2bw/M5g=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=o8VobnQiJAZhAjSdhtAOTeolByDt7RVXvfu8qlgrrlhuX0/8rTBXkXtOheHV5H86C3AsrKWq3rQtQwMd35NpZu6tYQCpWeotPrtklk7mDuCvRwaNfBrJc5P2pLW9L9wjLvIgIA+HlCEGKYI63gdOrDLSIB5D+r0Rv40RgUEQYlY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Rn7TecRZ; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1780070599; c=relaxed/simple;
+	bh=B6/IDFH68+koJyosTWjx1z2bmtDabqQoMw5P3YYxvnA=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=ZqO71C2rSPYxLwoRHO4ZMceYIfJG1QTOC9TXdEz4iIYnHdDZg7mFlsGjpC0H/Zz/+Sg0RG82/3iD/nvvEvQjMM5EZAKkLR/1OorH9dXnroHTjq6L84pYtBR3rTIcKlsEEE9pHjU7mM4xfIAFjc9lqNVDSUPWwQ8RgQ+9l6AcEuM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--briandaniels.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=MlPjjXl9; arc=none smtp.client-ip=209.85.160.202
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--briandaniels.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Rn7TecRZ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1780068338;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=a5iRhiSdz01WKxZI1toNz5FYne+GoBDYJal3naikSkE=;
-	b=Rn7TecRZS96f6rrQP0VNoqKJSlOHesQHfyzCHkeNIQH3icznkdu5vxTiYKsWKioly9P7ec
-	5rDswUGMgUkEbBHZU37YDC0+PfNAFcwaWG2qB+o1OSeBajDJvd0HbxOUefI7DcALOlkjCF
-	Un5Lz0urADjemIcE6d9ElPs6vSd1FBY=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-29-uclsu0D6MayO5NvyZ_V9Yg-1; Fri, 29 May 2026 11:25:37 -0400
-X-MC-Unique: uclsu0D6MayO5NvyZ_V9Yg-1
-X-Mimecast-MFC-AGG-ID: uclsu0D6MayO5NvyZ_V9Yg_1780068336
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-490402ae2c1so77893995e9.0
-        for <virtualization@lists.linux.dev>; Fri, 29 May 2026 08:25:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="MlPjjXl9"
+Received: by mail-qt1-f202.google.com with SMTP id d75a77b69052e-514cbe73d00so359116271cf.1
+        for <virtualization@lists.linux.dev>; Fri, 29 May 2026 09:03:17 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1780070596; x=1780675396; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=E2Eib9fmRYrsetmnFPc72+ct4Kr8PxCo5xbzQReXjXk=;
+        b=MlPjjXl9y5vtbOi7gouK47HpnJlHquajONRdq9gpcGCikvjCfxnYWJCm5Ws9aE9lXt
+         ufoPwr4CVlsKu8w8Voua7Px3WCEkczRDE+RB1eKq/mcUM6w8/rzKdT5ny8O8Rs/kA7fe
+         xUuzaw6xnygb7d4ZLsac1E1MYwXF+QFF9ci+NPJhAwGmnfaKeIn8q5zd3U+/Nfv59po8
+         ROdJD9/Yx78WVRW5vJXHSvxZU5QKL1nuf+mz6RY5D+JqBNFvN3cjLoxpOjffvPJQdVvu
+         DkoEOVjcP5oVjVG9E4hVFUrZ1SwmKOc0Wrhpm6wpiwlgVhaJbQ8bIHaqzYEKWyBX9xBj
+         LcXg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780068336; x=1780673136;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=a5iRhiSdz01WKxZI1toNz5FYne+GoBDYJal3naikSkE=;
-        b=edW7Kci7GFlFZjthLvCt5nugTOwYvYLd5NmQ/lbsiaHL+pEBmpgYuI2sK0rOHCXYOP
-         xG+ZKA0EfYM7Hbgas4uD90lWUv7cCTb1m+NC+i2zdI7sbBivrVZRY6krImrsmxbYs+b8
-         D58ngcO+L9UPdK5fj8OWRIOFw2vMb3zADDY8UDBCM0JwBDuQ1quZKSQBJaYyImOMCE9V
-         LF3EtOeVv3c9CaxQ+0Wzh3P2ZZ6J2ut7XgwKlL6p+ZOq1r7xkcaIoB6w8cuEg2jLDhSD
-         oz9GlX+LadpJeE9CTLIHB2sMOC6gDnD1fwxhCLpTbB/B/SDyYNAZTIVnFUWdn2mTqh9W
-         vTMQ==
-X-Forwarded-Encrypted: i=1; AFNElJ87d5u8vw3DdPJUzZ4+kQchNfi2iveDaEWumKOxISdz7sLrcMoWLbTSUCgvVamaKeCfpDl5Dg9S1tqKlu9vtQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzhvCqMM3JW4vttb4WOQ9FWB2Uy6iN83x8TBZMdSTpMpEOxAPZY
-	DT2iiBpvRDU4ggbyV9OFBIk+9E9GNeKqZSxTM9yd1L9e0B3E9xGOqoc6hemI+9uA+8ZsDB3gvHC
-	A6yGJTkQfsBkNK/XlkM+JQuoECkOo0uvr7++pafmw19YDNTpPk7EluYqyEKyQf3VwrJa8
-X-Gm-Gg: Acq92OEQ2IiaNQEDPLg2BEDgKN/eTFoVWDGzabzBdl9QHXg3YJm9icjlmKMnMJ2Yg7B
-	O4O1DG0Al9C3sXFKckfGJhVPBDFRRJMwXnOiKzCp83GaUjshBXkaL0NmFECgzguYjZMn/6NvcJT
-	MDg9c65nJsDyGHYFefb5GuZb8yQ85BuHsJUEs0OM/bHnrZthAXDBGLz5wQVw8PkUHmmnneb0H+f
-	IlqBVFl9ChIhcmw+9rEpwjNrM82fKyQTBQI6DCtt2uAERS9Kj5BVTWWnXa1OtCcymclEn3D/e58
-	26XWnQi2O+AN0fQp7Gl5aP7XiNG0dZv4/YW+kR8o8SmkEKtYZhrJTp7W/PhMgcLe66nxa99nCK2
-	ObwZ6zGjp48HWQ3u5zYLMSY+P53fOZ1NfH3mTwNMvIQ63g3IUQd/wYQ==
-X-Received: by 2002:a05:600c:3b18:b0:490:8b0b:d3b1 with SMTP id 5b1f17b1804b1-4909c62909bmr43943345e9.12.1780068335412;
-        Fri, 29 May 2026 08:25:35 -0700 (PDT)
-X-Received: by 2002:a05:600c:3b18:b0:490:8b0b:d3b1 with SMTP id 5b1f17b1804b1-4909c62909bmr43942545e9.12.1780068334819;
-        Fri, 29 May 2026 08:25:34 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-25-45.inter.net.il. [80.230.25.45])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4909d6975e2sm75889295e9.6.2026.05.29.08.25.30
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 29 May 2026 08:25:34 -0700 (PDT)
-Date: Fri, 29 May 2026 11:25:29 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-	Muchun Song <muchun.song@linux.dev>,
-	Oscar Salvador <osalvador@suse.de>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Lorenzo Stoakes <ljs@kernel.org>,
-	"Liam R. Howlett" <liam@infradead.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Brendan Jackman <jackmanb@google.com>,
-	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
-	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
-	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
-	Byungchul Park <byungchul@sk.com>,
-	Gregory Price <gourry@gourry.net>,
-	Ying Huang <ying.huang@linux.alibaba.com>,
-	Alistair Popple <apopple@nvidia.com>,
-	Christoph Lameter <cl@gentwo.org>,
-	David Rientjes <rientjes@google.com>,
-	Roman Gushchin <roman.gushchin@linux.dev>,
-	Harry Yoo <harry.yoo@oracle.com>,
-	Axel Rasmussen <axelrasmussen@google.com>,
-	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
-	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
-	Kemeng Shi <shikemeng@huaweicloud.com>,
-	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
-	virtualization@lists.linux.dev, linux-mm@kvack.org,
-	Andrea Arcangeli <aarcange@redhat.com>
-Subject: [PATCH v9 37/37] virtio_balloon: implement
- VIRTIO_BALLOON_F_DEVICE_INIT_ON_INFLATE
-Message-ID: <37a5da77b003cfecc4e46eb1886f46b4b79fb95b.1780067978.git.mst@redhat.com>
-References: <cover.1780067977.git.mst@redhat.com>
+        d=1e100.net; s=20251104; t=1780070596; x=1780675396;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=E2Eib9fmRYrsetmnFPc72+ct4Kr8PxCo5xbzQReXjXk=;
+        b=ABrrl3k3MBcjwTMfmGfCGqZOeSoSXIJO5zCJU9comduxCVHEKs2UgZbnTxczDlF3vO
+         UbK8GXJH58D3Hn5VPmNiaIhs0bJ9io6Y+BP7RtZfHDQvL8VC44YgwOIvOKNM6h3Wmv7u
+         hzIEsKykh+rsD9nSms+J6xXUvZ883yXskCcpvPv/VlG685QB7GLaMu2dd6jWq8Ydq6RL
+         u6iLELvVRltuuHwiVvo4V4yeqwWoT+x+xX+SqiqGWloFrU7YCuWP3GvmuwkqYuZRcmrX
+         ZdjzHJy8gSht59RKVXovCTDHkm7cYNhYXO9wp1Pjsb2XgHULpRQgRhIn6cyz0xPMJf7y
+         kzYA==
+X-Forwarded-Encrypted: i=1; AFNElJ9pPUEQC8uSSmD4ZyS8KXWZeqGwylC1WtyiqLZFb4i/lJsgGcEG09IOQ29r21ln8kwsY5nf6+YcDdJ6lNDicg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxTSe5ZW7NLLkpfIqGobhjGrICPPVBjqzacfhUZ4FWDYGADs+1c
+	atBkJPv+iUwSbSwbOUb7e2vr/1ajGFQxV3fppw6g8yTNa4w1l+Svepwb962Cu7yp6jLNMucsdHQ
+	gP6zEscGa9aueF/AEVPQNt8aXgdLK
+X-Received: from qto1.prod.google.com ([2002:a05:622a:a6c1:b0:50e:5f34:876e])
+ (user=briandaniels job=prod-delivery.src-stubby-dispatcher) by
+ 2002:a05:622a:aa4b:20b0:509:127d:ee06 with SMTP id d75a77b69052e-5173a8da824mr506131cf.58.1780070596215;
+ Fri, 29 May 2026 09:03:16 -0700 (PDT)
+Date: Fri, 29 May 2026 12:03:04 -0400
+In-Reply-To: <20250909111216.18d5f78c@foz.lan>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-In-Reply-To: <cover.1780067977.git.mst@redhat.com>
-X-Mailer: git-send-email 2.27.0.106.g8ac3dc51b1
-X-Mutt-Fcc: =sent
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: gyK8QXJWxonmvUut5MBm5iC77alXALEQgAUVQkU8e1s_1780068336
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Mime-Version: 1.0
+References: <20250909111216.18d5f78c@foz.lan>
+X-Mailer: git-send-email 2.54.0.823.g6e5bcc1fc9-goog
+Message-ID: <20260529160314.1224731-1-briandaniels@google.com>
+Subject: Re: [PATCH v3] media: add virtio-media driver
+From: Brian Daniels <briandaniels@google.com>
+To: mchehab+huawei@kernel.org
+Cc: acourbot@google.com, adelva@google.com, aesteve@redhat.com, 
+	changyeon@google.com, daniel.almeida@collabora.com, eperezma@redhat.com, 
+	gnurou@gmail.com, gurchetansingh@google.com, hverkuil@xs4all.nl, 
+	jasowang@redhat.com, linux-kernel@vger.kernel.org, 
+	linux-media@vger.kernel.org, mchehab@kernel.org, mst@redhat.com, 
+	nicolas.dufresne@collabora.com, virtualization@lists.linux.dev, 
+	xuanzhuo@linux.alibaba.com
+Content-Type: text/plain; charset="UTF-8"
 
-When the device offers DEVICE_INIT_ON_INFLATE (bit 7), the device
-initializes inflated pages and returns a per-page bitmap indicating
-which pages were successfully initialized.
+Hi there! My name is Brian Daniels and I'll be taking over upstreaming this
+driver from Alexandre Courbot.
 
-The driver appends a device-writable bitmap buffer to each inflate
-descriptor chain via virtqueue_add_sgs. After the host acknowledges,
-the driver checks bitmap bits (bounded by used_len) and marks pages
-with SetPageZeroed.
+I've consulted with Alexandre and my plan is to upload a v4 set of patches
+shortly based on the feedback from this revision.
 
-tell_host() returns used_len from virtqueue_get_buf(). Bitmap reads
-are bounded: fill_balloon() and virtballoon_migratepage() only trust
-bits within the used_len range.
+Before doing so, I'd like to address some of your comments:
 
-On deflate, release_pages_balloon checks PageZeroed per page and
-uses put_page_zeroed for pages the host initialized, propagating
-the zeroed hint to the buddy allocator.
+> Hi Alex,
+> 
+> I didn't see on a first glance anything that would cause locking
+> issues here, but, as I pointed on my last e-mail, testing with
+> qv4l2 at the max res of my C920 camera, it ended keeping 24 CPUs
+> busy without showing any results with qv4l2 (via ssh at the same
+> machine). So, I suspect that there are issues somewhere, but I didn't
+> debug any further.
+> 
+> Please do some tests with a high-res camera, using either ssh or
+> GPU emulation to see how this behaves with real apps.
 
-If inflate_vq has fewer than 2 descriptors, probe fails with
--ENOSPC. If PAGE_POISON is negotiated with non-zero poison_val,
-the feature is cleared in validate().
+I did some testing with a 1080p USB webcam over ssh using ffmpeg and I was able
+to stream video to disk without any issue. Let me know if you'd prefer I test
+with a specific setup.
 
-See the virtio spec change:
-https://lore.kernel.org/all/9c69b992c3dd83dfef3db92cd86b2fd8a0730d48.1777731396.git.mst@redhat.com
+> > +config MEDIA_VIRTIO
+> > +	tristate "Virtio-media Driver"
+> > +	depends on VIRTIO && VIDEO_DEV && 64BIT && (X86 || (ARM && CPU_LITTLE_ENDIAN))
+>
+> Why are you limiting it to x86_64 and arm64 little endian?
 
-__SetPageZeroed on inflated pages is non-atomic but safe:
-the balloon owns the page exclusively at this point.
+The little endian requirement comes for the section 5.22.6.1.5 of the virtio
+v1.4 specification [1]. The limitation to x86_64 and arm64 is for two reasons:
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Assisted-by: Claude:claude-opus-4-6
-Assisted-by: cursor-agent:GPT-5.4-xhigh
----
- drivers/virtio/virtio_balloon.c     | 107 ++++++++++++++++++++++++----
- include/uapi/linux/virtio_balloon.h |   1 +
- 2 files changed, 96 insertions(+), 12 deletions(-)
+1. The specification requires all v4l2 structures to use the 64-bit layout
+2. This driver has only been tested on x86_64 and arm64 so far
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index bf1172ad5419..4abc7b3b991c 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -20,6 +20,7 @@
- #include <linux/mm.h>
- #include <linux/page_reporting.h>
- #include <linux/cc_platform.h>
-+#include <asm-generic/bitops/le.h>
- 
- /*
-  * Balloon device works in 4K page units.  So each page is pointed to by
-@@ -122,6 +123,13 @@ struct virtio_balloon {
- 	struct virtqueue *reporting_vq;
- 	struct page_reporting_dev_info pr_dev_info;
- 
-+	/* No DMA alignment needed: ACCESS_PLATFORM is cleared,
-+	 * so virtio bypasses the DMA API.  If this ever changes,
-+	 * add ____dma_from_device_aligned here.
-+	 */
-+	/* Bitmap returned by host for DEVICE_INIT_ON_INFLATE */
-+	DECLARE_BITMAP(inflate_bitmap, VIRTIO_BALLOON_ARRAY_PFNS_MAX);
-+
- 	/* State for keeping the wakeup_source active while adjusting the balloon */
- 	spinlock_t wakeup_lock;
- 	bool processing_wakeup_event;
-@@ -182,22 +190,33 @@ static void balloon_ack(struct virtqueue *vq)
- 	wake_up(&vb->acked);
- }
- 
--static void tell_host(struct virtio_balloon *vb, struct virtqueue *vq)
-+static unsigned int tell_host(struct virtio_balloon *vb, struct virtqueue *vq)
- {
--	struct scatterlist sg;
-+	struct scatterlist sg_out, sg_in;
-+	struct scatterlist *sgs[] = { &sg_out, &sg_in };
- 	unsigned int len;
- 
--	sg_init_one(&sg, vb->pfns, sizeof(vb->pfns[0]) * vb->num_pfns);
-+	sg_init_one(&sg_out, vb->pfns, sizeof(vb->pfns[0]) * vb->num_pfns);
- 
- 	/* We made sure the vq is large enough so we should always
- 	 * be able to add one buffer to an empty queue.
- 	 */
--	virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
-+	if (vq == vb->inflate_vq &&
-+	    virtio_has_feature(vb->vdev,
-+			       VIRTIO_BALLOON_F_DEVICE_INIT_ON_INFLATE)) {
-+		unsigned int bitmap_bytes;
-+
-+		bitmap_bytes = DIV_ROUND_UP(vb->num_pfns, 8);
-+		bitmap_zero(vb->inflate_bitmap, vb->num_pfns);
-+		sg_init_one(&sg_in, vb->inflate_bitmap, bitmap_bytes);
-+		virtqueue_add_sgs(vq, sgs, 1, 1, vb, GFP_KERNEL);
-+	} else {
-+		virtqueue_add_outbuf(vq, &sg_out, 1, vb, GFP_KERNEL);
-+	}
- 	virtqueue_kick(vq);
- 
--	/* When host has read buffer, this completes via balloon_ack */
- 	wait_event(vb->acked, virtqueue_get_buf(vq, &len));
--
-+	return len;
- }
- 
- static int virtballoon_free_page_report(struct page_reporting_dev_info *pr_dev_info,
-@@ -300,8 +319,37 @@ static unsigned int fill_balloon(struct virtio_balloon *vb, size_t num)
- 
- 	num_allocated_pages = vb->num_pfns;
- 	/* Did we get any? */
--	if (vb->num_pfns != 0)
--		tell_host(vb, vb->inflate_vq);
-+	if (vb->num_pfns != 0) {
-+		unsigned int used_len = tell_host(vb, vb->inflate_vq);
-+
-+		if (virtio_has_feature(vb->vdev,
-+				       VIRTIO_BALLOON_F_DEVICE_INIT_ON_INFLATE)) {
-+			unsigned int i;
-+			unsigned int valid_bits = used_len * 8;
-+
-+			for (i = 0; i < vb->num_pfns;
-+			     i += VIRTIO_BALLOON_PAGES_PER_PAGE) {
-+				unsigned int pfn, j;
-+				bool zeroed = true;
-+
-+				if (i + VIRTIO_BALLOON_PAGES_PER_PAGE > valid_bits)
-+					break;
-+				for (j = 0; j < VIRTIO_BALLOON_PAGES_PER_PAGE; j++) {
-+					if (!test_bit_le(i + j, vb->inflate_bitmap)) {
-+						zeroed = false;
-+						break;
-+					}
-+				}
-+				if (zeroed) {
-+					pfn = virtio32_to_cpu(vb->vdev,
-+							      vb->pfns[i]);
-+					__SetPageZeroed(pfn_to_page(pfn >>
-+						(PAGE_SHIFT -
-+						 VIRTIO_BALLOON_PFN_SHIFT)));
-+				}
-+			}
-+		}
-+	}
- 	mutex_unlock(&vb->balloon_lock);
- 
- 	return num_allocated_pages;
-@@ -314,7 +362,12 @@ static void release_pages_balloon(struct virtio_balloon *vb,
- 
- 	list_for_each_entry_safe(page, next, pages, lru) {
- 		list_del(&page->lru);
--		put_page(page); /* balloon reference */
-+		if (PageZeroed(page)) {
-+			__ClearPageZeroed(page);
-+			put_page_zeroed(page);
-+		} else {
-+			put_page(page);
-+		}
- 	}
- }
- 
-@@ -861,8 +914,27 @@ static int virtballoon_migratepage(struct balloon_dev_info *vb_dev_info,
- 	/* balloon's page migration 1st step  -- inflate "newpage" */
- 	vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
- 	set_page_pfns(vb, vb->pfns, newpage);
--	tell_host(vb, vb->inflate_vq);
-+	{
-+		unsigned int used_len = tell_host(vb, vb->inflate_vq);
- 
-+		if (virtio_has_feature(vb->vdev,
-+				       VIRTIO_BALLOON_F_DEVICE_INIT_ON_INFLATE) &&
-+		    used_len >= DIV_ROUND_UP(VIRTIO_BALLOON_PAGES_PER_PAGE, 8)) {
-+			unsigned int j;
-+			bool zeroed = true;
-+
-+			for (j = 0; j < VIRTIO_BALLOON_PAGES_PER_PAGE; j++) {
-+				if (!test_bit_le(j, vb->inflate_bitmap)) {
-+					zeroed = false;
-+					break;
-+				}
-+			}
-+			if (zeroed)
-+				__SetPageZeroed(newpage);
-+		}
-+	}
-+
-+	__ClearPageZeroed(page);
- 	/* balloon's page migration 2nd step -- deflate "page" */
- 	vb->num_pfns = VIRTIO_BALLOON_PAGES_PER_PAGE;
- 	set_page_pfns(vb, vb->pfns, page);
-@@ -966,6 +1038,12 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 	if (err)
- 		goto out_free_vb;
- 
-+	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_DEVICE_INIT_ON_INFLATE) &&
-+	    virtqueue_get_vring_size(vb->inflate_vq) < 2) {
-+		err = -ENOSPC;
-+		goto out_del_vqs;
-+	}
-+
- 	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
- 		vb->vb_dev_info.adjust_managed_page_count = true;
- #ifdef CONFIG_BALLOON_MIGRATION
-@@ -1191,11 +1269,15 @@ static int virtballoon_validate(struct virtio_device *vdev)
- 
- 	/* Device fills with poison_val, not zeros; disable zeroed hint */
- 	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON) &&
--	    !want_init_on_free())
-+	    !want_init_on_free()) {
- 		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_DEVICE_INIT_REPORTED);
-+		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_DEVICE_INIT_ON_INFLATE);
-+	}
- 
--	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT))
-+	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT)) {
- 		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_DEVICE_INIT_REPORTED);
-+		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_DEVICE_INIT_ON_INFLATE);
-+	}
- 	/*
- 	 * Balloon submits 1-2 sg entries max per buffer, virtqueue
- 	 * sizes are 128+.  Disable indirect descriptors to avoid
-@@ -1215,6 +1297,7 @@ static unsigned int features[] = {
- 	VIRTIO_BALLOON_F_PAGE_POISON,
- 	VIRTIO_BALLOON_F_REPORTING,
- 	VIRTIO_BALLOON_F_DEVICE_INIT_REPORTED,
-+	VIRTIO_BALLOON_F_DEVICE_INIT_ON_INFLATE,
- };
- 
- static struct virtio_driver virtio_balloon_driver = {
-diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-index 13074631f300..cbaf18e0b17c 100644
---- a/include/uapi/linux/virtio_balloon.h
-+++ b/include/uapi/linux/virtio_balloon.h
-@@ -38,6 +38,7 @@
- #define VIRTIO_BALLOON_F_PAGE_POISON	4 /* Guest is using page poisoning */
- #define VIRTIO_BALLOON_F_REPORTING	5 /* Page reporting virtqueue */
- #define VIRTIO_BALLOON_F_DEVICE_INIT_REPORTED	6 /* Device initializes reported pages */
-+#define VIRTIO_BALLOON_F_DEVICE_INIT_ON_INFLATE	7 /* Device initializes pages on inflate */
- 
- /* Size of a PFN in the balloon interface. */
- #define VIRTIO_BALLOON_PFN_SHIFT 12
--- 
-MST
 
+> > +/**
+> > + * enum virtio_media_memory - Memory types supported by virtio-media.
+> > + * @VIRTIO_MEDIA_MMAP: memory allocated and managed by device. Can be mapped
+> > + * into the guest using VIRTIO_MEDIA_CMD_MMAP.
+> > + * @VIRTIO_MEDIA_SHARED_PAGES: memory allocated by the driver. Passed to the
+> > + * device using virtio_media_sg_entry.
+> > + * @VIRTIO_MEDIA_OBJECT: memory backed by a virtio object.
+> > + */
+> > +enum virtio_media_memory {
+> > +	VIRTIO_MEDIA_MMAP = V4L2_MEMORY_MMAP,
+> > +	VIRTIO_MEDIA_SHARED_PAGES = V4L2_MEMORY_USERPTR,
+> > +	VIRTIO_MEDIA_OBJECT = V4L2_MEMORY_DMABUF,
+> > +};
+> 
+> I'm not a big fan of renaming USERPTR to SHARED_PAGES and
+> DMABUF to OBJECT, as it makes harder for reviewers and contributors
+> to remember about this mapping. Also, everybody knows exactly what
+> DMABUF means, so, it sounds to me that this obfuscates a little bit 
+> the driver.
+> 
+> Also, why are you encapsulating V4L2 names into VIRTIO_* namespace?
+> This just adds extra complexity for reviewers without any real
+> benefit.
+> 
+> Besides that, doing a grep on the patch, it sounds that this ma
+> is not used anywhere.
+> 
+> So, please drop this mapping.
+
+Agreed I don't see it being used anywhere, I think this was included originally
+since it's part of the virtio spec. I will remove it.
+
+
+> > +#define VIRTIO_MEDIA_EVT_ERROR 0
+> > +#define VIRTIO_MEDIA_EVT_DQBUF 1
+> > +#define VIRTIO_MEDIA_EVT_EVENT 2
+> 
+> OK, here, media events are different than virtio events, so having
+> a virtio-specific events make sense. Yet, better to add a comment
+> about that. 
+> 
+> Also, V4L events are defined as:
+> 
+> 	#define V4L2_EVENT_ALL                          0
+> 	#define V4L2_EVENT_VSYNC                        1
+> 	#define V4L2_EVENT_EOS                          2
+> 	#define V4L2_EVENT_CTRL                         3
+> 	#define V4L2_EVENT_FRAME_SYNC                   4
+> 	#define V4L2_EVENT_SOURCE_CHANGE                5
+> 	#define V4L2_EVENT_MOTION_DET                   6
+> 	#define V4L2_EVENT_PRIVATE_START                0x08000000
+> 
+> As one may end wanting to map them on some future, I would change
+> the definitions above to:
+> 
+> 	#define VIRTIO_MEDIA_EVT_ERROR V4L2_EVENT_PRIVATE_START
+> 	#define VIRTIO_MEDIA_EVT_DQBUF (V4L2_EVENT_PRIVATE_START + 1)
+> 	#define VIRTIO_MEDIA_EVT_EVENT (V4L2_EVENT_PRIVATE_START + 2)
+
+These event values (VIRTIO_MEDIA_EVT_*) are set by section 5.22.6.2.1 of the
+virtio v1.4 specification [2]. I don't believe we have the ability to change
+these values as suggested without changing the specification. That would most
+likely be a lengthy process, so I'd prefer to keep it as written if that's not
+an issue.
+
+> > +#define VIRTIO_MEDIA_MAX_PLANES VIDEO_MAX_PLANES
+> 
+> Here: why renaming it to VIRTIO_* namespace?
+
+This matches the name in section 5.22.6.2.3 of the virtio v1.4 specification
+[3]. And Alexandre stated the reason why it was renamed from VIDEO_* to
+VIRTIO_MEDIA_* was from an early piece of feedback to avoid V4L2-specific names.
+Even though virtio-media reuses the v4l2 structures and API, its possible to use
+virtio-media with a different media implementation other than v4l2.
+
+
+> > +/**
+> > + * struct virtio_media_session - A session on a virtio_media device.
+> > + * @fh: file handler for the session.
+> > + * @id: session ID used to communicate with the device.
+> > + * @nonblocking_dequeue: whether dequeue should block or not (nonblocking if
+> > + * file opened with O_NONBLOCK).
+> > + * @uses_mplane: whether the queues for this session use the MPLANE API or not.
+> > + * @cmd: union of session-related commands. A session can have one command currently running.
+> > + * @resp: union of session-related responses. A session can wait on one command only.
+> > + * @shadow_buf: shadow buffer where data to be added to the descriptor chain can
+> > + * be staged before being sent to the device.
+> > + * @command_sgs: SG table gathering descriptors for a given command and its response.
+> > + * @queues: state of all the queues for this session.
+> > + * @queues_lock: protects all members fo the queues for this session.
+> > + * virtio_media_queue_state`.
+> > + * @dqbuf_wait: waitqueue for dequeued buffers, if ``VIDIOC_DQBUF`` needs to
+> > + * block or when polling.
+> > + * @list: link into the list of sessions for the device.
+> > + */
+> > +struct virtio_media_session {
+> > +	struct v4l2_fh fh;
+> > +	u32 id;
+> > +	bool nonblocking_dequeue;
+> > +	bool uses_mplane;
+> > +
+> > +	union {
+> > +		struct virtio_media_cmd_close close;
+> > +		struct virtio_media_cmd_ioctl ioctl;
+> > +		struct virtio_media_cmd_mmap mmap;
+> > +	} cmd;
+> > +
+> > +	union {
+> > +		struct virtio_media_resp_ioctl ioctl;
+> > +		struct virtio_media_resp_mmap mmap;
+> > +	} resp;
+> > +
+> 
+> Heh, the above is tricky, as to parse the struct, one needs first
+> to check cmd.cmd to identify what values to pick from enums.
+> Also, the command is stored as: cmd.[close|ioctl|imap].cmd.
+> 
+> IMO, better to place the headers explicitly there, e.g.
+> 
+> 	union {
+> 		struct virtio_media_cmd_header hdr;
+> 		struct virtio_media_cmd_close close;
+> 		struct virtio_media_cmd_ioctl ioctl;
+> 		struct virtio_media_cmd_mmap mmap;
+> 	} send;
+> 	union {
+> 		struct virtio_media_resp_header hdr;
+> 		struct virtio_media_resp_ioctl ioctl;
+> 		struct virtio_media_resp_mmap mmap;
+> 	} resp;
+> 
+> Also, currently, there are 5 defined commands:
+> 
+> 	#define VIRTIO_MEDIA_CMD_OPEN 1
+> 	#define VIRTIO_MEDIA_CMD_CLOSE 2
+> 	#define VIRTIO_MEDIA_CMD_IOCTL 3
+> 	#define VIRTIO_MEDIA_CMD_MMAP 4
+> 	#define VIRTIO_MEDIA_CMD_MUNMAP 5
+> 
+> If the data struct is limited only for close/ioctl/mmap, please
+> document it and point what structure(s) other commands use.
+
+Tricky indeed!
+
+However, I don't believe its necessary to add an explict header member to the
+union. Whenever the driver parses the union, it already has the necessary
+context to determine which union member to use:
+
+- The struct virtio_media_cmd_* instances are always created by the driver and
+  sent to the device, so there are no unknowns there
+- The struct virtio_media_resp_* instances are always parsed in the same
+  function that sends the corresponding command, so again there's no
+  uncertainty about which union member to access.
+
+For these reasons, I would hesistate to add the `struct virtio_media_cmd_header
+hdr` as previously suggested. Please let me know if you disagree or if I've
+misunderstood your concern.
+
+That all being said, I have added comments about which structures use which
+commands in the upcoming v4 of the patches.
+
+
+> > +/**
+> > + * struct virtio_media - Virtio-media device.
+> > + * @v4l2_dev: v4l2_device for the media device.
+> > + * @video_dev: video_device for the media device.
+> > + * @virtio_dev: virtio device for the media device.
+> > + * @commandq: virtio command queue.
+> > + * @eventq: virtio event queue.
+> > + * @eventq_work: work to run when events are received on @eventq.
+> > + * @mmap_region: region into which MMAP buffers are mapped by the host.
+> > + * @event_buffer: buffer for event descriptors.
+> > + * @sessions: list of active sessions on the device.
+> > + * @sessions_lock: protects @sessions and ``virtio_media_session::list``.
+> > + * @events_lock: prevents concurrent processing of events.
+> > + * @cmd: union of device-related commands.
+> > + * @resp: union of device-related responses.
+> > + * @vlock: serializes access to the command queue.
+> > + * @wq: waitqueue for host responses on the command queue.
+> > + */
+> > +struct virtio_media {
+> > +	struct v4l2_device v4l2_dev;
+> > +	struct video_device video_dev;
+> > +
+> > +	struct virtio_device *virtio_dev;
+> > +	struct virtqueue *commandq;
+> > +	struct virtqueue *eventq;
+> > +	struct work_struct eventq_work;
+> > +
+> > +	struct virtio_shm_region mmap_region;
+> > +
+> > +	void *event_buffer;
+> > +
+> > +	struct list_head sessions;
+> > +	struct mutex sessions_lock;
+> > +
+> > +	struct mutex events_lock;
+> > +
+> > +	union {
+> > +		struct virtio_media_cmd_open open;
+> > +		struct virtio_media_cmd_munmap munmap;
+> > +	} cmd;
+> > +
+> > +	union {
+> > +		struct virtio_media_resp_open open;
+> > +		struct virtio_media_resp_munmap munmap;
+> > +	} resp;
+> 
+> Based on struct virtio_media_session, I'm assuming here that
+> this struct is used only for two commands, right? Please document
+> it at kernel-doc markup and add a point to the other structure used 
+> for the other commands.
+> 
+> The same comment about headers apply to the union here: place
+> the header explicitly at the union.
+
+The same thing I said above applies here as well. I will add the comments as
+requested in v4.
+
+[1] https://docs.oasis-open.org/virtio/virtio/v1.4/csprd01/virtio-v1.4-csprd01-diff-from-v1.2-cs01.html#x1-8360005
+[2] https://docs.oasis-open.org/virtio/virtio/v1.4/csprd01/virtio-v1.4-csprd01-diff-from-v1.2-cs01.html#x1-8560001
+[3] https://docs.oasis-open.org/virtio/virtio/v1.4/csprd01/virtio-v1.4-csprd01-diff-from-v1.2-cs01.html#x1-8600003
