@@ -1,332 +1,84 @@
-Received: from mail-qt1-f202.google.com (mail-qt1-f202.google.com [209.85.160.202])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 731413F928E
-	for <virtualization@lists.linux.dev>; Fri, 29 May 2026 16:03:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 51BCF326D65;
+	Fri, 29 May 2026 19:50:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780070599; cv=none; b=k9fCsWDtVYKH0/5WgJV5AwQaIABbXSRgMdjfDMkSFWl4D9hjj9EZ24jggHp46plWCpgDioonBS3BvnbBf+eoLbohY5LDEFSZUptm5K9So/Nv4KfoA3CNk5MK97KmGfWr0g5E1Fv3dOdSLq8BHGkZt6TJxukp9KPtbM+bfuivwZ8=
+	t=1780084210; cv=none; b=YkUihyI86yljpCbOR+jisM5ksr8K21CHbud4k1zYkzWFh6HoEUmlZaMXUJ2jtCEm5QHrvBeomS08NYXqSLA/FIba0UheMgr20hMJzxVIoMpRIosj+aJMSKfTPbC/Pua4VrLTA4AmyDV5i/xsQKk/qyURISC+YUslLnEB9WUPBM0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780070599; c=relaxed/simple;
-	bh=B6/IDFH68+koJyosTWjx1z2bmtDabqQoMw5P3YYxvnA=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=ZqO71C2rSPYxLwoRHO4ZMceYIfJG1QTOC9TXdEz4iIYnHdDZg7mFlsGjpC0H/Zz/+Sg0RG82/3iD/nvvEvQjMM5EZAKkLR/1OorH9dXnroHTjq6L84pYtBR3rTIcKlsEEE9pHjU7mM4xfIAFjc9lqNVDSUPWwQ8RgQ+9l6AcEuM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--briandaniels.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=MlPjjXl9; arc=none smtp.client-ip=209.85.160.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--briandaniels.bounces.google.com
+	s=arc-20240116; t=1780084210; c=relaxed/simple;
+	bh=h9m+j9PFBQFn2jg1ggcCkZRwuM9t0s8Ey77g12E3lKM=;
+	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
+	 In-Reply-To:To:Cc; b=Tp6unn1vznCgUThcuTS7/GkofL4YWPWhvWrTmpK4m/n0+F0ZF6CrWzDJUropDdyjebMZrFlvQx2mfe2NW5xUe7a4+qd5BbpvBkB6yXEHwmPJnWua+YtQXcYRcjgju9+ktUqkAQeNKjc9ixJj5MCsi1u9CVp/4iOWoytfS5W1brs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=RxLVzFyP; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="MlPjjXl9"
-Received: by mail-qt1-f202.google.com with SMTP id d75a77b69052e-514cbe73d00so359116271cf.1
-        for <virtualization@lists.linux.dev>; Fri, 29 May 2026 09:03:17 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1780070596; x=1780675396; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=E2Eib9fmRYrsetmnFPc72+ct4Kr8PxCo5xbzQReXjXk=;
-        b=MlPjjXl9y5vtbOi7gouK47HpnJlHquajONRdq9gpcGCikvjCfxnYWJCm5Ws9aE9lXt
-         ufoPwr4CVlsKu8w8Voua7Px3WCEkczRDE+RB1eKq/mcUM6w8/rzKdT5ny8O8Rs/kA7fe
-         xUuzaw6xnygb7d4ZLsac1E1MYwXF+QFF9ci+NPJhAwGmnfaKeIn8q5zd3U+/Nfv59po8
-         ROdJD9/Yx78WVRW5vJXHSvxZU5QKL1nuf+mz6RY5D+JqBNFvN3cjLoxpOjffvPJQdVvu
-         DkoEOVjcP5oVjVG9E4hVFUrZ1SwmKOc0Wrhpm6wpiwlgVhaJbQ8bIHaqzYEKWyBX9xBj
-         LcXg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780070596; x=1780675396;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=E2Eib9fmRYrsetmnFPc72+ct4Kr8PxCo5xbzQReXjXk=;
-        b=ABrrl3k3MBcjwTMfmGfCGqZOeSoSXIJO5zCJU9comduxCVHEKs2UgZbnTxczDlF3vO
-         UbK8GXJH58D3Hn5VPmNiaIhs0bJ9io6Y+BP7RtZfHDQvL8VC44YgwOIvOKNM6h3Wmv7u
-         hzIEsKykh+rsD9nSms+J6xXUvZ883yXskCcpvPv/VlG685QB7GLaMu2dd6jWq8Ydq6RL
-         u6iLELvVRltuuHwiVvo4V4yeqwWoT+x+xX+SqiqGWloFrU7YCuWP3GvmuwkqYuZRcmrX
-         ZdjzHJy8gSht59RKVXovCTDHkm7cYNhYXO9wp1Pjsb2XgHULpRQgRhIn6cyz0xPMJf7y
-         kzYA==
-X-Forwarded-Encrypted: i=1; AFNElJ9pPUEQC8uSSmD4ZyS8KXWZeqGwylC1WtyiqLZFb4i/lJsgGcEG09IOQ29r21ln8kwsY5nf6+YcDdJ6lNDicg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxTSe5ZW7NLLkpfIqGobhjGrICPPVBjqzacfhUZ4FWDYGADs+1c
-	atBkJPv+iUwSbSwbOUb7e2vr/1ajGFQxV3fppw6g8yTNa4w1l+Svepwb962Cu7yp6jLNMucsdHQ
-	gP6zEscGa9aueF/AEVPQNt8aXgdLK
-X-Received: from qto1.prod.google.com ([2002:a05:622a:a6c1:b0:50e:5f34:876e])
- (user=briandaniels job=prod-delivery.src-stubby-dispatcher) by
- 2002:a05:622a:aa4b:20b0:509:127d:ee06 with SMTP id d75a77b69052e-5173a8da824mr506131cf.58.1780070596215;
- Fri, 29 May 2026 09:03:16 -0700 (PDT)
-Date: Fri, 29 May 2026 12:03:04 -0400
-In-Reply-To: <20250909111216.18d5f78c@foz.lan>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="RxLVzFyP"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2DE821F00893;
+	Fri, 29 May 2026 19:50:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780084209;
+	bh=2kqzw/5S8xRtznkagGHui7yP4isApl7FIN//Fy8kYw4=;
+	h=Subject:From:Date:References:In-Reply-To:To:Cc;
+	b=RxLVzFyPeZjElsREHGsXttTxhzTYtD4t5/C79h9B2c7kVma2bu3x+1Xav4XT4533W
+	 IVkkvujT4HDu+wXUjZsFYtfUYzEBfZufD3TkhSlbRHkNy+NROuK+XvZNZ28LSJrdS3
+	 CE8OJwZnrDaRBeC3xy0wV15wvfV8ajaiFB4a10X1ZbniYcwVr5YStMLK9oR6dQKaUM
+	 Mqm2Brt6OZesHuUprx1eomHAskaO1JAYdk37WDG6JTLIa+HxoetkvPfR/m7fcjjVr/
+	 +fJ+4WhGMBxtNuG32y8PaMfw21/IV4bgZN/bYfjeyeP9Umk6tClKVuTRZnAmkVesQN
+	 4dV2dCTD4HEyg==
+Received: from [10.30.226.235] (localhost [IPv6:::1])
+	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 199E639301A0;
+	Fri, 29 May 2026 19:50:14 +0000 (UTC)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20250909111216.18d5f78c@foz.lan>
-X-Mailer: git-send-email 2.54.0.823.g6e5bcc1fc9-goog
-Message-ID: <20260529160314.1224731-1-briandaniels@google.com>
-Subject: Re: [PATCH v3] media: add virtio-media driver
-From: Brian Daniels <briandaniels@google.com>
-To: mchehab+huawei@kernel.org
-Cc: acourbot@google.com, adelva@google.com, aesteve@redhat.com, 
-	changyeon@google.com, daniel.almeida@collabora.com, eperezma@redhat.com, 
-	gnurou@gmail.com, gurchetansingh@google.com, hverkuil@xs4all.nl, 
-	jasowang@redhat.com, linux-kernel@vger.kernel.org, 
-	linux-media@vger.kernel.org, mchehab@kernel.org, mst@redhat.com, 
-	nicolas.dufresne@collabora.com, virtualization@lists.linux.dev, 
-	xuanzhuo@linux.alibaba.com
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Subject: Re: [PATCH net v2] vsock/virtio: bind uarg before filling zerocopy
+ skb
+From: patchwork-bot+netdevbpf@kernel.org
+Message-Id: 
+ <178008421264.1939215.14797550643980385939.git-patchwork-notify@kernel.org>
+Date: Fri, 29 May 2026 19:50:12 +0000
+References: <20260527023301.1075581-1-malin89@huawei.com>
+In-Reply-To: <20260527023301.1075581-1-malin89@huawei.com>
+To: Lin Ma <malin89@huawei.com>
+Cc: kuba@kernel.org, avkrasnov@salutedevices.com, cenxianlong@huawei.com,
+ chenzhe@huawei.com, cuirongzhen@huawei.com, davem@davemloft.net,
+ edumazet@google.com, eperezma@redhat.com, horms@kernel.org,
+ jasowang@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+ mst@redhat.com, netdev@vger.kernel.org, pabeni@redhat.com,
+ sgarzare@redhat.com, stefanha@redhat.com, tanjingguo@huawei.com,
+ virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
 
-Hi there! My name is Brian Daniels and I'll be taking over upstreaming this
-driver from Alexandre Courbot.
+Hello:
 
-I've consulted with Alexandre and my plan is to upload a v4 set of patches
-shortly based on the feedback from this revision.
+This patch was applied to netdev/net.git (main)
+by Jakub Kicinski <kuba@kernel.org>:
 
-Before doing so, I'd like to address some of your comments:
-
-> Hi Alex,
+On Wed, 27 May 2026 10:33:01 +0800 you wrote:
+> From: Jingguo Tan <tanjingguo@huawei.com>
 > 
-> I didn't see on a first glance anything that would cause locking
-> issues here, but, as I pointed on my last e-mail, testing with
-> qv4l2 at the max res of my C920 camera, it ended keeping 24 CPUs
-> busy without showing any results with qv4l2 (via ssh at the same
-> machine). So, I suspect that there are issues somewhere, but I didn't
-> debug any further.
+> virtio_transport_send_pkt_info() allocates or reuses the zerocopy uarg
+> before entering the send loop, but virtio_transport_alloc_skb() still
+> fills the skb before it inherits that uarg. When fixed-buffer vectored
+> zerocopy hits MAX_SKB_FRAGS, io_sg_from_iter() may partially attach
+> managed frags and return -EMSGSIZE. The rollback path call kfree_skb()
+> to free an skb that carries SKBFL_MANAGED_FRAG_REFS but no uarg, so
+> skb_release_data() falls through to ordinary frag unref.
 > 
-> Please do some tests with a high-res camera, using either ssh or
-> GPU emulation to see how this behaves with real apps.
+> [...]
 
-I did some testing with a 1080p USB webcam over ssh using ffmpeg and I was able
-to stream video to disk without any issue. Let me know if you'd prefer I test
-with a specific setup.
+Here is the summary with links:
+  - [net,v2] vsock/virtio: bind uarg before filling zerocopy skb
+    https://git.kernel.org/netdev/net/c/1e584c304cfb
 
-> > +config MEDIA_VIRTIO
-> > +	tristate "Virtio-media Driver"
-> > +	depends on VIRTIO && VIDEO_DEV && 64BIT && (X86 || (ARM && CPU_LITTLE_ENDIAN))
->
-> Why are you limiting it to x86_64 and arm64 little endian?
-
-The little endian requirement comes for the section 5.22.6.1.5 of the virtio
-v1.4 specification [1]. The limitation to x86_64 and arm64 is for two reasons:
-
-1. The specification requires all v4l2 structures to use the 64-bit layout
-2. This driver has only been tested on x86_64 and arm64 so far
+You are awesome, thank you!
+-- 
+Deet-doot-dot, I am a bot.
+https://korg.docs.kernel.org/patchwork/pwbot.html
 
 
-> > +/**
-> > + * enum virtio_media_memory - Memory types supported by virtio-media.
-> > + * @VIRTIO_MEDIA_MMAP: memory allocated and managed by device. Can be mapped
-> > + * into the guest using VIRTIO_MEDIA_CMD_MMAP.
-> > + * @VIRTIO_MEDIA_SHARED_PAGES: memory allocated by the driver. Passed to the
-> > + * device using virtio_media_sg_entry.
-> > + * @VIRTIO_MEDIA_OBJECT: memory backed by a virtio object.
-> > + */
-> > +enum virtio_media_memory {
-> > +	VIRTIO_MEDIA_MMAP = V4L2_MEMORY_MMAP,
-> > +	VIRTIO_MEDIA_SHARED_PAGES = V4L2_MEMORY_USERPTR,
-> > +	VIRTIO_MEDIA_OBJECT = V4L2_MEMORY_DMABUF,
-> > +};
-> 
-> I'm not a big fan of renaming USERPTR to SHARED_PAGES and
-> DMABUF to OBJECT, as it makes harder for reviewers and contributors
-> to remember about this mapping. Also, everybody knows exactly what
-> DMABUF means, so, it sounds to me that this obfuscates a little bit 
-> the driver.
-> 
-> Also, why are you encapsulating V4L2 names into VIRTIO_* namespace?
-> This just adds extra complexity for reviewers without any real
-> benefit.
-> 
-> Besides that, doing a grep on the patch, it sounds that this ma
-> is not used anywhere.
-> 
-> So, please drop this mapping.
-
-Agreed I don't see it being used anywhere, I think this was included originally
-since it's part of the virtio spec. I will remove it.
-
-
-> > +#define VIRTIO_MEDIA_EVT_ERROR 0
-> > +#define VIRTIO_MEDIA_EVT_DQBUF 1
-> > +#define VIRTIO_MEDIA_EVT_EVENT 2
-> 
-> OK, here, media events are different than virtio events, so having
-> a virtio-specific events make sense. Yet, better to add a comment
-> about that. 
-> 
-> Also, V4L events are defined as:
-> 
-> 	#define V4L2_EVENT_ALL                          0
-> 	#define V4L2_EVENT_VSYNC                        1
-> 	#define V4L2_EVENT_EOS                          2
-> 	#define V4L2_EVENT_CTRL                         3
-> 	#define V4L2_EVENT_FRAME_SYNC                   4
-> 	#define V4L2_EVENT_SOURCE_CHANGE                5
-> 	#define V4L2_EVENT_MOTION_DET                   6
-> 	#define V4L2_EVENT_PRIVATE_START                0x08000000
-> 
-> As one may end wanting to map them on some future, I would change
-> the definitions above to:
-> 
-> 	#define VIRTIO_MEDIA_EVT_ERROR V4L2_EVENT_PRIVATE_START
-> 	#define VIRTIO_MEDIA_EVT_DQBUF (V4L2_EVENT_PRIVATE_START + 1)
-> 	#define VIRTIO_MEDIA_EVT_EVENT (V4L2_EVENT_PRIVATE_START + 2)
-
-These event values (VIRTIO_MEDIA_EVT_*) are set by section 5.22.6.2.1 of the
-virtio v1.4 specification [2]. I don't believe we have the ability to change
-these values as suggested without changing the specification. That would most
-likely be a lengthy process, so I'd prefer to keep it as written if that's not
-an issue.
-
-> > +#define VIRTIO_MEDIA_MAX_PLANES VIDEO_MAX_PLANES
-> 
-> Here: why renaming it to VIRTIO_* namespace?
-
-This matches the name in section 5.22.6.2.3 of the virtio v1.4 specification
-[3]. And Alexandre stated the reason why it was renamed from VIDEO_* to
-VIRTIO_MEDIA_* was from an early piece of feedback to avoid V4L2-specific names.
-Even though virtio-media reuses the v4l2 structures and API, its possible to use
-virtio-media with a different media implementation other than v4l2.
-
-
-> > +/**
-> > + * struct virtio_media_session - A session on a virtio_media device.
-> > + * @fh: file handler for the session.
-> > + * @id: session ID used to communicate with the device.
-> > + * @nonblocking_dequeue: whether dequeue should block or not (nonblocking if
-> > + * file opened with O_NONBLOCK).
-> > + * @uses_mplane: whether the queues for this session use the MPLANE API or not.
-> > + * @cmd: union of session-related commands. A session can have one command currently running.
-> > + * @resp: union of session-related responses. A session can wait on one command only.
-> > + * @shadow_buf: shadow buffer where data to be added to the descriptor chain can
-> > + * be staged before being sent to the device.
-> > + * @command_sgs: SG table gathering descriptors for a given command and its response.
-> > + * @queues: state of all the queues for this session.
-> > + * @queues_lock: protects all members fo the queues for this session.
-> > + * virtio_media_queue_state`.
-> > + * @dqbuf_wait: waitqueue for dequeued buffers, if ``VIDIOC_DQBUF`` needs to
-> > + * block or when polling.
-> > + * @list: link into the list of sessions for the device.
-> > + */
-> > +struct virtio_media_session {
-> > +	struct v4l2_fh fh;
-> > +	u32 id;
-> > +	bool nonblocking_dequeue;
-> > +	bool uses_mplane;
-> > +
-> > +	union {
-> > +		struct virtio_media_cmd_close close;
-> > +		struct virtio_media_cmd_ioctl ioctl;
-> > +		struct virtio_media_cmd_mmap mmap;
-> > +	} cmd;
-> > +
-> > +	union {
-> > +		struct virtio_media_resp_ioctl ioctl;
-> > +		struct virtio_media_resp_mmap mmap;
-> > +	} resp;
-> > +
-> 
-> Heh, the above is tricky, as to parse the struct, one needs first
-> to check cmd.cmd to identify what values to pick from enums.
-> Also, the command is stored as: cmd.[close|ioctl|imap].cmd.
-> 
-> IMO, better to place the headers explicitly there, e.g.
-> 
-> 	union {
-> 		struct virtio_media_cmd_header hdr;
-> 		struct virtio_media_cmd_close close;
-> 		struct virtio_media_cmd_ioctl ioctl;
-> 		struct virtio_media_cmd_mmap mmap;
-> 	} send;
-> 	union {
-> 		struct virtio_media_resp_header hdr;
-> 		struct virtio_media_resp_ioctl ioctl;
-> 		struct virtio_media_resp_mmap mmap;
-> 	} resp;
-> 
-> Also, currently, there are 5 defined commands:
-> 
-> 	#define VIRTIO_MEDIA_CMD_OPEN 1
-> 	#define VIRTIO_MEDIA_CMD_CLOSE 2
-> 	#define VIRTIO_MEDIA_CMD_IOCTL 3
-> 	#define VIRTIO_MEDIA_CMD_MMAP 4
-> 	#define VIRTIO_MEDIA_CMD_MUNMAP 5
-> 
-> If the data struct is limited only for close/ioctl/mmap, please
-> document it and point what structure(s) other commands use.
-
-Tricky indeed!
-
-However, I don't believe its necessary to add an explict header member to the
-union. Whenever the driver parses the union, it already has the necessary
-context to determine which union member to use:
-
-- The struct virtio_media_cmd_* instances are always created by the driver and
-  sent to the device, so there are no unknowns there
-- The struct virtio_media_resp_* instances are always parsed in the same
-  function that sends the corresponding command, so again there's no
-  uncertainty about which union member to access.
-
-For these reasons, I would hesistate to add the `struct virtio_media_cmd_header
-hdr` as previously suggested. Please let me know if you disagree or if I've
-misunderstood your concern.
-
-That all being said, I have added comments about which structures use which
-commands in the upcoming v4 of the patches.
-
-
-> > +/**
-> > + * struct virtio_media - Virtio-media device.
-> > + * @v4l2_dev: v4l2_device for the media device.
-> > + * @video_dev: video_device for the media device.
-> > + * @virtio_dev: virtio device for the media device.
-> > + * @commandq: virtio command queue.
-> > + * @eventq: virtio event queue.
-> > + * @eventq_work: work to run when events are received on @eventq.
-> > + * @mmap_region: region into which MMAP buffers are mapped by the host.
-> > + * @event_buffer: buffer for event descriptors.
-> > + * @sessions: list of active sessions on the device.
-> > + * @sessions_lock: protects @sessions and ``virtio_media_session::list``.
-> > + * @events_lock: prevents concurrent processing of events.
-> > + * @cmd: union of device-related commands.
-> > + * @resp: union of device-related responses.
-> > + * @vlock: serializes access to the command queue.
-> > + * @wq: waitqueue for host responses on the command queue.
-> > + */
-> > +struct virtio_media {
-> > +	struct v4l2_device v4l2_dev;
-> > +	struct video_device video_dev;
-> > +
-> > +	struct virtio_device *virtio_dev;
-> > +	struct virtqueue *commandq;
-> > +	struct virtqueue *eventq;
-> > +	struct work_struct eventq_work;
-> > +
-> > +	struct virtio_shm_region mmap_region;
-> > +
-> > +	void *event_buffer;
-> > +
-> > +	struct list_head sessions;
-> > +	struct mutex sessions_lock;
-> > +
-> > +	struct mutex events_lock;
-> > +
-> > +	union {
-> > +		struct virtio_media_cmd_open open;
-> > +		struct virtio_media_cmd_munmap munmap;
-> > +	} cmd;
-> > +
-> > +	union {
-> > +		struct virtio_media_resp_open open;
-> > +		struct virtio_media_resp_munmap munmap;
-> > +	} resp;
-> 
-> Based on struct virtio_media_session, I'm assuming here that
-> this struct is used only for two commands, right? Please document
-> it at kernel-doc markup and add a point to the other structure used 
-> for the other commands.
-> 
-> The same comment about headers apply to the union here: place
-> the header explicitly at the union.
-
-The same thing I said above applies here as well. I will add the comments as
-requested in v4.
-
-[1] https://docs.oasis-open.org/virtio/virtio/v1.4/csprd01/virtio-v1.4-csprd01-diff-from-v1.2-cs01.html#x1-8360005
-[2] https://docs.oasis-open.org/virtio/virtio/v1.4/csprd01/virtio-v1.4-csprd01-diff-from-v1.2-cs01.html#x1-8560001
-[3] https://docs.oasis-open.org/virtio/virtio/v1.4/csprd01/virtio-v1.4-csprd01-diff-from-v1.2-cs01.html#x1-8600003
