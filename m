@@ -1,237 +1,388 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.20])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pg1-f230.google.com (mail-pg1-f230.google.com [209.85.215.230])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 72C56379960;
-	Fri, 29 May 2026 20:33:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=198.175.65.20
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780086800; cv=fail; b=pVJlzyr76Fb5HkZpHG86RbVvx/1fy1avjOoIMvmmKL4dD+aylxDunZMx099EVZKdA6+EJ88I0lnKNQCrLpuKFXdp+0cvIy9gskpnjWr5k7zmUNJqLX8TZBohXmLS90g1Eq0gjFN55UY9GCuybgHzngVMmPcLo2QLlC/rEv32LAs=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780086800; c=relaxed/simple;
-	bh=Fg7Xg8ggNBgir7l78UMdeeUIIg7MpK6UiuSR8I5BJ3s=;
-	h=Message-ID:Date:Subject:To:CC:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=MPlFIao3yG3dLfLSx7Q7qTl+rds1VxPErKZ1G0r13Xi+lLi/Mtf/muIb1huIEb0Tv548lSYScAPejINQ9g60K9bXJ3G6pWs5rLx+CVxkLw8ST5BPX/QBR+nKoZ+BUjMsM7q4pIpGGDjpuy1nXqt9Ca6NyE/zbnuTT8vsn7un7cA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=jJ+xOYgg; arc=fail smtp.client-ip=198.175.65.20
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B470932B11E
+	for <virtualization@lists.linux.dev>; Fri, 29 May 2026 21:51:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.230
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780091481; cv=none; b=mqtSBoyt237qtDdVJZIohfOrPDLsSiPZKN4jvaPhlmNtn3L3DtyTMAmbsqkCxUbvBo9XlZ1u1/xJ/p2tyDrr0TXcSRe0qOENMF1zlB6l62ZLnb/L+V+5bixV2UCKFYNqGVdVw7aKfNk37d31GgD1lTvouATddu+QoDlZ3WpWJiQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780091481; c=relaxed/simple;
+	bh=OoQTRZwrtIZXsdiNAYvG8H9VJ2zqWl2mA53Tp+hDzvk=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=ZThDuLigFGWNQ5sn7gqTFHXGyPzUK2VkE8tb7pORgKzpnJRcpdURhJaEDdnqsUju8YM021E86NymmaQJNxTVHIfpKHMAVkNXb2at/WSgqEc7QVZ/sa9zsbeu5JpDwAWl1kDP5cL7ApXX7t2d9s+ZgOCsRpcnX9NtcSUuwkF+z5I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=V7n1MrIU; arc=none smtp.client-ip=209.85.215.230
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="jJ+xOYgg"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1780086799; x=1811622799;
-  h=message-id:date:subject:to:cc:references:from:
-   in-reply-to:content-transfer-encoding:mime-version;
-  bh=Fg7Xg8ggNBgir7l78UMdeeUIIg7MpK6UiuSR8I5BJ3s=;
-  b=jJ+xOYggRwfWzG9v2qFr+RExt0VwyTd0dgEy4AgBBNjuerp3kqyWh0Qq
-   MR0t6w2t1Yy5Yj/6nxMP6sZaNS1jRzzLRmsuIIUkezkCwP/yEZVclQGx8
-   emyVI1sUZ7yc0m9TTlq0iU7Lye68bCEUyHQ/w7E2VY+cW34V+bh9hAOZs
-   H8tlCDWEEIbSutGDZoIjtgxACO+cf1oDfrz8icBSQpcEvo0FrHOdnEvA/
-   g3/sLrH8on2CRCX/ST2iKx7kg+ThVSpEutxfXmKVhqAuf2/mCOPIBgdrX
-   ZoKJHeDyGzdmuyPDaUFTj6pPbbcdQL+OaYp2mgzVDBp1kTmyhHZiVYVD1
-   g==;
-X-CSE-ConnectionGUID: Z5IDKhlPSNC9a6dpu5yYPw==
-X-CSE-MsgGUID: JVSXLGxtQT+hNCEO1/Z3MA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11801"; a="80673807"
-X-IronPort-AV: E=Sophos;i="6.24,176,1774335600"; 
-   d="scan'208";a="80673807"
-Received: from orviesa005.jf.intel.com ([10.64.159.145])
-  by orvoesa112.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 May 2026 13:33:18 -0700
-X-CSE-ConnectionGUID: 3wSFklu+Rwab8LFXe2y75Q==
-X-CSE-MsgGUID: 3M6MXzY4QGeJvvmzj12rvQ==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.24,176,1774335600"; 
-   d="scan'208";a="247878411"
-Received: from fmsmsx902.amr.corp.intel.com ([10.18.126.91])
-  by orviesa005.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 29 May 2026 13:33:17 -0700
-Received: from FMSMSX901.amr.corp.intel.com (10.18.126.90) by
- fmsmsx902.amr.corp.intel.com (10.18.126.91) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.37; Fri, 29 May 2026 13:33:16 -0700
-Received: from fmsedg902.ED.cps.intel.com (10.1.192.144) by
- FMSMSX901.amr.corp.intel.com (10.18.126.90) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.37 via Frontend Transport; Fri, 29 May 2026 13:33:16 -0700
-Received: from PH7PR06CU001.outbound.protection.outlook.com (52.101.201.63) by
- edgegateway.intel.com (192.55.55.82) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.2562.37; Fri, 29 May 2026 13:33:15 -0700
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Vjng4dlOEmv+eVEuxJGDpx9Pdz2PlldUkevDyzUN2w6KijO6Rfhf5CRm+h1x3j+QBLBAYVlu3/Oe4GWGF/T6zNNMEgVwx0PDxmCLPGVoSnRTbE8zMEeew1wKq7kvQ2kPFxZnExbtX1rndwwZS7uksDBA3SPwlBjqWHpvXjIrfxt88xq0DLFyutIxxC5OfUtKAuVQGioEIqIPyp1Ni5pzE7vuTaFoza2dlQQHXtze5y9C8c6/PyVe8EAGgouAEZoU3L8LPsTcDeMVnN63KSQS/BXmIYALXxTJGytGM7c052lKfAm+siVNqfB9j1IKPyp53ILjBnOVkZKhUqxR+hRBCg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=2KwNwBynGFczESokgQedkuIWHMfVSIpWr66Ig4jXaHM=;
- b=W69EZDjKbcFFlkz5xGoxE0b7b+L2/0Bulb1ZbMLOucAM8rzG2cNmpylfGLKmkHg0neNX8xSGoTs3OqGc0e40xr3h/CzUw6QU5NkWO0dZ6wzfsXl7k0y7Ze4Z1mD0ThGNIUSD+m9oHd62ZuawwcllstrOWUXgdRNHQsnR+3bsvfroI89RGIOhXyOOYZ93dgCWtayrwwpZyc8e3T4UXDNXsSitdhCu+pM2AMrgNNijg7FumW45ty1ORUaqmrFAdx/4oV0D5Z12fPXbryfdwxDPfGVIjvHy6gsqcrDCbgKOvdItOKFFfmw3IxrwfeH5OHUB1xn0AUrfNWV/JmH7isz4ig==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=intel.com; dmarc=pass action=none header.from=intel.com;
- dkim=pass header.d=intel.com; arc=none
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=intel.com;
-Received: from DS0PR11MB7381.namprd11.prod.outlook.com (2603:10b6:8:134::14)
- by SA0PR11MB4589.namprd11.prod.outlook.com (2603:10b6:806:9a::12) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.71.15; Fri, 29 May
- 2026 20:33:11 +0000
-Received: from DS0PR11MB7381.namprd11.prod.outlook.com
- ([fe80::4c39:dfe6:d6dc:6f58]) by DS0PR11MB7381.namprd11.prod.outlook.com
- ([fe80::4c39:dfe6:d6dc:6f58%5]) with mapi id 15.21.0071.011; Fri, 29 May 2026
- 20:33:11 +0000
-Message-ID: <994a314b-65a9-41f1-9ca7-04b00a11b6f4@intel.com>
-Date: Fri, 29 May 2026 13:33:07 -0700
-User-Agent: Mozilla Thunderbird
-Subject: Re: [patch V2 00/25] timekeeping/ptp: Expand snapshot functionality
-To: Thomas Gleixner <tglx@kernel.org>, LKML <linux-kernel@vger.kernel.org>
-CC: David Woodhouse <dwmw2@infradead.org>, Miroslav Lichvar
-	<mlichvar@redhat.com>, John Stultz <jstultz@google.com>, Stephen Boyd
-	<sboyd@kernel.org>, Anna-Maria Behnsen <anna-maria@linutronix.de>, "Frederic
- Weisbecker" <frederic@kernel.org>, <thomas.weissschuh@linutronix.de>, "Arthur
- Kiyanovski" <akiyano@amazon.com>, Rodolfo Giometti <giometti@enneenne.com>,
-	Vincent Donnefort <vdonnefort@google.com>, Marc Zyngier <maz@kernel.org>,
-	Oliver Upton <oliver.upton@linux.dev>, <kvmarm@lists.linux.dev>, Oliver Upton
-	<oupton@kernel.org>, Richard Cochran <richardcochran@gmail.com>,
-	<netdev@vger.kernel.org>, Takashi Iwai <tiwai@suse.com>, Miri Korenblit
-	<miriam.rachel.korenblit@intel.com>, Johannes Berg <johannes.berg@intel.com>,
-	Tony Nguyen <anthony.l.nguyen@intel.com>, Saeed Mahameed <saeedm@nvidia.com>,
-	Peter Hilber <peter.hilber@oss.qualcomm.com>, "Michael S. Tsirkin"
-	<mst@redhat.com>, <virtualization@lists.linux.dev>,
-	<linux-wireless@vger.kernel.org>, <linux-sound@vger.kernel.org>, "David
- Woodhouse" <dwmw@amazon.co.uk>, Vadim Fedorenko <vadim.fedorenko@linux.dev>
-References: <20260529193435.921555544@kernel.org>
-Content-Language: en-US
-From: Jacob Keller <jacob.e.keller@intel.com>
-In-Reply-To: <20260529193435.921555544@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: MW4PR03CA0186.namprd03.prod.outlook.com
- (2603:10b6:303:b8::11) To DS0PR11MB7381.namprd11.prod.outlook.com
- (2603:10b6:8:134::14)
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="V7n1MrIU"
+Received: by mail-pg1-f230.google.com with SMTP id 41be03b00d2f7-c8588ec1b44so74485a12.1
+        for <virtualization@lists.linux.dev>; Fri, 29 May 2026 14:51:19 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780091479; x=1780696279;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=7ngQ0AwkajjtonjTpfScDVyCtwA8l3EJ7YSGHuMrqPo=;
+        b=RL6lMCGUEdkw32laS97fdyYsKR/84SSTMqVXi0nLXwrbU5QLxksacJ/HLIbj9Upg6f
+         kBUAw5IQEpgNFpDdi5lJbeiY2zRUDuv+Wnp8HyrLWmS92U5oG0QbwmpgsRQPrw4FzD90
+         1g+u+GFFS3HjDaqgS6yKiN5Nfq/2v+kP9hauX1FNSOGT4s33eNECtsqXBHqgGArTfEy/
+         H1/aoMQd4u/DizOwicdzxReCd3IDNZxseruQtI0KLXckBTfrcdnTeQvf5q+g67xS376C
+         ajEzNfUyUqMD+MbQxB3D1cNU37oSFSGVf1Rxuod9nJg8SYW+yFY7XVS4AlXHEUQowXc6
+         FLUw==
+X-Forwarded-Encrypted: i=1; AFNElJ9MVqZe4TSEzWXUAbowTEMfrjDUC0cjhPLgNzrTwpf0pLegfXqhqNqNcdutoPVPUOTCwqNj9GG2cuGUdJzOtQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxrZ+M6Y4nzx23eCiwraLSw6E3CWn+9YlOMPWXShhKSxWMqSBJA
+	PtyDvTWSxHt9kdqF7fsG3erIYAbTY/iX6X2NjYk7mw67gO5oGXf0vpBTsP2z6WbwT8kk+bBJ997
+	s399A2aTyrSYjK9/jidM8CMX77kfF3eJvdqIzzHPvR22bsVkrSvOLRQSkaLbHMOiAtiLANNQwKf
+	tg7yPB1daOC5B6nyB5aRKDeRU1bjTZ4goLEB2ktq3P5yKG6S4N5etS8Oif15EyT6wBiRCstFu8n
+	qHbYOffqmfd/K50ZmWrcA==
+X-Gm-Gg: Acq92OEW4FLFU8C0vq17ZzUb/1MmFeq9fAv4SI0j15CCxXwiZ1DmsxXJOuq7CA/BNg6
+	7oEYIcQ+Q5bsYvDDFWfsbOuJvIscgnjWPZytggp7LK62LIc0IRDj+mAYnUsFfNAIJKCQe8bZUXO
+	vA7sxR3N0FPSoBdf+A0BhBgnIZF/EZqUZ/vKFo4fF+uEHFsuHJag4Xjzi11V4sQn6px5iuJcO7Z
+	jmQ107lJAz/GT7CIx5aMT/Tu5DLQ34d3YMq2XpaUhdic50tnldP2CUTZ3//BlECoVspD9jDlGBT
+	1u//mKn4ri6AWTU506+kziyG0wyu2WKmRK1hYySxyQRbp5QksGUQLJ+H6gAu+qh1+B7RsJG7/uN
+	2zQfQABIEy9MasfmzG7oBngDhAKZ/ldCLi3+IK8jRuznd0452RS9RVKIGd0PRNzQlmYeEXDbJsb
+	CbNrDkwmgRJH6Lv1vYOOqADkwGvW4ulxU+NtrjaS6W1cjI5sI8kNgKdI9/r7K/fuRaygY=
+X-Received: by 2002:a05:6a21:7d02:b0:3b3:13ed:432a with SMTP id adf61e73a8af0-3b428216275mr1126755637.48.1780091478750;
+        Fri, 29 May 2026 14:51:18 -0700 (PDT)
+Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-102.dlp.protect.broadcom.com. [144.49.247.102])
+        by smtp-relay.gmail.com with ESMTPS id 41be03b00d2f7-c85773eeeaasm168511a12.11.2026.05.29.14.51.16
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Fri, 29 May 2026 14:51:18 -0700 (PDT)
+X-Relaying-Domain: broadcom.com
+X-CFilter-Loop: Reflected
+Received: by mail-lf1-f71.google.com with SMTP id 2adb3069b0e04-5a888b0047eso2020289e87.0
+        for <virtualization@lists.linux.dev>; Fri, 29 May 2026 14:51:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google; t=1780091475; x=1780696275; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=7ngQ0AwkajjtonjTpfScDVyCtwA8l3EJ7YSGHuMrqPo=;
+        b=V7n1MrIUKDCAI3LcctpN1aG12Rg2ofAXl9CFqd4a7GtMRumS8c+8ZZx8VA++1uCKxH
+         WeHyDzItDhyXZkTz+ZRGTaU6HelFaRByqXakUXl+1huCu4kKDyx5u2AcD3HWRKno/fNT
+         Mdd9UIQwGhj8GZO2AYeBBlwLHJNIW1TmntWZY=
+X-Forwarded-Encrypted: i=1; AFNElJ+9qTSuHxyAZv3jdsxFWztYNz4IDq8TWlkWB1s8ujUSLmJmSXnPaGttB59MHJC1oxPULYuXfRed3582aLMjhw==@lists.linux.dev
+X-Received: by 2002:a05:6512:612:20b0:5a8:e129:af6f with SMTP id 2adb3069b0e04-5aa59040f2cmr867389e87.23.1780091475108;
+        Fri, 29 May 2026 14:51:15 -0700 (PDT)
+X-Received: by 2002:a05:6512:612:20b0:5a8:e129:af6f with SMTP id
+ 2adb3069b0e04-5aa59040f2cmr867382e87.23.1780091474623; Fri, 29 May 2026
+ 14:51:14 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: DS0PR11MB7381:EE_|SA0PR11MB4589:EE_
-X-MS-Office365-Filtering-Correlation-Id: d19e8869-838b-42d4-5a95-08debdc18013
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam: BCL:0;ARA:13230040|7416014|376014|366016|1800799024|56012099006|11063799006|22082099003|18002099003;
-X-Microsoft-Antispam-Message-Info: iUE9fxwok2LR1+4K0jvxA7XJgpFbQE3BzNjp+gE4CtK1wXEY8S0ikzEtrG8mIERMvYhEcm+/u9BvUOFyUg/PbRdey5fSqinga1VYRCSti0HB26KJRsz0f4JpnZqzjHLF25ZJR3DnvCZtTF/8A0/pW/Uy4VbkdOakzOgqXhuCqWyZ2k3kCrAYu0WDb/uXOiVx82bsAFX5KcFiOOaNGO4lPZd3PpGNhowiemtFO73FpO+crn7uy0a36IN5+AknpwiW/Ab06+iV5wHnyrLqElhUZ50hEB5nXTNEXm8BL1A4oFHiPhMANjk0A7UF7Eyn49vughxod1gVXRmoc8PATFCyX6VMHdpLYea/UchjnmO3XWCH3IjypsC14ERQVRLpJMyfAE/sOdAFCPSKe0NYdKZggL2uMADU/VC8EDk3vn5BD1XFGi/3asuRVJhS8XYCxTjNIFp/kZsuqdPaEYWLDodO3mAKtb1z/mAIBdTezWQJNISt0XB5EFl9ClZHTcxQukfr4dM3B6VOsKXpqNjNeG34Wd8rzHxZbG8gON566bhikUQEsyZG26+GlbNNaFNfBRjpCiHLjM/wJh0Mz4ZI1Sj2zEQOOSsbXKhy/K589GkOEGPyetpP7w7f5erKWm9oVR8mAX8QxO2fQv/OKq0E/lPXOg==
-X-Forefront-Antispam-Report: CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS0PR11MB7381.namprd11.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(366016)(1800799024)(56012099006)(11063799006)(22082099003)(18002099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0: =?utf-8?B?bXFQL1Nrb05qbUFyUThWUXEyMWFSMWZoVXpOTms4cnZvTE02V0diYnVVWDgr?=
- =?utf-8?B?KzRNZXY4Z00rWWhkV21SeTR3dDdMRFlaMEtXYnVkQ1dWYmM5RHdxcWhQNW1T?=
- =?utf-8?B?VnJkdCtKT28zblZqUFh6b1I3WkZFV3FmaThHcW50YUt4dHJ0aGx1cUg4QjN3?=
- =?utf-8?B?T2RMTEN5SWJnOEVVZ0FTaEZBak5qSVBtbElScTZyWWNFQlJiUjhCQ0plOGZx?=
- =?utf-8?B?TnBaYUpxRUFxcitpNHBpZ2ZDQStsVEhqcmpIclFuRzdZNnlIWU1JSE5vR2s2?=
- =?utf-8?B?UTNvakJjSnJkdmtxZDZMdmlUUDI1MERuVzViZS9xanBhVENlOFdCVUIrK3FE?=
- =?utf-8?B?QjlTQ1AvbUl0bm4vZ3R3NDE2TlFFUER0a1ZidFVYS1EvRitGN1ByamtiOEl2?=
- =?utf-8?B?S0EzNmxMTFRHZXRaTEd1cmZVT3hNMkhPamp5cHdiQzVVV1JDbTFuYUkvYjk4?=
- =?utf-8?B?L21EbzdFZXd4cmdHeVhWanVUT1EvRlIzVk5JdDAzRjd3VXdOTW5QcWwzcHM5?=
- =?utf-8?B?ZEtSWHY4dGVtRmgwdTBFRUxSQWpkZXUyc2EzbHRrcHl6ZFRjRGtmaVBZN050?=
- =?utf-8?B?S3ZGRENnSmdTeHhRa1RTVDMxdjVnVmpuSGliLzhZWmI1dW1GZ2xBRWk4SFNa?=
- =?utf-8?B?c256OXhNZHQ0NVZUdk5scExPZUs5ZE1nSGRkeE5vRnhoUGsvQUhtQlBJTXp4?=
- =?utf-8?B?ZFBEQkgycDBwM1RCd2JodzRKcXljK0JuWHlqZGpSbUsvTzNsbnJSQitNMnMr?=
- =?utf-8?B?dGxkYUQ5Q1YrRkVkK09FSXF4SzBBYlp2eFBGN2JRbWxycWZSMHVrN2dITWtR?=
- =?utf-8?B?bi9ad1MxL0hOblhLSm4wc1dvSi8wbmZHY2F0NjFJc3N1dzZXZHJWTU85eXIw?=
- =?utf-8?B?bnlVWGJWa3BlbFNQdVRVeDEzUmF0b1hSZnQ1OTcrdk1PdWlhRmJWMVQ4NW1E?=
- =?utf-8?B?R3h5VXBsZjJwYmtHMDJrQ1ZDTi8yWHpxaERmbllIb21iSE1sTjg2cWV3blpZ?=
- =?utf-8?B?RWVKc0p4a3VGemE5L3JLanA1YzVsbjNkd3VyVTJHeFRTeUxkUUhoUlVVeFN6?=
- =?utf-8?B?WVVtKzhrdjRuVG9taDZwd1RIdnhpVnZtUkp4MWNRdDFFSkE4TU9JME9HQ3Vr?=
- =?utf-8?B?QnJJNHNoUk4xQnlpeUdUZHU1NjREN1BkRXJQZGNqeHZHd3UwOGs2ZGdPV3pm?=
- =?utf-8?B?cTlHMTY5R1JINFNiRjduTERmSzdDZjBQWG1oc05CRXFWTE9rbTYzdUJGTUg5?=
- =?utf-8?B?aEVWb3FnQ2EwVW5mdkdmb0RYaStSNjU1eGZZTVE2VVlGOXptNmMxUW5SdVVs?=
- =?utf-8?B?QnIwL2VWaVN0c2hBeHlLS3kwWEpIQzdOUFU3QWdqT0c2TXFYK3JxTWZmT3R1?=
- =?utf-8?B?WXpkbkdSTzZCYTZUYTgzSHFWQUgyNmpDMXlDQWIrYytiRS9hN29VR2lQdUQ3?=
- =?utf-8?B?S0ZaQTJyYVBURmo2N1UzNVpKUjhTNVE4WjNZUE5mVm1LRmRNWHE4OGdqT2dN?=
- =?utf-8?B?YUlaazFBNkkwYVRsVWlDSk5OcnJHZ09UMEFISFliWE9vL1ZDOStFUUx6MWps?=
- =?utf-8?B?SFFzWVpxTW1WV3RtRzhBUXVkQmlWSEF1cWZnWXE3L2MrZnN3UHkzUTg1OVZp?=
- =?utf-8?B?RjhUR2M4U2MyQmdyRDhGN1J5Z2ppcGFocjAwQndNNENkUlVuTzhCMkQvYU4x?=
- =?utf-8?B?d2ExbzhyUmthRmZ5bEZSNXk2VDlDRlQxbkQ4TVlobzMzam1aWDRXM3NmUnAy?=
- =?utf-8?B?TnVmbFoxTTNMM09zZXg2c0lIQzdkbU5JdlFwdmJxRWtFaUpUemt3K3BEZTFt?=
- =?utf-8?B?SFR6dWpFaWkxYm5kS1o3WEFlWDhQb2ltaDM5ZmRTUWFYMFZ4STRvRWtlYUsv?=
- =?utf-8?B?dnB6MWZxaUVabUd1RGZraDdZTGVTQW5VTktIbFgwLzdPdVpxNUQ4aG52YTdQ?=
- =?utf-8?B?KzRjQTJXRmFHamIvdkpQTkhWSWNadFlaaWU5WElDMEQxRnRUNGNQcjUrTHBt?=
- =?utf-8?B?TDFiMUdpaytkRjM4Vjhackp1b3JBWStiMFZkUFhKZGdxZjNnWUdlVmFDM29Q?=
- =?utf-8?B?Q3hhQVhRWjdEUVdyV0t2Q2dBWmdIcVlOWHl6WjYrdTUyNElrazdjUWE1NU9m?=
- =?utf-8?B?TVF4a1dDRUo4dit4d29wMXlGa3EyRzdPYk9pajZ4d1RacHpEM1U0cWhCV3Vs?=
- =?utf-8?B?VU9MM0FvTS8zNmVXeG0vL2hLdEwxWWVQMTZndTE1bHdSYjNJMlF1K2d2eHZs?=
- =?utf-8?B?TEJzNmorQ09nbmRLbmFDQXN3ZTljSGllVUlSNGJvRUtIb0lTUXhtY2xFR2py?=
- =?utf-8?B?bkRwYW5BOVdyc0xNdGZFeTFxRXdLNDhSVGJlVlFjN1Rmd2ljUUkrUT09?=
-X-Exchange-RoutingPolicyChecked: dyiUEXqh3fc75sjIhfwgS/xEHflWEPhhzeTdwYskcgF5QV+KFP3pRDuX6SYZ/Pp63IIjxl9AQNdo1v9Bq1/jdkDCcNP432JJEfge7lq8H+3w3F89i9FmdHRPHSRozfXj4TbCe1ujlUhh2PkaLw6heGIUjFMD1r4lLoTC45oVFM7qa+ELEW07Euhmw+sQbkdffns5IBzF1TIRg2305fEBFW2KRyaHQV0sfsmN97Qc1Z+yzIs9hwE/QIRdEPOGAgcM/zem0a7uqfmWkabfGaLSpuSa3Oq6ELwe0KpPvA1gTqIK4Mwr7r2Pn0wRROdfpcwemwenduptN2FbMrqMj2i8CQ==
-X-MS-Exchange-CrossTenant-Network-Message-Id: d19e8869-838b-42d4-5a95-08debdc18013
-X-MS-Exchange-CrossTenant-AuthSource: DS0PR11MB7381.namprd11.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 May 2026 20:33:11.0153
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 46c98d88-e344-4ed4-8496-4ed7712e255d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: PvXJHIG+WFZeLs+sw7c7VrRWOO8czqLBJASWx2drba6wI8nVbdIe14MMtqCjuqUaBhI3rg8X2JTDQqt8p4+OF0m4uIJYc2QcmtcPOVCNDlw=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SA0PR11MB4589
-X-OriginatorOrg: intel.com
+References: <20260527145113.241595-1-tzimmermann@suse.de> <20260527145113.241595-11-tzimmermann@suse.de>
+In-Reply-To: <20260527145113.241595-11-tzimmermann@suse.de>
+From: Zack Rusin <zack.rusin@broadcom.com>
+Date: Fri, 29 May 2026 17:51:02 -0400
+X-Gm-Features: AVHnY4KIK2b_b8RVjZiB-AlL-VZmUXJwYKGs1uGNiJBm8qXQcz8OVNuVdL8kcUc
+Message-ID: <CABQX2QOaFpmw=ytYM4NquqScTPL-gFeEAyufNP4jxHUx5sg1RQ@mail.gmail.com>
+Subject: Re: [PATCH v3 10/10] drm/vmwgfx: Remove unused field struct vmwgfx_du_update_plane.old_state
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: mripard@kernel.org, maarten.lankhorst@linux.intel.com, airlied@redhat.com, 
+	airlied@gmail.com, simona@ffwll.ch, admin@kodeit.net, gargaditya08@proton.me, 
+	paul@crapouillou.net, jani.nikula@linux.intel.com, mhklinux@outlook.com, 
+	bcm-kernel-feedback-list@broadcom.com, dri-devel@lists.freedesktop.org, 
+	linux-hyperv@vger.kernel.org, intel-gfx@lists.freedesktop.org, 
+	intel-xe@lists.freedesktop.org, linux-mips@vger.kernel.org, 
+	virtualization@lists.linux.dev
+X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
+Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256;
+	boundary="00000000000010d1a90652fbd8e5"
 
-On 5/29/2026 12:59 PM, Thomas Gleixner wrote:
-> This is an update to V1 which can be found here:
-> 
->    https://lore.kernel.org/lkml/20260526165826.392227559@kernel.org
-> 
-> PTP wants to grow new snapshot functionality, which provides not only the
-> captured CLOCK* values, but also the underlying clocksource counter value.
-> 
->    https://lore.kernel.org/20260515164033.6403-1-akiyano@amazon.com
-> 
-> There was quite some discussion in seemingly related threads how to capture
-> these values and how to provide core infrastructure so that driver writers
-> have something to work with
-> 
->    https://lore.kernel.org/20260514225842.110706-1-hramamurthy@google.com
->    https://lore.kernel.org/20260520135207.37826-1-dwmw2@infradead.org
-> 
-> This series implements the timekeeping related mechanisms to:
-> 
->      1) Capture CLOCK values along with the clocksource counter value for
->      	non-hardware based sampling
-> 
->      2) Expanding the hardware cross time stamp mechanism to hand back the
->      	clocksource counter value, which was captured by the device, along
->      	with the related CLOCK values
-> 
->      3) Adding AUX clock support to the hardware cross timestamping core
-> 
->      4) Add support for derived clocksources to the snapshot mechanism (New
->      	in V2)
-> 
-> Changes vs. V1:
-> 
->   - Fixed the ptp_ocp typo - 0-day, Jakub
-> 
->   - Renamed the system_time_snapshot members sys and raw so systime and
->     monoraw to make them less ambigous.
-> 
->   - Fixed the error case return values of get_device_system_crosststamp()
-> 
->   - Made ktime_snapshot_id() void as there is no point for the return
->     value, which is nowhere checked and cannot be propagated.
->     system_time_snapshot::valid has to be evaluated at the call sites
->     anyway. - Jacob
-> 
->   - Picked up the first patch from Davids follow up series, which extends
->     the snapshot mechanism so that derived clocksources (like kvmclock and
->     Hyper-V scaled TSC) can return the actual underlying hardware counter
->     value (TSC for the two examples).
-> 
->   - Collected Reviewed/Acked/Tested-by tags
-> 
-> Delta patch against v1 below.
-> 
-> The series is based on v7.1-rc2 and also available from git:
-> 
->     git://git.kernel.org/pub/scm/linux/kernel/git/tglx/devel.git timekeeping-ptp-extend-v2
-> 
-> Thanks,
+--00000000000010d1a90652fbd8e5
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-The changes in v2 are great! Appreciate it.
+On Wed, May 27, 2026 at 10:51=E2=80=AFAM Thomas Zimmermann <tzimmermann@sus=
+e.de> wrote:
+>
+> Plane updates no longer require the old plane state. Remove the field
+> from struct vmwgfx_du_update_plane and fix all callers.
+>
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> ---
+>  drivers/gpu/drm/vmwgfx/vmwgfx_kms.h  |  2 --
+>  drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c | 12 ++----------
+>  drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c | 11 ++---------
+>  3 files changed, 4 insertions(+), 21 deletions(-)
+>
+> diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.h b/drivers/gpu/drm/vmwgfx=
+/vmwgfx_kms.h
+> index 2224d7d91d1b..8c2072b82062 100644
+> --- a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.h
+> +++ b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.h
+> @@ -19,7 +19,6 @@
+>  /**
+>   * struct vmw_du_update_plane - Closure structure for vmw_du_helper_plan=
+e_update
+>   * @plane: Plane which is being updated.
+> - * @old_state: Old state of plane.
+>   * @dev_priv: Device private.
+>   * @du: Display unit on which to update the plane.
+>   * @vfb: Framebuffer which is blitted to display unit.
+> @@ -102,7 +101,6 @@ struct vmw_du_update_plane {
+>                                     struct drm_rect *bb);
+>
+>         struct drm_plane *plane;
+> -       struct drm_plane_state *old_state;
+>         struct vmw_private *dev_priv;
+>         struct vmw_display_unit *du;
+>         struct vmw_framebuffer *vfb;
+> diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c b/drivers/gpu/drm/vmwgf=
+x/vmwgfx_scrn.c
+> index c83061cf7455..fa84bc7ab5bb 100644
+> --- a/drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c
+> +++ b/drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c
+> @@ -530,7 +530,6 @@ static uint32_t vmw_stud_bo_post_clip(struct vmw_du_u=
+pdate_plane  *update,
+>   */
+>  static int vmw_sou_plane_update_bo(struct vmw_private *dev_priv,
+>                                    struct drm_plane *plane,
+> -                                  struct drm_plane_state *old_state,
+>                                    struct vmw_framebuffer *vfb,
+>                                    struct vmw_fence_obj **out_fence)
+>  {
+> @@ -538,7 +537,6 @@ static int vmw_sou_plane_update_bo(struct vmw_private=
+ *dev_priv,
+>
+>         memset(&bo_update, 0, sizeof(struct vmw_du_update_plane_buffer));
+>         bo_update.base.plane =3D plane;
+> -       bo_update.base.old_state =3D old_state;
+>         bo_update.base.dev_priv =3D dev_priv;
+>         bo_update.base.du =3D vmw_crtc_to_du(plane->state->crtc);
+>         bo_update.base.vfb =3D vfb;
+> @@ -692,7 +690,6 @@ static uint32_t vmw_sou_surface_post_clip(struct vmw_=
+du_update_plane *update,
+>   */
+>  static int vmw_sou_plane_update_surface(struct vmw_private *dev_priv,
+>                                         struct drm_plane *plane,
+> -                                       struct drm_plane_state *old_state=
+,
+>                                         struct vmw_framebuffer *vfb,
+>                                         struct vmw_fence_obj **out_fence)
+>  {
+> @@ -700,7 +697,6 @@ static int vmw_sou_plane_update_surface(struct vmw_pr=
+ivate *dev_priv,
+>
+>         memset(&srf_update, 0, sizeof(struct vmw_du_update_plane_surface)=
+);
+>         srf_update.base.plane =3D plane;
+> -       srf_update.base.old_state =3D old_state;
+>         srf_update.base.dev_priv =3D dev_priv;
+>         srf_update.base.du =3D vmw_crtc_to_du(plane->state->crtc);
+>         srf_update.base.vfb =3D vfb;
+> @@ -721,7 +717,6 @@ static void
+>  vmw_sou_primary_plane_atomic_update(struct drm_plane *plane,
+>                                     struct drm_atomic_commit *state)
+>  {
+> -       struct drm_plane_state *old_state =3D drm_atomic_get_old_plane_st=
+ate(state, plane);
+>         struct drm_plane_state *new_state =3D drm_atomic_get_new_plane_st=
+ate(state, plane);
+>         struct drm_crtc *crtc =3D new_state->crtc;
+>         struct vmw_fence_obj *fence =3D NULL;
+> @@ -734,12 +729,9 @@ vmw_sou_primary_plane_atomic_update(struct drm_plane=
+ *plane,
+>                         vmw_framebuffer_to_vfb(new_state->fb);
+>
+>                 if (vfb->bo)
+> -                       ret =3D vmw_sou_plane_update_bo(dev_priv, plane,
+> -                                                     old_state, vfb, &fe=
+nce);
+> +                       ret =3D vmw_sou_plane_update_bo(dev_priv, plane, =
+vfb, &fence);
+>                 else
+> -                       ret =3D vmw_sou_plane_update_surface(dev_priv, pl=
+ane,
+> -                                                          old_state, vfb=
+,
+> -                                                          &fence);
+> +                       ret =3D vmw_sou_plane_update_surface(dev_priv, pl=
+ane, vfb, &fence);
+>                 if (ret !=3D 0)
+>                         DRM_ERROR("Failed to update screen.\n");
+>         } else {
+> diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c b/drivers/gpu/drm/vmwgf=
+x/vmwgfx_stdu.c
+> index f0df2b1c8465..474e3badb80f 100644
+> --- a/drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c
+> +++ b/drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c
+> @@ -1240,7 +1240,6 @@ vmw_stdu_bo_populate_update_cpu(struct vmw_du_updat=
+e_plane  *update, void *cmd,
+>   */
+>  static int vmw_stdu_plane_update_bo(struct vmw_private *dev_priv,
+>                                     struct drm_plane *plane,
+> -                                   struct drm_plane_state *old_state,
+>                                     struct vmw_framebuffer *vfb,
+>                                     struct vmw_fence_obj **out_fence)
+>  {
+> @@ -1248,7 +1247,6 @@ static int vmw_stdu_plane_update_bo(struct vmw_priv=
+ate *dev_priv,
+>
+>         memset(&bo_update, 0, sizeof(struct vmw_du_update_plane_buffer));
+>         bo_update.base.plane =3D plane;
+> -       bo_update.base.old_state =3D old_state;
+>         bo_update.base.dev_priv =3D dev_priv;
+>         bo_update.base.du =3D vmw_crtc_to_du(plane->state->crtc);
+>         bo_update.base.vfb =3D vfb;
+> @@ -1350,7 +1348,6 @@ vmw_stdu_surface_populate_update(struct vmw_du_upda=
+te_plane  *update, void *cmd,
+>   */
+>  static int vmw_stdu_plane_update_surface(struct vmw_private *dev_priv,
+>                                          struct drm_plane *plane,
+> -                                        struct drm_plane_state *old_stat=
+e,
+>                                          struct vmw_framebuffer *vfb,
+>                                          struct vmw_fence_obj **out_fence=
+)
+>  {
+> @@ -1363,7 +1360,6 @@ static int vmw_stdu_plane_update_surface(struct vmw=
+_private *dev_priv,
+>
+>         memset(&srf_update, 0, sizeof(struct vmw_du_update_plane));
+>         srf_update.plane =3D plane;
+> -       srf_update.old_state =3D old_state;
+>         srf_update.dev_priv =3D dev_priv;
+>         srf_update.du =3D vmw_crtc_to_du(plane->state->crtc);
+>         srf_update.vfb =3D vfb;
+> @@ -1424,12 +1420,9 @@ vmw_stdu_primary_plane_atomic_update(struct drm_pl=
+ane *plane,
+>                         DRM_ERROR("Failed to bind surface to STDU.\n");
+>
+>                 if (vfb->bo)
+> -                       ret =3D vmw_stdu_plane_update_bo(dev_priv, plane,
+> -                                                      old_state, vfb, &f=
+ence);
+> +                       ret =3D vmw_stdu_plane_update_bo(dev_priv, plane,=
+ vfb, &fence);
+>                 else
+> -                       ret =3D vmw_stdu_plane_update_surface(dev_priv, p=
+lane,
+> -                                                           old_state, vf=
+b,
+> -                                                           &fence);
+> +                       ret =3D vmw_stdu_plane_update_surface(dev_priv, p=
+lane, vfb, &fence);
+>                 if (ret)
+>                         DRM_ERROR("Failed to update STDU.\n");
+>         } else {
+> --
+> 2.54.0
+>
 
-Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
+LGTM
+
+For the vmwgfx bits:
+Reviewed-by: Zack Rusin <zack.rusin@broadcom.com>
+
+For the rest of the series:
+Acked-by: Zack Rusin <zack.rusin@broadcom.com>
+
+z
+
+--00000000000010d1a90652fbd8e5
+Content-Type: application/pkcs7-signature; name="smime.p7s"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="smime.p7s"
+Content-Description: S/MIME Cryptographic Signature
+
+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
+6U6qgI8F5eiKsQyE0HgYrQJx/sDs9LLVZlaNiA3U8M8CgEnb8VhuH3BN/yXphhEQdJXb1TyaJA60
+SmHcZdEQZbl4EjwUcs3UIowmI/Mhi7ADQB7VNsO/BaOVBEQk53xH+4djY/cg7jvqTTeliY05j2Yx
+uwwXcDC4mWjGzxAT5DVqC8fKQvon1uc2heorHb555+sLdwYxAgMBAAGjggHYMIIB1DAOBgNVHQ8B
+Af8EBAMCBaAwgZMGCCsGAQUFBwEBBIGGMIGDMEYGCCsGAQUFBzAChjpodHRwOi8vc2VjdXJlLmds
+b2JhbHNpZ24uY29tL2NhY2VydC9nc2djY3I2c21pbWVjYTIwMjMuY3J0MDkGCCsGAQUFBzABhi1o
+dHRwOi8vb2NzcC5nbG9iYWxzaWduLmNvbS9nc2djY3I2c21pbWVjYTIwMjMwZQYDVR0gBF4wXDAJ
+BgdngQwBBQMBMAsGCSsGAQQBoDIBKDBCBgorBgEEAaAyCgMCMDQwMgYIKwYBBQUHAgEWJmh0dHBz
+Oi8vd3d3Lmdsb2JhbHNpZ24uY29tL3JlcG9zaXRvcnkvMAkGA1UdEwQCMAAwQQYDVR0fBDowODA2
+oDSgMoYwaHR0cDovL2NybC5nbG9iYWxzaWduLmNvbS9nc2djY3I2c21pbWVjYTIwMjMuY3JsMCIG
+A1UdEQQbMBmBF3phY2sucnVzaW5AYnJvYWRjb20uY29tMBMGA1UdJQQMMAoGCCsGAQUFBwMEMB8G
+A1UdIwQYMBaAFAApNp5ceroPry1QLdugI4UYsKCSMB0GA1UdDgQWBBQNDn2m/OLuDx9YjEqPLCDB
+s/VKNTANBgkqhkiG9w0BAQsFAAOCAgEAF463syOLTQkWZmEyyR60W1sM3J1cbnMRrBFUBt3S2NTY
+SJ2NAvkTAxbPoOhK6IQdaTyrWi8xdg2tftr5FC1bOSUdxudY6dipq2txe7mEoUE6VlpJid/56Mo4
+QJRb6YiykQeIfoJiYMKsyuXWsTB1rhQxlxfnaFxi8Xy3+xKAeX68DcsHG3ZU0h1beBURA44tXcz6
+fFDNPQ2k6rWDFz+XNN2YOPqfse2wEm3DXpqNT79ycU7Uva7e51b8XdbmJ6XVzUFmWzhjXy5hvV8z
+iF+DvP+KT1/bjO6aNL2/3PWiy1u6xjnWvobHuAYVrXxQ5wzk8aPOnED9Q8pt2nqk/UIzw2f67Cn9
+3CxrVqXUKm93J+rupyKVTGgKO9T1ODVPo665aIbM72RxSI9Wsofatm2fo8DWOkrfs29pYfy6eECl
+91qfFMl+IzIVfDgIrEX6gSngJ2ZLaG6L+/iNrUxHxxsaUmyDwBbTfjYwr10H6NKES3JaxVRslnpF
+06HTTciJNx2wowbYF1c+BFY4r/19LHygijIVa+hZEgNuMrVLyAamaAKZ1AWxTdv8Q/eeNN3Myq61
+b1ykTSPCXjBq/03CMF/wT1wly16jYjLDXZ6II/HYyJt34QeqnBENU9zXTc9RopqcuHD2g+ROT7lI
+VLi5ffzC8rVliltTltbYPc7F0lAvGKAxggJXMIICUwIBATBiMFIxCzAJBgNVBAYTAkJFMRkwFwYD
+VQQKExBHbG9iYWxTaWduIG52LXNhMSgwJgYDVQQDEx9HbG9iYWxTaWduIEdDQyBSNiBTTUlNRSBD
+QSAyMDIzAgxhPxw+eieHWB40hPkwDQYJYIZIAWUDBAIBBQCggccwLwYJKoZIhvcNAQkEMSIEIK6T
+M3hcwIG6U09NmUG4muHUYSOBWzNS3Wkx9wYnRHojMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw
+HAYJKoZIhvcNAQkFMQ8XDTI2MDUyOTIxNTExNVowXAYJKoZIhvcNAQkPMU8wTTALBglghkgBZQME
+ASowCwYJYIZIAWUDBAEWMAsGCWCGSAFlAwQBAjAKBggqhkiG9w0DBzALBgkqhkiG9w0BAQcwCwYJ
+YIZIAWUDBAIBMA0GCSqGSIb3DQEBAQUABIIBAEKPxb22TcQG2ccYaBfS+VbMq6HhQMeOQ+G6GB7h
+uG2QNotr/CMDiERxZC7VoImSeIdZxccjxGdyWOuOtawNbek0BclLI21pZ4qV1B326XGmuVdSpUYZ
+XITplE1iTHWIWVbQaaer+zDXFIfley57dLZw7Nm6KW9yul/MBzohNJCcZiolaGS/qH6menk4NOby
+Nu0NxGfCwnFT8hRik4gtWEEBEMxeY/yY5NFvImONzZdqs/VC/WcTCrpI40GzSboPvn5pM5Yq6XYI
+547GYJfx8g6ITD43rpsDewfuIeVR3/ZLapDI+U71y0jCMiKNXQkBrW4SFO6szmhu4xtpWTabp3U=
+--00000000000010d1a90652fbd8e5--
