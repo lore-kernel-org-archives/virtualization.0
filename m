@@ -1,98 +1,118 @@
-Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f48.google.com (mail-ed1-f48.google.com [209.85.208.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE8143AFB13
-	for <virtualization@lists.linux.dev>; Sat, 30 May 2026 13:56:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780149383; cv=none; b=heOJ0/0pxyPxSCYw9LQFOBDwPoPiXb2FVEg/3/EPIbuWveJbXlpaYlq9UI/164TRl3twlFcVQyI3cbOFG9kAq8zVRex+vdFoa3N1OOyzFatbbgh9dXiXGZK70QQnC8MQ7pb8uJ3wTMz6CbrFhdnWN4HyP84q4pNpf+TgbSc93HY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780149383; c=relaxed/simple;
-	bh=YMvgpgeBNQFZf/mfS5MLvMZ3xo+WZclkLGl8IUtEEMM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=WfVow9d+6Ec17pwLzB2p48pehdsR5MzIDXqT6xvuY1QjbxQWfn0YEXGtVB54Tbhpg/QF6u5M/utFv3B8uEHCH03RbdVR8DNOWnno/HBYColmfgTZD6yx1ly+0+Ii7W1LYPsr6PSOm/YPlIuNcs8f3UjRkhqHzASS3uTs0/jxUC8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=f7+rYxJL; arc=none smtp.client-ip=194.117.254.33
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB7EE3264DC
+	for <virtualization@lists.linux.dev>; Sat, 30 May 2026 16:47:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.48
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780159679; cv=pass; b=DHHcnBaU2PBaSPdW8eF65sES46knUJZYDMljfoJv8vVi60J2FwSWvI+AfuWjTHqROlV0pFcTzseQgnKpubt8kHU48FrK9CB2X1a7mSDfhxzxXsoaPnw2WvcmFyqe1jW4SL2BvpjVzAB1he2X1/R7TCpZzuGJQSERt9/TS8Cj26U=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780159679; c=relaxed/simple;
+	bh=NO55GTUIErfjMW/u3wp6zeJt9pZ5TEdqDypSXTrdktw=;
+	h=MIME-Version:From:Date:Message-ID:Subject:To:Cc:Content-Type; b=DWr3jmBjGRU9N46pCwEhEK68x3rfAB96OzvYRNDFJfcZ5BGqDaReR6CJOElaLiGdvmiKVTuothBY8tYX4Mh47ZEvzv0PHkymdXQ47dFW5PW8BH6f6eWUj8BsJcu9xMDIP3e9aD5TTeZmQBxLar4ng+k+xyEhs7uB1Lg2HO3rzbA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=CviO1rN7; arc=pass smtp.client-ip=209.85.208.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="f7+rYxJL"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
-	sang-engineering.com; h=date:from:to:cc:subject:message-id
-	:references:mime-version:content-type:in-reply-to; s=k1; bh=YMvg
-	pgeBNQFZf/mfS5MLvMZ3xo+WZclkLGl8IUtEEMM=; b=f7+rYxJLtwA2keuan1TL
-	/UVl7gUppwFel7hmBilvw/viU72F+MgK3t3mKfd/skmMc8P+k4I9lklFyUG1Smhk
-	G3HPHO7j1grf7QiljwWvSJ/mVwMI3M7p4VCIp4AbAT4iRtylAckw/59BoE84gzX+
-	5rufuLdLmt1NDlu9xJZz2ULuEudq/jWtsGF/SgSlil+ZNOH9Utf7nts0E1XNe00o
-	tKKfoBWdJuB31O44TV5l2VwVH5rB6+t+xOPvCpRUAR1nPKL2z2x5PYeQO2Ar8+AW
-	4FhmvsSqiQXD9KUlaD1JWYfivohVzUjcqtzxves6GnurUl4OlYbW27oxfYvqzFnn
-	aA==
-Received: (qmail 1761302 invoked from network); 30 May 2026 15:56:18 +0200
-Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 30 May 2026 15:56:18 +0200
-X-UD-Smtp-Session: l3s3148p1@+FpTUwlTJMEqAQ4KEBW5QLbOwWyJKVt/
-Date: Sat, 30 May 2026 15:56:17 +0200
-From: Wolfram Sang <wsa+renesas@sang-engineering.com>
-To: BouziguesAlexis@johndeere.com
-Cc: Viresh Kumar <viresh.kumar@linaro.org>,
-	Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i2c: virtio: mark device ready before registering the
- adapter
-Message-ID: <ahrsgR99iHrlcRES@shikoro>
-References: <20260529-virtio-i2c-driver-ok-v1-1-ecf2504f6a56@JohnDeere.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="CviO1rN7"
+Received: by mail-ed1-f48.google.com with SMTP id 4fb4d7f45d1cf-68cec9f4c6cso475965a12.0
+        for <virtualization@lists.linux.dev>; Sat, 30 May 2026 09:47:57 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1780159676; cv=none;
+        d=google.com; s=arc-20240605;
+        b=G6XqdT3PRbpn6Apy0NhuUrEWF6AKCBghvC5VnRm4r0gfVXDMOVw6/w6NcMsLsW62l4
+         8F14Cg9qjIdl8brvGYuwM+aoN0C1DXeTahgvVxFxeRPOBJUMSp3763R/tAYgfVOPO1Xl
+         n5uNjdrSxotCtXABkaPEKtVWwL6uhk8w9NOgpfltNobVSnO/gtMyTRT4PUKP8UpvksEE
+         XzSYMrDZTx2n2Paroy8LT0M8emzWN7vEjngCa0uNx/VBl/AeSzGfqPblwPXmy/gYsz58
+         wqcXOC90e9qLPLGzDY7gZP31hhRPeD7zKec4dvDRhT5aPw+qakA9OA5ttDUAqcrZ5r6m
+         2CFg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=cc:to:subject:message-id:date:from:reply-to:mime-version
+         :dkim-signature;
+        bh=uDjMWTL59bSew6EuBBjyiKQsK4J1StRuWvcVY3hIZ9s=;
+        fh=b1Fb16PZGtU17XzSU0y1pSW6f4PRhz7ZY9dq1nT2RLs=;
+        b=jj5fygUqqW5qlg4GDFeyRRXcTzSB38Bbstftqyxr6hnyyheIiQYPQIzmovY1hkmIuL
+         Qr0x3X5VjMwaZBz339BglMft1d+Z8v6zI+0eWoB4N45orfQWV4lXc9fHhDW116bYW+Lx
+         9UiI4pdAlXT4ZRLA1NPdtDHfqKVdZb0NCbaQh2zovBV255yO5h3tiWwQBlMc7Dvp7IUS
+         898sMA4sj806rJKWDaMsNhJL1zuSOLXCiRedQfnfn4cjzH+NpNuseJoT8+MTDbEHvfu9
+         bkX8puUThDiuR4YfFMFniEE82IlK3O8fbP6tDoWfF8qWdi0Yo6uXaC/k5Ko9STEG5cY0
+         OGsw==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1780159676; x=1780764476; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:reply-to:mime-version:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=uDjMWTL59bSew6EuBBjyiKQsK4J1StRuWvcVY3hIZ9s=;
+        b=CviO1rN72lw7ofxwoBABaTeyPHqwqbttUjvsSMrCbgLPMHMaf7lt1kOE+K9obj7Ibg
+         iUM3mZ56tQ/VgwBDHlEJQYrUTTcNMljj0V8U7FrA8hxmJYEIfQfCvdU04ZWsOzTGV987
+         VvaeWAXu7s0TuO2ehjfdP4L33JgUtka1+A0nUe2OAMg+d1ouNjhRF+Brm4I0o9ub7Xqe
+         zBwtSHR6/7G9WQkW2p5JxDrLMVKyAkrlJw64OWG8Jjr3Uum2xzBkMYk+Q4wXUG312BQb
+         T/GbVkCFdW/Ln3+jaxi0KFMvEdfSBBnrpHEeghyFzlLTqw6h46MnYAWvCUzuYBXkDxBi
+         O1uQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780159676; x=1780764476;
+        h=cc:to:subject:message-id:date:from:reply-to:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=uDjMWTL59bSew6EuBBjyiKQsK4J1StRuWvcVY3hIZ9s=;
+        b=kd1Me5KwR+dRP38WUn20iBWRU6MBsvGfogUx1hbSeSSl5/DagQ6A/KkySba6KZHOv1
+         SHFFvNCx3aBYtG9ajTlMfK24WKDIxajcyqLKHfQHUqMAv+nvCGagPsaDz586bGCXC17R
+         aP/0ImdQmipBRPZdhvuC9Oy8LEUm645ceZtshamiOqsUUwA/kdaC3CFMC1vRFeF3uOSK
+         Q3wXLv7Zr9FhbIBzsPeTVELJnfBpmINlwnEMLlXcoxcvqQWAIzRwNqo+hgL1fsAyy3UQ
+         JU3xt7BfCbJfP1Q3dA29+V3cEwL38lu7j3MXVC771FCnFBinENVJVJxopG8aVIz5fJmT
+         +pYA==
+X-Forwarded-Encrypted: i=1; AFNElJ+NhdjfAnxWGrsKSgSFvGUrkCYjBHlMWpr4kej8Rb3ECFIGMZLniDoB4aRubbEcYlqdL8u2XjozRHf8WlHuUA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzlXNv/dviqTjysCZr/m90Xi4i4Z03IHqKVNjQgLz84nynaQQRI
+	sVdwI9On4Ccuy2rrkiwrV+ghRjF95Pb20snFEum+X2BN13Q1uRAIJylXgEC3uUOzyDkPJl4DSkV
+	HCrICOAK6R0Xh2lDXvCWOjZx78IGH3js=
+X-Gm-Gg: Acq92OFidc2iLOVZNkG/JTqxcvAmmdVbFra/vvuCkN/EDlQ98HKQ8PhHS3wuAaEo+NF
+	Ioixppd8t7voRx9xexrvSDAriMFCq1zpcP/+Q334UW5+LqYawOhGUq/vNSBU4m6xqXetTqw9pdC
+	MzaKXmaHacee8qW0l/oiSBz7TNTndn+UhLF7sJhSBZVzTn33tWUWTaVIFv+iqDHNt1mw65FHyge
+	U5cBIbpbq5EhwEX92KfY+1Zx1e1LqZPl9eeVhYW+4Gl4p1h9VSQE8/tzmZqEvaTYjg3QiwUJi3j
+	ee649cgUq+TPXuoKX+FnUUzuKFuUnw8ENS9lsxMsV9n36PLpIg==
+X-Received: by 2002:a17:907:80a:b0:bae:d29c:4e28 with SMTP id
+ a640c23a62f3a-beab3850c0emr227580166b.12.1780159676193; Sat, 30 May 2026
+ 09:47:56 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="JM/lZ+vA41vYZQH2"
-Content-Disposition: inline
-In-Reply-To: <20260529-virtio-i2c-driver-ok-v1-1-ecf2504f6a56@JohnDeere.com>
+Reply-To: ludloff@gmail.com
+From: Christian Ludloff <ludloff@gmail.com>
+Date: Sat, 30 May 2026 09:47:44 -0700
+X-Gm-Features: AVHnY4LzRI4mtM2MVMA9vVPgTReaIAtSfV8wr74SnOQ4vnVCBcmxdNjiRFE8TOw
+Message-ID: <CAKSQd8XBoaUf7MyvPJCv_DHeuEd-DtRYb5GnAofkbJTP89LLMw@mail.gmail.com>
+Subject: Re: [PATCH v4 15/47] KVM: x86: Officially define CPUID 0x40000010 as
+ PV Timing Info (TSC and Bus)
+To: Sean Christopherson <seanjc@google.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, 
+	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+	Kiryl Shutsemau <kas@kernel.org>, "K. Y. Srinivasan" <kys@microsoft.com>, 
+	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
+	Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>, 
+	Ajay Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.makhalov@broadcom.com>, 
+	Jan Kiszka <jan.kiszka@siemens.com>, Andy Lutomirski <luto@kernel.org>, 
+	Peter Zijlstra <peterz@infradead.org>, Juergen Gross <jgross@suse.com>, 
+	Daniel Lezcano <daniel.lezcano@kernel.org>, John Stultz <jstultz@google.com>, 
+	"H. Peter Anvin" <hpa@zytor.com>, Rick Edgecombe <rick.p.edgecombe@intel.com>, 
+	Vitaly Kuznetsov <vkuznets@redhat.com>, Boris Ostrovsky <boris.ostrovsky@oracle.com>, 
+	Stephen Boyd <sboyd@kernel.org>, kvm@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-coco@lists.linux.dev, linux-hyperv@vger.kernel.org, 
+	virtualization@lists.linux.dev, xen-devel@lists.xenproject.org, 
+	David Woodhouse <dwmw@amazon.co.uk>, Tom Lendacky <thomas.lendacky@amd.com>, 
+	Nikunj A Dadhania <nikunj@amd.com>, David Woodhouse <dwmw2@infradead.org>, 
+	Michael Kelley <mhklinux@outlook.com>, Thomas Gleixner <tglx@linutronix.de>, 
+	bcm-kernel-feedback-list@broadcom.com
+Content-Type: text/plain; charset="UTF-8"
 
+> + *  # EAX: (Virtual) TSC frequency in kHz.
+> + *  # EBX: (Virtual) Bus (local APIC timer) frequency in kHz.
+> + *  # ECX, EDX: Reserved (must be zero).
 
---JM/lZ+vA41vYZQH2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Can someone from Broadcom please speak up as to
+what a non-ECX value signifies for their HV? (Asking
+because I see a value of 2, not a must-be-zero.)
 
-On Fri, May 29, 2026 at 09:28:14AM -0500, Alexis Bouzigues via B4 Relay wro=
-te:
-> From: Alexis Bouzigues <BouziguesAlexis@JohnDeere.com>
->=20
-> virtio_i2c_probe() synchronously probes child i2c drivers on the bus,
-> but peripherals may use the bus at probe for tasks like reading a chip
-> id. The vhost-user-i2c backend stalls at such probes unless DRIVER_OK
-> is already set before the virtqueue is first kicked.
->=20
-> Set DRIVER_OK explicitly before i2c_add_adapter(), as done for the
-> same reason in commit f5866db64f34 ("virtio_console: enable VQs
-> early") and commit 71e4b8bf0482 ("virtio_rpmsg: set DRIVER_OK before
-> using device").
->=20
-> Signed-off-by: Alexis Bouzigues <BouziguesAlexis@JohnDeere.com>
-
-Applied to for-current, thanks!
-
-
---JM/lZ+vA41vYZQH2
-Content-Type: application/pgp-signature; name="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-
-iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmoa7IEACgkQFA3kzBSg
-KbaR7Q/8DkfG3Q2f7HJIF84gSfLeygb8Dc6ZmJSF0SyU4APZlAL5svYMCSlYILVX
-cBppfGzwgrIe/9ECLui81zcX3d3EDwzFsmjxMTDqcU7kyTJ8X+FDJ5alrAUul1Mc
-9579mC2LjgMLYfi305/9/cFO7pivE1naStxR0rNCBp4jVCa2mgRCkR6w15fsfDYV
-ea78rQ4ESyF1MIc+xVkom7YsACo+wZ/tRf8juwrhcd8ejMUQ76mMMvbrY8pj3Fcj
-rbG3gLxfKjH0XT6kt5pZsMVg8AlDRWij4gRqhIRMhf0kltEFJGDrAENH3/YeClUK
-EqCXgmLiFa2EPjtmpLhE8i3eQJLlo4ER+zFnkpW88ABUf4HiCY5+KdYxY9XurYRQ
-w2XESu73ixAFmNX5YWyjrZja/dY4oyXg8Ei7yB6S++KYk4+g0e0hRmkX5zgWX8Xs
-TAKZu8qrnjpv+/dTba8N7NcP74IKA9z2bCPLKsL6ZyfitwZmUohH0lisqLurgArT
-l2OSaf0Bi4L5kY2GNx4RQvoSZCah8yolVIkwfsQOBHLonnKbJkJmJeA3DOYm8wL7
-ZpUbSfi8ySYDKZ/I8l3zuS2eSDDmUrlJ6dYnk72P+PK/XNl20o5fFEM8nd8e9O9Y
-tofLG5wPmL60z3EKYEcwLEPRZaXATeHNvnutFn3nSeecmYMnMdU=
-=jpHC
------END PGP SIGNATURE-----
-
---JM/lZ+vA41vYZQH2--
+--
+C.
