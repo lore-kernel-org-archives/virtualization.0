@@ -1,141 +1,98 @@
-Received: from smtpcmd0757.aruba.it (smtpcmd0757.aruba.it [62.149.156.57])
+Received: from mail.zeus03.de (zeus03.de [194.117.254.33])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6AD8E3A8759
-	for <virtualization@lists.linux.dev>; Sat, 30 May 2026 11:08:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=62.149.156.57
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE8143AFB13
+	for <virtualization@lists.linux.dev>; Sat, 30 May 2026 13:56:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=194.117.254.33
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780139332; cv=none; b=GIBwsPxWcLfq9Zmm6uThM3475Z+kXGnTVKuwTSwkf3cZCQNV+GwPWsO1ULKKNBO+/fCyz0kZdK99OWc3N062fmwgVhoiMErCCqpQ7hmcalBOeYb96rx6/Fr/QqM4B2vqlkhLkgqJeEqHe9gLjVw8CR+k2ALFOu0YNHe7VlEmybE=
+	t=1780149383; cv=none; b=heOJ0/0pxyPxSCYw9LQFOBDwPoPiXb2FVEg/3/EPIbuWveJbXlpaYlq9UI/164TRl3twlFcVQyI3cbOFG9kAq8zVRex+vdFoa3N1OOyzFatbbgh9dXiXGZK70QQnC8MQ7pb8uJ3wTMz6CbrFhdnWN4HyP84q4pNpf+TgbSc93HY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780139332; c=relaxed/simple;
-	bh=GPyYaBIjPJR6VxGYHYgZkTzX7CeNzKdf2h5i4+TkNEg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=lamhV2JQ1qWi69Xau/7bcboeZtV3W++uLMg3P5b7Gs7AyEUaXVytV6d/Jr97EFXqA55GKx1QyUyPxsrJVDvXxb9+2NMYwhYTTEV8YAo44CJrFO1KSzPHRl3w/KD1DpHo9FNMgEb7ZZJDGt6XqkLgwqVGF4s+WiGATwnGnPidCt8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=enneenne.com; spf=pass smtp.mailfrom=enneenne.com; dkim=pass (2048-bit key) header.d=aruba.it header.i=@aruba.it header.b=kgKGRZBi; arc=none smtp.client-ip=62.149.156.57
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=enneenne.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=enneenne.com
+	s=arc-20240116; t=1780149383; c=relaxed/simple;
+	bh=YMvgpgeBNQFZf/mfS5MLvMZ3xo+WZclkLGl8IUtEEMM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=WfVow9d+6Ec17pwLzB2p48pehdsR5MzIDXqT6xvuY1QjbxQWfn0YEXGtVB54Tbhpg/QF6u5M/utFv3B8uEHCH03RbdVR8DNOWnno/HBYColmfgTZD6yx1ly+0+Ii7W1LYPsr6PSOm/YPlIuNcs8f3UjRkhqHzASS3uTs0/jxUC8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com; spf=pass smtp.mailfrom=sang-engineering.com; dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b=f7+rYxJL; arc=none smtp.client-ip=194.117.254.33
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=sang-engineering.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sang-engineering.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=aruba.it header.i=@aruba.it header.b="kgKGRZBi"
-Received: from [192.168.0.186] ([109.118.80.246])
-	by Aruba SMTP with ESMTPSA
-	id THYcwvMjjtpTfTHYdwL3Pi; Sat, 30 May 2026 13:08:49 +0200
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=aruba.it; s=a1;
-	t=1780139329; bh=GPyYaBIjPJR6VxGYHYgZkTzX7CeNzKdf2h5i4+TkNEg=;
-	h=Date:MIME-Version:Subject:To:From:Content-Type;
-	b=kgKGRZBiSx58E4LAUgStLSQ3R2seSS6CpKU9kJ9hy+keJX+d7/DD3a7K0wTnshwMg
-	 ftkEItSrXwRxergIwPMhm0uf84sJTZnmNeWkIhX1DijGgo+xuErv+CK2qdSXQC/osC
-	 /G/3+ydAvP1mIjjWj5vl5yEQTfS+xju4EXMJDjVCFfiHhyN1jrIgSKgN0XYD6Hxl/y
-	 Fw8mAi/3TMyM8MZ/FLfy36LwEhjcNXeufB0ZTjQ6bABAs5zaKHcZWOn3t4pMrjAf0C
-	 6YpR52XYOXB1bHknwZFujGTTocln5fxtFXd2xu9tTXSYEZvErQqLSo7/M9uH5VuSod
-	 c1fZ4Qh8+lrVQ==
-Message-ID: <912a22e8-878f-4763-958b-71052ee69b36@enneenne.com>
-Date: Sat, 30 May 2026 13:08:46 +0200
+	dkim=pass (2048-bit key) header.d=sang-engineering.com header.i=@sang-engineering.com header.b="f7+rYxJL"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	sang-engineering.com; h=date:from:to:cc:subject:message-id
+	:references:mime-version:content-type:in-reply-to; s=k1; bh=YMvg
+	pgeBNQFZf/mfS5MLvMZ3xo+WZclkLGl8IUtEEMM=; b=f7+rYxJLtwA2keuan1TL
+	/UVl7gUppwFel7hmBilvw/viU72F+MgK3t3mKfd/skmMc8P+k4I9lklFyUG1Smhk
+	G3HPHO7j1grf7QiljwWvSJ/mVwMI3M7p4VCIp4AbAT4iRtylAckw/59BoE84gzX+
+	5rufuLdLmt1NDlu9xJZz2ULuEudq/jWtsGF/SgSlil+ZNOH9Utf7nts0E1XNe00o
+	tKKfoBWdJuB31O44TV5l2VwVH5rB6+t+xOPvCpRUAR1nPKL2z2x5PYeQO2Ar8+AW
+	4FhmvsSqiQXD9KUlaD1JWYfivohVzUjcqtzxves6GnurUl4OlYbW27oxfYvqzFnn
+	aA==
+Received: (qmail 1761302 invoked from network); 30 May 2026 15:56:18 +0200
+Received: by mail.zeus03.de with ESMTPSA (TLS_AES_256_GCM_SHA384 encrypted, authenticated); 30 May 2026 15:56:18 +0200
+X-UD-Smtp-Session: l3s3148p1@+FpTUwlTJMEqAQ4KEBW5QLbOwWyJKVt/
+Date: Sat, 30 May 2026 15:56:17 +0200
+From: Wolfram Sang <wsa+renesas@sang-engineering.com>
+To: BouziguesAlexis@johndeere.com
+Cc: Viresh Kumar <viresh.kumar@linaro.org>,
+	Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] i2c: virtio: mark device ready before registering the
+ adapter
+Message-ID: <ahrsgR99iHrlcRES@shikoro>
+References: <20260529-virtio-i2c-driver-ok-v1-1-ecf2504f6a56@JohnDeere.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [patch V2 04/25] pps: Convert to ktime_get_snapshot_id()
-Content-Language: en-US
-To: Thomas Gleixner <tglx@kernel.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: David Woodhouse <dwmw2@infradead.org>,
- Miroslav Lichvar <mlichvar@redhat.com>, John Stultz <jstultz@google.com>,
- Stephen Boyd <sboyd@kernel.org>,
- Anna-Maria Behnsen <anna-maria@linutronix.de>,
- Frederic Weisbecker <frederic@kernel.org>, thomas.weissschuh@linutronix.de,
- Arthur Kiyanovski <akiyano@amazon.com>,
- Vincent Donnefort <vdonnefort@google.com>, Marc Zyngier <maz@kernel.org>,
- Oliver Upton <oliver.upton@linux.dev>, kvmarm@lists.linux.dev,
- Oliver Upton <oupton@kernel.org>, Richard Cochran
- <richardcochran@gmail.com>, netdev@vger.kernel.org,
- Takashi Iwai <tiwai@suse.com>,
- Miri Korenblit <miriam.rachel.korenblit@intel.com>,
- Johannes Berg <johannes.berg@intel.com>,
- Jacob Keller <jacob.e.keller@intel.com>,
- Tony Nguyen <anthony.l.nguyen@intel.com>, Saeed Mahameed
- <saeedm@nvidia.com>, Peter Hilber <peter.hilber@oss.qualcomm.com>,
- "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev,
- linux-wireless@vger.kernel.org, linux-sound@vger.kernel.org,
- David Woodhouse <dwmw@amazon.co.uk>,
- Vadim Fedorenko <vadim.fedorenko@linux.dev>
-References: <20260529193435.921555544@kernel.org>
- <20260529195557.123410250@kernel.org>
-From: Rodolfo Giometti <giometti@enneenne.com>
-In-Reply-To: <20260529195557.123410250@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-CMAE-Envelope: MS4xfDEumLSv+pk/U7kUrE6BL3srB8YYK8RA/hJdPG2uEhTOPvKA9Ae3985zLeyJTGgr/CFNuu2TwP1b19so35CyXgPbwgS/+GS4wpS04rqyC5DXeO2e3lwN
- EgRf+BrmXj/gfc10HcckoI9SRkL6j6Kp57c12/EXsEsLtyt5ERq37z9tJBqN/ef46YKkLaZNVovcBNwdrEdpD5h5eEvWQRaI8tUmoazMGe45OuXe9xOu2MtM
- Vt6sbU5QejS71ZbLguWs0nzAy9KuBGa6s8M3UsVhmuLGLgShRdlYeyRSgO2C69aVdiZ6BnW2+9QpDdnJ9rPsVNysuqBHMfCk/1o0NwxNanFEcT6gDCtMseHT
- NW3Bw1DapD9bEybwmSWu2Zf5330Pv2AcCh+kHbC3zGofYr1aTnRG+gZePb295V3qWiZM8JNDREwGyp8QJaqaA2OdZXW2apEw8yLNGEqQN73GCHLdZZcdRnFM
- HNBil37fEqKWVOa/tQt79gxnrDmlqkeFZBWQxjG/hR3RcEp+rKiuiSPx73hbH+IWRMHmX4mohtFeyEP7Vu+xekgyR5RahrSuNyOxM0ZOxTwWqt2L4AxPgcle
- QjjXBe5kivH8MVmAv5NBuGdg3Y3Bkxt8dQ+JyzQ8Pf2VxNDOxxvVis+8e+2O9JghvhEj9641F6Eh4EC2r4tG8SvxMvA7Kl4uFERt7dzBWG7eIFcqPEffjeGY
- QDPjGReTtDcjFDFYHaKelr95XeShfIlPw2CCCaoG5+x/d0B8832Tg1XTs/INUgofCDHRfrD1w3uYUcVnUsDnUbUjDH6SUGA4cRnPpKlVfVMP3jNldxb23ylZ
- eaWdRoAaq0CNuufl1zHXpjCmbwmC7zZbGqUoeTpw+8wBE6yRimRIXelYPWNsh6PINInGPehIaUaetWGzBIaqE6lfol36A8FcFWp+QdKY7V07UnAjWu2YU9wg
- HRqsu4wdF89Qgoke6D3VWDVMS+L7Q/UUbxfJl7GnrYIK/gcxE1hsAgVH9/rRu/9zrvHyxnMjqXPbioXaT+ya5WPb0jZdIBfk+5HAXyCLI2yk0mspHuf0gx+0
- 7npTs+VEZBNH7zP4dydpKWU5LmOAgaM9+JyBec0Dhjm3KmLVPvmtdnKLk2LargZFo9erPppdU5zxSdYZINdZkt5izI3UTdMig+IqgGESyNEiZtfq1FHgEw24
- +4Elt1LutSMUWoDAABdFQQ==
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="JM/lZ+vA41vYZQH2"
+Content-Disposition: inline
+In-Reply-To: <20260529-virtio-i2c-driver-ok-v1-1-ecf2504f6a56@JohnDeere.com>
 
-On 29/05/2026 22:00, Thomas Gleixner wrote:
-> From: Thomas Gleixner <tglx@kernel.org>
-> 
-> ktime_get_snapshot() resolves to ktime_get_snapshot_id(CLOCK_REALTIME).
-> 
-> Make it obvious in the code and convert the readout to use the
-> snapshot::systime and monoraw fields instead of snapshot::real and raw,
-> which aregoing away.
-> 
-> Similar to the PPS generators, avoid the more expensive snapshot when
-> CONFIG_NTP_PPS is disabled.
-> 
-> No functional change intended.
-> 
-> Signed-off-by: Thomas Gleixner <tglx@kernel.org>
-> Tested-by: Arthur Kiyanovski <akiyano@amazon.com>
-> Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
-> Reviewed-by: Thomas Weißschuh <thomas.weissschuh@linutronix.de>
-> Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
-> ---
->   include/linux/pps_kernel.h |   10 ++++++----
->   1 file changed, 6 insertions(+), 4 deletions(-)
-> --- a/include/linux/pps_kernel.h
-> +++ b/include/linux/pps_kernel.h
-> @@ -99,12 +99,14 @@ static inline void timespec_to_pps_ktime
->   
->   static inline void pps_get_ts(struct pps_event_time *ts)
->   {
-> +#ifdef CONFIG_NTP_PPS
->   	struct system_time_snapshot snap;
->   
-> -	ktime_get_snapshot(&snap);
-> -	ts->ts_real = ktime_to_timespec64(snap.real);
-> -#ifdef CONFIG_NTP_PPS
-> -	ts->ts_raw = ktime_to_timespec64(snap.raw);
-> +	ktime_get_snapshot_id(CLOCK_REALTIME, &snap);
-> +	ts->ts_real = ktime_to_timespec64(snap.systime);
-> +	ts->ts_raw = ktime_to_timespec64(snap.monoraw);
-> +#else
-> +	ktime_get_real_ts64(&ts->ts_real);
 
-	/*
-	 * Prevent kernel stack information disclosure if the
-	 * structure is later copied to userspace.
-	 */
-	ts->ts_raw = (struct timespec64){0, 0};
+--JM/lZ+vA41vYZQH2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
->   #endif
->   }
->   
-> 
+On Fri, May 29, 2026 at 09:28:14AM -0500, Alexis Bouzigues via B4 Relay wro=
+te:
+> From: Alexis Bouzigues <BouziguesAlexis@JohnDeere.com>
+>=20
+> virtio_i2c_probe() synchronously probes child i2c drivers on the bus,
+> but peripherals may use the bus at probe for tasks like reading a chip
+> id. The vhost-user-i2c backend stalls at such probes unless DRIVER_OK
+> is already set before the virtqueue is first kicked.
+>=20
+> Set DRIVER_OK explicitly before i2c_add_adapter(), as done for the
+> same reason in commit f5866db64f34 ("virtio_console: enable VQs
+> early") and commit 71e4b8bf0482 ("virtio_rpmsg: set DRIVER_OK before
+> using device").
+>=20
+> Signed-off-by: Alexis Bouzigues <BouziguesAlexis@JohnDeere.com>
 
-Ciao,
+Applied to for-current, thanks!
 
-Rodolfo
 
--- 
-GNU/Linux Solutions                  e-mail: giometti@enneenne.com
-Linux Device Driver                          giometti@linux.it
-Embedded Systems                     phone:  +39 349 2432127
-UNIX programming
+--JM/lZ+vA41vYZQH2
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iQIzBAABCgAdFiEEOZGx6rniZ1Gk92RdFA3kzBSgKbYFAmoa7IEACgkQFA3kzBSg
+KbaR7Q/8DkfG3Q2f7HJIF84gSfLeygb8Dc6ZmJSF0SyU4APZlAL5svYMCSlYILVX
+cBppfGzwgrIe/9ECLui81zcX3d3EDwzFsmjxMTDqcU7kyTJ8X+FDJ5alrAUul1Mc
+9579mC2LjgMLYfi305/9/cFO7pivE1naStxR0rNCBp4jVCa2mgRCkR6w15fsfDYV
+ea78rQ4ESyF1MIc+xVkom7YsACo+wZ/tRf8juwrhcd8ejMUQ76mMMvbrY8pj3Fcj
+rbG3gLxfKjH0XT6kt5pZsMVg8AlDRWij4gRqhIRMhf0kltEFJGDrAENH3/YeClUK
+EqCXgmLiFa2EPjtmpLhE8i3eQJLlo4ER+zFnkpW88ABUf4HiCY5+KdYxY9XurYRQ
+w2XESu73ixAFmNX5YWyjrZja/dY4oyXg8Ei7yB6S++KYk4+g0e0hRmkX5zgWX8Xs
+TAKZu8qrnjpv+/dTba8N7NcP74IKA9z2bCPLKsL6ZyfitwZmUohH0lisqLurgArT
+l2OSaf0Bi4L5kY2GNx4RQvoSZCah8yolVIkwfsQOBHLonnKbJkJmJeA3DOYm8wL7
+ZpUbSfi8ySYDKZ/I8l3zuS2eSDDmUrlJ6dYnk72P+PK/XNl20o5fFEM8nd8e9O9Y
+tofLG5wPmL60z3EKYEcwLEPRZaXATeHNvnutFn3nSeecmYMnMdU=
+=jpHC
+-----END PGP SIGNATURE-----
+
+--JM/lZ+vA41vYZQH2--
