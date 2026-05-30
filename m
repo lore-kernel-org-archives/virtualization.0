@@ -1,388 +1,129 @@
-Received: from mail-pg1-f230.google.com (mail-pg1-f230.google.com [209.85.215.230])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B470932B11E
-	for <virtualization@lists.linux.dev>; Fri, 29 May 2026 21:51:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.230
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31210190462;
+	Sat, 30 May 2026 03:08:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.109.113.108
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780091481; cv=none; b=mqtSBoyt237qtDdVJZIohfOrPDLsSiPZKN4jvaPhlmNtn3L3DtyTMAmbsqkCxUbvBo9XlZ1u1/xJ/p2tyDrr0TXcSRe0qOENMF1zlB6l62ZLnb/L+V+5bixV2UCKFYNqGVdVw7aKfNk37d31GgD1lTvouATddu+QoDlZ3WpWJiQ=
+	t=1780110516; cv=none; b=r+Yrz5p4O9bNZ+t9zjgZZiij5VInVG7mGt8sjmnzNthPi3uqe0oS1BWvlKZQVtKUJbopb8FRSB8gPXRV3+oRSsjZcoijsbRZ9uXz4REA1HGlxPph3njOKiytO/ttAXVbyxPn7sGq65tQD+kXFzobwrmo7cp8MXWeJnhlByxRJV8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780091481; c=relaxed/simple;
-	bh=OoQTRZwrtIZXsdiNAYvG8H9VJ2zqWl2mA53Tp+hDzvk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ZThDuLigFGWNQ5sn7gqTFHXGyPzUK2VkE8tb7pORgKzpnJRcpdURhJaEDdnqsUju8YM021E86NymmaQJNxTVHIfpKHMAVkNXb2at/WSgqEc7QVZ/sa9zsbeu5JpDwAWl1kDP5cL7ApXX7t2d9s+ZgOCsRpcnX9NtcSUuwkF+z5I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=V7n1MrIU; arc=none smtp.client-ip=209.85.215.230
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	s=arc-20240116; t=1780110516; c=relaxed/simple;
+	bh=OeUvWYhtnIcVniNlaEAPf7t6L7no4/+FQ0TEbE0p0E4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=jcFRueHZjKViHWm4clOKg8gU6MrL7OlSbx7JKt6CpBlxKc37yE/bQ7mbLf0q6nbT7gqWjNeFL1k6txFJHsFP2NTieuHCJJ45SXf1yS32jv/K5UgSvCHshEcfUGj7XG0TUFkqLjvTmlfP9hK8qKICL0Hmp4z7f9Yl0xI+1iyOsbE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de; spf=pass smtp.mailfrom=alien8.de; dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b=RlZugvf2; arc=none smtp.client-ip=65.109.113.108
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="V7n1MrIU"
-Received: by mail-pg1-f230.google.com with SMTP id 41be03b00d2f7-c8588ec1b44so74485a12.1
-        for <virtualization@lists.linux.dev>; Fri, 29 May 2026 14:51:19 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780091479; x=1780696279;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=7ngQ0AwkajjtonjTpfScDVyCtwA8l3EJ7YSGHuMrqPo=;
-        b=RL6lMCGUEdkw32laS97fdyYsKR/84SSTMqVXi0nLXwrbU5QLxksacJ/HLIbj9Upg6f
-         kBUAw5IQEpgNFpDdi5lJbeiY2zRUDuv+Wnp8HyrLWmS92U5oG0QbwmpgsRQPrw4FzD90
-         1g+u+GFFS3HjDaqgS6yKiN5Nfq/2v+kP9hauX1FNSOGT4s33eNECtsqXBHqgGArTfEy/
-         H1/aoMQd4u/DizOwicdzxReCd3IDNZxseruQtI0KLXckBTfrcdnTeQvf5q+g67xS376C
-         ajEzNfUyUqMD+MbQxB3D1cNU37oSFSGVf1Rxuod9nJg8SYW+yFY7XVS4AlXHEUQowXc6
-         FLUw==
-X-Forwarded-Encrypted: i=1; AFNElJ9MVqZe4TSEzWXUAbowTEMfrjDUC0cjhPLgNzrTwpf0pLegfXqhqNqNcdutoPVPUOTCwqNj9GG2cuGUdJzOtQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxrZ+M6Y4nzx23eCiwraLSw6E3CWn+9YlOMPWXShhKSxWMqSBJA
-	PtyDvTWSxHt9kdqF7fsG3erIYAbTY/iX6X2NjYk7mw67gO5oGXf0vpBTsP2z6WbwT8kk+bBJ997
-	s399A2aTyrSYjK9/jidM8CMX77kfF3eJvdqIzzHPvR22bsVkrSvOLRQSkaLbHMOiAtiLANNQwKf
-	tg7yPB1daOC5B6nyB5aRKDeRU1bjTZ4goLEB2ktq3P5yKG6S4N5etS8Oif15EyT6wBiRCstFu8n
-	qHbYOffqmfd/K50ZmWrcA==
-X-Gm-Gg: Acq92OEW4FLFU8C0vq17ZzUb/1MmFeq9fAv4SI0j15CCxXwiZ1DmsxXJOuq7CA/BNg6
-	7oEYIcQ+Q5bsYvDDFWfsbOuJvIscgnjWPZytggp7LK62LIc0IRDj+mAYnUsFfNAIJKCQe8bZUXO
-	vA7sxR3N0FPSoBdf+A0BhBgnIZF/EZqUZ/vKFo4fF+uEHFsuHJag4Xjzi11V4sQn6px5iuJcO7Z
-	jmQ107lJAz/GT7CIx5aMT/Tu5DLQ34d3YMq2XpaUhdic50tnldP2CUTZ3//BlECoVspD9jDlGBT
-	1u//mKn4ri6AWTU506+kziyG0wyu2WKmRK1hYySxyQRbp5QksGUQLJ+H6gAu+qh1+B7RsJG7/uN
-	2zQfQABIEy9MasfmzG7oBngDhAKZ/ldCLi3+IK8jRuznd0452RS9RVKIGd0PRNzQlmYeEXDbJsb
-	CbNrDkwmgRJH6Lv1vYOOqADkwGvW4ulxU+NtrjaS6W1cjI5sI8kNgKdI9/r7K/fuRaygY=
-X-Received: by 2002:a05:6a21:7d02:b0:3b3:13ed:432a with SMTP id adf61e73a8af0-3b428216275mr1126755637.48.1780091478750;
-        Fri, 29 May 2026 14:51:18 -0700 (PDT)
-Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-102.dlp.protect.broadcom.com. [144.49.247.102])
-        by smtp-relay.gmail.com with ESMTPS id 41be03b00d2f7-c85773eeeaasm168511a12.11.2026.05.29.14.51.16
-        for <virtualization@lists.linux.dev>
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Fri, 29 May 2026 14:51:18 -0700 (PDT)
-X-Relaying-Domain: broadcom.com
-X-CFilter-Loop: Reflected
-Received: by mail-lf1-f71.google.com with SMTP id 2adb3069b0e04-5a888b0047eso2020289e87.0
-        for <virtualization@lists.linux.dev>; Fri, 29 May 2026 14:51:16 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1780091475; x=1780696275; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=7ngQ0AwkajjtonjTpfScDVyCtwA8l3EJ7YSGHuMrqPo=;
-        b=V7n1MrIUKDCAI3LcctpN1aG12Rg2ofAXl9CFqd4a7GtMRumS8c+8ZZx8VA++1uCKxH
-         WeHyDzItDhyXZkTz+ZRGTaU6HelFaRByqXakUXl+1huCu4kKDyx5u2AcD3HWRKno/fNT
-         Mdd9UIQwGhj8GZO2AYeBBlwLHJNIW1TmntWZY=
-X-Forwarded-Encrypted: i=1; AFNElJ+9qTSuHxyAZv3jdsxFWztYNz4IDq8TWlkWB1s8ujUSLmJmSXnPaGttB59MHJC1oxPULYuXfRed3582aLMjhw==@lists.linux.dev
-X-Received: by 2002:a05:6512:612:20b0:5a8:e129:af6f with SMTP id 2adb3069b0e04-5aa59040f2cmr867389e87.23.1780091475108;
-        Fri, 29 May 2026 14:51:15 -0700 (PDT)
-X-Received: by 2002:a05:6512:612:20b0:5a8:e129:af6f with SMTP id
- 2adb3069b0e04-5aa59040f2cmr867382e87.23.1780091474623; Fri, 29 May 2026
- 14:51:14 -0700 (PDT)
+	dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="RlZugvf2"
+Received: from localhost (localhost.localdomain [127.0.0.1])
+	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id A8F6540E015B;
+	Sat, 30 May 2026 03:08:30 +0000 (UTC)
+X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
+Authentication-Results: mail.alien8.de (amavisd-new); dkim=pass (4096-bit key)
+	header.d=alien8.de
+Received: from mail.alien8.de ([127.0.0.1])
+	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
+	with ESMTP id PuzC0Ft-HHGf; Sat, 30 May 2026 03:08:20 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
+	t=1780110500; bh=xvvniitijThI5M/vzeUngJ2o5o2bAFGL6v1h1J/weaM=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
+	b=RlZugvf28JewjKobWij+z7qIEzuJleC7UW1AkwP8rIPfgHvDVyKCrVyw/Qymrp83Z
+	 oMbgDR2FbH11di++QnPPImwLEX2QWfLIIXSP1ypHOZXuL8uzhRYviGTB6dzv+qnCeb
+	 Gpjy/sGySdR+2Du+p++dlzJkZH9f7yDl1Iu2Fre6FT/CcfHszYCqFtrvvnC9mv0qHc
+	 VeeoN4BaHXjs2/UWNE6zir9SYUOs75Xg4Of1T4uw5yhGpFM4a3E1cmNVNmJaKIUq6R
+	 yPy/Ir3fplxnFBnCyQR1Mih6ew0Q+bN5yquZw+MmRi4V8Lj+CiVHxa20Vu+5eKSmYk
+	 giEEXZB1RSLVAV6SsDTp793DrNhxj4wm0EvU2xn+GoJTqXtQ7jCQ/UV7q72yZwrhw6
+	 Hr/fzxFzU2n0bEEtOtOgL6M+OPmeiiF9CNlohP/WUUTGr0G7qVWyY3IBL6L60qHrmi
+	 G28aB2e/4cv56a+4WyUu0hncXyyo8wJb54Pd1OOsv3eUOm/6ojaoKm4aTJ7E2o38BY
+	 +wUXFuMdzDYShBipYVX8+o8FNNEGBfWyPWxpIXqjj6tOadHwHan4leJuqlNl1iFQ/z
+	 P8Ic44MZ/AWAUKuhucIKSKuYuKaxZPvVv03zf0laMmYz+Zwgn1PGjB2t4S2+q2afEM
+	 hP4TtO4p/8Y97d14SV7L5qrs=
+Received: from stx.tnic (unknown [IPv6:2600:1700:38ca:c00:b8a3:f58e:8829:9ca6])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
+	(No client certificate requested)
+	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id 8255040E015A;
+	Sat, 30 May 2026 03:07:41 +0000 (UTC)
+Date: Fri, 29 May 2026 20:07:31 -0700
+From: Borislav Petkov <bp@alien8.de>
+To: Sean Christopherson <seanjc@google.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@kernel.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	Kiryl Shutsemau <kas@kernel.org>,
+	"K. Y. Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
+	Long Li <longli@microsoft.com>,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Jan Kiszka <jan.kiszka@siemens.com>,
+	Andy Lutomirski <luto@kernel.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Juergen Gross <jgross@suse.com>,
+	Daniel Lezcano <daniel.lezcano@kernel.org>,
+	John Stultz <jstultz@google.com>, "H. Peter Anvin" <hpa@zytor.com>,
+	Rick Edgecombe <rick.p.edgecombe@intel.com>,
+	Vitaly Kuznetsov <vkuznets@redhat.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+	Stephen Boyd <sboyd@kernel.org>, kvm@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
+	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
+	xen-devel@lists.xenproject.org, David Woodhouse <dwmw@amazon.co.uk>,
+	Tom Lendacky <thomas.lendacky@amd.com>,
+	Nikunj A Dadhania <nikunj@amd.com>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Michael Kelley <mhklinux@outlook.com>,
+	Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH v4 01/47] x86/tsc: Never re-calibrate TSC frequency if
+ its exact timing is known
+Message-ID: <20260530030731.GBahpUcwWXdKCf1lJO@fat_crate.local>
+References: <20260529144435.704127-1-seanjc@google.com>
+ <20260529144435.704127-2-seanjc@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260527145113.241595-1-tzimmermann@suse.de> <20260527145113.241595-11-tzimmermann@suse.de>
-In-Reply-To: <20260527145113.241595-11-tzimmermann@suse.de>
-From: Zack Rusin <zack.rusin@broadcom.com>
-Date: Fri, 29 May 2026 17:51:02 -0400
-X-Gm-Features: AVHnY4KIK2b_b8RVjZiB-AlL-VZmUXJwYKGs1uGNiJBm8qXQcz8OVNuVdL8kcUc
-Message-ID: <CABQX2QOaFpmw=ytYM4NquqScTPL-gFeEAyufNP4jxHUx5sg1RQ@mail.gmail.com>
-Subject: Re: [PATCH v3 10/10] drm/vmwgfx: Remove unused field struct vmwgfx_du_update_plane.old_state
-To: Thomas Zimmermann <tzimmermann@suse.de>
-Cc: mripard@kernel.org, maarten.lankhorst@linux.intel.com, airlied@redhat.com, 
-	airlied@gmail.com, simona@ffwll.ch, admin@kodeit.net, gargaditya08@proton.me, 
-	paul@crapouillou.net, jani.nikula@linux.intel.com, mhklinux@outlook.com, 
-	bcm-kernel-feedback-list@broadcom.com, dri-devel@lists.freedesktop.org, 
-	linux-hyperv@vger.kernel.org, intel-gfx@lists.freedesktop.org, 
-	intel-xe@lists.freedesktop.org, linux-mips@vger.kernel.org, 
-	virtualization@lists.linux.dev
-X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
-Content-Type: multipart/signed; protocol="application/pkcs7-signature"; micalg=sha-256;
-	boundary="00000000000010d1a90652fbd8e5"
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20260529144435.704127-2-seanjc@google.com>
 
---00000000000010d1a90652fbd8e5
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+On Fri, May 29, 2026 at 07:43:48AM -0700, Sean Christopherson wrote:
+> Don't re-calibrate the TSC frequency if the TSC is known to run at a fixed
+> frequency.  In practice, this is likely one big nop, as re-calibration is
+> used only for SMP=n kernels, and only for hardware that is 20+ years old,
+> i.e. is extremely unlikely to collide with TSC_KNOWN_FREQ.
 
-On Wed, May 27, 2026 at 10:51=E2=80=AFAM Thomas Zimmermann <tzimmermann@sus=
-e.de> wrote:
->
-> Plane updates no longer require the old plane state. Remove the field
-> from struct vmwgfx_du_update_plane and fix all callers.
->
-> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+Why do we care?
+
+So what if it recalibrates once on UP?
+
+Look where it is called - all old rust which no one uses anymore.
+
+> Signed-off-by: Sean Christopherson <seanjc@google.com>
 > ---
->  drivers/gpu/drm/vmwgfx/vmwgfx_kms.h  |  2 --
->  drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c | 12 ++----------
->  drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c | 11 ++---------
->  3 files changed, 4 insertions(+), 21 deletions(-)
->
-> diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.h b/drivers/gpu/drm/vmwgfx=
-/vmwgfx_kms.h
-> index 2224d7d91d1b..8c2072b82062 100644
-> --- a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.h
-> +++ b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.h
-> @@ -19,7 +19,6 @@
->  /**
->   * struct vmw_du_update_plane - Closure structure for vmw_du_helper_plan=
-e_update
->   * @plane: Plane which is being updated.
-> - * @old_state: Old state of plane.
->   * @dev_priv: Device private.
->   * @du: Display unit on which to update the plane.
->   * @vfb: Framebuffer which is blitted to display unit.
-> @@ -102,7 +101,6 @@ struct vmw_du_update_plane {
->                                     struct drm_rect *bb);
->
->         struct drm_plane *plane;
-> -       struct drm_plane_state *old_state;
->         struct vmw_private *dev_priv;
->         struct vmw_display_unit *du;
->         struct vmw_framebuffer *vfb;
-> diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c b/drivers/gpu/drm/vmwgf=
-x/vmwgfx_scrn.c
-> index c83061cf7455..fa84bc7ab5bb 100644
-> --- a/drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c
-> +++ b/drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c
-> @@ -530,7 +530,6 @@ static uint32_t vmw_stud_bo_post_clip(struct vmw_du_u=
-pdate_plane  *update,
->   */
->  static int vmw_sou_plane_update_bo(struct vmw_private *dev_priv,
->                                    struct drm_plane *plane,
-> -                                  struct drm_plane_state *old_state,
->                                    struct vmw_framebuffer *vfb,
->                                    struct vmw_fence_obj **out_fence)
->  {
-> @@ -538,7 +537,6 @@ static int vmw_sou_plane_update_bo(struct vmw_private=
- *dev_priv,
->
->         memset(&bo_update, 0, sizeof(struct vmw_du_update_plane_buffer));
->         bo_update.base.plane =3D plane;
-> -       bo_update.base.old_state =3D old_state;
->         bo_update.base.dev_priv =3D dev_priv;
->         bo_update.base.du =3D vmw_crtc_to_du(plane->state->crtc);
->         bo_update.base.vfb =3D vfb;
-> @@ -692,7 +690,6 @@ static uint32_t vmw_sou_surface_post_clip(struct vmw_=
-du_update_plane *update,
->   */
->  static int vmw_sou_plane_update_surface(struct vmw_private *dev_priv,
->                                         struct drm_plane *plane,
-> -                                       struct drm_plane_state *old_state=
-,
->                                         struct vmw_framebuffer *vfb,
->                                         struct vmw_fence_obj **out_fence)
->  {
-> @@ -700,7 +697,6 @@ static int vmw_sou_plane_update_surface(struct vmw_pr=
-ivate *dev_priv,
->
->         memset(&srf_update, 0, sizeof(struct vmw_du_update_plane_surface)=
-);
->         srf_update.base.plane =3D plane;
-> -       srf_update.base.old_state =3D old_state;
->         srf_update.base.dev_priv =3D dev_priv;
->         srf_update.base.du =3D vmw_crtc_to_du(plane->state->crtc);
->         srf_update.base.vfb =3D vfb;
-> @@ -721,7 +717,6 @@ static void
->  vmw_sou_primary_plane_atomic_update(struct drm_plane *plane,
->                                     struct drm_atomic_commit *state)
->  {
-> -       struct drm_plane_state *old_state =3D drm_atomic_get_old_plane_st=
-ate(state, plane);
->         struct drm_plane_state *new_state =3D drm_atomic_get_new_plane_st=
-ate(state, plane);
->         struct drm_crtc *crtc =3D new_state->crtc;
->         struct vmw_fence_obj *fence =3D NULL;
-> @@ -734,12 +729,9 @@ vmw_sou_primary_plane_atomic_update(struct drm_plane=
- *plane,
->                         vmw_framebuffer_to_vfb(new_state->fb);
->
->                 if (vfb->bo)
-> -                       ret =3D vmw_sou_plane_update_bo(dev_priv, plane,
-> -                                                     old_state, vfb, &fe=
-nce);
-> +                       ret =3D vmw_sou_plane_update_bo(dev_priv, plane, =
-vfb, &fence);
->                 else
-> -                       ret =3D vmw_sou_plane_update_surface(dev_priv, pl=
-ane,
-> -                                                          old_state, vfb=
-,
-> -                                                          &fence);
-> +                       ret =3D vmw_sou_plane_update_surface(dev_priv, pl=
-ane, vfb, &fence);
->                 if (ret !=3D 0)
->                         DRM_ERROR("Failed to update screen.\n");
->         } else {
-> diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c b/drivers/gpu/drm/vmwgf=
-x/vmwgfx_stdu.c
-> index f0df2b1c8465..474e3badb80f 100644
-> --- a/drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c
-> +++ b/drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c
-> @@ -1240,7 +1240,6 @@ vmw_stdu_bo_populate_update_cpu(struct vmw_du_updat=
-e_plane  *update, void *cmd,
->   */
->  static int vmw_stdu_plane_update_bo(struct vmw_private *dev_priv,
->                                     struct drm_plane *plane,
-> -                                   struct drm_plane_state *old_state,
->                                     struct vmw_framebuffer *vfb,
->                                     struct vmw_fence_obj **out_fence)
->  {
-> @@ -1248,7 +1247,6 @@ static int vmw_stdu_plane_update_bo(struct vmw_priv=
-ate *dev_priv,
->
->         memset(&bo_update, 0, sizeof(struct vmw_du_update_plane_buffer));
->         bo_update.base.plane =3D plane;
-> -       bo_update.base.old_state =3D old_state;
->         bo_update.base.dev_priv =3D dev_priv;
->         bo_update.base.du =3D vmw_crtc_to_du(plane->state->crtc);
->         bo_update.base.vfb =3D vfb;
-> @@ -1350,7 +1348,6 @@ vmw_stdu_surface_populate_update(struct vmw_du_upda=
-te_plane  *update, void *cmd,
->   */
->  static int vmw_stdu_plane_update_surface(struct vmw_private *dev_priv,
->                                          struct drm_plane *plane,
-> -                                        struct drm_plane_state *old_stat=
-e,
->                                          struct vmw_framebuffer *vfb,
->                                          struct vmw_fence_obj **out_fence=
-)
->  {
-> @@ -1363,7 +1360,6 @@ static int vmw_stdu_plane_update_surface(struct vmw=
-_private *dev_priv,
->
->         memset(&srf_update, 0, sizeof(struct vmw_du_update_plane));
->         srf_update.plane =3D plane;
-> -       srf_update.old_state =3D old_state;
->         srf_update.dev_priv =3D dev_priv;
->         srf_update.du =3D vmw_crtc_to_du(plane->state->crtc);
->         srf_update.vfb =3D vfb;
-> @@ -1424,12 +1420,9 @@ vmw_stdu_primary_plane_atomic_update(struct drm_pl=
-ane *plane,
->                         DRM_ERROR("Failed to bind surface to STDU.\n");
->
->                 if (vfb->bo)
-> -                       ret =3D vmw_stdu_plane_update_bo(dev_priv, plane,
-> -                                                      old_state, vfb, &f=
-ence);
-> +                       ret =3D vmw_stdu_plane_update_bo(dev_priv, plane,=
- vfb, &fence);
->                 else
-> -                       ret =3D vmw_stdu_plane_update_surface(dev_priv, p=
-lane,
-> -                                                           old_state, vf=
-b,
-> -                                                           &fence);
-> +                       ret =3D vmw_stdu_plane_update_surface(dev_priv, p=
-lane, vfb, &fence);
->                 if (ret)
->                         DRM_ERROR("Failed to update STDU.\n");
->         } else {
-> --
-> 2.54.0
->
+>  arch/x86/kernel/tsc.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/arch/x86/kernel/tsc.c b/arch/x86/kernel/tsc.c
+> index c5110eb554bc..08cf6625d484 100644
+> --- a/arch/x86/kernel/tsc.c
+> +++ b/arch/x86/kernel/tsc.c
+> @@ -946,7 +946,8 @@ void recalibrate_cpu_khz(void)
+>  		return;
+>  
+>  	cpu_khz = x86_platform.calibrate_cpu();
+> -	tsc_khz = x86_platform.calibrate_tsc();
+> +	if (!boot_cpu_has(X86_FEATURE_TSC_KNOWN_FREQ))
 
-LGTM
+cpu_feature_enabled() everywhere please.
 
-For the vmwgfx bits:
-Reviewed-by: Zack Rusin <zack.rusin@broadcom.com>
+-- 
+Regards/Gruss,
+    Boris.
 
-For the rest of the series:
-Acked-by: Zack Rusin <zack.rusin@broadcom.com>
-
-z
-
---00000000000010d1a90652fbd8e5
-Content-Type: application/pkcs7-signature; name="smime.p7s"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment; filename="smime.p7s"
-Content-Description: S/MIME Cryptographic Signature
-
-MIIVIgYJKoZIhvcNAQcCoIIVEzCCFQ8CAQExDzANBglghkgBZQMEAgEFADALBgkqhkiG9w0BBwGg
-ghKPMIIGqDCCBJCgAwIBAgIQfofDCS7XZu8vIeKo0KeY9DANBgkqhkiG9w0BAQwFADBMMSAwHgYD
-VQQLExdHbG9iYWxTaWduIFJvb3QgQ0EgLSBSNjETMBEGA1UEChMKR2xvYmFsU2lnbjETMBEGA1UE
-AxMKR2xvYmFsU2lnbjAeFw0yMzA0MTkwMzUzNTNaFw0yOTA0MTkwMDAwMDBaMFIxCzAJBgNVBAYT
-AkJFMRkwFwYDVQQKExBHbG9iYWxTaWduIG52LXNhMSgwJgYDVQQDEx9HbG9iYWxTaWduIEdDQyBS
-NiBTTUlNRSBDQSAyMDIzMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAwjAEbSkPcSyn
-26Zn9VtoE/xBvzYmNW29bW1pJZ7jrzKwPJm/GakCvy0IIgObMsx9bpFaq30X1kEJZnLUzuE1/hlc
-hatYqyORVBeHlv5V0QRSXY4faR0dCkIhXhoGknZ2O0bUJithcN1IsEADNizZ1AJIaWsWbQ4tYEYj
-ytEdvfkxz1WtX3SjtecZR+9wLJLt6HNa4sC//QKdjyfr/NhDCzYrdIzAssoXFnp4t+HcMyQTrj0r
-pD8KkPj96sy9axzegLbzte7wgTHbWBeJGp0sKg7BAu+G0Rk6teO1yPd75arbCvfY/NaRRQHk6tmG
-71gpLdB1ZhP9IcNYyeTKXIgfMh2tVK9DnXGaksYCyi6WisJa1Oa+poUroX2ESXO6o03lVxiA1xyf
-G8lUzpUNZonGVrUjhG5+MdY16/6b0uKejZCLbgu6HLPvIyqdTb9XqF4XWWKu+OMDs/rWyQ64v3mv
-Sa0te5Q5tchm4m9K0Pe9LlIKBk/gsgfaOHJDp4hYx4wocDr8DeCZe5d5wCFkxoGc1ckM8ZoMgpUc
-4pgkQE5ShxYMmKbPvNRPa5YFzbFtcFn5RMr1Mju8gt8J0c+dxYco2hi7dEW391KKxGhv7MJBcc+0
-x3FFTnmhU+5t6+CnkKMlrmzyaoeVryRTvOiH4FnTNHtVKUYDsCM0CLDdMNgoxgkCAwEAAaOCAX4w
-ggF6MA4GA1UdDwEB/wQEAwIBhjBMBgNVHSUERTBDBggrBgEFBQcDAgYIKwYBBQUHAwQGCisGAQQB
-gjcUAgIGCisGAQQBgjcKAwwGCisGAQQBgjcKAwQGCSsGAQQBgjcVBjASBgNVHRMBAf8ECDAGAQH/
-AgEAMB0GA1UdDgQWBBQAKTaeXHq6D68tUC3boCOFGLCgkjAfBgNVHSMEGDAWgBSubAWjkxPioufi
-1xzWx/B/yGdToDB7BggrBgEFBQcBAQRvMG0wLgYIKwYBBQUHMAGGImh0dHA6Ly9vY3NwMi5nbG9i
-YWxzaWduLmNvbS9yb290cjYwOwYIKwYBBQUHMAKGL2h0dHA6Ly9zZWN1cmUuZ2xvYmFsc2lnbi5j
-b20vY2FjZXJ0L3Jvb3QtcjYuY3J0MDYGA1UdHwQvMC0wK6ApoCeGJWh0dHA6Ly9jcmwuZ2xvYmFs
-c2lnbi5jb20vcm9vdC1yNi5jcmwwEQYDVR0gBAowCDAGBgRVHSAAMA0GCSqGSIb3DQEBDAUAA4IC
-AQCRkUdr1aIDRmkNI5jx5ggapGUThq0KcM2dzpMu314mJne8yKVXwzfKBtqbBjbUNMODnBkhvZcn
-bHUStur2/nt1tP3ee8KyNhYxzv4DkI0NbV93JChXipfsan7YjdfEk5vI2Fq+wpbGALyyWBgfy79Y
-IgbYWATB158tvEh5UO8kpGpjY95xv+070X3FYuGyeZyIvao26mN872FuxRxYhNLwGHIy38N9ASa1
-Q3BTNKSrHrZngadofHglG5W3TMFR11JOEOAUHhUgpbVVvgCYgGA6dSX0y5z7k3rXVyjFOs7KBSXr
-dJPKadpl4vqYphH7+P40nzBRcxJHrv5FeXlTrb+drjyXNjZSCmzfkOuCqPspBuJ7vab0/9oeNERg
-nz6SLCjLKcDXbMbKcRXgNhFBlzN4OUBqieSBXk80w2Nzx12KvNj758WavxOsXIbX0Zxwo1h3uw75
-AI2v8qwFWXNclO8qW2VXoq6kihWpeiuvDmFfSAwRLxwwIjgUuzG9SaQ+pOomuaC7QTKWMI0hL0b4
-mEPq9GsPPQq1UmwkcYFJ/Z4I93DZuKcXmKMmuANTS6wxwIEw8Q5MQ6y9fbJxGEOgOgYL4QIqNULb
-5CYPnt2LeiIiEnh8Uuh8tawqSjnR0h7Bv5q4mgo3L1Z9QQuexUntWD96t4o0q1jXWLyrpgP7Zcnu
-CzCCBYMwggNroAMCAQICDkXmuwODM8OFZUjm/0VRMA0GCSqGSIb3DQEBDAUAMEwxIDAeBgNVBAsT
-F0dsb2JhbFNpZ24gUm9vdCBDQSAtIFI2MRMwEQYDVQQKEwpHbG9iYWxTaWduMRMwEQYDVQQDEwpH
-bG9iYWxTaWduMB4XDTE0MTIxMDAwMDAwMFoXDTM0MTIxMDAwMDAwMFowTDEgMB4GA1UECxMXR2xv
-YmFsU2lnbiBSb290IENBIC0gUjYxEzARBgNVBAoTCkdsb2JhbFNpZ24xEzARBgNVBAMTCkdsb2Jh
-bFNpZ24wggIiMA0GCSqGSIb3DQEBAQUAA4ICDwAwggIKAoICAQCVB+hzymb57BTKezz3DQjxtEUL
-LIK0SMbrWzyug7hBkjMUpG9/6SrMxrCIa8W2idHGsv8UzlEUIexK3RtaxtaH7k06FQbtZGYLkoDK
-RN5zlE7zp4l/T3hjCMgSUG1CZi9NuXkoTVIaihqAtxmBDn7EirxkTCEcQ2jXPTyKxbJm1ZCatzEG
-xb7ibTIGph75ueuqo7i/voJjUNDwGInf5A959eqiHyrScC5757yTu21T4kh8jBAHOP9msndhfuDq
-jDyqtKT285VKEgdt/Yyyic/QoGF3yFh0sNQjOvddOsqi250J3l1ELZDxgc1Xkvp+vFAEYzTfa5MY
-vms2sjnkrCQ2t/DvthwTV5O23rL44oW3c6K4NapF8uCdNqFvVIrxclZuLojFUUJEFZTuo8U4lptO
-TloLR/MGNkl3MLxxN+Wm7CEIdfzmYRY/d9XZkZeECmzUAk10wBTt/Tn7g/JeFKEEsAvp/u6P4W4L
-sgizYWYJarEGOmWWWcDwNf3J2iiNGhGHcIEKqJp1HZ46hgUAntuA1iX53AWeJ1lMdjlb6vmlodiD
-D9H/3zAR+YXPM0j1ym1kFCx6WE/TSwhJxZVkGmMOeT31s4zKWK2cQkV5bg6HGVxUsWW2v4yb3BPp
-DW+4LtxnbsmLEbWEFIoAGXCDeZGXkdQaJ783HjIH2BRjPChMrwIDAQABo2MwYTAOBgNVHQ8BAf8E
-BAMCAQYwDwYDVR0TAQH/BAUwAwEB/zAdBgNVHQ4EFgQUrmwFo5MT4qLn4tcc1sfwf8hnU6AwHwYD
-VR0jBBgwFoAUrmwFo5MT4qLn4tcc1sfwf8hnU6AwDQYJKoZIhvcNAQEMBQADggIBAIMl7ejR/ZVS
-zZ7ABKCRaeZc0ITe3K2iT+hHeNZlmKlbqDyHfAKK0W63FnPmX8BUmNV0vsHN4hGRrSMYPd3hckSW
-tJVewHuOmXgWQxNWV7Oiszu1d9xAcqyj65s1PrEIIaHnxEM3eTK+teecLEy8QymZjjDTrCHg4x36
-2AczdlQAIiq5TSAucGja5VP8g1zTnfL/RAxEZvLS471GABptArolXY2hMVHdVEYcTduZlu8aHARc
-phXveOB5/l3bPqpMVf2aFalv4ab733Aw6cPuQkbtwpMFifp9Y3s/0HGBfADomK4OeDTDJfuvCp8g
-a907E48SjOJBGkh6c6B3ace2XH+CyB7+WBsoK6hsrV5twAXSe7frgP4lN/4Cm2isQl3D7vXM3PBQ
-ddI2aZzmewTfbgZptt4KCUhZh+t7FGB6ZKppQ++Rx0zsGN1s71MtjJnhXvJyPs9UyL1n7KQPTEX/
-07kwIwdMjxC/hpbZmVq0mVccpMy7FYlTuiwFD+TEnhmxGDTVTJ267fcfrySVBHioA7vugeXaX3yL
-SqGQdCWnsz5LyCxWvcfI7zjiXJLwefechLp0LWEBIH5+0fJPB1lfiy1DUutGDJTh9WZHeXfVVFsf
-rSQ3y0VaTqBESMjYsJnFFYQJ9tZJScBluOYacW6gqPGC6EU+bNYC1wpngwVayaQQMIIGWDCCBECg
-AwIBAgIMYT8cPnonh1geNIT5MA0GCSqGSIb3DQEBCwUAMFIxCzAJBgNVBAYTAkJFMRkwFwYDVQQK
-ExBHbG9iYWxTaWduIG52LXNhMSgwJgYDVQQDEx9HbG9iYWxTaWduIEdDQyBSNiBTTUlNRSBDQSAy
-MDIzMB4XDTI0MTEyODA2NTUwOVoXDTI2MTEyOTA2NTUwOVowgaUxCzAJBgNVBAYTAlVTMRMwEQYD
-VQQIEwpDYWxpZm9ybmlhMREwDwYDVQQHEwhTYW4gSm9zZTEZMBcGA1UEYRMQTlRSVVMrREUtNjYx
-MDExNzEWMBQGA1UEChMNQlJPQURDT00gSU5DLjETMBEGA1UEAxMKWmFjayBSdXNpbjEmMCQGCSqG
-SIb3DQEJARYXemFjay5ydXNpbkBicm9hZGNvbS5jb20wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAw
-ggEKAoIBAQCwQ8KpnuEwUOX0rOrLRj3vS0VImknKwshcmcfA9VtdEQhJHGDQoNjaBEFQHqLqn4Lf
-hqEGUo+nKhz2uqGl2MtQFb8oG+yJPCFPgeSvbiRxmeOwSP0jrNADVKpYpy4UApPqS+UfVQXKbwbM
-6U6qgI8F5eiKsQyE0HgYrQJx/sDs9LLVZlaNiA3U8M8CgEnb8VhuH3BN/yXphhEQdJXb1TyaJA60
-SmHcZdEQZbl4EjwUcs3UIowmI/Mhi7ADQB7VNsO/BaOVBEQk53xH+4djY/cg7jvqTTeliY05j2Yx
-uwwXcDC4mWjGzxAT5DVqC8fKQvon1uc2heorHb555+sLdwYxAgMBAAGjggHYMIIB1DAOBgNVHQ8B
-Af8EBAMCBaAwgZMGCCsGAQUFBwEBBIGGMIGDMEYGCCsGAQUFBzAChjpodHRwOi8vc2VjdXJlLmds
-b2JhbHNpZ24uY29tL2NhY2VydC9nc2djY3I2c21pbWVjYTIwMjMuY3J0MDkGCCsGAQUFBzABhi1o
-dHRwOi8vb2NzcC5nbG9iYWxzaWduLmNvbS9nc2djY3I2c21pbWVjYTIwMjMwZQYDVR0gBF4wXDAJ
-BgdngQwBBQMBMAsGCSsGAQQBoDIBKDBCBgorBgEEAaAyCgMCMDQwMgYIKwYBBQUHAgEWJmh0dHBz
-Oi8vd3d3Lmdsb2JhbHNpZ24uY29tL3JlcG9zaXRvcnkvMAkGA1UdEwQCMAAwQQYDVR0fBDowODA2
-oDSgMoYwaHR0cDovL2NybC5nbG9iYWxzaWduLmNvbS9nc2djY3I2c21pbWVjYTIwMjMuY3JsMCIG
-A1UdEQQbMBmBF3phY2sucnVzaW5AYnJvYWRjb20uY29tMBMGA1UdJQQMMAoGCCsGAQUFBwMEMB8G
-A1UdIwQYMBaAFAApNp5ceroPry1QLdugI4UYsKCSMB0GA1UdDgQWBBQNDn2m/OLuDx9YjEqPLCDB
-s/VKNTANBgkqhkiG9w0BAQsFAAOCAgEAF463syOLTQkWZmEyyR60W1sM3J1cbnMRrBFUBt3S2NTY
-SJ2NAvkTAxbPoOhK6IQdaTyrWi8xdg2tftr5FC1bOSUdxudY6dipq2txe7mEoUE6VlpJid/56Mo4
-QJRb6YiykQeIfoJiYMKsyuXWsTB1rhQxlxfnaFxi8Xy3+xKAeX68DcsHG3ZU0h1beBURA44tXcz6
-fFDNPQ2k6rWDFz+XNN2YOPqfse2wEm3DXpqNT79ycU7Uva7e51b8XdbmJ6XVzUFmWzhjXy5hvV8z
-iF+DvP+KT1/bjO6aNL2/3PWiy1u6xjnWvobHuAYVrXxQ5wzk8aPOnED9Q8pt2nqk/UIzw2f67Cn9
-3CxrVqXUKm93J+rupyKVTGgKO9T1ODVPo665aIbM72RxSI9Wsofatm2fo8DWOkrfs29pYfy6eECl
-91qfFMl+IzIVfDgIrEX6gSngJ2ZLaG6L+/iNrUxHxxsaUmyDwBbTfjYwr10H6NKES3JaxVRslnpF
-06HTTciJNx2wowbYF1c+BFY4r/19LHygijIVa+hZEgNuMrVLyAamaAKZ1AWxTdv8Q/eeNN3Myq61
-b1ykTSPCXjBq/03CMF/wT1wly16jYjLDXZ6II/HYyJt34QeqnBENU9zXTc9RopqcuHD2g+ROT7lI
-VLi5ffzC8rVliltTltbYPc7F0lAvGKAxggJXMIICUwIBATBiMFIxCzAJBgNVBAYTAkJFMRkwFwYD
-VQQKExBHbG9iYWxTaWduIG52LXNhMSgwJgYDVQQDEx9HbG9iYWxTaWduIEdDQyBSNiBTTUlNRSBD
-QSAyMDIzAgxhPxw+eieHWB40hPkwDQYJYIZIAWUDBAIBBQCggccwLwYJKoZIhvcNAQkEMSIEIK6T
-M3hcwIG6U09NmUG4muHUYSOBWzNS3Wkx9wYnRHojMBgGCSqGSIb3DQEJAzELBgkqhkiG9w0BBwEw
-HAYJKoZIhvcNAQkFMQ8XDTI2MDUyOTIxNTExNVowXAYJKoZIhvcNAQkPMU8wTTALBglghkgBZQME
-ASowCwYJYIZIAWUDBAEWMAsGCWCGSAFlAwQBAjAKBggqhkiG9w0DBzALBgkqhkiG9w0BAQcwCwYJ
-YIZIAWUDBAIBMA0GCSqGSIb3DQEBAQUABIIBAEKPxb22TcQG2ccYaBfS+VbMq6HhQMeOQ+G6GB7h
-uG2QNotr/CMDiERxZC7VoImSeIdZxccjxGdyWOuOtawNbek0BclLI21pZ4qV1B326XGmuVdSpUYZ
-XITplE1iTHWIWVbQaaer+zDXFIfley57dLZw7Nm6KW9yul/MBzohNJCcZiolaGS/qH6menk4NOby
-Nu0NxGfCwnFT8hRik4gtWEEBEMxeY/yY5NFvImONzZdqs/VC/WcTCrpI40GzSboPvn5pM5Yq6XYI
-547GYJfx8g6ITD43rpsDewfuIeVR3/ZLapDI+U71y0jCMiKNXQkBrW4SFO6szmhu4xtpWTabp3U=
---00000000000010d1a90652fbd8e5--
+https://people.kernel.org/tglx/notes-about-netiquette
