@@ -1,63 +1,85 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from mail-pf1-f173.google.com (mail-pf1-f173.google.com [209.85.210.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EEDCB233943
-	for <virtualization@lists.linux.dev>; Sat, 30 May 2026 18:58:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A75C375ACB
+	for <virtualization@lists.linux.dev>; Sun, 31 May 2026 07:36:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780167487; cv=none; b=UsLDWt0T8BMGIrMqiiarkHWAVjYGqrWl3Wc9cO15r07SpCiCsi4CU7kT1/4jKR13bzP6DmTk+Gcr2+OcZNXsZgyUEMZIpkFs1dvxp9yrQs+hlW91QMKZb3oXG98jl4Rw1TBfud0VGLnoArWcebtChF0cPC/jkBagbdFSSWHRK38=
+	t=1780212984; cv=none; b=rvMCw4w3Ih/3e1lcmTUB8QGWbuQsnLes699oS9Czwdc0fuaLL7aVAWyJbU7ow2jb/wH4s8fhS4/VvC1gwBNUM7dUmdy6D9bqtnwCDzNWWwGgwTBsM1v+J4c2meJ/YxjPr4yELrt4B1038lv1A7rUaRi3q1pSejWhZgnHTqaXpv0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780167487; c=relaxed/simple;
-	bh=pqjedD3POHIFXVABSCbeZ0DjTL0alwngfAqvdTOj55w=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=H2oJIlS040Xr7STYcTEWf6pIo6+xth+2QIb4Mdnhv4Xj5p6VdYvDusMfwon7/WpDlDBpPu5+MYUuNy/9EOaNyODEm1wB0vpqUcGPr+am2mRtZwDh6a3JuTgBmhxOnN/pYFgRQ5voaExXPjPCw6Jo+iaewPzVU0NN/AQXp6uQF+E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
-Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id BD08B67B2E;
-	Sat, 30 May 2026 18:57:23 +0000 (UTC)
-Authentication-Results: smtp-out2.suse.de;
-	none
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 466B9779A7;
-	Sat, 30 May 2026 18:57:23 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id aOQCEBMzG2rXUwAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Sat, 30 May 2026 18:57:23 +0000
-From: Thomas Zimmermann <tzimmermann@suse.de>
-To: mripard@kernel.org,
+	s=arc-20240116; t=1780212984; c=relaxed/simple;
+	bh=k6wBULCYIiyk0FUjY0yuvrexV74Nvw8GP0L3zD9RVk0=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=jyd0JvF59Pr8CDPs5kHYGBcU/7YVURBz0OWtEDrkSnxqDVCzDWF2BGHKLUcuQsWZFtlYrlUrn9R0QH4GDerTdGsrFJj5r6UtRbNC7zJWwbEux90zizSBeNuFQdYBJL4Ncjtj/duUcocUtlwpmWZVVoOIKinYZOaRR1PSZVXAIeE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EyQOQnAW; arc=none smtp.client-ip=209.85.210.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EyQOQnAW"
+Received: by mail-pf1-f173.google.com with SMTP id d2e1a72fcca58-8424b6792efso5225b3a.3
+        for <virtualization@lists.linux.dev>; Sun, 31 May 2026 00:36:22 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1780212982; x=1780817782; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=n4UPEtYv85DDTxdGxZ3GOa4tyKg7+fMqKk+6YoXF2Fw=;
+        b=EyQOQnAWXt0Ha+ZmdkPPMhRcAvk0HVOwCAiGdbhcLudGWVNBNZGL7sTwiCw836uwy5
+         P/tk2C2N3+84cgt1QJvEZw50ZK1x8oodMUp9MtzcraCQXvm4vxp1Nw65tSBdcbGUXh/Q
+         +/DdB6wAX1ZeJcAXlOSkgGJUQ5X1FxDqTFDMgoVC2jGA6OLuaqJAcB4+ZN77qTf1Ge7+
+         P/qYDXhpjA3/gMZlxbRfIso8C54mS5P89CwJI703yM53qU+2wp+0kp16tANYdHfddjTb
+         YV8re9scQzaYg7LTfKICan5Vq1fiu/gTDFOqVqX8AXrYkI3HSqyo4q67cK5vKKGaKmFl
+         NQ8g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780212982; x=1780817782;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=n4UPEtYv85DDTxdGxZ3GOa4tyKg7+fMqKk+6YoXF2Fw=;
+        b=lHDp8PGbzV0P2fDsEW5PnAIwvvmo+Of/wJ/5fUX2PpmYaoMU8DLuuOuih4Tu99NkOV
+         U+M0VYBy7godysDCra7qlB66q5wZxZsI6gYy+0kESq20Ut2r8rFRb1XnCYUW1ggqJg99
+         trBqQvdr5ArpQg34XpXsbVK9CyU7BdxfxJD5aDvgg5oWoa2QC1WnuaeWT6+xVdAzUoag
+         CYfKW4RYZSOvFI5i9vg75SFY8jIWeW28OyQBntzqVB5geryX3Gc+PuIfBbMjEzFahXwL
+         vCuaNmODFnegU+ZZ+6d8N2653ZhJpCZeW0S7DwjP7CJKk87hvTAL9mVqz4FWFov6BQN+
+         4/Lw==
+X-Forwarded-Encrypted: i=1; AFNElJ+7jI9g7U2ZkN2O/9xQKmCCqVgpAEvxWv2XSuFYW7ARLi1x3/trZMzXR3yVT3E29teuH1Uhd4NA/8MyCwO74g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzRFckwDplk5VFlscaDLo8Qp0kkXIJeGI7Y3MdIvQp6ogYsxU9k
+	CfhJV4jF7WxrdgV0zzNb5u6DbOK2MgvQiZFMFkNtkjlpI5XYjhMqQpu6
+X-Gm-Gg: Acq92OHJEXeCLmbtrdZsV0JEs6naJ8osnLoBPzWljn5t5VkWIv5gtC5u6nHyebzGJEl
+	e4Al0FiVRhFkJ5zwZxpc5ajGDh4U6fLax1zq++9ZqTS+cje8SAGdr48NltKNwbxNbhFn1z64v9m
+	L9WjsvSzXT0AOSLYdTpc0CjT2WgOajerey3do+zo9jiqIIAgQKROpGFIPhSL3175O+p6+8kr6F9
+	jL4CGZ6CvBoM9K5giSpke5D6bzmwGGZoceh624v2QnggSa9LcuQvNHgro/Bt73mVPKXlE0Rhf1t
+	D+yUvwavxG+g67UTEFxdaTLKBWY68RJhzbPXW9UTRs6XxjSP4ffNxQeSIM8tn+EfD0kLIBYR/ns
+	iCh0h+SGFr3qNTUJ36JrEfMSBILXG6WeYj8PQ11zK6Tvs+RVtEVUw3spele///uoyGlst9Kwt90
+	nGO7LAbV9RBJ5OWendUeTSAytYjwiW1f24azqELZybJA==
+X-Received: by 2002:a05:6a00:1d15:b0:835:3d5e:1dd3 with SMTP id d2e1a72fcca58-8422579f2c6mr6160781b3a.42.1780212982185;
+        Sun, 31 May 2026 00:36:22 -0700 (PDT)
+Received: from Naman.Naman ([2401:4900:1f39:4c4a:1e56:d301:ce43:ac25])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-8422e712309sm3760709b3a.59.2026.05.31.00.36.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 31 May 2026 00:36:21 -0700 (PDT)
+From: Naman Arora <namanarora029@gmail.com>
+To: dri-devel@lists.freedesktop.org
+Cc: tzimmermann@suse.de,
 	maarten.lankhorst@linux.intel.com,
-	airlied@redhat.com,
+	mripard@kernel.org,
 	airlied@gmail.com,
 	simona@ffwll.ch,
-	admin@kodeit.net,
-	gargaditya08@proton.me,
-	paul@crapouillou.net,
-	jani.nikula@linux.intel.com,
-	mhklinux@outlook.com,
-	zack.rusin@broadcom.com,
-	bcm-kernel-feedback-list@broadcom.com
-Cc: dri-devel@lists.freedesktop.org,
-	linux-hyperv@vger.kernel.org,
-	intel-gfx@lists.freedesktop.org,
-	intel-xe@lists.freedesktop.org,
-	linux-mips@vger.kernel.org,
+	stefan@agner.ch,
+	alison.wang@nxp.com,
+	jyri.sarha@iki.fi,
+	tomi.valkeinen@ideasonboard.com,
+	kraxel@redhat.com,
+	dmitry.osipenko@collabora.com,
+	neil.armstrong@linaro.org,
+	khilman@baylibre.com,
+	linux-kernel@vger.kernel.org,
 	virtualization@lists.linux.dev,
-	Thomas Zimmermann <tzimmermann@suse.de>
-Subject: [PATCH v4 10/10] drm/vmwgfx: Remove unused field struct vmwgfx_du_update_plane.old_state
-Date: Sat, 30 May 2026 20:53:23 +0200
-Message-ID: <20260530185716.65688-11-tzimmermann@suse.de>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260530185716.65688-1-tzimmermann@suse.de>
-References: <20260530185716.65688-1-tzimmermann@suse.de>
+	linux-amlogic@lists.infradead.org,
+	linux-arm-kernel@lists.infradead.org,
+	Naman Arora <namanarora029@gmail.com>
+Subject: [PATCH 0/6] drm: Open-code drm_simple_encoder_init() in several drivers
+Date: Sun, 31 May 2026 13:05:26 +0530
+Message-Id: <20260531073532.8609-1-namanarora029@gmail.com>
+X-Mailer: git-send-email 2.20.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -65,162 +87,39 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Rspamd-Queue-Id: BD08B67B2E
-X-Rspamd-Pre-Result: action=no action;
-	module=replies;
-	Message is reply to one we originated
-X-Spam-Flag: NO
-X-Rspamd-Action: no action
-X-Spam-Level: 
-X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
-X-Spam-Score: -4.00
-X-Spamd-Result: default: False [-4.00 / 50.00];
-	REPLY(-4.00)[]
 
-Plane updates no longer require the old plane state. Remove the field
-from struct vmwgfx_du_update_plane and fix all callers.
+drm_simple_encoder_init() is a thin wrapper around drm_encoder_init()
+that provides a simple destroy-only encoder funcs struct. This series
+removes the dependency on drm_simple_kms_helper in six drivers by
+open-coding the encoder initialization directly.
 
-Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
-Reviewed-by: Zack Rusin <zack.rusin@broadcom.com>
----
- drivers/gpu/drm/vmwgfx/vmwgfx_kms.h  |  2 --
- drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c | 12 ++----------
- drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c | 11 ++---------
- 3 files changed, 4 insertions(+), 21 deletions(-)
+Each patch adds a static drm_encoder_funcs struct with a destroy
+callback and replaces drm_simple_encoder_init() with drm_encoder_init().
+The drm_simple_kms_helper.h include is removed where it is no longer
+needed.
 
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.h b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.h
-index 2224d7d91d1b..8c2072b82062 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_kms.h
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_kms.h
-@@ -19,7 +19,6 @@
- /**
-  * struct vmw_du_update_plane - Closure structure for vmw_du_helper_plane_update
-  * @plane: Plane which is being updated.
-- * @old_state: Old state of plane.
-  * @dev_priv: Device private.
-  * @du: Display unit on which to update the plane.
-  * @vfb: Framebuffer which is blitted to display unit.
-@@ -102,7 +101,6 @@ struct vmw_du_update_plane {
- 				    struct drm_rect *bb);
- 
- 	struct drm_plane *plane;
--	struct drm_plane_state *old_state;
- 	struct vmw_private *dev_priv;
- 	struct vmw_display_unit *du;
- 	struct vmw_framebuffer *vfb;
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c b/drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c
-index c83061cf7455..fa84bc7ab5bb 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_scrn.c
-@@ -530,7 +530,6 @@ static uint32_t vmw_stud_bo_post_clip(struct vmw_du_update_plane  *update,
-  */
- static int vmw_sou_plane_update_bo(struct vmw_private *dev_priv,
- 				   struct drm_plane *plane,
--				   struct drm_plane_state *old_state,
- 				   struct vmw_framebuffer *vfb,
- 				   struct vmw_fence_obj **out_fence)
- {
-@@ -538,7 +537,6 @@ static int vmw_sou_plane_update_bo(struct vmw_private *dev_priv,
- 
- 	memset(&bo_update, 0, sizeof(struct vmw_du_update_plane_buffer));
- 	bo_update.base.plane = plane;
--	bo_update.base.old_state = old_state;
- 	bo_update.base.dev_priv = dev_priv;
- 	bo_update.base.du = vmw_crtc_to_du(plane->state->crtc);
- 	bo_update.base.vfb = vfb;
-@@ -692,7 +690,6 @@ static uint32_t vmw_sou_surface_post_clip(struct vmw_du_update_plane *update,
-  */
- static int vmw_sou_plane_update_surface(struct vmw_private *dev_priv,
- 					struct drm_plane *plane,
--					struct drm_plane_state *old_state,
- 					struct vmw_framebuffer *vfb,
- 					struct vmw_fence_obj **out_fence)
- {
-@@ -700,7 +697,6 @@ static int vmw_sou_plane_update_surface(struct vmw_private *dev_priv,
- 
- 	memset(&srf_update, 0, sizeof(struct vmw_du_update_plane_surface));
- 	srf_update.base.plane = plane;
--	srf_update.base.old_state = old_state;
- 	srf_update.base.dev_priv = dev_priv;
- 	srf_update.base.du = vmw_crtc_to_du(plane->state->crtc);
- 	srf_update.base.vfb = vfb;
-@@ -721,7 +717,6 @@ static void
- vmw_sou_primary_plane_atomic_update(struct drm_plane *plane,
- 				    struct drm_atomic_commit *state)
- {
--	struct drm_plane_state *old_state = drm_atomic_get_old_plane_state(state, plane);
- 	struct drm_plane_state *new_state = drm_atomic_get_new_plane_state(state, plane);
- 	struct drm_crtc *crtc = new_state->crtc;
- 	struct vmw_fence_obj *fence = NULL;
-@@ -734,12 +729,9 @@ vmw_sou_primary_plane_atomic_update(struct drm_plane *plane,
- 			vmw_framebuffer_to_vfb(new_state->fb);
- 
- 		if (vfb->bo)
--			ret = vmw_sou_plane_update_bo(dev_priv, plane,
--						      old_state, vfb, &fence);
-+			ret = vmw_sou_plane_update_bo(dev_priv, plane, vfb, &fence);
- 		else
--			ret = vmw_sou_plane_update_surface(dev_priv, plane,
--							   old_state, vfb,
--							   &fence);
-+			ret = vmw_sou_plane_update_surface(dev_priv, plane, vfb, &fence);
- 		if (ret != 0)
- 			DRM_ERROR("Failed to update screen.\n");
- 	} else {
-diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c b/drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c
-index f0df2b1c8465..474e3badb80f 100644
---- a/drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c
-+++ b/drivers/gpu/drm/vmwgfx/vmwgfx_stdu.c
-@@ -1240,7 +1240,6 @@ vmw_stdu_bo_populate_update_cpu(struct vmw_du_update_plane  *update, void *cmd,
-  */
- static int vmw_stdu_plane_update_bo(struct vmw_private *dev_priv,
- 				    struct drm_plane *plane,
--				    struct drm_plane_state *old_state,
- 				    struct vmw_framebuffer *vfb,
- 				    struct vmw_fence_obj **out_fence)
- {
-@@ -1248,7 +1247,6 @@ static int vmw_stdu_plane_update_bo(struct vmw_private *dev_priv,
- 
- 	memset(&bo_update, 0, sizeof(struct vmw_du_update_plane_buffer));
- 	bo_update.base.plane = plane;
--	bo_update.base.old_state = old_state;
- 	bo_update.base.dev_priv = dev_priv;
- 	bo_update.base.du = vmw_crtc_to_du(plane->state->crtc);
- 	bo_update.base.vfb = vfb;
-@@ -1350,7 +1348,6 @@ vmw_stdu_surface_populate_update(struct vmw_du_update_plane  *update, void *cmd,
-  */
- static int vmw_stdu_plane_update_surface(struct vmw_private *dev_priv,
- 					 struct drm_plane *plane,
--					 struct drm_plane_state *old_state,
- 					 struct vmw_framebuffer *vfb,
- 					 struct vmw_fence_obj **out_fence)
- {
-@@ -1363,7 +1360,6 @@ static int vmw_stdu_plane_update_surface(struct vmw_private *dev_priv,
- 
- 	memset(&srf_update, 0, sizeof(struct vmw_du_update_plane));
- 	srf_update.plane = plane;
--	srf_update.old_state = old_state;
- 	srf_update.dev_priv = dev_priv;
- 	srf_update.du = vmw_crtc_to_du(plane->state->crtc);
- 	srf_update.vfb = vfb;
-@@ -1424,12 +1420,9 @@ vmw_stdu_primary_plane_atomic_update(struct drm_plane *plane,
- 			DRM_ERROR("Failed to bind surface to STDU.\n");
- 
- 		if (vfb->bo)
--			ret = vmw_stdu_plane_update_bo(dev_priv, plane,
--						       old_state, vfb, &fence);
-+			ret = vmw_stdu_plane_update_bo(dev_priv, plane, vfb, &fence);
- 		else
--			ret = vmw_stdu_plane_update_surface(dev_priv, plane,
--							    old_state, vfb,
--							    &fence);
-+			ret = vmw_stdu_plane_update_surface(dev_priv, plane, vfb, &fence);
- 		if (ret)
- 			DRM_ERROR("Failed to update STDU.\n");
- 	} else {
+Drivers converted in this series:
+- fsl-dcu
+- tidss
+- virtio
+- meson (encoder_cvbs, encoder_hdmi, encoder_dsi)
+
+Naman Arora (6):
+  drm/fsl-dcu: Open-code drm_simple_encoder_init()
+  drm/tidss: Open-code drm_simple_encoder_init()
+  drm/virtio: Open-code drm_simple_encoder_init()
+  drm/meson: Open-code drm_simple_encoder_init() in encoder_cvbs
+  drm/meson: Open-code drm_simple_encoder_init() in encoder_hdmi
+  drm/meson: Open-code drm_simple_encoder_init() in encoder_dsi
+
+ drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c  | 10 +++++++---
+ drivers/gpu/drm/meson/meson_encoder_cvbs.c | 10 +++++++---
+ drivers/gpu/drm/meson/meson_encoder_dsi.c  | 10 +++++++---
+ drivers/gpu/drm/meson/meson_encoder_hdmi.c | 10 +++++++---
+ drivers/gpu/drm/tidss/tidss_encoder.c      | 10 +++++++---
+ drivers/gpu/drm/virtio/virtgpu_display.c   |  8 ++++++--
+ 6 files changed, 41 insertions(+), 17 deletions(-)
+
 -- 
-2.54.0
+2.20.1
 
