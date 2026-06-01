@@ -1,168 +1,232 @@
-Received: from canpmsgout06.his.huawei.com (canpmsgout06.his.huawei.com [113.46.200.221])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF23438239F
-	for <virtualization@lists.linux.dev>; Mon,  1 Jun 2026 07:17:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.221
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71A6E19D8AC
+	for <virtualization@lists.linux.dev>; Mon,  1 Jun 2026 07:53:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780298243; cv=none; b=HGXKjO+3mgPPWj0oms6gcBu3Jgc3lUtx2CibKQ7jIpk6jirmPQqMLoKUPDfV5ZZmtE7Y2T8pTzS3Ccse9bSZuajPmxWtcTbESjUTkiLEWW5c9/Ak1CGyDSwf/JHCVDJRVlELns8XM+eS7ttBqSpxyC+A51BkWi7OkayswBP0XMU=
+	t=1780300426; cv=none; b=CLCQtbuVRrXxJ5Na3V2c26aTwEqV2D/dbxdYJWHBsdUg/sMCc2cqh2BPuMReFHUTZJGisBJ0iF8ln88eNWgOmFrCwxlCV7BDoirTH6pLbsKo8qJZkdJrNjpYDBp1Eq1sW7jw6aXDOXNUMthGQJ+Ap5tKP0yWspWaQR61qkoEAno=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780298243; c=relaxed/simple;
-	bh=DJP1TMISf1OnwfZ6Z/TPoB/1wKsEjUGLCF78QUmf6Hc=;
-	h=Subject:To:CC:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=CPuNpTKvZKhKKiDDfBPbIlN9kdOgNXNnWNR/s9mL3nGRBtnZ26CzXoQBiQSNgqTrihqEXoLpnEeARYPE+rNj0EzlHxc5dVYTstRdbz4sRBlkPyzVyWmqRFwHQtqduwzoWvK3DHU0AKDpjQGr5sgrekpAXx/Xao7Ld0GzZUrIeTk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=Hc97jZvn; arc=none smtp.client-ip=113.46.200.221
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+	s=arc-20240116; t=1780300426; c=relaxed/simple;
+	bh=CRwG2rJGEDYFeLkd5jVVham1q7EYVpz41iExl2XpiIs=;
+	h=From:Date:Subject:MIME-Version:Message-Id:To:Cc:Content-Type; b=IWG8CMlsuzMxwIk9YqoL0MAFGowvyAzGuEE0bdQFIyWXjXDQvg6oa7co3nNTz28lgj+1j35LPV6umblCPeR8E8+7SdtvIIzfsUEUjOulUe+nkrN+O2gvggwQufRxEfGPaeJc8lKDZNYyD6GbDZ5MM+3F1M6KKyjBxJHYFvhLwsI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=U4/n6ebd; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="Hc97jZvn"
-dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
-	c=relaxed/relaxed; q=dns/txt;
-	h=From;
-	bh=8ST2Tg32v5NWZL0Digt/7WzPOrgnDtd7aEPB8tVaCFQ=;
-	b=Hc97jZvnUog6kvHS/SX8VtoZXhoq3IxJcSa3DvnoLPRqjnFX+cqB3OR0/dYSIi/cVnzJQbcZu
-	CZugFwzI326auRogHOGW48AD5zvD4HCSYq7T+t1sC9FNA3hC3iys/yoQvOFWiLbvPFbtoPRCeK/
-	8PTo1FvjAcQ+S+KoNAuPXW0=
-Received: from mail.maildlp.com (unknown [172.19.162.223])
-	by canpmsgout06.his.huawei.com (SkyGuard) with ESMTPS id 4gTQ7Q1xsmzRhR3;
-	Mon,  1 Jun 2026 15:09:22 +0800 (CST)
-Received: from dggemv712-chm.china.huawei.com (unknown [10.1.198.32])
-	by mail.maildlp.com (Postfix) with ESMTPS id 9188840561;
-	Mon,  1 Jun 2026 15:17:10 +0800 (CST)
-Received: from kwepemq500010.china.huawei.com (7.202.194.235) by
- dggemv712-chm.china.huawei.com (10.1.198.32) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Mon, 1 Jun 2026 15:17:10 +0800
-Received: from [10.173.124.160] (10.173.124.160) by
- kwepemq500010.china.huawei.com (7.202.194.235) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Mon, 1 Jun 2026 15:17:08 +0800
-Subject: Re: [PATCH v9 02/37] mm: memory-failure: serialize
- TestSetPageHWPoison with zone->lock
-To: "Michael S. Tsirkin" <mst@redhat.com>
-CC: "David Hildenbrand (Arm)" <david@kernel.org>, Jason Wang
-	<jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?Q?Eugenio_P=c3=a9rez?= <eperezma@redhat.com>, Muchun Song
-	<muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, Andrew Morton
-	<akpm@linux-foundation.org>, Lorenzo Stoakes <ljs@kernel.org>, "Liam R.
- Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, "Mike
- Rapoport" <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, "Michal
- Hocko" <mhocko@suse.com>, Brendan Jackman <jackmanb@google.com>, "Johannes
- Weiner" <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>, Baolin Wang
-	<baolin.wang@linux.alibaba.com>, Nico Pache <npache@redhat.com>, Ryan Roberts
-	<ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song
-	<baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>, Hugh Dickins
-	<hughd@google.com>, Matthew Brost <matthew.brost@intel.com>, Joshua Hahn
-	<joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, Byungchul Park
-	<byungchul@sk.com>, Gregory Price <gourry@gourry.net>, Ying Huang
-	<ying.huang@linux.alibaba.com>, Alistair Popple <apopple@nvidia.com>,
-	Christoph Lameter <cl@gentwo.org>, David Rientjes <rientjes@google.com>,
-	Roman Gushchin <roman.gushchin@linux.dev>, Harry Yoo <harry.yoo@oracle.com>,
-	Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>,
-	Wei Xu <weixugc@google.com>, Chris Li <chrisl@kernel.org>, Kairui Song
-	<kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham
-	<nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
-	<virtualization@lists.linux.dev>, <linux-mm@kvack.org>, Andrea Arcangeli
-	<aarcange@redhat.com>, Naoya Horiguchi <nao.horiguchi@gmail.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <cover.1780067977.git.mst@redhat.com>
- <2c527d20c99cdfe64a77bcf8da75f742d4c6991e.1780067977.git.mst@redhat.com>
-From: Miaohe Lin <linmiaohe@huawei.com>
-Message-ID: <9c73bc2e-20f2-c7b0-cd8c-63ea5437f2ed@huawei.com>
-Date: Mon, 1 Jun 2026 15:17:07 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.0
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="U4/n6ebd"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1780300423;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=zIqhrXUwwJrpCl1gMsGp42AZVtWIyb4Pqr0eIXGPoJc=;
+	b=U4/n6ebdYaxZzsw72VnRp1eBYLDP/dLhrr3RLoqLxqSXB3JOTWT5dj6ddBJnlSe3N3oBZC
+	WV28R7VDpPs/q6n0spEepPXizjL1nRwMzXT/TYi6bl2dTGYISYvwySnvR+kaITPf3qOlid
+	TXJ/uO6Zh6B0RW2XN/SGGf7532oqgUc=
+Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
+ [209.85.214.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-687-vGwjzvruMVWsqrs7RPPJFA-1; Mon, 01 Jun 2026 03:53:42 -0400
+X-MC-Unique: vGwjzvruMVWsqrs7RPPJFA-1
+X-Mimecast-MFC-AGG-ID: vGwjzvruMVWsqrs7RPPJFA_1780300421
+Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-2c0c3315d31so11866685ad.3
+        for <virtualization@lists.linux.dev>; Mon, 01 Jun 2026 00:53:42 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780300421; x=1780905221;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=zIqhrXUwwJrpCl1gMsGp42AZVtWIyb4Pqr0eIXGPoJc=;
+        b=TSyfRX8f3VOxwgIMFOhoPohYKrdjeJtEhYxnddiawjmzrDYEHwQfl60eQkr1MEA5XX
+         noz7ErLYSvglL9S5QaB3x2Yai5y+eHO3Vc3ov2KARnGZVG7fKdAxGuMps7nzi+0Y5UVF
+         ZYOHmMa2WjpMjBQL654G8xUTViIy4pSz9a5CF3aQnigErZjFMEGf8mt+E8wGt9Pa9YhI
+         TEtsGK3ZJm9o2IIdb2OikhyFW1fTvfNCld9+Kf2cxPKRwALo6gDrWY2Efmffdp4LWq8H
+         dLNT5D6HjS4kfxMUByc5EjrReY+xcKe0OnrBjRpKv2C3h2NxP3nNOgO/LV0ON0ZXwZqy
+         BIBQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+IW8DRP2xvhuOpTk72aJHntrnwJ4pl/UFLwi1xDwXNdoZDYVcHGTPH42Qu9sySXo7/9arkxYYYcz1tIzHnAw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxO1PzzwXKhXiEnQUOP0ThAIQRSAkyMnknJIeM0xF2rjBB96rC1
+	0OB+uSsmNvWjon6LGpzTbp48bMO+ilM4T6kVKUEGvL/9BcYl+k4LUWlFSIQ6dg7VFmHGG1ztJST
+	XgqfuvOdNuq6ouYhWaTw2yjPOjovorLMtoqSLrgYmPjJoKH+y3StaxECEpPR3IlDgkMY5
+X-Gm-Gg: Acq92OGkTVp/iPoi0c7veuwvWhgbgriJwJcz8fCIj76OyWgBZ2AVonk0QNOck1IeRs8
+	xvcVbF7S5f0oz45vhmsYRb1QdTu6cdp1CBkIsa/O/dOrwrbyb71+zl+zJq8yJHuila/NrB4Zw2s
+	AGB2LTLTQWiWVQAAGZPc//RxjJZ2tLZR+re8X6TllMQG6BGt619ZpQi+tgVy829WjUwCmi7MuHR
+	mw/aGBFarfFTTY5IqtG1GgsUBZhu8XwpZfRQ51FKApIiOSa4P2nlzT4PdbE/jbwLI1FHsOgECVd
+	DYUXbSCI+8IqFhfqlpf57pTAvSgkzmFSA7hZVH+Blp6gwMTOkSaOk/0GXS6SgkR+8QljXMyfToM
+	YfE0lAE1Mcl/KWBYjI65yCDC+R7cfEFD3+ZHOGB62SQeg3+YlfRAtE4/Eg3x8zulr8Lhi0w==
+X-Received: by 2002:a17:902:f78b:b0:2bf:9760:b953 with SMTP id d9443c01a7336-2bf9760bc6bmr96883285ad.14.1780300421002;
+        Mon, 01 Jun 2026 00:53:41 -0700 (PDT)
+X-Received: by 2002:a17:902:f78b:b0:2bf:9760:b953 with SMTP id d9443c01a7336-2bf9760bc6bmr96883055ad.14.1780300420534;
+        Mon, 01 Jun 2026 00:53:40 -0700 (PDT)
+Received: from ryasuoka-thinkpadx1carbongen9.tokyo.csb ([126.143.164.49])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2bf239e7483sm93308075ad.14.2026.06.01.00.53.36
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 01 Jun 2026 00:53:40 -0700 (PDT)
+From: Ryosuke Yasuoka <ryasuoka@redhat.com>
+Date: Mon, 01 Jun 2026 16:53:15 +0900
+Subject: [PATCH v3] drm/virtio: abort virtqueue wait on device removal to
+ avoid hung task
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <2c527d20c99cdfe64a77bcf8da75f742d4c6991e.1780067977.git.mst@redhat.com>
+Message-Id: <20260601-virtio-gpu_wait_event-v3-1-89530517a98a@redhat.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/3WNyw6CMBBFf4XM2po+LKgr/8MQUukAs5CStlYN6
+ b9biVuX5yT33BUCesIA52oFj4kCubmA2lXQT2YekZEtDJLLmmtxZIl8JMfG5dE9DcUOE86RaWN
+ 4zRt9GISEsl08DvTaute28EQhOv/ebpL82l9Rij/FJJlgujnVN2UaYbm6eLSTifve3aHNOX8A0
+ PGvlrsAAAA=
+X-Change-ID: 20260518-virtio-gpu_wait_event-5aa060754f12
+To: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
+ Dmitry Osipenko <dmitry.osipenko@collabora.com>, 
+ Gurchetan Singh <gurchetansingh@chromium.org>, 
+ Chia-I Wu <olvaffe@gmail.com>, 
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+ Simona Vetter <simona@ffwll.ch>
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev, 
+ linux-kernel@vger.kernel.org, Ryosuke Yasuoka <ryasuoka@redhat.com>
+X-Mailer: b4 0.14.3
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: C5ur4GVovPWX65pK0sYcOJc9886pWyChROW_ag9yxeE_1780300421
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
 Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: kwepems200001.china.huawei.com (7.221.188.67) To
- kwepemq500010.china.huawei.com (7.202.194.235)
 
-On 2026/5/29 23:22, Michael S. Tsirkin wrote:
-> TestSetPageHWPoison() is called without zone->lock, so its atomic
-> update to page->flags can race with non-atomic flag operations
-> that run under zone->lock in the buddy allocator.
-> 
-> In particular, __free_pages_prepare() does:
-> 
->     page->flags.f &= ~PAGE_FLAGS_CHECK_AT_PREP;
-> 
-> This non-atomic read-modify-write, while correctly excluding
-> __PG_HWPOISON from the mask, can still lose a concurrent
-> TestSetPageHWPoison if the read happens before the poison bit
-> is set and the write happens after.  Follow-up patches in this
-> series add similar non-atomic flag operations as well.
-> 
-> Fix by acquiring zone->lock around TestSetPageHWPoison and
-> around ClearPageHWPoison in the retry path.  This
-> serializes with all buddy flag manipulation.  The cost is
-> negligible: one lock/unlock in an extremely rare path
-> (hardware memory errors).
-> 
-> Note: SetPageHWPoison and TestClearPageHWPoison calls elsewhere
-> in this file operate on pages already removed from the buddy
-> allocator or on non-buddy pages (DAX, hugetlb), so they do not
-> need zone->lock protection.
-> 
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Assisted-by: Claude:claude-opus-4-6
-> ---
->  mm/memory-failure.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
-> 
-> diff --git a/mm/memory-failure.c b/mm/memory-failure.c
-> index ee42d4361309..d106f2c135c7 100644
-> --- a/mm/memory-failure.c
-> +++ b/mm/memory-failure.c
-> @@ -2348,6 +2348,8 @@ int memory_failure(unsigned long pfn, int flags)
->  	unsigned long page_flags;
->  	bool retry = true;
->  	int hugetlb = 0;
-> +	struct zone *zone;
-> +	unsigned long mf_flags;
->  
->  	if (!sysctl_memory_failure_recovery)
->  		panic("Memory failure on page %lx", pfn);
-> @@ -2390,7 +2392,10 @@ int memory_failure(unsigned long pfn, int flags)
->  	if (hugetlb)
->  		goto unlock_mutex;
->  
-> +	zone = page_zone(p);
-> +	spin_lock_irqsave(&zone->lock, mf_flags);
+virtio_gpu_queue_ctrl_sgs() and virtio_gpu_queue_cursor() use
+wait_event() without any abort condition when waiting for virtqueue
+space. If the host device stops processing commands, these waits block
+indefinitely inside a drm_dev_enter/exit() critical section. Since
+drm_dev_unplug(), which is called in device removal and system shutdown
+call path, blocks on synchronize_srcu() until all critical sections
+complete, device removal and system shutdown also hang.
 
-Would it be better to add a comment here why zone->lock is needed?
+Add a vqs_released flag to virtio_gpu_device and include it in the
+wait_event() condition. Set the flag and wake up both queues in a new
+virtio_gpu_release_vqs() helper, called before drm_dev_unplug() in both
+virtio_gpu_remove() and virtio_gpu_shutdown(). When the flag is set, the
+wait returns immediately and the command is aborted, following the same
+cleanup path as drm_dev_enter() failure.
 
->  	if (TestSetPageHWPoison(p)) {
-> +		spin_unlock_irqrestore(&zone->lock, mf_flags);
->  		res = -EHWPOISON;
->  		if (flags & MF_ACTION_REQUIRED)
->  			res = kill_accessing_process(current, pfn, flags);
-> @@ -2399,6 +2404,7 @@ int memory_failure(unsigned long pfn, int flags)
->  		action_result(pfn, MF_MSG_ALREADY_POISONED, MF_FAILED);
->  		goto unlock_mutex;
->  	}
-> +	spin_unlock_irqrestore(&zone->lock, mf_flags);
->  
->  	/*
->  	 * We need/can do nothing about count=0 pages.
-> @@ -2420,7 +2426,9 @@ int memory_failure(unsigned long pfn, int flags)
->  			} else {
->  				/* We lost the race, try again */
->  				if (retry) {
-> +					spin_lock_irqsave(&zone->lock, mf_flags);
->  					ClearPageHWPoison(p);
-> +					spin_unlock_irqrestore(&zone->lock, mf_flags);
+Signed-off-by: Ryosuke Yasuoka <ryasuoka@redhat.com>
+---
+Changes in v3:
+- Remove Reported-by and Closes tag from commit msg because they are not
+  related to this fix.
+- Link to v2: https://lore.kernel.org/r/20260521-virtio-gpu_wait_event-v2-1-5796b3a71d03@redhat.com
 
-Ditto.
+Changes in v2:
+- Update the commit message.
+- Replace wait_event_timeout() with wait_event() using a compound
+condition that includes a new vqs_released flag.
+- Add virtio_gpu_release_vqs() helper to set the flag and wake up
+both queues, called before drm_dev_unplug() in remove and shutdown
+paths.
+- Remove the hardcoded 5-second timeout. Recovery is now driven by
+the driver flag instead of an arbitrary timeout value.
+---
+ drivers/gpu/drm/virtio/virtgpu_drv.c | 15 +++++++++++++++
+ drivers/gpu/drm/virtio/virtgpu_drv.h |  1 +
+ drivers/gpu/drm/virtio/virtgpu_vq.c  | 23 +++++++++++++++++++++--
+ 3 files changed, 37 insertions(+), 2 deletions(-)
 
-Acked-by: Miaohe Lin <linmiaohe@huawei.com>
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
+index a5ce96fb8a1d..e4fe5e0780f9 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.c
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
+@@ -119,10 +119,24 @@ static int virtio_gpu_probe(struct virtio_device *vdev)
+ 	return ret;
+ }
+ 
++/*
++ * Release pending virtqueue waits so the drm_dev_enter/exit() critical
++ * sections complete before drm_dev_unplug() blocks on synchronize_srcu().
++ */
++static void virtio_gpu_release_vqs(struct drm_device *dev)
++{
++	struct virtio_gpu_device *vgdev = dev->dev_private;
++
++	vgdev->vqs_released = true;
++	wake_up_all(&vgdev->ctrlq.ack_queue);
++	wake_up_all(&vgdev->cursorq.ack_queue);
++}
++
+ static void virtio_gpu_remove(struct virtio_device *vdev)
+ {
+ 	struct drm_device *dev = vdev->priv;
+ 
++	virtio_gpu_release_vqs(dev);
+ 	drm_dev_unplug(dev);
+ 	drm_atomic_helper_shutdown(dev);
+ 	virtio_gpu_deinit(dev);
+@@ -133,6 +147,7 @@ static void virtio_gpu_shutdown(struct virtio_device *vdev)
+ {
+ 	struct drm_device *dev = vdev->priv;
+ 
++	virtio_gpu_release_vqs(dev);
+ 	/* stop talking to the device */
+ 	drm_dev_unplug(dev);
+ }
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 2f3531950aa4..5f7bb6cc6ba7 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -235,6 +235,7 @@ struct virtio_gpu_device {
+ 
+ 	struct virtio_gpu_queue ctrlq;
+ 	struct virtio_gpu_queue cursorq;
++	bool vqs_released;
+ 	struct kmem_cache *vbufs;
+ 
+ 	atomic_t pending_commands;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 67865810a2e7..8057a9b7356d 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -396,7 +396,19 @@ static int virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
+ 	if (vq->num_free < elemcnt) {
+ 		spin_unlock(&vgdev->ctrlq.qlock);
+ 		virtio_gpu_notify(vgdev);
+-		wait_event(vgdev->ctrlq.ack_queue, vq->num_free >= elemcnt);
++		wait_event(vgdev->ctrlq.ack_queue,
++			   vq->num_free >= elemcnt || vgdev->vqs_released);
++		/*
++		 * Set by virtio_gpu_release_vqs() to unblock
++		 * synchronize_srcu() wait in drm_dev_unplug().
++		 */
++		if (vgdev->vqs_released) {
++			if (fence && vbuf->objs)
++				virtio_gpu_array_unlock_resv(vbuf->objs);
++			free_vbuf(vgdev, vbuf);
++			drm_dev_exit(idx);
++			return -ENODEV;
++		}
+ 		goto again;
+ 	}
+ 
+@@ -566,7 +578,14 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
+ 	ret = virtqueue_add_sgs(vq, sgs, outcnt, 0, vbuf, GFP_ATOMIC);
+ 	if (ret == -ENOSPC) {
+ 		spin_unlock(&vgdev->cursorq.qlock);
+-		wait_event(vgdev->cursorq.ack_queue, vq->num_free >= outcnt);
++		wait_event(vgdev->cursorq.ack_queue,
++			   vq->num_free >= outcnt || vgdev->vqs_released);
++		/* See comment in virtio_gpu_queue_ctrl_sgs(). */
++		if (vgdev->vqs_released) {
++			free_vbuf(vgdev, vbuf);
++			drm_dev_exit(idx);
++			return;
++		}
+ 		spin_lock(&vgdev->cursorq.qlock);
+ 		goto retry;
+ 	} else {
 
-Thanks.
-.
+---
+base-commit: e43ffb69e0438cddd72aaa30898b4dc446f664f8
+change-id: 20260518-virtio-gpu_wait_event-5aa060754f12
+
+Best regards,
+-- 
+Ryosuke Yasuoka <ryasuoka@redhat.com>
+
