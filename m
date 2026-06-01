@@ -1,641 +1,711 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 491D338C429
-	for <virtualization@lists.linux.dev>; Mon,  1 Jun 2026 10:59:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5137E367B8A
+	for <virtualization@lists.linux.dev>; Mon,  1 Jun 2026 12:07:23 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780311583; cv=none; b=MixGGilPWdndlvJZiiWi3BFrccKIgQS3d+nSSysh8zI2jPZRjWPw2QOGSXEpLiyae28CNylLCTX/MHqu13mGb25kS8aeV5bfeDBVKyot+No3GfBDmRgnBOw4rJO7AkDx6jxUgkurycMD0aLFymSfyI0PAoDxGCBQdDgx3SsKf9c=
+	t=1780315645; cv=none; b=ht5QsVb8qipelaiohN2jFEzLlDyRbH6FSGnMEPBjZMRtnACdzhB0q3M90EnaSTib0IJDN6GTn8/rD/HybnqUMVnoiarn80pKVvjb2OVSFX4/CBIKUN+LFecviYlHIOsEr6p9zq0Rjef5CL6AIDWpCoG0t0wgTmd3EQCgmIkkUq8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780311583; c=relaxed/simple;
-	bh=sSzKGfFTiNS1gT+kkoNfdqjYvqBtVL0dXmpw85QJCis=;
+	s=arc-20240116; t=1780315645; c=relaxed/simple;
+	bh=D+YhP7JqeVK1cd7S+xdhX0eKs9LMo3V4Y3EcVSHZNCc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=RvRsA5Ro/yvD9Y1W1WolmHgdtW8m3m90IA8oS6LQcN/h/YaoRkOVoEio/WDWf/+Q1Lp1AhXi4rk1Oxtg84ESvv+aufzVzadtDlzOPIVJayokkCniIp35zla3iMz7HIolDtqqPQZoPHIm+lTTmpIOGlrTYfKJB6ApL4nag/HXzt4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eJvvPD3b; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=b5s/qSw9wQOlZ72PWH2gO3oHQKStOspLhUH/TPXrNWlXqw5DH+0Zl5XbyHcsGsfqVgnGNqm9pz997oFT0/TWmeWa995dS5BeiE1phsYmCm68ZDm6IweBRXhLmzeoYOBZWbEVJ3vcPCufFd58vonZj0fWH0p+z359wqLG1TQNUcs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QGp3VdzD; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eJvvPD3b"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QGp3VdzD"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1780311580;
+	s=mimecast20190719; t=1780315642;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Q/+dACPPpV7iLGZiwKeuS8PA0gOf44KxbktyVcQ/IIM=;
-	b=eJvvPD3b525+tL0RvvhmK2gPV4zb4TUm04pLZbfDn5aJB3/a3BjBqqAAjw54GJ3cL0Gv/4
-	KDXPaYhUuvJCbAllV/fRU6TuQfna5ew3g7IVTZuREve6f8ak2lXN0MwWsi/i+4qHc32qWT
-	XDtefrF55S44YkUmsBc5FDY0fVcec6Y=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=6CzF1sm1t6LcN5j1kxM/c5/Y63P6D9+npzxAyQXHUEE=;
+	b=QGp3VdzDlpwA7pG6ql/8/MZMDanxHooPePkITWiGDEbixtO7/0b1HgdapC4QuxCKNcomHL
+	rnB7hS5fVXyOpAdUMXLgm3UId9bcQmRkwlV3HOVSzDh+lTw/X/MosFcPXh1Z6voZjMtJ+8
+	IY/QiAnrQAGFXrGxrgtGUkcwz/iiuOQ=
+Received: from mail-ej1-f71.google.com (mail-ej1-f71.google.com
+ [209.85.218.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-553-2cfjDeaZPVWvTiKRov23_A-1; Mon, 01 Jun 2026 06:59:39 -0400
-X-MC-Unique: 2cfjDeaZPVWvTiKRov23_A-1
-X-Mimecast-MFC-AGG-ID: 2cfjDeaZPVWvTiKRov23_A_1780311578
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-490ae3bcf4cso1841565e9.3
-        for <virtualization@lists.linux.dev>; Mon, 01 Jun 2026 03:59:39 -0700 (PDT)
+ us-mta-122-s83p62b1PheyKMMVuARzsg-1; Mon, 01 Jun 2026 08:06:12 -0400
+X-MC-Unique: s83p62b1PheyKMMVuARzsg-1
+X-Mimecast-MFC-AGG-ID: s83p62b1PheyKMMVuARzsg_1780315571
+Received: by mail-ej1-f71.google.com with SMTP id a640c23a62f3a-beb6d964066so109114866b.3
+        for <virtualization@lists.linux.dev>; Mon, 01 Jun 2026 05:06:11 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780311578; x=1780916378;
+        d=1e100.net; s=20251104; t=1780315571; x=1780920371;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=Q/+dACPPpV7iLGZiwKeuS8PA0gOf44KxbktyVcQ/IIM=;
-        b=ENt4mYk7tRsdh1DDiWcIQv+taBAGxVGyHgL90dAMJcOzzmtksfEa1ej2aiZm1ITZ/o
-         d17TQdngDHPg7UdeSyHYRRoiA6+r3Z5ikOdm4xa4sNrl/soO4NSvssow5f3yTWoclN4h
-         mUuoyTCsfX+hinnQo4Br7U9c2He3tw4uGnfVcilJLra9eL32kLxoqVa04EyyP+5wocZr
-         BGhR3ziwdLkiJijmBew/il3PtP6H+TcgPGemR2rErqsxlSPdW88qdpVKQb55aUhtTcEd
-         hJHvyvsWX2KunNRnw3+x9+1f9Dddc2//CMzKUvJNOmpjwCZAEa9BIBw85wf1RMSJh9wq
-         nYpA==
-X-Forwarded-Encrypted: i=1; AFNElJ/qa5VrDpMREstPWFkEDmCp1JJ5rUgJTIA3/qjHkl5hDkM3UGLpXwO4v1FMYBxO9bTReturUnuwkErMZ28pAw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxj/12+R5mKk9bzKUOgRcjklESY54tCpgTu5d97RW14UswinuO5
-	KvV8NNqvHR16H0jS4UFqtsUrSmfCv9/PefN8ROezb8/oTHRXUN8bWkRx9s7rrqfeRsb4hzxBgj/
-	QphU8RuSiphEJLkF97cvzR596f5I7yhZztx9LQLEv0p8S/c3AlAQWhHtPTLpWjrEyPMhK
-X-Gm-Gg: Acq92OFb+6xRXExdL22KRrwPyRq0KOXWYQIloU7/izSGgUg4hrvqJnvzAGBJGXgZprZ
-	J6mGXbiHWXFgPEZOC1U4Si6xzAOR+kznicHrjp8b12YrvhoA/prGG4cA0TQ/K7BNEOBoOtdSFkn
-	UYGg0vYs9EyAIaH2j+BJk2J18n2AYbNP2Kx1o/wj1xxZpRaYklVsC5hgWBG8j2M/FvMH+neirQw
-	ZeVZB2RBK5IEoBjp+jv/afi2f5nO085IdQtJm4DYp3+25/rhmXAuWN7ukse1PTDnFRfsNn6e0yD
-	XNCzBkqhWSZe7pp+mR1g7iythrv7t2HLBC2mOjEugVmwUc8r+A4AjD4ogIHnBAR+LK+pMdeE7ez
-	dSQB2Xi4DxE8qgcVH/4EbEgbFZsFvg7YeESZpAKhCDWeryTZpWNu05A==
-X-Received: by 2002:a05:600c:a40a:b0:490:44eb:c1e9 with SMTP id 5b1f17b1804b1-490a293c904mr169963525e9.26.1780311577481;
-        Mon, 01 Jun 2026 03:59:37 -0700 (PDT)
-X-Received: by 2002:a05:600c:a40a:b0:490:44eb:c1e9 with SMTP id 5b1f17b1804b1-490a293c904mr169962935e9.26.1780311576668;
-        Mon, 01 Jun 2026 03:59:36 -0700 (PDT)
+        bh=6CzF1sm1t6LcN5j1kxM/c5/Y63P6D9+npzxAyQXHUEE=;
+        b=WGDvd1vOQHQyd/ZnlaITpvX0Dsglqnde4ATZtszXTctlG1vi8JOT7REj2kbbRGAyuE
+         rXDYiavPR9L6EELCGUgCki5oMo72O7mv9LSy0ijQgBpATifY5eEwRhjO1kelhEPNcZP4
+         hC6r9ZU8eTR1aVsCuprVF9mjMwoIgSdT3omdVMBONfJw8kYGHoXRj7grYtrBwtb3M27r
+         YN/Xyzfz/Pk6153HXmp+FIFZV2CO1Tkm/kr6o7Svhv7Khan+Nk3JTD8OiOM85u3gc/QX
+         Iks4LJ5M56so0z/VFi7JdMqCUYPuo9WRJE5mxutcWLIXeqhMnXtROIuukEdHUEL8mzNv
+         xLnA==
+X-Forwarded-Encrypted: i=1; AFNElJ93OtadydHFZD/s5/dYglXQz6iagZWxXsDJg30Eb/RQvz89UB6KiJ7yIftx2dYZzzpkBreu+WEeMZy0TeG+pQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxxMRdT4euyn9fKduZyb5ZpzbOz0gQkueb/e3ISQFt1UzfYI/gd
+	CPW14Qj+wr4YuCT6hFA+5mgmn8gLXA5EznxpirWZXGJXWkplwbbp6GTpx6cRQY5OX6sqQQmpsYj
+	iIGkJ4+WgUE7sbW2s68ZM8OLP7xhhj7uKcK6cebf9ikJz1HeO7FBraMI2WUIkHxrqZhBl
+X-Gm-Gg: Acq92OE3prWJ+0C/xGUyoVeJkXJt9YFBBAX+qNl8pwEPAw1VIeEzRfiuOJtZVYcm+1i
+	gJJj/Lg/+RvezJbc8GV8ilwa+R1s4Ip6sWhU+JF5ON037LsCII+EbcA4fNO9c5XGm5goIOQV+/P
+	/4We4tSQZmAxeGL0ocQdrgSwgWP+2aK6bxMu34PE1BlBEWJJd2vFqHulaeBbbUOGuQSLRPgMP4R
+	shmT9q7MM3PNaZTu6eYdCNQ03bus+PMjdcGUBOrSXvuufgr38xgo1J84+Z1w3QXDH+Dcx56vpzn
+	lFIR0nAjZS1e46hX/ioKKsV179Ml1rVtOH5P0gFiqux2yJ+JVmxGtjSIsFLr3nf0onnc6k2uZ3V
+	9DRpvQoa+b8UpKAUwQkLk/E99aYXDGM7+AsLYWlH544YKHsSAbd4rxw==
+X-Received: by 2002:a17:907:3e0a:b0:bcb:66df:819a with SMTP id a640c23a62f3a-beab1e809cdmr565363566b.40.1780315570228;
+        Mon, 01 Jun 2026 05:06:10 -0700 (PDT)
+X-Received: by 2002:a17:907:3e0a:b0:bcb:66df:819a with SMTP id a640c23a62f3a-beab1e809cdmr565353666b.40.1780315569312;
+        Mon, 01 Jun 2026 05:06:09 -0700 (PDT)
 Received: from redhat.com (IGLD-80-230-25-45.inter.net.il. [80.230.25.45])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490ae39c281sm22373695e9.14.2026.06.01.03.59.33
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-be9d32d37b2sm328665566b.24.2026.06.01.05.06.04
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 01 Jun 2026 03:59:35 -0700 (PDT)
-Date: Mon, 1 Jun 2026 06:59:31 -0400
+        Mon, 01 Jun 2026 05:06:08 -0700 (PDT)
+Date: Mon, 1 Jun 2026 08:06:02 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Thomas Gleixner <tglx@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Miroslav Lichvar <mlichvar@redhat.com>,
-	John Stultz <jstultz@google.com>, Stephen Boyd <sboyd@kernel.org>,
-	Anna-Maria Behnsen <anna-maria@linutronix.de>,
-	Frederic Weisbecker <frederic@kernel.org>,
-	thomas.weissschuh@linutronix.de,
-	Arthur Kiyanovski <akiyano@amazon.com>,
-	Rodolfo Giometti <giometti@enneenne.com>,
-	Vincent Donnefort <vdonnefort@google.com>,
-	Marc Zyngier <maz@kernel.org>,
-	Oliver Upton <oliver.upton@linux.dev>, kvmarm@lists.linux.dev,
-	Oliver Upton <oupton@kernel.org>,
-	Richard Cochran <richardcochran@gmail.com>, netdev@vger.kernel.org,
-	Takashi Iwai <tiwai@suse.com>,
-	Miri Korenblit <miriam.rachel.korenblit@intel.com>,
-	Johannes Berg <johannes.berg@intel.com>,
-	Jacob Keller <jacob.e.keller@intel.com>,
-	Tony Nguyen <anthony.l.nguyen@intel.com>,
-	Saeed Mahameed <saeedm@nvidia.com>,
-	Peter Hilber <peter.hilber@oss.qualcomm.com>,
-	virtualization@lists.linux.dev, linux-wireless@vger.kernel.org,
-	linux-sound@vger.kernel.org, David Woodhouse <dwmw@amazon.co.uk>,
-	Vadim Fedorenko <vadim.fedorenko@linux.dev>
-Subject: Re: [patch V2 00/25] timekeeping/ptp: Expand snapshot functionality
-Message-ID: <20260601065916-mutt-send-email-mst@kernel.org>
-References: <20260529193435.921555544@kernel.org>
+To: linux-kernel@vger.kernel.org
+Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Muchun Song <muchun.song@linux.dev>,
+	Oscar Salvador <osalvador@suse.de>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Lorenzo Stoakes <ljs@kernel.org>,
+	"Liam R. Howlett" <liam@infradead.org>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Brendan Jackman <jackmanb@google.com>,
+	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
+	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
+	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+	Byungchul Park <byungchul@sk.com>,
+	Gregory Price <gourry@gourry.net>,
+	Ying Huang <ying.huang@linux.alibaba.com>,
+	Alistair Popple <apopple@nvidia.com>,
+	Christoph Lameter <cl@gentwo.org>,
+	David Rientjes <rientjes@google.com>,
+	Roman Gushchin <roman.gushchin@linux.dev>,
+	Harry Yoo <harry.yoo@oracle.com>,
+	Axel Rasmussen <axelrasmussen@google.com>,
+	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
+	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
+	Kemeng Shi <shikemeng@huaweicloud.com>,
+	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
+	virtualization@lists.linux.dev, linux-mm@kvack.org,
+	Andrea Arcangeli <aarcange@redhat.com>,
+	Jann Horn <jannh@google.com>, Pedro Falcato <pfalcato@suse.de>,
+	Harry Yoo <harry@kernel.org>, Hao Li <hao.li@linux.dev>
+Subject: Re: [PATCH v9 07/37] mm: thread user_addr through page allocator for
+ cache-friendly zeroing
+Message-ID: <20260601075807-mutt-send-email-mst@kernel.org>
+References: <cover.1780067977.git.mst@redhat.com>
+ <a526a713dbba63c7a69df37b67ed1590f77fefd3.1780067977.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260529193435.921555544@kernel.org>
+In-Reply-To: <a526a713dbba63c7a69df37b67ed1590f77fefd3.1780067977.git.mst@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: OJcJRgqi-mkhB3Bv2MA1Vy0RsHrxdPhtXGTorVL_8tU_1780311578
+X-Mimecast-MFC-PROC-ID: 6bQ7xwrhUxf2CipZ2rHq7ZfN1kcn7nS_xUElGWSoH74_1780315571
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Fri, May 29, 2026 at 09:59:47PM +0200, Thomas Gleixner wrote:
-> This is an update to V1 which can be found here:
+On Fri, May 29, 2026 at 11:22:42AM -0400, Michael S. Tsirkin wrote:
+> Thread a user virtual address from vma_alloc_folio() down through
+> the page allocator to post_alloc_hook(). This is plumbing
+> preparation for a subsequent patch that will use user_addr to
+> call folio_zero_user() for cache-friendly zeroing of user pages.
 > 
->    https://lore.kernel.org/lkml/20260526165826.392227559@kernel.org
+> The user_addr is stored in struct alloc_context and flows through:
+>   vma_alloc_folio -> folio_alloc_mpol -> __alloc_pages_mpol ->
+>   __alloc_frozen_pages -> get_page_from_freelist -> prep_new_page ->
+>   post_alloc_hook
 > 
-> PTP wants to grow new snapshot functionality, which provides not only the
-> captured CLOCK* values, but also the underlying clocksource counter value.
+> USER_ADDR_NONE ((unsigned long)-1) is used for non-user
+> allocations, since address 0 is a valid userspace mapping.
 > 
->    https://lore.kernel.org/20260515164033.6403-1-akiyano@amazon.com
-> 
-> There was quite some discussion in seemingly related threads how to capture
-> these values and how to provide core infrastructure so that driver writers
-> have something to work with
-> 
->    https://lore.kernel.org/20260514225842.110706-1-hramamurthy@google.com
->    https://lore.kernel.org/20260520135207.37826-1-dwmw2@infradead.org
-
-
-virtio bits:
-
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-
-> This series implements the timekeeping related mechanisms to:
-> 
->      1) Capture CLOCK values along with the clocksource counter value for
->      	non-hardware based sampling
-> 
->      2) Expanding the hardware cross time stamp mechanism to hand back the
->      	clocksource counter value, which was captured by the device, along
->      	with the related CLOCK values
-> 
->      3) Adding AUX clock support to the hardware cross timestamping core
-> 
->      4) Add support for derived clocksources to the snapshot mechanism (New
->      	in V2)
-> 
-> Changes vs. V1:
-> 
->   - Fixed the ptp_ocp typo - 0-day, Jakub
-> 
->   - Renamed the system_time_snapshot members sys and raw so systime and
->     monoraw to make them less ambigous.
-> 
->   - Fixed the error case return values of get_device_system_crosststamp()
-> 
->   - Made ktime_snapshot_id() void as there is no point for the return
->     value, which is nowhere checked and cannot be propagated.
->     system_time_snapshot::valid has to be evaluated at the call sites
->     anyway. - Jacob
-> 
->   - Picked up the first patch from Davids follow up series, which extends
->     the snapshot mechanism so that derived clocksources (like kvmclock and
->     Hyper-V scaled TSC) can return the actual underlying hardware counter
->     value (TSC for the two examples).
-> 
->   - Collected Reviewed/Acked/Tested-by tags
-> 
-> Delta patch against v1 below.
-> 
-> The series is based on v7.1-rc2 and also available from git:
-> 
->     git://git.kernel.org/pub/scm/linux/kernel/git/tglx/devel.git timekeeping-ptp-extend-v2
-> 
-> Thanks,
-> 
-> 	tglx
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Assisted-by: Claude:claude-opus-4-6
+> Assisted-by: cursor-agent:GPT-5.4-xhigh
 > ---
-> diff --git a/arch/arm64/kvm/hyp_trace.c b/arch/arm64/kvm/hyp_trace.c
-> index 616062587510..b056c652ff01 100644
-> --- a/arch/arm64/kvm/hyp_trace.c
-> +++ b/arch/arm64/kvm/hyp_trace.c
-> @@ -51,8 +51,8 @@ static void __hyp_clock_work(struct work_struct *work)
+>  include/linux/gfp.h |  2 +-
+>  mm/compaction.c     |  5 ++---
+>  mm/hugetlb.c        | 36 ++++++++++++++++++++----------------
+>  mm/internal.h       | 22 +++++++++++++++++++---
+>  mm/mempolicy.c      | 44 ++++++++++++++++++++++++++++++++------------
+>  mm/mmap.c           |  6 ++++++
+>  mm/page_alloc.c     | 44 +++++++++++++++++++++++++++++---------------
+>  mm/slub.c           |  4 ++--
+>  8 files changed, 111 insertions(+), 52 deletions(-)
+> 
+> diff --git a/include/linux/gfp.h b/include/linux/gfp.h
+> index 7ccbda35b9ad..ee35c5367abc 100644
+> --- a/include/linux/gfp.h
+> +++ b/include/linux/gfp.h
+> @@ -337,7 +337,7 @@ static inline struct folio *folio_alloc_noprof(gfp_t gfp, unsigned int order)
+>  static inline struct folio *folio_alloc_mpol_noprof(gfp_t gfp, unsigned int order,
+>  		struct mempolicy *mpol, pgoff_t ilx, int nid)
+>  {
+> -	return folio_alloc_noprof(gfp, order);
+> +	return __folio_alloc_noprof(gfp, order, numa_node_id(), NULL);
+>  }
+>  #endif
 >  
->  	hyp_clock = container_of(dwork, struct hyp_trace_clock, work);
+> diff --git a/mm/compaction.c b/mm/compaction.c
+> index 3648ce22c807..72684fe81e83 100644
+> --- a/mm/compaction.c
+> +++ b/mm/compaction.c
+> @@ -82,7 +82,7 @@ static inline bool is_via_compact_memory(int order) { return false; }
 >  
-> -	ktime_get_snapshot_id(&snap, CLOCK_BOOTTIME);
-> -	boot = ktime_to_ns(snap.sys);
-> +	ktime_get_snapshot_id(CLOCK_BOOTTIME, &snap);
-> +	boot = ktime_to_ns(snap.systime);
+>  static struct page *mark_allocated_noprof(struct page *page, unsigned int order, gfp_t gfp_flags)
+>  {
+> -	post_alloc_hook(page, order, __GFP_MOVABLE);
+> +	post_alloc_hook(page, order, __GFP_MOVABLE, USER_ADDR_NONE);
+>  	set_page_refcounted(page);
+>  	return page;
+>  }
+> @@ -1849,8 +1849,7 @@ static struct folio *compaction_alloc_noprof(struct folio *src, unsigned long da
+>  		set_page_private(&freepage[size], start_order);
+>  	}
+>  	dst = (struct folio *)freepage;
+> -
+> -	post_alloc_hook(&dst->page, order, __GFP_MOVABLE);
+> +	post_alloc_hook(&dst->page, order, __GFP_MOVABLE, USER_ADDR_NONE);
+>  	set_page_refcounted(&dst->page);
+>  	if (order)
+>  		prep_compound_page(&dst->page, order);
+> diff --git a/mm/hugetlb.c b/mm/hugetlb.c
+> index f24bf49be047..a999f3ead852 100644
+> --- a/mm/hugetlb.c
+> +++ b/mm/hugetlb.c
+> @@ -1806,7 +1806,8 @@ struct address_space *hugetlb_folio_mapping_lock_write(struct folio *folio)
+>  }
 >  
->  	delta_boot = boot - hyp_clock->boot;
->  	delta_cycles = snap.cycles - hyp_clock->cycles;
-> @@ -120,7 +120,7 @@ static void hyp_trace_clock_enable(struct hyp_trace_clock *hyp_clock, bool enabl
+>  static struct folio *alloc_buddy_frozen_folio(int order, gfp_t gfp_mask,
+> -		int nid, nodemask_t *nmask, nodemask_t *node_alloc_noretry)
+> +		int nid, nodemask_t *nmask, nodemask_t *node_alloc_noretry,
+> +		unsigned long addr)
+>  {
+>  	struct folio *folio;
+>  	bool alloc_try_hard = true;
+> @@ -1823,7 +1824,7 @@ static struct folio *alloc_buddy_frozen_folio(int order, gfp_t gfp_mask,
+>  	if (alloc_try_hard)
+>  		gfp_mask |= __GFP_RETRY_MAYFAIL;
 >  
->  	ktime_get_snapshot_id(&snap, CLOCK_BOOTTIME);
->  
-> -	hyp_clock->boot = ktime_to_ns(snap.sys);
-> +	hyp_clock->boot = ktime_to_ns(snap.systime);
->  	hyp_clock->cycles = snap.cycles;
->  	hyp_clock->mult = 0;
->  
-> diff --git a/arch/arm64/kvm/hypercalls.c b/arch/arm64/kvm/hypercalls.c
-> index e60cc7ed3e70..b11b8821c9fb 100644
-> --- a/arch/arm64/kvm/hypercalls.c
-> +++ b/arch/arm64/kvm/hypercalls.c
-> @@ -28,7 +28,7 @@ static void kvm_ptp_get_time(struct kvm_vcpu *vcpu, u64 *val)
->  	 * system time and counter value must captured at the same
->  	 * time to keep consistency and precision.
->  	 */
-> -	ktime_get_snapshot_id(&systime_snapshot, CLOCK_REALTIME);
-> +	ktime_get_snapshot_id(CLOCK_REALTIME, &systime_snapshot);
+> -	folio = (struct folio *)__alloc_frozen_pages(gfp_mask, order, nid, nmask);
+> +	folio = (struct folio *)__alloc_frozen_pages(gfp_mask, order, nid, nmask, addr);
 >  
 >  	/*
->  	 * This is only valid if the current clocksource is the
-> @@ -61,8 +61,8 @@ static void kvm_ptp_get_time(struct kvm_vcpu *vcpu, u64 *val)
->  	 * in the future (about 292 years from 1970, and at that stage
->  	 * nobody will give a damn about it).
->  	 */
-> -	val[0] = upper_32_bits(systime_snapshot.sys);
-> -	val[1] = lower_32_bits(systime_snapshot.sys);
-> +	val[0] = upper_32_bits(systime_snapshot.systime);
-> +	val[1] = lower_32_bits(systime_snapshot.systime);
->  	val[2] = upper_32_bits(cycles);
->  	val[3] = lower_32_bits(cycles);
+>  	 * If we did not specify __GFP_RETRY_MAYFAIL, but still got a
+> @@ -1852,7 +1853,7 @@ static struct folio *alloc_buddy_frozen_folio(int order, gfp_t gfp_mask,
+>  
+>  static struct folio *only_alloc_fresh_hugetlb_folio(struct hstate *h,
+>  		gfp_t gfp_mask, int nid, nodemask_t *nmask,
+> -		nodemask_t *node_alloc_noretry)
+> +		nodemask_t *node_alloc_noretry, unsigned long addr)
+>  {
+>  	struct folio *folio;
+>  	int order = huge_page_order(h);
+> @@ -1864,7 +1865,7 @@ static struct folio *only_alloc_fresh_hugetlb_folio(struct hstate *h,
+>  		folio = alloc_gigantic_frozen_folio(order, gfp_mask, nid, nmask);
+>  	else
+>  		folio = alloc_buddy_frozen_folio(order, gfp_mask, nid, nmask,
+> -						 node_alloc_noretry);
+> +						 node_alloc_noretry, addr);
+>  	if (folio)
+>  		init_new_hugetlb_folio(folio);
+>  	return folio;
+> @@ -1878,11 +1879,12 @@ static struct folio *only_alloc_fresh_hugetlb_folio(struct hstate *h,
+>   * pages is zero, and the accounting must be done in the caller.
+>   */
+>  static struct folio *alloc_fresh_hugetlb_folio(struct hstate *h,
+> -		gfp_t gfp_mask, int nid, nodemask_t *nmask)
+> +		gfp_t gfp_mask, int nid, nodemask_t *nmask,
+> +		unsigned long addr)
+>  {
+>  	struct folio *folio;
+>  
+> -	folio = only_alloc_fresh_hugetlb_folio(h, gfp_mask, nid, nmask, NULL);
+> +	folio = only_alloc_fresh_hugetlb_folio(h, gfp_mask, nid, nmask, NULL, addr);
+>  	if (folio)
+>  		hugetlb_vmemmap_optimize_folio(h, folio);
+>  	return folio;
+> @@ -1922,7 +1924,7 @@ static struct folio *alloc_pool_huge_folio(struct hstate *h,
+>  		struct folio *folio;
+>  
+>  		folio = only_alloc_fresh_hugetlb_folio(h, gfp_mask, node,
+> -					nodes_allowed, node_alloc_noretry);
+> +					nodes_allowed, node_alloc_noretry, USER_ADDR_NONE);
+>  		if (folio)
+>  			return folio;
+>  	}
+> @@ -2091,7 +2093,8 @@ int dissolve_free_hugetlb_folios(unsigned long start_pfn, unsigned long end_pfn)
+>   * Allocates a fresh surplus page from the page allocator.
+>   */
+>  static struct folio *alloc_surplus_hugetlb_folio(struct hstate *h,
+> -				gfp_t gfp_mask,	int nid, nodemask_t *nmask)
+> +				gfp_t gfp_mask,	int nid, nodemask_t *nmask,
+> +				unsigned long addr)
+>  {
+>  	struct folio *folio = NULL;
+>  
+> @@ -2103,7 +2106,7 @@ static struct folio *alloc_surplus_hugetlb_folio(struct hstate *h,
+>  		goto out_unlock;
+>  	spin_unlock_irq(&hugetlb_lock);
+>  
+> -	folio = alloc_fresh_hugetlb_folio(h, gfp_mask, nid, nmask);
+> +	folio = alloc_fresh_hugetlb_folio(h, gfp_mask, nid, nmask, addr);
+>  	if (!folio)
+>  		return NULL;
+>  
+> @@ -2146,7 +2149,7 @@ static struct folio *alloc_migrate_hugetlb_folio(struct hstate *h, gfp_t gfp_mas
+>  	if (hstate_is_gigantic(h))
+>  		return NULL;
+>  
+> -	folio = alloc_fresh_hugetlb_folio(h, gfp_mask, nid, nmask);
+> +	folio = alloc_fresh_hugetlb_folio(h, gfp_mask, nid, nmask, USER_ADDR_NONE);
+>  	if (!folio)
+>  		return NULL;
+>  
+> @@ -2182,14 +2185,14 @@ struct folio *alloc_buddy_hugetlb_folio_with_mpol(struct hstate *h,
+>  	if (mpol_is_preferred_many(mpol)) {
+>  		gfp_t gfp = gfp_mask & ~(__GFP_DIRECT_RECLAIM | __GFP_NOFAIL);
+>  
+> -		folio = alloc_surplus_hugetlb_folio(h, gfp, nid, nodemask);
+> +		folio = alloc_surplus_hugetlb_folio(h, gfp, nid, nodemask, addr);
+>  
+>  		/* Fallback to all nodes if page==NULL */
+>  		nodemask = NULL;
+>  	}
+>  
+>  	if (!folio)
+> -		folio = alloc_surplus_hugetlb_folio(h, gfp_mask, nid, nodemask);
+> +		folio = alloc_surplus_hugetlb_folio(h, gfp_mask, nid, nodemask, addr);
+>  	mpol_cond_put(mpol);
+>  	return folio;
 >  }
-> diff --git a/drivers/net/dsa/sja1105/sja1105_main.c b/drivers/net/dsa/sja1105/sja1105_main.c
-> index 1d5fef4df560..2697073dbf90 100644
-> --- a/drivers/net/dsa/sja1105/sja1105_main.c
-> +++ b/drivers/net/dsa/sja1105/sja1105_main.c
-> @@ -2310,10 +2310,10 @@ int sja1105_static_config_reload(struct sja1105_private *priv,
->  		goto out;
->  	}
+> @@ -2296,7 +2299,8 @@ static int gather_surplus_pages(struct hstate *h, long delta)
+>  		 * down the road to pick the current node if that is the case.
+>  		 */
+>  		folio = alloc_surplus_hugetlb_folio(h, htlb_alloc_mask(h),
+> -						    NUMA_NO_NODE, &alloc_nodemask);
+> +						    NUMA_NO_NODE, &alloc_nodemask,
+> +						    USER_ADDR_NONE);
+>  		if (!folio) {
+>  			alloc_ok = false;
+>  			break;
+> @@ -2702,7 +2706,7 @@ static int alloc_and_dissolve_hugetlb_folio(struct folio *old_folio,
+>  			spin_unlock_irq(&hugetlb_lock);
+>  			gfp_mask = htlb_alloc_mask(h) | __GFP_THISNODE;
+>  			new_folio = alloc_fresh_hugetlb_folio(h, gfp_mask,
+> -							      nid, NULL);
+> +							      nid, NULL, USER_ADDR_NONE);
+>  			if (!new_folio)
+>  				return -ENOMEM;
+>  			goto retry;
+> @@ -3400,13 +3404,13 @@ static void __init hugetlb_hstate_alloc_pages_onenode(struct hstate *h, int nid)
+>  			gfp_t gfp_mask = htlb_alloc_mask(h) | __GFP_THISNODE;
 >  
-> -	t1 = ktime_to_ns(ptp_sts_before.pre_sts.sys);
-> -	t2 = ktime_to_ns(ptp_sts_before.post_sts.sys);
-> -	t3 = ktime_to_ns(ptp_sts_after.pre_sts.sys);
-> -	t4 = ktime_to_ns(ptp_sts_after.post_sts.sys);
-> +	t1 = ktime_to_ns(ptp_sts_before.pre_sts.systime);
-> +	t2 = ktime_to_ns(ptp_sts_before.post_sts.systime);
-> +	t3 = ktime_to_ns(ptp_sts_after.pre_sts.systime);
-> +	t4 = ktime_to_ns(ptp_sts_after.post_sts.systime);
->  	/* Mid point, corresponds to pre-reset PTPCLKVAL */
->  	t12 = t1 + (t2 - t1) / 2;
->  	/* Mid point, corresponds to post-reset PTPCLKVAL, aka 0 */
-> diff --git a/drivers/net/ethernet/intel/ice/ice_ptp.c b/drivers/net/ethernet/intel/ice/ice_ptp.c
-> index 5023fc1587f9..f9e4ec6f7ebb 100644
-> --- a/drivers/net/ethernet/intel/ice/ice_ptp.c
-> +++ b/drivers/net/ethernet/intel/ice/ice_ptp.c
-> @@ -2117,7 +2117,7 @@ static int ice_capture_crosststamp(ktime_t *device,
->  	}
+>  			folio = only_alloc_fresh_hugetlb_folio(h, gfp_mask, nid,
+> -					&node_states[N_MEMORY], NULL);
+> +					&node_states[N_MEMORY], NULL, USER_ADDR_NONE);
+>  			if (!folio && !list_empty(&folio_list) &&
+>  			    hugetlb_vmemmap_optimizable_size(h)) {
+>  				prep_and_add_allocated_folios(h, &folio_list);
+>  				INIT_LIST_HEAD(&folio_list);
+>  				folio = only_alloc_fresh_hugetlb_folio(h, gfp_mask, nid,
+> -						&node_states[N_MEMORY], NULL);
+> +						&node_states[N_MEMORY], NULL, USER_ADDR_NONE);
+>  			}
+>  			if (!folio)
+>  				break;
+> diff --git a/mm/internal.h b/mm/internal.h
+> index 5a2ddcf68e0b..389098200aa6 100644
+> --- a/mm/internal.h
+> +++ b/mm/internal.h
+> @@ -662,6 +662,16 @@ void calculate_min_free_kbytes(void);
+>  int __meminit init_per_zone_wmark_min(void);
+>  void page_alloc_sysctl_init(void);
 >  
->  	/* Snapshot system time for historic interpolation */
-> -	ktime_get_snapshot_id(&ctx->snapshot, ctx->snapshot_clock_id);
-> +	ktime_get_snapshot_id(ctx->snapshot_clock_id, &ctx->snapshot);
->  
->  	/* Program cmd to master timer */
->  	ice_ptp_src_cmd(hw, ICE_PTP_READ_TIME);
-> diff --git a/drivers/net/ethernet/intel/igc/igc_ptp.c b/drivers/net/ethernet/intel/igc/igc_ptp.c
-> index 9b8b4a04e32d..b40aba9ab685 100644
-> --- a/drivers/net/ethernet/intel/igc/igc_ptp.c
-> +++ b/drivers/net/ethernet/intel/igc/igc_ptp.c
-> @@ -1049,7 +1049,7 @@ static int igc_phc_get_syncdevicetime(ktime_t *device,
->  	 */
->  	do {
->  		/* Get a snapshot of system clocks to use as historic value. */
-> -		ktime_get_snapshot_id(&adapter->snapshot, adapter->snapshot_clock_id);
-> +		ktime_get_snapshot_id(adapter->snapshot_clock_id, &adapter->snapshot);
->  
->  		igc_ptm_trigger(hw);
->  
-> diff --git a/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c b/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
-> index beb80912b9d5..5df786133e4b 100644
-> --- a/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
-> +++ b/drivers/net/ethernet/mellanox/mlx5/core/lib/clock.c
-> @@ -340,7 +340,7 @@ static int mlx5_ptp_getcrosststamp(struct ptp_clock_info *ptp,
->  		goto unlock;
->  	}
->  
-> -	ktime_get_snapshot_id(&history_begin, cts->clock_id);
-> +	ktime_get_snapshot_id(cts->clock_id, &history_begin);
->  
->  	err = get_device_system_crosststamp(mlx5_mtctr_syncdevicetime, mdev,
->  					    &history_begin, cts);
-> @@ -366,7 +366,7 @@ static int mlx5_ptp_getcrosscycles(struct ptp_clock_info *ptp,
->  		goto unlock;
->  	}
->  
-> -	ktime_get_snapshot_id(&history_begin, cts->clock_id);
-> +	ktime_get_snapshot_id(cts->clock_id, &history_begin);
->  
->  	err = get_device_system_crosststamp(mlx5_mtctr_syncdevicecyclestime,
->  					    mdev, &history_begin, cts);
-> diff --git a/drivers/ptp/ptp_chardev.c b/drivers/ptp/ptp_chardev.c
-> index aed5c13cd1be..dc23cd708cfe 100644
-> --- a/drivers/ptp/ptp_chardev.c
-> +++ b/drivers/ptp/ptp_chardev.c
-> @@ -392,11 +392,11 @@ static long ptp_sys_offset_extended(struct ptp_clock *ptp, void __user *arg,
->  		extoff->ts[i][1].sec = ts.tv_sec;
->  		extoff->ts[i][1].nsec = ts.tv_nsec;
->  
-> -		ts = ktime_to_timespec64(sts.pre_sts.sys);
-> +		ts = ktime_to_timespec64(sts.pre_sts.systime);
->  		extoff->ts[i][0].sec = ts.tv_sec;
->  		extoff->ts[i][0].nsec = ts.tv_nsec;
->  
-> -		ts = ktime_to_timespec64(sts.post_sts.sys);
-> +		ts = ktime_to_timespec64(sts.post_sts.systime);
->  		extoff->ts[i][2].sec = ts.tv_sec;
->  		extoff->ts[i][2].nsec = ts.tv_nsec;
->  	}
-> diff --git a/drivers/ptp/ptp_ocp.c b/drivers/ptp/ptp_ocp.c
-> index b7a23936a44d..28b0302c6250 100644
-> --- a/drivers/ptp/ptp_ocp.c
-> +++ b/drivers/ptp/ptp_ocp.c
-> @@ -1492,7 +1492,7 @@ __ptp_ocp_gettime_locked(struct ptp_ocp *bp, struct timespec64 *ts,
->  	ptp_read_system_postts(sts);
->  
->  	if (sts && bp->ts_window_adjust)
-> -		sts->post_ts.sys -= bp->ts_window_adjust;
-> +		sts->post_sts.systime -= bp->ts_window_adjust;
->  
->  	time_ns = ioread32(&bp->reg->time_ns);
->  	time_sec = ioread32(&bp->reg->time_sec);
-> @@ -4592,8 +4592,8 @@ ptp_ocp_summary_show(struct seq_file *s, void *data)
->  		struct timespec64 sys_ts;
->  		s64 pre_ns, post_ns, ns;
->  
-> -		pre_ns = ktime_to_ns(sts.pre_sts.sys);
-> -		post_ns = ktime_to_ns(sts.post_sts.sys);
-> +		pre_ns = ktime_to_ns(sts.pre_sts.systime);
-> +		post_ns = ktime_to_ns(sts.post_sts.systime);
->  		ns = (pre_ns + post_ns) / 2;
->  		ns += (s64)bp->utc_tai_offset * NSEC_PER_SEC;
->  		sys_ts = ns_to_timespec64(ns);
-> diff --git a/drivers/ptp/ptp_vmclock.c b/drivers/ptp/ptp_vmclock.c
-> index cb18c15a4697..d6a5a533164a 100644
-> --- a/drivers/ptp/ptp_vmclock.c
-> +++ b/drivers/ptp/ptp_vmclock.c
-> @@ -263,7 +263,7 @@ static int ptp_vmclock_getcrosststamp(struct ptp_clock_info *ptp,
->  	if (ret == -ENODEV) {
->  		struct system_time_snapshot systime_snapshot;
->  
-> -		ktime_get_snapshot_id(&systime_snapshot, CLOCK_REALTIME);
-> +		ktime_get_snapshot_id(CLOCK_REALTIME, &systime_snapshot);
->  
->  		if (systime_snapshot.cs_id == CSID_X86_TSC ||
->  		    systime_snapshot.cs_id == CSID_X86_KVM_CLK) {
-> diff --git a/drivers/virtio/virtio_rtc_ptp.c b/drivers/virtio/virtio_rtc_ptp.c
-> index e15d00aeb01d..ff8d834493dc 100644
-> --- a/drivers/virtio/virtio_rtc_ptp.c
-> +++ b/drivers/virtio/virtio_rtc_ptp.c
-> @@ -139,7 +139,7 @@ static int viortc_ptp_getcrosststamp(struct ptp_clock_info *ptp,
->  	if (ret)
->  		return ret;
->  
-> -	ktime_get_snapshot_id(&history_begin, xtstamp->clock_id);
-> +	ktime_get_snapshot_id(xtstamp->clock_id, &history_begin);
->  	if (history_begin.cs_id != cs_id)
->  		return -EOPNOTSUPP;
->  
-> diff --git a/include/linux/clocksource.h b/include/linux/clocksource.h
-> index 7c38190b10bf..6d9ddf1587a2 100644
-> --- a/include/linux/clocksource.h
-> +++ b/include/linux/clocksource.h
-> @@ -31,6 +31,21 @@ struct module;
->  
->  #include <vdso/clocksource.h>
->  
-> +/**
-> + * struct clocksource_hw_snapshot - Snapshot for the underlying hardware counter of derived
-> + *				    clocksources like kvmclock or Hyper-V scaled TSC
-> + * @hw_cycles:		The hardware counter value
-> + * @hw_csid:		Clocksource ID of the hardware counter
-> + *
-> + * Such clocksources must implement the read_snapshot() callback and fill in the
-> + * hardware counter value, the clocksource ID of the hardware counter and derive
-> + * the actual clocksource cycles from @hw_cycles to provide an atomic snapshot
+> +/*
+> + * Sentinel for user_addr: indicates a non-user allocation.
+> + * Cannot use 0 because address 0 is a valid userspace mapping.
+> + * (unsigned long)-1 is safe because:
+> + * 1. vm_end = addr + len <= TASK_SIZE, and vm_end is exclusive,
+> + *    so -1 is never inside any VMA.
+> + * 2. It will only be compared to page-aligned addresses.
 > + */
-> +struct clocksource_hw_snapshot {
-> +	u64			hw_cycles;
-> +	enum clocksource_ids	hw_csid;
-> +};
+> +#define USER_ADDR_NONE	((unsigned long)-1)
 > +
->  /**
->   * struct clocksource - hardware abstraction for a free running counter
->   *	Provides mostly state-free accessors to the underlying hardware.
-> @@ -72,6 +87,14 @@ struct module;
->   * @flags:		Flags describing special properties
->   * @base:		Hardware abstraction for clock on which a clocksource
->   *			is based
-> + * @read_snapshot:	Extended @read() function for clocksources such as
-> + *			kvmclock or the Hyper-V scaled TSC where the actual
-> + *			clocksource value for timekeeping is calculated from an
-> + *			underlying hardware counter. Returns the timekeeping
-> + *			relevant cycle value and stores the raw value of the
-> + *			underlying counter from which it was calculated
-> + *			including the clocksource ID of that counter in the
-> + *			clocksource hardware snapshot.
->   * @enable:		Optional function to enable the clocksource
->   * @disable:		Optional function to disable the clocksource
->   * @suspend:		Optional suspend function for the clocksource
-> @@ -113,6 +136,7 @@ struct clocksource {
->  	unsigned long		flags;
->  	struct clocksource_base *base;
->  
-> +	u64			(*read_snapshot)(struct clocksource *cs, struct clocksource_hw_snapshot *chs);
->  	int			(*enable)(struct clocksource *cs);
->  	void			(*disable)(struct clocksource *cs);
->  	void			(*suspend)(struct clocksource *cs);
-> diff --git a/include/linux/pps_kernel.h b/include/linux/pps_kernel.h
-> index cd80f1cb96a9..9f088c9023b1 100644
-> --- a/include/linux/pps_kernel.h
-> +++ b/include/linux/pps_kernel.h
-> @@ -102,9 +102,9 @@ static inline void pps_get_ts(struct pps_event_time *ts)
->  #ifdef CONFIG_NTP_PPS
->  	struct system_time_snapshot snap;
->  
-> -	ktime_get_snapshot_id(&snap, CLOCK_REALTIME);
-> -	ts->ts_real = ktime_to_timespec64(snap.sys);
-> -	ts->ts_raw = ktime_to_timespec64(snap.raw);
-> +	ktime_get_snapshot_id(CLOCK_REALTIME, &snap);
-> +	ts->ts_real = ktime_to_timespec64(snap.systime);
-> +	ts->ts_raw = ktime_to_timespec64(snap.monoraw);
->  #else
->  	ktime_get_real_ts64(&ts->ts_real);
->  #endif
-> diff --git a/include/linux/ptp_clock_kernel.h b/include/linux/ptp_clock_kernel.h
-> index df6c9aac458b..36a27a910595 100644
-> --- a/include/linux/ptp_clock_kernel.h
-> +++ b/include/linux/ptp_clock_kernel.h
-> @@ -511,13 +511,13 @@ static inline ktime_t ptp_convert_timestamp(const ktime_t *hwtstamp,
->  static inline void ptp_read_system_prets(struct ptp_system_timestamp *sts)
->  {
->  	if (sts)
-> -		ktime_get_snapshot_id(&sts->pre_sts, sts->clockid);
-> +		ktime_get_snapshot_id(sts->clockid, &sts->pre_sts);
->  }
->  
->  static inline void ptp_read_system_postts(struct ptp_system_timestamp *sts)
->  {
->  	if (sts)
-> -		ktime_get_snapshot_id(&sts->post_sts, sts->clockid);
-> +		ktime_get_snapshot_id(sts->clockid, &sts->post_sts);
->  }
->  
->  #endif
-> diff --git a/include/linux/timekeeping.h b/include/linux/timekeeping.h
-> index f7945f1048fc..984a866d293b 100644
-> --- a/include/linux/timekeeping.h
-> +++ b/include/linux/timekeeping.h
-> @@ -279,18 +279,24 @@ static inline bool ktime_get_aux_ts64(clockid_t id, struct timespec64 *kt) { ret
->   * struct system_time_snapshot - Simultaneous time capture of CLOCK_MONOTONIC_RAW,
->   *				 a selected CLOCK_* and the clocksource counter value
->   * @cycles:		Clocksource counter value to produce the system times
-> - * @sys:		The system time of the selected CLOCK ID
-> - * @raw:		Monotonic raw system time
-> + * @hw_cycles:		For derived clocksources, the hardware counter value from
-> + *			which @cycles was derived
-> + * @systime:		The system time of the selected CLOCK ID
-> + * @monoraw:		Monotonic raw system time
->   * @cs_id:		Clocksource ID
-> + * @hw_csid:		Clocksource ID of the underlying hardware counter for derived
-> + *			clocksources which implement the read_snapshot() callback.
->   * @clock_was_set_seq:	The sequence number of clock-was-set events
->   * @cs_was_changed_seq:	The sequence number of clocksource change events
->   * @valid:		True if the snapshot is valid
->   */
->  struct system_time_snapshot {
->  	u64			cycles;
-> -	ktime_t			sys;
-> -	ktime_t			raw;
-> +	u64			hw_cycles;
-> +	ktime_t			systime;
-> +	ktime_t			monoraw;
->  	enum clocksource_ids	cs_id;
-> +	enum clocksource_ids	hw_csid;
->  	unsigned int		clock_was_set_seq;
->  	u8			cs_was_changed_seq;
->  	u8			valid;
-> @@ -348,8 +354,7 @@ extern int get_device_system_crosststamp(
->   * Simultaneously snapshot a given clock with MONOTONIC_RAW and the underlying
->   * clocksource counter value.
->   */
-> -extern bool ktime_get_snapshot_id(struct system_time_snapshot *systime_snapshot,
-> -				  clockid_t clock_id);
-> +extern void ktime_get_snapshot_id(clockid_t clock_id, struct system_time_snapshot *systime_snapshot);
+>  /*
+>   * Structure for holding the mostly immutable allocation parameters passed
+>   * between functions involved in allocations, including the alloc_pages*
+> @@ -693,6 +703,7 @@ struct alloc_context {
+>  	 */
+>  	enum zone_type highest_zoneidx;
+>  	bool spread_dirty_pages;
+> +	unsigned long user_addr;
+>  };
 >  
 >  /*
->   * Persistent clock related interfaces
-> diff --git a/kernel/time/timekeeping.c b/kernel/time/timekeeping.c
-> index c4fd7229b7da..0d5b67f609bb 100644
-> --- a/kernel/time/timekeeping.c
-> +++ b/kernel/time/timekeeping.c
-> @@ -320,6 +320,7 @@ static __always_inline u64 tk_clock_read(const struct tk_read_base *tkr)
->  
->  	return clock->read(clock);
+> @@ -916,24 +927,29 @@ static inline void init_compound_tail(struct page *tail,
+>  	prep_compound_tail(tail, head, order);
 >  }
-> +
->  static inline void clocksource_disable_inline_read(void) { }
->  static inline void clocksource_enable_inline_read(void) { }
+>  
+> -void post_alloc_hook(struct page *page, unsigned int order, gfp_t gfp_flags);
+> +void post_alloc_hook(struct page *page, unsigned int order, gfp_t gfp_flags,
+> +		     unsigned long user_addr);
+>  extern bool free_pages_prepare(struct page *page, unsigned int order);
+>  
+>  extern int user_min_free_kbytes;
+>  
+>  struct page *__alloc_frozen_pages_noprof(gfp_t, unsigned int order, int nid,
+> -		nodemask_t *);
+> +		nodemask_t *, unsigned long user_addr);
+>  #define __alloc_frozen_pages(...) \
+>  	alloc_hooks(__alloc_frozen_pages_noprof(__VA_ARGS__))
+>  void free_frozen_pages(struct page *page, unsigned int order);
+> +void free_frozen_pages_zeroed(struct page *page, unsigned int order);
+
+
+sashiko pointed this one out:
+https://sashiko.dev/#/patchset/cover.1780067977.git.mst%40redhat.com?part=7
+
+this landed here by mistake during one of the rebases, harmless but
+ideally belongs in patch 33.  Will move if there's v10.
+
+it's other findings on this patch seem like false positives.
+
+>  void free_unref_folios(struct folio_batch *fbatch);
+>  
+>  #ifdef CONFIG_NUMA
+>  struct page *alloc_frozen_pages_noprof(gfp_t, unsigned int order);
+> +struct folio *folio_alloc_mpol_user_noprof(gfp_t gfp, unsigned int order,
+> +		struct mempolicy *pol, pgoff_t ilx, int nid,
+> +		unsigned long user_addr);
+>  #else
+>  static inline struct page *alloc_frozen_pages_noprof(gfp_t gfp, unsigned int order)
+>  {
+> -	return __alloc_frozen_pages_noprof(gfp, order, numa_node_id(), NULL);
+> +	return __alloc_frozen_pages_noprof(gfp, order, numa_node_id(), NULL, USER_ADDR_NONE);
+>  }
 >  #endif
-> @@ -1187,14 +1188,26 @@ noinstr time64_t __ktime_get_real_seconds(void)
->  	return tk->xtime_sec;
+>  
+> diff --git a/mm/mempolicy.c b/mm/mempolicy.c
+> index a1707ad498a8..f573ff32e94d 100644
+> --- a/mm/mempolicy.c
+> +++ b/mm/mempolicy.c
+> @@ -2413,7 +2413,8 @@ bool mempolicy_in_oom_domain(struct task_struct *tsk,
 >  }
 >  
-> +static inline u64 tk_clock_read_snapshot(const struct tk_read_base *tkr,
-> +					 struct clocksource_hw_snapshot *chs)
-> +{
-> +	struct clocksource *clock = READ_ONCE(tkr->clock);
-> +
-> +	if (unlikely(clock->read_snapshot))
-> +		return clock->read_snapshot(clock, chs);
-> +
-> +	return clock->read(clock);
+>  static struct page *alloc_pages_preferred_many(gfp_t gfp, unsigned int order,
+> -						int nid, nodemask_t *nodemask)
+> +						int nid, nodemask_t *nodemask,
+> +						unsigned long user_addr)
+>  {
+>  	struct page *page;
+>  	gfp_t preferred_gfp;
+> @@ -2426,25 +2427,29 @@ static struct page *alloc_pages_preferred_many(gfp_t gfp, unsigned int order,
+>  	 */
+>  	preferred_gfp = gfp | __GFP_NOWARN;
+>  	preferred_gfp &= ~(__GFP_DIRECT_RECLAIM | __GFP_NOFAIL);
+> -	page = __alloc_frozen_pages_noprof(preferred_gfp, order, nid, nodemask);
+> +	page = __alloc_frozen_pages_noprof(preferred_gfp, order, nid,
+> +					   nodemask, user_addr);
+>  	if (!page)
+> -		page = __alloc_frozen_pages_noprof(gfp, order, nid, NULL);
+> +		page = __alloc_frozen_pages_noprof(gfp, order, nid, NULL,
+> +						   user_addr);
+>  
+>  	return page;
+>  }
+>  
+>  /**
+> - * alloc_pages_mpol - Allocate pages according to NUMA mempolicy.
+> + * __alloc_pages_mpol - Allocate pages according to NUMA mempolicy.
+>   * @gfp: GFP flags.
+>   * @order: Order of the page allocation.
+>   * @pol: Pointer to the NUMA mempolicy.
+>   * @ilx: Index for interleave mempolicy (also distinguishes alloc_pages()).
+>   * @nid: Preferred node (usually numa_node_id() but @mpol may override it).
+> + * @user_addr: User fault address for cache-friendly zeroing, or USER_ADDR_NONE.
+>   *
+>   * Return: The page on success or NULL if allocation fails.
+>   */
+> -static struct page *alloc_pages_mpol(gfp_t gfp, unsigned int order,
+> -		struct mempolicy *pol, pgoff_t ilx, int nid)
+> +static struct page *__alloc_pages_mpol(gfp_t gfp, unsigned int order,
+> +		struct mempolicy *pol, pgoff_t ilx, int nid,
+> +		unsigned long user_addr)
+>  {
+>  	nodemask_t *nodemask;
+>  	struct page *page;
+> @@ -2452,7 +2457,8 @@ static struct page *alloc_pages_mpol(gfp_t gfp, unsigned int order,
+>  	nodemask = policy_nodemask(gfp, pol, ilx, &nid);
+>  
+>  	if (pol->mode == MPOL_PREFERRED_MANY)
+> -		return alloc_pages_preferred_many(gfp, order, nid, nodemask);
+> +		return alloc_pages_preferred_many(gfp, order, nid, nodemask,
+> +						 user_addr);
+>  
+>  	if (IS_ENABLED(CONFIG_TRANSPARENT_HUGEPAGE) &&
+>  	    /* filter "hugepage" allocation, unless from alloc_pages() */
+> @@ -2476,7 +2482,7 @@ static struct page *alloc_pages_mpol(gfp_t gfp, unsigned int order,
+>  			 */
+>  			page = __alloc_frozen_pages_noprof(
+>  				gfp | __GFP_THISNODE | __GFP_NORETRY, order,
+> -				nid, NULL);
+> +				nid, NULL, user_addr);
+>  			if (page || !(gfp & __GFP_DIRECT_RECLAIM))
+>  				return page;
+>  			/*
+> @@ -2488,7 +2494,7 @@ static struct page *alloc_pages_mpol(gfp_t gfp, unsigned int order,
+>  		}
+>  	}
+>  
+> -	page = __alloc_frozen_pages_noprof(gfp, order, nid, nodemask);
+> +	page = __alloc_frozen_pages_noprof(gfp, order, nid, nodemask, user_addr);
+>  
+>  	if (unlikely(pol->mode == MPOL_INTERLEAVE ||
+>  		     pol->mode == MPOL_WEIGHTED_INTERLEAVE) && page) {
+> @@ -2504,11 +2510,18 @@ static struct page *alloc_pages_mpol(gfp_t gfp, unsigned int order,
+>  	return page;
+>  }
+>  
+> -struct folio *folio_alloc_mpol_noprof(gfp_t gfp, unsigned int order,
+> +static struct page *alloc_pages_mpol(gfp_t gfp, unsigned int order,
+>  		struct mempolicy *pol, pgoff_t ilx, int nid)
+>  {
+> -	struct page *page = alloc_pages_mpol(gfp | __GFP_COMP, order, pol,
+> -			ilx, nid);
+> +	return __alloc_pages_mpol(gfp, order, pol, ilx, nid, USER_ADDR_NONE);
 > +}
 > +
+> +struct folio *folio_alloc_mpol_user_noprof(gfp_t gfp, unsigned int order,
+> +		struct mempolicy *pol, pgoff_t ilx, int nid,
+> +		unsigned long user_addr)
+> +{
+> +	struct page *page = __alloc_pages_mpol(gfp | __GFP_COMP, order, pol,
+> +			ilx, nid, user_addr);
+>  	if (!page)
+>  		return NULL;
+>  
+> @@ -2516,6 +2529,13 @@ struct folio *folio_alloc_mpol_noprof(gfp_t gfp, unsigned int order,
+>  	return page_rmappable_folio(page);
+>  }
+>  
+> +struct folio *folio_alloc_mpol_noprof(gfp_t gfp, unsigned int order,
+> +		struct mempolicy *pol, pgoff_t ilx, int nid)
+> +{
+> +	return folio_alloc_mpol_user_noprof(gfp, order, pol, ilx, nid,
+> +					    USER_ADDR_NONE);
+> +}
 > +
->  /**
->   * ktime_get_snapshot_id -  Simultaneously snapshot a given clock ID with
->   *			    CLOCK_MONOTONIC_RAW and the underlying
->   *			    clocksource counter value.
-> - * @systime_snapshot:	Pointer to struct receiving the system time snapshot
->   * @clock_id:		The clock ID to snapshot
-> + * @systime_snapshot:	Pointer to struct receiving the system time snapshot
->   */
-> -bool ktime_get_snapshot_id(struct system_time_snapshot *systime_snapshot, clockid_t clock_id)
-> +void ktime_get_snapshot_id(clockid_t clock_id, struct system_time_snapshot *systime_snapshot)
+>  struct page *alloc_frozen_pages_noprof(gfp_t gfp, unsigned order)
 >  {
->  	ktime_t base_raw, base_sys, offs_sys, *offs, offs_zero = 0;
->  	u64 nsec_raw, nsec_sys, now;
-> @@ -1206,7 +1219,7 @@ bool ktime_get_snapshot_id(struct system_time_snapshot *systime_snapshot, clocki
->  	systime_snapshot->valid = false;
+>  	struct mempolicy *pol = &default_policy;
+> diff --git a/mm/mmap.c b/mm/mmap.c
+> index 5754d1c36462..73413cebc418 100644
+> --- a/mm/mmap.c
+> +++ b/mm/mmap.c
+> @@ -855,6 +855,12 @@ __get_unmapped_area(struct file *file, unsigned long addr, unsigned long len,
+>  	if (IS_ERR_VALUE(addr))
+>  		return addr;
 >  
->  	if (WARN_ON_ONCE(timekeeping_suspended))
-> -		return false;
-> +		return;
+> +	/*
+> +	 * The check below ensures vm_end = addr + len <= TASK_SIZE.
+> +	 * Since (unsigned long)-1 (USER_ADDR_NONE) >= TASK_SIZE and
+> +	 * vm_end is exclusive, USER_ADDR_NONE is thus never a valid
+> +	 * userspace address.
+> +	 */
+>  	if (addr > TASK_SIZE - len)
+>  		return -ENOMEM;
+>  	if (offset_in_page(addr))
+> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> index 0c4f4c678233..b96c9892f6c6 100644
+> --- a/mm/page_alloc.c
+> +++ b/mm/page_alloc.c
+> @@ -1819,7 +1819,7 @@ static inline bool should_skip_init(gfp_t flags)
+>  }
 >  
->  	switch (clock_id) {
->  	case CLOCK_REALTIME:
-> @@ -1226,25 +1239,31 @@ bool ktime_get_snapshot_id(struct system_time_snapshot *systime_snapshot, clocki
->  	case CLOCK_AUX ... CLOCK_AUX_LAST:
->  		tkd = aux_get_tk_data(clock_id);
->  		if (!tkd)
-> -			return false;
-> +			return;
->  		offs = &tkd->timekeeper.offs_aux;
->  		break;
->  	default:
->  		WARN_ON_ONCE(1);
-> -		return false;
-> +		return;
+>  inline void post_alloc_hook(struct page *page, unsigned int order,
+> -				gfp_t gfp_flags)
+> +				gfp_t gfp_flags, unsigned long user_addr)
+>  {
+>  	bool init = !want_init_on_free() && want_init_on_alloc(gfp_flags) &&
+>  			!should_skip_init(gfp_flags);
+> @@ -1874,9 +1874,10 @@ inline void post_alloc_hook(struct page *page, unsigned int order,
+>  }
+>  
+>  static void prep_new_page(struct page *page, unsigned int order, gfp_t gfp_flags,
+> -							unsigned int alloc_flags)
+> +							unsigned int alloc_flags,
+> +							unsigned long user_addr)
+>  {
+> -	post_alloc_hook(page, order, gfp_flags);
+> +	post_alloc_hook(page, order, gfp_flags, user_addr);
+>  
+>  	if (order && (gfp_flags & __GFP_COMP))
+>  		prep_compound_page(page, order);
+> @@ -3958,7 +3959,8 @@ get_page_from_freelist(gfp_t gfp_mask, unsigned int order, int alloc_flags,
+>  		page = rmqueue(zonelist_zone(ac->preferred_zoneref), zone, order,
+>  				gfp_mask, alloc_flags, ac->migratetype);
+>  		if (page) {
+> -			prep_new_page(page, order, gfp_mask, alloc_flags);
+> +			prep_new_page(page, order, gfp_mask, alloc_flags,
+> +				      ac->user_addr);
+>  
+>  			return page;
+>  		} else {
+> @@ -4186,7 +4188,8 @@ __alloc_pages_direct_compact(gfp_t gfp_mask, unsigned int order,
+>  
+>  	/* Prep a captured page if available */
+>  	if (page)
+> -		prep_new_page(page, order, gfp_mask, alloc_flags);
+> +		prep_new_page(page, order, gfp_mask, alloc_flags,
+> +			      ac->user_addr);
+>  
+>  	/* Try get a page from the freelist if available */
+>  	if (!page)
+> @@ -5063,7 +5066,7 @@ unsigned long alloc_pages_bulk_noprof(gfp_t gfp, int preferred_nid,
+>  	struct zoneref *z;
+>  	struct per_cpu_pages *pcp;
+>  	struct list_head *pcp_list;
+> -	struct alloc_context ac;
+> +	struct alloc_context ac = { .user_addr = USER_ADDR_NONE };
+>  	gfp_t alloc_gfp;
+>  	unsigned int alloc_flags = ALLOC_WMARK_LOW;
+>  	int nr_populated = 0, nr_account = 0;
+> @@ -5178,7 +5181,7 @@ unsigned long alloc_pages_bulk_noprof(gfp_t gfp, int preferred_nid,
+>  		}
+>  		nr_account++;
+>  
+> -		prep_new_page(page, 0, gfp, 0);
+> +		prep_new_page(page, 0, gfp, 0, USER_ADDR_NONE);
+>  		set_page_refcounted(page);
+>  		page_array[nr_populated++] = page;
 >  	}
->  
->  	tk = &tkd->timekeeper;
->  
->  	do {
-> +		struct clocksource_hw_snapshot chs = { };
-> +
->  		seq = read_seqcount_begin(&tkd->seq);
->  
->  		/* Aux clocks can be invalid */
->  		if (!tk->clock_valid)
-> -			return false;
-> +			return;
->  
-> -		now = tk_clock_read(&tk->tkr_mono);
-> +		now = tk_clock_read_snapshot(&tk->tkr_mono, &chs);
->  		systime_snapshot->cs_id = tk->tkr_mono.clock->id;
-> +
-> +		systime_snapshot->hw_cycles = chs.hw_cycles;
-> +		systime_snapshot->hw_csid = chs.hw_csid;
-> +
->  		systime_snapshot->cs_was_changed_seq = tk->cs_was_changed_seq;
->  		systime_snapshot->clock_was_set_seq = tk->clock_was_set_seq;
->  
-> @@ -1257,18 +1276,17 @@ bool ktime_get_snapshot_id(struct system_time_snapshot *systime_snapshot, clocki
->  	} while (read_seqcount_retry(&tkd->seq, seq));
->  
->  	systime_snapshot->cycles = now;
-> -	systime_snapshot->sys = ktime_add_ns(base_sys, offs_sys + nsec_sys);
-> -	systime_snapshot->raw = ktime_add_ns(base_raw, nsec_raw);
-> +	systime_snapshot->systime = ktime_add_ns(base_sys, offs_sys + nsec_sys);
-> +	systime_snapshot->monoraw = ktime_add_ns(base_raw, nsec_raw);
+> @@ -5203,12 +5206,13 @@ EXPORT_SYMBOL_GPL(alloc_pages_bulk_noprof);
+>   * This is the 'heart' of the zoned buddy allocator.
+>   */
+>  struct page *__alloc_frozen_pages_noprof(gfp_t gfp, unsigned int order,
+> -		int preferred_nid, nodemask_t *nodemask)
+> +		int preferred_nid, nodemask_t *nodemask,
+> +		unsigned long user_addr)
+>  {
+>  	struct page *page;
+>  	unsigned int alloc_flags = ALLOC_WMARK_LOW;
+>  	gfp_t alloc_gfp; /* The gfp_t that was actually used for allocation */
+> -	struct alloc_context ac = { };
+> +	struct alloc_context ac = { .user_addr = user_addr };
 >  
 >  	/*
->  	 * Special case for PTP. Just transfer the raw time into sys,
-> -	 * so the call sites can consistently use snap::sys.
-> +	 * so the call sites can consistently use snap::systime.
->  	 */
->  	if (clock_id == CLOCK_MONOTONIC_RAW)
-> -		systime_snapshot->sys = systime_snapshot->raw;
-> +		systime_snapshot->systime = systime_snapshot->monoraw;
->  	/* Tell the consumer that this snapshot is valid */
->  	systime_snapshot->valid = true;
-> -	return true;
+>  	 * There are several places where we assume that the order value is sane
+> @@ -5269,10 +5273,12 @@ EXPORT_SYMBOL(__alloc_frozen_pages_noprof);
+>  
+>  struct page *__alloc_pages_noprof(gfp_t gfp, unsigned int order,
+>  		int preferred_nid, nodemask_t *nodemask)
+> +
+>  {
+>  	struct page *page;
+>  
+> -	page = __alloc_frozen_pages_noprof(gfp, order, preferred_nid, nodemask);
+> +	page = __alloc_frozen_pages_noprof(gfp, order, preferred_nid,
+> +					   nodemask, USER_ADDR_NONE);
+>  	if (page)
+>  		set_page_refcounted(page);
+>  	return page;
+> @@ -5315,7 +5321,8 @@ struct folio *vma_alloc_folio_noprof(gfp_t gfp, int order,
+>  		gfp |= __GFP_NOWARN;
+>  
+>  	pol = get_vma_policy(vma, addr, order, &ilx);
+> -	folio = folio_alloc_mpol_noprof(gfp, order, pol, ilx, numa_node_id());
+> +	folio = folio_alloc_mpol_user_noprof(gfp, order, pol, ilx,
+> +					     numa_node_id(), addr);
+>  	mpol_cond_put(pol);
+>  	return folio;
 >  }
->  EXPORT_SYMBOL_GPL(ktime_get_snapshot_id);
+> @@ -5323,10 +5330,17 @@ struct folio *vma_alloc_folio_noprof(gfp_t gfp, int order,
+>  struct folio *vma_alloc_folio_noprof(gfp_t gfp, int order,
+>  		struct vm_area_struct *vma, unsigned long addr)
+>  {
+> +	struct page *page;
+> +
+>  	if (vma->vm_flags & VM_DROPPABLE)
+>  		gfp |= __GFP_NOWARN;
 >  
-> @@ -1330,7 +1348,7 @@ static int adjust_historical_crosststamp(struct system_time_snapshot *history,
->  	 * Scale the monotonic raw time delta by:
->  	 *	partial_history_cycles / total_history_cycles
->  	 */
-> -	corr_raw = (u64)ktime_to_ns(ktime_sub(ts->sys_monoraw, history->raw));
-> +	corr_raw = (u64)ktime_to_ns(ktime_sub(ts->sys_monoraw, history->monoraw));
->  	ret = scale64_check_overflow(partial_history_cycles,
->  				     total_history_cycles, &corr_raw);
->  	if (ret)
-> @@ -1347,7 +1365,7 @@ static int adjust_historical_crosststamp(struct system_time_snapshot *history,
->  	if (discontinuity) {
->  		corr_sys = mul_u64_u32_div(corr_raw, tk->tkr_mono.mult, tk->tkr_raw.mult);
+> -	return folio_alloc_noprof(gfp, order);
+> +	page = __alloc_frozen_pages_noprof(gfp | __GFP_COMP, order,
+> +					   numa_node_id(), NULL, addr);
+> +	if (!page)
+> +		return NULL;
+> +	set_page_refcounted(page);
+> +	return page_rmappable_folio(page);
+>  }
+>  #endif
+>  EXPORT_SYMBOL(vma_alloc_folio_noprof);
+> @@ -6907,7 +6921,7 @@ static void split_free_frozen_pages(struct list_head *list, gfp_t gfp_mask)
+>  		list_for_each_entry_safe(page, next, &list[order], lru) {
+>  			int i;
+>  
+> -			post_alloc_hook(page, order, gfp_mask);
+> +			post_alloc_hook(page, order, gfp_mask, USER_ADDR_NONE);
+>  			if (!order)
+>  				continue;
+>  
+> @@ -7113,7 +7127,7 @@ int alloc_contig_frozen_range_noprof(unsigned long start, unsigned long end,
+>  		struct page *head = pfn_to_page(start);
+>  
+>  		check_new_pages(head, order);
+> -		prep_new_page(head, order, gfp_mask, 0);
+> +		prep_new_page(head, order, gfp_mask, 0, USER_ADDR_NONE);
 >  	} else {
-> -		corr_sys = (u64)ktime_to_ns(ktime_sub(ts->sys_systime, history->sys));
-> +		corr_sys = (u64)ktime_to_ns(ktime_sub(ts->sys_systime, history->systime));
->  		ret = scale64_check_overflow(partial_history_cycles, total_history_cycles,
->  					     &corr_sys);
->  		if (ret)
-> @@ -1356,8 +1374,8 @@ static int adjust_historical_crosststamp(struct system_time_snapshot *history,
+>  		ret = -EINVAL;
+>  		WARN(true, "PFN range: requested [%lu, %lu), allocated [%lu, %lu)\n",
+> @@ -7778,7 +7792,7 @@ struct page *alloc_frozen_pages_nolock_noprof(gfp_t gfp_flags, int nid, unsigned
+>  	gfp_t alloc_gfp = __GFP_NOWARN | __GFP_ZERO | __GFP_NOMEMALLOC | __GFP_COMP
+>  			| gfp_flags;
+>  	unsigned int alloc_flags = ALLOC_TRYLOCK;
+> -	struct alloc_context ac = { };
+> +	struct alloc_context ac = { .user_addr = USER_ADDR_NONE };
+>  	struct page *page;
 >  
->  	/* Fixup monotonic raw and system time time values */
->  	if (interp_forward) {
-> -		ts->sys_monoraw = ktime_add_ns(history->raw, corr_raw);
-> -		ts->sys_systime = ktime_add_ns(history->sys, corr_sys);
-> +		ts->sys_monoraw = ktime_add_ns(history->monoraw, corr_raw);
-> +		ts->sys_systime = ktime_add_ns(history->systime, corr_sys);
->  	} else {
->  		ts->sys_monoraw = ktime_sub_ns(ts->sys_monoraw, corr_raw);
->  		ts->sys_systime = ktime_sub_ns(ts->sys_systime, corr_sys);
-> @@ -1521,12 +1539,12 @@ int get_device_system_crosststamp(int (*get_time_fn)
->  	case CLOCK_AUX ... CLOCK_AUX_LAST:
->  		tkd = aux_get_tk_data(xtstamp->clock_id);
->  		if (!tkd)
-> -			return false;
-> +			return -ENODEV;
->  		offs = &tkd->timekeeper.offs_aux;
->  		break;
->  	default:
->  		WARN_ON_ONCE(1);
-> -		return false;
-> +		return -ENODEV;
->  	}
+>  	VM_WARN_ON_ONCE(gfp_flags & ~__GFP_ACCOUNT);
+> diff --git a/mm/slub.c b/mm/slub.c
+> index 0baa906f39ab..74dd2d96941b 100644
+> --- a/mm/slub.c
+> +++ b/mm/slub.c
+> @@ -3275,7 +3275,7 @@ static inline struct slab *alloc_slab_page(gfp_t flags, int node,
+>  	else if (node == NUMA_NO_NODE)
+>  		page = alloc_frozen_pages(flags, order);
+>  	else
+> -		page = __alloc_frozen_pages(flags, order, node, NULL);
+> +		page = __alloc_frozen_pages(flags, order, node, NULL, USER_ADDR_NONE);
 >  
->  	tk = &tkd->timekeeper;
+>  	if (!page)
+>  		return NULL;
+> @@ -5235,7 +5235,7 @@ static void *___kmalloc_large_node(size_t size, gfp_t flags, int node)
+>  	if (node == NUMA_NO_NODE)
+>  		page = alloc_frozen_pages_noprof(flags, order);
+>  	else
+> -		page = __alloc_frozen_pages_noprof(flags, order, node, NULL);
+> +		page = __alloc_frozen_pages_noprof(flags, order, node, NULL, USER_ADDR_NONE);
+>  
+>  	if (page) {
+>  		ptr = page_address(page);
+> -- 
+> MST
+> 
 
