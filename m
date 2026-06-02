@@ -1,149 +1,93 @@
-Received: from mail.alien8.de (mail.alien8.de [65.109.113.108])
+Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CBAB21E0BA;
-	Tue,  2 Jun 2026 03:50:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=65.109.113.108
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFF07134CF
+	for <virtualization@lists.linux.dev>; Tue,  2 Jun 2026 04:32:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780372221; cv=none; b=myNaeHUEyHtWVivkAIPWH5jSapnNAkWha7plulu/IbJgdcVTUQctf3ycQlCKuaZYSqAc0A8+3WoiBGOspU7T2z0WmNZd/NbsurU7008bli0inGzxjUKLLSklDPp9CLfNQ8argUZ22CiuBIrwIeWeVUsXnQhPKlfAidB//L0fNh0=
+	t=1780374735; cv=none; b=tgPKayzXOMVj3tyAh0f7SZ80Ov8VkX0IoYINT38rvUaE8L/LyRnhG2zLe3xBYxk2QlEOZrx/jLBSoCW1uN7QPhB3lGi7j7n2PpGXQWnB2kCkOWVjUm4c/rhp+v4bW+IGkB6lYRXp3OL9B/b/vhZzqgEsckloptGQNJlJIOu8vW8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780372221; c=relaxed/simple;
-	bh=9sr2irVxdUl8CzOcLwp+rJ3CtWHA2j/elSxxJH5GLqk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=hgRvSgrzDeqTF0sPAXQI8RsxYt5RG6ZTREYDDs3wTOxKDjigdGazqAazoHd15hwPnp6uScTPCG4uDQ6fu5WX89YQ8+ONUbfB7e+WY8k4Mqs4KUqoWNNDj33cxtfPiMkAn0z3OOWWvVRr2SrX41HhZvR6EWDdsmHgg1Q+hOY73+Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de; spf=pass smtp.mailfrom=alien8.de; dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b=BRMb1T+l; arc=none smtp.client-ip=65.109.113.108
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=alien8.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alien8.de
+	s=arc-20240116; t=1780374735; c=relaxed/simple;
+	bh=2Y6n5vptl+UQKIOpJvWwgsp4V3dO0ej51oIaDqxEORY=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version:Content-Type; b=aZ240qiTcH01tit+s4k9CadXZ3aRAN+lDwUCp3Orj4tuKmr+FWtSLFKi3vL+q3FBnolyktdgET+TKEuQjKVMc/Z88dFkit0qvhsUb8F4+im9mTx/RPInKzDZ/Qs33llTTpIMf9HQOMo10wovcpi/xc9v7ZWilHy3IOgQsUEpv9E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=SGxNI7I7; arc=none smtp.client-ip=117.135.210.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (4096-bit key) header.d=alien8.de header.i=@alien8.de header.b="BRMb1T+l"
-Received: from localhost (localhost.localdomain [127.0.0.1])
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTP id BDD1140E0140;
-	Tue,  2 Jun 2026 03:50:16 +0000 (UTC)
-X-Virus-Scanned: Debian amavisd-new at mail.alien8.de
-Authentication-Results: mail.alien8.de (amavisd-new); dkim=pass (4096-bit key)
-	header.d=alien8.de
-Received: from mail.alien8.de ([127.0.0.1])
-	by localhost (mail.alien8.de [127.0.0.1]) (amavisd-new, port 10026)
-	with ESMTP id rZ_Ke2IbpmQx; Tue,  2 Jun 2026 03:50:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alien8.de; s=alien8;
-	t=1780372206; bh=HH13uV+Z55mhxzoi6FErPEsztGrj9z0uUROqU3Stz7Y=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To:From;
-	b=BRMb1T+l+1IEZY4TOjMQ4w9ReoLidSSyCALG5lXh6uQPdtJJQdXO/YpIwNlbAph4G
-	 l/Dh+tFMKmPgVvKipIF2u99KtO2EN4cAREtpsqdKPkOqerozWTYAFwi46Wybtw/fbe
-	 +vmegLk87Rbq8vbD1H6DVOK2BrOKVAvWoMdxIbDT51x5lCY8z551GuWp9FhHp5+car
-	 VfJLFeyoLUyJO6c15FDGEfyv+Rbc53q3q5OSovUcXOREzvcqEjbwoVe0Y7wIViYOYy
-	 dK617hXkXVl9eYOJXWLlMawnI/pzDgQLxVC0VmuhZxwuyaJg1r6HaVHRONeWchNvGu
-	 vuUBlnvH9mmhMammOcSRyPnYSNm/ouhxvpjBC/kkh+mImmroEj5FFwKdESFRHD587M
-	 WZc+lXnb/l4BjyEVAAGNP2cLctZRPQKFYevllLAVNJtLle0Ashf1Pb13YdcdHN1spM
-	 rkF/jhg93VsSnzNK3JT36gNuh51JJh4mRth91IoSXBMOPYx6eLMZftQjrevQIQewk4
-	 r73TYm4D6cnm0I9ePqYDRkUs1jK14EW1+rpqzoVUj1phZqDDalP0khp5WsBql7Ff4D
-	 DlzFTsjW4cZGQdPzsWOWFWXdC25leop27h508hIBBoyX6ymrK7PIpoEE1rrc0t6G1Y
-	 cqjQSDM1OdJJ7XcJilcWD9FQ=
-Received: from stx.tnic (unknown [IPv6:2600:1700:38ca:c00::30])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (P-256) server-signature ECDSA (P-256) server-digest SHA256)
-	(No client certificate requested)
-	by mail.alien8.de (SuperMail on ZX Spectrum 128k) with ESMTPSA id ADDBA40E01B5;
-	Tue,  2 Jun 2026 03:49:27 +0000 (UTC)
-Date: Mon, 1 Jun 2026 20:49:16 -0700
-From: Borislav Petkov <bp@alien8.de>
-To: Sean Christopherson <seanjc@google.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@kernel.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	Kiryl Shutsemau <kas@kernel.org>,
-	"K. Y. Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>,
-	Long Li <longli@microsoft.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Jan Kiszka <jan.kiszka@siemens.com>,
-	Andy Lutomirski <luto@kernel.org>,
-	Peter Zijlstra <peterz@infradead.org>,
-	Juergen Gross <jgross@suse.com>,
-	Daniel Lezcano <daniel.lezcano@kernel.org>,
-	John Stultz <jstultz@google.com>, "H. Peter Anvin" <hpa@zytor.com>,
-	Rick Edgecombe <rick.p.edgecombe@intel.com>,
-	Vitaly Kuznetsov <vkuznets@redhat.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>,
-	Stephen Boyd <sboyd@kernel.org>, kvm@vger.kernel.org,
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev,
-	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
-	xen-devel@lists.xenproject.org, David Woodhouse <dwmw@amazon.co.uk>,
-	Tom Lendacky <thomas.lendacky@amd.com>,
-	Nikunj A Dadhania <nikunj@amd.com>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Michael Kelley <mhklinux@outlook.com>,
-	Thomas Gleixner <tglx@linutronix.de>
-Subject: Re: [PATCH v4 02/47] x86/tsc: Add a standalone helpers for getting
- TSC info from CPUID.0x15
-Message-ID: <20260602034916.GGah5SvARd77mkvxe3@fat_crate.local>
-References: <20260529144435.704127-1-seanjc@google.com>
- <20260529144435.704127-3-seanjc@google.com>
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="SGxNI7I7"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version:
+	Content-Type; bh=fjVGfXcKNG+YTxVcw+/rYcl97WsmjmXNVuWfW4kOW6Y=;
+	b=SGxNI7I7a2Pau4wEoeTi/3AjccHY9VDLQ+oTuceAE+LhOxOwvip9pexQu0BlCW
+	D+mF1T2sZRg+UZU0XI32gf9hGeBRVj2eKsv84T7d94vsLsy95miOIVt537Ms95Bg
+	qN9Jo4AQt0maDJJiiI9eTAeoohWg/uphxe8czh3UvfZlw=
+Received: from yangjl.localdomain (unknown [])
+	by gzga-smtp-mtada-g0-2 (Coremail) with SMTP id _____wAn0+fDXB5qSNGwAw--.28891S2;
+	Tue, 02 Jun 2026 12:32:04 +0800 (CST)
+From: yangjiale <yangjiale133@163.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	yangjiale <yangjiale133@163.com>
+Subject: [PATCH] VIRTIO: Update the desc 'flag' fied last in packed ring.
+Date: Tue,  2 Jun 2026 12:31:23 +0800
+Message-Id: <20260602043123.10207-1-yangjiale133@163.com>
+X-Mailer: git-send-email 2.25.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20260529144435.704127-3-seanjc@google.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:_____wAn0+fDXB5qSNGwAw--.28891S2
+X-Coremail-Antispam: 1Uf129KBjvJXoW7uFykZry8GF4xCF1xCFy7GFg_yoW8GFW7pF
+	4Ykay5C3WfZF12qanrGF17WFy5u3s3K34fZayUW34Y9F15ZF17Xry0kFyxtr4UJryvyw48
+	Ar4xuayUGF1kuFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0zEiL0-UUUUU=
+X-CM-SenderInfo: p1dqwy5ldoviitt6il2tof0z/xtbC-gRqg2oeXMQlMQAA3r
 
-On Fri, May 29, 2026 at 07:43:49AM -0700, Sean Christopherson wrote:
-> +static int cpuid_get_tsc_info(struct cpuid_tsc_info *info)
-> +{
-> +	unsigned int ecx_hz, edx;
-> +
-> +	memset(info, 0, sizeof(*info));
+When a descriptor list spans across cache lines,
+updating the flag first can lead to a scenario where the device side
+perceives the flag as valid, yet the corresponding address and length
+fields remain unupdated—resulting in invalid values.
+Therefore, the flag field must be updated last.
 
-Let's not clear this unnecessarily...
+Signed-off-by: yangjiale <yangjiale133@163.com>
+---
+ drivers/virtio/virtio_ring.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
-> +
-> +	if (boot_cpu_data.cpuid_level < CPUID_LEAF_TSC)
-> +		return -ENOENT;
-
-... just to return here...
-
-> +
-> +	/* CPUID 15H TSC/Crystal ratio, plus optionally Crystal Hz */
-> +	cpuid(CPUID_LEAF_TSC, &info->denominator, &info->numerator, &ecx_hz, &edx);
-> +
-> +	if (!info->denominator || !info->numerator)
-> +		return -ENOENT;
-
-... or here.
-
-We wanna clear it here, when we'll return success.
-
-> +
-> +	/*
-> +	 * Note, some CPUs provide the multiplier information, but not the core
-
-	Note: some CPUs...
-
-> +	 * crystal frequency.  The multiplier information is still useful for
-> +	 * such CPUs, as the crystal frequency can be gleaned from CPUID.0x16.
-> +	 */
-> +	info->crystal_khz = ecx_hz / 1000;
-> +	return 0;
-> +}
-> +
-> +int __init cpuid_get_tsc_freq(struct cpuid_tsc_info *info)
-> +{
-> +	if (cpuid_get_tsc_info(info) || !info->crystal_khz)
-> +		return -ENOENT;
-> +
-> +	info->tsc_khz = info->crystal_khz * info->numerator / info->denominator;
-> +	return 0;
-> +}
-
-Unused here. Add it with its first user pls.
-
+diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+index fbca7ce1c6bf..036b4f90d30f 100644
+--- a/drivers/virtio/virtio_ring.c
++++ b/drivers/virtio/virtio_ring.c
+@@ -1688,6 +1688,10 @@ static inline int virtqueue_add_packed(struct vring_virtqueue *vq,
+ 					     &addr, &len, premapped, attr))
+ 				goto unmap_release;
+ 
++			desc[i].addr = cpu_to_le64(addr);
++			desc[i].len = cpu_to_le32(len);
++			desc[i].id = cpu_to_le16(id);
++
+ 			flags = cpu_to_le16(vq->packed.avail_used_flags |
+ 				    (++c == total_sg ? 0 : VRING_DESC_F_NEXT) |
+ 				    (n < out_sgs ? 0 : VRING_DESC_F_WRITE));
+@@ -1696,10 +1700,6 @@ static inline int virtqueue_add_packed(struct vring_virtqueue *vq,
+ 			else
+ 				desc[i].flags = flags;
+ 
+-			desc[i].addr = cpu_to_le64(addr);
+-			desc[i].len = cpu_to_le32(len);
+-			desc[i].id = cpu_to_le16(id);
+-
+ 			if (unlikely(vq->use_map_api)) {
+ 				vq->packed.desc_extra[curr].addr = premapped ?
+ 					DMA_MAPPING_ERROR : addr;
 -- 
-Regards/Gruss,
-    Boris.
+2.25.1
 
-https://people.kernel.org/tglx/notes-about-netiquette
