@@ -1,155 +1,153 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FD5D3EF67B
-	for <virtualization@lists.linux.dev>; Tue,  2 Jun 2026 14:44:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0C043FDBFE
+	for <virtualization@lists.linux.dev>; Tue,  2 Jun 2026 17:46:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780411486; cv=none; b=SgKUoNRlNGYlWAhC+Bc82fJnTt2DYVJHyxcB1w73zx7KoYX6XKPz+rA4i0qZK++/+092/Qj6Sw/P/fa1KRzrnkJuq/GjR2KfmrQixnnXVBAwm4Ub6fPPv90P5GDPDXMzXQy4PG7QC5LSRBmElNBfFFaQ1K+FQC4ue0O6ug1Fvbc=
+	t=1780422411; cv=none; b=Dam5oz3JbcpJTOtsblHrm7P5HS1VqkpgCZJiKfm+pUcacE7RGmS4OJ3fsTLfhaDTB3k18tDx6Tgd5Eddys23f2W0WA8YYbiYscJXfnkI92i1i7ifAvOvWmZUVVCHX4hq0FX1/YMYgkoOTtsUb0L8IQ04da6pckXCZbpqMeBN3yg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780411486; c=relaxed/simple;
-	bh=JGSh5lAZ01h4V6/aN5YEeVciZCInCwqxQ6QqUvPGo90=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=OiAxSmjzfeyD9OBCCoFDFq8eTk67c5ttMBM0162PHFrr+ile8VX6/k6lh92XlvxhthJLRlQ62zcklVDbxxgwM6QAGtDA2pwCCsqSCxT+Kl36zjtSoAqF/XJX3jdwziJwaLdGUlkpGLpDWMt3zyuxEQYirMOSmPStouWP4LWeUhw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=BHY+9/iE; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=JMjGUc/Q; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1780422411; c=relaxed/simple;
+	bh=lkXExpOq/3CFxUJ56vajrxY8zubhNMYaVnoxW5VnrOQ=;
+	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=Tn+4ItryfdiFFmrH5Ribr8xSxCWKXL4xXoUERuFNejEcx+7s7uVWA2w8RWFiB0wGajPkSMwKNQrPfoYnlrlqCZCFoLfJLkszCET3Nugt0h86n32H8db6Ww+67DQhYbKGe4j5d88ns3FOPfYelnd2naMysWFYiD0n3UBpwEhuOAU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=rmueofPU; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=1J0yLW4+; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=rmueofPU; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=1J0yLW4+; arc=none smtp.client-ip=195.135.223.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="BHY+9/iE";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="JMjGUc/Q"
-Received: from pps.filterd (m0279870.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 652CtB5A2884623
-	for <virtualization@lists.linux.dev>; Tue, 2 Jun 2026 14:44:44 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-type:date:from:in-reply-to:message-id:mime-version
-	:references:subject:to; s=qcppdkim1; bh=g1qut49VqY6kixKrk363RsT3
-	75KtaT3Dj3vgJwsvmMA=; b=BHY+9/iEQsfwnfFkozleq2w3xaPvI9jJpUfv9NRD
-	9vIuRgUkEvPLCPdiWlD0M4NVxPar7XJqBHX4V5nxT8LBDbkSj9a7EdiFSxfibu7V
-	btJRt8ioDdDgKZOLU0OI7HpcS/JQatOecRMeGvWtK1KsvB+fE2hPsb391s4Toy5I
-	Yea+abZIfmOPW79A3oHkW+Sm1/g7zGEdL2BHAvgZBj/1otg1Aey735G/FaYIojVB
-	xuH+jYHnuo3x3bmzFL2b7vU43vjZUpPmrjyj18jiDqZlAyT6hokevSB0pCv5sEUp
-	UUbz0NIZ0Wgb1ZAevQh2KqNKDCXgzu+9TsDjpXfBbuZY1A==
-Received: from mail-vs1-f72.google.com (mail-vs1-f72.google.com [209.85.217.72])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4ehsu11wrk-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Tue, 02 Jun 2026 14:44:44 +0000 (GMT)
-Received: by mail-vs1-f72.google.com with SMTP id ada2fe7eead31-6cfe512e871so1257693137.2
-        for <virtualization@lists.linux.dev>; Tue, 02 Jun 2026 07:44:44 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1780411484; x=1781016284; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=g1qut49VqY6kixKrk363RsT375KtaT3Dj3vgJwsvmMA=;
-        b=JMjGUc/QCIZ0hbSM/NrGo4UmmBy9uUFGmrokqq4illufPEB129gHZtPmyEJ2P0Tb4g
-         YRTxLZ2l1oz0P8q2QZAqs/ZD485OnigcWnoVUwdSP4U8Hvzgjkx21inENVU0tPrQ7ux5
-         CuRCSy2/LZWwMDZUKilI7G3s6m9OgrpNMIvkmf3HBACwfwInsAU6WVTv+d64+jb5AsoB
-         WkopNExeVWjrn6xUfK9FHlDtpyHp0eUywbqPVslTXEsApq3rvmTZWaRvHaMAXZq+G9zZ
-         7reLIJw2mcG80vLZfD9TXyWIiKCaQVlyOOMU2atfPKwKkV6t8Zl+pUrPvJMZROxwoRCq
-         DNTw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780411484; x=1781016284;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=g1qut49VqY6kixKrk363RsT375KtaT3Dj3vgJwsvmMA=;
-        b=Ov+t5qQa8h9EbB0FBrc7g/sncrYdJRPgFRBXjKPvBqQYDLxCMQ1ca2vpqSO+kUUe8w
-         VhFDdMD/+PupCF94cirOfCZQhXREWM6waWPR///kXFydHnvO+emLUWXwBufqjgGwaiCk
-         lAfp34sVOuBVpL0LiOXRTZMlpbq94yw6hJPXbf0+cKX1hNc8nX356DtCKZwTeT6THKPH
-         x0vJymhPxYUNfOZLdmJcEO1PemeGp7qDLomRk/qB+ZdAcSQeoCfwCoonEzVlq+3RaqCt
-         leiIDomI87ggw6mJpHpzR81nZZg6kzffjHN9ohGE/wKJ6k/6DcGwfp70AqibPM1b39ep
-         lQmg==
-X-Forwarded-Encrypted: i=1; AFNElJ+DsUwOCZDvDNiG/0bpXAaQyjG5bBjIUZOApsuwP0Yog/H020idxyFTlzemASqSGV4O7JDjfq9Cdgf96nT/jw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzzCzNiuFZeBxOQmZNxLYNxeno/yXvwrEDY419yvFUepSZczxgT
-	YXKDRkmk2pkxBzgcnP4eZmwScZ9nE04fpV81XSK6x/6I/3Y+oqsqTK3gAo+Y4vy3QBfvE4q0fB7
-	ac+b2Kj9eqt12ssaxqhppb5UVuFiuAq1ObyfJ/csRF9xb4SvFS+jX8Et1X7qO5HF+oqxjjQ==
-X-Gm-Gg: Acq92OEK4sbvniyCDWFnwvBZHiIfTHByWO47V74Fheqv4IVxUoCwVqX7fjoH37yT+Zl
-	xcep9N0HPc3kdD+dyazs3STwKM+EhqC/oqPNlLc06+8mFY98jugFMGSZz8UB5hmd7lir+YDHe7S
-	kKBM7maCp2iqPrcywoJeYDIjVamfwHuKcdgSDUD/Hx1k8K7BjupA7pWGfWrDtsQUe9szlxtu/ik
-	0Rb5enuGjBnt4xCLtZdhWEbtUuwu8LZR2w8n+VuqVU6tECLYZc+ACZiaipiwrG/9FKBMbFM61OD
-	UPfOW0jv4nwkCnjVDF8hCruKZVY+FQASraoU+YUb0QRMYsJRZkPKqwymtMcZYBWC8BJPW/rEXIp
-	YauiI5aF6Glt/bcc+/snRFNF5iT2tM2yAO2JhsBj5bawWawOkPXsHSqbfpyWauzkk3FM=
-X-Received: by 2002:a05:6102:3753:b0:604:ec90:ba14 with SMTP id ada2fe7eead31-6ea1ff9867fmr51549137.11.1780411483803;
-        Tue, 02 Jun 2026 07:44:43 -0700 (PDT)
-X-Received: by 2002:a05:6102:3753:b0:604:ec90:ba14 with SMTP id ada2fe7eead31-6ea1ff9867fmr51511137.11.1780411483296;
-        Tue, 02 Jun 2026 07:44:43 -0700 (PDT)
-Received: from QCOM-LDTZRie9bq.na.qualcomm.com ([212.136.9.4])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-bf054e03709sm1166066b.30.2026.06.02.07.44.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Jun 2026 07:44:42 -0700 (PDT)
-Date: Tue, 2 Jun 2026 16:44:40 +0200
-From: Peter Hilber <peter.hilber@oss.qualcomm.com>
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="rmueofPU";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="1J0yLW4+";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="rmueofPU";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="1J0yLW4+"
+Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out2.suse.de (Postfix) with ESMTPS id 44B7A75BE5;
+	Tue,  2 Jun 2026 17:46:45 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1780422405; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=XBPeD93nc5hxvHMZc8DnnBow0Wo6CxVrYE8MsKc6QzA=;
+	b=rmueofPUpwNGSqHiFDJaUhIJ62NzunhrtUKpJ2lWNdQARu6er7L6mkDxEeQR07ZNJiQmPo
+	XG8jXV4z+lO8vvshD4sxjISDa9SPpGHSmdzd+vUBIWzCftPz1pzCT4TOxZh0hmq9VDEwWW
+	KAls6WFHzvR0oQUuF8ApHpSgetNht1s=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1780422405;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=XBPeD93nc5hxvHMZc8DnnBow0Wo6CxVrYE8MsKc6QzA=;
+	b=1J0yLW4+sa8fhyp7971bnnTPekDKreYZio0Su5wxx0kVl7vjt/u6VsTGsxYBAmZjOexqXa
+	OIonz/LImpd5iJCg==
+Authentication-Results: smtp-out2.suse.de;
+	none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1780422405; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=XBPeD93nc5hxvHMZc8DnnBow0Wo6CxVrYE8MsKc6QzA=;
+	b=rmueofPUpwNGSqHiFDJaUhIJ62NzunhrtUKpJ2lWNdQARu6er7L6mkDxEeQR07ZNJiQmPo
+	XG8jXV4z+lO8vvshD4sxjISDa9SPpGHSmdzd+vUBIWzCftPz1pzCT4TOxZh0hmq9VDEwWW
+	KAls6WFHzvR0oQUuF8ApHpSgetNht1s=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1780422405;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=XBPeD93nc5hxvHMZc8DnnBow0Wo6CxVrYE8MsKc6QzA=;
+	b=1J0yLW4+sa8fhyp7971bnnTPekDKreYZio0Su5wxx0kVl7vjt/u6VsTGsxYBAmZjOexqXa
+	OIonz/LImpd5iJCg==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 8739F779A7;
+	Tue,  2 Jun 2026 17:46:44 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id ZOTVHwQXH2qNNAAAD6G6ig
+	(envelope-from <tiwai@suse.de>); Tue, 02 Jun 2026 17:46:44 +0000
+Date: Tue, 02 Jun 2026 19:46:44 +0200
+Message-ID: <87v7c0ygvv.wl-tiwai@suse.de>
+From: Takashi Iwai <tiwai@suse.de>
 To: Thomas Gleixner <tglx@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, David Woodhouse <dwmw2@infradead.org>,
-        Miroslav Lichvar <mlichvar@redhat.com>,
-        John Stultz <jstultz@google.com>, Stephen Boyd <sboyd@kernel.org>,
-        Anna-Maria Behnsen <anna-maria@linutronix.de>,
-        Frederic Weisbecker <frederic@kernel.org>,
-        thomas.weissschuh@linutronix.de,
-        Arthur Kiyanovski <akiyano@amazon.com>,
-        Rodolfo Giometti <giometti@enneenne.com>,
-        Vincent Donnefort <vdonnefort@google.com>,
-        Marc Zyngier <maz@kernel.org>, Oliver Upton <oliver.upton@linux.dev>,
-        kvmarm@lists.linux.dev, Oliver Upton <oupton@kernel.org>,
-        Richard Cochran <richardcochran@gmail.com>, netdev@vger.kernel.org,
-        Takashi Iwai <tiwai@suse.com>,
-        Miri Korenblit <miriam.rachel.korenblit@intel.com>,
-        Johannes Berg <johannes.berg@intel.com>,
-        Jacob Keller <jacob.e.keller@intel.com>,
-        Tony Nguyen <anthony.l.nguyen@intel.com>,
-        Saeed Mahameed <saeedm@nvidia.com>,
-        "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev,
-        linux-wireless@vger.kernel.org, linux-sound@vger.kernel.org,
-        David Woodhouse <dwmw@amazon.co.uk>,
-        Vadim Fedorenko <vadim.fedorenko@linux.dev>
-Subject: Re: [patch V2 16/25] virtio_rtc: Use provided clock ID for history
- snapshot
-Message-ID: <aupnwe2y24oxejpkjnlbzlmdiuuzlbqlahofgzipxwsnoir4jd@cwgplvoe46ok>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+	David Woodhouse <dwmw2@infradead.org>,
+	Miroslav Lichvar <mlichvar@redhat.com>,
+	John Stultz <jstultz@google.com>,
+	Stephen Boyd <sboyd@kernel.org>,
+	Anna-Maria Behnsen <anna-maria@linutronix.de>,
+	Frederic Weisbecker <frederic@kernel.org>,
+	thomas.weissschuh@linutronix.de,
+	Arthur Kiyanovski <akiyano@amazon.com>,
+	Rodolfo Giometti <giometti@enneenne.com>,
+	Vincent Donnefort <vdonnefort@google.com>,
+	Marc Zyngier <maz@kernel.org>,
+	Oliver Upton <oliver.upton@linux.dev>,
+	kvmarm@lists.linux.dev,
+	Oliver Upton <oupton@kernel.org>,
+	Richard Cochran <richardcochran@gmail.com>,
+	netdev@vger.kernel.org,
+	Takashi Iwai <tiwai@suse.com>,
+	Miri Korenblit <miriam.rachel.korenblit@intel.com>,
+	Johannes Berg <johannes.berg@intel.com>,
+	Jacob Keller <jacob.e.keller@intel.com>,
+	Tony Nguyen <anthony.l.nguyen@intel.com>,
+	Saeed Mahameed <saeedm@nvidia.com>,
+	Peter Hilber <peter.hilber@oss.qualcomm.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	virtualization@lists.linux.dev,
+	linux-wireless@vger.kernel.org,
+	linux-sound@vger.kernel.org,
+	David Woodhouse <dwmw@amazon.co.uk>,
+	Vadim Fedorenko <vadim.fedorenko@linux.dev>
+Subject: Re: [patch V2 21/25] ALSA: hda/common: Use system_device_crosststamp::sys_systime
+In-Reply-To: <20260529195557.995298795@kernel.org>
 References: <20260529193435.921555544@kernel.org>
- <20260529195557.744271454@kernel.org>
+	<20260529195557.995298795@kernel.org>
+User-Agent: Wanderlust/2.15.9 (Almost Unreal) Emacs/30.2 Mule/6.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260529195557.744271454@kernel.org>
-X-Proofpoint-ORIG-GUID: XFyn29aZC0mnDmiCMA9mfaCwZVnIgIZi
-X-Proofpoint-GUID: XFyn29aZC0mnDmiCMA9mfaCwZVnIgIZi
-X-Authority-Analysis: v=2.4 cv=MKFQXsZl c=1 sm=1 tr=0 ts=6a1eec5c cx=c_pps
- a=DUEm7b3gzWu7BqY5nP7+9g==:117 a=dNlqnMcrdpbb+gQrTujlOQ==:17
- a=kj9zAlcOel0A:10 a=FelO9ux0wxsA:10 a=s4-Qcg_JpJYA:10
- a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=gowsoOTTUOVcmtlkKump:22
- a=VwQbUJbxAAAA:8 a=vggBfdFIAAAA:8 a=pBOR-ozoAAAA:8 a=QyXUC8HyAAAA:8
- a=EUspDBNiAAAA:8 a=KhUNALZX6FJHKvLdx2oA:9 a=CjuIK1q_8ugA:10
- a=-aSRE8QhW-JAV6biHavz:22
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjAyMDE0MiBTYWx0ZWRfXyRM7PYaKfQAI
- n6TaBzBOQt/0MWlTwVEp1o3IunWXjKxx7Ib8/oKwrhJ/WDvZmi4BeNSeMFOTz0wUYQKf8P/VFec
- sqvmMkK3QJtXSBmTyYWO7kdwZX+OWebPn5ZTvD4cxE0H9BrrmHIZvhAgQ6jeO/PcxyXtc4PMyCp
- w4jKHVSvI5R8d03fPgoFU3vMKuw4zbKxSuh4p4Ip3J57ULWtBAh9RGOlbcG2qTicxvaf8nwR3SY
- 6/fISzTOaIMnQ1DqVRtCLt/aoJe6828MgvWxertydzGhYMcEoBKCfhY9AdkVZelrtx5O2hd6/WZ
- jyOCjX+IUGmjg9HkxKNb3LwxWJ1ajofiNWWzvSq2Zqz76yRHpAFatzecXTLpCCANa7U6Q3TJQOj
- gktt37I5qu73t4KZTchIdf8T6b4A9fyvZ4HtAIYPhA4uqoIf5z/ZoOUALGUW5Hny7kjuVFhoh+i
- WVeZt015IXsy86DXRbA==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-06-02_02,2026-05-28_03,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- phishscore=0 priorityscore=1501 impostorscore=0 adultscore=0
- lowpriorityscore=0 bulkscore=0 spamscore=0 clxscore=1015 suspectscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2605210000
- definitions=main-2606020142
+MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
+Content-Type: text/plain; charset=US-ASCII
+X-Spam-Flag: NO
+X-Spam-Score: -3.30
+X-Spamd-Result: default: False [-3.30 / 50.00];
+	BAYES_HAM(-3.00)[99.99%];
+	MID_CONTAINS_FROM(1.00)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MIME_TRACE(0.00)[0:+];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	ARC_NA(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCPT_COUNT_TWELVE(0.00)[31];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	FREEMAIL_CC(0.00)[vger.kernel.org,infradead.org,redhat.com,google.com,kernel.org,linutronix.de,amazon.com,enneenne.com,linux.dev,lists.linux.dev,gmail.com,suse.com,intel.com,nvidia.com,oss.qualcomm.com,amazon.co.uk];
+	RCVD_TLS_ALL(0.00)[];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	R_RATELIMIT(0.00)[to_ip_from(RLjhfkibh7w7a187adt55yhrj9)];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,suse.de:mid,intel.com:email,imap1.dmz-prg2.suse.org:helo]
+X-Spam-Level: 
 
-On Fri, May 29, 2026 at 10:00:52PM +0200, Thomas Gleixner wrote:
+On Fri, 29 May 2026 22:01:13 +0200,
+Thomas Gleixner wrote:
+> 
 > From: Thomas Gleixner <tglx@kernel.org>
 > 
-> The PTP core indicates in system_device_crosststamp::clock_id the clock ID
-> for which the system time stamp should be taken. That allows to utilize
-> hardware timestamps with e.g. AUX clocks.
-> 
-> Use ktime_get_snapshot_id() and hand the provided clock ID in.
+> sys_systime is an alias for sys_realtime. The latter will be removed so
+> switch the code over to the new naming scheme.
 > 
 > No functional change.
 > 
@@ -158,20 +156,27 @@ On Fri, May 29, 2026 at 10:00:52PM +0200, Thomas Gleixner wrote:
 > Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
 > Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
 
-Acked-by: Peter Hilber <peter.hilber@oss.qualcomm.com>
+Acked-by: Takashi Iwai <tiwai@suse.de>
+
+
+thanks,
+
+Takashi
 
 > ---
->  drivers/virtio/virtio_rtc_ptp.c |    2 +-
+>  sound/hda/common/controller.c |    2 +-
 >  1 file changed, 1 insertion(+), 1 deletion(-)
-> --- a/drivers/virtio/virtio_rtc_ptp.c
-> +++ b/drivers/virtio/virtio_rtc_ptp.c
-> @@ -139,7 +139,7 @@ static int viortc_ptp_getcrosststamp(str
->  	if (ret)
->  		return ret;
+> --- a/sound/hda/common/controller.c
+> +++ b/sound/hda/common/controller.c
+> @@ -525,7 +525,7 @@ static int azx_get_time_info(struct snd_
+>  			break;
 >  
-> -	ktime_get_snapshot(&history_begin);
-> +	ktime_get_snapshot_id(xtstamp->clock_id, &history_begin);
->  	if (history_begin.cs_id != cs_id)
->  		return -EOPNOTSUPP;
+>  		default:
+> -			*system_ts = ktime_to_timespec64(xtstamp.sys_realtime);
+> +			*system_ts = ktime_to_timespec64(xtstamp.sys_systime);
+>  			break;
 >  
+>  		}
+> 
+> 
 > 
