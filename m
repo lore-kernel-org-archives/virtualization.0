@@ -1,145 +1,177 @@
-Received: from mout-p-101.mailbox.org (mout-p-101.mailbox.org [80.241.56.151])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 90CDF3E5A3F
-	for <virtualization@lists.linux.dev>; Tue,  2 Jun 2026 14:15:05 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=80.241.56.151
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FD5D3EF67B
+	for <virtualization@lists.linux.dev>; Tue,  2 Jun 2026 14:44:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780409707; cv=none; b=FzmKjFAiGxu3REFwYc9y6cPaPROp7h5SFMVoCB9zhkwmdbCku8e3xE8BqlxPgWAs2rhi6HwES/CmbIflEyMTEJLWX+QdcfuyaP1efLDKMM4SctjLm4wucVfk7v4dDEWcd802/yT/AiyWWBz1tIYZP0sY+r8s32eApNweiCtYlzg=
+	t=1780411486; cv=none; b=SgKUoNRlNGYlWAhC+Bc82fJnTt2DYVJHyxcB1w73zx7KoYX6XKPz+rA4i0qZK++/+092/Qj6Sw/P/fa1KRzrnkJuq/GjR2KfmrQixnnXVBAwm4Ub6fPPv90P5GDPDXMzXQy4PG7QC5LSRBmElNBfFFaQ1K+FQC4ue0O6ug1Fvbc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780409707; c=relaxed/simple;
-	bh=hSHyzBAQMpU39OPSpJrdA1A5si8jkaLFbNFthP7K3JA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=TsPl7yn0kfTfTfNYW3egjTuSUvTsueEdiCY0wYECsnFQVaU/XXPw/9D7l2XMVWlFdquAMlLkXyFKYAqJvWdcO807ifP5IjD+N3iKGjbBlrAn2DkjLQHkPYJAfFUMcqR7hdiAAOja74/QydHAkJ4tug+n2D3dBVIUy0mgGUET610=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org; spf=pass smtp.mailfrom=mailbox.org; dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b=XuXUz46u; arc=none smtp.client-ip=80.241.56.151
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=mailbox.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=mailbox.org
+	s=arc-20240116; t=1780411486; c=relaxed/simple;
+	bh=JGSh5lAZ01h4V6/aN5YEeVciZCInCwqxQ6QqUvPGo90=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=OiAxSmjzfeyD9OBCCoFDFq8eTk67c5ttMBM0162PHFrr+ile8VX6/k6lh92XlvxhthJLRlQ62zcklVDbxxgwM6QAGtDA2pwCCsqSCxT+Kl36zjtSoAqF/XJX3jdwziJwaLdGUlkpGLpDWMt3zyuxEQYirMOSmPStouWP4LWeUhw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=BHY+9/iE; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=JMjGUc/Q; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=mailbox.org header.i=@mailbox.org header.b="XuXUz46u"
-Received: from smtp2.mailbox.org (smtp2.mailbox.org [10.196.197.2])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mout-p-101.mailbox.org (Postfix) with ESMTPS id 4gVCX52fZ8z9v6N;
-	Tue,  2 Jun 2026 16:15:01 +0200 (CEST)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=mailbox.org; s=mail20150812;
-	t=1780409701;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=l7/AcZtZToYRTvZuUuWy28MPHxTQ+KcSEwPyByUYuKY=;
-	b=XuXUz46u9k+9jzKogmteS4rsOaSVF3J3S3VTbVvCCqUGXWVtwOoDnvlimNvvCwfYV8ZtP4
-	WeJSyI2167YwJwGsVu3n+iRjJX0NjW1HOAjEL9he/beY21DBe/CuVnQ+kIbNZuhLJ800Y8
-	MpAipGzr++ZfD3e0RfiqEIGrn87mFirR/sEkuRQK634VMUT5ZiPPaiuDhIiQmGDWQjNSSh
-	IgDx7PJSi1ErzDJCuZm5VtZATF5Zwp0shLxh/zTLt8ybJt9cWzUVMGSwjWJGUAydeVzHWL
-	9D1JfmEZdjrVfYRS17NiTWusTna+JyCmiFgAEYgay2UzQKfYhliwCpHxRm2syA==
-Message-ID: <8b02c8c1-bdb2-4135-8431-76c3a5f50335@mailbox.org>
-Date: Tue, 2 Jun 2026 16:14:57 +0200
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="BHY+9/iE";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="JMjGUc/Q"
+Received: from pps.filterd (m0279870.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 652CtB5A2884623
+	for <virtualization@lists.linux.dev>; Tue, 2 Jun 2026 14:44:44 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=qcppdkim1; bh=g1qut49VqY6kixKrk363RsT3
+	75KtaT3Dj3vgJwsvmMA=; b=BHY+9/iEQsfwnfFkozleq2w3xaPvI9jJpUfv9NRD
+	9vIuRgUkEvPLCPdiWlD0M4NVxPar7XJqBHX4V5nxT8LBDbkSj9a7EdiFSxfibu7V
+	btJRt8ioDdDgKZOLU0OI7HpcS/JQatOecRMeGvWtK1KsvB+fE2hPsb391s4Toy5I
+	Yea+abZIfmOPW79A3oHkW+Sm1/g7zGEdL2BHAvgZBj/1otg1Aey735G/FaYIojVB
+	xuH+jYHnuo3x3bmzFL2b7vU43vjZUpPmrjyj18jiDqZlAyT6hokevSB0pCv5sEUp
+	UUbz0NIZ0Wgb1ZAevQh2KqNKDCXgzu+9TsDjpXfBbuZY1A==
+Received: from mail-vs1-f72.google.com (mail-vs1-f72.google.com [209.85.217.72])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4ehsu11wrk-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <virtualization@lists.linux.dev>; Tue, 02 Jun 2026 14:44:44 +0000 (GMT)
+Received: by mail-vs1-f72.google.com with SMTP id ada2fe7eead31-6cfe512e871so1257693137.2
+        for <virtualization@lists.linux.dev>; Tue, 02 Jun 2026 07:44:44 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1780411484; x=1781016284; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=g1qut49VqY6kixKrk363RsT375KtaT3Dj3vgJwsvmMA=;
+        b=JMjGUc/QCIZ0hbSM/NrGo4UmmBy9uUFGmrokqq4illufPEB129gHZtPmyEJ2P0Tb4g
+         YRTxLZ2l1oz0P8q2QZAqs/ZD485OnigcWnoVUwdSP4U8Hvzgjkx21inENVU0tPrQ7ux5
+         CuRCSy2/LZWwMDZUKilI7G3s6m9OgrpNMIvkmf3HBACwfwInsAU6WVTv+d64+jb5AsoB
+         WkopNExeVWjrn6xUfK9FHlDtpyHp0eUywbqPVslTXEsApq3rvmTZWaRvHaMAXZq+G9zZ
+         7reLIJw2mcG80vLZfD9TXyWIiKCaQVlyOOMU2atfPKwKkV6t8Zl+pUrPvJMZROxwoRCq
+         DNTw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780411484; x=1781016284;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=g1qut49VqY6kixKrk363RsT375KtaT3Dj3vgJwsvmMA=;
+        b=Ov+t5qQa8h9EbB0FBrc7g/sncrYdJRPgFRBXjKPvBqQYDLxCMQ1ca2vpqSO+kUUe8w
+         VhFDdMD/+PupCF94cirOfCZQhXREWM6waWPR///kXFydHnvO+emLUWXwBufqjgGwaiCk
+         lAfp34sVOuBVpL0LiOXRTZMlpbq94yw6hJPXbf0+cKX1hNc8nX356DtCKZwTeT6THKPH
+         x0vJymhPxYUNfOZLdmJcEO1PemeGp7qDLomRk/qB+ZdAcSQeoCfwCoonEzVlq+3RaqCt
+         leiIDomI87ggw6mJpHpzR81nZZg6kzffjHN9ohGE/wKJ6k/6DcGwfp70AqibPM1b39ep
+         lQmg==
+X-Forwarded-Encrypted: i=1; AFNElJ+DsUwOCZDvDNiG/0bpXAaQyjG5bBjIUZOApsuwP0Yog/H020idxyFTlzemASqSGV4O7JDjfq9Cdgf96nT/jw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzzCzNiuFZeBxOQmZNxLYNxeno/yXvwrEDY419yvFUepSZczxgT
+	YXKDRkmk2pkxBzgcnP4eZmwScZ9nE04fpV81XSK6x/6I/3Y+oqsqTK3gAo+Y4vy3QBfvE4q0fB7
+	ac+b2Kj9eqt12ssaxqhppb5UVuFiuAq1ObyfJ/csRF9xb4SvFS+jX8Et1X7qO5HF+oqxjjQ==
+X-Gm-Gg: Acq92OEK4sbvniyCDWFnwvBZHiIfTHByWO47V74Fheqv4IVxUoCwVqX7fjoH37yT+Zl
+	xcep9N0HPc3kdD+dyazs3STwKM+EhqC/oqPNlLc06+8mFY98jugFMGSZz8UB5hmd7lir+YDHe7S
+	kKBM7maCp2iqPrcywoJeYDIjVamfwHuKcdgSDUD/Hx1k8K7BjupA7pWGfWrDtsQUe9szlxtu/ik
+	0Rb5enuGjBnt4xCLtZdhWEbtUuwu8LZR2w8n+VuqVU6tECLYZc+ACZiaipiwrG/9FKBMbFM61OD
+	UPfOW0jv4nwkCnjVDF8hCruKZVY+FQASraoU+YUb0QRMYsJRZkPKqwymtMcZYBWC8BJPW/rEXIp
+	YauiI5aF6Glt/bcc+/snRFNF5iT2tM2yAO2JhsBj5bawWawOkPXsHSqbfpyWauzkk3FM=
+X-Received: by 2002:a05:6102:3753:b0:604:ec90:ba14 with SMTP id ada2fe7eead31-6ea1ff9867fmr51549137.11.1780411483803;
+        Tue, 02 Jun 2026 07:44:43 -0700 (PDT)
+X-Received: by 2002:a05:6102:3753:b0:604:ec90:ba14 with SMTP id ada2fe7eead31-6ea1ff9867fmr51511137.11.1780411483296;
+        Tue, 02 Jun 2026 07:44:43 -0700 (PDT)
+Received: from QCOM-LDTZRie9bq.na.qualcomm.com ([212.136.9.4])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-bf054e03709sm1166066b.30.2026.06.02.07.44.41
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 02 Jun 2026 07:44:42 -0700 (PDT)
+Date: Tue, 2 Jun 2026 16:44:40 +0200
+From: Peter Hilber <peter.hilber@oss.qualcomm.com>
+To: Thomas Gleixner <tglx@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, David Woodhouse <dwmw2@infradead.org>,
+        Miroslav Lichvar <mlichvar@redhat.com>,
+        John Stultz <jstultz@google.com>, Stephen Boyd <sboyd@kernel.org>,
+        Anna-Maria Behnsen <anna-maria@linutronix.de>,
+        Frederic Weisbecker <frederic@kernel.org>,
+        thomas.weissschuh@linutronix.de,
+        Arthur Kiyanovski <akiyano@amazon.com>,
+        Rodolfo Giometti <giometti@enneenne.com>,
+        Vincent Donnefort <vdonnefort@google.com>,
+        Marc Zyngier <maz@kernel.org>, Oliver Upton <oliver.upton@linux.dev>,
+        kvmarm@lists.linux.dev, Oliver Upton <oupton@kernel.org>,
+        Richard Cochran <richardcochran@gmail.com>, netdev@vger.kernel.org,
+        Takashi Iwai <tiwai@suse.com>,
+        Miri Korenblit <miriam.rachel.korenblit@intel.com>,
+        Johannes Berg <johannes.berg@intel.com>,
+        Jacob Keller <jacob.e.keller@intel.com>,
+        Tony Nguyen <anthony.l.nguyen@intel.com>,
+        Saeed Mahameed <saeedm@nvidia.com>,
+        "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev,
+        linux-wireless@vger.kernel.org, linux-sound@vger.kernel.org,
+        David Woodhouse <dwmw@amazon.co.uk>,
+        Vadim Fedorenko <vadim.fedorenko@linux.dev>
+Subject: Re: [patch V2 16/25] virtio_rtc: Use provided clock ID for history
+ snapshot
+Message-ID: <aupnwe2y24oxejpkjnlbzlmdiuuzlbqlahofgzipxwsnoir4jd@cwgplvoe46ok>
+References: <20260529193435.921555544@kernel.org>
+ <20260529195557.744271454@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Subject: Re: [PATCH 2/7] drm/vblank: timer: Fix timestamp calculation
-To: Thomas Zimmermann <tzimmermann@suse.de>, simona@ffwll.ch,
- louis.chauvet@bootlin.com, ville.syrjala@linux.intel.com,
- jani.nikula@intel.com, mhklkml@zohomail.com,
- maarten.lankhorst@linux.intel.com, mripard@kernel.org, airlied@gmail.com
-Cc: dri-devel@lists.freedesktop.org, amd-gfx@lists.freedesktop.org,
- virtualization@lists.linux.dev
-References: <20260601141922.91498-1-tzimmermann@suse.de>
- <20260601141922.91498-3-tzimmermann@suse.de>
- <c048fbcb-d318-414f-805f-18816cfa86f3@mailbox.org>
- <f7f53f9b-2576-4488-b0c1-35b6998d123c@suse.de>
-From: =?UTF-8?Q?Michel_D=C3=A4nzer?= <michel.daenzer@mailbox.org>
-Content-Language: en-CA
-In-Reply-To: <f7f53f9b-2576-4488-b0c1-35b6998d123c@suse.de>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-MBO-RS-ID: e905d480509e9a10fe1
-X-MBO-RS-META: g89th51z75684wgz76akoycmfr9whj5c
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260529195557.744271454@kernel.org>
+X-Proofpoint-ORIG-GUID: XFyn29aZC0mnDmiCMA9mfaCwZVnIgIZi
+X-Proofpoint-GUID: XFyn29aZC0mnDmiCMA9mfaCwZVnIgIZi
+X-Authority-Analysis: v=2.4 cv=MKFQXsZl c=1 sm=1 tr=0 ts=6a1eec5c cx=c_pps
+ a=DUEm7b3gzWu7BqY5nP7+9g==:117 a=dNlqnMcrdpbb+gQrTujlOQ==:17
+ a=kj9zAlcOel0A:10 a=FelO9ux0wxsA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=gowsoOTTUOVcmtlkKump:22
+ a=VwQbUJbxAAAA:8 a=vggBfdFIAAAA:8 a=pBOR-ozoAAAA:8 a=QyXUC8HyAAAA:8
+ a=EUspDBNiAAAA:8 a=KhUNALZX6FJHKvLdx2oA:9 a=CjuIK1q_8ugA:10
+ a=-aSRE8QhW-JAV6biHavz:22
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjAyMDE0MiBTYWx0ZWRfXyRM7PYaKfQAI
+ n6TaBzBOQt/0MWlTwVEp1o3IunWXjKxx7Ib8/oKwrhJ/WDvZmi4BeNSeMFOTz0wUYQKf8P/VFec
+ sqvmMkK3QJtXSBmTyYWO7kdwZX+OWebPn5ZTvD4cxE0H9BrrmHIZvhAgQ6jeO/PcxyXtc4PMyCp
+ w4jKHVSvI5R8d03fPgoFU3vMKuw4zbKxSuh4p4Ip3J57ULWtBAh9RGOlbcG2qTicxvaf8nwR3SY
+ 6/fISzTOaIMnQ1DqVRtCLt/aoJe6828MgvWxertydzGhYMcEoBKCfhY9AdkVZelrtx5O2hd6/WZ
+ jyOCjX+IUGmjg9HkxKNb3LwxWJ1ajofiNWWzvSq2Zqz76yRHpAFatzecXTLpCCANa7U6Q3TJQOj
+ gktt37I5qu73t4KZTchIdf8T6b4A9fyvZ4HtAIYPhA4uqoIf5z/ZoOUALGUW5Hny7kjuVFhoh+i
+ WVeZt015IXsy86DXRbA==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-02_02,2026-05-28_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ phishscore=0 priorityscore=1501 impostorscore=0 adultscore=0
+ lowpriorityscore=0 bulkscore=0 spamscore=0 clxscore=1015 suspectscore=0
+ malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
+ route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2605210000
+ definitions=main-2606020142
 
-On 6/1/26 19:30, Thomas Zimmermann wrote:
-> Am 01.06.26 um 18:24 schrieb Michel Dänzer:
->> On 6/1/26 16:08, Thomas Zimmermann wrote:
->>> In drm_crtc_vblank_get_vblank_timeout(), return the timestamp of the
->>> first visible scanline after the last vblank timeout. This is what the
->>> caller expects.
->>>
->>> A vblank phase starts with a vblank timeout. At this point the display
->>> is blanked for several scanlines. Afterwards the display is unblanked
->>> until the next vblank timeout occurs. The display content is only visible
->>> during that second part.
->>>
->>> The current implementation of drm_crtc_vblank_get_vblank_timeout()
->>> returns the timestamp of the last vblank timeout that started the current
->>> vblank phase. But the display only unblanks after 20 to 30 percent of
->>> the overall frame duration. The returned timestamp is therefore too early.
->>>
->>> The next vblank timeout is already known when calculating the returned
->>> timestamp. Instead of subtracting the duration of a full frame from the
->>> value, only subtract the duration of the active, visible part. The result
->>> is the timestamp of the first visible scanline, as expected by the caller.
->>>
->>> This bug was not introduced by the generic vblank timer. It appears that
->>> the get_vblank_timeout logic has always been buggy since it was first
->>> added in commit 3a0709928b17 ("drm/vkms: Add vblank events simulated by
->>> hrtimers").
->>>
->>> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
->>> ---
->>>   drivers/gpu/drm/drm_vblank.c | 32 +++++++++++++++++++++++++-------
->>>   1 file changed, 25 insertions(+), 7 deletions(-)
->>>
->>> diff --git a/drivers/gpu/drm/drm_vblank.c b/drivers/gpu/drm/drm_vblank.c
->>> index 96d70c3d4522..d52df247d04e 100644
->>> --- a/drivers/gpu/drm/drm_vblank.c
->>> +++ b/drivers/gpu/drm/drm_vblank.c
->>> [...]
->>> @@ -2312,17 +2321,26 @@ bool drm_crtc_vblank_get_vblank_timeout(struct drm_crtc *crtc, ktime_t *vblank_t
->>>           *vblank_time = READ_ONCE(vtimer->timer.node.expires);
->>>       } while (cur_count != drm_crtc_vblank_count_and_time(crtc, &cur_time));
->>>   -    if (drm_WARN_ON(crtc->dev, !ktime_compare(*vblank_time, cur_time)))
->>> +    if (drm_WARN_ON(dev, !ktime_compare(*vblank_time, cur_time)))
->>>           return false; /* Already expired */
->>>   +    framedur_ns = vblank->framedur_ns;
->>> +
->>>       /*
->>> -     * To prevent races we roll the hrtimer forward before we do any
->>> -     * interrupt processing - this is how real hw works (the interrupt
->>> -     * is only generated after all the vblank registers are updated)
->>> -     * and what the vblank core expects. Therefore we need to always
->>> -     * correct the timestamp by one frame.
->>> +     * To prevent races we rolled the hrtimer forward before we did any
->>> +     * timeout processing - this is how real hw works (the interrupt is
->>> +     * only generated after all the vblank registers are updated) and what
->>> +     * the vblank core expects.
->>> +     *
->>> +     * Therefore we always need to correct the timestamp. The returned
->>> +     * time should be the time of the first active scanline after the
->>> +     * previous vblank. Hence subtract the active phase's duration from
->>> +     * the next expiration time.
->>>        */
->>> -    *vblank_time = ktime_sub(*vblank_time, vtimer->interval);
->>> +    if (drm_WARN_ON(dev, !mode->crtc_vtotal))
->>> +        return false;
->>> +    activedur_ns = div_s64(framedur_ns * mode->crtc_vdisplay, mode->crtc_vtotal);
->>> +    *vblank_time = ktime_sub_ns(*vblank_time, activedur_ns);
->> Normally the timestamp returned by drm_crtc_vblank_count_and_time is supposed to correspond to the end of vertical blank / start of active, in which case the new code here looks wrong.
->>
->> Also, while the current time is inside an active area, it's supposed to return the timestamp corresponding to the start of the current active area, not the next one.
+On Fri, May 29, 2026 at 10:00:52PM +0200, Thomas Gleixner wrote:
+> From: Thomas Gleixner <tglx@kernel.org>
 > 
-> The initial value of *vblank_time is when the vblank timer fires _next_ and the display blanks. Subtracting the length of the active period should give the time of the first active scanline within the current vblank phase.
+> The PTP core indicates in system_device_crosststamp::clock_id the clock ID
+> for which the system time stamp should be taken. That allows to utilize
+> hardware timestamps with e.g. AUX clocks.
 > 
-> Isn't that exactly what you describe?
+> Use ktime_get_snapshot_id() and hand the provided clock ID in.
+> 
+> No functional change.
+> 
+> Signed-off-by: Thomas Gleixner <tglx@kernel.org>
+> Tested-by: Arthur Kiyanovski <akiyano@amazon.com>
+> Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
+> Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
 
-I don't think so.
+Acked-by: Peter Hilber <peter.hilber@oss.qualcomm.com>
 
-It means that the timestamp returned by drm_(crtc_)vblank_count_and_time (which also used e.g. in events sent to user space) corresponds to the end of active / start of vblank, not to the end of vblank / start of active as it should (and does when the vblank timer isn't used).
-
-
--- 
-Earthling Michel Dänzer       \        GNOME / Xwayland / Mesa developer
-https://redhat.com             \               Libre software enthusiast
+> ---
+>  drivers/virtio/virtio_rtc_ptp.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> --- a/drivers/virtio/virtio_rtc_ptp.c
+> +++ b/drivers/virtio/virtio_rtc_ptp.c
+> @@ -139,7 +139,7 @@ static int viortc_ptp_getcrosststamp(str
+>  	if (ret)
+>  		return ret;
+>  
+> -	ktime_get_snapshot(&history_begin);
+> +	ktime_get_snapshot_id(xtstamp->clock_id, &history_begin);
+>  	if (history_begin.cs_id != cs_id)
+>  		return -EOPNOTSUPP;
+>  
+> 
