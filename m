@@ -1,95 +1,104 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84D983B8BC7;
-	Tue,  2 Jun 2026 09:31:44 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 142A737B015;
+	Tue,  2 Jun 2026 10:28:52 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780392709; cv=none; b=GrEEy4T944gTr7NiL5AbBm38wNERx68UO9lrlusSjf7J628htJCzUuaBb4CXLewsNcbB/XlldcwYJ3p2N1HFdCmmh1+5tU+0sKxYFT7E3/4o9NE8D6/T2o/VoTlnwO0yxrqGPh9Nec29cP2WHY7BQ7NIzyP3zF4GISzi6gIXnEQ=
+	t=1780396134; cv=none; b=PFrS+onZXc4DQa0x7Vrdrpzx+h31h406q8oW05vDeCEOADBIq+3TnhVvUUJp9bzbNQ46kA+DujmLJ0aTtVfX6+DMsN9lHwlEAXzV37Vp9I1kLoMpOMNIfY2BneCPGG7kSGi4zjVHOztdJpqXsVWAe/LgPEVJZ7ImnadnQhsklfk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780392709; c=relaxed/simple;
-	bh=oVFK0nG008aHrlI8LnIts54WnpxPIH7UStYVo6BNbp0=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=eFKp0G73eqy+7WqKD5aqncLKVJHFye0383go5hXx4r7+zvfL/3XlsfLAaTJl5w+Ez5xNpaIJMaEZ1XRXJJB7X6We/iSmQ8XCeQPRq+zfQLHgIX79b0gmD5ui6oQNUzuCYLCKsagWtqZq+V+Pt07dwvx89MqPymf2p5nb6bJOVe0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=G+IpyZ8O; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780396134; c=relaxed/simple;
+	bh=yVCVsDkjiwpFvcKF2h0WDhoRqNKw2c3p+cEvLgi8kcY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=hRXa6lc8SrO86KnDaF75gUVsNyvWqeCxIH+4uQcyW686NgWl/WaRn7a/48UPbPkkA/p0J4l8W8cSYHq7s8Vo6MTNnBgKpWZfiARUy4vBjAnU9Q1vjvnC7+EWcrfTn5Cp487Amu2KwyTM9ueYreMP2l+b9Wi4JAkQdWvgKDmQ+Mk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CmoK7cJm; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="G+IpyZ8O"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 323701F00893;
-	Tue,  2 Jun 2026 09:31:43 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CmoK7cJm"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4D1091F00893;
+	Tue,  2 Jun 2026 10:28:51 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780392703;
-	bh=l9Fnu7ql/xw3WcbLnwmXcQ6Np+ykb7eXiOcMgZ1/zrA=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=G+IpyZ8ORqglynUsO5PqcmN9TOoMfpn/CrlCCnUVH6YlWLr0MUKCjg8JLpHl2ljOA
-	 P1R6cZugmO5ewnx1OWoJ7YSpv8jik4V9TQt/awnIbmC8xYDzNnztKJJ2aobL+VbTtF
-	 5rmc6dw/7bksesUxZVCTCDGWrTr8AI1+AIh8+9dEvy4r9aW3mlUxjPDuRqsitDf7CF
-	 CU8CDMNsmCx4lgYkC6HDkWhXZs8sdcB6qbTcE/PP5+v8gQI5O0APeSHUvt5CkKCrrd
-	 d6U0aDVmb5bBTaSHV3MYMSd2oxAGkxdVqwMVO8j5MT7AAUrRHRPHCpL9AuriNQaMZO
-	 YLyDVj4i3gOqQ==
-From: Thomas Gleixner <tglx@kernel.org>
-To: Rodolfo Giometti <giometti@enneenne.com>, LKML
- <linux-kernel@vger.kernel.org>
-Cc: David Woodhouse <dwmw2@infradead.org>, Miroslav Lichvar
- <mlichvar@redhat.com>, John Stultz <jstultz@google.com>, Stephen Boyd
- <sboyd@kernel.org>, Anna-Maria Behnsen <anna-maria@linutronix.de>,
- Frederic Weisbecker <frederic@kernel.org>,
- thomas.weissschuh@linutronix.de, Arthur Kiyanovski <akiyano@amazon.com>,
- Vincent Donnefort <vdonnefort@google.com>, Marc Zyngier <maz@kernel.org>,
- Oliver Upton <oliver.upton@linux.dev>, kvmarm@lists.linux.dev, Oliver
- Upton <oupton@kernel.org>, Richard Cochran <richardcochran@gmail.com>,
- netdev@vger.kernel.org, Takashi Iwai <tiwai@suse.com>, Miri Korenblit
- <miriam.rachel.korenblit@intel.com>, Johannes Berg
- <johannes.berg@intel.com>, Jacob Keller <jacob.e.keller@intel.com>, Tony
- Nguyen <anthony.l.nguyen@intel.com>, Saeed Mahameed <saeedm@nvidia.com>,
- Peter Hilber <peter.hilber@oss.qualcomm.com>, "Michael S. Tsirkin"
- <mst@redhat.com>, virtualization@lists.linux.dev,
- linux-wireless@vger.kernel.org, linux-sound@vger.kernel.org, David
- Woodhouse <dwmw@amazon.co.uk>, Vadim Fedorenko <vadim.fedorenko@linux.dev>
-Subject: Re: [patch V2 04/25] pps: Convert to ktime_get_snapshot_id()
-In-Reply-To: <912a22e8-878f-4763-958b-71052ee69b36@enneenne.com>
-References: <20260529193435.921555544@kernel.org>
- <20260529195557.123410250@kernel.org>
- <912a22e8-878f-4763-958b-71052ee69b36@enneenne.com>
-Date: Tue, 02 Jun 2026 11:31:40 +0200
-Message-ID: <877boh8f0j.ffs@fw13>
+	s=k20260515; t=1780396132;
+	bh=yuY1GULwIJ0+/SB8iNooxI6krh59LZina9UwI7KXrOI=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=CmoK7cJmMUUcfAFhfMQguxkKalyra1Zz/3XCaXeBr9BuS6be4lt8O4V9OuuloneqL
+	 eKM8uZvj1vOrjxt0DwHwH4TjLNUt6ssCdTgzo7JY+iO8iSM8qIfmo9OUODr6Hd1+RM
+	 A+o0Dl5Gu94V46plhV0Z1ezOCHaZvQ21ScqDsW9dXxhd1yRbOsLOgddlVO5wyDP0+u
+	 D5gvFihijo2xP+71fjjNrAxhyXqCyGasP6dO0SAyimVZlq/IaDTGZywEJMYYO3aJej
+	 2VwV5yFLOsuwChpvvMGxpuMN8pZTsNCAbONfup81x2+2kCFuNMCxYxGWHXNGgTOHOB
+	 w2ZNsWMv342Kw==
+Date: Tue, 2 Jun 2026 11:28:48 +0100
+From: Will Deacon <will@kernel.org>
+To: Maoyi Xie <maoyixie.tju@gmail.com>
+Cc: joro@8bytes.org, robin.murphy@arm.com, jpb@kernel.org,
+	iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
+	virtualization@lists.linux.dev
+Subject: Re: iommu: iterator used after loop end in resv region insertion?
+Message-ID: <ah6wYJM4g-GTBTCL@willie-the-truck>
+References: <CAHPEe=G-FZvEXjkE+vAXN5MHXCtsOaUoKwg2RQL6m=om+c20hQ@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAHPEe=G-FZvEXjkE+vAXN5MHXCtsOaUoKwg2RQL6m=om+c20hQ@mail.gmail.com>
 
-On Sat, May 30 2026 at 13:08, Rodolfo Giometti wrote:
-> On 29/05/2026 22:00, Thomas Gleixner wrote:
->>   static inline void pps_get_ts(struct pps_event_time *ts)
->>   {
->> +#ifdef CONFIG_NTP_PPS
->>   	struct system_time_snapshot snap;
->>   
->> -	ktime_get_snapshot(&snap);
->> -	ts->ts_real = ktime_to_timespec64(snap.real);
->> -#ifdef CONFIG_NTP_PPS
->> -	ts->ts_raw = ktime_to_timespec64(snap.raw);
->> +	ktime_get_snapshot_id(CLOCK_REALTIME, &snap);
->> +	ts->ts_real = ktime_to_timespec64(snap.systime);
->> +	ts->ts_raw = ktime_to_timespec64(snap.monoraw);
->> +#else
->> +	ktime_get_real_ts64(&ts->ts_real);
->
-> 	/*
-> 	 * Prevent kernel stack information disclosure if the
-> 	 * structure is later copied to userspace.
-> 	 */
-> 	ts->ts_raw = (struct timespec64){0, 0};
+On Tue, May 19, 2026 at 02:49:58AM +0800, Maoyi Xie wrote:
+> Hi all,
+> 
+> While reading drivers/iommu/ I noticed two places that look
+> like a past the end iterator pattern. I would appreciate it
+> if you could take a look and let me know whether these are
+> real issues and whether they are worth fixing.
+> 
+> The first is iommu_insert_resv_region() in drivers/iommu/iommu.c
+> (linux-7.1-rc1, around line 873):
+> 
+>     list_for_each_entry(iter, regions, list) {
+>             if (nr->start < iter->start ||
+>                 (nr->start == iter->start && nr->type <= iter->type))
+>                     break;
+>     }
+>     list_add_tail(&nr->list, &iter->list);
+> 
+> The second is viommu_add_resv_mem() in drivers/iommu/virtio-iommu.c
+> (linux-7.1-rc1, around line 523):
+> 
+>     list_for_each_entry(next, &vdev->resv_regions, list) {
+>             if (next->start > region->start)
+>                     break;
+>     }
+>     list_add_tail(&region->list, &next->list);
+> 
+> In both cases, when the loop walks all entries without break,
+> the iterator has gone one step past the last entry. &iter->list
+> then aliases the list head via container_of offset cancellation,
+> so the insert lands at the list tail. That is the intended
+> behaviour, but the access is undefined per C11.
+> 
+> Jakob Koschel cleaned up many such sites in 2022, for example
+> commits 99d8ae4ec8a (tracing: Remove usage of list iterator
+> variable after the loop), 2966a9918df (clockevents: Use dedicated
+> list iterator variable) and dc1acd5c946 (dlm: replace usage of
+> found with dedicated list iterator variable). These two sites
+> in drivers/iommu/ were not covered.
+> 
+> A candidate fix would track an explicit insert_before pointer
+> initialised to the list head and overwritten to &iter->list
+> only when the loop breaks early. The observable behaviour is
+> unchanged.
+> 
+> If this is intentional or already known, please disregard.
+> Otherwise, I am happy to send a [PATCH] or to leave the fix to
+> you. Thank you for your time, and sorry for the noise if this
+> is not actually worth fixing or has already been spotted.
 
-Which will fail to build because of:
+Given that there's some precedent for "fixing" these type of things,
+it's probably best if you just send some patches for these new instances
+if you don't mind.
 
-struct pps_event_time {
-#ifdef CONFIG_NTP_PPS
-        struct timespec64 ts_raw;
-#endif /* CONFIG_NTP_PPS */
-        struct timespec64 ts_real;
-};
+Cheers,
 
-No?
+Will
