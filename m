@@ -1,144 +1,134 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 109FB3A8723
-	for <virtualization@lists.linux.dev>; Tue,  2 Jun 2026 06:04:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CC6373603DD
+	for <virtualization@lists.linux.dev>; Tue,  2 Jun 2026 06:59:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780380294; cv=none; b=t7waz0He59ucekNp4bjU2SMXq8uEBU24NDBdhWUwzV4T1zCW3DD/yRwFwdjEM/fEJpffFnB3uW/Uk+t4eJsq4hLy0x3VY+iSnhoqOESu9gJqFAkXsHFXAac3zvwqFH55+TlZv4MhZRjXZ1u3fMCuKiO4t84LBv64aaeEEQdVvjY=
+	t=1780383549; cv=none; b=rs/pEEuh3Z7MP7XFO22JA0W/esqvQOolwZy9NHYmrGkx45ylq9onJra2jTWVT03Qx17qiXkssoilGI0oYimsL5mOUPBzSEXM/C3+txkXIKHbMdP0dQg5YYjAjHR2YB3HYbgeTpTn2ChZGaRA59c9lMNwSHBklGJXp9PrJxCJ4c0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780380294; c=relaxed/simple;
-	bh=b2Chk3KE5vRUlzHTKUuKLrrOdxDtQednmI0BKOlwl7k=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=OgwOT2Xz+T+bk4isMMT1+MBaIsv+nlCrijg4Yeif8mVSw/RYJeYYOZRYgzULYcGFmp/AV4xnKP81QgmVJZmRavQVdEwr4TaicHJBQ8HZPH9aOvq7QLoNc7RPx3+ZCu4TZ2a8oMx3kNaDKg2fX8K3uSBpQT5ciqlzLChcIOIxdXM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Euwir9wi; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1780383549; c=relaxed/simple;
+	bh=pIG+06FZ/DHgNH53/jtFSdUrNB+urC7R94mgI4vNJ74=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=se+23HrtBXujcyz/htxMNiWlpmRk049cS2YPNTckGuX02Hu/5p7Z+TKdmlSeBKspmrSlpyFcYfhLQXQ0zTn6vNF3uXvyb2cvIWtD3brQMOgpw02eATMx35i6qPU8PNUt467Gr69AeseO4xUT7ettmhoQoXcV1fE3RAx0BHCgOYs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LsU8FY9K; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Euwir9wi"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LsU8FY9K"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1780380292;
+	s=mimecast20190719; t=1780383546;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=9iPiMkEyNVXBImOZyWjM4JFSfbnj/LQgbUYrr43Fg8Q=;
-	b=Euwir9winG1QcT6LWT4/Du9WkLKmA6kRkqZP5rgJI3fT+7ChgE9KMAm6p2ylXCm7HrJHtb
-	9L8fKvlXik9L3eVoTt9Dn9KlDHtpo2yBzcImfURIpcxeBs+F3nu7nrXp/vY2MtB2wFMb28
-	kaDCSiNU4dKqvDZBbH+sfDmCVc6GXdM=
-Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
- [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=sS40ddYhC+PZ+IYRQdjSjQCwzQHh2ypnu3XDzP5dhIM=;
+	b=LsU8FY9KRH/cqJab3TkeDqKks/XTaKyausX9WnuwML0dtmhuJTWJtkZocC9WC8/ElWq0JP
+	nYYdvlsiWwI2kmE6URXxRE1mAwQXxZVrvr/RlSom6LsUjQMnKCDimCFH5S/ehw4DUNb3dT
+	EyfD1zLcazBP6MxWmPV0XnHlSjRNQjo=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-9-nN8Hh3ryPrGMsE_rcJd1yw-1; Tue, 02 Jun 2026 02:04:50 -0400
-X-MC-Unique: nN8Hh3ryPrGMsE_rcJd1yw-1
-X-Mimecast-MFC-AGG-ID: nN8Hh3ryPrGMsE_rcJd1yw_1780380290
-Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-7dbb5e586c1so108686337b3.3
-        for <virtualization@lists.linux.dev>; Mon, 01 Jun 2026 23:04:50 -0700 (PDT)
+ us-mta-78-bifaYNQzMoifBmY3lhOHGA-1; Tue, 02 Jun 2026 02:59:05 -0400
+X-MC-Unique: bifaYNQzMoifBmY3lhOHGA-1
+X-Mimecast-MFC-AGG-ID: bifaYNQzMoifBmY3lhOHGA_1780383544
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-490a762e646so19953635e9.0
+        for <virtualization@lists.linux.dev>; Mon, 01 Jun 2026 23:59:05 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780380290; x=1780985090;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=9iPiMkEyNVXBImOZyWjM4JFSfbnj/LQgbUYrr43Fg8Q=;
-        b=Gv29uBoKse/sEUztxdhJo2Cf4ueyqMYPq2t5Ro8EG/JMZlRABh4j1AGxNYvUqJgDqI
-         u4zIpZhsci7Z59Li5n8oOCBpsUpOOigQ2tTcr9DNMyTl0R0YOg8+5fyHIsIfEiDycsd0
-         s8Ns/0c3C6unIbghUw3u+q4OETjWzCmPfbDnx+ssjiicRKFhJWxbHh4OklHeMwpV4Tfw
-         /1Ua8BJw9hXVWcBpR545mlV6ZL7E1b/+vPk+aNGYBVsF0IOYTOR8ikydc99AI7tzJmt+
-         AhmEHjE7Y4iXB/sJAGmNoY8aqyWM66jH7weQ6l6ZVd3qmBwCpKC8MJVV4oZa/Vy7MZyP
-         oT4Q==
-X-Forwarded-Encrypted: i=1; AFNElJ+bFG2kiVwBRUZgNuEkmZtbhT5BEmsPY3MEStvGzs32t4+4KK2m+LBek0egrz053q2HDOLUOkqGclTwxKn5dw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YylWmQrRHc86FVraaiioq6uVZztgltfDm8SGUJPIhJLtyb9WZof
-	jf/b3nWpKMrF7eAIh6jhzXG5PNbk5tblv8Vlcp9mVn3kKyyJ3P0JA8shNXtFfOM+m5Bdx7dfquQ
-	Huvpao9MtVQ1w01Y+AdDIt8vyL50hnWVh3646/hX92ZVh612OpSKYzMhiNqpWaEKBVzCtZurq+s
-	Zq6b6wn6J12zVA09M+DWQ/gy8QxDieVkjtJZ8TzlrRzLk=
-X-Gm-Gg: Acq92OGGJL6z33EmpBF5N7dk96sqk/5S9u9UKpWeRtFlNOgF1EeOX1GBYPUEaJJj/3e
-	EgfVUA9mR0MGunxwgMBkNQXjdqHwK07YLzBPGhIuMFSjKBliroBrqtMAjn/USAYSlmVG/b5FKXp
-	k5B+WNpC4IHVU+UUCFHvOg/NmG2qBYO2XZXIQXO0KVW9DHbaf163wky/qmUt5UZWIoigUWLQ3lV
-	6DMEXdLhS1Alx58Pg==
-X-Received: by 2002:a05:690e:4087:b0:660:7f6e:509e with SMTP id 956f58d0204a3-6607f6e6fc9mr6997608d50.31.1780380290074;
-        Mon, 01 Jun 2026 23:04:50 -0700 (PDT)
-X-Received: by 2002:a05:690e:4087:b0:660:7f6e:509e with SMTP id
- 956f58d0204a3-6607f6e6fc9mr6997593d50.31.1780380289633; Mon, 01 Jun 2026
- 23:04:49 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1780383544; x=1780988344;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=sS40ddYhC+PZ+IYRQdjSjQCwzQHh2ypnu3XDzP5dhIM=;
+        b=V5JsBJxRVWUZM6HZHoTDIur4r6FpzLUXfLVwPrdjPbXE/7joPs5N9XqFTK9U9TCybW
+         Y8Bh+Ip+Fsy5nNUCnjaJHsWwecLyURAOliKVbQVgflYL75DRQLsqvekVCDRe9YFSO8d9
+         rBT9ghJorItNkXR09Vki1F80WtsqEgvt6J8vYXeeMIdKzBSwSSIQuDetcScYnbpqeeIE
+         dC/J6qjUZB6LLZZnvtUgXtmPIeRVvXBoiY7bMCpzTkjmlePjvO8tiDa9n8BGcYbJ4myj
+         8xjs9cv7XIpy360+ex12hC59PM2/COIWvQpHsDLXoGy1g0e4oBLA6dwqBuSTnhUA738a
+         ++UQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+H1wg/+vZEpTCszdAPfIEPcc28sFZ0DtUBxgdH/bUBxJ0wHvYKa6qcMXTRTOtfZseO9At1giPiLlind6Zhcg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyu6jE+1uFmFk/iWxPtalB6rgjsmd+SVehEXdayq3ilnYz57Uvj
+	nT2Mb7WcfWCSb9yWakt8ZDJ6Tc/b1zNuvpLN1Kc637da9rZsB4KAHHTDPQR7pRGsb0y/TvToY3A
+	TLhshkR1LbjZHm02fKgBru8SHf1r1/n2B+81tg6oXdQmydSNz2QaCXpy+GD3sYbcOwxsU
+X-Gm-Gg: Acq92OH5E7jsEDk+gnZgZ6vNXkUrLoDKi0v5Za5DLWxDPqV3Oe5cVI66pATK+PT0ANb
+	7euUW+h2SRCyGC9JF0E+Z+DpP3tGKFYAaj0Dp1xX7I9wFuKs4p7rZDtSNzNBc6zDI0DkA4UEM9B
+	Ghg5RWn75tAEHhxADfPqlyd/JB/5zpyQ7dDm0ouzkT3V34NxLaT3Qj1WvEVGiE7UyJrr+xOPzYE
+	l/rNBhziKEfSTKuncwyxL8QM6jBQLO2q5bxuIV4lA2j1AVxV3FYOf0addaOhgknBGPGzsX0UvD6
+	roH1HFiHPu9lD2iV1fRW+XclTPEM2pATVBp9qYN+hw3G5KnKK12rkHAyk8vsQ0SnUg9NCmh5MHJ
+	ZVWbQyvKmHl7UVU+MPStpKbnbJ8PCCXyfm829xHlNEpN+WjatRhjFZw==
+X-Received: by 2002:a05:600c:2d47:b0:490:6869:46c3 with SMTP id 5b1f17b1804b1-490a2961e9dmr166050195e9.30.1780383544029;
+        Mon, 01 Jun 2026 23:59:04 -0700 (PDT)
+X-Received: by 2002:a05:600c:2d47:b0:490:6869:46c3 with SMTP id 5b1f17b1804b1-490a2961e9dmr166049925e9.30.1780383543573;
+        Mon, 01 Jun 2026 23:59:03 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-25-45.inter.net.il. [80.230.25.45])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4909c09be7fsm93880255e9.7.2026.06.01.23.59.02
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 01 Jun 2026 23:59:03 -0700 (PDT)
+Date: Tue, 2 Jun 2026 02:59:00 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: yangjiale <yangjiale133@163.com>
+Cc: Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] VIRTIO: Update the desc 'flag' fied last in packed ring.
+Message-ID: <20260602025834-mutt-send-email-mst@kernel.org>
+References: <20260602043123.10207-1-yangjiale133@163.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260602043123.10207-1-yangjiale133@163.com>
 In-Reply-To: <20260602043123.10207-1-yangjiale133@163.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Tue, 2 Jun 2026 08:04:13 +0200
-X-Gm-Features: AVHnY4IcXg0UrcTC59d5L7Yblyer5llUu0BZmRKhb2vOXqasvjr4DO7J-mfKd_U
-Message-ID: <CAJaqyWfugEttrQuR5_LrbQaivAqCaixsprUOjEVtdiz_sexFpA@mail.gmail.com>
-Subject: Re: [PATCH] VIRTIO: Update the desc 'flag' fied last in packed ring.
-To: yangjiale <yangjiale133@163.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: aADO0q8GIZsjKpJdv3wAR0X4GSORoNwle9kbGwNYDFI_1780380290
+X-Mimecast-MFC-PROC-ID: iMnhkmw5X7q9zr3f9F_n4b1SYDY1yBlLcV7YvopU6zQ_1780383544
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Tue, Jun 2, 2026 at 6:34=E2=80=AFAM yangjiale <yangjiale133@163.com> wro=
-te:
->
+On Tue, Jun 02, 2026 at 12:31:23PM +0800, yangjiale wrote:
 > When a descriptor list spans across cache lines,
 > updating the flag first can lead to a scenario where the device side
 > perceives the flag as valid, yet the corresponding address and length
-> fields remain unupdated=E2=80=94resulting in invalid values.
+> fields remain unupdated—resulting in invalid values.
 > Therefore, the flag field must be updated last.
->
+> 
 > Signed-off-by: yangjiale <yangjiale133@163.com>
 > ---
 >  drivers/virtio/virtio_ring.c | 8 ++++----
 >  1 file changed, 4 insertions(+), 4 deletions(-)
->
+> 
 > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
 > index fbca7ce1c6bf..036b4f90d30f 100644
 > --- a/drivers/virtio/virtio_ring.c
 > +++ b/drivers/virtio/virtio_ring.c
-> @@ -1688,6 +1688,10 @@ static inline int virtqueue_add_packed(struct vrin=
-g_virtqueue *vq,
->                                              &addr, &len, premapped, attr=
-))
->                                 goto unmap_release;
->
-> +                       desc[i].addr =3D cpu_to_le64(addr);
-> +                       desc[i].len =3D cpu_to_le32(len);
-> +                       desc[i].id =3D cpu_to_le16(id);
+> @@ -1688,6 +1688,10 @@ static inline int virtqueue_add_packed(struct vring_virtqueue *vq,
+>  					     &addr, &len, premapped, attr))
+>  				goto unmap_release;
+>  
+> +			desc[i].addr = cpu_to_le64(addr);
+> +			desc[i].len = cpu_to_le32(len);
+> +			desc[i].id = cpu_to_le16(id);
 > +
->                         flags =3D cpu_to_le16(vq->packed.avail_used_flags=
- |
->                                     (++c =3D=3D total_sg ? 0 : VRING_DESC=
-_F_NEXT) |
->                                     (n < out_sgs ? 0 : VRING_DESC_F_WRITE=
-));
-> @@ -1696,10 +1700,6 @@ static inline int virtqueue_add_packed(struct vrin=
-g_virtqueue *vq,
->                         else
->                                 desc[i].flags =3D flags;
->
-> -                       desc[i].addr =3D cpu_to_le64(addr);
-> -                       desc[i].len =3D cpu_to_le32(len);
-> -                       desc[i].id =3D cpu_to_le16(id);
+>  			flags = cpu_to_le16(vq->packed.avail_used_flags |
+>  				    (++c == total_sg ? 0 : VRING_DESC_F_NEXT) |
+>  				    (n < out_sgs ? 0 : VRING_DESC_F_WRITE));
+> @@ -1696,10 +1700,6 @@ static inline int virtqueue_add_packed(struct vring_virtqueue *vq,
+>  			else
+>  				desc[i].flags = flags;
+>  
+> -			desc[i].addr = cpu_to_le64(addr);
+> -			desc[i].len = cpu_to_le32(len);
+> -			desc[i].id = cpu_to_le16(id);
 > -
->                         if (unlikely(vq->use_map_api)) {
->                                 vq->packed.desc_extra[curr].addr =3D prem=
-apped ?
->                                         DMA_MAPPING_ERROR : addr;
+>  			if (unlikely(vq->use_map_api)) {
+>  				vq->packed.desc_extra[curr].addr = premapped ?
+>  					DMA_MAPPING_ERROR : addr;
 
-These flags are updated before the flags of the head descriptor at the
-end of the function, at "vq->packed.vring.desc[head].flags =3D
-head_flags", so the device should not see these. Because of that, the
-relative order between the rest of the fields of the same descriptor
-or other descriptors' fields, except for the head descriptor's flags,
-should not matter. There is a write memory barrier just before
-updating the head's flags.
+Good catch!  And presumably we need a write barrier then?
 
-Also, I don't get why the cache line matters here. Can you expand? Am
-I missing something?
+> -- 
+> 2.25.1
 
