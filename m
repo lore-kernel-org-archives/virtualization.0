@@ -1,72 +1,76 @@
-Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
+Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CD543E5A2E
-	for <virtualization@lists.linux.dev>; Wed,  3 Jun 2026 18:39:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.172
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FA893F65FC
+	for <virtualization@lists.linux.dev>; Wed,  3 Jun 2026 18:39:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780511954; cv=none; b=NHhQgMFKhWWwVzLBvHCri1wslonYr8iKdBmII8VwALQCqhlY0Sx5obPPfs2pggVUwoa8Ne4G166d1nuZOf+rdynlundQ8hTHqBp091HCr7idpUV5kQBaDJGsRErHaz//NWK79zp296ic/tjttOzeCWBA8aOUlzb1Ho8rhd0yuMk=
+	t=1780511958; cv=none; b=oQlDY8bPCUkeJM6y5Bun52T1CjJabwejIh1janWxK4CTDQw8wiXDwrFa2a0T0+vjYXn+V0P2h91ADsHjlgfG/N/lchXs3b3vhvrcS4iWotANRkWHpQb0SpF4rdsI+FVJ3znuZbKt4ENP8wiHpC4aftLUK265hv+npF2H5jAO3/M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780511954; c=relaxed/simple;
-	bh=ymB6v4fxjeHGAHyyQBBzUFLJbQz9tkxCo9VxIY+IdDY=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=cjlbN/TYxueB37q+3kfvNuYXN06LjUN+UWA72pKbEUXb02W/VLqy6lnPptZIm1uq/YLhw49J89K0NJfIldpXa2YYpIzheTIDMMcrzANGOO7RhjFXeqpxcm8N/2L9teaITU9HkEAo2R3kCNmDb81ejqojkE6xitaAIcduciejZAo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FabqiFnE; arc=none smtp.client-ip=209.85.214.172
+	s=arc-20240116; t=1780511958; c=relaxed/simple;
+	bh=CqNk9t46yf5UVVFk728877Xh90GabgM+PGo8g/wAQ/g=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=dkHyC7lytmS26X0bQuLxve3Jb9/Dez935402RWJ8YJCspf1ehmcDsfTE4ekiNc0m23lxhM2tFmro9v7xfSA02UIR75grqeeNSuW9WsjWR/ahC9yCCrle1npyY9pZzG4qNT0AVCVvZfNbUy7QoeB5qLNTDQJ43nQc0wgkYN8qaWE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=q2yIIC0t; arc=none smtp.client-ip=209.85.214.181
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FabqiFnE"
-Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-2bf20f6be6bso35955185ad.3
-        for <virtualization@lists.linux.dev>; Wed, 03 Jun 2026 11:39:11 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="q2yIIC0t"
+Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-2c0bb4a94b8so32440405ad.2
+        for <virtualization@lists.linux.dev>; Wed, 03 Jun 2026 11:39:15 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1780511951; x=1781116751; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=E7ONTJkweAcZcnKMGezhHMuN65WNnCKGBpfevNj/QjE=;
-        b=FabqiFnE7qRdKZvJP1bfJ/RHaVgc4ovNJCSAWgovTZsiw0bFZOU7xD6y9WWgE+1RNB
-         MjcTr8iTv1xy3vC/TW9XMXsziSwzEP3afjNSPXglN+Sou8/6Juq0ysjkCQmPim166EbP
-         9yBskd+uBwSDXdltL0B40Gtq81ST5lcMgdrjmmCrw9Q2M4msZfDjqlQxac5P26TmnrAg
-         363KgkuTJfMJeGis+jc4v/k8e+VTweQ7G0aJG8u/CL4+9Lg905LvQ6ADRnVZtbvq8iY1
-         Lm3W/30QGXm9oew4f5rDgMHpFkkZ999BkcultEZgtB1pPVzkZEecz24LKVT4DkbWZbLO
-         rqkQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780511951; x=1781116751;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1780511954; x=1781116754; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=E7ONTJkweAcZcnKMGezhHMuN65WNnCKGBpfevNj/QjE=;
-        b=ElrWkEPF9jgeN9PbNuW4kQOaYK8Ti/ct4JzdSmTCDNr0b5m2TweY7D0/sOQOsnAZYP
-         b2ujd1nykEIHdFbQonUZ5chabM9C3mTbl60Zxt6IQzHrTsVmYIso527Pig6//2xB8rzB
-         PES71FqWPx039bOewBsBHs7OLwOMXJWIQgPeRk+e3MLl/uGfaUjS+KSl862WLvUw05EO
-         k20vSfl+AY8Tc/QDCGFT2DHop9awlCZdhM/40PnJkxo2CZd9cE/44LElijz0x2pi+iR8
-         XDx/2aCA7rPHyL0q9Dw6JzKDhFj6XgqSpygUZn6xn+4v4YT4Zqjzq0LqY0IzoYFIPtsp
-         RAnA==
-X-Gm-Message-State: AOJu0Ywb6zACrmqlbtT4SJM2S3f4ALBeu1GGE/FUDCISQU0MlAXOx8D/
-	1Gu7epNRKiugbs5GQutflOLjId7ye9vS+bLBt8B5orLjbB/slgWgRR55
-X-Gm-Gg: Acq92OEdLP58sjBS0GIXjm1XHscraMmm13wfFZT8QybpKlGltnO/SEW1Xdywy7D2rxt
-	6630iE5s0LkwlE3FwPkmC1+0t9+acokBRZKU7kmc3u79XxRB6FCCiYHoNinHWvTVzOhqpn5DPiZ
-	VzULw5qzlWdyiepLGYnij1NqKKoUeCUXsjy3Ko9YFY7PU2hLXAl3GiovBNUZ0d+9dJuhd146Z+3
-	fDj7RkXSP8ol03glx1A0bYBRP21R9di2xZqJqsrDeYCS4jrGEo8EBEhfKtIZOe0NEGGDK3L407/
-	s5cOxsEXNoz76sPYxrO5gq2X4lSegnK5TXUTPxEbM/jJdFt3ANPmLALshDadojUod7RosekYiLu
-	jXTMgGTmoIFxY+XYQrXCLu+2zYACsH6Uib1Ko4ITGPgO+7XSKKA6UyUocxlq55TVylztqCoc8cu
-	WOIu/0s8RQ1LOyuDBvSUwE51LUiQjjIu6XTJklYNospjVV+5VZzhcoCw6zwww7z5WCbh2STrH0s
-	N4dirm80jgWfofctVeBCseHMi15ChAhtbkLwg==
-X-Received: by 2002:a17:903:288:b0:2bf:1486:e6ca with SMTP id d9443c01a7336-2c163d61cbemr51934235ad.12.1780511950513;
-        Wed, 03 Jun 2026 11:39:10 -0700 (PDT)
+        bh=K5xYwJR/7gD/yfsO3m8o5L05lOBT0oAU75aIhtLSm4Y=;
+        b=q2yIIC0tXDjjLuDzkNrjt9QJm2chOmMocICzmZvLpJv34Bbghf5CI4z57q0KvOuax4
+         rBGV5Ik6AUfmbdiGKaIuxHkBcHM5aSjpyXgM/5kXdLDPXqWCWLJxxfKK92y1F5mPkNXY
+         A3wvoOb6++/BE2nMn6SS6ycWPRr5/o5c6bIUQ3zHO9EbMkSlFHRiFdLqtTHEJDJDnrCq
+         z0TaoaLR4aJpYRU/6dU67Eqvm/F//eB8Rl2cVtiIcNctb9gebo5J+7fO38MVphqF/Qxq
+         uRiusFtUMi48a9Z8r30ZPUHnLzXwQHr3Y7oDR18JXIbG/aM9AEU8LXX6mFFHy7feL5wO
+         UYWw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780511954; x=1781116754;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=K5xYwJR/7gD/yfsO3m8o5L05lOBT0oAU75aIhtLSm4Y=;
+        b=LpqDGk6gODeO7gUgI69c+dK2isa3zXmlzfycGaFroKn50nNLdYB6hkWo57sbiQXTyM
+         fWSLegaIwnbR7uVMfjV+Q8ZR6RSwGYjA9Rs8wKZtY/ErcQCk1TAM+FDceFFBgYH9ubf7
+         H+tWthCTJfNzwiWuLvvA0wHiMSZVhfUG/OOG6uE789idQgVcROs7tohSb/Nkaho/fCiw
+         60iEOWp4EdpEfSynfq8EYDV5QCJnVsgwBDkzVvAxdsRNkRE0K9yT3vH80UDiBBllPCUS
+         WZJLE3q9h9BqluM4E99KkxuMDu9uiXW/oAIYk8+6DQx3DKajU29YIHXXhPRn5VX38YsW
+         VtuQ==
+X-Gm-Message-State: AOJu0Yx3nuU6No8kz+0LQPWIhdPmg5JPqU/VFCFR/7ju5+ucFibAsW7J
+	wxrf8NdgeXqiquLqCDUW1C/ekkcfPzt1Sb0KP1AJuy4kK6FUkuduSow4
+X-Gm-Gg: Acq92OE0Xswfinx3bPWfxNKr4nqCEb5ncbC1SpTgbLsgKT+I8hTnU1wytPVx+tYTXk5
+	tmQzoFQASanNeTgjHXcneei5YnZQgOwkh+7TjwZMwqchbsjVnKT4m03xVDlGzp01d9rPu66zHcC
+	e9wweyiaDu/znYGnesEnma5CJh2GFbSM8t1zbcb1wqYvzsqxsBdxZfuReQeVkXCzqgZ4Pm+zYjX
+	e9wz6Lm4DnrdAFUMTVPv4tQgvZ8mpn86MTpkrFvCwrAFImHKTA9pcNAAuEQDPMvLHUQrGZTCabn
+	08HVoS4Aq0WDbhgISaWfFJxRLYwMc8T8JewIwHNPW5Mgw3szlp2SqHwf9HCF4xxL5C5gP4Vvfqq
+	JkmYr2UW2jfR7BI+JDWuWsNXxwKS1/dZVT5xKq0FIrLEN1wdg6D8BEpZAsQx/Q/AvUiENuo9Z8x
+	2r8K5dV2D39JsRrr0QGZwUmh3GcImvtuxkijXy2dX9hmUJ+8pdlDevMl9q3KTgHQNVKpmsN7608
+	aHeXcdT6pnNWZQR6UoizpE1byebdGa4PWMaiQs3j0AIFP6y
+X-Received: by 2002:a17:903:1a4e:b0:2c0:f807:a760 with SMTP id d9443c01a7336-2c163a5a5cdmr46440595ad.13.1780511954182;
+        Wed, 03 Jun 2026 11:39:14 -0700 (PDT)
 Received: from baver-zenith.localdomain ([124.49.88.131])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c16649c01asm32764915ad.74.2026.06.03.11.39.07
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c16649c01asm32764915ad.74.2026.06.03.11.39.10
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 03 Jun 2026 11:39:09 -0700 (PDT)
+        Wed, 03 Jun 2026 11:39:12 -0700 (PDT)
 From: Sungho Bae <baver.bae@gmail.com>
 To: amit@kernel.org,
 	arnd@arndb.de,
 	gregkh@linuxfoundation.org
 Cc: virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org,
-	Sungho Bae <baver.bae@gmail.com>
-Subject: [PATCH v3 0/4] virtio_console: fix suspend/resume and hot-unplug races
-Date: Thu,  4 Jun 2026 03:37:53 +0900
-Message-Id: <20260603183757.21587-1-baver.bae@gmail.com>
+	Sungho Bae <baver.bae@lge.com>
+Subject: [PATCH v3 1/4] virtio_console: refactor __send_to_port() buffer ownership
+Date: Thu,  4 Jun 2026 03:37:54 +0900
+Message-Id: <20260603183757.21587-2-baver.bae@gmail.com>
 X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20260603183757.21587-1-baver.bae@gmail.com>
+References: <20260603183757.21587-1-baver.bae@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -75,87 +79,203 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Hi all,
+From: Sungho Bae <baver.bae@lge.com>
 
-This patchset addresses several critical race conditions and memory
-lifecycle bugs in the virtio_console driver, primarily surrounding
-the TX path(`__send_to_port`, `put_chars`), device hot-unplug, and
-PM freeze/restore.
+Modify __send_to_port() to take ownership of a struct port_buffer *
+instead of a void * raw buffer.
 
-The initial motivation for this series was to fix a race where
-`hvc_console` writes (which can remain active during suspend
-if `no_console_suspend` is enabled) could enqueue buffers while
-`virtcons_freeze` was tearing down virtqueues, leading to a `BUG_ON` in
-`virtqueue_detach_unused_buf_split()`.
+Previously, put_chars() would pass a raw kmemdup'd buffer and free it
+immediately after __send_to_port() returned. This caused a potential
+Use-After-Free and data corruption if the virtqueue was shared with
+nonblocking writers, as virtqueue_get_buf() might return an older
+completed buffer, causing the newly added buffer to be kfree'd while the
+host is still DMAing from it.
 
-During the investigation and testing of the freeze race, several related
-vulnerabilities were uncovered in how TX paths handled buffer ownership and
-stale `portdev` pointers during concurrent hot-unplugs. Because these fixes
-structurally overlap in `__send_to_port()` and `put_chars()`, they are
-submitted together as a single patchset to avoid merge conflicts.
+By transferring ownership of the allocated port_buffer to __send_to_port(),
+we ensure that the exact buffer returned by the host is the one that gets
+freed, resolving the memory lifecycle mismatch.
 
+Signed-off-by: Sungho Bae <baver.bae@lge.com>
+---
+ drivers/char/virtio_console.c | 69 +++++++++++++++++++----------------
+ 1 file changed, 37 insertions(+), 32 deletions(-)
 
-Patch Summary
-=============
-
- 1. virtio_console: refactor __send_to_port() buffer ownership
-
-    Refactors buffer ownership in `__send_to_port()`. Previously,
-    `put_chars()` would allocate a raw buffer, pass it down, and `kfree()`
-    it immediately upon return. If `virtqueue_get_buf()` returned an older
-    completed buffer from a previous non-blocking write, the newly queued
-    buffer could be freed while the host was still DMA-ing from it.
-    By transferring ownership of a `struct port_buffer` to
-    `__send_to_port()`, we guarantee only the exact buffer returned by
-    the host is freed.
-
- 2. virtio_console: fix hot-unplug races in TX paths
-
-    Hardens the TX paths against concurrent hot-unplugs. It adds
-    `READ_ONCE(port->portdev)` checks, bails out cleanly (returning `count`
-    to prevent `hvc` infinite retries), and synchronizes `portdev = NULL`
-    in `unplug_port()` using the `outvq_lock`.
-
- 3. virtio_console: fix control queue race during restore
-
-    Fixes a race during `virtcons_restore()` where filling the control
-    receive queue (c_ivq) immediately after `DRIVER_OK` could trigger the
-    control workqueue before the driver finished restoring port states,
-    leading to list corruption.
-
- 4. virtio_console: fix race between hvc put_chars and virtqueue teardown
-
-    Addresses the original PM freeze race by introducing a `pm_freezing`
-    state. TX paths now safely drop output while freezing.
-    A synchronization loop in `virtcons_freeze()` ensures all active TX
-    threads have drained before `virtio_reset_device()` is called.
-
-
-Testing
-=======
-
-Runtime-tested on arm64 systems with `no_console_suspend` enabled
-during S4 cycles.
-
-
-Changes
-=======
-
-v3:
-  Split the original monolithic patch into a 4-part patchset for better
-  logical grouping and bisectability.
-
-
-Sungho Bae (4):
-  virtio_console: refactor __send_to_port() buffer ownership
-  virtio_console: fix hot-unplug races in TX paths
-  virtio_console: fix control queue race during restore
-  virtio_console: fix race between hvc put_chars and virtqueue teardown
-    on freeze
-
- drivers/char/virtio_console.c | 177 ++++++++++++++++++++++++++--------
- 1 file changed, 137 insertions(+), 40 deletions(-)
-
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 9a33217c68d9..bbf5b3825f12 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -402,7 +402,7 @@ static void reclaim_dma_bufs(void)
+ }
+ 
+ static struct port_buffer *alloc_buf(struct virtio_device *vdev, size_t buf_size,
+-				     int pages)
++				     int pages, gfp_t gfp)
+ {
+ 	struct port_buffer *buf;
+ 
+@@ -436,11 +436,10 @@ static struct port_buffer *alloc_buf(struct virtio_device *vdev, size_t buf_size
+ 
+ 		/* Increase device refcnt to avoid freeing it */
+ 		get_device(buf->dev);
+-		buf->buf = dma_alloc_coherent(buf->dev, buf_size, &buf->dma,
+-					      GFP_KERNEL);
++		buf->buf = dma_alloc_coherent(buf->dev, buf_size, &buf->dma, gfp);
+ 	} else {
+ 		buf->dev = NULL;
+-		buf->buf = kmalloc(buf_size, GFP_KERNEL);
++		buf->buf = kmalloc(buf_size, gfp);
+ 	}
+ 
+ 	if (!buf->buf)
+@@ -595,7 +594,7 @@ static void reclaim_consumed_buffers(struct port *port)
+ 
+ static ssize_t __send_to_port(struct port *port, struct scatterlist *sg,
+ 			      int nents, size_t in_count,
+-			      void *data, bool nonblock)
++			      struct port_buffer *buf, bool nonblock)
+ {
+ 	struct virtqueue *out_vq;
+ 	int err;
+@@ -608,14 +607,14 @@ static ssize_t __send_to_port(struct port *port, struct scatterlist *sg,
+ 
+ 	reclaim_consumed_buffers(port);
+ 
+-	err = virtqueue_add_outbuf(out_vq, sg, nents, data, GFP_ATOMIC);
++	err = virtqueue_add_outbuf(out_vq, sg, nents, buf, GFP_ATOMIC);
+ 
+ 	/* Tell Host to go! */
+ 	virtqueue_kick(out_vq);
+ 
+ 	if (err) {
+ 		in_count = 0;
+-		goto done;
++		goto free_and_done;
+ 	}
+ 
+ 	if (out_vq->num_free == 0)
+@@ -632,10 +631,19 @@ static ssize_t __send_to_port(struct port *port, struct scatterlist *sg,
+ 	 * buffer and relax the spinning requirement.  The downside is
+ 	 * we need to kmalloc a GFP_ATOMIC buffer each time the
+ 	 * console driver writes something out.
++	 *
++	 * Spin until host returns the buffer.
++	 * Capture the returned buf so we can free it.
++	 * If broken, buf == NULL and buf stays in the vq;
++	 * remove_vqs() will call virtqueue_detach_unused_buf() -> free_buf().
+ 	 */
+-	while (!virtqueue_get_buf(out_vq, &len)
++	while (!(buf = virtqueue_get_buf(out_vq, &len))
+ 		&& !virtqueue_is_broken(out_vq))
+ 		cpu_relax();
++
++free_and_done:
++	if (buf)
++		free_buf(buf, false);
+ done:
+ 	spin_unlock_irqrestore(&port->outvq_lock, flags);
+ 
+@@ -816,14 +824,14 @@ static ssize_t port_fops_write(struct file *filp, const char __user *ubuf,
+ 
+ 	count = min((size_t)(32 * 1024), count);
+ 
+-	buf = alloc_buf(port->portdev->vdev, count, 0);
++	buf = alloc_buf(port->portdev->vdev, count, 0, GFP_KERNEL);
+ 	if (!buf)
+ 		return -ENOMEM;
+ 
+ 	ret = copy_from_user(buf->buf, ubuf, count);
+ 	if (ret) {
+-		ret = -EFAULT;
+-		goto free_buf;
++		free_buf(buf, true);
++		return -EFAULT;
+ 	}
+ 
+ 	/*
+@@ -835,15 +843,7 @@ static ssize_t port_fops_write(struct file *filp, const char __user *ubuf,
+ 	 */
+ 	nonblock = true;
+ 	sg_init_one(sg, buf->buf, count);
+-	ret = __send_to_port(port, sg, 1, count, buf, nonblock);
+-
+-	if (nonblock && ret > 0)
+-		goto out;
+-
+-free_buf:
+-	free_buf(buf, true);
+-out:
+-	return ret;
++	return __send_to_port(port, sg, 1, count, buf, nonblock);
+ }
+ 
+ struct sg_list {
+@@ -932,7 +932,7 @@ static ssize_t port_fops_splice_write(struct pipe_inode_info *pipe,
+ 		goto error_out;
+ 
+ 	occupancy = pipe_buf_usage(pipe);
+-	buf = alloc_buf(port->portdev->vdev, 0, occupancy);
++	buf = alloc_buf(port->portdev->vdev, 0, occupancy, GFP_KERNEL);
+ 
+ 	if (!buf) {
+ 		ret = -ENOMEM;
+@@ -946,11 +946,12 @@ static ssize_t port_fops_splice_write(struct pipe_inode_info *pipe,
+ 	sg_init_table(sgl.sg, sgl.size);
+ 	ret = __splice_from_pipe(pipe, &sd, pipe_to_sg);
+ 	pipe_unlock(pipe);
++
+ 	if (likely(ret > 0))
+ 		ret = __send_to_port(port, buf->sg, sgl.n, sgl.len, buf, true);
+-
+-	if (unlikely(ret <= 0))
++	else
+ 		free_buf(buf, true);
++
+ 	return ret;
+ 
+ error_out:
+@@ -1108,21 +1109,25 @@ static ssize_t put_chars(u32 vtermno, const u8 *buf, size_t count)
+ {
+ 	struct port *port;
+ 	struct scatterlist sg[1];
+-	void *data;
+-	int ret;
++	struct port_buffer *pbuf;
+ 
+ 	port = find_port_by_vtermno(vtermno);
+ 	if (!port)
+ 		return -EPIPE;
+ 
+-	data = kmemdup(buf, count, GFP_ATOMIC);
+-	if (!data)
++	pbuf = alloc_buf(port->portdev->vdev, count, 0, GFP_ATOMIC);
++	if (!pbuf)
+ 		return -ENOMEM;
+ 
+-	sg_init_one(sg, data, count);
+-	ret = __send_to_port(port, sg, 1, count, data, false);
+-	kfree(data);
+-	return ret;
++	memcpy(pbuf->buf, buf, count);
++	pbuf->len = count;
++	sg_init_one(sg, pbuf->buf, count);
++
++	/*
++	 * Ownership of pbuf is transferred to __send_to_port().
++	 * Do not touch or free pbuf after this call.
++	 */
++	return __send_to_port(port, sg, 1, count, pbuf, false);
+ }
+ 
+ /*
+@@ -1295,7 +1300,7 @@ static int fill_queue(struct virtqueue *vq, spinlock_t *lock)
+ 
+ 	nr_added_bufs = 0;
+ 	do {
+-		buf = alloc_buf(vq->vdev, PAGE_SIZE, 0);
++		buf = alloc_buf(vq->vdev, PAGE_SIZE, 0, GFP_KERNEL);
+ 		if (!buf)
+ 			return -ENOMEM;
+ 
 -- 
 2.34.1
 
