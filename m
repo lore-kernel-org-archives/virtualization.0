@@ -1,133 +1,161 @@
-Received: from desiato.infradead.org (desiato.infradead.org [90.155.92.199])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E7EF23D16E9;
-	Wed,  3 Jun 2026 14:27:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.92.199
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6CD543E5A2E
+	for <virtualization@lists.linux.dev>; Wed,  3 Jun 2026 18:39:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780496836; cv=none; b=BDgskUaV9dzPnIICYPRBG/oUC4fWnivnBm1rqijRqeGpiz1c6AG5lktmo9RnUBw3r/leFSGVN8ghjzXpxD3f/6k5LcUJw6ldeL+wU7TaCKJrNur/oKO/pYo6KsYM3m1M2DLXERgZ/c7wjaI+pbuKg0llogFp2BMCx9N+8rmWHR0=
+	t=1780511954; cv=none; b=NHhQgMFKhWWwVzLBvHCri1wslonYr8iKdBmII8VwALQCqhlY0Sx5obPPfs2pggVUwoa8Ne4G166d1nuZOf+rdynlundQ8hTHqBp091HCr7idpUV5kQBaDJGsRErHaz//NWK79zp296ic/tjttOzeCWBA8aOUlzb1Ho8rhd0yuMk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780496836; c=relaxed/simple;
-	bh=AuGuRH+fFyEdbJRKSt1mI4XMyMufmkTscbswOCeuews=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=QtNlARfBrp+m4INV4kNvgN8NMantNM+Pc2UfBpzzDbH2b6oRIaq8O1Ne/YFn0HTgEg06vfomVf2cWWW8chgrQLh9XHxn2U+93FucFhlK1hX2VM5Dy6SHWiaZkK8yhcyBl20Vhk3uxGoM2h8+W7Qo+hs3I0x2Jlf1fntkJzwVntI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=mXm4zhu/; arc=none smtp.client-ip=90.155.92.199
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
+	s=arc-20240116; t=1780511954; c=relaxed/simple;
+	bh=ymB6v4fxjeHGAHyyQBBzUFLJbQz9tkxCo9VxIY+IdDY=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=cjlbN/TYxueB37q+3kfvNuYXN06LjUN+UWA72pKbEUXb02W/VLqy6lnPptZIm1uq/YLhw49J89K0NJfIldpXa2YYpIzheTIDMMcrzANGOO7RhjFXeqpxcm8N/2L9teaITU9HkEAo2R3kCNmDb81ejqojkE6xitaAIcduciejZAo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FabqiFnE; arc=none smtp.client-ip=209.85.214.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="mXm4zhu/"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=desiato.20200630; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=os4aRjDnafKUzup1QuKJHbiKJ+/dQN99U138wr5Ge48=; b=mXm4zhu/Rg+tWnyBEHPAizygP+
-	MokSQOOwsmHArQ5zsrd7YX3dwe41qJEnF1l5tg9WYaOHQgJI7SXdYYZZQyEz4Rtg697HMdeiKdyNY
-	V6QXv/NtFvmWLicZFBildOj3UogNmhtP8Ig6qT0IAl6uvnLiEBLKWu1anuSJI+qD+b8E9YGOA5KnK
-	AD/mZR5Hl1ie8T7XhS/5kg/3/z3q/me369Frj+mf4355m7BAd1/WiLPkkTV+l9MyKXB24EQCXsLht
-	mZny4wOhaOGbHX+TMYQmQ1cefA+QUrDIee5OqkmMyL0JDD02lRozDH6sryst0Ib0jaTxT1G7v7bpu
-	7mO+FzAA==;
-Received: from 2001-1c00-8d85-4b00-266e-96ff-fe07-7dcc.cable.dynamic.v6.ziggo.nl ([2001:1c00:8d85:4b00:266e:96ff:fe07:7dcc] helo=noisy.programming.kicks-ass.net)
-	by desiato.infradead.org with esmtpsa (Exim 4.99.2 #2 (Red Hat Linux))
-	id 1wUmYe-0000000CPBt-2ufD;
-	Wed, 03 Jun 2026 14:27:00 +0000
-Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
-	id 67A053007A4; Wed, 03 Jun 2026 16:26:59 +0200 (CEST)
-Date: Wed, 3 Jun 2026 16:26:59 +0200
-From: Peter Zijlstra <peterz@infradead.org>
-To: Dmitry Ilvokhin <d@ilvokhin.com>
-Cc: Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
-	Boqun Feng <boqun@kernel.org>, Waiman Long <longman@redhat.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Juergen Gross <jgross@suse.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Thomas Gleixner <tglx@kernel.org>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
-	Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
-	Christoph Lameter <cl@gentwo.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-arch@vger.kernel.org,
-	linux-mm@kvack.org, linux-trace-kernel@vger.kernel.org,
-	kernel-team@meta.com, "Paul E. McKenney" <paulmck@kernel.org>
-Subject: Re: [PATCH v6 5/7] locking: Add contended_release tracepoint to
- qspinlock
-Message-ID: <20260603142659.GW3102624@noisy.programming.kicks-ass.net>
-References: <cover.1777999826.git.d@ilvokhin.com>
- <5d7ea75ffe74a785e6b234ada9f23c6373d4b4c1.1777999826.git.d@ilvokhin.com>
- <20260513193342.GB2545104@noisy.programming.kicks-ass.net>
- <agXBb0ga_6HJrrnm@shell.ilvokhin.com>
- <20260603120811.GW3493090@noisy.programming.kicks-ass.net>
- <aiA3dzjKVq2_cpSY@shell.ilvokhin.com>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FabqiFnE"
+Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-2bf20f6be6bso35955185ad.3
+        for <virtualization@lists.linux.dev>; Wed, 03 Jun 2026 11:39:11 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1780511951; x=1781116751; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=E7ONTJkweAcZcnKMGezhHMuN65WNnCKGBpfevNj/QjE=;
+        b=FabqiFnE7qRdKZvJP1bfJ/RHaVgc4ovNJCSAWgovTZsiw0bFZOU7xD6y9WWgE+1RNB
+         MjcTr8iTv1xy3vC/TW9XMXsziSwzEP3afjNSPXglN+Sou8/6Juq0ysjkCQmPim166EbP
+         9yBskd+uBwSDXdltL0B40Gtq81ST5lcMgdrjmmCrw9Q2M4msZfDjqlQxac5P26TmnrAg
+         363KgkuTJfMJeGis+jc4v/k8e+VTweQ7G0aJG8u/CL4+9Lg905LvQ6ADRnVZtbvq8iY1
+         Lm3W/30QGXm9oew4f5rDgMHpFkkZ999BkcultEZgtB1pPVzkZEecz24LKVT4DkbWZbLO
+         rqkQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780511951; x=1781116751;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=E7ONTJkweAcZcnKMGezhHMuN65WNnCKGBpfevNj/QjE=;
+        b=ElrWkEPF9jgeN9PbNuW4kQOaYK8Ti/ct4JzdSmTCDNr0b5m2TweY7D0/sOQOsnAZYP
+         b2ujd1nykEIHdFbQonUZ5chabM9C3mTbl60Zxt6IQzHrTsVmYIso527Pig6//2xB8rzB
+         PES71FqWPx039bOewBsBHs7OLwOMXJWIQgPeRk+e3MLl/uGfaUjS+KSl862WLvUw05EO
+         k20vSfl+AY8Tc/QDCGFT2DHop9awlCZdhM/40PnJkxo2CZd9cE/44LElijz0x2pi+iR8
+         XDx/2aCA7rPHyL0q9Dw6JzKDhFj6XgqSpygUZn6xn+4v4YT4Zqjzq0LqY0IzoYFIPtsp
+         RAnA==
+X-Gm-Message-State: AOJu0Ywb6zACrmqlbtT4SJM2S3f4ALBeu1GGE/FUDCISQU0MlAXOx8D/
+	1Gu7epNRKiugbs5GQutflOLjId7ye9vS+bLBt8B5orLjbB/slgWgRR55
+X-Gm-Gg: Acq92OEdLP58sjBS0GIXjm1XHscraMmm13wfFZT8QybpKlGltnO/SEW1Xdywy7D2rxt
+	6630iE5s0LkwlE3FwPkmC1+0t9+acokBRZKU7kmc3u79XxRB6FCCiYHoNinHWvTVzOhqpn5DPiZ
+	VzULw5qzlWdyiepLGYnij1NqKKoUeCUXsjy3Ko9YFY7PU2hLXAl3GiovBNUZ0d+9dJuhd146Z+3
+	fDj7RkXSP8ol03glx1A0bYBRP21R9di2xZqJqsrDeYCS4jrGEo8EBEhfKtIZOe0NEGGDK3L407/
+	s5cOxsEXNoz76sPYxrO5gq2X4lSegnK5TXUTPxEbM/jJdFt3ANPmLALshDadojUod7RosekYiLu
+	jXTMgGTmoIFxY+XYQrXCLu+2zYACsH6Uib1Ko4ITGPgO+7XSKKA6UyUocxlq55TVylztqCoc8cu
+	WOIu/0s8RQ1LOyuDBvSUwE51LUiQjjIu6XTJklYNospjVV+5VZzhcoCw6zwww7z5WCbh2STrH0s
+	N4dirm80jgWfofctVeBCseHMi15ChAhtbkLwg==
+X-Received: by 2002:a17:903:288:b0:2bf:1486:e6ca with SMTP id d9443c01a7336-2c163d61cbemr51934235ad.12.1780511950513;
+        Wed, 03 Jun 2026 11:39:10 -0700 (PDT)
+Received: from baver-zenith.localdomain ([124.49.88.131])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c16649c01asm32764915ad.74.2026.06.03.11.39.07
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 03 Jun 2026 11:39:09 -0700 (PDT)
+From: Sungho Bae <baver.bae@gmail.com>
+To: amit@kernel.org,
+	arnd@arndb.de,
+	gregkh@linuxfoundation.org
+Cc: virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Sungho Bae <baver.bae@gmail.com>
+Subject: [PATCH v3 0/4] virtio_console: fix suspend/resume and hot-unplug races
+Date: Thu,  4 Jun 2026 03:37:53 +0900
+Message-Id: <20260603183757.21587-1-baver.bae@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <aiA3dzjKVq2_cpSY@shell.ilvokhin.com>
+Content-Transfer-Encoding: 8bit
 
-On Wed, Jun 03, 2026 at 02:17:27PM +0000, Dmitry Ilvokhin wrote:
+Hi all,
 
-> > Something a little like so, which is completely untested, except to
-> > build kernel/locking/spinlock.o (with clang-23).
-> 
-> Thanks a lot for taking a look, Peter.
-> 
-> I like the static_call idea. It's truly zero cost on x86 (and, as you
-> note, even a byte smaller). The one caveat is that it relies on
-> HAVE_STATIC_CALL_INLINE to stay free. 
-> 
-> So my plan would be: static_call where HAVE_STATIC_CALL_INLINE is
-> available (x86), and a static branch fallback elsewhere, gated behind a
-> default-off config so it imposes nothing on arches/kernels that don't
-> opt in. I'm mostly interested in x86, but would like arm64 to work too,
-> which would use the fallback.
+This patchset addresses several critical race conditions and memory
+lifecycle bugs in the virtio_console driver, primarily surrounding
+the TX path(`__send_to_port`, `put_chars`), device hot-unplug, and
+PM freeze/restore.
 
-(i386 doesn't have STATIC_CALL_INLINE, but nobody cares about the
-performance on that target, so anything goes really ;-)
+The initial motivation for this series was to fix a race where
+`hvc_console` writes (which can remain active during suspend
+if `no_console_suspend` is enabled) could enqueue buffers while
+`virtcons_freeze` was tearing down virtqueues, leading to a `BUG_ON` in
+`virtqueue_detach_unused_buf_split()`.
 
-> 
-> Concretely:
-> 
-> 1. Split the sleepable-lock patches out and send them separately.
->    They're independent of the static call work and look far less
->    controversial.
-> 
-> 2. Convert the paravirt spinlock unlock to a static_call, as the
->    foundation for the unlock tracepoint. I'm happy to take a stab at it.
->    Let me know if you'd rather do it yourself.
+During the investigation and testing of the freeze race, several related
+vulnerabilities were uncovered in how TX paths handled buffer ownership and
+stale `portdev` pointers during concurrent hot-unplugs. Because these fixes
+structurally overlap in `__send_to_port()` and `put_chars()`, they are
+submitted together as a single patchset to avoid merge conflicts.
 
-Yeah, I think that patch as-is *should* work, but like said, I haven't
-even tried it, so it could be terribly broken :-)
 
-> 3. Build the unlock tracepoint on top: static_call where it's cheap,
->    config-gated static_branch fallback where it isn't.
+Patch Summary
+=============
 
-Right, so I think we need some sort of custom callback for tracepoint
-enable/disable. Its been a minute since I dug through the tracepoint
-code, but I don't think it provides that with a convenient wrapper, but
-it should be doable.
+ 1. virtio_console: refactor __send_to_port() buffer ownership
 
-One thing to note is that when you set the tracepoint unlock function,
-it should either tail-call into the original function, or you have to
-create two unlock_trace functions, one for native and one for paravirt
-and pick the right one.
+    Refactors buffer ownership in `__send_to_port()`. Previously,
+    `put_chars()` would allocate a raw buffer, pass it down, and `kfree()`
+    it immediately upon return. If `virtqueue_get_buf()` returned an older
+    completed buffer from a previous non-blocking write, the newly queued
+    buffer could be freed while the host was still DMA-ing from it.
+    By transferring ownership of a `struct port_buffer` to
+    `__send_to_port()`, we guarantee only the exact buffer returned by
+    the host is freed.
 
-> Does this plan sound reasonable to you?
+ 2. virtio_console: fix hot-unplug races in TX paths
 
-Yeah, should work.
+    Hardens the TX paths against concurrent hot-unplugs. It adds
+    `READ_ONCE(port->portdev)` checks, bails out cleanly (returning `count`
+    to prevent `hvc` infinite retries), and synchronizes `portdev = NULL`
+    in `unplug_port()` using the `outvq_lock`.
 
-> > Also, I think someone should go do some performance runs with
-> > ARCH_INLINE_SPIN_* set for x86 just like for s390.
-> 
-> That's a good point, I'll run benchmarks and report back with the
-> results.
+ 3. virtio_console: fix control queue race during restore
 
-Thanks!
+    Fixes a race during `virtcons_restore()` where filling the control
+    receive queue (c_ivq) immediately after `DRIVER_OK` could trigger the
+    control workqueue before the driver finished restoring port states,
+    leading to list corruption.
+
+ 4. virtio_console: fix race between hvc put_chars and virtqueue teardown
+
+    Addresses the original PM freeze race by introducing a `pm_freezing`
+    state. TX paths now safely drop output while freezing.
+    A synchronization loop in `virtcons_freeze()` ensures all active TX
+    threads have drained before `virtio_reset_device()` is called.
+
+
+Testing
+=======
+
+Runtime-tested on arm64 systems with `no_console_suspend` enabled
+during S4 cycles.
+
+
+Changes
+=======
+
+v3:
+  Split the original monolithic patch into a 4-part patchset for better
+  logical grouping and bisectability.
+
+
+Sungho Bae (4):
+  virtio_console: refactor __send_to_port() buffer ownership
+  virtio_console: fix hot-unplug races in TX paths
+  virtio_console: fix control queue race during restore
+  virtio_console: fix race between hvc put_chars and virtqueue teardown
+    on freeze
+
+ drivers/char/virtio_console.c | 177 ++++++++++++++++++++++++++--------
+ 1 file changed, 137 insertions(+), 40 deletions(-)
+
+-- 
+2.34.1
+
