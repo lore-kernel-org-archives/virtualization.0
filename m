@@ -1,205 +1,115 @@
-Received: from sender4-pp-f112.zoho.com (sender4-pp-f112.zoho.com [136.143.188.112])
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D4063382F9
-	for <virtualization@lists.linux.dev>; Wed,  3 Jun 2026 01:23:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.112
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780449818; cv=pass; b=qylTBu/5GszMF1IbwzY0mZzoC9rvFerDLZ7ZcREPxMwuwHN4K2f1lPYWxR//4KAmhfl5wMNjoKPKsol2F0WnTHoOGIsFZLRQanXMH8HU6EecSzATXtWGu8seARBLoLLw7kwD7XFAXkfhq8irSOGYkZJyUMcTyWLINqPWwd3RhI0=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780449818; c=relaxed/simple;
-	bh=IOz1H6dsJTxiDXyjufnUEtZ+8I1Jpvs6fBrNoq4ligA=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=bniJPH76CawfZiqVVIkFtjlfOabohbDnJK4Lz/npqSSqlX2QD43OBLN9mU8ExgvmYsWrVZg1jiv+j2pn8NVojbXEubYF8ji/Sb/BFVrbb2wgJbLKLAhAx1MV4s07HgrGrYIosQB9d7CEFNyamEoV3s2qrE7p09Bx4pSY09zbL3A=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=Gl5uc83V; arc=pass smtp.client-ip=136.143.188.112
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F4220394785
+	for <virtualization@lists.linux.dev>; Wed,  3 Jun 2026 01:59:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.5
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780451947; cv=none; b=u3cX48NA7MSGkGMKVGEH4TUWYc8zkAM7fb5csUIObx20X3CTGkQKHJ836Ngz87zuZMZ+EERxn/59yHstpR9smKzeVG/+RDBTVz/ffgReZllpZA2f1SP7qVMCcvykhsz1HkBMmU/PKcZANmsrM8Fz2vetbjLDuvTrW5hX3QSzHHI=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780451947; c=relaxed/simple;
+	bh=vsgHEW9JEBiJqoehWt8+FZdLY6AQsMFp0DusW4rHEf8=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:Content-Type:
+	 MIME-Version:Message-ID; b=Jo1ZbLhNKlifuspjUr7TXVVki0vTWxCpHiPNJMAeGynshztNy2rlXVzfeC01USkXfGmKkozVcxHabqqy2xy7ijV/fRAF2uvdZiQmPP+wHGEaBprowXgxk1Jj8wmj6Ue4bMximh5vYdZ8YIrc8ReJEeA2jUWiUuIsxH+NBs/3RCU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=AJYl8nfj; arc=none smtp.client-ip=220.197.31.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="Gl5uc83V"
-ARC-Seal: i=1; a=rsa-sha256; t=1780449808; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=bBWjLPFfdelhJTEUek5hgrcIY652n0pCiJZKXoHTmsza4ozTWARH4QsuU+4B1j8VTE6AxhpDYXz1kG+vSMuUZT19yZHLxbVnCjTJkAbO2D5Kupal7CEFEGqJjn1zl9hQs7gNlYqPIvtl69qODXT1G1t5WqaCeDcBT1Wikb1Oe/o=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1780449808; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=Gsiqncmb4zY7VJvDrEmBtRQt1RVNkK3UHOmJ6NPHrF0=; 
-	b=i6okNbYwb7g6vN51VDaQzoaJlKMHyZrJu3ChuhS2sp+ZFySpYsvwxwQ5Jw1jA4wKOGDuv1IzRPWXq3v+Z0Z1WXfxpb9LXfNs1EH4ueHsFG/WJ/l0uccXvb6IYkQYydz6Uao9bKTHcIzP9C6RZisrhnXxXJadb29eDS/dIX3R4K4=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1780449808;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=Gsiqncmb4zY7VJvDrEmBtRQt1RVNkK3UHOmJ6NPHrF0=;
-	b=Gl5uc83VyVlHvKrbHkgOcEdAdATJ23NXzWTdzyOfdLhxavq4ataKGX9VXwcmjuA8
-	G8pe2EIpqstIWBA1p4f+Hj5swtZp8NnITEfd3d4x/ehldfUOvxaAIH+QkIOOMUTmZfd
-	2rZ+gxJzjkt3LE4mzU9Uj8JydfZ/Eu0h7vmBxP30=
-Received: by mx.zohomail.com with SMTPS id 1780449806177347.8316797280188;
-	Tue, 2 Jun 2026 18:23:26 -0700 (PDT)
-Message-ID: <16ffe1bc-46ca-45ae-a14f-667bf59a119b@collabora.com>
-Date: Wed, 3 Jun 2026 04:23:20 +0300
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="AJYl8nfj"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=Date:From:To:Subject:Content-Type:MIME-Version:
+	Message-ID; bh=vsgHEW9JEBiJqoehWt8+FZdLY6AQsMFp0DusW4rHEf8=; b=A
+	JYl8nfj0AtZ1iJqIzxRCLc913DCoSXceLDsku0JJ0fBUXPCmkJnUWgrzRpDODNJI
+	b1N6YXJnOJ9t600KvpkesPSkcFl13MFbhlm0GpxmrsKB7bDrqoohZLSq6WRHsvKs
+	ab188KZq37c0PYES+huxVF6X0l0pt7Zje3i+aib2fI=
+Received: from yangjiale133$163.com ( [218.94.41.202] ) by
+ ajax-webmail-wmsvr-40-107 (Coremail) ; Wed, 3 Jun 2026 09:58:56 +0800 (CST)
+Date: Wed, 3 Jun 2026 09:58:56 +0800 (CST)
+From: yangjiale133  <yangjiale133@163.com>
+To: "Eugenio Perez Martin" <eperezma@redhat.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>,
+	"Jason Wang" <jasowang@redhat.com>,
+	"Xuan Zhuo" <xuanzhuo@linux.alibaba.com>,
+	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
+Subject: Re:Re: [PATCH] VIRTIO: Update the desc 'flag' fied last in packed
+ ring.
+X-Priority: 3
+X-Mailer: Coremail Webmail Server Version 2023.4-cmXT build
+ 20260403(27802f6d) Copyright (c) 2002-2026 www.mailtech.cn 163com
+In-Reply-To: <CAJaqyWfugEttrQuR5_LrbQaivAqCaixsprUOjEVtdiz_sexFpA@mail.gmail.com>
+References: <20260602043123.10207-1-yangjiale133@163.com>
+ <CAJaqyWfugEttrQuR5_LrbQaivAqCaixsprUOjEVtdiz_sexFpA@mail.gmail.com>
+X-NTES-SC: AL_Qu2TAvievkEo4CaZZOkcnE8Rjuw3XcW0vvsi3YRQc+AElg3y3hkNRFpSMVr62tK2BzuptSKIUxxf6uRFYaNo7WME1aLdhl9m8DiL3izvjw==
+Content-Transfer-Encoding: base64
+Content-Type: text/plain; charset=UTF-8
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3] drm/virtio: abort virtqueue wait on device removal to
- avoid hung task
-To: Ryosuke Yasuoka <ryasuoka@redhat.com>, David Airlie <airlied@redhat.com>,
- Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Simona Vetter <simona@ffwll.ch>
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
-References: <20260601-virtio-gpu_wait_event-v3-1-89530517a98a@redhat.com>
-Content-Language: en-US
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <20260601-virtio-gpu_wait_event-v3-1-89530517a98a@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ZohoMailClient: External
+Message-ID: <46a9dc36.1986.19e8b34896c.Coremail.yangjiale133@163.com>
+X-Coremail-Locale: zh_CN
+X-CM-TRANSID:aygvCgC334lgih9qFiEBAA--.11663W
+X-CM-SenderInfo: p1dqwy5ldoviitt6il2tof0z/xtbC4gAdNmofimBIcwAA3t
+X-Coremail-Antispam: 1U5529EdanIXcx71UUUUU7vcSsGvfC2KfnxnUU==
 
-On 6/1/26 10:53, Ryosuke Yasuoka wrote:
-> virtio_gpu_queue_ctrl_sgs() and virtio_gpu_queue_cursor() use
-> wait_event() without any abort condition when waiting for virtqueue
-> space. If the host device stops processing commands, these waits block
-> indefinitely inside a drm_dev_enter/exit() critical section. Since
-> drm_dev_unplug(), which is called in device removal and system shutdown
-> call path, blocks on synchronize_srcu() until all critical sections
-> complete, device removal and system shutdown also hang.
-> 
-> Add a vqs_released flag to virtio_gpu_device and include it in the
-> wait_event() condition. Set the flag and wake up both queues in a new
-> virtio_gpu_release_vqs() helper, called before drm_dev_unplug() in both
-> virtio_gpu_remove() and virtio_gpu_shutdown(). When the flag is set, the
-> wait returns immediately and the command is aborted, following the same
-> cleanup path as drm_dev_enter() failure.
-> 
-> Signed-off-by: Ryosuke Yasuoka <ryasuoka@redhat.com>
-> ---
-> Changes in v3:
-> - Remove Reported-by and Closes tag from commit msg because they are not
->   related to this fix.
-> - Link to v2: https://lore.kernel.org/r/20260521-virtio-gpu_wait_event-v2-1-5796b3a71d03@redhat.com
-> 
-> Changes in v2:
-> - Update the commit message.
-> - Replace wait_event_timeout() with wait_event() using a compound
-> condition that includes a new vqs_released flag.
-> - Add virtio_gpu_release_vqs() helper to set the flag and wake up
-> both queues, called before drm_dev_unplug() in remove and shutdown
-> paths.
-> - Remove the hardcoded 5-second timeout. Recovery is now driven by
-> the driver flag instead of an arbitrary timeout value.
-> ---
->  drivers/gpu/drm/virtio/virtgpu_drv.c | 15 +++++++++++++++
->  drivers/gpu/drm/virtio/virtgpu_drv.h |  1 +
->  drivers/gpu/drm/virtio/virtgpu_vq.c  | 23 +++++++++++++++++++++--
->  3 files changed, 37 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.c b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> index a5ce96fb8a1d..e4fe5e0780f9 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.c
-> @@ -119,10 +119,24 @@ static int virtio_gpu_probe(struct virtio_device *vdev)
->  	return ret;
->  }
->  
-> +/*
-> + * Release pending virtqueue waits so the drm_dev_enter/exit() critical
-> + * sections complete before drm_dev_unplug() blocks on synchronize_srcu().
-> + */
-> +static void virtio_gpu_release_vqs(struct drm_device *dev)
-> +{
-> +	struct virtio_gpu_device *vgdev = dev->dev_private;
-> +
-> +	vgdev->vqs_released = true;
-> +	wake_up_all(&vgdev->ctrlq.ack_queue);
-> +	wake_up_all(&vgdev->cursorq.ack_queue);
-> +}
-> +
->  static void virtio_gpu_remove(struct virtio_device *vdev)
->  {
->  	struct drm_device *dev = vdev->priv;
->  
-> +	virtio_gpu_release_vqs(dev);
->  	drm_dev_unplug(dev);
->  	drm_atomic_helper_shutdown(dev);
->  	virtio_gpu_deinit(dev);
-> @@ -133,6 +147,7 @@ static void virtio_gpu_shutdown(struct virtio_device *vdev)
->  {
->  	struct drm_device *dev = vdev->priv;
->  
-> +	virtio_gpu_release_vqs(dev);
->  	/* stop talking to the device */
->  	drm_dev_unplug(dev);
->  }
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> index 2f3531950aa4..5f7bb6cc6ba7 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-> @@ -235,6 +235,7 @@ struct virtio_gpu_device {
->  
->  	struct virtio_gpu_queue ctrlq;
->  	struct virtio_gpu_queue cursorq;
-> +	bool vqs_released;
->  	struct kmem_cache *vbufs;
->  
->  	atomic_t pending_commands;
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> index 67865810a2e7..8057a9b7356d 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> @@ -396,7 +396,19 @@ static int virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
->  	if (vq->num_free < elemcnt) {
->  		spin_unlock(&vgdev->ctrlq.qlock);
->  		virtio_gpu_notify(vgdev);
-> -		wait_event(vgdev->ctrlq.ack_queue, vq->num_free >= elemcnt);
-> +		wait_event(vgdev->ctrlq.ack_queue,
-> +			   vq->num_free >= elemcnt || vgdev->vqs_released);
-> +		/*
-> +		 * Set by virtio_gpu_release_vqs() to unblock
-> +		 * synchronize_srcu() wait in drm_dev_unplug().
-> +		 */
-> +		if (vgdev->vqs_released) {
-> +			if (fence && vbuf->objs)
-> +				virtio_gpu_array_unlock_resv(vbuf->objs);
-> +			free_vbuf(vgdev, vbuf);
-> +			drm_dev_exit(idx);
-> +			return -ENODEV;
-> +		}
->  		goto again;
->  	}
->  
-> @@ -566,7 +578,14 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
->  	ret = virtqueue_add_sgs(vq, sgs, outcnt, 0, vbuf, GFP_ATOMIC);
->  	if (ret == -ENOSPC) {
->  		spin_unlock(&vgdev->cursorq.qlock);
-> -		wait_event(vgdev->cursorq.ack_queue, vq->num_free >= outcnt);
-> +		wait_event(vgdev->cursorq.ack_queue,
-> +			   vq->num_free >= outcnt || vgdev->vqs_released);
-> +		/* See comment in virtio_gpu_queue_ctrl_sgs(). */
-> +		if (vgdev->vqs_released) {
-> +			free_vbuf(vgdev, vbuf);
-> +			drm_dev_exit(idx);
-> +			return;
-> +		}
->  		spin_lock(&vgdev->cursorq.qlock);
->  		goto retry;
->  	} else {
-> 
-> ---
-> base-commit: e43ffb69e0438cddd72aaa30898b4dc446f664f8
-> change-id: 20260518-virtio-gpu_wait_event-5aa060754f12
-> 
-> Best regards,
+RnJvbSB0aGUgZGV2aWNlJ3MgcGVyc3BlY3RpdmUsIGR1cmluZyBhIHNpbmdsZSByZWFkIG9mIHRo
+ZSBkZXNjcmlwdG9yIApsaXN0LWFuZCB0aGF0IGxpc3Qgc3BhbnMgYWNyb3NzIGNhY2hlIGxpbmVz
+Lgp0aGUgcmV0cmlldmVkIGRhdGEgd2lsbCBzaG93IGBkZXNjW2hlYWRdLmZsYWdzYCBhcyB2YWxp
+ZCwgCmFuZCBgZGVzY1tpXS5mbGFnc2AgYXMgdmFsaWQgYXMgd2VsbDsgaG93ZXZlciwgCnRoZSBg
+ZGVzY1tpXS5hZGRyYCBhbmQgYGxlbmAgZmllbGRzIG1heSBiZSBpbnZhbGlkLgoKSSBzdXNwZWN0
+IHRoaXMgb2NjdXJzIGJlY2F1c2UgYSBzaW5nbGUgRE1BIG9wZXJhdGlvbiBpcyBpbnRlcm5hbGx5
+IApzcGxpdCBpbnRvIG11bHRpcGxlIHBhcmFsbGVsIHJlYWQgdHJhbnNhY3Rpb25zLCAKYWxpZ25l
+ZCB0byBjYWNoZSBsaW5lIGJvdW5kYXJpZXMuCgpJIGFwb2xvZ2l6ZSB0aGF0IEkgY3VycmVudGx5
+IGxhY2sgdGhlIG5lY2Vzc2FyeSBlbnZpcm9ubWVudCB0byB2ZXJpZnkgCndoZXRoZXIgdGhpcyBt
+b2RpZmljYXRpb24gZGVmaW5pdGl2ZWx5IHJlc29sdmVzIHRoZSBpc3N1ZSBvciAKbWVyZWx5IHJl
+ZHVjZXMgdGhlIHByb2JhYmlsaXR5IG9mIGl0cyBvY2N1cnJlbmNlOyAKdGhlcmVmb3JlLCB0aGlz
+IHBhdGNoIGNhbiBiZSBkaXNjYXJkZWQuCgp5YW5namlhbGUKCgoKQXQgMjAyNi0wNi0wMiAxNDow
+NDoxMywgIkV1Z2VuaW8gUGVyZXogTWFydGluIiA8ZXBlcmV6bWFAcmVkaGF0LmNvbT4gd3JvdGU6
+Cj5PbiBUdWUsIEp1biAyLCAyMDI2IGF0IDY6MzTigK9BTSB5YW5namlhbGUgPHlhbmdqaWFsZTEz
+M0AxNjMuY29tPiB3cm90ZToKPj4KPj4gV2hlbiBhIGRlc2NyaXB0b3IgbGlzdCBzcGFucyBhY3Jv
+c3MgY2FjaGUgbGluZXMsCj4+IHVwZGF0aW5nIHRoZSBmbGFnIGZpcnN0IGNhbiBsZWFkIHRvIGEg
+c2NlbmFyaW8gd2hlcmUgdGhlIGRldmljZSBzaWRlCj4+IHBlcmNlaXZlcyB0aGUgZmxhZyBhcyB2
+YWxpZCwgeWV0IHRoZSBjb3JyZXNwb25kaW5nIGFkZHJlc3MgYW5kIGxlbmd0aAo+PiBmaWVsZHMg
+cmVtYWluIHVudXBkYXRlZOKAlHJlc3VsdGluZyBpbiBpbnZhbGlkIHZhbHVlcy4KPj4gVGhlcmVm
+b3JlLCB0aGUgZmxhZyBmaWVsZCBtdXN0IGJlIHVwZGF0ZWQgbGFzdC4KPj4KPj4gU2lnbmVkLW9m
+Zi1ieTogeWFuZ2ppYWxlIDx5YW5namlhbGUxMzNAMTYzLmNvbT4KPj4gLS0tCj4+ICBkcml2ZXJz
+L3ZpcnRpby92aXJ0aW9fcmluZy5jIHwgOCArKysrLS0tLQo+PiAgMSBmaWxlIGNoYW5nZWQsIDQg
+aW5zZXJ0aW9ucygrKSwgNCBkZWxldGlvbnMoLSkKPj4KPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMv
+dmlydGlvL3ZpcnRpb19yaW5nLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4+IGlu
+ZGV4IGZiY2E3Y2UxYzZiZi4uMDM2YjRmOTBkMzBmIDEwMDY0NAo+PiAtLS0gYS9kcml2ZXJzL3Zp
+cnRpby92aXJ0aW9fcmluZy5jCj4+ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMK
+Pj4gQEAgLTE2ODgsNiArMTY4OCwxMCBAQCBzdGF0aWMgaW5saW5lIGludCB2aXJ0cXVldWVfYWRk
+X3BhY2tlZChzdHJ1Y3QgdnJpbmdfdmlydHF1ZXVlICp2cSwKPj4gICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgJmFkZHIsICZsZW4sIHByZW1hcHBlZCwgYXR0cikp
+Cj4+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZ290byB1bm1hcF9yZWxlYXNlOwo+
+Pgo+PiArICAgICAgICAgICAgICAgICAgICAgICBkZXNjW2ldLmFkZHIgPSBjcHVfdG9fbGU2NChh
+ZGRyKTsKPj4gKyAgICAgICAgICAgICAgICAgICAgICAgZGVzY1tpXS5sZW4gPSBjcHVfdG9fbGUz
+MihsZW4pOwo+PiArICAgICAgICAgICAgICAgICAgICAgICBkZXNjW2ldLmlkID0gY3B1X3RvX2xl
+MTYoaWQpOwo+PiArCj4+ICAgICAgICAgICAgICAgICAgICAgICAgIGZsYWdzID0gY3B1X3RvX2xl
+MTYodnEtPnBhY2tlZC5hdmFpbF91c2VkX2ZsYWdzIHwKPj4gICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICAgKCsrYyA9PSB0b3RhbF9zZyA/IDAgOiBWUklOR19ERVNDX0ZfTkVYVCkg
+fAo+PiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAobiA8IG91dF9zZ3MgPyAw
+IDogVlJJTkdfREVTQ19GX1dSSVRFKSk7Cj4+IEBAIC0xNjk2LDEwICsxNzAwLDYgQEAgc3RhdGlj
+IGlubGluZSBpbnQgdmlydHF1ZXVlX2FkZF9wYWNrZWQoc3RydWN0IHZyaW5nX3ZpcnRxdWV1ZSAq
+dnEsCj4+ICAgICAgICAgICAgICAgICAgICAgICAgIGVsc2UKPj4gICAgICAgICAgICAgICAgICAg
+ICAgICAgICAgICAgICBkZXNjW2ldLmZsYWdzID0gZmxhZ3M7Cj4+Cj4+IC0gICAgICAgICAgICAg
+ICAgICAgICAgIGRlc2NbaV0uYWRkciA9IGNwdV90b19sZTY0KGFkZHIpOwo+PiAtICAgICAgICAg
+ICAgICAgICAgICAgICBkZXNjW2ldLmxlbiA9IGNwdV90b19sZTMyKGxlbik7Cj4+IC0gICAgICAg
+ICAgICAgICAgICAgICAgIGRlc2NbaV0uaWQgPSBjcHVfdG9fbGUxNihpZCk7Cj4+IC0KPj4gICAg
+ICAgICAgICAgICAgICAgICAgICAgaWYgKHVubGlrZWx5KHZxLT51c2VfbWFwX2FwaSkpIHsKPj4g
+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB2cS0+cGFja2VkLmRlc2NfZXh0cmFbY3Vy
+cl0uYWRkciA9IHByZW1hcHBlZCA/Cj4+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
+ICAgICAgICBETUFfTUFQUElOR19FUlJPUiA6IGFkZHI7Cj4KPlRoZXNlIGZsYWdzIGFyZSB1cGRh
+dGVkIGJlZm9yZSB0aGUgZmxhZ3Mgb2YgdGhlIGhlYWQgZGVzY3JpcHRvciBhdCB0aGUKPmVuZCBv
+ZiB0aGUgZnVuY3Rpb24sIGF0ICJ2cS0+cGFja2VkLnZyaW5nLmRlc2NbaGVhZF0uZmxhZ3MgPQo+
+aGVhZF9mbGFncyIsIHNvIHRoZSBkZXZpY2Ugc2hvdWxkIG5vdCBzZWUgdGhlc2UuIEJlY2F1c2Ug
+b2YgdGhhdCwgdGhlCj5yZWxhdGl2ZSBvcmRlciBiZXR3ZWVuIHRoZSByZXN0IG9mIHRoZSBmaWVs
+ZHMgb2YgdGhlIHNhbWUgZGVzY3JpcHRvcgo+b3Igb3RoZXIgZGVzY3JpcHRvcnMnIGZpZWxkcywg
+ZXhjZXB0IGZvciB0aGUgaGVhZCBkZXNjcmlwdG9yJ3MgZmxhZ3MsCj5zaG91bGQgbm90IG1hdHRl
+ci4gVGhlcmUgaXMgYSB3cml0ZSBtZW1vcnkgYmFycmllciBqdXN0IGJlZm9yZQo+dXBkYXRpbmcg
+dGhlIGhlYWQncyBmbGFncy4KPgo+QWxzbywgSSBkb24ndCBnZXQgd2h5IHRoZSBjYWNoZSBsaW5l
+IG1hdHRlcnMgaGVyZS4gQ2FuIHlvdSBleHBhbmQ/IEFtCj5JIG1pc3Npbmcgc29tZXRoaW5nPwo=
 
-Applied to misc-next, thanks!
-
--- 
-Best regards,
-Dmitry
