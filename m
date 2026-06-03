@@ -1,182 +1,105 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E0C043FDBFE
-	for <virtualization@lists.linux.dev>; Tue,  2 Jun 2026 17:46:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E995305664
+	for <virtualization@lists.linux.dev>; Wed,  3 Jun 2026 01:12:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780422411; cv=none; b=Dam5oz3JbcpJTOtsblHrm7P5HS1VqkpgCZJiKfm+pUcacE7RGmS4OJ3fsTLfhaDTB3k18tDx6Tgd5Eddys23f2W0WA8YYbiYscJXfnkI92i1i7ifAvOvWmZUVVCHX4hq0FX1/YMYgkoOTtsUb0L8IQ04da6pckXCZbpqMeBN3yg=
+	t=1780449159; cv=none; b=SXN1dbOaiCodMbCEIW39SgoEszX11zn95U5mikQr+M9N1GOOliR4VvjjdvpFICISKgxGZTayUvRChpDRULVtIab1HETBnGbUqA/lSPt0/4/Lwd6Nc7y6Mb6MHmAF8xzxdKMwEKPgGDxF+E8u/KGHX+FIZQgjxxYonL/x7Fs753o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780422411; c=relaxed/simple;
-	bh=lkXExpOq/3CFxUJ56vajrxY8zubhNMYaVnoxW5VnrOQ=;
-	h=Date:Message-ID:From:To:Cc:Subject:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Tn+4ItryfdiFFmrH5Ribr8xSxCWKXL4xXoUERuFNejEcx+7s7uVWA2w8RWFiB0wGajPkSMwKNQrPfoYnlrlqCZCFoLfJLkszCET3Nugt0h86n32H8db6Ww+67DQhYbKGe4j5d88ns3FOPfYelnd2naMysWFYiD0n3UBpwEhuOAU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=rmueofPU; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=1J0yLW4+; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=rmueofPU; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=1J0yLW4+; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1780449159; c=relaxed/simple;
+	bh=hew4HRz7gzgRJeKz628QCtAAjpVgxSwsN73kAg0Vknc=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
+	 Content-Type; b=crDZIdSEDRyGi+6COY7T+7dMPYqqaxkacW4jmiFysRtsPVJUx3JEC/Lqi20LCUzPe5oaCE9NBrh+XOj9aCuqc04ZUt5JjsgrjEgrOhzd+Rn4SAQL3uVSVKiVAagrxe8lAaywXD4VF4uxUFDV9JDyjXfLVZLE3sWZ12l8ofC91ko=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=usy34K+q; arc=none smtp.client-ip=115.124.30.99
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="rmueofPU";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="1J0yLW4+";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="rmueofPU";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="1J0yLW4+"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 44B7A75BE5;
-	Tue,  2 Jun 2026 17:46:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1780422405; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=XBPeD93nc5hxvHMZc8DnnBow0Wo6CxVrYE8MsKc6QzA=;
-	b=rmueofPUpwNGSqHiFDJaUhIJ62NzunhrtUKpJ2lWNdQARu6er7L6mkDxEeQR07ZNJiQmPo
-	XG8jXV4z+lO8vvshD4sxjISDa9SPpGHSmdzd+vUBIWzCftPz1pzCT4TOxZh0hmq9VDEwWW
-	KAls6WFHzvR0oQUuF8ApHpSgetNht1s=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1780422405;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=XBPeD93nc5hxvHMZc8DnnBow0Wo6CxVrYE8MsKc6QzA=;
-	b=1J0yLW4+sa8fhyp7971bnnTPekDKreYZio0Su5wxx0kVl7vjt/u6VsTGsxYBAmZjOexqXa
-	OIonz/LImpd5iJCg==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1780422405; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=XBPeD93nc5hxvHMZc8DnnBow0Wo6CxVrYE8MsKc6QzA=;
-	b=rmueofPUpwNGSqHiFDJaUhIJ62NzunhrtUKpJ2lWNdQARu6er7L6mkDxEeQR07ZNJiQmPo
-	XG8jXV4z+lO8vvshD4sxjISDa9SPpGHSmdzd+vUBIWzCftPz1pzCT4TOxZh0hmq9VDEwWW
-	KAls6WFHzvR0oQUuF8ApHpSgetNht1s=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1780422405;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=XBPeD93nc5hxvHMZc8DnnBow0Wo6CxVrYE8MsKc6QzA=;
-	b=1J0yLW4+sa8fhyp7971bnnTPekDKreYZio0Su5wxx0kVl7vjt/u6VsTGsxYBAmZjOexqXa
-	OIonz/LImpd5iJCg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 8739F779A7;
-	Tue,  2 Jun 2026 17:46:44 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id ZOTVHwQXH2qNNAAAD6G6ig
-	(envelope-from <tiwai@suse.de>); Tue, 02 Jun 2026 17:46:44 +0000
-Date: Tue, 02 Jun 2026 19:46:44 +0200
-Message-ID: <87v7c0ygvv.wl-tiwai@suse.de>
-From: Takashi Iwai <tiwai@suse.de>
-To: Thomas Gleixner <tglx@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-	David Woodhouse <dwmw2@infradead.org>,
-	Miroslav Lichvar <mlichvar@redhat.com>,
-	John Stultz <jstultz@google.com>,
-	Stephen Boyd <sboyd@kernel.org>,
-	Anna-Maria Behnsen <anna-maria@linutronix.de>,
-	Frederic Weisbecker <frederic@kernel.org>,
-	thomas.weissschuh@linutronix.de,
-	Arthur Kiyanovski <akiyano@amazon.com>,
-	Rodolfo Giometti <giometti@enneenne.com>,
-	Vincent Donnefort <vdonnefort@google.com>,
-	Marc Zyngier <maz@kernel.org>,
-	Oliver Upton <oliver.upton@linux.dev>,
-	kvmarm@lists.linux.dev,
-	Oliver Upton <oupton@kernel.org>,
-	Richard Cochran <richardcochran@gmail.com>,
-	netdev@vger.kernel.org,
-	Takashi Iwai <tiwai@suse.com>,
-	Miri Korenblit <miriam.rachel.korenblit@intel.com>,
-	Johannes Berg <johannes.berg@intel.com>,
-	Jacob Keller <jacob.e.keller@intel.com>,
-	Tony Nguyen <anthony.l.nguyen@intel.com>,
-	Saeed Mahameed <saeedm@nvidia.com>,
-	Peter Hilber <peter.hilber@oss.qualcomm.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>,
-	virtualization@lists.linux.dev,
-	linux-wireless@vger.kernel.org,
-	linux-sound@vger.kernel.org,
-	David Woodhouse <dwmw@amazon.co.uk>,
-	Vadim Fedorenko <vadim.fedorenko@linux.dev>
-Subject: Re: [patch V2 21/25] ALSA: hda/common: Use system_device_crosststamp::sys_systime
-In-Reply-To: <20260529195557.995298795@kernel.org>
-References: <20260529193435.921555544@kernel.org>
-	<20260529195557.995298795@kernel.org>
-User-Agent: Wanderlust/2.15.9 (Almost Unreal) Emacs/30.2 Mule/6.0
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="usy34K+q"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1780449153; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=0eHa6yckhgnZ2thl9UQcY+7GqF4vYCBdsjgDzs/ErJM=;
+	b=usy34K+qr3xda7SJlzWSduw2P05b4gAyQAUrh/3sqmD+Aq2XTBVPqkkbFwnXTimF+m5oJ3CGSkSph4dd4kZWdyihV6EBj4khNkkStFboTOFeS/xcoDZPaU1U8aGIOLdMM4fVLp8Se+HYrnmxbe1LARfdG/YXQPicq5aqgIM4fLg=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R101e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033032089153;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0X45YUKy_1780449151;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0X45YUKy_1780449151 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Wed, 03 Jun 2026 09:12:32 +0800
+Message-ID: <1780448985.5299122-1-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH] VIRTIO: Update the desc 'flag' fied last in packed ring.
+Date: Wed, 3 Jun 2026 09:09:45 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: yangjiale <yangjiale133@163.com>
+Cc: Jason Wang <jasowang@redhat.com>,
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org,
+ yangjiale <yangjiale133@163.com>,
+ "Michael S . Tsirkin" <mst@redhat.com>
+References: <20260602043123.10207-1-yangjiale133@163.com>
+In-Reply-To: <20260602043123.10207-1-yangjiale133@163.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0 (generated by SEMI-EPG 1.14.7 - "Harue")
-Content-Type: text/plain; charset=US-ASCII
-X-Spam-Flag: NO
-X-Spam-Score: -3.30
-X-Spamd-Result: default: False [-3.30 / 50.00];
-	BAYES_HAM(-3.00)[99.99%];
-	MID_CONTAINS_FROM(1.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MIME_TRACE(0.00)[0:+];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	ARC_NA(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	RCPT_COUNT_TWELVE(0.00)[31];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	FREEMAIL_CC(0.00)[vger.kernel.org,infradead.org,redhat.com,google.com,kernel.org,linutronix.de,amazon.com,enneenne.com,linux.dev,lists.linux.dev,gmail.com,suse.com,intel.com,nvidia.com,oss.qualcomm.com,amazon.co.uk];
-	RCVD_TLS_ALL(0.00)[];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	R_RATELIMIT(0.00)[to_ip_from(RLjhfkibh7w7a187adt55yhrj9)];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,suse.de:mid,intel.com:email,imap1.dmz-prg2.suse.org:helo]
-X-Spam-Level: 
 
-On Fri, 29 May 2026 22:01:13 +0200,
-Thomas Gleixner wrote:
-> 
-> From: Thomas Gleixner <tglx@kernel.org>
-> 
-> sys_systime is an alias for sys_realtime. The latter will be removed so
-> switch the code over to the new naming scheme.
-> 
-> No functional change.
-> 
-> Signed-off-by: Thomas Gleixner <tglx@kernel.org>
-> Tested-by: Arthur Kiyanovski <akiyano@amazon.com>
-> Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
-> Reviewed-by: Jacob Keller <jacob.e.keller@intel.com>
+On Tue,  2 Jun 2026 12:31:23 +0800, yangjiale <yangjiale133@163.com> wrote:
+> When a descriptor list spans across cache lines,
+> updating the flag first can lead to a scenario where the device side
+> perceives the flag as valid, yet the corresponding address and length
+> fields remain unupdated=E2=80=94resulting in invalid values.
+> Therefore, the flag field must be updated last.
 
-Acked-by: Takashi Iwai <tiwai@suse.de>
+Are you raising this based on your code review, or did you actually encount=
+er an
+issue during testing?
 
+I don't think there is a problem here, as all operations are protected by t=
+he
+head desc flag. Even if cacheline effects cause data to be written prematur=
+ely,
+it shouldn't be an issue. The device must wait until the head desc flags
+are updated before it can start any subsequent work.
 
-thanks,
+Thanks.
 
-Takashi
-
+>
+> Signed-off-by: yangjiale <yangjiale133@163.com>
 > ---
->  sound/hda/common/controller.c |    2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
-> --- a/sound/hda/common/controller.c
-> +++ b/sound/hda/common/controller.c
-> @@ -525,7 +525,7 @@ static int azx_get_time_info(struct snd_
->  			break;
->  
->  		default:
-> -			*system_ts = ktime_to_timespec64(xtstamp.sys_realtime);
-> +			*system_ts = ktime_to_timespec64(xtstamp.sys_systime);
->  			break;
->  
->  		}
-> 
-> 
-> 
+>  drivers/virtio/virtio_ring.c | 8 ++++----
+>  1 file changed, 4 insertions(+), 4 deletions(-)
+>
+> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
+> index fbca7ce1c6bf..036b4f90d30f 100644
+> --- a/drivers/virtio/virtio_ring.c
+> +++ b/drivers/virtio/virtio_ring.c
+> @@ -1688,6 +1688,10 @@ static inline int virtqueue_add_packed(struct vrin=
+g_virtqueue *vq,
+>  					     &addr, &len, premapped, attr))
+>  				goto unmap_release;
+>
+> +			desc[i].addr =3D cpu_to_le64(addr);
+> +			desc[i].len =3D cpu_to_le32(len);
+> +			desc[i].id =3D cpu_to_le16(id);
+> +
+>  			flags =3D cpu_to_le16(vq->packed.avail_used_flags |
+>  				    (++c =3D=3D total_sg ? 0 : VRING_DESC_F_NEXT) |
+>  				    (n < out_sgs ? 0 : VRING_DESC_F_WRITE));
+> @@ -1696,10 +1700,6 @@ static inline int virtqueue_add_packed(struct vrin=
+g_virtqueue *vq,
+>  			else
+>  				desc[i].flags =3D flags;
+>
+> -			desc[i].addr =3D cpu_to_le64(addr);
+> -			desc[i].len =3D cpu_to_le32(len);
+> -			desc[i].id =3D cpu_to_le16(id);
+> -
+>  			if (unlikely(vq->use_map_api)) {
+>  				vq->packed.desc_extra[curr].addr =3D premapped ?
+>  					DMA_MAPPING_ERROR : addr;
+> --
+> 2.25.1
+>
