@@ -1,167 +1,144 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FB782FD69D
-	for <virtualization@lists.linux.dev>; Wed,  3 Jun 2026 05:10:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5EC353812CD;
+	Wed,  3 Jun 2026 10:02:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780463419; cv=none; b=uxl1NbZ2f1T87Y1yecsv7KaNrJUuaaW/fyybVZzKof6NoqDRck6GltuxahYtVldM005Uu2DmqaDheDqX5Rl06ykSoByCFElXR+b+JtQiGNTpzPdMk6c6q79rDYbT91WzQOYa9vhCopN8SJ3Qca+evC6RgOmIRiGNDxX9aThiMz8=
+	t=1780480951; cv=none; b=RhX9bLhzA8fz24YqGNwBEe06M0ZT5UCmlsyxKELwkoK8IJPyrL8b+SFq/cBCQlDpMISyWOuc00wbBybtkjUuQ7QqtcsiY5P0HMJW+NGrF+BRrJoVUxwEAWOgKQpeEOUAXdR24FwhKqjwtrDlcL6h/TXjtokB9sbwPQ5pddvOjMo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780463419; c=relaxed/simple;
-	bh=TMuRorPnXh0/q0Epr8aWbRUQFdWaiTfi93eQL9g5Ftg=;
+	s=arc-20240116; t=1780480951; c=relaxed/simple;
+	bh=yXx+rqfeV3LVpiDnFV5kG5jvMFi7X+jyX4MxnENzlnM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=MCvIAcJU5PF0aTPg7ndxPp6CL1uXhcHdMUwuEKB1nWgGI3pGB4U1pjVb7RP9Zme3HtRHy3hWPKslDEo7IO8WBRzi9TLIt4H95vCMYOggg1ppdTJz64CQgb5SVGOb42MQ+MrrEu1T2zObF73iW3datjQesj1cWImcwt7C7f0VF8g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cXpN1YYN; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=KJUivPvlFFD2zgt0zSolWniTPgUtRPjNg3Zd7RmMNlPJ1R9sgh55PSWQGrQ0+wNzTIpBjPrqBNp/9MV2ajpmRzh3GUREKQ9RmqY3xJYknSmxQkFA/oMt1hn5BkJYYGrMnEj/Soqn49L72M2UYhIXs/Q4AWJdKB0PvryYhzit3tc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=beFWDJ7B; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cXpN1YYN"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1780463417;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=r+J3prPmslsfPO9pmuIRUDYHV1FwtfpJ+bwDKkD+iUA=;
-	b=cXpN1YYN23IQaRFbEsPifv283V6ZR/K7zn0PW7Z4MeaX3QHenz6tiM6ANzhYecRBp4IiMC
-	/hORdnB+oG4llPQUL3oWr9H7Ri+fYqmhILKaOLJSjt6c/4delOXj9mVtX7fuP+ugDGyt9m
-	hXgoBdOQy7j36XkCBHH2gPYQhsTeigw=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-110-SRVlLkDuOiqfX5GhGYbUyg-1; Wed, 03 Jun 2026 01:10:16 -0400
-X-MC-Unique: SRVlLkDuOiqfX5GhGYbUyg-1
-X-Mimecast-MFC-AGG-ID: SRVlLkDuOiqfX5GhGYbUyg_1780463415
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-45eef10d5ebso2812814f8f.0
-        for <virtualization@lists.linux.dev>; Tue, 02 Jun 2026 22:10:15 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780463415; x=1781068215;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=r+J3prPmslsfPO9pmuIRUDYHV1FwtfpJ+bwDKkD+iUA=;
-        b=Y82P2kGm2/MCoiV7lkrBAsMO34KvPLnwdc3YRoIencok3n695LY9wCZI53hfbIG2xj
-         92BD1q88hVPF3fzu4sMeCK3jmQPX9c+6ZMcLfIT321Je9NHH7fD49uesx3bM/+eoJrDa
-         0zQ3NwyUTlUrGOfDcqf3IB9TjvLbkdRr8qxHa+lYOJzxG7kY6BBx/6pxxa4D2Rz3j+UP
-         ITT4gql8ArBR40uGIPuoxcmbd21RP9Q5II0szVd0QMekBy0IAWafImVWoyT1/A0vmVCT
-         dRB+H8zSwi2SpMcZCimj/WqofS5w8aULLxKgPhI25bZ7E6/ztEZgWpyO4jmuWXWa9MzY
-         W8kw==
-X-Forwarded-Encrypted: i=1; AFNElJ/x7H/iwmT5cW6hBJYrifngApBX/lmZA8GancAS5d1c/hgIfmvS+GR9kt+ZNLhV5ZTF1t9mN1SZEBVxLE90NQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YydsYJ1WlLrct9dVvG8nqt9Pmo4BOxnhA5T1TbHHMPWdaX78t41
-	66Gh/ggA0313xnQWTEoaplvJitXVEvFIJ8u70r1Iar/Pj7xeKezMaTguIo/IqsISD2RFIB4GpNi
-	zTlX4h1cnwQRiO119kj1U3+vNqUd86Icc314W+RxKFm6zEH958Azde228HCUfJ9qb27Wp
-X-Gm-Gg: Acq92OHloNvo0skRwjyIH2L3CycGdk7btcxZ3A/R4wmGIb8KLoLfIkGlZEY3onHoS2q
-	bOyU+EM3pLZE/oxLBz8adHnneLgOL15xYYK4utKXvBanKFYGQ8unNFTuLDbp9LXAviDnmc+gKap
-	HrC++xpFDxs9sD6WQNb7ej5Zd6BDEMkonMhwBd+5sAMy/6+7w284AJvDiUBS0H215tuAbDhqv9v
-	xfgCBL7CpqoA7CJdR6rqPKVFpWFuHCKu9lcoxMKMsD33OJDGePYT86vlNnjgARQNt5WJsgRPXlG
-	BncIXcsMBdDxEHUSDdwT/Zc9EXijn5MK3D8E7atODjeTR4try/6hFZTE++dTsWUKyoSRBX1s9ec
-	fRbnBKjc9c1sxjWPdJHTT4c+HJtO+131z6dHSNEvqu9GuaEdlyeimog==
-X-Received: by 2002:a5d:42c2:0:b0:45e:e230:e53 with SMTP id ffacd0b85a97d-460218701f1mr1573481f8f.34.1780463414691;
-        Tue, 02 Jun 2026 22:10:14 -0700 (PDT)
-X-Received: by 2002:a5d:42c2:0:b0:45e:e230:e53 with SMTP id ffacd0b85a97d-460218701f1mr1573433f8f.34.1780463414129;
-        Tue, 02 Jun 2026 22:10:14 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-25-45.inter.net.il. [80.230.25.45])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4601f0a43e9sm4549179f8f.0.2026.06.02.22.10.12
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 02 Jun 2026 22:10:13 -0700 (PDT)
-Date: Wed, 3 Jun 2026 01:10:10 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: yangjiale133 <yangjiale133@163.com>
-Cc: Eugenio Perez Martin <eperezma@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: Re: [PATCH] VIRTIO: Update the desc 'flag' fied last in packed
- ring.
-Message-ID: <20260603010910-mutt-send-email-mst@kernel.org>
-References: <20260602043123.10207-1-yangjiale133@163.com>
- <CAJaqyWfugEttrQuR5_LrbQaivAqCaixsprUOjEVtdiz_sexFpA@mail.gmail.com>
- <5a3e06d5.103d.19e8b1863dd.Coremail.yangjiale133@163.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="beFWDJ7B"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EAF831F00899;
+	Wed,  3 Jun 2026 10:02:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780480950;
+	bh=V8fVwdI7wxnksQVE14DY2HWli3Oy9+kR4dG/B9JF5Y8=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=beFWDJ7B2Z8xQPvn9v3oqwDDTjYwjPDD45LX8Fy0GRXVmLBpMDP36jy5S40R1f28q
+	 +2gsQydDi3fwWtbnyLAkHZ5PPW0v7mM7WsjPx5NRYHlGtERz9nAPfYyqtDLGmr7dO0
+	 rTXWbiAYPOd+Cq/w2hk9zXWPbyVL+jvll3FT1tEi4Sj/8C5W8EKs/Vbb6WPWuslBZT
+	 BPuTsFmws1TTdsA501ufsflwFE0lG9INBbZGL7xT/82fDc4ezk41axPsGSR6hYx5Lw
+	 j4aTVtJYRRHyKNQX5jjw3kqWwXidASZjB1Lv/LyS5NLWnrWN4MRtQRh6tRNnBwwHIo
+	 TZVDaRVef7e5Q==
+Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
+	by mailfauth.phl.internal (Postfix) with ESMTP id 1B503F4007E;
+	Wed,  3 Jun 2026 06:02:28 -0400 (EDT)
+Received: from phl-frontend-03 ([10.202.2.162])
+  by phl-compute-05.internal (MEProxy); Wed, 03 Jun 2026 06:02:28 -0400
+X-ME-Sender: <xms:tPsfauhaxGVEUgsvlHEIwecFN-9ZEF71setn4TDGW-FCZRyQ0LUDyA>
+    <xme:tPsfamdy_fjRoYDOeR8cmy-cPfUgoaO8mBFumrmZMVa1jqXBPwZUvuLW59ggNGPh6
+    y6Fg25GDh1rZ4Nor5r3OQmW7R6jePR7YEy-XB3OaBYhUGAYnBP5RIw>
+X-ME-Received: <xmr:tPsfajmUqQ7cLJ253fvAZjjjhxIAhgwirNcqfwrQkow3MYEGcKhn-5N2p_izhw>
+X-ME-Proxy-Cause: dmFkZTGuwFznDiQhelvFQOBp2/9r9H4fxoNNaEmxB6iOaHyiMwffQUPfC1FAZMpbzqIqkk
+    CN9TCgwxMINXJSdtTnBkzIXOc6K717wq9QjeaoGXRWKTpKm0u+QpWfmKKW9HN3pL/A1+6p
+    92lcvawl98fM5nvrzMFAJ0zCHVpCTPUX+0fcWGBVn0sUJNaILiDyF6WAR5GTLaYBf9LtF9
+    HeIJf/jM6FJN5c4MVjb/Nm52s7djeDzHoqhhvyRfCScg4aR0UhUORBt/S3XR36+WsGhT7P
+    bVueHPke7HzKjPxs+Lmcr4uF/2Rif/nWiVWI2Sn/X2KEDbfEm3ZjS1qdm+5tHCszTtFFts
+    /VzzRZabQfVduEReAlUgkBJ79Z4LSt1cBS+rSnnFi9jDTiczC1H87ZS7qLCKADqoqzrmR4
+    mGIz8sa4eqINRsLod/oLKxieYbrnEsfQXN/59nPX9ObnVXbRESfnOCNA6fc+BZp0oeNprP
+    PvGGkzDmtovVRJkI3ywAfrhFpNJvUXD0fDzsSJPA0RLCqMYGu9iLwI5MlFSpJg7a/5udeS
+    lJZWm/zw2dGecCf6mp/nhd1OdYPK7oDQIXbomfj0Bb9MYjyFb44nJOTTHxAkkFlEu1IJB4
+    mvQH42vq4f+lwAhvj17/Vsi6xt4tXviwqxjQO+AmX3bH/ZlUDX8iOWPxS9lA
+X-ME-Proxy: <xmx:tPsfaixl8twHiScZRF0l3aPUkADDTTORVWaND_noCCfDud9HhsTR5Q>
+    <xmx:tPsfalcLZ32BWK_NdqC_-FR1DBldNJTO6IRNGnlVk2pTTVI454R5Rg>
+    <xmx:tPsfajhekMHXMQ6qYg0RgZ4pegrE87GtuiN4Aa5Q13qUrGdoLAXSdw>
+    <xmx:tPsfap-OinTX938zNS5LgCJfS2x6J85u1U-3v3h3dj98T7oCnvJ1vg>
+    <xmx:tPsfapa94FWneQTrYxrkNAOdSEUGyY-WiNNfJ2K6qxxwDuEUGbG_4uoT>
+Feedback-ID: i10464835:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 3 Jun 2026 06:02:25 -0400 (EDT)
+Date: Wed, 3 Jun 2026 11:02:19 +0100
+From: Kiryl Shutsemau <kas@kernel.org>
+To: Sean Christopherson <seanjc@google.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@kernel.org>,
+ 	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>,
+ 	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+ "K. Y. Srinivasan" <kys@microsoft.com>,
+ 	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
+ Dexuan Cui <decui@microsoft.com>, 	Long Li <longli@microsoft.com>,
+ Ajay Kaher <ajay.kaher@broadcom.com>,
+ 	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+ Jan Kiszka <jan.kiszka@siemens.com>, 	Andy Lutomirski <luto@kernel.org>,
+ Peter Zijlstra <peterz@infradead.org>, 	Juergen Gross <jgross@suse.com>,
+ Daniel Lezcano <daniel.lezcano@kernel.org>,
+ 	John Stultz <jstultz@google.com>, "H. Peter Anvin" <hpa@zytor.com>,
+ 	Rick Edgecombe <rick.p.edgecombe@intel.com>,
+ Vitaly Kuznetsov <vkuznets@redhat.com>,
+ 	Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>,
+ 	Stephen Boyd <sboyd@kernel.org>, kvm@vger.kernel.org,
+ linux-kernel@vger.kernel.org, 	linux-coco@lists.linux.dev,
+ linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
+ 	xen-devel@lists.xenproject.org, David Woodhouse <dwmw@amazon.co.uk>,
+ 	Tom Lendacky <thomas.lendacky@amd.com>,
+ Nikunj A Dadhania <nikunj@amd.com>,
+ 	David Woodhouse <dwmw2@infradead.org>,
+ Michael Kelley <mhklinux@outlook.com>,
+ 	Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [PATCH v4 07/47] x86/tdx: Force TSC frequency with CPUID-based
+ info provided by the TDX-Module
+Message-ID: <ah_7jEMnqs80gXLG@thinkstation>
+References: <20260529144435.704127-1-seanjc@google.com>
+ <20260529144435.704127-8-seanjc@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <5a3e06d5.103d.19e8b1863dd.Coremail.yangjiale133@163.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: b3cIFntlilNZWjX37FzTTQ09KtbwWuagymD87WSpSHs_1780463415
-X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260529144435.704127-8-seanjc@google.com>
 
-On Wed, Jun 03, 2026 at 09:28:11AM +0800, yangjiale133 wrote:
-> From the device's perspective, during a single read of the descriptor list
-> specifically when that list spans across cache lines.
-> the retrieved data will show `desc[head].flags` as valid, 
-> and `desc[i].flags` as valid as well; however, 
-> the `desc[i].addr` and `len` fields may be invalid.
+On Fri, May 29, 2026 at 07:43:54AM -0700, Sean Christopherson wrote:
+> When running as a TDX guest, explicitly set the TSC frequency to a known
+> value, using CPUID-based information, instead of potentially relying on a
+> hypervisor-controlled PV routine.  For TDX guests, CPUID.0x15 is always
+> emulated by the TDX-Module, i.e. the information from CPUID is more
+> trustworthy than the information provided by the hypervisor.
+
+Right. EBX is configurable by TD_PARAMS.TSC_FREQUENCY at TD build. The
+rest is fixed.
+
+> To maintain backwards compatibility with TDX guest kernels that use native
+> calibration, and because it's the least awful option, retain
+> native_calibrate_tsc()'s stuffing of the local APIC bus period using the
+> core crystal frequency.  While it's entirely possible for the hypervisor
+> to emulate the APIC timer at a different frequency than the core crystal
+> frequency, the commonly accepted interpretation of Intel's SDM is that APIC
+> timer runs at the core crystal frequency when that latter is enumerated via
+> CPUID:
 > 
-> I apologize that I currently lack the necessary environment to verify 
-> whether this modification definitively resolves the issue or 
-> merely reduces the probability of its occurrence; 
-> therefore, this patch can be discarded.
+>   The APIC timer frequency will be the processor’s bus clock or core
+>   crystal clock frequency (when TSC/core crystal clock ratio is enumerated
+>   in CPUID leaf 0x15).
 > 
-> yangjiale
+> If the hypervisor is malicious and deliberately runs the APIC timer at the
+> wrong frequency, nothing would stop the hypervisor from modifying the
+> frequency at any time, i.e. attempting to manually calibrate the frequency
+> out of paranoia would be futile.
 
+Agreed.
 
-it could be that your device does a single read of the descriptor.
-the pci spec is explicit that after getting valid flags,
-device must read the descriptor again.
+> Deliberately leave CPU frequency calibration as is, since the TDX-Module
+> doesn't provide any guarantees with respect to CPUID.0x16.
 
+It is fixed to zeros. Sounds like a guarantee to me :P
 
-> 
-> At 2026-06-02 14:04:13, "Eugenio Perez Martin" <eperezma@redhat.com> wrote:
-> >On Tue, Jun 2, 2026 at 6:34 AM yangjiale <yangjiale133@163.com> wrote:
-> >>
-> >> When a descriptor list spans across cache lines,
-> >> updating the flag first can lead to a scenario where the device side
-> >> perceives the flag as valid, yet the corresponding address and length
-> >> fields remain unupdated—resulting in invalid values.
-> >> Therefore, the flag field must be updated last.
-> >>
-> >> Signed-off-by: yangjiale <yangjiale133@163.com>
-> >> ---
-> >>  drivers/virtio/virtio_ring.c | 8 ++++----
-> >>  1 file changed, 4 insertions(+), 4 deletions(-)
-> >>
-> >> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> >> index fbca7ce1c6bf..036b4f90d30f 100644
-> >> --- a/drivers/virtio/virtio_ring.c
-> >> +++ b/drivers/virtio/virtio_ring.c
-> >> @@ -1688,6 +1688,10 @@ static inline int virtqueue_add_packed(struct vring_virtqueue *vq,
-> >>                                              &addr, &len, premapped, attr))
-> >>                                 goto unmap_release;
-> >>
-> >> +                       desc[i].addr = cpu_to_le64(addr);
-> >> +                       desc[i].len = cpu_to_le32(len);
-> >> +                       desc[i].id = cpu_to_le16(id);
-> >> +
-> >>                         flags = cpu_to_le16(vq->packed.avail_used_flags |
-> >>                                     (++c == total_sg ? 0 : VRING_DESC_F_NEXT) |
-> >>                                     (n < out_sgs ? 0 : VRING_DESC_F_WRITE));
-> >> @@ -1696,10 +1700,6 @@ static inline int virtqueue_add_packed(struct vring_virtqueue *vq,
-> >>                         else
-> >>                                 desc[i].flags = flags;
-> >>
-> >> -                       desc[i].addr = cpu_to_le64(addr);
-> >> -                       desc[i].len = cpu_to_le32(len);
-> >> -                       desc[i].id = cpu_to_le16(id);
-> >> -
-> >>                         if (unlikely(vq->use_map_api)) {
-> >>                                 vq->packed.desc_extra[curr].addr = premapped ?
-> >>                                         DMA_MAPPING_ERROR : addr;
-> >
-> >These flags are updated before the flags of the head descriptor at the
-> >end of the function, at "vq->packed.vring.desc[head].flags =
-> >head_flags", so the device should not see these. Because of that, the
-> >relative order between the rest of the fields of the same descriptor
-> >or other descriptors' fields, except for the head descriptor's flags,
-> >should not matter. There is a write memory barrier just before
-> >updating the head's flags.
-> >
-> >Also, I don't get why the cache line matters here. Can you expand? Am
-> >I missing something?
-> 
+> Signed-off-by: Sean Christopherson <seanjc@google.com>
 
+Looks sane to me. Including your reasoning about tsc_early_khz= in reply
+to Sashiko.
+
+Reviewed-by: Kiryl Shutsemau (Meta) <kas@kernel.org>
+
+-- 
+  Kiryl Shutsemau / Kirill A. Shutemov
