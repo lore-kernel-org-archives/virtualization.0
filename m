@@ -1,115 +1,148 @@
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.5])
+Received: from out30-118.freemail.mail.aliyun.com (out30-118.freemail.mail.aliyun.com [115.124.30.118])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F4220394785
-	for <virtualization@lists.linux.dev>; Wed,  3 Jun 2026 01:59:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 336BE3D7D78
+	for <virtualization@lists.linux.dev>; Wed,  3 Jun 2026 02:10:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.118
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780451947; cv=none; b=u3cX48NA7MSGkGMKVGEH4TUWYc8zkAM7fb5csUIObx20X3CTGkQKHJ836Ngz87zuZMZ+EERxn/59yHstpR9smKzeVG/+RDBTVz/ffgReZllpZA2f1SP7qVMCcvykhsz1HkBMmU/PKcZANmsrM8Fz2vetbjLDuvTrW5hX3QSzHHI=
+	t=1780452610; cv=none; b=ISOLo6BNx4vxO6j/m17IE8+7EF07jruYQnugmhQ8Yxjks6urq2O81ryNVn38/QJqUf2fbRMEEj58Nol6P0t2NjWQQU6MnIdjjUJoIvHDCaY1SviAExqF40w2VDpiTANBCaGS9257ePDT7uTcZRJCJEKPKvAMAjMNaHSBai18vuQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780451947; c=relaxed/simple;
-	bh=vsgHEW9JEBiJqoehWt8+FZdLY6AQsMFp0DusW4rHEf8=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:Content-Type:
-	 MIME-Version:Message-ID; b=Jo1ZbLhNKlifuspjUr7TXVVki0vTWxCpHiPNJMAeGynshztNy2rlXVzfeC01USkXfGmKkozVcxHabqqy2xy7ijV/fRAF2uvdZiQmPP+wHGEaBprowXgxk1Jj8wmj6Ue4bMximh5vYdZ8YIrc8ReJEeA2jUWiUuIsxH+NBs/3RCU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=AJYl8nfj; arc=none smtp.client-ip=220.197.31.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1780452610; c=relaxed/simple;
+	bh=VXRoTZ5J5XB0qyvlT1qAxAKEaunjy+UA8h4HrVB9vuI=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To:
+	 Content-Type; b=MpndIpYXttVy1wBVYPrqmwfG5H90u3LcW2roZzW3qv2nQde/guRK1f5J0ZRnfTEX6Kuz6JF72nNzKzInQWmW0G3Tvz7p/abUHaGXi7MSEnxXaq30N+KWtxNnz+UqmCjhyE3EiMFXnVXxaGGf5hXIpZovkw/bwyQ7kfsw2cUdGJs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=C3OTYfJQ; arc=none smtp.client-ip=115.124.30.118
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="AJYl8nfj"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=Date:From:To:Subject:Content-Type:MIME-Version:
-	Message-ID; bh=vsgHEW9JEBiJqoehWt8+FZdLY6AQsMFp0DusW4rHEf8=; b=A
-	JYl8nfj0AtZ1iJqIzxRCLc913DCoSXceLDsku0JJ0fBUXPCmkJnUWgrzRpDODNJI
-	b1N6YXJnOJ9t600KvpkesPSkcFl13MFbhlm0GpxmrsKB7bDrqoohZLSq6WRHsvKs
-	ab188KZq37c0PYES+huxVF6X0l0pt7Zje3i+aib2fI=
-Received: from yangjiale133$163.com ( [218.94.41.202] ) by
- ajax-webmail-wmsvr-40-107 (Coremail) ; Wed, 3 Jun 2026 09:58:56 +0800 (CST)
-Date: Wed, 3 Jun 2026 09:58:56 +0800 (CST)
-From: yangjiale133  <yangjiale133@163.com>
-To: "Eugenio Perez Martin" <eperezma@redhat.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="C3OTYfJQ"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1780452601; h=Message-ID:Subject:Date:From:To:Content-Type;
+	bh=aN3hCgUddAzYpTgwEBJlmAjUoLQNw9GbtOCPwpFW2YI=;
+	b=C3OTYfJQUEfhcdf/u7SBWUkPnmgs+zvjPPGf5Io1mkg++wdiCFZ+XBVZ+LBc9SlRchxnPgggxOXRGoaqyL5HYmwLtoMIeuWAGoaZMKN+zCUhYeWA74L1EjFy/bT3rAD7eizP7Jjv32OKeSGeCOQyCvOGkU+uTHWHgbFoTNN+8RY=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R891e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037026112;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=6;SR=0;TI=SMTPD_---0X45mTak_1780452600;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0X45mTak_1780452600 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Wed, 03 Jun 2026 10:10:00 +0800
+Message-ID: <1780452519.414238-1-xuanzhuo@linux.alibaba.com>
+Subject: Re:Re: [PATCH] VIRTIO: Update the desc 'flag' fied last in packed ring.
+Date: Wed, 3 Jun 2026 10:08:39 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: "yangjiale133" <yangjiale133@163.com>
 Cc: "Michael S . Tsirkin" <mst@redhat.com>,
-	"Jason Wang" <jasowang@redhat.com>,
-	"Xuan Zhuo" <xuanzhuo@linux.alibaba.com>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Subject: Re:Re: [PATCH] VIRTIO: Update the desc 'flag' fied last in packed
- ring.
-X-Priority: 3
-X-Mailer: Coremail Webmail Server Version 2023.4-cmXT build
- 20260403(27802f6d) Copyright (c) 2002-2026 www.mailtech.cn 163com
-In-Reply-To: <CAJaqyWfugEttrQuR5_LrbQaivAqCaixsprUOjEVtdiz_sexFpA@mail.gmail.com>
+ Jason Wang <jasowang@redhat.com>,
+ "virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
+ "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+ Eugenio Perez Martin <eperezma@redhat.com>
 References: <20260602043123.10207-1-yangjiale133@163.com>
  <CAJaqyWfugEttrQuR5_LrbQaivAqCaixsprUOjEVtdiz_sexFpA@mail.gmail.com>
-X-NTES-SC: AL_Qu2TAvievkEo4CaZZOkcnE8Rjuw3XcW0vvsi3YRQc+AElg3y3hkNRFpSMVr62tK2BzuptSKIUxxf6uRFYaNo7WME1aLdhl9m8DiL3izvjw==
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=UTF-8
+ <46a9dc36.1986.19e8b34896c.Coremail.yangjiale133@163.com>
+In-Reply-To: <46a9dc36.1986.19e8b34896c.Coremail.yangjiale133@163.com>
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Message-ID: <46a9dc36.1986.19e8b34896c.Coremail.yangjiale133@163.com>
-X-Coremail-Locale: zh_CN
-X-CM-TRANSID:aygvCgC334lgih9qFiEBAA--.11663W
-X-CM-SenderInfo: p1dqwy5ldoviitt6il2tof0z/xtbC4gAdNmofimBIcwAA3t
-X-Coremail-Antispam: 1U5529EdanIXcx71UUUUU7vcSsGvfC2KfnxnUU==
 
-RnJvbSB0aGUgZGV2aWNlJ3MgcGVyc3BlY3RpdmUsIGR1cmluZyBhIHNpbmdsZSByZWFkIG9mIHRo
-ZSBkZXNjcmlwdG9yIApsaXN0LWFuZCB0aGF0IGxpc3Qgc3BhbnMgYWNyb3NzIGNhY2hlIGxpbmVz
-Lgp0aGUgcmV0cmlldmVkIGRhdGEgd2lsbCBzaG93IGBkZXNjW2hlYWRdLmZsYWdzYCBhcyB2YWxp
-ZCwgCmFuZCBgZGVzY1tpXS5mbGFnc2AgYXMgdmFsaWQgYXMgd2VsbDsgaG93ZXZlciwgCnRoZSBg
-ZGVzY1tpXS5hZGRyYCBhbmQgYGxlbmAgZmllbGRzIG1heSBiZSBpbnZhbGlkLgoKSSBzdXNwZWN0
-IHRoaXMgb2NjdXJzIGJlY2F1c2UgYSBzaW5nbGUgRE1BIG9wZXJhdGlvbiBpcyBpbnRlcm5hbGx5
-IApzcGxpdCBpbnRvIG11bHRpcGxlIHBhcmFsbGVsIHJlYWQgdHJhbnNhY3Rpb25zLCAKYWxpZ25l
-ZCB0byBjYWNoZSBsaW5lIGJvdW5kYXJpZXMuCgpJIGFwb2xvZ2l6ZSB0aGF0IEkgY3VycmVudGx5
-IGxhY2sgdGhlIG5lY2Vzc2FyeSBlbnZpcm9ubWVudCB0byB2ZXJpZnkgCndoZXRoZXIgdGhpcyBt
-b2RpZmljYXRpb24gZGVmaW5pdGl2ZWx5IHJlc29sdmVzIHRoZSBpc3N1ZSBvciAKbWVyZWx5IHJl
-ZHVjZXMgdGhlIHByb2JhYmlsaXR5IG9mIGl0cyBvY2N1cnJlbmNlOyAKdGhlcmVmb3JlLCB0aGlz
-IHBhdGNoIGNhbiBiZSBkaXNjYXJkZWQuCgp5YW5namlhbGUKCgoKQXQgMjAyNi0wNi0wMiAxNDow
-NDoxMywgIkV1Z2VuaW8gUGVyZXogTWFydGluIiA8ZXBlcmV6bWFAcmVkaGF0LmNvbT4gd3JvdGU6
-Cj5PbiBUdWUsIEp1biAyLCAyMDI2IGF0IDY6MzTigK9BTSB5YW5namlhbGUgPHlhbmdqaWFsZTEz
-M0AxNjMuY29tPiB3cm90ZToKPj4KPj4gV2hlbiBhIGRlc2NyaXB0b3IgbGlzdCBzcGFucyBhY3Jv
-c3MgY2FjaGUgbGluZXMsCj4+IHVwZGF0aW5nIHRoZSBmbGFnIGZpcnN0IGNhbiBsZWFkIHRvIGEg
-c2NlbmFyaW8gd2hlcmUgdGhlIGRldmljZSBzaWRlCj4+IHBlcmNlaXZlcyB0aGUgZmxhZyBhcyB2
-YWxpZCwgeWV0IHRoZSBjb3JyZXNwb25kaW5nIGFkZHJlc3MgYW5kIGxlbmd0aAo+PiBmaWVsZHMg
-cmVtYWluIHVudXBkYXRlZOKAlHJlc3VsdGluZyBpbiBpbnZhbGlkIHZhbHVlcy4KPj4gVGhlcmVm
-b3JlLCB0aGUgZmxhZyBmaWVsZCBtdXN0IGJlIHVwZGF0ZWQgbGFzdC4KPj4KPj4gU2lnbmVkLW9m
-Zi1ieTogeWFuZ2ppYWxlIDx5YW5namlhbGUxMzNAMTYzLmNvbT4KPj4gLS0tCj4+ICBkcml2ZXJz
-L3ZpcnRpby92aXJ0aW9fcmluZy5jIHwgOCArKysrLS0tLQo+PiAgMSBmaWxlIGNoYW5nZWQsIDQg
-aW5zZXJ0aW9ucygrKSwgNCBkZWxldGlvbnMoLSkKPj4KPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMv
-dmlydGlvL3ZpcnRpb19yaW5nLmMgYi9kcml2ZXJzL3ZpcnRpby92aXJ0aW9fcmluZy5jCj4+IGlu
-ZGV4IGZiY2E3Y2UxYzZiZi4uMDM2YjRmOTBkMzBmIDEwMDY0NAo+PiAtLS0gYS9kcml2ZXJzL3Zp
-cnRpby92aXJ0aW9fcmluZy5jCj4+ICsrKyBiL2RyaXZlcnMvdmlydGlvL3ZpcnRpb19yaW5nLmMK
-Pj4gQEAgLTE2ODgsNiArMTY4OCwxMCBAQCBzdGF0aWMgaW5saW5lIGludCB2aXJ0cXVldWVfYWRk
-X3BhY2tlZChzdHJ1Y3QgdnJpbmdfdmlydHF1ZXVlICp2cSwKPj4gICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgJmFkZHIsICZsZW4sIHByZW1hcHBlZCwgYXR0cikp
-Cj4+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgZ290byB1bm1hcF9yZWxlYXNlOwo+
-Pgo+PiArICAgICAgICAgICAgICAgICAgICAgICBkZXNjW2ldLmFkZHIgPSBjcHVfdG9fbGU2NChh
-ZGRyKTsKPj4gKyAgICAgICAgICAgICAgICAgICAgICAgZGVzY1tpXS5sZW4gPSBjcHVfdG9fbGUz
-MihsZW4pOwo+PiArICAgICAgICAgICAgICAgICAgICAgICBkZXNjW2ldLmlkID0gY3B1X3RvX2xl
-MTYoaWQpOwo+PiArCj4+ICAgICAgICAgICAgICAgICAgICAgICAgIGZsYWdzID0gY3B1X3RvX2xl
-MTYodnEtPnBhY2tlZC5hdmFpbF91c2VkX2ZsYWdzIHwKPj4gICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICAgKCsrYyA9PSB0b3RhbF9zZyA/IDAgOiBWUklOR19ERVNDX0ZfTkVYVCkg
-fAo+PiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAobiA8IG91dF9zZ3MgPyAw
-IDogVlJJTkdfREVTQ19GX1dSSVRFKSk7Cj4+IEBAIC0xNjk2LDEwICsxNzAwLDYgQEAgc3RhdGlj
-IGlubGluZSBpbnQgdmlydHF1ZXVlX2FkZF9wYWNrZWQoc3RydWN0IHZyaW5nX3ZpcnRxdWV1ZSAq
-dnEsCj4+ICAgICAgICAgICAgICAgICAgICAgICAgIGVsc2UKPj4gICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgICBkZXNjW2ldLmZsYWdzID0gZmxhZ3M7Cj4+Cj4+IC0gICAgICAgICAgICAg
-ICAgICAgICAgIGRlc2NbaV0uYWRkciA9IGNwdV90b19sZTY0KGFkZHIpOwo+PiAtICAgICAgICAg
-ICAgICAgICAgICAgICBkZXNjW2ldLmxlbiA9IGNwdV90b19sZTMyKGxlbik7Cj4+IC0gICAgICAg
-ICAgICAgICAgICAgICAgIGRlc2NbaV0uaWQgPSBjcHVfdG9fbGUxNihpZCk7Cj4+IC0KPj4gICAg
-ICAgICAgICAgICAgICAgICAgICAgaWYgKHVubGlrZWx5KHZxLT51c2VfbWFwX2FwaSkpIHsKPj4g
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICB2cS0+cGFja2VkLmRlc2NfZXh0cmFbY3Vy
-cl0uYWRkciA9IHByZW1hcHBlZCA/Cj4+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICBETUFfTUFQUElOR19FUlJPUiA6IGFkZHI7Cj4KPlRoZXNlIGZsYWdzIGFyZSB1cGRh
-dGVkIGJlZm9yZSB0aGUgZmxhZ3Mgb2YgdGhlIGhlYWQgZGVzY3JpcHRvciBhdCB0aGUKPmVuZCBv
-ZiB0aGUgZnVuY3Rpb24sIGF0ICJ2cS0+cGFja2VkLnZyaW5nLmRlc2NbaGVhZF0uZmxhZ3MgPQo+
-aGVhZF9mbGFncyIsIHNvIHRoZSBkZXZpY2Ugc2hvdWxkIG5vdCBzZWUgdGhlc2UuIEJlY2F1c2Ug
-b2YgdGhhdCwgdGhlCj5yZWxhdGl2ZSBvcmRlciBiZXR3ZWVuIHRoZSByZXN0IG9mIHRoZSBmaWVs
-ZHMgb2YgdGhlIHNhbWUgZGVzY3JpcHRvcgo+b3Igb3RoZXIgZGVzY3JpcHRvcnMnIGZpZWxkcywg
-ZXhjZXB0IGZvciB0aGUgaGVhZCBkZXNjcmlwdG9yJ3MgZmxhZ3MsCj5zaG91bGQgbm90IG1hdHRl
-ci4gVGhlcmUgaXMgYSB3cml0ZSBtZW1vcnkgYmFycmllciBqdXN0IGJlZm9yZQo+dXBkYXRpbmcg
-dGhlIGhlYWQncyBmbGFncy4KPgo+QWxzbywgSSBkb24ndCBnZXQgd2h5IHRoZSBjYWNoZSBsaW5l
-IG1hdHRlcnMgaGVyZS4gQ2FuIHlvdSBleHBhbmQ/IEFtCj5JIG1pc3Npbmcgc29tZXRoaW5nPwo=
+On Wed, 3 Jun 2026 09:58:56 +0800 (CST), "yangjiale133" <yangjiale133@163.c=
+om> wrote:
+> From the device's perspective, during a single read of the descriptor
+> list-and that list spans across cache lines.
+> the retrieved data will show `desc[head].flags` as valid,
+> and `desc[i].flags` as valid as well; however,
+> the `desc[i].addr` and `len` fields may be invalid.
+>
+> I suspect this occurs because a single DMA operation is internally
+> split into multiple parallel read transactions,
+> aligned to cache line boundaries.
 
+
+I am aware of one case. When reading, the device reads multiple descriptors
+at once. If the head descriptor's flag is 'avail', it then checks the data =
+of
+the subsequent descriptors from that same batch. However, this does not com=
+ply
+with the specification. The device should only read the subsequent descript=
+ors
+after the head descriptor's flag is confirmed to be 'avail'. Although this =
+might
+impact performance, it is the correct behavior.
+
+Thanks
+
+
+>
+> I apologize that I currently lack the necessary environment to verify
+> whether this modification definitively resolves the issue or
+> merely reduces the probability of its occurrence;
+> therefore, this patch can be discarded.
+>
+> yangjiale
+>
+>
+>
+> At 2026-06-02 14:04:13, "Eugenio Perez Martin" <eperezma@redhat.com> wrot=
+e:
+> >On Tue, Jun 2, 2026 at 6:34=E2=80=AFAM yangjiale <yangjiale133@163.com> =
+wrote:
+> >>
+> >> When a descriptor list spans across cache lines,
+> >> updating the flag first can lead to a scenario where the device side
+> >> perceives the flag as valid, yet the corresponding address and length
+> >> fields remain unupdated=E2=80=94resulting in invalid values.
+> >> Therefore, the flag field must be updated last.
+> >>
+> >> Signed-off-by: yangjiale <yangjiale133@163.com>
+> >> ---
+> >>  drivers/virtio/virtio_ring.c | 8 ++++----
+> >>  1 file changed, 4 insertions(+), 4 deletions(-)
+> >>
+> >> diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring=
+.c
+> >> index fbca7ce1c6bf..036b4f90d30f 100644
+> >> --- a/drivers/virtio/virtio_ring.c
+> >> +++ b/drivers/virtio/virtio_ring.c
+> >> @@ -1688,6 +1688,10 @@ static inline int virtqueue_add_packed(struct v=
+ring_virtqueue *vq,
+> >>                                              &addr, &len, premapped, a=
+ttr))
+> >>                                 goto unmap_release;
+> >>
+> >> +                       desc[i].addr =3D cpu_to_le64(addr);
+> >> +                       desc[i].len =3D cpu_to_le32(len);
+> >> +                       desc[i].id =3D cpu_to_le16(id);
+> >> +
+> >>                         flags =3D cpu_to_le16(vq->packed.avail_used_fl=
+ags |
+> >>                                     (++c =3D=3D total_sg ? 0 : VRING_D=
+ESC_F_NEXT) |
+> >>                                     (n < out_sgs ? 0 : VRING_DESC_F_WR=
+ITE));
+> >> @@ -1696,10 +1700,6 @@ static inline int virtqueue_add_packed(struct v=
+ring_virtqueue *vq,
+> >>                         else
+> >>                                 desc[i].flags =3D flags;
+> >>
+> >> -                       desc[i].addr =3D cpu_to_le64(addr);
+> >> -                       desc[i].len =3D cpu_to_le32(len);
+> >> -                       desc[i].id =3D cpu_to_le16(id);
+> >> -
+> >>                         if (unlikely(vq->use_map_api)) {
+> >>                                 vq->packed.desc_extra[curr].addr =3D p=
+remapped ?
+> >>                                         DMA_MAPPING_ERROR : addr;
+> >
+> >These flags are updated before the flags of the head descriptor at the
+> >end of the function, at "vq->packed.vring.desc[head].flags =3D
+> >head_flags", so the device should not see these. Because of that, the
+> >relative order between the rest of the fields of the same descriptor
+> >or other descriptors' fields, except for the head descriptor's flags,
+> >should not matter. There is a write memory barrier just before
+> >updating the head's flags.
+> >
+> >Also, I don't get why the cache line matters here. Can you expand? Am
+> >I missing something?
+>
