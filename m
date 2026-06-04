@@ -1,103 +1,104 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7688C20D4FC
-	for <virtualization@lists.linux-foundation.org>; Thu,  4 Jun 2026 18:36:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95A6D2EFD9B;
+	Thu,  4 Jun 2026 22:57:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780598219; cv=none; b=aUeJVyfkXz5vT2dMRYP7XYzQQI8qHnjTUPko7TFqao/coQ/GndmhlFjIr/akUdnO3GEHG0DR4yB5IAt4hRpI51uk8IcyMz5jBOlD27L2z9+6wSYn6moxmxdKOZnk5X0PhxdFqBvpqcSbEYfnxvPuCJYbnF0sKEYk9/gYSY22C3U=
+	t=1780613860; cv=none; b=ExWip6hNpJPGPEzFVISm8xbE9T8IqDhzGK25dLgaylz1FziGAvjcCl8ZrwyG2KsRF8Lbv2iyXNJHf64iYUChQquoLnF1TuoGTCnbLZpjZe6TzJRr0ZfwD5GKhI20Y8bV5uZWqYlnh9Gu4I6CPyz4A6co9p7SXsDfTTZLl1xr0O8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780598219; c=relaxed/simple;
-	bh=tdCBIKH15YGi5T/akMz88/niI0yIDsK4QHkJGr0NjXw=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=TBwbmEjXliVf295EQRqJf+gHU/iU4C8OmrP4iyx35OmrBzkcLtBPBufxTyL0uMLbfwlho5yk1bodgndQ5pYw2o0i6M5tQKhjuWzRDQ36EGxRf29dVrZ88FYmHe7viT8e0hToNzkhVLBK6ADVkZTXGBIjPBf3I2tkIY3zzt4h4b0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 251DC854F8
-	for <virtualization@lists.linux-foundation.org>; Thu,  4 Jun 2026 18:36:58 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.591
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id dkbcewpGfdvS for <virtualization@lists.linux-foundation.org>;
- Thu,  4 Jun 2026 18:36:57 +0000 (UTC)
-X-Greylist: delayed 423 seconds by postgrey-1.37 at util1.osuosl.org; Thu, 04 Jun 2026 18:36:56 UTC
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 0133B854F7
-Authentication-Results: smtp1.osuosl.org; dmarc=none (p=none dis=none) header.from=8bytes.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 0133B854F7
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=85.214.250.239; helo=mail.8bytes.org; envelope-from=joro@8bytes.org; receiver=<UNKNOWN> 
-Received: from mail.8bytes.org (mail.8bytes.org [85.214.250.239])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 0133B854F7
-	for <virtualization@lists.linux-foundation.org>; Thu,  4 Jun 2026 18:36:56 +0000 (UTC)
-Received: from 8bytes.org (p4ffe1d30.dip0.t-ipconnect.de [79.254.29.48])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange ECDHE (prime256v1) server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mail.8bytes.org (Postfix) with ESMTPSA id 051ED201CB9;
-	Thu,  4 Jun 2026 20:29:48 +0200 (CEST)
-Date: Thu, 4 Jun 2026 20:29:46 +0200
-From: =?utf-8?B?SsO2cmcgUsO2ZGVs?= <joro@8bytes.org>
-To: linux-coco@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	kvm@vger.kernel.org, virtualization@lists.linux-foundation.org, 
-	coconut-svsm@lists.linux.dev, linux-sgx@vger.kernel.org
-Cc: Dhaval Giani <dhaval.giani@gmail.com>
-Subject: [CfP] Confidential Computing Microconference (LPC 2026)
-Message-ID: <aiHCZo2BWj0MaJLQ@8bytes.org>
+	s=arc-20240116; t=1780613860; c=relaxed/simple;
+	bh=2TlUIBpxSMH+9bGcBFZbe1n6gKi9gIbnhoT2ikTVCJc=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=MfW5LqIxh8TaSWSsbtmhRpJu/J1byuDS+JM5G91ZMAAQA5u5lYkAGTE3C/TC+aVMI2WtppJdcTM9OU9fpqEqetBxZwb2ytvAekwuk9WL06G+k4U0Lc73jg/1AFjL7kzXHqaiamTbPgMf2UwDc4oC0LcueO5nJ2Rq2dXluPz/7CE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ny1bTZtc; arc=none smtp.client-ip=100.103.45.18
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ny1bTZtc"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E36B1F00893;
+	Thu,  4 Jun 2026 22:57:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780613859;
+	bh=eB8NVASMw6EPL4lglam8dxrHSkSbY4ghGAbIjShoqbg=;
+	h=From:Date:Subject:To:Cc;
+	b=ny1bTZtcbVbH1dP6DwLhOb+zF7t/xRud2pn0rNiIDF6rQ3V7oaDig7jC/J/+pKdNb
+	 +AmriHItOcdJll1+jYEBOHAmWQfjHqcIlg/z1TEZMhg7WIzTF4QtyTLiUbpCJwpDIP
+	 720JVgcn0Ehg72rh9bcXOg5orE+qSBsJrAmfQS3EBYeGLAtVALnxoDuRk2qVqN1oRX
+	 y2J32UBuK4NSCgPnypqinWt2H5YIqgUajVBgnM0Bg4gDpLIlrRvwUdsr/xvseAwkRk
+	 ag5mt7FImb9abTYSmq7oGDLrre1DJDp5TsNzOWK7MdmcPi5uWKO2ktuemg+rtRqHwY
+	 EinDYw66qD2Lg==
+From: Nathan Chancellor <nathan@kernel.org>
+Date: Thu, 04 Jun 2026 15:57:15 -0700
+Subject: [PATCH] can: virtio: Fix comment in UAPI header
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+Message-Id: <20260604-virtio_can-fix-uapi-comment-v1-1-199fa96ec5f0@kernel.org>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXM0QqDMAxA0V+RPC/QiYj4KyIjjXGLYCttLYL47
+ 3bb44HLPSFKUInQVycEyRrVu4LnowL+kHsL6lQMtalb05oGs4ak/sXkcNYDd9oU2a+ruISWaSb
+ T2cZ2BOWwBSnN7z6Mf8fdLsLpu4TrugHgD/P8fwAAAA==
+X-Change-ID: 20260604-virtio_can-fix-uapi-comment-bcafa08b4b8a
+To: Harald Mommer <harald.mommer@oss.qualcomm.com>, 
+ Matias Ezequiel Vara Larsen <mvaralar@redhat.com>, 
+ "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
+ Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>, 
+ Marc Kleine-Budde <mkl@pengutronix.de>, 
+ Francesco Valla <francesco@valla.it>, virtualization@lists.linux.dev, 
+ linux-can@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ llvm@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>
+X-Mailer: b4 0.16-dev
+X-Developer-Signature: v=1; a=openpgp-sha256; l=1447; i=nathan@kernel.org;
+ h=from:subject:message-id; bh=2TlUIBpxSMH+9bGcBFZbe1n6gKi9gIbnhoT2ikTVCJc=;
+ b=owGbwMvMwCUmm602sfCA1DTG02pJDFlKTA/uH5s4L8hHfR/7q62fzHL1AoWW7XCWUn9wqzUwV
+ OO3tFp+RykLgxgXg6yYIkv1Y9XjhoZzzjLeODUJZg4rE8gQBi5OAZiImiEjw8pbbGd7Y5MXvJLY
+ sU18041Zby9fz/7TcMB0N9ObL6u3nHJlZDjemiJ45aNWV+ARNo1zizk1Hb6bzb7e2q53+RaftLj
+ 9PxYA
+X-Developer-Key: i=nathan@kernel.org; a=openpgp;
+ fpr=2437CB76E544CB6AB3D9DFD399739260CB6CB716
 
-Hi everyone,
+When compile testing the UAPI headers with clang, there is an warning turned
+error for using a C++ style ('//') comment, which is explicitly forbidden for
+UAPI headers.
 
-We are pleased to officially open the Call for Presentations for the 2026
-Confidential Computing Microconference at LPC this year. LPC will take place
-from October 5th to 7th in Prague.
+  In file included from <built-in>:1:
+  ./usr/include/linux/virtio_can.h:29:35: error: // comments are not allowed in this language [-Werror,-Wcomment]
+     29 | #define VIRTIO_CAN_MAX_DLEN    64 // this is like CANFD_MAX_DLEN
+        |                                   ^
+  1 error generated.
 
-Our goal is to bring open-source developers and industry experts together for
-productive discussions that lead to concrete solutions. We are looking for
-interactive discussions, ongoing development topics, and problem-solving
-sessions rather than static status updates.
+Switch to a standard C style comment.
 
-We are looking for proposals covering, but not limited to, the following
-developments and challenges:
+Fixes: 2b6b4bb7d96f ("can: virtio: Add virtio CAN driver")
+Signed-off-by: Nathan Chancellor <nathan@kernel.org>
+---
+ include/uapi/linux/virtio_can.h | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-	* Enhancements to CVM memory backing via `guest_memfd`
-	* KVM Support for ARM CCA
-	* Privilege separation features in KVM
-	* CVM live migration
-	* Secure VM Service Module (SVSM) architecture and Linux support
-	* Trusted I/O software architecture
-	* Solutions for the full CVM (remote) attestation problem
-	* Linux as a CVM operating system across hypervisors
-	* CVM Performance optimization and benchmarking
+diff --git a/include/uapi/linux/virtio_can.h b/include/uapi/linux/virtio_can.h
+index 08d7e3e78776..e054d5099241 100644
+--- a/include/uapi/linux/virtio_can.h
++++ b/include/uapi/linux/virtio_can.h
+@@ -26,7 +26,7 @@
+ #define VIRTIO_CAN_FLAGS_FD             0x4000
+ #define VIRTIO_CAN_FLAGS_RTR            0x2000
+ 
+-#define VIRTIO_CAN_MAX_DLEN    64 // this is like CANFD_MAX_DLEN
++#define VIRTIO_CAN_MAX_DLEN    64 /* this is like CANFD_MAX_DLEN */
+ 
+ struct virtio_can_config {
+ #define VIRTIO_CAN_S_CTRL_BUSOFF (1u << 0) /* Controller BusOff */
 
-If you are working on any of these areas or have another critical Confidential
-Computing topic that requires community alignment, please submit your proposal!
+---
+base-commit: 7a85231f762aa97b945878abb9a26683486836c6
+change-id: 20260604-virtio_can-fix-uapi-comment-bcafa08b4b8a
 
-LPC microconferences are built around discussion and collaboration. Proposals
-should focus on open problems, architectural roadblocks, or design choices that
-would benefit from in-person feedback from the community.
+Best regards,
+--  
+Cheers,
+Nathan
 
-* Submit here:		https://lpc.events/event/20/abstracts/
-* Submission Deadline:	August 7, 2026
-
-Make sure to select "Confidential Computing MC" as the track! This year the LPC
-organization committee will grant pre-registration vouchers to anyone who has
-submitted a topic. These are at the usual price ($600) which must be used
-before registration opens. If your topic is not accepted you should be eligible
-for a refund if your employer doesn’t approve your travel. For more details see
-
-	https://lpc.events/blog/current/index.php/2026/04/06/changes-to-registration-availability-for-2026/
-
-Looking forward to seeing you there,
-
-
-- Dhaval and Joerg
