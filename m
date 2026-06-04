@@ -1,104 +1,138 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 95A6D2EFD9B;
-	Thu,  4 Jun 2026 22:57:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35D9C30D3E1
+	for <virtualization@lists.linux.dev>; Thu,  4 Jun 2026 23:14:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780613860; cv=none; b=ExWip6hNpJPGPEzFVISm8xbE9T8IqDhzGK25dLgaylz1FziGAvjcCl8ZrwyG2KsRF8Lbv2iyXNJHf64iYUChQquoLnF1TuoGTCnbLZpjZe6TzJRr0ZfwD5GKhI20Y8bV5uZWqYlnh9Gu4I6CPyz4A6co9p7SXsDfTTZLl1xr0O8=
+	t=1780614863; cv=none; b=n5atPbb+QVmtWFDIYaWtK16p2Er8SjLzQfnDqw3RcKPfiaXa0fW/ldOtLHJY+Jksyg6rjCId/bFFOv1KDhSXXn5nkDjmWMEyqiA2osi0XazZ0RSDGZq1PLYKZoajYJkC/hksEF3xJbTsTxu0MYL5+pMqEvALm2gI1lyHmarTYgA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780613860; c=relaxed/simple;
-	bh=2TlUIBpxSMH+9bGcBFZbe1n6gKi9gIbnhoT2ikTVCJc=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=MfW5LqIxh8TaSWSsbtmhRpJu/J1byuDS+JM5G91ZMAAQA5u5lYkAGTE3C/TC+aVMI2WtppJdcTM9OU9fpqEqetBxZwb2ytvAekwuk9WL06G+k4U0Lc73jg/1AFjL7kzXHqaiamTbPgMf2UwDc4oC0LcueO5nJ2Rq2dXluPz/7CE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ny1bTZtc; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780614863; c=relaxed/simple;
+	bh=5y3PcmFRYqRP1NnGXJUwB0A0KdsvIgR/FJxx9aWTUsc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=ZrwDZErUiMAP3Bq9o2UOJYRP5HkI27GX2oH3e+87+31pXwklrd3NMwHoI+299zSOSdMb2py1p1RYY4YYricsVx72KjMTMTNT9JkDjW8FN56P0dRWLXF1/sXb7+9EU6nP0mpOBlYWRrBib7ghj9csPsYWc3BZ3EgXvzzIF2U9HuU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gtDAYQvQ; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ny1bTZtc"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9E36B1F00893;
-	Thu,  4 Jun 2026 22:57:36 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780613859;
-	bh=eB8NVASMw6EPL4lglam8dxrHSkSbY4ghGAbIjShoqbg=;
-	h=From:Date:Subject:To:Cc;
-	b=ny1bTZtcbVbH1dP6DwLhOb+zF7t/xRud2pn0rNiIDF6rQ3V7oaDig7jC/J/+pKdNb
-	 +AmriHItOcdJll1+jYEBOHAmWQfjHqcIlg/z1TEZMhg7WIzTF4QtyTLiUbpCJwpDIP
-	 720JVgcn0Ehg72rh9bcXOg5orE+qSBsJrAmfQS3EBYeGLAtVALnxoDuRk2qVqN1oRX
-	 y2J32UBuK4NSCgPnypqinWt2H5YIqgUajVBgnM0Bg4gDpLIlrRvwUdsr/xvseAwkRk
-	 ag5mt7FImb9abTYSmq7oGDLrre1DJDp5TsNzOWK7MdmcPi5uWKO2ktuemg+rtRqHwY
-	 EinDYw66qD2Lg==
-From: Nathan Chancellor <nathan@kernel.org>
-Date: Thu, 04 Jun 2026 15:57:15 -0700
-Subject: [PATCH] can: virtio: Fix comment in UAPI header
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gtDAYQvQ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1780614861;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=BLGZz3723Aln9n0iz1W4fVsSKoXjcy4jTxlM5UdbXW0=;
+	b=gtDAYQvQ3fHS9MN5Pta9lV5QG5V9T4BVoR+uyZ5jNa5vjruDV8eyPUnop+3v/oCHvqrOYI
+	0zEqNdWL6EWssieMVEUe3GytFc9iWFAUTpO54JmrxPLaki/siFMZb2o/MSaj/oY1bBGdNj
+	oo91iAqxHuvXoq3Jlpf1mjbgJIeH+s8=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-670-uNhjrbGyPd6yEo4Rx7AG8Q-1; Thu, 04 Jun 2026 19:14:19 -0400
+X-MC-Unique: uNhjrbGyPd6yEo4Rx7AG8Q-1
+X-Mimecast-MFC-AGG-ID: uNhjrbGyPd6yEo4Rx7AG8Q_1780614858
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-45efa2f7009so752599f8f.3
+        for <virtualization@lists.linux.dev>; Thu, 04 Jun 2026 16:14:19 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780614858; x=1781219658;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=BLGZz3723Aln9n0iz1W4fVsSKoXjcy4jTxlM5UdbXW0=;
+        b=rnb03XWSfityPAIne0UJRXkVPfvWLEQQ+xhyM620EsaMLpTuSnXB2ljMbekozp/frh
+         QWdGOhXFjZxtnx7kWHUfiW+nxskxlmK8wt8dPWpqCDNcTdFp98XPhXj2EkSh6YiLubnL
+         3OWOAuVI/MIBTNMlG2mCzlX4qpshwr7AEsGco97a/Y2WoMsHpEaL0KKq9UWPLpwnhI93
+         l3MbqSFKMBwXTjxQl/19hmkpnxQGPH47jgn6dqcAiKJoFFuuGXoR6FTzqtE6JzyY1wDC
+         sQ8Yq4ogrLLt2HyZmfuVueEoGocg7SRBOOWRH9uEzpbnMijlgPn0ieC/NuMztJGfXR7I
+         JefQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+BmFXkfxBp1wc2CUwAn3nd2o1FmQACl5RDTRtfVoQntTAtugtcFGuPTupkvJ6EIrzdh41dUtXhQWss045eHw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwFevOAZzbro4hBC1MK8JKjK6yAzLT12Y+qVPWWwEWfc6rCrmoY
+	nGXm0Uf4QuOxVEibZgJG1RRqNJewDDbHuYj8MnhJPWXB1BfBkpwdPymCyO3VKvAPsXKIbYhKxzW
+	CByCTUcC9puKkJf47zi1zOjzZJ+fgOulAZq6bS953Y7YOxGX1YHoVqjLwdYQib2yk5azJ
+X-Gm-Gg: Acq92OHHFUieMVRKNc7cEBJrDWutAsMgLA0dkVShUKQISkWeUe2k6UoEOWC4628gUU7
+	bU1TwmIc7xhIBWyeN8FHLxhp+QppwIb01f57SEnRn2e1if260YjhhdGFNQF1JFZau3V1hjaZpzm
+	iSx/p+cNvXRPSod8lLQgWYracBW2CNwoALVx3eflZciqiJzKZyQzY5WwyMUjADScZBb8cTYqN/q
+	VY3abZGnwDNjBpmEpKpYy6amAlkN7dIMlgf08lF/aOdrJMziYfipnPghxUKJMcZ6+NoprSndIGC
+	eR+PzBjt0WDtUtZjh2RnC1xjOfllkPPWZIVMQzXq4zQDjlA83G6MIU6Erk8PsAwJ5kg8Ax3SrG0
+	MvW2Smiar/64IQJrSdgDYunbOtamVARSVeUWXBVirtGjRZbnq1za4Xvs=
+X-Received: by 2002:a05:6000:b82:b0:460:1301:dec8 with SMTP id ffacd0b85a97d-460302dc4a8mr1134267f8f.3.1780614858152;
+        Thu, 04 Jun 2026 16:14:18 -0700 (PDT)
+X-Received: by 2002:a05:6000:b82:b0:460:1301:dec8 with SMTP id ffacd0b85a97d-460302dc4a8mr1134244f8f.3.1780614857676;
+        Thu, 04 Jun 2026 16:14:17 -0700 (PDT)
+Received: from redhat.com (ppp-94-66-118-61.home.otenet.gr. [94.66.118.61])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4601f2dc577sm19910295f8f.3.2026.06.04.16.14.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 04 Jun 2026 16:14:17 -0700 (PDT)
+Date: Thu, 4 Jun 2026 19:14:14 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Paolo Abeni <pabeni@redhat.com>
+Cc: Qing Ming <a0yami@mailbox.org>, Jason Wang <jasowang@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Shirley <xma@us.ibm.com>, "David S. Miller" <davem@davemloft.net>,
+	kvm@vger.kernel.org, virtualization@lists.linux.dev,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net] vhost/net: complete zerocopy ubufs only once
+Message-ID: <20260604191341-mutt-send-email-mst@kernel.org>
+References: <20260601104300.197210-1-a0yami@mailbox.org>
+ <b6182472-503c-43e9-a850-87cd40f86aa8@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260604-virtio_can-fix-uapi-comment-v1-1-199fa96ec5f0@kernel.org>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXM0QqDMAxA0V+RPC/QiYj4KyIjjXGLYCttLYL47
- 3bb44HLPSFKUInQVycEyRrVu4LnowL+kHsL6lQMtalb05oGs4ak/sXkcNYDd9oU2a+ruISWaSb
- T2cZ2BOWwBSnN7z6Mf8fdLsLpu4TrugHgD/P8fwAAAA==
-X-Change-ID: 20260604-virtio_can-fix-uapi-comment-bcafa08b4b8a
-To: Harald Mommer <harald.mommer@oss.qualcomm.com>, 
- Matias Ezequiel Vara Larsen <mvaralar@redhat.com>, 
- "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
- Mikhail Golubev-Ciuchea <mikhail.golubev-ciuchea@oss.qualcomm.com>, 
- Marc Kleine-Budde <mkl@pengutronix.de>, 
- Francesco Valla <francesco@valla.it>, virtualization@lists.linux.dev, 
- linux-can@vger.kernel.org, linux-kernel@vger.kernel.org, 
- llvm@lists.linux.dev, Nathan Chancellor <nathan@kernel.org>
-X-Mailer: b4 0.16-dev
-X-Developer-Signature: v=1; a=openpgp-sha256; l=1447; i=nathan@kernel.org;
- h=from:subject:message-id; bh=2TlUIBpxSMH+9bGcBFZbe1n6gKi9gIbnhoT2ikTVCJc=;
- b=owGbwMvMwCUmm602sfCA1DTG02pJDFlKTA/uH5s4L8hHfR/7q62fzHL1AoWW7XCWUn9wqzUwV
- OO3tFp+RykLgxgXg6yYIkv1Y9XjhoZzzjLeODUJZg4rE8gQBi5OAZiImiEjw8pbbGd7Y5MXvJLY
- sU18041Zby9fz/7TcMB0N9ObL6u3nHJlZDjemiJ45aNWV+ARNo1zizk1Hb6bzb7e2q53+RaftLj
- 9PxYA
-X-Developer-Key: i=nathan@kernel.org; a=openpgp;
- fpr=2437CB76E544CB6AB3D9DFD399739260CB6CB716
+In-Reply-To: <b6182472-503c-43e9-a850-87cd40f86aa8@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: daLgaLoW0QndD-KQazm-TWiQ0fzeoY08j1TI6-qCZgY_1780614858
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-When compile testing the UAPI headers with clang, there is an warning turned
-error for using a C++ style ('//') comment, which is explicitly forbidden for
-UAPI headers.
+On Thu, Jun 04, 2026 at 12:55:49PM +0200, Paolo Abeni wrote:
+> On 6/1/26 12:43 PM, Qing Ming wrote:
+> > vhost-net initializes one ubuf_info per outstanding zerocopy TX
+> > descriptor and hands it to the backend socket.  The networking stack may
+> > then clone a zerocopy skb before all skb references are released.  For
+> > example, batman-adv fragmentation reaches skb_split(), which calls
+> > skb_zerocopy_clone() and increments the same ubuf_info refcount.
+> > 
+> > vhost_zerocopy_complete() currently treats every ubuf callback as a
+> > completed vhost descriptor.  It dereferences ubuf->ctx, writes the
+> > descriptor completion state, and drops the vhost_net_ubuf_ref even when
+> > the callback only releases a cloned skb reference.  A backend reset can
+> > therefore wait for and free the vhost_net_ubuf_ref while another cloned
+> > skb still carries the same ubuf_info.  A later completion then
+> > dereferences the freed ubufs pointer.
+> > 
+> > KASAN reports the stale completion as:
+> > 
+> >   BUG: KASAN: slab-use-after-free in vhost_zerocopy_complete+0x1d7/0x1f0
+> >   BUG: KASAN: slab-use-after-free in vhost_zerocopy_complete+0x101/0x1f0
+> >   vhost_zerocopy_complete
+> >   skb_copy_ubufs
+> >   __dev_forward_skb2
+> >   veth_xmit
+> > 
+> > The freed object was allocated from vhost_net_ioctl() while setting the
+> > backend and freed through kfree_rcu()/kvfree_rcu_bulk after backend
+> > removal, while delayed skb completion still reached
+> > vhost_zerocopy_complete().
+> > 
+> > Honor the generic ubuf_info refcount before touching vhost state, and run
+> > the vhost descriptor completion only for the final ubuf reference.  This
+> > matches the msg_zerocopy_complete() ownership rule for cloned zerocopy
+> > skbs.
+> > 
+> > Fixes: bab632d69ee4 ("vhost: vhost TX zero-copy support")
+> > Signed-off-by: Qing Ming <a0yami@mailbox.org>
+> 
+> The patch LGTM.
+> 
+> @Michael: to you want to take it via your tree?
+> 
+> /P
 
-  In file included from <built-in>:1:
-  ./usr/include/linux/virtio_can.h:29:35: error: // comments are not allowed in this language [-Werror,-Wcomment]
-     29 | #define VIRTIO_CAN_MAX_DLEN    64 // this is like CANFD_MAX_DLEN
-        |                                   ^
-  1 error generated.
 
-Switch to a standard C style comment.
+I wan't copied) Alright then.
 
-Fixes: 2b6b4bb7d96f ("can: virtio: Add virtio CAN driver")
-Signed-off-by: Nathan Chancellor <nathan@kernel.org>
----
- include/uapi/linux/virtio_can.h | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/include/uapi/linux/virtio_can.h b/include/uapi/linux/virtio_can.h
-index 08d7e3e78776..e054d5099241 100644
---- a/include/uapi/linux/virtio_can.h
-+++ b/include/uapi/linux/virtio_can.h
-@@ -26,7 +26,7 @@
- #define VIRTIO_CAN_FLAGS_FD             0x4000
- #define VIRTIO_CAN_FLAGS_RTR            0x2000
- 
--#define VIRTIO_CAN_MAX_DLEN    64 // this is like CANFD_MAX_DLEN
-+#define VIRTIO_CAN_MAX_DLEN    64 /* this is like CANFD_MAX_DLEN */
- 
- struct virtio_can_config {
- #define VIRTIO_CAN_S_CTRL_BUSOFF (1u << 0) /* Controller BusOff */
-
----
-base-commit: 7a85231f762aa97b945878abb9a26683486836c6
-change-id: 20260604-virtio_can-fix-uapi-comment-bcafa08b4b8a
-
-Best regards,
---  
-Cheers,
-Nathan
 
