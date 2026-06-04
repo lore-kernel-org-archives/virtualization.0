@@ -1,117 +1,136 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2BE8401A32
-	for <virtualization@lists.linux.dev>; Thu,  4 Jun 2026 10:40:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2B3D53314B9
+	for <virtualization@lists.linux.dev>; Thu,  4 Jun 2026 10:55:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780569609; cv=none; b=uKZv55qI4aGHPlfBUrYJwxJBF+Waw6xyjDUuCZcNpq8NHfCTIl+9b4hlKB1TMecFntIEx0AZuFhrcgeldGyTbpCU4QoxBMtXTdLUo+d8BsawUqknVYqrWEm72rCT1mMIuEgPBF8U7XH2/zCaNoMuuk8/RB1FQ15d12UrxgARSv8=
+	t=1780570556; cv=none; b=BzDrtIoCNuzh+s1Z7Zj4CtXOCgiB5Z6xp8Q3hoPEItsYNtNCxVa/TOLSk3gCDDC4LJ/TPbriI/vj9uwdmhTpEe5OEiZHt/nMw1mWzoVzjvxFER3nazc5wonWfMa5anwWu56Z53JvGjEoS4mEpWf+hRfU2QiUItVKOaPlTcvqxok=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780569609; c=relaxed/simple;
-	bh=NgX+c99SJB1lXKqlQ8aRE/jWzmvN8g9EUrDawofw5ms=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=MUt4YIHbc4EvL2M5uoLiYVjP8kGnDOAIMjRFSmbbFhE1NW0sjqU1rZYU2KAaqiYc0zr6SGQEk6f1L7tXIowSDWyYkDfZMX+m/1VnLLhnHGs3b4du3tH9NlqT3sy25FbGz6j5GSl4JCwqzvm1Dw6NtCSlwy2na2ZyoB56mKKZV0o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=g6bsNIOm; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1780570556; c=relaxed/simple;
+	bh=7PDVjOFFBvB62jh1T+5fxxeccqZf3wobQfN0ejWBl+k=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=b+ApCj3HQp1ghk0f+a3YdobhmbRzdARXr/snGeFOB5nviamJctDt3+axSO7M2ucuMaAwWz3b4LAD+Vv6r/TrAV5nB4K+D5Y5dmymptyH7ibOvhOAQ+fVB9KPzhsfLFw4Kz4edtMvSiiogbrwTzDzYheQavJEVCccQx0/DoKy5LY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=W6WlenL/; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="g6bsNIOm"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="W6WlenL/"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1780569606;
+	s=mimecast20190719; t=1780570554;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=NgX+c99SJB1lXKqlQ8aRE/jWzmvN8g9EUrDawofw5ms=;
-	b=g6bsNIOmOPnjIGgF77tWdrjJc2IBKz0cIvyUKAoSfx/3eXsF81P+8i/NhClLonuquXaXrx
-	x94H0Zz+UvjRhcYfqCueIdtfG17aWzOmPlMw0LAsvIjArrnPZEN8ghdUqdMQm6fQe257NH
-	tZEeZlQBO19de9OB0GgdsKsoyCiJTmQ=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=7wklQVRsViMBNiTmJy4yFl6j2hWwlYVgd/9iVl7uSjw=;
+	b=W6WlenL/M7oHVRp9ZoquNNBSuLbQToiMFOhiyTatrKopA+IYkHoOmPbvXWAK00fXxdRKYA
+	S3WTy1PWVUJP+nvTcKOUKreU8kRvYv89fWeIVgqemYBxOc8e8uKNYczm6C5UV2RXf6ZID5
+	chZNYLFvbaG7BP1UZsBFhFl6WlaaEN4=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-8-dYlEktFhMA6Gfug-zjkkUQ-1; Thu, 04 Jun 2026 06:40:05 -0400
-X-MC-Unique: dYlEktFhMA6Gfug-zjkkUQ-1
-X-Mimecast-MFC-AGG-ID: dYlEktFhMA6Gfug-zjkkUQ_1780569604
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-45efa12a788so382078f8f.2
-        for <virtualization@lists.linux.dev>; Thu, 04 Jun 2026 03:40:05 -0700 (PDT)
+ us-mta-683-IcEGC5bPPS6IxHzGA9cz3A-1; Thu, 04 Jun 2026 06:55:53 -0400
+X-MC-Unique: IcEGC5bPPS6IxHzGA9cz3A-1
+X-Mimecast-MFC-AGG-ID: IcEGC5bPPS6IxHzGA9cz3A_1780570552
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-45efa2f7009so366257f8f.3
+        for <virtualization@lists.linux.dev>; Thu, 04 Jun 2026 03:55:52 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780569604; x=1781174404;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=NgX+c99SJB1lXKqlQ8aRE/jWzmvN8g9EUrDawofw5ms=;
-        b=ESe+zyfCfGBJfJfRHkkd72BYz1NBYwAooV6SkWYXAKPVmjmznsZZ2mQ2fIZTypAwt2
-         cYRoFDecddckSGtJh6gqfBCP9vRznmbLMxA0ii/baGfmxlhlVUQ1Hkdgh1eXkI3iiDfp
-         8zE2QVtaomSXUOM14dzIdwK05YG3ouotJL5ztBwLyymWMiJHf339WskG4o8lXDmKh/H8
-         Z8JYgS8JqR7Pll8nDr8+YpJzUa1yh161L4xtkft2cbfKiI1gyDg9zPOlxzJqOye/i5cN
-         duzgcwf1OLyBvy6UyK22fOpmK2AOE4uoFpzUMEdq9GAydtBZ7LzAu+NPUBY9wWzqRrNV
-         +LWQ==
-X-Forwarded-Encrypted: i=1; AFNElJ+pnv9d2d8ZoeABAFo+AFD0lTs6XnNEZXnYxJUgJfFuyvaAmbET6JBGTLvYqTENpeLj6TLEN5hQLRnwaNArIQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxkzj1Ge0feJsE36c4DfCOTR6LWd8P/aqI29GMlHnwYi7YJZjqy
-	RhKHsBcJkBpH/vy1boVFntsVj71HlbOpooq1uQnWfO/U+/gilv6xEUyIXn6n3IG0WAkOwsxPZOI
-	H2CjtvpHnfFTYKQVqeH/8FXvSrpjYKI1x3AFR2qpVDZDVjGDI8JnU9aousLnEZB+1ExUm
-X-Gm-Gg: Acq92OGDDAclCyxdMlZj9V4zycMPGWZ2etFaShna7eD9pdwmtq7pNp2uyDua/T83mTd
-	plU5+qn+0dWi9fskYy6YOXSYEqxot1Ek3wZHkS6ymFiHsfLg4hyjlYwkkoNYMoK3fGnVbaZdz6a
-	hP851Ncs5N3sDq0Zbh8y4V7w9sckwTcxMVrmvhA5nmoIlr3KFrrhpOhuHDHpH3nZvmO4myYTA3A
-	HhyDWd5YEJqmgywfw9zNPt82pf9nb+cZ8XWdP1nH7mQbqi59u8NHVqWt85o/xTYqHKZuIEP5Su3
-	/G2UOu+znNh4441QOjEIgi/+uXQVLUE9oOZxbSdRjG7P9vNaJi98a8JpJCbGlGW1QIhdcIp6fx3
-	o8QsvBCXPr2uScuVBngsHYn0NLFIgkzJTlleabfw+Cyvxq9wi30kpm6+M6HwsQAPCYpvuTXkeZO
-	5DWj0Gmw==
-X-Received: by 2002:a05:600c:1993:b0:490:bb19:b110 with SMTP id 5b1f17b1804b1-490bb19b19amr71419125e9.27.1780569604435;
-        Thu, 04 Jun 2026 03:40:04 -0700 (PDT)
-X-Received: by 2002:a05:600c:1993:b0:490:bb19:b110 with SMTP id 5b1f17b1804b1-490bb19b19amr71418665e9.27.1780569604008;
-        Thu, 04 Jun 2026 03:40:04 -0700 (PDT)
-Received: from sgarzare-redhat (host-82-53-135-12.retail.telecomitalia.it. [82.53.135.12])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490b7e6c774sm73719575e9.1.2026.06.04.03.40.02
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 04 Jun 2026 03:40:03 -0700 (PDT)
-Date: Thu, 4 Jun 2026 12:40:01 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Raf Dickson <rafdog35@gmail.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, stefanha@redhat.com, bryan-bt.tan@broadcom.com, 
-	vishnu.dasa@broadcom.com, bcm-kernel-feedback-list@broadcom.com, stable@vger.kernel.org
-Subject: Re: [PATCH] vsock/vmci: fix sk_ack_backlog leak on failed handshake
-Message-ID: <aiFV8w-cvY2jUsqb@sgarzare-redhat>
-References: <20260526104356.469928-1-rafdog35@gmail.com>
+        d=1e100.net; s=20251104; t=1780570552; x=1781175352;
+        h=content-transfer-encoding:in-reply-to:content-language:from
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=7wklQVRsViMBNiTmJy4yFl6j2hWwlYVgd/9iVl7uSjw=;
+        b=FMANmNYqvRbUFW/cW9lfLbO+u3AXd+pcKDVewMq+mImSzEKgVvcVk5ZkFimGC6gYjQ
+         CUrjJ+lPIhfELD6Fg9mXndMRzC2yhCdSikAkG+PbGd5FqL8ZeVFs8JwOvuEnoRhxLwhe
+         4LOUOeOqfVdPkMgG4BtuBPUmU3BMK2FcXeUvxLOGQVzaFMhn2C8H14lyUR7Hoj2rIeZW
+         12eZQNNe3+cq0tia+EU8h1IjrGYcqdUbSlxqT3q64/JG8uTSE8UcE/LpMS79t+U0Lzam
+         lowyD/TDcc6yAho9clmbd9pOqeMaBqsUwXQ+qrtIKSrJbvuUht7HrLBahVkjSBQgGRA1
+         BMxA==
+X-Forwarded-Encrypted: i=1; AFNElJ9DAr5PLcLgsvwSPFJLUyPrKtszUi5CH7EtKxA4rJsb5dgnXJQ3dLEWVlfO7/XrpKjwfgQ5xiJ5v8Vz41a/rQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxNwXS8GFzQ/DYU2xTDL36W76z8oxRyOAzSQ6N5RLNLygIdE44l
+	1rsYjPHWm9nt2lAoXe0dmiOzxjQCKo8krg5vMypY5wuJkJNJ+Oy6fdC7PeR51e+bDsyE5OACeeS
+	8WE4VksqOEfiRgNFLkx94NydGCGa2xV4QTEEH+yYFlNr3MJo8+kodwogMeM/fnZusBvKv
+X-Gm-Gg: Acq92OG2V2hzb0VCWj/6cPABcnQdWK5ibtnuOcLJjkSgpVbfAkxG2RtRVtbXlvynosH
+	vwayVVXdOh9IiDxoXqnw/cBQdM5K8OKMvtItCq9CmEZyJSUz5vFDYKlK32diXk9tfAh5JbaN+Jm
+	W52x3JOr1LG7bws+PRVKyVRc7kX7e4L3MEWETpKuBrem/w1FqGN/KHsHn7QNazc+Mh3+JOrfUtr
+	jnec69OiS6ynRkxIBLWnhg6txEyGVDlhWA3PmnQT2UFMi5kiKs/VhUX78W9TsUGaL/AOLfoONY5
+	PVezMsXQqB8jOfySNi71MZUwxtrTAVOqQ4P3/jdutArfFHhBz8mFcZ3RUIRqavuHZtu/TzCPwLx
+	IBiuu4GzsQD8jnnoVYICH3PzzW+ksZh8cjKMro5ocOyZodCevUzNBZY8KFyAIy2cJ7hg=
+X-Received: by 2002:adf:fb85:0:b0:45e:fa38:c899 with SMTP id ffacd0b85a97d-46021783cecmr8984906f8f.4.1780570551760;
+        Thu, 04 Jun 2026 03:55:51 -0700 (PDT)
+X-Received: by 2002:adf:fb85:0:b0:45e:fa38:c899 with SMTP id ffacd0b85a97d-46021783cecmr8984861f8f.4.1780570551302;
+        Thu, 04 Jun 2026 03:55:51 -0700 (PDT)
+Received: from [192.168.88.32] ([212.105.155.59])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4601f3529e0sm15330789f8f.28.2026.06.04.03.55.50
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 04 Jun 2026 03:55:50 -0700 (PDT)
+Message-ID: <b6182472-503c-43e9-a850-87cd40f86aa8@redhat.com>
+Date: Thu, 4 Jun 2026 12:55:49 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260526104356.469928-1-rafdog35@gmail.com>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] vhost/net: complete zerocopy ubufs only once
+To: Qing Ming <a0yami@mailbox.org>, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>
+Cc: =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Shirley <xma@us.ibm.com>, "David S. Miller" <davem@davemloft.net>,
+ kvm@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20260601104300.197210-1-a0yami@mailbox.org>
+From: Paolo Abeni <pabeni@redhat.com>
+In-Reply-To: <20260601104300.197210-1-a0yami@mailbox.org>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 9a-I3gkPusnTKs2hNXIhoku-zQBtK2yhgjN5tKn6oR4_1780569604
+X-Mimecast-MFC-PROC-ID: kv5k5BxNSLs6Q2B-CUR-FxdlrxhNm45tdNvqfr1VgmE_1780570552
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Tue, May 26, 2026 at 10:43:56AM +0000, Raf Dickson wrote:
->When vmci_transport_recv_connecting_server() returns an error,
->vmci_transport_recv_listen() calls vsock_remove_pending() but never
->calls sk_acceptq_removed(). This leaves sk_ack_backlog incremented
->permanently.
->
->Repeated handshake failures (malformed packets, queue pair alloc
->failure, event subscribe failure) cause sk_ack_backlog to climb
->toward sk_max_ack_backlog. Once it reaches the limit the listener
->permanently refuses all new connections with -ECONNREFUSED, a
->silent denial of service requiring a process restart to recover.
->
->The two existing sk_acceptq_removed() calls in af_vsock.c do not
->cover this path: line 764 checks vsock_is_pending() which returns
->false after vsock_remove_pending(), and line 1889 is only reached
->on successful accept().
->
->Fix by balancing sk_acceptq_added() with sk_acceptq_removed() on
->the error path.
->
->Fixes: d021c344051a ("VSOCK: Introduce VM Sockets")
->Cc: stable@vger.kernel.org
->Signed-off-by: Raf Dickson <rafdog35@gmail.com>
->---
-> net/vmw_vsock/vmci_transport.c | 4 +++-
-> 1 file changed, 3 insertions(+), 1 deletion(-)
+On 6/1/26 12:43 PM, Qing Ming wrote:
+> vhost-net initializes one ubuf_info per outstanding zerocopy TX
+> descriptor and hands it to the backend socket.  The networking stack may
+> then clone a zerocopy skb before all skb references are released.  For
+> example, batman-adv fragmentation reaches skb_split(), which calls
+> skb_zerocopy_clone() and increments the same ubuf_info refcount.
+> 
+> vhost_zerocopy_complete() currently treats every ubuf callback as a
+> completed vhost descriptor.  It dereferences ubuf->ctx, writes the
+> descriptor completion state, and drops the vhost_net_ubuf_ref even when
+> the callback only releases a cloned skb reference.  A backend reset can
+> therefore wait for and free the vhost_net_ubuf_ref while another cloned
+> skb still carries the same ubuf_info.  A later completion then
+> dereferences the freed ubufs pointer.
+> 
+> KASAN reports the stale completion as:
+> 
+>   BUG: KASAN: slab-use-after-free in vhost_zerocopy_complete+0x1d7/0x1f0
+>   BUG: KASAN: slab-use-after-free in vhost_zerocopy_complete+0x101/0x1f0
+>   vhost_zerocopy_complete
+>   skb_copy_ubufs
+>   __dev_forward_skb2
+>   veth_xmit
+> 
+> The freed object was allocated from vhost_net_ioctl() while setting the
+> backend and freed through kfree_rcu()/kvfree_rcu_bulk after backend
+> removal, while delayed skb completion still reached
+> vhost_zerocopy_complete().
+> 
+> Honor the generic ubuf_info refcount before touching vhost state, and run
+> the vhost descriptor completion only for the final ubuf reference.  This
+> matches the msg_zerocopy_complete() ownership rule for cloned zerocopy
+> skbs.
+> 
+> Fixes: bab632d69ee4 ("vhost: vhost TX zero-copy support")
+> Signed-off-by: Qing Ming <a0yami@mailbox.org>
 
-Acked-by: Stefano Garzarella <sgarzare@redhat.com>
+The patch LGTM.
+
+@Michael: to you want to take it via your tree?
+
+/P
 
