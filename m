@@ -1,48 +1,48 @@
 Received: from mgamail.intel.com (mgamail.intel.com [192.198.163.8])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3E8E23DA7E1;
-	Thu,  4 Jun 2026 09:36:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 944263DA7E1;
+	Thu,  4 Jun 2026 09:36:40 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=192.198.163.8
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780565797; cv=none; b=q83F+0IwXLue2tg+Gz2JL/OrMXkGacCLJ+MPR2XV7b4UQCGdxBkNKkQlRSiqUD3oZ/gAASil06WpfT2gz9RCNJssiQGC6JvPgUdqofue8LAqCDREAxo0UFhmgGDiscSD5swDaZPdcyksb5c/v6wJ+N3VLu4n1HVUHfjagl/7lb0=
+	t=1780565801; cv=none; b=n4G887svW8btrApYH8ewNECYxPOBFXcSvAoU/kzJ6mM3vz047wGb4dn+FeS9orYQcK6hIYezTo2BbIRBud/1wyVb0g/Dj+AD+u4UjVDVyFG7GXL0cJMuRQRDwC2V8/gO0JsHt4xyYYCjdcUCikF4f8Rg0eLpxIo06zCwtSiGvvs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780565797; c=relaxed/simple;
-	bh=W+ToqG9UJJgLyoMXwSHACk03TV9dob0lpMj9TjgGNFU=;
+	s=arc-20240116; t=1780565801; c=relaxed/simple;
+	bh=6jYclPervmH6HlTTAT2t7gUE3dTslX3C/i5gj/N/3xg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=cT1LqMwU31Ivva/aDp6YNPxIhCmCwhFhQYVkU7af6zK5i/kt1BxffzqV3BQrEzLFBerNwkOJEggVdU6Q7nxq/LPT2+5puzze7OkJi6nS/FIX97J8+99GbISQw1c+MuUbUYOsfSiAdsAEiDcljh/aFsDPwle0Vno3OcefRC1Qtrc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=g76MlPG1; arc=none smtp.client-ip=192.198.163.8
+	 MIME-Version; b=nSLG46xs/ybojQkiqjHxmo+OL46uERDz3W19s3BPxJK+uDEoOO/xm8wi9AIfhZiHt43yK0TVMBOi58Nl2Q06GS7FAzcKr1DVf9nk6vMO7aPJg5GbdYsskGxz3to9r7HGGP6guYRSrUhtLu3mWMyNObqcMVa9caPpSG1hcYO7pwM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=L+NziKD3; arc=none smtp.client-ip=192.198.163.8
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="g76MlPG1"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="L+NziKD3"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1780565796; x=1812101796;
+  t=1780565801; x=1812101801;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=W+ToqG9UJJgLyoMXwSHACk03TV9dob0lpMj9TjgGNFU=;
-  b=g76MlPG1ku9uxYNdIVI2SHPGfYIjuAuAGMAdtqNi70PXwk9ZiHctNxoK
-   yN7qC/SAJw0RBmn5z+YN1SrUMQ3WlY2m8qxkV0MFjV0V985hULSCQlQaV
-   zo2imHfKDxjGXDUOiF33aMcv0zfW+hlwrw+wBo9IBgQHBQQNFhUOw7VaE
-   ywWSJ4nPC5/LiZFG2xyWmAvUi+XBStB3s/e3X9dkBJMTyh2PIdFaiHqaM
-   yCBhzDrJSsRPnoC5VjWK4SD4I8I+Zmii3VHsxK3qwpp/Ah8lFbLw+KT3c
-   S7SK0215J0k92CH2U6T9nE7PfT6W0BJShbWMi4LcUWX4lZ6y28MQ2oezV
-   w==;
-X-CSE-ConnectionGUID: hGNM+Tm1S9i25yTHKqkObA==
-X-CSE-MsgGUID: /gjRmvtNQpCsbqER+8lOmQ==
-X-IronPort-AV: E=McAfee;i="6800,10657,11806"; a="98963765"
+  bh=6jYclPervmH6HlTTAT2t7gUE3dTslX3C/i5gj/N/3xg=;
+  b=L+NziKD36OnI56KrxVM6uE1/Xd3BsenoYHtphyGqWIK7FqtiBkgvJO/5
+   64yEbkQZl8YBcY9RFLfRtFtH7iWfvj6qvuvSfkmTpmwM0tAkMyZGLwRk4
+   ndyvg6HKu/HeK2b9YCQwxUBJxogf/gZ/mOykTYockAoV9k0bOQRIIoGdZ
+   DZ1BR3lKDSBlC9eIGm9bxZmQ4Z2O1z7X9T01ZcgE7GcrbPyqpD14WIoYx
+   BthFo624TdEV4uzrlsG+s5Kb8/PdtHoImK4lfJL2fs+/6gx0X7e+dXZ2B
+   zpwx3z66Mk9JxsTRHhfe3/T6MGKAYoAnvoZUQwPC7lK1NsQFfqmeMLJnI
+   A==;
+X-CSE-ConnectionGUID: NuybiY8nRVO1wC4CK9MITQ==
+X-CSE-MsgGUID: UeNz4/x1QwmBnDZQ97gZxQ==
+X-IronPort-AV: E=McAfee;i="6800,10657,11806"; a="98963773"
 X-IronPort-AV: E=Sophos;i="6.24,186,1774335600"; 
-   d="scan'208";a="98963765"
+   d="scan'208";a="98963773"
 Received: from fmviesa006.fm.intel.com ([10.60.135.146])
-  by fmvoesa102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jun 2026 02:36:36 -0700
-X-CSE-ConnectionGUID: nl1W+94jQ7mTpPyjqyTB6A==
-X-CSE-MsgGUID: sHIVbJWnQCmCM6dfC7CTTQ==
+  by fmvoesa102.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jun 2026 02:36:41 -0700
+X-CSE-ConnectionGUID: 8or6kYnXSZu78BSejaYkRw==
+X-CSE-MsgGUID: sQvjen+cTcmzB6ahawbShw==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.24,186,1774335600"; 
-   d="scan'208";a="240037685"
+   d="scan'208";a="240037694"
 Received: from unknown (HELO gnr-sp-2s-612.sh.intel.com) ([10.112.230.229])
-  by fmviesa006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jun 2026 02:36:32 -0700
+  by fmviesa006-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jun 2026 02:36:36 -0700
 From: Zhenzhong Duan <zhenzhong.duan@intel.com>
 To: marcandre.lureau@redhat.com,
 	david@kernel.org,
@@ -63,9 +63,9 @@ Cc: linux-kernel@vger.kernel.org,
 	yilun.xu@intel.com,
 	xiaoyao.li@intel.com,
 	chao.p.peng@intel.com
-Subject: [RFC PATCH 5/6] x86/tdx: Register memory pre-unplug callback for TDX guests
-Date: Thu,  4 Jun 2026 05:35:50 -0400
-Message-ID: <20260604093551.1511079-6-zhenzhong.duan@intel.com>
+Subject: [RFC PATCH 6/6] x86/tdx: Release private memory before private->shared conversion
+Date: Thu,  4 Jun 2026 05:35:51 -0400
+Message-ID: <20260604093551.1511079-7-zhenzhong.duan@intel.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20260604093551.1511079-1-zhenzhong.duan@intel.com>
 References: <20260604093551.1511079-1-zhenzhong.duan@intel.com>
@@ -77,199 +77,62 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add support for releasing memory pages before unplugging in TDX guests.
-When memory is about to be unplugged by virtio-mem or other memory
-hotplug drivers, the TDX guest should release the memory pages back to the
-hypervisor using TDG.MEM.PAGE.RELEASE TDCALL to be more robust for buggy
-VMM behavior, e.g., VMM may do nothing for unplug request.
+TDX supports a PAGE.RELEASE feature, when configured, host can only
+remove a private page until guest releases it and puts it in a PENDING
+state through TDG.MEM.PAGE.RELEASE.
 
-The implementation detects TDG.MEM.PAGE.RELEASE support and optimizes
-release operations by trying larger page sizes 1G/2M before falling back
-to 4K pages. If release fails, the function re-accepts any released pages
-to maintain consistency. Without proper memory release, re-plugging memory
-in TDX guests fails when guest accepts those memory because hypervisor can
-do no-op to memory unplug request and memory is already in "accepted"
-state.
+When TDX PAGE.RELEASE is supported, release private memory pages before
+converting them to shared state, this ensures pages transition from
+accepted to pending state.
 
+The release operation helps handle scenarios where the hypervisor may
+retain old private pages during conversion. Without proper release,
+subsequent shared->private conversions could encounter re-acceptance
+errors when attempting to accept pages that are still in accepted state.
+
+If the release operation fails, abort the conversion to prevent
+inconsistent memory state. Note that if tdx_map_gpa() fails after
+successful release, we cannot safely rollback because the GPA mapping may
+have partially succeeded, creating a mix of shared and private pages that
+cannot be reliably tracked or recovered.
+
+Co-developed-by: Xu Yilun <yilun.xu@linux.intel.com>
+Signed-off-by: Xu Yilun <yilun.xu@linux.intel.com>
 Signed-off-by: Zhenzhong Duan <zhenzhong.duan@intel.com>
 ---
- arch/x86/include/asm/shared/tdx.h |   2 +
- arch/x86/coco/tdx/tdx.c           | 135 ++++++++++++++++++++++++++++++
- 2 files changed, 137 insertions(+)
+ arch/x86/coco/tdx/tdx.c | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
 
-diff --git a/arch/x86/include/asm/shared/tdx.h b/arch/x86/include/asm/shared/tdx.h
-index 049638e3da74..910ec1e57528 100644
---- a/arch/x86/include/asm/shared/tdx.h
-+++ b/arch/x86/include/asm/shared/tdx.h
-@@ -19,6 +19,7 @@
- #define TDG_MEM_PAGE_ACCEPT		6
- #define TDG_VM_RD			7
- #define TDG_VM_WR			8
-+#define TDG_MEM_PAGE_RELEASE		30
- 
- /* TDX TD attributes */
- #define TDX_TD_ATTR_DEBUG_BIT		0
-@@ -54,6 +55,7 @@
- 
- /* TDCS_CONFIG_FLAGS bits */
- #define TDCS_CONFIG_FLEXIBLE_PENDING_VE	BIT_ULL(1)
-+#define TDCS_CONFIG_PAGE_RELEASE	BIT_ULL(6)
- 
- /* TDCS_TD_CTLS bits */
- #define TD_CTLS_PENDING_VE_DISABLE_BIT	0
 diff --git a/arch/x86/coco/tdx/tdx.c b/arch/x86/coco/tdx/tdx.c
-index d93ba092d311..0abfb3505093 100644
+index 0abfb3505093..ecee6df92395 100644
 --- a/arch/x86/coco/tdx/tdx.c
 +++ b/arch/x86/coco/tdx/tdx.c
-@@ -345,6 +345,139 @@ static int tdx_memory_post_plug(u64 addr, u64 size)
- 	return -EINVAL;
- }
+@@ -1121,7 +1121,25 @@ static bool tdx_enc_status_changed(unsigned long vaddr, int numpages, bool enc)
+ {
+ 	phys_addr_t start = __pa(vaddr);
+ 	phys_addr_t end   = __pa(vaddr + numpages * PAGE_SIZE);
++	bool release_required = !enc && tdx_page_release_supported;
  
-+static bool tdx_page_release_supported;
-+
-+static void detect_mem_page_release(void)
-+{
-+	u64 config = 0;
-+
-+	tdg_vm_rd(TDCS_CONFIG_FLAGS, &config);
-+
-+	tdx_page_release_supported = !!(config & TDCS_CONFIG_PAGE_RELEASE);
-+}
-+
-+static unsigned long try_release_one(phys_addr_t start, unsigned long len,
-+				     enum pg_level pg_level)
-+{
-+	unsigned long release_size = page_level_size(pg_level);
-+	struct tdx_module_args args = {};
-+	u8 page_size;
-+	u64 ret;
-+
-+	if (!IS_ALIGNED(start, release_size))
-+		return 0;
-+
-+	if (len < release_size)
-+		return 0;
++	/*
++	 * For private->shared conversion, release memory pages first.
++	 * This transitions pages from accepted to pending state to be
++	 * more robust with buggy VMM, e.g., VMM may keep old pages,
++	 * when converting back to private, re-accept error triggers.
++	 */
++	if (release_required && !tdx_release_memory(start, end))
++		return false;
 +
 +	/*
-+	 * Pass the page physical address to TDX module to release the
-+	 * private page and to put it in PENDING state.
-+	 *
-+	 * Bits 2:0 of RCX encode page size: 0 - 4K, 1 - 2M, 2 - 1G.
++	 * Update the GPA mapping state. If this fails, we cannot rollback
++	 * by calling tdx_accept_memory() because tdx_map_gpa() may have
++	 * partially succeeded, creating a mix of shared and private pages.
++	 * Attempting to accept the entire range would fail on pages that
++	 * are still in shared state, and we have no way to determine which
++	 * pages are in which state after partial failure.
 +	 */
-+	switch (pg_level) {
-+	case PG_LEVEL_4K:
-+		page_size = TDX_PS_4K;
-+		break;
-+	case PG_LEVEL_2M:
-+		page_size = TDX_PS_2M;
-+		break;
-+	case PG_LEVEL_1G:
-+		page_size = TDX_PS_1G;
-+		break;
-+	default:
-+		return 0;
-+	}
-+
-+	args.rcx = start | page_size;
-+	ret = __tdcall(TDG_MEM_PAGE_RELEASE, &args);
-+	if (ret)
-+		return 0;
-+
-+	return release_size;
-+}
-+
-+static bool _tdx_release_memory(phys_addr_t start, phys_addr_t end, phys_addr_t *cur)
-+{
-+	*cur = start;
-+
-+	while (*cur < end) {
-+		unsigned long len = end - *cur;
-+		unsigned long release_size;
-+
-+		/*
-+		 * Try larger release first. It speeds up process by cutting
-+		 * number of hypercalls (if successful).
-+		 */
-+
-+		release_size = try_release_one(*cur, len, PG_LEVEL_1G);
-+		if (!release_size)
-+			release_size = try_release_one(*cur, len, PG_LEVEL_2M);
-+		if (!release_size)
-+			release_size = try_release_one(*cur, len, PG_LEVEL_4K);
-+		if (!release_size)
-+			return false;
-+		*cur += release_size;
-+	}
-+
-+	return true;
-+}
-+
-+/*
-+ * Release memory pages back to the hypervisor in TDX guests.
-+ *
-+ * @start: Physical start address of memory range to release
-+ * @end:   Physical end address of memory range to release
-+ *
-+ * Uses TDG.MEM.PAGE.RELEASE TDCALL to transition private pages back to
-+ * pending state. If PAGE_RELEASE is not supported by the TDX
-+ * configuration, returns true (success) as no action is needed.
-+ *
-+ * On partial failure, automatically re-accepts any successfully released
-+ * pages to restore consistent memory state. Re-acceptance failure is
-+ * treated as a fatal error since it indicates severe TDX module issues.
-+ *
-+ * Returns: true on success, false on failure
-+ */
-+static bool tdx_release_memory(phys_addr_t start, phys_addr_t end)
-+{
-+	phys_addr_t released = start;
-+	bool ret;
-+
-+	if (!tdx_page_release_supported)
-+		return true;
-+
-+	ret = _tdx_release_memory(start, end, &released);
-+	if (!ret) {
-+		pr_err("Failed to release memory [0x%llx, 0x%llx)\n",
-+		       (unsigned long long)start, (unsigned long long)end);
-+
-+		/*
-+		 * Re-accept any pages that were successfully released before
-+		 * the failure occurred. This should never fail since we're
-+		 * just restoring the previous accepted state.
-+		 */
-+		if (!tdx_accept_memory(start, released))
-+			panic("%s Failed to re-accept memory\n", __func__);
-+	}
-+
-+	return ret;
-+}
-+
-+static int tdx_memory_pre_unplug(u64 addr, u64 size)
-+{
-+	u64 end;
-+
-+	if (!PAGE_ALIGNED(addr) || !PAGE_ALIGNED(size))
-+		return -EINVAL;
-+
-+	if (check_add_overflow(addr, size, &end))
-+		return -EINVAL;
-+
-+	return tdx_release_memory(addr, end) ? 0 : -EINVAL;
-+}
-+
- static void tdx_setup(u64 *cc_mask)
- {
- 	struct tdx_module_args args = {};
-@@ -380,6 +513,8 @@ static void tdx_setup(u64 *cc_mask)
- 	reduce_unnecessary_ve();
+ 	if (!tdx_map_gpa(start, end, enc))
+ 		return false;
  
- 	set_memory_post_plug_callback(tdx_memory_post_plug);
-+	detect_mem_page_release();
-+	set_memory_pre_unplug_callback(tdx_memory_pre_unplug);
- }
- 
- /*
 -- 
 2.52.0
 
