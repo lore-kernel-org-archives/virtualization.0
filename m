@@ -1,116 +1,109 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 191663C09EB;
-	Thu,  4 Jun 2026 16:04:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D3B8D3B38AC
+	for <virtualization@lists.linux-foundation.org>; Thu,  4 Jun 2026 16:32:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780589070; cv=none; b=PXCFDhuBzVcTEyGPD1QjoeDVYWauDSJqrkeFQxXQ2gj4LXN91Y3nIrxUN0xPXRdMY0SHGaR7xjZS5LiKx5f1NCzhdSEiePdpdpvb6T+RfT3Q4yQlFnsqptCbJ/WWmKvLdXFqZH7jXOygbGAZxwR5H/gtuCKVEyQecavQicBTjDA=
+	t=1780590727; cv=none; b=p08QOas35FELWi9kBsi5EL1ML9c41cHH0ms4VcQ5TU8/i/VeeSCa1u9DTvPgg7NELPX74dfOmoduf8yDBg0RaekWYelTHTT1OGY3YRqlT2hTRYlUZaUNf88F7JpD49JRuvxWOT9h5Wsbj/3NTt0De3IRa6iltHrJq45zqv77TP8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780589070; c=relaxed/simple;
-	bh=+XICY+YDEgurFpXgath+1laCa4If6hpRbFiUZcxI3W4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=T9fIscoBHA4MM8WqYx9IkkHhMPZsoKBi3wv3onwapfzDOXqHnLv58EG/sICRu5pd7yCWA2qoFXpjR0/lc3zO7WtFPTe//mPQ26sImiqFcVwUUV0rWPHDTtOZF2DPqvdhywEwAYk8cRyqCfZW2Aojv6XIg0dFBZrCcx8y99HmZqA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bhvU6qpa; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780590727; c=relaxed/simple;
+	bh=fXpBxqROFPJ4zku8Z90PN5SeF6qExYaF4VgwNxixemE=;
+	h=Date:From:To:Cc:Subject:Message-ID; b=r+2ZYw8LaaKVtDMuO3MZ+2FIFMXwWAvBejte8Hhu9UBFT3Of3e/G4poByo6bTYdcUKq852BUvjnLe3mTaiyqbf7tGJQr9Qh9Q+h9nl7/7v38ZevGqDTyn7LLkQ63XK2oOG2YQwB2p0tPSbiI0NRfUurmIyx/cxcahF2SBh5y9Vc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=AdZq3TbT; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bhvU6qpa"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 45C3D1F00893;
-	Thu,  4 Jun 2026 16:04:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780589068;
-	bh=7mgnBtdEgLUmZt02VyMe6Hui1aO83yGWW+LKR/CGzm8=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=bhvU6qparCN4gzuFi2YM/txdBRxic4bIE1acQCa3EysEVT2ygI6dS8PULlfI3ynOp
-	 IJQpmFLMNXmC94p0H6sV0LdgkHG13rQ8J04IjCkVSvMrJRy/Tyf6zHIKsVjF/mpXAv
-	 EKkJ8hkCHLW0dWF4OjuADN2K9zzuGcU5xSqL4uEct90cKf4QoBo7p9cKjIBQ31NnWD
-	 fPs4Xo+bDvQQJmJvdB8V0aulluzcjInFGZH+VLy0z/uNFV7Og/CVu/wqZu0zk3mprn
-	 Arf3zwmx3vhtvC9RlZphW0cj/oDBmAAmhsdVr7HqudMjlJ2syKR2LvwpDWzV5mvtV0
-	 g51BAIvoNjsXg==
-Date: Thu, 4 Jun 2026 17:04:49 +0100
-From: Jean-Philippe Brucker <jpb@kernel.org>
-To: Maoyi Xie <maoyixie.tju@gmail.com>
-Cc: joro@8bytes.org, will@kernel.org, robin.murphy@arm.com,
-	iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH 2/2] iommu/virtio: Avoid using the list iterator past the
- loop in viommu_add_resv_mem()
-Message-ID: <20260604160449.GA1619938@myrica>
-References: <CAHPEe=G-FZvEXjkE+vAXN5MHXCtsOaUoKwg2RQL6m=om+c20hQ@mail.gmail.com>
- <20260604051816.2976221-1-maoyixie.tju@gmail.com>
- <20260604051816.2976221-3-maoyixie.tju@gmail.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="AdZq3TbT"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 855F684E53
+	for <virtualization@lists.linux-foundation.org>; Thu,  4 Jun 2026 16:32:06 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -8.092
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id oh8U12NujsCB for <virtualization@lists.linux-foundation.org>;
+ Thu,  4 Jun 2026 16:32:05 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=198.175.65.13; helo=mgamail.intel.com; envelope-from=lkp@intel.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org A14C784E4B
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=intel.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org A14C784E4B
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=intel.com header.i=@intel.com header.a=rsa-sha256 header.s=Intel header.b=AdZq3TbT
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.13])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id A14C784E4B
+	for <virtualization@lists.linux-foundation.org>; Thu,  4 Jun 2026 16:32:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1780590726; x=1812126726;
+  h=date:from:to:cc:subject:message-id;
+  bh=fXpBxqROFPJ4zku8Z90PN5SeF6qExYaF4VgwNxixemE=;
+  b=AdZq3TbT/3TzgSiG8DzTwH1//tIF6oWB0heG5oarfe/frWkXBOyLLz4E
+   AucC1/Ceh2O+YHfQO+yEJon7X8e52LxGjDqqloBdYeCoy/vHX849tWbYG
+   lbV71hVjWomdTlHdJXyogV5CxDSjfEE6R/1cVxnQrq+GFhShKfZPhL7wK
+   X2o4v7fBNL1R5WbfErA2SX0t40NcM+dMHMsdVjUnM056rb7gepdOQWjBg
+   Gq0ka3uHoXArg5OItCSKuaZ6GHY+g+uS17PkDsIxNLdyDyY7Ijs9jm6kT
+   AXAJyZuPvVLNQtxYh6ucSlzuye4/n7oy5uIFlz2SxV4DB+i8aeF8hj260
+   w==;
+X-CSE-ConnectionGUID: WYCAxumOQ5S9kXs22MSdRw==
+X-CSE-MsgGUID: 4S6Ivfc8SVSWUrFHUyjNPw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11807"; a="92530669"
+X-IronPort-AV: E=Sophos;i="6.24,187,1774335600"; 
+   d="scan'208";a="92530669"
+Received: from fmviesa006.fm.intel.com ([10.60.135.146])
+  by orvoesa105.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 04 Jun 2026 09:32:04 -0700
+X-CSE-ConnectionGUID: EtyvINlqTimj/izOU8Aydg==
+X-CSE-MsgGUID: vC5BHr4aSJiOUyunkQqPhQ==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.24,187,1774335600"; 
+   d="scan'208";a="240124070"
+Received: from igk-lkp-server01.igk.intel.com (HELO 892db79562d4) ([10.211.93.152])
+  by fmviesa006.fm.intel.com with ESMTP; 04 Jun 2026 09:32:01 -0700
+Received: from kbuild by 892db79562d4 with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1wVAz9-000000002M5-1swo;
+	Thu, 04 Jun 2026 16:31:59 +0000
+Date: Thu, 04 Jun 2026 18:31:09 +0200
+From: kernel test robot <lkp@intel.com>
+To: Matias Ezequiel Vara Larsen <mvaralar@redhat.com>
+Cc: llvm@lists.linux.dev, oe-kbuild-all@lists.linux.dev,
+ kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+ Harald Mommer <harald.mommer@oss.qualcomm.com>,
+ "Mikhail Golubev-Ciuchea" <mikhail.golubev-ciuchea@oss.qualcomm.com>,
+ "Marc Kleine-Budde" <mkl@pengutronix.de>,
+ Francesco Valla <francesco@valla.it>
+Subject: [mst-vhost:vhost 5/37]
+ ./usr/include/linux/virtio_can.h:29:35: error: // comments are not allowed in
+ this language
+Message-ID: <202606041812.lddXUy2x-lkp@intel.com>
+User-Agent: s-nail v14.9.25
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260604051816.2976221-3-maoyixie.tju@gmail.com>
 
-On Thu, Jun 04, 2026 at 01:18:16PM +0800, Maoyi Xie wrote:
-> viommu_add_resv_mem() walks vdev->resv_regions to find the insertion
-> point. When every element has a smaller start address, the
-> list_for_each_entry() iterator ends up one past the last entry, and
-> &next->list then aliases the list head, so the following list_add_tail()
-> still appends at the tail. The result is correct, but using the iterator
-> after the loop is undefined per the list_for_each_entry() contract.
+tree:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git vhost
+head:   7a85231f762aa97b945878abb9a26683486836c6
+commit: 2b6b4bb7d96f407e42bfe28c4cd9ce8f7a59ab69 [5/37] can: virtio: Add virtio CAN driver
+config: x86_64-rhel-9.4-rust (https://download.01.org/0day-ci/archive/20260604/202606041812.lddXUy2x-lkp@intel.com/config)
+compiler: clang version 22.0.0git (https://github.com/llvm/llvm-project f43d6834093b19baf79beda8c0337ab020ac5f17)
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260604/202606041812.lddXUy2x-lkp@intel.com/reproduce)
 
-Thank you for removing this hack, though I don't find a contract in the
-list_for_each_entry() doc, and the fix still accesses a cursor outside the
-loop. Since you mentioned C11 UB in another email, do you have more info
-on the precise operation which is undefined in the kernel (container_of
-into an invalid object or the &next->list addition)?  Just so I can avoid
-it in the future.
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202606041812.lddXUy2x-lkp@intel.com/
 
-Anyway, thanks for the patch. If this is just general cleanup that's fine
-too.
+All errors (new ones prefixed by >>):
 
-Reviewed-by: Jean-Philippe Brucker <jpb@kernel.org>
+   In file included from <built-in>:1:
+>> ./usr/include/linux/virtio_can.h:29:35: error: // comments are not allowed in this language [-Werror,-Wcomment]
+      29 | #define VIRTIO_CAN_MAX_DLEN    64 // this is like CANFD_MAX_DLEN
+         |                                   ^
+   1 error generated.
 
-> 
-> The loop only needs a list_head as the insertion point, so iterate with
-> list_for_each() and keep the typed list_entry() dereference inside the loop
-> body. No functional change.
-> 
-> Suggested-by: Robin Murphy <robin.murphy@arm.com>
-> Signed-off-by: Maoyi Xie <maoyixie.tju@gmail.com>
-
-> ---
->  drivers/iommu/virtio-iommu.c | 10 +++++++---
->  1 file changed, 7 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-> index 587fc13197f1..1d58d6b626a5 100644
-> --- a/drivers/iommu/virtio-iommu.c
-> +++ b/drivers/iommu/virtio-iommu.c
-> @@ -486,7 +486,8 @@ static int viommu_add_resv_mem(struct viommu_endpoint *vdev,
->  	size_t size;
->  	u64 start64, end64;
->  	phys_addr_t start, end;
-> -	struct iommu_resv_region *region = NULL, *next;
-> +	struct iommu_resv_region *region = NULL;
-> +	struct list_head *pos;
->  	unsigned long prot = IOMMU_WRITE | IOMMU_NOEXEC | IOMMU_MMIO;
->  
->  	start = start64 = le64_to_cpu(mem->start);
-> @@ -520,11 +521,14 @@ static int viommu_add_resv_mem(struct viommu_endpoint *vdev,
->  		return -ENOMEM;
->  
->  	/* Keep the list sorted */
-> -	list_for_each_entry(next, &vdev->resv_regions, list) {
-> +	list_for_each(pos, &vdev->resv_regions) {
-> +		struct iommu_resv_region *next =
-> +			list_entry(pos, struct iommu_resv_region, list);
-> +
->  		if (next->start > region->start)
->  			break;
->  	}
-> -	list_add_tail(&region->list, &next->list);
-> +	list_add_tail(&region->list, pos);
->  	return 0;
->  }
->  
-> -- 
-> 2.34.1
-> 
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
