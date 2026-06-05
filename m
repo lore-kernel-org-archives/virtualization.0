@@ -1,185 +1,262 @@
-Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 045883A48E4
-	for <virtualization@lists.linux.dev>; Fri,  5 Jun 2026 14:30:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 941C73FFFB5
+	for <virtualization@lists.linux-foundation.org>; Fri,  5 Jun 2026 15:09:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780669841; cv=none; b=dD7WwBeyMr/KNGECIRUpDSk94pOHtSso4E6u40ffxpiCpXU5CKOLzqEDqJXeJgtUrfRFMm93whYYDOyQTO0c8ijDgRymOqesoxOJcTL9aBK6n6xZczJthF+IFoKmYUoEFkAc2VMWScl9XSnnAC9qOwFJalP0roP+sA37pxpavKc=
+	t=1780672141; cv=none; b=haa+/eTuNmnEbLnaKemf8KlGwwx9L7U8dluuOr+y8PoE+BJugX6enF4W9iZCN8gD/LtFjD+eaTTAC86TwDAgYZERiRdVJpWDSngLJY0hshzGFKK4JNeJzyzMtXaNpDRlUt65/jDFeXJ1m83YDLgohOy/IHKiNe8vv7OonpMnmpk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780669841; c=relaxed/simple;
-	bh=EVj/w6iK3+b4kNl2JDaF+zi/oZ4jg0tk/C1v/bSAc1E=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Y1oJxwtc+mGqE1y9xbkZwpo0r0KYZ057fGPv0UysGSu0dj+Kl22kJ4sRJOepXPQ4hMfmyob6UOh2M6/hv2a7NAUQggvN3m8yFKBSTVIUCT/TBjdKXgXYneDC8rauDuJ/UWc5uGojAivhn17qYtO1e0PF8LdyEwL34qLyzDaKYYY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=XLCqL1r9; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=P2L9TZiY; arc=none smtp.client-ip=205.220.180.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
+	s=arc-20240116; t=1780672141; c=relaxed/simple;
+	bh=HtxAlA0bpzrKu0Tr9l4oqmpPC0VovkQ79lbq7PZ+w0s=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=u0kp4FZ0jEYkuARXu38dwegnZiyZajHsffECm5mbJ1RDEdPllfC0w0LEvmyR+lLGNoKwi8jAbiHQ01lnK+f5SxSy05qDeAa111KHMPjN5Bb5ocUbA4b7HenB4eDpuUtOFCwMjDs7RZVilTyngyUDw0/ehlRPHswLMz3YtuPJW08=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MloMpC4Q; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="XLCqL1r9";
-	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="P2L9TZiY"
-Received: from pps.filterd (m0279870.ppops.net [127.0.0.1])
-	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65584u9g021770
-	for <virtualization@lists.linux.dev>; Fri, 5 Jun 2026 14:30:38 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
-	cc:content-transfer-encoding:date:from:message-id:mime-version
-	:subject:to; s=qcppdkim1; bh=YYr53TWlFvQ9X3G8WUw05dDowvGVXxiHZ6r
-	UrNQhMqQ=; b=XLCqL1r9PEVlz/K281DECkdMMmGaJHtmUG9SyD2N+w8KA5Wv4Dl
-	kRBCmlw2a6NZuVTT/sbMHfz8qNOQo43ryWwkO/V7vl2N5MDj3yBWe5uSgZKC9FKD
-	53P6pMshkpq+updZXJ1KhYi95hzrdVSYoe9GVGmpNi7IXtuRka62vRfzLSl9udID
-	nLIUz+I+xZabscPNnwvQx+OzaqtWeVPWNbdpPxkdbuQL9hKg3rtnZt3HYHp8DlDi
-	gwVLsHkRhTupqBf9NqVRChl7RSRk6sZ53rEivBKYt/RlXoZPga8Z2168TCcMcI39
-	xhd4FXc2zIR+BrXkFdyIJGD15P6wnWBBR3Q==
-Received: from mail-vs1-f69.google.com (mail-vs1-f69.google.com [209.85.217.69])
-	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4ektmf9hn0-1
-	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
-	for <virtualization@lists.linux.dev>; Fri, 05 Jun 2026 14:30:37 +0000 (GMT)
-Received: by mail-vs1-f69.google.com with SMTP id ada2fe7eead31-6cfc719d238so1026855137.1
-        for <virtualization@lists.linux.dev>; Fri, 05 Jun 2026 07:30:37 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MloMpC4Q"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id 4A8E3819D2
+	for <virtualization@lists.linux-foundation.org>; Fri,  5 Jun 2026 15:09:00 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -1.099
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id IE8m_tBT8WNQ for <virtualization@lists.linux-foundation.org>;
+ Fri,  5 Jun 2026 15:08:59 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2a00:1450:4864:20::42b; helo=mail-wr1-x42b.google.com; envelope-from=david.laight.linux@gmail.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 47B5B819D1
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 47B5B819D1
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=gmail.com header.i=@gmail.com header.a=rsa-sha256 header.s=20251104 header.b=MloMpC4Q
+Received: from mail-wr1-x42b.google.com (mail-wr1-x42b.google.com [IPv6:2a00:1450:4864:20::42b])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id 47B5B819D1
+	for <virtualization@lists.linux-foundation.org>; Fri,  5 Jun 2026 15:08:59 +0000 (UTC)
+Received: by mail-wr1-x42b.google.com with SMTP id ffacd0b85a97d-4600cbb06deso1146420f8f.1
+        for <virtualization@lists.linux-foundation.org>; Fri, 05 Jun 2026 08:08:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=oss.qualcomm.com; s=google; t=1780669837; x=1781274637; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=YYr53TWlFvQ9X3G8WUw05dDowvGVXxiHZ6rUrNQhMqQ=;
-        b=P2L9TZiYHJ2N//E2i3fDNq6XsY8C/tZIuodGs0fmMWkipOrV+7/4z1ePmwrca4DVSF
-         i/w43HO4HXJq4k/kzXOrPAoxFGkoXMOHpt/y1j3B7VvmqH0NRw89Ueo0XqVibA1Xi9Hy
-         gfbPxhIwB3prk57+Tfi25VZiU9TYoLv1Ga65wbBRvXtxUb40m3nt9tVifMD8xdolEy2A
-         5XtS8SWawsC38YU4HRUKH1SZ4GliqlLCNWTSYZDl4lCm1QoyZ9UJaTEDBfFIYZCKn1eU
-         npmLnv1LfdA+7rkbEXApTFARf9I5gZYjnv4zpo3wl5+/6moGL6qFc+zSpNx8z1m0R+uf
-         eYlQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780669837; x=1781274637;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1780672137; x=1781276937; darn=lists.linux-foundation.org;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=YYr53TWlFvQ9X3G8WUw05dDowvGVXxiHZ6rUrNQhMqQ=;
-        b=IwablZ4CT9Hcp+Do0kjC+6s5w6P/Tm8ZCpgN27qUFNjUHd7IH0803t2gxtRDwqzCoI
-         +FzqO2rOESej2l+/OP658glo1tHHZigEG+gKl+9U4AMYKtxlJoBXDMlMrkndt1Ma+EMQ
-         iNXF8bJFtJAe587AOtfT7AHWM0vNjue4kMSzwhbTwg6pPrvbYo/mkriIdJe7AdSF+5DJ
-         cPqadWQnwpDYCqhPAJ1t9uT+zUWHHTN3P6bM/57ZnOoKKFH2fgBzQzwbzfvFEpwK7UAW
-         +DCRUxv8E/5sZDIdtsBtGXEQZrouD3C6QnGOKbCOysuoAQEZikwAvWP2d3kUY9AL59d1
-         llaw==
-X-Forwarded-Encrypted: i=1; AFNElJ+FsyOnV/6oe03S62OH2tAAAq+JKdp5juXD4KHSR7G3ZoQrc6Vlb9sITKMnwhZNPdUT5d1iX0q4EMPYWxq5qg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwN3ipNnQnKoBJx8dg5M5T0Cn2pWdADzcZlben58VbAgbWX1VNZ
-	NTzBASWreea0F8mwqEwAcIqln0AOt8m/OGav2YkZp7nCqzblXTzUvaABN0Fd68pE8JgKyUpf1zS
-	KV/QoJfu8GenIFvSVSZ7YvbuWT2ti6HlEyWyMLSqI1M34b6HD/EtyIw82e2DB7d0BNixohQ==
-X-Gm-Gg: Acq92OGN6nNN0rgOy46CqtHHaPLuCg+Qf/lYivCwkRdiIdw+lMeeDwpcU1ATx9lFpwU
-	MJcAOHDN5JLqk2gOtWCtAUpdT8+5EKZ2dozXN50g/ORncVc+0DPNIhJDy1lq+zhAN/jaRKueitE
-	9NV3iMgxLrnuBiNEgZ9/X7ur9Esa+6SxPMA/Iy4/jhiJdUP/atXuMrkHuCGPk+BmVjuCdDvh6hc
-	KLbnOrmit6jbQEVnh5ACVeRwxCyxYxXagVihFY/mB1GEzUM5auRSQXGQCJ13/QBYOiruMiQhxP9
-	nRJvsZcgJkayEe+GEBD+EnKeVutAmrzONYs/ahY8cuW2+kz7XTVz//mBWUze6N4fRwd1pd26ZRl
-	lWTjYDNHR4xCPKBF1oG6iRZ7Jk+EgR0fWNcEUcWB4mgI1YIdPD2gmxFHK8AySqyM=
-X-Received: by 2002:a05:6102:5490:b0:6e2:501c:3c93 with SMTP id ada2fe7eead31-6ff0eba884dmr1941960137.14.1780669836926;
-        Fri, 05 Jun 2026 07:30:36 -0700 (PDT)
-X-Received: by 2002:a05:6102:5490:b0:6e2:501c:3c93 with SMTP id ada2fe7eead31-6ff0eba884dmr1941844137.14.1780669836424;
-        Fri, 05 Jun 2026 07:30:36 -0700 (PDT)
-Received: from QCOM-LDTZRie9bq.qualcomm.com ([212.136.9.4])
-        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-68e64303892sm3814609a12.0.2026.06.05.07.30.34
+        bh=HgCzrE/kcx5xV+VBfBM1xmyxfRLG6AWjmyf9O3n0QS0=;
+        b=MloMpC4QFfkbueu7sqeBi5hQAO7H5C1MXECFaRF5Twjmcoa2M4rOEa1WwUxrtQ5lB5
+         VYkDHDQxk5RU5Ywh//wyGlGVoBZ/Yt4VwIAUg2TfBDJxpn68a6JI41RxaIu60wvUi1WK
+         Z9UfqUIWcAQelK8TpsJfH51o/CtAOB6lcxr+OrvYt3hFZQWzHwPPDJ8mjvVOxUapqY0U
+         lHMTzmHeBdJrbLcOuTGP/kn67cN+m3U1ygdGpni3H3beIXsnzu5Z5vQSb1RIIlvCkX9E
+         zkspeAzbLHUxmhOKyDPWafUieBv4tU4SlUkC/nuo02NafudiIDKTQJlqPvpzRdHW9gpO
+         7m9g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780672137; x=1781276937;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=HgCzrE/kcx5xV+VBfBM1xmyxfRLG6AWjmyf9O3n0QS0=;
+        b=VZiGqmUn5TpC6RgZlakFn178xidj5bqYjfRrpSFOwC/U2T4tUQD1ZOwAQhircceRFP
+         93cNBluLHaX+XnbpZh3eYsXZLZ7TsVcFw8wXwl4TgMItaFSIY8v6Ks38bAkSq3aAa+16
+         ixy3LxcjN5tszdzhvWjKZCcx1VTtqDMUpZjDTuxrBxOgaq6zsS6K4GHR/wEVgTRMXqDo
+         7NYmvDJf2kxEI/eTGrjXrfYrFk6/f6TpwIuBIPZaCvEBTeCedYLIc2FvzPhIwidx0nDR
+         NjvAMDFS2aB2sCBpjX2ETyOrnEw/4yZh0sleKRvrep8VWVziRWAHcb8hlhG0K3bT1tlN
+         1GiA==
+X-Forwarded-Encrypted: i=1; AFNElJ/LOs6xBpZFW6DDYOEWTZM8gX/aLRwxIKWuvbmOwI/abav5jqIMXRzRrhxScZCO+0CfhKgF5R6XPZIsHDGPHA==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0YzqgHg1jtRYg0pspeKYPVayqAWT/WZ2qG/hzIwL5vL9tj56IFYy
+	/Bikqo3cd9/2n0KXc/BfE+X+u+TTX3xnTFavQaeloGdle4wcoB5m+92p
+X-Gm-Gg: Acq92OEjqwKr6rGbCct5QYpt4R9i1LUFV277bEeITlkX9AejelIzdVuVY9kP6xaAsNH
+	vHjUCLexaasaKD+2T+VVOircgHUXzviuystd1RUEUtbpQzwPHC9UKBdD65Z7958sEbvLlaHYAXI
+	8RFVL6wbln/PwuqT/9Du/3VIrqE6p5sgwrbEZ+7cmyUJUVD5Hs8R1v7sOzcFFK3zw8x/qZPREii
+	6dznFrimbCxAZ1FNCbcQd6Fzuer0zMG7L8OkzmP3nzZNP7T7o+X0m5mioURuynNsrE074l1nxk7
+	/RDxMclhPtJH1OBUvdkZrszBiIDBWS3UbyQ+NKsuI7LS6xPlETzjb54q9MsaSHySYqYuLZ9ZHlA
+	sDSAB6bxh0ZASZaGw/NASc26f9yCuIFz8PLkVCQILJHknrScchFv/Oi5cBZ940NOh44pTGKaqZ1
+	/JF8pR/DoTQMD90uX43+3Say7TPk1pB7TMpo6UfO2VPt5nNnEcvc8aexC/agUVK13asUCc99KOj
+	unME2u9yA==
+X-Received: by 2002:a5d:64e5:0:b0:45a:5392:3a19 with SMTP id ffacd0b85a97d-46032da19dfmr5307301f8f.16.1780672137010;
+        Fri, 05 Jun 2026 08:08:57 -0700 (PDT)
+Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4601f351ac0sm44178439f8f.27.2026.06.05.08.08.54
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 Jun 2026 07:30:35 -0700 (PDT)
-From: Peter Hilber <peter.hilber@oss.qualcomm.com>
-To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
-Cc: Trilok Soni <trilok.soni@oss.qualcomm.com>, virtio-dev@lists.linux.dev,
-        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-        =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-        virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-        Peter Hilber <peter.hilber@oss.qualcomm.com>
-Subject: [PATCH] virtio-mmio: add support for transport version 3
-Date: Fri,  5 Jun 2026 16:29:21 +0200
-Message-ID: <20260605142921.2824-1-peter.hilber@oss.qualcomm.com>
-X-Mailer: git-send-email 2.43.0
+        Fri, 05 Jun 2026 08:08:56 -0700 (PDT)
+Date: Fri, 5 Jun 2026 16:08:51 +0100
+From: David Laight <david.laight.linux@gmail.com>
+To: Arseniy Krasnov <avkrasnov@rulkc.org>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
+ <sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric
+ Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo
+ Abeni <pabeni@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason
+ Wang <jasowang@redhat.com>, Bobby Eshleman <bobby.eshleman@bytedance.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?UTF-8?B?UMOpcmV6?=
+ <eperezma@redhat.com>, Simon Horman <horms@kernel.org>,
+ kvm@vger.kernel.org, virtualization@lists.linux-foundation.org,
+ netdev@vger.kernel.org, linux-kernel@vger.kernel.org, oxffffaa@gmail.com,
+ rulkc@linuxtesting.org
+Subject: Re: [PATCH v1] vsock/virtio: rework MSG_ZEROCOPY flag handling
+Message-ID: <20260605160851.3ddbd2ed@pumpkin>
+In-Reply-To: <20260605115314.552321-1-avkrasnov@rulkc.org>
+References: <20260605115314.552321-1-avkrasnov@rulkc.org>
+X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Proofpoint-ORIG-GUID: aiLq1G-u2z0hB9_6luk7ERR_DhKhA81M
-X-Authority-Analysis: v=2.4 cv=GolyPE1C c=1 sm=1 tr=0 ts=6a22dd8d cx=c_pps
- a=5HAIKLe1ejAbszaTRHs9Ug==:117 a=dNlqnMcrdpbb+gQrTujlOQ==:17
- a=FelO9ux0wxsA:10 a=s4-Qcg_JpJYA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=u7WPNUs3qKkmUXheDGA7:22 a=gowsoOTTUOVcmtlkKump:22 a=NEAV23lmAAAA:8
- a=EUspDBNiAAAA:8 a=SLj1U74zwwqa45oC7IgA:9 a=gYDTvv6II1OnSo0itH1n:22
-X-Proofpoint-GUID: aiLq1G-u2z0hB9_6luk7ERR_DhKhA81M
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjA1MDE0MiBTYWx0ZWRfX5ossHVmOaCMt
- 7yIFfdauqaMTUQmLTTWc9N29ecTQ/RKaAHMQ+RD8qM9H7iZk7FQEtYiP3HGkUjtvLACb3ExbZ3F
- 9jxNDKhh4KSq/FwVvXnrvgAKgdiqGtUICQLUDKeZPwhAdyMZCnVnsOTDUQXODokUa+A7/lmmVJU
- 4jM5x/q4kZVf++vTv+9+qAjIn1p0A3uBuylsKtiwpfrIM1dw21Sl5d+50isVaZi4Eh7vQU1DFZM
- Dp9DJSOO1R+ZB0rL8+IkDbhIcT2VrMXMCNsuTEltGhCXtLM9MIzfFo29zwOiNHZRHQZS4S46Din
- Qhtu+GNOC3ThF54/rCYIombM4dk73nJVRokSAgKjXYYtag1OJ8IPyMN4GC6JyrzN/KS2YXw7v58
- 4WtCcyfZcSAuvsT70NSWpsTWAAi9neJD1VfwhwXNJk1qFnt3MwqFYWle3JYCPw7PO0VygAJzwNH
- KsRWHvzMsP79ELX0Yhg==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-06-05_02,2026-06-05_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 spamscore=0 priorityscore=1501 bulkscore=0 phishscore=0
- suspectscore=0 adultscore=0 impostorscore=0 clxscore=1015 malwarescore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2605210000 definitions=main-2606050142
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-Virtio MMIO transport version 3 allows device reset to complete
-asynchronously. Unlike version 2, where writing zero to Status must
-complete the reset before the write returns, version 3 requires the
-driver to poll Status until it reads back zero before considering reset
-complete.
+On Fri,  5 Jun 2026 14:53:14 +0300
+Arseniy Krasnov <avkrasnov@rulkc.org> wrote:
 
-Update virtio-mmio accordingly: accept transport version 3 and, during
-reset, wait for Status to become zero. Keep the polling loop unbounded,
-consistent with virtio-pci, since the reset callback does not return an
-error code.
+> Logically it was based on TCP implementation, so to make further
+> support easier, rewrite it in the TCP way.
+> 
+> Signed-off-by: Arseniy Krasnov <avkrasnov@rulkc.org>
+> ---
+>  net/vmw_vsock/virtio_transport_common.c | 64 ++++++++++++-------------
+>  1 file changed, 32 insertions(+), 32 deletions(-)
+> 
+> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+> index 2fd9eaaf5ca6..00caeeaa5590 100644
+> --- a/net/vmw_vsock/virtio_transport_common.c
+> +++ b/net/vmw_vsock/virtio_transport_common.c
+> @@ -73,10 +73,13 @@ static bool virtio_transport_can_zcopy(const struct virtio_transport *t_ops,
+>  static int virtio_transport_fill_skb(struct sk_buff *skb,
+>  				     struct virtio_vsock_pkt_info *info,
+>  				     size_t len,
+> -				     bool zcopy)
+> +				     bool zcopy, struct ubuf_info *uarg)
+>  {
+>  	struct msghdr *msg = info->msg;
+>  
+> +	/* We have completion - attach it to 'skb'. */
+> +	skb_zcopy_set(skb, uarg, NULL);
+> +
+>  	if (zcopy)
+>  		return __zerocopy_sg_from_iter(msg, NULL, skb,
+>  					       &msg->msg_iter, len, NULL);
+> @@ -208,7 +211,8 @@ static struct sk_buff *virtio_transport_alloc_skb(struct virtio_vsock_pkt_info *
+>  						  u32 src_cid,
+>  						  u32 src_port,
+>  						  u32 dst_cid,
+> -						  u32 dst_port)
+> +						  u32 dst_port,
+> +						  struct ubuf_info *uarg)
+>  {
+>  	struct vsock_sock *vsk;
+>  	struct sk_buff *skb;
+> @@ -245,7 +249,7 @@ static struct sk_buff *virtio_transport_alloc_skb(struct virtio_vsock_pkt_info *
+>  	if (info->msg && payload_len > 0) {
+>  		int err;
+>  
+> -		err = virtio_transport_fill_skb(skb, info, payload_len, zcopy);
+> +		err = virtio_transport_fill_skb(skb, info, payload_len, zcopy, uarg);
+>  		if (err)
+>  			goto out;
+>  
+> @@ -321,38 +325,36 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+>  	if (pkt_len == 0 && info->op == VIRTIO_VSOCK_OP_RW)
+>  		return pkt_len;
+>  
+> -	if (info->msg) {
+> -		/* If zerocopy is not enabled by 'setsockopt()', we behave as
+> -		 * there is no MSG_ZEROCOPY flag set.
+> +	if (info->msg && (info->msg->msg_flags & MSG_ZEROCOPY)) {
+> +		/* If 'info->msg' is not NULL, this is only VIRTIO_VSOCK_OP_RW.
+> +		 * 'MSG_ZEROCOPY' flag handling here is based on the same flag
+> +		 * handling from 'tcp_sendmsg_locked()'.
+>  		 */
+> -		if (!sock_flag(sk_vsock(vsk), SOCK_ZEROCOPY))
+> -			info->msg->msg_flags &= ~MSG_ZEROCOPY;
+> +		if (info->msg->msg_ubuf) {
+> +			uarg = info->msg->msg_ubuf;
+> +			can_zcopy = virtio_transport_can_zcopy(t_ops, info, pkt_len);
+> +		} else if (sock_flag(sk_vsock(vsk), SOCK_ZEROCOPY)) {
+> +			uarg = msg_zerocopy_realloc(sk_vsock(vsk), pkt_len,
+> +						    NULL, false);
+> +			if (!uarg) {
+> +				virtio_transport_put_credit(vvs, pkt_len);
+> +				return -ENOMEM;
+> +			}
+>  
+> -		if (info->msg->msg_flags & MSG_ZEROCOPY)
+>  			can_zcopy = virtio_transport_can_zcopy(t_ops, info, pkt_len);
+>  
+> +			if (!can_zcopy)
+> +				uarg_to_msgzc(uarg)->zerocopy = 0;
+> +
+> +			have_uref = true;
+> +		}
+> +
+> +		/* 'can_zcopy' means that this transmission will be
+> +		 * in zerocopy way (e.g. using 'frags' array).
+> +		 */
 
-Signed-off-by: Peter Hilber <peter.hilber@oss.qualcomm.com>
-Link: https://github.com/oasis-tcs/virtio-spec/commit/bb1dd2e1fe89b862f38f15873d835a698b196f89
----
- drivers/virtio/virtio_mmio.c | 13 ++++++++++---
- 1 file changed, 10 insertions(+), 3 deletions(-)
+I've not looked at the tcp code, but the above doesn't look right.
+I don't see why msg->msg_ubuf might be non-NULL without SOCK_ZEROCOPY set.
+That would give the outer code a callback when the last skb is freed but
+still copy the data.
 
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 510b7c4efdff..316f03b97356 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -55,6 +55,7 @@
- #define pr_fmt(fmt) "virtio-mmio: " fmt
- 
- #include <linux/acpi.h>
-+#include <linux/delay.h>
- #include <linux/dma-mapping.h>
- #include <linux/highmem.h>
- #include <linux/interrupt.h>
-@@ -114,9 +115,9 @@ static int vm_finalize_features(struct virtio_device *vdev)
- 	vring_transport_features(vdev);
- 
- 	/* Make sure there are no mixed devices */
--	if (vm_dev->version == 2 &&
-+	if (vm_dev->version >= 2 &&
- 			!__virtio_test_bit(vdev, VIRTIO_F_VERSION_1)) {
--		dev_err(&vdev->dev, "New virtio-mmio devices (version 2) must provide VIRTIO_F_VERSION_1 feature!\n");
-+		dev_err(&vdev->dev, "New virtio-mmio devices (version >= 2) must provide VIRTIO_F_VERSION_1 feature!\n");
- 		return -EINVAL;
- 	}
- 
-@@ -254,6 +255,12 @@ static void vm_reset(struct virtio_device *vdev)
- 
- 	/* 0 status means a reset. */
- 	writel(0, vm_dev->base + VIRTIO_MMIO_STATUS);
-+
-+	if (vm_dev->version >= 3) {
-+		/* Wait for reset to complete. */
-+		while (vm_get_status(vdev))
-+			fsleep(1000);
-+	}
- }
- 
- 
-@@ -600,7 +607,7 @@ static int virtio_mmio_probe(struct platform_device *pdev)
- 
- 	/* Check device version */
- 	vm_dev->version = readl(vm_dev->base + VIRTIO_MMIO_VERSION);
--	if (vm_dev->version < 1 || vm_dev->version > 2) {
-+	if (vm_dev->version < 1 || vm_dev->version > 3) {
- 		dev_err(&pdev->dev, "Version %ld not supported!\n",
- 				vm_dev->version);
- 		rc = -ENXIO;
--- 
-2.43.0
+I also don't see the point of calling msg_zerocopy_realloc() to get a
+callback when the last skb is freed and then setting
+	uarg_to_msgzc(uarg)->zerocopy = 0;
+so that the callback doesn't actually do anything.
+It isn't as though you 'find out' later on that you can't actually do
+zerocopy.
+
+>  		if (can_zcopy)
+>  			max_skb_len = min_t(u32, VIRTIO_VSOCK_MAX_PKT_BUF_SIZE,
+>  					    (MAX_SKB_FRAGS * PAGE_SIZE));
+> -
+> -		if (info->msg->msg_flags & MSG_ZEROCOPY &&
+> -		    info->op == VIRTIO_VSOCK_OP_RW) {
+> -			uarg = info->msg->msg_ubuf;
+> -
+> -			if (!uarg) {
+> -				uarg = msg_zerocopy_realloc(sk_vsock(vsk),
+> -							    pkt_len, NULL, false);
+> -				if (!uarg) {
+> -					virtio_transport_put_credit(vvs, pkt_len);
+> -					return -ENOMEM;
+> -				}
+> -
+> -				if (!can_zcopy)
+> -					uarg_to_msgzc(uarg)->zerocopy = 0;
+> -
+> -				have_uref = true;
+> -			}
+> -		}
+>  	}
+>  
+>  	rest_len = pkt_len;
+> @@ -365,14 +367,12 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+>  
+>  		skb = virtio_transport_alloc_skb(info, skb_len, can_zcopy,
+>  						 src_cid, src_port,
+> -						 dst_cid, dst_port);
+> +						 dst_cid, dst_port, uarg);
+>  		if (!skb) {
+>  			ret = -ENOMEM;
+>  			break;
+>  		}
+>  
+> -		skb_zcopy_set(skb, uarg, NULL);
+
+Aren't you passing uarg through two function calls instead of doing it here.
+Doesn't even make it clearer what is going on.
+
+-- David
+
+> -
+>  		virtio_transport_inc_tx_pkt(vvs, skb);
+>  
+>  		ret = t_ops->send_pkt(skb, info->net);
+> @@ -1178,7 +1178,7 @@ static int virtio_transport_reset_no_sock(const struct virtio_transport *t,
+>  					   le64_to_cpu(hdr->dst_cid),
+>  					   le32_to_cpu(hdr->dst_port),
+>  					   le64_to_cpu(hdr->src_cid),
+> -					   le32_to_cpu(hdr->src_port));
+> +					   le32_to_cpu(hdr->src_port), NULL);
+>  	if (!reply)
+>  		return -ENOMEM;
+>  
 
