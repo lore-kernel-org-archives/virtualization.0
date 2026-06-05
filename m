@@ -1,76 +1,79 @@
-Received: from mail-pj1-f50.google.com (mail-pj1-f50.google.com [209.85.216.50])
+Received: from mail-qv1-f44.google.com (mail-qv1-f44.google.com [209.85.219.44])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF0AE3CF21B
-	for <virtualization@lists.linux.dev>; Fri,  5 Jun 2026 19:19:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.50
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16C354418D7
+	for <virtualization@lists.linux.dev>; Fri,  5 Jun 2026 19:40:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780687192; cv=none; b=JoWdN+xYtHpktExzjwHo2n84YQX467tYfI4/rPeIw6WEN9KbqUkON6UdD+vmPEIlQh45g+pP/WWc3ekVWQ4pjI8rSdy1TYczKvT/lcnE4EXVoy8hoeXOBkcHOY5FvVB4IZzCbPN9xJFYiCEbsf2kPekt6P0iiTOqTa+WiXLy4CE=
+	t=1780688453; cv=none; b=uQKAHUXElJ/sZIexk7To9BTbRxfZuMuyzBjYKMRjWalefKLXgPhexyv4KBBUB7HeRzzh6hXbCHjR74XBRxe4b73pCuRW7Lv+uKh4G18YEfNqZ8zm4UJRvYunFZukWdYFl5kDy/P45rfiB2H5JGHw1NNKLDqGH8BGuPDFfZFs5Yo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780687192; c=relaxed/simple;
-	bh=lQyeoEHvPDcTd8UBfI28l1PrKOeUuXwWGO6rNePL3aM=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=fQYuOI3d0pU922V0id3oLpHsYlqUJXcit864abWfmjBqo2lsxj3MuYQ0rOFKPUcyENM6HzE2SFVznoToanOZTjJCBgy86LufLIpIJqU9MfMbR6t9gxCblCgumufCXHJY88jNgpikNu2a43ob3i/AJZ0EcLjnFsshYOLP56/M5Qs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=cs.unc.edu; spf=pass smtp.mailfrom=cs.unc.edu; dkim=pass (2048-bit key) header.d=cs.unc.edu header.i=@cs.unc.edu header.b=n146oxER; arc=none smtp.client-ip=209.85.216.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=cs.unc.edu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=cs.unc.edu
+	s=arc-20240116; t=1780688453; c=relaxed/simple;
+	bh=y/rU4gh0E0L2u/dhKcW9ljUwXNcpqmT4X+WX+7weVWE=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gfPMZTDpd3tRUIzfGl4NJvGJts/IQOxEn6cmoD0ueopCksbxCXtJq6I2CanSWY2yMCeCcOm079z8bS+tNocwscjilnx8/Df2zaCLJaOk4Is/5F9T5ocTWTPBDUdQwNa8aGR7I3CQG6XE5aWu13MkIwLISesZdWxpMuPayM7YOYc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=trailofbits.com; spf=pass smtp.mailfrom=trailofbits.com; dkim=pass (2048-bit key) header.d=trailofbits.com header.i=@trailofbits.com header.b=BW888Rs/; arc=none smtp.client-ip=209.85.219.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=trailofbits.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=trailofbits.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=cs.unc.edu header.i=@cs.unc.edu header.b="n146oxER"
-Received: by mail-pj1-f50.google.com with SMTP id 98e67ed59e1d1-36bc065c298so271562a91.2
-        for <virtualization@lists.linux.dev>; Fri, 05 Jun 2026 12:19:44 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=trailofbits.com header.i=@trailofbits.com header.b="BW888Rs/"
+Received: by mail-qv1-f44.google.com with SMTP id 6a1803df08f44-8ccf01ba514so19150936d6.0
+        for <virtualization@lists.linux.dev>; Fri, 05 Jun 2026 12:40:49 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=cs.unc.edu; s=google; t=1780687184; x=1781291984; darn=lists.linux.dev;
+        d=trailofbits.com; s=google; t=1780688449; x=1781293249; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=B0vJH8NNd0RF41K/4FCBtez2ytaf4nIFe3x4aSA4G5w=;
-        b=n146oxERsrouszLJJjAv2F/Q34ULh2sf7JwFvCvGwo46iMXjXlubvyRZ0ykd70c0t0
-         0TPANaV4LPk2HGwRVbOtJr0ZKoNY/B4AJ0nqOHMaLEoV5WGr1+LaQhYIKTADAWLUsI38
-         K2bhzoWViRh5TAFNMnIxlDSUt45kL3K6u6f2Nq0PFOUvkMLV2Yf5VZXIqCrZ6L9xiQg8
-         NyOW/IpGs3Pvz6Aj04dnWhiulYIvVp6t3vvg0H7h1c4Hig3PrcyOJf+oj2Y/6BQMb5X8
-         dB85ezF2U5QwBMUaSctrzc+ANXlObooiMD0NfzB+yyk3qI4bLIAtPKGIMg4APhYqd3EY
-         4pYQ==
+        bh=cAFqrVA+AqYfDZqdtHewX5SP2boCxXzf2uI82b8kdGA=;
+        b=BW888Rs//Tr72XbCY2PRsghGgcGXYL3/jz2UynKKdH27fUYLuanWjK/MIwcigiHoqK
+         mW6pZkW2fTD8CNnaRW4VIeCGqKZeFwYOeUbRZqhJZC9VDK4bLLqtKyr9NtkjdEtNMAE/
+         oekiMEoXutVn3tQmSswMhOP7JIxaPKQIpiDk/wpjjAuGDXj16gf5hDpiiMPA1YX6KDCK
+         8xEs4Wa7nYb4NOCkxi0VTMWVN5Lbaa5/AwGvm51MiIbSHQYrFYiC0d7BKEzBT7BuKhQ/
+         YdHKur+ongAAeoZuMbzKl1R2fTmdVzrVR5qBqcNXQXFEBVw7N2G7IfZkb9wIJkyTtlHC
+         KXdw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780687184; x=1781291984;
+        d=1e100.net; s=20251104; t=1780688449; x=1781293249;
         h=content-transfer-encoding:mime-version:message-id:date:subject:cc
          :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=B0vJH8NNd0RF41K/4FCBtez2ytaf4nIFe3x4aSA4G5w=;
-        b=WpHI91EkHsWRNAp7e0DzyUe6W5oZurNpTggSF953subnzsdydH3SgGps8z86eUX5q6
-         ykRrO4AKHEKNjL7aiCH43QnxVYoLN7bAEJtbIXn5vNS0IWIbp7moACUFDIfRQmSpwR8R
-         lrc5XXBc63TLJ9F2nuXSzBXX956souuN9P/mdE/4E/KI+5o9EBShha05vTw5BjA3AJk+
-         sdCTdsMujmrfCsH4OjptTi3/IKx8mN8X4hJu/TbhLkcZF6azBIYZnbfyAgK19ytU93v/
-         Exnv/J8cQmTtEi8OpsDpav/5B4omDniFvNRWJP1fBxFH00OiBLUipVVfbyak2rMirYxV
-         uy/Q==
-X-Forwarded-Encrypted: i=1; AFNElJ+PTVUOUnt4Qn0ZtlY+H3aio3lrbcxOVf0gij91Gcom0njIsa8oiqmuGoQMUEJtQRuj9EQ/rnJ5BoMkQjYCmA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwxXBN2kcKA955wvMQ6gW2Bnfr7PL3jKKzQlVVENX/k07S4u5yO
-	Woq+6vFBsvwksE5qZws9jYZ1aiUSM+FTwMF1Xr07ovKOup7IbOpo53WSe/r9d/Hn/w==
-X-Gm-Gg: Acq92OG1PnRZdI+gv7AGtWuXInDGo+Hn5ZwbcIyfbK25WR61rNIu7a/F8z7iQgy+p6U
-	P9qHfGDMEwlwIoCPnuUEDtNznPXi0hQIIGEc6J2D3tE0F1f9BmHT8LexL9Tq34yjHIY3xnVipFC
-	sS0YG3z7dYQvJzpuPGGY+tdq77QyKqnwOBXhNuCR2CKDyV9nOILjg7KkWiMqm2ZFZsSuZWlKCy0
-	VK0DwaKXoJDGTneqHrFqdAcQdOkJOM7a6m062YZejqm/GCnFXkxg899mPAd7D3RfxGJAYC2xkn+
-	k2A4vQGIqETbVh1ERafUXrPRjOnxe5D7tdney+XZ2lQWhBrrK3OCS1nr2OWg6u5072UgEDX4cYT
-	5V0igDCRsm4EmwnkLb284fXS/Dt3nKq80ObuaZHsIE/wsL3NNOWlTVvy35R5jTOcwf3w3JMJAbE
-	q/Pisee0Q/wtsbSCFcU+SYTD2CBaugkaqA6XXXv4xgrNS9/q2BvSTUIDbvNCE6Ug==
-X-Received: by 2002:a17:90b:3dcf:b0:36b:3ecd:88d7 with SMTP id 98e67ed59e1d1-370ef0f50ffmr2677491a91.2.1780687183832;
-        Fri, 05 Jun 2026 12:19:43 -0700 (PDT)
-Received: from localhost.localdomain ([106.51.195.148])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-842820e8e6asm9757737b3a.0.2026.06.05.12.19.39
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Fri, 05 Jun 2026 12:19:43 -0700 (PDT)
-From: Divya Mankani <divyakm@cs.unc.edu>
-X-Google-Original-From: Divya Mankani <divyakm@unc.edu>
-To: kuba@kernel.org,
-	pabeni@redhat.com
-Cc: horms@kernel.org,
-	virtualization@lists.linux.dev,
-	kvm@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com,
-	Divya Mankani <divyakm@unc.edu>
-Subject: [PATCH] vsock/virtio: fix memory leak in virtio_transport_recv_listen
-Date: Sat,  6 Jun 2026 00:49:22 +0530
-Message-ID: <20260605191922.12720-1-divyakm@unc.edu>
-X-Mailer: git-send-email 2.50.1
+        bh=cAFqrVA+AqYfDZqdtHewX5SP2boCxXzf2uI82b8kdGA=;
+        b=HfiDE3MUKrnV8SzIvMWd3eThxQ/XIvsSDdkXCM2CmxznVj6U+44UGz6ZgA64Yug9sl
+         2t+v0zeq2vCcAxkeZBg6lubRS6kjdZq58dn2biS8zocNEvSZFPkbrbRoWZaJz/UOGvcb
+         8P46XlDdrpxPXIJwxDq1O9gnsgJttPGZdTDNTNX57aG1GDLcqLay23t0RKPCEQieyYlv
+         mlMwU2y9OTpxtO7KtRvi4zjul/IDUfD1i+GPF4bNg61zXdWcD7a/6w3LnZ/FYBZNx3La
+         Dn1ZdrU99iF1Iw58CQrnP2UMBLhO4b+FEn6jrg0H7Dtw2HAcS24B/38NhgboD3DunyVq
+         CqGA==
+X-Forwarded-Encrypted: i=1; AFNElJ8EUfb9wvQMRzekaJ8+KdhaHlAtmYucC7Qmua3qmXH2IpjyB/orhRRfl3/t5E/F6iHDW/SQyAj8J93lNs6Kgw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx/WWUCIGrGLG5lml0oMU3wamVd7/KwT1yDx66hltGD2qWzsJjy
+	bBX5lwrHlBKRbzvOQ2m18nF/7tFFmCO81f7KJakMXKrKduau10Am4iYNsj5O5zVpgY8=
+X-Gm-Gg: Acq92OGS2wYtqUaeuDjuWGB5bgL4PlmaFS2JcHgskd4km1+AqOwfMOi31jowRcLHsCr
+	upW/vJK1IMqzed5z1ovBsvrAN39PrQAIeUGW/+ekyYSzwXiJXvhqTvghWT7L19ZSuo67BJzhdGd
+	3B3HerxtBnXjpYTX4h4t8fPwo2RwJED8IrgxJFAPVAqWMYPckZYmLi1/hCA7l1y+3T3692yFPsZ
+	1VIVQTPAvgonKaBLVi05Ub7xiIU4tK/GFQjj8hr6Q0CbVGkq04nL3hQZ8grafmtVsnE3ub+Rc2e
+	fWQKwAXpThzLp++NujnfiV7pJ8azzso/TAB5X2DUpC5Oh52nh1snHyMpY+mhni5R+nTg0gD/Dnq
+	cI4bhiqFf+ztNoPesMeb11GwVgrZH6BlvKDKbiVbGE9Hg9G/mGbr0i8rTg6zVFuZQIVA4vhtwdu
+	4QDsEshi21IHEZJa893gZcFYaE5zuEnlm/x1sNXA==
+X-Received: by 2002:a05:620a:690d:b0:915:8865:dc01 with SMTP id af79cd13be357-915a9da7f30mr906550385a.46.1780688448992;
+        Fri, 05 Jun 2026 12:40:48 -0700 (PDT)
+Received: from localhost ([161.35.96.86])
+        by smtp.gmail.com with UTF8SMTPSA id af79cd13be357-9158a00afafsm974370785a.2.2026.06.05.12.40.47
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 05 Jun 2026 12:40:48 -0700 (PDT)
+From: Samuel Moelius <sam.moelius@trailofbits.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Samuel Moelius <sam.moelius@trailofbits.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	netdev@vger.kernel.org (open list:VIRTIO NET DRIVER),
+	virtualization@lists.linux.dev (open list:VIRTIO NET DRIVER),
+	linux-kernel@vger.kernel.org (open list)
+Subject: [PATCH] virtio_net: normalize non-positive napi_weight values
+Date: Fri,  5 Jun 2026 19:40:44 +0000
+Message-ID: <20260605194045.2625610-1-sam.moelius@trailofbits.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -79,60 +82,54 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Syzbot reported a memory leak inside virtio_transport_recv_listen
-caused by a race condition when the parent listener socket shuts down
-while an incoming packet is being enqueued.
+The virtio_net.napi_weight module parameter is signed and is copied
+directly into the RX NAPI weight after netif_napi_add_config().
 
-Fix this by locking the parent socket and verifying its shutdown
-state under the lock before executing vsock_enqueue_accept().
+A value of -1 lets virtnet_poll() run with a negative budget.  The RX
+loop processes no packets, the unsigned received-vs-budget comparison
+completes NAPI, and the NAPI core reports:
 
-Fixes: a478546a782a ("vsock/virtio: add support for listen sockets")
-Reported-by: syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=1b2c9c4a0f8708082678
-Signed-off-by: Divya Mankani <divyakm@unc.edu>
+NAPI poll function virtnet_poll returned 0, exceeding its budget of -1
+
+The device then repeatedly drops receive progress under stock QEMU
+virtio-net traffic.
+
+Normalize non-positive values to the default NAPI weight before
+assigning the RX and TX NAPI weights.  TX NAPI can still be disabled
+through the separate napi_tx parameter, which intentionally sets the TX
+weight to zero.
+
+Assisted-by: Codex:gpt-5.5-cyber-preview
+Signed-off-by: Samuel Moelius <sam.moelius@trailofbits.com>
 ---
- net/vmw_vsock/virtio_transport_common.c | 17 ++++++++++++-----
- 1 file changed, 12 insertions(+), 5 deletions(-)
+ drivers/net/virtio_net.c | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
 
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index 3b294164b..8006a13bb 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -1571,15 +1571,20 @@ virtio_transport_recv_listen(struct sock *sk, struct sk_buff *skb,
- 	vsock_addr_init(&vchild->remote_addr, le64_to_cpu(hdr->src_cid),
- 			le32_to_cpu(hdr->src_port));
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index f4adcfee7a80..667026607cfa 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -6481,6 +6481,7 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
+ static int virtnet_alloc_queues(struct virtnet_info *vi)
+ {
+ 	int i;
++	int weight = napi_weight > 0 ? napi_weight : NAPI_POLL_WEIGHT;
  
--	ret = vsock_assign_transport(vchild, vsk);
--	/* Transport assigned (looking at remote_addr) must be the same
--	 * where we received the request.
-+	/* Lock the parent listener socket to synchronize with a potential
-+	 * simultaneous shutdown thread running __vsock_release().
- 	 */
--	if (ret || vchild->transport != &t->transport) {
-+	lock_sock(sk);
-+
-+	/* Check if the listener socket was shut down while we were
-+	 * creating and configuring the child socket.
-+	 */
-+	if (sk->sk_shutdown == SHUTDOWN_MASK) {
-+		release_sock(sk);
- 		release_sock(child);
- 		virtio_transport_reset_no_sock(t, skb, sock_net(sk));
- 		sock_put(child);
--		return ret;
-+		return -ESHUTDOWN;
- 	}
+ 	if (vi->has_cvq) {
+ 		vi->ctrl = kzalloc_obj(*vi->ctrl);
+@@ -6500,10 +6501,10 @@ static int virtnet_alloc_queues(struct virtnet_info *vi)
+ 		vi->rq[i].pages = NULL;
+ 		netif_napi_add_config(vi->dev, &vi->rq[i].napi, virtnet_poll,
+ 				      i);
+-		vi->rq[i].napi.weight = napi_weight;
++		vi->rq[i].napi.weight = weight;
+ 		netif_napi_add_tx_weight(vi->dev, &vi->sq[i].napi,
+ 					 virtnet_poll_tx,
+-					 napi_tx ? napi_weight : 0);
++					 napi_tx ? weight : 0);
  
- 	sk_acceptq_added(sk);
-@@ -1590,6 +1595,8 @@ virtio_transport_recv_listen(struct sock *sk, struct sk_buff *skb,
- 	vsock_enqueue_accept(sk, child);
- 	virtio_transport_send_response(vchild, skb);
- 
-+	/* Safely release both locked objects */
-+	release_sock(sk);
- 	release_sock(child);
- 
- 	sk->sk_data_ready(sk);
+ 		sg_init_table(vi->rq[i].sg, ARRAY_SIZE(vi->rq[i].sg));
+ 		ewma_pkt_len_init(&vi->rq[i].mrg_avg_pkt_len);
 -- 
-2.50.1 (Apple Git-155)
+2.43.0
 
