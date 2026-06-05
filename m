@@ -1,135 +1,118 @@
-Received: from mail-qv1-f44.google.com (mail-qv1-f44.google.com [209.85.219.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 16C354418D7
-	for <virtualization@lists.linux.dev>; Fri,  5 Jun 2026 19:40:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE5B444A724;
+	Fri,  5 Jun 2026 19:51:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780688453; cv=none; b=uQKAHUXElJ/sZIexk7To9BTbRxfZuMuyzBjYKMRjWalefKLXgPhexyv4KBBUB7HeRzzh6hXbCHjR74XBRxe4b73pCuRW7Lv+uKh4G18YEfNqZ8zm4UJRvYunFZukWdYFl5kDy/P45rfiB2H5JGHw1NNKLDqGH8BGuPDFfZFs5Yo=
+	t=1780689102; cv=none; b=qHbyfQWCkWnqYaU3oaDdvJOU6DvTFtOJY4yIZQtR3pq0gGB2arott2i0YEmBcLC+t+aUK3uCiQXhKgkpB+Ck0tLqPETnLSIVMzdPO6h3arv9itjzz1f2L83311965OFRLV5M2al1mDQ4qoeF4MTdmEpMz2ON0jQbsIH7jofZ4RE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780688453; c=relaxed/simple;
-	bh=y/rU4gh0E0L2u/dhKcW9ljUwXNcpqmT4X+WX+7weVWE=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=gfPMZTDpd3tRUIzfGl4NJvGJts/IQOxEn6cmoD0ueopCksbxCXtJq6I2CanSWY2yMCeCcOm079z8bS+tNocwscjilnx8/Df2zaCLJaOk4Is/5F9T5ocTWTPBDUdQwNa8aGR7I3CQG6XE5aWu13MkIwLISesZdWxpMuPayM7YOYc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=trailofbits.com; spf=pass smtp.mailfrom=trailofbits.com; dkim=pass (2048-bit key) header.d=trailofbits.com header.i=@trailofbits.com header.b=BW888Rs/; arc=none smtp.client-ip=209.85.219.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=trailofbits.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=trailofbits.com
+	s=arc-20240116; t=1780689102; c=relaxed/simple;
+	bh=nyCCfHlezDTGlkFVHqBKpPLP7Re1FMEtAy1uM5EiH7k=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=I2G+bcaXJ4rkbXeayboviW8k3fmMkgICnTJ80ZJDvmT7DPCnc8moo6tembz0Wo6kNDMj5+zzTMz634vxAAqul/Y6VaFNV/fjPMWGhkbyn/0q8mwTNr9bK4ZynR+p9rcYMiwDW2OEdLTQaKHkvT1Pq0Hm0Qi4ohYJhQxkMkREPc0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HJKk9HX+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=trailofbits.com header.i=@trailofbits.com header.b="BW888Rs/"
-Received: by mail-qv1-f44.google.com with SMTP id 6a1803df08f44-8ccf01ba514so19150936d6.0
-        for <virtualization@lists.linux.dev>; Fri, 05 Jun 2026 12:40:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=trailofbits.com; s=google; t=1780688449; x=1781293249; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=cAFqrVA+AqYfDZqdtHewX5SP2boCxXzf2uI82b8kdGA=;
-        b=BW888Rs//Tr72XbCY2PRsghGgcGXYL3/jz2UynKKdH27fUYLuanWjK/MIwcigiHoqK
-         mW6pZkW2fTD8CNnaRW4VIeCGqKZeFwYOeUbRZqhJZC9VDK4bLLqtKyr9NtkjdEtNMAE/
-         oekiMEoXutVn3tQmSswMhOP7JIxaPKQIpiDk/wpjjAuGDXj16gf5hDpiiMPA1YX6KDCK
-         8xEs4Wa7nYb4NOCkxi0VTMWVN5Lbaa5/AwGvm51MiIbSHQYrFYiC0d7BKEzBT7BuKhQ/
-         YdHKur+ongAAeoZuMbzKl1R2fTmdVzrVR5qBqcNXQXFEBVw7N2G7IfZkb9wIJkyTtlHC
-         KXdw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780688449; x=1781293249;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=cAFqrVA+AqYfDZqdtHewX5SP2boCxXzf2uI82b8kdGA=;
-        b=HfiDE3MUKrnV8SzIvMWd3eThxQ/XIvsSDdkXCM2CmxznVj6U+44UGz6ZgA64Yug9sl
-         2t+v0zeq2vCcAxkeZBg6lubRS6kjdZq58dn2biS8zocNEvSZFPkbrbRoWZaJz/UOGvcb
-         8P46XlDdrpxPXIJwxDq1O9gnsgJttPGZdTDNTNX57aG1GDLcqLay23t0RKPCEQieyYlv
-         mlMwU2y9OTpxtO7KtRvi4zjul/IDUfD1i+GPF4bNg61zXdWcD7a/6w3LnZ/FYBZNx3La
-         Dn1ZdrU99iF1Iw58CQrnP2UMBLhO4b+FEn6jrg0H7Dtw2HAcS24B/38NhgboD3DunyVq
-         CqGA==
-X-Forwarded-Encrypted: i=1; AFNElJ8EUfb9wvQMRzekaJ8+KdhaHlAtmYucC7Qmua3qmXH2IpjyB/orhRRfl3/t5E/F6iHDW/SQyAj8J93lNs6Kgw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx/WWUCIGrGLG5lml0oMU3wamVd7/KwT1yDx66hltGD2qWzsJjy
-	bBX5lwrHlBKRbzvOQ2m18nF/7tFFmCO81f7KJakMXKrKduau10Am4iYNsj5O5zVpgY8=
-X-Gm-Gg: Acq92OGS2wYtqUaeuDjuWGB5bgL4PlmaFS2JcHgskd4km1+AqOwfMOi31jowRcLHsCr
-	upW/vJK1IMqzed5z1ovBsvrAN39PrQAIeUGW/+ekyYSzwXiJXvhqTvghWT7L19ZSuo67BJzhdGd
-	3B3HerxtBnXjpYTX4h4t8fPwo2RwJED8IrgxJFAPVAqWMYPckZYmLi1/hCA7l1y+3T3692yFPsZ
-	1VIVQTPAvgonKaBLVi05Ub7xiIU4tK/GFQjj8hr6Q0CbVGkq04nL3hQZ8grafmtVsnE3ub+Rc2e
-	fWQKwAXpThzLp++NujnfiV7pJ8azzso/TAB5X2DUpC5Oh52nh1snHyMpY+mhni5R+nTg0gD/Dnq
-	cI4bhiqFf+ztNoPesMeb11GwVgrZH6BlvKDKbiVbGE9Hg9G/mGbr0i8rTg6zVFuZQIVA4vhtwdu
-	4QDsEshi21IHEZJa893gZcFYaE5zuEnlm/x1sNXA==
-X-Received: by 2002:a05:620a:690d:b0:915:8865:dc01 with SMTP id af79cd13be357-915a9da7f30mr906550385a.46.1780688448992;
-        Fri, 05 Jun 2026 12:40:48 -0700 (PDT)
-Received: from localhost ([161.35.96.86])
-        by smtp.gmail.com with UTF8SMTPSA id af79cd13be357-9158a00afafsm974370785a.2.2026.06.05.12.40.47
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Fri, 05 Jun 2026 12:40:48 -0700 (PDT)
-From: Samuel Moelius <sam.moelius@trailofbits.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Samuel Moelius <sam.moelius@trailofbits.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eric Dumazet <edumazet@google.com>,
-	Jakub Kicinski <kuba@kernel.org>,
-	Paolo Abeni <pabeni@redhat.com>,
-	netdev@vger.kernel.org (open list:VIRTIO NET DRIVER),
-	virtualization@lists.linux.dev (open list:VIRTIO NET DRIVER),
-	linux-kernel@vger.kernel.org (open list)
-Subject: [PATCH] virtio_net: normalize non-positive napi_weight values
-Date: Fri,  5 Jun 2026 19:40:44 +0000
-Message-ID: <20260605194045.2625610-1-sam.moelius@trailofbits.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HJKk9HX+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 96AE31F00893;
+	Fri,  5 Jun 2026 19:51:40 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780689101;
+	bh=/4/R21/fqtDVS3dMxk8YUcZsiYIZNFflJGsvUsdqCpw=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date;
+	b=HJKk9HX+g5UPbatALcVIkf0hR4ph+0Wx8iYP9GEhI83XdOxXt7ZFz/GyAcdNSqC3b
+	 59tx5s2p8e97ACe09fjCrUGDsFH0mUGYy6hjREF82KGE5tE3NRoM2KruI4GtHlI4zf
+	 9JzxtgHFG+ngZyRIRnCNTlILcrBvBhmuDuMhpklDDYDJvC7XRvgVA6xfP46bUmOz7Q
+	 DvD8utVSK+xnYsPP5vFZO758kEbbdtewrTCb2MLyAHXLoJqapxPvfVQRwAWSsiuX7l
+	 5hn4/v5jowzGbNQzjCTmK+bZEv5FiaP+Dh9Aalw1jf8a8vDBqU3s5PlzLhytckiQry
+	 oZh4Oqjmh3P1Q==
+From: Thomas Gleixner <tglx@kernel.org>
+To: Sean Christopherson <seanjc@google.com>
+Cc: Paolo Bonzini <pbonzini@redhat.com>, Ingo Molnar <mingo@redhat.com>,
+ Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
+ x86@kernel.org, Kiryl Shutsemau <kas@kernel.org>, "K. Y. Srinivasan"
+ <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu
+ <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>, Long Li
+ <longli@microsoft.com>, Ajay Kaher <ajay.kaher@broadcom.com>, Alexey
+ Makhalov <alexey.makhalov@broadcom.com>, Jan Kiszka
+ <jan.kiszka@siemens.com>, Andy Lutomirski <luto@kernel.org>, Peter
+ Zijlstra <peterz@infradead.org>, Juergen Gross <jgross@suse.com>, Daniel
+ Lezcano <daniel.lezcano@kernel.org>, John Stultz <jstultz@google.com>, "H.
+ Peter Anvin" <hpa@zytor.com>, Rick Edgecombe <rick.p.edgecombe@intel.com>,
+ Vitaly Kuznetsov <vkuznets@redhat.com>, Broadcom internal kernel review
+ list <bcm-kernel-feedback-list@broadcom.com>, Boris Ostrovsky
+ <boris.ostrovsky@oracle.com>, Stephen Boyd <sboyd@kernel.org>,
+ kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-coco@lists.linux.dev, linux-hyperv@vger.kernel.org,
+ virtualization@lists.linux.dev, xen-devel@lists.xenproject.org, David
+ Woodhouse <dwmw@amazon.co.uk>, Tom Lendacky <thomas.lendacky@amd.com>,
+ Nikunj A Dadhania <nikunj@amd.com>, David Woodhouse <dwmw2@infradead.org>,
+ Michael Kelley <mhklinux@outlook.com>
+Subject: Re: [PATCH v4 01/47] x86/tsc: Never re-calibrate TSC frequency if
+ its exact timing is known
+In-Reply-To: <aiMPxl5vkvJDldi9@google.com>
+References: <20260529144435.704127-1-seanjc@google.com>
+ <20260529144435.704127-2-seanjc@google.com> <87fr315fq9.ffs@fw13>
+ <aiMPxl5vkvJDldi9@google.com>
+Date: Fri, 05 Jun 2026 21:51:38 +0200
+Message-ID: <87a4t86a0l.ffs@fw13>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
 
-The virtio_net.napi_weight module parameter is signed and is copied
-directly into the RX NAPI weight after netif_napi_add_config().
+On Fri, Jun 05 2026 at 11:04, Sean Christopherson wrote:
+> On Fri, Jun 05, 2026, Thomas Gleixner wrote:
+>> On Fri, May 29 2026 at 07:43, Sean Christopherson wrote:
+>> > Don't re-calibrate the TSC frequency if the TSC is known to run at a fixed
+>> > frequency.
+>> 
+>> That's misleading because fixed frequency means that the frequency does
+>> not change, i.e. X86_FEATURE_CONSTANT_TSC is set. But
+>> X86_FEATURE_CONSTANT_TSC does not imply that the frequency can be read
+>> from CPUID/MSRs.
+>
+> Sorry, "if the TSC runs at a known, fixed frequency" would be a better way to
+> phrase this.
+>
+>> > In practice, this is likely one big nop, as re-calibration is
+>> > used only for SMP=n kernels, and only for hardware that is 20+ years old,
+>> > i.e. is extremely unlikely to collide with TSC_KNOWN_FREQ.
+>> 
+>> recalibrate_cpu_khz() is only invoked from Intel P4 and AMD K7 CPU
+>> frequency drivers, which means that's absolutely not interesting and
+>> neither X86_FEATURE_CONSTANT_TSC nor X86_FEATURE_TSC_KNOWN_FREQ can be
+>> set on those systems.
+>
+> It _shouldn't_ be set on those systems, but in the world of virtualization it's
+> not completely impossible.
+>
+>> IOW, this patch is pointless voodoo ware.
+>
+> Would y'all be opposed to adding a WARN?  I don't actually care about P4 or K7
+> CPUs, but without any reference to X86_FEATURE_TSC_KNOWN_FREQ in
+> recalibrate_cpu_khz(), the code _looks_ wrong, and so is very confusing for
+> readers that don't already know that in practice, it's limited to ancient CPUs.
+>
+> In other words, the point is to document expectations and mutual exclusion, not
+> to "fix" anything.
 
-A value of -1 lets virtnet_poll() run with a negative budget.  The RX
-loop processes no packets, the unsigned received-vs-budget comparison
-completes NAPI, and the NAPI core reports:
+Fair enough.
 
-NAPI poll function virtnet_poll returned 0, exceeding its budget of -1
+So yes, having a check there for actually X86_FEATURE_CONSTANT_TSC
+(X86_FEATURE_CONSTANT_TSC is not interesting) and emitting a warning and
+returning early is the right thing to do there.
 
-The device then repeatedly drops receive progress under stock QEMU
-virtio-net traffic.
+But we also should have a check in the TSC init code somewhere which
+validates that X86_FEATURE_CONSTANT_TSC is set when
+X86_FEATURE_TSC_KNOWN_FREQ is set. X86_FEATURE_TSC_KNOWN_FREQ is useless
+w/o X86_FEATURE_CONSTANT_TSC.
 
-Normalize non-positive values to the default NAPI weight before
-assigning the RX and TX NAPI weights.  TX NAPI can still be disabled
-through the separate napi_tx parameter, which intentionally sets the TX
-weight to zero.
+Thanks,
 
-Assisted-by: Codex:gpt-5.5-cyber-preview
-Signed-off-by: Samuel Moelius <sam.moelius@trailofbits.com>
----
- drivers/net/virtio_net.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+        tglx
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index f4adcfee7a80..667026607cfa 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -6481,6 +6481,7 @@ static int virtnet_find_vqs(struct virtnet_info *vi)
- static int virtnet_alloc_queues(struct virtnet_info *vi)
- {
- 	int i;
-+	int weight = napi_weight > 0 ? napi_weight : NAPI_POLL_WEIGHT;
- 
- 	if (vi->has_cvq) {
- 		vi->ctrl = kzalloc_obj(*vi->ctrl);
-@@ -6500,10 +6501,10 @@ static int virtnet_alloc_queues(struct virtnet_info *vi)
- 		vi->rq[i].pages = NULL;
- 		netif_napi_add_config(vi->dev, &vi->rq[i].napi, virtnet_poll,
- 				      i);
--		vi->rq[i].napi.weight = napi_weight;
-+		vi->rq[i].napi.weight = weight;
- 		netif_napi_add_tx_weight(vi->dev, &vi->sq[i].napi,
- 					 virtnet_poll_tx,
--					 napi_tx ? napi_weight : 0);
-+					 napi_tx ? weight : 0);
- 
- 		sg_init_table(vi->rq[i].sg, ARRAY_SIZE(vi->rq[i].sg));
- 		ewma_pkt_len_init(&vi->rq[i].mrg_avg_pkt_len);
--- 
-2.43.0
 
