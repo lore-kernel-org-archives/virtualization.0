@@ -1,68 +1,69 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBC37284B3B;
-	Fri,  5 Jun 2026 10:01:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+Received: from foss.arm.com (foss.arm.com [217.140.110.172])
+	by smtp.subspace.kernel.org (Postfix) with ESMTP id 4A4443CE0A1;
+	Fri,  5 Jun 2026 10:05:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.140.110.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780653688; cv=none; b=QpXQ16HScylzs6BQTNUsy+LfzyM8UEcC31yw8+F79yBshXsS0G+uwik19vnIWpPD9cRlGBx3r0DrE2uAp+LXOUDRHvk8pLB/YB2wiMXanR64djzrsYpm3BrUru2aCVv18hLqan+WtUNQAXDT/ygTLJ1bt4R/iB6WKr+8NvotN14=
+	t=1780653919; cv=none; b=GDlKCtvBFZmVSdb0OucUdDWQ+1HTaT/TWOUHo1uCGLdzj4muqBio5SvUE8f7Yol7hyPoHQz8TE301utfNd5gH8C5LhiM8NK5zXTlDfvERkj5BzeFs+7h9lyiaXiRukDFdSFaHEN1peFtjPUIm/0gznDDPKuXo+hrBIls5LM1MQk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780653688; c=relaxed/simple;
-	bh=Qc67DaEWxkNS8DklcsiFvXqNSb60HqMWp42xseGzZB4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=VnP5reOv/vBGAkH+e6jlIO9OWOiNvC/HGwS5SOP01Oj0G29PoP1iumAZw6+Efx1LugFHKoWpGH3TtY58LY1Pc7qGsrFvwluHXOKPsvDJzO6Cndl19cWNZlRyW21vBlQVldQVFrm9imjGWaGVAjg/VD47SzMj+C9m75XxBLxJNvA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JXM2X9sU; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780653919; c=relaxed/simple;
+	bh=ZLyKVyu9Id3qdtZx4GzFgqhpDn+1yFHELWeHzCybey4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=sSU5fYC0buuLbQgQNoqpbUuGNL50rdjjOBe4cX68qpK04zpIPk0ZJ7bcpPOiFHtpp0sAr3AZRj5oB1SCl7tpGnWDPElFQqXgX6XyJ/mMfEVBap8RAtdsKe3F2xRE6YMLt/qdHx16NDVdiVMqlRg8iJqBiXa9/WC2qL3g2kVIHoo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com; spf=pass smtp.mailfrom=arm.com; dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b=nUbb0J/L; arc=none smtp.client-ip=217.140.110.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JXM2X9sU"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C889B1F00893;
-	Fri,  5 Jun 2026 10:01:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780653687;
-	bh=mrsvcLiXu0Ao4hop+97PyaFalNBqMBwfs4IXB2xIg/0=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=JXM2X9sUmgYygZViFPws42mlS52xAuLUysMwyczGH6IbsSeUykjROPSC5zgwJwLEW
-	 yP8fAzMJSVlc0j3RD2m1nqZXbiZVTBcDG6GKa0GFORPcGcTSQwstZ1G8xsfXbBdYHk
-	 ERGVQ1XfT48cMeZLk7CiEPGR0c975AsATGwq+TMzVbkWAXrqXymU61e16sGCxcHgyL
-	 d5+CbQ9segPCbjaBqIEuDqxu+v/ReonK1DSardjyp/tWsRyJjWakIEyDcn2N2BhEBb
-	 qSQoPQW3Byr5goHSNMWy1549+PcXDKlHKJ1Wep7RyPIR1mkfoyL+A9dUGGw7C9Zdz6
-	 xnY6gvIi8ch0w==
-Date: Fri, 5 Jun 2026 11:01:47 +0100
-From: Jean-Philippe Brucker <jpb@kernel.org>
-To: Maoyi Xie <maoyixie.tju@gmail.com>
-Cc: joro@8bytes.org, will@kernel.org, robin.murphy@arm.com,
-	iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH 2/2] iommu/virtio: Avoid using the list iterator past the
- loop in viommu_add_resv_mem()
-Message-ID: <20260605100147.GB1679101@myrica>
-References: <CAHPEe=G-FZvEXjkE+vAXN5MHXCtsOaUoKwg2RQL6m=om+c20hQ@mail.gmail.com>
- <20260604051816.2976221-1-maoyixie.tju@gmail.com>
- <20260604051816.2976221-3-maoyixie.tju@gmail.com>
- <20260604160449.GA1619938@myrica>
- <CAHPEe=HV+wpgg3YMQcOxN5M7c+ew6MQRgY0YgW-3KgB91gn_sw@mail.gmail.com>
+	dkim=pass (1024-bit key) header.d=arm.com header.i=@arm.com header.b="nUbb0J/L"
+Received: from usa-sjc-imap-foss1.foss.arm.com (unknown [10.121.207.14])
+	by usa-sjc-mx-foss1.foss.arm.com (Postfix) with ESMTP id C4EB94ACE;
+	Fri,  5 Jun 2026 03:05:11 -0700 (PDT)
+Received: from [10.57.36.203] (unknown [10.57.36.203])
+	by usa-sjc-imap-foss1.foss.arm.com (Postfix) with ESMTPSA id 807553F632;
+	Fri,  5 Jun 2026 03:05:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=simple/simple; d=arm.com; s=foss;
+	t=1780653916; bh=ZLyKVyu9Id3qdtZx4GzFgqhpDn+1yFHELWeHzCybey4=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To:From;
+	b=nUbb0J/LJUyuOznqwks9Jj4LGzhKc5ydAz6psZwBgwho1urwhuocfZwv1mkBZcwgV
+	 s1JoIOZ5YxC/Wnk8NFI07KPngvE6I1Cyzuvzq3F3cXtql+xAlUrMRtyvVLHuu9rWhn
+	 8sYvdL7kiKrto7Gjg/0+zGL+7bmQ6VL+rLbgy6JU=
+Message-ID: <3852f5fd-3e25-4ea1-b818-80d56a081eba@arm.com>
+Date: Fri, 5 Jun 2026 11:05:09 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 2/2] iommu/virtio: Avoid using the list iterator past the
+ loop in viommu_add_resv_mem()
+To: Maoyi Xie <maoyixie.tju@gmail.com>, Jean-Philippe Brucker <jpb@kernel.org>
+Cc: joro@8bytes.org, will@kernel.org, iommu@lists.linux.dev,
+ linux-kernel@vger.kernel.org, virtualization@lists.linux.dev
+References: <CAHPEe=G-FZvEXjkE+vAXN5MHXCtsOaUoKwg2RQL6m=om+c20hQ@mail.gmail.com>
+ <20260604051816.2976221-1-maoyixie.tju@gmail.com>
+ <20260604051816.2976221-3-maoyixie.tju@gmail.com>
+ <20260604160449.GA1619938@myrica>
+ <CAHPEe=HV+wpgg3YMQcOxN5M7c+ew6MQRgY0YgW-3KgB91gn_sw@mail.gmail.com>
+From: Robin Murphy <robin.murphy@arm.com>
+Content-Language: en-GB
 In-Reply-To: <CAHPEe=HV+wpgg3YMQcOxN5M7c+ew6MQRgY0YgW-3KgB91gn_sw@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-On Fri, Jun 05, 2026 at 04:59:47PM +0800, Maoyi Xie wrote:
+On 2026-06-05 9:59 am, Maoyi Xie wrote:
 > Hi Jean-Philippe,
 > 
 > On Fri, Jun 5, 2026 at 12:04 AM Jean-Philippe Brucker <jpb@kernel.org> wrote:
-> > Thank you for removing this hack, though I don't find a contract in the
-> > list_for_each_entry() doc, and the fix still accesses a cursor outside the
-> > loop. Since you mentioned C11 UB in another email, do you have more info
-> > on the precise operation which is undefined in the kernel (container_of
-> > into an invalid object or the &next->list addition)?  Just so I can avoid
-> > it in the future.
+>> Thank you for removing this hack, though I don't find a contract in the
+>> list_for_each_entry() doc, and the fix still accesses a cursor outside the
+>> loop. Since you mentioned C11 UB in another email, do you have more info
+>> on the precise operation which is undefined in the kernel (container_of
+>> into an invalid object or the &next->list addition)?  Just so I can avoid
+>> it in the future.
 > 
-> > Anyway, thanks for the patch. If this is just general cleanup that's fine
-> > too.
+>> Anyway, thanks for the patch. If this is just general cleanup that's fine
+>> too.
 > 
 > Thanks for the review. You're right.
 > 
@@ -78,7 +79,23 @@ On Fri, Jun 05, 2026 at 04:59:47PM +0800, Maoyi Xie wrote:
 > The container_of would be undefined only if list was not the first
 > member. Then the subtraction lands before the real object (C11 6.5.6).
 > That is not the case here.
-> 
+
+If that were a real issue, then I think list_entry_is_head() in the 
+list_for_each_entry() iteration itself would suffer from it too. It's 
+probably safe to say that while the C language in general leaves this 
+open, Linux relies on GCC using pointer representations where the 
+arithmetic will always work out, same as we depend on two's complement 
+representation of integers all over the place.
+
+I believe the concern is more just that if the pattern of using a 
+list_entry iterator variable outside the scope of the loop isn't 
+discouraged, then it's all too easy for subsequent code to inadvertently 
+dereference fields *other* than the list_head without checking that it 
+is a valid entry, which definitely would then be the worst kind of UB.
+
+Thanks,
+Robin.
+
 > So this is cleanup, not a UB fix. The typed cursor points at the head but
 > reads like an entry. That becomes a real bug the day someone reorders the
 > struct or touches another field. The new pos stays a struct list_head *,
@@ -86,9 +103,7 @@ On Fri, Jun 05, 2026 at 04:59:47PM +0800, Maoyi Xie wrote:
 > in the message.
 > 
 > If you or Joerg prefer, I can resend the series with the wording fixed.
+> 
+> Thanks,
+> Maoyi
 
-For me the patch is fine as is, I was just curious about what the kernel
-expects for pointer arithmetic. Thanks for clarifying
-
-Thanks,
-Jean
