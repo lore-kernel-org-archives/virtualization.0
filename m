@@ -1,185 +1,189 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB0E612CDA5
-	for <virtualization@lists.linux.dev>; Sat,  6 Jun 2026 00:11:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4AB072253B0;
+	Sat,  6 Jun 2026 07:20:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780704712; cv=none; b=I4uy8lxsWwlc8sRUYnmq18RX8kNHq2sc3SqS1+k+j8QkaOchzGuxv0VFgDrMXI1g3MdQNLzXhwyjIQhYd9vYkjaJZmoTvqIuraEntKbt4VEb4tHWsRLJnxTLEPvioXLhLv14ouuuPks+zpUogXBeXmtm/Hauq1s4FRGUyjlERUw=
+	t=1780730439; cv=none; b=faNeFjXQwmr36z/WhViktvmGuzljXKmrCGp9c1osZ2nU7YwPftFGLI1aUNcrNcAgxVymDnvoVRppKZ1lEgCYSyQHeYLaDXF7EPS5RFOedLgbGbmZLKpp4wWlnV0N/XIxtJqNgX8yaS9dn5Rsmg16bbX/eECCxQTPRKvvRne20vQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780704712; c=relaxed/simple;
-	bh=ccE1vyo3mkwzgcyciyLNh8mUmRuplMG/jETlxZAMsnw=;
+	s=arc-20240116; t=1780730439; c=relaxed/simple;
+	bh=oLrCTrusbE1Dnnw5x61HR6wXcNqfs6DUM2PSApOo1rg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=LN11YKUIq+1fpnc4393iV5UWALKSYtMshgJhwdxHRSCtsN23Ct+TdBd9Q550KYWrvnv4qc8gCV1m103atAVgDdS4rV+6Yy19QRWgq3kQzADBzOtL9/nTlFVDC1ka1R2ycTXhs94bnLwx74MLdQKnJzrpAIRf1I04SPz3eCa1gQ0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TqnZCO4+; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=EnyDJ0rF+X7jQX2U6ZQiKaq4ubReUqk0WGpcbffS0MIZzYnD172F7dK2wIXzWKS0HK2zYo3EJsN1sq2jYeIJ/6+Q6pB+YHcDuIsL5Y0jAPxL/gfkIOoTAEynb+iUEyR1Ty0pM6Jy38R03nMdNkYFVw2Vke8M7JJacxIBGrRq0Pw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=RAD1qRWe; arc=none smtp.client-ip=198.175.65.12
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TqnZCO4+"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1780704709;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=uJSVZacPqI8DQo08516ne3I19qnW6i3FfC453BcTXZ4=;
-	b=TqnZCO4+xYdRtkZ8I7Xan1fZmcuLxp1FcqvbKW8iFdH0omXi0luoX98IxmG8duASwKvPTo
-	hvvPUkbwd+X/YDXEdiYHMtP8r0WhOkTHT8PL+0gLCA9q1OdNPwv8cZMMv68UvUEzhmgvwB
-	K0st4IGhg37bww2drYdwRJGXuKOQoeM=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-389-gfBafBLuM8itGsVnwsYjCg-1; Fri, 05 Jun 2026 20:11:48 -0400
-X-MC-Unique: gfBafBLuM8itGsVnwsYjCg-1
-X-Mimecast-MFC-AGG-ID: gfBafBLuM8itGsVnwsYjCg_1780704707
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-45ef93c359fso2065018f8f.0
-        for <virtualization@lists.linux.dev>; Fri, 05 Jun 2026 17:11:47 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780704707; x=1781309507;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=uJSVZacPqI8DQo08516ne3I19qnW6i3FfC453BcTXZ4=;
-        b=QIIPwojRHmIknK/J0pIoM81hoSdMZBRzN7yYFwuK5RVY4Lw8trDONgI+IOiadlxa3T
-         Hx2ysglIE8I188yKOJc2K4awO88Pxb5BB9s+qaSVIeUB2LkPqLj/SbE36Q9cz/YCHut+
-         HnM2PX9U/yZYzOfR9Lid8ftAyviUJyLgFBA/j9oEXNAuRUAYPcP7pqO5tk/tk9vrCKp7
-         7bYFC6wBkfH+/gnxfyvxAygPgvaX2vMnCFZK7T+nvEt/L6BuYCwGlIqMYMCZZxwHPJWy
-         Hu9TvDR04dyXzmFKSYnhYiOUnwxCS1Tz7bd290TC5e3QM9DF42lmBnD5OVOAnwKW6e/L
-         ePsg==
-X-Forwarded-Encrypted: i=1; AFNElJ+LbGvf0VzY0mmSY0bt5iO4oW4uxUm2avq8ebzfDicsae2HlOwlpa/WS1eitMikG0Ty7i+APezZET4xWkvEgA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyFQxAoX7TwZmMEOn6mXXNiAsvgPPTR95jZNfaCTemTkbremFAt
-	RHyjvpCD/Hy9YWXR6ScftxB33akO5gTk/blLI2SIefkumDabVd23IldbeWGunpwXf0WDXGL27pI
-	dVTCuhQhKHJ5RA1hGPCMeQlrIt3m9IQn2K33sQmjsOlfZ4/Rc6gLl5/iVWSwQyn8KEi54qc/kwZ
-	Bg
-X-Gm-Gg: Acq92OFwQnVKDnSV93KhBxdOKv5WV56D4rsTyUmPQviVfeLlHAD4o9xa8+hMvw/80dO
-	GmTEB3a2/XUffeYfCeX1MM7Lz9z2/j5icXltTFP+DIaTZgJt8IdD9VoB/zskNzUBubaUUmKlwSZ
-	i0Df2EnBnOr+PPCpJpcvEafp7Tvz3E7gCVPSbaVUyY/Z9FbuhSpvmrXk2PlFrVeXao4SFL35CnE
-	++bTmU6V2b4iZd6/EZrVu9pjBtrAc3CebnXugaZdXEt0mzLIwBZMLNF5tXVWTq8sWm6AfR/jNGJ
-	xIqWuEBSRTtGYpPjSi3mzqGJbV8RsX1paX2kWRQtgwoY8X2RkTakoVckMGZCwM/O8uI8/Xsyewo
-	5Z3G9NWscyz01QGrhaDgw6Ugw7/zAovFqQmaId6HZyw3TkHvnFcllGec=
-X-Received: by 2002:a5d:5270:0:b0:446:96b1:f53 with SMTP id ffacd0b85a97d-4603051261dmr7230422f8f.26.1780704706743;
-        Fri, 05 Jun 2026 17:11:46 -0700 (PDT)
-X-Received: by 2002:a5d:5270:0:b0:446:96b1:f53 with SMTP id ffacd0b85a97d-4603051261dmr7230401f8f.26.1780704706256;
-        Fri, 05 Jun 2026 17:11:46 -0700 (PDT)
-Received: from redhat.com (ppp-94-66-118-61.home.otenet.gr. [94.66.118.61])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4601f0a43e9sm29881640f8f.0.2026.06.05.17.11.44
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 05 Jun 2026 17:11:45 -0700 (PDT)
-Date: Fri, 5 Jun 2026 20:11:42 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Si-Wei Liu <si-wei.liu@oracle.com>
-Cc: Eugenio Perez Martin <eperezma@redhat.com>,
-	yangjiale <yangjiale133@163.com>, Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	Andrew.Boyer@amd.com
-Subject: Re: [PATCH] VIRTIO: Update the desc 'flag' fied last in packed ring.
-Message-ID: <20260605200908-mutt-send-email-mst@kernel.org>
-References: <20260602043123.10207-1-yangjiale133@163.com>
- <CAJaqyWfugEttrQuR5_LrbQaivAqCaixsprUOjEVtdiz_sexFpA@mail.gmail.com>
- <6035a8f3-e225-45b0-9f48-55de953bff15@oracle.com>
- <20260605134252-mutt-send-email-mst@kernel.org>
- <5e1a10bd-2783-42ba-b443-853f12159756@oracle.com>
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="RAD1qRWe"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1780730436; x=1812266436;
+  h=date:from:to:cc:subject:message-id:references:
+   mime-version:in-reply-to;
+  bh=oLrCTrusbE1Dnnw5x61HR6wXcNqfs6DUM2PSApOo1rg=;
+  b=RAD1qRWecXCMvpvwVDOq59r7m/iqnejGXzdjKE0jAichHNpgK376QoTM
+   oBxWEhS+No/Cea3WOo0DojLKZq45hy50TKYCx4g6r8tuX3ujSJXCQXzxv
+   ugmWFxJAmDlKtS67dO7wEqWB3D8w846OVxuoIjwwo5foc3wNlMfUiNvuM
+   jvqcg+jI+BB29KDoc+PdqQRggBDVqQC1dSmTKNR5VaLneUnRoTsdAuSRh
+   kFcsBhcuuimb9A6U++D9QmEwD88i9hF9jHmIcc6frfKFxOM0bVUPswtCS
+   3AmdlO0u618hQER/rEZKBUPv78uYsgrO/L4xdIDnnFs6nZPtNDJvPl0cL
+   w==;
+X-CSE-ConnectionGUID: hsFOhufqQCSKMnd8GaFPHA==
+X-CSE-MsgGUID: uVWJ4NMoTa2/SB/Sc3ky3A==
+X-IronPort-AV: E=McAfee;i="6800,10657,11808"; a="93040149"
+X-IronPort-AV: E=Sophos;i="6.24,190,1774335600"; 
+   d="scan'208";a="93040149"
+Received: from orviesa002.jf.intel.com ([10.64.159.142])
+  by orvoesa104.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 06 Jun 2026 00:20:35 -0700
+X-CSE-ConnectionGUID: XF/uVrspQyKHeQ4MdppY7g==
+X-CSE-MsgGUID: 2wq0+D3ZSgORxZGDxgERwA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.24,190,1774335600"; 
+   d="scan'208";a="275258416"
+Received: from igk-lkp-server01.igk.intel.com (HELO 892db79562d4) ([10.211.93.152])
+  by orviesa002.jf.intel.com with ESMTP; 06 Jun 2026 00:20:33 -0700
+Received: from kbuild by 892db79562d4 with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1wVlKY-000000002nd-3jPK;
+	Sat, 06 Jun 2026 07:20:30 +0000
+Date: Sat, 6 Jun 2026 09:19:51 +0200
+From: kernel test robot <lkp@intel.com>
+To: Divya Mankani <divyakm@cs.unc.edu>, kuba@kernel.org, pabeni@redhat.com
+Cc: oe-kbuild-all@lists.linux.dev, horms@kernel.org,
+	virtualization@lists.linux.dev, kvm@vger.kernel.org,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com,
+	Divya Mankani <divyakm@unc.edu>
+Subject: Re: [PATCH] vsock/virtio: fix memory leak in
+ virtio_transport_recv_listen
+Message-ID: <202606060907.y54Wngh6-lkp@intel.com>
+References: <20260605191922.12720-1-divyakm@unc.edu>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <5e1a10bd-2783-42ba-b443-853f12159756@oracle.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: OlhdsaQsO_ohoMpHV67R0e2vHoee2UV4XdHjKq74hQk_1780704707
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260605191922.12720-1-divyakm@unc.edu>
 
-On Fri, Jun 05, 2026 at 11:50:36AM -0700, Si-Wei Liu wrote:
-> 
-> 
-> On 6/5/2026 10:43 AM, Michael S. Tsirkin wrote:
-> > On Fri, Jun 05, 2026 at 09:03:36AM -0700, Si-Wei Liu wrote:
-> > > 
-> > > On 6/1/2026 11:04 PM, Eugenio Perez Martin wrote:
-> > > > On Tue, Jun 2, 2026 at 6:34 AM yangjiale <yangjiale133@163.com> wrote:
-> > > > > When a descriptor list spans across cache lines,
-> > > > > updating the flag first can lead to a scenario where the device side
-> > > > > perceives the flag as valid, yet the corresponding address and length
-> > > > > fields remain unupdated—resulting in invalid values.
-> > > > > Therefore, the flag field must be updated last.
-> > > > > 
-> > > > > Signed-off-by: yangjiale <yangjiale133@163.com>
-> > > > > ---
-> > > > >    drivers/virtio/virtio_ring.c | 8 ++++----
-> > > > >    1 file changed, 4 insertions(+), 4 deletions(-)
-> > > > > 
-> > > > > diff --git a/drivers/virtio/virtio_ring.c b/drivers/virtio/virtio_ring.c
-> > > > > index fbca7ce1c6bf..036b4f90d30f 100644
-> > > > > --- a/drivers/virtio/virtio_ring.c
-> > > > > +++ b/drivers/virtio/virtio_ring.c
-> > > > > @@ -1688,6 +1688,10 @@ static inline int virtqueue_add_packed(struct vring_virtqueue *vq,
-> > > > >                                                &addr, &len, premapped, attr))
-> > > > >                                   goto unmap_release;
-> > > > > 
-> > > > > +                       desc[i].addr = cpu_to_le64(addr);
-> > > > > +                       desc[i].len = cpu_to_le32(len);
-> > > > > +                       desc[i].id = cpu_to_le16(id);
-> > > > > +
-> > > > >                           flags = cpu_to_le16(vq->packed.avail_used_flags |
-> > > > >                                       (++c == total_sg ? 0 : VRING_DESC_F_NEXT) |
-> > > > >                                       (n < out_sgs ? 0 : VRING_DESC_F_WRITE));
-> > > > > @@ -1696,10 +1700,6 @@ static inline int virtqueue_add_packed(struct vring_virtqueue *vq,
-> > > > >                           else
-> > > > >                                   desc[i].flags = flags;
-> > > > > 
-> > > > > -                       desc[i].addr = cpu_to_le64(addr);
-> > > > > -                       desc[i].len = cpu_to_le32(len);
-> > > > > -                       desc[i].id = cpu_to_le16(id);
-> > > > > -
-> > > > >                           if (unlikely(vq->use_map_api)) {
-> > > > >                                   vq->packed.desc_extra[curr].addr = premapped ?
-> > > > >                                           DMA_MAPPING_ERROR : addr;
-> > > > These flags are updated before the flags of the head descriptor at the
-> > > > end of the function, at "vq->packed.vring.desc[head].flags =
-> > > > head_flags", so the device should not see these. Because of that, the
-> > > > relative order between the rest of the fields of the same descriptor
-> > > > or other descriptors' fields, except for the head descriptor's flags,
-> > > > should not matter. There is a write memory barrier just before
-> > > > updating the head's flags.
-> > > The above analysis is absolutely correct. Though one hardware vendor told me
-> > > that this driver implementation kinda stops them from reading ahead of
-> > > descriptors already posted beyond the available index., ending up with
-> > > suboptimal performance that is hard to make up by other means. Would it be a
-> > > bad idea to go with this change and add write barrier in a gentle way for a
-> > > small flit in the batch, e.g. commit to memory after every cache line size
-> > > worth of descriptors are posted? Would the memory barrier have negative
-> > > performance overhead to other backend implementation variants than real
-> > > hardware PCI device?
-> > > 
-> > > -Siwei
-> > this would need a new feature bit, won't it?
-> Probably. This is to capture the device's expectation and behavior right?
-> the driver change itself is not spec violating...
+Hi Divya,
 
-yes, device can't rely on this without a feature bit.
+kernel test robot noticed the following build warnings:
 
-> > 
-> > > > Also, I don't get why the cache line matters here. Can you expand? Am
-> > > > I missing something?
-> > me too.
-> > 
-> Just to avoid extra delay due to excessive coherency messages and frequent
-> cache thrashing, device read over pci bus contends with host write/update on
-> the descriptors in a same cache line..
-> 
-> -Siwei
+[auto build test WARNING on mst-vhost/linux-next]
+[also build test WARNING on linus/master v6.16-rc1 next-20260605]
+[If your patch is applied to the wrong git tree, kindly drop us a note.
+And when submitting patch, we suggest to use '--base' as documented in
+https://git-scm.com/docs/git-format-patch#_base_tree_information]
 
-this should be infrequent, the whole idea is that there's parallelism:
-device reads descriptors from X while host writes other ones to Y.
+url:    https://github.com/intel-lab-lkp/linux/commits/Divya-Mankani/vsock-virtio-fix-memory-leak-in-virtio_transport_recv_listen/20260606-032557
+base:   https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git linux-next
+patch link:    https://lore.kernel.org/r/20260605191922.12720-1-divyakm%40unc.edu
+patch subject: [PATCH] vsock/virtio: fix memory leak in virtio_transport_recv_listen
+config: s390-allnoconfig-bpf (https://download.01.org/0day-ci/archive/20260606/202606060907.y54Wngh6-lkp@intel.com/config)
+compiler: s390x-linux-gnu-gcc (Debian 14.2.0-19) 14.2.0
+reproduce (this is a W=1 build): (https://download.01.org/0day-ci/archive/20260606/202606060907.y54Wngh6-lkp@intel.com/reproduce)
 
-btw i can't say whether it's ok for device to just issue 2 reads,
-or does it have to receive read result and only then issue the second
-read.
--- 
-MST
+If you fix the issue in a separate patch/commit (i.e. not just a new version of
+the same patch/commit), kindly add following tags
+| Reported-by: kernel test robot <lkp@intel.com>
+| Closes: https://lore.kernel.org/oe-kbuild-all/202606060907.y54Wngh6-lkp@intel.com/
 
+All warnings (new ones prefixed by >>):
+
+   net/vmw_vsock/virtio_transport_common.c: In function 'virtio_transport_recv_listen':
+>> net/vmw_vsock/virtio_transport_common.c:1538:13: warning: unused variable 'ret' [-Wunused-variable]
+    1538 |         int ret;
+         |             ^~~
+>> net/vmw_vsock/virtio_transport_common.c:1535:28: warning: unused variable 'vsk' [-Wunused-variable]
+    1535 |         struct vsock_sock *vsk = vsock_sk(sk);
+         |                            ^~~
+
+
+vim +/ret +1538 net/vmw_vsock/virtio_transport_common.c
+
+c0cfa2d8a788fc Stefano Garzarella 2019-11-14  1528  
+06a8fc78367d07 Asias He           2016-07-28  1529  /* Handle server socket */
+06a8fc78367d07 Asias He           2016-07-28  1530  static int
+71dc9ec9ac7d3e Bobby Eshleman     2023-01-13  1531  virtio_transport_recv_listen(struct sock *sk, struct sk_buff *skb,
+c0cfa2d8a788fc Stefano Garzarella 2019-11-14  1532  			     struct virtio_transport *t)
+06a8fc78367d07 Asias He           2016-07-28  1533  {
+71dc9ec9ac7d3e Bobby Eshleman     2023-01-13  1534  	struct virtio_vsock_hdr *hdr = virtio_vsock_hdr(skb);
+06a8fc78367d07 Asias He           2016-07-28 @1535  	struct vsock_sock *vsk = vsock_sk(sk);
+06a8fc78367d07 Asias He           2016-07-28  1536  	struct vsock_sock *vchild;
+06a8fc78367d07 Asias He           2016-07-28  1537  	struct sock *child;
+c0cfa2d8a788fc Stefano Garzarella 2019-11-14 @1538  	int ret;
+06a8fc78367d07 Asias He           2016-07-28  1539  
+71dc9ec9ac7d3e Bobby Eshleman     2023-01-13  1540  	if (le16_to_cpu(hdr->op) != VIRTIO_VSOCK_OP_REQUEST) {
+a69686327e4291 Bobby Eshleman     2026-01-21  1541  		virtio_transport_reset_no_sock(t, skb, sock_net(sk));
+06a8fc78367d07 Asias He           2016-07-28  1542  		return -EINVAL;
+06a8fc78367d07 Asias He           2016-07-28  1543  	}
+06a8fc78367d07 Asias He           2016-07-28  1544  
+06a8fc78367d07 Asias He           2016-07-28  1545  	if (sk_acceptq_is_full(sk)) {
+a69686327e4291 Bobby Eshleman     2026-01-21  1546  		virtio_transport_reset_no_sock(t, skb, sock_net(sk));
+06a8fc78367d07 Asias He           2016-07-28  1547  		return -ENOMEM;
+06a8fc78367d07 Asias He           2016-07-28  1548  	}
+06a8fc78367d07 Asias He           2016-07-28  1549  
+d7b0ff5a866724 Michal Luczaj      2024-11-07  1550  	/* __vsock_release() might have already flushed accept_queue.
+d7b0ff5a866724 Michal Luczaj      2024-11-07  1551  	 * Subsequent enqueues would lead to a memory leak.
+d7b0ff5a866724 Michal Luczaj      2024-11-07  1552  	 */
+d7b0ff5a866724 Michal Luczaj      2024-11-07  1553  	if (sk->sk_shutdown == SHUTDOWN_MASK) {
+a69686327e4291 Bobby Eshleman     2026-01-21  1554  		virtio_transport_reset_no_sock(t, skb, sock_net(sk));
+d7b0ff5a866724 Michal Luczaj      2024-11-07  1555  		return -ESHUTDOWN;
+d7b0ff5a866724 Michal Luczaj      2024-11-07  1556  	}
+d7b0ff5a866724 Michal Luczaj      2024-11-07  1557  
+b9ca2f5ff7784d Stefano Garzarella 2019-11-14  1558  	child = vsock_create_connected(sk);
+06a8fc78367d07 Asias He           2016-07-28  1559  	if (!child) {
+a69686327e4291 Bobby Eshleman     2026-01-21  1560  		virtio_transport_reset_no_sock(t, skb, sock_net(sk));
+06a8fc78367d07 Asias He           2016-07-28  1561  		return -ENOMEM;
+06a8fc78367d07 Asias He           2016-07-28  1562  	}
+06a8fc78367d07 Asias He           2016-07-28  1563  
+06a8fc78367d07 Asias He           2016-07-28  1564  	lock_sock_nested(child, SINGLE_DEPTH_NESTING);
+06a8fc78367d07 Asias He           2016-07-28  1565  
+3b4477d2dcf270 Stefan Hajnoczi    2017-10-05  1566  	child->sk_state = TCP_ESTABLISHED;
+06a8fc78367d07 Asias He           2016-07-28  1567  
+06a8fc78367d07 Asias He           2016-07-28  1568  	vchild = vsock_sk(child);
+71dc9ec9ac7d3e Bobby Eshleman     2023-01-13  1569  	vsock_addr_init(&vchild->local_addr, le64_to_cpu(hdr->dst_cid),
+71dc9ec9ac7d3e Bobby Eshleman     2023-01-13  1570  			le32_to_cpu(hdr->dst_port));
+71dc9ec9ac7d3e Bobby Eshleman     2023-01-13  1571  	vsock_addr_init(&vchild->remote_addr, le64_to_cpu(hdr->src_cid),
+71dc9ec9ac7d3e Bobby Eshleman     2023-01-13  1572  			le32_to_cpu(hdr->src_port));
+06a8fc78367d07 Asias He           2016-07-28  1573  
+b09fac3ae8b655 Divya Mankani      2026-06-06  1574  	/* Lock the parent listener socket to synchronize with a potential
+b09fac3ae8b655 Divya Mankani      2026-06-06  1575  	 * simultaneous shutdown thread running __vsock_release().
+c0cfa2d8a788fc Stefano Garzarella 2019-11-14  1576  	 */
+b09fac3ae8b655 Divya Mankani      2026-06-06  1577  	lock_sock(sk);
+b09fac3ae8b655 Divya Mankani      2026-06-06  1578  
+b09fac3ae8b655 Divya Mankani      2026-06-06  1579  	/* Check if the listener socket was shut down while we were
+b09fac3ae8b655 Divya Mankani      2026-06-06  1580  	 * creating and configuring the child socket.
+b09fac3ae8b655 Divya Mankani      2026-06-06  1581  	 */
+b09fac3ae8b655 Divya Mankani      2026-06-06  1582  	if (sk->sk_shutdown == SHUTDOWN_MASK) {
+b09fac3ae8b655 Divya Mankani      2026-06-06  1583  		release_sock(sk);
+c0cfa2d8a788fc Stefano Garzarella 2019-11-14  1584  		release_sock(child);
+a69686327e4291 Bobby Eshleman     2026-01-21  1585  		virtio_transport_reset_no_sock(t, skb, sock_net(sk));
+c0cfa2d8a788fc Stefano Garzarella 2019-11-14  1586  		sock_put(child);
+b09fac3ae8b655 Divya Mankani      2026-06-06  1587  		return -ESHUTDOWN;
+c0cfa2d8a788fc Stefano Garzarella 2019-11-14  1588  	}
+c0cfa2d8a788fc Stefano Garzarella 2019-11-14  1589  
+52bcb57a4e8a08 Dudu Lu            2026-04-13  1590  	sk_acceptq_added(sk);
+71dc9ec9ac7d3e Bobby Eshleman     2023-01-13  1591  	if (virtio_transport_space_update(child, skb))
+c0cfa2d8a788fc Stefano Garzarella 2019-11-14  1592  		child->sk_write_space(child);
+c0cfa2d8a788fc Stefano Garzarella 2019-11-14  1593  
+06a8fc78367d07 Asias He           2016-07-28  1594  	vsock_insert_connected(vchild);
+06a8fc78367d07 Asias He           2016-07-28  1595  	vsock_enqueue_accept(sk, child);
+71dc9ec9ac7d3e Bobby Eshleman     2023-01-13  1596  	virtio_transport_send_response(vchild, skb);
+06a8fc78367d07 Asias He           2016-07-28  1597  
+b09fac3ae8b655 Divya Mankani      2026-06-06  1598  	/* Safely release both locked objects */
+b09fac3ae8b655 Divya Mankani      2026-06-06  1599  	release_sock(sk);
+06a8fc78367d07 Asias He           2016-07-28  1600  	release_sock(child);
+06a8fc78367d07 Asias He           2016-07-28  1601  
+06a8fc78367d07 Asias He           2016-07-28  1602  	sk->sk_data_ready(sk);
+06a8fc78367d07 Asias He           2016-07-28  1603  	return 0;
+06a8fc78367d07 Asias He           2016-07-28  1604  }
+06a8fc78367d07 Asias He           2016-07-28  1605  
+
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
