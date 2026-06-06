@@ -1,154 +1,138 @@
-Received: from mail-oa1-f69.google.com (mail-oa1-f69.google.com [209.85.160.69])
+Received: from mail-qv1-f53.google.com (mail-qv1-f53.google.com [209.85.219.53])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EAFB33B0AE2
-	for <virtualization@lists.linux.dev>; Sat,  6 Jun 2026 14:24:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.69
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8404C1A285
+	for <virtualization@lists.linux.dev>; Sat,  6 Jun 2026 17:04:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780755874; cv=none; b=Xh9oIcGtJgCyABgDr+6NEtKvUamYwy1KNEydL24pDwBWzAKS6Hgt8UmG4DW3oAEwsQH1B5VeiKdN9ZUGL21s5X8Lio1PiW+VGNbgOrYrTuCANurGUDvRIUX/Ci9PqiA3Ca3e6jLncoKhYdsCgia+4bQBMttDVxJZ9dNJ8dOWijg=
+	t=1780765460; cv=none; b=C+pkwxJIr9+5yPucBSvIZ6QE27ILo8/cD9dLGx8h5gr23mTJe2BQIF2AojVuzSaOcPPkwR7dCaLsFSLsCps+URuKiWk/ARfJxi6RJrFSZEQSlQ1FhDV6zPcTDZWHGzNj8FhtC821SOsuWb4lUQVDt2Myh5/dNtbtj6PpRav6ZHs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780755874; c=relaxed/simple;
-	bh=dKhCKOcjhkvzCXvDZwlyGR+b05owkjP821U1vQyfUz8=;
-	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:Cc:
-	 Content-Type; b=UlpJo+zmPV0Wq8E1lUl1kJ8/Siyb0ouyCYW+AQi2y2gbhdjbeUcosPAB++vFlkQGFmF6J64iD8BrRmSofkeCM+Ck4wVoTvdS437E1TnGT0rGUMounAvqPPCx57oe6y3JOtliUMT1kLtPflivirT92WktrFfD9j69J/FcxSJnAUA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.160.69
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
-Received: by mail-oa1-f69.google.com with SMTP id 586e51a60fabf-43d129461c9so6044730fac.3
-        for <virtualization@lists.linux.dev>; Sat, 06 Jun 2026 07:24:32 -0700 (PDT)
+	s=arc-20240116; t=1780765460; c=relaxed/simple;
+	bh=q2NQZY+epqVHr2W7oOJcKG76cTiGmU8+/2BHRpz2gI8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Z7dgpPCy60rfmmDEYLKQZAp4kQhWxsKw94Gs22/MOoE3CCdrwhjYQRgK/DZAwboDWBilOTj/b7zk57EMI3p1QI/oMj1t5KH2Qnw+iiQlflLP0ln2V6WKpU4dtBB/l+/0QNIjBPSmyjhMowceFwmlEZqjN2oiebOwYULFYO0uDBc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HqOdvEK6; arc=none smtp.client-ip=209.85.219.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HqOdvEK6"
+Received: by mail-qv1-f53.google.com with SMTP id 6a1803df08f44-8ce65629acaso34313906d6.3
+        for <virtualization@lists.linux.dev>; Sat, 06 Jun 2026 10:04:19 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1780765458; x=1781370258; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=ByUZh0lFBgTCiciJpjsG9ZXS068Tz2mmn6cEtLPjSXA=;
+        b=HqOdvEK6n8yF4BN82Ba3i3wwH1rrhZNG+gygYUhEYGG9lrD4qDVuDPIqsYlSSDh6FG
+         7c79l5ntAPBc2GsQyVMQc7HGFsd1pFyp/w/vqgZ/R9FfJsX0H7RfQBbd6XzM5JPDau+X
+         9l3zwPpKDsvDCo6IjIzLqUy2+IymaZleBEDzWdG4w/UiqexIe4OQ1USB9FEiO5t9yUDK
+         41wd55rs7e1WcEY78j1MHoKwuA5uXiEWZ6y1cGnqEzbsv6NKqXx6Un6PN8y3tqfnuFQ6
+         EPXQJOiyg2oGxUSt6RzPClPX0IFwIKTYDvzPV+v1P/CQywWTKHhfNOPM+qJlYZaMuKJv
+         VeOA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780755872; x=1781360672;
-        h=cc:to:from:subject:message-id:in-reply-to:date:mime-version
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=bnzhqntLJUbbhUF+5ztd1gvzI3Mxtaqi6t0iP+8wj8I=;
-        b=mcmTYZHjMTTHf2gHbCHj6fdb0VGq3SVTH/L6ES/CHUDZcnzZM5UiwNIxeL2YXDE5T3
-         FmsNFVExh/0lwQQikoga3QrEG9HxB7xKgK1Zbxgyq6fy/LGHnYHDYkYCt1Bh+cWwf/+g
-         dcyQlIVmrGzmDk0VPqdW/s1+pBMTKgtegTbA+k8CZQH358nzmHlLX3HrD7nidXTVrUf1
-         pce+4oytS/MnaIv1mzPdpLhYzrSw3GFpTzvGX/1EwHvp2qOItrLvIoi0cLsG9JYh+mV5
-         Cxg59vLLfVo09BNAXTB6CDXWarGm3xI8sbpiJnlH9vkGpNz2uObCPuxjj7jMTbPssvPG
-         nSJA==
-X-Forwarded-Encrypted: i=1; AFNElJ9jUfRNKLdeTlRbS2FqTO98OmiuWU69C53FDNwo5C6D2bPscq79nKiwKXaEPtNEg2UakXHOFq2biwrpoZBrfg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwAXXHNDgjd6khlfo6kB+pVGTdVlaN+m3l2LZVK6DJMMtAa1A1h
-	4LzHqTXsJkanQJ7X4gC+5nPtbeYlX5z6qFPYdW7MkaZOZXWCmqirOLxgbcSy8ykjUEUcZUjmfcy
-	RlQDC2n8RUSmIGSNxUe+5OFLkVBvsjwsqtKYWNUQ+V4TDQQ21C6MO92Cu9d0=
+        d=1e100.net; s=20251104; t=1780765458; x=1781370258;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=ByUZh0lFBgTCiciJpjsG9ZXS068Tz2mmn6cEtLPjSXA=;
+        b=TzmG2CiO7yazyfeHyORpuR+DxQAcRfJOQidV9SgrV+q/XqqDVdtpi3OY3PEkGpkYdd
+         hdvh8GDcF4FKgv6nYR9M7Y6aZh0+feTptZuzy5Y2TsCz5octPL5sck5S/navat/XCU3c
+         Pqvj08h3d97H1+iuKrTqqiVWI99Omw60/zrcJesNcHSr2fYk5SXHHHe1ByQwNP0jm2mc
+         14g/iytHKIFQWxkKLvps1ctEDB2kbAXhGg/jgOhK52hHbftUTAa4yuesvG3/ay/WKmeK
+         BSDrbIu80dUtCOEN+UDyG4alTzkQlKDxBgQTseBQsR07xz/b7MjtH32wjIOvDgmOo5we
+         Z/qA==
+X-Forwarded-Encrypted: i=1; AFNElJ/fbTba2gb7tZQkoYxjTLiw7bwuxoKS2MIrrIH1O17dNp8pu7hff2q85BAF9/muuku6OclOPHxN0/WL4IRIhw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyoj0P4r1Bly3B3w927W2X7bLz5wkgAkU8GzsXifmggH/syFdno
+	wq32Td/0v7bH0PBX38HqVRVrduMHlm7mDo4R4GlaKri9JgrsJS1TRTOo
+X-Gm-Gg: Acq92OHfjws4rOkkvlSXEBlWfVWY1nU4tJPMKqXDUdBenB9EyxhA4O8UpVpxzNa6ti8
+	r0cNfe+9lwSmESVAS8HE3axH5jX29piNlhx0uu9iaqS12uunQgx3EJT6PZXBHK6UR5oQDW5/ozr
+	ZjrCeeDcwP3CUY8Wz7wMcGuaoEaE0bHWsIJDAVJdK3l2bVj++xv24O1ov/7k+XjXKDlGgSsJiZL
+	0mrPPqnkVBExB4y83oqc8ZzcDKEZdgfK+o5qZWnR+puMBz2l49ON18uu1/AIY9zXSUYYWodWS23
+	tZeLVBdInM3jkGLx5y3LaFQ0tBSJEOjDcXPu/GwNbKSR5n0QWcXbh0BFZ2nFlUuUZjbzo9aHBEC
+	D7QBMeJE3TDHO0NXprfQnREv74hqisbs6YKWxn/2nE4kK7tjD3iN2qffE69NdP3tiGcyOMUy4qe
+	AGS7GyGPSyi+diXhRePeA/a4Bw6Mjl+o1u2ViJFfZqD+fL9HQrFV8XNfZESUrstY43VXbPc/uZZ
+	omrt2gLcTr42aXF9Io7ZtiOUM47Jjw=
+X-Received: by 2002:a0c:f10c:0:b0:8cc:ee52:3e60 with SMTP id 6a1803df08f44-8cee5f99418mr119842996d6.3.1780765458414;
+        Sat, 06 Jun 2026 10:04:18 -0700 (PDT)
+Received: from server0 (c-68-48-65-54.hsd1.mi.comcast.net. [68.48.65.54])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8ceccd9fc7dsm112977966d6.5.2026.06.06.10.04.17
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 06 Jun 2026 10:04:17 -0700 (PDT)
+From: Michael Bommarito <michael.bommarito@gmail.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Jens Axboe <axboe@kernel.dk>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	virtualization@lists.linux.dev,
+	linux-block@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] virtio-blk: clamp zone report to the report buffer capacity
+Date: Sat,  6 Jun 2026 13:04:15 -0400
+Message-ID: <20260606170415.1523660-1-michael.bommarito@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Received: by 2002:a05:6820:4df4:b0:69e:30ea:133e with SMTP id
- 006d021491bc7-69e68c05d5cmr4739617eaf.34.1780755871968; Sat, 06 Jun 2026
- 07:24:31 -0700 (PDT)
-Date: Sat, 06 Jun 2026 07:24:31 -0700
-In-Reply-To: <20260605191922.12720-1-divyakm@unc.edu>
-X-Google-Appengine-App-Id: s~syzkaller
-X-Google-Appengine-App-Id-Alias: syzkaller
-Message-ID: <6a242d9f.e4db5ad2.3b7dfb.0007.GAE@google.com>
-Subject: [syzbot ci] Re: vsock/virtio: fix memory leak in virtio_transport_recv_listen
-From: syzbot ci <syzbot+cia2083008eb5f51b9@syzkaller.appspotmail.com>
-To: divyakm@cs.unc.edu, divyakm@unc.edu, horms@kernel.org, kuba@kernel.org, 
-	kvm@vger.kernel.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org, 
-	pabeni@redhat.com, syzbot@syzkaller.appspotmail.com, 
-	virtualization@lists.linux.dev
-Cc: syzbot@lists.linux.dev, syzkaller-bugs@googlegroups.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 7bit
 
-syzbot ci has tested the following series
+virtblk_report_zones() trusts the device-reported number of zones when
+walking the report buffer:
 
-[v1] vsock/virtio: fix memory leak in virtio_transport_recv_listen
-https://lore.kernel.org/all/20260605191922.12720-1-divyakm@unc.edu
-* [PATCH] vsock/virtio: fix memory leak in virtio_transport_recv_listen
+	nz = min_t(u64, virtio64_to_cpu(vblk->vdev, report->nr_zones),
+		   nr_zones);
+	...
+	for (i = 0; i < nz && zone_idx < nr_zones; i++) {
+		ret = virtblk_parse_zone(vblk, &report->zones[i], ...);
 
-and found the following issue:
-possible deadlock in virtio_transport_recv_listen
+The buffer is allocated by virtblk_alloc_report_buffer(), whose size is
+capped by the queue's max hardware sectors and max segments and can
+therefore hold fewer descriptors than nr_zones. nz is bounded only by
+the device-supplied report->nr_zones and the requested nr_zones, never
+by the buffer's descriptor capacity. At probe time the request count is
+unbounded (blk_revalidate_disk_zones() calls report_zones() with
+nr_zones == UINT_MAX), so the device-supplied report->nr_zones is the
+sole gate: a device that reports more zones than fit in the buffer
+drives the loop to read report->zones[i] past the end of the allocation.
 
-Full report is available here:
-https://ci.syzbot.org/series/76f40e62-5a21-46d4-a636-10f0ec9c5040
+A malicious or buggy virtio-blk device that reports an inflated nr_zones
+triggers this during zone revalidation at probe. KASAN reports a
+vmalloc-out-of-bounds read in virtblk_report_zones() against the report
+buffer allocated a few lines earlier.
 
-***
+Clamp nz to the number of descriptors that actually fit in the report
+buffer.
 
-possible deadlock in virtio_transport_recv_listen
-
-tree:      net-next
-URL:       https://kernel.googlesource.com/pub/scm/linux/kernel/git/netdev/net-next.git
-base:      bfa3d89cc15c09f7d1581c834a5ed725189ec19f
-arch:      amd64
-compiler:  Debian clang version 21.1.8 (++20251221033036+2078da43e25a-1~exp1~20251221153213.50), Debian LLD 21.1.8
-config:    https://ci.syzbot.org/builds/5a94a424-94b1-4b1e-8b06-74d59933368f/config
-syz repro: https://ci.syzbot.org/findings/a8224003-11b3-4232-a635-6755ad892149/syz_repro
-
-============================================
-WARNING: possible recursive locking detected
-syzkaller #0 Not tainted
---------------------------------------------
-kworker/0:3/5740 is trying to acquire lock:
-ffff88810efb62a0 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1713 [inline]
-ffff88810efb62a0 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: virtio_transport_recv_listen+0x964/0x2120 net/vmw_vsock/virtio_transport_common.c:1577
-
-but task is already holding lock:
-ffff88810efb62a0 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1713 [inline]
-ffff88810efb62a0 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: virtio_transport_recv_pkt+0xa26/0x2800 net/vmw_vsock/virtio_transport_common.c:1668
-
-other info that might help us debug this:
- Possible unsafe locking scenario:
-
-       CPU0
-       ----
-  lock(sk_lock-AF_VSOCK);
-  lock(sk_lock-AF_VSOCK);
-
- *** DEADLOCK ***
-
- May be due to missing lock nesting notation
-
-4 locks held by kworker/0:3/5740:
- #0: ffff8881150d3540 ((wq_completion)vsock-loopback){+.+.}-{0:0}, at: process_one_work kernel/workqueue.c:3289 [inline]
- #0: ffff8881150d3540 ((wq_completion)vsock-loopback){+.+.}-{0:0}, at: process_scheduled_works+0xa35/0x1860 kernel/workqueue.c:3397
- #1: ffffc90003fafc40 ((work_completion)(&vsock->pkt_work)){+.+.}-{0:0}, at: process_one_work kernel/workqueue.c:3290 [inline]
- #1: ffffc90003fafc40 ((work_completion)(&vsock->pkt_work)){+.+.}-{0:0}, at: process_scheduled_works+0xa70/0x1860 kernel/workqueue.c:3397
- #2: ffff88810efb62a0 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: lock_sock include/net/sock.h:1713 [inline]
- #2: ffff88810efb62a0 (sk_lock-AF_VSOCK){+.+.}-{0:0}, at: virtio_transport_recv_pkt+0xa26/0x2800 net/vmw_vsock/virtio_transport_common.c:1668
- #3: ffff88810efb5120 (sk_lock-AF_VSOCK/1){+.+.}-{0:0}, at: virtio_transport_recv_listen+0x83f/0x2120 net/vmw_vsock/virtio_transport_common.c:1564
-
-stack backtrace:
-CPU: 0 UID: 0 PID: 5740 Comm: kworker/0:3 Not tainted syzkaller #0 PREEMPT(full) 
-Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.2-debian-1.16.2-1 04/01/2014
-Workqueue: vsock-loopback vsock_loopback_work
-Call Trace:
- <TASK>
- dump_stack_lvl+0xe8/0x150 lib/dump_stack.c:120
- print_deadlock_bug+0x279/0x290 kernel/locking/lockdep.c:3041
- check_deadlock kernel/locking/lockdep.c:3093 [inline]
- validate_chain kernel/locking/lockdep.c:3895 [inline]
- __lock_acquire+0x253f/0x2cf0 kernel/locking/lockdep.c:5237
- lock_acquire+0x106/0x350 kernel/locking/lockdep.c:5868
- lock_sock_nested+0x41/0x100 net/core/sock.c:3790
- lock_sock include/net/sock.h:1713 [inline]
- virtio_transport_recv_listen+0x964/0x2120 net/vmw_vsock/virtio_transport_common.c:1577
- virtio_transport_recv_pkt+0x1570/0x2800 net/vmw_vsock/virtio_transport_common.c:1692
- vsock_loopback_work+0x32c/0x3f0 net/vmw_vsock/vsock_loopback.c:142
- process_one_work kernel/workqueue.c:3314 [inline]
- process_scheduled_works+0xb5d/0x1860 kernel/workqueue.c:3397
- worker_thread+0xa53/0xfc0 kernel/workqueue.c:3478
- kthread+0x389/0x470 kernel/kthread.c:436
- ret_from_fork+0x514/0xb70 arch/x86/kernel/process.c:158
- ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
- </TASK>
-
-
-***
-
-If these findings have caused you to resend the series or submit a
-separate fix, please add the following tag to your commit message:
-  Tested-by: syzbot@syzkaller.appspotmail.com
-
+Fixes: 95bfec41bd3d ("virtio-blk: add support for zoned block devices")
+Assisted-by: Claude:claude-opus-4-8
+Signed-off-by: Michael Bommarito <michael.bommarito@gmail.com>
 ---
-This report is generated by a bot. It may contain errors.
-syzbot ci engineers can be reached at syzkaller@googlegroups.com.
+ drivers/block/virtio_blk.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-To test a patch for this bug, please reply with `#syz test`
-(should be on a separate line).
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index b1c9a27fe00f3..d50aaf956d558 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -689,6 +689,14 @@ static int virtblk_report_zones(struct gendisk *disk, sector_t sector,
+ 
+ 		nz = min_t(u64, virtio64_to_cpu(vblk->vdev, report->nr_zones),
+ 			   nr_zones);
++		/*
++		 * The device-reported nr_zones is untrusted; clamp it to the
++		 * number of descriptors that actually fit in the report buffer
++		 * so a malicious or buggy device cannot drive the parse loop
++		 * past the allocation.
++		 */
++		nz = min_t(u64, nz,
++			   (buflen - sizeof(*report)) / sizeof(report->zones[0]));
+ 		if (!nz)
+ 			break;
+ 
 
-The patch should be attached to the email.
-Note: arguments like custom git repos and branches are not supported.
+base-commit: 5200f5f493f79f14bbdc349e402a40dfb32f23c8
+-- 
+2.53.0
+
