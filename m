@@ -1,101 +1,134 @@
-Received: from cstnet.cn (smtp81.cstnet.cn [159.226.251.81])
-	(using TLSv1.2 with cipher DHE-RSA-AES256-SHA (256/256 bits))
+Received: from mail-qk1-f182.google.com (mail-qk1-f182.google.com [209.85.222.182])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EB25D2DF3F2
-	for <virtualization@lists.linux.dev>; Sun,  7 Jun 2026 09:03:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=159.226.251.81
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A9283254B2
+	for <virtualization@lists.linux.dev>; Sun,  7 Jun 2026 12:48:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780823005; cv=none; b=b+uRA1u9RtjN5YRj2PDAHONmuoiyie3Wk4oqGGRqhsulnfke4BpgCTjBDke07os4tHdpx2z0/7ZSKct/oHgvphKUnPuFmL71ZdFZ678wtDSfu1gmsAjvdcMBiHKI1qkGGm4iyhDiSBDKWHlOrJ2ifeTEPqScTiflUK4BXZmletk=
+	t=1780836537; cv=none; b=uudZ1epMPqn8XbO65lm6TpBByKQJnH3cTAiNnpUD/fzSp9ofVz8aPZeVxiw9lOckG49z+E3UpVFslv4M+SELn2k8Is7w8muApW64vTLmhDPNUmjwwbfiycSVgvhZ8nrlJWbXY9MP4z33cQxAKqhP0zsOszu2vCs0O1c2CPZMGs0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780823005; c=relaxed/simple;
-	bh=4SUUNkzDJdg4r/FrEuPSg45I4nO6KJLxlg215SpNcaE=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=XwJaeyAZwxQFpx1tVCfD3uPlzb0rgt7/wepGSKVYWpTz3ZNNH1STSuu8XjqvOGnXf82Yw/io5BFGg+k8Tb2oZWNNnpUL8Sf735+hTnIP1zHBVaiwHIJuLqqTxUTft2/is4gg0SMHhRulDPQXfVj6ysFMJgCMWEdqN/5RnMH1eq8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn; spf=pass smtp.mailfrom=iscas.ac.cn; arc=none smtp.client-ip=159.226.251.81
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=iscas.ac.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=iscas.ac.cn
-Received: from dfae2b116770.home.arpa (unknown [36.110.52.2])
-	by APP-03 (Coremail) with SMTP id rQCowAAXKtHQMyVqoCbkEw--.5129S2;
-	Sun, 07 Jun 2026 17:03:12 +0800 (CST)
-From: Wentao Liang <vulab@iscas.ac.cn>
-To: airlied@redhat.com,
-	kraxel@redhat.com,
-	dmitry.osipenko@collabora.com,
-	maarten.lankhorst@linux.intel.com,
-	mripard@kernel.org,
-	tzimmermann@suse.de,
-	simona@ffwll.ch
-Cc: gurchetansingh@chromium.org,
-	olvaffe@gmail.com,
-	dri-devel@lists.freedesktop.org,
+	s=arc-20240116; t=1780836537; c=relaxed/simple;
+	bh=BV6AJGuw/xsMgOxl9SY8FG8RrXLJqtI4CTPX962LxYk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ezTX5ZGaIz0xJsfuzUhxwH7NlEM0yNX7jO7cZe2U28oUyTo7mueQqVBoxlKTOgr5tGz6XWcmmjkhsF2yE7aWX+OwLDj+kAIsBSceBkMIC7BdPvX1W2e0qiSojkwAthN9E3ZihbAJW8wJEh1XJgp9JZy30vrr+hzhcFbmHLpJo2c=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AB0+Rr35; arc=none smtp.client-ip=209.85.222.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AB0+Rr35"
+Received: by mail-qk1-f182.google.com with SMTP id af79cd13be357-9156b74006aso245274985a.0
+        for <virtualization@lists.linux.dev>; Sun, 07 Jun 2026 05:48:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1780836534; x=1781441334; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=R/ItvRwkdkhyOcV5EUqgABZkU2mcEZg+Gfh/gQJ+RwE=;
+        b=AB0+Rr35GRWTsLckwmThSXGUu4JH5k6KgI6iROH2DxLxNqMgTPzs2fm++aMhdvJS50
+         Ox74qDd0Ehk7e72UtR6q8fZ5tWj6aWbtpc9ouUk0wLh/T0PHuro6ZtcSujD0ukyXIYxG
+         hVIQ9pmGLI74dYLp/T8mcUI2OY6u4dxLlCRbJbUHsuXCoeb1nidLgX8ZNdPM501jE36i
+         EaPuim+8vO2ZT3uHeNr31NZ1JOiRH2kbj8/Y0/fbb7Vqs9VfTiAkiVa3i/cID1xMI1gy
+         98f3p5a30CzfgLrETurwLb956W5qp4dW+IeEmbwC+viGrm16+EYvTU9mwZyu6jlfVkRK
+         NCaQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780836534; x=1781441334;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=R/ItvRwkdkhyOcV5EUqgABZkU2mcEZg+Gfh/gQJ+RwE=;
+        b=rPX20QqpkknynP/InvINw05YjWgi5qqSkxGRACnJZA8NGjAiUIAIYITdbQBHxq0uQ1
+         jy3xVrNaQvAY8aaKSbAZiu7yw4k0/y77mrqVeRmy4tYmxmhC8B7LY+qWIZKTsbXWntnx
+         JOGSV2pEnlP/D/WRM5nidN8J1ZzjNkhAR09KzAwDx55J5Pb73g/GmATWkIIVER+e4rIr
+         de1Nbvrcy2V/F7k8MoEvW5mrxJsiOnadZnIm3roEsMs2hvB4wVBMENOCOJekZ30gYj+B
+         SzVXjjJi+kPJa3k0/gbOnGNrczFdweNy/mIM9Hf1SolfF/cdH9CugUZ/2eZXyYUhE8pU
+         YQeg==
+X-Forwarded-Encrypted: i=1; AFNElJ/IZfg7/6BbtciS3EanN/XbI2QKmljMYo5e0gBx70+HugWAZNUtdB0UWEqmjJurL0abkOLE6Nfx9CwY9KTMpg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yym1ryzFosqAZuoFHTfVXeXUXQEmw/bZvBwUFZH4fVuADobiLhz
+	TJrPPTrvjuydKyxnONt4hTdG2vkTUaUw/ew7OCeDbhQshe8bH3Kj5QuT
+X-Gm-Gg: Acq92OGgpEdF2EUO7lAeIn8AJlm0HjqG+GsJgFyKsqSYlxEIo1ZMO/c7IO+bj0Puda/
+	vQAv3uCDuvTfwUpykNC/R3t7a3A9qIhjTKh59rhgAheY/u1sK6nAsoMlIi0w0vb/F4v+2sdMngE
+	2JW1dkMNT+FiyN3AqL/I2iiNrgXRaaNfXsUwTG/t+GkdBaDOJX2dvEpK94MQPV+Hyemlwq2b6jL
+	rybyWwXnpyt4N+XuEke8zU1QQC/rR+b1yUu5BrderOg83KTuVVkA7y++7r0Hw28Kgt5B8Eeb7uM
+	B1Tznbu0AECnB3r/pBvx4XJZv3TwS82V3J/cBvl0Qhzn1zTxUVlOJNyHMCFIwz4ljO/Rk6wOxsn
+	5INjR3sIglfpA5J90kQJXk2ux88/jX8btShzytsJsL2bt6EZuw/GnHpI2L62OS/aeVSFuYxMmsO
+	DGRhaY3CmRk2l3yiAeme+GKmulLFt5Z9G6rp2rQRK5oNxj+qXjqSf/Qo6W2t0o47duFmDyakZSx
+	+4u1RWQPwbnBl2fxvgZTte3ZNZWvPg=
+X-Received: by 2002:a05:620a:1d01:b0:914:bb8e:915c with SMTP id af79cd13be357-915a9cac9afmr1892160485a.22.1780836534090;
+        Sun, 07 Jun 2026 05:48:54 -0700 (PDT)
+Received: from server0 (c-68-48-65-54.hsd1.mi.comcast.net. [68.48.65.54])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9158a37cae4sm1419467485a.29.2026.06.07.05.48.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 07 Jun 2026 05:48:53 -0700 (PDT)
+From: Michael Bommarito <michael.bommarito@gmail.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Jens Axboe <axboe@kernel.dk>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Wentao Liang <vulab@iscas.ac.cn>,
-	stable@vger.kernel.org
-Subject: [PATCH] drm/virtio: fix dma_fence refcount leak on error in virtio_gpu_dma_fence_wait()
-Date: Sun,  7 Jun 2026 09:03:03 +0000
-Message-Id: <20260607090303.92423-1-vulab@iscas.ac.cn>
-X-Mailer: git-send-email 2.34.1
+	linux-block@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2] virtio-blk: clamp zone report to the report buffer capacity
+Date: Sun,  7 Jun 2026 08:48:34 -0400
+Message-ID: <20260607124834.3059944-1-michael.bommarito@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:rQCowAAXKtHQMyVqoCbkEw--.5129S2
-X-Coremail-Antispam: 1UD129KBjvJXoW7Cr45GrWxXryxKryfKw47twb_yoW8GFWxpa
-	18G343CFnIya1Iqay7A3W09ryrC3ZxArWSgF4j9ayfCwn8XF15tr1DA3ySqryDAFZrt3yf
-	Krn7Cr4YgFn5uaDanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDU0xBIdaVrnRJUUU9214x267AKxVW8JVW5JwAFc2x0x2IEx4CE42xK8VAvwI8IcIk0
-	rVWrJVCq3wAFIxvE14AKwVWUJVWUGwA2ocxC64kIII0Yj41l84x0c7CEw4AK67xGY2AK02
-	1l84ACjcxK6xIIjxv20xvE14v26r4j6ryUM28EF7xvwVC0I7IYx2IY6xkF7I0E14v26r4j
-	6F4UM28EF7xvwVC2z280aVAFwI0_Cr1j6rxdM28EF7xvwVC2z280aVCY1x0267AKxVWxJr
-	0_GcWle2I262IYc4CY6c8Ij28IcVAaY2xG8wAqx4xG64xvF2IEw4CE5I8CrVC2j2WlYx0E
-	2Ix0cI8IcVAFwI0_JF0_Jw1lYx0Ex4A2jsIE14v26r4UJVWxJr1lOx8S6xCaFVCjc4AY6r
-	1j6r4UM4x0Y48IcxkI7VAKI48JM4x0x7Aq67IIx4CEVc8vx2IErcIFxwACI402YVCY1x02
-	628vn2kIc2xKxwCY1x0262kKe7AKxVWUtVW8ZwCF04k20xvY0x0EwIxGrwCFx2IqxVCFs4
-	IE7xkEbVWUJVW8JwC20s026c02F40E14v26r1j6r18MI8I3I0E7480Y4vE14v26r106r1r
-	MI8E67AF67kF1VAFwI0_Jw0_GFylIxkGc2Ij64vIr41lIxAIcVC0I7IYx2IY67AKxVWUJV
-	WUCwCI42IY6xIIjxv20xvEc7CjxVAFwI0_Gr0_Cr1lIxAIcVCF04k26cxKx2IYs7xG6r1j
-	6r1xMIIF0xvEx4A2jsIE14v26r1j6r4UMIIF0xvEx4A2jsIEc7CjxVAFwI0_Gr0_Gr1UYx
-	BIdaVFxhVjvjDU0xZFpf9x0JUJWrAUUUUU=
-X-CM-SenderInfo: pyxotu46lvutnvoduhdfq/1tbiBwwLA2ok4-xRfwABs9
+Content-Transfer-Encoding: 7bit
 
-dma_fence_unwrap_for_each() internally calls dma_fence_unwrap_first()
-which does cursor->chain = dma_fence_get(head), taking an extra
-reference. On normal loop completion, dma_fence_unwrap_next()
-releases this via dma_fence_chain_walk() -> dma_fence_put().
+virtblk_report_zones() trusts the device-reported number of zones when
+walking the report buffer:
 
-When virtio_gpu_do_fence_wait() fails and the function returns early
-from inside the loop, the cursor->chain reference is never released.
-This is the only caller in the entire kernel that does an early return
-inside dma_fence_unwrap_for_each.
+	nz = min_t(u64, virtio64_to_cpu(vblk->vdev, report->nr_zones),
+		   nr_zones);
+	...
+	for (i = 0; i < nz && zone_idx < nr_zones; i++) {
+		ret = virtblk_parse_zone(vblk, &report->zones[i], ...);
 
-Add dma_fence_put(itr.chain) before the early return.
+The buffer is allocated by virtblk_alloc_report_buffer(), whose size is
+capped by the queue's max hardware sectors and max segments and can
+therefore hold fewer descriptors than nr_zones. nz is bounded only by
+the device-supplied report->nr_zones and the requested nr_zones, never
+by the buffer's descriptor capacity. At probe time the request count is
+unbounded (blk_revalidate_disk_zones() calls report_zones() with
+nr_zones == UINT_MAX), so the device-supplied report->nr_zones is the
+sole gate: a device that reports more zones than fit in the buffer
+drives the loop to read report->zones[i] past the end of the allocation.
 
-Cc: stable@vger.kernel.org
-Fixes: eba57fb5498f ("drm/virtio: Wait for each dma-fence of in-fence array individually")
-Signed-off-by: Wentao Liang <vulab@iscas.ac.cn>
+A malicious or buggy virtio-blk device that reports an inflated nr_zones
+triggers this during zone revalidation at probe. KASAN reports a
+vmalloc-out-of-bounds read in virtblk_report_zones() against the report
+buffer allocated a few lines earlier.
+
+Clamp nz to the number of descriptors that actually fit in the report
+buffer.
+
+Fixes: 95bfec41bd3d ("virtio-blk: add support for zoned block devices")
+Assisted-by: Claude:claude-opus-4-8
+Signed-off-by: Michael Bommarito <michael.bommarito@gmail.com>
 ---
- drivers/gpu/drm/virtio/virtgpu_submit.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
+v2: drop the explanatory comment per Michael S. Tsirkin's review; the
+    clamp itself is unchanged.
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_submit.c b/drivers/gpu/drm/virtio/virtgpu_submit.c
-index dae761fa5788..32cb1e4aa425 100644
---- a/drivers/gpu/drm/virtio/virtgpu_submit.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_submit.c
-@@ -65,8 +65,10 @@ static int virtio_gpu_dma_fence_wait(struct virtio_gpu_submit *submit,
+ drivers/block/virtio_blk.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index b1c9a27..32bf3ba 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -689,6 +689,8 @@ static int virtblk_report_zones(struct gendisk *disk, sector_t sector,
  
- 	dma_fence_unwrap_for_each(f, &itr, fence) {
- 		err = virtio_gpu_do_fence_wait(submit, f);
--		if (err)
-+		if (err) {
-+			dma_fence_put(itr.chain);
- 			return err;
-+		}
- 	}
+ 		nz = min_t(u64, virtio64_to_cpu(vblk->vdev, report->nr_zones),
+ 			   nr_zones);
++		nz = min_t(u64, nz,
++			   (buflen - sizeof(*report)) / sizeof(report->zones[0]));
+ 		if (!nz)
+ 			break;
  
- 	return 0;
+
+base-commit: 5200f5f493f79f14bbdc349e402a40dfb32f23c8
 -- 
-2.34.1
-
+2.53.0
