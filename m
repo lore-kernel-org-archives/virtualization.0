@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76C6D3403ED;
-	Mon,  8 Jun 2026 11:09:10 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E6C6D33F5B0;
+	Mon,  8 Jun 2026 11:10:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780916951; cv=none; b=MybSBZptvKZA+UUhjmFEXaP/oKtvbqc9pZSTtWq7bf9Lec7ks6LXpOCCuccpiy29JaKMhIZhhkUwIkAk9YuX5DGwvSz0laquMo5yiWUDbeGRldn5ih1scf2xwzttmrbTcRqyvSqkZOX6/y2TmTtvXSZ9ubD8e7foNl0/4MHq63o=
+	t=1780917058; cv=none; b=ZAVYUc7Mp+OFN7Fw0cxgDt6ZiQ7yi8GykmSUOjmzrCTiz0qSK6ohGMekSWhN9lfWUjDJNzJj+6L4dhOs0aj91fbTlgof3un7bFVDaPdIz9yXepPXWpznaTiTNc8EyJLLApDGctwdyMMre66mfZCAePsMf9TxTCwihBl5QObqEcY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780916951; c=relaxed/simple;
-	bh=NGBeHT/GiMcQQALei4OwNpbycWZ+b9m7PzS+SYcHQFA=;
+	s=arc-20240116; t=1780917058; c=relaxed/simple;
+	bh=VhxNz/vcMYuiUD0k1yG1LRCsGCyawaqzKn+w/+KvUWk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=DjoGDP8lnczy3M83mgBRyv404EpeykWhDgPww2yx7/f5/86aJmkiE7Pg6PSLCx6RGxgqSHqaeqKHctLNbDRJq08jkZUNSNYChMAZzOhA1hh6lrMHRixp/KyqNdOafKos1riS7pKo7Z1r2ABw8sedkGAba8LhPz2LzCr7MaYeOk0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=HICbOiY7; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=l5WlyFnJgCLBIkdsXwqcqKF2GSvlCz6RPPAiAi2l3kxRndmIXCadLukI0KfHBiOIOyCyipkKPSdFgnA6UqIrzOK1o1noy89Qdg68EPG63cVxoGNmI4kCBPiC2Dz01l/EBHh/Lqqrwvz236KMQm3INSYtLdI3p8N7ejKaImyoEfo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=JU14IZp/; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="HICbOiY7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id C6CE01F00893;
-	Mon,  8 Jun 2026 11:08:59 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="JU14IZp/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5684E1F00893;
+	Mon,  8 Jun 2026 11:10:47 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780916950;
-	bh=hc/qlM6AXIf4NHvVFYTmMogdhCS062x3B65dfP/PPwY=;
+	s=k20260515; t=1780917057;
+	bh=QtOtVF8QaSt5DSHcymyO5ibaZSfXXzww0Quv4U5FVX4=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=HICbOiY7mVbZABlmQS9r9qxSDVd/U5vhNVSwfuvEYMuSXCDxThNC+OThT/sW7pI/Y
-	 ZNwf/7wqg2v+asEQ4fo+4BsLfxEEqZLyca4ZRdsvC/fhmaO4LN0v5TOM/QL4FMZwmJ
-	 c0qC2GensuPyio1c7c88eZCj6BA4v7o6G7meAwBVRvSpxZ8EBV/fk17JzfHjOPq7LA
-	 6+HbwLmLo9OjxiIoXNHtg7TXg8KKXfBA6Mm7B8B3qaHbEpsGe2g49jR32+2ToprIET
-	 8DDevnn++18AFDXzmqdD86E1aRclyGxJ6pf8ipz8AqwUv0jz+4Ggd+HsdP5HsPU9zk
-	 rKeeRLezEcRdg==
-Message-ID: <64f2e580-aa82-4849-9236-b8ec4208ca24@kernel.org>
-Date: Mon, 8 Jun 2026 13:08:57 +0200
+	b=JU14IZp/7b7IV/ZfI4w8G0IHWoMcVfNrtbTIs2nw7fd5/R9bvHXLEXmFGqLAIqtOB
+	 YKHN2w9HYLsr10Tn9bB93JatGjaguIgxyOf2/0Ber0sJf6Pp7pO4+Cuq/xKUM9IKDC
+	 GcgbxeRUJYFRY3ulZ4C9Tanhqhcx6W3yTJcPrw2X4FsXT9C9bpItDwCbiuUln1smos
+	 y4Xc53iR+OUc8ITq8PUUmEjYfmUdyYWiC6KwNGn+8NER6rEqLXXKLW1FEntyVaxHI2
+	 CFyXnTXJ/Gl1OW8p8HoY7DP8/jxUlyKLcmVGc8B+X1exl3zonBG9a8SGeO4OzLJYE6
+	 cngyJX+zbEzdA==
+Message-ID: <c206fc7b-9014-4ccb-8180-300a95145c83@kernel.org>
+Date: Mon, 8 Jun 2026 13:10:45 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -35,22 +35,21 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v10 07/37] mm: thread user_addr through page allocator for
- cache-friendly zeroing
-To: Lorenzo Stoakes <ljs@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Muchun Song <muchun.song@linux.dev>,
- Oscar Salvador <osalvador@suse.de>, Andrew Morton
- <akpm@linux-foundation.org>, "Liam R. Howlett" <liam@infradead.org>,
- Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>,
- Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
- Brendan Jackman <jackmanb@google.com>, Johannes Weiner <hannes@cmpxchg.org>,
- Zi Yan <ziy@nvidia.com>, Baolin Wang <baolin.wang@linux.alibaba.com>,
- Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
- Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
- Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
- Matthew Brost <matthew.brost@intel.com>,
+Subject: Re: [PATCH v10 36/37] mm: balloon: use put_page_zeroed for zeroed
+ balloon pages
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
+ Andrew Morton <akpm@linux-foundation.org>, Lorenzo Stoakes <ljs@kernel.org>,
+ "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
+ Michal Hocko <mhocko@suse.com>, Brendan Jackman <jackmanb@google.com>,
+ Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
+ Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <npache@redhat.com>,
+ Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>,
+ Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>,
+ Hugh Dickins <hughd@google.com>, Matthew Brost <matthew.brost@intel.com>,
  Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
  Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
  Ying Huang <ying.huang@linux.alibaba.com>,
@@ -64,8 +63,7 @@ Cc: linux-kernel@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
  virtualization@lists.linux.dev, linux-mm@kvack.org,
  Andrea Arcangeli <aarcange@redhat.com>
 References: <cover.1780906288.git.mst@redhat.com>
- <50d410b47fe3f45327783e05bd306d5eaab75e65.1780906288.git.mst@redhat.com>
- <aiaUDTeHDA45ZXFS@lucifer>
+ <619342ca2c01c60862fe49cd4a790d171cd65ef3.1780906288.git.mst@redhat.com>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -112,56 +110,56 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <aiaUDTeHDA45ZXFS@lucifer>
+In-Reply-To: <619342ca2c01c60862fe49cd4a790d171cd65ef3.1780906288.git.mst@redhat.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 6/8/26 12:23, Lorenzo Stoakes wrote:
-> I noticed this patch, again, sneaks in some additional code changes that
-> are not mentioned in the commit message and seem irrelevant to the patch.
+On 6/8/26 10:40, Michael S. Tsirkin wrote:
+> When a balloon page marked PageZeroed is freed during migration,
+> use put_page_zeroed() to propagate the zeroed hint to the buddy
+> allocator. Previously the hint was silently lost via plain put_page().
 > 
-> Not sure if the AI is doing this, but please don't do that.
+> No page has PageZeroed set yet; the next patch
+> (VIRTIO_BALLOON_F_DEVICE_INIT_ON_INFLATE) will set it on
+> pages the host has zeroed during inflate.
+> Note: during balloon migration, the migration core holds an
+> extra reference, so put_page_zeroed() will not be the final
+> put. The zeroed hint is lost in that case, which is
+> acceptable: it is a best-effort optimization.
 > 
-> On Mon, Jun 08, 2026 at 04:35:17AM -0400, Michael S. Tsirkin wrote:
->> Thread a user virtual address from vma_alloc_folio() down through
->> the page allocator to post_alloc_hook(). This is plumbing
->> preparation for a subsequent patch that will use user_addr to
->> call folio_zero_user() for cache-friendly zeroing of user pages.
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Assisted-by: Claude:claude-opus-4-6
+> ---
+>  mm/balloon.c | 10 +++++++++-
+>  1 file changed, 9 insertions(+), 1 deletion(-)
 > 
-> This feels like very weak justification for code that massively changes mm
-> code and makes it all much worse.
-> 
->>
->> The user_addr is stored in struct alloc_context and flows through:
->>   vma_alloc_folio -> folio_alloc_mpol -> __alloc_pages_mpol ->
->>   __alloc_frozen_pages -> get_page_from_freelist -> prep_new_page ->
->>   post_alloc_hook
-> 
-> Is this the only relevant code path? You're changing a TON of code here
-> that will have multiple different code paths?
-> 
->>
->> USER_ADDR_NONE ((unsigned long)-1) is used for non-user
->> allocations, since address 0 is a valid userspace mapping.
-> 
-> Ugh god, so now we're passing a user address through allocation paths that
-> might not even be aware of this or be allocating memory at a point when the
-> mapping is known?
+> diff --git a/mm/balloon.c b/mm/balloon.c
+> index 96a8f1e20bc6..6c9dd8ab0c5d 100644
+> --- a/mm/balloon.c
+> +++ b/mm/balloon.c
+> @@ -324,7 +324,15 @@ static int balloon_page_migrate(struct page *newpage, struct page *page,
+>  	balloon_page_finalize(page);
+>  	spin_unlock_irqrestore(&balloon_pages_lock, flags);
+>  
+> -	put_page(page);
+> +	if (PageZeroed(page)) {
+> +		/* Atomic to serialize with memory_failure's
+> +		 * TestSetPageHWPoison; not under zone->lock here.
+> +		 */
+> +		ClearPageZeroed(page);
+> +		put_page_zeroed(page);
+> +	} else {
+> +		put_page(page);
+> +	}
+>  
+>  	return 0;
+>  }
 
-The original ideas was to do this only with internal interfaces. I think I
-raised before to leave hugetlb alone for now.
+I think I raised previously that this is best done later.
 
-Fundamentally, user_alloc_needs_zeroing() is something we should get rid of, to
-just be able use __GFP_ZERO and do zeroing at exactly one place.
-
-
-The question is how to pass that information (user_addr) through internal APIs.
-
-I previously said, that ideally we'd end up with a folio allocation interface in
-mm/page_alloc.c, from where we could get this done more cleanly internally.
-
-But I don't want what the previous proposals did: use GFP flags+leak state or
-return magic "zeroed" flags.
+This patch set is currently trying to do too many things, and is on the larger
+side. I think we should try to reduce it to the bare minimum and get some
+agreement between maintainers on the core design.
 
 -- 
 Cheers,
