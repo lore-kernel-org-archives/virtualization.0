@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE29B3659F9;
-	Mon,  8 Jun 2026 11:37:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC9AF36828B;
+	Mon,  8 Jun 2026 11:39:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780918653; cv=none; b=IshEIDgBAbgvyYK8CBAEu6tXO5qa4evhMoeikkqojGlZDhfiZWWJq/q4VdIRxMTVD/0p+dqmdSAK8Qi/EsVwa/1HXzWzwWUkNSvIazRNdfAbPZ/IqMYQFEtDQbMUOZqtcKm6jXaoykpLgNUR+LFDDR050FQX6qlLRNM9uANxsZM=
+	t=1780918783; cv=none; b=T8I4PLZPMb5V0EMkiJThKThAf+v6d1PZNS/tFyTcNNfQ85UloN5loPTXvliQV8mZdtzIz9ubkQ/e8VU0QGuWRHvBPrxv1Y6sQzuFO44JXh8PLmUTs2mt47/cMiTv4lo+XRtcMbr5PmJJ6vSlKQYmAQzyR5rjw91LJC6lZaTkMTo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780918653; c=relaxed/simple;
-	bh=VH4qnQUUyUH3P/evQNgTsIrIbgABdIYTpYY9higPfUo=;
+	s=arc-20240116; t=1780918783; c=relaxed/simple;
+	bh=BHogtRFRHKcyrU3VmWSRlGusqFr4UILbrgiuunfRlNg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=c5/f82Whmbhj1M+ly69hsVPMGUTGV6d6epilXY+augqRYXo8X7d99pxyRVcNmdY6hi3QV6iqwFsiWPzHizGnhvi+aAyPAC+gzSjaJc9cEvh/Vu5Nncv37ZgduxesRvATuTcUKu3MgAepJiv0mHIPC2eP5MS3s2VI+/vtc9fd3PE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=W+uCzJA0; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=L9gtNdRVjIM+/97rJ9W899TllUkVuD4TgAKNJjSvHmlZwU9gqPo2WBFVsgfj1USN5+pOp8csi4IEa328p3yAXAjH3VOOT36s8OiuyQ+cZxjwzObGMcNSeKnARUb40uxDXxV26tRVgDxG3BRsVN072qM/IqXMmBebvnIwPllhmOU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=I4U0hGyk; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="W+uCzJA0"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 204D61F00893;
-	Mon,  8 Jun 2026 11:37:22 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="I4U0hGyk"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECEA61F00898;
+	Mon,  8 Jun 2026 11:39:32 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780918652;
-	bh=bbKY+/QgX1YlcLcIfrnvHn6Xg3zI9+wq5m+o05G1544=;
+	s=k20260515; t=1780918782;
+	bh=ZGVpNatqeAnKrQKe+tVSHeKyDhAqAjd/ZyB79qiaOjg=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=W+uCzJA04h4lzxITom15y9mpKUyp140CgqBFDgSwg5WCzBbgjz/KQrJTlLC9P2y5B
-	 GjViMKOTSs2jqW7wAmxaLRD5EEQGdDrbYaXJRCqraK10o1SZ54CalvhU6r55CtO/sO
-	 jmJSb0GEQGsgpELKbh/8NPOTf8xqHRwlOaTS9hKais/K5iHw1Ke8HcmHKrGL6jjP1g
-	 MymtfUnNk2bMmRaXi24NC4ciKkRiMulBpz1Np958dlIjoVj1iuni/TcDw2dxRgyh6m
-	 5QGtocN/+xw66CFrL3NmgNqaFmiu5JRZZE9RIZJMWSTy2mo24LsUtUvNubxScWlBYZ
-	 i6I9IJqXpFSHA==
-Date: Mon, 8 Jun 2026 12:37:20 +0100
+	b=I4U0hGyk+GsJAFicOe2q5eUPxaYhqxAumMWYhao3KXzMNTS9nA3sNxv23AeXksrWd
+	 FXKalFf8yQhkj5sh8wg12bZ0SecQtOnXf0ozNeoBO4qTTTzN0c0nx2C0YatsRwmEAb
+	 PdidAKdg76E1HGIWFIyYyuH7KQ8GpfNqOppt9b3Hv7jAewH8hKLSdmbYoyZiz4lRvv
+	 QQ0xAwY8ym4Yz3EfNKSW7TbYo+hhSNM9ncXC3GIlmBk32mv59bq7CKjntN/OcUf3J0
+	 z+GUb8XCScERYztrwnn0So3z59GX/JjrUsl8zuoVT0eHGkVJa7KmYfCb1G6/bE5yaL
+	 ZfbynUejkwM4A==
+Date: Mon, 8 Jun 2026 12:39:29 +0100
 From: Lorenzo Stoakes <ljs@kernel.org>
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-kernel@vger.kernel.org, 
@@ -50,11 +50,11 @@ Cc: linux-kernel@vger.kernel.org,
 	Kairui Song <kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>, 
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>, virtualization@lists.linux.dev, 
 	linux-mm@kvack.org, Andrea Arcangeli <aarcange@redhat.com>
-Subject: Re: [PATCH v10 16/37] mm: alloc_swap_folio: pass raw fault address
- to vma_alloc_folio
-Message-ID: <aiapFvxPXuPd4-OP@lucifer>
+Subject: Re: [PATCH v10 18/37] mm: page_alloc: use aliasing checks instead of
+ user_alloc_needs_zeroing
+Message-ID: <aiapqEiASrriQqnA@lucifer>
 References: <cover.1780906288.git.mst@redhat.com>
- <d2be78654e9dcc7cf5b8a542c2c8f331187c80c9.1780906288.git.mst@redhat.com>
+ <d9b5fc983725665749024312f9ff5ede4f05e405.1780906288.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -63,54 +63,60 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <d2be78654e9dcc7cf5b8a542c2c8f331187c80c9.1780906288.git.mst@redhat.com>
+In-Reply-To: <d9b5fc983725665749024312f9ff5ede4f05e405.1780906288.git.mst@redhat.com>
 
-On Mon, Jun 08, 2026 at 04:37:41AM -0400, Michael S. Tsirkin wrote:
-> Same change as the previous patch but for alloc_swap_folio:
-
-Please don't say 'same change as the previous patch' :) explain what you're
-doing here. It's a pain to have to go check otherwise.
-
-> pass vmf->address directly instead of ALIGN_DOWN(vmf->address, ...).
+On Mon, Jun 08, 2026 at 04:38:00AM -0400, Michael S. Tsirkin wrote:
+> Replace user_alloc_needs_zeroing() with the direct aliasing checks
+> (cpu_dcache_is_aliasing() || cpu_icache_is_aliasing()) in the
+> post_alloc_hook aliasing guard.
 >
-> Note: NUMA interleave is not affected by the raw address;
-> the ilx calculation shifts addr >> PAGE_SHIFT >> order,
-> dropping sub-page bits regardless of alignment.
-
-You're expressing the same thing as the last patch differently, but then
-eliding other explanations from that?
-
-All the same questions as I asked for the last apply to this also.
-
-And also - if you've now made this a _requirement_ that is broken
-otherwise, then aren't these bisection hazards and should be squashed into
-the change?...
-
-No patch should break anything at any point.
-
+> user_alloc_needs_zeroing() includes a !init_on_alloc term that
+> means "allocator didn't zero this page."  But in this guard's
+> context (!zeroed && !init && __GFP_ZERO), we already know the page
+> is zero; init incorporates init_on_alloc via want_init_on_alloc().
+> The only question left is whether the cache architecture needs
+> the data re-zeroed through a congruent mapping, which is purely
+> cpu_dcache_is_aliasing() || cpu_icache_is_aliasing().
+>
+> On non-aliasing architectures with init_on_free=true and
+> init_on_alloc=false, this avoids a redundant re-zero of an
+> already-zero page.
+>
+> Note on PowerPC: PowerPC overrides clear_user_page to call
+> flush_dcache_page after clear_page, but on freshly allocated
+> pages PG_dcache_clean is already clear (cleared by
+> __free_pages_prepare), so flush_dcache_page is a no-op.
+> Skipping this here thus has no effect.
 >
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Reviewed-by: Gregory Price <gourry@gourry.net>
 > Assisted-by: Claude:claude-opus-4-6
-> Assisted-by: cursor-agent:GPT-5.4-xhigh
+
+This seems like an odd ordering of patches, can we group like changes
+together?
+
 > ---
->  mm/memory.c | 3 +--
->  1 file changed, 1 insertion(+), 2 deletions(-)
+>  mm/page_alloc.c | 2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
 >
-> diff --git a/mm/memory.c b/mm/memory.c
-> index 21f640674c4f..6c14b90f558e 100644
-> --- a/mm/memory.c
-> +++ b/mm/memory.c
-> @@ -4750,8 +4750,7 @@ static struct folio *alloc_swap_folio(struct vm_fault *vmf)
->  	/* Try allocating the highest of the remaining orders. */
->  	gfp = vma_thp_gfp_mask(vma);
->  	while (orders) {
-> -		addr = ALIGN_DOWN(vmf->address, PAGE_SIZE << order);
-> -		folio = vma_alloc_folio(gfp, order, vma, addr);
-> +		folio = vma_alloc_folio(gfp, order, vma, vmf->address);
->  		if (folio) {
->  			if (!mem_cgroup_swapin_charge_folio(folio, vma->vm_mm,
->  							    gfp, entry))
+> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+> index 45e824b1ec75..edfc83571985 100644
+> --- a/mm/page_alloc.c
+> +++ b/mm/page_alloc.c
+> @@ -1880,7 +1880,7 @@ inline void post_alloc_hook(struct page *page, unsigned int order,
+>  	 */
+>  	if (!zeroed && !init && (gfp_flags & __GFP_ZERO) &&
+>  	    user_addr != USER_ADDR_NONE &&
+> -	    user_alloc_needs_zeroing())
+> +	    (cpu_dcache_is_aliasing() || cpu_icache_is_aliasing()))
+
+Let's try and simplify things rather than adding endlessly huge if conditionals?
+
+It's now incredibly hard to track exactly what's going on here, and that is
+bug-bait.
+
+>  		init = true;
+>  	/*
+>  	 * If memory is still not initialized, initialize it now.
 > --
 > MST
 >
