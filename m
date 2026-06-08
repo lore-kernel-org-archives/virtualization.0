@@ -1,69 +1,69 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F61C3B14DE
-	for <virtualization@lists.linux.dev>; Mon,  8 Jun 2026 08:36:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C6C53B14C1
+	for <virtualization@lists.linux.dev>; Mon,  8 Jun 2026 08:36:44 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780907794; cv=none; b=mfxWpCuxYYcNwFxKme9g24pHTGDtW0gw9+tJ9dM0gGZ8amZFqrIzOKGHyrKTqG+pir5Gu9I0wub0pqYDpPEJ0TQLCY5pHHvKKuTSPsqbisrgbx+3xJU3R56Hscca6EvYQy0o8aSyZJnV5AWkEXj7idDazUU6AgTRWKW32R7Sbro=
+	t=1780907811; cv=none; b=lYE3FFWsQQiZeqySarRrVF309U6LZOk9OEAFPNUsgUWdpQmjUd5eLs5kVh1a48gT6uCXhSMkfXiYDVQPFcMCp38xj+4RbiqifdcTW4KRRXRYqLThyS/2vZrOMIeSls9bbAgqrVlYYhkiQu04MBf8Ki6NdcOCN3yHaIiSkjSEjvY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780907794; c=relaxed/simple;
-	bh=92V//TJ1Mkotj2ZpeYBESUtzgMLjmko9VnfBRr6iZOA=;
+	s=arc-20240116; t=1780907811; c=relaxed/simple;
+	bh=pjwppoBrYRW1HQas7rkHTtLdWmdFN3pMjiX+S9iYC1E=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=ZGzhMYIllGaCKPoII7cv1FGJ4HIR4/Q5Hgi7AdeXvwd79/c4M1REfQ+FgHE7eEjhaQwJgQ1SNYKZt2y9DiZ8VArIs5rVe5vW4j1tGzSa/CZ8ThxODW/CH4TQo5B/MhllT0+ns9Q4ZzeICBKvRtjPwb/Qhw3VIuxgcHT1GWy8DKA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KbIRLitg; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=gXo45WipRxWfTL45GI+vQMuUucr+eySNz71iv81ansXynw/tk8+1s9UGXkWuULsviDtWIoomSHmpUFigIOl6PBuT8LNzm3xkAzyJHkT+lR4Ieao+ybVbKunROsjaoX6+uZ8gvVGbBLe2hNW5fjDTaabMt3OqYoQUIgqGAQufaeE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CVHXuZ1T; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KbIRLitg"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CVHXuZ1T"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1780907787;
+	s=mimecast20190719; t=1780907803;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=FnyUq+qDaMsFj8Ekur/kDRnbeSK9pjyeC2qTYvUeJTc=;
-	b=KbIRLitg8ieqN8pXzhH8BxEnscqUg6ZnIrC59SO5+xeX+2U4VLyiJU+GE0wqOY7NZeOM8b
-	t2PhsMUjDKFyn4nSwVbYUKhZkcAFZMUdil7qcnlu8hEhvrXyzWi5nJvo4QWQYgL0KAnnJt
-	zxmVl7ohTTKMv+baZHeOtcYkCxyJ6wY=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=8KJh4wvwDWohkhm2jB8sA/e6an56FCy42Cqcxiv2qXU=;
+	b=CVHXuZ1TDnz+lRknG6fLDPpW3ZTrEb6pzF10AnyKhzjT3aqGPAi3D1Xh3Fpmb25jhQKlv9
+	7hgbKmDF2l4N5tvbXj4cgDgVEIXlPLXVgNzVYCFCXkRDq3qmCxBnxE8QBFNahrRUtSX8BU
+	4SVLju3xjYjMoATC2GEBa508XuMvclw=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-107-5VxvB4toNNa07zFGMaz_uA-1; Mon, 08 Jun 2026 04:36:23 -0400
-X-MC-Unique: 5VxvB4toNNa07zFGMaz_uA-1
-X-Mimecast-MFC-AGG-ID: 5VxvB4toNNa07zFGMaz_uA_1780907781
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-490b37e1ebfso19577545e9.0
-        for <virtualization@lists.linux.dev>; Mon, 08 Jun 2026 01:36:22 -0700 (PDT)
+ us-mta-629-DTZwCZukOh6gOj9mEcFb6w-1; Mon, 08 Jun 2026 04:36:39 -0400
+X-MC-Unique: DTZwCZukOh6gOj9mEcFb6w-1
+X-Mimecast-MFC-AGG-ID: DTZwCZukOh6gOj9mEcFb6w_1780907798
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-46010392f89so3680372f8f.2
+        for <virtualization@lists.linux.dev>; Mon, 08 Jun 2026 01:36:39 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780907781; x=1781512581;
+        d=1e100.net; s=20251104; t=1780907798; x=1781512598;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=FnyUq+qDaMsFj8Ekur/kDRnbeSK9pjyeC2qTYvUeJTc=;
-        b=D3RKCJGRtGV3JyucZPJ67Aw61A+slX8SJPqWnsMMO096NKd/lKbV29OeeJSmIIYaZY
-         aeilIxWpChzpvFEkBaVkejWfv8Om9s4r2l5mP6s94AB4Nnube0Bvir6MZej6cnG5oxQP
-         c34ZA9DAt6SrkNRIB9N48qTtkh1BgSeaiqIcfivkzJDjjau8fTGLTfbcuqAW+y91qhoh
-         JLs0x//sdXfAnHYWg5HwUS2v0Oth7tGtMovLn8o+idz/QXxJgxXizd1AhX0hGqx7yvuX
-         evyV0FUhK1td1Auv1/DGTgSIdj5RBVU6iRPioZr5FUzUt58Gu3vbUm18fK9+fiwWB4iY
-         Na0g==
-X-Forwarded-Encrypted: i=1; AFNElJ8Nfoyz09NAVDIoO59nqh+itSobt961vcTMLRrH1zCcG79sh0cXgmKO4CMc47x3XyNx5WLkvjlYgeIsKxeS/g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxqFY5VTAG5IHv6qkfyfcxgLyiAipTklBmQBqbabTMoPcJEbsTY
-	VrmYBk0QT8ziNrJwQ6eOtKhngByiQL4OrWRXDR5ASUIlE52hQ7HspiGEksbJ9bdrEuhCVYiJbDa
-	wyjUPhv/bz82l6a+B9WeH6R2y0uxrCdOaFjZzTp535m/Ogz4buLNHPB1kWHNUWORpb6Y5
-X-Gm-Gg: Acq92OFMiDuzNV23HbMX92NkkAaOq+og6u9UJnxUDeUXSa9ehr/kAUUcqGv7nrpwAov
-	x0Zb9roTbY1JlmO6I54RmCyyJQpwlQGhYcmqVWXIFwdtTdTw56k9LfiQSCK2YvM/pYBbT3N67+7
-	ASmHs+CkAaa7MLyQ9UUph9Fxh/+NrG1hwTljkKSSkAW4BroPahrjEQZ00O5hMsBVY3/B1aeLAhn
-	OWBoedrGKW2Ma6Qt7vRq9xs2nCGU4RQr2YHOGfHKwlYZyOM8tiXgqNdSgKsRHf36iEdeoO4AdPI
-	40idBBBdfgrxmE74X58LA9eIdftfR9WbaOwGzz46lfNmgotcfTE5sDn9X8WXK3wLScul5XS6f8T
-	vRxL3MhG/G070E87rWispxts=
-X-Received: by 2002:a05:600c:4e4b:b0:490:bfda:7d7e with SMTP id 5b1f17b1804b1-490c258999amr250329265e9.3.1780907780970;
-        Mon, 08 Jun 2026 01:36:20 -0700 (PDT)
-X-Received: by 2002:a05:600c:4e4b:b0:490:bfda:7d7e with SMTP id 5b1f17b1804b1-490c258999amr250328155e9.3.1780907780459;
-        Mon, 08 Jun 2026 01:36:20 -0700 (PDT)
+        bh=8KJh4wvwDWohkhm2jB8sA/e6an56FCy42Cqcxiv2qXU=;
+        b=GSIlUAPjhHASObGCddLOjSsPfQAE7s/i7pVDPsyqH+VOYAAxM1iOjjmf1QeeBCpp5L
+         OIH8RObOdXfgrsWkBnl5V3kpx5UYdIrH84TZot880+t+Dmy3cSkujlRIyrH/TfDFwCX1
+         aiY5RRMDp7G/NkdvdUisTgveE5aCXF3Qu95ZiQ49q5x+80qunnad5RmOZqlyFBIgKQLS
+         UiL2rXLEuW1mYH/jKub/L+zGzjjtvw53qC3etnFeBnqI2tlL4TJCubxINc2QWqGNOJAe
+         Kl88ng08aIgK+VTxPotGaH6b6rHvNIlHpJ2pl/NXMh9TnHLBruY4wTxR8DVV90cjNr7+
+         F0jA==
+X-Forwarded-Encrypted: i=1; AFNElJ8aRh2/qY7B37DJ4vZooeWWq4MVRWKp8cO61Fz9JQtVji1TL4XulvlPCLv3CQQAaQV9inP+1V+e3MJkE1qNeg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwiTVytBuwGr2RdolJz8end4JH++IG80pzBbvhIwpTsLuci9m9K
+	HExQ38idVELecWQiI9dRo0vCY52VQjHx2fRbCotjphDzrNpZW2a1ES7+56tefkq8myxvlF23TYO
+	LYK8g6oMgnRiQH498bsJkHRUinRXsVZSW+jIq1sQ3xxUcvvR6o3M8BhIM50T0vRuLW1ff
+X-Gm-Gg: Acq92OGSSASv0llZ+1gi9Hd24jjFoP2yUraTkwkvz8jBahtB/U/QFaz6R+yiLFMm38K
+	bymBp4+2/UCZjpL9gV8ML68Nb2fbYu/r02WN/TjaH/V8maAasyAhR09RkUDUtOI+NBmRNvNLxD2
+	ShU+g/ytLTPThnySTSBZgmGfJDinCgJEtHdznvbwTnKJXODgqG4iXJd7Nhcmm8NrdCMfvE3xwt3
+	/YF7J7UG1qgDVeCq2OTY9m+a8kq8PD8PS54iFXeJoPpB/aHMGZYSik+f91zHeC7gFML/ovkyl4m
+	fbqhPc9+CWlIFb/cEXjNVtqjcddGEgoaRWnLpE51ttFFocoHNg3kYFWr8s0IYKWyBfvceat4b+o
+	qsfTb9FE8bFRjJg6vHr9FGPM=
+X-Received: by 2002:a5d:658c:0:b0:45d:7bf0:c7d3 with SMTP id ffacd0b85a97d-46030643aa6mr15913828f8f.19.1780907798401;
+        Mon, 08 Jun 2026 01:36:38 -0700 (PDT)
+X-Received: by 2002:a5d:658c:0:b0:45d:7bf0:c7d3 with SMTP id ffacd0b85a97d-46030643aa6mr15913766f8f.19.1780907797944;
+        Mon, 08 Jun 2026 01:36:37 -0700 (PDT)
 Received: from redhat.com ([31.152.37.159])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490bc3918fcsm427602815e9.3.2026.06.08.01.36.06
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4601f0a43e9sm50455796f8f.0.2026.06.08.01.36.23
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Jun 2026 01:36:19 -0700 (PDT)
-Date: Mon, 8 Jun 2026 04:36:02 -0400
+        Mon, 08 Jun 2026 01:36:37 -0700 (PDT)
+Date: Mon, 8 Jun 2026 04:36:20 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
@@ -102,9 +102,9 @@ Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
 	Andrea Arcangeli <aarcange@redhat.com>
-Subject: [PATCH v10 10/37] mm: add folio_zero_user stub for configs without
- THP/HUGETLBFS
-Message-ID: <60d48e3c6f03238f385cdb8e48f6d8ffd4cff387.1780906288.git.mst@redhat.com>
+Subject: [PATCH v10 11/37] mm: page_alloc: move prep_compound_page before
+ post_alloc_hook
+Message-ID: <de0433334a7763b81ce8ca8f8a332c800cfe64ed.1780906288.git.mst@redhat.com>
 References: <cover.1780906288.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -116,69 +116,70 @@ In-Reply-To: <cover.1780906288.git.mst@redhat.com>
 X-Mailer: git-send-email 2.51.2.2891.g4157995a80.dirty
 X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: oe5ZFRbQz2ow8Hrv7CTaGMKnUFmMYhXnRbvkD-hYMBQ_1780907781
+X-Mimecast-MFC-PROC-ID: FACXh2icc3dVReK9HV0-Hul9g02fsciR3FRcy63EQ-c_1780907798
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-folio_zero_user() is defined in mm/memory.c under
-CONFIG_TRANSPARENT_HUGEPAGE || CONFIG_HUGETLBFS.  A subsequent patch
-will call it from post_alloc_hook() for all user page zeroing, so
-configs without THP or HUGETLBFS will need a stub.
+Move prep_compound_page() before post_alloc_hook() in prep_new_page().
 
-Add a stub that uses clear_user_highpages() with aligned
-addr_hint.
+The next patch adds a folio_zero_user() call to post_alloc_hook(),
+which uses folio_nr_pages() to determine how many pages to zero.
+Without compound metadata set up first, folio_nr_pages() returns 1
+for higher-order allocations, so only the first page would be zeroed.
 
-Without THP/HUGETLBFS, only order-0 user pages are allocated, so
-the locality optimization in the real folio_zero_user() (zero near
-the faulting address last) is not needed.
-This also matches what vma_alloc_zeroed_movable_folio currently does.
+All other operations in post_alloc_hook() (arch_alloc_page, KASAN,
+debug, page owner, etc.) use raw page pointers with explicit order
+counts and are unaffected by this reordering.
 
+Also reorder compaction_alloc_noprof() for consistency. Compaction
+currently passes USER_ADDR_NONE so folio_zero_user() is not called
+there, but keeping the same ordering avoids a future tripping hazard.
+
+Reviewed-by: Gregory Price <gourry@gourry.net>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Assisted-by: Claude:claude-opus-4-6
 Assisted-by: cursor-agent:GPT-5.4-xhigh
 ---
- mm/folio_zero.h | 18 ++++++++++++++++++
- mm/page_alloc.c |  1 +
- 2 files changed, 19 insertions(+)
- create mode 100644 mm/folio_zero.h
+ mm/compaction.c | 4 ++--
+ mm/page_alloc.c | 4 ++--
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-diff --git a/mm/folio_zero.h b/mm/folio_zero.h
-new file mode 100644
-index 000000000000..c135b3a34da8
---- /dev/null
-+++ b/mm/folio_zero.h
-@@ -0,0 +1,18 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef MM_FOLIO_ZERO_H
-+#define MM_FOLIO_ZERO_H
-+
-+#include <linux/highmem.h>
-+
-+#if defined(CONFIG_TRANSPARENT_HUGEPAGE) || defined(CONFIG_HUGETLBFS)
-+void folio_zero_user(struct folio *folio, unsigned long addr_hint);
-+#else
-+static inline void folio_zero_user(struct folio *folio, unsigned long addr_hint)
-+{
-+	unsigned long base = ALIGN_DOWN(addr_hint, folio_size(folio));
-+
-+	clear_user_highpages(&folio->page, base, folio_nr_pages(folio));
-+}
-+#endif
-+
-+#endif /* MM_FOLIO_ZERO_H */
+diff --git a/mm/compaction.c b/mm/compaction.c
+index 72684fe81e83..4336e433c99b 100644
+--- a/mm/compaction.c
++++ b/mm/compaction.c
+@@ -1849,10 +1849,10 @@ static struct folio *compaction_alloc_noprof(struct folio *src, unsigned long da
+ 		set_page_private(&freepage[size], start_order);
+ 	}
+ 	dst = (struct folio *)freepage;
+-	post_alloc_hook(&dst->page, order, __GFP_MOVABLE, USER_ADDR_NONE);
+-	set_page_refcounted(&dst->page);
+ 	if (order)
+ 		prep_compound_page(&dst->page, order);
++	post_alloc_hook(&dst->page, order, __GFP_MOVABLE, USER_ADDR_NONE);
++	set_page_refcounted(&dst->page);
+ 	cc->nr_freepages -= 1 << order;
+ 	cc->nr_migratepages -= 1 << order;
+ 	return page_rmappable_folio(&dst->page);
 diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 6d3f284c607d..0943ab724032 100644
+index 0943ab724032..4676fd49819e 100644
 --- a/mm/page_alloc.c
 +++ b/mm/page_alloc.c
-@@ -17,6 +17,7 @@
- #include <linux/stddef.h>
- #include <linux/mm.h>
- #include <linux/highmem.h>
-+#include "folio_zero.h"
- #include <linux/interrupt.h>
- #include <linux/jiffies.h>
- #include <linux/compiler.h>
+@@ -1874,11 +1874,11 @@ static void prep_new_page(struct page *page, unsigned int order, gfp_t gfp_flags
+ 							unsigned int alloc_flags,
+ 							unsigned long user_addr)
+ {
+-	post_alloc_hook(page, order, gfp_flags, user_addr);
+-
+ 	if (order && (gfp_flags & __GFP_COMP))
+ 		prep_compound_page(page, order);
+ 
++	post_alloc_hook(page, order, gfp_flags, user_addr);
++
+ 	/*
+ 	 * page is set pfmemalloc when ALLOC_NO_WATERMARKS was necessary to
+ 	 * allocate the page. The expectation is that the caller is taking
 -- 
 MST
 
