@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA8552F1FDF;
-	Mon,  8 Jun 2026 10:40:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA70C1DED49;
+	Mon,  8 Jun 2026 10:55:22 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780915203; cv=none; b=W+MD9ycdZmJxBUlJ54d0fxEcYpIYQ7Nq1zYJakZzQPOyZtL7RChz0eY9f0LUkl7XTedS/i1bv3CyJklWro1Ekh931Vt82G1G6CYywxTjVpBknNxZ/GIsaVC/f/3tsI3zysSHY+rRK/EXPiEKhqgut9YD3AgLbB7tH8uFIwIL0bI=
+	t=1780916123; cv=none; b=H76l69vz5Bei7y1DbGm28FbU3dYRC5K2XJZpUUZ7z3fUi/tU/EKMo0yPwBmIYEa4oiTHdy+J7OWJoWnWXfHH6m/ejJg5VrP65KuRVh8j/KeYHD4rq4CG1/YC2eBmLU1fq2uI/dTAnh9RnQvmsUsqGQg44e23N0P6VI1ZNxViJ7U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780915203; c=relaxed/simple;
-	bh=btZJwMHUgnk5PYk4ULAWb22ShZE2YWRtVyctYPeQcdw=;
+	s=arc-20240116; t=1780916123; c=relaxed/simple;
+	bh=26dRwtBf23et34Rl1RsuDAnSieUhd80WS3K4ao9sIH4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=kw4FVaXlmQnoTiGW9NRcY1CPUXl/LIdrDa7bGYYQ6hPxRHWGOxaH6BySptAJG6plwbfF9trkCUsgCDJKpphI3afRe6pWDeoKSAtALn4uVXnry7srMuvenZCTJaPUz8g0ZCQsKqjxQZhYOWeSv8GbN4ze3kvJX3asZyr+LWzC08s=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dRZ35HRM; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=V06Lc10S6vJ0JCgEq9R4T1OE3Sv52KInLDgxozeU0gCuM3umWCjjwSI8CjeW28SXHcev6bmPn7RNu3F2F/y7a0vzwiAdVQnUaDex2TYyMstSBC53g4oEKvtvXJ6oUGb5qIv9p9hi8Wlv6BYArCnEnK3xb0uRwFc0PZZh+Fu70Fc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Lir9dBSg; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dRZ35HRM"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA8131F00893;
-	Mon,  8 Jun 2026 10:39:52 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Lir9dBSg"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A6A021F00893;
+	Mon,  8 Jun 2026 10:55:12 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780915202;
-	bh=UAI22XDH8Rk02hdvoTH5Zr8kOOXybFt3zj/PmpT+vR0=;
+	s=k20260515; t=1780916122;
+	bh=RkFcWF5JTiPoYbuHF+MxogHmgdF/NJn+y/NKo4MF3iM=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=dRZ35HRMCB5YSX2evh0CzhDac0sfa/9kUKcQbFlfBcNsqTjaHSKDIzFE6dOYCqSOR
-	 BUqJZ+XA9CN8FBP52TGvSNdRnFmOPGzJnBdBc7oufRxFlAre4qCxSYKXJMB48tPDCg
-	 +ocEPqSN9xwVrfWctPMv3Rr7rUsD06LgHJGhlhL6pRHwiNyrhwZIn/W8UTd2dW3rX1
-	 XqHgCqrrgeiEu2HyAZG17AKzc4n0mZN/ICwW0yAnunJFvWxXe4EprolwzVzG5V2uol
-	 /K4Qfq2c8SFn65Y15w92rlVyjpdUDrBvbDnlmzxRCpeVADi7bn0EXdCDRIj3W771IA
-	 ZsoN//T+zOjXA==
-Date: Mon, 8 Jun 2026 11:39:49 +0100
+	b=Lir9dBSgZmimjDEhxR8SDkMKxpEDGYdhVawCpyjLK0rhdWiZex9NMoyHylSp6fHdw
+	 ZJLqUT5y4cpIKvnnRFpL5Np6rFwSzD72u1V/CV2I2tf84aS+OHY5dIDT8K1kddvCih
+	 5AyinxH6cylas9XLXnQPbfZ5zDaJbjWknWGU6mhhkYH5JysQNbC22qmX6x343NLaHt
+	 4LJ82rOWfDVBOapvoj+jVKtuhBUmurD5ydnLJQndv3o+Z/hNLqFBT4aTlZlS01XC0V
+	 7G39o+g0HSS2X+USPeAisdfF9ICgjlERoIquSzG83+uYkOsFqlKlWqVhZzbYHY7ds3
+	 a4rbBTcu5fx7g==
+Date: Mon, 8 Jun 2026 11:55:09 +0100
 From: Lorenzo Stoakes <ljs@kernel.org>
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-kernel@vger.kernel.org, 
@@ -52,9 +52,10 @@ Cc: linux-kernel@vger.kernel.org,
 	linux-mm@kvack.org, Andrea Arcangeli <aarcange@redhat.com>
 Subject: Re: [PATCH v10 13/37] mm: use __GFP_ZERO in
  vma_alloc_zeroed_movable_folio
-Message-ID: <aiaau7RIhkJMS_oe@lucifer>
+Message-ID: <aiafcGY1PqN7edUa@lucifer>
 References: <cover.1780906288.git.mst@redhat.com>
  <862a59e98104db76ee3998460bfc55e937c218c4.1780906288.git.mst@redhat.com>
+ <aiaau7RIhkJMS_oe@lucifer>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -63,61 +64,65 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <862a59e98104db76ee3998460bfc55e937c218c4.1780906288.git.mst@redhat.com>
+In-Reply-To: <aiaau7RIhkJMS_oe@lucifer>
 
-On Mon, Jun 08, 2026 at 04:36:51AM -0400, Michael S. Tsirkin wrote:
-> Now that post_alloc_hook() handles cache-friendly user page
-> zeroing via folio_zero_user(), convert vma_alloc_zeroed_movable_folio()
-> to pass __GFP_ZERO instead of zeroing at the callsite.
+On Mon, Jun 08, 2026 at 11:40:02AM +0100, Lorenzo Stoakes wrote:
+> On Mon, Jun 08, 2026 at 04:36:51AM -0400, Michael S. Tsirkin wrote:
+> > Now that post_alloc_hook() handles cache-friendly user page
+> > zeroing via folio_zero_user(), convert vma_alloc_zeroed_movable_folio()
+> > to pass __GFP_ZERO instead of zeroing at the callsite.
+> >
+> > Note: before this series, replacing clear_user_highpage() with
+> > __GFP_ZERO was unsafe on cache-aliasing architectures because
+> > __GFP_ZERO uses clear_page() without a dcache flush. With this
+> > series, it is safe if the caller passes a valid user address
+> > (not USER_ADDR_NONE) to vma_alloc_folio() etc., which delivers
 >
-> Note: before this series, replacing clear_user_highpage() with
-> __GFP_ZERO was unsafe on cache-aliasing architectures because
-> __GFP_ZERO uses clear_page() without a dcache flush. With this
-> series, it is safe if the caller passes a valid user address
-> (not USER_ADDR_NONE) to vma_alloc_folio() etc., which delivers
+> Wait, so now you're making actual correctness predicated on correctly
+> passing the right user address??
+>
+> > it to post_alloc_hook() for the dcache flush via
+> > folio_zero_user(). It is only unsafe if USER_ADDR_NONE is passed.
+>
+> Yeah, ok I'm beating a dead horse a bit here, but no to this approach.
+>
+> >
+> > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > Assisted-by: Claude:claude-opus-4-6
+> > ---
+> >  include/linux/highmem.h | 9 ++-------
+> >  1 file changed, 2 insertions(+), 7 deletions(-)
+> >
+> > diff --git a/include/linux/highmem.h b/include/linux/highmem.h
+> > index d7aac9de1c8a..8b0afaabbc6e 100644
+> > --- a/include/linux/highmem.h
+> > +++ b/include/linux/highmem.h
+> > @@ -320,13 +320,8 @@ static inline
+> >  struct folio *vma_alloc_zeroed_movable_folio(struct vm_area_struct *vma,
+> >  				   unsigned long vaddr)
+> >  {
+> > -	struct folio *folio;
+> > -
+> > -	folio = vma_alloc_folio(GFP_HIGHUSER_MOVABLE, 0, vma, vaddr);
+> > -	if (folio && user_alloc_needs_zeroing())
+>
+> So now we are unconditionally zeroing the pages even if
+> !user_alloc_needs_zeroing()? You don't mention this in the commit message
+> and it seems like it'll regress performance?
 
-Wait, so now you're making actual correctness predicated on correctly
-passing the right user address??
-
-> it to post_alloc_hook() for the dcache flush via
-> folio_zero_user(). It is only unsafe if USER_ADDR_NONE is passed.
-
-Yeah, ok I'm beating a dead horse a bit here, but no to this approach.
+OK sorry I see in 12/37 you do this there instead.
 
 >
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> Assisted-by: Claude:claude-opus-4-6
-> ---
->  include/linux/highmem.h | 9 ++-------
->  1 file changed, 2 insertions(+), 7 deletions(-)
+> > -		clear_user_highpage(&folio->page, vaddr);
+> > -
+> > -	return folio;
+> > +	return vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO,
+> > +			      0, vma, vaddr);
+> >  }
+> >  #endif
+> >
+> > --
+> > MST
+> >
 >
-> diff --git a/include/linux/highmem.h b/include/linux/highmem.h
-> index d7aac9de1c8a..8b0afaabbc6e 100644
-> --- a/include/linux/highmem.h
-> +++ b/include/linux/highmem.h
-> @@ -320,13 +320,8 @@ static inline
->  struct folio *vma_alloc_zeroed_movable_folio(struct vm_area_struct *vma,
->  				   unsigned long vaddr)
->  {
-> -	struct folio *folio;
-> -
-> -	folio = vma_alloc_folio(GFP_HIGHUSER_MOVABLE, 0, vma, vaddr);
-> -	if (folio && user_alloc_needs_zeroing())
-
-So now we are unconditionally zeroing the pages even if
-!user_alloc_needs_zeroing()? You don't mention this in the commit message
-and it seems like it'll regress performance?
-
-> -		clear_user_highpage(&folio->page, vaddr);
-> -
-> -	return folio;
-> +	return vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO,
-> +			      0, vma, vaddr);
->  }
->  #endif
->
-> --
-> MST
->
-
-Thanks, Lorenzo
+> Thanks, Lorenzo
