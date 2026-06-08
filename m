@@ -1,218 +1,195 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from MW6PR02CU001.outbound.protection.outlook.com (mail-westus2azon11012029.outbound.protection.outlook.com [52.101.48.29])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3DB938758E
-	for <virtualization@lists.linux.dev>; Mon,  8 Jun 2026 20:17:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780949881; cv=none; b=Es+TdCEN7KfYrnRq3ePb0L7z35ST/L7XbDes/uUvGjwSvKH+h+H8adiNYnIMwpt7FCJ5tz9xdv2hKlgLXsnIIyifwGwpktJ1qF4gDO3eOzV5WhUFqa8fnbaMcwe6lcAduUI8yvEPn7U4kqy4f/fqIreoWPa+VmIz37tEgi6IFhk=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780949881; c=relaxed/simple;
-	bh=Afz6dk03s4ccCp3YsMkn2AuqSIaK756whnIE9ftF+gc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=h2Cgq5Nvyc7zJij1hxlTD8y2V1OxpHxk1LKww796jRAEJHfnDYLquMo2UWJnWvoLanGNR9/ETml9s5+lt3qUwjqIsXNkDSS+akmeZsa4ndzObFJb9DhWMsZVmDj08U1dvvgmGmHTPB1EIicBVRZ4p6JXRfEveXdyy2Ep4HmHE7o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UzILx/wY; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3195638B14F
+	for <virtualization@lists.linux.dev>; Mon,  8 Jun 2026 20:21:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.48.29
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780950086; cv=fail; b=AC8VYywzqsDkaPhTz6u/qz7PQ/TlohXR6erCMgkjX7YwMcnFC9ebE0xbZlNiukZavMeYQ9tL2Fy8/ORbErAYA8RhRsqVEtwUcDHan1NPrIwukHj9F12aZXQ5DK/ISVV3toCHS8rTg203a2Y8l5iR31GLYst5nzCUOLVtM/eS0gI=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780950086; c=relaxed/simple;
+	bh=bOxICor5Y2ergEjFUXNVF9vGfBI5qkl4jDy8sYhBc/U=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=nXEDraw7gF55KwA3whpqSO5xlvCflf4uj15JpHqCUNMfLNMYRYGAadoZBu6snpzA2Kg+T9E63ASbjWs4Sisq+bW+FzhJ/Ss5cbAv1NMPz2G1Y5p2dH552VFOtEy47GRZwD2jssQk7HW2WRZ9eVp/P9SpwbprOEvdYZgLs5emRCk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=aGrzkPq6; arc=fail smtp.client-ip=52.101.48.29
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UzILx/wY"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1780949878;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Vroj8FPw/hBBf0mVIETR1AI/cdAWI1hHo3K6Dubb1Jo=;
-	b=UzILx/wYZkIsjcmnvqxQIDIYRxMvyYs5ITjiTTmoAgyFY8qA4+pAUXVC6xojgp8YVj0yb4
-	2dS76SEVzD1u+0dnLp0NGZqeDFj1Zr3LWRhl9/W+UKr4F6/+G9HtcIdINzFUPRF+baLGuV
-	9oluYH5FrfPHys2ARhHliA1LH+qdfAM=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-688-C0QVvURcNeCxwtX8gf_rTA-1; Mon, 08 Jun 2026 16:17:57 -0400
-X-MC-Unique: C0QVvURcNeCxwtX8gf_rTA-1
-X-Mimecast-MFC-AGG-ID: C0QVvURcNeCxwtX8gf_rTA_1780949876
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-490b4d3d3e6so39247545e9.0
-        for <virtualization@lists.linux.dev>; Mon, 08 Jun 2026 13:17:56 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780949876; x=1781554676;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=Vroj8FPw/hBBf0mVIETR1AI/cdAWI1hHo3K6Dubb1Jo=;
-        b=jgOdjMEl1w2BLmh8K3MrGqyemKAogbV1X0Ji2sZUBCaxIgO5PWvBMCyKQ/K5RyauV9
-         sOY3xKok1Pe5zPSDvFy2S5HNz3pEDrqSZU92EZQgUFFZcQgIYCFYJzRcEQ+DYlPub4c6
-         hYz4ID3jLU3azN43zz5zELF9THZdHk4ht8lSOga7D/BCuFj9uwfaYrSEPYDVzLGmp0rE
-         NlqzrGzm/Tb5+MQov6YEICh0X+wVGing2xJfxhoa6xxWOxk5jjZThjOcizQWOxdn0khx
-         ZZv777tIs3zyibIfoT9bed5dv/V3IJ/XacmKbczOv5lxpzvEKLUFZVp59dagb0K32PUg
-         C7xw==
-X-Forwarded-Encrypted: i=1; AFNElJ8Sj2BKns7JI/wiIagwbXoCdbgleAnfp0vR9n0wKMj3pjZs/fzx2Us7JPjCdl9qxgoePchGAaAqf4NPLMko6Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxHH/KiL2W9wPsaTlxB4AfgOHX+6kdP02PmJPpFihmEUJRtg7t8
-	eCob85HSc5jTy0llpCQkpoB3nCJK2jvynUdoM7UO+Jb3Ghbr2SLu2fVvbqE2Rk6zE0LnxTusjgm
-	IaOGNfkY1qTzTvUM/odoJ9BaIGzAlbiWJVOhmWghfpL+jTxGB5z4B0A/PtCDJKscwBPy1
-X-Gm-Gg: Acq92OGeHe8WQUm2TcptXsKuPFTlhE2+9ApQrP+ai8xPIPEnGshJD0qyG9DDT4A+T2V
-	9uD3/Xh0eXefFPXAxsblB4Y0auBKRqYj+FYgHctLpZ7Vze+dsOugTncL2gq0o/L7FiuXmOtszXM
-	YEpKjWcb1pUfmlUbnQQJGc+aQ8bt0IX7QrREqxVZoyxakKoTx2LjSu9u8mRyKhwXI4AchWgFV8J
-	SFSA7aUEtJfLD+u6P8E+7wZwPc8JuEXvi6C+dmJZsCQDsY8PvWS6NHlPgRsLTVqsfGkzKu2MHeZ
-	eUWq9GFhuK+/38LAVgjffpXhXU0ksz5NQjm0nxLRFpLeccPu4yxjgNhcVCNLiwcHq6BJ5UoRIOL
-	1uaYdkAt+ewJD+ToIppKBB1lJLx4Pgl8AoFHthJMgfAWMgWX2gyrHqQ==
-X-Received: by 2002:a05:600c:8b6e:b0:490:b7a2:8864 with SMTP id 5b1f17b1804b1-490c25237e4mr294515655e9.0.1780949875687;
-        Mon, 08 Jun 2026 13:17:55 -0700 (PDT)
-X-Received: by 2002:a05:600c:8b6e:b0:490:b7a2:8864 with SMTP id 5b1f17b1804b1-490c25237e4mr294515045e9.0.1780949875120;
-        Mon, 08 Jun 2026 13:17:55 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-85-71.inter.net.il. [80.230.85.71])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490c2d37edbsm327199975e9.2.2026.06.08.13.17.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Jun 2026 13:17:54 -0700 (PDT)
-Date: Mon, 8 Jun 2026 16:17:49 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Lorenzo Stoakes <ljs@kernel.org>
-Cc: linux-kernel@vger.kernel.org,
-	"David Hildenbrand (Arm)" <david@kernel.org>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Muchun Song <muchun.song@linux.dev>,
-	Oscar Salvador <osalvador@suse.de>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	"Liam R. Howlett" <liam@infradead.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Brendan Jackman <jackmanb@google.com>,
-	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
-	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
-	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
-	Byungchul Park <byungchul@sk.com>,
-	Gregory Price <gourry@gourry.net>,
-	Ying Huang <ying.huang@linux.alibaba.com>,
-	Alistair Popple <apopple@nvidia.com>,
-	Christoph Lameter <cl@gentwo.org>,
-	David Rientjes <rientjes@google.com>,
-	Roman Gushchin <roman.gushchin@linux.dev>,
-	Harry Yoo <harry.yoo@oracle.com>,
-	Axel Rasmussen <axelrasmussen@google.com>,
-	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
-	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
-	Kemeng Shi <shikemeng@huaweicloud.com>,
-	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
-	virtualization@lists.linux.dev, linux-mm@kvack.org,
-	Andrea Arcangeli <aarcange@redhat.com>,
-	Miaohe Lin <linmiaohe@huawei.com>
-Subject: Re: [PATCH v10 02/37] mm: memory-failure: serialize
- TestSetPageHWPoison with zone->lock
-Message-ID: <20260608160954-mutt-send-email-mst@kernel.org>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="aGrzkPq6"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=YnP8i61QD8MOuHI5ozdI0NziMEy4SEZ/CT5nfOlaq9yH9OEMChaMSD9RRacXfjAocam6KvdNg8+E9ptxa8m8ilFxwYQ0nDgkTG4A274bT9UZWiROZDq6CLp9TjNbGRCO8UOHBw5TI3I4u6VJIlg47DOXvAlyQDwyKpYjgRFoZXKTkhm8ijylHM2/F3DegfDFE2aZvSAxRbKo9IIi6ldf2d4tZw9C3pj39AlJgCD09xbmLT6SZbzPirylQMPisp6zD4lJQG0sAP1qIc+VQQoZuony0noBKD3ekTrUOJqjHIkuJe4/0Y2Dpfi7AO3YL3YvnRa/HGXEXLYgEW7DGCZBxQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=wWMBvZuxQBtv2proaPRd5XJ4Xy0K/zMUKPRr7jrITZY=;
+ b=FVfbaf4ljms+I9k9DCN9Kd6s0UtuOuHNy6KJNySf/Q0r3ygkQU+ZVYVOOJ7/DOwxS5v1wPEO+8it66eZjBToonwoUW+M1joMJwvFozz4Q6vrUdAjXpBLIXGESaSZ/vrHh7xqQCJsQvDyHf7LuQBF3Lbio8l2dnRiq2TvZlqL3PfydsYDrQBsIqgGTJ9rBnvK96+62p5A8KBjNSmfyccnZilvQzv3uXdba4xHvq6VVXvxE5oHktyRbAH45ZBUzqiGCh8L0dVcOr8Q0jEhx79j+ZdmWd/Xaq6VaxYJQb/2OxR4zywA7nyVXtEfEoSFUkL0xt0L/gMXFFfiTZWrbY2SWg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=wWMBvZuxQBtv2proaPRd5XJ4Xy0K/zMUKPRr7jrITZY=;
+ b=aGrzkPq6cSQ8SqYlFxzEX9pTxEiHDxi8FLSHggWCw7R07ItG6BRJf+dHKQSMqLydb4s9aZ/MzIB+LoPvq7XCVBvzke0GFAUkSRRZYNfJYEusl00IMh9WxLBVppFa73w1z+8INxuyoSKlBonfZO7Dg14TahN1jm7/EQ99NHDRFZgMNsrBZne24OXQk3wuV8vG3zbEsYHsGs8MiZMA/aA1qFQrjMZ49mBVn3j9BqprLr7rANpzy39GRKLQY/jHNUjTagMmq7SxH87FiMugLWe2LlLtx/cuULnfzotVrCN3G4tkdCxF3Ssz/EWfXNzudX16pMirGui+DQHdHQAGgMPUfw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from DS7PR12MB9473.namprd12.prod.outlook.com (2603:10b6:8:252::5) by
+ DS0PR12MB9038.namprd12.prod.outlook.com (2603:10b6:8:f2::20) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.21.92.13; Mon, 8 Jun 2026 20:21:12 +0000
+Received: from DS7PR12MB9473.namprd12.prod.outlook.com
+ ([fe80::f01d:73d2:2dda:c7b2]) by DS7PR12MB9473.namprd12.prod.outlook.com
+ ([fe80::f01d:73d2:2dda:c7b2%5]) with mapi id 15.21.0092.011; Mon, 8 Jun 2026
+ 20:21:12 +0000
+From: Zi Yan <ziy@nvidia.com>
+To: Gregory Price <gourry@gourry.net>
+Cc: Matthew Wilcox <willy@infradead.org>, Lorenzo Stoakes <ljs@kernel.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
+ "David Hildenbrand (Arm)" <david@kernel.org>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
+ Michal Hocko <mhocko@suse.com>, Brendan Jackman <jackmanb@google.com>,
+ Johannes Weiner <hannes@cmpxchg.org>,
+ Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <npache@redhat.com>,
+ Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>,
+ Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>,
+ Hugh Dickins <hughd@google.com>, Matthew Brost <matthew.brost@intel.com>,
+ Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+ Byungchul Park <byungchul@sk.com>, Ying Huang <ying.huang@linux.alibaba.com>,
+ Alistair Popple <apopple@nvidia.com>, Christoph Lameter <cl@gentwo.org>,
+ David Rientjes <rientjes@google.com>,
+ Roman Gushchin <roman.gushchin@linux.dev>, Harry Yoo <harry.yoo@oracle.com>,
+ Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>,
+ Wei Xu <weixugc@google.com>, Chris Li <chrisl@kernel.org>,
+ Kairui Song <kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>,
+ Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
+ virtualization@lists.linux.dev, linux-mm@kvack.org,
+ Andrea Arcangeli <aarcange@redhat.com>
+Subject: Re: [PATCH v10 07/37] mm: thread user_addr through page allocator for
+ cache-friendly zeroing
+Date: Mon, 08 Jun 2026 16:21:08 -0400
+X-Mailer: MailMate (2.0r6290)
+Message-ID: <D1CF67EF-2CF1-45F8-9265-70A528C1CB01@nvidia.com>
+In-Reply-To: <aicfERTP3H6AndOs@gourry-fedora-PF4VCD3F>
 References: <cover.1780906288.git.mst@redhat.com>
- <df06b66fe4ff8e925ee0714955abc2183a727b90.1780906288.git.mst@redhat.com>
- <aiaOZoa2vSCz_0wY@lucifer>
- <20260608094153-mutt-send-email-mst@kernel.org>
- <aibMs9DXuhH_5F2Z@lucifer>
+ <50d410b47fe3f45327783e05bd306d5eaab75e65.1780906288.git.mst@redhat.com>
+ <aiaUDTeHDA45ZXFS@lucifer> <aiagMc9Ng_AE_adh@lucifer>
+ <aia93IzhTgi1vGi6@casper.infradead.org>
+ <aicfERTP3H6AndOs@gourry-fedora-PF4VCD3F>
+Content-Type: text/plain
+X-ClientProxiedBy: BL1P223CA0010.NAMP223.PROD.OUTLOOK.COM
+ (2603:10b6:208:2c4::15) To DS7PR12MB9473.namprd12.prod.outlook.com
+ (2603:10b6:8:252::5)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <aibMs9DXuhH_5F2Z@lucifer>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: eGSkq-ON4Q6PLe8uJAaVDEpr1qir8PxCp_zXievJm_M_1780949876
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DS7PR12MB9473:EE_|DS0PR12MB9038:EE_
+X-MS-Office365-Filtering-Correlation-Id: bd29bdfc-58f4-48fb-0965-08dec59b7c0d
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|366016|7416014|376014|22082099003|18002099003|11063799006|4143699003|56012099006;
+X-Microsoft-Antispam-Message-Info:
+	DwEz16XQkSlY70BCniRmfHv2UI0jQdRtuKezI3Fb3aOqISot2KlDiv7HeZdI7xprJpnfakq+5tdlVN121Jixx+5mA9vCQ+TYEgiJxBgaDGr6/RztFQ/BZZ30OQ8JO7aBg3xF+zpZkb2vw6qrbBbltSnBYAGe3LJW/KaIydjKKSWXOhNfWxXhP3b4Svon8ds8oVGe6Elam1t3P+QY/UQJDBqsvz0rVgi7fhle+X2y0n5kOHILh5Ynn4jeBXJcIxW751g0eU+IRdO8hsFeVX2ecWbaHfCbLvJVNIq2XngQvep1Wk3npG9vMn+iTdW3CUY7HbO3cOzr5Kx/kzVq4LY/3+cvKKVhifD9BSlt6nvLQqinbFspj7zK+mEkSjfB7yLAs5t7uIq3tbm59LgbriEA4CxC/ZoA9Hb5GNAf6BabUAmrCrYM0aYn6/qPew8LDfRq3M0omwa8nZYs7QBVtYzW0sHHDpKSrmOv87QClDju2isBH1Nk7pJPNkuc89+AKBRfE2JSk1mgoyzwMs3AWgRHLUirHeyGOALNDY+ZjlJvk9sdR0ZC1zmQihq0Vh652r0i96PgFPEub0D2utgy6xgQHICZiFE4DrLkdK7uroARYtx8tfHCfacERy/1x/IyERBhLmrVNekZxZoVq1x+JoipGU55JKocDqXuMy3NevmhaIe7nxHoMZWMz1UilvS7JOJw
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS7PR12MB9473.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(7416014)(376014)(22082099003)(18002099003)(11063799006)(4143699003)(56012099006);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?egEIUD5fJUrVUaSr/Tw6z0lctVbMmrDrDP6caDJOTKd1zJ7NWckuf+rfjUBa?=
+ =?us-ascii?Q?ZNAzcDZUnkCbw+pg/XkLukU4YSqMUG/vzPfMSaZKVsIFVg4o77CiFi3h+YPN?=
+ =?us-ascii?Q?+0O3Kce2EsuU8SlrPWQLjFG40P666KMjnaHasUa1bLHnAC4cXzvcdXGSc6qH?=
+ =?us-ascii?Q?5+UgTBzfeyyIVeVr2uzqDCDAZDVli5oZYqGlad14YaBeboQP5SvUc+T3EWcB?=
+ =?us-ascii?Q?8nh6gmNSDq9UYgIpRRU6hb0gokPt7s2KHF0t2+wy0Z59F+peig+RLVM7cE3d?=
+ =?us-ascii?Q?nOlkk5nBQFa09ze6syCos3m7g1OCb68ZbX+hk3Y5Kkk/aeFhOI3Np21QOc9c?=
+ =?us-ascii?Q?YcQw9UNHS+apy0dA4ekoMjC49awUj8ibg89BczneW8fVDqIDlBp2uoahAvtT?=
+ =?us-ascii?Q?iYeojHbylz5/k5Fq6NoJ/angd59iPrs2psHss4F0YbfUS7SqquQYkpFRBfnQ?=
+ =?us-ascii?Q?N5JuloVhuLE5SG1QxaMhkA6fLZbFgpPDmMIiOtNbQ4uQUjXu7p9GG22V9oo9?=
+ =?us-ascii?Q?+Ae/tZt3H6tXxUtjyJigF1B4FVwblwFc6u8UAGSn5yzxHz9eW3GdrGnfCbpg?=
+ =?us-ascii?Q?qVW5SeDdLHltA2t0YUBjGVlppGADJGDYV6eq9xkPH/H1BlZ7LpnbROSete9o?=
+ =?us-ascii?Q?0nsak0OoYwKjyF6a/O1ZjS03q0I3rOogkT5Bzw/e+XbTNs0WdJ2zyCtEr/v7?=
+ =?us-ascii?Q?VOsp8iPZ1HBWo12dAS5gQYMxYX1E2Iitz7KT509vzp+noIdO9QJpY58wQmqv?=
+ =?us-ascii?Q?lDaJGMNNwjep8vI/9CPyb+DNCD1TSGQPshLFM0B3Tu/gFTvN5Og/+kB/YusQ?=
+ =?us-ascii?Q?Z/+dRJzGoVjKUJnEAgGE5tPLo2bX/rUibADZ6lSonkcHYbdyBEd1Tjcftw9a?=
+ =?us-ascii?Q?A3MkKAw8bKytx+96uSsofL+t006shg2YNpGU/2gwPSVUjHJSnB8rdLSHq/Vs?=
+ =?us-ascii?Q?3DdKP4tcXIgDRvOaXqjq2//v0izQvGwlGwYPfe6Bc1td2MPkxZTCV42yGISz?=
+ =?us-ascii?Q?JeEHpM5onp6cMpiJe9By8NZMdR3YPi2smsyeNwgf22G6+flXFEgrq+oHrtcv?=
+ =?us-ascii?Q?xsN8Pqe1HiqjCtwHf60QjqZCPKjcueys615Y3ly2SvwrmnpRgQ2Ld6dl4CLz?=
+ =?us-ascii?Q?JEPCU/xHkkFvHzqvFT6WUnWTmVUl/3tiWQXvuFB5ME1eLrFj+SBml4V990tB?=
+ =?us-ascii?Q?V/9oxGqf0XD/p/Q6by0voLSLDisv8yY76CME1GH3EC7FoK6ArymTavecuJJ+?=
+ =?us-ascii?Q?ob/7xJMe6sbUX8oe+u9ZtBsjcFuc10mN4z4HdaupqWeLWJL3wzK9P5ypDs/v?=
+ =?us-ascii?Q?qqNe2LA9JdOUMV62Z/7rS70DJAy4YlysYCGcrYOLEbWbvSn4AK3BHnVx+tr1?=
+ =?us-ascii?Q?8FXlddysKIONglPEPkzlPQO8feNFPVuW2La+bwd8gp3sfep1M+WdS3sbBXe0?=
+ =?us-ascii?Q?tqyqF2M574J6KRq7cIht1ltNjGHhyXTQqKm7SdL1D5/JlR31Iaf+cmh0vk5h?=
+ =?us-ascii?Q?/6ZUTqIEFlcH67FcasqCvznuM+mg9vA7H2K/8h12SZovmKTldbn+HH/hyECk?=
+ =?us-ascii?Q?QWaLmZ2pNd3+JDPI2b3dxBGBsdss5LawFG4VrfMrVqahbIveY15hW/sKFrGY?=
+ =?us-ascii?Q?ka6OJMcoiP6t5QQIEQdkD/LGNjU09JMYIBE9Y8biQx/qXwSIddsYGBFx2NFW?=
+ =?us-ascii?Q?Vc6yo1126XE6j1BUvMrP6jT1DeU7its+YtkTxupwVI4JP/wT?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: bd29bdfc-58f4-48fb-0965-08dec59b7c0d
+X-MS-Exchange-CrossTenant-AuthSource: DS7PR12MB9473.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Jun 2026 20:21:12.5860
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: skzx7HpvNZPX4vzIgMdB0RVDlIgE7F2srz2WwTDoIjP8grjysgh5Z/80jf9tiRou
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DS0PR12MB9038
 
-On Mon, Jun 08, 2026 at 03:14:51PM +0100, Lorenzo Stoakes wrote:
-> On Mon, Jun 08, 2026 at 09:48:34AM -0400, Michael S. Tsirkin wrote:
-> > On Mon, Jun 08, 2026 at 10:43:21AM +0100, Lorenzo Stoakes wrote:
-> > > On Mon, Jun 08, 2026 at 04:34:23AM -0400, Michael S. Tsirkin wrote:
-> > > > TestSetPageHWPoison() is called without zone->lock, so its atomic
-> > > > update to page->flags can race with non-atomic flag operations
-> > > > that run under zone->lock in the buddy allocator.
-> > > >
-> > > > In particular, __free_pages_prepare() does:
-> > > >
-> > > >     page->flags.f &= ~PAGE_FLAGS_CHECK_AT_PREP;
-> > > >
-> > > > This non-atomic read-modify-write, while correctly excluding
-> > > > __PG_HWPOISON from the mask, can still lose a concurrent
-> > > > TestSetPageHWPoison if the read happens before the poison bit
-> > > > is set and the write happens after.  Follow-up patches in this
-> > > > series add similar non-atomic flag operations as well.
-> > > >
-> > > > Fix by acquiring zone->lock around TestSetPageHWPoison and
-> > > > around ClearPageHWPoison in the retry path.  This
-> > > > serializes with all buddy flag manipulation.  The cost is
-> > > > negligible: one lock/unlock in an extremely rare path
-> > > > (hardware memory errors).
-> > > >
-> > > > Note: SetPageHWPoison and TestClearPageHWPoison calls elsewhere
-> > > > in this file operate on pages already removed from the buddy
-> > > > allocator or on non-buddy pages (DAX, hugetlb), so they do not
-> > > > need zone->lock protection.
-> > > >
-> > > > Acked-by: Miaohe Lin <linmiaohe@huawei.com>
-> > > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> > >
-> > > Can we have Fixes: and Cc: stable and also send this separately please?
-> > >
-> > > These patches seem like unrelated fixups that you've discovered along the way,
-> > > and don't belong as part of the already rather large series, unless I'm missing
-> > > something here.
-> > >
-> > > Thanks, Lorenzo
-> >
-> > I think you are mising that they are a dependency, not unrelated.
-> 
-> Then say so.
-> 
-> > For example, this issue gets worse with the patchset as there are more
-> > places that manipulate flags without atomics. No?
-> 
-> It's your job to make that case, not mine.
-> 
-> >
-> >
-> > You are welcome to send this to stable, but I think stable rules
-> > preclude theoretical bugfixes.
-> 
-> It's a dependency but also theoretical?
+On 8 Jun 2026, at 15:59, Gregory Price wrote:
 
-As in, the race is exteremely hard to trigger and I have no idea if it
-triggers for anyone, but it's obvious from reading the code that
-theoretically it exists? Yes.
+> On Mon, Jun 08, 2026 at 02:04:28PM +0100, Matthew Wilcox wrote:
+>> On Mon, Jun 08, 2026 at 12:06:35PM +0100, Lorenzo Stoakes wrote:
+>>> But instead of overloading user_addr to indicate all kinds of things, instead
+>>> make life easier by actually breaking things out.
+>>>
+>>> Like:
+>>>
+>>> enum alloc_context_type {
+>>> 	KERNEL_ALLOCATION,
+>>> 	USER_MAPPED_ALLOCATION,
+>>> 	USER_UNMAPPED_ALLOCATION, // Maybe? Do we ever?
+>>> 	/* Perhaps some other states we want to encode? */
+>>> };
+>>>
+>>> struct alloc_context {
+>>> 	...
+>>>
+>>> 	enum alloc_context_type type;
+>>> 	unsigned long user_addr; // Only set if type == USER_ALLOCATION
+>>>
+>>> 	// Maybe something suggesting context or whether we init before in some
+>>> 	// cases?
+>>> };
+>>
+>> Ugh, please, no.  As I suggested last time I commented on this
+>> trainwreck of a series, lift the zeroing functionality from
+>> alloc_frozen_pages() into its callers.
+>
+> This sort of just implies writing the "alloc_frozen_zeroed_pages()"
+> wrapper that does the zeroing at the end before return, and then killing
+> the post hook nonsense associated with it in the first place.
 
-> >
-> > As for Fixes: the issue has been there for decades. I wouldn't know
-> > what to attribute it for.
-> 
-> Again, your job.
+This means it is going to be a multi-step optimization. This is probably
+step 1.
 
-Alright, if you insist:
+>
+> None of this resolves the user address annoyance which is needed on some
+> archs for cache flushing.  Whether anyone agrees that the page allocator
+> should be responsible for this particular operation - open debate.
 
-Fixes: 6a46079cf57a ("HWPOISON: The high level memory error handler in the VM v7")
-
-now everyone running 2.6 kernels will backport this fix, I presume.
+This is probably step 2. But does the virtio use case apply to these
+archs? Does the performance matter for them? If not, maybe this part can
+be left as a TODO.
 
 
-> >
-> >
-> > I guess I could send these separately, too, why not. Not sure
-> > what this accomplishes, but hey.  But is that an ack? You want
-> > this fix merged even before the feature?
-> 
-> I already made the case as to why, as have other maintainers.
-> 
-> If you need to review what an ack looks like please consult
-> https://docs.kernel.org/process/5.Posting.html
-> 
-> Thanks, Lorenzo
-
-I am merely asking if you want this patch in the set including
-all these nits I had to fix.
-
--- 
-MST
-
+Best Regards,
+Yan, Zi
