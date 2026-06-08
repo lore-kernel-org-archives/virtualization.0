@@ -1,67 +1,72 @@
-Received: from mail-qt1-f178.google.com (mail-qt1-f178.google.com [209.85.160.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2AF53E63A8
-	for <virtualization@lists.linux.dev>; Mon,  8 Jun 2026 20:16:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3DB938758E
+	for <virtualization@lists.linux.dev>; Mon,  8 Jun 2026 20:17:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780949818; cv=none; b=DrrFzErVHYXQmuppDhT+f20VfvwAxuKv04tYLGhVdMMitYaCXlTsHC2DcLLosM2mxXBjXMqSEpDUgb3jjFsiGEZZMGMZQGl3EO29SALXPHwBFQAcnySFL1nNAvaK7Fbg5m1I/4PzkVf7+r7o/3Eo0OFTFUuENk9u42Z+ekhf1jM=
+	t=1780949881; cv=none; b=Es+TdCEN7KfYrnRq3ePb0L7z35ST/L7XbDes/uUvGjwSvKH+h+H8adiNYnIMwpt7FCJ5tz9xdv2hKlgLXsnIIyifwGwpktJ1qF4gDO3eOzV5WhUFqa8fnbaMcwe6lcAduUI8yvEPn7U4kqy4f/fqIreoWPa+VmIz37tEgi6IFhk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780949818; c=relaxed/simple;
-	bh=voJULOD6Bk4RPV8CLqcNAoUiGbKpXWPiJOWQF6KUr+g=;
+	s=arc-20240116; t=1780949881; c=relaxed/simple;
+	bh=Afz6dk03s4ccCp3YsMkn2AuqSIaK756whnIE9ftF+gc=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=bQYiIOdqwn2BL4jAvqHgTkaFa5U/GhoG3IGFalP2NqDCUZzmnwwp6c9Pm9m+nQEx6zXptj/XTxXKPm+h3qHTr5hX33n6w8Q3GfcIMDf99k33KlXXINrOZ3JOIL6DC0WLVlmfZvOLY0ZnxvDQ3ufpcFMc0vmrXHMALXu8BOpZzRM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=VHg3MTaF; arc=none smtp.client-ip=209.85.160.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
+	 In-Reply-To:Content-Type:Content-Disposition; b=h2Cgq5Nvyc7zJij1hxlTD8y2V1OxpHxk1LKww796jRAEJHfnDYLquMo2UWJnWvoLanGNR9/ETml9s5+lt3qUwjqIsXNkDSS+akmeZsa4ndzObFJb9DhWMsZVmDj08U1dvvgmGmHTPB1EIicBVRZ4p6JXRfEveXdyy2Ep4HmHE7o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UzILx/wY; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="VHg3MTaF"
-Received: by mail-qt1-f178.google.com with SMTP id d75a77b69052e-5176465a4a4so66164011cf.2
-        for <virtualization@lists.linux.dev>; Mon, 08 Jun 2026 13:16:56 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1780949816; x=1781554616; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=5P0019yd+Yz79EK8psJPf72tTRfll1uVTKsf/rhDJ6c=;
-        b=VHg3MTaFi6AYml9lhEwBOb8tMwjiKEyjTMdtuExTiRgmR2pDGZ0jb7VuPHBjaz5K48
-         8L76Pb1UJ4Fzj/8d0oyTOWQx1zH0PSrCaKD7NyvzrCM2i8I0W5dn2U1xJuxxe/2Jx4ea
-         lAatsb1cIkO5kftJ+eFvgIa4pZg4GlK2+3L9M3jMHIH71Nx3anITOe5P2IlqXXFHjoQI
-         LlaZzo5J2U2ag80NHKRLF/8JnzTQOyo85L3UAVpFsHESkPx/pIohiOSmal4uaScqGHj/
-         bWV1THRbYYT5+lxuucNETcNZnB0v6wGvCLeUEveEeH+piGRlutcu3z4yh/aJUhY1gBkS
-         3sPw==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UzILx/wY"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1780949878;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Vroj8FPw/hBBf0mVIETR1AI/cdAWI1hHo3K6Dubb1Jo=;
+	b=UzILx/wYZkIsjcmnvqxQIDIYRxMvyYs5ITjiTTmoAgyFY8qA4+pAUXVC6xojgp8YVj0yb4
+	2dS76SEVzD1u+0dnLp0NGZqeDFj1Zr3LWRhl9/W+UKr4F6/+G9HtcIdINzFUPRF+baLGuV
+	9oluYH5FrfPHys2ARhHliA1LH+qdfAM=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-688-C0QVvURcNeCxwtX8gf_rTA-1; Mon, 08 Jun 2026 16:17:57 -0400
+X-MC-Unique: C0QVvURcNeCxwtX8gf_rTA-1
+X-Mimecast-MFC-AGG-ID: C0QVvURcNeCxwtX8gf_rTA_1780949876
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-490b4d3d3e6so39247545e9.0
+        for <virtualization@lists.linux.dev>; Mon, 08 Jun 2026 13:17:56 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780949816; x=1781554616;
+        d=1e100.net; s=20251104; t=1780949876; x=1781554676;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=5P0019yd+Yz79EK8psJPf72tTRfll1uVTKsf/rhDJ6c=;
-        b=fuAKAJSifHFyYIxLUTvO5wF3DhuQr5ECX32roLmp/r05h3ptGZhjLjn64QVk1t7ZeB
-         qY44ls6SohUSyYGKVpGzak4PwgZu114NMfRl6o2uvshN0sT41gzyB7er1QJZF59MtP0O
-         1IkI/qphkOlQ72ByEzFobFaQKEAYbtNC9bmgqdRyyuO1BzaWdJPkMi3qq6HRGYXn/4KJ
-         9yyPf0LS1hsMHRIreX7Vtf3oMax+u7uH4/EgdO29sGK2YVFJ0E/SSgKJNmUiYyAN67F4
-         izB4kyTSxrJrQjBTBVaW4ulL4gK3+7qkeuER4mkuz+vSN1Qbb23J+e3ITPzWbY9X+ABI
-         ybFA==
-X-Forwarded-Encrypted: i=1; AFNElJ8sTjtK5S/jdvxW8doSeu348ZND8XOfc3kHawFiGh7ORGRHwBQOM5m0klPe4Ygy+nbF75ry4qqufPgyHRoLkA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz1la3zjUncWT5xZwi6//dKfm4xbmM6Xdscj4iOjOF7MiDvFpg5
-	UcdD4LK3PhuuSDvj6tkTdq67bO7ROvpRyh5fCXPuCBR5vouykx7/Qjgmdi9Ai3OKwx8=
-X-Gm-Gg: Acq92OG62H33W5EHfCeIwbj9IuMoK3BhzgHIuI8i3ROJSoldLImY+k3ikucqj5HkviY
-	RkdCwLCPmw9WoDiPiXBiirBVdWKxZm6vcpuZTUudtu8eIYZTdyvcn4tF8euEFOzwznf8KF6zCvL
-	k3OF8DRbw3y0esX3MRwbzlpRR/+WEDrIvsNOFgMSnathAZWrUM4DNfxT884San0/aWQrXUVQlD9
-	fwFtZxHX5MJz8sgg3c7bRkSS7HsfwpMEwVX2tyxkmFQv7Yv2pa0HCESg4NBezu5MbeZlPf4+tCm
-	nJXpbAbRWtg7LZBTjg4sDtOsorMVeW12ELdTApEd4BGdMiY9ZL2y0Xk8CDgJeXS7KG7KC3NStay
-	6Lkj/eGeo8Owr1M18MPfjpmfQnTKW5Ov1O4Trc0YNzP4pwwbckr69GaTXelk6/IGEcMybJDrGqo
-	Pj62Y9RIAFeIg4ZVwjmlDnVIsmefWV9umU9V4MCESZ4x8iJKI5B6c8nCvhdDdpbjBXcR5Xq1J5g
-	tm8QSiHcP5dgaA7Hnj64dGCUCom
-X-Received: by 2002:a05:622a:a6c4:b0:517:79f0:ae34 with SMTP id d75a77b69052e-51795bbfb19mr190530941cf.20.1780949815842;
-        Mon, 08 Jun 2026 13:16:55 -0700 (PDT)
-Received: from gourry-fedora-PF4VCD3F (pool-173-79-60-52.washdc.fios.verizon.net. [173.79.60.52])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-51775c4648asm177764561cf.10.2026.06.08.13.16.54
+        bh=Vroj8FPw/hBBf0mVIETR1AI/cdAWI1hHo3K6Dubb1Jo=;
+        b=jgOdjMEl1w2BLmh8K3MrGqyemKAogbV1X0Ji2sZUBCaxIgO5PWvBMCyKQ/K5RyauV9
+         sOY3xKok1Pe5zPSDvFy2S5HNz3pEDrqSZU92EZQgUFFZcQgIYCFYJzRcEQ+DYlPub4c6
+         hYz4ID3jLU3azN43zz5zELF9THZdHk4ht8lSOga7D/BCuFj9uwfaYrSEPYDVzLGmp0rE
+         NlqzrGzm/Tb5+MQov6YEICh0X+wVGing2xJfxhoa6xxWOxk5jjZThjOcizQWOxdn0khx
+         ZZv777tIs3zyibIfoT9bed5dv/V3IJ/XacmKbczOv5lxpzvEKLUFZVp59dagb0K32PUg
+         C7xw==
+X-Forwarded-Encrypted: i=1; AFNElJ8Sj2BKns7JI/wiIagwbXoCdbgleAnfp0vR9n0wKMj3pjZs/fzx2Us7JPjCdl9qxgoePchGAaAqf4NPLMko6Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxHH/KiL2W9wPsaTlxB4AfgOHX+6kdP02PmJPpFihmEUJRtg7t8
+	eCob85HSc5jTy0llpCQkpoB3nCJK2jvynUdoM7UO+Jb3Ghbr2SLu2fVvbqE2Rk6zE0LnxTusjgm
+	IaOGNfkY1qTzTvUM/odoJ9BaIGzAlbiWJVOhmWghfpL+jTxGB5z4B0A/PtCDJKscwBPy1
+X-Gm-Gg: Acq92OGeHe8WQUm2TcptXsKuPFTlhE2+9ApQrP+ai8xPIPEnGshJD0qyG9DDT4A+T2V
+	9uD3/Xh0eXefFPXAxsblB4Y0auBKRqYj+FYgHctLpZ7Vze+dsOugTncL2gq0o/L7FiuXmOtszXM
+	YEpKjWcb1pUfmlUbnQQJGc+aQ8bt0IX7QrREqxVZoyxakKoTx2LjSu9u8mRyKhwXI4AchWgFV8J
+	SFSA7aUEtJfLD+u6P8E+7wZwPc8JuEXvi6C+dmJZsCQDsY8PvWS6NHlPgRsLTVqsfGkzKu2MHeZ
+	eUWq9GFhuK+/38LAVgjffpXhXU0ksz5NQjm0nxLRFpLeccPu4yxjgNhcVCNLiwcHq6BJ5UoRIOL
+	1uaYdkAt+ewJD+ToIppKBB1lJLx4Pgl8AoFHthJMgfAWMgWX2gyrHqQ==
+X-Received: by 2002:a05:600c:8b6e:b0:490:b7a2:8864 with SMTP id 5b1f17b1804b1-490c25237e4mr294515655e9.0.1780949875687;
+        Mon, 08 Jun 2026 13:17:55 -0700 (PDT)
+X-Received: by 2002:a05:600c:8b6e:b0:490:b7a2:8864 with SMTP id 5b1f17b1804b1-490c25237e4mr294515045e9.0.1780949875120;
+        Mon, 08 Jun 2026 13:17:55 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-85-71.inter.net.il. [80.230.85.71])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490c2d37edbsm327199975e9.2.2026.06.08.13.17.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Jun 2026 13:16:55 -0700 (PDT)
-Date: Mon, 8 Jun 2026 16:16:53 -0400
-From: Gregory Price <gourry@gourry.net>
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Lorenzo Stoakes <ljs@kernel.org>, linux-kernel@vger.kernel.org,
+        Mon, 08 Jun 2026 13:17:54 -0700 (PDT)
+Date: Mon, 8 Jun 2026 16:17:49 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Lorenzo Stoakes <ljs@kernel.org>
+Cc: linux-kernel@vger.kernel.org,
 	"David Hildenbrand (Arm)" <david@kernel.org>,
 	Jason Wang <jasowang@redhat.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
@@ -83,6 +88,7 @@ Cc: Lorenzo Stoakes <ljs@kernel.org>, linux-kernel@vger.kernel.org,
 	Matthew Brost <matthew.brost@intel.com>,
 	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
 	Byungchul Park <byungchul@sk.com>,
+	Gregory Price <gourry@gourry.net>,
 	Ying Huang <ying.huang@linux.alibaba.com>,
 	Alistair Popple <apopple@nvidia.com>,
 	Christoph Lameter <cl@gentwo.org>,
@@ -95,58 +101,118 @@ Cc: Lorenzo Stoakes <ljs@kernel.org>, linux-kernel@vger.kernel.org,
 	Kemeng Shi <shikemeng@huaweicloud.com>,
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
-	Andrea Arcangeli <aarcange@redhat.com>
-Subject: Re: [PATCH v10 12/37] mm: use folio_zero_user for user pages in
- post_alloc_hook
-Message-ID: <aicjNRrHYOOBt0Hx@gourry-fedora-PF4VCD3F>
+	Andrea Arcangeli <aarcange@redhat.com>,
+	Miaohe Lin <linmiaohe@huawei.com>
+Subject: Re: [PATCH v10 02/37] mm: memory-failure: serialize
+ TestSetPageHWPoison with zone->lock
+Message-ID: <20260608160954-mutt-send-email-mst@kernel.org>
 References: <cover.1780906288.git.mst@redhat.com>
- <f92f6f06e5804b4ea7f68b8664b7e69953b50f4e.1780906288.git.mst@redhat.com>
- <aiacZ6_7SG3nvVjM@lucifer>
- <aiblhJv_BvMn_8XY@gourry-fedora-PF4VCD3F>
- <20260608154354-mutt-send-email-mst@kernel.org>
+ <df06b66fe4ff8e925ee0714955abc2183a727b90.1780906288.git.mst@redhat.com>
+ <aiaOZoa2vSCz_0wY@lucifer>
+ <20260608094153-mutt-send-email-mst@kernel.org>
+ <aibMs9DXuhH_5F2Z@lucifer>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+In-Reply-To: <aibMs9DXuhH_5F2Z@lucifer>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: eGSkq-ON4Q6PLe8uJAaVDEpr1qir8PxCp_zXievJm_M_1780949876
+X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260608154354-mutt-send-email-mst@kernel.org>
 
-On Mon, Jun 08, 2026 at 03:45:58PM -0400, Michael S. Tsirkin wrote:
-> On Mon, Jun 08, 2026 at 11:53:40AM -0400, Gregory Price wrote:
-> > 
-> > If `user_addr` is now implying anything other than exactly: "This needs
-> > to be zeroed / caches flushed", then this is bad.
-> > 
-> > ~Gregory
+On Mon, Jun 08, 2026 at 03:14:51PM +0100, Lorenzo Stoakes wrote:
+> On Mon, Jun 08, 2026 at 09:48:34AM -0400, Michael S. Tsirkin wrote:
+> > On Mon, Jun 08, 2026 at 10:43:21AM +0100, Lorenzo Stoakes wrote:
+> > > On Mon, Jun 08, 2026 at 04:34:23AM -0400, Michael S. Tsirkin wrote:
+> > > > TestSetPageHWPoison() is called without zone->lock, so its atomic
+> > > > update to page->flags can race with non-atomic flag operations
+> > > > that run under zone->lock in the buddy allocator.
+> > > >
+> > > > In particular, __free_pages_prepare() does:
+> > > >
+> > > >     page->flags.f &= ~PAGE_FLAGS_CHECK_AT_PREP;
+> > > >
+> > > > This non-atomic read-modify-write, while correctly excluding
+> > > > __PG_HWPOISON from the mask, can still lose a concurrent
+> > > > TestSetPageHWPoison if the read happens before the poison bit
+> > > > is set and the write happens after.  Follow-up patches in this
+> > > > series add similar non-atomic flag operations as well.
+> > > >
+> > > > Fix by acquiring zone->lock around TestSetPageHWPoison and
+> > > > around ClearPageHWPoison in the retry path.  This
+> > > > serializes with all buddy flag manipulation.  The cost is
+> > > > negligible: one lock/unlock in an extremely rare path
+> > > > (hardware memory errors).
+> > > >
+> > > > Note: SetPageHWPoison and TestClearPageHWPoison calls elsewhere
+> > > > in this file operate on pages already removed from the buddy
+> > > > allocator or on non-buddy pages (DAX, hugetlb), so they do not
+> > > > need zone->lock protection.
+> > > >
+> > > > Acked-by: Miaohe Lin <linmiaohe@huawei.com>
+> > > > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> > >
+> > > Can we have Fixes: and Cc: stable and also send this separately please?
+> > >
+> > > These patches seem like unrelated fixups that you've discovered along the way,
+> > > and don't belong as part of the already rather large series, unless I'm missing
+> > > something here.
+> > >
+> > > Thanks, Lorenzo
+> >
+> > I think you are mising that they are a dependency, not unrelated.
 > 
-> Well if you do folio_zero_user in a non sleepable context then things
-> are not going to work. So combining e.g. GFP_ATOMIC and GFP_ZERO and
-> user_addr all together is not a good idea.
->
-
-Can you say whether (GFP_ATOMIC | GFP_ZERO) w/o user_addr has the same
-issue?  If not, then this subtle complexity is now a tripping hazard.
-
-Is there some combination of arguments here that should just outright
-fail if a user attempts it?
-
->
-> You are saying it's bad? It's pretty fundamental to the idea of moving
-> zeroing into the allocator, I feel.
+> Then say so.
 > 
+> > For example, this issue gets worse with the patchset as there are more
+> > places that manipulate flags without atomics. No?
+> 
+> It's your job to make that case, not mine.
+> 
+> >
+> >
+> > You are welcome to send this to stable, but I think stable rules
+> > preclude theoretical bugfixes.
+> 
+> It's a dependency but also theoretical?
 
-I'm saying having to infer that safety state from the cobbling of those
-things together is not a good pattern (at least as-is).
+As in, the race is exteremely hard to trigger and I have no idea if it
+triggers for anyone, but it's obvious from reading the code that
+theoretically it exists? Yes.
 
-If the introduction of user_addr into the mix is the thing that causes
-us to have to infer safety, then there's an argument the page allocator
-shouldn't handle that operation (in this case: user_addr cache flush).
+> >
+> > As for Fixes: the issue has been there for decades. I wouldn't know
+> > what to attribute it for.
+> 
+> Again, your job.
 
-Please consider that this is arguably the most fundamental interface in
-in all of mm/.  All we're doing is going through the process of figuring
-out what changes here are reasonable while trying to meet your goal.
+Alright, if you insist:
 
-~Gregory
+Fixes: 6a46079cf57a ("HWPOISON: The high level memory error handler in the VM v7")
+
+now everyone running 2.6 kernels will backport this fix, I presume.
+
+
+> >
+> >
+> > I guess I could send these separately, too, why not. Not sure
+> > what this accomplishes, but hey.  But is that an ack? You want
+> > this fix merged even before the feature?
+> 
+> I already made the case as to why, as have other maintainers.
+> 
+> If you need to review what an ack looks like please consult
+> https://docs.kernel.org/process/5.Posting.html
+> 
+> Thanks, Lorenzo
+
+I am merely asking if you want this patch in the set including
+all these nits I had to fix.
+
+-- 
+MST
+
