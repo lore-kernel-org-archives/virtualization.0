@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E81153A6EE9;
-	Mon,  8 Jun 2026 09:43:34 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 702B03A9DA1;
+	Mon,  8 Jun 2026 09:44:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780911815; cv=none; b=bNmStVb5domvjhkXzVAU+R0iswj9p1tS3xgNN+/nXqoScLOSj9apWZsKS/KX1bXACIbR7mJFnixuBGY9ae9/9QkpkqJK2aF2lh5TdTsSGvEXhEZ2S1938JYWmQuhJvSca82fH+FLw3P/gLPTsryXWJEkpjlh31Y1QhSVqPLvLkA=
+	t=1780911852; cv=none; b=o9WUKDUQaje08tYQMagU/mXKw7LLJRcdDnzNYNwZaXPG6WTn9+mOio5qR/elQNauSYCSyFLpHEGg11FFV3U1qtkj4pu7WWthBYj9XXV7irvGpPJTHASt2//eUJngn0PvilTBWFtG/uYRTa28UZvr3e28fuS30A1+HEyd0AnUrW0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780911815; c=relaxed/simple;
-	bh=54XPwmWyT2h3tWHnPBh3+68MKYmRfBde9mll16nzWUY=;
+	s=arc-20240116; t=1780911852; c=relaxed/simple;
+	bh=h+vinqqEi4Xg+UEnDlO7d+4hiLqGjdUbdU4uHPbXLnw=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Rk9Ej6pr1YDLsYD26BvRea6K3EBz2fU8FWrDdjg4i296seTomcMN/EYJl/kDJQ3oYh7wqzCj6sIZ59Wg3d60VmCXj5/a0M21s5bJ6i3fWHn01Sxh+FUJc6GUHAcwvtPhFfGfqutPMgdRaZ31qnVg2cDS8o2TX9QrggvigN/JuZ4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FG6271fy; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=m3nze+BALTLUf8rol7x8IOUlEf7NUTOk1gSpcqNLHxZy8U6enXNZ2irfZESAlIGiHzmVzFW1yMjVEPZsM39cki1EODW5dtMRHme/nOV1i0TAg6LVqnxm/LixXHeppadrpCMFDezuMxgN9USTbYSdGLJxdEduQNblkVYqwvCdChQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AMvyeZW5; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FG6271fy"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B5FB91F00893;
-	Mon,  8 Jun 2026 09:43:24 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AMvyeZW5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 535101F00893;
+	Mon,  8 Jun 2026 09:44:01 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780911814;
-	bh=NWzNwd41K014rRzleNCcA3bHTWanKla6egxzBAWBDSE=;
+	s=k20260515; t=1780911851;
+	bh=17m8mwsfA3GCBclFS0NKJ16jnmOTO1fnZAeW+abmcCY=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=FG6271fyWdED+PCEocy1/8B9zEZikn30HwkNdCmZM2JH0pcqFK5H6+CtzcXXt0EDY
-	 fRTPOyA7R6sPYsZcfZ8+Hey3Z0ZXYGI4wQqrXgKpC1xFjJjQQyeEA1dLg/ACBKk2PK
-	 6JiKAnszdqKmvXR1Lyq75wgNuznoXK+fYknlLtMVmctJJTzh5YaUGFc005dDMb85WI
-	 Eu2ML59W2SP4WEUSYk/pvv3Xvk4+bLgT0/oyStQBYuDynQQBBEvcA8WNbrwF3zCmst
-	 e937L5T05nDdGOQ7RdulyfDazoZqNmRtiN4VnLvJ2G5NIeKwB/UXzIZ3KnpA5jOamn
-	 ozOEQnZPyPmZQ==
-Date: Mon, 8 Jun 2026 10:43:21 +0100
+	b=AMvyeZW5thkSCuPZGUdZYSNC2hm5d3bonc7xsD0+/P9v89ByLDRGzdevN0P96qemF
+	 kyMJVco52PvR1bRNqX+K9x6Ue3uLGss+4arXKeJHILVAe+oOy9JlGNRuM1P4/iyb6V
+	 /fv5pm1zatWy/yY/Rxkt8lElYDg/AfnH23/XgvexjWWOns52opKebab4yacK5qudy8
+	 JUnir+CNDx5FbkciMHezSim9iwtJDb/S5XZGMXHMe5+hXzcSBAI8wdUJ8zbZGa9uV3
+	 uh0siT5xbopvDcEFFeSNTAQ5fceK54Szx5OJQSqfdckrVt5Cf3aSA7Z/eZ9Ybv0lYs
+	 vQjDiJZr6npbA==
+Date: Mon, 8 Jun 2026 10:43:58 +0100
 From: Lorenzo Stoakes <ljs@kernel.org>
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-kernel@vger.kernel.org, 
@@ -49,13 +49,11 @@ Cc: linux-kernel@vger.kernel.org,
 	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>, Chris Li <chrisl@kernel.org>, 
 	Kairui Song <kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>, 
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>, virtualization@lists.linux.dev, 
-	linux-mm@kvack.org, Andrea Arcangeli <aarcange@redhat.com>, 
-	Miaohe Lin <linmiaohe@huawei.com>
-Subject: Re: [PATCH v10 02/37] mm: memory-failure: serialize
- TestSetPageHWPoison with zone->lock
-Message-ID: <aiaOZoa2vSCz_0wY@lucifer>
+	linux-mm@kvack.org, Andrea Arcangeli <aarcange@redhat.com>
+Subject: Re: [PATCH v10 01/37] mm: mempolicy: fix interleave index calculation
+Message-ID: <aiaI4Of97oH5YTbi@lucifer>
 References: <cover.1780906288.git.mst@redhat.com>
- <df06b66fe4ff8e925ee0714955abc2183a727b90.1780906288.git.mst@redhat.com>
+ <f5b1dcc97baae7183e96743873b943315d93cdb6.1780906288.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -64,94 +62,132 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <df06b66fe4ff8e925ee0714955abc2183a727b90.1780906288.git.mst@redhat.com>
+In-Reply-To: <f5b1dcc97baae7183e96743873b943315d93cdb6.1780906288.git.mst@redhat.com>
 
-On Mon, Jun 08, 2026 at 04:34:23AM -0400, Michael S. Tsirkin wrote:
-> TestSetPageHWPoison() is called without zone->lock, so its atomic
-> update to page->flags can race with non-atomic flag operations
-> that run under zone->lock in the buddy allocator.
+On Mon, Jun 08, 2026 at 04:34:06AM -0400, Michael S. Tsirkin wrote:
+> The NUMA interleave index was computed as two separate terms:
 >
-> In particular, __free_pages_prepare() does:
+>     *ilx += vma->vm_pgoff >> order;
+>     *ilx += (addr - vma->vm_start) >> (PAGE_SHIFT + order);
 >
->     page->flags.f &= ~PAGE_FLAGS_CHECK_AT_PREP;
+> This has two problems:
 >
-> This non-atomic read-modify-write, while correctly excluding
-> __PG_HWPOISON from the mask, can still lose a concurrent
-> TestSetPageHWPoison if the read happens before the poison bit
-> is set and the write happens after.  Follow-up patches in this
-> series add similar non-atomic flag operations as well.
+> 1. When vm_start is not aligned to the folio size, the
+>    subtraction before the shift lets low bits affect the
+>    result via borrows.
+
+This feels really vague. Do you have examples of where the calculation has
+been impacted like this?
+
+How is this a problem that affects things in practice?
+
 >
-> Fix by acquiring zone->lock around TestSetPageHWPoison and
-> around ClearPageHWPoison in the retry path.  This
-> serializes with all buddy flag manipulation.  The cost is
-> negligible: one lock/unlock in an extremely rare path
-> (hardware memory errors).
+> 2. For file-backed VMAs, shifting vm_pgoff and the VMA
+>    offset independently loses carries between them, giving
+>    wrong chunk indices when vm_pgoff is not aligned to order.
+
+Similar comments to the above. An example would be helpful here.
+
 >
-> Note: SetPageHWPoison and TestClearPageHWPoison calls elsewhere
-> in this file operate on pages already removed from the buddy
-> allocator or on non-buddy pages (DAX, hugetlb), so they do not
-> need zone->lock protection.
+> Combine into a single expression that adds vm_pgoff and
+
+Combining this kind of thing into a single expression is the complete
+opposite of what we want to do when refactoring code. No thanks.
+
+> the page-granularity VMA offset first, then shifts once:
 >
-> Acked-by: Miaohe Lin <linmiaohe@huawei.com>
+>     *ilx += (vma->vm_pgoff +
+>             (addr >> PAGE_SHIFT) -
+>             (vma->vm_start >> PAGE_SHIFT)) >> order;
+>
+> For anonymous VMAs, vm_pgoff equals vm_start >> PAGE_SHIFT,
+
+This is completely incorrect.
+
+For anonymous VMAs:
+
+vm_pgoff = vm_start_at_first_fault >> PAGE_SHIFT.
+
+So if you remap a _faulted_ VMA, the vm_start changes, vm_pgoff does
+not. The two terms can be COMPLETELY independent.
+
+> so the vm_pgoff and vm_start terms cancel and the result
+
+No, they do not.
+
+> reduces to addr >> (PAGE_SHIFT + order), same as before.
+
+No, it doesn't.
+
+>
+> For file-backed VMAs, the sum vm_pgoff + (addr >> PAGE_SHIFT)
+> - (vm_start >> PAGE_SHIFT) gives the file page offset of addr.
+
+That's the page offset in a VMA for both anon and file-backed?
+
+(addr - vm_start) >> PAGE_SHIFT is the page offset into a VMA (canonically
+determined by linear_page_index())
+
+> Shifting by order gives the correct file chunk index.
+>
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 
-Can we have Fixes: and Cc: stable and also send this separately please?
-
-These patches seem like unrelated fixups that you've discovered along the way,
-and don't belong as part of the already rather large series, unless I'm missing
-something here.
-
-Thanks, Lorenzo
+You're claiming we have an incorrect calculation here, but are not
+providing a Fixes patch or Cc: stable or sending this separately as a fix?
 
 > Assisted-by: Claude:claude-opus-4-6
+> Reviewed-by: Gregory Price <gourry@gourry.net>
 > ---
->  mm/memory-failure.c | 10 ++++++++++
->  1 file changed, 10 insertions(+)
+>  mm/mempolicy.c | 5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
 >
-> diff --git a/mm/memory-failure.c b/mm/memory-failure.c
-> index ee42d4361309..3880486028a1 100644
-> --- a/mm/memory-failure.c
-> +++ b/mm/memory-failure.c
-> @@ -2348,6 +2348,8 @@ int memory_failure(unsigned long pfn, int flags)
->  	unsigned long page_flags;
->  	bool retry = true;
->  	int hugetlb = 0;
-> +	struct zone *zone;
-> +	unsigned long mf_flags;
->
->  	if (!sysctl_memory_failure_recovery)
->  		panic("Memory failure on page %lx", pfn);
-> @@ -2390,7 +2392,11 @@ int memory_failure(unsigned long pfn, int flags)
->  	if (hugetlb)
->  		goto unlock_mutex;
->
-> +	/* Serialize with non-atomic buddy flag operations */
-> +	zone = page_zone(p);
-> +	spin_lock_irqsave(&zone->lock, mf_flags);
->  	if (TestSetPageHWPoison(p)) {
-> +		spin_unlock_irqrestore(&zone->lock, mf_flags);
->  		res = -EHWPOISON;
->  		if (flags & MF_ACTION_REQUIRED)
->  			res = kill_accessing_process(current, pfn, flags);
-> @@ -2399,6 +2405,7 @@ int memory_failure(unsigned long pfn, int flags)
->  		action_result(pfn, MF_MSG_ALREADY_POISONED, MF_FAILED);
->  		goto unlock_mutex;
+> diff --git a/mm/mempolicy.c b/mm/mempolicy.c
+> index 4e4421b22b59..d139b074a599 100644
+> --- a/mm/mempolicy.c
+> +++ b/mm/mempolicy.c
+> @@ -2048,8 +2048,9 @@ struct mempolicy *get_vma_policy(struct vm_area_struct *vma,
+>  		pol = get_task_policy(current);
+>  	if (pol->mode == MPOL_INTERLEAVE ||
+>  	    pol->mode == MPOL_WEIGHTED_INTERLEAVE) {
+> -		*ilx += vma->vm_pgoff >> order;
+> -		*ilx += (addr - vma->vm_start) >> (PAGE_SHIFT + order);
+> +		*ilx += (vma->vm_pgoff +
+> +			(addr >> PAGE_SHIFT) -
+> +			(vma->vm_start >> PAGE_SHIFT)) >> order;
+
+This is horrible code. Not only are you doing everything in a single
+expression for some reason, you're also making the parens confusing and not
+explaining what you're doing here at all.
+
+The code before was at least tractable, this is objectively making it
+worse.
+
+And anyway, the canonical way to find the page offset into a VMA is
+linear_page_index():
+
+static inline pgoff_t linear_page_index(const struct vm_area_struct *vma,
+					const unsigned long address)
+{
+	pgoff_t pgoff;
+	pgoff = (address - vma->vm_start) >> PAGE_SHIFT;
+	pgoff += vma->vm_pgoff;
+	return pgoff;
+}
+
+So isn't a far better solution therefore:
+
+	const pgoff_t index = linear_page_index(vma, addr);
+
+	*ilx += index >> order;
+
+Which has the benefit of being readable, uses the canonical method for
+determining page offset in the VMA + eliminates the open-coded stuff?
+
 >  	}
-> +	spin_unlock_irqrestore(&zone->lock, mf_flags);
->
->  	/*
->  	 * We need/can do nothing about count=0 pages.
-> @@ -2420,7 +2427,10 @@ int memory_failure(unsigned long pfn, int flags)
->  			} else {
->  				/* We lost the race, try again */
->  				if (retry) {
-> +					/* Serialize with non-atomic buddy flag operations */
-> +					spin_lock_irqsave(&zone->lock, mf_flags);
->  					ClearPageHWPoison(p);
-> +					spin_unlock_irqrestore(&zone->lock, mf_flags);
->  					retry = false;
->  					goto try_again;
->  				}
+>  	return pol;
+>  }
 > --
 > MST
 >
+
+Thanks, Lorenzo
