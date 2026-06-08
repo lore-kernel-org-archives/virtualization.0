@@ -1,92 +1,105 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f175.google.com (mail-pf1-f175.google.com [209.85.210.175])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A5821EB9F2
-	for <virtualization@lists.linux.dev>; Mon,  8 Jun 2026 01:20:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B663D34A791
+	for <virtualization@lists.linux.dev>; Mon,  8 Jun 2026 03:44:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780881610; cv=none; b=tR47XG0p/ilzM+vh22GyudwtM8BUDJUGsG8jO7D6FeGb5FfooUr26vDAAZfn38ClDYdJ6q6eiy08B626w8OMlynTZwLOjsuOWMbB/s+5mM54CHgo4Ibsiufo9SEURNsnMsiSnqely49YA5LccByHkBYz02VhyQx5isGhVaPqGVo=
+	t=1780890276; cv=none; b=r8tLzYFPPb1vFHdfxMX8Yq9aRwar3fCCaG9Vph8wdhMV+vd6VBiQRPWqzJ5KgVy+YuUC6CfU2muDni/+sBY6Hx8D0fjbz4xu6aKkO0qo5topgLU3UmcxphSh4dgK5DB0MhksLrfNXwx7gVx/SHSPdImWsh7OWDR8V63rjby2K4s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780881610; c=relaxed/simple;
-	bh=g7cWhzQMN4QHQAOyPb77oI4PIgLT4cgWBMDqWCuCkLg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=u/QmxbsNOCH89z1ZFFKQPZUbYg1yB+o1HLncSei1wHhsb5V1u7TKU97Nh4XCYxqE/xDvKD+n6d9aAjUWTMG3IxZsUiVqfxkS0sfI8G11KaND/D/E0m0bOriZaVG5bSMri5zthPLf53FyGwjcHOfG0Nzr8LrfpdN+koKaEBCNXAQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: 2c0598e462d811f1aa26b74ffac11d73-20260608
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.12,REQID:26301a63-e272-4953-b949-264b0ff79933,IP:0,U
-	RL:0,TC:0,Content:0,EDM:25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION
-	:release,TS:25
-X-CID-META: VersionHash:e7bac3a,CLOUDID:853abe3adde41c2b4f9cd9ec5b4a6b30,BulkI
-	D:nil,BulkQuantity:0,Recheck:0,SF:81|82|102|850|865|898,TC:nil,Content:0|1
-	5|50,EDM:5,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:
-	0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: 2c0598e462d811f1aa26b74ffac11d73-20260608
-X-User: yanlonglong@kylinos.cn
-Received: from localhost.localdomain [(10.44.16.150)] by mailgw.kylinos.cn
-	(envelope-from <yanlonglong@kylinos.cn>)
-	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
-	with ESMTP id 1273801403; Mon, 08 Jun 2026 09:20:01 +0800
-From: longlong yan <yanlonglong@kylinos.cn>
-To: mst@redhat.com
-Cc: eperezma@redhat.com,
-	jasowang@redhat.com,
-	linux-kernel@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	xuanzhuo@linux.alibaba.com,
-	yanlonglong@kylinos.cn
-Subject: [PATCH v2] tools/virtio: check mmap return value in vringh_test
-Date: Mon,  8 Jun 2026 09:19:41 +0800
-Message-ID: <20260608011941.277-1-yanlonglong@kylinos.cn>
-X-Mailer: git-send-email 2.47.1.windows.2
-In-Reply-To: <20260605060404-mutt-send-email-mst@kernel.org>
-References: <20260605060404-mutt-send-email-mst@kernel.org>
+	s=arc-20240116; t=1780890276; c=relaxed/simple;
+	bh=x/jE3WkInHWhOYnc0mIGEzA3lMatPTNns944BHfelV4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=XPDVzVS5132cNzyDsWLKcaxufogEn6Bmti3uRNpgImfsA4vQv1BoB7Pm94cKp84R2gpOykH+r7/5pxCFalg/CAwFowphiE/6ZBatWHCSnL/503InSnX/QyWUsoQBMtIS6jRRZCYOfTojVjZbaKZe52cNYnK2V15yLcLDcD1GeSc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=acwPIXbY; arc=none smtp.client-ip=209.85.210.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="acwPIXbY"
+Received: by mail-pf1-f175.google.com with SMTP id d2e1a72fcca58-84234c83142so1475942b3a.1
+        for <virtualization@lists.linux.dev>; Sun, 07 Jun 2026 20:44:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=linaro.org; s=google; t=1780890275; x=1781495075; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=u2lKo0muPPjvxZp63cMcIf07S+igkG9mD6vGKVSxOx8=;
+        b=acwPIXbYWCC5OVHcC79d5fHrsi0ZFm0yvpODrw1cbyVKsxhVbvs6v+gYVgG6FKMCEQ
+         K3RYEQrfaF7wNtfHfjUm/A/qMtlq2keaHxepthug6jiuXQQRENTv4c1BZ22RIeYwUi3F
+         MsLqjfRvoFtdS302JjTvFQNQYNfR7M9CC4uZsSvPXxwwYwiMiSF2jI2U5XeDUL7H1M1f
+         5BtUdilsUglruD6U0AnMR8LUQcjMYYFtAT/W1yxZDia+g8wmHP0Cro6/MfJL8+5JG2dg
+         Z43YooFPNIxcuyn5/FxWNFF7B1td2XoDuxUQXOP/mFHnaeBrPRt2HBMpYUhDKt10YGuH
+         wb4Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780890275; x=1781495075;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=u2lKo0muPPjvxZp63cMcIf07S+igkG9mD6vGKVSxOx8=;
+        b=pKy8UAiVT3e3ZTcpJnQJFkp46YGQqyb9LXSQwa08KzbXwryocn570bx250Y8eUsfCa
+         i2GY0KVt0hTHtgm8l4KeFj6/4Op9GUbCX+JxYnmmRVnAZq8IKG6Qzf/RI1m5g/r5AqUD
+         sDh27wnqqHlZJgzEecKqQ9Dl3gME3vDj2KaIxBbplcbMf5hyYHezLEbNa/r5tKSTNdkt
+         /uqsVdnxVbBXbE6breEA67GwCnZK9q6DAAl4FIU87IASGqaJYkqdbTFz0rR/lU2Q8zZ+
+         Zli8Xx1kA89BSqSW7Y6v9uN7YEztt3KykKexU0cN/170tMwUy9GByonCydbzCzAaVOz+
+         8aww==
+X-Forwarded-Encrypted: i=1; AFNElJ+a8VWJhtJntkBTFDUn506BpTQbG7gmN6D/h8rOQtQWKm5q7x32Vi/W8N+AZhoGfGjtYbMAGdqcsvIzfqbzbA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwyMNiKbKtQtvW0eVXA6oePwb3Aiz9vyLjCxpoxqXGuAeGbHjj8
+	enql1rMx/V5nVk4RjhtAeFZOFFoMMzKMk17V1SVyZDcNfOwyFqWkQt2qyxcdsewrFew=
+X-Gm-Gg: Acq92OHBldiX5VPxqIpkMdCvumkY1JMTZVSQL9OFsWMGk0F4C8o8TSZOl+O+rr0aCzZ
+	SL5XausBjEkByRClOlumiiFdjoCTYC1L+CEw8VYzxLdcttVTvjLMukR7IyokuS1wsAA4Sx5UZcY
+	KWvrb6Bv6rnRuT43AMl60tOq2b7KVtFq+YbxvltcJ/CG41Xe93/v4XJq+XYc/INOZw+wXHD7+NB
+	d2H4bGcToxv37M35HgNgyTBU6z6IbnY+RXLqJVxoTVL2YULAmUBeCJQydH0cQottpHij8PR4fPV
+	P4v2QnakuWxMvcmSQleIml068uATYztqQjTnh19nXWGS2hBZOpq/yS2zPpaOOZjk6Teu9+81Qmr
+	XFLUdEmxoZVSDkqogj+Ta0QurTZ7lV7HzHy2mV75GPcz09MD9t7ueyhlX7v3jzpS/9xM6s3ASbV
+	4exXUclB0f4Bu4tv52Xx25Ss0S/spdKVPsuaYq2l3BAcrG
+X-Received: by 2002:a05:6a00:a89:b0:842:83d1:ee6d with SMTP id d2e1a72fcca58-842b1004ac0mr13892308b3a.45.1780890274866;
+        Sun, 07 Jun 2026 20:44:34 -0700 (PDT)
+Received: from localhost ([122.172.82.94])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-842823512b0sm17180032b3a.15.2026.06.07.20.44.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 07 Jun 2026 20:44:33 -0700 (PDT)
+Date: Mon, 8 Jun 2026 09:14:31 +0530
+From: Viresh Kumar <viresh.kumar@linaro.org>
+To: Gavin Li <gavin.li@samsara.com>
+Cc: linux-i2c@vger.kernel.org, "Chen, Jian Jun" <jian.jun.chen@intel.com>, 
+	andi.shyti@kernel.org, virtualization@lists.linux.dev
+Subject: Re: [PATCH v1] i2c: virtio: wait uninterruptibly for completions to
+ avoid UAF
+Message-ID: <ars6vptfsifv3zvdbx2p7ihcw4rbwbgkvft3xpqyjbvkdckfzy@zxx2exbtuib4>
+References: <20260607143608.76122-1-gavin.li@samsara.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260607143608.76122-1-gavin.li@samsara.com>
 
-In parallel_test(), the return values of mmap() for both host_map and
-guest_map are not checked against MAP_FAILED. If mmap() fails, the
-subsequent code will dereference the invalid pointer, leading to a
-segmentation fault.
+On 07-06-26, 10:36, Gavin Li wrote:
+> virtio_i2c_complete_reqs() uses wait_for_completion_interruptible() and stops
+> waiting when a signal arrives. virtio_i2c_xfer() then frees reqs and the
+> per-request DMA bounce buffers while the device may still hold virtqueue tokens
+> pointing at &reqs[i] and DMA into read bounce buffers. Additionally, when the
+> device later completes those requests, virtio_i2c_msg_done() calls complete()
+> on freed memory and can corrupt the slab freelist.
+> 
+> Wait uninterruptibly for every completion before freeing reqs. This
+> matches how other virtio drivers retain request storage until the device
+> completes it. The virtio spec unfortunately does not provide a way to
+> cancel an in-flight request, so waiting uninterruptibly is required.
+> 
+> Signed-off-by: Gavin Li <gavin.li@samsara.com>
+> ---
+>  drivers/i2c/busses/i2c-virtio.c | 15 +++++++--------
+>  1 file changed, 7 insertions(+), 8 deletions(-)
 
-Add MAP_FAILED checks after both mmap() calls, using err() to report
-the error and exit, consistent with the existing error handling style
-in this file (e.g., the open() call on line 149).
+This is a revert of (and maybe better if that is mentioned in the logs):
 
-Fixes: 1515c5ce26ae("tools/virtio: add vring_test.")
-Signed-off-by: longlong yan <yanlonglong@kylinos.cn>
----
- tools/virtio/vringh_test.c | 5 +++++
- 1 file changed, 5 insertions(+)
+commit a663b3c47ab1 ("i2c: virtio: Avoid hang by using interruptible completion wait")
 
-diff --git a/tools/virtio/vringh_test.c b/tools/virtio/vringh_test.c
-index b9591223437a..5ea6d29bc992 100644
---- a/tools/virtio/vringh_test.c
-+++ b/tools/virtio/vringh_test.c
-@@ -159,7 +159,12 @@ static int parallel_test(u64 features,
- 
- 	/* Parent and child use separate addresses, to check our mapping logic! */
- 	host_map = mmap(NULL, mapsize, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
-+	if (host_map == MAP_FAILED)
-+		err(1, "mmap host_map");
-+
- 	guest_map = mmap(NULL, mapsize, PROT_READ|PROT_WRITE, MAP_SHARED, fd, 0);
-+	if (guest_map == MAP_FAILED)
-+		err(1, "mmap guest_map");
- 
- 	pipe_ret = pipe(to_guest);
- 	assert(!pipe_ret);
+I don't think this is the right approach here. We shouldn't hang the kernel
+indefinitely if the other side is dead.
+
 -- 
-2.43.0
-
+viresh
