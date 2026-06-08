@@ -1,69 +1,69 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 35D513AFD16
-	for <virtualization@lists.linux.dev>; Mon,  8 Jun 2026 08:34:28 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 503553B19D1
+	for <virtualization@lists.linux.dev>; Mon,  8 Jun 2026 08:34:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780907672; cv=none; b=UEFssLENxp8GMftverEfRpEc/TfZOMR+1GiiEq1wB9nyt7DAmiP/NJWGVbrNcQ9LObmPjmJ9qKivYxcz/l07qasiYQ80NJrrLNzT5O0Qx4bgX25Oiay4gXuRoJCPp0ldUhp9pVaLCIPjz7yG2vmFPATOHwDrzB8j0E8NLtr/Qi0=
+	t=1780907694; cv=none; b=CxjmQteb02biO1norr1a71os9v3ZLmXeNKG2t7PI9R6mcWC1i+ph2iUH2pgAiRXNU+Q8a6Ke6scQg0qN1bbC1MFDrFVifNqM4AbdFdoVh8be6SgIIXsvxE4d5IVIf1jdUZK6DV89qEtEoELZYCnmbDimKo2hCQKXBw7itPjwwHY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780907672; c=relaxed/simple;
-	bh=yI1iGkmiSzMFJtnw1lJVP5u1P/QKkpQHXLglYhfy84A=;
+	s=arc-20240116; t=1780907694; c=relaxed/simple;
+	bh=lgTFAAybKpw8Lv7QpTHpNFrj++hl60eW9AsRt64i/XU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=BKIKu0QYz8AIgt2NrOCD8PNRvPDjLbzzEQeSwJZXt5aaVDxRSsRlwOSuZtTaFvshEDD44lNWT4WtkVK8lYZK8Qi7mPmEEbkbhc6nmMEI+foktAZZnLFX4GYmnd+gWGOS7WM6t1FER6j4yQXjEgyTm+Qm6iWdCSRwLam3BzGsUPs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FAGS5DA2; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=Jr1zyhI9b6xNajALE+/kkaTexFgbHEyQeYjYnCcdDGFRgRQyPicsvymG1UTzF/BF41a+ca65MYnQmWFTh+my3v69OWRy8V6tvFD1lbHkCpiAme5TGUwn9iQrmg83YeVMI6hEgc2GPpqp6ys5l6YYUVcSx295l5lst4ydovYd310=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WIHWQN/k; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FAGS5DA2"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WIHWQN/k"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1780907668;
+	s=mimecast20190719; t=1780907686;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=315e7bSessxyz662R8s4IU7FTBDlj+mVbEZvVNtQrTU=;
-	b=FAGS5DA2XHd3Prj76/6miRgXLK53dgOAlHzeT8idn2hg8gE/oJ4X93blTaCj28WdYwFkh9
-	7Ix0GBMQRDP9NwWboKxqAcXoLLDMq+VLdO1PkAHnZI86qGRKQ1yaxt5vviSqGHGaGan4LN
-	pxXpkZihIUdifKYqWSWtzXYXQgOQugo=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=NUdBC37dWtUhtr3poKTRLbvv+0k/F3lQxPVXzGOdb1o=;
+	b=WIHWQN/kExgHpCnWb24i6Dsv3BwHmDUjzRu+SLlnCjWVQUyiC//NCl2MZKIJrtUaQDQtMh
+	mZCIfrpm8JJdb5Be8oA3ntee1E3kCo/yPpNuZp5mxGuktmr0iXSX9cqcOLSzD8lOT16+YK
+	mN7CkIxQMV6NVtZSVeaMIZ9xa7SH9Vc=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-447-Q_BlyhCPMwih5xdRpkDMqg-1; Mon, 08 Jun 2026 04:34:27 -0400
-X-MC-Unique: Q_BlyhCPMwih5xdRpkDMqg-1
-X-Mimecast-MFC-AGG-ID: Q_BlyhCPMwih5xdRpkDMqg_1780907666
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-490b7959b9fso41768785e9.2
-        for <virtualization@lists.linux.dev>; Mon, 08 Jun 2026 01:34:26 -0700 (PDT)
+ us-mta-523-oiQ_o4yROJKZ_EKnq6KzKA-1; Mon, 08 Jun 2026 04:34:41 -0400
+X-MC-Unique: oiQ_o4yROJKZ_EKnq6KzKA-1
+X-Mimecast-MFC-AGG-ID: oiQ_o4yROJKZ_EKnq6KzKA_1780907680
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-490a767c7dcso32883945e9.2
+        for <virtualization@lists.linux.dev>; Mon, 08 Jun 2026 01:34:40 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780907666; x=1781512466;
+        d=1e100.net; s=20251104; t=1780907680; x=1781512480;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=315e7bSessxyz662R8s4IU7FTBDlj+mVbEZvVNtQrTU=;
-        b=NprQz0IdkDg0xnP4zc/I5/NhMuZWj0T6953RYAHnuBqsKjygL4Tq5f2Ia9me1ja36L
-         S1fk/RKyczuvmKknIYX94Qv7XXlBGmZZZdQpIMR9bAR+7BFiQF/4k/6QF85T7W6NSdT5
-         B3UPLhwiHA3vlxYCpkBggWE4cN2Ejf1tdsIjm7yTSNVbZZl6fENO4aZfQXGAUVueVhE8
-         nrLx+80Qo+JwovrxLDmTTyueeGtiqjTTvKQsHVHIaAy2tk3Y82C8lE9ieUhcWhc8Q7jb
-         r12TpRc0UuLAwvSAkioTNn6hP5WSBunCmCnEPobb0ingC9Xvx8seX+351SkC8IhWxPqb
-         OFLQ==
-X-Forwarded-Encrypted: i=1; AFNElJ/Xz2xqr+TKgqppQ7hBybB/PgKbb9eau48hWutqOppYOhJkV/8gE3YtCpMahNKMOulRAtbC0IRB+e67ge0R6Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxFA2rVapGXnJFgu7fa8X7ipFJEeVyFTA9XNoCNiXPNc0AE/cRz
-	Lyg4LhwCMXQkdLRFy0Uw8pT46op5l5Sh0AmNHUERUJG9wJWJkhxskJudCUHOng6PxtabHO6blW/
-	W5/ftcW9eM653RjOiOjZG84Ky+VWcwQgWuYT9xjQkZBGD2NLOgAXLPthwtFkelCyz+26y
-X-Gm-Gg: Acq92OEXckbYa2InyW5W2g1f/H1EFr6BXIy7xf9WItLMihFOwRjHAbCOKOZfaGatZUs
-	/7MqW0tJsFPSSvA2q/kZLh6P/e+0T2tN+gb8Cz8mjVicKXh5jWWgntuHT/Zpeh+OcwKwGykZ7uP
-	3kg8aqO4mp5Rjr/xHWHgoTG8Xnop7niw/mnBbQqZDCG8hHAxOc0xsdNLWd2RANJiUG8LrTIxkeE
-	MzrHt6hDFcQ8C2uFnn71a7u19yFeduzVaDaaJPakjuqJMCWmHN9HdJDPlsh7kcU334drVkWYOXJ
-	sVPSK3QXOnA701Tpet0fLEhxK/Q3llt7mPBesjQdn3ToD/2yK9eIXe6Zgbt/K/xqXb4wjA/6Ee3
-	kCxmVszZ3tAjLkO/P5PpSwRI=
-X-Received: by 2002:a05:600c:4708:b0:490:bd66:e522 with SMTP id 5b1f17b1804b1-490c26038d2mr235215895e9.29.1780907665042;
-        Mon, 08 Jun 2026 01:34:25 -0700 (PDT)
-X-Received: by 2002:a05:600c:4708:b0:490:bd66:e522 with SMTP id 5b1f17b1804b1-490c26038d2mr235213495e9.29.1780907663108;
-        Mon, 08 Jun 2026 01:34:23 -0700 (PDT)
+        bh=NUdBC37dWtUhtr3poKTRLbvv+0k/F3lQxPVXzGOdb1o=;
+        b=Wzm3G4OrKBmcWZU/IdS9nfUggWEIPpsYM6ehJfPsrssI1r6Dng/E3bwlNTS7fBJfkf
+         /zaSHBt9phjwqsIaBfpE2w/P3xiOP0lpPhUtyoPtTQljtMXfVYq3OTsaAGR3cZE9tsXL
+         M0LRCt/jFQRqMeMXLTGX7Kk5AsxUzcF8DBeZAt9Z6EP9acBmNAgAyd2kHT41/j1c9pSA
+         02s2+ov4KErZ0BlBmFHTBsVDNUo63AYyfDSGzR5OGOyyzdVaG90bKdyPz5uIZhfKyx44
+         ho5hzhKclfCFSqMU23j5T467MENHf+DtjG1NvxWWn5970a8j+35I1cWdbjysnSJ/Rg06
+         WZFg==
+X-Forwarded-Encrypted: i=1; AFNElJ/d40xJ5ZmtSSiM6XTw1csox45I25pTIeYZVrNzu1u0fcR8FCRy2fvJJrZucMDDgaUqVhnhFiHQuYC+8JMwAg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwY4Z9lcgREM8hcpwbQtQhtN+FdVpgPgszH3/TalwS/qFnexHw0
+	3Ip0ftiqVdoMJtjdKjWVLzb40Tj5u8KAP0Pve6Jal1inw4YIbvEDJF5wcGnOaNk3pcePxAypV8U
+	MiqlnlDrQEL3S5IqAg3YZ8sL3L6ntaU9GOdGHHSph7Qssz9uENUiBBzM2xPkaONeNcCwL
+X-Gm-Gg: Acq92OHlmPKmcCnzUY5P/KMGdteWMpIOy6OYZslzZu6JOFfJe1wZhUCZUZl6+PdiptO
+	EiyyiHLq2TL7h7IbyT1IkVxdTqc47aiFVQ1YiX0dOSRF3ljxXrGI/7pyVSDoipzAZLmTSkz+PNy
+	yM/FAsny0gnyDxbN6+iX2U7a1gVybM/DipiActW7ZFdKVVXFtq/5cTo5v77yDNV0VNkacP2HFuy
+	2GIV15r7d2e5BMvQ1TCSTOrxWIazmWGqVd+WDgRe/dIGzvLlkw1cOBUlTWq25w4foWyVVg9x7eA
+	orOH+SSl7EURSGWonze8hV4+Dclg/rOAMhfGRCgHizRXXzgNQr6F6CScf7miXr3vUtau5rTdu0h
+	5pTPxx17LGebCijkYyOLNIjU=
+X-Received: by 2002:a05:600c:154d:b0:490:44eb:c1ec with SMTP id 5b1f17b1804b1-490c260f3cdmr236254745e9.27.1780907679616;
+        Mon, 08 Jun 2026 01:34:39 -0700 (PDT)
+X-Received: by 2002:a05:600c:154d:b0:490:44eb:c1ec with SMTP id 5b1f17b1804b1-490c260f3cdmr236253855e9.27.1780907679052;
+        Mon, 08 Jun 2026 01:34:39 -0700 (PDT)
 Received: from redhat.com ([31.152.37.159])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490bc3d66c8sm356368295e9.10.2026.06.08.01.34.09
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490bc3d6c65sm366951975e9.12.2026.06.08.01.34.25
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Jun 2026 01:34:22 -0700 (PDT)
-Date: Mon, 8 Jun 2026 04:34:06 -0400
+        Mon, 08 Jun 2026 01:34:38 -0700 (PDT)
+Date: Mon, 8 Jun 2026 04:34:23 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
@@ -101,9 +101,11 @@ Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
 	Kemeng Shi <shikemeng@huaweicloud.com>,
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
-	Andrea Arcangeli <aarcange@redhat.com>
-Subject: [PATCH v10 01/37] mm: mempolicy: fix interleave index calculation
-Message-ID: <f5b1dcc97baae7183e96743873b943315d93cdb6.1780906288.git.mst@redhat.com>
+	Andrea Arcangeli <aarcange@redhat.com>,
+	Miaohe Lin <linmiaohe@huawei.com>
+Subject: [PATCH v10 02/37] mm: memory-failure: serialize TestSetPageHWPoison
+ with zone->lock
+Message-ID: <df06b66fe4ff8e925ee0714955abc2183a727b90.1780906288.git.mst@redhat.com>
 References: <cover.1780906288.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -115,64 +117,87 @@ In-Reply-To: <cover.1780906288.git.mst@redhat.com>
 X-Mailer: git-send-email 2.51.2.2891.g4157995a80.dirty
 X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: IEdti1ZFYeDzCns1nhgNFRJ4w3QvA0yeKNkyKGsm01w_1780907666
+X-Mimecast-MFC-PROC-ID: keh7IEppXlPDxibJ7LgwMQ1-Y6n-2I7ZoNeJtE4jLmE_1780907680
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-The NUMA interleave index was computed as two separate terms:
+TestSetPageHWPoison() is called without zone->lock, so its atomic
+update to page->flags can race with non-atomic flag operations
+that run under zone->lock in the buddy allocator.
 
-    *ilx += vma->vm_pgoff >> order;
-    *ilx += (addr - vma->vm_start) >> (PAGE_SHIFT + order);
+In particular, __free_pages_prepare() does:
 
-This has two problems:
+    page->flags.f &= ~PAGE_FLAGS_CHECK_AT_PREP;
 
-1. When vm_start is not aligned to the folio size, the
-   subtraction before the shift lets low bits affect the
-   result via borrows.
+This non-atomic read-modify-write, while correctly excluding
+__PG_HWPOISON from the mask, can still lose a concurrent
+TestSetPageHWPoison if the read happens before the poison bit
+is set and the write happens after.  Follow-up patches in this
+series add similar non-atomic flag operations as well.
 
-2. For file-backed VMAs, shifting vm_pgoff and the VMA
-   offset independently loses carries between them, giving
-   wrong chunk indices when vm_pgoff is not aligned to order.
+Fix by acquiring zone->lock around TestSetPageHWPoison and
+around ClearPageHWPoison in the retry path.  This
+serializes with all buddy flag manipulation.  The cost is
+negligible: one lock/unlock in an extremely rare path
+(hardware memory errors).
 
-Combine into a single expression that adds vm_pgoff and
-the page-granularity VMA offset first, then shifts once:
+Note: SetPageHWPoison and TestClearPageHWPoison calls elsewhere
+in this file operate on pages already removed from the buddy
+allocator or on non-buddy pages (DAX, hugetlb), so they do not
+need zone->lock protection.
 
-    *ilx += (vma->vm_pgoff +
-            (addr >> PAGE_SHIFT) -
-            (vma->vm_start >> PAGE_SHIFT)) >> order;
-
-For anonymous VMAs, vm_pgoff equals vm_start >> PAGE_SHIFT,
-so the vm_pgoff and vm_start terms cancel and the result
-reduces to addr >> (PAGE_SHIFT + order), same as before.
-
-For file-backed VMAs, the sum vm_pgoff + (addr >> PAGE_SHIFT)
-- (vm_start >> PAGE_SHIFT) gives the file page offset of addr.
-Shifting by order gives the correct file chunk index.
-
+Acked-by: Miaohe Lin <linmiaohe@huawei.com>
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Assisted-by: Claude:claude-opus-4-6
-Reviewed-by: Gregory Price <gourry@gourry.net>
 ---
- mm/mempolicy.c | 5 +++--
- 1 file changed, 3 insertions(+), 2 deletions(-)
+ mm/memory-failure.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
 
-diff --git a/mm/mempolicy.c b/mm/mempolicy.c
-index 4e4421b22b59..d139b074a599 100644
---- a/mm/mempolicy.c
-+++ b/mm/mempolicy.c
-@@ -2048,8 +2048,9 @@ struct mempolicy *get_vma_policy(struct vm_area_struct *vma,
- 		pol = get_task_policy(current);
- 	if (pol->mode == MPOL_INTERLEAVE ||
- 	    pol->mode == MPOL_WEIGHTED_INTERLEAVE) {
--		*ilx += vma->vm_pgoff >> order;
--		*ilx += (addr - vma->vm_start) >> (PAGE_SHIFT + order);
-+		*ilx += (vma->vm_pgoff +
-+			(addr >> PAGE_SHIFT) -
-+			(vma->vm_start >> PAGE_SHIFT)) >> order;
+diff --git a/mm/memory-failure.c b/mm/memory-failure.c
+index ee42d4361309..3880486028a1 100644
+--- a/mm/memory-failure.c
++++ b/mm/memory-failure.c
+@@ -2348,6 +2348,8 @@ int memory_failure(unsigned long pfn, int flags)
+ 	unsigned long page_flags;
+ 	bool retry = true;
+ 	int hugetlb = 0;
++	struct zone *zone;
++	unsigned long mf_flags;
+ 
+ 	if (!sysctl_memory_failure_recovery)
+ 		panic("Memory failure on page %lx", pfn);
+@@ -2390,7 +2392,11 @@ int memory_failure(unsigned long pfn, int flags)
+ 	if (hugetlb)
+ 		goto unlock_mutex;
+ 
++	/* Serialize with non-atomic buddy flag operations */
++	zone = page_zone(p);
++	spin_lock_irqsave(&zone->lock, mf_flags);
+ 	if (TestSetPageHWPoison(p)) {
++		spin_unlock_irqrestore(&zone->lock, mf_flags);
+ 		res = -EHWPOISON;
+ 		if (flags & MF_ACTION_REQUIRED)
+ 			res = kill_accessing_process(current, pfn, flags);
+@@ -2399,6 +2405,7 @@ int memory_failure(unsigned long pfn, int flags)
+ 		action_result(pfn, MF_MSG_ALREADY_POISONED, MF_FAILED);
+ 		goto unlock_mutex;
  	}
- 	return pol;
- }
++	spin_unlock_irqrestore(&zone->lock, mf_flags);
+ 
+ 	/*
+ 	 * We need/can do nothing about count=0 pages.
+@@ -2420,7 +2427,10 @@ int memory_failure(unsigned long pfn, int flags)
+ 			} else {
+ 				/* We lost the race, try again */
+ 				if (retry) {
++					/* Serialize with non-atomic buddy flag operations */
++					spin_lock_irqsave(&zone->lock, mf_flags);
+ 					ClearPageHWPoison(p);
++					spin_unlock_irqrestore(&zone->lock, mf_flags);
+ 					retry = false;
+ 					goto try_again;
+ 				}
 -- 
 MST
 
