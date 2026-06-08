@@ -1,180 +1,238 @@
-Received: from mail-qk1-f173.google.com (mail-qk1-f173.google.com [209.85.222.173])
+Received: from mail-pl1-f201.google.com (mail-pl1-f201.google.com [209.85.214.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 441BD3B14AF
-	for <virtualization@lists.linux.dev>; Mon,  8 Jun 2026 22:28:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0AD493B19DE
+	for <virtualization@lists.linux.dev>; Mon,  8 Jun 2026 22:38:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780957727; cv=none; b=dHa/P3cIc1QqBSbWp7N78Mbyg4icHe2wsPnGlWSDePvAI1zI42a0P973aNhY7N7N7HnuJ6IK4C75/fx5lZZEPYxKhqLdsqkiEySsGNdlOa5H5dffu6DYOicqHtwqvvZZeMcW8g4xfwUYcVnPl06wsMfYK0AS3OFPLL07Cig5s8Y=
+	t=1780958337; cv=none; b=HcK1begCCYFrmnB7J4rpepSQWITwTuIZcRDqN90HnibO3wYyDfEZwjULkYW1HCq60ifegL7/M72RZePpzC6pWIBikOyfCJ/gnR2uZTRBv0SWZCyl1ZVvyaB9OTikkyxKsqH9KqGjgrYcg6UbGEoTlVjMENO/O7gq+L5td95N+0k=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780957727; c=relaxed/simple;
-	bh=WPVk3fOsviPC5DEcsySe0ug5tCeq3XbI5TttjqERytU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=gVkoi2HIWFC+wEOogDc9yap+aHRpfQ4B/+VH8+9Fvna72JYg5psEK2akLjdW+OqB11G/smRnPgcFrSFaf5D37Uxuje3b31t2q4JAzUypaMNNE1s3pd+xWon52Mr1/3lhHCgZNliqAMM46EdoOlq7zy4E4a0uIkVT4DjF8ob/aW0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=JE5lDTAp; arc=none smtp.client-ip=209.85.222.173
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
+	s=arc-20240116; t=1780958337; c=relaxed/simple;
+	bh=g0z45+aYiJC51GAUvnfRAO2uYrqdMzpO8Z4vJI4yeCI=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=hiHGBHwrMKo3CMwmCzVr02akMIYnbNSR6OMlVl1MlycHiSJqRU4z69+Wy9Vhh5qgaGqOAdkDszhmV6PysCh9X1SLUANC8u95cD49o2D3/yX7FMVi4wyQnpULkIequMsQgEeItSp1PF0dyBM/IWp9EmHsfVS4hNMXv2LKqdxgFPI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=EGRNHdsV; arc=none smtp.client-ip=209.85.214.201
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="JE5lDTAp"
-Received: by mail-qk1-f173.google.com with SMTP id af79cd13be357-9157b895c57so447830485a.3
-        for <virtualization@lists.linux.dev>; Mon, 08 Jun 2026 15:28:46 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="EGRNHdsV"
+Received: by mail-pl1-f201.google.com with SMTP id d9443c01a7336-2c0532a6588so46261175ad.0
+        for <virtualization@lists.linux.dev>; Mon, 08 Jun 2026 15:38:55 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1780957725; x=1781562525; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=/gX/mp9SJHUWlSmoLEXlEEj6nZQtwhCmJ71m3qpbTAE=;
-        b=JE5lDTApuyhvHQYxYTvFQueF8IBtxSyrOWfuVaJMjt5gB1Zvuxv6ry9gdrbA/grqKk
-         i6a/FutDvuAmE7l7rAOGe02fUOYa+gSuouodtmZbOGJ79mM8UYWaAvy7DR6qlFEIyu9e
-         3UFmuh4BxoiZcWGkPX/p4HSAnCzUuKQ+NMkI1OoZRZYC3St362bWz8lJdSYUPpQMl6/f
-         vTeUFfLHl0lltxTIUPLf+9OB2zoawO7BZ2GuoCUZgufd/ZPrzBR90EWMYkuti+o1Q8nA
-         JoOWkFYbK6lc+dJzcECh+hHH1Yq+sRzKNg26egFwVb++nceSoUk3A6wvXD+RUlduY4mL
-         /bPg==
+        d=google.com; s=20251104; t=1780958335; x=1781563135; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:from:subject:message-id:references
+         :mime-version:in-reply-to:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=6/e8MVVf+gn1nbLHbwfdQ87xOkjbdduwr2NDuGKxrzw=;
+        b=EGRNHdsV9Wn2bs6YNmsWfoNXF82D/q8F8sog//IkMHeVr9Bn5OSu/S3Oh987Xxonk0
+         JDacm/oX7eaC4bOuFHEL4gC2OmFNM8fxRKREL+XplWtp5Omsn4YV4IAOx1xOwPq7+3zD
+         GEP/tsTh295z1QgB55pH3qq4zW6p45YnHjnNFJPGqQ3HBvJcG7kTw+8q1ddX8ZJzFtOg
+         vJB6u93YeEhkILkbPP7NYikFU7r4Sarex8KtsulNNRRr2v8Xo6iR3u0BqQtRa0QLzofQ
+         Um82iBaeW0KDySABdnAER44i75LXDfmRyrytD7siF/MZ83JBqEMUlPBR/eZoXM1LRjJm
+         xHRA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780957725; x=1781562525;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=/gX/mp9SJHUWlSmoLEXlEEj6nZQtwhCmJ71m3qpbTAE=;
-        b=HdaKlIn7BaJQKYU/tpUBg7FG9ehbW7Zp1WvB5vn6W63DARxDX/qaUi35eUIgirZK/g
-         pb4izN+XoALFTr4Y6XTXwpBcP2Z2KBq8UH+9qkgBBdsIJXzHtECewkSamx7IruXKLTFH
-         5W0G/3FiXuoAfTyKEjX5EVZqH8YdEnIQf2U38uiq48yCTz9cNN/42AhzRiP3xrvcbYsa
-         cYZ/a3g6R9A458ocDysmk14q8CLE2L4+REI5eQpsrTkAWOWeqUD6tiYGC7wC19Lc5iT4
-         ixsKwvJUi/jMxwLC6UxXOog4j9FSD8UURhS76KKUEC4VwxiIhhONlIAEXswLyGRa3Vix
-         2YqQ==
-X-Forwarded-Encrypted: i=1; AFNElJ/bFLJw1S8Qzth0rdgmbZVYGM1mhw+tyTyQeG8RNBhfXFWR/GhM4lKuELmnT+kRe6rFCTRiVeFnSLpRowj3EQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyVhY1NzIXaNTh/8taQX0861kbCZaKI2E/Vge2ABDrhS1oZBz0A
-	K+0TB0mYSOo5bmifmJpoh3Pk8FM/+vY2r1zMDGiMjcGiBEG9ob2wbIomAwfTL91dwlw=
-X-Gm-Gg: Acq92OGE3KzSRyzwcNnl51QIrD6/tqI3mlhnN47HxtBkbofLSUWhbUHPFlOsUeDNglY
-	pOYWLz/ck5oqkxVLAkLvQV//8Oow4plIC77tt1t310AQq3sxMrpg5TEoK4XCu5bvoBgREcei0a4
-	d9nUw1drRBOOu9ngiSONrVJQNR9yjCrByQ7ndV3uSQgSckwj0lkUo5C0op2hfW7jaoCEv29laKW
-	KlNQIKwcLeINYcbgXHg6dFQ8P5LOhsJk4PyeOmTELkTK5lFS+6Hm1Ye1NFt3o6v5m+jvNOdpF7y
-	fUaB62TWLZXq2c2OjXcmwKsKbDJi8pRvsZWzq6PqHHEweKgBNHRwsmCkoBq5LcAZ4vVe3brJacK
-	gvtZeFvMksf7hxeZXTvZuNziRMeI/8VjP5tgQFrRUiACj9I95C+GGPDEJXh5FjguyZB5/o5wz9Q
-	wjOI1QdpuqSXExnD844Q3YlqjwrY3zzsP3lSUAe4Ii3BskOAO/Tj1RF0CpYOj7jHIohLfYRstl3
-	6byhRfxicWTss4WUQ==
-X-Received: by 2002:a05:620a:454b:b0:915:a953:4b9c with SMTP id af79cd13be357-915a9c3659dmr2911955885a.3.1780957725130;
-        Mon, 08 Jun 2026 15:28:45 -0700 (PDT)
-Received: from gourry-fedora-PF4VCD3F (pool-173-79-60-52.washdc.fios.verizon.net. [173.79.60.52])
-        by smtp.gmail.com with ESMTPSA id af79cd13be357-9158a37c645sm1828519985a.30.2026.06.08.15.28.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Jun 2026 15:28:44 -0700 (PDT)
-Date: Mon, 8 Jun 2026 18:28:42 -0400
-From: Gregory Price <gourry@gourry.net>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: Zi Yan <ziy@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>,
-	Matthew Wilcox <willy@infradead.org>,
-	Lorenzo Stoakes <ljs@kernel.org>, linux-kernel@vger.kernel.org,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Muchun Song <muchun.song@linux.dev>,
-	Oscar Salvador <osalvador@suse.de>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	"Liam R. Howlett" <liam@infradead.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Brendan Jackman <jackmanb@google.com>,
-	Johannes Weiner <hannes@cmpxchg.org>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
-	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
-	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
-	Byungchul Park <byungchul@sk.com>,
-	Ying Huang <ying.huang@linux.alibaba.com>,
-	Alistair Popple <apopple@nvidia.com>,
-	Christoph Lameter <cl@gentwo.org>,
-	David Rientjes <rientjes@google.com>,
-	Roman Gushchin <roman.gushchin@linux.dev>,
-	Harry Yoo <harry.yoo@oracle.com>,
-	Axel Rasmussen <axelrasmussen@google.com>,
-	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
-	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
-	Kemeng Shi <shikemeng@huaweicloud.com>,
-	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
-	virtualization@lists.linux.dev, linux-mm@kvack.org,
-	Andrea Arcangeli <aarcange@redhat.com>
-Subject: Re: [PATCH v10 07/37] mm: thread user_addr through page allocator
- for cache-friendly zeroing
-Message-ID: <aidCGkafm9yUDTuf@gourry-fedora-PF4VCD3F>
-References: <aiaUDTeHDA45ZXFS@lucifer>
- <aiagMc9Ng_AE_adh@lucifer>
- <aia93IzhTgi1vGi6@casper.infradead.org>
- <aicfERTP3H6AndOs@gourry-fedora-PF4VCD3F>
- <D1CF67EF-2CF1-45F8-9265-70A528C1CB01@nvidia.com>
- <20260608163257-mutt-send-email-mst@kernel.org>
- <BD0C8760-BC10-4BF0-9EE3-9B0DAF0D977A@nvidia.com>
- <20260608170348-mutt-send-email-mst@kernel.org>
- <DD2E08E8-1FD7-43E3-A2C8-B4435D3773D1@nvidia.com>
- <afb14c99-162c-4c36-b1ef-fe971678f6b9@kernel.org>
+        d=1e100.net; s=20251104; t=1780958335; x=1781563135;
+        h=content-transfer-encoding:cc:to:from:subject:message-id:references
+         :mime-version:in-reply-to:date:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=6/e8MVVf+gn1nbLHbwfdQ87xOkjbdduwr2NDuGKxrzw=;
+        b=X83LqDz5e+CQWsfe5SUWsAbhAA+fDXOORcBAIylm+meZvc2KReOmxbjP4x8AURZjjm
+         Uo5affAXCyR9caybdF1vPCpkG7vzGCagvQXqwQBAOv690tMB104R1t+lpQY72nFa9sBO
+         p479WcI9XRmGZ5AOx1MuH270/BpTiT1GqEJ5/xDU7FwujjvIAnhqAf7jRd3kkwgOFBRa
+         XETQza0mZO51TI5fEoO2V2eOx/79Sp8kYibgpjLofqEVT8Uo2K33yHcwhoGCMowkp5G3
+         hUzPwJ1K9FF0znMIpgmKzhmD47bx+Q+oyBDTqULQcLJnnlvIXDwRZBILL5lNKjkne/4c
+         UVDg==
+X-Forwarded-Encrypted: i=1; AFNElJ+w8y9pU6zREJrPamvH076sUtlsUA0Xw0NP0vtsWCwWXxtCfjoPylSdDMM12CKdOosnut8CbfcaOeEqP1Ev7w==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz91F0+K0hOKwUzr/IC+Cj6N1ChsHtprQ6jQhGLS34A2zkfjpJZ
+	rxkdWSqevxEMEjglig+EddVnUa7cGg1ugr8+rDQ9sTmHTEFALcaQXvzDJqDWHNj2AuOYWx5Xmcy
+	KuHH4gA==
+X-Received: from pldv17.prod.google.com ([2002:a17:902:ca91:b0:2b0:ba5a:1fe])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:902:da8d:b0:2be:fda1:42d9
+ with SMTP id d9443c01a7336-2c1e7845a08mr176535715ad.0.1780958335144; Mon, 08
+ Jun 2026 15:38:55 -0700 (PDT)
+Date: Mon, 8 Jun 2026 15:38:54 -0700
+In-Reply-To: <eef867eae15e30d08482ba16a1a32159745b64a7.camel@infradead.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <afb14c99-162c-4c36-b1ef-fe971678f6b9@kernel.org>
+Mime-Version: 1.0
+References: <20260529144435.704127-1-seanjc@google.com> <20260529144435.704127-11-seanjc@google.com>
+ <877boc554l.ffs@fw13> <eef867eae15e30d08482ba16a1a32159745b64a7.camel@infradead.org>
+Message-ID: <aidEfvTMjLa2zt43@google.com>
+Subject: Re: [PATCH v4 10/47] x86/tsc: Consolidate forcing of
+ X86_FEATURE_TSC_KNOWN_FREQ for PV code
+From: Sean Christopherson <seanjc@google.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Thomas Gleixner <tglx@kernel.org>, Paolo Bonzini <pbonzini@redhat.com>, Ingo Molnar <mingo@redhat.com>, 
+	Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+	Kiryl Shutsemau <kas@kernel.org>, "K. Y. Srinivasan" <kys@microsoft.com>, 
+	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
+	Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>, 
+	Ajay Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.makhalov@broadcom.com>, 
+	Jan Kiszka <jan.kiszka@siemens.com>, Andy Lutomirski <luto@kernel.org>, 
+	Peter Zijlstra <peterz@infradead.org>, Juergen Gross <jgross@suse.com>, 
+	Daniel Lezcano <daniel.lezcano@kernel.org>, John Stultz <jstultz@google.com>, 
+	"H. Peter Anvin" <hpa@zytor.com>, Rick Edgecombe <rick.p.edgecombe@intel.com>, 
+	Vitaly Kuznetsov <vkuznets@redhat.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stephen Boyd <sboyd@kernel.org>, kvm@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev, 
+	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev, 
+	xen-devel@lists.xenproject.org, Tom Lendacky <thomas.lendacky@amd.com>, 
+	Nikunj A Dadhania <nikunj@amd.com>, Michael Kelley <mhklinux@outlook.com>
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 08, 2026 at 11:51:47PM +0200, David Hildenbrand (Arm) wrote:
-> On 6/8/26 23:16, Zi Yan wrote:
-> 
-> There was Willy's comment in RFC v3 [1], which had 19 patches. Unfortunately, he
-> no longer followed up to my initial push back and Michael's question later [2].
-> 
-> That would have probably been the right time to wait for more discussion.
-> 
-> RFC v4 had 22 patches with little replies.
-> v5 had 28 patches with little replies.
-> v6 had 30 patches with no replies.
-> v7 had 31 patches with little replies.
-> v8 had 37 patches with no replies.
-> 
-> [1] https://lore.kernel.org/lkml/aeu5P1bZW3yEH54t@casper.infradead.org/
-> [2] https://lore.kernel.org/lkml/20260426165330-mutt-send-email-mst@kernel.org/
->
+On Sat, Jun 06, 2026, David Woodhouse wrote:
+> On Sat, 2026-06-06 at 12:34 +0200, Thomas Gleixner wrote:
+> > On Fri, May 29 2026 at 07:43, Sean Christopherson wrote:
+> >=20
+> > > Now that all paravirt code that explicitly specifies the TSC frequenc=
+y
+> > > also sets X86_FEATURE_TSC_KNOWN_FREQ, replace all of the one-off code
+> > > and simply set X86_FEATURE_TSC_KNOWN_FREQ if the TSC frequency is kno=
+wn.
+> > >=20
+> > > Do NOT force set TSC_KNOWN_FREQ if the "known" TSC frequency was prov=
+ided
+> > > by the user.=C2=A0 Per commit bd35c77e32e4 ("x86/tsc: Add tsc_early_k=
+hz command
+> > > line parameter"), one of the goals of the param is to allow the refin=
+ed
+> > > calibration work "to do meaningful error checking".
+> > >=20
+> > > Note, preferring the user-provided TSC frequency over the frequency f=
+rom
+> > > the hypervisor or trusted firmware, while simultaneously not treating=
+ the
+> > > user-provided frequency as gospel, is obviously incongruous.=C2=A0 Sw=
+eep the
+> > > problem under the rug for now to avoid opening a big can of worms tha=
+t
+> > > likely doesn't have a great answer.
+> >=20
+> > There is a good answer I think.
+> >=20
+> > early_tsc_khz exists to cater for the overclocking crowd. On their
+> > modded systems the firmware supplied TSC frequency (CPUID/MSR) is not
+> > matching reality anymore. So they work around that by supplying a close
+> > enough tsc_early_khz and then they let the refined calibration work
+> > figure it out.
+> >=20
+> > Arguably that's only relevant for bare metal systems and what's worse i=
+s
+> > that in virtual environments the refined calibration work can fail,
+> > which renders the TSC unstable.
+> >=20
+> > So I'd rather say we change this logic to:
+> >=20
+> > =C2=A0=C2=A0 if (!hypervisor_is_type(X86_HYPER_NATIVE)) {
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 tsc_khz =3D x86_init.....();
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 force(X86_FEATURE_TSC_KNOWN_FREQ);
+> > =C2=A0=C2=A0 } else if (tsc_khz_early) {
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ....
+> > =C2=A0=C2=A0 } else {
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 ...
+> > =C2=A0=C2=A0 }
+> >=20
+> > Along with:
+> >=20
+> > =C2=A0=C2=A0 if (!hypervisor_is_type(X86_HYPER_NATIVE)) {
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (tsc_khz_early)
+> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 pr_warn("Ignoring non-=
+sensical tsc_early_khz command line argument\n");
+> >=20
+> > or something daft like that.
 
-Hm, rewinding on this back to v3 here:
-https://lore.kernel.org/lkml/016cc5e5-044c-46c6-a668-200f90a64d85@kernel.org/
+Ya, I ended up in the same place once Sashiko pointed out that skipping the=
+ SNP/TDX
+setup was hazardous[*], and also once I realized that tsc_khz_early *comple=
+mented*
+the refinement instead of replacing it.
 
-You said:
+This is what I have locally:
 
-  ```
-  Exactly, that's why I am saying that vma_alloc_folio() is the only
-  external interface people should be using with a user address.
-  ```
+        if (cc_platform_has(CC_ATTR_GUEST_SNP_SECURE_TSC))
+                known_tsc_khz =3D snp_secure_tsc_init();
+        else if (boot_cpu_has(X86_FEATURE_TDX_GUEST))
+                known_tsc_khz =3D tdx_tsc_init();
 
-Going through the list of folio_zero_user references:
+        /*
+         * If the TSC frequency wasn't provided by trusted firmware, try to=
+ get
+         * it from the hypervisor (which is untrusted when running as a CoC=
+o guest).
+         */
+        if (!known_tsc_khz && x86_init.hyper.get_tsc_khz)
+                known_tsc_khz =3D x86_init.hyper.get_tsc_khz();
 
-Called unconditionally if a folio is acquired:
-   fs/hugetlbfs/inode.c:   folio_zero_user(folio, addr);
-   mm/hugetlb.c:           folio_zero_user(folio, vmf->real_address);
-   mm/memfd.c:             folio_zero_user(folio, 0);
+        /*
+         * Mark the TSC frequency as known if it was obtained from a hyperv=
+isor
+         * or trusted firmware.  Don't mark the frequency as known if the u=
+ser
+         * specified the frequency, as the user-provided frequency is inten=
+ded
+         * as a "starting point", not a known, guaranteed frequency.
+         */
+        if (known_tsc_khz && !tsc_early_khz)
+                setup_force_cpu_cap(X86_FEATURE_TSC_KNOWN_FREQ);
 
-Called when user_alloc_needs_zeroing() and charging passes:
-   mm/huge_memory.c:       folio_zero_user(folio, addr);
-   mm/memory.c:            folio_zero_user(folio, vmf->address);
+        /*
+         * Ignore the user-provided TSC frequency if the exact frequency wa=
+s
+         * obtained from trusted firmware or the hypervisor, as the user-
+         * provided frequency is intended as a "starting point", not a know=
+n,
+         * guaranteed frequency.
+         */
+        if (!known_tsc_khz)
+                known_tsc_khz =3D tsc_early_khz;
+        else if (tsc_early_khz)
+                pr_err("Ignoring 'tsc_early_khz' in favor of firmware/hyper=
+visor.\n");
 
-No one outside mm/ should know about this interface at all.
-Arguably none of these should know about this interface either.
+[*] https://lore.kernel.org/all/ahnF-FehodVd474X@google.com
 
-The appropriate place for this logic appears to be:
-    vma_alloc_folio
-    alloc_hugetlb_folio
-    alloc_hugetlb_folio_reserve
+> > The kernel has for various reasons always tried to cater for the needs
+> > of users who are plagued by bonkers firmware, but we have to stop to
+> > prioritize or treating equal ancient and modded out of spec hardware.
+> >=20
+> > TBH, I consider that whole KVM clock nonsense to fall into the modded
+> > out of spec hardware realm. Do a reality check:
+> >=20
+> > =C2=A0=C2=A0 How many production systems are out there still which run =
+VMs on CPUs
+> > =C2=A0=C2=A0 with a broken TSC and the lack of VM TSC scaling?
+> >=20
+> > I'm not saying that we should not support the few remaining systems
+> > anymore, but our tendency to pretend that we can keep all of this
+> > nonsense working and at the same time making progress is just a fallacy=
+.
 
-The reason to sink it into the post_alloc_hook is to let the buddy
-decide whether the page actually needs to be zeroed (like the virtio
-situation) based on PG_zeroed or whatever.
+FWIW, I have the exact same sentiments about kvmclock, but I'm also trying =
+my
+best not to break folks that are happily running on what is effectively fla=
+wed,
+ancient "hardward".=20
 
-It seems like at a minimum moving the logic all the way into
-post_alloc_hook lets us actually delete folio_zero_user() as a published
-interface and move it entirely within page_alloc.c.
+> I don't know that we can take the KVM (and Xen) clock away from guests,
+> but all of the *horrid* part about it is the way it attempts to cope
+> with the possibility that the *host* timekeeping might flip away from
+> TSC-based mode at any point in time. By the end of my outstanding
+> cleanup series, that is the *only* thing the gtod_notifier remains for.
+>=20
+> If we can trust the hardware *and* the host kernel, then KVM could
+> theoretically hardwire the kvmclock into 'master clock mode' where it
+> basically just advertises the TSC=E2=86=92kvmclock relationship *once* to=
+ all
+> CPUs and it never changes.
+>=20
+> All the nonsense about updating it every time we enter a CPU could just
+> go away completely.
 
-The catch is user_alloc_needs_zeroing() coming along with it.
-
-~Gregory
+But to Thomas' point, why bother?  For actual old hardware, kvmclock is wha=
+t it
+is.  For modern hardware, it's completely antiquated.
