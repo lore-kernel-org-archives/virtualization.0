@@ -1,172 +1,212 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from BN8PR05CU002.outbound.protection.outlook.com (mail-eastus2azon11011071.outbound.protection.outlook.com [52.101.57.71])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0A39C3E7BAA
-	for <virtualization@lists.linux.dev>; Mon,  8 Jun 2026 19:46:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780947969; cv=none; b=LftJ6F0PzgOqSwvoNSph/zqLXn46BOB/TVlKx/hnX0QSEvftG0QOy8GBujHgjLLPy7Z5ns/bkCzCTTvtn4KdgYAZPbHHKVQ109cBhh20zlg+S+QCHUSN/AXlyC+5OqQAbkmttdSLnw/iwrmSOaWKgKUHFmwXyAwh3aW7QxZ6pdY=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780947969; c=relaxed/simple;
-	bh=HiesDSG2XitHdXdDDhZeaFf7JuMX1rHkw3DjlsPTdDU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=gL0CxbNyqpCDmzYbmcx0Xb2WyFdRbdxXYEwvX75l4zyfH/UZgFU1T2l3ylYhuO4Niup/knN/idxvtmDe54GNTIMaYQ6Et2WJgnu0HWlIqoTK30lK272y6TunlpMp7MUsRqNa33mF0jje+YowAp0tV30SkAQDOzkiTFGjdu45QTo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FS5YNG4Q; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4FB63859CE
+	for <virtualization@lists.linux.dev>; Mon,  8 Jun 2026 19:52:34 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.57.71
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1780948356; cv=fail; b=M6guCrKArTjQHdLiCLrvtm3gKF/qFe9iwpNPrkQGt7xC3kd5mpwVgBh6+/+7ZZ3FrPhPwENyCu1tCWBHc4veewZlCHBB30Bn0pDeJF8h15jR/76Ad5AuFUXqAN7Z7saFS3z6bHnqu9xHEMLvQLQQbgFGK8GHKU7jnhCV34Tyw9M=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1780948356; c=relaxed/simple;
+	bh=oT+UKJC+/xuiDFqG4/jWG+vSr9G4KQKY8Uw8JbPy19E=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=FcRxe0egknwX+6YSCBAGkXtpRkwJ/zD1gX0ht4ZYfqXPdtST8emhRzRZAvZD6HQFZifWtRxI85HQ1/XgX8DjIMcxVClxGOTjAlJt1Q4MoskJUm77f918B0NMKRtkTMoqWHWtrddMOVOnhzVht1asgclpM4+koeCPNlVWC8/xcS0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=fLNf1lsG; arc=fail smtp.client-ip=52.101.57.71
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FS5YNG4Q"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1780947967;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=4XkshBTgN4Zv/gIvkBzsPSwBPTNRhn2JGaJhvMxMoi0=;
-	b=FS5YNG4Qzuw3CqdH6arVeFsPHaGB7GcowCDzkht35chflTX+gkcjieFFjaES+47cpBqC00
-	iYUUlBuPUwTje/UWh76CG2joVF3fFmPRfkvpOlRwgonYSfWKnI2IUb/dB00M52Qx1/Ey7U
-	MUOMf3lRNzmYkEOZqCv3P2vCXyzYxKc=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-659-yp8031HAM4uK6YX7ohSBZw-1; Mon, 08 Jun 2026 15:46:06 -0400
-X-MC-Unique: yp8031HAM4uK6YX7ohSBZw-1
-X-Mimecast-MFC-AGG-ID: yp8031HAM4uK6YX7ohSBZw_1780947965
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-490b61243easo27633885e9.2
-        for <virtualization@lists.linux.dev>; Mon, 08 Jun 2026 12:46:05 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780947965; x=1781552765;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=4XkshBTgN4Zv/gIvkBzsPSwBPTNRhn2JGaJhvMxMoi0=;
-        b=na6nvON66xrSSjObSRJlqzQNHZOpIcx1jicU5MUdfT92AOZP+6gF2zFvT8gMkCFEn7
-         syd86uyf02HMNQmRej+cxJg6xOBkfgoJT4/B4baGIHpVh3YNLJ5Mque5f5TjOfD4liXQ
-         EFEpRp0U7nnsccupUvytQfLluBCWMoyhIV9uIoBNHsx+Afwt+oPgVRIyvGJbhYdaHkRJ
-         PhEfDpOXK48ksk57PXtYHRKHjxXXXA2dW9kE02HvflSnGstxHLuTq/Ns3i91e+FBUNTU
-         6uXq5P3E7xYwyn4oorwEZs2E/2f08n9N7AH65+oChNgkOyxLu6xbblET3ksOsH3zzwjx
-         WJZA==
-X-Forwarded-Encrypted: i=1; AFNElJ/k6sKFwBvOB0qo+5IxsuDh3AZ/nEtkLR5dQ/wrdkkN3BndbCCghi2xI0gZU8ImcXwRWv4ahSgf5s1fmIyrrg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyY0cfwrEsCVSg35cGnHA9Ivh4MsQSAuWhTAR2m4McjppZCdhXH
-	XeJsfHSk9qR0famTCc99ConVaJX0Qz0zwPvbsjAe314ARqr80D42eY6uA41puKVftOJRfe3brvl
-	/h7XV3zHUNg1wYGx8x9An3Vc+/OGvfUQWKNGPHaR4Aav6XcZZo16uEBeHC7cGFyDN8G5T
-X-Gm-Gg: Acq92OENlvKQkZZICKZUCwc5YrEHw3cBoCd6cJwd6rbqnzJUGlqfGTexaqnfxkD5A0a
-	PJP5UuvyAqTX5kBZHKq6eNsuL7TeNPwhUzkLjzQsqm6Poxan739lkcUR6R9lliBPYiipH4u5LxY
-	/dKH2ykWM8VdEa/5zZla18kd0wtQJp8Zi1toc4dryGupzp+qgqzMNhPHq+oHSaA0D/y2v7PyYyC
-	6DkXh3ois1XAjQN7FsmR3ZM739y/N5wlYdpuWWAa5OWu9P+r7hXxDuXi+vswnaO5V0PMtUtsjx2
-	IsjURPPZ5dFn4UC6vxj7a+ECRsB5dhNPc8Mw0lXofQMSVDjdBwYLxNg5nCuda5P6LtH/JS0pgIk
-	+LqB9fetiIuOWQnRyf1g7TqILjoDgbjG+QJAvGtB9enTufST54AXtNQ==
-X-Received: by 2002:a05:600c:468c:b0:490:469c:556b with SMTP id 5b1f17b1804b1-490c257c3c8mr290867895e9.12.1780947964666;
-        Mon, 08 Jun 2026 12:46:04 -0700 (PDT)
-X-Received: by 2002:a05:600c:468c:b0:490:469c:556b with SMTP id 5b1f17b1804b1-490c257c3c8mr290867255e9.12.1780947963943;
-        Mon, 08 Jun 2026 12:46:03 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-85-71.inter.net.il. [80.230.85.71])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490bc3d663csm465687715e9.11.2026.06.08.12.45.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Jun 2026 12:46:03 -0700 (PDT)
-Date: Mon, 8 Jun 2026 15:45:58 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="fLNf1lsG"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=X4UrE3/otrBpUP7ncujYgog8QPvvoZ+GDT+V7fT2Cp7BJtopvhVyMavMoZrVzQvUNbAT50GfYKQhPWCcQBdRlR8ZuMQDo+6+kEr1mQu7EBdzSWX0BlIbKQq1KhGEBtsFU0VP1wfkfXfblSRKs5WfaxMscPzCdqcti/HJPw4bWEQsJvvnmr7K0edNG7N573BJ0Jidgig5W70e1AO4cvQMFBbiYZWg50tPz8fDhhgmOmF20QIM+kEPCvO70641cvMwGMJPOAYCWvy1687zu1JHoUvzwUATwZsK9hxzXNZhzUsgL7JngIHNmGViF3vHJWK4ReQQ3F4tXg8i0z/K6WzLGg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Lr5TFNWSXBb+Ofo4mjiexGCELXdTF3XnWM841LrVeGo=;
+ b=a36V8ERK+vKSvEgrvBtnwNoNGS6sIiS+L4wJyIQKqaDS2iJmVIFlFaDUnf7kB5JuBxEA66Imp65D4kQ2CxrsKmubNlXFLaimc1vK5ZFIF4AD1ZXNflQzhqA/r0DwLgvo9hdp8f0MO7AVsUiEi7cJCtcBeaG1NKqL/BCdzcoson6GsE+PF0XxSMszzcNlRhsFfKU9ynhNSFnydfMtxiSZng2qVxT/Fb1Eb6wja69G/6YF01Zp0vgHalixg4xoCpkwQqgCSbKiipOR5/oxD8ewxxZl0S7npdWDsW0SMkhlKZQt3w+3A55T5b9VhuJ58mbpfsNyTTuTi2LP9lhcjtfZtQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Lr5TFNWSXBb+Ofo4mjiexGCELXdTF3XnWM841LrVeGo=;
+ b=fLNf1lsGdD87MROaglpRuKsn2YM1A/gGXJGimSW/hty0Uc93BxZsVR2TbjIjpRAbIaESCCEMB5t2Nor7Li+7JWcbbOOqTrs2/1X3GJqDmsl5gpZLHjgrYy4Ppg10CorsXdZPzrA8rMNVmBxOw3RU9AzCSDLu28J+bw8hK7w0FMqbesuJxFCkwbqsmQFYkMCBiV7Kfh7LnPcDffKEOmB8ubWd0VCIkd4lFvh+5J6kiSmP98FDPvdi0yR5qSeBM83O8oTDTzVpHVNaYKIbvdh7Dyvlyv+/vLblgaAW/8nxdEbXnP2X8APgh/Qf+LilaUqcEWvzpYhuRT3CdCvgxOUqbg==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from DS7PR12MB9473.namprd12.prod.outlook.com (2603:10b6:8:252::5) by
+ SJ2PR12MB9242.namprd12.prod.outlook.com (2603:10b6:a03:56f::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.92.13; Mon, 8 Jun 2026
+ 19:52:24 +0000
+Received: from DS7PR12MB9473.namprd12.prod.outlook.com
+ ([fe80::f01d:73d2:2dda:c7b2]) by DS7PR12MB9473.namprd12.prod.outlook.com
+ ([fe80::f01d:73d2:2dda:c7b2%5]) with mapi id 15.21.0092.011; Mon, 8 Jun 2026
+ 19:52:24 +0000
+From: Zi Yan <ziy@nvidia.com>
 To: Gregory Price <gourry@gourry.net>
-Cc: Lorenzo Stoakes <ljs@kernel.org>, linux-kernel@vger.kernel.org,
-	"David Hildenbrand (Arm)" <david@kernel.org>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Muchun Song <muchun.song@linux.dev>,
-	Oscar Salvador <osalvador@suse.de>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	"Liam R. Howlett" <liam@infradead.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Brendan Jackman <jackmanb@google.com>,
-	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
-	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
-	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
-	Byungchul Park <byungchul@sk.com>,
-	Ying Huang <ying.huang@linux.alibaba.com>,
-	Alistair Popple <apopple@nvidia.com>,
-	Christoph Lameter <cl@gentwo.org>,
-	David Rientjes <rientjes@google.com>,
-	Roman Gushchin <roman.gushchin@linux.dev>,
-	Harry Yoo <harry.yoo@oracle.com>,
-	Axel Rasmussen <axelrasmussen@google.com>,
-	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
-	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
-	Kemeng Shi <shikemeng@huaweicloud.com>,
-	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
-	virtualization@lists.linux.dev, linux-mm@kvack.org,
-	Andrea Arcangeli <aarcange@redhat.com>
-Subject: Re: [PATCH v10 12/37] mm: use folio_zero_user for user pages in
- post_alloc_hook
-Message-ID: <20260608154354-mutt-send-email-mst@kernel.org>
+Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
+ Lorenzo Stoakes <ljs@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
+ linux-kernel@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
+ Michal Hocko <mhocko@suse.com>, Brendan Jackman <jackmanb@google.com>,
+ Johannes Weiner <hannes@cmpxchg.org>,
+ Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <npache@redhat.com>,
+ Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>,
+ Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>,
+ Hugh Dickins <hughd@google.com>, Matthew Brost <matthew.brost@intel.com>,
+ Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+ Byungchul Park <byungchul@sk.com>, Ying Huang <ying.huang@linux.alibaba.com>,
+ Alistair Popple <apopple@nvidia.com>, Christoph Lameter <cl@gentwo.org>,
+ David Rientjes <rientjes@google.com>,
+ Roman Gushchin <roman.gushchin@linux.dev>, Harry Yoo <harry.yoo@oracle.com>,
+ Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>,
+ Wei Xu <weixugc@google.com>, Chris Li <chrisl@kernel.org>,
+ Kairui Song <kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>,
+ Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
+ virtualization@lists.linux.dev, linux-mm@kvack.org,
+ Andrea Arcangeli <aarcange@redhat.com>
+Subject: Re: [PATCH v10 07/37] mm: thread user_addr through page allocator for
+ cache-friendly zeroing
+Date: Mon, 08 Jun 2026 15:52:20 -0400
+X-Mailer: MailMate (2.0r6290)
+Message-ID: <8BB8D6E5-8644-4CBC-BAF1-0AA19702E042@nvidia.com>
+In-Reply-To: <aicbZ9lewv1wJqqS@gourry-fedora-PF4VCD3F>
 References: <cover.1780906288.git.mst@redhat.com>
- <f92f6f06e5804b4ea7f68b8664b7e69953b50f4e.1780906288.git.mst@redhat.com>
- <aiacZ6_7SG3nvVjM@lucifer>
- <aiblhJv_BvMn_8XY@gourry-fedora-PF4VCD3F>
+ <50d410b47fe3f45327783e05bd306d5eaab75e65.1780906288.git.mst@redhat.com>
+ <aiaUDTeHDA45ZXFS@lucifer> <64f2e580-aa82-4849-9236-b8ec4208ca24@kernel.org>
+ <AEB19464-20A9-4C5B-97B8-681CCDD81031@nvidia.com>
+ <2475e4c4-9ba3-4091-9bfd-1c1c15163da7@kernel.org>
+ <aicbZ9lewv1wJqqS@gourry-fedora-PF4VCD3F>
+Content-Type: text/plain
+X-ClientProxiedBy: BL1PR13CA0125.namprd13.prod.outlook.com
+ (2603:10b6:208:2bb::10) To DS7PR12MB9473.namprd12.prod.outlook.com
+ (2603:10b6:8:252::5)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <aiblhJv_BvMn_8XY@gourry-fedora-PF4VCD3F>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: kNFB6MMa6QhoAhb-8Bikj90ItheaQi_ZxvF4OehJ91Y_1780947965
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DS7PR12MB9473:EE_|SJ2PR12MB9242:EE_
+X-MS-Office365-Filtering-Correlation-Id: 8b93c480-b3ec-4aab-c97f-08dec5977628
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|366016|7416014|376014|18002099003|22082099003|4143699003|11063799006|56012099006|6133799003;
+X-Microsoft-Antispam-Message-Info:
+	RGqEy2T8M9G9aFlGajlYANERdvMMk+gwcwF2ewNM2rT5lHpyBw/YnMKYydDyHr0UoR6li2TYK9qbzXTRql9rvJ7Q2QOjm2iuG6Q56ZkAhz79BZafnyZmENWIfiA5SlkrvqvCRgfA7kVJn0TRipUZW/jv0KvVLs3Whtd2ZL1fK8/b/MFzOMriZhtTQS2bs9Xxwr6Va/7HaOOLRTCxV8e+GBJzJXozg/deIgMfmpGS5ym3f1MTkJa4z3ks5EEpgKRw2WMd/jp/l4IFqXy5EAaGlKtTzu0oNyyCL8z4X8wKb88+XNYC125tSX+nCmm8YZV3MdqRsqHuAHgIGKLEeWzVdfeqm+98N4/TX8ldpMVMKW1sT5wrp/dLx2QO7qY0J1+buWeBsKc8sLUgL2ucRcdew3y3HpQiNvaCey0Z0128LafmpJxP4x7gYj48MNbIqZxr0QhjBORNfiABaqu/S43832je7M/Zx07lUI8VR1WSXiL8eiwtZvxVby0H5Vih7bmJ61q+dAJseJv+WXlFUbetxX4JiuR+MJXW2ho4OPOYavC4jR4kH/M0yaDpgouQNIiT596ipopxKzNIsqVW9C/Ge2fl7geAkbWobOhG9yxCp0puY8bwTgAKJG9LkT+2I7w03kx/pWv05j/vq7OpnNfiNn4IYizI9gtevMruyOP3W/SnByfGbZaWwR1FcuefnYlb
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS7PR12MB9473.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(7416014)(376014)(18002099003)(22082099003)(4143699003)(11063799006)(56012099006)(6133799003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?sKvmK45U8Jl8oo32p7B/6Hox4mnmS/ih3xrrfQpkHS3/PDir7WL2FRUg5TZX?=
+ =?us-ascii?Q?AyKCrHfO45DiGfpBg8NF5fiviG0swneQkCZRDrPtXJbrLXP7OvFWH7xZWzET?=
+ =?us-ascii?Q?o99h7znOPxErDZnFpxBVs/xgk742oKCfIGCvxBVSZ2tK4ObHSi0s//bl2UKJ?=
+ =?us-ascii?Q?5oJLOKG395i1AC6EpiV6YPmlvosHlMUx2xG4UseXSubWQIpyfia/Tl9+HLpP?=
+ =?us-ascii?Q?fztoNQmj23veTGSug8rpQ6Fh8UrjyboY4HSr/n9u+8w4PvD+8vvzQ37oNkKI?=
+ =?us-ascii?Q?Vt4VJHvb2LAypjt9Of+8r0K3/0x7NMgCH73iB570ay6cXU9FIvjBKvFgmfpT?=
+ =?us-ascii?Q?eOLOVAUUcyKGeCiUnKwQ6+I8JllqyTbmVGumbjUdASU/8EFquJCGk8G0ADXZ?=
+ =?us-ascii?Q?yvnx5VEuhXJevhXdSSVArko9BtrgoKi5tX3fWFRKLiBQTTO4igZ5nqQeFBnP?=
+ =?us-ascii?Q?2wx38+gYNa/UbfYY8xENXjRiVe3kpfNbKN0zW3kRoYlNpF57otn6KubMsSdF?=
+ =?us-ascii?Q?B2DAYnReWDV7ssn0S6DN6UUmuGaJ8Luk35kADuQRcx5v/7Tx2etB7VE9BFQL?=
+ =?us-ascii?Q?m6X9Havru51ATb3oP8NpqFE8484UNjbP0YQs+fs2kY3XpP0MzMXk3J2nFCvq?=
+ =?us-ascii?Q?gQk2eHXZ8jrzcwsHRhwjrGiy2vq3L+3tCBNudnfhDAAKfpP9shiiWdAVZiup?=
+ =?us-ascii?Q?b6eui3jQj0Co/mRGPZkhpwl/az+AjJxjxSYnU3yIM4waBjtV7cnxp0/Q6S7j?=
+ =?us-ascii?Q?ZRcYdjvilM/21H6acgsZTmsr2rkXHYImZBaCKuHgPEMdaUOX7bQ0O4MqC88v?=
+ =?us-ascii?Q?2pV14MLX4umNi/U9Gt3zuOjI+oaNGtKvSuQHvfaliOj3lW+BPVyUyxGe1Mpj?=
+ =?us-ascii?Q?FDhpvkYVkkjM8il5gozVLNzVhR8SJhjaqZp9b0M37/9mANqsvt7mnxUA8jIJ?=
+ =?us-ascii?Q?R2oq0hdsuruljthOQ0RGRAINbudi65hqh3mBwWelyoekJO5OwXBNSgNauyA3?=
+ =?us-ascii?Q?TefUHbEgRN/SnfzHuGPD6NKApAY+OWu+078jr2iTqy9SzF26xFLbYqKaD8hQ?=
+ =?us-ascii?Q?p4eUOf4PdxLNjwMWJWA3tiAh+DzqT9TgbHtOWIxrpEPSPhAaMoEHtlAm+O3d?=
+ =?us-ascii?Q?ckmie3xVx+FXVIo/cBzoqYT8aNsaQ5Q+Zav/5MP6ho5bSU6TltDc60yCTmci?=
+ =?us-ascii?Q?mDDZahUR+SS4bLlyXTTnm3oBGZW53wDRkyyyvqbeXvxUmhW/g9WQPSt7Nmpj?=
+ =?us-ascii?Q?5GlMaF+VhM1Fcq/WafKmOZtfIo9faqFbE8gGQuQAqtLBznF1eJUqjPa2k39h?=
+ =?us-ascii?Q?4cVfISDygjy6Y1pQum44uFTHLVdZZOpg8E2hnk8b1CZ3c/Ck+hwxsuA6MiMQ?=
+ =?us-ascii?Q?foPLhVIzB01aSqr6pgBEwVW4jHUIZ/3qE3fG5//rnREtBgHZPz0h2BR3MWWB?=
+ =?us-ascii?Q?ZpGRgcp5OzvbOc6CeHQYKOAid0aZQkTimFUAXP0ltUat35KWLzsAseSJSKJP?=
+ =?us-ascii?Q?48W0BpmNSrwOKWRN77Dr/Xy7gn1hCw67kxiy1s74UqPvktt0ZZi7yY+r2fzx?=
+ =?us-ascii?Q?re0EAk2UCNc+izzs6PX1C+2Hom7ZKiaAzlZYQnLwhuS5MK9RK5xswgMtiO2H?=
+ =?us-ascii?Q?GFvGX/A6LBE1V+rhAhXDOZfTdWWtfKgkyJdYq/ws6siJM6Gpex87iFpkCW+w?=
+ =?us-ascii?Q?uSfazFFdAcNxuEZu/31mYOJ3EQkKDvxHQUZ/p5ozlQreLKhQ?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8b93c480-b3ec-4aab-c97f-08dec5977628
+X-MS-Exchange-CrossTenant-AuthSource: DS7PR12MB9473.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 08 Jun 2026 19:52:24.7777
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 8/UCo9184c7tzNNy8y8jcaf2inQugAeWEtRCLxxvL3y45k+ma0PRqAOWjpQqkJeH
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ2PR12MB9242
 
-On Mon, Jun 08, 2026 at 11:53:40AM -0400, Gregory Price wrote:
-> On Mon, Jun 08, 2026 at 12:23:07PM +0100, Lorenzo Stoakes wrote:
-> > On Mon, Jun 08, 2026 at 04:36:38AM -0400, Michael S. Tsirkin wrote:
-> > 
-> > > +			 * user_addr != USER_ADDR_NONE implies sleepable
-> > > +			 * context (user page fault).
-> > 
-> > Can you safely assume that? Also inferring which context we are in from this
-> > parameter seems risky.
-> > 
-> > It seems to me that you're now making it such that kernel developers:
-> > 
-> > - Have to know when and when not to specify a user address, and under what
-> >   circumstances we might consider that to be mapped.
-> > 
-> > - Need to know to do this correctly for aliasing architectures or have silent
-> >   correctness issues.
-> > 
-> > - Need to take context into account when specifying this.
-> > 
-> > We definitely need to find a simpler way to do this!
-> >
-> 
-> This feedback was poked at in earlier versions.  There's a tension
-> between keeping the old interface as-is, having explicit interfaces
-> for something like this, and the state of a page inside the
-> allocator vs outside.
-> 
-> Double-plus complicated by the fact that we're trying to reason about
-> two allocators at once:  host and guest.
-> 
-> It seems it has gotten a bit more complicated since then (I missed this
-> "sleepable context" bit, not sure if it was there on prior versions).
-> 
-> If `user_addr` is now implying anything other than exactly: "This needs
-> to be zeroed / caches flushed", then this is bad.
-> 
-> ~Gregory
+On 8 Jun 2026, at 15:43, Gregory Price wrote:
 
-Well if you do folio_zero_user in a non sleepable context then things
-are not going to work. So combining e.g. GFP_ATOMIC and GFP_ZERO and
-user_addr all together is not a good idea.
+> On Mon, Jun 08, 2026 at 08:39:10PM +0200, David Hildenbrand (Arm) wrote:
+>> On 6/8/26 17:27, Zi Yan wrote:
+>>> On 8 Jun 2026, at 7:08, David Hildenbrand (Arm) wrote:
+>>>
+>>> Or should we defer zeroing after a page is returned from allocator? So that
+>>> user_addr does not need to be passed through irrelevant allocation APIs.
+>>> Something like:
+>>>
+>>> alloc_page_wrapper(gfp, order, user_addr)
+>>> {
+>>> 	page = alloc_pages();
+>>> 	if (gfp & __GFP_ZERO)
+>>> 		clear_page(page);
+>>> }
+>>>
+>>
+>> Not really sure what's best here. I think we'd want to limit the lifting to some
+>> internal API, so it cannot easily be messed up by random kernel code calling
+>> into the wrong API and not getting pages cleared.
+>>
+>
+> We're a bit in circles on this.  We discussed explicit interfaces a few
+> months back and the trade off was:
+>
+> a) add user_addr to the existing API and cause churn
+>
+> or
+>
+> b) add special interface like above
+>    increase the buddy surface
+>    leaves open the ability for users to get it wrong easily
+>
+> If we forget VMs for a moment and break this step out separately, the
+> core question is whether page_alloc.c is the right place to be calling
+> the folio_user_zero() or whatever it is.
 
-You are saying it's bad? It's pretty fundamental to the idea of moving
-zeroing into the allocator, I feel.
+page_alloc.c calling folio_user_zero() is fine, but my question is
+whether we should do the zeroing inside post_alloc_hook(), part of
+allocation.
 
--- 
-MST
+What I propose is to lift __GFP_ZERO up as much as possible,
+so that most of allocation code does not need to care about it.
+We do the zeroing right before the page is returned to callers.
 
+>
+> We seem to have agreed "yes", which necessitates the plumbing of the
+> address into the allocator.  The question is whether it should churn the
+> existing interface for have its own explicit interface.
+>
+> The implications of getting it wrong are:  a user page doesn't get
+> zeroed.  *oof*
+>
+> I think that's why we thought the churn was better.  But considering
+> we're already in the same state now (callers are responsible for calling
+> folio_user_zero() or whatever), maybe that's not horrid?
+
+Yeah, some callers think they know better about huge page zeroing and want to
+do it differently. That caused double zeroing when init_on_alloc was
+introduced and was mitigated by user_alloc_needs_zeroing().
+
+Best Regards,
+Yan, Zi
