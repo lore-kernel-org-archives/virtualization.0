@@ -1,69 +1,69 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 67FAD3BFE25
-	for <virtualization@lists.linux.dev>; Mon,  8 Jun 2026 08:39:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DBB93C13F9
+	for <virtualization@lists.linux.dev>; Mon,  8 Jun 2026 08:40:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780907999; cv=none; b=XWeobp7Js7GU4nasCYw8BVip1bBlCIP3uslQcVcovr7D3b7h12lJwONPH578zbC8Q3cQ9QiazVSEr6uwinFqNrrNkLBpqHIY7XActjAgfiEG9PSveID2ne5kjyROCSmn1SbyOAhAWtv05DmyIdDihhEdwOMHSfoOjwG5L+d5yMw=
+	t=1780908006; cv=none; b=A7iphtHctcAs7OwV6JrA7sbwrskq+WJxv+W2044H/nNn6RPi7wZCPkUHErVih1hBiVW5BYl4ylxq5keibHrkynWWBpHcl2OGqwZ1Hu4Fxigz/ue9XKsUnoSSrm3UeX+gyU38cHBxCIU/TZe2w1N0qYuy24ynxOJreBRXS5UA9OY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780907999; c=relaxed/simple;
-	bh=uD9B0Z2r8dApvmwrr4a0YLqj2hTMaiDgCysJxcZ5WsU=;
+	s=arc-20240116; t=1780908006; c=relaxed/simple;
+	bh=5wGTQWwTRWiz92QjrAnqbfvJyoSWYuOrxYhosbDCVVo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=A8LxwOMMvoq4RmebEbSIxp9FDH+hXPhe5mr1iEuFWjugI/VQPTJt5audPfPe0hqDApFDVY+R6y7wrP7Xa2u8mjgYiq3HJZI73GXbBoMz2p+qf57bHmFK8WcL86mFv6KaXDNfjouhMMQS9Cu2WiIyqwwi0FFKK+OGseZYezVZgLE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YLusyw+I; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=kkOR0shcIScHy4vl6r9yefIH7plGmM468HzOhrYU1nyqHOAd8+gNcAmrzQZAf92CfZ0oOzL6oUbUwqxDgAWUdXqip2MeK2UX7s9bd8ugWhTUSq81+upY59IbSmGUL0hudS+YFYe86G0aXFYg/dFV2AvcHTWBhosPptR5WSrWtYU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NaTnWor3; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YLusyw+I"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NaTnWor3"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1780907993;
+	s=mimecast20190719; t=1780908000;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ScAoSfQrcD4R0Yhb9nAUBLjdu8qZL5GRGpRfEb8F90Q=;
-	b=YLusyw+ItlQxXrA/V/CSRHNVyYJhcjmE9XsqoXfMKtwfzLZ8F7PatqWgdF9b640qNEvgHk
-	nPS/GWUMDha/7mjHYfOQKIIVe0PiYNys9zlmNP5WHAqIXOPQzQa0VBXuUakRAADfMLdjNY
-	Jl+XnC/uPWrhdDNZWrvMSkuCr6AFTcc=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=w/d/SpfWsyx4WFKJs+ZrOIC973gnVs56nqbJSdvDWbI=;
+	b=NaTnWor3bRWWSxIbwABgGIAOYs6wJeflVzD8DUnbJjZj68pRBHJWJkKM/tvlxMZA6F+YwA
+	ZIpB2ot0IY7VlQuDYCE03LvX4ZzAGS8z+EpHUPSslMc3TZT+lRsE9FHFP9hihO4sySoRFz
+	dLhAbA6EQ+jS+gLnECj5juGkj6WADig=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-658-YJ2RhuwHPxqg1PyORZwTXA-1; Mon, 08 Jun 2026 04:39:50 -0400
-X-MC-Unique: YJ2RhuwHPxqg1PyORZwTXA-1
-X-Mimecast-MFC-AGG-ID: YJ2RhuwHPxqg1PyORZwTXA_1780907990
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-490b3ec3f7fso27085515e9.1
-        for <virtualization@lists.linux.dev>; Mon, 08 Jun 2026 01:39:50 -0700 (PDT)
+ us-mta-219-gcoPenzdMIqfIwermyAlsA-1; Mon, 08 Jun 2026 04:39:58 -0400
+X-MC-Unique: gcoPenzdMIqfIwermyAlsA-1
+X-Mimecast-MFC-AGG-ID: gcoPenzdMIqfIwermyAlsA_1780907998
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-45ef6417092so3351286f8f.2
+        for <virtualization@lists.linux.dev>; Mon, 08 Jun 2026 01:39:58 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780907989; x=1781512789;
+        d=1e100.net; s=20251104; t=1780907997; x=1781512797;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=ScAoSfQrcD4R0Yhb9nAUBLjdu8qZL5GRGpRfEb8F90Q=;
-        b=LeVoHnImoklrhZFkKQ/nndI3GIVb//PwS1lxrWgtFsWONDNx46pb5hoeL5SQ0a1/JO
-         W0M38lVujyLT4IZ11UKQE4v0nouHrRiw1eoeu0TAyZG3S1WPRVR23Rdq93izrufe23sA
-         Jt03Zn5cSZr+BCh7oMXsbmPT+t/yvVLHw4whJ6sMco/WPrn0o0AQ0FMI0HQRHaPJiiBf
-         cfm9Ba0XEvPWh8JwKcRwF4+qjNVGjmvbzR5DxxSBPd2v0RJShikA9mmaYmFzzVVf7Vhq
-         5bNOeXbT1J/3NpRqoubE52JAWENdtA5wr5YcCoAxc+sJeU7Ub91Ro0cLjK/48fetYWGg
-         yXjw==
-X-Forwarded-Encrypted: i=1; AFNElJ8R2UAEbFTkXR7Bj9MdzrUg0jSWG66b7TYqGDCiefQKLdlUDJQT+1gAUgJdly1jlc6Ric2dzNdgJtYxjJ6/Qw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwnlHiSyPcDye+U0+tmPOWrHL+xc1tYJmxWJkgufOksbmYttzhN
-	HqcuO9pzZFmjUO8H8zJYucCcPZKxORgIM6gaCLXlXP1dMirs456HcXqK2jYhn7xf3Zdz+qrpomt
-	GG/tYw6qkf2jgH+YE2NBtUDOjJDnXaLbvm42S4j/E+ENayeWFRiSw599BU1mN+Qu/Dnsp
-X-Gm-Gg: Acq92OE8KC4IJPQtAnGEy7TUN6EsCj5ehRAu14GEIgDj+t+0qBoJ47W45gxmGP8F7Hk
-	kiMCO+fKNtSnjugmVbcuHL2xGIJTHaumkDoUFVVonPW7HLours3lvs11qdkplSc/Qi0pb9sOr+o
-	CTmNb8cd894k2yJvOpPUelVvy1cig+7hGM0HSCB/RMPx5Ki/JI3rZJvw+WG+uUGLFFca17jfjNO
-	ZDto/ogLpzttvFtJBozzeAIO0rTNRXEoWBp/KvSdg/dA8jC3y6Edxz4McxIJCp7PnbRsDCeBCaQ
-	q23xOaapCjGdAs7eLtZnFvjSPLAKi+Hcmpwj8DvSUrUq1EHLL4SUiHNSbxbUoGbTnOTVgy4Xv9Q
-	O0BpVgH5pkmcYqRYB9+GOIcg=
-X-Received: by 2002:a05:600c:3e15:b0:490:adb6:793d with SMTP id 5b1f17b1804b1-490c25f67d9mr239704965e9.26.1780907989484;
-        Mon, 08 Jun 2026 01:39:49 -0700 (PDT)
-X-Received: by 2002:a05:600c:3e15:b0:490:adb6:793d with SMTP id 5b1f17b1804b1-490c25f67d9mr239704145e9.26.1780907988974;
-        Mon, 08 Jun 2026 01:39:48 -0700 (PDT)
+        bh=w/d/SpfWsyx4WFKJs+ZrOIC973gnVs56nqbJSdvDWbI=;
+        b=qex0coU6qBoYlqwQYfEuEar0/oZMGv8hXFFNHuX46BJaTttfMZcQ8tf/YLUqmhGrtU
+         yJnxTQxCp1J6iahXhiwQDWfDyYEa10XGirIVjPcnBeuRD3z/TmVABueDdPY/rm+dxLTS
+         kqztyeU9U6i+iUT86Qs2Sl1G+xfzB7oL3VscDF7+yC+wU7AWXwOTB5Lsy6Z2WqJb4Huz
+         MvKWWAP+/lf+MNASVXHlGW4yyXV4eghFNoxbWW392UhDVogFEKfIKsijJUBJc6E0EDdm
+         P5DNstwaokT7eL4dCdGXDOGJgjxRtwC7cQ0Z41q/Vv4Yh74iihXqlsXC1qo/077jZsq5
+         R2MA==
+X-Forwarded-Encrypted: i=1; AFNElJ84EZ0ZDpNQpVsD1dhuu7rutHJqgwfQPogBrhWU4zxoNRf8nA+bGLWO05j7y2/8HUboRReVgyq7a/wPJGg9Eg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzj6mmDbogMjVIymazZDeyLFuh7vwopklEQZYMesX9FZibeeO9P
+	dB420nibVHPye1dnPtLsGIngEq8xhtlaDW5xKUnL/gYBoVOZedyFe68eRphSgDCS1Gbv5QxAcWs
+	bODcu8hbGu40bRzX9ftYTPYY0DMgVkRT+wXnO0hTCSFPDAjOOb2ACuHA9K4r1ZzYnvdNn
+X-Gm-Gg: Acq92OHwkpf9wNsfNhOlAKFUqg+9uXHaObQ2AEkJUY+r8pocY4sQgjbecMaHHQwODHk
+	HY+SbwSsjIBkUJCVlXlrjfSkGJlNvovYMk8FlGnA8d9xCV2yILlY7ZI9yM7ZSRQHDjRoDjbqptE
+	NevpoVZALJIoeYSP2Sj5TtWq03S5BXptee5pz0KsvEpbiw2utTsuSDPhbcIDlnpJdIFKiRLS1nD
+	FDQqkhX3PToo3MuMU1/bTx/XhskjYahKSLad30C3qpSqTGaCKxqPZZbuOO/I/h8oHHHlg3sQ3Sv
+	pN+1xacWgKpOUJ0bk/i2QOUNKwVbT/Mc4TG8TNvaPlm/OLVxVeAyByV4KFi8BQTn3dZ56zm1M5D
+	lN61+fRImOduJiyUXxTbtlwg=
+X-Received: by 2002:a5d:6e84:0:b0:45e:f2bd:2b17 with SMTP id ffacd0b85a97d-46030501f7fmr16740270f8f.21.1780907997441;
+        Mon, 08 Jun 2026 01:39:57 -0700 (PDT)
+X-Received: by 2002:a5d:6e84:0:b0:45e:f2bd:2b17 with SMTP id ffacd0b85a97d-46030501f7fmr16740213f8f.21.1780907996901;
+        Mon, 08 Jun 2026 01:39:56 -0700 (PDT)
 Received: from redhat.com ([31.152.37.159])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490bc3d66c8sm356783495e9.10.2026.06.08.01.39.39
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4601f344558sm48512372f8f.18.2026.06.08.01.39.50
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Jun 2026 01:39:48 -0700 (PDT)
-Date: Mon, 8 Jun 2026 04:39:37 -0400
+        Mon, 08 Jun 2026 01:39:56 -0700 (PDT)
+Date: Mon, 8 Jun 2026 04:39:49 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
@@ -102,9 +102,9 @@ Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
 	Andrea Arcangeli <aarcange@redhat.com>
-Subject: [PATCH v10 29/37] mm: memfd: skip zeroing for zeroed hugetlb pool
- pages
-Message-ID: <0d6c2d31f48ff454223ad4f1d37ef7b73263bf5d.1780906288.git.mst@redhat.com>
+Subject: [PATCH v10 30/37] mm: page_reporting: add per-page zeroed bitmap for
+ host feedback
+Message-ID: <a9d591e7cf886f4752949c744acfd36eb4ae74f9.1780906288.git.mst@redhat.com>
 References: <cover.1780906288.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -116,190 +116,89 @@ In-Reply-To: <cover.1780906288.git.mst@redhat.com>
 X-Mailer: git-send-email 2.51.2.2891.g4157995a80.dirty
 X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: B4GSJJCXc_AfMACBjY-OVT4_6B4X_O-slJrvm92wYSs_1780907990
+X-Mimecast-MFC-PROC-ID: lHloV-IGgwAcr8U-RM0IPvOOr1GIm3o5Oxfy1nx3p0Y_1780907998
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-Add bool *zeroed output to alloc_hugetlb_folio_reserve() so
-callers can check whether the pool page is known-zero.  memfd's
-memfd_alloc_folio() uses this to skip the explicit folio_zero_user()
-when the page is already zero.
+The host may skip zeroing some reported pages (e.g., due to alignment
+constraints or bounce buffer fallback in QEMU).  Currently, when
+host_zeroes_pages is set, all reported pages are unconditionally
+marked PG_zeroed - even ones the host did not actually zero.
 
-This avoids redundant zeroing for memfd hugetlb pages that were
-pre-allocated into the pool and never mapped to userspace.
+Add a zeroed_bitmap to page_reporting_dev_info that the report()
+callback can use to indicate which pages were actually zeroed.
+The driver's report() callback is responsible for managing the
+bitmap: zeroing it before sending pages to the host, then setting
+bits for pages the host actually zeroed.
 
-Note: HPG_zeroed is currently only set for surplus pages
-allocated with __GFP_ZERO (via alloc_surplus_hugetlb_folio),
-not for pool pages from alloc_pool_huge_folio. So the
-zeroed output from alloc_hugetlb_folio_reserve is typically
-false for pool-only reservations. It becomes true when
-surplus pages fill the reservation. The addr_hint 0 passed
-to folio_zero_user is acceptable for memfd: these pages are
-not mapped yet and will get proper dcache handling at mmap
-time via the page fault path.
+page_reporting_drain() checks the bitmap per-page in addition to the
+global host_zeroes_pages flag.
+
+No driver sets host_zeroes_pages yet, so the static key is
+off and the bitmap is never read.  Behavior is unchanged.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Assisted-by: Claude:claude-opus-4-6
+Assisted-by: cursor-agent:GPT-5.4-xhigh
 ---
- include/linux/cma.h     |  3 ++-
- include/linux/hugetlb.h |  6 ++++--
- mm/cma.c                |  6 ++++--
- mm/hugetlb.c            | 11 +++++++++--
- mm/hugetlb_cma.c        |  4 ++--
- mm/memfd.c              | 14 ++++++++------
- 6 files changed, 29 insertions(+), 15 deletions(-)
+ include/linux/page_reporting.h | 7 +++++++
+ mm/page_reporting.c            | 8 ++++++--
+ 2 files changed, 13 insertions(+), 2 deletions(-)
 
-diff --git a/include/linux/cma.h b/include/linux/cma.h
-index 8555d38a97b1..dee88909cf5d 100644
---- a/include/linux/cma.h
-+++ b/include/linux/cma.h
-@@ -53,7 +53,8 @@ extern bool cma_release(struct cma *cma, const struct page *pages, unsigned long
+diff --git a/include/linux/page_reporting.h b/include/linux/page_reporting.h
+index c331c6b36687..e2e6a487ddab 100644
+--- a/include/linux/page_reporting.h
++++ b/include/linux/page_reporting.h
+@@ -17,6 +17,13 @@ struct page_reporting_dev_info {
+ 	/* If true, host zeros reported pages on reclaim */
+ 	bool host_zeroes_pages;
  
- struct page *cma_alloc_frozen(struct cma *cma, unsigned long count,
- 		unsigned int align, bool no_warn);
--struct page *cma_alloc_frozen_compound(struct cma *cma, unsigned int order);
-+struct page *cma_alloc_frozen_compound(struct cma *cma, unsigned int order,
-+				       gfp_t caller_gfp);
- bool cma_release_frozen(struct cma *cma, const struct page *pages,
- 		unsigned long count);
- 
-diff --git a/include/linux/hugetlb.h b/include/linux/hugetlb.h
-index 06d033a57a61..7eb529eabe99 100644
---- a/include/linux/hugetlb.h
-+++ b/include/linux/hugetlb.h
-@@ -708,7 +708,8 @@ struct folio *alloc_hugetlb_folio_nodemask(struct hstate *h, int preferred_nid,
- 				nodemask_t *nmask, gfp_t gfp_mask,
- 				bool allow_alloc_fallback);
- struct folio *alloc_hugetlb_folio_reserve(struct hstate *h, int preferred_nid,
--					  nodemask_t *nmask, gfp_t gfp_mask);
-+					  nodemask_t *nmask, gfp_t gfp_mask,
-+					  bool *zeroed);
- 
- int hugetlb_add_to_page_cache(struct folio *folio, struct address_space *mapping,
- 			pgoff_t idx);
-@@ -1128,7 +1129,8 @@ static inline void wait_for_freed_hugetlb_folios(void)
- 
- static inline struct folio *
- alloc_hugetlb_folio_reserve(struct hstate *h, int preferred_nid,
--			    nodemask_t *nmask, gfp_t gfp_mask)
-+			    nodemask_t *nmask, gfp_t gfp_mask,
-+			    bool *zeroed)
- {
- 	return NULL;
- }
-diff --git a/mm/cma.c b/mm/cma.c
-index c7ca567f4c5c..27971f6264ab 100644
---- a/mm/cma.c
-+++ b/mm/cma.c
-@@ -924,9 +924,11 @@ struct page *cma_alloc_frozen(struct cma *cma, unsigned long count,
- 	return __cma_alloc_frozen(cma, count, align, gfp);
- }
- 
--struct page *cma_alloc_frozen_compound(struct cma *cma, unsigned int order)
-+struct page *cma_alloc_frozen_compound(struct cma *cma, unsigned int order,
-+				       gfp_t caller_gfp)
- {
--	gfp_t gfp = GFP_KERNEL | __GFP_COMP | __GFP_NOWARN;
-+	gfp_t gfp = GFP_KERNEL | __GFP_COMP | __GFP_NOWARN |
-+		    (caller_gfp & __GFP_ZERO);
- 
- 	return __cma_alloc_frozen(cma, 1 << order, order, gfp);
- }
-diff --git a/mm/hugetlb.c b/mm/hugetlb.c
-index ed00db703911..a087e915783f 100644
---- a/mm/hugetlb.c
-+++ b/mm/hugetlb.c
-@@ -2196,7 +2196,7 @@ struct folio *alloc_buddy_hugetlb_folio_with_mpol(struct hstate *h,
- }
- 
- struct folio *alloc_hugetlb_folio_reserve(struct hstate *h, int preferred_nid,
--		nodemask_t *nmask, gfp_t gfp_mask)
-+		nodemask_t *nmask, gfp_t gfp_mask, bool *zeroed)
- {
- 	struct folio *folio;
- 
-@@ -2212,6 +2212,12 @@ struct folio *alloc_hugetlb_folio_reserve(struct hstate *h, int preferred_nid,
- 		h->resv_huge_pages--;
- 
- 	spin_unlock_irq(&hugetlb_lock);
++	/*
++	 * Per-page zeroed status, indexed by scatterlist position.
++	 * The driver's report() callback must clear the bitmap,
++	 * then set bits for pages that were actually zeroed.
++	 */
++	DECLARE_BITMAP(zeroed_bitmap, PAGE_REPORTING_CAPACITY);
 +
-+	if (zeroed && folio) {
-+		*zeroed = folio_test_hugetlb_zeroed(folio);
-+		folio_clear_hugetlb_zeroed(folio);
-+	}
-+
- 	return folio;
- }
+ 	/* work struct for processing reports */
+ 	struct delayed_work work;
  
-@@ -2296,7 +2302,8 @@ static int gather_surplus_pages(struct hstate *h, long delta)
- 		 * It is okay to use NUMA_NO_NODE because we use numa_mem_id()
- 		 * down the road to pick the current node if that is the case.
- 		 */
--		folio = alloc_surplus_hugetlb_folio(h, htlb_alloc_mask(h),
-+		folio = alloc_surplus_hugetlb_folio(h,
-+						    htlb_alloc_mask(h),
- 						    NUMA_NO_NODE, &alloc_nodemask,
- 						    USER_ADDR_NONE);
- 		if (!folio) {
-diff --git a/mm/hugetlb_cma.c b/mm/hugetlb_cma.c
-index 7693ccefd0c6..c9266b25be3d 100644
---- a/mm/hugetlb_cma.c
-+++ b/mm/hugetlb_cma.c
-@@ -35,14 +35,14 @@ struct folio *hugetlb_cma_alloc_frozen_folio(int order, gfp_t gfp_mask,
- 		return NULL;
+diff --git a/mm/page_reporting.c b/mm/page_reporting.c
+index 84ebc4547119..9c39448e758b 100644
+--- a/mm/page_reporting.c
++++ b/mm/page_reporting.c
+@@ -108,6 +108,7 @@ page_reporting_drain(struct page_reporting_dev_info *prdev,
+ 		     struct scatterlist *sgl, unsigned int nents, bool reported)
+ {
+ 	struct scatterlist *sg = sgl;
++	unsigned int i = 0;
  
- 	if (hugetlb_cma[nid])
--		page = cma_alloc_frozen_compound(hugetlb_cma[nid], order);
-+		page = cma_alloc_frozen_compound(hugetlb_cma[nid], order, gfp_mask);
+ 	/*
+ 	 * Drain the now reported pages back into their respective
+@@ -122,7 +123,7 @@ page_reporting_drain(struct page_reporting_dev_info *prdev,
  
- 	if (!page && !(gfp_mask & __GFP_THISNODE)) {
- 		for_each_node_mask(node, *nodemask) {
- 			if (node == nid || !hugetlb_cma[node])
- 				continue;
+ 		/* If the pages were not reported due to error skip flagging */
+ 		if (!reported)
+-			continue;
++			goto next;
  
--			page = cma_alloc_frozen_compound(hugetlb_cma[node], order);
-+			page = cma_alloc_frozen_compound(hugetlb_cma[node], order, gfp_mask);
- 			if (page)
- 				break;
- 		}
-diff --git a/mm/memfd.c b/mm/memfd.c
-index abe13b291ddc..a99617a62e33 100644
---- a/mm/memfd.c
-+++ b/mm/memfd.c
-@@ -69,6 +69,7 @@ struct folio *memfd_alloc_folio(struct file *memfd, pgoff_t idx)
- #ifdef CONFIG_HUGETLB_PAGE
- 	struct folio *folio;
- 	gfp_t gfp_mask;
-+	bool zeroed;
- 
- 	if (is_file_hugepages(memfd)) {
  		/*
-@@ -93,17 +94,18 @@ struct folio *memfd_alloc_folio(struct file *memfd, pgoff_t idx)
- 		folio = alloc_hugetlb_folio_reserve(h,
- 						    numa_node_id(),
- 						    NULL,
--						    gfp_mask);
-+						    gfp_mask,
-+						    &zeroed);
- 		if (folio) {
- 			u32 hash;
+ 		 * If page was not commingled with another page we can
+@@ -133,9 +134,12 @@ page_reporting_drain(struct page_reporting_dev_info *prdev,
+ 		 */
+ 		if (PageBuddy(page) && buddy_order(page) == order) {
+ 			__SetPageReported(page);
+-			if (page_reporting_host_zeroes_pages())
++			if (page_reporting_host_zeroes_pages() &&
++			    test_bit(i, prdev->zeroed_bitmap))
+ 				__SetPageZeroed(page);
+ 		}
++next:
++		i++;
+ 	} while ((sg = sg_next(sg)));
  
- 			/*
--			 * Zero the folio to prevent information leaks to userspace.
--			 * Use folio_zero_user() which is optimized for huge/gigantic
--			 * pages. Pass 0 as addr_hint since this is not a faulting path
--			 *  and we don't have a user virtual address yet.
-+			 * Zero the folio to prevent information leaks to
-+			 * userspace.  Skip if the pool page is known-zero
-+			 * (HPG_zeroed set during pool pre-allocation).
- 			 */
--			folio_zero_user(folio, 0);
-+			if (!zeroed)
-+				folio_zero_user(folio, 0);
- 
- 			/*
- 			 * Mark the folio uptodate before adding to page cache,
+ 	/* reinitialize scatterlist now that it is empty */
 -- 
 MST
 
