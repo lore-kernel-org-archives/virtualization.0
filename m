@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC9AF36828B;
-	Mon,  8 Jun 2026 11:39:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A31125D527;
+	Mon,  8 Jun 2026 11:47:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780918783; cv=none; b=T8I4PLZPMb5V0EMkiJThKThAf+v6d1PZNS/tFyTcNNfQ85UloN5loPTXvliQV8mZdtzIz9ubkQ/e8VU0QGuWRHvBPrxv1Y6sQzuFO44JXh8PLmUTs2mt47/cMiTv4lo+XRtcMbr5PmJJ6vSlKQYmAQzyR5rjw91LJC6lZaTkMTo=
+	t=1780919236; cv=none; b=qIRWTfPKgdEHEclhTf1NI6jJ5cFWMbl/Zl3jShnnDA4fjO5dIKiCzc2InuzsG5dIvV72HATikOXTbFSXZm4p3UVOR5N1BZxWYZpQ0YN6T3fHJQK5jdXkYhMsYUFVh13n+76cmYXCtOP/rteObASio/wG/4027A4xYCWXSUMDPdo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780918783; c=relaxed/simple;
-	bh=BHogtRFRHKcyrU3VmWSRlGusqFr4UILbrgiuunfRlNg=;
+	s=arc-20240116; t=1780919236; c=relaxed/simple;
+	bh=yCBnlbbF2Q1VsdScngj4qtOfJQwqOY9HaGbwKdO89i8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=L9gtNdRVjIM+/97rJ9W899TllUkVuD4TgAKNJjSvHmlZwU9gqPo2WBFVsgfj1USN5+pOp8csi4IEa328p3yAXAjH3VOOT36s8OiuyQ+cZxjwzObGMcNSeKnARUb40uxDXxV26tRVgDxG3BRsVN072qM/IqXMmBebvnIwPllhmOU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=I4U0hGyk; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=I0X1Bb8oyCKW++UdWOiSkzB+8U5TcV8JFUnViAb66qQw/Mp/iBZSRQ6suh3FAgEOv8akVCEqm3hXkNKd09NnWluXIr7lbHmyL9GkYr7PNbCGzra9mjeqx+J/dQSSU6rvvk7gtTmusF8hpJiRwSABr2C3tRZ9G2y8h2ulBzttWg0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZSdkhYB+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="I4U0hGyk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id ECEA61F00898;
-	Mon,  8 Jun 2026 11:39:32 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZSdkhYB+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id F3A0B1F00893;
+	Mon,  8 Jun 2026 11:47:04 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780918782;
-	bh=ZGVpNatqeAnKrQKe+tVSHeKyDhAqAjd/ZyB79qiaOjg=;
+	s=k20260515; t=1780919235;
+	bh=XYBSlu0D8nqZHl8IsBFYqN57OEwm5p6GA9bMuLV8h3E=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=I4U0hGyk+GsJAFicOe2q5eUPxaYhqxAumMWYhao3KXzMNTS9nA3sNxv23AeXksrWd
-	 FXKalFf8yQhkj5sh8wg12bZ0SecQtOnXf0ozNeoBO4qTTTzN0c0nx2C0YatsRwmEAb
-	 PdidAKdg76E1HGIWFIyYyuH7KQ8GpfNqOppt9b3Hv7jAewH8hKLSdmbYoyZiz4lRvv
-	 QQ0xAwY8ym4Yz3EfNKSW7TbYo+hhSNM9ncXC3GIlmBk32mv59bq7CKjntN/OcUf3J0
-	 z+GUb8XCScERYztrwnn0So3z59GX/JjrUsl8zuoVT0eHGkVJa7KmYfCb1G6/bE5yaL
-	 ZfbynUejkwM4A==
-Date: Mon, 8 Jun 2026 12:39:29 +0100
+	b=ZSdkhYB+h5nSqBOocM55VeVktciFWgwSVnAwGDNXjJ6v9AOxi/mcvgqVl0O23Zt9D
+	 rI49yCjv1zm3CN4Gt8yWDwuJkyziTaNExRTEew34/k2iNz0/Dv8+3f1+j6f5SSRBbk
+	 L8azeh8QnmhqEKzHKSrC86RBNlDkbpegBfN4+Dr+zJJMfk3SsOM+2wdlfgRbHskyTp
+	 88waY2q0XSyxY6uuYjeF3H0vqzXhiw0F2Ebklodbyyu2o2FgT91sRDMGKdcnZMK2us
+	 wj8lwU1YosFD65co8DZa7+499Gd9OggnXIN8ObP/f/g37R0tuo2HQRDMwH4wYYGyvd
+	 KekWOT4YI8tKQ==
+Date: Mon, 8 Jun 2026 12:47:01 +0100
 From: Lorenzo Stoakes <ljs@kernel.org>
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-kernel@vger.kernel.org, 
@@ -50,11 +50,11 @@ Cc: linux-kernel@vger.kernel.org,
 	Kairui Song <kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>, 
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>, virtualization@lists.linux.dev, 
 	linux-mm@kvack.org, Andrea Arcangeli <aarcange@redhat.com>
-Subject: Re: [PATCH v10 18/37] mm: page_alloc: use aliasing checks instead of
- user_alloc_needs_zeroing
-Message-ID: <aiapqEiASrriQqnA@lucifer>
+Subject: Re: [PATCH v10 19/37] mm: page_alloc: clear PG_zeroed on buddy merge
+ if not both zero
+Message-ID: <aiaqGiwF_BR9TyCx@lucifer>
 References: <cover.1780906288.git.mst@redhat.com>
- <d9b5fc983725665749024312f9ff5ede4f05e405.1780906288.git.mst@redhat.com>
+ <918897302a4cab9f476625adc238ec65a688d1d7.1780906288.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -63,62 +63,87 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <d9b5fc983725665749024312f9ff5ede4f05e405.1780906288.git.mst@redhat.com>
+In-Reply-To: <918897302a4cab9f476625adc238ec65a688d1d7.1780906288.git.mst@redhat.com>
 
-On Mon, Jun 08, 2026 at 04:38:00AM -0400, Michael S. Tsirkin wrote:
-> Replace user_alloc_needs_zeroing() with the direct aliasing checks
-> (cpu_dcache_is_aliasing() || cpu_icache_is_aliasing()) in the
-> post_alloc_hook aliasing guard.
+On Mon, Jun 08, 2026 at 04:38:08AM -0400, Michael S. Tsirkin wrote:
+> When two buddy pages merge in __free_one_page(), preserve
+> PG_zeroed on the merged page only if both buddies have the
+> flag set.  Otherwise clear it.
 >
-> user_alloc_needs_zeroing() includes a !init_on_alloc term that
-> means "allocator didn't zero this page."  But in this guard's
-> context (!zeroed && !init && __GFP_ZERO), we already know the page
-> is zero; init incorporates init_on_alloc via want_init_on_alloc().
-> The only question left is whether the cache architecture needs
-> the data re-zeroed through a congruent mapping, which is purely
-> cpu_dcache_is_aliasing() || cpu_icache_is_aliasing().
->
-> On non-aliasing architectures with init_on_free=true and
-> init_on_alloc=false, this avoids a redundant re-zero of an
-> already-zero page.
->
-> Note on PowerPC: PowerPC overrides clear_user_page to call
-> flush_dcache_page after clear_page, but on freshly allocated
-> pages PG_dcache_clean is already clear (cleared by
-> __free_pages_prepare), so flush_dcache_page is a no-op.
-> Skipping this here thus has no effect.
+> The merged page would inherit PG_zeroed, and a later __GFP_ZERO
+> allocation would skip zeroing stale data in the non-zero half.
 >
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Reviewed-by: Gregory Price <gourry@gourry.net>
 > Assisted-by: Claude:claude-opus-4-6
-
-This seems like an odd ordering of patches, can we group like changes
-together?
-
+> Assisted-by: cursor-agent:GPT-5.4-xhigh
 > ---
->  mm/page_alloc.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  include/linux/page-flags.h |  1 +
+>  mm/page_alloc.c            | 15 ++++++++++++++-
+>  2 files changed, 15 insertions(+), 1 deletion(-)
 >
+> diff --git a/include/linux/page-flags.h b/include/linux/page-flags.h
+> index 91f8ddb1d512..9365d59ac1d6 100644
+> --- a/include/linux/page-flags.h
+> +++ b/include/linux/page-flags.h
+> @@ -680,6 +680,7 @@ FOLIO_FLAG_FALSE(idle)
+>   * uses this to skip redundant zeroing in post_alloc_hook().
+>   */
+>  __PAGEFLAG(Zeroed, zeroed, PF_NO_COMPOUND)
+> +CLEARPAGEFLAG(Zeroed, zeroed, PF_NO_COMPOUND)
+>  #define __PG_ZEROED (1UL << PG_zeroed)
+>
+>  /*
 > diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> index 45e824b1ec75..edfc83571985 100644
+> index edfc83571985..a90bca5317c1 100644
 > --- a/mm/page_alloc.c
 > +++ b/mm/page_alloc.c
-> @@ -1880,7 +1880,7 @@ inline void post_alloc_hook(struct page *page, unsigned int order,
->  	 */
->  	if (!zeroed && !init && (gfp_flags & __GFP_ZERO) &&
->  	    user_addr != USER_ADDR_NONE &&
-> -	    user_alloc_needs_zeroing())
-> +	    (cpu_dcache_is_aliasing() || cpu_icache_is_aliasing()))
+> @@ -941,10 +941,14 @@ static inline void __free_one_page(struct page *page,
+>  	unsigned long buddy_pfn = 0;
+>  	unsigned long combined_pfn;
+>  	struct page *buddy;
+> +	bool buddy_zeroed;
+> +	bool page_zeroed;
+>  	bool to_tail;
+>
+>  	VM_BUG_ON(!zone_is_initialized(zone));
+> -	VM_BUG_ON_PAGE(page->flags.f & PAGE_FLAGS_CHECK_AT_PREP, page);
+> +	/* PG_zeroed (aliased to PG_private) is valid on free-list pages */
+> +	VM_BUG_ON_PAGE(page->flags.f &
 
-Let's try and simplify things rather than adding endlessly huge if conditionals?
+NIT: We don't add new VM_BUG_ON()'s, please use VM_WARN_ON().
 
-It's now incredibly hard to track exactly what's going on here, and that is
-bug-bait.
-
->  		init = true;
->  	/*
->  	 * If memory is still not initialized, initialize it now.
+> +		       (PAGE_FLAGS_CHECK_AT_PREP & ~__PG_ZEROED), page);
+>
+>  	VM_BUG_ON(migratetype == -1);
+>  	VM_BUG_ON_PAGE(pfn & ((1 << order) - 1), page);
+> @@ -979,6 +983,8 @@ static inline void __free_one_page(struct page *page,
+>  				goto done_merging;
+>  		}
+>
+> +		buddy_zeroed = PageZeroed(buddy);
+> +
+>  		/*
+>  		 * Our buddy is free or it is CONFIG_DEBUG_PAGEALLOC guard page,
+>  		 * merge with it and move up one order.
+> @@ -997,10 +1003,17 @@ static inline void __free_one_page(struct page *page,
+>  			change_pageblock_range(buddy, order, migratetype);
+>  		}
+>
+> +		page_zeroed = PageZeroed(page);
+> +		__ClearPageZeroed(page);
+> +		__ClearPageZeroed(buddy);
+> +
+>  		combined_pfn = buddy_pfn & pfn;
+>  		page = page + (combined_pfn - pfn);
+>  		pfn = combined_pfn;
+>  		order++;
+> +
+> +		if (page_zeroed && buddy_zeroed)
+> +			__SetPageZeroed(page);
+>  	}
+>
+>  done_merging:
 > --
 > MST
 >
-
-Thanks, Lorenzo
