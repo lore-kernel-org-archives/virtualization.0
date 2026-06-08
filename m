@@ -1,69 +1,69 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C6F53B9943
-	for <virtualization@lists.linux.dev>; Mon,  8 Jun 2026 08:38:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0969B3BADB5
+	for <virtualization@lists.linux.dev>; Mon,  8 Jun 2026 08:39:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780907941; cv=none; b=ch79v8fUd8iZp+wHf6RSNPBOt0ZYYFD15lBobFoBtQsq14OcC/oXHkhYZTGG9da3Ngcjc/NJp6d5n6AbajMDNnA23UQYLfFQUzEZ7A0vr88mCi11jpIyRR2WjKOMvkL/EhGVFbjjcP2DDXearu9Ma+uSahAFhCpSf1iIR1i38kg=
+	t=1780907954; cv=none; b=OyQRuX/+KxheXZcSAytpHTwkRnd/tviCEYd7P6OhF1QoUhE98kETkNdUuJYIPkAM6RYOvbydphw4zKdK4eT+Qn0iEU3RSVDXd4dJOn1nloSF5G5fjl7TzT5Byx23I6GKSOZWgT2EukMFwSFtoIZYEohz/WcThN+dqoyNq/uEThs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780907941; c=relaxed/simple;
-	bh=9G4viGLxhnf9wEDx0vlsgDGsNz6CjvZFH6MPF7/wsQQ=;
+	s=arc-20240116; t=1780907954; c=relaxed/simple;
+	bh=JqpRnHMOZCHNy3L9y89dcwb7zbUTjUHqd7YR7olPip0=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Yf4DG8e2Sw3VahBn7hIBEanZNG+GGGNR+696SoOngZ0FfxnGxxEdi6hRqrxRPOrQ/rcrtUNq3GODRLo07U7qrSzQoyDcFak4oymBr55/+RauvAnTUHzLw+wnQRs7cjTRh58hKns3QXmNamch1J+BdqHdiC0bTbev0SsrN6GNZi8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AFH0W5OE; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=VZHDF1dO5V11bOhxuPnoSsoOdDbPxTT8hKQbXifgtMEgHEj7+6c5e5zFreSCAmza4eIs2EpcM+ZlZlowr5HVyymCDbSbZ4hiDcZf9zoc0a2ddg9rvLOxd+fBTJ9/WGlmLU5PlzOWBmx9yjxzSNEiMJUq5toe9pOsfqSmZNAAsys=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Jp53yUkf; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AFH0W5OE"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Jp53yUkf"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1780907937;
+	s=mimecast20190719; t=1780907949;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=EnA3ajreXHx2VoG4/VPZjRVpyyF9Dgnshjyr2lhZIq8=;
-	b=AFH0W5OEo2Qn1vreC/ANDj0Uke9EOnTnojRzUPtxHwhOyPLsqyhbJ4vnDk42ye+2NOc7+Y
-	neqDHwvsJuKvjmSnIv17X98aQvT9RweaR5F78FD2T9YDfLXAcmtCCVyGgNEsVEchwRisLC
-	Bn/b9HFG6dQKzmA/7qMgDS/81TtC+L4=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=DMc8fDrj0D8JcjJ5dRd88tqBSMHmwk7bs26tvZRKcB8=;
+	b=Jp53yUkfdIOaMrluPhVgqri5XU7AO0S0z1zKHLyv+Kih09QWeFn00JUMyS3lgI5NLJHR4D
+	AydAzJvnaQtT+0aWVOd5wTypFKpjMvBAdyAOYDMZM526X0hxhgXJmlk/zWroZmRX/MvHGh
+	aeLDvTw1a0QS8l2C/9LVMp57I+T0uho=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-567-VgLwTp95PRKHUWky9usv7w-1; Mon, 08 Jun 2026 04:38:55 -0400
-X-MC-Unique: VgLwTp95PRKHUWky9usv7w-1
-X-Mimecast-MFC-AGG-ID: VgLwTp95PRKHUWky9usv7w_1780907934
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-45ef3aeeb41so2646451f8f.1
-        for <virtualization@lists.linux.dev>; Mon, 08 Jun 2026 01:38:55 -0700 (PDT)
+ us-mta-180-nFB_xo0oNi2EsTrRG1H0Rw-1; Mon, 08 Jun 2026 04:39:03 -0400
+X-MC-Unique: nFB_xo0oNi2EsTrRG1H0Rw-1
+X-Mimecast-MFC-AGG-ID: nFB_xo0oNi2EsTrRG1H0Rw_1780907942
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-490a767c7dcso32922245e9.2
+        for <virtualization@lists.linux.dev>; Mon, 08 Jun 2026 01:39:03 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780907934; x=1781512734;
+        d=1e100.net; s=20251104; t=1780907942; x=1781512742;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=EnA3ajreXHx2VoG4/VPZjRVpyyF9Dgnshjyr2lhZIq8=;
-        b=JP/YCbWIP3QTe5QIQAxGYOy6hUOkJoFR+pkOO3KIp1gD2rzvpo4g+gA1Sq6UbJ72/h
-         /fBiTYbRhvdNo1tyOMus0xrOureAbNN/eyElv/REDtJHhDowaDQbUVX5dO9WCqUiDxlS
-         2QJVYbg7RmPMXIob8+r1zqoiqIUnx0GCCGAPFJ6NyehXnjUTPq2xaQvvoN0F8fdhaxz/
-         GRXaxWAy9HG/paTYKeKJSSdEmxjDMkFSGj2nl08oZ0FuY8sfBWRl+hzUAvpQq9s4+pcD
-         xRlAuqe0rJyPYTp6R9rpf4sZParBG5vxyKrJVcktDcoOmMsyRPWONwXpjVujR63AQ6Ie
-         85SQ==
-X-Forwarded-Encrypted: i=1; AFNElJ8UI0fWwA2rVFUiQhI2ReK9HhI7UHOfz6/94nXbBb7TfM4dS7XOAsOd9LhBYO3Y/nOEXe4pzpexEGveUESFxg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzvnuAKM59B48f5Iihc8b+MclkX+Go9QQkErQix0GeYg0vFBEPQ
-	eYGrgC93z+lhjjU5PinvG8kqPH57PM5wm4ATKknTHlHDkozso0QiDA+xoAA6HY2/dYmFzTC5yxu
-	xbN1qmVXp4RUpB4I2ZmFQzva6w3niFnwTVpyYBiQJ4GNtPinPtwCinlclgb7Gf9I7OcWX
-X-Gm-Gg: Acq92OGx+s+OsEVl7EeHUHlMG9VpENJ95JMt8+AT40TQ9umPNS5zyHDNO47YIzMQHWF
-	WnxtF5o2ywTkfHw4R46Sq2eBtDCPVNirszO85Gvlbf3nz19/0CfGxq+nnYz1GYSSE8GbLSDD78d
-	zemavBPbeinILSPoXDuNw4G6Yhb15OLwf1s/Qq+YwT4VWwNbB0oRda5W2ZJ0021ywvS/RvS/rkS
-	wOqrWzv21P8bXLvNBJFRWO72uCLswGXgAbkH1pypeT/y20dqEDMXzaaluoLe48SVEWcMDsOGYM0
-	ikI1NWoKk9f0xzRGf5udmOfKYl6B+dis66ndQJKIlpjWYtJWSwyN88AE1cQPW0PlaTdbH8NpFFn
-	4dmbVviMa0BAnJ8I/aan8Eg0=
-X-Received: by 2002:adf:fcce:0:b0:45e:df08:b18 with SMTP id ffacd0b85a97d-4603075ca65mr15338397f8f.32.1780907934354;
-        Mon, 08 Jun 2026 01:38:54 -0700 (PDT)
-X-Received: by 2002:adf:fcce:0:b0:45e:df08:b18 with SMTP id ffacd0b85a97d-4603075ca65mr15338352f8f.32.1780907933822;
-        Mon, 08 Jun 2026 01:38:53 -0700 (PDT)
+        bh=DMc8fDrj0D8JcjJ5dRd88tqBSMHmwk7bs26tvZRKcB8=;
+        b=G4DI7QKQUouUDDnqWbZyKaJkA/opAMMPu8ofc4QBFx3hsydl0Qntq71pqpPxOXI8l+
+         Wf+GI3AIzUv6WfdXc82N4Howa8jmzWBadShzUuvicjPQqLa8+aPD8Kx3kNyixI1LyEPQ
+         St6ZtmNufghVAmGVARnbjiwvfNIyLPmwCyyGqKAeM1NM8A9lnfyNbRBb0sBgO3JamcHa
+         tZ8HSae4/Tiz0kMKo/eHU9+yjy3bByLs6mXaDNa2dgFSzBgQGX4oAP+FOZNy93NZ+DCu
+         NoYHdVxSiZXkx9T6/1vXXMFFZ8aDxi34yEkhbuxFes+pZWYApO0FNXL5S6eTQkMYpl4W
+         0tQw==
+X-Forwarded-Encrypted: i=1; AFNElJ8Tko9mOA+aQyDeLNluN14+TcEOP1WA/P4u9750zxd3uts2V9uT7pN9ijcU2ylT0TexobPlvvr6N0cy0RYZeg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyCY/S/HIskUmb6Fexsi4BQo57LhfHffarUEiJIKZ0Yw7O1LAQM
+	gHgoDqBWlYwG40zMuOCGyYeQSLtzesdAsVQGY75S8mgsFX+5rIRjCuvKpVY5PM3BqOHFOkFWUV6
+	Nlru5eqcPKDhyk86pN+5EB0DqQUeIVVKTx2es41JWYDE8Ub70ykOq/x8D3JBXDXYFb/7u
+X-Gm-Gg: Acq92OHuN6sJrvFIY41DuNEDJjPkGqNKxbIT0qpkNGI2ZHah6ZX9wo87DuxH1CJsnXt
+	+brG9GNShIogtDo+OAQU9UPga9qUkiuZTzEPNgpOs0yo0OB6cyj942UF4baDqidce8emeu2AO/I
+	Kk00qGBUzhjXfk1H6qH6YCUaekRRg2u5f6MS6BhLoasjl95bW8zhQHnaN1GGJ2ixpYwLQOiBhIZ
+	X4afK0Oiv9ZSVm+n1/OJ5rVN31Z/8rqxyBnMJ49MznFBZBtDP0ZWkKPA4q9tGGXEf6j2efaYAvj
+	hUYW7xKaC+gHDC8A6xtofdsy3D7vTkO2ogdNWYeS88pKPwrnBOtlshm0z3WvAC0hX3i1qEnOPK0
+	dhr+/vt5gtSKZUY5M4nlYdx0=
+X-Received: by 2002:a05:600c:5252:b0:490:b2a6:8c1d with SMTP id 5b1f17b1804b1-490c25adb2fmr254958245e9.10.1780907942353;
+        Mon, 08 Jun 2026 01:39:02 -0700 (PDT)
+X-Received: by 2002:a05:600c:5252:b0:490:b2a6:8c1d with SMTP id 5b1f17b1804b1-490c25adb2fmr254957625e9.10.1780907941897;
+        Mon, 08 Jun 2026 01:39:01 -0700 (PDT)
 Received: from redhat.com ([31.152.37.159])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4601f3446aesm55104695f8f.24.2026.06.08.01.38.47
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4601f2ed944sm52040479f8f.13.2026.06.08.01.38.55
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Jun 2026 01:38:53 -0700 (PDT)
-Date: Mon, 8 Jun 2026 04:38:46 -0400
+        Mon, 08 Jun 2026 01:39:01 -0700 (PDT)
+Date: Mon, 8 Jun 2026 04:38:54 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: linux-kernel@vger.kernel.org
 Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
@@ -102,9 +102,8 @@ Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
 	Andrea Arcangeli <aarcange@redhat.com>
-Subject: [PATCH v10 23/37] mm: page_alloc: skip kernel_init_pages for
- FPI_ZEROED when safe
-Message-ID: <7de6959a0fb1b255dc9bee2de494f51a6c21e468.1780906288.git.mst@redhat.com>
+Subject: [PATCH v10 24/37] mm: add put_page_zeroed and folio_put_zeroed
+Message-ID: <fef7ca7bbf591865defef658b0792b58494aaed5.1780906288.git.mst@redhat.com>
 References: <cover.1780906288.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -116,44 +115,116 @@ In-Reply-To: <cover.1780906288.git.mst@redhat.com>
 X-Mailer: git-send-email 2.51.2.2891.g4157995a80.dirty
 X-Mutt-Fcc: =sent
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: uNSCwKsjpdQl2-so4eWGlUpdyFzSLLiLAt7DyeyPr98_1780907934
+X-Mimecast-MFC-PROC-ID: irKVEg9IKKYN_uQtihV8ZEfamV-RHBBgOaTm6qSgfO4_1780907942
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-In __free_pages_prepare(), when FPI_ZEROED is set the page is already
-known to be zero. We can skip kernel_init_pages() if page poisoning is
-not enabled (because poison would overwrite the zeroes).
+Add put_page_zeroed() / folio_put_zeroed() for callers that hold
+a reference to a page known to be zeroed.
 
-This avoids redundant zeroing work when freeing pages that are already
-known to contain all zeros.
+If this drops the last reference, the zeroed hint is
+propagated to the buddy allocator.  If someone else still holds a
+reference, the hint is simply lost - this is best-effort.
+
+This is useful for balloon drivers during deflation: the host
+has already zeroed the pages, and the balloon is typically the
+sole owner.  But if the page happens to be shared, silently
+dropping the hint is safe and avoids the need for callers to
+check the refcount.
+
+Note: put_page_zeroed uses folio_put_testzero() which only
+detects sole ownership at the instant of the atomic decrement.
+A concurrent reference holder (e.g. migration) means the hint
+is silently lost. This is by design: the zeroed hint is a
+performance optimization, not a correctness requirement.
+Losing it just means the next allocation re-zeroes the page.
 
 Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 Assisted-by: Claude:claude-opus-4-6
 ---
- mm/page_alloc.c | 9 ++++++++-
- 1 file changed, 8 insertions(+), 1 deletion(-)
+ include/linux/mm.h | 13 +++++++++++++
+ mm/swap.c          | 20 ++++++++++++++++++--
+ 2 files changed, 31 insertions(+), 2 deletions(-)
 
-diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-index 008f1a311c40..e3a7c40c769c 100644
---- a/mm/page_alloc.c
-+++ b/mm/page_alloc.c
-@@ -1443,7 +1443,14 @@ __always_inline bool __free_pages_prepare(struct page *page,
- 		if (kasan_has_integrated_init())
- 			init = false;
- 	}
--	if (init)
-+	/*
-+	 * Skip redundant zeroing when the page is already known-zero
-+	 * (FPI_ZEROED) and page poisoning did not overwrite it.
-+	 * When page_poisoning is enabled, kernel_poison_pages above
-+	 * wrote PAGE_POISON (0xAA), so we must re-zero.
-+	 */
-+	if (init && !((fpi_flags & FPI_ZEROED) &&
-+		      !page_poisoning_enabled_static()))
- 		kernel_init_pages(page, 1 << order);
+diff --git a/include/linux/mm.h b/include/linux/mm.h
+index 06bbe9eba636..79b3a8cb9a3b 100644
+--- a/include/linux/mm.h
++++ b/include/linux/mm.h
+@@ -1913,6 +1913,7 @@ static inline struct folio *virt_to_folio(const void *x)
+ }
  
- 	/*
+ void __folio_put(struct folio *folio);
++void __folio_put_zeroed(struct folio *folio);
+ 
+ void split_page(struct page *page, unsigned int order);
+ void folio_copy(struct folio *dst, struct folio *src);
+@@ -2090,6 +2091,18 @@ static inline void folio_put(struct folio *folio)
+ 		__folio_put(folio);
+ }
+ 
++/* Caller must be sole owner to guarantee page is still zero */
++static inline void folio_put_zeroed(struct folio *folio)
++{
++	if (folio_put_testzero(folio))
++		__folio_put_zeroed(folio);
++}
++
++static inline void put_page_zeroed(struct page *page)
++{
++	folio_put_zeroed(page_folio(page));
++}
++
+ /**
+  * folio_put_refs - Reduce the reference count on a folio.
+  * @folio: The folio.
+diff --git a/mm/swap.c b/mm/swap.c
+index 5cc44f0de987..ecec780172ad 100644
+--- a/mm/swap.c
++++ b/mm/swap.c
+@@ -94,13 +94,15 @@ static void page_cache_release(struct folio *folio)
+ 		lruvec_unlock_irqrestore(lruvec, flags);
+ }
+ 
+-void __folio_put(struct folio *folio)
++static void ___folio_put(struct folio *folio, bool zeroed)
+ {
++	/* zeroed hint ignored for now, no current user */
+ 	if (unlikely(folio_is_zone_device(folio))) {
+ 		free_zone_device_folio(folio);
+ 		return;
+ 	}
+ 
++	/* zeroed hint ignored for now, no current user */
+ 	if (folio_test_hugetlb(folio)) {
+ 		free_huge_folio(folio);
+ 		return;
+@@ -109,10 +111,24 @@ void __folio_put(struct folio *folio)
+ 	page_cache_release(folio);
+ 	folio_unqueue_deferred_split(folio);
+ 	mem_cgroup_uncharge(folio);
+-	free_frozen_pages(&folio->page, folio_order(folio));
++	if (zeroed)
++		free_frozen_pages_zeroed(&folio->page, folio_order(folio));
++	else
++		free_frozen_pages(&folio->page, folio_order(folio));
++}
++
++void __folio_put(struct folio *folio)
++{
++	___folio_put(folio, false);
+ }
+ EXPORT_SYMBOL(__folio_put);
+ 
++void __folio_put_zeroed(struct folio *folio)
++{
++	___folio_put(folio, true);
++}
++EXPORT_SYMBOL(__folio_put_zeroed);
++
+ typedef void (*move_fn_t)(struct lruvec *lruvec, struct folio *folio);
+ 
+ static void lru_add(struct lruvec *lruvec, struct folio *folio)
 -- 
 MST
 
