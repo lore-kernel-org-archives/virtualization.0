@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D54A3546FE;
-	Mon,  8 Jun 2026 11:35:40 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE29B3659F9;
+	Mon,  8 Jun 2026 11:37:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780918541; cv=none; b=FrwCYKzp7dNNAMIwV/4F6ogR09TTY0h5qfq+nch5A0Mcl/XsbVKe2Gm8tqz6i40y3nw0Was1c0p/rbIK5yhJq2n8PwK1uegAXqCcl443EVM/iuckkoy5IRS1DVqq2Vv+1PXZTqHRqF287ysC00vr4NQIlD2iadcZm3Pkaib9WYE=
+	t=1780918653; cv=none; b=IshEIDgBAbgvyYK8CBAEu6tXO5qa4evhMoeikkqojGlZDhfiZWWJq/q4VdIRxMTVD/0p+dqmdSAK8Qi/EsVwa/1HXzWzwWUkNSvIazRNdfAbPZ/IqMYQFEtDQbMUOZqtcKm6jXaoykpLgNUR+LFDDR050FQX6qlLRNM9uANxsZM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780918541; c=relaxed/simple;
-	bh=ci6OQq+CFcUaBZEhdjWIhzQCTDYwrldsct7EdCH9VzU=;
+	s=arc-20240116; t=1780918653; c=relaxed/simple;
+	bh=VH4qnQUUyUH3P/evQNgTsIrIbgABdIYTpYY9higPfUo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MvmlHbDG4GQq1svNHBRzxJVTcyrABGUPKB9/B/rt92SCq+zkWxkkJbYlPdDHTfPcYJ0Ye0tOQeX8BWcWegyqRt4+dUYm+ProSKuLrTAcqfwI5BAyt2q5se6Ir6qXRaYLveGOQTdbUKEvCHJh9byWUAFqWZmmtmTaPIMyede9BYo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UEn4Cg4m; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=c5/f82Whmbhj1M+ly69hsVPMGUTGV6d6epilXY+augqRYXo8X7d99pxyRVcNmdY6hi3QV6iqwFsiWPzHizGnhvi+aAyPAC+gzSjaJc9cEvh/Vu5Nncv37ZgduxesRvATuTcUKu3MgAepJiv0mHIPC2eP5MS3s2VI+/vtc9fd3PE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=W+uCzJA0; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UEn4Cg4m"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 165351F00893;
-	Mon,  8 Jun 2026 11:35:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="W+uCzJA0"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 204D61F00893;
+	Mon,  8 Jun 2026 11:37:22 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780918540;
-	bh=+mt/AQPoXVlo6YJRcaj8WIglPtUVRoT7Dfgki2X6jvs=;
+	s=k20260515; t=1780918652;
+	bh=bbKY+/QgX1YlcLcIfrnvHn6Xg3zI9+wq5m+o05G1544=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=UEn4Cg4mDB4ZqeEENfhRLZ7CrCWKslv8smC/a7WmpX/Rw+bW6iFuBZ/DLi5ZVfAvF
-	 wDI4SpiPlVUscTRteSxgpmAN61p5Hg3FU/KSPU61RVjIlHU7pDEK3IC7n29gYIrXRI
-	 oo5+qthlnghCO4xmG5YrKq/cTvL8zsKwETxVQfDL0TQ/LXe4YEP1PsdT9C7oI0R9ud
-	 +TNjaw89uQKCcIaRboc76St9sLzDrrrOuGJOkY1cir0WuZsTkTfjyJlrapaS8k5Lum
-	 XMgtlY73eBx3lEOMCQAZRMf0Pyam0nD5yT3nkasxPGDBADEoxq+ggL4shNvrZGl2KP
-	 u1tyU8EvsjL7A==
-Date: Mon, 8 Jun 2026 12:35:27 +0100
+	b=W+uCzJA04h4lzxITom15y9mpKUyp140CgqBFDgSwg5WCzBbgjz/KQrJTlLC9P2y5B
+	 GjViMKOTSs2jqW7wAmxaLRD5EEQGdDrbYaXJRCqraK10o1SZ54CalvhU6r55CtO/sO
+	 jmJSb0GEQGsgpELKbh/8NPOTf8xqHRwlOaTS9hKais/K5iHw1Ke8HcmHKrGL6jjP1g
+	 MymtfUnNk2bMmRaXi24NC4ciKkRiMulBpz1Np958dlIjoVj1iuni/TcDw2dxRgyh6m
+	 5QGtocN/+xw66CFrL3NmgNqaFmiu5JRZZE9RIZJMWSTy2mo24LsUtUvNubxScWlBYZ
+	 i6I9IJqXpFSHA==
+Date: Mon, 8 Jun 2026 12:37:20 +0100
 From: Lorenzo Stoakes <ljs@kernel.org>
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-kernel@vger.kernel.org, 
@@ -50,11 +50,11 @@ Cc: linux-kernel@vger.kernel.org,
 	Kairui Song <kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>, 
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>, virtualization@lists.linux.dev, 
 	linux-mm@kvack.org, Andrea Arcangeli <aarcange@redhat.com>
-Subject: Re: [PATCH v10 15/37] mm: alloc_anon_folio: pass raw fault address
+Subject: Re: [PATCH v10 16/37] mm: alloc_swap_folio: pass raw fault address
  to vma_alloc_folio
-Message-ID: <aian4VFP8s8aYJu2@lucifer>
+Message-ID: <aiapFvxPXuPd4-OP@lucifer>
 References: <cover.1780906288.git.mst@redhat.com>
- <2e931dc3daa76b57eaedd5b2d3d49f1075797252.1780906288.git.mst@redhat.com>
+ <d2be78654e9dcc7cf5b8a542c2c8f331187c80c9.1780906288.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -63,36 +63,30 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <2e931dc3daa76b57eaedd5b2d3d49f1075797252.1780906288.git.mst@redhat.com>
+In-Reply-To: <d2be78654e9dcc7cf5b8a542c2c8f331187c80c9.1780906288.git.mst@redhat.com>
 
-On Mon, Jun 08, 2026 at 04:37:25AM -0400, Michael S. Tsirkin wrote:
-> Pass vmf->address directly instead of ALIGN_DOWN(vmf->address, ...).
-> NUMA interleave is not affected: the ilx calculation in
-> get_vma_policy() shifts addr >> PAGE_SHIFT >> order, which
-> drops sub-page bits regardless of alignment. post_alloc_hook
-> will use the raw address for cache-friendly zeroing via
-> folio_zero_user().
+On Mon, Jun 08, 2026 at 04:37:41AM -0400, Michael S. Tsirkin wrote:
+> Same change as the previous patch but for alloc_swap_folio:
 
-I'm confused as to the justification for this? You're saying 'make change X,
-it's safe because Y'. So the justification is now this post_alloc_hook thing.
+Please don't say 'same change as the previous patch' :) explain what you're
+doing here. It's a pain to have to go check otherwise.
 
-But are you now creating a new requirement of vma_alloc_folio() that you must
-specify the actual address we are faulting on, not an address within the folio
-or the folio's base address?
+> pass vmf->address directly instead of ALIGN_DOWN(vmf->address, ...).
+>
+> Note: NUMA interleave is not affected by the raw address;
+> the ilx calculation shifts addr >> PAGE_SHIFT >> order,
+> dropping sub-page bits regardless of alignment.
 
-(If that's a requirement, why is it?)
+You're expressing the same thing as the last patch differently, but then
+eliding other explanations from that?
 
-If so you should update the vma_alloc_folio() description 'virtual address of
-the allocation' is not at all clear.
+All the same questions as I asked for the last apply to this also.
 
-And if that _is_ a requirement, then are you sure all allocation paths are
-correct?
+And also - if you've now made this a _requirement_ that is broken
+otherwise, then aren't these bisection hazards and should be squashed into
+the change?...
 
-I already see addr & HPAGE_PMD_MASK in vma_alloc_anon_folio_pmd() for
-instance?
-
-If it's not a requirement, why are we doing this? it's surely useless in
-that case?
+No patch should break anything at any point.
 
 >
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
@@ -104,24 +98,19 @@ that case?
 >  1 file changed, 1 insertion(+), 2 deletions(-)
 >
 > diff --git a/mm/memory.c b/mm/memory.c
-> index 86a973119bd4..21f640674c4f 100644
+> index 21f640674c4f..6c14b90f558e 100644
 > --- a/mm/memory.c
 > +++ b/mm/memory.c
-> @@ -5268,8 +5268,7 @@ static struct folio *alloc_anon_folio(struct vm_fault *vmf)
+> @@ -4750,8 +4750,7 @@ static struct folio *alloc_swap_folio(struct vm_fault *vmf)
 >  	/* Try allocating the highest of the remaining orders. */
 >  	gfp = vma_thp_gfp_mask(vma);
 >  	while (orders) {
 > -		addr = ALIGN_DOWN(vmf->address, PAGE_SIZE << order);
-
-If you're removing this usage, could you also remove the silly thing of us
-declaring this at function scope then using it in branches when we should always
-have declared these separately?
-
 > -		folio = vma_alloc_folio(gfp, order, vma, addr);
 > +		folio = vma_alloc_folio(gfp, order, vma, vmf->address);
 >  		if (folio) {
->  			if (mem_cgroup_charge(folio, vma->vm_mm, gfp)) {
->  				count_mthp_stat(order, MTHP_STAT_ANON_FAULT_FALLBACK_CHARGE);
+>  			if (!mem_cgroup_swapin_charge_folio(folio, vma->vm_mm,
+>  							    gfp, entry))
 > --
 > MST
 >
