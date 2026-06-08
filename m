@@ -1,72 +1,69 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f169.google.com (mail-qk1-f169.google.com [209.85.222.169])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 070383E7BD1
-	for <virtualization@lists.linux.dev>; Mon,  8 Jun 2026 19:59:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E55423E8686
+	for <virtualization@lists.linux.dev>; Mon,  8 Jun 2026 19:59:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.169
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780948748; cv=none; b=Q6jVGKJocH2DQ++qwJUSh6VF2Z6TtfQHFF2aVVJWsHjOYqv7TnLdLiMcbSl1r8ebI2X+MAH3TQHMnIHGdCeZ7CPFrO1zutcDclF3VoFtxQpZQeIo6pOxpb1JjuoFc7OZnCsN6eBJMoOOMU9ta3dTrkdUn/mSfQh09zJpOcTznqA=
+	t=1780948758; cv=none; b=cs9xwGjJZhSylhtmoziuv7gV8MOBASpC+LxLwQMweJ4qG/7y4bwefM4sRslwV6lenv9qB6xPJ/0bOwrZyvTFBVfggZZh5PcgShNjKxNxCBjQq1Jj/5+S8nNSogdkQwC9lUQ1CnNM6jBe7I/pQFI1/vpszmtBnDHmlXldzr+TlIY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780948748; c=relaxed/simple;
-	bh=qiwIhtw7NmMcaCXTfNudfYlEPNd416ZpKyvIlCb5FKM=;
+	s=arc-20240116; t=1780948758; c=relaxed/simple;
+	bh=nC/1q8EJEgXGdRfM0fgAm8GRfOb2Sflm3M+qFkNWGug=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=diZ/TuBEcvYvcvxpnuts3eao8ksdyFuZ+cliWSltr925SvDSMyxEKxKZZMk1AcDdOjIELc9GLRM6v+fMYlT31ryiXpi9E0gIdJr7INjqDihv3Mgx5rw2s3ct0pr0mZa9bT/08VUzKhMNiMx11LCgQbDCuxU7KG1x4X1AXZMN77A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ANVxir9f; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=KsXIVvY9UtOUXJncqdY+uNKY01s0WOcBJZI2Wfu2Ejiheh3K4Efgz7IYtJPhkflsvloCZVTO2oDTtUj+MedmRsAd/O2yl9vm6+9PTpCzUdW9pQMjLMu3wcJd+Yz15w4zVVxmFxP6h5fqLUdOGvyRykj3BzWyI6EHzd5ekA50vEg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=QPvrA9tD; arc=none smtp.client-ip=209.85.222.169
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ANVxir9f"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1780948746;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=eqSTEGK8xl8EZeqE74tv6zlFs8hlnJlJcde7w58YuZs=;
-	b=ANVxir9fcMIT1GsyACDXzgKdnGMuNNvbXe2Nkhcih/IT34yVzxKPJt4l+SEihwjKQCdycY
-	S2pw7Hd8BjljhSp8v5AQp1hjBspk5FgPevpAspDjvUInUGaTC81wVToKhR3j+QAk9SfRKr
-	HOniUHPtw3ndn/VEfwyQOx6s/5KbGVQ=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-144-Ok8b4068MDGwvm3OUBVdTA-1; Mon, 08 Jun 2026 15:59:02 -0400
-X-MC-Unique: Ok8b4068MDGwvm3OUBVdTA-1
-X-Mimecast-MFC-AGG-ID: Ok8b4068MDGwvm3OUBVdTA_1780948741
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-4600c8cb13aso2844777f8f.1
-        for <virtualization@lists.linux.dev>; Mon, 08 Jun 2026 12:59:02 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="QPvrA9tD"
+Received: by mail-qk1-f169.google.com with SMTP id af79cd13be357-9158c621ebbso566408785a.2
+        for <virtualization@lists.linux.dev>; Mon, 08 Jun 2026 12:59:16 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gourry.net; s=google; t=1780948756; x=1781553556; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=7Xwdm1oiBGcy95PBpOYBrMILZr7DavlHrl7pDmQKHX0=;
+        b=QPvrA9tDdX9904p4RgEKctodDpNjjRcrCDfyaCV3NeMDWZJfQhoPTRljKo+lJwwcCr
+         NV58aEuGsPKsN/YrFYMGolF5iLtjDPZiH8kjrq0wVOX87So2pt+8IR6EvQCY2J013ipk
+         hDQmyTgxHyt17ZIfSfAWPjrjCI7ThbjLlgmNoImf3dRGv8y4N8gTHcwa1Z3N/TVVAaw5
+         L30doHKPbDJQ+BH3P2HwdWiOj5MdLL0vPevAYvQNadp1eLxiFDTrfkLyv1jDuRFoHqC0
+         UqX1uesqv6VNr/XO4o40wfH9817RwdPGYwioTFA0MByZ1dQyf8q0QQDZ+XBhFdKkVaK6
+         lGwg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780948741; x=1781553541;
+        d=1e100.net; s=20251104; t=1780948756; x=1781553556;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=eqSTEGK8xl8EZeqE74tv6zlFs8hlnJlJcde7w58YuZs=;
-        b=XGqj6dcAIF25tO65zT/PIvZfR/JrgEMFUVgDf5avZC30PrTgL/CWMeTiSuqktpQSPF
-         ckxvVthi6UApsYqOxD+gxIhCSB/koHzCZ5pinC7S+KLCVQFoYWg+Mi0Rb61l8zJL+qes
-         l88JWhOCOrokQnJWOKPiuK7udnNESBCf9AdXROqGqYf5E3hRh3AHFOguIbc5cihnIgfR
-         2b1goklUKTvlCwvDPyMuE3MvNgvfuZ+TudnVd1qLwGr82aYrZFbYT6sXnAvQrYxpUBfz
-         fkeb1O1DrZeAH5NWfsSBcoSyejQESJkwrWYTjfLp+/thgFSykAu/aXHGJkXpFoAVJ5AH
-         FkIw==
-X-Forwarded-Encrypted: i=1; AFNElJ+7hWj8XYI7ZBUH2qsQ78mTOwyFbgVRfpxsmRWhJrEUXbjCahWknjYkDYm0cacESSz5uBKvj/GSq8UT5P8wkQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzK+rCNXTMVenqoCSdK2xRewX3n+aJOfAYnGNcxKeW0pbFiDzd+
-	CcQygnV7MWAZBFx8qpZjrVyLyYeDDrHtw1MakMZuWC9lrDXR2co/b1aAwX38v2TA7x9CH2fnqXb
-	4Q6kSEJ0z/Yj8BfQ8vKuW7OxNFrUY/WLCgaS1OTnAPsIvYnuSGL4Bg1ugaKBawaKc8fDM
-X-Gm-Gg: Acq92OGbFDNzaJyLSbyYSSUSUyK0sloMCuxPZaptA3z626uWNabXd3MLGOEKpTz97eA
-	F8g/slDu4Cyz9rSOSm71Y9jD8Ji1ejb/RMxTd6PcEPCtvzCTOynZbPH3XbqgnRKeTyYuTK1rBU8
-	jf++02+yzwGhVI+IIejlCEPSykGAaqY1NJy2AcDLl561KWXZweAfkeLklcEf6hm283znJeyHVlZ
-	Ofl6kX8saKm5FlFDnR6//e2ry7heoSoRo6uK2BDo52VSbKZWtFEViP85VFSDyOXtKoReSdsOhLz
-	/Xb7UpEPSsA73x/jceME+gYWyp4R8EgUCz0taoXv/rJnZ2llZ90jkEgz26VTlARHjPDcxjqHjM0
-	6Sr/S8IEZydqeONHg8dtberfpIKIA+CbOX+tXkcRShiOTJibPJ80hXQ==
-X-Received: by 2002:a5d:4d0b:0:b0:44b:5398:4e85 with SMTP id ffacd0b85a97d-46030502519mr19992709f8f.22.1780948741122;
-        Mon, 08 Jun 2026 12:59:01 -0700 (PDT)
-X-Received: by 2002:a5d:4d0b:0:b0:44b:5398:4e85 with SMTP id ffacd0b85a97d-46030502519mr19992648f8f.22.1780948740596;
-        Mon, 08 Jun 2026 12:59:00 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-85-71.inter.net.il. [80.230.85.71])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4601f351d40sm54186487f8f.26.2026.06.08.12.58.56
+        bh=7Xwdm1oiBGcy95PBpOYBrMILZr7DavlHrl7pDmQKHX0=;
+        b=gtchSZJnD+zMsQxf/EUFb0EG8HeViWSTqUlksMf/yvxzrdod47d421R4ShXEAYqCyv
+         9PuX8etJ7OpOHBKUtEQ/gqFAd6OJ3kewyyaKzcVRfPhMkUs7GNW166tRZBw44pX7y39s
+         fNUl295phLLdlHQ3M/ZUjogTrfN+PIakoMwChaDE4JMu+CJCKypSKxNHNQaNbfXBoVJM
+         3htRBPl6FSxtTWYXdblncnD9oHVorVFDLKR7J6CSX9tgPXlkH0td8SXw4bB7Dbav2PFO
+         goVz7GoxvS+auJIYbb51hmyAYU7+YXM+/2DQa88jEJg5xbuaEVGwQ4zJ4AjvfipFHrEb
+         PBvw==
+X-Forwarded-Encrypted: i=1; AFNElJ8KghOVo0lgogFByjP4J/UJ+Sr8LC2ze9Bjpy/UEGZZqX2i0zHh0tXvv007kc24YvMDeE5Ipew4EGSuHyNcQg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz/RhTzS2npvu2+pIV5Itvcw27uZkNfe5shVYs40aHKGdqfAkDr
+	QwMG8MiteDoPwdCuIPa/UapMAJ3IVefJgQ6NIkB+dPbhfgKjJBQT8dkWsvKQpi/06uw=
+X-Gm-Gg: Acq92OGg+oRG5Sb3yypvSUcJKfCk97qBzVY1EHJqqHUKNQkrX4TE48Od83TxLeG3xDl
+	EA1X3X2RCl7ehbEuopO0em/sPWXUAc+GJs2qsAupinI6B8vyKL1eWijgDMamLcJo4ohoHgUzqKy
+	c4sBvqyMHEQ0MhPTqLQq+e5uyUrHwKvrlX5eRZD+3nCQ5CAMsCo8Z7OOknaFv2F6VZJFCl0neTo
+	SbXpvO2oINeCpCA93mWx1SfRRb5egETjzWboBXVtT+EBIyiIjMuimLysIFA795pCrY5C/v+rBcw
+	C8c7ITi3RFMfgXNSKpFXuVlTnxC7J039fZrlHO3/QQTupoOmRyz9mejs+GlqMGnyxrNyd5tzXNw
+	C8zGRkQFhF/N6fd8y3sCkUSys1OGw03N/AsfkjN9RVIJllUWZfxF26vEkDu/tPT5YBnOAgdgP74
+	NXCLADzaK3/OLo/xU8waR3Xqvz3ChRTtTe5+E3bQ6CvUCsqAHUJs1k7GeoGAOdI25pND0junBDF
+	yrYIvVvtgrPmxcE7g==
+X-Received: by 2002:a05:620a:a0c8:10b0:914:babf:9f56 with SMTP id af79cd13be357-915a9d763b4mr1978857285a.39.1780948755844;
+        Mon, 08 Jun 2026 12:59:15 -0700 (PDT)
+Received: from gourry-fedora-PF4VCD3F (pool-173-79-60-52.washdc.fios.verizon.net. [173.79.60.52])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9158a3c2492sm1978154685a.34.2026.06.08.12.59.14
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 08 Jun 2026 12:59:00 -0700 (PDT)
-Date: Mon, 8 Jun 2026 15:58:54 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: Lorenzo Stoakes <ljs@kernel.org>, linux-kernel@vger.kernel.org,
+        Mon, 08 Jun 2026 12:59:15 -0700 (PDT)
+Date: Mon, 8 Jun 2026 15:59:13 -0400
+From: Gregory Price <gourry@gourry.net>
+To: Matthew Wilcox <willy@infradead.org>
+Cc: Lorenzo Stoakes <ljs@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
+	linux-kernel@vger.kernel.org,
+	"David Hildenbrand (Arm)" <david@kernel.org>,
 	Jason Wang <jasowang@redhat.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
@@ -87,7 +84,6 @@ Cc: Lorenzo Stoakes <ljs@kernel.org>, linux-kernel@vger.kernel.org,
 	Matthew Brost <matthew.brost@intel.com>,
 	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
 	Byungchul Park <byungchul@sk.com>,
-	Gregory Price <gourry@gourry.net>,
 	Ying Huang <ying.huang@linux.alibaba.com>,
 	Alistair Popple <apopple@nvidia.com>,
 	Christoph Lameter <cl@gentwo.org>,
@@ -101,75 +97,58 @@ Cc: Lorenzo Stoakes <ljs@kernel.org>, linux-kernel@vger.kernel.org,
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
 	Andrea Arcangeli <aarcange@redhat.com>
-Subject: Re: [PATCH v10 24/37] mm: add put_page_zeroed and folio_put_zeroed
-Message-ID: <20260608155520-mutt-send-email-mst@kernel.org>
+Subject: Re: [PATCH v10 07/37] mm: thread user_addr through page allocator
+ for cache-friendly zeroing
+Message-ID: <aicfERTP3H6AndOs@gourry-fedora-PF4VCD3F>
 References: <cover.1780906288.git.mst@redhat.com>
- <fef7ca7bbf591865defef658b0792b58494aaed5.1780906288.git.mst@redhat.com>
- <aiazXE8pUDeCmP7c@lucifer>
- <8ec82477-b497-466c-902b-82e108ae2b7b@kernel.org>
- <20260608100602-mutt-send-email-mst@kernel.org>
- <497dff41-e831-43a1-a56b-a6ab98bc11a3@kernel.org>
+ <50d410b47fe3f45327783e05bd306d5eaab75e65.1780906288.git.mst@redhat.com>
+ <aiaUDTeHDA45ZXFS@lucifer>
+ <aiagMc9Ng_AE_adh@lucifer>
+ <aia93IzhTgi1vGi6@casper.infradead.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <497dff41-e831-43a1-a56b-a6ab98bc11a3@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Kv5zsbskZQU2XtY9-zwFfAdSVOdI50i0R4YzRHqDxAg_1780948741
-X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <aia93IzhTgi1vGi6@casper.infradead.org>
 
-On Mon, Jun 08, 2026 at 04:28:48PM +0200, David Hildenbrand (Arm) wrote:
-> On 6/8/26 16:08, Michael S. Tsirkin wrote:
-> > On Mon, Jun 08, 2026 at 02:46:34PM +0200, David Hildenbrand (Arm) wrote:
-> >> On 6/8/26 14:25, Lorenzo Stoakes wrote:
-> >>>
-> >>> Do not put comments about specific expected races like this in the commit
-> >>> message but not in the code. Subtleties need to be called out.
-> >>>
-> >>> The commit message also doesn't at all explain why PG_zeroed doesn't
-> >>> suffice here.
-> >>>
-> >>>
-> >>> I really don't understand why you have a 'zeroed' folio flag but need to
-> >>> also have new API calls to detect that?
-> >>>
-> >>> They're also HORRIBLY named. Zeroed as in what? Zero page? Huge zero page?
-> >>> Memory zeroed by kernel? Pages that userland happen to have zeroed? Or host
-> >>> VM zeroed?
-> >>>
-> >>> Each are cases we address individually and relate to folios.
-> >>>
-> >>> You absolutely fail to clarify _which one_ you mean, and provide absolutely
-> >>> no documentation and add an exported mm API with no description.
-> >>>
-> >>> This is just I think not something we want to add? Especially on something
-> >>> so fundamental?
-> >>
-> >> I raised previously that providing a folio helper is odd, and that I suggested
-> >> that we defer this change.
+On Mon, Jun 08, 2026 at 02:04:28PM +0100, Matthew Wilcox wrote:
+> On Mon, Jun 08, 2026 at 12:06:35PM +0100, Lorenzo Stoakes wrote:
+> > But instead of overloading user_addr to indicate all kinds of things, instead
+> > make life easier by actually breaking things out.
 > > 
-> > Sadly it's a dependency actually - without it memcg failures would cause
-> > repeated re-zeroing where previously it failed without zeroing.
+> > Like:
+> > 
+> > enum alloc_context_type {
+> > 	KERNEL_ALLOCATION,
+> > 	USER_MAPPED_ALLOCATION,
+> > 	USER_UNMAPPED_ALLOCATION, // Maybe? Do we ever?
+> > 	/* Perhaps some other states we want to encode? */
+> > };
+> > 
+> > struct alloc_context {
+> > 	...
+> > 
+> > 	enum alloc_context_type type;
+> > 	unsigned long user_addr; // Only set if type == USER_ALLOCATION
+> > 
+> > 	// Maybe something suggesting context or whether we init before in some
+> > 	// cases?
+> > };
 > 
-> Oh, you mean that we succeeded allocating (+zeroing) but failed to charge?
-> 
-> I don't immediately see that to be a real problem?
+> Ugh, please, no.  As I suggested last time I commented on this
+> trainwreck of a series, lift the zeroing functionality from
+> alloc_frozen_pages() into its callers.
 
-Yes exactly.
-I don't really know if any real applications live close enough to memcg edge
-that repeatedly wasting cycles zeroing pages then discarding that
-information will be noticeable.
+This sort of just implies writing the "alloc_frozen_zeroed_pages()"
+wrapper that does the zeroing at the end before return, and then killing
+the post hook nonsense associated with it in the first place.
 
-I should be able to write a test to show the difference, if that's the
-question.
+None of this resolves the user address annoyance which is needed on some
+archs for cache flushing.  Whether anyone agrees that the page allocator
+should be responsible for this particular operation - open debate.
 
-So just writing code in a way that we are not regressing them seemed cleaner to me.
-But I'm not a maintainer so hey. Just so we are clear.
-
--- 
-MST
-
+~Gregory
