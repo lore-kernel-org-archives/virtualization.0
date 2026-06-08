@@ -1,80 +1,63 @@
-Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 274AD31327D;
-	Mon,  8 Jun 2026 13:04:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8BCF257854;
+	Mon,  8 Jun 2026 13:09:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780923880; cv=none; b=lSXzyu7ZsXfZtOCiiDGN21t+wQFmCyAu/aMgV3Y7Bj35BYaQKNS+yiV2Ubha9VT7+5/arNbKm/J5S8VQg99R9trTx5P8mLk1Aca5wxOphujXF0L+P41AafTDPhk/dSyAZkWxEudkmDQ+GWAYGnVzD5vr2/J2OmsBi42ZMfUyCuI=
+	t=1780924156; cv=none; b=Bbi4chN4n8KWYXRNdigZeFa/779zneptOyGltKA2MV/49ITBxRNYM8oZFiDd8ClQ9x8DH4csnBKt4fBAHc7nFWaWiDAC1+D6b3E/3xpl9aZsJI+V2ZJ6OYquamTifyvG44Me3hnaI23aUpVDIeAxIa7bp9Eg7n6daYOF+TE552A=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780923880; c=relaxed/simple;
-	bh=6MKTXBJGrx2jSfLIad1ZMuJLl3MwVixtkI47w+MqGfk=;
+	s=arc-20240116; t=1780924156; c=relaxed/simple;
+	bh=TKcxefLi6weEsC118ojxRQAagDnfRHplsd7yZkFfvg4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=mKrfxXCvhAJyTxKtnuKhrypwNqSuuUGP9OcZt73ld7hcHfdl65yqOHcVRatHeOO2ZxQ1ncfSVrHHXWmJaNGV3jWxDtjqYYNjlObWR/yCPXpW9wAnCeZYGxLhnGl/Qas6ksRu89yQfjBrQzaK7IfyjQKAMO4TmCu5n9XWZCU7vtc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=c4ZBBJoX; arc=none smtp.client-ip=90.155.50.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
+	 Content-Type:Content-Disposition:In-Reply-To; b=Ttqsg4san8Zb/0BYZfdwAOj6QsIPRquUwReRXACIesoAjiQ0EKzkhH4slxll2jhsZXwkyPnOSnCkbj/oE2+BgDBM+dpj03aFA+rqn0WHRkLl1Cr6+xeVtzt3F/maN9F+PaZeOmC4nvvsjo7p9kYW3stFZjIu/ZJTxDwJ4E32E7I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=bU7YEBCQ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="c4ZBBJoX"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
-	Content-Transfer-Encoding:Content-ID:Content-Description;
-	bh=5UXKBSwaQ6wOhFTdLFwEFzOnJtE2mdR9K9zfG4lUm6E=; b=c4ZBBJoXs86PzCb6awPgQPSZFx
-	du+H98mAuQFn1Yr8m3TURjgWKDh/ImzxoY5Zj9On05ZVYpUXYHn6cfeESDmMuUuZPCGlbjkaQyrvv
-	Lt4GhZEUXwGQnT2dlOicXkqIVoKdj20NKsoDc5B3vum4jJr/6F6BX4W3dw/JZR2G8l0/xa3/Z0tdv
-	e6SVjRM+lv7i1LQuZBt/a+kz2XNLvJNnS/aka+4XDv1EQN9WVbdaH7HSfUUB+LCqVAB8yr1oCWDbl
-	CX8KT+fNycj8Yi8kE5u9ibWnQ3skqGPvRAIJ6qx09ZSMchlbpg9nizVP+TtN94JQX81fF93x7WGhl
-	zjbkuLiA==;
-Received: from willy by casper.infradead.org with local (Exim 4.99.1 #2 (Red Hat Linux))
-	id 1wWZeW-0000000Djex-3ITN;
-	Mon, 08 Jun 2026 13:04:28 +0000
-Date: Mon, 8 Jun 2026 14:04:28 +0100
-From: Matthew Wilcox <willy@infradead.org>
-To: Lorenzo Stoakes <ljs@kernel.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
-	"David Hildenbrand (Arm)" <david@kernel.org>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Muchun Song <muchun.song@linux.dev>,
-	Oscar Salvador <osalvador@suse.de>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	"Liam R. Howlett" <liam@infradead.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Brendan Jackman <jackmanb@google.com>,
-	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
-	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
-	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
-	Byungchul Park <byungchul@sk.com>,
-	Gregory Price <gourry@gourry.net>,
-	Ying Huang <ying.huang@linux.alibaba.com>,
-	Alistair Popple <apopple@nvidia.com>,
-	Christoph Lameter <cl@gentwo.org>,
-	David Rientjes <rientjes@google.com>,
-	Roman Gushchin <roman.gushchin@linux.dev>,
-	Harry Yoo <harry.yoo@oracle.com>,
-	Axel Rasmussen <axelrasmussen@google.com>,
-	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
-	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
-	Kemeng Shi <shikemeng@huaweicloud.com>,
-	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
-	virtualization@lists.linux.dev, linux-mm@kvack.org,
-	Andrea Arcangeli <aarcange@redhat.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="bU7YEBCQ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 651D51F00898;
+	Mon,  8 Jun 2026 13:09:05 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1780924155;
+	bh=X1iEpMFcGnAl+xKpt0NCSfDOMAqvdEhxAtn0P3aNA7k=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=bU7YEBCQHlplquRshq6kKbwUGvzFVb7VR8mZ2dvgpkxbTNXhS0vZUvTtL24/ml3Zo
+	 RoE2DymVzNMfcbkMQ+QqEHHLRgmMmohbeqjwk+U5kaA3etmTxN+6+juwemX1tbEKLm
+	 DnJWCarLmiR2FMn0kjQoo4j5twD4IKPU0TeSG4kbT8GXjIcYpE+4fWzn2sJCXWCcTt
+	 Nwz6FK/tlPdOO3f1SbdG9GrPlWxypSqGMMkj30lq+rriV8B6YuNVl84HrXCZbwlM9A
+	 fRdLvPKw2z2T2K6jd4Bap7uquleu7spiRJjKN/ja1+d7AdzscS9YIgyBpKCQxChJEg
+	 3j7sFvtkN0cWg==
+Date: Mon, 8 Jun 2026 14:09:02 +0100
+From: Lorenzo Stoakes <ljs@kernel.org>
+To: Matthew Wilcox <willy@infradead.org>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org, 
+	"David Hildenbrand (Arm)" <david@kernel.org>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
+	Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
+	Andrew Morton <akpm@linux-foundation.org>, "Liam R. Howlett" <liam@infradead.org>, 
+	Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
+	Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, 
+	Brendan Jackman <jackmanb@google.com>, Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>, 
+	Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <npache@redhat.com>, 
+	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
+	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>, 
+	Matthew Brost <matthew.brost@intel.com>, Joshua Hahn <joshua.hahnjy@gmail.com>, 
+	Rakie Kim <rakie.kim@sk.com>, Byungchul Park <byungchul@sk.com>, 
+	Gregory Price <gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, 
+	Alistair Popple <apopple@nvidia.com>, Christoph Lameter <cl@gentwo.org>, 
+	David Rientjes <rientjes@google.com>, Roman Gushchin <roman.gushchin@linux.dev>, 
+	Harry Yoo <harry.yoo@oracle.com>, Axel Rasmussen <axelrasmussen@google.com>, 
+	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>, Chris Li <chrisl@kernel.org>, 
+	Kairui Song <kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>, 
+	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>, virtualization@lists.linux.dev, 
+	linux-mm@kvack.org, Andrea Arcangeli <aarcange@redhat.com>
 Subject: Re: [PATCH v10 07/37] mm: thread user_addr through page allocator
  for cache-friendly zeroing
-Message-ID: <aia93IzhTgi1vGi6@casper.infradead.org>
+Message-ID: <aia-q026facbptoT@lucifer>
 References: <cover.1780906288.git.mst@redhat.com>
  <50d410b47fe3f45327783e05bd306d5eaab75e65.1780906288.git.mst@redhat.com>
  <aiaUDTeHDA45ZXFS@lucifer>
  <aiagMc9Ng_AE_adh@lucifer>
+ <aia93IzhTgi1vGi6@casper.infradead.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -83,31 +66,37 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <aiagMc9Ng_AE_adh@lucifer>
+In-Reply-To: <aia93IzhTgi1vGi6@casper.infradead.org>
 
-On Mon, Jun 08, 2026 at 12:06:35PM +0100, Lorenzo Stoakes wrote:
-> But instead of overloading user_addr to indicate all kinds of things, instead
-> make life easier by actually breaking things out.
-> 
-> Like:
-> 
-> enum alloc_context_type {
-> 	KERNEL_ALLOCATION,
-> 	USER_MAPPED_ALLOCATION,
-> 	USER_UNMAPPED_ALLOCATION, // Maybe? Do we ever?
-> 	/* Perhaps some other states we want to encode? */
-> };
-> 
-> struct alloc_context {
-> 	...
-> 
-> 	enum alloc_context_type type;
-> 	unsigned long user_addr; // Only set if type == USER_ALLOCATION
-> 
-> 	// Maybe something suggesting context or whether we init before in some
-> 	// cases?
-> };
+On Mon, Jun 08, 2026 at 02:04:28PM +0100, Matthew Wilcox wrote:
+> On Mon, Jun 08, 2026 at 12:06:35PM +0100, Lorenzo Stoakes wrote:
+> > But instead of overloading user_addr to indicate all kinds of things, instead
+> > make life easier by actually breaking things out.
+> >
+> > Like:
+> >
+> > enum alloc_context_type {
+> > 	KERNEL_ALLOCATION,
+> > 	USER_MAPPED_ALLOCATION,
+> > 	USER_UNMAPPED_ALLOCATION, // Maybe? Do we ever?
+> > 	/* Perhaps some other states we want to encode? */
+> > };
+> >
+> > struct alloc_context {
+> > 	...
+> >
+> > 	enum alloc_context_type type;
+> > 	unsigned long user_addr; // Only set if type == USER_ALLOCATION
+> >
+> > 	// Maybe something suggesting context or whether we init before in some
+> > 	// cases?
+> > };
+>
+> Ugh, please, no.  As I suggested last time I commented on this
+> trainwreck of a series, lift the zeroing functionality from
+> alloc_frozen_pages() into its callers.
 
-Ugh, please, no.  As I suggested last time I commented on this
-trainwreck of a series, lift the zeroing functionality from
-alloc_frozen_pages() into its callers.
+I've not looked at the callers closely enough to see the delta on that, but if
+it avoids this mess then also worth looking at yes...
+
+Cheers, Lorenzo
