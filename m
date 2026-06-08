@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3304A25782A;
-	Mon,  8 Jun 2026 11:23:20 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6E11367B6F;
+	Mon,  8 Jun 2026 11:29:57 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780917802; cv=none; b=Z4tK4CpCsgUMKGO54ACAzWTrNf1QyIaehdF36Uzz/e8iLKvf0Aybw1yaAVzRq023TRE44h7RjR6/OBgJX1Jo8bwLOIOi9n20PmRkSSuehP1otJWvh+4zK5ZMcfkcE6MVGuczhyKyqmuNRqg6k+DcdN+JTEO9/puU4CMu868Pl+A=
+	t=1780918201; cv=none; b=BaJQopSRK1DCCp+VJgSx4Sx9tDPd3rUZxw6ub0RBN5qgqlqyEaG2XL7S+cZb7ZzSBykhoq4z8LtpFTKLVmKWH3kRuoakIJMH25zs2kFT7osctM9Eb1bzBaB08U8DLNbWscux7Fc7Vd6TtbOKLK0JhkbDngdbUwvs5tDnvQA0bKo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780917802; c=relaxed/simple;
-	bh=XXXkUTsy+rq4L4LeIMO+GBWihNr0ZdCuC9LKU+n6AkE=;
+	s=arc-20240116; t=1780918201; c=relaxed/simple;
+	bh=Gl9FbyJ+M2GL+aZlQplx/dhqscyZ80f+TcGXgHZ2ZdM=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=EzlRiSXuR7f9ku2jqWGEzoBjs4cXVh9ZL11mWY0+08N8usKm1C0cznLM3g0M/UBHfeSzIEXxDmAFkgmw3wq+EnaPOEq/zH4j+mGH/vTWUZ35cTQP5gNAc4MwRa8ale4jf3qaApch/VgLWzKOq31Sx79vcMqiDITRy6wWfZZd70o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=W2pvxdEn; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=PtgrGEC8MtppkTJDx74BFlYBx5A+4HppjuPJ0qX7l+E34enePUZW3wCgNe9qWNq07ZUBTGFx6fUUH0xCl7g5bt3CWR3uvKiAY+ZcFRY+U3TXPkl1DGo9okA7f2FReWsyXoXJ22hFoErwXM2Oai2WzPu9usWIkBauYMVjZlcaj6M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ASH3KSrE; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="W2pvxdEn"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B449F1F00893;
-	Mon,  8 Jun 2026 11:23:10 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ASH3KSrE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id EBDB71F00893;
+	Mon,  8 Jun 2026 11:29:46 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780917800;
-	bh=x0WNa35PkAieRM1DUOHaPgcwBJSjLyea6ACWB1AdAx4=;
+	s=k20260515; t=1780918197;
+	bh=/bLoWkKU6zRSNbiRPvCYb7WguBa+jCqnG9JHGzaDK+M=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=W2pvxdEnX5tI57Wohq0lKd2Bw0KQ/2lc2odLZ/D/PYfXgh9m5G3s/Mscjj0hosH9e
-	 RYC9mqk9BNr6zEVfKN0sfTzY8ga3xOC/AiYTGAwIaRpBkRwwF/PThgg3VY/Rri4cg5
-	 sDGk1ZMjuff+r0bzM878C37tGMb2iXYZ1lOrstFCgl3irbEcdIDFmb9t47/3aZOU9Q
-	 aLfqBPSeYhYJVW/luvcXJY8envTbvUqJL8s7O7UuZgbGa9ANcTsXzGwiZRlXK1rRlE
-	 kJcAkTiZ7EavrBx5xJze1DCBl0gtOwzEH1kWPBO6ULUUFKmHEpMRpeiuD32SApOhW7
-	 YndNpalrnPANw==
-Date: Mon, 8 Jun 2026 12:23:07 +0100
+	b=ASH3KSrEWKEkMmPU3BX0LMCJuqKW/4pxjDUHNyuaL6SM94st1yY+UBI4goLs68V93
+	 xnd7OdESoFQZOMFMdAjzPXWHkxJ8InnA7wG5c78nx6a3uy2I2SZH64W7OLKu1kPhJ3
+	 1ghkiAapTMo1jBhiJ0AWK/++JoneEiCgcdMOxQhCr3u0pB4c6BroFlHuit7e75AntZ
+	 W/smfPyMqLKIhjogXF4QMwI2r8oBBrTtbOy7b+Ewmtn2N4eq/9WGPSqVsb2d+5kov3
+	 vfCEbdxDWwAstJlPPtcCTjrt5Qvli59q9GXn7RtGjvw6c32sHniQ2CeD+5je3KMGe0
+	 jKEcDvloXPSUA==
+Date: Mon, 8 Jun 2026 12:29:43 +0100
 From: Lorenzo Stoakes <ljs@kernel.org>
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: linux-kernel@vger.kernel.org, 
@@ -49,12 +49,14 @@ Cc: linux-kernel@vger.kernel.org,
 	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>, Chris Li <chrisl@kernel.org>, 
 	Kairui Song <kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>, 
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>, virtualization@lists.linux.dev, 
-	linux-mm@kvack.org, Andrea Arcangeli <aarcange@redhat.com>
-Subject: Re: [PATCH v10 12/37] mm: use folio_zero_user for user pages in
- post_alloc_hook
-Message-ID: <aiacZ6_7SG3nvVjM@lucifer>
+	linux-mm@kvack.org, Andrea Arcangeli <aarcange@redhat.com>, 
+	Magnus Lindholm <linmag7@gmail.com>, Greg Ungerer <gerg@linux-m68k.org>, 
+	Geert Uytterhoeven <geert@linux-m68k.org>
+Subject: Re: [PATCH v10 14/37] mm: remove arch vma_alloc_zeroed_movable_folio
+ overrides
+Message-ID: <aiam0zdR6BJ1HKwP@lucifer>
 References: <cover.1780906288.git.mst@redhat.com>
- <f92f6f06e5804b4ea7f68b8664b7e69953b50f4e.1780906288.git.mst@redhat.com>
+ <c374d7a35a35eb4bd5ed85f87ff6885fae605fa9.1780906288.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -63,142 +65,134 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <f92f6f06e5804b4ea7f68b8664b7e69953b50f4e.1780906288.git.mst@redhat.com>
+In-Reply-To: <c374d7a35a35eb4bd5ed85f87ff6885fae605fa9.1780906288.git.mst@redhat.com>
 
-On Mon, Jun 08, 2026 at 04:36:38AM -0400, Michael S. Tsirkin wrote:
-> When post_alloc_hook() needs to zero a page for an explicit
-> __GFP_ZERO allocation for a user page (user_addr is set), use folio_zero_user()
-> instead of kernel_init_pages().  This zeros near the faulting
-> address last, keeping those cachelines hot for the impending
-> user access.
+On Mon, Jun 08, 2026 at 04:37:08AM -0400, Michael S. Tsirkin wrote:
+> Now that the generic vma_alloc_zeroed_movable_folio() uses
+> __GFP_ZERO, the arch-specific macros on alpha, m68k, s390, and
+> x86 that did the same thing are redundant.  Remove them.
 >
-> folio_zero_user() is only used for explicit __GFP_ZERO, not for
-> init_on_alloc.  On architectures with virtually-indexed caches
-> (e.g., ARM), clear_user_highpage() performs per-line cache
-> operations; using it for init_on_alloc would add overhead that
-> kernel_init_pages() avoids (the page fault path flushes the
-> cache at PTE installation time regardless).
+> arm64 is not affected: it has a real function override that
+> handles MTE tag zeroing, not just __GFP_ZERO.
 >
-> No functional change yet: current callers do not pass __GFP_ZERO
-> for user pages (they zero at the callsite instead).  Subsequent
-> patches will convert them.
->
+> Suggested-by: David Hildenbrand <david@kernel.org>
+> Acked-by: Magnus Lindholm <linmag7@gmail.com>
+> Acked-by: Greg Ungerer <gerg@linux-m68k.org>
+> Acked-by: Geert Uytterhoeven <geert@linux-m68k.org> # m68k
 > Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > Assisted-by: Claude:claude-opus-4-6
+> Reviewed-by: Gregory Price <gourry@gourry.net>
 > ---
->  mm/page_alloc.c | 35 ++++++++++++++++++++++++++++++++---
->  1 file changed, 32 insertions(+), 3 deletions(-)
+>  arch/alpha/include/asm/page.h   | 3 ---
+>  arch/m68k/include/asm/page_no.h | 3 ---
+>  arch/s390/include/asm/page.h    | 3 ---
+>  arch/x86/include/asm/page.h     | 3 ---
+>  include/linux/highmem.h         | 8 +++++---
+>  5 files changed, 5 insertions(+), 15 deletions(-)
 >
-> diff --git a/mm/page_alloc.c b/mm/page_alloc.c
-> index 4676fd49819e..d4fbf1861a8a 100644
-> --- a/mm/page_alloc.c
-> +++ b/mm/page_alloc.c
-> @@ -1861,9 +1861,38 @@ inline void post_alloc_hook(struct page *page, unsigned int order,
->  		for (i = 0; i != 1 << order; ++i)
->  			page_kasan_tag_reset(page + i);
->  	}
-> -	/* If memory is still not initialized, initialize it now. */
-> -	if (init)
-> -		kernel_init_pages(page, 1 << order);
-> +	/*
-> +	 * On architectures with cache aliasing, pages zeroed via the
-> +	 * kernel direct map (e.g. init_on_free) must be re-zeroed
-> +	 * through a user-congruent mapping.  Host-zeroed pages
-> +	 * (zeroed flag) don't need this: physical RAM is clean.
-> +	 */
-> +	if (!init && (gfp_flags & __GFP_ZERO) &&
-> +	    user_addr != USER_ADDR_NONE &&
-> +	    user_alloc_needs_zeroing())
+> diff --git a/arch/alpha/include/asm/page.h b/arch/alpha/include/asm/page.h
+> index 59d01f9b77f6..4327029cd660 100644
+> --- a/arch/alpha/include/asm/page.h
+> +++ b/arch/alpha/include/asm/page.h
+> @@ -12,9 +12,6 @@
+>
+>  extern void clear_page(void *page);
+>
+> -#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
+> -	vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
+> -
+>  extern void copy_page(void * _to, void * _from);
+>  #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+>
+> diff --git a/arch/m68k/include/asm/page_no.h b/arch/m68k/include/asm/page_no.h
+> index d2532bc407ef..f511b763a235 100644
+> --- a/arch/m68k/include/asm/page_no.h
+> +++ b/arch/m68k/include/asm/page_no.h
+> @@ -12,9 +12,6 @@ extern unsigned long memory_end;
+>
+>  #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+>
+> -#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
+> -	vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
+> -
+>  #define __pa(vaddr)		((unsigned long)(vaddr))
+>  #define __va(paddr)		((void *)((unsigned long)(paddr)))
+>
+> diff --git a/arch/s390/include/asm/page.h b/arch/s390/include/asm/page.h
+> index 56da819a79e6..e995d2a413f9 100644
+> --- a/arch/s390/include/asm/page.h
+> +++ b/arch/s390/include/asm/page.h
+> @@ -67,9 +67,6 @@ static inline void copy_page(void *to, void *from)
+>
+>  #define copy_user_page(to, from, vaddr, pg)	copy_page(to, from)
+>
+> -#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
+> -	vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
+> -
+>  #ifdef CONFIG_STRICT_MM_TYPECHECKS
+>  #define STRICT_MM_TYPECHECKS
+>  #endif
+> diff --git a/arch/x86/include/asm/page.h b/arch/x86/include/asm/page.h
+> index 416dc88e35c1..92fa975b46f3 100644
+> --- a/arch/x86/include/asm/page.h
+> +++ b/arch/x86/include/asm/page.h
+> @@ -28,9 +28,6 @@ static inline void copy_user_page(void *to, void *from, unsigned long vaddr,
+>  	copy_page(to, from);
+>  }
+>
+> -#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
+> -	vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
+> -
+>  #ifndef __pa
+>  #define __pa(x)		__phys_addr((unsigned long)(x))
+>  #endif
+> diff --git a/include/linux/highmem.h b/include/linux/highmem.h
+> index 8b0afaabbc6e..642718a50c27 100644
+> --- a/include/linux/highmem.h
+> +++ b/include/linux/highmem.h
+> @@ -303,7 +303,6 @@ static inline void clear_user_highpages(struct page *page, unsigned long vaddr,
+>  #endif
+>  }
+>
+> -#ifndef vma_alloc_zeroed_movable_folio
 
-We check this (gfp_flags & __GFP_ZERO) && user_addr != USER_ADDR_NONE thing
-twice, can we just put in a 'init_should_folio_zero' const bool or something?
+We're specifying this function unconditionally even though arm64 overrides?
 
-> +		init = true;
+>  /**
+>   * vma_alloc_zeroed_movable_folio - Allocate a zeroed page for a VMA.
+>   * @vma: The VMA the page is to be allocated for.
+> @@ -317,12 +316,15 @@ static inline void clear_user_highpages(struct page *page, unsigned long vaddr,
+>   * we are out of memory.
+>   */
+>  static inline
+> -struct folio *vma_alloc_zeroed_movable_folio(struct vm_area_struct *vma,
+> +struct folio *vma_alloc_zeroed_movable_folio_noprof(struct vm_area_struct *vma,
+>  				   unsigned long vaddr)
+>  {
+> -	return vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO,
+> +	return vma_alloc_folio_noprof(GFP_HIGHUSER_MOVABLE | __GFP_ZERO,
+>  			      0, vma, vaddr);
 
-As Vlasta says not sure if we want to add complexity just for these arches.
+This whole change seems unnecessary?
 
-> +	/*
-> +	 * If memory is still not initialized, initialize it now.
+>  }
+> +#ifndef vma_alloc_zeroed_movable_folio
+> +#define vma_alloc_zeroed_movable_folio(...) \
+> +	alloc_hooks(vma_alloc_zeroed_movable_folio_noprof(__VA_ARGS__))
+>  #endif
 
-I kinda hate that 'init' is unclear as to 'do init' or 'was init somewhere
-else'... Anwyay.
+I don't know why we need to add more of this alloc_hooks() dance when we could
+just do:
 
-> +	 * When __GFP_ZERO was explicitly requested and user_addr is set,
-> +	 * use folio_zero_user() which zeros near the faulting address
-> +	 * last, keeping those cachelines hot.  For init_on_alloc, use
-> +	 * kernel_init_pages() to avoid unnecessary cache flush overhead
-> +	 * on architectures with virtually-indexed caches.
+#define vma_alloc_zeroed_movable_folio(vma, vaddr) \
+	vma_alloc_folio(GFP_HIGHUSER_MOVABLE | __GFP_ZERO, 0, vma, vaddr)
 
-This whole paragraph seems pretty useless and just describing the code?
-
-> +	 */
-> +	if (init) {
-> +		if ((gfp_flags & __GFP_ZERO) && user_addr != USER_ADDR_NONE) {
-> +			/*
-> +			 * folio_zero_user relies on folio_nr_pages which
-> +			 * requires __GFP_COMP for order > 0.  All user folio
-> +			 * allocations set __GFP_COMP via __folio_alloc.
-
-This whole paragraph is useless and very like the kind of stuff AI generates for
-comments, i.e. overly long + entirely unnecessary stuff.
-
-> +			 * user_addr != USER_ADDR_NONE implies sleepable
-> +			 * context (user page fault).
-
-Can you safely assume that? Also inferring which context we are in from this
-parameter seems risky.
-
-It seems to me that you're now making it such that kernel developers:
-
-- Have to know when and when not to specify a user address, and under what
-  circumstances we might consider that to be mapped.
-
-- Need to know to do this correctly for aliasing architectures or have silent
-  correctness issues.
-
-- Need to take context into account when specifying this.
-
-We definitely need to find a simpler way to do this!
-
-> +			 */
-> +			VM_WARN_ON_ONCE(order && !(gfp_flags & __GFP_COMP));
-
-Surely by now we can assume this?
-
-> +			folio_zero_user(page_folio(page), user_addr);
-> +		} else
-> +			kernel_init_pages(page, 1 << order);
-
-I hate this hanging else branch... definitely prefer {} on both branches.
-
-But in any case it seems like we could avoid some indentation with something
-like:
-
-	if (init && init_should_folio_zero) {
-		...
-	} else if (init) {
-		...
-	}
-
-Or even a:
-
-	if (!init)
-		goto out;
-
-And stick an out label below?
-
-> +	}
+Like the existing arch stuff?
 
 >
->  	set_page_owner(page, order, gfp_flags);
->  	page_table_check_alloc(page, order);
+>  static inline void clear_highpage(struct page *page)
 > --
 > MST
 >
-
-Oh and in general it seems that this conflicts with [0] which removes
-kernel_init_pages().
-
-[0];https://lore.kernel.org/all/20260422102729.166599-1-hsalunke@amd.com/
 
 Thanks, Lorenzo
