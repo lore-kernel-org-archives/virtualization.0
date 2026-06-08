@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 19C1D37FF68;
-	Mon,  8 Jun 2026 14:26:30 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C2BDB3CC31F;
+	Mon,  8 Jun 2026 14:29:00 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780928792; cv=none; b=UDrkBCaHlNrF+4jQMvz2EeG68Virw6JmVQylYi6JtdQl78oujeQG398rsLwJZ0IGstiXQNCdfPXpqZt9C22kZR7RxSz/IqvlJ2UZJpN3a/oe3WcJLKwlMZZ14EC3hanRr0aT6bFMSk7YaVqCqjTR5j5AOAcdJNCf2JfuvrDqElg=
+	t=1780928941; cv=none; b=ggm0LGbuMP0IpdhJInfG3PEDMp2sACQZySB2MEyK6FQrx33fLRnC7c7K4ne/tWSFNwEnL02lieuql+nku6upzxh4h2HTfgmrXZfgfEueVYvLOSZLSQhhxz5IiwKWpiYEyD1DrEqFLXrS/YtsLQCJRWXLliB5N8ZVtmfZ571QP5M=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780928792; c=relaxed/simple;
-	bh=TRozzL4rEm/6P48wW2uEMBhlDhggK87H60Pg8OJ3o/0=;
+	s=arc-20240116; t=1780928941; c=relaxed/simple;
+	bh=T6LGsiQBvspI7juMibf8HSEPQLn+imkREXB2wdLkfrk=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=VCUoeqB2i2i5Gr9T/kmlXaPzC1ZRmDMsRqrC0q0l4gp9+Xr/JXGgYb/IeIFDiYuYe8FhCpRGR31MR5uH0O5Jrs5CFVxKec+0r8xuT1ICbnGHPiR7jEWwszfxJM9uQT5hkGnH6eh+hJBbxVrqa5M0C6KQPmPsl7wpuAdufk0gdIg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=O/aPMn/0; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=m58LhFztw8cK3rS1y6U6fkMeN4c6m+Nbi/0l64jmqUhRru1OyFosjw8C5BFWs1TeC+SD0884ZFxduFaXmlLZ1Kt4KYbkEWlSKtXxVyUfweC+66lq+zh639W+ekRI/IfW/Os8g77W7L3bj3PNMFTdtdiduEiLdH0hp4WpmjoWOvQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=iVSUAUIc; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="O/aPMn/0"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 6E7DA1F00898;
-	Mon,  8 Jun 2026 14:26:20 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="iVSUAUIc"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 72D101F00893;
+	Mon,  8 Jun 2026 14:28:50 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780928790;
-	bh=2UgzbqLVSPQ1GsLg3LFXj2rh6qXfiCRcbALPchsZH4U=;
+	s=k20260515; t=1780928940;
+	bh=8vD/e5GbGzpUTKj3cfuSRPl67o8yyW37wXtN+83Ecbk=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=O/aPMn/0szpDnRUZ6htKUmFqMuwyz+qJOFRAgBJeatVt98DFhMfTFX9NzYi5Z3iUJ
-	 6uYYNXnEsnABrmiS4mKXnaRRskoR+vD6FkbElAaiGT8tk33MLqFWokbHD8c6jwSgg5
-	 TJJGC3UiCr9qVekDuB0O7FDp549p2Eiu/yxgeQJVDTHPHQ3ANuqatJLOIgWuYeHY6K
-	 ykz3on2WUOgo8/WRMHfl64rBALwtmzdWKsTO1Qdgacexh6M3XE8gIvDDhQKQcfyObj
-	 68Hx7hPcashCaT6tVPYXOhdyh1FccWgG2rU5xor9uhGmctl48BRIM59EMOpe6SAoPf
-	 T3JG86u7OVLNA==
-Message-ID: <d0ff6269-8b8a-4983-8569-d9a8495829f3@kernel.org>
-Date: Mon, 8 Jun 2026 16:26:18 +0200
+	b=iVSUAUIcC/kDGl0YkM/2lS+l2CzzJ5Qk2alnVwUR/PtsQifRku1nj/Ss+SoH/Ss18
+	 b37DpAyjbM+pCwUNSWcVgNwg5fGucfa+y2b5KH+6sElmprdsRkihqZPzCRYUOhwav/
+	 oAuR9h6EnCZkSWCUdeoqVDOKNpxIrQfyxn2s4HL8otb8YUIEEDSeydmHNg5H07SmHV
+	 deIVt3lBfH3LSW4aGmcqJAf2qSPKVHJwQlQNpa+FVLcuZw4wR96paEStvn7Q6ufuAd
+	 gH/ScFBwbSbkyKro0Cxrks0pS4hYZY/P+Z/Ao4MFKz7TODBxRKKNecerrs5Cryy7ji
+	 26GZadvARpClw==
+Message-ID: <497dff41-e831-43a1-a56b-a6ab98bc11a3@kernel.org>
+Date: Mon, 8 Jun 2026 16:28:48 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -35,10 +35,9 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v10 07/37] mm: thread user_addr through page allocator for
- cache-friendly zeroing
-To: Lorenzo Stoakes <ljs@kernel.org>, Matthew Wilcox <willy@infradead.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
+Subject: Re: [PATCH v10 24/37] mm: add put_page_zeroed and folio_put_zeroed
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Lorenzo Stoakes <ljs@kernel.org>, linux-kernel@vger.kernel.org,
  Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
  =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
  Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>,
@@ -64,9 +63,9 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org,
  virtualization@lists.linux.dev, linux-mm@kvack.org,
  Andrea Arcangeli <aarcange@redhat.com>
 References: <cover.1780906288.git.mst@redhat.com>
- <50d410b47fe3f45327783e05bd306d5eaab75e65.1780906288.git.mst@redhat.com>
- <aiaUDTeHDA45ZXFS@lucifer> <aiagMc9Ng_AE_adh@lucifer>
- <aia93IzhTgi1vGi6@casper.infradead.org> <aia-q026facbptoT@lucifer>
+ <fef7ca7bbf591865defef658b0792b58494aaed5.1780906288.git.mst@redhat.com>
+ <aiazXE8pUDeCmP7c@lucifer> <8ec82477-b497-466c-902b-82e108ae2b7b@kernel.org>
+ <20260608100602-mutt-send-email-mst@kernel.org>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -113,45 +112,45 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <aia-q026facbptoT@lucifer>
+In-Reply-To: <20260608100602-mutt-send-email-mst@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 6/8/26 15:09, Lorenzo Stoakes wrote:
-> On Mon, Jun 08, 2026 at 02:04:28PM +0100, Matthew Wilcox wrote:
->> On Mon, Jun 08, 2026 at 12:06:35PM +0100, Lorenzo Stoakes wrote:
->>> But instead of overloading user_addr to indicate all kinds of things, instead
->>> make life easier by actually breaking things out.
+On 6/8/26 16:08, Michael S. Tsirkin wrote:
+> On Mon, Jun 08, 2026 at 02:46:34PM +0200, David Hildenbrand (Arm) wrote:
+>> On 6/8/26 14:25, Lorenzo Stoakes wrote:
 >>>
->>> Like:
+>>> Do not put comments about specific expected races like this in the commit
+>>> message but not in the code. Subtleties need to be called out.
 >>>
->>> enum alloc_context_type {
->>> 	KERNEL_ALLOCATION,
->>> 	USER_MAPPED_ALLOCATION,
->>> 	USER_UNMAPPED_ALLOCATION, // Maybe? Do we ever?
->>> 	/* Perhaps some other states we want to encode? */
->>> };
+>>> The commit message also doesn't at all explain why PG_zeroed doesn't
+>>> suffice here.
 >>>
->>> struct alloc_context {
->>> 	...
 >>>
->>> 	enum alloc_context_type type;
->>> 	unsigned long user_addr; // Only set if type == USER_ALLOCATION
+>>> I really don't understand why you have a 'zeroed' folio flag but need to
+>>> also have new API calls to detect that?
 >>>
->>> 	// Maybe something suggesting context or whether we init before in some
->>> 	// cases?
->>> };
+>>> They're also HORRIBLY named. Zeroed as in what? Zero page? Huge zero page?
+>>> Memory zeroed by kernel? Pages that userland happen to have zeroed? Or host
+>>> VM zeroed?
+>>>
+>>> Each are cases we address individually and relate to folios.
+>>>
+>>> You absolutely fail to clarify _which one_ you mean, and provide absolutely
+>>> no documentation and add an exported mm API with no description.
+>>>
+>>> This is just I think not something we want to add? Especially on something
+>>> so fundamental?
 >>
->> Ugh, please, no.  As I suggested last time I commented on this
->> trainwreck of a series, lift the zeroing functionality from
->> alloc_frozen_pages() into its callers.
+>> I raised previously that providing a folio helper is odd, and that I suggested
+>> that we defer this change.
 > 
-> I've not looked at the callers closely enough to see the delta on that, but if
-> it avoids this mess then also worth looking at yes...
+> Sadly it's a dependency actually - without it memcg failures would cause
+> repeated re-zeroing where previously it failed without zeroing.
 
-If that means that we would handle __GFP_ZERO consistently in the callers of
-alloc_frozen_pages(), that would also do I guess. We'd still have to pass the
-user address down to some degree, through folio interfaces only at least.
+Oh, you mean that we succeeded allocating (+zeroing) but failed to charge?
+
+I don't immediately see that to be a real problem?
 
 -- 
 Cheers,
