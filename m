@@ -1,75 +1,77 @@
-Received: from mail-oo1-f99.google.com (mail-oo1-f99.google.com [209.85.161.99])
+Received: from mail-ua1-f100.google.com (mail-ua1-f100.google.com [209.85.222.100])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A84763BBFAC
-	for <virtualization@lists.linux.dev>; Tue,  9 Jun 2026 11:48:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.99
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 603E03BBFAC
+	for <virtualization@lists.linux.dev>; Tue,  9 Jun 2026 11:49:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781005723; cv=none; b=M+enc7HUXQotAQsQRMtNUnLrTybQLdU7aHVUbwdFqhfx6x4ssmTtUTKpTIPnGcjv9iq2iSBstPuy8CUUPghxPrE9nn0kcK2PeRdqReHvoA7nnQAkJW/atTdoJWNt9ulz5opO8sXF8n9kkkWChcQpxoPs80jdBwIpChuGA+xZCAA=
+	t=1781005743; cv=none; b=jxzguwIR0+THglt/tzB52ks1Y64GFM0ABSIMlgRx01K51ppFujj/GExssmEh8yuL8ixT0GpkgHVHBdomPe1GzYnbB01ANOU2lIoFq6BLTcfyNGSbizaplD/RpYuZ1NaN8KNupZnpjHtsHU5HI6pioJwI0HZOfA5D8fC0gTa676I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781005723; c=relaxed/simple;
-	bh=uwnsk7uP8WIJoO8ttbzpXJmdi0aUvgvTHnMPSDHcaKw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=flnfF6vOCFB5WPjOsBt5qjtKXV69xY6jn8jHan1Lcpi9XfdRhZDlofOWZJaGza7PnbMGzCyIVeZB17Cm208fJA0QWl5a8+xLFARqb7Pn3FxnildVTTkOt51XzWDeazjaSLThBoE022EKP1B0cKxgqPyorHxFCiaBdBnHLLRAw5Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=LMf0D3l8; arc=none smtp.client-ip=209.85.161.99
+	s=arc-20240116; t=1781005743; c=relaxed/simple;
+	bh=idiuQJNN0GZ7hWFIbxqI9skHLKDG4DRE2a8a21vQ7TQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=DW/CYdL6TO2BdFuh2QmomZQHBbru9OZoGch8OwgNK0+2KlRVuS2y+mKz6uRSxSxIuyRkdfQVSP0+fjUHolpQHF34a8LP9I7ABPYncuEc6yXRuvFmkFKsT+OoyrB0FeevZ9o+yM2t+rxphkMu8I7HhQx0IH84QNX9lvwc05r62Mw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=SFrQ7wVd; arc=none smtp.client-ip=209.85.222.100
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="LMf0D3l8"
-Received: by mail-oo1-f99.google.com with SMTP id 006d021491bc7-69d92dbc420so3789920eaf.3
-        for <virtualization@lists.linux.dev>; Tue, 09 Jun 2026 04:48:41 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="SFrQ7wVd"
+Received: by mail-ua1-f100.google.com with SMTP id a1e0cc1a2514c-963a35acfaaso2029543241.2
+        for <virtualization@lists.linux.dev>; Tue, 09 Jun 2026 04:49:02 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781005720; x=1781610520;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:dkim-signature:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=2GtwyftxDgDxHf00TNmN+7bsJSzsnvSjUZVIyovfOvI=;
-        b=OtdW6GggCHj5ZD+gNXhG5GKKNMhYtOwCDW1LOfhEqNk3XVdrgPGvxSQqRXJHm8gZbU
-         fF2hQo9bbtUJtvkkzoaZ3ibPBMUAixAJ6AL3b2UXQoNoJouRyptREXPOhhYrbYpW60gB
-         s6G1KD7PSqnDSWuBv0NJlhQUwko/u7+/fzDK0EGhtboVEFMG3H7CjdOWDqCsZjBKnIIw
-         umtmpV/JoNJ26GTkqD2w0XUr5IPE/vl+6CgJmA4mYZuhB3eTuABeH7lqNN0dgWOx3eG/
-         vtMo6Ng68jzQOF6B6jkIWaPKhzDgDfhkgtD5gEVWq7XuKCpMZqbaXPMx0B2NsGsTRHva
-         lisA==
-X-Forwarded-Encrypted: i=1; AFNElJ+rYSeyLB13g+8Tbvl2Dt6HZbAczyE+RQLH/k0X7zQtaLThqLyEm6c96yiPaAcwm67TlydZFXOFdUB8JHhauQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy7BAoaQAuj7TvOv4rwixO3XjluvFZYR3qczC14f/DxYAOJMAUq
-	pI3cXI/jQw98A/el4uklercfsnPG5vUed9XfuENhOcs7fVK2c4UvjYTrnWREDXX3lxPX8fLfBA+
-	LkRvLrrNIxonO0/zr+UTf3/nJydUToIlM/n2ZTINp2La1liw16/sPRbCzpsat8Lk/mPvPku5AT5
-	WuSUmYYzmwInkhuDxAlIt7eB5kzLVF/9gE0fozajJeI9uJ1dl1wM8cfj46wVsnl9C5fEFurDvii
-	OF8gyiQy7e3jlGuY9lbPA==
-X-Gm-Gg: Acq92OFPF/cWgtMQrhe8OiARQS6UBUDgZjqS8nTKsm1KP6xWgVHeTZs2Sbpq1oncrEc
-	jjrTOOjAGQBH0wsy9WKi/euIp3SWpvOwlrBOVmU31OSs+vMLA7YZQpCQDr55uZBYkGYo8hBSuxT
-	bGJkF+axctdoFlWTo1vz1z7H06NXMZLThLeeCSmxLsC4VtHU//BZRprAMm6Shou4eh+SUauQXm9
-	MFbGro36jWc/Qw5V7I5PC01WZVYQ5QkBDaBofEDK+hGhgASDe79iJf41FQWXOQcubp91OE+LpCM
-	2U4lXGwc/P9zdyqsrsxOPynobNsWbv7ISoJA7VwhpkT0MvtvpzF5Jkqhr/pUoQIKiy2nxlkVttV
-	F4cVWn9u3IMSOKk5GAWvZEjCrQ6594sMiQ0v4yE5DOyG2vQkJV+ZyC441nVgcX4RrCJ0+VY8upg
-	vgY46g9TIFtC6AiqN2LpBfGnqQOJ5kMoWNyeUSf/OQa1bZMx3YljxdStEYku/sb2BJ3BViyQ==
-X-Received: by 2002:a05:6820:4df4:b0:69e:30ea:133e with SMTP id 006d021491bc7-69e68c05d5cmr11951313eaf.34.1781005720394;
-        Tue, 09 Jun 2026 04:48:40 -0700 (PDT)
-Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-117.dlp.protect.broadcom.com. [144.49.247.117])
-        by smtp-relay.gmail.com with ESMTPS id 006d021491bc7-69e4641208asm823231eaf.16.2026.06.09.04.48.38
+        d=1e100.net; s=20251104; t=1781005741; x=1781610541;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:dkim-signature:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=Cij0f7XK3gPTc98cKs5ll/gp5Fj5YlFQkChYuGOVaaM=;
+        b=lpkTOeaIR9LhOXPo9CNs8Ee7+KMIjfD3H4+lFGftsNkhHHozvEJUNNHKnkt/fU7M6F
+         DK2Yg8AkQTvjW+RN6G6SSeE+coGFMyvcUvHyRTaKIir+rXmZnkI6rO26Ztkbx124E/d5
+         npjhN7lALV0HGvIT09EumjvVu+/JWiAY23Trwrxs/a+HqJINfBu5tsNpe0aZgiFuDShM
+         fZ0XyGLjRW3z9fK7DLD0cXE2uiZbpQr/omgTSY09aZcjeGpyaGVqti8CRYxbwtm/Vb0G
+         ZB/jTOAF/IScYMXC3ICxrHKjg7RMZQ3wK5ZZkshrd78pBQfV3iKhw8ux4fg0sKUGMsRK
+         ZXAA==
+X-Forwarded-Encrypted: i=1; AFNElJ8Eco6OCQJ+HGXDzGUnCV6PXJJzTa/26Ydoiq+tPGY13mR8kQtEmNb/84hmnu1T2YAPgEl/f+TA1h6fELfZLA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwsBOI7LO4dEiEmpq/KL2jp3ZsOiKhlm3BGoeN6bUaw1dWRJXSI
+	YHIOIlUrDxHRfxx+CvZVPxz0ev1d4h2c6921SUGAIyTmo1XNLle8F3eUrvZ2JySX4J+v9QG31R7
+	IqxjEiUEP3UB0dkJE30Mbrf1PT7R5dolwBDO0PWnxGlJRTDmMcscxe3F22DjsDPTcYn0gFQehL7
+	z6/9hG4+HTff5a7oV4pqktqv6Is1DB2PeX90fqmrloI60ugnJejOaVo3CVkwTmG0o+i/4K63tUS
+	Egcefzt4cG8CDbM4LOquw==
+X-Gm-Gg: Acq92OHFoKISoBUlCSKmSuYk4uk3PUHZbFYlAlXQjo8bGKhcX1T+Dckj4N/xfRDugkv
+	XumKfbdkVrg+hi2dOmvv58DpJxqR+jQwcyGWNvZwn9lTnw7E+Be+TyJYc6TePkUo6t1BlvysqLL
+	+VU39ZyI46l+UGDmnTESsb96NhJIvX0GVhNL4J1QDEy8wnfBYTmTL7msFBxfHuFG2OW4eXhta0V
+	cUJ13zwR3Qdj+PCRe7XlyDDpE9XAropsePmStaaVH0eHQH0Q4kjeG4r5jQ6sl9ljX6/gwH6vBcl
+	rp2jr8g7ib2KYfEFu6IlW99jlFElxiUWcP4QyhaSPK89rXz1I2jUR6VG1jnCtzB24rJlKJXrVNx
+	VKw80rnP1ykiUWiEnlXYVtgXetgKgixcecnEHgjZn32Y4ujajTpYbDl8NXxjMVmahToirNpW465
+	aGmAJhFhiHoENKzEGkkV+EKetJ4/H/BV/CdeVPsmqpRNb3zrayfRhvXbUvA/Kami/Z5hTsZA==
+X-Received: by 2002:a05:6102:3750:b0:6f0:3c5c:6ad with SMTP id ada2fe7eead31-6ff11805d56mr9720883137.21.1781005740964;
+        Tue, 09 Jun 2026 04:49:00 -0700 (PDT)
+Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-118.dlp.protect.broadcom.com. [144.49.247.118])
+        by smtp-relay.gmail.com with ESMTPS id a1e0cc1a2514c-96484bd82cdsm193229241.4.2026.06.09.04.49.00
         for <virtualization@lists.linux.dev>
         (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 09 Jun 2026 04:48:40 -0700 (PDT)
+        Tue, 09 Jun 2026 04:49:00 -0700 (PDT)
 X-Relaying-Domain: broadcom.com
 X-CFilter-Loop: Reflected
-Received: by mail-pg1-f198.google.com with SMTP id 41be03b00d2f7-c85a366b61fso3182714a12.3
-        for <virtualization@lists.linux.dev>; Tue, 09 Jun 2026 04:48:38 -0700 (PDT)
+Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-36d98b5a68fso9679867a91.2
+        for <virtualization@lists.linux.dev>; Tue, 09 Jun 2026 04:49:00 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1781005718; x=1781610518; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=2GtwyftxDgDxHf00TNmN+7bsJSzsnvSjUZVIyovfOvI=;
-        b=LMf0D3l8MOtU8zQfE3ymYOGPN9uop5o3aMsiIXFQDufp4rApMcTicWaeIGOio4tZ81
-         CgoSl+9Twkwa2SAlL+M135MWKSSjGqIRaTwZyxKRgBIsw6w+dVdEdxSxxXZ/oZUq7uG7
-         aTdembP6pVJJnyGlOacpssVgkfS5XykF7RQ3Q=
-X-Forwarded-Encrypted: i=1; AFNElJ/VI0g03Dxnr2pqKYb2H2tFA5uHbXUrtdxi7GOO0eEK4XOH3Bk2szolAIZDfqOjHIAk51z55MZydJYTHSE7jQ==@lists.linux.dev
-X-Received: by 2002:a17:90b:5783:b0:36a:4074:9aa6 with SMTP id 98e67ed59e1d1-370ee82fcb9mr19842188a91.6.1781005717469;
-        Tue, 09 Jun 2026 04:48:37 -0700 (PDT)
-X-Received: by 2002:a17:90b:5783:b0:36a:4074:9aa6 with SMTP id 98e67ed59e1d1-370ee82fcb9mr19842127a91.6.1781005716916;
-        Tue, 09 Jun 2026 04:48:36 -0700 (PDT)
+        d=broadcom.com; s=google; t=1781005739; x=1781610539; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Cij0f7XK3gPTc98cKs5ll/gp5Fj5YlFQkChYuGOVaaM=;
+        b=SFrQ7wVdbHDwuXiJ1iq3Hn1NGqRTGVJdazILcatFLFqxRBu5Mc09X+FCdwpma65QT4
+         Zw3L2BmavljJsU3sHEJITjqpq8K2GegkEK6fUhjiowPBCkwVgTRQEAHnsbyzz7uvhw7h
+         EgvBRtUpeJWIgseibqPv/6a10ERB7rRWD4d9c=
+X-Forwarded-Encrypted: i=1; AFNElJ/qQdNIc7HY62bJpVDEcpZ44/d4dbBdNuaeMds8iOxyyRP0sVPE0FA9Rv0VJQLe+dpfdtZpQ2kRPIPxG05aKA==@lists.linux.dev
+X-Received: by 2002:a17:90b:5787:b0:36b:8824:d7cc with SMTP id 98e67ed59e1d1-370f057a115mr22377796a91.20.1781005739382;
+        Tue, 09 Jun 2026 04:48:59 -0700 (PDT)
+X-Received: by 2002:a17:90b:5787:b0:36b:8824:d7cc with SMTP id 98e67ed59e1d1-370f057a115mr22377714a91.20.1781005738858;
+        Tue, 09 Jun 2026 04:48:58 -0700 (PDT)
 Received: from sumit_ws.dhcp.broadcom.net ([192.19.234.250])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-36f6bf903fasm18898075a91.2.2026.06.09.04.48.15
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-36f6bf903fasm18898075a91.2.2026.06.09.04.48.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Jun 2026 04:48:36 -0700 (PDT)
+        Tue, 09 Jun 2026 04:48:57 -0700 (PDT)
 From: Sumit Saxena <sumit.saxena@broadcom.com>
 To: "Martin K . Petersen" <martin.petersen@oracle.com>,
 	Jens Axboe <axboe@kernel.dk>
@@ -151,209 +153,72 @@ Cc: "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
 	Stefano Stabellini <sstabellini@kernel.org>,
 	Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
 	xen-devel@lists.xenproject.org,
+	James Rizzo <james.rizzo@broadcom.com>,
 	Sumit Saxena <sumit.saxena@broadcom.com>
-Subject: [PATCH v3 0/4] scsi/block: NUMA-local scan allocations, shared-tag path cleanup, and SCSI I/O counters
-Date: Tue,  9 Jun 2026 17:47:59 +0530
-Message-ID: <20260609121806.2121755-1-sumit.saxena@broadcom.com>
+Subject: [PATCH v3 1/4] scsi: scan: allocate sdev and starget on the NUMA node of the host adapter
+Date: Tue,  9 Jun 2026 17:48:00 +0530
+Message-ID: <20260609121806.2121755-2-sumit.saxena@broadcom.com>
 X-Mailer: git-send-email 2.43.7
+In-Reply-To: <20260609121806.2121755-1-sumit.saxena@broadcom.com>
+References: <20260609121806.2121755-1-sumit.saxena@broadcom.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
 
-This series contains three performance improvements targeting the SCSI
-and block layers on multi-socket NUMA and heavily loaded SMP systems.
+From: James Rizzo <james.rizzo@broadcom.com>
 
-On multi-socket NUMA systems we observed extreme I/O throughput variance
-of 50-60% between runs.  This series identifies and fixes two root causes:
-cross-node memory accesses due to NUMA-unaware allocations in the scan
-path, and false sharing between hot atomic counters in struct request_queue
-and struct scsi_device.
+When a host adapter is attached to a specific NUMA node, allocating
+scsi_device and scsi_target via kzalloc() may place them on a remote
+node.  All hot-path I/O accesses to these structures then cross the NUMA
+interconnect, adding latency and consuming inter-node bandwidth.
 
-Performance notes:
+Use kzalloc_node() with dev_to_node(shost->dma_dev) so allocations land
+on the same node as the HBA, reducing cross-node traffic and improving
+I/O performance on NUMA systems.
 
-Tested on a dual-socket NUMA system (2x 32-core, 256 GB/socket) with
-an mpi3mr HBA, running fio (random read, 4K, QD 64, 16 jobs, 60 s,
-direct I/O).  IOPS figures are in KIOPS (thousands of IOPS):
+Signed-off-by: James Rizzo <james.rizzo@broadcom.com>
+Signed-off-by: Sumit Saxena <sumit.saxena@broadcom.com>
+---
+ drivers/scsi/scsi_scan.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
 
-  Configuration                    Avg KIOPS   Range (KIOPS)   Spread
-  Baseline                         6,255       4,200 - 6,700   ~37%
-  Baseline + all patches           7,350       7,000 - 7,700    ~10%
-
-Key findings:
-
-These patches combinedly reduces the observed 50-60% run-to-run variance
-to under 10%, significantly improving workload predictability and
-improves IOPs by 16-18%.
-
-No functional regressions observed.
-
-Changes in v3
--------------
--Handled feedback from Bart Van Assche and John Garry.
--Added a patch for shost local NUMA allocation.
--Converted ioerr_cnt and iotmo_cnt atomic counters into per-cpu counters. 
-
-Changes in v2
---------------
-
-  Patch 1 — Same functional goal as v1 patch 1: NUMA-local scsi_device /
-  scsi_target allocations in the scan path so steady-state I/O does not
-  habitually touch remote memory when the host has a fixed DMA/NUMA
-  affinity.
-
-  Patch 2 — Replaces v1’s ____cacheline_aligned_in_smp on
-  nr_active_requests_shared_tags with removal of the shared-tag fairness
-  throttling machinery (including hctx_may_queue(), blk_mq_hw_ctx.nr_active,
-  and request_queue.nr_active_requests_shared_tags and their updates).
-  This follows the earlier standalone proposal by Bart Van Assche [1],
-  rebased for the current tree; it removes the high-frequency atomic
-  accounting that motivated the v1 false-sharing workaround and, in our
-  testing, improves IOPS on the order of roughly 16–18% for the shared-tag
-  workload exercised.
-
-  Patch 3 — Replaces v1’s cache-line padding of iodone_cnt with
-  percpu_counter for both iorequest_cnt and iodone_cnt, so submission and
-  completion paths mostly update CPU-local state instead of bouncing a
-  single cache line, without inflating struct scsi_device for SMP
-  alignment.
-
-Merge / review hints
---------------------
-
-Patch 3 touches the block layer and should have block maintainer review;
-rest of patches are SCSI-oriented.  Please route or Ack as your subsystem
-workflow requires.
-
-Bart Van Assche (1):
-  block: drop shared-tag fairness throttling
-
-James Rizzo (1):
-  scsi: scan: allocate sdev and starget on the NUMA node of the host
-    adapter
-
-Sumit Saxena (2):
-  scsi: host: allocate struct Scsi_Host on the NUMA node of the host
-    adapter
-  scsi: use percpu counters for iostat counters in struct scsi_device
-
- block/blk-core.c                          |   2 -
- block/blk-mq-debugfs.c                    |  22 ++++-
- block/blk-mq-tag.c                        |   4 -
- block/blk-mq.c                            |  17 +---
- block/blk-mq.h                            | 100 ----------------------
- drivers/scsi/3w-9xxx.c                    |   2 +-
- drivers/scsi/3w-sas.c                     |   2 +-
- drivers/scsi/3w-xxxx.c                    |   2 +-
- drivers/scsi/53c700.c                     |   2 +-
- drivers/scsi/BusLogic.c                   |   2 +-
- drivers/scsi/a100u2w.c                    |   2 +-
- drivers/scsi/a2091.c                      |   2 +-
- drivers/scsi/a3000.c                      |   2 +-
- drivers/scsi/aacraid/linit.c              |   2 +-
- drivers/scsi/advansys.c                   |   6 +-
- drivers/scsi/aha152x.c                    |   2 +-
- drivers/scsi/aha1542.c                    |   2 +-
- drivers/scsi/aha1740.c                    |   2 +-
- drivers/scsi/aic7xxx/aic79xx_osm.c        |   2 +-
- drivers/scsi/aic7xxx/aic7xxx_osm.c        |   2 +-
- drivers/scsi/aic94xx/aic94xx_init.c       |   2 +-
- drivers/scsi/am53c974.c                   |   2 +-
- drivers/scsi/arcmsr/arcmsr_hba.c          |   3 +-
- drivers/scsi/arm/acornscsi.c              |   2 +-
- drivers/scsi/arm/arxescsi.c               |   2 +-
- drivers/scsi/arm/cumana_1.c               |   2 +-
- drivers/scsi/arm/cumana_2.c               |   2 +-
- drivers/scsi/arm/eesox.c                  |   2 +-
- drivers/scsi/arm/oak.c                    |   2 +-
- drivers/scsi/arm/powertec.c               |   2 +-
- drivers/scsi/atari_scsi.c                 |   2 +-
- drivers/scsi/atp870u.c                    |   2 +-
- drivers/scsi/bfa/bfad_im.c                |   2 +-
- drivers/scsi/csiostor/csio_init.c         |   4 +-
- drivers/scsi/dc395x.c                     |   2 +-
- drivers/scsi/dmx3191d.c                   |   2 +-
- drivers/scsi/elx/efct/efct_xport.c        |   4 +-
- drivers/scsi/esas2r/esas2r_main.c         |   2 +-
- drivers/scsi/fdomain.c                    |   2 +-
- drivers/scsi/fnic/fnic_main.c             |   2 +-
- drivers/scsi/g_NCR5380.c                  |   2 +-
- drivers/scsi/gvp11.c                      |   2 +-
- drivers/scsi/hisi_sas/hisi_sas_main.c     |   2 +-
- drivers/scsi/hisi_sas/hisi_sas_v3_hw.c    |   2 +-
- drivers/scsi/hosts.c                      |   6 +-
- drivers/scsi/hpsa.c                       |   2 +-
- drivers/scsi/hptiop.c                     |   2 +-
- drivers/scsi/ibmvscsi/ibmvfc.c            |   2 +-
- drivers/scsi/ibmvscsi/ibmvscsi.c          |   2 +-
- drivers/scsi/imm.c                        |   2 +-
- drivers/scsi/initio.c                     |   2 +-
- drivers/scsi/ipr.c                        |   2 +-
- drivers/scsi/ips.c                        |   2 +-
- drivers/scsi/isci/init.c                  |   2 +-
- drivers/scsi/jazz_esp.c                   |   2 +-
- drivers/scsi/libiscsi.c                   |   2 +-
- drivers/scsi/lpfc/lpfc_init.c             |   2 +-
- drivers/scsi/mac53c94.c                   |   2 +-
- drivers/scsi/mac_esp.c                    |   2 +-
- drivers/scsi/mac_scsi.c                   |   2 +-
- drivers/scsi/megaraid.c                   |   2 +-
- drivers/scsi/megaraid/megaraid_mbox.c     |   2 +-
- drivers/scsi/megaraid/megaraid_sas_base.c |   2 +-
- drivers/scsi/mesh.c                       |   2 +-
- drivers/scsi/mpi3mr/mpi3mr_os.c           |   2 +-
- drivers/scsi/mpt3sas/mpt3sas_scsih.c      |   4 +-
- drivers/scsi/mvme147.c                    |   2 +-
- drivers/scsi/mvsas/mv_init.c              |   2 +-
- drivers/scsi/mvumi.c                      |   2 +-
- drivers/scsi/myrb.c                       |   2 +-
- drivers/scsi/myrs.c                       |   2 +-
- drivers/scsi/ncr53c8xx.c                  |   2 +-
- drivers/scsi/nsp32.c                      |   2 +-
- drivers/scsi/pcmcia/nsp_cs.c              |   2 +-
- drivers/scsi/pcmcia/qlogic_stub.c         |   2 +-
- drivers/scsi/pcmcia/sym53c500_cs.c        |   2 +-
- drivers/scsi/pm8001/pm8001_init.c         |   2 +-
- drivers/scsi/pmcraid.c                    |   2 +-
- drivers/scsi/ppa.c                        |   2 +-
- drivers/scsi/ps3rom.c                     |   2 +-
- drivers/scsi/qla1280.c                    |   2 +-
- drivers/scsi/qla2xxx/qla_mid.c            |   2 +-
- drivers/scsi/qla2xxx/qla_os.c             |   2 +-
- drivers/scsi/qlogicfas.c                  |   2 +-
- drivers/scsi/qlogicpti.c                  |   2 +-
- drivers/scsi/scsi_debug.c                 |   2 +-
- drivers/scsi/scsi_error.c                 |   4 +-
- drivers/scsi/scsi_lib.c                   |  10 +--
- drivers/scsi/scsi_scan.c                  |  15 +++-
- drivers/scsi/scsi_sysfs.c                 |  23 +++--
- drivers/scsi/sd.c                         |   2 +-
- drivers/scsi/sgiwd93.c                    |   2 +-
- drivers/scsi/smartpqi/smartpqi_init.c     |   2 +-
- drivers/scsi/snic/snic_main.c             |   2 +-
- drivers/scsi/stex.c                       |   2 +-
- drivers/scsi/storvsc_drv.c                |   2 +-
- drivers/scsi/sun3_scsi.c                  |   2 +-
- drivers/scsi/sun3x_esp.c                  |   2 +-
- drivers/scsi/sun_esp.c                    |   2 +-
- drivers/scsi/sym53c8xx_2/sym_glue.c       |   2 +-
- drivers/scsi/virtio_scsi.c                |   2 +-
- drivers/scsi/vmw_pvscsi.c                 |   2 +-
- drivers/scsi/wd719x.c                     |   2 +-
- drivers/scsi/xen-scsifront.c              |   2 +-
- drivers/scsi/zorro_esp.c                  |   2 +-
- include/linux/blk-mq.h                    |   6 --
- include/linux/blkdev.h                    |   2 -
- include/scsi/libfc.h                      |   2 +-
- include/scsi/scsi_device.h                |   9 +-
- include/scsi/scsi_host.h                  |   3 +-
- 110 files changed, 168 insertions(+), 258 deletions(-)
-
+diff --git a/drivers/scsi/scsi_scan.c b/drivers/scsi/scsi_scan.c
+index e27da038603a..121a14d5fdb8 100644
+--- a/drivers/scsi/scsi_scan.c
++++ b/drivers/scsi/scsi_scan.c
+@@ -34,6 +34,7 @@
+ #include <linux/kthread.h>
+ #include <linux/spinlock.h>
+ #include <linux/async.h>
++#include <linux/topology.h>
+ #include <linux/slab.h>
+ #include <linux/unaligned.h>
+ 
+@@ -287,8 +288,8 @@ static struct scsi_device *scsi_alloc_sdev(struct scsi_target *starget,
+ 	struct Scsi_Host *shost = dev_to_shost(starget->dev.parent);
+ 	struct queue_limits lim;
+ 
+-	sdev = kzalloc(sizeof(*sdev) + shost->transportt->device_size,
+-		       GFP_KERNEL);
++	sdev = kzalloc_node(sizeof(*sdev) + shost->transportt->device_size,
++		       GFP_KERNEL, dev_to_node(shost->dma_dev));
+ 	if (!sdev)
+ 		goto out;
+ 
+@@ -502,7 +503,7 @@ static struct scsi_target *scsi_alloc_target(struct device *parent,
+ 	struct scsi_target *found_target;
+ 	int error, ref_got;
+ 
+-	starget = kzalloc(size, GFP_KERNEL);
++	starget = kzalloc_node(size, GFP_KERNEL, dev_to_node(shost->dma_dev));
+ 	if (!starget) {
+ 		printk(KERN_ERR "%s: allocation failure\n", __func__);
+ 		return NULL;
 -- 
 2.43.7
 
