@@ -1,186 +1,223 @@
-Received: from mail-qt1-f179.google.com (mail-qt1-f179.google.com [209.85.160.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mout.web.de (mout.web.de [217.72.192.78])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A4F033C10A9
-	for <virtualization@lists.linux.dev>; Tue,  9 Jun 2026 17:58:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.179
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781027924; cv=pass; b=K7mm0NCBEFvcFaOLh/MXbb160OmWp/4uIm4/VC1KtqwADTvdabu3tjvK5fC270JL4i9L+8q43FMZ4VWH9yvG71sI9ITc4Yv7nBUM8RHBmz9PtkJ5OckAmAZ0LLUZufvho9HLRD5LApuVj4qFT5M64TxKFqtvvUV831qbcFzrG0k=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781027924; c=relaxed/simple;
-	bh=ybsezbay7k70lPOQonDhXOaQ/fkYTSjG31ey35ltwqg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=IW7Fl7MnVRSHW+/G7dNpjPZhsyJ+6ygFGtyHjSazEP8n3rWtwLjmG/T1PtD9pXdbj8rP8qLNab7xRPlBk16NeCnSENe+t15JHjmBrx2VdSjfX8mKeT62GlmLVcyj3eCwgn6EsITOzXKqc+l7rcE6w1CCtWMSFa/1uLduzCz4q5U=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=KFoJYM6w; arc=pass smtp.client-ip=209.85.160.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1E764C6EE8
+	for <virtualization@lists.linux.dev>; Tue,  9 Jun 2026 18:08:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.72.192.78
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781028515; cv=none; b=ujuG9A0O4jjN/C/EzXyDj1wrHbzWcG3GVLXcmC6pUFk4ZEyWUbMOtQ3K6OjxKoDAyJhybRMd+QZZzMBQ0XoB1X73CG/rGRQcHYjdzvtwAcWSy+aOe88hyv8lnyoWJ7h4qgLY8lGkw1W4U5Tfy+Iamn6stF2HLov1sh2FFy5+GWc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781028515; c=relaxed/simple;
+	bh=8PxgdVd5egqagi4OQSfCP/LgucTSPc5L4FPbpNs2LFk=;
+	h=Message-ID:Date:MIME-Version:To:Cc:From:Subject:Content-Type; b=TTUkap820CDqkv1hQqhDnI6tONvx8206gzYQJYKcN4qMkbzH5QOsgl7fZ2AbYyV4Lfh6vP25tM3NLp+sLLHcgpRP2HTQYpam4y8jaRWHkMKQQHaA9QUMvXhb9IjrohTCyPVN17XWeUYhdtLMRjZz2pyJPuXFwMumrwfnMLAm/og=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de; spf=pass smtp.mailfrom=web.de; dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b=X17deeEc; arc=none smtp.client-ip=217.72.192.78
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="KFoJYM6w"
-Received: by mail-qt1-f179.google.com with SMTP id d75a77b69052e-51765331535so2619631cf.1
-        for <virtualization@lists.linux.dev>; Tue, 09 Jun 2026 10:58:43 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781027923; cv=none;
-        d=google.com; s=arc-20240605;
-        b=Mfls19T5uQ3HxUFdzA9cLVXqjP02Cf/I8E4ptHCePso9xdf29P0tgto6ORbVoyb6lT
-         2oXe0DEyCjCyV6JDR4FTtu/VkhUWqJm5zCTTPGpTdqrz6uSvbTMGF3oYGJDCPzxKccI7
-         xKShNOcBgqlOpnBdgMt0wUGYcHOdSDjqXUFEvRcXBU/VgQ3irMyNbxyJUv8aHlV7cB9v
-         6E0qh4Yfv6PmykqrveYKTc3WiN4algsT8bOdHh7uuuZ4WkJAz5UYLsw2aLiMSG8jHyPE
-         dkG/op2lDr5Q5MEPSFDyk0AbovCj/o6o7jnbpdHrb1H6vVpDhr4+WbqQLOLSpHx7qalx
-         VMVg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=Nwn+8bVabCNfsWsGPnwkQLJpfQuXsi9OyDflFuRUOro=;
-        fh=k7KQwdeeujh6M8nXkpLfvYH5jjGfnuxhLHnS5RvAbGA=;
-        b=Ki4snSHEzu3N8j4Ti5UR0LPLV0WDj4VhVO3/CrfjdTbjvRNZtGVvtLFf/KeGpvIb2i
-         CMzW4yoOXSG6nsf6HxKlOdcVZFyYKKy0HetFU9xKuYh6SZ0odsIl5otwv3hLn2G7yKys
-         /NkxqUw/6PYeAHSGKbNd7MZBrR820JGlJ06KIGkj6NPQHwNXkmusGCnkedNkdA3qBZ2G
-         WH6s7icNSxSANNZEmH5Q2eLVljN9MoUU6Pxs6uG7ihDgnn5Hn4DQhBr7pZwVO3echnAk
-         DgTLx1ImAWoLmg2ZkqTZx+lq7vfRYwmqlq+ZoawUkipjNcsT6di6FgkPtzdaev8AV94a
-         zJNg==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1781027923; x=1781632723; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Nwn+8bVabCNfsWsGPnwkQLJpfQuXsi9OyDflFuRUOro=;
-        b=KFoJYM6wymTWzdczS6UigKjCKIpvU8hcq8qGljaSt3xVBls3ks1wJswyTgsQtvaMLh
-         F7zwN7H7vRD7ETxta1ssH0T332q7jzuN/DGu+cwJI7vZY9C80nHZwkmv93S6kvLJlehw
-         /BB8mqo9NaGFjEEOV+GgVvXcs0BESd+SdPZZ80Oyw+l8nYt6/K1yAA+Dl4ZQO4EA29RN
-         D3m8GPwnxaTuzWZWpp/S1P2WZeU+P4GS8HRnc1wLXX/BTsEDEVJoHziw7RcKtLTjzRzL
-         iWt4Nia1/k61A2Y4VfJKqn1FEruVenOaQo3fMhSguIDv+sBQGRoWNVGRmM5c3MGryTnu
-         V4yQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781027923; x=1781632723;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=Nwn+8bVabCNfsWsGPnwkQLJpfQuXsi9OyDflFuRUOro=;
-        b=M+U2L4RZ3ic8uzePli6UXsv8J19EZZLOu2LulP8WTcrERmTztl8ss+NxO+s6OxkTNo
-         a4+Kfd/n2jpNEvpXazGkcwFoqqgOXfDC7K/SfCzvJa7zCVbedev4/hTgAvlFpL8dQYYg
-         vPRg2QP2VNc6YFAa22hFWRe9x3NersLp0c5GmUPv6vc0NlbJfRyXPVRPKmLb1ra+ZMli
-         OP101G++JmZ0DbNeavGxmwYdkZ0X5yB4dquGCAWMF9LPHkHIrvF1xASh8ekSQ8MA88K1
-         9+Y5wo/9pcZBqkL4tbdi4uS267P0d/dr7Mj6KDIqgZ59xpwehk5ynwQGhX6kkYPQVBg2
-         MtzQ==
-X-Forwarded-Encrypted: i=1; AFNElJ87Kof9IlIVmCGjhKhNHbjaIcrExWN4ibt4b9+HFLgULw8n2ma1wXv7/qwJ5Wn4NZX/dhAIyZpWfBsn6pKBnA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyJBs72FKcfpWc67JsKH6wRwvD0EnAJTYDOHbJI1NxeTjjl78XO
-	sFS9Dj21ASwrGGn0TAqxQxRSGKKd0sO5iOn9wiwOqDQEUkHzvBx/SKJyT5HXLxm2lMb5ugAJoSZ
-	wjpTjuUUYbzmc29JiD+wiwuzZQ/tu9Wiu7gl/zuQl
-X-Gm-Gg: Acq92OGOR4AKEjdbRZ+SEbW08uv5fyYexj+8ALhoB77yOPcVYlxEAdFCh8rJtuO2+bm
-	prot9sdQd7yb8Nv18ICZ1Z2zukYy9+KQz/r4XvoT2U4u4rJgVn0xjfN8WCAql5ItzMoPOiq2tP+
-	oOYYNPJmeu9Ai6pGuEUdIR6dc01ugOpKo9vctw6MOcXV+R8S3awNVOXYEj3mPICi6gFg6cknaxc
-	u8QaEnE31RScDIZrpjsC+d4u8/ynyj2EVEkiuWby6Ny6ZZuaKApdwQBkDuluFLn6tjkqVJFd8FG
-	DEDUSozHmV9hwsbCY4qsR5kPvgCVaEDj4AMN1kpdGcnm+vd6OBAm8uAD7VQQFAI=
-X-Received: by 2002:a05:622a:6843:20b0:516:4f62:85ed with SMTP id
- d75a77b69052e-5179b114418mr33538681cf.18.1781027922090; Tue, 09 Jun 2026
- 10:58:42 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="X17deeEc"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=web.de;
+	s=s29768273; t=1781028488; x=1781633288; i=markus.elfring@web.de;
+	bh=aPFT5tpKtV1vnCpf8A2Cb4cBeYk/zZTv9ePoWv32Mzk=;
+	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:To:Cc:From:
+	 Subject:Content-Type:Content-Transfer-Encoding:cc:
+	 content-transfer-encoding:content-type:date:from:message-id:
+	 mime-version:reply-to:subject:to;
+	b=X17deeEcVJTKYScR2ueS/ey0s6TkoeXxn1f3Ir2DWeodAUZp/odwo+4rtx1hC+vj
+	 qwle6/whbqBr+sAno0V0FAPzOVKZuEOp+zQfZ0nVEnpgiSV552XXUuGPImXJUZPP1
+	 ua4+mHwb0cq1yXFsVVrvwweGdUvh6Eb5KYSe4Eq5Gj7CEaO+FDqL+x8I0oN0YzI09
+	 Z2rWz6X/qHE6/7k0kc2y8L1d7yKaqa5TnmciXRgFTHNYWV3fEoCh4JVeUcPOdh8iT
+	 WoSrpfKAE3Hz665VWvziJyHRiKvGiSRt9NhQwxHEVcyH06WeyADcLDzwwM0vOUN2D
+	 90t+q5OcFnlLfX4ecQ==
+X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
+Received: from client.hidden.invalid by smtp.web.de (mrweb106
+ [213.165.67.124]) with ESMTPSA (Nemesis) id 1MoeY7-1x03Af36uf-00gnb3; Tue, 09
+ Jun 2026 20:08:08 +0200
+Message-ID: <b7440806-e9e8-4027-afe1-f6fe9297d8b2@web.de>
+Date: Tue, 9 Jun 2026 20:08:05 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260609004809.1285028-1-tavip@google.com> <aifL0f_QO1kocccU@sgarzare-redhat>
-In-Reply-To: <aifL0f_QO1kocccU@sgarzare-redhat>
-From: Octavian Purdila <tavip@google.com>
-Date: Tue, 9 Jun 2026 10:58:30 -0700
-X-Gm-Features: AVVi8CdWuQeEp3U6i-IMth0fBQwGbxFj2zuxQPoE0fGsqs-1g0UsFmC0xhO_DaE
-Message-ID: <CAGWr4cSY9V7JyvJWyO_YRR-9KJtp=OzAkDjjODJ9tM7orebZ5w@mail.gmail.com>
-Subject: Re: [PATCH net] vsock/virtio: restore msg_iter on transmission failure
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: netdev@vger.kernel.org, 
-	syzbot+28e5f3d207b14bae122a@syzkaller.appspotmail.com, 
-	Stefan Hajnoczi <stefanha@redhat.com>, "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Arseniy Krasnov <avkrasnov@salutedevices.com>, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+To: virtualization@lists.linux.dev, dri-devel@lists.freedesktop.org,
+ Chia-I Wu <olvaffe@gmail.com>,
+ Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Simona Vetter <simona@ffwll.ch>,
+ Thomas Zimmermann <tzimmermann@suse.de>
+Content-Language: en-GB, de-DE
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+From: Markus Elfring <Markus.Elfring@web.de>
+Subject: [PATCH] drm/virtio: Use common error handling code in two functions
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:Ysu4JNB1LX9QaFKkc0f1ea/R8dyRnFlz7MtJfV693+8tpfwYgqF
+ 8sj1byjbCsDKd67NbGg5QSljmk3w2iZGQZ5vsn+bDkBCcjywn5oB07ZKHevVr3vOcfOs7KT
+ 2AkC0RDgynfhL2WBgzatyDkgQQu2dc9AFH5G7DizH2bD/vaOrLLuwITYIuYvB8Qxub6P22L
+ hzcnxwa1LYZuNZmX4x/2A==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:W1x/7L/ptoQ=;4pkbZeeO8nPlEYjq+KM0kvj1NQJ
+ 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
 
-On Tue, Jun 9, 2026 at 1:48=E2=80=AFAM Stefano Garzarella <sgarzare@redhat.=
-com> wrote:
->
-> On Tue, Jun 09, 2026 at 12:48:05AM +0000, Octavian Purdila wrote:
-> >When transmission fails in virtio_transport_send_pkt_info, the msg_iter
-> >might have been partially advanced. If we don't restore it, the next
-> >attempt to send data will use an incorrect iterator state, leading to
-> >desync and warnings like "send_pkt() returns 0, but X expected".
->
-> Thanks for the fix! I have some comments.
+From: Markus Elfring <elfring@users.sourceforge.net>
+Date: Tue, 9 Jun 2026 20:00:07 +0200
 
-Thank you for the quick review!
+Use additional labels so that a bit of exception handling can be better
+reused at the end of two function implementations.
 
-> >diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/vir=
-tio_transport_common.c
-> >index b10666937c490..588623a3e2bbc 100644
-> >--- a/net/vmw_vsock/virtio_transport_common.c
-> >+++ b/net/vmw_vsock/virtio_transport_common.c
-> >@@ -367,6 +367,10 @@ static int virtio_transport_send_pkt_info(struct vs=
-ock_sock *vsk,
-> >       do {
-> >               struct sk_buff *skb;
-> >               size_t skb_len;
-> >+              struct iov_iter saved_iter;
->
-> trivial: reverse xmas tree:
-> https://docs.kernel.org/process/maintainer-netdev.html#local-variable-ord=
-ering-reverse-xmas-tree-rcs
->
+This issue was detected by using the Coccinelle software.
 
-I'll fix it in v2, sorry for missing this.
+Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+=2D--
+ drivers/gpu/drm/virtio/virtgpu_vq.c   |  7 +++----
+ drivers/gpu/drm/virtio/virtgpu_vram.c | 16 ++++++++--------
+ 2 files changed, 11 insertions(+), 12 deletions(-)
 
-> >+
-> >+              if (info->msg)
-> >+                      saved_iter =3D info->msg->msg_iter;
->
-> What about using iov_iter_save_state()/iov_iter_restore() ?
->
-> IIUC we may need to export iov_iter_restore(), so not a strong opinion,
-> but it looks better to use those API IMHO.
->
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/=
+virtgpu_vq.c
+index 67865810a2e7..05b19c73103a 100644
+=2D-- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -318,15 +318,14 @@ static struct sg_table *vmalloc_to_sgt(char *data, u=
+int32_t size, int *sg_ents)
+=20
+ 	*sg_ents =3D DIV_ROUND_UP(size, PAGE_SIZE);
+ 	ret =3D sg_alloc_table(sgt, *sg_ents, GFP_KERNEL);
+-	if (ret) {
+-		kfree(sgt);
+-		return NULL;
+-	}
++	if (ret)
++		goto free_sgt;
+=20
+ 	for_each_sgtable_sg(sgt, sg, i) {
+ 		pg =3D vmalloc_to_page(data);
+ 		if (!pg) {
+ 			sg_free_table(sgt);
++free_sgt:
+ 			kfree(sgt);
+ 			return NULL;
+ 		}
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vram.c b/drivers/gpu/drm/virti=
+o/virtgpu_vram.c
+index 4ae3cbc35dd3..ec5b669fccfa 100644
+=2D-- a/drivers/gpu/drm/virtio/virtgpu_vram.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vram.c
+@@ -212,16 +212,12 @@ int virtio_gpu_vram_create(struct virtio_gpu_device =
+*vgdev,
+=20
+ 	/* Create fake offset */
+ 	ret =3D drm_gem_create_mmap_offset(obj);
+-	if (ret) {
+-		kfree(vram);
+-		return ret;
+-	}
++	if (ret)
++		goto free_vram;
+=20
+ 	ret =3D virtio_gpu_resource_id_get(vgdev, &vram->base.hw_res_handle);
+-	if (ret) {
+-		kfree(vram);
+-		return ret;
+-	}
++	if (ret)
++		goto free_vram;
+=20
+ 	virtio_gpu_cmd_resource_create_blob(vgdev, &vram->base, params, NULL,
+ 					    0);
+@@ -237,6 +233,10 @@ int virtio_gpu_vram_create(struct virtio_gpu_device *=
+vgdev,
+=20
+ 	*bo_ptr =3D &vram->base;
+ 	return 0;
++
++free_vram:
++	kfree(vram);
++	return ret;
+ }
+=20
+ void virtio_gpu_vram_map_deferred(struct virtio_gpu_object_vram *vram)
+=2D-=20
+2.54.0
 
-I agree,  I'll add the export as a separate patch in v2 and move to
-using these APIs.
-
-> >
-> >               skb_len =3D min(max_skb_len, rest_len);
-> >
-> >@@ -375,6 +379,8 @@ static int virtio_transport_send_pkt_info(struct vso=
-ck_sock *vsk,
-> >                                                src_cid, src_port,
-> >                                                dst_cid, dst_port);
->
-> What about adding a comment on top of virtio_transport_alloc_skb() call
-> (or when we save the state) to explain that in specific cases it can
-> advance the msg_iter ?
->
-
-Good point, I will add a comment explaining this in v2.
-
-> >               if (!skb) {
-> >+                      if (info->msg)
-> >+                              info->msg->msg_iter =3D saved_iter;
-> >                       ret =3D -ENOMEM;
-> >                       break;
-> >               }
-> >@@ -382,8 +388,11 @@ static int virtio_transport_send_pkt_info(struct vs=
-ock_sock *vsk,
-> >               virtio_transport_inc_tx_pkt(vvs, skb);
-> >
-> >               ret =3D t_ops->send_pkt(skb, info->net);
-> >-              if (ret < 0)
-> >+              if (ret < 0) {
-> >+                      if (info->msg)
-> >+                              info->msg->msg_iter =3D saved_iter;
->
-> Also, what about having a single restore point after the loop?
->
-> I mean something like this (untested):
->
-
-Yes, that looks much better. I tested it locally and it works fine. Thanks!
-
-I'll follow-up with v2 in a day or two.
