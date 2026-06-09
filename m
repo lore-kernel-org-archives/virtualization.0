@@ -1,144 +1,188 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3BDFA3E5EE3;
-	Tue,  9 Jun 2026 07:48:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A040319ABD8
+	for <virtualization@lists.linux.dev>; Tue,  9 Jun 2026 08:06:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780991292; cv=none; b=EEaRFHt0w7kNcCfULhcLp5Qyu86gnx4HdIST2JRfYADdZTRkZY69v9e88hJPwa6l6RdiYKfx7MqKJqsZcZ86kHzGZJWwqkT3vA1zzwhmaRiFD3IdgstbY9DuxSncZ3hd1BplMYnEJZ5+aLY/GUdALUeLxKCvaDojLQlhSFKJgdk=
+	t=1780992381; cv=none; b=DqJ4otZHFSZvT+8azjjK37C0Mc/5s2V1Gy7o9UjYo+lVtACiiqXjrfI0ReZMmkDhyuFiJMkT6FnmVhjJ/6iT0m5Oua7x+KQciiwOMoHCofcx1oTlT7Cn38J+VQCpMlUzH6MIXXNSymRYxslGm5nYrjRyJ1Y6+1MwNM4X02bvZAk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780991292; c=relaxed/simple;
-	bh=ZBX5eahzd46CUbwIFun4qVkUb3QTM+g7fn0ziOL7Zx4=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=i+xLbsH5B/AdRFAIAZXqVCbK4/yx/OJdO/iJH+K29HTkXq1o9U+a+YFQFRKutJaRjDPzyh85f7/Veo9++YOdY33qWBpME9NO8rNgIDGLDIJYHJuD58DXV6/fcKDHlotI15aip+Jpr6AQg9J56WlmDCvAgLpEvWbyVhfBh/mvzLQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fhT/BnDr; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1780992381; c=relaxed/simple;
+	bh=UzctvEXGPkxRJJFL6usyl9J2oOluX53QVY2A6gfvG1A=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=hc7FqrSxE0XnEhx8S+n71r8snAejZJptpwCy2UseXptzAY0Fv/WqqkYVspwGm53trJu9zEycwKC+qXLPmgHAxK7LybWAqyBFsEzR8PcOrELW6weJAMPqL7JITUHsLDBnikCweOf60RhTkfSxhPXLWfcwGPaY7XQQUrGcjC1p620=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QlrGL5R3; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fhT/BnDr"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1DB4D1F00893;
-	Tue,  9 Jun 2026 07:48:10 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780991290;
-	bh=iiljLo4Dj3SESslIfwzIuSptLw3aAN39KXfU2xj2Ngk=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=fhT/BnDr+KIL6FSHMueMDrXiAeihxCx9XYmV4sQEsCrgZ1a/wLUlA82c1I6chu2MM
-	 rwKusfZOsEM3kx5pEdK9ggrNvlOkxF1bXbC0sEg1cxOzYdFCuBBw2Q4HB3K+Tk2mgF
-	 cv0n962KH23nlUg4uss93akTXM5KJMfq8JYgGQ0evU2dHo+DKQ9+YcNw/k+9RPPLKp
-	 J47WOewPhoa36WNJqXt4oaEjhDK0itmBDVBlKuYN0GyqnPG07ArrFllQqbbqboqHCC
-	 oIieu3huEj6Hct6nh+p+M18BgnBSbKYb1ebIk/0iA2wklf1pZ6SvQa5gkT9+Y/gL8Z
-	 WvHbYAtwWzDSg==
-From: Thomas Gleixner <tglx@kernel.org>
-To: Sean Christopherson <seanjc@google.com>, David Woodhouse
- <dwmw2@infradead.org>
-Cc: Paolo Bonzini <pbonzini@redhat.com>, Ingo Molnar <mingo@redhat.com>,
- Borislav Petkov <bp@alien8.de>, Dave Hansen <dave.hansen@linux.intel.com>,
- x86@kernel.org, Kiryl Shutsemau <kas@kernel.org>, "K. Y. Srinivasan"
- <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu
- <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>, Long Li
- <longli@microsoft.com>, Ajay Kaher <ajay.kaher@broadcom.com>, Alexey
- Makhalov <alexey.makhalov@broadcom.com>, Jan Kiszka
- <jan.kiszka@siemens.com>, Andy Lutomirski <luto@kernel.org>, Peter
- Zijlstra <peterz@infradead.org>, Juergen Gross <jgross@suse.com>, Daniel
- Lezcano <daniel.lezcano@kernel.org>, John Stultz <jstultz@google.com>, "H.
- Peter Anvin" <hpa@zytor.com>, Rick Edgecombe <rick.p.edgecombe@intel.com>,
- Vitaly Kuznetsov <vkuznets@redhat.com>, Broadcom internal kernel review
- list <bcm-kernel-feedback-list@broadcom.com>, Boris Ostrovsky
- <boris.ostrovsky@oracle.com>, Stephen Boyd <sboyd@kernel.org>,
- kvm@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-coco@lists.linux.dev, linux-hyperv@vger.kernel.org,
- virtualization@lists.linux.dev, xen-devel@lists.xenproject.org, Tom
- Lendacky <thomas.lendacky@amd.com>, Nikunj A Dadhania <nikunj@amd.com>,
- Michael Kelley <mhklinux@outlook.com>
-Subject: Re: [PATCH v4 10/47] x86/tsc: Consolidate forcing of
- X86_FEATURE_TSC_KNOWN_FREQ for PV code
-In-Reply-To: <aidEfvTMjLa2zt43@google.com>
-References: <20260529144435.704127-1-seanjc@google.com>
- <20260529144435.704127-11-seanjc@google.com> <877boc554l.ffs@fw13>
- <eef867eae15e30d08482ba16a1a32159745b64a7.camel@infradead.org>
- <aidEfvTMjLa2zt43@google.com>
-Date: Tue, 09 Jun 2026 09:48:07 +0200
-Message-ID: <87a4t440js.ffs@fw13>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QlrGL5R3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1780992378;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Mtkf4sgMqVoG+F92sfanLnqPLF7Ap+Es97Nko8xXfZE=;
+	b=QlrGL5R3OV3xg2IG5zffSE0P9pcDMUgrcNwN8ImtjNT8mMzJE40lg+rhATWKS1NyIMaK43
+	sHEgrkeAIvaP0kCwQK1aGV37HxdjFRa65vI7gIopQyLzJQWo0JCeHECSqVIc1UL4GZiHoq
+	77nxDSAJdy6cmHu5ahwPvi976vOclvU=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-163-bFBCUJLVNQam-wHLqiJrQQ-1; Tue, 09 Jun 2026 04:06:16 -0400
+X-MC-Unique: bFBCUJLVNQam-wHLqiJrQQ-1
+X-Mimecast-MFC-AGG-ID: bFBCUJLVNQam-wHLqiJrQQ_1780992375
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-490b8adf8b8so47882855e9.0
+        for <virtualization@lists.linux.dev>; Tue, 09 Jun 2026 01:06:16 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1780992375; x=1781597175;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Mtkf4sgMqVoG+F92sfanLnqPLF7Ap+Es97Nko8xXfZE=;
+        b=RJC7Lkq9SJ4u+3aMdUqJ5Rj/n6OAy1MhZlZ7Ub11kTwZ8o5pbWxsOtObO/wlMsJpTQ
+         Yx7Tohdn61M0lOU0dFHMtGCa7U4MSzpaSdA0VpMFIoDgji9bS0X4dqRHzJYtDYEyzSrZ
+         FzZYdpP/lq3fVJU7eW+ZbLGeubSEfkEzRxRoDMZgx84dQF1alhpJRt7ThlnjpYbmSv+0
+         +hwYf4pxbj9NRn3bOVjlxDFlJke7oTyHKbL9ugF2gEQ19sSZWEcx7k0TTjKNAExrGoKd
+         ZwKE87jzy5jUchJw8VVvb0m3CZZZoP7EZLU/rQupZ0ECKBBwBxYG85SjNA47K0UrnM6F
+         Av5w==
+X-Forwarded-Encrypted: i=1; AFNElJ8xFfSkNe/8hmCYCW0GFpbKQ2hkqSSDC514YsKAA4onXorIUrvACe/pOyIN20hLYERmpqWaYv19FrO0b+6GPw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwAOoy5Fg7HV0+QZi/SH8w9cA0a+PInEsLYDHP3Uemr56VU8HUU
+	PWxt297mEKuth1k63jNKZFXI+KmToE9Ghp/sHLyh9Fg1oOq6clIWKb9l5VAXkuvggy7qKhIkUgW
+	2qoLw8EWQv1VTV0QNfkOpi+x0sBcIeOC2pQhzokxgq+RG0dZY6uWcZWc20FuofexwRabS
+X-Gm-Gg: Acq92OELYPyvsdPJzrA2Rcc3zhNByxJUnqw4k4gQY7TgztAaqVCjWA4tWjffEKC+M+7
+	6QeQPsi61tQxs/EWpWhaeE6wIX6y+b+9HCivr+7Yyt1xTg6wm+4DqE+1zi1uQ+ktX1XnHCAoLAx
+	HMqF230x30qgbXY17JTIcTC4Q/P+9BhDrXbu57w3ZY9ZUX7XyrbCvtfmtpRbPoeO4TDoGN264rI
+	ELNlbQi3fMrERefZlVXQsd5F9h8nC409zpZrBJBQloboNG6s3kYurT9q4OLaI3aJcZRn8nFeaAw
+	gKtfSeA3/7xipK3viXMmKaNXQu4tNcc7nu1HlhmSkpEmyufcgL80yq2Cm4xefP0EuGy1E6dcSQW
+	ARRd+sdVXQN9+sIYPOQjHxF41EpGBmU34e2e3x1VtKnHMU6vFF4P+dA==
+X-Received: by 2002:a05:600c:3515:b0:490:b409:94f4 with SMTP id 5b1f17b1804b1-490c2602a24mr294886885e9.28.1780992375125;
+        Tue, 09 Jun 2026 01:06:15 -0700 (PDT)
+X-Received: by 2002:a05:600c:3515:b0:490:b409:94f4 with SMTP id 5b1f17b1804b1-490c2602a24mr294885445e9.28.1780992374486;
+        Tue, 09 Jun 2026 01:06:14 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-85-71.inter.net.il. [80.230.85.71])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490bc3d66c8sm440082815e9.10.2026.06.09.01.06.10
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 09 Jun 2026 01:06:13 -0700 (PDT)
+Date: Tue, 9 Jun 2026 04:06:08 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Matthew Wilcox <willy@infradead.org>
+Cc: linux-kernel@vger.kernel.org,
+	"David Hildenbrand (Arm)" <david@kernel.org>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Muchun Song <muchun.song@linux.dev>,
+	Oscar Salvador <osalvador@suse.de>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Lorenzo Stoakes <ljs@kernel.org>,
+	"Liam R. Howlett" <liam@infradead.org>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Brendan Jackman <jackmanb@google.com>,
+	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
+	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
+	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+	Byungchul Park <byungchul@sk.com>,
+	Gregory Price <gourry@gourry.net>,
+	Ying Huang <ying.huang@linux.alibaba.com>,
+	Alistair Popple <apopple@nvidia.com>,
+	Christoph Lameter <cl@gentwo.org>,
+	David Rientjes <rientjes@google.com>,
+	Roman Gushchin <roman.gushchin@linux.dev>,
+	Harry Yoo <harry.yoo@oracle.com>,
+	Axel Rasmussen <axelrasmussen@google.com>,
+	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
+	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
+	Kemeng Shi <shikemeng@huaweicloud.com>,
+	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
+	virtualization@lists.linux.dev, linux-mm@kvack.org,
+	Andrea Arcangeli <aarcange@redhat.com>
+Subject: Re: New design
+Message-ID: <20260609033042-mutt-send-email-mst@kernel.org>
+References: <cover.1780906288.git.mst@redhat.com>
+ <aiePVsiV-w-IZ8A4@casper.infradead.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <aiePVsiV-w-IZ8A4@casper.infradead.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 4jzgfEXRUBzMATxM4tAQQeuaXf1kWD3PrT9XNoQ9nH4_1780992375
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Mon, Jun 08 2026 at 15:38, Sean Christopherson wrote:
-> On Sat, Jun 06, 2026, David Woodhouse wrote:
->> > Along with:
->> >=20
->> > =C2=A0=C2=A0 if (!hypervisor_is_type(X86_HYPER_NATIVE)) {
->> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (tsc_khz_early)
->> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 pr_warn("Ignoring non=
--sensical tsc_early_khz command line argument\n");
->> >=20
->> > or something daft like that.
->
-> Ya, I ended up in the same place once Sashiko pointed out that skipping t=
-he SNP/TDX
-> setup was hazardous[*], and also once I realized that tsc_khz_early *comp=
-lemented*
-> the refinement instead of replacing it.
->
-> This is what I have locally:
->
->         if (cc_platform_has(CC_ATTR_GUEST_SNP_SECURE_TSC))
->                 known_tsc_khz =3D snp_secure_tsc_init();
->         else if (boot_cpu_has(X86_FEATURE_TDX_GUEST))
->                 known_tsc_khz =3D tdx_tsc_init();
->
+On Tue, Jun 09, 2026 at 04:58:14AM +0100, Matthew Wilcox wrote:
+> OK, here's how I'd structure this:
+
+Thanks a lot for looking into this and writing this Matthew! Looks
+workable, let's see if there's rough consensus around this.
+Two questions to make sure I understand.
+
+> 
+> 1. Introduce PG_zeroed for buddy pages
+> 2. Set it if init_on_free is set
+
+Not 100% sure why we want this bit. And I am not sure this works
+actually because init_on_free does kernel_init_pages
+and does not flush cache on arm32.
+You will notice that user_alloc_needs_zeroing ignores init_on_free.
+Right?
+How about we skip step 2, make the patchset a bit smaller?
+
+
+> 3. Set it from balloon driver
+> 
+> https://lore.kernel.org/lkml/c7094de807c0e963526686e1d245bc76193b1a92.1776689093.git.mst@redhat.com/ 
+> 
+> but add FPI_ZEROED instead of an extra bool parameter.
+> 
+> 4. Introduce page_is_zeroed like this:
+> 
+> static inline bool page_is_zeroed(const struct page *page)
+> {
 >         /*
->          * If the TSC frequency wasn't provided by trusted firmware, try =
-to get
->          * it from the hypervisor (which is untrusted when running as a C=
-oCo guest).
+>          * lru.next has bit 2 set if the page is already zeroed.
+>          * Callers may simply overwrite it once they no longer
+> 	 * need to preserve that information.
 >          */
->         if (!known_tsc_khz && x86_init.hyper.get_tsc_khz)
->                 known_tsc_khz =3D x86_init.hyper.get_tsc_khz();
->
->         /*
->          * Mark the TSC frequency as known if it was obtained from a hype=
-rvisor
->          * or trusted firmware.  Don't mark the frequency as known if the=
- user
->          * specified the frequency, as the user-provided frequency is int=
-ended
->          * as a "starting point", not a known, guaranteed frequency.
->          */
->         if (known_tsc_khz && !tsc_early_khz)
->                 setup_force_cpu_cap(X86_FEATURE_TSC_KNOWN_FREQ);
+>         return (unsigned long)page->lru.next & BIT(2);
+> }
+> 
+> (you'll notice this is similar to page_is_pfmemalloc() but it doesn't
+> need to be in mm.h)
+> 
+> This step is going to be a bit fiddly.  We weren't expecting to return
+> multiple flags in page->lru.next, so clear_page_pfmemalloc() just sets
+> page->lru.next to NULL.  So somewhere we need to make sure that
+> page->lru.next is definitely NULL, and then allow both the zeroed and
+> pfmemalloc flags to be set in it.
+> 
+> The important part of this is that it allows the zeroed flag to be
+> returned from the page allocator without introducing pghint_t like you
+> did in v2.
+> 
+> 5. Now you can start skipping various zeroing steps higher in the call
+> chain.
+> I understand David's disgust with vma_alloc_zeroed_movable_folio()
+> but that is surely a separate cleanup and nothing to do with this
+> patchset.
 
-If the frequenct is known via the above then you want to set the
-KNOWN_FREQ feature bit unconditionally. SNP/TDX/hypervisor override the
-command line argument as you print below.
 
->         /*
->          * Ignore the user-provided TSC frequency if the exact frequency =
-was
->          * obtained from trusted firmware or the hypervisor, as the user-
->          * provided frequency is intended as a "starting point", not a kn=
-own,
->          * guaranteed frequency.
->          */
->         if (!known_tsc_khz)
->                 known_tsc_khz =3D tsc_early_khz;
->         else if (tsc_early_khz)
->                 pr_err("Ignoring 'tsc_early_khz' in favor of firmware/hyp=
-ervisor.\n");
 
->> All the nonsense about updating it every time we enter a CPU could just
->> go away completely.
->
-> But to Thomas' point, why bother?  For actual old hardware, kvmclock is w=
-hat it
-> is.  For modern hardware, it's completely antiquated.
+One other question: would people like to see it as a single patchset
+or multiple ones 1-4? Multiple ones would be easier to review but
+of course this means no actual perf gain until part 5 is merged. Is that
+acceptable?
 
-I agree, but we are not forced to make it a first class citizen to the
-detriment of sane systems.
+-- 
+MST
 
-Thanks,
-
-        tglx
