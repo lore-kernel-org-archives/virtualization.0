@@ -1,166 +1,54 @@
-Received: from mail-pj1-f100.google.com (mail-pj1-f100.google.com [209.85.216.100])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from sender4-op-o15.zoho.com (sender4-op-o15.zoho.com [136.143.188.15])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 096333911C5
-	for <virtualization@lists.linux.dev>; Tue,  9 Jun 2026 11:50:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.100
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781005811; cv=none; b=QEsElR+ARtBt7aYo+L8lHHA9HlHO4+iehVFC0Kh7Zue/QrzvyMKFZw5ChXnf/yksY+NMmIHCcTuHRUdegKvBc2WODWLPSzLxd6q/4nFp9Gt2wXgsjA32el0uD4ta7wyFHZR+UAhqZMdBqaKZuBMher2C0CnSUN0XMM6aKPqsdZc=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781005811; c=relaxed/simple;
-	bh=3Kv41lKgpOl5wee6Wmx4e4vTLz9/OZ6j/+o4p0XS7OM=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=cF6fef4/bJ7U2YVLalSZQFSTEwFeuQ43ijetndOD/3tx1h3eaUuljwDhHbSLOT6zEQv1ik8xhkmXFM2ucfXqmhO1o2Z6LZ9ZEdlZkhH//yy0B2kSHjaXQZNcLIQXZ9DrA121JGiiI+0Hm40A/63VzWdOCbIATMujwNu3cCkMQGk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=Oaznnyqg; arc=none smtp.client-ip=209.85.216.100
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 24C36406261;
+	Tue,  9 Jun 2026 12:07:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.15
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781006875; cv=pass; b=ixeJhPjsHwi7MpRdChxXYfgFkDnXtjRRZVYmS1Z6Ef3Vm/AgCH7/8jy2fibk5Yx4CC0x9OJ5Lyaw9+9aZloSBwDWrcesXVwDyD0pNYQjkGSmXBc3ZclwRiteqSlsMRM2JBC5e7hMz2puncOriQOAQva2Fg8Aez3Rv/thbKgv970=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781006875; c=relaxed/simple;
+	bh=PuQkpSB6VVlHax4NFIXV8Byh4dgGWyEeHzEDs6+zyZU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=H0epafqPwLXZL7n/68rcNCcPqBs4x3ISfAp+IYwZaNyJ/WMn5iCSD3v4zkHEUzl2chDiwKiW3p3+ju12SxJgcMCfHEKHa08os5OUTxfq91yyOmVSTZ+Tas8p28wmd/hk4riyLb0XkFgrczUc9DSMCKG5w2W4ZSuXwvjMGPEyosk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.beauty; spf=pass smtp.mailfrom=linux.beauty; dkim=pass (1024-bit key) header.d=linux.beauty header.i=me@linux.beauty header.b=OryJ1yEz; arc=pass smtp.client-ip=136.143.188.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.beauty
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.beauty
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="Oaznnyqg"
-Received: by mail-pj1-f100.google.com with SMTP id 98e67ed59e1d1-36d630c0e35so5736581a91.3
-        for <virtualization@lists.linux.dev>; Tue, 09 Jun 2026 04:50:08 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781005808; x=1781610608;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:dkim-signature:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=fLAZlEa/gpJjIgpIJ2e9Ooy6MTW++uhKEEc/j768mlo=;
-        b=CBS3uL6b1hlWd0DNnv8R9eRSJrIHEf1azZFp3qcwTX9HAxnl/NoaX0l2uk63OxkkUs
-         pwCmoVJN+Foc25pDmwkyajtVu7iMOE828N3D/pdE87HQ+kDofrt1T+uikQqou3xDc1m3
-         zHnHcJothaleMNq4Hd1YWP5hxgekJqtV6WzubRbMZ0dVCrZSyC13IqZ16mVclzZV+Oct
-         b15a+nlJQpovIBqhwxzmRsnMXmRbo85bHeWzjqwAbaiBqD24o6hpIV+oe4xI2MODf1wf
-         +XlKWToITv5R9kyRKpdc/wMqk9EWIJespkUadOZdpyfOM5FqUBGldOHp24zhHVuCzmmx
-         SgUw==
-X-Forwarded-Encrypted: i=1; AFNElJ8tvIxykjzuPqT6oBxjbJfs/YCIbXo5arDsFPwAJLEK45zeB2V4JkDhhu+ClT5jqlXDYPK/tXsXhI8D4zaZ2A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyqrpgH2VtRbPfSjIPmnWmLRUUuOdABJ5OGx37wm12uVLmqnEaI
-	b2/GnHRtj5eK8r4vl3c3ud5a1IGCJgj42WhCcXP3hNc4cuwadzvKDdS5G4FVqA4RM4gNVCVJ5fk
-	tHoxEOsBtUu3Nvl8i4Ekwu5IoRz2WZiA2c+ankT1wvSkwOZesKmFKrK1lvB/OhuH3f4xfz/9sGy
-	m7pcCLxYLuhNHfdOuv/JC3Vtum2oyF2dj3OC4+0lDvwGSV4VoG8MImUECUbmAvuUnNn9TtPt+tf
-	073TVKWEd8I5KWZHPK7Kw==
-X-Gm-Gg: Acq92OHqiqFMsF+L/tlcwYLg+fVUvayhuVXvjmTg8yC8N03RLfFl3D7+5bDRjOtabqa
-	K/7ToMRwWm2oXnGRya/Die8eKO9grBOaQ0xpLDxSjN4zd07TmWV+CrzohUDVLpnbCy0Eyz9mD4n
-	YAwWDCcsN4GZHYhE+/fsCvKGTJTMlq7y5xnqePYfXrGmsJqq3H2RVftv1IXOBi9B5hbPZvkgioB
-	k7xo5NP0JprY9/G9aBueBcY1Fz11h2Oi9Ntug7VyNK+LUsa6K7ZxqymW42wBVH4a+g18efOmTWg
-	IdGYOH7sjDPTEiqHjhrCAMVH1tD0bONf0jcT/6pPHN29E4i50Hdy/v9KywN3U4zog0BfQdM3Ekp
-	+LPZRvsWlYDdR9kBwAEAzWAzGiXI2D+o1VwZezU6XZIarAC1UPXssABA7VupbfAGzlRx+tVGEtv
-	mHQNqH67shK1oANfBwbUjiiikqA6kSQkfAjjvm1CZyGvj2N8drv4FfIFX1mdGdwenFfOrVzA==
-X-Received: by 2002:a05:6a20:e292:b0:3b3:2703:11c with SMTP id adf61e73a8af0-3b4cd038cafmr23812681637.37.1781005808249;
-        Tue, 09 Jun 2026 04:50:08 -0700 (PDT)
-Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-117.dlp.protect.broadcom.com. [144.49.247.117])
-        by smtp-relay.gmail.com with ESMTPS id 41be03b00d2f7-c85df027c85sm1215856a12.1.2026.06.09.04.50.07
-        for <virtualization@lists.linux.dev>
-        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
-        Tue, 09 Jun 2026 04:50:08 -0700 (PDT)
-X-Relaying-Domain: broadcom.com
-X-CFilter-Loop: Reflected
-Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-36d98b5a68fso9680836a91.2
-        for <virtualization@lists.linux.dev>; Tue, 09 Jun 2026 04:50:06 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=broadcom.com; s=google; t=1781005806; x=1781610606; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=fLAZlEa/gpJjIgpIJ2e9Ooy6MTW++uhKEEc/j768mlo=;
-        b=OaznnyqgKvAXGuf/JUBVTUHYxCZ/nu83OLKuR76jsqU+hlak7lz2ibtTXGd3AtKL04
-         kCKPC+9T0oz5rxWL7sH2V3wuJniqstOmnK6jFneN5shKXitD2yhqCyhevfmL/o8lhD0k
-         wp9ZenwPqkuLIr+y2qn76ns0FoySmp90sB094=
-X-Forwarded-Encrypted: i=1; AFNElJ+PM5E4VRWw0dCx6/l9JY6To/tzkgb0sDvBk3QCsNf360DWTWLRHElIOlhSsWDn4Ay04QTugkE7UIKCDhTB5Q==@lists.linux.dev
-X-Received: by 2002:a17:90b:57c4:b0:36b:75:6387 with SMTP id 98e67ed59e1d1-370eea202f0mr20609613a91.8.1781005805839;
-        Tue, 09 Jun 2026 04:50:05 -0700 (PDT)
-X-Received: by 2002:a17:90b:57c4:b0:36b:75:6387 with SMTP id 98e67ed59e1d1-370eea202f0mr20609495a91.8.1781005805070;
-        Tue, 09 Jun 2026 04:50:05 -0700 (PDT)
-Received: from sumit_ws.dhcp.broadcom.net ([192.19.234.250])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-36f6bf903fasm18898075a91.2.2026.06.09.04.49.43
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Jun 2026 04:50:03 -0700 (PDT)
-From: Sumit Saxena <sumit.saxena@broadcom.com>
-To: "Martin K . Petersen" <martin.petersen@oracle.com>,
-	Jens Axboe <axboe@kernel.dk>
-Cc: "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
-	linux-scsi@vger.kernel.org,
-	linux-block@vger.kernel.org,
-	Adam Radford <aradford@gmail.com>,
-	Khalid Aziz <khalid@gonehiking.org>,
-	Adaptec OEM Raid Solutions <aacraid@microsemi.com>,
-	Matthew Wilcox <willy@infradead.org>,
-	Hannes Reinecke <hare@suse.com>,
-	"Juergen E . Fischer" <fischer@norbit.de>,
-	Russell King <linux@armlinux.org.uk>,
-	linux-arm-kernel@lists.infradead.org,
-	Finn Thain <fthain@linux-m68k.org>,
-	Michael Schmitz <schmitzmic@gmail.com>,
-	Anil Gurumurthy <anil.gurumurthy@qlogic.com>,
-	Sudarsana Kalluru <sudarsana.kalluru@qlogic.com>,
-	Oliver Neukum <oliver@neukum.org>,
-	Ali Akcaagac <aliakc@web.de>,
-	Jamie Lenehan <lenehan@twibble.org>,
-	Ram Vegesna <ram.vegesna@broadcom.com>,
-	target-devel@vger.kernel.org,
-	Bradley Grove <linuxdrivers@attotech.com>,
-	Satish Kharat <satishkh@cisco.com>,
-	Sesidhar Baddela <sebaddel@cisco.com>,
-	Karan Tilak Kumar <kartilak@cisco.com>,
-	Yihang Li <liyihang9@h-partners.com>,
-	Don Brace <don.brace@microchip.com>,
-	storagedev@microchip.com,
-	HighPoint Linux Team <linux@highpoint-tech.com>,
-	Tyrel Datwyler <tyreld@linux.ibm.com>,
-	Madhavan Srinivasan <maddy@linux.ibm.com>,
-	Michael Ellerman <mpe@ellerman.id.au>,
-	Nicholas Piggin <npiggin@gmail.com>,
-	Christophe Leroy <chleroy@kernel.org>,
-	linuxppc-dev@lists.ozlabs.org,
-	Brian King <brking@us.ibm.com>,
-	Lee Duncan <lduncan@suse.com>,
-	Chris Leech <cleech@redhat.com>,
-	Mike Christie <michael.christie@oracle.com>,
-	open-iscsi@googlegroups.com,
-	Justin Tee <justin.tee@broadcom.com>,
-	Paul Ely <paul.ely@broadcom.com>,
-	Kashyap Desai <kashyap.desai@broadcom.com>,
-	Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
-	Chandrakanth Patil <chandrakanth.patil@broadcom.com>,
-	megaraidlinux.pdl@broadcom.com,
-	Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>,
-	Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
-	mpi3mr-linuxdrv.pdl@broadcom.com,
-	Suganath Prabu Subramani <suganath-prabu.subramani@broadcom.com>,
-	Ranjan Kumar <ranjan.kumar@broadcom.com>,
-	MPT-FusionLinux.pdl@broadcom.com,
-	Daniel Palmer <daniel@thingy.jp>,
-	GOTO Masanori <gotom@debian.or.jp>,
-	YOKOTA Hiroshi <yokota@netlab.is.tsukuba.ac.jp>,
-	Jack Wang <jinpu.wang@cloud.ionos.com>,
-	Geoff Levand <geoff@infradead.org>,
-	Michael Reed <mdr@sgi.com>,
-	Nilesh Javali <njavali@marvell.com>,
-	GR-QLogic-Storage-Upstream@marvell.com,
-	Narsimhulu Musini <nmusini@cisco.com>,
-	"K . Y . Srinivasan" <kys@microsoft.com>,
-	Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>,
-	Dexuan Cui <decui@microsoft.com>,
-	Long Li <longli@microsoft.com>,
-	linux-hyperv@vger.kernel.org,
-	"Michael S . Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	Eugenio Perez <eperezma@redhat.com>,
+	dkim=pass (1024-bit key) header.d=linux.beauty header.i=me@linux.beauty header.b="OryJ1yEz"
+ARC-Seal: i=1; a=rsa-sha256; t=1781006869; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=BDlBuiZPmrhKiH9njlTpoP56ONAhaM80vTnWxUj5rQXF5MMgazFUCcaG41onYivLPJE6CrINMR3foOlHoxAhclE8za4/xmxIq97iMF0/Necfykw5eW14LVEuGgz5ce5B7GnRMxxGJ7i1r6y0nvlDz4RkhFmh69FU7SSZFj9xJDg=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1781006869; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=YKVbGfEaWBr0yEbDSBlVXVeEB4IahedrC1wGWoL470M=; 
+	b=WzjCr1L+Me+ATKk+9J483KTD1x2N2yDkaQI0EyZOK8JKX5hTk9uCGHn700IKPJDhoTop+2vNhDAJ7d2Z6oSuhUAKy3pNCp7iJZchdqgsyPFY5ybyFtACJ+AmgH83HMdew2SQOuKeId+TVfVoxroHfrth+W6joKn7pdTETxhLp20=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=linux.beauty;
+	spf=pass  smtp.mailfrom=me@linux.beauty;
+	dmarc=pass header.from=<me@linux.beauty>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1781006869;
+	s=zmail; d=linux.beauty; i=me@linux.beauty;
+	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=YKVbGfEaWBr0yEbDSBlVXVeEB4IahedrC1wGWoL470M=;
+	b=OryJ1yEz+ShfvO/tPOfLmH7q7bOFSBB8LCTluQBu6xMrtZ/CaVC8Y0tcKC/zCttD
+	D5HkBWfCotS3XgSutaiLLEynWvrk6pSCwEL71mpK5zY8D86JcWZZXWo2+1M5sT0/URl
+	r+9D8Dm3e2+XwzLcVao/LWGB0bnHg3A/bRrBAMYI=
+Received: by mx.zohomail.com with SMTPS id 1781006864544861.9703854224489;
+	Tue, 9 Jun 2026 05:07:44 -0700 (PDT)
+From: Li Chen <me@linux.beauty>
+To: Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+	Dan Williams <dan.j.williams@intel.com>,
+	Vishal Verma <vishal.l.verma@intel.com>,
+	Dave Jiang <dave.jiang@intel.com>,
+	Ira Weiny <ira.weiny@intel.com>,
+	Alison Schofield <alison.schofield@intel.com>,
 	virtualization@lists.linux.dev,
-	Vishal Bhakta <vishal.bhakta@broadcom.com>,
-	bcm-kernel-feedback-list@broadcom.com,
-	Juergen Gross <jgross@suse.com>,
-	Stefano Stabellini <sstabellini@kernel.org>,
-	Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
-	xen-devel@lists.xenproject.org,
-	Sumit Saxena <sumit.saxena@broadcom.com>,
-	John Garry <john.g.garry@oracle.com>
-Subject: [PATCH v3 4/4] scsi: use percpu counters for iostat counters in struct scsi_device
-Date: Tue,  9 Jun 2026 17:48:03 +0530
-Message-ID: <20260609121806.2121755-5-sumit.saxena@broadcom.com>
-X-Mailer: git-send-email 2.43.7
-In-Reply-To: <20260609121806.2121755-1-sumit.saxena@broadcom.com>
-References: <20260609121806.2121755-1-sumit.saxena@broadcom.com>
+	nvdimm@lists.linux.dev
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH v4 0/7] nvdimm: virtio_pmem: fix request lifetime and converge broken queue failures
+Date: Tue,  9 Jun 2026 20:07:14 +0800
+Message-ID: <20260609120726.1714780-1-me@linux.beauty>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -168,203 +56,119 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
+X-ZohoMailClient: External
 
-iorequest_cnt and iodone_cnt are updated on every command dispatch and
-completion, often from different CPUs on high queue depth workloads.
-Using adjacent atomic_t fields causes cache line contention between the
-submission and completion paths.
+Hi,
 
-Extend the same treatment to ioerr_cnt and iotmo_cnt so all four iostat
-counters in struct scsi_device use struct percpu_counter.
+The nvdimm flush helper currently converts any non-zero provider flush
+callback error to -EIO. That hides useful errno values from providers. For
+example, virtio-pmem may fail child flush bio allocation with -ENOMEM, but
+that is currently reported as -EIO by nvdimm_flush().
 
-Suggested-by: John Garry <john.g.garry@oracle.com>
-Signed-off-by: Sumit Saxena <sumit.saxena@broadcom.com>
----
- drivers/scsi/scsi_error.c  |  4 ++--
- drivers/scsi/scsi_lib.c    | 10 +++++-----
- drivers/scsi/scsi_scan.c   |  8 ++++++++
- drivers/scsi/scsi_sysfs.c  | 23 ++++++++++++++---------
- drivers/scsi/sd.c          |  2 +-
- include/scsi/scsi_device.h |  9 +++++----
- 6 files changed, 35 insertions(+), 21 deletions(-)
+The raw failure seen in the local mkfs sanity test was:
 
-diff --git a/drivers/scsi/scsi_error.c b/drivers/scsi/scsi_error.c
-index 147127fb4db9..b1aa7da2ba7c 100644
---- a/drivers/scsi/scsi_error.c
-+++ b/drivers/scsi/scsi_error.c
-@@ -349,7 +349,7 @@ enum blk_eh_timer_return scsi_timeout(struct request *req)
- 	trace_scsi_dispatch_cmd_timeout(scmd);
- 	scsi_log_completion(scmd, TIMEOUT_ERROR);
- 
--	atomic_inc(&scmd->device->iotmo_cnt);
-+	percpu_counter_inc(&scmd->device->iotmo_cnt);
- 	if (host->eh_deadline != -1 && !host->last_reset)
- 		host->last_reset = jiffies;
- 
-@@ -370,7 +370,7 @@ enum blk_eh_timer_return scsi_timeout(struct request *req)
- 	 */
- 	if (test_and_set_bit(SCMD_STATE_COMPLETE, &scmd->state))
- 		return BLK_EH_DONE;
--	atomic_inc(&scmd->device->iodone_cnt);
-+	percpu_counter_inc(&scmd->device->iodone_cnt);
- 	if (scsi_abort_command(scmd) != SUCCESS) {
- 		set_host_byte(scmd, DID_TIME_OUT);
- 		scsi_eh_scmd_add(scmd);
-diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
-index 6e8c7a42603e..979fdace33ac 100644
---- a/drivers/scsi/scsi_lib.c
-+++ b/drivers/scsi/scsi_lib.c
-@@ -1554,9 +1554,9 @@ static void scsi_complete(struct request *rq)
- 
- 	INIT_LIST_HEAD(&cmd->eh_entry);
- 
--	atomic_inc(&cmd->device->iodone_cnt);
-+	percpu_counter_inc(&cmd->device->iodone_cnt);
- 	if (cmd->result)
--		atomic_inc(&cmd->device->ioerr_cnt);
-+		percpu_counter_inc(&cmd->device->ioerr_cnt);
- 
- 	disposition = scsi_decide_disposition(cmd);
- 	if (disposition != SUCCESS && scsi_cmd_runtime_exceeced(cmd))
-@@ -1592,7 +1592,7 @@ static enum scsi_qc_status scsi_dispatch_cmd(struct scsi_cmnd *cmd)
- 	struct Scsi_Host *host = cmd->device->host;
- 	int rtn = 0;
- 
--	atomic_inc(&cmd->device->iorequest_cnt);
-+	percpu_counter_inc(&cmd->device->iorequest_cnt);
- 
- 	/* check if the device is still usable */
- 	if (unlikely(cmd->device->sdev_state == SDEV_DEL)) {
-@@ -1614,7 +1614,7 @@ static enum scsi_qc_status scsi_dispatch_cmd(struct scsi_cmnd *cmd)
- 		 */
- 		SCSI_LOG_MLQUEUE(3, scmd_printk(KERN_INFO, cmd,
- 			"queuecommand : device blocked\n"));
--		atomic_dec(&cmd->device->iorequest_cnt);
-+		percpu_counter_dec(&cmd->device->iorequest_cnt);
- 		return SCSI_MLQUEUE_DEVICE_BUSY;
- 	}
- 
-@@ -1647,7 +1647,7 @@ static enum scsi_qc_status scsi_dispatch_cmd(struct scsi_cmnd *cmd)
- 	trace_scsi_dispatch_cmd_start(cmd);
- 	rtn = host->hostt->queuecommand(host, cmd);
- 	if (rtn) {
--		atomic_dec(&cmd->device->iorequest_cnt);
-+		percpu_counter_dec(&cmd->device->iorequest_cnt);
- 		trace_scsi_dispatch_cmd_error(cmd, rtn);
- 		if (rtn != SCSI_MLQUEUE_DEVICE_BUSY &&
- 		    rtn != SCSI_MLQUEUE_TARGET_BUSY)
-diff --git a/drivers/scsi/scsi_scan.c b/drivers/scsi/scsi_scan.c
-index 121a14d5fdb8..bc885c72f01e 100644
---- a/drivers/scsi/scsi_scan.c
-+++ b/drivers/scsi/scsi_scan.c
-@@ -350,6 +350,14 @@ static struct scsi_device *scsi_alloc_sdev(struct scsi_target *starget,
- 
- 	scsi_sysfs_device_initialize(sdev);
- 
-+	if (percpu_counter_init(&sdev->iorequest_cnt, 0, GFP_KERNEL) ||
-+	    percpu_counter_init(&sdev->iodone_cnt, 0, GFP_KERNEL) ||
-+	    percpu_counter_init(&sdev->ioerr_cnt, 0, GFP_KERNEL) ||
-+	    percpu_counter_init(&sdev->iotmo_cnt, 0, GFP_KERNEL)) {
-+		ret = -ENOMEM;
-+		goto out_device_destroy;
-+	}
-+
- 	if (scsi_device_is_pseudo_dev(sdev))
- 		return sdev;
- 
-diff --git a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
-index dfc3559e7e04..f652edd16497 100644
---- a/drivers/scsi/scsi_sysfs.c
-+++ b/drivers/scsi/scsi_sysfs.c
-@@ -516,6 +516,10 @@ static void scsi_device_dev_release(struct device *dev)
- 	if (vpd_pgb7)
- 		kfree_rcu(vpd_pgb7, rcu);
- 	kfree(sdev->inquiry);
-+	percpu_counter_destroy(&sdev->iotmo_cnt);
-+	percpu_counter_destroy(&sdev->ioerr_cnt);
-+	percpu_counter_destroy(&sdev->iodone_cnt);
-+	percpu_counter_destroy(&sdev->iorequest_cnt);
- 	kfree(sdev);
- 
- 	if (parent)
-@@ -936,26 +940,27 @@ static ssize_t
- show_iostat_counterbits(struct device *dev, struct device_attribute *attr,
- 			char *buf)
- {
--	return snprintf(buf, 20, "%d\n", (int)sizeof(atomic_t) * 8);
-+	/* iostat counters are per-CPU sums (s64).  Report width for tools. */
-+	return sysfs_emit(buf, "%zu\n", sizeof(s64) * 8);
- }
- 
- static DEVICE_ATTR(iocounterbits, S_IRUGO, show_iostat_counterbits, NULL);
- 
--#define show_sdev_iostat(field)						\
-+#define show_sdev_iostat_percpu(field)					\
- static ssize_t								\
- show_iostat_##field(struct device *dev, struct device_attribute *attr,	\
- 		    char *buf)						\
- {									\
- 	struct scsi_device *sdev = to_scsi_device(dev);			\
--	unsigned long long count = atomic_read(&sdev->field);		\
--	return snprintf(buf, 20, "0x%llx\n", count);			\
-+	unsigned long long count = percpu_counter_sum(&sdev->field);	\
-+	return sysfs_emit(buf, "0x%llx\n", count);			\
- }									\
--static DEVICE_ATTR(field, S_IRUGO, show_iostat_##field, NULL)
-+static DEVICE_ATTR(field, 0444, show_iostat_##field, NULL)
- 
--show_sdev_iostat(iorequest_cnt);
--show_sdev_iostat(iodone_cnt);
--show_sdev_iostat(ioerr_cnt);
--show_sdev_iostat(iotmo_cnt);
-+show_sdev_iostat_percpu(iorequest_cnt);
-+show_sdev_iostat_percpu(iodone_cnt);
-+show_sdev_iostat_percpu(ioerr_cnt);
-+show_sdev_iostat_percpu(iotmo_cnt);
- 
- static ssize_t
- sdev_show_modalias(struct device *dev, struct device_attribute *attr, char *buf)
-diff --git a/drivers/scsi/sd.c b/drivers/scsi/sd.c
-index adc3fa55ca2c..b7ce01de17b3 100644
---- a/drivers/scsi/sd.c
-+++ b/drivers/scsi/sd.c
-@@ -4043,7 +4043,7 @@ static int sd_probe(struct scsi_device *sdp)
- 	sdkp->index = index;
- 	sdkp->max_retries = SD_MAX_RETRIES;
- 	atomic_set(&sdkp->openers, 0);
--	atomic_set(&sdkp->device->ioerr_cnt, 0);
-+	percpu_counter_set(&sdkp->device->ioerr_cnt, 0);
- 
- 	if (!sdp->request_queue->rq_timeout) {
- 		if (sdp->type != TYPE_MOD)
-diff --git a/include/scsi/scsi_device.h b/include/scsi/scsi_device.h
-index 029f5115b2ea..4be36bf2a475 100644
---- a/include/scsi/scsi_device.h
-+++ b/include/scsi/scsi_device.h
-@@ -9,6 +9,7 @@
- #include <scsi/scsi.h>
- #include <scsi/scsi_common.h>
- #include <linux/atomic.h>
-+#include <linux/percpu_counter.h>
- #include <linux/sbitmap.h>
- 
- struct bsg_device;
-@@ -272,10 +273,10 @@ struct scsi_device {
- 	unsigned int max_device_blocked; /* what device_blocked counts down from  */
- #define SCSI_DEFAULT_DEVICE_BLOCKED	3
- 
--	atomic_t iorequest_cnt;
--	atomic_t iodone_cnt;
--	atomic_t ioerr_cnt;
--	atomic_t iotmo_cnt;
-+	struct percpu_counter iorequest_cnt;
-+	struct percpu_counter iodone_cnt;
-+	struct percpu_counter ioerr_cnt;
-+	struct percpu_counter iotmo_cnt;
- 
- 	struct device		sdev_gendev,
- 				sdev_dev;
+  wipefs: /dev/pmem0: cannot flush modified buffers: Input/output error
+  mkfs.ext4: Input/output error while writing out and closing file system
+  nd_region region0: dbg: nvdimm_flush rc=-5
+
+The first two patches keep provider flush errors intact and make the
+virtio-pmem child flush bio allocation use GFP_NOIO. async_pmem_flush() can
+allocate a child flush bio from filesystem flush and writeback paths;
+GFP_NOIO is a better fit than GFP_ATOMIC there because the allocation may
+sleep but must not recurse into filesystem I/O reclaim. With these changes,
+the same mkfs sanity test reached mkfs_rc=0, mount_rc=0, and umount_rc=0.
+
+The rest of the series addresses virtio-pmem request lifetime and broken
+virtqueue handling. The virtio-pmem flush path uses a virtqueue cookie/token
+to carry a per-request context through completion. Under broken virtqueue /
+notify failure conditions, the submitter can return and free the request
+object while the host/backend may still complete the published request. The
+IRQ completion handler then dereferences freed memory when waking waiters,
+which is reported by KASAN as a slab-use-after-free and may manifest as lock
+corruption (e.g. "BUG: spinlock already unlocked") without KASAN.
+
+In addition, the flush path has two wait sites: one for virtqueue descriptor
+availability (-ENOSPC from virtqueue_add_sgs()) and one for request
+completion. If the virtqueue becomes broken, forward progress is no longer
+guaranteed and these waiters may sleep indefinitely unless the driver
+converges the failure and wakes all wait sites.
+
+This series addresses these issues:
+
+1/7 nvdimm: preserve flush callback errors
+Return provider flush callback errors directly from nvdimm_flush().
+
+2/7 nvdimm: virtio_pmem: use GFP_NOIO for child flush bio
+Use GFP_NOIO for the child flush bio allocation.
+
+3/7 nvdimm: virtio_pmem: always wake -ENOSPC waiters
+Wake one -ENOSPC waiter for each reclaimed used buffer, decoupled from
+token completion.
+
+4/7 nvdimm: virtio_pmem: use READ_ONCE()/WRITE_ONCE() for wait flags
+Use READ_ONCE()/WRITE_ONCE() for the wait_event() flags (done and
+wq_buf_avail).
+
+5/7 nvdimm: virtio_pmem: refcount requests for token lifetime
+Refcount request objects so the token lifetime spans the window where it is
+reachable through the virtqueue until completion/drain drops the virtqueue
+reference.
+
+6/7 nvdimm: virtio_pmem: converge broken virtqueue to -EIO
+Track a device-level broken state to converge broken/notify failures to -EIO:
+wake all waiters and drain/detach outstanding requests to complete them with
+an error, and fail-fast new requests.
+
+7/7 nvdimm: virtio_pmem: drain requests in freeze
+Drain outstanding requests in freeze() before tearing down virtqueues so
+waiters do not sleep indefinitely.
+
+Testing was done on QEMU x86_64 with a virtio-pmem device exported as
+/dev/pmem0. This v4 series applies to v7.1-rc7, builds with
+CONFIG_VIRTIO_PMEM=m, passes checkpatch, and passed the local repro checks
+with a local-only virtqueue_kick() fault injection. I also checked that it
+applies cleanly to next/master at 6e845bcb78c9 ("Add linux-next specific
+files for 20260605").
+
+Thanks,
+Li Chen
+
+Changelog:
+v3->v4:
+- Rebased the series onto v7.1-rc7 so it applies cleanly to Linux 7.1-rc7.
+- Update the allocation site in 6/7 from kmalloc(sizeof(*req_data),
+  GFP_KERNEL) to kmalloc_obj(*req_data) to match current nvdimm code.
+- Add 1/7 to preserve provider flush callback errors in nvdimm_flush().
+- Include the GFP_NOIO child flush bio allocation fix as 2/7.
+- Renumber the old request lifetime and broken virtqueue fixes after the two
+  new flush error patches.
+v2->v3:
+- Split patch 1 as suggested by Pankaj Gupta: keep the waiter wakeup
+  ordering change in 1/5 and move READ_ONCE()/WRITE_ONCE() updates to
+  2/5 (no functional change intended).
+- Add log report to commit msg
+- Fold the export fix into 4/5 to keep the series bisectable when
+  CONFIG_VIRTIO_PMEM=m.
+v1->v2: add the export patch to fix compile issue.
+
+Links:
+v3: https://lore.kernel.org/all/20260226025712.2236279-1-me@linux.beauty/#t
+v2: https://lore.kernel.org/all/20251225042915.334117-1-me@linux.beauty/
+v1: https://www.spinics.net/lists/kernel/msg5974818.html
+
+Li Chen (7):
+  nvdimm: preserve flush callback errors
+  nvdimm: virtio_pmem: use GFP_NOIO for child flush bio
+  nvdimm: virtio_pmem: always wake -ENOSPC waiters
+  nvdimm: virtio_pmem: use READ_ONCE()/WRITE_ONCE() for wait flags
+  nvdimm: virtio_pmem: refcount requests for token lifetime
+  nvdimm: virtio_pmem: converge broken virtqueue to -EIO
+  nvdimm: virtio_pmem: drain requests in freeze
+
+ drivers/nvdimm/nd_virtio.c   | 139 +++++++++++++++++++++++++++++------
+ drivers/nvdimm/region_devs.c |   6 +-
+ drivers/nvdimm/virtio_pmem.c |  14 ++++
+ drivers/nvdimm/virtio_pmem.h |   6 ++
+ 4 files changed, 139 insertions(+), 26 deletions(-)
 -- 
-2.43.7
-
+2.52.0
