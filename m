@@ -1,140 +1,161 @@
-Received: from mail-pf1-f201.google.com (mail-pf1-f201.google.com [209.85.210.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FC3A38F932
-	for <virtualization@lists.linux.dev>; Tue,  9 Jun 2026 12:28:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D79B426D2F;
+	Tue,  9 Jun 2026 12:50:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781008108; cv=none; b=cf6JoroIEhWHv9HIcnrQuxB5th2wmL0dAF3/RmtxKJexdOlS359/ujCOnMtZ+e68/SjcCG0mvo98UGtlN+8MRGaEaBtt8e2b3K/ZdBi6mqMXX2qpIJHTaXUTPAqEOQLnIH6LfHSXiMhgZB/oVgsU/MkQZpfdwMiypa+pGA1WC1M=
+	t=1781009427; cv=none; b=pXO2YUYXOK7n0BUKW4EauQvKrSxGhfYom8SZ1PIyihStt68sQidQrjI9aic5gD6dtZdT6J+ud/CdNGvvHM8h4GsY3CgihANKuXT2wQ2JKNdJXWyb79aLzs7xVYtowi+/jnl+8uBGdAoAzK0uTxcNuRerhbhGXd3ATkT52UzM+q0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781008108; c=relaxed/simple;
-	bh=lGEDaxP9s5MVbkz0GqDIcVYCTfkJX1Q1PY4dt58kBow=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=U1aVjhpyqyv2Ns1WCNGJcbibNrktnNe5R+VKXHZqkA3PLtCXgFTwrdA3k+Uu/m+xLS0zjuo0NsdsWzCshARTyc55NpUGrUQN/qB/9+8m24me0gJaIx+Ns/V8cF3PmD9H0oLvvfhF6qXrAgaqqQx1iVKrdKwmdDA6IpnMu97bnX0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=pskSvQVz; arc=none smtp.client-ip=209.85.210.201
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+	s=arc-20240116; t=1781009427; c=relaxed/simple;
+	bh=U2QZi0dieI4CvYuzp7XKbOHhTcajb0pXQDkq/BBVBRo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=YpYySnuQrWMYDRL1IwyXpgAvx0id178kmCGZKRkBdEBnNe2pNH0FFrP53isQmfqYjR75/vHuObItYTLgz/FPB/2K5rJPlt/8Ixn2GsHkn5qkMGvJxuhnus+fCcytNGFzxLHgssdwQ+1lWji/ySzewes4GSN2IBBdEhvk6/vNVRY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Cdt+CAZ0; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="pskSvQVz"
-Received: by mail-pf1-f201.google.com with SMTP id d2e1a72fcca58-8422b544a4bso3465288b3a.3
-        for <virtualization@lists.linux.dev>; Tue, 09 Jun 2026 05:28:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1781008107; x=1781612907; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:from:subject:message-id:references
-         :mime-version:in-reply-to:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=unmnrNbCXlEEjkFhHM3DLJAuHv468WBx57rOjaror7w=;
-        b=pskSvQVzNKzwzMkiVSAm8Lp+/YhZT9S7PHkrolL7S66+rZpBknKJ/+umRnH4LG/VtU
-         gSrOucHzLm88uDSgTqrBggLuCXg2jQbrjIAKLLeNcYDti8fm2bB9uOaUXkfd5yVyxgca
-         XPRQaYsyPHOvaFi+TaKT1wfxv65KB7zSHDvP+v/NxG98Qe+jExXyCfeE/Ik1F+gGmiSn
-         ypPqqcHabC2SRv34pjlnz3vQR+9GGzSdSIts28N8vYSktYuyh2BvWPJ/tEaE33FYlWV9
-         drXYha1/c49obXPA59shWkeFw3gPwI0Sk8lZC9D7u5NNNJvS5qXDPsxGogSJQWqTz7yz
-         ZAUA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781008107; x=1781612907;
-        h=content-transfer-encoding:cc:to:from:subject:message-id:references
-         :mime-version:in-reply-to:date:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=unmnrNbCXlEEjkFhHM3DLJAuHv468WBx57rOjaror7w=;
-        b=JECo9j4bIYz0cx37LM72LC/Xvx6xwGTIs0Q9amuhUB/2oGly6hOPGrnVFMESdpWJop
-         waUk2Y/vmfDHeCG/DLGtdd/7vDoA8F+Vrd7mnbGog0UIkxo/6CiaHHEvFedLBspCn1Kh
-         Y/ByEa+N/bCURw/5Q7oSrVr85hNdmpADs/qPod3r+ElQNb4vV756Kkyy9O4bA6m56Oz9
-         MTSharKHgVYPf8Uw+XOIAiMgW6m1bgCZkTItEBxCzCagNsZB9zepmudBkV9D2bPgTP6B
-         dUGpxiFnFGdufxgDPJWJGSz1WMQ+IzthR3VeNOnFEN2/jLZ/kP9OyvIB9U07ewkJ6lHM
-         45PQ==
-X-Forwarded-Encrypted: i=1; AFNElJ8fNJBC1uFOExsaRLl0ZMp89NKJajeCkHbwLlhvgqrHYcsb7iNWcClI59eXUVltqGyF+jBx7SDnDB67QACMRg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxXCrgpRcfbBRTq1T6EwU68o4/5zSQFvv+z8CSNuBurjbRVsdNn
-	oSXbwkXfRmsQaAY6YxSSLosuugiwhQbQSUxMIk+L5NE15Mg5ZFCQ23KSUDd3/EIXW2SO5dpsNVy
-	LoAVyIA==
-X-Received: from pfjf5.prod.google.com ([2002:a05:6a00:22c5:b0:842:4720:4013])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:2910:b0:842:6fce:6171
- with SMTP id d2e1a72fcca58-8430a62f307mr3223335b3a.3.1781008106459; Tue, 09
- Jun 2026 05:28:26 -0700 (PDT)
-Date: Tue, 9 Jun 2026 05:28:24 -0700
-In-Reply-To: <87a4t440js.ffs@fw13>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Cdt+CAZ0"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B3CFA1F00898;
+	Tue,  9 Jun 2026 12:50:14 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781009426;
+	bh=bdHGTwdDjeOX6/H0pQYNbcK0Ox1mB9eHL0227/K+pZQ=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=Cdt+CAZ0XV+OoPMVLwWScdwFiyQQose8vQjGgXSlQ5j29RiUUsnRQ4rog57EpXEDY
+	 crkIpW4Ybx4oBYjyjoupfH4IzVknrSUyol1Lj3ExMnokWCQPAovYKJkv0Y8h83wGsg
+	 nLPQKZ/7Oyygvt9Et78ivCsznofChes7uPrduaB5ODPBq5szkK6pc/cL51P+gv5OTj
+	 zEBWvHSKhagX1kbRwKLuqnmJ1whhMNyamiakzxFrnaCtPKIEDoPJz1gfDeY59CNttH
+	 ifa5NdxZtg+2rXTz/ZDKWR/ydteYb77bqOgzMeNCwfc/BR7IjgFe/aj86u5hWnlz4a
+	 Y3aPafEDgnexg==
+Message-ID: <ca50c71e-2350-4958-b30f-a041f12e6f8f@kernel.org>
+Date: Tue, 9 Jun 2026 14:50:11 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20260529144435.704127-1-seanjc@google.com> <20260529144435.704127-11-seanjc@google.com>
- <877boc554l.ffs@fw13> <eef867eae15e30d08482ba16a1a32159745b64a7.camel@infradead.org>
- <aidEfvTMjLa2zt43@google.com> <87a4t440js.ffs@fw13>
-Message-ID: <aigG6NdLZtbc7prD@google.com>
-Subject: Re: [PATCH v4 10/47] x86/tsc: Consolidate forcing of
- X86_FEATURE_TSC_KNOWN_FREQ for PV code
-From: Sean Christopherson <seanjc@google.com>
-To: Thomas Gleixner <tglx@kernel.org>
-Cc: David Woodhouse <dwmw2@infradead.org>, Paolo Bonzini <pbonzini@redhat.com>, 
-	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
-	Kiryl Shutsemau <kas@kernel.org>, "K. Y. Srinivasan" <kys@microsoft.com>, 
-	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
-	Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>, 
-	Ajay Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.makhalov@broadcom.com>, 
-	Jan Kiszka <jan.kiszka@siemens.com>, Andy Lutomirski <luto@kernel.org>, 
-	Peter Zijlstra <peterz@infradead.org>, Juergen Gross <jgross@suse.com>, 
-	Daniel Lezcano <daniel.lezcano@kernel.org>, John Stultz <jstultz@google.com>, 
-	"H. Peter Anvin" <hpa@zytor.com>, Rick Edgecombe <rick.p.edgecombe@intel.com>, 
-	Vitaly Kuznetsov <vkuznets@redhat.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stephen Boyd <sboyd@kernel.org>, kvm@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev, 
-	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev, 
-	xen-devel@lists.xenproject.org, Tom Lendacky <thomas.lendacky@amd.com>, 
-	Nikunj A Dadhania <nikunj@amd.com>, Michael Kelley <mhklinux@outlook.com>
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH splitout] mm: memory-failure: serialize
+ TestSetPageHWPoison with zone->lock
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: Miaohe Lin <linmiaohe@huawei.com>, Jason Wang <jasowang@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Muchun Song <muchun.song@linux.dev>,
+ Oscar Salvador <osalvador@suse.de>, Andrew Morton
+ <akpm@linux-foundation.org>, Lorenzo Stoakes <ljs@kernel.org>,
+ "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
+ Michal Hocko <mhocko@suse.com>, Brendan Jackman <jackmanb@google.com>,
+ Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
+ Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <npache@redhat.com>,
+ Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>,
+ Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>,
+ Hugh Dickins <hughd@google.com>, Matthew Brost <matthew.brost@intel.com>,
+ Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+ Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
+ Ying Huang <ying.huang@linux.alibaba.com>,
+ Alistair Popple <apopple@nvidia.com>, Christoph Lameter <cl@gentwo.org>,
+ David Rientjes <rientjes@google.com>,
+ Roman Gushchin <roman.gushchin@linux.dev>, Harry Yoo <harry.yoo@oracle.com>,
+ Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>,
+ Wei Xu <weixugc@google.com>, Chris Li <chrisl@kernel.org>,
+ Kairui Song <kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>,
+ Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
+ virtualization@lists.linux.dev, linux-mm@kvack.org,
+ Andrea Arcangeli <aarcange@redhat.com>,
+ Naoya Horiguchi <nao.horiguchi@gmail.com>
+References: <df06b66fe4ff8e925ee0714955abc2183a727b90.1780998980.git.mst@redhat.com>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <df06b66fe4ff8e925ee0714955abc2183a727b90.1780998980.git.mst@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Tue, Jun 09, 2026, Thomas Gleixner wrote:
-> On Mon, Jun 08 2026 at 15:38, Sean Christopherson wrote:
-> > On Sat, Jun 06, 2026, David Woodhouse wrote:
-> >> > Along with:
-> >> >=20
-> >> > =C2=A0=C2=A0 if (!hypervisor_is_type(X86_HYPER_NATIVE)) {
-> >> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (tsc_khz_early)
-> >> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 pr_warn("Ignoring n=
-on-sensical tsc_early_khz command line argument\n");
-> >> >=20
-> >> > or something daft like that.
-> >
-> > Ya, I ended up in the same place once Sashiko pointed out that skipping=
- the SNP/TDX
-> > setup was hazardous[*], and also once I realized that tsc_khz_early *co=
-mplemented*
-> > the refinement instead of replacing it.
-> >
-> > This is what I have locally:
-> >
-> >         if (cc_platform_has(CC_ATTR_GUEST_SNP_SECURE_TSC))
-> >                 known_tsc_khz =3D snp_secure_tsc_init();
-> >         else if (boot_cpu_has(X86_FEATURE_TDX_GUEST))
-> >                 known_tsc_khz =3D tdx_tsc_init();
-> >
-> >         /*
-> >          * If the TSC frequency wasn't provided by trusted firmware, tr=
-y to get
-> >          * it from the hypervisor (which is untrusted when running as a=
- CoCo guest).
-> >          */
-> >         if (!known_tsc_khz && x86_init.hyper.get_tsc_khz)
-> >                 known_tsc_khz =3D x86_init.hyper.get_tsc_khz();
-> >
-> >         /*
-> >          * Mark the TSC frequency as known if it was obtained from a hy=
-pervisor
-> >          * or trusted firmware.  Don't mark the frequency as known if t=
-he user
-> >          * specified the frequency, as the user-provided frequency is i=
-ntended
-> >          * as a "starting point", not a known, guaranteed frequency.
-> >          */
-> >         if (known_tsc_khz && !tsc_early_khz)
-> >                 setup_force_cpu_cap(X86_FEATURE_TSC_KNOWN_FREQ);
->=20
-> If the frequenct is known via the above then you want to set the
-> KNOWN_FREQ feature bit unconditionally. SNP/TDX/hypervisor override the
-> command line argument as you print below.
+On 6/9/26 12:12, Michael S. Tsirkin wrote:
+> TestSetPageHWPoison() is called without zone->lock, so its atomic
+> update to page->flags can race with non-atomic flag operations
+> that run under zone->lock in the buddy allocator.
+> 
+> In particular, __free_pages_prepare() does:
+> 
+>     page->flags.f &= ~PAGE_FLAGS_CHECK_AT_PREP;
+> 
+> This non-atomic read-modify-write, while correctly excluding
+> __PG_HWPOISON from the mask, can still lose a concurrent
+> TestSetPageHWPoison if the read happens before the poison bit
+> is set and the write happens after.  Will only get worse if/when
+> we add more non-atomic flag operations.
+> 
+> Fix by acquiring zone->lock around TestSetPageHWPoison and
+> around ClearPageHWPoison in the retry path.  This
+> serializes with all buddy flag manipulation.  The cost is
+> negligible: one lock/unlock in an extremely rare path
+> (hardware memory errors).
+> 
+> Note: SetPageHWPoison and TestClearPageHWPoison calls elsewhere
+> in this file operate on pages already removed from the buddy
+> allocator or on non-buddy pages (DAX, hugetlb), so they do not
+> need zone->lock protection.
+> 
+> Fixes: 6a46079cf57a ("HWPOISON: The high level memory error handler in the VM v7")
+> Acked-by: Miaohe Lin <linmiaohe@huawei.com>
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Assisted-by: Claude:claude-opus-4-6
+> ---
 
-Doh, forgot to remove that check when I shuffled things around.  Thank you!
+memory_failure() is documented that it must not be called with the spinlock
+held, so this cannot deadlock. In particular, we would grab the lock already in
+take_page_off_buddy().
+
+LGTM, thanks
+
+Acked-by: David Hildenbrand (Arm) <david@kernel.org>
+
+-- 
+Cheers,
+
+David
