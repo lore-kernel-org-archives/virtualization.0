@@ -1,275 +1,149 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05520380FE0
-	for <virtualization@lists.linux.dev>; Tue,  9 Jun 2026 15:53:29 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A36DF3E5574
+	for <virtualization@lists.linux.dev>; Tue,  9 Jun 2026 15:55:03 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781020411; cv=none; b=DKATlUP06IcJn82G3RYan1seIXAbfvQW/GrOhyrq5AENUsflAPFod1YKA0PVZpdTk1YEixG2wyiOhyNkn5sAjMaiEj0b7ZwVDhAozgl3eEgPllPq6I/WPzuve1KUtJVSrH1+hLc0G0dCFr7yfphp2O0BtEoiLJnn0EN6RnatbdM=
+	t=1781020505; cv=none; b=k6C1Lv8tFR7p5sL9USzz6g49NjuI95QtxCJ4fNIjIFWrv3MJm6e4nlLNYccLGnY40NvNuwhmImy4gbV6k4Lis++ukufSWjXpB7TzbHes0x1H+2ZHVrWMC48ZUaMr9gp3YCw2wxMBtoTRrmY3NXweQnhwpOOVzfjyWtgyKPNxVVQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781020411; c=relaxed/simple;
-	bh=g1EKEYRYLribbyiGUWZVYck5VAG9jAxTKOR/GeNwZko=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=jpv7MfRcJnXa8o+09naeZFZERKpnkZ6CJAYN9jvs3fumQu7dVBOQR5K4BBhx2t8u8FKRID2wvtmDKZWEhhhyOjwOGmRhquVFsQOvuAmwAP55nkojTiHbXA4hVEaObOYgiKvn1tTn8sF0WvLMgSisN+pVlJ2m9rO/JNiQFQDsv5Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Hfg+wJUV; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1781020505; c=relaxed/simple;
+	bh=vh4wTHSupJWsPBBHRt4byAg9tmu3n/JJ3JkBimEoRGE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=EpRymw0/rkuR6SBZjS7bUIecgg82XNLey5RJhqemUsf9SLpvL+RZBqwrq3Bz7L86fOX8dgPjnsok19tavqf4PmwKrRwbGyq3da3V+V3VkhW+UWh/HsdXVYl6y256HFT2FnjYlEhh3EEgWgFy/USRzy7kdpi5lR22EwXLj/zdtto=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cqZ1+/TW; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Hfg+wJUV"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cqZ1+/TW"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1781020409;
+	s=mimecast20190719; t=1781020502;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-	bh=znUgJLwcI/t7tvESv/1fH8INfEp80ot2BgxIAU0A+Is=;
-	b=Hfg+wJUV2vMnababyz6gDFfh+KUjPvPNqYzVTAtf+a+Fy3cIJQYk/n9QqmJWcY2l15MoJR
-	OP7AThjxbWt2/sXI7fB9lyvjKXVI/AJKm5wZluYrAyV4OGFBBp8I+jSPA/sGzcw2P/FrZc
-	pxCw2lpRzWj5u8ivvwBL5HumiFCwcDc=
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=sFekO1yhKAjnCNx4nQmykHHEMqovGJRsN7iwpZ8ZFPs=;
+	b=cqZ1+/TWvCjTnb4dpoOo1sYbWZzJ3k6pNZSw6gQP5+JlAE/L4eH8zdN6hNWfPs92EqfGog
+	TlQyn3UHX7IhV90+a+hWjDplVEuHZlVUhOk717oF8B54ZnDOcAKfzKkSUKKq0yzJUGxkIJ
+	uCI4vrSv1gNDWg2E4iqxYqvwz8/Rf7s=
 Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
  [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-597-1P_ilK_HMSe2fqNyECH_SQ-1; Tue, 09 Jun 2026 11:53:27 -0400
-X-MC-Unique: 1P_ilK_HMSe2fqNyECH_SQ-1
-X-Mimecast-MFC-AGG-ID: 1P_ilK_HMSe2fqNyECH_SQ_1781020406
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-490d3f03883so12331765e9.1
-        for <virtualization@lists.linux.dev>; Tue, 09 Jun 2026 08:53:27 -0700 (PDT)
+ us-mta-551-hoPWkvvBM7ugaH4v5xbl4Q-1; Tue, 09 Jun 2026 11:55:00 -0400
+X-MC-Unique: hoPWkvvBM7ugaH4v5xbl4Q-1
+X-Mimecast-MFC-AGG-ID: hoPWkvvBM7ugaH4v5xbl4Q_1781020500
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-490ae0167ceso26557245e9.1
+        for <virtualization@lists.linux.dev>; Tue, 09 Jun 2026 08:55:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781020406; x=1781625206;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=znUgJLwcI/t7tvESv/1fH8INfEp80ot2BgxIAU0A+Is=;
-        b=FBSNnv4FSNCTKUWLtQ+yxT8GjBr5AmauzEIUh0m8HXcoWRZKaH6zUGbD3fVOzRcRG1
-         f/27SgUNPZlTIOwd+TlacIZ0b9IH1wOL+GgjfQLTgXRQKAIeV7UknIfcqkp3z8LuABUW
-         wFTnwrEEkiFczmCozZCgZE7QA1z+f2IeyNjF9N/uTW5aOi5MY9VoJh5esOlsg1hboNiW
-         /tceHTZvRzLXEOhwzNOAkkWe2OHBvJSF57PLHd/whgvXb6A8YWvdg4xuW+XdgdD035Ga
-         C1vbz7FBJ+Aj4pIki5ssRY1jDzBf+2qtFOJDji7V8OFalu6DAgT4CA98LYfL4snidmSQ
-         pZRQ==
-X-Forwarded-Encrypted: i=1; AFNElJ+Jpzl7KpgS2Wq0i5FpamsyqsyyuLIvDKl0zX7+HT+qXUevTDPk3waiQs3g9UDC8eRQTTO4KuY2Tzja+8WorA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxeGMfnXQlf2PDL4h7vmffhWjgOufGV/2GbAyVnUncx1iuDAUpq
-	UfDUzkVqfMbj+E45jrYr6CwyFNsYtRNhCKDEuRZhmp4KZIELvsh+gRPrXEuSlcsB83AZc/cIMVD
-	zOJ1oQ40MudBsSfoLQBJj548epnvlMkc0TJOOuOS1ISkNJUZljX958wH4t6TIUu2X6adu
-X-Gm-Gg: Acq92OHlqAw3LJI/KWICQ9kcfVB2BL50qKYID5p06N+k04XxmpV5XO5Xln4VXFhEw2P
-	o+q1hhtNFuJTVuXxc6EoSvhvTtS2sWTnmeN3fAOBtVyMLsyPrk4SbEeEaFS6mwhp25hCQqRFAZi
-	jQ9EguANVfuhKLvIFw2xMF516lH63kmVKR5un6D3CWrRVaBtCbEXmZul4PmLFplkBlILWs4jwpQ
-	lB5mw46KMrLswXibbeHeTjSKUwBJnb+fz/p0tSzCbKRdGL8wDtzAfzmA8avIRT/F48pZSaFZbvd
-	pt2XEu5DyyV/nDk83kd9DlONtZX+n65+xhpVnRmNc32gLq5B4ivGniFZ9Nv1PBBvVsRAXCcmHEE
-	Y0+UdeFo8TtAMeXXeZHW68v4VFV5w9n2gu9WsETUTCNWITkU3rnOu9A==
-X-Received: by 2002:a05:600c:524a:b0:490:b11f:2560 with SMTP id 5b1f17b1804b1-490c256f131mr368572675e9.9.1781020406196;
-        Tue, 09 Jun 2026 08:53:26 -0700 (PDT)
-X-Received: by 2002:a05:600c:524a:b0:490:b11f:2560 with SMTP id 5b1f17b1804b1-490c256f131mr368571885e9.9.1781020405506;
-        Tue, 09 Jun 2026 08:53:25 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1781020500; x=1781625300;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=sFekO1yhKAjnCNx4nQmykHHEMqovGJRsN7iwpZ8ZFPs=;
+        b=DwqIUg3poO9QonuUs0BzJjqIX9EOZIRnhH834aURZvQc9CfCENPW3RkFUyWitXMR5A
+         fCgqCLm/LjWAl2TEpyZ7lOQiSt9bz41+KlnvSfE6H17jCtaopdu56d/00t9qjrf6uj90
+         e3VV5UQQFXTnOY/1KNp/Dli7oEqhKTAr6MGXsOX/15QVtUX8PFWTcD0dWb8rZpBYo/F5
+         nUDq/nKjGIqcMIoQ3mBtmANX06bjD4iUvW43Uq7zlqGRMfJ+PvRp7ZKOCSd7HOe+cRE3
+         nOZxpyzfsMJF27woGgvo6JOxQzgOL9FqdjGqzuAyrjzKhMz0ftY+WCNytL9LDj0qa4t0
+         LIRw==
+X-Forwarded-Encrypted: i=1; AFNElJ89tZjqVtWOA69he2zpNeKgqu4fZLJachl9/Ku/OPOCs3uR6thaZg4ToFLwnaJUEwUAhgOCUn9zuN7trROe8g==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy0YcJptIt3+qzI0bgMgB74Ev3wPnFROrMso+bQICDb2sKruuxM
+	h03SWfWFSyvjOFdpgN5Oc7wcqvYsAvvxAETXfhKxSyO2137++weA+FGjPPjoa+3gDwwdV42nLwS
+	4tGA9s5pmRnhGE3lIKMi3gr1HlwA6+Zgv2KPTQcKW3LIjJvXvBsXoXsUuKU2J9ANgQcpw
+X-Gm-Gg: Acq92OEA9C6DCud4Rs9rnYJ/6N+NgVVVFr78bSzIIzBAOX9nM2GB0eHaUJHLThoHv4A
+	6q58coIySu85mVOkqcdkvVNWO3HKWNwC9D2Ip2LaX3urVUnzp4npIVSp1i/4VcZngj0t9C94/Ju
+	s3UARcBoUgfa9YSonY6D4iP1RWomoihrFWwRl18pxfyGMiOqq0WBoxMjaSF52ZKiSU/6FU/7NIN
+	94nZgUAAGnaB8nHZz7Z/bREwUJVR9Ig7oq1ddQqn37XDTzKpQ7yfiF2cglkM1GDlktz/Vmov0m/
+	CKl38rqpx9WaVLus4p78mCDCV+9XGc7T3yeGInqhZ6/89w2qfXHewGHoxgRdn0fHOm8C9UCgylo
+	KI+AQsTDcGfk8sjocwsZT3LJGbVfvJqWWVlQKwQX7NGCmb3JK2/4j6w==
+X-Received: by 2002:a05:600c:c4a7:b0:490:b58a:dcc1 with SMTP id 5b1f17b1804b1-490c262183cmr324676805e9.29.1781020499573;
+        Tue, 09 Jun 2026 08:54:59 -0700 (PDT)
+X-Received: by 2002:a05:600c:c4a7:b0:490:b58a:dcc1 with SMTP id 5b1f17b1804b1-490c262183cmr324676385e9.29.1781020499094;
+        Tue, 09 Jun 2026 08:54:59 -0700 (PDT)
 Received: from redhat.com (IGLD-80-230-85-71.inter.net.il. [80.230.85.71])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4601f2f67c6sm60824138f8f.16.2026.06.09.08.53.20
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490bc3c183asm496291625e9.6.2026.06.09.08.54.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Jun 2026 08:53:24 -0700 (PDT)
-Date: Tue, 9 Jun 2026 11:53:20 -0400
+        Tue, 09 Jun 2026 08:54:58 -0700 (PDT)
+Date: Tue, 9 Jun 2026 11:54:55 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: Miaohe Lin <linmiaohe@huawei.com>,
-	"David Hildenbrand (Arm)" <david@kernel.org>,
-	Jason Wang <jasowang@redhat.com>,
+To: Michael Bommarito <michael.bommarito@gmail.com>
+Cc: Jason Wang <jasowang@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>,
+	Jens Axboe <axboe@kernel.dk>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-	Muchun Song <muchun.song@linux.dev>,
-	Oscar Salvador <osalvador@suse.de>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Lorenzo Stoakes <ljs@kernel.org>,
-	"Liam R. Howlett" <liam@infradead.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Brendan Jackman <jackmanb@google.com>,
-	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
-	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
-	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
-	Byungchul Park <byungchul@sk.com>,
-	Gregory Price <gourry@gourry.net>,
-	Ying Huang <ying.huang@linux.alibaba.com>,
-	Alistair Popple <apopple@nvidia.com>,
-	Christoph Lameter <cl@gentwo.org>,
-	David Rientjes <rientjes@google.com>,
-	Roman Gushchin <roman.gushchin@linux.dev>,
-	Harry Yoo <harry.yoo@oracle.com>,
-	Axel Rasmussen <axelrasmussen@google.com>,
-	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
-	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
-	Kemeng Shi <shikemeng@huaweicloud.com>,
-	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
-	virtualization@lists.linux.dev, linux-mm@kvack.org,
-	Andrea Arcangeli <aarcange@redhat.com>,
-	Naoya Horiguchi <nao.horiguchi@gmail.com>,
-	Alexander Duyck <alexander.h.duyck@linux.intel.com>
-Subject: [PATCH splitout] mm: page_reporting: allow driver to set batch
+	virtualization@lists.linux.dev, linux-block@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2] virtio-blk: clamp zone report to the report buffer
  capacity
-Message-ID: <b25ea6c63503f24c8b5b64910a44dc03b5aa610d.1781020302.git.mst@redhat.com>
+Message-ID: <20260609115437-mutt-send-email-mst@kernel.org>
+References: <20260607124834.3059944-1-michael.bommarito@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mailer: git-send-email 2.51.2.2891.g4157995a80.dirty
-X-Mutt-Fcc: =sent
+In-Reply-To: <20260607124834.3059944-1-michael.bommarito@gmail.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: NPB_nK43DP2v2zYDqgpiDsi2dgMMpS0kA3vcFRhzMNo_1781020406
+X-Mimecast-MFC-PROC-ID: zgOGelE8Ucqi2YVKIBYUp2B9pJ2Xv6Z1tY98mKcPzA8_1781020500
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-At the moment, if a virtio balloon device has a page reporting vq but
-its size is < PAGE_REPORTING_CAPACITY (32), the balloon driver fails
-probe.
+On Sun, Jun 07, 2026 at 08:48:34AM -0400, Michael Bommarito wrote:
+> virtblk_report_zones() trusts the device-reported number of zones when
+> walking the report buffer:
+> 
+> 	nz = min_t(u64, virtio64_to_cpu(vblk->vdev, report->nr_zones),
+> 		   nr_zones);
+> 	...
+> 	for (i = 0; i < nz && zone_idx < nr_zones; i++) {
+> 		ret = virtblk_parse_zone(vblk, &report->zones[i], ...);
+> 
+> The buffer is allocated by virtblk_alloc_report_buffer(), whose size is
+> capped by the queue's max hardware sectors and max segments and can
+> therefore hold fewer descriptors than nr_zones. nz is bounded only by
+> the device-supplied report->nr_zones and the requested nr_zones, never
+> by the buffer's descriptor capacity. At probe time the request count is
+> unbounded (blk_revalidate_disk_zones() calls report_zones() with
+> nr_zones == UINT_MAX), so the device-supplied report->nr_zones is the
+> sole gate: a device that reports more zones than fit in the buffer
+> drives the loop to read report->zones[i] past the end of the allocation.
+> 
+> A malicious or buggy virtio-blk device that reports an inflated nr_zones
+> triggers this during zone revalidation at probe. KASAN reports a
+> vmalloc-out-of-bounds read in virtblk_report_zones() against the report
+> buffer allocated a few lines earlier.
+> 
+> Clamp nz to the number of descriptors that actually fit in the report
+> buffer.
+> 
+> Fixes: 95bfec41bd3d ("virtio-blk: add support for zoned block devices")
+> Assisted-by: Claude:claude-opus-4-8
+> Signed-off-by: Michael Bommarito <michael.bommarito@gmail.com>
 
-But, there's no way for host to know this value, so it can easily
-create a smaller vq and suddenly adding the reporting capability
-to the device makes all of the driver fail. Not pretty.
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-Add a capacity field to page_reporting_dev_info so drivers can
-control the maximum number of pages per report batch.
-
-In virtio-balloon, set the capacity to the reporting virtqueue size,
-letting page_reporting adapt to whatever the device provides.
-
-Fixes: b0c504f15471 ("virtio-balloon: add support for providing free page reports to host")
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Assisted-by: Claude:claude-opus-4-6
----
- drivers/virtio/virtio_balloon.c |  5 +----
- include/linux/page_reporting.h  |  3 +++
- mm/page_reporting.c             | 25 ++++++++++++++-----------
- 3 files changed, 18 insertions(+), 15 deletions(-)
-
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index f6c2dff33f8a..6a1a610c2cb1 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -1017,10 +1017,6 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 		unsigned int capacity;
- 
- 		capacity = virtqueue_get_vring_size(vb->reporting_vq);
--		if (capacity < PAGE_REPORTING_CAPACITY) {
--			err = -ENOSPC;
--			goto out_unregister_oom;
--		}
- 
- 		vb->pr_dev_info.order = PAGE_REPORTING_ORDER_UNSPECIFIED;
- 
-@@ -1041,6 +1037,7 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 		vb->pr_dev_info.order = 5;
- #endif
- 
-+		vb->pr_dev_info.capacity = capacity;
- 		err = page_reporting_register(&vb->pr_dev_info);
- 		if (err)
- 			goto out_unregister_oom;
-diff --git a/include/linux/page_reporting.h b/include/linux/page_reporting.h
-index 9d4ca5c218a0..5ab5be02fa15 100644
---- a/include/linux/page_reporting.h
-+++ b/include/linux/page_reporting.h
-@@ -22,6 +22,9 @@ struct page_reporting_dev_info {
- 
- 	/* Minimal order of page reporting */
- 	unsigned int order;
-+
-+	/* Max pages per report batch (default PAGE_REPORTING_CAPACITY) */
-+	unsigned int capacity;
- };
- 
- /* Tear-down and bring-up for page reporting devices */
-diff --git a/mm/page_reporting.c b/mm/page_reporting.c
-index 7418f2e500bb..5b6b17f67131 100644
---- a/mm/page_reporting.c
-+++ b/mm/page_reporting.c
-@@ -174,10 +174,10 @@ page_reporting_cycle(struct page_reporting_dev_info *prdev, struct zone *zone,
- 	 * list processed. This should result in us reporting all pages on
- 	 * an idle system in about 30 seconds.
- 	 *
--	 * The division here should be cheap since PAGE_REPORTING_CAPACITY
--	 * should always be a power of 2.
-+	 * The division here uses integer division; capacity need
-+	 * not be a power of 2.
- 	 */
--	budget = DIV_ROUND_UP(area->nr_free, PAGE_REPORTING_CAPACITY * 16);
-+	budget = DIV_ROUND_UP(area->nr_free, prdev->capacity * 16);
- 
- 	/* loop through free list adding unreported pages to sg list */
- 	list_for_each_entry_safe(page, next, list, lru) {
-@@ -222,10 +222,10 @@ page_reporting_cycle(struct page_reporting_dev_info *prdev, struct zone *zone,
- 		spin_unlock_irq(&zone->lock);
- 
- 		/* begin processing pages in local list */
--		err = prdev->report(prdev, sgl, PAGE_REPORTING_CAPACITY);
-+		err = prdev->report(prdev, sgl, prdev->capacity);
- 
- 		/* reset offset since the full list was reported */
--		*offset = PAGE_REPORTING_CAPACITY;
-+		*offset = prdev->capacity;
- 
- 		/* update budget to reflect call to report function */
- 		budget--;
-@@ -234,7 +234,7 @@ page_reporting_cycle(struct page_reporting_dev_info *prdev, struct zone *zone,
- 		spin_lock_irq(&zone->lock);
- 
- 		/* flush reported pages from the sg list */
--		page_reporting_drain(prdev, sgl, PAGE_REPORTING_CAPACITY, !err);
-+		page_reporting_drain(prdev, sgl, prdev->capacity, !err);
- 
- 		/*
- 		 * Reset next to first entry, the old next isn't valid
-@@ -260,13 +260,13 @@ static int
- page_reporting_process_zone(struct page_reporting_dev_info *prdev,
- 			    struct scatterlist *sgl, struct zone *zone)
- {
--	unsigned int order, mt, leftover, offset = PAGE_REPORTING_CAPACITY;
-+	unsigned int order, mt, leftover, offset = prdev->capacity;
- 	unsigned long watermark;
- 	int err = 0;
- 
- 	/* Generate minimum watermark to be able to guarantee progress */
- 	watermark = low_wmark_pages(zone) +
--		    (PAGE_REPORTING_CAPACITY << page_reporting_order);
-+		    (prdev->capacity << page_reporting_order);
- 
- 	/*
- 	 * Cancel request if insufficient free memory or if we failed
-@@ -290,7 +290,7 @@ page_reporting_process_zone(struct page_reporting_dev_info *prdev,
- 	}
- 
- 	/* report the leftover pages before going idle */
--	leftover = PAGE_REPORTING_CAPACITY - offset;
-+	leftover = prdev->capacity - offset;
- 	if (leftover) {
- 		sgl = &sgl[offset];
- 		err = prdev->report(prdev, sgl, leftover);
-@@ -322,11 +322,11 @@ static void page_reporting_process(struct work_struct *work)
- 	atomic_set(&prdev->state, state);
- 
- 	/* allocate scatterlist to store pages being reported on */
--	sgl = kmalloc_objs(*sgl, PAGE_REPORTING_CAPACITY);
-+	sgl = kmalloc_objs(*sgl, prdev->capacity);
- 	if (!sgl)
- 		goto err_out;
- 
--	sg_init_table(sgl, PAGE_REPORTING_CAPACITY);
-+	sg_init_table(sgl, prdev->capacity);
- 
- 	for_each_zone(zone) {
- 		err = page_reporting_process_zone(prdev, sgl, zone);
-@@ -377,6 +377,9 @@ int page_reporting_register(struct page_reporting_dev_info *prdev)
- 			page_reporting_order = pageblock_order;
- 	}
- 
-+	if (!prdev->capacity || prdev->capacity > PAGE_REPORTING_CAPACITY)
-+		prdev->capacity = PAGE_REPORTING_CAPACITY;
-+
- 	/* initialize state and work structures */
- 	atomic_set(&prdev->state, PAGE_REPORTING_IDLE);
- 	INIT_DELAYED_WORK(&prdev->work, &page_reporting_process);
--- 
-MST
+> ---
+> v2: drop the explanatory comment per Michael S. Tsirkin's review; the
+>     clamp itself is unchanged.
+> 
+>  drivers/block/virtio_blk.c | 2 ++
+>  1 file changed, 2 insertions(+)
+> 
+> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+> index b1c9a27..32bf3ba 100644
+> --- a/drivers/block/virtio_blk.c
+> +++ b/drivers/block/virtio_blk.c
+> @@ -689,6 +689,8 @@ static int virtblk_report_zones(struct gendisk *disk, sector_t sector,
+>  
+>  		nz = min_t(u64, virtio64_to_cpu(vblk->vdev, report->nr_zones),
+>  			   nr_zones);
+> +		nz = min_t(u64, nz,
+> +			   (buflen - sizeof(*report)) / sizeof(report->zones[0]));
+>  		if (!nz)
+>  			break;
+>  
+> 
+> base-commit: 5200f5f493f79f14bbdc349e402a40dfb32f23c8
+> -- 
+> 2.53.0
 
