@@ -1,95 +1,125 @@
-Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EBCE361640
-	for <virtualization@lists.linux-foundation.org>; Tue,  9 Jun 2026 02:08:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 313C3399365;
+	Tue,  9 Jun 2026 03:58:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780970904; cv=none; b=CRoygMFjizYVhXjeaZljYOmDetUxrtcB5SDiPs73m4qfeS82ltJrAXbpyHzcGtTbUjzX5ap4TjSunfY7DUTMZt93TiONDCSCQxtznDq0GyLoUVIQGXcq4dTDXY9GHrEDUxrjdGmJWniOT34wEitMIHmZu/Dz7gIZjKRqLeUeD0o=
+	t=1780977511; cv=none; b=aS6hPJPyLsSN1bEgiWNp7TUqW9+uFksJ3Vqzq9ShsJGrw9PPHJIjL/a39IWTOxqpTS2tfhTKBNZVyBY+11DPOVNa3Qr8hYBWNSyS3kYFBfqgHZTmKPptiKlws7co9iTeYz0ZJZr/XxmoM+gRHpPdqZTLBpePE7WKVFfziSIegjQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780970904; c=relaxed/simple;
-	bh=c7JD3w02JBo5tsTPDMmw4GptFNlt/PbYFnc2NsI8qaA=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=C7PkkOcGVThpEoXBq17FFMTpr4M0QHFHgfLFMDWBfi2xR0hPnn8zh5bf/38Vocsj2bJBj4DrEpu657X8l9Cw7BEjeOOkAZwfQfyu8N5IBPGng9WliXfBkzNShJt0ihm1A3rYF5c/O9lRZyyVZLJ0Yf5zrVrFWD1bDXiiYDf0mR0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=LgajasKG; arc=none smtp.client-ip=140.211.166.136
+	s=arc-20240116; t=1780977511; c=relaxed/simple;
+	bh=mwY2NjYXCxYXzZEWyv7wKd5PciLtK4+ro8oCl5A2e4s=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Vme127NQJy31e/lGnB9PsG74cRg6L+qbec3h2ORFsoCkBNHl2I9aonzQZ2pnx1iPBUKHNedday8S40Z/dVhxgm3M4U2eEoZhfhu8YUXc+aTfj/DJZGjflQUqANPCjLqOZ+ctu6CtrQw1lJHnFMce931ZFGaL2uuHNkeS54g7o8M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=KVlTeVzl; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="LgajasKG"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp3.osuosl.org (Postfix) with ESMTP id 30C396F342
-	for <virtualization@lists.linux-foundation.org>; Tue,  9 Jun 2026 02:08:23 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.792
-X-Spam-Level:
-Received: from smtp3.osuosl.org ([127.0.0.1])
- by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id Ejz4kOIJd729 for <virtualization@lists.linux-foundation.org>;
- Tue,  9 Jun 2026 02:08:22 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=172.234.252.31; helo=sea.source.kernel.org; envelope-from=kuba@kernel.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 82B8A6EE27
-Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 82B8A6EE27
-Authentication-Results: smtp3.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=LgajasKG
-Received: from sea.source.kernel.org (sea.source.kernel.org [172.234.252.31])
-	by smtp3.osuosl.org (Postfix) with ESMTPS id 82B8A6EE27
-	for <virtualization@lists.linux-foundation.org>; Tue,  9 Jun 2026 02:08:22 +0000 (UTC)
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by sea.source.kernel.org (Postfix) with ESMTP id B910740A41;
-	Tue,  9 Jun 2026 02:08:21 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id F22211F00898;
-	Tue,  9 Jun 2026 02:08:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1780970901;
-	bh=fsHEdsO8gQZ7KC1cppmjOB+DDC9HC3XZJCn72ObCXLc=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=LgajasKGMygU6JenratQCZdYHxi5XgKKuGJr6rYg4jBIfWny22QRAo8U9cEeJv56D
-	 ccYDvKLs5WbYIvKvXIwb4YJuOICx5fQe9dQwrwMmEE0J8ruc11lfqQs4KGBoTuzZA/
-	 fys19H8Pi228p2NN4VzMLVqaQIQh/vhvBSzl9lfEq2UhJbdQ/56uTkNAMYDrdFo+J0
-	 6s61qeiGOtruVcKNRjAHV1Hu/23KGjojoZYDWfYjRBi8uCLYQgRFak6iSXQpXlhpGY
-	 tH3QZpsI13qnkOvBizLMgbOuN9tWSU8nyKlfp9t2ZVDCN5h6rkrjHVPlmj9lZxPtFD
-	 fFh1J2T8ogGwQ==
-Date: Mon, 8 Jun 2026 19:08:20 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Arseniy Krasnov <avkrasnov@rulkc.org>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella
- <sgarzare@redhat.com>, "David S. Miller" <davem@davemloft.net>, Eric
- Dumazet <edumazet@google.com>, Paolo Abeni <pabeni@redhat.com>, "Michael S.
- Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Bobby Eshleman
- <bobby.eshleman@bytedance.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- Eugenio =?UTF-8?B?UMOpcmV6?= <eperezma@redhat.com>, Simon Horman
- <horms@kernel.org>, kvm@vger.kernel.org,
- virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, oxffffaa@gmail.com, rulkc@linuxtesting.org
-Subject: Re: [PATCH v1] vsock/virtio: rework MSG_ZEROCOPY flag handling
-Message-ID: <20260608190820.71785304@kernel.org>
-In-Reply-To: <20260605115314.552321-1-avkrasnov@rulkc.org>
-References: <20260605115314.552321-1-avkrasnov@rulkc.org>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="KVlTeVzl"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=xDehR9KUPqQoyrvx8dJ31pkODcCvkj2FH2Lxm05cnXs=; b=KVlTeVzl9gptlTf4cf7ti0YqgJ
+	7kk+WIHxe9bLMr9/Hp/bFKPomJ47VM1tIeLfJ7rJQUI08BwrhmkvK6qFmt6IMUzZYsoYkIxw3B7zi
+	JWPXVCZ7AISi190rWHuQ09w56bLkkAbrvCWACJPXO/yATVyEjvqpfYE2Yp0GFLtYEOfte24XHgzJE
+	+0tiFEB2S+OtQv+0nDJeD+Qz/XFxNL2jSOmqPh7RGxbo2rHbqO350yEC2x/aITEp3N8tYGySUI4zH
+	YH4iSQtf+HUkHagh3FteqaTUXJVBL8b9ARb1RHHDhWxulKlgxlRbKKv8+cPZuIYWZcFexiH9GmPHc
+	W8Iz1jWg==;
+Received: from willy by casper.infradead.org with local (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1wWnbS-0000000Ewtw-1GGB;
+	Tue, 09 Jun 2026 03:58:14 +0000
+Date: Tue, 9 Jun 2026 04:58:14 +0100
+From: Matthew Wilcox <willy@infradead.org>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org,
+	"David Hildenbrand (Arm)" <david@kernel.org>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Muchun Song <muchun.song@linux.dev>,
+	Oscar Salvador <osalvador@suse.de>,
+	Andrew Morton <akpm@linux-foundation.org>,
+	Lorenzo Stoakes <ljs@kernel.org>,
+	"Liam R. Howlett" <liam@infradead.org>,
+	Vlastimil Babka <vbabka@kernel.org>,
+	Mike Rapoport <rppt@kernel.org>,
+	Suren Baghdasaryan <surenb@google.com>,
+	Michal Hocko <mhocko@suse.com>,
+	Brendan Jackman <jackmanb@google.com>,
+	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
+	Baolin Wang <baolin.wang@linux.alibaba.com>,
+	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
+	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
+	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
+	Matthew Brost <matthew.brost@intel.com>,
+	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+	Byungchul Park <byungchul@sk.com>,
+	Gregory Price <gourry@gourry.net>,
+	Ying Huang <ying.huang@linux.alibaba.com>,
+	Alistair Popple <apopple@nvidia.com>,
+	Christoph Lameter <cl@gentwo.org>,
+	David Rientjes <rientjes@google.com>,
+	Roman Gushchin <roman.gushchin@linux.dev>,
+	Harry Yoo <harry.yoo@oracle.com>,
+	Axel Rasmussen <axelrasmussen@google.com>,
+	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
+	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
+	Kemeng Shi <shikemeng@huaweicloud.com>,
+	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
+	virtualization@lists.linux.dev, linux-mm@kvack.org,
+	Andrea Arcangeli <aarcange@redhat.com>
+Subject: New design
+Message-ID: <aiePVsiV-w-IZ8A4@casper.infradead.org>
+References: <cover.1780906288.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <cover.1780906288.git.mst@redhat.com>
 
-On Fri,  5 Jun 2026 14:53:14 +0300 Arseniy Krasnov wrote:
-> Logically it was based on TCP implementation, so to make further
-> support easier, rewrite it in the TCP way.
+OK, here's how I'd structure this:
 
-Does not apply:
+1. Introduce PG_zeroed for buddy pages
+2. Set it if init_on_free is set
+3. Set it from balloon driver
 
-$ git pw series apply 1106582
-Failed to apply patch:
-Applying: vsock/virtio: rework MSG_ZEROCOPY flag handling
-error: sha1 information is lacking or useless (net/vmw_vsock/virtio_transport_common.c).
-error: could not build fake ancestor
-hint: Use 'git am --show-current-patch=diff' to see the failed patch
-hint: When you have resolved this problem, run "git am --continue".
-hint: If you prefer to skip this patch, run "git am --skip" instead.
-hint: To restore the original branch and stop patching, run "git am --abort".
-hint: Disable this message with "git config set advice.mergeConflict false"
-Patch failed at 0001 vsock/virtio: rework MSG_ZEROCOPY flag handling
--- 
-pw-bot: cr
+https://lore.kernel.org/lkml/c7094de807c0e963526686e1d245bc76193b1a92.1776689093.git.mst@redhat.com/ 
+
+but add FPI_ZEROED instead of an extra bool parameter.
+
+4. Introduce page_is_zeroed like this:
+
+static inline bool page_is_zeroed(const struct page *page)
+{
+        /*
+         * lru.next has bit 2 set if the page is already zeroed.
+         * Callers may simply overwrite it once they no longer
+	 * need to preserve that information.
+         */
+        return (unsigned long)page->lru.next & BIT(2);
+}
+
+(you'll notice this is similar to page_is_pfmemalloc() but it doesn't
+need to be in mm.h)
+
+This step is going to be a bit fiddly.  We weren't expecting to return
+multiple flags in page->lru.next, so clear_page_pfmemalloc() just sets
+page->lru.next to NULL.  So somewhere we need to make sure that
+page->lru.next is definitely NULL, and then allow both the zeroed and
+pfmemalloc flags to be set in it.
+
+The important part of this is that it allows the zeroed flag to be
+returned from the page allocator without introducing pghint_t like you
+did in v2.
+
+5. Now you can start skipping various zeroing steps higher in the call
+chain.
+
+I understand David's disgust with vma_alloc_zeroed_movable_folio()
+but that is surely a separate cleanup and nothing to do with this
+patchset.
