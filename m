@@ -1,146 +1,129 @@
-Received: from mail-ot1-f53.google.com (mail-ot1-f53.google.com [209.85.210.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D52B1426EA3
-	for <virtualization@lists.linux.dev>; Tue,  9 Jun 2026 13:52:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.53
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781013167; cv=pass; b=cPKvRo7qzb6zWtLo7QfUNGTu4N3DGHFGj5gIfD7kBRnBxZ/YgQn6clRh+PGb0bcDJLYGAga56hlDyPCpvVCDZsu8QxQqOhG5cZOULdiiL8XkGW2FcffBIK6N/jWCDJ/XAX8iA/91gOwZ71uqC4qeH4oGGejnj9T814A6EjwO+vA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781013167; c=relaxed/simple;
-	bh=nL5mmGZaBR0KGiW9ByLpesO5BFVlQS4oNBhk8WU8xmk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=D5+ugZaTDYse6V3gDke94fur3lmKUQS4mokf93bSzBZnzcJ8orGOmlOQ0vyT41WpLAphjzoJm8R/fiRX7dXYXHxXV6S7cyBCfglAc4ODCD7d8kvsA7n7S52Xye/W4n2A3nG4vmzjEWFVMXRi/iWz8urBf44QGgKa9Hncafm5a6Y=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=samsara.com; spf=pass smtp.mailfrom=samsara.com; dkim=pass (2048-bit key) header.d=samsara.com header.i=@samsara.com header.b=LDuQzvCM; arc=pass smtp.client-ip=209.85.210.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=samsara.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsara.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 08620351C31
+	for <virtualization@lists.linux.dev>; Tue,  9 Jun 2026 14:45:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781016302; cv=none; b=rFG1E1rHtGKu1j3zCpK5xOF/SXgQCGk2xy5nQbr8pZC6bCFl3q+I/x24M7U0u0lUI4tdjKMsE5gsFOSZGEhVT2fHKvRgwVqLGNdAp+eBA7KTjMi/gv4G0pZnoNebENyBbWUFAc1KlniRqeu+1UyM2EMLGKfWdNRHMOc6Eiqf5a8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781016302; c=relaxed/simple;
+	bh=I+MG6j6+kplApxXEDI0QzwwsnO+1FJglAwz2d2/D274=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:content-type; b=lXQxXRwe534oy4EqKeEQzXpgfVGbR1sMfyb8FH2NAn5UTAimwy/HgaWTkhJq+/mh77Gl4IgUr+wOeO5MmOawKzJEplaepH2vfq7VggOX/ZnoG95Q9MC+g72G9kFkNWqq2jiIqS+10SAZ/OrXc9h34tFQ5madIZ3TgBPh/c5tquE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hUhWB7J0; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=samsara.com header.i=@samsara.com header.b="LDuQzvCM"
-Received: by mail-ot1-f53.google.com with SMTP id 46e09a7af769-7e6e21c47e6so2444755a34.1
-        for <virtualization@lists.linux.dev>; Tue, 09 Jun 2026 06:52:45 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781013165; cv=none;
-        d=google.com; s=arc-20240605;
-        b=Rs72pnBsPTOvbSn/INffj2tiN8JU+6g1uNmbLLnqX47O/JnD+w/+AZ6Vc+LxOfWfWM
-         BokAi7+Xy124EzZSPx02My6XkiKmPrk99n9jvw0bvG3TcQZvi7xI+1T+yK4cO2NlGtbJ
-         J2pfNvkVN7zy2sv4KYj+5yyMY9lYkr3JgONSYMKk1vhxnW3T0frfxSK/57Kw1F4XihLv
-         nwT3+/k1kNYK7clzFFa6567bWX+o9M0Ps27T1oP+JdG6Tu6+Zcr9FglAACB0EhzL/EQf
-         OteEdL4GjjonxSpdSAen8VcVOYFLXNeHg4vVtpIsD4xxhFGrlrroICmyGJiTxkPFj/KG
-         zfFw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=TPwTixStz0zU1NT3ncpNQzPruivDw+P8CqzY5CxuE/Q=;
-        fh=1FpLaY1RfQg1dl63TFogs7i/b2xLVHma8loYNJDzPxc=;
-        b=VoRlyteEVPV+GxlJ1v9AaAj152LHgzpb2quqULIAsONa4Kkx2EFMAlIhgHdg/jBu0z
-         nLMboOkmI3Hv8ufxgZhcOrChtPyaYwW5eUmpEEX3puZrHfYsRDNAweFZP9mzvkyB8ps1
-         F0MQ/Q9mLZ3V0vnMMjZJ1kxDyp9/WhQHnpyfTIoCq5YnUtygsB2AIUhBQwgfGTnOahLk
-         YwHt/IDVqXNGzgn4RFUS2vZX9h8ni0F1Qko8+v3/kjqK2WMtC67qhX07frEJBo7GaMz4
-         SOQjNE27o1UwcA+wbjXb+3rBr90wDrRfTbjx5CtHVsLZuz3RkCjZkAYb+wcVT3GFfLV0
-         A3Xw==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=samsara.com; s=google; t=1781013165; x=1781617965; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=TPwTixStz0zU1NT3ncpNQzPruivDw+P8CqzY5CxuE/Q=;
-        b=LDuQzvCMgEwkeJsxUExkDvkUknj55FSbjE3n9k6EaEceMpBr0+shFEW3uPJq4QOPj1
-         HEOlsJfcredM+Umt7RhfvGvKExjevl/l0zYYX9u4UDyM9fUeyLD9vi1yFC4aPDJ2ekGb
-         cFja15dXb3u4RZYZCNyjWrkLFvqUBmlIk7q+SBkoKANOTiNeVio0TdxdGsPUMO7bl6MM
-         gXMYqEZsyNVWSxVm7YNSUATR0ZgFDKzNs+QDz8IE1QJEoPAz4QLxnbSs1apjaHjGvvV0
-         1hDwFcl3gog1ejrU93PZ6dpU2GxXFn6v00bCtAsI52kNogcGnO/uX2AYKCSPq+Ogv4ca
-         geiQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781013165; x=1781617965;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=TPwTixStz0zU1NT3ncpNQzPruivDw+P8CqzY5CxuE/Q=;
-        b=myfQZTyDuJJiG3mPWBcjHqLCDF6zz6FDa3K4z/sf3BoJkuws3LLZ9I3GzhHbp/UKFh
-         +1Rz3Dd38DEG7IxFQWF6hsuoNF0TjQj1OetOoVmjFppWCbE7KhJ9p8L7f+SKKygGaIu/
-         xv+qHuFnPlCw7e5CgKu3cOxulT3D3GbXGfkqsaDYwa2Me5QxLJbTF5GRJv1T85WJ7lG6
-         flH4KH3BpbWHRks5OYpQ0PhJC7xoZaDsAhLFBZgkrtGmEZQN6sbi5YCooiF9ydrFqlOB
-         iuxLTg49tWfh9Yp1B6m3DLE4LdCC8gXZ2FSsawge+LODfMgacoP6s9f5y1Dfr486oyzZ
-         LCbw==
-X-Forwarded-Encrypted: i=1; AFNElJ+/qYH4cJsA/UzUMYTRA1oy+USY/xR9nP0GWW+83mzYQIpZAmDNwFa2Wv//UfZAwK+pbrgEVr2MHBZWBcipvg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz+X/xo6CB2fOrmiS3cwDerKAH3jl4v2Sxmb37ozsF5adQIBJuy
-	chP6IIuSi1gqUKwmuMVSiM97snwAzMxJFF+2w2WMeNMoi/VfE1ldglvvaEIBtPiXDQp5UuIKNmm
-	mcYyT/Ztr1IlY5Tdwp08/VpOwAlsh9zTsYisl2SKx
-X-Gm-Gg: Acq92OFJ3zIgjcpSi2oOO2vsvlYjKRHxRyzhJ/xtCg98iaQfhGEntHiXeLQ8du2i2fo
-	A5i0byY6DdY2vX9NvbuC14Er6mq9E7dYqnGRjzqH2RVuMWoBjtM0nAG9nDnkdAjngRxqXqHp5Ku
-	jSU1wSqVsDKl7lTiYDY4/ad9UtbhgQF+h2VcpnyTRk2274GV0FpM2qqU1XausXqdHTYa1T5iqpK
-	pxJdHxi79311yge2T81ob5NtWfbMIUaqoN7VwWRpiwefuRrFxaaRLbcBMLQz4L18PfeCtkXVj2m
-	+nr+3kZx+tZSWBSVCohWNXW891b8+X1RB/7XbVNsj1lR/Ghu
-X-Received: by 2002:a05:6820:83d8:10b0:69b:5486:e85 with SMTP id
- 006d021491bc7-69e68c19e38mr8248758eaf.36.1781013164660; Tue, 09 Jun 2026
- 06:52:44 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hUhWB7J0"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1781016300;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=7uzm9MlJqtx/K+dgYJZWwnUeSqqolzoT5g/R7O33N54=;
+	b=hUhWB7J08kZa5bhFwVZZ5DNA8pKlhBICAnKagWrChQ557YkpCNhrwNR+n0j070iyYi4nbS
+	A7I7gIFrSdFo2J4gzTWhxaAVj7YGKZ8pJrUv7oi9GBRWxgBAKG1oZyXULSYn7V1bZhAHnG
+	6i7CyxooHxaHDh8pluAyH6oMtcqCgso=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-237-ae7hAeFjM1OUJsnSXBe_xQ-1; Tue,
+ 09 Jun 2026 10:44:56 -0400
+X-MC-Unique: ae7hAeFjM1OUJsnSXBe_xQ-1
+X-Mimecast-MFC-AGG-ID: ae7hAeFjM1OUJsnSXBe_xQ_1781016295
+Received: from mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.95])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id AF8A91831357;
+	Tue,  9 Jun 2026 14:44:54 +0000 (UTC)
+Received: from gerbillo.redhat.com (unknown [10.44.33.0])
+	by mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id B486436535;
+	Tue,  9 Jun 2026 14:44:50 +0000 (UTC)
+From: Paolo Abeni <pabeni@redhat.com>
+To: netdev@vger.kernel.org
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	virtualization@lists.linux.dev,
+	Willem de Bruijn <willemb@google.com>
+Subject: [PATCH net] virtio_net: do not allow tunnel csum offload for non GSO packets
+Date: Tue,  9 Jun 2026 16:44:26 +0200
+Message-ID: <38d33d63ce5d1aee486bd6c7c47345040d526e35.1781016169.git.pabeni@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260607143608.76122-1-gavin.li@samsara.com> <20260608174435.62359-1-gavin.li@samsara.com>
- <ae754hwynvlfnuway2jdjuebyammfrz225pxymfhuqpusp4xkp@joyqrrkberpc>
-In-Reply-To: <ae754hwynvlfnuway2jdjuebyammfrz225pxymfhuqpusp4xkp@joyqrrkberpc>
-From: Gavin Li <gavin.li@samsara.com>
-Date: Tue, 9 Jun 2026 09:52:33 -0400
-X-Gm-Features: AVVi8CfBHfQw5II0WmIUH72AfGIkRVcNlAUwEU5ehCyFP8GxD9ZsZTPnT_N1E80
-Message-ID: <CAKvMnUVZEnH3z-dVmCLgP0cFTjuYCcfaXhOOOy9KNG6kh-RdhA@mail.gmail.com>
-Subject: Re: [PATCH v2] i2c: virtio: retain xfer with kref to fix UAF on
- interrupted wait
-To: Viresh Kumar <viresh.kumar@linaro.org>
-Cc: linux-i2c@vger.kernel.org, "Chen, Jian Jun" <jian.jun.chen@intel.com>, 
-	andi.shyti@kernel.org, virtualization@lists.linux.dev
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Scanned-By: MIMEDefang 3.6 on 10.30.177.95
+X-Mimecast-MFC-PROC-ID: WoNLkza-4pbmjG3qQ5XQMbEQPAXhFyXF_XmkjLdAeV0_1781016295
+X-Mimecast-Originator: redhat.com
+Content-Transfer-Encoding: 8bit
+content-type: text/plain; charset="US-ASCII"; x-default=true
 
-Thanks for the review, Viresh!
+Fiona reports broken connectivity for virtio net setup using UDP tunnel
+inside the guest and NIC with not UDP tunnel TSO support in the host.
 
-On Tue, Jun 9, 2026 at 3:35=E2=80=AFAM Viresh Kumar <viresh.kumar@linaro.or=
-g> wrote:
+Currently the virtio_net driver exposes csum offload for UDP-tunneled,
+TCP non GSO packets. Such packet reach the host as CSUM_PARTIAL ones
+with the 'encapsulation' flag cleared, as the virtio specification do
+not support this specific kind of offload.
 
-> Maybe move the comment above the code ? Can be dropped too.
->
-> Also, maybe there is a small race here, not sure. What if the other
-> side (polls and) processes the message as soon as it is added to the
-> queue with virtqueue_add_sgs() ? In that case virtio_i2c_msg_done()
-> will call complete (which won't harm) and kref_put(). If this happens
-> for the first req of the xfer, it may end up freeing the xfer while
-> being used here ?
+HW NICs with UDP tunnel TSO support - and those drivers directly
+accessing skb->csum_start/csum_offset - are still capable of computing
+the needed csum correctly, but otherwise the packets reach the wire with
+bad csum on both the inner and outer transport header.
 
-Good eye, thanks for the catch. Moved kref_get() to
-before virtqueue_add_sgs()
+Address the issue explicitly disabling csum offload for UDP tunneled,
+non GSO packets via the ndo_features_check op.
 
-> > -static int virtio_i2c_complete_reqs(struct virtqueue *vq,
-> > -                                 struct virtio_i2c_req *reqs,
-> > -                                 struct i2c_msg *msgs, int num)
-> > +static int virtio_i2c_complete_reqs(struct virtio_i2c_xfer *xfer)
->
-> Maybe rename to complete_xfer now ?
+Fixes: 56a06bd40fab ("virtio_net: enable gso over UDP tunnel support.")
+Reported-by: Fiona Ebner <f.ebner@proxmox.com>
+Closes: https://bugzilla.proxmox.com/show_bug.cgi?id=7627
+Tested-by: Fiona Ebner <f.ebner@proxmox.com>
+Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+---
+ drivers/net/virtio_net.c | 14 +++++++++++++-
+ 1 file changed, 13 insertions(+), 1 deletion(-)
 
-Done
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index f4adcfee7a80..07b8710639f9 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -6222,6 +6222,18 @@ static void virtnet_free_irq_moder(struct virtnet_info *vi)
+ 	rtnl_unlock();
+ }
+ 
++static netdev_features_t virtnet_features_check(struct sk_buff *skb,
++						struct net_device *dev,
++						netdev_features_t features)
++{
++	/* Inner csum offload is only available for GSO packets. */
++	if (skb->encapsulation && !skb_is_gso(skb))
++		return features & ~NETIF_F_CSUM_MASK;
++
++	/* Passthru. */
++	return features;
++}
++
+ static const struct net_device_ops virtnet_netdev = {
+ 	.ndo_open            = virtnet_open,
+ 	.ndo_stop   	     = virtnet_close,
+@@ -6235,7 +6247,7 @@ static const struct net_device_ops virtnet_netdev = {
+ 	.ndo_bpf		= virtnet_xdp,
+ 	.ndo_xdp_xmit		= virtnet_xdp_xmit,
+ 	.ndo_xsk_wakeup         = virtnet_xsk_wakeup,
+-	.ndo_features_check	= passthru_features_check,
++	.ndo_features_check	= virtnet_features_check,
+ 	.ndo_get_phys_port_name	= virtnet_get_phys_port_name,
+ 	.ndo_set_features	= virtnet_set_features,
+ 	.ndo_tx_timeout		= virtnet_tx_timeout,
+-- 
+2.54.0
 
-> > -             if (!failed) {
-> > -                     if (wait_for_completion_interruptible(&req->compl=
-etion))
-> > -                             failed =3D true;
-> > -                     else if (req->in_hdr.status !=3D VIRTIO_I2C_MSG_O=
-K)
-> > -                             failed =3D true;
-> > -                     else
-> > -                             j++;
-> > +             if (wait_for_completion_killable(&req->completion)) {
->
-> Maybe do this in a separate patch ?
-
-Good idea, reverted to wait_for_completion_interruptible()
-
-> > -     return j;
-> > +     return fail_index >=3D 0 ? fail_index : xfer->num; /* number of s=
-uccessful transactions */
->
-> If this comment is required, maybe add it above the line instead.
-
-Done
