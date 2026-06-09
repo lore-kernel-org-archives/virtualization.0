@@ -1,145 +1,140 @@
-Received: from sender4-op-o15.zoho.com (sender4-op-o15.zoho.com [136.143.188.15])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f201.google.com (mail-pf1-f201.google.com [209.85.210.201])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 14B3A378838;
-	Tue,  9 Jun 2026 12:10:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.15
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781007029; cv=pass; b=i6dVe2LbVnFcqTl9M/RNN8BVaymyQnHoKlol5Xi04lUvN370IDVgla6LwHs7vEK02z1vNzfgN1Is9eMWSrEUpjHd2KG+70BhdfquteJCrudpX4Zsm8lzHLo4xSOzDbDLFgUqMtcYaYnPuEiVpv7Vz96O3UlFHgxlMowYW22ObG8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781007029; c=relaxed/simple;
-	bh=ZBJobU+O9hMiZ83JsJK8YLhIxWlH7xEFY81qfpXGJtY=;
-	h=Date:From:To:Cc:Message-ID:In-Reply-To:References:Subject:
-	 MIME-Version:Content-Type; b=HPcU7J8zyK1OA0mjsjINSATv27VXNO85MZcuZsH6XJ1FwoRXSMZor31+t4WCF9hxuGoRKCdVY1b/Wus/4NI88mVVJYQNQKsdaTfdYR/3oMVGtj1oM2DC4mE4vTL+GGv9R+v68jWQuzQPixKIsRm+/xIMS8lO3Wc/3AUzAt5t1f0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.beauty; spf=pass smtp.mailfrom=linux.beauty; dkim=pass (1024-bit key) header.d=linux.beauty header.i=me@linux.beauty header.b=QfjsGqZI; arc=pass smtp.client-ip=136.143.188.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.beauty
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.beauty
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5FC3A38F932
+	for <virtualization@lists.linux.dev>; Tue,  9 Jun 2026 12:28:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.201
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781008108; cv=none; b=cf6JoroIEhWHv9HIcnrQuxB5th2wmL0dAF3/RmtxKJexdOlS359/ujCOnMtZ+e68/SjcCG0mvo98UGtlN+8MRGaEaBtt8e2b3K/ZdBi6mqMXX2qpIJHTaXUTPAqEOQLnIH6LfHSXiMhgZB/oVgsU/MkQZpfdwMiypa+pGA1WC1M=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781008108; c=relaxed/simple;
+	bh=lGEDaxP9s5MVbkz0GqDIcVYCTfkJX1Q1PY4dt58kBow=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=U1aVjhpyqyv2Ns1WCNGJcbibNrktnNe5R+VKXHZqkA3PLtCXgFTwrdA3k+Uu/m+xLS0zjuo0NsdsWzCshARTyc55NpUGrUQN/qB/9+8m24me0gJaIx+Ns/V8cF3PmD9H0oLvvfhF6qXrAgaqqQx1iVKrdKwmdDA6IpnMu97bnX0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=pskSvQVz; arc=none smtp.client-ip=209.85.210.201
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.beauty header.i=me@linux.beauty header.b="QfjsGqZI"
-ARC-Seal: i=1; a=rsa-sha256; t=1781007025; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=YBDXQeVyr3hylYGDY8FM+2bE49og/YkYiSv5WZYJRy5SE9s2NqgrisL13BWsAOArRjazwgRhJPQ6HtGB6mdPKqw3ntF+DnWLYHM0Tt7N4+QbjwfT6zDB1Rn8IlD1AmbHTIwDTa1OALeS0QPWieO+VKU1dU9kovB1D3gtaDGL1/Q=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1781007025; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=4bXYzfVURMwu4+F7eCQ3DTcmf+jZ3xCo5JvSlXXQwHM=; 
-	b=haAiJD2MYX6kbHW4LBJoOMhP2xeS4G/iJe4gfLvG7C254c8PgYRkRjPSwI80o40psq0mAGr0LlD31huUcfAV1TKjxcJ5IBMIm3+83ucob/+vShiPVU2m5lXeyKD9tdcNv9RNjNZWcE3/pT8OnT7cdcOEtIl2SNP/RqMUkawo07c=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=linux.beauty;
-	spf=pass  smtp.mailfrom=me@linux.beauty;
-	dmarc=pass header.from=<me@linux.beauty>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1781007025;
-	s=zmail; d=linux.beauty; i=me@linux.beauty;
-	h=Date:Date:From:From:To:To:Cc:Cc:Message-ID:In-Reply-To:References:Subject:Subject:MIME-Version:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=4bXYzfVURMwu4+F7eCQ3DTcmf+jZ3xCo5JvSlXXQwHM=;
-	b=QfjsGqZIlVHzbXMr1TRxXAk4jzkK/Di3rFXashct47KOLktbh3dWGI/yqrDBLDxq
-	ZXXYMuKW88wDOk1AFsya0kjXMLVvr2BrlsiKvvj4kdwA6mgWRHWrlP02z30x7RKYosd
-	RN6gj7Wc8Y6SAwfrPOoaiKmnQCXAifgox/itiLKs=
-Received: from mail.zoho.com by mx.zohomail.com
-	with SMTP id 1781007023758237.3739416207793; Tue, 9 Jun 2026 05:10:23 -0700 (PDT)
-Date: Tue, 09 Jun 2026 20:10:23 +0800
-From: Li Chen <me@linux.beauty>
-To: "Alison Schofield" <alison.schofield@intel.com>
-Cc: "Pankaj Gupta" <pankaj.gupta.linux@gmail.com>,
-	"Dan Williams" <dan.j.williams@intel.com>,
-	"Vishal Verma" <vishal.l.verma@intel.com>,
-	"Dave Jiang" <dave.jiang@intel.com>,
-	"Ira Weiny" <ira.weiny@intel.com>,
-	"virtualization" <virtualization@lists.linux.dev>,
-	"nvdimm" <nvdimm@lists.linux.dev>,
-	"linux-kernel" <linux-kernel@vger.kernel.org>
-Message-ID: <19eac4a7e7d.66c485541986665.1385164415754211830@linux.beauty>
-In-Reply-To: <ah43Hsur7KuTD-2c@aschofie-mobl2.lan>
-References: <20260226025712.2236279-1-me@linux.beauty> <ah43Hsur7KuTD-2c@aschofie-mobl2.lan>
-Subject: Re: [PATCH v3 0/5] nvdimm: virtio_pmem: fix request lifetime and
- converge broken queue failures
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="pskSvQVz"
+Received: by mail-pf1-f201.google.com with SMTP id d2e1a72fcca58-8422b544a4bso3465288b3a.3
+        for <virtualization@lists.linux.dev>; Tue, 09 Jun 2026 05:28:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1781008107; x=1781612907; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:from:subject:message-id:references
+         :mime-version:in-reply-to:date:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=unmnrNbCXlEEjkFhHM3DLJAuHv468WBx57rOjaror7w=;
+        b=pskSvQVzNKzwzMkiVSAm8Lp+/YhZT9S7PHkrolL7S66+rZpBknKJ/+umRnH4LG/VtU
+         gSrOucHzLm88uDSgTqrBggLuCXg2jQbrjIAKLLeNcYDti8fm2bB9uOaUXkfd5yVyxgca
+         XPRQaYsyPHOvaFi+TaKT1wfxv65KB7zSHDvP+v/NxG98Qe+jExXyCfeE/Ik1F+gGmiSn
+         ypPqqcHabC2SRv34pjlnz3vQR+9GGzSdSIts28N8vYSktYuyh2BvWPJ/tEaE33FYlWV9
+         drXYha1/c49obXPA59shWkeFw3gPwI0Sk8lZC9D7u5NNNJvS5qXDPsxGogSJQWqTz7yz
+         ZAUA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781008107; x=1781612907;
+        h=content-transfer-encoding:cc:to:from:subject:message-id:references
+         :mime-version:in-reply-to:date:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=unmnrNbCXlEEjkFhHM3DLJAuHv468WBx57rOjaror7w=;
+        b=JECo9j4bIYz0cx37LM72LC/Xvx6xwGTIs0Q9amuhUB/2oGly6hOPGrnVFMESdpWJop
+         waUk2Y/vmfDHeCG/DLGtdd/7vDoA8F+Vrd7mnbGog0UIkxo/6CiaHHEvFedLBspCn1Kh
+         Y/ByEa+N/bCURw/5Q7oSrVr85hNdmpADs/qPod3r+ElQNb4vV756Kkyy9O4bA6m56Oz9
+         MTSharKHgVYPf8Uw+XOIAiMgW6m1bgCZkTItEBxCzCagNsZB9zepmudBkV9D2bPgTP6B
+         dUGpxiFnFGdufxgDPJWJGSz1WMQ+IzthR3VeNOnFEN2/jLZ/kP9OyvIB9U07ewkJ6lHM
+         45PQ==
+X-Forwarded-Encrypted: i=1; AFNElJ8fNJBC1uFOExsaRLl0ZMp89NKJajeCkHbwLlhvgqrHYcsb7iNWcClI59eXUVltqGyF+jBx7SDnDB67QACMRg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxXCrgpRcfbBRTq1T6EwU68o4/5zSQFvv+z8CSNuBurjbRVsdNn
+	oSXbwkXfRmsQaAY6YxSSLosuugiwhQbQSUxMIk+L5NE15Mg5ZFCQ23KSUDd3/EIXW2SO5dpsNVy
+	LoAVyIA==
+X-Received: from pfjf5.prod.google.com ([2002:a05:6a00:22c5:b0:842:4720:4013])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:2910:b0:842:6fce:6171
+ with SMTP id d2e1a72fcca58-8430a62f307mr3223335b3a.3.1781008106459; Tue, 09
+ Jun 2026 05:28:26 -0700 (PDT)
+Date: Tue, 9 Jun 2026 05:28:24 -0700
+In-Reply-To: <87a4t440js.ffs@fw13>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset="UTF-8"
+Mime-Version: 1.0
+References: <20260529144435.704127-1-seanjc@google.com> <20260529144435.704127-11-seanjc@google.com>
+ <877boc554l.ffs@fw13> <eef867eae15e30d08482ba16a1a32159745b64a7.camel@infradead.org>
+ <aidEfvTMjLa2zt43@google.com> <87a4t440js.ffs@fw13>
+Message-ID: <aigG6NdLZtbc7prD@google.com>
+Subject: Re: [PATCH v4 10/47] x86/tsc: Consolidate forcing of
+ X86_FEATURE_TSC_KNOWN_FREQ for PV code
+From: Sean Christopherson <seanjc@google.com>
+To: Thomas Gleixner <tglx@kernel.org>
+Cc: David Woodhouse <dwmw2@infradead.org>, Paolo Bonzini <pbonzini@redhat.com>, 
+	Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+	Kiryl Shutsemau <kas@kernel.org>, "K. Y. Srinivasan" <kys@microsoft.com>, 
+	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
+	Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>, 
+	Ajay Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.makhalov@broadcom.com>, 
+	Jan Kiszka <jan.kiszka@siemens.com>, Andy Lutomirski <luto@kernel.org>, 
+	Peter Zijlstra <peterz@infradead.org>, Juergen Gross <jgross@suse.com>, 
+	Daniel Lezcano <daniel.lezcano@kernel.org>, John Stultz <jstultz@google.com>, 
+	"H. Peter Anvin" <hpa@zytor.com>, Rick Edgecombe <rick.p.edgecombe@intel.com>, 
+	Vitaly Kuznetsov <vkuznets@redhat.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stephen Boyd <sboyd@kernel.org>, kvm@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev, 
+	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev, 
+	xen-devel@lists.xenproject.org, Tom Lendacky <thomas.lendacky@amd.com>, 
+	Nikunj A Dadhania <nikunj@amd.com>, Michael Kelley <mhklinux@outlook.com>
+Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
-Importance: Medium
-User-Agent: Zoho Mail
-X-Mailer: Zoho Mail
 
-Hi Alison,
+On Tue, Jun 09, 2026, Thomas Gleixner wrote:
+> On Mon, Jun 08 2026 at 15:38, Sean Christopherson wrote:
+> > On Sat, Jun 06, 2026, David Woodhouse wrote:
+> >> > Along with:
+> >> >=20
+> >> > =C2=A0=C2=A0 if (!hypervisor_is_type(X86_HYPER_NATIVE)) {
+> >> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 if (tsc_khz_early)
+> >> > =C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0=C2=A0 pr_warn("Ignoring n=
+on-sensical tsc_early_khz command line argument\n");
+> >> >=20
+> >> > or something daft like that.
+> >
+> > Ya, I ended up in the same place once Sashiko pointed out that skipping=
+ the SNP/TDX
+> > setup was hazardous[*], and also once I realized that tsc_khz_early *co=
+mplemented*
+> > the refinement instead of replacing it.
+> >
+> > This is what I have locally:
+> >
+> >         if (cc_platform_has(CC_ATTR_GUEST_SNP_SECURE_TSC))
+> >                 known_tsc_khz =3D snp_secure_tsc_init();
+> >         else if (boot_cpu_has(X86_FEATURE_TDX_GUEST))
+> >                 known_tsc_khz =3D tdx_tsc_init();
+> >
+> >         /*
+> >          * If the TSC frequency wasn't provided by trusted firmware, tr=
+y to get
+> >          * it from the hypervisor (which is untrusted when running as a=
+ CoCo guest).
+> >          */
+> >         if (!known_tsc_khz && x86_init.hyper.get_tsc_khz)
+> >                 known_tsc_khz =3D x86_init.hyper.get_tsc_khz();
+> >
+> >         /*
+> >          * Mark the TSC frequency as known if it was obtained from a hy=
+pervisor
+> >          * or trusted firmware.  Don't mark the frequency as known if t=
+he user
+> >          * specified the frequency, as the user-provided frequency is i=
+ntended
+> >          * as a "starting point", not a known, guaranteed frequency.
+> >          */
+> >         if (known_tsc_khz && !tsc_early_khz)
+> >                 setup_force_cpu_cap(X86_FEATURE_TSC_KNOWN_FREQ);
+>=20
+> If the frequenct is known via the above then you want to set the
+> KNOWN_FREQ feature bit unconditionally. SNP/TDX/hypervisor override the
+> command line argument as you print below.
 
- ---- On Tue, 02 Jun 2026 09:51:26 +0800  Alison Schofield <alison.schofiel=
-d@intel.com> wrote ---=20
- > On Thu, Feb 26, 2026 at 10:57:05AM +0800, Li Chen wrote:
- > > Hi,
- > >=20
- > > The virtio-pmem flush path uses a virtqueue cookie/token to carry a
- > > per-request context through completion. Under broken virtqueue / notif=
-y
- > > failure conditions, the submitter can return and free the request obje=
-ct
- > > while the host/backend may still complete the published request. The I=
-RQ
- > > completion handler then dereferences freed memory when waking waiters,
- > > which is reported by KASAN as a slab-use-after-free and may manifest a=
-s
- > > lock corruption (e.g. "BUG: spinlock already unlocked") without KASAN.
- > >=20
- > > In addition, the flush path has two wait sites: one for virtqueue
- > > descriptor availability (-ENOSPC from virtqueue_add_sgs()) and one for
- > > request completion. If the virtqueue becomes broken, forward progress =
-is
- > > no longer guaranteed and these waiters may sleep indefinitely unless t=
-he
- > > driver converges the failure and wakes all wait sites.
- > >=20
- > > This series addresses both issues:
- > >=20
- > > 1/5 nvdimm: virtio_pmem: always wake -ENOSPC waiters
- > > Wake one -ENOSPC waiter for each reclaimed used buffer, decoupled from
- > > token completion.
- > >=20
- > > 2/5 nvdimm: virtio_pmem: use READ_ONCE()/WRITE_ONCE() for wait flags
- > > Use READ_ONCE()/WRITE_ONCE() for the wait_event() flags (done and
- > > wq_buf_avail).
- > >=20
- > > 3/5 nvdimm: virtio_pmem: refcount requests for token lifetime
- > > Refcount request objects so the token lifetime spans the window where =
-it
- > > is reachable through the virtqueue until completion/drain drops the
- > > virtqueue reference.
- > >=20
- > > 4/5 nvdimm: virtio_pmem: converge broken virtqueue to -EIO
- > > Track a device-level broken state to converge broken/notify failures t=
-o
- > > -EIO: wake all waiters and drain/detach outstanding requests to comple=
-te
- > > them with an error, and fail-fast new requests.
- > >=20
- > > 5/5 nvdimm: virtio_pmem: drain requests in freeze
- > > Drain outstanding requests in freeze() before tearing down virtqueues =
-so
- > > waiters do not sleep indefinitely.
- > >=20
- > > Testing was done on QEMU x86_64 with a virtio-pmem device exported as
- > > /dev/pmem0, formatted with ext4 (-O fast_commit), mounted with DAX, an=
-d
- > > stressed with fsync-heavy workloads.
- > >=20
- > > Thanks,
- > > Li Chen
- >=20
- > Hi Li Chen,
- >=20
- > Today I took a look at this set, noting that it's been sitting idle=20
- > in our nvdimm backlog for a while. I'm not able to apply it. Can you
- > post a new rev that applies to 7.1-rc6 ?
- >=20
- > Thanks,
- > Alison
-
-Sorry for my late reply. I have just sent v4(https://lore.kernel.org/all/20=
-260609120726.1714780-1-me@linux.beauty/)
-which can be applied to 7.1-rc7. Thanks for your comment.
-
-Regards,
-Li=E2=80=8B
-
+Doh, forgot to remove that check when I shuffled things around.  Thank you!
