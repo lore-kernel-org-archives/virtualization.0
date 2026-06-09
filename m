@@ -1,207 +1,359 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oo1-f99.google.com (mail-oo1-f99.google.com [209.85.161.99])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DF9D3EFD36
-	for <virtualization@lists.linux.dev>; Tue,  9 Jun 2026 10:13:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A84763BBFAC
+	for <virtualization@lists.linux.dev>; Tue,  9 Jun 2026 11:48:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1780999982; cv=none; b=cU8Hn2nyp17LeafLB1sqMSBPZPmTuJyzsmyJYqwT2wYLBveTNl6xWYpWgXVEfbl52ka58iq34k3zPqTqjFxePMjYtCwkzTfq+Zp7sABSgBDrypfw0xpC9UxQyAW2E3m/T1Jjx5GP/xBJ4nSpg4dSCZp2dHtQkwN0cqumDXB8WwM=
+	t=1781005723; cv=none; b=M+enc7HUXQotAQsQRMtNUnLrTybQLdU7aHVUbwdFqhfx6x4ssmTtUTKpTIPnGcjv9iq2iSBstPuy8CUUPghxPrE9nn0kcK2PeRdqReHvoA7nnQAkJW/atTdoJWNt9ulz5opO8sXF8n9kkkWChcQpxoPs80jdBwIpChuGA+xZCAA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1780999982; c=relaxed/simple;
-	bh=j2WAVOhcptz6OyUHo47zZkLVi+TN8pUJ+4T2CAdtlag=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=GYqicWV2dytjtThNqAuWQhsXq9wRSG5AZlrbGp5NMuHvwaSGwXK2rA3Mje7bn76kBtvP/vIbwfXPupTurPWbHeYfD2Cskcb3YMqYK6+4ZhjdsWlr2rUttE5y0EwAwHEnambP56FO8T2XwDVceoKYY/ri5e76TbxAUxM/VmcFP8c=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=DfI3YrE2; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1781005723; c=relaxed/simple;
+	bh=uwnsk7uP8WIJoO8ttbzpXJmdi0aUvgvTHnMPSDHcaKw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=flnfF6vOCFB5WPjOsBt5qjtKXV69xY6jn8jHan1Lcpi9XfdRhZDlofOWZJaGza7PnbMGzCyIVeZB17Cm208fJA0QWl5a8+xLFARqb7Pn3FxnildVTTkOt51XzWDeazjaSLThBoE022EKP1B0cKxgqPyorHxFCiaBdBnHLLRAw5Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com; spf=fail smtp.mailfrom=broadcom.com; dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b=LMf0D3l8; arc=none smtp.client-ip=209.85.161.99
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=broadcom.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=broadcom.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="DfI3YrE2"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1780999980;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-	bh=eG5xXsnRbSzhdk92bHjLO+lAL03tD8JhyLJB5wX13vg=;
-	b=DfI3YrE2xijM+LjTTuRnS0v4onpTBjVp09fDkpeIsxwaaVDGj6sKpgKyuXF/BHYW6YkHIq
-	MkyPi7gO068mxk5z1kzk8KVllWDfVQyHXmFCzQD7CyHkgar63rFU1Uv3Xum5a3D6hbPZwY
-	yFYXhjtk3+SQ6Hutig2mW0VsDhsrisE=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-586-6tFQfqbAMs23zZ8zXBNo6g-1; Tue, 09 Jun 2026 06:12:56 -0400
-X-MC-Unique: 6tFQfqbAMs23zZ8zXBNo6g-1
-X-Mimecast-MFC-AGG-ID: 6tFQfqbAMs23zZ8zXBNo6g_1780999975
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-490bfd70b0fso54618235e9.0
-        for <virtualization@lists.linux.dev>; Tue, 09 Jun 2026 03:12:56 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=broadcom.com header.i=@broadcom.com header.b="LMf0D3l8"
+Received: by mail-oo1-f99.google.com with SMTP id 006d021491bc7-69d92dbc420so3789920eaf.3
+        for <virtualization@lists.linux.dev>; Tue, 09 Jun 2026 04:48:41 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1780999975; x=1781604775;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=eG5xXsnRbSzhdk92bHjLO+lAL03tD8JhyLJB5wX13vg=;
-        b=FUuR5QXDgOuw8Ii7BerEOmmUga54Lt+bxsG+rjQe56+wAItdUbiwEi/GTxzjlF2Bw6
-         eGHT47cFfxascbNllnABp0cpfzG/OUPv4e7WnsWLxSqCJLTLtujI+tMHTp3ejPHHIwpr
-         584IfkylngXgOjdahmJSkhwY0OBhylIp/35nJSVVJ1RZfSw/vim5fCSY2h7nBiJEgbNz
-         ekVSqC3VeSghnwo9Tp+nA51gO72cwgP6qIDP7nvLwCY/pLiMvkslLVw3GvsImhDpgrX9
-         heEihygTNrOcBDi3r2tRHFgziViR9y5TT0nZmGZn4WwjtSocwoabvZzILOFk6i8MgPP7
-         LcFg==
-X-Forwarded-Encrypted: i=1; AFNElJ/BF6ekA8y8AzQuS2Dvuo95d7j6KmaRSnlwCvbCj6uuh6+fSjq8uoXpUHKEzESHva+XYzYinym8zS27vqC8jw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzBPQ3Ilz516WciLdnFFVfzoMWJxOUZsA7xW8FHPOFcNQngki7V
-	6QjGspTxXqWElDHtFu4Gxg+KNtu9nmYx8ND2Wbt06BR/Ll3GakTdq3C23e+Mkazr8B+Jcmlbvot
-	qCtQizGvh+M4114sEK+R1zSc16IQxY0ngvoHQJ/FSJOzjVB4/Mi/24y5l6DFx940e81DP
-X-Gm-Gg: Acq92OGRm+aJFtX8/TnobbAHDqX9XE0kAjWRPB31S6kDedKlWd6pqkceZwpcEZ85P+E
-	2IAUfG0IPVksOAGI8Y0YJp6ckh3SbfmOzuKCxOOushy8jD/TbMsCE2kepi1fNiMAj+Zkj3z5HTy
-	maWpMDQEv49F7akq7MxHMUa0hBxQlnOpC15YNCnYFvHX1r2jna62DXWOPf3crTHncARGN/iHX+C
-	r97vAi1R/CU7k58s26Gn2t+5ER0ov32VDlqwQBXloCUfUsfuMPPMJ7w62JZ0Y1lDajVlZ2VEi3s
-	DAy27ORJT9twV1jL8+PlLCq2wKQFP3rTmiGyVPrayZ0rgPaCsDNVcrDFdj3pGNLJhePY7HCwIEj
-	s/7/d83tRrp/eJzaMtILAi3qyHF9jpKb6ml3At0Wgfi9QhgQ7PALyng==
-X-Received: by 2002:a05:600c:3107:b0:490:9588:bdb6 with SMTP id 5b1f17b1804b1-490c264cc2emr328880135e9.33.1780999975317;
-        Tue, 09 Jun 2026 03:12:55 -0700 (PDT)
-X-Received: by 2002:a05:600c:3107:b0:490:9588:bdb6 with SMTP id 5b1f17b1804b1-490c264cc2emr328879275e9.33.1780999974756;
-        Tue, 09 Jun 2026 03:12:54 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-85-71.inter.net.il. [80.230.85.71])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490bc3c15cesm460773715e9.5.2026.06.09.03.12.50
+        d=1e100.net; s=20251104; t=1781005720; x=1781610520;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:dkim-signature:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=2GtwyftxDgDxHf00TNmN+7bsJSzsnvSjUZVIyovfOvI=;
+        b=OtdW6GggCHj5ZD+gNXhG5GKKNMhYtOwCDW1LOfhEqNk3XVdrgPGvxSQqRXJHm8gZbU
+         fF2hQo9bbtUJtvkkzoaZ3ibPBMUAixAJ6AL3b2UXQoNoJouRyptREXPOhhYrbYpW60gB
+         s6G1KD7PSqnDSWuBv0NJlhQUwko/u7+/fzDK0EGhtboVEFMG3H7CjdOWDqCsZjBKnIIw
+         umtmpV/JoNJ26GTkqD2w0XUr5IPE/vl+6CgJmA4mYZuhB3eTuABeH7lqNN0dgWOx3eG/
+         vtMo6Ng68jzQOF6B6jkIWaPKhzDgDfhkgtD5gEVWq7XuKCpMZqbaXPMx0B2NsGsTRHva
+         lisA==
+X-Forwarded-Encrypted: i=1; AFNElJ+rYSeyLB13g+8Tbvl2Dt6HZbAczyE+RQLH/k0X7zQtaLThqLyEm6c96yiPaAcwm67TlydZFXOFdUB8JHhauQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy7BAoaQAuj7TvOv4rwixO3XjluvFZYR3qczC14f/DxYAOJMAUq
+	pI3cXI/jQw98A/el4uklercfsnPG5vUed9XfuENhOcs7fVK2c4UvjYTrnWREDXX3lxPX8fLfBA+
+	LkRvLrrNIxonO0/zr+UTf3/nJydUToIlM/n2ZTINp2La1liw16/sPRbCzpsat8Lk/mPvPku5AT5
+	WuSUmYYzmwInkhuDxAlIt7eB5kzLVF/9gE0fozajJeI9uJ1dl1wM8cfj46wVsnl9C5fEFurDvii
+	OF8gyiQy7e3jlGuY9lbPA==
+X-Gm-Gg: Acq92OFPF/cWgtMQrhe8OiARQS6UBUDgZjqS8nTKsm1KP6xWgVHeTZs2Sbpq1oncrEc
+	jjrTOOjAGQBH0wsy9WKi/euIp3SWpvOwlrBOVmU31OSs+vMLA7YZQpCQDr55uZBYkGYo8hBSuxT
+	bGJkF+axctdoFlWTo1vz1z7H06NXMZLThLeeCSmxLsC4VtHU//BZRprAMm6Shou4eh+SUauQXm9
+	MFbGro36jWc/Qw5V7I5PC01WZVYQ5QkBDaBofEDK+hGhgASDe79iJf41FQWXOQcubp91OE+LpCM
+	2U4lXGwc/P9zdyqsrsxOPynobNsWbv7ISoJA7VwhpkT0MvtvpzF5Jkqhr/pUoQIKiy2nxlkVttV
+	F4cVWn9u3IMSOKk5GAWvZEjCrQ6594sMiQ0v4yE5DOyG2vQkJV+ZyC441nVgcX4RrCJ0+VY8upg
+	vgY46g9TIFtC6AiqN2LpBfGnqQOJ5kMoWNyeUSf/OQa1bZMx3YljxdStEYku/sb2BJ3BViyQ==
+X-Received: by 2002:a05:6820:4df4:b0:69e:30ea:133e with SMTP id 006d021491bc7-69e68c05d5cmr11951313eaf.34.1781005720394;
+        Tue, 09 Jun 2026 04:48:40 -0700 (PDT)
+Received: from smtp-us-east1-p01-i01-si01.dlp.protect.broadcom.com (address-144-49-247-117.dlp.protect.broadcom.com. [144.49.247.117])
+        by smtp-relay.gmail.com with ESMTPS id 006d021491bc7-69e4641208asm823231eaf.16.2026.06.09.04.48.38
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_2 cipher=ECDHE-ECDSA-AES128-GCM-SHA256 bits=128/128);
+        Tue, 09 Jun 2026 04:48:40 -0700 (PDT)
+X-Relaying-Domain: broadcom.com
+X-CFilter-Loop: Reflected
+Received: by mail-pg1-f198.google.com with SMTP id 41be03b00d2f7-c85a366b61fso3182714a12.3
+        for <virtualization@lists.linux.dev>; Tue, 09 Jun 2026 04:48:38 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=broadcom.com; s=google; t=1781005718; x=1781610518; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=2GtwyftxDgDxHf00TNmN+7bsJSzsnvSjUZVIyovfOvI=;
+        b=LMf0D3l8MOtU8zQfE3ymYOGPN9uop5o3aMsiIXFQDufp4rApMcTicWaeIGOio4tZ81
+         CgoSl+9Twkwa2SAlL+M135MWKSSjGqIRaTwZyxKRgBIsw6w+dVdEdxSxxXZ/oZUq7uG7
+         aTdembP6pVJJnyGlOacpssVgkfS5XykF7RQ3Q=
+X-Forwarded-Encrypted: i=1; AFNElJ/VI0g03Dxnr2pqKYb2H2tFA5uHbXUrtdxi7GOO0eEK4XOH3Bk2szolAIZDfqOjHIAk51z55MZydJYTHSE7jQ==@lists.linux.dev
+X-Received: by 2002:a17:90b:5783:b0:36a:4074:9aa6 with SMTP id 98e67ed59e1d1-370ee82fcb9mr19842188a91.6.1781005717469;
+        Tue, 09 Jun 2026 04:48:37 -0700 (PDT)
+X-Received: by 2002:a17:90b:5783:b0:36a:4074:9aa6 with SMTP id 98e67ed59e1d1-370ee82fcb9mr19842127a91.6.1781005716916;
+        Tue, 09 Jun 2026 04:48:36 -0700 (PDT)
+Received: from sumit_ws.dhcp.broadcom.net ([192.19.234.250])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-36f6bf903fasm18898075a91.2.2026.06.09.04.48.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Jun 2026 03:12:54 -0700 (PDT)
-Date: Tue, 9 Jun 2026 06:12:49 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: Miaohe Lin <linmiaohe@huawei.com>,
-	"David Hildenbrand (Arm)" <david@kernel.org>,
+        Tue, 09 Jun 2026 04:48:36 -0700 (PDT)
+From: Sumit Saxena <sumit.saxena@broadcom.com>
+To: "Martin K . Petersen" <martin.petersen@oracle.com>,
+	Jens Axboe <axboe@kernel.dk>
+Cc: "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
+	linux-scsi@vger.kernel.org,
+	linux-block@vger.kernel.org,
+	Adam Radford <aradford@gmail.com>,
+	Khalid Aziz <khalid@gonehiking.org>,
+	Adaptec OEM Raid Solutions <aacraid@microsemi.com>,
+	Matthew Wilcox <willy@infradead.org>,
+	Hannes Reinecke <hare@suse.com>,
+	"Juergen E . Fischer" <fischer@norbit.de>,
+	Russell King <linux@armlinux.org.uk>,
+	linux-arm-kernel@lists.infradead.org,
+	Finn Thain <fthain@linux-m68k.org>,
+	Michael Schmitz <schmitzmic@gmail.com>,
+	Anil Gurumurthy <anil.gurumurthy@qlogic.com>,
+	Sudarsana Kalluru <sudarsana.kalluru@qlogic.com>,
+	Oliver Neukum <oliver@neukum.org>,
+	Ali Akcaagac <aliakc@web.de>,
+	Jamie Lenehan <lenehan@twibble.org>,
+	Ram Vegesna <ram.vegesna@broadcom.com>,
+	target-devel@vger.kernel.org,
+	Bradley Grove <linuxdrivers@attotech.com>,
+	Satish Kharat <satishkh@cisco.com>,
+	Sesidhar Baddela <sebaddel@cisco.com>,
+	Karan Tilak Kumar <kartilak@cisco.com>,
+	Yihang Li <liyihang9@h-partners.com>,
+	Don Brace <don.brace@microchip.com>,
+	storagedev@microchip.com,
+	HighPoint Linux Team <linux@highpoint-tech.com>,
+	Tyrel Datwyler <tyreld@linux.ibm.com>,
+	Madhavan Srinivasan <maddy@linux.ibm.com>,
+	Michael Ellerman <mpe@ellerman.id.au>,
+	Nicholas Piggin <npiggin@gmail.com>,
+	Christophe Leroy <chleroy@kernel.org>,
+	linuxppc-dev@lists.ozlabs.org,
+	Brian King <brking@us.ibm.com>,
+	Lee Duncan <lduncan@suse.com>,
+	Chris Leech <cleech@redhat.com>,
+	Mike Christie <michael.christie@oracle.com>,
+	open-iscsi@googlegroups.com,
+	Justin Tee <justin.tee@broadcom.com>,
+	Paul Ely <paul.ely@broadcom.com>,
+	Kashyap Desai <kashyap.desai@broadcom.com>,
+	Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
+	Chandrakanth Patil <chandrakanth.patil@broadcom.com>,
+	megaraidlinux.pdl@broadcom.com,
+	Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>,
+	Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+	mpi3mr-linuxdrv.pdl@broadcom.com,
+	Suganath Prabu Subramani <suganath-prabu.subramani@broadcom.com>,
+	Ranjan Kumar <ranjan.kumar@broadcom.com>,
+	MPT-FusionLinux.pdl@broadcom.com,
+	Daniel Palmer <daniel@thingy.jp>,
+	GOTO Masanori <gotom@debian.or.jp>,
+	YOKOTA Hiroshi <yokota@netlab.is.tsukuba.ac.jp>,
+	Jack Wang <jinpu.wang@cloud.ionos.com>,
+	Geoff Levand <geoff@infradead.org>,
+	Michael Reed <mdr@sgi.com>,
+	Nilesh Javali <njavali@marvell.com>,
+	GR-QLogic-Storage-Upstream@marvell.com,
+	Narsimhulu Musini <nmusini@cisco.com>,
+	"K . Y . Srinivasan" <kys@microsoft.com>,
+	Haiyang Zhang <haiyangz@microsoft.com>,
+	Wei Liu <wei.liu@kernel.org>,
+	Dexuan Cui <decui@microsoft.com>,
+	Long Li <longli@microsoft.com>,
+	linux-hyperv@vger.kernel.org,
+	"Michael S . Tsirkin" <mst@redhat.com>,
 	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
-	Muchun Song <muchun.song@linux.dev>,
-	Oscar Salvador <osalvador@suse.de>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Lorenzo Stoakes <ljs@kernel.org>,
-	"Liam R. Howlett" <liam@infradead.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Brendan Jackman <jackmanb@google.com>,
-	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
-	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
-	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
-	Byungchul Park <byungchul@sk.com>,
-	Gregory Price <gourry@gourry.net>,
-	Ying Huang <ying.huang@linux.alibaba.com>,
-	Alistair Popple <apopple@nvidia.com>,
-	Christoph Lameter <cl@gentwo.org>,
-	David Rientjes <rientjes@google.com>,
-	Roman Gushchin <roman.gushchin@linux.dev>,
-	Harry Yoo <harry.yoo@oracle.com>,
-	Axel Rasmussen <axelrasmussen@google.com>,
-	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
-	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
-	Kemeng Shi <shikemeng@huaweicloud.com>,
-	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
-	virtualization@lists.linux.dev, linux-mm@kvack.org,
-	Andrea Arcangeli <aarcange@redhat.com>,
-	Naoya Horiguchi <nao.horiguchi@gmail.com>
-Subject: [PATCH splitout] mm: memory-failure: serialize TestSetPageHWPoison
- with zone->lock
-Message-ID: <df06b66fe4ff8e925ee0714955abc2183a727b90.1780998980.git.mst@redhat.com>
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Eugenio Perez <eperezma@redhat.com>,
+	virtualization@lists.linux.dev,
+	Vishal Bhakta <vishal.bhakta@broadcom.com>,
+	bcm-kernel-feedback-list@broadcom.com,
+	Juergen Gross <jgross@suse.com>,
+	Stefano Stabellini <sstabellini@kernel.org>,
+	Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+	xen-devel@lists.xenproject.org,
+	Sumit Saxena <sumit.saxena@broadcom.com>
+Subject: [PATCH v3 0/4] scsi/block: NUMA-local scan allocations, shared-tag path cleanup, and SCSI I/O counters
+Date: Tue,  9 Jun 2026 17:47:59 +0530
+Message-ID: <20260609121806.2121755-1-sumit.saxena@broadcom.com>
+X-Mailer: git-send-email 2.43.7
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mailer: git-send-email 2.51.2.2891.g4157995a80.dirty
-X-Mutt-Fcc: =sent
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: q781gvg9NAVQ-g4Cx2ZahR1RfL6A3Nqj6pN8DGnEFQ0_1780999975
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-DetectorID-Processed: b00c1d49-9d2e-4205-b15f-d015386d3d5e
 
-TestSetPageHWPoison() is called without zone->lock, so its atomic
-update to page->flags can race with non-atomic flag operations
-that run under zone->lock in the buddy allocator.
+This series contains three performance improvements targeting the SCSI
+and block layers on multi-socket NUMA and heavily loaded SMP systems.
 
-In particular, __free_pages_prepare() does:
+On multi-socket NUMA systems we observed extreme I/O throughput variance
+of 50-60% between runs.  This series identifies and fixes two root causes:
+cross-node memory accesses due to NUMA-unaware allocations in the scan
+path, and false sharing between hot atomic counters in struct request_queue
+and struct scsi_device.
 
-    page->flags.f &= ~PAGE_FLAGS_CHECK_AT_PREP;
+Performance notes:
 
-This non-atomic read-modify-write, while correctly excluding
-__PG_HWPOISON from the mask, can still lose a concurrent
-TestSetPageHWPoison if the read happens before the poison bit
-is set and the write happens after.  Will only get worse if/when
-we add more non-atomic flag operations.
+Tested on a dual-socket NUMA system (2x 32-core, 256 GB/socket) with
+an mpi3mr HBA, running fio (random read, 4K, QD 64, 16 jobs, 60 s,
+direct I/O).  IOPS figures are in KIOPS (thousands of IOPS):
 
-Fix by acquiring zone->lock around TestSetPageHWPoison and
-around ClearPageHWPoison in the retry path.  This
-serializes with all buddy flag manipulation.  The cost is
-negligible: one lock/unlock in an extremely rare path
-(hardware memory errors).
+  Configuration                    Avg KIOPS   Range (KIOPS)   Spread
+  Baseline                         6,255       4,200 - 6,700   ~37%
+  Baseline + all patches           7,350       7,000 - 7,700    ~10%
 
-Note: SetPageHWPoison and TestClearPageHWPoison calls elsewhere
-in this file operate on pages already removed from the buddy
-allocator or on non-buddy pages (DAX, hugetlb), so they do not
-need zone->lock protection.
+Key findings:
 
-Fixes: 6a46079cf57a ("HWPOISON: The high level memory error handler in the VM v7")
-Acked-by: Miaohe Lin <linmiaohe@huawei.com>
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Assisted-by: Claude:claude-opus-4-6
----
+These patches combinedly reduces the observed 50-60% run-to-run variance
+to under 10%, significantly improving workload predictability and
+improves IOPs by 16-18%.
 
-Sending separately as suggested by multiple people. I also added
-a Fixes tag.
+No functional regressions observed.
 
+Changes in v3
+-------------
+-Handled feedback from Bart Van Assche and John Garry.
+-Added a patch for shost local NUMA allocation.
+-Converted ioerr_cnt and iotmo_cnt atomic counters into per-cpu counters. 
 
- mm/memory-failure.c | 10 ++++++++++
- 1 file changed, 10 insertions(+)
+Changes in v2
+--------------
 
-diff --git a/mm/memory-failure.c b/mm/memory-failure.c
-index ee42d4361309..3880486028a1 100644
---- a/mm/memory-failure.c
-+++ b/mm/memory-failure.c
-@@ -2348,6 +2348,8 @@ int memory_failure(unsigned long pfn, int flags)
- 	unsigned long page_flags;
- 	bool retry = true;
- 	int hugetlb = 0;
-+	struct zone *zone;
-+	unsigned long mf_flags;
- 
- 	if (!sysctl_memory_failure_recovery)
- 		panic("Memory failure on page %lx", pfn);
-@@ -2390,7 +2392,11 @@ int memory_failure(unsigned long pfn, int flags)
- 	if (hugetlb)
- 		goto unlock_mutex;
- 
-+	/* Serialize with non-atomic buddy flag operations */
-+	zone = page_zone(p);
-+	spin_lock_irqsave(&zone->lock, mf_flags);
- 	if (TestSetPageHWPoison(p)) {
-+		spin_unlock_irqrestore(&zone->lock, mf_flags);
- 		res = -EHWPOISON;
- 		if (flags & MF_ACTION_REQUIRED)
- 			res = kill_accessing_process(current, pfn, flags);
-@@ -2399,6 +2405,7 @@ int memory_failure(unsigned long pfn, int flags)
- 		action_result(pfn, MF_MSG_ALREADY_POISONED, MF_FAILED);
- 		goto unlock_mutex;
- 	}
-+	spin_unlock_irqrestore(&zone->lock, mf_flags);
- 
- 	/*
- 	 * We need/can do nothing about count=0 pages.
-@@ -2420,7 +2427,10 @@ int memory_failure(unsigned long pfn, int flags)
- 			} else {
- 				/* We lost the race, try again */
- 				if (retry) {
-+					/* Serialize with non-atomic buddy flag operations */
-+					spin_lock_irqsave(&zone->lock, mf_flags);
- 					ClearPageHWPoison(p);
-+					spin_unlock_irqrestore(&zone->lock, mf_flags);
- 					retry = false;
- 					goto try_again;
- 				}
+  Patch 1 — Same functional goal as v1 patch 1: NUMA-local scsi_device /
+  scsi_target allocations in the scan path so steady-state I/O does not
+  habitually touch remote memory when the host has a fixed DMA/NUMA
+  affinity.
+
+  Patch 2 — Replaces v1’s ____cacheline_aligned_in_smp on
+  nr_active_requests_shared_tags with removal of the shared-tag fairness
+  throttling machinery (including hctx_may_queue(), blk_mq_hw_ctx.nr_active,
+  and request_queue.nr_active_requests_shared_tags and their updates).
+  This follows the earlier standalone proposal by Bart Van Assche [1],
+  rebased for the current tree; it removes the high-frequency atomic
+  accounting that motivated the v1 false-sharing workaround and, in our
+  testing, improves IOPS on the order of roughly 16–18% for the shared-tag
+  workload exercised.
+
+  Patch 3 — Replaces v1’s cache-line padding of iodone_cnt with
+  percpu_counter for both iorequest_cnt and iodone_cnt, so submission and
+  completion paths mostly update CPU-local state instead of bouncing a
+  single cache line, without inflating struct scsi_device for SMP
+  alignment.
+
+Merge / review hints
+--------------------
+
+Patch 3 touches the block layer and should have block maintainer review;
+rest of patches are SCSI-oriented.  Please route or Ack as your subsystem
+workflow requires.
+
+Bart Van Assche (1):
+  block: drop shared-tag fairness throttling
+
+James Rizzo (1):
+  scsi: scan: allocate sdev and starget on the NUMA node of the host
+    adapter
+
+Sumit Saxena (2):
+  scsi: host: allocate struct Scsi_Host on the NUMA node of the host
+    adapter
+  scsi: use percpu counters for iostat counters in struct scsi_device
+
+ block/blk-core.c                          |   2 -
+ block/blk-mq-debugfs.c                    |  22 ++++-
+ block/blk-mq-tag.c                        |   4 -
+ block/blk-mq.c                            |  17 +---
+ block/blk-mq.h                            | 100 ----------------------
+ drivers/scsi/3w-9xxx.c                    |   2 +-
+ drivers/scsi/3w-sas.c                     |   2 +-
+ drivers/scsi/3w-xxxx.c                    |   2 +-
+ drivers/scsi/53c700.c                     |   2 +-
+ drivers/scsi/BusLogic.c                   |   2 +-
+ drivers/scsi/a100u2w.c                    |   2 +-
+ drivers/scsi/a2091.c                      |   2 +-
+ drivers/scsi/a3000.c                      |   2 +-
+ drivers/scsi/aacraid/linit.c              |   2 +-
+ drivers/scsi/advansys.c                   |   6 +-
+ drivers/scsi/aha152x.c                    |   2 +-
+ drivers/scsi/aha1542.c                    |   2 +-
+ drivers/scsi/aha1740.c                    |   2 +-
+ drivers/scsi/aic7xxx/aic79xx_osm.c        |   2 +-
+ drivers/scsi/aic7xxx/aic7xxx_osm.c        |   2 +-
+ drivers/scsi/aic94xx/aic94xx_init.c       |   2 +-
+ drivers/scsi/am53c974.c                   |   2 +-
+ drivers/scsi/arcmsr/arcmsr_hba.c          |   3 +-
+ drivers/scsi/arm/acornscsi.c              |   2 +-
+ drivers/scsi/arm/arxescsi.c               |   2 +-
+ drivers/scsi/arm/cumana_1.c               |   2 +-
+ drivers/scsi/arm/cumana_2.c               |   2 +-
+ drivers/scsi/arm/eesox.c                  |   2 +-
+ drivers/scsi/arm/oak.c                    |   2 +-
+ drivers/scsi/arm/powertec.c               |   2 +-
+ drivers/scsi/atari_scsi.c                 |   2 +-
+ drivers/scsi/atp870u.c                    |   2 +-
+ drivers/scsi/bfa/bfad_im.c                |   2 +-
+ drivers/scsi/csiostor/csio_init.c         |   4 +-
+ drivers/scsi/dc395x.c                     |   2 +-
+ drivers/scsi/dmx3191d.c                   |   2 +-
+ drivers/scsi/elx/efct/efct_xport.c        |   4 +-
+ drivers/scsi/esas2r/esas2r_main.c         |   2 +-
+ drivers/scsi/fdomain.c                    |   2 +-
+ drivers/scsi/fnic/fnic_main.c             |   2 +-
+ drivers/scsi/g_NCR5380.c                  |   2 +-
+ drivers/scsi/gvp11.c                      |   2 +-
+ drivers/scsi/hisi_sas/hisi_sas_main.c     |   2 +-
+ drivers/scsi/hisi_sas/hisi_sas_v3_hw.c    |   2 +-
+ drivers/scsi/hosts.c                      |   6 +-
+ drivers/scsi/hpsa.c                       |   2 +-
+ drivers/scsi/hptiop.c                     |   2 +-
+ drivers/scsi/ibmvscsi/ibmvfc.c            |   2 +-
+ drivers/scsi/ibmvscsi/ibmvscsi.c          |   2 +-
+ drivers/scsi/imm.c                        |   2 +-
+ drivers/scsi/initio.c                     |   2 +-
+ drivers/scsi/ipr.c                        |   2 +-
+ drivers/scsi/ips.c                        |   2 +-
+ drivers/scsi/isci/init.c                  |   2 +-
+ drivers/scsi/jazz_esp.c                   |   2 +-
+ drivers/scsi/libiscsi.c                   |   2 +-
+ drivers/scsi/lpfc/lpfc_init.c             |   2 +-
+ drivers/scsi/mac53c94.c                   |   2 +-
+ drivers/scsi/mac_esp.c                    |   2 +-
+ drivers/scsi/mac_scsi.c                   |   2 +-
+ drivers/scsi/megaraid.c                   |   2 +-
+ drivers/scsi/megaraid/megaraid_mbox.c     |   2 +-
+ drivers/scsi/megaraid/megaraid_sas_base.c |   2 +-
+ drivers/scsi/mesh.c                       |   2 +-
+ drivers/scsi/mpi3mr/mpi3mr_os.c           |   2 +-
+ drivers/scsi/mpt3sas/mpt3sas_scsih.c      |   4 +-
+ drivers/scsi/mvme147.c                    |   2 +-
+ drivers/scsi/mvsas/mv_init.c              |   2 +-
+ drivers/scsi/mvumi.c                      |   2 +-
+ drivers/scsi/myrb.c                       |   2 +-
+ drivers/scsi/myrs.c                       |   2 +-
+ drivers/scsi/ncr53c8xx.c                  |   2 +-
+ drivers/scsi/nsp32.c                      |   2 +-
+ drivers/scsi/pcmcia/nsp_cs.c              |   2 +-
+ drivers/scsi/pcmcia/qlogic_stub.c         |   2 +-
+ drivers/scsi/pcmcia/sym53c500_cs.c        |   2 +-
+ drivers/scsi/pm8001/pm8001_init.c         |   2 +-
+ drivers/scsi/pmcraid.c                    |   2 +-
+ drivers/scsi/ppa.c                        |   2 +-
+ drivers/scsi/ps3rom.c                     |   2 +-
+ drivers/scsi/qla1280.c                    |   2 +-
+ drivers/scsi/qla2xxx/qla_mid.c            |   2 +-
+ drivers/scsi/qla2xxx/qla_os.c             |   2 +-
+ drivers/scsi/qlogicfas.c                  |   2 +-
+ drivers/scsi/qlogicpti.c                  |   2 +-
+ drivers/scsi/scsi_debug.c                 |   2 +-
+ drivers/scsi/scsi_error.c                 |   4 +-
+ drivers/scsi/scsi_lib.c                   |  10 +--
+ drivers/scsi/scsi_scan.c                  |  15 +++-
+ drivers/scsi/scsi_sysfs.c                 |  23 +++--
+ drivers/scsi/sd.c                         |   2 +-
+ drivers/scsi/sgiwd93.c                    |   2 +-
+ drivers/scsi/smartpqi/smartpqi_init.c     |   2 +-
+ drivers/scsi/snic/snic_main.c             |   2 +-
+ drivers/scsi/stex.c                       |   2 +-
+ drivers/scsi/storvsc_drv.c                |   2 +-
+ drivers/scsi/sun3_scsi.c                  |   2 +-
+ drivers/scsi/sun3x_esp.c                  |   2 +-
+ drivers/scsi/sun_esp.c                    |   2 +-
+ drivers/scsi/sym53c8xx_2/sym_glue.c       |   2 +-
+ drivers/scsi/virtio_scsi.c                |   2 +-
+ drivers/scsi/vmw_pvscsi.c                 |   2 +-
+ drivers/scsi/wd719x.c                     |   2 +-
+ drivers/scsi/xen-scsifront.c              |   2 +-
+ drivers/scsi/zorro_esp.c                  |   2 +-
+ include/linux/blk-mq.h                    |   6 --
+ include/linux/blkdev.h                    |   2 -
+ include/scsi/libfc.h                      |   2 +-
+ include/scsi/scsi_device.h                |   9 +-
+ include/scsi/scsi_host.h                  |   3 +-
+ 110 files changed, 168 insertions(+), 258 deletions(-)
+
 -- 
-MST
+2.43.7
 
