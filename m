@@ -1,71 +1,71 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BC75352C3C
-	for <virtualization@lists.linux.dev>; Tue,  9 Jun 2026 20:08:19 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DFDA40D58D
+	for <virtualization@lists.linux.dev>; Tue,  9 Jun 2026 20:24:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781035700; cv=none; b=RDowhDeRRW4QBM2B84nTH+l/U23wtqDV8hBDPHybSFb5b+ZGAYZKZlw54C4xbfzYD+7/hr14ioyPHUcf+5d3HyHl0ZXO9xzqIB/cRAVqzW/I0DveovxexF37SyE38YoiJ1lZVho50qO1OHCDkuAaOTTfwdqhN4CfkptSb3bRrlo=
+	t=1781036669; cv=none; b=sCPwmtK+3HCUeV0PL0Kt9bbnEAp1UvvrDMXJ8pkexWSN+ez5YHxQHyN2PsVkGsLxW+Y0OBOZMUgsF+LM4XFhWCI1oC2TIVQS+AD0poeTTSB4BScXAx0NcjLljX+vstBTz/ZE2jc3rtccvo1fmH2cIKfUNeu427YUjeWFszPLpCA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781035700; c=relaxed/simple;
-	bh=aRhTNbcdgNaPA36R/O4/F4M3VXSutv6ZmcYauBSyGgc=;
+	s=arc-20240116; t=1781036669; c=relaxed/simple;
+	bh=IhujjSgqeJpws/Riu9DYUzx33Ve6XDr9WLgE2Q20XtU=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=pK3L9I4ntxdQXBjPKD0Ta/aN881CXcgwFJsIdOaqmlsaNYPaXi+BEX+9/43/Ov9L+Uu312g5Gw1UuptZvxrO1zaCYXeFtSt5CsbIRcOaFULGwpkBTz8a+jdfFkBR1nEsYZEX3CMmQsWn8WCIELJP3poOCeC6Aq8hA3Rn7s5/RoQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Y6L2DFGO; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=SBo1TEjG4QpLRw0hDXs45b5h0qskoGiGm3OiXJ6aT2wHVBHkJduKNNDv788JbjNeBPiV30QOPWIrloh9at3anxWQgt7X8TQUNAoRmpufw8epmMTLiS6BUAQPfX5TdcU4Bwm4XPG4QTm9oQCxpmY+ALRkuy3J1BR0cESwpAimQI8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RgO1q+TW; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Y6L2DFGO"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RgO1q+TW"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1781035698;
+	s=mimecast20190719; t=1781036667;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=zl9Z0aJ29Hn9v0DTruTbP6W/2+UyB2iIzr0q5S84UYA=;
-	b=Y6L2DFGOB5ovTYac4Ib5Mo5Ppk5YBvCkO0WgQb8r+OoqYmyG6Il3qo3HFb1cFSPjhPXYMG
-	R4v9z8QZmDpPkiIdzvv+92vWxhODPrXkci6bjHrMbUHYltIQhCtuvZ4FSPUSzpr5bWggbq
-	OZIfrXtB5oRI4QuLTefdE1GmxUHl0XI=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=nTUa2dI672FDZzKGV04n9VclX+EgypGNikp/bmy4IOc=;
+	b=RgO1q+TWO8/tFnevqDoV0a0ucccHN42YiLl67jxFW0vgLsHQ/Kl3+HmciZZeHFCXI4NYky
+	oPdoSFSqiVlVFkNpafkkF6kegF4dKiY62YyXTZYPMUnnotEyT7I2RODJcan1b+7df8ispa
+	N55OA4nxhEeZmbKNAnVMAWT8f4G2nuw=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-463-2rm2nYaqMVOXq34lBJo2qQ-1; Tue, 09 Jun 2026 16:08:17 -0400
-X-MC-Unique: 2rm2nYaqMVOXq34lBJo2qQ-1
-X-Mimecast-MFC-AGG-ID: 2rm2nYaqMVOXq34lBJo2qQ_1781035696
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-490b7959b9fso59923875e9.2
-        for <virtualization@lists.linux.dev>; Tue, 09 Jun 2026 13:08:16 -0700 (PDT)
+ us-mta-669-jpgiGxyzNQi64HVzWnGUNA-1; Tue, 09 Jun 2026 16:24:25 -0400
+X-MC-Unique: jpgiGxyzNQi64HVzWnGUNA-1
+X-Mimecast-MFC-AGG-ID: jpgiGxyzNQi64HVzWnGUNA_1781036664
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-490ab3f6e55so22754845e9.0
+        for <virtualization@lists.linux.dev>; Tue, 09 Jun 2026 13:24:25 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781035696; x=1781640496;
+        d=1e100.net; s=20251104; t=1781036664; x=1781641464;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=zl9Z0aJ29Hn9v0DTruTbP6W/2+UyB2iIzr0q5S84UYA=;
-        b=M4h+rvFHs5I7eKGuce/9Zk5JQFls1scxKa35Wd7WfQNAr3A5u/nxybGyH4ApFteoFP
-         +751PCZpanFWt2eq6BB3i0u6ivVA+IO+ODA2M5nQnj1cSaVSarqYvnL+JZlJUdNl7ZKv
-         aX0IMp+xWBcAjsfJ1nz1iWno2EniNEvUhhHzDCFaM8gI3GKxK/JHbMczurUJdXkaTJoj
-         xC9myV/SmYAUzZLIqfJmvdn0f8Oi/oVW5A5gM1hbegOZqtvzbkHKTfVa9ndrMoKkLKHe
-         NgAOEzpraU7Zmaty0T0bF7h+Xo4COXRNPLdw6EWWBszvfo8n0PNuK6MQKImKaYnQrxaj
-         3ZaQ==
-X-Forwarded-Encrypted: i=1; AFNElJ+EcZfFmAzBtMrsL02kOy8md3MD5aH7GctiKje7GMDUBwvY6ePx5rYKWiVezz8qUbD5uC6MjKb1Cou6mL4dkg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwC/EVvL4m9X4nm3/HO00sc2z6E1Qi/nIB05cvHlGXgprOvmFA5
-	3ZmBwsbsEfN6SMdeolPSkB1VKNT2cf6tdfR9iGMOolsx67q8T5BvOHgqC0IjCyuZy5cmVBcPl5W
-	adoxtRoS8yq5XXs2U1wy3TYhPbhCMj/Ktw1VM9JdtbBLByWYwF9rx2mHY9TvzsbZT8Mkp
-X-Gm-Gg: Acq92OHYgV+nY6nvm6Qn6M78q1caREpF6JmzSjLsoYpE3AnHnku9V2r8ig0AClZomAW
-	vuE1GF3B73aLuSlu90rUSjVLBNdc5Ghl48R6noSrwq3dvq+Vxb9rYaJ5ZTzgoIxOmV3iFpsttsk
-	WPXmRw86qpNGppquBXsxd4ph8YQqCK5WDLq9uvYuaeaUEMjrG4slOHXESa9urZrfkaOj6HMJToQ
-	eUsThUchMW9GCSSYVKW3STPe/L0pEXu5ibKYKp73jZCMQnpuRUUYwhWjTTiF2j5pqaokRi3dja9
-	Sq0dyakDFttqqiuG7GmKgxpL5tfQnZu4VjUdmom7xEX+UXD8Q6gwve1bTgPltcJ3ES78ySvHd9j
-	uyLG3ASUleTV/l/P15/6l3LCsAT++8kVp4YRR+0QLOqrZiugN7PdKLg==
-X-Received: by 2002:a05:600c:8216:b0:490:c2a3:23cf with SMTP id 5b1f17b1804b1-490c2a323f0mr333475315e9.34.1781035695695;
-        Tue, 09 Jun 2026 13:08:15 -0700 (PDT)
-X-Received: by 2002:a05:600c:8216:b0:490:c2a3:23cf with SMTP id 5b1f17b1804b1-490c2a323f0mr333474535e9.34.1781035695117;
-        Tue, 09 Jun 2026 13:08:15 -0700 (PDT)
+        bh=nTUa2dI672FDZzKGV04n9VclX+EgypGNikp/bmy4IOc=;
+        b=ORarKIOqW4myqQSoXsefKFj+wqTVU+wKCA5z0S/9vmlYzN1hf3DovuFEXxpTJdF9Z5
+         tEt1V2MzRiUOvsrqc9D9qKCcBsBpNFo66+hkLuXGQTNHOV++ECHT9Te0FTGiqxLi+v/s
+         4XEyVeBpf0ROQwpJxqB418jjpVSKAl+FmOIe1dW+7ERd98A7LTi18Vidxl4tSgbIi4fB
+         oqk8ew/OdoAuADZZAx6homL691QFF/jhi5MQUBi/cXIViY9/LGMq05HyOiWhvPY7H0YH
+         yzboF8GykYpDqhBGBgZL4oAfDAWgl4BxvG5vNyRXBhusPw3V40o19wPSKz2VDo8qN6Ww
+         FKCQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+hSy3UVaa2kkud5XYBqzF8TBHxWileVK5/vCalLIeLa/PtHfxOEQli9HpicuyoVEDpuM22NIUeYKUIPnh9eA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxSz2Sjmi6b4NQYCgkHvHxwJRRxRb4vdKjyQmkjtJhlaBuTef1c
+	xPFkCcAI0ZwrXd37Xhcdn8Ll9K9cizj+xuISDDc3iwfxTvoTTYH/TsVM76MhLLK5BRXfd5GG9bj
+	gB0mPdrnAUYEqyPbJxWYLFfxumWWdTpBVD5Bc9lQsneZQYSyVTluZUYSs7XVUf/rKG0HR
+X-Gm-Gg: Acq92OGPzKh9Ik+wsFTOO9xE1BLdoUFewasKljridsB4gMabgv0kxSEndoiRTIUQxe4
+	7aZqPbPptKABDUyugO53oYlFcsFMi7pHdYmcqB3nTbHl90R3Lj20iphfccFX4Y/0Q3eFtxRWH8x
+	KhO4j1dpa4J/lSUFVdZhsU+OYam42nlEWaPQYnqJOq5AECLnYhIOJD3yQ5/9dWY5+Rx8zCHx7KY
+	HH/5vnFlEq9RLksszr9311X1nzO1opT+Bir3VuzRNt2WrWi3LB11i2hck8PsLWotNrf+bAJ0I47
+	FGQH7d9ifzBVYMFwMYjprbn0tcAMKKVrB+2d11RGH7ydY85KZVn/buoN/BVNlZ2EraaysDyzHci
+	o53WIrzya9jj6+6YZSjLJ9P2om2tPQQV94zsGrLwOgDFtPWKA/NEEBw==
+X-Received: by 2002:a05:600c:674f:b0:490:b4bc:4f3d with SMTP id 5b1f17b1804b1-490c25b06a1mr339837705e9.18.1781036664332;
+        Tue, 09 Jun 2026 13:24:24 -0700 (PDT)
+X-Received: by 2002:a05:600c:674f:b0:490:b4bc:4f3d with SMTP id 5b1f17b1804b1-490c25b06a1mr339837295e9.18.1781036663783;
+        Tue, 09 Jun 2026 13:24:23 -0700 (PDT)
 Received: from redhat.com (IGLD-80-230-85-71.inter.net.il. [80.230.85.71])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4601f345209sm68785532f8f.17.2026.06.09.13.08.10
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4601f35133csm62850063f8f.25.2026.06.09.13.24.19
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Jun 2026 13:08:14 -0700 (PDT)
-Date: Tue, 9 Jun 2026 16:08:08 -0400
+        Tue, 09 Jun 2026 13:24:22 -0700 (PDT)
+Date: Tue, 9 Jun 2026 16:24:17 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Gregory Price <gourry@gourry.net>
+To: Andrew Morton <akpm@linux-foundation.org>
 Cc: linux-kernel@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
 	"David Hildenbrand (Arm)" <david@kernel.org>,
 	Jason Wang <jasowang@redhat.com>,
@@ -73,7 +73,6 @@ Cc: linux-kernel@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
 	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
 	Muchun Song <muchun.song@linux.dev>,
 	Oscar Salvador <osalvador@suse.de>,
-	Andrew Morton <akpm@linux-foundation.org>,
 	Lorenzo Stoakes <ljs@kernel.org>,
 	"Liam R. Howlett" <liam@infradead.org>,
 	Vlastimil Babka <vbabka@kernel.org>,
@@ -89,6 +88,7 @@ Cc: linux-kernel@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
 	Matthew Brost <matthew.brost@intel.com>,
 	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
 	Byungchul Park <byungchul@sk.com>,
+	Gregory Price <gourry@gourry.net>,
 	Ying Huang <ying.huang@linux.alibaba.com>,
 	Alistair Popple <apopple@nvidia.com>,
 	Christoph Lameter <cl@gentwo.org>,
@@ -102,86 +102,63 @@ Cc: linux-kernel@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
 	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
 	virtualization@lists.linux.dev, linux-mm@kvack.org,
 	Andrea Arcangeli <aarcange@redhat.com>,
-	Naoya Horiguchi <nao.horiguchi@gmail.com>,
-	Alexander Duyck <alexander.h.duyck@linux.intel.com>
-Subject: Re: [PATCH splitout] mm: page_reporting: allow driver to set batch
- capacity
-Message-ID: <20260609160506-mutt-send-email-mst@kernel.org>
-References: <b25ea6c63503f24c8b5b64910a44dc03b5aa610d.1781020302.git.mst@redhat.com>
- <aihRBTaTUmgYmZfX@gourry-fedora-PF4VCD3F>
+	Naoya Horiguchi <nao.horiguchi@gmail.com>
+Subject: Re: [PATCH splitout] mm: memory-failure: serialize
+ TestSetPageHWPoison with zone->lock
+Message-ID: <20260609161227-mutt-send-email-mst@kernel.org>
+References: <df06b66fe4ff8e925ee0714955abc2183a727b90.1780998980.git.mst@redhat.com>
+ <20260609111020.e88f51a7b6ebc37360d66fdc@linux-foundation.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <aihRBTaTUmgYmZfX@gourry-fedora-PF4VCD3F>
+In-Reply-To: <20260609111020.e88f51a7b6ebc37360d66fdc@linux-foundation.org>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: hcFQoTfaAA-58Wyt1a-tYHh0kd-vaWITAZTQQqGopJ0_1781035696
+X-Mimecast-MFC-PROC-ID: ZTUM52lYOjpfMrFhwRFMxSi3qWLzLCfj7tmZmySho4M_1781036664
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Tue, Jun 09, 2026 at 01:44:37PM -0400, Gregory Price wrote:
-> On Tue, Jun 09, 2026 at 11:53:20AM -0400, Michael S. Tsirkin wrote:
-> > --- a/mm/page_reporting.c
-> > +++ b/mm/page_reporting.c
-> > @@ -174,10 +174,10 @@ page_reporting_cycle(struct page_reporting_dev_info *prdev, struct zone *zone,
-> >  	 * list processed. This should result in us reporting all pages on
-> >  	 * an idle system in about 30 seconds.
-> >  	 *
-> > -	 * The division here should be cheap since PAGE_REPORTING_CAPACITY
-> > -	 * should always be a power of 2.
-> > +	 * The division here uses integer division; capacity need
-> > +	 * not be a power of 2.
-> >  	 */
-> > -	budget = DIV_ROUND_UP(area->nr_free, PAGE_REPORTING_CAPACITY * 16);
-> > +	budget = DIV_ROUND_UP(area->nr_free, prdev->capacity * 16);
+On Tue, Jun 09, 2026 at 11:10:20AM -0700, Andrew Morton wrote:
+> On Tue, 9 Jun 2026 06:12:49 -0400 "Michael S. Tsirkin" <mst@redhat.com> wrote:
+> 
+> > TestSetPageHWPoison() is called without zone->lock, so its atomic
+> > update to page->flags can race with non-atomic flag operations
+> > that run under zone->lock in the buddy allocator.
 > > 
+> > In particular, __free_pages_prepare() does:
+> > 
+> >     page->flags.f &= ~PAGE_FLAGS_CHECK_AT_PREP;
+> > 
+> > This non-atomic read-modify-write, while correctly excluding
+> > __PG_HWPOISON from the mask, can still lose a concurrent
+> > TestSetPageHWPoison if the read happens before the poison bit
+> > is set and the write happens after.  Will only get worse if/when
+> > we add more non-atomic flag operations.
+> > 
+> > Fix by acquiring zone->lock around TestSetPageHWPoison and
+> > around ClearPageHWPoison in the retry path.  This
+> > serializes with all buddy flag manipulation.  The cost is
+> > negligible: one lock/unlock in an extremely rare path
+> > (hardware memory errors).
+> > 
+> > Note: SetPageHWPoison and TestClearPageHWPoison calls elsewhere
+> > in this file operate on pages already removed from the buddy
+> > allocator or on non-buddy pages (DAX, hugetlb), so they do not
+> > need zone->lock protection.
 > 
-> Initial look - is there a div-by-0 here?  I noticed the old check
-> prevents this from being (0 * 16), but i don't see (on first pass)
-> the same check anywhere.
+> Sashiko is saying this doesn't do anything "Because
+> __free_pages_prepare() executes entirely locklessly".  Did it goof?
 > 
-> Unless this line below always forces the above to be a
-> PAGE_REPORTING_CAPCAITY if it's set to 0.
+> https://sashiko.dev/#/patchset/df06b66fe4ff8e925ee0714955abc2183a727b90.1780998980.git.mst@redhat.com
+>
 
-It does, does it not?
+Oh. So it only helps with the prezero patches. Maybe other places where
+flags are touched locklessly. Not __free_pages_prepare. I was too
+focused on that. Scrap this please. I'll try to think of something.
 
-> > +	if (!prdev->capacity || prdev->capacity > PAGE_REPORTING_CAPACITY)
-> > +		prdev->capacity = PAGE_REPORTING_CAPACITY;
-> > +
-> 
-> It's worth making this corner condition a little more obvious.
-> 
-> The code intends for 
-> 
-> if (capacity == 0)
->   capacity = PAGE_REPORTING_CAPACITY
-> 
-> but that's not reflected in the changelog as a default value.
-> 
-> When happens if a driver sets (capacity=0) either on purpose (???)
-
-what would the purpose be? if you don't want reporting do not register.
-
-> or
-> because there's a bug (???)
-
-exactly ??? since where are we practicing defensive programming in kernel
-APIs?
-
-> and then page_reporting.c forces it up to
-> 32?
-> 
-> There's something to improve here.
-> 
-> ~Gregory
-
-
-So I'll update the commit log to mention PAGE_REPORTING_CAPACITY.
-And maybe a comment near capacity field?
-Should be enough?
 
 -- 
 MST
