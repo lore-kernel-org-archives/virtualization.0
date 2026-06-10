@@ -1,154 +1,138 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
+Received: from mail-pl1-f170.google.com (mail-pl1-f170.google.com [209.85.214.170])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 930652772D
-	for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 23:12:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88F9715746F
+	for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 23:29:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.170
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781133161; cv=none; b=H95aQLH8zbQ3KZR4YZp3BgTraumN8wbqyoUUGT7K9xI+8EFnbJnln/kuUcWChMKwYEPT7wVtm/q9+x2L71wdfFtFUlRWKY2D9mWBDpmuYyujCqf5rQtQVwoT/CBEaCB3A4GKC74hyCidgg+Flz5Y5uVNrw1UDdOg7d+mf3D84/Q=
+	t=1781134181; cv=none; b=Fx7tRxzwBL3GP+W1R2BU2Dl1wPZVbFyialZT54C+zZ5i/XOYV/YScMhNbEl1wFzdlj4OYGVdXh3Na+xXeunhYGVlr/XuvDGbhCjG8N5shBjqSAFpfGJ+ms+ur5qF2hGfeO0fqJIPi1GHLq3oEAKS+M5ak0wq8xm1HpyJjtumz0Y=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781133161; c=relaxed/simple;
-	bh=2OLiIqVkhj3ggpwre3HAy5E5W5ZI0nG/3TV62WY1E5g=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=s4KcLgi/HjbB6suR20HwpMYkPy5/Lrm5sPwXbK/3VbFrf5T1XXEA3RDkmukmjPlx8kViODF43SEhWWZeQjjdHM9YDNieFal9kCQ6lhHiF1AEOqzEON0bjs9JecQc+he/IxudHsckXBNRZbHg8Ub/IfRNGk/CVOxgwpWv0Cn9v3o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EJkqufS/; arc=none smtp.client-ip=209.85.214.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1781134181; c=relaxed/simple;
+	bh=Carb3XjtLMPHcKqqNNU+dx1HRxViKGZwKDmTu+m4y6I=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=WJILEQlpRvLVZYpuBKGnwQIc/cta/JAT5A6/4G/h1EY1EEqYTpRwedtft3I3Eq9YVJ7I2yEQJhSTsj0BJCoWDRDzeej08qjIz1ke4Wt//b/V4iENhYyvmCXc56nsAAadRt6kUi6+fOZ9ZEIc7OQ41A66bDDZIz1ad1qstbgwT58=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=asu.edu; spf=pass smtp.mailfrom=asu.edu; dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b=hLRGM8vo; arc=none smtp.client-ip=209.85.214.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=asu.edu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=asu.edu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EJkqufS/"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2c132ac5ec2so72379605ad.1
-        for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 16:12:40 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b="hLRGM8vo"
+Received: by mail-pl1-f170.google.com with SMTP id d9443c01a7336-2c0c3546924so49026505ad.3
+        for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 16:29:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781133160; x=1781737960; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=IQLCg81en/xiSDiPUo9OAx2p+vBmXiFBiAm/qA8ZaPM=;
-        b=EJkqufS/hVifCQ5asHbSyWojeIDa4ZzpKRz2tP/04/jF22pJKuyl3PM+k82Lnzbxoj
-         wVL/gPUECqoqfhGsF1BYLJLiwdCf6B2xDkPUe8WVqQ+5Y8WyBIh4omuKs2blCWMJ/R2H
-         9GGyCc3SpxuuyPcwdNw9z0ixjZSCybjqVyVitnFT+h0eJar3ngzypMHSK+rScIga44uS
-         15R+xHI5GTTL8eATzDoi8MvqcjZQMAHWLW7AiknT+3wkrRCSNByU1cr7yTSDq2HSs8Xv
-         ae/2VpQsJV4G+ngdHdaLaqNWAlMYGQl3SJzWVhoVhk470mQAB9PQwW7il8VLA7C/41Zv
-         tdDw==
+        d=asu.edu; s=google; t=1781134180; x=1781738980; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=p3EZxNZCKPnvfyZdjPI6P5IIxCOG1yzfw6sAqZhgFRQ=;
+        b=hLRGM8voY8z7X410NcKLrvqoZiclQFEKIY/FHUeppVNTy89Qhbc0xq2vLO33mqe/28
+         R51yU9RW2k1daipwpieo/ZcHHnVN2KlLVyt7kk3yOq4EYqux72IfwXWQc67IFlw7TZk8
+         N1RJhO1WNjPZJzLh7yQBYVimcHHuzVqxPVFHFmH0AitHrwWXSvE/JuK5dMHukvTRGtc1
+         MC7f7GtaX2h4JMCTa9+rnhQflfX2NpJy7Txqh0oBleUvsyZiJjjjMLdoOWlg2IIv9bUy
+         hSw11JwydeLFsXm8dHcR7pxNg/tafTPB9ED4MJ/O/+V4owRHhfc8Sspf0/w4mUitXlqY
+         1s7w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781133160; x=1781737960;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=IQLCg81en/xiSDiPUo9OAx2p+vBmXiFBiAm/qA8ZaPM=;
-        b=mfcU8KDjvTxKN6qVV5yN1NMLCYCTfLf3k9kt54PNAxvAIHGZF8CA8vhggnLw3RI3cw
-         /iKfdrHdnBFDvgxjVlhBrlnoGYkT/U7HPbj29rcL2oVMGSzcCxK0GpbRXsWxkIpJ90sC
-         qdoGW1F8E5cWCWqq3kWHuZwxgc7Ghco+XOwvqcmWJr0DJZunxbZN3V8UwOkRdSvBDeAG
-         wYkw1FHKmMQOJWgZv9Zt7iapTiZhq/tSzAfbUy4g0PabwBoV6ZfAkVGUSMryMZevCHga
-         EFJByUw2dEOA8tWGhH6oSR3rs4hCrz1EtBzpN/vWwgnBZLkv6DcHMdFjNDha2PQwL1Cc
-         0d4w==
-X-Forwarded-Encrypted: i=1; AFNElJ97lbp097qsCqvLG8AKyuSGjvZsYXkYIt6P/XeGBBhLqVnCAIEefEEZN7q+BroKrVx59ugGbn6veENI3s6OFw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz3HdptXXYojHKWNKTx5EdWBZoNlHq41AI5LRI28sYXnvx86pJ5
-	iPLlks3MRBaqrnb7eQ/ddQxFqwuM/V6CjPnYNk4V0bEW6zDVin19LYWm
-X-Gm-Gg: Acq92OGgzAdidTqwh9vXcMX9rrnrDajzQN6cDxsHtPf1FkHOFZL5lhlGsezoLLD50Im
-	k6MgVUeOT80Of61je34B60ZzE58IAF9dqj//AC2YZp5YuniTN1wdvcNTcPsIQJDLj4j6ggJ0gJ0
-	0nj+8XZ43Xs7zdKrQru8sJm6DdHJyZkvlLteLu4GR4TpNjr46xymdFjW7ubYdItvJHZK+uR5P1O
-	A6LlLEVnyqDCp8uoHOr2SNbeUcB02YypAJ/m3ttyCjg8WdjcPK81XQQqnWaKemMyTwQdqYVnF9f
-	s3Gxs+tAHxmIRwMfmmYJE9bHPWDFuQkBY2zDryW4MwgBpQH9tUxavUld4KbTKmVA1brTdIeRIJj
-	NpSKVaU7IxfouGa6IYd1Tqwb8MUUfcy6DMDvF37KpIqVIOUhfqngp7DsU53e6L31HmWRjfwAfDd
-	Pe0VvCrB3Y5nRwwNWMObPuAIZEt2bo0BzxaN1eeVXGcA2RpYIA6XaEgNg=
-X-Received: by 2002:a17:902:c408:b0:2c1:d49c:8396 with SMTP id d9443c01a7336-2c2f20a9792mr985115ad.1.1781133159786;
-        Wed, 10 Jun 2026 16:12:39 -0700 (PDT)
-Received: from devvm29614.prn0.facebook.com ([2a03:2880:ff:4a::])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c16609ed97sm276399455ad.41.2026.06.10.16.12.39
+        d=1e100.net; s=20251104; t=1781134180; x=1781738980;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=p3EZxNZCKPnvfyZdjPI6P5IIxCOG1yzfw6sAqZhgFRQ=;
+        b=tSubmE75nml2brqasIMIYq2Fm+M8YLNlvSyxshDB2+RJNi5AJJh3g7IgGvfh/UO/rX
+         /mnJjA/17NXmjPoWYNbng9jRXMjpC4XBwJJOiA3lzcn9wWotg4jjBJd2zVr8XjiSp2mK
+         Azr+vt2+vmpaOt9NSJSQ0IOQywFLJGgX5t5Hw19RP2wauglEKviA99MZLlznuglEcRbE
+         TFrnIQjohMYcF45FGNsBwKtlLhEjiILyzjP/JXLGtMX+koe83XUeKjch7z+LeQG+GePu
+         CM+RMSdGaLtcJpr0XT6CaW//lKxr0qOGhV01nOpNSmgAiqcPpwKdyLwcOeEVGI1gzL6f
+         C4jQ==
+X-Forwarded-Encrypted: i=1; AFNElJ/Qz+vHdkIgt41xke8SC+wHJRGO4AroJaQ09rFPPUfSsR65aKsEbTyj2iiAZZJd7H7MIbPK99yeonHN4bCWFA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxwgHhTP/xWQ3PS25o/FATGEJe5l5ULQWM9GDk7oxufi2yP9l3j
+	IXhBIgNALSh12Bete0BMikF7kjLAXWdSkWc10+xmTnrIsfQnwT3b2b9JEJiSzO8PMQ==
+X-Gm-Gg: Acq92OFaVyf1902PjKJawRmpbsmM3/TWs8HY1LR1vkJvZGuBCHv156p30dtg+y1Jv5a
+	nPFywkfFT+Pa0OdCgsWV3GvjR6CHQhbWhy7RaAwWrMTp8FplaB9POK07fKkbe68bWhd825y+YhQ
+	ZzHqzoUX9sILxVuIKXOkLMcfkqlwMLYe/+6W2wVROv0pBSGbH52zQ1P4hESRef53QDRucNJh+w8
+	VrqOLGuYf3iW3IMCUbZwqdj1ag0wHedlrMMkPQKTaQHCJEgY4/Gu+txsu3aQwr8M9AtEc/yL4OA
+	/lXx69SDzN4+lAriZYyjchmbBrCcQV3hSYWzedOPbbn3V+7ZQSYsJx4z9g8ZPc3w70vrpnk6SjM
+	BjPP7lU8V1z3tcOMUdRIOAGAuVvH0ro025VX9bjpD81mPs0rTixOItdWiKr3iWpdhyMKFvJD8Pr
+	Ke+O8bngmYK+AYlNOI7cA=
+X-Received: by 2002:a17:902:c94c:b0:2bf:1e59:d99 with SMTP id d9443c01a7336-2c2f04403a7mr1546005ad.8.1781134179621;
+        Wed, 10 Jun 2026 16:29:39 -0700 (PDT)
+Received: from p1.. ([2607:fb91:1582:d2f1:7bbf:a7c4:749b:120a])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c16629d090sm242781845ad.55.2026.06.10.16.29.38
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jun 2026 16:12:39 -0700 (PDT)
-Date: Wed, 10 Jun 2026 16:12:37 -0700
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: Raf Dickson <rafdog35@gmail.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
-	pabeni@redhat.com, sgarzare@redhat.com, stefanha@redhat.com,
-	bryan-bt.tan@broadcom.com, vishnu.dasa@broadcom.com,
-	bcm-kernel-feedback-list@broadcom.com
-Subject: Re: [PATCH net-next 1/2] vsock: fold sk_acceptq_added() into
- vsock_enqueue_accept()
-Message-ID: <ainvZQppoc7LfPRs@devvm29614.prn0.facebook.com>
-References: <20260610091121.213324-1-rafdog35@gmail.com>
- <20260610091121.213324-2-rafdog35@gmail.com>
+        Wed, 10 Jun 2026 16:29:39 -0700 (PDT)
+From: Xiang Mei <xmei5@asu.edu>
+To: mst@redhat.com,
+	jasowang@redhat.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com
+Cc: andrew+netdev@lunn.ch,
+	davem@davemloft.net,
+	edumazet@google.com,
+	kuba@kernel.org,
+	pabeni@redhat.com,
+	netdev@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	minhquangbui99@gmail.com,
+	bestswngs@gmail.com,
+	Xiang Mei <xmei5@asu.edu>
+Subject: [PATCH net v2 1/2] virtio-net: fix len check in receive_big()
+Date: Wed, 10 Jun 2026 16:29:35 -0700
+Message-ID: <20260610232936.1176094-1-xmei5@asu.edu>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260610091121.213324-2-rafdog35@gmail.com>
+Content-Transfer-Encoding: 8bit
 
-On Wed, Jun 10, 2026 at 09:11:20AM +0000, Raf Dickson wrote:
-> All three transports (vmci, virtio, hyperv) call sk_acceptq_added()
-> immediately before vsock_enqueue_accept(). Move the call into
-> vsock_enqueue_accept() itself so callers cannot forget it and the
-> accounting is always consistent.
-> 
-> Suggested-by: Paolo Abeni <pabeni@redhat.com>
-> Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
-> 
-> Signed-off-by: Raf Dickson <rafdog35@gmail.com>
-> ---
->  net/vmw_vsock/af_vsock.c                | 1 +
->  net/vmw_vsock/hyperv_transport.c        | 1 -
->  net/vmw_vsock/virtio_transport_common.c | 1 -
->  net/vmw_vsock/vmci_transport.c          | 1 -
->  4 files changed, 1 insertion(+), 3 deletions(-)
-> 
-> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> index 2ce1063d4a..73e6416ee9 100644
-> --- a/net/vmw_vsock/af_vsock.c
-> +++ b/net/vmw_vsock/af_vsock.c
-> @@ -507,6 +507,7 @@ void vsock_enqueue_accept(struct sock *listener, struct sock *connected)
->  	sock_hold(connected);
->  	sock_hold(listener);
->  	list_add_tail(&vconnected->accept_queue, &vlistener->accept_queue);
-> +	sk_acceptq_added(listener);
->  }
->  EXPORT_SYMBOL_GPL(vsock_enqueue_accept);
->  
-> diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
-> index b3394946b2..0de8148877 100644
-> --- a/net/vmw_vsock/hyperv_transport.c
-> +++ b/net/vmw_vsock/hyperv_transport.c
-> @@ -410,7 +410,6 @@ static void hvs_open_connection(struct vmbus_channel *chan)
->  
->  	if (conn_from_host) {
->  		new->sk_state = TCP_ESTABLISHED;
-> -		sk_acceptq_added(sk);
->  
->  		hvs_new->vm_srv_id = *if_type;
->  		hvs_new->host_srv_id = *if_instance;
-> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-> index b10666937c..4a39d48db9 100644
-> --- a/net/vmw_vsock/virtio_transport_common.c
-> +++ b/net/vmw_vsock/virtio_transport_common.c
-> @@ -1582,7 +1582,6 @@ virtio_transport_recv_listen(struct sock *sk, struct sk_buff *skb,
->  		return ret;
->  	}
->  
-> -	sk_acceptq_added(sk);
->  	if (virtio_transport_space_update(child, skb))
->  		child->sk_write_space(child);
->  
-> diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
-> index 91516488a7..4ce6660c11 100644
-> --- a/net/vmw_vsock/vmci_transport.c
-> +++ b/net/vmw_vsock/vmci_transport.c
-> @@ -1109,7 +1109,6 @@ static int vmci_transport_recv_listen(struct sock *sk,
->  	}
->  
->  	vsock_add_pending(sk, pending);
-> -	sk_acceptq_added(sk);
+receive_big() bounds the device-announced length by
+(big_packets_num_skbfrags + 1) * PAGE_SIZE.  That is still too loose:
+add_recvbuf_big() sets sg[1] to start at offset
+sizeof(struct padded_vnet_hdr) into the first page, so the chain
+actually carries hdr_len + (PAGE_SIZE - sizeof(padded_vnet_hdr)) +
+big_packets_num_skbfrags * PAGE_SIZE bytes -- 20 bytes less than the
+check allows for the common hdr_len == 12 case.
 
-It looks like vmci might be an odd duck here, where sk_acceptq_added
-actually pairs with vsock_add_pending(), instead of
-vsock_enqueue_accept()...
+A malicious virtio backend can announce a len in that gap.  page_to_skb()
+then walks one frag past the page chain, storing a NULL page->private
+into skb_shinfo()->frags[MAX_SKB_FRAGS], which is both an out-of-bounds
+write past the static frag array and a NULL frag handed up the rx path.
 
-For example, if the pending work timer below fires, vsock_pending_work()
-will see vsock_is_pending() is true, and then hit sk_acceptq_removed()
-and underflow the zero backlog counter?
+Bound len by the size add_recvbuf_big() actually advertised.
 
-Best,
-Bobby
+Fixes: 0c716703965f ("virtio-net: fix received length check in big packets")
+Reported-by: Weiming Shi <bestswngs@gmail.com>
+Signed-off-by: Xiang Mei <xmei5@asu.edu>
+---
+v2: add 2/2 for robustness
+
+ drivers/net/virtio_net.c | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index f4adcfee7a80..afe73eda1491 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -1999,15 +1999,17 @@ static struct sk_buff *receive_big(struct net_device *dev,
+ 				   struct virtnet_rq_stats *stats)
+ {
+ 	struct page *page = buf;
++	unsigned long max_len;
+ 	struct sk_buff *skb;
+ 
+ 	/* Make sure that len does not exceed the size allocated in
+ 	 * add_recvbuf_big.
+ 	 */
+-	if (unlikely(len > (vi->big_packets_num_skbfrags + 1) * PAGE_SIZE)) {
++	max_len = vi->hdr_len + (PAGE_SIZE - sizeof(struct padded_vnet_hdr)) +
++		  vi->big_packets_num_skbfrags * PAGE_SIZE;
++	if (unlikely(len > max_len)) {
+ 		pr_debug("%s: rx error: len %u exceeds allocated size %lu\n",
+-			 dev->name, len,
+-			 (vi->big_packets_num_skbfrags + 1) * PAGE_SIZE);
++			 dev->name, len, max_len);
+ 		goto err;
+ 	}
+ 
+-- 
+2.43.0
+
