@@ -1,171 +1,154 @@
-Received: from mail-qv1-f42.google.com (mail-qv1-f42.google.com [209.85.219.42])
+Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 517AE23C503
-	for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 22:44:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.219.42
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781131450; cv=pass; b=SyQgG2e6fg7F2r6RpzZE/tC5KBDMqfjvfqcMoqmcnllLPdX3HxteCDNwzhORKPt/2qQRmeFSkoX80NVDOmOd+lrckltS8RUsr0frI0U1ouyB7g8pyARDHDAH0W8BDeWT9yWIdzeYOBsDERKJCVcswswOrif8F//Ovc4D4SXtJEQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781131450; c=relaxed/simple;
-	bh=br20ZOx5+JfsJTf3ObD/E7biiXwgMeTM26yhtT8hmaI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=HJhLZE6jNIhZ1EFbvNrkE556VPkw+jsw3I88bB0XL+135D0RG6GqDH0Y0AslcDReQkw7cD3Jbfop7En1FgRyKexRfZBlY8CzkNEhga6MNFf3+l7ypaZkEMcSqxfP3OI1VtVRyRpgS6njhIL1p9BJoINMWtb7GuHMNuVfRbBVd6M=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=asu.edu; spf=pass smtp.mailfrom=asu.edu; dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b=DTn4EZZA; arc=pass smtp.client-ip=209.85.219.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=asu.edu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=asu.edu
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 930652772D
+	for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 23:12:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781133161; cv=none; b=H95aQLH8zbQ3KZR4YZp3BgTraumN8wbqyoUUGT7K9xI+8EFnbJnln/kuUcWChMKwYEPT7wVtm/q9+x2L71wdfFtFUlRWKY2D9mWBDpmuYyujCqf5rQtQVwoT/CBEaCB3A4GKC74hyCidgg+Flz5Y5uVNrw1UDdOg7d+mf3D84/Q=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781133161; c=relaxed/simple;
+	bh=2OLiIqVkhj3ggpwre3HAy5E5W5ZI0nG/3TV62WY1E5g=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=s4KcLgi/HjbB6suR20HwpMYkPy5/Lrm5sPwXbK/3VbFrf5T1XXEA3RDkmukmjPlx8kViODF43SEhWWZeQjjdHM9YDNieFal9kCQ6lhHiF1AEOqzEON0bjs9JecQc+he/IxudHsckXBNRZbHg8Ub/IfRNGk/CVOxgwpWv0Cn9v3o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=EJkqufS/; arc=none smtp.client-ip=209.85.214.175
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b="DTn4EZZA"
-Received: by mail-qv1-f42.google.com with SMTP id 6a1803df08f44-8ce9d444173so87756946d6.2
-        for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 15:44:09 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781131448; cv=none;
-        d=google.com; s=arc-20240605;
-        b=fg4gdFoI+OW+ZmdpHaZJGckG2gtzwFg2Js0nSKTVIj0tGgnJDW/OEqvxIeI8xL6nj2
-         fAp/ITKWGWwSdjUOI6KplcVTNfQmmdSCFg+BtF1YMU0gDV8SXZjyItQcerWOnGMt/zqE
-         DKOkReC5AMQYpezM0xX7ZqO/sysMZi7o9rfHuXA40qYAN8ocgok7H3FBvIy1pzI1YkjX
-         wkRpvxpuVmhyAjxq2lyciaqlRi2xY+kS4U3BnF2+YCCY4VMELX3zF6Cu9H+12A2VjF0p
-         KJlqc+3nIo9I9arhuPx6uml8kP1wOvtqOg+OsuEcvqLjONzH0ZC3HQcQaANbYOdiA2Lc
-         Wasg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=H+9ItBe9lxcsMAXxEA8xORo0f4DOTn6OB37cmsN38zA=;
-        fh=f8VRHiqQtJObnVMEuvTvae5c43P1moLmrjTFtfr/jbQ=;
-        b=PoG58tNW7pVH16lOWekSVbjQjkqMZgfKPYEhOB/a8XHrymJKdwdvV4pLKUSMQib6Cz
-         NfRppqvKWOmQvGLzotFk/IShiR98wNIv2mtfIAnaYRr+mlLqiP8Ipobyadgf4cIRvb46
-         rOBySz/QUEDDLDsdUPENQMCwul/TgUqDsW+SJ8/Q0vBCcKPiBUIci93HtQergn4mfMqI
-         mWKocSzwplkg4UdgN2AbJm1Jf/1yT4TWoGI75qQpkeVhEq7bfOQG7joBiA2BPlDI3UM8
-         lrhEislT0qj1xHm9g7RsV3KiUQUE51yrV392lZMDy/NXJDAFwLkxRY46VwMbTDNsUrjU
-         HMVg==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="EJkqufS/"
+Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2c132ac5ec2so72379605ad.1
+        for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 16:12:40 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=asu.edu; s=google; t=1781131448; x=1781736248; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=H+9ItBe9lxcsMAXxEA8xORo0f4DOTn6OB37cmsN38zA=;
-        b=DTn4EZZARw4vQFbexwQb6PSp93Lsj+WG3fuYU5bTX5EBXX/gd5KVMgTmInvIs6bt9e
-         wAX6dmPrdE+xgB+zR1mXVy4mByeg4ROWmq1E0Ler2on11ye/swPEQSZae/LclYqs6lWC
-         Hqa2WziGnXyW/bQNsWCaO1ynYkLOqC226JiJzEIVtkuJXXXfDcwQc/KYwznVx0lcAdx5
-         BzoNmU7+cdw+AxK5q4wOhWA6SjVnlb76MCRm0irAFM3gNS1vFvlFzW3pxnY5Lh/+4eAj
-         SToLpz3D4F76aWxOaQjUD7B21YwriOg4g1gQ1e7DXjqjPiKQGJBqFBX/rDasINsSE6jt
-         vDmw==
+        d=gmail.com; s=20251104; t=1781133160; x=1781737960; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=IQLCg81en/xiSDiPUo9OAx2p+vBmXiFBiAm/qA8ZaPM=;
+        b=EJkqufS/hVifCQ5asHbSyWojeIDa4ZzpKRz2tP/04/jF22pJKuyl3PM+k82Lnzbxoj
+         wVL/gPUECqoqfhGsF1BYLJLiwdCf6B2xDkPUe8WVqQ+5Y8WyBIh4omuKs2blCWMJ/R2H
+         9GGyCc3SpxuuyPcwdNw9z0ixjZSCybjqVyVitnFT+h0eJar3ngzypMHSK+rScIga44uS
+         15R+xHI5GTTL8eATzDoi8MvqcjZQMAHWLW7AiknT+3wkrRCSNByU1cr7yTSDq2HSs8Xv
+         ae/2VpQsJV4G+ngdHdaLaqNWAlMYGQl3SJzWVhoVhk470mQAB9PQwW7il8VLA7C/41Zv
+         tdDw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781131448; x=1781736248;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=H+9ItBe9lxcsMAXxEA8xORo0f4DOTn6OB37cmsN38zA=;
-        b=BuOfX+rG9Gf8sAdAFzSyfRJNUoqDkfRUIBC4yvGbAtNOPQHNLWiT1Ei0nNJsunVi/w
-         IM2uGGG0/aNuwHi6Dch54bLCd6GBNhNXNgf9pjBnr3B02I57T7Ghdeb/zcH1P1L/8EZD
-         EfT7XZOqUloyCQlv7HcOjq5L39nuaFaRFpdM6GGxPa/IIDzW19lcltUQcqv6hRZaX375
-         wvUsO1MFjXf03sZHMC9bMs6Nb3eGiAtMHvglaXO/EbeKoxuHayaFSQcJcw/YF8i6eptr
-         O7uwvw5+azjplfN9Euyxp7pGv5jYYoFw2Qm0T0QUuOxz+fmE4fQMzH4dKiqiplsccaKi
-         uMuA==
-X-Forwarded-Encrypted: i=1; AFNElJ8c9uOrZyYFbKmU/VDSxKCTr012n6vrlLUyPxZjnZDLyOiX0cquUUKJ4sRjb1wiQXy/wQFqB2/KMROPeVwTfA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx6TEyQhpNBEFegDFePx98F9nj+fPC0fcZo4YpHLfLeZyT/Fd9j
-	tmDY3GLdfq+x7Jk9473FDVX88KJbsNvlr7EjICaPpdtDEDroVHSyLu36GdiLkdTKCxTipxhZuJE
-	9THQKBBlCxezh9NROa5e1COxEYPKoednytgIzfcJO
-X-Gm-Gg: Acq92OG3SeJl+nHfEdjZlVGB0/Ym/e/VTDXve3yHRORDGEj/W7CCXBZPtvbMfFWMhGN
-	w43C99DngrWQYmrE1Ix5h1G7jqLY7gCZ+7Lz9XsVgokJtUjNBUFDeRd75cOwNJMmF6Ky3LLGii7
-	+l9p8Y0eelSpCLgDwJKIp/rrazaRM8yyap5rdw43eS0CEGwNzM5yQBv6oqovBuZpkUt0hD112nT
-	h6jLXzInx4jjdZFvSTdwIZgHlHfR9cdC2Tqt+f29trGT8DUfOyw2I+jkE2QxLn5Mu4Pk4YTvXuB
-	yxBM/hh9WtXLZCfIwD9PgeNK+5KPuJeMbQrQuhR7ILo2Ct60wOu4
-X-Received: by 2002:a05:6214:2346:b0:8ac:7d43:f88d with SMTP id
- 6a1803df08f44-8d1d4ce4492mr3920606d6.0.1781131448284; Wed, 10 Jun 2026
- 15:44:08 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1781133160; x=1781737960;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=IQLCg81en/xiSDiPUo9OAx2p+vBmXiFBiAm/qA8ZaPM=;
+        b=mfcU8KDjvTxKN6qVV5yN1NMLCYCTfLf3k9kt54PNAxvAIHGZF8CA8vhggnLw3RI3cw
+         /iKfdrHdnBFDvgxjVlhBrlnoGYkT/U7HPbj29rcL2oVMGSzcCxK0GpbRXsWxkIpJ90sC
+         qdoGW1F8E5cWCWqq3kWHuZwxgc7Ghco+XOwvqcmWJr0DJZunxbZN3V8UwOkRdSvBDeAG
+         wYkw1FHKmMQOJWgZv9Zt7iapTiZhq/tSzAfbUy4g0PabwBoV6ZfAkVGUSMryMZevCHga
+         EFJByUw2dEOA8tWGhH6oSR3rs4hCrz1EtBzpN/vWwgnBZLkv6DcHMdFjNDha2PQwL1Cc
+         0d4w==
+X-Forwarded-Encrypted: i=1; AFNElJ97lbp097qsCqvLG8AKyuSGjvZsYXkYIt6P/XeGBBhLqVnCAIEefEEZN7q+BroKrVx59ugGbn6veENI3s6OFw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz3HdptXXYojHKWNKTx5EdWBZoNlHq41AI5LRI28sYXnvx86pJ5
+	iPLlks3MRBaqrnb7eQ/ddQxFqwuM/V6CjPnYNk4V0bEW6zDVin19LYWm
+X-Gm-Gg: Acq92OGgzAdidTqwh9vXcMX9rrnrDajzQN6cDxsHtPf1FkHOFZL5lhlGsezoLLD50Im
+	k6MgVUeOT80Of61je34B60ZzE58IAF9dqj//AC2YZp5YuniTN1wdvcNTcPsIQJDLj4j6ggJ0gJ0
+	0nj+8XZ43Xs7zdKrQru8sJm6DdHJyZkvlLteLu4GR4TpNjr46xymdFjW7ubYdItvJHZK+uR5P1O
+	A6LlLEVnyqDCp8uoHOr2SNbeUcB02YypAJ/m3ttyCjg8WdjcPK81XQQqnWaKemMyTwQdqYVnF9f
+	s3Gxs+tAHxmIRwMfmmYJE9bHPWDFuQkBY2zDryW4MwgBpQH9tUxavUld4KbTKmVA1brTdIeRIJj
+	NpSKVaU7IxfouGa6IYd1Tqwb8MUUfcy6DMDvF37KpIqVIOUhfqngp7DsU53e6L31HmWRjfwAfDd
+	Pe0VvCrB3Y5nRwwNWMObPuAIZEt2bo0BzxaN1eeVXGcA2RpYIA6XaEgNg=
+X-Received: by 2002:a17:902:c408:b0:2c1:d49c:8396 with SMTP id d9443c01a7336-2c2f20a9792mr985115ad.1.1781133159786;
+        Wed, 10 Jun 2026 16:12:39 -0700 (PDT)
+Received: from devvm29614.prn0.facebook.com ([2a03:2880:ff:4a::])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c16609ed97sm276399455ad.41.2026.06.10.16.12.39
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 10 Jun 2026 16:12:39 -0700 (PDT)
+Date: Wed, 10 Jun 2026 16:12:37 -0700
+From: Bobby Eshleman <bobbyeshleman@gmail.com>
+To: Raf Dickson <rafdog35@gmail.com>
+Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
+	pabeni@redhat.com, sgarzare@redhat.com, stefanha@redhat.com,
+	bryan-bt.tan@broadcom.com, vishnu.dasa@broadcom.com,
+	bcm-kernel-feedback-list@broadcom.com
+Subject: Re: [PATCH net-next 1/2] vsock: fold sk_acceptq_added() into
+ vsock_enqueue_accept()
+Message-ID: <ainvZQppoc7LfPRs@devvm29614.prn0.facebook.com>
+References: <20260610091121.213324-1-rafdog35@gmail.com>
+ <20260610091121.213324-2-rafdog35@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260610221606.1091465-1-xmei5@asu.edu> <20260610181911-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20260610181911-mutt-send-email-mst@kernel.org>
-From: Xiang Mei <xmei5@asu.edu>
-Date: Wed, 10 Jun 2026 15:43:56 -0700
-X-Gm-Features: AVVi8Cf4mx5kl6MBvN9Gs2AR7WfDTm5JmMFtZi116xPgZJQCsmqqvhdrImRjBvw
-Message-ID: <CAPpSM+RWNGnugK1+Oo53jsPXd5bTtf-NPzqW2UNo9Y0GQBs_sw@mail.gmail.com>
-Subject: Re: [PATCH net] virtio-net: fix len check in receive_big()
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
-	andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com, 
-	kuba@kernel.org, pabeni@redhat.com, netdev@vger.kernel.org, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	minhquangbui99@gmail.com, bestswngs@gmail.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260610091121.213324-2-rafdog35@gmail.com>
 
-Thanks for the quick reply. It comes faster than my reproduction email!
+On Wed, Jun 10, 2026 at 09:11:20AM +0000, Raf Dickson wrote:
+> All three transports (vmci, virtio, hyperv) call sk_acceptq_added()
+> immediately before vsock_enqueue_accept(). Move the call into
+> vsock_enqueue_accept() itself so callers cannot forget it and the
+> accounting is always consistent.
+> 
+> Suggested-by: Paolo Abeni <pabeni@redhat.com>
+> Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+> 
+> Signed-off-by: Raf Dickson <rafdog35@gmail.com>
+> ---
+>  net/vmw_vsock/af_vsock.c                | 1 +
+>  net/vmw_vsock/hyperv_transport.c        | 1 -
+>  net/vmw_vsock/virtio_transport_common.c | 1 -
+>  net/vmw_vsock/vmci_transport.c          | 1 -
+>  4 files changed, 1 insertion(+), 3 deletions(-)
+> 
+> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+> index 2ce1063d4a..73e6416ee9 100644
+> --- a/net/vmw_vsock/af_vsock.c
+> +++ b/net/vmw_vsock/af_vsock.c
+> @@ -507,6 +507,7 @@ void vsock_enqueue_accept(struct sock *listener, struct sock *connected)
+>  	sock_hold(connected);
+>  	sock_hold(listener);
+>  	list_add_tail(&vconnected->accept_queue, &vlistener->accept_queue);
+> +	sk_acceptq_added(listener);
+>  }
+>  EXPORT_SYMBOL_GPL(vsock_enqueue_accept);
+>  
+> diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
+> index b3394946b2..0de8148877 100644
+> --- a/net/vmw_vsock/hyperv_transport.c
+> +++ b/net/vmw_vsock/hyperv_transport.c
+> @@ -410,7 +410,6 @@ static void hvs_open_connection(struct vmbus_channel *chan)
+>  
+>  	if (conn_from_host) {
+>  		new->sk_state = TCP_ESTABLISHED;
+> -		sk_acceptq_added(sk);
+>  
+>  		hvs_new->vm_srv_id = *if_type;
+>  		hvs_new->host_srv_id = *if_instance;
+> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+> index b10666937c..4a39d48db9 100644
+> --- a/net/vmw_vsock/virtio_transport_common.c
+> +++ b/net/vmw_vsock/virtio_transport_common.c
+> @@ -1582,7 +1582,6 @@ virtio_transport_recv_listen(struct sock *sk, struct sk_buff *skb,
+>  		return ret;
+>  	}
+>  
+> -	sk_acceptq_added(sk);
+>  	if (virtio_transport_space_update(child, skb))
+>  		child->sk_write_space(child);
+>  
+> diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+> index 91516488a7..4ce6660c11 100644
+> --- a/net/vmw_vsock/vmci_transport.c
+> +++ b/net/vmw_vsock/vmci_transport.c
+> @@ -1109,7 +1109,6 @@ static int vmci_transport_recv_listen(struct sock *sk,
+>  	}
+>  
+>  	vsock_add_pending(sk, pending);
+> -	sk_acceptq_added(sk);
 
-On Wed, Jun 10, 2026 at 3:22=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
->
-> On Wed, Jun 10, 2026 at 03:16:06PM -0700, Xiang Mei wrote:
-> > receive_big() bounds the device-announced length by
-> > (big_packets_num_skbfrags + 1) * PAGE_SIZE.  That is still too loose:
-> > add_recvbuf_big() sets sg[1] to start at offset
-> > sizeof(struct padded_vnet_hdr) into the first page, so the chain
-> > actually carries hdr_len + (PAGE_SIZE - sizeof(padded_vnet_hdr)) +
-> > big_packets_num_skbfrags * PAGE_SIZE bytes -- 20 bytes less than the
-> > check allows for the common hdr_len =3D=3D 12 case.
-> >
-> > A malicious virtio backend can announce a len in that gap.  page_to_skb=
-()
-> > then walks one frag past the page chain, storing a NULL page->private
-> > into skb_shinfo()->frags[MAX_SKB_FRAGS], which is both an out-of-bounds
-> > write past the static frag array and a NULL frag handed up the rx path.
-> > Bound len by the size add_recvbuf_big() actually advertised.
-> >
-> > Fixes: 0c716703965f ("virtio-net: fix received length check in big pack=
-ets")
-> > Reported-by: Weiming Shi <bestswngs@gmail.com>
-> > Signed-off-by: Xiang Mei <xmei5@asu.edu>
->
-> Let's instead (or additionally?), bound the frags array index.
->
-> Seems more robust.
+It looks like vmci might be an odd duck here, where sk_acceptq_added
+actually pairs with vsock_add_pending(), instead of
+vsock_enqueue_accept()...
 
-Good call! I'll keep the length tightening in receive_big() and also
-harden the page_to_skb() frag loop. So it can't index past
-MAX_SKB_FRAGS or walk a NULL chain page, independent of what length
-the caller validated. v2 will have both.
+For example, if the pending work timer below fires, vsock_pending_work()
+will see vsock_is_pending() is true, and then hit sk_acceptq_removed()
+and underflow the zero backlog counter?
 
->
-> > ---
-> >  drivers/net/virtio_net.c | 8 +++++---
-> >  1 file changed, 5 insertions(+), 3 deletions(-)
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index f4adcfee7a80..afe73eda1491 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -1999,15 +1999,17 @@ static struct sk_buff *receive_big(struct net_d=
-evice *dev,
-> >                                  struct virtnet_rq_stats *stats)
-> >  {
-> >       struct page *page =3D buf;
-> > +     unsigned long max_len;
-> >       struct sk_buff *skb;
-> >
-> >       /* Make sure that len does not exceed the size allocated in
-> >        * add_recvbuf_big.
-> >        */
-> > -     if (unlikely(len > (vi->big_packets_num_skbfrags + 1) * PAGE_SIZE=
-)) {
-> > +     max_len =3D vi->hdr_len + (PAGE_SIZE - sizeof(struct padded_vnet_=
-hdr)) +
-> > +               vi->big_packets_num_skbfrags * PAGE_SIZE;
-> > +     if (unlikely(len > max_len)) {
-> >               pr_debug("%s: rx error: len %u exceeds allocated size %lu=
-\n",
-> > -                      dev->name, len,
-> > -                      (vi->big_packets_num_skbfrags + 1) * PAGE_SIZE);
-> > +                      dev->name, len, max_len);
-> >               goto err;
-> >       }
-> >
-> > --
-> > 2.43.0
->
+Best,
+Bobby
