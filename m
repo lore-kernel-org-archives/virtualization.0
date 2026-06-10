@@ -1,62 +1,64 @@
-Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B6F303B95FA
-	for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 09:13:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5D4762C3268
+	for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 09:13:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781082829; cv=none; b=Ym+ut0FeZP/YOoAWYeMS9aBszSXBBSpq+TJvTQIFozctXlP6ffsIDKMBKGuLet9YWBo3h/kEG7nmCz2EU6xzko80Y5ZRmOJd9Ytiw0bwx945zwCSAYXUpAt2LAiLHHwh19mA6FKz+qtP7an9QU3IehUcytqilHWecarA+yL9X90=
+	t=1781082832; cv=none; b=OZ8sB2lFKh1O+AWf+UTJ2VnfCu3vOo40pKtjMJ/CMYQdIS6SzmRBa71k7WS5fbOXDoipFEoVniXEH6jo9bbJKmcSPhNyBFMuOhphUfnop146HBtwKSulVL+73G1smGg4hhVvkDQt0dv1wr4VSFgazatCwavI5QRe0ItabYqHNNY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781082829; c=relaxed/simple;
-	bh=W463cXGnAz82EOi9NNWV1+60CJES5ZJg/EZH0EXdgIU=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=KyzMoAJ4ZCXQvgGwqHnHYJGv+HeatksIC25VK0a15AE4i/x/wkP4jVKE73xNNnJa+ZDGkrpZZpw1EbmJkpyhbMpNhAOyjmWAhFBylWZK7oSSj47S/LzWAfBn6DbtBEUkfbHuzZMbidBBuv8UqSsUaLFrqKjkcBsInqHWmnmfgok=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ptg3iweR; arc=none smtp.client-ip=209.85.214.179
+	s=arc-20240116; t=1781082832; c=relaxed/simple;
+	bh=8yiNPwqyK43QFy6Ol5H0aA610nBvzzJ0X5Ewgi6/K4w=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=SCgPZj8z52JfOxtbSK9QNXvKd7WDc60dPdn98hJrEDGt3OMi14VEb1cuT6FKdGrNqplXihPk6uLwfqBKjsce/ppJcZyaXFHT3UKQquZLHvPqi4HhxNbDzj9PYZTWBPmBHgHQOxftfzeZ0Uz0zlrSG2c6PJS4JVfk42Wl1tp4PSk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IxqGF8BC; arc=none smtp.client-ip=209.85.214.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ptg3iweR"
-Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2c0b944f6edso66668145ad.2
-        for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 02:13:46 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IxqGF8BC"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2c0c20f0c0aso50203765ad.0
+        for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 02:13:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781082826; x=1781687626; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=AIQzRtgrJxYlcRBc/QwiLdrLM17LYdrQBecKZn+GnnI=;
-        b=ptg3iweRoqGTVIGY1lffzhwl3xrATWNBHJtgPStLPR75nUu/dGtCv9kdfyAtYpSdqH
-         RWBj4CBJ5/G2mk0LGfSIhQ20gvCS350Gfztb1fZPuumvSdswIPyaW+l1bxoEHe7U2B+E
-         1/SwjVP6UanwIdBDLamAqnY5M7W+jfnD1w+WeNAjKTYX3TXJG6t+W6jzQQ+C+pvks2FA
-         mC4wg0CfcTqHBhb12rE3mAHkzo5RoFX4y8KB3hhPj5uvCMkHhmCcWi9VyixDBG8chluR
-         1lOrAhGMu15yRUPrHuEBWePmP+GgkFix+jQTQYfJlRQUUIuLcASLsizr5Qg72nJewmxO
-         nL3w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781082826; x=1781687626;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1781082831; x=1781687631; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=AIQzRtgrJxYlcRBc/QwiLdrLM17LYdrQBecKZn+GnnI=;
-        b=SpZALpC4iD8nMtgHM04cW5qZRym1UOkQYJcS2m8+S0JZKuGA0HoE53QMJ6aPk0rMnN
-         GJXVX76Xo0hx94ZNVP5hWcEAQ5p27pk+YblGLSqTr5KZreLm9yFMgmlS4neZDrbyjzOd
-         sTOtXe5TG5j55Bf+L1ffrYiJm4vGsjqM2SPW8gYTlCeBBgi0SGzv9aliJ37cxkMcEuRv
-         RJZ4UExoPN6sE1JZeGtmJnS5G5ciTsgBG3S8fMv6Jov0bKcwmpSNKRYswpxATAVkf8oS
-         tuJpO+BojrRDKcO8dgUTwByWRqq3qF5l1YbrcpJuj0xev9z1gXJZ2bEHbrq3gH5KZBpn
-         Yj0A==
-X-Forwarded-Encrypted: i=1; AFNElJ+JLkfjSI1D9zz0YIiCPLZVt08rqILO4Xt037GbJD4pEwX/rsPartexX3y5g42M/Z1sYGUfbrBZIgecWw74Og==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwKca4ygf5vU2mMmXJ1MdWv4x7ZA1bhkEtLa6sO8/hNu6IExqHx
-	Kh23CHBiBblx7HqdI7/EUIjFgEwseDKNx7LL7oHT5S1RHY2B1FosV5A=
-X-Gm-Gg: Acq92OFohqI9um+t8YZ44TWFuO42JOYAyhOZ9RQ/k+xpi3CGTRPl0hs7BAfxpkp2ZlL
-	Loa2V7LrCJGFfN5OyoOguZXdPNOZbLADSgWH77xSKGEDwy0VMoQeK7vTZptI6ozV6UgKfwXolNA
-	K+/fIjyPEvcGZFWZkwDeLxFrAVBQDXf/eUI92Sm+9Vfwhf/5zcC7kns/NQ9tvxXoipEs5JXYsln
-	yhysagOJTFo5Ko/fGwRZxmU2j9AQQRpNKGTdsXs9CnUCZ80cVbMbe32n//MAd6kN42FXpeqtKGn
-	EUArhK1E5GLyAJUg243ftLxExXr/db0B1NlBvrfr/SDsg0z5jWmQOWoux1BhwSXNxy3ivRCU92K
-	wG/mAyywWDDC1KA8UrTboF8sWJjdU38rN5ot6cS56EPquPrlsL95YR2alEZKf9nqqg6M0aJobD5
-	OjfvWTfkGv54yBD24Yw0BHwN9dh+4mnfRtF7BUAbGbXbY2TgyhUky8fngC4J7zNCy0/jELWbcT7
-	npdjz1/OkTxh4H2
-X-Received: by 2002:a17:903:248:b0:2c1:d49c:8396 with SMTP id d9443c01a7336-2c1e7b35a28mr281851875ad.1.1781082826002;
-        Wed, 10 Jun 2026 02:13:46 -0700 (PDT)
+        bh=B29ZuDjmbatWsfgDCYAMxPZ1omkDfUZq2rNYK60Wnps=;
+        b=IxqGF8BCTTCLKwh9CKBdxgJWmWDQZ4G409ViPySdWN2zNFqsAqtlimHbc0S0v3esac
+         5xLJPkLxhezZWhLCwLHbJbHI0uJ1vrN3yrV8sh8u++zx3ttq++0uAy55tIzJTyCRhaS8
+         WQYVESg2MdZLll+eBvy7X9G82t/rPbt/WIrVJYat68rliIKDJNG015EMRnilyBQ6vY4o
+         alYJ/2piFXXYFFdCN4yb0csxZVSw/vw9FkCFX9iHxoatLNyCpPrirmegvlw6HSXlVaqb
+         o1LUQe56DRH496Mrjj+Afd2GTT0rMz6fPVh0axQjBE/FGgDElXuKIkYcOw74JvZZrBEK
+         Gqyg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781082831; x=1781687631;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=B29ZuDjmbatWsfgDCYAMxPZ1omkDfUZq2rNYK60Wnps=;
+        b=bE0QD58E4YXMhlRhj6bErwGM9RsgUDH+cVaaOgd/SFfGaKcLarXSB/vR3RsB5uJ/2D
+         s1S0UKJ/P8ORpO22PZFCmUPi3uvmAH0a3aMexaCDGINmNr4sljS8cGWvL+Jnr9yvcC6e
+         1VrOYUde4VCBo2Us7i/P2hxDzKz0DQtGqB/iQ/9rRdnfQrlOkjQ0P6i8eSRBMKRl+NcU
+         JXQl/J+yNZ8RIBi3Q5mprZfc5Qul2ji/BskG9tVIu2d6yEWtFds1rIUDe3KFt0AbIzNS
+         As4MsguiqAcERnaKeo6P4ehK65q6azIBigTd8MreUsDdvssNaTvUcJr6+QJBW/R0V0q8
+         pP+Q==
+X-Forwarded-Encrypted: i=1; AFNElJ+ty4lUr1Ek39A/oTMpk+L4dnxcCXvh87id6GVAjlSTJKBKOLaRHlS9YkCAWhBcgR0XANPqgSwrb6H74dGx0g==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy9OHDFca2fJzw13ku4LAr3UdZ1evtb6sx7BEBIjKLpoQJMbIaY
+	2D4MVn83aILtEQPL+CYHpeFqZgfXV9JIX2zGWDDOq7q4BQ60yIeAxOg=
+X-Gm-Gg: Acq92OHYRi1XbdUNBDki8IQavS2fILEgEp5IjyumlwWg5L6hkWKpCUvHRXkLAh4Q4Nc
+	jQQ8NCpbk/bW0Rbfya2K/QcyXlmeB7NLIVbhdtm98Gq2OP9s7EB0CBaKJLNw6Apr6ZzWkQ+VaAo
+	FaA8q8fuBT8+oRzN8nfAnLFa4rO5f40BVNHVuB4NsUZ9itsA0kBvImvS78xZvU2M59iQZzmGP9x
+	DzR5V5tHn0eIai8m70SPpeYEzoiGv9L7QJJsStPQ2agVG6piXZwnn3L/smA+/2sx5C4Vlm1eQN1
+	39cNYNdhgUII/wv8msC8wKNjRu85FrbJFnr5zJVIV9667rIrwN1H8zCBjQXicc3Apk1sdPrIrZ9
+	1cbbN+Fshxj3xcnwDqhkP5ZoVbC8e2gEe6iEyyxq1Z3nWtC32HznoPKuxAa0esC+fILMyOk1BIe
+	aN9jabTHUsJ7R4McaXEDEhIL18Mn/pNWzMXyER7xjGVAxpTchlV8jx/731wZRidPcRvUkaNoGgd
+	T6mrg==
+X-Received: by 2002:a17:903:4b46:b0:2b2:5314:e96a with SMTP id d9443c01a7336-2c1e80fc534mr276460955ad.34.1781082830780;
+        Wed, 10 Jun 2026 02:13:50 -0700 (PDT)
 Received: from raf.tailb4a862.ts.net ([153.124.163.116])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c16609e096sm242991765ad.44.2026.06.10.02.13.41
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c16609e096sm242991765ad.44.2026.06.10.02.13.46
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jun 2026 02:13:45 -0700 (PDT)
+        Wed, 10 Jun 2026 02:13:50 -0700 (PDT)
 From: Raf Dickson <rafdog35@gmail.com>
 To: netdev@vger.kernel.org,
 	virtualization@lists.linux.dev
@@ -67,10 +69,12 @@ Cc: pabeni@redhat.com,
 	vishnu.dasa@broadcom.com,
 	bcm-kernel-feedback-list@broadcom.com,
 	Raf Dickson <rafdog35@gmail.com>
-Subject: [PATCH net-next 0/2] vsock: fold acceptq accounting into core helpers
-Date: Wed, 10 Jun 2026 09:11:19 +0000
-Message-ID: <20260610091121.213324-1-rafdog35@gmail.com>
+Subject: [PATCH net-next 1/2] vsock: fold sk_acceptq_added() into vsock_enqueue_accept()
+Date: Wed, 10 Jun 2026 09:11:20 +0000
+Message-ID: <20260610091121.213324-2-rafdog35@gmail.com>
 X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260610091121.213324-1-rafdog35@gmail.com>
+References: <20260610091121.213324-1-rafdog35@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -79,25 +83,70 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-These two patches follow up on commit c05fa14db43e
-("vsock/vmci: fix sk_ack_backlog leak on failed handshake")
-by folding sk_acceptq_added() and sk_acceptq_removed() into
-vsock_enqueue_accept() and vsock_remove_pending() respectively,
-as suggested by Paolo Abeni and Stefano Garzarella.
+All three transports (vmci, virtio, hyperv) call sk_acceptq_added()
+immediately before vsock_enqueue_accept(). Move the call into
+vsock_enqueue_accept() itself so callers cannot forget it and the
+accounting is always consistent.
 
-This makes the accounting automatic and prevents future callers
-from forgetting it.
+Suggested-by: Paolo Abeni <pabeni@redhat.com>
+Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
 
-Raf Dickson (2):
-  vsock: fold sk_acceptq_added() into vsock_enqueue_accept()
-  vsock: fold sk_acceptq_removed() into vsock_remove_pending()
-
- net/vmw_vsock/af_vsock.c                | 4 ++--
+Signed-off-by: Raf Dickson <rafdog35@gmail.com>
+---
+ net/vmw_vsock/af_vsock.c                | 1 +
  net/vmw_vsock/hyperv_transport.c        | 1 -
  net/vmw_vsock/virtio_transport_common.c | 1 -
- net/vmw_vsock/vmci_transport.c          | 6 +-----
- 4 files changed, 3 insertions(+), 9 deletions(-)
+ net/vmw_vsock/vmci_transport.c          | 1 -
+ 4 files changed, 1 insertion(+), 3 deletions(-)
 
+diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
+index 2ce1063d4a..73e6416ee9 100644
+--- a/net/vmw_vsock/af_vsock.c
++++ b/net/vmw_vsock/af_vsock.c
+@@ -507,6 +507,7 @@ void vsock_enqueue_accept(struct sock *listener, struct sock *connected)
+ 	sock_hold(connected);
+ 	sock_hold(listener);
+ 	list_add_tail(&vconnected->accept_queue, &vlistener->accept_queue);
++	sk_acceptq_added(listener);
+ }
+ EXPORT_SYMBOL_GPL(vsock_enqueue_accept);
+ 
+diff --git a/net/vmw_vsock/hyperv_transport.c b/net/vmw_vsock/hyperv_transport.c
+index b3394946b2..0de8148877 100644
+--- a/net/vmw_vsock/hyperv_transport.c
++++ b/net/vmw_vsock/hyperv_transport.c
+@@ -410,7 +410,6 @@ static void hvs_open_connection(struct vmbus_channel *chan)
+ 
+ 	if (conn_from_host) {
+ 		new->sk_state = TCP_ESTABLISHED;
+-		sk_acceptq_added(sk);
+ 
+ 		hvs_new->vm_srv_id = *if_type;
+ 		hvs_new->host_srv_id = *if_instance;
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index b10666937c..4a39d48db9 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -1582,7 +1582,6 @@ virtio_transport_recv_listen(struct sock *sk, struct sk_buff *skb,
+ 		return ret;
+ 	}
+ 
+-	sk_acceptq_added(sk);
+ 	if (virtio_transport_space_update(child, skb))
+ 		child->sk_write_space(child);
+ 
+diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
+index 91516488a7..4ce6660c11 100644
+--- a/net/vmw_vsock/vmci_transport.c
++++ b/net/vmw_vsock/vmci_transport.c
+@@ -1109,7 +1109,6 @@ static int vmci_transport_recv_listen(struct sock *sk,
+ 	}
+ 
+ 	vsock_add_pending(sk, pending);
+-	sk_acceptq_added(sk);
+ 
+ 	pending->sk_state = TCP_SYN_SENT;
+ 	vmci_trans(vpending)->produce_size =
 -- 
 2.54.0
 
