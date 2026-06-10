@@ -1,242 +1,300 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C065E3A7D81
-	for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 08:28:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 630AF3ADB89
+	for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 08:35:05 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781080092; cv=none; b=lJtaUQTeLiNsC9cH0ep5yIoQOXbZpIIJRSCcI2FEoHq3PXwg472bUgpyXMC4lfpNt/AQnfO4oW1piIuq4Gn5dXfaALyJyoiBak/w302Vls/4ZsFBRwIZryM/4LMX/FM6qdbb1lhl70zc92C79j8WQ8eHwR49IguI9aBychNNDYc=
+	t=1781080506; cv=none; b=bK1Hjs284RoFevaSl7gDzM7MF54KgfLNptBs+w4B/pkB3ckX4oBupgyhZsJShA4HY3jBO4+HzgsagYJ/zCEmKOFo2srv/D0pJI9ZnNSH3/Qzo39AZxdjhi34xxrEUYBVLgFzQkdQm+SqufMttTxVJ3KlbqPGM6eDY0sVVQzm5h0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781080092; c=relaxed/simple;
-	bh=gNELbO8qe9PmTJbD0VSp0KcGVTlNaeuYAPwDbT//UMg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=d2cRLunzOk2laZCo9R5KuRJufxkb+tPpOsMip8+v7QNYbuJYVjFOEjTKAV3PxuDbQh65uw5eMHFU/YGZ7A3R7e2bCbW2/DIEFKC3AS93UeI26PUVjGnjES6eEyLTV37us49y7jmnK1HWRsVrwyxCmPdP3anM86YCpycqVBQ5VHY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AmYZfYH0; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1781080506; c=relaxed/simple;
+	bh=4r4wGK/YOiyd3rg6gCYenqQ74038KOO4ZtRjVblJ09I=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=eiJszT6rIypI2d6TlYUMq+hgFAIkSGhBfARH10HHXN0r0f+GM2yZYxg2R8H8Hhwh/Hcbre4qC/MgrJK4hNgpwO1UI8Pf9ghEx+kjPXX+k9bWJy/J0GRE7c7GZRavRNNgU0X15SvycokSuQAioazUnzbNpzZUAcO2XNoIpThLQy4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=RqvvEUcs; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AmYZfYH0"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="RqvvEUcs"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1781080088;
+	s=mimecast20190719; t=1781080504;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ZB8F8zX7dRu2b8YaeiMKfygD+Y+62k1+ixQsacU6UGQ=;
-	b=AmYZfYH0BF2Al6FwOQOnF8bI71GFK9azODqtH3bGDYT4pRVW6xLU1vOuqSA5hs9V0gZvys
-	3JZSAZhKRVYe3jlL4+DmUB8f0klPGJrKSxSRhyUWYlvqH3OUVGKVz2Z2MrwDhUHVe7ws2d
-	qnFXor9oVRrA/xEL4MBLsxLrVZjOcZw=
-Received: from mail-yx1-f69.google.com (mail-yx1-f69.google.com
- [74.125.224.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-693-KG1HmjIIPiSqIx9H1Rh2Vg-1; Wed, 10 Jun 2026 04:28:07 -0400
-X-MC-Unique: KG1HmjIIPiSqIx9H1Rh2Vg-1
-X-Mimecast-MFC-AGG-ID: KG1HmjIIPiSqIx9H1Rh2Vg_1781080087
-Received: by mail-yx1-f69.google.com with SMTP id 956f58d0204a3-660668ea5cdso4982343d50.0
-        for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 01:28:07 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781080087; x=1781684887;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=ZB8F8zX7dRu2b8YaeiMKfygD+Y+62k1+ixQsacU6UGQ=;
-        b=RB5HB+buKQT8Y2Dyf96pOV05JbU11lGP+S0IL3n0UFFyJ9A/skJeS+N37Ubi1cHwO4
-         nVVkX2XoJ546pWsQ7CRcqf8l1GdRe++oQSpCChgvoyvJToIL7Yp/VrbAyJe5LDE/kbXk
-         9mBu0eAXclQKp26aN6c3Q2QUyhrZYqo/r4UIO8TqEJ49RlLWeCvRKPhxzeXb/6LlOInN
-         aJVYaNs/cKi2L+41fr637h7di0iJ6OXUMYosH58MZewO0tlJmTkDT+5154T6yk1i7kDv
-         cmfCbihuKcL9c1zclPeLS5UVQuG6q7ioCZiYbevcy9raTUjtrCZfjIT2DJoraSOqkgr6
-         o8Mw==
-X-Forwarded-Encrypted: i=1; AFNElJ8ns9oReUZByyoxMHTimi/Q+l/aXcwit29G0VFjQdxfAu1dZvDok/u6/BJA9/E3ryW0CKUlAQo+sMsy/Au0UQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz0cQhuxgrexSPevoQI8qF0RA18fFTXdQGffWyB7UsIvwa/q9e+
-	4tcOKIPMUDnSmgFET1PC6s0nCaQKBltN7DFWsNnJlHlcVLTpllx3sSdzx240LQCnCi9clpKDr/F
-	qhLJN1d9pPfb5bLf1aI/7fovPufLrPzgDBAp0MMbEToxgZQK8rf8ouPzcCS6TWLDNZstG1pk6ht
-	cljG+9HFzVkiVubDSn4uDBv8Ss40IC8WzTHUGnAxuf6is=
-X-Gm-Gg: Acq92OGSFn59Z77DlJX6p3bz/dfi3CyG85wWVVVValQX4tocoijCJmXecBvEwYwfzuX
-	ifQSdtGf6OZGSBaCYq4peQ79h9bhmcUGIL+wWYJlQSzsw7gQ857L/8Juj3hBOqNFebOE1EcYKky
-	D+0SPR0lzAZEu9SOor6wksGBq+mhnQNdJ0K3DGAOlz9+qTnismYf312MjAiIPBtaC78exBY4Pt2
-	Ze+aLfaw/iIvL8/
-X-Received: by 2002:a05:690e:1242:b0:660:74f5:7e19 with SMTP id 956f58d0204a3-66106942890mr20633074d50.0.1781080086801;
-        Wed, 10 Jun 2026 01:28:06 -0700 (PDT)
-X-Received: by 2002:a05:690e:1242:b0:660:74f5:7e19 with SMTP id
- 956f58d0204a3-66106942890mr20633037d50.0.1781080086202; Wed, 10 Jun 2026
- 01:28:06 -0700 (PDT)
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=ehOQea8hVihZyBzveFDKLCFJKZ/MWCpwpCbDDQl1Yoc=;
+	b=RqvvEUcsj/Q80xrPEK49frug9TZBW15wH2uGBNFQJMpZhpCMb6Zl4OblIpFr7Zfo4C4QYC
+	79KGrzxDd4kfY78MhozGSSE+XxphoERSA1r5DZip09mZjh9WbRlwt5x9GLZw/MUK9w7Ujh
+	JR1x/yfRnls3HdYxcGMViJ5n63Sye7Y=
+Received: from mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-502-K9Xh1wXXMgWCRTsXS1IKlg-1; Wed,
+ 10 Jun 2026 04:34:59 -0400
+X-MC-Unique: K9Xh1wXXMgWCRTsXS1IKlg-1
+X-Mimecast-MFC-AGG-ID: K9Xh1wXXMgWCRTsXS1IKlg_1781080498
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-03.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 20C931945CAA;
+	Wed, 10 Jun 2026 08:34:58 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.44.34.95])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 6543C19541B2;
+	Wed, 10 Jun 2026 08:34:54 +0000 (UTC)
+From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux.dev,
+	Jason Wang <jasowang@redhat.com>,
+	Cindy Lu <lulu@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	linux-kernel@vger.kernel.org,
+	Laurent Vivier <lvivier@redhat.com>,
+	Yongji Xie <xieyongji@bytedance.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Maxime Coquelin <mcoqueli@redhat.com>
+Subject: [PATCH v3] vduse: Add suspend
+Date: Wed, 10 Jun 2026 10:34:52 +0200
+Message-ID: <20260610083452.477759-1-eperezma@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260610081648.2205711-1-dongml2@chinatelecom.cn>
-In-Reply-To: <20260610081648.2205711-1-dongml2@chinatelecom.cn>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Wed, 10 Jun 2026 10:27:28 +0200
-X-Gm-Features: AVVi8CcfYFsKQnOe4E8gEOU8WNwyNAYJQQd-Lf6-GzdkgBEZs4Y0nsc-FVAqBQ4
-Message-ID: <CAJaqyWeYiruNosJsMTh2jQ=XCEcPg7956aqeRRpDSyynfpjNZA@mail.gmail.com>
-Subject: Re: [PATCH net-next] virtio-net: support xsk wake up
-To: Menglong Dong <menglong8.dong@gmail.com>
-Cc: xuanzhuo@linux.alibaba.com, mst@redhat.com, jasowang@redhat.com, 
-	andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com, 
-	kuba@kernel.org, pabeni@redhat.com, netdev@vger.kernel.org, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: liz_VY_MCrn_h0eh_dVjBPaowTqhuVs7d1bGvxYYutk_1781080087
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
+X-Mimecast-MFC-PROC-ID: 0zujzFjD2FV5qJf1923g0QIFxSukOWOPCUvKE4bNO_Y_1781080498
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Wed, Jun 10, 2026 at 10:17=E2=80=AFAM Menglong Dong <menglong8.dong@gmai=
-l.com> wrote:
->
-> For now, XDP_RING_NEED_WAKEUP is not supported properly by the virtio-net=
-.
-> Take the tx path for example, we set xsk_set_tx_need_wakeup() in
-> virtnet_xsk_xmit(), but we didn't call xsk_clear_tx_need_wakeup()
-> anywhere, which means the user will call send() for every packet.
->
-> For the tx path, we will call xsk_set_tx_need_wakeup() after
-> virtnet_xsk_xmit_batch() if sq->vq is empty, as we can't be wakeup by the
-> skb_xmit_done() in this case. Otherwise, we will clear the wakeup flag.
->
-> For the rx path, we will call xsk_set_rx_need_wakeup() if we have free
-> buffers in rq->vq.
->
-> Race condition is considered for both rx and tx path.
->
+Implement suspend operation for vduse devices, so vhost-vdpa will offer
+that backend feature and userspace can effectively suspend the device.
 
-I didn't review the code itself, but the patch message lacks a Fixes:
-tag. And the From and Signed-off-by emails don't match, which I'm not
-sure is valid.
+This is a must before get virtqueue indexes (base) for live migration,
+since the device could modify them after userland gets them.
 
-> Signed-off-by: Menglong Dong <dongml2@chinatelecom.cn>
-> ---
->  drivers/net/virtio_net.c | 52 ++++++++++++++++++++++++++++++++++------
->  1 file changed, 45 insertions(+), 7 deletions(-)
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 9b3da9f9786c..25e895b849a6 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -1323,16 +1323,27 @@ static int virtnet_add_recvbuf_xsk(struct virtnet=
-_info *vi, struct receive_queue
->                                    struct xsk_buff_pool *pool, gfp_t gfp)
->  {
->         struct xdp_buff **xsk_buffs;
-> +       bool need_wakeup;
->         dma_addr_t addr;
->         int err =3D 0;
->         u32 len, i;
->         int num;
->
-> +       need_wakeup =3D xsk_uses_need_wakeup(pool);
->         xsk_buffs =3D rq->xsk_buffs;
->
-> +       /* If both rq->vq and fill ring are empty, and then the user subm=
-it
-> +        * all the chunks to the fill ring and check the wake up flag
-> +        * after xsk_buff_alloc_batch() and before xsk_set_rx_need_wakeup=
-(),
-> +        * we will lose the chance to wake up the rx napi, so we have to
-> +        * set the need_wakeup flag here.
-> +        */
-> +       if (need_wakeup && virtqueue_get_vring_size(rq->vq) =3D=3D rq->vq=
-->num_free)
-> +               xsk_set_rx_need_wakeup(pool);
-> +
->         num =3D xsk_buff_alloc_batch(pool, xsk_buffs, rq->vq->num_free);
->         if (!num) {
-> -               if (xsk_uses_need_wakeup(pool)) {
-> +               if (need_wakeup) {
->                         xsk_set_rx_need_wakeup(pool);
->                         /* Return 0 instead of -ENOMEM so that NAPI is
->                          * descheduled.
-> @@ -1341,8 +1352,6 @@ static int virtnet_add_recvbuf_xsk(struct virtnet_i=
-nfo *vi, struct receive_queue
->                 }
->
->                 return -ENOMEM;
-> -       } else {
-> -               xsk_clear_rx_need_wakeup(pool);
->         }
->
->         len =3D xsk_pool_get_rx_frame_size(pool) + vi->hdr_len;
-> @@ -1363,6 +1372,16 @@ static int virtnet_add_recvbuf_xsk(struct virtnet_=
-info *vi, struct receive_queue
->                         goto err;
->         }
->
-> +       if (need_wakeup) {
-> +               if (rq->vq->num_free)
-> +                       /* We have free buffers, so we'd better wake up t=
-he
-> +                        * rx napi as soon as possible.
-> +                        */
-> +                       xsk_set_rx_need_wakeup(pool);
-> +               else
-> +                       xsk_clear_rx_need_wakeup(pool);
-> +       }
-> +
->         return num;
->
->  err:
-> @@ -1440,8 +1459,9 @@ static bool virtnet_xsk_xmit(struct send_queue *sq,=
- struct xsk_buff_pool *pool,
->         struct virtnet_info *vi =3D sq->vq->vdev->priv;
->         struct virtnet_sq_free_stats stats =3D {};
->         struct net_device *dev =3D vi->dev;
-> +       int sent, vring_size;
-> +       bool need_wakeup;
->         u64 kicks =3D 0;
-> -       int sent;
->
->         /* Avoid to wakeup napi meanless, so call __free_old_xmit instead=
- of
->          * free_old_xmit().
-> @@ -1451,8 +1471,29 @@ static bool virtnet_xsk_xmit(struct send_queue *sq=
-, struct xsk_buff_pool *pool,
->         if (stats.xsk)
->                 xsk_tx_completed(sq->xsk_pool, stats.xsk);
->
-> +       vring_size =3D virtqueue_get_vring_size(sq->vq);
-> +       need_wakeup =3D xsk_uses_need_wakeup(pool);
-> +       /* If the sq->vq is empty, and the tx ring is empty, and the user
-> +        * submit an entry to the tx ring after virtnet_xsk_xmit_batch() =
-and
-> +        * before xsk_set_tx_need_wakeup(), we will lose the chance to wa=
-ke
-> +        * up the tx napi, so we have to set the need_wakeup flag here.
-> +        */
-> +       if (need_wakeup && vring_size =3D=3D sq->vq->num_free)
-> +               xsk_set_tx_need_wakeup(pool);
-> +
->         sent =3D virtnet_xsk_xmit_batch(sq, pool, budget, &kicks);
->
-> +       if (need_wakeup) {
-> +               if (vring_size =3D=3D sq->vq->num_free)
-> +                       /* we can't wake up by ourself, and it should be =
-done
-> +                        * by the user.
-> +                        */
-> +                       xsk_set_tx_need_wakeup(pool);
-> +               else
-> +                       /* we can wake up from skb_xmit_done() */
-> +                       xsk_clear_tx_need_wakeup(pool);
-> +       }
-> +
->         if (!is_xdp_raw_buffer_queue(vi, sq - vi->sq))
->                 check_sq_full_and_disable(vi, vi->dev, sq);
->
-> @@ -1470,9 +1511,6 @@ static bool virtnet_xsk_xmit(struct send_queue *sq,=
- struct xsk_buff_pool *pool,
->         u64_stats_add(&sq->stats.xdp_tx,  sent);
->         u64_stats_update_end(&sq->stats.syncp);
->
-> -       if (xsk_uses_need_wakeup(pool))
-> -               xsk_set_tx_need_wakeup(pool);
-> -
->         return sent;
->  }
->
-> --
-> 2.54.0
->
+This patch does not implement resume, so VMM resets the whole device
+to recover from a live migration failure.  Resume optimization can be
+implemented on top of these patches, as other vDPA devices have done in
+the past.
+
+Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
+---
+This patch depends on
+https://lore.kernel.org/lkml/20260310190759.1097506-1-eperezma@redhat.com
+
+v3:
+* Expand the patch message with information about resume operation.
+
+v2:
+* Take the rwsem only before the actual kick, not in vduse_vdpa_kick_vq.
+  This assures that we're not in a critical section.
+---
+ drivers/vdpa/vdpa_user/vduse_dev.c | 86 +++++++++++++++++++++++++++++-
+ include/uapi/linux/vduse.h         |  4 ++
+ 2 files changed, 88 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
+index 5b9248d58938..92f8bb4bb282 100644
+--- a/drivers/vdpa/vdpa_user/vduse_dev.c
++++ b/drivers/vdpa/vdpa_user/vduse_dev.c
+@@ -54,7 +54,8 @@
+ #define IRQ_UNBOUND -1
+ 
+ /* Supported VDUSE features */
+-static const uint64_t vduse_features = BIT_U64(VDUSE_F_QUEUE_READY);
++static const uint64_t vduse_features = BIT_U64(VDUSE_F_QUEUE_READY) |
++				       BIT_U64(VDUSE_F_SUSPEND);
+ 
+ /*
+  * VDUSE instance have not asked the vduse API version, so assume 0.
+@@ -85,6 +86,7 @@ struct vduse_virtqueue {
+ 	int irq_effective_cpu;
+ 	struct cpumask irq_affinity;
+ 	struct kobject kobj;
++	struct vduse_dev *dev;
+ };
+ 
+ struct vduse_dev;
+@@ -134,6 +136,7 @@ struct vduse_dev {
+ 	int minor;
+ 	bool broken;
+ 	bool connected;
++	bool suspended;
+ 	u64 api_version;
+ 	u64 device_features;
+ 	u64 driver_features;
+@@ -503,6 +506,7 @@ static void vduse_dev_reset(struct vduse_dev *dev)
+ 
+ 	down_write(&dev->rwsem);
+ 
++	dev->suspended = false;
+ 	dev->status = 0;
+ 	dev->driver_features = 0;
+ 	dev->generation++;
+@@ -561,6 +565,10 @@ static void vduse_vq_kick(struct vduse_virtqueue *vq)
+ 	if (!vq->ready)
+ 		goto unlock;
+ 
++	guard(rwsem_read)(&vq->dev->rwsem);
++	if (vq->dev->suspended)
++		return;
++
+ 	if (vq->kickfd)
+ 		eventfd_signal(vq->kickfd);
+ 	else
+@@ -919,6 +927,27 @@ static int vduse_vdpa_set_map(struct vdpa_device *vdpa,
+ 	return 0;
+ }
+ 
++static int vduse_vdpa_suspend(struct vdpa_device *vdpa)
++{
++	struct vduse_dev *dev = vdpa_to_vduse(vdpa);
++	struct vduse_dev_msg msg = { 0 };
++	int ret;
++
++	msg.req.type = VDUSE_SUSPEND;
++
++	ret = vduse_dev_msg_sync(dev, &msg);
++	if (ret == 0) {
++		scoped_guard(rwsem_write, &dev->rwsem)
++			dev->suspended = true;
++
++		cancel_work_sync(&dev->inject);
++		for (u32 i = 0; i < dev->vq_num; i++)
++			cancel_work_sync(&dev->vqs[i]->inject);
++	}
++
++	return ret;
++}
++
+ static void vduse_vdpa_free(struct vdpa_device *vdpa)
+ {
+ 	struct vduse_dev *dev = vdpa_to_vduse(vdpa);
+@@ -960,6 +989,41 @@ static const struct vdpa_config_ops vduse_vdpa_config_ops = {
+ 	.free			= vduse_vdpa_free,
+ };
+ 
++static const struct vdpa_config_ops vduse_vdpa_config_ops_with_suspend = {
++	.set_vq_address		= vduse_vdpa_set_vq_address,
++	.kick_vq		= vduse_vdpa_kick_vq,
++	.set_vq_cb		= vduse_vdpa_set_vq_cb,
++	.set_vq_num             = vduse_vdpa_set_vq_num,
++	.get_vq_size		= vduse_vdpa_get_vq_size,
++	.get_vq_group		= vduse_get_vq_group,
++	.set_vq_ready		= vduse_vdpa_set_vq_ready,
++	.get_vq_ready		= vduse_vdpa_get_vq_ready,
++	.set_vq_state		= vduse_vdpa_set_vq_state,
++	.get_vq_state		= vduse_vdpa_get_vq_state,
++	.get_vq_align		= vduse_vdpa_get_vq_align,
++	.get_device_features	= vduse_vdpa_get_device_features,
++	.set_driver_features	= vduse_vdpa_set_driver_features,
++	.get_driver_features	= vduse_vdpa_get_driver_features,
++	.set_config_cb		= vduse_vdpa_set_config_cb,
++	.get_vq_num_max		= vduse_vdpa_get_vq_num_max,
++	.get_device_id		= vduse_vdpa_get_device_id,
++	.get_vendor_id		= vduse_vdpa_get_vendor_id,
++	.get_status		= vduse_vdpa_get_status,
++	.set_status		= vduse_vdpa_set_status,
++	.get_config_size	= vduse_vdpa_get_config_size,
++	.get_config		= vduse_vdpa_get_config,
++	.set_config		= vduse_vdpa_set_config,
++	.get_generation		= vduse_vdpa_get_generation,
++	.set_vq_affinity	= vduse_vdpa_set_vq_affinity,
++	.get_vq_affinity	= vduse_vdpa_get_vq_affinity,
++	.reset			= vduse_vdpa_reset,
++	.set_map		= vduse_vdpa_set_map,
++	.set_group_asid		= vduse_set_group_asid,
++	.get_vq_map		= vduse_get_vq_map,
++	.suspend		= vduse_vdpa_suspend,
++	.free			= vduse_vdpa_free,
++};
++
+ static void vduse_dev_sync_single_for_device(union virtio_map token,
+ 					     dma_addr_t dma_addr, size_t size,
+ 					     enum dma_data_direction dir)
+@@ -1171,6 +1235,10 @@ static void vduse_dev_irq_inject(struct work_struct *work)
+ {
+ 	struct vduse_dev *dev = container_of(work, struct vduse_dev, inject);
+ 
++	guard(rwsem_read)(&dev->rwsem);
++	if (dev->suspended)
++		return;
++
+ 	spin_lock_bh(&dev->irq_lock);
+ 	if (dev->config_cb.callback)
+ 		dev->config_cb.callback(dev->config_cb.private);
+@@ -1182,6 +1250,10 @@ static void vduse_vq_irq_inject(struct work_struct *work)
+ 	struct vduse_virtqueue *vq = container_of(work,
+ 					struct vduse_virtqueue, inject);
+ 
++	guard(rwsem_read)(&vq->dev->rwsem);
++	if (vq->dev->suspended)
++		return;
++
+ 	spin_lock_bh(&vq->irq_lock);
+ 	if (vq->ready && vq->cb.callback)
+ 		vq->cb.callback(vq->cb.private);
+@@ -1212,6 +1284,9 @@ static int vduse_dev_queue_irq_work(struct vduse_dev *dev,
+ 	int ret = -EINVAL;
+ 
+ 	down_read(&dev->rwsem);
++	if (dev->suspended)
++		return ret;
++
+ 	if (!(dev->status & VIRTIO_CONFIG_S_DRIVER_OK))
+ 		goto unlock;
+ 
+@@ -1976,6 +2051,7 @@ static int vduse_dev_init_vqs(struct vduse_dev *dev, u32 vq_align, u32 vq_num)
+ 		}
+ 
+ 		dev->vqs[i]->index = i;
++		dev->vqs[i]->dev = dev;
+ 		dev->vqs[i]->irq_effective_cpu = IRQ_UNBOUND;
+ 		INIT_WORK(&dev->vqs[i]->inject, vduse_vq_irq_inject);
+ 		INIT_WORK(&dev->vqs[i]->kick, vduse_vq_kick_work);
+@@ -2426,12 +2502,18 @@ static struct vduse_mgmt_dev *vduse_mgmt;
+ static int vduse_dev_init_vdpa(struct vduse_dev *dev, const char *name)
+ {
+ 	struct vduse_vdpa *vdev;
++	const struct vdpa_config_ops *ops;
+ 
+ 	if (dev->vdev)
+ 		return -EEXIST;
+ 
++	if (dev->vduse_features & BIT_U64(VDUSE_F_SUSPEND))
++		ops = &vduse_vdpa_config_ops_with_suspend;
++	else
++		ops = &vduse_vdpa_config_ops;
++
+ 	vdev = vdpa_alloc_device(struct vduse_vdpa, vdpa, dev->dev,
+-				 &vduse_vdpa_config_ops, &vduse_map_ops,
++				 ops, &vduse_map_ops,
+ 				 dev->ngroups, dev->nas, name, true);
+ 	if (IS_ERR(vdev))
+ 		return PTR_ERR(vdev);
+diff --git a/include/uapi/linux/vduse.h b/include/uapi/linux/vduse.h
+index 7324faea5df4..8c616895c511 100644
+--- a/include/uapi/linux/vduse.h
++++ b/include/uapi/linux/vduse.h
+@@ -17,6 +17,9 @@
+ /* The VDUSE instance expects a request for vq ready */
+ #define VDUSE_F_QUEUE_READY	0
+ 
++/* The VDUSE instance expects a request for suspend */
++#define VDUSE_F_SUSPEND		1
++
+ /*
+  * Get the version of VDUSE API that kernel supported (VDUSE_API_VERSION).
+  * This is used for future extension.
+@@ -334,6 +337,7 @@ enum vduse_req_type {
+ 	VDUSE_UPDATE_IOTLB,
+ 	VDUSE_SET_VQ_GROUP_ASID,
+ 	VDUSE_SET_VQ_READY,
++	VDUSE_SUSPEND,
+ };
+ 
+ /**
+-- 
+2.54.0
 
