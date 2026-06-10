@@ -1,289 +1,347 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f179.google.com (mail-qk1-f179.google.com [209.85.222.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A33A03DDDD7
-	for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 13:17:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36C8E421EF4
+	for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 15:02:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781097440; cv=none; b=ozSS1TQUS/GUEZuXFDqYG33jDsMe7EkMQPJudODnx83i/FWvEhlP3PCexaSa+kU3uJEHxrPd8x+21aTDgRf6nKD44WwnNGCX4NTQcNsk55F4q4lxkPMeuJzm0C40+d/CKr+Ncl6/MBR3PUVIJBR+DQTlVXmpjV5jFmgZaj9X+E0=
+	t=1781103769; cv=none; b=XZ0Kd3ovdvzCkdGdvdzDnRTlJqpTF3d6IHWRR4WlVyL/TwjX5bAhdedMdJNWf13iIqypat4MqdcHoelEyHoyTm+xMyV4/W0/5DrLLUmQlI/4P93GN+464PHtGJN2Qhc0BrOVcjonyt8ZcJw/MoHjgZl83lfwu92RMdavKBJgIoc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781097440; c=relaxed/simple;
-	bh=1D9+hklB7r3x0u0ch2J4IhAFeDFpVae4jEVnWDHzGsA=;
-	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=N8hmK+CLZm9RK2mKEx09KZVD1wB3xbGQqU/HZVxvCAnEYgi6UPLOC/pb/CYqjry50+T8DjyMa9xjmUQXXkQox/TdhFlzMJVQf8bhlgINaAoKiniNnMoQsRhtxuDmr2wJys373R7RiTw9uAIRbiEzDF6lTR+YMUpnV2CVREJinss=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ipUOx04h; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1781103769; c=relaxed/simple;
+	bh=s1IQvU8HHnA13Gr5CUVhtckHABXiyrGoXTFymIYaNn0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=I95/qdxdAu/gN+5WwQNlIXwgjpRjuyjf/SDW0XyShyJf3pIbRnl71QKfT9Hh3f4sqLuINxBtmdKDAzbfJLRE+XNuW7c+dEtxlOg5wiAcYN1PyZfjbT8ofJY468MQTqn2iIi5BwiCV9R6Ig/9vR9tGin86BrrIYQsUPoSFqIfz4M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=samsara.com; spf=pass smtp.mailfrom=samsara.com; dkim=pass (2048-bit key) header.d=samsara.com header.i=@samsara.com header.b=mIfIHl7F; arc=none smtp.client-ip=209.85.222.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=samsara.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsara.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ipUOx04h"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1781097437;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type;
-	bh=JIynXs9jKTkZFqI4maeQsdqviVHDwx4+PYnRpWMJtSw=;
-	b=ipUOx04hIZPPGb7N6wPk8WJ17+noyrP69fyPWOcbt/2eiYod6b88tLSHgIYisYL4e4Vxlo
-	/1HsAmKiKbhAaJPELNOnTSg3ksD0BTBf5eA8c47jbvqCUt7OzjyFq6ZVX7GHbal4hguRzW
-	09psHfoo+R+YYTwhvgm3l6cAGPqG/BU=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-651-9vt6H_ozOaeL6gWlfZxCUA-1; Wed, 10 Jun 2026 09:17:16 -0400
-X-MC-Unique: 9vt6H_ozOaeL6gWlfZxCUA-1
-X-Mimecast-MFC-AGG-ID: 9vt6H_ozOaeL6gWlfZxCUA_1781097435
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-490c4f61a34so34212105e9.2
-        for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 06:17:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=samsara.com header.i=@samsara.com header.b="mIfIHl7F"
+Received: by mail-qk1-f179.google.com with SMTP id af79cd13be357-915b5ce94c7so544761485a.2
+        for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 08:02:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=samsara.com; s=google; t=1781103766; x=1781708566; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=dzPN/wJoFEAsHFLJfhmBvnKMiFbFAl2dfBVz7PV0PU0=;
+        b=mIfIHl7FIIMOT6DgBinACOdRWNkhV2UwSfS0lQ3VDiVOXzKEgM/Vtb/fYbpjzyuBHg
+         Gj8HWGoSy2TO81tYVmxyGd2W7/UE2LM38oY8Q4fNKU3b3/fD+20xGbAnXikcbG6DdLP6
+         bZbs9fDqVeddIJ0NP5oj+MN+DtXO3fz8KWHyO+Zx+/cDC1CAf6x3R83Dw+jXjISemXaI
+         M2Z+V/CNpQ5TGU7iJGt5zOYGvEmcM+dzWjN7akN/Ra0nFEKAp32ZW3fejA9lO4dDyKqe
+         p/enNU6SonXUrGq9dOjjWLY3Z4Dz0iwTpnGEvv82+CeDCkP6winodP7pwlzcR2ERQGLc
+         0ffg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781097435; x=1781702235;
-        h=content-disposition:mime-version:message-id:subject:cc:to:from:date
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=JIynXs9jKTkZFqI4maeQsdqviVHDwx4+PYnRpWMJtSw=;
-        b=kYLd6X7Vz0sg+u0iwWW5FcfNB8+qxoXeu6NWoD6eRXGmEw/DM9mlxPlBnrlVaofPnb
-         WNbkGJ/hVOzgRtbdrV+BnzjHXmHKjsM5Xz8FVsGrEcIQTh6P4dvzVX+r/iF09vLFgJPV
-         xrUa6fUuGN4CtuchJi9GswuxwZgpbJc2D6Y0w9Rrpsp9jiCYDuaRfjCrj/r1EQcnpRdB
-         86/okK17hgzbLzAzdHLnaYVut4a8mlI3s/DaSFygwr0uvAXkkNFTn/y7rWMmdqtsqQVc
-         lfc1M+i8E+9yU5qs4+C4Tn3dQxgXL/1BJCTRLUHCLZWwF7WeyVnmrQ+J2dfoWwzIloeB
-         PkQA==
-X-Forwarded-Encrypted: i=1; AFNElJ+59avF1NKoKlgVoMQD0FzE3ga0GvfHXmRQlf2jdh0mI2NU+rITX7e3LF4qakXS1A4l+wMoEK82e7rExT7ZPA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx2DzXqnrYiF9mM47sn/yrEWfDCj7T/9lIOHz0Q/GiOX6lqIdc5
-	wPEDuYr3vbka78yQEVCO7w4hB5R5lHsetHXgrxwb6RbmO3hX7U00OfXGcSl/rvgquisfX7Q6SDH
-	oOWfO1Jb+JWAORQZ4+8GKuxvGrIsWHhPc0vaC8rklip4qmXKkWrc4JmMMTr0D04I3XkCD
-X-Gm-Gg: Acq92OE1GpiMhLputiagNTWOg7cVSc0/GOOFHBCLQKriizL7f31Dh7jhgyHtxgbT+Mc
-	AX89OU14cUCERu9X8/bUKeZr8vzgxhfKNQjA1DkMeRDh0Lb6a7fpX82eRJiLGXrfudhMA9ytLEW
-	FawHm/bm2jeKMzEPpgXPjNfPxX2TpXK9JQ+YEAkrJ66qNqvso7LZ9nJvcKcwW9H0RUe5ruqY7jD
-	hYAxfbcx2dlQ4PsHVc8+9Xm/8ckKS/bQ1MRcMWRKZG+K3liagQLrzngEvxJV0aS+SSJEq8TPgqy
-	vMVaSExtUYLEhBkr8oi2mtcaLS1XGk8GeuE1+1f9ToaZQLjlnkXDaJ5OfzE8EZkpIyA4cmlDtrN
-	5JixmvRGIWL9VslZc7J6e1ZjntVWdedSqKVpYVkdmwqFbhKBPP5ZjcQ==
-X-Received: by 2002:a05:600c:c491:b0:490:bb44:3f8b with SMTP id 5b1f17b1804b1-490c2605385mr407783245e9.17.1781097434724;
-        Wed, 10 Jun 2026 06:17:14 -0700 (PDT)
-X-Received: by 2002:a05:600c:c491:b0:490:bb44:3f8b with SMTP id 5b1f17b1804b1-490c2605385mr407782215e9.17.1781097434064;
-        Wed, 10 Jun 2026 06:17:14 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-85-71.inter.net.il. [80.230.85.71])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490bc3b5b82sm595285305e9.1.2026.06.10.06.17.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jun 2026 06:17:13 -0700 (PDT)
-Date: Wed, 10 Jun 2026 09:17:08 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: linux-kernel@vger.kernel.org
-Cc: Miaohe Lin <linmiaohe@huawei.com>,
-	"David Hildenbrand (Arm)" <david@kernel.org>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio Perez <eperezma@redhat.com>,
-	Muchun Song <muchun.song@linux.dev>,
-	Oscar Salvador <osalvador@suse.de>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	Lorenzo Stoakes <ljs@kernel.org>,
-	"Liam R. Howlett" <liam@infradead.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Brendan Jackman <jackmanb@google.com>,
-	Johannes Weiner <hannes@cmpxchg.org>, Zi Yan <ziy@nvidia.com>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
-	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
-	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
-	Byungchul Park <byungchul@sk.com>,
-	Gregory Price <gourry@gourry.net>,
-	Ying Huang <ying.huang@linux.alibaba.com>,
-	Alistair Popple <apopple@nvidia.com>,
-	Christoph Lameter <cl@gentwo.org>,
-	David Rientjes <rientjes@google.com>,
-	Roman Gushchin <roman.gushchin@linux.dev>,
-	Harry Yoo <harry.yoo@oracle.com>,
-	Axel Rasmussen <axelrasmussen@google.com>,
-	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
-	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
-	Kemeng Shi <shikemeng@huaweicloud.com>,
-	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
-	virtualization@lists.linux.dev, linux-mm@kvack.org,
-	Andrea Arcangeli <aarcange@redhat.com>,
-	Naoya Horiguchi <nao.horiguchi@gmail.com>,
-	Alexander Duyck <alexander.h.duyck@linux.intel.com>
-Subject: [PATCH v2] mm: page_reporting: allow driver to set batch capacity
-Message-ID: <cb43adc61d2ed3069b2fe428f3e051dbdc4cc28d.1781097156.git.mst@redhat.com>
+        d=1e100.net; s=20251104; t=1781103766; x=1781708566;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=dzPN/wJoFEAsHFLJfhmBvnKMiFbFAl2dfBVz7PV0PU0=;
+        b=HIyn8NUFg8gVCTV1hrfI/uXBdZOsA16QmbVdMAgzYCjv/AX8PCUWa012dUc7honJiA
+         RnRxWeibVJKpdKLKGJlUOCSk+f3JOtUcb4eBM3aSkGWUIRDjeGQtv0wiF80rJIcz63n9
+         XujojgVZIuLO90hEuxLT/U2ojHy3x0zbytZ7Ei/ovKbc7dPnX3qn1QS5UAL2ImxjUZad
+         Xp8Km/RUAPNKBkQcgpUgPiUPtAKl/KJEBEhh2/RT3/xgxQncLOke/UVJBdxVER5iNZcu
+         CJG3kUNeesHFZkCT456dw2Wd3lO2NTxBPPVRqqKkbXxa2IhHh61HljCwo4DiHl0EI2je
+         AkUQ==
+X-Forwarded-Encrypted: i=1; AFNElJ8c0KK+rxKgrnlyn8AdYs6IEot8fZoH7/+H2LKuTqXGlpnh+A4Jh+k3/OgZ9NkG8lkffuf/irMnzw0eo/oI7w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzZUmJtMwFDVA2SLtuHJtoLlx35DURZN03HlUK8ib5sLdLzE7NL
+	L/QV7QanqF1AdURRelFIEc1lpP9kEABHy0+j8YKWiFRhb2zDLaAsiFJcwTpj70F7qg==
+X-Gm-Gg: Acq92OF+xzXwu8VAmMxo6VzMvNHyQNdlV23MgwPgJqEWLojW2sdKKN2GlkU4uHaHwTD
+	nTODxUqdbhKs/FN31q3PshXO2pyDSQaMRZbDnIk351346hb5uzNnRZaGNmzINyEO1DzbkI8x6Hg
+	k8nAgRgu7jLAzyYJ4D2QXgE6blegeolLa3JAtJKnoVzdHBQgBvUJB5xNLf1eIO94vJBsjhqMvJC
+	lKVnS/xDei8uJBTL6TfOY0Y0wa2IcMSN0NIrRqyDlMKAQipodHL1WXZkdOSfnMyk3yyLYJO9PiU
+	qUyoadHInShB9t0P8/LQR4btijHWR7eUePt1RdIduC7u7Wp3QzlyTBv+2jmtVugYeCdzljKsUxv
+	8TsGvE0zwa7UjYcAAXWIHgjh0NeYDbhpvDq2cF7FXONXKNFNkxxo2lLZlwxmcR2Sy9/3Oktl+h5
+	yyjn0ZgBZXLXBJhwYWmRZbZMn2xNcV2JqTXEFquydrpg5VyXFgGRBRkWT2ZnXGcz/kFv/vpREd1
+	GGeX+RbaTlkOQET
+X-Received: by 2002:a05:620a:1d01:b0:8cf:d804:456a with SMTP id af79cd13be357-915a9c9df20mr3929782185a.20.1781103765390;
+        Wed, 10 Jun 2026 08:02:45 -0700 (PDT)
+Received: from localhost.localdomain ([165.225.38.123])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9159cd628f8sm2124550785a.4.2026.06.10.08.02.43
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Wed, 10 Jun 2026 08:02:44 -0700 (PDT)
+From: Gavin Li <gavin.li@samsara.com>
+To: linux-i2c@vger.kernel.org,
+	viresh.kumar@linaro.org,
+	"Michael S. Tsirkin" <mst@redhat.com>
+Cc: "Chen, Jian Jun" <jian.jun.chen@intel.com>,
+	andi.shyti@kernel.org,
+	virtualization@lists.linux.dev,
+	Gavin Li <gavin.li@samsara.com>
+Subject: [PATCH v4] i2c: virtio: retain xfer with kref to fix UAF on interrupted wait
+Date: Wed, 10 Jun 2026 11:02:32 -0400
+Message-ID: <20260610150232.24834-1-gavin.li@samsara.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mailer: git-send-email 2.51.2.2891.g4157995a80.dirty
-X-Mutt-Fcc: =sent
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: OfiphhVfzLPC-U5sib7RsOTdb5Nzg4aIeLrBZLHZZpc_1781097435
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-At the moment, if a virtio balloon device has a page reporting vq but
-its size is < PAGE_REPORTING_CAPACITY (32), the balloon driver fails
-probe.
+commit a663b3c47ab1 ("i2c: virtio: Avoid hang by using interruptible
+completion wait") switched virtio_i2c_complete_reqs() to
+wait_for_completion_interruptible() so a stuck device cannot hang a
+task forever. That left a use-after-free: if the wait returns early on
+a signal, virtio_i2c_xfer() frees reqs and DMA bounce buffers while the
+device may still hold virtqueue tokens pointing at &reqs[i] and DMA
+into read buffers. When those requests complete later,
+virtio_i2c_msg_done() calls complete() on freed memory.
 
-But, there's no way for host to know this value, so it can easily
-create a smaller vq and suddenly adding the reporting capability
-to the device makes all of the driver fail. Not pretty.
+Waiting uninterruptibly for every completion before freeing avoids the
+UAF but can hang the caller indefinitely if the virtio side never
+completes the request. Performing a queue reset / device reset is
+possible in this scenario, but adds complexity.
 
-Add a capacity field to page_reporting_dev_info so drivers can
-control the maximum number of pages per report batch.
+This commit manages the freeing of the xfer allocations via kref, and
+ensures that each in-flight request holds a reference. This fixes the
+use-after-free by ensuring that the virtio device has a valid location
+to write to until the request completes. This will cause a memory leak
+in cases where the device hangs, but that is much preferable to memory
+corruption.
 
-In virtio-balloon, set the capacity to the reporting virtqueue size,
-letting page_reporting adapt to whatever the device provides.
+Additionally, force usage of a bounce buffer even if the i2c_msg buf is
+DMA-safe, since the buffer passed to the virtqueue must remain valid
+even if the transfer is interrupted. Remove usage of
+i2c_get_dma_safe_msg_buf() since it may pass through msg->buf directly.
+All bounce buffers are part of the single xfer allocation, so there is
+no additional allocation overhead.
 
-Capacity need not be a power of two.  Code previously called out
-division by PAGE_REPORTING_CAPACITY as cheap since it was a power
-of 2, but no performance difference was observed with non-power-of-2
-values.
+Signed-off-by: Gavin Li <gavin.li@samsara.com>
 
-If capacity is 0 or exceeds PAGE_REPORTING_CAPACITY, it defaults
-to PAGE_REPORTING_CAPACITY.  The 0 check and the clamping is done in
-page_reporting_register(), before the reporting work is scheduled,
-so we never get division by 0.
-
-Fixes: b0c504f15471 ("virtio-balloon: add support for providing free page reports to host")
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-Assisted-by: Claude:claude-opus-4-6
 ---
-Changes v1->v2:
-- Document capacity=0 as default in commit log
-- Document that capacity need not be a power of two
-- Drop unnecessary comment about integer division cost
-- Update comment on capacity field: "0 (default) means PAGE_REPORTING_CAPACITY"
 
- drivers/virtio/virtio_balloon.c |  5 +----
- include/linux/page_reporting.h  |  3 +++
- mm/page_reporting.c             | 24 ++++++++++++------------
- 3 files changed, 16 insertions(+), 16 deletions(-)
+Changes in v4:
+- Pack bounce buffers into a single allocation after reqs[]
+- Remove per-request buf pointer and xfer->num
+- Remove req.msg, track message direction with req->read
+- Simplify xfer release to a single kfree()
+- Restore using j to track successful transfers in _complete_xfer()
+---
+ drivers/i2c/busses/i2c-virtio.c | 121 +++++++++++++++++++++++++-------
+ 1 file changed, 94 insertions(+), 27 deletions(-)
 
-diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-index f6c2dff33f8a..6a1a610c2cb1 100644
---- a/drivers/virtio/virtio_balloon.c
-+++ b/drivers/virtio/virtio_balloon.c
-@@ -1017,10 +1017,6 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 		unsigned int capacity;
- 
- 		capacity = virtqueue_get_vring_size(vb->reporting_vq);
--		if (capacity < PAGE_REPORTING_CAPACITY) {
--			err = -ENOSPC;
--			goto out_unregister_oom;
--		}
- 
- 		vb->pr_dev_info.order = PAGE_REPORTING_ORDER_UNSPECIFIED;
- 
-@@ -1041,6 +1037,7 @@ static int virtballoon_probe(struct virtio_device *vdev)
- 		vb->pr_dev_info.order = 5;
- #endif
- 
-+		vb->pr_dev_info.capacity = capacity;
- 		err = page_reporting_register(&vb->pr_dev_info);
- 		if (err)
- 			goto out_unregister_oom;
-diff --git a/include/linux/page_reporting.h b/include/linux/page_reporting.h
-index 9d4ca5c218a0..048578118a4b 100644
---- a/include/linux/page_reporting.h
-+++ b/include/linux/page_reporting.h
-@@ -22,6 +22,9 @@ struct page_reporting_dev_info {
- 
- 	/* Minimal order of page reporting */
- 	unsigned int order;
-+
-+	/* Max pages per report batch; 0 (default) means PAGE_REPORTING_CAPACITY */
-+	unsigned int capacity;
+diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
+index 5da6fef92bec3..33b469ca39d4b 100644
+--- a/drivers/i2c/busses/i2c-virtio.c
++++ b/drivers/i2c/busses/i2c-virtio.c
+@@ -13,7 +13,9 @@
+ #include <linux/err.h>
+ #include <linux/i2c.h>
+ #include <linux/kernel.h>
++#include <linux/kref.h>
+ #include <linux/module.h>
++#include <linux/overflow.h>
+ #include <linux/virtio.h>
+ #include <linux/virtio_ids.h>
+ #include <linux/virtio_config.h>
+@@ -31,39 +33,74 @@ struct virtio_i2c {
+ 	struct virtqueue *vq;
  };
  
- /* Tear-down and bring-up for page reporting devices */
-diff --git a/mm/page_reporting.c b/mm/page_reporting.c
-index 7418f2e500bb..942e84b6908a 100644
---- a/mm/page_reporting.c
-+++ b/mm/page_reporting.c
-@@ -173,11 +173,8 @@ page_reporting_cycle(struct page_reporting_dev_info *prdev, struct zone *zone,
- 	 * any pages that may have already been present from the previous
- 	 * list processed. This should result in us reporting all pages on
- 	 * an idle system in about 30 seconds.
--	 *
--	 * The division here should be cheap since PAGE_REPORTING_CAPACITY
--	 * should always be a power of 2.
- 	 */
--	budget = DIV_ROUND_UP(area->nr_free, PAGE_REPORTING_CAPACITY * 16);
-+	budget = DIV_ROUND_UP(area->nr_free, prdev->capacity * 16);
++struct virtio_i2c_xfer;
++
+ /**
+  * struct virtio_i2c_req - the virtio I2C request structure
++ * @xfer: owning transfer
+  * @completion: completion of virtio I2C message
++ * @read: true if this is a read message (I2C_M_RD is set)
+  * @out_hdr: the OUT header of the virtio I2C message
+- * @buf: the buffer into which data is read, or from which it's written
+  * @in_hdr: the IN header of the virtio I2C message
+  */
+ struct virtio_i2c_req {
++	struct virtio_i2c_xfer *xfer;
+ 	struct completion completion;
++	bool read;
+ 	struct virtio_i2c_out_hdr out_hdr	____cacheline_aligned;
+-	uint8_t *buf				____cacheline_aligned;
+ 	struct virtio_i2c_in_hdr in_hdr		____cacheline_aligned;
+ };
  
- 	/* loop through free list adding unreported pages to sg list */
- 	list_for_each_entry_safe(page, next, list, lru) {
-@@ -222,10 +219,10 @@ page_reporting_cycle(struct page_reporting_dev_info *prdev, struct zone *zone,
- 		spin_unlock_irq(&zone->lock);
++/**
++ * struct virtio_i2c_xfer - a queued I2C transfer
++ * @ref: one ref for the caller, plus one per in-flight virtqueue request
++ * @bounce_buf_base: start of bounce buffer region
++ * @reqs: the virtio I2C requests
++ *
++ * Allocation layout:
++ * - struct virtio_i2c_xfer xfer
++ * - struct virtio_i2c_req reqs[num]
++ * - u8 bounce_buf[msgs[0].len]
++ *   ...
++ * - u8 bounce_buf[msgs[num-1].len]
++ */
++struct virtio_i2c_xfer {
++	struct kref ref;
++	u8 *bounce_buf_base;
++	struct virtio_i2c_req reqs[];
++};
++
++static void virtio_i2c_xfer_release(struct kref *ref)
++{
++	struct virtio_i2c_xfer *xfer = container_of(ref, struct virtio_i2c_xfer, ref);
++	kfree(xfer);
++}
++
+ static void virtio_i2c_msg_done(struct virtqueue *vq)
+ {
+ 	struct virtio_i2c_req *req;
+ 	unsigned int len;
  
- 		/* begin processing pages in local list */
--		err = prdev->report(prdev, sgl, PAGE_REPORTING_CAPACITY);
-+		err = prdev->report(prdev, sgl, prdev->capacity);
+-	while ((req = virtqueue_get_buf(vq, &len)))
++	while ((req = virtqueue_get_buf(vq, &len))) {
+ 		complete(&req->completion);
++		kref_put(&req->xfer->ref, virtio_i2c_xfer_release);
++	}
+ }
  
- 		/* reset offset since the full list was reported */
--		*offset = PAGE_REPORTING_CAPACITY;
-+		*offset = prdev->capacity;
+-static int virtio_i2c_prepare_reqs(struct virtqueue *vq,
+-				   struct virtio_i2c_req *reqs,
++static int virtio_i2c_prepare_xfer(struct virtqueue *vq,
++				   struct virtio_i2c_xfer *xfer,
+ 				   struct i2c_msg *msgs, int num)
+ {
+ 	struct scatterlist *sgs[3], out_hdr, msg_buf, in_hdr;
++	struct virtio_i2c_req *reqs = xfer->reqs;
++	u8 *bounce_buf = xfer->bounce_buf_base;
+ 	int i;
  
- 		/* update budget to reflect call to report function */
- 		budget--;
-@@ -234,7 +231,7 @@ page_reporting_cycle(struct page_reporting_dev_info *prdev, struct zone *zone,
- 		spin_lock_irq(&zone->lock);
+ 	for (i = 0; i < num; i++) {
+ 		int outcnt = 0, incnt = 0;
  
- 		/* flush reported pages from the sg list */
--		page_reporting_drain(prdev, sgl, PAGE_REPORTING_CAPACITY, !err);
-+		page_reporting_drain(prdev, sgl, prdev->capacity, !err);
++		reqs[i].xfer = xfer;
++		reqs[i].read = !!(msgs[i].flags & I2C_M_RD);
+ 		init_completion(&reqs[i].completion);
  
  		/*
- 		 * Reset next to first entry, the old next isn't valid
-@@ -260,13 +257,13 @@ static int
- page_reporting_process_zone(struct page_reporting_dev_info *prdev,
- 			    struct scatterlist *sgl, struct zone *zone)
- {
--	unsigned int order, mt, leftover, offset = PAGE_REPORTING_CAPACITY;
-+	unsigned int order, mt, leftover, offset = prdev->capacity;
- 	unsigned long watermark;
- 	int err = 0;
+@@ -82,23 +119,31 @@ static int virtio_i2c_prepare_reqs(struct virtqueue *vq,
+ 		sgs[outcnt++] = &out_hdr;
  
- 	/* Generate minimum watermark to be able to guarantee progress */
- 	watermark = low_wmark_pages(zone) +
--		    (PAGE_REPORTING_CAPACITY << page_reporting_order);
-+		    (prdev->capacity << page_reporting_order);
+ 		if (msgs[i].len) {
+-			reqs[i].buf = i2c_get_dma_safe_msg_buf(&msgs[i], 1);
+-			if (!reqs[i].buf)
+-				break;
++			/*
++			 * Even if msg->flags has I2C_M_DMA_SAFE set, a bounce
++			 * buffer is required because the transfer may be
++			 * interrupted, after which msg->buf is no longer valid.
++			 */
++			if (!(msgs[i].flags & I2C_M_RD))
++				memcpy(bounce_buf, msgs[i].buf, msgs[i].len);
  
- 	/*
- 	 * Cancel request if insufficient free memory or if we failed
-@@ -290,7 +287,7 @@ page_reporting_process_zone(struct page_reporting_dev_info *prdev,
- 	}
+-			sg_init_one(&msg_buf, reqs[i].buf, msgs[i].len);
++			sg_init_one(&msg_buf, bounce_buf, msgs[i].len);
  
- 	/* report the leftover pages before going idle */
--	leftover = PAGE_REPORTING_CAPACITY - offset;
-+	leftover = prdev->capacity - offset;
- 	if (leftover) {
- 		sgl = &sgl[offset];
- 		err = prdev->report(prdev, sgl, leftover);
-@@ -322,11 +319,11 @@ static void page_reporting_process(struct work_struct *work)
- 	atomic_set(&prdev->state, state);
+ 			if (msgs[i].flags & I2C_M_RD)
+ 				sgs[outcnt + incnt++] = &msg_buf;
+ 			else
+ 				sgs[outcnt++] = &msg_buf;
+ 		}
++		bounce_buf += msgs[i].len;
  
- 	/* allocate scatterlist to store pages being reported on */
--	sgl = kmalloc_objs(*sgl, PAGE_REPORTING_CAPACITY);
-+	sgl = kmalloc_objs(*sgl, prdev->capacity);
- 	if (!sgl)
- 		goto err_out;
+ 		sg_init_one(&in_hdr, &reqs[i].in_hdr, sizeof(reqs[i].in_hdr));
+ 		sgs[outcnt + incnt++] = &in_hdr;
  
--	sg_init_table(sgl, PAGE_REPORTING_CAPACITY);
-+	sg_init_table(sgl, prdev->capacity);
- 
- 	for_each_zone(zone) {
- 		err = page_reporting_process_zone(prdev, sgl, zone);
-@@ -377,6 +374,9 @@ int page_reporting_register(struct page_reporting_dev_info *prdev)
- 			page_reporting_order = pageblock_order;
- 	}
- 
-+	if (!prdev->capacity || prdev->capacity > PAGE_REPORTING_CAPACITY)
-+		prdev->capacity = PAGE_REPORTING_CAPACITY;
++		/* This reference is released in virtio_i2c_msg_done(). */
++		kref_get(&xfer->ref);
 +
- 	/* initialize state and work structures */
- 	atomic_set(&prdev->state, PAGE_REPORTING_IDLE);
- 	INIT_DELAYED_WORK(&prdev->work, &page_reporting_process);
+ 		if (virtqueue_add_sgs(vq, sgs, outcnt, incnt, &reqs[i], GFP_KERNEL)) {
+-			i2c_put_dma_safe_msg_buf(reqs[i].buf, &msgs[i], false);
++			kref_put(&xfer->ref, virtio_i2c_xfer_release);
+ 			break;
+ 		}
+ 	}
+@@ -106,26 +151,38 @@ static int virtio_i2c_prepare_reqs(struct virtqueue *vq,
+ 	return i;
+ }
+ 
+-static int virtio_i2c_complete_reqs(struct virtqueue *vq,
+-				    struct virtio_i2c_req *reqs,
+-				    struct i2c_msg *msgs, int num)
++static int virtio_i2c_complete_xfer(struct virtio_i2c_xfer *xfer,
++				    struct i2c_msg *msgs,
++				    int num)
+ {
++	struct virtio_i2c_req *reqs = xfer->reqs;
++	u8 *bounce_buf = xfer->bounce_buf_base;
+ 	bool failed = false;
+ 	int i, j = 0;
+ 
+ 	for (i = 0; i < num; i++) {
+ 		struct virtio_i2c_req *req = &reqs[i];
++		struct i2c_msg *msg = &msgs[i];
++
++		if (wait_for_completion_interruptible(&req->completion))
++			return -EINTR;
++
++		if (req->in_hdr.status != VIRTIO_I2C_MSG_OK) {
++			/*
++			 * Don't break yet. Try to wait until all requests
++			 * complete to ensure that the virtqueue has enough
++			 * descriptor slots for the next transfer.
++			 */
++			failed = true;
++		}
+ 
+ 		if (!failed) {
+-			if (wait_for_completion_interruptible(&req->completion))
+-				failed = true;
+-			else if (req->in_hdr.status != VIRTIO_I2C_MSG_OK)
+-				failed = true;
+-			else
+-				j++;
++			if (req->read)
++				memcpy(msg->buf, bounce_buf, msg->len);
++			j++;
+ 		}
+ 
+-		i2c_put_dma_safe_msg_buf(reqs[i].buf, &msgs[i], !failed);
++		bounce_buf += msg->len;
+ 	}
+ 
+ 	return j;
+@@ -136,14 +193,24 @@ static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ {
+ 	struct virtio_i2c *vi = i2c_get_adapdata(adap);
+ 	struct virtqueue *vq = vi->vq;
+-	struct virtio_i2c_req *reqs;
+-	int count;
++	struct virtio_i2c_xfer *xfer;
++	size_t alloc_size;
++	int i, count;
+ 
+-	reqs = kzalloc_objs(*reqs, num);
+-	if (!reqs)
++	alloc_size = struct_size(xfer, reqs, num);
++	for (i = 0; i < num; i++) {
++		if (check_add_overflow(alloc_size, msgs[i].len, &alloc_size))
++			return -EOVERFLOW;
++	}
++
++	xfer = kzalloc(alloc_size, GFP_KERNEL);
++	if (!xfer)
+ 		return -ENOMEM;
+ 
+-	count = virtio_i2c_prepare_reqs(vq, reqs, msgs, num);
++	kref_init(&xfer->ref);
++	xfer->bounce_buf_base = (u8 *)(xfer->reqs + num);
++
++	count = virtio_i2c_prepare_xfer(vq, xfer, msgs, num);
+ 	if (!count)
+ 		goto err_free;
+ 
+@@ -157,10 +224,10 @@ static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
+ 	 */
+ 	virtqueue_kick(vq);
+ 
+-	count = virtio_i2c_complete_reqs(vq, reqs, msgs, count);
++	count = virtio_i2c_complete_xfer(xfer, msgs, count);
+ 
+ err_free:
+-	kfree(reqs);
++	kref_put(&xfer->ref, virtio_i2c_xfer_release);
+ 	return count;
+ }
+ 
 -- 
-MST
+2.54.0
 
