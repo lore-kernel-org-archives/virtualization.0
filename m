@@ -1,132 +1,151 @@
-Received: from mail-pl1-f182.google.com (mail-pl1-f182.google.com [209.85.214.182])
+Received: from mail-pl1-f173.google.com (mail-pl1-f173.google.com [209.85.214.173])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71C603839A1
-	for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 23:29:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.182
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 181E4336885
+	for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 23:35:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.173
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781134185; cv=none; b=iHVfFjEeHZ68Q7DeYOZAni5VlKeH+ONYvUhE5WEvco31sYcK+AE5wh1JC/6Rwhqd2Lfp04Tsk878UQosffJ0KG2A3f5MRTcYJ2ePfaQP84+o3lZpwb3mUZbbaKMTdq8aLyugBQp+zWXw7TqySw/F7AV+DPrWO1FbsL7LOY/Vkmk=
+	t=1781134512; cv=none; b=JhT/8/C/SnwpSx0km+To5qJwhOfEtVQpc/+ZbpWpYGD4MMIcSnK4Wk8FpIbXpL53IQ2OuoTl6MOAbnm23vs6KVpMa/En2zc4wIJmA9o7/UHCPPxhdFXWFcVQlm9Wivr8eaZ07gxYfNK1qXoNKaGWI7Iw8XsHB3KmslfomXsW36E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781134185; c=relaxed/simple;
-	bh=VmL/XyDWEuE0QsbaGtnBZ4YmZiYfGkfte0l+rUVpi6U=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=mniEQk5gcopp7zMAiSSJBy95wMgy0lPHg8JiQ1q6+owDyXLEM2iwFmXt747gwSuF1IrA8j+UIZPwib7d/g2rArQu9+EuakMwhVtaF2gMFmUtELquZWhBTba/BYY9oRo0aDkxuMy7JTBHRcNxYpP/Xm2owYrSzWXlsp3ud6V9k5U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=asu.edu; spf=pass smtp.mailfrom=asu.edu; dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b=Vi1e7C74; arc=none smtp.client-ip=209.85.214.182
+	s=arc-20240116; t=1781134512; c=relaxed/simple;
+	bh=Q0GHcH8Um8SH1FpKA3xq0Nka+lgPxYfvFIDdo8kKVp8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=kvV6GwRhHYFy/ml82bb5RGHpcgvPFisCp+/Pfyq9lrPJLRBEPv7gj8acOD7bXmWTYZtvW1q5QCufP5u9tgN+hvGwpbgimNZE7n90xqYEGknRLWWKsx4L1gAvEnV7OZIn7h8e6G32mtLp9mK7Y2Luw3kml2m/CmVGCp4ZNIwBG9g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=asu.edu; spf=pass smtp.mailfrom=asu.edu; dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b=EAqpr+Lp; arc=none smtp.client-ip=209.85.214.173
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=asu.edu
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=asu.edu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b="Vi1e7C74"
-Received: by mail-pl1-f182.google.com with SMTP id d9443c01a7336-2c0c3315c5dso76246665ad.3
-        for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 16:29:44 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b="EAqpr+Lp"
+Received: by mail-pl1-f173.google.com with SMTP id d9443c01a7336-2bf237e1433so80198015ad.1
+        for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 16:35:09 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=asu.edu; s=google; t=1781134184; x=1781738984; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Tbtqprzo1bFuxnDYsSnM79zDHYhOXlVVzm5C0yyeVNM=;
-        b=Vi1e7C74n/Otb+QeD91uLEuwc1z6U/a2O2I58zBUQxOt+EltwC660YvYWzmA7pi67l
-         8H4+PCDkDMoTIJgg8HNqX6S9zgXvWnPGJW3hGrOpEXdCiFHPqf6DU/gaUZJcp4jdTiC3
-         5rJoAgFiTF8IRelY44H5SNRN/+K7EexF/mYLLheTIgZsW+4oQ+Ru/jqKqgcos+H5inma
-         AuDbe4tTmcKcZIk3Rz/UkTONPZd88wud9IVlLOMHmE0+eYllfHSbegXwNb/ZWnebRd0p
-         TsKOlJfgX4TZE/UDZkRPgjNQlCtrSP97HhgdFTr8yeec0gmfwqmXod+NHw1/oVmfmyx4
-         m0Bg==
+        d=asu.edu; s=google; t=1781134509; x=1781739309; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=6Gu9x5/y7r12LiwFW9csPbVwnmzWa33CTWccxkH9Atw=;
+        b=EAqpr+Lp252PUklYdTga61jBgODFotwvLsH000Ph/LKF8ZXlfZn/Gzr4OlO150+0mv
+         CvQTZOrWnJTPiaTKvQpPYcUplN+zVbxcYdDcJYxEaElPB+9VXQB4kR/3pI9QQqM0wbV8
+         5v24onbvbTAiGgD7zqwIlLTlXz1tMzt3ewKKLqFWh7QT05XcGC3lJr/81XKz2RK/ba2v
+         J1O1RsT1NOiFPl3/d2es28Vf7iFAfe+ORvzeC8ZK0/RtFRp+eeuE5hMLtwSzy0r1szAQ
+         qXOBV38/CddLaovn9F4vkdL/GMbXWDlThbvPSbcq71gkUXpxYok1YUy1LysdzRcW2QJE
+         j3Yw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781134184; x=1781738984;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=Tbtqprzo1bFuxnDYsSnM79zDHYhOXlVVzm5C0yyeVNM=;
-        b=HwHCMVt6n3LOAn0AfxQAX6UqJWUFVxzQsteLbgJFXPCbxx0aOK21O/8o1fUcRPUjVS
-         /N4ClzUqG5sf99AawLLSzOvcqkxiHDRm13MgzzYUY/j/5rjhuXCSvv0RCE7KMlZpXjQn
-         djRqnKa0jvsRRhTImvcRRfXfTbAzC1NVOTnqWsgLK78OwmSfnKz4j4+3w669OL3Fmy4X
-         9AsbXQDd+bxU67NYevL1shC5c/re8CosgRc8gAaZ2w2qLDwyJfK6JLEfiChAy0sSykIc
-         wCJolVuTJJjZAIuhIfBvu+EUlXuNf7fKIJhNOeA2bmPWmk9hgxTNb4MnJBL+s2KDSS5/
-         Zw7A==
-X-Forwarded-Encrypted: i=1; AFNElJ8whj4I3/c28YOvdHhfj52btAi8ItRu1F50Kz7Q6jtRGK/118FYQdG+UgD2z4C7IxNokIuwSKDipqGQflx2Ww==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxSFdwbQomAEoY3UY1DqZaHOF0N7lp+SZU+XbJyUzuhZeBqw4O9
-	WGLoO2EgoiTyrvSNgxdVQ6qnWNAbKiVrirz5ffN2XuMI5OVnnldQ7AJMC5cAlK9fmQ==
-X-Gm-Gg: Acq92OGIXOGznHiBXr15QokmjmjBFd5Q+snFQGJuHqQBcdJATcfmFWIbvD8Q/y5Vc2+
-	C4VqtUukQ18t29Eh7C/5f8Xdz5haFlvn/ScHrRlDI72soPqqaRqGWQYzlvtmf+TDLb3MbiIXkm2
-	N+aEPr81AJtXVog2lmQG2BlgZ/LzVK/V9D6O6Hb5dsgyKaSmwYqHkF8K6osknIw/GTLSoUkoFoO
-	aLgc/HUQznGct2SeGU5wmwkvBE1OwLa8EuBy4U8sLHOeQ1Mx92RJwW6lFG/a3Yj7A5otfnwaKAQ
-	fPFCnSR2uX/ySczwEKD/lKEuV58vKwcrnIBFFvB9YYwjcbHLHvXvFtLyDvr7rh83X14yf4yp4Vv
-	p2jJnUAhB1H295WrLQGO73tF1x9Xz5SIFdeAeln+b68TDg9FLmSYkaqjTSkX2R7uUrMpQTIuf+n
-	n5qlM7kKySP3yIrv2vhtgBlZLqZnPZqA==
-X-Received: by 2002:a17:903:3b83:b0:2c0:ab82:6ba7 with SMTP id d9443c01a7336-2c2f3055e26mr1288055ad.33.1781134183883;
-        Wed, 10 Jun 2026 16:29:43 -0700 (PDT)
-Received: from p1.. ([2607:fb91:1582:d2f1:7bbf:a7c4:749b:120a])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c16629d090sm242781845ad.55.2026.06.10.16.29.41
+        d=1e100.net; s=20251104; t=1781134509; x=1781739309;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=6Gu9x5/y7r12LiwFW9csPbVwnmzWa33CTWccxkH9Atw=;
+        b=MitDmNgO/bPiaHws+HLKUqBtInHw9u2DJZ5rfEHe7+vdxKMMnfooc5tPEudtYZ3xrB
+         ecVGMdV4F05fwaSlP+sFM/Bwj4VQamIu3aBihrl8asuJ2ynaRx/8Mab4rkEhMPHu4xa0
+         FDesy2Oy/+RIaN/D7J7CkXrUOVykBWCxPNV1N5YGdMbSseOyz+B2avNskB14kvf+ay8l
+         D1lza5r6sf++6iPLWymovUDZfMKfscHyiYQDvUEDo0R/y/WyYKF4IDGfvBlFtFj8KWmh
+         D+b2RiXmPxL4iLbtNuOlTnmQQPuoM5Q9MonZBjs/kpB6z9QZXz6fwI9NmxYINb56niN6
+         bc2w==
+X-Forwarded-Encrypted: i=1; AFNElJ/JpnAJALpFWJXyGcR0/1dnxxgGL48yw5NyYUCAmh7tXk9yH6Tv9HT+YsR7QRte7pH2mW3tBcu9kXwQaaBl+A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyfNwa8PaxEavt36QZYCx+hmA4y7eytCrfnrojuok5S34MqStdq
+	hxZvE6FYAgaUw859dIbiDlHB+MjlvP57PWrJ2XL1HdQMrOtNJxjA9pej1ZsPj+/Rhg==
+X-Gm-Gg: Acq92OFeoW5PVfr+8/92zzuJs0wIP4EmaZiwIR9AMdk6gpxl/38Zpf8SIvl+lCSwjCP
+	8mrpUG+B5ykKcWGRqKAsmGlzSJkfC9Nfc+GpFVUY/eiYNtNH4cviXySkU4yB5l3OJbN76x5zTu+
+	toOwUn/0Md0G2MOK8lzQG0pmArDgKcpPaOEvytRJ9pLbu6FbOsLVPadg8N3L4QGeb1XBggJDzhV
+	EmYDK3ULE8UcoYBMqLkERDJ8g+Z2IU91q3E/bE1N3thMpkLL2196s2aGD8GBxST4d6xtZeAtWLx
+	AVxphbPdiFfcSzWaETnV3J1O54fnEjvIXfNNFXCO9wBc7pfqSsHyLevhv7PIx4lLREsh2+uPsPU
+	GAYOlmKm9uA3WKSNr4HsO9UFi+7LP5/+t4NZLY6LCAKGeRjW7f8IqeyZaQNPUTcvsEDej5TnfZe
+	opLk1EkYLHN+9hOVsH
+X-Received: by 2002:a17:902:e745:b0:2bf:1fbd:b946 with SMTP id d9443c01a7336-2c2edae7b99mr2130765ad.0.1781134509375;
+        Wed, 10 Jun 2026 16:35:09 -0700 (PDT)
+Received: from p1 ([2607:fb91:1582:d2f1:7bbf:a7c4:749b:120a])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c2d9bb2199sm7649435ad.77.2026.06.10.16.35.08
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jun 2026 16:29:43 -0700 (PDT)
+        Wed, 10 Jun 2026 16:35:09 -0700 (PDT)
+Date: Wed, 10 Jun 2026 16:35:06 -0700
 From: Xiang Mei <xmei5@asu.edu>
-To: mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com
-Cc: andrew+netdev@lunn.ch,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	netdev@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	minhquangbui99@gmail.com,
-	bestswngs@gmail.com,
-	Xiang Mei <xmei5@asu.edu>
-Subject: [PATCH net v2 2/2] virtio-net: harden page_to_skb() big-packet frag loop
-Date: Wed, 10 Jun 2026 16:29:36 -0700
-Message-ID: <20260610232936.1176094-2-xmei5@asu.edu>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260610232936.1176094-1-xmei5@asu.edu>
-References: <20260610232936.1176094-1-xmei5@asu.edu>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
+	andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com, kuba@kernel.org, 
+	pabeni@redhat.com, netdev@vger.kernel.org, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, minhquangbui99@gmail.com, bestswngs@gmail.com
+Subject: Re: [PATCH net] virtio-net: fix len check in receive_big()
+Message-ID: <5vtwwpfftbzq7ehm6itoq2263gffo67yv4nebrwgsa6fkb2t7s@wdxt4exrvfpj>
+References: <20260610221606.1091465-1-xmei5@asu.edu>
+ <20260610181911-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260610181911-mutt-send-email-mst@kernel.org>
 
-This is a robustness hardening patch. The slow-path frag loop in
-page_to_skb() walks the page chain via page->private until the
-device-reported len is consumed, implicitly trusting that len fits the
-chain. It does not stop when the chain is exhausted (page becomes NULL
-at the tail), nor when nr_frags reaches the end of the static
-skb_shinfo()->frags[MAX_SKB_FRAGS] array.
+On Wed, Jun 10, 2026 at 06:21:49PM -0400, Michael S. Tsirkin wrote:
+> On Wed, Jun 10, 2026 at 03:16:06PM -0700, Xiang Mei wrote:
+> > receive_big() bounds the device-announced length by
+> > (big_packets_num_skbfrags + 1) * PAGE_SIZE.  That is still too loose:
+> > add_recvbuf_big() sets sg[1] to start at offset
+> > sizeof(struct padded_vnet_hdr) into the first page, so the chain
+> > actually carries hdr_len + (PAGE_SIZE - sizeof(padded_vnet_hdr)) +
+> > big_packets_num_skbfrags * PAGE_SIZE bytes -- 20 bytes less than the
+> > check allows for the common hdr_len == 12 case.
+> > 
+> > A malicious virtio backend can announce a len in that gap.  page_to_skb()
+> > then walks one frag past the page chain, storing a NULL page->private
+> > into skb_shinfo()->frags[MAX_SKB_FRAGS], which is both an out-of-bounds
+> > write past the static frag array and a NULL frag handed up the rx path.
+> > Bound len by the size add_recvbuf_big() actually advertised.
+> > 
+> > Fixes: 0c716703965f ("virtio-net: fix received length check in big packets")
+> > Reported-by: Weiming Shi <bestswngs@gmail.com>
+> > Signed-off-by: Xiang Mei <xmei5@asu.edu>
+> 
+> Let's instead (or additionally?), bound the frags array index.
 
-Both bounds are needed: the chain length is big_packets_num_skbfrags + 1
-pages, which for an MTU-driven configuration can be well below
-MAX_SKB_FRAGS, so neither guard implies the other.
+I went with "additionally" rather than "instead": 1/2 restores the
+length invariant in receive_big(), and 2/2 makes the frag loop
+self-defending so it no longer depends on the caller validating len.
 
-Make the loop self-defending so it no longer relies on the caller having
-validated len: stop once the chain is exhausted, and never index past
-MAX_SKB_FRAGS. No functional change for well-formed input.
+I didn't find a case triggering the issue of 2/2 so I could not produce
+a PoC that actually crashes the kernel through 2/2's path independently
+of the 1/2 bug. With 1/2 applied, the over-long len is rejected before
+the loop, so the guard is never exercised by a real trigger I could find.
 
-Signed-off-by: Xiang Mei <xmei5@asu.edu>
----
-v2: robustness patch
+So 2/2 is defense-in-depth rather than a demonstrated separate bug.
+Please feel free to decide whether it's worth taking. A v2 was sent.
 
- drivers/net/virtio_net.c | 5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index afe73eda1491..518c22fa1b68 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -906,8 +906,11 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
- 	}
- 
- 	BUG_ON(offset >= PAGE_SIZE);
--	while (len) {
-+	while (len && page) {
- 		unsigned int frag_size = min((unsigned)PAGE_SIZE - offset, len);
-+
-+		if (unlikely(skb_shinfo(skb)->nr_frags >= MAX_SKB_FRAGS))
-+			break;
- 		skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, page, offset,
- 				frag_size, truesize);
- 		len -= frag_size;
--- 
-2.43.0
-
+Thanks,
+Xiang
+> 
+> Seems more robust.
+> 
+> > ---
+> >  drivers/net/virtio_net.c | 8 +++++---
+> >  1 file changed, 5 insertions(+), 3 deletions(-)
+> > 
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index f4adcfee7a80..afe73eda1491 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -1999,15 +1999,17 @@ static struct sk_buff *receive_big(struct net_device *dev,
+> >  				   struct virtnet_rq_stats *stats)
+> >  {
+> >  	struct page *page = buf;
+> > +	unsigned long max_len;
+> >  	struct sk_buff *skb;
+> >  
+> >  	/* Make sure that len does not exceed the size allocated in
+> >  	 * add_recvbuf_big.
+> >  	 */
+> > -	if (unlikely(len > (vi->big_packets_num_skbfrags + 1) * PAGE_SIZE)) {
+> > +	max_len = vi->hdr_len + (PAGE_SIZE - sizeof(struct padded_vnet_hdr)) +
+> > +		  vi->big_packets_num_skbfrags * PAGE_SIZE;
+> > +	if (unlikely(len > max_len)) {
+> >  		pr_debug("%s: rx error: len %u exceeds allocated size %lu\n",
+> > -			 dev->name, len,
+> > -			 (vi->big_packets_num_skbfrags + 1) * PAGE_SIZE);
+> > +			 dev->name, len, max_len);
+> >  		goto err;
+> >  	}
+> >  
+> > -- 
+> > 2.43.0
+> 
