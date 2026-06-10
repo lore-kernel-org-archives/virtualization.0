@@ -1,138 +1,154 @@
-Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
+Received: from mail-yw1-f195.google.com (mail-yw1-f195.google.com [209.85.128.195])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E37B3A5989
-	for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 09:13:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781082837; cv=none; b=dVn9obIUom0JGDyCrh1MZHOHu1iYlVL6xF5tzl3/h4yVqjbmo3ciwUTKxSSnKmRDEiVHXiZ06PAxJBtay2pd/wWn8hGBjKiFfD0FmTtdn1IY9YnXl6XePQdWGgfa3vVvrJZerrsQyu87fTjtzbdcIX+VqIbllSL+P7zEz0Ht8FU=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781082837; c=relaxed/simple;
-	bh=n9Pb7a3axFjzxDMjrZkjjorf1UU1SU9m+G1T7dF5YAs=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=OU5EPFgIV4OKv9ytefhxT4pVfWpgz0YIg/xyyzLxlvgvA89Sqbo38kmzPRBoHtUCz9OFCDiAdnt2gVQHeRuJG62P512vFXy0gnVzn9rUOGz2fTNcDF+Y12PWdCep1xdJwQdTYmsgi7bUYG+ILharUJ1iP8HAbI7wO+oV/PC8WZ0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OIsf0Wfs; arc=none smtp.client-ip=209.85.214.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4DD43C10AF
+	for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 09:15:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.128.195
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781082953; cv=pass; b=gg4+h/dp9O8RzGTPXqFsjaR6VYiWprKZvt9JiUdNN230CTIEDTOz0dLwLrPtPywdqjO7krsjt98ejP/z8SEp21DyoxEt5jBBdEms8LRgEKSjnzWVRmsaHwTq8bWKb/LfV28huCYkXyeWX4Jiem+v69Qu2UI16098b1Vd7EkmeoM=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781082953; c=relaxed/simple;
+	bh=dkWTevOEzDTMmxDai2XZ5/ake5l927UeEL0MaDVmHek=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=Sasp0U2TgFVlAVzgxqSbRJBM5lJgYgfQr3WxVUKHGNAEwbNDT+ACtcGbnlbTyQrtIpUYKpFct97mMzwlRfgXpVXFoSXfXYYR4aHfY6qoT2DMI4guPTeqDJ/iZBmmcc6XJEMWz/tPLuFLeHgmuMTW/gTy/lrUIc9k+JqLBcHkGlU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=r/O76sCo; arc=pass smtp.client-ip=209.85.128.195
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OIsf0Wfs"
-Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2c0c2a68d01so44040835ad.1
-        for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 02:13:56 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="r/O76sCo"
+Received: by mail-yw1-f195.google.com with SMTP id 00721157ae682-7dd3f176f84so74450127b3.0
+        for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 02:15:50 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781082950; cv=none;
+        d=google.com; s=arc-20240605;
+        b=dPPsQh0PgZC3l/7+XZ6/BdkpYSNqCI4YsuJF062wBeppnpG6QB5//SIUNyFGibpmoD
+         AROKIDW/2/rwFqMXnq+26JUNu0oPpS+gv/+e50/9RhrLKWaB/lGmnZlLqxWU0561QHW+
+         hpse5ZUov58wiwov3oyXxSfQATPqYN4/jOzR7TCim+WdDUMhaNcS/C9pnK3sjZ9FT1Wd
+         MPlLuA0ZzLdqId0YO+m8vyFqlECaK0OpGOqQ4V/39Rw+ffaC7J44rbUtnTdYvnE6zohO
+         t2af+JqLSJdxxxiMuiU3akF2v6mA7v2q3kKUJYkAh3LmLO06Pht4eoN5H81adHCOAqoB
+         VyPQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=7Vr1lvCHUXqA8wl46L5q/dYr6UTfHd+/3UQsnP1BtFs=;
+        fh=+hfJFALP/SODG3yA9HV3pxelym+6X8QSOFGIJ0aH44I=;
+        b=RwWzJ1EhEcxg0CLdCapsYmR6LgC1AQVDR4Pk70Uiap+K3gENaqROEPO2CmaDYOBEVP
+         d70Bx8GeVnDG07RxSe6+o0yePaAkMQRfMiWsfTW50AWCdyL/DzbuKmQPQin5vxXJ8+TI
+         eygTpbXMoJDrOR08mXNdxP2xPDz4+hM9bjMo8HkQFg70E37sOK2JmDDLmoD4J7LPbsA2
+         o244fcAK06XElA0iv20DNng6jJX3XCK0cmpXve9nh6Sp2Oe4PCLK7dXeO6RmCIW/BtQr
+         sDY5vf1HuUwOHly4k6M72vNLpFSXXvlUU0gtypeymMbWi1yIG4EAjtbg2SkcNhiWcHIZ
+         N+JQ==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781082836; x=1781687636; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+        d=gmail.com; s=20251104; t=1781082950; x=1781687750; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=xujE92v9Fhi27fvUp8TSHkV9oiEzGhWhlzdRW6++/1E=;
-        b=OIsf0WfsXcpT9CDMjnHRsZjI95jZaLlTFvOiyIBYMNcE/zw7bDh6lx3p8PrhQ2cRi8
-         b5AdCitKcUy+g7ULHE/RTMW6nfSww8iOtrssoOs0o4RQG3xDD6O5rS9VfiaugiSyhIwq
-         K33ZMkZOjKEwe7wce3JO6ZHRqSaJ/lZzUfdWfp8A6l/6SzbIdaKcT3ZfgPnYz9VB1E1F
-         5D/Jh+LRrnSIOOcceT35+NsgltT0WzYl8INdJOPvTJioM8JxfO5ASRXhVp+xoHzFXU0l
-         OLYjHxw4LkvigCRDRIspiG3VlaSof5pY1Y02YyPsFtSqQ7BXEKvIMNBsCE6zSN+4lHRB
-         U5LQ==
+        bh=7Vr1lvCHUXqA8wl46L5q/dYr6UTfHd+/3UQsnP1BtFs=;
+        b=r/O76sCoDnMZlLrlOFfL+2WjYGAG+Uf5jCOsMt9OdI06EH7egB6UYWid2haPN9PJmQ
+         hI078Jr8BqUa+vzj9c9MyFjrt3GFNhzt5zgB47fxEUoTBL9gPT48Y16JraC5rljeGYVJ
+         t/mT0DgPXrMuKg9y6zlQeAS4jZl6kX0VVf3lU7ykjyZJZdDhfluyA7M2PRmN70egtUGx
+         M9sLq83AnNj9Udd4vud1CIYF5nKyl/JId0Jyek9FoK7jyhic5u6ln7SLn8ndyHwjYNDR
+         2pKXqyOIRVTygxi4iMDXWXH8EKwvSMKABPvAoMttIASJrxAuFfeW6irqIOZju7RYFwmR
+         vxLg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781082836; x=1781687636;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+        d=1e100.net; s=20251104; t=1781082950; x=1781687750;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=xujE92v9Fhi27fvUp8TSHkV9oiEzGhWhlzdRW6++/1E=;
-        b=Ww4/9ibDpXBNGm/5ye/tk0MNay+pP3KAl7CQ8j6Be3gw9P6BLdtU5tDTtTMQEOGLty
-         a5kvbTZOIN1wt2E9AXJEvULXCJj/Bor4fsIkGPDSIhkQ9lKGpgd2LqT+lc2R8SPOYRQ4
-         efg/kmLvJGLkr1+KlxLyZBA6StIYtusePNU7zMrKeBa8Cfti+pNWN60DCj5wO4Wv3zNr
-         frWfSJ0z2kteTF7djq6AXVfcT3CnM5UxKWESgZf9pQzLCk7IJC2h57XFE/s3mljtuoMR
-         6wW6YGO0wc6KFEu7NInobWeA3dw1/19RzyXxt/kBJoaSgEhpuZF9di8vi01LNoWPGTQq
-         mjKA==
-X-Forwarded-Encrypted: i=1; AFNElJ+EHWIhJYTFCpg6gkI95ZFOhWgkK9wOypdEwjmNRm58U4af/B3Z53uyhIKAIZlT9QmTTxHB7FoSfs7x9NXuiw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzJGbfBMzyhGGXHA8y0vBh2f/ywLuiNi2oLzlCTFvy1nmQ8O8uc
-	J5p6OndsVTNvFHwLFiTuptDeuQvSJAciyod8p2KzNIhRI00Q8LGbwbQ=
-X-Gm-Gg: Acq92OEOEeXOl5E+lLMTuI5t5wRoBUDYWXqexML78A9wEgK+BxAdZxMoxR5Pt+kmKFH
-	CGSDJ+ReFmnyl/e2kdkvS/OC7hMXKblMDAGK49a5+ObFH3+Yh0oMakJxSlnYEupF+VkEEMddx7w
-	ElMvwBYUWhMuwjmbgUEEFr+pSdSXdITIBa/K9aVoxqlK5MN9XANqbSWJqNnbYOE2CcXwtbjRWFk
-	NdEJb+XZAOrOL9/e0h4W7K2eX5CbGlgUuyhJPgfZZTqRqWuGi4/5z6ubBIVeJ71yvtPCNTi1J6j
-	hFw64btb7+wYVhEPSA0jv+TlLWMWKzOmFznFKJsfr5C1UOTtgnipukpQMtqDoSQEZble5W3ErCd
-	Rd9w6RKnWD6IRLRLZ/m8UZSV/NquyKIwI6hQj/Om5gPEt9LxicOPvW2I2BQed471lls59zFgCLp
-	HcUbnQyRP6YymqnoDF95iryvoGU6vlqfL8fqBPXkdhZyAg1rZB0y/clDxPOaZVImvzI4g5CvT8a
-	ffmlA==
-X-Received: by 2002:a17:902:c401:b0:2c2:cf20:213 with SMTP id d9443c01a7336-2c2cf200450mr7795645ad.29.1781082835600;
-        Wed, 10 Jun 2026 02:13:55 -0700 (PDT)
-Received: from raf.tailb4a862.ts.net ([153.124.163.116])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c16609e096sm242991765ad.44.2026.06.10.02.13.51
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jun 2026 02:13:55 -0700 (PDT)
-From: Raf Dickson <rafdog35@gmail.com>
-To: netdev@vger.kernel.org,
-	virtualization@lists.linux.dev
-Cc: pabeni@redhat.com,
-	sgarzare@redhat.com,
-	stefanha@redhat.com,
-	bryan-bt.tan@broadcom.com,
-	vishnu.dasa@broadcom.com,
-	bcm-kernel-feedback-list@broadcom.com,
-	Raf Dickson <rafdog35@gmail.com>
-Subject: [PATCH net-next 2/2] vsock: fold sk_acceptq_removed() into vsock_remove_pending()
-Date: Wed, 10 Jun 2026 09:11:21 +0000
-Message-ID: <20260610091121.213324-3-rafdog35@gmail.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260610091121.213324-1-rafdog35@gmail.com>
-References: <20260610091121.213324-1-rafdog35@gmail.com>
+        bh=7Vr1lvCHUXqA8wl46L5q/dYr6UTfHd+/3UQsnP1BtFs=;
+        b=DbGBydNVkGn1vqz+p462sfCnph8HJQITRDM3y/xTsCHDkZWEUySjP1f/zgmhtF/aDe
+         qZvyZgYo6WpUtZcdiWd74RL/wftd1vcKK9clvTgupMPmp8yspIkuETDUwgrRztU9SWRx
+         WEXNJ6kb+E3AwodHJIZYogEBi6sPjmr9C+9fxryAA+VVbpb79iqLNlq1n+rkb1WW1Tmz
+         pALXlo45WnDL5Iv8QgLamVteu0eZt+uRMYxuwKCIL5+PiyFdLKymfsJ1+fxKPYbgRNBi
+         RHw4Vf6OnC+hXtZSJOG541+eLeND45NaVvzaVgfPOd4O4YUUGDHRZGUv4fmjx/f0Y8py
+         8WVA==
+X-Forwarded-Encrypted: i=1; AFNElJ+zYogPGuUXdok9z/CiwxDj/KRmA069U/64zJInNFmR9wHCZk49P8T7BKP9S+Xwmhtw4ADRRMbulAXNiRrPfw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzk0kTxbKrRU9/0hHa2SuIzueXneI4Mz1UdkZIRwEa8esBgA4w7
+	/+l0q6QOaSz08zX2puWUs9BZMFB0TgoJnXQE1p4wtJq9CYHVreP6M23Dfw2gCVGHw+yGIKRHaps
+	F6oGXgM95lvOOz8/wFN37cmYmUFAJf/I=
+X-Gm-Gg: Acq92OHU3K61qbg1j7LtcTIk697YLzeEDpBOA7dl8isgDkWTCLlD6I6I6m3eAmrPYZ8
+	bZptKft8biHXXJjiWjy8JTZwlV/wxag2hYWdNQBO20ey5afaSBjJDhTMjhmXZ8BJJuYQPLUyvru
+	alDhNgDP9bwRQhguncsfweAEKtwa01hGJNb8vjwhGCw058j0eHU8L4/JdD+R5+4Xh4fvETon4M2
+	kXsMzzi9bWUGfYJl8W2lXqMyEfdGVd29yIEuQogIjst+3RIsjz510TSYjC+c3d2OwB/JRG0ZAQz
+	clmI3Rp1+mWq9HUQPB85
+X-Received: by 2002:a05:690c:6088:b0:7b4:1ffe:f9f9 with SMTP id
+ 00721157ae682-7ed0d5c0168mr228901987b3.16.1781082949719; Wed, 10 Jun 2026
+ 02:15:49 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+References: <20260610081648.2205711-1-dongml2@chinatelecom.cn> <CAJaqyWeYiruNosJsMTh2jQ=XCEcPg7956aqeRRpDSyynfpjNZA@mail.gmail.com>
+In-Reply-To: <CAJaqyWeYiruNosJsMTh2jQ=XCEcPg7956aqeRRpDSyynfpjNZA@mail.gmail.com>
+From: Menglong Dong <menglong8.dong@gmail.com>
+Date: Wed, 10 Jun 2026 17:15:54 +0800
+X-Gm-Features: AVVi8CeKeNx-GTsiC8xsIcnA6meI4tsNjbFnxar3BDX9_eDtXkvFWK2nbkQsqV8
+Message-ID: <CADxym3ZVfwg7t96Ct20pnZdm9tTvpCypg_dp3f+3aj1TL2argQ@mail.gmail.com>
+Subject: Re: [PATCH net-next] virtio-net: support xsk wake up
+To: Eugenio Perez Martin <eperezma@redhat.com>
+Cc: xuanzhuo@linux.alibaba.com, mst@redhat.com, jasowang@redhat.com, 
+	andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com, 
+	kuba@kernel.org, pabeni@redhat.com, netdev@vger.kernel.org, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Callers of vsock_remove_pending() must also call sk_acceptq_removed()
-to keep sk_ack_backlog consistent. Move the call into
-vsock_remove_pending() itself to make it automatic and prevent future
-callers from forgetting it.
+On Wed, Jun 10, 2026 at 4:28=E2=80=AFPM Eugenio Perez Martin
+<eperezma@redhat.com> wrote:
+>
+> On Wed, Jun 10, 2026 at 10:17=E2=80=AFAM Menglong Dong <menglong8.dong@gm=
+ail.com> wrote:
+> >
+> > For now, XDP_RING_NEED_WAKEUP is not supported properly by the virtio-n=
+et.
+> > Take the tx path for example, we set xsk_set_tx_need_wakeup() in
+> > virtnet_xsk_xmit(), but we didn't call xsk_clear_tx_need_wakeup()
+> > anywhere, which means the user will call send() for every packet.
+> >
+> > For the tx path, we will call xsk_set_tx_need_wakeup() after
+> > virtnet_xsk_xmit_batch() if sq->vq is empty, as we can't be wakeup by t=
+he
+> > skb_xmit_done() in this case. Otherwise, we will clear the wakeup flag.
+> >
+> > For the rx path, we will call xsk_set_rx_need_wakeup() if we have free
+> > buffers in rq->vq.
+> >
+> > Race condition is considered for both rx and tx path.
+> >
+>
+> I didn't review the code itself, but the patch message lacks a Fixes:
 
-Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Raf Dickson <rafdog35@gmail.com>
----
- net/vmw_vsock/af_vsock.c       | 3 +--
- net/vmw_vsock/vmci_transport.c | 5 +----
- 2 files changed, 2 insertions(+), 6 deletions(-)
+Yeah, you are right, it's better to use the Fix tag here, and I'll
+add it in the next version.
 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 73e6416ee9..b9772a0205 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -493,6 +493,7 @@ void vsock_remove_pending(struct sock *listener, struct sock *pending)
- 	list_del_init(&vpending->pending_links);
- 	sock_put(listener);
- 	sock_put(pending);
-+	sk_acceptq_removed(listener);
- }
- EXPORT_SYMBOL_GPL(vsock_remove_pending);
- 
-@@ -761,8 +762,6 @@ static void vsock_pending_work(struct work_struct *work)
- 
- 	if (vsock_is_pending(sk)) {
- 		vsock_remove_pending(listener, sk);
--
--		sk_acceptq_removed(listener);
- 	} else if (!vsk->rejected) {
- 		/* We are not on the pending list and accept() did not reject
- 		 * us, so we must have been accepted by our user process.  We
-diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
-index 4ce6660c11..356bebca7c 100644
---- a/net/vmw_vsock/vmci_transport.c
-+++ b/net/vmw_vsock/vmci_transport.c
-@@ -980,11 +980,8 @@ static int vmci_transport_recv_listen(struct sock *sk,
- 			err = -EINVAL;
- 		}
- 
--		if (err < 0) {
-+		if (err < 0)
- 			vsock_remove_pending(sk, pending);
--			sk_acceptq_removed(sk);
--		}
--
- 		release_sock(pending);
- 		vmci_transport_release_pending(pending);
- 
--- 
-2.54.0
+> tag. And the From and Signed-off-by emails don't match, which I'm not
+> sure is valid.
 
+Sorry about that. I use my company email in the SOB. I used
+my company email for the From too. However, my company
+email system can trigger "Delivery failure" messages sometimes,
+and Alexei said it is annoying. So I didn't use it for the From
+and removed it from the CC since then :/
+
+Thanks!
+Menglong Dong
+
+>
+> > Signed-off-by: Menglong Dong <dongml2@chinatelecom.cn>
+> > ---
+> >  drivers/net/virtio_net.c | 52 ++++++++++++++++++++++++++++++++++------
+> >  1 file changed, 45 insertions(+), 7 deletions(-)
+> >
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index 9b3da9f9786c..25e895b849a6 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+[...]
+> >
+> > --
+> > 2.54.0
+> >
+>
