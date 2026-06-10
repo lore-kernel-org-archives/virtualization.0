@@ -1,384 +1,197 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from CH4PR04CU002.outbound.protection.outlook.com (mail-northcentralusazon11013023.outbound.protection.outlook.com [40.107.201.23])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45F4842189F
-	for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 16:07:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781107655; cv=none; b=g8WxU9nN6bzv/OPN04iDhudYBcazksuknMrxhchzCKLmBfxT0WFdKnPuOxVZcQIXUXJpMsY6GXU6Z+wftQgI6QMLWZbBl2qEfA//Wk0f3foO8YET70D0U9qEwS93rGQo8gGG7wTtsU/yPlet3PTsVD/31t426g/evaRSGqhAVvI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781107655; c=relaxed/simple;
-	bh=ab9zrutGUbgPv13A+LvkoPjezfD4kCV3kGOGktx7bEA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=kisSIOmGth3XOEscXa2/h9NEFhcd2mh1Ku0WzI8GEGbyBfzsMUfwKwQCtCBt4XdeqKBfiDFqNqzkW1glzirA0QwhnyC0JZoXzznq9yqqOvvJsxM2z12r+D1BbxyU/oqq8hLOXEqqxHtDPfvbaY3TLHPda7aTIw08Jle4WKvh0cM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bMKa+kGB; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D342312831
+	for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 16:21:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.201.23
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781108500; cv=fail; b=A3Gw3sr9XH4TkPxenJNpF75yDgAQDz8bxo8rJZv5+6tyeH7X+n9xZveahA8SvF4Ye5Lteb/OaTt6IjxaQex9p+73K8oMUs4pTqv6Mo46vSV0o61ehedM+NsBb1LOjsnNwEo+hefGyKgZNYd20IZS3w3lweXaqQEwc2Q8B3QKZ0c=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781108500; c=relaxed/simple;
+	bh=hxziTgj+mAxO7iPwAhzOoeOihlzyVbTcPwd14ahuz7Q=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=UT3Am/UYpWKqE4yL0+JHpAI0zGzvzOWrbdZVWyZaHgbMKM4mRkXviK+amSMqCJTdrSy0y0J2pDm08AHakziu80Vljv4mXXyv+xT44/swFUbff1CK+YWdOX5nxjxH70kGFXViVLkJb4k1t3prcBoezaMpUF0B0abvXKfgnDRnJCE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=IUTIUH7Y; arc=fail smtp.client-ip=40.107.201.23
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bMKa+kGB"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1781107652;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=KTtszs1VfX/4nkl7kmlsgenQX26GcZqb815crHf1KnU=;
-	b=bMKa+kGBvoWdPdWLFzEvGlfax4c7iOMl4wF9ISO4wjAn9ymAr04+Dr0EJ1V7wy7VIHq0hu
-	O3uQRUPxOLWa6mTfdJPRgoJR2r2V3IIH0JEcnbYI/8mgnuKXkUvTW8FFt8KR1mXkpYRuY8
-	kuJp/6PWADlEJuc5cRbj+gCqCbYTnt4=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-124-eKcquVGOOwOMz01awCxjvg-1; Wed, 10 Jun 2026 12:07:31 -0400
-X-MC-Unique: eKcquVGOOwOMz01awCxjvg-1
-X-Mimecast-MFC-AGG-ID: eKcquVGOOwOMz01awCxjvg_1781107650
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-4601c9b630fso2908351f8f.0
-        for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 09:07:30 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781107650; x=1781712450;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=KTtszs1VfX/4nkl7kmlsgenQX26GcZqb815crHf1KnU=;
-        b=as6zhAFzF+6OgJgiLSAY8k+FCrFuozzKBjFcH1JcX8ue/FhoaopEUKgQlmlV32eTyD
-         7fNydE9umnncEL4jpgbsR0eWZf/gj9C6RXA/1HzraNbxpcjRFInU3mrsUiwa6gP9Cse7
-         XRq57jPXQF68x7PeVWstg3zZ/kxYgAVuds8v9gf3oiVevyD0ImmCn5FwAZ0RJLKV2eE9
-         A71Noz1PbN0UkizZmDbmibgrUy0uvIjjkJ3CHI46+NKbZ4s4pBW+ivd6fPnwjz/clGen
-         cB+1cni5WB4lYb4+Hbdea4BHozGt1q2hgW53dkP7Q0+Cg2B1Zds1VKouJEbuCbQDu5vO
-         fGSg==
-X-Forwarded-Encrypted: i=1; AFNElJ/p6GX+ubwQi3rfWKbIiDdi88/x7uNnIq9ydHbqAr/3K5ghQ62xr7+srBQZb06QhfbWi0+YeBJ0na2bQALu/Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzygyinluFPSgMftOI8umAXw84k57LdCWOFv6sobKTsccpb4+Kr
-	5ufKMK2J9zLkVWsF2+o2cxyCDbe75pqmeQ4+1RllkfkjXJDBB3pFgznL6+iMzU2g7jHxpifHs9d
-	Rbq+J57ErZdSOzNjOzvl4RyCv8tcD29MkBur8yV6xbGg0mFV6hxdUxZ8kSNuwSOglBdty
-X-Gm-Gg: Acq92OHjtySJsgNUl1AXNRcniGicCAUllHU/0vSUt2CWzEv3sAJ51aovkY6EAY8udoe
-	0khhQ/RUlpGvNnsibH3/2TeV3fWDkDpgP6t4qUJAwmb7+huOHslrMquXF+UpVQcIdgM+R7BcwDB
-	jXBSvES5Wrl7mnK6pS/XmXK52QRwNb77yhVdBX9Yc2cS1JoiFlyMfXS/d+Z5A/E8vY94izh0FkO
-	MwgX0aoDwXqAyYfZu4sHeLq+1dUFbycoDqSp6lQW/J1W0F6+9T+nrGM6xgUU3on+tGLTueJthpD
-	TSFhKeF77mJlHIpB59B8+stl5gSw5HscwjJ3alEVZaxoQmIDVHCsggKaHJaPPjMsEnwX88VXokZ
-	fR8jSX9nAon1qG996NuiI8PDkUpV8O9bDq5L0vLe6z9bdnz8Y+G0lag==
-X-Received: by 2002:adf:fcce:0:b0:45e:df08:b18 with SMTP id ffacd0b85a97d-4603075ca65mr27339702f8f.32.1781107649611;
-        Wed, 10 Jun 2026 09:07:29 -0700 (PDT)
-X-Received: by 2002:adf:fcce:0:b0:45e:df08:b18 with SMTP id ffacd0b85a97d-4603075ca65mr27339610f8f.32.1781107648928;
-        Wed, 10 Jun 2026 09:07:28 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-85-71.inter.net.il. [80.230.85.71])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4601f0a43e9sm72246046f8f.0.2026.06.10.09.07.27
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jun 2026 09:07:28 -0700 (PDT)
-Date: Wed, 10 Jun 2026 12:07:25 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Gavin Li <gavin.li@samsara.com>
-Cc: linux-i2c@vger.kernel.org, viresh.kumar@linaro.org,
-	"Chen, Jian Jun" <jian.jun.chen@intel.com>, andi.shyti@kernel.org,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH v5] i2c: virtio: retain xfer with kref to fix UAF on
- interrupted wait
-Message-ID: <20260610120606-mutt-send-email-mst@kernel.org>
-References: <20260610155834.79207-1-gavin.li@samsara.com>
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="IUTIUH7Y"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=FdaM6OhjHIWRP+mYvcEeA++w6B7F/fDI1xp+v75Qi4vDkdNsXBs9aEatJmbrZIEm5J9eOHnpjw5thgoRY7KzllscnTG7Z6xCLA6IHCtIxleYZlVU32C0J8gDuR+TO3VnG7DBSEw6QRgX+m5oDCarZNOB4jUMdoPMVsrUgVb4ArN4D0u4WMhBn8N5aSWidPOg+GNv6QNti2DOz4/5P3l234DhkbOT1bwhwu3GYZKY+VYaCk0YW1SLtIv/Yifwv9JYNUzFgcqzxC81EXOp0Aw27AhyT6JISR+PEsAYtrXcJftPi0vKWaXmiPsuepOd1mhm1lUwKzV5uuQ09QVY07H4kA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=ZSYYTRmCMNXCOMh61hjDk1ZU6wDnMhk0hCux4OuVniU=;
+ b=lZrLxaa4Wuhso+yBBm0SlzkZLas+/EhjmfygoQMgAqhj1Ip/zDaNBhM3dXQd6dbqmPHFo5HFi/yKjuYLdBYOZfodK8d3UeuU+RkGbB8jLeSFuaVMMHSHdHfP2cPKQoeeCLYJutvyTSahTtNMPjCs0XrnX5okrSXOwkFdAipO5ReMdL6uFxQNrUHmdUW6hltY9ZnBKc40cgFNdRhPa5h4E6an/hghRNNb8ilH8xfKigelZ9asG1TuzgCgpQOvwlHHzZdqmFyurxNQjQh5j1+7mj9HAoZXvxkChBkmviLgrxBFtNBRe7adfIJlz24QDIHmyf0lcFqnEIyycEr88mkl3Q==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=ZSYYTRmCMNXCOMh61hjDk1ZU6wDnMhk0hCux4OuVniU=;
+ b=IUTIUH7Y/5YJFHkQ5fX71z4OhfG7Ih7S9Vh2OCeqMRMYwP1i8hviIRoOPO+/lbmEkjnyea9uVkItYnPdbkwURnLiP3gKp7mu5WX2FH1L1m1vVhNx7ldDm3j5hFJu/US/jklFpKySP2mV/Tq5IiEiRGBcBxVHsPlWuN+cn38k8X4DuPhoRKuwyQZkabf1wI3o2IEQpslDDfiw3YU8cGz5qO9IAzNVKpg5j3PZun660wSr55dt70TXW+ZZ1v9byzZ3Z4q32YYOuxvGMVHWUq2OXSNJlnWKAM7DwuaP9X79/7TkL7Dr+iufsV/sJpBeD2FLqHjO9ywY+xrVxXXOkljB2Q==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from DS7PR12MB9473.namprd12.prod.outlook.com (2603:10b6:8:252::5) by
+ SN7PR12MB8436.namprd12.prod.outlook.com (2603:10b6:806:2e3::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.92.12; Wed, 10 Jun
+ 2026 16:21:32 +0000
+Received: from DS7PR12MB9473.namprd12.prod.outlook.com
+ ([fe80::f01d:73d2:2dda:c7b2]) by DS7PR12MB9473.namprd12.prod.outlook.com
+ ([fe80::f01d:73d2:2dda:c7b2%5]) with mapi id 15.21.0092.011; Wed, 10 Jun 2026
+ 16:21:32 +0000
+From: Zi Yan <ziy@nvidia.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: linux-kernel@vger.kernel.org, Miaohe Lin <linmiaohe@huawei.com>,
+ "David Hildenbrand (Arm)" <david@kernel.org>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Eugenio Perez <eperezma@redhat.com>, Muchun Song <muchun.song@linux.dev>,
+ Oscar Salvador <osalvador@suse.de>,
+ Andrew Morton <akpm@linux-foundation.org>, Lorenzo Stoakes <ljs@kernel.org>,
+ "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
+ Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
+ Michal Hocko <mhocko@suse.com>, Brendan Jackman <jackmanb@google.com>,
+ Johannes Weiner <hannes@cmpxchg.org>,
+ Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <npache@redhat.com>,
+ Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>,
+ Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>,
+ Hugh Dickins <hughd@google.com>, Matthew Brost <matthew.brost@intel.com>,
+ Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
+ Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
+ Ying Huang <ying.huang@linux.alibaba.com>,
+ Alistair Popple <apopple@nvidia.com>, Christoph Lameter <cl@gentwo.org>,
+ David Rientjes <rientjes@google.com>,
+ Roman Gushchin <roman.gushchin@linux.dev>, Harry Yoo <harry.yoo@oracle.com>,
+ Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>,
+ Wei Xu <weixugc@google.com>, Chris Li <chrisl@kernel.org>,
+ Kairui Song <kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>,
+ Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
+ virtualization@lists.linux.dev, linux-mm@kvack.org,
+ Andrea Arcangeli <aarcange@redhat.com>,
+ Naoya Horiguchi <nao.horiguchi@gmail.com>,
+ Alexander Duyck <alexander.h.duyck@linux.intel.com>
+Subject: Re: [PATCH v2] mm: page_reporting: allow driver to set batch capacity
+Date: Wed, 10 Jun 2026 12:21:27 -0400
+X-Mailer: MailMate (2.0r6290)
+Message-ID: <826570F3-F091-4567-81D9-0BFBE8761D5A@nvidia.com>
+In-Reply-To: <cb43adc61d2ed3069b2fe428f3e051dbdc4cc28d.1781097156.git.mst@redhat.com>
+References: <cb43adc61d2ed3069b2fe428f3e051dbdc4cc28d.1781097156.git.mst@redhat.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+X-ClientProxiedBy: YQZPR01CA0088.CANPRD01.PROD.OUTLOOK.COM
+ (2603:10b6:c01:84::16) To DS7PR12MB9473.namprd12.prod.outlook.com
+ (2603:10b6:8:252::5)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260610155834.79207-1-gavin.li@samsara.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: VmGWq067TbbdGMC0Kdevg8i1IVsHp8EudE4yRuh12hY_1781107650
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DS7PR12MB9473:EE_|SN7PR12MB8436:EE_
+X-MS-Office365-Filtering-Correlation-Id: 1c0e4835-dd76-41e7-d414-08dec70c5554
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|7416014|10070799003|23010399003|376014|1800799024|56012099006|11063799006|22082099003|18002099003;
+X-Microsoft-Antispam-Message-Info:
+	obSre5UGy6KnhZHO+oLHoCht8YAGBBXZLon4SXWqu+2p9OEhoEKMVbVfQBLYAE9sOkcGSRjKbLSYgs3LWHkWWB+z3t9wBinVwZPXIWLJPeImF6F9UeALjeR5R8+w7tx9WX/1DDj83c23Ehjj779FqcsM2uCDtoExlWGJiL028Lg4kCl00X8vfPN25hjTkpEyQ3464GZjk+0L//dfiu1bMTCr4OSrocY+BEUtUoN31c6LlkknCQZnUkAfEvr/9YXSAIRR6bJ1z8MNTDNBwnuDj/raatjaiilI75jigXAW2b3nNIfFtjh8pAkG1BWvDQu+pXWSpVPO41zNmKnNKxn7C7WhtrOZViqT70Tx8lxuqIn1FDM2qjrB7G0llXFhKDW7w36sYK2V/6450JTTJzz0HeUUwqyUGboetDEtD2lS6CJ8gtJpemCKLHE+uDTk6gHTAp1ZKqiOQD6Cu2uhqcQtgE/jyu5bQRiwxr4SPd4Ipb+DDqBJuM1/68i4pQCXK6nvf/TdcHk7U+e61PJ5Wh/hrxXPOJilHLcmbQMOlB27s/oqkpmoRcJNOaOPVj5Y1XcAxU6ynrSoo6CaaduEtlTfeWyrFviu8nh+lb1Y5gvUnbCr2ijLj6ZSULt3IUbfeqq4uq+SCmXfZqm8RDaGgkCXXg5oaJbNPrpeqYsON8DXbLhNnyEhBrYCrLVp62yJlFaf
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DS7PR12MB9473.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(7416014)(10070799003)(23010399003)(376014)(1800799024)(56012099006)(11063799006)(22082099003)(18002099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?FGOkaeFW/4BTmPC0sFjzpjGFXnFM69mdwvndc+4TFcUrBG3WQvht7w/DQGE4?=
+ =?us-ascii?Q?NG8Rf4G++xkR2xukdx5cLkMGKo/GbSb9lI1PLl7M0QMw4iDijNdkyeWsQf8o?=
+ =?us-ascii?Q?Z/k8ypRekHXKMK1/Dum3vanU/ERmOWmuzSsUn5qyJqlqI4HTkSDSnZnxZMSX?=
+ =?us-ascii?Q?vDlr7gTY95qDejmYMygEuYSLhTk12AlAPtYIupQj5mgEwea98cE1KB6rzfV6?=
+ =?us-ascii?Q?t+L9ckuAgFXey4irtbCf7sWCRBBPmATLRAoDyM/KNXAu/bUWDN+sDDYmcyje?=
+ =?us-ascii?Q?lYnECyZjVYr+4t0jfH8CvRn4is/YphStjvhAzq4arDAnsDoLuohDgQ4wBMEk?=
+ =?us-ascii?Q?F8ListdgbhoWOSE1n7Vl9pfQdOd1R+O0T4pZHkcD4Wd3hLkbdh7dSJ0oHJ8t?=
+ =?us-ascii?Q?sx3K1JbsnYBppTMDG6wJn3dZlxbM5yDJ/hFFrMN7fZMP0AFIFcFSE0USQRqc?=
+ =?us-ascii?Q?xEdiNZW5kk/Bs8IRAc+Z7l6EDyduOVzMovxT6iiI9DDZLaT6RjB1QtFVFXsM?=
+ =?us-ascii?Q?bhOAwymtUDjpDQ++GEQjfDbsrKffAyLDB5tghCw0Dl+oeaX27tjz/Md5CS6a?=
+ =?us-ascii?Q?WTzDSUqnnEIl2TohQ7yVI5WVXdEamW7yNkmjErPZzi+0O5QfULrIEHXWONyk?=
+ =?us-ascii?Q?uKkeGWTL0aeA7LmI4Nv/29dSXliKYWOctRW1Bpt3JidWj5x6rA4cVvyqUaxI?=
+ =?us-ascii?Q?G7YIdn7JgXroveEckqlZNYhcxPtYaiU9PMpZu66D9ONKGj9W4XnpnxSMtebZ?=
+ =?us-ascii?Q?z44u1XjzRKmI7kdnSvvd+ycwGX1+iVhnSyJ4a6XKKDznEwqovL/YJJwpRlTD?=
+ =?us-ascii?Q?OvkG1B0Bc/V4SX5Laudc331sgaPC60qXjWgb7lNU9nlIzHZlNrMu/vAxHCXR?=
+ =?us-ascii?Q?kgG2I0YJE1jdRWJZIK3wUnoN5aW6Jan+l0u1O4TlREEtrmJW8Fk9rxVHKaT/?=
+ =?us-ascii?Q?JhRwdxVtenWPbwdT/nSOd8hjRxfPbpocZTaZ8N5zfcwaYnGEZe8/QJQAJHXd?=
+ =?us-ascii?Q?ASXmxdZ5NyolEgvF5wZ7oHUR7jVe39JB3Rzmy5IRMkSIcfbdsmDMHHyvSNpQ?=
+ =?us-ascii?Q?YapUji720OF9zsHVtgpE4RP+oBRvwMyQjR2Q3U8wHXDeLwA0qwwXp9uMWyL0?=
+ =?us-ascii?Q?Y+bUbFrfZGlx9o87TJhR+CdCS527jfPVcHEsF+RHF5bxJdlnVZW9SFgE7hWH?=
+ =?us-ascii?Q?zS/Zef9nP6Z7YRdMJjmblLhOu1Qlg8l6u2FzgpYIta4zUQZD1d8+RbKCnLLc?=
+ =?us-ascii?Q?jJG7q3C8qP0X4u39j3Ju/kDHsGKz1Q9tYxLtJhcHDmAnmVqaYIoldT1BF0dJ?=
+ =?us-ascii?Q?8cGbxvR2YJuGWGYTzRdJJMQSL6I9T4GFJkDHkV0KI0zecwArSVGyuUUXToJm?=
+ =?us-ascii?Q?+kSKzeY+/UO9qcLJeYncBF5VTCrNZCV5rpv0zBd517cObIpAx8ZC+P+JI1/u?=
+ =?us-ascii?Q?vUmOksnsjhVVGYf037hdeAwX/X3FpWuHbMnVa6FCtwszSIKhNKUO0CMw902Y?=
+ =?us-ascii?Q?fA7eZBx9WIobYA0Ixm1d41mqSuoRwlt1bSdUOd4Sl3YDSS0mXOxjR2/GA2/o?=
+ =?us-ascii?Q?k67xrv3vkzcsBNAnNMRVJuTCuWvKPI5ChUM2f1VAftpe3spfj0bG4nvs3sHi?=
+ =?us-ascii?Q?fsNDg3k3belWPUBypnfP4AQa7oBJhQdARZ5osKaoNR1xbmy8nRXq/5h0tOYM?=
+ =?us-ascii?Q?2p6UM+yDuSB1nKqiNkf3nT5oyWhRlrzy54+SdlIFWS/Dr+ZsFUH4mrbsrGrh?=
+ =?us-ascii?Q?cZ78csbKibEfHoMrURkVccWUE05mDPZKR03AtVWbKPsaA6fO/uwO?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 1c0e4835-dd76-41e7-d414-08dec70c5554
+X-MS-Exchange-CrossTenant-AuthSource: DS7PR12MB9473.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 10 Jun 2026 16:21:32.1318
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: U1Wh5sU8pOjhbfyC2bOo387ZpxdgrCkeB0XlOJtV/GLCjD31eVpkbzhGgUw2bFNI
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB8436
 
-On Wed, Jun 10, 2026 at 11:58:34AM -0400, Gavin Li wrote:
-> commit a663b3c47ab1 ("i2c: virtio: Avoid hang by using interruptible
-> completion wait") switched virtio_i2c_complete_reqs() to
-> wait_for_completion_interruptible() so a stuck device cannot hang a
-> task forever. That left a use-after-free: if the wait returns early on
-> a signal, virtio_i2c_xfer() frees reqs and DMA bounce buffers while the
-> device may still hold virtqueue tokens pointing at &reqs[i] and DMA
-> into read buffers. When those requests complete later,
-> virtio_i2c_msg_done() calls complete() on freed memory.
-> 
-> Waiting uninterruptibly for every completion before freeing avoids the
-> UAF but can hang the caller indefinitely if the virtio side never
-> completes the request. Performing a queue reset / device reset is
-> possible in this scenario, but adds complexity.
-> 
-> This commit manages the freeing of the xfer allocations via kref, and
-> ensures that each in-flight request holds a reference. This fixes the
-> use-after-free by ensuring that the virtio device has a valid location
-> to write to until the request completes. This will cause a memory leak
-> in cases where the device hangs, but that is much preferable to memory
-> corruption.
-> 
-> Additionally, force usage of a bounce buffer even if the i2c_msg buf is
-> DMA-safe, since the buffer passed to the virtqueue must remain valid
-> even if the transfer is interrupted. Remove usage of
-> i2c_get_dma_safe_msg_buf() since it may pass through msg->buf directly.
-> All bounce buffers are part of the single xfer allocation, so there is
-> no additional allocation overhead.
-> 
-> Signed-off-by: Gavin Li <gavin.li@samsara.com>
+On 10 Jun 2026, at 9:17, Michael S. Tsirkin wrote:
 
-But maybe, if queue reset is supported, we could use that?
-
-Is that problematic?
-
-
-And maybe fallback on device reset on interrupt even?
-
+> At the moment, if a virtio balloon device has a page reporting vq but
+> its size is < PAGE_REPORTING_CAPACITY (32), the balloon driver fails
+> probe.
+>
+> But, there's no way for host to know this value, so it can easily
+> create a smaller vq and suddenly adding the reporting capability
+> to the device makes all of the driver fail. Not pretty.
+>
+> Add a capacity field to page_reporting_dev_info so drivers can
+> control the maximum number of pages per report batch.
+>
+> In virtio-balloon, set the capacity to the reporting virtqueue size,
+> letting page_reporting adapt to whatever the device provides.
+>
+> Capacity need not be a power of two.  Code previously called out
+> division by PAGE_REPORTING_CAPACITY as cheap since it was a power
+> of 2, but no performance difference was observed with non-power-of-2
+> values.
+>
+> If capacity is 0 or exceeds PAGE_REPORTING_CAPACITY, it defaults
+> to PAGE_REPORTING_CAPACITY.  The 0 check and the clamping is done in
+> page_reporting_register(), before the reporting work is scheduled,
+> so we never get division by 0.
+>
+> Fixes: b0c504f15471 ("virtio-balloon: add support for providing free pa=
+ge reports to host")
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+> Assisted-by: Claude:claude-opus-4-6
 > ---
-> 
-> Changes in v5:
-> - DMA-align all bounce buffers
-> 
-> Changes in v4:
-> - Pack bounce buffers into a single allocation after reqs[]
-> - Remove per-request buf pointer and xfer->num
-> - Remove req.msg, track message direction with req->read
-> - Simplify xfer release to a single kfree()
-> - Restore using j to track successful transfers in _complete_xfer()
-> ---
->  drivers/i2c/busses/i2c-virtio.c | 135 +++++++++++++++++++++++++-------
->  1 file changed, 108 insertions(+), 27 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
-> index 5da6fef92bec3..a5602865102d9 100644
-> --- a/drivers/i2c/busses/i2c-virtio.c
-> +++ b/drivers/i2c/busses/i2c-virtio.c
-> @@ -10,10 +10,13 @@
->  
->  #include <linux/acpi.h>
->  #include <linux/completion.h>
-> +#include <linux/dma-mapping.h>
->  #include <linux/err.h>
->  #include <linux/i2c.h>
->  #include <linux/kernel.h>
-> +#include <linux/kref.h>
->  #include <linux/module.h>
-> +#include <linux/overflow.h>
->  #include <linux/virtio.h>
->  #include <linux/virtio_ids.h>
->  #include <linux/virtio_config.h>
-> @@ -31,39 +34,80 @@ struct virtio_i2c {
->  	struct virtqueue *vq;
->  };
->  
-> +struct virtio_i2c_xfer;
-> +
->  /**
->   * struct virtio_i2c_req - the virtio I2C request structure
-> + * @xfer: owning transfer
->   * @completion: completion of virtio I2C message
-> + * @read: true if this is a read message (I2C_M_RD is set)
->   * @out_hdr: the OUT header of the virtio I2C message
-> - * @buf: the buffer into which data is read, or from which it's written
->   * @in_hdr: the IN header of the virtio I2C message
->   */
->  struct virtio_i2c_req {
-> +	struct virtio_i2c_xfer *xfer;
->  	struct completion completion;
-> +	bool read;
->  	struct virtio_i2c_out_hdr out_hdr	____cacheline_aligned;
-> -	uint8_t *buf				____cacheline_aligned;
->  	struct virtio_i2c_in_hdr in_hdr		____cacheline_aligned;
->  };
->  
-> +/**
-> + * struct virtio_i2c_xfer - a queued I2C transfer
-> + * @ref: one ref for the caller, plus one per in-flight virtqueue request
-> + * @bounce_buf_base: start of bounce buffer region
-> + * @reqs: the virtio I2C requests
-> + *
-> + * Allocation layout:
-> + * - struct virtio_i2c_xfer xfer
-> + * - struct virtio_i2c_req reqs[num]
-> + * - padding to dma_get_cache_alignment()
-> + * - u8 bounce_buf[virtio_i2c_bounce_size(msgs[0].len)]
-> + *   ...
-> + * - u8 bounce_buf[virtio_i2c_bounce_size(msgs[num-1].len)]
-> + */
-> +struct virtio_i2c_xfer {
-> +	struct kref ref;
-> +	u8 *bounce_buf_base;
-> +	struct virtio_i2c_req reqs[];
-> +};
-> +
-> +static size_t virtio_i2c_bounce_size(unsigned int len)
-> +{
-> +	return ALIGN(len, dma_get_cache_alignment());
-> +}
-> +
-> +static void virtio_i2c_xfer_release(struct kref *ref)
-> +{
-> +	struct virtio_i2c_xfer *xfer = container_of(ref, struct virtio_i2c_xfer, ref);
-> +	kfree(xfer);
-> +}
-> +
->  static void virtio_i2c_msg_done(struct virtqueue *vq)
->  {
->  	struct virtio_i2c_req *req;
->  	unsigned int len;
->  
-> -	while ((req = virtqueue_get_buf(vq, &len)))
-> +	while ((req = virtqueue_get_buf(vq, &len))) {
->  		complete(&req->completion);
-> +		kref_put(&req->xfer->ref, virtio_i2c_xfer_release);
-> +	}
->  }
->  
-> -static int virtio_i2c_prepare_reqs(struct virtqueue *vq,
-> -				   struct virtio_i2c_req *reqs,
-> +static int virtio_i2c_prepare_xfer(struct virtqueue *vq,
-> +				   struct virtio_i2c_xfer *xfer,
->  				   struct i2c_msg *msgs, int num)
->  {
->  	struct scatterlist *sgs[3], out_hdr, msg_buf, in_hdr;
-> +	struct virtio_i2c_req *reqs = xfer->reqs;
-> +	u8 *bounce_buf = xfer->bounce_buf_base;
->  	int i;
->  
->  	for (i = 0; i < num; i++) {
->  		int outcnt = 0, incnt = 0;
->  
-> +		reqs[i].xfer = xfer;
-> +		reqs[i].read = !!(msgs[i].flags & I2C_M_RD);
->  		init_completion(&reqs[i].completion);
->  
->  		/*
-> @@ -82,23 +126,31 @@ static int virtio_i2c_prepare_reqs(struct virtqueue *vq,
->  		sgs[outcnt++] = &out_hdr;
->  
->  		if (msgs[i].len) {
-> -			reqs[i].buf = i2c_get_dma_safe_msg_buf(&msgs[i], 1);
-> -			if (!reqs[i].buf)
-> -				break;
-> +			/*
-> +			 * Even if msg->flags has I2C_M_DMA_SAFE set, a bounce
-> +			 * buffer is required because the transfer may be
-> +			 * interrupted, after which msg->buf is no longer valid.
-> +			 */
-> +			if (!(msgs[i].flags & I2C_M_RD))
-> +				memcpy(bounce_buf, msgs[i].buf, msgs[i].len);
->  
-> -			sg_init_one(&msg_buf, reqs[i].buf, msgs[i].len);
-> +			sg_init_one(&msg_buf, bounce_buf, msgs[i].len);
->  
->  			if (msgs[i].flags & I2C_M_RD)
->  				sgs[outcnt + incnt++] = &msg_buf;
->  			else
->  				sgs[outcnt++] = &msg_buf;
->  		}
-> +		bounce_buf += virtio_i2c_bounce_size(msgs[i].len);
->  
->  		sg_init_one(&in_hdr, &reqs[i].in_hdr, sizeof(reqs[i].in_hdr));
->  		sgs[outcnt + incnt++] = &in_hdr;
->  
-> +		/* This reference is released in virtio_i2c_msg_done(). */
-> +		kref_get(&xfer->ref);
-> +
->  		if (virtqueue_add_sgs(vq, sgs, outcnt, incnt, &reqs[i], GFP_KERNEL)) {
-> -			i2c_put_dma_safe_msg_buf(reqs[i].buf, &msgs[i], false);
-> +			kref_put(&xfer->ref, virtio_i2c_xfer_release);
->  			break;
->  		}
->  	}
-> @@ -106,26 +158,38 @@ static int virtio_i2c_prepare_reqs(struct virtqueue *vq,
->  	return i;
->  }
->  
-> -static int virtio_i2c_complete_reqs(struct virtqueue *vq,
-> -				    struct virtio_i2c_req *reqs,
-> -				    struct i2c_msg *msgs, int num)
-> +static int virtio_i2c_complete_xfer(struct virtio_i2c_xfer *xfer,
-> +				    struct i2c_msg *msgs,
-> +				    int num)
->  {
-> +	struct virtio_i2c_req *reqs = xfer->reqs;
-> +	u8 *bounce_buf = xfer->bounce_buf_base;
->  	bool failed = false;
->  	int i, j = 0;
->  
->  	for (i = 0; i < num; i++) {
->  		struct virtio_i2c_req *req = &reqs[i];
-> +		struct i2c_msg *msg = &msgs[i];
-> +
-> +		if (wait_for_completion_interruptible(&req->completion))
-> +			return -EINTR;
-> +
-> +		if (req->in_hdr.status != VIRTIO_I2C_MSG_OK) {
-> +			/*
-> +			 * Don't break yet. Try to wait until all requests
-> +			 * complete to ensure that the virtqueue has enough
-> +			 * descriptor slots for the next transfer.
-> +			 */
-> +			failed = true;
-> +		}
->  
->  		if (!failed) {
-> -			if (wait_for_completion_interruptible(&req->completion))
-> -				failed = true;
-> -			else if (req->in_hdr.status != VIRTIO_I2C_MSG_OK)
-> -				failed = true;
-> -			else
-> -				j++;
-> +			if (req->read)
-> +				memcpy(msg->buf, bounce_buf, msg->len);
-> +			j++;
->  		}
->  
-> -		i2c_put_dma_safe_msg_buf(reqs[i].buf, &msgs[i], !failed);
-> +		bounce_buf += virtio_i2c_bounce_size(msg->len);
->  	}
->  
->  	return j;
-> @@ -136,14 +200,31 @@ static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
->  {
->  	struct virtio_i2c *vi = i2c_get_adapdata(adap);
->  	struct virtqueue *vq = vi->vq;
-> -	struct virtio_i2c_req *reqs;
-> -	int count;
-> +	struct virtio_i2c_xfer *xfer;
-> +	size_t alloc_size;
-> +	int i, count;
-> +
-> +	alloc_size = struct_size(xfer, reqs, num);
-> +	if (check_add_overflow(alloc_size,
-> +			       dma_get_cache_alignment() - 1,
-> +			       &alloc_size)) /* padding for PTR_ALIGN() */
-> +		return -EOVERFLOW;
-> +	for (i = 0; i < num; i++) {
-> +		if (check_add_overflow(alloc_size,
-> +				       virtio_i2c_bounce_size(msgs[i].len),
-> +				       &alloc_size))
-> +			return -EOVERFLOW;
-> +	}
->  
-> -	reqs = kzalloc_objs(*reqs, num);
-> -	if (!reqs)
-> +	xfer = kzalloc(alloc_size, GFP_KERNEL);
-> +	if (!xfer)
->  		return -ENOMEM;
->  
-> -	count = virtio_i2c_prepare_reqs(vq, reqs, msgs, num);
-> +	kref_init(&xfer->ref);
-> +	xfer->bounce_buf_base = PTR_ALIGN((u8 *)(xfer->reqs + num),
-> +					  dma_get_cache_alignment());
-> +
-> +	count = virtio_i2c_prepare_xfer(vq, xfer, msgs, num);
->  	if (!count)
->  		goto err_free;
->  
-> @@ -157,10 +238,10 @@ static int virtio_i2c_xfer(struct i2c_adapter *adap, struct i2c_msg *msgs,
->  	 */
->  	virtqueue_kick(vq);
->  
-> -	count = virtio_i2c_complete_reqs(vq, reqs, msgs, count);
-> +	count = virtio_i2c_complete_xfer(xfer, msgs, count);
->  
->  err_free:
-> -	kfree(reqs);
-> +	kref_put(&xfer->ref, virtio_i2c_xfer_release);
->  	return count;
->  }
->  
-> -- 
-> 2.54.0
+> Changes v1->v2:
+> - Document capacity=3D0 as default in commit log
+> - Document that capacity need not be a power of two
+> - Drop unnecessary comment about integer division cost
+> - Update comment on capacity field: "0 (default) means PAGE_REPORTING_C=
+APACITY"
+>
+>  drivers/virtio/virtio_balloon.c |  5 +----
+>  include/linux/page_reporting.h  |  3 +++
+>  mm/page_reporting.c             | 24 ++++++++++++------------
+>  3 files changed, 16 insertions(+), 16 deletions(-)
+>
 
+LGTM. With David's concern addressed, feel free to add:
+
+Acked-by: Zi Yan <ziy@nvidia.com>
+
+--
+Best Regards,
+Yan, Zi
