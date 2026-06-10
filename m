@@ -1,268 +1,270 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D9EF2EDD6C
-	for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 05:26:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A1132E7386
+	for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 06:00:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781069173; cv=none; b=HuxSsCvSEunyizUi3RAMhFSSTiVnagwx+xiC7QQ1typZhIYe6bU9C6BK9aD5n7pkYHhykngqw8uUf9OGpjzxNOyooQe6s5IN5Wqsag0oCFXbtO3GeaMsBeWuPFR8f7e6YhAHBfkmNZGs2MqIEOf64YdcNo/M0oGyIZetQ/ucKl4=
+	t=1781071204; cv=none; b=R5OIp+kJbjLc6XYxsRIgYQUjI9RMjJskncj182F2Sb3OICy5FBeb/0W1mcAhrWQ3tAm6k58vjUD9lqCKjen2i81b+nhFR/3TFrjW8X/as5mPB/v5sL9Bn6eEih/P/QeU5ylrbFflDp0cMIxrowvFErwt48zwGEbsMbrJ5KLiptE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781069173; c=relaxed/simple;
-	bh=bAo/9pVuQEla4AfFVK48Ke2WXFes/c6ZDC9cEbQIvxk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=pILqDrWL+kf1eTHl8TTUzZaz+PPh6WyXskvc2kWXAI0IkaJEct1AGNucqQXpUv2U5zO7lFgn7ZZ/Gw0Yb7czbzeG0MmzrWwz/XQjWHEsD9vsLYOancbrEOkH0AZNv8E/cQ1fSD5LaSbgP8QYrwr4FVIKigzQjBQDr/o3uMvmI8o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NTnJ2IGX; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1781071204; c=relaxed/simple;
+	bh=AvZ62CJBNYf9slGn5Sv7jZnOy8sCQBSyuSuQs3KW624=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Qcxo1vAQgh8LguD4+xI0lmVorylI/LvSOjQ2qtdWVAaJ9Vi1h0uLI5czavHdz8fjb1TajZ1UFHNOoItIpdnQhS6fLNBC1s+7s75vR1xfeRcRvwbZJpt70WPTx0ZrvQZ21slz7NPX0zDiXCgmK897uP9ZH8zgn9M32WEZPORV26o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=BtS8kRwd; arc=none smtp.client-ip=209.85.128.45
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NTnJ2IGX"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1781069170;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Ua3AD41us2FBEHQ4+Zr+c+pHwYn7Q8L/aLenfNA759Q=;
-	b=NTnJ2IGXhjnf61VdVbFc1UFgKjPaNhmKvOfFhbneniuPsdpW5POA1McaWLwhSSlD0dBIlj
-	Pyiyyx0/OAk5lp1Fuk/VGLxFcpf5yebeC0ye6gsAGaH3BZILdT9MrMZlberOIw198y4R3+
-	vIXWnW79Uck37VNsJLq2gCrM8KhNlJk=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-501-V5F1_woeNiSUsL84lI3Zsg-1; Wed, 10 Jun 2026 01:26:09 -0400
-X-MC-Unique: V5F1_woeNiSUsL84lI3Zsg-1
-X-Mimecast-MFC-AGG-ID: V5F1_woeNiSUsL84lI3Zsg_1781069168
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-490addd42bbso38892085e9.3
-        for <virtualization@lists.linux.dev>; Tue, 09 Jun 2026 22:26:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="BtS8kRwd"
+Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-490be29c1c5so80308295e9.2
+        for <virtualization@lists.linux.dev>; Tue, 09 Jun 2026 23:00:02 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1781071201; x=1781676001; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=0eeq4qUemue69ATVH9Hc0G+s1EX6SM4VcPKiJpjYoUk=;
+        b=BtS8kRwdtMg7Iusx/u5LzwX2MrcBrMpAe6Yr6o3hu6ovCQN0utnh7hkg303wz8Nklh
+         JPQ5V3IFap8QR6y8tW9v8+lhwGDbQpP9d5GROTD1YPeU/PmzZaKRAwkK09pMdvsneoKX
+         /K9a/sgFzxxbw4VdLEUo1tk2V3NY5sQfriWrb82YirubNNN7TudHFnO+EtRxNvEs6mDU
+         emYYxLJlY9BF0qHgtxfW2dknatFeM8IJVt33ghbO2Lk9qsRzXpac+eE6zCXDn7zukly/
+         SIRuRfMoNE9tD2Zdfw/H2K+oP8EMtZbzzOQR/DcvmiSr57KKlGpxa1SqXg5iaRBl8/lh
+         3JIw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781069168; x=1781673968;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=Ua3AD41us2FBEHQ4+Zr+c+pHwYn7Q8L/aLenfNA759Q=;
-        b=tRn9GOu+gWUV/VyPe82O6jxeHs0ToULaaqIXhcibaVRKosCftqYow1sl6MkFyxCbOp
-         Di0JxInWJr7WEF/tZ2qRmkhse2DifjG3X5sd3C1zDl0dpjO4WiCCj8OyGFmeld3DF0Nw
-         coIBEg/hUC8HezTVW9qjs8N+vo01f/1382hkZkzv37xdKwTX6VQzxGTDNFsV4goiIFVM
-         Agxz8RHZ9rMNiPQ5KT+Vo7+Bp+5ah5uw9+TUfCZBQkbdo2naAmzJKW2nLZ8lAa49Ni0r
-         TPDEBgcf6a0LtWgJAbOL7FlP1mdMmldYLmzg6q4wYrkoK/4kPLSta63y8vhdLXyFJPcb
-         0bdA==
-X-Forwarded-Encrypted: i=1; AFNElJ9UOXzlVlLUSaWuF90yeyjI9sNmAAGYmGubI2sx+0amPi/7Gk0zoEE23ees7S1Mxuiwah1aPP3mG+mRIq5PZQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YypaLg424M4IIPEvzRJPR0xfVdoP2xZ0GRAvOgZmTTQ5Oly7uVb
-	WikB6QdC8jPylvY9F0DLDYK4ZeixuQffOg9eFxRTRpQqtzCLSecQ8WxbJRIllOc7EEAXpW5eueX
-	OevqoyZQ06ZAJaoQlUnBo8OU/N/Hh4hfx+bDcnbRqTnfF/P6i7Y3qbHmkGBE/zb8N3RIl
-X-Gm-Gg: Acq92OFDAoXTXW9rlxsm5nmwoKx/JtWIH7bGxrnPc2TKDpwLEfPuD00c/8yA4jAnXCj
-	MQEVjQbRf18i8C3rKVqo1WRHd/D+0VWsXa2MbK2xyjQLBoHC8MX+dJGML9CXJ5NkJaOyP6aebi4
-	F8Jt5qfGJ7xr9rTdDe8k0Awkc8ylLtdVpyiz0ADObRX8VnVWcf2g2F7z7laLQ2jYMebUaEVGJhW
-	ik4lChD65dmkWt9pTrppv5OCa607QM1g2eadWmLzA5EVzhuujP3dk5ZmABbZZ4q9m2nBDRG753q
-	saRdX4lc4VTuIiqGztE2uORXO1ucweDwfxs378EepRhrICj3yty0Qxrvt9TWKK3bWEDbYSqQnmR
-	k8F+FriI0V1kigiQ83ScxA1NsUlK5OlFgrqL9qsVKQtQu6LC+0s9jTA==
-X-Received: by 2002:a05:600c:6792:b0:48a:f18:ece4 with SMTP id 5b1f17b1804b1-490c25ee920mr385315355e9.24.1781069167660;
-        Tue, 09 Jun 2026 22:26:07 -0700 (PDT)
-X-Received: by 2002:a05:600c:6792:b0:48a:f18:ece4 with SMTP id 5b1f17b1804b1-490c25ee920mr385315085e9.24.1781069167116;
-        Tue, 09 Jun 2026 22:26:07 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-85-71.inter.net.il. [80.230.85.71])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4602cda3651sm56939057f8f.32.2026.06.09.22.26.05
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 09 Jun 2026 22:26:06 -0700 (PDT)
-Date: Wed, 10 Jun 2026 01:26:03 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Arnd Bergmann <arnd@kernel.org>
-Cc: Jason Wang <jasowang@redhat.com>, Xie Yongji <xieyongji@bytedance.com>,
-	Arnd Bergmann <arnd@arndb.de>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Marco Crivellari <marco.crivellari@suse.com>,
-	Anders Roxell <anders.roxell@linaro.org>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] [v3] vduse: fix compat handling for
- VDUSE_IOTLB_GET_FD/VDUSE_VQ_GET_INFO
-Message-ID: <20260610012421-mutt-send-email-mst@kernel.org>
-References: <20260213154051.4172275-1-arnd@kernel.org>
+        d=1e100.net; s=20251104; t=1781071201; x=1781676001;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=0eeq4qUemue69ATVH9Hc0G+s1EX6SM4VcPKiJpjYoUk=;
+        b=pmuz5wDszDiR+uOGpzt3LBbFdUffSPN7ASk9HWxQpceZW1kuZFB+vT/2yGBtRxzRMb
+         NoimwJw0CYzDGRBAGPNOM56fg3r8ozG7SLG53rUt5gwlq0ph2i6FzNTBPV0UXoEqwTOS
+         xKLrmNA9KgJyR04ze57FL+BfCYHfmevxgIUPHnyIkGKhI/9LdAfJlZz7aayegMfdxP4q
+         tvfHYzr8SCn6BiLINVV7NIaz+sttdajUib+xK1MDYVpjZk2wF605RtIJu+mNtBxZUfsy
+         tCCNoBUbSd3G7Kjwjs2JeUutkIEjXWvWD/E+QHYpVamYoj4HSFqYdPBzfSDpg3CTU29m
+         DBag==
+X-Forwarded-Encrypted: i=1; AFNElJ9Akpe6IJqdS1+svq4miwLbyQLqHQnIYHEJvPXQgB07g08x8FXihVa2Bg1L0/FmSidk0BD9Ls35KvWH9KzJGA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxx9ZnTwhRHvMiJT3AEkdPZLJ16fISLVHoRo+9766j6ky1fW3Qh
+	M1uOB6miubL3HMLe34M8McASEozP2otPbPj1Sof2gqZOTdA+SyPjeCyJbvwXwhaFKec=
+X-Gm-Gg: Acq92OHcSahWFdyrpMrf78Gf7qx/oYx/2G0sfJsPysf9sDTqIToT4ZS6LvLf3rkP3w9
+	iHeuyskaHfx+uo4KLoMKKu2EQdSP/nJSZFTch1Kp69jLr7LST+DZolmzCGq8KCf2dUdqssOkY3g
+	H8s5iW1Fezioqi89hE69+GUrEBKuNNsrs3H8WhuaBWSIU89NR6mhB1LzFsL6tjGGsin033ZHOT9
+	j6L/TLtxTOIxfOKhccZNqaqRG7aj042HrzwtNG2qpiXwXsjx2lqUsR/LQjFc2RaCRkmQd8cw7fU
+	D8VnsIxz6dKRSfwMJWw3FO+SKFexyiDt5EPOEx3w3zcQTNNmKDRX1TmdGWDdBm0GzjH8BQ6+r6e
+	erQQG/hWyCQpdhXKJRi515N0RGkzWD0znWy2UOC/9/EdaKRPpsjsOrDW66jbZvMVa7V1RH7AhSF
+	WPTrL5Ta3e7uVE1ZKRDZsg96Wb7pAYtBFvM46sNSC1S1uFcLEvTcodmW6yZYBKEBmGe9C1Qxs=
+X-Received: by 2002:a05:600c:8285:b0:490:abef:dae6 with SMTP id 5b1f17b1804b1-490c25b09bcmr392960895e9.19.1781071200857;
+        Tue, 09 Jun 2026 23:00:00 -0700 (PDT)
+Received: from ?IPV6:2001:a62:1439:d001:a0af:1164:c6fd:8c51? ([2001:a62:1439:d001:a0af:1164:c6fd:8c51])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4601f35eae5sm69552212f8f.33.2026.06.09.22.59.58
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 09 Jun 2026 23:00:00 -0700 (PDT)
+Message-ID: <e2a61373-0c27-41c3-b0ca-836a4727a3b5@suse.com>
+Date: Wed, 10 Jun 2026 07:59:57 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260213154051.4172275-1-arnd@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: P_FR4579NI7OJgYkVoOhcXYTHf0vrGkQ4XyfSuaPX0E_1781069168
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3 2/4] scsi: host: allocate struct Scsi_Host on the NUMA
+ node of the host adapter
+To: Sumit Saxena <sumit.saxena@broadcom.com>,
+ "Martin K . Petersen" <martin.petersen@oracle.com>,
+ Jens Axboe <axboe@kernel.dk>
+Cc: "James E . J . Bottomley" <James.Bottomley@HansenPartnership.com>,
+ linux-scsi@vger.kernel.org, linux-block@vger.kernel.org,
+ Adam Radford <aradford@gmail.com>, Khalid Aziz <khalid@gonehiking.org>,
+ Adaptec OEM Raid Solutions <aacraid@microsemi.com>,
+ Matthew Wilcox <willy@infradead.org>, "Juergen E . Fischer"
+ <fischer@norbit.de>, Russell King <linux@armlinux.org.uk>,
+ linux-arm-kernel@lists.infradead.org, Finn Thain <fthain@linux-m68k.org>,
+ Michael Schmitz <schmitzmic@gmail.com>,
+ Anil Gurumurthy <anil.gurumurthy@qlogic.com>,
+ Sudarsana Kalluru <sudarsana.kalluru@qlogic.com>,
+ Oliver Neukum <oliver@neukum.org>, Ali Akcaagac <aliakc@web.de>,
+ Jamie Lenehan <lenehan@twibble.org>, Ram Vegesna <ram.vegesna@broadcom.com>,
+ target-devel@vger.kernel.org, Bradley Grove <linuxdrivers@attotech.com>,
+ Satish Kharat <satishkh@cisco.com>, Sesidhar Baddela <sebaddel@cisco.com>,
+ Karan Tilak Kumar <kartilak@cisco.com>, Yihang Li
+ <liyihang9@h-partners.com>, Don Brace <don.brace@microchip.com>,
+ storagedev@microchip.com, HighPoint Linux Team <linux@highpoint-tech.com>,
+ Tyrel Datwyler <tyreld@linux.ibm.com>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ Christophe Leroy <chleroy@kernel.org>, linuxppc-dev@lists.ozlabs.org,
+ Brian King <brking@us.ibm.com>, Lee Duncan <lduncan@suse.com>,
+ Chris Leech <cleech@redhat.com>, Mike Christie
+ <michael.christie@oracle.com>, open-iscsi@googlegroups.com,
+ Justin Tee <justin.tee@broadcom.com>, Paul Ely <paul.ely@broadcom.com>,
+ Kashyap Desai <kashyap.desai@broadcom.com>,
+ Shivasharan S <shivasharan.srikanteshwara@broadcom.com>,
+ Chandrakanth Patil <chandrakanth.patil@broadcom.com>,
+ megaraidlinux.pdl@broadcom.com,
+ Sathya Prakash Veerichetty <sathya.prakash@broadcom.com>,
+ Sreekanth Reddy <sreekanth.reddy@broadcom.com>,
+ mpi3mr-linuxdrv.pdl@broadcom.com,
+ Suganath Prabu Subramani <suganath-prabu.subramani@broadcom.com>,
+ Ranjan Kumar <ranjan.kumar@broadcom.com>, MPT-FusionLinux.pdl@broadcom.com,
+ Daniel Palmer <daniel@thingy.jp>, GOTO Masanori <gotom@debian.or.jp>,
+ YOKOTA Hiroshi <yokota@netlab.is.tsukuba.ac.jp>,
+ Jack Wang <jinpu.wang@cloud.ionos.com>, Geoff Levand <geoff@infradead.org>,
+ Michael Reed <mdr@sgi.com>, Nilesh Javali <njavali@marvell.com>,
+ GR-QLogic-Storage-Upstream@marvell.com, Narsimhulu Musini
+ <nmusini@cisco.com>, "K . Y . Srinivasan" <kys@microsoft.com>,
+ Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
+ Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>,
+ linux-hyperv@vger.kernel.org, "Michael S . Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, Paolo Bonzini <pbonzini@redhat.com>,
+ Stefan Hajnoczi <stefanha@redhat.com>, Eugenio Perez <eperezma@redhat.com>,
+ virtualization@lists.linux.dev, Vishal Bhakta <vishal.bhakta@broadcom.com>,
+ bcm-kernel-feedback-list@broadcom.com, Juergen Gross <jgross@suse.com>,
+ Stefano Stabellini <sstabellini@kernel.org>,
+ Oleksandr Tyshchenko <oleksandr_tyshchenko@epam.com>,
+ xen-devel@lists.xenproject.org, John Garry <john.g.garry@oracle.com>
+References: <20260609121806.2121755-1-sumit.saxena@broadcom.com>
+ <20260609121806.2121755-3-sumit.saxena@broadcom.com>
+Content-Language: en-US
+From: Hannes Reinecke <hare@suse.com>
+In-Reply-To: <20260609121806.2121755-3-sumit.saxena@broadcom.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-On Fri, Feb 13, 2026 at 04:40:46PM +0100, Arnd Bergmann wrote:
-> From: Arnd Bergmann <arnd@arndb.de>
+On 6/9/26 14:18, Sumit Saxena wrote:
+> scsi_host_alloc() used kzalloc(), which always picks an arbitrary node.
+> Extend the function to accept a 'struct device *dev' parameter and use
+> kzalloc_node() with dev_to_node(dev) so the Scsi_Host struct lands on
+> the same NUMA node as the HBA, mirroring the treatment already applied
+> to struct scsi_device, struct scsi_target, and shost_data.
 > 
-> These two ioctls are incompatible on 32-bit x86 userspace, because
-> the data structures are shorter than they are on 64-bit.
+> When dev is NULL (legacy ISA/platform drivers without a dma_dev) the
+> allocation falls back to NUMA_NO_NODE, preserving existing behaviour.
 > 
-> Add a proper .compat_ioctl handler for x86 that reads the structures
-> with the smaller padding before calling the internal handlers. On
-> all other architectures, CONFIG_COMPAT_FOR_U64_ALIGNMENT is disabled
-> and no special handling is required.
+> Update all in-tree callers:
+>    - PCI-based HBA drivers pass &pdev->dev (or the equivalent struct
+>      member such as &phba->pcidev->dev, &h->pdev->dev, &ha->pdev->dev)
+>      so their host struct is placed on the adapter's node.
+>    - Non-PCI drivers (ISA, Amiga, ARM PCMCIA, virtio, Hyper-V, PS3, …)
+>      pass NULL.
+>    - libfc's libfc_host_alloc() inline helper passes NULL; FC drivers
+>      that want NUMA awareness can open-code the call with their pdev.
 > 
-> Fixes: ad146355bfad ("vduse: Support querying information of IOVA regions")
-> Fixes: c8a6153b6c59 ("vduse: Introduce VDUSE - vDPA Device in Userspace")
-> Acked-by: Eugenio P�rez <eperezma@redhat.com>
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> Suggested-by: John Garry <john.g.garry@oracle.com>
+> Signed-off-by: Sumit Saxena <sumit.saxena@broadcom.com>
 > ---
-> v3 changes:
->  - check CONFIG_COMPAT_FOR_U64_ALIGNMENT in preprocessor
-> v2 changes:
->  - split compat handler into separate function
-> ---
->  drivers/vdpa/vdpa_user/vduse_dev.c | 123 ++++++++++++++++++++++++++++-
->  1 file changed, 122 insertions(+), 1 deletion(-)
+>   drivers/scsi/3w-9xxx.c                    | 2 +-
+>   drivers/scsi/3w-sas.c                     | 2 +-
+>   drivers/scsi/3w-xxxx.c                    | 2 +-
+>   drivers/scsi/53c700.c                     | 2 +-
+>   drivers/scsi/BusLogic.c                   | 2 +-
+>   drivers/scsi/a100u2w.c                    | 2 +-
+>   drivers/scsi/a2091.c                      | 2 +-
+>   drivers/scsi/a3000.c                      | 2 +-
+>   drivers/scsi/aacraid/linit.c              | 2 +-
+>   drivers/scsi/advansys.c                   | 6 +++---
+>   drivers/scsi/aha152x.c                    | 2 +-
+>   drivers/scsi/aha1542.c                    | 2 +-
+>   drivers/scsi/aha1740.c                    | 2 +-
+>   drivers/scsi/aic7xxx/aic79xx_osm.c        | 2 +-
+>   drivers/scsi/aic7xxx/aic7xxx_osm.c        | 2 +-
+>   drivers/scsi/aic94xx/aic94xx_init.c       | 2 +-
+>   drivers/scsi/am53c974.c                   | 2 +-
+>   drivers/scsi/arcmsr/arcmsr_hba.c          | 3 ++-
+>   drivers/scsi/arm/acornscsi.c              | 2 +-
+>   drivers/scsi/arm/arxescsi.c               | 2 +-
+>   drivers/scsi/arm/cumana_1.c               | 2 +-
+>   drivers/scsi/arm/cumana_2.c               | 2 +-
+>   drivers/scsi/arm/eesox.c                  | 2 +-
+>   drivers/scsi/arm/oak.c                    | 2 +-
+>   drivers/scsi/arm/powertec.c               | 2 +-
+>   drivers/scsi/atari_scsi.c                 | 2 +-
+>   drivers/scsi/atp870u.c                    | 2 +-
+>   drivers/scsi/bfa/bfad_im.c                | 2 +-
+>   drivers/scsi/csiostor/csio_init.c         | 4 ++--
+>   drivers/scsi/dc395x.c                     | 2 +-
+>   drivers/scsi/dmx3191d.c                   | 2 +-
+>   drivers/scsi/elx/efct/efct_xport.c        | 4 ++--
+>   drivers/scsi/esas2r/esas2r_main.c         | 2 +-
+>   drivers/scsi/fdomain.c                    | 2 +-
+>   drivers/scsi/fnic/fnic_main.c             | 2 +-
+>   drivers/scsi/g_NCR5380.c                  | 2 +-
+>   drivers/scsi/gvp11.c                      | 2 +-
+>   drivers/scsi/hisi_sas/hisi_sas_main.c     | 2 +-
+>   drivers/scsi/hisi_sas/hisi_sas_v3_hw.c    | 2 +-
+>   drivers/scsi/hosts.c                      | 6 ++++--
+>   drivers/scsi/hpsa.c                       | 2 +-
+>   drivers/scsi/hptiop.c                     | 2 +-
+>   drivers/scsi/ibmvscsi/ibmvfc.c            | 2 +-
+>   drivers/scsi/ibmvscsi/ibmvscsi.c          | 2 +-
+>   drivers/scsi/imm.c                        | 2 +-
+>   drivers/scsi/initio.c                     | 2 +-
+>   drivers/scsi/ipr.c                        | 2 +-
+>   drivers/scsi/ips.c                        | 2 +-
+>   drivers/scsi/isci/init.c                  | 2 +-
+>   drivers/scsi/jazz_esp.c                   | 2 +-
+>   drivers/scsi/libiscsi.c                   | 2 +-
+>   drivers/scsi/lpfc/lpfc_init.c             | 2 +-
+>   drivers/scsi/mac53c94.c                   | 2 +-
+>   drivers/scsi/mac_esp.c                    | 2 +-
+>   drivers/scsi/mac_scsi.c                   | 2 +-
+>   drivers/scsi/megaraid.c                   | 2 +-
+>   drivers/scsi/megaraid/megaraid_mbox.c     | 2 +-
+>   drivers/scsi/megaraid/megaraid_sas_base.c | 2 +-
+>   drivers/scsi/mesh.c                       | 2 +-
+>   drivers/scsi/mpi3mr/mpi3mr_os.c           | 2 +-
+>   drivers/scsi/mpt3sas/mpt3sas_scsih.c      | 4 ++--
+>   drivers/scsi/mvme147.c                    | 2 +-
+>   drivers/scsi/mvsas/mv_init.c              | 2 +-
+>   drivers/scsi/mvumi.c                      | 2 +-
+>   drivers/scsi/myrb.c                       | 2 +-
+>   drivers/scsi/myrs.c                       | 2 +-
+>   drivers/scsi/ncr53c8xx.c                  | 2 +-
+>   drivers/scsi/nsp32.c                      | 2 +-
+>   drivers/scsi/pcmcia/nsp_cs.c              | 2 +-
+>   drivers/scsi/pcmcia/qlogic_stub.c         | 2 +-
+>   drivers/scsi/pcmcia/sym53c500_cs.c        | 2 +-
+>   drivers/scsi/pm8001/pm8001_init.c         | 2 +-
+>   drivers/scsi/pmcraid.c                    | 2 +-
+>   drivers/scsi/ppa.c                        | 2 +-
+>   drivers/scsi/ps3rom.c                     | 2 +-
+>   drivers/scsi/qla1280.c                    | 2 +-
+>   drivers/scsi/qla2xxx/qla_mid.c            | 2 +-
+>   drivers/scsi/qla2xxx/qla_os.c             | 2 +-
+>   drivers/scsi/qlogicfas.c                  | 2 +-
+>   drivers/scsi/qlogicpti.c                  | 2 +-
+>   drivers/scsi/scsi_debug.c                 | 2 +-
+>   drivers/scsi/sgiwd93.c                    | 2 +-
+>   drivers/scsi/smartpqi/smartpqi_init.c     | 2 +-
+>   drivers/scsi/snic/snic_main.c             | 2 +-
+>   drivers/scsi/stex.c                       | 2 +-
+>   drivers/scsi/storvsc_drv.c                | 2 +-
+>   drivers/scsi/sun3_scsi.c                  | 2 +-
+>   drivers/scsi/sun3x_esp.c                  | 2 +-
+>   drivers/scsi/sun_esp.c                    | 2 +-
+>   drivers/scsi/sym53c8xx_2/sym_glue.c       | 2 +-
+>   drivers/scsi/virtio_scsi.c                | 2 +-
+>   drivers/scsi/vmw_pvscsi.c                 | 2 +-
+>   drivers/scsi/wd719x.c                     | 2 +-
+>   drivers/scsi/xen-scsifront.c              | 2 +-
+>   drivers/scsi/zorro_esp.c                  | 2 +-
+>   include/scsi/libfc.h                      | 2 +-
+>   include/scsi/scsi_host.h                  | 3 ++-
+>   97 files changed, 107 insertions(+), 103 deletions(-)
 > 
-> diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-> index 405d59610f76..e0f5a7397221 100644
-> --- a/drivers/vdpa/vdpa_user/vduse_dev.c
-> +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-> @@ -1618,6 +1618,127 @@ static long vduse_dev_ioctl(struct file *file, unsigned int cmd,
->  	return ret;
->  }
->  
-> +#ifdef CONFIG_COMPAT_FOR_U64_ALIGNMENT
-> +/*
-> + * i386 has different alignment constraints than x86_64,
-> + * so there are only 3 bytes of padding instead of 7.
-> + */
-> +struct compat_vduse_iotlb_entry {
-> +	compat_u64 offset;
-> +	compat_u64 start;
-> +	compat_u64 last;
-> +	__u8 perm;
-> +	__u8 padding[3];
-> +};
-> +#define COMPAT_VDUSE_IOTLB_GET_FD	_IOWR(VDUSE_BASE, 0x10, struct compat_vduse_iotlb_entry)
-> +
-> +struct compat_vduse_vq_info {
-> +	__u32 index;
-> +	__u32 num;
-> +	compat_u64 desc_addr;
-> +	compat_u64 driver_addr;
-> +	compat_u64 device_addr;
-> +	union {
-> +		struct vduse_vq_state_split split;
-> +		struct vduse_vq_state_packed packed;
-> +	};
-> +	__u8 ready;
-> +	__u8 padding[3];
-> +} __uapi_arch_align;
+Quite a lot of churn for such a (relatively) simple change.
 
-what is this __uapi_arch_align supposed to be doing?
+I think it might be better to introduce a new function
+(scsi_host_alloc_node() ?) with the additional parameter,
+and make scsi_host_alloc() a wrapper around that.
 
-It compiles by luck because gcc thinks it's a global variable.
+That will reduce the size of this patch immensely.
 
+Cheers,
 
-> +#define COMPAT_VDUSE_VQ_GET_INFO	_IOWR(VDUSE_BASE, 0x15, struct compat_vduse_vq_info)
-> +
-> +static long vduse_dev_compat_ioctl(struct file *file, unsigned int cmd,
-> +				   unsigned long arg)
-> +{
-> +	struct vduse_dev *dev = file->private_data;
-> +	void __user *argp = (void __user *)arg;
-> +	int ret;
-> +
-> +	if (unlikely(dev->broken))
-> +		return -EPERM;
-> +
-> +	switch (cmd) {
-> +	case COMPAT_VDUSE_IOTLB_GET_FD: {
-> +		struct vduse_iotlb_entry_v2 entry = {0};
-> +		struct file *f = NULL;
-> +
-> +		ret = -EFAULT;
-> +		if (copy_from_user(&entry, argp, _IOC_SIZE(cmd)))
-> +			break;
-> +
-> +		ret = vduse_dev_iotlb_entry(dev, &entry, &f, NULL);
-> +		if (ret)
-> +			break;
-> +
-> +		ret = -EINVAL;
-> +		if (!f)
-> +			break;
-> +
-> +		ret = copy_to_user(argp, &entry, _IOC_SIZE(cmd));
-> +		if (ret) {
-> +			ret = -EFAULT;
-> +			fput(f);
-> +			break;
-> +		}
-> +		ret = receive_fd(f, NULL, perm_to_file_flags(entry.perm));
-> +		fput(f);
-> +		break;
-> +	}
-> +	case COMPAT_VDUSE_VQ_GET_INFO: {
-> +		struct vduse_vq_info vq_info = {};
-> +		struct vduse_virtqueue *vq;
-> +		u32 index;
-> +
-> +		ret = -EFAULT;
-> +		if (copy_from_user(&vq_info, argp,
-> +				   sizeof(struct compat_vduse_vq_info)))
-> +			break;
-> +
-> +		ret = -EINVAL;
-> +		if (vq_info.index >= dev->vq_num)
-> +			break;
-> +
-> +		index = array_index_nospec(vq_info.index, dev->vq_num);
-> +		vq = dev->vqs[index];
-> +		vq_info.desc_addr = vq->desc_addr;
-> +		vq_info.driver_addr = vq->driver_addr;
-> +		vq_info.device_addr = vq->device_addr;
-> +		vq_info.num = vq->num;
-> +
-> +		if (dev->driver_features & BIT_ULL(VIRTIO_F_RING_PACKED)) {
-> +			vq_info.packed.last_avail_counter =
-> +				vq->state.packed.last_avail_counter;
-> +			vq_info.packed.last_avail_idx =
-> +				vq->state.packed.last_avail_idx;
-> +			vq_info.packed.last_used_counter =
-> +				vq->state.packed.last_used_counter;
-> +			vq_info.packed.last_used_idx =
-> +				vq->state.packed.last_used_idx;
-> +		} else
-> +			vq_info.split.avail_index =
-> +				vq->state.split.avail_index;
-> +
-> +		vq_info.ready = vq->ready;
-> +
-> +		ret = -EFAULT;
-> +		if (copy_to_user(argp, &vq_info,
-> +		    sizeof(struct compat_vduse_vq_info)))
-> +			break;
-> +
-> +		ret = 0;
-> +		break;
-> +	}
-> +	default:
-> +		ret = -ENOIOCTLCMD;
-> +		break;
-> +	}
-> +
-> +	return vduse_dev_ioctl(file, cmd, (unsigned long)compat_ptr(arg));
-> +}
-> +#else
-> +#define vduse_dev_compat_ioctl compat_ptr_ioctl
-> +#endif
-> +
->  static int vduse_dev_release(struct inode *inode, struct file *file)
->  {
->  	struct vduse_dev *dev = file->private_data;
-> @@ -1678,7 +1799,7 @@ static const struct file_operations vduse_dev_fops = {
->  	.write_iter	= vduse_dev_write_iter,
->  	.poll		= vduse_dev_poll,
->  	.unlocked_ioctl	= vduse_dev_ioctl,
-> -	.compat_ioctl	= compat_ptr_ioctl,
-> +	.compat_ioctl	= vduse_dev_compat_ioctl,
->  	.llseek		= noop_llseek,
->  };
->  
-> -- 
-> 2.39.5
-
+Hannes
+-- 
+Dr. Hannes Reinecke                  Kernel Storage Architect
+hare@suse.com                               +49 911 74053 688
+SUSE Software Solutions GmbH, Frankenstr. 146, 90461 Nürnberg
+HRB 36809 (AG Nürnberg), GF: I. Totev, A. McDonald, W. Knoblich
