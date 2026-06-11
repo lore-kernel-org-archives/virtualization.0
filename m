@@ -1,125 +1,103 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29A4D1F5821
-	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 08:37:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9976E3BA229
+	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 08:55:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781167061; cv=none; b=fyFDpJljU4jt6VEsHLQ/Tve+GArgZmXkL5z6ATwlnivIfoTNpedBFsQzuQYrmJsMpJAzxC2XVjUbo3i7MHfwMHHT+OMqnGZwIvicEoywir1bDTaDgdjzy8KITl1FTjT09PYWXm4WrZmujxQ9mBbSwX1WiULTrM0XotDnbo2vFaY=
+	t=1781168143; cv=none; b=ifzk2oFo3Bv+H6OQWY3ufLEtvv799VIuf58giSIohpx0FmJdMtviB9ZLXpdvKHnNtKbym9sLlS3UU3PCfAXbhkitq+2dFHXFsqS0G3u3abKi0T1GtikqiIb72PNi4gJkdeUSInBFJs640hnT4SwBwLRZES5oDDIvz8wXRAKtiS8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781167061; c=relaxed/simple;
-	bh=NvlAo8p3VOJuEX4siqyneWFfrKAEXaYb/m2XwzdYDcU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=lIZeV9otoqIjOrr5OD0jPKHm/3N60tVWsBsxTyN+Dl2zymmKU+w4gxLSnDnwwCVBFWUBAsb+yfibqGVjWpOnTxelpeNUCQytAPsYHVbKuM3cgNmRkXCiUCRJ3VJu/stTA36IiyiKRXCcVD9ZfynuJ+DPbhC0w02ouZ0dzbZep0Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WSL2P5T8; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1781168143; c=relaxed/simple;
+	bh=Tg4DS3sWauM/HROr0zbXdV0eQLMGagO8flVocf/2Wks=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Eyxcq2wXcd+1ZYw3IF0I1Hr8x8vsyE5WcsH6Ar+GhmR03KdVp5AIRaSU0lppbE+oc63UHoRerO6oUSuYqs4diiPba1W1pT57Qs4KbwdS/NfRhwj7llfmndyFzqjNRRAj4ByJ+F4DOlSyo7pBwwAZfzGFusZkNcs2am+0ERJM7hE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ajUdOzU+; arc=none smtp.client-ip=209.85.214.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WSL2P5T8"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1781167059;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=lS7ZmG5aZMc+d97NydJ9B0CqAYrDHmwAPTt7zF38280=;
-	b=WSL2P5T8g552qqas/kDW8Q6ZEM06kWufWrUmtQ34enAtq+bDzr8zwYCOUaEoxdnaZFzwkx
-	1hTr1EQ8Gu5Un+F7XNeUm/mdf/sIyQ9M4+ex1WW7b38iPZCRHL0QqZgoUzWTfJj1+kIZr/
-	HDmGePnkWgeeZlq99TxkqeLd5C7hoKQ=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-108-Hk1f8LkHObSJHGZLdrwjUw-1; Thu, 11 Jun 2026 04:37:38 -0400
-X-MC-Unique: Hk1f8LkHObSJHGZLdrwjUw-1
-X-Mimecast-MFC-AGG-ID: Hk1f8LkHObSJHGZLdrwjUw_1781167057
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-490b3ec3f7fso48921085e9.1
-        for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 01:37:37 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ajUdOzU+"
+Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2c0c3546924so51691535ad.3
+        for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 01:55:42 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1781168142; x=1781772942; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Tg4DS3sWauM/HROr0zbXdV0eQLMGagO8flVocf/2Wks=;
+        b=ajUdOzU+aJIt099LmVPFiwp30G7Tt7x0uq5mAAtXdceWGC4ePJfA/+Zx2e6NU8P8tC
+         eYTynN8L/BZ6/O956mUbGvdC7cC3jW44K628dTeMjQoICPnbMzxFrP3XeLegQdL2Ii7B
+         dgVgvZiJj04ViigNa4gAGYPtexRUoCSon9Jz9IBAIl3t12SpKhZghdt0QXkfRRCD8+aW
+         sdB7tpq4JjXPrGHJbXB/I1uhBUhLZOOOEOPoLYsq6sZMGicV2bXu8TSE7LpIhLbl7UBU
+         PNFDjXQGEW1wyynC+eqvsWVTN16JgDXwEG832lsrgDgmIdMReeEh9ioVltn1aSZg+25h
+         Li6w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781167057; x=1781771857;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=lS7ZmG5aZMc+d97NydJ9B0CqAYrDHmwAPTt7zF38280=;
-        b=spvqe2lMmulLf8za7pRBn/8aI6TBrTFSk/BW8EcJRmi5P6cg9QnVvjOfThQJMhB/fk
-         FylldTay3AYhRah+ahjntpuw5RD7if2/gffWOQCaa1JaekZnpUgHvg02WyajGWXFFk2m
-         NhCaJ+GJhkA+3QIk62M4UO0W/1IM3bCMmhgUcdDBQ0YZ/gNCGFednw66ROFGdvGrp1hm
-         yhUrLzugeOGmN1u7JFiHVrsD0lSkA+dErD/GkTvPTKDs9iBnlEz2PNjJ5euH5hZQHnXJ
-         ByB3lZjd8+NXPRrhkPoZU1bk8Y8GRGdvKyo78SD+HAoR5uqt5W2LbZPkTvb4l2jXRVpp
-         fSdg==
-X-Forwarded-Encrypted: i=1; AFNElJ+AiwKQQXJ+mH9vHiF0gtWeKRGuALidH3jZuqp6d/PBRwVFHQzjrTWqaTLHf24svbB+MNPtkRQOkvMrwDUL5A==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywae/yQebmn5X34ALCQr+48buZYkpwgoLZa27kTrvtAtaGOfTus
-	lzhxXeMIO8YwdzyJNg4qS2D+3I0iFTT7+2kcgw4rqUJQ+z4lg8NdTdl8G9Mf7Xqz3JQmEa4SPTh
-	NEbu9HpUnZYtZgHVgPaRlzI0pMjuaxFS0b+ETqoi9z5/ht+1tF3djzF6Dn8sLJURAl5US
-X-Gm-Gg: Acq92OGZ7oN4TByXb6ueFDl9fJJUlOceeveKVx/42kZCiH7F22G3pDTR6g8KeHOI6yt
-	36CFhzD2dh12zzvmoCsxEZtXFyGniS+6APyHmW/IkiNXjIEbEeoqMv5Wyd8uEY1mkzxOdt7XWUH
-	5faBihK0N1tbMLbdE0w1CoIXg6xCTPb8fgJ6RIEiw5Z9x/zJjgBbi3X6RcyuZw3z3DV93BJoj9j
-	v+tDF5M/vNt5ClTAksnfC/TKFVeFs5I/cHYfnmAM9VNrrrqieA+CPvkUkziQHiqxcakLyLM1vn8
-	YDpwPsC2V6oSK7fspTIT91HdBRkwGHJSqUBmF5hw1OocW8eBPlHW8Eira6gVucYX5qSlvgHUknA
-	FIZW7ve8AYLuGG6Kljaj6M1t4G1T0bKjYpOxtce6ZyhSgltLrqAgjyWjOerVaIjoK4bylTwSeyB
-	zupyHCVA==
-X-Received: by 2002:a05:600c:a211:b0:490:9d1b:f05c with SMTP id 5b1f17b1804b1-490e5629f6dmr13969795e9.33.1781167056691;
-        Thu, 11 Jun 2026 01:37:36 -0700 (PDT)
-X-Received: by 2002:a05:600c:a211:b0:490:9d1b:f05c with SMTP id 5b1f17b1804b1-490e5629f6dmr13969415e9.33.1781167056231;
-        Thu, 11 Jun 2026 01:37:36 -0700 (PDT)
-Received: from sgarzare-redhat (host-82-53-135-12.retail.telecomitalia.it. [82.53.135.12])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-46028a6dcbdsm66492257f8f.7.2026.06.11.01.37.34
+        d=1e100.net; s=20251104; t=1781168142; x=1781772942;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=Tg4DS3sWauM/HROr0zbXdV0eQLMGagO8flVocf/2Wks=;
+        b=EVKe5CokIGKAk3OkZ5T56N4gWzVb7hI0hzL/v2bOaKuqdvnKA1l6Ol8L1Sspm8gp3b
+         xo5VqRF+uqM0Jg5NBDtdDwCIBTlqm9QvSusE3Pod0xgZRKGjRWGtFvV+CQpG1YbC0p4o
+         hu/1ecUxqlNeWWahBCgDC8+kHVFZ6fATyBPn6HvX7dDazoY38mlQHydRYVr1PbvlkiIN
+         mudE/ulxPk7wF8Clr/wxD/s/7g2a/FyOMVdWkhNSDk2lS8GrTQsQeoXFG7LumqSapF2W
+         AquuSirVJjyYmiphm40pUbrNWQUtdwcrjASi2U/F3Tz2Euj/E5Ld9KC1Tcw3DHolAkr+
+         IyvQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+p27DEzG5h9+GoImbNnsoqQxuRDGHUgNN8V6OgVwDHGU4WPmGeQZqnNKu7H5FBaDVO0wwGnMQ5nKjUobNq1w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxccQy6nw08SBvf2iijXL7O/xPKtGUYx1h78kWws6OBKzR3iCpF
+	vN0HfleaxQAt70FrqD5jrg1eU8/61/pKM10oXAWWdstZtiYhHk+ligI=
+X-Gm-Gg: Acq92OEnerkOS6aOwvj+v5bDEW/87+RT2z3808i+Sf4wwNyP42JmaurMVKeCFGppD6D
+	5YfVN+shDiRzJBv02OhQXtm+pszVTwXcwG4sjymvRHNavlDDtHD09QwNR0ln3qmfh6H7Cxd5FoR
+	BptRfFwrtWUeWzAehj+cQzd1ufhbasJ29iToztXEA3WVpR1zVr0Gcto9fCZKQSCWrEdlZ5u1ZuB
+	gSPDaZTfhWDi5usanbJf8XZAn87s63bjXNoL9iQ5kXcXbeOeERoU/w4RjQrPMg2wovHvpkmSwFD
+	YYBWK8PVaw7/jRqDFPj4j1+g210EL7p5K9DG3BzmgC53VoRfzMgdBs17LqE+YofoMu/tE6t/gso
+	oAvnGIeCB4eHgiHkCwLIZ3nxxKlZCqOwrR8ciMTvUQCytj8BI5IprwXD6CcFy8lOG0jxq1c0AAZ
+	F/+8ZLCrPpCh2zAZU1g9HumNqYoPLCRXQNBpzCmbZpCVEDD8mOEFBpqfAl3qS7ZZEmFaNYrEAZd
+	5S/ug==
+X-Received: by 2002:a17:903:f8e:b0:2be:fefc:d5b9 with SMTP id d9443c01a7336-2c2f04403b4mr24903925ad.5.1781168141982;
+        Thu, 11 Jun 2026 01:55:41 -0700 (PDT)
+Received: from raf.tailb4a862.ts.net ([153.124.163.116])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c164f6dc92sm248412915ad.13.2026.06.11.01.55.36
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Jun 2026 01:37:35 -0700 (PDT)
-Date: Thu, 11 Jun 2026 10:37:30 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Raf Dickson <rafdog35@gmail.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, 
-	pabeni@redhat.com, stefanha@redhat.com, bryan-bt.tan@broadcom.com, 
-	vishnu.dasa@broadcom.com, bcm-kernel-feedback-list@broadcom.com
-Subject: Re: [PATCH net-next] vsock/vmci: use sk_acceptq_is_full() helper
-Message-ID: <aipzlgTKa1OuKrwg@sgarzare-redhat>
-References: <20260611023830.106259-1-rafdog35@gmail.com>
+        Thu, 11 Jun 2026 01:55:40 -0700 (PDT)
+From: Raf Dickson <rafdog35@gmail.com>
+To: sgarzare@redhat.com
+Cc: netdev@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	pabeni@redhat.com,
+	stefanha@redhat.com,
+	bryan-bt.tan@broadcom.com,
+	vishnu.dasa@broadcom.com,
+	bcm-kernel-feedback-list@broadcom.com,
+	bobbyeshleman@gmail.com
+Subject: Re: [PATCH net-next v2 1/2] vsock: fold sk_acceptq_added() into vsock_enqueue_accept()
+Date: Thu, 11 Jun 2026 08:55:37 +0000
+Message-ID: <20260611085537.622665-1-rafdog35@gmail.com>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <aiptrtQIC5ivKjem@sgarzare-redhat>
+References: <aiptrtQIC5ivKjem@sgarzare-redhat>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260611023830.106259-1-rafdog35@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: OpSz7Mado1zCAC_7r-kWmxRItdOgvC3_jh1f0i68xWs_1781167057
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Thu, Jun 11, 2026 at 02:38:30AM +0000, Raf Dickson wrote:
->Replace the open-coded backlog check with sk_acceptq_is_full().
->The helper uses > instead of >=, which is the correct comparison
->per commit 64a146513f8f ("[NET]: Revert incorrect accept queue
->backlog changes."), and adds READ_ONCE() for proper memory ordering.
+On Thu, Jun 11, 2026 at 10:27:42AM +0200, Stefano Garzarella wrote:
+> Maybe adding a new function that moves a socket from the pending queue
+> to the accept queue avoiding also sock_put/sock_hold dance and
+> sk_acceptq_removed()/sk_acceptq_added().
 >
->Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+> To be called in vmci_transport_recv_connecting_server().
 >
->Signed-off-by: Raf Dickson <rafdog35@gmail.com>
->---
-> net/vmw_vsock/vmci_transport.c | 2 +-
-> 1 file changed, 1 insertion(+), 1 deletion(-)
+> So can we move sk_acceptq_added() also in vsock_add_pending()?
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+I like the vsock_pending_to_accept() approach, it makes the vmci
+path clean without the double-accounting issue. Will send a v3 series
+with that as patch 1, followed by folding sk_acceptq_added() into
+vsock_add_pending() and sk_acceptq_removed() into vsock_remove_pending()
+as separate patches.
 
-Thanks for this, what about fixing also hyperv_transport ?
+Any preference on the name xd? vsock_pending_to_accept() works for me.
 
-Stefano
-
->
->diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
->index 91516488a7..56503bee31 100644
->--- a/net/vmw_vsock/vmci_transport.c
->+++ b/net/vmw_vsock/vmci_transport.c
->@@ -1010,7 +1010,7 @@ static int vmci_transport_recv_listen(struct sock *sk,
-> 	 * reset.  Otherwise we create and initialize a child socket and reply
-> 	 * with a connection negotiation.
-> 	 */
->-	if (sk->sk_ack_backlog >= sk->sk_max_ack_backlog) {
->+	if (sk_acceptq_is_full(sk)) {
-> 		vmci_transport_reply_reset(pkt);
-> 		return -ECONNREFUSED;
-> 	}
->-- 
->2.54.0
->
-
+Raf
