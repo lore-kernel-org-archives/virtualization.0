@@ -1,69 +1,69 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39EB93CAA49
-	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 10:10:37 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 52F4D3CAA5D
+	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 10:11:34 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781172638; cv=none; b=jE5PC9Eef0Wqdw8TlKtQKV4lZLeGYfACPD7hbb2ExeDPFQ7gqswbHKwZx7BanX3fng9iI7EHIGV4pCNpFjCjHAMMEPAgGuVsXxJ+j+rXWDUuK92dT7n3GphJD/VkUelXcUVmu4sOC13J6o329OXPOVWDhAatNtLg/erm4ctryR4=
+	t=1781172695; cv=none; b=q6HOWdWEeymRfRNw+nPP81TTRnK6jJkOoc6T1TdPl0trivxD0E1ngBEgJDZPYWA1yukklgYWqbCbVbJ71czkWsGM79asJHwrSJvBK55DQVRtPCWBKuRW/WO7Bzl2KmFxit0fJ7Yj9V8ujn5pst1656+7W+81LdoeVpA/aN2WIBc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781172638; c=relaxed/simple;
-	bh=oPMscQPT7Ovr3uXegR35yeYCHSRNMFL4voLy9Xybado=;
+	s=arc-20240116; t=1781172695; c=relaxed/simple;
+	bh=jYECQqhOuGSVvKdTwPWyVL5AujdqMA5a0nxgPXJ1KXA=;
 	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=pJ/fC7DvzgzHiZbqOInoknVnZ7RRxXao8X6fkaImjdp7fM7Mk+mcBGO87jRVaXrm+dx6TXxSn6OHpnv02RQWGtaL3py+kdq6mXjVfJLDQyfHDpeqRvB8U/i0xvjlPr4neBOlNR7QH9FDsjwjomlv/BHct6OmhYR1K/fXc41mkMs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fWqqg/qE; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version:Content-Type; b=A5dyvnz6SNrtI+akx7Qv4sMtCiO//tkIgyOUxxDrzLSw+ViHF2I9TB0bluHALBNlw4JYGSAYwGwl7NeXIjTTAE61RjKAEKAhpGf5AnRtxfu14RFhx2b8zXD+6yxk2PXkGMfw4gEXsi7rohbe7Pxax55ZpaycYnEUWl1Ta6IHbqQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WO878pvJ; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fWqqg/qE"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WO878pvJ"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1781172636;
+	s=mimecast20190719; t=1781172693;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=rQRyqUjYEtr0y/u9/sXosv9fI09dOaWuwDl+f7MSICU=;
-	b=fWqqg/qEEOeBhLTiXQh5WxsmVoRKTGr1GVdI4gJB/RA9tyWt61Ta7r5+D5i885hdF+V7hr
-	b/+HE/ZO+JeZQG2lviWKUE/MbIKl66dSoE1DSNNFfYGYdYwL5xSyeSzlkRfNcD7R6XQ/NB
-	RjtD+vlnBM15QU09C0/DzgBpVCzYt54=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=8J03CxoywVvGkdqDT93IzLl+xZxTV2J8FpCDOD6Xyq8=;
+	b=WO878pvJEI6JXNjjKNsvscchO1fjuTLeGTf+URHBDTn3TR+GuvWCmE8xBg9EcRqgynxJWo
+	Suhs/dRPcnvHQDY/P6OkW+CSA7TXOVJMLcxIr6ntyQ0uhkqsA1A6/raQGXIX/EGw7+i7UF
+	qrtQ0PU+irjjN1qED8CUhktuM6g/1A8=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-34-1XUgMtaZPm-zu8nGGhjojQ-1; Thu, 11 Jun 2026 06:10:35 -0400
-X-MC-Unique: 1XUgMtaZPm-zu8nGGhjojQ-1
-X-Mimecast-MFC-AGG-ID: 1XUgMtaZPm-zu8nGGhjojQ_1781172634
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-490dad70f95so22702445e9.3
-        for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 03:10:34 -0700 (PDT)
+ us-mta-482-Rubor-eZOvGXpsHC3pgGLg-1; Thu, 11 Jun 2026 06:11:28 -0400
+X-MC-Unique: Rubor-eZOvGXpsHC3pgGLg-1
+X-Mimecast-MFC-AGG-ID: Rubor-eZOvGXpsHC3pgGLg_1781172687
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-460198535bcso5015265f8f.3
+        for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 03:11:28 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781172634; x=1781777434;
+        d=1e100.net; s=20251104; t=1781172687; x=1781777487;
         h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
          :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
          :reply-to;
-        bh=rQRyqUjYEtr0y/u9/sXosv9fI09dOaWuwDl+f7MSICU=;
-        b=g1WeOWK2gfKtYw+6+3dhyaIcMYdNI+LtwrieIp5uPRt/L1iTPZ0UQKHVJ/5GcVWQU6
-         7QYAPEnCkir8pu8R+9ZLglw+CDI12CzxVAqGJTfbAeYJ3Xvyh0KP8g49KPyxas39+54V
-         +ccIklDl74JkixWGSrS/p8E/YTvamymdvAGCCgLpA7FLZitancZwyyhxA0OMLKndLOsD
-         nsxR3yOOnwl251WGyIO1db0GfUJE33h1FgXej5f6b1yore+JxLIJHj2ID37kA93UGjvx
-         tgJUVZmRxh8IylFtlPtkYVaDPT0TMWi1soP+QUrOkJJSGPmHH1FPh238WtrBP7Ck6lvd
-         ibGA==
-X-Forwarded-Encrypted: i=1; AFNElJ+gwV9/nsvH9dH+5oIf1aUIPCkGpDRy+J/aXZk0e5AAVhR6nnGjPrupFerAjQNFJIWhYQTfX2a0G82KQ7GdJQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzi+BpBscWK55PkRO2AfxNsieIpYES0Wbgz4GEq2+ofySEThYZp
-	r2qzMDrXnuOmBBCACOePWMcLekx3gJ414Hmx72LHezqMTnWML7/UcuwIOIDr8/wo16GocOA87k6
-	w5EgmLQ9f8PF7dfe/hr/9JN9T/22s6dHUConBp9GuFC9pBaja6pmILO/uhWvWYZyHJaQY
-X-Gm-Gg: Acq92OH+Byrvd0dbPgICftuyJJ4IKcWTx/DHl5xcV7IkYklyGScCpTg8qB7jThv558V
-	wutVSkW039M9fJyHaZRX+H55s7kAIPDOz9eXwMBN1o/GaYxXHwsX2JqRVOiGgvOyM2/FxbGaNn2
-	B3CNlbm2EXBJiJdY+JQCoB5dESBe5RokMLu4LA6Q0NGmkWbuVUjVU1CftQDB0z+54THm/s4Cgzv
-	/5AXQ8a7IF1j5nTXKryUj36aDQbKtZs5PLCpsposCZDdD3+NyXltEr5qSZES3hBtmY628LnE7Cz
-	bCRe5opnZuD37No2U9UTPQUBjvfrBrfmhEh2Irm0WsVIIF35SCW02RVdBtUI1+AZmicHM9lECcX
-	jyoJTcmNLi3/+hTmrE2b/+kxU+Z2DjbFMgDE64N1EWeJXyJAimSBQR+/S7Fc75O00MmOcDkC7Lx
-	0EKk8qjnfDApIEqzU=
-X-Received: by 2002:a05:600c:4685:b0:490:e1e6:8988 with SMTP id 5b1f17b1804b1-490e55dc1damr31237475e9.7.1781172633823;
-        Thu, 11 Jun 2026 03:10:33 -0700 (PDT)
-X-Received: by 2002:a05:600c:4685:b0:490:e1e6:8988 with SMTP id 5b1f17b1804b1-490e55dc1damr31236645e9.7.1781172633469;
-        Thu, 11 Jun 2026 03:10:33 -0700 (PDT)
+        bh=8J03CxoywVvGkdqDT93IzLl+xZxTV2J8FpCDOD6Xyq8=;
+        b=IwyCM2Fu48qmbg1y0a+ptXKdHr8qfGn/FC5vi9tKmc3T9/NZbRYxu7NvpCUSFPJlio
+         vFDhXZFLTjH3i8/wwwCabp4OSp6UTe9MhGCCmOWxGxVBmuJMEuB28DtVQykDOZywVxzN
+         ke38wCjQOPsek462vhnN8NROTfDGKLbqy7S2CbxtdfWFiO2237Bqwj6/Vcjc+yEW4DEc
+         0FJaOmqorxQ3epmqyC8MhRVtXr51KnoYhZNEck39BJgrTLJBRtKgE4HGbR6j1sETQmb3
+         x9MB/KCu7fzJJMsS2fsv6fewFnsPlYNgXQBhmFQI80U5DyGY0DvprxFIjPXoI8+IdEAW
+         Zf6Q==
+X-Forwarded-Encrypted: i=1; AFNElJ+1a3kYGUoaiwD5+rRSsMC1C7t2PzDDXmEJNETfuI0Btg6EgL1wa8SSKYc7QkEyDFTK9PjJ+RtmkC5jofTkzA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyfpewBN1tA15WQZqZHnq6Twx/Y3+QE5QDQcLqr8bbcBPeMd5cM
+	yFhxXFun8zSD62TSQXo5y4yzRSWj1nRAzlRJRcV6qhjaLoLPUJB01bk1Se6yD8H4YZLCPyGkx7k
+	2ESAOcEa4vbK4Kp0CGkNh71bpaeN9L/oSH1HsADpJrZz1/MAk1TSNb+TjaPtKME03rsNp
+X-Gm-Gg: Acq92OEpeqJTNJKQskxTKsDkCWJFYFn14SKgzXEaB0Sxlb9O3HxEQOZTK+OcBL3/anj
+	+3gY90NFxdUBCWiDum+uKwhuAuSKlneRyAWCXbXRc7XmfcjoCpakjFXgnwDCnqTNDuhpTmW2kw6
+	i6bA5PIHgjGFE67uqJPgAi9HVib2TTN/3UTdoju66Rokft2seRCydSD9o0ZythDU0cZzvUzL6QV
+	9IEQNosa1LreIMgMv/8mAH4EmSZ64tf3gJE32hgc5K1OMUCKFZs6ZfN6lOfXiERsoctuHYGg9tz
+	Sc0o1bPsu0/d4BRKGl19bizMBhXUsaFeZZKCGO+KXIz9VuJ6wmqreQY9x1KXvSgGnh7sVoCqMVr
+	x3NRO1kvZcLk/iFM2QggHqGUoIoNDzQGe6gMMkdLlfi0jWx6P37KaoNfF4W6dme4BDDXSmleqsN
+	EXbsA7GGRRsaF+1P4=
+X-Received: by 2002:a5d:524f:0:b0:460:3233:bee8 with SMTP id ffacd0b85a97d-460677b28camr2150171f8f.40.1781172687228;
+        Thu, 11 Jun 2026 03:11:27 -0700 (PDT)
+X-Received: by 2002:a5d:524f:0:b0:460:3233:bee8 with SMTP id ffacd0b85a97d-460677b28camr2150129f8f.40.1781172686816;
+        Thu, 11 Jun 2026 03:11:26 -0700 (PDT)
 Received: from localhost (62-151-111-63.jazzfree.ya.com. [62.151.111.63])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490e52ac9aasm38076025e9.4.2026.06.11.03.10.32
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4601f2e4b18sm63288157f8f.10.2026.06.11.03.11.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Jun 2026 03:10:32 -0700 (PDT)
+        Thu, 11 Jun 2026 03:11:26 -0700 (PDT)
 From: Javier Martinez Canillas <javierm@redhat.com>
 To: Thomas Zimmermann <tzimmermann@suse.de>, mripard@kernel.org,
  maarten.lankhorst@linux.intel.com, airlied@redhat.com, airlied@gmail.com,
@@ -79,14 +79,14 @@ Cc: dri-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org,
  intel-gfx@lists.freedesktop.org, intel-xe@lists.freedesktop.org,
  linux-mips@vger.kernel.org, virtualization@lists.linux.dev,
  amd-gfx@lists.freedesktop.org, Thomas Zimmermann <tzimmermann@suse.de>,
- Zack Rusin <zackr@vmware.com>, stable@vger.kernel.org
-Subject: Re: [PATCH v5 01/15] drm/amd/display: Handle struct
+ stable@vger.kernel.org, Zack Rusin <zackr@vmware.com>
+Subject: Re: [PATCH v5 02/15] drm/i915/display: Handle struct
  drm_plane_state.ignore_damage_clips
-In-Reply-To: <20260610152505.260172-2-tzimmermann@suse.de>
+In-Reply-To: <20260610152505.260172-3-tzimmermann@suse.de>
 References: <20260610152505.260172-1-tzimmermann@suse.de>
- <20260610152505.260172-2-tzimmermann@suse.de>
-Date: Thu, 11 Jun 2026 12:10:31 +0200
-Message-ID: <87y0gl5qw8.fsf@ocarina.mail-host-address-is-not-set>
+ <20260610152505.260172-3-tzimmermann@suse.de>
+Date: Thu, 11 Jun 2026 12:11:25 +0200
+Message-ID: <87v7bp5quq.fsf@ocarina.mail-host-address-is-not-set>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -94,35 +94,29 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: hL5aMlP-C99qclJPdeHVV1mUo9dwNOCoA-kLBfkBKoI_1781172634
+X-Mimecast-MFC-PROC-ID: krMRI46NF4_9Rv-GVPLkyp6Spfzlq52VzTcBNLFG_9A_1781172687
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain
 
 Thomas Zimmermann <tzimmermann@suse.de> writes:
 
-Hello Thomas,
-
 > The mode-setting pipeline can disabled damage clippings for a commit
 > by setting ignore_damage_clips in struct drm_plane_state. The commit
-> will then do a full display update.
+> will then do a full display update. Commit 35ed38d58257 ("drm: Allow
+> drivers to indicate the damage helpers to ignore damage clips") introduced
+> ignore_damage_clips to selectively ignore damage clipping in certain
+> framebuffer changes.
 >
-> Test the flag in DCN code and do a full update in DCN code if it has
-> been set.
->
-> Commit 35ed38d58257 ("drm: Allow drivers to indicate the damage helpers
-> to ignore damage clips") introduced ignore_damage_clips to selectively
-> ignore damage clipping in certain framebuffer changes. This driver does
-> not do that, but DRM's damage iterator will soon rely on the flag.
-> Therefore supporting it here as well make sense for consistency.
+> The i915 driver does not modify the flag, but DRM's damage iterator
+> will soon rely on it. Calling drm_atomic_helper_check_plane_damage()
+> right before drm_atomic_helper_damage_merged() guarantees that it
+> has the correct state. The i915 driver does not do this elsewhere
+> so far.
 >
 > Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
 > Fixes: 35ed38d58257 ("drm: Allow drivers to indicate the damage helpers to ignore damage clips")
 
-I don't think that a Fixes tag is correct here? Your patch series
-is changing the 'struct drm_plane_state.ignore_damage_clips' and
-the changes make sense, but definitely isn't a fix in my opinion.
-
-Having said that, the change look good to me.
+Same comment here than for patch #1. I don't think this is a fix.
 
 Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
 
