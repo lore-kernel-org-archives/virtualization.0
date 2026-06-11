@@ -1,98 +1,135 @@
-Received: from mail-wm1-f42.google.com (mail-wm1-f42.google.com [209.85.128.42])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF5152E62B3
-	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 10:03:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.42
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 39EB93CAA49
+	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 10:10:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781172231; cv=none; b=h3Ejj2w2B1Q9WlH/c2sO/GLwv37G/66M8w46ncah+kiHtA+JFG0AA75ATm/nDDNmxtRZ4xLuQzD+K0x+CYNLfWbTXXTvCt/2sIo64FIci0aHBMyUGTR6+pfVWS4eEFKnzosrOdOZIXgtnXN8JF/gqpV4pCe0P1ZV3MuAsEcokCY=
+	t=1781172638; cv=none; b=jE5PC9Eef0Wqdw8TlKtQKV4lZLeGYfACPD7hbb2ExeDPFQ7gqswbHKwZx7BanX3fng9iI7EHIGV4pCNpFjCjHAMMEPAgGuVsXxJ+j+rXWDUuK92dT7n3GphJD/VkUelXcUVmu4sOC13J6o329OXPOVWDhAatNtLg/erm4ctryR4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781172231; c=relaxed/simple;
-	bh=VAs/GCibCyDaqi3nHsOx9BPF6bvlc6LG8MqXmBo4L8c=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=OfhuIe598rFvr5VquvUx7pZwDEXd+z6me2KHH6fjOPqdKekRAHyaMl+a8X7tgaMNE+SGV0f3ZjAKZfr11AW3Q845wk+3ioKzQ3l2UlfKwLl+l1fPLJ5x5+exfNnR+7JnU2Mmk4Uim+LBWjUkYWTjxAe5PadYnJanoOA0pR950m0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=H1LIFxo5; arc=none smtp.client-ip=209.85.128.42
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1781172638; c=relaxed/simple;
+	bh=oPMscQPT7Ovr3uXegR35yeYCHSRNMFL4voLy9Xybado=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=pJ/fC7DvzgzHiZbqOInoknVnZ7RRxXao8X6fkaImjdp7fM7Mk+mcBGO87jRVaXrm+dx6TXxSn6OHpnv02RQWGtaL3py+kdq6mXjVfJLDQyfHDpeqRvB8U/i0xvjlPr4neBOlNR7QH9FDsjwjomlv/BHct6OmhYR1K/fXc41mkMs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fWqqg/qE; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="H1LIFxo5"
-Received: by mail-wm1-f42.google.com with SMTP id 5b1f17b1804b1-490b8ac62baso5668975e9.0
-        for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 03:03:49 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781172228; x=1781777028; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=D9STgvUk3oRIx7XFabbesfUNmdUEn9qMIeHh38tKNZA=;
-        b=H1LIFxo5RvBovCdCpSArn68AVapLUg5fDA4IxiAW4+rU7gvwEA0xeiZ8ZZrcdzDyIk
-         6/N5GUVLoX9UB/ohXYlarjHVruvKI20lNyUJwmPXSQW8dAy3+Z8AScubMLRAu7FGIHv+
-         fyOTdb2AW4nU2DkYqqe0oVdPel0pgebQVgOH+FJMrB8rWKL2KFkSYYjkr2cbHloMtSDa
-         AiCBKkKd53r1c5o/Amfr9LgBsuf+JP0ZcjRXu9cojYl6q3m+KvKti6uF1zxSiVtSjlNk
-         oPCfUXikZfpB/r9EYPSN53pO6xC0YWtkVZLJLK6b65dUCeTlMTqi0m619OrNZh3kinLY
-         RI9A==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fWqqg/qE"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1781172636;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=rQRyqUjYEtr0y/u9/sXosv9fI09dOaWuwDl+f7MSICU=;
+	b=fWqqg/qEEOeBhLTiXQh5WxsmVoRKTGr1GVdI4gJB/RA9tyWt61Ta7r5+D5i885hdF+V7hr
+	b/+HE/ZO+JeZQG2lviWKUE/MbIKl66dSoE1DSNNFfYGYdYwL5xSyeSzlkRfNcD7R6XQ/NB
+	RjtD+vlnBM15QU09C0/DzgBpVCzYt54=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-34-1XUgMtaZPm-zu8nGGhjojQ-1; Thu, 11 Jun 2026 06:10:35 -0400
+X-MC-Unique: 1XUgMtaZPm-zu8nGGhjojQ-1
+X-Mimecast-MFC-AGG-ID: 1XUgMtaZPm-zu8nGGhjojQ_1781172634
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-490dad70f95so22702445e9.3
+        for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 03:10:34 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781172228; x=1781777028;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=D9STgvUk3oRIx7XFabbesfUNmdUEn9qMIeHh38tKNZA=;
-        b=lA8iabayqcY8fReh4WdQnCsQmsTyZ6Xqj7D4QQnyhqrWoa9efnBZ69k2paIM4zDFAU
-         5ss0N8fsAi4vtHyZps5aNsR0DWQri+gjGSIjCLRdXTa05Cl6/TlY5WKLdqXqj9ifyGJd
-         wJcXB1YLc4RUzQRxM9dGfjgpDAB6uLTUqcZT7850HoPdIiF8+2js/1DNTuExhDO9QO84
-         qR/Z8otXsfU5ne5jIdnDBKQB2YjX/dLIhHMP0etoteOIWCxbdhNEFFog6tbyN0khgC0d
-         HVjwPsq208Xp7COaZYF+GhbX3ufEwNTQ2OdnYizUcsB8n2+x1KnrRMBpQPZ6GfeMqnrD
-         RNpA==
-X-Forwarded-Encrypted: i=1; AFNElJ8bVti2nTC2A1y/r3EgtT8tIq2Y9FPF3w6XeR8Z53iuLQWhlZs1XpAiXiBSV4+YrGOEqBktP00DQACKFpg5eQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw8NiVfjIghCZN6Pa/xx50CbzmZ3COC5+Kjg/pC5Fz1QFxyPwc0
-	tYhIOALqyb9UhThx/Chvptrd6asf91xYrmgnYud58C+bne8RkVdXsCHy
-X-Gm-Gg: Acq92OFfMLN+8p1qGMNnnr3HR/gwLHMEzwRlg6uk9wdwLk353bCJaTy5akQRsmpDf1X
-	UD0tQztk6kd+0R5nK6gewyiftjs0Fc5jhYepRGXNQGagwrdO6kQcLtu5HqKVXubu3OoZIajb0Zk
-	dtS+tl0xoo80eVR5lfj7ws+MYkb55mva4vQ5IuIehfa6iaPYnQyELxymr87+CSWl30uvOML3O7L
-	WGeB4A3H+AOHKpzgKBjpoJXJvd1R+v4V9K/CQG4E0tyyry041IMvAWDn9KEV4ukvbGu9qnK5vzw
-	CK8O6CJWdpBg9kw20BET8az8k1CxYxkyNYaqGxwj0JU+UDOqOnfBF6W+LSIXwUcdt/oAQqawFt/
-	rGBFw53jNw67opmmqaqQMzoI3LYgvpLHC/U9GyZG2LDVrooFeF3I47Cg+dqOUpSHkNzeLFTXiGW
-	eYkeeEEJ+Cwi/vm13hN+MRLxjHlU1LZXSXiOu42gRhRVleEivaST1rrnORISQrSctXr3uF3nk=
-X-Received: by 2002:a05:600c:4f47:b0:490:b26c:64ad with SMTP id 5b1f17b1804b1-490e52d5bfdmr22105515e9.5.1781172228070;
-        Thu, 11 Jun 2026 03:03:48 -0700 (PDT)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490e47a9284sm32769395e9.1.2026.06.11.03.03.47
+        d=1e100.net; s=20251104; t=1781172634; x=1781777434;
+        h=mime-version:message-id:date:references:in-reply-to:subject:cc:to
+         :from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=rQRyqUjYEtr0y/u9/sXosv9fI09dOaWuwDl+f7MSICU=;
+        b=g1WeOWK2gfKtYw+6+3dhyaIcMYdNI+LtwrieIp5uPRt/L1iTPZ0UQKHVJ/5GcVWQU6
+         7QYAPEnCkir8pu8R+9ZLglw+CDI12CzxVAqGJTfbAeYJ3Xvyh0KP8g49KPyxas39+54V
+         +ccIklDl74JkixWGSrS/p8E/YTvamymdvAGCCgLpA7FLZitancZwyyhxA0OMLKndLOsD
+         nsxR3yOOnwl251WGyIO1db0GfUJE33h1FgXej5f6b1yore+JxLIJHj2ID37kA93UGjvx
+         tgJUVZmRxh8IylFtlPtkYVaDPT0TMWi1soP+QUrOkJJSGPmHH1FPh238WtrBP7Ck6lvd
+         ibGA==
+X-Forwarded-Encrypted: i=1; AFNElJ+gwV9/nsvH9dH+5oIf1aUIPCkGpDRy+J/aXZk0e5AAVhR6nnGjPrupFerAjQNFJIWhYQTfX2a0G82KQ7GdJQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzi+BpBscWK55PkRO2AfxNsieIpYES0Wbgz4GEq2+ofySEThYZp
+	r2qzMDrXnuOmBBCACOePWMcLekx3gJ414Hmx72LHezqMTnWML7/UcuwIOIDr8/wo16GocOA87k6
+	w5EgmLQ9f8PF7dfe/hr/9JN9T/22s6dHUConBp9GuFC9pBaja6pmILO/uhWvWYZyHJaQY
+X-Gm-Gg: Acq92OH+Byrvd0dbPgICftuyJJ4IKcWTx/DHl5xcV7IkYklyGScCpTg8qB7jThv558V
+	wutVSkW039M9fJyHaZRX+H55s7kAIPDOz9eXwMBN1o/GaYxXHwsX2JqRVOiGgvOyM2/FxbGaNn2
+	B3CNlbm2EXBJiJdY+JQCoB5dESBe5RokMLu4LA6Q0NGmkWbuVUjVU1CftQDB0z+54THm/s4Cgzv
+	/5AXQ8a7IF1j5nTXKryUj36aDQbKtZs5PLCpsposCZDdD3+NyXltEr5qSZES3hBtmY628LnE7Cz
+	bCRe5opnZuD37No2U9UTPQUBjvfrBrfmhEh2Irm0WsVIIF35SCW02RVdBtUI1+AZmicHM9lECcX
+	jyoJTcmNLi3/+hTmrE2b/+kxU+Z2DjbFMgDE64N1EWeJXyJAimSBQR+/S7Fc75O00MmOcDkC7Lx
+	0EKk8qjnfDApIEqzU=
+X-Received: by 2002:a05:600c:4685:b0:490:e1e6:8988 with SMTP id 5b1f17b1804b1-490e55dc1damr31237475e9.7.1781172633823;
+        Thu, 11 Jun 2026 03:10:33 -0700 (PDT)
+X-Received: by 2002:a05:600c:4685:b0:490:e1e6:8988 with SMTP id 5b1f17b1804b1-490e55dc1damr31236645e9.7.1781172633469;
+        Thu, 11 Jun 2026 03:10:33 -0700 (PDT)
+Received: from localhost (62-151-111-63.jazzfree.ya.com. [62.151.111.63])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490e52ac9aasm38076025e9.4.2026.06.11.03.10.32
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Jun 2026 03:03:47 -0700 (PDT)
-Date: Thu, 11 Jun 2026 11:03:46 +0100
-From: David Laight <david.laight.linux@gmail.com>
-To: Nathan Chancellor <nathan@kernel.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?UTF-8?B?UMOpcmV6?=
- <eperezma@redhat.com>, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, llvm@lists.linux.dev
-Subject: Re: [PATCH] vduse: Fix error around jumping over a __cleanup()
- variable
-Message-ID: <20260611110346.2b9388a1@pumpkin>
-In-Reply-To: <20260610-vduse_vq_kick-fix-guard-usage-v1-1-0ce02c08006e@kernel.org>
-References: <20260610-vduse_vq_kick-fix-guard-usage-v1-1-0ce02c08006e@kernel.org>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+        Thu, 11 Jun 2026 03:10:32 -0700 (PDT)
+From: Javier Martinez Canillas <javierm@redhat.com>
+To: Thomas Zimmermann <tzimmermann@suse.de>, mripard@kernel.org,
+ maarten.lankhorst@linux.intel.com, airlied@redhat.com, airlied@gmail.com,
+ simona@ffwll.ch, admin@kodeit.net, gargaditya08@proton.me,
+ paul@crapouillou.net, jani.nikula@linux.intel.com, mhklkml@zohomail.com,
+ zack.rusin@broadcom.com, bcm-kernel-feedback-list@broadcom.com,
+ harry.wentland@amd.com, sunpeng.li@amd.com, siqueira@igalia.com,
+ alexander.deucher@amd.com, rodrigo.vivi@intel.com,
+ joonas.lahtinen@linux.intel.com, tursulin@ursulin.net,
+ dmitry.osipenko@collabora.com, gurchetansingh@chromium.org,
+ olvaffe@gmail.com
+Cc: dri-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org,
+ intel-gfx@lists.freedesktop.org, intel-xe@lists.freedesktop.org,
+ linux-mips@vger.kernel.org, virtualization@lists.linux.dev,
+ amd-gfx@lists.freedesktop.org, Thomas Zimmermann <tzimmermann@suse.de>,
+ Zack Rusin <zackr@vmware.com>, stable@vger.kernel.org
+Subject: Re: [PATCH v5 01/15] drm/amd/display: Handle struct
+ drm_plane_state.ignore_damage_clips
+In-Reply-To: <20260610152505.260172-2-tzimmermann@suse.de>
+References: <20260610152505.260172-1-tzimmermann@suse.de>
+ <20260610152505.260172-2-tzimmermann@suse.de>
+Date: Thu, 11 Jun 2026 12:10:31 +0200
+Message-ID: <87y0gl5qw8.fsf@ocarina.mail-host-address-is-not-set>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: hL5aMlP-C99qclJPdeHVV1mUo9dwNOCoA-kLBfkBKoI_1781172634
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain
 
-On Wed, 10 Jun 2026 12:16:49 -0700
-Nathan Chancellor <nathan@kernel.org> wrote:
+Thomas Zimmermann <tzimmermann@suse.de> writes:
 
-> When building with clang, there is an error in vduse_vq_kick() from
-> attempting to jump over a variable declared with the cleanup attribute
-> using goto:
-.
-> Jumping over a variable declared with the cleanup attribute does not
-> prevent the cleanup function from running, it would just result in the
-> variable being passed uninitialized to the cleanup function .clang
-> errors instead of generating the invalid code, unlike GCC.
+Hello Thomas,
 
-Does the same apply to variables allocated inside switch statements?
-I'm sure I've seen one that wasn't inside an extra block.
+> The mode-setting pipeline can disabled damage clippings for a commit
+> by setting ignore_damage_clips in struct drm_plane_state. The commit
+> will then do a full display update.
+>
+> Test the flag in DCN code and do a full update in DCN code if it has
+> been set.
+>
+> Commit 35ed38d58257 ("drm: Allow drivers to indicate the damage helpers
+> to ignore damage clips") introduced ignore_damage_clips to selectively
+> ignore damage clipping in certain framebuffer changes. This driver does
+> not do that, but DRM's damage iterator will soon rely on the flag.
+> Therefore supporting it here as well make sense for consistency.
+>
+> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+> Fixes: 35ed38d58257 ("drm: Allow drivers to indicate the damage helpers to ignore damage clips")
 
-	David
+I don't think that a Fixes tag is correct here? Your patch series
+is changing the 'struct drm_plane_state.ignore_damage_clips' and
+the changes make sense, but definitely isn't a fix in my opinion.
+
+Having said that, the change look good to me.
+
+Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+
+-- 
+Best regards,
+
+Javier Martinez Canillas
+Core Platforms
+Red Hat
+
