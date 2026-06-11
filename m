@@ -1,63 +1,63 @@
-Received: from mail-pf1-f195.google.com (mail-pf1-f195.google.com [209.85.210.195])
+Received: from mail-pf1-f194.google.com (mail-pf1-f194.google.com [209.85.210.194])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A785F31691A
-	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 02:57:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.195
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAEFC28DB54
+	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 02:57:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.194
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781146627; cv=none; b=Y3o4iqi6yo42ZAwIlhLl7wKGT5kTRktkb1/THSOwShPnGwPjbbdpKuz9MH/EfNVBU0Zgsh4IDC0rKqG4YKUysiZKleVauz8ffFqsi9Duz6yKg1V9jbm8l1rJKwu2YPBpaLi+ieXMKQZq5k3ZFL69n/IFkryWH9/zZsMg++Owtwg=
+	t=1781146633; cv=none; b=ngV/SJKa0e4pHYauQkuYTb+lVZxru28D1zczE8EMc5iOEDcn2m+JYun+ibdZhCPilYcXiPGv8RS4XZLGfsCFsAYEKxsApfcp999YkwSP6NVxF3yfpojhPIJE2MKVPRZO+Jms+aLqSZUnphJ0h/bJiIiXBZYtohv13S2V6hhVyGs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781146627; c=relaxed/simple;
-	bh=b/o18kh6Flqc7FfSc4cmM0rvw3m5Gzf1uhnBV5Z4EKw=;
+	s=arc-20240116; t=1781146633; c=relaxed/simple;
+	bh=RoRVrNiX+bgef/3jboe+9nL/6JI24Go7+Wl95RFBf3g=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=sn+9/Utqk/S4RZ3kj5m/+2qc3ZGrqSfrF4uZcX5R/obHKu9xvKwaK8EvZaI0CzXgR47/mL9jHrGHzyo1BEHATdPZvsM7xxE7bswdKKKHFGsM59SP9Eprx6WsYfslNpHGpKPFHrEdMvlymY2EqgMWT+CtmleZKgSRDX/yw4d+3aU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=dn5hLdpF; arc=none smtp.client-ip=209.85.210.195
+	 MIME-Version; b=PVEs261z20HudnJM6Qv1mWaNlRPYOpeXb7a/P1NceiQy7qTq8wKcWDWwJ9jVgppk66gVrA5Gxf7J1mdjyolYRuNtuukWiclYXbuHPyiLzfksPqM10aafFIjDrjvUf6p/1S6aS/0fOSZgmNNafzpiXnwmavTPpoIFJRAxV3Zktvo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=H/bC1eJm; arc=none smtp.client-ip=209.85.210.194
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="dn5hLdpF"
-Received: by mail-pf1-f195.google.com with SMTP id d2e1a72fcca58-8423f52af13so5189912b3a.2
-        for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 19:57:06 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="H/bC1eJm"
+Received: by mail-pf1-f194.google.com with SMTP id d2e1a72fcca58-842273a2c4dso5093803b3a.3
+        for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 19:57:11 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781146626; x=1781751426; darn=lists.linux.dev;
+        d=gmail.com; s=20251104; t=1781146631; x=1781751431; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=o9re1bjpsG4J1aHkLAKyTTv5gQJj14gA4eTFrX1qtWI=;
-        b=dn5hLdpFmrPU2zwqNACrZ2q4xNTSyUTgnXM5yRcps3DShRMZa5bGe0eX37kL5csvXW
-         YsWRsvG3guoSaReu9eqJMZqCtmxlur+E+uu1MOyRjcliWwUEYW+5XEdgexLfGA7uDvWg
-         ACR5KLkg+YezUQnHJ6x5mH+MSNSTNUHN8cmUGzmt4U/rpbZUYY5m+OdM7wWFmta09UcL
-         IvcWPiSB4w3HxyzwIAEgU/lwP3T14tp8SiTzQzrzOR1Lp3CvhXCXWrgITDv9cD58j8HE
-         RrWbQKBi2nHH4ocxH6veKi01nosJ0dJMDbqx2ofOjAjCE+XODq1Py/klmZlnD5TWr07H
-         RvQA==
+        bh=wGuObVQF66WCHyv524cNB4gmmTWm0m/X8koQNLAf5D4=;
+        b=H/bC1eJmZPOB41iVRjXOLA/LyqteDRl4bS8+Ch+z8sBRmFT8Fz4mt+CODMzXB5dYZW
+         fN2eapA9jP37RjErvJxmX55G1V7+/PiG8ESu40ntI9RUehIS1w3bZPnQwFcXpAK4XKP6
+         QNKUVKQdzzvEwLAqHg+ngqnb/nqRw4KgbZ4OTsYPVRMXON8qkkYxQPNdY0SYpbVionfF
+         F8NIxfhG+vDKefva2UUOv63OLz2ncLygjjrSv/6Qdw8PEs2NSyADRnMOr5RJS6hFXI3X
+         akMWtkHhV6McO70rJk4v9TbzxrK1uNaY/OM3c0iW1tKzM81liRsgUTAfevXhtWsG+2kk
+         Y+9w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781146626; x=1781751426;
+        d=1e100.net; s=20251104; t=1781146631; x=1781751431;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=o9re1bjpsG4J1aHkLAKyTTv5gQJj14gA4eTFrX1qtWI=;
-        b=RuSQFwdo2pyUSUlk6EiY4uoFtjiBqPLbGJBke7OfuJW4+ZnQEYUwYMXQfCUYJ38/vo
-         rTSP4PmtdRVyqt87PjhyMTY/VCLadJJVXIlwCQb46LXEx7HKtB7cmU1YN7JySNXJHa2N
-         RNMa0SthIn8kR9AKEXKIzMFhut6gqStA36ErOuFaueRimOgsAPtuQlca8bfwNWPZCkLk
-         q1d2v0bm5zV8t+hytZ+C6tRChA+8im0VsBlrqGd+1G/K4vC96LBZKgcHmlSvNfrpJbMv
-         +2ky2e6r90MsvqpQdhN1z/UFcIjv2sQsxAKpT9N3O5CY0JpwT3cDRAs21qGJ35xSPO2D
-         w+nQ==
-X-Forwarded-Encrypted: i=1; AFNElJ+EWas9rT9ZGBf6G1nE4UtA5+Kp5sb4LrFEHVnRCEZvvEthzNGvvgjUhcR0gpeXX6W0Nhx0c6kDDoHbEAbTJw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzg7cWL2xcKGONr0mabhcFpbtTE+tP8iWXp1hHa8Fcxow9wuPRu
-	89Mf+uk2kjPULbrNndZ7aDRpesuiSHNe0mxMTJuZtMgJEnZzQyVo9ziK
-X-Gm-Gg: Acq92OFhyCTD5EFNaAY1O7fFQlW9km6B0YaJ0d3VvHfIOmo7ql29xSyv7vfTqp6y6Wh
-	T2A4h1E67xX1hLBVPTQALfJUf0jbnc1nHwP8bu8Vj9YbkKZC9pMpZEduX9gQrzkh6yUOTz1h/P7
-	P7i0ff36c1cb6Eb1UCE1n0jTWpAYnlF+7DrIpTPLq/G1iC39sGagCor07s/xGA693e91ByhiE01
-	OXKWI2dcw8TyQBbnoWcGbijSfUo41dSFp0LMITIipFq3XV/dWluZztJOKSHyWuftD245JS6uplo
-	Tniha5T2GfntBaofNTECPKuRSwEZvX7i7ApDE2ywkZK1qax7mABDp81A6AD70BmCapOly4QRcSW
-	gf7dR2VSsAsVAadN1rmV9Y+qwLUaHWViYhaswXFeM96fQfRsPRylvcA7rFLCdX72ygQtOlhVPFE
-	L/0w9gHWi1Ae+yMUz6sxJ10lSY5MdTqQexy/cYrxEIOT5MoMHhYkA=
-X-Received: by 2002:a05:6a00:3391:b0:842:48ae:1d6c with SMTP id d2e1a72fcca58-84336a8cf92mr846580b3a.24.1781146626022;
-        Wed, 10 Jun 2026 19:57:06 -0700 (PDT)
+        bh=wGuObVQF66WCHyv524cNB4gmmTWm0m/X8koQNLAf5D4=;
+        b=YpGL9VUIuMPcAilZ6Et+XbrZg65EgJDADN3tARN9By21pUxatcNLwiNbaYX1KdcHIp
+         ACl0NoGIMHKBiHjg7AHbncjtSsbPAPT0vrJ8POQiArbgh/irX4CTR8G550vi5yki5Ktt
+         xreMd5t+EXv91BNSvVcVE1gn/fRPq9xsxm9choD6XVrdIm3OmIabw9pFIb4PLoPmT/IC
+         rKrrtW+QyAb3XsTKT9jUvJ0UZ39niZxPEI6Evkq6oZcFnZT+A0Aq9FTz3vNBiwltLAJ+
+         3ZvN5WOTf+f7E8811El2Xr8OXLJNCCuJ4iIMrPMcfN4hbzhshp5iNpPprkzHHtrfDhGP
+         m1FA==
+X-Forwarded-Encrypted: i=1; AFNElJ+UAngFFgTb3w1ra7u9dJmUpKThQ/+OrktBimnZYWBjpteU8/7vk4Oxw6Lf+5qqhXH+xz0Ce1oYnEfPgVDaVw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxeqLbYxJckZZhLXSfTk+TSSsfwpbnTdInbAKvvHFHn8M7NLpWB
+	xm/m92MsNeAN1b2ev5nMo/vt1DiRuKfvoPFVYUI/Z9wgM2aebNUucCCW
+X-Gm-Gg: Acq92OEXPpvEB/7CD0qKu2vufavteGvzFVxqJ+zFlDWzwGuj4J19wtrVcOmrN1bUyF5
+	sNq+mIArtZH38TyNTbSP1vECSygOMtiqewNNAEGCN7Fus4PPHVzkDwwIwybiL6db9a6yzgW3XZw
+	Z9ABOtuPGJxdFbqN94C9YAZcPGlpmu21vBYKceMnFWf55DjStFfqxrDr6OEKF5lyXWZOZw7jQAG
+	OzBRruFaj2jMJqyp6QyIM19J+w/cP4zXD+vBGg909B8BALelQkB6bR0tm1SnmAQ79d5i51lWRta
+	XDg6KLHTMmQEBXAUiP61QSNC71a77G5ZUXk3lhLaeB/h7XQjvQ6iE12Z5+Nb8RrnaIgYy+jFWLT
+	KNvLwhBffls/TWabJMYvbeMmpasKeFr/Fh3HVdnAd/BBy01lzRkQ8a0WCF10q3OfUGCBkWLYqr9
+	ZcdUo1VQZz9xBRD9PB3/j1lSlpvqHtH5jeazlQsfheJGfOlISxnexLvduxJZfRLg==
+X-Received: by 2002:a05:6a00:ccb:b0:842:7e7f:2914 with SMTP id d2e1a72fcca58-843367ea47cmr848637b3a.4.1781146631159;
+        Wed, 10 Jun 2026 19:57:11 -0700 (PDT)
 Received: from localhost.localdomain ([103.173.155.241])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84338316f0fsm233006b3a.50.2026.06.10.19.57.01
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84338316f0fsm233006b3a.50.2026.06.10.19.57.06
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jun 2026 19:57:05 -0700 (PDT)
+        Wed, 10 Jun 2026 19:57:10 -0700 (PDT)
 From: menglong8.dong@gmail.com
 X-Google-Original-From: dongml2@chinatelecom.cn
 To: xuanzhuo@linux.alibaba.com,
@@ -74,9 +74,9 @@ Cc: mst@redhat.com,
 	netdev@vger.kernel.org,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH net-next v2 1/2] virtio_net: xsk: fix race in rx wake up
-Date: Thu, 11 Jun 2026 10:56:43 +0800
-Message-ID: <20260611025644.2431148-2-dongml2@chinatelecom.cn>
+Subject: [PATCH net-next v2 2/2] virtio-net: xsk: support tx wake up
+Date: Thu, 11 Jun 2026 10:56:44 +0800
+Message-ID: <20260611025644.2431148-3-dongml2@chinatelecom.cn>
 X-Mailer: git-send-email 2.54.0
 In-Reply-To: <20260611025644.2431148-1-dongml2@chinatelecom.cn>
 References: <20260611025644.2431148-1-dongml2@chinatelecom.cn>
@@ -90,90 +90,78 @@ Content-Transfer-Encoding: 8bit
 
 From: Menglong Dong <dongml2@chinatelecom.cn>
 
-During packet receiving in virtio-net, the rq can be empty, which means
-"rq->vq->num_free == virtqueue_get_vring_size(rq->vq)", in
-virtnet_add_recvbuf_xsk(), if we are using xsk. Meanwhile, the fill ring
-can be empty too, which means we can't allocate anything from
-xsk_buff_alloc_batch(). Then, we will set the XDP_RING_NEED_WAKEUP flag.
+For now, XDP_RING_NEED_WAKEUP is not supported properly by the virtio-net
+in the tx path for example: we set xsk_set_tx_need_wakeup() in
+virtnet_xsk_xmit(), but we didn't call xsk_clear_tx_need_wakeup()
+anywhere, which means the user will call send() for every packet.
 
-However, if the user clean all the data in rx ring and fill the
-"fill ring" and check the XDP_RING_NEED_WAKEUP flag after
-xsk_buff_alloc_batch() and before xsk_set_rx_need_wakeup(), then the rx
-napi will never be scheduled: the rx ring is empty, which means we will
-never receive a packet to trigger the further recv fill. The rx ring is
-empty now, so the user will not check the flag too.
+We call xsk_set_tx_need_wakeup() after virtnet_xsk_xmit_batch() if sq->vq
+is empty, as we can't be wakeup by the skb_xmit_done() in this case.
+Otherwise, we will clear the wakeup flag.
 
-Fix this by set the XDP_RING_NEED_WAKEUP flag before
-xsk_buff_alloc_batch() if both rq->vq and fill ring are empty.
+Race condition is considered for tx path.
 
-Meanwhile, set the XDP_RING_NEED_WAKEUP flag if we have any free entry in
-rq->vq.
-
-Fixes: e3f8800aa243 ("virtio-net: xsk: Support wakeup on RX side")
+Fixes: 89f86675cb03 ("virtio_net: xsk: tx: support xmit xsk buffer")
 Signed-off-by: Menglong Dong <dongml2@chinatelecom.cn>
 ---
- drivers/net/virtio_net.c | 25 ++++++++++++++++++++++---
- 1 file changed, 22 insertions(+), 3 deletions(-)
+ drivers/net/virtio_net.c | 27 +++++++++++++++++++++++----
+ 1 file changed, 23 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index f4adcfee7a80..4b5b3fa62008 100644
+index 4b5b3fa62008..86b5c1ca568c 100644
 --- a/drivers/net/virtio_net.c
 +++ b/drivers/net/virtio_net.c
-@@ -1323,16 +1323,27 @@ static int virtnet_add_recvbuf_xsk(struct virtnet_info *vi, struct receive_queue
- 				   struct xsk_buff_pool *pool, gfp_t gfp)
- {
- 	struct xdp_buff **xsk_buffs;
+@@ -1459,8 +1459,9 @@ static bool virtnet_xsk_xmit(struct send_queue *sq, struct xsk_buff_pool *pool,
+ 	struct virtnet_info *vi = sq->vq->vdev->priv;
+ 	struct virtnet_sq_free_stats stats = {};
+ 	struct net_device *dev = vi->dev;
++	int sent, vring_size;
 +	bool need_wakeup;
- 	dma_addr_t addr;
- 	int err = 0;
- 	u32 len, i;
- 	int num;
+ 	u64 kicks = 0;
+-	int sent;
  
+ 	/* Avoid to wakeup napi meanless, so call __free_old_xmit instead of
+ 	 * free_old_xmit().
+@@ -1470,8 +1471,29 @@ static bool virtnet_xsk_xmit(struct send_queue *sq, struct xsk_buff_pool *pool,
+ 	if (stats.xsk)
+ 		xsk_tx_completed(sq->xsk_pool, stats.xsk);
+ 
++	vring_size = virtqueue_get_vring_size(sq->vq);
 +	need_wakeup = xsk_uses_need_wakeup(pool);
- 	xsk_buffs = rq->xsk_buffs;
- 
-+	/* If both rq->vq and fill ring are empty, and then the user submit
-+	 * all the chunks to the fill ring and check the wake up flag
-+	 * after xsk_buff_alloc_batch() and before xsk_set_rx_need_wakeup(),
-+	 * we will lose the chance to wake up the rx napi, so we have to
-+	 * set the need_wakeup flag here.
++	/* If the sq->vq is empty, and the tx ring is empty, and the user
++	 * submit an entry to the tx ring after virtnet_xsk_xmit_batch() and
++	 * before xsk_set_tx_need_wakeup(), we will lose the chance to wake
++	 * up the tx napi, so we have to set the need_wakeup flag here.
 +	 */
-+	if (need_wakeup && virtqueue_get_vring_size(rq->vq) == rq->vq->num_free)
-+		xsk_set_rx_need_wakeup(pool);
++	if (need_wakeup && vring_size == sq->vq->num_free)
++		xsk_set_tx_need_wakeup(pool);
 +
- 	num = xsk_buff_alloc_batch(pool, xsk_buffs, rq->vq->num_free);
- 	if (!num) {
--		if (xsk_uses_need_wakeup(pool)) {
-+		if (need_wakeup) {
- 			xsk_set_rx_need_wakeup(pool);
- 			/* Return 0 instead of -ENOMEM so that NAPI is
- 			 * descheduled.
-@@ -1341,8 +1352,6 @@ static int virtnet_add_recvbuf_xsk(struct virtnet_info *vi, struct receive_queue
- 		}
- 
- 		return -ENOMEM;
--	} else {
--		xsk_clear_rx_need_wakeup(pool);
- 	}
- 
- 	len = xsk_pool_get_rx_frame_size(pool) + vi->hdr_len;
-@@ -1363,6 +1372,16 @@ static int virtnet_add_recvbuf_xsk(struct virtnet_info *vi, struct receive_queue
- 			goto err;
- 	}
+ 	sent = virtnet_xsk_xmit_batch(sq, pool, budget, &kicks);
  
 +	if (need_wakeup) {
-+		if (rq->vq->num_free)
-+			/* We have free buffers, so we'd better wake up the
-+			 * rx napi as soon as possible.
++		if (vring_size == sq->vq->num_free)
++			/* we can't wake up by ourself, and it should be done
++			 * by the user.
 +			 */
-+			xsk_set_rx_need_wakeup(pool);
++			xsk_set_tx_need_wakeup(pool);
 +		else
-+			xsk_clear_rx_need_wakeup(pool);
++			/* we can wake up from skb_xmit_done() */
++			xsk_clear_tx_need_wakeup(pool);
 +	}
 +
- 	return num;
+ 	if (!is_xdp_raw_buffer_queue(vi, sq - vi->sq))
+ 		check_sq_full_and_disable(vi, vi->dev, sq);
  
- err:
+@@ -1489,9 +1511,6 @@ static bool virtnet_xsk_xmit(struct send_queue *sq, struct xsk_buff_pool *pool,
+ 	u64_stats_add(&sq->stats.xdp_tx,  sent);
+ 	u64_stats_update_end(&sq->stats.syncp);
+ 
+-	if (xsk_uses_need_wakeup(pool))
+-		xsk_set_tx_need_wakeup(pool);
+-
+ 	return sent;
+ }
+ 
 -- 
 2.54.0
 
