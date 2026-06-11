@@ -1,167 +1,203 @@
-Received: from mail-pf1-f194.google.com (mail-pf1-f194.google.com [209.85.210.194])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from canpmsgout02.his.huawei.com (canpmsgout02.his.huawei.com [113.46.200.217])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAEFC28DB54
-	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 02:57:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.194
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37FBC2DA75B
+	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 03:35:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.217
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781146633; cv=none; b=ngV/SJKa0e4pHYauQkuYTb+lVZxru28D1zczE8EMc5iOEDcn2m+JYun+ibdZhCPilYcXiPGv8RS4XZLGfsCFsAYEKxsApfcp999YkwSP6NVxF3yfpojhPIJE2MKVPRZO+Jms+aLqSZUnphJ0h/bJiIiXBZYtohv13S2V6hhVyGs=
+	t=1781148948; cv=none; b=nXZP3nLpH6tkVoNdIu1t0exgDg0AXlKKb26l+QgmVAim72QgAb75cDW3V8Ah8yfZAPkzaROjDlsXnuRy78EWM0YhU4ELpRUkzewKjeIWyzduhlJarzS8z1wN4BseyRNE3z9NIrBmP4vQVxMe1Bu0JP3Vir+vyroKsYT2VcfZdE4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781146633; c=relaxed/simple;
-	bh=RoRVrNiX+bgef/3jboe+9nL/6JI24Go7+Wl95RFBf3g=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=PVEs261z20HudnJM6Qv1mWaNlRPYOpeXb7a/P1NceiQy7qTq8wKcWDWwJ9jVgppk66gVrA5Gxf7J1mdjyolYRuNtuukWiclYXbuHPyiLzfksPqM10aafFIjDrjvUf6p/1S6aS/0fOSZgmNNafzpiXnwmavTPpoIFJRAxV3Zktvo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=H/bC1eJm; arc=none smtp.client-ip=209.85.210.194
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1781148948; c=relaxed/simple;
+	bh=nvRc8GedXD+t6Lf4HNZNiOJLlaUXpTfFEuCgpsamMxc=;
+	h=Subject:To:CC:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=KkOJ36R3OuMuyOze6jiF9Bs8BnSps4D3fvZplZLL+WHTOmvl4gB1QJn6t3j7pVuh7yPfWJbnsLlkGi8popcpgqwZ18ph/Azycq2nEbKfhy7glV9EXG8MO7U4CjU6kuUq181A2saGR53pPWm/PM078J0C3520F5f5ayVZOJJvjHY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=s2c+zISf; arc=none smtp.client-ip=113.46.200.217
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="H/bC1eJm"
-Received: by mail-pf1-f194.google.com with SMTP id d2e1a72fcca58-842273a2c4dso5093803b3a.3
-        for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 19:57:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781146631; x=1781751431; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=wGuObVQF66WCHyv524cNB4gmmTWm0m/X8koQNLAf5D4=;
-        b=H/bC1eJmZPOB41iVRjXOLA/LyqteDRl4bS8+Ch+z8sBRmFT8Fz4mt+CODMzXB5dYZW
-         fN2eapA9jP37RjErvJxmX55G1V7+/PiG8ESu40ntI9RUehIS1w3bZPnQwFcXpAK4XKP6
-         QNKUVKQdzzvEwLAqHg+ngqnb/nqRw4KgbZ4OTsYPVRMXON8qkkYxQPNdY0SYpbVionfF
-         F8NIxfhG+vDKefva2UUOv63OLz2ncLygjjrSv/6Qdw8PEs2NSyADRnMOr5RJS6hFXI3X
-         akMWtkHhV6McO70rJk4v9TbzxrK1uNaY/OM3c0iW1tKzM81liRsgUTAfevXhtWsG+2kk
-         Y+9w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781146631; x=1781751431;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=wGuObVQF66WCHyv524cNB4gmmTWm0m/X8koQNLAf5D4=;
-        b=YpGL9VUIuMPcAilZ6Et+XbrZg65EgJDADN3tARN9By21pUxatcNLwiNbaYX1KdcHIp
-         ACl0NoGIMHKBiHjg7AHbncjtSsbPAPT0vrJ8POQiArbgh/irX4CTR8G550vi5yki5Ktt
-         xreMd5t+EXv91BNSvVcVE1gn/fRPq9xsxm9choD6XVrdIm3OmIabw9pFIb4PLoPmT/IC
-         rKrrtW+QyAb3XsTKT9jUvJ0UZ39niZxPEI6Evkq6oZcFnZT+A0Aq9FTz3vNBiwltLAJ+
-         3ZvN5WOTf+f7E8811El2Xr8OXLJNCCuJ4iIMrPMcfN4hbzhshp5iNpPprkzHHtrfDhGP
-         m1FA==
-X-Forwarded-Encrypted: i=1; AFNElJ+UAngFFgTb3w1ra7u9dJmUpKThQ/+OrktBimnZYWBjpteU8/7vk4Oxw6Lf+5qqhXH+xz0Ce1oYnEfPgVDaVw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxeqLbYxJckZZhLXSfTk+TSSsfwpbnTdInbAKvvHFHn8M7NLpWB
-	xm/m92MsNeAN1b2ev5nMo/vt1DiRuKfvoPFVYUI/Z9wgM2aebNUucCCW
-X-Gm-Gg: Acq92OEXPpvEB/7CD0qKu2vufavteGvzFVxqJ+zFlDWzwGuj4J19wtrVcOmrN1bUyF5
-	sNq+mIArtZH38TyNTbSP1vECSygOMtiqewNNAEGCN7Fus4PPHVzkDwwIwybiL6db9a6yzgW3XZw
-	Z9ABOtuPGJxdFbqN94C9YAZcPGlpmu21vBYKceMnFWf55DjStFfqxrDr6OEKF5lyXWZOZw7jQAG
-	OzBRruFaj2jMJqyp6QyIM19J+w/cP4zXD+vBGg909B8BALelQkB6bR0tm1SnmAQ79d5i51lWRta
-	XDg6KLHTMmQEBXAUiP61QSNC71a77G5ZUXk3lhLaeB/h7XQjvQ6iE12Z5+Nb8RrnaIgYy+jFWLT
-	KNvLwhBffls/TWabJMYvbeMmpasKeFr/Fh3HVdnAd/BBy01lzRkQ8a0WCF10q3OfUGCBkWLYqr9
-	ZcdUo1VQZz9xBRD9PB3/j1lSlpvqHtH5jeazlQsfheJGfOlISxnexLvduxJZfRLg==
-X-Received: by 2002:a05:6a00:ccb:b0:842:7e7f:2914 with SMTP id d2e1a72fcca58-843367ea47cmr848637b3a.4.1781146631159;
-        Wed, 10 Jun 2026 19:57:11 -0700 (PDT)
-Received: from localhost.localdomain ([103.173.155.241])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84338316f0fsm233006b3a.50.2026.06.10.19.57.06
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jun 2026 19:57:10 -0700 (PDT)
-From: menglong8.dong@gmail.com
-X-Google-Original-From: dongml2@chinatelecom.cn
-To: xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com
-Cc: mst@redhat.com,
-	jasowang@redhat.com,
-	andrew+netdev@lunn.ch,
-	davem@davemloft.net,
-	edumazet@google.com,
-	kuba@kernel.org,
-	pabeni@redhat.com,
-	minhquangbui99@gmail.com,
-	kerneljasonxing@gmail.com,
-	netdev@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH net-next v2 2/2] virtio-net: xsk: support tx wake up
-Date: Thu, 11 Jun 2026 10:56:44 +0800
-Message-ID: <20260611025644.2431148-3-dongml2@chinatelecom.cn>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260611025644.2431148-1-dongml2@chinatelecom.cn>
-References: <20260611025644.2431148-1-dongml2@chinatelecom.cn>
+	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="s2c+zISf"
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=udMeqyjo/ojhmjQo8mZa5UnxqjBW6Epo1JZrcj9cKSA=;
+	b=s2c+zISfurUf+7wHGhsy/XXdBPiaMlR76c5w9vuixp2j4ufSD7YkhbbMqmcA6nYSWqiVEZgCX
+	7cilsr4IvqF9dZLLKRrzXrHlOVa1pb7agG1XD3kT0IpQg+CmRSPXLMOYDY1ipE5+t6CjtiVeV1e
+	6pOdEuOY+qXKfiy7xjmEpLE=
+Received: from mail.maildlp.com (unknown [172.19.162.197])
+	by canpmsgout02.his.huawei.com (SkyGuard) with ESMTPS id 4gbSkk71zszcb1Y;
+	Thu, 11 Jun 2026 11:27:26 +0800 (CST)
+Received: from dggemv705-chm.china.huawei.com (unknown [10.3.19.32])
+	by mail.maildlp.com (Postfix) with ESMTPS id 4BF6140577;
+	Thu, 11 Jun 2026 11:35:40 +0800 (CST)
+Received: from kwepemq500010.china.huawei.com (7.202.194.235) by
+ dggemv705-chm.china.huawei.com (10.3.19.32) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Thu, 11 Jun 2026 11:35:40 +0800
+Received: from [10.173.124.160] (10.173.124.160) by
+ kwepemq500010.china.huawei.com (7.202.194.235) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Thu, 11 Jun 2026 11:35:37 +0800
+Subject: Re: [PATCH splitout] mm: memory-failure: serialize
+ TestSetPageHWPoison with zone->lock
+To: "Michael S. Tsirkin" <mst@redhat.com>
+CC: Zi Yan <ziy@nvidia.com>, "David Hildenbrand (Arm)" <david@kernel.org>,
+	Andrew Morton <akpm@linux-foundation.org>, <linux-kernel@vger.kernel.org>,
+	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?Q?Eugenio_P=c3=a9rez?= <eperezma@redhat.com>, Muchun Song
+	<muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, Lorenzo Stoakes
+	<ljs@kernel.org>, "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka
+	<vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan
+	<surenb@google.com>, Michal Hocko <mhocko@suse.com>, Brendan Jackman
+	<jackmanb@google.com>, Johannes Weiner <hannes@cmpxchg.org>, Baolin Wang
+	<baolin.wang@linux.alibaba.com>, Nico Pache <npache@redhat.com>, Ryan Roberts
+	<ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song
+	<baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>, Hugh Dickins
+	<hughd@google.com>, Matthew Brost <matthew.brost@intel.com>, Joshua Hahn
+	<joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, Byungchul Park
+	<byungchul@sk.com>, Gregory Price <gourry@gourry.net>, Ying Huang
+	<ying.huang@linux.alibaba.com>, Alistair Popple <apopple@nvidia.com>,
+	Christoph Lameter <cl@gentwo.org>, David Rientjes <rientjes@google.com>,
+	Roman Gushchin <roman.gushchin@linux.dev>, Harry Yoo <harry.yoo@oracle.com>,
+	Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>,
+	Wei Xu <weixugc@google.com>, Chris Li <chrisl@kernel.org>, Kairui Song
+	<kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham
+	<nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
+	<virtualization@lists.linux.dev>, <linux-mm@kvack.org>, Andrea Arcangeli
+	<aarcange@redhat.com>, Naoya Horiguchi <nao.horiguchi@gmail.com>
+References: <df06b66fe4ff8e925ee0714955abc2183a727b90.1780998980.git.mst@redhat.com>
+ <20260609111020.e88f51a7b6ebc37360d66fdc@linux-foundation.org>
+ <8c1f468e-b50a-487a-a267-8d1ea5a61c87@kernel.org>
+ <FB250C43-790E-4AB0-BD40-74665FC601A0@nvidia.com>
+ <38C84F23-E881-4DB2-86BA-93F39D44AE1B@nvidia.com>
+ <20260609162437-mutt-send-email-mst@kernel.org>
+ <4BA276D9-9EB9-4E2A-8A05-657ACACFF227@nvidia.com>
+ <20260609165829-mutt-send-email-mst@kernel.org>
+ <dd8d89be-9c73-8ff7-7d44-9705bddeda4d@huawei.com>
+ <20260610171646-mutt-send-email-mst@kernel.org>
+From: Miaohe Lin <linmiaohe@huawei.com>
+Message-ID: <14537566-94d9-eac5-2636-35f925a9d159@huawei.com>
+Date: Thu, 11 Jun 2026 11:35:36 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260610171646-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: kwepems500002.china.huawei.com (7.221.188.17) To
+ kwepemq500010.china.huawei.com (7.202.194.235)
 
-From: Menglong Dong <dongml2@chinatelecom.cn>
+On 2026/6/11 5:18, Michael S. Tsirkin wrote:
+> On Wed, Jun 10, 2026 at 03:24:30PM +0800, Miaohe Lin wrote:
+>> On 2026/6/10 5:00, Michael S. Tsirkin wrote:
+>>> On Tue, Jun 09, 2026 at 04:54:01PM -0400, Zi Yan wrote:
+>>>> On 9 Jun 2026, at 16:34, Michael S. Tsirkin wrote:
+>>>>
+>>>>> On Tue, Jun 09, 2026 at 02:52:47PM -0400, Zi Yan wrote:
+>>>>>> On 9 Jun 2026, at 14:39, Zi Yan wrote:
+>>>>>>
+>>>>>>> On 9 Jun 2026, at 14:38, David Hildenbrand (Arm) wrote:
+>>>>>>>
+>>>>>>>> On 6/9/26 20:10, Andrew Morton wrote:
+>>>>>>>>> On Tue, 9 Jun 2026 06:12:49 -0400 "Michael S. Tsirkin" <mst@redhat.com> wrote:
+>>>>>>>>>
+>>>>>>>>>> TestSetPageHWPoison() is called without zone->lock, so its atomic
+>>>>>>>>>> update to page->flags can race with non-atomic flag operations
+>>>>>>>>>> that run under zone->lock in the buddy allocator.
+>>>>>>>>>>
+>>>>>>>>>> In particular, __free_pages_prepare() does:
+>>>>>>>>>>
+>>>>>>>>>>     page->flags.f &= ~PAGE_FLAGS_CHECK_AT_PREP;
+>>>>>>>>>>
+>>>>>>>>>> This non-atomic read-modify-write, while correctly excluding
+>>>>>>>>>> __PG_HWPOISON from the mask, can still lose a concurrent
+>>>>>>>>>> TestSetPageHWPoison if the read happens before the poison bit
+>>>>>>>>>> is set and the write happens after.  Will only get worse if/when
+>>>>>>>>>> we add more non-atomic flag operations.
+>>>>>>>>>>
+>>>>>>>>>> Fix by acquiring zone->lock around TestSetPageHWPoison and
+>>>>>>>>>> around ClearPageHWPoison in the retry path.  This
+>>>>>>>>>> serializes with all buddy flag manipulation.  The cost is
+>>>>>>>>>> negligible: one lock/unlock in an extremely rare path
+>>>>>>>>>> (hardware memory errors).
+>>>>>>>>>>
+>>>>>>>>>> Note: SetPageHWPoison and TestClearPageHWPoison calls elsewhere
+>>>>>>>>>> in this file operate on pages already removed from the buddy
+>>>>>>>>>> allocator or on non-buddy pages (DAX, hugetlb), so they do not
+>>>>>>>>>> need zone->lock protection.
+>>>>>>>>>
+>>>>>>>>> Sashiko is saying this doesn't do anything "Because
+>>>>>>>>> __free_pages_prepare() executes entirely locklessly".  Did it goof?
+>>>>>>>>>
+>>>>>>>>> https://sashiko.dev/#/patchset/df06b66fe4ff8e925ee0714955abc2183a727b90.1780998980.git.mst@redhat.com
+>>>>>>>>
+>>>>>>>> Battle of the bots: it's right.
+>>>>>>>
+>>>>>>> Yep, __free_pages_prepare() changes the page flag without holding
+>>>>>>> zone->lock.
+>>>>>>
+>>>>>> __free_pages_prepare() works on frozen pages and assumes no one else
+>>>>>> touches the input page. To avoid this race, memory_failure() might
+>>>>>> want to try_get_page() before TestClearPageHWPoison(), but I am not
+>>>>>> sure if that works along with memory failure flow.
+>>>>>>
+>>>>>> Best Regards,
+>>>>>> Yan, Zi
+>>>>>
+>>>>>
+>>>>>
+>>>>> Actually memory failure already plays with this down the road no?
+>>>>>
+>>>>> So maybe it's enough to just SetPageHWPoison afterwards again?
+>>>>>
+>>>>>
+>>>>> diff --git a/mm/memory-failure.c b/mm/memory-failure.c
+>>>>> index ee42d4361309..4758fea94a96 100644
+>>>>> --- a/mm/memory-failure.c
+>>>>> +++ b/mm/memory-failure.c
+>>>>> @@ -2415,6 +2415,7 @@ int memory_failure(unsigned long pfn, int flags)
+>>>>>  	if (!res) {
+>>>>>  		if (is_free_buddy_page(p)) {
+>>>>>  			if (take_page_off_buddy(p)) {
+>>>>> +				SetPageHWPoison(p);
+>>>>>  				page_ref_inc(p);
+>>>>>  				res = MF_RECOVERED;
+>>>>>  			} else {
+>>>>>
+>>>>>
+>>>>> and maybe in a bunch of other places in there?
+>>>>
+>>>> You mean for fear of losing HWPoison flag in the earlier TestSetPageHWPoison(),
+>>>> just set it again here?
+>>>
+>>> Yea.
+>>>
+>>>> Why not do it after get_hwpoison_page(), since that
+>>>> is the expected page flag?
+>>>
+>>> It's still in the buddy at that point right? I'm worried buddy might
+>>> poke at flags.
+>>
+>> Since __free_pages_prepare() executes entirely locklessly, the only way to ensure
+>> HWPoison flag won't be lost might be only set hwpoison flag iff we can make sure
+>> pages are not on the way to buddy...
+>>
+>> Thanks.
+>> .
+> 
+> 
+> To clarify do you not agree repeating SetPageHWPoison is enough for
+> this? And if not, do you have suggestions on how to fix this race?
 
-For now, XDP_RING_NEED_WAKEUP is not supported properly by the virtio-net
-in the tx path for example: we set xsk_set_tx_need_wakeup() in
-virtnet_xsk_xmit(), but we didn't call xsk_clear_tx_need_wakeup()
-anywhere, which means the user will call send() for every packet.
+Do you mean repeating SetPageHWPoison on every branch? Is it possible
+to make __free_pages_prepare changes page->flags atomically or this race
+is specified to memory_failure?
 
-We call xsk_set_tx_need_wakeup() after virtnet_xsk_xmit_batch() if sq->vq
-is empty, as we can't be wakeup by the skb_xmit_done() in this case.
-Otherwise, we will clear the wakeup flag.
-
-Race condition is considered for tx path.
-
-Fixes: 89f86675cb03 ("virtio_net: xsk: tx: support xmit xsk buffer")
-Signed-off-by: Menglong Dong <dongml2@chinatelecom.cn>
----
- drivers/net/virtio_net.c | 27 +++++++++++++++++++++++----
- 1 file changed, 23 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index 4b5b3fa62008..86b5c1ca568c 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -1459,8 +1459,9 @@ static bool virtnet_xsk_xmit(struct send_queue *sq, struct xsk_buff_pool *pool,
- 	struct virtnet_info *vi = sq->vq->vdev->priv;
- 	struct virtnet_sq_free_stats stats = {};
- 	struct net_device *dev = vi->dev;
-+	int sent, vring_size;
-+	bool need_wakeup;
- 	u64 kicks = 0;
--	int sent;
- 
- 	/* Avoid to wakeup napi meanless, so call __free_old_xmit instead of
- 	 * free_old_xmit().
-@@ -1470,8 +1471,29 @@ static bool virtnet_xsk_xmit(struct send_queue *sq, struct xsk_buff_pool *pool,
- 	if (stats.xsk)
- 		xsk_tx_completed(sq->xsk_pool, stats.xsk);
- 
-+	vring_size = virtqueue_get_vring_size(sq->vq);
-+	need_wakeup = xsk_uses_need_wakeup(pool);
-+	/* If the sq->vq is empty, and the tx ring is empty, and the user
-+	 * submit an entry to the tx ring after virtnet_xsk_xmit_batch() and
-+	 * before xsk_set_tx_need_wakeup(), we will lose the chance to wake
-+	 * up the tx napi, so we have to set the need_wakeup flag here.
-+	 */
-+	if (need_wakeup && vring_size == sq->vq->num_free)
-+		xsk_set_tx_need_wakeup(pool);
-+
- 	sent = virtnet_xsk_xmit_batch(sq, pool, budget, &kicks);
- 
-+	if (need_wakeup) {
-+		if (vring_size == sq->vq->num_free)
-+			/* we can't wake up by ourself, and it should be done
-+			 * by the user.
-+			 */
-+			xsk_set_tx_need_wakeup(pool);
-+		else
-+			/* we can wake up from skb_xmit_done() */
-+			xsk_clear_tx_need_wakeup(pool);
-+	}
-+
- 	if (!is_xdp_raw_buffer_queue(vi, sq - vi->sq))
- 		check_sq_full_and_disable(vi, vi->dev, sq);
- 
-@@ -1489,9 +1511,6 @@ static bool virtnet_xsk_xmit(struct send_queue *sq, struct xsk_buff_pool *pool,
- 	u64_stats_add(&sq->stats.xdp_tx,  sent);
- 	u64_stats_update_end(&sq->stats.syncp);
- 
--	if (xsk_uses_need_wakeup(pool))
--		xsk_set_tx_need_wakeup(pool);
--
- 	return sent;
- }
- 
--- 
-2.54.0
+Thanks.
+.
 
