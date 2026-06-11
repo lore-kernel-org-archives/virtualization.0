@@ -1,128 +1,100 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from abb.hmeau.com (abb.hmeau.com [180.181.231.80])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3FD7370D52
-	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 07:58:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 38F9A372B32;
+	Thu, 11 Jun 2026 08:18:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=180.181.231.80
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781164710; cv=none; b=P0PZR59AMOpGrfFR/0Xs02wa0DYPLH6hpEBZwJS/0Psn9GP2I07oXj3LftiWcd6vldD0OijZFUistsxxR5uZant4bH74R8Ntt/DHPtv12T5On1urHIAHT+nNfYx97wNFC0Wh44YmqcSHaj5UpkkzfLxMLJdo1eTjMr3KYAhsMSI=
+	t=1781165937; cv=none; b=eQQREdmA9u+U8LwOuIYNf/FWxVvlYkCwhXPugSXmaPTZvvTgnptzoAiF43OgddWgP+3FqlOdyTRwl7T7mEF3Sc3u0oSWaMbztV0j0KzDIUS97F510G6uVpMrq+P5ObIEMx/PHzr+uhhiKAPbax6mjZMbcfTqbhUSefwxXoUSP+4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781164710; c=relaxed/simple;
-	bh=ZEy+ssPgj7fd9v3cExsjBXsdFe2eDfx6ZME1ev+0piQ=;
+	s=arc-20240116; t=1781165937; c=relaxed/simple;
+	bh=5G70vOCM2WZ3J9uoB6jY52+G26GMBhwcbbbSTI1xENg=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=i7vKTNGu6TuBnzGZA5wc8IUTnPcJycDxaU2SnutMsTmRZwzi9ayXXfwy2KNOTNF/73fjC/PhRbASMfIZBFIxs99a6VD4VYqQpA6Lxtzz2Z3So432ag0MaTHgD33OmcHSkUub4mL0JvFNd6KwhbmiXy2cecytA0Cl61NnDyQLPrA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=AyvN2diM; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=rhwEAcdwwOVOopUtSeYTpjCuVhfk/mjRBn9I0wek2OlM1aMe35OoRAHnV6HRidmQ04IxqF9GezlnnOV88k5l6FtZF/qGcYwfoBWiIJ+lG0e1kHC3f4XGJhX82FchozLvYx8xDa/ntF50hyXhHQwE+dQKq1NUjJH5v/88VFpEoYM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.b=K4EWc5Df; arc=none smtp.client-ip=180.181.231.80
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="AyvN2diM"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1781164708;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=f9weTyP7JI1bIVxhUTkM93LkL12ISvR/eoJ6k3ozVeI=;
-	b=AyvN2diMBCyVPoCE72tp+bhjpq+IjNJM/lLuZbELWLKfwsDzaRTRyC885WAVHjy2cLwrid
-	8t2d/ZqN2pwhYtV5I39m6hKwmgq/a7F2u4aBIMaAtuWi6pKWHhlHLgFJthXgxsff5WMQsr
-	yhT5qs1eXeimMZcipKRicaRN6xf/Yic=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-147-rH6Pv0L5NFuC9OxjTiL0sw-1; Thu, 11 Jun 2026 03:58:26 -0400
-X-MC-Unique: rH6Pv0L5NFuC9OxjTiL0sw-1
-X-Mimecast-MFC-AGG-ID: rH6Pv0L5NFuC9OxjTiL0sw_1781164705
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-46011aa5000so3365817f8f.3
-        for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 00:58:26 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781164705; x=1781769505;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=f9weTyP7JI1bIVxhUTkM93LkL12ISvR/eoJ6k3ozVeI=;
-        b=D907pWICK3VQ1Y7NZKdhf97vzEjOHFKNtpEFBtJVQwQe023Ry+nUp1+YgEhiR3om7T
-         LbiyH8NhIuVHhUPcIEGFWkYLw7eJ7cu+DjoNJ/gBG3LwyfT6EIEfFNugSaoLUd6m6yfS
-         4Lh9hFU62wNRVNdKiHtALheNQcHgIJMOGBigZ6PL4Z0H9xchQLjqmV72KYYhQvd+9X9C
-         ZXeCZtYMU+FomQ4wgGLvPR58yKTzXSBU1rawznXxL8WSpifV57gF2inhj3kwev2svQ1x
-         sQehQn6+XepsE2yHhno2mxD/+gf+/CkWb3x7kLBq1zvHAADJe4V60wN89KXvEFUkPEr9
-         Ej/g==
-X-Forwarded-Encrypted: i=1; AFNElJ9R2HPnCWEzuSJddW6ybZYQL20DSu30rf0MRppMGsvdIboRJ5bDZwEuLjlKPHOiR//DSakL4oow8B4bPb/rKg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyiftFAj47l9v35gJATUX7mh8OfO41JUMau/WbVeRFRC06UomOu
-	AHyzMMbpzv5ZBeaO7IhIlo/oxAkIXcaABVQK1r/RF6DLBlZsSdgjkRp2FeJsDNrErJdMggU3/0n
-	fRYD6JHUK3/UiklVFbxyzyuSpQBhZOfMDHNvhc99nU2Qx4tstfljLpab0jEEQiTPRwHW7
-X-Gm-Gg: Acq92OE6wCuuIC/AFxCtA+JilvGHk6/oOFQhb+EqDNmW9rTn2lLnuE7nMY+eatu1QtZ
-	NRs2A7WE/4g/nHngv/3rChUtqLjHL2iCeDq1Lf9QeNOPdDyG3YYFBJl5PNtyVckLGV3bGGsk841
-	gz+3A+dCvwF81ggA/nVo48dgn69MhUQKU6ygB5XzZqrLfoUq7IAhIJrqpo8VkP+11t8C3xcJVQk
-	Pl2pB1YJdL5e++hCcv64okjr7HVUDAxQ0apXoFzl2LVs826STneCUg6mP6MlkeskpLd0ojgye77
-	QElVSPK+bylcMfhc/T3SHHkhT3oPWku5noEMFuCYe1lDS2s9dF9lI28PmkUteJ8L2xQQAK0wlIM
-	Z8GaQhlalWqJVO00gGf4kdW8zVOKt30h8Zza+8YIoAKFnD+8XkscRvGGri82y1r39nKeF6w==
-X-Received: by 2002:a5d:5e08:0:b0:43d:77a8:3baf with SMTP id ffacd0b85a97d-460677d03dbmr2238679f8f.32.1781164705340;
-        Thu, 11 Jun 2026 00:58:25 -0700 (PDT)
-X-Received: by 2002:a5d:5e08:0:b0:43d:77a8:3baf with SMTP id ffacd0b85a97d-460677d03dbmr2238634f8f.32.1781164704969;
-        Thu, 11 Jun 2026 00:58:24 -0700 (PDT)
-Received: from leonardi-redhat ([176.206.19.176])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4601f3446aesm86374521f8f.24.2026.06.11.00.58.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Jun 2026 00:58:24 -0700 (PDT)
-Date: Thu, 11 Jun 2026 09:58:22 +0200
-From: Luigi Leonardi <leonardi@redhat.com>
-To: Raf Dickson <rafdog35@gmail.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev, 
-	pabeni@redhat.com, sgarzare@redhat.com, stefanha@redhat.com, 
-	bryan-bt.tan@broadcom.com, vishnu.dasa@broadcom.com, bcm-kernel-feedback-list@broadcom.com
-Subject: Re: [PATCH net-next] vsock/vmci: use sk_acceptq_is_full() helper
-Message-ID: <aippcmlliXpO0BXM@leonardi-redhat>
-References: <20260611023830.106259-1-rafdog35@gmail.com>
+	dkim=pass (2048-bit key) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.b="K4EWc5Df"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=gondor.apana.org.au; s=h01; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:cc:to:subject:message-id:date:
+	from:content-type:reply-to; bh=O+nCbDPXlUZ+LQVSkJK2EmiKnCMOMg1kYFQHMYzV0XE=; 
+	b=K4EWc5DfQkLYPA/nqUw8gHig8REgh1vnQbRQaqlTGtv+kFyrtGPsPFKYihqNzPCrkgRfk2Wxo+7
+	w8cIT7gL7sORrSQVroRuV2nKS/VoWEpPNlyfcw91XdcEPucYijfTCNU1NAE+F+jBRn0/2aIRqld51
+	RmlHucWV4yuAdGzE60o2H6vqrdVnM2mMgZukqdPGhcymdX9Y5mulCrzvfGYWZqwaFRs/1lyaGklqM
+	lBobVM8gsy9JDWr3eIjho2QWVGwQHqUg10zqlz855pe415IYr3XgsqX8r+EDqhGfYcLV4f5+XvAoZ
+	tCZhvkJqWHCtmjicY3V6zuskUOkNQrHJC3Hg==;
+Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
+	by formenos.hmeau.com with smtp (Exim 4.98.2 #2 (Debian))
+	id 1wXacg-00000004Wyj-3bPC;
+	Thu, 11 Jun 2026 16:18:47 +0800
+Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Thu, 11 Jun 2026 16:18:46 +0800
+Date: Thu, 11 Jun 2026 16:18:46 +0800
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Michael Bommarito <michael.bommarito@gmail.com>,
+	Olivia Mackall <olivia@selenic.com>, linux-crypto@vger.kernel.org,
+	Jason Wang <jasowang@redhat.com>, Kees Cook <kees@kernel.org>,
+	Christian Borntraeger <borntraeger@linux.ibm.com>,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+	Dan Williams <djbw@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+	"H. Peter Anvin" <hpa@zytor.com>, torvalds@linux-foundation.org,
+	alan@linux.intel.com, tglx@linutronix.de
+Subject: Re: [PATCH v3] hwrng: virtio: clamp device-reported used.len at
+ copy_data()
+Message-ID: <aipvZhfvdtRxOQm0@gondor.apana.org.au>
+References: <20260531142251.2792061-1-michael.bommarito@gmail.com>
+ <aio83ZWadVTiuNpR@gondor.apana.org.au>
+ <20260611025916-mutt-send-email-mst@kernel.org>
+ <aipn8sIAQ6Ai2sax@gondor.apana.org.au>
+ <20260611035035-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260611023830.106259-1-rafdog35@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: sMQIHNAHu7yiMOaqQge57TVLNAq6T7N0Elkj1pVho08_1781164705
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20260611035035-mutt-send-email-mst@kernel.org>
 
-On Thu, Jun 11, 2026 at 02:38:30AM +0000, Raf Dickson wrote:
->Replace the open-coded backlog check with sk_acceptq_is_full().
->The helper uses > instead of >=, which is the correct comparison
->per commit 64a146513f8f ("[NET]: Revert incorrect accept queue
->backlog changes."), and adds READ_ONCE() for proper memory ordering.
->
->Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
->
+On Thu, Jun 11, 2026 at 03:58:17AM -0400, Michael S. Tsirkin wrote:
+> On Thu, Jun 11, 2026 at 03:46:58PM +0800, Herbert Xu wrote:
+> > On Thu, Jun 11, 2026 at 03:30:14AM -0400, Michael S. Tsirkin wrote:
+> > > On Thu, Jun 11, 2026 at 12:43:09PM +0800, Herbert Xu wrote:
+> > > > On Sun, May 31, 2026 at 10:22:51AM -0400, Michael Bommarito wrote:
+> > > > >
+> > > > > +	size = min_t(unsigned int, size, avail - vi->data_idx);
+> > > > > +	idx = array_index_nospec(vi->data_idx, sizeof(vi->data));
+> > > > > +	memcpy(buf, vi->data + idx, size);
+> > > 
+> > > All the "malicious device" things are confusing. Spectre things -
+> > > doubly so.
+> > > 
+> > > So if an access is speculated then CPU might speculate feeding a kernel
+> > > secret into RNG. And then the speculated RNG value maybe can be also
+> > > speculatively be used by some kernel code as an index
+> > > to trigger a cache access, finally leaking the secret?
+> > > 
+> > > Maybe?
+> > 
+> > The way Spectre works is if you have an actual instruction using
+> > idx directly.  I don't see how that translates to memcpy.
+> 
+> I am not sure it has to be direct:
+> 
+> if (malicious_idx > SIZE)
+> 	return;
+> src += malicious_idx;
 
-this blank line should be dropped
->Signed-off-by: Raf Dickson <rafdog35@gmail.com>
->---
-> net/vmw_vsock/vmci_transport.c | 2 +-
-> 1 file changed, 1 insertion(+), 1 deletion(-)
->
->diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
->index 91516488a7..56503bee31 100644
->--- a/net/vmw_vsock/vmci_transport.c
->+++ b/net/vmw_vsock/vmci_transport.c
->@@ -1010,7 +1010,7 @@ static int vmci_transport_recv_listen(struct sock *sk,
-> 	 * reset.  Otherwise we create and initialize a child socket and reply
-> 	 * with a connection negotiation.
-> 	 */
->-	if (sk->sk_ack_backlog >= sk->sk_max_ack_backlog) {
->+	if (sk_acceptq_is_full(sk)) {
-> 		vmci_transport_reply_reset(pkt);
-> 		return -ECONNREFUSED;
-> 	}
->-- 
->2.54.0
->
+Wait but vi->data_idx isn't even under the hypervisor's control.
 
-Thanks for the patch!
+It's an index maintained by our own driver.  So how can it be
+malicious?
 
-note: according to patchwork [1] you forgot to CC some maintainers,
-please be more careful next time :)
-
-Reviewed-by: Luigi Leonardi <leonardi@redhat.com>
-
-[1] https://patchwork.kernel.org/project/netdevbpf/patch/20260611023830.106259-1-rafdog35@gmail.com/
-
+Cheers,
+-- 
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
