@@ -1,274 +1,146 @@
-Received: from mail.ilvokhin.com (mail.ilvokhin.com [178.62.254.231])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9811835E937
-	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 07:17:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.62.254.231
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7ABAB1A3029
+	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 07:28:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781162275; cv=none; b=GC9lpDkZXL1L1nTqBTdSaJrAIdkZNmkIMmxK1/e8MFF4GnHN++LkK++I+hma/xODJC9hcLWprBQB2wJkDkcMU+nlgU27j0w+a2iNbRMp0oTOLeUMqJi/l6Tl8DdU7F+/n7t9feDOyJxkQhldgvS+o55JAODEns5MLtl1tOIQLng=
+	t=1781162931; cv=none; b=bO46zIoTU/7SZx2yHQ7p2gZ9sHA7s+zrmW3aI/ifK5eQfctnEyd9gR+MQtMxRt+6xez50D+DzLW0G+EOYVn2Gn0531O4fydJp8RIEyAarss8DUaYDqOS8gzQWoW0tNlSvXxQuIGt0Viu5O+YqJWU+sMQKCknf5lq24FfS1XSYyc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781162275; c=relaxed/simple;
-	bh=mx7Coopivs4IKxGcY9Afs8u7C5ixpvwisrBYow1ZD3g=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=RZSYYBPR49asn/MyYlbqgu18t84SfNSQADm/jCs5+W1td1y3VttJnq22R/MYuRI0tZhQhauGvz5lMMMyBLx3sxFv4W03mIfQyREb25qMimK2wrY9UbhDjX2HmUgdi1O8SROxo4f9SL9TpI52rfyKfaQzcgT/F5aWf3t+w/ZXn4U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ilvokhin.com; spf=pass smtp.mailfrom=ilvokhin.com; dkim=pass (1024-bit key) header.d=ilvokhin.com header.i=@ilvokhin.com header.b=sy5dx0+f; arc=none smtp.client-ip=178.62.254.231
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ilvokhin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ilvokhin.com
+	s=arc-20240116; t=1781162931; c=relaxed/simple;
+	bh=QaqfHAczpbtT8cGTYb66uFZanVaUTd8LjL+QGZKif0E=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=amw7NiBuiNxPI/v7InGpMTbMjghpq88qR9OEwPfNna4qsvH1yLbtaYGF8X9np7nSKzoI9xXywr1N9EK4z7GbV5wIrjzfSsv1u2M6iswjuf5MEhKocuwtSAd2mSZ1eQmE3IRRFf8EK4etCwazOCQGpzVT2UXiWH/DCXOAKQg3Sv8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KVhKuf3G; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ilvokhin.com header.i=@ilvokhin.com header.b="sy5dx0+f"
-Received: from shell.ilvokhin.com (shell.ilvokhin.com [138.68.190.75])
-	(Authenticated sender: d@ilvokhin.com)
-	by mail.ilvokhin.com (Postfix) with ESMTPSA id B2D35D1438;
-	Thu, 11 Jun 2026 07:17:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ilvokhin.com;
-	s=mail; t=1781162265;
-	bh=SQhvUZ/DbKf6/FrlFmNBUBTYC4OnQ9SUq8CAmtvtmpA=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=sy5dx0+foJ2ScZ4tBYFnB4DhLS92V5pg+v0SGYTkem1nbyFd6xfJTyFf9OYEhfLwJ
-	 ZaAc/VbC7/EOornnQ7Y6s4ARfBsV0d9MxWFS+NCaBc1HINhdYGNHKpn29lf2DyNF1K
-	 8iW896swJPRi2QnuCHQ4br1eZusJ65henUh4DGAA=
-Date: Thu, 11 Jun 2026 07:17:41 +0000
-From: Dmitry Ilvokhin <d@ilvokhin.com>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
-	Boqun Feng <boqun@kernel.org>, Waiman Long <longman@redhat.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Juergen Gross <jgross@suse.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Thomas Gleixner <tglx@kernel.org>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
-	Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
-	Christoph Lameter <cl@gentwo.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-arch@vger.kernel.org,
-	linux-mm@kvack.org, linux-trace-kernel@vger.kernel.org,
-	kernel-team@meta.com, "Paul E. McKenney" <paulmck@kernel.org>
-Subject: Re: [PATCH v6 5/7] locking: Add contended_release tracepoint to
- qspinlock
-Message-ID: <aiphFXe_TPNPxZ_n@shell.ilvokhin.com>
-References: <cover.1777999826.git.d@ilvokhin.com>
- <5d7ea75ffe74a785e6b234ada9f23c6373d4b4c1.1777999826.git.d@ilvokhin.com>
- <20260513193342.GB2545104@noisy.programming.kicks-ass.net>
- <agXBb0ga_6HJrrnm@shell.ilvokhin.com>
- <20260603120811.GW3493090@noisy.programming.kicks-ass.net>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KVhKuf3G"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1781162929;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=b6EPp4PuFmtO2xH44RdCW6HHUd3lOCnDExqRH2uDRv8=;
+	b=KVhKuf3GjoDryMrOQyymYAWBc0s97VmQnlzJEOucnjDD1Y6w3Upa5zZgrSuZu9nw/8EqJk
+	OwDE6uZEcKYxa33SXkh92CNET4K/myjdGAejHvd4C3chw/ouEE8FwS1KYjHfT8txhbrugq
+	6qQqNM3sFx/mhDaROLHFUDrrCD/TzeQ=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-77--MTxPq4tPZG7W7ErjgVk4A-1; Thu, 11 Jun 2026 03:28:48 -0400
+X-MC-Unique: -MTxPq4tPZG7W7ErjgVk4A-1
+X-Mimecast-MFC-AGG-ID: -MTxPq4tPZG7W7ErjgVk4A_1781162927
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-45eecec7667so5318106f8f.3
+        for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 00:28:47 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781162927; x=1781767727;
+        h=content-transfer-encoding:in-reply-to:content-language:from
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=b6EPp4PuFmtO2xH44RdCW6HHUd3lOCnDExqRH2uDRv8=;
+        b=S1JzSUX+s5gGMbFIFA6SrKwo/PhQCbcjnl7aPUcSgBoEu9FXoGnXJthB8JFtfQ1Y+X
+         PEPeJskOgResX2lw2//U2bXe8NDDy520IPJNsA+U1xnFEse9cIGwp8rRUFowhLa190lD
+         QWN7gW1Mz72CfnuXrbr519eMHiQ6JGID1WauEsJx3gHfwZWXYD715gxn69D93QshVw51
+         +xTGFocpn483D0MAHFCUfRS6UxQoD4uhgBwAaDKJV1ogqEfF6FyZit6zOVsWG8VB/kVq
+         FIwp0xHTdqHxeFrhPDMgGF/cf17A2KR0yQEBko10mVHDYc8qNos8N1ggPkFNOI/2bmue
+         5GKQ==
+X-Forwarded-Encrypted: i=1; AFNElJ/TizkLBFxFRwMcjDqvYhke7TXbGq3PTQYpyA+KSQPXEHk8lDNP6mIVLoZ1qBfQ8T6vr5WZnnm1FUrOPoFm1g==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw4qhgcVg7UXgFDDXY2WVAzJuKVBFvk+GZURhfpqbeVEzd9s0OE
+	Zon8tuMF2u8LjzQpLQ5HEpEW1DH12lN+CsuyIuBsNRMCFUYlRIl/zmHo85yDb4m4BywpCOlPTgW
+	xfHY5n99vgaJCVuWUdtJIEFrbb/ef+jwVpqHnYbmsDx1GSZIKHW9GYZUXzA5Krbz+/kHi
+X-Gm-Gg: Acq92OED8dJCVgB1xYngl6FNi9UugPHLdBYWWQjuMQMFOHY/bWlNUN32BvSHENTspYV
+	eRrBluNPFdQv43Tgj3PfJyn1C54YX/qZhkOPUorGB7aaSCWIdNsVUHLQ87QS+v/Un47QcZdz0nc
+	mEE6mFPSGAbZjGQpqqwdle3I1YeAqWdwUGTjJvwgIsdTf/tjhaptodXY83EwD3AvdWqf/XGq5VG
+	3XcGgdSARSuN1PWKGRHhRuHaz9eFM6bV7fEMZEXnIcy2XBlr6j5cFjIs4yzjAFmXLEcbqL86VzJ
+	ODk8dxtR6DgINYg6HMMrlPpaPR8/DmRtUI5o8VqSV1kKn4Ns5gj2/FbOOP1Z92OsGUvGUkNpE34
+	91bqH1F057waUEyBEbTT8/q5P8PKEgBrK4AQsk8WzXFqcghNFYO67O6MZ0z0rVFajHA==
+X-Received: by 2002:a05:6000:4687:b0:43b:5672:efe with SMTP id ffacd0b85a97d-4606758d337mr1416811f8f.9.1781162926777;
+        Thu, 11 Jun 2026 00:28:46 -0700 (PDT)
+X-Received: by 2002:a05:6000:4687:b0:43b:5672:efe with SMTP id ffacd0b85a97d-4606758d337mr1416793f8f.9.1781162926294;
+        Thu, 11 Jun 2026 00:28:46 -0700 (PDT)
+Received: from [192.168.88.32] ([150.228.93.44])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4601f2ed944sm81186389f8f.13.2026.06.11.00.28.44
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 11 Jun 2026 00:28:45 -0700 (PDT)
+Message-ID: <7711d6d5-ff7e-4a8f-b69f-c06d1adec580@redhat.com>
+Date: Thu, 11 Jun 2026 09:28:44 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260603120811.GW3493090@noisy.programming.kicks-ass.net>
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net] virtio_net: do not allow tunnel csum offload for non
+ GSO packets
+To: Gabriel Goller <g.goller@proxmox.com>
+Cc: netdev@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Andrew Lunn <andrew+netdev@lunn.ch>, "David S. Miller"
+ <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, virtualization@lists.linux.dev,
+ Willem de Bruijn <willemb@google.com>
+References: <38d33d63ce5d1aee486bd6c7c47345040d526e35.1781016169.git.pabeni@redhat.com>
+ <178109396600.129329.5073003425673349392.b4-review@b4>
+From: Paolo Abeni <pabeni@redhat.com>
+In-Reply-To: <178109396600.129329.5073003425673349392.b4-review@b4>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: psKiXCiumfYA7CrQRKzAle-hfluJTykgvBTQNy5_NNI_1781162927
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Wed, Jun 03, 2026 at 02:08:11PM +0200, Peter Zijlstra wrote:
-> Also, I think someone should go do some performance runs with
-> ARCH_INLINE_SPIN_* set for x86 just like for s390.
+On 6/10/26 2:19 PM, Gabriel Goller wrote:
+> On Tue, 09 Jun 2026 16:44:26 +0200, Paolo Abeni <pabeni@redhat.com> wrote:
+>> [...]
+>>
+>> Fixes: 56a06bd40fab ("virtio_net: enable gso over UDP tunnel support.")
+>> Reported-by: Fiona Ebner <f.ebner@proxmox.com>
+>> Closes: https://bugzilla.proxmox.com/show_bug.cgi?id=7627
+>> Tested-by: Fiona Ebner <f.ebner@proxmox.com>
+>> Signed-off-by: Paolo Abeni <pabeni@redhat.com>
+> 
+> Gave it a spin and it works alright, so consider:
+> 
+>>
+>>
+>> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+>> index f4adcfee7a80..07b8710639f9 100644
+>> --- a/drivers/net/virtio_net.c
+>> +++ b/drivers/net/virtio_net.c
+>> @@ -6222,6 +6222,18 @@ static void virtnet_free_irq_moder(struct virtnet_info *vi)
+>>  	rtnl_unlock();
+>>  }
+>>  
+>> +static netdev_features_t virtnet_features_check(struct sk_buff *skb,
+>> +						struct net_device *dev,
+>> +						netdev_features_t features)
+>> +{
+>> +	/* Inner csum offload is only available for GSO packets. */
+>> +	if (skb->encapsulation && !skb_is_gso(skb))
+> 
+> A small question -- should we maybe check for skb_gso_ok here as well?
+> So add:
+> 
+> 	(!skb_is_gso(skb) || !skb_gso_ok(skb, features)))
+> 
+> Because skb_is_gso alone doesn't guarantee that the packets leaving virtio will
+> be gso'd, they could be software gso'd at validate_xmit_skb, which is called
+> after ndo_feature_check.
+> leaving the virtio device.
 
-As promised, I set ARCH_INLINE_SPIN_UNLOCK{,_BH,_IRQ,_IRQRESTORE} for
-x86 and measured the effect on a few real workloads.
+Good point. Indeed disabling tx-udp_tnl-segmentation inside the guest
+after successful VIRTIO_NET_F_HOST_UDP_TUNNEL_GSO negotiation would
+again break the connectivity in the critical scenarios.
 
-Short version: inlining of _raw_spin_unlock() adds measurable kernel
-i-cache pressure on every workload I tried, and on a
-kernel-i-cache-bound one (nginx connection churn) it costs ~1.27%
-throughput. I did not find a workload where it helps.
+Let me test a v2.
 
-HOW BENCHMARKS WERE CHOSEN
+Thanks,
 
-The cost of inlining unlock is text footprint increase. Every unlock
-site grows, and the extra bytes compete for the shared L1i. The bill is
-paid by unrelated code, in both kernel and userspace.
-
-Locktorture and similar microbenchmarks can't see this, because they
-usually hammer a tiny loop that stays L1i-resident, so they measure
-fast-path cycles, where inlining (fewer instructions per unlock) looks
-neutral-to-good.
-
-To make the cost visible, the workload has to have real instruction
-cache pressure. To achieve that, it has to touch a lot of code.
-
-A good way to screen benchmarks: look for high tma_frontend_bound
-fraction from 'perf stat -M TopdownL1' and simultaneously require it to
-spend non-trivial time in the kernel (be syscall-heavy).
-
-SETUP
-
-Hardware: 2x Intel Xeon Gold 6138 (Skylake-SP), 20 cores/socket, 40C/80T
-with kernel built from locking/core branch. Baseline _raw_spin_unlock()
-is out-of-line via UNINLINE_SPIN_UNLOCK=y. Experiment adds the four
-selects above (exact patch is at the end of this message). Cache
-geometry (lscpu -C):
-
-NAME ONE-SIZE ALL-SIZE WAYS TYPE        LEVEL  SETS PHY-LINE COHERENCY-SIZE
-L1d       32K     1.3M    8 Data            1    64        1             64
-L1i       32K     1.3M    8 Instruction     1    64        1             64
-L2         1M      40M   16 Unified         2  1024        1             64
-L3      27.5M      55M   11 Unified         3 40960        1             64
-
-Per run I collected cycles, instructions and L1i-misses. To stay within
-the available PMU counters, each run used only 3 events: cycles,
-instructions and one L1i filter (:u or :k). The NMI watchdog was off and
-every run reported 100% counter enablement (no multiplexing). Userspace
-and kernel misses therefore come from separate runs. Each benchmark was
-run 20x per side: 10 with the :u counter, 10 with :k.  Cycles,
-instructions and throughput are pooled across all 20, each L1i split
-comes from its 10.
-
-KERNEL IMAGE SIZE
-
-To give a sense of the code-footprint increase, scripts/bloat-o-meter on
-vmlinux, GCC 11, x86_64, defconfig + CONFIG_PARAVIRT_SPINLOCKS=y:
-
-    Total: Before=23838694, After=23977159, chg +0.58%
-
-ROCKSDB (DELETESEQ)
-
-    db_bench -benchmarks=deleteseq
-
-Metric                       Baseline      Experiment     Delta   Sig
-----------------------------------------------------------------------
-Instructions (total)    9,574,476,543   9,573,602,441    -0.01%   flat
-L1i-miss :k (kernel)      198,588,165     216,672,536    +9.11%   **
-L1i-miss :u (userspace)   593,276,235     616,433,813    +3.90%   **
-Throughput ops/s            431,398         432,897      +0.35%   ns
-Cycles (total)          4,681,002,302   4,665,106,876    -0.34%   ns
-IPC                          2.045           2.052       +0.33%   ns
-Time elapsed (s)            2.4012          2.3865       -0.62%   ns
-----------------------------------------------------------------------
-L1i-miss: higher = worse. Throughput: higher = better.
-** = beyond per-run noise (+-0.1..0.36%), ns = within noise.
-
-At constant instructions, inlining raises L1i misses +9.11% (kernel) and
-+3.90% (userspace), both well beyond noise. Throughput, cycles, IPC and
-wall-time all stay within run-to-run noise. So the i-cache cost is real,
-but at IPC ~2 db_bench isn't fetch-bound at the app level, so it doesn't
-surface.
-
-No benefit from _raw_spin_unlock() inlining.
-
-KERNEL BUILD
-
-Building locking/core (defconfig), GCC 11.
-
-    make -j80
-
-Metric              Baseline      Experiment     Delta   Sig
--------------------------------------------------------------
-L1i-miss :k          36.72G        37.51G       +2.16%   **
-L1i-miss :u         246.99G       246.06G       -0.38%   **
-Sys (s)             478.250       482.420       +0.87%   **
-Time elapsed (s)    105.221       105.373       +0.14%   ns
-User (s)           4022.046      4024.012       +0.05%   flat
-Cycles            8,894.10G     8,902.12G       +0.09%   flat
-Instructions      8,424.28G     8,426.48G       +0.03%   flat
-IPC                   0.947         0.947       -0.06%   flat
--------------------------------------------------------------
-L1i-miss/Sys: higher = worse.
-** = beyond per-run noise, ns = within noise.
-
-Kernel i-cache misses (+2.16%) and sys time (+0.87%) both rise and are
-significant. Wall-time and userspace L1i are flat. Kernel build is
-GCC/userspace-bound (User 4022s vs Sys 478s), so the added kernel fetch
-cost is real but appears to sit off the critical path.
-
-No benefit from _raw_spin_unlock() inlining.
-
-NGINX
-
-I ran nginx with taskset -c 2.
-
-    perf stat -C 2 ... -- ab -n 100000 -c 80 http://127.0.0.1:8080/
-
-Config for nginx was the following.
-
-  worker_processes 1;
-  error_log /tmp/ngx/error.log;
-  pid       /tmp/ngx/nginx.pid;
-  events { worker_connections 16384; }
-  http {
-      access_log off;
-      server { listen 8080 reuseport; location / { return 200 "ok\n"; } }
-  }
-
-
-I used nginx version 1.20.1 (prebuilt, from CentOS repo).
-
-Metric              Baseline      Experiment     Delta   Sig
-------------------------------------------------------------
-req/s (ab)           25,113        24,795       -1.27%   **
-L1i MPKI :k          70.06         72.10        +2.92%   **
-L1i MPKI :u          20.16         20.66        +2.50%   **
-instructions          5.86G         5.83G       -0.50%   **
-L1i-miss :k           0.41G         0.42G       +2.44%   **
-L1i-miss :u           0.12G         0.12G       +1.95%   **
-cycles                4.82G         4.81G       -0.28%   ns
-IPC                   1.215         1.213       -0.22%   ns
-perf time (s)         4.077         4.129       +1.26%   **
-failed reqs              0             0          -      valid
-------------------------------------------------------------
-req/s: higher=better. MPKI: higher=worse.
-** = beyond per-run noise, ns = within noise.
-
-nginx connection-churn is the one workload that is genuinely
-kernel-fetch-bound: MPKI:k ~70 and IPC ~1.2 (vs db_bench's 2.05). Here
-the cost surfaces: req/s −1.27%. Misses rise in both domains (+2.9%
-MPKI:k, +2.5% MPKI:u). Unlike kernel build, userspace is hit too,
-because nginx runs user and kernel hot on the same core and the kernel
-bloat pollutes the shared L1i.
-
-And the kicker: instructions fell 0.5% (inlining removed the call/ret)
-yet throughput dropped.
-
-Caveat: ab is single-threaded, so it seems the worker core is
-under-saturated: cycles is flat (−0.28%, ns) while wall-time rose
-(+1.26%).
-
-Measurable throughput regression from _raw_spin_unlock() inlining.
-
-CONCLUSION
-
-Inlining _raw_spin_unlock() raises kernel L1i misses on every workload.
-It's an unconditional cost. Whether it costs the application throughput
-depends on how kernel-fetch-bound the workload is.
-  
-The cost is real everywhere. It only surfaces as throughput regression
-where the kernel is on the fetch critical path. And inlining did not
-help in any workload I measured. The one micro-effect inlining produced
-(-0.5% instructions on nginx) was erased by the added i-cache pressure.
-
-
-From 99502328caed3c195e20cf194a1e8aa1563f3896 Mon Sep 17 00:00:00 2001
-From: Dmitry Ilvokhin <d@ilvokhin.com>
-Date: Thu, 4 Jun 2026 07:43:00 -0700
-Subject: [PATCH] x86/locking: Inline the spin_unlock()
-
-Signed-off-by: Dmitry Ilvokhin <d@ilvokhin.com>
----
- arch/x86/Kconfig | 4 ++++
- 1 file changed, 4 insertions(+)
-
-diff --git a/arch/x86/Kconfig b/arch/x86/Kconfig
-index fdaef60b46d6..c9a0638225fd 100644
---- a/arch/x86/Kconfig
-+++ b/arch/x86/Kconfig
-@@ -113,6 +113,10 @@ config X86
- 	select ARCH_HAS_ZONE_DMA_SET if EXPERT
- 	select ARCH_HAVE_NMI_SAFE_CMPXCHG
- 	select ARCH_HAVE_EXTRA_ELF_NOTES
-+	select ARCH_INLINE_SPIN_UNLOCK
-+	select ARCH_INLINE_SPIN_UNLOCK_BH
-+	select ARCH_INLINE_SPIN_UNLOCK_IRQ
-+	select ARCH_INLINE_SPIN_UNLOCK_IRQRESTORE
- 	select ARCH_MEMORY_ORDER_TSO
- 	select ARCH_MHP_MEMMAP_ON_MEMORY_ENABLE
- 	select ARCH_MIGHT_HAVE_ACPI_PDC		if ACPI
--- 
-2.53.0-Meta
+Paolo
 
