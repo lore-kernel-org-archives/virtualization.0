@@ -1,115 +1,209 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 936C03FBA7
-	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 14:53:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0F10F42B753
+	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 16:24:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781189606; cv=none; b=UoXUcZkiXJqkcDeGPZXJTkxklxoi9nZN6beUYUgwNrKfKnahV62HTXTPyHljJLJjDfGtPjgfv71/B261prQZdPtnORupLWnrYCTq4yvm4STnI1MEOTxV2V5lv0pVTaCuUHsi94rjwMIZgBLlDxdvWlC2gUYn+guvg1A2vGhuXhI=
+	t=1781195094; cv=none; b=CtctSxsPSk07XaFwTtFKNgvfT+iGd9iNTlZSZLkv1YvkLskuII51jUCZtZnadOuR7t6DqrIthVSbIFvgJbX7X9uERxwrN1e4x7aCaaftjhuY3mrq4/AuXYBlhJPRSmbksLveCyP8Z1EgtkfE9cLIt5OyisU1ONDh7FNYpJ4cUHQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781189606; c=relaxed/simple;
-	bh=ngodjvfSmvKDAhoSAS0ov5UY/Fa9ubei/Hr0+hJ35YY=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=El7l4qAG1d8+k0LDU47rtm3wPh1GC4zHL/s6B9dSEaGkdfejuCB5y418ahO8Q6qC/COzSW5frr6yF5IDWX35K0x9T0GaMHtQDTR7fse5L4vwskeI+eqDzXVlaFptEK5OnSQ0GQV/erwQOB8bQZ0OMGW5X3ANd93ZdhQydzx7KX0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=a8iARD+m; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1781195094; c=relaxed/simple;
+	bh=6y9b/y+mwIlmIt3T9GWYo/xRhdsQvmmJFA2Lw1sy2T0=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=spvs408S/MqVoZy5JdsMXQ1MFHQaah9WW1vCKtEO2KfYvODAq8s7gw8R1Yh5JL86uzuOa9mX5nJPudwcKaLri76CARlBaq4iDQhJKoAtbVXFsLoRHX3gGrW6CZ+moXbm82QUyHDkbd1SnYd6FQXrASJ92bzb1BMhuAMQyaY6bl4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=JJSYTdjc; arc=none smtp.client-ip=209.85.210.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="a8iARD+m"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1781189604;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=3w9pl/7ybPBlxrBW6E+7z5shAxFcf8N1LcJaLLuo6Cw=;
-	b=a8iARD+mWMNFjvjBXLa3YNQxTEqDu8IKTtKSZF31G3RVkBa05Sz+jF+oZriDCp0I0JRETF
-	ghPThzZIIb6tMGwDIZOSer+nURvt60O73dj/k/0soB9sJqlLzFIrEYvvx4s9cN9MP2TWyJ
-	zZuW7MTvdxGT7ypnKGSuwFQaRLIvM3o=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-711--ZqLva3WPBKKA4mYgGsGzg-1; Thu, 11 Jun 2026 10:53:23 -0400
-X-MC-Unique: -ZqLva3WPBKKA4mYgGsGzg-1
-X-Mimecast-MFC-AGG-ID: -ZqLva3WPBKKA4mYgGsGzg_1781189602
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-45eebc943bfso623462f8f.0
-        for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 07:53:23 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="JJSYTdjc"
+Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-8423f420455so60870b3a.3
+        for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 09:24:52 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1781195092; x=1781799892; darn=lists.linux.dev;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :from:to:cc:subject:date:message-id:reply-to;
+        bh=8GIVt44QUH/d+IWxlXuw18ksP9yT6I/Eko++PuSKJGA=;
+        b=JJSYTdjc1VjuMZYDcle6dAwnfUSiQ0MuyRHDpmV4n0ubNkjdObpwonbXHxmTsYxrvd
+         AFjS/HoI8McEnecY+bwCqVkPoEUiXa7KJIyMu0KRMZY8Xd8AjPTI4sVWQN25A46LmCHb
+         MbDedI78d63uIyvjXv5TeHAMaaC4/0I3sopTPh4jbaFam4suhLG7VVzH+gQbpPWr5SJG
+         oees1smomBAr4RLuVRegt1prmFcYRCECWR48Z9GhuakEeoXI0PnuFSCE3owXzQ3wiP7H
+         38aetmVfzrM1YyS1rHWl58rMAWEKt96yak4zjPXcacjgH5TWKgX1C4zCzSUdr+w3AVKe
+         fAkg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781189602; x=1781794402;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=3w9pl/7ybPBlxrBW6E+7z5shAxFcf8N1LcJaLLuo6Cw=;
-        b=aVHyHTzr6ysqhBGmIaxwx8YSI4Rw7KmQWVefOtv5vopVd0T0mr48JESN6lWCpKBc7k
-         Y9GQCAJM80OqrbfTeX3FrQyRQcbLrXcNFWrbnLYOvD3j3K+MMpID5IM0qrQ7tRB5AbL8
-         eiBgdE/5m02/avROqLWisQ9bI0ypP6eOgPiL4HRi5axby8XTSFNjbWUevxm12Uygz3Ta
-         yq65nMKhK2LSc5Euz1Y2A8nNnkJRludzK4cqIFdNKGx8hoe1Sx2U1vG4s3ADKB+IqFJv
-         5EKRk7Ch4LTOidgJ/lVNRjOVBEh+eYqaEf8wbimQfM3B0cQuaJJ9NqmCKsKusSreJfQ6
-         9y9g==
-X-Forwarded-Encrypted: i=1; AFNElJ/IuPtayV+dj94YJEK5ARYXhAfdaanL4OjTEsd1MkCmLpKT1wVYz5e30zcMNAjcrWrP2eb2bo6Ue5PoFStvRw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyIZ+2asQLVqoYEHO8l8vIV1DHOK93ra5dE8KRziPCYlqflOim8
-	2GcMWFuWk72+ErPsSg1If/iYlidZaKVt5Nv4rceXueD2qnxeA5mVGv1H3CfrzBNGD78R5iUQ7Cx
-	3FMhFJjHZgw4QUNfpYYx6rYWKhMjLj+BnUXCeL4U9RT1lj8YVTa/Pw/J5GREf6GJbypMx
-X-Gm-Gg: Acq92OGMOsAjHKG2FH2MOa4r9ih0rnxviScWQyWowVXkMWEAHFnaKhpz+9hkruzrLDF
-	ltZEWNiWrv/0AuGcz5Ia/G2Pgk2uRGOHikyyMZMujX3egqEpyXWJCUaDf/jqgQ8PCK5d3cNdzm+
-	1zfH1BBJNDyt5JBmp/1cKszcZCpEZsweJfSEL/fp2p4KKSuO3VyLQkSRz6A3/rQow7ZejIVVNij
-	TgdAyk4CESBGF9gKmN4+CIWQgIxTZSM/zYVTu3RKS8OLGxmyRxgpp9q4Lgo5cLi+0CLMo93vzwX
-	KdtQQuIOsEWYLIfybDqMqHmMpcztjW/6cqO5HgXqOBuF4pRvETp2bbXpgdHGvAerPB0KoF3KewL
-	Yq2BbJxh2C/FtQp34J1vYJicyEYbVBdPiNgNlkXdkTQUHwyJ9IrxjKQ==
-X-Received: by 2002:a05:6000:2681:b0:45e:f93a:2069 with SMTP id ffacd0b85a97d-46067c22851mr3992585f8f.23.1781189601908;
-        Thu, 11 Jun 2026 07:53:21 -0700 (PDT)
-X-Received: by 2002:a05:6000:2681:b0:45e:f93a:2069 with SMTP id ffacd0b85a97d-46067c22851mr3992528f8f.23.1781189601380;
-        Thu, 11 Jun 2026 07:53:21 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-85-71.inter.net.il. [80.230.85.71])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4601f2dcbe3sm76299890f8f.8.2026.06.11.07.53.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Jun 2026 07:53:20 -0700 (PDT)
-Date: Thu, 11 Jun 2026 10:53:18 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
-Cc: Maxime Coquelin <mcoqueli@redhat.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Laurent Vivier <lvivier@redhat.com>, virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org, Cindy Lu <lulu@redhat.com>,
-	Yongji Xie <xieyongji@bytedance.com>
-Subject: Re: [PATCH 0/2] Fix lock errors in VDUSE suspend feature
-Message-ID: <20260611105251-mutt-send-email-mst@kernel.org>
-References: <20260611133806.198402-1-eperezma@redhat.com>
+        d=1e100.net; s=20251104; t=1781195092; x=1781799892;
+        h=content-transfer-encoding:in-reply-to:from:content-language
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=8GIVt44QUH/d+IWxlXuw18ksP9yT6I/Eko++PuSKJGA=;
+        b=CiI668JSaf4eGBdNcj01/hqHZ4Z7ka0BuLCDhKQu50y1xUqSbZqimiLjEQOg/x9T82
+         5zsdCiFwkzChUU6MXWfSxWrLmUxp3wTU3VrMJf0IvBJZuH7cbj/bgNJk/XTAi8hWuSC7
+         Ta1YBNxe391AFjQay89YEUv2u5Xzb2Jnj22XnhjN6J+bYCOs81TAB04RZH/SGdSBNt5p
+         et8cjunZin0xQOCvO22Li4KZ6XlVl/tFdmfn5gu2gYc1vNh8p3u7/8Zy0o97jv30y7W5
+         cBT8ySyw4NzTDc/iRQ9kny3dlWuKjxVJ8NgPOeDlYDeBdrF0e+mDxs9ali1MBqYVmEs4
+         in+A==
+X-Forwarded-Encrypted: i=1; AFNElJ/i+daGDX2Jk18PqM2DOu2rPoS8O31jIQgIpIwzKv0wZxWDVgt1sCSF0OP8PqflD4DU5qga9hQDrmCeQKpP7g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyihgxVwTaL6VA08p1YoynNfoc0bLaBimbHFjMJnkRXb/1k+zme
+	2dyRuExV69rbP8HC7YKtVBxv3pbrYoJ94k65maLkkcbye/gzL1/At2bi
+X-Gm-Gg: Acq92OHmy6KnfWPFZB1d5CBeIvuNE0Q59JUzk2jRJOqjv3hht8ju1KKXkXVU56O9eqe
+	X9cssLsMnp3lIOjTy3/aPZ0Dj07PQJ0Z3cbgyLvw05Ue4nNlBnRiDb8LC4udSUdiNjiLR3+cmHC
+	Gqraneucu8zegjDy54n0pfR3eCU8a0bm4VyfUhqiZIQg5krsR81/Fkp9xBBnJUNXiGvJWj2HBjX
+	HtB3CEip+g5g/2Z/G0K8gApSFZa7zd681TXAhw/CCs3G9KZYdzXI+YaIJZd857vM5MjAqzD7MJj
+	jAtb0EBUu7BOIknbbJvMqrxghcCB22gxdgej0TmcxImLu0XyGWG9fynPe2lxJZE66jIkG/9Dlxm
+	2+PU5WCpf8PFyfG1O69obuTlPd02zmr22wtTUuUQeCz51nCeXnHZVtV5ohOssHbIRGrPU+YI6Sd
+	rC1Gr3NJTW6lp846/0Bc9R6Own/hXI8EgOENndYyrSBUWplqp8yDwzrfAuTFrBtz/14Rsy5Qlhm
+	fZlc1N7YdvD0pKY
+X-Received: by 2002:a05:6a00:3991:b0:841:d0a9:76e with SMTP id d2e1a72fcca58-843367db2ccmr4131774b3a.5.1781195092027;
+        Thu, 11 Jun 2026 09:24:52 -0700 (PDT)
+Received: from ?IPV6:2001:ee0:4f0c:3090:eba9:46c1:1423:bd93? ([2001:ee0:4f0c:3090:eba9:46c1:1423:bd93])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84337bce087sm2520701b3a.22.2026.06.11.09.24.46
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 11 Jun 2026 09:24:51 -0700 (PDT)
+Message-ID: <41eefa1d-99bf-450d-988e-7dec67c6b61e@gmail.com>
+Date: Thu, 11 Jun 2026 23:24:44 +0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260611133806.198402-1-eperezma@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 6DQsgNWd3cYKOujvZ1ykjKiRGn_Zz98spzXXZhHfEh8_1781189602
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v2 1/2] virtio_net: xsk: fix race in rx wake up
+To: menglong8.dong@gmail.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com
+Cc: mst@redhat.com, jasowang@redhat.com, andrew+netdev@lunn.ch,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org,
+ pabeni@redhat.com, kerneljasonxing@gmail.com, netdev@vger.kernel.org,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+References: <20260611025644.2431148-1-dongml2@chinatelecom.cn>
+ <20260611025644.2431148-2-dongml2@chinatelecom.cn>
+Content-Language: en-US
+From: Bui Quang Minh <minhquangbui99@gmail.com>
+In-Reply-To: <20260611025644.2431148-2-dongml2@chinatelecom.cn>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-On Thu, Jun 11, 2026 at 03:38:04PM +0200, Eugenio P�rez wrote:
-> Fix wrong ordering at taking semaphore after spinlock and convert the spinlock
-> take and release into guards, so they are not lost after a return.
-> 
-> This series goes on top of https://lore.kernel.org/lkml/20260610083452.477759-1-eperezma@redhat.com/
+On 6/11/26 09:56, menglong8.dong@gmail.com wrote:
+> From: Menglong Dong <dongml2@chinatelecom.cn>
+>
+> During packet receiving in virtio-net, the rq can be empty, which means
+> "rq->vq->num_free == virtqueue_get_vring_size(rq->vq)", in
+> virtnet_add_recvbuf_xsk(), if we are using xsk. Meanwhile, the fill ring
+> can be empty too, which means we can't allocate anything from
+> xsk_buff_alloc_batch(). Then, we will set the XDP_RING_NEED_WAKEUP flag.
+>
+> However, if the user clean all the data in rx ring and fill the
+> "fill ring" and check the XDP_RING_NEED_WAKEUP flag after
+> xsk_buff_alloc_batch() and before xsk_set_rx_need_wakeup(), then the rx
+> napi will never be scheduled: the rx ring is empty, which means we will
+> never receive a packet to trigger the further recv fill. The rx ring is
+> empty now, so the user will not check the flag too.
+>
+> Fix this by set the XDP_RING_NEED_WAKEUP flag before
+> xsk_buff_alloc_batch() if both rq->vq and fill ring are empty.
+>
+> Meanwhile, set the XDP_RING_NEED_WAKEUP flag if we have any free entry in
+> rq->vq.
+>
+> Fixes: e3f8800aa243 ("virtio-net: xsk: Support wakeup on RX side")
+> Signed-off-by: Menglong Dong <dongml2@chinatelecom.cn>
 > ---
-> It would be great if these can be squashed.
+>   drivers/net/virtio_net.c | 25 ++++++++++++++++++++++---
+>   1 file changed, 22 insertions(+), 3 deletions(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index f4adcfee7a80..4b5b3fa62008 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -1323,16 +1323,27 @@ static int virtnet_add_recvbuf_xsk(struct virtnet_info *vi, struct receive_queue
+>   				   struct xsk_buff_pool *pool, gfp_t gfp)
+>   {
+>   	struct xdp_buff **xsk_buffs;
+> +	bool need_wakeup;
+>   	dma_addr_t addr;
+>   	int err = 0;
+>   	u32 len, i;
+>   	int num;
+>   
+> +	need_wakeup = xsk_uses_need_wakeup(pool);
+>   	xsk_buffs = rq->xsk_buffs;
+>   
+> +	/* If both rq->vq and fill ring are empty, and then the user submit
+> +	 * all the chunks to the fill ring and check the wake up flag
+> +	 * after xsk_buff_alloc_batch() and before xsk_set_rx_need_wakeup(),
+> +	 * we will lose the chance to wake up the rx napi, so we have to
+> +	 * set the need_wakeup flag here.
+> +	 */
+> +	if (need_wakeup && virtqueue_get_vring_size(rq->vq) == rq->vq->num_free)
+> +		xsk_set_rx_need_wakeup(pool);
 
-ok i figured out the confusion. squashed
+I think when polling the receive queue, the userspace program needs to 
+check the XDP_RING_NEED_WAKEUP flag if it does not see any packets. The 
+flag check is quite lightweight in my opinion. Here are some examples I find
 
+- 
+https://github.com/xdp-project/xdp-tools/blob/e9469501622aa22a7e452a671000bec8685edcde/lib/util/xdpsock.c#L1206
+- 
+https://github.com/xdp-project/bpf-examples/blob/43e565901c4287efa863edca7f0e6cd6e35ed896/AF_XDP-forwarding/xsk_fwd.c#L540
 
-> 
-> Eugenio P�rez (2):
->   vduse: fix not releasing taken semaphore in vduse_dev_queue_irq_work
->   vduse: not take the device semaphore while holding vq spinlock
-> 
->  drivers/vdpa/vdpa_user/vduse_dev.c | 17 ++++++-----------
->  1 file changed, 6 insertions(+), 11 deletions(-)
-> 
-> --
-> 2.54.0
+Furthermore, the XDP_RING_NEED_WAKEUP flag related functions does not 
+provide any memory orderings. So even with your patch, I'm worried that 
+this case is possible
+
+kernel userspace
+
+xsk_buff_alloc_batch -> failed
+                                                             submit fill 
+ring
+                                                             flag != 
+XDP_RING_NEED_WAKEUP
+// reordering due to lack of memory orderings
+xsk_set_rx_need_wakeup
+
+I'm not expert here, so correct me if I'm wrong. I think the wake up 
+flag is designed with no orderings so we cannot rely on it to reason and 
+skip further checks.
+
+> +
+>   	num = xsk_buff_alloc_batch(pool, xsk_buffs, rq->vq->num_free);
+>   	if (!num) {
+> -		if (xsk_uses_need_wakeup(pool)) {
+> +		if (need_wakeup) {
+>   			xsk_set_rx_need_wakeup(pool);
+>   			/* Return 0 instead of -ENOMEM so that NAPI is
+>   			 * descheduled.
+> @@ -1341,8 +1352,6 @@ static int virtnet_add_recvbuf_xsk(struct virtnet_info *vi, struct receive_queue
+>   		}
+>   
+>   		return -ENOMEM;
+> -	} else {
+> -		xsk_clear_rx_need_wakeup(pool);
+>   	}
+>   
+>   	len = xsk_pool_get_rx_frame_size(pool) + vi->hdr_len;
+> @@ -1363,6 +1372,16 @@ static int virtnet_add_recvbuf_xsk(struct virtnet_info *vi, struct receive_queue
+>   			goto err;
+>   	}
+>   
+> +	if (need_wakeup) {
+> +		if (rq->vq->num_free)
+> +			/* We have free buffers, so we'd better wake up the
+> +			 * rx napi as soon as possible.
+> +			 */
+> +			xsk_set_rx_need_wakeup(pool);
+> +		else
+> +			xsk_clear_rx_need_wakeup(pool);
+> +	}
+> +
+
+Why do we need to set XDP_RING_NEED_WAKEUP even when 
+xsk_buff_alloc_batch succeeds?
+
+>   	return num;
+>   
+>   err:
+
+Thanks,
+Quang Minh.
+
 
