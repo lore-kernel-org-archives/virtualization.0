@@ -1,70 +1,70 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2561409E07
-	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 14:12:16 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF92040BCD2
+	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 14:14:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781187138; cv=none; b=nPiipwIZ+C9LBBdx+8WzciZRuAxEwz6C8nV6pduo4ElNgsn5Bf8waD2E4kEJ6KbIzzzOowVhjAoCDTGOvIGv4ouvv8TcdgD96RCJXlUjXOZ5Ly85rEuxahNCYINp6nKsfLM7pZvis1dzlAGih415zyqZGBEn3WLb7m55+XVC3F4=
+	t=1781187289; cv=none; b=eF27qjgJNqcgSO4sT5qccY/pKUe5DmJP0qe+zG9B14Ull/VR3Jye7c1YjRCr+GOXzCm6KN+pbCv85kbmKcgHbG2DCwmyOBmd6Yz3C+FHgbmW+eQQOV66Giys2ibZwwTCSen8Qcxr5Gs7DNX3YiDJ1U4Misl8Z0DWdDM0YZfc+QE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781187138; c=relaxed/simple;
-	bh=sQeuR4owy4vX0IS15ajkyCUjrvN0HyfK66H9HDiTaLE=;
+	s=arc-20240116; t=1781187289; c=relaxed/simple;
+	bh=gfXXJLb0osriWBGidJ0dB7eIOLrIpOF6r/9loXmgON4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=OAHZeCWhAQrgd+sKCAWjvL4jSN/ZA/bWEyDS1tv9QoNJHZ9orBGQFZ4PzpNAKKf5/b22ewByhsB9kchuqOmC/dtkgkryvcLulJp09fAoxUFcIIQ0VJBWSh2oqkHttINhcastp8tJd9+S+Y30OkA7apeIW76CMdBwZNWIiqZwWdA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QkyFFrSx; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=clcIgTXI/CrFBnHvnQEcmmdA7lfhI3ftFfx5gFzExxE64Mpn83s7IoIgquH4POKPAior2UaehunrSe7JdYxYk2BFSD7k8nteIcl2uKUzmXmcvrHjSKclOC7+hDTauqVjE6YpKJBB2x9uxPP3ipiMLctGrfCclFmxtpxhIIAD7SU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WJuSAbib; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QkyFFrSx"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WJuSAbib"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1781187134;
+	s=mimecast20190719; t=1781187287;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=5tc2CbHnfT965SsW89vV2H3dWMtMCRgjtBX+OD0OWEw=;
-	b=QkyFFrSxVLLZUfMe1iF63n+xjF+dMEtSjLH0dHvJa3Ey448hJQHOAmWRlvk7fB90CFFPIh
-	/y++fZbuTAlxAA7YBq6DU3gnQhxhwnLwePuyuuUHmzCWrLHJjiWYQLQ8rG+kWjpHn7UOqH
-	aNWFndv5rbGHpAD+hEvTjeVOLVs8ym8=
+	bh=pjyIWLCuQzUyfe06LzkWeX0zKL+6OD4pYbYVEYPIpiU=;
+	b=WJuSAbib9atkp/i7SE/RIOK+lYKpFiq53TfS+phXLlUlchfUUOsnCnjgUmVBFRXV/Tc2ec
+	kS2eWM4bAwn767EvuMbRxeazpOH/tiGsMmQllsuhxlfa5HjK5toWfp2sip3Hz9JVRWsGd+
+	kcxSm3c1e97Xd0iB4asltW9PjwIPHuI=
 Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
  [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-312-rOCzpevAPQykgK3FIDgc2w-1; Thu, 11 Jun 2026 10:12:12 -0400
-X-MC-Unique: rOCzpevAPQykgK3FIDgc2w-1
-X-Mimecast-MFC-AGG-ID: rOCzpevAPQykgK3FIDgc2w_1781187131
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-45efa2f7009so5334292f8f.3
-        for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 07:12:12 -0700 (PDT)
+ us-mta-390-xvNMc6DkM3iyg7a-8Zju3w-1; Thu, 11 Jun 2026 10:14:41 -0400
+X-MC-Unique: xvNMc6DkM3iyg7a-8Zju3w-1
+X-Mimecast-MFC-AGG-ID: xvNMc6DkM3iyg7a-8Zju3w_1781187279
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-460153ce644so6046789f8f.0
+        for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 07:14:40 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781187131; x=1781791931;
+        d=1e100.net; s=20251104; t=1781187279; x=1781792079;
         h=in-reply-to:content-transfer-encoding:content-disposition
          :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=5tc2CbHnfT965SsW89vV2H3dWMtMCRgjtBX+OD0OWEw=;
-        b=qGy50QdPG0H7ULcEHVJ5RGeBrM51dN+6fHyg4LedgdOy1palqyHHFm/5iE3m1Mq9gp
-         P8+r0rpxGtE1DBk6ZXOMDK+oIGg9Pn/wug+5E8IMlEcQFhDkVevTGr6VarklENmnB+BN
-         WqwqrV2p68dOyTVCMxlQpZeUzw4wkVFajWGpYhaW98JGgeh8XCcgKhbeexb8BshQD6KX
-         NGldNNvTK5kHmAqXbcPDcZkUXpq2nS40iYcS9SPoR25PspLxdXv/prpTkaC/8oyYXyg4
-         B+/2crn4gqH1snYiCibYrf1Ja+ZriAgeScLug0ZHw0Rrfj3le17F11B8Ar9vqrz9ytkG
-         Y8kg==
-X-Forwarded-Encrypted: i=1; AFNElJ+94pg8oye59DteWcJME3wtcZHCn81lRd6TS3Wvt1LDK+VI1d9NipB70W6xVE+r+1MZduBBhhNibkD/3H4O5A==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzmN3gVg19mimNgohhq9HNNk6GZ5qKJ8Hq5MR5RmV6F9kQqUTDX
-	kVkggYjCcA/qssqbTH3Jr9J7b7iv6k0B4Qb9F2kzTsNlzWU9CQF3wIKFzjrYB6wFsjDemk9t2C/
-	OTgXTu+AaPG8OgX/Ya5hZVhJeSrSbzIxRfAoSj/jXB0XO3+QP6KHagDkD3APvnqU2k3t4
-X-Gm-Gg: Acq92OG8jIS+FGOq0YGQ3WwL1CDeIc2zE7Dg4dV8kzLfD1e8HBEjmWkhOWxereswM+x
-	KgV3ugbXgc5rE/Y9uLn4XdS0v1zb6kxsnn7Aanq7/U4GojO53ib6cCHpa+JXKcARbHcuuNOwDLg
-	L2SHMU0vQ7iUXdFC3D3wX1YmymfXf7cMGhTR2vvMUGX+kHj5JG+chTCajMARIHOJIrN+OPpfnvP
-	T/yqYZk9et/lkMHtTlO3tBeISIytc7gxeivyGp+rMONOKThgnlimEJAHxaB0+DtjMMx0wzfX5Hq
-	ZJY8JSHIW2MWslp+pk/CCC23lAXspZOy6Mcs8XOzTuw8u9OWxSdQYyYaYjSgASbSctfVvTIWsEh
-	umRslvY+bnriLVuPTOsqRdNC6ISCC18TJ7pwKkpGZygzOGsnYXuRNnQ==
-X-Received: by 2002:a05:600c:3511:b0:490:6237:521d with SMTP id 5b1f17b1804b1-490e55d38famr39913545e9.13.1781187131100;
-        Thu, 11 Jun 2026 07:12:11 -0700 (PDT)
-X-Received: by 2002:a05:600c:3511:b0:490:6237:521d with SMTP id 5b1f17b1804b1-490e55d38famr39912545e9.13.1781187130434;
-        Thu, 11 Jun 2026 07:12:10 -0700 (PDT)
+        bh=pjyIWLCuQzUyfe06LzkWeX0zKL+6OD4pYbYVEYPIpiU=;
+        b=CyRqLvlirtfqKdDLHlUvOQnFVGDTbY0EvT/u2g4e4u4DcA/weMBIx3YfUFDY7HVs1A
+         IetI3rAh9Gan/9chqnWukCDjsC4uYBHVtIr9bLbEX3Y7vOf8KcVIm0nYdmlrob1k3qyl
+         eSq9MSDyWYubo2dQvXfH9xEFmcf/B6ErM+ILm884rNbxbY7XsINpbWbvlWPbTMPUhefZ
+         b+RcGiI7IrtMRhSKRc/HTHbKXZHxUUSITD3OI2yKIK4X8TZck9jckMX/XMnIRMSfEfGA
+         3AyEaG9ZnzB6ApgcoLeP9vQnmkZpilGS/7ix80WcQMJDcaErQyYrB0bzQ01Cp9wd2yea
+         d2hQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+cXtoiGzwVc5gGq4C4tlGF8jiofG1HRM84lZzcbYuhyQzTidJ432i2TH8oemUXC9+Chyf0qCAnQMbE1BN7dQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzo5NRQpIi9kfhKVXjozxcdudyq5TJt+hflz1e5Bf3CHo1uo8pF
+	QLn2vtGVb6DVErFoMdOGPNdPmb3QzBYApvGgfT6msQzR0eVcktIqA+u/s9O7d3ukmxOJQyvo+nM
+	i5+a0ldSfLV3fyO7CBqu2beTp5uuvxUFGXkaDk748uiacV6r9L+Jg5S0pJ3AP8xHCFhSl
+X-Gm-Gg: Acq92OHQYLqbX/q12WBvpzX67KbJEyUCTHVLnurMprkR+O5p0S3DkS3+K9EXYpyLzDx
+	FNtSV8UF/W7YLxYHdMjkDz8OgpOR9wum6+4DfWavhyoUEMKU/UvsiIHAsROPawb13wEl638wHJS
+	0qWBFtEMtnrD+52wknTNLHy9X+lzU3OpdNo43mxALBLEGSvTRoFCeZEADxkr8iw4uRtr0+nnwHO
+	85BOjDb4UDQdekejdYff1w1de6PB0dG21Qdgarak3fHUQ8HFfC0knskLd1+834Ycg/mrPWrhHTb
+	QtOawI4sGvMo0gz4AGftjatpbUCQjZ2++VFKT7+z/CASK5WGQqCdZverPkf6l5hL/2x2CVSWcBe
+	ZFo2ioMYNE1h1GAWZ/jn6OhLuWisCB7glJteQg+gm4uAlGcwK5Aw4Kw==
+X-Received: by 2002:a5d:584a:0:b0:44b:5398:4e85 with SMTP id ffacd0b85a97d-460677a62e8mr4628780f8f.22.1781187279146;
+        Thu, 11 Jun 2026 07:14:39 -0700 (PDT)
+X-Received: by 2002:a5d:584a:0:b0:44b:5398:4e85 with SMTP id ffacd0b85a97d-460677a62e8mr4628703f8f.22.1781187278514;
+        Thu, 11 Jun 2026 07:14:38 -0700 (PDT)
 Received: from redhat.com (IGLD-80-230-85-71.inter.net.il. [80.230.85.71])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490e2ca1a43sm73488695e9.8.2026.06.11.07.12.08
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-46028a6dce6sm73902362f8f.30.2026.06.11.07.14.37
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Jun 2026 07:12:09 -0700 (PDT)
-Date: Thu, 11 Jun 2026 10:12:07 -0400
+        Thu, 11 Jun 2026 07:14:38 -0700 (PDT)
+Date: Thu, 11 Jun 2026 10:14:35 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
 To: Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>
 Cc: Maxime Coquelin <mcoqueli@redhat.com>,
@@ -75,7 +75,7 @@ Cc: Maxime Coquelin <mcoqueli@redhat.com>,
 	linux-kernel@vger.kernel.org, Cindy Lu <lulu@redhat.com>,
 	Yongji Xie <xieyongji@bytedance.com>
 Subject: Re: [PATCH 0/2] Fix lock errors in VDUSE suspend feature
-Message-ID: <20260611101154-mutt-send-email-mst@kernel.org>
+Message-ID: <20260611101422-mutt-send-email-mst@kernel.org>
 References: <20260611133806.198402-1-eperezma@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -85,7 +85,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 In-Reply-To: <20260611133806.198402-1-eperezma@redhat.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: HwwwFmDPl7WRpVSfnWDLYtetviqw3ArXG_orb8ndgiY_1781187131
+X-Mimecast-MFC-PROC-ID: GQ1KwdqX6ttZKk8oZ9HroeASpyJ9-qbRjHOXg1b_a_w_1781187279
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
@@ -96,14 +96,12 @@ On Thu, Jun 11, 2026 at 03:38:04PM +0200, Eugenio Pérez wrote:
 > take and release into guards, so they are not lost after a return.
 > 
 > This series goes on top of https://lore.kernel.org/lkml/20260610083452.477759-1-eperezma@redhat.com/
-
-
-And     vduse: Fix error around jumping over a __cleanup() variable
-    
-does it obliviate that?
-
 > ---
 > It would be great if these can be squashed.
+
+
+if you want that then just send v4.
+
 > 
 > Eugenio Pérez (2):
 >   vduse: fix not releasing taken semaphore in vduse_dev_queue_irq_work
