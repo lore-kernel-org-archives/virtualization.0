@@ -1,83 +1,160 @@
-Received: from abb.hmeau.com (abb.hmeau.com [180.181.231.80])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qv1-f46.google.com (mail-qv1-f46.google.com [209.85.219.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3200333260C;
-	Thu, 11 Jun 2026 09:19:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=180.181.231.80
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C31537B400
+	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 09:19:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.46
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781169577; cv=none; b=IEx896QzVpuiDgnYWmvL65Gji58hxTdxVpDgkGJL27+kt6aLG9RYKM4dFno/NgFaBMNP3dIHPIA/9jBfe5m0mEo6b1BZyYSjjd/3//Em1Ds/NSVWoM0S5ShUiC9q/BOfk2TOpFGLuhDQ1l0WJsXajBzXrXVOoRlvv59hbCp4uYU=
+	t=1781169596; cv=none; b=AnmAmHP+TM1p7B9IpiNobaE9YU002bORhBElCCv4lU9tKjgnjF8ILW6NuiAI2eEDruXYyPb/jO7iFiiWCZhnWdQVobfE1DmRdFbchL+2ReGr7d0GX+wUzp085A6t1er1wgjjk/EUszll/2LzBsWdHJ8MIGMCQ2j7Z+B7v0PH2hE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781169577; c=relaxed/simple;
-	bh=7RP2ImnmPS6QGJg/BjRNpO83yOZ6xPrChkuvELN1BhI=;
+	s=arc-20240116; t=1781169596; c=relaxed/simple;
+	bh=ajXZQKlUQjfq8KP8zbjST5yGUA03a95kKBL0PDELn/8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=DxoOIJx3sGrOu31h9WYp82mJObFLTNW/FjiGlIKvfA3xx29Y+UgIVsDf4cPDCHwny3E4avUDk0duTQXYQ05tFwmsgahT5pY/x1es6HoHKC7yQMrLeRGdwvRyjHdOhP+j+eexRV/zqodrwbd+fNMdldyeUy5PbzJbjLZG6H9s8ok=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.b=gEj08VtJ; arc=none smtp.client-ip=180.181.231.80
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
+	 Content-Type:Content-Disposition:In-Reply-To; b=awXhkPk1zNZW+CxXGpLQd0eDa2ZJqVgGYxpkhs2mCWFYWjBjTJP7+UX8rHvCzCCJIjjHPWf1ckuNLykH3uKIQqVbyEKYWj3i/B44YZG4lKfqG7WnS567xwmYkxtgmhyE380FWRHCVxX7k1B4R9dXPMQioghb/+3DAdRul0wiC9M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=tJmM4nf9; arc=none smtp.client-ip=209.85.219.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.b="gEj08VtJ"
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
-	d=gondor.apana.org.au; s=h01; h=In-Reply-To:Content-Type:MIME-Version:
-	References:Message-ID:Subject:Cc:To:From:Date:cc:to:subject:message-id:date:
-	from:content-type:reply-to; bh=ron/iZw0N+i10pIwlar1zaqIblnxytRF1UWI3uzY+1Q=; 
-	b=gEj08VtJAKqCUPkV6v4zXF1WJ50LN9i95ngDcHBJ6MxSeiFJ/mmZp1Iq5MPif/XiDKOMNDJvVul
-	6M9+H01mQ0Rf1Bqo2p9gV5kFdhhrM/C4J7j8IBECj1sO8UiQZWqAGKGDhbKchrnvgA8FzS8dq3lpB
-	JrWwKeQyjtMeaPRASEf5IdPJRcRs43LAwxbRb/0rQX6yDXdcCJc6df007aEqjHwofRCRlgVyH2gZa
-	ssvAb1olFjuXdxZaPzDvPNW07w30PNy5WlUSvb4eP4IBzYrkvA220IJqDjJ78fCjNc07kYyHmcm8y
-	pZX75ewNN7yhEABrKdB8NH+9KDhRdCXy1l/g==;
-Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
-	by formenos.hmeau.com with smtp (Exim 4.98.2 #2 (Debian))
-	id 1wXbZO-00000004Y8q-1e1x;
-	Thu, 11 Jun 2026 17:19:27 +0800
-Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Thu, 11 Jun 2026 17:19:26 +0800
-Date: Thu, 11 Jun 2026 17:19:26 +0800
-From: Herbert Xu <herbert@gondor.apana.org.au>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="tJmM4nf9"
+Received: by mail-qv1-f46.google.com with SMTP id 6a1803df08f44-8ce9d444173so93387486d6.2
+        for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 02:19:55 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1781169594; x=1781774394; darn=lists.linux.dev;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=EikgnS3vF4jqNMcBcK4JJO0h4MFVBm6MQacJ2h8Nxpw=;
+        b=tJmM4nf9tixDPTJVRYZe/Dy1p3Dn6nGqCWI8ntK+BIbrTsELA1m5Y/h/2UFA9R/aVN
+         NOhfe1GtP2zINdWhaDjsSRwFVlfZXIgmf8yqQx/oA2M3IhvKQvVbNf+7EpZb9q1YZKI1
+         WpGyW6UWRR0fdjpRdp9eqsfpUMzUEhW17hTyku0oVoEdwsIdh80BN8GvOG7nmHIyAm+o
+         lXuDJViinP3ozTzHm6gI7HpqNvvCJiQ/W06Sy2DsczEDNFtess8e//n6YxoP2W+6F8hf
+         IhGxzevbSsrWj67fFwKExNM6fAwyGgOfW2GpZfJiv1mluvzVyExrSBsTM8KVjsFq8v9M
+         ZGEQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781169594; x=1781774394;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=EikgnS3vF4jqNMcBcK4JJO0h4MFVBm6MQacJ2h8Nxpw=;
+        b=BaAlsFMAod7rZJK97YkinBGuKc/fFCGyh1q2xFMRY+cjsPrJn4nC9mPlc39SaGDuwb
+         nW1D2LNUuli1Ynv0i6yADbIIhnkNJz3ZrxS73EY9ZJCf5ECHi3FzraLCB8bM6n9ryLUO
+         QYmPMc7DLatFdmxgUtw1TjEMkEwMF6eDEvo/WmHQ31a+cXGG/D9xErIOh5U2YMLYQ3uq
+         2Oc/OG4lpXf8B3qKgzJnJDLOtcArp/nvvfnaKSsOJZ1Xn7MXGr8pWu3i96qVVJqO7kDz
+         Y+wIom1KUONHnYZ7zz5Oqs/1FOqEfM+RS3uxN18GILKy+ej0cgWSc0HlAHIxlad7NPqG
+         kV1g==
+X-Forwarded-Encrypted: i=1; AFNElJ8bN9bY8H1TvTcTkv0Q+ZU2y4mSt299gdF6Z3kt+FicfEKpkSjFqXwoLVLvmU5aT8dHCVkuTwdlwvAL9pknbw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzL40w38cSsG+U4IfHbm1VPDcFEGGGpAe2UnJjg+XD0URD57ABj
+	YwYoYJ771zDSOtNoLp6Xd4mADfwmUOa/mzQRNpLGG9hVg2ImIvpWZw6L
+X-Gm-Gg: Acq92OGNe9QksnP6S5QtsPjm5NJRygGj4yCi0ONoV5zL5ZPcfCIdS2U7yLSSZiVvQ16
+	DlxQUQ24pZGF414I2Mw2AON0dqJE70amUZR1N+jbmArChlI1wA1MMp0E1RCQ3NbcZ8G95rAyIYd
+	VgcCFbvnaR6EqShD68a20fWQAhgEeVqXqfOrlSDlhjzuRPsOgh0+9ne3bhAG8YzKm/CQGXd/ai/
+	4T2DHioffYJPYkILKVofIQi7Hos1HxW93fnjZMIDNdCRlG7z+dqBcWuCTIJM/2719ucCgI2C3Cj
+	QRnRhi8lIbQLBmqzL6CZ5YVUYCu2B840Y9I2v9xcgUS8BC7BagVb3mj6r0HaOr+kHd7RpiUJNoW
+	lK7N/sMF9llcyvQXhwm5KzMZsvaiGHhBHrU2d8ll8Cy2KpjZc8gDQKFL2oPtVYDpsdckIHAWmeN
+	Ghga9r6ciVrBmnF86Qk0l0UIbBlzA=
+X-Received: by 2002:a05:6214:20a5:b0:8be:3da0:bba7 with SMTP id 6a1803df08f44-8d1d8726fa1mr30343866d6.16.1781169594344;
+        Thu, 11 Jun 2026 02:19:54 -0700 (PDT)
+Received: from localhost ([149.40.50.215])
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8d1e819f58fsm12933396d6.11.2026.06.11.02.19.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 11 Jun 2026 02:19:53 -0700 (PDT)
+Date: Thu, 11 Jun 2026 12:19:48 +0300
+From: Dan Carpenter <error27@gmail.com>
 To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Michael Bommarito <michael.bommarito@gmail.com>,
-	Olivia Mackall <olivia@selenic.com>, linux-crypto@vger.kernel.org,
-	Jason Wang <jasowang@redhat.com>, Kees Cook <kees@kernel.org>,
-	Christian Borntraeger <borntraeger@linux.ibm.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	Dan Williams <djbw@kernel.org>, Ingo Molnar <mingo@redhat.com>,
-	"H. Peter Anvin" <hpa@zytor.com>, torvalds@linux-foundation.org,
-	alan@linux.intel.com, tglx@linutronix.de
-Subject: Re: [PATCH v3] hwrng: virtio: clamp device-reported used.len at
- copy_data()
-Message-ID: <aip9nja-Oz2RxkWi@gondor.apana.org.au>
-References: <20260531142251.2792061-1-michael.bommarito@gmail.com>
- <aio83ZWadVTiuNpR@gondor.apana.org.au>
- <20260611025916-mutt-send-email-mst@kernel.org>
- <aipn8sIAQ6Ai2sax@gondor.apana.org.au>
- <20260611035035-mutt-send-email-mst@kernel.org>
- <aipvZhfvdtRxOQm0@gondor.apana.org.au>
- <20260611050731-mutt-send-email-mst@kernel.org>
+Cc: oe-kbuild@lists.linux.dev,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	lkp@intel.com, oe-kbuild-all@lists.linux.dev,
+	virtualization@lists.linux.dev, Jason Wang <jasowang@redhat.com>,
+	Cindy Lu <lulu@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	linux-kernel@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
+	Yongji Xie <xieyongji@bytedance.com>,
+	Maxime Coquelin <mcoqueli@redhat.com>
+Subject: Re: [PATCH v3] vduse: Add suspend
+Message-ID: <aip9tNOx6WHIq22p@stanley.mountain>
+References: <20260610083452.477759-1-eperezma@redhat.com>
+ <202606111115.tKKe1qCE-lkp@intel.com>
+ <20260611050140-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-In-Reply-To: <20260611050731-mutt-send-email-mst@kernel.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260611050140-mutt-send-email-mst@kernel.org>
 
-On Thu, Jun 11, 2026 at 05:10:32AM -0400, Michael S. Tsirkin wrote:
->
-> data_avail is under hypervisor control
+On Thu, Jun 11, 2026 at 05:03:24AM -0400, Michael S. Tsirkin wrote:
+> On Thu, Jun 11, 2026 at 10:18:51AM +0300, Dan Carpenter wrote:
+> > Hi Eugenio,
+> > 
+> > kernel test robot noticed the following build warnings:
+> > 
+> > https://git-scm.com/docs/git-format-patch#_base_tree_information]
+> > 
+> > url:    https://github.com/intel-lab-lkp/linux/commits/Eugenio-P-rez/vduse-Add-suspend/20260610-164534
+> > base:   next-20260609
+> > patch link:    https://lore.kernel.org/r/20260610083452.477759-1-eperezma%40redhat.com
+> > patch subject: [PATCH v3] vduse: Add suspend
+> > config: arm64-randconfig-r072-20260610 (https://download.01.org/0day-ci/archive/20260611/202606111115.tKKe1qCE-lkp@intel.com/config)
+> > compiler: aarch64-linux-gcc (GCC) 8.5.0
+> > smatch: v0.5.0-9185-gbcc58b9c
+> > 
+> > If you fix the issue in a separate patch/commit (i.e. not just a new version of
+> > the same patch/commit), kindly add following tags
+> > | Reported-by: kernel test robot <lkp@intel.com>
+> > | Reported-by: Dan Carpenter <error27@gmail.com>
+> > | Closes: https://lore.kernel.org/r/202606111115.tKKe1qCE-lkp@intel.com/
+> > 
+> > smatch warnings:
+> > drivers/vdpa/vdpa_user/vduse_dev.c:577 vduse_vq_kick() warn: inconsistent returns '&vq->kick_lock'.
+> > drivers/vdpa/vdpa_user/vduse_dev.c:1302 vduse_dev_queue_irq_work() warn: inconsistent returns '&dev->rwsem'.
+> > 
+> > vim +577 drivers/vdpa/vdpa_user/vduse_dev.c
+> > 
+> > c8a6153b6c59d9 Xie Yongji        2021-08-31  562  static void vduse_vq_kick(struct vduse_virtqueue *vq)
+> > c8a6153b6c59d9 Xie Yongji        2021-08-31  563  {
+> > c8a6153b6c59d9 Xie Yongji        2021-08-31  564  	spin_lock(&vq->kick_lock);
+> >                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+> > c8a6153b6c59d9 Xie Yongji        2021-08-31  565  	if (!vq->ready)
+> > c8a6153b6c59d9 Xie Yongji        2021-08-31  566  		goto unlock;
+> > c8a6153b6c59d9 Xie Yongji        2021-08-31  567  
+> > 9c4307e82fa1dc Eugenio Pérez     2026-06-10  568  	guard(rwsem_read)(&vq->dev->rwsem);
+> > 9c4307e82fa1dc Eugenio Pérez     2026-06-10  569  	if (vq->dev->suspended)
+> > 9c4307e82fa1dc Eugenio Pérez     2026-06-10  570  		return;
+> > 
+> > unlock before returning?
+> > 
+> > 9c4307e82fa1dc Eugenio Pérez     2026-06-10  571  
+> > c8a6153b6c59d9 Xie Yongji        2021-08-31  572  	if (vq->kickfd)
+> > 3652117f854819 Christian Brauner 2023-11-22  573  		eventfd_signal(vq->kickfd);
+> > c8a6153b6c59d9 Xie Yongji        2021-08-31  574  	else
+> > c8a6153b6c59d9 Xie Yongji        2021-08-31  575  		vq->kicked = true;
+> > c8a6153b6c59d9 Xie Yongji        2021-08-31  576  unlock:
+> > c8a6153b6c59d9 Xie Yongji        2021-08-31 @577  	spin_unlock(&vq->kick_lock);
+> > c8a6153b6c59d9 Xie Yongji        2021-08-31  578  }
 > 
->         avail = min_t(unsigned int, vi->data_avail, sizeof(vi->data));
->         if (vi->data_idx >= avail) {
->         	vi->data_idx = 0;
 > 
-> and maybe this can speculate past the if?
+> I think this is fixed by:
 > 
-> I agree, this is all speculation )
+> commit e4a249d15eb2d4b28213bebb1eefaf2e6d99de0b (HEAD -> vhost, linux-next-vhost/linux-next, kernel.org/vhost, kernel.org/test)
+> Author: Nathan Chancellor <nathan@kernel.org>
+> Date:   Wed Jun 10 12:16:49 2026 -0700
+> 
+>     vduse: Fix error around jumping over a __cleanup() variable
+>     
+> right?
 
-Either it is vulnerable to Spectre, or it isn't.  Adding nospec
-markers when you're not sure is cargo cult programming.
+These things haven't hit linux-next yet.  I found the email.
+https://lore.kernel.org/all/20260610-vduse_vq_kick-fix-guard-usage-v1-1-0ce02c08006e@kernel.org/
 
-Cheers,
--- 
-Email: Herbert Xu <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+That only fixes the bug in vduse_vq_kick(), not the bug in
+vduse_dev_queue_irq_work().  I don't see a fix for that
+yet on lore but I may have missed it.
+
+regards,
+dan carpenter
+
+
