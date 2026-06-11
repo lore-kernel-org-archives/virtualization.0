@@ -1,139 +1,107 @@
-Received: from mail-pj1-f44.google.com (mail-pj1-f44.google.com [209.85.216.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out30-99.freemail.mail.aliyun.com (out30-99.freemail.mail.aliyun.com [115.124.30.99])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3FA4D318EC1
-	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 02:13:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 136142C375E
+	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 02:19:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.99
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781144029; cv=none; b=WN5b/VU8nqihOKefRPZ6zq3VNOUrjWJ517Q/42MqpqRY6tbfbAPPnGPr+nhyI879v+DbEvb2wPz5ym3UjeudhsjUWxJP2zM3rbGPME1lr7KkcaSwzW6nFroB6j5M/EQoqty0Dst58VhVam76hYK1a2IreHvxQs4b8r9/XaR+tJI=
+	t=1781144372; cv=none; b=ALFogXIhuvypKw80PysXpX7aaTp9RnzhRSpYbjKtzphOE2rOUkRuNVac2lpwJrjqogs4/SjNzzrD4SiR5yFlPRC2tAlP7/M6WbYsc1BjDguP9UxEq7IOLfdxi+RniT14r6Vy0IkhavaFrpCMKRnyn/ZdsZ01FeYCfZmwMCStpwE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781144029; c=relaxed/simple;
-	bh=pCv2uNV2MVL3fxbs5ZXcM2FwQJP2y6IJtwscrfbR71s=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=H5aUTFP9IqI6uUywQos99uvAk/tUxk8+xYP8az+Df6DwdJDmUxJg1DzWDSebCcNAfkgguIF9RF/TEPQvI9jEDMV/a6o4pzpy7l8U2bd7FsbSZdFXKIKAHrN06GUDBpoQErQIys0XfnZs9xCqj+3PYheC1TtgnQTpDlZGlcaKeDo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=aXkXn6ru; arc=none smtp.client-ip=209.85.216.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1781144372; c=relaxed/simple;
+	bh=ohBD7T1JgaazoP0A4h0fIVfGYj8iyEv0bobf5aak09Y=;
+	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=Gt5Ev9MQFEh+PTAn0ZSBrbfN2J+nI53nU3VjlqJb2M/aMAlR36o1M8JnsboHO9FDMGJEszIcJIVkHHsizYw5wgXbSVG4mvcAUZDOOBru1dI89CXgBvhusdx6Nc3j8suOEZhe9NP+stpnNn8+yDB27rR8susIKbML1KNxSaj6j7Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=ixzaoqVl; arc=none smtp.client-ip=115.124.30.99
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="aXkXn6ru"
-Received: by mail-pj1-f44.google.com with SMTP id 98e67ed59e1d1-36d6bb38b44so4856555a91.0
-        for <virtualization@lists.linux.dev>; Wed, 10 Jun 2026 19:13:45 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781144025; x=1781748825; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=PFklSXz22wlzAbFptOPmN5E20uk8JdhKComw8Vj+xSs=;
-        b=aXkXn6ruTsVGiJ7xrbCR7+ffwnKKHcecFxlQ0KtbKm3mPPmtkXRrr8RH3rGZsJul7M
-         wkMKO+DcuE/sIcfwjRg45pRkbyJ5r3qwLP3GsJ+oIFfsDW4rx4Xh979R0RItw/A/ryE7
-         vTfAkX7PiSkbcXT83htPLNvcbZJVwrLP7xpjmHb1X5wPYr5Mzmx2TfpNgevzJPw8Q9KG
-         DZlFdCDIRpamk509uAitTZVp2XZyAgovI1LqtnMx/BMRDoQmgSjj4CfZRt43KrTiJfPr
-         cmQTYjJml3TiWZx4bRb+90Oo//5UTVjOmqb0VK+9mN7dBimhcgbV6o7XEXN4LB58mEM1
-         yFSQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781144025; x=1781748825;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=PFklSXz22wlzAbFptOPmN5E20uk8JdhKComw8Vj+xSs=;
-        b=Rc1EoPCt9vXdvgEGrlYBLxZF+7XicZwVjnpJQyUWh1yXrWUIT5oPD5G//ikZ/3Ir4I
-         cAO64FfTx5PqXLEk6thSwej35M1aZtQzCwPPhgA9D5/87U9/4qRci/2Kd1NCq7+d+Hbt
-         pKkvD2VicdQ4Nr0P2BCT+f+siyu7261tF46RQHON9VFbKpu09Kzs2WZ4TKco0dQLUZYW
-         XIup2wOjhSk+Qt339buQfKvVabLlsk7sy7y2SZFWkxL+rTyLMbI098Hs3Ld09QJLugr5
-         OAh6nBhzMh8Qxb5HdHRonRSyatqVPHz2sDZbfD5EvqkfpixlQsvMCRG1vPYhA8LYFfMB
-         +LcQ==
-X-Forwarded-Encrypted: i=1; AFNElJ83fxQPwtqc1jXaaf35x8SREJImC6LNrPyw+Uc2kLwhAUkFCo89U1AMZOQpAXDVfQnpTzfWfIk19VLmfREQSA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw63l7qU5zgZOVIRhtzxOVygyO2s2PWENhKcxU3IVV86aHQLxuI
-	DlnHOFLiAWI6aFitpnDQineTu19Y7eDpzrzKP1VtSI8neO6szEF/qFE=
-X-Gm-Gg: Acq92OEJpocaH44Vnjc/g2c8jiv7tCZjtv5rMFujU+WI1BFb0DCyemOk2a0I/OawdlN
-	4Sn3VCnf3cO3T6vR2CkdWLnn+HR3AL5AMF9WRFA6mqhZECCqTVSk8sNI+yXi69xj2K+OCeHYCE9
-	3kGHX4CwJCU02832Q+3Y0vsHf6S8GiXKZwEBv4wDPPsqsumfD+Ti9iylkHfq441qpknO3YEODh4
-	eeumqQexE/hbeE+1dI9OZo7iVtl6tGYxEPkx6HmLaJwBiGO4/DYK0XbzV3gkw1YwY36n2RQhyGN
-	nBwY9zWb0My0jaY7Q/SIG+/tlH7OxsvCHkzGp+HTzNCnUEqovForkGUa7p5N7bPLVdQz6pULoVR
-	SrUKV0n6rJTX9WXVmfa3a8IHjYwQdDtgZIG/4Etp/i628WRua0sVrfyE/uD3bZzseL8XRgKohBK
-	MIGrrTcSRCviEwYSbt7aKtDNieeuuE4cQS5UKKwNouh57WBYy5fLSfsnTt/fAZaPhaExi0nte4N
-	9xKHw==
-X-Received: by 2002:a17:90b:2e07:b0:36b:a0fa:ff96 with SMTP id 98e67ed59e1d1-377a75cc34amr931123a91.12.1781144025387;
-        Wed, 10 Jun 2026 19:13:45 -0700 (PDT)
-Received: from raf.tailb4a862.ts.net ([153.124.163.116])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-377522a0eb9sm732006a91.4.2026.06.10.19.13.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 10 Jun 2026 19:13:45 -0700 (PDT)
-From: Raf Dickson <rafdog35@gmail.com>
-To: netdev@vger.kernel.org,
-	virtualization@lists.linux.dev
-Cc: pabeni@redhat.com,
-	sgarzare@redhat.com,
-	stefanha@redhat.com,
-	bryan-bt.tan@broadcom.com,
-	vishnu.dasa@broadcom.com,
-	bcm-kernel-feedback-list@broadcom.com,
-	bobbyeshleman@gmail.com,
-	Raf Dickson <rafdog35@gmail.com>
-Subject: [PATCH net-next v2 2/2] vsock: fold sk_acceptq_removed() into vsock_remove_pending()
-Date: Thu, 11 Jun 2026 02:13:17 +0000
-Message-ID: <20260611021317.69362-3-rafdog35@gmail.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260611021317.69362-1-rafdog35@gmail.com>
-References: <20260611021317.69362-1-rafdog35@gmail.com>
+	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="ixzaoqVl"
+DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
+	d=linux.alibaba.com; s=default;
+	t=1781144365; h=Message-ID:Subject:Date:From:To;
+	bh=3+YL61YLNP1oJQZrFdy9vPrItM3azFHydrfA78eswbw=;
+	b=ixzaoqVlh5e2FRtE3OXHSaUP/vTN46+c1hEBkbboDzgsDLvXLB1XrueFmeHDudAAx7SCnMf52O4Ma3SJG9dETZNTKyR+57F8sNNVgYAW/ID2K3nSHTO1IDhrpNGIbDYn2LNstaij98fU/LTXevv1iMhNhRyTEEww5Ik++EfjVbM=
+X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037033178;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0X4c0N2Y_1781144364;
+Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0X4c0N2Y_1781144364 cluster:ay36)
+          by smtp.aliyun-inc.com;
+          Thu, 11 Jun 2026 10:19:25 +0800
+Message-ID: <1781144329.8069873-2-xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH net v2 2/2] virtio-net: harden page_to_skb() big-packet frag loop
+Date: Thu, 11 Jun 2026 10:18:49 +0800
+From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+To: Xiang Mei <xmei5@asu.edu>
+Cc: andrew+netdev@lunn.ch,
+ davem@davemloft.net,
+ edumazet@google.com,
+ kuba@kernel.org,
+ pabeni@redhat.com,
+ netdev@vger.kernel.org,
+ virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org,
+ minhquangbui99@gmail.com,
+ bestswngs@gmail.com,
+ Xiang Mei <xmei5@asu.edu>,
+ mst@redhat.com,
+ jasowang@redhat.com,
+ eperezma@redhat.com
+References: <20260610232936.1176094-1-xmei5@asu.edu>
+ <20260610232936.1176094-2-xmei5@asu.edu>
+In-Reply-To: <20260610232936.1176094-2-xmei5@asu.edu>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
 
-Callers of vsock_remove_pending() must also call sk_acceptq_removed()
-to keep sk_ack_backlog consistent. Move the call into
-vsock_remove_pending() itself to make it automatic and prevent future
-callers from forgetting it.
+On Wed, 10 Jun 2026 16:29:36 -0700, Xiang Mei <xmei5@asu.edu> wrote:
+> This is a robustness hardening patch. The slow-path frag loop in
+> page_to_skb() walks the page chain via page->private until the
+> device-reported len is consumed, implicitly trusting that len fits the
+> chain. It does not stop when the chain is exhausted (page becomes NULL
+> at the tail), nor when nr_frags reaches the end of the static
+> skb_shinfo()->frags[MAX_SKB_FRAGS] array.
+>
+> Both bounds are needed: the chain length is big_packets_num_skbfrags + 1
+> pages, which for an MTU-driven configuration can be well below
+> MAX_SKB_FRAGS, so neither guard implies the other.
+>
+> Make the loop self-defending so it no longer relies on the caller having
+> validated len: stop once the chain is exhausted, and never index past
+> MAX_SKB_FRAGS. No functional change for well-formed input.
 
-Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Raf Dickson <rafdog35@gmail.com>
----
- net/vmw_vsock/af_vsock.c       | 3 +--
- net/vmw_vsock/vmci_transport.c | 5 +----
- 2 files changed, 2 insertions(+), 6 deletions(-)
+At this point, we are assuming that len represents the correct packet length. If
+there is a bug in the validation, it can be fixed, just like in your previous
+patch. Indeed, not checking nr_frags is also based on the overall design.
+However, I do not recommend adding this kind of enhancement. If we follow
+this logic, we would end up adding similar code in many other places, which
+doesn't make much sense.
 
-diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-index 73e6416ee9..b9772a0205 100644
---- a/net/vmw_vsock/af_vsock.c
-+++ b/net/vmw_vsock/af_vsock.c
-@@ -493,6 +493,7 @@ void vsock_remove_pending(struct sock *listener, struct sock *pending)
- 	list_del_init(&vpending->pending_links);
- 	sock_put(listener);
- 	sock_put(pending);
-+	sk_acceptq_removed(listener);
- }
- EXPORT_SYMBOL_GPL(vsock_remove_pending);
- 
-@@ -761,8 +762,6 @@ static void vsock_pending_work(struct work_struct *work)
- 
- 	if (vsock_is_pending(sk)) {
- 		vsock_remove_pending(listener, sk);
--
--		sk_acceptq_removed(listener);
- 	} else if (!vsk->rejected) {
- 		/* We are not on the pending list and accept() did not reject
- 		 * us, so we must have been accepted by our user process.  We
-diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
-index 91516488a7..a417403c8d 100644
---- a/net/vmw_vsock/vmci_transport.c
-+++ b/net/vmw_vsock/vmci_transport.c
-@@ -980,11 +980,8 @@ static int vmci_transport_recv_listen(struct sock *sk,
- 			err = -EINVAL;
- 		}
- 
--		if (err < 0) {
-+		if (err < 0)
- 			vsock_remove_pending(sk, pending);
--			sk_acceptq_removed(sk);
--		}
--
- 		release_sock(pending);
- 		vmci_transport_release_pending(pending);
- 
--- 
-2.54.0
+Thanks.
 
+>
+> Signed-off-by: Xiang Mei <xmei5@asu.edu>
+> ---
+> v2: robustness patch
+>
+>  drivers/net/virtio_net.c | 5 ++++-
+>  1 file changed, 4 insertions(+), 1 deletion(-)
+>
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index afe73eda1491..518c22fa1b68 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -906,8 +906,11 @@ static struct sk_buff *page_to_skb(struct virtnet_info *vi,
+>  	}
+>
+>  	BUG_ON(offset >= PAGE_SIZE);
+> -	while (len) {
+> +	while (len && page) {
+>  		unsigned int frag_size = min((unsigned)PAGE_SIZE - offset, len);
+> +
+> +		if (unlikely(skb_shinfo(skb)->nr_frags >= MAX_SKB_FRAGS))
+> +			break;
+>  		skb_add_rx_frag(skb, skb_shinfo(skb)->nr_frags, page, offset,
+>  				frag_size, truesize);
+>  		len -= frag_size;
+> --
+> 2.43.0
+>
