@@ -1,179 +1,220 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E0FF3D0919
-	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 10:38:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0E9530C608
+	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 10:41:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781174296; cv=none; b=pTZZ6zm5zyMW7H7AEtRgJ5uqXAKc+gz6BVtdU+6TvRvlzkQRMXqb1SL4yRSCLA9esZDnOBivCSwD7hguJWA3vS88/8o/u8XGDUrhnQAt2jBLGQJexhgCxgwQsi/Gv3whWCwPanpAilK5JORQPBFdsvAnh3iktYdoeF52Zu4sJBg=
+	t=1781174476; cv=none; b=dNnjpsAlBvNR7LQWLVv+uvaIWKqknE1s4Fu3Ld2BcVLFPmk5AwD3SrvYxFs4Dsv9ks8SYHY7Oqcdr4iYtdgNxQQubFRAajJQuiGQ3GGIL9nmO7iha76SyWpP5E6DZnyCc8ZMLjIpp/p8K6eYwUY3bBKarfJGxMorT8B+M9f5nq8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781174296; c=relaxed/simple;
-	bh=XoTYR/TeqMK2ycCgG5+xbyxi/eud39OEFhZfHmqkKeQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=ktqz2XuTlgBQs8yzcdKWlGcj8LCxigs8PHeKgW+jziVyeIQltpYM2Ah66TO0M1ko5iAkIC9myAcAQXs+f2ejCEe6Eg/m8HuGut8wPS0xpUY2JdmguVsOUNwLf3PyqPZZj8c5OzkI9l0BYFG3wJtS5HVobAnW3CUvve4ZgJgGX7M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GIuNIX3N; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1781174476; c=relaxed/simple;
+	bh=osfDK15FSftz7gfjZnxbmvGTvlTyEoSyz4LV3QuKhwg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=omMASma13XtdbmeXowQYa0obTxVUsuv+MiY/N9NOY2ys94I1zcT1vciMIV7uzARuCxcSh71IowMfmZDzHYYuwBJNgWruD6411G2VAYDs39BJocov2te7o5uGLtroqXDJPLOGl2W6C60/lh6KUPAdVgORB8y0YbA3Ivxe5r61uno=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=rg8TaMdQ; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Fxr73VTf; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=rg8TaMdQ; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=Fxr73VTf; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GIuNIX3N"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1781174294;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="rg8TaMdQ";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Fxr73VTf";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="rg8TaMdQ";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="Fxr73VTf"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 084A26AF30;
+	Thu, 11 Jun 2026 10:41:12 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1781174472; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=X/vtY/v3M5U6llxqJZ4Yn6/DNDaMuf4s018w2I93KIY=;
-	b=GIuNIX3N+NNIneXNOYpuOFCVscLKSnHCy7an4xjWFqvVGlMXB7II5Proy27LLhNgKIIRHb
-	n+w627ab3lpvumI/Rce2PQR1PYnbht9gNCHAmx0GOHwRwLRvGaWn80DRXAFBq+MMYk70Iv
-	6MCTWPw1tN+1Ks3oLriEFhTf91t073s=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-688-EYpUfi8QMESIevmRRN14ng-1; Thu, 11 Jun 2026 06:38:12 -0400
-X-MC-Unique: EYpUfi8QMESIevmRRN14ng-1
-X-Mimecast-MFC-AGG-ID: EYpUfi8QMESIevmRRN14ng_1781174291
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-45eecec7667so5446153f8f.3
-        for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 03:38:11 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781174291; x=1781779091;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=X/vtY/v3M5U6llxqJZ4Yn6/DNDaMuf4s018w2I93KIY=;
-        b=rLU5tF8sHuGeRfclp56XoJZ66/nk4HV4ie8Y4oAo6Umn3yvrayhkphiIWAnrIbdOe2
-         r2P6AlVil5VPkzB8myhfB2A2ZnPwfcotzZMZ1i4/0ArmN88nT5UMXsmvry2+XwgyWrna
-         Oje9HWm+I+w5aJPt7fowFPHbcI31p1iMoWhb8tXwru2idEzEWB3cnNPeWH+7eT+Zv9Ra
-         nbADEHRYxGMpx/IlUjwWYGul/pL/MzaEdrk/iw44loZisLBZA797TP+nTXj0mQg9GbBm
-         qxjpQw3fRaGFzwtnHkCprsgpYMsjyYCiPStxmEgZHZpWSe8Qg2J9v35d8VqlTNy4svwE
-         3nVw==
-X-Forwarded-Encrypted: i=1; AFNElJ+iERdtD4k2UVVaypF71ZCjLYUa+ZwYSadpXPJltVvZ7xxsF1JjWTtt9MoqjXuuhwt83PhaAWJq9c9kNdKV5A==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxo8hPDoPfPZLau+xfL/g61oiG/jiRQjmb6yjJtMY20X28+BKTI
-	zsSdZw/ugOV/F+gVyqKBp+5P6uxq79KWldj+oz7sH2NUntoi8CCAzFlMqXVfQJVrQYPTS1vMSP1
-	tFCsiOY4hJZv85TgH/XZtJwFIFKev2NEgBZZLrJExiIqCyFSbDij3rLe/3rEg6ApV3cyJ
-X-Gm-Gg: Acq92OH6WNaic0HMsMDBeJ6FiskusboQ3DKhoWTbR0UxCkvStRcrzh+kzHjXe2VzWOt
-	wp6PQEULPXYEv49VwjlgA9TPsFcDFm3cbvKtxwOew94PEG2/qNun1G6lLUBL46i9d9r91ItgYNw
-	DX2Inrs1XjjURwIaUjd5ObvakXxPe2tqS83FFXbwpG2D9lQDHbwhrTZbEm2YocQ6GsehoIoOJY+
-	Gj2wHIinF5m3Alrop8L/G1mCdxI4WJMxqYnNPSxr8yGqwcDr+5Rn840aaJW8a6nKnryBdjp52fO
-	vFl8CFuoE4xZMlG0YmXgR10VgGqf+eObGBTWeMzch7sH+PF2jisM8bs5NBeEK+4S3Wz4Pv7cfFz
-	NsjBNNHKLH7emcYPqq5k6NDr+dGqBGTWGX1vUS7w5SWI5q68Nx/3CmQ==
-X-Received: by 2002:a05:6000:41e3:b0:460:3234:293f with SMTP id ffacd0b85a97d-460677e92a0mr3648445f8f.42.1781174290519;
-        Thu, 11 Jun 2026 03:38:10 -0700 (PDT)
-X-Received: by 2002:a05:6000:41e3:b0:460:3234:293f with SMTP id ffacd0b85a97d-460677e92a0mr3648382f8f.42.1781174289911;
-        Thu, 11 Jun 2026 03:38:09 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-85-71.inter.net.il. [80.230.85.71])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4601f2f67c6sm76938127f8f.16.2026.06.11.03.38.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Jun 2026 03:38:09 -0700 (PDT)
-Date: Thu, 11 Jun 2026 06:38:06 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Eugenio Perez Martin <eperezma@redhat.com>
-Cc: Dan Carpenter <error27@gmail.com>, oe-kbuild@lists.linux.dev,
-	lkp@intel.com, oe-kbuild-all@lists.linux.dev,
-	virtualization@lists.linux.dev, Jason Wang <jasowang@redhat.com>,
-	Cindy Lu <lulu@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	linux-kernel@vger.kernel.org, Laurent Vivier <lvivier@redhat.com>,
-	Yongji Xie <xieyongji@bytedance.com>,
-	Maxime Coquelin <mcoqueli@redhat.com>
-Subject: Re: [PATCH v3] vduse: Add suspend
-Message-ID: <20260611063730-mutt-send-email-mst@kernel.org>
-References: <20260610083452.477759-1-eperezma@redhat.com>
- <202606111115.tKKe1qCE-lkp@intel.com>
- <20260611050140-mutt-send-email-mst@kernel.org>
- <aip9tNOx6WHIq22p@stanley.mountain>
- <CAJaqyWdQ7_1zYcfNVF_vQrrLHf_TRAbqS0X1kMQm7QMZ4UY+kA@mail.gmail.com>
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=uHu7E2XqoT0FsRVls0T7yIylb70qW7C5ilx/tc4d4Ps=;
+	b=rg8TaMdQSYQlq/MkRl2DVzsltsld2rbp2dpBErdZldlOkl+HD5q9rBemlQHyqpOF99tYiQ
+	VhpQS5f/9WK6rC0AMrPV5N3hD+MOs5Gn7Igz52ACFCM2h2tIvw261+1kdDpw2DltkUdpfh
+	OvbCKw0RjYlOapSRsHThd5+5S0jejDs=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1781174472;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=uHu7E2XqoT0FsRVls0T7yIylb70qW7C5ilx/tc4d4Ps=;
+	b=Fxr73VTfc2VJNcWPSP6s2r69Fn6rR0HNs0v/SDC7NORvVHAXlfhZ8aAxfKUgNJuwbLslg5
+	hRLGCCLbrRP37yCQ==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=rg8TaMdQ;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=Fxr73VTf
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1781174472; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=uHu7E2XqoT0FsRVls0T7yIylb70qW7C5ilx/tc4d4Ps=;
+	b=rg8TaMdQSYQlq/MkRl2DVzsltsld2rbp2dpBErdZldlOkl+HD5q9rBemlQHyqpOF99tYiQ
+	VhpQS5f/9WK6rC0AMrPV5N3hD+MOs5Gn7Igz52ACFCM2h2tIvw261+1kdDpw2DltkUdpfh
+	OvbCKw0RjYlOapSRsHThd5+5S0jejDs=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1781174472;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=uHu7E2XqoT0FsRVls0T7yIylb70qW7C5ilx/tc4d4Ps=;
+	b=Fxr73VTfc2VJNcWPSP6s2r69Fn6rR0HNs0v/SDC7NORvVHAXlfhZ8aAxfKUgNJuwbLslg5
+	hRLGCCLbrRP37yCQ==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 3568C779A7;
+	Thu, 11 Jun 2026 10:41:11 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id aR4nC8eQKmpkawAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Thu, 11 Jun 2026 10:41:11 +0000
+Message-ID: <45aec54a-ec80-48ed-9bcc-84e7bccc11eb@suse.de>
+Date: Thu, 11 Jun 2026 12:41:10 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CAJaqyWdQ7_1zYcfNVF_vQrrLHf_TRAbqS0X1kMQm7QMZ4UY+kA@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: hSUYvz0QXeJ2rB7h1DFziesQ7LCEIcTcSK2PH0Mq590_1781174291
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v5 01/15] drm/amd/display: Handle struct
+ drm_plane_state.ignore_damage_clips
+To: Javier Martinez Canillas <javierm@redhat.com>, mripard@kernel.org,
+ maarten.lankhorst@linux.intel.com, airlied@redhat.com, airlied@gmail.com,
+ simona@ffwll.ch, admin@kodeit.net, gargaditya08@proton.me,
+ paul@crapouillou.net, jani.nikula@linux.intel.com, mhklkml@zohomail.com,
+ zack.rusin@broadcom.com, bcm-kernel-feedback-list@broadcom.com,
+ harry.wentland@amd.com, sunpeng.li@amd.com, siqueira@igalia.com,
+ alexander.deucher@amd.com, rodrigo.vivi@intel.com,
+ joonas.lahtinen@linux.intel.com, tursulin@ursulin.net,
+ dmitry.osipenko@collabora.com, gurchetansingh@chromium.org, olvaffe@gmail.com
+Cc: dri-devel@lists.freedesktop.org, linux-hyperv@vger.kernel.org,
+ intel-gfx@lists.freedesktop.org, intel-xe@lists.freedesktop.org,
+ linux-mips@vger.kernel.org, virtualization@lists.linux.dev,
+ amd-gfx@lists.freedesktop.org, Zack Rusin <zackr@vmware.com>,
+ stable@vger.kernel.org
+References: <20260610152505.260172-1-tzimmermann@suse.de>
+ <20260610152505.260172-2-tzimmermann@suse.de>
+ <87y0gl5qw8.fsf@ocarina.mail-host-address-is-not-set>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <87y0gl5qw8.fsf@ocarina.mail-host-address-is-not-set>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
+X-Spam-Flag: NO
+X-Rspamd-Action: no action
+X-Spam-Level: 
+X-Spamd-Result: default: False [-4.51 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FREEMAIL_TO(0.00)[redhat.com,kernel.org,linux.intel.com,gmail.com,ffwll.ch,kodeit.net,proton.me,crapouillou.net,zohomail.com,broadcom.com,amd.com,igalia.com,intel.com,ursulin.net,collabora.com,chromium.org];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	ARC_NA(0.00)[];
+	RBL_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:104:10:150:64:97:from];
+	RCPT_COUNT_TWELVE(0.00)[32];
+	MIME_TRACE(0.00)[0:+];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	RCVD_TLS_ALL(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	RECEIVED_SPAMHAUS_BLOCKED_OPENRESOLVER(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	R_RATELIMIT(0.00)[to_ip_from(RLgosu6qu4h11rje89ht7rjgg5)];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:url,imap1.dmz-prg2.suse.org:helo,imap1.dmz-prg2.suse.org:rdns,suse.de:email,suse.de:dkim,suse.de:mid]
+X-Rspamd-Server: rspamd2.dmz-prg2.suse.org
+X-Rspamd-Queue-Id: 084A26AF30
+X-Spam-Score: -4.51
 
-On Thu, Jun 11, 2026 at 11:30:23AM +0200, Eugenio Perez Martin wrote:
-> On Thu, Jun 11, 2026 at 11:20 AM Dan Carpenter <error27@gmail.com> wrote:
-> >
-> > On Thu, Jun 11, 2026 at 05:03:24AM -0400, Michael S. Tsirkin wrote:
-> > > On Thu, Jun 11, 2026 at 10:18:51AM +0300, Dan Carpenter wrote:
-> > > > Hi Eugenio,
-> > > >
-> > > > kernel test robot noticed the following build warnings:
-> > > >
-> > > > https://git-scm.com/docs/git-format-patch#_base_tree_information]
-> > > >
-> > > > url:    https://github.com/intel-lab-lkp/linux/commits/Eugenio-P-rez/vduse-Add-suspend/20260610-164534
-> > > > base:   next-20260609
-> > > > patch link:    https://lore.kernel.org/r/20260610083452.477759-1-eperezma%40redhat.com
-> > > > patch subject: [PATCH v3] vduse: Add suspend
-> > > > config: arm64-randconfig-r072-20260610 (https://download.01.org/0day-ci/archive/20260611/202606111115.tKKe1qCE-lkp@intel.com/config)
-> > > > compiler: aarch64-linux-gcc (GCC) 8.5.0
-> > > > smatch: v0.5.0-9185-gbcc58b9c
-> > > >
-> > > > If you fix the issue in a separate patch/commit (i.e. not just a new version of
-> > > > the same patch/commit), kindly add following tags
-> > > > | Reported-by: kernel test robot <lkp@intel.com>
-> > > > | Reported-by: Dan Carpenter <error27@gmail.com>
-> > > > | Closes: https://lore.kernel.org/r/202606111115.tKKe1qCE-lkp@intel.com/
-> > > >
-> > > > smatch warnings:
-> > > > drivers/vdpa/vdpa_user/vduse_dev.c:577 vduse_vq_kick() warn: inconsistent returns '&vq->kick_lock'.
-> > > > drivers/vdpa/vdpa_user/vduse_dev.c:1302 vduse_dev_queue_irq_work() warn: inconsistent returns '&dev->rwsem'.
-> > > >
-> > > > vim +577 drivers/vdpa/vdpa_user/vduse_dev.c
-> > > >
-> > > > c8a6153b6c59d9 Xie Yongji        2021-08-31  562  static void vduse_vq_kick(struct vduse_virtqueue *vq)
-> > > > c8a6153b6c59d9 Xie Yongji        2021-08-31  563  {
-> > > > c8a6153b6c59d9 Xie Yongji        2021-08-31  564    spin_lock(&vq->kick_lock);
-> > > >                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^^
-> > > > c8a6153b6c59d9 Xie Yongji        2021-08-31  565    if (!vq->ready)
-> > > > c8a6153b6c59d9 Xie Yongji        2021-08-31  566            goto unlock;
-> > > > c8a6153b6c59d9 Xie Yongji        2021-08-31  567
-> > > > 9c4307e82fa1dc Eugenio Pérez     2026-06-10  568    guard(rwsem_read)(&vq->dev->rwsem);
-> > > > 9c4307e82fa1dc Eugenio Pérez     2026-06-10  569    if (vq->dev->suspended)
-> > > > 9c4307e82fa1dc Eugenio Pérez     2026-06-10  570            return;
-> > > >
-> > > > unlock before returning?
-> > > >
-> > > > 9c4307e82fa1dc Eugenio Pérez     2026-06-10  571
-> > > > c8a6153b6c59d9 Xie Yongji        2021-08-31  572    if (vq->kickfd)
-> > > > 3652117f854819 Christian Brauner 2023-11-22  573            eventfd_signal(vq->kickfd);
-> > > > c8a6153b6c59d9 Xie Yongji        2021-08-31  574    else
-> > > > c8a6153b6c59d9 Xie Yongji        2021-08-31  575            vq->kicked = true;
-> > > > c8a6153b6c59d9 Xie Yongji        2021-08-31  576  unlock:
-> > > > c8a6153b6c59d9 Xie Yongji        2021-08-31 @577    spin_unlock(&vq->kick_lock);
-> > > > c8a6153b6c59d9 Xie Yongji        2021-08-31  578  }
-> > >
-> > >
-> > > I think this is fixed by:
-> > >
-> > > commit e4a249d15eb2d4b28213bebb1eefaf2e6d99de0b (HEAD -> vhost, linux-next-vhost/linux-next, kernel.org/vhost, kernel.org/test)
-> > > Author: Nathan Chancellor <nathan@kernel.org>
-> > > Date:   Wed Jun 10 12:16:49 2026 -0700
-> > >
-> > >     vduse: Fix error around jumping over a __cleanup() variable
-> > >
-> > > right?
-> >
-> > These things haven't hit linux-next yet.  I found the email.
-> > https://lore.kernel.org/all/20260610-vduse_vq_kick-fix-guard-usage-v1-1-0ce02c08006e@kernel.org/
-> >
-> > That only fixes the bug in vduse_vq_kick(), not the bug in
-> > vduse_dev_queue_irq_work().  I don't see a fix for that
-> > yet on lore but I may have missed it.
-> >
-> 
-> No, I can test & send a fast patch for that.
-> 
-> Thanks!
+Hi Javier
 
-Alright.
+Am 11.06.26 um 12:10 schrieb Javier Martinez Canillas:
+> Thomas Zimmermann <tzimmermann@suse.de> writes:
+>
+> Hello Thomas,
+>
+>> The mode-setting pipeline can disabled damage clippings for a commit
+>> by setting ignore_damage_clips in struct drm_plane_state. The commit
+>> will then do a full display update.
+>>
+>> Test the flag in DCN code and do a full update in DCN code if it has
+>> been set.
+>>
+>> Commit 35ed38d58257 ("drm: Allow drivers to indicate the damage helpers
+>> to ignore damage clips") introduced ignore_damage_clips to selectively
+>> ignore damage clipping in certain framebuffer changes. This driver does
+>> not do that, but DRM's damage iterator will soon rely on the flag.
+>> Therefore supporting it here as well make sense for consistency.
+>>
+>> Signed-off-by: Thomas Zimmermann <tzimmermann@suse.de>
+>> Fixes: 35ed38d58257 ("drm: Allow drivers to indicate the damage helpers to ignore damage clips")
+> I don't think that a Fixes tag is correct here? Your patch series
+> is changing the 'struct drm_plane_state.ignore_damage_clips' and
+> the changes make sense, but definitely isn't a fix in my opinion.
+
+But shouldn't we have added this test in amdgpu and the other drivers as 
+part of commit 35ed38d58257 ? Sure, these drivers don't use 
+ignore_damage_clips, but it's still an inconsistency wrt damage 
+handlers. Hence the Fixes tag. Another problem is that the drivers never 
+did the test for changes to the plane-state src coordinate that the 
+damage iterator does. But that is only fixed later in the series.
+>
+> Having said that, the change look good to me.
+>
+> Reviewed-by: Javier Martinez Canillas <javierm@redhat.com>
+
+Thanks for reviewing.
+
+Best regards
+Thomas
+
+>
 
 -- 
-MST
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
+GF: Jochen Jaser, Andrew McDonald, Werner Knoblich, (HRB 36809, AG Nürnberg)
+
 
