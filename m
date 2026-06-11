@@ -1,110 +1,89 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from casper.infradead.org (casper.infradead.org [90.155.50.34])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 248933CAE7F
-	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 13:38:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 166473FBEBC;
+	Thu, 11 Jun 2026 13:45:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=90.155.50.34
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781185114; cv=none; b=Hf/MVKBEHQVrNvhI7meZQJCNGBo7fg6y1VMJVPi7zk7xer4TamShXsyOZ/dmEjL/sKIkVe282EDzYkvBhlJ0i0w+pjlGZe+OhlHMvfY+qduNezlOd2/a9oRmISJA58XYgw2LYywdm5HqFO/86XoN6YDmRJRrWncCnGAxmbl8Cnc=
+	t=1781185509; cv=none; b=UxdEoKvV+APV+VffqgSggF2jwAJXfAuHDb8nVfT/zfyYGswq5Mu/80DVcvjaPrB+458w2KC6PJMfwingSX0eebME9RyLJIZ1ro7qAnlCV3GUKtWKTQLz3c4rUsbau2ENXiOC08IvkkB4B13gmY8jVmrlw3veeuwG4Y4gla9GPy4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781185114; c=relaxed/simple;
-	bh=IIrciUjq44XrzZ1l+LVK9uV7Wk+WApddNBRp2z4ILDc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=PjRreEAhRJRdNwz4snFfJ6khGddAHCLlZgcFpPqculvC3LZ293LNgnA6Ok/y4zLeY/mwWsm/JBa6GoIGhOwiUgRAflJ6ZxnCbkYNzODb0WDnEuKo4GE2xJqtgnmJsvRujxG5dZbrsbmkfBiZtEEP32plkblDFHMdOlOp0SkX2qk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NoC2wTv9; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1781185509; c=relaxed/simple;
+	bh=kUIwqYLzboTXSW9mocUnEjpqnAKtc9Q3KI2UV2OLx0Y=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=l5DWruKl6rGFWLqoSTUu5V984+xtht/7FiC2XTs5LiBCq14bENWnu7/VWepVS+myI6vBr1/6l+0AbNt0+k9QghSMK474oc2O+UXjpIqIz10rJpjfgRg8nqtrQORcNBm9mx7Q5SEzt994vKhaKyzihaswMEHV+DYZdS8b5ODXI8I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org; spf=pass smtp.mailfrom=infradead.org; dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b=ibs/lTWy; arc=none smtp.client-ip=90.155.50.34
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=infradead.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=infradead.org
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NoC2wTv9"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1781185112;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=lvKF1/2+bxeOfnpe0L0pXZv45cHngIniCrmb44J0XOM=;
-	b=NoC2wTv9UWs/7ZpVnrD1w2bNd8eeCLW+x8MLAsXsfNciY47bAUv8oTaGLTUStR9CjocC4V
-	WhjSQK/KSMutKgWTvTDkrHQIp4WKFRCrvlvO+ewH29JrQiIM/14M4fwpQYpTqaU9F9ZmZH
-	4m40RNpQLHIa+DUgYQmXR7xGt0HqfPA=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-642-dA-4qojrP8uj7GCBy_ICbQ-1; Thu,
- 11 Jun 2026 09:38:24 -0400
-X-MC-Unique: dA-4qojrP8uj7GCBy_ICbQ-1
-X-Mimecast-MFC-AGG-ID: dA-4qojrP8uj7GCBy_ICbQ_1781185102
-Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 16725197751F;
-	Thu, 11 Jun 2026 13:38:22 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.44.50.90])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 6D2E3180065F;
-	Thu, 11 Jun 2026 13:38:18 +0000 (UTC)
-From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
-To: "Michael S . Tsirkin" <mst@redhat.com>
-Cc: Maxime Coquelin <mcoqueli@redhat.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Laurent Vivier <lvivier@redhat.com>,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Cindy Lu <lulu@redhat.com>,
-	Yongji Xie <xieyongji@bytedance.com>
-Subject: [PATCH 2/2] vduse: not take the device semaphore while holding vq spinlock
-Date: Thu, 11 Jun 2026 15:38:06 +0200
-Message-ID: <20260611133806.198402-3-eperezma@redhat.com>
-In-Reply-To: <20260611133806.198402-1-eperezma@redhat.com>
-References: <20260611133806.198402-1-eperezma@redhat.com>
+	dkim=pass (2048-bit key) header.d=infradead.org header.i=@infradead.org header.b="ibs/lTWy"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=infradead.org; s=casper.20170209; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:Sender:Reply-To:
+	Content-Transfer-Encoding:Content-ID:Content-Description;
+	bh=m0fD9KCk/6I6qo6Wg6wfui77ADSGp/LJkYfEAup3lwY=; b=ibs/lTWyAjLVWXS3n4wPjA79OS
+	ITb//Iv1CxtQUrx/67IL+hYSamUfqJOQPft+Dglj3UFpe6AehWYKHnyrdmyQlnLCCHnR37eSF04YY
+	BV8xlmAh95887QUefrFHmh4w0rqaGST435zBbQpMYZ8US3gRQg+HjRI0XuAaxBi7gclydQf69ZDM5
+	k61d3A3iRRXuQJHaZacf+KNxVaTzU7pWHtqGjdFKnziZBtLLfi6vKmz1i2qN9G7/mZEKcluKIADZP
+	arbxTyUtAa9KswEQnkGYCnK7u+EJaXbbI3n2nupMq3G+mbNR2VmbwbcZlBXNHkE7grhJz1GNpvuDh
+	FnJVAQdw==;
+Received: from 77-249-17-252.cable.dynamic.v4.ziggo.nl ([77.249.17.252] helo=noisy.programming.kicks-ass.net)
+	by casper.infradead.org with esmtpsa (Exim 4.99.1 #2 (Red Hat Linux))
+	id 1wXfi7-00000001ydR-0GUg;
+	Thu, 11 Jun 2026 13:44:43 +0000
+Received: by noisy.programming.kicks-ass.net (Postfix, from userid 1000)
+	id 0B6CD3002F0; Thu, 11 Jun 2026 15:44:42 +0200 (CEST)
+Date: Thu, 11 Jun 2026 15:44:42 +0200
+From: Peter Zijlstra <peterz@infradead.org>
+To: Dmitry Ilvokhin <d@ilvokhin.com>
+Cc: Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
+	Boqun Feng <boqun@kernel.org>, Waiman Long <longman@redhat.com>,
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+	Juergen Gross <jgross@suse.com>,
+	Ajay Kaher <ajay.kaher@broadcom.com>,
+	Alexey Makhalov <alexey.makhalov@broadcom.com>,
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
+	Thomas Gleixner <tglx@kernel.org>, Borislav Petkov <bp@alien8.de>,
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
+	"H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
+	Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
+	Christoph Lameter <cl@gentwo.org>,
+	Steven Rostedt <rostedt@goodmis.org>,
+	Masami Hiramatsu <mhiramat@kernel.org>,
+	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
+	linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-arch@vger.kernel.org,
+	linux-mm@kvack.org, linux-trace-kernel@vger.kernel.org,
+	kernel-team@meta.com, "Paul E. McKenney" <paulmck@kernel.org>
+Subject: Re: [PATCH v6 5/7] locking: Add contended_release tracepoint to
+ qspinlock
+Message-ID: <20260611134442.GJ48970@noisy.programming.kicks-ass.net>
+References: <cover.1777999826.git.d@ilvokhin.com>
+ <5d7ea75ffe74a785e6b234ada9f23c6373d4b4c1.1777999826.git.d@ilvokhin.com>
+ <20260513193342.GB2545104@noisy.programming.kicks-ass.net>
+ <agXBb0ga_6HJrrnm@shell.ilvokhin.com>
+ <20260603120811.GW3493090@noisy.programming.kicks-ass.net>
+ <aiphFXe_TPNPxZ_n@shell.ilvokhin.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
-X-Mimecast-MFC-PROC-ID: UkFMz6zIvdv42fadpps6Y2Oax654bfKxMWiypgKO91M_1781185102
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <aiphFXe_TPNPxZ_n@shell.ilvokhin.com>
 
-It's an invalid lock pattern, so take them reversely.
+On Thu, Jun 11, 2026 at 07:17:41AM +0000, Dmitry Ilvokhin wrote:
+> On Wed, Jun 03, 2026 at 02:08:11PM +0200, Peter Zijlstra wrote:
+> > Also, I think someone should go do some performance runs with
+> > ARCH_INLINE_SPIN_* set for x86 just like for s390.
+> 
+> As promised, I set ARCH_INLINE_SPIN_UNLOCK{,_BH,_IRQ,_IRQRESTORE} for
+> x86 and measured the effect on a few real workloads.
+> 
+> Short version: inlining of _raw_spin_unlock() adds measurable kernel
+> i-cache pressure on every workload I tried, and on a
+> kernel-i-cache-bound one (nginx connection churn) it costs ~1.27%
+> throughput. I did not find a workload where it helps.
 
-This also makes the lock ordering coherent with vduse_dev_reset.
-
-Fixes: e4a249d15eb2 ("vduse: Fix error around jumping over a __cleanup() variable")
-Fixes: 6c141c034c1b ("vduse: Add suspend")
-Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
----
- drivers/vdpa/vdpa_user/vduse_dev.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index 86bd3116eda7..2c1cafea6536 100644
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -561,14 +561,14 @@ static int vduse_vdpa_set_vq_address(struct vdpa_device *vdpa, u16 idx,
-
- static void vduse_vq_kick(struct vduse_virtqueue *vq)
- {
--	guard(spinlock)(&vq->kick_lock);
--	if (!vq->ready)
--		return;
--
- 	guard(rwsem_read)(&vq->dev->rwsem);
- 	if (vq->dev->suspended)
- 		return;
-
-+	guard(spinlock)(&vq->kick_lock);
-+	if (!vq->ready)
-+		return;
-+
- 	if (vq->kickfd)
- 		eventfd_signal(vq->kickfd);
- 	else
---
-2.54.0
-
+Thanks for checking!
