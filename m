@@ -1,71 +1,38 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from abb.hmeau.com (abb.hmeau.com [180.181.231.80])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1BC013A6F09
-	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 09:10:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3200333260C;
+	Thu, 11 Jun 2026 09:19:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=180.181.231.80
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781169043; cv=none; b=IVCwNVgrj5wc3y7n32YamiL+ZRCSyebKck+4f1yBH/HK7CUnBCF9QrbBOxg7f7mzivfwJA7tWIbhO9LCL0XcKiSButylGbfYyM8o0s7vsqP40AA/x1u66WC1C+mvqG/BW6EeICLmRki1rI2O6FfUWIjgul49tY2t4JX/kgbINf4=
+	t=1781169577; cv=none; b=IEx896QzVpuiDgnYWmvL65Gji58hxTdxVpDgkGJL27+kt6aLG9RYKM4dFno/NgFaBMNP3dIHPIA/9jBfe5m0mEo6b1BZyYSjjd/3//Em1Ds/NSVWoM0S5ShUiC9q/BOfk2TOpFGLuhDQ1l0WJsXajBzXrXVOoRlvv59hbCp4uYU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781169043; c=relaxed/simple;
-	bh=ngimsOS9hzgh2ezE0TEY4e5wFmKWHB3Fv7cSOMsZbsw=;
+	s=arc-20240116; t=1781169577; c=relaxed/simple;
+	bh=7RP2ImnmPS6QGJg/BjRNpO83yOZ6xPrChkuvELN1BhI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=E5rWctqZfAc3wFimJXDYO1OyRrqjSwSgTV9Buw/J4XkBviatnnukCwyUlvtCKEM16QUqps9DoOqJH/UhEisNuUsnqj/3eX7BodIgkGwtoNbGiSjg8rH0QhD8PevrdDcE9LKvomoUa+hEqwV3OZsR1NVx8tLZ5VZ0O6qV4t7479M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=jD2ycoKR; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=DxoOIJx3sGrOu31h9WYp82mJObFLTNW/FjiGlIKvfA3xx29Y+UgIVsDf4cPDCHwny3E4avUDk0duTQXYQ05tFwmsgahT5pY/x1es6HoHKC7yQMrLeRGdwvRyjHdOhP+j+eexRV/zqodrwbd+fNMdldyeUy5PbzJbjLZG6H9s8ok=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au; spf=pass smtp.mailfrom=gondor.apana.org.au; dkim=pass (2048-bit key) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.b=gEj08VtJ; arc=none smtp.client-ip=180.181.231.80
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=gondor.apana.org.au
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gondor.apana.org.au
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="jD2ycoKR"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1781169041;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=PriinPzTGWMIUfhykveslGOYnSGaX13PaffHy++jEKM=;
-	b=jD2ycoKRz0UQyG5jFgRrGzGIIyYaNJc4AbXHiyNXz3rVFsGlqk8GtnRCQ9+T/W3/dAlBaq
-	mGFQVtdorh0bm+IgbXTwvY7C5zPbPZqeYwuW0b69k6rQ+0thQOAh2oYh3EhWXo7+LfsKHu
-	lcU40NXgqjHmqoqnLsvmIzNVHM7mPmI=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-55-a052kOc-Ovyg0d3RaXaDDw-1; Thu, 11 Jun 2026 05:10:37 -0400
-X-MC-Unique: a052kOc-Ovyg0d3RaXaDDw-1
-X-Mimecast-MFC-AGG-ID: a052kOc-Ovyg0d3RaXaDDw_1781169037
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-46010392f89so6929740f8f.2
-        for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 02:10:37 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781169037; x=1781773837;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=PriinPzTGWMIUfhykveslGOYnSGaX13PaffHy++jEKM=;
-        b=CQtdL3gOP+P6THBWCPXTkxSQtQ330kejFU1ciCzrG8hVOINeO2SyOuImHkKe6cjjy0
-         ZcPdnhnCRiQJNlf22qAzUPJYFdVnNz+hmmNIrZ0mpEMjXRpxden02ApLgn1TVkIWsz3C
-         WccspiooyjpisISh5pIYDdJpP2GscqGowN1oPOH8p67JHwl0mM94c2hePjaDcSUOG41s
-         oo4GmuXco3tVhERFH+LnCjrw7OO6l6iVh1pzIjkPmqmpYWJoKNEQPdBJZW9HIJBV4usp
-         2x9FtWwduXevI7JzzgcbrNQFHSvhaqfzwirBKM4vKuBaKMHsWFEjKSurwEdFWoqmacJf
-         QEGg==
-X-Forwarded-Encrypted: i=1; AFNElJ+Ryhyz5E49ES58zd2HnmRzcsI2+zgq0w4RIOLJHaVxvnBs6QMcOZAqn+ulmOpmT6DwG4KKhvyUsEf3wIlEdA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyjnPEqX4UZrQv01fs1PdyNJzaF2sdG53oiE0ghv+lqwN1VOmf0
-	umQTFMR2ZEeJiEgbdpMSVZYBTFmnkGdxNg4bhGADutVde1DVlKQouzZzpS6X/7zbzWyMxpy2m7I
-	Qk1CKYoqeuIlWI+nkAr7qlMe9fQ8MpmMzlbU6VO030prtEHOXMsYig4QBnDks6LXyju1l
-X-Gm-Gg: Acq92OGClEfH9IaZGz/HnvG9g7XqGnhVnqMt85NpqDDkN+Ullr/eQRwn3nrFn3Ddc1z
-	IFhif4oGFRPwg9lsGt2JZfgZYUP5codZnvPbj1vgbKWohvC6ULceA2QXzTV1y+yXxy+IHfFA2wD
-	tzLIsAiYHOuvRPHYNrxkV412M5v4MlNIdHKqTxAAP/tzfRgvM5lvcherQPE1qA5NIZN0UonzCJx
-	aZVC4mt3GxyypijgJ5HDJRWUe7ofKJclCuO6o9vujlLNPHJfU6GXxxFbZ4VzykfrY0BeHu5/4oj
-	t9gAO8mxfVIavjddeEQOmQ14QTsDNhGIzwhPhgwzXQtxTvX0YOp+xtFxZgJN5AQHJYKxt8A30Sa
-	dDdpfMwFaFnbNuczal6TZKKr9IpOqAF4FEN9dY/mlkWYzYpPfr0zAtw==
-X-Received: by 2002:a05:6000:18ac:b0:45e:b21e:f840 with SMTP id ffacd0b85a97d-46067469f27mr2851817f8f.8.1781169036394;
-        Thu, 11 Jun 2026 02:10:36 -0700 (PDT)
-X-Received: by 2002:a05:6000:18ac:b0:45e:b21e:f840 with SMTP id ffacd0b85a97d-46067469f27mr2851771f8f.8.1781169035966;
-        Thu, 11 Jun 2026 02:10:35 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-85-71.inter.net.il. [80.230.85.71])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4602cda3651sm68120262f8f.32.2026.06.11.02.10.34
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 11 Jun 2026 02:10:35 -0700 (PDT)
-Date: Thu, 11 Jun 2026 05:10:32 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Herbert Xu <herbert@gondor.apana.org.au>
+	dkim=pass (2048-bit key) header.d=gondor.apana.org.au header.i=@gondor.apana.org.au header.b="gEj08VtJ"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=gondor.apana.org.au; s=h01; h=In-Reply-To:Content-Type:MIME-Version:
+	References:Message-ID:Subject:Cc:To:From:Date:cc:to:subject:message-id:date:
+	from:content-type:reply-to; bh=ron/iZw0N+i10pIwlar1zaqIblnxytRF1UWI3uzY+1Q=; 
+	b=gEj08VtJAKqCUPkV6v4zXF1WJ50LN9i95ngDcHBJ6MxSeiFJ/mmZp1Iq5MPif/XiDKOMNDJvVul
+	6M9+H01mQ0Rf1Bqo2p9gV5kFdhhrM/C4J7j8IBECj1sO8UiQZWqAGKGDhbKchrnvgA8FzS8dq3lpB
+	JrWwKeQyjtMeaPRASEf5IdPJRcRs43LAwxbRb/0rQX6yDXdcCJc6df007aEqjHwofRCRlgVyH2gZa
+	ssvAb1olFjuXdxZaPzDvPNW07w30PNy5WlUSvb4eP4IBzYrkvA220IJqDjJ78fCjNc07kYyHmcm8y
+	pZX75ewNN7yhEABrKdB8NH+9KDhRdCXy1l/g==;
+Received: from loth.rohan.me.apana.org.au ([192.168.167.2])
+	by formenos.hmeau.com with smtp (Exim 4.98.2 #2 (Debian))
+	id 1wXbZO-00000004Y8q-1e1x;
+	Thu, 11 Jun 2026 17:19:27 +0800
+Received: by loth.rohan.me.apana.org.au (sSMTP sendmail emulation); Thu, 11 Jun 2026 17:19:26 +0800
+Date: Thu, 11 Jun 2026 17:19:26 +0800
+From: Herbert Xu <herbert@gondor.apana.org.au>
+To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: Michael Bommarito <michael.bommarito@gmail.com>,
 	Olivia Mackall <olivia@selenic.com>, linux-crypto@vger.kernel.org,
 	Jason Wang <jasowang@redhat.com>, Kees Cook <kees@kernel.org>,
@@ -76,79 +43,41 @@ Cc: Michael Bommarito <michael.bommarito@gmail.com>,
 	alan@linux.intel.com, tglx@linutronix.de
 Subject: Re: [PATCH v3] hwrng: virtio: clamp device-reported used.len at
  copy_data()
-Message-ID: <20260611050731-mutt-send-email-mst@kernel.org>
+Message-ID: <aip9nja-Oz2RxkWi@gondor.apana.org.au>
 References: <20260531142251.2792061-1-michael.bommarito@gmail.com>
  <aio83ZWadVTiuNpR@gondor.apana.org.au>
  <20260611025916-mutt-send-email-mst@kernel.org>
  <aipn8sIAQ6Ai2sax@gondor.apana.org.au>
  <20260611035035-mutt-send-email-mst@kernel.org>
  <aipvZhfvdtRxOQm0@gondor.apana.org.au>
+ <20260611050731-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <aipvZhfvdtRxOQm0@gondor.apana.org.au>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 6qpQ6Yxk3J8dzx7vtDgidZDbpUQe7BU5GLE2EuDWlBU_1781169037
-X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20260611050731-mutt-send-email-mst@kernel.org>
 
-On Thu, Jun 11, 2026 at 04:18:46PM +0800, Herbert Xu wrote:
-> On Thu, Jun 11, 2026 at 03:58:17AM -0400, Michael S. Tsirkin wrote:
-> > On Thu, Jun 11, 2026 at 03:46:58PM +0800, Herbert Xu wrote:
-> > > On Thu, Jun 11, 2026 at 03:30:14AM -0400, Michael S. Tsirkin wrote:
-> > > > On Thu, Jun 11, 2026 at 12:43:09PM +0800, Herbert Xu wrote:
-> > > > > On Sun, May 31, 2026 at 10:22:51AM -0400, Michael Bommarito wrote:
-> > > > > >
-> > > > > > +	size = min_t(unsigned int, size, avail - vi->data_idx);
-> > > > > > +	idx = array_index_nospec(vi->data_idx, sizeof(vi->data));
-> > > > > > +	memcpy(buf, vi->data + idx, size);
-> > > > 
-> > > > All the "malicious device" things are confusing. Spectre things -
-> > > > doubly so.
-> > > > 
-> > > > So if an access is speculated then CPU might speculate feeding a kernel
-> > > > secret into RNG. And then the speculated RNG value maybe can be also
-> > > > speculatively be used by some kernel code as an index
-> > > > to trigger a cache access, finally leaking the secret?
-> > > > 
-> > > > Maybe?
-> > > 
-> > > The way Spectre works is if you have an actual instruction using
-> > > idx directly.  I don't see how that translates to memcpy.
-> > 
-> > I am not sure it has to be direct:
-> > 
-> > if (malicious_idx > SIZE)
-> > 	return;
-> > src += malicious_idx;
+On Thu, Jun 11, 2026 at 05:10:32AM -0400, Michael S. Tsirkin wrote:
+>
+> data_avail is under hypervisor control
 > 
-> Wait but vi->data_idx isn't even under the hypervisor's control.
+>         avail = min_t(unsigned int, vi->data_avail, sizeof(vi->data));
+>         if (vi->data_idx >= avail) {
+>         	vi->data_idx = 0;
 > 
-> It's an index maintained by our own driver.  So how can it be
-> malicious?
+> and maybe this can speculate past the if?
 > 
-> Cheers,
-> -- 
-> Email: Herbert Xu <herbert@gondor.apana.org.au>
-> Home Page: http://gondor.apana.org.au/~herbert/
-> PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
+> I agree, this is all speculation )
 
+Either it is vulnerable to Spectre, or it isn't.  Adding nospec
+markers when you're not sure is cargo cult programming.
 
-data_avail is under hypervisor control
-
-        avail = min_t(unsigned int, vi->data_avail, sizeof(vi->data));
-        if (vi->data_idx >= avail) {
-        	vi->data_idx = 0;
-
-and maybe this can speculate past the if?
-
-I agree, this is all speculation )
-
-
+Cheers,
 -- 
-MST
-
+Email: Herbert Xu <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
