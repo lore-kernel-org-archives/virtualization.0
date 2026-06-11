@@ -1,237 +1,228 @@
-Received: from canpmsgout09.his.huawei.com (canpmsgout09.his.huawei.com [113.46.200.224])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 637A035F163
-	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 07:36:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.224
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A8A6367F2F
+	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 07:38:45 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781163423; cv=none; b=ntxul1Kqv5VZ2Rad/nt1Q7blOa4CuZrsE10e/nYWmqyfGbZPv3lOLg3xXPPfbDF1fyIEoGoODVInZOGeIXz7Y34FUZW6UNvpqwGkrzeAb5S5HLKijpqwHmsNB0Zf6dk/zJ9HWTHVxyedSlWAwEsPbibikKGNHUbTjwZvwOnmB+0=
+	t=1781163528; cv=none; b=h5mE9CN8+PBS1n0mITTu7G85Yn8XAq+4Jz74j4gLfJ00Sj1x+MPy6gtfT/GrB/viv1/eR1ztnCnV1YlfA/oPKqC6Sa5FPPxEfg98jvzh+0acJNoYYoHybSvjh+ovKmJOb90vPV5HkO3WBIacQBz9QGBv+15tNSqa6G9QTNyZguE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781163423; c=relaxed/simple;
-	bh=CHgBCPk2LuRxNdDKS9Ka0RysDm4EACZP4yFLSHXLm4M=;
-	h=Subject:To:CC:References:From:Message-ID:Date:MIME-Version:
-	 In-Reply-To:Content-Type; b=nhGdQF3MJY+3U3h0HOIsxfMJ8EfMNYrYlNmSrcDCDLBuwf/miFTfOVTKL30nY6deP3Uz0p1zqefex2SinLfYFpsB4BXoEpP79FxiWpmm4wQqGAHlvkFXZZ9YpQ+iwukfXP+svs/w/6FUy+GKyjJoVPjS9IoSOR3+5llSvIW1AQ0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=FbyhTcOl; arc=none smtp.client-ip=113.46.200.224
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+	s=arc-20240116; t=1781163528; c=relaxed/simple;
+	bh=dMsWjHb6aAJItRl535L6hOIGhAdKxck1LCp2PQr9fQM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=dtpE/GMw87bhVEM5Zb1j1I4rNkaaEj/dSsfwwwKFAsVozPb3JoiNC9g3lV1Ip3Bwz5iyZAyY9d9veqFTXe0CTNexPdgGKvEBIHLB+WDWrfCGvsZxrFZ50tjrEE7xIpq7yA6qo9V6GdTN5L47gVTSLYgNkipPGhAvtsp1ig9A7V0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=aN4/iR/s; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="FbyhTcOl"
-dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
-	c=relaxed/relaxed; q=dns/txt;
-	h=From;
-	bh=z3AwSpmAyexIe5/Db7iwJL52b3STFgxTdFMQJ+7fKUQ=;
-	b=FbyhTcOl1WDL/+TI82yK6yD+vD9shhF+l9g/OwiYfZAZlJaoyLaVPY4ZlNXrnBaybsUl6mf97
-	TOSjo+S/Cftg+CAoxQs7D1wIpyfKG6YduCYNn2jKZ5NYFOSl0a/ygf8bpBqkDZMEd6ahKks7HUU
-	1KbD+tZvFkjjHLgiQ/qpHpo=
-Received: from mail.maildlp.com (unknown [172.19.163.200])
-	by canpmsgout09.his.huawei.com (SkyGuard) with ESMTPS id 4gbZ5N41ljz1cyR0;
-	Thu, 11 Jun 2026 15:28:56 +0800 (CST)
-Received: from dggemv712-chm.china.huawei.com (unknown [10.1.198.32])
-	by mail.maildlp.com (Postfix) with ESMTPS id 257D340563;
-	Thu, 11 Jun 2026 15:36:50 +0800 (CST)
-Received: from kwepemq500010.china.huawei.com (7.202.194.235) by
- dggemv712-chm.china.huawei.com (10.1.198.32) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Thu, 11 Jun 2026 15:36:49 +0800
-Received: from [10.173.124.160] (10.173.124.160) by
- kwepemq500010.china.huawei.com (7.202.194.235) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Thu, 11 Jun 2026 15:36:46 +0800
-Subject: Re: [PATCH splitout] mm: memory-failure: serialize
- TestSetPageHWPoison with zone->lock
-To: "Michael S. Tsirkin" <mst@redhat.com>
-CC: Zi Yan <ziy@nvidia.com>, "David Hildenbrand (Arm)" <david@kernel.org>,
-	Andrew Morton <akpm@linux-foundation.org>, <linux-kernel@vger.kernel.org>,
-	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?Q?Eugenio_P=c3=a9rez?= <eperezma@redhat.com>, Muchun Song
-	<muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, Lorenzo Stoakes
-	<ljs@kernel.org>, "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka
-	<vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan
-	<surenb@google.com>, Michal Hocko <mhocko@suse.com>, Brendan Jackman
-	<jackmanb@google.com>, Johannes Weiner <hannes@cmpxchg.org>, Baolin Wang
-	<baolin.wang@linux.alibaba.com>, Nico Pache <npache@redhat.com>, Ryan Roberts
-	<ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song
-	<baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>, Hugh Dickins
-	<hughd@google.com>, Matthew Brost <matthew.brost@intel.com>, Joshua Hahn
-	<joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>, Byungchul Park
-	<byungchul@sk.com>, Gregory Price <gourry@gourry.net>, Ying Huang
-	<ying.huang@linux.alibaba.com>, Alistair Popple <apopple@nvidia.com>,
-	Christoph Lameter <cl@gentwo.org>, David Rientjes <rientjes@google.com>,
-	Roman Gushchin <roman.gushchin@linux.dev>, Harry Yoo <harry.yoo@oracle.com>,
-	Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>,
-	Wei Xu <weixugc@google.com>, Chris Li <chrisl@kernel.org>, Kairui Song
-	<kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>, Nhat Pham
-	<nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
-	<virtualization@lists.linux.dev>, <linux-mm@kvack.org>, Andrea Arcangeli
-	<aarcange@redhat.com>, Naoya Horiguchi <nao.horiguchi@gmail.com>
-References: <20260609111020.e88f51a7b6ebc37360d66fdc@linux-foundation.org>
- <8c1f468e-b50a-487a-a267-8d1ea5a61c87@kernel.org>
- <FB250C43-790E-4AB0-BD40-74665FC601A0@nvidia.com>
- <38C84F23-E881-4DB2-86BA-93F39D44AE1B@nvidia.com>
- <20260609162437-mutt-send-email-mst@kernel.org>
- <4BA276D9-9EB9-4E2A-8A05-657ACACFF227@nvidia.com>
- <20260609165829-mutt-send-email-mst@kernel.org>
- <dd8d89be-9c73-8ff7-7d44-9705bddeda4d@huawei.com>
- <20260610171646-mutt-send-email-mst@kernel.org>
- <14537566-94d9-eac5-2636-35f925a9d159@huawei.com>
- <20260611013644-mutt-send-email-mst@kernel.org>
-From: Miaohe Lin <linmiaohe@huawei.com>
-Message-ID: <1b5676ab-0dc5-ef33-9d79-a2bd6090a62d@huawei.com>
-Date: Thu, 11 Jun 2026 15:36:46 +0800
-User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
- Thunderbird/78.6.0
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="aN4/iR/s"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1781163525;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=x3kwt3xhLgRIYCqA/0pE+1oYC80jUr6ZU3WTeNTnVpM=;
+	b=aN4/iR/szqEcXrDEdMPKp3v3k6fmSn58XhTRuuQBBNgM/kTDakPvWF4I7JRjboB7MyuU+n
+	nYQZJk/Coa0R4oUhPzBRjaBqo5iDtXRVKY6TlLcGQtAAQLdusyL61IvOU/vMhTR8jAyAHO
+	GJaF1jC1/C5mfrUzqfll7XduToq6Tk4=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-433-5hORPKbdO26CRornHHMp9Q-1; Thu, 11 Jun 2026 03:38:43 -0400
+X-MC-Unique: 5hORPKbdO26CRornHHMp9Q-1
+X-Mimecast-MFC-AGG-ID: 5hORPKbdO26CRornHHMp9Q_1781163522
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-490b3ec3f7fso48541015e9.1
+        for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 00:38:43 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781163522; x=1781768322;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=x3kwt3xhLgRIYCqA/0pE+1oYC80jUr6ZU3WTeNTnVpM=;
+        b=BaFPzIzK9gMWODkmDfcVqRAde/VceCzpPmOVx7d81ptMrSplc++X3MxMHtBFPumdex
+         mVFXsxoWU0xfDz4E0En8KPqHDaBnlAOj/l9A63vqypxtLF8Se/xySYq1KPTDJGjTrpC1
+         7uNlqTYTMxBXyWRsH0adXtHGoIAOoC9i2yGJjTT6qsaoKwI29k73lel48WhEVuiNgvVz
+         85rWAW31ZJkw97V7hHkVQJhoGcUV0YA3FOWz1JEKpftCFwGxXSwC/QQT0uEB8lypeLCv
+         mz79CjHSCwC6CyZkwo5IlYJ557c4OcC3sk9UQTHOJnfcPuBden/on8ggqllk5vx4rPye
+         Arug==
+X-Forwarded-Encrypted: i=1; AFNElJ9JAjO2/BtPSLpXhOBy1Z6wZ3JMS9tSglkicE7130Q/CJmqIT2gzsyJ/XD5WtXhMdATex0BRvPFQhx4EFuuvA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxUXcUX8Hpzz8jN+Ney3cz1cRl7ADvlHsM7Q4W+rI/Uncx87XS+
+	W4yatEeYatjCBTFhMzkiYtaPtpRcphu8L5Eml7YvUly0O5nBv7CTPSoTNTndOJ1PMtsOcaHMZwx
+	bNrlXhmLHn0NrJYo9AwWnNhqQArF2UQ5ASxLWWDj62YgbM/4FgjYpSWzexZXu8oJs3JFD
+X-Gm-Gg: Acq92OHWk4ZBTilnA5t5l1ZYT8IG3QcsA1QfHDmxRVXQduVXUCKJ7WCSzgVtZU7hedU
+	nLGFMRxXXCVDkqYfu0YdFW70QR4QINM8BwCNioHkGlTTD2KItoUl6iaN8txORwHrYM5O8J9CZaH
+	y5LeqEclkVVHxF3s5PF5wX+EgFkAE1hXH6WedaK+kvZKgLmUp7EF7LLCyMi4+QcXFrvVxtoEbSD
+	AVK+Ax5AxjxSWRffwYs4VlmdDNQ2KqCK2dXos85QEqRifZ6Q9KyftgK6q/ha0hB903zMa2HnVSm
+	ifsQwTCRpz/wJGO/wTbmPGQjMytK/lxjnRAdqvs96ovMrCGcAzKoQbpy4huwhruLb85jsloJIow
+	pYVQ1NCErLfAYkvQQ3atAqHOGfciwD3MFUCdbg1eQqWzFplSJ5R8iTw==
+X-Received: by 2002:a05:600c:4453:b0:490:cb90:3e00 with SMTP id 5b1f17b1804b1-490e55fbd7fmr18677475e9.14.1781163522294;
+        Thu, 11 Jun 2026 00:38:42 -0700 (PDT)
+X-Received: by 2002:a05:600c:4453:b0:490:cb90:3e00 with SMTP id 5b1f17b1804b1-490e55fbd7fmr18677045e9.14.1781163521767;
+        Thu, 11 Jun 2026 00:38:41 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-85-71.inter.net.il. [80.230.85.71])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4601f35fb24sm84547530f8f.34.2026.06.11.00.38.40
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 11 Jun 2026 00:38:41 -0700 (PDT)
+Date: Thu, 11 Jun 2026 03:38:38 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Filip Hejsek <filip.hejsek@gmail.com>
+Cc: Amit Shah <amit@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	Rusty Russell <rusty@rustcorp.com.au>,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RESEND] virtio_console: read size from config space
+ during device init
+Message-ID: <20260611033747-mutt-send-email-mst@kernel.org>
+References: <20260223-virtio-console-fix-v1-1-0cf08303b428@gmail.com>
+ <20260610030318-mutt-send-email-mst@kernel.org>
+ <dce7a3af2e8fd674d842efe7e21abb4644248155.camel@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260611013644-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset="utf-8"
-Content-Language: en-US
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: kwepems200002.china.huawei.com (7.221.188.68) To
- kwepemq500010.china.huawei.com (7.202.194.235)
+In-Reply-To: <dce7a3af2e8fd674d842efe7e21abb4644248155.camel@gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: jWOBsVJYP-ZMhBuN00AAZc16ZoqMBcxt1dvz0J6fcCE_1781163522
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 2026/6/11 13:43, Michael S. Tsirkin wrote:
-> On Thu, Jun 11, 2026 at 11:35:36AM +0800, Miaohe Lin wrote:
->> On 2026/6/11 5:18, Michael S. Tsirkin wrote:
->>> On Wed, Jun 10, 2026 at 03:24:30PM +0800, Miaohe Lin wrote:
->>>> On 2026/6/10 5:00, Michael S. Tsirkin wrote:
->>>>> On Tue, Jun 09, 2026 at 04:54:01PM -0400, Zi Yan wrote:
->>>>>> On 9 Jun 2026, at 16:34, Michael S. Tsirkin wrote:
->>>>>>
->>>>>>> On Tue, Jun 09, 2026 at 02:52:47PM -0400, Zi Yan wrote:
->>>>>>>> On 9 Jun 2026, at 14:39, Zi Yan wrote:
->>>>>>>>
->>>>>>>>> On 9 Jun 2026, at 14:38, David Hildenbrand (Arm) wrote:
->>>>>>>>>
->>>>>>>>>> On 6/9/26 20:10, Andrew Morton wrote:
->>>>>>>>>>> On Tue, 9 Jun 2026 06:12:49 -0400 "Michael S. Tsirkin" <mst@redhat.com> wrote:
->>>>>>>>>>>
->>>>>>>>>>>> TestSetPageHWPoison() is called without zone->lock, so its atomic
->>>>>>>>>>>> update to page->flags can race with non-atomic flag operations
->>>>>>>>>>>> that run under zone->lock in the buddy allocator.
->>>>>>>>>>>>
->>>>>>>>>>>> In particular, __free_pages_prepare() does:
->>>>>>>>>>>>
->>>>>>>>>>>>     page->flags.f &= ~PAGE_FLAGS_CHECK_AT_PREP;
->>>>>>>>>>>>
->>>>>>>>>>>> This non-atomic read-modify-write, while correctly excluding
->>>>>>>>>>>> __PG_HWPOISON from the mask, can still lose a concurrent
->>>>>>>>>>>> TestSetPageHWPoison if the read happens before the poison bit
->>>>>>>>>>>> is set and the write happens after.  Will only get worse if/when
->>>>>>>>>>>> we add more non-atomic flag operations.
->>>>>>>>>>>>
->>>>>>>>>>>> Fix by acquiring zone->lock around TestSetPageHWPoison and
->>>>>>>>>>>> around ClearPageHWPoison in the retry path.  This
->>>>>>>>>>>> serializes with all buddy flag manipulation.  The cost is
->>>>>>>>>>>> negligible: one lock/unlock in an extremely rare path
->>>>>>>>>>>> (hardware memory errors).
->>>>>>>>>>>>
->>>>>>>>>>>> Note: SetPageHWPoison and TestClearPageHWPoison calls elsewhere
->>>>>>>>>>>> in this file operate on pages already removed from the buddy
->>>>>>>>>>>> allocator or on non-buddy pages (DAX, hugetlb), so they do not
->>>>>>>>>>>> need zone->lock protection.
->>>>>>>>>>>
->>>>>>>>>>> Sashiko is saying this doesn't do anything "Because
->>>>>>>>>>> __free_pages_prepare() executes entirely locklessly".  Did it goof?
->>>>>>>>>>>
->>>>>>>>>>> https://sashiko.dev/#/patchset/df06b66fe4ff8e925ee0714955abc2183a727b90.1780998980.git.mst@redhat.com
->>>>>>>>>>
->>>>>>>>>> Battle of the bots: it's right.
->>>>>>>>>
->>>>>>>>> Yep, __free_pages_prepare() changes the page flag without holding
->>>>>>>>> zone->lock.
->>>>>>>>
->>>>>>>> __free_pages_prepare() works on frozen pages and assumes no one else
->>>>>>>> touches the input page. To avoid this race, memory_failure() might
->>>>>>>> want to try_get_page() before TestClearPageHWPoison(), but I am not
->>>>>>>> sure if that works along with memory failure flow.
->>>>>>>>
->>>>>>>> Best Regards,
->>>>>>>> Yan, Zi
->>>>>>>
->>>>>>>
->>>>>>>
->>>>>>> Actually memory failure already plays with this down the road no?
->>>>>>>
->>>>>>> So maybe it's enough to just SetPageHWPoison afterwards again?
->>>>>>>
->>>>>>>
->>>>>>> diff --git a/mm/memory-failure.c b/mm/memory-failure.c
->>>>>>> index ee42d4361309..4758fea94a96 100644
->>>>>>> --- a/mm/memory-failure.c
->>>>>>> +++ b/mm/memory-failure.c
->>>>>>> @@ -2415,6 +2415,7 @@ int memory_failure(unsigned long pfn, int flags)
->>>>>>>  	if (!res) {
->>>>>>>  		if (is_free_buddy_page(p)) {
->>>>>>>  			if (take_page_off_buddy(p)) {
->>>>>>> +				SetPageHWPoison(p);
->>>>>>>  				page_ref_inc(p);
->>>>>>>  				res = MF_RECOVERED;
->>>>>>>  			} else {
->>>>>>>
->>>>>>>
->>>>>>> and maybe in a bunch of other places in there?
->>>>>>
->>>>>> You mean for fear of losing HWPoison flag in the earlier TestSetPageHWPoison(),
->>>>>> just set it again here?
->>>>>
->>>>> Yea.
->>>>>
->>>>>> Why not do it after get_hwpoison_page(), since that
->>>>>> is the expected page flag?
->>>>>
->>>>> It's still in the buddy at that point right? I'm worried buddy might
->>>>> poke at flags.
->>>>
->>>> Since __free_pages_prepare() executes entirely locklessly, the only way to ensure
->>>> HWPoison flag won't be lost might be only set hwpoison flag iff we can make sure
->>>> pages are not on the way to buddy...
->>>>
->>>> Thanks.
->>>> .
->>>
->>>
->>> To clarify do you not agree repeating SetPageHWPoison is enough for
->>> this? And if not, do you have suggestions on how to fix this race?
->>
->> Do you mean repeating SetPageHWPoison on every branch?
+On Thu, Jun 11, 2026 at 08:57:57AM +0200, Filip Hejsek wrote:
+> On Wed, 2026-06-10 at 03:04 -0400, Michael S. Tsirkin wrote:
+> > On Mon, Feb 23, 2026 at 06:37:02PM +0100, Filip Hejsek wrote:
+> > > Previously, the size was only read upon receiving the config interrupt.
+> > > This interrupt is sent when the size changes. However, we also need to
+> > > read the initial size.
+> > > 
+> > > Also make sure to only read the size from config if F_SIZE is enabled.
+> > > 
+> > > Fixes: 9778829cffd4 ("virtio: console: Store each console's size in the console structure")
+> > > Signed-off-by: Filip Hejsek <filip.hejsek@gmail.com>
+> > > ---
+> > > This is a resend of [1], which hasn't received any response.
+> > > 
+> > > I found this bug while developing patches for QEMU that add virtio
+> > > console resize support. If you want to test this, you can get my QEMU
+> > > patches from [2]. You will need to disable multiport
+> > > using `-device virtio-serial,max_ports=1`.
+> > > 
+> > > [1]: https://lore.kernel.org/all/20251224-virtio-console-fix-v1-1-69d0349692dc@gmail.com/
+> > > [2]: https://lore.kernel.org/all/20250921-console-resize-v5-0-89e3c6727060@gmail.com/
+> > > 
+> > > I'll also repeat my questions from the previous submission here. These are
+> > > things that confused me when I was trying to understand the surrounding code,
+> > > but should in no way prevent merging this patch.
+> > > 
+> > >   - Why does use_multiport use __virtio_test_bit instead of
+> > >     virtio_has_feature?
+> > > 
+> > >   - The VIRTIO_CONSOLE_RESIZE handler sets irq_requested to 1, which I
+> > >     think makes no sense?
+> > > ---
+> > >  drivers/char/virtio_console.c | 52 ++++++++++++++++++++++++++-----------------
+> > >  1 file changed, 31 insertions(+), 21 deletions(-)
+> > > 
+> > > diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+> > > index 088182e54d..c355f6d392 100644
+> > > --- a/drivers/char/virtio_console.c
+> > > +++ b/drivers/char/virtio_console.c
+> > > @@ -1771,32 +1771,40 @@ static void config_intr(struct virtio_device *vdev)
+> > >  		schedule_work(&portdev->config_work);
+> > >  }
+> > >  
+> > > -static void config_work_handler(struct work_struct *work)
+> > > +static void update_size_from_config(struct ports_device *portdev)
+> > >  {
+> > > -	struct ports_device *portdev;
+> > > +	struct virtio_device *vdev;
+> > > +	struct port *port;
+> > > +	u16 rows, cols;
+> > >  
+> > > -	portdev = container_of(work, struct ports_device, config_work);
+> > > -	if (!use_multiport(portdev)) {
+> > > -		struct virtio_device *vdev;
+> > > -		struct port *port;
+> > > -		u16 rows, cols;
+> > > +	vdev = portdev->vdev;
+> > >  
+> > > -		vdev = portdev->vdev;
+> > > -		virtio_cread(vdev, struct virtio_console_config, cols, &cols);
+> > > -		virtio_cread(vdev, struct virtio_console_config, rows, &rows);
+> > > +	/*
+> > > +	 * We'll use this way of resizing only for legacy support.
+> > > +	 * For multiport devices, use control messages to indicate
+> > > +	 * console size changes so that it can be done per-port.
+> > > +	 *
+> > > +	 * Don't test F_SIZE at all if we're rproc: not a valid feature.
+> > > +	 */
+> > > +	if (is_rproc_serial(vdev) ||
+> > 
+> > Wait a second. Why is there this rproc test here?
+> > Was not in the original code and commit log says nothing about it.
+> > 
 > 
-> Right.
+> Previously, this code was in config_work_handler(), which was never
+> called for rproc_serial (it's scheduled from config_intr(), which is
+> the config_changed handler only for virtio_console).
 > 
->> Is it possible
->> to make __free_pages_prepare changes page->flags atomically or this race
->> is specified to memory_failure?
->>
->> Thanks.
->> .
-> 
-> 
-> Adding an atomic op on every fast path page allocation is, I am
-> guessing, going to slow down Linux measureably.
-> 
-> Doing it for the benefit of memory_failure, which is the slowest of
-> slow paths, seems unpalatable, to me.
+> Now update_size_from_config() is called unconditionally from
+> virtcons_probe(), so it will be called for rproc_serial too, which
+> doesn't have the F_SIZE feature.
 
-Agree, it's not worth to do so.
+So why not test it? What does "not a valid feature" mean?
+I dislike transport code leaking into devices.
 
-> 
-> Neither am I sure it's the only racy place -
-> grep for __SetPage and __ClearPage - all these have the same issue, I
-> suspect.
-> 
-> At the same time, I'm not an mm maintainer. If you disagree, try to
-> upstream a change converting all non atomics in mm to atomics, and see
-> what others say.
 
-Since memory_failure might be the only place, this change would be unacceptable.
-We should come up with a better solution. Maybe we can try repeating SetPageHWPoison
-and ClearPageHWPoison at a first attempt though it looks somewhat weird to me and makes
-code more complicated. But it's already complicated. :)
-
-Thanks.
-.
-
+> > 
+> > > +	    use_multiport(portdev) ||
+> > > +	    !virtio_has_feature(vdev, VIRTIO_CONSOLE_F_SIZE))
+> > > +		return;
+> > >  
+> > > -		port = find_port_by_id(portdev, 0);
+> > > -		set_console_size(port, rows, cols);
+> > > +	virtio_cread(vdev, struct virtio_console_config, cols, &cols);
+> > > +	virtio_cread(vdev, struct virtio_console_config, rows, &rows);
+> > >  
+> > > -		/*
+> > > -		 * We'll use this way of resizing only for legacy
+> > > -		 * support.  For newer userspace
+> > > -		 * (VIRTIO_CONSOLE_F_MULTPORT+), use control messages
+> > > -		 * to indicate console size changes so that it can be
+> > > -		 * done per-port.
+> > > -		 */
+> > > -		resize_console(port);
+> > > -	}
+> > > +	port = find_port_by_id(portdev, 0);
+> > > +	set_console_size(port, rows, cols);
+> > > +	resize_console(port);
+> > > +}
+> > > +
+> > > +static void config_work_handler(struct work_struct *work)
+> > > +{
+> > > +	struct ports_device *portdev;
+> > > +
+> > > +	portdev = container_of(work, struct ports_device, config_work);
+> > > +	update_size_from_config(portdev);
+> > >  }
+> > >  
+> > >  static int init_vqs(struct ports_device *portdev)
+> > > @@ -2054,6 +2062,8 @@ static int virtcons_probe(struct virtio_device *vdev)
+> > >  	__send_control_msg(portdev, VIRTIO_CONSOLE_BAD_ID,
+> > >  			   VIRTIO_CONSOLE_DEVICE_READY, 1);
+> > >  
+> > > +	update_size_from_config(portdev);
+> > > +
+> > >  	return 0;
+> > >  
+> > >  free_chrdev:
+> > > 
+> > > ---
+> > > base-commit: b927546677c876e26eba308550207c2ddf812a43
+> > > change-id: 20251224-virtio-console-fix-3d46980ef569
+> > > 
+> > > Best regards,
+> > > -- 
+> > > Filip Hejsek <filip.hejsek@gmail.com>
 
