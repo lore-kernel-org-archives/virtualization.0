@@ -1,47 +1,47 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99F9F3CAE7F
-	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 13:38:24 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 248933CAE7F
+	for <virtualization@lists.linux.dev>; Thu, 11 Jun 2026 13:38:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781185105; cv=none; b=m2GyH7fBEZy6nDOIHLdTppBDEU9UvtHcI3yEbi/FThHEE/7XqS1bzNHxCf5t1Qm9D+NOB8dTdqZ35fIVZAo33JEVKDa7fu+RKobvHibSu4CQnb8eKcAhS6+8Iml67ECiPW7wFgCT3/w3TEpbw3CdtblbYuSmrQBRvojyv2YwoXc=
+	t=1781185114; cv=none; b=Hf/MVKBEHQVrNvhI7meZQJCNGBo7fg6y1VMJVPi7zk7xer4TamShXsyOZ/dmEjL/sKIkVe282EDzYkvBhlJ0i0w+pjlGZe+OhlHMvfY+qduNezlOd2/a9oRmISJA58XYgw2LYywdm5HqFO/86XoN6YDmRJRrWncCnGAxmbl8Cnc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781185105; c=relaxed/simple;
-	bh=cC6+uKTgAoQlecfXkN3xfU2KHO3KQjoBkCWa5P0W9mQ=;
+	s=arc-20240116; t=1781185114; c=relaxed/simple;
+	bh=IIrciUjq44XrzZ1l+LVK9uV7Wk+WApddNBRp2z4ILDc=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=FlycR0vzYU1kbeZskgZzLW9TGIuCD900eoRoq4ZeUHsek7KQWDqF9sMnoAbwF/4NTwqaqQWvHx2fmeY/tFrFMrHMmc0ybxejAK6Ac4XS8SE4bVUKgDYNueUsGLQwO6CQaAFdCLqsF9nbzHeBOxz+Lp5oIzboAFVkBqASKBXE5+A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Oap8INgI; arc=none smtp.client-ip=170.10.133.124
+	 MIME-Version:Content-Type; b=PjRreEAhRJRdNwz4snFfJ6khGddAHCLlZgcFpPqculvC3LZ293LNgnA6Ok/y4zLeY/mwWsm/JBa6GoIGhOwiUgRAflJ6ZxnCbkYNzODb0WDnEuKo4GE2xJqtgnmJsvRujxG5dZbrsbmkfBiZtEEP32plkblDFHMdOlOp0SkX2qk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NoC2wTv9; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Oap8INgI"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NoC2wTv9"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1781185103;
+	s=mimecast20190719; t=1781185112;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=lSMGj/hCnL6hUwuPAPWzI623YABRQ569PNsoa9BlrgI=;
-	b=Oap8INgI/xMUP8gR1f3/PSIA/DBQh19ueD4ThUSo6lIwUj1hrHiG9/17UutXlPAa/kxSbr
-	fDjll2gwbTQbV2sb6umBKKil8OS11oI+hYRxk7v/YB2nmlhL2yd2hPU12Ee61dTv3M9uTF
-	AXNm6xEwHOIi5XDGKeaMVtbbKJ6HTMQ=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+	bh=lvKF1/2+bxeOfnpe0L0pXZv45cHngIniCrmb44J0XOM=;
+	b=NoC2wTv9UWs/7ZpVnrD1w2bNd8eeCLW+x8MLAsXsfNciY47bAUv8oTaGLTUStR9CjocC4V
+	WhjSQK/KSMutKgWTvTDkrHQIp4WKFRCrvlvO+ewH29JrQiIM/14M4fwpQYpTqaU9F9ZmZH
+	4m40RNpQLHIa+DUgYQmXR7xGt0HqfPA=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
  (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
  relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-360-ZWVEZY3CNPWFy66RHN6EBw-1; Thu,
- 11 Jun 2026 09:38:20 -0400
-X-MC-Unique: ZWVEZY3CNPWFy66RHN6EBw-1
-X-Mimecast-MFC-AGG-ID: ZWVEZY3CNPWFy66RHN6EBw_1781185098
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-642-dA-4qojrP8uj7GCBy_ICbQ-1; Thu,
+ 11 Jun 2026 09:38:24 -0400
+X-MC-Unique: dA-4qojrP8uj7GCBy_ICbQ-1
+X-Mimecast-MFC-AGG-ID: dA-4qojrP8uj7GCBy_ICbQ_1781185102
 Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
 	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
 	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
 	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id E4EAA195D00D;
-	Thu, 11 Jun 2026 13:38:17 +0000 (UTC)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 16725197751F;
+	Thu, 11 Jun 2026 13:38:22 +0000 (UTC)
 Received: from fedora.redhat.com (unknown [10.44.50.90])
-	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id BF36C180065F;
-	Thu, 11 Jun 2026 13:38:13 +0000 (UTC)
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 6D2E3180065F;
+	Thu, 11 Jun 2026 13:38:18 +0000 (UTC)
 From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
 To: "Michael S . Tsirkin" <mst@redhat.com>
 Cc: Maxime Coquelin <mcoqueli@redhat.com>,
@@ -54,9 +54,9 @@ Cc: Maxime Coquelin <mcoqueli@redhat.com>,
 	linux-kernel@vger.kernel.org,
 	Cindy Lu <lulu@redhat.com>,
 	Yongji Xie <xieyongji@bytedance.com>
-Subject: [PATCH 1/2] vduse: fix not releasing taken semaphore in vduse_dev_queue_irq_work
-Date: Thu, 11 Jun 2026 15:38:05 +0200
-Message-ID: <20260611133806.198402-2-eperezma@redhat.com>
+Subject: [PATCH 2/2] vduse: not take the device semaphore while holding vq spinlock
+Date: Thu, 11 Jun 2026 15:38:06 +0200
+Message-ID: <20260611133806.198402-3-eperezma@redhat.com>
 In-Reply-To: <20260611133806.198402-1-eperezma@redhat.com>
 References: <20260611133806.198402-1-eperezma@redhat.com>
 Precedence: bulk
@@ -66,50 +66,45 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
-X-Mimecast-MFC-PROC-ID: GXKrLRjlXRzV9Q0N_ipUCT03ujBf9K0y1_OonIzm43g_1781185098
+X-Mimecast-MFC-PROC-ID: UkFMz6zIvdv42fadpps6Y2Oax654bfKxMWiypgKO91M_1781185102
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-If dev->suspended the function returns not relasing the semaphore, so
-the only solution to be able to use the device is to reset again from
-userspace.  Convert the semaphore functions to the equivalent guard() to
-avoid it.
+It's an invalid lock pattern, so take them reversely.
 
+This also makes the lock ordering coherent with vduse_dev_reset.
+
+Fixes: e4a249d15eb2 ("vduse: Fix error around jumping over a __cleanup() variable")
 Fixes: 6c141c034c1b ("vduse: Add suspend")
 Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
 ---
- drivers/vdpa/vdpa_user/vduse_dev.c | 9 ++-------
- 1 file changed, 2 insertions(+), 7 deletions(-)
+ drivers/vdpa/vdpa_user/vduse_dev.c | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
 
 diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index 0500da043761..86bd3116eda7 100644
+index 86bd3116eda7..2c1cafea6536 100644
 --- a/drivers/vdpa/vdpa_user/vduse_dev.c
 +++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -1281,21 +1281,16 @@ static int vduse_dev_queue_irq_work(struct vduse_dev *dev,
+@@ -561,14 +561,14 @@ static int vduse_vdpa_set_vq_address(struct vdpa_device *vdpa, u16 idx,
+
+ static void vduse_vq_kick(struct vduse_virtqueue *vq)
  {
- 	int ret = -EINVAL;
- 
--	down_read(&dev->rwsem);
--	if (dev->suspended)
-+	guard(rwsem_read)(&dev->rwsem);
-+	if (dev->suspended || !(dev->status & VIRTIO_CONFIG_S_DRIVER_OK))
- 		return ret;
- 
--	if (!(dev->status & VIRTIO_CONFIG_S_DRIVER_OK))
--		goto unlock;
+-	guard(spinlock)(&vq->kick_lock);
+-	if (!vq->ready)
+-		return;
 -
- 	ret = 0;
- 	if (irq_effective_cpu == IRQ_UNBOUND)
- 		queue_work(vduse_irq_wq, irq_work);
+ 	guard(rwsem_read)(&vq->dev->rwsem);
+ 	if (vq->dev->suspended)
+ 		return;
+
++	guard(spinlock)(&vq->kick_lock);
++	if (!vq->ready)
++		return;
++
+ 	if (vq->kickfd)
+ 		eventfd_signal(vq->kickfd);
  	else
- 		queue_work_on(irq_effective_cpu,
- 			      vduse_irq_bound_wq, irq_work);
--unlock:
--	up_read(&dev->rwsem);
- 
- 	return ret;
- }
--- 
+--
 2.54.0
 
