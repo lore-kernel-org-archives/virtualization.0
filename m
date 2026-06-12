@@ -1,136 +1,157 @@
-Received: from mail-pl1-f175.google.com (mail-pl1-f175.google.com [209.85.214.175])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85A35283FDD
-	for <virtualization@lists.linux.dev>; Fri, 12 Jun 2026 14:52:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC59E3290B8
+	for <virtualization@lists.linux.dev>; Fri, 12 Jun 2026 15:54:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781275923; cv=none; b=C98xBdOpKhiqKmLCfKr2wxWqBf3NiCVPuHF+YJ1C4JnQ6Hl5noaW2wzIB1D1EYaOdutA7ussgnGs2kbSMVFCLupU70qMyOraAFqd+hxkA9tnwTAKWodxambPuhdkrQi5fqGvIYOmXY7/paDKmowa4YdJEN86Uaneokzrj4hNha4=
+	t=1781279652; cv=none; b=u2FQoXwCXKDULHM8KuXxm1JoHwHD9AKDQFp9hET3Tbh4yMpuzljOEuxwN47QKz0FULMLytjNbFAE2e61i39SY275lr8CsAkHyF+8VubwEQOLotTxunluR6JjlTJadzQqmS8nJ8yDpDnaqbOXBqYemT8SBO1EUTD0OIWHaXye2Sg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781275923; c=relaxed/simple;
-	bh=MtLXFPswneMburYu+lWG7VpR1RjssBUjozfMNoj/Av4=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ng63kj8UjT9VuuuIaUH8egg90So4dVGpxiwxzkgrtgLPCskYheDsjV0wLthZTybtfU7eLwz26PdM2NGkDI4bzY6zsX3FaKzwnsQT6C/iaYEW5pQI37pHatnTGbaZYO7ubEfK9r6hnG94L9jXXMpcgjHBUo//7ZzneoZweLtNHGM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=asnzoVJV; arc=none smtp.client-ip=209.85.214.175
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1781279652; c=relaxed/simple;
+	bh=TYPADI2wSzNZ5rQcatAjxaP2wfMLbqWd4tER1VUC9l8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=mwu1ekGGB60lfipNI0er2E8A5e8We5M4Vl/OXMNwrfUU60SO7jLAyrgufW2MyBUBpzyFIRKjEmruC+YR2agZSCq62YSe9/wiVep4MP69yxfmQoa95vNxHQhHdd4Qw05IFUenUczBx5QYQKYz3NUXy97+lPc8lsXHfdnJTnVb1fs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=V3/xZqDg; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="asnzoVJV"
-Received: by mail-pl1-f175.google.com with SMTP id d9443c01a7336-2c2da7fa321so4673855ad.1
-        for <virtualization@lists.linux.dev>; Fri, 12 Jun 2026 07:52:02 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781275922; x=1781880722; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=JqMd8Q5yt8mAGXSVOkSVuvsH9v3zwILU1VT0pazsblM=;
-        b=asnzoVJVFY/qkFMNRt8QEjuMppXmrLfv7gistE6TJjHkIM6UhcOEvhgHnRX+v2lHYW
-         taTV3cd8PNiCITYdfLJZPNeQ2ykbrj8ArA/Jx66b5ToW/HVxzGRUeKKHkjpkebpgyeBx
-         ihdNkcWXq025Qhp8QAbp6/uCE4GZzhiJuNbl9l/igQz612Wi02/IjYDcZQ5+TrAiBgu8
-         DvQUHOiFBPSttk+jBtE3GOwZCDbXfi7DKFMCat0xBCPe93szihyNI8cp3YQZeDnBA92v
-         T4snj+0ZmaQuqcx5pssVEi4CnH6QAPX8US69NIAaLg7L0IJLwm09WVnLwtelTkle0+Zo
-         NxhA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781275922; x=1781880722;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=JqMd8Q5yt8mAGXSVOkSVuvsH9v3zwILU1VT0pazsblM=;
-        b=Kym9xVemwZUeU8xCNgJHqlkfKvrrQadCzBkhaUDTo3jrnOTA8LTuFxfFSKaULX1isE
-         sfyduuJkNPUF/4zphEnOm2kwirigGjh+ngBwXiDxdHFY07uDOlbQy2ykZXPmrXkismy3
-         1m38Hz9u1BaDfWhT5PXSl+9bdI+h0DtJCGYs6K7QfB0vXKLsJPG2ZDB72H9f/Z5ido11
-         OskK9/fbSYutc1sMnMpaMo7TUWddRnQz4jfHAHYB/X5XDDjB7Nri9GN0SbO2YQW5JHwD
-         X4gbKvSs0Ty9Ol4hqyrAg92C+wRF9pT40t23WnK8Rzq9ngFk7tsSVQFou7u1CKuZXXC4
-         5aPw==
-X-Forwarded-Encrypted: i=1; AFNElJ/PRRMjwWMa/pOvuw0KmFb0qXJHMbk2DF8Rg6Xdf34rqcPCTbSlUFbolCRvkK3t3cpe0/9v0LV8/OyqUq58nA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz9og6Vjz2bYzAzzPo9d4FnAy/mBhELXPAbC4UqOkRBPf8aSDnc
-	iqexi0rvE+3gCswjpgHepM/M5rQVqSYwkw7R95umdmpDMWXUbb6yNpvf
-X-Gm-Gg: Acq92OF1eIuM65B+3nj75DK+MdyrkLST11rn+PCrnsKjTnKvl7IiyXfVR9HwXcmAbef
-	HEoZEehZ78RRCoEvgq7ZMGBNdxgkGA5RkLcZcAIIyY4yF8222uQeQN0R7vYFVPw0qWX52Vo0xHf
-	2R7Ya812PYGo1dbD/v1Q+ztsQebmO4cTBRTefb12P/XGL1R98UyXDbfwCjIRaeyRLpDaO1MT1/X
-	2giC2QB5aPmk7ERPrNCiqAFUyBJfDLzkNsQgm1RBuJoCxsNKxxzqhEmCKbeBgc701Ijjvhj85x/
-	1xe7Yd7yqf/X0AbYSqC6f2QTUYKXkDm3a0M/cJXP79HkiO1ih4BULg+arPmthfu5iSFcaxwRVyB
-	ZRoOA5Oa4iY/NlEj2jvITwZutyeA2N0u6SWCIo1d5yfJod0chL3sXuf3aTYojFMlCmwlpkRjltq
-	IalQHnKHp0lLG6nxyCOZraj9A/yLAmojqahg9y7JPsAS6L
-X-Received: by 2002:a17:903:2bcb:b0:2bc:8f9a:3642 with SMTP id d9443c01a7336-2c4114a22d3mr39476645ad.16.1781275921806;
-        Fri, 12 Jun 2026 07:52:01 -0700 (PDT)
-Received: from devvm29614.prn0.facebook.com ([2a03:2880:ff:73::])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c4327ac72asm25666815ad.38.2026.06.12.07.52.01
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 12 Jun 2026 07:52:01 -0700 (PDT)
-Date: Fri, 12 Jun 2026 07:51:59 -0700
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: Raf Dickson <rafdog35@gmail.com>
-Cc: netdev@vger.kernel.org, virtualization@lists.linux.dev,
-	pabeni@redhat.com, sgarzare@redhat.com, stefanha@redhat.com,
-	bryan-bt.tan@broadcom.com, vishnu.dasa@broadcom.com,
-	bcm-kernel-feedback-list@broadcom.com, leonardi@redhat.com,
-	horms@kernel.org, edumazet@google.com, kuba@kernel.org
-Subject: Re: [PATCH net-next v3 4/4] vsock: fold sk_acceptq_removed() into
- vsock_remove_pending()
-Message-ID: <aiwdD5EAqxW6Xunv@devvm29614.prn0.facebook.com>
-References: <20260612045216.105796-1-rafdog35@gmail.com>
- <20260612045216.105796-5-rafdog35@gmail.com>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="V3/xZqDg"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65CF4euA4146525;
+	Fri, 12 Jun 2026 15:54:11 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=pp1; bh=8cfcrF0M4Zks/sCASUrqWn7SLeFQo6Rv8BTTz6ixj
+	GU=; b=V3/xZqDg/m4qulbXQqfYo0JNKsTVurvWSIbk1svZ6etggTbBBSa91girh
+	FJYmNfbZd33MGxZIp+ZgfSvLUBNUqdGwCwTrBXLRFCBvT2bMfxZ4w7U3HS9qtnAV
+	Wj768DP2UWIRJJUGtCRKq/EDIvzOHykYswlWXLpC9QjLllc2BAeHzR95iexEsNUq
+	93US9DGOYHD5ymXgHNXfFWwxHdBaYt0mWeUVZLpvm+/r6V6ZPVBnH2v/ngffi1VF
+	P2lJsTcm33PHzyTOfy2Cl+xQJDHO0LUowQ3tFbWebmeTDHbZ88SVLPTEIUGmrCG6
+	rVHBuseCIvAQRt0FHUgXDJgABvJHw==
+Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4eqe8c9t9e-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 12 Jun 2026 15:54:10 +0000 (GMT)
+Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65CFYjxI010140;
+	Fri, 12 Jun 2026 15:54:09 GMT
+Received: from smtprelay03.dal12v.mail.ibm.com ([172.16.1.5])
+	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4eqe0a8h50-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Fri, 12 Jun 2026 15:54:09 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (smtpav03.dal12v.mail.ibm.com [10.241.53.102])
+	by smtprelay03.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65CFs83P22807168
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 12 Jun 2026 15:54:08 GMT
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 4AF7A5805A;
+	Fri, 12 Jun 2026 15:54:08 +0000 (GMT)
+Received: from smtpav03.dal12v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7D08E5803F;
+	Fri, 12 Jun 2026 15:54:07 +0000 (GMT)
+Received: from 9.60.13.85 (unknown [9.60.13.85])
+	by smtpav03.dal12v.mail.ibm.com (Postfix) with ESMTP;
+	Fri, 12 Jun 2026 15:54:07 +0000 (GMT)
+From: William Bezenah <wbezenah@linux.ibm.com>
+To: linux-s390@vger.kernel.org
+Cc: cohuck@redhat.com, pasic@linux.ibm.com, farman@linux.ibm.com,
+        hca@linux.ibm.com, gor@linux.ibm.com, agordeev@linux.ibm.com,
+        borntraeger@linux.ibm.com, svens@linux.ibm.com, mjrosato@linux.ibm.com,
+        vneethv@linux.ibm.com, oberpar@linux.ibm.com,
+        virtualization@lists.linux.dev, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+Subject: [PATCH v1] s390/virtio_ccw: Also suppress -EINVAL on device detach
+Date: Fri, 12 Jun 2026 17:54:07 +0200
+Message-ID: <20260612155407.199218-1-wbezenah@linux.ibm.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260612045216.105796-5-rafdog35@gmail.com>
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjEyMDE0NCBTYWx0ZWRfXylMrBsZ7zizQ
+ 2u+V8hWLap3Z82z8Xaf9qwIkCf+WktsxMgBTXAzm1Aow8FiCvntHPJO5o/4xSFouYmmWx5wyVJt
+ nPsDybAs4qayPjLCELCso0+h99kM0cw=
+X-Authority-Analysis: v=2.4 cv=AYCB2XXG c=1 sm=1 tr=0 ts=6a2c2ba2 cx=c_pps
+ a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
+ a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8 a=uYiYJ5MKk1sDHHHSvssA:9
+X-Proofpoint-GUID: RQsPodU4gnULLxzS7kl5j-qxwXuvt2Xm
+X-Proofpoint-ORIG-GUID: RQsPodU4gnULLxzS7kl5j-qxwXuvt2Xm
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjEyMDE0NCBTYWx0ZWRfXxot5xToY7tMI
+ +pNPctVX6+rT+5r0ewT+t4NMmUT467owfyB3JvzLGcwcYtsxNMIjF5Y9UyQAsV7G3Ta+iLnwLrF
+ PbjrUGJ6JKHnMx8f7fof8qFBqZuq9H538lMPa3hMdJ1wZx7rFLMcnXj9ealVfJd2GcB/LDGq8pM
+ WB+NBaGZZ76Acs3tqrz6j5aTeAqeManOJGIdv45o8c7rDZ1t+tRAi2CAFe7XS6XyTU+3ZQn9oB4
+ BWVG78zeU1fFTj9bsEIHBmAShxyb5yc1Itj8Zzu8wwuawcoVWBXjz/9WFtWy+YOHnl7/jA/9JN4
+ B8kLIV+exLCcJjWJM3ndarPEoathUKems5bJ3wK9ZUiSg7uBNq7iwlnjQ1WfOknawxSvGLrtWCT
+ v3/B4uaSGtDw9RXwfrTA4GwVI/HW4j3qZrsedSkIlD/KvwxVAazjuss3YO48NxuCJfLXmh/9n/b
+ qr0mnXwFiee3Zwxcwug==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-12_01,2026-06-12_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 suspectscore=0 malwarescore=0 spamscore=0 phishscore=0
+ lowpriorityscore=0 bulkscore=0 adultscore=0 priorityscore=1501 clxscore=1011
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606040000 definitions=main-2606120144
 
-On Fri, Jun 12, 2026 at 04:52:16AM +0000, Raf Dickson wrote:
-> Callers of vsock_remove_pending() must also call sk_acceptq_removed()
-> to keep sk_ack_backlog consistent. Move the call into
-> vsock_remove_pending() itself to make it automatic and prevent future
-> callers from forgetting it.
-> 
-> Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
-> Signed-off-by: Raf Dickson <rafdog35@gmail.com>
-> ---
->  net/vmw_vsock/af_vsock.c       | 2 +-
->  net/vmw_vsock/vmci_transport.c | 4 +---
->  2 files changed, 2 insertions(+), 4 deletions(-)
-> 
-> diff --git a/net/vmw_vsock/af_vsock.c b/net/vmw_vsock/af_vsock.c
-> index 24916dd4e9..4a7d6d247a 100644
-> --- a/net/vmw_vsock/af_vsock.c
-> +++ b/net/vmw_vsock/af_vsock.c
-> @@ -494,6 +494,7 @@ void vsock_remove_pending(struct sock *listener, struct sock *pending)
->  	list_del_init(&vpending->pending_links);
->  	sock_put(listener);
->  	sock_put(pending);
-> +	sk_acceptq_removed(listener);
->  }
->  EXPORT_SYMBOL_GPL(vsock_remove_pending);
->  
-> @@ -773,7 +774,6 @@ static void vsock_pending_work(struct work_struct *work)
->  	if (vsock_is_pending(sk)) {
->  		vsock_remove_pending(listener, sk);
->  
-> -		sk_acceptq_removed(listener);
->  	} else if (!vsk->rejected) {
->  		/* We are not on the pending list and accept() did not reject
->  		 * us, so we must have been accepted by our user process.  We
-> diff --git a/net/vmw_vsock/vmci_transport.c b/net/vmw_vsock/vmci_transport.c
-> index c2db016cca..3e6445f4e1 100644
-> --- a/net/vmw_vsock/vmci_transport.c
-> +++ b/net/vmw_vsock/vmci_transport.c
-> @@ -980,10 +980,8 @@ static int vmci_transport_recv_listen(struct sock *sk,
->  			err = -EINVAL;
->  		}
->  
-> -		if (err < 0) {
-> +		if (err < 0)
->  			vsock_remove_pending(sk, pending);
-> -			sk_acceptq_removed(sk);
-> -		}
->  
->  		release_sock(pending);
->  		vmci_transport_release_pending(pending);
-> -- 
-> 2.54.0
-> 
+When detaching virtio devices with multiple queues, spurious and
+non-fatal error messages appear in the guest kernel log. While
+virtio-net devices have multiple queues by default, this issue can
+also be reproduced with other virtio device types (e.g., virtio-blk)
+when configured with multiple queues:
 
-Reviewed-by: Bobby Eshleman <bobbyeshleman@meta.com>
+[   33.820621] virtio_ccw 0.0.0001: Failed to deregister indicators (-22)
+[   33.820628] virtio_net virtio2: Error -22 while deleting queue 0
+[   33.820632] virtio_net virtio2: Error -22 while deleting queue 1
+[   33.820634] virtio_net virtio2: Error -22 while deleting queue 2
+
+Since commit 8c58a229688c ("s390/cio: Do not unregister the
+subchannel based on DNV"), subchannel behavior following a device
+detach has been updated and results in -EINVAL being propagated
+rather than -ENODEV, originating from ccw_device_start_timeout_key()
+in cio/device_ops. In the end, the virtio driver has no ability to
+react to the difference between device and subchannel states here,
+and during detach, both -ENODEV and -EINVAL indicate the device
+cannot be used and should not be treated as errors requiring
+attention. Update error handling in virtio_ccw_del_vq() and
+virtio_ccw_drop_indicator() to suppress -EINVAL in addition to
+-ENODEV.
+
+Fixes: 8c58a229688c ("s390/cio: Do not unregister the subchannel based on DNV")
+Signed-off-by: William Bezenah <wbezenah@linux.ibm.com>
+---
+ drivers/s390/virtio/virtio_ccw.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/s390/virtio/virtio_ccw.c b/drivers/s390/virtio/virtio_ccw.c
+index bab6cad3fd5c..02fd8bf7e469 100644
+--- a/drivers/s390/virtio/virtio_ccw.c
++++ b/drivers/s390/virtio/virtio_ccw.c
+@@ -429,7 +429,7 @@ static void virtio_ccw_drop_indicator(struct virtio_ccw_device *vcdev,
+ 			    vcdev->is_thinint ?
+ 			    VIRTIO_CCW_DOING_SET_IND_ADAPTER :
+ 			    VIRTIO_CCW_DOING_SET_IND);
+-	if (ret && (ret != -ENODEV))
++	if (ret && (ret != -ENODEV) && (ret != -EINVAL))
+ 		dev_info(&vcdev->cdev->dev,
+ 			 "Failed to deregister indicators (%d)\n", ret);
+ 	else if (vcdev->is_thinint)
+@@ -515,10 +515,10 @@ static void virtio_ccw_del_vq(struct virtqueue *vq, struct ccw1 *ccw)
+ 	ret = ccw_io_helper(vcdev, ccw,
+ 			    VIRTIO_CCW_DOING_SET_VQ | index);
+ 	/*
+-	 * -ENODEV isn't considered an error: The device is gone anyway.
++	 * -ENODEV and -EINVAL aren't considered errors: The device is gone anyway.
+ 	 * This may happen on device detach.
+ 	 */
+-	if (ret && (ret != -ENODEV))
++	if (ret && (ret != -ENODEV) && (ret != -EINVAL))
+ 		dev_warn(&vq->vdev->dev, "Error %d while deleting queue %d\n",
+ 			 ret, index);
+ 
+-- 
+2.54.0
+
