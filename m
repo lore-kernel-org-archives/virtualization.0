@@ -1,65 +1,65 @@
-Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
+Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 270373090C6
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 21A173A7D98
 	for <virtualization@lists.linux.dev>; Fri, 12 Jun 2026 19:09:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.174
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781291363; cv=none; b=WFvnYdQ4vv8CWa/4Fu/P+S2Cj4B6d1kraeBlCQbxf0RdlTB2fixUR39jKdqQqbFytoBWlIi0E9LzmT+5xDwCEQ41mFX2pzz+ohj0BymkmkFQoXNUwpudYkl7qUng1eBzS8KEAIYMRdvLyztJJYdkacihdiLxvYFZwI4JGqKuqkc=
+	t=1781291364; cv=none; b=UpWSoZe3fDQmiw2InDo2qlL8yNZxkLCFWUWsDXFY0RxBk9jnm+iq/qWH+QDdNoMEsSRnE0tNVUy9vQBrgBRScIZbvX4VGSxK+7avzD3vSVJF+ZUlKhfrSe7CS0pM/uXDO+SQElgyQ1HYPliz+QsPu4BmJ9eWgg4aAReOoYLaMrM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781291363; c=relaxed/simple;
-	bh=yKA+ZzX6XcYhDv+LWR2Mk2bht6hMBJSX9q+2jBi6BiU=;
-	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=ZC29K87xRw+QzPzjDyphUNRxp8ynEMocJvj68ixqGNsqrjGvZYDY4mckQnbHu6YSeExK2UOCOHMnQuUc/1dKxlLCfwQSlIgWTmSh8kqYsaxak9WZCzSuUq0I1J1/VnFoD4vTCpjjyi7Hi9PvaDnu0j9cp9xMNI81avWrii2O4sQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NrWFLtcS; arc=none smtp.client-ip=209.85.214.179
+	s=arc-20240116; t=1781291364; c=relaxed/simple;
+	bh=bPlI/2xmJK0Qts5eddw/Vh21IiHuQaslrq963O+3tzY=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
+	 In-Reply-To:To:Cc; b=QVILhJ+jGva9G22bSWdMwQfQglDyKO2eO1Lvuwqf+i5niw2e6iUvMVMkXQQ/AEy9kBw7S38iMOYbk51azYDAc4QqazRVKmkJWigJxgPN/ZvRiZcpj0PU+otKlGAh6xiomj0WN4r9gfsex/5xjU9OejC7amtaFsje0bgSNiAXn2s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=sCj3AN+d; arc=none smtp.client-ip=209.85.214.174
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NrWFLtcS"
-Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2c0b9328c4aso11192635ad.0
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="sCj3AN+d"
+Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2bf2e8ccca1so9767615ad.0
         for <virtualization@lists.linux.dev>; Fri, 12 Jun 2026 12:09:22 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1781291361; x=1781896161; darn=lists.linux.dev;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:from:to:cc:subject:date:message-id:reply-to;
-        bh=4L3vRJymTPS0qt6L5cUW7zrlkl0+scsI7rVDfbLQutE=;
-        b=NrWFLtcSB8PmnbnMEk/dP501RqgiNaad8mt7w+hcVj4wyfmVGmxp+ChgLgcEDxcQoc
-         I5RGDiJq2X+yZE4X+YKWdXO11UL0PtFSD5L0l/N4TUxe6M3gP/5jyz8wtGFOx66aTB9e
-         x0BUKDLjXtJUtQ6xsVa8VbYumpPyijZxb+x4OSZ3ufbsL3xH6Y8m4dlH1WjESuC0pBjS
-         OmIQKdWqH/5nNeu3bCwD8U72eBWRKdMPW+EAqw5+ZnCSSy2FABMeEcBdfABukEjIjNGN
-         vMyBYuyhRsQ50iL7ihwDKNoy6veE7Hax3wXz1VZ/6D4JZf2sN9i9U05qhaHDzjydVqyU
-         r8Mw==
+        d=gmail.com; s=20251104; t=1781291362; x=1781896162; darn=lists.linux.dev;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=XRg96KjMZPBuPn1RKC3qLwa0FZMA6GdGbqmzSwsfaRM=;
+        b=sCj3AN+dP/z61bU6VU58bzbTj0SzPZe1RuUJA5Qt/JGnU6zv+1r1k1ujJapl41MFRd
+         OQxvKEEvvBf685lGDrDMlaIDUWXN49FFh+A+EdOgAvyDJpVB6kZYC2clRJ/lX6XsZ1vc
+         z3izZEYhqvTtv1z/hMQFeYmQfoBC5dMGfhePEs0H87ETzwz4qotDGQdRz4Yua7RN2kt1
+         iLXF/zrok1zj2qstcQsHXVkZiecJROgU567bdxvWBUO3WBbmR8LTfwoJoy8TVMUoF1H6
+         DBkjxbOp0P8RKBzsUJ5twr8NZGWsc4zSpUk8sGdjlMYeTprXUZwv5cuWF7BTqFgYBrjb
+         ycBw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781291361; x=1781896161;
-        h=cc:to:content-transfer-encoding:mime-version:message-id:date
-         :subject:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=4L3vRJymTPS0qt6L5cUW7zrlkl0+scsI7rVDfbLQutE=;
-        b=qX8/c09toGEiOJd1qbgR6/QRk0nr9j6CGUnBCJmk/ucvqro86QBUbDMnNGiL6NJetX
-         TWtRdS2ynbVw6eTRj8YOY7JaQnIBAc+j4dvzDmw5iLCKOyj0xfu6XslLgyMYWWnpMwTC
-         4E8SovpyqdTpMRkrqNEysZpCCvP6DDx2gfUVDx7zDmf2f7cYiLtlFeKBXLFtNEh658fJ
-         pPcxFtOW7MBTFlTfBAoE+GDobEdEoBlhYv5AI84oNYasA/IuhwvU2hYqQavdgtRR+bv5
-         xkIxE0PtX9OwznYE6r8qoji+358x+aDFO8x8Z9WE2thoIxo9sBK+cJHUXjeYX/kst9i+
-         +C6w==
-X-Gm-Message-State: AOJu0YyHGki1t9SoUU9FH8jfyeUhzQ5x+B+qMMNlS7mGfIl0zbb4PaVq
-	4aHAfoCNpYOuj9AUDASyF7aqgcX5ZsDhp5G/XtdtQRexsu1WyifzETHF4y6Zw1tR
-X-Gm-Gg: Acq92OEFUoVI5PYH4oC9+74B+J6dN2YonkIJAYIxMrJ0+uSCY5zW+mKgLpjnau2HBxh
-	/NB1bFuvXNgOolOxipoj3ueJNckFt9kg472AmjsHazpshBysAgD0C/Wmg4JpVM/ZFOBpMihwdsw
-	quMjbbEeIRIG3D3IR4jv//14jD47uIQaWlAHzpptLJA2wS/8aYmNbyvNKy1JgVvguPhRVnc6Ilt
-	0ni/Z0hN1j/P2PAruEN6f21uBZGoiOH0FTe/akCArtuFo0yIOvvWp1093RLmC/t16wXGk2bvmmx
-	cx8WZAs+wDPIYrb/lkeMNGS1MSlV66MP+ZMN3GHgsyBXIzcQdU2eyAl0y8hldG/v6uZUavWwofE
-	qwXmkW0xrFjIGxNfPbd4p+Ab0fgeYQCVHWpWTwjGiP73Xh/giHYFQKOxPQsVTjlILJhlgP2olJS
-	sVc7u6Q6kFIHCOcAfORkQ=
-X-Received: by 2002:a17:902:ce8f:b0:2bf:11ed:3d64 with SMTP id d9443c01a7336-2c411c7997amr52161945ad.18.1781291361424;
-        Fri, 12 Jun 2026 12:09:21 -0700 (PDT)
-Received: from localhost ([2a03:2880:ff:5a::])
-        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c4328a43c9sm27661395ad.41.2026.06.12.12.09.21
+        d=1e100.net; s=20251104; t=1781291362; x=1781896162;
+        h=cc:to:in-reply-to:references:message-id:content-transfer-encoding
+         :mime-version:subject:date:from:x-gm-gg:x-gm-message-state:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=XRg96KjMZPBuPn1RKC3qLwa0FZMA6GdGbqmzSwsfaRM=;
+        b=iunSmkuK7NFD7GU2vxEzGSou0cN87Vp71R5mGVXqLY39nOJwQJCxpfsU7UVtxpkR/N
+         dHEfg0DrhwiS8UfjjTMR+Sh+8qJesgo0hX2M5LuHEjppyOhPIp6B75CXO5nqc/t3gRqs
+         XYXSX48dVlYlPT1C/FoG+UzCr7mlJ6tjc0lsgB+wSJJGx6ic+j5IcYH+mnHHO64vZlZS
+         tSLuiyAHfpxfksN1JFdCCaKjutUPnHr6NYcpFOcRuUx6eXjDW8LST6wptI7+onbdgchJ
+         Lok7R7EsVCcdacxWQNFlDh5YAf4HEjnVSJMjmPfkOQf0/MO6blDyxs+1/azETFkty8D7
+         IWZQ==
+X-Gm-Message-State: AOJu0YzAe99fAHLa/tr1uoXEFqyv+C1NiA/cX85OnIOCmoT4T0BEacI/
+	A5bARDb9oaXodEOcdaf+Vk9bTqiPWp73EQBRpepjeYWWZDQwXBhAUVwwM4au8/xr
+X-Gm-Gg: Acq92OFKxRXT34yiIlxs2gj50UustUqVpCkfY+aezxH5dRr0LKW8sZSnS0LrIzadVvW
+	zWGoxsA4uufkhjVXfqRyxwwdW6VvgaTd1/ZCPoNLjcmydsH5M3uLENKUq+1QKLnehEYz0cG9JeL
+	iiyDADE65+RkdvAT/ZGOHhPSXViKcbiH3Ei9F1KgocCW1+e0JNczAOSMig8TsWQH82C95s1T1y5
+	0+nB9A2cD9VpT7kL6wseaFdBmDqFMlgbgBdjAJPgyR4ksML32PZHjqy1+ODB3u+xU3diCl2sYIz
+	U8t/k8UZWk7jAoGiVtNe+wG8wEuEx27JimVQEK+3ruw7mOHl2voEGQ0wucsoIsuJQq4lFgNSg4N
+	be4xSOgd1sIB8uQIWX7ASa7GvuurtF4PeJ8dv6IGb5shmlLMWlGb+4S37qRYvgpNUcRwYjDGL/g
+	i+lm/59sksddcUJijaNX8=
+X-Received: by 2002:a17:902:ced2:b0:2bd:7684:34b0 with SMTP id d9443c01a7336-2c4105092a4mr52571515ad.15.1781291362268;
+        Fri, 12 Jun 2026 12:09:22 -0700 (PDT)
+Received: from localhost ([2a03:2880:ff:5c::])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2c433460a60sm34934225ad.76.2026.06.12.12.09.21
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 12 Jun 2026 12:09:21 -0700 (PDT)
+        Fri, 12 Jun 2026 12:09:22 -0700 (PDT)
 From: Bobby Eshleman <bobbyeshleman@gmail.com>
-Subject: [PATCH net-next 0/2] selftests/vsock: improve vng version and
- quirk handling
-Date: Fri, 12 Jun 2026 12:08:40 -0700
-Message-Id: <20260612-vsock-test-update-v1-0-7d7eeed3ac8f@meta.com>
+Date: Fri, 12 Jun 2026 12:08:41 -0700
+Subject: [PATCH net-next 1/2] selftests/vsock: accept vng 1.33 or >= 1.36
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -68,41 +68,87 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-X-B4-Tracking: v=1; b=H4sIADhZLGoC/x3MQQqDMBAF0KsMf+2ABiqYq5QuQvLTBiFKMhVBv
- Huh7wDvQmcr7PByofEovWwVXqZBED+hvqklwQvc6OZxnpwefYurGrvpd0/BqDkGLjlHpofDINg
- bczn/5xOVppWn4XXfP6AnZaFtAAAA
-X-Change-ID: 20260612-vsock-test-update-fcae9ffced52
+Message-Id: <20260612-vsock-test-update-v1-1-7d7eeed3ac8f@meta.com>
+References: <20260612-vsock-test-update-v1-0-7d7eeed3ac8f@meta.com>
+In-Reply-To: <20260612-vsock-test-update-v1-0-7d7eeed3ac8f@meta.com>
 To: Stefano Garzarella <sgarzare@redhat.com>, Shuah Khan <shuah@kernel.org>
 Cc: virtualization@lists.linux.dev, netdev@vger.kernel.org, 
  linux-kselftest@vger.kernel.org, linux-kernel@vger.kernel.org, 
  Bobby Eshleman <bobbyeshleman@meta.com>
 X-Mailer: b4 0.14.3
 
-As vng has continued updating, there have been two things in our
-selftests that have been affected. One is that newer versions always
-emit the vng version warning, and two is that we have a workaround that
-is not needed in newer versions.
+From: Bobby Eshleman <bobbyeshleman@meta.com>
 
-This series just updates the version handling to allow all newer
-versions without warning and version-gates the workaround to only those
-versions that don't have the commit that fixed the root cause.
+The current vng version check uses a discrete allowlist of "1.33",
+"1.36", and "1.37", which forces a script update on every new release
+even though all post-1.36 releases work.
 
-Additionally, we add function for comparing major.minor versions which
-is used in both patches.
+Replace the discrete list with: "1.33", or any version >= 1.36. 1.34
+and 1.35 are skipped because they were not tested. Add a version_lt()
+helper that compares MAJOR.MINOR numerically, so the check reads as a
+straightforward version comparison.
 
 Signed-off-by: Bobby Eshleman <bobbyeshleman@meta.com>
 ---
-Bobby Eshleman (2):
-      selftests/vsock: accept vng 1.33 or >= 1.36
-      selftests/vsock: skip vng setsid workaround on >= 1.41
+ tools/testing/selftests/vsock/vmtest.sh | 39 +++++++++++++++++++--------------
+ 1 file changed, 23 insertions(+), 16 deletions(-)
 
- tools/testing/selftests/vsock/vmtest.sh | 47 +++++++++++++++++++++------------
- 1 file changed, 30 insertions(+), 17 deletions(-)
----
-base-commit: dfcc2ff12925d99e858eaf539eaa4aaaf81fe2a6
-change-id: 20260612-vsock-test-update-fcae9ffced52
+diff --git a/tools/testing/selftests/vsock/vmtest.sh b/tools/testing/selftests/vsock/vmtest.sh
+index d97913a6bdc7..ee69ac9dd3dc 100755
+--- a/tools/testing/selftests/vsock/vmtest.sh
++++ b/tools/testing/selftests/vsock/vmtest.sh
+@@ -330,27 +330,34 @@ check_netns() {
+ 	return 0
+ }
+ 
++# Compare MAJOR.MINOR versions numerically. Returns 0 (true) if $1 < $2.
++version_lt() {
++	local -a a=(${1//./ })
++	local -a b=(${2//./ })
++
++	if [[ "${a[0]}" -lt "${b[0]}" ]]; then
++		return 0
++	elif [[ "${a[0]}" -gt "${b[0]}" ]]; then
++		return 1
++	elif [[ "${a[1]}" -lt "${b[1]}" ]]; then
++		return 0
++	fi
++
++	return 1
++}
++
+ check_vng() {
+-	local tested_versions
+ 	local version
+-	local ok
+ 
+-	tested_versions=("1.33" "1.36" "1.37")
+-	version="$(vng --version)"
++	version="$(vng --version | awk '{print $2}')"
+ 
+-	ok=0
+-	for tv in "${tested_versions[@]}"; do
+-		if [[ "${version}" == *"${tv}"* ]]; then
+-			ok=1
+-			break
+-		fi
+-	done
+-
+-	if [[ ! "${ok}" -eq 1 ]]; then
+-		printf "warning: vng version '%s' has not been tested and may " "${version}" >&2
+-		printf "not function properly.\n\tThe following versions have been tested: " >&2
+-		echo "${tested_versions[@]}" >&2
++	# Supported: 1.33, or any version >= 1.36. 1.34 and 1.35 are untested.
++	if [[ "${version}" == "1.33" ]] || ! version_lt "${version}" "1.36"; then
++		return
+ 	fi
++
++	printf "warning: vng version '%s' has not been tested and may " "${version}" >&2
++	printf "not function properly.\n\tSupported: 1.33 or >= 1.36\n" >&2
+ }
+ 
+ check_socat() {
 
-Best regards,
 -- 
-Bobby Eshleman <bobbyeshleman@meta.com>
+2.53.0-Meta
 
