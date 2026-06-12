@@ -1,176 +1,109 @@
-Received: from OSPPR02CU001.outbound.protection.outlook.com (mail-norwayeastazon11023125.outbound.protection.outlook.com [40.107.159.125])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D6F8400DF4
-	for <virtualization@lists.linux.dev>; Fri, 12 Jun 2026 16:57:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.159.125
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781283462; cv=fail; b=YK2yhQl2UyfN+Y9ApXKk55YJSJEtEruyh1VcngGQm2SJb/osQL0ITNX77Ct2tQskREKvR6ClF/WipifqTn8jZC383ldmSkMjMPmZHJfBlqYwrTlknlwPI8iXQ9wEiyorE6bJYish4IgC+TD/q0Alaoi3GVkCxP4KtwlRXCDYWAg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781283462; c=relaxed/simple;
-	bh=bL5mYbExXRNDHRTG86ovjmCPFbXFzbiWxQMTdlLwoqk=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=SvVsgLDNGrMXGPzlLAVESzr3g/23nSBGSgww9XRgLaw2Bjz+k+Z5mCN1HnsG7Q+Hp1Xf9x3Zw5K8CZj2MYH9rE7Q5MoF7xBevIVMzGzZAsD+FItWqHV7Na8LmUaMwp4ZpYjfOWp3ZHlHE+MJMaGJKiw4g3UrptqbQwipQGntpVE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=virtuozzo.com; spf=pass smtp.mailfrom=virtuozzo.com; dkim=pass (2048-bit key) header.d=virtuozzo.com header.i=@virtuozzo.com header.b=cajAPhZO; arc=fail smtp.client-ip=40.107.159.125
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=virtuozzo.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=virtuozzo.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CD4E237D13C
+	for <virtualization@lists.linux.dev>; Fri, 12 Jun 2026 18:15:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781288111; cv=none; b=hhyuk+a0sfsb1eDb2L0nWNhfm0c3JeXgIwnFojE3sp6BlxpaT2HLnbR6VHO29FYzSgIdSrgIFDwLEAReK6onoRLN5NAClhp8TXOXgnFiQEvTEv4anSbu7qPZl4cmIDyyRRebxDf76rwqY2+SghWJB+azmpHktEqFAJCeDAOhErg=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781288111; c=relaxed/simple;
+	bh=SRIS52p+xq7tvizVZ//yZjYOuniZpND73rqmik6/LHM=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=iw5P8Sl0weGfCY8qZcM4aCDqfYWr4XpB1mNYxcvIXoc73UyK8aWIAv9aWlacky1p0XyfdeVkHZlAMqaBPt+O28CDFob6Sfrpk6tD5m3odT8ocUKOyfgw3heeDv9AvUS+YlNsqVubcmmfSJEqDSBEAmO/XozZfELs2X0om6LKgqU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cHvMA0Ia; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=virtuozzo.com header.i=@virtuozzo.com header.b="cajAPhZO"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=SDogvP2phrBzpqm0DQ+ikGUs8UpZ5klhkTCo01qJzEhkrLecn0jcrpNzwWIXs/gPCi9IfAPb0rdrFTIKWz8U1tVlkcMmfvwuT3pcIjJtJmYm2x5hLpQdqg1fORxqDascLfMexqHuAlJHOvajeRNyICC9nWVNBVhX8f67Y5AjgzGStUqRsKMc7W9nVqrjx+p91mAbUQdxxpc9CmrE/nAnT6EH+nNnSQN5jpiRpaZ2LBa+KDXC/eR5L/LTzT2FvKB5QyejvCaPhKL0MYLyAxI9Kt527TcPeR8S4w+v85R8hu4Qe9DDCGqZJj2YOwXyzXM+voxHqH838oKBTOvP3C1/6w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=hzDgox9s3tlMcpKOhmDze7DLr27Tz3ofYkQwPvXqKgo=;
- b=gYMlHCdFRLHRYeO4xNefl/5t2Lben6ldeLgG0OPbf3yyo4lMQFwOtVPfA7S5bk8KY+G3Uhr4hX5x26aNVaVdRJGWp+Q+ydge4lbJ4NowZD86VOW5Qnr48AQ5QLN0dvixraUqZmHnALk7jKSSEF665U1ycCId02Y1CHrTR5dCzwKs1t6cyqRyIuLsJ6xhymg5Uv6TucV4HrqtADiDmYsl0iOAYoyCYLw0Lmki8ciKnKQzQt4DQZj7SohPyfY0i8lwHO1/B8bfMG6t5wA1X0RlOocOcZ8OY+JUEbUVe2SMkAo5A1M8MTXYWdGDe7ihCS8cCTwcgeudGHchZp+qH7dLUg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=virtuozzo.com; dmarc=pass action=none
- header.from=virtuozzo.com; dkim=pass header.d=virtuozzo.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=virtuozzo.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=hzDgox9s3tlMcpKOhmDze7DLr27Tz3ofYkQwPvXqKgo=;
- b=cajAPhZOTzhHRUdTofTKBORJLlxMqBhTw6/o5G/Y24nteeYLmlluGibHiMGfaVbTTebOh/NNzKGwS1fTP17Y+PkbRa3hkQ8svwzGGuC031H1lq62fO424oa5ie5QJWpfyg7etfmyoLIrHMwcYTe7uLEn4SDFd7vHQ17YQjW/6HsxfkQMOq9BzY6FDjhE2/YzvDoc/npElOMJKWq+GF0cKeJS59HfBsjy6ijoIzO4dhpuZXiH2oc1RCGWP7Dj4umjZon2v+IcCZeS/FuIrxAL3oRRhp5cccMPA2+QfYhTBKbav6+w7Nfl5WseoJoVNwQvM4oxdgik9E8YoLvGeeHVug==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=virtuozzo.com;
-Received: from VI0PR08MB10656.eurprd08.prod.outlook.com
- (2603:10a6:800:20a::12) by AS2PR08MB9416.eurprd08.prod.outlook.com
- (2603:10a6:20b:594::18) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.113.13; Fri, 12 Jun
- 2026 16:57:30 +0000
-Received: from VI0PR08MB10656.eurprd08.prod.outlook.com
- ([fe80::4e37:b189:ddcd:3dd8]) by VI0PR08MB10656.eurprd08.prod.outlook.com
- ([fe80::4e37:b189:ddcd:3dd8%5]) with mapi id 15.21.0113.013; Fri, 12 Jun 2026
- 16:57:30 +0000
-From: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
-To: linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org,
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cHvMA0Ia"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1781288108;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=lRINJF6yRKjtHzTN939wmwzi4zwzJJVDBd7VQanQWL4=;
+	b=cHvMA0IarXHi8uYLXRZlQohIJK1bbCRAgMT0uPYR3n9TV0EnoSPgQWid9qUNKIPsSd189Q
+	mHC6WhvBDpsVOsv+t9Ee6sCqrsTbOmtbT4JEIn3RceDyZPAHBorAUtFnZvdNSt2Hv8XwDN
+	tc/ya6F4+zYPsYqho18vi0JbeXdI6C4=
+Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-330-3LxhGjISMsKtV2I1UKIo-w-1; Fri,
+ 12 Jun 2026 14:15:04 -0400
+X-MC-Unique: 3LxhGjISMsKtV2I1UKIo-w-1
+X-Mimecast-MFC-AGG-ID: 3LxhGjISMsKtV2I1UKIo-w_1781288103
+Received: from mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.4])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id A03F3195606F;
+	Fri, 12 Jun 2026 18:15:02 +0000 (UTC)
+Received: from fedora.redhat.com (unknown [10.44.32.24])
+	by mx-prod-int-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id DBC5F30001A1;
+	Fri, 12 Jun 2026 18:14:58 +0000 (UTC)
+From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>
+Cc: Maxime Coquelin <mcoqueli@redhat.com>,
+	linux-kernel@vger.kernel.org,
+	Yongji Xie <xieyongji@bytedance.com>,
+	Jason Wang <jasowang@redhat.com>,
 	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	sgarzare@redhat.com,
-	mst@redhat.com,
-	stefanha@redhat.com,
-	maciej.szmigiero@oracle.com,
-	bchaney@akamai.com,
-	mark.kanda@oracle.com,
-	ptikhomirov@virtuozzo.com,
-	den@openvz.org,
-	andrey.drobyshev@virtuozzo.com
-Subject: [PATCH 4/4] vhost/vsock: re-scan TX virtqueue on device start
-Date: Fri, 12 Jun 2026 19:57:18 +0300
-Message-ID: <20260612165718.433546-5-andrey.drobyshev@virtuozzo.com>
-X-Mailer: git-send-email 2.47.1
-In-Reply-To: <20260612165718.433546-1-andrey.drobyshev@virtuozzo.com>
-References: <20260612165718.433546-1-andrey.drobyshev@virtuozzo.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: VI1P189CA0021.EURP189.PROD.OUTLOOK.COM
- (2603:10a6:802:2a::34) To VI0PR08MB10656.eurprd08.prod.outlook.com
- (2603:10a6:800:20a::12)
+	Cindy Lu <lulu@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Laurent Vivier <lvivier@redhat.com>
+Subject: [PATCH v4 0/2] vduse: Add suspend
+Date: Fri, 12 Jun 2026 20:14:55 +0200
+Message-ID: <20260612181457.622955-1-eperezma@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: VI0PR08MB10656:EE_|AS2PR08MB9416:EE_
-X-MS-Office365-Filtering-Correlation-Id: 1310816b-6b23-4f17-831b-08dec8a3af5f
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|52116014|7416014|366016|376014|1800799024|23010399003|56012099006|22082099003|18002099003|38350700014;
-X-Microsoft-Antispam-Message-Info:
-	3pN2pZhgzKtjvBQ1kUkkogj1l+mBmZ2ov6XbV4yHdc657TZtQam36H1aSBwo1V77prgv7QFGqAFE2d0Ak+QEqkY+as0UF6ud71Y3bnKX8umkvnH8Xoh0OpoJjJZ181moLjwynrucPh45HE2HOJ4tGgiG0kTEu5a40nziXW4Kw4CSXgr5NgEjpFQMZTPg/nMGp+hpm4OXmT1QZJ+eSbhD2/pGuY7Gh56EBoOMcnGyu523MkFd+4335I0vlfg/aXG+g4glGS7juKcMpHMVae4dGC3Ihl91XG+iBTwEJCvxz+tIgdqy2IRYB2nHWZ4EBrWtRKN2CubWaIa5MCCfXmpd49xaczHFhsVSrceM958IgaICtgxvSvomb89d+bmQla6pbUnqNj/QfiQ43TsXSw1OFThVuJfbADOqshz3udJpfR6yZCBakLihVFDdqFDjBwQOMSB0mm9oxfpEbBhPZHtcGy7hGkhzA2BMvXGe114vs4jjUAW2fCpmdcG4o4bmY3LyLcM4st9XAIQWh3RzGk2abR3l2FlcEGvT4KM9RxhifUj0rU04Y9LYb4/EMsgMAypgxBQUrcpHXkY1TInDcg1A5i5wnNU14Ct11oPNvwI/vqd74bDtsTEJs4IqYZzbzp9Ld4aK0OwWCGEqyRQ6UISqPxh2OmRjr4XRupQOY5DyeKgIPbRyNNXgRU/w+IJq9z7M+2KdDow+BBuZMel22bsch8Ngdp4jBy0Rdnu2R4vOAu1scp0ateJowcP9W6ePmAlf
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI0PR08MB10656.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(52116014)(7416014)(366016)(376014)(1800799024)(23010399003)(56012099006)(22082099003)(18002099003)(38350700014);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?cZWF6xxI+qEb04PLLkKMI13PmOzYrlACwyaQ8f7iips7oEgv0Y7jYiB5rlW0?=
- =?us-ascii?Q?+gQZWSrO7+07Zl9R9ZNq0C0j+Udt2krkyKYdoU96Yw6z/XEA7tXa1qyvPBue?=
- =?us-ascii?Q?eIDfjZ6go85QsSC4SHPgwlOeaG2e90hEPI4/zoZGC7mf5s0sh3KwsbIFLyhH?=
- =?us-ascii?Q?nrP9AXMMpNr93HxRvtGfK6/+Hsk2y9vdD5HiYrluTVwTkavTbugmfAP0b2QA?=
- =?us-ascii?Q?28EW+raITds20mb930VIfnFkTXLshSkHHIpgw6P53XttMYWNuO0krvr6PbXT?=
- =?us-ascii?Q?H3qRTffEu9I54ED3+PWrRLX8k8TvhguFp5Jany+gXuLzWeyvIwMjrJ2oQ08r?=
- =?us-ascii?Q?XwRU+I58BMMb+USPGkRmhcUfLqiVWM1b1x5RSPui5ZrQL634D6PlaRJJfIA2?=
- =?us-ascii?Q?ViTIQ7uA6WgbhpiAYT4V5d4tVL9mdB5PC9GatHu1wDx1Hi0AJeuZCL0myeG0?=
- =?us-ascii?Q?1L/HuAegF1v5dsFgL5GbhZJcVpOWazMhAEx1S94+16oyX0gu7Ld4hzyfSTuE?=
- =?us-ascii?Q?+jE47g47kWdFp9o6jWvap2gyslJD3HXIHBKxKYJyAvoGGGDa6d3PXfN2BuyX?=
- =?us-ascii?Q?V5SLCvQdss9aMXUHDlIySs9BbfMIXenZVxTpEB0fqDGk0rrJNsLqI6KQgYTC?=
- =?us-ascii?Q?Tdig6WxLcvQdqmrDB+dFK0BP37PAjNWevLqymaBLo1d1RIuVdnY5CKJGm7Ud?=
- =?us-ascii?Q?O5KPHQXp064oU2Q9hzC7tqIZ3iI93KEhLb+Ysbtd32Yc3ZZbtx84juoWIvGE?=
- =?us-ascii?Q?qk4FvL4Bu0KGTgrBRqQxSrPDB8HpLYPtCWV0tiQUxeV3GR5RTA2hPlZBiE/q?=
- =?us-ascii?Q?rgfuX211fSEKM6x1ByZ2fMt0Mn/S9uRde9g0lyKUyo521K1YZ1YV5f0ukCTu?=
- =?us-ascii?Q?6DjoObyn10IrScVdfizSawnLMKXDrXt8815O48+xE5+3KeNM0VM5lRzxKdpp?=
- =?us-ascii?Q?sR+xE5aaKw5dD3c/+nN2YhotoYKuKiJqZ1mESy2hERRffO45tokuQksPRu4U?=
- =?us-ascii?Q?bJVst0NaVaSYE0bzyEqJosricwAmmGlCx1S/ePyomesOWwE/1e4uJrVSQYB0?=
- =?us-ascii?Q?Eern7zB1IKZX0TtJOSwhETUWfidI3+vMwePcs8oPNmJD0zrwDxu4E+tqzruK?=
- =?us-ascii?Q?IqU+bqZHdnkkOCQMoiAaN7u7qwGjuF93UpizjwzvvfpAiJy0bLLtigc3g9AV?=
- =?us-ascii?Q?3YmJGz3VhdFl862uvxNW1Kkv9URoLPemeqZ6HTQckPDSoEOPQjfAOkjh3Efw?=
- =?us-ascii?Q?PAAcKsplxqCNHESIgfV+kXroBlCG+CV74syL0m36JSA+8Ti/oVP6gbLzVsEf?=
- =?us-ascii?Q?+izT0hVxZnmh2Nf0pBoyr9ysjkd0XClrcSUzm9g3no/zPbQaIR/4wXNsvRdY?=
- =?us-ascii?Q?kZgYE8k4fbSwAraHGmzio3GTwaLuR2SULHIJpSj4jPZYuiF6cAPiDJXQtGIo?=
- =?us-ascii?Q?Vb3DOu6ooAsWDQz6jZu++qJ12zlUDwtsyoRG4+iprH7CRR/EJwo8jn1Dbj1u?=
- =?us-ascii?Q?9V1RdTTE6FzPbnIcJDCKjBpi3k2svtqzmX17c1Rg+qnS/ZaMyfdZBIG1Daaj?=
- =?us-ascii?Q?0MNEtRWBHbKiT9q9dN0moLyPNzayH5zhuIuvybYsKCM13Qf0E5Rn7qZdW62z?=
- =?us-ascii?Q?gDPJLxbq+Pqlsx0b2oRe6UpAWx73h4YBmEzOTR53z4P4OyjDHe3IfcuH1smY?=
- =?us-ascii?Q?7RhNufSC6wbljWlF4vADpwqYyNLqQicqG/7jLPhxDmSXX2GoirLEGlvCaY2M?=
- =?us-ascii?Q?ApmGitec9za25E+E5M6ckUVh3L8Hy7U=3D?=
-X-OriginatorOrg: virtuozzo.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 1310816b-6b23-4f17-831b-08dec8a3af5f
-X-MS-Exchange-CrossTenant-AuthSource: VI0PR08MB10656.eurprd08.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 12 Jun 2026 16:57:28.1577
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 0bc7f26d-0264-416e-a6fc-8352af79c58f
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: p8SMAB8pKx5y4nUlEiqKyyQaZbfFm/MIlwVgRkg7vE5a/6XCn7/WYMyEh8IbkAIUEXwYwCWF7sn/V+KjAZhcjDDzw6cDRNyE73WCFXr9pGI=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS2PR08MB9416
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.4
+X-Mimecast-MFC-PROC-ID: M_tgxfu51291ZFqGe6lOBzMfsI-q1smBEHiulqEk76A_1781288103
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 
-During QEMU CPR live-update (and VHOST_RESET_OWNER in general) the guest
-keeps running while the host drops and later re-attaches vhost backends.
-If the guest adds a buffer to the TX virtqueue (guest->host) and kicks
-while the backend is temporarily NULL (between vhost_vsock_drop_backends()
-and the next vhost_vsock_start()), then the kick is delivered to the
-vhost worker, handle_tx_kick() sees a NULL backend and returns, and the
-kick signal is consumed.  The buffer is then left in the ring.
+Implement suspend operation for vduse devices, so vhost-vdpa will offer
+that backend feature and userspace can effectively suspend the device.
 
-Then upon device start vhost_vsock_start() only re-kicks the RX send
-worker, never the TX VQ, so the buffer is processed only if the guest
-happens to kick again.  But if the guest itself is now waiting for data
-from the host, it will never kick TX VQ again, and we end up in a
-deadlock.
+This is a must before get virtqueue indexes (base) for live migration,
+since the device could modify them after userland gets them.
 
-The deadlock is reproduced during active host->guest socat data transfer
-under multiple consecutive CPR live-update's.
+This patch does not implement resume, so VMM resets the whole device
+to recover from a live migration failure.  Resume optimization can be
+implemented on top of these patches, as other vDPA devices have done in
+the past.
 
-To fix this, in vhost_vsock_start(), after kicking the RX send worker, also
-queue the TX vq poll so any buffers the guest enqueued while we were paused
-get scanned.
+This series applies on top of e372c4ca7931cadb5cbee1cd9124cfad38fa2391,
+replacing all the previous patches.
 
-Signed-off-by: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
----
- drivers/vhost/vsock.c | 6 ++++++
- 1 file changed, 6 insertions(+)
+v4:
+* Add preparatory patch to not flush the kick and irq works under rwsem
+  (MST).
+* Fix jump over a semaphore guard (Nathan Chancellor).
+* Fix take the device semaphore in the vq spinlock context (MST).
+* Add suspend guard at vq_signal_irqfd so the device will not send an
+  IRQ after suspend.
 
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index bcaba36becd7..1fcfe71d18be 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -655,6 +655,12 @@ static int vhost_vsock_start(struct vhost_vsock *vsock)
- 	 */
- 	vhost_vq_work_queue(&vsock->vqs[VSOCK_VQ_RX], &vsock->send_pkt_work);
- 
-+	/*
-+	 * Some packets might've also been queued in TX VQ.  Re-scan it here,
-+	 * mirroring the RX send-worker kick above.
-+	 */
-+	vhost_poll_queue(&vsock->vqs[VSOCK_VQ_TX].poll);
-+
- 	mutex_unlock(&vsock->dev.mutex);
- 	return 0;
- 
+v3:
+* Expand the patch message with information about resume operation.
+
+v2:
+* Take the rwsem only before the actual kick, not in vduse_vdpa_kick_vq.
+  This assures that we're not in a critical section.
+
+Eugenio Pérez (2):
+  vduse: do not take rwsem at reset work flush
+  vduse: Add suspend
+
+ drivers/vdpa/vdpa_user/vduse_dev.c | 164 +++++++++++++++++++++--------
+ include/uapi/linux/vduse.h         |   4 +
+ 2 files changed, 127 insertions(+), 41 deletions(-)
+
 -- 
-2.47.1
+2.54.0
 
