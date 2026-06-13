@@ -1,54 +1,54 @@
-Received: from mail-pf1-f202.google.com (mail-pf1-f202.google.com [209.85.210.202])
+Received: from mail-pf1-f201.google.com (mail-pf1-f201.google.com [209.85.210.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E8DFE571
-	for <virtualization@lists.linux.dev>; Sat, 13 Jun 2026 00:10:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0A541B4224
+	for <virtualization@lists.linux.dev>; Sat, 13 Jun 2026 00:10:18 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781309417; cv=none; b=GRUrTxmY0FSUFlp3nncgk1OenyiQ2ExQ9elqvtm/FM1ETfrVd2dnccNqasZnP9zSl07btyUlTiczIGyg8G1ufDw37jB6rgtmDWfD66NV9SpJL1+kcWGWaFuHd3KvIM+0/pnBTd8fzBjZh9Mybkdn0xyVamRCl9wwdvUdXBtKJEg=
+	t=1781309420; cv=none; b=DiG3jOJnXVDpvPDQQnoRYUq8e8/VdKqW7jQzlWnPqi/o+1Da4oI62cbyScnh4FUy7aEs6K8Auy8orPKSBZSrF150ezjImKiwG4/s0zJOmA8THyw5mzYsrB36qS8HoLxdNS4Zl4hpUy2LgFZHsskmHW54jTFxYZRcaq9y5VpT3L8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781309417; c=relaxed/simple;
-	bh=c0Q49lpbntXNXsuLl1k74yDPvD9eCdJopUkpac70rjw=;
+	s=arc-20240116; t=1781309420; c=relaxed/simple;
+	bh=AF1IlyJR/U93o1LG6v6CBa5cEBHrm4/rODsO1tN/V3o=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=HZjbgvRqpbrvCORmUGdOyD+8Cca6xVoYrMDyNCp1wheKM1ziA9Et7Pyo6K2Ikq0nGohb9pH3I4FzMNAGgsvhpsp5vyypRGsNcKkyMLb2Da3LyFmKFR+9LSkAgwX2661RDSW+CLsBcxgzXLO87Jg0AUvzFPxEbE41ZsYCWMearIo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tavip.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=v9renn0O; arc=none smtp.client-ip=209.85.210.202
+	 To:Cc:Content-Type; b=mWDnsCH6nYHHA2sZPVZB8vjLEdAB0Qh+t0KNVOdExpmntFvgf0grv8eiV8WtNhOWL9wlb7lyovg+sj92apfmu+Tl/afC0aYBIsFP4Ft36zJrD6W9tirY4YtPW88gVqhuQFFAoJ3bmYevEAQObq4kYqDPOVKixDj7diVa0ezVCRY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tavip.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=ePjMnSg+; arc=none smtp.client-ip=209.85.210.201
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--tavip.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="v9renn0O"
-Received: by mail-pf1-f202.google.com with SMTP id d2e1a72fcca58-8423f24dcedso1714651b3a.1
-        for <virtualization@lists.linux.dev>; Fri, 12 Jun 2026 17:10:16 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ePjMnSg+"
+Received: by mail-pf1-f201.google.com with SMTP id d2e1a72fcca58-8421ffff8a3so1903584b3a.2
+        for <virtualization@lists.linux.dev>; Fri, 12 Jun 2026 17:10:18 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1781309416; x=1781914216; darn=lists.linux.dev;
+        d=google.com; s=20251104; t=1781309418; x=1781914218; darn=lists.linux.dev;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=kz/YGgUT7Uc36MorqsAsmMwEDPJGbRICV4QU2IwdKQo=;
-        b=v9renn0OASv5P+dnulUzs0haA2j8ZGqMlE8sUfmuTkYNvI78/7uEALO0l5WwiWaau0
-         yOu6l6qr7CJ3zA/vCMVO7smwC/nd+5oIvymzxah/iHDKv3yTc96oXLvy9dS5uHNZg827
-         S/k7c/HDftGgw9IUfbSbprSLfVDae0BzKURL87aQAdlOL0TpKTS2/IlDdI9KnmxHFDNh
-         jc4pWDt3SwzDswI2ppk2yRT/RRgoOIJenefqI+GyKY/1bx3Oyz9o0z9LtgdP6iSY7PjV
-         FEKv+sKu/3BAdJFGZyCp04conPoNGAmCMeHp2twMQPqYJ4ndoVUvXXB+NyXs1WcfS+8C
-         ADyw==
+        bh=IfSZlFh04a3h2HSeDtAPuy7d2efg+siOhibP1darPB8=;
+        b=ePjMnSg+iw9CZ9k6iEOElrzFuk0i+WqFFkak+84BxRPhDowBVblxmPkWnR1hZ/4+3p
+         kdaDu0mFZV7qI3NN1AM2dIrJZoWKD0mNQJBcc3Cdo2xyHTLi42x1Idmr8rCpZMoPErwW
+         ph5oGeAXGI5fEM9yMHlOiFswJHobCU0tfxFhUhCi/T8UGmUv+GasJJF+A4jKgX/rIjp/
+         MNGzB3+yVDUYEgIc3qQ5+ja0VSH2LZWNYsONRD781HoI+2f45VredJvQTAxK5JyaoLHz
+         naKFLnNrqvtRLGDXF6fzo4DtTKWEBqd/XNxD/ndc3J+fIHL5gLWIshc0OdK+tAU597DT
+         0ZJQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781309416; x=1781914216;
+        d=1e100.net; s=20251104; t=1781309418; x=1781914218;
         h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
          :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=kz/YGgUT7Uc36MorqsAsmMwEDPJGbRICV4QU2IwdKQo=;
-        b=dhS7xxvGusQnkUmNmAp6MIlQ5yZfp98LPyFjLMOFcbHSLMjMzTxOn86Wwt9ZfixQws
-         LXv7csP3ueBjVwK0RHVykWws6om9VcziJv9Fww8zJoferwx/+aqJaeIP4rsB0jzAhCT/
-         poHfsPVfE1cBqf1gcKN11CK/G/owNOTmdXKAP/N5MujstbqJxLA+hz3Gj/u4qBISaH+7
-         J78sq4vNSyt7bjTH90MpaSikbHNCC/KOHjU1BPrxVz5sqsmtH0Y/ssLgEWgRuaFgegYk
-         qw3mQd85A3n92+O+L2J45mAonSG7gWa4ukVO42984f173zI8ZQoY8754M93s056k6opj
-         MWtQ==
-X-Forwarded-Encrypted: i=1; AFNElJ/bYjMA/bYOF8evJkpBuj/NoMdXgnzp0/KlypGzr6j7M9/W14ezr3mGbv2ZTA7U7bQ5cJ0zuDLP7AOH+QP0xg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwOlZiWGuaE+qsb+jMWNsMU3qhSjDYniPI/V9FkcmypqpOloTfv
-	xx+wvKA2G5FShPLQO53Gn9x34kO/VbCQoexi0VKHA0/M37E+AMKPzz9OPEQWlM7kkNih1ShbFYd
-	Lvw==
-X-Received: from pfra26.prod.google.com ([2002:aa7:8e9a:0:b0:835:3df8:d72])
- (user=tavip job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:1404:b0:836:3f6a:3e77
- with SMTP id d2e1a72fcca58-8434cd4b0abmr5407830b3a.17.1781309415402; Fri, 12
- Jun 2026 17:10:15 -0700 (PDT)
-Date: Sat, 13 Jun 2026 00:09:52 +0000
+        bh=IfSZlFh04a3h2HSeDtAPuy7d2efg+siOhibP1darPB8=;
+        b=c75iT5uL21udBC7EvzfDH73nF1b7rzF7QKTqy2Gks1cUKo++cnK7cdsOi12DKJIXcY
+         x16HGHVwzfOclIUL2pEBiDqt68Ei06QCawLRVHdNN1eGnnPsu+LFZdPV4MBCSqW6dnIL
+         BsKP5w1BAi0iS/vs0OXzuqqh6eTjcs4OJlte8oxaEr+TZ8+/ZE1ZVj9TvS1LEPoIdTUo
+         BxJUj4SS0fdJdT7eQ9dpwcKaJzTx2/c8JKhDSo+be9huF2d/CIYo6dlz15LlhCKCT1Cj
+         UdGM5qxNKM8s9iQK8cWsFFhBt1IKajorXkRWQIs6MuuN26H1mKGqggMW36+PMe/ltgzQ
+         gUnw==
+X-Forwarded-Encrypted: i=1; AFNElJ+W+UGALxLe/00iX/5O3L0lWr8y+f1F9RnEiPGfb4eOnZVCk4BcIWQpscSrlxJtjEIWgbZpxrJX7aXy1S+p1g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyANQzq/7XmCvaTRzLE/kQ60UaaJbnq8lfQPKEdaelI3v53GN1f
+	UxcpENXALQOkREpYG3/d7DsLqGdPaq2qgriqcl2ihCpB6/HrClMXA15dmu+ZmzOI+Po3NyVqH/l
+	JuQ==
+X-Received: from pfff14.prod.google.com ([2002:a05:6a00:bd0e:b0:842:3b07:6355])
+ (user=tavip job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:3d48:b0:842:5c60:513
+ with SMTP id d2e1a72fcca58-8434ce84647mr5472887b3a.30.1781309417753; Fri, 12
+ Jun 2026 17:10:17 -0700 (PDT)
+Date: Sat, 13 Jun 2026 00:09:53 +0000
 In-Reply-To: <20260613000953.467473-1-tavip@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -58,8 +58,8 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 Mime-Version: 1.0
 References: <20260613000953.467473-1-tavip@google.com>
 X-Mailer: git-send-email 2.54.0.1136.gdb2ca164c4-goog
-Message-ID: <20260613000953.467473-2-tavip@google.com>
-Subject: [PATCH net v2 1/2] iov_iter: export iov_iter_restore
+Message-ID: <20260613000953.467473-3-tavip@google.com>
+Subject: [PATCH net v2 2/2] vsock/virtio: restore msg_iter on transmission failure
 From: Octavian Purdila <tavip@google.com>
 To: netdev@vger.kernel.org
 Cc: Alexander Viro <viro@zeniv.linux.org.uk>, Andrew Morton <akpm@linux-foundation.org>, 
@@ -71,31 +71,94 @@ Cc: Alexander Viro <viro@zeniv.linux.org.uk>, Andrew Morton <akpm@linux-foundati
 	"Michael S. Tsirkin" <mst@redhat.com>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
 	Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, 
 	virtualization@lists.linux.dev, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Octavian Purdila <tavip@google.com>
+	Octavian Purdila <tavip@google.com>, syzbot+28e5f3d207b14bae122a@syzkaller.appspotmail.com
 Content-Type: text/plain; charset="UTF-8"
 
-Export iov_iter_restore so that it can be used by modules.
+When transmission fails in virtio_transport_send_pkt_info, the msg_iter
+might have been partially advanced. If we don't restore it, the next
+attempt to send data will use an incorrect iterator state, leading to
+desync and warnings like "send_pkt() returns 0, but X expected".
 
-This is needed by the virtio vsock transport (which can be built as a
-module) to restore the msg_iter state when transmission fails.
+Specifically, this can happen in the following scenario, triggered by
+the syzkaller repro:
 
+1. A write-only VMA (PROT_WRITE only) is partially populated by a
+   prior TUN write that failed with -EIO but still faulted in some
+   pages).
+2. A vsock sendmmsg call with MSG_ZEROCOPY requests transmission of a
+   buffer from this VMA.
+3. The first packet (64KB) is sent successfully because the pages are
+   populated.
+4. The second packet allocation fails because GUP fast pins the first page
+   but GUP slow fails on the next unpopulated page due to PROT_WRITE-only
+   permissions.
+5. The iterator is advanced by the partially successful GUP (68KB total
+   advanced: 64KB from first packet + 4KB from second), but the send loop
+   breaks and only reports 64KB sent. This creates a 4KB desync.
+6. The next retry starts with a non-zero iov_offset, disabling zerocopy
+   and falling back to copy mode.
+7. In copy mode, the transmission succeeds for the next packets but
+   exhausts the iterator early because of the desync.
+8. The final retry sees an empty iterator but zerocopy is re-enabled
+   (offset resets). It attempts to send the remaining bytes with zerocopy
+   but pins 0 pages, creating an empty packet.
+9. The transport sends the empty packet, triggering the warning because
+   the returned bytes (header only) do not match the expected payload size.
+10. The loop continues to spin, allocating ubuf_info each time, eventually
+    exhausting sysctl_optmem_max and returning -ENOMEM to userspace.
+
+Restore msg_iter to its original state before the packet allocation
+and transmission attempt if they fail.
+
+Fixes: e0718bd82e27 ("vsock: enable setting SO_ZEROCOPY")
+Reported-by: syzbot+28e5f3d207b14bae122a@syzkaller.appspotmail.com
+Closes: https://syzkaller.appspot.com/bug?extid=28e5f3d207b14bae122a
+Assisted-by: gemini:gemini-3.1-pro
 Signed-off-by: Octavian Purdila <tavip@google.com>
 ---
- lib/iov_iter.c | 1 +
- 1 file changed, 1 insertion(+)
+ net/vmw_vsock/virtio_transport_common.c | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
 
-diff --git a/lib/iov_iter.c b/lib/iov_iter.c
-index 243662af1af73..067e745f9ef53 100644
---- a/lib/iov_iter.c
-+++ b/lib/iov_iter.c
-@@ -1491,6 +1491,7 @@ void iov_iter_restore(struct iov_iter *i, struct iov_iter_state *state)
- 		i->__iov -= state->nr_segs - i->nr_segs;
- 	i->nr_segs = state->nr_segs;
- }
-+EXPORT_SYMBOL(iov_iter_restore);
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index b10666937c490..2baa5a6ebd750 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -295,6 +295,7 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+ 	u32 max_skb_len = VIRTIO_VSOCK_MAX_PKT_BUF_SIZE;
+ 	u32 src_cid, src_port, dst_cid, dst_port;
+ 	const struct virtio_transport *t_ops;
++	struct iov_iter_state msg_iter_state;
+ 	struct virtio_vsock_sock *vvs;
+ 	struct ubuf_info *uarg = NULL;
+ 	u32 pkt_len = info->pkt_len;
+@@ -368,8 +369,17 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+ 		struct sk_buff *skb;
+ 		size_t skb_len;
  
- /*
-  * Extract a list of contiguous pages from an ITER_FOLIOQ iterator.  This does
++		/* Save iterator state in case allocation or transmission fails
++		 * so we can restore it and retry.
++		 */
++		if (info->msg)
++			iov_iter_save_state(&info->msg->msg_iter, &msg_iter_state);
++
+ 		skb_len = min(max_skb_len, rest_len);
+ 
++		/* Note: virtio_transport_alloc_skb() can advance info->msg->msg_iter
++		 * even if it fails (e.g. partial GUP success).
++		 */
+ 		skb = virtio_transport_alloc_skb(info, skb_len, can_zcopy,
+ 						 uarg,
+ 						 src_cid, src_port,
+@@ -399,6 +409,9 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+ 			break;
+ 	} while (rest_len);
+ 
++	if (info->msg && ret < 0)
++		iov_iter_restore(&info->msg->msg_iter, &msg_iter_state);
++
+ 	virtio_transport_put_credit(vvs, rest_len);
+ 
+ 	/* msg_zerocopy_realloc() initializes the ubuf_info refcnt to 1.
 -- 
 2.54.0.1136.gdb2ca164c4-goog
 
