@@ -1,198 +1,74 @@
-Received: from out-179.mta1.migadu.com (out-179.mta1.migadu.com [95.215.58.179])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 352403BE64B
-	for <virtualization@lists.linux.dev>; Sat, 13 Jun 2026 12:26:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.179
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B52A02459DC;
+	Sat, 13 Jun 2026 16:26:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781353607; cv=none; b=KwSGu6PFRNgOaiAmVD1lziRAwsSYif0GeoT6OsRjdrhORLTsVrHsj5kA9l39l7jNsCKz7l0VfOsuqvtffqPvlDCvu17vJqzeQa5vuu1PTfVNGvhYiqCPSFUDqSBMDOqPu0+9g+IHpwI8s4S8QRmTgtbiLhgscilgQan83r9+pQI=
+	t=1781368007; cv=none; b=IdFz14c8vxORQ2mCNmaDiMn8UdnsitYsQ2TeFJeLYHsCGmmAVzkKgchFM9t8IesANKGggHKfsWwzBOz2Xfm3D0Z20AKA0z2BXZRydI8KlDk0CCeST6iyBTOP8CmhCIkagYsqsbMMsRJGwLI+/m9KkylPv2yZyX+sGLJF1yRBrkg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781353607; c=relaxed/simple;
-	bh=+Utq3396aQFNMgv97jxeXtkc7/pqfXum3no/lPBQ9rw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=FpdKTZxhsaCtPnbdNvSWpIjwR2dj9jF6tHoKx/fde2T4o3UbBpnxksepHaWYMKM56scMygW/NgKQ0eGAx+W5h71MUU8p9RSW9eKTJ/MnRxH9iwdpGVOnthkDaxi1/HMQsRI0MdlOdZoqNpb0HSEc8XHgDhDL1EpX6bpV3pv5UHs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=fVNFhJBH; arc=none smtp.client-ip=95.215.58.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
+	s=arc-20240116; t=1781368007; c=relaxed/simple;
+	bh=6wyKlt/rkdkUyUC217gMouOHcTy4/PdKfaskDk3EwKQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=SZz9S23QoHKRaDjcx07EmJGkV+BfH3xptsFGe3IeJsabtYtTeDxy/zF/ziasef/15ijIgJWc7uDvWedCe8eHiRyQn6TYdcUYmHhyAb1NIVwhHs27pYB2COLlZBdBDajSqkxycHAtcMp1Bdb6ewTzSyXJR/O3xvtYq8BoAt/zILU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ataMPZg9; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="fVNFhJBH"
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1781353600;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=ezZ4R5waX9NiYNreVYNEdpvd6VvEUg7nWNgpBzpChj4=;
-	b=fVNFhJBHstCvbysj7S3frgErmLO4n20mCXB15L0+aV4Iqhg8aSto2Vr8WlJH0WA1SG866W
-	M8onNIvAJ3GzcMDUoCACBi/5d7CI4VZD/4b4SasNfgJPN595wjpx7McwgmHxxYJsjFDVX2
-	ph6KSW5rORttgaEXHl9PdtIrZhK+1WY=
-From: Menglong Dong <menglong.dong@linux.dev>
-To: menglong8.dong@gmail.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
- Bui Quang Minh <minhquangbui99@gmail.com>
-Cc: mst@redhat.com, jasowang@redhat.com, andrew+netdev@lunn.ch,
- davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
- kerneljasonxing@gmail.com, netdev@vger.kernel.org,
- virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next v2 1/2] virtio_net: xsk: fix race in rx wake up
-Date: Sat, 13 Jun 2026 20:26:26 +0800
-Message-ID: <rHZz5_ylT4WggoZ-Ic2Q4w@linux.dev>
-In-Reply-To: <41eefa1d-99bf-450d-988e-7dec67c6b61e@gmail.com>
-References:
- <20260611025644.2431148-1-dongml2@chinatelecom.cn>
- <20260611025644.2431148-2-dongml2@chinatelecom.cn>
- <41eefa1d-99bf-450d-988e-7dec67c6b61e@gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ataMPZg9"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C8951F000E9;
+	Sat, 13 Jun 2026 16:26:44 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1781368006;
+	bh=quHP7KcGd6kRdMSIND7iYUAuCYasmRY32NiFq9JBOVw=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=ataMPZg9iqpQuZ4K+KyXbM5t+5ZEDAZWlSSgehtwxnID/5KGzWRo4xRn6wFfWJCiC
+	 /UaFVNt+54AXniRya83/4iiXbEz5NzJAjmlkxSzI3KUGegh/kchqgwvRBk1acLbdbi
+	 skvydT7irWQ/A2n4879liE2Gc5w+MR0biDQx5tCxV948vKNzY+EHA8unCfca5wEKkr
+	 nv5YJ5zeV3TqhoXEZNEm8Ld9hX0IbHRlnnJcLiv88sHSJqlvPycKWAZxCstwD69gqR
+	 nYiNJS78wD8mMtvHVoblTe+riVJyOxEJ/CwfAufQQp1wRwSKOnOcmKbMD0ocaxIGZk
+	 CEa8EvXH8A7UQ==
+Date: Sat, 13 Jun 2026 12:26:41 -0400
+From: Nathan Chancellor <nathan@kernel.org>
+To: David Laight <david.laight.linux@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+	llvm@lists.linux.dev
+Subject: Re: [PATCH] vduse: Fix error around jumping over a __cleanup()
+ variable
+Message-ID: <20260613162641.GA2697431@ax162>
+References: <20260610-vduse_vq_kick-fix-guard-usage-v1-1-0ce02c08006e@kernel.org>
+ <20260611110346.2b9388a1@pumpkin>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7Bit
-Content-Type: text/plain; charset="utf-8"
-X-Migadu-Flow: FLOW_OUT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260611110346.2b9388a1@pumpkin>
 
-On 2026/6/12 00:24, Bui Quang Minh wrote:
-> On 6/11/26 09:56, menglong8.dong@gmail.com wrote:
-> > From: Menglong Dong <dongml2@chinatelecom.cn>
-> >
-> > During packet receiving in virtio-net, the rq can be empty, which means
-> > "rq->vq->num_free == virtqueue_get_vring_size(rq->vq)", in
-> > virtnet_add_recvbuf_xsk(), if we are using xsk. Meanwhile, the fill ring
-> > can be empty too, which means we can't allocate anything from
-> > xsk_buff_alloc_batch(). Then, we will set the XDP_RING_NEED_WAKEUP flag.
-> >
-> > However, if the user clean all the data in rx ring and fill the
-> > "fill ring" and check the XDP_RING_NEED_WAKEUP flag after
-> > xsk_buff_alloc_batch() and before xsk_set_rx_need_wakeup(), then the rx
-> > napi will never be scheduled: the rx ring is empty, which means we will
-> > never receive a packet to trigger the further recv fill. The rx ring is
-> > empty now, so the user will not check the flag too.
-> >
-> > Fix this by set the XDP_RING_NEED_WAKEUP flag before
-> > xsk_buff_alloc_batch() if both rq->vq and fill ring are empty.
-> >
-> > Meanwhile, set the XDP_RING_NEED_WAKEUP flag if we have any free entry in
-> > rq->vq.
-> >
-> > Fixes: e3f8800aa243 ("virtio-net: xsk: Support wakeup on RX side")
-> > Signed-off-by: Menglong Dong <dongml2@chinatelecom.cn>
-> > ---
-> >   drivers/net/virtio_net.c | 25 ++++++++++++++++++++++---
-> >   1 file changed, 22 insertions(+), 3 deletions(-)
-> >
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index f4adcfee7a80..4b5b3fa62008 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -1323,16 +1323,27 @@ static int virtnet_add_recvbuf_xsk(struct virtnet_info *vi, struct receive_queue
-> >   				   struct xsk_buff_pool *pool, gfp_t gfp)
-> >   {
-> >   	struct xdp_buff **xsk_buffs;
-> > +	bool need_wakeup;
-> >   	dma_addr_t addr;
-> >   	int err = 0;
-> >   	u32 len, i;
-> >   	int num;
-> >   
-> > +	need_wakeup = xsk_uses_need_wakeup(pool);
-> >   	xsk_buffs = rq->xsk_buffs;
-> >   
-> > +	/* If both rq->vq and fill ring are empty, and then the user submit
-> > +	 * all the chunks to the fill ring and check the wake up flag
-> > +	 * after xsk_buff_alloc_batch() and before xsk_set_rx_need_wakeup(),
-> > +	 * we will lose the chance to wake up the rx napi, so we have to
-> > +	 * set the need_wakeup flag here.
-> > +	 */
-> > +	if (need_wakeup && virtqueue_get_vring_size(rq->vq) == rq->vq->num_free)
-> > +		xsk_set_rx_need_wakeup(pool);
+On Thu, Jun 11, 2026 at 11:03:46AM +0100, David Laight wrote:
+> On Wed, 10 Jun 2026 12:16:49 -0700
+> Nathan Chancellor <nathan@kernel.org> wrote:
 > 
-
-Hi, Bui Quang. Thanks for your reply. I spent some time learning
-what you said.
-
-> I think when polling the receive queue, the userspace program needs to 
-> check the XDP_RING_NEED_WAKEUP flag if it does not see any packets. The 
-> flag check is quite lightweight in my opinion. Here are some examples I find
+> > When building with clang, there is an error in vduse_vq_kick() from
+> > attempting to jump over a variable declared with the cleanup attribute
+> > using goto:
+> .
+> > Jumping over a variable declared with the cleanup attribute does not
+> > prevent the cleanup function from running, it would just result in the
+> > variable being passed uninitialized to the cleanup function .clang
+> > errors instead of generating the invalid code, unlike GCC.
 > 
-> - 
-> https://github.com/xdp-project/xdp-tools/blob/e9469501622aa22a7e452a671000bec8685edcde/lib/util/xdpsock.c#L1206
+> Does the same apply to variables allocated inside switch statements?
+> I'm sure I've seen one that wasn't inside an extra block.
 
-You are right, I'm over concerned about this point. My origin
-concern is that we can't wake up from the poll syscall in this case:
+Yes:
 
-The chunk of the umem is 2000. In the beginning, the xsk->fill_ring
-is filled with 2000 chunk, and then the user fall asleep and don't
-do anything.
+  https://lore.kernel.org/20251002233627.GA3978676@ax162/
 
-Kernel: the 2000th packet is received
-Kernel: xsk_buff_alloc_batch return 0(xsk->fill_ring is empty and xsk->rx_ring is full)
-
-        User: handle the xsk->rx_ring
-        User: fill the xsk->fill_ring with 2000 chunks
-        User: check the wake up flag
-        User: no need_wakeup flag, fall asleep with poll() syscall
-
-Kernel: call xsk_set_rx_need_wakeup()
-Kernel: virio-net rx ringbuf is empty, we can't receive any packet further
-Kernel: to call virtnet_add_recvbuf_xsk(), we are dead
-
-But then, I found that we can still be wake up with the 2000th
-packet from the poll syscall, which means that the case that
-the NAPI and the user can't both be waked up doesn't exist.
-
-> - 
-> https://github.com/xdp-project/bpf-examples/blob/43e565901c4287efa863edca7f0e6cd6e35ed896/AF_XDP-forwarding/xsk_fwd.c#L540
-> 
-> Furthermore, the XDP_RING_NEED_WAKEUP flag related functions does not 
-> provide any memory orderings. So even with your patch, I'm worried that 
-> this case is possible
-> 
-> kernel userspace
-> 
-> xsk_buff_alloc_batch -> failed
->                                                              submit fill 
-> ring
->                                                              flag != 
-> XDP_RING_NEED_WAKEUP
-> // reordering due to lack of memory orderings
-> xsk_set_rx_need_wakeup
-> 
-> I'm not expert here, so correct me if I'm wrong. I think the wake up 
-> flag is designed with no orderings so we cannot rely on it to reason and 
-> skip further checks.
-> 
-> > +
-> >   	num = xsk_buff_alloc_batch(pool, xsk_buffs, rq->vq->num_free);
-[....]
-> > +
-> 
-> Why do we need to set XDP_RING_NEED_WAKEUP even when 
-> xsk_buff_alloc_batch succeeds?
-
-Ah, don't mind here. I just thought that if xsk_buff_alloc_batch()
-didn't allocate enough chunks as we need, we can wake up
-the NAPI as soon as possible, in case that the virtio-net ringbuf
-is full and cause packet dropping :)
-
-Anyway, I'll remove the first patch, and send the second patch
-only in the V3.
-
-Thanks!
-Menglong Dong
-
-> 
-> >   	return num;
-> >   
-> >   err:
-> 
-> Thanks,
-> Quang Minh.
-> 
-> 
-> 
-> 
-
-
-
-
+-- 
+Cheers,
+Nathan
