@@ -1,164 +1,198 @@
-Received: from mail-pf1-f201.google.com (mail-pf1-f201.google.com [209.85.210.201])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from out-179.mta1.migadu.com (out-179.mta1.migadu.com [95.215.58.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0A541B4224
-	for <virtualization@lists.linux.dev>; Sat, 13 Jun 2026 00:10:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 352403BE64B
+	for <virtualization@lists.linux.dev>; Sat, 13 Jun 2026 12:26:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781309420; cv=none; b=DiG3jOJnXVDpvPDQQnoRYUq8e8/VdKqW7jQzlWnPqi/o+1Da4oI62cbyScnh4FUy7aEs6K8Auy8orPKSBZSrF150ezjImKiwG4/s0zJOmA8THyw5mzYsrB36qS8HoLxdNS4Zl4hpUy2LgFZHsskmHW54jTFxYZRcaq9y5VpT3L8=
+	t=1781353607; cv=none; b=KwSGu6PFRNgOaiAmVD1lziRAwsSYif0GeoT6OsRjdrhORLTsVrHsj5kA9l39l7jNsCKz7l0VfOsuqvtffqPvlDCvu17vJqzeQa5vuu1PTfVNGvhYiqCPSFUDqSBMDOqPu0+9g+IHpwI8s4S8QRmTgtbiLhgscilgQan83r9+pQI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781309420; c=relaxed/simple;
-	bh=AF1IlyJR/U93o1LG6v6CBa5cEBHrm4/rODsO1tN/V3o=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=mWDnsCH6nYHHA2sZPVZB8vjLEdAB0Qh+t0KNVOdExpmntFvgf0grv8eiV8WtNhOWL9wlb7lyovg+sj92apfmu+Tl/afC0aYBIsFP4Ft36zJrD6W9tirY4YtPW88gVqhuQFFAoJ3bmYevEAQObq4kYqDPOVKixDj7diVa0ezVCRY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tavip.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=ePjMnSg+; arc=none smtp.client-ip=209.85.210.201
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--tavip.bounces.google.com
+	s=arc-20240116; t=1781353607; c=relaxed/simple;
+	bh=+Utq3396aQFNMgv97jxeXtkc7/pqfXum3no/lPBQ9rw=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=FpdKTZxhsaCtPnbdNvSWpIjwR2dj9jF6tHoKx/fde2T4o3UbBpnxksepHaWYMKM56scMygW/NgKQ0eGAx+W5h71MUU8p9RSW9eKTJ/MnRxH9iwdpGVOnthkDaxi1/HMQsRI0MdlOdZoqNpb0HSEc8XHgDhDL1EpX6bpV3pv5UHs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=fVNFhJBH; arc=none smtp.client-ip=95.215.58.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="ePjMnSg+"
-Received: by mail-pf1-f201.google.com with SMTP id d2e1a72fcca58-8421ffff8a3so1903584b3a.2
-        for <virtualization@lists.linux.dev>; Fri, 12 Jun 2026 17:10:18 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1781309418; x=1781914218; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=IfSZlFh04a3h2HSeDtAPuy7d2efg+siOhibP1darPB8=;
-        b=ePjMnSg+iw9CZ9k6iEOElrzFuk0i+WqFFkak+84BxRPhDowBVblxmPkWnR1hZ/4+3p
-         kdaDu0mFZV7qI3NN1AM2dIrJZoWKD0mNQJBcc3Cdo2xyHTLi42x1Idmr8rCpZMoPErwW
-         ph5oGeAXGI5fEM9yMHlOiFswJHobCU0tfxFhUhCi/T8UGmUv+GasJJF+A4jKgX/rIjp/
-         MNGzB3+yVDUYEgIc3qQ5+ja0VSH2LZWNYsONRD781HoI+2f45VredJvQTAxK5JyaoLHz
-         naKFLnNrqvtRLGDXF6fzo4DtTKWEBqd/XNxD/ndc3J+fIHL5gLWIshc0OdK+tAU597DT
-         0ZJQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781309418; x=1781914218;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=IfSZlFh04a3h2HSeDtAPuy7d2efg+siOhibP1darPB8=;
-        b=c75iT5uL21udBC7EvzfDH73nF1b7rzF7QKTqy2Gks1cUKo++cnK7cdsOi12DKJIXcY
-         x16HGHVwzfOclIUL2pEBiDqt68Ei06QCawLRVHdNN1eGnnPsu+LFZdPV4MBCSqW6dnIL
-         BsKP5w1BAi0iS/vs0OXzuqqh6eTjcs4OJlte8oxaEr+TZ8+/ZE1ZVj9TvS1LEPoIdTUo
-         BxJUj4SS0fdJdT7eQ9dpwcKaJzTx2/c8JKhDSo+be9huF2d/CIYo6dlz15LlhCKCT1Cj
-         UdGM5qxNKM8s9iQK8cWsFFhBt1IKajorXkRWQIs6MuuN26H1mKGqggMW36+PMe/ltgzQ
-         gUnw==
-X-Forwarded-Encrypted: i=1; AFNElJ+W+UGALxLe/00iX/5O3L0lWr8y+f1F9RnEiPGfb4eOnZVCk4BcIWQpscSrlxJtjEIWgbZpxrJX7aXy1S+p1g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyANQzq/7XmCvaTRzLE/kQ60UaaJbnq8lfQPKEdaelI3v53GN1f
-	UxcpENXALQOkREpYG3/d7DsLqGdPaq2qgriqcl2ihCpB6/HrClMXA15dmu+ZmzOI+Po3NyVqH/l
-	JuQ==
-X-Received: from pfff14.prod.google.com ([2002:a05:6a00:bd0e:b0:842:3b07:6355])
- (user=tavip job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:3d48:b0:842:5c60:513
- with SMTP id d2e1a72fcca58-8434ce84647mr5472887b3a.30.1781309417753; Fri, 12
- Jun 2026 17:10:17 -0700 (PDT)
-Date: Sat, 13 Jun 2026 00:09:53 +0000
-In-Reply-To: <20260613000953.467473-1-tavip@google.com>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="fVNFhJBH"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1781353600;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ezZ4R5waX9NiYNreVYNEdpvd6VvEUg7nWNgpBzpChj4=;
+	b=fVNFhJBHstCvbysj7S3frgErmLO4n20mCXB15L0+aV4Iqhg8aSto2Vr8WlJH0WA1SG866W
+	M8onNIvAJ3GzcMDUoCACBi/5d7CI4VZD/4b4SasNfgJPN595wjpx7McwgmHxxYJsjFDVX2
+	ph6KSW5rORttgaEXHl9PdtIrZhK+1WY=
+From: Menglong Dong <menglong.dong@linux.dev>
+To: menglong8.dong@gmail.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ Bui Quang Minh <minhquangbui99@gmail.com>
+Cc: mst@redhat.com, jasowang@redhat.com, andrew+netdev@lunn.ch,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+ kerneljasonxing@gmail.com, netdev@vger.kernel.org,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next v2 1/2] virtio_net: xsk: fix race in rx wake up
+Date: Sat, 13 Jun 2026 20:26:26 +0800
+Message-ID: <rHZz5_ylT4WggoZ-Ic2Q4w@linux.dev>
+In-Reply-To: <41eefa1d-99bf-450d-988e-7dec67c6b61e@gmail.com>
+References:
+ <20260611025644.2431148-1-dongml2@chinatelecom.cn>
+ <20260611025644.2431148-2-dongml2@chinatelecom.cn>
+ <41eefa1d-99bf-450d-988e-7dec67c6b61e@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20260613000953.467473-1-tavip@google.com>
-X-Mailer: git-send-email 2.54.0.1136.gdb2ca164c4-goog
-Message-ID: <20260613000953.467473-3-tavip@google.com>
-Subject: [PATCH net v2 2/2] vsock/virtio: restore msg_iter on transmission failure
-From: Octavian Purdila <tavip@google.com>
-To: netdev@vger.kernel.org
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>, Andrew Morton <akpm@linux-foundation.org>, 
-	Arseniy Krasnov <avkrasnov@salutedevices.com>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, 
-	"=?UTF-8?q?Eugenio=20P=C3=A9rez?=" <eperezma@redhat.com>, Jakub Kicinski <kuba@kernel.org>, Jason Wang <jasowang@redhat.com>, 
-	kvm@vger.kernel.org, linux-block@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, 
-	virtualization@lists.linux.dev, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Octavian Purdila <tavip@google.com>, syzbot+28e5f3d207b14bae122a@syzkaller.appspotmail.com
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="utf-8"
+X-Migadu-Flow: FLOW_OUT
 
-When transmission fails in virtio_transport_send_pkt_info, the msg_iter
-might have been partially advanced. If we don't restore it, the next
-attempt to send data will use an incorrect iterator state, leading to
-desync and warnings like "send_pkt() returns 0, but X expected".
+On 2026/6/12 00:24, Bui Quang Minh wrote:
+> On 6/11/26 09:56, menglong8.dong@gmail.com wrote:
+> > From: Menglong Dong <dongml2@chinatelecom.cn>
+> >
+> > During packet receiving in virtio-net, the rq can be empty, which means
+> > "rq->vq->num_free == virtqueue_get_vring_size(rq->vq)", in
+> > virtnet_add_recvbuf_xsk(), if we are using xsk. Meanwhile, the fill ring
+> > can be empty too, which means we can't allocate anything from
+> > xsk_buff_alloc_batch(). Then, we will set the XDP_RING_NEED_WAKEUP flag.
+> >
+> > However, if the user clean all the data in rx ring and fill the
+> > "fill ring" and check the XDP_RING_NEED_WAKEUP flag after
+> > xsk_buff_alloc_batch() and before xsk_set_rx_need_wakeup(), then the rx
+> > napi will never be scheduled: the rx ring is empty, which means we will
+> > never receive a packet to trigger the further recv fill. The rx ring is
+> > empty now, so the user will not check the flag too.
+> >
+> > Fix this by set the XDP_RING_NEED_WAKEUP flag before
+> > xsk_buff_alloc_batch() if both rq->vq and fill ring are empty.
+> >
+> > Meanwhile, set the XDP_RING_NEED_WAKEUP flag if we have any free entry in
+> > rq->vq.
+> >
+> > Fixes: e3f8800aa243 ("virtio-net: xsk: Support wakeup on RX side")
+> > Signed-off-by: Menglong Dong <dongml2@chinatelecom.cn>
+> > ---
+> >   drivers/net/virtio_net.c | 25 ++++++++++++++++++++++---
+> >   1 file changed, 22 insertions(+), 3 deletions(-)
+> >
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index f4adcfee7a80..4b5b3fa62008 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -1323,16 +1323,27 @@ static int virtnet_add_recvbuf_xsk(struct virtnet_info *vi, struct receive_queue
+> >   				   struct xsk_buff_pool *pool, gfp_t gfp)
+> >   {
+> >   	struct xdp_buff **xsk_buffs;
+> > +	bool need_wakeup;
+> >   	dma_addr_t addr;
+> >   	int err = 0;
+> >   	u32 len, i;
+> >   	int num;
+> >   
+> > +	need_wakeup = xsk_uses_need_wakeup(pool);
+> >   	xsk_buffs = rq->xsk_buffs;
+> >   
+> > +	/* If both rq->vq and fill ring are empty, and then the user submit
+> > +	 * all the chunks to the fill ring and check the wake up flag
+> > +	 * after xsk_buff_alloc_batch() and before xsk_set_rx_need_wakeup(),
+> > +	 * we will lose the chance to wake up the rx napi, so we have to
+> > +	 * set the need_wakeup flag here.
+> > +	 */
+> > +	if (need_wakeup && virtqueue_get_vring_size(rq->vq) == rq->vq->num_free)
+> > +		xsk_set_rx_need_wakeup(pool);
+> 
 
-Specifically, this can happen in the following scenario, triggered by
-the syzkaller repro:
+Hi, Bui Quang. Thanks for your reply. I spent some time learning
+what you said.
 
-1. A write-only VMA (PROT_WRITE only) is partially populated by a
-   prior TUN write that failed with -EIO but still faulted in some
-   pages).
-2. A vsock sendmmsg call with MSG_ZEROCOPY requests transmission of a
-   buffer from this VMA.
-3. The first packet (64KB) is sent successfully because the pages are
-   populated.
-4. The second packet allocation fails because GUP fast pins the first page
-   but GUP slow fails on the next unpopulated page due to PROT_WRITE-only
-   permissions.
-5. The iterator is advanced by the partially successful GUP (68KB total
-   advanced: 64KB from first packet + 4KB from second), but the send loop
-   breaks and only reports 64KB sent. This creates a 4KB desync.
-6. The next retry starts with a non-zero iov_offset, disabling zerocopy
-   and falling back to copy mode.
-7. In copy mode, the transmission succeeds for the next packets but
-   exhausts the iterator early because of the desync.
-8. The final retry sees an empty iterator but zerocopy is re-enabled
-   (offset resets). It attempts to send the remaining bytes with zerocopy
-   but pins 0 pages, creating an empty packet.
-9. The transport sends the empty packet, triggering the warning because
-   the returned bytes (header only) do not match the expected payload size.
-10. The loop continues to spin, allocating ubuf_info each time, eventually
-    exhausting sysctl_optmem_max and returning -ENOMEM to userspace.
+> I think when polling the receive queue, the userspace program needs to 
+> check the XDP_RING_NEED_WAKEUP flag if it does not see any packets. The 
+> flag check is quite lightweight in my opinion. Here are some examples I find
+> 
+> - 
+> https://github.com/xdp-project/xdp-tools/blob/e9469501622aa22a7e452a671000bec8685edcde/lib/util/xdpsock.c#L1206
 
-Restore msg_iter to its original state before the packet allocation
-and transmission attempt if they fail.
+You are right, I'm over concerned about this point. My origin
+concern is that we can't wake up from the poll syscall in this case:
 
-Fixes: e0718bd82e27 ("vsock: enable setting SO_ZEROCOPY")
-Reported-by: syzbot+28e5f3d207b14bae122a@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=28e5f3d207b14bae122a
-Assisted-by: gemini:gemini-3.1-pro
-Signed-off-by: Octavian Purdila <tavip@google.com>
----
- net/vmw_vsock/virtio_transport_common.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
+The chunk of the umem is 2000. In the beginning, the xsk->fill_ring
+is filled with 2000 chunk, and then the user fall asleep and don't
+do anything.
 
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index b10666937c490..2baa5a6ebd750 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -295,6 +295,7 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
- 	u32 max_skb_len = VIRTIO_VSOCK_MAX_PKT_BUF_SIZE;
- 	u32 src_cid, src_port, dst_cid, dst_port;
- 	const struct virtio_transport *t_ops;
-+	struct iov_iter_state msg_iter_state;
- 	struct virtio_vsock_sock *vvs;
- 	struct ubuf_info *uarg = NULL;
- 	u32 pkt_len = info->pkt_len;
-@@ -368,8 +369,17 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
- 		struct sk_buff *skb;
- 		size_t skb_len;
- 
-+		/* Save iterator state in case allocation or transmission fails
-+		 * so we can restore it and retry.
-+		 */
-+		if (info->msg)
-+			iov_iter_save_state(&info->msg->msg_iter, &msg_iter_state);
-+
- 		skb_len = min(max_skb_len, rest_len);
- 
-+		/* Note: virtio_transport_alloc_skb() can advance info->msg->msg_iter
-+		 * even if it fails (e.g. partial GUP success).
-+		 */
- 		skb = virtio_transport_alloc_skb(info, skb_len, can_zcopy,
- 						 uarg,
- 						 src_cid, src_port,
-@@ -399,6 +409,9 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
- 			break;
- 	} while (rest_len);
- 
-+	if (info->msg && ret < 0)
-+		iov_iter_restore(&info->msg->msg_iter, &msg_iter_state);
-+
- 	virtio_transport_put_credit(vvs, rest_len);
- 
- 	/* msg_zerocopy_realloc() initializes the ubuf_info refcnt to 1.
--- 
-2.54.0.1136.gdb2ca164c4-goog
+Kernel: the 2000th packet is received
+Kernel: xsk_buff_alloc_batch return 0(xsk->fill_ring is empty and xsk->rx_ring is full)
+
+        User: handle the xsk->rx_ring
+        User: fill the xsk->fill_ring with 2000 chunks
+        User: check the wake up flag
+        User: no need_wakeup flag, fall asleep with poll() syscall
+
+Kernel: call xsk_set_rx_need_wakeup()
+Kernel: virio-net rx ringbuf is empty, we can't receive any packet further
+Kernel: to call virtnet_add_recvbuf_xsk(), we are dead
+
+But then, I found that we can still be wake up with the 2000th
+packet from the poll syscall, which means that the case that
+the NAPI and the user can't both be waked up doesn't exist.
+
+> - 
+> https://github.com/xdp-project/bpf-examples/blob/43e565901c4287efa863edca7f0e6cd6e35ed896/AF_XDP-forwarding/xsk_fwd.c#L540
+> 
+> Furthermore, the XDP_RING_NEED_WAKEUP flag related functions does not 
+> provide any memory orderings. So even with your patch, I'm worried that 
+> this case is possible
+> 
+> kernel userspace
+> 
+> xsk_buff_alloc_batch -> failed
+>                                                              submit fill 
+> ring
+>                                                              flag != 
+> XDP_RING_NEED_WAKEUP
+> // reordering due to lack of memory orderings
+> xsk_set_rx_need_wakeup
+> 
+> I'm not expert here, so correct me if I'm wrong. I think the wake up 
+> flag is designed with no orderings so we cannot rely on it to reason and 
+> skip further checks.
+> 
+> > +
+> >   	num = xsk_buff_alloc_batch(pool, xsk_buffs, rq->vq->num_free);
+[....]
+> > +
+> 
+> Why do we need to set XDP_RING_NEED_WAKEUP even when 
+> xsk_buff_alloc_batch succeeds?
+
+Ah, don't mind here. I just thought that if xsk_buff_alloc_batch()
+didn't allocate enough chunks as we need, we can wake up
+the NAPI as soon as possible, in case that the virtio-net ringbuf
+is full and cause packet dropping :)
+
+Anyway, I'll remove the first patch, and send the second patch
+only in the V3.
+
+Thanks!
+Menglong Dong
+
+> 
+> >   	return num;
+> >   
+> >   err:
+> 
+> Thanks,
+> Quang Minh.
+> 
+> 
+> 
+> 
+
+
+
 
