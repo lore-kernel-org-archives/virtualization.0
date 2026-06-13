@@ -1,68 +1,129 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mail.romanilin.is (mail.romanilin.is [146.185.235.60])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 608A230AD0A;
-	Sat, 13 Jun 2026 21:46:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C117B390C84
+	for <virtualization@lists.linux.dev>; Sat, 13 Jun 2026 22:50:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=146.185.235.60
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781387175; cv=none; b=DTepa/UDEEtn2xm/c5H4xPULC4L0umQzC5pFqHJHmDnD6GE8xvcNqLTlJ8pt92qCqfeE6umYwxgrZ6H0KFgs9kFtwuMsYHoa/BrjSF51ugd/+rN7jXL7XyzmxnuCcw5xqrDe4yflshN9Er/klXJJqbzNwkg6LNPHBZ8vH3QgB7I=
+	t=1781391034; cv=none; b=nmsYa4ipMNdRmjSE25Sxsi2sWdt+TBO23hTtHdNRVu2PxuPb0PSUF5s2iZ1XkEk/x7Owb8c+8tJc9m10NHc4Gdq6yiHkx4nWQfd+dmijs6IeVV6ns8W20pBlmfX1mvNZZ8XH/Qo2FBB8ypB0EyoORT+NJrvW7BFd9YfVCDPiqw8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781387175; c=relaxed/simple;
-	bh=zqlV0V63IbKpxbr9fwwmyONmhCfojXlap9NLfuONAkA=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=bCaRRgHe/ubmS716jrdO1liugJ++353OyanR54pZCcQKVKwoVIEc/CdmeVqJJNvWV2oHCLy/mLgNuLZZq+RGxqu3hfBpfaK3RSVjQ3lH/23e0VqjHPUKBzBNeoSwdHdaNAF4OLdcAA5mOB7xUXVdyOY7RjY+GWeeFgOK3Pog1Q8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hp7mMl9Y; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781391034; c=relaxed/simple;
+	bh=w7dluq1Cg55VgHPVE2zRaGvagXrEc6wlrJmKzj6uN14=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=GRp8IEC7HF6Rn02jwIuYICmIqZV0qd19RHyJS2HqRC+vihdOwDGSm8NteOw88gUtzeX+Ypwb+r1T6HWgdJUZa8TfDK1S7r56uHNp+yRqQCkBKbIwZa74KrmjetjGnLy/n8P8cBebB9ciVfixJkvDGF8QD3FiFk9+PNyq9/rsrtc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=romanilin.is; spf=pass smtp.mailfrom=romanilin.is; dkim=pass (2048-bit key) header.d=romanilin.is header.i=@romanilin.is header.b=ZePpn2/C; arc=none smtp.client-ip=146.185.235.60
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=romanilin.is
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=romanilin.is
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hp7mMl9Y"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7BF2B1F000E9;
-	Sat, 13 Jun 2026 21:46:13 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781387174;
-	bh=DHPUWFhEc+P/6/WSeaEK4iPlDI8nADtP+PJ07MwcJaU=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=hp7mMl9Ym8tJ2XdfqPdZGfo+vykzjQxng+7ebjZLaKO+jELHcJR5FU/7Dsowzz2aH
-	 0aXPcZRSft7MmlaZsk5rPU5hXCM+uC7EKuizdEd6Mzu5YJUB4d57b8sdysaOKJWsyw
-	 UDRC2Hkwm8C1gtm1iba2ZLXPv4DFWP9mwiB/A9Hzluy3oMePKyQQINigmvdCF098UQ
-	 KRoRCEDZBnQcO5hIFn9hm3uZsKb4ZK7C2YrmF+EVd+q3ukr19WwvnXOy2vDgr9Jiew
-	 mR6nBuKxZyYpFqw2FyGAcFTTRctiDzvz3ALm4jOJAQtuI1VmPQVMDBnjFGu1YiToxu
-	 eYCzJEVe7xR1Q==
-Date: Sat, 13 Jun 2026 14:46:12 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: Eugenio Perez Martin <eperezma@redhat.com>
-Cc: Menglong Dong <menglong8.dong@gmail.com>, xuanzhuo@linux.alibaba.com,
- mst@redhat.com, jasowang@redhat.com, andrew+netdev@lunn.ch,
- davem@davemloft.net, edumazet@google.com, pabeni@redhat.com,
- netdev@vger.kernel.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
-Subject: Re: [PATCH net-next] virtio-net: support xsk wake up
-Message-ID: <20260613144612.0c5b7ba4@kernel.org>
-In-Reply-To: <CAJaqyWeYiruNosJsMTh2jQ=XCEcPg7956aqeRRpDSyynfpjNZA@mail.gmail.com>
-References: <20260610081648.2205711-1-dongml2@chinatelecom.cn>
-	<CAJaqyWeYiruNosJsMTh2jQ=XCEcPg7956aqeRRpDSyynfpjNZA@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=romanilin.is header.i=@romanilin.is header.b="ZePpn2/C"
+Received: from macbook-pro (unknown [188.134.85.196])
+	by mail.romanilin.is (Postfix) with ESMTPSA id C29D760108;
+	Sun, 14 Jun 2026 01:44:33 +0300 (MSK)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=romanilin.is;
+	s=default; t=1781390674;
+	bh=9oYp8yi77Kwv8NZIbSfwDwV3pUxghNgMFtDhmAWFxic=;
+	h=From:To:Cc:Subject:Date;
+	b=ZePpn2/Czwfki1YNm7A6dqJKMLsjGg2v2BfkjY/+xqGzfZ1fu5JzRNTGdYEoIwa7/
+	 HB1MkKWTKeoRyAWnCw9nGBCA3gxSP2s90s6rzMA9F5HwLlbbev7uoxrhQx/YGC4ilN
+	 WHm5V+Z7CkohE0xmRchlkLZYGZ49Bkaf6jUM4a4nlmz5TaFlNYqCJtnC4T2u6A9vCA
+	 P7zGCEgLlKZGxuFgABvI9SJIyVGRaqNhwVMcfTDygQ4yckfd+NogcpgWHAx1qwwA4b
+	 tDr/anJwMjUZBF6ROZ5Mw7ZIuYgFLCpAlqc6C/v2KQPsM+9Cj6vhDDGdH91HO+pcuK
+	 +DwisMFZ7M5Bw==
+From: Roman Ilin <me@romanilin.is>
+To: Thomas Zimmermann <tzimmermann@suse.de>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+	Maxime Ripard <mripard@kernel.org>,
+	David Airlie <airlied@gmail.com>,
+	Simona Vetter <simona@ffwll.ch>
+Cc: Louis Chauvet <louis.chauvet@bootlin.com>,
+	Javier Martinez Canillas <javierm@redhat.com>,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	dri-devel@lists.freedesktop.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Roman Ilin <me@romanilin.is>
+Subject: [PATCH] drm/vblank: Don't arm vblank timer with invalid frame duration
+Date: Sun, 14 Jun 2026 01:44:34 +0300
+Message-ID: <20260613224434.96501-1-me@romanilin.is>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On Wed, 10 Jun 2026 10:27:28 +0200 Eugenio Perez Martin wrote:
-> And the From and Signed-off-by emails don't match, which I'm not sure is valid.
+When a CRTC's display mode carries a too small pixel clock,
+drm_calc_timestamping_constants() computes a frame duration that
+exceeds INT_MAX. drm_vblank_crtc.framedur_ns becomes negative.
+drm_crtc_vblank_start_timer() then arms the vblank hrtimer with this
+interval, after which vblank events are no longer delivered. Pending
+page flips never complete and the display appears frozen.
 
-It's clearly the same person. Please focus on the code, not trivial
-process issues.
+This could be triggered on virtio-gpu guests that have dynamic resolution
+enabled: when the SPICE agent or the X server resizes the output, it
+submits a mode whose pixel clock is off by a factor of 1000, e.g.:
 
-Quoting documentation:
+    clock = 406 kHz, htotal = 3152, vtotal = 2148
 
-  Reviewer guidance
-  -----------------
+    framedur_ns = 3152 * 2148 * 1000000 / 406 = 16675852216 ns (~16.7 s)
 
-  [...]
+16675852216 does not fit into an int and wraps to roughly -504000000.
+ns_to_ktime() then yields a negative interval and the timer stops working.
 
-  Reviewers are highly encouraged to do more in-depth review of submissions
-  and not focus exclusively on process issues, trivial or subjective
-  matters like code formatting, tags etc.
-  
-See: https://www.kernel.org/doc/html/next/process/maintainer-netdev.html#reviewer-guidance
+Found by bisection, which pointed at commit a036f5fceedb ("drm/virtgpu:
+Use vblank timer"). That commit merely made virtio-gpu use the vblank
+timer and thereby exposed the pre-existing problem in the timer setup
+added by commit 74afeb812850 ("drm/vblank: Add vblank timer").
+
+Reject a non-positive frame duration in drm_crtc_vblank_start_timer() and
+return an error. enable_vblank then fails and the driver falls back to
+sending the vblank event immediately, as it did before the vblank timer
+was introduced. Valid modes are unaffected, and the timer self-heals on
+the next mode that has a sane clock.
+
+Fixes: 74afeb812850 ("drm/vblank: Add vblank timer")
+Cc: stable@vger.kernel.org
+Signed-off-by: Roman Ilin <me@romanilin.is>
+---
+Notes:
+
+Based on v7.1-rc7. Tested on 6.19 and 7.1-rc7.
+
+Open questions:
+
+This relies on the int overflow producing a negative value. The deeper
+issue is that drm_calc_timestamping_constants() truncates framedur_ns to
+int. Would you prefer to widen framedur_ns to s64, or to bound the
+interval here (e.g. reject framedur_ns above one second) so that any
+bogus interval is rejected regardless of sign?
+
+Should virtio-gpu additionally sanitize the user-supplied clock in its
+atomic_check (similar to vmwgfx for the clock==0 case) so the
+vblank-timer throttling is preserved for these resizes, instead of
+falling back to immediate events?
+
+ drivers/gpu/drm/drm_vblank.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/drivers/gpu/drm/drm_vblank.c b/drivers/gpu/drm/drm_vblank.c
+index f78bf37f1..557cd0bc8 100644
+--- a/drivers/gpu/drm/drm_vblank.c
++++ b/drivers/gpu/drm/drm_vblank.c
+@@ -2235,7 +2235,13 @@ int drm_crtc_vblank_start_timer(struct drm_crtc *crtc)
+ 
+ 	drm_calc_timestamping_constants(crtc, &crtc->mode);
+ 
++	/*
++	 * Return an error so the driver falls back to sending vblank events
++	 * when a small mode clock yields a frame duration exceeding INT_MAX.
++	 */
++	if (vblank->framedur_ns <= 0)
++		return -EINVAL;
++
+ 	spin_lock_irqsave(&vtimer->interval_lock, flags);
+ 	vtimer->interval = ns_to_ktime(vblank->framedur_ns);
+ 	spin_unlock_irqrestore(&vtimer->interval_lock, flags);
+-- 
+2.54.0
+
