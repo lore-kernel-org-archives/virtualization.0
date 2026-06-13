@@ -1,74 +1,57 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B52A02459DC;
-	Sat, 13 Jun 2026 16:26:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E77321EEE6;
+	Sat, 13 Jun 2026 17:37:14 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781368007; cv=none; b=IdFz14c8vxORQ2mCNmaDiMn8UdnsitYsQ2TeFJeLYHsCGmmAVzkKgchFM9t8IesANKGggHKfsWwzBOz2Xfm3D0Z20AKA0z2BXZRydI8KlDk0CCeST6iyBTOP8CmhCIkagYsqsbMMsRJGwLI+/m9KkylPv2yZyX+sGLJF1yRBrkg=
+	t=1781372235; cv=none; b=P4xDP/a0wlDmuzOnWl8iP/VeuWUvtBhUTK5uxfz1GNdM1G+246URXtNlfkmI0VHWZwLvp7caotlDzVToNj8FQ1AQ6BHg2epiF9rgof5nsE2Q++vNO1nVIZMgvlRSK5yilvyQYpNqB0G566C23T6ZNZhZlLCKF2jp3hMXbQZGpvA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781368007; c=relaxed/simple;
-	bh=6wyKlt/rkdkUyUC217gMouOHcTy4/PdKfaskDk3EwKQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=SZz9S23QoHKRaDjcx07EmJGkV+BfH3xptsFGe3IeJsabtYtTeDxy/zF/ziasef/15ijIgJWc7uDvWedCe8eHiRyQn6TYdcUYmHhyAb1NIVwhHs27pYB2COLlZBdBDajSqkxycHAtcMp1Bdb6ewTzSyXJR/O3xvtYq8BoAt/zILU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ataMPZg9; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781372235; c=relaxed/simple;
+	bh=4FYhViFgpnWRJ3vbbVswfyM+VVJPJoayuFpiGNMXd0U=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=r9FzSHwMli5hMWSYbae+iUZbSDzpgD6r9Stzn1atJ+YkXv19Y+5YXu78Q0wVrerRIC7yHBgj0f2oJg9pI8SuQKTbQYLYnxlx3dMpvcjiAArR7NI8OYAbTHVSSP0O9FVs2LIP8WTCORWdJF9qbynV9eNRnEvdSsKMoh/2e2Y04hI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=PUzSIUGg; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ataMPZg9"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7C8951F000E9;
-	Sat, 13 Jun 2026 16:26:44 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="PUzSIUGg"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0B19A1F000E9;
+	Sat, 13 Jun 2026 17:37:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781368006;
-	bh=quHP7KcGd6kRdMSIND7iYUAuCYasmRY32NiFq9JBOVw=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=ataMPZg9iqpQuZ4K+KyXbM5t+5ZEDAZWlSSgehtwxnID/5KGzWRo4xRn6wFfWJCiC
-	 /UaFVNt+54AXniRya83/4iiXbEz5NzJAjmlkxSzI3KUGegh/kchqgwvRBk1acLbdbi
-	 skvydT7irWQ/A2n4879liE2Gc5w+MR0biDQx5tCxV948vKNzY+EHA8unCfca5wEKkr
-	 nv5YJ5zeV3TqhoXEZNEm8Ld9hX0IbHRlnnJcLiv88sHSJqlvPycKWAZxCstwD69gqR
-	 nYiNJS78wD8mMtvHVoblTe+riVJyOxEJ/CwfAufQQp1wRwSKOnOcmKbMD0ocaxIGZk
-	 CEa8EvXH8A7UQ==
-Date: Sat, 13 Jun 2026 12:26:41 -0400
-From: Nathan Chancellor <nathan@kernel.org>
-To: David Laight <david.laight.linux@gmail.com>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	llvm@lists.linux.dev
-Subject: Re: [PATCH] vduse: Fix error around jumping over a __cleanup()
- variable
-Message-ID: <20260613162641.GA2697431@ax162>
-References: <20260610-vduse_vq_kick-fix-guard-usage-v1-1-0ce02c08006e@kernel.org>
- <20260611110346.2b9388a1@pumpkin>
+	s=k20260515; t=1781372234;
+	bh=hWcLMAgLghTx7ZPTXhrSM+sTX6PyGogJrrFs8ZkyBak=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=PUzSIUGghU1qixEAKIvn19ap5OHfde0Zq73cCD0JJeB+snXP7r0pHwS7hJZDYHbYC
+	 nLa3s5VnukX7LMVuTAyzsnTSzKJMofvqcloHbeJ5NGmoESXuuiXwcgv5SqPTqAH7Xh
+	 vYWoD53r2yzhKNgpZHXdQk102Og+WEEwNvdjqH+36Zh+HRvbPPayI9iOVw1nub5AJF
+	 yfG1iub1HCf/wZ9AzGnvq7eV4zh7evxkNi7XBMeyPSU0fwabDLzyBX2hwfLbBfYbcy
+	 Jc0eFLuQ06roXKcuLuAqpU6txEB1MYF7ynr4BwfjLussz5kcwirYvhvnAV8s95rsbE
+	 JBAYNlG7+m/VQ==
+Date: Sat, 13 Jun 2026 10:37:13 -0700
+From: Jakub Kicinski <kuba@kernel.org>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: Raf Dickson <rafdog35@gmail.com>, netdev@vger.kernel.org,
+ virtualization@lists.linux.dev, pabeni@redhat.com, stefanha@redhat.com,
+ bryan-bt.tan@broadcom.com, vishnu.dasa@broadcom.com,
+ bcm-kernel-feedback-list@broadcom.com, leonardi@redhat.com,
+ horms@kernel.org, edumazet@google.com
+Subject: Re: [PATCH net-next v2] vsock/vmci: use sk_acceptq_is_full() helper
+Message-ID: <20260613103713.6e3e27d0@kernel.org>
+In-Reply-To: <aivKma8mRjTXV0BM@sgarzare-redhat>
+References: <20260612045842.122207-1-rafdog35@gmail.com>
+	<aivKma8mRjTXV0BM@sgarzare-redhat>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260611110346.2b9388a1@pumpkin>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 
-On Thu, Jun 11, 2026 at 11:03:46AM +0100, David Laight wrote:
-> On Wed, 10 Jun 2026 12:16:49 -0700
-> Nathan Chancellor <nathan@kernel.org> wrote:
+On Fri, 12 Jun 2026 11:03:24 +0200 Stefano Garzarella wrote:
+> nit: title should be updated since now this is not just vmci
+> (e.g. vsock: use sk_acceptq_is_full() helper in all transports)
 > 
-> > When building with clang, there is an error in vduse_vq_kick() from
-> > attempting to jump over a variable declared with the cleanup attribute
-> > using goto:
-> .
-> > Jumping over a variable declared with the cleanup attribute does not
-> > prevent the cleanup function from running, it would just result in the
-> > variable being passed uninitialized to the cleanup function .clang
-> > errors instead of generating the invalid code, unlike GCC.
-> 
-> Does the same apply to variables allocated inside switch statements?
-> I'm sure I've seen one that wasn't inside an extra block.
+> Not sure if it can be fixed while applying by netdev maintainers.
 
-Yes:
-
-  https://lore.kernel.org/20251002233627.GA3978676@ax162/
-
--- 
-Cheers,
-Nathan
+Updated and applied, thanks!
