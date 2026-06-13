@@ -1,71 +1,184 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 767BA26F29C;
-	Sat, 13 Jun 2026 18:21:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781374876; cv=none; b=SSR3PzuVhN+dsYXWc47KS4IypVlS5Q1mj7IG/q8SFRL9tjlVjsWFQSuZZ8qR2FzB/uCFiCqE9cWz4cgcrkKikx0UIE7HGnD7arP1ccDDm/OauFnjK7DqWZfTiDydpRNjbkx3WGYhmX4YqKdrt12HRaXkNMumRFpF+jdwosdS0NM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781374876; c=relaxed/simple;
-	bh=qCwndZHyXA6xUFuzUo1gjzi7k2UxYupYS00ajtitHeI=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=N9WgOrF7v3HihvgWmJjA7TCPZWkBaqENRVn79M6tSZrcQtP5Y3j0f1Vq0G5lwtFgqZ+VSx5t0Mfen/zROrBlVs2QpsbkjXULNylpByxEJTOGC0YGrrd4cDk3Z2o4ULgNsENyscArVkiaNHx31CCB2IxRCDFdjXQlovQpHpU6IeY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=C/0Y3q6z; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1244437204C
+	for <virtualization@lists.linux.dev>; Sat, 13 Jun 2026 19:58:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.210.174
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781380726; cv=pass; b=TdTHeAmNBdOky6bfrTPvgeW812jA/obetTemIAIHFwukPm3t63d79yVSDVAfdJIapZMJNLB66C+suL109HOAjCk7o6MnTLWunrFUl7EC9ThZ8hfQYlqpdiaMmQZ8GdRN2ejm5tro1d/25Pa4mUsQd4Ztd216Qk0nnnpL/vk3wEY=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781380726; c=relaxed/simple;
+	bh=vcpUB+UXUqaVSZsYcoxe54DMhAV6MrxWp2jCTPbpzjU=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=iBlkyU0xbBFZrdN4wl3e2gFptf8oxkwqqJisNCCxDpHNJtPfIq5WzWkkYJRLljaCWrIRpBkCUBekV14xOS/ewgyhdTF64J5zYMhD/+qYWw3Tld2agJAHdXzqhNlOq/wEbzVnyqT95htVXsEBNRQVi1J2LMS689NsSI5VqgZp/q0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=asu.edu; spf=pass smtp.mailfrom=asu.edu; dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b=X7MHZkfP; arc=pass smtp.client-ip=209.85.210.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=asu.edu
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=asu.edu
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="C/0Y3q6z"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5B9811F000E9;
-	Sat, 13 Jun 2026 18:21:14 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781374875;
-	bh=blcmY51mUhrNozT7HIFdG8GhMoBehBU1E2kCKeAJ478=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=C/0Y3q6zoX8+6dr7X6HlsOEXaGuN2o37Svsp5c6BPqYPmEKFYDs9bY8jLHaowmYVd
-	 U5eWvCrGBgTzFjPADHSE7v/Glbzz1uMzIUvym6u+tE8pfmMydrj58yAkhJFLgaPBNU
-	 OLFCsCnLd5OTCuzeF3XquFmZn5nU0cSo1iQbftzwMU4I9fbfyk6+eP+BStg6t16+aa
-	 CQeetiMjwcj2zXtA8D+0lrWh3oWLHz1qYYugT5Kd6kcG6SXT9d0PEW6g6ymEpfuJZE
-	 qe6yy1u6VG/NcwtUTpVv1tKcxyhBqoBcD8jWvwm+r5ud4TRP0nfc3AbF36TT0s7ecG
-	 1uPDS8iIxXsnw==
-Date: Sat, 13 Jun 2026 11:21:13 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: menglong8.dong@gmail.com
-Cc: jasowang@redhat.com, mst@redhat.com, xuanzhuo@linux.alibaba.com,
- eperezma@redhat.com, andrew+netdev@lunn.ch, davem@davemloft.net,
- edumazet@google.com, pabeni@redhat.com, magnus.karlsson@intel.com,
- maciej.fijalkowski@intel.com, sdf@fomichev.me, horms@kernel.org,
- ast@kernel.org, daniel@iogearbox.net, hawk@kernel.org,
- john.fastabend@gmail.com, bjorn@kernel.org, kerneljasonxing@gmail.com,
- netdev@vger.kernel.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, bpf@vger.kernel.org
-Subject: Re: [PATCH net-next 1/3] net: busy-poll: introduce
- sk_tx_busy_loop()
-Message-ID: <20260613112113.55d9313f@kernel.org>
-In-Reply-To: <20260611071242.2485058-2-dongml2@chinatelecom.cn>
-References: <20260611071242.2485058-1-dongml2@chinatelecom.cn>
-	<20260611071242.2485058-2-dongml2@chinatelecom.cn>
+	dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b="X7MHZkfP"
+Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-842288702fbso982988b3a.1
+        for <virtualization@lists.linux.dev>; Sat, 13 Jun 2026 12:58:44 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1781380724; cv=none;
+        d=google.com; s=arc-20240605;
+        b=dxoT8HyWRx8av4ocAAzFiFzHwZ3pspThuC2J/dup6tU9E+thpc28ShYjnh9DApyhBU
+         ZPnHsY5H23WsZtbZSzCuHGchNpJvbvrO/ueVM5q5ONxu47aIj5qSC6ODyGbFKZ5bvdi5
+         NJERWLprtAih66dfIL3gqxRi2lhoxDxMH8sO1U8HdIGZcA9HNoiRo5LClCMTnMbkwTWj
+         W+QS6M4KyoyDKufniE4T7A1WAv8QIKw2aXCiugCDzX9+QHbGt2u0CDTjGqyde4BjRo3L
+         1EEX+lIOV4AOeCgvhIZtsSyHu37iAGnp+wSfov4WAIkQYAkQ29M5qnLce/LHn2Q5o/zc
+         QbEA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=6JX6O4kgybRuajdLMH1asbB2r9iU+gz24puMLkaqEak=;
+        fh=sIsEF4SIBY32pmeB2M6PqJ/b8K1HvEgTEpPmdIgj0X8=;
+        b=kyWNu7KzfsK7Vjv5CRptwFgTRW+qko2Q970iEHMwhhldW/CXiJUN3WORt+XMRFeUFy
+         fxKk2tUvvR8+nmb3uyT8H6LiZ5UikArGMoO7wzoGJV7in+4fO3D2LVaqBYcXWMITRczi
+         BMbYmYAPnOPDRuWosOQXIhaGfRknSkL5L7xxvusJluQRBXw9+1JZNSfNQFxFEX56k8u4
+         79aMDzWa4am+jW7fKkpE34kUCQjvK9GkYsXMBQJUtvAZXUFFOIpoK5WZQphpkH0QvFPO
+         /+/dohjvDHHBME9nT/YzTWcxlwhuMd6uHMkHy0rASleBmCc7IyiXMSwq0/JH6Ucs1Fio
+         wJOg==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=asu.edu; s=google; t=1781380724; x=1781985524; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=6JX6O4kgybRuajdLMH1asbB2r9iU+gz24puMLkaqEak=;
+        b=X7MHZkfPNr4qWn/p1GSXnN/wYVoYdTf1IqS70TKTTga0k1+wbB/EcpraBrwd+Q72mx
+         +Juzz0gRY9bpZULAeT7ugBfhhkRY6NlHyV67HkXdSqbDHP1dYBoW4X5JYmIBu3gtCZ4O
+         0nrr4fVZcbR5JeHUfKCXNq2WBfynrADM/qm4opvrbonKiWJHCZaBqh3aWCslILBXo4ag
+         0JXfSzAMXPXPpKdqhbH/Q9TEN/bv7QD3bOeZOEJDzDWb6dnoODjmQ/0QbxdSVsi+6HxV
+         niIIRgZVaeLXkhG9oqj3Jju0x4lX48ICKEQKQvVLYqw7s8Egsiwkbzlm/TPLM5Kqwi/u
+         26uA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781380724; x=1781985524;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=6JX6O4kgybRuajdLMH1asbB2r9iU+gz24puMLkaqEak=;
+        b=cnvPoq+RVMa589FpdjVlZEJh222u5RYNfoLKpl7ozEVAFEpJ4EybN7ayXQyfvudnVf
+         VRH1CwMWcRl1BzhNI+3N/fLcOyhVA3qF9K6wFUeCXbI+NnQKn7/sfYUYCjegCPAWB7m4
+         56/dKWsfrhUwyN8NMd9Ii4st8OuifdZ8VhR4gY3VbkfmF9wTrCjvltCkuSRiVKiYaaxy
+         ufBIAOf9fRLubmDHfO62Kk+wuN+DDG9OA1HF8g9HqKhGzXz7Yn3cn5MsqwxRiembwhek
+         Uf6FmQ1grLANzNgawHxNutbFWdwrIBgyNyX1Eeh7SvNDdEY0aJPkDREn4fetvGmgmAi/
+         7Z7g==
+X-Forwarded-Encrypted: i=1; AFNElJ9oBfRcndamXKxU1nG0kJzrwyUKEnz6NTdm7NLHiPJacVz6gta6s7fAIaVMeivKIJ+3edi2tXzrGZ6bgMSuBw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwMYFLov8dnNUXS9ohAuL+izehWS9Yb40GDn4RAq2K8HKedbBKA
+	7hXtbB4C39rNSkTonxMMk5ebY6YmTT2UM8GEoi2kqoV9bwCRgOBCGheFaOg1RO7zTQ/ZOF4n25c
+	2gXRBQZQ6AvRPJd0EZTjwS9TQta+4w0PR1pJka8LY
+X-Gm-Gg: Acq92OF1Tw7DyZt20Fex3jRKa0G0jKLsvS3G/TqexiPPH+cNtgc5Ucy5i6VfnQSKV0U
+	85h6jtSgn2/pBarcxQTBCpJNxXVMlJPzxSd6cvglTGiqzxT+zhImDovq+YNw8fGx986oPSK2SWc
+	C5dGTogVBMIqs9uqVvljOJQcqEzu5GN6Or5ZNKG7geALT3xK+jwz3VRhb+nMfymoS/JLwk6+PSo
+	8nqEWY8ojdo1tAv+BYFiU3eQmniaAR8kdCwp6x6OTa3sOLID1ulwhchxs4hvuR7oiyfDtMnzyxX
+	i4aBFPeUqZ3qK64nhaExEEVG+ICD16p9iME3W3E=
+X-Received: by 2002:a05:6a21:3983:b0:3b4:e4f0:94e1 with SMTP id
+ adf61e73a8af0-3b78406e4f9mr9203454637.39.1781380724410; Sat, 13 Jun 2026
+ 12:58:44 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+References: <20260610221606.1091465-1-xmei5@asu.edu> <20260611104836.469610b0@pumpkin>
+In-Reply-To: <20260611104836.469610b0@pumpkin>
+From: Xiang Mei <xmei5@asu.edu>
+Date: Sat, 13 Jun 2026 12:58:33 -0700
+X-Gm-Features: AVVi8CcFpMU5NBtrCka8keKaTwzvxnEfo3CKDV-XtrGtxvmDOmvEfxSqN8pA_vc
+Message-ID: <CAPpSM+TN8Av-1_JxkRqiZp-u2rjzjsU+m6dmHw7rQr3WU5+7dg@mail.gmail.com>
+Subject: Re: [PATCH net] virtio-net: fix len check in receive_big()
+To: David Laight <david.laight.linux@gmail.com>
+Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, 
+	eperezma@redhat.com, andrew+netdev@lunn.ch, davem@davemloft.net, 
+	edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
+	netdev@vger.kernel.org, virtualization@lists.linux.dev, 
+	linux-kernel@vger.kernel.org, minhquangbui99@gmail.com, bestswngs@gmail.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, 11 Jun 2026 15:12:40 +0800 menglong8.dong@gmail.com wrote:
-> For now, we use sk_busy_loop() for both rx and tx path. The sk_busy_loop()
-> will call napi_busy_loop() for the specified napi_id. However, some
-> nic drivers have tx napi, such as virtio-net. In this case, sk_busy_loop()
-> doesn't work, as it can only schedule the NAPI for the rx queue.
-> 
-> Therefore, introduce sk_tx_busy_loop() for the nic drivers that support tx
-> napi, which will schedule the tx napi if available.
+On Thu, Jun 11, 2026 at 2:48=E2=80=AFAM David Laight
+<david.laight.linux@gmail.com> wrote:
+>
+> On Wed, 10 Jun 2026 15:16:06 -0700
+> Xiang Mei <xmei5@asu.edu> wrote:
+>
+> > receive_big() bounds the device-announced length by
+> > (big_packets_num_skbfrags + 1) * PAGE_SIZE.  That is still too loose:
+> > add_recvbuf_big() sets sg[1] to start at offset
+> > sizeof(struct padded_vnet_hdr) into the first page, so the chain
+> > actually carries hdr_len + (PAGE_SIZE - sizeof(padded_vnet_hdr)) +
+> > big_packets_num_skbfrags * PAGE_SIZE bytes -- 20 bytes less than the
+> > check allows for the common hdr_len =3D=3D 12 case.
+> >
+> > A malicious virtio backend can announce a len in that gap.  page_to_skb=
+()
+> > then walks one frag past the page chain, storing a NULL page->private
+> > into skb_shinfo()->frags[MAX_SKB_FRAGS], which is both an out-of-bounds
+> > write past the static frag array and a NULL frag handed up the rx path.
+> >
+> > Bound len by the size add_recvbuf_big() actually advertised.
+> >
+> > Fixes: 0c716703965f ("virtio-net: fix received length check in big pack=
+ets")
+> > Reported-by: Weiming Shi <bestswngs@gmail.com>
+> > Signed-off-by: Xiang Mei <xmei5@asu.edu>
+> > ---
+> >  drivers/net/virtio_net.c | 8 +++++---
+> >  1 file changed, 5 insertions(+), 3 deletions(-)
+> >
+> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> > index f4adcfee7a80..afe73eda1491 100644
+> > --- a/drivers/net/virtio_net.c
+> > +++ b/drivers/net/virtio_net.c
+> > @@ -1999,15 +1999,17 @@ static struct sk_buff *receive_big(struct net_d=
+evice *dev,
+> >                                  struct virtnet_rq_stats *stats)
+> >  {
+> >       struct page *page =3D buf;
+> > +     unsigned long max_len;
+> >       struct sk_buff *skb;
+> >
+> >       /* Make sure that len does not exceed the size allocated in
+> >        * add_recvbuf_big.
+> >        */
+> > -     if (unlikely(len > (vi->big_packets_num_skbfrags + 1) * PAGE_SIZE=
+)) {
+> > +     max_len =3D vi->hdr_len + (PAGE_SIZE - sizeof(struct padded_vnet_=
+hdr)) +
+> > +               vi->big_packets_num_skbfrags * PAGE_SIZE;
+>
+> That looks like a constant (for the vi).
+Thanks, agreed it's a per-device constant, so the expression never
+changes after setup.
 
-First, I thought the only difference with Tx NAPI is that it can't be
-busy polled. So if you want to poll an instance don't register it as 
-a Tx one instead of adding all this "tx polling" stuff in the core?
+> Probably worth saving rather than recalculating all the time.
+>
 
-Second, can this problem happen for any other NIC or is it purely 
-an artifact of virtio's delayed Tx completion handling?
+I thought about caching it in a vi->big_packets_max_len field computed
+once after virtnet_set_big_packets(). My only concern is that the
+saving is marginal here: receive_big() is only reached when
+mergeable_rx_bufs is off (the "else if (vi->big_packets)" branch). Any
+backend that negotiates VIRTIO_NET_F_MRG_RXBUF takes the
+receive_mergeable() path for all RX, so receive_big() is never hit
+there at all. And the bound has exactly one consumer.
 
-Third, this series does not apply.
+So it's trading a 4-byte field (probably free in existing padding)
+against one cache-hit load plus a shift, and two adds, on a path
+that's effectively cold on modern setups. I mainly work on security
+issues, so I would like to listen to your idea.
+
+
+Xiang
+> -- David
+>
+> > +     if (unlikely(len > max_len)) {
+> >               pr_debug("%s: rx error: len %u exceeds allocated size %lu=
+\n",
+> > -                      dev->name, len,
+> > -                      (vi->big_packets_num_skbfrags + 1) * PAGE_SIZE);
+> > +                      dev->name, len, max_len);
+> >               goto err;
+> >       }
+> >
+>
