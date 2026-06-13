@@ -1,62 +1,65 @@
-Received: from mail-pj1-f74.google.com (mail-pj1-f74.google.com [209.85.216.74])
+Received: from mail-pf1-f202.google.com (mail-pf1-f202.google.com [209.85.210.202])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 523602E65D
-	for <virtualization@lists.linux.dev>; Sat, 13 Jun 2026 00:10:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.74
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4E8DFE571
+	for <virtualization@lists.linux.dev>; Sat, 13 Jun 2026 00:10:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.202
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781309417; cv=none; b=RAK/8fuXjbYP20YeYBbAplwsd9O3crp1hL9vmsd76hkAUjBDCLO14CJuo/XswSCxtVrEOiR4ySj5FqOcclyQzh834pSOAo6N5+dSOYRp8y3bshjeb+Q6TBLXafQsGTx2IhtE/U/QCniWAyHf2rmFO+r58AUwJuRs2Tl3rvUtMpU=
+	t=1781309417; cv=none; b=GRUrTxmY0FSUFlp3nncgk1OenyiQ2ExQ9elqvtm/FM1ETfrVd2dnccNqasZnP9zSl07btyUlTiczIGyg8G1ufDw37jB6rgtmDWfD66NV9SpJL1+kcWGWaFuHd3KvIM+0/pnBTd8fzBjZh9Mybkdn0xyVamRCl9wwdvUdXBtKJEg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1781309417; c=relaxed/simple;
-	bh=2xA7UwrmgSAiT4AAGXdHKe3DLcEVpuJqqL8PXChttXs=;
-	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=QIbzUvYnWlZiys111/wdjWvBx8kXQvUD/OW4jsfW3gtaVXBAuuL/0vdTSo0HQwF6kXjo+Q3z6YCXM8VlGYT739IrGv+N+iHqPm5oIoWJqvhmobRkF/b5wYrHj2lBNvRG7EF4C2QiulWdX6Y5yVPCb4YGjU+uz6sKJ2HD76I1bR8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tavip.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=hW1BeQfe; arc=none smtp.client-ip=209.85.216.74
+	bh=c0Q49lpbntXNXsuLl1k74yDPvD9eCdJopUkpac70rjw=;
+	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
+	 To:Cc:Content-Type; b=HZjbgvRqpbrvCORmUGdOyD+8Cca6xVoYrMDyNCp1wheKM1ziA9Et7Pyo6K2Ikq0nGohb9pH3I4FzMNAGgsvhpsp5vyypRGsNcKkyMLb2Da3LyFmKFR+9LSkAgwX2661RDSW+CLsBcxgzXLO87Jg0AUvzFPxEbE41ZsYCWMearIo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tavip.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=v9renn0O; arc=none smtp.client-ip=209.85.210.202
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--tavip.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="hW1BeQfe"
-Received: by mail-pj1-f74.google.com with SMTP id 98e67ed59e1d1-36b808bedfaso2070104a91.1
-        for <virtualization@lists.linux.dev>; Fri, 12 Jun 2026 17:10:15 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="v9renn0O"
+Received: by mail-pf1-f202.google.com with SMTP id d2e1a72fcca58-8423f24dcedso1714651b3a.1
+        for <virtualization@lists.linux.dev>; Fri, 12 Jun 2026 17:10:16 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1781309415; x=1781914215; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=ZDW2+QBWaKIKD14o7O9QPMJy941RQm/F5fPpz4Pl5f4=;
-        b=hW1BeQfedPjbuHeR6rMurCSZa5LT1NtfOvQDuf5YUw7p4sQNYjyLB519+WoV6EQ8h2
-         SXCyQWwxpxvJWx4Zz5t86n4wKDsmjSdjvy2eRq54heYdbwntbzDRuc3DONQRO/w3QPPX
-         yJTm8VfioVlTkIDZ9ytxfwX3VD6uGxs+X01a/p21quMasOXXsqi6nqXHM0pdCbPzzrFF
-         0/5WR/3A7Qn7hdf2zYZ+diYxF6wweNvSUcR11X00cb4YNeD4qEj9V+5urkD9Vgo3hOgD
-         dramez5NKkjB6N9vWiW41GQgmuS2vNVzjEUtlZe2H6q/F5zanWOr41lbOcdXKtqGhf/g
-         r3Hg==
+        d=google.com; s=20251104; t=1781309416; x=1781914216; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:from:to:cc:subject:date:message-id:reply-to;
+        bh=kz/YGgUT7Uc36MorqsAsmMwEDPJGbRICV4QU2IwdKQo=;
+        b=v9renn0OASv5P+dnulUzs0haA2j8ZGqMlE8sUfmuTkYNvI78/7uEALO0l5WwiWaau0
+         yOu6l6qr7CJ3zA/vCMVO7smwC/nd+5oIvymzxah/iHDKv3yTc96oXLvy9dS5uHNZg827
+         S/k7c/HDftGgw9IUfbSbprSLfVDae0BzKURL87aQAdlOL0TpKTS2/IlDdI9KnmxHFDNh
+         jc4pWDt3SwzDswI2ppk2yRT/RRgoOIJenefqI+GyKY/1bx3Oyz9o0z9LtgdP6iSY7PjV
+         FEKv+sKu/3BAdJFGZyCp04conPoNGAmCMeHp2twMQPqYJ4ndoVUvXXB+NyXs1WcfS+8C
+         ADyw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781309415; x=1781914215;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=ZDW2+QBWaKIKD14o7O9QPMJy941RQm/F5fPpz4Pl5f4=;
-        b=ay0Q9Da3H50ciA+9ZzRerU9GXSuWT2njfT+8TD5goUSHE9wBrNfuiVMc4scllkDkWE
-         nYzRL1F3YtctGJ+g6rC+rI4w0W2ikDl5+ozZ6L/0aCNywvtIaGH5krmsPpMy42KG6ch1
-         hWCv9kUo5c6kA2UeHkxeLaKd87ZcdKQcUaDBlRO3l3M6BH579Vm66nOC3kzTy6kSNr9j
-         CJ1y8BnK3LbElQ6ojAR+K1LDVPvcAUX0dFUJe2vyvF4e1atbsNp7lhCEmk1FPnyR4Tua
-         9EqGtmpvZEt/YKiQ1Cp0Tb0J1Qp7E4nNknSdtV//ajOGXkrHhhPTWWuy+Kx11lxWI4bD
-         wALA==
-X-Forwarded-Encrypted: i=1; AFNElJ+MFXwwLCUDi6rp4bQWjZ0NLYSZbMWYILD0YSo3Ql7p9Fn/oZB21Qw5PkEzg72sf+3h48PM1l9/am4N1TP8iQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy5lWum5/obLwNEPAajsCUnWxyohFwQZ3rkGdDXhQ+B5l3D5zAS
-	3H02MmPViqjiL6UR/HGry0FYCQEu1Zr3LjpO/3Tyx6KoZ2m6eVhnxUwL2uhHrDWs3uwbaK9WD7z
-	sPw==
-X-Received: from pjbco19.prod.google.com ([2002:a17:90a:fe93:b0:36b:7407:9b73])
- (user=tavip job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:580c:b0:35b:8d89:719b
- with SMTP id 98e67ed59e1d1-37c2bc6f158mr1545724a91.1.1781309414535; Fri, 12
- Jun 2026 17:10:14 -0700 (PDT)
-Date: Sat, 13 Jun 2026 00:09:51 +0000
+        d=1e100.net; s=20251104; t=1781309416; x=1781914216;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=kz/YGgUT7Uc36MorqsAsmMwEDPJGbRICV4QU2IwdKQo=;
+        b=dhS7xxvGusQnkUmNmAp6MIlQ5yZfp98LPyFjLMOFcbHSLMjMzTxOn86Wwt9ZfixQws
+         LXv7csP3ueBjVwK0RHVykWws6om9VcziJv9Fww8zJoferwx/+aqJaeIP4rsB0jzAhCT/
+         poHfsPVfE1cBqf1gcKN11CK/G/owNOTmdXKAP/N5MujstbqJxLA+hz3Gj/u4qBISaH+7
+         J78sq4vNSyt7bjTH90MpaSikbHNCC/KOHjU1BPrxVz5sqsmtH0Y/ssLgEWgRuaFgegYk
+         qw3mQd85A3n92+O+L2J45mAonSG7gWa4ukVO42984f173zI8ZQoY8754M93s056k6opj
+         MWtQ==
+X-Forwarded-Encrypted: i=1; AFNElJ/bYjMA/bYOF8evJkpBuj/NoMdXgnzp0/KlypGzr6j7M9/W14ezr3mGbv2ZTA7U7bQ5cJ0zuDLP7AOH+QP0xg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwOlZiWGuaE+qsb+jMWNsMU3qhSjDYniPI/V9FkcmypqpOloTfv
+	xx+wvKA2G5FShPLQO53Gn9x34kO/VbCQoexi0VKHA0/M37E+AMKPzz9OPEQWlM7kkNih1ShbFYd
+	Lvw==
+X-Received: from pfra26.prod.google.com ([2002:aa7:8e9a:0:b0:835:3df8:d72])
+ (user=tavip job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:1404:b0:836:3f6a:3e77
+ with SMTP id d2e1a72fcca58-8434cd4b0abmr5407830b3a.17.1781309415402; Fri, 12
+ Jun 2026 17:10:15 -0700 (PDT)
+Date: Sat, 13 Jun 2026 00:09:52 +0000
+In-Reply-To: <20260613000953.467473-1-tavip@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 Mime-Version: 1.0
+References: <20260613000953.467473-1-tavip@google.com>
 X-Mailer: git-send-email 2.54.0.1136.gdb2ca164c4-goog
-Message-ID: <20260613000953.467473-1-tavip@google.com>
-Subject: [PATCH net v2 0/2] vsock/virtio: fix msg_iter desync on transmission failure
+Message-ID: <20260613000953.467473-2-tavip@google.com>
+Subject: [PATCH net v2 1/2] iov_iter: export iov_iter_restore
 From: Octavian Purdila <tavip@google.com>
 To: netdev@vger.kernel.org
 Cc: Alexander Viro <viro@zeniv.linux.org.uk>, Andrew Morton <akpm@linux-foundation.org>, 
@@ -71,33 +74,28 @@ Cc: Alexander Viro <viro@zeniv.linux.org.uk>, Andrew Morton <akpm@linux-foundati
 	Octavian Purdila <tavip@google.com>
 Content-Type: text/plain; charset="UTF-8"
 
-This series fixes a msg_iter desync issue in the virtio vsock transport
-that can lead to warnings and eventual -ENOMEM under specific failure
-scenarios (e.g. partial GUP failure during MSG_ZEROCOPY transmission).
+Export iov_iter_restore so that it can be used by modules.
 
-To fix this, we need to restore the msg_iter state on transmission failure.
-However, since virtio vsock transport can be built as a module, we first
-need to export iov_iter_restore.
+This is needed by the virtio vsock transport (which can be built as a
+module) to restore the msg_iter state when transmission fails.
 
-Patch 1 exports iov_iter_restore.
-Patch 2 implements the msg_iter restoration in virtio vsock.
+Signed-off-by: Octavian Purdila <tavip@google.com>
+---
+ lib/iov_iter.c | 1 +
+ 1 file changed, 1 insertion(+)
 
-Changes in v2:
-- Use iov_iter_savestate()/iov_iter_restore() (Stefano)
-- Use a single restore point (Stefano)
-- Reverse xmas tree (Stefano)
-- Added comments in the code (Stefano)
-
-v1: https://lore.kernel.org/all/20260609004809.1285028-1-tavip@google.com/
-
-Octavian Purdila (2):
-  iov_iter: export iov_iter_restore
-  vsock/virtio: restore msg_iter on transmission failure
-
- lib/iov_iter.c                          |  1 +
- net/vmw_vsock/virtio_transport_common.c | 13 +++++++++++++
- 2 files changed, 14 insertions(+)
-
+diff --git a/lib/iov_iter.c b/lib/iov_iter.c
+index 243662af1af73..067e745f9ef53 100644
+--- a/lib/iov_iter.c
++++ b/lib/iov_iter.c
+@@ -1491,6 +1491,7 @@ void iov_iter_restore(struct iov_iter *i, struct iov_iter_state *state)
+ 		i->__iov -= state->nr_segs - i->nr_segs;
+ 	i->nr_segs = state->nr_segs;
+ }
++EXPORT_SYMBOL(iov_iter_restore);
+ 
+ /*
+  * Extract a list of contiguous pages from an ITER_FOLIOQ iterator.  This does
 -- 
 2.54.0.1136.gdb2ca164c4-goog
 
