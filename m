@@ -1,155 +1,143 @@
-Received: from out30-101.freemail.mail.aliyun.com (out30-101.freemail.mail.aliyun.com [115.124.30.101])
+Received: from canpmsgout02.his.huawei.com (canpmsgout02.his.huawei.com [113.46.200.217])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 91AA81A683A
-	for <virtualization@lists.linux.dev>; Mon, 15 Jun 2026 02:59:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.101
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BFDD8286891
+	for <virtualization@lists.linux.dev>; Mon, 15 Jun 2026 03:29:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.217
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781492396; cv=none; b=rn7gl1HrbP/IAYZaZJrLZ2SvmVVX0Atww+radon/mhFPmeWQ2/y7XjZEJYzKaWAosLoz5K1nkjjiBvzyCf7JDSfGnxFt0zUpErTd2Km5jdl1vKs7c0Xmbar8NTemS/KT5hiG/d2xLYFSnsQgwVl5tQJvzlQe/qkqjcKO6enQGCw=
+	t=1781494172; cv=none; b=UMCwXIpzlCsJqjCLpAyNoWMTAwRbsvqPmewi6/UNvnzTba7fwtBQdkJRWVnGbfxRQdZ0cQbyth7/6RGSYkYveT8P1P7cPs6p1q8ka0sI1eOZ3fZCFQvH+VhP63wY9UA85qbWVlCKKHjctnR6OiGS4ebaiIp/60sPqBSPU5iPCl4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781492396; c=relaxed/simple;
-	bh=57yKZQz0buXNFzXkhUqk+nu0gQIuDjIWbyAXCJFgNMg=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=GJN7+6hf/JwflW98MJ0X2J4C6fP+pCcsJdxVu9uFx8/G035kC4fuISGMg+QM5613vFLvxD7ZfCQCvV3xJs7BdNvt1OuqiCbhHuomAvHwodekcLaEStvXNWdQDa9jWB7JMc02awAF2kxAyEXeEQAaqBqVVCxXR2Dv7uP6aINcil0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=i+3MDgXc; arc=none smtp.client-ip=115.124.30.101
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1781494172; c=relaxed/simple;
+	bh=X6zI8OSsc1yxlIgMkI48n0emhqbBgmBaqMZd0vema7o=;
+	h=Subject:To:CC:References:From:Message-ID:Date:MIME-Version:
+	 In-Reply-To:Content-Type; b=DU5MpwyqzlvyG4bC6FZkwJsGhPQhRZxHecG5qZdMp1/aKnl38fMtg62W2o/9Y/c9PShrv1L4/N+4ePysH21nrOJdAEIagsEoWjXB85Xg59XEjj+cml6J1aruiSWPAxnTgNktM2oTWVnzDLDUqgbrCnB/z7RN8oJh9ru72ur0EkE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=Cw+MEhA/; arc=none smtp.client-ip=113.46.200.217
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="i+3MDgXc"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1781492389; h=Message-ID:Subject:Date:From:To;
-	bh=Hs9gJmaIt2CsoVnPgGPaU+fHX1gP7oID7IO1t/2Ii+o=;
-	b=i+3MDgXcu7D9CtgePdbfrNuTg00XC/XNEFjyKLgsGxWlGKo0hZvL1wYsbfzCP8+D94QEM8T+YL1PHdKPDCCH3sxcSpTQQtjPpDoDwFE0VhmPi6WFrlbBNPP8i6it6iWdDZw/ZS3/dYtJ5OEQcv4N8HIJyBwTWdSvw5u05tpIA00=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R181e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam033037009110;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=14;SR=0;TI=SMTPD_---0X4ooTfR_1781492387;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0X4ooTfR_1781492387 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Mon, 15 Jun 2026 10:59:48 +0800
-Message-ID: <1781491685.0613394-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v2 1/2] virtio_net: xsk: fix race in rx wake up
-Date: Mon, 15 Jun 2026 10:48:05 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: menglong8.dong@gmail.com
-Cc: mst@redhat.com,
- jasowang@redhat.com,
- andrew+netdev@lunn.ch,
- davem@davemloft.net,
- edumazet@google.com,
- kuba@kernel.org,
- pabeni@redhat.com,
- minhquangbui99@gmail.com,
- kerneljasonxing@gmail.com,
- netdev@vger.kernel.org,
- virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org,
- eperezma@redhat.com
-References: <20260611025644.2431148-1-dongml2@chinatelecom.cn>
- <20260611025644.2431148-2-dongml2@chinatelecom.cn>
-In-Reply-To: <20260611025644.2431148-2-dongml2@chinatelecom.cn>
+	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="Cw+MEhA/"
+dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
+	c=relaxed/relaxed; q=dns/txt;
+	h=From;
+	bh=QJb9FmlHeruupdTIUIXHdJBdFqX4Ek20qkGI45QfU+0=;
+	b=Cw+MEhA/Z9r3S/Yb0WxjaWWfrIiUyusoknamGmnrQxVVKZOtAG/Un1ZKbcNCgCmNpvN/Mx8MP
+	BB2TViSG1Gw6XlU8aFpUpnK1x2h+T965BO8X/z0R9wl3Y20UqryBUqVixbJZlxf8K6FQX/QiZZQ
+	LheTXmB1a2jCF5U6ytCSM08=
+Received: from mail.maildlp.com (unknown [172.19.163.0])
+	by canpmsgout02.his.huawei.com (SkyGuard) with ESMTPS id 4gdwPS1pB9zcZxy;
+	Mon, 15 Jun 2026 11:21:00 +0800 (CST)
+Received: from dggemv712-chm.china.huawei.com (unknown [10.1.198.32])
+	by mail.maildlp.com (Postfix) with ESMTPS id D949940561;
+	Mon, 15 Jun 2026 11:29:20 +0800 (CST)
+Received: from kwepemq500010.china.huawei.com (7.202.194.235) by
+ dggemv712-chm.china.huawei.com (10.1.198.32) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Mon, 15 Jun 2026 11:29:20 +0800
+Received: from [10.173.124.160] (10.173.124.160) by
+ kwepemq500010.china.huawei.com (7.202.194.235) with Microsoft SMTP Server
+ (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.2.1544.11; Mon, 15 Jun 2026 11:29:18 +0800
+Subject: Re: [PATCH splitout] mm: memory-failure: serialize
+ TestSetPageHWPoison with zone->lock
+To: "David Hildenbrand (Arm)" <david@kernel.org>, "Michael S. Tsirkin"
+	<mst@redhat.com>
+CC: Zi Yan <ziy@nvidia.com>, Andrew Morton <akpm@linux-foundation.org>,
+	<linux-kernel@vger.kernel.org>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
+	<xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=c3=a9rez?=
+	<eperezma@redhat.com>, Muchun Song <muchun.song@linux.dev>, Oscar Salvador
+	<osalvador@suse.de>, Lorenzo Stoakes <ljs@kernel.org>, "Liam R. Howlett"
+	<liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport
+	<rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, Michal Hocko
+	<mhocko@suse.com>, Brendan Jackman <jackmanb@google.com>, Johannes Weiner
+	<hannes@cmpxchg.org>, Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache
+	<npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>, Dev Jain
+	<dev.jain@arm.com>, Barry Song <baohua@kernel.org>, Lance Yang
+	<lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>, Matthew Brost
+	<matthew.brost@intel.com>, Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim
+	<rakie.kim@sk.com>, Byungchul Park <byungchul@sk.com>, Gregory Price
+	<gourry@gourry.net>, Ying Huang <ying.huang@linux.alibaba.com>, "Alistair
+ Popple" <apopple@nvidia.com>, Christoph Lameter <cl@gentwo.org>, "David
+ Rientjes" <rientjes@google.com>, Roman Gushchin <roman.gushchin@linux.dev>,
+	Harry Yoo <harry.yoo@oracle.com>, Axel Rasmussen <axelrasmussen@google.com>,
+	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>, Chris Li
+	<chrisl@kernel.org>, Kairui Song <kasong@tencent.com>, Kemeng Shi
+	<shikemeng@huaweicloud.com>, Nhat Pham <nphamcs@gmail.com>, Baoquan He
+	<bhe@redhat.com>, <virtualization@lists.linux.dev>, <linux-mm@kvack.org>,
+	Andrea Arcangeli <aarcange@redhat.com>, Naoya Horiguchi
+	<nao.horiguchi@gmail.com>
+References: <20260609111020.e88f51a7b6ebc37360d66fdc@linux-foundation.org>
+ <8c1f468e-b50a-487a-a267-8d1ea5a61c87@kernel.org>
+ <FB250C43-790E-4AB0-BD40-74665FC601A0@nvidia.com>
+ <38C84F23-E881-4DB2-86BA-93F39D44AE1B@nvidia.com>
+ <20260609162437-mutt-send-email-mst@kernel.org>
+ <4BA276D9-9EB9-4E2A-8A05-657ACACFF227@nvidia.com>
+ <20260609165829-mutt-send-email-mst@kernel.org>
+ <dd8d89be-9c73-8ff7-7d44-9705bddeda4d@huawei.com>
+ <20260610171646-mutt-send-email-mst@kernel.org>
+ <14537566-94d9-eac5-2636-35f925a9d159@huawei.com>
+ <20260611013644-mutt-send-email-mst@kernel.org>
+ <1b5676ab-0dc5-ef33-9d79-a2bd6090a62d@huawei.com>
+ <cbffabdc-42bf-4e67-9d2b-ace9a1e09f29@kernel.org>
+From: Miaohe Lin <linmiaohe@huawei.com>
+Message-ID: <984d9775-e17c-0231-b021-126b13a9aa42@huawei.com>
+Date: Mon, 15 Jun 2026 11:29:18 +0800
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:78.0) Gecko/20100101
+ Thunderbird/78.6.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+In-Reply-To: <cbffabdc-42bf-4e67-9d2b-ace9a1e09f29@kernel.org>
+Content-Type: text/plain; charset="utf-8"
+Content-Language: en-US
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: kwepems500002.china.huawei.com (7.221.188.17) To
+ kwepemq500010.china.huawei.com (7.202.194.235)
 
-On Thu, 11 Jun 2026 10:56:43 +0800, menglong8.dong@gmail.com wrote:
-> From: Menglong Dong <dongml2@chinatelecom.cn>
->
-> During packet receiving in virtio-net, the rq can be empty, which means
-> "rq->vq->num_free == virtqueue_get_vring_size(rq->vq)", in
-> virtnet_add_recvbuf_xsk(), if we are using xsk. Meanwhile, the fill ring
-> can be empty too, which means we can't allocate anything from
-> xsk_buff_alloc_batch(). Then, we will set the XDP_RING_NEED_WAKEUP flag.
->
-> However, if the user clean all the data in rx ring and fill the
-> "fill ring" and check the XDP_RING_NEED_WAKEUP flag after
-> xsk_buff_alloc_batch() and before xsk_set_rx_need_wakeup(), then the rx
-> napi will never be scheduled: the rx ring is empty, which means we will
-> never receive a packet to trigger the further recv fill. The rx ring is
-> empty now, so the user will not check the flag too.
->
-> Fix this by set the XDP_RING_NEED_WAKEUP flag before
-> xsk_buff_alloc_batch() if both rq->vq and fill ring are empty.
->
-> Meanwhile, set the XDP_RING_NEED_WAKEUP flag if we have any free entry in
-> rq->vq.
->
-> Fixes: e3f8800aa243 ("virtio-net: xsk: Support wakeup on RX side")
-> Signed-off-by: Menglong Dong <dongml2@chinatelecom.cn>
-> ---
->  drivers/net/virtio_net.c | 25 ++++++++++++++++++++++---
->  1 file changed, 22 insertions(+), 3 deletions(-)
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index f4adcfee7a80..4b5b3fa62008 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -1323,16 +1323,27 @@ static int virtnet_add_recvbuf_xsk(struct virtnet_info *vi, struct receive_queue
->  				   struct xsk_buff_pool *pool, gfp_t gfp)
->  {
->  	struct xdp_buff **xsk_buffs;
-> +	bool need_wakeup;
->  	dma_addr_t addr;
->  	int err = 0;
->  	u32 len, i;
->  	int num;
->
-> +	need_wakeup = xsk_uses_need_wakeup(pool);
->  	xsk_buffs = rq->xsk_buffs;
->
-> +	/* If both rq->vq and fill ring are empty, and then the user submit
-> +	 * all the chunks to the fill ring and check the wake up flag
-> +	 * after xsk_buff_alloc_batch() and before xsk_set_rx_need_wakeup(),
-> +	 * we will lose the chance to wake up the rx napi, so we have to
-> +	 * set the need_wakeup flag here.
-> +	 */
-> +	if (need_wakeup && virtqueue_get_vring_size(rq->vq) == rq->vq->num_free)
-> +		xsk_set_rx_need_wakeup(pool);
+On 2026/6/11 21:20, David Hildenbrand (Arm) wrote:
+> On 6/11/26 09:36, Miaohe Lin wrote:
+>> On 2026/6/11 13:43, Michael S. Tsirkin wrote:
+>>> On Thu, Jun 11, 2026 at 11:35:36AM +0800, Miaohe Lin wrote:
+>>>>
+>>>> Do you mean repeating SetPageHWPoison on every branch?
+>>>
+>>> Right.
+>>>
+>>>> Is it possible
+>>>> to make __free_pages_prepare changes page->flags atomically or this race
+>>>> is specified to memory_failure?
+>>>>
+>>>> Thanks.
+>>>> .
+>>>
+>>>
+>>> Adding an atomic op on every fast path page allocation is, I am
+>>> guessing, going to slow down Linux measureably.
+>>>
+>>> Doing it for the benefit of memory_failure, which is the slowest of
+>>> slow paths, seems unpalatable, to me.
+>>
+>> Agree, it's not worth to do so.
+>>
+>>>
+>>> Neither am I sure it's the only racy place -
+>>> grep for __SetPage and __ClearPage - all these have the same issue, I
+>>> suspect.
+>>>
+>>> At the same time, I'm not an mm maintainer. If you disagree, try to
+>>> upstream a change converting all non atomics in mm to atomics, and see
+>>> what others say.
+>>
+>> Since memory_failure might be the only place, this change would be unacceptable.
+>> We should come up with a better solution. Maybe we can try repeating SetPageHWPoison
+>> and ClearPageHWPoison at a first attempt though it looks somewhat weird to me and makes
+>> code more complicated.
+> 
+> And I am fairly sure we could still have some remaining races ... it's shaky.
 
-Is Condition A here too strict? We should trigger the wakeup under a wider range
-of scenarios.
-
-> +
->  	num = xsk_buff_alloc_batch(pool, xsk_buffs, rq->vq->num_free);
->  	if (!num) {
-> -		if (xsk_uses_need_wakeup(pool)) {
-> +		if (need_wakeup) {
->  			xsk_set_rx_need_wakeup(pool);
->  			/* Return 0 instead of -ENOMEM so that NAPI is
->  			 * descheduled.
-> @@ -1341,8 +1352,6 @@ static int virtnet_add_recvbuf_xsk(struct virtnet_info *vi, struct receive_queue
->  		}
->
->  		return -ENOMEM;
-> -	} else {
-> -		xsk_clear_rx_need_wakeup(pool);
->  	}
->
->  	len = xsk_pool_get_rx_frame_size(pool) + vi->hdr_len;
-> @@ -1363,6 +1372,16 @@ static int virtnet_add_recvbuf_xsk(struct virtnet_info *vi, struct receive_queue
->  			goto err;
->  	}
->
-> +	if (need_wakeup) {
-> +		if (rq->vq->num_free)
-> +			/* We have free buffers, so we'd better wake up the
-> +			 * rx napi as soon as possible.
-> +			 */
-> +			xsk_set_rx_need_wakeup(pool);
-
-Is the purpose of waking up RX NAPI to invoke try_fill_recv? However,
-virtnet_poll does not call try_fill_recv directly. it is done
-conditionally.
+I have to agree it's shaky. Any suggestion for next step?
 
 Thanks.
-
-
-> +		else
-> +			xsk_clear_rx_need_wakeup(pool);
-> +	}
-> +
->  	return num;
->
->  err:
-> --
-> 2.54.0
->
+.
