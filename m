@@ -1,107 +1,131 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 099B03F4DDA
-	for <virtualization@lists.linux.dev>; Mon, 15 Jun 2026 14:24:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C6BB23FDC04
+	for <virtualization@lists.linux.dev>; Mon, 15 Jun 2026 14:53:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781533456; cv=none; b=UR299aufLDQ+UQDPsU4JqFZtKmoxnO0ZVKZV2QqI/VQK6mbh+aOLFCoau4ZGXmEKxyHljrIjIpR2f2GH4OdgQO+1yvDAfqHZFOeOQw0Xv1ylVo9q4kmX5Tzi+x1XSfAqo//fLGmtBhrslVpTBTC4nq3cZvPBLJYQm+6qzSF0JvE=
+	t=1781535186; cv=none; b=i9946G69Mg71kuQgqkg9S2tLcgux7qaZXNBlzp3Wj9oQ6a2WYI5dfeG901SNQRb0nuW3Z39lgUnwaL1EawqmGSemQykcqbZ1t7TMxtD46LolaA+aJXXid4llSF0u23FJJGnMctqzyl6mq9xfG08gs43MSmPef2sQo8pAEELg3z8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781533456; c=relaxed/simple;
-	bh=kiIsMDo+qCR+gsHM8Iu+H9cpLnLwOVAQRINXxJNClUY=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=sLAoZhBYlJfXi8GeyxCOR1Y/RjJGmvBP9C0+bIF0EgzsyZisq+x9TBuNqQR5gLSZfPJMX80CX/FsA16ByLyNijRArE7RLlBihQl20RztQS02aCqSnazpCKG6iv0dwEb5+nHGrSlpapq5zNYJAVC7KiEM1Ypr7RrwVotUgNEjwYk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GN4eQdbK; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1781535186; c=relaxed/simple;
+	bh=FufpY6m8LYjL6hzb1N0QB92mo8HHNnJndS3rAEcI+nM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=gDkYvwqwjy3UsNimQjg+homsq/keBzPyBwOUD2c6ZuYB3n6NEv0GMAG7QwW4x399Jv7xdi8u/LPoYq6h6zXzU5EL2rd89CCGxuyjirEWXJFunexiFDtlWc9wAed/9jwLtLar4RI3ShwAVJWHKzBDf7CQGtv5ixRMhG597Wdljic=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OKAFtX2Y; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GN4eQdbK"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65FCmR1c2516332;
-	Mon, 15 Jun 2026 14:24:13 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=pp1; bh=kiIsMDo+qCR+gsHM8
-	Iu+H9cpLnLwOVAQRINXxJNClUY=; b=GN4eQdbKdswwSls6TmhN7tpRUObzW/956
-	FamR+im5/GrFejoOBThGVMmsMUCTKKCpk12PteeH6Sj+r5kdpRIr2UeYoI5LZz07
-	4lwZj0Uk1GkmtZu1VrOvbOCs8R9KfKuvRxEX6tC2HAsMjqLaTMnA3j1FP8OblpGi
-	L1JWXiPgTS51lP+jx/4oujUNzbrvC7nSiB2W22a9V9CXFf1w98Hgfvq5/oj90lWv
-	dUYlx5AXCCl8/aKSBPVnPXfJd6LMwgVbvXiz67SCX04uAd90NYQfG8UHSagshnI/
-	o1UFrrFeresp91jJVazVGMhX0SBUMrVIBikkZwHjPOYF7O2Rogfsg==
-Received: from ppma23.wdc07v.mail.ibm.com (5d.69.3da9.ip4.static.sl-reverse.com [169.61.105.93])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4es1eg0kae-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 15 Jun 2026 14:24:13 +0000 (GMT)
-Received: from pps.filterd (ppma23.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma23.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65FEJgaq014403;
-	Mon, 15 Jun 2026 14:24:13 GMT
-Received: from smtprelay02.wdc07v.mail.ibm.com ([172.16.1.69])
-	by ppma23.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4esk1gxwnb-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 15 Jun 2026 14:24:13 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (smtpav01.wdc07v.mail.ibm.com [10.39.53.228])
-	by smtprelay02.wdc07v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65FEOCmO26280516
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 15 Jun 2026 14:24:12 GMT
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id ACBFB58067;
-	Mon, 15 Jun 2026 14:24:12 +0000 (GMT)
-Received: from smtpav01.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id A88A55804B;
-	Mon, 15 Jun 2026 14:24:10 +0000 (GMT)
-Received: from b35lp69.lnxne.boe (unknown [9.87.84.240])
-	by smtpav01.wdc07v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 15 Jun 2026 14:24:10 +0000 (GMT)
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-To: mst@redhat.com
-Cc: eperezma@redhat.com, jasowang@redhat.com, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-        sgarzare@redhat.com, shuangyu@yunyoo.cc, stefanha@redhat.com,
-        virtualization@lists.linux.dev,
-        Christian Borntraeger <borntraeger@linux.ibm.com>
-Subject: Re: vhost: fix vhost_get_avail_idx for a non empty ring
-Date: Mon, 15 Jun 2026 16:24:08 +0200
-Message-ID: <20260615142408.64169-1-borntraeger@linux.ibm.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <559b04ae6ce52973c535dc47e461638b7f4c3d63.1772441455.git.mst@redhat.com>
-References: <559b04ae6ce52973c535dc47e461638b7f4c3d63.1772441455.git.mst@redhat.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OKAFtX2Y"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1781535184;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=D2U/rVXVdMp49YF1Mi2vsTuL7+1i+LvINM+38VWReC0=;
+	b=OKAFtX2Ya0z7W9uGP0B2HMKJvkyr2iD2+SneUjoA2hE5eTCeehMKzd6qgXPIipbpxSfEKh
+	7/YA1kkuNSrUkfSq/BZbzwYN+EOBzx5/jNh38Rs1hmG3gCWBHQko+GMmccPTnlTYPKPKQO
+	qaKutVogExoW1haF+FnhVnfva8eUZLM=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-68-2MkfMIgzO42hbt2o6bB03g-1; Mon,
+ 15 Jun 2026 10:52:59 -0400
+X-MC-Unique: 2MkfMIgzO42hbt2o6bB03g-1
+X-Mimecast-MFC-AGG-ID: 2MkfMIgzO42hbt2o6bB03g_1781535177
+Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 74F8F1800581;
+	Mon, 15 Jun 2026 14:52:56 +0000 (UTC)
+Received: from localhost (unknown [10.2.16.187])
+	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id 3DBA719541B2;
+	Mon, 15 Jun 2026 14:52:54 +0000 (UTC)
+Date: Mon, 15 Jun 2026 10:52:53 -0400
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Xixin Liu <liuxixin@kylinos.cn>
+Cc: linux-block@vger.kernel.org, virtualization@lists.linux.dev,
+	mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com, pbonzini@redhat.com, axboe@kernel.dk,
+	linux-kernel@vger.kernel.org, Parav Pandit <parav@nvidia.com>
+Subject: Re: [PATCH v1 0/2] virtio: PCI ERS permanent failure teardown for
+ virtio-blk
+Message-ID: <20260615145253.GA448916@fedora>
+References: <cover.virtio-blk-ers-v1.1780449274.git.liuxixin@kylinos.cn>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE1MDE1MCBTYWx0ZWRfX4kOKOUsdn62Q
- /00GYZASuleTVtIXkuDbgwDV+7nlTSxdLhmfjXnEDOwZphkeDsc5yNcqeYOjo0AQY4CUKdPRaNk
- v59IksHTAY5najYc84fr6Zys+ciMo94=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE1MDE1MCBTYWx0ZWRfXxGYz/ntpzeEW
- VQ0IpQMPtCIG0fa+inikduA5QDgfsJQ5qhKQ4Kmik6MQWgbSBWWV5hoY+zPWdOwYeWfO7xg6yYh
- rkASTGzuEePJ1NF48p+ZRcx9GBXw0tVPFwHnirO8CfmTlo4JRwzbB8Wu7PNQdp42r8YdPtIud0j
- MVt29Aty2bQDOFZ7PgmyzrJVd6zankDgEtEImfRryU1Y96gCs2HODtDhdqkX8DK+AyPS+jJ/8ko
- VUMgUTD7d9ng/rUY0HXLoV0/ofAtMuKpoasRTW5Tm+j8OrL7cKz+Q16k7HFKQEe4aYu2uIfwJhT
- TnS5RNi6WL9G68VKw/jgs68qV4ETCurGbaUXMg9bBUZ/wGSAemiQ/A9oZz2kJ230FKyj5SULK14
- 3Zl7YYWOezdl13PO0b1+aZXaOQCg1WFTXCVbPX+X49a3quUsqi+1yJS1jcfxN/g+0B4LTns9XdR
- 2+4FI9fsa5Z9Wov215A==
-X-Proofpoint-GUID: JCecQl8GbpHgCG0Czo7MCieaqFs7ZQJ_
-X-Authority-Analysis: v=2.4 cv=NuDhtcdJ c=1 sm=1 tr=0 ts=6a300b0d cx=c_pps
- a=3Bg1Hr4SwmMryq2xdFQyZA==:117 a=3Bg1Hr4SwmMryq2xdFQyZA==:17
- a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
- a=V8glGbnc2Ofi9Qvn3v5h:22 a=q_tXsGYBvXEQEe6gApwA:9
-X-Proofpoint-ORIG-GUID: JCecQl8GbpHgCG0Czo7MCieaqFs7ZQJ_
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-06-15_03,2026-06-15_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 adultscore=0 suspectscore=0 impostorscore=0 clxscore=1011
- phishscore=0 bulkscore=0 malwarescore=0 priorityscore=1501 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606040000 definitions=main-2606150150
-
-Late feedback, but this patch massively improves our uperf latency/bandwidth
-and cpu consumption significantly for s390. Improvements are all over
-the place, streaming, transactional (100 byte/2000 byte). Nice fix.
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="rDjPuhbpsEQh05PT"
+Content-Disposition: inline
+In-Reply-To: <cover.virtio-blk-ers-v1.1780449274.git.liuxixin@kylinos.cn>
+X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
 
 
-Christian
+--rDjPuhbpsEQh05PT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Jun 15, 2026 at 10:00:00AM +0800, Xixin Liu wrote:
+> Hi,
+>=20
+> This series adds proper PCI AER error recovery handling for virtio-pci and
+> completes virtio-blk teardown when ERS reports pci_channel_io_perm_failur=
+e.
+
+CCing Parav because he previously looked at surprise removal:
+https://lore.kernel.org/virtualization/20250822091706.21170-1-parav@nvidia.=
+com/
+
+>=20
+> virtio-pci only registered reset_prepare/reset_done.  The recovery core
+> treats devices without error_detected as NO_AER_DRIVER and does not
+> deliver perm_failure to the driver after a failed recovery.  When bus
+> reset fails (reproduced on QEMU with DLLLA not set within 100 ms after
+> secondary bus reset), virtio-blk disks stay live even though virtqueues
+> may already have been torn down during the frozen phase.
+>=20
+> Patch 1 registers error_detected (frozen quiesce + perm_failure notify).
+> Patch 2 calls the virtio driver shutdown hook from virtio-pci on
+> perm_failure, implements virtio-blk shutdown with blk_mark_disk_dead(),
+> and fail-fast guards in virtio_queue_rq.
+>=20
+> Thanks,
+> Xixin Liu
+>=20
+> ---
+>=20
+> Xixin Liu (2):
+>   virtio-pci: add error_detected for PCI AER recovery
+>   virtio-blk: mark disk dead on ERS permanent failure
+>=20
+>  drivers/block/virtio_blk.c         | 39 +++++++++++++++++++++++++++++++
+>  drivers/virtio/virtio_pci_common.c | 47 ++++++++++++++++++++++++++++++++=
+++
+>  2 files changed, 85 insertions(+)
+>=20
+> --=20
+> 2.43.0
+>=20
+
+--rDjPuhbpsEQh05PT
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCgAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmowEcUACgkQnKSrs4Gr
+c8i72AgApJ/ZOOsKjhY+6etWszyoXg4UHVtUMfpo9KefImYgFeCUbW4oryCmQwPU
+jYsDMDkgj6aZVYgeIEoMUMJaUQRO0ZhPska/ce2nttNr+/uMEtSmCqPVDV0Yk1Wl
+qOmtu2NAR/5kRRdA795tGCfmRm0FyFnZqR+ZuRnuJqzMvgS4uB087kEUqwd7X1KE
+kWtf+tbt9UwshgXtaT/yJGH3oH8s5l9PVWJGpzOXJN30xBvS4I7zGtnFG0jGba5c
+H695VZfVJlFYyMERJRkJxnaesIYG9vuOESzacM8GHwm9dosyYfbNWhX4RHy3nBPP
+QGsCvLuNxwzdrUXH1L/IeCYTx/f9Fg==
+=zDKi
+-----END PGP SIGNATURE-----
+
+--rDjPuhbpsEQh05PT--
+
