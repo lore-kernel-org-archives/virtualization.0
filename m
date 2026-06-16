@@ -1,229 +1,110 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1D05425CEE
-	for <virtualization@lists.linux.dev>; Tue, 16 Jun 2026 16:27:57 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 45FC633AD9B;
+	Tue, 16 Jun 2026 16:39:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781627278; cv=none; b=mTkjD+xhTV1toC3K1ZwOtRb6T/T5+D77yXGjkM0ARL2SW8czD1SOpDXrF9EoTeLLOg7RgRBw49yLeVQa9rLqclrmZyX9eHHZYtV/FHjBTDOLNNIJO4FyARfAqbbx5WAZ90pLAcanyglSwf80cp+IOO85JfpnM0l8q3/TNllyBTk=
+	t=1781627967; cv=none; b=YzYt6ypnCYL4HzcuL0OLjC9/yloIc1DnSsaMByqLYI72s6aj4CVdkgzUX7BhgKyL8UMDx4FBYUR3cMtIemYd8gpO6RpuPBk2svfFOfeuEmLKqLj1ePlvTcFQ8Ul9JFJ+cDJxrvoaDyM/Eiu77Z0AOb/Ut81DaL+5+DNSWUAR1qU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781627278; c=relaxed/simple;
-	bh=Z842xy6HRRqB4Li/xdveIcOj5VPTonatiB28s4fN5Vg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=pLkkgceam7fug3u7QwsrQ63nJc3f78p+bja9bmk+hGlRGiOSiW4oAfHs6ULQ8GG2HtT2YnPSkub1bZeKiSuKHJwY4cTUEa4aMxGzJVXtZPRe0PZ3QcgBtgpLjFOX0anGffIlS12j4GvPFgntxFFgbB5JBPo5cDw5H/yD8t6ryn8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qnSIssfS; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1781627967; c=relaxed/simple;
+	bh=xUtmZF7s2HrUPfprF60I2x8Ca8jpO816C+HyVw4Tta8=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=j2+oiC4arTZy33e0TSNty0hUeDdqs+7ZJjSFaB0/ate+D4334lf0RzbBnFy7fI8pABAsYrKCZVuyEde//eKEZLSAfxBtx3UilxrAk/GP7TPwbQt6trCLzWzLsbrU1ySmXUcA8j/d2vABWCv/PFGTshZ7OV6bS2ZZ+3lhXf3tmSc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=OOXZ214i; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qnSIssfS"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65GFmM2j2118489;
-	Tue, 16 Jun 2026 16:27:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=3bglgY
-	9HrvwXvl2OI8eYxb7OAlNo74Go+VcXaOKliuI=; b=qnSIssfS2+dgx0xFdo/djN
-	V0fFzYj7durgPK3AZ3E0Ved/ovRwxt+7qjC9S/9zesH8+TzF+KszMqj2sWT4T7+w
-	91DLR3Ae3FLgxGVAP2+0WT3e63pWyMnnTRJZ6hmMYEhxksSbztnUKT4EXQqzPXug
-	YUoxfFYRo/skxCRwv+HQ3R7NapvTnERUWiYiQpgo3TnvhicMHg9IedxA09m9fOxt
-	U99aTNWKn1vcYrBfX92itkj3R/ZDPvpPiIhX2nmEDDjP1nxYvS0LJHrTWBl8Fx0K
-	76JC7csMRAntwZ+uT3FWxtnGNxw/nhhdDdifAqqhWvXlavkD+XeCEBj4CaZuva2A
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4es1h86wku-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Jun 2026 16:27:51 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65GGJaTG017262;
-	Tue, 16 Jun 2026 16:27:50 GMT
-Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4eshww4dny-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Tue, 16 Jun 2026 16:27:50 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
-	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65GGRmdU63046138
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Tue, 16 Jun 2026 16:27:49 GMT
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id B52795804E;
-	Tue, 16 Jun 2026 16:27:48 +0000 (GMT)
-Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 7855058056;
-	Tue, 16 Jun 2026 16:27:47 +0000 (GMT)
-Received: from [9.12.65.99] (unknown [9.12.65.99])
-	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTPS;
-	Tue, 16 Jun 2026 16:27:47 +0000 (GMT)
-Message-ID: <39dc5534-d7f7-4bf3-9473-459789d75fe2@linux.ibm.com>
-Date: Tue, 16 Jun 2026 12:27:46 -0400
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="OOXZ214i"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DCA531F000E9;
+	Tue, 16 Jun 2026 16:39:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
+	s=korg; t=1781627965;
+	bh=LgPhSgUACxuHbjamRtRNdWKNpdG3FkIAT8TufhJW6Ww=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=OOXZ214iDCTWRPmGuwV8FH4D8rn/d11LIMhw9852g01YBkoPlTwyDp01q+rUJ825K
+	 npka782DPIMoSzn8KicvdbntWSwJjcn69i66t6gSiKAzzty0Z4iuaQd4DWP0SwK4Tx
+	 Pdwaq6RjanWWDzuA8bdYo+j+YTRCJf/vMv9ekP1c=
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: stable@vger.kernel.org
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+	patches@lists.linux.dev,
+	Eric Dumazet <edumazet@google.com>,
+	Arseniy Krasnov <AVKrasnov@sberdevices.ru>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev,
+	Jakub Kicinski <kuba@kernel.org>
+Subject: [PATCH 6.12 248/261] vsock/virtio: fix potential unbounded skb queue
+Date: Tue, 16 Jun 2026 20:31:26 +0530
+Message-ID: <20260616145056.572319514@linuxfoundation.org>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260616145044.869532709@linuxfoundation.org>
+References: <20260616145044.869532709@linuxfoundation.org>
+User-Agent: quilt/0.69
+X-stable: review
+X-Patchwork-Hint: ignore
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v1] s390/virtio_ccw: Also suppress -EINVAL on device
- detach
-To: Peter Oberparleiter <oberpar@linux.ibm.com>,
-        Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>,
-        vneethv@linux.ibm.com
-Cc: linux-s390@vger.kernel.org, farman@linux.ibm.com, hca@linux.ibm.com,
-        gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
-        svens@linux.ibm.com, mjrosato@linux.ibm.com,
-        virtualization@lists.linux.dev, kvm@vger.kernel.org,
-        linux-kernel@vger.kernel.org
-References: <20260612155407.199218-1-wbezenah@linux.ibm.com>
- <20260615002309.052e0614.pasic@linux.ibm.com> <875x3jn94r.fsf@redhat.com>
- <4d7fc371-4357-496f-9774-1f7a7c1a3091@linux.ibm.com>
- <20260615234246.0ec5d947.pasic@linux.ibm.com>
- <2e543ef5-1aa8-4ddc-a68a-103c7bdfe58d@linux.ibm.com>
- <8733ymn8vd.fsf@redhat.com>
- <6356a2be-a49b-4ac4-b52e-dd84bd4ff7b5@linux.ibm.com>
-Content-Language: en-US
-From: William Bezenah <wbezenah@linux.ibm.com>
-In-Reply-To: <6356a2be-a49b-4ac4-b52e-dd84bd4ff7b5@linux.ibm.com>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE2MDE2NyBTYWx0ZWRfX/nScWKdITqm0
- jvMP+8+HNId0/RuuSr0rlUxKY6gqoCOcyMTQ+6CQ2TJMc/gmlOS+H7uoPmNkE0LnfGjrC6VPNUm
- YKKjGxHrbfCUfFFHr58MYNofmXgSA1g=
-X-Proofpoint-ORIG-GUID: HRDun65IYLcmtUFB-5NspX9rImKAhEn3
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE2MDE2NyBTYWx0ZWRfX3PAcj86yPznX
- isK1LHR0dPsFWAyirVp+zs6GCYXcL0q1N0lAYD7Aqc8ZE2Yl+gI7fkGI4OhgsOwSXDuhq8gkyez
- smYabm29Pmh7Q86CbNPgmrO3F+K7PoLuDawFXXMLdavYCZwPbKRb3PNt5vPEzipcoc3wJO2rzQ8
- lClh7v0MczfI/N04Bc4xTgqwyXCTmpTKhOPHd8MzbDFlNHJtgWoGsWecC4gxpT9d70WpqdqBquT
- /64pTExx4TLMJY6O7+1crqv3jDjXRBsyAwCI6tWlcsn/FXfqmvDPh4P3s4IJhppXi5qsUo0Kuy0
- +ZcGi31p5s7GExQNrkEsGJddGllk/mZdwjq5Ep/BCovz9rYNexyLz98t0XJcNZ+hwyhTSK5InwO
- fcpihoZ/9i2b+Ky+HVsT8Lv17ksRHZ5RUcrKtlVbN+OuIqxeDV8T+o/wdrzz+0kogF3SC0LLtH9
- jndwrle+ysBt3pWj1Hw==
-X-Authority-Analysis: v=2.4 cv=U9uiy+ru c=1 sm=1 tr=0 ts=6a317987 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
- a=o2sATeYeeQMYJeoXCqkA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: HRDun65IYLcmtUFB-5NspX9rImKAhEn3
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
- definitions=2026-06-16_05,2026-06-15_04,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- lowpriorityscore=0 impostorscore=0 bulkscore=0 phishscore=0
- priorityscore=1501 clxscore=1015 adultscore=0 malwarescore=0 suspectscore=0
- spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
- adjust=0 reason=mlx scancount=1 engine=8.22.0-2606040000
- definitions=main-2606160167
+Content-Transfer-Encoding: 8bit
 
-On 6/16/2026 10:53 AM, Peter Oberparleiter wrote:
+6.12-stable review patch.  If anyone has any objections, please let me know.
 
-> On 16.06.2026 11:16, Cornelia Huck wrote:
->> On Tue, Jun 16 2026, Peter Oberparleiter <oberpar@linux.ibm.com> wrote:
->>
->>> On 15.06.2026 23:42, Halil Pasic wrote:
->>>> On Mon, 15 Jun 2026 16:01:55 -0400
->>>> William Bezenah <wbezenah@linux.ibm.com> wrote:
->>>>
->>>>> On 6/15/2026 10:58 AM, Cornelia Huck wrote:
->>>>>> On Mon, Jun 15 2026, Halil Pasic <pasic@linux.ibm.com> wrote:
->>>>>>  
->>>>>>> On Fri, 12 Jun 2026 17:54:07 +0200
->>>>>>> William Bezenah <wbezenah@linux.ibm.com> wrote:
->>>>>>>  
->>>>>>>> Since commit 8c58a229688c ("s390/cio: Do not unregister the
->>>>>>>> subchannel based on DNV"), subchannel behavior following a device
->>>>>>>> detach has been updated and results in -EINVAL being propagated
->>>>>>>> rather than -ENODEV, originating from ccw_device_start_timeout_key()
->>>>>>>> in cio/device_ops. In the end, the virtio driver has no ability to
->>>>>>>> react to the difference between device and subchannel states here,
->>>>>>>> and during detach, both -ENODEV and -EINVAL indicate the device
->>>>>>>> cannot be used and should not be treated as errors requiring
->>>>>>>> attention. Update error handling in virtio_ccw_del_vq() and
->>>>>>>> virtio_ccw_drop_indicator() to suppress -EINVAL in addition to
->>>>>>>> -ENODEV.  
->>>>>>> Hi William!
->>>>>>>
->>>>>>> Are you saying that ccw_device_start() started returning -EINVAL
->>>>>>> since 8c58a229688c ("s390/cio: Do not unregister the subchannel based on
->>>>>>> DNV")? Or did I somehow read the paragraph wrong?
->>>>>>>
->>>>>>> The funcition ccw_device_start is documented to return:
->>>>>>>  * Returns:                                                                     
->>>>>>>  *  %0, if the operation was successful;                                        
->>>>>>>  *  -%EBUSY, if the device is busy, or status pending;                          
->>>>>>>  *  -%EACCES, if no path specified in @lpm is operational;                      
->>>>>>>  *  -%ENODEV, if the device is not operational. 
->>>>>>> and the commit message does not say a thing about introducing -EINVAL to
->>>>>>> the mix.  
->>>>>> The function may return -EINVAL for non-enabled subchannels
->>>>>> (i.e. pmcw.ena == 0), maybe we get an all-zeroes schib with dnv == 0?
->>>>>> I'd expect it not to be enabled in that case anyway.  
->>>>> Yep, that's at least how I've come to understand what changed. The
->>>>> function ccw_device_start_timeout_key() has always returned -EINVAL
->>>>> for non-enabled subchannels (pmcw.ena == 0), though it's not
->>>>> documented in the header.
->>>> Wasn't his -EINVAL actually introduced by commit:
->>>> 823d494ac111 ("[S390] pm: ccw bus power management callbacks")?
->>> In the context of virtio-ccw added in 2012, an EINVAL return code
->>> introduced in 2009 might be considered "always" :)
->> :)
->>
->> I'm wondering whether we should still expect to hit the "ssch with
->> ena==0" situation, given that pm support has been removed again in the
->> meanwhile. (Well, other than in situations like this, where it is a
->> follow-up to other problems.) IOW, can callers expect not to see
->> -EINVAL, unless they are doing something really stupid?
-> As Halil also pointed out, this would be a programming error, either on
-> the side of the driver that starts I/O without setting the device
-> properly online, or in the common I/O layer (hopefully not, but you
-> never know). Having a dedicated return code to identify this situation
-> is definitely useful, and we'll also consider documenting it accordingly
-> in the function comment.
->
->>>>> What changed with commit 8c58a229688c is that cio_update_schib() now
->>>>> updates the schib even when DNV=0, rather than returning early as it
->>>>> did previously. Somehow this update results in pmcw.ena == 0 in
->>>>> ccw_device_start_timeout_key(). Previously, it saw pmcw.ena == 1 and
->>>>> moved to the condition (cdev->private->state == DEV_STATE_NOT_OPER)
->>>>> where it returned -ENODEV.
->>>> Sounds fishy to me. As far as I understand the DNV takes precedence over
->>>> all other pieces of PMCW.
->>> And you're right about that! The Principles of Operation states (p. 15-4
->>> in SA22-7832-14 [1]) that the contents of all other fields in the PMCW
->>> are unpredictable when DNV is 0, therefore 8c58a229688c is in error.
->>>
->>> I'll work with Vineeth to determine how to fix this issue, potentially
->>> via manually clearing some relevant SCHIB fields instead of copying the
->>> unpredictable results of the STSCH instruction.
->> Can't you zero the whole SCHIB, or do you still need some of the
->> measurement block things for cleanup?
-> I faintly remember that there WAS a reason to use the remainder of the
-> SCHIB contents because of some unwanted effect that occurred if we
-> didn't, but I don't recall the details. We'll need to dig up the
-> associated bug report to understand it and determine if we can simply
-> clear all of the SCHIB, or need to keep some of the information intact.
->
->>>>> So the commit didn't introduce -EINVAL as a new return value, rather,
->>>>> it changed the subchannel lifecycle such that existing paths now
->>>>> propagate -EINVAL rather than -ENODEV during the device detach
->>>>> scenario.
->>>> I'm not convinced returning -EINVAL in the given situation is the
->>>> right thing to do. Peter, would you mind to chime in?
->>> I tend to agree that an attempt to start I/O for a subchannel that has
->>> DNV 0 should result in ENODEV rather than EINVAL, though the latter is
->>> still valid when a driver tries to start I/O on a subchannel that is not
->>> enabled for I/O.
->>>
->>> We'll make sure to design the fix for 8c58a229688c in away that ENODEV
->>> will be returned when DNV is 0. Assuming that this is the only situation
->>> where virtio-ccw's ccw_io_helper() receives -EINVAL from
->>> ccw_device_start__timeout_key() during detach, the subject patch should
->>> no longer be necessary.
->> I agree, I'd not expect to get -EINVAL in ccw_io_helper().
-> Yeah, this was definitely an unexpected side effect of the DNV commit.
->
-FWIW, during my testing, that was indeed the only situation in which
-I saw -EINVAL during the detach process. So assuming the right fix
-would correctly return ENODEV, I agree this patch is likely
-unnecessary.
+------------------
 
-Thanks all.
+From: Eric Dumazet <edumazet@google.com>
+
+commit 059b7dbd20a6f0c539a45ddff1573cb8946685b5 upstream.
+
+virtio_transport_inc_rx_pkt() checks vvs->rx_bytes + len > vvs->buf_alloc.
+
+virtio_transport_recv_enqueue() skips coalescing for packets
+with VIRTIO_VSOCK_SEQ_EOM.
+
+If fed with packets with len == 0 and VIRTIO_VSOCK_SEQ_EOM,
+a very large number of packets can be queued
+because vvs->rx_bytes stays at 0.
+
+Fix this by estimating the skb metadata size:
+
+	(Number of skbs in the queue) * SKB_TRUESIZE(0)
+
+Fixes: 077706165717 ("virtio/vsock: don't use skbuff state to account credit")
+Signed-off-by: Eric Dumazet <edumazet@google.com>
+Cc: Arseniy Krasnov <AVKrasnov@sberdevices.ru>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>
+Cc: Stefano Garzarella <sgarzare@redhat.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Jason Wang <jasowang@redhat.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: "Eugenio Pérez" <eperezma@redhat.com>
+Cc: virtualization@lists.linux.dev
+Link: https://patch.msgid.link/20260430122653.554058-1-edumazet@google.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+---
+ net/vmw_vsock/virtio_transport_common.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -430,7 +430,9 @@ static int virtio_transport_send_pkt_inf
+ static bool virtio_transport_inc_rx_pkt(struct virtio_vsock_sock *vvs,
+ 					u32 len)
+ {
+-	if (vvs->buf_used + len > vvs->buf_alloc)
++	u64 skb_overhead = (skb_queue_len(&vvs->rx_queue) + 1) * SKB_TRUESIZE(0);
++
++	if (skb_overhead + vvs->buf_used + len > vvs->buf_alloc)
+ 		return false;
+ 
+ 	vvs->rx_bytes += len;
+
 
