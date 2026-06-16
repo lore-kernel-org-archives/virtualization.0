@@ -1,182 +1,126 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EF821D89F4
-	for <virtualization@lists.linux.dev>; Tue, 16 Jun 2026 09:16:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32EAA3254AF;
+	Tue, 16 Jun 2026 09:44:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781601378; cv=none; b=T8YKae4K7evvEzwCu7U9bXHu1cTk05phjaIckl6HMih7992S63D2F8+TD66LOYuv7GqcfXgQRmc6Y2BJa3wsFgNP+CFThu9VwFedvL4jA8+WI21yiR1p+JWHrqmRqF6wf5//2eA3rSG4W4lAx1wjzOFDT82Re+qaKj6y3CTkPYY=
+	t=1781603079; cv=none; b=ju8njIgU1ZSETgH9sToLB0wUu9dRjZ9iBrAc+coFdHbP8oISH/FYCO/hBVDSR9RHb77L02MYzBRFHhPMogI7Lo2koEGsHKzY7OKMaWySYxATQK9IyTkyoHugMjfXCF136ddlB623ng3K+X39/rDatIupFyk0r3v1L1rnwWXw9mE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781601378; c=relaxed/simple;
-	bh=TznTWtEsTXwfynno4JjQTZakvprLhmN+qNqGOjoQhVQ=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=STiUJNaembPyBCTJsrA6uLZv1WnWHPN01EMR8cnT2LSNue4znsD+SFdZhbd6QT9YYUVeXVZECSnjV/GdGYeYrc7oRm0o1/LN/1H8EejKB7AaVqcG9WnKJCZETOECQCFZ0kC7iX3GjTIQB2HHQLAZGTT8vFD9UnJxnWk/DzfP/1Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gXazO02D; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1781603079; c=relaxed/simple;
+	bh=u3lluoPEdWO0+dGbFE0Q9ERMeCLLYy3Of1xuBDYfdlY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=jm+B0/TakROl77hgwo1CYSWmbs3Wth6hBJt4hrjdhx2f4mW0TGxd65jY6s3tZvqD7wqEhPQjc8q+rV+NXS/5mggTW2iGMen+6mG11BukzwHQutiUkQDvnywhinyC+qIgJyVYzncQZ+H856g21pcUZcz910KS3N2W2WKuURuAMns=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=h1NWGaeh; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gXazO02D"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1781601376;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=KcaNbqZ+folpc8zogdsUetTn5R2c9+8hBEKj5VOQTrg=;
-	b=gXazO02DKHBEgtjU+9sclt674UnQKt2uFLm5I2BXfDgEozzIxXp8IZ3EGo7894giiuyP26
-	2CVTcFnbWL1ha1F+6GpYtGCQTRA9lO9jdvAuYxqyOLPgYJA561C0UGbcl9FLFWynuYSem3
-	W3RfyYTAtBD6vazy8TwF4kfavifi1zA=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-63-m4e4fe0-OUW6PMPrmhMxJA-1; Tue,
- 16 Jun 2026 05:16:11 -0400
-X-MC-Unique: m4e4fe0-OUW6PMPrmhMxJA-1
-X-Mimecast-MFC-AGG-ID: m4e4fe0-OUW6PMPrmhMxJA_1781601369
-Received: from mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.17])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 7038E1955E75;
-	Tue, 16 Jun 2026 09:16:09 +0000 (UTC)
-Received: from localhost (unknown [10.44.49.40])
-	by mx-prod-int-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id AFD75195410A;
-	Tue, 16 Jun 2026 09:16:08 +0000 (UTC)
-From: Cornelia Huck <cohuck@redhat.com>
-To: Peter Oberparleiter <oberpar@linux.ibm.com>, Halil Pasic
- <pasic@linux.ibm.com>, William Bezenah <wbezenah@linux.ibm.com>,
- vneethv@linux.ibm.com
-Cc: linux-s390@vger.kernel.org, farman@linux.ibm.com, hca@linux.ibm.com,
- gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
- svens@linux.ibm.com, mjrosato@linux.ibm.com,
- virtualization@lists.linux.dev, kvm@vger.kernel.org,
- linux-kernel@vger.kernel.org
-Subject: Re: [PATCH v1] s390/virtio_ccw: Also suppress -EINVAL on device detach
-In-Reply-To: <2e543ef5-1aa8-4ddc-a68a-103c7bdfe58d@linux.ibm.com>
-Organization: "Red Hat GmbH, Sitz: Werner-von-Siemens-Ring 12, D-85630
- Grasbrunn, Handelsregister: Amtsgericht =?utf-8?Q?M=C3=BCnchen=2C?= HRB
- 153243,
- =?utf-8?Q?Gesch=C3=A4ftsf=C3=BChrer=3A?= Ryan Barnhart, Charles Cachera,
- Avril Crosse O'Flaherty"
-References: <20260612155407.199218-1-wbezenah@linux.ibm.com>
- <20260615002309.052e0614.pasic@linux.ibm.com> <875x3jn94r.fsf@redhat.com>
- <4d7fc371-4357-496f-9774-1f7a7c1a3091@linux.ibm.com>
- <20260615234246.0ec5d947.pasic@linux.ibm.com>
- <2e543ef5-1aa8-4ddc-a68a-103c7bdfe58d@linux.ibm.com>
-User-Agent: Notmuch/0.40 (https://notmuchmail.org)
-Date: Tue, 16 Jun 2026 11:16:06 +0200
-Message-ID: <8733ymn8vd.fsf@redhat.com>
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="h1NWGaeh"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D80E11F000E9;
+	Tue, 16 Jun 2026 09:44:36 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
+	s=korg; t=1781603077;
+	bh=uYKv1ykBzXWm3lpL8/mfBmwASj0+sYgUMr2UpvygTWo=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=h1NWGaeh95BJ//WskBpG4gXvF+6ChJbz22mm9f/EOT97zuz1vSRgbT0Sq3GNBPEfa
+	 vPwBU/l4AvOuhoCBm+zaXrt2COzkqquUie9BXTv2zld3hS1Fst0ZEd3N3joMZG8xxH
+	 Wo+N0k/SO9dh8l+anhWGAs8e9Es7ZRAOECThJo34=
+Date: Tue, 16 Jun 2026 15:13:33 +0530
+From: Greg KH <gregkh@linuxfoundation.org>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: Sasha Levin <sashal@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>,
+	AVKrasnov@sberdevices.ru, edumazet@google.com, eperezma@redhat.com,
+	jasowang@redhat.com, kuba@kernel.org, leonardi@redhat.com,
+	stefanha@redhat.com, virtualization@lists.linux.dev,
+	xuanzhuo@linux.alibaba.com, stable-commits@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: Re: Patch "vsock/virtio: fix potential unbounded skb queue" has been
+ added to the 6.6-stable tree
+Message-ID: <2026061606-generous-smudge-2036@gregkh>
+References: <2026051553-santa-unretired-a417@gregkh>
+ <20260515113503-mutt-send-email-mst@kernel.org>
+ <2026051526-banish-strife-6dba@gregkh>
+ <20260515114521-mutt-send-email-mst@kernel.org>
+ <20260516170159.vsock-virtio-unbounded-drop@kernel.org>
+ <ag8EvTp29B-Q3nCq@sgarzare-redhat>
+ <2026061624-harbor-capture-a5bf@gregkh>
+ <ajD_FBEak8hKNdIK@sgarzare-redhat>
+ <2026061607-risotto-getaway-c57f@gregkh>
+ <CAGxU2F6PDqHKLsW97qLUg+7hWq=iYk5qDAGUuxWSbdkyEDmsQw@mail.gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 3.0 on 10.30.177.17
-X-Mimecast-MFC-PROC-ID: sW4sbmOt9qp2lHjCcYgQFW_DpQQ14fGbpUZPS9lAgyQ_1781601369
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <CAGxU2F6PDqHKLsW97qLUg+7hWq=iYk5qDAGUuxWSbdkyEDmsQw@mail.gmail.com>
 
-On Tue, Jun 16 2026, Peter Oberparleiter <oberpar@linux.ibm.com> wrote:
+On Tue, Jun 16, 2026 at 10:36:43AM +0200, Stefano Garzarella wrote:
+> On Tue, 16 Jun 2026 at 10:00, Greg KH <gregkh@linuxfoundation.org> wrote:
+> >
+> > On Tue, Jun 16, 2026 at 09:52:32AM +0200, Stefano Garzarella wrote:
+> > > On Tue, Jun 16, 2026 at 10:17:31AM +0530, Greg KH wrote:
+> > > > On Thu, May 21, 2026 at 03:15:54PM +0200, Stefano Garzarella wrote:
+> > > > > On Sun, May 17, 2026 at 09:33:06AM -0400, Sasha Levin wrote:
+> > > > > > > > What's the status of that fix?
+> > > > > > >
+> > > > > > > Stefano posted v3 and is working on v4.
+> > > > > > >
+> > > > > > > >  Should it be reverted elsewhere?
+> > > > > > >
+> > > > > > > Donnu. With the change we have no DoS but the socket gets silently
+> > > > > > > broken.  Eric felt given the brokenness is upstream already it's better
+> > > > > > > to work on a fix on top, not revert.
+> > > > > >
+> > > > > > Dropped from the 6.6, 6.12, 6.18, and 7.0 queues. We'll pick up Stefano's
+> > > > > > follow-up once it lands upstream.
+> > > > >
+> > > > > FYI v4 is now merged in the net tree, so I guess they will land upstream
+> > > > > soon. I CCed stable on both patches:
+> > > > >
+> > > > > a4f0b001782b ("vsock/virtio: reset connection on receiving queue overflow")
+> > > > > c6087c5aaad6 ("vsock/virtio: fix skb overhead accounting to preserve full
+> > > > > buf_alloc")
+> > > > >
+> > > > > Both are related, but the second is the main fix of this patch.
+> > > >
+> > > > THe second one doesn't apply at all :(
+> > > >
+> > >
+> > > The second one is the fix of the patch originally added to stable queue by
+> > > this thread, so should be applied on top of it (commit 059b7dbd20a6
+> > > ("vsock/virtio: fix potential unbounded skb queue")).
+> > >
+> > > I'm working on improving memory management, but for now I think it makes
+> > > sense to backport all three to the stable branches.
+> > >
+> > > So, in summary:
+> > > 059b7dbd20a6 ("vsock/virtio: fix potential unbounded skb queue")
+> > > a4f0b001782b ("vsock/virtio: reset connection on receiving queue overflow")
+> > > c6087c5aaad6 ("vsock/virtio: fix skb overhead accounting to preserve full buf_alloc")
+> >
+> > Again, this last one fails to apply everywhere :(
+> 
+> Again, c6087c5aaad6 depends on 059b7dbd20a6 (as also indicated by the 
+> Fixes tag in the patch description).
+> 
+> I don't know what you meant with "everywhere", but I just run `git 
+> cherry-pick 059b7dbd20a6 c6087c5aaad6` on linux-6.12.y, linux-6.18.y, 
+> and linux-7.0.y without any issue.
 
-> On 15.06.2026 23:42, Halil Pasic wrote:
->> On Mon, 15 Jun 2026 16:01:55 -0400
->> William Bezenah <wbezenah@linux.ibm.com> wrote:
->> 
->>> On 6/15/2026 10:58 AM, Cornelia Huck wrote:
->>>> On Mon, Jun 15 2026, Halil Pasic <pasic@linux.ibm.com> wrote:
->>>>  
->>>>> On Fri, 12 Jun 2026 17:54:07 +0200
->>>>> William Bezenah <wbezenah@linux.ibm.com> wrote:
->>>>>  
->>>>>> Since commit 8c58a229688c ("s390/cio: Do not unregister the
->>>>>> subchannel based on DNV"), subchannel behavior following a device
->>>>>> detach has been updated and results in -EINVAL being propagated
->>>>>> rather than -ENODEV, originating from ccw_device_start_timeout_key()
->>>>>> in cio/device_ops. In the end, the virtio driver has no ability to
->>>>>> react to the difference between device and subchannel states here,
->>>>>> and during detach, both -ENODEV and -EINVAL indicate the device
->>>>>> cannot be used and should not be treated as errors requiring
->>>>>> attention. Update error handling in virtio_ccw_del_vq() and
->>>>>> virtio_ccw_drop_indicator() to suppress -EINVAL in addition to
->>>>>> -ENODEV.  
->>>>> Hi William!
->>>>>
->>>>> Are you saying that ccw_device_start() started returning -EINVAL
->>>>> since 8c58a229688c ("s390/cio: Do not unregister the subchannel based on
->>>>> DNV")? Or did I somehow read the paragraph wrong?
->>>>>
->>>>> The funcition ccw_device_start is documented to return:
->>>>>  * Returns:                                                                     
->>>>>  *  %0, if the operation was successful;                                        
->>>>>  *  -%EBUSY, if the device is busy, or status pending;                          
->>>>>  *  -%EACCES, if no path specified in @lpm is operational;                      
->>>>>  *  -%ENODEV, if the device is not operational. 
->>>>> and the commit message does not say a thing about introducing -EINVAL to
->>>>> the mix.  
->>>> The function may return -EINVAL for non-enabled subchannels
->>>> (i.e. pmcw.ena == 0), maybe we get an all-zeroes schib with dnv == 0?
->>>> I'd expect it not to be enabled in that case anyway.  
->>>
->>> Yep, that's at least how I've come to understand what changed. The
->>> function ccw_device_start_timeout_key() has always returned -EINVAL
->>> for non-enabled subchannels (pmcw.ena == 0), though it's not
->>> documented in the header.
->> 
->> Wasn't his -EINVAL actually introduced by commit:
->> 823d494ac111 ("[S390] pm: ccw bus power management callbacks")?
->
-> In the context of virtio-ccw added in 2012, an EINVAL return code
-> introduced in 2009 might be considered "always" :)
+Sorry, I was just searching for the short-id, which is in commits
+already in those trees.  The real commit worked, sorry for the
+confusion.
 
-:)
+> On linux-6.6.y it's failing because we are missing zero-copy support in 
+> AF_VSOCK. So, I guess we didn't backport commit 45ca7e9f0730 
+> ("vsock/virtio: fix `rx_bytes` accounting for stream sockets") because 
+> there were conflicts.  That patch is needed to apply commit 059b7dbd20a6 
+> ("vsock/virtio: fix potential unbounded skb queue") cleanly.
 
-I'm wondering whether we should still expect to hit the "ssch with
-ena==0" situation, given that pm support has been removed again in the
-meanwhile. (Well, other than in situations like this, where it is a
-follow-up to other problems.) IOW, can callers expect not to see
--EINVAL, unless they are doing something really stupid?
+That commit does not backport cleanly to 6.6.y, so I still need a patch
+series for that tree.
 
->
->>> What changed with commit 8c58a229688c is that cio_update_schib() now
->>> updates the schib even when DNV=0, rather than returning early as it
->>> did previously. Somehow this update results in pmcw.ena == 0 in
->>> ccw_device_start_timeout_key(). Previously, it saw pmcw.ena == 1 and
->>> moved to the condition (cdev->private->state == DEV_STATE_NOT_OPER)
->>> where it returned -ENODEV.
->> 
->> Sounds fishy to me. As far as I understand the DNV takes precedence over
->> all other pieces of PMCW.
->
-> And you're right about that! The Principles of Operation states (p. 15-4
-> in SA22-7832-14 [1]) that the contents of all other fields in the PMCW
-> are unpredictable when DNV is 0, therefore 8c58a229688c is in error.
->
-> I'll work with Vineeth to determine how to fix this issue, potentially
-> via manually clearing some relevant SCHIB fields instead of copying the
-> unpredictable results of the STSCH instruction.
+thanks,
 
-Can't you zero the whole SCHIB, or do you still need some of the
-measurement block things for cleanup?
-
->
->>> So the commit didn't introduce -EINVAL as a new return value, rather,
->>> it changed the subchannel lifecycle such that existing paths now
->>> propagate -EINVAL rather than -ENODEV during the device detach
->>> scenario.
->> 
->> I'm not convinced returning -EINVAL in the given situation is the
->> right thing to do. Peter, would you mind to chime in?
->
-> I tend to agree that an attempt to start I/O for a subchannel that has
-> DNV 0 should result in ENODEV rather than EINVAL, though the latter is
-> still valid when a driver tries to start I/O on a subchannel that is not
-> enabled for I/O.
->
-> We'll make sure to design the fix for 8c58a229688c in away that ENODEV
-> will be returned when DNV is 0. Assuming that this is the only situation
-> where virtio-ccw's ccw_io_helper() receives -EINVAL from
-> ccw_device_start__timeout_key() during detach, the subject patch should
-> no longer be necessary.
-
-I agree, I'd not expect to get -EINVAL in ccw_io_helper().
-
+greg k-h
