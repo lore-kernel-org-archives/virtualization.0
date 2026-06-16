@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBDC41E8320;
-	Tue, 16 Jun 2026 12:19:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA0F23624D4;
+	Tue, 16 Jun 2026 12:30:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781612348; cv=none; b=l+ik6jo45d2U1nOVKtrWmCE1ci1UOCq+iK4MsMS6NOcZ7KygXCoZANIK+8tfEl9w+kGmu46gOnP9nRARQ1e43mP1ifc+/M7/NwKuEPRdr0qarIPRSfactKnkMlR5N1VGEEdAuVcQFaDMFNZT2j5yAFux2GaA638FXzmXCLFnSHA=
+	t=1781613040; cv=none; b=QdZpGmdJbiqqNGr/9tH1zFnWHoWDQJi3fBWxcpZfvvrVeVUOckDr6RK0QfJIsWiaQrfQF/rDEDcXqXsoUk4JYNfPpwHSIqfnAvDPdDK2UGvn5456aQ4/naYtxz5R7hiu1CDaaZyPLnbjHIj4erUPw0vjntbZsrl94gjoOR1s7e0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781612348; c=relaxed/simple;
-	bh=n7J534/YF+z0xcV0zPOykFP58b0UqYCnbq5cW0NDDcc=;
+	s=arc-20240116; t=1781613040; c=relaxed/simple;
+	bh=dVQEoz/nk2xypuD8aDIU4/qL625aUBU9Me7xHls4YX0=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=FqWx6Bi7kra0VL4Mh5TSrtQyH2WLFj7IpOzQhZmYNiOwuriuWYGRThtHtji8X+U4/8EItcJtUCKxjPGy9EGaq8fZ7WYGhfVcWNYya6PdglkmSh6I1qCQp9WCtatTuJyaMBy/BJu9oHPiXvhwtZPK6hbG6dNr0gVYp+P855e6ztE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=G7PAozou; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=pAobTn6xTyDvB7K/SQDu0F1rZvnisPFnuF9T9LIR6FLS5UiTZ8i6f3eoTkbUuD/GILh5IfgBqRxV4SEwdGRC+kGzJoujK9YPlpIemfFvaVYVJrJjSxUHu1+P6t11IGsHJrjI/GbdrfhD+0S26cWOqU4yGnZ5OzoSgFeVvDHA6YA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZYgXAUrx; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="G7PAozou"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B7D81F000E9;
-	Tue, 16 Jun 2026 12:18:59 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZYgXAUrx"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D90D21F00A3A;
+	Tue, 16 Jun 2026 12:30:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781612347;
-	bh=c/G2myNx4fiCaxX6PsWVQpl+0Cqyxt28MVOGrtWV4gE=;
+	s=k20260515; t=1781613039;
+	bh=bXDJn4ET/n49nZO9bSK0/Jpj40ZMZXCaUyXxGq2ATAw=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=G7PAozouuUOOEBEgkwucE0pBmvJOplyCv6dNF7ZqldkXevK+Bg+s5Gl9IJcW0LUs6
-	 dm6CZcVDEuzKzIYQ2zG+9CVvBqLY9+SkgoKCUvUWf++U6pujWfn7eDN6AdJFDo1LOp
-	 bUm7CeOR/v30xvmVfY5QMhoLBjM7+hCZcJVvgtuXeLxQDM45SMA6xF9vc5P0HXg8E5
-	 nXm7dkXvTURT+aoxVC5jNW5XLDj9A17dJOKS93f9AVBWeNq2wRDxm9LUquOz+5YftM
-	 gtpULl+i0virYMwv2sXdj62adUPgZlfu+MWhlyxkxDSawqVyFaYyufY1RCDbDrqh93
-	 vl2uWgFOCHYfw==
-Message-ID: <ab84b317-fecc-4197-be2f-4b4aeba3f4e3@kernel.org>
-Date: Tue, 16 Jun 2026 14:18:57 +0200
+	b=ZYgXAUrxxkpNst1MV2nPoEHdSFKAeck/Ff+Z7V/Vk4zLrOYdwTdBBRhzMzKSjWNHC
+	 sVYgBkTuuP1vnQbqUPJA8hvemaOqPqvQdQUjr/XWXtNtYQLEBqHZlxTePbDzrcbid8
+	 mJsPRxje/5LGJAPgqnGQKdA/jnS+fLF5ZcoT/OQynOu6jqtmLB5imx+pXYi5gfeGB2
+	 XDKJfW2mXhD6heGhys9dpFXGUZ3zDXbT9jHkC3alaqaaI3C3tLtR55mia4Kxei8Ot3
+	 ho4DnUhjwU3tk+SCUGF973n8gwNDFpFce8y2QJusM8BgxLMZR9lFDpk74lk/nEKJfB
+	 lSdf//tItOZzw==
+Message-ID: <8e766803-e68d-4efd-a69e-cec5b2492988@kernel.org>
+Date: Tue, 16 Jun 2026 14:30:34 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -35,53 +35,17 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH splitout] mm: memory-failure: serialize
- TestSetPageHWPoison with zone->lock
-To: Miaohe Lin <linmiaohe@huawei.com>, "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Zi Yan <ziy@nvidia.com>, Andrew Morton <akpm@linux-foundation.org>,
- linux-kernel@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Muchun Song <muchun.song@linux.dev>,
- Oscar Salvador <osalvador@suse.de>, Lorenzo Stoakes <ljs@kernel.org>,
- "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>,
- Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
- Michal Hocko <mhocko@suse.com>, Brendan Jackman <jackmanb@google.com>,
- Johannes Weiner <hannes@cmpxchg.org>,
- Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <npache@redhat.com>,
- Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>,
- Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>,
- Hugh Dickins <hughd@google.com>, Matthew Brost <matthew.brost@intel.com>,
- Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
- Byungchul Park <byungchul@sk.com>, Gregory Price <gourry@gourry.net>,
- Ying Huang <ying.huang@linux.alibaba.com>,
- Alistair Popple <apopple@nvidia.com>, Christoph Lameter <cl@gentwo.org>,
- David Rientjes <rientjes@google.com>,
- Roman Gushchin <roman.gushchin@linux.dev>, Harry Yoo <harry.yoo@oracle.com>,
- Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>,
- Wei Xu <weixugc@google.com>, Chris Li <chrisl@kernel.org>,
- Kairui Song <kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>,
- Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
- virtualization@lists.linux.dev, linux-mm@kvack.org,
- Andrea Arcangeli <aarcange@redhat.com>,
- Naoya Horiguchi <nao.horiguchi@gmail.com>
-References: <20260609111020.e88f51a7b6ebc37360d66fdc@linux-foundation.org>
- <8c1f468e-b50a-487a-a267-8d1ea5a61c87@kernel.org>
- <FB250C43-790E-4AB0-BD40-74665FC601A0@nvidia.com>
- <38C84F23-E881-4DB2-86BA-93F39D44AE1B@nvidia.com>
- <20260609162437-mutt-send-email-mst@kernel.org>
- <4BA276D9-9EB9-4E2A-8A05-657ACACFF227@nvidia.com>
- <20260609165829-mutt-send-email-mst@kernel.org>
- <dd8d89be-9c73-8ff7-7d44-9705bddeda4d@huawei.com>
- <20260610171646-mutt-send-email-mst@kernel.org>
- <14537566-94d9-eac5-2636-35f925a9d159@huawei.com>
- <20260611013644-mutt-send-email-mst@kernel.org>
- <1b5676ab-0dc5-ef33-9d79-a2bd6090a62d@huawei.com>
- <cbffabdc-42bf-4e67-9d2b-ace9a1e09f29@kernel.org>
- <984d9775-e17c-0231-b021-126b13a9aa42@huawei.com>
- <be1b20ed-5b75-46b8-b7be-3c9b029f016b@kernel.org>
- <d7e97bec-72bf-7d56-3811-6d9c41fefb35@huawei.com>
- <e4e123f3-ef32-417f-8369-ff944b6f358d@kernel.org>
- <438389f2-332d-2f70-cad4-784d7f54af9f@huawei.com>
+Subject: Re: [RFC PATCH 1/2] virtio-balloon: extend stats with memory
+ composition and pressure data
+To: Gregory Price <gourry@gourry.net>, virtualization@lists.linux.dev
+Cc: linux-kernel@vger.kernel.org, kernel-team@meta.com, mst@redhat.com,
+ jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+ hannes@cmpxchg.org, surenb@google.com, peterz@infradead.org,
+ mingo@redhat.com, juri.lelli@redhat.com, vincent.guittot@linaro.org,
+ dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com,
+ mgorman@suse.de, vschneid@redhat.com, kprateek.nayak@amd.com
+References: <20260513165006.2790857-1-gourry@gourry.net>
+ <20260513165006.2790857-2-gourry@gourry.net>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -128,69 +92,157 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <438389f2-332d-2f70-cad4-784d7f54af9f@huawei.com>
+In-Reply-To: <20260513165006.2790857-2-gourry@gourry.net>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 6/16/26 13:40, Miaohe Lin wrote:
-> On 2026/6/16 14:56, David Hildenbrand (Arm) wrote:
->>>
->>> These non-atomics are defined and used because they want to avoid atomic ops overhead?
->>> So I'm afraid using rcu read lock in these places would lead to unexpected overhead.
->>
->> It should be cheaper than atomics IIUC. Further, I assume that some pages could
->> batch over multiple such operations (esp. page freeing path when we process tail
->> pages).
->>
->> With !CONFIG_PREEMPT_RCU it's simply preempt_disable()/preempt_enable(), which
->> is either a NOP or just adjusting the preempt counter of the current thread. Cheap.
->>
->> With CONFIG_PREEMPT_RCU we mostly increment current->rcu_read_lock_nesting. But
->> there might be a function call involved (did not look into the details). So that
->> variant should be slightly more expensive.
+On 5/13/26 18:50, Gregory Price wrote:
+> When doing proactive ballooning to reduce the size of a guest, some
+> additional vmstat information is useful in deciding how much pressure
+> to exert on the VM and when the VM starts experiencing undesirable
+> behavior (memory and io pressure).
 > 
-> I scanned the code and found rcu_read_unlock_special might be called in some cases.
-> Some expensive ops, e.g. irq_work_queue_on, might be called in some corner cases.
-> So the overhead of rcu read lock might be fluctuating.
+> Add 11 new statistics tags to the existing balloon stats virtqueue
+> for improved balloon sizing decisions. Old hosts ignore unknown tags,
+> so no feature negotiation is required.
+> 
+> New memory composition stats (bytes):
+>   S_DIRTY:         dirty pages awaiting writeback
+>   S_WRITEBACK:     pages under active writeback
+>   S_ANON:          anonymous pages (for balloon ceiling calculation)
+>   S_INACTIVE_FILE: inactive file LRU (safely reclaimable subset of cache)
+>   S_SLAB_RECLAIM:  reclaimable slab memory
+> 
+> New workingset stats (counts):
+>   S_WS_REFAULT_A:  anon workingset refaults
+>   S_WS_REFAULT_F:  file workingset refaults
+> 
+> New PSI stats (microseconds, cumulative):
+>   S_PSI_MEM_SOME:  memory pressure (some stalled)
+>   S_PSI_MEM_FULL:  memory pressure (all stalled)
+>   S_PSI_IO_SOME:   IO pressure (some stalled)
+>   S_PSI_IO_FULL:   IO pressure (all stalled)
+> 
+> Export psi_system for module builds (CONFIG_VIRTIO_BALLOON=m with
+> CONFIG_PSI=y).
+> 
+> Assisted-by: Claude:claude-opus-4-6
+> Signed-off-by: Gregory Price <gourry@gourry.net>
+> ---
+>  drivers/virtio/virtio_balloon.c     | 33 +++++++++++++++++++++++++++++
+>  include/uapi/linux/virtio_balloon.h | 26 +++++++++++++++++++++--
+>  kernel/sched/psi.c                  |  1 +
+>  3 files changed, 58 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index f6c2dff33f8a..8fa33aec4ce7 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -18,6 +18,8 @@
+>  #include <linux/wait.h>
+>  #include <linux/mm.h>
+>  #include <linux/page_reporting.h>
+> +#include <linux/vmstat.h>
+> +#include <linux/psi.h>
+>  
+>  /*
+>   * Balloon device works in 4K page units.  So each page is pointed to by
+> @@ -414,6 +416,37 @@ static unsigned int update_balloon_stats(struct virtio_balloon *vb)
+>  	update_stat(vb, idx++, VIRTIO_BALLOON_S_CACHES,
+>  				pages_to_bytes(caches));
+>  
+> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_DIRTY,
+> +		    pages_to_bytes(global_node_page_state(NR_FILE_DIRTY)));
+> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_WRITEBACK,
+> +		    pages_to_bytes(global_node_page_state(NR_WRITEBACK)));
+> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_ANON,
+> +		    pages_to_bytes(global_node_page_state(NR_ANON_MAPPED)));
+> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_INACTIVE_FILE,
+> +		    pages_to_bytes(global_node_page_state(NR_INACTIVE_FILE)));
+> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_SLAB_RECLAIM,
+> +		    pages_to_bytes(
+> +			global_node_page_state_pages(NR_SLAB_RECLAIMABLE_B)));
+> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_WS_REFAULT_A,
+> +		    global_node_page_state(WORKINGSET_REFAULT_ANON));
+> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_WS_REFAULT_F,
+> +		    global_node_page_state(WORKINGSET_REFAULT_FILE));
+> +
+> +#ifdef CONFIG_PSI
+> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_PSI_MEM_SOME,
+> +		    div_u64(psi_system.total[PSI_AVGS][PSI_MEM_SOME],
+> +			    NSEC_PER_USEC));
+> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_PSI_MEM_FULL,
+> +		    div_u64(psi_system.total[PSI_AVGS][PSI_MEM_FULL],
+> +			    NSEC_PER_USEC));
+> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_PSI_IO_SOME,
+> +		    div_u64(psi_system.total[PSI_AVGS][PSI_IO_SOME],
+> +			    NSEC_PER_USEC));
+> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_PSI_IO_FULL,
+> +		    div_u64(psi_system.total[PSI_AVGS][PSI_IO_FULL],
+> +			    NSEC_PER_USEC));
+> +#endif
+> +
+>  	return idx;
+>  }
+>  
+> diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
+> index ee35a372805d..37ec8a8466c4 100644
+> --- a/include/uapi/linux/virtio_balloon.h
+> +++ b/include/uapi/linux/virtio_balloon.h
+> @@ -77,7 +77,18 @@ struct virtio_balloon_config {
+>  #define VIRTIO_BALLOON_S_DIRECT_SCAN   13 /* Amount of memory scanned directly */
+>  #define VIRTIO_BALLOON_S_ASYNC_RECLAIM 14 /* Amount of memory reclaimed asynchronously */
+>  #define VIRTIO_BALLOON_S_DIRECT_RECLAIM 15 /* Amount of memory reclaimed directly */
+> -#define VIRTIO_BALLOON_S_NR       16
+> +#define VIRTIO_BALLOON_S_DIRTY	       16 /* Dirty pages (bytes) */
+> +#define VIRTIO_BALLOON_S_WRITEBACK     17 /* Pages under writeback (bytes) */
+> +#define VIRTIO_BALLOON_S_ANON	       18 /* Anonymous pages (bytes) */
+> +#define VIRTIO_BALLOON_S_INACTIVE_FILE 19 /* Inactive file LRU pages (bytes) */
+> +#define VIRTIO_BALLOON_S_SLAB_RECLAIM  20 /* Reclaimable slab (bytes) */
+> +#define VIRTIO_BALLOON_S_WS_REFAULT_A  21 /* Workingset refaults anon (count) */
+> +#define VIRTIO_BALLOON_S_WS_REFAULT_F  22 /* Workingset refaults file (count) */
+> +#define VIRTIO_BALLOON_S_PSI_MEM_SOME  23 /* PSI memory some total (us) */
+> +#define VIRTIO_BALLOON_S_PSI_MEM_FULL  24 /* PSI memory full total (us) */
+> +#define VIRTIO_BALLOON_S_PSI_IO_SOME   25 /* PSI IO some total (us) */
+> +#define VIRTIO_BALLOON_S_PSI_IO_FULL   26 /* PSI IO full total (us) */
+> +#define VIRTIO_BALLOON_S_NR	       27
+>  
+>  #define VIRTIO_BALLOON_S_NAMES_WITH_PREFIX(VIRTIO_BALLOON_S_NAMES_prefix) { \
+>  	VIRTIO_BALLOON_S_NAMES_prefix "swap-in", \
+> @@ -95,7 +106,18 @@ struct virtio_balloon_config {
+>  	VIRTIO_BALLOON_S_NAMES_prefix "async-scans", \
+>  	VIRTIO_BALLOON_S_NAMES_prefix "direct-scans", \
+>  	VIRTIO_BALLOON_S_NAMES_prefix "async-reclaims", \
+> -	VIRTIO_BALLOON_S_NAMES_prefix "direct-reclaims" \
+> +	VIRTIO_BALLOON_S_NAMES_prefix "direct-reclaims", \
+> +	VIRTIO_BALLOON_S_NAMES_prefix "dirty", \
+> +	VIRTIO_BALLOON_S_NAMES_prefix "writeback", \
+> +	VIRTIO_BALLOON_S_NAMES_prefix "anon-pages", \
+> +	VIRTIO_BALLOON_S_NAMES_prefix "inactive-file", \
+> +	VIRTIO_BALLOON_S_NAMES_prefix "slab-reclaimable", \
+> +	VIRTIO_BALLOON_S_NAMES_prefix "ws-refault-anon", \
+> +	VIRTIO_BALLOON_S_NAMES_prefix "ws-refault-file", \
+> +	VIRTIO_BALLOON_S_NAMES_prefix "psi-mem-some-us", \
+> +	VIRTIO_BALLOON_S_NAMES_prefix "psi-mem-full-us", \
+> +	VIRTIO_BALLOON_S_NAMES_prefix "psi-io-some-us", \
+> +	VIRTIO_BALLOON_S_NAMES_prefix "psi-io-full-us" \
+>  }
+>  
+>  #define VIRTIO_BALLOON_S_NAMES VIRTIO_BALLOON_S_NAMES_WITH_PREFIX("")
+> diff --git a/kernel/sched/psi.c b/kernel/sched/psi.c
+> index d9c9d9480a45..8ab3aa1c4ef5 100644
+> --- a/kernel/sched/psi.c
+> +++ b/kernel/sched/psi.c
+> @@ -175,6 +175,7 @@ static DEFINE_PER_CPU(struct psi_group_cpu, system_group_pcpu);
+>  struct psi_group psi_system = {
+>  	.pcpu = &system_group_pcpu,
+>  };
+> +EXPORT_SYMBOL_GPL(psi_system);
 
-Right. Usually rcu_read_lock+unlock is supposed to be very lightweight, but that
-might not be completely the case with that PREEMPT_RCU thingy ...
-
-> 
->>
->> We'd have to measure what an addition rcu read lock would cost in there. that
->> should be fairly easy to benchmark.
-> 
-> Sure. We can do that if needed.
-> 
->>
->>>
->>> I think this is a good idea, although there are some remaining issues.
->>> But such race should be really rare, is it worth all this effort? Could we
->>> simply aim to resolve, not to be flawless? I.e. could we simply check
->>> and re-set the hwpoison flag at the end of memory_failure handling to
->>> simply avoid losing hwpoison flag as a best-effort attempt? Would it be
->>> acceptable?
->>
->> Hacky. Sufficient for the hypervisor to suspend the nonatomic-setting CPU at the
->> wrong time to still trigger the same behavior.
-> 
-> Right. hypervisor could make the issue easier to trigger...
-> 
->>
->> I think, either we fix it properly, or we redesign hwpoison handling to deal
->> with setting/clearing becoming stale at some random point in the future.
-> 
-> I think your proposal, although there are still some issues to be resolved, is
-> nevertheless a good solution. We could also wait and see if anyone comes up with
-> a better one.
-
-I wouldn't call it "good" ... it's the only thing I was easily able to come up
-with :)
-
-The only alternative would be moving the hwpoison bit out of page->flags,
-storing it in a sparse bitmap or sth. like that. It would be a bigger rework and
-I am sure there are issues with that as well.
+Nothing too crazy here, however, the question is which of these values we
+actually want to guarantee that we will provide them with unchanged semantics in
+the future ... I guess anything we already expose to user space is alright
+(because it effectively already must remain mostly unchanged I assume).
 
 -- 
 Cheers,
