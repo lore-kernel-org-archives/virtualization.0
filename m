@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BA0F23624D4;
-	Tue, 16 Jun 2026 12:30:39 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B69B125C80E;
+	Tue, 16 Jun 2026 12:33:48 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781613040; cv=none; b=QdZpGmdJbiqqNGr/9tH1zFnWHoWDQJi3fBWxcpZfvvrVeVUOckDr6RK0QfJIsWiaQrfQF/rDEDcXqXsoUk4JYNfPpwHSIqfnAvDPdDK2UGvn5456aQ4/naYtxz5R7hiu1CDaaZyPLnbjHIj4erUPw0vjntbZsrl94gjoOR1s7e0=
+	t=1781613229; cv=none; b=VURqt3KWyj8k76UULP1jfjdeZxw4JKkrKWvYBQEyd/w8nKaNldmPZSYl7lPm4ELQ/a1j4z00UKvcKepSc4QMjqvhkUFfdpgTgoupvDmycNl96htXp2xw2jNZtzyqiRquZmFRu06o+ociNgZV3//Pt9XQxC66teLmawqjQzNMYA0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781613040; c=relaxed/simple;
-	bh=dVQEoz/nk2xypuD8aDIU4/qL625aUBU9Me7xHls4YX0=;
+	s=arc-20240116; t=1781613229; c=relaxed/simple;
+	bh=Xx7x/Snf0e0hjFZEbiJqPFXeazWQyL3Yt9/i8g7XwWU=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=pAobTn6xTyDvB7K/SQDu0F1rZvnisPFnuF9T9LIR6FLS5UiTZ8i6f3eoTkbUuD/GILh5IfgBqRxV4SEwdGRC+kGzJoujK9YPlpIemfFvaVYVJrJjSxUHu1+P6t11IGsHJrjI/GbdrfhD+0S26cWOqU4yGnZ5OzoSgFeVvDHA6YA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZYgXAUrx; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=IwyaLPj3X+Spc2lhF+hZhCUdkXgMSIt1Ywim5EfLtU+K38X34G40h6ue8WR4p3KyxS8Q8q1Klu+aiMmEUpAI+RlQQplvOjsTfU7URuIqQKgD3QvVSWVrA8z0d1zaOBlxpZY8K/o8WRBilbWemH2mWLOe1LvrdFCZ5pNycFUKoKk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZDvvcfiJ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZYgXAUrx"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D90D21F00A3A;
-	Tue, 16 Jun 2026 12:30:35 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZDvvcfiJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C30201F000E9;
+	Tue, 16 Jun 2026 12:33:44 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781613039;
-	bh=bXDJn4ET/n49nZO9bSK0/Jpj40ZMZXCaUyXxGq2ATAw=;
+	s=k20260515; t=1781613228;
+	bh=hHAVFB73luDZxdK2LYVDgp+cJ/BWXMvwZneaVOyU228=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=ZYgXAUrxxkpNst1MV2nPoEHdSFKAeck/Ff+Z7V/Vk4zLrOYdwTdBBRhzMzKSjWNHC
-	 sVYgBkTuuP1vnQbqUPJA8hvemaOqPqvQdQUjr/XWXtNtYQLEBqHZlxTePbDzrcbid8
-	 mJsPRxje/5LGJAPgqnGQKdA/jnS+fLF5ZcoT/OQynOu6jqtmLB5imx+pXYi5gfeGB2
-	 XDKJfW2mXhD6heGhys9dpFXGUZ3zDXbT9jHkC3alaqaaI3C3tLtR55mia4Kxei8Ot3
-	 ho4DnUhjwU3tk+SCUGF973n8gwNDFpFce8y2QJusM8BgxLMZR9lFDpk74lk/nEKJfB
-	 lSdf//tItOZzw==
-Message-ID: <8e766803-e68d-4efd-a69e-cec5b2492988@kernel.org>
-Date: Tue, 16 Jun 2026 14:30:34 +0200
+	b=ZDvvcfiJuXdct13oivP6Ibr4dQsugvcEuBznpOWUtBf0Zk3QJHQ2gAJJGwFfGEos5
+	 pNAs4JAb6CZsQcNIDMbIzOb6gL5Rw/NMUZEmQJIaWSeRQSajm5B91hhEuhMHNPJGoU
+	 yWKuO6MFS0jTeT7b4SgaiTDnI9b2AJFXudevLDZHpXXEDQDwaiP7KCNBpOwEc9gp4c
+	 EIq32Mo2pCwgzOQZL9Kzw6dfNFc4QOCugcUw8QHl2x6SR4iFezmMo4Ac5V+/M07zxq
+	 Aj0eEts5o+NFQMDAdll3g9WOfYNz9e4s2XxULmpdzzElAAvdKo+EAJHfkkDfjrQlEt
+	 gmEh7ks4B0dsA==
+Message-ID: <feee7831-aa82-4f02-b5e4-cffe7818dc65@kernel.org>
+Date: Tue, 16 Jun 2026 14:33:43 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -35,8 +35,7 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH 1/2] virtio-balloon: extend stats with memory
- composition and pressure data
+Subject: Re: [RFC PATCH 2/2] virtio-balloon: add stats push mode
 To: Gregory Price <gourry@gourry.net>, virtualization@lists.linux.dev
 Cc: linux-kernel@vger.kernel.org, kernel-team@meta.com, mst@redhat.com,
  jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
@@ -45,7 +44,7 @@ Cc: linux-kernel@vger.kernel.org, kernel-team@meta.com, mst@redhat.com,
  dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com,
  mgorman@suse.de, vschneid@redhat.com, kprateek.nayak@amd.com
 References: <20260513165006.2790857-1-gourry@gourry.net>
- <20260513165006.2790857-2-gourry@gourry.net>
+ <20260513165006.2790857-3-gourry@gourry.net>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -92,157 +91,55 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20260513165006.2790857-2-gourry@gourry.net>
+In-Reply-To: <20260513165006.2790857-3-gourry@gourry.net>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 5/13/26 18:50, Gregory Price wrote:
-> When doing proactive ballooning to reduce the size of a guest, some
-> additional vmstat information is useful in deciding how much pressure
-> to exert on the VM and when the VM starts experiencing undesirable
-> behavior (memory and io pressure).
+> When doing aggressive overcommit of VMs on a single host, a pull
+> model of stat retrieval is problematic if a guest becomes some form
+> of unresponsive.  In particular, it's difficult to discern the
+> difference between a hung guest and a slow guest - and why the
+> guest is experiencing that.
 > 
-> Add 11 new statistics tags to the existing balloon stats virtqueue
-> for improved balloon sizing decisions. Old hosts ignore unknown tags,
-> so no feature negotiation is required.
+> Add VIRTIO_BALLOON_F_STATS_PUSH feature that allows the host to
+> configure the guest to push stats on a timer instead of the default
+> pull model.
 > 
-> New memory composition stats (bytes):
->   S_DIRTY:         dirty pages awaiting writeback
->   S_WRITEBACK:     pages under active writeback
->   S_ANON:          anonymous pages (for balloon ceiling calculation)
->   S_INACTIVE_FILE: inactive file LRU (safely reclaimable subset of cache)
->   S_SLAB_RECLAIM:  reclaimable slab memory
+> The host sets stats_push_interval_ms in the balloon config space:
+>   0     = disabled (pull-only, default)
+>   N > 0 = guest pushes stats every N milliseconds
 > 
-> New workingset stats (counts):
->   S_WS_REFAULT_A:  anon workingset refaults
->   S_WS_REFAULT_F:  file workingset refaults
+> The push mode reuses the existing stats VQ, same buffer format,
+> same tags. The host can change the interval at runtime by updating
+> the config field.
 > 
-> New PSI stats (microseconds, cumulative):
->   S_PSI_MEM_SOME:  memory pressure (some stalled)
->   S_PSI_MEM_FULL:  memory pressure (all stalled)
->   S_PSI_IO_SOME:   IO pressure (some stalled)
->   S_PSI_IO_FULL:   IO pressure (all stalled)
+> Push mode provides two advantages over pull:
+>   1. Guest liveness detection: in pull mode, the host cannot
+>      distinguish a slow guest from a hung guest without implementing
+>      its own timeout tracking. In push mode, the absence of expected
+>      stats buffers is an implicit liveness signal; if the guest
+>      fails to push within the expected interval, the host can
+>      conclude it is unresponsive.
+>   2. Latency-sensitive consumers (e.g., memory pressure response
+>      loops) receive fresh stats at a guaranteed cadence without
+>      the host needing to poll.
 > 
-> Export psi_system for module builds (CONFIG_VIRTIO_BALLOON=m with
-> CONFIG_PSI=y).
+> STATS_PUSH requires STATS_VQ; the driver clears STATS_PUSH during
+> feature validation if STATS_VQ is absent. When push mode is active,
+> the pull callback is suppressed to avoid racing on buffer submission.
 > 
-> Assisted-by: Claude:claude-opus-4-6
-> Signed-off-by: Gregory Price <gourry@gourry.net>
-> ---
->  drivers/virtio/virtio_balloon.c     | 33 +++++++++++++++++++++++++++++
->  include/uapi/linux/virtio_balloon.h | 26 +++++++++++++++++++++--
->  kernel/sched/psi.c                  |  1 +
->  3 files changed, 58 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index f6c2dff33f8a..8fa33aec4ce7 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -18,6 +18,8 @@
->  #include <linux/wait.h>
->  #include <linux/mm.h>
->  #include <linux/page_reporting.h>
-> +#include <linux/vmstat.h>
-> +#include <linux/psi.h>
->  
->  /*
->   * Balloon device works in 4K page units.  So each page is pointed to by
-> @@ -414,6 +416,37 @@ static unsigned int update_balloon_stats(struct virtio_balloon *vb)
->  	update_stat(vb, idx++, VIRTIO_BALLOON_S_CACHES,
->  				pages_to_bytes(caches));
->  
-> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_DIRTY,
-> +		    pages_to_bytes(global_node_page_state(NR_FILE_DIRTY)));
-> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_WRITEBACK,
-> +		    pages_to_bytes(global_node_page_state(NR_WRITEBACK)));
-> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_ANON,
-> +		    pages_to_bytes(global_node_page_state(NR_ANON_MAPPED)));
-> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_INACTIVE_FILE,
-> +		    pages_to_bytes(global_node_page_state(NR_INACTIVE_FILE)));
-> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_SLAB_RECLAIM,
-> +		    pages_to_bytes(
-> +			global_node_page_state_pages(NR_SLAB_RECLAIMABLE_B)));
-> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_WS_REFAULT_A,
-> +		    global_node_page_state(WORKINGSET_REFAULT_ANON));
-> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_WS_REFAULT_F,
-> +		    global_node_page_state(WORKINGSET_REFAULT_FILE));
-> +
-> +#ifdef CONFIG_PSI
-> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_PSI_MEM_SOME,
-> +		    div_u64(psi_system.total[PSI_AVGS][PSI_MEM_SOME],
-> +			    NSEC_PER_USEC));
-> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_PSI_MEM_FULL,
-> +		    div_u64(psi_system.total[PSI_AVGS][PSI_MEM_FULL],
-> +			    NSEC_PER_USEC));
-> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_PSI_IO_SOME,
-> +		    div_u64(psi_system.total[PSI_AVGS][PSI_IO_SOME],
-> +			    NSEC_PER_USEC));
-> +	update_stat(vb, idx++, VIRTIO_BALLOON_S_PSI_IO_FULL,
-> +		    div_u64(psi_system.total[PSI_AVGS][PSI_IO_FULL],
-> +			    NSEC_PER_USEC));
-> +#endif
-> +
->  	return idx;
->  }
->  
-> diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-> index ee35a372805d..37ec8a8466c4 100644
-> --- a/include/uapi/linux/virtio_balloon.h
-> +++ b/include/uapi/linux/virtio_balloon.h
-> @@ -77,7 +77,18 @@ struct virtio_balloon_config {
->  #define VIRTIO_BALLOON_S_DIRECT_SCAN   13 /* Amount of memory scanned directly */
->  #define VIRTIO_BALLOON_S_ASYNC_RECLAIM 14 /* Amount of memory reclaimed asynchronously */
->  #define VIRTIO_BALLOON_S_DIRECT_RECLAIM 15 /* Amount of memory reclaimed directly */
-> -#define VIRTIO_BALLOON_S_NR       16
-> +#define VIRTIO_BALLOON_S_DIRTY	       16 /* Dirty pages (bytes) */
-> +#define VIRTIO_BALLOON_S_WRITEBACK     17 /* Pages under writeback (bytes) */
-> +#define VIRTIO_BALLOON_S_ANON	       18 /* Anonymous pages (bytes) */
-> +#define VIRTIO_BALLOON_S_INACTIVE_FILE 19 /* Inactive file LRU pages (bytes) */
-> +#define VIRTIO_BALLOON_S_SLAB_RECLAIM  20 /* Reclaimable slab (bytes) */
-> +#define VIRTIO_BALLOON_S_WS_REFAULT_A  21 /* Workingset refaults anon (count) */
-> +#define VIRTIO_BALLOON_S_WS_REFAULT_F  22 /* Workingset refaults file (count) */
-> +#define VIRTIO_BALLOON_S_PSI_MEM_SOME  23 /* PSI memory some total (us) */
-> +#define VIRTIO_BALLOON_S_PSI_MEM_FULL  24 /* PSI memory full total (us) */
-> +#define VIRTIO_BALLOON_S_PSI_IO_SOME   25 /* PSI IO some total (us) */
-> +#define VIRTIO_BALLOON_S_PSI_IO_FULL   26 /* PSI IO full total (us) */
-> +#define VIRTIO_BALLOON_S_NR	       27
->  
->  #define VIRTIO_BALLOON_S_NAMES_WITH_PREFIX(VIRTIO_BALLOON_S_NAMES_prefix) { \
->  	VIRTIO_BALLOON_S_NAMES_prefix "swap-in", \
-> @@ -95,7 +106,18 @@ struct virtio_balloon_config {
->  	VIRTIO_BALLOON_S_NAMES_prefix "async-scans", \
->  	VIRTIO_BALLOON_S_NAMES_prefix "direct-scans", \
->  	VIRTIO_BALLOON_S_NAMES_prefix "async-reclaims", \
-> -	VIRTIO_BALLOON_S_NAMES_prefix "direct-reclaims" \
-> +	VIRTIO_BALLOON_S_NAMES_prefix "direct-reclaims", \
-> +	VIRTIO_BALLOON_S_NAMES_prefix "dirty", \
-> +	VIRTIO_BALLOON_S_NAMES_prefix "writeback", \
-> +	VIRTIO_BALLOON_S_NAMES_prefix "anon-pages", \
-> +	VIRTIO_BALLOON_S_NAMES_prefix "inactive-file", \
-> +	VIRTIO_BALLOON_S_NAMES_prefix "slab-reclaimable", \
-> +	VIRTIO_BALLOON_S_NAMES_prefix "ws-refault-anon", \
-> +	VIRTIO_BALLOON_S_NAMES_prefix "ws-refault-file", \
-> +	VIRTIO_BALLOON_S_NAMES_prefix "psi-mem-some-us", \
-> +	VIRTIO_BALLOON_S_NAMES_prefix "psi-mem-full-us", \
-> +	VIRTIO_BALLOON_S_NAMES_prefix "psi-io-some-us", \
-> +	VIRTIO_BALLOON_S_NAMES_prefix "psi-io-full-us" \
->  }
->  
->  #define VIRTIO_BALLOON_S_NAMES VIRTIO_BALLOON_S_NAMES_WITH_PREFIX("")
-> diff --git a/kernel/sched/psi.c b/kernel/sched/psi.c
-> index d9c9d9480a45..8ab3aa1c4ef5 100644
-> --- a/kernel/sched/psi.c
-> +++ b/kernel/sched/psi.c
-> @@ -175,6 +175,7 @@ static DEFINE_PER_CPU(struct psi_group_cpu, system_group_pcpu);
->  struct psi_group psi_system = {
->  	.pcpu = &system_group_pcpu,
->  };
-> +EXPORT_SYMBOL_GPL(psi_system);
+> The pull model remains available and is the default.
 
-Nothing too crazy here, however, the question is which of these values we
-actually want to guarantee that we will provide them with unchanged semantics in
-the future ... I guess anything we already expose to user space is alright
-(because it effectively already must remain mostly unchanged I assume).
+I don't quite see the big benefit here, really: either it's a timer in the
+hypervisor or a timer in the VM. A slow VM will, in either model, delay the
+update of stats.
+
+If you need some "liveness detection", is virtio-balloon stats updates really
+the right mechanism?
+
+I don't quite understand the "Latency-sensitive consumers" problem. If the VM is
+slow, it is slow and will mess with latency-sensitive consumers in either way?
 
 -- 
 Cheers,
