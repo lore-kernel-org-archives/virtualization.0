@@ -1,113 +1,352 @@
-Received: from mail-qt1-f170.google.com (mail-qt1-f170.google.com [209.85.160.170])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from AS8PR04CU009.outbound.protection.outlook.com (mail-westeuropeazon11021076.outbound.protection.outlook.com [52.101.70.76])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 15A0F46AF15
-	for <virtualization@lists.linux.dev>; Tue, 16 Jun 2026 15:58:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.170
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781625507; cv=none; b=U2mylQOdJP3/efZggLzM37N6WJ4hdB9SpH++r9xuIExgVKQFu80z3jo6lVWibGH4WZIqcEBU3wa+loLLpWkNKYJjFVW4PHUZI+VR7dD512z0qP2BPupWuJ+pwreFIBO4zDA/XPkWjxbBtSeIRz5T9U9ncNCOWGL07TeE7GhVCf8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781625507; c=relaxed/simple;
-	bh=OxGw8gIPrZI6zYpv5MGh3fefGE/GJF3a2SBplDqwZHM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=plNKXwBLDQ+vu2OaU0eZGpIyhhA9bdYCahNUY9aTdy47kB0XBxSspyTx4ldTYxmKvMBQ3nG3odiSzGNYlpNbZCz0HFCp52wnxXyXz93CRM1zL+26/mowy8/RWFoo8FPhwmB+28MdAHVGVBTiKE/JiLRMjENBK8l5bcmMBHRw3hw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=KZbiy0Uy; arc=none smtp.client-ip=209.85.160.170
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7043644E045
+	for <virtualization@lists.linux.dev>; Tue, 16 Jun 2026 15:58:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.70.76
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781625528; cv=fail; b=cLykHIJOkeMUCbrpGUh8ctglfQzWmHh5vmAZQwGg8/oIeastS7r9+17c87Inq1wHdgMImYTXs58YKJBsB/d0ibmnZcK1z+Z4lg99Emz6bCX4dt665znAb+AJ/WG9TrvxHg4EMINGtQoclLCs7Te3WXdJVropb0qg3UzDTg07n5A=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781625528; c=relaxed/simple;
+	bh=ZHaQ6DJ7lNcJSyQbSRQfChKjUQxeaP2YqVp7rZI0U84=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=PYfqQi47NQDPutKHpnZhAU7EEOUc0m8u349sTkqY8PmbXizjLbH0zL+KMtxDiyXS6yBjA7n20nTSJjbhXzZ5ILK0th9Inr0iaqIsOT3RqcSsL+zUUFDk+YnxGRAcwLKTS5kjGrqXqIbe+LapPHNk3QWLzB+bgo5pgiEqw7lvcpA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=virtuozzo.com; spf=pass smtp.mailfrom=virtuozzo.com; dkim=pass (2048-bit key) header.d=virtuozzo.com header.i=@virtuozzo.com header.b=kI1WPkwB; arc=fail smtp.client-ip=52.101.70.76
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=virtuozzo.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=virtuozzo.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="KZbiy0Uy"
-Received: by mail-qt1-f170.google.com with SMTP id d75a77b69052e-5175b6c4e19so47161171cf.0
-        for <virtualization@lists.linux.dev>; Tue, 16 Jun 2026 08:58:25 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1781625505; x=1782230305; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=DnjgbRc5DwJL8N3kiFE/KwxjrcYUQVl99Jg8VCVVxEQ=;
-        b=KZbiy0UyNiquHv8M4FKl25rDOgqBYLg3WYwBHFa3frETVFmluRGOuZJj0+0sgrNFwW
-         iA+fRVZsyd79gU2qecqILS97FDoxEaK30TI2xKT6l0RXq8IyB2B/oZvf0SJbsu7d1/PK
-         smBTg93JZHv3g7oH53YLBn1tlkGNDs3fmXpAtF0jm28WCTIW83r3F72zSwgko56AcR55
-         3PcE8+4zS/Esdh+0VtfIkWe5uiTzjvD2A7pTq1loak0wNQMXRCgQepFqI34ZYYi6pjvV
-         bk2Krmh6ErCmwgYUzlbiW9DerE4+a03BMBOV02YpmtUJRXHUegZodxzl0sAw7qaLJQT2
-         qoGw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781625505; x=1782230305;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=DnjgbRc5DwJL8N3kiFE/KwxjrcYUQVl99Jg8VCVVxEQ=;
-        b=AlSWjuYTqNj3Zs5EJG8JQlJbCjnbU8OEfwF/YTUdTRtq/0wsVPuBDRPr1oUdg4fFew
-         Z494NVgwh76sDi84apOAXJf/1XFZq4zn70K10UBYbnTjn4pQfO23HwsmxkYqhEhrQovE
-         LWlSsmp4IQJ+NujTTD5kM/v6tEx9mKS/dY3YH/PyPVtCFWJZsuudpdzPs6ygkjJpeIKI
-         l2inKPV3HAGeenC2pHA4vvyjWQCOR8J31Bm+hKcjUCpTi0txZeQX/inh+sL54uHhwHIA
-         jOf0Y9rky/KogjXH6BDWh0u20V4bocdVQ4M1nvG23Ko0W+G+bly2iB1rr/+uQmhUPpCF
-         kM0A==
-X-Gm-Message-State: AOJu0YyLGmTar7RiW5JTLbksWYHO+sEyuoLrogFf1+a7UhcShBjVJ4YN
-	hk06DCRlhT+JSGQ4kEmqP4xohcp6gVm43g/lBWRkHiU/TTLG9VbjbOxC0iZfxQJjm8U=
-X-Gm-Gg: Acq92OEShyboSeLiK0RF9C3O1fuZGN2biT9bMq3XuSIKRWnjCsVPHfEljUaVMDB2pyV
-	/OgDkm93pcQD/peT4TFDuudCYh1AhroG5wcdXngrenbEjxUzGZgbZpYK04PvHJetwZR2M35qeLK
-	eQqKtwOk1HIU+uR9j74WbKQ+7TmXSwjjGeCuAobkP7M5k9MFO+WIgNz1TOmlYESdQIuX35jGInN
-	ABfEkm25H2MXaw7+PkMQfLPYW3MD0Cx2ad6HFvdnukPPRbRkg0HESs6RtyqYG5MFjCoZcgWGvco
-	zY0Xa3ur1A+FNstzIis1sgLgV4WWy17d+tqyZ+rUNfEI2M6+tq0CGshiDYvv+KbNPzhNsy28+5O
-	jkAYpcsM21/KMdxSiJTjXge0Nu3+zE/PhxsfjfzheHzCDcrHmlZsmiPLfo4rMjhiZ2/Y8ANwghb
-	qCQw+3/YKNK6mGB6/Z2xA8
-X-Received: by 2002:a05:622a:998:b0:517:58f6:29c3 with SMTP id d75a77b69052e-519a8fa678cmr1215241cf.32.1781625505045;
-        Tue, 16 Jun 2026 08:58:25 -0700 (PDT)
-Received: from gourry-fedora-PF4VCD3F ([2620:10d:c091:500::3:a3aa])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-517fb7a2227sm142134741cf.16.2026.06.16.08.58.23
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Jun 2026 08:58:24 -0700 (PDT)
-Date: Tue, 16 Jun 2026 11:58:22 -0400
-From: Gregory Price <gourry@gourry.net>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	kernel-team@meta.com, mst@redhat.com, jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com, eperezma@redhat.com, hannes@cmpxchg.org,
-	surenb@google.com, peterz@infradead.org, mingo@redhat.com,
-	juri.lelli@redhat.com, vincent.guittot@linaro.org,
-	dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com,
-	mgorman@suse.de, vschneid@redhat.com, kprateek.nayak@amd.com
-Subject: Re: [RFC PATCH 2/2] virtio-balloon: add stats push mode
-Message-ID: <ajFynjvnntxVy2m7@gourry-fedora-PF4VCD3F>
-References: <20260513165006.2790857-1-gourry@gourry.net>
- <20260513165006.2790857-3-gourry@gourry.net>
- <feee7831-aa82-4f02-b5e4-cffe7818dc65@kernel.org>
- <ajFWRhSNsOBoUfb5@gourry-fedora-PF4VCD3F>
- <4d8ddf50-e032-44a9-84d4-ddf2cd0c5bf6@kernel.org>
- <ajFhOa5kEkPfqPVD@gourry-fedora-PF4VCD3F>
- <3e7d2d74-ceb2-4064-928f-921401fea75e@kernel.org>
+	dkim=pass (2048-bit key) header.d=virtuozzo.com header.i=@virtuozzo.com header.b="kI1WPkwB"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=r+IsM+8n/MJgY8UMNNqkq3M6h9gD7Ze5U4rJIj0HtmKTISIC/GxrbEOvQw27HabBifD8wRHvh5y+g6tyuf/S+wgxo5qzfyBJTTwFeSNigFQKpcg5d5LWa7Dz947Qq5NgC+kqU+vpvRUx+aencQILOtBzJEtRsV3zLTxQ4d2FZ7GcgTJeziWTGh7lh3o7DpAG/epSG1ESuASksFh/mcLCnTogGRK6nLITtE/6e1JGeqj0E+iiWh2Fw7Tll/+X3F9hLDq/A+Nlcf2h6RbSCqI/jreHWmNrHnJuPERNShBM+CAkuW+x8Amr5F5V5BaQmtgPFsQ1edWJgobBTpoMlemQeA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=h7Y+d4v6F4piTbSWJGsNWnJB6g+gSLYwEXNNkWsCStU=;
+ b=bpgRafRFc4dH93nfKmHkK0rgIWwq30ayDNFCJh2mplZkVnJobrm/P7hn//Wy5VvnTtb3k0KvxalOg6dI8Qk6EE7jrsR8vPAP+B+wlQevAidWU1OkeqyLvlcB8EtDq0DUbKNJ+HZtvTbWWOgvqtjR1ZMDdrvqhfawh790pYEk2bKhboN3MgxVbXhUwdY5RWlJSu2+0guma7zRTS2yYPumdjb+2TPFi7iu157KIbQg9uS/v9LYnI3dkIOnfAeYDvXB1hsIxgCUvL7+i4MErZ0aXn44rWFYS8K6GILLYlwC1Df/ofQ5/TTmHdx0sMXv6+LGkOpX5YXvAvIR/V/QC9lL8g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=virtuozzo.com; dmarc=pass action=none
+ header.from=virtuozzo.com; dkim=pass header.d=virtuozzo.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=virtuozzo.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=h7Y+d4v6F4piTbSWJGsNWnJB6g+gSLYwEXNNkWsCStU=;
+ b=kI1WPkwB4/H6eTA1pFYdfQCSC+9v15ErXJrYriJ4GEhQk/r8GSNv1w7WMtPInh8qJFfIc43zXR39frvax5R9Hv9/kov1XhXdOnubA4j86f9jUjdmHfX8+cNBtXzuF0F9kScOCbmweDLdHdwBOCX6j7YMsmqCQpbLVJFJq+4TYGZYXd6iJjT8ij39xfLxzWaK8SWUzmUDD9BLcADgSoS7ZGbqPZNnFB2GPXbr4nkJmW5rM76/MkUGLyJj0RqIJWJaticplL+hM5teGMUFosS+1uqJeSWiIx0xnYIeugFBjTPckwGYTn10N96gYB3GLklrngbLBb+du3CwJm1U97renw==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=virtuozzo.com;
+Received: from VI0PR08MB10656.eurprd08.prod.outlook.com
+ (2603:10a6:800:20a::12) by VI0PR08MB10655.eurprd08.prod.outlook.com
+ (2603:10a6:800:209::14) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.113.18; Tue, 16 Jun
+ 2026 15:58:42 +0000
+Received: from VI0PR08MB10656.eurprd08.prod.outlook.com
+ ([fe80::4e37:b189:ddcd:3dd8]) by VI0PR08MB10656.eurprd08.prod.outlook.com
+ ([fe80::4e37:b189:ddcd:3dd8%5]) with mapi id 15.21.0113.015; Tue, 16 Jun 2026
+ 15:58:42 +0000
+Message-ID: <021a6604-289c-4dd8-a0be-33c7812c0105@virtuozzo.com>
+Date: Tue, 16 Jun 2026 18:58:40 +0300
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 3/4] vhost/vsock: suppress EHOSTUNREACH fast-fail during
+ CPR pause
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org, mst@redhat.com,
+ stefanha@redhat.com, maciej.szmigiero@oracle.com, bchaney@akamai.com,
+ mark.kanda@oracle.com, ptikhomirov@virtuozzo.com, den@openvz.org
+References: <20260612165718.433546-1-andrey.drobyshev@virtuozzo.com>
+ <20260612165718.433546-4-andrey.drobyshev@virtuozzo.com>
+ <ajFUk7quPhbI7Te-@sgarzare-redhat>
+Content-Language: en-US
+From: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
+In-Reply-To: <ajFUk7quPhbI7Te-@sgarzare-redhat>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: FR3P281CA0132.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:94::12) To VI0PR08MB10656.eurprd08.prod.outlook.com
+ (2603:10a6:800:20a::12)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <3e7d2d74-ceb2-4064-928f-921401fea75e@kernel.org>
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: VI0PR08MB10656:EE_|VI0PR08MB10655:EE_
+X-MS-Office365-Filtering-Correlation-Id: 43e7b867-59bb-4a84-5dd3-08decbc02353
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|7416014|366016|23010399003|376014|1800799024|56012099006|4143699003|22082099003|18002099003;
+X-Microsoft-Antispam-Message-Info:
+	O75XKDp6VvFO8mI+j6VuajnBnpG+V3fhA2t7jZQRpht6P2ey+niQswz69EQ+nFLBt4RFY5J7DsxZ1V1sSWcYQu2052erwoZ+uv7oDJxVgvgZ313vLGNV4v9nNLpVhq6saYpb/JFk1QQ2vHsrrGQfQfAmYBNREBKuWYUsNTl8snaoG/NCJ3yVt89l/fmW88MWcDP9mc5BmCp98KMHIshYHBBAE6r9qSoJo4ZctaGzeomymYg83Va1V635OeijlKe3msSf+xxz9zjZTwwVKrFPnSrVR8zqtF5pogUsVnSsdlrYmKjOyTHvFNlcGCrvev2NDwWZwtvv3QLj8O2RwUb6oUrCr12BAP21DYo1T8CM9Vc5DjqFe5K+6SFasbIeDU1WI7RAXZq/ltKO1MZdtufe3GYnMAnqidrlmktn3Isr9cw23shcX4ueF7k3b22g62lDHjepul1oaLaKP22v2s7+NLFapg0Tv1PIS2FB7Ot6haC+rAoCVPF+EQQ9uvwIdudA3Ey/aF8j73r9E1Pjt7Vgla20aAhjYb4hb1BoEDBXYlzQhbnzwkw+xXJ+lst8BsZ/W8B/nIo/lHagzfumtFUDWM4rKK6smjZRFZG5WdQdi9/Q1uAL+7dzhk6DasS2Xy3Op1Jayksu5nOuyWkNw33vaPJu3DRI4JaSRv8XnLXTg99svpSx4gtkhoRiug2+lv1GRBh+PFPnV9hd2ibcgxo6Uw==
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI0PR08MB10656.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(366016)(23010399003)(376014)(1800799024)(56012099006)(4143699003)(22082099003)(18002099003);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?YUJxb0FkQUcrZjVnUzlWUmZHVDZMd2xjVGRGejZkTmljaVN2NEdNU2k5ejVw?=
+ =?utf-8?B?bHBxcWNjbWRJdDJsV3R4QkIzMXJIWUsrZUJZNGZIUTRHVXlIRWdXSzFOa2JE?=
+ =?utf-8?B?dTdrL1FFaHBxVlRUaGt5Ri8vWUUweTdoSURkc3pvb3FBeHFpbnJpOThRU2dP?=
+ =?utf-8?B?Qis3VCtySGVYQjkwTXdoSHNkTU5ka1Fob0w1YjhxSjkyVFdXZGVQVm50S3Nh?=
+ =?utf-8?B?ZTRMZ2UyZzk1YXIrU3Z5UStiK3BTREE2M2dLUWVhWmNqei9tQUJNUnIxYjBC?=
+ =?utf-8?B?Nk8zaG8vMW8rV3d6M0k3V0Q2b0JkVStjQjZVZlJMb2kzRlUyZVYwYXZhT1Zk?=
+ =?utf-8?B?T0drbGltVVo3TGNDVG1pTW5JUnJqaGxwWDV1SzF2SHhNNVpJSGorYzVidmQ4?=
+ =?utf-8?B?WklTN1l4UmpDWUtBS1VJcVJubHRBUmVMYWh4T0dVekQ5RVBmQmFlZG53QnNT?=
+ =?utf-8?B?WU4vTkhYaERDaHkrQUlxTnVVWEVzSk1QdHJ0NS93YjFCLzludVNMUjhRUWlD?=
+ =?utf-8?B?YW9YQVVKb3Uvdy9iZktaUWc2VWpQUG1hRERNTTlmcGJmSkczYjRQb3g4Kzhx?=
+ =?utf-8?B?SklIblJLQjR1Q0VMU01UWklUek44T1luK3JaSFdVVHlYL05qcG9FeENlVFhK?=
+ =?utf-8?B?bjlnNmg4ZmloZ0M4Q1Z0NVhaUVZYY1RObGN4RUs4cENkbGF1YnBVNkVGcXZn?=
+ =?utf-8?B?dm4zNFVweWZUSXp6UEJia2s5UjladnAycmhSYUhJeEhGUFg4U3B0Y2dVcDJZ?=
+ =?utf-8?B?K2ZlSFlxQldJKzV0R0s1YkFmcWQxWnhnS2tBWldvQzhhSVpTKzdnRHVYQWxK?=
+ =?utf-8?B?dTNzcnZVMC93QTdvd3ZuVHFTb05CVEIycEUvR0sydi80WnpaR3FRVnN3Z05B?=
+ =?utf-8?B?Y1grQy9ZTStwNE5BZUJTbTdtYUdrdFJSZXNhOUxIUWFSYmJReWlxWmxNVmxk?=
+ =?utf-8?B?ZXRsbzdjbmpoRzUzeS8yb2swYTZlMnl1MDUyZDRBQjlkVENwN1h3MVNHUWFI?=
+ =?utf-8?B?Q3VDNFF3SmpQeGRNN3NFc1MxVGE3aTZNZkxMRlE5Z3NxMG94bUpFR2c0dHVr?=
+ =?utf-8?B?MllUVFFuT2pSNkZTNTg0c2VQRjE1SzJrb3JhSkZ6Mk85bHBIb0RPdHZHeGMv?=
+ =?utf-8?B?M0Qwd3VFN2orK2xCS0tYd3h6aUJDZE9QWWNZMHVLeWdaUUM3eFB5SGcxUUlI?=
+ =?utf-8?B?a2U4ZkhyQ3hUR0NDdUVKRU5YdFR1ZDlOT01ocEIwZlVZZExXbnJBT2JsR1BF?=
+ =?utf-8?B?TG1ZSG9RSnV6dmtiSU0wOEs2dG5GQTg0SlVaTTJzY3RiWWdOVm5TOW9YYXUy?=
+ =?utf-8?B?ZzgrQkVycDYvNXRGdVNtM2tqN3JJbHYrWlNBNHk2djBTOCsvbkVCT2xoL3J3?=
+ =?utf-8?B?Vm40c2NBN3ZiaDF0OWRkWVpNdzNNOHJabzhVbEp5NHVsSzVGS3BlcGhVWitm?=
+ =?utf-8?B?b3VWUjZDMGVjN0t3V0RmSXpwT3NMMW5WWCtPWXlrNThPMDNFZSsvUjJyTWhU?=
+ =?utf-8?B?NVNmV0ZDMGtrQzJjZ2VOa3BTYTNqdytOZk9YL2x0Y1lpR2hGVUpIM3JRd1Av?=
+ =?utf-8?B?Z3R0NE9OOTBuTnZCcmFBRFJFZ2JpaEUxaDZ5VXZTNktsVG1tOXZjSnoyWk03?=
+ =?utf-8?B?OW41WUlVdWZhY001aTJHTC9LQlp3SWFQWk9FR3E0cTBWZFFZU0VKR2dmQmdM?=
+ =?utf-8?B?UmtSb1EzUGpzbitVMVJVNVYxZDU1QXJTWlJXWUMwa3lLa2dpM3FyWHNZNC9n?=
+ =?utf-8?B?Y2NzSGJkQ1lnZVpmM1o5cXkwcUEzZk1maS9TZ1FiSTFEdEJpaXRMV1RYZ0Ev?=
+ =?utf-8?B?SUcrUWl3ZHF2YnhJVjZCWjJkbXRZNjF0SldUZCtSQUZvUjRLdEgzWGFmWG1N?=
+ =?utf-8?B?MVdCcXNubDB4WisxRFJCUTEySDUyQTJ0Y0NxUW1YcGpqTDQ3RG9hVllQSnc4?=
+ =?utf-8?B?S2JqaU1CWDNpM1U0VThuRDVnMFV5V1puSncxa2d2RkxRMk5Ubi8xQjB4Y213?=
+ =?utf-8?B?MHBZWmQyU0hMMnF0dVhMTCtxdzh6ZW15YWNmNXROM2w4TWdUa3VmTzhyRXRp?=
+ =?utf-8?B?Z2VlZjBpZ2phUFBzZHBjd3orVUNwcHEzOUdtK21iL2xSa1cwWW5lNi9OS2hC?=
+ =?utf-8?B?WW5vWEhwOXpPOFFXcG1aMlhhTEdQTWhXaWhUS3JQNVhCbWJxL1UzS3lSeHNy?=
+ =?utf-8?B?a2Nua0tMRk85dEdHdDhneFF0djVzZVV5MktFMjZwUmZLVzBRVnQzS1dJTGs3?=
+ =?utf-8?B?aWx6dGs4c3BNQnhXcDU2Y2lJNkFDOGpkUm5mUUNNKzM2MTRzVnBHYmFkTFNL?=
+ =?utf-8?B?UmJvU3pWN0tnSTZDYW1LMjlPTW5oejNRR2FiMTN0UHNBQ1hwTmV0cVh1QWlo?=
+ =?utf-8?Q?Wks9jx8VaR3RZfqE=3D?=
+X-OriginatorOrg: virtuozzo.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 43e7b867-59bb-4a84-5dd3-08decbc02353
+X-MS-Exchange-CrossTenant-AuthSource: VI0PR08MB10656.eurprd08.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Jun 2026 15:58:42.1442
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 0bc7f26d-0264-416e-a6fc-8352af79c58f
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: L1Z/etkQReev4AmKY18dTGJUgSum2aq3VJazU3jsa5oDaIzShn/yRwcFlxZXgObzr2iXY76OhpDsHVGWc58sfIxc5OgfFOTPnJbhSJd5O/8=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: VI0PR08MB10655
 
-On Tue, Jun 16, 2026 at 05:52:29PM +0200, David Hildenbrand (Arm) wrote:
-> On 6/16/26 16:44, Gregory Price wrote:
-> > That makes sense, although don't you just push the blocking operation
-> > into yet another thread on the host?
+On 6/16/26 5:18 PM, Stefano Garzarella wrote:
+> On Fri, Jun 12, 2026 at 07:57:17PM +0300, Andrey Drobyshev wrote:
+>> From: "Denis V. Lunev" <den@openvz.org>
+>>
+>> Earlier commit ("ms/vhost/vsock: Refuse the connection immediately when
 > 
-> I think timers are run from the QEMU main thread, so no separate thread just for
-> the timer.
-> 
-> And IIRC, there will be no blocking. At least if I understand your concern
-> correctly.
-> 
-> balloon_stats_poll_cb() will do a virtqueue_push()+virtio_notify(), which will
-> notify the device. The main thread will continue afterwards doing what a main
-> thread usually does.
-> 
-> A VCPU will process the request in the VM and send it back + notify the device.
+> Please follow 
+> https://docs.kernel.org/process/submitting-patches.html#describe-your-changes 
+> on how to refer to a commit.
 >
 
-Entirely possible I just bungled the interaction then and/or CH's
-interfaces introduce a blocking op that shouldn't.
+I omitted the hash on purpose as the commit is not yet in the mainline
+tree, although our series is based and depends on it, as I mentioned:
 
-Thanks for the feedback, we can probably drop this patch.  Unless
-there's any particular pushback for 1/2, should i leave as-is or
-resubmit separately w/o RFC?
+https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git/commit/?id=bb26ed5f3a8b
 
-~Gregory
+So it's a different (Michael's) repo and the commit is about to get
+merged (but not yet there).  But maybe usual reference style + repo link
+would be better.
+>> guest isn't ready") added a fast-fail in vhost_transport_send_pkt().  It
+>> rejects every host send with -EHOSTUNREACH until the destination calls
+>> SET_RUNNING(1).  The fast-fail condition checks whether device's backends
+>> are dropped, and if they're, the guest is considered to be not ready.
+> 
+> Okay, so it's not a regression, I mean without this series that patch is 
+> not adding any regression, no?
+> 
+> If it's the case, I'll change the wording in the cover letter.
+>
+
+Agreed.
+
+>>
+>> However, there might be other reasons for backends to be nulled.  In
+>> particular, when QEMU is performing CPR (checkpoint-restore) migration,
+>> device ownership is being RESET and SET again, which leads to backends
+>> drop and reattach.  If we end up connecting during this window, an
+>> AF_VSOCK client gets -EHOSTUNREACH, which is wrong.
+> 
+> Please add this change before starting to support VHOST_RESET_OWNER 
+> ioctl in vhost-vsock, otherwise we are breaking the bisectability.
+>
+
+Agreed.
+
+>>
+>> Add a cpr_paused flag set inside vhost_vsock_drop_backends() when the
+>> backend was previously live, cleared by vhost_vsock_start(). When set,
+>> vhost_transport_send_pkt() queues the skb instead of fast-failing; the
+>> existing kick of send_pkt_work in vhost_vsock_start() drains it on
+>> resume. A device that has never run keeps cpr_paused == false and the
+>> boot-time fast-fail behaviour is preserved.
+>>
+>> Pair the cpr_paused store with the backend store using an
+>> smp_wmb()/smp_rmb() pair so a concurrent sender on a weakly-ordered
+>> architecture never observes (NULL backend, !paused):
+>>
+>> Signed-off-by: Denis V. Lunev <den@openvz.org>
+>> ---
+>> drivers/vhost/vsock.c | 22 +++++++++++++++++++---
+>> 1 file changed, 19 insertions(+), 3 deletions(-)
+>>
+>> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+>> index e629886e5cf8..bcaba36becd7 100644
+>> --- a/drivers/vhost/vsock.c
+>> +++ b/drivers/vhost/vsock.c
+>> @@ -61,6 +61,7 @@ struct vhost_vsock {
+>>
+>> 	u32 guest_cid;
+>> 	bool seqpacket_allow;
+>> +	bool cpr_paused;	/* between stop and next start */
+>> };
+>>
+>> static u32 vhost_transport_get_local_cid(void)
+>> @@ -311,11 +312,17 @@ vhost_transport_send_pkt(struct sk_buff *skb, struct net *net)
+>> 	 * the mutex would be too expensive in this hot path, and we already have
+>> 	 * all the outcomes covered: if the backend becomes NULL right after the check,
+>> 	 * vhost_transport_do_send_pkt() will check it under the mutex anyway.
+>> +	 *
+>> +	 * Don't fast-fail if cpr_paused is set, keep queueing skbs instead.
+>> +	 * The kick in vhost_vsock_start() will drain them on resume.
+>> 	 */
+>> 	if (unlikely(!data_race(vhost_vq_get_backend(&vsock->vqs[VSOCK_VQ_RX])))) {
+>> -		rcu_read_unlock();
+>> -		kfree_skb(skb);
+>> -		return -EHOSTUNREACH;
+>> +		smp_rmb();	/* pairs with smp_wmb() in start/drop_backends */
+>> +		if (!READ_ONCE(vsock->cpr_paused)) {
+> 
+> Can we avoid this which is not really readable and maybe add a single 
+> variable to control the fast-fail at all?
+> 
+> I mean replacing both cpr_paused + backend-pointer with a single 
+> `started` flag: set it to false at open, true on start via 
+> smp_store_release(), back to false on normal stop, and leave it true 
+> during CPR pause.
+> 
+> The reader in send_pkt can do just:
+> 
+>      if (!smp_load_acquire(&vsock->started))
+>          return -EHOSTUNREACH;
+> 
+> WDYT?
+>
+
+I don't think it's gonna work as suggested.  As I understand, the order
+during CPR migration is:
+
+1) SET_RUNNING(0)
+       -> vhost_vsock_stop()
+           -> vhost_vsock_drop_backends()
+2) RESET_OWNER
+       -> vhost_vsock_drop_backends()
+3) SET_OWNER
+4) SET_RUNNING(1)
+       -> vhost_vsock_start
+           -> for (...) vhost_vq_set_backend()
+
+(Btw I just noticed backends are already NULL at step 2), but that's
+just our CPR case, for any potential RESET_OWNER users it might not be
+the case).
+
+So the race windows starts from 1) (not from 2)).  We have no way of
+differentiating whether device is actually being stopped for good, or
+we're in the middle of CPR.  If we set the flag to false on stop as you
+suggested, we'll still hit the -EHOSTUNREACH case eventually, and
+avoiding it is the whole purpose of this patch.
+
+The fast-fail with -EHOSTUNREACH relies on the presence of backends.
+IIUC the backend will only become set after initial SET_RUNNING(1),
+which will only happen once the guest driver writes smth to virtio
+config register, QEMU catches it and calls SET_RUNNING(1).  So we have
+ordering with the guest's actions here, which is logical.  But for our
+issue that means that the only true marker of paused/not paused is the
+presence of backends - and that's why the flag is set in
+vhost_vsock_drop_backends().
+
+>> +			rcu_read_unlock();
+>> +			kfree_skb(skb);
+>> +			return -EHOSTUNREACH;
+>> +		}
+> 
+> 
+> That said claude here is reporting a potential issue that I think we 
+> should consider:
+>      After VHOST_RESET_OWNER, the guest CID stays in the hash, so 
+>      vhost_transport_send_pkt() can still find the vsock, skip the 
+>      fast-fail (cpr_paused=true), and call vhost_vq_work_queue() while 
+>      vhost_workers_free() is freeing workers without a synchronize_rcu() 
+>      — risking a use-after-free. Also, any send_pkt_work queued between 
+>      the last flush and worker teardown gets its VHOST_WORK_QUEUED bit 
+>      stuck (the vhost task exits without draining), deadlocking 
+>      host→guest traffic after restart.
+> 
+>      A synchronize_rcu() in vhost_workers_free() between the 
+>      rcu_assign_pointer(NULL) loop and the destroy loop would close the 
+>      use-after-free, and reinitializing send_pkt_work via 
+>      vhost_work_init() after vhost_dev_reset_owner() returns would clear 
+>      the stuck QUEUED bit.
+> 
+> 
+
+Yes, this looks real indeed.  Though I couldn't hit the UAF issue while
+testing host->guest transfer under KASAN.
+
+>> 	}
+>>
+>> 	if (virtio_vsock_skb_reply(skb))
+>> @@ -640,6 +647,9 @@ static int vhost_vsock_start(struct vhost_vsock *vsock)
+>> 		mutex_unlock(&vq->mutex);
+>> 	}
+>>
+>> +	smp_wmb();	/* pairs with smp_rmb() in send_pkt */
+>> +	WRITE_ONCE(vsock->cpr_paused, false);
+>> +
+>> 	/* Some packets may have been queued before the device was started,
+>> 	 * let's kick the send worker to send them.
+>> 	 */
+>> @@ -671,6 +681,11 @@ static void vhost_vsock_drop_backends(struct vhost_vsock *vsock)
+>>
+>> 	lockdep_assert_held(&vsock->dev.mutex);
+>>
+>> +	if (vhost_vq_get_backend(&vsock->vqs[VSOCK_VQ_RX])) {
+>> +		WRITE_ONCE(vsock->cpr_paused, true);
+>> +		smp_wmb();	/* pairs with smp_rmb() in send_pkt */
+>> +	}
+> 
+> Why here and not in vhost_vsock_reset_owner()?
+> 
+> Also having this here will set it to true also with 
+> VHOST_VSOCK_SET_RUNNING(0), is that right?
+>
+
+That was added here precisely to cover the vhost_vsock_stop() case (see
+above).
+
+> Thanks,
+> Stefano
+> 
+>> +
+>> 	for (i = 0; i < ARRAY_SIZE(vsock->vqs); i++) {
+>> 		vq = &vsock->vqs[i];
+>>
+>> @@ -728,6 +743,7 @@ static int vhost_vsock_dev_open(struct inode *inode, struct file *file)
+>>
+>> 	vsock->guest_cid = 0; /* no CID assigned yet */
+>> 	vsock->seqpacket_allow = false;
+>> +	vsock->cpr_paused = false;
+>>
+>> 	atomic_set(&vsock->queued_replies, 0);
+>>
+>> -- 
+>> 2.47.1
+>>
+> 
+
