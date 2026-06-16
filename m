@@ -1,145 +1,182 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 340023655F0
-	for <virtualization@lists.linux.dev>; Tue, 16 Jun 2026 13:00:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 53D9036C592
+	for <virtualization@lists.linux-foundation.org>; Tue, 16 Jun 2026 13:10:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781614803; cv=none; b=eL4iBE0UiJBDs3OAwej1Ucruwh/tP3WYiyKStusPVn1MWoLeH2V+O2wViLBIa8tx1vSRSWu2O7RjcNXreFBnN1RcS1Yjap6g6HbTsxIrb3POH9tUjlvwXiOc0W9ECiSjYl+78RfgBu0T+Q8hTllqXlwZndrN+vdnvWQDqH1te24=
+	t=1781615435; cv=none; b=o480UtgMeyjG3Z1i+TqD7lF3gHuuHTc94Um2miBo+A0lqiBsrm/3ImVjZXdlC4zUDj4+lG1saWjdtEcb6jUeGlfaqLvvGK8Qds6YTJed0FPyJsHJnfz9V4WuS2KJ/dL48LSzZ/qoTUp62AKwVg4h1ZyzXIm7fVKscAWkwx17V1s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781614803; c=relaxed/simple;
-	bh=bhB8cqYkdx99HnRuLaoyAkAfNvz4q6LWBo4ONFNXjmQ=;
+	s=arc-20240116; t=1781615435; c=relaxed/simple;
+	bh=j8djdhTpE9KyreEqk3wMsIFtENli4AKg3GaItI1dKoQ=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=r80TD3xZWHUJNP4xBC6XYKn5urV21X8/HSooVc88ZsfY0qPsk1wdt/hNTctAvr2lLyz2k4nOCEia2xq3r4Fce8nLXYzM56zzpZqzMROhT+j5SCymElXyPY+j87PG2E+e/SWrFshm9YI3N1egIpXxJMIeadr00/BYK3gCXrr/zmc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=izDkDBJ7; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 In-Reply-To:Content-Type:Content-Disposition; b=V439JLSONCAcYbTdnn2wOP+OJToVdYn+GrbA+MKgCfXZe61KEtYya2uvm2EevgMFH8aw0JgMgNYkahKXfvgYlX9RkYEN4GXAx1M3ZUQT+Rdc6NHEVsAShEO6Ovku/O16XhkmWrMEdojUmoGo1u77ky3Iueg1UD9kCTnP4d9ARs4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=g6P2MBjx; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="izDkDBJ7"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="g6P2MBjx"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id C73656F50F
+	for <virtualization@lists.linux-foundation.org>; Tue, 16 Jun 2026 13:10:22 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.792
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id u7hqTyR6uyBq for <virtualization@lists.linux-foundation.org>;
+ Tue, 16 Jun 2026 13:10:19 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=sgarzare@redhat.com; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 4C7F96F4DE
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 4C7F96F4DE
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=g6P2MBjx
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 4C7F96F4DE
+	for <virtualization@lists.linux-foundation.org>; Tue, 16 Jun 2026 13:10:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1781614801;
+	s=mimecast20190719; t=1781615417;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=EVj9gc1a5EiZ8GlGp7l1tQy1b06455G3XK/4iEWItig=;
-	b=izDkDBJ7Z9CQ+t9sVivC6Fwt7u0570xgxg57lwKfLkuRLZVXR7g/lOyLyRryNTXuBpzFn8
-	Dpr6Rb3M93oiOWlRL2ymPSwCcImleQkcSAKSx+mrqlt5ciA2q9kRjAFZkrlHyPiTqXe2Ws
-	Aw74I8u0mEIbjU253CKkjOkysy7lWxE=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=81JkjnjNjtM/PGFVX6BX0wxD8D777cX7VAjC2y6ng/8=;
+	b=g6P2MBjxJgiBerbF6ygNpPkSn9b74qHJC0plFVZPXoUklZiDV+nlQqK++X1tSWC75ysiXe
+	kuxLzX8idFePzNr+1Iptp7A9exlE/tD6XVajkzLWejyz6FkC8HgDwFQwgd/E8DaMC1CnPN
+	4TwBoygYj2y49uKFOoEh9Aiaat+ByGU=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-649-uUTERVajOaOU_7wHd7Nleg-1; Tue, 16 Jun 2026 08:59:59 -0400
-X-MC-Unique: uUTERVajOaOU_7wHd7Nleg-1
-X-Mimecast-MFC-AGG-ID: uUTERVajOaOU_7wHd7Nleg_1781614798
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-490a767c7dcso29363235e9.2
-        for <virtualization@lists.linux.dev>; Tue, 16 Jun 2026 05:59:59 -0700 (PDT)
+ us-mta-1-A4D3cVKyP5W6L2oTbZ1k8w-1; Tue, 16 Jun 2026 09:10:15 -0400
+X-MC-Unique: A4D3cVKyP5W6L2oTbZ1k8w-1
+X-Mimecast-MFC-AGG-ID: A4D3cVKyP5W6L2oTbZ1k8w_1781615415
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-45ef616db45so3550462f8f.2
+        for <virtualization@lists.linux-foundation.org>; Tue, 16 Jun 2026 06:10:15 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781614798; x=1782219598;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=EVj9gc1a5EiZ8GlGp7l1tQy1b06455G3XK/4iEWItig=;
-        b=Mx85IZJSdbERBnsZLXyM3zaha0QhOzDBrfwVoriCNZEWwAmuzLHnN//lZVAOEsKWym
-         MbtSr11eEuVHgHnIfGjAO0Tgk+7gqi8n6nJGclwer543d8TtX7JugM/JLDw/PIkJHmKv
-         rtnrWDX4lC/haaGa0sCjQEW1SO2wVOJnMjfQJwOMiDWHg9tBulQghEAmCGTZQEn72xlN
-         9ZIHmwjGbpwQ1deh4hlFkjoc/gDfsHcLmpmqZiTK38w2zUobqcqsyYxMaqiLrAYBktbX
-         ivx/Q5YwDysc2pcPMf9S8uuPuLeigh4wkV/M+Xa9Di9w0Y6nCjWAEfWJ3wsHTy7hu9tp
-         +9Ag==
-X-Forwarded-Encrypted: i=1; AFNElJ/1+WQ43NsbyujbZHn358YYs+c4MkGU9ssjq9aw+fXtOaPaM7rOt2v/ZQI/7tP30ywshwfYeWYjL4q/GBuj3Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwcxaTmn1dpdfo9qSExlgdLyHUdPkPlN7DxmzV6sWmNkheGlp2f
-	l8YFLI+FTXBchYKO9oE8eZBRyQBRcw3DgXwngjEYodUCMM93lpVc/pHkpNDqZ4c0dK2lo4jj/Ah
-	k6Rf63OPf7trjbBMuHcwsgGXnggCulm62QZVlW0UAbPcOXQsScJDBlBHIq774/u9pnDlR
-X-Gm-Gg: Acq92OGmqkvXeIY/Nq9ClbICmFI4yP3rP5gpct+5oe+LyCitvZiQrd7TnUSasOGl3Ew
-	cbuTG75j/l3vVSZs7RKVRoDuUHQ5fr+9M3vF2c4hnzUIHq+ADrTVVjF7bvAqVZhbcB02+FGPe5o
-	6EisOYJTdht0O8zizjqx79zM3J7g6IisOmqoXAYGjH26feEBM2LKL0QmwAliS1CYwSnIsHe+lVo
-	g0ajeva0ruWaKFk+rXudMs7xJJyrObJ6ylpE+iwielfxrRGiiDn6AMqt7j6zyofEzvndrwQrMo1
-	SZ/5yViXlBwvy0kkMyknjMNEVPGuSMMwr6/vvjElhSC/67XSoFv0CqIkdc80aZyB8tRhW8Uv62I
-	8dbH28H9IsC3PJukXhqURGfmbDQgAemfu2vBGcRn2e765dGvRv/onteqgcjjkpfKnG18YxLg=
-X-Received: by 2002:a05:600c:4713:b0:491:7325:39c4 with SMTP id 5b1f17b1804b1-49220164d3bmr190086695e9.34.1781614797562;
-        Tue, 16 Jun 2026 05:59:57 -0700 (PDT)
-X-Received: by 2002:a05:600c:4713:b0:491:7325:39c4 with SMTP id 5b1f17b1804b1-49220164d3bmr190084565e9.34.1781614795388;
-        Tue, 16 Jun 2026 05:59:55 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1781615414; x=1782220214;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :mime-version:references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=81JkjnjNjtM/PGFVX6BX0wxD8D777cX7VAjC2y6ng/8=;
+        b=l6Ir5zQipcEmCjYQBd6YWhBpPFAgdyyaVfjlVuSrE5kd1x4Hmut5DK6nXS1otsqy2+
+         +6XyypXo/t+clT4kuGTcy/oOUUsngDPLQfCv5tMlZVmw6bTJ9WwixblrCspY7ndA34w+
+         E4mDCoLuKkYI5fYHtbkj0MqnFp/p5ZeJ5kD5eJS9dfPpZjYrpFvySvoQ0mTap0pVIZCb
+         EUVZfaex4yb6n4Ab6Tb1EMggMWKHav1fPC//VkXk536jAckeXzFAkdQnUtmioqJeSSyu
+         Muc7OsNg+xoNsDrBwrQBCHLrJg3IKPOPcYBgANREAd0VSzUxz2beqx25tPSfrlNXSn0j
+         V6yA==
+X-Forwarded-Encrypted: i=1; AFNElJ81lrRtUUiddDUNNE9+tBMe3DO2hPGZiT2jlrId9gZDAn/CSA2b7ibLE+oeSG34hJXWZQ4E+MqH4e4HffFjmw==@lists.linux-foundation.org
+X-Gm-Message-State: AOJu0Ywev7MxqjFzDXVdtvwMc7oa5BK2LDfVRNgYRq6IMZPrO7G2CuNx
+	bbFRj71ydzJvSUwdEZZ4bICM3/8H2tLeRzSJcungE+P649M4jhmaWjqlVFCBUB9doGkrUGVxDa7
+	b+Ujg03sapjiVM/ZtI3vROUlT2lluudt5XMDuErw7AEb8guVGkd26D3JKvVHgGd550os4BP2B2v
+	LVihJkk9U=
+X-Gm-Gg: Acq92OHQOmXqpAvC6tk0lH9yeLoJlo36mIQGGaX9kqTvVHoTy329z30MlKSybuNgzcp
+	3pfKyqId8GftGrEd0h95jgFs7zU9AgcWrkJvso3KYHuUBjppiG+OXy0DzQrC+Uhk7bfo6PfSi26
+	CF1IsBPSswWMYXSFUUmhfPtzxDzi6Dn9CHDKW+aodOTq7QEkbzqxjEAhLho48fknrTAx1OdTmSu
+	W4lSU4rQjVEIYTnKRLBxsPenqSAB39WZVoj9TQZed1+w0z7GNKkxTaB+yZfefCoshDWwMomUDLG
+	sDem4elnyrUftfY7ax8s/KZ4oqJyqLFuPwcu5d26RTPIYVNDQPsUF7+/aWTjuTSvbrmitT7dCbG
+	lKwHA/pP3WQRHcRFQ2iK1hjgrafAXnj74BYkxwNg6naaLmL07CfPGho3kkuKega9Iukc8nwA=
+X-Received: by 2002:a5d:5d87:0:b0:45e:da9b:97d6 with SMTP id ffacd0b85a97d-46074a8a2a8mr23974042f8f.27.1781615414594;
+        Tue, 16 Jun 2026 06:10:14 -0700 (PDT)
+X-Received: by 2002:a5d:5d87:0:b0:45e:da9b:97d6 with SMTP id ffacd0b85a97d-46074a8a2a8mr23973939f8f.27.1781615413909;
+        Tue, 16 Jun 2026 06:10:13 -0700 (PDT)
 Received: from sgarzare-redhat (host-82-53-135-12.retail.telecomitalia.it. [82.53.135.12])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4922fa97a07sm131444255e9.14.2026.06.16.05.59.53
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4606f2cf5d9sm39082850f8f.32.2026.06.16.06.10.12
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Jun 2026 05:59:54 -0700 (PDT)
-Date: Tue, 16 Jun 2026 14:59:52 +0200
+        Tue, 16 Jun 2026 06:10:13 -0700 (PDT)
+Date: Tue, 16 Jun 2026 15:09:59 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
-To: Octavian Purdila <tavip@google.com>, g@sgarzare-redhat
-Cc: netdev@vger.kernel.org, Alexander Viro <viro@zeniv.linux.org.uk>, 
-	Andrew Morton <akpm@linux-foundation.org>, Arseniy Krasnov <avkrasnov@salutedevices.com>, 
+To: Arseniy Krasnov <avkrasnov@rulkc.org>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>, 
 	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, Jakub Kicinski <kuba@kernel.org>, 
-	Jason Wang <jasowang@redhat.com>, kvm@vger.kernel.org, linux-block@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, virtualization@lists.linux.dev, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, syzbot+28e5f3d207b14bae122a@syzkaller.appspotmail.com
-Subject: Re: [PATCH net v2 2/2] vsock/virtio: restore msg_iter on
- transmission failure
-Message-ID: <ajFEpMnHsxAYJSOa@sgarzare-redhat>
-References: <20260613000953.467473-1-tavip@google.com>
- <20260613000953.467473-3-tavip@google.com>
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Bobby Eshleman <bobby.eshleman@bytedance.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, Simon Horman <horms@kernel.org>, kvm@vger.kernel.org, 
+	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	oxffffaa@gmail.com, rulkc@linuxtesting.org
+Subject: Re: [PATCH v2] vsock/virtio: rework MSG_ZEROCOPY flag handling
+Message-ID: <ajFFOJSdqpNWgohB@sgarzare-redhat>
+References: <20260614174756.170631-1-avkrasnov@rulkc.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260613000953.467473-3-tavip@google.com>
+In-Reply-To: <20260614174756.170631-1-avkrasnov@rulkc.org>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Cw2BIa6yMuFjCb0tZguAyQhmgE-dQjHGPkQ__ixYjto_1781614798
+X-Mimecast-MFC-PROC-ID: 93TH5UZviKuFpiQa_sSFVKqLSEdk3h-kkGhYGKEVD8I_1781615415
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=utf-8; format=flowed
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Sat, Jun 13, 2026 at 12:09:53AM +0000, Octavian Purdila wrote:
->When transmission fails in virtio_transport_send_pkt_info, the msg_iter
->might have been partially advanced. If we don't restore it, the next
->attempt to send data will use an incorrect iterator state, leading to
->desync and warnings like "send_pkt() returns 0, but X expected".
+On Sun, Jun 14, 2026 at 08:47:56PM +0300, Arseniy Krasnov wrote:
+>Logically it was based on TCP implementation, so make further support
+>easier, rewrite it in the TCP way.
+
+Hi Arseniy, and thank you so much for the patch!
+
+I’d like to ask you to expand on the message a bit, especially to 
+explain why we’re making this change.
+
+In particular, I’d like to better understand whether this is just a 
+cosmetic change or if we’re fixing any issues (and if so, which ones), 
+so we can determine whether this patch should be backported to the 
+stable branches.
+
 >
->Specifically, this can happen in the following scenario, triggered by
->the syzkaller repro:
->
->1. A write-only VMA (PROT_WRITE only) is partially populated by a
->   prior TUN write that failed with -EIO but still faulted in some
->   pages).
->2. A vsock sendmmsg call with MSG_ZEROCOPY requests transmission of a
->   buffer from this VMA.
->3. The first packet (64KB) is sent successfully because the pages are
->   populated.
->4. The second packet allocation fails because GUP fast pins the first page
->   but GUP slow fails on the next unpopulated page due to PROT_WRITE-only
->   permissions.
->5. The iterator is advanced by the partially successful GUP (68KB total
->   advanced: 64KB from first packet + 4KB from second), but the send loop
->   breaks and only reports 64KB sent. This creates a 4KB desync.
->6. The next retry starts with a non-zero iov_offset, disabling zerocopy
->   and falling back to copy mode.
->7. In copy mode, the transmission succeeds for the next packets but
->   exhausts the iterator early because of the desync.
->8. The final retry sees an empty iterator but zerocopy is re-enabled
->   (offset resets). It attempts to send the remaining bytes with zerocopy
->   but pins 0 pages, creating an empty packet.
->9. The transport sends the empty packet, triggering the warning because
->   the returned bytes (header only) do not match the expected payload size.
->10. The loop continues to spin, allocating ubuf_info each time, eventually
->    exhausting sysctl_optmem_max and returning -ENOMEM to userspace.
->
->Restore msg_iter to its original state before the packet allocation
->and transmission attempt if they fail.
->
->Fixes: e0718bd82e27 ("vsock: enable setting SO_ZEROCOPY")
->Reported-by: syzbot+28e5f3d207b14bae122a@syzkaller.appspotmail.com
->Closes: https://syzkaller.appspot.com/bug?extid=28e5f3d207b14bae122a
->Assisted-by: gemini:gemini-3.1-pro
->Signed-off-by: Octavian Purdila <tavip@google.com>
+>Signed-off-by: Arseniy Krasnov <avkrasnov@rulkc.org>
 >---
-> net/vmw_vsock/virtio_transport_common.c | 13 +++++++++++++
-> 1 file changed, 13 insertions(+)
+> Changelog v1->v2:
+> * Rebase on last 'net-next'. Don't need 'skb_zcopy_set()' now - it was
+>   already added.
 
-Thanks, looks much better to me now!
+Ah, okay is net-next material, please use the net-next tag (ie. [PATCH 
+net-next v2]).
 
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
+>
+> net/vmw_vsock/virtio_transport_common.c | 48 ++++++++++++-------------
+> 1 file changed, 23 insertions(+), 25 deletions(-)
+>
+>diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>index 09475007165b..787524b8cb44 100644
+>--- a/net/vmw_vsock/virtio_transport_common.c
+>+++ b/net/vmw_vsock/virtio_transport_common.c
+>@@ -328,38 +328,36 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+> 	if (pkt_len == 0 && info->op == VIRTIO_VSOCK_OP_RW)
+> 		return pkt_len;
+>
+>-	if (info->msg) {
+>-		/* If zerocopy is not enabled by 'setsockopt()', we behave as
+>-		 * there is no MSG_ZEROCOPY flag set.
+>+	if (info->msg && (info->msg->msg_flags & MSG_ZEROCOPY)) {
+>+		/* If 'info->msg' is not NULL, this is only VIRTIO_VSOCK_OP_RW.
+>+		 * 'MSG_ZEROCOPY' flag handling here is based on the same flag
+>+		 * handling from 'tcp_sendmsg_locked()'.
+> 		 */
+>-		if (!sock_flag(sk_vsock(vsk), SOCK_ZEROCOPY))
+>-			info->msg->msg_flags &= ~MSG_ZEROCOPY;
+>+		if (info->msg->msg_ubuf) {
+>+			uarg = info->msg->msg_ubuf;
+>+			can_zcopy = virtio_transport_can_zcopy(t_ops, info, pkt_len);
+>+		} else if (sock_flag(sk_vsock(vsk), SOCK_ZEROCOPY)) {
+>+			uarg = msg_zerocopy_realloc(sk_vsock(vsk), pkt_len,
+>+						    NULL, false);
+>+			if (!uarg) {
+>+				virtio_transport_put_credit(vvs, pkt_len);
+>+				return -ENOMEM;
+>+			}
+>
+>-		if (info->msg->msg_flags & MSG_ZEROCOPY)
+> 			can_zcopy = virtio_transport_can_zcopy(t_ops, info, pkt_len);
+>
+
+nit: we can remove this extra blank line.
+
+For the rest I can't see anything wrong, but a bit more context in the 
+commit would help me in the review.
+
+Thanks,
+Stefano
 
