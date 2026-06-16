@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48BC1421890;
-	Tue, 16 Jun 2026 09:51:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB79C3CC310;
+	Tue, 16 Jun 2026 09:54:37 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781603517; cv=none; b=T+889f6CswXvBWeie/ACL4NL7WgJbKlF6pcQdE+SnbefzoAFYGWJQpYVWc8FE7NCcaDi7pf6W0FQRTJoiPBgvFA8aQtdkrsNQnl7yhHd8cCPOSg3GBaODw5pIgH+i+3T4B+h8S5nYnS0GKXHJklQ3ogAa2W9KiFMftWJj4jeGkE=
+	t=1781603678; cv=none; b=naQDc+vDGAPZ2TFDFrlk4EvORcDVzvSYwbZ8VpJvTbV1VzDu9NIwCBMwd9qBOd2qQXTNEQfsOa9wYJ2gVZ5lHJczC/ElP4elm3Ea4dVyhYXixXiM0V7fR5fJBrielEyadOC5avFh+1XfvPqzEC44yVlMa3k2XL2vVlqzGr7E86s=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781603517; c=relaxed/simple;
-	bh=U8HwN3VYMDd5bskXM/9sH9FJg9WoMPOOFDfyLp7dUpg=;
-	h=Subject:To:Cc:From:Date:Message-ID:MIME-Version:Content-Type; b=O1LPOIGs6GtQV1FTr1fT9KwTy589cgTkTP7U38Y3KDZG5kWSQiaG6SRJNMtCMicXhoEoVm2rFmDRvORMmtX8Sdmt9Ae20wnt+g2mz1au/1iO+XQiB7Tx9PF9PzuFoP8cNnhPG/5gxJHdKQNKTftURXNKSX2X2QwMZ/ywwd9I7ws=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=Yaogdgup; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781603678; c=relaxed/simple;
+	bh=O+2vN0mqLSntYSFAXGga7NaMZJ5yS59U4qOmKUoUrdc=;
+	h=Subject:To:Cc:From:Date:Message-ID:MIME-Version:Content-Type; b=E1VAm4GX2rv4GDGqNST6KIcl9u7Jq8sDRetS1GxyaUfRsv2Q3urgdvKx+BlNR3ACJlObgswkBh6CiHinhzS+apbCULeSENoWjhtIyTSVR1n0VkFmvFjIKqDr6c6uXzemFIQ0O+59MzSAnBC3tuUvFd+gKFrIQz1ad0b52GsVa8s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=H4/9QyeR; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="Yaogdgup"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2C7D71F000E9;
-	Tue, 16 Jun 2026 09:51:54 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="H4/9QyeR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 64EF61F000E9;
+	Tue, 16 Jun 2026 09:54:36 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
-	s=korg; t=1781603516;
-	bh=pORy1EHAh/iOic1inn0t5fryP6v6Gu5VxDw8ZFRK/Jk=;
+	s=korg; t=1781603677;
+	bh=56oPr5sfAGrzNp0ACpxVAhS05b+ADVMZxUpS7BBO21A=;
 	h=Subject:To:Cc:From:Date;
-	b=YaogdgupEC7WoerDqABfMJASDnY7oK2l5seFFJAt/eZW9C3YVHT5Kh9Cl9nTVwAdw
-	 pYEAOqv2j/jF2mBb6B1iOSn0P8hw1vhuF5BpJe1ZNucW7Dyk55Nc/vk7d9vsA9lCVn
-	 G2KbWJplwA8xCuSTh7W7ge9hmXIeocy+4K6y6hnU=
-Subject: Patch "vsock/virtio: fix potential unbounded skb queue" has been added to the 6.18-stable tree
+	b=H4/9QyeRZCbMxv2K9E0sbLE1yjTE7BUxVF9+vulrVMDrgYOahikmI4x0A5WHSmV8S
+	 +dAHsZEHhs9OUgIYb5Bx0v2b37hCU58XVUlV0DHo3KshTW/AlI/Ksx/xH6+hsG3vR6
+	 0ZnDrj5jCav8VPtqStt9qBnnss/ZGxT/yROpSL2g=
+Subject: Patch "vsock/virtio: fix potential unbounded skb queue" has been added to the 7.0-stable tree
 To: AVKrasnov@sberdevices.ru,edumazet@google.com,eperezma@redhat.com,gregkh@linuxfoundation.org,jasowang@redhat.com,kuba@kernel.org,mst@redhat.com,sgarzare@redhat.com,stefanha@redhat.com,virtualization@lists.linux.dev,xuanzhuo@linux.alibaba.com
 Cc: <stable-commits@vger.kernel.org>
 From: <gregkh@linuxfoundation.org>
-Date: Tue, 16 Jun 2026 15:20:50 +0530
-Message-ID: <2026061650-appealing-lubricant-c11e@gregkh>
+Date: Tue, 16 Jun 2026 15:23:19 +0530
+Message-ID: <2026061619-cascade-amiss-5ed6@gregkh>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -44,12 +44,12 @@ This is a note to let you know that I've just added the patch titled
 
     vsock/virtio: fix potential unbounded skb queue
 
-to the 6.18-stable tree which can be found at:
+to the 7.0-stable tree which can be found at:
     http://www.kernel.org/git/?p=linux/kernel/git/stable/stable-queue.git;a=summary
 
 The filename of the patch is:
      vsock-virtio-fix-potential-unbounded-skb-queue.patch
-and it can be found in the queue-6.18 subdirectory.
+and it can be found in the queue-7.0 subdirectory.
 
 If you, or anyone else, feels it should not be added to the stable tree,
 please let <stable@vger.kernel.org> know about it.
@@ -114,16 +114,18 @@ Signed-off-by: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
 
 Patches currently in stable-queue which might be from edumazet@google.com are
 
-queue-6.18/ipv6-sit-reload-inner-ipv6-header-after-gso-offloads.patch
-queue-6.18/ieee802154-6lowpan-only-accept-ipv6-packets-in-lowpa.patch
-queue-6.18/udp-clear-skb-dev-before-running-a-sockmap-verdict.patch
-queue-6.18/inet-frags-fix-use-after-free-caused-by-the-fqdir_pre_exit-flush.patch
-queue-6.18/net-add-pskb_may_pull-to-skb_gro_receive_list.patch
-queue-6.18/net-sched-act_api-use-rcu-with-deferred-freeing-for-.patch
-queue-6.18/ip6_vti-fix-incorrect-tunnel-matching-in-vti6_tnl_lo.patch
-queue-6.18/tcp-restrict-so_attach_filter-to-priv-users.patch
-queue-6.18/vsock-virtio-fix-potential-unbounded-skb-queue.patch
-queue-6.18/ipv6-mcast-fix-use-after-free-when-processing-mld-queries.patch
-queue-6.18/ip6_vti-set-netns_immutable-on-the-fallback-device.patch
-queue-6.18/rxrpc-fix-the-ack-parser-to-extract-the-sack-table-for-parsing.patch
-queue-6.18/ipv4-restrict-ipopt_ssrr-and-ipopt_lsrr-options.patch
+queue-7.0/ipv6-sit-reload-inner-ipv6-header-after-gso-offloads.patch
+queue-7.0/ieee802154-6lowpan-only-accept-ipv6-packets-in-lowpa.patch
+queue-7.0/udp-clear-skb-dev-before-running-a-sockmap-verdict.patch
+queue-7.0/inet-frags-fix-use-after-free-caused-by-the-fqdir_pre_exit-flush.patch
+queue-7.0/net-add-pskb_may_pull-to-skb_gro_receive_list.patch
+queue-7.0/net-sched-act_api-use-rcu-with-deferred-freeing-for-.patch
+queue-7.0/bonding-annotate-data-races-arcound-churn-variables.patch
+queue-7.0/ip6_vti-fix-incorrect-tunnel-matching-in-vti6_tnl_lo.patch
+queue-7.0/tcp-restrict-so_attach_filter-to-priv-users.patch
+queue-7.0/vsock-virtio-fix-potential-unbounded-skb-queue.patch
+queue-7.0/ipv6-mcast-fix-use-after-free-when-processing-mld-queries.patch
+queue-7.0/tcp-add-preempt_-disable-enable-_nested-in-reqsk_que.patch
+queue-7.0/ip6_vti-set-netns_immutable-on-the-fallback-device.patch
+queue-7.0/rxrpc-fix-the-ack-parser-to-extract-the-sack-table-for-parsing.patch
+queue-7.0/ipv4-restrict-ipopt_ssrr-and-ipopt_lsrr-options.patch
