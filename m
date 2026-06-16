@@ -1,66 +1,66 @@
-Received: from OSPPR02CU001.outbound.protection.outlook.com (mail-norwayeastazon11023126.outbound.protection.outlook.com [40.107.159.126])
+Received: from PA4PR04CU001.outbound.protection.outlook.com (mail-francecentralazon11023105.outbound.protection.outlook.com [40.107.162.105])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 36B6B291C10
-	for <virtualization@lists.linux.dev>; Tue, 16 Jun 2026 14:01:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.159.126
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A32293A9DA4
+	for <virtualization@lists.linux.dev>; Tue, 16 Jun 2026 14:10:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.162.105
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781618503; cv=fail; b=sN8p5IeaWKsMK0cVLww9JT3iNXOvy0c9rspzLcSeeKLf2KvTrrgEp3oJ4pwjM6SXWci7fcxRGf2zkZ9ji0aQ38t+PzJvDoA1xG+HyCOqQqhcHH2vhclDZp64f2ntOlBl90EgKU/l19EFUmgI1Vy5VeodKRvW/3utcHfPG1wyKag=
+	t=1781619046; cv=fail; b=dU8BJpOFvjf0eDoc+oDWSyf8Tvfmmn75i8fnao1TXN9IQbJBJqkm+Lzl7wEParzQKzMuF5GTR0Vu+r+FMjMintLpfu5QefQr5e5wASiLSRm2nagHxsy14b+LEpxbdRMQgBCi3LOaIIB+lOHGS9AaWtgYjAtxY9mqZptIIouutbk=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781618503; c=relaxed/simple;
-	bh=0YcA9wvj4YZROX3LgO83U5dhLoN5qeYSpDDjzy5RkW4=;
+	s=arc-20240116; t=1781619046; c=relaxed/simple;
+	bh=94GFxqFiDUw+Wb9ZnccFDh8WLw/s6Z9D7J0s6h7+Jho=;
 	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=qJm2+b3L0sjJh6wA8UavNGY01t8TX/MVYgNRxd2ZTkc1zjsLRlOJ2eD5VKYhWGV54ZHO3FLUQrAORL2oacBhqPKu/bQ70P7uGC842fypMpF6+AUupw8WXwLHD6hmWuW/S6azwyFy0JoyfKyV6JVvN8HDeyiOJFH6UdvFxq1mYLE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=virtuozzo.com; spf=pass smtp.mailfrom=virtuozzo.com; dkim=pass (2048-bit key) header.d=virtuozzo.com header.i=@virtuozzo.com header.b=xMueWzbG; arc=fail smtp.client-ip=40.107.159.126
+	 Content-Type:MIME-Version; b=frp8aK8FBJqdxEn5BWgXgSpX6SkS3yKxXcVRqEcABDjhphIJik6qye4+FW+U4PauljzPTZPfKoglkgdFfegjTS05dH5l02/OjQHlt5rJEi9eLrWS7CrCe2A75GbIvO0+Lunwsp/6wQRrXE1woVkq2CH1IlwbzisDAWYijyR706I=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=virtuozzo.com; spf=pass smtp.mailfrom=virtuozzo.com; dkim=pass (2048-bit key) header.d=virtuozzo.com header.i=@virtuozzo.com header.b=Z8AHqwGK; arc=fail smtp.client-ip=40.107.162.105
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=virtuozzo.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=virtuozzo.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=virtuozzo.com header.i=@virtuozzo.com header.b="xMueWzbG"
+	dkim=pass (2048-bit key) header.d=virtuozzo.com header.i=@virtuozzo.com header.b="Z8AHqwGK"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=V5NFbluMTaZRUR73rV86LGfzR8TCDSYPnRgpXIFJXodmID5N4QFvCnAXaqKzGCYMxGAYT5zdTZNSmIGaF/V3FXARrj5Fe/BSDCxYIWhiQ5FUPNt6p9XF72IyaKWXkT6N1Y+zz/6jZUaHHCXaBdtt5HCY9PYFc20gJvovE4uVNdz8Q3sRXkFg9QLNZ5d2m7aW3pNgnl/DZe0PJ+XD9iy0KWmqCK4I/GpiLvM5FMhSZZbug1tr+xZpjHKL1yLaQamCqECj2D9Kp1mVsV3QCzMorQoi6RKTKFLhWHLG2PuRndMvhbvjhI6BvbaClg8ujlyIbla0Vt8WbGpf5sXRdMxseg==
+ b=BQHRvrJ+SVE+RBySQjmk/qeYvnED+TSkSUnk4i1OVLpSV+gcb6JMGUDDcIYNH2JbtS31iaa1/b2y9raIxeC4IXPFl2zOjofwletPBP3uq/vsGCjTG2PPg+52juDIBhvuc+UomB+/FP2Mq/WKeFvE1M9psDc1Ab6JJEkT2w3TWQSmngx2i4sF7p4DfTJutLP7HwJfEc8XTi5wlz3KHJoy5Dd1ZysMsK+t/+nJ3qIOx/O+gzDJpBkQjcH3htCjiOOPl4rimYrezVfQ+1+2zY23FRvMKbrXflWKCpTVskiSRET4DToyJNpnIVR4DxjpsTgPCtvCCqR+xr+9TS64SE0jrQ==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=58AoLZS7Z9+3HlVF/FeA89oVz+zeoEVgwnmULM4jUlk=;
- b=oZzV89h8qzhZ/UGDAbTmVnOL2aUZGhI1e6HNbgoaeaAwMWAW8Z2v54MaVUmNihct9hDaSgyT8KZjjECqVDqB5AzmztCxl5p3xfGzs0yp2nNFBAOIx2tFx5BWbDg1Kf85jmGrqCa9C0CmldkrAtLFXZXqH73rhC+emlZgfyS5Au4cFdbVB2JZU5Er4T29Stwn3ciHvJPPFI0/A/rBBaf1jla4lzk3bmh9bUcTNNA5eh2ehMspWw7OpAT3AejJC3AoAGJewf8510SKwcf+0NlZLHxMZF2ZUjAcmbRikZazAmwvDW8pdoj3bUKdpzNtikBjWaqCNzwIhlmLLZozaw1XQQ==
+ bh=/J1XShNxq+GR8v6JNVU+6xpDj4AWjHa9ivxaRtv0h9E=;
+ b=HwLAOjkyoXiw7SssPLAQElLJ111Ue1jL4ui61AdTMxAUkf+U9glITGSFBUFjItc/X8Ng3f2VoA3U54qJGo/1LU0HGyb6v7BI4JPmYmATcehuJ73XGM/Ias25C33LPd8tucFJf72/8tM1uve7EPpBR6ONDNdbrbIzDch5dQ+yvqlW2zfD4uDe8eT6yj3IEo1bYjP1Mg2O6DUpAnc5cbqb2w2hzOFwAvkZXKUGR0LmM9aEYnTHOC+WM6IrRN6+IXHEn6ECHryVQsjmoxvh+z9KqS+vyamuNBvY2FBhGE+nBgCFKI6edteOFlANnlvDD0m1LyDmJyCAdwfR4T9Mfsf4AQ==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=virtuozzo.com; dmarc=pass action=none
  header.from=virtuozzo.com; dkim=pass header.d=virtuozzo.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=virtuozzo.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=58AoLZS7Z9+3HlVF/FeA89oVz+zeoEVgwnmULM4jUlk=;
- b=xMueWzbGC+fkR+F9QIFBJeO2xXSDdpkyF3MWQr5QEp5T4rGpoDsSqXiHMZX7eNbgkruRnc5kTXddeqnkZipYzUTX7iyeZQNgnfAzFpMJlgJ1kmL3w60u4HLFMQ1ivMSZFD66eyOf1F/QELKpidscytqul4O+zcZ+N6qHDGQ/y1H3wFdsnEnBh7dBIgTGv+qVyJl1D0fZstcdwYZTY7NJdT2Zi5zpW7LmF98aDfaWg6MOf3W5knfcNk0HhDT4+n2hlAjorGteNiWDg/yf0FxMa5i3XzthEo5m52pNue6nb4S0bUF1AdG0R927HJ8bzC4yqaDKBsOaUN48u5E02k+C7Q==
+ bh=/J1XShNxq+GR8v6JNVU+6xpDj4AWjHa9ivxaRtv0h9E=;
+ b=Z8AHqwGKHDDIjXtp7q/OzU3f+8HzUeJTgk83n3NJF95R0g3WkySgTTYlkIZQWrC0uD1VNdnhkDXbNm11c13E3k4WsrO2vDDxuMSJnz098SzTXSdNXJ4H9yvvHQ2bRKwTUXaSYEu97fJcazCLB8a5tpULMHAFQc9l/wfqydPsvL6xxxyavqkGGCNMrtCTuclaSxuTxhctKXu1qQCl/cYpK8APUc0V0ynoIPp2MKNniYM4ref8BX4eh70YFakiWbn0I6G3yH8E6+YfsQxflniBlWxpqOaU6UZqYqbFPoNYtZKWjK+pvfy7Xh4BqSIQnAAB8AxMFykPEZO17drxWx9Tsg==
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=virtuozzo.com;
 Received: from VI0PR08MB10656.eurprd08.prod.outlook.com
- (2603:10a6:800:20a::12) by DB9PR08MB8291.eurprd08.prod.outlook.com
- (2603:10a6:10:3dd::15) with Microsoft SMTP Server (version=TLS1_2,
+ (2603:10a6:800:20a::12) by DB4PR08MB8152.eurprd08.prod.outlook.com
+ (2603:10a6:10:380::5) with Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.113.18; Tue, 16 Jun
- 2026 14:01:36 +0000
+ 2026 14:10:40 +0000
 Received: from VI0PR08MB10656.eurprd08.prod.outlook.com
  ([fe80::4e37:b189:ddcd:3dd8]) by VI0PR08MB10656.eurprd08.prod.outlook.com
  ([fe80::4e37:b189:ddcd:3dd8%5]) with mapi id 15.21.0113.015; Tue, 16 Jun 2026
- 14:01:36 +0000
-Message-ID: <4fa88fa6-a188-4c63-876c-ed748809bf0b@virtuozzo.com>
-Date: Tue, 16 Jun 2026 17:01:34 +0300
+ 14:10:40 +0000
+Message-ID: <129f5833-3a7f-4b2d-a965-20903e4e2fb5@virtuozzo.com>
+Date: Tue, 16 Jun 2026 17:10:38 +0300
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/4] vhost/vsock: add support for VHOST_RESET_OWNER and
- CPR migration
+Subject: Re: [PATCH 2/4] vhost/vsock: add VHOST_RESET_OWNER ioctl
 To: Stefano Garzarella <sgarzare@redhat.com>
 Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
  virtualization@lists.linux.dev, netdev@vger.kernel.org, mst@redhat.com,
  stefanha@redhat.com, maciej.szmigiero@oracle.com, bchaney@akamai.com,
  mark.kanda@oracle.com, ptikhomirov@virtuozzo.com, den@openvz.org
 References: <20260612165718.433546-1-andrey.drobyshev@virtuozzo.com>
- <ajFLvKcT-A0wvLYW@sgarzare-redhat>
+ <20260612165718.433546-3-andrey.drobyshev@virtuozzo.com>
+ <ajFRRmA9req1muX6@sgarzare-redhat>
 Content-Language: en-US
 From: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
-In-Reply-To: <ajFLvKcT-A0wvLYW@sgarzare-redhat>
+In-Reply-To: <ajFRRmA9req1muX6@sgarzare-redhat>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: ZR0P278CA0079.CHEP278.PROD.OUTLOOK.COM
- (2603:10a6:910:22::12) To VI0PR08MB10656.eurprd08.prod.outlook.com
+X-ClientProxiedBy: ZR0P278CA0083.CHEP278.PROD.OUTLOOK.COM
+ (2603:10a6:910:22::16) To VI0PR08MB10656.eurprd08.prod.outlook.com
  (2603:10a6:800:20a::12)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -69,154 +69,163 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: VI0PR08MB10656:EE_|DB9PR08MB8291:EE_
-X-MS-Office365-Filtering-Correlation-Id: e957ed6f-3023-43fa-8b66-08decbafc793
+X-MS-TrafficTypeDiagnostic: VI0PR08MB10656:EE_|DB4PR08MB8152:EE_
+X-MS-Office365-Filtering-Correlation-Id: 8274d277-2807-4f4f-40d3-08decbb10bd0
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|7416014|376014|23010399003|366016|18002099003|22082099003|4143699003|56012099006;
+	BCL:0;ARA:13230040|7416014|376014|1800799024|366016|23010399003|22082099003|18002099003|5023799004|4143699003|56012099006;
 X-Microsoft-Antispam-Message-Info:
-	tZW8+lqlLe0UciGD0leosPv2DlBibrHY7RRthOumik6semdskdAIYrIwpnHagx++K4xkXdqJ9YJ+nkv/zLPc16GakpRGvoAAHEwYT+wuqWZDrMPzguPK9LAYScBW18BnwvYFEgdvsnTlQUUPEtgkTQZTh107lzDeAheadamFLZ7lsttn2bP9Tpx1GrdppdGedTPHfxEZ5h/KlNxvM97CbBe9Kol/uno89mNa6V291p2PEy/yUxLCLRLgdtVdzSINS4Db2LihW+b+iGM79AC4x2ACCXaTBZJqorsjIkLsTRG418P+A0q9MUU5UuBs1D5N88IOYlKSvZb6JOtyaOa10fwkXbOjzLEq3Kshvww4Co4GzpPuoPnVWEiBv1i93zyEwJ6gpEC19GpBirJ71H9wDGn3W6aTZhAniT6FWZHV1LTbvzTlaf4Ag/FIXWjJC3hkLGJxDzj4e2MbovWWOc7zvkYBqOMg6xLkweUUJsehevRoSrTqQwmzM5gyIKr7xOVYUVfF9z4SeRLAydFxOgFnSdbHn4RMzROmF2Ub5lXoUChiICtIHZAIDb13JmSCIq1tcSlQL48xC2nL+EtopztPM+IDaCfSisc3cZHq5CWarL4bKxL4CxEmYNxQpZGtRJlVDFt/79YKVpuAJ5S2NyeygVDPH6kXzyolGWvqHXTYYfYv5YzzExrgncl91fuA1Xk4RrcCq25r6/NtykQrqIyNiQ==
+	LVc8Fr3iMRD6PtzxBJges5OLHtzqlNIxPvAzvVV8gHOxeBBZo/inZX5dbGOckzW4qUSeWDb+4BEFHnUZH64ijD8jbOCvPxSUdDG8u74o6SQCV0O6XGyntA8j+2MyH33BbAJSqJ20mjhNq9Y2wJ48+0ntXvJWbgwgT6BaMchFLPzTg7cl8To46OP5O2gDol2wfY6Dc+4sEdBwYs/6bIprKNmxU9A3WLFFfHG2D1I6SX2HCixXLyfoVjt/QJuO0v+wutx2GCVwMyfiltY1yd5d575MrEWsPQugZPygKYDMqYOiG3QaFr/WiEK6mVMu2t8V3emZZ78vkrP8cgEEdm+CCogKjhTjpsZ6N7xt4SQH+oPKf57XxFVyFWBv/hydIrtJiOfto2GR5dTA3gaL8iT66qo4QaJZQp/SrnY5S8IAN4a1kXZfd0/sazICUWzINcFtaV4uucLtGp3qo0UBYkFXqM7hXZtuQayOBLFcpGc95VDZUTgvsmxW7MT+qBd5SQYtg99LskwHfb6dL4AJC2p0gkxyg6WuNlsPrQ/JQSd+TPiwG3wBHPQTKTJcnbBRJsi26HWm1zciMoYiNTShKojijcaKzPZlDjrcv5VohiEXg5Ed8KbVjxPC1HpqXpnQJHD0agkTz27wUNd1UUNuCXRuzw==
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI0PR08MB10656.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(7416014)(376014)(23010399003)(366016)(18002099003)(22082099003)(4143699003)(56012099006);DIR:OUT;SFP:1102;
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI0PR08MB10656.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(1800799024)(366016)(23010399003)(22082099003)(18002099003)(5023799004)(4143699003)(56012099006);DIR:OUT;SFP:1102;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?UFJjQ1hRZHNLd3p0RnR6bytVc0tnaFQ0TTdzdytBcmlmcXBpU0RWaWk2Z0hM?=
- =?utf-8?B?QzFxTi9sMEE0dUdrZXl2UGd1MUpOSFpSczdpRzhsK0JnejM3U0huREhRdlRV?=
- =?utf-8?B?K0dUZ1NXdXJRbHVYc25IaFFQSG56OEVZS3c2UUJYbWREckRIRmt6YnhCMHpy?=
- =?utf-8?B?QWlrdThHemNXNUlRNDRjU2diNDV5dG1Od2RwSmowRWEyTkxQbTh0YkUweGJn?=
- =?utf-8?B?bzA1dkFNejZMaWMxNkJKRCt6THZIY05MM1NJTVZucjJBTE9Wb1JUYVZUNGRD?=
- =?utf-8?B?VGYvVEJ1azRzYTBwZnhmajlZU1A0TDA1aCt3MWpCaG5MOHBvV0xLT3JmMi9s?=
- =?utf-8?B?OFExSUo4cGNad1h1akd5dkc1OEYrQWdHbnlCek1Yb29TM1M1R2pVMjQ3OVdV?=
- =?utf-8?B?QnNUc05zM1g2alROQ1NQU3lXNUJyc3VkQ04yK2R1TmRFY2FGUTA2eHAxRVVD?=
- =?utf-8?B?TnU3Q3dEclR2VktXZ3Q0UlF2MlJYdVlWQVQ5Yk9ndE43MzJpUTRIUjg0aG1k?=
- =?utf-8?B?dGpQUXI2enkzeHhrNXRJSU9hWGQ2czhPbVpxTHBNQ0M2NDlhNjV5MUZrNUpx?=
- =?utf-8?B?NHlaaDU4T0RFaDJkM3hLL3NJWUh6ajU3a201dlY3ODdIaCsxM093SjF1eDky?=
- =?utf-8?B?VkdtWXM1ZXpkd1hZUXI0aXRaNmNXNWY0a2RoVVdaZ1VXeXNNL0pLMFlRakRr?=
- =?utf-8?B?U1hjNFdPaWtpeEZRbjlkM2p0RG5iaTJ2UU9hait5K1pGTlRGQS9qY1R4NFdL?=
- =?utf-8?B?blBNOXIvT29FYkh0VHRkeU5ZZ1pVK3ljZ2YzV2JyR29mR3lZbWEvQnVjcGxu?=
- =?utf-8?B?MnkvaUhaa3JFUmRpUHAvNHZDbC9Objg1dm1qOE1CWHExWFZVemw4cmtYZUJt?=
- =?utf-8?B?c0w4WnB1Mm14c3RLak9oRGRTcUtVVWVUU29BWGNlemtvMEhmLzIwTHUzUmRO?=
- =?utf-8?B?dWEvb25CNXFBenpnbWY0RERISVJhNmhpaU1aKzJVMzd0MHNMRGxnSzZFdGli?=
- =?utf-8?B?QjlFcXEyMC9mR1Q5UmtpQkMweWwwUllhMGdpcDlrdHBidGNNTjZGamV4VXQz?=
- =?utf-8?B?cldFemljT0FWckU3TTZ6dW1UU1ZuaXJiYjlZUGtYZm1FbmVsdDlKQ3JsQVV3?=
- =?utf-8?B?L0NFbDlJd3VnejB6SERGUzVESnRUVzlFSHVUZWZGN3p4TGY5ZUk4bjBYMkFP?=
- =?utf-8?B?RjloajJEQ0RKblFOOFRHbTlNSCtialN0c08vbHkyd0p1Zktqb3NvM0NpRkRj?=
- =?utf-8?B?YW03QnNzSG5jQ1dqc2kwL3l4OEkvSHQrNzFwZTZDRWdnN2xEcjlVa2ZEMURZ?=
- =?utf-8?B?QVJieGhNT1RHOE55amNUTkp1M1B4aTN3V2ozY2N5VnVDT2FwQWVLd09JRmhp?=
- =?utf-8?B?M0V0a3pDb29ORDFyOWtxVTNmL2lxaTZwaVNpLyt1eGhMcWp0MDZkTEZQWjJw?=
- =?utf-8?B?VklrNzFxd1ZjYVhNWW9zQ0RjWmQrRmI2eU93cHQybTBTSU8yVHY0djhNb3ph?=
- =?utf-8?B?UEpYektUTHpKT1RCVXZDVWp1WGRvNFBzQnIyb2Joajc2TVY2b0hRYm5od0lF?=
- =?utf-8?B?UDE2NG42enFoMmc2cjBvV3ZNOHloOHNxVVhDRS8va2dnNUMzc2l5T09scnMv?=
- =?utf-8?B?VHJrOHBwaUJYOVErMUR2Njd2L3RCQ1J0THByWmorZFlaVStsN3FKR0Z5enpI?=
- =?utf-8?B?YUJGUW9WWW5ma1Z4bGtpeWtoLy82Wkk5K3ZZTTJNNnBKZkR6dTVMdWJGSW82?=
- =?utf-8?B?L0ZCNXIyUlcxLzMyOHhjZzlYZnNVQ3RKVzVBNWlwVVJRMm9LRDFxSlJ5dlVv?=
- =?utf-8?B?N1EzaUp5K2ZBL2RHM0oyQlhIcm1FY1dHWjVpelpteS9JejVSTkZ6YjVseXd6?=
- =?utf-8?B?cTJES3VJK0lWekVFZzVlRjlFTnVRbXlXbkFtSE9EaTduS0pjd0UxUG81ZktD?=
- =?utf-8?B?NTBmQVBLUnE1Q2ZyYUNUdVM3VW9EWmpGWnpSb1E3em04TXNhVFVqeFRtNWJ6?=
- =?utf-8?B?MlZOdElaQ0hRS2ZoNnJsY3VSU1E4YUxiV3NGdEt6VnJmc0F1bG5KZHMrRkxl?=
- =?utf-8?B?V3FyRituSDg2eWtGUnJQWG9WeWlEUzRoZUJ6OW90NnJ4S0NYNU5kbExwWWZR?=
- =?utf-8?B?NkQxMzdMakV1dzQzNlIxaWVlWU9TM0ZneExBR1lFMEVLOXpVNk1QWkxQWWp3?=
- =?utf-8?B?aWMrcG9sMzJpZjhNQUdkWHpGa3diRnFRTFlSMnlXVE9nMThVbTFLZmx3dlZH?=
- =?utf-8?B?RVJFdWJuUC9CQUZFTWk1czVJRy9wNHlwMTdaK1AyZ0FGTTRSVDcwaTJEZC9y?=
- =?utf-8?B?YWdnUWRWZWhXU3dER3JNakJ6MzVudXlVNXVkamErK3lneCtRSjJCZEtsbGh5?=
- =?utf-8?Q?7bjwz5TxO2zAxHrs=3D?=
+	=?utf-8?B?VVorSTU0RUtRaXhkcVFMTXpGVkVGK29wdUUzN3MvU3NWa2xjcm9SNE84RWRu?=
+ =?utf-8?B?NGNGZFZrdzRlZUgzUjZJM2thZXFreXdiRE5GbHg3WmJuSHVEeG1vbjhqN1pu?=
+ =?utf-8?B?MElaZERZbEtqNWpnbm51RjVvQjZuVTRvRGxNSUlIRXFCQVp3azZZM1Y5OU1E?=
+ =?utf-8?B?VTJ5WUJsWTVaMWE1WmtDenNWa3FEYXM1YXVPSHJRSVZvR3hoV0dvZEpqTWx1?=
+ =?utf-8?B?UzNvYXdYOWRsMVNWN0V5TkdTM082cXprazlXaE1BZXFIQlVPRHIrWWZxeDgw?=
+ =?utf-8?B?UFpQVHpmVWNSTlc5Vm8vTWdNMlBDRmo3VUQweUF4VVlhcDU3SFRFazJkNzJW?=
+ =?utf-8?B?Mzl3eGxFclZnbnlEUHAxbjNpbitIMkt4QTVjN1h2RjhqTC9ERm9rcnhDU1h6?=
+ =?utf-8?B?OHVhdWYxSDVTcUZkNHFmZUlpdEpnKy93QTRQL2l0elU2U1lkZGdGbC9NUHVH?=
+ =?utf-8?B?dEtiT0U3eHdRZWVENDJrakFsSzVFYVUzaVJIK05BUjl5YXRad3pIVi8wMHpH?=
+ =?utf-8?B?STVWbURNTU44S0IwYzFoWW9RbDdKQWJRN2c0SU1mL3FqaEFrNkhaSklZZ2c0?=
+ =?utf-8?B?cGJNblZNUlovaURuRjVOSUJ5Y21Hc3V5VmhJU01lbGh5VjUwL0U4NklXZHYz?=
+ =?utf-8?B?TnMyTVR2SFplY0prQzZNOUFHYjVWbjk0K3dsWjJUVDRqRVd5YWxMdjR6Z3Nw?=
+ =?utf-8?B?WGsvTStFZVJpdXdhT0FqSnJkTXBsYjJnOGtRWWZxQ3RTSW42cE1QdjRqbGhN?=
+ =?utf-8?B?QS9FUmRKcW9nUThBOGhXdGhsWTAwMnhndEd3NFEvb0xYdXloYnVkeHZyVTc4?=
+ =?utf-8?B?dllEUjJpZHNtZytQVzdwSHI1OFBoSDJ4ODVlRnVBRFgxa1dhWU9TQjlNR3hO?=
+ =?utf-8?B?VWNOSitpN25tRU03V29MWVBPaG9lUTBhd2oyTTIxNFBEQytNcm9lWkMzUFg3?=
+ =?utf-8?B?T2JZRnVMVjRJSEp2bTBwbTR4S0hhUTVGZHYvdmNpN3ZRc3NhQzJmTFhwTlB0?=
+ =?utf-8?B?bHM3YkNBR3B1UXhIR2VDYTFVRXNwdW1sSXkzRU1vYStsWldwMG5lZEpBdFBJ?=
+ =?utf-8?B?Wlo4bWpaZVFYNkhQcUVOTzAvNnZRTm51ellsNTNyY042SEpHcmg0QTZicDYy?=
+ =?utf-8?B?eVBid0tTWStiOXNCWFB5aVdtbHRZK0MyNmNhcmpNTlR4OW9zT0RvZUN2WTNE?=
+ =?utf-8?B?d3FGOWZlMzBwUkF4UnYwMzkzS0F5UThyMktTbEViZVM0ZGdaU1BkQ0gvVnhl?=
+ =?utf-8?B?QVJibElSRnlQVzd4d0srZEFlQ3JVc3FqN3Y2UFAzWU8xQWM2OUdpeHk5Sllo?=
+ =?utf-8?B?YVdXTkVIZGRrTmFZMitOalVvTk0rdUNEWDFsbVdnUndsdGIrTHdMNzFPNzM3?=
+ =?utf-8?B?Z25VMkhmYVh4YlNHYXhxMjFGZDJ1ZHg1WkZLeEpPOXF1WCtTRUNzRTM2S01E?=
+ =?utf-8?B?QWU1WExENWgzMFNBYS9wcGVlQlRhMnFNeGJtZWpXOHhGQW5aTGtEdkU3ZVdS?=
+ =?utf-8?B?VU5Oa1ZTdEdsSm96cWpKa0hYUHFXU1ZzRU8rRUlLeFU1bldwanRGQjRSemtx?=
+ =?utf-8?B?enY4N2dSbnNKcnR3QUQrUTZrbXVJcEZ3bUxnL1BwT3BEWkVyTk1FZlRhNmov?=
+ =?utf-8?B?VU9BYUlQV0daT2s4eDc3cXdtMG5BYUdZS2QweDBWY2hIRy8rNXF2YVlnQjE3?=
+ =?utf-8?B?YWlnTzFzK3U0Rnp6YWFwb2NKR3RER0I3b04zR0tkMklMWUhoS0R1L3lVTzhB?=
+ =?utf-8?B?UGNDblJHc3dxdTdocjlXQURIdUhhY2dkVDdQdWFoZ2dlSTBNaE1NNDhHdTFL?=
+ =?utf-8?B?VVhXZWJ0WUVOVkFuSk02YllrTEg2QXREU1dpUllZaWVNbG9seTRHeEZlcXdo?=
+ =?utf-8?B?Z2hySGVkY1pmZjB2Q0J1akMrZGZMUUUraTFQc0ZZc2pxTHdCemFSVURlWUln?=
+ =?utf-8?B?MGtGd0gxTTZRQklsZlk2THhYN2JrY04yWHIrSVA4Q0oxOS9LdFl2N1hkUDVm?=
+ =?utf-8?B?bGlGMVFCWnlqMXg3eFBNMTFsWCt5NTZlNzV2R1Q1QzgzenJ3ME55NHVBUW4r?=
+ =?utf-8?B?V1AvZGNaZG1aZVFHbVpqbDY3dkdISEJUTlVLdTBwSGlzWEw1Mzh0WHU2Ykg5?=
+ =?utf-8?B?THh0K3hJdnBEM1R6cy9mUlRZcUcyQmpxaXQ1K08vcFZvdmhkZE80MnRsZ2RC?=
+ =?utf-8?B?RU5zd090a0QrZSt6RkZ6MEN0UzFhYVBIYk9NeDZkZzcyNWNseXBTWFpHdEVs?=
+ =?utf-8?B?aGtleGdXdFhNbmx6cGFKVnN2djl6TXJGbGc3bzRUNDJFc0xBM0VLa2xBT3Jp?=
+ =?utf-8?B?YUlwaFJBdE53V1Qrai9iOUdFSnFWb3dONGV4cllCZ0dXUnJNMUtZV3FtcDlj?=
+ =?utf-8?Q?rifIr47SeYdR8o8g=3D?=
 X-OriginatorOrg: virtuozzo.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: e957ed6f-3023-43fa-8b66-08decbafc793
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8274d277-2807-4f4f-40d3-08decbb10bd0
 X-MS-Exchange-CrossTenant-AuthSource: VI0PR08MB10656.eurprd08.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Jun 2026 14:01:36.2759
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Jun 2026 14:10:40.2944
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 0bc7f26d-0264-416e-a6fc-8352af79c58f
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: d3/6FgUJjQDxbg1Xao/NvSoWzzeKo4Db+lq6XlRdpIKDFDegjzyFAF6fJdQQzNOY0mnKwgLp+/GGBHF265XOElsbbaJNHszK7avxZjpONVg=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB9PR08MB8291
+X-MS-Exchange-CrossTenant-UserPrincipalName: rRkvJeoAUy8pMYE1GiaAENssv26y5uCxcH0ODslqwgBjaf67IpyQWUqE9DNUjn5xZUUBp6Dvjb0r9wUfx5lmMzezZUopZVMS1wnbxfSVYfA=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DB4PR08MB8152
 
-Hello Stefano,
-
-On 6/16/26 4:35 PM, Stefano Garzarella wrote:
-> Hi Andrey,
-> thanks for the series!
+On 6/16/26 4:48 PM, Stefano Garzarella wrote:
+> On Fri, Jun 12, 2026 at 07:57:16PM +0300, Andrey Drobyshev wrote:
+>> From: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
+>>
+>> This ioctl is needed for QEMU's CPR (checkpoint-restore) migration of
+>> the guest with vhost-vsock device.  For this to work, we need to reset
+>> the device ownership on the source side by calling RESET_OWNER, and then
+>> claim it on the dest side by calling SET_OWNER.  We expect not to lose any
+>> AF_VSOCK connection while this happens.
+>>
+>> Signed-off-by: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
+>> ---
+>> drivers/vhost/vsock.c | 28 ++++++++++++++++++++++++++++
+>> 1 file changed, 28 insertions(+)
+>>
+>> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+>> index b12221ce6faf..e629886e5cf8 100644
+>> --- a/drivers/vhost/vsock.c
+>> +++ b/drivers/vhost/vsock.c
+>> @@ -894,6 +894,32 @@ static int vhost_vsock_set_features(struct vhost_vsock *vsock, u64 features)
+>> 	return -EFAULT;
+>> }
+>>
+>> +static int vhost_vsock_reset_owner(struct vhost_vsock *vsock)
+>> +{
+>> +	struct vhost_iotlb *umem;
+>> +	long err;
+>> +
+>> +	mutex_lock(&vsock->dev.mutex);
+>> +	err = vhost_dev_check_owner(&vsock->dev);
+>> +	if (err)
+>> +		goto done;
+>> +	umem = vhost_dev_reset_owner_prepare();
+>> +	if (!umem) {
+>> +		err = -ENOMEM;
+>> +		goto done;
+>> +	}
+>> +	/* Follows vhost_vsock_dev_release closely except for guest_cid drop */
+>> +	vsock_for_each_connected_socket(&vhost_transport.transport,
+>> +					vhost_vsock_reset_orphans);
 > 
-> On Fri, Jun 12, 2026 at 07:57:14PM +0300, Andrey Drobyshev wrote:
->> Host<-->guest connections via AF_VSOCK sockets aren't supposed to
->> outlive VM migration, since VM is moving to another host.  However
->> there's a special case, which is QEMU live-update, or CPR
->> (checkpoint-restore) migration.  In this case, VM remains on the same
->> host, and we'd like such connections to persist.
+> In vhost_vsock_reset_orphans() we have:
 > 
-> In the spec we have VIRTIO_VSOCK_EVENT_TRANSPORT_RESET which is usually 
-> sent by the device after a migration.
+> 	rcu_read_lock();
 > 
-> IIUC the specs don't say this has to be done all the time, so we don't 
-> need to change anything in the specs, right?
+> 	/* If the peer is still valid, no need to reset connection */
+> 	if (vhost_vsock_get(vsk->remote_addr.svm_cid, sock_net(sk))) {
+> 		rcu_read_unlock();
+> 		return;
+> 	}
 > 
-> We just need to avoid sending it (which I think is what we're doing 
-> here... I still need to look at the patches).
+> IIUC we are not removing the guest cid from the hash table, so this 
+> check will be always true, and nothing is done.
+> 
+> So, is this call really useful?
 >
 
-Sending this exact ioctl is guarded by one of my patches in the QEMU
-counterpart series:
+You're right, and it's most probably an artifact from mimicking the
+vhost_vsock_dev_release() implementation, as mentioned in the comment.
+In our case this whole iteration is a no-op, we better remove it.
 
-https://lore.kernel.org/qemu-devel/20260612165110.431376-6-andrey.drobyshev@virtuozzo.com/
+BTW earlier I received some feedback from Sashiko AI reviewer, which
+also spotted that same issue (and some more interesting races):
 
-So we indeed avoid sending it on migration target in case of CPR migration.
+https://sashiko.dev/#/patchset/20260612165718.433546-1-andrey.drobyshev@virtuozzo.com
 
->>
->> For this to work, we need to be able to transfer device ownership from
->> source QEMU to dest QEMU.  Namely, source needs to reset ownership by
->> issuing VHOST_RESET_OWNER ioctl, and then target has to claim it by
->> calling VHOST_SET_OWNER.
->>
->> Since VHOST_RESET_OWNER isn't yet implemented for vhost-vsock, let's add
->> such implementation (patches 1-2).  Also fix regression introduced by
->> the earlier commit [1] (patch 3), and fix the deadlock bug (commit 4).
-> 
-> If it's a regression, should we fix it separately?
-> 
-> Or is it related to this series?
->
+Apparently it only CC's its reviews to kvm@vger.kernel.org so you can't
+see them right away.  Just wanted to let you know to save your time
+here.  I'll send a v2 with respect to Sashiko remarks.  But of course
+would be great if you spot some more issues here.
 
-Probably my wording wasn't quite correct.  I posted this patch here
-because we found the problem during testing this particular
-functionality, i.e. vsock data transfer + CPR migration.  And the
-problem was introduced by a recent commit, which is fine on its own, but
-breaks the CPR case.
->>
->> There's a complementary series for QEMU [0] adding support of vhost-vsock
->> devices during CPR migration.
->>
->> NOTE: this series needs to be applied on top of Michael's vhost/linux-next
->> tree as it contains relevant commit [1], not yet present in master branch.
->>
->> I've tested this (patched QEMU + patched kernel) approximately as follows:
->>
->>  * Run listener in the guest:
->>  socat -u VSOCK-LISTEN:9999 - >/tmp/recv.bin
->>
->>  * Run data transfer from host to guest:
->>  socat -u FILE:/root/bigfile.bin VSOCK-CONNECT:CID:9999
->>
->>  * Perform CPR migration during transfer (either cpr-exec or cpr-transfer)
->>  * Check that file hash sum matches
->>
->> [0] https://lore.kernel.org/qemu-devel/20260612165110.431376-1-andrey.drobyshev@virtuozzo.com
->> [1] https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git/commit/?id=bb26ed5f3a8b
->>
->> Andrey Drobyshev (1):
->>  vhost/vsock: re-scan TX virtqueue on device start
->>
->> Denis V. Lunev (1):
->>  vhost/vsock: suppress EHOSTUNREACH fast-fail during CPR pause
->>
->> Pavel Tikhomirov (2):
->>  vhost/vsock: split out vhost_vsock_drop_backends helper
->>  vhost/vsock: add VHOST_RESET_OWNER ioctl
->>
->> drivers/vhost/vsock.c | 80 +++++++++++++++++++++++++++++++++++++------
->> 1 file changed, 69 insertions(+), 11 deletions(-)
->>
+
+>> +	vhost_vsock_drop_backends(vsock);
+>> +	vhost_vsock_flush(vsock);
+>> +	vhost_dev_stop(&vsock->dev);
+>> +	vhost_dev_reset_owner(&vsock->dev, umem);
+>> +done:
+>> +	mutex_unlock(&vsock->dev.mutex);
+>> +	return err;
+>> +}
+>> +
+>> static long vhost_vsock_dev_ioctl(struct file *f, unsigned int ioctl,
+>> 				  unsigned long arg)
+>> {
+>> @@ -937,6 +963,8 @@ static long vhost_vsock_dev_ioctl(struct file *f, unsigned int ioctl,
+>> 			return -EOPNOTSUPP;
+>> 		vhost_set_backend_features(&vsock->dev, features);
+>> 		return 0;
+>> +	case VHOST_RESET_OWNER:
+>> +		return vhost_vsock_reset_owner(vsock);
+>> 	default:
+>> 		mutex_lock(&vsock->dev.mutex);
+>> 		r = vhost_dev_ioctl(&vsock->dev, ioctl, argp);
 >> -- 
 >> 2.47.1
 >>
