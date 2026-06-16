@@ -1,123 +1,152 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1952736C5A1;
-	Tue, 16 Jun 2026 14:19:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E0DD36D9F6
+	for <virtualization@lists.linux.dev>; Tue, 16 Jun 2026 14:23:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781619571; cv=none; b=t+3q1xdIsvd/rEDAfRzH5A0OmpNnHC2gRWAfl5C2o4MiJzRRJ9GrFwsJ5UoBBLQbeicjfBE3nZuwYzoPUZrtjrR4ysRjP0U6PlFF/6ruz0h8w0BlbkFjTnMjOvCqfDhC0hv6oceUi5dpsc4BX+6Ex6pOyodcplIYFb/QXcNNAMI=
+	t=1781619812; cv=none; b=Sx7boxf0toi+krx/H1ssHzBf3I5z5MSTogNDCOL0ljzzznZ/3taHCQsm8+Dh9gXcWotPmYghcB6auYBpVyXLVnWSXGEbM6t+OWROdCVQnNLaMm7Ddz5hwDg+4iPto6Z05hUw7j84lW9/aXngoWWizORg82VkMk0ZucU4Tr8GaEs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781619571; c=relaxed/simple;
-	bh=xx3JY+nw+vD+MeNzO9y6Tvhc8OxsXr/lDPDffxRwMks=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=B7uIxfe7imc0Y1XtCG+x5j0K6fQ2lND3fMcBxxYRkYUikQGhqL5tw4hCvWY3RxTbaDOyNQGIGcSn+G/UyCt9A3J3IbCSLE0nSNdz8At/nXY7DByeVcZvgDCvSroqTDMGda5w5admC++CWZeB1HsHUuOqm2YZcSUI9z6ADxDpTCk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=nbtQtx7N; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1781619812; c=relaxed/simple;
+	bh=Q/s4cDWwwN/dicrkzT22yRozV+e/TzvwUha5L7N8yA4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=RW2eoEtYNugpFk/pPGJaDUzyUUa4c0woP+opGNNrxAg3lalPknK7SNCjqdww2slvd3lGpVAZ5i7zk5nOgcQVZyeHGZ1caW+s50XTtX7UR/JPZIR/Ai8HRf13a4tsnUvBza2R+a6DRCGKd4zkrf4SLPoeP4jxeAVjIwF0YkJWfHI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=a5fV6wOl; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="nbtQtx7N"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CF3A1F000E9;
-	Tue, 16 Jun 2026 14:19:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1781619570;
-	bh=TuMB1Cm/aGP2t+Gael1c7mrQyJ5/TJDwQC8EFAv72aU=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=nbtQtx7Nm1tIkliz6+m4mKO8cfw5U7EQ6Zym158GRGp/TWQuS/W3Z3vdYAJMZw2q2
-	 YVWF45pEzuYPkcLayGehL9EpLQLg7C+W5jnOYhfuU/dF7yBcpM04Q/SzkCzGIuKjdt
-	 G0BnRI2lZsvKljecN3nRgKJvdK/z9HgCXxqfhJcmq1sictNzAD4K5OEf+iaidtLDm8
-	 +EUfg0/FPBjBqShUdVDA7NbHEntle/E4MQlp9AkrdgL8HWrtaTIPvPQIb9OY4gWmLB
-	 ddMCtuTwQqwKerrQNbTAk1WIOd+OQyYqUsk4+ZYfK6fwyiqGSSBBY3235yKkV9/4sI
-	 v6xpwa3Iu5ZlQ==
-Message-ID: <75fcf6f3-90a1-4002-be43-38b627a28833@kernel.org>
-Date: Tue, 16 Jun 2026 16:19:25 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="a5fV6wOl"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1781619810;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=7mn5V4o1TPXbSAVtdGS76DREOft6jWX1FbZbmYVpiyU=;
+	b=a5fV6wOlAnUvq9OcNiADJjYWaC/RfuuE8MXZYvqzxk3Ob++cp+2IYDs2Rxl/AZ6mXldtjk
+	wJ+ojCJ6hFfasuac7wvGb6zIZuAmWV+1edHWe3FGrt0C0ImPYg48Gd4cZJsZt76y5S282L
+	DJWirJ2GvsUam41qZa6ZtZsvzNssOfo=
+Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
+ [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-220-cHOMbdtPPZG5QCAlj4Ci-w-1; Tue, 16 Jun 2026 10:23:29 -0400
+X-MC-Unique: cHOMbdtPPZG5QCAlj4Ci-w-1
+X-Mimecast-MFC-AGG-ID: cHOMbdtPPZG5QCAlj4Ci-w_1781619808
+Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-490aadb1386so28154795e9.0
+        for <virtualization@lists.linux.dev>; Tue, 16 Jun 2026 07:23:29 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781619808; x=1782224608;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=7mn5V4o1TPXbSAVtdGS76DREOft6jWX1FbZbmYVpiyU=;
+        b=OtpSVfKscG+wOC3dlBuBYjID9zw72IUyfP35Nm1iND2xX6Rvb3yw8lpBFURCZtWuqr
+         W9uen0XmCz9awtg5r2vbTDi5Bm6VB4EM063IJdN8nJQAgh2ie9bOqprxMYWFK4+KoyRq
+         Y4XCsWGkcgfiBJpQAj3hmIWTkQuznw6fttKAmwqZMj5u2o+4vwk6P0uGzpJ9J3SjPPfI
+         hExWf/4CyfokxO31uJ+HwoU8dgZYG3VHZwdWXKXI7QHkKvGq2DC9qF0s/ZuZK8XROYIb
+         5p0XNT7WkvEpsmmJJFlb0Z3LI35OHhdRv/2nDGDx74TFiW7vMn+5Uee+lBJDWIkN2d7o
+         RcFw==
+X-Forwarded-Encrypted: i=1; AFNElJ/kplR5N/TQWxR6JJ77p40w/WdhWIeHnLXoQPDBjadZElFHB4X6Br1hycCifyox+VTR8Fi07l6wCPL46tsB4Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxBgO476D9Q1Rdyulzl0z8IdRNrAY2LMTftQ6RkhzDZOVoIZti2
+	Sw6mm9XSP3JIWQqgH733S3+A80VBp0wTGhSaT75y1K+tGlStSqnEv0VA2sEdy2DlP5DQvtFAC53
+	BzVgNWwrC7YZ20gwnTUC694y55DjiHyUj1R9XpR9nuv3eU2YihsPYo9NoIZDYXszfF6UI
+X-Gm-Gg: Acq92OEeOW376Vs+haVMa2Cvvdt9zgo2gQFs7/H3pECfMlqryhIQl7okUnPd2d9SDcC
+	CR6wqaj7SpwXo+7+YANzWdZ6CAMm9envgO53dgrbP0LPQkew0nnzNsBIrLn2HZ5VWCY81uqxVzw
+	MCI4nnXv02/gY6r8SbRJ6yYedDLI/vfMhvFjjtah7LbhE6YFHGafEolrWtqNNyoDUsfeKFXLIp1
+	T/zes/wim8fxaRtGYzqhMew3QI1erUoq79+2pOwq7NTWmHDqgvJASTde4rubIKAExz5VPcccKjm
+	dA16G++zLSzSvcTpSS66Cmjc3o0TazKIWPA6CHBDe0QFlFr4n7MwyYjq/bbOvCY7kS7oWZ7mhmw
+	1UtYaB9hGG8t3wIsGxYNTNoMOGuL7ef2XgxBvbiRGv5XvsucfLzQ5schaI4TdZubDYhGUvPk=
+X-Received: by 2002:a05:600c:6215:b0:490:e180:2e0 with SMTP id 5b1f17b1804b1-4922fab22c9mr58482915e9.3.1781619807812;
+        Tue, 16 Jun 2026 07:23:27 -0700 (PDT)
+X-Received: by 2002:a05:600c:6215:b0:490:e180:2e0 with SMTP id 5b1f17b1804b1-4922fab22c9mr58482265e9.3.1781619807299;
+        Tue, 16 Jun 2026 07:23:27 -0700 (PDT)
+Received: from sgarzare-redhat (host-82-53-135-12.retail.telecomitalia.it. [82.53.135.12])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-490ea95c512sm243782055e9.2.2026.06.16.07.23.25
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Jun 2026 07:23:26 -0700 (PDT)
+Date: Tue, 16 Jun 2026 16:23:11 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, mst@redhat.com, stefanha@redhat.com, 
+	maciej.szmigiero@oracle.com, bchaney@akamai.com, mark.kanda@oracle.com, 
+	ptikhomirov@virtuozzo.com, den@openvz.org
+Subject: Re: [PATCH 4/4] vhost/vsock: re-scan TX virtqueue on device start
+Message-ID: <ajFbT6sDESh9FDOl@sgarzare-redhat>
+References: <20260612165718.433546-1-andrey.drobyshev@virtuozzo.com>
+ <20260612165718.433546-5-andrey.drobyshev@virtuozzo.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC PATCH 1/2] virtio-balloon: extend stats with memory
- composition and pressure data
-To: Gregory Price <gourry@gourry.net>
-Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- kernel-team@meta.com, mst@redhat.com, jasowang@redhat.com,
- xuanzhuo@linux.alibaba.com, eperezma@redhat.com, hannes@cmpxchg.org,
- surenb@google.com, peterz@infradead.org, mingo@redhat.com,
- juri.lelli@redhat.com, vincent.guittot@linaro.org, dietmar.eggemann@arm.com,
- rostedt@goodmis.org, bsegall@google.com, mgorman@suse.de,
- vschneid@redhat.com, kprateek.nayak@amd.com
-References: <20260513165006.2790857-1-gourry@gourry.net>
- <20260513165006.2790857-2-gourry@gourry.net>
- <8e766803-e68d-4efd-a69e-cec5b2492988@kernel.org>
- <ajFUaDX8U40X2oLx@gourry-fedora-PF4VCD3F>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
- dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
- QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
- XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
- Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
- PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
- WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
- UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
- jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
- B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABzS5EYXZpZCBIaWxk
- ZW5icmFuZCAoQ3VycmVudCkgPGRhdmlkQGtlcm5lbC5vcmc+wsGQBBMBCAA6AhsDBQkmWAik
- AgsJBBUKCQgCFgICHgUCF4AWIQQb2cqtc1xMOkYN/MpN3hD3AP+DWgUCaYJt/AIZAQAKCRBN
- 3hD3AP+DWriiD/9BLGEKG+N8L2AXhikJg6YmXom9ytRwPqDgpHpVg2xdhopoWdMRXjzOrIKD
- g4LSnFaKneQD0hZhoArEeamG5tyo32xoRsPwkbpIzL0OKSZ8G6mVbFGpjmyDLQCAxteXCLXz
- ZI0VbsuJKelYnKcXWOIndOrNRvE5eoOfTt2XfBnAapxMYY2IsV+qaUXlO63GgfIOg8RBaj7x
- 3NxkI3rV0SHhI4GU9K6jCvGghxeS1QX6L/XI9mfAYaIwGy5B68kF26piAVYv/QZDEVIpo3t7
- /fjSpxKT8plJH6rhhR0epy8dWRHk3qT5tk2P85twasdloWtkMZ7FsCJRKWscm1BLpsDn6EQ4
- jeMHECiY9kGKKi8dQpv3FRyo2QApZ49NNDbwcR0ZndK0XFo15iH708H5Qja/8TuXCwnPWAcJ
- DQoNIDFyaxe26Rx3ZwUkRALa3iPcVjE0//TrQ4KnFf+lMBSrS33xDDBfevW9+Dk6IISmDH1R
- HFq2jpkN+FX/PE8eVhV68B2DsAPZ5rUwyCKUXPTJ/irrCCmAAb5Jpv11S7hUSpqtM/6oVESC
- 3z/7CzrVtRODzLtNgV4r5EI+wAv/3PgJLlMwgJM90Fb3CB2IgbxhjvmB1WNdvXACVydx55V7
- LPPKodSTF29rlnQAf9HLgCphuuSrrPn5VQDaYZl4N/7zc2wcWM7BTQRVy5+RARAA59fefSDR
- 9nMGCb9LbMX+TFAoIQo/wgP5XPyzLYakO+94GrgfZjfhdaxPXMsl2+o8jhp/hlIzG56taNdt
- VZtPp3ih1AgbR8rHgXw1xwOpuAd5lE1qNd54ndHuADO9a9A0vPimIes78Hi1/yy+ZEEvRkHk
- /kDa6F3AtTc1m4rbbOk2fiKzzsE9YXweFjQvl9p+AMw6qd/iC4lUk9g0+FQXNdRs+o4o6Qvy
- iOQJfGQ4UcBuOy1IrkJrd8qq5jet1fcM2j4QvsW8CLDWZS1L7kZ5gT5EycMKxUWb8LuRjxzZ
- 3QY1aQH2kkzn6acigU3HLtgFyV1gBNV44ehjgvJpRY2cC8VhanTx0dZ9mj1YKIky5N+C0f21
- zvntBqcxV0+3p8MrxRRcgEtDZNav+xAoT3G0W4SahAaUTWXpsZoOecwtxi74CyneQNPTDjNg
- azHmvpdBVEfj7k3p4dmJp5i0U66Onmf6mMFpArvBRSMOKU9DlAzMi4IvhiNWjKVaIE2Se9BY
- FdKVAJaZq85P2y20ZBd08ILnKcj7XKZkLU5FkoA0udEBvQ0f9QLNyyy3DZMCQWcwRuj1m73D
- sq8DEFBdZ5eEkj1dCyx+t/ga6x2rHyc8Sl86oK1tvAkwBNsfKou3v+jP/l14a7DGBvrmlYjO
- 59o3t6inu6H7pt7OL6u6BQj7DoMAEQEAAcLBfAQYAQgAJgIbDBYhBBvZyq1zXEw6Rg38yk3e
- EPcA/4NaBQJonNqrBQkmWAihAAoJEE3eEPcA/4NaKtMQALAJ8PzprBEXbXcEXwDKQu+P/vts
- IfUb1UNMfMV76BicGa5NCZnJNQASDP/+bFg6O3gx5NbhHHPeaWz/VxlOmYHokHodOvtL0WCC
- 8A5PEP8tOk6029Z+J+xUcMrJClNVFpzVvOpb1lCbhjwAV465Hy+NUSbbUiRxdzNQtLtgZzOV
- Zw7jxUCs4UUZLQTCuBpFgb15bBxYZ/BL9MbzxPxvfUQIPbnzQMcqtpUs21CMK2PdfCh5c4gS
- sDci6D5/ZIBw94UQWmGpM/O1ilGXde2ZzzGYl64glmccD8e87OnEgKnH3FbnJnT4iJchtSvx
- yJNi1+t0+qDti4m88+/9IuPqCKb6Stl+s2dnLtJNrjXBGJtsQG/sRpqsJz5x1/2nPJSRMsx9
- 5YfqbdrJSOFXDzZ8/r82HgQEtUvlSXNaXCa95ez0UkOG7+bDm2b3s0XahBQeLVCH0mw3RAQg
- r7xDAYKIrAwfHHmMTnBQDPJwVqxJjVNr7yBic4yfzVWGCGNE4DnOW0vcIeoyhy9vnIa3w1uZ
- 3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
- CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
- qIws/H2t
-In-Reply-To: <ajFUaDX8U40X2oLx@gourry-fedora-PF4VCD3F>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <20260612165718.433546-5-andrey.drobyshev@virtuozzo.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: M9ErwBCr3dZARk7cLL2DnfYv36BNtSFQR6FgurYiR7k_1781619808
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On 6/16/26 15:49, Gregory Price wrote:
-> On Tue, Jun 16, 2026 at 02:30:34PM +0200, David Hildenbrand (Arm) wrote:
->>
->> Nothing too crazy here, however, the question is which of these values we
->> actually want to guarantee that we will provide them with unchanged semantics in
->> the future ... I guess anything we already expose to user space is alright
->> (because it effectively already must remain mostly unchanged I assume).
->>
-> 
-> I suppose a risk of them going away entirely?  I suppose that's
-> fixable but unlikely.
+On Fri, Jun 12, 2026 at 07:57:18PM +0300, Andrey Drobyshev wrote:
+>During QEMU CPR live-update (and VHOST_RESET_OWNER in general) the guest
+>keeps running while the host drops and later re-attaches vhost backends.
+>If the guest adds a buffer to the TX virtqueue (guest->host) and kicks
+>while the backend is temporarily NULL (between vhost_vsock_drop_backends()
+>and the next vhost_vsock_start()), then the kick is delivered to the
+>vhost worker, handle_tx_kick() sees a NULL backend and returns, and the
+>kick signal is consumed.  The buffer is then left in the ring.
+>
+>Then upon device start vhost_vsock_start() only re-kicks the RX send
+>worker, never the TX VQ, so the buffer is processed only if the guest
+>happens to kick again.  But if the guest itself is now waiting for data
+>from the host, it will never kick TX VQ again, and we end up in a
+>deadlock.
+>
+>The deadlock is reproduced during active host->guest socat data transfer
+>under multiple consecutive CPR live-update's.
+>
+>To fix this, in vhost_vsock_start(), after kicking the RX send worker, also
+>queue the TX vq poll so any buffers the guest enqueued while we were paused
+>get scanned.
 
-Yeah, the first bunch is all exported through /proc/vmstat AFAIKS.
+Again, it seems like we're fixing an issue that existed before this 
+series, but IIUC without support for VHOST_RESET_OWNER, this could never 
+have happened, so the wording should be changed to make it clear that 
+this is can happen only with the new VHOST_RESET_OWNER support.
 
-The other through /proc/pressure/
+In addition, this patch must also be applied before the 
+VHOST_RESET_OWNER support or merged into it.
 
-So I assume this is just fine.
+>
+>Signed-off-by: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
+>---
+> drivers/vhost/vsock.c | 6 ++++++
+> 1 file changed, 6 insertions(+)
+>
+>diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+>index bcaba36becd7..1fcfe71d18be 100644
+>--- a/drivers/vhost/vsock.c
+>+++ b/drivers/vhost/vsock.c
+>@@ -655,6 +655,12 @@ static int vhost_vsock_start(struct vhost_vsock *vsock)
+> 	 */
+> 	vhost_vq_work_queue(&vsock->vqs[VSOCK_VQ_RX], &vsock->send_pkt_work);
+>
+>+	/*
+>+	 * Some packets might've also been queued in TX VQ.  Re-scan it here,
+>+	 * mirroring the RX send-worker kick above.
+>+	 */
 
--- 
-Cheers,
+Can we also mention that this is related to VHOST_RESET_OWNER?
 
-David
+Thanks,
+Stefano
+
+>+	vhost_poll_queue(&vsock->vqs[VSOCK_VQ_TX].poll);
+>+
+> 	mutex_unlock(&vsock->dev.mutex);
+> 	return 0;
+>
+>-- 
+>2.47.1
+>
+
