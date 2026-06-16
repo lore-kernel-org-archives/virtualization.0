@@ -1,150 +1,229 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CEB144CF37
-	for <virtualization@lists.linux.dev>; Tue, 16 Jun 2026 16:15:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1D05425CEE
+	for <virtualization@lists.linux.dev>; Tue, 16 Jun 2026 16:27:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781626549; cv=none; b=aHSr+yj7H/j2mHcN1D8k7PFlmew8RZ09Y+Fp4c5goqc2kIHf6GW2CSNenHKXpTxaWxMUozY6LUDr2bCA0phbrAoXRqlZ6zqkatfwhaY35JWUaQ5OVU9VcLcGTYe5el5SDgMAvKTR9+2kTjmf30mCistiL4m8+axXw9BwwQMtMUA=
+	t=1781627278; cv=none; b=mTkjD+xhTV1toC3K1ZwOtRb6T/T5+D77yXGjkM0ARL2SW8czD1SOpDXrF9EoTeLLOg7RgRBw49yLeVQa9rLqclrmZyX9eHHZYtV/FHjBTDOLNNIJO4FyARfAqbbx5WAZ90pLAcanyglSwf80cp+IOO85JfpnM0l8q3/TNllyBTk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781626549; c=relaxed/simple;
-	bh=iotUnWlrROsEXrmuh+QGUeOVuB3IIDZCIBhPsOGeivI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=mPgaq4/xrNLE1RmwgkzNWPjnAu7ejTwZDd87uZ6BKMuzcCjEsQk1RRZA42/Ea+0iV3lV1n0FTHLJMgz3/EHF3USyNTUcDa7moDV5f8aKCYn8/zfyyd04yCTWpZOfPaU++2gw6FBK8uN8DDM/Bp1Thms/LjsXyZ/10iSD2nbRXX0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WpIqh20q; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1781627278; c=relaxed/simple;
+	bh=Z842xy6HRRqB4Li/xdveIcOj5VPTonatiB28s4fN5Vg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=pLkkgceam7fug3u7QwsrQ63nJc3f78p+bja9bmk+hGlRGiOSiW4oAfHs6ULQ8GG2HtT2YnPSkub1bZeKiSuKHJwY4cTUEa4aMxGzJVXtZPRe0PZ3QcgBtgpLjFOX0anGffIlS12j4GvPFgntxFFgbB5JBPo5cDw5H/yD8t6ryn8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=qnSIssfS; arc=none smtp.client-ip=148.163.156.1
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WpIqh20q"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1781626547;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=fSQ34ivI/Ck5Jq+TGrrZE0Mw5Nd/Xw5eBhLGnI6+rzY=;
-	b=WpIqh20qn+ljtVbbaEHC0p7HeQ8wd/vMEWnITOIt0jfRgN0txLILf2eEMSZnN7X+9K9Izb
-	WKvyEm2sETa4JDl5rDk2e0m7STbBobp2DN6fMDb867O+tpmQzLX7raUjUY3k3EYNucPDgG
-	6hXyGwm5NZLvf0fFIK8ls5y8nOnRoAU=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-635-_7FJdarYNvizqGJEwYx6tg-1; Tue, 16 Jun 2026 12:15:46 -0400
-X-MC-Unique: _7FJdarYNvizqGJEwYx6tg-1
-X-Mimecast-MFC-AGG-ID: _7FJdarYNvizqGJEwYx6tg_1781626545
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-45f3d008865so27922f8f.0
-        for <virtualization@lists.linux.dev>; Tue, 16 Jun 2026 09:15:45 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781626545; x=1782231345;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=fSQ34ivI/Ck5Jq+TGrrZE0Mw5Nd/Xw5eBhLGnI6+rzY=;
-        b=c9VAeTIevu/cIUI/jfvT4R7KcmP2OjDiMh68jNrDJxe18F71t4gtnzMJuBEbtfwWQ+
-         3SzjJ5os69GvfTadDJP8HXH/G8QaNyEnC3LpCvvyDNfwfSOI8mls2eGyEUZZbSA3r6BY
-         I7fIbeptIV/gt3HhIiqKchL2S+esxRPEiw0h3iwM7xgZ6Vx+wQG8e5eopI7e0t2eYevp
-         u2FTYP1tK/QvtSdiVbb60ASCrydGvU8+W0O/0rOhhEBGOvDWC49kUrrlm+ofqKIYq1RP
-         YRfxAnrOPSSFP+6IbVY1+D85HCde8Q1FueskXaC5nnjHpqO2LxjnCjYbMCREoLOCRqsE
-         vgDg==
-X-Forwarded-Encrypted: i=1; AFNElJ94JXagweTvwpomcx/W+1kfJ9T15qC9A3GjaC8RUTRzC/bIyZW1tXPuhaG6XZf9OVINGSTTDO022V2L25N4OA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxxX5wc3qSV6kdChE3kVHTXxkS186JUOwthN3MSQsL9nXCQ+g6G
-	9lZ96x3EURXbU2NFVfplCYuGrcGgmm9rVV3fOkj6xPIpdmGCEoLGXAJWB+taAe7d3ZI2u7q4xbk
-	fp9RxKpV6rZsKutDKbgJjnI/AFBrLAUF6RIDUSO2iFX/LdV/nAI9C3otdZTlGk+mpzFSz
-X-Gm-Gg: Acq92OEtv8HSp0OfEZLvVJpWNCWBmosoBXa8UJi43OhNlhCShs9cXTb7o4miuoyifz2
-	aSTTx8TKPvTRcn2wTbcq5UWyPzXZrkSwyh5P5UJ5lPjZxldEXxMPO4G7zH59Law0U/kmZ49niYM
-	Y3dp8FjfHwWnET/Xc6TQI4UDr2n7+MHiPgJSLQRrZujT6SJEUsArqrzh0ji/f7QSN/WrtIr/lDx
-	R9eba0gwJxImvyALagJ5jaNYpPE04FosCuRx5s5r8ujHy504V/FzdD/xbC9enZl5McUjHvF1KB+
-	AHRcsLy8j7AxS1ofAMcghOJr8yJys9U5pcmkd7e9t9xuZ2MECtDaVExJTOy7o5j2np3t3oHpRg/
-	qwUzFTG8gxLs7tkGdk/+tbwCh5Al3oSYt8OgxsVliXNk=
-X-Received: by 2002:a5d:6b10:0:b0:455:51cf:9f92 with SMTP id ffacd0b85a97d-4622d7072b7mr429172f8f.18.1781626544605;
-        Tue, 16 Jun 2026 09:15:44 -0700 (PDT)
-X-Received: by 2002:a5d:6b10:0:b0:455:51cf:9f92 with SMTP id ffacd0b85a97d-4622d7072b7mr429076f8f.18.1781626544025;
-        Tue, 16 Jun 2026 09:15:44 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-85-71.inter.net.il. [80.230.85.71])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4606f2b0d70sm46116268f8f.19.2026.06.16.09.15.39
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Jun 2026 09:15:43 -0700 (PDT)
-Date: Tue, 16 Jun 2026 12:15:38 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: Miaohe Lin <linmiaohe@huawei.com>, Zi Yan <ziy@nvidia.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	linux-kernel@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Muchun Song <muchun.song@linux.dev>,
-	Oscar Salvador <osalvador@suse.de>,
-	Lorenzo Stoakes <ljs@kernel.org>,
-	"Liam R. Howlett" <liam@infradead.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	Mike Rapoport <rppt@kernel.org>,
-	Suren Baghdasaryan <surenb@google.com>,
-	Michal Hocko <mhocko@suse.com>,
-	Brendan Jackman <jackmanb@google.com>,
-	Johannes Weiner <hannes@cmpxchg.org>,
-	Baolin Wang <baolin.wang@linux.alibaba.com>,
-	Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
-	Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
-	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>,
-	Matthew Brost <matthew.brost@intel.com>,
-	Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
-	Byungchul Park <byungchul@sk.com>,
-	Gregory Price <gourry@gourry.net>,
-	Ying Huang <ying.huang@linux.alibaba.com>,
-	Alistair Popple <apopple@nvidia.com>,
-	Christoph Lameter <cl@gentwo.org>,
-	David Rientjes <rientjes@google.com>,
-	Roman Gushchin <roman.gushchin@linux.dev>,
-	Harry Yoo <harry.yoo@oracle.com>,
-	Axel Rasmussen <axelrasmussen@google.com>,
-	Yuanchu Xie <yuanchu@google.com>, Wei Xu <weixugc@google.com>,
-	Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>,
-	Kemeng Shi <shikemeng@huaweicloud.com>,
-	Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
-	virtualization@lists.linux.dev, linux-mm@kvack.org,
-	Andrea Arcangeli <aarcange@redhat.com>,
-	Naoya Horiguchi <nao.horiguchi@gmail.com>
-Subject: Re: [PATCH splitout] mm: memory-failure: serialize
- TestSetPageHWPoison with zone->lock
-Message-ID: <20260616120114-mutt-send-email-mst@kernel.org>
-References: <dd8d89be-9c73-8ff7-7d44-9705bddeda4d@huawei.com>
- <20260610171646-mutt-send-email-mst@kernel.org>
- <14537566-94d9-eac5-2636-35f925a9d159@huawei.com>
- <20260611013644-mutt-send-email-mst@kernel.org>
- <1b5676ab-0dc5-ef33-9d79-a2bd6090a62d@huawei.com>
- <cbffabdc-42bf-4e67-9d2b-ace9a1e09f29@kernel.org>
- <984d9775-e17c-0231-b021-126b13a9aa42@huawei.com>
- <be1b20ed-5b75-46b8-b7be-3c9b029f016b@kernel.org>
- <d7e97bec-72bf-7d56-3811-6d9c41fefb35@huawei.com>
- <e4e123f3-ef32-417f-8369-ff944b6f358d@kernel.org>
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="qnSIssfS"
+Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 65GFmM2j2118489;
+	Tue, 16 Jun 2026 16:27:51 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:content-type:date:from:in-reply-to
+	:message-id:mime-version:references:subject:to; s=pp1; bh=3bglgY
+	9HrvwXvl2OI8eYxb7OAlNo74Go+VcXaOKliuI=; b=qnSIssfS2+dgx0xFdo/djN
+	V0fFzYj7durgPK3AZ3E0Ved/ovRwxt+7qjC9S/9zesH8+TzF+KszMqj2sWT4T7+w
+	91DLR3Ae3FLgxGVAP2+0WT3e63pWyMnnTRJZ6hmMYEhxksSbztnUKT4EXQqzPXug
+	YUoxfFYRo/skxCRwv+HQ3R7NapvTnERUWiYiQpgo3TnvhicMHg9IedxA09m9fOxt
+	U99aTNWKn1vcYrBfX92itkj3R/ZDPvpPiIhX2nmEDDjP1nxYvS0LJHrTWBl8Fx0K
+	76JC7csMRAntwZ+uT3FWxtnGNxw/nhhdDdifAqqhWvXlavkD+XeCEBj4CaZuva2A
+	==
+Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4es1h86wku-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Jun 2026 16:27:51 +0000 (GMT)
+Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 65GGJaTG017262;
+	Tue, 16 Jun 2026 16:27:50 GMT
+Received: from smtprelay07.dal12v.mail.ibm.com ([172.16.1.9])
+	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4eshww4dny-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Tue, 16 Jun 2026 16:27:50 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (smtpav06.wdc07v.mail.ibm.com [10.39.53.233])
+	by smtprelay07.dal12v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 65GGRmdU63046138
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Tue, 16 Jun 2026 16:27:49 GMT
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id B52795804E;
+	Tue, 16 Jun 2026 16:27:48 +0000 (GMT)
+Received: from smtpav06.wdc07v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 7855058056;
+	Tue, 16 Jun 2026 16:27:47 +0000 (GMT)
+Received: from [9.12.65.99] (unknown [9.12.65.99])
+	by smtpav06.wdc07v.mail.ibm.com (Postfix) with ESMTPS;
+	Tue, 16 Jun 2026 16:27:47 +0000 (GMT)
+Message-ID: <39dc5534-d7f7-4bf3-9473-459789d75fe2@linux.ibm.com>
+Date: Tue, 16 Jun 2026 12:27:46 -0400
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <e4e123f3-ef32-417f-8369-ff944b6f358d@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: n2aZVXkPCJNRGbiwl04UTxxwFFR6g9ipEzpajsSzOds_1781626545
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v1] s390/virtio_ccw: Also suppress -EINVAL on device
+ detach
+To: Peter Oberparleiter <oberpar@linux.ibm.com>,
+        Cornelia Huck <cohuck@redhat.com>, Halil Pasic <pasic@linux.ibm.com>,
+        vneethv@linux.ibm.com
+Cc: linux-s390@vger.kernel.org, farman@linux.ibm.com, hca@linux.ibm.com,
+        gor@linux.ibm.com, agordeev@linux.ibm.com, borntraeger@linux.ibm.com,
+        svens@linux.ibm.com, mjrosato@linux.ibm.com,
+        virtualization@lists.linux.dev, kvm@vger.kernel.org,
+        linux-kernel@vger.kernel.org
+References: <20260612155407.199218-1-wbezenah@linux.ibm.com>
+ <20260615002309.052e0614.pasic@linux.ibm.com> <875x3jn94r.fsf@redhat.com>
+ <4d7fc371-4357-496f-9774-1f7a7c1a3091@linux.ibm.com>
+ <20260615234246.0ec5d947.pasic@linux.ibm.com>
+ <2e543ef5-1aa8-4ddc-a68a-103c7bdfe58d@linux.ibm.com>
+ <8733ymn8vd.fsf@redhat.com>
+ <6356a2be-a49b-4ac4-b52e-dd84bd4ff7b5@linux.ibm.com>
+Content-Language: en-US
+From: William Bezenah <wbezenah@linux.ibm.com>
+In-Reply-To: <6356a2be-a49b-4ac4-b52e-dd84bd4ff7b5@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNjE2MDE2NyBTYWx0ZWRfX/nScWKdITqm0
+ jvMP+8+HNId0/RuuSr0rlUxKY6gqoCOcyMTQ+6CQ2TJMc/gmlOS+H7uoPmNkE0LnfGjrC6VPNUm
+ YKKjGxHrbfCUfFFHr58MYNofmXgSA1g=
+X-Proofpoint-ORIG-GUID: HRDun65IYLcmtUFB-5NspX9rImKAhEn3
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNjE2MDE2NyBTYWx0ZWRfX3PAcj86yPznX
+ isK1LHR0dPsFWAyirVp+zs6GCYXcL0q1N0lAYD7Aqc8ZE2Yl+gI7fkGI4OhgsOwSXDuhq8gkyez
+ smYabm29Pmh7Q86CbNPgmrO3F+K7PoLuDawFXXMLdavYCZwPbKRb3PNt5vPEzipcoc3wJO2rzQ8
+ lClh7v0MczfI/N04Bc4xTgqwyXCTmpTKhOPHd8MzbDFlNHJtgWoGsWecC4gxpT9d70WpqdqBquT
+ /64pTExx4TLMJY6O7+1crqv3jDjXRBsyAwCI6tWlcsn/FXfqmvDPh4P3s4IJhppXi5qsUo0Kuy0
+ +ZcGi31p5s7GExQNrkEsGJddGllk/mZdwjq5Ep/BCovz9rYNexyLz98t0XJcNZ+hwyhTSK5InwO
+ fcpihoZ/9i2b+Ky+HVsT8Lv17ksRHZ5RUcrKtlVbN+OuIqxeDV8T+o/wdrzz+0kogF3SC0LLtH9
+ jndwrle+ysBt3pWj1Hw==
+X-Authority-Analysis: v=2.4 cv=U9uiy+ru c=1 sm=1 tr=0 ts=6a317987 cx=c_pps
+ a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
+ a=IkcTkHD0fZMA:10 a=FelO9ux0wxsA:10 a=VkNPw1HP01LnGYTKEx00:22
+ a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
+ a=o2sATeYeeQMYJeoXCqkA:9 a=QEXdDO2ut3YA:10
+X-Proofpoint-GUID: HRDun65IYLcmtUFB-5NspX9rImKAhEn3
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.125,FMLib:17.12.100.49
+ definitions=2026-06-16_05,2026-06-15_04,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ lowpriorityscore=0 impostorscore=0 bulkscore=0 phishscore=0
+ priorityscore=1501 clxscore=1015 adultscore=0 malwarescore=0 suspectscore=0
+ spamscore=0 classifier=typeunknown authscore=0 authtc= authcc= route=outbound
+ adjust=0 reason=mlx scancount=1 engine=8.22.0-2606040000
+ definitions=main-2606160167
 
-On Tue, Jun 16, 2026 at 08:56:42AM +0200, David Hildenbrand (Arm) wrote:
-> >>
-> >>
-> >> Assume that we enlighten all non-atomics to grab the rcu read lock, such as
-> > 
-> > These non-atomics are defined and used because they want to avoid atomic ops overhead?
-> > So I'm afraid using rcu read lock in these places would lead to unexpected overhead.
-> 
-> It should be cheaper than atomics IIUC. Further, I assume that some pages could
-> batch over multiple such operations (esp. page freeing path when we process tail
-> pages).
+On 6/16/2026 10:53 AM, Peter Oberparleiter wrote:
 
-Doubt we have the energy to bother with this much.
-We'll have to stick them in the bit manipulation macros if memory failure is
-configured and be done with it.
+> On 16.06.2026 11:16, Cornelia Huck wrote:
+>> On Tue, Jun 16 2026, Peter Oberparleiter <oberpar@linux.ibm.com> wrote:
+>>
+>>> On 15.06.2026 23:42, Halil Pasic wrote:
+>>>> On Mon, 15 Jun 2026 16:01:55 -0400
+>>>> William Bezenah <wbezenah@linux.ibm.com> wrote:
+>>>>
+>>>>> On 6/15/2026 10:58 AM, Cornelia Huck wrote:
+>>>>>> On Mon, Jun 15 2026, Halil Pasic <pasic@linux.ibm.com> wrote:
+>>>>>>  
+>>>>>>> On Fri, 12 Jun 2026 17:54:07 +0200
+>>>>>>> William Bezenah <wbezenah@linux.ibm.com> wrote:
+>>>>>>>  
+>>>>>>>> Since commit 8c58a229688c ("s390/cio: Do not unregister the
+>>>>>>>> subchannel based on DNV"), subchannel behavior following a device
+>>>>>>>> detach has been updated and results in -EINVAL being propagated
+>>>>>>>> rather than -ENODEV, originating from ccw_device_start_timeout_key()
+>>>>>>>> in cio/device_ops. In the end, the virtio driver has no ability to
+>>>>>>>> react to the difference between device and subchannel states here,
+>>>>>>>> and during detach, both -ENODEV and -EINVAL indicate the device
+>>>>>>>> cannot be used and should not be treated as errors requiring
+>>>>>>>> attention. Update error handling in virtio_ccw_del_vq() and
+>>>>>>>> virtio_ccw_drop_indicator() to suppress -EINVAL in addition to
+>>>>>>>> -ENODEV.  
+>>>>>>> Hi William!
+>>>>>>>
+>>>>>>> Are you saying that ccw_device_start() started returning -EINVAL
+>>>>>>> since 8c58a229688c ("s390/cio: Do not unregister the subchannel based on
+>>>>>>> DNV")? Or did I somehow read the paragraph wrong?
+>>>>>>>
+>>>>>>> The funcition ccw_device_start is documented to return:
+>>>>>>>  * Returns:                                                                     
+>>>>>>>  *  %0, if the operation was successful;                                        
+>>>>>>>  *  -%EBUSY, if the device is busy, or status pending;                          
+>>>>>>>  *  -%EACCES, if no path specified in @lpm is operational;                      
+>>>>>>>  *  -%ENODEV, if the device is not operational. 
+>>>>>>> and the commit message does not say a thing about introducing -EINVAL to
+>>>>>>> the mix.  
+>>>>>> The function may return -EINVAL for non-enabled subchannels
+>>>>>> (i.e. pmcw.ena == 0), maybe we get an all-zeroes schib with dnv == 0?
+>>>>>> I'd expect it not to be enabled in that case anyway.  
+>>>>> Yep, that's at least how I've come to understand what changed. The
+>>>>> function ccw_device_start_timeout_key() has always returned -EINVAL
+>>>>> for non-enabled subchannels (pmcw.ena == 0), though it's not
+>>>>> documented in the header.
+>>>> Wasn't his -EINVAL actually introduced by commit:
+>>>> 823d494ac111 ("[S390] pm: ccw bus power management callbacks")?
+>>> In the context of virtio-ccw added in 2012, an EINVAL return code
+>>> introduced in 2009 might be considered "always" :)
+>> :)
+>>
+>> I'm wondering whether we should still expect to hit the "ssch with
+>> ena==0" situation, given that pm support has been removed again in the
+>> meanwhile. (Well, other than in situations like this, where it is a
+>> follow-up to other problems.) IOW, can callers expect not to see
+>> -EINVAL, unless they are doing something really stupid?
+> As Halil also pointed out, this would be a programming error, either on
+> the side of the driver that starts I/O without setting the device
+> properly online, or in the common I/O layer (hopefully not, but you
+> never know). Having a dedicated return code to identify this situation
+> is definitely useful, and we'll also consider documenting it accordingly
+> in the function comment.
+>
+>>>>> What changed with commit 8c58a229688c is that cio_update_schib() now
+>>>>> updates the schib even when DNV=0, rather than returning early as it
+>>>>> did previously. Somehow this update results in pmcw.ena == 0 in
+>>>>> ccw_device_start_timeout_key(). Previously, it saw pmcw.ena == 1 and
+>>>>> moved to the condition (cdev->private->state == DEV_STATE_NOT_OPER)
+>>>>> where it returned -ENODEV.
+>>>> Sounds fishy to me. As far as I understand the DNV takes precedence over
+>>>> all other pieces of PMCW.
+>>> And you're right about that! The Principles of Operation states (p. 15-4
+>>> in SA22-7832-14 [1]) that the contents of all other fields in the PMCW
+>>> are unpredictable when DNV is 0, therefore 8c58a229688c is in error.
+>>>
+>>> I'll work with Vineeth to determine how to fix this issue, potentially
+>>> via manually clearing some relevant SCHIB fields instead of copying the
+>>> unpredictable results of the STSCH instruction.
+>> Can't you zero the whole SCHIB, or do you still need some of the
+>> measurement block things for cleanup?
+> I faintly remember that there WAS a reason to use the remainder of the
+> SCHIB contents because of some unwanted effect that occurred if we
+> didn't, but I don't recall the details. We'll need to dig up the
+> associated bug report to understand it and determine if we can simply
+> clear all of the SCHIB, or need to keep some of the information intact.
+>
+>>>>> So the commit didn't introduce -EINVAL as a new return value, rather,
+>>>>> it changed the subchannel lifecycle such that existing paths now
+>>>>> propagate -EINVAL rather than -ENODEV during the device detach
+>>>>> scenario.
+>>>> I'm not convinced returning -EINVAL in the given situation is the
+>>>> right thing to do. Peter, would you mind to chime in?
+>>> I tend to agree that an attempt to start I/O for a subchannel that has
+>>> DNV 0 should result in ENODEV rather than EINVAL, though the latter is
+>>> still valid when a driver tries to start I/O on a subchannel that is not
+>>> enabled for I/O.
+>>>
+>>> We'll make sure to design the fix for 8c58a229688c in away that ENODEV
+>>> will be returned when DNV is 0. Assuming that this is the only situation
+>>> where virtio-ccw's ccw_io_helper() receives -EINVAL from
+>>> ccw_device_start__timeout_key() during detach, the subject patch should
+>>> no longer be necessary.
+>> I agree, I'd not expect to get -EINVAL in ccw_io_helper().
+> Yeah, this was definitely an unexpected side effect of the DNV commit.
+>
+FWIW, during my testing, that was indeed the only situation in which
+I saw -EINVAL during the detach process. So assuming the right fix
+would correctly return ENODEV, I agree this patch is likely
+unnecessary.
 
--- 
-MST
+Thanks all.
 
