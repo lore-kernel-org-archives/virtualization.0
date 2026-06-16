@@ -1,222 +1,151 @@
-Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D43883C5544
-	for <virtualization@lists.linux.dev>; Tue, 16 Jun 2026 04:30:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.216.53
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781584210; cv=pass; b=jM2Q+EX2ntgwMn4l6e8uFn7TKTqySCrbmvEqWZe3jYXmuNVO9/PCgovEXGTRKsMCuaAAtE3npXvihiWicvRK3q3bK/vwCHFqMPlbhmOekQGHMDBWmzTHJy5/AHX4IP5wehrVIk5WzAgFK/M0ZC7JmrrPFd0IkVSVzJXT2ihe1Kk=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781584210; c=relaxed/simple;
-	bh=Iy6jgVqcBBs4rASBrLNQoYJQZJL3ZQB2WUBZma5U/+A=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=GyUaqncnzZemLscVKjCaZSuEMHpSAOz7opWAiE0OovahFa04tqUbNap+fHCOEJDmAlB1gbu2OcczwiaDe+bcp05SPNps8aOOpsaBWQnPSNhQxdCNF/zdhEZfMX7LROmN7nsBqO+U+JyA8Hl7Ae/8oo8L5Tb3oU4Ua1q3V54+Rp8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=asu.edu; spf=pass smtp.mailfrom=asu.edu; dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b=kxm63rOw; arc=pass smtp.client-ip=209.85.216.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=asu.edu
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=asu.edu
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 738423C8C69
+	for <virtualization@lists.linux.dev>; Tue, 16 Jun 2026 04:40:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781584810; cv=none; b=tB+xHXwbYvtVn9uIJpURtvHeXFZVof5YAZf4dNfUqlPuZElHd6aXi2J8PXG5aEpI7ms+2bZ0lWUSacRLEfuCCivNZRElIlVmfcU2HIAwKFH2fznB5pbnbfVOl3HV7HbGjgRMA2ZswEBp/aFFTz2PVNAhrfg6VVhlvSwjj/4uOrw=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781584810; c=relaxed/simple;
+	bh=K0KBXkkerxODXYIYqDg633MvdlbzP4uKtATH407a6no=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=Px+2PwawmxPLmSKkFlD0GjOkd7uu5WaCRSkriHB3UF0BF2LZdLVsQYZv3cQsXX1OkJNB7VBtfz3Q5VUrh5n8c/OtZqBBWbe4CCFqbya5ndAKKT2nrMQljeI8E9JTqAqKGTaO+jV6Tzp6EqQhbX+6zGTUoUxCJdmXmexGW9w3PEE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=QWG2T6PA; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=asu.edu header.i=@asu.edu header.b="kxm63rOw"
-Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-36d98b68d68so2713734a91.2
-        for <virtualization@lists.linux.dev>; Mon, 15 Jun 2026 21:30:08 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1781584208; cv=none;
-        d=google.com; s=arc-20240605;
-        b=fNhdKAvDxJQBVwOrsfwjdJdBfrnhQFrgiodmnjwtJIE2BB59lJmHk1L/z1ZKK4slQ/
-         cYQyWMgsr/MGroqwgO56+rwAIAOaXw+eXyjfIAkEZfKQjPm1ZSIX/ld1GJyqO+cEJC/B
-         iJCSAaM6LpNkMu91HVHo9BZszl154igyJeFMTLAnp9PsnMB2OQLD5J76ffDF2oXRt4K/
-         gwrQr7TedDfqxRxAjie8N9BtyBYeXoaf8T15PBBQPYheKdMOk224CDFisxCsjPmNkKq5
-         5GK8I3h6uu5l80xhi+26gAII7uXoepAMkQlPslOr1sQWfvKqMXI7VGAPkVs3+WMPhOpp
-         8LIg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=ppX4qdYU5rXRtx2iPmU/w5gI+2dV9fiMI5XfuWrU7yA=;
-        fh=SfymTAa8rNuhQEFAP4idnNMIaihvvJhyN2qSIJfWT2Y=;
-        b=lACmx76URVwOtoGLnAlTqnLPnmEDXNLtY6+PiY/I5WZH8Hq3I43NkeGyaIFjD69IL2
-         EmTn8UPld/ApjaIBKwVs/uagUqrPr4QwqS7UlzC4IAIR9KGXM2Dz+u7mb/fGmXpWcmGW
-         4Rt6VJ9ToK2LVW8Gzfalfks9pn2FrDAO+0K10SoAuCFravuCH723UqvXn3gaBHfsnPo9
-         B3eRqVjuvuJjNjrlD63DMorNtxeD4AgAj9ybL53ER1a0F0uK5tKh37mdIJMKTC/cJ22l
-         5CAW6XAWE9au8mskWLFj6cfCFwMcb5HZf595Kf48do+yytzGCTiNX0jLgH/ugIvPtM5G
-         iwbg==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=asu.edu; s=google; t=1781584208; x=1782189008; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=ppX4qdYU5rXRtx2iPmU/w5gI+2dV9fiMI5XfuWrU7yA=;
-        b=kxm63rOw+Xc7wwWEZtI6F0KMK5ipm5O98cQCadioehwWUirbMlIdznLYgigLy8+MMT
-         7bJkvl2tRlWACYjoghIcWsSkvP4InBM4+BfdE8LyxFormzx5XVfMIIyBASJkr6t5fEr5
-         HyTx/DG72mRYE0K1OnTnSaZGW0W29B+LvpuqJPgfnAcJPfMK+6npNDFtzPFTvf1BNQAY
-         RzTsIrQkJ4k6p+zwrCt0SAZ0hdpi7lj9+tWKhWec47BHoHqhtgif95F9ivDCMNn332c4
-         7BnwKmuuKR27Z8TWCmdUxAKCsm9cMjZQ/hP54FGKLTPTteOaBeH+6p1VdwllkHcvZtHN
-         rcJA==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="QWG2T6PA"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1781584808;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Fa+y+4svYLao6WVKf5RjVtNUrFzhHWJGrO40meUSAic=;
+	b=QWG2T6PA/VYUzFce127sa71gfG1794nS0IBn+81K/oGvYbv1rxT8zKRMp9QmsXpb5R0ku9
+	A5GVecZnpDgLz2qlbeC9B1DrS4FqB0MPGsFRMvNNpE7BAzHd6pVQ5gQOLmYXuYyZA445st
+	Dv/pioWots0p3gEdBD9qLuafJqTBvx8=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-573-I-A4XtU8Mo6jqk-x9K8Vgg-1; Tue, 16 Jun 2026 00:40:04 -0400
+X-MC-Unique: I-A4XtU8Mo6jqk-x9K8Vgg-1
+X-Mimecast-MFC-AGG-ID: I-A4XtU8Mo6jqk-x9K8Vgg_1781584804
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-460153ce644so2958864f8f.0
+        for <virtualization@lists.linux.dev>; Mon, 15 Jun 2026 21:40:04 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781584208; x=1782189008;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=ppX4qdYU5rXRtx2iPmU/w5gI+2dV9fiMI5XfuWrU7yA=;
-        b=Qna/WXZsbl24FBLEMM21xRjlCQQCxjypmlbdTc8h/IKxDtwnDCjZKo2mK0JRXRGU/T
-         xcMubKc//WQ65SlTE0c5qnCokOsMp7wgWYOReiTeyoAAhxqQ1ck3N21DwsylgqGy1+W4
-         N5bAm3ZjfDLUSDXu9pzOQsjAjRmiXeEFk75eF7qwAhiXINb/y2ANrxctbh4yVpqatyZ2
-         oEq1fq9iKAQX5GO5QPEIDi9SGXTXE6ODPbvPVwxDyoJkZTxtZ+kdxHqdmg7JUFKorktC
-         G77WRJ7vz8jLczZgp2fIUlBnMU9KfTVQE5HJc41xjF6M7DzhJ0byoypO1Rua6wF7aFUf
-         6aJw==
-X-Forwarded-Encrypted: i=1; AFNElJ9cPA0oOPV5R+HTRmnR/BYJbxGgQMj8rLFRSbjIO/PYh6YV4roMpFd1uZdPcDFpRd5it9r5AZT3DeFBjdvZAw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz8AADbh5fR1RCkJHvSEXlmEnF3NzZIyk3mBs5sbR+GYQA/6Vrp
-	HzhBkxsoPVZHZdpUrBXd3gDSCSvBreKCcqp1qiOxs/hWbjxdqJk69ymjqPuFgP65TqqNfGD1vB/
-	mZ+gF2Z25K/k6pvv/nlV7nKEaLVNV4zHYJhF63WZY
-X-Gm-Gg: Acq92OFC+QWJD8LOASH5EmL7KnWZ8ojpJ7k3Zi/1hqPxDauIFkJATkIuwRKrbI29rU4
-	4efsEI1SR7C0xCkTu2VF7/OCH86+18ZhaAkwjyQaFJ5egsm6G4M7EnzIkyM789ofAQDF8j7neEB
-	65y2pA7Mjlk7pnXqxT9kntzEGC/CbMQ/KY8PmxV+lvSArDGRxXGSlv1aqnR10UO7+rNEhwYxKdT
-	0ZaAdljKD98LwnDytL+fObJPE3znXdGZ0KTAbvdYUajHkrgeW2qitJLslATZgcj/plHgyP3Puyt
-	Jd9e+A4=
-X-Received: by 2002:a17:90b:53cb:b0:369:7421:75cf with SMTP id
- 98e67ed59e1d1-37c2bce7aedmr12427842a91.16.1781584208118; Mon, 15 Jun 2026
- 21:30:08 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1781584803; x=1782189603;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Fa+y+4svYLao6WVKf5RjVtNUrFzhHWJGrO40meUSAic=;
+        b=e/RWMjKIZbi34nrssDCFAu5pVfGnch/+zM9YkXSTsnrzMiSGCN2mv657/VFaPk040N
+         Nnk6D4VYChMQX/ZhZm4ikKUODkWlCU2uU9yDc/fn5ENICzO6J2Pvaz3Ch3Lh9760t5sc
+         mevXQlKu5kLgZZJp/eMg5yliLoaZo9wint2NLMJKtJpF+HlDiK6v1mAizHJ2eVfTq1px
+         eLMV6Gk2YQTkS6pCEVCqD+CU2DV+qVo5ljLESuxUEgKggM72te++QvqSEkXD49Y3uEcS
+         SsrHjQuArKOQ8hNxBzL/pNEsdK+1um6i/itHhL0DzhTEPcWrqhptDMggk1qNBT9KrQYH
+         viWA==
+X-Forwarded-Encrypted: i=1; AFNElJ96GxL519JydPwvd9nMWzNIL70GV9Aqax0rK/EruCAfVh9w6vLGlrF3f51tgU6eFPPKg+jW9naAHTgl40NsWw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx2rVCViPeFpwT6/owNyFJSGA65f/ghRA3bhaQRgMb+FYx+K416
+	gRwlTcurrEfDK8qWmI9Tg8RLE0rxW2yN/giu6CSDV0i9H27wsxeevfREIHC+d88ApOP2HxOH16C
+	Sq4Sje9xrVdx3IIoXCOjnYap+upS0ENu1ClOmSzAejkHf6rTcfoh0Dhtptv/FOubA6Hb8
+X-Gm-Gg: Acq92OGLEpxW0Fyw7Rb10R3Phxk3JeWMPiClv/QUDqX/rzgUl5/rYi7kq4BQEPqUbAL
+	GmBd7a/cbJ+dWs4qqcrruRqgdaT/FBjNHzq0lEbmF6aO8rxEi7BDBL8KxjnigcfCDqQ3606n+p7
+	pfcZJYHk2ndzK1GWqDd/gnnAtehJSrW7DnJNcB00qLit15EXt/ZPoDkwMwPia731oymOhVi5rPh
+	uAwjk//sbL9zGvZFYAZUBXmA/fMsXlDWRuKdcu70meHL7DF/Abm+gUXOwwg5m72GLUNumQ2/WJv
+	v6szqSg/pBPym7aGmytN+Z+gTdR4XRxRKKRG+7cxTW8pkfHa50ga+lmMTeZxX6y5IoVil+d9tZR
+	/0pDKPfwMbECarY5oDnmeQh+jEy1lwLlwK+eVCMLSPW4=
+X-Received: by 2002:a05:600c:4e8c:b0:492:3173:b17 with SMTP id 5b1f17b1804b1-49231730dafmr4650605e9.17.1781584803452;
+        Mon, 15 Jun 2026 21:40:03 -0700 (PDT)
+X-Received: by 2002:a05:600c:4e8c:b0:492:3173:b17 with SMTP id 5b1f17b1804b1-49231730dafmr4650265e9.17.1781584802949;
+        Mon, 15 Jun 2026 21:40:02 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-85-71.inter.net.il. [80.230.85.71])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49230a4ff67sm23740805e9.6.2026.06.15.21.40.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 15 Jun 2026 21:40:01 -0700 (PDT)
+Date: Tue, 16 Jun 2026 00:39:58 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Xiang Mei <xmei5@asu.edu>
+Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+	andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+	kuba@kernel.org, pabeni@redhat.com, netdev@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+	minhquangbui99@gmail.com, bestswngs@gmail.com
+Subject: Re: [PATCH net v4] virtio-net: fix len check in receive_big()
+Message-ID: <20260616003903-mutt-send-email-mst@kernel.org>
+References: <20260616042837.2249468-1-xmei5@asu.edu>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260611024616.1408317-1-xmei5@asu.edu> <20260611014519-mutt-send-email-mst@kernel.org>
- <CAPpSM+Q=NM0WeBmZvyOEkyx73VU10AOHQjPbWDSet675B7AnCA@mail.gmail.com> <20260614152904-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20260614152904-mutt-send-email-mst@kernel.org>
-From: Xiang Mei <xmei5@asu.edu>
-Date: Mon, 15 Jun 2026 21:29:57 -0700
-X-Gm-Features: AVVi8Cc2s0GQzec-BSWAkyi2kv832yJ1_God0icULI6-YQFhGMfJc-Yqjq-xTJs
-Message-ID: <CAPpSM+S5zwZLuEu7CBbFBtJgBJ+668x2RMNaVS7jPr--YiURWA@mail.gmail.com>
-Subject: Re: [PATCH net v3] virtio-net: fix len check in receive_big()
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, 
-	andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com, 
-	kuba@kernel.org, pabeni@redhat.com, netdev@vger.kernel.org, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	minhquangbui99@gmail.com, bestswngs@gmail.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+In-Reply-To: <20260616042837.2249468-1-xmei5@asu.edu>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: fgpN-zMXxUT0h1zSXpiFFCEwbRhuCvwcJJ-T8MtWhOQ_1781584804
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Sun, Jun 14, 2026 at 12:29=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com=
-> wrote:
->
-> On Sat, Jun 13, 2026 at 01:15:02PM -0700, Xiang Mei wrote:
-> > On Wed, Jun 10, 2026 at 10:56=E2=80=AFPM Michael S. Tsirkin <mst@redhat=
-.com> wrote:
-> > >
-> > > On Wed, Jun 10, 2026 at 07:46:16PM -0700, Xiang Mei wrote:
-> > > > receive_big() bounds the device-announced length by
-> > > > (big_packets_num_skbfrags + 1) * PAGE_SIZE.  That is still too loos=
-e:
-> > > > add_recvbuf_big() sets sg[1] to start at offset
-> > > > sizeof(struct padded_vnet_hdr) into the first page, so the chain
-> > > > actually carries hdr_len + (PAGE_SIZE - sizeof(padded_vnet_hdr)) +
-> > > > big_packets_num_skbfrags * PAGE_SIZE bytes -- 20 bytes less than th=
-e
-> > > > check allows for the common hdr_len =3D=3D 12 case.
-> > > >
-> > > > A malicious virtio backend can announce a len in that gap.  page_to=
-_skb()
-> > > > then walks one frag past the page chain, storing a NULL page->priva=
-te
-> > > > into skb_shinfo()->frags[MAX_SKB_FRAGS], which is both an out-of-bo=
-unds
-> > > > write past the static frag array and a NULL frag handed up the rx p=
-ath.
-> > > >
-> > > > Bound len by the size add_recvbuf_big() actually advertised.
-> > > >
-> > > > Fixes: 0c716703965f ("virtio-net: fix received length check in big =
-packets")
-> > > > Reported-by: Weiming Shi <bestswngs@gmail.com>
-> > > > Signed-off-by: Xiang Mei <xmei5@asu.edu>
-> > > > Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> > >
-> > > Thanks for the patch! Something small to improve:
-> > >
-> > > > ---
-> > > > v3: revoke 2/2 and add Xuan Zhuo's Reviewed-by tag
-> > > >
-> > > >  drivers/net/virtio_net.c | 8 +++++---
-> > > >  1 file changed, 5 insertions(+), 3 deletions(-)
-> > > >
-> > > > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > > > index f4adcfee7a80..afe73eda1491 100644
-> > > > --- a/drivers/net/virtio_net.c
-> > > > +++ b/drivers/net/virtio_net.c
-> > > > @@ -1999,15 +1999,17 @@ static struct sk_buff *receive_big(struct n=
-et_device *dev,
-> > > >                                  struct virtnet_rq_stats *stats)
-> > > >  {
-> > > >       struct page *page =3D buf;
-> > > > +     unsigned long max_len;
-> > >
-> > > Assignment can happen here?
-> > >
-> > > >       struct sk_buff *skb;
-> > > >
-> > > >       /* Make sure that len does not exceed the size allocated in
-> > > >        * add_recvbuf_big.
-> > > >        */
-> > > > -     if (unlikely(len > (vi->big_packets_num_skbfrags + 1) * PAGE_=
-SIZE)) {
-> > > > +     max_len =3D vi->hdr_len + (PAGE_SIZE - sizeof(struct padded_v=
-net_hdr)) +
-> > > > +               vi->big_packets_num_skbfrags * PAGE_SIZE;
-> > >
-> > > Took me a while to figure out what is going on, but I finally
-> > > understand:
-> > >
-> > >
-> > > Reducing
-> > > (vi->big_packets_num_skbfrags + 1) * PAGE_SIZE
-> > >
-> > > (what we allocated)
-> > >
-> > > by sizeof(struct padded_vnet_hdr) - vi->hdr_len
-> > >
-> > >
-> > > right?
-> > >
-> > > So clearer as:
-> > >
-> > >
-> > >         unsigned long max_len =3D (vi->big_packets_num_skbfrags + 1) =
-* PAGE_SIZE -
-> > >         sizeof(struct padded_vnet_hdr) + vi->hdr_len;
-> > >
-> > Right, that's the same value. Yours reads better!
-> >
-> > I'll fold this into the next respin. One thing I'd like to settle
-> > first: David suggested storing this in a vi field computed once at the
-> > probe (it's a per-device constant) and just comparing len against it
-> > on the datapath, instead of re-deriving it in receive_big() each time.
-> > I'll wait for his take on that and send a single v4 that covers both.
-> >
-> > Xiang
->
-> I don't mind.
-Thanks, Michael,
+On Mon, Jun 15, 2026 at 09:28:37PM -0700, Xiang Mei wrote:
+> receive_big() bounds the device-announced length by
+> (big_packets_num_skbfrags + 1) * PAGE_SIZE.  That is still too loose:
+> add_recvbuf_big() sets sg[1] to start at offset
+> sizeof(struct padded_vnet_hdr) into the first page, so the chain
+> actually carries hdr_len + (PAGE_SIZE - sizeof(padded_vnet_hdr)) +
+> big_packets_num_skbfrags * PAGE_SIZE bytes -- 20 bytes less than the
+> check allows for the common hdr_len == 12 case.
+> 
+> A malicious virtio backend can announce a len in that gap.  page_to_skb()
+> then walks one frag past the page chain, storing a NULL page->private
+> into skb_shinfo()->frags[MAX_SKB_FRAGS], which is both an out-of-bounds
+> write past the static frag array and a NULL frag handed up the rx path.
+> 
+> Bound len by the size add_recvbuf_big() actually advertised.
+> 
+> Fixes: 0c716703965f ("virtio-net: fix received length check in big packets")
+> Reported-by: Weiming Shi <bestswngs@gmail.com>
+> Signed-off-by: Xiang Mei <xmei5@asu.edu>
+> Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
 
-V4 has been sent.
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-Xiang
->
-> > >
-> > >
-> > >
-> > > > +     if (unlikely(len > max_len)) {
-> > > >               pr_debug("%s: rx error: len %u exceeds allocated size=
- %lu\n",
-> > > > -                      dev->name, len,
-> > > > -                      (vi->big_packets_num_skbfrags + 1) * PAGE_SI=
-ZE);
-> > > > +                      dev->name, len, max_len);
-> > > >               goto err;
-> > > >       }
-> > > >
-> > > > --
-> > > > 2.43.0
-> > >
->
+> ---
+> v4: use easy to understand math to compute the max_len
+> v3: revoke 2/2 and add Xuan Zhuo's Reviewed-by tag
+
+I still feel 2/2 is good defence in depth but it can be
+pursued separately.
+
+> v2: add additiona check as 2/2
+> 
+>  drivers/net/virtio_net.c | 7 ++++---
+>  1 file changed, 4 insertions(+), 3 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index f4adcfee7a80..8f4562316aaa 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -1999,15 +1999,16 @@ static struct sk_buff *receive_big(struct net_device *dev,
+>  				   struct virtnet_rq_stats *stats)
+>  {
+>  	struct page *page = buf;
+> +	unsigned long max_len = (vi->big_packets_num_skbfrags + 1) * PAGE_SIZE -
+> +				sizeof(struct padded_vnet_hdr) + vi->hdr_len;
+>  	struct sk_buff *skb;
+>  
+>  	/* Make sure that len does not exceed the size allocated in
+>  	 * add_recvbuf_big.
+>  	 */
+> -	if (unlikely(len > (vi->big_packets_num_skbfrags + 1) * PAGE_SIZE)) {
+> +	if (unlikely(len > max_len)) {
+>  		pr_debug("%s: rx error: len %u exceeds allocated size %lu\n",
+> -			 dev->name, len,
+> -			 (vi->big_packets_num_skbfrags + 1) * PAGE_SIZE);
+> +			 dev->name, len, max_len);
+>  		goto err;
+>  	}
+>  
+> -- 
+> 2.43.0
+
