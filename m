@@ -1,62 +1,62 @@
-Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
+Received: from mail-qv1-f41.google.com (mail-qv1-f41.google.com [209.85.219.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2C2ED32D0FC
-	for <virtualization@lists.linux.dev>; Tue, 16 Jun 2026 13:49:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.173
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AC515351C14
+	for <virtualization@lists.linux.dev>; Tue, 16 Jun 2026 13:57:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.219.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781617773; cv=none; b=I+ExVibNjQ+hHNosve8f+xO98gFIuc1AjiBp81nRUNSoDpxYl4/u/INw5Mkn0dyspFFltMb8K+Cm8UookFGizR0RGUzSTspYSp5rWsOsWUcmyWhmJctZ3M9zE5Z3Grk4AjQgI9sL5/6prz12Zvhpa9f/lB3t6gQPgY5ihnMTFq0=
+	t=1781618251; cv=none; b=q7fvnrqSg3q/MKOHElPpc/kUI//7E7n8klqEX0vEdQVn4ZHYZUG+eCWtAkHxDCiFGBhJQYQ3EO/hAi84e2g+xOTeKILqKfAoB31KBiSqftHEnM9LQybGSU3qyTwdaqYvEsiQqK5ICiGgEWEL4TWmIJkMQoHUX6z685oB6QVXvAo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781617773; c=relaxed/simple;
-	bh=qqXuoXoNvjp4qDCvrGTDj7/LLZWDQAWHA8I4Imc6j+Y=;
+	s=arc-20240116; t=1781618251; c=relaxed/simple;
+	bh=bxcq8XVvLvRb2QMDpderqYCbiU3FJspLGdpwGMLxIQY=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=GRpyXaeZ9DdbrWn6jCeYozbfFaRyjKhjL3Cc4DyYNLCEMMdvZiCEBs7iVgLkmcQP8dK6740aQfqbHHmXjCxmJXlg9UYxK0dgfk9/QwrpM64qEjrzYmKgPvVBJtBAiIdjHTwhvza4gb2oORbk0Oz/EVHY6I1rGwlhIE0McjP7+Wc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=WSvfWgew; arc=none smtp.client-ip=209.85.160.173
+	 Content-Type:Content-Disposition:In-Reply-To; b=M3IMs1L+aYzS4xVEf0UB+Qe38DSdKMkSFs/vxKXSQoTvqqkXF932QTEU4M2li/rf3ZRejofc7Gs8N8O++C9hmg+K0uC0ptpLM19iTQzYb2ioypc12aJULFBWaZuZg8NWDRhIouzKtzsfUvqjTsqjs5Jo5a7idjf5SpSSQWUNS+k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net; spf=pass smtp.mailfrom=gourry.net; dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b=HmbbOShx; arc=none smtp.client-ip=209.85.219.41
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=gourry.net
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gourry.net
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="WSvfWgew"
-Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-51778077b28so50943841cf.1
-        for <virtualization@lists.linux.dev>; Tue, 16 Jun 2026 06:49:32 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gourry.net header.i=@gourry.net header.b="HmbbOShx"
+Received: by mail-qv1-f41.google.com with SMTP id 6a1803df08f44-8cce26ee1e9so69200326d6.2
+        for <virtualization@lists.linux.dev>; Tue, 16 Jun 2026 06:57:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gourry.net; s=google; t=1781617771; x=1782222571; darn=lists.linux.dev;
+        d=gourry.net; s=google; t=1781618249; x=1782223049; darn=lists.linux.dev;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=rsshTlVmdyNb6wSnpo8oIqSGy6qOuJMEcgLTNFP6fPI=;
-        b=WSvfWgewi4qMWVKzCTgnEV0oB/FVuGXaAo78Y7q9V0wP3TuEb/5iyHz+0cqlv66BxJ
-         Yu4BAhPAJvhKNWcXY4AAz5TlbzLz+ZWOmPBDerXWzqDiQs9JBE/V0s+6pxZOnR2+ljdD
-         Q1qTVrk1FVOMTMJtSBULvwUcKwBBuTWYYRzMivJatHI0C+2BaRiKLl7Qc83ti6iQutRH
-         bYUGP6V7p1mhVI3sxrjfo3IQV0aJciC7pZYjNV758wMtmEs0AyfEHPnEjnj6+aDm67LX
-         nb22g528LxHzxiCQN+34/mZpPvch+VurxFQfzNfFumVngwhgYrlyUwIEjT9shRgA9bHI
-         G7Lg==
+        bh=iYWyDql/Cg87tBDufvcG34GqN5pKohUk/nA1HD30SzE=;
+        b=HmbbOShxniUVzi6UU0vvYbl4zFShJGIoYgdPS3Dt4m677K0hWdTdrJT9evhUWyc16n
+         R+o18zlBLzrduoLJGUOO+Y+P3em1WvZ3/4nDfOguw+I3yISApR7ERjmUl/8ecomOrIda
+         Bcp+gE+Sr1x2wkb0oomuwUqZQ2W5V/iEpOv5pmXM0F4FHGbugYFDItbkBI70QxG/Qqqo
+         QhhIi0/DMTNRwI3HiM55MLhiLYj8oIBRjfiWozAU49khreHiYFJFJJbzgKxbw9ckEXrt
+         MB6aDvvAtYAC8n6F2+t4hO+o/WuyOO6sqwE4+2ASTx3rGi9mL5a8kkMQj16i5lM9PFrb
+         wbDw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781617771; x=1782222571;
+        d=1e100.net; s=20251104; t=1781618249; x=1782223049;
         h=in-reply-to:content-disposition:mime-version:references:message-id
          :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to;
-        bh=rsshTlVmdyNb6wSnpo8oIqSGy6qOuJMEcgLTNFP6fPI=;
-        b=RlVLYbCa1QNK5Ih+Nv0goEd9VKYb0CE3a3xFoSVif4zaYxG3Q4ik8lCLy8t+NdVwyK
-         9LcLSgQZ4RvVGbPS7Cr/9f2yLz7rJEnPTfUUFi6UkmNA2R3wpKbKVIAt98MrGXFCuDeQ
-         wPdHNiEN54NC7Q8NxhRshcW/K7ITBVwKZRelhCOz21jQqo6CfkvVW3Fz1Ld/cBpHRduz
-         JukB22y6Gy32BIAnECXkFE47ikZPrfVLafEmzNfKEEqg0vDDwB7PViUYVW3X8rAmaJ49
-         TeQus3jjXifTU/U1KxWRG7SxnbNpm0Awem1W3OpKchDuuvLqxV9c/c2q4fMeO4/NqHnV
-         gQ3A==
-X-Gm-Message-State: AOJu0Yz1aVLA47f0bGdg2nqR+ZM9HB2dVv3a2gQ1FShkk9adsJ2QhjMa
-	5wGgN/sufdNEnSba1ua6QJULCPT5hxuGtXQVSJF9ckdDgIljOW5Q/QLnP+Ru5xd4VeI=
-X-Gm-Gg: Acq92OH4gM0GpnhvKLGLUAcg6MkDCJCU5m2DeNuxOpkyNKjv8W+sfuSAjRZIMooSRkr
-	z+EuaGhH65Scb58DnW8pPqLN+ZWYCJlGLxJjTqFJz57e3a2xLLIbR/KiwGqHPunlCNQ6biMqy3Z
-	e/E42+miw/bBRDbqaeWUnDLTkJmej8dVOF6tzT+I6AqqcmqM1t8ZAZ+O1/TysannZ044rQwsJXV
-	aNBIOAe+CyWpRvZxKEAXNw4f9Y6RFZsyAMXgabACNMZFDmkuRLhgnMnsLHpZqSy0ALbh5Sv9kwW
-	xGRvP3y2IFNJSwRSqgEXBJUvfp4JezuNW4ZmphP1ry/S5swCmKYVm+PDKq/FrOD/aa2hdLCtPBr
-	3U4lSrjpIb5fuK0vJCfkRdPqyeIPYpiRspeEJmzIat4ZYeBD6FAruKEyAbaOGZ675bt0j0p6knZ
-	int+syMAVQFbZTzl55h9k436b4if96u4E=
-X-Received: by 2002:ac8:7d89:0:b0:517:5f7e:a30c with SMTP id d75a77b69052e-519916ae9d9mr49617441cf.4.1781617771128;
-        Tue, 16 Jun 2026 06:49:31 -0700 (PDT)
+        bh=iYWyDql/Cg87tBDufvcG34GqN5pKohUk/nA1HD30SzE=;
+        b=URFTWvCHZpZnFMP0ExtRr66eaXVkF1Ju3Tm5GMTJBMaDHAvHz7HDOYXwQLdtPF559W
+         hJRZh2sfZJW7xWFaHXIJc/h0lO2OGZMezFrRV7MDd3MNMlkrFehIod2C42e5pG1GdSpI
+         UrDalWzWiR/QQ/9fariMaisQhb67J19foJ+b8V0HtLJHyalQz02oZjiVSyJRDn0PIyCy
+         pmdMu2A+oVUec/ST0+GF7eSV1mBWU/UxnHyTuQixQSVvxnumS7CzuV043JPSwHEKcLF9
+         yb7NpMNGwdoVDEjRBWkQBCNzCxgQAfNbjiy8VXHGhI+y2TIrrbyqEqOblze0QSS/VsTW
+         ywBA==
+X-Gm-Message-State: AOJu0YzC8l6BAL/srmB8wR/IJpGtvmTM67dzFfFpwVZuDn81eXR1+SZK
+	gUi9eZoa68Qjgc0HsP9cWIbaZFyQOlwPWE1T68QdgdoFTMkiDBNY6VG29KAJOLqV/Qc=
+X-Gm-Gg: Acq92OGj1/TmmivUTrQFhfFTSRLw1CWlLojtb2PJ2m1bW595TgO8MXGqw51b/i2Kp9R
+	4+4Rewq7VXPqu48gkindt+lARslxDnRTwPviN6tJS/xWMGPco4wJ1/BqhegWJS7zf26hjLBWQtV
+	I4967ZNSLWu/a6rvjKRsJyciB3gPl7wpdFEx5BGOXLF3klCtXmDhgyJ5gfzyFr7eMAeG05w1PJV
+	YFzxHvbj27ETppHX1UAtVIQj+BNRUbEC8QZq/vrZ35UGjBCtZQBNsphV8B8xnAqcMFzHYB9gnPt
+	Rb9Ca+vRiMQr6tQVP1ZIse3Ds5iZrtbADF6LEGwW91ityKQmsDMr0SSywsGECjFHDhHQLw67csV
+	/AY5hkK2QjQyC71qmdq9CVZknreoVMIHVG19Hv8YgcrusqwLWciu9ffHWDo/b2eaRlBofISQOWe
+	chGFMuUEbKRBu5HGiKvcxVJzA2Vof0x2k=
+X-Received: by 2002:a05:6214:5008:b0:8cc:2a92:11b6 with SMTP id 6a1803df08f44-8d44c5acd58mr247438456d6.9.1781618248553;
+        Tue, 16 Jun 2026 06:57:28 -0700 (PDT)
 Received: from gourry-fedora-PF4VCD3F ([2620:10d:c091:500::3:437e])
-        by smtp.gmail.com with ESMTPSA id d75a77b69052e-517fb7a00desm151217661cf.19.2026.06.16.06.49.30
+        by smtp.gmail.com with ESMTPSA id 6a1803df08f44-8d9f1fb4bdasm32959256d6.20.2026.06.16.06.57.27
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 16 Jun 2026 06:49:30 -0700 (PDT)
-Date: Tue, 16 Jun 2026 09:49:28 -0400
+        Tue, 16 Jun 2026 06:57:28 -0700 (PDT)
+Date: Tue, 16 Jun 2026 09:57:26 -0400
 From: Gregory Price <gourry@gourry.net>
 To: "David Hildenbrand (Arm)" <david@kernel.org>
 Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
@@ -66,12 +66,11 @@ Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
 	juri.lelli@redhat.com, vincent.guittot@linaro.org,
 	dietmar.eggemann@arm.com, rostedt@goodmis.org, bsegall@google.com,
 	mgorman@suse.de, vschneid@redhat.com, kprateek.nayak@amd.com
-Subject: Re: [RFC PATCH 1/2] virtio-balloon: extend stats with memory
- composition and pressure data
-Message-ID: <ajFUaDX8U40X2oLx@gourry-fedora-PF4VCD3F>
+Subject: Re: [RFC PATCH 2/2] virtio-balloon: add stats push mode
+Message-ID: <ajFWRhSNsOBoUfb5@gourry-fedora-PF4VCD3F>
 References: <20260513165006.2790857-1-gourry@gourry.net>
- <20260513165006.2790857-2-gourry@gourry.net>
- <8e766803-e68d-4efd-a69e-cec5b2492988@kernel.org>
+ <20260513165006.2790857-3-gourry@gourry.net>
+ <feee7831-aa82-4f02-b5e4-cffe7818dc65@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -80,17 +79,41 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <8e766803-e68d-4efd-a69e-cec5b2492988@kernel.org>
+In-Reply-To: <feee7831-aa82-4f02-b5e4-cffe7818dc65@kernel.org>
 
-On Tue, Jun 16, 2026 at 02:30:34PM +0200, David Hildenbrand (Arm) wrote:
+On Tue, Jun 16, 2026 at 02:33:43PM +0200, David Hildenbrand (Arm) wrote:
+> On 5/13/26 18:50, Gregory Price wrote:
+> > 
+> > The pull model remains available and is the default.
 > 
-> Nothing too crazy here, however, the question is which of these values we
-> actually want to guarantee that we will provide them with unchanged semantics in
-> the future ... I guess anything we already expose to user space is alright
-> (because it effectively already must remain mostly unchanged I assume).
+> I don't quite see the big benefit here, really: either it's a timer in the
+> hypervisor or a timer in the VM. A slow VM will, in either model, delay the
+> update of stats.
+> 
+> If you need some "liveness detection", is virtio-balloon stats updates really
+> the right mechanism?
+> 
+> I don't quite understand the "Latency-sensitive consumers" problem. If the VM is
+> slow, it is slow and will mess with latency-sensitive consumers in either way?
 >
 
-I suppose a risk of them going away entirely?  I suppose that's
-fixable but unlikely.
+Latency sensitive here should probably be defined as "Does not like
+blocking operations".  This was prototyped in the context of
+cloud-hypervisor [1] and an orchestrator trying poll 1000 VMs on a
+single machine for stats. 
+
+The poller couldn't determine the difference between "guest is slow" and
+"guest is hung" and so had to block on the operation (I didn't see how
+to solve this async).
+
+Similarly, having a single thread just round-robin poll the VMs is
+bluntly inefficient and provides poor guarantees about the liveliness
+of the stats (a couple slow guests can cause other guests' stats to
+become stale for 10s of seconds).
+
+Definitely an RFC here because I'm not sure if I was missing something
+that might help me solve the problem.
 
 ~Gregory
+
+[1] https://github.com/cloud-hypervisor/cloud-hypervisor
