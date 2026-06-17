@@ -1,282 +1,150 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f43.google.com (mail-wr1-f43.google.com [209.85.221.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 587923A542F
-	for <virtualization@lists.linux-foundation.org>; Wed, 17 Jun 2026 10:55:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BB011352002
+	for <virtualization@lists.linux.dev>; Wed, 17 Jun 2026 11:00:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781693730; cv=none; b=MwJIyVs//G4TdYDJnRSb3wRN9jWxrKUTvV3DAhTPqpLQQ914H8MW5gDoOj3uPeRmOroWCOdhksqdrMfCJUbiLykh1khBR21CBYdcVDpIWeNFP+htz7MSnVA+xrVxXAyvuX1CkUcFCEsOWUxl9ZItLDZIOK2qNcz23nkrHhP0sz0=
+	t=1781694004; cv=none; b=hLtOGNLeXljqk3jkDRY3NlzxnDm/uX0FPqYFZgTLwWhYg3EQUnYoyQYnpPnQQM7SHOkHBO2BCth8NN2dSnfmQgl57cw1z22qJ3tLc+MNaQNGfhUiFqbpYHZL+S3VD5BNCtmyrEZJ4F2/ZeXvTkot167uw2HqSt4rBL54UQJRW5c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781693730; c=relaxed/simple;
-	bh=o4IDyqsIkp4ke7FAFeoPSlssBcMB9tDWRD06iMFMg3A=;
-	h=Date:From:To:Subject:Message-ID:MIME-Version:Content-Type:
-	 Content-Disposition; b=fWhvT4LodvkeSI6LrL+x09SwGbdGf/D1x6x5NjZJW0/q9WkvxFs4b9CTJFJ0lkxicbSnR/6yM4tFmgQylfXibEAaK9tJ05L6UV3qt1rMKXDT2qdxb/rEivMgLbX/IlSVziEaJvyyyOaLY0kzogsRenOHDrcHoOF9rnrM25tXFzE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YybreMs0; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1781694004; c=relaxed/simple;
+	bh=W10EYd5yNHtHtCsaAJYNg1f2TbY6i6o+1V5k4q/6Gy8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=TisBPJUrJdZ5FUoVDy5dXpXDQru9uJ00RlzF5JohjY19boPyy+nA+jlyyNQjJjIWMUqyFx2nFfc2DokqOtYcCNw3G0Skmn9JBitVkQOwhoN3O1EFCXtl5CYtEw7Kiq2CHlStSl1GU9uof4jakyqBN742GE27uyMonB2DE8GedIk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com; spf=pass smtp.mailfrom=baylibre.com; dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b=ZyYA++Vz; arc=none smtp.client-ip=209.85.221.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=baylibre.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baylibre.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YybreMs0"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id DC1724ED6F
-	for <virtualization@lists.linux-foundation.org>; Wed, 17 Jun 2026 10:55:28 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.792
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id J4NflLz69mEM for <virtualization@lists.linux-foundation.org>;
- Wed, 17 Jun 2026 10:55:28 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=mst@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org CEE0B4EBE3
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org CEE0B4EBE3
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=YybreMs0
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id CEE0B4EBE3
-	for <virtualization@lists.linux-foundation.org>; Wed, 17 Jun 2026 10:55:26 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1781693725;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:mime-version:mime-version:content-type:content-type;
-	bh=IH7ay2N+E2zA4nRJyMLO1X7bzBBBVG5OqoVU7vY8dTI=;
-	b=YybreMs0B5M+Lnb1ubNalEACnaUaMKJ9qvkpPCQjeuaiQ7Ak4a25fscNv9mzZ3IWGGN3pg
-	dj70ZqMLzy3HAhKaDVSKKPlgnw3ApzL8XibZyEaMurJ32rtSGyenwHIfiEKoen81dJzsE9
-	4wLedP3gr3Yddt5NjmcR/N84PfMFtPM=
-Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
- [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-637-1WKGVGY2OgSSDooGS-bwkw-1; Wed, 17 Jun 2026 06:55:24 -0400
-X-MC-Unique: 1WKGVGY2OgSSDooGS-bwkw-1
-X-Mimecast-MFC-AGG-ID: 1WKGVGY2OgSSDooGS-bwkw_1781693723
-Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-46010bc0f1eso3388713f8f.3
-        for <virtualization@lists.linux-foundation.org>; Wed, 17 Jun 2026 03:55:23 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=baylibre.com header.i=@baylibre.com header.b="ZyYA++Vz"
+Received: by mail-wr1-f43.google.com with SMTP id ffacd0b85a97d-45fd461e4a5so4363911f8f.0
+        for <virtualization@lists.linux.dev>; Wed, 17 Jun 2026 04:00:01 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=baylibre.com; s=google; t=1781694000; x=1782298800; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
+        bh=YxKh8I0UMSkrnZV+aGOFbOS2uZGvOfyS/QrDhlucjm8=;
+        b=ZyYA++VztjwpvZsiN16mdyY+7C5DPBTt81aQS5y26cxyEWVN0VBl5HPyX7rCyrAI0u
+         IR94URwmcxtHe2NBIej0QhNU9PqJb+8XsDmT5yxDD20qkXz1XLHFouzxxpkBLZjtzFJ7
+         DDJHOo9hB1BMvZlt+L05oLvtL6k1T9Q7nzZbnlL0AdFpcp1b3W133fimMVDa+COE7W7K
+         vqvUKwYNtRFafdBxDUmh+U09NWw8qWg8pPg/OYDKJg1znGuqqmE1tKqTYQ7Y0a2AUE/u
+         DGayQJtTawwv9qNPnGaAk9XAVg3CY7kMLNRZI3R9euR1t9YNuJxMAM2/AGezbhmjfTjq
+         UqXw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781693723; x=1782298523;
-        h=content-disposition:mime-version:message-id:subject:to:from:date
-         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=IH7ay2N+E2zA4nRJyMLO1X7bzBBBVG5OqoVU7vY8dTI=;
-        b=dWYnBLFN09qRFoMkUvK9Qolj+/kXOJ05gLBZfehe7zukrSAyQdjaPtrVsC1dNxxZUq
-         XNE52DdEA9S4GMJmZjV0AQg+s90XlVVqKuQPBpgXYOJywmmJGWikSRbrUb3k7ABjANhf
-         gwGde64AEABVrqlV0H5DEHmycPJEhEbRMIkBFhxiJMPbTvMKvk15sAGE9Z5uqOxgzAr/
-         tobgKq9NDTQH/uptSdYNTcU+M56eKebxd9xn+TCDvHdbyaEPlQ9jZUNOuKpclLOa4Jip
-         XPiLq32A/ft0hp+/JgfbO84kD6CCePX8GxqqJC9Ee0iQwgj2T+FgaJ+w/Rpzd8MDOTiz
-         nFxw==
-X-Forwarded-Encrypted: i=1; AFNElJ+cCorVCP3ZmWktGWAePFtEIJHkEJA73dkZ6jC7qymA2s2nQacWiwyAcbz+O8GAKh9itqZJnEIfzkw90htseQ==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0YwvVBrhO+OLoShT1ljGMFFONOclWZzIBb7+zqfxQfeudbFrH6h4
-	dATkYHHXKMhhZGA8/O3c9EZUeSND6QugeXcP8FAWliEix+Nifq9Y0LnbGosg6MNuF6Q6Hy/LPmB
-	vzZqVs5/KjFOprRilbnsrNOfcIiMQQv92NpCMwEg1Dw+OXIi/BPeZL7fud64ce8PI9PztWx1QqO
-	cC7Uh4nmQ=
-X-Gm-Gg: Acq92OGx6n9kwkcHpOB1q/eF6K4/JdYekjOh8MuS8tuEHi2UQtNutbsD9nd6+ZqkvZw
-	VvMw5zXmII6773SYsruVhK/UCUtYwqMnjChhzynBN+l8azHHlJ5RBVCyY5aW/uyYd+36ddE0xzL
-	PkGA0WVl/3/z3RgEwQiJxqJtwxngNP30mMTVpvB7X56R/v9aB7dMcqf/rOnCdud+8RdDDjoWc0Q
-	ZHqdY4IYSpcC4Boldy8oN621y3KMnANNzWaswUNyMfxY9RFMuABWmOpaq+iy+zQDlVEwpmf5oG/
-	jXP7qnPY0y4fB7d4tVkFDxytzWolm1ce+9WLhssBdVf1fY0aezLTVLoMrqkRpRMP0yRW5Jduo7k
-	G1jW4esWbiAsfyVwbqhYvVrQJRaSdv+ZO
-X-Received: by 2002:a05:600c:37c3:b0:490:e18f:d108 with SMTP id 5b1f17b1804b1-492333cf91cmr52521855e9.19.1781693722758;
-        Wed, 17 Jun 2026 03:55:22 -0700 (PDT)
-X-Received: by 2002:a05:600c:37c3:b0:490:e18f:d108 with SMTP id 5b1f17b1804b1-492333cf91cmr52521245e9.19.1781693722197;
-        Wed, 17 Jun 2026 03:55:22 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-85-71.inter.net.il. [80.230.85.71])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49230a4f8d7sm146613065e9.5.2026.06.17.03.55.17
+        d=1e100.net; s=20251104; t=1781694000; x=1782298800;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=YxKh8I0UMSkrnZV+aGOFbOS2uZGvOfyS/QrDhlucjm8=;
+        b=j66ugbMkvNIk4//sYH/9e96yMLXFL7t3/Rlq3crpVaOBR0KqLcePKkj6O/z8/5NW3y
+         uIAWY4QYxsje4YpNAA2EJtCCxb8zf+ky1y6ho28SBYLB9TY9nrxvLwlOm5JqK8j35/Di
+         BYphA+FJoBnb6Y+W1mgV9ctHOavK+wCKmUB0pfBEoTzYpJh+oq5kOzLRFUd6cKOUhtvy
+         gInu/y4Z+aSxUarDEjlpQzILQyyW41OBC9PgNLMP+srHd9/9GltWR8j2DymVnw9xN6XH
+         OMftnTX7Zo3XXsqqSHgS27TYPXzY00FdEV8w98sKdnHYMDcbt6EaOH0OwwSJm4nyczX4
+         wW/g==
+X-Forwarded-Encrypted: i=1; AFNElJ/5bYIDvXORdX0CSNpgwv7TzKoZqpPSYvef+nFWDh6D8skNfjnhDFjc3cEN2/WQsOEv9pn79FtnysEu2MTviw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyWztngsfaRzBedPE7Mbspl/De6yEkvxd4mu9aEZYW/jrlMaP0+
+	9dBqzYWFqM6NLRZcSnfVf7+sIoRsM/nQYL1d55G8QJ+DWjuvRs/Kgeehen1i4DpyOhQ=
+X-Gm-Gg: Acq92OE2OH64CfkUvo/kYRRwqrRaCiM67YwkIrt7uJll94MEvSdnlkqN6gSarjBgOHt
+	J8jB1P5hvE3p/Bzp1qTFwWHhHQjpri0XXiRxoJNUPAqNWW/1o1p8rAB4JzoGGECFdx19XPeStVC
+	V8TSmpzjf2yBJt3XgPZ0OLdGEP3Rl/5Etxa9YRM+0Blh5ojy54jazoijeyO2jxrXCFBARj1B+5i
+	zPElErMLmPQbHwQKf6HhBb3WHvas4QL8PAsaWWRGvZ4velQNz/BPTE8PHWpZ9sedL51DTq9Ny2d
+	DlnaNI5aZaEWqCWlnvMs6A7WBZVnG/m1XP08ZOvKWMUlacOJlUyghdbXHhdc6pSqrPP5FA/hp/R
+	VJicUhlXjkIDLBofedAqjCa90Oe58pHELC0om1dQD1Z71m1HcU6N2J4dd28ZSn1dhK7zOUIxpQE
+	k9RcvGE0ewLUehxjEf0S/s4Ta7evHN1aEQSThGPHkJ2oiX3VDdOLPpbkpDRPmIqOx0mVl1q8YNd
+	8RAHTvwJkG2htU=
+X-Received: by 2002:a05:600c:1f86:b0:490:33b3:4be0 with SMTP id 5b1f17b1804b1-49234127a4dmr40056925e9.20.1781693999653;
+        Wed, 17 Jun 2026 03:59:59 -0700 (PDT)
+Received: from localhost (p200300f65f47db04bc2080ea3c93ea6d.dip0.t-ipconnect.de. [2003:f6:5f47:db04:bc20:80ea:3c93:ea6d])
+        by smtp.gmail.com with UTF8SMTPSA id 5b1f17b1804b1-4922f9cd140sm143803295e9.0.2026.06.17.03.59.58
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 17 Jun 2026 03:55:21 -0700 (PDT)
-Date: Wed, 17 Jun 2026 06:55:16 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Linus Torvalds <torvalds@linux-foundation.org>, kvm@vger.kernel.org,
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, a0yami@mailbox.org,
-	ammarfaizi2@openresty.com, arnd@arndb.de, chenhuacai@kernel.org,
-	chenhuacai@loongson.cn, christfontanez@gmail.com,
-	Damir.Shaikhutdinov@opensynergy.com, david@kernel.org,
-	den@openvz.org, enelsonmoore@gmail.com, eperezma@redhat.com,
-	ethan@ethancedwards.com, evg28bur@yandex.ru, filip.hejsek@gmail.com,
-	francesco@valla.it, graf@amazon.com, harald.mommer@oss.qualcomm.com,
-	jasowang@redhat.com, jiri@nvidia.com, johan@kernel.org,
-	johannes.thumshirn@wdc.com, lingshan.zhu@kernel.org,
-	luis.hernandez093@gmail.com, lulu@redhat.com, mhi@mailbox.org,
-	michael.bommarito@gmail.com,
-	mikhail.golubev-ciuchea@oss.qualcomm.com, mkl@pengutronix.de,
-	mst@redhat.com, mvaralar@redhat.com, nathan@kernel.org,
-	oleg@redhat.com, pawel.moll@arm.com, physicalmtea@gmail.com,
-	polina.vishneva@virtuozzo.com, q.h.hack.winter@gmail.com,
-	rosenp@gmail.com, schalla@marvell.com, shuangyu@yunyoo.cc,
-	stefanha@redhat.com, vattunuru@marvell.com, yanlonglong@kylinos.cn,
-	yichun@openresty.com, yui.washidu@gmail.com, yuka@umeyashiki.org,
-	zhangtianci.1997@bytedance.com
-Subject: [GIT PULL] virtio,vhost,vdpa: features, fixes
-Message-ID: <20260617065516-mutt-send-email-mst@kernel.org>
+        Wed, 17 Jun 2026 03:59:58 -0700 (PDT)
+Date: Wed, 17 Jun 2026 12:59:57 +0200
+From: Uwe =?utf-8?Q?Kleine-K=C3=B6nig_=28The_Capable_Hub=29?= <u.kleine-koenig@baylibre.com>
+To: Thomas Zimmermann <tzimmermann@suse.de>
+Cc: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Maxime Ripard <mripard@kernel.org>, David Airlie <airlied@gmail.com>, 
+	Simona Vetter <simona@ffwll.ch>, Gerd Hoffmann <kraxel@redhat.com>, 
+	Markus Schneider-Pargmann <msp@baylibre.com>, Patrik Jakobsson <patrik.r.jakobsson@gmail.com>, 
+	Jianmin Lv <lvjianmin@loongson.cn>, Qianhai Wu <wuqianhai@loongson.cn>, 
+	Huacai Chen <chenhuacai@kernel.org>, Mingcong Bai <jeffbai@aosc.io>, Xi Ruoyao <xry111@xry111.site>, 
+	Icenowy Zheng <zhengxingda@iscas.ac.cn>, Dave Airlie <airlied@redhat.com>, 
+	Jocelyn Falempe <jfalempe@redhat.com>, dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org, 
+	virtualization@lists.linux.dev, spice-devel@lists.freedesktop.org
+Subject: Re: [PATCH] drm: Consistently define pci_device_ids using named
+ initializers
+Message-ID: <ajJ93BcJ8wT7NcnG@monoceros>
+References: <20260504150537.2136760-2-u.kleine-koenig@baylibre.com>
+ <b13678d8-1159-457a-bcab-ade06bea0cf8@suse.de>
+ <bc89deb2-2a2e-41c5-8cd9-28b794020972@suse.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mutt-Fcc: =sent
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: CwS7YvOU4ydIebttT58Z8vtjgKAFlYjIULFbsUdV5gU_1781693723
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="wb7rzchjydq75p5e"
 Content-Disposition: inline
+In-Reply-To: <bc89deb2-2a2e-41c5-8cd9-28b794020972@suse.de>
 
-The following changes since commit e43ffb69e0438cddd72aaa30898b4dc446f664f8:
 
-  Linux 7.1-rc6 (2026-05-31 15:14:24 -0700)
+--wb7rzchjydq75p5e
+Content-Type: text/plain; protected-headers=v1; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [PATCH] drm: Consistently define pci_device_ids using named
+ initializers
+MIME-Version: 1.0
 
-are available in the Git repository at:
+Hallo Thomas,
 
-  https://git.kernel.org/pub/scm/linux/kernel/git/mst/vhost.git tags/for_linus
+On Wed, Jun 17, 2026 at 11:11:32AM +0200, Thomas Zimmermann wrote:
+> Am 12.06.26 um 14:10 schrieb Thomas Zimmermann:
+> > Hi
+> >=20
+> > Am 04.05.26 um 17:05 schrieb Uwe Kleine-K=F6nig (The Capable Hub):
+> > > The .driver_data member of the various struct pci_device_id arrays we=
+re
+> > > initialized by list expressions. This isn't easily readable if you're
+> > > not into PCI. Using the PCI_DEVICE macro and named initializers is mo=
+re
+> > > explicit and thus easier to parse. Also skip explicit assignments of 0
+> > > (which the compiler then takes care of).
+> > >=20
+> > > This change doesn't introduce changes to the compiled pci_device_id
+> > > arrays. Tested on x86 and arm64.
+> > >=20
+> > > Signed-off-by: Uwe Kleine-K=F6nig (The Capable Hub)
+> > > <u.kleine-koenig@baylibre.com>
+> >=20
+> > Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+> >=20
+> > I'll merge the patch into drm-misc-next.
+>=20
+> Merged with a minor change to coding style in gma500.
 
-for you to fetch changes up to 8cb2c9285e4ce9154f45fb15633ebd45dfd8d9cf:
+Ah, you removed spaces from expressions like:
 
-  can: virtio: Fix comment in UAPI header (2026-06-10 02:17:00 -0400)
+	(long) &cdv_chip_ops
 
-----------------------------------------------------------------
-virtio,vhost,vdpa: features, fixes
+That's fine, thank you.
 
-- new virtio CAN driver
-- support for LoongArch architecture in fw_cfg
-- support for firmware notifications in vdpa/octeon_ep
-- support for VFs in virtio core
+Best regards
+Uwe
 
-- fixes, cleanups all over the place, notably
-    - vhost: fix vhost_get_avail_idx for a non empty ring
-      fixing an significant old perf regression
-    - plus READ_ONCE annotations mean virtio ring is now
-      free of KCSAN warnings
+--wb7rzchjydq75p5e
+Content-Type: application/pgp-signature; name="signature.asc"
 
-Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+-----BEGIN PGP SIGNATURE-----
 
-----------------------------------------------------------------
-Alexander Graf (1):
-      virtio_ring: Add READ_ONCE annotations for device-writable fields
+iQEzBAABCgAdFiEEP4GsaTp6HlmJrf7Tj4D7WH0S/k4FAmoyfisACgkQj4D7WH0S
+/k4IaAf/WKwHqoBZKlZOBFkwYpxmnJKXcyGTkSX1s1Vl6noDw9E+DLSsNl23lLrm
+l/HM6dvtSt99bkmVsETfPltX+t1/i7+muGo4o0cTI6DQIME/+XzGrhbc6KH4QRSI
+Z/Q17qqeXJ8detwkJ6mt9pO/+IsiD9luh6GuB6cemPxU6DG0mzL8uum5OA7oeU/B
+8E8aCTxY15HfmzY7y8+h+WN/kh1KTUiZ/em8fSX/fKNFfJXeIyBQXV0Ht2AtAEsR
+dYqDqOsbZhkwK0MCJ2DjDI5uDa0UyKDSpwLTswdzrokmYDYgOzJ19bS8Ywr3kkDA
+yv6uzfaQwaQwDUNFmmCHFpSLYDtdKw==
+=sh50
+-----END PGP SIGNATURE-----
 
-Ammar Faizi (1):
-      virtio_pci: fix vq info pointer lookup via wrong index
-
-Arnd Bergmann (1):
-      vduse: fix compat handling for VDUSE_IOTLB_GET_FD/VDUSE_VQ_GET_INFO
-
-Christian Fontanez (1):
-      virtio: add missing kernel-doc for map and vmap members
-
-Cindy Lu (2):
-      vdpa/mlx5: update mlx_features with driver state check
-      vdpa/mlx5: update MAC address handling in mlx5_vdpa_set_attr()
-
-Denis V. Lunev (1):
-      vhost/vsock: Refuse the connection immediately when guest isn't ready
-
-Ethan Carter Edwards (1):
-      virtio_console: Fix spelling mistake "colums" -> "columns"
-
-Ethan Nelson-Moore (1):
-      vhost: remove unnecessary module_init/exit functions
-
-Evgenii Burenchev (1):
-      vdpa/ifcvf: handle dev_set_name() failure in ifcvf_vdpa_dev_add()
-
-Filip Hejsek (1):
-      virtio_console: read size from config space during device init
-
-Huacai Chen (1):
-      fw_cfg: Add support for LoongArch architecture
-
-Jason Wang (1):
-      VDUSE: avoid leaking information to userspace
-
-Jia Jia (1):
-      virtio: rtc: tear down old virtqueues before restore
-
-Johan Hovold (3):
-      virtio-mmio: fix device release warning on module unload
-      vdpa_sim_blk: switch to dynamic root device
-      vdpa_sim_net: switch to dynamic root device
-
-Matias Ezequiel Vara Larsen (1):
-      can: virtio: Add virtio CAN driver
-
-Maurice Hieronymus (2):
-      virtio-balloon: Destroy mutex before freeing virtio_balloon
-      virtio-mem: Destroy mutex before freeing virtio_mem
-
-Michael Bommarito (1):
-      hwrng: virtio: clamp device-reported used.len at copy_data()
-
-Michael S. Tsirkin (2):
-      vhost: fix vhost_get_avail_idx for a non empty ring
-      tools/virtio: fix build for kmalloc_obj API and missing stubs
-
-Nathan Chancellor (1):
-      can: virtio: Fix comment in UAPI header
-
-Oleg Nesterov (1):
-      vhost_task_create: kill unnecessary .exit_signal initialization
-
-Qihang Tang (2):
-      vduse: hold vduse_lock across IDR lookup in open path
-      vhost/vdpa: validate virtqueue index in mmap and fault paths
-
-Qing Ming (1):
-      vhost/net: complete zerocopy ubufs only once
-
-Rosen Penev (1):
-      vdpa/mlx5: Use kvzalloc_flex() for MTT command memory
-
-Srujana Challa (2):
-      vdpa/octeon_ep: Fix PF->VF mailbox data address calculation
-      vdpa/octeon_ep: fix IRQ-to-ring mapping in interrupt handler
-
-Vamsi Attunuru (2):
-      vdpa/octeon_ep: Use 4 bytes for mailbox signature
-      vdpa/octeon_ep: Add vDPA device event handling for firmware notifications
-
-Yui Washizu (1):
-      virtio: add num_vf callback to virtio_bus
-
-Zhang Tianci (2):
-      vduse: Requeue failed read to send_list head
-      vduse: Fix race in vduse_dev_msg_sync and vduse_dev_read_iter
-
-longlong yan (1):
-      tools/virtio: check mmap return value in vringh_test
-
- MAINTAINERS                              |    9 +
- drivers/char/hw_random/virtio-rng.c      |   23 +-
- drivers/char/virtio_console.c            |   52 +-
- drivers/firmware/Kconfig                 |    2 +-
- drivers/firmware/qemu_fw_cfg.c           |    2 +-
- drivers/net/can/Kconfig                  |   12 +
- drivers/net/can/Makefile                 |    1 +
- drivers/net/can/virtio_can.c             | 1022 ++++++++++++++++++++++++++++++
- drivers/vdpa/ifcvf/ifcvf_main.c          |   11 +-
- drivers/vdpa/mlx5/core/mr.c              |    7 +-
- drivers/vdpa/octeon_ep/octep_vdpa.h      |   22 +-
- drivers/vdpa/octeon_ep/octep_vdpa_main.c |  131 +++-
- drivers/vdpa/vdpa_sim/vdpa_sim_blk.c     |   24 +-
- drivers/vdpa/vdpa_sim/vdpa_sim_net.c     |   23 +-
- drivers/vdpa/vdpa_user/iova_domain.c     |    2 +-
- drivers/vdpa/vdpa_user/vduse_dev.c       |  197 +++++-
- drivers/vhost/net.c                      |   15 +-
- drivers/vhost/vdpa.c                     |   29 +-
- drivers/vhost/vhost.c                    |   23 +-
- drivers/vhost/vsock.c                    |   16 +
- drivers/virtio/virtio.c                  |    9 +
- drivers/virtio/virtio_balloon.c          |    2 +
- drivers/virtio/virtio_mem.c              |    2 +
- drivers/virtio/virtio_mmio.c             |   26 +-
- drivers/virtio/virtio_pci_common.c       |   10 +-
- drivers/virtio/virtio_ring.c             |   77 ++-
- drivers/virtio/virtio_rtc_driver.c       |   28 +-
- include/linux/virtio.h                   |    2 +
- include/uapi/linux/virtio_can.h          |   78 +++
- include/uapi/linux/virtio_console.h      |    2 +-
- kernel/vhost_task.c                      |    1 -
- tools/virtio/linux/dma-mapping.h         |    2 +
- tools/virtio/linux/err.h                 |    1 +
- tools/virtio/linux/kernel.h              |    6 +
- tools/virtio/vringh_test.c               |    5 +
- 35 files changed, 1690 insertions(+), 184 deletions(-)
- create mode 100644 drivers/net/can/virtio_can.c
- create mode 100644 include/uapi/linux/virtio_can.h
-
+--wb7rzchjydq75p5e--
