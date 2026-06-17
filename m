@@ -1,146 +1,142 @@
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.4])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB52E1A317D
-	for <virtualization@lists.linux.dev>; Wed, 17 Jun 2026 02:09:17 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2945831A807
+	for <virtualization@lists.linux.dev>; Wed, 17 Jun 2026 06:05:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781662161; cv=none; b=eAG7litzG2pE0QVDoVgRmAde1FJpJkIvcy2OfiyneYbDiPFCVew9n2AHY/k/6uDL1ni9mZpUaquJ/aOTkDI6Pe0lxkYluWcoN7NdjfOlQ1meWXiI68oATdgvTNm2Lma0QZg7VahL/H2XKaUpOUfbj6SZ5VMj2h97vf4sdjYXXac=
+	t=1781676329; cv=none; b=DhE6Q9L9XGXjuDXCx2APLEYk2JiDwRxLs7kV0GxwZgy2FRloNEqKWL6cB87e/TcKReP2U6HZm4JGKQ/Ul2BRzh2/WrNUj1DdT+YHn98QNe3PXAeWMRmJop4vF6ThJS5WRF5Ah6MU+w19pc3eAqGDeMXHfGPfVxCcojT8ODqNCQA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781662161; c=relaxed/simple;
-	bh=j4GV/vA7UroP7Df6HTrgxpiz62N7z0GD07P30sTqHc8=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:Content-Type:
-	 MIME-Version:Message-ID; b=dd+e1Q4ZgCFHLj5S8UQJ3xmuk19WB6tkS2UxtloaJgiFxYR7EYV9J6IsQ5BdB9LTkvU4LizTNBSqbkPpUym63QDw/QmtqrWx7+2FN906bCMJzwNPVCUPEMPiWIfw20RgXBa/TlEOmNhdIyaQNKhfCbFUUml1g4M2NTdXKwBVvzg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=c1sVpG/P; arc=none smtp.client-ip=220.197.31.4
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1781676329; c=relaxed/simple;
+	bh=blg25tedHsr6nNuL9TCZv+jpZjqCo8VlNLK3icmEBd8=;
+	h=Date:From:Cc:Subject:Message-ID:MIME-Version:Content-Type:
+	 Content-Disposition; b=Zsx2G+BOcXZDwnCB/+IZ6+qVP//dhHRbN7gQxfrk7GAAEpc7HXjSd65oCiYuOSguqx5YplsIpJen+janfoV0UUaCPPWOd+okJY+yly5MB0S3P3Szk1oVkhtG4y0AjmGQU365F7NHSfpqLo/wNFwCfwQLWba16fFmMYjqCjtOd6s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZwpeHAzN; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="c1sVpG/P"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=Date:From:To:Subject:Content-Type:MIME-Version:
-	Message-ID; bh=j4GV/vA7UroP7Df6HTrgxpiz62N7z0GD07P30sTqHc8=; b=c
-	1sVpG/PIn8LkGE0sv9vxY+us+EG865VAK6Uydw9Gkeo4C1Ovf4aC0zyUeYs8Nebn
-	pcWne4PaOsMK3p1lefJKzN+AW4ykmlXxu9/r4Ymbo4IpbtYWO2/jRE4/lGE4ifts
-	+VgwJZYoUou3P+AyxVrrNU7uAnSBzU+Vj6FU3242qA=
-Received: from lange_tang$163.com ( [116.128.244.169] ) by
- ajax-webmail-wmsvr-40-122 (Coremail) ; Wed, 17 Jun 2026 10:08:55 +0800
- (CST)
-Date: Wed, 17 Jun 2026 10:08:55 +0800 (CST)
-From: "Lange Tang" <lange_tang@163.com>
-To: "xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>
-Cc: "edumazet@google.com" <edumazet@google.com>,
-	"Jakub Kicinski" <kuba@kernel.org>,
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>,
-	"Tang Longjun" <tanglongjun@kylinos.cn>,
-	"jasowang@redhat.com" <jasowang@redhat.com>,
-	"mst@redhat.com" <mst@redhat.com>
-Subject: Re:Re:Re:Re: [PATCH] virtio_net: disable cb when napi_schedule_prep
- fails during busy-poll
-X-Priority: 3
-X-Mailer: Coremail Webmail Server Version 2023.4-cmXT build
- 20260403(27802f6d) Copyright (c) 2002-2026 www.mailtech.cn 163com
-In-Reply-To: <1781592565.1172295-1-xuanzhuo@linux.alibaba.com>
-References: <20260615094550.106391-1-lange_tang@163.com>
- <1781517700.4206195-1-xuanzhuo@linux.alibaba.com>
- <19692a81.3001.19ece5f8ddc.Coremail.lange_tang@163.com>
- <1781580432.712892-1-xuanzhuo@linux.alibaba.com>
- <4118686.4d22.19ecf0ad78e.Coremail.lange_tang@163.com>
- <1781592565.1172295-1-xuanzhuo@linux.alibaba.com>
-X-NTES-SC: AL_Qu2TA/qdvUko4yCbZukcn08QhOo9Wsu0v/0u1YRQc/AEnDLE5gcGelNDL2bQ18ydIRmvlR+RYj1c+v5kbK1e09GGmY4rqoh6qoa7oUGXQA==
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=GBK
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZwpeHAzN"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1781676327;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:to:
+	 cc:cc:mime-version:mime-version:content-type:content-type;
+	bh=xmb1ChIChkMfraENvR3dGIWDnpnux6Qlr9M0UKpRYSo=;
+	b=ZwpeHAzNGI4jQtEuk9iBU4HHiwxEw+0wOVwZKrskj3w3wZJqpbbXzLkfDzIOQjTKcdmASj
+	7fY0dos2dgjzOuFoalLS5RElxFF/eGq1zzdtDTbwAPOfSeHzJXUseSPTP2wehOw+B2Flji
+	+TQmkjvv0raC0W0kgN1NVMI0qe6Y4Ik=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-461-ysWFLL9vMS2yIu_SUes0zA-1; Wed, 17 Jun 2026 02:05:25 -0400
+X-MC-Unique: ysWFLL9vMS2yIu_SUes0zA-1
+X-Mimecast-MFC-AGG-ID: ysWFLL9vMS2yIu_SUes0zA_1781676324
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-45ef0af9517so4965876f8f.3
+        for <virtualization@lists.linux.dev>; Tue, 16 Jun 2026 23:05:25 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781676324; x=1782281124;
+        h=content-disposition:mime-version:message-id:subject:cc:from:date
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=xmb1ChIChkMfraENvR3dGIWDnpnux6Qlr9M0UKpRYSo=;
+        b=tTv2CGvpxieisTEOyZeKZv310PGfIMYszha3+xSb4RQbveqwGbsg/XgJ3OC6w2eX9p
+         B3nM+nrpWSRTrAHtmErFC/TgE5TY/1iLO4Fm7k0gs1JBvUAX1ITkMSm6Qo5wJKLqvAhD
+         i/SWOXeLC9SRAib9qogeS6l5UoTjpveIfcuo+mF5OSsCJmT7oJYzHzRo6zB0OJYiVgBc
+         vUdgChBelFdJNDohniZhQvl+i8vzVyqkIW1X04BczBfSzHSL4KtAaas3EN8EgKNuo+AA
+         U2dcmyFI3hdeBzoj7beAdK6dmnOLIXN5TB/eaB097P8dREBq24p/xykEnRcuzfOs+kFk
+         QZXA==
+X-Forwarded-Encrypted: i=1; AFNElJ+umXdDJ4B6hisHvFvS9JFHIFMTcd6w6IM5a3L2TKXI/AkLUpuP5DCahYl+/vKnv0R+I7tG3gSIMloiYgKEMQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyst09stJpnvJiZlJBN88YZHbZo+2ai3rcAXtwjEsLhxJy/q0h5
+	EZyUxPWiJymuWd/bk7+e4/K+84XDbL3EGftcYXPy+SRj4kYT3DhbrZY2DpL8wazKLsO2UWBlB3B
+	WJ6eBvzJ8x1R8meIVxR1OpvhJoVraAM89Qtn5IADIfXma/MIq1G8Afx6fqMgSFvON4IPK
+X-Gm-Gg: AfdE7cmfWWcEW6+2koNnsNXvf4yafA4mIHpN0W287o/0iC7cHoh9k8Q62RhqIwHpwy7
+	fojHuXdi2CJZoouqslQL48YP+rfLW6I7d1rKlq6iIxDEoCUbkdMPq8uPYOX8LHrUZJsqbG+nq57
+	cc18QZv24sEvvc7ukalBwnE8w/OiXqsHIS+EbxHhb27DsXLFQ0XoH4t0Uw6pmNIyDl7C67YIjkF
+	7RKu4e6iHmsyG5nRAGIRJTRA3yvb7j9aWO/oLdAxyoIDp3aakQNqQRy54MONjLOZvS83XCYQGJe
+	g+51aWefSMEdmT83radKpoOuGtooCo+6KxZNYovOAvDFguTeKtvOFsCCrm0u5r93t2N7q21P2oZ
+	v5QZIqC9X4Bvgn/N7pYGsI1AB3YPsMROg
+X-Received: by 2002:a05:6000:22c5:b0:460:5979:8a63 with SMTP id ffacd0b85a97d-4623955bc0cmr3982797f8f.42.1781676323909;
+        Tue, 16 Jun 2026 23:05:23 -0700 (PDT)
+X-Received: by 2002:a05:6000:22c5:b0:460:5979:8a63 with SMTP id ffacd0b85a97d-4623955bc0cmr3982729f8f.42.1781676323375;
+        Tue, 16 Jun 2026 23:05:23 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-85-71.inter.net.il. [80.230.85.71])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4619a041986sm26448066f8f.23.2026.06.16.23.05.22
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 16 Jun 2026 23:05:22 -0700 (PDT)
+Date: Wed, 17 Jun 2026 02:05:21 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+	Jason Wang <jasowang@redhat.com>, linux-kernel@vger.kernel.org,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	virtualization@lists.linux.dev,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Subject: [PATCH] tools/virtio: fix build for kmalloc_obj API and missing stubs
+Message-ID: <a0bd4b5bed56c49626c92a754d7aceab3325de25.1780520728.git.mst@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Message-ID: <2f42f4e.1e16.19ed356b302.Coremail.lange_tang@163.com>
-X-Coremail-Locale: zh_CN
-X-CM-TRANSID:eigvCgDXLzW3ATJq9OYKAA--.16668W
-X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbC4ReUwmoyAbemFQAA39
-X-Coremail-Antispam: 1U5529EdanIXcx71UUUUU7vcSsGvfC2KfnxnUU==
+X-Mimecast-Spam-Score: 2
+X-Mimecast-MFC-PROC-ID: xGPjYfdWVmLOOEFCEOJrPSSBz82X3agHK5pDsM70avs_1781676324
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Message-ID: <20260617060521.2JtULcAt86KpAbF-nsXsVSP9GlqfKewMQVDZmgv481w@z>
 
-QXQgMjAyNi0wNi0xNiAxNDo0OToyNSwgIlh1YW4gWmh1byIgPHh1YW56aHVvQGxpbnV4LmFsaWJh
-YmEuY29tPiB3cm90ZToKPk9uIFR1ZSwgMTYgSnVuIDIwMjYgMTQ6MDc6MzQgKzA4MDAgKENTVCks
-IExhbmdlIFRhbmcgPGxhbmdlX3RhbmdAMTYzLmNvbT4gd3JvdGU6Cj4+IEF0IDIwMjYtMDYtMTYg
-MTE6Mjc6MTIsICJYdWFuIFpodW8iIDx4dWFuemh1b0BsaW51eC5hbGliYWJhLmNvbT4gd3JvdGU6
-Cj4+ID5PbiBUdWUsIDE2IEp1biAyMDI2IDExOjAwOjI5ICswODAwIChDU1QpLCBMYW5nZSBUYW5n
-IDxsYW5nZV90YW5nQDE2My5jb20+IHdyb3RlOgo+PiA+PiBBdCAyMDI2LTA2LTE1IDE4OjAxOjQw
-LCAiWHVhbiBaaHVvIiA8eHVhbnpodW9AbGludXguYWxpYmFiYS5jb20+IHdyb3RlOgo+PiA+PiA+
-T24gTW9uLCAxNSBKdW4gMjAyNiAxNzo0NTo1MCArMDgwMCwgTG9uZ2p1biBUYW5nIDxsYW5nZV90
-YW5nQDE2My5jb20+IHdyb3RlOgo+PiA+PiA+PiBGcm9tOiBMb25nanVuIFRhbmcgPHRhbmdsb25n
-anVuQGt5bGlub3MuY24+Cj4+ID4+ID4+Cj4+ID4+ID4+IFdoZW4gYnVzeS1wb2xsIGlzIGFjdGl2
-ZSwgbmFwaV9zY2hlZHVsZV9wcmVwKCkgcmV0dXJucyBmYWxzZSBpbgo+PiA+PiA+PiBza2JfcmVj
-dl9kb25lKCksIHNvIHZpcnRxdWV1ZV9kaXNhYmxlX2NiKCkgaXMgc2tpcHBlZC4gVGhlIGRldmlj
-ZQo+PiA+PiA+PiBtYXkga2VlcCBmaXJpbmcgaXJxcyB1bnRpbCB0aGUgbmV4dCBwb2xsIHJvdW5k
-IHJlYWNoZXMKPj4gPj4gPj4gdmlydHF1ZXVlX25hcGlfY29tcGxldGUoKS4gSWYgY2IgaXMgZW5h
-YmxlZCB1bmRlciBidXN5LXBvbGwgY2FzZSwKPj4gPj4gPj4gaXQgd2lsbCBsZWFkIHRvIGEgbGFy
-Z2UgbnVtYmVyIG9mIHNwdXJpb3VzIGludGVycnVwdHMuIEV4cGxpY2l0bHkKPj4gPj4gPj4gZGlz
-YWJsZSBjYWxsYmFja3MgaW4gdGhpcyBjYXNlIHRvIHByZXZlbnQgc3B1cmlvdXMgaW50ZXJydXB0
-cy4KPj4gPj4gPj4KPj4gPj4gPj4gU2lnbmVkLW9mZi1ieTogTG9uZ2p1biBUYW5nIDx0YW5nbG9u
-Z2p1bkBreWxpbm9zLmNuPgo+PiA+PiA+PiAtLS0KPj4gPj4gPj4gIGRyaXZlcnMvbmV0L3ZpcnRp
-b19uZXQuYyB8IDIgKysKPj4gPj4gPj4gIDEgZmlsZSBjaGFuZ2VkLCAyIGluc2VydGlvbnMoKykK
-Pj4gPj4gPj4KPj4gPj4gPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYyBi
-L2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+PiA+PiA+PiBpbmRleCBmNGFkY2ZlZTdhODAuLjZk
-Njc1ZmRkYzU5YiAxMDA2NDQKPj4gPj4gPj4gLS0tIGEvZHJpdmVycy9uZXQvdmlydGlvX25ldC5j
-Cj4+ID4+ID4+ICsrKyBiL2RyaXZlcnMvbmV0L3ZpcnRpb19uZXQuYwo+PiA+PiA+PiBAQCAtNzI4
-LDYgKzcyOCw4IEBAIHN0YXRpYyB2b2lkIHZpcnRxdWV1ZV9uYXBpX3NjaGVkdWxlKHN0cnVjdCBu
-YXBpX3N0cnVjdCAqbmFwaSwKPj4gPj4gPj4gIAlpZiAobmFwaV9zY2hlZHVsZV9wcmVwKG5hcGkp
-KSB7Cj4+ID4+ID4+ICAJCXZpcnRxdWV1ZV9kaXNhYmxlX2NiKHZxKTsKPj4gPj4gPj4gIAkJX19u
-YXBpX3NjaGVkdWxlKG5hcGkpOwo+PiA+PiA+PiArCX0gZWxzZSBpZiAodGVzdF9iaXQoTkFQSV9T
-VEFURV9JTl9CVVNZX1BPTEwsICZuYXBpLT5zdGF0ZSkpIHsKPj4gPj4gPj4gKwkJdmlydHF1ZXVl
-X2Rpc2FibGVfY2IodnEpOwo+PiA+PiA+Cj4+ID4+ID5JIHNlZSwgYnV0IHdlIHNob3VsZCBhdm9p
-ZCBjaGVja2luZyBOQVBJX1NUQVRFX0lOX0JVU1lfUE9MTCBkaXJlY3RseSBpbiB0aGUKPj4gPj4g
-PmRyaXZlcnMuIFRoZSBOSUMgZHJpdmVyIHNob3VsZCByZW1haW4gYWdub3N0aWMgdG8gYnVzeSBw
-b2xsaW5nLiBJIHRoaW5rIHdlIG5lZWQKPj4gPj4gPmEgYmV0dGVyIHdheSwgbWF5YmUgd2Ugc2hv
-dWxkIHJld3JpdGUgdmlydHF1ZXVlX25hcGlfc2NoZWR1bGUgaW5zdGVhZC4KPj4gPj4KPj4gPj4g
-SG93IGFib3V0IHJld3JpdGUgaXQgbGlrZSB0aGlzPwo+PiA+PiBzdGF0aWMgdm9pZCB2aXJ0cXVl
-dWVfbmFwaV9zY2hlZHVsZShzdHJ1Y3QgbmFwaV9zdHJ1Y3QgKm5hcGksCj4+ID4+ICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgICAgICAgIHN0cnVjdCB2aXJ0cXVldWUgKnZxKQo+PiA+PiB7
-Cj4+ID4+ICAgICAgICAgdmlydHF1ZXVlX2Rpc2FibGVfY2IodnEpOwo+PiA+PiAgICAgICAgIGlm
-IChuYXBpX3NjaGVkdWxlX3ByZXAobmFwaSkpCj4+ID4+ICAgICAgICAgICAgICAgICBfX25hcGlf
-c2NoZWR1bGUobmFwaSk7Cj4+ID4+IH0KPj4gPj4gQW55IGNvbW1lbnRzIGFyZSB3ZWxjb21lLgo+
-PiA+Cj4+ID4KPj4gPkFub3RoZXIgQ1BVIGNvdWxkIGJlIHJ1bm5pbmcgTkFQSSBhbmQgaGFzIGp1
-c3QgZW5hYmxlZCB0aGUgY2FsbGJhY2tzIChjYikuCj4+ID5NZWFud2hpbGUsIHRoaXMgc2lkZSB1
-bmNvbmRpdGlvbmFsbHkgZGlzYWJsZXMgdGhlIGNiLiBTaW5jZSBOQVBJIG9uIHRoZSBvdGhlcgo+
-PiA+Q1BVIGhhc24ndCBleGl0ZWQgeWV0LCB0aGUgc3Vic2VxdWVudCBwcmVwIG9uIHRoaXMgc2lk
-ZSBmYWlscywgbGVhdmluZyBubyBvbmUgdG8KPj4gPnJlLWVuYWJsZSB0aGUgY2IuCj4+ID4KPj4g
-PlRoYW5rcy4KPj4KPj4gUmVnYXJkaW5nIHRoZSBjYXNlIHlvdSBkZXNjcmliZWQsIHdoZW4gTkFQ
-SSBvbiBhbm90aGVyIENQVSBleGl0cywgdGhlIHZpcnRxdWV1ZV9uYXBpX2NvbXBsZXRlIGZ1bmMK
-Pj4gd2lsbCBiZSBleGVjdXRlZCB0byByZS1lbmFibGUgY2IuICBhbmQgaWYgdGhlcmUgaXMgc3Rp
-bGwgdW5jb25zdW1lZCBkYXRhIGluIHRoZSB2aXJ0cXVldWUsIHZpcnRxdWV1ZV9uYXBpX3NjaGVk
-dWxlCj4+IHdpbGwgYmUgY2FsbGVkIGFnYWluIHRvIHNjaGVkdWxlIE5BUEkuCj4+Cj4+IEluIHN1
-bW1hcnksIEkgdGhpbmsgdGhhdCB0aGUgZGlzYWJsZV9jYiBhbmQgX19uYXBpX3NjaGVkdWxlIHdp
-dGhpbiB0aGUgdmlydHF1ZXVlX25hcGlfc2NoZWR1bGUgZnVuYyBkbyBub3QgbmVlZCB0byBiZSBi
-b3VuZCB0b2dldGhlci4KPj4KPj4gQW55IGNvbW1lbnRzIGFyZSB3ZWxjb21lLiBUaGlua3MuCj4K
-Pgo+PFlvdXIgY29kZT4KPnN0YXRpYyB2b2lkIHZpcnRxdWV1ZV9uYXBpX3NjaGVkdWxlKHN0cnVj
-dCBuYXBpX3N0cnVjdCAqbmFwaSwKPiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-IHN0cnVjdCB2aXJ0cXVldWUgKnZxKQo+ewo+Cj4JCQkJCQkJICAgICAgIHxzdGF0aWMgYm9vbCB2
-aXJ0cXVldWVfbmFwaV9jb21wbGV0ZShzdHJ1Y3QgbmFwaV9zdHJ1Y3QgKm5hcGksCj4JCQkJCQkJ
-ICAgICAgIHwJCQkJICAgIHN0cnVjdCB2aXJ0cXVldWUgKnZxLCBpbnQgcHJvY2Vzc2VkKQo+CQkJ
-CQkJCSAgICAgICB8ewo+CQkJCQkJCSAgICAgICB8CWludCBvcGFxdWU7Cj4JCQkJCQkJICAgICAg
-IHwKPgkJCQkJCQkgICAgICAgfAlvcGFxdWUgPSB2aXJ0cXVldWVfZW5hYmxlX2NiX3ByZXBhcmUo
-dnEpOwo+ICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAg
-ICAgICAgICAgICAgfAo+ICAgICAgICB2aXJ0cXVldWVfZGlzYWJsZV9jYih2cSk7ICAgICAgICAg
-ICAgICAgICAgICAgICAgICAgICAgfAo+ICAgICAgICBpZiAobmFwaV9zY2hlZHVsZV9wcmVwKG5h
-cGkpKSAgICAgICAgICAgICAgICAgICAgICAgICAgfAo+ICAgICAgICAgICAgICAgIF9fbmFwaV9z
-Y2hlZHVsZShuYXBpKTsgICAgICAgICAgICAgICAgICAgICAgICAgfAo+CQkJCQkJCSAgICAgICB8
-CWlmIChuYXBpX2NvbXBsZXRlX2RvbmUobmFwaSwgcHJvY2Vzc2VkKSkgewo+CQkJCQkJCSAgICAg
-ICB8CQlpZiAodW5saWtlbHkodmlydHF1ZXVlX3BvbGwodnEsIG9wYXF1ZSkpKQo+CQkJCQkJCSAg
-ICAgICB8CQkJdmlydHF1ZXVlX25hcGlfc2NoZWR1bGUobmFwaSwgdnEpOwo+CQkJCQkJCSAgICAg
-ICB8CQllbHNlCj4JCQkJCQkJICAgICAgIHwJCQkgcmV0dXJuIHRydWU7IC8vIHJldHVybiBkaXJl
-Y3RseQo+CQkJCQkJCSAgICAgICB8CX0gZWxzZSB7Cj4JCQkJCQkJICAgICAgIHwJCXZpcnRxdWV1
-ZV9kaXNhYmxlX2NiKHZxKTsKPgkJCQkJCQkgICAgICAgfAl9Cj4JCQkJCQkJICAgICAgIHwKPgkJ
-CQkJCQkgICAgICAgfAlyZXR1cm4gZmFsc2U7Cj4JCQkJCQkJICAgICAgIHx9Cj59Cj4KPjEuIG5l
-dyBwYWNrZXRzIChub3RpZmllZCBieSBpcnEpIGFyZSBjb25zdW1lZCBieSBuYXBpIGJlZm9yZSB2
-aXJ0cXVldWVfbmFwaV9jb21wbGV0ZQo+Mi4gcG9sbCBpcyBub3QgY2FsbGVkIGJ5IGlycSwgbWF5
-YmUgeHNrIHdha2UgdXAuIFNvIGlycSBpcyBub3QgZGlzYWJsZWQuCj4KPgo+VGhhbmtzLgoKQmFz
-ZWQgb24geW91ciBjb2RlIGFuYWx5c2lzIGFib3ZlLCBJIGdvdCAuICB0aGFua3MuCmRpc2FibGVf
-Y2IgYW5kIF9fbmFwaV9zY2hlZHVsZSBpbiB0aGUgdmlydHF1ZXVlX25hcGlfc2NoZWR1bGUgZnVu
-YyBpbmRlZWQgY2Fubm90IGJlIHNlcGFyYXRlZC4KClJlZ2FyZGluZyB0aGUgaXNzdWUgb2Ygbm90
-IGJlaW5nIGFibGUgdG8gZGlzYWJsZSBjYiBpbiBhIGJ1c3ktcG9sbCBjb250ZXh0LCBkbyB5b3Ug
-aGF2ZSBhbnkgc3VnZ2VzdGlvbnM/CgpBbnkgY29tbWVudHMgYXJlIHdlbGNvbWUuIFRoYW5rcy4K
-Pgo+Cj4+Cj4+ID4KPj4gPgo+PiA+PiA+Cj4+ID4+ID4KPj4gPj4gPj4gIAl9Cj4+ID4+ID4+ICB9
-Cj4+ID4+ID4+Cj4+ID4+ID4+IC0tCj4+ID4+ID4+IDIuMjUuMQo+PiA+PiA+Pgo+PiA+Pgo+Pgo=
+Add stubs for kmalloc_obj() and kmalloc_objs() to the tools/virtio
+test harness, matching the new kernel allocator API. Also add the
+DMA_ATTR_CPU_CACHE_CLEAN definition and include kernel.h from err.h
+for the unlikely() macro.
+
+Assisted-by: Claude:claude-opus-4-6
+Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
+---
+ tools/virtio/linux/dma-mapping.h | 2 ++
+ tools/virtio/linux/err.h         | 1 +
+ tools/virtio/linux/kernel.h      | 6 ++++++
+ 3 files changed, 9 insertions(+)
+
+diff --git a/tools/virtio/linux/dma-mapping.h b/tools/virtio/linux/dma-mapping.h
+index fddfa2fbb276..8d1a16cb20db 100644
+--- a/tools/virtio/linux/dma-mapping.h
++++ b/tools/virtio/linux/dma-mapping.h
+@@ -60,4 +60,6 @@ enum dma_data_direction {
+  */
+ #define DMA_MAPPING_ERROR		(~(dma_addr_t)0)
+ 
++#define DMA_ATTR_CPU_CACHE_CLEAN	(1UL << 11)
++
+ #endif
+diff --git a/tools/virtio/linux/err.h b/tools/virtio/linux/err.h
+index 0943c644a701..b7b4cb516dc9 100644
+--- a/tools/virtio/linux/err.h
++++ b/tools/virtio/linux/err.h
+@@ -1,6 +1,7 @@
+ /* SPDX-License-Identifier: GPL-2.0 */
+ #ifndef ERR_H
+ #define ERR_H
++#include <linux/kernel.h>
+ #define MAX_ERRNO	4095
+ 
+ #define IS_ERR_VALUE(x) unlikely((x) >= (unsigned long)-MAX_ERRNO)
+diff --git a/tools/virtio/linux/kernel.h b/tools/virtio/linux/kernel.h
+index 416d02703f61..104abf9d1aee 100644
+--- a/tools/virtio/linux/kernel.h
++++ b/tools/virtio/linux/kernel.h
+@@ -65,6 +65,12 @@ static inline void *kmalloc_array(unsigned n, size_t s, gfp_t gfp)
+ 	return kmalloc(n * s, gfp);
+ }
+ 
++#define kmalloc_obj(VAR_OR_TYPE, ...) \
++	((typeof(VAR_OR_TYPE) *)kmalloc(sizeof(typeof(VAR_OR_TYPE)), 0))
++
++#define kmalloc_objs(VAR_OR_TYPE, COUNT, ...) \
++	((typeof(VAR_OR_TYPE) *)kmalloc(sizeof(typeof(VAR_OR_TYPE)) * (COUNT), 0))
++
+ static inline void *kzalloc(size_t s, gfp_t gfp)
+ {
+ 	void *p = kmalloc(s, gfp);
+-- 
+MST
 
