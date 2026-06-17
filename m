@@ -1,116 +1,152 @@
-Received: from sender4-op-o15.zoho.com (sender4-op-o15.zoho.com [136.143.188.15])
+Received: from sender4-op-o11.zoho.com (sender4-op-o11.zoho.com [136.143.188.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BF8574071F8;
-	Wed, 17 Jun 2026 12:26:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF14C3EF642
+	for <virtualization@lists.linux.dev>; Wed, 17 Jun 2026 15:12:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.11
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781699188; cv=pass; b=PcEREaLlP1/8p6VcFZRMK8snEf0g0LJnjRt9miHpusT9s1CRu8iB8EjOqMnAajhCYli/tWqjXhO+/T8LSYV6kyLZ6upo3qOUKa8LdSrxNM/j3kEEbYjUAP6bnK1ctHx6oSOCICSHEP+TBLC/BgYCQCQ+4jD8yJLEBW1q9dD8BWc=
+	t=1781709130; cv=pass; b=V13xihBp3bymxjsxXC8sRNKv5AT8ZlYFRI5bgkXqGhX1URqhFoRQrK42tWiR8j9dgkLOEjNEPJyNKmAZB/SRNrGn2WQe1ywX3swClyKMMK6R1/5gGpfvkLbLPllrhuNGlYp83znXn7nuiGnwBwuDaiP1h45xwnCN9nn23y3MQOA=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781699188; c=relaxed/simple;
-	bh=s/t/3obYASgpKnZE5QF0BBSwV2OFBGibq8mYG+xMHGg=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=BORPITVVR/fmElEY9ojMPRMsQS1MjGLDvjR2u2PAj5C6BqUaAdJLUSTZ0vnaPMlBJQvnj4KJSAPTCL/FOViNUbEpQEo5jB74iEon2e+v4YhL77xhE2dCtEUQ5NlCIYUREnxw7Nb8iXsLs9g6vVL5kPA7DEWcEPwjuP0jhKISSgA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.beauty; spf=pass smtp.mailfrom=linux.beauty; dkim=pass (1024-bit key) header.d=linux.beauty header.i=me@linux.beauty header.b=C2SLnXPB; arc=pass smtp.client-ip=136.143.188.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.beauty
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.beauty
+	s=arc-20240116; t=1781709130; c=relaxed/simple;
+	bh=FtebdcmnjUqGUR/VUW4dOJhcY24A5De2uZTCfbxNY3o=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=CkbDFabplDq7H/kSrhogjUmBxCwWf3HKWOqFnCIFDwG4o7JX4vN7IMmuPNw9gE/IJhJAGvqb31G72KCBOa3oV9kfuH8L4+hQfKyX30lPqdVOudzURrojccax0cI0X9y+u1E1r0IobMBficdAdG0dKQqB7VjsIEErKWvI8jYN36o=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=KuOcx0Bj; arc=pass smtp.client-ip=136.143.188.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.beauty header.i=me@linux.beauty header.b="C2SLnXPB"
-ARC-Seal: i=1; a=rsa-sha256; t=1781699134; cv=none; 
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="KuOcx0Bj"
+ARC-Seal: i=1; a=rsa-sha256; t=1781709121; cv=none; 
 	d=zohomail.com; s=zohoarc; 
-	b=VDjUf+q3GdSKuA3Yb7KIeg+K2VSo1GXRWf1an4G14LGogbavI0TGTOsD9j0QgMQtE4XK238amuL8tT1FzJT3g3sUeb0Q0bEwYgZLK9GcjKp/nO3R7/0r1S8g1m/f6HVk4vnzqq7H5ZWap4DTm/nqgWyvdF+PTzgU+0pNecd8miU=
+	b=O6nzthhr8ffBguhipBY1ICa0UJr7rAfF9URhb2cx7k7D1v88Fx1nRBFqOAtA+s0XzQ2fK0SgN5cJqQ1hWCRy7SQ9Y93wFDsvyDOKmHVXG7xAbsuKZ3bTyf/CnQeJndDTap2dPVPPDNoWfkK5Bw8KXcQ6+TUKLhTVHX/K1M9xuqg=
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1781699134; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=kZE5a6xt/jRyIux8T+qErS1o83ikwPQoZPybeq7hjwo=; 
-	b=U63eYboNctKz/QKsSA2HqWHzBEjwP+XbRl5FqZ3cb0w3JJumehdEEhjWtbZ8ixotbnOALH7G95lFqHzXxwxEKO0vjloEwG9JtXf/r/OH5kimZPuxGmed3qSbR/wWjiulzIHDdczKA9aJmgm0Ls3+OL2jvJHYKXgPEk9jB9HRJQ4=
+	t=1781709121; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=ZjtSjyFt5TZ4cLUaoZ7JBXmXW1BxNLYyNANiatQ+YOk=; 
+	b=MznfHGQZ1vJvbpP/LKPrXlWb6tVM4Bcdxz3S9QFQ9v68N8Ps+qxAMSXoEQs5TgixMkmY6sbaBB07VCkhbXtp9eY1UZHmzCyofJGySl/8/pO3l7QOb/KcnalNLF7RibJlCgn/090dr1WlbTAx1L+VgoG3FxlKkNAM4CIN5ErEz8U=
 ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=linux.beauty;
-	spf=pass  smtp.mailfrom=me@linux.beauty;
-	dmarc=pass header.from=<me@linux.beauty>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1781699134;
-	s=zmail; d=linux.beauty; i=me@linux.beauty;
-	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:In-Reply-To:References:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=kZE5a6xt/jRyIux8T+qErS1o83ikwPQoZPybeq7hjwo=;
-	b=C2SLnXPBJVxE6Fh4G7s5dGwW49e85ttk7yuxe73CsqzXiwbzWOndaNONFHd0kMGO
-	dw0tVyOClawRR8TFc9s9FQertfTIchzm03Oa4WlQKDcBCzBmEtjiPIx0xeLNfEfpsBe
-	izKH+uAOQn97R+v1r0NOVilVLFTzuoSdtpD7MneM=
-Received: by mx.zohomail.com with SMTPS id 1781699131600843.5815514663028;
-	Wed, 17 Jun 2026 05:25:31 -0700 (PDT)
-From: Li Chen <me@linux.beauty>
-To: Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
-	Dan Williams <dan.j.williams@intel.com>,
-	Vishal Verma <vishal.l.verma@intel.com>,
-	Dave Jiang <dave.jiang@intel.com>,
-	Ira Weiny <ira.weiny@intel.com>,
-	Alison Schofield <alison.schofield@intel.com>,
-	virtualization@lists.linux.dev,
-	nvdimm@lists.linux.dev
-Cc: linux-kernel@vger.kernel.org,
-	Li Chen <me@linux.beauty>
-Subject: [PATCH v5 8/8] nvdimm: virtio_pmem: drain requests in freeze
-Date: Wed, 17 Jun 2026 20:24:40 +0800
-Message-ID: <20260617122442.2118957-9-me@linux.beauty>
-X-Mailer: git-send-email 2.52.0
-In-Reply-To: <20260617122442.2118957-1-me@linux.beauty>
-References: <20260617122442.2118957-1-me@linux.beauty>
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1781709121;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=ZjtSjyFt5TZ4cLUaoZ7JBXmXW1BxNLYyNANiatQ+YOk=;
+	b=KuOcx0BjcFPbwoBpYv23pS1DvpYDcnYHn9dha5Wxa0nvvYUFPkx+g6wgPvjH1tE0
+	YDKODIQtC0wQXCRyExyp6UMWJ0lNDtGiWcllzeIFt7QG3rUD4vP+lVRxH6TOvroPkOu
+	/KxnyETSFMUv88tYig2L8XGFO1qD7NmPLj6Zro5o=
+Received: by mx.zohomail.com with SMTPS id 1781709119480302.08162841751493;
+	Wed, 17 Jun 2026 08:11:59 -0700 (PDT)
+Message-ID: <54d6527d-30c2-4e73-846d-c0e5276c8f74@collabora.com>
+Date: Wed, 17 Jun 2026 18:11:54 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] drm/virtio: Use common error handling code in two
+ functions
+To: Markus Elfring <Markus.Elfring@web.de>, virtualization@lists.linux.dev,
+ dri-devel@lists.freedesktop.org, Chia-I Wu <olvaffe@gmail.com>,
+ David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Simona Vetter <simona@ffwll.ch>,
+ Thomas Zimmermann <tzimmermann@suse.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
+References: <b7440806-e9e8-4027-afe1-f6fe9297d8b2@web.de>
+Content-Language: en-US
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <b7440806-e9e8-4027-afe1-f6fe9297d8b2@web.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 X-ZohoMailClient: External
 
-virtio_pmem_freeze() currently deletes virtqueues and resets the device
-without waking threads waiting for a virtqueue descriptor or a host
-completion.
+Hi,
 
-Mark the request virtqueue broken before reset. This makes new submissions
-fail fast and lets -ENOSPC waiters leave the wait list. Reset the device
-before draining used and unused request tokens, then delete the virtqueues.
-This wakes waiters with -EIO. It also keeps the detach call on a quiesced
-device.
+On 6/9/26 21:08, Markus Elfring wrote:
+> From: Markus Elfring <elfring@users.sourceforge.net>
+> Date: Tue, 9 Jun 2026 20:00:07 +0200
+> 
+> Use additional labels so that a bit of exception handling can be better
+> reused at the end of two function implementations.
+> 
+> This issue was detected by using the Coccinelle software.
+> 
+> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
+> ---
+>  drivers/gpu/drm/virtio/virtgpu_vq.c   |  7 +++----
+>  drivers/gpu/drm/virtio/virtgpu_vram.c | 16 ++++++++--------
+>  2 files changed, 11 insertions(+), 12 deletions(-)
+> 
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+> index 67865810a2e7..05b19c73103a 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+> @@ -318,15 +318,14 @@ static struct sg_table *vmalloc_to_sgt(char *data, uint32_t size, int *sg_ents)
+>  
+>  	*sg_ents = DIV_ROUND_UP(size, PAGE_SIZE);
+>  	ret = sg_alloc_table(sgt, *sg_ents, GFP_KERNEL);
+> -	if (ret) {
+> -		kfree(sgt);
+> -		return NULL;
+> -	}
+> +	if (ret)
+> +		goto free_sgt;
+>  
+>  	for_each_sgtable_sg(sgt, sg, i) {
+>  		pg = vmalloc_to_page(data);
+>  		if (!pg) {
+>  			sg_free_table(sgt);
+> +free_sgt:
+>  			kfree(sgt);
+>  			return NULL;
+>  		}
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_vram.c b/drivers/gpu/drm/virtio/virtgpu_vram.c
+> index 4ae3cbc35dd3..ec5b669fccfa 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_vram.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_vram.c
+> @@ -212,16 +212,12 @@ int virtio_gpu_vram_create(struct virtio_gpu_device *vgdev,
+>  
+>  	/* Create fake offset */
+>  	ret = drm_gem_create_mmap_offset(obj);
+> -	if (ret) {
+> -		kfree(vram);
+> -		return ret;
+> -	}
+> +	if (ret)
+> +		goto free_vram;
+>  
+>  	ret = virtio_gpu_resource_id_get(vgdev, &vram->base.hw_res_handle);
+> -	if (ret) {
+> -		kfree(vram);
+> -		return ret;
+> -	}
+> +	if (ret)
+> +		goto free_vram;
+>  
+>  	virtio_gpu_cmd_resource_create_blob(vgdev, &vram->base, params, NULL,
+>  					    0);
+> @@ -237,6 +233,10 @@ int virtio_gpu_vram_create(struct virtio_gpu_device *vgdev,
+>  
+>  	*bo_ptr = &vram->base;
+>  	return 0;
+> +
+> +free_vram:
+> +	kfree(vram);
+> +	return ret;
+>  }
+>  
+>  void virtio_gpu_vram_map_deferred(struct virtio_gpu_object_vram *vram)
 
-Signed-off-by: Li Chen <me@linux.beauty>
----
-Changes in v5:
-- Reset the device before draining used and unused request tokens.
-- Use the split broken-marking and post-reset drain helpers.
-v2->v3:
-- No change.
-v3->v4:
-- Rebased onto v7.1-rc7 and renumbered after the flush error patches.
+Please see [1], will be great if you could address the reported issues
+with this patch in v2 and add another patch fixing the
+virtio_gpu_resource_id_get() error handling.
 
- drivers/nvdimm/virtio_pmem.c | 14 +++++++++++++-
- 1 file changed, 13 insertions(+), 1 deletion(-)
+[1]
+https://sashiko.dev/#/patchset/b7440806-e9e8-4027-afe1-f6fe9297d8b2%40web.de
 
-diff --git a/drivers/nvdimm/virtio_pmem.c b/drivers/nvdimm/virtio_pmem.c
-index 3bcc7b3671d21..9961bc2678d0f 100644
---- a/drivers/nvdimm/virtio_pmem.c
-+++ b/drivers/nvdimm/virtio_pmem.c
-@@ -158,9 +158,21 @@ static void virtio_pmem_remove(struct virtio_device *vdev)
- 
- static int virtio_pmem_freeze(struct virtio_device *vdev)
- {
--	vdev->config->del_vqs(vdev);
-+	struct virtio_pmem *vpmem = vdev->priv;
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&vpmem->pmem_lock, flags);
-+	virtio_pmem_mark_broken(vpmem);
-+	spin_unlock_irqrestore(&vpmem->pmem_lock, flags);
-+
- 	virtio_reset_device(vdev);
- 
-+	spin_lock_irqsave(&vpmem->pmem_lock, flags);
-+	virtio_pmem_drain(vpmem);
-+	spin_unlock_irqrestore(&vpmem->pmem_lock, flags);
-+
-+	vdev->config->del_vqs(vdev);
-+
- 	return 0;
- }
- 
 -- 
-2.52.0
+Best regards,
+Dmitry
