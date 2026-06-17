@@ -1,152 +1,287 @@
-Received: from sender4-op-o11.zoho.com (sender4-op-o11.zoho.com [136.143.188.11])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qk1-f170.google.com (mail-qk1-f170.google.com [209.85.222.170])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EF14C3EF642
-	for <virtualization@lists.linux.dev>; Wed, 17 Jun 2026 15:12:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.11
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781709130; cv=pass; b=V13xihBp3bymxjsxXC8sRNKv5AT8ZlYFRI5bgkXqGhX1URqhFoRQrK42tWiR8j9dgkLOEjNEPJyNKmAZB/SRNrGn2WQe1ywX3swClyKMMK6R1/5gGpfvkLbLPllrhuNGlYp83znXn7nuiGnwBwuDaiP1h45xwnCN9nn23y3MQOA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781709130; c=relaxed/simple;
-	bh=FtebdcmnjUqGUR/VUW4dOJhcY24A5De2uZTCfbxNY3o=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=CkbDFabplDq7H/kSrhogjUmBxCwWf3HKWOqFnCIFDwG4o7JX4vN7IMmuPNw9gE/IJhJAGvqb31G72KCBOa3oV9kfuH8L4+hQfKyX30lPqdVOudzURrojccax0cI0X9y+u1E1r0IobMBficdAdG0dKQqB7VjsIEErKWvI8jYN36o=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=KuOcx0Bj; arc=pass smtp.client-ip=136.143.188.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B158A480327
+	for <virtualization@lists.linux.dev>; Wed, 17 Jun 2026 15:17:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.170
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1781709458; cv=none; b=u9m6kqXBEQ3OjXtirztgwiEaU+GrznYUs83VB/wV56MCMXAZHr1V/+Txq/bPjwTsqJ0e1IRN1ZO+56g5VwpKckmfs5MnG8nnN4/lrdXctvThEUCACsDQ6mJMWW7E0wcozQHTtaF8kqdvcaDU1WPiC6vPnFvzCJcxGdGScapccug=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1781709458; c=relaxed/simple;
+	bh=ZiZeqj5W4TjeYd1jGBGSd3ef16TSkam+PtO0+bHiYNQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=L9E11RDkJdfxKS2L3l3jw+N5BaFbP6hHE75iWYiGHTc5RpSLpbbzqgxVsfaANI2Ko3gSB4SsyW4a76cKygMDUwsfMoYHD9u4TgrKtOFNI5YtnYZjRJA1NihKcvBGxwx5tl1p/B4tBvOCUYfP4tURswkFZm3CVp0EaxSyV4tA1NQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MiNE9Sss; arc=none smtp.client-ip=209.85.222.170
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="KuOcx0Bj"
-ARC-Seal: i=1; a=rsa-sha256; t=1781709121; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=O6nzthhr8ffBguhipBY1ICa0UJr7rAfF9URhb2cx7k7D1v88Fx1nRBFqOAtA+s0XzQ2fK0SgN5cJqQ1hWCRy7SQ9Y93wFDsvyDOKmHVXG7xAbsuKZ3bTyf/CnQeJndDTap2dPVPPDNoWfkK5Bw8KXcQ6+TUKLhTVHX/K1M9xuqg=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1781709121; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=ZjtSjyFt5TZ4cLUaoZ7JBXmXW1BxNLYyNANiatQ+YOk=; 
-	b=MznfHGQZ1vJvbpP/LKPrXlWb6tVM4Bcdxz3S9QFQ9v68N8Ps+qxAMSXoEQs5TgixMkmY6sbaBB07VCkhbXtp9eY1UZHmzCyofJGySl/8/pO3l7QOb/KcnalNLF7RibJlCgn/090dr1WlbTAx1L+VgoG3FxlKkNAM4CIN5ErEz8U=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1781709121;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=ZjtSjyFt5TZ4cLUaoZ7JBXmXW1BxNLYyNANiatQ+YOk=;
-	b=KuOcx0BjcFPbwoBpYv23pS1DvpYDcnYHn9dha5Wxa0nvvYUFPkx+g6wgPvjH1tE0
-	YDKODIQtC0wQXCRyExyp6UMWJ0lNDtGiWcllzeIFt7QG3rUD4vP+lVRxH6TOvroPkOu
-	/KxnyETSFMUv88tYig2L8XGFO1qD7NmPLj6Zro5o=
-Received: by mx.zohomail.com with SMTPS id 1781709119480302.08162841751493;
-	Wed, 17 Jun 2026 08:11:59 -0700 (PDT)
-Message-ID: <54d6527d-30c2-4e73-846d-c0e5276c8f74@collabora.com>
-Date: Wed, 17 Jun 2026 18:11:54 +0300
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MiNE9Sss"
+Received: by mail-qk1-f170.google.com with SMTP id af79cd13be357-91587626a3eso616563185a.2
+        for <virtualization@lists.linux.dev>; Wed, 17 Jun 2026 08:17:35 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1781709454; x=1782314254; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=DwJ11BUFvQpn5D9oDUa4PWQ9xRUr33OFEcUVw3lutuo=;
+        b=MiNE9Sss3db7+Cq5y885NThJqXAznhpBTqFjXiWQ4cVpZLGk8Z4R95NSZGeTrgk1xo
+         PFW6P8Wjl3ctHfG8VddKBV4J3cQzKBeX1rhRQM8UVSEcOXXCONVpasU39THYhutkC+cJ
+         alqJbOEf9WbmjzgCCah/jiqfDCF+DbM2ek+P3Y8lEyC0zPtH+XzfwMdqfnSxYNJ/lEsZ
+         +TQftraKhzG3zCKVKfKkcsx0P8C/YoDkRU3TInhL+AkGo4qP3VwnaNnDQSre9xeGSa7M
+         pVQ3w3cZHHlGmEXeWKFeDurPDA3wVt0bhKbfpl6RnXKY3xlxGd0rGjSEBXkIMWb4Emkg
+         SULQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1781709454; x=1782314254;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=DwJ11BUFvQpn5D9oDUa4PWQ9xRUr33OFEcUVw3lutuo=;
+        b=LKRDeAUM9pKk8dEObQq4u/z4kEpOQe2cymleMV9Em5CuGtzDgylbr8Uicf6bA8vK92
+         LbRcHSU33HcBgcp/uMRe3rcJoamK7/bW0rmfJZsjL8af5ubjdRuZVBZh7/HcvrD8YHOx
+         U0hcWrWOPnJcdxQlopiggeLKt/+dRIqrOoP4zRsJpXp5G860dd8qtX998+hemkfjiXHa
+         F5mZiuMc0s0G/dzPJN8h9xcOVdzw1YOEct70wBATnUlIhGf9p78ZxPQfbKymsprnOMBo
+         TzNnZO6H7tGdIpa7xaeC4JQh7N9JqAyitBW8l2KEOQBMXNCtib0fhjGbg/30udHMY9BK
+         105A==
+X-Forwarded-Encrypted: i=1; AFNElJ8lmclyQCRHnj6Ku20gKnVj+9pheZ7J1j+3wTeyYTG+BSgMeuSo5RZZrIGKZCir7gTjdbHERN+zoSAOLLix2w==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxoOqUzXo71/5UCcvaR3CKkrALETuKiaslsON7ou2h3o2ACIky1
+	zqZ5nrFukPQNMxfIdz7YNyvPyKUD/67JBFhFazXTFgXRSdY//YtnW0sP
+X-Gm-Gg: Acq92OFiEiktVDnKDcjnKSPKhVrrgZpgXml/Qafo2m54gkltN9/jms9uwH58EIOvfcN
+	eXyEDrqBMoyJ1ChXe0gSZ4MAtziH8GUbFjsduQNxua9vAGPj8Q9ZH2Ytqeb7KIMhaSvp441TP8j
+	mDfbgWinVwW4Ap6syyY6apyJxrrGdGr/XoZ3M4noLaz1qqqdHp7YzmS9tcTlra8Zh9wQHnouS7s
+	078XmHedLSjjM4oO/XMJZXYCmLOvuFT/RrZ3BIUaGT/vQWk3FNJ+VmG50ac6SndfS1uvryEHqcM
+	cryagfj9EOggLS39/Th+iuiSIa7RuGc8sGKSRHrOFMLYgvQVFR1FutH2A0p/mT2gwEa+TFfujRD
+	msRgZ4VZXc2Iyk2R3GKarFzZJEnDEAtBxmSyoq4o+QhrAy/26E98CsPezXBkXxrDq+TLqZyBVzf
+	ql5LwYFUBN+Jvgn3hNgW5BUwlloHGt5BK8SQ/I6g0Ru1bc+ZNUD7+0H0kzh6bKijXLAcVz6+D3y
+	GBZMXPvUpfWfVOb2h0KJ+ZMkLvvaL9k
+X-Received: by 2002:a05:620a:444f:b0:915:b9f6:71ab with SMTP id af79cd13be357-91dbcf10e12mr600897885a.44.1781709454250;
+        Wed, 17 Jun 2026 08:17:34 -0700 (PDT)
+Received: from server0.tail6e7dd.ts.net (c-68-48-65-54.hsd1.mi.comcast.net. [68.48.65.54])
+        by smtp.gmail.com with ESMTPSA id af79cd13be357-9161a061028sm1787280985a.42.2026.06.17.08.17.33
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 17 Jun 2026 08:17:33 -0700 (PDT)
+From: Michael Bommarito <michael.bommarito@gmail.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	Dmitry Fomichev <dmitry.fomichev@wdc.com>,
+	Damien Le Moal <dlemoal@kernel.org>,
+	Jens Axboe <axboe@kernel.dk>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	virtualization@lists.linux.dev,
+	linux-block@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH] virtio-blk: use little-endian types for the zoned fields
+Date: Wed, 17 Jun 2026 11:17:27 -0400
+Message-ID: <20260617151727.4071754-1-michael.bommarito@gmail.com>
+X-Mailer: git-send-email 2.53.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] drm/virtio: Use common error handling code in two
- functions
-To: Markus Elfring <Markus.Elfring@web.de>, virtualization@lists.linux.dev,
- dri-devel@lists.freedesktop.org, Chia-I Wu <olvaffe@gmail.com>,
- David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Simona Vetter <simona@ffwll.ch>,
- Thomas Zimmermann <tzimmermann@suse.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, kernel-janitors@vger.kernel.org
-References: <b7440806-e9e8-4027-afe1-f6fe9297d8b2@web.de>
-Content-Language: en-US
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <b7440806-e9e8-4027-afe1-f6fe9297d8b2@web.de>
-Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
-X-ZohoMailClient: External
 
-Hi,
+The zoned block-device fields in the virtio-blk header are typed
+__virtio{32,64}, so their endianness follows VIRTIO_F_VERSION_1. The
+zoned feature is only defined for VIRTIO 1.x devices, and the virtio
+specification defines all of its fields as little-endian. Commit
+b16a1756c716 ("virtio_blk: mark all zone fields LE") tagged them
+__le* for exactly this reason, but commit f1ba4e674feb ("virtio-blk:
+fix to match virtio spec") re-applied the reviewed version of the
+original zoned series -- which predated b16a1756 -- and silently
+restored the __virtio* typing together with the matching
+virtio*_to_cpu() / virtio_cread() accessors in the driver.
 
-On 6/9/26 21:08, Markus Elfring wrote:
-> From: Markus Elfring <elfring@users.sourceforge.net>
-> Date: Tue, 9 Jun 2026 20:00:07 +0200
-> 
-> Use additional labels so that a bit of exception handling can be better
-> reused at the end of two function implementations.
-> 
-> This issue was detected by using the Coccinelle software.
-> 
-> Signed-off-by: Markus Elfring <elfring@users.sourceforge.net>
-> ---
->  drivers/gpu/drm/virtio/virtgpu_vq.c   |  7 +++----
->  drivers/gpu/drm/virtio/virtgpu_vram.c | 16 ++++++++--------
->  2 files changed, 11 insertions(+), 12 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> index 67865810a2e7..05b19c73103a 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> @@ -318,15 +318,14 @@ static struct sg_table *vmalloc_to_sgt(char *data, uint32_t size, int *sg_ents)
->  
->  	*sg_ents = DIV_ROUND_UP(size, PAGE_SIZE);
->  	ret = sg_alloc_table(sgt, *sg_ents, GFP_KERNEL);
-> -	if (ret) {
-> -		kfree(sgt);
-> -		return NULL;
-> -	}
-> +	if (ret)
-> +		goto free_sgt;
->  
->  	for_each_sgtable_sg(sgt, sg, i) {
->  		pg = vmalloc_to_page(data);
->  		if (!pg) {
->  			sg_free_table(sgt);
-> +free_sgt:
->  			kfree(sgt);
->  			return NULL;
->  		}
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_vram.c b/drivers/gpu/drm/virtio/virtgpu_vram.c
-> index 4ae3cbc35dd3..ec5b669fccfa 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_vram.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_vram.c
-> @@ -212,16 +212,12 @@ int virtio_gpu_vram_create(struct virtio_gpu_device *vgdev,
->  
->  	/* Create fake offset */
->  	ret = drm_gem_create_mmap_offset(obj);
-> -	if (ret) {
-> -		kfree(vram);
-> -		return ret;
-> -	}
-> +	if (ret)
-> +		goto free_vram;
->  
->  	ret = virtio_gpu_resource_id_get(vgdev, &vram->base.hw_res_handle);
-> -	if (ret) {
-> -		kfree(vram);
-> -		return ret;
-> -	}
-> +	if (ret)
-> +		goto free_vram;
->  
->  	virtio_gpu_cmd_resource_create_blob(vgdev, &vram->base, params, NULL,
->  					    0);
-> @@ -237,6 +233,10 @@ int virtio_gpu_vram_create(struct virtio_gpu_device *vgdev,
->  
->  	*bo_ptr = &vram->base;
->  	return 0;
-> +
-> +free_vram:
-> +	kfree(vram);
-> +	return ret;
->  }
->  
->  void virtio_gpu_vram_map_deferred(struct virtio_gpu_object_vram *vram)
+Restore the little-endian typing for the zoned configuration-space
+characteristics, the zone descriptor, the zone report header and the
+ZONE_APPEND in-header sector, and read them with le*_to_cpu() and
+virtio_cread_le() to match.
 
-Please see [1], will be great if you could address the reported issues
-with this patch in v2 and add another patch fixing the
-virtio_gpu_resource_id_get() error handling.
+There is no functional change on any spec-compliant device: zoned
+requires VIRTIO_F_VERSION_1, and for a VERSION_1 device
+virtio*_to_cpu() is identical to le*_to_cpu(). The change makes the
+uapi types describe the actual wire format and removes a latent
+endianness mismatch for a (non-conformant) legacy device on a
+big-endian guest.
 
-[1]
-https://sashiko.dev/#/patchset/b7440806-e9e8-4027-afe1-f6fe9297d8b2%40web.de
+Fixes: f1ba4e674feb ("virtio-blk: fix to match virtio spec")
+Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+Assisted-by: Claude:claude-opus-4-8
+Signed-off-by: Michael Bommarito <michael.bommarito@gmail.com>
+---
+Testing:
+ - Builds with no new warnings; sparse endian-clean (C=2,
+   __CHECK_ENDIAN__, CONFIG_BLK_DEV_ZONED=y) both before and after.
+ - Booted under QEMU with a host-managed zoned device exposed through
+   virtio-blk. Zone revalidation, blkzone report and a sequential
+   write / write-pointer check return correct values; blktests zbd
+   device tests 001-006 (sysfs+ioctl, report zone, reset, write split,
+   write ordering, revalidate) pass, with results identical before and
+   after this change -- expected, since on a VIRTIO_F_VERSION_1 device
+   virtio*_to_cpu() == le*_to_cpu().
 
+ drivers/block/virtio_blk.c      | 38 +++++++++++++++------------------
+ include/uapi/linux/virtio_blk.h | 18 ++++++++--------
+ 2 files changed, 26 insertions(+), 30 deletions(-)
+
+diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+index b1c9a27fe00f3..5532cfbde7bfe 100644
+--- a/drivers/block/virtio_blk.c
++++ b/drivers/block/virtio_blk.c
+@@ -99,7 +99,7 @@ struct virtblk_req {
+ 		 * be the last byte.
+ 		 */
+ 		struct {
+-			__virtio64 sector;
++			__le64 sector;
+ 			u8 status;
+ 		} zone_append;
+ 	} in_hdr;
+@@ -335,14 +335,12 @@ static inline void virtblk_request_done(struct request *req)
+ {
+ 	struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
+ 	blk_status_t status = virtblk_result(virtblk_vbr_status(vbr));
+-	struct virtio_blk *vblk = req->mq_hctx->queue->queuedata;
+ 
+ 	virtblk_unmap_data(req, vbr);
+ 	virtblk_cleanup_cmd(req);
+ 
+ 	if (req_op(req) == REQ_OP_ZONE_APPEND)
+-		req->__sector = virtio64_to_cpu(vblk->vdev,
+-						vbr->in_hdr.zone_append.sector);
++		req->__sector = le64_to_cpu(vbr->in_hdr.zone_append.sector);
+ 
+ 	blk_mq_end_request(req, status);
+ }
+@@ -589,13 +587,13 @@ static int virtblk_parse_zone(struct virtio_blk *vblk,
+ {
+ 	struct blk_zone zone = { };
+ 
+-	zone.start = virtio64_to_cpu(vblk->vdev, entry->z_start);
++	zone.start = le64_to_cpu(entry->z_start);
+ 	if (zone.start + vblk->zone_sectors <= get_capacity(vblk->disk))
+ 		zone.len = vblk->zone_sectors;
+ 	else
+ 		zone.len = get_capacity(vblk->disk) - zone.start;
+-	zone.capacity = virtio64_to_cpu(vblk->vdev, entry->z_cap);
+-	zone.wp = virtio64_to_cpu(vblk->vdev, entry->z_wp);
++	zone.capacity = le64_to_cpu(entry->z_cap);
++	zone.wp = le64_to_cpu(entry->z_wp);
+ 
+ 	switch (entry->z_type) {
+ 	case VIRTIO_BLK_ZT_SWR:
+@@ -687,8 +685,7 @@ static int virtblk_report_zones(struct gendisk *disk, sector_t sector,
+ 		if (ret)
+ 			goto fail_report;
+ 
+-		nz = min_t(u64, virtio64_to_cpu(vblk->vdev, report->nr_zones),
+-			   nr_zones);
++		nz = min_t(u64, le64_to_cpu(report->nr_zones), nr_zones);
+ 		if (!nz)
+ 			break;
+ 
+@@ -698,8 +695,7 @@ static int virtblk_report_zones(struct gendisk *disk, sector_t sector,
+ 			if (ret)
+ 				goto fail_report;
+ 
+-			sector = virtio64_to_cpu(vblk->vdev,
+-						 report->zones[i].z_start) +
++			sector = le64_to_cpu(report->zones[i].z_start) +
+ 				 vblk->zone_sectors;
+ 			zone_idx++;
+ 		}
+@@ -725,18 +721,18 @@ static int virtblk_read_zoned_limits(struct virtio_blk *vblk,
+ 
+ 	lim->features |= BLK_FEAT_ZONED;
+ 
+-	virtio_cread(vdev, struct virtio_blk_config,
+-		     zoned.max_open_zones, &v);
++	virtio_cread_le(vdev, struct virtio_blk_config,
++			zoned.max_open_zones, &v);
+ 	lim->max_open_zones = v;
+ 	dev_dbg(&vdev->dev, "max open zones = %u\n", v);
+ 
+-	virtio_cread(vdev, struct virtio_blk_config,
+-		     zoned.max_active_zones, &v);
++	virtio_cread_le(vdev, struct virtio_blk_config,
++			zoned.max_active_zones, &v);
+ 	lim->max_active_zones = v;
+ 	dev_dbg(&vdev->dev, "max active zones = %u\n", v);
+ 
+-	virtio_cread(vdev, struct virtio_blk_config,
+-		     zoned.write_granularity, &wg);
++	virtio_cread_le(vdev, struct virtio_blk_config,
++			zoned.write_granularity, &wg);
+ 	if (!wg) {
+ 		dev_warn(&vdev->dev, "zero write granularity reported\n");
+ 		return -ENODEV;
+@@ -750,8 +746,8 @@ static int virtblk_read_zoned_limits(struct virtio_blk *vblk,
+ 	 * virtio ZBD specification doesn't require zones to be a power of
+ 	 * two sectors in size, but the code in this driver expects that.
+ 	 */
+-	virtio_cread(vdev, struct virtio_blk_config, zoned.zone_sectors,
+-		     &vblk->zone_sectors);
++	virtio_cread_le(vdev, struct virtio_blk_config, zoned.zone_sectors,
++			&vblk->zone_sectors);
+ 	if (vblk->zone_sectors == 0 || !is_power_of_2(vblk->zone_sectors)) {
+ 		dev_err(&vdev->dev,
+ 			"zoned device with non power of two zone size %u\n",
+@@ -767,8 +763,8 @@ static int virtblk_read_zoned_limits(struct virtio_blk *vblk,
+ 		lim->max_hw_discard_sectors = 0;
+ 	}
+ 
+-	virtio_cread(vdev, struct virtio_blk_config,
+-		     zoned.max_append_sectors, &v);
++	virtio_cread_le(vdev, struct virtio_blk_config,
++			zoned.max_append_sectors, &v);
+ 	if (!v) {
+ 		dev_warn(&vdev->dev, "zero max_append_sectors reported\n");
+ 		return -ENODEV;
+diff --git a/include/uapi/linux/virtio_blk.h b/include/uapi/linux/virtio_blk.h
+index 3744e4da1b2a7..5af2a0300bb9d 100644
+--- a/include/uapi/linux/virtio_blk.h
++++ b/include/uapi/linux/virtio_blk.h
+@@ -140,11 +140,11 @@ struct virtio_blk_config {
+ 
+ 	/* Zoned block device characteristics (if VIRTIO_BLK_F_ZONED) */
+ 	struct virtio_blk_zoned_characteristics {
+-		__virtio32 zone_sectors;
+-		__virtio32 max_open_zones;
+-		__virtio32 max_active_zones;
+-		__virtio32 max_append_sectors;
+-		__virtio32 write_granularity;
++		__le32 zone_sectors;
++		__le32 max_open_zones;
++		__le32 max_active_zones;
++		__le32 max_append_sectors;
++		__le32 write_granularity;
+ 		__u8 model;
+ 		__u8 unused2[3];
+ 	} zoned;
+@@ -241,11 +241,11 @@ struct virtio_blk_outhdr {
+  */
+ struct virtio_blk_zone_descriptor {
+ 	/* Zone capacity */
+-	__virtio64 z_cap;
++	__le64 z_cap;
+ 	/* The starting sector of the zone */
+-	__virtio64 z_start;
++	__le64 z_start;
+ 	/* Zone write pointer position in sectors */
+-	__virtio64 z_wp;
++	__le64 z_wp;
+ 	/* Zone type */
+ 	__u8 z_type;
+ 	/* Zone state */
+@@ -254,7 +254,7 @@ struct virtio_blk_zone_descriptor {
+ };
+ 
+ struct virtio_blk_zone_report {
+-	__virtio64 nr_zones;
++	__le64 nr_zones;
+ 	__u8 reserved[56];
+ 	struct virtio_blk_zone_descriptor zones[];
+ };
 -- 
-Best regards,
-Dmitry
+2.53.0
+
