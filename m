@@ -1,123 +1,137 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F3443F1655
-	for <virtualization@lists.linux.dev>; Thu, 18 Jun 2026 12:04:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C73B3EBF37
+	for <virtualization@lists.linux.dev>; Thu, 18 Jun 2026 15:18:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781784270; cv=none; b=oSjMT0x4sSXPBtbTyVAkyd/dUrgjlVJG9MzaI0SlLdYfmO+G7Gu6Q5yUcutbzYlEitPkKcR4uiSHHypUUq/DQcTYZtShxNNpreYC8V0hkwhxL/pyJBBGBqWo/1S6lsgDBrKFbtTulqyLx39WrEFkNSSC1xW8zyTHnCrCxUwUEAA=
+	t=1781795912; cv=none; b=fABr7efuomZnW88T5E9yMFVzSgc1WYitNtcpwLqntb3dAVPN1HLqtVftCrBksaBn+HXQT0atSMRdREWHM4E6OQ2fMA9Akkad5Ttd8sR8B9coM3YsXDAAKE0cJvBUc/XGPtqlC/vaaNO9HMJKCT/pvyB67VejX84JcUMOEH+JNyk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781784270; c=relaxed/simple;
-	bh=PGrulkOi4vbSdwFg2NTCNnI4GCxlVqTllhhY5hYd3EM=;
+	s=arc-20240116; t=1781795912; c=relaxed/simple;
+	bh=T6e3Dtj8es1yv+34gkq8YtTTLgmLZiAloALgWSMx/CE=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=fFk0UWEOWtFHzhb7K6H9Zc9zWGt7ZP22E6+3NDHWc2G9UXytzCBr87tTvfRnhi6jA6PBgIXmgdH+a/T/NlFiRY+mgXONWVjIlUjFriV/BCItgSCiuG0L/FI8k1hQ4YB1q9Nkq6FdmB+Q9xiYvjdhqGBktqY1KP0+JpcgHS+tr6U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Yfxy3/dQ; arc=none smtp.client-ip=170.10.133.124
+	 Content-Type:Content-Disposition:In-Reply-To; b=eH25ngaBDdH5e6i/44/HDOY+2P2ry+coj5oD/bw23VoVNAOYI6eXLwXtrPPQRn98i2b+Wi0SIydxLDNyhe4fRZ+hqDHDMt4L5CELLCdFIgJ6k56xgw2GIuex3F0aEbfmQObtnknaM90jdJUAn+2pNeouQLesEhAl7uU1F5Uq9ow=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fCG8Xs3L; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Yfxy3/dQ"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fCG8Xs3L"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1781784268;
+	s=mimecast20190719; t=1781795910;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=B+pOZSqz1O2VTIqqvS3ojvh29ubyOWOZiXnKa/bsUbI=;
-	b=Yfxy3/dQObvYweEHWYDTT3FaZBjv8W71KXhxiyGEl5DnkjmrZpWWmwaa/q7b2jTACXzwUX
-	7K+Ai7BX2T4WjFkETQJmdJk4WCH3SI+Dx0oF+XN3aIpLzWLYJH3T890PVANS1TnQhhtp4T
-	PK7KxnrkKMJM0FSH4ni+pFXo6CdPFFQ=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-564-7mIt5U-PPTefGf491gWlpw-1; Thu, 18 Jun 2026 08:04:24 -0400
-X-MC-Unique: 7mIt5U-PPTefGf491gWlpw-1
-X-Mimecast-MFC-AGG-ID: 7mIt5U-PPTefGf491gWlpw_1781784264
-Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-c081f1976d2so27687766b.2
-        for <virtualization@lists.linux.dev>; Thu, 18 Jun 2026 05:04:24 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781784264; x=1782389064;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=B+pOZSqz1O2VTIqqvS3ojvh29ubyOWOZiXnKa/bsUbI=;
-        b=nv9kr4bYhYEldp6arxYi7fnN5+RuoN+N83Awct+YWUrfj/cuMT4k8vwzYRwUIow7MC
-         VzCShtoOyk3HJ73Nwv+5X3fbgjMICULaMOSFwGchIVqwJwlVXTLF7cafypT8tVvsnyi7
-         GaLC634vNjMjSSWPk1OiC/Joy7zgZr1NHJU6meoJ7DtLbuB/BAElFgspHpENJtIyXbj1
-         SrAvbrZ8u0/OrBOIolXsWP7g0E3K9FYQLF71VqoyYfFQ+YwqN5YFRkTwSzYMyPBg6FhW
-         BTaKhYkokGJ2/DTp0hyINE4Eq8bD8X0u1fRktYAfziQFIftvcUhweW28JR5gWjipMxco
-         9hWQ==
-X-Forwarded-Encrypted: i=1; AFNElJ/B2hUGfCU2/SWm6bLR20sBCX6ezieKeJu4R8LG4P1NSqnJOPR6ui1Xa2hJ3UHxF5T3aCG6P5ilVaXljrfLoA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzwUBC3o0QX0AJ4ij90Rid5IJFGYATvX1mhrb0aom1tePgblblE
-	lKba3azHGs5RBUtbOooLxr9h9SmC3CP+9q7H2fK2378vSReQAdzZLIuROxXGmVtgU9Fb79qjclE
-	jtA1fzrfai6YREMCn3LBncpuVCQFGvUX5+v2nlR6/Mt++FtHadebqkKlo2H59HFxVT98C
-X-Gm-Gg: AfdE7clvx3mqBNHcarAcQRFMkU/T/X0tNzcPrQJKm1ZylwGxjqQwTOBRv+OKL5vIRm7
-	edPEMsa91yP4ksww7tcbbkAqGLHwotF/tHqN5OonJ272Asn+7M9uHmfbeudShFYXER2RRgXXBRj
-	2onnb2wUuoiaoZi+UUQduHa0Ey9lycOrbDPQ50Eb2V+X/ZgfOB4tUPrIdyZbbV8TfDXZ91q+K16
-	ZWGh91/yeOhJ0xyG9tq9lAhZR+mFBQUEUBYiyrYSiZS1Oh3q2iGS7Z5/vcgGTdhb993CvJIxGeg
-	wBA63803AK/zsdStd5F6LciVOdLR/3C7Io/bFXCRmiTmDAi9oyPUa9TFAersdsADbcsyzToUdyK
-	patK/oSd96IBhQfGyVSUsIPtlMNBl4npB
-X-Received: by 2002:a17:907:1c18:b0:bde:137a:45a8 with SMTP id a640c23a62f3a-c05a4e0e7ffmr561929566b.39.1781784263469;
-        Thu, 18 Jun 2026 05:04:23 -0700 (PDT)
-X-Received: by 2002:a17:907:1c18:b0:bde:137a:45a8 with SMTP id a640c23a62f3a-c05a4e0e7ffmr561923466b.39.1781784262837;
-        Thu, 18 Jun 2026 05:04:22 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-85-71.inter.net.il. [80.230.85.71])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-461eaa0d1c7sm19541358f8f.7.2026.06.18.05.04.21
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Jun 2026 05:04:22 -0700 (PDT)
-Date: Thu, 18 Jun 2026 08:04:19 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Yichong Chen <chenyichong@uniontech.com>
-Cc: jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
-	rppt@kernel.org, ljs@kernel.org, akpm@linux-foundation.org,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/2] tools: Fix tools/virtio test build
-Message-ID: <20260618080405-mutt-send-email-mst@kernel.org>
-References: <913D9291164C65D4+20260618095642.510565-1-chenyichong@uniontech.com>
+	bh=DP4ziwGQLOjJKH5/Lc1liZFeK+aChFv9NBQLRhK1qTQ=;
+	b=fCG8Xs3L5aJ9B9B+7P/ItjchXWDXycg/XZC2G93P09LCl2Xtjmuwn2DK78tYSm9kHctWgV
+	76umev0Rsd+LrBcpCY2oRNGIvxuq2U+iMVAgzf+vbQHBPxOWi+pXzZCFofaSsxp6MEInid
+	h3t1lTinlVB3lzSRnyW7stXTHjUeiHg=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-639-0T0zfxnHM2OUHfqyUe5Y5g-1; Thu,
+ 18 Jun 2026 11:18:23 -0400
+X-MC-Unique: 0T0zfxnHM2OUHfqyUe5Y5g-1
+X-Mimecast-MFC-AGG-ID: 0T0zfxnHM2OUHfqyUe5Y5g_1781795902
+Received: from mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.95])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id E4BC81956044;
+	Thu, 18 Jun 2026 15:18:21 +0000 (UTC)
+Received: from localhost (unknown [10.2.16.120])
+	by mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id B80A51688;
+	Thu, 18 Jun 2026 15:18:20 +0000 (UTC)
+Date: Thu, 18 Jun 2026 11:18:19 -0400
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Michael Bommarito <michael.bommarito@gmail.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	Dmitry Fomichev <dmitry.fomichev@wdc.com>,
+	Damien Le Moal <dlemoal@kernel.org>, Jens Axboe <axboe@kernel.dk>,
+	Paolo Bonzini <pbonzini@redhat.com>, virtualization@lists.linux.dev,
+	linux-block@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] virtio-blk: use little-endian types for the zoned fields
+Message-ID: <20260618151819.GE720244@fedora>
+References: <20260617151727.4071754-1-michael.bommarito@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <913D9291164C65D4+20260618095642.510565-1-chenyichong@uniontech.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 41OuFqIB-6lwpwfJhLEBniG3OyiSAnsnjZYOZpKijK8_1781784264
-X-Mimecast-Originator: redhat.com
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="Xi9JoAb3EvV3+jv4"
+Content-Disposition: inline
+In-Reply-To: <20260617151727.4071754-1-michael.bommarito@gmail.com>
+X-Scanned-By: MIMEDefang 3.6 on 10.30.177.95
+
+
+--Xi9JoAb3EvV3+jv4
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 18, 2026 at 05:56:40PM +0800, Yichong Chen wrote:
-> This series fixes build failures hit by:
-> 
->   make -C tools/virtio test
-> 
-> Patch 1 adds tools/virtio compatibility definitions needed by
-> recent virtio headers when building vhost_net_test.
-> 
-> Patch 2 makes tools/include/linux/overflow.h include stdint.h
-> for SIZE_MAX, which is used by its size helper functions.
-> 
-> With the series applied, make -C tools/virtio test builds
-> virtio_test, vringh_test and vhost_net_test successfully.
-> 
-> Yichong Chen (2):
->   tools/virtio: Add missing compat definitions for vhost_net_test
->   tools/include: Include stdint.h for SIZE_MAX in overflow.h
+On Wed, Jun 17, 2026 at 11:17:27AM -0400, Michael Bommarito wrote:
+> The zoned block-device fields in the virtio-blk header are typed
+> __virtio{32,64}, so their endianness follows VIRTIO_F_VERSION_1. The
+> zoned feature is only defined for VIRTIO 1.x devices, and the virtio
+> specification defines all of its fields as little-endian. Commit
+> b16a1756c716 ("virtio_blk: mark all zone fields LE") tagged them
+> __le* for exactly this reason, but commit f1ba4e674feb ("virtio-blk:
+> fix to match virtio spec") re-applied the reviewed version of the
+> original zoned series -- which predated b16a1756 -- and silently
+> restored the __virtio* typing together with the matching
+> virtio*_to_cpu() / virtio_cread() accessors in the driver.
+>=20
+> Restore the little-endian typing for the zoned configuration-space
+> characteristics, the zone descriptor, the zone report header and the
+> ZONE_APPEND in-header sector, and read them with le*_to_cpu() and
+> virtio_cread_le() to match.
+>=20
+> There is no functional change on any spec-compliant device: zoned
+> requires VIRTIO_F_VERSION_1, and for a VERSION_1 device
+> virtio*_to_cpu() is identical to le*_to_cpu(). The change makes the
+> uapi types describe the actual wire format and removes a latent
+> endianness mismatch for a (non-conformant) legacy device on a
+> big-endian guest.
+>=20
+> Fixes: f1ba4e674feb ("virtio-blk: fix to match virtio spec")
+> Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+> Assisted-by: Claude:claude-opus-4-8
+> Signed-off-by: Michael Bommarito <michael.bommarito@gmail.com>
+> ---
+> Testing:
+>  - Builds with no new warnings; sparse endian-clean (C=3D2,
+>    __CHECK_ENDIAN__, CONFIG_BLK_DEV_ZONED=3Dy) both before and after.
+>  - Booted under QEMU with a host-managed zoned device exposed through
+>    virtio-blk. Zone revalidation, blkzone report and a sequential
+>    write / write-pointer check return correct values; blktests zbd
+>    device tests 001-006 (sysfs+ioctl, report zone, reset, write split,
+>    write ordering, revalidate) pass, with results identical before and
+>    after this change -- expected, since on a VIRTIO_F_VERSION_1 device
+>    virtio*_to_cpu() =3D=3D le*_to_cpu().
+>=20
+>  drivers/block/virtio_blk.c      | 38 +++++++++++++++------------------
+>  include/uapi/linux/virtio_blk.h | 18 ++++++++--------
+>  2 files changed, 26 insertions(+), 30 deletions(-)
 
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
 
-which commit is this on top of?
+--Xi9JoAb3EvV3+jv4
+Content-Type: application/pgp-signature; name=signature.asc
 
->  tools/include/linux/overflow.h       |  2 +
->  tools/virtio/linux/completion.h      |  9 +++++
->  tools/virtio/linux/device.h          |  1 +
->  tools/virtio/linux/dma-mapping.h     |  1 +
->  tools/virtio/linux/mod_devicetable.h | 14 +++++++
->  tools/virtio/linux/slab.h            |  4 ++
->  tools/virtio/linux/virtio_features.h | 56 ++++++++++++++++++++++++++++
->  7 files changed, 87 insertions(+)
->  create mode 100644 tools/virtio/linux/completion.h
->  create mode 100644 tools/virtio/linux/mod_devicetable.h
->  create mode 100644 tools/virtio/linux/virtio_features.h
-> 
-> -- 
-> 2.51.0
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCgAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmo0DDsACgkQnKSrs4Gr
+c8j/EAgAr80DBNieX3WvHS/s0zrKr1w9FdI4/FlZ7/xFGPdBq6LZTj9qqrjNRjf1
+gKM1ZrZLpZ1W/4zVcF9/m1k6/79Cmc4zIr0rqyPPwp+vtznahCY6+zKfmO09c1ON
+TxEzZTWVYLP8GZDUl/SPqU0Ee1u3gvX8UNGQszU9+tiZLUpARt72+kShEGWaXl1/
+MO4J0/85z+dR4vAco/H91DMCYcZr4HZXaBIHKUxmSgbFFKQtg8mKcVCFRa2HW/w7
+WEJ2dS1Pw6A4Pr3kraEEmEBTGkFWKN2ENSpx1GH2nOA/cBhYWxCOQe+y4nQ/vL6+
+heoVRRlh9RIAGp2JBIhadWiNKs/w4g==
+=x/xX
+-----END PGP SIGNATURE-----
+
+--Xi9JoAb3EvV3+jv4--
 
