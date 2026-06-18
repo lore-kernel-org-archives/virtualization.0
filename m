@@ -1,257 +1,313 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A25130DD2A
-	for <virtualization@lists.linux.dev>; Thu, 18 Jun 2026 07:19:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DF76C32B10E
+	for <virtualization@lists.linux.dev>; Thu, 18 Jun 2026 07:41:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781767155; cv=none; b=h/0YZZaglJ2x1bZtmMfsjFrKcL9a4vyzH67HK0kNCLbAD+09QzRqk2p24aQOGQlDgpsruCfthc9LWRZlsNYr7T0gL6UYu+lTkqsKBucYTtd6sBMQAY7n4jjxBDicoDfvAgI/+xeFIZJziY2NfYNZSAWTyfGrXCyebHjQpDh1xs8=
+	t=1781768497; cv=none; b=noM9kBEjatlXL2V5AxoF31MfWn+B1+wEIA2N7Vs7oXknViv7PJ0M38qme1MDcb3wkoAJNBTxMqYm6Y8qJ2D9irSx9BUngzEVayBR2stKtP1GrBaFqwwAvm7pUzn1qvqPqo+Yob0Fv9dxjX0xvcbuP21sba9RDLKj56tiEeeL2EQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781767155; c=relaxed/simple;
-	bh=Yc/wS/d1/qSBZT5AZyT50G2+PU1qrb10h56XjHH9zvk=;
-	h=From:Date:Subject:MIME-Version:Message-Id:To:Cc:Content-Type; b=aHjxFhmyqrYQhabFh4105EbEnNgL6u3PXhcwZlua2HPbtH29J9XdAQfYGTkdN2eaT0KL+xBIp9qL5e8vapHmSJotauAF+qKTqQm3Atag+K8YJhY+0fSTgtYPCK0PM+xuBEi4YlLZ6pLss5LVvcL8JEcG4TgNFbqhRAz5MOIdl5I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=UlGZUA4w; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1781768497; c=relaxed/simple;
+	bh=gZkwZs34r2bbac54SVywYC/jPjvgeK3vRDRUywn0qf0=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=YfhfSGb9S6uAlSXtCHKUKtcGD/eZ9N4HuBxuQjXddRvjG1fkqk+WRlQKRHOrOnD3osI0cYSblLBWYy91zaj0JezbzJ3AlXt3UAhyyLyjWMWJExT0VW1QwSnxqNldt2nr24zt2xKehg6M78j36n25H77mG2bVdTocCQQULy9jHvU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=CajiUWsv; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="UlGZUA4w"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="CajiUWsv"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1781767152;
+	s=mimecast20190719; t=1781768495;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=rCqSdccfBETy30vxIetTOcEo73ed1Rs+CAf/MV+45CE=;
-	b=UlGZUA4wQKnYWs0Q1lS80RUoe96xOtSGArUZ5iYYThmwT33RPi3ZfRqOwW4ENHJIu7Q12C
-	ixKQw9BG9EddJQUtWQfiki0Lcu4Fp0+p5y79FMSfio/mM7JFh+ivmbn8po3VlFugu4CiTM
-	m7nuzoxWisR2VUS2MLb1l3OMZun4S6Q=
-Received: from mail-pf1-f199.google.com (mail-pf1-f199.google.com
- [209.85.210.199]) by relay.mimecast.com with ESMTP with STARTTLS
+	 in-reply-to:in-reply-to:references:references;
+	bh=Y7/6GMFySLjEAnNbADHN8HTqTCVaGwns6zVzwQSvgaU=;
+	b=CajiUWsvOUejXNZffh3T5LB9fOTB9KHqE/D1tHu4FrketOf18lBHjusfAX/B1+u3XICN5Y
+	gtcpuf/svFE5GttFMBqFHkJeP3fEqDuXX3eM9zUB7yvylH4FcEmplCYSWiVgEGexUNZhKO
+	hAQW6K3fWRdGkivRcQ4YYRbNBV1yzR0=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-304-sCzNWKqzMDC57bPGlSwgpg-1; Thu, 18 Jun 2026 03:19:10 -0400
-X-MC-Unique: sCzNWKqzMDC57bPGlSwgpg-1
-X-Mimecast-MFC-AGG-ID: sCzNWKqzMDC57bPGlSwgpg_1781767150
-Received: by mail-pf1-f199.google.com with SMTP id d2e1a72fcca58-842208d5b0eso428655b3a.3
-        for <virtualization@lists.linux.dev>; Thu, 18 Jun 2026 00:19:10 -0700 (PDT)
+ us-mta-114-c1yhWlPDMyGNNo4OBGSLaA-1; Thu, 18 Jun 2026 03:41:31 -0400
+X-MC-Unique: c1yhWlPDMyGNNo4OBGSLaA-1
+X-Mimecast-MFC-AGG-ID: c1yhWlPDMyGNNo4OBGSLaA_1781768490
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-490b4d3d3e6so3379795e9.0
+        for <virtualization@lists.linux.dev>; Thu, 18 Jun 2026 00:41:31 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1781767149; x=1782371949;
-        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
-         :date:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=rCqSdccfBETy30vxIetTOcEo73ed1Rs+CAf/MV+45CE=;
-        b=ICRHJpbXWZ4U/G5BTpaZNd3THb+V4Nfwgylsuvzs5RXL7kHRi0r3K4W+A0ttSWd9QG
-         SzVA0KNHjU0dAHq6c0WbPlWf0vK9mfs4OH6Hkq3R7pNIQKovFgZQEzw3bzCHE1BzufF5
-         6BGx9abN5bDkAXVPwxIU6w990dtqJv0XHvfEw4LwL0ZZOivlvKiVP2zFxyz69VOL7LQo
-         2Vima5tCIRZiv3N2FpNycJ9Bwz1OVVz3xXyNMwTlWuzf+UQXOtkpwNTZQWLkBmyv8xz/
-         sSdmhUN2rx9AOjHyKapwL7ox0nX/vHDRMWYTcWxtgnp3u9gFwghmbqDvYYTZ8TndKz7u
-         bf3g==
-X-Forwarded-Encrypted: i=1; AFNElJ/O/n4cU1PKtfX/dETNCcBUbqw8YQF7joqyx8QRrQiJ8VUZqnLP0V070aI28o5pbI8VB/1kFNguE71/AUkWiw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyMiYFxZThPZG3jpu1gODqMvc8ejQZ6QKNRQAUY9O0UfGDFwoM2
-	0pe8MVO11TK2T/xBwPDvFcsIl+VoMt6pGyb5XAjya5q4mPnJRMVa7EdRHDmaM09CBvN5hsDcaSr
-	Rpr8dAA5tfmHmMHYiJdCBFDAmMYJsMdMMCxnD9SBNwsluGV3tcj59T58HC+IQ4yNLOoDs
-X-Gm-Gg: AfdE7clbfB0UjbVw/rHOnrapUOn5VIpI76+6CiyHvAqXL/OXP63Gp2owqxS/WlTprtr
-	M5StwarEY1cdmlrj0z/7bfzx8kbDwE0JMNTFeCEQL5y3ArqisFKgAN2Gvn7Wm0P4pbNS39X9/0I
-	Qw7oW4UvNmU4QsCGwXLdWW9MqwbrcwGydVijqSJkdVlQxbr7z2DosWp1dd58iMSela4z4MTeunt
-	8S/7xM4HoS+Lpx0yaxZbzqRUjll4Lc8NeaEf+NDWzV26ZtY3UzfTm8P3tF7Q94CKMYwGzIddZqI
-	Aex75//sz2c2NL2r/7tj53KoX69lcrNd7xqF2wdcruqxSOexXq/ocjbBWZ3XiiOCitgPCCzl871
-	+uEYqqmdQRPGVOckBdp8qXbJUWyXhGTRvTGZ8Aht4EFpIIhbT
-X-Received: by 2002:a05:6a00:1706:b0:843:4726:e3df with SMTP id d2e1a72fcca58-8452459a7efmr8045424b3a.35.1781767149423;
-        Thu, 18 Jun 2026 00:19:09 -0700 (PDT)
-X-Received: by 2002:a05:6a00:1706:b0:843:4726:e3df with SMTP id d2e1a72fcca58-8452459a7efmr8045395b3a.35.1781767148924;
-        Thu, 18 Jun 2026 00:19:08 -0700 (PDT)
-Received: from ryasuoka-thinkpadx1carbongen9.tokyo.csb ([126.143.164.49])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84531dbbe7fsm3178594b3a.14.2026.06.18.00.19.04
+        d=1e100.net; s=20251104; t=1781768490; x=1782373290;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=Y7/6GMFySLjEAnNbADHN8HTqTCVaGwns6zVzwQSvgaU=;
+        b=jO5cYYKNB6f9uC8AkXagtc3XDWR7ajOm+PT1/A4wmNZzxOguLo0niUJ4dWYWER+0LP
+         AWv75oQNUASq+j9pJAzDGfZUt7mEDpZJJGTvQHb3qOv9PxYxb//s/Eads2EAMhPGkAfF
+         UIBYbxo072RwUiQUs1nQ16wjBPNkjQAw9eKDVpsWfGBAdGWdu+pm+zUKjC+GomAc9qkm
+         T+YsZMshKDq07Fq93EKoJbCWiH2mT9+Bss/kpms0jnTfC9nKQsFrdSYkuA/2jsKt9rKk
+         7JkIvbZ8yxq/NsfxiizLNScJcqMnmvD4BzDw+kL0qhEds7DEYYFzZ2ihTNi3wEGH4NQr
+         YgGA==
+X-Forwarded-Encrypted: i=1; AFNElJ/VaFHxiqORddONJ1YI47Z0mEYi5GCnJOYalUJ8RV+UuNJF1LMsOElIPyPwDHkPz5D8eTTs+qRM6EhiQdyamQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxa9anO2g1vQU8Gy1Jd5TN3FBtKI1G/VVU0QEFUQ4uXOMRGQ28V
+	Y1VMuTM2oTWmmjiZgrE6ie4ao+uJqSElciLPXC20QcYES2WIOaHvxL5l0lCZ5ej8BaMQORic+mH
+	i5BhmkuIRx6FQ/Fw+6FLGwDAPIjcoIhJ9o2j0bGaiUZStjkiKSLG8NaOJttfm9ObBLw6X
+X-Gm-Gg: AfdE7clKzHvCl1tbO7e3/0flS0TgpMi+igCukB6yglhNmhZULYUmyTmNIATumlSHDzp
+	q8E2R+e4PsHeNIbW93zu7k54/o92Q7dr5IkenyennSbtKKiYyuGfT0F28wwYwc8BHSxV9Nv4Jr4
+	766M0095a3z/Vg3+NCMlAlPUsVFdCWB2YZPvMjXLUmHyVFArJoXSFOSwevga2imxdcBhKUKj+SK
+	dG8ZCTZq84/+DuGu9SLnAKwcl7028NNmQMUFzd00bci7jvALk0xv2lANEncHFNtWP+9+tGv0Sht
+	QZXXv9Sta5lCS/tyvzRwx1glY+S/eH4tMA3PaHzY9kIEzbtLfcZ8DolGOxU9ZHWsZBSAXH0dsoC
+	QWhnyNuwOv4LGGz/koHU518uCO9LBBgTQnmyhsGI8a146qde9tZQCnyUcE3Nm
+X-Received: by 2002:a05:600c:19d0:b0:490:44eb:c1e0 with SMTP id 5b1f17b1804b1-4923a9d0827mr13387945e9.21.1781768490294;
+        Thu, 18 Jun 2026 00:41:30 -0700 (PDT)
+X-Received: by 2002:a05:600c:19d0:b0:490:44eb:c1e0 with SMTP id 5b1f17b1804b1-4923a9d0827mr13387535e9.21.1781768489797;
+        Thu, 18 Jun 2026 00:41:29 -0700 (PDT)
+Received: from sgarzare-redhat (host-82-53-135-12.retail.telecomitalia.it. [82.53.135.12])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4922fa97a07sm384710215e9.14.2026.06.18.00.41.28
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 18 Jun 2026 00:19:08 -0700 (PDT)
-From: Ryosuke Yasuoka <ryasuoka@redhat.com>
-Date: Thu, 18 Jun 2026 16:18:30 +0900
-Subject: [PATCH] drm/virtio: warn when virtqueue has no free space for too
- long
+        Thu, 18 Jun 2026 00:41:29 -0700 (PDT)
+Date: Thu, 18 Jun 2026 09:41:22 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Michael Bommarito <michael.bommarito@gmail.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, 
+	Jason Wang <jasowang@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, 
+	Dmitry Fomichev <dmitry.fomichev@wdc.com>, Damien Le Moal <dlemoal@kernel.org>, 
+	Jens Axboe <axboe@kernel.dk>, Paolo Bonzini <pbonzini@redhat.com>, 
+	virtualization@lists.linux.dev, linux-block@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] virtio-blk: use little-endian types for the zoned fields
+Message-ID: <ajOfAcBC6Ea-yfkB@sgarzare-redhat>
+References: <20260617151727.4071754-1-michael.bommarito@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Message-Id: <20260618-virtiogpu_add_timeout-v1-1-dc36cef609d9@redhat.com>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x3MQQqAIBBA0avErBPSyKyrRETkVLNIRS0C8e5Jy
- 7f4P0FATxhgrBJ4fCiQNQW8rmA7V3MgI10MohGykVyyh3wke7h7WbVeIl1o78jaFgfV9VxtQkB
- pnced3v87zTl/9qg/SmcAAAA=
-X-Change-ID: 20260616-virtiogpu_add_timeout-33e985718c22
-To: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
- Dmitry Osipenko <dmitry.osipenko@collabora.com>, 
- Gurchetan Singh <gurchetansingh@chromium.org>, 
- Chia-I Wu <olvaffe@gmail.com>, 
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
- Simona Vetter <simona@ffwll.ch>
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev, 
- linux-kernel@vger.kernel.org, Ryosuke Yasuoka <ryasuoka@redhat.com>
-X-Mailer: b4 0.14.3
+In-Reply-To: <20260617151727.4071754-1-michael.bommarito@gmail.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: wut26X6Of6c1_kA0pZ2z2GDNslNNtmWHzCsh-ggvPgs_1781767150
+X-Mimecast-MFC-PROC-ID: 6sFt8yEl-ZH8En9y5A9XWEAsI0DffyO0h7klUoVff3E_1781768490
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-virtio_gpu_queue_ctrl_sgs() and virtio_gpu_queue_cursor() wait for
-virtqueue space using wait_event() with vqs_released as the only abort
-condition. This covers the device removal path, where
-virtio_gpu_release_vqs() sets the flag, but does not help when the host
-simply stops processing the virtqueue while the device remains present.
+On Wed, Jun 17, 2026 at 11:17:27AM -0400, Michael Bommarito wrote:
+>The zoned block-device fields in the virtio-blk header are typed
+>__virtio{32,64}, so their endianness follows VIRTIO_F_VERSION_1. The
+>zoned feature is only defined for VIRTIO 1.x devices, and the virtio
+>specification defines all of its fields as little-endian. Commit
+>b16a1756c716 ("virtio_blk: mark all zone fields LE") tagged them
+>__le* for exactly this reason, but commit f1ba4e674feb ("virtio-blk:
+>fix to match virtio spec") re-applied the reviewed version of the
+>original zoned series -- which predated b16a1756 -- and silently
+>restored the __virtio* typing together with the matching
+>virtio*_to_cpu() / virtio_cread() accessors in the driver.
+>
+>Restore the little-endian typing for the zoned configuration-space
+>characteristics, the zone descriptor, the zone report header and the
+>ZONE_APPEND in-header sector, and read them with le*_to_cpu() and
+>virtio_cread_le() to match.
+>
+>There is no functional change on any spec-compliant device: zoned
+>requires VIRTIO_F_VERSION_1, and for a VERSION_1 device
+>virtio*_to_cpu() is identical to le*_to_cpu(). The change makes the
+>uapi types describe the actual wire format and removes a latent
+>endianness mismatch for a (non-conformant) legacy device on a
+>big-endian guest.
 
-In that case, the virtqueue fills up and subsequent command submissions
-block indefinitely in D state with no diagnostic output, making the root
-cause difficult to identify.
+Not for this patch, but at this point should we do the same also for the 
+fields gated by the following features that IIUC are all added in 1.*:
+- VIRTIO_BLK_F_MQ
+- VIRTIO_BLK_F_DISCARD
+- VIRTIO_BLK_F_WRITE_ZEROES
+- VIRTIO_BLK_F_SECURE_ERASE
 
-Replace the bare wait_event() with a wait_event_timeout() loop that
-prints a warning every 5 seconds while the virtqueue remains full. The
-wait still blocks indefinitely so driver behavior is unchanged. The
-warnings help identify an unresponsive host device during
-troubleshooting.
+>
+>Fixes: f1ba4e674feb ("virtio-blk: fix to match virtio spec")
+>Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+>Assisted-by: Claude:claude-opus-4-8
+>Signed-off-by: Michael Bommarito <michael.bommarito@gmail.com>
+>---
+>Testing:
+> - Builds with no new warnings; sparse endian-clean (C=2,
+>   __CHECK_ENDIAN__, CONFIG_BLK_DEV_ZONED=y) both before and after.
+> - Booted under QEMU with a host-managed zoned device exposed through
+>   virtio-blk. Zone revalidation, blkzone report and a sequential
+>   write / write-pointer check return correct values; blktests zbd
+>   device tests 001-006 (sysfs+ioctl, report zone, reset, write split,
+>   write ordering, revalidate) pass, with results identical before and
+>   after this change -- expected, since on a VIRTIO_F_VERSION_1 device
+>   virtio*_to_cpu() == le*_to_cpu().
+>
+> drivers/block/virtio_blk.c      | 38 +++++++++++++++------------------
+> include/uapi/linux/virtio_blk.h | 18 ++++++++--------
+> 2 files changed, 26 insertions(+), 30 deletions(-)
+>
+>diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
+>index b1c9a27fe00f3..5532cfbde7bfe 100644
+>--- a/drivers/block/virtio_blk.c
+>+++ b/drivers/block/virtio_blk.c
+>@@ -99,7 +99,7 @@ struct virtblk_req {
+> 		 * be the last byte.
+> 		 */
+> 		struct {
+>-			__virtio64 sector;
+>+			__le64 sector;
+> 			u8 status;
+> 		} zone_append;
+> 	} in_hdr;
+>@@ -335,14 +335,12 @@ static inline void virtblk_request_done(struct request *req)
+> {
+> 	struct virtblk_req *vbr = blk_mq_rq_to_pdu(req);
+> 	blk_status_t status = virtblk_result(virtblk_vbr_status(vbr));
+>-	struct virtio_blk *vblk = req->mq_hctx->queue->queuedata;
+>
+> 	virtblk_unmap_data(req, vbr);
+> 	virtblk_cleanup_cmd(req);
+>
+> 	if (req_op(req) == REQ_OP_ZONE_APPEND)
+>-		req->__sector = virtio64_to_cpu(vblk->vdev,
+>-						vbr->in_hdr.zone_append.sector);
+>+		req->__sector = le64_to_cpu(vbr->in_hdr.zone_append.sector);
+>
+> 	blk_mq_end_request(req, status);
+> }
+>@@ -589,13 +587,13 @@ static int virtblk_parse_zone(struct virtio_blk *vblk,
+> {
+> 	struct blk_zone zone = { };
+>
+>-	zone.start = virtio64_to_cpu(vblk->vdev, entry->z_start);
+>+	zone.start = le64_to_cpu(entry->z_start);
+> 	if (zone.start + vblk->zone_sectors <= get_capacity(vblk->disk))
+> 		zone.len = vblk->zone_sectors;
+> 	else
+> 		zone.len = get_capacity(vblk->disk) - zone.start;
+>-	zone.capacity = virtio64_to_cpu(vblk->vdev, entry->z_cap);
+>-	zone.wp = virtio64_to_cpu(vblk->vdev, entry->z_wp);
+>+	zone.capacity = le64_to_cpu(entry->z_cap);
+>+	zone.wp = le64_to_cpu(entry->z_wp);
+>
+> 	switch (entry->z_type) {
+> 	case VIRTIO_BLK_ZT_SWR:
+>@@ -687,8 +685,7 @@ static int virtblk_report_zones(struct gendisk *disk, sector_t sector,
+> 		if (ret)
+> 			goto fail_report;
+>
+>-		nz = min_t(u64, virtio64_to_cpu(vblk->vdev, report->nr_zones),
+>-			   nr_zones);
+>+		nz = min_t(u64, le64_to_cpu(report->nr_zones), nr_zones);
+> 		if (!nz)
+> 			break;
+>
+>@@ -698,8 +695,7 @@ static int virtblk_report_zones(struct gendisk *disk, sector_t sector,
+> 			if (ret)
+> 				goto fail_report;
+>
+>-			sector = virtio64_to_cpu(vblk->vdev,
+>-						 report->zones[i].z_start) +
+>+			sector = le64_to_cpu(report->zones[i].z_start) +
+> 				 vblk->zone_sectors;
+> 			zone_idx++;
+> 		}
+>@@ -725,18 +721,18 @@ static int virtblk_read_zoned_limits(struct virtio_blk *vblk,
+>
+> 	lim->features |= BLK_FEAT_ZONED;
+>
+>-	virtio_cread(vdev, struct virtio_blk_config,
+>-		     zoned.max_open_zones, &v);
+>+	virtio_cread_le(vdev, struct virtio_blk_config,
+>+			zoned.max_open_zones, &v);
+> 	lim->max_open_zones = v;
+> 	dev_dbg(&vdev->dev, "max open zones = %u\n", v);
+>
+>-	virtio_cread(vdev, struct virtio_blk_config,
+>-		     zoned.max_active_zones, &v);
+>+	virtio_cread_le(vdev, struct virtio_blk_config,
+>+			zoned.max_active_zones, &v);
+> 	lim->max_active_zones = v;
+> 	dev_dbg(&vdev->dev, "max active zones = %u\n", v);
+>
+>-	virtio_cread(vdev, struct virtio_blk_config,
+>-		     zoned.write_granularity, &wg);
+>+	virtio_cread_le(vdev, struct virtio_blk_config,
+>+			zoned.write_granularity, &wg);
+> 	if (!wg) {
+> 		dev_warn(&vdev->dev, "zero write granularity reported\n");
+> 		return -ENODEV;
+>@@ -750,8 +746,8 @@ static int virtblk_read_zoned_limits(struct virtio_blk *vblk,
+> 	 * virtio ZBD specification doesn't require zones to be a power of
+> 	 * two sectors in size, but the code in this driver expects that.
+> 	 */
+>-	virtio_cread(vdev, struct virtio_blk_config, zoned.zone_sectors,
+>-		     &vblk->zone_sectors);
+>+	virtio_cread_le(vdev, struct virtio_blk_config, zoned.zone_sectors,
+>+			&vblk->zone_sectors);
+> 	if (vblk->zone_sectors == 0 || !is_power_of_2(vblk->zone_sectors)) {
+> 		dev_err(&vdev->dev,
+> 			"zoned device with non power of two zone size %u\n",
+>@@ -767,8 +763,8 @@ static int virtblk_read_zoned_limits(struct virtio_blk *vblk,
+> 		lim->max_hw_discard_sectors = 0;
+> 	}
+>
+>-	virtio_cread(vdev, struct virtio_blk_config,
+>-		     zoned.max_append_sectors, &v);
+>+	virtio_cread_le(vdev, struct virtio_blk_config,
+>+			zoned.max_append_sectors, &v);
+> 	if (!v) {
+> 		dev_warn(&vdev->dev, "zero max_append_sectors reported\n");
+> 		return -ENODEV;
+>diff --git a/include/uapi/linux/virtio_blk.h b/include/uapi/linux/virtio_blk.h
+>index 3744e4da1b2a7..5af2a0300bb9d 100644
+>--- a/include/uapi/linux/virtio_blk.h
+>+++ b/include/uapi/linux/virtio_blk.h
+>@@ -140,11 +140,11 @@ struct virtio_blk_config {
+>
 
-Signed-off-by: Ryosuke Yasuoka <ryasuoka@redhat.com>
----
-When the host stops processing the virtio-gpu virtqueue without
-triggering device removal, the bare wait_event() in
-virtio_gpu_queue_ctrl_sgs() and virtio_gpu_queue_cursor() blocks
-indefinitely with no diagnostic output. A DRM atomic commit worker
-blocks in virtio_gpu_queue_fenced_ctrl_buffer() while holding the
-modeset lock. During graceful shutdown, systemd (PID 1) needs the same
-lock — either by writing to the console via fbcon, or by closing a DRM
-file descriptor that triggers framebuffer cleanup — and blocks as well,
-making the VM unrecoverable without a forced power-off.
+To avoid making this mistake again, how about adding a note here to 
+clarify that all the fields listed below are defined only for VIRTIO 1.x 
+devices and are therefore always little-endian?
 
-  PID: 553    COMMAND: "kworker/u4:3"
-   #0 __schedule
-   #1 schedule
-   #2 virtio_gpu_queue_fenced_ctrl_buffer [virtio_gpu]
-   #3 virtio_gpu_primary_plane_update [virtio_gpu]
-   ...
+Anyway, the patch LGTM:
 
-  PID: 1      COMMAND: "systemd"  (console write path)
-   #0 __schedule
-   #1 schedule
-   #2 schedule_preempt_disabled
-   #3 __ww_mutex_lock
-   #4 drm_modeset_lock [drm]
-   #5 drm_atomic_get_plane_state [drm]
-   #6 drm_client_modeset_commit_atomic [drm]
-   #7 drm_client_modeset_commit_locked [drm]
-   #8 drm_fb_helper_pan_display [drm_kms_helper]
-   #9 fb_pan_display
-  #10 bit_update_start
-  #11 fbcon_switch
-  #12 redraw_screen
-   ...
+Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
 
-Reproduction steps:
-1. Build QEMU with the fault injection patch [1] that adds an
-   x-ctrl-queue-broken property to virtio-gpu.
-2. Boot the VM and trigger the fault injection from the host.
-3. Fill the ctrlq (e.g., move the mouse on the guest's display).
-   The process gets stuck in virtio_gpu_queue_fenced_ctrl_buffer()
-   in D state.
-4. Run a graceful shutdown command (shutdown now or reboot).
-5. The shutdown process hangs.
 
-My earlier patch a46991b334f6 ("drm/virtio: abort virtqueue wait on
-device removal to avoid hung task") covers the case where the shutdown
-process reaches the device_shutdown() call path, which sets vqs_released
-to unblock the wait. However, during graceful shutdown, systemd (PID 1)
-gets stuck on the modeset lock before ever reaching device_shutdown(),
-so vqs_released is never set and the wait is never unblocked.
-
-I initially considered adding a module parameter to abort the wait with
--ENODEV on timeout:
-
-  +static unsigned int virtio_gpu_vq_timeout;
-  +MODULE_PARM_DESC(vq_timeout,
-  +     "Timeout in seconds for virtqueue wait (0 = no timeout, default)");
-  +module_param_named(vq_timeout, virtio_gpu_vq_timeout, uint, 0444);
-  ...
-  +             if (virtio_gpu_vq_timeout) {
-  +                     if (!wait_event_timeout(vgdev->ctrlq.ack_queue,
-  +                                             vq->num_free >= elemcnt ||
-  +                                             vgdev->vqs_released,
-  +                                             secs_to_jiffies(virtio_gpu_vq_timeout))) {
-  +                             if (fence && vbuf->objs)
-  +                                     virtio_gpu_array_unlock_resv(vbuf->objs);
-  +                             free_vbuf(vgdev, vbuf);
-  +                             drm_dev_exit(idx);
-  +                             return -ENODEV;
-  +                     }
-  +             } else {
-  +                     wait_event(vgdev->ctrlq.ack_queue,
-  +                                vq->num_free >= elemcnt ||
-  +                                vgdev->vqs_released);
-  +             }
-
-This approach aborts the wait and allows the graceful shutdown process
-to eventually proceed, albeit with a delay.
-
-But that approach has drawbacks: it allows users to set arbitrarily
-short timeouts that could destabilize the driver, and aborting commands
-mid-flight is a rough recovery path. An unconditional timeout was also
-discussed previously [2] but is not appropriate without virtio
-specification support.
-
-This patch takes a safer approach: replace the bare wait_event() with
-wait_event_timeout() and print a warning every 5 seconds while the
-virtqueue remains full. The wait still blocks indefinitely and no
-commands are aborted, so driver behavior is unchanged. The warnings
-help identify an unresponsive host device during troubleshooting.
-Once the user notices the warning, they can work around the hang by
-unbinding the VT from fbcon, removing the device, or forcing a shutdown
-via SysRq.
-
-[1] https://gist.github.com/YsuOS/fbcd181752594af35f954953a1d260b8
-[2] https://lore.kernel.org/all/8a986c52-964f-42a5-b063-fbe2b242ca36@collabora.com/
----
- drivers/gpu/drm/virtio/virtgpu_vq.c | 18 ++++++++++++++----
- 1 file changed, 14 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 68d097ad9d1d..a546130d3b6a 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -410,8 +410,13 @@ static int virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
- 	if (vq->num_free < elemcnt) {
- 		spin_unlock(&vgdev->ctrlq.qlock);
- 		virtio_gpu_notify(vgdev);
--		wait_event(vgdev->ctrlq.ack_queue,
--			   vq->num_free >= elemcnt || vgdev->vqs_released);
-+		while (!wait_event_timeout(vgdev->ctrlq.ack_queue,
-+					   vq->num_free >= elemcnt ||
-+					   vgdev->vqs_released,
-+					   5 * HZ) && !vgdev->vqs_released)
-+			DRM_WARN("ctrlq waiting for host: no free space for %d secs\n",
-+				 5);
-+
- 		/*
- 		 * Set by virtio_gpu_release_vqs() to unblock
- 		 * synchronize_srcu() wait in drm_dev_unplug().
-@@ -592,8 +597,13 @@ static void virtio_gpu_queue_cursor(struct virtio_gpu_device *vgdev,
- 	ret = virtqueue_add_sgs(vq, sgs, outcnt, 0, vbuf, GFP_ATOMIC);
- 	if (ret == -ENOSPC) {
- 		spin_unlock(&vgdev->cursorq.qlock);
--		wait_event(vgdev->cursorq.ack_queue,
--			   vq->num_free >= outcnt || vgdev->vqs_released);
-+		while (!wait_event_timeout(vgdev->cursorq.ack_queue,
-+					   vq->num_free >= outcnt ||
-+					   vgdev->vqs_released,
-+					   5 * HZ) && !vgdev->vqs_released)
-+			DRM_WARN("cursorq waiting for host: no free space for %d secs\n",
-+				 5);
-+
- 		/* See comment in virtio_gpu_queue_ctrl_sgs(). */
- 		if (vgdev->vqs_released) {
- 			free_vbuf(vgdev, vbuf);
-
----
-base-commit: b9e2d5cdaab05c997be3a69d9b372d7676683e1b
-change-id: 20260616-virtiogpu_add_timeout-33e985718c22
-
-Best regards,
--- 
-Ryosuke Yasuoka <ryasuoka@redhat.com>
+> 	/* Zoned block device characteristics (if VIRTIO_BLK_F_ZONED) */
+> 	struct virtio_blk_zoned_characteristics {
+>-		__virtio32 zone_sectors;
+>-		__virtio32 max_open_zones;
+>-		__virtio32 max_active_zones;
+>-		__virtio32 max_append_sectors;
+>-		__virtio32 write_granularity;
+>+		__le32 zone_sectors;
+>+		__le32 max_open_zones;
+>+		__le32 max_active_zones;
+>+		__le32 max_append_sectors;
+>+		__le32 write_granularity;
+> 		__u8 model;
+> 		__u8 unused2[3];
+> 	} zoned;
+>@@ -241,11 +241,11 @@ struct virtio_blk_outhdr {
+>  */
+> struct virtio_blk_zone_descriptor {
+> 	/* Zone capacity */
+>-	__virtio64 z_cap;
+>+	__le64 z_cap;
+> 	/* The starting sector of the zone */
+>-	__virtio64 z_start;
+>+	__le64 z_start;
+> 	/* Zone write pointer position in sectors */
+>-	__virtio64 z_wp;
+>+	__le64 z_wp;
+> 	/* Zone type */
+> 	__u8 z_type;
+> 	/* Zone state */
+>@@ -254,7 +254,7 @@ struct virtio_blk_zone_descriptor {
+> };
+>
+> struct virtio_blk_zone_report {
+>-	__virtio64 nr_zones;
+>+	__le64 nr_zones;
+> 	__u8 reserved[56];
+> 	struct virtio_blk_zone_descriptor zones[];
+> };
+>-- 
+>2.53.0
+>
 
