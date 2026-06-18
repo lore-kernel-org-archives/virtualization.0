@@ -1,36 +1,35 @@
-Received: from smtpbgau2.qq.com (smtpbgau2.qq.com [54.206.34.216])
+Received: from bg4.exmail.qq.com (bg4.exmail.qq.com [43.154.54.12])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A06D3BFE4A
-	for <virtualization@lists.linux.dev>; Thu, 18 Jun 2026 09:58:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=54.206.34.216
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E9E33E715C
+	for <virtualization@lists.linux.dev>; Thu, 18 Jun 2026 10:01:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=43.154.54.12
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1781776687; cv=none; b=tYNiT96X2ZiMtDyJMgFhk3vbglvw1s9Y1Kes3DyogtPHgvTVtnSgrqxw8pQwqBtvxNDBixSvXxMGdbh/O2oxO99rNgL0ElC2agnWvxCRvMwT1z0/we/0mtU0qKJXE1pKrfs/O1xjag8tehyKwyQBg9Vy7EhAczXRZW7pya6/O8A=
+	t=1781776878; cv=none; b=eyDbQIW4rDV9KquW4N12KurfEgEPp2Prgr6k0mvwmJ5C1hqVLPzN+abhiOVeVAn7hq9Sfz5yg+1a7KunNFzupFVSpo40KrQlJFA00e/z8FNjWLqIUlsoPf2Yd08VhiC8VwzPzowSeq1eFcqJKfWZaXhu4tVkM+TZnNRnQoBCa+U=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1781776687; c=relaxed/simple;
-	bh=62t1laBwNgZHF8RwIKtZBtLPqAx+i0NptKBCgWZPxYU=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=HbDMn/Dq6+cZP4eDCFOxMhNjCJ7wJDn551XY53KXnSStWsNuE8239D6b1DJSiYKdSiMjRNjxGZCj6tB14lkzCQLDnYr52OErY2DKJ4fICsrcwViuVD/5GQd2nk6TDZCuDd2ka6CYd1XqcPvD5k/ZxPDIdkGgdXORBEE9PbewrdE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com; spf=pass smtp.mailfrom=uniontech.com; dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b=TlSQWhSA; arc=none smtp.client-ip=54.206.34.216
+	s=arc-20240116; t=1781776878; c=relaxed/simple;
+	bh=hgIZpuS8cGUCKTMAN9HMSdRpBgid9tRVCtuI0rkTdrA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Dk6k4m4TwS6bCYJ8Pqrafs8dCiA4gaqj54wnjeH+/7asdfm/t/p34y6VQMpQWnPeklZiBnkhXvky6Q3vIn5dfGENwdfIgOwbCXYMhfjU7HaOKD/h4sr9H1eE81zcH0diydi7Rm+TnKc3C9BFKYXGkCUO88MXDcNl3bFtb1WJQuQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com; spf=pass smtp.mailfrom=uniontech.com; dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b=E/p0TERI; arc=none smtp.client-ip=43.154.54.12
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b="TlSQWhSA"
+	dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b="E/p0TERI"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
-	s=onoh2408; t=1781776662;
-	bh=Pj25C/v+EL6kS8XUQkQTGImgX/LYSs7AnacR88uLE0A=;
+	s=onoh2408; t=1781776867;
+	bh=nbv5AehayYJiATaaRsgsbqhRFAhJgqQNTtP2yMu2zUE=;
 	h=From:To:Subject:Date:Message-ID:MIME-Version;
-	b=TlSQWhSA5TwgvExowWby/vE1pOUcobuk/krs/+/D2AY+nXv4ghiZ5M/3fKCij6OOZ
-	 uCP9VxVt4LFrq3OivCzeWPZVxt2enOx/yxi8a7A6mh9gk9urVGlGlEozxLHacb8vaJ
-	 WQwb090rgELZyxVIQkD9vkvoYxTkf3JXjqmoLAJQ=
-X-QQ-mid: zesmtpgz1t1781776644t5d22a5d2
-X-QQ-Originating-IP: f5Mz8b6t4rHIKpe6OrC3J90H2J5KZUMAJelm+1v6EKE=
+	b=E/p0TERIQDaiMXoxgpPHSU7ao+Wwee1cnqA4VyDmtn2+b7GLCIK37+TOqy/wAZheX
+	 Fhapl2VeVLdHyp5O+ZYIC4jlhS0MjlDINAaBWQbWb6G4taKv47oaaHCLk2i4E7BKyT
+	 18NzR7Buh7qg7NnHzI4Xt2GM4Yd1CWBI5jnQ0Rqw=
+X-QQ-mid: zesmtpgz1t1781776626td5735b67
+X-QQ-Originating-IP: eGD7SUVg//Znba/GR0ZdWpLalZrNn4wLXiOlIyYzvWg=
 Received: from Shurima ( [113.57.152.160])
 	by bizesmtp.qq.com (ESMTP) with 
-	id ; Thu, 18 Jun 2026 17:57:20 +0800 (CST)
+	id ; Thu, 18 Jun 2026 17:56:47 +0800 (CST)
 X-QQ-SSF: 0000000000000000000000000000000
 X-QQ-GoodBg: 1
-X-BIZMAIL-ID: 3722739049147932067
+X-BIZMAIL-ID: 9669427810377979883
 EX-QQ-RecipientCnt: 10
 From: Yichong Chen <chenyichong@uniontech.com>
 To: mst@redhat.com,
@@ -43,12 +42,10 @@ Cc: xuanzhuo@linux.alibaba.com,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org,
 	chenyichong@uniontech.com
-Subject: [PATCH 2/2] tools/include: Include stdint.h for SIZE_MAX in overflow.h
-Date: Thu, 18 Jun 2026 17:56:42 +0800
-Message-ID: <3B857B143D03C4AA+20260618095642.510565-3-chenyichong@uniontech.com>
+Subject: [PATCH 0/2] tools: Fix tools/virtio test build
+Date: Thu, 18 Jun 2026 17:56:40 +0800
+Message-ID: <913D9291164C65D4+20260618095642.510565-1-chenyichong@uniontech.com>
 X-Mailer: git-send-email 2.51.0
-In-Reply-To: <20260618095642.510565-1-chenyichong@uniontech.com>
-References: <20260618095642.510565-1-chenyichong@uniontech.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -58,47 +55,54 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-QQ-SENDSIZE: 520
 Feedback-ID: zesmtpgz:uniontech.com:qybglogicsvrgz:qybglogicsvrgz3a-0
-X-QQ-XMAILINFO: OQhZ3T0tjf0aCF3EcmZpKQwjq9ui9H6OZpX7SF4C66PUFDD/BcjL235g
-	DIc1SUQ85k4/HVWRPuIBYuloycHkF2tGbwVzNWF2QWnYYcujF0DXxrsqZOcNi1CvC9oX7h/
-	/wKSHNuCCchkg3ofh4U5PaFXVOlBtA4xmKHCkl2XFcij+w+kGamQWk12RhtxZFz/pKXERFM
-	MHThae/jIJW81CcPSURw4t20T6c+43J6nY+1hhcxsrs6fAFPuGbUaGx+Qu0djxZHX+wTgRt
-	GAOIJS32hwpdDW9bbfteBLXlnImajrYpTwx+bQhAcqP5rQ/OZeFU8HTAoYQ6/WNmZTHDV37
-	L0bxsVIC3IQy3md0PYyZGWtvR26o1P+l8TorCX8NwP+ZKs+eG+8zipJXIO2jBN4Il/D44d0
-	MrTXLWexPAGww/jC/ud/GhKLqOFjxF/tMYi6szTB/CkRfGBMReRO3bEsSrPAc2Pi46qUTb9
-	fECe2dJ5rig2rBzW7JRepImHoHD09h3c2qGlqypQgF1t706i3/0FUsXyqYU95L1w9Mjnlz2
-	wOzUCZm/Ohh7YKkn1O0hsYmZsUKyBEepUdxfm/L3qUGCPJ6NmbDA2uz2HnkQGcm7w9gGyQb
-	ewVBbbFEIJcFK9t8J+TgSVTXlhkz0XgTZpSrkOxXn3wrlEvdM2V0frwmMmRVgbKssNRc3Ov
-	xN2yyG+ZPHHoS7KDuF2uduDaTpgNDsoBzKxslckxc6+SjFMRVr661t7XgwWJsznu5kcV6pT
-	S1k0IZA+Xgx3/HNzg9YtuLyNCAcI61YiS/bwbNUHgc/rA+6xqttJoQO+NZtdrSHHun6o/aa
-	6w+ePMteTvorvTzoamM/utRS/Gs5aT4XpoKmL9RAScZKG1ybRyms45/TY0xhn+sRS8apvbX
-	b/3w1KwqMjC65ig11JIW07W7qMoccYA1OD0ZzxyyjX5I+3G0KE+6C9HQ4MvR1xyyKlUTRed
-	0bV0GRGi60NQFLwWPjnHCs1n1lQRXkrF+UCndeBqQ5LjTQ1KITn5ka/OGH29fWzbBT9Gk8h
-	a9fzwN4rqK77Yle08Gg+8JLgi9FqPuYOTucK0oQA0xitpL56iiZizopx+YYWA=
-X-QQ-XMRINFO: OD9hHCdaPRBwH5bRRRw8tsiH4UAatJqXfg==
+X-QQ-XMAILINFO: NEooIJKZCRWfD/1L3ZrCi9eDtJxjvr/yLIS1NFfF8pdhL7NqW9LLRl0B
+	mdI6y3XBFiUXuCl9eelyJ/07FOkgnvT9p9fcLtuvhuaQZq2x2t+1Q5tIhB024IrL6pv4CY+
+	TlEWyJZI3ZynEoMhSebczkLgch8j98Dv0GNlbOdK0y54p15MrDCRANTeeRHcGw3QUdIiMgz
+	7gMQsXVpAlhwphnDOvytdDg36vubbeyAzfH1+hXg4avGpGuZScBYFYsB+Nv+uXKFk7B8Amy
+	ZjELkwUkB4HzKborQI54nT6lXd41W8fVsncAXJgI2s074PPde9cD3FtsvsuqCZhx1ARRZYs
+	a5/nVnYNbuZ3sVNdu+GkIQ+LRWnRKEFmch6ZvSNYQ2apVKb8muLLXwm4V7Wyywl1abKc/au
+	Q6nAtX6/8MGbNalOY36zf6H94xP/SkBvkZDtcxF6jH7j3riUawzyFEOq6Bfls3aJO7uBG+t
+	6vRxAx9qpBWhcEX50x4sMpc3gqLeSyKypNoA+jC04uU8Cc+xW+EaeKPzPz58r8bv2P8B1mH
+	W/PRX9jgEbUyEGt+zrdrZsl/K67PSrdhAe9fZBD5zr/Yo4c/qRot1FnFsNuMTG0TzxKlbuk
+	XoWbBy2BEeBxusXUW/2bz5JRZajlA4xzsJ/AWnettRFo9ncey6WFh92b2Yk8UAzqSTNdWmk
+	EYF2zBKml+8sPR7t/77iKJrmBD9l0yIqw9jdB2OlcDpCJyRYG/cLZwlCTX7lOOWbragMxTA
+	c806v6IsZaeumrFSimaSmdFnSR2DOJ/77qhfQIMJMhiHjNj+Sh/ni5uUfD6+mMakMPhDQIc
+	uAmu+K2LyHVo/mutuBmyTW4CIulnuB1GsCwQI+Vh76UCUSBOrBexUy4GJ6Ex9nwbZpDJiMA
+	wufo+1sjyaeUQTyK4TlLif82i0OA6zFJ1rEZG/1Yintk8hulWBvY2SNxbntXZSPP4nmP8xe
+	HiaWKhHT1Uqgx94qdzNytywmJIByLi1yCaslfyybm96RJ8ihYlz9ytvG++OtygETIBopWGa
+	cs25JLV4klzVQ4HHAD
+X-QQ-XMRINFO: NS+P29fieYNwqS3WCnRCOn9D1NpZuCnCRA==
 X-QQ-RECHKSPAM: 0
 
-tools/include/linux/overflow.h uses SIZE_MAX in its size helpers.
+This series fixes build failures hit by:
 
-Include stdint.h so overflow.h provides that dependency itself.
+  make -C tools/virtio test
 
-Signed-off-by: Yichong Chen <chenyichong@uniontech.com>
----
- tools/include/linux/overflow.h | 2 ++
- 1 file changed, 2 insertions(+)
+Patch 1 adds tools/virtio compatibility definitions needed by
+recent virtio headers when building vhost_net_test.
 
-diff --git a/tools/include/linux/overflow.h b/tools/include/linux/overflow.h
-index 3427d7880326..9d30ae0dbd1d 100644
---- a/tools/include/linux/overflow.h
-+++ b/tools/include/linux/overflow.h
-@@ -2,6 +2,8 @@
- #ifndef __LINUX_OVERFLOW_H
- #define __LINUX_OVERFLOW_H
- 
-+#include <stdint.h>
-+
- #include <linux/compiler.h>
- 
- /*
+Patch 2 makes tools/include/linux/overflow.h include stdint.h
+for SIZE_MAX, which is used by its size helper functions.
+
+With the series applied, make -C tools/virtio test builds
+virtio_test, vringh_test and vhost_net_test successfully.
+
+Yichong Chen (2):
+  tools/virtio: Add missing compat definitions for vhost_net_test
+  tools/include: Include stdint.h for SIZE_MAX in overflow.h
+
+ tools/include/linux/overflow.h       |  2 +
+ tools/virtio/linux/completion.h      |  9 +++++
+ tools/virtio/linux/device.h          |  1 +
+ tools/virtio/linux/dma-mapping.h     |  1 +
+ tools/virtio/linux/mod_devicetable.h | 14 +++++++
+ tools/virtio/linux/slab.h            |  4 ++
+ tools/virtio/linux/virtio_features.h | 56 ++++++++++++++++++++++++++++
+ 7 files changed, 87 insertions(+)
+ create mode 100644 tools/virtio/linux/completion.h
+ create mode 100644 tools/virtio/linux/mod_devicetable.h
+ create mode 100644 tools/virtio/linux/virtio_features.h
+
 -- 
 2.51.0
 
