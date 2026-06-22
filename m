@@ -1,121 +1,152 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from out-180.mta0.migadu.com (out-180.mta0.migadu.com [91.218.175.180])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3C9A72DB7B7
-	for <virtualization@lists.linux.dev>; Mon, 22 Jun 2026 11:54:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D4F1281525
+	for <virtualization@lists.linux.dev>; Mon, 22 Jun 2026 12:27:30 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.180
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782129260; cv=none; b=RtK9B597nFcf1cTCcxayw8wQsJ8yFvs+va0w5IC+RJjJE6sCCYt159LrOfXxCYrUyAYqiH9nCIx4Y6xuoMepFlJCp1RoNEmSDw7sIX1mXikfTXqJhba6kZ3MWhVktLccWxVjitkbuubcsZtnR8+shQMkkibVWQ+IZY4LXl01fyc=
+	t=1782131252; cv=none; b=UYnG2p31f+q7+SQfyo/BWqt22ToYfpZKI6NffSwEPIFXPyWED/ZCWKn6JLEVLqUE1lpyoqFW2fSBxfRRgMrcQMm27EfEL2VzZgVnU/WlyhPbgL2v2IbkcnSpNqgGdteBNV+Nebya8z5jOGJVHEUAmV7/g1UgKvhN5ncF7KQ0NO0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782129260; c=relaxed/simple;
-	bh=jMBYk1I26Z01N3yLPy9S3F29MdPVnUU3Dfav2r4ilsk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=KLobHJO79aexNPCIY2wbagan5XqV9MLADi3d9j8baaewWcKr5ksD+chn++Lcj9XiKjXIzyKQlS73Ns9bJW+v1rygnOgnYEFqFGfRTlZfs/1nffpTOlnNyJ4cK8lHknUQfdUu4gUsJ8GvFJkqmW4jMdJeb5hNA8SJEfoMLphnVj0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=G1cgt6uB; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1782131252; c=relaxed/simple;
+	bh=4j+00HlElQLUoISmCOPJXqeurRhtEPbVpFjE5IFbxRs=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=BFtzhgMo/9G57ZXnvQRtRG416bjPL7x1j4nwbLeE+2Vz2bgVcCwKQs4eY/o5UKISKNUNONPhesJMnm1nDey+FHLGwkXADAkQPa3gSgtPaxh1xdoK42gTOt5Q1AJkqyLQ9Yb3GeTBSYvzd58gtG3blCkUIR1TMiNMk/ee1WgKxuI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=qNoKMFCJ; arc=none smtp.client-ip=91.218.175.180
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="G1cgt6uB"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1782129258;
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="qNoKMFCJ"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1782131248;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=8vVHuqQ9WD2uTyMiPGWc9jmJ0mKld9JHXnm8ba8rY2w=;
-	b=G1cgt6uBTkjDbvljLaRGRw4jS/VJ2Rga7tcL4Q6QyQmm23UfSfZwY+9S0pxaWBsIPDp4Wu
-	9njDmvvZkmhAOk9V8fWcjJqMyTvXcBB0wa03emQAcub22wJ6sfNhaXpY9cKeCP/Mk0WHK3
-	HKY6V0nF/uHXXemnKmgCR3ULNM4OcnU=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-313-ou_Qi8a9Oyi8_gJOGj96pw-1; Mon, 22 Jun 2026 07:54:17 -0400
-X-MC-Unique: ou_Qi8a9Oyi8_gJOGj96pw-1
-X-Mimecast-MFC-AGG-ID: ou_Qi8a9Oyi8_gJOGj96pw_1782129256
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-4625e71d3ccso3590443f8f.0
-        for <virtualization@lists.linux.dev>; Mon, 22 Jun 2026 04:54:16 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782129256; x=1782734056;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=8vVHuqQ9WD2uTyMiPGWc9jmJ0mKld9JHXnm8ba8rY2w=;
-        b=h+s5SVCH9NEZxnB1DJ799dsbxwEHkpGgsj+R4AEIzpBwpNjYJpLXuR0FYQUHM3I9hg
-         uw5PHDUvrQgUZZbnqF1/qXCOH4/+FwSgoe9tTNvOMAL/2EIABxLTAS2JUdyCP7i21/io
-         OVlDX7sVJBEEQV6UCG45sUWIetvWQ4Lt+OiGAE6guRk2Pk1VYxSTBI6yoNU37cM9VI7V
-         eVWNjXUUIRQUHzzvHvUPnUqUh82X4t3G1hq0x0xJYFfiEbzwQXpwxezAofz+j0pFkUXA
-         LOVbcV1Hs+A2SFoW+62MVT0kaoGLbC8vU5PfNJkIB/JuQ7G2u2qVUj7o9+15ja4uA31J
-         Oekw==
-X-Forwarded-Encrypted: i=1; AFNElJ80szM3gbjbiqm1DXfCmCVKY1BjRY9iyL6Jm6xubeKxU7LPQ+zDr0Hm9ra6aapIeAispGfzVhzTutLkbIgwzQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzv94Oafa9XTeASjckF3CkEZMY0j1l7b8mBFpgRIyW9LqamYDpP
-	vauZcWyfyGyaMX9gdiR/WuhHd0XTxGaW0dwGYgqNRVhfRnRk3yWRD42witrbOPcMVw8cbEj7Ymi
-	bInlJdMpRKHKa5bXVOWnKcvcnUAc0bzzXZLLBxim3/w0acxSEYpgP4rrWTNSEqCt3p+tCvnA+9l
-	nY
-X-Gm-Gg: AfdE7cnPPfFrrFYVkeWvRnwzew5BhOPLYZKEsPv4L+VNwSS0caD1lY1H1ZGVWJ8SmF+
-	QJeZrMrQ5QniaeE2hjD6U0K8FpUAKCsN0dWwoFkBNSDJaoGWp3cZZfqBeZwILIo6s9P18Am7yX+
-	E+VK1O7Pk4dvPIp8nqAjC4qaJtoGSTGIlOANpmOP9Zs+CcA0YjkDsegxJ14azJw40z3FdjMWHZi
-	kpRoTZQqySSsmaJVnTC+QiQFNu2iV0HC2L+KxqOO8W/Py7cr29kiBsHGbWHcwGX+aNfWyS8rA5J
-	Wh8sgkW2zpsFu5weyJ5yTJhLPA9nZzPanlXfz80Z3h40QhlhHWOuWtRN1d5RKKcXVRrFOIEWVW3
-	NOQLdrgXS1DZ6nIeP6D4Mv/L3k68AzUTG
-X-Received: by 2002:a05:600c:8218:b0:492:1e36:9a90 with SMTP id 5b1f17b1804b1-49240a598e5mr172439665e9.18.1782129255796;
-        Mon, 22 Jun 2026 04:54:15 -0700 (PDT)
-X-Received: by 2002:a05:600c:8218:b0:492:1e36:9a90 with SMTP id 5b1f17b1804b1-49240a598e5mr172439175e9.18.1782129255095;
-        Mon, 22 Jun 2026 04:54:15 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-85-71.inter.net.il. [80.230.85.71])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49249207dabsm355852005e9.0.2026.06.22.04.54.13
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 22 Jun 2026 04:54:14 -0700 (PDT)
-Date: Mon, 22 Jun 2026 07:54:12 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Yichong Chen <chenyichong@uniontech.com>
-Cc: akpm@linux-foundation.org, eperezma@redhat.com, jasowang@redhat.com,
-	linux-kernel@vger.kernel.org, ljs@kernel.org, rppt@kernel.org,
-	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
-Subject: Re: [PATCH 0/2] tools: Fix tools/virtio test build
-Message-ID: <20260622075317-mutt-send-email-mst@kernel.org>
-References: <20260618080405-mutt-send-email-mst@kernel.org>
- <A1DCE9FEF645A3F9+20260622070113.1207518-1-chenyichong@uniontech.com>
+	bh=l6E5HMCsv8V1TPYr18y2WYeLDGDrIQonKulSBFvWahE=;
+	b=qNoKMFCJnFR4CvkeRtR1vTwxlLckCqkvtCcuFiGtfAqIwNWFb9aq9lQmIpydzevkV+OeDb
+	0kMMHupSXevfA8IMgrpMaTgCZJY98iYHldvQXt2y7CpqYz77imAP3AyytLFIMQArjyyvX+
+	7tI6SUIUVr1FRFSRNSSavnMiRZvUIdQ=
+From: Menglong Dong <menglong.dong@linux.dev>
+To: Menglong Dong <menglong8.dong@gmail.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>
+Cc: xuanzhuo@linux.alibaba.com, eperezma@redhat.com, jasowang@redhat.com,
+ andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+ kuba@kernel.org, pabeni@redhat.com, netdev@vger.kernel.org,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next v3] virtio-net: xsk: support tx wake up
+Date: Mon, 22 Jun 2026 20:27:12 +0800
+Message-ID: <BMgCMK8nRYC94QK7N1SXpQ@linux.dev>
+In-Reply-To: <20260621182119-mutt-send-email-mst@kernel.org>
+References:
+ <20260616115912.513183-1-dongml2@chinatelecom.cn>
+ <20260621182119-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <A1DCE9FEF645A3F9+20260622070113.1207518-1-chenyichong@uniontech.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: GQQgBfgWGsPp-VZhYhUiLxpFqmZVea4IoBaidmX6q-k_1782129256
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset="utf-8"
+X-Migadu-Flow: FLOW_OUT
 
-On Mon, Jun 22, 2026 at 03:01:13PM +0800, Yichong Chen wrote:
-> Hi Michael,
-> 
-> I checked the history again. The tree was based on v7.1, but I had
-> unrelated local commits on top when I generated the series.
-> 
-> I rechecked this on a clean v7.1 tree:
-> 
->   8cd9520d35a6 ("Linux 7.1")
-> 
-> The build failure is still reproducible with:
-> 
->   make -C tools/virtio test
-> 
-> The first failure is:
-> 
->   include/linux/virtio.h:10:10: fatal error:
->   linux/mod_devicetable.h: No such file or directory
-> 
-> The two patches also apply cleanly on top of v7.1 and make
-> the tools/virtio test target build virtio_test, vringh_test and
-> vhost_net_test.
-> 
-> I can resend a v2 based on v7.1 with a base-commit if you prefer.
-> 
-> Thanks,
-> Yichong
+On 2026/6/22 06:31 Michael S. Tsirkin <mst@redhat.com> write:
+> On Tue, Jun 16, 2026 at 07:59:12PM +0800, Menglong Dong wrote:
+[...]
+> > =20
+> > +	vring_size =3D virtqueue_get_vring_size(sq->vq);
+> > +	need_wakeup =3D xsk_uses_need_wakeup(pool);
+> > +
+> > +	if (need_wakeup && vring_size =3D=3D sq->vq->num_free)
+> > +		xsk_set_tx_need_wakeup(pool);
+> > +
+>=20
+> why are we doing this here?
+> the check after virtnet_xsk_xmit_batch not enough?
+> I vaguely think it's some kind of race we are closing?
+> Pls add a comment to explain.
 
-Hello, thanks for the report!
-the commit to try is 8cb2c9285e4ce9154f45fb15633ebd45dfd8d9cf - that is
-not in 7.1.
+Hi, Michael. Thanks for your review.
+
+Yeah, it's for a race condition between user space and kernel
+space. I added a comment in V2, which is too confusing, and
+I removed it =F0=9F=98=A2. I'll make it more clear and add it in the V4. The
+origin comment is:
+
+ * If the sq->vq is empty, and the tx ring is empty, and the user
+ * submit an entry to the tx ring after virtnet_xsk_xmit_batch() and
+ * before xsk_set_tx_need_wakeup(), we will lose the chance to wake
+ * up the tx napi, so we have to set the need_wakeup flag here.
+
+And the logic is like this:
+
+Kernel: tx NAPI is waked up from skb_xmit_done() ->
+Kernel: sq->vq and xsk->tx_ring are both empty ->
+Kernel: call virtnet_xsk_xmit_batch()
+
+    User: submit a entry to the xsk->tx_ring
+    User: check the wakeup flag
+    User: wakeup flag is not set, skip send()
+
+Kernel: call xsk_set_tx_need_wakeup(), because sq->vq is empty
+
+If we don't send more data, the data in the xsk->tx_ring will
+not be sent forever.
+
+>=20
+> >  	sent =3D virtnet_xsk_xmit_batch(sq, pool, budget, &kicks);
+> > =20
+> > +	if (need_wakeup) {
+> > +		if (vring_size =3D=3D sq->vq->num_free)
+> > +			/* we can't wake up by ourself, and it should be done
+> > +			 * by the user.
+> > +			 */
+> > +			xsk_set_tx_need_wakeup(pool);
+> > +		else
+> > +			/* we can wake up from skb_xmit_done() */
+> > +			xsk_clear_tx_need_wakeup(pool);
+>=20
+> But what if we don't have get tx napi so no wakeup in skb_xmit_done?
+
+Sorry that I'm not sure what "get tx napi" means here ;(
+
+There are entry in sq->vq, so skb_xmit_done() will be called after
+the entries in the ring is consumed by the HOST, right?
+Then, the corresponding sq->napi will be scheduled, as we ensure
+that tx napi is always enabled, which means napi->weight is not
+zero, in this commit:
+1df5116a41a8 ("virtio_net: xsk: prevent disable tx napi")
+
+Right?
+
+Thanks!
+Menglong Dong
+
+>=20
+>=20
+> > +	}
+> > +
+> >  	if (!is_xdp_raw_buffer_queue(vi, sq - vi->sq))
+> >  		check_sq_full_and_disable(vi, vi->dev, sq);
+> > =20
+> > @@ -1470,9 +1488,6 @@ static bool virtnet_xsk_xmit(struct send_queue *s=
+q, struct xsk_buff_pool *pool,
+> >  	u64_stats_add(&sq->stats.xdp_tx,  sent);
+> >  	u64_stats_update_end(&sq->stats.syncp);
+> > =20
+> > -	if (xsk_uses_need_wakeup(pool))
+> > -		xsk_set_tx_need_wakeup(pool);
+> > -
+> >  	return sent;
+> >  }
+> > =20
+> > --=20
+> > 2.54.0
+>=20
+>=20
+>=20
+
+
+
 
