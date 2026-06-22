@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55AB53B6340;
-	Mon, 22 Jun 2026 14:26:09 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C1C003AEB32;
+	Mon, 22 Jun 2026 14:29:56 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782138371; cv=none; b=mVfb/06/tznIKyujkRaQjIM8ipRatVtVq6MSHnxm6skLp/oEiCTN5gFP6sgCv3/cokmjU2LltjtmZZxnurxL8A70jDdnJM+ux8TTmkm5tNJ3A4JcAV01d67Xd0kzUNEH8qubxyOn/1oFuPpCNfDRakuztCwDujy3QXegf9oJrkE=
+	t=1782138597; cv=none; b=ZkaRI5S8FaSbs/XgoD2guC0x+eia36E6tN1wlo+JYXbAO4+iXw5+0LWkoLyLoYpP14XZC8vUVdPndVuj2263ajISTJ34THdxMmSeVezChsOCfNG1runG/D14zTQh1XF+HFLRoLf9h/gTfX9TlPMhKb5nlfhwuMmrKLl2RrHQ49E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782138371; c=relaxed/simple;
-	bh=dmt92rYSqlpy8EscL6PoSJOZCOH/ybiF3RgPOrZNkus=;
+	s=arc-20240116; t=1782138597; c=relaxed/simple;
+	bh=2FAUR5H/eA1BJeYRJ0dOeeRSuekHwVwbyrJqDLSICXM=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=VzPugs/nLgr38scqVf/dKYdviPun37g/dXbpi3yZqzjJADn3USTbkhwZipzxJB6QbEMF4mi7qc6V40MiiUqO0R20zo2iAke/+f6NLfDUpOKhoW4oiYHag4Ix4BWnQBErS3FrHbjEJNkSEBeC3DpdfwneYhIMBDanS9xcQzCz2YQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z/9V9qZG; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=LNse7JX9Ss1ikL28clIxsu5ik8V8BMpgFp2jfhUWMlLnrXgeCvzzCqU9k6soblNZCDCpklZWhrsY+59E3PRXlOvAPVsT/tfe3RLgzgxAXaNkEdw8mz/Cox1+juS8KvSYyrqBAKCbOKxRZ8Bv0BVq4tJuU9kmYZt7pvsVUdS7C3Y=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=NQhDBQcr; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z/9V9qZG"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7E41F1F00A3E;
-	Mon, 22 Jun 2026 14:25:53 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="NQhDBQcr"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 759B11F000E9;
+	Mon, 22 Jun 2026 14:29:55 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782138368;
-	bh=TDAYJ+1Hj3rbE0Ol2Kisc3T9HkVrRB/qMnf4xfL3duM=;
+	s=k20260515; t=1782138596;
+	bh=eqSkhNQ+NgLJ4tVlOFvrjOTsyPPZ107xn3Q7uyoJPB0=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=Z/9V9qZGS8MYYP6phtVfhfUZn5Mlky7EbgTe/Z1vGj6sBamOcbjeBadSZOEBaq7gO
-	 J1NVdvUYpXFweVkh2FIA7mqhr65YO7wR+gL/igIt7tJ8D8Nj0tyFw2cL8R1i4Tt96D
-	 5E1Ze/xYQSqXixsRMd46bjR724YpI+yfbAyPqe4ommDPhKoPjzHlmxT7eiJBHwOOYS
-	 nl+fappsCvMw2odXEJwcNTcUHXIiLj/iRIfS00A0duYW3q87N0dZKZNKKdyIjzwL6m
-	 1hELeuMrfbHYI2s9jAvgJvS2SVWBDB4KQFLEuewtOuAbz/7CXloIyVRbYeQ6sp7s4Z
-	 9S4ftJWS8b+sA==
-Message-ID: <ef5dd3a3-10c1-4a9c-8c84-cadc75528e5a@kernel.org>
-Date: Mon, 22 Jun 2026 16:25:52 +0200
+	b=NQhDBQcrFjkByujeOizLiWMyqOVL/pSjhgwKVob95E1Vxfe3vOzzTthOJkcAutfx3
+	 aI+bC0fh+yxFDqaD62W3ktBLUX5FiiiU5HgEE+RtngDBpMifyZ/K3n34hyF/WW4QXk
+	 A4zyAZns8ls/ZZ2/7AS96Ce59tbUm870UlRJ62w7fYo22koX6kgpql21DuIi33TzCu
+	 FnkcUMzbJCjXqgd5jFYKFgq2OYOKWo/Kl1f/wAF1kXHfjUXZb39AzWmSajMaT3QSBz
+	 P6ZJvuHjyQw6nsWfmsCgX3lDMj02xnI9ok3xQAKouDywQBMMcp4zNYBMWXAN8xSuCe
+	 Y9WJd5XL3c0XA==
+Message-ID: <de197e27-e56e-48e1-ac2d-e76ba0c3e6b2@kernel.org>
+Date: Mon, 22 Jun 2026 16:29:54 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -35,44 +35,11 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v10 07/37] mm: thread user_addr through page allocator for
- cache-friendly zeroing
-To: Gregory Price <gourry@gourry.net>
-Cc: Zi Yan <ziy@nvidia.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- Matthew Wilcox <willy@infradead.org>, Lorenzo Stoakes <ljs@kernel.org>,
- linux-kernel@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Muchun Song <muchun.song@linux.dev>,
- Oscar Salvador <osalvador@suse.de>, Andrew Morton
- <akpm@linux-foundation.org>, "Liam R. Howlett" <liam@infradead.org>,
- Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>,
- Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
- Brendan Jackman <jackmanb@google.com>, Johannes Weiner <hannes@cmpxchg.org>,
- Baolin Wang <baolin.wang@linux.alibaba.com>, Nico Pache <npache@redhat.com>,
- Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>,
- Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>,
- Hugh Dickins <hughd@google.com>, Matthew Brost <matthew.brost@intel.com>,
- Joshua Hahn <joshua.hahnjy@gmail.com>, Rakie Kim <rakie.kim@sk.com>,
- Byungchul Park <byungchul@sk.com>, Ying Huang
- <ying.huang@linux.alibaba.com>, Alistair Popple <apopple@nvidia.com>,
- Christoph Lameter <cl@gentwo.org>, David Rientjes <rientjes@google.com>,
- Roman Gushchin <roman.gushchin@linux.dev>, Harry Yoo <harry.yoo@oracle.com>,
- Axel Rasmussen <axelrasmussen@google.com>, Yuanchu Xie <yuanchu@google.com>,
- Wei Xu <weixugc@google.com>, Chris Li <chrisl@kernel.org>,
- Kairui Song <kasong@tencent.com>, Kemeng Shi <shikemeng@huaweicloud.com>,
- Nhat Pham <nphamcs@gmail.com>, Baoquan He <bhe@redhat.com>,
- virtualization@lists.linux.dev, linux-mm@kvack.org,
- Andrea Arcangeli <aarcange@redhat.com>
-References: <aiaUDTeHDA45ZXFS@lucifer> <aiagMc9Ng_AE_adh@lucifer>
- <aia93IzhTgi1vGi6@casper.infradead.org>
- <aicfERTP3H6AndOs@gourry-fedora-PF4VCD3F>
- <D1CF67EF-2CF1-45F8-9265-70A528C1CB01@nvidia.com>
- <20260608163257-mutt-send-email-mst@kernel.org>
- <BD0C8760-BC10-4BF0-9EE3-9B0DAF0D977A@nvidia.com>
- <20260608170348-mutt-send-email-mst@kernel.org>
- <DD2E08E8-1FD7-43E3-A2C8-B4435D3773D1@nvidia.com>
- <afb14c99-162c-4c36-b1ef-fe971678f6b9@kernel.org>
- <aidCGkafm9yUDTuf@gourry-fedora-PF4VCD3F>
+Subject: Re: [PATCH 0/2] virtio_balloon: quiesce balloon work on device
+ shutdown
+To: "Denis V. Lunev" <den@openvz.org>, mst@redhat.com
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+References: <20260622133715.3707707-1-den@openvz.org>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -119,88 +86,48 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <aidCGkafm9yUDTuf@gourry-fedora-PF4VCD3F>
+In-Reply-To: <20260622133715.3707707-1-den@openvz.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 6/9/26 00:28, Gregory Price wrote:
-> On Mon, Jun 08, 2026 at 11:51:47PM +0200, David Hildenbrand (Arm) wrote:
->> On 6/8/26 23:16, Zi Yan wrote:
->>
->> There was Willy's comment in RFC v3 [1], which had 19 patches. Unfortunately, he
->> no longer followed up to my initial push back and Michael's question later [2].
->>
->> That would have probably been the right time to wait for more discussion.
->>
->> RFC v4 had 22 patches with little replies.
->> v5 had 28 patches with little replies.
->> v6 had 30 patches with no replies.
->> v7 had 31 patches with little replies.
->> v8 had 37 patches with no replies.
->>
->> [1] https://lore.kernel.org/lkml/aeu5P1bZW3yEH54t@casper.infradead.org/
->> [2] https://lore.kernel.org/lkml/20260426165330-mutt-send-email-mst@kernel.org/
->>
+On 6/22/26 15:37, Denis V. Lunev wrote:
+> Since commit 8bd2fa086a04 ("virtio: break and reset virtio devices on
+> device_shutdown()") the virtio bus breaks and resets every virtio device
+> during device_shutdown(), i.e. on reboot and kexec. virtio_balloon has no
+> .shutdown of its own, so that generic path runs while the balloon's
+> asynchronous work is still armed: the free page reporting worker, the
+> inflate/deflate and stats workers, the OOM notifier and the free page
+> shrinker.
 > 
-> Hm, rewinding on this back to v3 here:
+> Once the device has been broken, virtqueue_add_inbuf() in
+> virtballoon_free_page_report() returns -EIO and trips its WARN_ON_ONCE().
+> On a kernel booted with panic_on_warn that turns an ordinary reboot into a
+> fatal panic in the middle of device_shutdown(), so the machine never
+> reaches the new kernel. The inflate/deflate and OOM paths do not warn but
+> are no better off: they call wait_event(vb->acked, ...) and would block
+> forever on a queue that can no longer complete.
+> 
+> This was hit in the field as an intermittent failure of a virtualization
+> cluster upgrade: guest storage nodes were rebooted via kexec into the new
+> kernel, and the ones whose free page reporting happened to run during
+> device_shutdown() panicked (the guests run with panic_on_warn) and never
+> came back, stalling the rolling upgrade. The crash dump showed the WARN at
+> virtio_balloon.c:216 in a page_reporting kworker, with all the balloon
+> virtqueues already broken.
+> 
+> Patch 1 factors the teardown out of virtballoon_remove() into a
+> virtballoon_quiesce() helper (no functional change). Patch 2 adds a
+> virtio_balloon .shutdown handler that quiesces via that helper while the
+> device is still alive, then breaks and resets it the way the generic
+> virtio_dev_shutdown() would.
+> 
+> Relaxing the single WARN_ON_ONCE() instead was considered and rejected: it
+> would silence the panic but leave the inflate/deflate and OOM paths
+> hanging on the broken device. The device has to be quiesced, not just kept
+> quiet.
 
-I'm late ...
+Do you have a link to that discussion you could add?
 
-> https://lore.kernel.org/lkml/016cc5e5-044c-46c6-a668-200f90a64d85@kernel.org/
-> 
-> You said:
-> 
->   ```
->   Exactly, that's why I am saying that vma_alloc_folio() is the only
->   external interface people should be using with a user address.
->   ```
-> 
-> Going through the list of folio_zero_user references:
-> 
-> Called unconditionally if a folio is acquired:
->    fs/hugetlbfs/inode.c:   folio_zero_user(folio, addr);
->    mm/hugetlb.c:           folio_zero_user(folio, vmf->real_address);
->    mm/memfd.c:             folio_zero_user(folio, 0);
-> 
-> Called when user_alloc_needs_zeroing() and charging passes:
->    mm/huge_memory.c:       folio_zero_user(folio, addr);
->    mm/memory.c:            folio_zero_user(folio, vmf->address);
-> 
-> No one outside mm/ should know about this interface at all.
-
-Exactly.
-
-> Arguably none of these should know about this interface either.
-> 
-> The appropriate place for this logic appears to be:
->     vma_alloc_folio
->     alloc_hugetlb_folio
->     alloc_hugetlb_folio_reserve
-
-Yes. And the hugetlb stuff should just be left alone for now. We don't encourage
-new hugetlb features, and the same should apply to new optimizations that are
-not straight forward.
-
-> 
-> The reason to sink it into the post_alloc_hook is to let the buddy
-> decide whether the page actually needs to be zeroed (like the virtio
-> situation) based on PG_zeroed or whatever.
-
-It's a bit related to your private node work .... if we have an interface that
-consumes an alloc_context, we could just forward the address easily.
-
-Now, there are different ways of doing it, but having folio allocation sometimes
-use GFP_ZERO and sometimes not is just nasty. It's all a big hack.
-
-> 
-> It seems like at a minimum moving the logic all the way into
-> post_alloc_hook lets us actually delete folio_zero_user() as a published
-> interface and move it entirely within page_alloc.c.
-> 
-> The catch is user_alloc_needs_zeroing() coming along with it.
-
-Yes. And once there is only one user remaining, we could inline it and get rid
-of this horrible helper :)
 
 -- 
 Cheers,
