@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28D7F3B3BE1;
-	Mon, 22 Jun 2026 14:38:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17FD12D238F;
+	Mon, 22 Jun 2026 14:46:50 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782139138; cv=none; b=Pq8ZrOnKf4hwTZR/hKdXyyYNt7k7OpnEZkD/NdhF04QwkaNcxGICPFzyJr+Ab0IPZ6JSdW0LRTVNa7eMLfMWCMeOG1N89RdFu7+62G4grkVQbA9b3vpfQATtsuB3+4IZXtlY+bkmUlac7KMTfgWD2Wa4yILcqSaQQ9XIFSjFLcI=
+	t=1782139611; cv=none; b=qRx54y6oUz9Ygg+5GbowPx2P+U/rhWDBQMx/a7tXlS9aXL2kfrNze0PjOz3bOzBrgIya5oJhQeFOT4sxrC3Wu2/3pgd+6nB6yHbPxStR6DbebXKV+AJCfoXY85CfRrY0m6lyivVfJqvW+ireQuIObzaDiJG1d13czaZUMebGmpM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782139138; c=relaxed/simple;
-	bh=OyKSR115bKLYHAyLUX7MNavqBz7tPhevDZSM768E/9w=;
+	s=arc-20240116; t=1782139611; c=relaxed/simple;
+	bh=CveggRhsgrjFSsakJwPsDvuDDQ5R/ETHLR1mdqNVN0w=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LBA0fZPa3y5sa5UHlunK2z+rqnC7gboicTL53c5vIR34neMpfybtnFKuYNPwM+VMc7rVt70pzuP6krnC7Jy2usJVIYbIB57F6sF2hhwmKSkcAFxv+xMvCfgiNWiBJYBA7i7xfAH0i5cpms0YADpvGcjgNf4S1dtIoQRJFr0Xh8Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Si6PYAEJ; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=NxvcATYo6mutYO7/no3uDVQxs+CukSWti/dGMkRuIdpNsAJKAD4f0ZpdhvGgOPx+sxqnv2vUAUULBaD/VsB18oI3oy6gSkP9Ha43+AC8hXPUX9ARp/1ByskiOpI/12l0uR9Pz6wdhQA2lBAjyjO76BJxvXWH2a/T4hZZ6QeyLkw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=f/dUu62/; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Si6PYAEJ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 9D63E1F000E9;
-	Mon, 22 Jun 2026 14:38:55 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="f/dUu62/"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 010381F000E9;
+	Mon, 22 Jun 2026 14:46:48 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782139136;
-	bh=aIy5JYqqyN4lYGAvP4PJprQOXNEO2nmNgN+8COp28Ek=;
+	s=k20260515; t=1782139610;
+	bh=dxwTwz2SjD/WcO6OIuYmtGdS2obIyzDQ1lRUGnpLI9U=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=Si6PYAEJ2qenlLjzIgr2SUvuMEmogWISUNZ00oYOfxMrvnIjP74b7IA6qaXnIit42
-	 NLmQux6I9G4j+E2P3nVkQs6CISG6nYfsGwsYqt8McQT0uEkfyl+46eAJxdq2YxiLGz
-	 C7UDOSsdcOLRwkhybsikKsrJcHFYMB79JoloL8LLD90oqrTa62jtB2X3rihbyghah9
-	 Cl2o4JnV2F9o7G0NS63R+ypJ82fAJPeD+n/kjwFHRLPUhNp7g7RYJjGanVuThFUPwM
-	 9xZWeBP5m1grUkUJI4DN3KG0eWmK586dZx3yLI25zFPOe+tV/4V6rg1gIKCIy/UBEz
-	 r0OtwrCz/zQ2g==
-Message-ID: <8b83f251-3a3e-4fc9-8ea9-8d101fb92919@kernel.org>
-Date: Mon, 22 Jun 2026 16:38:54 +0200
+	b=f/dUu62/BAO/YvHFsOdZkJ5/zt9b1JENiN2EKg1U3LDK3eLWp40nCGN4UdeF3IJma
+	 1xkilKAHt2SP3XW8dXtcS2kjgvVtQ3/Hv46rAR/TMC1jtnPA2Trcb70j9vlErX+V8J
+	 0skzupHw+AO2XBnyAAHle5t0zpAA6jQHSVI83M/GK/dZoQeoxUn6DOj91JU17WPgM4
+	 lMrRU709PY+C8WE2epqosWPs7t1LOHBUEo0aby4zWdEYjwdynldKgC5V6Bv52UZubn
+	 N9BvfgxVZMEIpq5Kw7HSZNxP5h88evGHRFOG/jYNSzZiyAaTabBK9k87pS2/XluC5L
+	 6rslLdBIgIIyw==
+Message-ID: <79aa1649-acbb-4898-b533-4c991a6ca19b@kernel.org>
+Date: Mon, 22 Jun 2026 16:46:48 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -35,12 +35,11 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 2/2] virtio_balloon: quiesce balloon work before device
- shutdown
+Subject: Re: [PATCH 1/2] virtio_balloon: factor out virtballoon_quiesce()
 To: "Denis V. Lunev" <den@openvz.org>, mst@redhat.com
 Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
 References: <20260622133715.3707707-1-den@openvz.org>
- <20260622133715.3707707-3-den@openvz.org>
+ <20260622133715.3707707-2-den@openvz.org>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -87,80 +86,59 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20260622133715.3707707-3-den@openvz.org>
+In-Reply-To: <20260622133715.3707707-2-den@openvz.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 6/22/26 15:37, Denis V. Lunev wrote:
-> Commit 8bd2fa086a04 ("virtio: break and reset virtio devices on
-> device_shutdown()") added a generic virtio bus .shutdown handler that
-> breaks and resets every virtio device during device_shutdown(), i.e. on
-> reboot and kexec.
+> virtballoon_remove() stops all of the balloon's asynchronous work (the
+> free page reporting worker, the inflate/deflate and stats workers, the
+> OOM notifier and the free page shrinker) before tearing the device
+> down. A following change needs the same teardown from a .shutdown
+> handler, so move it into a virtballoon_quiesce() helper.
 > 
-> virtio_balloon provides no .shutdown of its own, so that generic path
-> runs while the balloon's asynchronous work is still armed. Once the
-> device has been broken, virtqueue_add_inbuf() in
-> virtballoon_free_page_report() returns -EIO and trips its
-> WARN_ON_ONCE(). On a kernel booted with panic_on_warn that turns an
-> ordinary reboot, for example a kexec based upgrade, into a fatal panic
-> in the middle of device_shutdown(), so the machine never reaches the
-> new kernel.
+> No functional change.
 > 
-> Relaxing that single WARN_ON_ONCE() would only hide the symptom: the
-> inflate/deflate and OOM paths do not warn, they call
-> wait_event(vb->acked, ...) and would instead block forever on a broken
-> queue that can no longer complete. The device has to be quiesced, not
-> just kept quiet.
-
-Ah, so
-
-	/* We should always be able to add one buffer to an empty queue. */
-	virtqueue_add_outbuf(vq, &sg, 1, vb, GFP_KERNEL);
-
-is not actually correct.
-
-Yeah, quiescing sounds cleaner, although I am thinking whether we should also
-warn if virtqueue_add_outbuf() fails, similar to what we do in
-virtballoon_free_page_report().
-
-> 
-> Add a .shutdown handler that quiesces the balloon via the shared
-> virtballoon_quiesce() helper while the device is still alive, and only
-> then breaks and resets it. The break and reset are repeated here rather
-> than reused from virtio_dev_shutdown(): drv->shutdown replaces the
-> generic handler rather than augmenting it, so that drivers such as
-> virtio-gpu can opt out of the reset. Unlike virtballoon_remove() the
-> balloon workqueue is not destroyed, as shutdown does not free the
-> device and cancel_work_sync() together with stop_update already prevent
-> any further work from being queued.
-> 
-> Fixes: 8bd2fa086a04 ("virtio: break and reset virtio devices on device_shutdown()")
 > Signed-off-by: Denis V. Lunev <den@openvz.org>
 > ---
->  drivers/virtio/virtio_balloon.c | 10 ++++++++++
->  1 file changed, 10 insertions(+)
+>  drivers/virtio/virtio_balloon.c | 27 ++++++++++++++++++++-------
+>  1 file changed, 20 insertions(+), 7 deletions(-)
 > 
 > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 5b02d9191ac6..e35ada767b4b 100644
+> index 088b3a0e6ce6..5b02d9191ac6 100644
 > --- a/drivers/virtio/virtio_balloon.c
 > +++ b/drivers/virtio/virtio_balloon.c
-> @@ -1137,6 +1137,15 @@ static void virtballoon_remove(struct virtio_device *vdev)
->  	kfree(vb);
+> @@ -1098,26 +1098,39 @@ static void remove_common(struct virtio_balloon *vb)
+>  	vb->vdev->config->del_vqs(vb->vdev);
 >  }
 >  
-> +static void virtballoon_shutdown(struct virtio_device *vdev)
-> +{
-> +	virtballoon_quiesce(vdev->priv);
-> +
-> +	virtio_break_device(vdev);
-> +	virtio_synchronize_cbs(vdev);
-> +	vdev->config->reset(vdev);
+> -static void virtballoon_remove(struct virtio_device *vdev)
+> +/*
+> + * Stop all asynchronous balloon work. The device must still be alive so that
+> + * in-flight requests can drain via the host before it is reset or freed.
+> + */
+> +static void virtballoon_quiesce(struct virtio_balloon *vb)
+>  {
+> -	struct virtio_balloon *vb = vdev->priv;
+> +	struct virtio_device *vdev = vb->vdev;
+>  
+> -	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING))
+> +	if (virtio_has_feature(vdev, VIRTIO_BALLOON_F_REPORTING))
+>  		page_reporting_unregister(&vb->pr_dev_info);
 
-I guess it would be good if we wouldn't have to copy what the default handler
-does, but could instead just have it in a reusable core function?
+Most functions here grab mutexes and can sleep. I assume that's fine in shutdown
+context.
 
-> +}
-> +
+Nothing jumped at me
+
+
+Sashiko asks whether ->remove (hotunplug/driver-unloading) can follow a
+->shutdown callback. I don't know, seems questionable if this could happen and
+should probably be handled by the core?
+
+If it's possible you'd have to remember that stuff was already quiesce'ed. Maybe
+simply by checking early in virtballoon_quiesce() whether vb->stop_update ==
+true already.
 
 -- 
 Cheers,
