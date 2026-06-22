@@ -1,115 +1,105 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from smtpbgeu1.qq.com (smtpbgeu1.qq.com [52.59.177.22])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 01ADB35F5ED;
-	Mon, 22 Jun 2026 06:52:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F36CF233943
+	for <virtualization@lists.linux.dev>; Mon, 22 Jun 2026 07:02:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.59.177.22
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782111136; cv=none; b=p3bSYocRuevCdyfd4meAmxThDYbT1yo1iiIENFX4QG19QhdE0LOH31U/TtCc19bwnY0J7hPxn6KmmUZUUb90aANxUw3UqTfaaSyfTvtKQH5v2BvMRjyFuu3fyZjDSik60u96NstRx9ZL5bIP0WuYL4SNtbkzAw8d9+alGwGBzq4=
+	t=1782111733; cv=none; b=beiuYZ/S6kIprep/IFihHw925vReW8a2IIDYC1IDqafk3ONgvQMWvZYvj7gr4RIatmJE6A8K68iCpS1WM6SR7Pu/vAZXUxD41DxxzkFI3iidhjP7v1U4hNqKswqHF1DHvYZg7ehztrF1K536QR4ZEqpgLziI2dzwpKPoa6TOJaw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782111136; c=relaxed/simple;
-	bh=QyvI0n2sHD0cASMe1r9eJI/uz150HXGuI2lVG788SjY=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=ZnCT7oVR5LeXzrNlbU0VzjvCwbq7LBh0c3JIcu59FpWVWBkM2vlBzHroUjSYa2FiAEA23/dpdJKJWAURvHGnr0jJQ6mmXTO8/T7J7FbyDUkb2AjipaB47BkDlAWKp1+VGIVSiVSgBT0XlirR3C5MxvMnh8Ie5oi1WurocKbNLAI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VyFQE5ka; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1782111733; c=relaxed/simple;
+	bh=rQRBKGu90D3VIwT4rT9786sh1F6Ksp7n11KQLMHbI4M=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Wky8HyPAFLdZBg1M2znHqO6c+YJdSyi7BdRCaq40n/dGBR1SNvAkAp3zDvFuJshrfpDhEGRdS6MsNyft2f/mEP6Ci8Mn/itR1Q75D076UXWTNtZJ3JMO6UJO8n0RbkcjEukXfLOlvgvqRRv7+b6KGWBl/9kl8ikODbmgZPabaAM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com; spf=pass smtp.mailfrom=uniontech.com; dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b=bVS0Fl3C; arc=none smtp.client-ip=52.59.177.22
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VyFQE5ka"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 88E41C2BCB4;
-	Mon, 22 Jun 2026 06:52:15 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1782111135;
-	bh=QyvI0n2sHD0cASMe1r9eJI/uz150HXGuI2lVG788SjY=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=VyFQE5kaDCt6t17OcPnL58IO4fdiXV7qWzIV2y7C2dj6A111llfm+mmo1Gsx2vxhk
-	 YUaOjZwbiQnHuxjMe7bB+akOw2x2NI5QcV0PgPzUqjx3cCJuCMvjPhKUBEV89t60mz
-	 aeEkeGlMsblaI3YM/t5yt8ChGhWRMBRG7HwJecDYdz+lhZ2t7FUmZAhhZm0UbvcYUu
-	 FMboo2ZjaAyvbqaCmgk9it+4GtzMmaDuKjHoIsDHjtAa3+5RpOEPeFZ31lGNPjXKFE
-	 sYOZMnoGvtv/ZBemTIZoAW8OzAvQ/X2lmhQjWIxcMRTkrq15+eD7gEoFzbf5OuzjNC
-	 8kv3UX998Oaug==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id 6CCC6CDB471;
-	Mon, 22 Jun 2026 06:52:15 +0000 (UTC)
-From: Bryam Vargas via B4 Relay <devnull+hexlabsecurity.proton.me@kernel.org>
-Date: Mon, 22 Jun 2026 01:52:15 -0500
-Subject: [PATCH v2] crypto: virtio - bound the akcipher result length
+	dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b="bVS0Fl3C"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
+	s=onoh2408; t=1782111695;
+	bh=319lTz1ceVETzXAILs5qMwI+USflR+yC6tjY8W9zrag=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version;
+	b=bVS0Fl3CDjNCWKg7FejUshAPG1e/WQs58Fmvhe8PqRb6oW9XxZ0brMTevqBsvmzSy
+	 1KtJaNXnE9jPczFcZBWKRWdxhj2NrGTSjhUsgR6qd3raevDRUEixhMY41tuiviE3VX
+	 dPflzQqHOhNJ+hECZ0SxsL7c8FjaSI4B9D1vCY4U=
+X-QQ-mid: esmtpgz16t1782111675t4f628c1d
+X-QQ-Originating-IP: 8ryUe9248cB4IVt2wAtoTj7oaEBo6j8hELL3z+Krex4=
+Received: from Shurima ( [113.57.152.160])
+	by bizesmtp.qq.com (ESMTP) with 
+	id ; Mon, 22 Jun 2026 15:01:13 +0800 (CST)
+X-QQ-SSF: 0000000000000000000000000000000
+X-QQ-GoodBg: 1
+X-BIZMAIL-ID: 11017192551711522594
+EX-QQ-RecipientCnt: 10
+From: Yichong Chen <chenyichong@uniontech.com>
+To: mst@redhat.com
+Cc: akpm@linux-foundation.org,
+	chenyichong@uniontech.com,
+	eperezma@redhat.com,
+	jasowang@redhat.com,
+	linux-kernel@vger.kernel.org,
+	ljs@kernel.org,
+	rppt@kernel.org,
+	virtualization@lists.linux.dev,
+	xuanzhuo@linux.alibaba.com
+Subject: Re: [PATCH 0/2] tools: Fix tools/virtio test build
+Date: Mon, 22 Jun 2026 15:01:13 +0800
+Message-ID: <A1DCE9FEF645A3F9+20260622070113.1207518-1-chenyichong@uniontech.com>
+X-Mailer: git-send-email 2.51.0
+In-Reply-To: <20260618080405-mutt-send-email-mst@kernel.org>
+References: <20260618080405-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260622-b4-disp-3a2c09a8-v2-1-d1a809281db4@proton.me>
-X-B4-Tracking: v=1; b=H4sIAJ7bOGoC/x3MQQqAIBBA0avErBuQsaS6SrQwHWs2FgoRiHdPW
- r7F/wUyJ+EMS1cg8SNZrthAfQfutPFgFN8MpMgoQ4T7gF7yjdqSU7OdcLS7Ys06ONLQsjtxkPd
- frlutH7isHnxiAAAA
-To: "Michael S. Tsirkin" <mst@redhat.com>, 
- Gonglei <arei.gonglei@huawei.com>, Jason Wang <jasowang@redhat.com>, 
- Herbert Xu <herbert@gondor.apana.org.au>
-Cc: linux-kernel@vger.kernel.org, virtualization@lists.linux.dev, 
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
- "David S. Miller" <davem@davemloft.net>, 
- =?utf-8?q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
- linux-crypto@vger.kernel.org
-X-Mailer: b4 0.13.0
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1782111134; l=2094;
- i=hexlabsecurity@proton.me; s=proton; h=from:subject:message-id;
- bh=/OPWzrjXfFujjZLqunAHnLbL2LVmSG6t3fb7rk8J+BI=;
- b=oq9Ln5r7vfpEZgRRYFw+5fqFQ0KvggRq+d57Orp3STFjRptIBmAxk6A/ugfhFiKcn7hU+9kf7
- YQk10pUNBgHDnVNuvNgQLg/4jqgbJ/WUb1uX8sPb1ndr5xJFBtVYxUC
-X-Developer-Key: i=hexlabsecurity@proton.me; a=ed25519;
- pk=dmppBMZNLLoPzxHi9l8tZDzEZUunPbgsYqIZYXeUrL0=
-X-Endpoint-Received: by B4 Relay for hexlabsecurity@proton.me/proton with
- auth_id=814
-X-Original-From: Bryam Vargas <hexlabsecurity@proton.me>
-Reply-To: hexlabsecurity@proton.me
+Content-Transfer-Encoding: 8bit
+X-QQ-SENDSIZE: 520
+Feedback-ID: esmtpgz:uniontech.com:qybglogicsvrgz:qybglogicsvrgz3a-0
+X-QQ-XMAILINFO: N921dkIbyDN3ucAvHNcG1xzTQaqUQW6N/VmX9sPSIz+SFjYLrQu5JeZD
+	Y9r60Wscy/5/kv8I4bDxtAP5kCN1abIm1Yu87WnZNjCQckNmjgea722e7kynoupExkKM5aC
+	YWypr3iwEuoQ7zz1l+QOGQ9t9YjdNMuKJoprT8KEShuZf66DRztfQvPnxVFEx/XuUGkt7y1
+	VuRGSk/FkiqVVCB5XB59+cq53eF5zlxocRXQgRGUuTIjGo2DDxvbudpdRdxh8ujKBvEZ2da
+	dDE5ct10SJO1V8KN5Aht8WfcZG3kyzyP5AoSoBQt47caceFo1tcsz7NJ/cy0sHCEJ2uAB7u
+	yUSNKyqrkeGwAB9aaT5wec0P4kdD/GmYWP88KopjRRf96BSLfxxMXjvVnZsbxV2rtfc/Fn1
+	uiJNYgaVYsio830MwxDEpDjjMP0+bcLHLF0uyJdjSnVQIJq16bPR9WAztS2RRgSLEnV+B/V
+	t+Ik/SjdGjJ9b7Bzsn0Je4Aw10C25mAQiVRAn1VCSO+VGNFOrghdzOyDn+iA7qpKPIEIHGk
+	wmUDIgZmHy0Y+6Jo7+lch8FbcY/QNBUCTdZ9yQPH4GAFUfErhGjMpgIYa8ViqJQC/mApiPw
+	ZVssRQNfhpVICZ9F3SuyNQrEXxqfILFFFN6ep7xhdrijvC3f8BRu+6xH4vMAdHdYE3oqjxz
+	kKuJr92UZ83gdpS9OGv/cHORwPcw5AS8qFayk4SMc41Z9+t7esOA/NVcbWjENZNY4fqC5IC
+	4yczJ7CnO2ZI5KUNGOapgFvLx38hsJTzz5/xGS4wjUbP3F6mGflaEa5ENzH+hTXUAwR+FU/
+	OeXcIN8cWHnRILFH6KGnjYCIAygZAmAb//7mHxGyY1v0x6zOvL5qlZvZJvCkQTzBiAJW58Y
+	sTyIe0TYEdCUE9ER/lIkl+aOxn9IiaPkGNv789nIW8MyQ2JodTWkPRQ1+KxJs6fJxbqDltP
+	UrhR4mZL9ALNSzKgWpdXuuhYuazU0loxNZMJpuqbaKeTbyd9DFPBeXnuv32PEdlxZhbkP8i
+	D5jRgvEkm1zjkjsELa8ST4H4559MBk/5BDPOKoGpx2o0nqrqfEUBDDbSAJ1V8=
+X-QQ-XMRINFO: NI4Ajvh11aEjEMj13RCX7UuhPEoou2bs1g==
+X-QQ-RECHKSPAM: 0
 
-From: Bryam Vargas <hexlabsecurity@proton.me>
+Hi Michael,
 
-virtio_crypto_dataq_akcipher_callback() sets the result length from the
-device-reported response length without bounding it to the destination
-buffer, which was allocated for the original request length.
-sg_copy_from_buffer() then reads that many bytes from the destination
-buffer; a backend reporting a larger length over-reads adjacent kernel
-heap into the caller's scatterlist (an out-of-bounds read).
+I checked the history again. The tree was based on v7.1, but I had
+unrelated local commits on top when I generated the series.
 
-Clamp the reported length to the originally requested destination length.
-A conforming device reports no more than that, so valid results are
-unaffected.
+I rechecked this on a clean v7.1 tree:
 
-Fixes: a36bd0ad9fbf ("virtio-crypto: adjust dst_len at ops callback")
-Cc: stable@vger.kernel.org
-Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
----
-v2: Fix the Subject line, mangled in v1 - an over-long subject was wrapped
-    and its trailing word leaked into the commit body. No functional change.
+  8cd9520d35a6 ("Linux 7.1")
 
-Link to v1: https://lore.kernel.org/all/20260620-b4-disp-27caeeac-v1-1-956e8f9c4f01@proton.me/
----
- drivers/crypto/virtio/virtio_crypto_akcipher_algs.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+The build failure is still reproducible with:
 
-diff --git a/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c b/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
-index d8d452cac391..64ea141f018c 100644
---- a/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
-+++ b/drivers/crypto/virtio/virtio_crypto_akcipher_algs.c
-@@ -88,7 +88,8 @@ static void virtio_crypto_dataq_akcipher_callback(struct virtio_crypto_request *
- 	}
- 
- 	/* actual length may be less than dst buffer */
--	akcipher_req->dst_len = len - sizeof(vc_req->status);
-+	akcipher_req->dst_len = min_t(unsigned int, len - sizeof(vc_req->status),
-+				      akcipher_req->dst_len);
- 	sg_copy_from_buffer(akcipher_req->dst, sg_nents(akcipher_req->dst),
- 			    vc_akcipher_req->dst_buf, akcipher_req->dst_len);
- 	virtio_crypto_akcipher_finalize_req(vc_akcipher_req, akcipher_req, error);
+  make -C tools/virtio test
 
----
-base-commit: 1a3746ccbb0a97bed3c06ccde6b880013b1dddc1
-change-id: 20260622-b4-disp-3a2c09a8-5ab0e3e3fc23
+The first failure is:
 
-Best regards,
--- 
-Bryam Vargas <hexlabsecurity@proton.me>
+  include/linux/virtio.h:10:10: fatal error:
+  linux/mod_devicetable.h: No such file or directory
 
+The two patches also apply cleanly on top of v7.1 and make
+the tools/virtio test target build virtio_test, vringh_test and
+vhost_net_test.
 
+I can resend a v2 based on v7.1 with a base-commit if you prefer.
+
+Thanks,
+Yichong
