@@ -1,146 +1,283 @@
-Received: from out30-111.freemail.mail.aliyun.com (out30-111.freemail.mail.aliyun.com [115.124.30.111])
+Received: from out-183.mta0.migadu.com (out-183.mta0.migadu.com [91.218.175.183])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8AF8299943
-	for <virtualization@lists.linux.dev>; Mon, 22 Jun 2026 02:45:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=115.124.30.111
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA524351C3D
+	for <virtualization@lists.linux.dev>; Mon, 22 Jun 2026 04:06:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.183
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782096324; cv=none; b=O0NwGWCeF5iIh/OfpYhWhcxrgjCzPgIxWHAwfn5MKZ4/LFQ85awkcziF6H4ul4caTnuGM3koU7X238VJMYp/dXa4S/MqFNeysA09Sb6bmcq7/I3ZohzR9IsHIiQXNILdPNrlZJRpN9QgowVCld3B7ki416+Ip7PLaKx1i8LfgeE=
+	t=1782101214; cv=none; b=sdTSJqKFBkFCwAoddeMCnZQjgjMEUms8JYFrFl7BjO5NuwgkGIYbh/gp7w8XSY8Slhgx2CG3OzdP/KKYHk1Yvc/eg7+ROfTxy9Q5HGnULKPHr9aCbSpCO/7myMaQ+kIPx5y1Hcm6tPp8qkwMT1SfBpizHURfZYSfTOGNnSDMJU4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782096324; c=relaxed/simple;
-	bh=cCnB8SHaTELhBMM2vNSo8nome0XmO9U28qrztuN+eZY=;
-	h=Message-ID:Subject:Date:From:To:Cc:References:In-Reply-To; b=IauDhDDLggwvHx1r3Z5waTVPM+TSQo4MdIlNDIx7s/FDaaMlGwI17ppVRC3dz7avAnka9ntKtfKlXGJ8KcPPbbeHvqZPsMTlvObIFQs4QZiIq7AdUqISDzpjrv70JnYMpZfFADrEv6b/i6j8YZ7dgRsFAdIkWi1Rxt51smg2aBo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com; spf=pass smtp.mailfrom=linux.alibaba.com; dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b=ao601NLz; arc=none smtp.client-ip=115.124.30.111
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.alibaba.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.alibaba.com
+	s=arc-20240116; t=1782101214; c=relaxed/simple;
+	bh=sI2dRrm2rYzC5hsq52tWdXiGHIDaT9AxOFi7X+Rlza0=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=UneZaUXZEwYQqeBHz0JHaRxwLeSi9VNkQssYZk9ooW6pUDkjYjJZtjq8WZiqjrSMNkYExNmjbSnWLU4VJ+MGIRykyKMEqoQ8uqdmJYGp62MyKDxVx1rh8Cvfn9FP39eJRertR+zerTE68XIechv5gnEl20rGlq8dGom9LWYBNk8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=oHrwj+Sj; arc=none smtp.client-ip=91.218.175.183
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.alibaba.com header.i=@linux.alibaba.com header.b="ao601NLz"
-DKIM-Signature:v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux.alibaba.com; s=default;
-	t=1782096314; h=Message-ID:Subject:Date:From:To;
-	bh=6l8D54I1qhjeNtbRwIBHC97XmtG0Dd57mu48xVCfLtk=;
-	b=ao601NLzqJzGc1Trw1ZMWO38gKe2DME/eUXx9TSYDkOJm+uov86VT17ay0OJHqTVTBxal9GboXxdzSq/9NA7sPpR/cR0KMK+Ub1pB13CsDy0JrfJKDLUzwO31usztxeTiFXo5mX5uqVgx1casWmsHgu+3eV1YRG+qnwTuRtoCP8=
-X-Alimail-AntiSpam:AC=PASS;BC=-1|-1;BR=01201311R311e4;CH=green;DM=||false|;DS=||;FP=0|-1|-1|-1|0|-1|-1|-1;HT=maildocker-contentspam011083073210;MF=xuanzhuo@linux.alibaba.com;NM=1;PH=DS;RN=12;SR=0;TI=SMTPD_---0X5GhaeY_1782096312;
-Received: from localhost(mailfrom:xuanzhuo@linux.alibaba.com fp:SMTPD_---0X5GhaeY_1782096312 cluster:ay36)
-          by smtp.aliyun-inc.com;
-          Mon, 22 Jun 2026 10:45:13 +0800
-Message-ID: <1782096043.3540094-1-xuanzhuo@linux.alibaba.com>
-Subject: Re: [PATCH net-next v3] virtio-net: xsk: support tx wake up
-Date: Mon, 22 Jun 2026 10:40:43 +0800
-From: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-To: Menglong Dong <menglong8.dong@gmail.com>
-Cc: mst@redhat.com,
- jasowang@redhat.com,
- andrew+netdev@lunn.ch,
- davem@davemloft.net,
- edumazet@google.com,
- kuba@kernel.org,
- pabeni@redhat.com,
- netdev@vger.kernel.org,
- virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org,
- eperezma@redhat.com
-References: <20260616115912.513183-1-dongml2@chinatelecom.cn>
-In-Reply-To: <20260616115912.513183-1-dongml2@chinatelecom.cn>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="oHrwj+Sj"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1782101196;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=ZUWyFEvXeVLfLgRyqSt5dzUpDWIXdvcmv/YrGiPhDm0=;
+	b=oHrwj+SjzLCSYGSoHMsBlTyi/BPO1LYEAowZCiJy/BgfowxK1Nhv4wBnxGATzNJAQy2Usu
+	3Aui+a8Xl2VwYnUg4vaKt1jLEunHuuM12PdPzSO2e5i/XDE+X1RLFq1HeiZLctcF2EtPOU
+	pEKF/++lDxrY0G4TuBJvKoXJ/NqYwTU=
+From: Kaitao Cheng <kaitao.cheng@linux.dev>
+To: Andrew Morton <akpm@linux-foundation.org>,
+	David Hildenbrand <david@kernel.org>,
+	Jens Axboe <axboe@kernel.dk>,
+	Tejun Heo <tj@kernel.org>,
+	Alexander Viro <viro@zeniv.linux.org.uk>,
+	Christian Brauner <brauner@kernel.org>,
+	Alexei Starovoitov <ast@kernel.org>,
+	Daniel Borkmann <daniel@iogearbox.net>,
+	Andrii Nakryiko <andrii@kernel.org>,
+	Johannes Weiner <hannes@cmpxchg.org>,
+	Peter Zijlstra <peterz@infradead.org>,
+	Ingo Molnar <mingo@redhat.com>,
+	Arnaldo Carvalho de Melo <acme@kernel.org>,
+	Namhyung Kim <namhyung@kernel.org>,
+	Thomas Gleixner <tglx@kernel.org>,
+	Juri Lelli <juri.lelli@redhat.com>,
+	Vincent Guittot <vincent.guittot@linaro.org>,
+	Paul Moore <paul@paul-moore.com>,
+	Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+	"Paul E. McKenney" <paulmck@kernel.org>,
+	Shakeel Butt <shakeel.butt@linux.dev>,
+	=?UTF-8?q?Christian=20K=C3=B6nig?= <christian.koenig@amd.com>
+Cc: David Howells <dhowells@redhat.com>,
+	Simona Vetter <simona.vetter@ffwll.ch>,
+	Randy Dunlap <rdunlap@infradead.org>,
+	Luca Ceresoli <luca.ceresoli@bootlin.com>,
+	Philipp Stanner <phasta@kernel.org>,
+	linux-block@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	cgroups@vger.kernel.org,
+	linux-ntfs-dev@lists.sourceforge.net,
+	linux-fsdevel@vger.kernel.org,
+	io-uring@vger.kernel.org,
+	audit@vger.kernel.org,
+	bpf@vger.kernel.org,
+	netdev@vger.kernel.org,
+	dri-devel@lists.freedesktop.org,
+	linux-perf-users@vger.kernel.org,
+	linux-trace-kernel@vger.kernel.org,
+	kexec@lists.infradead.org,
+	live-patching@vger.kernel.org,
+	linux-modules@vger.kernel.org,
+	linux-crypto@vger.kernel.org,
+	linux-pm@vger.kernel.org,
+	rcu@vger.kernel.org,
+	sched-ext@lists.linux.dev,
+	linux-mm@kvack.org,
+	virtualization@lists.linux.dev,
+	damon@lists.linux.dev,
+	llvm@lists.linux.dev,
+	chengkaitao <chengkaitao@kylinos.cn>
+Subject: [PATCH v3 0/7] Prepare mutable list iterators to cache cursor state
+Date: Mon, 22 Jun 2026 12:05:30 +0800
+Message-ID: <20260622040533.29824-1-kaitao.cheng@linux.dev>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-On Tue, 16 Jun 2026 19:59:12 +0800, Menglong Dong <menglong8.dong@gmail.com> wrote:
-> For now, XDP_RING_NEED_WAKEUP is not supported properly by the virtio-net
-> in the tx path for example: we set xsk_set_tx_need_wakeup() in
-> virtnet_xsk_xmit(), but we didn't call xsk_clear_tx_need_wakeup()
-> anywhere, which means the user will call send() for every packet.
->
-> We call xsk_set_tx_need_wakeup() after virtnet_xsk_xmit_batch() if sq->vq
-> is empty, as we can't be wakeup by the skb_xmit_done() in this case.
-> Otherwise, we will clear the wakeup flag.
->
-> Race condition is considered for tx path.
->
-> Fixes: 89f86675cb03 ("virtio_net: xsk: tx: support xmit xsk buffer")
+From: chengkaitao <chengkaitao@kylinos.cn>
 
-This is not a bug, so we do not need this.
-And you post this to net-next.
+The list_for_each*_safe() helpers are used when the loop body may remove
+the current entry.  Their current interface, however, forces every caller
+to define a temporary cursor outside the macro and pass it in, even when
+the caller never uses that cursor directly.  For most call sites this
+extra cursor is just boilerplate required by the macro implementation.
 
+This is awkward because the saved next pointer is an internal detail of
+the iteration.  Callers that only remove or move the current entry do not
+need to spell it out.
 
-> Signed-off-by: Menglong Dong <dongml2@chinatelecom.cn>
-> ---
-> v3:
-> - remove the confusing comment
->
-> v2:
-> - add the Fixes tag
-> ---
->  drivers/net/virtio_net.c | 23 +++++++++++++++++++----
->  1 file changed, 19 insertions(+), 4 deletions(-)
->
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index f4adcfee7a80..6e099edef6e9 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -1440,8 +1440,9 @@ static bool virtnet_xsk_xmit(struct send_queue *sq, struct xsk_buff_pool *pool,
->  	struct virtnet_info *vi = sq->vq->vdev->priv;
->  	struct virtnet_sq_free_stats stats = {};
->  	struct net_device *dev = vi->dev;
-> +	int sent, vring_size;
-> +	bool need_wakeup;
->  	u64 kicks = 0;
-> -	int sent;
->
->  	/* Avoid to wakeup napi meanless, so call __free_old_xmit instead of
->  	 * free_old_xmit().
-> @@ -1451,8 +1452,25 @@ static bool virtnet_xsk_xmit(struct send_queue *sq, struct xsk_buff_pool *pool,
->  	if (stats.xsk)
->  		xsk_tx_completed(sq->xsk_pool, stats.xsk);
->
-> +	vring_size = virtqueue_get_vring_size(sq->vq);
-> +	need_wakeup = xsk_uses_need_wakeup(pool);
-> +
-> +	if (need_wakeup && vring_size == sq->vq->num_free)
-> +		xsk_set_tx_need_wakeup(pool);
+The _safe() suffix has also caused confusion.  Christian Koenig pointed
+out that the name is easy to read as a thread-safe variant, especially
+for beginners, even though it only means that the iterator keeps enough
+state to tolerate removal of the current entry.  He suggested _mutable()
+as a clearer description of what the loop permits.
 
-You need to comment this.
+Add *_mutable() iterator variants for list, hlist and llist.  The new
+helpers are variadic and support both forms.  In the common case, the
+caller omits the temporary cursor and the macro creates a unique internal
+cursor with typeof(pos) and __UNIQUE_ID().  If a loop really needs an
+explicit temporary cursor, the caller can still pass it and the helper
+keeps the existing *_safe() behaviour.
 
+For example, a call site may use the shorter form:
 
-> +
->  	sent = virtnet_xsk_xmit_batch(sq, pool, budget, &kicks);
->
-> +	if (need_wakeup) {
-> +		if (vring_size == sq->vq->num_free)
-> +			/* we can't wake up by ourself, and it should be done
-> +			 * by the user.
-> +			 */
-> +			xsk_set_tx_need_wakeup(pool);
-> +		else
-> +			/* we can wake up from skb_xmit_done() */
-> +			xsk_clear_tx_need_wakeup(pool);
-> +	}
-> +
->  	if (!is_xdp_raw_buffer_queue(vi, sq - vi->sq))
->  		check_sq_full_and_disable(vi, vi->dev, sq);
+  list_for_each_entry_mutable(pos, head, member)
 
+or keep the explicit temporary cursor form:
 
-After fixed above comments, you can add:
+  list_for_each_entry_mutable(pos, tmp, head, member)
 
-Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+The existing *_safe() helpers remain available for compatibility.  This
+series only converts users in mm, block, kernel, init and io_uring.  If
+this approach looks acceptable, the remaining users can be converted in
+follow-up series.
 
-Thanks.
+Changes in v3 (Christian König, Andy Shevchenko):
+- Convert safe list walks to mutable iterators
 
+Changes in v2 (Muchun Song, Andy Shevchenko):
+- Drop the list_for_each_entry_mutable*() helpers from v1 and make the
+  cursor change directly in the existing list_for_each_entry*() helpers.
+- Open-code special list walks that rely on updating the loop cursor in
+  the body, preserving their existing traversal semantics.
 
->
-> @@ -1470,9 +1488,6 @@ static bool virtnet_xsk_xmit(struct send_queue *sq, struct xsk_buff_pool *pool,
->  	u64_stats_add(&sq->stats.xdp_tx,  sent);
->  	u64_stats_update_end(&sq->stats.syncp);
->
-> -	if (xsk_uses_need_wakeup(pool))
-> -		xsk_set_tx_need_wakeup(pool);
-> -
->  	return sent;
->  }
->
-> --
-> 2.54.0
->
+Link to v2:
+https://lore.kernel.org/all/20260609061347.93688-1-kaitao.cheng@linux.dev/
+
+Link to v1:
+https://lore.kernel.org/all/20260529082149.76764-1-kaitao.cheng@linux.dev/
+
+Kaitao Cheng (7):
+  list: Add mutable iterator variants
+  llist: Add mutable iterator variants
+  mm: Use mutable list iterators
+  block: Use mutable list iterators
+  kernel: Use mutable list iterators
+  initramfs: Use mutable list iterator
+  io_uring: Use mutable list iterators
+
+ block/bfq-iosched.c                 |  17 +-
+ block/blk-cgroup.c                  |  12 +-
+ block/blk-flush.c                   |   4 +-
+ block/blk-iocost.c                  |  18 +-
+ block/blk-mq.c                      |   8 +-
+ block/blk-throttle.c                |   4 +-
+ block/kyber-iosched.c               |   4 +-
+ block/partitions/ldm.c              |   8 +-
+ block/sed-opal.c                    |   4 +-
+ include/linux/list.h                | 269 ++++++++++++++++++++++++----
+ include/linux/llist.h               |  81 +++++++--
+ init/initramfs.c                    |   5 +-
+ io_uring/cancel.c                   |   6 +-
+ io_uring/poll.c                     |   3 +-
+ io_uring/rw.c                       |   4 +-
+ io_uring/timeout.c                  |   8 +-
+ io_uring/uring_cmd.c                |   3 +-
+ kernel/audit_tree.c                 |   4 +-
+ kernel/audit_watch.c                |  16 +-
+ kernel/auditfilter.c                |   4 +-
+ kernel/auditsc.c                    |   4 +-
+ kernel/bpf/arena.c                  |  10 +-
+ kernel/bpf/arraymap.c               |   8 +-
+ kernel/bpf/bpf_local_storage.c      |   3 +-
+ kernel/bpf/bpf_lru_list.c           |  25 ++-
+ kernel/bpf/btf.c                    |  18 +-
+ kernel/bpf/cgroup.c                 |   7 +-
+ kernel/bpf/cpumap.c                 |   4 +-
+ kernel/bpf/devmap.c                 |  10 +-
+ kernel/bpf/helpers.c                |   8 +-
+ kernel/bpf/local_storage.c          |   4 +-
+ kernel/bpf/memalloc.c               |  16 +-
+ kernel/bpf/offload.c                |   8 +-
+ kernel/bpf/states.c                 |   4 +-
+ kernel/bpf/stream.c                 |   4 +-
+ kernel/bpf/verifier.c               |   6 +-
+ kernel/cgroup/cgroup-v1.c           |   4 +-
+ kernel/cgroup/cgroup.c              |  54 +++---
+ kernel/cgroup/dmem.c                |  12 +-
+ kernel/cgroup/rdma.c                |   8 +-
+ kernel/events/core.c                |  44 +++--
+ kernel/events/uprobes.c             |  12 +-
+ kernel/exit.c                       |   8 +-
+ kernel/fail_function.c              |   4 +-
+ kernel/gcov/clang.c                 |   4 +-
+ kernel/irq_work.c                   |   4 +-
+ kernel/kexec_core.c                 |   4 +-
+ kernel/kprobes.c                    |  16 +-
+ kernel/livepatch/core.c             |   4 +-
+ kernel/livepatch/core.h             |   4 +-
+ kernel/liveupdate/kho_block.c       |   4 +-
+ kernel/liveupdate/luo_flb.c         |   4 +-
+ kernel/locking/rwsem.c              |   2 +-
+ kernel/locking/test-ww_mutex.c      |   2 +-
+ kernel/module/main.c                |  11 +-
+ kernel/padata.c                     |   4 +-
+ kernel/power/snapshot.c             |   8 +-
+ kernel/power/wakelock.c             |   4 +-
+ kernel/printk/printk.c              |  11 +-
+ kernel/ptrace.c                     |   4 +-
+ kernel/rcu/rcutorture.c             |   3 +-
+ kernel/rcu/tasks.h                  |   9 +-
+ kernel/rcu/tree.c                   |   6 +-
+ kernel/resource.c                   |   4 +-
+ kernel/sched/core.c                 |   4 +-
+ kernel/sched/ext.c                  |  22 +--
+ kernel/sched/fair.c                 |  28 +--
+ kernel/sched/topology.c             |   4 +-
+ kernel/sched/wait.c                 |   4 +-
+ kernel/seccomp.c                    |   4 +-
+ kernel/signal.c                     |  11 +-
+ kernel/smp.c                        |   4 +-
+ kernel/taskstats.c                  |   8 +-
+ kernel/time/clockevents.c           |   6 +-
+ kernel/time/clocksource.c           |   4 +-
+ kernel/time/posix-cpu-timers.c      |   4 +-
+ kernel/time/posix-timers.c          |   3 +-
+ kernel/torture.c                    |   3 +-
+ kernel/trace/bpf_trace.c            |   4 +-
+ kernel/trace/ftrace.c               |  49 +++--
+ kernel/trace/ring_buffer.c          |  25 ++-
+ kernel/trace/trace.c                |  12 +-
+ kernel/trace/trace_dynevent.c       |   6 +-
+ kernel/trace/trace_dynevent.h       |   5 +-
+ kernel/trace/trace_events.c         |  35 ++--
+ kernel/trace/trace_events_filter.c  |   4 +-
+ kernel/trace/trace_events_hist.c    |   8 +-
+ kernel/trace/trace_events_trigger.c |  17 +-
+ kernel/trace/trace_events_user.c    |  16 +-
+ kernel/trace/trace_stat.c           |   4 +-
+ kernel/user-return-notifier.c       |   3 +-
+ kernel/workqueue.c                  |  16 +-
+ mm/backing-dev.c                    |   8 +-
+ mm/balloon.c                        |   8 +-
+ mm/cma.c                            |   4 +-
+ mm/compaction.c                     |   4 +-
+ mm/damon/core.c                     |   4 +-
+ mm/damon/sysfs-schemes.c            |   4 +-
+ mm/dmapool.c                        |   4 +-
+ mm/huge_memory.c                    |   8 +-
+ mm/hugetlb.c                        |  56 +++---
+ mm/hugetlb_vmemmap.c                |  16 +-
+ mm/khugepaged.c                     |  14 +-
+ mm/kmemleak.c                       |   7 +-
+ mm/ksm.c                            |  25 +--
+ mm/list_lru.c                       |   4 +-
+ mm/memcontrol-v1.c                  |   8 +-
+ mm/memory-failure.c                 |  12 +-
+ mm/memory-tiers.c                   |   4 +-
+ mm/migrate.c                        |  23 ++-
+ mm/mmu_notifier.c                   |   9 +-
+ mm/page_alloc.c                     |   8 +-
+ mm/page_reporting.c                 |   2 +-
+ mm/percpu.c                         |  11 +-
+ mm/pgtable-generic.c                |   4 +-
+ mm/rmap.c                           |  10 +-
+ mm/shmem.c                          |   9 +-
+ mm/slab_common.c                    |  14 +-
+ mm/slub.c                           |  33 ++--
+ mm/swapfile.c                       |   4 +-
+ mm/userfaultfd.c                    |  12 +-
+ mm/vmalloc.c                        |  24 +--
+ mm/vmscan.c                         |   7 +-
+ mm/zsmalloc.c                       |   4 +-
+ 124 files changed, 875 insertions(+), 681 deletions(-)
+
+-- 
+2.43.0
+
