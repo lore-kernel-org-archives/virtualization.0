@@ -1,48 +1,48 @@
 Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.20])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 736C43749F0;
-	Tue, 23 Jun 2026 10:18:25 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 159F8376A1B;
+	Tue, 23 Jun 2026 10:18:27 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.20
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782209906; cv=none; b=rnScT8QJ91xO8EpCMvgOstFN3RsQW/QoQ1sHZoj+D1Y81YiXawby+dG+lLorXYwyxsW2CPvOZMRdyfY/64bY2bHMpQBUvoYaTmw5JI+xz7Li6Ix4MAqjwXWkfGQGA1PiC9Ko9N2wtYHGUazFHOL7s4BJb63+A1ek8n+WiWLO6DA=
+	t=1782209908; cv=none; b=T4+We0qrUZucyfY4mjQ2gfGCFnzCQEHALYy7lepFyXItKsj6UIGuGXw7vJSfSZBH4WVjTKliCHTq5KRqzn1PODrnNPhyqWcepsHjIcB/GAx6MNFbgDTorS+b07HXlcW8B+BeVULK4arHf1qQArYmZQzLkP2+SW9WIKYqw4LsLfA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782209906; c=relaxed/simple;
-	bh=SKEWX9AxoyegkMDeYKqNUC2LV+o7lpagY0HCCrDXgFk=;
+	s=arc-20240116; t=1782209908; c=relaxed/simple;
+	bh=gk1N272mlFLWJH0cquE0KJv2+MVQstwQ630C3ttO7qo=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=oxGgmMu/lN9G9v8Gr2xytGTYWhZLkbuI5AsuKdWd0IYn/N9Qo0evXlA+jXSlq9Dq3O3sifPG5vUtPWDTzIdFY8Nte8p7Y5e4YPIvTQM2C7c3uWRCg55h9Uo6Fa+YfwG5qXB6Fuax2US6r1SGwxF+Q3YaYhzAOHgapv7BOx32j3g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=mXSAIk8e; arc=none smtp.client-ip=198.175.65.20
+	 MIME-Version; b=nllkOomnaU9hpeHKOCpWG7+faMNMbmW0wtsbcEUMTzLQoOevzYTZrSNjMl+C94i6yWy/QcwJ6kVjc9dvpEs+g+3Y+qU2QxOIsNt71XQfFc1Z6m/BWQFbMYcWsNarNwsydu7k53GhnT8uozsGnJp7Yf9+wulYDI94xoDPfv0X5S0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=FvvGVfSy; arc=none smtp.client-ip=198.175.65.20
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="mXSAIk8e"
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="FvvGVfSy"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
   d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1782209905; x=1813745905;
+  t=1782209907; x=1813745907;
   h=from:to:cc:subject:date:message-id:in-reply-to:
    references:mime-version:content-transfer-encoding;
-  bh=SKEWX9AxoyegkMDeYKqNUC2LV+o7lpagY0HCCrDXgFk=;
-  b=mXSAIk8elU7DC8EXTIYb0c+rd1WTFJNf+fuLRP7tgFFjtsREXvr2Pvl0
-   wP2BUa0NNMcEilSS2nmWYc93kVhBPE0/J/OATRo5FqrgJc7br5nVCQvlF
-   fVk/9YSJoFweXeCAh8r6N7q18Rj5Nix/1zDVOki6e2DPAn2+TGyeKbI3G
-   FHBa4A87ah1lGjxT/S25bFuTwSvZUYP74jiM7j6+N/8QHq+igaYvOFkDQ
-   0s8Yq83kxBt9AGcpcqwl0WMfbfXBcfX83/KMusaURWWju87ZLe9SbeFKc
-   fh8S6PSoWYgenWrpz5oMOWmj2SwR6xsBoe4VXneLF5tyzZq5pYqXOic8h
-   Q==;
-X-CSE-ConnectionGUID: MVxF2npXQ7+mLSv2t9xLRQ==
-X-CSE-MsgGUID: rCMBIVxSTg+9MUC6xoajqA==
-X-IronPort-AV: E=McAfee;i="6800,10657,11825"; a="82717844"
+  bh=gk1N272mlFLWJH0cquE0KJv2+MVQstwQ630C3ttO7qo=;
+  b=FvvGVfSy72E6vP0IAKBfJWFeRtUTftBZrOfxLHHaFs7c7JB6uxRORTkj
+   a4u6xAKJY9luI9osTxSweR+lmrO/v6o0I9VT8iOkIQ099gJiz1p/ky3kb
+   kpUbtnZhAuJZ3dtc2/UMv9o8uQCdR+10+rszGjzBKq2IaRYi+tiJ9CtkR
+   RIJmAONEcW8/cBsFm2MjwO5y2wYuZXZm9ZNhB5Gt2u2LeT49csQq5zvHv
+   HO9VWEjoOF7UYst30Rn0nRQ+fzmdH4p0C3NU1k0jU/pJvgDWXsVSPBcWm
+   f2/UfzMP/3RHCAloa6J4R3e9/O0AY9oXIrRommYCRFH1zvRBhV57VwFBr
+   A==;
+X-CSE-ConnectionGUID: Z8dDU4TWRFibx+xiBkPOVA==
+X-CSE-MsgGUID: G8gw8UU6THqXDiq4wroBKA==
+X-IronPort-AV: E=McAfee;i="6800,10657,11825"; a="82717854"
 X-IronPort-AV: E=Sophos;i="6.24,220,1774335600"; 
-   d="scan'208";a="82717844"
+   d="scan'208";a="82717854"
 Received: from fmviesa010.fm.intel.com ([10.60.135.150])
-  by orvoesa112.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jun 2026 03:18:13 -0700
-X-CSE-ConnectionGUID: 9rL0Qj4sTTO8GJlPEZpi6Q==
-X-CSE-MsgGUID: xXmAGH9nSUauUT3c+AVjsw==
+  by orvoesa112.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jun 2026 03:18:17 -0700
+X-CSE-ConnectionGUID: No2sf3WpRHqWa7gY0fXxNQ==
+X-CSE-MsgGUID: 8HvBOxVdTsynYgiBx036EA==
 X-ExtLoop1: 1
 X-IronPort-AV: E=Sophos;i="6.24,220,1774335600"; 
-   d="scan'208";a="245339911"
+   d="scan'208";a="245339926"
 Received: from unknown (HELO gnr-sp-2s-612.sh.intel.com) ([10.112.230.229])
-  by fmviesa010-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jun 2026 03:18:09 -0700
+  by fmviesa010-auth.fm.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 23 Jun 2026 03:18:13 -0700
 From: Zhenzhong Duan <zhenzhong.duan@intel.com>
 To: marcandre.lureau@redhat.com,
 	david@kernel.org,
@@ -63,9 +63,9 @@ Cc: linux-kernel@vger.kernel.org,
 	yilun.xu@intel.com,
 	xiaoyao.li@intel.com,
 	chao.p.peng@intel.com
-Subject: [RFCv2 PATCH 5/6] mm/memory_hotplug: Support ACPI hotplug/unplug for coco guest
-Date: Tue, 23 Jun 2026 06:17:36 -0400
-Message-ID: <20260623101739.79695-6-zhenzhong.duan@intel.com>
+Subject: [RFCv2 PATCH 6/6] virtio-mem: Support memory hotplug/unplug for coco guest
+Date: Tue, 23 Jun 2026 06:17:37 -0400
+Message-ID: <20260623101739.79695-7-zhenzhong.duan@intel.com>
 X-Mailer: git-send-email 2.52.0
 In-Reply-To: <20260623101739.79695-1-zhenzhong.duan@intel.com>
 References: <20260623101739.79695-1-zhenzhong.duan@intel.com>
@@ -77,235 +77,79 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Integrate coco memory management operations into the core memory hotplug
-subsystem to handle the lifecycle of hotplug memory.
+Integrate coco memory management operations into the virtio-mem driver to
+manage the state of hotplug memory.
 
-In add_memory_resource(), invoke coco_set_plugged_bitmap(..., true) to mark
-memory plugged before adding the memory block, because self hosted memmap
-initialization needs their plugged bits set before acceptance. There is no
-explicit call to accept_memory() for normal pages, because they can be
-lazily accepted by the core memory management subsystem after the memory
-block is onlined.
+In virtio_mem_send_plug_request(), once the host hypervisor acknowledges a
+plug request, invoke coco_set_plugged_bitmap() to set the corresponding
+bits in the plugged bitmap. Conversely, in virtio_mem_send_unplug_request()
+and virtio_mem_send_unplug_all_request(), call unaccept_memory() to let the
+guest autonomously transition the target private pages back to "unaccepted"
+state before asking the VMM to unplug them. After the VMM acknowledges the
+unplug request, clear the ranges from the plugged bitmap.
 
-In try_remove_memory(), before finalizing the physical removal of the
-memory blocks, invoke unaccept_memory(). This allows the guest to take
-direct control of its own memory state and release the pages itself,
-eliminating the dependency on the VMM to implicitly hole-punch the memory.
-It loops through the targeted ranges using find_next_andnot_bit(), matching
-pages that are marked plugged and accepted, and releases them back to the
-host. Following the unacceptance step, clear the ranges from the plugged
-bitmap.
+Note that memory block hotplug/unplug also sets or clears the plugged
+bitmap at memory block granularity. While doing this at device block
+granularity here creates a slight redundancy, it is completely harmless.
 
-These operations guarantee that both the unaccepted and plugged tracking
-states stay completely synchronized with the actual dynamic memory
-configurations of the guest.
+Additionally, update virtio_mem_fake_online() to explicitly invoke
+accept_memory() when transitioning memory out of the fake-offline state and
+back into service. This ensures that any pages returning to the buddy
+system are cleanly accepted by the guest architecture before they are freed
+back into the allocator via free_contig_range().
 
 Signed-off-by: Zhenzhong Duan <zhenzhong.duan@intel.com>
 ---
- include/linux/mm.h                       | 11 +++
- drivers/firmware/efi/unaccepted_memory.c | 94 ++++++++++++++++++++++++
- mm/memory_hotplug.c                      | 16 ++++
- 3 files changed, 121 insertions(+)
+ drivers/virtio/virtio_mem.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
 
-diff --git a/include/linux/mm.h b/include/linux/mm.h
-index fc2acedf0b76..4c094038872a 100644
---- a/include/linux/mm.h
-+++ b/include/linux/mm.h
-@@ -5105,6 +5105,8 @@ int set_anon_vma_name(unsigned long addr, unsigned long size,
- 
- bool range_contains_unaccepted_memory(phys_addr_t start, unsigned long size);
- void accept_memory(phys_addr_t start, unsigned long size);
-+void unaccept_memory(phys_addr_t start, unsigned long size);
-+int coco_set_plugged_bitmap(phys_addr_t start, unsigned long size, bool set);
- 
- #else
- 
-@@ -5118,6 +5120,15 @@ static inline void accept_memory(phys_addr_t start, unsigned long size)
- {
- }
- 
-+static inline void unaccept_memory(phys_addr_t start, unsigned long size)
-+{
-+}
-+
-+static inline int coco_set_plugged_bitmap(phys_addr_t start, unsigned long size, bool set)
-+{
-+	return 0;
-+}
-+
- #endif
- 
- static inline bool pfn_is_unaccepted_memory(unsigned long pfn)
-diff --git a/drivers/firmware/efi/unaccepted_memory.c b/drivers/firmware/efi/unaccepted_memory.c
-index c290b16c5142..f35f7016af53 100644
---- a/drivers/firmware/efi/unaccepted_memory.c
-+++ b/drivers/firmware/efi/unaccepted_memory.c
-@@ -233,6 +233,100 @@ bool range_contains_unaccepted_memory(phys_addr_t start, unsigned long size)
- 	return ret;
- }
- 
-+static int coco_hotplug_range_check(struct efi_unaccepted_memory *unaccepted,
-+				    phys_addr_t start, unsigned long size)
-+{
-+	u64 unit_size = unaccepted->unit_size;
-+	u64 phys_base = unaccepted->phys_base;
-+	u64 phys_end = phys_base + unaccepted->size * unit_size * BITS_PER_BYTE;
-+
-+	if (!IS_ALIGNED(start | size, unit_size))
-+		return -EINVAL;
-+
-+	if (start < phys_base || start + size > phys_end)
-+		return -EINVAL;
-+
-+	return 0;
-+}
-+
-+/* Only used by hotplug memory, we don't unaccept static memory */
-+void unaccept_memory(phys_addr_t start, unsigned long size)
-+{
-+	unsigned long range_start, range_end, bitmap_size, flags;
-+	struct efi_unaccepted_memory *unaccepted;
-+	void *plugged_bitmap;
-+	u64 unit_size;
-+
-+	unaccepted = efi_get_unaccepted_table();
-+	if (!unaccepted)
-+		return;
-+
-+	if (WARN_ON(coco_hotplug_range_check(unaccepted, start, size)))
-+		return;
-+
-+	unit_size = unaccepted->unit_size;
-+	range_start = (start - unaccepted->phys_base) / unit_size;
-+	bitmap_size = range_start + size / unit_size;
-+	plugged_bitmap = plugged_bitmap_of(unaccepted);
-+
-+	spin_lock_irqsave(&unaccepted_memory_lock, flags);
-+	for (; range_start < bitmap_size; range_start = range_end) {
-+		unsigned long phys_start, phys_end;
-+		unsigned long unaccepted_one, plugged_zero;
-+
-+		range_start = find_next_andnot_bit(plugged_bitmap, unaccepted->bitmap,
-+						   bitmap_size, range_start);
-+
-+		if (range_start >= bitmap_size)
-+			break;
-+
-+		unaccepted_one = find_next_bit(unaccepted->bitmap, bitmap_size, range_start);
-+		plugged_zero = find_next_zero_bit(plugged_bitmap, bitmap_size, range_start);
-+		range_end = min(unaccepted_one, plugged_zero);
-+
-+		phys_start = range_start * unit_size + unaccepted->phys_base;
-+		phys_end = range_end * unit_size + unaccepted->phys_base;
-+
-+		arch_unaccept_memory(phys_start, phys_end);
-+		bitmap_set(unaccepted->bitmap, range_start, range_end - range_start);
-+	}
-+	spin_unlock_irqrestore(&unaccepted_memory_lock, flags);
-+}
-+
-+/*
-+ * Only used by hotplug memory, plugged bits of static memory are handled
-+ * in process_unaccepted_memory()
-+ */
-+int coco_set_plugged_bitmap(phys_addr_t start, unsigned long size, bool set)
-+{
-+	struct efi_unaccepted_memory *unaccepted;
-+	unsigned long range_start, flags;
-+	void *plugged_bitmap;
-+	u64 unit_size;
-+	int ret;
-+
-+	unaccepted = efi_get_unaccepted_table();
-+	if (!unaccepted)
-+		return 0;
-+
-+	ret = coco_hotplug_range_check(unaccepted, start, size);
-+	if (ret)
-+		return ret;
-+
-+	unit_size = unaccepted->unit_size;
-+	range_start = (start - unaccepted->phys_base) / unit_size;
-+	plugged_bitmap = plugged_bitmap_of(unaccepted);
-+
-+	spin_lock_irqsave(&unaccepted_memory_lock, flags);
-+	if (set)
-+		bitmap_set(plugged_bitmap, range_start, size / unit_size);
-+	else
-+		bitmap_clear(plugged_bitmap, range_start, size / unit_size);
-+	spin_unlock_irqrestore(&unaccepted_memory_lock, flags);
-+
-+	return 0;
-+}
-+
- #ifdef CONFIG_PROC_VMCORE
- static bool unaccepted_memory_vmcore_pfn_is_ram(struct vmcore_cb *cb,
- 						unsigned long pfn)
-diff --git a/mm/memory_hotplug.c b/mm/memory_hotplug.c
-index 40c7915dabe0..2f71514a0616 100644
---- a/mm/memory_hotplug.c
-+++ b/mm/memory_hotplug.c
-@@ -1429,6 +1429,8 @@ static void remove_memory_blocks_and_altmaps(u64 start, u64 size)
- 
- 		arch_remove_memory(cur_start, memblock_size, altmap);
- 
-+		unaccept_memory(cur_start, PFN_PHYS(altmap->free));
-+
- 		/* Verify that all vmemmap pages have actually been freed. */
- 		WARN(altmap->alloc, "Altmap not fully unmapped");
- 		kfree(altmap);
-@@ -1459,9 +1461,13 @@ static int create_altmaps_and_memory_blocks(int nid, struct memory_group *group,
- 			goto out;
+diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
+index 48051e9e98ab..9f6e53df8caf 100644
+--- a/drivers/virtio/virtio_mem.c
++++ b/drivers/virtio/virtio_mem.c
+@@ -1211,6 +1211,7 @@ static void virtio_mem_fake_online(unsigned long pfn, unsigned long nr_pages)
+ 			generic_online_page(page, order);
+ 		} else {
+ 			virtio_mem_clear_fake_offline(pfn + i, 1 << order, true);
++			accept_memory(page_to_phys(page), PAGE_SIZE << order);
+ 			free_contig_range(pfn + i, 1 << order);
+ 			adjust_managed_page_count(page, 1 << order);
  		}
+@@ -1436,6 +1437,7 @@ static int virtio_mem_send_plug_request(struct virtio_mem *vm, uint64_t addr,
+ 	switch (virtio_mem_send_request(vm, &req)) {
+ 	case VIRTIO_MEM_RESP_ACK:
+ 		vm->plugged_size += size;
++		WARN_ON(coco_set_plugged_bitmap(addr, size, true));
+ 		return 0;
+ 	case VIRTIO_MEM_RESP_NACK:
+ 		rc = -EAGAIN;
+@@ -1471,9 +1473,12 @@ static int virtio_mem_send_unplug_request(struct virtio_mem *vm, uint64_t addr,
+ 	dev_dbg(&vm->vdev->dev, "unplugging memory: 0x%llx - 0x%llx\n", addr,
+ 		addr + size - 1);
  
-+		/* Accept self hosted memmap array before access it */
-+		accept_memory(cur_start, PFN_PHYS(mhp_altmap.free));
++	unaccept_memory(addr, size);
 +
- 		/* call arch's memory hotadd */
- 		ret = arch_add_memory(nid, cur_start, memblock_size, &params);
- 		if (ret < 0) {
-+			unaccept_memory(cur_start, PFN_PHYS(mhp_altmap.free));
- 			kfree(params.altmap);
- 			goto out;
- 		}
-@@ -1471,6 +1477,7 @@ static int create_altmaps_and_memory_blocks(int nid, struct memory_group *group,
- 						  params.altmap, group);
- 		if (ret) {
- 			arch_remove_memory(cur_start, memblock_size, NULL);
-+			unaccept_memory(cur_start, PFN_PHYS(mhp_altmap.free));
- 			kfree(params.altmap);
- 			goto out;
- 		}
-@@ -1540,6 +1547,10 @@ int add_memory_resource(int nid, struct resource *res, mhp_t mhp_flags)
- 		new_node = true;
- 	}
+ 	switch (virtio_mem_send_request(vm, &req)) {
+ 	case VIRTIO_MEM_RESP_ACK:
+ 		vm->plugged_size -= size;
++		WARN_ON(coco_set_plugged_bitmap(addr, size, false));
+ 		return 0;
+ 	case VIRTIO_MEM_RESP_BUSY:
+ 		rc = -ETXTBSY;
+@@ -1498,10 +1503,13 @@ static int virtio_mem_send_unplug_all_request(struct virtio_mem *vm)
  
-+	ret = coco_set_plugged_bitmap(start, size, true);
-+	if (ret)
-+		goto error_offline_node;
+ 	dev_dbg(&vm->vdev->dev, "unplugging all memory");
+ 
++	unaccept_memory(vm->addr, vm->region_size);
 +
- 	/*
- 	 * Self hosted memmap array
- 	 */
-@@ -1584,6 +1595,8 @@ int add_memory_resource(int nid, struct resource *res, mhp_t mhp_flags)
- 
- 	return ret;
- error:
-+	WARN_ON(coco_set_plugged_bitmap(start, size, false));
-+error_offline_node:
- 	if (new_node) {
- 		node_set_offline(nid);
- 		unregister_node(nid);
-@@ -2282,6 +2295,9 @@ static int try_remove_memory(u64 start, u64 size)
- 	if (nid != NUMA_NO_NODE)
- 		try_offline_node(nid);
- 
-+	unaccept_memory(start, size);
-+	WARN_ON(coco_set_plugged_bitmap(start, size, false));
-+
- 	mem_hotplug_done();
- 	return 0;
- }
+ 	switch (virtio_mem_send_request(vm, &req)) {
+ 	case VIRTIO_MEM_RESP_ACK:
+ 		vm->unplug_all_required = false;
+ 		vm->plugged_size = 0;
++		WARN_ON(coco_set_plugged_bitmap(vm->addr, vm->region_size, false));
+ 		/* usable region might have shrunk */
+ 		atomic_set(&vm->config_changed, 1);
+ 		return 0;
 -- 
 2.52.0
 
