@@ -1,119 +1,181 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from out-183.mta0.migadu.com (out-183.mta0.migadu.com [91.218.175.183])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 324A714E2F2;
-	Tue, 23 Jun 2026 01:09:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28865385D6E
+	for <virtualization@lists.linux.dev>; Tue, 23 Jun 2026 01:49:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.183
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782176966; cv=none; b=LeA54qttOKYcAQlFZJhvrWovxhNaRTJ/++EpDrxJ+CaV12NEHy0JQB4V1ckRiuqIFjMPEDQGCk1qMiVbihWnKldHx+7lmAAnviTAccA0yEs9UNUr+N34c0q9wThTlWUEISKlNtgEbchtFKEuzyBz9D6uOOVac0+YBnUpADQQj3s=
+	t=1782179353; cv=none; b=RKcrySABrF2EECPJokzTfRVyHkuUOA+PsA8bKfOR76MPAYzro11hQWcGkxHtkczeyp4S1N44bIUjnWyqFgN9GemYPqW70OqGvfSYClify7EXTeWYclzI9N4LkKf7saU9ythG61zCvSGga4u5l7OUv3V6cs/WD6SeB9C1uYCNtok=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782176966; c=relaxed/simple;
-	bh=1DhEZBjxcqVHxr6U1P+zwBOeMmCj/u8bVaIn5fTsP4s=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LDKK3l9jmmfT0MZIX7h3RecknmIuMATp4YW+DvkvMNfPj2OZeKgG4Ns+BccQWjQp1W9LOBfjHvK15GQfzbDajdfkH4d6UVJ7m38OA3xeYytR36txxgMt+YrCralxHhr8ctoxmNuJbM4eN7iXXK/ZfaZNrFOG6Hl+zRMGfNdHSoI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YcrTiAmr; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782179353; c=relaxed/simple;
+	bh=3nfjaEtFO7rOC0JR1hAFhKGXBCnTehQeq6rVUE5vakg=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=WWH3akpEgS++vRVX5vZt10+AzBpgsI3UOZEBouWOUTD1KCngDudnfNWje3TpyBWGoSlJA7UA99pE6+1E53ntvHrxHlzvUrhG3nF4l3aiX0Pmn629BlwMjwz4kgzG4ybQhdfb8L8RlovR1Fd++PN2HFE1hGQLHJvTt43/TNMFCCs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=IrzIFAfK; arc=none smtp.client-ip=91.218.175.183
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YcrTiAmr"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id B32BC1F000E9;
-	Tue, 23 Jun 2026 01:09:21 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782176964;
-	bh=cu5i9lWtajopUX7zIUdL3VV/0CGw1PzTSKATQzMwO3g=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=YcrTiAmrKDjrua0Ocy1nrQ0e67yRtvcTdeAxjxAczfyko+r59R+aeXrQwn0Qn5Oo5
-	 C8qeHPLd+3bckLjQPr3fK5zxCGVjqeD1hn7YPimU/sCHVH4XTEdYr1K55WF72JIOKE
-	 aEpECIfjly9XE8Wx4JLi6uUgApMk18/DNqtWEhBpzbRxXrggzeowj+/wbWMOn/wBZh
-	 e8HZXa/si3Oy1MpAub64TbnGjFOHNfv3CdaZMslCL7s8wHRVG1SAZaErYKe37nh8KQ
-	 yP3JNF2Sl8+AA1jY3v+Dek3QSXtzcCFMZEehpEA71j8dqBKpDyu9tbT9tU/Lk2da6s
-	 uHuT6I0WIKYAQ==
-Message-ID: <ce63d29a-8c76-4a3d-ad8f-144f8b709cfa@kernel.org>
-Date: Tue, 23 Jun 2026 02:09:10 +0100
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="IrzIFAfK"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1782179339;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=FP8XK6mc3XsF7klqo8W7GStOpRwDK+Hsqke0DeD5JPE=;
+	b=IrzIFAfKGPZG6bNs9GLkxWWkAjerUzvGUgpMS+I+1aqBCTJ4TEIGxBw9eJFvLvx+N97GGt
+	xTGjIx1BAsNBENINgBQbMcrYUagXt92R725IP893RnguzhJ6CKSGBi2wb87NJL8t/1e7sr
+	w8F4wFvhBCW8tXvcTiZ5YyphGMmewKw=
+From: Menglong Dong <menglong.dong@linux.dev>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Menglong Dong <menglong8.dong@gmail.com>, xuanzhuo@linux.alibaba.com,
+ eperezma@redhat.com, jasowang@redhat.com, andrew+netdev@lunn.ch,
+ davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com,
+ netdev@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net-next v3] virtio-net: xsk: support tx wake up
+Date: Tue, 23 Jun 2026 09:48:51 +0800
+Message-ID: <d3QXZoiISIiEIwCXJDbC5A@linux.dev>
+In-Reply-To: <20260622085825-mutt-send-email-mst@kernel.org>
+References:
+ <20260616115912.513183-1-dongml2@chinatelecom.cn>
+ <BMgCMK8nRYC94QK7N1SXpQ@linux.dev>
+ <20260622085825-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 2/8] media: virtio: Add virtio-media driver structs and
- function declarations
-To: Brian Daniels <briandaniels@google.com>,
- Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: acourbot@google.com, adelva@google.com, aesteve@redhat.com,
- changyeon@google.com, daniel.almeida@collabora.com, eperezma@redhat.com,
- gnurou@gmail.com, gurchetansingh@google.com, hverkuil@xs4all.nl,
- jasowang@redhat.com, linux-kernel@vger.kernel.org,
- linux-media@vger.kernel.org, mst@redhat.com, nicolas.dufresne@collabora.com,
- virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
-References: <20260622204343.1994418-1-briandaniels@google.com>
- <IpEvp68apuZUcGYAm3ozLFb9i6Q4ilpzp6qN7v3iGxRt99YHxMduSE6gnIMEQuKiIpkPVB3FNm7QaL3jTA4WGw==@protonmail.internalid>
- <20260622204343.1994418-3-briandaniels@google.com>
-From: Bryan O'Donoghue <bod@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=bod@kernel.org; keydata=
- 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
-In-Reply-To: <20260622204343.1994418-3-briandaniels@google.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7Bit
+Content-Type: text/plain; charset="utf-8"
+X-Migadu-Flow: FLOW_OUT
 
-On 22/06/2026 21:43, Brian Daniels wrote:
-> +extern char *virtio_media_driver_name;
-> +extern bool virtio_media_allow_userptr;
+On 2026/6/22 21:24 Michael S. Tsirkin <mst@redhat.com> write:
+> On Mon, Jun 22, 2026 at 08:27:12PM +0800, Menglong Dong wrote:
+> > On 2026/6/22 06:31 Michael S. Tsirkin <mst@redhat.com> write:
+> > > On Tue, Jun 16, 2026 at 07:59:12PM +0800, Menglong Dong wrote:
+> > [...]
+[...]
+> > 
+> > And the logic is like this:
+> > 
+> > Kernel: tx NAPI is waked up from skb_xmit_done() ->
+> > Kernel: sq->vq and xsk->tx_ring are both empty ->
+> > Kernel: call virtnet_xsk_xmit_batch()
+> > 
+> >     User: submit a entry to the xsk->tx_ring
+> >     User: check the wakeup flag
+> >     User: wakeup flag is not set, skip send()
+> > 
+> > Kernel: call xsk_set_tx_need_wakeup(), because sq->vq is empty
+> > 
+> > If we don't send more data, the data in the xsk->tx_ring will
+> > not be sent forever.
+> 
+> I'm not 100% sure I understand, but when someone fixes cross-CPU races
+> with no synchronization or CPU memory barriers just with extra checks,
+> this always gives me pause.
+> 
+> AI helped write this for me, for example:
+>   1. Kernel: xsk_set_tx_need_wakeup stores NEED_WAKEUP (sits in store buffer)
+>   2. Kernel: xsk_tx_peek_release_desc_batch - load, sees empty (reordered before the store is globally visible)
+>   3. Kernel: peek finds nothing, returns 0
+>   4. Userspace: stores entry + producer
+>   5. Userspace: loads flags - doesn't see NEED_WAKEUP yet (still in kernel's store buffer)
+>   6. Userspeace: skips send()
+>   7. Kernel: NEED_WAKEUP store finally becomes visible - too late
+> 
+> Seems legit?
 
-This looks a bit funny to me - why do you have externs in your header ?
+Ah, it seems right. The race condition problem is more complex
+than I thought. And seems that this is a common problem of
+XSK WAKEUP, which should exists for all the drivers.
 
-➜   grep -r virtio * | grep extern
-arch/mips/include/asm/mach-loongson64/builtin_dtbs.h:extern u32 
-__dtb_loongson64v_4core_virtio_begin[];
-Documentation/virt/kvm/api.rst:    - virtio external interrupt; external 
-interrupt
-drivers/gpu/drm/virtio/virtgpu_drv.h:extern struct drm_ioctl_desc 
-virtio_gpu_ioctls[DRM_VIRTIO_NUM_IOCTLS];
-drivers/net/wireless/virtual/mac80211_hwsim.c:extern int 
-hwsim_tx_virtio(struct mac80211_hwsim_data *data,
-include/linux/virtio_anchor.h:extern bool 
-(*virtio_check_mem_acc_cb)(struct virtio_device *dev);
+So I think we can remove the checking here. And I'll see if I
+can solve such problem completely further. WDYT?
 
----
-bod
+> 
+> 
+> 
+> > > 
+> > > >  	sent = virtnet_xsk_xmit_batch(sq, pool, budget, &kicks);
+> > > >  
+> > > > +	if (need_wakeup) {
+> > > > +		if (vring_size == sq->vq->num_free)
+> > > > +			/* we can't wake up by ourself, and it should be done
+> > > > +			 * by the user.
+> > > > +			 */
+> > > > +			xsk_set_tx_need_wakeup(pool);
+> > > > +		else
+> > > > +			/* we can wake up from skb_xmit_done() */
+> > > > +			xsk_clear_tx_need_wakeup(pool);
+> > > 
+> > > But what if we don't have get tx napi so no wakeup in skb_xmit_done?
+> > 
+> > Sorry that I'm not sure what "get tx napi" means here ;(
+> > 
+> > There are entry in sq->vq, so skb_xmit_done() will be called after
+> > the entries in the ring is consumed by the HOST, right?
+> > Then, the corresponding sq->napi will be scheduled, as we ensure
+> > that tx napi is always enabled, which means napi->weight is not
+> > zero, in this commit:
+> > 1df5116a41a8 ("virtio_net: xsk: prevent disable tx napi")
+> 
+> Oh I forgot we did that. But can xsk bind when tx napi has already
+> been disabled previously?
+
+According to my observe, it can, which I think is another issue, and
+I were about to fix it later in a separate patch.
+
+It is a problem, right?
+
+There are 2 approach to fix it:
+1. don't allow the binding if the tx napi is not enabled
+2. or we set the tx_napi->weight to 1 when binding, and
+    restore it to 0 when unbind.
+
+Should I fix it in this series?
+
+Thanks!
+Menglong Dong
+
+> 
+> 
+> > Right?
+> > 
+> > Thanks!
+> > Menglong Dong
+> > 
+> > > 
+> > > 
+> > > > +	}
+> > > > +
+> > > >  	if (!is_xdp_raw_buffer_queue(vi, sq - vi->sq))
+> > > >  		check_sq_full_and_disable(vi, vi->dev, sq);
+> > > >  
+> > > > @@ -1470,9 +1488,6 @@ static bool virtnet_xsk_xmit(struct send_queue *sq, struct xsk_buff_pool *pool,
+> > > >  	u64_stats_add(&sq->stats.xdp_tx,  sent);
+> > > >  	u64_stats_update_end(&sq->stats.syncp);
+> > > >  
+> > > > -	if (xsk_uses_need_wakeup(pool))
+> > > > -		xsk_set_tx_need_wakeup(pool);
+> > > > -
+> > > >  	return sent;
+> > > >  }
+> > > >  
+> > > > -- 
+> > > > 2.54.0
+> > > 
+> > > 
+> > > 
+> > 
+> > 
+> > 
+> 
+> 
+
+
+
+
