@@ -1,41 +1,47 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.5])
+Received: from imap4.hz.codethink.co.uk (imap4.hz.codethink.co.uk [188.40.203.114])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2988234DB56
-	for <virtualization@lists.linux.dev>; Tue, 23 Jun 2026 09:19:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8CAB306B31;
+	Tue, 23 Jun 2026 09:21:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=188.40.203.114
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782206369; cv=none; b=QlLbFdWVnZKkELRdXMEz/gyxhxe7TSn8Vi4IV3WAi3gxkenuXnZ2P7V+O3+fw0gjrk5h4qkugCwTtvK6Jf0vG+MR+muhxuJccCondJw7TdF8kq9vYUWZ6fUVWDyiGRk56pRqZdosGrWRknn+bjRd4COplHCzGU+o+2Jo8f6qP3w=
+	t=1782206511; cv=none; b=dbt3vzMS8PQBeoN9MfapwHZuk+hyeGlqZ1xjZAbHLxfn828wEFEqd11SvSPfeW25HyLrY5ugw26x0dlyF3ByCUHTy0RGjZfv7euly1UArfLDeNujFx+LqA8zJ0Nx4EsKDh0QVIv23QFAODZ9LFGczF/AX8hCN++f3Ryh5hKuXHs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782206369; c=relaxed/simple;
-	bh=w4FL5BIvW7cSQr48i2yTjN1PHBhvct/xiolvaCwH/4A=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=onAoYK2zZRfrEEewOYqlgrY9izIRnbHZGCNtg9QvuP/kjWz4e4wlTDV79GkWdwKPYpHk7fkFi+2ivxvLgu4/4Ab5b/PIzQnPJWUpPiMJ6fkbNbMSUciGF+2aB7hy2euA+CWPSOHbBrY9u+pIpxnLrw8M107RA9L4RUz97QoFy4A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=k/YZb4x7; arc=none smtp.client-ip=117.135.210.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1782206511; c=relaxed/simple;
+	bh=IjNBBEvzGvT1CHn+mNC01Y9qA+qhCxa0ECAak/Uzajo=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=JhSnJkcFO5QAGixBWbioME4fIBMiiCsDl8ClhVG1Ls4YdavV0UuydjjAErmdZx5vgCkmD/1UBjbDjMIBA6WYSRJ6NZshNuokVqt4yOfHkjhsdAzSFpCyPTbf21sfthV90eoAmIPtewdxCp2439Z6WuPWXH0Cb5Q29vnWLBQX8CI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=codethink.co.uk; spf=pass smtp.mailfrom=codethink.com; dkim=pass (2048-bit key) header.d=codethink.co.uk header.i=@codethink.co.uk header.b=fcfhCuru; arc=none smtp.client-ip=188.40.203.114
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=codethink.co.uk
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=codethink.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="k/YZb4x7"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=fV
-	Ccxy8040WsMZ0wn76jq/CYSE6ONKUMShmozTiptzU=; b=k/YZb4x7BOdcZBVR+5
-	UH4wuFoC+q2/k6bFDDWbyc69EGp61jKX5KEYq4OEOebS+KGqEr/6OFsN7sgWkn8+
-	JepOU0NbW1gPsy3UFyfuLlDGvNwvbGzPUZuF+kGOP8HPv1geTXtPlwGk+jYKNa/r
-	ySvwJ6vAMmLBxl0xXnRw+hv6A=
-Received: from localhost.localdomain (unknown [])
-	by gzga-smtp-mtada-g0-2 (Coremail) with SMTP id _____wBXdOmGTzpqD7P7FA--.44075S2;
-	Tue, 23 Jun 2026 17:19:03 +0800 (CST)
-From: Longjun Tang <lange_tang@163.com>
-To: mst@redhat.com,
-	xuanzhuo@linux.alibaba.com
-Cc: jasowang@redhat.com,
-	edumazet@google.com,
+	dkim=pass (2048-bit key) header.d=codethink.co.uk header.i=@codethink.co.uk header.b="fcfhCuru"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+	d=codethink.co.uk; s=imap4-20230908; h=Sender:Content-Transfer-Encoding:
+	MIME-Version:Message-Id:Date:Subject:Cc:To:From:Reply-To:In-Reply-To:
+	References; bh=ZvqtKB44Gwqr1cY+2fw3o5m3hUIQJbS6eE9LEV/4G3s=; b=fcfhCuruCbQ3vc
+	gaQKfD8KrQTerNWjSzYYKf+7TTXWHHCOl++0rTCg71BHqtEOhlEvkCTxlY58VRazZV7U7IMHEqaqG
+	A/KOhbTT8BlVFljCJwlN65DW5z4wwPDDjCdy4wz2Cv7MunuStLS7yOS5Ukd8eA4Qh300HYFn2NKV8
+	NHB5Pw2crdVnfI3GoRS0L/PCS/B/IumitqFz+YJ7jLOfJzdiNJ1IK6jkLPZSUyPuDWXSfbshHyLhL
+	vd8N4/LIwwSNv5lQpByJtaxHQtlzjdh8Cz8+V3BrFv2tRGCeTBTUIfiArBobqkTuRhouWFDEz2L68
+	jrFX1z82MdPcKkYle0pQ==;
+Received: from [167.98.27.226] (helo=rainbowdash)
+	by imap4.hz.codethink.co.uk with esmtpsa  (Exim 4.94.2 #2 (Debian))
+	id 1wbxKA-00FpDN-HI; Tue, 23 Jun 2026 10:21:42 +0100
+Received: from ben by rainbowdash with local (Exim 4.99.4)
+	(envelope-from <ben@rainbowdash>)
+	id 1wbxKA-00000002eFM-0zAi;
+	Tue, 23 Jun 2026 10:21:42 +0100
+From: Ben Dooks <ben.dooks@codethink.co.uk>
+To: Amit Shah <amit@kernel.org>,
+	Arnd Bergmann <arnd@arndb.de>,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	virtualization@lists.linux.dev,
-	tanglongjun@kylinos.cn,
-	lange_tang@163.com
-Subject: [PATCH v2] virtio_net: disable cb when NAPI is busy-polled
-Date: Tue, 23 Jun 2026 17:19:01 +0800
-Message-Id: <20260623091901.118315-1-lange_tang@163.com>
-X-Mailer: git-send-email 2.25.1
+	linux-kernel@vger.kernel.org
+Cc: Ben Dooks <ben.dooks@codethink.co.uk>
+Subject: [PATCH] virtio_console: fix endian conversion in handle_control_message()
+Date: Tue, 23 Jun 2026 10:21:41 +0100
+Message-Id: <20260623092141.631355-1-ben.dooks@codethink.co.uk>
+X-Mailer: git-send-email 2.37.2.352.g3c44437643
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -43,49 +49,49 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wBXdOmGTzpqD7P7FA--.44075S2
-X-Coremail-Antispam: 1Uf129KBjvJXoWrurWfXFW8Jw17ur45WFyrCrg_yoW8JrW3pF
-	43A3yUur4YqryIgan5JF4kXFyYvwn3GayfGrWF9w45uFn8GrsrtryrtFy7ta13Zrs5CFy7
-	Zr4vvrWUJ3WkurJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x0pR3EfUUUUUU=
-X-CM-SenderInfo: 5odqwvxbwd0wi6rwjhhfrp/xtbC-gceTGo6T4cOPwAA3C
+Sender: srv_ts003@codethink.com
 
-From: Longjun Tang <tanglongjun@kylinos.cn>
+There are a couple of prints in handle_control_message() which should
+have converted cpkt->id through virtio32_to_cpu() before passing to
+a print.
 
-When busy-poll is active, napi_schedule_prep() returns false in
-virtqueue_napi_schedule(), so virtqueue_disable_cb() is skipped.
-The device may keep firing irqs until reaches virtqueue_napi_complete().
-Under load (received == budget), it will lead to a large number
-of spurious interrupts.
+This fixes the following (prototype) sparse warnings:
+drivers/char/virtio_console.c:1538:17: warning: incorrect type in argument 4 (different base types)
+drivers/char/virtio_console.c:1538:17:    expected unsigned int
+drivers/char/virtio_console.c:1538:17:    got restricted __virtio32 [usertype] id
+drivers/char/virtio_console.c:1553:25: warning: incorrect type in argument 3 (different base types)
+drivers/char/virtio_console.c:1553:25:    expected unsigned int
+drivers/char/virtio_console.c:1553:25:    got restricted __virtio32 [usertype] id
 
-Fix it by disabling the callback at the virtnet_poll() entry. This keeps
-the callback off while we poll and re-enable by virtqueue_napi_complete()
-when going idle.
-
-Signed-off-by: Longjun Tang <tanglongjun@kylinos.cn>
-
+Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
 ---
-V1 -> V2: Remain agnostic to busy polling
----
- drivers/net/virtio_net.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/char/virtio_console.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-index f4adcfee7a80..0a11f2b32500 100644
---- a/drivers/net/virtio_net.c
-+++ b/drivers/net/virtio_net.c
-@@ -3008,6 +3008,11 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
- 	unsigned int xdp_xmit = 0;
- 	bool napi_complete;
+diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
+index 198b97314168..cbdc497f5160 100644
+--- a/drivers/char/virtio_console.c
++++ b/drivers/char/virtio_console.c
+@@ -1536,7 +1536,8 @@ static void handle_control_message(struct virtio_device *vdev,
+ 	    cpkt->event != cpu_to_virtio16(vdev, VIRTIO_CONSOLE_PORT_ADD)) {
+ 		/* No valid header at start of buffer.  Drop it. */
+ 		dev_dbg(&portdev->vdev->dev,
+-			"Invalid index %u in control packet\n", cpkt->id);
++			"Invalid index %u in control packet\n",
++			virtio32_to_cpu(vdev, cpkt->id));
+ 		return;
+ 	}
  
-+	/* Keep callbacks suppressed for the duration of this poll,
-+	 * busy-poll need.
-+	 */
-+	virtqueue_disable_cb(rq->vq);
-+
- 	virtnet_poll_cleantx(rq, budget);
- 
- 	received = virtnet_receive(rq, budget, &xdp_xmit);
+@@ -1553,7 +1554,8 @@ static void handle_control_message(struct virtio_device *vdev,
+ 			dev_warn(&portdev->vdev->dev,
+ 				"Request for adding port with "
+ 				"out-of-bound id %u, max. supported id: %u\n",
+-				cpkt->id, portdev->max_nr_ports - 1);
++				 virtio32_to_cpu(vdev, cpkt->id),
++				 portdev->max_nr_ports - 1);
+ 			break;
+ 		}
+ 		add_port(portdev, virtio32_to_cpu(vdev, cpkt->id));
 -- 
-2.43.0
+2.37.2.352.g3c44437643
 
