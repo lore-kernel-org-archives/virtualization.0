@@ -1,151 +1,134 @@
-Received: from mail-qt1-f174.google.com (mail-qt1-f174.google.com [209.85.160.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FCC0369D40
-	for <virtualization@lists.linux.dev>; Tue, 23 Jun 2026 09:55:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.174
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782208544; cv=pass; b=HEPX0uCM4gWFHhCkVQsmGWXKYlAKORvWOosxdh89B6+A6YfdqTIkhfkLngDOOibtl6mr0MhxmtfOFu7IDdAZRAXMmnCbgEBJf45znoq92vPiZfKvvQ6N6yzWtwNGFMioPxjH3Wmc/4DXN+pO4n7+Euv7xDWm/1rZLU2uT5BzYt8=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782208544; c=relaxed/simple;
-	bh=LvYUThQne3TrY6uaQG9EmEyHuxSQP+aNbK640K+aMxU=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=S4PeWghiMsoxHJPJIa1xa/3Vf4MQgP/Py+c/oLU8qSLceYChF8hgZbhb7lXJALBlTM7X3vtRpiIpGPMdMfeMX/Jv9rENBkrRPeBxynOm1JXz+YbMpavBkvT3xe8K3sYbCfGGBFBJK/uec7+oVWhbETFgdt+w8hOQpsQuh+FTxmc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=OfAS9PIa; arc=pass smtp.client-ip=209.85.160.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AAAD036BCDA
+	for <virtualization@lists.linux.dev>; Tue, 23 Jun 2026 10:10:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782209437; cv=none; b=j/aaMPEGP5uZ+lOvf4BUOAvh865R/2iN4/ujn1+qILVEhtteMavhcH7/5aIU5SGIKbYHjkWaues5TAkk/fyeFrFcRGsCwfJ/Z+TYSdzj1olNLaseJT+khYcY7NLIEQevcbPDEupCaBU8fQjHgUI2M38EowLA5qETT9EpyJCeTBk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782209437; c=relaxed/simple;
+	bh=l+K6tbrWC9zkTxzTWOaTIp9a1A/M9p538WfrxFmtoRU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=jeEkvHGBTOg+fF0uZPZzu3ae0hI59vFTW25hHv7i8B9v4LElR8KHIVEaJXS/4NPZeAMLUwsoVkIMmp73SfZiuSsNnh8z36PMB3KUTZo+XZTiVUAnALVYIBru+UVDXqedTry8Tw69I9r5Yk9F5j6x6v3a22FD/p10WS5NMfu8ryE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Wc3lYWRq; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="OfAS9PIa"
-Received: by mail-qt1-f174.google.com with SMTP id d75a77b69052e-51a019e9ea9so38504391cf.2
-        for <virtualization@lists.linux.dev>; Tue, 23 Jun 2026 02:55:43 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1782208542; cv=none;
-        d=google.com; s=arc-20240605;
-        b=Ix0nc8P1k2GH8w1HBuEzuR+eNuUq4u76uRLcCj6od+uOppZx69EI8j+Q5ORf/SfddZ
-         /gQ++fXuUj+IvHkTixI/mCA8Uxe/ijwjQWudJ7CpxFigeZdgn/E7CONDXlm0Mc/9HN7w
-         WqJLsUtD37VOeYP7neBj3ii5oRImsYMh4MFXzaORyCfu4YpJHBtuQInrN1z2Wj8BYdht
-         jCO0nJ1zcsi8l7/3M+22wtieLp5dle72JfAVcb9nEGRoiVOizOzq8irH9aIDE9omFkAc
-         2/Y1Sd9OXhnVrmFN6EJGrLbAfqcOVXfB1jrw9Xxhnres+O0esjg34FOSs/QmbN9yJj6d
-         1Q5A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=WWdevSc0aWVCs6aCLgUGOAww7ZtaohjUE77vhEuxp50=;
-        fh=RVw7ZcT2bboZ6MASQx5hDorIYhxMqgwt3k1EzkCxGho=;
-        b=BoV65YNOBNQoEhe3Bll72Cr0qmY+R/ZvafRc51ditSEsJXNrA27/tM88dzOi/xlzqI
-         3luuQDCq7pJUdnvglhsQ3lq3jRqp9AJh8+cBwr/nzx/HvdXX6SUKqRxOpJK2kb/PSagM
-         lHxFrf9TQVCVDqGJ2SKNyrhi5vTfmV4+ycXA6lHmrTGR9F5dr/0Nbg9laWA4zr2w4mME
-         y6Nk6mi0DqQwRruvQnZg66wj9jYXMhkAThl620SiN1IyxxJEjesZ+vaM+eHBgOb86r/e
-         pBrDT8RCK9tsahv90spwDV4NlPbdWU8lQLJui2assPjiAOlgFFEiNJ7KnssM0/eFgThs
-         k/og==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1782208542; x=1782813342; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=WWdevSc0aWVCs6aCLgUGOAww7ZtaohjUE77vhEuxp50=;
-        b=OfAS9PIa+G87qmkYiWdS3T/xSZ56wdynhWxyM+v+W9CJtF4wAKeYn5/m80jxRDUY25
-         Dm/3YUr6wpt1qnYr0TfBfFbDm69YfTVSfI+WP3gHVgu0oVSMTg/Mpi7TodbeeI9vOxvJ
-         X0NBJFCV+aArIB/avcbtipWO7+iB4osFdDjZUHAzHk7x88U/tvsVSdDgX3O9Q/mPMfNb
-         J14/SjOHGjYtURbpRgiAP11FfGB4fGNzOUr1lKT5QfzIb0sUtZ62gZdMUsWv+BCuDqzW
-         zRDVvOUmZQ6TbgKnQqj3t5bF9tpKisxa8mQLKpQSCDhlPEuf5oliVJOnHJVMLZa0oIlM
-         ZP8Q==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Wc3lYWRq"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1782209434;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=PUmg1owcAXLwOmouoaTEqv3Qxoebnbr/GBcr7oxvN+8=;
+	b=Wc3lYWRqoMAsXushs0fCpDxwHps0lfxrKyLnAgKQ9HNZAiKAIvqUafc5MBc5ew53+SpiFS
+	raDJB0bhLa9/XqHt1CxfETswXB4DSd1NMo88Stx24EFWmXQygUME9C4zrVXHgeX78JGJM4
+	cp5jvU31oSfLH2FUeB2Y999xegiomkM=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-27-P9qdq1ecPGmsfipwmTcsfQ-1; Tue, 23 Jun 2026 06:10:33 -0400
+X-MC-Unique: P9qdq1ecPGmsfipwmTcsfQ-1
+X-Mimecast-MFC-AGG-ID: P9qdq1ecPGmsfipwmTcsfQ_1782209432
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4924e099a17so12430065e9.1
+        for <virtualization@lists.linux.dev>; Tue, 23 Jun 2026 03:10:33 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782208542; x=1782813342;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=WWdevSc0aWVCs6aCLgUGOAww7ZtaohjUE77vhEuxp50=;
-        b=hTC4ZLi7wdTp31WSQlLWFfuzL5S3oNAxNVhHryd8fafneXrtMgKx7kM6Ihrpdm5a+W
-         +PuHDfbR/n1kQGcdJCg/CWcr7sdfyKUC9GmnZD2H2snyNke31MkhK4Exhhm7wkJ2FiQz
-         Tmo43eoJy3QMMVomWTVl8ddzCxL40NQSZUtuGgncAlsfGH7l2nyWNmc6WXp5fDAB0ceh
-         dpyJi89w0UNlTffqiM8jc2Lu+exHXMCiIv385Kv1OImOegIW6ckWo2j2T7+E3Ym7Sl6l
-         5h62GoV94g3um8WEoC/6GYV3114BXVpCGAI9ReiZ8b8WTcxnMTHy6Rnn+iF6i3+kPNf1
-         QcbQ==
-X-Forwarded-Encrypted: i=1; AFNElJ+bTG25i2Fij7sSGf/uZrHDwIWzHM3uMDtjTmW0n0mn0yz8h4vk9XUruBVinFfiWQ+94B8qu3Pq6p27gv2f2g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzoPElUG47je/9i2S51IoflREvjM5+Bgyot5mLNhzaVH7VQGEzN
-	i3LwU/eORo61bKvyXssJW1gtfKc/+lj+3M55PBjVoytZNq9oVGv0gp7oBu6Hy1U9xUTKj/e6lPK
-	a/dIvKpOSJ+hlWLn9RRyv+jFezrz24dswgD82V9c7
-X-Gm-Gg: AfdE7cnWCUhg83BuyFEd/+dM/bMviwT+sw9saJIALDDpUTAMgYJBnXH0PrNtrTuemLK
-	NhUXKNe7bVJkSJ1ZUvRvGTx6EMJTnHwRHdDorbzng7ASoUvFFOH+W6J1y9ksHbk1sA383li4f/Q
-	rsJfBA9kXg3FC/ng9cZu2XkJY8bUVSLZ3RhITZ31UK3XXlIK49t3kZBIH2O6CaKAFcvJYcr0qxE
-	4lEfep75qUwMuNlhkOE40RejK4ugm3wGaBW5fP6az0ImRVL9lmggUkmMVj4joSrJHUtzIe7hmb5
-	hD6JVj59Bo6L2ex1aGY40+HP1hEtHC5WrN+A4mTB/AHVn6KpYN4UhgoGLegxXOGU41vet40jujZ
-	mbM2F2IwT
-X-Received: by 2002:a05:622a:291:b0:517:5e32:f3ad with SMTP id
- d75a77b69052e-51a06937e84mr204781371cf.26.1782208541730; Tue, 23 Jun 2026
- 02:55:41 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1782209432; x=1782814232;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=PUmg1owcAXLwOmouoaTEqv3Qxoebnbr/GBcr7oxvN+8=;
+        b=iAo2nYVpIJomRkmiV6tuFMom2hqWfa9j2ErdxfmCFtI/+xpdlSQI99v6jh/Idl+Gek
+         gtyoqxdUXeBXWhaJKcCBxaDDclolxmW3fHPakAkI209BIAL3lRwKxMK3AMJwviahacxa
+         MMmZYASGkRj+MDoRZYX9iXpUmRdnDss6Gjamb0UpEGaMh834dFJwb3oifNZx6gj0b7rq
+         EQ8wBOU7nqbBX1vvkoEtWjs2tquSnDwOU7G+QXN+wsI8WhSYIYuct0D1N4MUcw2OxW2N
+         CxeIlwjVUdkNjpv96wANkTYlMkATRC6v0cjrA8X1W1u5nEEojGm15bopADvfi2Q1tf+h
+         gxiQ==
+X-Forwarded-Encrypted: i=1; AFNElJ9BufVsjwaL0UW938GXNqA0jewM+Ow+pgw3oPDA3lc3hWE8BcEhQXIwbpcuhW2BfPmEmqmqdI8HwJzIJVHUkA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwPFlJBIeF55XFMQwQq5q8kTwrudlptmB4AArBW/R8iwLLIIrsU
+	hjAAazOboyO+7qGk7wEDS0MQ0QiHkFhBfo2w0Btiz+yRFJ5TQwF8usbKJnZNRmkN5AQ6t736vw1
+	DFxm7oINKt/hxTjwfSTnLJQRicfIltRPbz4D8Dk6O5MDA5zNM4irn9S7G19A3SQPOroIQ
+X-Gm-Gg: AfdE7cli8V2zTlstWGVP9Kj+BZNZmWe5L1jdakc4ubeBO3KZsUv5QCUi+M4rnB+Kn5+
+	LSrG6khKpdQcg7d9oDpEZaxFBKEcw6wOrykA2sbrAyuwO/3Yv2oP0UPF8NM1x+PsFR4d8hhY3yR
+	M5Oqj5CXqY4vqLsqhO9sb0rlU9jrNW2z0eY73VIw73lLgOfyA/UNvqL3z0DVYLjjGXp6mcf1qA9
+	XbfuBVhh25dqM2mI3eahAcyFak+dvGBouZaRNsukRpOqDIMVHG1plwgrPv1JI0Yc93yXL3iqeU7
+	3fE555HYiqQ+yQTSqoFL7haAKJ0xquaeubyWq+g/jTxpE6p4cO1W4fSKAYIZ6SA3FStBNyloc3E
+	8ak6b01Ogj2H7irDaUGKIEF6wD3fe3Bo3
+X-Received: by 2002:a05:600c:203:b0:490:bf1a:ed04 with SMTP id 5b1f17b1804b1-49240e20f3cmr229677845e9.1.1782209432003;
+        Tue, 23 Jun 2026 03:10:32 -0700 (PDT)
+X-Received: by 2002:a05:600c:203:b0:490:bf1a:ed04 with SMTP id 5b1f17b1804b1-49240e20f3cmr229677425e9.1.1782209431448;
+        Tue, 23 Jun 2026 03:10:31 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-85-71.inter.net.il. [80.230.85.71])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-46666c57afasm35603312f8f.29.2026.06.23.03.10.29
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 23 Jun 2026 03:10:30 -0700 (PDT)
+Date: Tue, 23 Jun 2026 06:10:27 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Longjun Tang <lange_tang@163.com>
+Cc: xuanzhuo@linux.alibaba.com, jasowang@redhat.com, edumazet@google.com,
+	virtualization@lists.linux.dev, tanglongjun@kylinos.cn
+Subject: Re: [PATCH v2] virtio_net: disable cb when NAPI is busy-polled
+Message-ID: <20260623055417-mutt-send-email-mst@kernel.org>
+References: <20260623091901.118315-1-lange_tang@163.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260623091901.118315-1-lange_tang@163.com>
 In-Reply-To: <20260623091901.118315-1-lange_tang@163.com>
-From: Eric Dumazet <edumazet@google.com>
-Date: Tue, 23 Jun 2026 02:55:30 -0700
-X-Gm-Features: AVVi8CdxKu-26NNasQTWpoEm4a53c3jWCLNr8S1zeEbZh07qmL6p3AGRUsDetT0
-Message-ID: <CANn89iLrOTKQNqJA_oZKPjkHb1Xyqm6LS9tDn72X4az65isDGQ@mail.gmail.com>
-Subject: Re: [PATCH v2] virtio_net: disable cb when NAPI is busy-polled
-To: Longjun Tang <lange_tang@163.com>, netdev <netdev@vger.kernel.org>
-Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, jasowang@redhat.com, 
-	virtualization@lists.linux.dev, tanglongjun@kylinos.cn
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: Un1INwqLIue4BEOVdzef_2Avpfr9PjlDOVwLVMJv65g_1782209432
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On Tue, Jun 23, 2026 at 2:19=E2=80=AFAM Longjun Tang <lange_tang@163.com> w=
-rote:
->
+On Tue, Jun 23, 2026 at 05:19:01PM +0800, Longjun Tang wrote:
 > From: Longjun Tang <tanglongjun@kylinos.cn>
->
+> 
 > When busy-poll is active, napi_schedule_prep() returns false in
 > virtqueue_napi_schedule(), so virtqueue_disable_cb() is skipped.
 > The device may keep firing irqs until reaches virtqueue_napi_complete().
-> Under load (received =3D=3D budget), it will lead to a large number
+> Under load (received == budget), it will lead to a large number
 > of spurious interrupts.
->
+> 
 > Fix it by disabling the callback at the virtnet_poll() entry. This keeps
 > the callback off while we poll and re-enable by virtqueue_napi_complete()
 > when going idle.
->
+> 
 > Signed-off-by: Longjun Tang <tanglongjun@kylinos.cn>
->
 
-I added netdev@ to get more attention from networking napi polling experts,
 
-Please add a Fixes: tag as this will ease code review.
+Patch is correct
 
-My rough guess is:
 
-Fixes: ceef438d613f ("virtio_net: remove custom busy_poll")
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-Thanks.
+Ideally, I like to see performance numbers in such cases, to be included with commit log.
 
 > ---
 > V1 -> V2: Remain agnostic to busy polling
 > ---
 >  drivers/net/virtio_net.c | 5 +++++
 >  1 file changed, 5 insertions(+)
->
+> 
 > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
 > index f4adcfee7a80..0a11f2b32500 100644
 > --- a/drivers/net/virtio_net.c
 > +++ b/drivers/net/virtio_net.c
-> @@ -3008,6 +3008,11 @@ static int virtnet_poll(struct napi_struct *napi, =
-int budget)
->         unsigned int xdp_xmit =3D 0;
->         bool napi_complete;
->
-> +       /* Keep callbacks suppressed for the duration of this poll,
-> +        * busy-poll need.
-> +        */
-> +       virtqueue_disable_cb(rq->vq);
+> @@ -3008,6 +3008,11 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
+>  	unsigned int xdp_xmit = 0;
+>  	bool napi_complete;
+>  
+> +	/* Keep callbacks suppressed for the duration of this poll,
+> +	 * busy-poll need.
+> +	 */
+> +	virtqueue_disable_cb(rq->vq);
 > +
->         virtnet_poll_cleantx(rq, budget);
->
->         received =3D virtnet_receive(rq, budget, &xdp_xmit);
-> --
+>  	virtnet_poll_cleantx(rq, budget);
+>  
+>  	received = virtnet_receive(rq, budget, &xdp_xmit);
+> -- 
 > 2.43.0
->
+
