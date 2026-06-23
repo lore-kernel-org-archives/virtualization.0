@@ -1,148 +1,151 @@
-Received: from mail-oi1-f180.google.com (mail-oi1-f180.google.com [209.85.167.180])
+Received: from mail-qt1-f174.google.com (mail-qt1-f174.google.com [209.85.160.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2826436604C
-	for <virtualization@lists.linux.dev>; Tue, 23 Jun 2026 09:46:33 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6FCC0369D40
+	for <virtualization@lists.linux.dev>; Tue, 23 Jun 2026 09:55:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.174
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782207995; cv=pass; b=I+Hs4E/zUsLGuQPRFpnKbFEEuG648nQ/PmjvLOyTXA+6sOogb5Oca4joM+04xSjJtv01GMHz//obC5mknG/GF+FkEZd+JyQmwwSUmACRlEppIX6BKQ8FE2Sz/E2p1JILpNrhKw95rFzJrrTTKzCfCbS2IhcxwLKZ2kQNX3ApB+o=
+	t=1782208544; cv=pass; b=HEPX0uCM4gWFHhCkVQsmGWXKYlAKORvWOosxdh89B6+A6YfdqTIkhfkLngDOOibtl6mr0MhxmtfOFu7IDdAZRAXMmnCbgEBJf45znoq92vPiZfKvvQ6N6yzWtwNGFMioPxjH3Wmc/4DXN+pO4n7+Euv7xDWm/1rZLU2uT5BzYt8=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782207995; c=relaxed/simple;
-	bh=37450W6FYAtNA5BvRLzKphD5NkEmloE/RbhaJCvRqSA=;
+	s=arc-20240116; t=1782208544; c=relaxed/simple;
+	bh=LvYUThQne3TrY6uaQG9EmEyHuxSQP+aNbK640K+aMxU=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=ln8l/YyJGH9Obc4XywiliVo22I9m0gDRqo+aYiyHsfoxh2lPzVkkeM/3qFfi6aP7/vcyxupDKXi5dJc4YHfcH962kEJ0xL5dE4sfVNzBVaJVzbueulcTNSDMBfRlJT6F30L3bjYoFPYSKzpHP0U+hhjxIjPS8TjhgtHJtBcl16Q=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ReVcyhpQ; arc=pass smtp.client-ip=209.85.167.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	 To:Cc:Content-Type; b=S4PeWghiMsoxHJPJIa1xa/3Vf4MQgP/Py+c/oLU8qSLceYChF8hgZbhb7lXJALBlTM7X3vtRpiIpGPMdMfeMX/Jv9rENBkrRPeBxynOm1JXz+YbMpavBkvT3xe8K3sYbCfGGBFBJK/uec7+oVWhbETFgdt+w8hOQpsQuh+FTxmc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=OfAS9PIa; arc=pass smtp.client-ip=209.85.160.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ReVcyhpQ"
-Received: by mail-oi1-f180.google.com with SMTP id 5614622812f47-48650c78e09so1898137b6e.2
-        for <virtualization@lists.linux.dev>; Tue, 23 Jun 2026 02:46:33 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1782207993; cv=none;
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="OfAS9PIa"
+Received: by mail-qt1-f174.google.com with SMTP id d75a77b69052e-51a019e9ea9so38504391cf.2
+        for <virtualization@lists.linux.dev>; Tue, 23 Jun 2026 02:55:43 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1782208542; cv=none;
         d=google.com; s=arc-20240605;
-        b=Oks7dzL9uzLWAoaEo1O4oE2l4Ni9yI6O+E3yGXlwClpbSjjcDh7pMHvSXZaFRRd9OX
-         o3ylkosd6C11Pz0kgKYaMDVhkhXxZG4OS2mBa4urnxXuxggCH85hKMUvs2WUdyJ10Q6V
-         98pc8Ns0L09UsCdIzZdNKUsAgRUDyuF2YArqR4s+/G4ymmlpcoSnbxUkEe7cyOTtYdJ8
-         RbX7S8lRghucJZdhRTQcUCM24s6rQy9bhE4Aaw190LZXMbV4MvvB6BDdGTD5TUFx+X7u
-         nTKLrvA2vHfZlHYM9BmZYNMG+C5qjkz8637D2MRPpjl8yMzqILGY98xckQ/HwsUn+FoW
-         lpbw==
+        b=Ix0nc8P1k2GH8w1HBuEzuR+eNuUq4u76uRLcCj6od+uOppZx69EI8j+Q5ORf/SfddZ
+         /gQ++fXuUj+IvHkTixI/mCA8Uxe/ijwjQWudJ7CpxFigeZdgn/E7CONDXlm0Mc/9HN7w
+         WqJLsUtD37VOeYP7neBj3ii5oRImsYMh4MFXzaORyCfu4YpJHBtuQInrN1z2Wj8BYdht
+         jCO0nJ1zcsi8l7/3M+22wtieLp5dle72JfAVcb9nEGRoiVOizOzq8irH9aIDE9omFkAc
+         2/Y1Sd9OXhnVrmFN6EJGrLbAfqcOVXfB1jrw9Xxhnres+O0esjg34FOSs/QmbN9yJj6d
+         1Q5A==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=yv0BeALdClipLyUvwU4pgEmX5q0tg0SvoPTdnQsLUIM=;
-        fh=+TkQ2ObGm+oqoW0BmjylRnCH/6N8WTmPT8+U4qvF/xA=;
-        b=KNAyq1TE4gAsGMZSEudQ0hJl37FhXEILWMoHtyDLnhcZ+SfRPGJsUQtnIX2XfahVRJ
-         i9wlSi5at7QFx/Qeig76JU5UFDuOHYjmBt/YzYEZpJUqtEtxcC+sp/RJ2M6sCIL+Ehc9
-         UCGRvdeeuOaN95Tt65S9xezTNW7LPD5FolYV9ffmfvcWKEIt3czrFa3r3GQoSk3AIc2v
-         8MccGX5BMUyq+9pP7z/LWf/HHw807VCUXyfX0GzosdqyZVxlXvM0xxs2RkQoIfNP6MXx
-         jECSD2YPMW+whpq73/q4FAT0DZ3gTkz986q/qtSZ8OvNsXeVJX4M4uJ28uaEUjWARbPs
-         WLbA==;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=WWdevSc0aWVCs6aCLgUGOAww7ZtaohjUE77vhEuxp50=;
+        fh=RVw7ZcT2bboZ6MASQx5hDorIYhxMqgwt3k1EzkCxGho=;
+        b=BoV65YNOBNQoEhe3Bll72Cr0qmY+R/ZvafRc51ditSEsJXNrA27/tM88dzOi/xlzqI
+         3luuQDCq7pJUdnvglhsQ3lq3jRqp9AJh8+cBwr/nzx/HvdXX6SUKqRxOpJK2kb/PSagM
+         lHxFrf9TQVCVDqGJ2SKNyrhi5vTfmV4+ycXA6lHmrTGR9F5dr/0Nbg9laWA4zr2w4mME
+         y6Nk6mi0DqQwRruvQnZg66wj9jYXMhkAThl620SiN1IyxxJEjesZ+vaM+eHBgOb86r/e
+         pBrDT8RCK9tsahv90spwDV4NlPbdWU8lQLJui2assPjiAOlgFFEiNJ7KnssM0/eFgThs
+         k/og==;
         darn=lists.linux.dev
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782207993; x=1782812793; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=yv0BeALdClipLyUvwU4pgEmX5q0tg0SvoPTdnQsLUIM=;
-        b=ReVcyhpQr+DYqbssGJfJOAXc/ZWk09NXllSVR/o6FHa4/NK+gRTaFzj/XVikYJM9tB
-         vGIDxLT6OnZgYFgrEwUzpCps74qwlcIh3iraSu/KdLx4oSBRznh4S3kkqIyZ58xGhqsM
-         f8hr9c1dVumnB7nxvnjluEVvbihnmGAGRMqQP4Grjq+LPiifNOE22Q3lNq6lrfbaEMbf
-         300hNyi+1c4eaHrKK9i8InP4FUW4Uc23NWz31KECqRkAf/gCwNw+siLxuO6sHMIZCg2Z
-         Bb2EVcvg5Z4RWZdqXpwqJhY9hWdfsH4H5ZMnUntUSlpRwGMibVCagdsm+s3QHr6Fdbwv
-         Rnfw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782207993; x=1782812793;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+        d=google.com; s=20251104; t=1782208542; x=1782813342; darn=lists.linux.dev;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:from:to:cc:subject:date
          :message-id:reply-to;
-        bh=yv0BeALdClipLyUvwU4pgEmX5q0tg0SvoPTdnQsLUIM=;
-        b=j9/muzGzDLjzH4JR5be78TRlvmAL7+/Hb13j40noVn629BdbKjLsECamccFdqX1YJJ
-         WYLbGhTJ8Sh7RhhI84h8Zop1Q/EddOJwMhtmNscpfEvu0TWVio8bvHGh7Z0UjR8nw/27
-         4bIGwrJoRsPrEFm+1ip4ZqCMivmfSmWzlEjkXSww3upX7tbnL/FK5KvK9jsrcdjTF1jI
-         Nx2higqKngw4d1HKpOYsrqibQYlD6JTfxI+iRrX8k4EvfZNFEsY1ZYqXKyUgxQTAN+CQ
-         LIAhLkGz9/t6cZS/mpfIHdnqypcG2n1BYXVhtGZriNg2XxNX8eV4eNC1BrOSK8ov7CQz
-         BasQ==
-X-Forwarded-Encrypted: i=1; AFNElJ/uEMKUKCl75aU4UFr+XGFmmgB53hHMFQY6cMIaH0LSemSEEdJckfJoEfwo/w/2Xmmd3sBW/sPieL8rTSN6Eg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzwrWdiapndI26Ry6Rr6lX8Q5I12wkgcViSq8tmyVWNUbpM3aML
-	XjumQo4K0meXulHmauvLTzJC/g5WX/KdVNE8OzKHOs4guWq85zl/g6TvtendK/Qsti2tMaK1710
-	U/fGDgq0u1ipdwkfWymigB67Inv45kek=
-X-Gm-Gg: AfdE7clCWzmwjWt5OhixOyiZY2dtSiNP0spsheWjBjGwBIrPBLJnZ1apwxXFaaxdDov
-	GsGyF2D9GPAymMU/5aqdUFvYfG5EfHpCewK1txlqTcNhvbxAijBr+6jZw/2emW5SeZ5uKumsaJw
-	iddiQU+blTUrdA/SWl5ay1HQD+fpGk9KMUDWOlWdD+6HvPEuVfqxZQJpqGCUoEq74tcSmuTrMYC
-	1vzidB34vVu2o2/OUEXWnfwO+pbI6iuwH+Tn7ZnYsDgSR5tC2o+j0Batz2n4DjasQUb8Dyi1Y4=
-X-Received: by 2002:a05:6808:11c9:b0:48b:9987:ba17 with SMTP id
- 5614622812f47-48f62c24e11mr798270b6e.35.1782207993042; Tue, 23 Jun 2026
- 02:46:33 -0700 (PDT)
+        bh=WWdevSc0aWVCs6aCLgUGOAww7ZtaohjUE77vhEuxp50=;
+        b=OfAS9PIa+G87qmkYiWdS3T/xSZ56wdynhWxyM+v+W9CJtF4wAKeYn5/m80jxRDUY25
+         Dm/3YUr6wpt1qnYr0TfBfFbDm69YfTVSfI+WP3gHVgu0oVSMTg/Mpi7TodbeeI9vOxvJ
+         X0NBJFCV+aArIB/avcbtipWO7+iB4osFdDjZUHAzHk7x88U/tvsVSdDgX3O9Q/mPMfNb
+         J14/SjOHGjYtURbpRgiAP11FfGB4fGNzOUr1lKT5QfzIb0sUtZ62gZdMUsWv+BCuDqzW
+         zRDVvOUmZQ6TbgKnQqj3t5bF9tpKisxa8mQLKpQSCDhlPEuf5oliVJOnHJVMLZa0oIlM
+         ZP8Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782208542; x=1782813342;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=WWdevSc0aWVCs6aCLgUGOAww7ZtaohjUE77vhEuxp50=;
+        b=hTC4ZLi7wdTp31WSQlLWFfuzL5S3oNAxNVhHryd8fafneXrtMgKx7kM6Ihrpdm5a+W
+         +PuHDfbR/n1kQGcdJCg/CWcr7sdfyKUC9GmnZD2H2snyNke31MkhK4Exhhm7wkJ2FiQz
+         Tmo43eoJy3QMMVomWTVl8ddzCxL40NQSZUtuGgncAlsfGH7l2nyWNmc6WXp5fDAB0ceh
+         dpyJi89w0UNlTffqiM8jc2Lu+exHXMCiIv385Kv1OImOegIW6ckWo2j2T7+E3Ym7Sl6l
+         5h62GoV94g3um8WEoC/6GYV3114BXVpCGAI9ReiZ8b8WTcxnMTHy6Rnn+iF6i3+kPNf1
+         QcbQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+bTG25i2Fij7sSGf/uZrHDwIWzHM3uMDtjTmW0n0mn0yz8h4vk9XUruBVinFfiWQ+94B8qu3Pq6p27gv2f2g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzoPElUG47je/9i2S51IoflREvjM5+Bgyot5mLNhzaVH7VQGEzN
+	i3LwU/eORo61bKvyXssJW1gtfKc/+lj+3M55PBjVoytZNq9oVGv0gp7oBu6Hy1U9xUTKj/e6lPK
+	a/dIvKpOSJ+hlWLn9RRyv+jFezrz24dswgD82V9c7
+X-Gm-Gg: AfdE7cnWCUhg83BuyFEd/+dM/bMviwT+sw9saJIALDDpUTAMgYJBnXH0PrNtrTuemLK
+	NhUXKNe7bVJkSJ1ZUvRvGTx6EMJTnHwRHdDorbzng7ASoUvFFOH+W6J1y9ksHbk1sA383li4f/Q
+	rsJfBA9kXg3FC/ng9cZu2XkJY8bUVSLZ3RhITZ31UK3XXlIK49t3kZBIH2O6CaKAFcvJYcr0qxE
+	4lEfep75qUwMuNlhkOE40RejK4ugm3wGaBW5fP6az0ImRVL9lmggUkmMVj4joSrJHUtzIe7hmb5
+	hD6JVj59Bo6L2ex1aGY40+HP1hEtHC5WrN+A4mTB/AHVn6KpYN4UhgoGLegxXOGU41vet40jujZ
+	mbM2F2IwT
+X-Received: by 2002:a05:622a:291:b0:517:5e32:f3ad with SMTP id
+ d75a77b69052e-51a06937e84mr204781371cf.26.1782208541730; Tue, 23 Jun 2026
+ 02:55:41 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260621130246.2973254-1-me@linux.beauty> <20260621130246.2973254-2-me@linux.beauty>
-In-Reply-To: <20260621130246.2973254-2-me@linux.beauty>
-From: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Date: Tue, 23 Jun 2026 11:46:20 +0200
-X-Gm-Features: AVVi8CdODMw4si1bRIcvd7rg71p9Rlcb8aYNMExjt_doJRdh8NW0AmYupBG3yIE
-Message-ID: <CAM9Jb+hf6KEWRKtWr6PQByRQ869jL6Ws7J_ShFjKY_YicTbS_g@mail.gmail.com>
-Subject: Re: [PATCH v6 01/12] nvdimm: preserve flush callback errors
-To: Li Chen <me@linux.beauty>
-Cc: Dan Williams <dan.j.williams@intel.com>, Vishal Verma <vishal.l.verma@intel.com>, 
-	Dave Jiang <dave.jiang@intel.com>, Ira Weiny <ira.weiny@intel.com>, 
-	Alison Schofield <alison.schofield@intel.com>, virtualization@lists.linux.dev, 
-	nvdimm@lists.linux.dev, linux-kernel@vger.kernel.org
+References: <20260623091901.118315-1-lange_tang@163.com>
+In-Reply-To: <20260623091901.118315-1-lange_tang@163.com>
+From: Eric Dumazet <edumazet@google.com>
+Date: Tue, 23 Jun 2026 02:55:30 -0700
+X-Gm-Features: AVVi8CdxKu-26NNasQTWpoEm4a53c3jWCLNr8S1zeEbZh07qmL6p3AGRUsDetT0
+Message-ID: <CANn89iLrOTKQNqJA_oZKPjkHb1Xyqm6LS9tDn72X4az65isDGQ@mail.gmail.com>
+Subject: Re: [PATCH v2] virtio_net: disable cb when NAPI is busy-polled
+To: Longjun Tang <lange_tang@163.com>, netdev <netdev@vger.kernel.org>
+Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, jasowang@redhat.com, 
+	virtualization@lists.linux.dev, tanglongjun@kylinos.cn
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-> nvdimm_flush() currently converts any non-zero provider flush error to
-> -EIO. That loses useful errno values from provider callbacks.
+On Tue, Jun 23, 2026 at 2:19=E2=80=AFAM Longjun Tang <lange_tang@163.com> w=
+rote:
 >
-> A local virtio-pmem mkfs sanity test showed the masking clearly:
+> From: Longjun Tang <tanglongjun@kylinos.cn>
 >
->   wipefs: /dev/pmem0: cannot flush modified buffers: Input/output error
->   mkfs.ext4: Input/output error while writing out and closing file system
->   nd_region region0: dbg: nvdimm_flush rc=-5
+> When busy-poll is active, napi_schedule_prep() returns false in
+> virtqueue_napi_schedule(), so virtqueue_disable_cb() is skipped.
+> The device may keep firing irqs until reaches virtqueue_napi_complete().
+> Under load (received =3D=3D budget), it will lead to a large number
+> of spurious interrupts.
 >
-> The virtio-pmem callback can return -ENOMEM when async_pmem_flush() fails
-> to allocate a child flush bio, but nvdimm_flush() hides that as -EIO before
-> pmem_submit_bio() converts it to a block status.
+> Fix it by disabling the callback at the virtnet_poll() entry. This keeps
+> the callback off while we poll and re-enable by virtqueue_napi_complete()
+> when going idle.
 >
-> Return the provider callback error directly. The generic flush path still
-> returns 0, and pmem_submit_bio() already handles errno-to-blk_status
-> conversion for bio completion.
+> Signed-off-by: Longjun Tang <tanglongjun@kylinos.cn>
 >
-> Signed-off-by: Li Chen <me@linux.beauty>
+
+I added netdev@ to get more attention from networking napi polling experts,
+
+Please add a Fixes: tag as this will ease code review.
+
+My rough guess is:
+
+Fixes: ceef438d613f ("virtio_net: remove custom busy_poll")
+
+Thanks.
+
 > ---
-> v3->v4:
-> - New patch.
+> V1 -> V2: Remain agnostic to busy polling
+> ---
+>  drivers/net/virtio_net.c | 5 +++++
+>  1 file changed, 5 insertions(+)
 >
->  drivers/nvdimm/region_devs.c | 6 ++----
->  1 file changed, 2 insertions(+), 4 deletions(-)
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index f4adcfee7a80..0a11f2b32500 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -3008,6 +3008,11 @@ static int virtnet_poll(struct napi_struct *napi, =
+int budget)
+>         unsigned int xdp_xmit =3D 0;
+>         bool napi_complete;
 >
-> diff --git a/drivers/nvdimm/region_devs.c b/drivers/nvdimm/region_devs.c
-> index e35c2e18518f0..0cd96503c0596 100644
-> --- a/drivers/nvdimm/region_devs.c
-> +++ b/drivers/nvdimm/region_devs.c
-> @@ -1114,10 +1114,8 @@ int nvdimm_flush(struct nd_region *nd_region, struct bio *bio)
+> +       /* Keep callbacks suppressed for the duration of this poll,
+> +        * busy-poll need.
+> +        */
+> +       virtqueue_disable_cb(rq->vq);
+> +
+>         virtnet_poll_cleantx(rq, budget);
 >
->         if (!nd_region->flush)
->                 rc = generic_nvdimm_flush(nd_region);
-> -       else {
-> -               if (nd_region->flush(nd_region, bio))
-> -                       rc = -EIO;
-> -       }
-> +       else
-> +               rc = nd_region->flush(nd_region, bio);
-
-IIRC this was introduced as a generic populate error type since a
-failed flush can also propagate host-side errors, which may not be
-relevant to the guest.
-That said, we could still consider handling specific cases like
--ENOMEM, unless there is a better approach to address this.
-
-Thanks,
-Pankaj
->
->         return rc;
->  }
+>         received =3D virtnet_receive(rq, budget, &xdp_xmit);
 > --
-> 2.52.0
+> 2.43.0
+>
