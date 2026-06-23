@@ -1,166 +1,197 @@
-Received: from mail-pl1-f202.google.com (mail-pl1-f202.google.com [209.85.214.202])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 964A737C0EB
-	for <virtualization@lists.linux.dev>; Mon, 22 Jun 2026 22:28:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8161C377019;
+	Tue, 23 Jun 2026 00:57:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782167302; cv=none; b=UGYopq4oGm5j9EcnOA5BNYpxi6oV6G0hzG5qtgwjbL1J1sKn1lNGHPWzdQfIYE4DJlDRBCwkoTf0dU0H7kovb3PdpsEX2Ci3win8lpQWCmjVUg9PgwdPRftRvryVQ6Gaz7GwUGTEUGxl/Qb6t64uEI2Zjv3JitCkDgrNuiPILtM=
+	t=1782176271; cv=none; b=YXw/U0HIx12Kyy7oqHVvNu6yScq1qDnnTTQuTP+BdIn75SgLl2OFbBcedADGlWbrTpl/e0ZgBcH8CRmoTLtGHfelssxE/lD/0ljY0ppfGcJqggki5Wp3SBorus6SYt/YdWmjWSJtxA15HhhKD0IihXNsIX1dNUJ91m0Y1JHG7L4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782167302; c=relaxed/simple;
-	bh=B+pNZf9Lnj2XWG8FCwn7MKZtRbeWhKNa/vU4AZvzREw=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=gnBpGcpeFPSaZw6MQ3/crA/3BFVD4urb3h82qVENZaXilWlEuKA3nrr6dyAIkyJPhnykgVsrfge87c8/0cEMG5NNiEQ+WTAJo+AbG9DDSVVQwsl/sD6jKMkl4kt2Bw5SCa5+/097b9XZ1WkFCJjook1D4KtDaF4KbbvY7KqArSw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--tavip.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Oa3EGkoE; arc=none smtp.client-ip=209.85.214.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--tavip.bounces.google.com
+	s=arc-20240116; t=1782176271; c=relaxed/simple;
+	bh=m1g4xKHZr+EAT6GJjdEilXTeThpVvSQcrcQXopN3Il4=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=WINWdsgBOUbe1DWpMoVWwfpIkVuxH/bwhEa48b0xAnRwVUHo6keC3CkggXPnq60InVl4NwrB3FQ+cHrQGbX2IW4iFVvwHOQ0/xbFbW6gM0cs3yIWQsGv8oXfvC9N8d+oOHjpqqVC/SwWzCZytmgyoPhFa7u+GcUketnQQxFDVSM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GtZY55KG; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Oa3EGkoE"
-Received: by mail-pl1-f202.google.com with SMTP id d9443c01a7336-2c2c98c1be2so41875555ad.0
-        for <virtualization@lists.linux.dev>; Mon, 22 Jun 2026 15:28:19 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1782167299; x=1782772099; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:from:to:cc:subject:date:message-id:reply-to;
-        bh=qGElPt26WdpnNahM3WnJg4mnRJcDyCeFwMEl1h5w3R4=;
-        b=Oa3EGkoE3yS+j7UkIv9u+cSMQJS2gMMTLOgkczFZGAldyKt+TY4ZvIi3cJBTDfxr8x
-         Ni4utsXI6CErjV9N9yCAMk2GEgrYhKUICjuWPeIuL9eDnlBa5481P/7LzTwKUvmKPUys
-         FC4Njnr3vSRT+KMJeGu7iWtz00pw6G70FIdNlOfrmi9GeFEkowoWpTJv+N32xtXMCHhM
-         lQwMYMdGT6MhQAQw49sFOHu6mMjidFMc5ZZ+Lx8kvo1bxzmp41xlr90KORrH696jP+P3
-         oh1NCrs3Uo4FxiogEfJP5KeTqJogzrPhmhMgjFu5+uloum+TS/BdnTJFa+7MYBuSFtS4
-         Ao6Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782167299; x=1782772099;
-        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
-         :date:x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
-        bh=qGElPt26WdpnNahM3WnJg4mnRJcDyCeFwMEl1h5w3R4=;
-        b=JT3lpKWnbgWbxArAxDSTn/aF0d6YfZn54mYf/gN0ePx8dv+x/XUOygWY0EoVzrzf+s
-         GQAyHpu4jeXtxTyoHEzYPBwne92dTVIBTSukBlW79jmuPXKZsmiWfo33U+Dbe05ferlj
-         ZKCK/yXwjkvWWBHyePxDb5HoJwwSv+3UImrP91iWhoAcMjdPH1u5orbzXlNgeJQKSLOo
-         6uoQYKdKA0r638vHL3tFqLGrCFzTH4E/iOzWhBNLAPikOaWe8bhkxHqNmoQ6Cc1DSp5X
-         h6+BrhDakvt9OhJXT7Vbbt0+zIyqvgbyZ3fWY8dX2AYNrCOOJWf9TJKLSQEZ3pGXE2CE
-         moJw==
-X-Forwarded-Encrypted: i=1; AHgh+RqsU1BkEuQY1hyTm9jPeTEDd1rgclSKu6FzrIhcAy7hxNOMViCIUSSG1/QCLeD4OsxJCnZh4dAQlZbs79gx1Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz9zLsgcedtI4U2DvgioluggpP2GC9lax2oUcba6wHHpGKh1U2M
-	HtgWWOPx8Oo25+DSuP+lRdz0EEPZoPRdHClNWxb5slkgbRRVMpZ7TQ18/6cWJ5ETRYZUhL36h61
-	4CQ==
-X-Received: from plrc9.prod.google.com ([2002:a17:902:aa49:b0:2b9:d494:f713])
- (user=tavip job=prod-delivery.src-stubby-dispatcher) by 2002:a17:903:2309:b0:2c6:a99a:52b5
- with SMTP id d9443c01a7336-2c718cb1273mr172105375ad.12.1782167298528; Mon, 22
- Jun 2026 15:28:18 -0700 (PDT)
-Date: Mon, 22 Jun 2026 22:27:57 +0000
-In-Reply-To: <20260622222757.2130402-1-tavip@google.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GtZY55KG"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 06D931F000E9;
+	Tue, 23 Jun 2026 00:57:46 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1782176270;
+	bh=3alYUOb6C/Wbd5vFlD2KNW62xIV+RJoXmu22bGohqYI=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=GtZY55KGabENmhM5ryKwKJTdpNIC/x9joxVpX4SE5xhlx4YgavXU4kmtkQzpC/+TJ
+	 7+71qLz9wPWp6IFiJSFzzRDGApBG6qqkuBaN9u1Iz+L8hj6VUPkjhJTySBigjkCXSI
+	 oq1MmZzfsnnpVTESIFfj4EYG/WcoaB1DvqaGek/9kQXa1rmddoWte3JNSFcy8VUwt0
+	 bEibgPXpDEQ76rxsGcGrPnaEjuRSa2IYRXRVXP3N2yZ1k1iW3s9JjAvZzico/ZafKa
+	 Z6OIuyOkdUA00yEEr08dxHGZhjZVIC19Fv0h7dlUNoUlwq6dCJFTtU9PTkpKYc5iDi
+	 bigIevvK9iKIQ==
+Message-ID: <4b2078a0-9422-467b-b167-9a0b5444f18d@kernel.org>
+Date: Tue, 23 Jun 2026 01:57:35 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20260622222757.2130402-1-tavip@google.com>
-X-Mailer: git-send-email 2.55.0.rc0.799.gd6f94ed593-goog
-Message-ID: <20260622222757.2130402-3-tavip@google.com>
-Subject: [PATCH net v3 2/2] vsock/virtio: restore msg_iter on transmission failure
-From: Octavian Purdila <tavip@google.com>
-To: netdev@vger.kernel.org
-Cc: Alexander Viro <viro@zeniv.linux.org.uk>, Andrew Morton <akpm@linux-foundation.org>, 
-	Arseniy Krasnov <avkrasnov@salutedevices.com>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, 
-	"=?UTF-8?q?Eugenio=20P=C3=A9rez?=" <eperezma@redhat.com>, Jakub Kicinski <kuba@kernel.org>, Jason Wang <jasowang@redhat.com>, 
-	kvm@vger.kernel.org, linux-block@vger.kernel.org, 
-	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, Stefano Garzarella <sgarzare@redhat.com>, 
-	virtualization@lists.linux.dev, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Jens Axboe <axboe@kernel.dk>, Octavian Purdila <tavip@google.com>, 
-	syzbot+28e5f3d207b14bae122a@syzkaller.appspotmail.com
-Content-Type: text/plain; charset="UTF-8"
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 1/8] media: virtio: Add protocol
+To: Brian Daniels <briandaniels@google.com>,
+ Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: acourbot@google.com, adelva@google.com, aesteve@redhat.com,
+ changyeon@google.com, daniel.almeida@collabora.com, eperezma@redhat.com,
+ gnurou@gmail.com, gurchetansingh@google.com, hverkuil@xs4all.nl,
+ jasowang@redhat.com, linux-kernel@vger.kernel.org,
+ linux-media@vger.kernel.org, mst@redhat.com, nicolas.dufresne@collabora.com,
+ virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
+References: <20260622204343.1994418-1-briandaniels@google.com>
+ <hJjpGSIl7zQxFjql7x9Ooc1a5OsyIEnxXsz6gynzk3FL45qMJ5wlAkygV66lmz7Gtg56uSrkn6MDlzukDS4O8A==@protonmail.internalid>
+ <20260622204343.1994418-2-briandaniels@google.com>
+From: Bryan O'Donoghue <bod@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=bod@kernel.org; keydata=
+ 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
+In-Reply-To: <20260622204343.1994418-2-briandaniels@google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
 
-When transmission fails in virtio_transport_send_pkt_info, the msg_iter
-might have been partially advanced. If we don't restore it, the next
-attempt to send data will use an incorrect iterator state, leading to
-desync and warnings like "send_pkt() returns 0, but X expected".
+On 22/06/2026 21:43, Brian Daniels wrote:
+> +	u32 __reserved;
 
-Specifically, this can happen in the following scenario, triggered by
-the syzkaller repro:
+Knowing ~ nothing about virtio with ~ no experience of it I'll offer up 
+a question/statement anyway.
 
-1. A write-only VMA (PROT_WRITE only) is partially populated by a
-   prior TUN write that failed with -EIO but still faulted in some
-   pages).
-2. A vsock sendmmsg call with MSG_ZEROCOPY requests transmission of a
-   buffer from this VMA.
-3. The first packet (64KB) is sent successfully because the pages are
-   populated.
-4. The second packet allocation fails because GUP fast pins the first page
-   but GUP slow fails on the next unpopulated page due to PROT_WRITE-only
-   permissions.
-5. The iterator is advanced by the partially successful GUP (68KB total
-   advanced: 64KB from first packet + 4KB from second), but the send loop
-   breaks and only reports 64KB sent. This creates a 4KB desync.
-6. The next retry starts with a non-zero iov_offset, disabling zerocopy
-   and falling back to copy mode.
-7. In copy mode, the transmission succeeds for the next packets but
-   exhausts the iterator early because of the desync.
-8. The final retry sees an empty iterator but zerocopy is re-enabled
-   (offset resets). It attempts to send the remaining bytes with zerocopy
-   but pins 0 pages, creating an empty packet.
-9. The transport sends the empty packet, triggering the warning because
-   the returned bytes (header only) do not match the expected payload size.
-10. The loop continues to spin, allocating ubuf_info each time, eventually
-    exhausting sysctl_optmem_max and returning -ENOMEM to userspace.
+Aren't your reservations here a bit conservative ? Would you not be well 
+advised to reserve a bit more space per other virtio protocols ?
 
-Restore msg_iter to its original state before the packet allocation
-and transmission attempt if they fail.
+➜   grep reserved ./include/uapi/linux/*.h | grep virtio
+./include/uapi/linux/virtio_balloon.h: *         __u8 reserved[6];
+./include/uapi/linux/virtio_balloon.h: * In other words, add explicit 
+reserved fields to align field and
+./include/uapi/linux/virtio_blk.h:      __u8 reserved[38];
+./include/uapi/linux/virtio_blk.h:      __u8 reserved[56];
+./include/uapi/linux/virtio_config.h: * VIRTIO_TRANSPORT_F_END are 
+reserved for the transport
+./include/uapi/linux/virtio_crypto.h:   __le32 reserved;
+./include/uapi/linux/virtio_i2c.h: * Copyright (c) 2021 Intel 
+Corporation. All rights reserved.
+./include/uapi/linux/virtio_input.h:    __u8    reserved[5];
+./include/uapi/linux/virtio_iommu.h:    __u8 
+        reserved[3];
+./include/uapi/linux/virtio_iommu.h:    __u8 
+        reserved[3];
+./include/uapi/linux/virtio_iommu.h:    __u8 
+        reserved[3];
+./include/uapi/linux/virtio_iommu.h:    __u8 
+        reserved[4];
+./include/uapi/linux/virtio_iommu.h:    __u8 
+        reserved[8];
+./include/uapi/linux/virtio_iommu.h:    __u8 
+        reserved[4];
+./include/uapi/linux/virtio_iommu.h:    __u8 
+        reserved[3];
+./include/uapi/linux/virtio_iommu.h:    __u8 
+        reserved[64];
+./include/uapi/linux/virtio_iommu.h:    __u8 
+        reserved[3];
+./include/uapi/linux/virtio_iommu.h:    __u8 
+        reserved2[4];
+./include/uapi/linux/virtio_net.h:      __le16 reserved[4];
+./include/uapi/linux/virtio_net.h:      __le16 reserved;
+./include/uapi/linux/virtio_net.h:              __le16 reserved[3];
+./include/uapi/linux/virtio_net.h:      __u8 reserved;
+./include/uapi/linux/virtio_net.h:      __le16 reserved1;
+./include/uapi/linux/virtio_pcidev.h: * @VIRTIO_PCIDEV_OP_RESERVED: 
+reserved to catch errors
+./include/uapi/linux/virtio_pcidev.h: * @reserved: reserved
+./include/uapi/linux/virtio_pcidev.h:   __u16 reserved;
+./include/uapi/linux/virtio_pci.h:      * 2-65535 - reserved
+./include/uapi/linux/virtio_pci.h:      /* Unused, reserved for future 
+extensions. */
+./include/uapi/linux/virtio_pci.h:      __u8 reserved1[12];
+./include/uapi/linux/virtio_pci.h:      /* Unused, reserved for future 
+extensions. */
+./include/uapi/linux/virtio_pci.h:      __u8 reserved2[4];
+./include/uapi/linux/virtio_pci.h:      __u8 reserved[7];
+./include/uapi/linux/virtio_pci.h:      __u8 reserved[6];
+./include/uapi/linux/virtio_pci.h:      __u8 reserved[6];
+./include/uapi/linux/virtio_pci.h:      __u8 reserved[2];
+./include/uapi/linux/virtio_pci.h:      __u8 reserved[7];
+./include/uapi/linux/virtio_pci.h:      __u8 reserved[7];
+./include/uapi/linux/virtio_pci.h:      __u8 reserved;
+./include/uapi/linux/virtio_pci.h:                      __le32 reserved;
+./include/uapi/linux/virtio_pci.h:                      __u8 reserved[6];
+./include/uapi/linux/virtio_pci.h:                      __le32 reserved;
+./include/uapi/linux/virtio_pci.h:                      __le32 reserved;
+./include/uapi/linux/virtio_pci.h:                      __le32 reserved;
+./include/uapi/linux/virtio_pci.h:      __u8 reserved[7];
+./include/uapi/linux/virtio_rtc.h: * Copyright (c) 2024 Qualcomm 
+Innovation Center, Inc. All rights reserved.
+./include/uapi/linux/virtio_rtc.h:      __u8 reserved[6];
+./include/uapi/linux/virtio_rtc.h:      __u8 reserved[7];
+./include/uapi/linux/virtio_rtc.h:      __u8 reserved[6];
+./include/uapi/linux/virtio_rtc.h:      __u8 reserved[6];
+./include/uapi/linux/virtio_rtc.h:      __u8 reserved[5];
+./include/uapi/linux/virtio_rtc.h:      __u8 reserved[6];
+./include/uapi/linux/virtio_rtc.h:      __u8 reserved[6];
+./include/uapi/linux/virtio_rtc.h:      __u8 reserved[5];
+./include/uapi/linux/virtio_rtc.h:      __u8 reserved[5];
+./include/uapi/linux/virtio_rtc.h:      __u8 reserved[7];
+./include/uapi/linux/virtio_rtc.h:      __u8 reserved[6];
+./include/uapi/linux/virtio_rtc.h:      __u8 reserved[7];
+./include/uapi/linux/virtio_rtc.h:      __u8 reserved[5];
+./include/uapi/linux/virtio_rtc.h:      __u8 reserved[5];
+./include/uapi/linux/virtio_rtc.h:      __u8 reserved[6];
+./include/uapi/linux/virtio_spi.h: * Copyright (C) 2025 Qualcomm 
+Innovation Center, Inc. All rights reserved.
+./include/uapi/linux/virtio_spi.h: *   other bits are reserved as 0, 
+1-bit transfer is always supported.
+./include/uapi/linux/virtio_spi.h: *   other bits are reserved as 0, 
+1-bit transfer is always supported.
+./include/uapi/linux/virtio_spi.h: * @reserved: for future use.
+./include/uapi/linux/virtio_spi.h:      __u8 reserved[3];+      u32 
+__reserved;
 
-Fixes: e0718bd82e27 ("vsock: enable setting SO_ZEROCOPY")
-Reported-by: syzbot+28e5f3d207b14bae122a@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=28e5f3d207b14bae122a
-Assisted-by: gemini:gemini-3.1-pro
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-Signed-off-by: Octavian Purdila <tavip@google.com>
 ---
- net/vmw_vsock/virtio_transport_common.c | 13 +++++++++++++
- 1 file changed, 13 insertions(+)
-
-diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-index 09475007165b3..35fd4094d771d 100644
---- a/net/vmw_vsock/virtio_transport_common.c
-+++ b/net/vmw_vsock/virtio_transport_common.c
-@@ -295,6 +295,7 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
- 	u32 max_skb_len = VIRTIO_VSOCK_MAX_PKT_BUF_SIZE;
- 	u32 src_cid, src_port, dst_cid, dst_port;
- 	const struct virtio_transport *t_ops;
-+	struct iov_iter_state msg_iter_state;
- 	struct virtio_vsock_sock *vvs;
- 	struct ubuf_info *uarg = NULL;
- 	u32 pkt_len = info->pkt_len;
-@@ -368,8 +369,17 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
- 		struct sk_buff *skb;
- 		size_t skb_len;
- 
-+		/* Save iterator state in case allocation or transmission fails
-+		 * so we can restore it and retry.
-+		 */
-+		if (info->msg)
-+			iov_iter_save_state(&info->msg->msg_iter, &msg_iter_state);
-+
- 		skb_len = min(max_skb_len, rest_len);
- 
-+		/* Note: virtio_transport_alloc_skb() can advance info->msg->msg_iter
-+		 * even if it fails (e.g. partial GUP success).
-+		 */
- 		skb = virtio_transport_alloc_skb(info, skb_len, can_zcopy,
- 						 uarg,
- 						 src_cid, src_port,
-@@ -399,6 +409,9 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
- 			break;
- 	} while (rest_len);
- 
-+	if (info->msg && ret < 0)
-+		iov_iter_restore(&info->msg->msg_iter, &msg_iter_state);
-+
- 	virtio_transport_put_credit(vvs, rest_len);
- 
- 	/* msg_zerocopy_realloc() initializes the ubuf_info refcnt to 1.
--- 
-2.55.0.rc0.799.gd6f94ed593-goog
-
+bod
