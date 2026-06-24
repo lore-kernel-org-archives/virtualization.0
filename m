@@ -1,149 +1,186 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f43.google.com (mail-wm1-f43.google.com [209.85.128.43])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 438B63CB2FA
-	for <virtualization@lists.linux.dev>; Wed, 24 Jun 2026 19:53:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7AD783839A8
+	for <virtualization@lists.linux.dev>; Wed, 24 Jun 2026 20:12:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782330828; cv=none; b=ZxAUs/1/S15uUT6zUDGx0lCei2iz+phm4CU9VwpbDjJgsOMtq6ojc6XOQ8Da5GwdvUR2g2pJYgrC75LYt9QekKgAAZjX45vax3/YokvKj5SSoTrcB0eYgYDL6KCAGQznrEhLBE+P8Lm8yDrweRdzFVRNuyTPnD2/Fkm3AG9gwxY=
+	t=1782331952; cv=none; b=HG2NS0w+iplB58MsucfbBS7a7zT6C2SnJNR6xuZcQgoNbKhe64EMwXk8FsiJEiZugkGHS8xzUaPLAPlwYmOl1BjPp8TF5vHmS0W6keXlXpZ0oQpobEdoRWXLT3iyBXh/ZIiwy1K1uOkMBpFysigwcC+tRFjWOuKWS4sT74sVeXQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782330828; c=relaxed/simple;
-	bh=0sw9vdmmHIrg289S7LBhBP3TAeh5HlhPIfC0XvwKSeg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=tHmBNHsuYnNGKJzW4wkK7UJdzRsJrKmYNBN1yRd9N3iZqPycwp/tm+gybcjxBBnB2ibf0StVM4xFYind7Jo2weeXWShSyHfgw+goS7pt0J5kVpGVt8sv2DbsXbLKQbgG/jJTrHs8d77fQa9V2R6cUszh42l4vj9uusQS1sjVeM0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=V8WVZRMs; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1782331952; c=relaxed/simple;
+	bh=YoZxzfoiX8EcBU6UADmbkS4MH0uM9Es49SnxDgSI19k=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=JMOzUpwbULT8EbtvHyle+xBr+/DuWX3Jda4GDwGDxDut5zh8Cdun1mE/wC7MLvN02dewh61aNQ1xRMy9Yh6UotqkTB+SiX+hSY1qe2JTkysAID2zz0IovjFDrja4ZT4u9u/Z2jfT6UClx8c5KkbWsC/SGeZsCMBhgOTmXeU1zvM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=n6sMn9mA; arc=none smtp.client-ip=209.85.128.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="V8WVZRMs"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1782330825;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=hQwXPDQFNRwXTCwtbeb7bS0lb7BdO0SS5von3s4mxo4=;
-	b=V8WVZRMspSKhnefhPoUpqtBnZ3POvCSRgOVMjFHCc1k+uHuVZUoq7o7XA2GYAXFBYQdiCr
-	FK8g+Z0W79mHAZwVIeAnGQhJ6HUhmSQNbut6jwjgZmKiebSZin9qYP9t4jyw1+XVi7oBk7
-	Ma0PbMf65Ip4vuVTxboxQfSkT91yM6k=
-Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
- [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-534-ATY9E0m5Nwe0U5PLm59Hiw-1; Wed, 24 Jun 2026 15:53:43 -0400
-X-MC-Unique: ATY9E0m5Nwe0U5PLm59Hiw-1
-X-Mimecast-MFC-AGG-ID: ATY9E0m5Nwe0U5PLm59Hiw_1782330823
-Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-49244130073so9229825e9.1
-        for <virtualization@lists.linux.dev>; Wed, 24 Jun 2026 12:53:43 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="n6sMn9mA"
+Received: by mail-wm1-f43.google.com with SMTP id 5b1f17b1804b1-490b7866869so12860595e9.2
+        for <virtualization@lists.linux.dev>; Wed, 24 Jun 2026 13:12:29 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1782331948; x=1782936748; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=TtljtMLD5Lx+86GpxRMdGqKBkOQqfEYshOUkEZdK634=;
+        b=n6sMn9mA8ZkFpOilMBA3Q1eMnhfu2CIqc5OHlg2tW7i+V1qsHgvli1P6nW0cxEqpQh
+         t8KRDFcB6QVYbZzw8yLVRC6kYhJE84ZZwFo3/xKjKIEOchiu62VvlWgQcu+O+hOLJAyV
+         V8C5RkYmFWzgGXHQNAwK/25kYVtZGMcxqaUlhLg2QeIQZ4Oh8j1VK8gzvDOe0qF+E6rr
+         nDJKbWOjWx9akpd0lydGnF5haIZGumqiZ1DvOqrdK5GLIbNHEJcWrlfbjPSRRl9i4PDY
+         F9ICPP5ieh3Te26VSvpRDG8HvhOrsoYq1goPLt0eNvFtnRLo+YFOsYhG6MbRdWJUbrsj
+         ULvA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782330822; x=1782935622;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=hQwXPDQFNRwXTCwtbeb7bS0lb7BdO0SS5von3s4mxo4=;
-        b=ezPPIB5Or3GZKj0+Gn21Mpnwl8L+KlUaHE2LXvfi92AmYWQRa/v3tQnL/NVcxLHxiT
-         ORa2pXS55twOPv++AgYJk7/JPzNG1ZnS3BoV8MsdLGV7w2oipJWuzjIpTW/Zz0YxcB5j
-         grtWmETBxp3LOgQbc58UqzcTvKP2MTz47iYz+1wiX4/ZF+w6JLygpoGFIM7pldfMWSQV
-         WGsdJpI9Wk37+uDgvWwNGMkGA+nlg6vD7mUBHEZjE3RuxIQOOSQNuQknDtmi8XbV2+CS
-         /YqA4M30F96AuQGRTQKRppnxKZt9Dw2F/Fpi8z9L0Gn84ShhwI5Px/TE14kEj3Al/+jd
-         lrvQ==
-X-Forwarded-Encrypted: i=1; AFNElJ/4zJtsHLewgmSO6pnRgVXjWVHXjGxSIOWxhZ0bskRwbqSKTD4uujOywJj5K4n9EUrDgstne4+YEf7axi00SQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzQr8gMOyL6sGaIDMcTaTOg6s932Kdee+GJvLon7JyKPLw0phu1
-	WrDHQW0JF+pH9m8A1TBbQP6k/mcRxeayVw9x/mp/9ADExV48bilYkBTwTsHWFRmTiucL6QFFEPn
-	LLcef9UqgFhIYRzbFmrQfkcwk4ONvzCReDK2/ONjOU1w1QnAfmTaQkdrDzFxr8HPkxLf8
-X-Gm-Gg: AfdE7cnNpGPa/iEqFYUfdCcFO6KV79zDsLUAWJOy5nBuimVS1lHZwPlmbMoGsL8vRjW
-	+jX4UV3dH6X8P0FHYbmVlBX0oV9nDxoo2W59RcntSA5qsbThTsyxRl7xei60vngQaSJaqLgnEWB
-	QFR7QcmhSgtt8yq4NatS/22lCf94J/jS5sn+9VUaDBikFiGTLfnuDN1eY8p+cwlN4YiJJm/cGu/
-	Krp5glgvstQFpv6dlpaHlktyPaBjyfatipnBXGPxZWc6BLG0wp012170d7Cm0NwaJBP7A+6BfUu
-	3whtIWIHt4uMt9UHj4ykfDjzTqVklZKQQ4Br4iGqNpSF6P9VivQpABmCkzJxNkZxgch52XrB9kS
-	SsjRSUSkkuP0tTcnjyLnfcsutiBi1HaG/
-X-Received: by 2002:a05:600c:8716:b0:490:e196:eaee with SMTP id 5b1f17b1804b1-4925b359af6mr134949975e9.10.1782330822570;
-        Wed, 24 Jun 2026 12:53:42 -0700 (PDT)
-X-Received: by 2002:a05:600c:8716:b0:490:e196:eaee with SMTP id 5b1f17b1804b1-4925b359af6mr134949745e9.10.1782330822030;
-        Wed, 24 Jun 2026 12:53:42 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-85-71.inter.net.il. [80.230.85.71])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49264011d5fsm16636315e9.1.2026.06.24.12.53.40
+        d=1e100.net; s=20251104; t=1782331948; x=1782936748;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=TtljtMLD5Lx+86GpxRMdGqKBkOQqfEYshOUkEZdK634=;
+        b=jYpK+vI0dKH+/1ANJenboXAxRV+7cml5yAbuzrL8vPElwr6NyvKlxf/XurDUEyihIh
+         kRtrhob9oUz7Es9tfLG7lWgwFulV9IUxEgrhtRZa+YGxuEN1QhqKEQMovV1HfOTKTZbc
+         iA6vqarv3Eh4mmG9aYk6NfMjf8u/FE3lzgZatGDriBDvFhz5S4T9jEXA8DkbkeQo1BsF
+         YaGq1EEgWRxQczWzygCD3MnEQO+Qgs7jqHDB2e5k2d1jMESxH8hR/lCIt3K+R/UGzrzS
+         BWBf2+Rh9pSd6IW5BTZjmyNWm7DPM5VJNV7UuQYr02h07ZEm9aW1Kls0j4pOv3KoDz7H
+         Zrgw==
+X-Gm-Message-State: AOJu0Yyafnlffy75p9bO5X+f+IRMZmOuj/PTmyiUdvCcGbLYfQe7OYKM
+	87+QBcDyuKyR8DhQqLwJGud8sXOPNhEvAzrHTN+NvKH7KbV1Bxy9M2SHSmEI15FC
+X-Gm-Gg: AfdE7ckZqNB5MGShTuGZV06QVQ+hIg+8HGkEEwaAZfGZDtFcJSJWreImF34Wi+qE5/z
+	Ftc1cwatZgbeiyxRAM1wK9Bs2o5AZBwsrE9JpQJO18MPQ6U5MZ0rCO6nxKbg1gTzlQYdoFgvbTW
+	z0s4e1FMtpWtrX2pexf95zshD2GC17m9K27uaHPjaeCZNszyISQxb4tR/sSVDVSJtbWBJd+JtkX
+	5sa2caqwa+cp6X01+v5R9AvPbaDvjVGmO5yROrK4x2ENwu7V9A7p1wbeKbUVAZedOq3nxF5RmTX
+	v9BvocKjpRYOcFxpMxYUSkur/AhEendW4XZRvNnDqrlMJEb8T5OLacRCer1bky35BeARf6JGHqk
+	dO/QdXUIOwhHp63kWD7F9cfXPwa5qnSa95DyMGzMGrKiKtAsjhG1bAhyYgx9PcetwMk3KokXeMg
+	hY+xzqLlzSGYO58OqoIrJY3X7r3C0btsVM2BDH7XZJuNqhHl8QP/Qu+2vSby/VmvkIG8sictQRd
+	saS
+X-Received: by 2002:a05:600c:81c5:b0:492:4ed1:77cf with SMTP id 5b1f17b1804b1-4925b35338bmr109849825e9.11.1782331947642;
+        Wed, 24 Jun 2026 13:12:27 -0700 (PDT)
+Received: from torre-GIGABYTE-B550-AORUS-ELITE-V2 (212.pool95-21-2.static.orange.es. [95.21.2.212])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-46c2279b85csm9032612f8f.28.2026.06.24.13.12.26
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Jun 2026 12:53:41 -0700 (PDT)
-Date: Wed, 24 Jun 2026 15:53:38 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Yousef Alhouseen <alhouseenyousef@gmail.com>
-Cc: Jason Wang <jasowang@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	kvm@vger.kernel.org, virtualization@lists.linux.dev,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] vhost/vdpa: reject overflowing PA map page counts
-Message-ID: <20260624153850-mutt-send-email-mst@kernel.org>
-References: <20260624190653.2893-1-alhouseenyousef@gmail.com>
+        Wed, 24 Jun 2026 13:12:27 -0700 (PDT)
+From: =?UTF-8?q?=C3=93scar=20Meg=C3=ADa=20L=C3=B3pez?= <megia.oscar@gmail.com>
+To: virtualization@lists.linux.dev,
+	linux-kernel-mentees@lists.linux.dev
+Cc: =?UTF-8?q?=C3=93scar=20Meg=C3=ADa=20L=C3=B3pez?= <megia.oscar@gmail.com>
+Subject: [PATCH] drm/qxl: fix use-after-free in qxl_irq_handler on PCI
+Date: Wed, 24 Jun 2026 22:12:18 +0200
+Message-ID: <20260624201218.71628-1-megia.oscar@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260624190653.2893-1-alhouseenyousef@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 6mcSu6kDyhUYTsAmdGAHJWK2QxVvo7bD4Lspyc20IJ4_1782330823
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-On Wed, Jun 24, 2026 at 09:06:53PM +0200, Yousef Alhouseen wrote:
-> vhost_vdpa_pa_map() adds the IOVA page offset to the user-controlled map
-> size before computing the number of pages to pin. If that addition wraps,
-> the code can pin and map fewer pages than the requested IOTLB range.
-> 
-> Reject sizes that overflow the page-count calculation.
+while :; do
+    echo [pci qxl id] > /sys/bus/pci/drivers/qxl/unbind
+    echo [pci qxl id] > /sys/bus/pci/drivers/qxl/bind
+done
 
-You should add "on 32 bit systems" - I do not see how it can
-overflow on 64 bit.
+After a few seconds, it reports:
 
-> Also make the
-> memlock check subtraction-based so a large page count cannot wrap the
-> pinned page total.
+==================================================================
+BUG: KASAN: slab-use-after-free in qxl_irq_handler+0x269/0x2b0
+Read of size 8 at addr ffff888001c6cd48 by task swapper/0/0
 
-I don't see how this can happen at all - pinned_vm is in units of pages.
+CPU: 0 UID: 0 PID: 0 Comm: swapper/0 Not tainted
+     7.1.0-10963-g1a3746ccbb0a #31 PREEMPT(lazy)
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009),
+               BIOS Arch Linux 1.17.0-2-2 04/01/2014
+Call Trace:
+ <IRQ>
+ dump_stack_lvl+0x4d/0x70
+ print_report+0x14b/0x4b0
+ ? __pfx__raw_spin_lock_irqsave+0x10/0x10
+ ? profile_tick+0x56/0x90
+ ? tick_nohz_handler+0x23c/0x5c0
+ kasan_report+0x117/0x140
+ ? qxl_irq_handler+0x269/0x2b0
+ ? qxl_irq_handler+0x269/0x2b0
+ ? __pfx_qxl_irq_handler+0x10/0x10
+ qxl_irq_handler+0x269/0x2b0
+ ? __pfx_qxl_irq_handler+0x10/0x10
+ ? __pfx_qxl_irq_handler+0x10/0x10
+ __handle_irq_event_percpu+0x116/0x450
+ ? __pfx__raw_spin_lock+0x10/0x10
+ handle_irq_event+0xa6/0x1c0
+ handle_fasteoi_irq+0x271/0xb10
+ ? __pfx_handle_fasteoi_irq+0x10/0x10
+ __common_interrupt+0x60/0x130
+ common_interrupt+0x7a/0x90
+ </IRQ>
+ <TASK>
+  asm_common_interrupt+0x26/0x40
+ RIP: 0010:pv_native_safe_halt+0xf/0x20
+ Code: 42 de 00 c3 cc cc cc cc 0f 1f 00 90 90 90 90 90 90 90 90 90
+       90 90 90 90 90 90 90 f3 0f 1e fa eb 07 0f 00 2d a3 cf 20 00
+       fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 66 90
+       90 90 90 90 90
+ RSP: 0018:ffffffffb8207e48 EFLAGS: 00000206
+ RAX: ffff8880b296f000 RBX: ffffffffb82146c0 RCX: 0000000000000001
+ RDX: 0000000000000001 RSI: 0000000000000004 RDI: 0000000000067a04
+ RBP: fffffbfff70428d8 R08: ffffffffb7247e1d R09: 1ffff1100d846202
+ R10: ffffed100d846203 R11: ffffed100d846203 R12: 0000000000000000
+ R13: 0000000000000000 R14: 1ffffffff7040fcd R15: dffffc0000000000
+  ? ct_kernel_exit.constprop.0+0x9d/0xc0
+  default_idle+0x9/0x10
+o  default_idle_call+0x37/0x60
+  do_idle+0x3a8/0x5d0
+  ? __pfx___schedule+0x10/0x10
+  ? __pfx_do_idle+0x10/0x10
+  cpu_startup_entry+0x4e/0x60
+  rest_init+0x11a/0x120
+  start_kernel+0x382/0x390
+  x86_64_start_reservations+0x24/0x30
+  x86_64_start_kernel+0xd6/0xe0
+  common_startup_64+0x13e/0x158
+  </TASK>
 
-> Signed-off-by: Yousef Alhouseen <alhouseenyousef@gmail.com>
-> ---
->  drivers/vhost/vdpa.c | 12 ++++++++++--
->  1 file changed, 10 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-> index ac55275fa..090cb8693 100644
-> --- a/drivers/vhost/vdpa.c
-> +++ b/drivers/vhost/vdpa.c
-> @@ -1102,6 +1102,8 @@ static int vhost_vdpa_pa_map(struct vhost_vdpa *v,
->  	unsigned int gup_flags = FOLL_LONGTERM;
->  	unsigned long npages, cur_base, map_pfn, last_pfn = 0;
->  	unsigned long lock_limit, sz2pin, nchunks, i;
-> +	unsigned long page_offset;
-> +	u64 pinned_vm;
->  	u64 start = iova;
->  	long pinned;
->  	int ret = 0;
-> @@ -1114,7 +1116,12 @@ static int vhost_vdpa_pa_map(struct vhost_vdpa *v,
->  	if (perm & VHOST_ACCESS_WO)
->  		gup_flags |= FOLL_WRITE;
->  
-> -	npages = PFN_UP(size + (iova & ~PAGE_MASK));
-> +	page_offset = iova & ~PAGE_MASK;
-> +	if (size > ULONG_MAX - page_offset) {
-> +		ret = -EINVAL;
-> +		goto free;
-> +	}
-> +	npages = PFN_UP(size + page_offset);
->  	if (!npages) {
->  		ret = -EINVAL;
->  		goto free;
-> @@ -1123,7 +1130,8 @@ static int vhost_vdpa_pa_map(struct vhost_vdpa *v,
->  	mmap_read_lock(dev->mm);
->  
->  	lock_limit = PFN_DOWN(rlimit(RLIMIT_MEMLOCK));
-> -	if (npages + atomic64_read(&dev->mm->pinned_vm) > lock_limit) {
-> +	pinned_vm = atomic64_read(&dev->mm->pinned_vm);
-> +	if (npages > lock_limit || pinned_vm > lock_limit - npages) {
->  		ret = -ENOMEM;
->  		goto unlock;
->  	}
-> -- 
-> 2.54.0
+The qxl_pci_remove() function does not call free_irq(), allowing the IRQ
+handler to fire after the device has been torn down, accessing freed
+memory (qdev->ram_header, qdev->io_base).
+
+I followed these steps to unload driver at link.
+
+Added Disable the device from generating IRQs, Release the IRQ (free_irq())
+at the start of qxl_pci_remove() to ensure no IRQs fire
+after teardown begins.
+
+Added at end Disable the device.
+
+Assisted-by: OpenCode:1.17.8-Big Pickle
+Fixes: 48bd85808443 ("drm/qxl: Convert to Linux IRQ interfaces")
+Signed-off-by: Óscar Megía López <megia.oscar@gmail.com>
+Link: https://www.kernel.org/doc/html/latest/PCI/pci.html
+---
+ drivers/gpu/drm/qxl/qxl_drv.c | 7 +++++++
+ 1 file changed, 7 insertions(+)
+
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
+index 1e6a2392d7c6..1613547c1856 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.c
++++ b/drivers/gpu/drm/qxl/qxl_drv.c
+@@ -154,12 +154,19 @@ static void
+ qxl_pci_remove(struct pci_dev *pdev)
+ {
+ 	struct drm_device *dev = pci_get_drvdata(pdev);
++	struct qxl_device *qdev = to_qxl(dev);
++
++	qdev->ram_header->int_mask = 0;
++	outb(0, qdev->io_base + QXL_IO_UPDATE_IRQ);
++	free_irq(pdev->irq, dev);
++	cancel_work_sync(&qdev->client_monitors_config_work);
+ 
+ 	drm_kms_helper_poll_fini(dev);
+ 	drm_dev_unregister(dev);
+ 	drm_atomic_helper_shutdown(dev);
+ 	if (pci_is_vga(pdev) && pdev->revision < 5)
+ 		vga_put(pdev, VGA_RSRC_LEGACY_IO);
++	pci_disable_device(pdev);
+ }
+ 
+ static void
+-- 
+2.54.0
 
