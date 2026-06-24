@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 424353D47CF;
-	Wed, 24 Jun 2026 14:52:22 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 705703D75B1;
+	Wed, 24 Jun 2026 14:53:02 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782312745; cv=none; b=DeEufWDzh4EHTk/QnJI61VXrxIAkDQo1wop64wc2h/vZRR3Upqe3LoYyFOR6lHrSafyXudLsI12F1vnheu2/Y58lfciePEgUa0xnTuAKP3lDqZWSzaf51T8nTH5xi1qL+E8enn0eOzq4wPi6L5dvq2f1MLqekj9VsCQ0DcsTgFE=
+	t=1782312784; cv=none; b=EzMbtDT9uS5hhBRtkbSrAOhynYSfTjxgqsHp42S8g6V2dEDwpagso2hYm7ChkO5PVGyOZ3CFFaXUleGdm1IrfgrrrGsl1pv6puMPIojBCD9XaYit9QbjxlbG64aOX5Ft12ohFCA03tXRpviXXK49Kt9dKB0Hmk9t6/9SjdTR7L0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782312745; c=relaxed/simple;
-	bh=2d/n0joADn1iy97CEjVPChGeuEk4y6vHC48X7bKi8wM=;
+	s=arc-20240116; t=1782312784; c=relaxed/simple;
+	bh=B30WdM21bQY3PyyWmsXVD/T+4wnS63SD1qh6WOiLq7E=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=H4VnWdnRKZpdBxVbumJU7Y6fGCOjsFM6Rt0swzZTfBfeg3bQDZVg89drsk8WVvA7kHW1gtUL7uVTVRCRBhUw6vlgcQY9hofso3ebTdIq28j+sAXoJWTWaBCE529j0QrTnd/r3J/kH06Fx1jcK8r+TocULk7g5/Qc3IqYpP9dlMU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=dkpnbGRr; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=MXlaZx6dx/DO/3f8BCs5US/U9I1lmtJFFO4zDTMKmb6NVIeBxmWxzw12yvX7ozhcnxK6yZ4VU9njJtvoVLISWY3zX7SI9qtfa3x7fksB/HcLpN3RpSXux2QcZKfmlOFgREIjr2T/De3lZJs5jjSZJTJcwHyRopNBRUBZSlo3JrE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=jID1UCTq; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="dkpnbGRr"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 218711F00A3A;
-	Wed, 24 Jun 2026 14:52:20 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="jID1UCTq"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id BAC141F00A3A;
+	Wed, 24 Jun 2026 14:53:00 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782312742;
-	bh=kKTTfqg+Q5jtSZh5t34RuxvdZIREfU8FZhwEsFY4QLY=;
+	s=k20260515; t=1782312781;
+	bh=0RjRGO1UNYg7Ldc4UsmvgbLzkjLNGdMKndGHj32P+gw=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=dkpnbGRrPSglZLq/hHQ0iGyhEsgT8SamTgbrAjDzPwN6xeA9CCRVuV4bvP4NsPMm0
-	 Hen4c3IsUjzOdeYx4+ZoGhkAUZBJLpY4XI7q1SFkrzQM2LjWyRsJRWGI2+5W6zlF3o
-	 SAm2qLefeibUsXgRnPT/H09/umsGKpBYSzYzYgmFUAtydTu7uMwztbUiNe7EpIOz/b
-	 AGrdTO+WaR0QAivgT3lwpEkq8ZCxaqoDpsCodcoMb14aZm4I6V28FMqhwnF29GGqEn
-	 YIWdwxLLyqp2Z5zBUEtbzfSh0fY6y3lRGsEnDOigx5LEYq3IjrtiSBPJB/srl2FMD7
-	 LXRlhMz8V3bFA==
-Message-ID: <d81b3616-322c-4271-8530-9977aa44cf89@kernel.org>
-Date: Wed, 24 Jun 2026 16:52:19 +0200
+	b=jID1UCTqWx60qTFiS1ZHpFKbOhH2tXN8+622XuL7er5VLOZFMKhIm0kAnjtb0yCK3
+	 SffV6IQ5h2Zuy2EJ/lcrkE/mEEuRqjPdX55xIT2265IGD+dZWGe0aD8br7f4Qm/Hen
+	 IWqRuci6+6hDsVjzrzz6j7lZZnyh8U4KOHm5Cg7gWtQzzuDLo9fb7bp7XTF6OpPkuS
+	 2FwBvb9AMrb94SGyv7buEu+FumvOEOYbyVoM+EmyvysRrdlrzmCEswkiPC1Josjecu
+	 GdhbGsbR6XVEi6mQ18Qap8i00TxjI4om6+y4nm+nLrzK8jRjzeC50uJD89vBp0pCOa
+	 tsfrHzEq5FBrQ==
+Message-ID: <c74ab6ec-7d80-48db-b291-bda3309ec7a6@kernel.org>
+Date: Wed, 24 Jun 2026 16:52:58 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -35,11 +35,11 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/4] virtio: add virtio_device_shutdown() helper
+Subject: Re: [PATCH v2 2/4] virtio_balloon: factor out virtballoon_quiesce()
 To: "Denis V. Lunev" <den@openvz.org>, mst@redhat.com
 Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
 References: <20260624140846.2616797-1-den@openvz.org>
- <20260624140846.2616797-2-den@openvz.org>
+ <20260624140846.2616797-3-den@openvz.org>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -86,25 +86,20 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20260624140846.2616797-2-den@openvz.org>
+In-Reply-To: <20260624140846.2616797-3-den@openvz.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 6/24/26 16:08, Denis V. Lunev wrote:
-> The generic virtio bus .shutdown handler, virtio_dev_shutdown(), breaks
-> and resets a device once it has established that the driver has no
-> .shutdown of its own. A driver that does implement .shutdown, to quiesce
-> its own activity first, still needs the same break and reset afterwards
-> and would otherwise have to open code it.
-> 
-> Factor the break + synchronize_cbs + reset sequence out of
-> virtio_dev_shutdown() into an exported virtio_device_shutdown() helper so
-> such drivers can reuse it instead of duplicating the core logic.
+> virtballoon_remove() stops all of the balloon's asynchronous work (the
+> free page reporting worker, the inflate/deflate and stats workers, the
+> OOM notifier and the free page shrinker) before tearing the device
+> down. A following change needs the same teardown from a .shutdown
+> handler, so move it into a virtballoon_quiesce() helper.
 > 
 > No functional change.
 > 
 > Signed-off-by: Denis V. Lunev <den@openvz.org>
-> ---
 
 Reviewed-by: David Hildenbrand (Arm) <david@kernel.org>
 
