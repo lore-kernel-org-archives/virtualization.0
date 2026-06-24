@@ -1,183 +1,105 @@
-Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB56E2EB856
-	for <virtualization@lists.linux-foundation.org>; Wed, 24 Jun 2026 07:39:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4F9A3AE1A6
+	for <virtualization@lists.linux.dev>; Wed, 24 Jun 2026 12:25:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782286781; cv=none; b=remywBi0XIB8lh23jl8h8iBIdqOSNpDKmJjGnBMK/NPqyggOL8FqPlQF84Rmsq3dZys9HDg2vZWmHO/t+4F/7X7XLaHLLPIhZakKfQYxZghJkS3OHnfxf+vaY6WwIf0QP9ltXCpto/GMWIOIZ57liYy8Hsi0raeL1ctralyGuKg=
+	t=1782303957; cv=none; b=s6qf3qIltIomVLZtyZopE1zc5wRGioUe/n1Q1Yx26xO1y1aejvdAXrwsf6WImP/4sTfjgPfNBgL/csRTrdc0d1oCAlxXWRlxJUdwkzbnsRyx4auRGsLLraKv+d6t0o7DdUW/cfsfMR15uZxdBs2fAlhHqgR6Ht3gMinxZrT+dOY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782286781; c=relaxed/simple;
-	bh=vnscFOV6WuRvFeIi3LRKjrBNK2qubRJ1xPKRYO5I5Hc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=sDvZhq38My+jlMlGZ+Gyz2/bvO3ditPXMFOox20FerEJwiFH92AYYcJ9oGNmr0kkFJ7O5s9E5wUExJ/5HVzWyyZeW6MyvroCcLQEaNZZRy7OUcPExA+zwzbdEUwQymDopaEtwPp69ZgpR+AgukDH2oTK9t5HoTlsDJbxHDAWT7A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=rulkc.org header.i=@rulkc.org header.b=Jgf9Y5iH; arc=none smtp.client-ip=140.211.166.133
+	s=arc-20240116; t=1782303957; c=relaxed/simple;
+	bh=FtFq0WKT4r2lSgaGZvlrvlEpqmrahVg2BRnTRQJ6M7Y=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=okIFGTA7GeKGnJCmBzv0wIJfnW3zpSR5PdejYsvlNJyYF28WaSJ21v/iXf7SHTk9ewbdoPiPbQf7M3hvoQO2V6jjs28GHrMBUD4PHgDzP6dymj1LtOC5avNLPljdgMNJV+t3O9t4sgGPveNT8eAxbMiUf5kk56V1NmPpaKjAy1E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b3Jt4SgU; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=rulkc.org header.i=@rulkc.org header.b="Jgf9Y5iH"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp2.osuosl.org (Postfix) with ESMTP id 67989402A9
-	for <virtualization@lists.linux-foundation.org>; Wed, 24 Jun 2026 07:39:39 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.791
-X-Spam-Level:
-Received: from smtp2.osuosl.org ([127.0.0.1])
- by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id ayQw5ODknH4T for <virtualization@lists.linux-foundation.org>;
- Wed, 24 Jun 2026 07:39:38 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=155.212.184.193; helo=mail.rulkc.org; envelope-from=avkrasnov@rulkc.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 10748401C1
-Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=reject dis=none) header.from=rulkc.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 10748401C1
-Authentication-Results: smtp2.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=rulkc.org header.i=@rulkc.org header.a=rsa-sha256 header.s=dkim header.b=Jgf9Y5iH
-Received: from mail.rulkc.org (mail.rulkc.org [155.212.184.193])
-	by smtp2.osuosl.org (Postfix) with ESMTPS id 10748401C1
-	for <virtualization@lists.linux-foundation.org>; Wed, 24 Jun 2026 07:39:37 +0000 (UTC)
-Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id B951E1006E6;
-	Wed, 24 Jun 2026 10:39:24 +0300 (MSK)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=rulkc.org; s=dkim;
-	t=1782286773; h=from:subject:date:message-id:to:cc:mime-version:content-type:
-	 content-transfer-encoding:content-language:in-reply-to:references;
-	bh=u9d9ugozWzOhiPaIzDooLKLSYvxhBtS1e6crWQlC2t0=;
-	b=Jgf9Y5iHKWrYx21aCp0Kimhb2Uomi1xS4rC4Xq3LcOoc0OLdsnCkiTM83AGI7IFT0SqdPv
-	+teQBCjYWruehFEeciKnkPKEfydO3qB1B0ppeR3HGFEfifvGdq18W4SQSSzuJco8thoOut
-	D6MY2D/IPHPd4itZhEDuwEmqzrpe/5/dpKS2tbVhTwnnKHk44gGQbO4aenlnaToNIeXXTM
-	+pxW5+R5tQzyA5OFrWMS+dHQiYtVF8FXrkU6gdEgEkyMTcynx1xW2D9Twlgf6U737GiAyJ
-	yRaqYMnss1iqjBzYw3HsNgyO0nnpR62z6HJWvmYeq/JyIq5p5D5y6H6/eWNUFg==
-Message-ID: <d2bf1f1f-600d-48f6-8824-b08b4e10cc2a@rulkc.org>
-Date: Wed, 24 Jun 2026 10:39:17 +0300
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b3Jt4SgU"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id C62901F00A3A;
+	Wed, 24 Jun 2026 12:25:54 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1782303955;
+	bh=TQD+wAPfgrJ+We19k8i+bBm5RwCInd87+tkU1eHjd3o=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=b3Jt4SgUAlDImUqrHQSzV+QHSFDH5v2kCOo5b3UylUXkZLqEruvfdDsY4BYlJRn+0
+	 h+gFbOPTY9YKzJj4LwA4jiazI/uFe+YKxuLKv/t21/AKbdBim+sSI97Oz/ARDETanY
+	 13uOgMd1yv+Pu1yLkyVMprDThWSuQh7+HPebTy1FLVcpALK/ggnsG62eTdRrxJw11t
+	 7D7+c80+aKVJ0lMXD2WwMkaiCpA365gK5Tsk4mQU2H3XN2BAk14oIaHCs+6awzBtMP
+	 /04uMk4K9NFAOhQ+pVqtmSqEmWlAXlcvEie5FSeipAdNVjDftF5iDqG56FvTH3z2pd
+	 GmKTBniydw50g==
+Received: from phl-compute-03.internal (phl-compute-03.internal [10.202.2.43])
+	by mailfauth.phl.internal (Postfix) with ESMTP id EF7A7F4008A;
+	Wed, 24 Jun 2026 08:25:53 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-03.internal (MEProxy); Wed, 24 Jun 2026 08:25:53 -0400
+X-ME-Sender: <xms:0cw7akmMatnmq2tN9H9uOaRUKfVYShW2-aodrFzivkNo1sVxI7gdbg>
+    <xme:0cw7agl7GIyaW_2WzXMwTXmCIBvWD3QmeUIcd_xa_6LSzd3_qpGYshNMkbwzBXzaM
+    XTzwM-etXzOKECfWakm5gD9rWnGQXZdIwNILGEGDUJVt8E8KGFO4pip>
+X-ME-Received: <xmr:0cw7aiNDZKcW0vLCHN91zVgqq-LVdIZofYwfqvLZQaal8lcLIPPFFyloV8qx7Q>
+X-ME-Proxy-Cause: dmFkZTGQArAWzBSIqfuCjB0QzONNhA+q1CTAuSMwuEBhzBy/tzZqNdZnhLnrUk/bzcO1Ob
+    qV5IsSKZlnlHEtJlLVg73sfCfTAynNDnYDTF4kwRi+w+FTkK0Cj/188NyX7JkGKPWfnNxe
+    ZM17FZj2tytGZvcbggL5ccIEAiZubQjW2zQ07p6w8z8ORw0594PYKzpLhaAAFoTGFnu7lT
+    mIFyKVlsfgsicOOXIpKoRyBfzhw2QmhbjRQVUl1F5TMPInjH/W7zYT1cpsVHPi/+sVRVBH
+    vqkvswFzfuR86M13twlXL/uVXDyIS9Q4ttcM4JAEe/dw44lKApfjLlgg9VpuTCIqLAFjc8
+    lfAZXsw2ZesBSuqmCqHnfm0szX9ve6I/yW+B6kKyqC0V/2aPyrKzOTeXKquR9ugthq9ZpI
+    2JVQ/bsKwGCEQEXT285scThoRVpDrBEKWa0mVQfEdSFtnvAk4EsophWkKFIkvbjdR+3XfW
+    bilOl6viVL06Aire7DQ7K4tVqWWx8hkt4cbd/EhNP+6iMuaZlLQcahtz650vQao+VKtLj+
+    V1oyDhTU+toFWUL8Bf4o++J3KnmI0+jQ29QFyd0y/KgrxirVQZAYNqfuMBkwYfbX6oEomz
+    1AKR0idZNDijlc7P9LpEqBNH+0d+VkhkmA7R+bHK9i2x+1wGYiRHHdDfjxPw
+X-ME-Proxy: <xmx:0cw7apNiqmuBGIWNhu0Adz4cCweJv7pRzgW9qBjueoSW0oPnMI035w>
+    <xmx:0cw7anFtCs2h1-OX0m5Z57eiGOTvVF5ZcLwPV3fy6KS-Majg8G7kxw>
+    <xmx:0cw7anpjyeIcJSTNOl8d2GmXTYH5_MbZ8vzAOPQxOm_lN03rbqIpog>
+    <xmx:0cw7ak_lKPalAMXZGFhJTidGndG7TjIfwpIW2s9s8w_7w9Y1W69Vpw>
+    <xmx:0cw7aoRGeoI9z0aiA_uA_vVBmVTAAJeCgRJI_Oo5yMkYHuOd8OytQ-cX>
+Feedback-ID: i10464835:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 24 Jun 2026 08:25:51 -0400 (EDT)
+Date: Wed, 24 Jun 2026 13:25:46 +0100
+From: Kiryl Shutsemau <kas@kernel.org>
+To: Zhenzhong Duan <zhenzhong.duan@intel.com>
+Cc: marcandre.lureau@redhat.com, david@kernel.org, 
+	rick.p.edgecombe@intel.com, prsampat@amd.com, pbonzini@redhat.com, mst@redhat.com, 
+	peterx@redhat.com, chenyi.qiang@intel.com, elena.reshetova@intel.com, 
+	michael.roth@amd.com, ackerleytng@google.com, linux-kernel@vger.kernel.org, 
+	linux-coco@lists.linux.dev, virtualization@lists.linux.dev, x86@kernel.org, 
+	yilun.xu@intel.com, xiaoyao.li@intel.com, chao.p.peng@intel.com
+Subject: Re: [RFCv2 PATCH 1/6] efi/unaccepted: Support hotplug memory in
+ unaccepted bitmap via SRAT
+Message-ID: <ajvLaBs62bDoxC3W@thinkstation>
+References: <20260623101739.79695-1-zhenzhong.duan@intel.com>
+ <20260623101739.79695-2-zhenzhong.duan@intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH net-next v3] vsock/virtio: rewrite MSG_ZEROCOPY flag
- handling
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>,
- Stefano Garzarella <sgarzare@redhat.com>,
- "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
- Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
- Jason Wang <jasowang@redhat.com>, Bobby Eshleman <bobbyeshleman@meta.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Simon Horman <horms@kernel.org>, kvm@vger.kernel.org,
- virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, oxffffaa@gmail.com, rulkc@linuxtesting.org
-References: <20260623153819.697635-1-avkrasnov@rulkc.org>
- <20260623132014-mutt-send-email-mst@kernel.org>
-Content-Language: ru
-From: Arseniy Krasnov <avkrasnov@rulkc.org>
-In-Reply-To: <20260623132014-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Last-TLS-Session-Version: TLSv1.3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260623101739.79695-2-zhenzhong.duan@intel.com>
 
+On Tue, Jun 23, 2026 at 06:17:32AM -0400, Zhenzhong Duan wrote:
+> Currently, allocate_unaccepted_bitmap() only scans the initial EFI
+> boot memory map. This misses hotpluggable ranges described in the
+> ACPI SRAT. Without early tracking, hotplug pages are accessed without
+> acceptance and this triggers guest crash.
+> 
+> Introduce a lightweight ACPI SRAT parser to scan these regions early.
+> If a region has both ACPI_SRAT_MEM_ENABLED and ACPI_SRAT_MEM_HOT_PLUGGABLE
+> flags, expand the tracking boundaries. This avoids pulling in the full
+> ACPI subsystem while ensuring the bitmap covers both static memory and
+> hotplug memory.
 
-6/23/26 20:26, Michael S. Tsirkin wrote:
-> On Tue, Jun 23, 2026 at 06:38:19PM +0300, Arseniy Krasnov wrote:
->> Logically it was based on TCP implementation, so to make further support
->> easier, rewrite it in the TCP way (like in 'tcp_sendmsg_locked()'). This
->> patch only rewrites flag handling (e.g. it doesn't change logic).
->>
->> Signed-off-by: Arseniy Krasnov <avkrasnov@rulkc.org>
->
-> It seems to change logic though:
->
->> ---
->>  Changelog v1->v2:
->>  * Rebase on last 'net-next'. Don't need 'skb_zcopy_set()' now - it was
->>    already added.
->>  Changelog v2->v3:
->>  * Update commit message.
->>  * Remove one empty line.
->>
->>  net/vmw_vsock/virtio_transport_common.c | 47 ++++++++++++-------------
->>  1 file changed, 22 insertions(+), 25 deletions(-)
->>
->> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->> index 09475007165b..41c2a0b82a8e 100644
->> --- a/net/vmw_vsock/virtio_transport_common.c
->> +++ b/net/vmw_vsock/virtio_transport_common.c
->> @@ -328,38 +328,35 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
->>  	if (pkt_len == 0 && info->op == VIRTIO_VSOCK_OP_RW)
->>  		return pkt_len;
->>  
->> -	if (info->msg) {
->> -		/* If zerocopy is not enabled by 'setsockopt()', we behave as
->> -		 * there is no MSG_ZEROCOPY flag set.
->> +	if (info->msg && (info->msg->msg_flags & MSG_ZEROCOPY)) {
->> +		/* If 'info->msg' is not NULL, this is only VIRTIO_VSOCK_OP_RW.
->> +		 * 'MSG_ZEROCOPY' flag handling here is based on the same flag
->> +		 * handling from 'tcp_sendmsg_locked()'.
->>  		 */
->> -		if (!sock_flag(sk_vsock(vsk), SOCK_ZEROCOPY))
->> -			info->msg->msg_flags &= ~MSG_ZEROCOPY;
-> So previously without SOCK_ZEROCOPY, MSG_ZEROCOPY was always ignored...
->
->
->> +		if (info->msg->msg_ubuf) {
->> +			uarg = info->msg->msg_ubuf;
->> +			can_zcopy = virtio_transport_can_zcopy(t_ops, info, pkt_len);
-> now it's not in this case?
+Ugh.. Parsing SRAT there is ugly. I would rather avoid it.
 
-Yes, this case is currently for io_uring only, because io_uring doesn't set SOCK_ZEROCOPY to perform zerocopy transmission.
+Do I understand correctly that we don't have a way represent pluggable,
+but not present memory in EFI memory map?
 
->
->
-> Maybe the right call, but saying "does not change logic" seems wrong.
+IIUC, EFI_MEMORY_HOT_PLUGGABLE is actually present, but unpluggable
+memory.
 
-Agree, I need to update commit message again :)
+Maybe it would be better just allocate bitmap upto maxmem?
 
-Thanks
+And fix EFI spec to add pluggable-but-not-present attribute.
 
->
->
->> +		} else if (sock_flag(sk_vsock(vsk), SOCK_ZEROCOPY)) {
->> +			uarg = msg_zerocopy_realloc(sk_vsock(vsk), pkt_len,
->> +						    NULL, false);
->> +			if (!uarg) {
->> +				virtio_transport_put_credit(vvs, pkt_len);
->> +				return -ENOMEM;
->> +			}
->>  
->> -		if (info->msg->msg_flags & MSG_ZEROCOPY)
->>  			can_zcopy = virtio_transport_can_zcopy(t_ops, info, pkt_len);
->> +			if (!can_zcopy)
->> +				uarg_to_msgzc(uarg)->zerocopy = 0;
->>  
->> +			have_uref = true;
->> +		}
->> +
->> +		/* 'can_zcopy' means that this transmission will be
->> +		 * in zerocopy way (e.g. using 'frags' array).
->> +		 */
->>  		if (can_zcopy)
->>  			max_skb_len = min_t(u32, VIRTIO_VSOCK_MAX_PKT_BUF_SIZE,
->>  					    (MAX_SKB_FRAGS * PAGE_SIZE));
->> -
->> -		if (info->msg->msg_flags & MSG_ZEROCOPY &&
->> -		    info->op == VIRTIO_VSOCK_OP_RW) {
->> -			uarg = info->msg->msg_ubuf;
->> -
->> -			if (!uarg) {
->> -				uarg = msg_zerocopy_realloc(sk_vsock(vsk),
->> -							    pkt_len, NULL, false);
->> -				if (!uarg) {
->> -					virtio_transport_put_credit(vvs, pkt_len);
->> -					return -ENOMEM;
->> -				}
->> -
->> -				if (!can_zcopy)
->> -					uarg_to_msgzc(uarg)->zerocopy = 0;
->> -
->> -				have_uref = true;
->> -			}
->> -		}
->>  	}
->>  
->>  	rest_len = pkt_len;
->> -- 
->> 2.25.1
+-- 
+  Kiryl Shutsemau / Kirill A. Shutemov
