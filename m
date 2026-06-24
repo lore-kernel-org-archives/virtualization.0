@@ -1,140 +1,183 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from smtp2.osuosl.org (smtp2.osuosl.org [140.211.166.133])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 94E6B388E50
-	for <virtualization@lists.linux.dev>; Wed, 24 Jun 2026 07:08:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB56E2EB856
+	for <virtualization@lists.linux-foundation.org>; Wed, 24 Jun 2026 07:39:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.133
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782284913; cv=none; b=I1Z4HWhNCH+Nc9Asils7SPOeclJDY9lfsbMT41PXu52zWPzbqXf/gOSdXuIBn6XPfVYg+4FhPqKt0j7N3MMlVbVNBkuKg+coCauQiVi0aQvz/PmKZ0qzoWcxzH80zLQUaDgyeFL2z6dcUzX8ufM6BlZ4FweF18xsdTkvPhwpCyQ=
+	t=1782286781; cv=none; b=remywBi0XIB8lh23jl8h8iBIdqOSNpDKmJjGnBMK/NPqyggOL8FqPlQF84Rmsq3dZys9HDg2vZWmHO/t+4F/7X7XLaHLLPIhZakKfQYxZghJkS3OHnfxf+vaY6WwIf0QP9ltXCpto/GMWIOIZ57liYy8Hsi0raeL1ctralyGuKg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782284913; c=relaxed/simple;
-	bh=xxRwD872hAY7e9+wcKaMu2M9Gp5015MokzS33Hl3FeQ=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=hH2ZaBFFO17fB17zXL2D+wUlDR+7fEEERAHd7OrCkFe0geG2k2/NFhVSC8chNOj2IF/x/pYQAQ1XLeOAIyHWN13xcGZymQVgqQXVBLIeiAWh5vHEX7SHyqqvosYw3v5l+VfuIEl7w54kj0rkXzriW7tGr0+PBkAYqwcNalXnsmA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Z+BG+dT+; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1782286781; c=relaxed/simple;
+	bh=vnscFOV6WuRvFeIi3LRKjrBNK2qubRJ1xPKRYO5I5Hc=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=sDvZhq38My+jlMlGZ+Gyz2/bvO3ditPXMFOox20FerEJwiFH92AYYcJ9oGNmr0kkFJ7O5s9E5wUExJ/5HVzWyyZeW6MyvroCcLQEaNZZRy7OUcPExA+zwzbdEUwQymDopaEtwPp69ZgpR+AgukDH2oTK9t5HoTlsDJbxHDAWT7A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=rulkc.org header.i=@rulkc.org header.b=Jgf9Y5iH; arc=none smtp.client-ip=140.211.166.133
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Z+BG+dT+"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1782284911;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=SOVdOpEBfLtfj8+28uRc5uJ//FeD3/0uqHv5rRdyHRo=;
-	b=Z+BG+dT+OKUcYXx4pNxEAJbz/7uOfClvFsr5wcjQi1rlPxMSUNGOHrMeNN0YLfx5L/MjOT
-	YxxLVxYJNhQZyokjtDKnvmKwwQ51CH+W35kdtGUPLW3WtGPhEvNyHpkIEhMT0l0qPVUX5b
-	dZJhO898lKGr7KRKT7qP3WSdd8Yc5nU=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-529-xetlENbcPaCNX4eIFAkuGw-1; Wed, 24 Jun 2026 03:08:30 -0400
-X-MC-Unique: xetlENbcPaCNX4eIFAkuGw-1
-X-Mimecast-MFC-AGG-ID: xetlENbcPaCNX4eIFAkuGw_1782284909
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-490cc1ae292so4158425e9.1
-        for <virtualization@lists.linux.dev>; Wed, 24 Jun 2026 00:08:30 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782284909; x=1782889709;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=SOVdOpEBfLtfj8+28uRc5uJ//FeD3/0uqHv5rRdyHRo=;
-        b=RgQrDBt2PejhIMk3N74mpEJUqiD3PKnO3oMwEpM1eJ0Hw0mrjA+FLqy+MjD0aXR7Ol
-         T0raLOM8N3rgK+G/A9MeANvNcz/LbNID1T+jnH74K83Lrol4sz3tfELpNvQ8DDDBiuhj
-         yGEYbSH+xEGM5/49+zijj/oJu68h3HhseESZF2d0NGSdYV7khCm7SjxcfLMtiQ40dtZ1
-         x7mB8Z8QvvUQSN+iNYsf7RpwT2aJNjy0ogefnJ4/+pn0NSf/soNJ8k3E4RRm92OyiZ9H
-         c6KR5QanTyQgUdq11xZAUERIj3G76gNJfX6qFcWXeHemgcKvXu7c+EjqUfBtSh7cLUJ6
-         OblA==
-X-Forwarded-Encrypted: i=1; AFNElJ/keChtdnglp6GhB9Fhk4vkpctUAEMg+4YeAcTdpqGT6duDEbn9Shrn7n3JQYuq5wbQBbvE3depBwTM1y/xUA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzlRIvDgAGz4Zlghh9E0XnEUE2paS3uTnCzcupkPttT9ucUVsqQ
-	NYvF22biv34y5FWVfsv1KBryImjL/gVGrqYMMDIPa/CwzqoXhPa8c0PRneu7HdaTZ/waHmF+c8e
-	G9s5oreGx2sD3gV8H6kEUR60T81ldA87Mb40iBFT2VHe9xyB7j+Iu71awcH2tqqr1RuEfpNvK/W
-	rR
-X-Gm-Gg: AfdE7ckNlGOhIq5QLdfzNx4Dcvcr3AzT89e7ks7geHVuSLapQSSMvOFWJ6nH7HbBBnx
-	BOSFj9Peg9qHhcmsDN46I7shIOMhV1Fks7sTEqOP+mE5ZIsXP557lo74uJzhMWoo0xkunv79x4Q
-	0ml5KFLemZJvgdGeJZ4e4mAznEj0rxRS5811vSUm3qtisnxXuNxcwcGGL1y4SwB/ia4fqz20z/U
-	I5+p0iVJ6XoIuzJo5rUBgQ7CADv9GcNfIdxiguidBKZVWR96rPicHUcG75w7hdGSKU36wOFMdua
-	/naQsw68zJJ8GRcZklvucjBAaw9P65C+SPIsSnKA9YMr63sFwC/XqVymtjq/QWYl2k8nIIMtJoY
-	Ar2BJLU4Z4rFbuffvkYgkb6vQ2rck/sDC
-X-Received: by 2002:a05:600c:3b2a:b0:490:af63:2cb1 with SMTP id 5b1f17b1804b1-4925a0a9b8bmr88810555e9.7.1782284908874;
-        Wed, 24 Jun 2026 00:08:28 -0700 (PDT)
-X-Received: by 2002:a05:600c:3b2a:b0:490:af63:2cb1 with SMTP id 5b1f17b1804b1-4925a0a9b8bmr88809375e9.7.1782284907436;
-        Wed, 24 Jun 2026 00:08:27 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-85-71.inter.net.il. [80.230.85.71])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49260e14d0asm23280535e9.0.2026.06.24.00.08.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Jun 2026 00:08:26 -0700 (PDT)
-Date: Wed, 24 Jun 2026 03:08:24 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Longjun Tang <lange_tang@163.com>
-Cc: xuanzhuo@linux.alibaba.com, jasowang@redhat.com, edumazet@google.com,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	tanglongjun@kylinos.cn
-Subject: Re: [PATCH v3] virtio_net: disable cb when NAPI is busy-polled
-Message-ID: <20260624030656-mutt-send-email-mst@kernel.org>
-References: <20260624070206.85467-1-lange_tang@163.com>
+	dkim=pass (2048-bit key) header.d=rulkc.org header.i=@rulkc.org header.b="Jgf9Y5iH"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp2.osuosl.org (Postfix) with ESMTP id 67989402A9
+	for <virtualization@lists.linux-foundation.org>; Wed, 24 Jun 2026 07:39:39 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.791
+X-Spam-Level:
+Received: from smtp2.osuosl.org ([127.0.0.1])
+ by localhost (smtp2.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id ayQw5ODknH4T for <virtualization@lists.linux-foundation.org>;
+ Wed, 24 Jun 2026 07:39:38 +0000 (UTC)
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=155.212.184.193; helo=mail.rulkc.org; envelope-from=avkrasnov@rulkc.org; receiver=<UNKNOWN> 
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp2.osuosl.org 10748401C1
+Authentication-Results: smtp2.osuosl.org; dmarc=pass (p=reject dis=none) header.from=rulkc.org
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp2.osuosl.org 10748401C1
+Authentication-Results: smtp2.osuosl.org;
+	dkim=pass (2048-bit key, unprotected) header.d=rulkc.org header.i=@rulkc.org header.a=rsa-sha256 header.s=dkim header.b=Jgf9Y5iH
+Received: from mail.rulkc.org (mail.rulkc.org [155.212.184.193])
+	by smtp2.osuosl.org (Postfix) with ESMTPS id 10748401C1
+	for <virtualization@lists.linux-foundation.org>; Wed, 24 Jun 2026 07:39:37 +0000 (UTC)
+Received: from [127.0.0.1] (localhost [127.0.0.1]) by localhost (Mailerdaemon) with ESMTPSA id B951E1006E6;
+	Wed, 24 Jun 2026 10:39:24 +0300 (MSK)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=rulkc.org; s=dkim;
+	t=1782286773; h=from:subject:date:message-id:to:cc:mime-version:content-type:
+	 content-transfer-encoding:content-language:in-reply-to:references;
+	bh=u9d9ugozWzOhiPaIzDooLKLSYvxhBtS1e6crWQlC2t0=;
+	b=Jgf9Y5iHKWrYx21aCp0Kimhb2Uomi1xS4rC4Xq3LcOoc0OLdsnCkiTM83AGI7IFT0SqdPv
+	+teQBCjYWruehFEeciKnkPKEfydO3qB1B0ppeR3HGFEfifvGdq18W4SQSSzuJco8thoOut
+	D6MY2D/IPHPd4itZhEDuwEmqzrpe/5/dpKS2tbVhTwnnKHk44gGQbO4aenlnaToNIeXXTM
+	+pxW5+R5tQzyA5OFrWMS+dHQiYtVF8FXrkU6gdEgEkyMTcynx1xW2D9Twlgf6U737GiAyJ
+	yRaqYMnss1iqjBzYw3HsNgyO0nnpR62z6HJWvmYeq/JyIq5p5D5y6H6/eWNUFg==
+Message-ID: <d2bf1f1f-600d-48f6-8824-b08b4e10cc2a@rulkc.org>
+Date: Wed, 24 Jun 2026 10:39:17 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260624070206.85467-1-lange_tang@163.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: jHzwWCsoF_kCdnYuG9PRXYxwfxHxL2PJNgwcW7IF6c0_1782284909
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v3] vsock/virtio: rewrite MSG_ZEROCOPY flag
+ handling
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Stefan Hajnoczi <stefanha@redhat.com>,
+ Stefano Garzarella <sgarzare@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>,
+ Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+ Jason Wang <jasowang@redhat.com>, Bobby Eshleman <bobbyeshleman@meta.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, Simon Horman <horms@kernel.org>, kvm@vger.kernel.org,
+ virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org, oxffffaa@gmail.com, rulkc@linuxtesting.org
+References: <20260623153819.697635-1-avkrasnov@rulkc.org>
+ <20260623132014-mutt-send-email-mst@kernel.org>
+Content-Language: ru
+From: Arseniy Krasnov <avkrasnov@rulkc.org>
+In-Reply-To: <20260623132014-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Last-TLS-Session-Version: TLSv1.3
 
-On Wed, Jun 24, 2026 at 03:02:06PM +0800, Longjun Tang wrote:
-> From: Longjun Tang <tanglongjun@kylinos.cn>
-> 
-> When busy-poll is active, napi_schedule_prep() returns false in
-> virtqueue_napi_schedule(), so virtqueue_disable_cb() is skipped.
-> The device may keep firing irqs until reaches virtqueue_napi_complete().
-> Under load (received == budget), it will lead to a large number
-> of spurious interrupts.
-> 
-> Fix it by disabling the callback at the virtnet_poll() entry. This keeps
-> the callback off while we poll and re-enable
 
-and it is re-enabled
+6/23/26 20:26, Michael S. Tsirkin wrote:
+> On Tue, Jun 23, 2026 at 06:38:19PM +0300, Arseniy Krasnov wrote:
+>> Logically it was based on TCP implementation, so to make further support
+>> easier, rewrite it in the TCP way (like in 'tcp_sendmsg_locked()'). This
+>> patch only rewrites flag handling (e.g. it doesn't change logic).
+>>
+>> Signed-off-by: Arseniy Krasnov <avkrasnov@rulkc.org>
+>
+> It seems to change logic though:
+>
+>> ---
+>>  Changelog v1->v2:
+>>  * Rebase on last 'net-next'. Don't need 'skb_zcopy_set()' now - it was
+>>    already added.
+>>  Changelog v2->v3:
+>>  * Update commit message.
+>>  * Remove one empty line.
+>>
+>>  net/vmw_vsock/virtio_transport_common.c | 47 ++++++++++++-------------
+>>  1 file changed, 22 insertions(+), 25 deletions(-)
+>>
+>> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>> index 09475007165b..41c2a0b82a8e 100644
+>> --- a/net/vmw_vsock/virtio_transport_common.c
+>> +++ b/net/vmw_vsock/virtio_transport_common.c
+>> @@ -328,38 +328,35 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+>>  	if (pkt_len == 0 && info->op == VIRTIO_VSOCK_OP_RW)
+>>  		return pkt_len;
+>>  
+>> -	if (info->msg) {
+>> -		/* If zerocopy is not enabled by 'setsockopt()', we behave as
+>> -		 * there is no MSG_ZEROCOPY flag set.
+>> +	if (info->msg && (info->msg->msg_flags & MSG_ZEROCOPY)) {
+>> +		/* If 'info->msg' is not NULL, this is only VIRTIO_VSOCK_OP_RW.
+>> +		 * 'MSG_ZEROCOPY' flag handling here is based on the same flag
+>> +		 * handling from 'tcp_sendmsg_locked()'.
+>>  		 */
+>> -		if (!sock_flag(sk_vsock(vsk), SOCK_ZEROCOPY))
+>> -			info->msg->msg_flags &= ~MSG_ZEROCOPY;
+> So previously without SOCK_ZEROCOPY, MSG_ZEROCOPY was always ignored...
+>
+>
+>> +		if (info->msg->msg_ubuf) {
+>> +			uarg = info->msg->msg_ubuf;
+>> +			can_zcopy = virtio_transport_can_zcopy(t_ops, info, pkt_len);
+> now it's not in this case?
 
-> by virtqueue_napi_complete()
-> when going idle.
-> 
-> Fixes: ceef438d613f ("virtio_net: remove custom busy_poll")
-> Acked-by: Michael S. Tsirkin <mst@redhat.com>
-> Signed-off-by: Longjun Tang <tanglongjun@kylinos.cn>
-> 
-> ---
-> V1 -> V2: Remain agnostic to busy polling
-> V2 -> V3: Add fixes tag
-> ---
->  drivers/net/virtio_net.c | 5 +++++
->  1 file changed, 5 insertions(+)
-> 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index f4adcfee7a80..0a11f2b32500 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -3008,6 +3008,11 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
->  	unsigned int xdp_xmit = 0;
->  	bool napi_complete;
->  
-> +	/* Keep callbacks suppressed for the duration of this poll,
-> +	 * busy-poll need.
+Yes, this case is currently for io_uring only, because io_uring doesn't set SOCK_ZEROCOPY to perform zerocopy transmission.
 
-I don't know what "busy-poll need" means. Just drop this part?
-In fact, the whole comment can go, we know virtqueue_disable_cb
-disables callbacks.
+>
+>
+> Maybe the right call, but saying "does not change logic" seems wrong.
 
-> +	 */
-> +	virtqueue_disable_cb(rq->vq);
-> +
->  	virtnet_poll_cleantx(rq, budget);
->  
->  	received = virtnet_receive(rq, budget, &xdp_xmit);
-> -- 
-> 2.43.0
+Agree, I need to update commit message again :)
 
+Thanks
+
+>
+>
+>> +		} else if (sock_flag(sk_vsock(vsk), SOCK_ZEROCOPY)) {
+>> +			uarg = msg_zerocopy_realloc(sk_vsock(vsk), pkt_len,
+>> +						    NULL, false);
+>> +			if (!uarg) {
+>> +				virtio_transport_put_credit(vvs, pkt_len);
+>> +				return -ENOMEM;
+>> +			}
+>>  
+>> -		if (info->msg->msg_flags & MSG_ZEROCOPY)
+>>  			can_zcopy = virtio_transport_can_zcopy(t_ops, info, pkt_len);
+>> +			if (!can_zcopy)
+>> +				uarg_to_msgzc(uarg)->zerocopy = 0;
+>>  
+>> +			have_uref = true;
+>> +		}
+>> +
+>> +		/* 'can_zcopy' means that this transmission will be
+>> +		 * in zerocopy way (e.g. using 'frags' array).
+>> +		 */
+>>  		if (can_zcopy)
+>>  			max_skb_len = min_t(u32, VIRTIO_VSOCK_MAX_PKT_BUF_SIZE,
+>>  					    (MAX_SKB_FRAGS * PAGE_SIZE));
+>> -
+>> -		if (info->msg->msg_flags & MSG_ZEROCOPY &&
+>> -		    info->op == VIRTIO_VSOCK_OP_RW) {
+>> -			uarg = info->msg->msg_ubuf;
+>> -
+>> -			if (!uarg) {
+>> -				uarg = msg_zerocopy_realloc(sk_vsock(vsk),
+>> -							    pkt_len, NULL, false);
+>> -				if (!uarg) {
+>> -					virtio_transport_put_credit(vvs, pkt_len);
+>> -					return -ENOMEM;
+>> -				}
+>> -
+>> -				if (!can_zcopy)
+>> -					uarg_to_msgzc(uarg)->zerocopy = 0;
+>> -
+>> -				have_uref = true;
+>> -			}
+>> -		}
+>>  	}
+>>  
+>>  	rest_len = pkt_len;
+>> -- 
+>> 2.25.1
