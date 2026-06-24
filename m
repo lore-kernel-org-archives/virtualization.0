@@ -1,188 +1,123 @@
-Received: from mail-oa1-f46.google.com (mail-oa1-f46.google.com [209.85.160.46])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A269E378803
-	for <virtualization@lists.linux.dev>; Wed, 24 Jun 2026 17:22:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.46
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782321748; cv=pass; b=ZzwqxheBAHn4sqXtWLap/Kyf1luYmTgiHatbEn+cBi+U5TNru3N8osMhVgvqKPvipf0yXEPbk+eA6KF+rcIJ8qXptJ+jgHqcrM48TU7Ec0h/SpDV7eNDsRCROqCH5GxdfK9bkDRcE4jM/6ZrH9e/fF25xleDzPseG+AJNxaDRdg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782321748; c=relaxed/simple;
-	bh=Oc/eY5jh1sixVZt7TvGpIpQcD6r6ROfPjIuguTla2ts=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=l3iSdKVNWLPo1XyhMMHno6FrGM75++lzwhGOWE6xPE7xDuQRLVlwg2UWNDXSTsyiMgdNEKh2wj00cITRCFpMFHt4o03n6HGmNQpnOEMRF4u9T4GCnp30vFb8oBmjnIeTWPHI9bJk27Tz8Y7tumpyoCobL4OGJuZQRERK5ZWWf0E=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=am2p5v/o; arc=pass smtp.client-ip=209.85.160.46
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEE3B31E85B
+	for <virtualization@lists.linux.dev>; Wed, 24 Jun 2026 18:33:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782325997; cv=none; b=G9PzpZKZ0V8aRhCskcIb+HJ/wmLMEftiWB++9OgXZGDuOQKRsaFfXW7u+3+aPmGMHcCq18DXpIMA0SO+D8IqxFLWAo3IwDtq9VEcZdBBPPxsFiVlWfL8kz5NqT6r4M0kh52i60as2JCvfO/DHf1WTVaabiz1VKYow/+du7NTdeY=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782325997; c=relaxed/simple;
+	bh=d6SS2hdmFREsNjmOmyRiyLOoyxKlUipWPae5EI0+XTc=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=MCriymi+w5xR8NcjawvkrFkAThW7BhQFFbOn8AF+loBFtm1JDqVvHcbTpArdHyf74VNa3lY1XIjUuJ1Hjb1UofdGhCCyXsLBotG3PkpBbVeqJ0qA8UDaOBrTq6O/bRU769Q0EMDSO3cMCpTfy+VVam0sKU33ZPswNkcRu0py0Z8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OsfGCa6K; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="am2p5v/o"
-Received: by mail-oa1-f46.google.com with SMTP id 586e51a60fabf-44192448b56so563620fac.2
-        for <virtualization@lists.linux.dev>; Wed, 24 Jun 2026 10:22:26 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1782321745; cv=none;
-        d=google.com; s=arc-20240605;
-        b=QULhQUvFg5TJzs56SBE2XHe+WxLnbIkIu2Lo8GVf3BO7JZB0FQWR4vI5gPfr1vF/bH
-         89YLvucsL6TIoJ6xi09aG8KMT8yAQEePtA9FcR6lLD4h22rqDPCbfpfSnyKQ2MRYY+gE
-         tTrUyVYagYOdnaLdkVROBeDLPb66vBRxzFvGZNObmpBdJydNc7D0jyl3pOpwoSaVePWs
-         nesMdlJMVOTRlQ7bzUMu1vYgmiRZUw8aZBjucI67SHxu7GG+HpmdZ3K+reR/47UtdHwn
-         DowEaXG0KVe8FDNjHOIS5JZnqRaHEAha6VhZtaYw6rPOITmhgyUlmLnInw0VlsS3s6Hl
-         3jvw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=2RrZQKRnOe4vqE7AGHYXjMuRZiw2LXHf5wiJxvLR544=;
-        fh=IYGU1Ma07G1hbdzcMpbMiheGJ8oiQwVbBTQ+2DCliaY=;
-        b=XVSyv2tXxCkXeG0cubQwLqecRfCSok0qeOjLLkT8qw9dJxyJiLk1l4Rw84itCNi5HF
-         oCRqV06VxXoeJ7eFFAAYntQetcb/6f8IaebVjWZKVVfmHGV9pqONKwtemflEcrWfoXzX
-         ecWxCjQGipMvuVRHMb+uNC2wsN3hUpWD9gilSdQMox05djujvNRUAmMRKwQukAD1Xl9I
-         KsYCThoj0D5ujXQN92DnJCqRKCnYjoN1wktYDB07TRn0ZsMbFn/htVTiORebANhTLdfg
-         rP1o9Fn/x9sYpCmWCb5VmiEgr0iQfLnoRtLn/J95ynJfWIlWpAClUjCr+SX+TdqrIQ7q
-         3kIQ==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782321745; x=1782926545; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=2RrZQKRnOe4vqE7AGHYXjMuRZiw2LXHf5wiJxvLR544=;
-        b=am2p5v/oedK5/vTFkzAqZ9xCxaO0FnxxuDGHbPO1HEiu/F3BDb24KIGueq9dWwgntT
-         nNidVFnjkswA6smV0l5Sed1BLLn7yqrGA8VQyyzxshSJy6Bgu0FAD0ZkQma7dxOdrhT+
-         rXdEizxzPB6vpBf7eMMpwTMyl6fjTlyiYbqSBsccabk/gsxIt7FgoRSAK+FFJYHoIr5T
-         WcNpKFtCNK2xD2HQkUaNQtxoI+16NAUFGG8KN3zPuL4WWFcrTf1vP00bwQipppz9YwJv
-         AnYVt2TUo6XKnHaJ+S7DHHyV22I79HZ7AF1UjWtpcPEHssY9GJ+YQrFFJFYkVHjn7XeV
-         0SiQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782321745; x=1782926545;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=2RrZQKRnOe4vqE7AGHYXjMuRZiw2LXHf5wiJxvLR544=;
-        b=ON0qQej6hfHTMhv486Y+b9lx0BBNTyGzymZoQCbTckeWnM5v9AocQEVIPowOM8NNRv
-         Fr7AkNBjyP5fBa1hYDIRoHBbFGiGJmfu+Xynazz/Vpw+ycyMyaBJjUJ6ZnyQdMgMIWnD
-         dZspaUNOxE54yZkTcsk2Lhnwo7T1hZUopuPJ4lOpI07JR78M+k2Y7IAl1wXpA1G69ld3
-         lNSC5VNt70xB7Zb2i/bkrdvJtw41x23+OlDFTJR4MP5AAfDLeZ1XT9Wrl4L6275VS8eA
-         wyy9BLQWocbDTI4CkuUz1RxYbHY6/YXoZrnCLC9CPthYbn5Ij3Xl/K73re2/qZJukkmg
-         UhNA==
-X-Forwarded-Encrypted: i=1; AFNElJ+yocRdNi+slzq9ZEICz2kYDSsHamY5TwhTkIwE/7Giik/aAvcEwSSrNcFoNBLLCFlWNRemCNY8jfJQLJBnUQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwZINPtOGCYdc/KsCsK+W9D08qfDhvW6wxAYpGugQRaksMyjOvY
-	aX5fwfDORRIh67+hdeMUqjENSvgPUAvqyMCxQdtv//y8KBVtrOUhE5IjrsHuvl2LwJ4C736P3tU
-	EouAGjcnxgKAbksVs00BevnDK3cDi9kE=
-X-Gm-Gg: AfdE7ckZmjMZ/OhV2Sdw0Y9wl1ucNrR8TEKWlr1WjDslwKlOWCMtNskC+t0gkHz+b1k
-	Tq6lDRVMKsxvhBCrr23upW21g29DFo92TnsjegdIoaGWLIzvjU6eeeGYe8+PoqTNcS+GYomV4nr
-	Pf+IHwUilI12Rl0zyaI+CndUtqNga9PuOPiuMQwPIO/5eF77nLMf8tSYiRv3p6R/aOVkLpBcMCR
-	bFGUgfXdKPjxbOSvqIfZD2jNeHvXLUth1ci4Whun3WAL5gy1F8qhRHZbCfPLsXxVfd/WyJPqxQC
-	LWT2F3fVuA==
-X-Received: by 2002:a05:6820:1525:b0:69e:89dd:175a with SMTP id
- 006d021491bc7-6a114b61692mr6128235eaf.20.1782321745533; Wed, 24 Jun 2026
- 10:22:25 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OsfGCa6K"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1782325995;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Xli+07pdTqJ8w2g88YzSHaZ2kwsq+VarNsXrNo5aBRY=;
+	b=OsfGCa6KlT/m+hNcl1HpTz/OsgQ36vIRmBrXUNZhv7pehO6YraZ8SiS+YD8WRrsO/FvtPG
+	WO4THBsLGORgMU9BjHC2gsbNJkHifbHr84UFPyU4i8P1vj6AXuurTyv44DkQ7dPi3QE2Fn
+	edafwsbMqfEUcallCnBPTTXTwtesUQk=
+Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-113-VhYs4R9xMi25T5A4kbi8oQ-1; Wed,
+ 24 Jun 2026 14:33:11 -0400
+X-MC-Unique: VhYs4R9xMi25T5A4kbi8oQ-1
+X-Mimecast-MFC-AGG-ID: VhYs4R9xMi25T5A4kbi8oQ_1782325990
+Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 92C8B19560BA;
+	Wed, 24 Jun 2026 18:33:09 +0000 (UTC)
+Received: from localhost (unknown [10.2.17.97])
+	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id D61DE180057F;
+	Wed, 24 Jun 2026 18:33:08 +0000 (UTC)
+Date: Wed, 24 Jun 2026 14:07:49 -0400
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Ben Dooks <ben.dooks@codethink.co.uk>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+	Paolo Bonzini <pbonzini@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
+	"Martin K. Petersen" <martin.petersen@oracle.com>,
+	virtualization@lists.linux.dev, linux-scsi@vger.kernel.org,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] scsi: virtio_scsi: fixup endian conversions for warning
+ messages
+Message-ID: <20260624180749.GF109308@fedora>
+References: <20260623132427.838900-1-ben.dooks@codethink.co.uk>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260621130246.2973254-1-me@linux.beauty> <20260621130246.2973254-5-me@linux.beauty>
-In-Reply-To: <20260621130246.2973254-5-me@linux.beauty>
-From: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Date: Wed, 24 Jun 2026 19:22:14 +0200
-X-Gm-Features: AVVi8Cf9CFjt8XRurzmaliLJiEImYmVwDzh1HgALE4ORiap4zi56uRvfI8NkH6Q
-Message-ID: <CAM9Jb+gzSrobPgH_nMPs+RsbhVP8jovpAQsC5syQKoLrtqnX=A@mail.gmail.com>
-Subject: Re: [PATCH v6 04/12] nvdimm: virtio_pmem: stop allocating child flush bio
-To: Li Chen <me@linux.beauty>
-Cc: Dan Williams <dan.j.williams@intel.com>, Vishal Verma <vishal.l.verma@intel.com>, 
-	Dave Jiang <dave.jiang@intel.com>, Ira Weiny <ira.weiny@intel.com>, 
-	Alison Schofield <alison.schofield@intel.com>, virtualization@lists.linux.dev, 
-	nvdimm@lists.linux.dev, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="DAJOO0OXErLxQASI"
+Content-Disposition: inline
+In-Reply-To: <20260623132427.838900-1-ben.dooks@codethink.co.uk>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
 
-> pmem_submit_bio() passes the parent bio to nvdimm_flush() for
-> REQ_FUA. For virtio-pmem this makes async_pmem_flush() allocate
-> and submit a child PREFLUSH bio chained to the parent.
->
-> That child allocation is in the block submit path. Making it
-> blocking with GFP_NOIO can consume the same global bio mempool that
-> submit_bio() uses, while making it GFP_ATOMIC can fail under
-> pressure. A forced failure of the child allocation produced:
->
-> virtio_pmem: forcing child bio allocation failure for test
-> Buffer I/O error on dev pmem0, logical block 0, lost sync page write
-> EXT4-fs (pmem0): I/O error while writing superblock
-> EXT4-fs (pmem0): mount failed
->
-> Avoid the child bio completely. Flush FUA synchronously, like
-> REQ_PREFLUSH, then complete the parent after the flush. Since no
-> child bio can be created, async_pmem_flush() now only issues the
-> virtio flush and preserves negative errno values.
 
-Child flush is asynchronous (performs async flush to host side and returns).
-Till child bio completes guest userspace waits in pending IO state.
-It seems the current change will affect the behavior?
+--DAJOO0OXErLxQASI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Prior RFC [1] attempted to coalesce the async FLUSH request between guest &host.
-If there is interest, that approach could be revisited or integrated here?
-
-[1] https://lore.kernel.org/all/20220111161937.56272-1-pankaj.gupta.linux@gmail.com/#t
-
-Thanks,
-Pankaj
-
->
-> Signed-off-by: Li Chen <me@linux.beauty>
+On Tue, Jun 23, 2026 at 02:24:27PM +0100, Ben Dooks wrote:
+> There are several places where printing functions are being passed parame=
+ters
+> that have not been through endian conversion functions. Use the virtio32_=
+to_cpu
+> to fix the warnings.
+>=20
+> Fixes the following warnings from (prototype) sparse:
+> drivers/scsi/virtio_scsi.c:126:9: warning: incorrect type in argument 7 (=
+different base types)
+> drivers/scsi/virtio_scsi.c:126:9:    expected unsigned int
+> drivers/scsi/virtio_scsi.c:126:9:    got restricted __virtio32 [usertype]=
+ sense_len
+> drivers/scsi/virtio_scsi.c:312:17: warning: incorrect type in argument 2 =
+(different base types)
+> drivers/scsi/virtio_scsi.c:312:17:    expected unsigned int
+> drivers/scsi/virtio_scsi.c:312:17:    got restricted __virtio32 [usertype=
+] reason
+> drivers/scsi/virtio_scsi.c:412:17: warning: incorrect type in argument 2 =
+(different base types)
+> drivers/scsi/virtio_scsi.c:412:17:    expected unsigned int
+> drivers/scsi/virtio_scsi.c:412:17:    got restricted __virtio32 [usertype=
+] event
+>=20
+> Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
 > ---
-> Changes in v6:
-> - Replace the child bio allocation fix with synchronous FUA flushing.
->
->  drivers/nvdimm/nd_virtio.c | 22 ++++------------------
->  drivers/nvdimm/pmem.c      |  2 +-
->  2 files changed, 5 insertions(+), 19 deletions(-)
->
-> diff --git a/drivers/nvdimm/nd_virtio.c b/drivers/nvdimm/nd_virtio.c
-> index 4176046627beb..4b2e9c47af0f5 100644
-> --- a/drivers/nvdimm/nd_virtio.c
-> +++ b/drivers/nvdimm/nd_virtio.c
-> @@ -110,27 +110,13 @@ static int virtio_pmem_flush(struct nd_region *nd_region)
->  /* The asynchronous flush callback function */
->  int async_pmem_flush(struct nd_region *nd_region, struct bio *bio)
->  {
-> -       /*
-> -        * Create child bio for asynchronous flush and chain with
-> -        * parent bio. Otherwise directly call nd_region flush.
-> -        */
-> -       if (bio && bio->bi_iter.bi_sector != -1) {
-> -               struct bio *child = bio_alloc(bio->bi_bdev, 0,
-> -                                             REQ_OP_WRITE | REQ_PREFLUSH,
-> -                                             GFP_ATOMIC);
-> +       int err;
->
-> -               if (!child)
-> -                       return -ENOMEM;
-> -               bio_clone_blkg_association(child, bio);
-> -               child->bi_iter.bi_sector = -1;
-> -               bio_chain(child, bio);
-> -               submit_bio(child);
-> -               return 0;
-> -       }
-> -       if (virtio_pmem_flush(nd_region))
-> +       err = virtio_pmem_flush(nd_region);
-> +       if (err > 0)
->                 return -EIO;
->
-> -       return 0;
-> +       return err;
->  };
->  EXPORT_SYMBOL_GPL(async_pmem_flush);
->  MODULE_DESCRIPTION("Virtio Persistent Memory Driver");
-> diff --git a/drivers/nvdimm/pmem.c b/drivers/nvdimm/pmem.c
-> index 82ee1ddb3a445..058d2739c95a1 100644
-> --- a/drivers/nvdimm/pmem.c
-> +++ b/drivers/nvdimm/pmem.c
-> @@ -242,7 +242,7 @@ static void pmem_submit_bio(struct bio *bio)
->         }
->
->         if ((bio->bi_opf & REQ_FUA) && !bio->bi_status)
-> -               ret = nvdimm_flush(nd_region, bio);
-> +               ret = nvdimm_flush(nd_region, NULL);
->
->         if (ret)
->                 bio->bi_status = errno_to_blk_status(ret);
-> --
-> 2.52.0
+>  drivers/scsi/virtio_scsi.c | 18 +++++++++---------
+>  1 file changed, 9 insertions(+), 9 deletions(-)
+
+Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+
+--DAJOO0OXErLxQASI
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCgAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmo8HPUACgkQnKSrs4Gr
+c8h8fwgAkHu+pNIrC4nVmraazySiZY04aaupHXw+4tH5J7KKXRD9Vt7VwE22Uz4p
+JN9PUE1L5QmeLzohWpRczEtbBy1WCCvMNiaPRmxsYkGRC1r/ZVfGKrfG28NVQSVc
+E4q8/w64HBPWjSqWFV4quEvD2HqYyVrF7NUUii+kMWlcCTJmIANJj9pAyQSGLJwM
+63owTfg323lVguFIl2eEhx5MTL3ZhWUijIo4uudQbFyKyq9+ltuI8QWCbpmGqM7Y
+MHM+hSO7+M0jKKd4S7Akz2g0HUFCj1COi+SJLBWWl2z6nRt+/EXqdqA4E0OtzYh7
+ZueUkRSKF6YAMk5PjkHnCoM/i11LuQ==
+=UW4F
+-----END PGP SIGNATURE-----
+
+--DAJOO0OXErLxQASI--
+
