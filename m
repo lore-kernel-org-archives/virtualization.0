@@ -1,123 +1,132 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DEE3B31E85B
-	for <virtualization@lists.linux.dev>; Wed, 24 Jun 2026 18:33:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3FB232E75A
+	for <virtualization@lists.linux.dev>; Wed, 24 Jun 2026 19:07:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.52
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782325997; cv=none; b=G9PzpZKZ0V8aRhCskcIb+HJ/wmLMEftiWB++9OgXZGDuOQKRsaFfXW7u+3+aPmGMHcCq18DXpIMA0SO+D8IqxFLWAo3IwDtq9VEcZdBBPPxsFiVlWfL8kz5NqT6r4M0kh52i60as2JCvfO/DHf1WTVaabiz1VKYow/+du7NTdeY=
+	t=1782328028; cv=none; b=PKuqp55MxpVQAt4aIVO/w3H4QeNaClQKsvrSG7h1S1spkJAvIPCz0KpYIA2UxRoqDXljR+0gNwTER4tMLZTAQNd3iyCK7LJBxqHD20+vx3TkhUQLFsN8nGemU22zOJXl5v5nnMQsOmxtt3YMafgLWbUOg534HUHKct8SlBF7WJI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782325997; c=relaxed/simple;
-	bh=d6SS2hdmFREsNjmOmyRiyLOoyxKlUipWPae5EI0+XTc=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MCriymi+w5xR8NcjawvkrFkAThW7BhQFFbOn8AF+loBFtm1JDqVvHcbTpArdHyf74VNa3lY1XIjUuJ1Hjb1UofdGhCCyXsLBotG3PkpBbVeqJ0qA8UDaOBrTq6O/bRU769Q0EMDSO3cMCpTfy+VVam0sKU33ZPswNkcRu0py0Z8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=OsfGCa6K; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1782328028; c=relaxed/simple;
+	bh=8LkfFMB4XG4EiUlUUfCp5eNP3of8+WWy7c96tMRZBtw=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=uBe/jslMfNZlA9De7BdSqaIe+4ufrEept5ZXevT3uPK+BkALlLdYGgJhiKQu1nbLUm3x3NirR8NSMK3wM1yHRQDCnviLTVRF3/kn177D6k+g0f1VzL46FbyI5gbFdMLnxfMuU2oPptnjCkUclI64ud9uQLhmxupi1moGt9IINBM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=XFmzR1OS; arc=none smtp.client-ip=209.85.221.52
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="OsfGCa6K"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1782325995;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Xli+07pdTqJ8w2g88YzSHaZ2kwsq+VarNsXrNo5aBRY=;
-	b=OsfGCa6KlT/m+hNcl1HpTz/OsgQ36vIRmBrXUNZhv7pehO6YraZ8SiS+YD8WRrsO/FvtPG
-	WO4THBsLGORgMU9BjHC2gsbNJkHifbHr84UFPyU4i8P1vj6AXuurTyv44DkQ7dPi3QE2Fn
-	edafwsbMqfEUcallCnBPTTXTwtesUQk=
-Received: from mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-113-VhYs4R9xMi25T5A4kbi8oQ-1; Wed,
- 24 Jun 2026 14:33:11 -0400
-X-MC-Unique: VhYs4R9xMi25T5A4kbi8oQ-1
-X-Mimecast-MFC-AGG-ID: VhYs4R9xMi25T5A4kbi8oQ_1782325990
-Received: from mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.93])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-05.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 92C8B19560BA;
-	Wed, 24 Jun 2026 18:33:09 +0000 (UTC)
-Received: from localhost (unknown [10.2.17.97])
-	by mx-prod-int-06.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id D61DE180057F;
-	Wed, 24 Jun 2026 18:33:08 +0000 (UTC)
-Date: Wed, 24 Jun 2026 14:07:49 -0400
-From: Stefan Hajnoczi <stefanha@redhat.com>
-To: Ben Dooks <ben.dooks@codethink.co.uk>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-	Paolo Bonzini <pbonzini@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	"James E.J. Bottomley" <James.Bottomley@hansenpartnership.com>,
-	"Martin K. Petersen" <martin.petersen@oracle.com>,
-	virtualization@lists.linux.dev, linux-scsi@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] scsi: virtio_scsi: fixup endian conversions for warning
- messages
-Message-ID: <20260624180749.GF109308@fedora>
-References: <20260623132427.838900-1-ben.dooks@codethink.co.uk>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="XFmzR1OS"
+Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-45fe59255beso769646f8f.1
+        for <virtualization@lists.linux.dev>; Wed, 24 Jun 2026 12:07:06 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1782328025; x=1782932825; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=DfCmQjaXvxIPY9LgYjyAuGOJaOamYtsKcoImA7m2aMQ=;
+        b=XFmzR1OSIUzpWGTHjUN5x3yx55L5FUab7alSY1Hj4ouZQKEospKmFPmEYc9HZsq2DX
+         C9L+krCXl/u6sAlYUyHeUMva4DG6lQFzs/tf95OxzaVRUJ6Q/Xwvhjie8FftDshMiEIL
+         MuMCepANFRV95NWjke7qGkH0MvyWCaYABCqxuUG7FQ0Uaq9D/Ua3k17N1FmFwJXs8GvN
+         v9RqphLaLT1cj6OY6Hft4GcXGefB3TSWOVctmY6T0+yuxvNbu5Nspzd8W409NLyDj0pD
+         dDasv4yYFcsXCKxfbRw+umFZ0bYWmrCEFnUuzOY7rsMkwE8PR+6av8HqngJIMJb7AEkw
+         ZuwA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782328025; x=1782932825;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=DfCmQjaXvxIPY9LgYjyAuGOJaOamYtsKcoImA7m2aMQ=;
+        b=Vtq7axs6ezuJziwNrxu1n1nd0cyrYNhbzOCrqrZQcAECdUm6qzO64lcmpaJeITy36L
+         RkwxWeIoa02Y7u6vBHVS0Tq7oHp/E1/c5moxD/04WWAVGqxhoZ9xKE2jLwC0ke2Ne5r2
+         s9lHoqGxNGfEDE/voEDZYMImJ6/nghU6Jq7OxKXqnRfMZRuuqR16J7x8eT+PLZyzHXbp
+         Aj57so5v33g7ZJmaEiTgupFpLj3rXmNaOk0N7UOThFd/EV8LzvaCTaUV8pJfcQR4ScPX
+         e0POP1cOjhyUlkmd2g5B7/iWM/dDqjHyOvF1vWGH4N8y9D1m4SnHdQpu0VUw6aZDi8U1
+         LDWQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+Ne2HYaqhZXbVXvv+dF8i3pB+xel0Gqd3nIxqIXF7P9fUbOY4Ah29CKJkNMsuRfC5Wx9wQtTo6BHfdVtWd5g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwPbbXIeMQG/dkBEuJ9duf1hmXyIATd5gf8d+KFIWZSF2E/F9jq
+	nAXy7iy0bf24KSx6iGXtRYqJPUop+YGHWRraMNsPcKGRmJmh3kx04yAv
+X-Gm-Gg: AfdE7cl9tFcmJ6wbfjVJqitynwdLZSCP7LVcK49mSWZUXRDI6yD3u4b5pJUChjHgh+0
+	2JjyeEMhqv5fhKq1slhz+Z5DV/BvwDKaSF7g3ZXKIMjHR24H7aty5LhB3Y3eaSScmhyqIhS7wZc
+	9/R+cImDYzapXLCTSNqRBztVkP0PwTMAow8MG0Y24pcKwyIM2e4/2zkUtSov5b/uNEazeudBWCI
+	Nj/8fWP8rc+q/jWTN4pFKXkzk5jDX+JJE0SAEumqqoFKdANSPMCGZE6Gc2+VgdddFiRMxaAD6kf
+	K7JhIIsj1uhxeRZZV9Gif77LtTLenFizi+YzA2xb50DRqmwKo5Bcdcj52d55mCw+D80qtICbT81
+	CFcgJe/Y286v3LuriRnXG0Sg72zae4ZfFco4j5tV4ukrX5dQvzKR3ggPabtNj1+3qfMFv0zRjVW
+	5TD7oZ/GDgyfjVzb9BMCF/on4+Rw==
+X-Received: by 2002:a05:600c:4453:b0:490:d32b:39d6 with SMTP id 5b1f17b1804b1-4925b37973bmr133374295e9.19.1782328025219;
+        Wed, 24 Jun 2026 12:07:05 -0700 (PDT)
+Received: from Dev-Null-MSI ([2a0d:3344:52ac:a808:98a4:4381:be45:536f])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-46c1ee01d9csm8843587f8f.12.2026.06.24.12.07.04
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 24 Jun 2026 12:07:04 -0700 (PDT)
+From: Yousef Alhouseen <alhouseenyousef@gmail.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+Cc: kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Yousef Alhouseen <alhouseenyousef@gmail.com>
+Subject: [PATCH] vhost/vdpa: reject overflowing PA map page counts
+Date: Wed, 24 Jun 2026 21:06:53 +0200
+Message-ID: <20260624190653.2893-1-alhouseenyousef@gmail.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha512;
-	protocol="application/pgp-signature"; boundary="DAJOO0OXErLxQASI"
-Content-Disposition: inline
-In-Reply-To: <20260623132427.838900-1-ben.dooks@codethink.co.uk>
-X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.93
+Content-Transfer-Encoding: 8bit
 
+vhost_vdpa_pa_map() adds the IOVA page offset to the user-controlled map
+size before computing the number of pages to pin. If that addition wraps,
+the code can pin and map fewer pages than the requested IOTLB range.
 
---DAJOO0OXErLxQASI
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Reject sizes that overflow the page-count calculation. Also make the
+memlock check subtraction-based so a large page count cannot wrap the
+pinned page total.
 
-On Tue, Jun 23, 2026 at 02:24:27PM +0100, Ben Dooks wrote:
-> There are several places where printing functions are being passed parame=
-ters
-> that have not been through endian conversion functions. Use the virtio32_=
-to_cpu
-> to fix the warnings.
->=20
-> Fixes the following warnings from (prototype) sparse:
-> drivers/scsi/virtio_scsi.c:126:9: warning: incorrect type in argument 7 (=
-different base types)
-> drivers/scsi/virtio_scsi.c:126:9:    expected unsigned int
-> drivers/scsi/virtio_scsi.c:126:9:    got restricted __virtio32 [usertype]=
- sense_len
-> drivers/scsi/virtio_scsi.c:312:17: warning: incorrect type in argument 2 =
-(different base types)
-> drivers/scsi/virtio_scsi.c:312:17:    expected unsigned int
-> drivers/scsi/virtio_scsi.c:312:17:    got restricted __virtio32 [usertype=
-] reason
-> drivers/scsi/virtio_scsi.c:412:17: warning: incorrect type in argument 2 =
-(different base types)
-> drivers/scsi/virtio_scsi.c:412:17:    expected unsigned int
-> drivers/scsi/virtio_scsi.c:412:17:    got restricted __virtio32 [usertype=
-] event
->=20
-> Signed-off-by: Ben Dooks <ben.dooks@codethink.co.uk>
-> ---
->  drivers/scsi/virtio_scsi.c | 18 +++++++++---------
->  1 file changed, 9 insertions(+), 9 deletions(-)
+Signed-off-by: Yousef Alhouseen <alhouseenyousef@gmail.com>
+---
+ drivers/vhost/vdpa.c | 12 ++++++++++--
+ 1 file changed, 10 insertions(+), 2 deletions(-)
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
-
---DAJOO0OXErLxQASI
-Content-Type: application/pgp-signature; name=signature.asc
-
------BEGIN PGP SIGNATURE-----
-
-iQEzBAEBCgAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmo8HPUACgkQnKSrs4Gr
-c8h8fwgAkHu+pNIrC4nVmraazySiZY04aaupHXw+4tH5J7KKXRD9Vt7VwE22Uz4p
-JN9PUE1L5QmeLzohWpRczEtbBy1WCCvMNiaPRmxsYkGRC1r/ZVfGKrfG28NVQSVc
-E4q8/w64HBPWjSqWFV4quEvD2HqYyVrF7NUUii+kMWlcCTJmIANJj9pAyQSGLJwM
-63owTfg323lVguFIl2eEhx5MTL3ZhWUijIo4uudQbFyKyq9+ltuI8QWCbpmGqM7Y
-MHM+hSO7+M0jKKd4S7Akz2g0HUFCj1COi+SJLBWWl2z6nRt+/EXqdqA4E0OtzYh7
-ZueUkRSKF6YAMk5PjkHnCoM/i11LuQ==
-=UW4F
------END PGP SIGNATURE-----
-
---DAJOO0OXErLxQASI--
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index ac55275fa..090cb8693 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -1102,6 +1102,8 @@ static int vhost_vdpa_pa_map(struct vhost_vdpa *v,
+ 	unsigned int gup_flags = FOLL_LONGTERM;
+ 	unsigned long npages, cur_base, map_pfn, last_pfn = 0;
+ 	unsigned long lock_limit, sz2pin, nchunks, i;
++	unsigned long page_offset;
++	u64 pinned_vm;
+ 	u64 start = iova;
+ 	long pinned;
+ 	int ret = 0;
+@@ -1114,7 +1116,12 @@ static int vhost_vdpa_pa_map(struct vhost_vdpa *v,
+ 	if (perm & VHOST_ACCESS_WO)
+ 		gup_flags |= FOLL_WRITE;
+ 
+-	npages = PFN_UP(size + (iova & ~PAGE_MASK));
++	page_offset = iova & ~PAGE_MASK;
++	if (size > ULONG_MAX - page_offset) {
++		ret = -EINVAL;
++		goto free;
++	}
++	npages = PFN_UP(size + page_offset);
+ 	if (!npages) {
+ 		ret = -EINVAL;
+ 		goto free;
+@@ -1123,7 +1130,8 @@ static int vhost_vdpa_pa_map(struct vhost_vdpa *v,
+ 	mmap_read_lock(dev->mm);
+ 
+ 	lock_limit = PFN_DOWN(rlimit(RLIMIT_MEMLOCK));
+-	if (npages + atomic64_read(&dev->mm->pinned_vm) > lock_limit) {
++	pinned_vm = atomic64_read(&dev->mm->pinned_vm);
++	if (npages > lock_limit || pinned_vm > lock_limit - npages) {
+ 		ret = -ENOMEM;
+ 		goto unlock;
+ 	}
+-- 
+2.54.0
 
