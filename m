@@ -1,264 +1,189 @@
-Received: from mail-wr1-f52.google.com (mail-wr1-f52.google.com [209.85.221.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from SN4PR0501CU005.outbound.protection.outlook.com (mail-southcentralusazon11011068.outbound.protection.outlook.com [40.93.194.68])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8D06D3C199A
-	for <virtualization@lists.linux.dev>; Wed, 24 Jun 2026 14:23:28 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.52
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782311011; cv=none; b=RindPYc3DCPUdr457JK37AN9QUoAHWtQ1OcmuvRRoFGOt70bfW3b1MEsNk1rA9GU4elfTYt/tQxoOll4oQqYCAaJ2DZbNStEFcUZ3fJA9GKF76mQZ8Mx/DObOFcEqql+qHvDeCflV2Yc6gxRp7Z5L/l2O1Vd5cT4OjGDFceuT1c=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782311011; c=relaxed/simple;
-	bh=ANcnDbJl1GrE6afhpUmaNktn53Zw0TE+IUnQR7Lyflk=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=UZe0F+CEM0Y+FcHXOnXA1y8Bbjw1BQRnTBQ77X5SUt5miWe/2UFu2z+MZboMk9NsMLfCO8JYbth9xgUrgBIB0+X1MdKy5UxIITLZ8XQBU61SIV+Opda4BLb4fxPsL1CrVGS24uiXZGJmabfAgXc4KMNnRswyqq5TgSsSO9nX0iE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=SPPsldMu; arc=none smtp.client-ip=209.85.221.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A82FE3BCD3E;
+	Wed, 24 Jun 2026 14:23:39 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.194.68
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782311020; cv=fail; b=ffxhQiBDyzVfAMhGzV6LkWypYF6/lHKJwDEyw/ExyQqS2xBsHkZmW6FBkE9E6ODd4BtLY1CUJjHircFv5XHenrj1N7RXcb8vCo2ouM8Wu4Tk8jh3WBEPMmLnL9UbNMB1JoIzNGfsxSiAsHEOm/JqaApWAmSUOzDzkiSv1K6US7s=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782311020; c=relaxed/simple;
+	bh=sSJHy08IeXPUlXvX6nOxnJ2RDt5RPf2xYznHUFOzRSQ=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=swbu6HZ4h+92YgjTnf6dr+s7KZgD7I1QyN2T6IN6e+QwDu/i8nr47unpsVB7wKFVdL876StnQj7nwgJc9ZV5J60ukyUbbggItZqvBTsUadehc6w93ks5edcPMrnUKMpyn8/kDMtglunQswScUfE74xZHnJTMljqIZZbNocOCqnc=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=a+Slyn1A; arc=fail smtp.client-ip=40.93.194.68
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="SPPsldMu"
-Received: by mail-wr1-f52.google.com with SMTP id ffacd0b85a97d-4631679f204so1146816f8f.0
-        for <virtualization@lists.linux.dev>; Wed, 24 Jun 2026 07:23:28 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782311007; x=1782915807; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=Per6MI6n5CBZ4jce2Yah0coKW3mXxHCaIKwWKmwmsgQ=;
-        b=SPPsldMuVWaGiF050fuVxnnw33dWV70IYrgCZj18IVzqBIrp8NOeZvf04oY5AH9Tot
-         /z0JKFPHgCBN5LaLKr5NKLy3RnTpqQlf0Pk/sQ9zadUDLE2qJ2WNSZAQqMhjVBCBrHf2
-         /5GZHDEwehEsFg71weD67uRigMLpV++JUQf8Gw8J2ENwz20CA2n22cKefKMp2gydgpMK
-         j0rT8J34zRRj75fz2WbQfpOqUo3xfCy+/H0mbLVFfHawVcOL++u3i7hQ/0odTxUbXgjm
-         5JcgTGPoUw+I7Pj1Vc/atynXzepOiuWUX3viQuXZSGEw765ta2oGHqexNSTTgBid+rHl
-         610A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782311007; x=1782915807;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=Per6MI6n5CBZ4jce2Yah0coKW3mXxHCaIKwWKmwmsgQ=;
-        b=b/4U9IjwU9tYoJUbfCWqlCyXZj+DZCmC6BHTZaqwi/f8GhFT3dKJEnNZG5Q1qQ34/7
-         O+R3U0GYjcCrb6OBjBy7XPGGZTBd19hm+jpuj6OBFN43W8+BreSFFJZwwhnfkGcm4SHA
-         oxge48/gFELJi8S7I0NNTS/rBz5nyWErkhO6xI8Oku7GtksAJq3Cjh4MdMGcdIwkJeuE
-         J/3LxHK+1fJT6OaCGVtbJrub5Zh1T5oaFF/ObExpSaJ/LRR/B02UvZhzQTgRHu9AIZLi
-         66F2/58ZCB/LCCK6jLlrHlSP8oDgssb0cCJzk7CC1wZboFpxF+7iKS+ZLV5CNmafGyGn
-         h5jw==
-X-Forwarded-Encrypted: i=1; AHgh+RoLTvxoFRlXkoc4Bq+D3fCnavmJ/jw77T9qz9w+Y0RW3uZkyrNd5a2doXdA68Be7nl4NEddHEcDKPbphNiNxQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxJpKvemP53jl0J47y1cHpH6ohhbioytqxGxEnE47CEDF4M6DcT
-	jxVwDerHRJI0UitYqVYXh68bOvgeODqVmIh29xM3bx/s2c0hWo+mRgF9
-X-Gm-Gg: AfdE7cnS/XD+ywkSViBCPku3z4VZ4++6p6ULUq33n9ms0Vj9FuN7N3yghpudaLVNagp
-	pa60ZXxhdC3QNhVjSWckNs3pEQIoGC//YLP3npKQ14R8lyaoXc46enAg5le2l+RLi0OT1/hl3z3
-	zZiBiPmO43Kw5Hd9LbLJyIxwGrx8GHbP+IFN5rkx0vPKymfdFWMjCCfiEMQXQ6l7nDAxV4fkK3K
-	tyNGlyr2tmDDuYOtNxW4gbK6HGOdJ9soYI2Z6h4RVM+u0mXFYoTLSgTHcmAAS5Fhq0WjYXpkf5e
-	VtrORZBPcqRZizn1tUrf0mG+AWVJIaNeqG4vu6SuaaOlS+FKC1N7DMk2KK94lVCdEhLt6nMEP4F
-	2FWTFlzBz7zgUiR0M8Riq73+lG3qC8PqUpn33jkr3nHX6jDOm6acMYH4WDch3wEV/YL4XAdaS5T
-	Bzu+K5EIIxrhnl585B1qVzYiXdGBCn05yRoOau3BEGzuN88jA2yQ==
-X-Received: by 2002:a05:6000:471a:b0:460:2e53:a6f6 with SMTP id ffacd0b85a97d-46d04583b35mr1261972f8f.12.1782311006854;
-        Wed, 24 Jun 2026 07:23:26 -0700 (PDT)
-Received: from pumpkin (82-69-66-36.dsl.in-addr.zen.co.uk. [82.69.66.36])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-46c221d9405sm8183744f8f.22.2026.06.24.07.23.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 24 Jun 2026 07:23:26 -0700 (PDT)
-Date: Wed, 24 Jun 2026 15:23:24 +0100
-From: David Laight <david.laight.linux@gmail.com>
-To: Christian =?UTF-8?B?S8O2bmln?= <christian.koenig@amd.com>
-Cc: Kaitao Cheng <kaitao.cheng@linux.dev>, Andrew Morton
- <akpm@linux-foundation.org>, David Hildenbrand <david@kernel.org>, Jens
- Axboe <axboe@kernel.dk>, Tejun Heo <tj@kernel.org>, Alexander Viro
- <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, Alexei
- Starovoitov <ast@kernel.org>, Daniel Borkmann <daniel@iogearbox.net>,
- Andrii Nakryiko <andrii@kernel.org>, Johannes Weiner <hannes@cmpxchg.org>,
- Peter Zijlstra <peterz@infradead.org>, Ingo Molnar <mingo@redhat.com>,
- Arnaldo Carvalho de Melo <acme@kernel.org>, Namhyung Kim
- <namhyung@kernel.org>, Thomas Gleixner <tglx@kernel.org>, Juri Lelli
- <juri.lelli@redhat.com>, Vincent Guittot <vincent.guittot@linaro.org>, Paul
- Moore <paul@paul-moore.com>, Andy Shevchenko
- <andriy.shevchenko@linux.intel.com>, "Paul E. McKenney"
- <paulmck@kernel.org>, Shakeel Butt <shakeel.butt@linux.dev>, David Howells
- <dhowells@redhat.com>, Simona Vetter <simona.vetter@ffwll.ch>, Randy Dunlap
- <rdunlap@infradead.org>, Luca Ceresoli <luca.ceresoli@bootlin.com>, Philipp
- Stanner <phasta@kernel.org>, linux-block@vger.kernel.org,
- linux-kernel@vger.kernel.org, cgroups@vger.kernel.org,
- linux-ntfs-dev@lists.sourceforge.net, linux-fsdevel@vger.kernel.org,
- io-uring@vger.kernel.org, audit@vger.kernel.org, bpf@vger.kernel.org,
- netdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
- linux-perf-users@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
- kexec@lists.infradead.org, live-patching@vger.kernel.org,
- linux-modules@vger.kernel.org, linux-crypto@vger.kernel.org,
- linux-pm@vger.kernel.org, rcu@vger.kernel.org, sched-ext@lists.linux.dev,
- linux-mm@kvack.org, virtualization@lists.linux.dev, damon@lists.linux.dev,
- llvm@lists.linux.dev, Kaitao Cheng <chengkaitao@kylinos.cn>
-Subject: Re: [PATCH v3 1/7] list: Add mutable iterator variants
-Message-ID: <20260624152324.3def88ce@pumpkin>
-In-Reply-To: <cf8467c7-b98f-44a5-9cf9-60b43b5da711@amd.com>
-References: <20260622040533.29824-1-kaitao.cheng@linux.dev>
-	<20260622040533.29824-2-kaitao.cheng@linux.dev>
-	<20260622094242.64531b9a@pumpkin>
-	<351a6b67-b394-4c58-aee2-88b6c8089ad5@linux.dev>
-	<cf8467c7-b98f-44a5-9cf9-60b43b5da711@amd.com>
-X-Mailer: Claws Mail 4.1.1 (GTK 3.24.38; arm-unknown-linux-gnueabihf)
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="a+Slyn1A"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=El7098Bz3LcKh9v+qW12go1kitYEUejShE1pgjlNPNtPMF3ujM196v9G+FF+Wa7qWdqDwoGuEqc4GXI3upBFK3m7u5H1wWM0b30MOGlFTd0C5juepAp5n8ZpzgGomqWWcPYcZ9uay/U0zeRskE/lk4Cpwia+EHABtmq1/OvGL7pNDVviPIZi7OIjPsCri0mLGC+QGIkt+UG7N+xGkGZQuJlygXYjn5qOEiaV6x0Rzipe4UxYR6dBDqpPJnLIxSmZHkauQKm9azl7FnNVRQrpmRRXawx9eMR4De4ElLnjJFQpm7RHIxRSylass2K63i+AVe0EMzghfMUYKGF+I1sLFg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Jz+46/RoVSyvF5KwRSS5OXmsw+HU4OKwc3ca61cqU38=;
+ b=Z/AEEoLA7weg3uvarCk3ug+qj3Ips+j2sOXF62jFo9YcXRIfGhlf7N4umj83Haqf7wsXnn8ILqfpjZpQzKgi3pOfI+I61C3UdQfZ5LA1tkOyTqs/EtcMzMiR+4aCWQkAunILUE0rBtZQQBJlryGvEiGdES1bH2rZjD0ZiWqbs1dh2xXys3bTs9SuOwlZdE5eOQ5XBFhoMBde+fzbN68KkcC6ZqS9VenR+XMU29ty1uu1elll32bMWpWUIJbeSWPKKpKTn+1Gnd2Ulu0BABqy72Qk+JDBTQQjIzUepzAIfDkTOmUTs0GeWNT6MdKKiSjbyfaQZjOC6MRDhjk/7PJy1g==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Jz+46/RoVSyvF5KwRSS5OXmsw+HU4OKwc3ca61cqU38=;
+ b=a+Slyn1A4mo6gObGaIx+KDJj+di/MKW0yeMVNpJEzJR7Oqn8renF14hdfIFSvjpTjO+YInLUXjyPJD/66SmUwNndEcOEEarpf6Zd3kEvihZwanHLculbzVhNajTCrQTnSd3Z+W0rV7yc0OaC6Bt28YKUB8L+wCG5oT6h8Wb/j/M=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from CH3PR12MB8660.namprd12.prod.outlook.com (2603:10b6:610:177::5)
+ by CY5PR12MB6346.namprd12.prod.outlook.com (2603:10b6:930:21::12) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.159.15; Wed, 24 Jun
+ 2026 14:23:34 +0000
+Received: from CH3PR12MB8660.namprd12.prod.outlook.com
+ ([fe80::87aa:52e5:4b72:d5f3]) by CH3PR12MB8660.namprd12.prod.outlook.com
+ ([fe80::87aa:52e5:4b72:d5f3%5]) with mapi id 15.21.0159.007; Wed, 24 Jun 2026
+ 14:23:34 +0000
+Message-ID: <99b5307e-e892-4d82-9e85-4f664b4d29b9@amd.com>
+Date: Wed, 24 Jun 2026 10:23:21 -0400
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFCv2 PATCH 1/6] efi/unaccepted: Support hotplug memory in
+ unaccepted bitmap via SRAT
+To: Kiryl Shutsemau <kas@kernel.org>,
+ Zhenzhong Duan <zhenzhong.duan@intel.com>
+Cc: marcandre.lureau@redhat.com, david@kernel.org,
+ rick.p.edgecombe@intel.com, pbonzini@redhat.com, mst@redhat.com,
+ peterx@redhat.com, chenyi.qiang@intel.com, elena.reshetova@intel.com,
+ michael.roth@amd.com, ackerleytng@google.com, linux-kernel@vger.kernel.org,
+ linux-coco@lists.linux.dev, virtualization@lists.linux.dev, x86@kernel.org,
+ yilun.xu@intel.com, xiaoyao.li@intel.com, chao.p.peng@intel.com
+References: <20260623101739.79695-1-zhenzhong.duan@intel.com>
+ <20260623101739.79695-2-zhenzhong.duan@intel.com>
+ <ajvLaBs62bDoxC3W@thinkstation>
+Content-Language: en-US
+From: "Pratik R. Sampat" <prsampat@amd.com>
+In-Reply-To: <ajvLaBs62bDoxC3W@thinkstation>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: BL1P221CA0038.NAMP221.PROD.OUTLOOK.COM
+ (2603:10b6:208:5b5::9) To CH3PR12MB8660.namprd12.prod.outlook.com
+ (2603:10b6:610:177::5)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CH3PR12MB8660:EE_|CY5PR12MB6346:EE_
+X-MS-Office365-Filtering-Correlation-Id: 7403ff75-4e57-40c1-1e72-08ded1fc2c7c
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|23010399003|7416014|376014|366016|1800799024|4143699003|22082099003|18002099003|6133799003|56012099006|11063799006;
+X-Microsoft-Antispam-Message-Info:
+	VWxAI8iGir+nHlw/JOugUVEC1nACOQW+GqRlYAfCNUpPE0ssZOnvPKCauTqRCHJwB46WbLqPT+ns5wBUiPHbefqPw5q1SS7UwIhmXyzdLd7sQfCWF7sbftMByAORC37ua6CRxF5jaBKnu1bTN2upsheGYH6L36OLbcDMQ31cei6dLP79TwHO96QDyVnz9W7d2OePdZgfDlzgWyFHfzWx6u6T4Xee2uC/KrnwzehkPvpYuYev5lQwBHKR/Pt/gTtfeNU72SKzH+NYT0RdhyEbnOefkp5r7VlMM9cRRY90CI1g6nf/Pmy0AKoOHtwDDlz59TNHfavwyAt6C98sLbLTZIeanzdz5CpWAXiBZz8JQ6n+hdCFClBp88SqAUSfsnb6Q6jHdHM0gvh2iSQY8tqxFz2rEDWRXGFBxGtaTZXWxB8v3bHJsOmRT2sGNE24Nox1KLNQZB1rIi9f1gckloOL+ZDerJ7UbcaY1KuAN3LYCxCCM3rLiXVcVek/R0+WuasxlkZaLmNCupW1N8S1P+AIvS5UjQn8T6EH5c/7VsRovhcGjIAb8Hz7fpAzQc1/FvaczGvc5eEC8LB1qv5nY+ChlUCpe76PHrp826KilRxa4D6YShAWx0tiNXzww9jO7Oth7F7x/706Yp/h+8Vn2RtalxtdfZxz/g5GgL0etbNvlb4=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH3PR12MB8660.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(7416014)(376014)(366016)(1800799024)(4143699003)(22082099003)(18002099003)(6133799003)(56012099006)(11063799006);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?Z1d4N2luYWpnWmF2VUZGWnUyL1hjN3F4eHc0NG0xbGJVam5lSW4zcGtEYmd5?=
+ =?utf-8?B?VS9Ya3R1Tk1xMHZ2TFpnbGJDdExzZ25rSjlEUGNkV2xDK1p3SE1CV3BrdFlU?=
+ =?utf-8?B?Y3ZqZ3pzSko0Q0tPVmtmTVhqRW0vYjFoSWVYbXAvR2RJdXhzMnZUWTZMZHFB?=
+ =?utf-8?B?eHBqOUpCaDg3Zmk1TEg2NUU2ZGo4RDRDUzIrdXZ4WDVNWUVDUWIvbEVsRW1P?=
+ =?utf-8?B?Q3p5SGJnZ3RRZHVuSjVlME1aSU84dVlUc3hsVFdZajZBaXRBRXcxTXFWa2tl?=
+ =?utf-8?B?RmJvRnBKdVBqeWExUVUwRWFwY3NvTTRwV3hJVFppdCtUK2g3YlAwUWEreklz?=
+ =?utf-8?B?NTdoSDhwMmtWN2FDdlhGZFNURXZ5T1lDUUNWZGJmRWQ5VjdmS0pwYkpWcnh1?=
+ =?utf-8?B?TFlJMzZhSXh5cXJTeUNMMUxNVlpENzkvd1p5Y0J2OXg2dE0yRDhBWXMxUlEx?=
+ =?utf-8?B?N3ZMZWY4RGtwVGlFUnRhdUN3VFJuZ2dKN2ZzUlM3dTRWaFE3L2VVR1ZwdDJ2?=
+ =?utf-8?B?dGxOSHl2WnE5N0tBTEVVM1c4aHpJNnZKc2xjMk9kTmUzTEpaM3BQUGlVUUpS?=
+ =?utf-8?B?VEJOeFVVcVFSVXJYL0lOTVUwaEM1dTBlYnl5UldJb0tnLzd2bkR3R2UrYVE1?=
+ =?utf-8?B?a21FRHZVbjMzcTlLNFRaL0hwT1VidTZDYVVENWFtRlFTT20wT2F5NnNoTkpu?=
+ =?utf-8?B?RjJudnNsSkhHRXNmdHZCQXVDaEgrZ0lsYXZLWW9SdXZLblM4YURKSmlScC9k?=
+ =?utf-8?B?Zmp0UVVWVjdjUmw0dUxCNldPZEFSSjNUbXVkKy9pa3Ara2F2N2hSaUdRRnht?=
+ =?utf-8?B?TGhBYkFKNFVKVVBIbXJCb2RLV3ltQkJaU0xIcURVOUdXT0lnOG4yUmlrcFR5?=
+ =?utf-8?B?Zy92U0ZwQlRQZ05wcmpXT2wya3hGSThZTm5DVDlHbXZRa29mVUkxYjNBb3dQ?=
+ =?utf-8?B?RVNFWGZsUkhta3hVU0tlckZ1Sk9kRWdJU3UvMGtkeHJ5Ui9rSUI5aVVTd0wv?=
+ =?utf-8?B?NndMVXdKQzBTTTJVVS9sSDNraXJtUWx4cXk4THBFWlV0bW55dmViUTExMUpP?=
+ =?utf-8?B?RnNpWTZKY0ZmZk4xdkhkR05INDBLU0JpcGd4dUJtd3lOVkM5cEgwM0lBWDY5?=
+ =?utf-8?B?bmtsS0k5cm1CTkRoQ3pOSXpFaEhoMVM2NGhuY25jc05pNGF2d2I0UFZmWlV2?=
+ =?utf-8?B?RGlHMVVKMU9kcnUzam5tTlFFSjluNjA4UzdFcnJnbW9EV2VPOXJKRlo4UFJN?=
+ =?utf-8?B?RG8va2RrVnZ6UTEzNVhEM1lSSmtENTNuekZURERlMi9sWDFLVHhuK0VFZ2Rk?=
+ =?utf-8?B?OHlJWEZLV2RveVJ5bjZWSlh2aXA1NFlPRzFZTTRCNVpTQkdDc0JTNURqUFIy?=
+ =?utf-8?B?RGJDN09TRjV3ZHdrcFFwdWx3RXFXUkY5eVJVV1J0eDVGYmlyVFJoRGNTcDFB?=
+ =?utf-8?B?SkNuNE1hdUwxVnFEZkw4RHpQRDY0cHZDOER4M3o3OG4xdm5CTWRPMHZoT0po?=
+ =?utf-8?B?NnE4TWsyTVNGb0d4ZnFpMGgySkFGRngwZUhWbTNOelZ6dXJqMG84VlRweHNo?=
+ =?utf-8?B?S3o5WG5mRGFLOTlWN3B2Qm9yT3pFVGd0MmVzR3MzWHVaZkZxQjdNbEdWSkph?=
+ =?utf-8?B?amQyaE1tWFFybGVsV3Fmd0pDNHR3RDdvem9rMVprRWlJSVVZbWpQUUxBUkhI?=
+ =?utf-8?B?ZGtJZTcrVlFNUWhBRXlxWXd1MEtRdWorSVVKUlltZzBwbmFMTWVMMGt1NXE0?=
+ =?utf-8?B?S3U3d0ZKVERhM3pDRk55aUlSSENOeXhqSDdoSllkMXhHb29tUEwzZ0hmbGtu?=
+ =?utf-8?B?VERzVUNrMElWUzJqZGIxYkFGQkhwZmxDOFBrRGQvbWlkYm82T1laa0Y5ZUVl?=
+ =?utf-8?B?NEdhVU11c2lwNUY3MTVKNCtKam9wTmRPd0NTNktULzBJWkRmUUcxcEh3cWxE?=
+ =?utf-8?B?RjNOVGp2UVVPcUtiSlFhT1Q4VXd2c3pUZTV2MzZkMEloNmJoZDhxeE9jclNk?=
+ =?utf-8?B?UmVqMVlmNEcwaG1nU0tLeEgySmN2Qm94eXFLeW95S3doUmpzTDZUODVjY25x?=
+ =?utf-8?B?ZEw4V3FoaHhhbkZ1eHVRN3FQTXVpRjhpOUYrRENpN2NXZ0hqVERWY3V1aU5W?=
+ =?utf-8?B?QTVoelhtS3Z2N3FYRGNwcC9kTy8wM1RVa0FUZGNRejFqdlBSb3g4K0ZzOTBz?=
+ =?utf-8?B?alB5QXVHT1ZmN3hGd1Y2di9TcytMbkxDQnp2SVpZN0ZsOXdBaExCdXgvaFVE?=
+ =?utf-8?B?b0tZVGZVNnJtZm43YWVDcDFVWlNRMGxjcUtHdllXNjMvZTNRb255bjh1bHRt?=
+ =?utf-8?Q?Ndfv5gpb3AJQUy6+WA?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 7403ff75-4e57-40c1-1e72-08ded1fc2c7c
+X-MS-Exchange-CrossTenant-AuthSource: CH3PR12MB8660.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Jun 2026 14:23:34.4318
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: QRwi2CYEFOPKXnc+kNvWYqPkSopLeGUWUVAIESXaUwDENor9dosUUfHKGpFs0xQzrsuqHiqkpLu/N1H/eQjOdg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CY5PR12MB6346
 
-On Wed, 24 Jun 2026 15:23:47 +0200
-Christian K=C3=B6nig <christian.koenig@amd.com> wrote:
 
-> On 6/24/26 15:14, Kaitao Cheng wrote:
-> >=20
-> >=20
-> > =E5=9C=A8 2026/6/22 16:42, David Laight =E5=86=99=E9=81=93: =20
-> >> On Mon, 22 Jun 2026 12:05:31 +0800
-> >> Kaitao Cheng <kaitao.cheng@linux.dev> wrote:
-> >> =20
-> >>> From: Kaitao Cheng <chengkaitao@kylinos.cn>
-> >>>
-> >>> The list_for_each*_safe() helpers are used when the loop body may
-> >>> remove the current entry.  Their API exposes the temporary cursor at
-> >>> every call site, even though most users only need it for the iterator
-> >>> implementation and never reference it in the loop body.
-> >>>
-> >>> Add *_mutable() variants for list and hlist iteration.  The new helpe=
-rs
-> >>> support both forms: callers may keep passing an explicit temporary cu=
-rsor
-> >>> when they need to inspect or reset it, or omit it and let the helper =
-use
-> >>> a unique internal cursor. =20
-> >>
-> >> I'm not really sure 'mutable' means anything either.
-> >> It is possible to make it valid for the loop body (or even other threa=
-ds)
-> >> to delete arbitrary list items - but that needs significant extra over=
-heads.
-> >>
-> >> It might be worth doing something that doesn't need the extra variable,
-> >> but there is little point doing all the churn just to rename things.
-> >> =20
-> >>>
-> >>> This makes call sites that only mutate the list through the current e=
-ntry
-> >>> less noisy, while keeping the existing *_safe() helpers available for
-> >>> compatibility.
-> >>>
-> >>> Signed-off-by: Kaitao Cheng <chengkaitao@kylinos.cn>
-> >>> ---
-> >>>  include/linux/list.h | 269 +++++++++++++++++++++++++++++++++++++----=
---
-> >>>  1 file changed, 231 insertions(+), 38 deletions(-)
-> >>>
-> >>> diff --git a/include/linux/list.h b/include/linux/list.h
-> >>> index 09d979976b3b..1081def7cea9 100644
-> >>> --- a/include/linux/list.h
-> >>> +++ b/include/linux/list.h
-> >>> @@ -7,6 +7,7 @@
-> >>>  #include <linux/stddef.h>
-> >>>  #include <linux/poison.h>
-> >>>  #include <linux/const.h>
-> >>> +#include <linux/args.h>
-> >>> =20
-> >>>  #include <asm/barrier.h>
-> >>> =20
-> >>> @@ -763,28 +764,72 @@ static inline void list_splice_tail_init(struct=
- list_head *list,
-> >>>  #define list_for_each_prev(pos, head) \
-> >>>  	for (pos =3D (head)->prev; !list_is_head(pos, (head)); pos =3D pos-=
->prev)
-> >>> =20
-> >>> -/**
-> >>> - * list_for_each_safe - iterate over a list safe against removal of =
-list entry
-> >>> - * @pos:	the &struct list_head to use as a loop cursor.
-> >>> - * @n:		another &struct list_head to use as temporary storage
-> >>> - * @head:	the head for your list.
-> >>> +/*
-> >>> + * list_for_each_safe is an old interface, use list_for_each_mutable=
- instead.
-> >>>   */
-> >>>  #define list_for_each_safe(pos, n, head) \
-> >>>  	for (pos =3D (head)->next, n =3D pos->next; \
-> >>>  	     !list_is_head(pos, (head)); \
-> >>>  	     pos =3D n, n =3D pos->next)
-> >>> =20
-> >>> +#define __list_for_each_mutable_internal(pos, tmp, head)		\
-> >>> +	for (typeof(pos) tmp =3D (pos =3D (head)->next)->next;		\ =20
-> >>
-> >> Use auto
-> >> =20
-> >>> +	     !list_is_head(pos, (head));				\
-> >>> +	     pos =3D tmp, tmp =3D pos->next)
-> >>> +
-> >>> +#define __list_for_each_mutable1(pos, head)				\
-> >>> +	__list_for_each_mutable_internal(pos, __UNIQUE_ID(next), head)
-> >>> +
-> >>> +#define __list_for_each_mutable2(pos, next, head)			\
-> >>> +	list_for_each_safe(pos, next, head)
-> >>> +
-> >>>  /**
-> >>> - * list_for_each_prev_safe - iterate over a list backwards safe agai=
-nst removal of list entry
-> >>> + * list_for_each_mutable - iterate over a list safe against entry re=
-moval
-> >>>   * @pos:	the &struct list_head to use as a loop cursor.
-> >>> - * @n:		another &struct list_head to use as temporary storage
-> >>> - * @head:	the head for your list.
-> >>> + * @...:	either (head) or (next, head)
-> >>> + *
-> >>> + * next:	another &struct list_head to use as optional temporary stor=
-age.
-> >>> + *		The temporary cursor is internal unless explicitly supplied by
-> >>> + *		the caller.
-> >>> + * head:	the head for your list.
-> >>> + */
-> >>> +#define list_for_each_mutable(pos, ...)					\
-> >>> +	CONCATENATE(__list_for_each_mutable, COUNT_ARGS(__VA_ARGS__))	\
-> >>> +		(pos, __VA_ARGS__) =20
-> >>
-> >> The variable argument count logic really just slows down compilation.
-> >> Maybe there aren't enough copies of this code to make that significant.
-> >> But just because you can do it doesn't mean it is a gooD idea.
-> >> I'm also not sure it really adds anything to the readability.
-> >>
-> >> And, it you are going to make the middle argument optional there is
-> >> no need to change the macro name. =20
-> >=20
-> > Christian K=C3=B6nig and Jani Nikula also disagree with the variadic-ar=
-gument
-> > implementation approach. If we abandon that method, it means we will
-> > inevitably need to add some new macros. If mutable is not a good name,
-> > suggestions for better alternatives would be welcome; coming up with a
-> > suitable name is indeed rather tricky. =20
->=20
-> I don't think you need to add a new macro for the specific use case that =
-people want to modify the next element of the iteration.
->=20
-> If I remember your numbers correctly that is a really corner case and kee=
-ping using the existing *_safe() macros for that sounds perfectly fine to m=
-e.
 
-IIRC currently you have a choice of either:
-	define               Item that can't be deleted
-	list_for_each()	     The current item.
-	list_for_each_safe() The next item.
-There is also likely to be code that updates the variables to allow
-for other scenarios.
+On 6/24/26 8:25 AM, Kiryl Shutsemau wrote:
+> On Tue, Jun 23, 2026 at 06:17:32AM -0400, Zhenzhong Duan wrote:
+>> Currently, allocate_unaccepted_bitmap() only scans the initial EFI
+>> boot memory map. This misses hotpluggable ranges described in the
+>> ACPI SRAT. Without early tracking, hotplug pages are accessed without
+>> acceptance and this triggers guest crash.
+>>
+>> Introduce a lightweight ACPI SRAT parser to scan these regions early.
+>> If a region has both ACPI_SRAT_MEM_ENABLED and ACPI_SRAT_MEM_HOT_PLUGGABLE
+>> flags, expand the tracking boundaries. This avoids pulling in the full
+>> ACPI subsystem while ensuring the bitmap covers both static memory and
+>> hotplug memory.
+> 
+> Ugh.. Parsing SRAT there is ugly. I would rather avoid it.
+> 
 
-Note that if increase a reference count and release a lock then list_for_ea=
-ch()
-is likely safer than list_for_each_safe() :-)
+I agree. Parsing it here means SRAT gets parsed twice, which doesn't make much
+sense.
 
-list.h has 9 variants of the 'safe' loop.
-The bloat of another 9 is getting excessive.
+> Do I understand correctly that we don't have a way represent pluggable,
+> but not present memory in EFI memory map?
+> 
+> IIUC, EFI_MEMORY_HOT_PLUGGABLE is actually present, but unpluggable
+> memory.
+> 
 
-It has to be said that this is one of my least favourite type of list...
+Right. And repurposing EFI_MEMORY_HOT_PLUGGABLE (plus updating the spec) would
+likely make this messier: by its current definition it describes cold-plugged
+pages that may be removed, not pages that may be hot-added later.
 
-	David
+> Maybe it would be better just allocate bitmap upto maxmem?
+> 
+> And fix EFI spec to add pluggable-but-not-present attribute.
+> 
 
->=20
-> Regards,
-> Christian.
+I am currently working with the UEFI community around two proposals for a spec
+change:
+1. Add a new attribute, as Kiryl suggested, or
+2. Add a generic new hotplug memory type that represents all the memory that
+   could be added later.
 
+In either case, we could then precisely allocate the bitmap by parsing the
+region with the attribute/type.
+
+I prefer (1), but I have RFC proposals, code-first edk2 changes, and the Linux
+plumbing ready for both approaches, and plan to post them in the following week
+after ironing out a few kinks.
+
+Thanks,
+--Pratik
