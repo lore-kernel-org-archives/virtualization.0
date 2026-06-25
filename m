@@ -1,123 +1,135 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5A8423451C6
-	for <virtualization@lists.linux.dev>; Thu, 25 Jun 2026 13:55:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E700A2E7394
+	for <virtualization@lists.linux.dev>; Thu, 25 Jun 2026 13:57:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782395747; cv=none; b=GJcDeEw2G5EPp1CuWvTbcCGewT+eQhSxoU3KKme8+jr01R7ZyFrPj1l9yHBronzXjYqzG7yvdDiPazaridls4G/hcPoeyH0ACRPiaUrk3hz2SMi0439RPRiGz9G1B1WnR+/xRJ6RjJKQG6K04wj+N+0R+044jHRkZ+4ML9PcqEw=
+	t=1782395860; cv=none; b=ml88BiqEMT1R9+fLFDT1urqtHJ0F8a2e5LvkfK7K6DQIxII8c/iMTjpt2/+lNLo9eThhLm/spveOXbqwqxyodvor57zMpPW0R8sYQ0/H08zqXY6bXBXm7RTGdXlSi1/LgS2kFatCm0n5nsNydqprrjyeGeYRksKbssqxqhGDlf8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782395747; c=relaxed/simple;
-	bh=aNfW+A9k36/gRA+Tgh6RG57Eu1yW774BDygQ/qvn+Ok=;
+	s=arc-20240116; t=1782395860; c=relaxed/simple;
+	bh=09kGKULuxwNRdpnt9MiE6ht8gMXa9r8db2ODWamPlG8=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=FgjK0D6Uy/CX5h1ZEPf/PavdAwKBQGts+mih9OA8TGVg9lNMvjsqEqcLDkSqRH+pNycl5w6xeFZMPUgYCrnZqgsx7TN1pxbs5CkVMcp9jy3a4NgMgfUdEKZx/SS6Q82q9a+FMROtEDVP03ixgpX4y0nWtst5Qb/LxBcrFkUJGbI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=D2QlUMsg; arc=none smtp.client-ip=170.10.133.124
+	 To:Cc:Content-Type; b=JIcZNEOsbnxWenJMpfh8VjQKIV1nXmSupyfeJeFnicjjYYFIJhhSlzwq7BM3o3LCO/10cST8kcKkFdBcmDClmN+kad2dwJhFYdPAnn1NLuukE7yGURk09x6Hjk3a4/R5jaO5zBkKvccXo2ZYCDzNXIBgrTWKeInF87eK65N5+og=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MwJy/w+G; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="D2QlUMsg"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MwJy/w+G"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1782395745;
+	s=mimecast20190719; t=1782395858;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=nPkvny65f42eFjCHdDbukDV95N0h7MS0joXJqLipwG8=;
-	b=D2QlUMsgxzV9t7mZXW3UGfvMh8pkvFQC5+RS+OqNlfDVOz6PvFiwwhrKekDhkf4BGanUpp
-	JT7xKBtGCNF+eB/OZ9cYfhOuWvPoCwNv17Y+gRcK/OBe0+x2LeD9VmdZbIx7fXwiT3lBG4
-	9sL55lMv3xYxceQQFfsRyao/CetU1CY=
-Received: from mail-yw1-f199.google.com (mail-yw1-f199.google.com
- [209.85.128.199]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=yoPQZfQWpHp3NoKHnLamjdykEZkB9/wUFW3GNiNJpas=;
+	b=MwJy/w+GeWVAdaDYVIEeNTh7modpmENdfrWmdJhd8SrMIKapdRQi3WB9lRgbjTTataCDld
+	2w+r3KiEsUgtFCdD2PQgrwI3ouaEDmal2Oarb8PCxvDqBuKopRzEOrWtqo5ixvW/nf8jpC
+	deFkRw7WTGsHN1YbEUsChiT8M4qPKrg=
+Received: from mail-yx1-f70.google.com (mail-yx1-f70.google.com
+ [74.125.224.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-246-4i_SDLSuPs24s2aImW53rw-1; Thu, 25 Jun 2026 09:55:44 -0400
-X-MC-Unique: 4i_SDLSuPs24s2aImW53rw-1
-X-Mimecast-MFC-AGG-ID: 4i_SDLSuPs24s2aImW53rw_1782395743
-Received: by mail-yw1-f199.google.com with SMTP id 00721157ae682-7feee03ead4so46009177b3.1
-        for <virtualization@lists.linux.dev>; Thu, 25 Jun 2026 06:55:43 -0700 (PDT)
+ us-mta-571-WKl-qJwcNs-COStoALTXqQ-1; Thu, 25 Jun 2026 09:57:36 -0400
+X-MC-Unique: WKl-qJwcNs-COStoALTXqQ-1
+X-Mimecast-MFC-AGG-ID: WKl-qJwcNs-COStoALTXqQ_1782395856
+Received: by mail-yx1-f70.google.com with SMTP id 956f58d0204a3-6628850c6e4so3744124d50.1
+        for <virtualization@lists.linux.dev>; Thu, 25 Jun 2026 06:57:36 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782395743; x=1783000543;
+        d=1e100.net; s=20251104; t=1782395856; x=1783000656;
         h=content-transfer-encoding:cc:to:subject:message-id:date:from
          :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to;
-        bh=nPkvny65f42eFjCHdDbukDV95N0h7MS0joXJqLipwG8=;
-        b=Xl9+H97gwWkqP3L8YwMnqfLPG8vw74XHdrsSfKNgNLNPkoc/ymcLu6fbihKcCIgOBc
-         Mytn7U6qk4yKawFDbBPLOOnnr5UbJlZ0y8/TRtao32yFnThMl2dSuCo5h5WjCWu8cvFk
-         hJCmhA9rwOxSwCdPxKKpqFquI0gllTQiYgZAbUmaNs9yvLbLq/YcTdLA+UkflOJAQ8zt
-         PgKbvq//YUxPcmJa/9AT4+u04VfnKOsP8xQTZ5ciJSHX4PuIPruGQw+7Io8TLRUPJW8e
-         WzZN4wSIyTvXlXadSrvyDitUAnPGu918FYyQwrYVJnp3r7sB244zmUafHu+5z5Oaafrf
-         gXoA==
-X-Forwarded-Encrypted: i=1; AHgh+RrudNtn9MpFaVSixDfY+dc5kdLpSck+1cvgbgVCCgqze+c72kFEyrSIkVTLoNryBOY86xhp9ZR9tYPi5VS0kw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwVQHV4hjPOzgDA88RbCWauxnHu2+97Xg2dC0bWxZeTa/I1Guro
-	+iNL9Drky/4GQeQFIIelZV3YZqIh/O5jSFxetscXTU8GiRUg6TNWpJoz2kikRlc+bi9lTFDwESP
-	OPYkT+2yHcG3tjh8DqbkMkAosmvsWwEdNLX+mWEjEkiAdwHXs2HGs+HFhD0jOBSKkOojihDJKl6
-	9FePKHaHDv6NRkxvJLygoipCRjZJ9996HamLt55crLm6A=
-X-Gm-Gg: AfdE7cnPHRuYe8fmd3+MgemT8mmLdIPi9kV9Nc7ULee6XVo/uX5mhKWVSN1oIIGM+LY
-	MIN7zeE1PMMAOqbh+KMo1rHdA07xoVmsxPfFskkod7b1BnQP84KGHavh+MvOjw0INxsUVMHVSWD
-	WoTgc5fFmZw8ALAHhIovq/eZtbsjMZFCEcjveCvoMRCJAeQgcyxTfE8iLkrmH981F8rGg=
-X-Received: by 2002:a05:690e:43d7:b0:662:da40:c989 with SMTP id 956f58d0204a3-66487e23681mr1467897d50.44.1782395743319;
-        Thu, 25 Jun 2026 06:55:43 -0700 (PDT)
-X-Received: by 2002:a05:690e:43d7:b0:662:da40:c989 with SMTP id
- 956f58d0204a3-66487e23681mr1467886d50.44.1782395742840; Thu, 25 Jun 2026
- 06:55:42 -0700 (PDT)
+        bh=yoPQZfQWpHp3NoKHnLamjdykEZkB9/wUFW3GNiNJpas=;
+        b=tWQeJehnqkiMEYlH4XYznDFRZlZhGJwk5N67T3OKxWn7N7LsPrXyOhfuD3dBNPbnjN
+         iIjB3qdYM/Euezb4VzqzLoWSr/ER4WrYCpX6+unRpUF8+dqCAFB73TFRYWGZPXxgb+UE
+         Gg5JYE/66VYUvfrf/BTtY+BLDpcZqh6fkKzcfKdlpQNTrAnLoKpDf+8KpbE4Sm8QafYU
+         UHWbzOukmsidnCAOUA1maCuUx2UMmOE2vRRBC7Jgaed6vdr8sNUyAVZ6jHyXTgpzalmb
+         0z48ywiQ8WsWEj/6LCjQ5KO6i2RWmE8hJefu/0VbDRZshP05Gd0U9w/wOo+Gy+nV6Cux
+         bn0g==
+X-Forwarded-Encrypted: i=1; AHgh+RqbLBpotB48qp/dyE0jqOVjT4bppIubQvfqFDptpb2XugI6CokiSiDMrQ0nAB3EoU+UWvrMLH+SqfZaeCjFmA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyw4SNsuT4gpW2RMXnbL/4XFzMjeZFgCc9TJmcNWg25iviybhX5
+	qcQt6QLwG/REj/LzS8PsPksbTPY/pOP35lc+iw7c3IOWowPiP4e7DotmrypCa4waBmLY9Ydfs3B
+	/Siu3MLDftKUF8RT48bgNhtbcNkK1PEwpDLeOph0fP6KqQiEXZFpvifBaehCQ784YkdH1meYzBE
+	RHkQEOPK5YSlaBAltCNGRv7r1YduRzJgIJMemPp12kUY4=
+X-Gm-Gg: AfdE7clavk+fIWATmJwkcUrvbQCOvBYeyENsM/C8G9R8hp9+FDSGXWwJkw8ilJ1GwW9
+	lZBsCR2atzymCRMBTMsJMGlk2RqpVE7oMwQqMI2ubuMeZma1IwC9MGcf6uf8tIXCbTtu0aacolc
+	1NDGVnCFF7KfTNMk8Q/6Nj+MpnUjfhOSzR5BqxjmrUm8hVIVvgNGVIxMaLM8TefZsu1oQ=
+X-Received: by 2002:a05:690e:118d:b0:664:9032:656e with SMTP id 956f58d0204a3-6649032684dmr1013799d50.17.1782395856203;
+        Thu, 25 Jun 2026 06:57:36 -0700 (PDT)
+X-Received: by 2002:a05:690e:118d:b0:664:9032:656e with SMTP id
+ 956f58d0204a3-6649032684dmr1013773d50.17.1782395855647; Thu, 25 Jun 2026
+ 06:57:35 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <E091F15D8FBE8F16+20260618100254.513806-1-chenyichong@uniontech.com>
-In-Reply-To: <E091F15D8FBE8F16+20260618100254.513806-1-chenyichong@uniontech.com>
+References: <20260526080336.61296-1-r4o5m6e8o@163.com> <CAJaqyWcFm0A5ucL5TLP8+T8JNOiZyaL-_mb747_fKhH9Qm83ig@mail.gmail.com>
+In-Reply-To: <CAJaqyWcFm0A5ucL5TLP8+T8JNOiZyaL-_mb747_fKhH9Qm83ig@mail.gmail.com>
 From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Thu, 25 Jun 2026 15:55:05 +0200
-X-Gm-Features: AVVi8CdHlE3KdOXYPcrSXvIdHywLTQfOtV4EMPa67YWu5gafATfppLkSRXgCrpg
-Message-ID: <CAJaqyWe4jeTLuW73Bj279Mf6g+3A0nsOToBFc3otMeEM+0hp2w@mail.gmail.com>
-Subject: Re: [PATCH] tools/virtio: Remove unsupported --batch option from vhost_net_test
-To: Yichong Chen <chenyichong@uniontech.com>
-Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Date: Thu, 25 Jun 2026 15:56:58 +0200
+X-Gm-Features: AVVi8Cf6xgF5zkdsxl65CjXk9mAqqpZ16WJN5rElDgN4AmLJNI0ZYQtf2VXrmew
+Message-ID: <CAJaqyWeGTKZB7BCHV4MzjRsg0B43qoTDCYjUKvqyyAjyB3edqQ@mail.gmail.com>
+Subject: Re: [PATCH] vhost/net: fix clear_user start address in VHOST_GET_FEATURES_ARRAY
+To: "rom.wang" <r4o5m6e8o@163.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Paolo Abeni <pabeni@redhat.com>, 
+	kvm@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, Yufeng Wang <wangyufeng@kylinos.cn>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: l26HUFWeyc19Gpsk7q1a592Fbkl8df6cKXAlFpkq4c0_1782395743
+X-Mimecast-MFC-PROC-ID: 6ghEfBMDMlP0WshGT-5SJXvTYYhSa9uvRZBVVyFounY_1782395856
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jun 18, 2026 at 12:03=E2=80=AFPM Yichong Chen <chenyichong@uniontec=
-h.com> wrote:
+On Thu, Jun 25, 2026 at 3:48=E2=80=AFPM Eugenio Perez Martin
+<eperezma@redhat.com> wrote:
 >
-> vhost_net_test has --batch in longopts, but not in help.
+> On Tue, May 26, 2026 at 10:04=E2=80=AFAM rom.wang <r4o5m6e8o@163.com> wro=
+te:
+> >
+> > From: Yufeng Wang <wangyufeng@kylinos.cn>
+> >
+> > The clear_user() call in VHOST_GET_FEATURES_ARRAY incorrectly starts
+> > at argp, which is the beginning of the features array, overwriting the
+> > data just written by copy_to_user(). It should start after the copied
+> > elements at argp + copied * sizeof(u64) to only zero the trailing
+> > unused space.
+> >
+> > Fixes: 333c515d1896 ("vhost-net: allow configuring extended features")
+> > Signed-off-by: Yufeng Wang <wangyufeng@kylinos.cn>
+> > ---
+> >  drivers/vhost/net.c | 3 ++-
+> >  1 file changed, 2 insertions(+), 1 deletion(-)
+> >
+> > diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+> > index db341c922673..70c578acf840 100644
+> > --- a/drivers/vhost/net.c
+> > +++ b/drivers/vhost/net.c
+> > @@ -1777,7 +1777,8 @@ static long vhost_net_ioctl(struct file *f, unsig=
+ned int ioctl,
+> >                         return -EFAULT;
+> >
+> >                 /* Zero the trailing space provided by user-space, if a=
+ny */
+> > -               if (clear_user(argp, size_mul(count - copied, sizeof(u6=
+4))))
+> > +               if (clear_user(argp + copied * sizeof(u64),
+> > +                              size_mul(count - copied, sizeof(u64))))
 >
-> The parser never handles 'b', so --batch hits assert(0).
+> The fix looks good to me, but why not use size_mul() macro for copied
+> * sizeof(u64) multiplication?
 >
-> Remove the unsupported option.
->
-> Signed-off-by: Yichong Chen <chenyichong@uniontech.com>
 
-Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+Also, could you add a new switch to tools/virtio/vhost_net_test.c to
+use the VHOST_GET_FEATURES_ARRAY and VHOST_SET_FEATURES_ARRAY instead
+of VHOST_GET_FEATURES and VHOST_SET_FEATURES?
 
-Thanks!
-
-> ---
->  tools/virtio/vhost_net_test.c | 5 -----
->  1 file changed, 5 deletions(-)
->
-> diff --git a/tools/virtio/vhost_net_test.c b/tools/virtio/vhost_net_test.=
-c
-> index 389d99a6d7c7..566e15420bb6 100644
-> --- a/tools/virtio/vhost_net_test.c
-> +++ b/tools/virtio/vhost_net_test.c
-> @@ -450,11 +450,6 @@ static const struct option longopts[] =3D {
->                 .val =3D 'n',
->                 .has_arg =3D required_argument,
->         },
-> -       {
-> -               .name =3D "batch",
-> -               .val =3D 'b',
-> -               .has_arg =3D required_argument,
-> -       },
->         {
->         }
->  };
-> --
-> 2.51.0
->
+> >                         return -EFAULT;
+> >                 return 0;
+> >         case VHOST_SET_FEATURES_ARRAY:
+> > --
+> > 2.34.1
+> >
+> >
 
