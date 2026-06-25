@@ -1,273 +1,203 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from MRWPR03CU001.outbound.protection.outlook.com (mail-francesouthazon11021079.outbound.protection.outlook.com [40.107.130.79])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 85DB22EEE65
-	for <virtualization@lists.linux.dev>; Thu, 25 Jun 2026 14:05:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782396349; cv=none; b=p7ZcbNG6zE7kID38SbPbqDdB4UBZXn2zssC8Wlimo9nT2E8grXyILuueDQTQfMe0dw545r3klU4CroOK19a4fVrdj9x07wWOcRxKNdEDi1+g2vIIWf9ukcR4Ej2YYf0HM2tzL0dw5XQs5hbeTFretKK1EBVIV1iEX+GnPn7MXYQ=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782396349; c=relaxed/simple;
-	bh=EzCJmvkF32NeoECzTzTb4mMaXcdTH7GHIf1Gnqdps30=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Gs/r0T0wXui9koFgsElN2JkFzbTstiJu3BsUEYg9QPwu6YfPnrPBPvXj3fqJ7oa072PFVAyUZDV+1+4Wj4A2Lko0HRx8YTCx27ya33DB81GU5BwDWUKtJE16QbVn12FY6/ofLnGdHgiTLTidXd+mJdLW+DSqTRn7ZGkMN0bCzrI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=NAVKF3Q3; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0BA932727E2
+	for <virtualization@lists.linux.dev>; Thu, 25 Jun 2026 15:32:57 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.130.79
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782401579; cv=fail; b=P9NSSYeS0emKEFPBk3yGv8blIO1OnAeX4If6UNxT27eP7H38SRRyLCpTjj7qFws0ebrxWMG1LUd/OZM9KsQoi2YeSAr5GoLTWrnN39yODdSJbr8eDc9DNgQX6ZibV3uxdu/ej1xUNLieOM22FgZp7RxtcC40Lb7uJv6IE4k9OV0=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782401579; c=relaxed/simple;
+	bh=FijUo7oWPxBj1GxODqA7RUcbZ1VYT/OZRm/0iu9crX0=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=lheKxuFB2bUVKY/8hW4w9ytLmP1P6bJdDqaXc8zvldBpKxO49198A7ypGhad87C5UhkTtt2IR/5hMlT8s5JKTB0XCdeKZYuLfpg84AwEvapI22Hn/L4wuVcHsjy77iGzXCVP75MzDFSO+FKjrPS/Y37reah0ZoUYJMJuPZ3PcYI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=virtuozzo.com; spf=pass smtp.mailfrom=virtuozzo.com; dkim=pass (2048-bit key) header.d=virtuozzo.com header.i=@virtuozzo.com header.b=RcbsbG3y; arc=fail smtp.client-ip=40.107.130.79
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=virtuozzo.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=virtuozzo.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="NAVKF3Q3"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1782396346;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=4kivMSTgreRdnXzlmvIzuRSVNtW0E5n9l4kLwSipR2o=;
-	b=NAVKF3Q3p+ZPr1lsls0OhWODFdN1Htxb71vKIo4AGbwOKraKMvuMw9QTF/RAJ+SLv+y4RH
-	RR+JMTxucz7cSrqpavLejshC6X+/WMYVIUTYjBm40A3jGKF3jDEO18thzFBzQ/pp19adQA
-	3uENAdtn09Xk00rM9Te3DNGYs+rsP1Y=
-Received: from mail-yx1-f72.google.com (mail-yx1-f72.google.com
- [74.125.224.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-324-5k8IgP2hMZOyCdF-G-Mweg-1; Thu, 25 Jun 2026 10:05:45 -0400
-X-MC-Unique: 5k8IgP2hMZOyCdF-G-Mweg-1
-X-Mimecast-MFC-AGG-ID: 5k8IgP2hMZOyCdF-G-Mweg_1782396344
-Received: by mail-yx1-f72.google.com with SMTP id 956f58d0204a3-662ba134bf9so1796551d50.1
-        for <virtualization@lists.linux.dev>; Thu, 25 Jun 2026 07:05:45 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782396344; x=1783001144;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=4kivMSTgreRdnXzlmvIzuRSVNtW0E5n9l4kLwSipR2o=;
-        b=rZv1vKl57pVrNFpoZIWE/RkA37IikMRDhaEZSN65t/WmnA8EqQTFIj4VidQw8QsEml
-         A426HB7kZmZkNtmpbSomnfi8XDMXiNyEjvoQA3Q/vopPbr8j9Og9SE7X1BecyFOc4oBM
-         vF+ruHWMYr1G+OSlVB/nGZd8Ie+exrOS9GFPaDCHzi1FeS0chnP5gmU2Zf/a+KuYunnd
-         6UqcP6k9nGibC2E4R76U3wrd1SUQQuuu8yBQZFGxzXmK15epPt2EAI1Cr1AqYqRV7FSH
-         tmsMb9AK3ptIiiROO/zWc3awQdIFzgbkGt/Yc0yGn5CQEnQTsib7uxDIOWOMYvaZ6vrN
-         g8xg==
-X-Forwarded-Encrypted: i=1; AHgh+Rq5Txup0RB/0BShfENokUAy5+fvcyws3rOSJ/HYumewfZRjU0KHcIB8l9V+EQIeTJfjp/KMGoBLDnTmEFSRDQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzsu7t/BqwLMxr1hpldtjmpSfB30YNE7S/r0hP01YNEIdTls/rr
-	sMlwv1IkQ/lbqy8/kSEilge+tMBN9qgGzmPH/Oz6lMRiwrXBR6CStEulzaO8KUgJ655qNkEH+0+
-	YLpP1WmVFvJbc/S7Ws4IdwI2TvDSkKrA3hW/YzlL7VyS6l54ZKuxTpTiAPC/w1Pzb0nJWP8a9uV
-	kab/evNrBLj/YBRbQySTGFNoHIzqVIp21sIyhVuq1vSqU=
-X-Gm-Gg: AfdE7clO0L1Cx1DHICk+X8KzlY7OVbMyJB7XPOJ1ZeYahqhzbinFX6WeuVYFvQmoKLc
-	t0RLJlDfaksWbxTjVUuiQvcjkoUkqpv1XBd+uDWfXjkX+G1Dqy63L5KHyodwskTH6KqkMD8mUkT
-	8WpX2yHhTGAyhduuTVQWIMUVDPjlJv2K00cfcB2uF47Qr0vWqIQo3wcfv4WLsDfQliRgM=
-X-Received: by 2002:a05:690e:1511:b0:663:271f:6d7e with SMTP id 956f58d0204a3-66487a81a9dmr1832213d50.31.1782396344297;
-        Thu, 25 Jun 2026 07:05:44 -0700 (PDT)
-X-Received: by 2002:a05:690e:1511:b0:663:271f:6d7e with SMTP id
- 956f58d0204a3-66487a81a9dmr1832146d50.31.1782396343623; Thu, 25 Jun 2026
- 07:05:43 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=virtuozzo.com header.i=@virtuozzo.com header.b="RcbsbG3y"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=tPW5e2W8uY4Q9X0sZOZF6D4b7taHAXIJrfxXRnV6MKgzLXWHXaBoEdAzZSFQnbdUN4o+PecG1lTAnAO6b5NP+LZWPYqw0EVgnGTgtat7hGPow2ZjZx1mv+P3/iufx2iZbTqz8ZG00a+JBV1Lbu7nJID5znzblXJXYn2YPzhX2PoI8MHhX7uqCpMMNo4KzNjY9EKDZb9qchNvAz0VVxgPBsHhmyRdzk3Nan6sCW8LKNn2xVFoUIna+OPzcxxzPZHW8FXKm8l24WXZPZOucNblf15TUR/TZBY3WW5B/RCXsrRLva/Jg2NAR4PyirrCaq1R4RNfTbCpqwNNcgPiomJiBA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=Z3GugCxv1fRDW+o6MSGauG176DxdFfjvO4gKbfDYelc=;
+ b=WjUM+nIyFylESpbnTRc14sUkPzAjaQSHhCrKxseTIWVv35DPJ+6dbmOFFERGi+EleopUNaZl83IAZYzDdeYjoKO+NRmBTqNBt2NH4LlK4SHB3iTunYKoVtD0nQp92e7Mfct8tS/LCod14HWNOCjSdw82dHEb8Uy2PS8awYwAvLFRkdO+JJBmpi8p6WBexAEGhGFZXuHqljpehtP7qCifll/TjRGElIfixOlDGnCO7+MpFhjOr8oqLpRFoSkr1fwNiSbLLBT4Xhuqf+IEUz0LlTPxbxUE6VIg7Wcg033BCAZobVOEi7eXt+Z3ICcx3/mSHuEsWbHvctK8uSt04ZLF4A==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=virtuozzo.com; dmarc=pass action=none
+ header.from=virtuozzo.com; dkim=pass header.d=virtuozzo.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=virtuozzo.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=Z3GugCxv1fRDW+o6MSGauG176DxdFfjvO4gKbfDYelc=;
+ b=RcbsbG3ypvQxJrQ+RQBX+jOEw4F7sA0hjDVxpOG+jKPdcP57vN123mtygJgn3VFW3OXmrYaRRrVPQaLy9WdfZ0ScfJyqPpnymC84BpYdcxOEVV9aJkn6evkCd1PNOeorL8dBh2WC+ZJWSAlItfsAcQPQMcu7O9cEQ+DxzFbr9QjD8oCPlbUFH4sN2anE9ZQwMNnRncYhhnRqQrv0ujuBV7rf57hjrBgvkT2FsqnBeQM15zajVtuba8k1qvdqJx+i3f2Z70bvBBieyFD2cIw3+7C459gtYU/Sa8cl7CejoAhSPM3wIeIbUqnmNFZD7w132JVuUhwTliv+EtvglG7WhA==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=virtuozzo.com;
+Received: from AM0PR08MB11804.eurprd08.prod.outlook.com
+ (2603:10a6:20b:747::14) by GVXPR08MB10573.eurprd08.prod.outlook.com
+ (2603:10a6:150:14b::14) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.159.16; Thu, 25 Jun
+ 2026 15:32:52 +0000
+Received: from AM0PR08MB11804.eurprd08.prod.outlook.com
+ ([fe80::bf46:f137:f6d2:5b3a]) by AM0PR08MB11804.eurprd08.prod.outlook.com
+ ([fe80::bf46:f137:f6d2:5b3a%6]) with mapi id 15.21.0159.013; Thu, 25 Jun 2026
+ 15:32:52 +0000
+Message-ID: <9fd63541-dcc0-4478-a9de-f0444f2c86f5@virtuozzo.com>
+Date: Thu, 25 Jun 2026 17:32:51 +0200
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 0/4] vhost/vsock: add support for VHOST_RESET_OWNER and
+ CPR migration
+To: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>,
+ linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org, virtualization@lists.linux.dev,
+ netdev@vger.kernel.org, sgarzare@redhat.com, mst@redhat.com,
+ stefanha@redhat.com, dongli.zhang@oracle.com, maciej.szmigiero@oracle.com,
+ bchaney@akamai.com, mark.kanda@oracle.com, den@openvz.org
+References: <20260622175808.508084-1-andrey.drobyshev@virtuozzo.com>
+Content-Language: en-US
+From: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
+In-Reply-To: <20260622175808.508084-1-andrey.drobyshev@virtuozzo.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: BE1P281CA0401.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:b10:80::16) To AM0PR08MB11804.eurprd08.prod.outlook.com
+ (2603:10a6:20b:747::14)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260618095642.510565-1-chenyichong@uniontech.com> <84157955DFE4842D+20260618095642.510565-2-chenyichong@uniontech.com>
-In-Reply-To: <84157955DFE4842D+20260618095642.510565-2-chenyichong@uniontech.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Thu, 25 Jun 2026 16:05:07 +0200
-X-Gm-Features: AVVi8CdiMpzMl64VumRhVyiv0b0g5TPRdL0fzn6G3qqcleWIIgicOLxJ0ISOtiE
-Message-ID: <CAJaqyWc3jR5vtp6vG9b5i85jgohXtcMh2KhAn2eZEzqPX5Ks=Q@mail.gmail.com>
-Subject: Re: [PATCH 1/2] tools/virtio: Add missing compat definitions for vhost_net_test
-To: Yichong Chen <chenyichong@uniontech.com>
-Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, 
-	rppt@kernel.org, ljs@kernel.org, akpm@linux-foundation.org, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 6oG69TERA3Swp3m4OPFxzGiXCyKWmWE56WT3a-5Kf3E_1782396344
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: AM0PR08MB11804:EE_|GVXPR08MB10573:EE_
+X-MS-Office365-Filtering-Correlation-Id: 950c3b63-5ebf-4a17-d2a6-08ded2cf0553
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|366016|10070799003|23010399003|376014|7416014|22082099003|18002099003|56012099006;
+X-Microsoft-Antispam-Message-Info:
+	MNKa3nSUIEcJt76TW5Ly4g9jS6Hxxw+veryFW+RNpkJ8kQsauD+Y1YU/+fBBu3HhIy5Vz9NMAMbbql83rjrWjd8GGhVYNx0XCvfLe0n0kuCvTAoEuWbjWFw8ZQv6yQFoWoi59SQSYiNq+n70pP9LNby2Q5m6+D0rZFUUIJ9BahQIHf1Ek4W08EzixDrJ2nmojZdSxTPgFS5QvWZ6305yIKd/KaF2eokMGIAvCFk/s8tYUfLjuRuFX6pn3fN+ivm37bNqdSUNI0wz9aRxKGeQKVvSFn/33kNR29yrJx80AaV39Aq8MFFU9+bZNs0hUGx1Ip1xr6HIYE/N3rK1h9rQGOwXn8vNXCttexq5BuWpeQ63UwbP3UdVOS2wM/QJdh3vzBs76c6WLyX+6bE6pyuVDetcEdtH+EFiY/F5ZZeFi5lxEHG+cna5iypjup1BGwXQZnHvpQAcQmQzkxsqF3ROQECYbrk3T2lbBJUYbZQ5Hmf3QjYl/LvBkk9QCdcdl6knS3XQojtijXdMJZRjTphnM4KoJ01BnQgOkCKerIMJKvg7u0Lr9iBhnhuAmy0RyTRJu7Ar9M8iAbkvmdTwYshCODVb7AgkF+iz7y+Mma5sbBFtuikBkcyrvhWcgrE0oeIL0tRZo4KwFgjnnF5wR2AoaZcqQTSobKtbtjy3B0Wl/+s=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM0PR08MB11804.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(10070799003)(23010399003)(376014)(7416014)(22082099003)(18002099003)(56012099006);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 2
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?TWpGbyt1cmZXWGxkWmpBSFdueUNyUUNjdUZkdXlQTGdvVWFPOHlNemo1ZlVG?=
+ =?utf-8?B?d1lYMjJEM3JCM1dwMmlpUjFNY0NiK0ZMVWpEMDluRHZ3K0ViY2ZUMVRtYnJS?=
+ =?utf-8?B?YjN0Z2VrSTVjUzNBUDlLL1NwaGxlVGlCTVN5WUxsUUtjd0xjSnFWNHJaV0VE?=
+ =?utf-8?B?SmVhVkpEWDJRSk04UDlVVi9ubEljalMwVFI0aWRNNHE0SUxSb2x1cXJuOVpR?=
+ =?utf-8?B?S3Y5azB2ekJITHI3TUR4djk0dVRldFNxbWFnbHJYREMvWWZuMkE5aWlQS2FL?=
+ =?utf-8?B?T1ArWEExeUpwNEtkMldaalVnVG5kWnlTYk5rZ0lpU3NGRU9reUZ0NFRyTkd2?=
+ =?utf-8?B?bVhsMlBwakVaS3loV05mNjNzK3E5UzJwQjNuU1k3UGlkWmpxS2dpRzlYaXgx?=
+ =?utf-8?B?UytQMnYxQzNoaFdyenljK0sxTFJGUXhKYmtCaFl0WjB3MVdRREMxQkVvNDRU?=
+ =?utf-8?B?RFB6djllQXhKdjlnYTBKcDcrZk5odjc1Z0cyM3ZXd3Bsc1ZFUUxEN2JGZnlt?=
+ =?utf-8?B?Wk02OG4yMHNuWXNiUG02b1JPS0h5a3lWZEh3RS9jTE5Bd2cxWmVaZ29mNVZD?=
+ =?utf-8?B?b1hsSmtDcTBQN3loUndBZnMrWithNDkwTnhJVGlFVVlkc1drS3l5S1cxeFAy?=
+ =?utf-8?B?cmdjYXU3ZnFKNlN3NnEvaXBCYW1OWEdCTHJwalQ3eWxYazNydXp4cUNVaXB3?=
+ =?utf-8?B?NXhPMEFDNkcxbUliWnVnaW8zVmxUblQ1N0Q0YlplMElrZ3hNNm1mcW91cDg5?=
+ =?utf-8?B?cTR0TGZtb0ZoNENkV0FFUDM1MElJOFhnWTFOZ3RpSUdpNU4vYUJHTWFKR0dz?=
+ =?utf-8?B?UmpOc0hvMXg4Ky9LRGM4dTZuMGE4dFV4d01lSXBPQlVLcDFkaEI0L3hhb1Z2?=
+ =?utf-8?B?WURjNFZQM2YvT1BhOHAzWGlFQnB0MG50U1RNZUZhd0F6dC9DMFFjR3JTVE5Y?=
+ =?utf-8?B?L1FzeEhwQXJjNEVES3hKdVRydmlnQnB2UXJPamJ2WlFJbkZ1RHByWDdiWUlE?=
+ =?utf-8?B?NCtqdGdwQk41a3dUak1jUEZzZFJBMTVZYVpGbFF0ZkFNZ2pZdE5tZUlwMHNu?=
+ =?utf-8?B?Z0w2WXpXaUJ0M2dEV0JGTE1zdEdpOUJ4RG5sS2IyemtqVWdLN2xlVFFrb1NI?=
+ =?utf-8?B?Qng2SVZpOGlON1Zqbmh6SDlaUkhYVjlmaERsemJhRXZUdzhhMVNFYk9oN1FU?=
+ =?utf-8?B?SXRCSzZHcDRaZStudnZiRGZOSXJhRjVpNGY3b05Zd1I5eDRpMVoxcHBxK0Qr?=
+ =?utf-8?B?SVlhSTcyWSs5bXJPOGZPTTMvZTk2OWVnY3Z5RkNGdVNrUURKUTNCNGgrYm42?=
+ =?utf-8?B?dzRBeWkzbnUzaVB2M2tBTXdxSFh4aWVONzFwQlVmYm5odFBMUFRzVHlHL3Z2?=
+ =?utf-8?B?Vk9vV09SREVqRmx1Nzk2U0grRWUyOFZYbXlEbXJCZThpVVJwcjB6VC9mSzVh?=
+ =?utf-8?B?OXIvYndpeGpqeDRBUkFYNXVEMFRZMm9uQ1RIampIQ3FHdFFWWWdOT2V0clZG?=
+ =?utf-8?B?U05SYkY3R2R1TW5EbWdsMkkyQVNOb01oUEdLdXliTy9JOWd5UTlQcm4wdUdE?=
+ =?utf-8?B?VS9sUE03bkVoSlptYStHbDlEcndhRzZkMWdROHBlcUNjdnNpS1RxVUc1NjI5?=
+ =?utf-8?B?TVNWZzFpR010akM5NjVZRm9aK2xqTERlQ1BITnpZTFBKbHZSdmhVdzQwbWN1?=
+ =?utf-8?B?Uk1lSDdGSjUxbFREVTZsQ3E2clQ4UkFCVG5xeFZ2STB4Zm44cGw5bmNGVWUw?=
+ =?utf-8?B?c010akt4YmVNd0ZjbXNZYjVuMml0OU11SEpLMFR3WWtFSGllejY2UHFkdXlG?=
+ =?utf-8?B?TDFmT3JsdktqRmI5WjBLOUVTRFNKWEw0MlB0REVtZVlFNmlpS0xmM0pPMDlJ?=
+ =?utf-8?B?VkVYVzV5NzU1RTRycnF5QkpFK3hMV2ozd2ZJWWVzbGJwdUdYMVpOckF1Skto?=
+ =?utf-8?B?TlZoNWg1aUk1Q1VJaXJXcVhGMTFVdHFVYzEwckpxUDlleXFRaE92Z2paTyty?=
+ =?utf-8?B?WktoVURaNGRjS3dpOVhrN0JYb3o1TmU2VmVZcVRnYXd5Sk1abHRRR0xtazhm?=
+ =?utf-8?B?NTBBdEUwZUdLMkRZaUtCZW9UL0FhSkxvMUJiclZoa1RodWtmVGxBd2dkdSt0?=
+ =?utf-8?B?TllmczR6emF4SlZ6N0NXOG55azFndVpvNUhjVDlrV2JSdmNhcDg0NFpMT2Rl?=
+ =?utf-8?B?eCszb3hxTFo3bjlMVUpPbFB2bzVkRlk4MExyMUN0dFR4ZkhEZDVwNUNiSUgx?=
+ =?utf-8?B?UUZ0ZlJHbVpUMjd2Ty9XeGJHZ1MzbzZ3Q29uajNVMVNISjR3SHZFUlNJcEM2?=
+ =?utf-8?B?eGpISWNaTUg3RTN5TU10dU1hUGhPQUJ5N1N2eHRQaFdsa21BZE92TVVaamlz?=
+ =?utf-8?Q?MZLyPP04EMeAEGtyb0MoKGlPt1aQQ/rhEYdso803XIxSw?=
+X-MS-Exchange-AntiSpam-MessageData-1: UaWS+Q4t6ZeBUTM2NOwItOPK+YqSaR2TIuo=
+X-OriginatorOrg: virtuozzo.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 950c3b63-5ebf-4a17-d2a6-08ded2cf0553
+X-MS-Exchange-CrossTenant-AuthSource: AM0PR08MB11804.eurprd08.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 25 Jun 2026 15:32:52.3574
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 0bc7f26d-0264-416e-a6fc-8352af79c58f
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: pUOWWOUd+mlrFfzrKvwQ6mTr2Kt7l1ughuwCk1XATOUA34N0xvn4DDRnpVdaLgFsV5m6wjLfAy+CDYBsg4RgGOKJkPnHD4jZxYNy5s3DRR4=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: GVXPR08MB10573
 
-On Thu, Jun 18, 2026 at 11:59=E2=80=AFAM Yichong Chen <chenyichong@uniontec=
-h.com> wrote:
->
-> vhost_net_test builds virtio_ring.c in userspace.
->
-> Recent virtio headers pull in new helper headers.
->
-> They also use new allocation helpers and a DMA attribute.
->
-> Add the missing compat definitions.
->
+Reviewed-by: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
 
-I'm all in with this patch but it still misses some headers, could you
-check again with latest master?
+On 6/22/26 19:58, Andrey Drobyshev wrote:
+> v1 -> v2:
+> 
+>   * Patch 2 (suppress EHOSTUNREACH): replace 'cpr_paused' + backend check
+>     with a single 'started' latch;
+>   * Patch 3 (re-scan TX virtqueue): reword commit message;
+>   * Patch 4 (VHOST_RESET_OWNER):
+>       - fix a vhost_worker use-after-free / stuck VHOST_WORK_QUEUED stall
+>         against the lockless send path;
+>       - drop the no-op vsock_for_each_connected_socket() iteration;
+>   * Shuffle the patches, keep RESET_OWNER implementation last to preserve
+>     bisectability;
+>   * Reword the cover letter.
+> 
+> v1: https://lore.kernel.org/virtualization/20260612165718.433546-1-andrey.drobyshev@virtuozzo.com
+> 
+> Host<-->guest connections via AF_VSOCK sockets aren't supposed to
+> outlive VM migration, since VM is moving to another host.  However
+> there's a special case, which is QEMU live-update, or CPR
+> (checkpoint-restore) migration.  In this case, VM remains on the same
+> host, and we'd like such connections to persist.
+> 
+> For this to work, we need to be able to transfer device ownership from
+> source QEMU to dest QEMU.  Namely, source needs to reset ownership by
+> issuing VHOST_RESET_OWNER ioctl, and then target has to claim it by
+> calling VHOST_SET_OWNER.
+> 
+> Since VHOST_RESET_OWNER isn't yet implemented for vhost-vsock, let's add
+> such implementation.  Patch 1 is a preliminary helper.  Patches 2 and 3
+> fix the pre-existing issues which do manifest during CPR / RESET_OWNER.
+> Patch 4 is the ioctl's implementation itself - we keep it last to
+> preserve bisectability.
+> 
+> There's a complementary series for QEMU [0] adding support of vhost-vsock
+> devices during CPR migration.
+> 
+> I've tested this (patched QEMU + patched kernel) approximately as follows:
+> 
+>   * Run listener in the guest:
+>   socat -u VSOCK-LISTEN:9999 - >/tmp/recv.bin
+> 
+>   * Run data transfer from host to guest:
+>   socat -u FILE:/root/bigfile.bin VSOCK-CONNECT:CID:9999
+> 
+>   * Perform CPR migration during transfer (either cpr-exec or cpr-transfer)
+>   * Check that file hash sum matches
+> 
+> [0] https://lore.kernel.org/qemu-devel/20260619105514.128812-1-andrey.drobyshev@virtuozzo.com
+> 
+> Andrey Drobyshev (2):
+>   vhost/vsock: suppress EHOSTUNREACH fast-fail during CPR pause
+>   vhost/vsock: re-scan TX virtqueue on device start
+> 
+> Pavel Tikhomirov (2):
+>   vhost/vsock: split out vhost_vsock_drop_backends helper
+>   vhost/vsock: add VHOST_RESET_OWNER ioctl
+> 
+>  drivers/vhost/vsock.c | 96 ++++++++++++++++++++++++++++++++++---------
+>  1 file changed, 76 insertions(+), 20 deletions(-)
+> 
 
-$ make vhost_net_test
-cc -g -O2 -Werror -Wno-maybe-uninitialized -Wall -I. -I../include/ -I
-../../usr/include/ -Wno-pointer-sign -fno-strict-overflow
--fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -include
-../../include/linux/kconfig.h -mfunction-return=3Dthunk
--fcf-protection=3Dnone -mindirect-branch-register -pthread   -c -o
-virtio_ring.o ../../drivers/virtio/virtio_ring.c
-In file included from ./linux/compiler.h:7,
-                 from ./linux/kernel.h:12,
-                 from ./linux/scatterlist.h:4,
-                 from ./../../include/linux/virtio.h:7,
-                 from ./linux/virtio.h:1,
-                 from ../../drivers/virtio/virtio_ring.c:6:
-./linux/../../../include/linux/compiler_types.h:638:10: fatal error:
-asm/percpu_types.h: No such file or directory
-  638 | #include <asm/percpu_types.h>
-      |          ^~~~~~~~~~~~~~~~~~~~
-compilation terminated.
-make: *** [<builtin>: virtio_ring.o] Error 1
-
-> Signed-off-by: Yichong Chen <chenyichong@uniontech.com>
-> ---
->  tools/virtio/linux/completion.h      |  9 +++++
->  tools/virtio/linux/device.h          |  1 +
->  tools/virtio/linux/dma-mapping.h     |  1 +
->  tools/virtio/linux/mod_devicetable.h | 14 +++++++
->  tools/virtio/linux/slab.h            |  4 ++
->  tools/virtio/linux/virtio_features.h | 56 ++++++++++++++++++++++++++++
->  6 files changed, 85 insertions(+)
->  create mode 100644 tools/virtio/linux/completion.h
->  create mode 100644 tools/virtio/linux/mod_devicetable.h
->  create mode 100644 tools/virtio/linux/virtio_features.h
->
-> diff --git a/tools/virtio/linux/completion.h b/tools/virtio/linux/complet=
-ion.h
-> new file mode 100644
-> index 000000000000..5e54b679721b
-> --- /dev/null
-> +++ b/tools/virtio/linux/completion.h
-> @@ -0,0 +1,9 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +#ifndef _LINUX_COMPLETION_H
-> +#define _LINUX_COMPLETION_H
-> +
-> +struct completion {
-> +       unsigned int done;
-> +};
-> +
-> +#endif /* _LINUX_COMPLETION_H */
-> diff --git a/tools/virtio/linux/device.h b/tools/virtio/linux/device.h
-> index 075c2140d975..abf100cb0023 100644
-> --- a/tools/virtio/linux/device.h
-> +++ b/tools/virtio/linux/device.h
-> @@ -1,4 +1,5 @@
->  #ifndef LINUX_DEVICE_H
-> +#define LINUX_DEVICE_H
->
->  struct device {
->         void *parent;
-> diff --git a/tools/virtio/linux/dma-mapping.h b/tools/virtio/linux/dma-ma=
-pping.h
-> index fddfa2fbb276..65e2974b3908 100644
-> --- a/tools/virtio/linux/dma-mapping.h
-> +++ b/tools/virtio/linux/dma-mapping.h
-> @@ -59,5 +59,6 @@ enum dma_data_direction {
->   * instead.
->   */
->  #define DMA_MAPPING_ERROR              (~(dma_addr_t)0)
-> +#define DMA_ATTR_DEBUGGING_IGNORE_CACHELINES   0
->
->  #endif
-> diff --git a/tools/virtio/linux/mod_devicetable.h b/tools/virtio/linux/mo=
-d_devicetable.h
-> new file mode 100644
-> index 000000000000..3ba594b8229d
-> --- /dev/null
-> +++ b/tools/virtio/linux/mod_devicetable.h
-> @@ -0,0 +1,14 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +#ifndef _LINUX_MOD_DEVICETABLE_H
-> +#define _LINUX_MOD_DEVICETABLE_H
-> +
-> +#include <linux/types.h>
-> +
-> +struct virtio_device_id {
-> +       __u32 device;
-> +       __u32 vendor;
-> +};
-> +
-> +#define VIRTIO_DEV_ANY_ID      0xffffffff
-> +
-> +#endif /* _LINUX_MOD_DEVICETABLE_H */
-> diff --git a/tools/virtio/linux/slab.h b/tools/virtio/linux/slab.h
-> index 319dcaa07755..13d94c6f663c 100644
-> --- a/tools/virtio/linux/slab.h
-> +++ b/tools/virtio/linux/slab.h
-> @@ -4,4 +4,8 @@
->  #define GFP_ATOMIC 0
->  #define __GFP_NOWARN 0
->  #define __GFP_ZERO 0
-> +#define kmalloc_obj(VAR_OR_TYPE, ...) \
-> +       kmalloc(sizeof(VAR_OR_TYPE), GFP_KERNEL)
-> +#define kmalloc_objs(VAR_OR_TYPE, COUNT, ...) \
-> +       kmalloc_array((COUNT), sizeof(VAR_OR_TYPE), GFP_KERNEL)
->  #endif
-> diff --git a/tools/virtio/linux/virtio_features.h b/tools/virtio/linux/vi=
-rtio_features.h
-> new file mode 100644
-> index 000000000000..18c56610e209
-> --- /dev/null
-> +++ b/tools/virtio/linux/virtio_features.h
-> @@ -0,0 +1,56 @@
-> +/* SPDX-License-Identifier: GPL-2.0 */
-> +#ifndef _LINUX_VIRTIO_FEATURES_H
-> +#define _LINUX_VIRTIO_FEATURES_H
-> +
-> +#include <linux/bug.h>
-> +#include <linux/string.h>
-> +#include <linux/types.h>
-> +
-> +#define VIRTIO_FEATURES_U64S   2
-> +#define VIRTIO_FEATURES_BITS   (VIRTIO_FEATURES_U64S * 64)
-> +
-> +#define VIRTIO_BIT(b)          (1ULL << ((b) & 0x3f))
-> +#define VIRTIO_U64(b)          ((b) >> 6)
-> +
-> +#define VIRTIO_DECLARE_FEATURES(name)                  \
-> +       union {                                         \
-> +               u64 name;                                       \
-> +               u64 name##_array[VIRTIO_FEATURES_U64S]; \
-> +       }
-> +
-> +static inline bool virtio_features_chk_bit(unsigned int bit)
-> +{
-> +       return bit < VIRTIO_FEATURES_BITS;
-> +}
-> +
-> +static inline bool virtio_features_test_bit(const u64 *features,
-> +                                           unsigned int bit)
-> +{
-> +       return virtio_features_chk_bit(bit) &&
-> +              !!(features[VIRTIO_U64(bit)] & VIRTIO_BIT(bit));
-> +}
-> +
-> +static inline void virtio_features_set_bit(u64 *features, unsigned int b=
-it)
-> +{
-> +       if (virtio_features_chk_bit(bit))
-> +               features[VIRTIO_U64(bit)] |=3D VIRTIO_BIT(bit);
-> +}
-> +
-> +static inline void virtio_features_clear_bit(u64 *features, unsigned int=
- bit)
-> +{
-> +       if (virtio_features_chk_bit(bit))
-> +               features[VIRTIO_U64(bit)] &=3D ~VIRTIO_BIT(bit);
-> +}
-> +
-> +static inline void virtio_features_zero(u64 *features)
-> +{
-> +       memset(features, 0, sizeof(features[0]) * VIRTIO_FEATURES_U64S);
-> +}
-> +
-> +static inline void virtio_features_from_u64(u64 *features, u64 from)
-> +{
-> +       virtio_features_zero(features);
-> +       features[0] =3D from;
-> +}
-> +
-> +#endif /* _LINUX_VIRTIO_FEATURES_H */
-> --
-> 2.51.0
->
+-- 
+Best regards, Pavel Tikhomirov
+Senior Software Developer, Virtuozzo.
 
