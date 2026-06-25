@@ -1,53 +1,55 @@
-Received: from mail-pj1-f74.google.com (mail-pj1-f74.google.com [209.85.216.74])
+Received: from mail-qt1-f201.google.com (mail-qt1-f201.google.com [209.85.160.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4BBBA26ED25
-	for <virtualization@lists.linux.dev>; Thu, 25 Jun 2026 17:08:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.74
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 719AE30C169
+	for <virtualization@lists.linux.dev>; Thu, 25 Jun 2026 19:51:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782407325; cv=none; b=lKNF76zy7wO451RiRZyZoju1WF+ZbAH6N9ALnqrqTAP7DaBiJIfRfH4JgcdQNv2vrUR1M0hXAzfmrkcZZsS/YzYdjTfMa2H2HVkcsWE6OOdWJvh/w+PbeLTawV6YcN6EMvzNIGaaBJkFvVL3WrkGyvfaNeHOiCe7wWblCOYAMe0=
+	t=1782417089; cv=none; b=M2ub7uxNUmO8gIRQt+ALszmGBkS8NILUntm/yWpCdcKR8O1fNXrmzWtruRibWsFsbecHeJp7TW5lucjLbNUOfRH+fPPNz3Sa8UekFytV4573LQTXDg4eRZoTAWxBFBn0LE+WtrrUokYPJEd/Xn/7YjtDB9n4wvszMYe//p/TPKo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782407325; c=relaxed/simple;
-	bh=nmtoyZopcrvDa9Je5mQkIAnzsF4/HXum8f9yf35NCkQ=;
-	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=ipo0zeyQxLRsE73L7UwFvJRosNuT1HfBBgv0cBQSWDoXH77Y1MZZQOaqbGF5ue8dxMwZ8hcBqIzG8wy9+M8NlQd9xJTqRwh5B8tbgrEwxtF4S/UksK2f11gObJQ2xT1rsiW2fEOoPHCyhKCz1b29XxlE83N5D1V1lBf8MVji7a4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--natsu.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=OzytUWzA; arc=none smtp.client-ip=209.85.216.74
+	s=arc-20240116; t=1782417089; c=relaxed/simple;
+	bh=tU5N0r9FwtfHpj+P6tjN7upqCW876wDEEdAUbaE16vE=;
+	h=Date:In-Reply-To:Mime-Version:Message-ID:Subject:From:To:Cc:
+	 Content-Type; b=HU455p+6g2CO2eM8Y/Mr5LmuNJPH04iWQUmW/g+9qJyY6I3+uPIUKGGtJ/R1Zy46RuU5YX2gr9XR4kxmIXrQJd7PYsfQr6Mf0lycx18wY0flciF+hIJe0885zf0YXYpS0kFHi3AflwCS7WhI0AhRsmHcefCYi+RcaUDMCF8Avf0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--briandaniels.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=AQQcmPNv; arc=none smtp.client-ip=209.85.160.201
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--natsu.bounces.google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--briandaniels.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="OzytUWzA"
-Received: by mail-pj1-f74.google.com with SMTP id 98e67ed59e1d1-37df6354960so42949a91.2
-        for <virtualization@lists.linux.dev>; Thu, 25 Jun 2026 10:08:43 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="AQQcmPNv"
+Received: by mail-qt1-f201.google.com with SMTP id d75a77b69052e-5178aed25baso2527011cf.1
+        for <virtualization@lists.linux.dev>; Thu, 25 Jun 2026 12:51:28 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1782407322; x=1783012122; darn=lists.linux.dev;
-        h=cc:to:from:subject:message-id:mime-version:date:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=lga7Yq072G4mYoR4ZYRzQRKAQbvBlbeEWBDVrXci4B0=;
-        b=OzytUWzAzkjSQC+gHHdMPxE63uZcrnAsLsD0AKur6FoXjAvaiq3+zfLByn4AjneA7k
-         UiHbI5ckdivQiFjhH2VBwquJpRX+dQGnNlaYxhNcW/nGWPxB6NqE/o7hNB0RKj1sg1W4
-         zjDgU+2YM55grHg3c4oMNaxSV6zZI+jEK4NfSLGC1n0YjOmFXdYdvpQ2ekkrUXPaI69V
-         dxMveuWURyiwJs4Va8Nfy3jYdkPsY6uAh4OFIeAv+j6nxHx/CWKEIGTP+86uLN8oQQFa
-         ky+6OPp66BODVmUN3EnynWosL8Kcv+s6rzXqvpAw41vlrBPgiff8rKgzlZ9AQxxgRQaI
-         ccGg==
+        d=google.com; s=20251104; t=1782417087; x=1783021887; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:mime-version:in-reply-to:date:from:to
+         :cc:subject:date:message-id:reply-to;
+        bh=ZEl+dvrlA/1BaXCnW68WdI8mPtRNezx6QmmM4W52rZs=;
+        b=AQQcmPNv6XBBRJKhcuAy+LLJ0+VipslrZXSOvazM0qaOVPdaRExk5Ov6P8lOWTk3nD
+         Rk8cSMGOEpk7Nr9EMId4tOrQIN5XhWSRNPnMOvQ5rOZfJC8kqSMuBTFQpPEfQyZkpNXC
+         rnTk38dc8PkiVNn7Y71FUyjbNMChPdzWKPsqFutWMLmAkqPFChuslR6MaAvT1QNOsg8Y
+         50oNFbIgn6+4OwVja4aqfSp4YFpmN5T+AywTHzfKA2oXvWTZdwNYgY9d5buqKBYJ1s/6
+         c/yQ/TBdVEpyc7cZMx8qvuWdzNvCyaOY1t4J4KunX00MRWHbpG0/CEwBNylLmN1xwjkN
+         AWrw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782407322; x=1783012122;
-        h=cc:to:from:subject:message-id:mime-version:date:x-gm-message-state
-         :from:to:cc:subject:date:message-id:reply-to;
-        bh=lga7Yq072G4mYoR4ZYRzQRKAQbvBlbeEWBDVrXci4B0=;
-        b=BodFcOzEU4td8n7wAqbOq7BLedKMUrGfo6NfXEJM7fE+oh/5VItdpxQNabNMNBgRWg
-         I94yZzZQ7BHnSKvPfSa32lLiaFWViaWeNweKHJnz5sMKty14zN6QEuWAPzQAaY2uxZ4k
-         adZqHnbuteWedIhDf2YP6+1gG9Nn6ifMtHJUAZdeSpuGzf9/d4UUkFMNzzUQpv6S+5gw
-         h1ypUsdRCvOQ8IDdXGZHDWl/RuEhbVwtYsfNG3LbNE5aOtiNbmMdiU77HlFr4yrV+nv5
-         iyuZuDeTP5ygUSkufye8B77tqYWa2yc7AGRKnUV3XPbZYe/xjEy7+jOMAqQADPca2HCx
-         W5Og==
-X-Forwarded-Encrypted: i=1; AHgh+Rowja74oU9OOhCcRHoq1NQF+M2nQAemnXEH3HjF4QyMeD+sOEwnT8LOFpCjJgnIUICNgw2NIwBndtAGfRhR9Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywf63MbUiWuel63ro6Sw/KO7VP/yn8eGdNj/0e8atiMq4uwzXVH
-	AtpOmw61xCLqVHpiC55vQg/xSJhZB3wI6VEnyIq4cFMnMfj8MmhF4kdmQptqpQJfJYKZCMPmdM4
-	L4Q==
-X-Received: from pgbn20.prod.google.com ([2002:a63:5914:0:b0:c8b:1d37:c0f6])
- (user=natsu job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:180b:b0:36d:ee3b:fcae
- with SMTP id 98e67ed59e1d1-37dfa1b664cmr3246028a91.6.1782407322191; Thu, 25
- Jun 2026 10:08:42 -0700 (PDT)
-Date: Thu, 25 Jun 2026 10:08:28 -0700
+        d=1e100.net; s=20251104; t=1782417087; x=1783021887;
+        h=cc:to:from:subject:message-id:mime-version:in-reply-to:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=ZEl+dvrlA/1BaXCnW68WdI8mPtRNezx6QmmM4W52rZs=;
+        b=FD+Kumy5j6ronnRBAxA3NYXlinJ3QhtAqLqYD8X/4NdukZ90UyUx28pckjnAqQzUA0
+         95UE0WstF+iBx7ZcaXD/uRKeZKRXwiXkHksF1Fq/KKTr2cLeiLGQZ+uWCsASG0k5s8x6
+         WDWW0O234TmXIodpQ5Z/7FAYH/Lmgb1sGRqXfKRfjMRTBxtOuYgVh1cjBNffZGma1Mvx
+         v8omNqe4f72Mq33/ah5OWkZcSyjlMDziIAuOX80ZyGI+29bsGgBwmNas8kcWqM21/cuB
+         bvHZSmApQ4wFhlbodVn0f+xKjzNdnv6OIgeomncKFJ6OftkaOJlL/gheLmq6SDiGdIQq
+         kaWQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+cqxZAnH2xxiuv/uiiqpugWhk42drQNPTZzQnc7U35ut/DhG4KnCtI6sqVDLzj5ybMICF+Wy6oBL19SMirvw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyH86/3SwRvJJK3I3kn5IpjqAh2CypL9V0TG49hvwUD7jnMTxKQ
+	+a7vWrUo3r5Bw27ntLGTqSGFzJfpgnDMP3QddwbwDDOO4/i84Xg+3iysZtDFB1Nx3AD1+BYlAhC
+	OKDl0EQsP8Sxq+/goHijJ/ySRtwwS
+X-Received: from qvx15.prod.google.com ([2002:a05:6214:ccf:b0:8dc:38bc:a342])
+ (user=briandaniels job=prod-delivery.src-stubby-dispatcher) by
+ 2002:ac8:7d56:0:b0:50f:6415:1eb4 with SMTP id d75a77b69052e-51a727f83ccmr49259841cf.49.1782417086818;
+ Thu, 25 Jun 2026 12:51:26 -0700 (PDT)
+Date: Thu, 25 Jun 2026 15:50:15 -0400
+In-Reply-To: <20260622170054-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -55,55 +57,34 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 Mime-Version: 1.0
 X-Mailer: git-send-email 2.55.0.rc0.799.gd6f94ed593-goog
-Message-ID: <20260625170828.3335431-1-natsu@google.com>
-Subject: [PATCH] drm/virtio: Don't detach GEM from a non-created context
-From: Jason Macnak <natsu@google.com>
-To: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
-	Dmitry Osipenko <dmitry.osipenko@collabora.com>, 
-	Gurchetan Singh <gurchetansingh@chromium.org>
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org, Jason Macnak <natsu@google.com>, stable@vger.kernel.org
+Message-ID: <20260625195031.2959766-1-briandaniels@google.com>
+Subject: Re: [PATCH v4 1/8] media: virtio: Add protocol
+From: Brian Daniels <briandaniels@google.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Brian Daniels <briandaniels@google.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, acourbot@google.com, 
+	adelva@google.com, aesteve@redhat.com, changyeon@google.com, 
+	daniel.almeida@collabora.com, eperezma@redhat.com, gnurou@gmail.com, 
+	gurchetansingh@google.com, hverkuil@xs4all.nl, jasowang@redhat.com, 
+	linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, 
+	nicolas.dufresne@collabora.com, virtualization@lists.linux.dev, 
+	xuanzhuo@linux.alibaba.com
 Content-Type: text/plain; charset="UTF-8"
 
-Applies the same treatment as commit 7cf6dd467e87 ("drm/virtio:
-Don't attach GEM to a non-created context in gem_object_open()")
-to virtio_gpu_gem_object_close() to avoid trying to detach
-a resource that was never attached due to a context
-never being created when context_init is supported.
+> > From: Alexandre Courbot <gnurou@gmail.com>
+> > 
+> > Add the identifiers and structs used to implement the virtio interface
+> > as described in section 5.22 of version 1.4 of the virtio spec:
+> > 
+> > https://docs.oasis-open.org/virtio/virtio/v1.4/csprd01/virtio-v1.4-csprd01-diff-from-v1.2-cs01.html#x1-82200022
+> > 
+> > Signed-off-by: Alexandre Courbot <gnurou@gmail.com>
+> > Co-developed-by: Brian Daniels <briandaniels@google.com>
+> > Signed-off-by: Brian Daniels <briandaniels@google.com>
+> 
+> 
+> Please put this under include/uapi/linux/virtio_media.h
+> 
+> we treat guest/host ABI similar to kernel/user ABI,
+> and tools know how to find it there.
 
-Fixes: 086b9f27f0ab ("drm/virtio: Don't create a context with default param if context_init is supported")
-Cc: <stable@vger.kernel.org> # v6.14+
-Signed-off-by: Jason Macnak <natsu@google.com>
----
- drivers/gpu/drm/virtio/virtgpu_gem.c | 14 ++++++++------
- 1 file changed, 8 insertions(+), 6 deletions(-)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
-index 435d37d36034..66c3f6f74e9c 100644
---- a/drivers/gpu/drm/virtio/virtgpu_gem.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
-@@ -139,13 +139,15 @@ void virtio_gpu_gem_object_close(struct drm_gem_object *obj,
- 	if (!vgdev->has_virgl_3d)
- 		return;
- 
--	objs = virtio_gpu_array_alloc(1);
--	if (!objs)
--		return;
--	virtio_gpu_array_add_obj(objs, obj);
-+	if (vfpriv->context_created) {
-+		objs = virtio_gpu_array_alloc(1);
-+		if (!objs)
-+			return;
-+		virtio_gpu_array_add_obj(objs, obj);
- 
--	virtio_gpu_cmd_context_detach_resource(vgdev, vfpriv->ctx_id,
--					       objs);
-+		virtio_gpu_cmd_context_detach_resource(vgdev, vfpriv->ctx_id,
-+						       objs);
-+	}
- 	virtio_gpu_notify(vgdev);
- }
- 
--- 
-2.55.0.rc0.799.gd6f94ed593-goog
-
+Staged in v5
