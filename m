@@ -1,152 +1,170 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from mout.web.de (mout.web.de [217.72.192.78])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E0163F20FC
-	for <virtualization@lists.linux.dev>; Fri, 26 Jun 2026 11:32:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADD7B366DB5
+	for <virtualization@lists.linux.dev>; Fri, 26 Jun 2026 13:33:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.72.192.78
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782473560; cv=none; b=oCWnVV5+kROh7vTplkoO1MwKnNtHWM5ZMhK62VWgrZUjnyi2dFMvHilJ1hrKEatTiLammi/ClxPiX2EELMlR6l8OTpi3yAGERiMai9nkVUrHyXd8fSJhwItSoyy2bi2R/f4VZjIgTWRZqny8/VGhnaih2bk+L396+FzKXDdAmUs=
+	t=1782480826; cv=none; b=bnEQ4YwF1D4CaMZwfP4kvi3TSbUPiQv59P82jPPwea/GTjzMflWbJWH6aZr4AS2v5UQc44M42AnUmRw19+9Nuu2BYLDpS7dAJlFqrlIIYh6RCBjd8sLKxzxJj6LxGe5MjVOIJ5uXpiXhviuc8nBdC8AUxmDKBW02Wd145mY2mbw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782473560; c=relaxed/simple;
-	bh=wvBn6e2zZVZyJRVO6FTn9idn63IqtNcAsXkmlHdOuOM=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Dy7KZhJmL3ITHids/8+AcWYq8KVh1Bg5ZyEmOsv4rVVlrJkFaA+R/W2zTzEk2jK1+yJZa3WJoz2lEYZTv4vSE2Lk+a8NjD9NGPZQuNGzHjV8k/qCCk6HoqSz1KQ1tVCGqdgJE5so9r/KmXiVA7VkWhUiBu6eXSU/CQs8KW0uv78=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=SARTKU0s; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1782480826; c=relaxed/simple;
+	bh=waumlgt5QqKJVN3YYu8NydotH0rJ3r/MyQ8sHnNFcG0=;
+	h=Message-ID:Date:MIME-Version:To:Cc:References:Subject:From:
+	 In-Reply-To:Content-Type; b=rjRjigm0sJXH9ytBvGWZ6N2ebMrJ90YNww0e3GHSW/DSV2LzDnAaOx89I9WP8gxcgtH1BCAqIA+guF+B4Z/+/vUk+BPYwRAWXohMatfSOVG432wFTWMcMu1tJBc5r11aIfHehO3Nds4SZ+Tque7lfa/66RMXTIl242FD5BGgO+w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de; spf=pass smtp.mailfrom=web.de; dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b=gmpKU+0a; arc=none smtp.client-ip=217.72.192.78
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="SARTKU0s"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1782473556;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=S0EJPxRCKvpa0CeGLyfZNMZptfraA2jDAIIX6v5L/+o=;
-	b=SARTKU0sMlqscoYYpVra6F1vXFq15HZU4ZqzvD2Plki8mC0NJ3QFbMX9wZjj9bnCaetbZb
-	8fxAg2/Kj4zArOkYqwdi3tC2rpWEMHQARYw3wsXVZUdjGAMCwlNMforqlUCuokK1Cf1HM2
-	BRoDjVKxYcRV8ZXlPDdyj8CAWhi3y6g=
-Received: from mail-yx1-f72.google.com (mail-yx1-f72.google.com
- [74.125.224.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-557-OheFBDy4NimZLm12G_O4Tw-1; Fri, 26 Jun 2026 07:32:34 -0400
-X-MC-Unique: OheFBDy4NimZLm12G_O4Tw-1
-X-Mimecast-MFC-AGG-ID: OheFBDy4NimZLm12G_O4Tw_1782473554
-Received: by mail-yx1-f72.google.com with SMTP id 956f58d0204a3-6648eb63d18so1120750d50.0
-        for <virtualization@lists.linux.dev>; Fri, 26 Jun 2026 04:32:34 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782473554; x=1783078354;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=S0EJPxRCKvpa0CeGLyfZNMZptfraA2jDAIIX6v5L/+o=;
-        b=iHWelDrI6vAVndxFmo95boWhR/umevMUflgSQlds6KSfB0STIkwChYqV8X/wvx8xxT
-         0WFKP+xPmWFrCwqBr4H/lir3Vy19XiYe3BQA8HdxytLneRQxYRwHqNumvZkCxdFPQbGA
-         JzQalgug3V4MZV3clSBVrOOhct9RLcZXqfglTHmsn0coCQhdPazdHXU8GceW15I4Hgjd
-         xd9M75u+Bt4MmlZ2LDdbKYup05XnZWmHZAqeUpsdtmoduAMErDMDNulsdD0JMW1t4mBa
-         Vpz/j79mQYVsViR641VxTgVFoIIHOLQv1gtF08WKTSKA1FTp/BGLdYD4FOZd14fAFWoa
-         7EDg==
-X-Forwarded-Encrypted: i=1; AHgh+RrtSBpbfX54MthV0iBxgy8T9MjNjzDtmr75E/6CPBe7svf5xCKn+1ukrS07kjvuFwFsD0UDVSthQRTE196PUw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzXC4OsIAv3gkfb7e3r4AZBl/15xsPsMW5O54O3MyDK1RRJ6pTu
-	xujIXb78mHwoRo6K1sxAXnp+UFCt/QCakg5vu/0l/Qfwd0CM1JsQBDBsJbbXIDX61oUAaFohPR/
-	DPPgfyHBQUNgSra74sPL4mfSupz4rGeTZAtD4ziJQiOWgq4vOwUi4tn1h0z2pVFsaH776SzbpUi
-	lNCq6lEu1gNH9sIQJYdiifE6KEqzTZBJQyUJss30EtUWw=
-X-Gm-Gg: AfdE7cnD+zTwD8slnfAwNpLhEl2mdA6ZIijmDRB8/CWMtsh+shKRrtBOe8QFYD3j+YO
-	04DWtcPKWIohswgV1UZcqtJ4QTDUdMUl69CjmpBhAnH8H7csk3HSVE7qOIk3+3Cwl9q/k04KTFv
-	3H6DKUycgk/QCCEpgSWjSajakW6jkADwVuXHkAXkM+15qJE8HsoVeB7J0pMok4HGZPDbo=
-X-Received: by 2002:a05:690e:14c4:b0:663:2329:be0a with SMTP id 956f58d0204a3-66488344efbmr5117680d50.60.1782473553789;
-        Fri, 26 Jun 2026 04:32:33 -0700 (PDT)
-X-Received: by 2002:a05:690e:14c4:b0:663:2329:be0a with SMTP id
- 956f58d0204a3-66488344efbmr5117666d50.60.1782473553142; Fri, 26 Jun 2026
- 04:32:33 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="gmpKU+0a"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=web.de;
+	s=s29768273; t=1782480798; x=1783085598; i=markus.elfring@web.de;
+	bh=+4eh1PkTo9SqnojCa0mnJc+3Wce32UMKJE5WtGSc80o=;
+	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:To:Cc:References:
+	 Subject:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:
+	 cc:content-transfer-encoding:content-type:date:from:message-id:
+	 mime-version:reply-to:subject:to;
+	b=gmpKU+0ahEHqK5HVIeyR59Nd41MMO395p1jrwQuDN8FFLi4IAUYsf/ZfSczI0rSq
+	 CdBbRdTtcKqIadUndH/MEpcZ38FUgT7mRQDtCtmKA5OoRTpi8qj8PFv+Z4fo0CNVs
+	 VZ84Z3hT5iW1rGJUj5NOVqK+4ETT6Y/bjjnUAz7lg1OSdputKPLpVJ0MpBE4tqsDH
+	 V6y1V6EpStid3EZprVqYgF8W8erDGU5Tsk+zS/l7p2jfyBkIV4ieBwsW3Etn5a5AH
+	 NznxMkWLmKdbFkZk2n9gDXKxP/ss/ogljCP0jDuRbfNeBAQdH4hLPMkLhVHE2xkIh
+	 TXwk08omjyoFqW+k1g==
+X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
+Received: from client.hidden.invalid by smtp.web.de (mrweb105
+ [213.165.67.124]) with ESMTPSA (Nemesis) id 1MDMvE-1wScId3nIU-008pRC; Fri, 26
+ Jun 2026 15:33:17 +0200
+Message-ID: <3d94f9a7-6b26-4763-bc54-2e10910bf168@web.de>
+Date: Fri, 26 Jun 2026 15:33:11 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260626070438.59149-1-r4o5m6e8o@163.com>
-In-Reply-To: <20260626070438.59149-1-r4o5m6e8o@163.com>
-From: Eugenio Perez Martin <eperezma@redhat.com>
-Date: Fri, 26 Jun 2026 13:31:55 +0200
-X-Gm-Features: AVVi8CdX7YAE0vZmUHYTRxuB_yZ_qwok6xv6BtZ9RLd4G6r_QlmLWG0P771exiQ
-Message-ID: <CAJaqyWfP7j5_PvOP0JiHuAQ8appGnoJDS3OB-qK7riBpZ_d_tQ@mail.gmail.com>
-Subject: Re: [PATCH v2] vhost/net: fix clear_user start address in VHOST_GET_FEATURES_ARRAY
-To: "rom.wang" <r4o5m6e8o@163.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Paolo Abeni <pabeni@redhat.com>, 
-	kvm@vger.kernel.org, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
-	linux-kernel@vger.kernel.org, Yufeng Wang <wangyufeng@kylinos.cn>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 0LUaEr5YKXOKZAUzPEnzFzxu0ZNw8T-QjLfy9Du2ido_1782473554
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+To: Alexandre Courbot <gnurou@gmail.com>,
+ Brian Daniels <briandaniels@google.com>, linux-media@vger.kernel.org,
+ virtualization@lists.linux.dev, Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+ Alexandre Courbot <acourbot@google.com>, Albert Esteve <aesteve@redhat.com>,
+ Alistair Delva <adelva@google.com>, Changyeon Jo <changyeon@google.com>,
+ Daniel Almeida <daniel.almeida@collabora.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Gurchetan Singh <gurchetansingh@google.com>,
+ Hans Verkuil <hverkuil@xs4all.nl>, Jason Wang <jasowang@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>,
+ Nicolas Dufresne <nicolas.dufresne@collabora.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+References: <20260622204343.1994418-7-briandaniels@google.com>
+Subject: Re: [PATCH v4 6/8] media: virtio: Add virtio_media_driver
+Content-Language: en-GB, de-DE
+From: Markus Elfring <Markus.Elfring@web.de>
+In-Reply-To: <20260622204343.1994418-7-briandaniels@google.com>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: quoted-printable
+X-Provags-ID: V03:K1:buZX+EgL0FFgsXLBbyUR5VfGptQNtkDqcIS7k8HxglTXFJ8iFyB
+ S1CnRTX4796MqMSU5IRtA3zF0JNWBlGBL9bmP/pw1Z+p8wheEtZt/F2Xom9M7AwJbteveu8
+ vc8CbuBWPMbGCfTINz2JNBL2Xy3vr/JpSXMeXR0bHtP5WbjULzMrGZkNKYBBHZ43/pMaH3l
+ N0Eg9pu1c8CFKnAsD4uBg==
+X-Spam-Flag: NO
+UI-OutboundReport: notjunk:1;M01:P0:btpTLvdt72g=;o4zt1niBtmFQikHnr58FlAhy++l
+ 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
+ LOEkw3xI5tHWFSIg0hUeDX41lzWdvXBP8b3ViQ9
 
-On Fri, Jun 26, 2026 at 9:05=E2=80=AFAM rom.wang <r4o5m6e8o@163.com> wrote:
->
-> From: Yufeng Wang <wangyufeng@kylinos.cn>
->
-> The clear_user() call in VHOST_GET_FEATURES_ARRAY incorrectly starts
-> at argp, which is the beginning of the features array, overwriting the
-> data just written by copy_to_user(). It should start after the copied
-> elements at argp + copied * sizeof(u64) to only zero the trailing
-> unused space.
->
-> Use size_mul() for both the offset and length calculations so the
-> arithmetic stays consistent with the surrounding code and remains
-> overflow-safe.
->
-> Fixes: 333c515d1896 ("vhost-net: allow configuring extended features")
-> Signed-off-by: Yufeng Wang <wangyufeng@kylinos.cn>
->
-> ---
-> Changes in v2:
-> - Use size_mul() for the offset calculation as well, per review feedback.
->
-> Link to v1: https://lore.kernel.org/all/20260526080336.61296-1-r4o5m6e8o@=
-163.com/
->
-> Note:
-> Thank you for your review and suggestions.
->
-> I tried to add a switch in tools/virtio/vhost_net_test.c.
-> The switch is meant to use VHOST_GET_FEATURES_ARRAY and
-> VHOST_SET_FEATURES_ARRAY instead of the legacy versions.
->
-> However, when I ran `make virtio` in the tools directory,
-> the build failed with an error: missing asm/percpu_types.h.
-> I fixed that error, but then another error appeared.
->
-> Would it be acceptable to postpone the submission of
-> this test case until I have sorted out all the build
-> errors?
-> ---
->  drivers/vhost/net.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
->
-> diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-> index 77b59f49bddb..4b963dafa233 100644
-> --- a/drivers/vhost/net.c
-> +++ b/drivers/vhost/net.c
-> @@ -1784,7 +1784,8 @@ static long vhost_net_ioctl(struct file *f, unsigne=
-d int ioctl,
->                         return -EFAULT;
->
->                 /* Zero the trailing space provided by user-space, if any=
- */
-> -               if (clear_user(argp, size_mul(count - copied, sizeof(u64)=
-)))
-> +               if (clear_user(argp + size_mul(copied, sizeof(u64)),
-> +                              size_mul(count - copied, sizeof(u64))))
+=E2=80=A6
+> +++ b/drivers/media/virtio/virtio_media_driver.c
+> @@ -0,0 +1,959 @@
+=E2=80=A6
+> +static void virtio_media_session_free(struct virtio_media *vv,
+> +				      struct virtio_media_session *session)
+> +{
+> +	int i;
+> +
+> +	mutex_lock(&vv->sessions_lock);
+> +	list_del(&session->list);
+> +	mutex_unlock(&vv->sessions_lock);
+=E2=80=A6
 
-Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+Under which circumstances would you become interested to apply a statement
+like =E2=80=9Cguard(mutex)(&vv->sessions_lock);=E2=80=9D?
+https://elixir.bootlin.com/linux/v7.1.1/source/include/linux/mutex.h#L253
 
-Thanks!
-
->                         return -EFAULT;
->                 return 0;
->         case VHOST_SET_FEATURES_ARRAY:
-> --
-> 2.34.1
->
-
+Regards,
+Markus
