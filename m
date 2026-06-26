@@ -1,95 +1,147 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DB54A1A5B9E;
-	Fri, 26 Jun 2026 15:15:32 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E338537B020;
+	Fri, 26 Jun 2026 15:17:55 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782486938; cv=none; b=BNdzb35cLJGGJYK541ZJxvaO0UVZ4+d6WZlxuPrIfjI9XUUCB8winyth9TSDLjn3xiLOlOjE2WV0bN2COh3AM8z3Zdov0LaeVj5ER9VeQYKAm6/Sh/7wdeOLidHmA+lO/vSAktpxvlnEmlnQPZQZeAobbA6sWKtAP00OmG37fNY=
+	t=1782487076; cv=none; b=kbKu3HXbMD7tJDgkFOy4Z/sZ9n47wm41RJ0GA75mSqJpsL3ackf4ju99qsbwrZxU5GMK4LLvZh9HL7xaEY7DmU5qTILIJBAmo8hznuujBHVJC2BSnDsO/aoAPgePXj+gDWoVJq6ZP4wTIc+A+bLi7DezcMcFu8m8FlaeSxX7ges=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782486938; c=relaxed/simple;
-	bh=jA+LtT+w9ziFAv6SejZy4xHhQcaZUUtt+07+zT74GpQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=HtbxPhdXd6+TLgHk/miOXJFxWS9Pb/MNbIGNuuoJAeYEzBNIJpuoxnPGOj418TzwYkN9By5187jR3C/5rFcZGeKNxTvfN9n8t5ovOPCFV/m/ARiF2ITAcb7JHFs7v56k+ff40UWycfRCbc+Pvzqrf8m75NfBGlZCeT/GN97waOg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EVjjbM26; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782487076; c=relaxed/simple;
+	bh=+2WMSpeYQauY3ayqAWmihAgxFm5GiuL3JVnsZFr/NDM=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=f+w5t6OSNUV4w9D96tZ169AzQSTcg+5ehML59ansUStTHIlAPlwi0w9nnqvWdP3lTCsV7sriFremSc4dmkVL9VzbjBBxaEC7n2JUvFUv/+k0Ik5/QsEgkLy1lJX6hcA8CVQRFhuYmiIY/LUHFVguauMVHLygO/QxEFDf9VsLbRI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WNDxtU8y; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EVjjbM26"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4A3081F000E9;
-	Fri, 26 Jun 2026 15:15:30 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WNDxtU8y"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE5531F000E9;
+	Fri, 26 Jun 2026 15:17:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782486932;
-	bh=xMY3o3jBD4b25D29n1Y1hcy2n0lXYQS1LYHlfhK/gYA=;
-	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=EVjjbM26lfY86Z2EOtyBuaAUSZlbBDEVn8wyO0rAeKKowe7XE055BXKlqUgLhfaGe
-	 0ATXsek9two9aM1KP+USC25qaYd5ShTQ/TpPiHBmpYVAkdndBPGi86rvG8kPT9Vxzo
-	 DQ9Ntn6lLkKepCSOwAQV9YrM3Ti6BWqGeIKg4TUOas1d5crz70Zdyj4lsiMXMW80f9
-	 9nleyzXTEDsdd9xrIWbZ8dbhsWvqyJIlmKWrm11ZWkf5CSfZomZ5/0QsnBLw91HQqb
-	 cPjbAR99qtLBJOhzR6qequiNBP3qX9YI9meZkyeowhN/05ujj9Exo9iOL/NbDSlFu5
-	 DANByD0lozLEg==
-From: Simon Horman <horms@kernel.org>
-To: lange_tang@163.com
-Cc: Simon Horman <horms@kernel.org>,
-	mst@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	jasowang@redhat.com,
-	edumazet@google.com,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	tanglongjun@kylinos.cn
-Subject: Re: [PATCH v4] virtio_net: disable cb when NAPI is busy-polled
-Date: Fri, 26 Jun 2026 16:15:08 +0100
-Message-ID: <20260626151508.1319440-1-horms@kernel.org>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260625013733.29300-1-lange_tang@163.com>
-References: <20260625013733.29300-1-lange_tang@163.com>
+	s=k20260515; t=1782487075;
+	bh=JkUVs+kU43zS2CPMfq3q5ID+5rkKg3CG5Y2R5GSNDYM=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date;
+	b=WNDxtU8yHc2NVDKr01ddEY4wTI1nZFABN1wZqtcq8gJ3HLwowFBdSSRf13AvQ6+AK
+	 KrUPVgy5zp+5DbFIV9NYl+F1JqOc1G55tLbOPBhnBQzK1R6UFqBIsmqNNwR/2ed+RS
+	 93CpYL0hJ5pDCDa3FjX41wu4KnsvHEVo/5vO46UuwWtnOMPlWBvHarRbQAVe0T6seO
+	 DAhRi4rEArIi1MX+Dc0gAF3VnI7yDW5mkwDeC0TAdk62Nz+16DO7c4JKLXFjGVlCMX
+	 L1sb1Oe8QYroTWv2Bs2Eq20hSysa77IDKHYDXZ0fvWCjzR8uiN7xcVqDE/XcrJE1VV
+	 k3ifRTCUaO0Rw==
+From: Thomas Gleixner <tglx@kernel.org>
+To: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+Cc: LKML <linux-kernel@vger.kernel.org>, David Woodhouse
+ <dwmw2@infradead.org>, Miroslav Lichvar <mlichvar@redhat.com>, John Stultz
+ <jstultz@google.com>, Stephen Boyd <sboyd@kernel.org>, Anna-Maria Behnsen
+ <anna-maria@linutronix.de>, Frederic Weisbecker <frederic@kernel.org>,
+ Arthur Kiyanovski <akiyano@amazon.com>, Rodolfo Giometti
+ <giometti@enneenne.com>, Vincent Donnefort <vdonnefort@google.com>, Marc
+ Zyngier <maz@kernel.org>, Oliver Upton <oliver.upton@linux.dev>,
+ kvmarm@lists.linux.dev, Oliver Upton <oupton@kernel.org>, Richard Cochran
+ <richardcochran@gmail.com>, netdev@vger.kernel.org, Takashi Iwai
+ <tiwai@suse.com>, Miri Korenblit <miriam.rachel.korenblit@intel.com>,
+ Johannes Berg <johannes.berg@intel.com>, Jacob Keller
+ <jacob.e.keller@intel.com>, Tony Nguyen <anthony.l.nguyen@intel.com>,
+ Saeed Mahameed <saeedm@nvidia.com>, Peter Hilber
+ <peter.hilber@oss.qualcomm.com>, "Michael S. Tsirkin" <mst@redhat.com>,
+ virtualization@lists.linux.dev, linux-wireless@vger.kernel.org,
+ linux-sound@vger.kernel.org
+Subject: Re: [patch 09/24] timekeeping: Add CLOCK_AUX support for
+ ktime_get_snapshot_id()
+In-Reply-To: <20260626125819-d8b197fc-7671-4d12-a578-9025affc52d9@linutronix.de>
+References: <20260526165826.392227559@kernel.org>
+ <20260526171223.374814973@kernel.org>
+ <20260626103359-66ab2b54-d36f-416b-94a4-3f3708dccced@linutronix.de>
+ <87echtk24a.ffs@fw13>
+ <20260626125819-d8b197fc-7671-4d12-a578-9025affc52d9@linutronix.de>
+Date: Fri, 26 Jun 2026 17:17:52 +0200
+Message-ID: <87fr29ib4v.ffs@fw13>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-This is an AI-generated review of your patch. The human sending this
-email has considered the AI review valid, or at least plausible.
-Full review at: https://sashiko.dev
+On Fri, Jun 26 2026 at 13:03, Thomas Wei=C3=9Fschuh wrote:
+> On Fri, Jun 26, 2026 at 12:49:41PM +0200, Thomas Gleixner wrote:
+>> On Fri, Jun 26 2026 at 10:48, Thomas Wei=C3=9Fschuh wrote:
+>> > On Tue, May 26, 2026 at 07:14:13PM +0200, Thomas Gleixner wrote:
+>> > (...)
+>> >
+>> >>  static inline void tk_update_aux_offs(struct timekeeper *tk, ktime_t=
+ offs)
+>> >> @@ -1218,6 +1223,12 @@ bool ktime_get_snapshot_id(struct system
+>> >>  		tkd =3D &tk_core;
+>> >>  		offs =3D &tk_core.timekeeper.offs_boot;
+>> >>  		break;
+>> >> +	case CLOCK_AUX ... CLOCK_AUX_LAST:
+>> >> +		tkd =3D aux_get_tk_data(clock_id);
+>> >> +		if (!tkd)
+>> >> +			return false;
+>> >> +		offs =3D &tkd->timekeeper.offs_aux;
+>> >> +		break;
+>> >
+>> > 'tkd' is also used to compute 'monoraw'. However 'tkr_raw' and 'tkr_mo=
+no'
+>> > are the same for auxilary clocks, so this will compute a wrong 'monora=
+w'.
+>>=20
+>> AUX clocks are independent in the first place and the MONORAW part is
+>> the "MONORAW" related to the AUX clock itself.=20
+>>=20
+>> > Instead 'monoraw' should be computed based on 'tk_core'.
+>> > Which then also requires the sequence locking of 'tk_core'.
+>>=20
+>> No. From a PTP and steering point of view you want the "raw" value which
+>> is related to the AUX clock itself and not the global one.
+>
+> Ack.
+>
+> However the kdocs call it 'CLOCK_MONOTONIC_RAW'. Can we clean this up?
+
+Yes. Something like the below?
+
+Thanks,
+
+        tglx
 ---
-virtio_net: disable cb when NAPI is busy-polled
+--- a/kernel/time/timekeeping.c
++++ b/kernel/time/timekeeping.c
+@@ -1202,10 +1202,21 @@ static inline u64 tk_clock_read_snapshot
+=20
+ /**
+  * ktime_get_snapshot_id -  Simultaneously snapshot a given clock ID with
+- *			    CLOCK_MONOTONIC_RAW and the underlying
++ *			    the corresponding monotonic raw the underlying
+  *			    clocksource counter value.
+  * @clock_id:		The clock ID to snapshot
+  * @systime_snapshot:	Pointer to struct receiving the system time snapshot
++ *
++ * For the system time keeping clocks (REALTIME, MONOTONIC and BOOTTIME) t=
+he
++ * monotonic raw clock is CLOCK_MONOTONIC_RAW. For AUX clocks this is the
++ * monotonic raw clock related to the AUX clock. These AUX clock related
++ * monotonic raw clocks have a strict linear offset to the system time
++ * CLOCK_MONOTONIC_RAW:
++ *
++ *	MONOTONIC_RAW(AUX$N) =3D CLOCK_MONOTONIC_RAW(system) + offset(AUX$N)
++ *
++ * The offset is established when a AUX clock is initialized, but it is
++ * currently not accessible.
+  */
+ void ktime_get_snapshot_id(clockid_t clock_id, struct system_time_snapshot=
+ *systime_snapshot)
+ {
+@@ -1512,6 +1523,9 @@ EXPORT_SYMBOL_GPL(ktime_real_to_base_clo
+  * @xtstamp:		Receives simultaneously captured system and device time
+  *
+  * Reads a timestamp from a device and correlates it to system time
++ *
++ * See documentation for ktime_get_snapshot_id() for information about the=
+ raw
++ * monotonic time stamp which is used here.
+  */
+ int get_device_system_crosststamp(int (*get_time_fn)
+ 				  (ktime_t *device_time,
 
-This commit disables the virtqueue callback at the entry of virtnet_poll().
-It aims to prevent a large number of spurious interrupts when busy-poll is
-active by keeping the callback off while polling.
-
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 26afa6341d161..c1e252400c0fc 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -3011,6 +3011,8 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
->  	unsigned int xdp_xmit = 0;
->  	bool napi_complete;
->  
-> +	virtqueue_disable_cb(rq->vq);
-> +
-
-[Severity: High]
-Can this unconditionally disable the RX callback and cause a permanent network
-stall when polled by netpoll?
-
-If the netpoll subsystem (e.g., used by netconsole) calls the NAPI poll
-function directly with a budget of 0, virtqueue_disable_cb() is called
-immediately. virtnet_receive() will then process 0 packets and return 0.
-
-Later in virtnet_poll(), the completion condition is checked:
-
-	if (received < budget) {
-		napi_complete = virtqueue_napi_complete(napi, rq->vq, received);
-        ...
-	}
-
-When both received and budget are 0, this condition evaluates to false. This
-skips virtqueue_napi_complete(), leaving the RX callback permanently disabled
-and preventing the device from raising further RX interrupts.
-
->  	virtnet_poll_cleantx(rq, budget);
->  
->  	received = virtnet_receive(rq, budget, &xdp_xmit);
