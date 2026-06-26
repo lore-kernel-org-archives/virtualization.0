@@ -1,147 +1,129 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E338537B020;
-	Fri, 26 Jun 2026 15:17:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782487076; cv=none; b=kbKu3HXbMD7tJDgkFOy4Z/sZ9n47wm41RJ0GA75mSqJpsL3ackf4ju99qsbwrZxU5GMK4LLvZh9HL7xaEY7DmU5qTILIJBAmo8hznuujBHVJC2BSnDsO/aoAPgePXj+gDWoVJq6ZP4wTIc+A+bLi7DezcMcFu8m8FlaeSxX7ges=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782487076; c=relaxed/simple;
-	bh=+2WMSpeYQauY3ayqAWmihAgxFm5GiuL3JVnsZFr/NDM=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=f+w5t6OSNUV4w9D96tZ169AzQSTcg+5ehML59ansUStTHIlAPlwi0w9nnqvWdP3lTCsV7sriFremSc4dmkVL9VzbjBBxaEC7n2JUvFUv/+k0Ik5/QsEgkLy1lJX6hcA8CVQRFhuYmiIY/LUHFVguauMVHLygO/QxEFDf9VsLbRI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=WNDxtU8y; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9FB243E2AD1
+	for <virtualization@lists.linux.dev>; Fri, 26 Jun 2026 15:51:01 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.171
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782489064; cv=pass; b=mDy7TxcUWvVgGNiL0zyhyun3suM5CZ9eC2BBtfzvZhcLBgfAXmWTnBEC7nS5CYQR8owhQeCoTFVu0CM2cEmJ8TuYC70hdTxlbutY17jOVOBddRIA56aq2CJNMpwCmDhhyBb2F7hLnVsKUsX8LvAuY/LVxHZOWFn4kA0jqDn1/uk=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782489064; c=relaxed/simple;
+	bh=ZPHcJuGGWfpRD9VuT0tHbZH9ElUJLMcAe7aNwn77y7U=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=PINZeBb1YTf6bqrgRgIQ/ZluYGqVRCWhwjVNif4MS8uT7Cmfe6retuRZOspoGYRvgtJZ4iq3JCCowhWBOPFXJc+YcPYnLXa2m9KzeSh75TW8M9iloAnO4no4ldcAMX9ghgDxuWLQC0QFs7d6tO6rw5sl9RDduebLgZro9YhMWV4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=oEPkGg4k; arc=pass smtp.client-ip=209.85.214.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="WNDxtU8y"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DE5531F000E9;
-	Fri, 26 Jun 2026 15:17:54 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782487075;
-	bh=JkUVs+kU43zS2CPMfq3q5ID+5rkKg3CG5Y2R5GSNDYM=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=WNDxtU8yHc2NVDKr01ddEY4wTI1nZFABN1wZqtcq8gJ3HLwowFBdSSRf13AvQ6+AK
-	 KrUPVgy5zp+5DbFIV9NYl+F1JqOc1G55tLbOPBhnBQzK1R6UFqBIsmqNNwR/2ed+RS
-	 93CpYL0hJ5pDCDa3FjX41wu4KnsvHEVo/5vO46UuwWtnOMPlWBvHarRbQAVe0T6seO
-	 DAhRi4rEArIi1MX+Dc0gAF3VnI7yDW5mkwDeC0TAdk62Nz+16DO7c4JKLXFjGVlCMX
-	 L1sb1Oe8QYroTWv2Bs2Eq20hSysa77IDKHYDXZ0fvWCjzR8uiN7xcVqDE/XcrJE1VV
-	 k3ifRTCUaO0Rw==
-From: Thomas Gleixner <tglx@kernel.org>
-To: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, David Woodhouse
- <dwmw2@infradead.org>, Miroslav Lichvar <mlichvar@redhat.com>, John Stultz
- <jstultz@google.com>, Stephen Boyd <sboyd@kernel.org>, Anna-Maria Behnsen
- <anna-maria@linutronix.de>, Frederic Weisbecker <frederic@kernel.org>,
- Arthur Kiyanovski <akiyano@amazon.com>, Rodolfo Giometti
- <giometti@enneenne.com>, Vincent Donnefort <vdonnefort@google.com>, Marc
- Zyngier <maz@kernel.org>, Oliver Upton <oliver.upton@linux.dev>,
- kvmarm@lists.linux.dev, Oliver Upton <oupton@kernel.org>, Richard Cochran
- <richardcochran@gmail.com>, netdev@vger.kernel.org, Takashi Iwai
- <tiwai@suse.com>, Miri Korenblit <miriam.rachel.korenblit@intel.com>,
- Johannes Berg <johannes.berg@intel.com>, Jacob Keller
- <jacob.e.keller@intel.com>, Tony Nguyen <anthony.l.nguyen@intel.com>,
- Saeed Mahameed <saeedm@nvidia.com>, Peter Hilber
- <peter.hilber@oss.qualcomm.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- virtualization@lists.linux.dev, linux-wireless@vger.kernel.org,
- linux-sound@vger.kernel.org
-Subject: Re: [patch 09/24] timekeeping: Add CLOCK_AUX support for
- ktime_get_snapshot_id()
-In-Reply-To: <20260626125819-d8b197fc-7671-4d12-a578-9025affc52d9@linutronix.de>
-References: <20260526165826.392227559@kernel.org>
- <20260526171223.374814973@kernel.org>
- <20260626103359-66ab2b54-d36f-416b-94a4-3f3708dccced@linutronix.de>
- <87echtk24a.ffs@fw13>
- <20260626125819-d8b197fc-7671-4d12-a578-9025affc52d9@linutronix.de>
-Date: Fri, 26 Jun 2026 17:17:52 +0200
-Message-ID: <87fr29ib4v.ffs@fw13>
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="oEPkGg4k"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2c813c62821so52725ad.1
+        for <virtualization@lists.linux.dev>; Fri, 26 Jun 2026 08:51:01 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1782489061; cv=none;
+        d=google.com; s=arc-20260327;
+        b=iOmBaoJOqq/FFy/UCHZXjXY4vK0ujRbNZkCycrCm/FpCB+XjKLTpag8NGIb9k7SbXM
+         /QmYtzukTfHnWFQ9xiBfz3Ec96MPJAqOz9WRLrp28iefkDfM5H963iynNSgqfq/ShxxB
+         5P4Z3DQuugEP0T5AG+CtQ0kmQmSlFAzlLieXUdPUHk+cNjlVnI1VKo4lghCsPxDM1V66
+         7N/baif9kuLaGr4tVWoM7Uom/2UEOjUvskAnKQy8tJkyLrflVMko4nu/gtUXcYkC19iw
+         pAahgLQ6JYrBpXw6zrKNnR/5/mPYgReZfHWwvyubUlBgTIUB1ETMEnGIjzCMQAWhWfaI
+         U8+Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=ZPHcJuGGWfpRD9VuT0tHbZH9ElUJLMcAe7aNwn77y7U=;
+        fh=tH+rDyxX8l4FmLjBJDPgoi/M8rI3ORdIhhGAC5muG+U=;
+        b=CiBRXTAD7AIXYRuXvRtyWGL3vRivT1Zytj7V0MsHfhk7QMcrm55YWf0E7xkJG8mYG9
+         MWdOPgSMgANdcPDdMcUu4ZkUCdxguNug+Akm7BkYFmEWq5KPZCJ/Y3U6Ovc1GmMebJWn
+         02YYuGn1zQVKUBaKsNvlWFtW81omzhL/faCemGf9ix+P8dN+3TNgt3+Awa8/lRP69H1i
+         pJrEJ2SHjS9xp/wRDDMBMKNM8dDYtl4es4RnMNetC/WmQkLBCXuo4LXIdpXQ7f2NACDA
+         uJD5mOQTi1eRYnlB2CMY9K7hcKwMX9O4fvJK704c8zJVa2gmrTluOFkPDStMVsbXwQNI
+         v0QA==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1782489061; x=1783093861; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=ZPHcJuGGWfpRD9VuT0tHbZH9ElUJLMcAe7aNwn77y7U=;
+        b=oEPkGg4kDDxAYr8rRwUN5KtlIEMmGBm9DM5spI/9Vq3qtkAuXBUtV2XoLxI+HUYhYF
+         9pcT0T1gRZvadpnLknUSmyT9PNanbUGEJDLuqMkc3vsdilHv8MUsVBizGn0CF7iUTX+a
+         ZM0ih3oRlLQ9Qgo6+0c75oUsDSXQtZTsjE5EAutTmZFey9RU5QFPDiWOUjV6drtHeOaQ
+         I3Uclw8qBMOmAQRnfewXJlAEftmrr/I27spwpQAxXz/3BE6ZdCBDrTJrRXzMbXSQBD5/
+         LLeaeEIUM2Ja/SkE2qgDt6J3svzCx6gUszz5wcZTt9gx0ebXocEAG39tmUiDvPV4t5up
+         YxpQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782489061; x=1783093861;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=ZPHcJuGGWfpRD9VuT0tHbZH9ElUJLMcAe7aNwn77y7U=;
+        b=jkyvaq5d+tWmKkOzIRcSOSCg9zRoe/BuN8xjFvo6p/sJY4Oehuqs/nflYUUYHxOpaT
+         cKksc3+h1krQWxjDjqfsrih6JMvb1KBX6hSLk/lkvC1TPwsg+/mLIeTbPZtSRzMFwsds
+         0XcC+xiYFjZLubAvFsxPOS3MQx0ULK30c8uHYoF3ZiLBfT3wunYH3Y82hQuakKoNZKWe
+         plybsn8iGCEaXMVr/Q2rma8S9amxRleLiQqvmCTCGZBdueFlu2fWZpOEWpBzH2/OheJh
+         sceYPoaR/vyr+vztzZEnnymRQyt6SUApVBSTEka3sEmI/EX8NHNot1gfeS80WInZNjY9
+         1/kA==
+X-Forwarded-Encrypted: i=1; AHgh+RpH5Qy0KsgZdG6Ubf09tjrq9bCr17QFTlv450M4+x/peGEcevsectI70OcJszm5FJOAOS4p72f+FmLzw4ybyQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwYZx3OVQWbBXk/SQpFXnVNyOEbiRwQI6hYpjp+48OF9agxgQvH
+	4QWfvWZNol8tFj1ZXu1DSVQD3fRGCySEcav/sMx3P8fKJvT36wahk4snqM8H+/XZjUPekl+BFdm
+	dsl0/wPEw92n8nmceDE04ZxAavAzm1HburGuMayw=
+X-Gm-Gg: AfdE7cnBQGIG1jrkhLVfyDJm/ChjvbAsFmEI0PVyheH3mPAueAustwMHBrVDzaNpQaL
+	sH1sl3qIkJhTM2wAayGx4d2PKAKdDVUYSM2dO7o6ip/rkUOi+KZqj7q00mBnQA3auN7kOi660Kh
+	ync051Mrirg8Z19whkmYIl+zP9iH7F6Gv3fdJ2LX0esjZn3G96KSupRX34szMNWuz0KmjHCZVCw
+	YplCjFfHZ37vnPOirGhBNP3SMC1UYuA3OnSsEtxB42n4Ghs9GEl2QLW7dsGf1+OzRfJhfg=
+X-Received: by 2002:a17:903:4b0c:b0:2bd:6dad:7ccd with SMTP id
+ d9443c01a7336-2c99855966emr229385ad.25.1782489060232; Fri, 26 Jun 2026
+ 08:51:00 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+References: <V9qMNHLlezBTRwOQsdz9qWQfAsMwBr9PR4tKnaHWUJz7GVS5ttNlNILtzxYh1Rxd6_nL8p8Ffk9F7OqcHBYF3g==@protonmail.internalid>
+ <20260625202412.2986772-1-briandaniels@google.com> <fe970394-176b-4add-be68-74f6074ba78c@kernel.org>
+In-Reply-To: <fe970394-176b-4add-be68-74f6074ba78c@kernel.org>
+From: Brian Daniels <briandaniels@google.com>
+Date: Fri, 26 Jun 2026 11:50:47 -0400
+X-Gm-Features: AVVi8CcaG32oQ98-BwXSiQ-X6hlARwE9_bW6g1z1koV_pEWAyvNHcVBb8psrX4I
+Message-ID: <CAD4i_GQaUvCH1SD3Dk5V8XTFQHpmSYqWFV5-hr-8_urx+jtGww@mail.gmail.com>
+Subject: Re: [PATCH v4 1/8] media: virtio: Add protocol
+To: "Bryan O'Donoghue" <bod@kernel.org>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>, acourbot@google.com, adelva@google.com, 
+	aesteve@redhat.com, changyeon@google.com, daniel.almeida@collabora.com, 
+	eperezma@redhat.com, gnurou@gmail.com, gurchetansingh@google.com, 
+	hverkuil@xs4all.nl, jasowang@redhat.com, linux-kernel@vger.kernel.org, 
+	linux-media@vger.kernel.org, mst@redhat.com, nicolas.dufresne@collabora.com, 
+	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jun 26 2026 at 13:03, Thomas Wei=C3=9Fschuh wrote:
-> On Fri, Jun 26, 2026 at 12:49:41PM +0200, Thomas Gleixner wrote:
->> On Fri, Jun 26 2026 at 10:48, Thomas Wei=C3=9Fschuh wrote:
->> > On Tue, May 26, 2026 at 07:14:13PM +0200, Thomas Gleixner wrote:
->> > (...)
->> >
->> >>  static inline void tk_update_aux_offs(struct timekeeper *tk, ktime_t=
- offs)
->> >> @@ -1218,6 +1223,12 @@ bool ktime_get_snapshot_id(struct system
->> >>  		tkd =3D &tk_core;
->> >>  		offs =3D &tk_core.timekeeper.offs_boot;
->> >>  		break;
->> >> +	case CLOCK_AUX ... CLOCK_AUX_LAST:
->> >> +		tkd =3D aux_get_tk_data(clock_id);
->> >> +		if (!tkd)
->> >> +			return false;
->> >> +		offs =3D &tkd->timekeeper.offs_aux;
->> >> +		break;
->> >
->> > 'tkd' is also used to compute 'monoraw'. However 'tkr_raw' and 'tkr_mo=
-no'
->> > are the same for auxilary clocks, so this will compute a wrong 'monora=
-w'.
->>=20
->> AUX clocks are independent in the first place and the MONORAW part is
->> the "MONORAW" related to the AUX clock itself.=20
->>=20
->> > Instead 'monoraw' should be computed based on 'tk_core'.
->> > Which then also requires the sequence locking of 'tk_core'.
->>=20
->> No. From a PTP and steering point of view you want the "raw" value which
->> is related to the AUX clock itself and not the global one.
+On Thu, Jun 25, 2026 at 8:51=E2=80=AFPM Bryan O'Donoghue <bod@kernel.org> w=
+rote:
 >
-> Ack.
+> On 25/06/2026 21:24, Brian Daniels wrote:
+> > I'm not an expert here, but taking a look at those files, the vast majo=
+rity of
+> > those reserved fields appear to be padding to ensure the struct has 64-=
+bit
+> > alignment, which matches the use here in virtio-media as well.
+> >
+> > virtio_pci appears to be the only device that explicitly states the
+> > reserved bytes are for future extensions. Unless there's a good a reaso=
+n to
+> > expect a future use case where more space is needed, I would prefer to =
+not add
+> > more at this time.
 >
-> However the kdocs call it 'CLOCK_MONOTONIC_RAW'. Can we clean this up?
+> I'm querying why just the one though ? Why not say four ?
+>
+> Perhaps something you could address in your commit log.
+>
 
-Yes. Something like the below?
-
-Thanks,
-
-        tglx
----
---- a/kernel/time/timekeeping.c
-+++ b/kernel/time/timekeeping.c
-@@ -1202,10 +1202,21 @@ static inline u64 tk_clock_read_snapshot
-=20
- /**
-  * ktime_get_snapshot_id -  Simultaneously snapshot a given clock ID with
-- *			    CLOCK_MONOTONIC_RAW and the underlying
-+ *			    the corresponding monotonic raw the underlying
-  *			    clocksource counter value.
-  * @clock_id:		The clock ID to snapshot
-  * @systime_snapshot:	Pointer to struct receiving the system time snapshot
-+ *
-+ * For the system time keeping clocks (REALTIME, MONOTONIC and BOOTTIME) t=
-he
-+ * monotonic raw clock is CLOCK_MONOTONIC_RAW. For AUX clocks this is the
-+ * monotonic raw clock related to the AUX clock. These AUX clock related
-+ * monotonic raw clocks have a strict linear offset to the system time
-+ * CLOCK_MONOTONIC_RAW:
-+ *
-+ *	MONOTONIC_RAW(AUX$N) =3D CLOCK_MONOTONIC_RAW(system) + offset(AUX$N)
-+ *
-+ * The offset is established when a AUX clock is initialized, but it is
-+ * currently not accessible.
-  */
- void ktime_get_snapshot_id(clockid_t clock_id, struct system_time_snapshot=
- *systime_snapshot)
- {
-@@ -1512,6 +1523,9 @@ EXPORT_SYMBOL_GPL(ktime_real_to_base_clo
-  * @xtstamp:		Receives simultaneously captured system and device time
-  *
-  * Reads a timestamp from a device and correlates it to system time
-+ *
-+ * See documentation for ktime_get_snapshot_id() for information about the=
- raw
-+ * monotonic time stamp which is used here.
-  */
- int get_device_system_crosststamp(int (*get_time_fn)
- 				  (ktime_t *device_time,
-
+Sure I can add a note in v5. But yeah the reason is the total struct
+needs to be 64-bit aligned. So it can't be an arbitrary number.
+And all the current reserved fields add the minimum number of bits to
+ensure the existing structs are 64-bit aligned.
+Adding more means extra bytes are transferred every exchange without
+adding any value, which is inefficient.
