@@ -1,110 +1,110 @@
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.2])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 43C513DEADB
-	for <virtualization@lists.linux.dev>; Fri, 26 Jun 2026 07:04:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.2
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AA0F9361670;
+	Fri, 26 Jun 2026 08:48:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782457496; cv=none; b=RaOZsZzxYxm4wwpMD2jst9PA26gpqmQtw5/d2F3i2jd7I5c7aTGySgDnsrSXHfBc9QlVr2gtOK+WSi/V0qQHAqm2pTemjpVcRsr5vGU9fAZ92fvgLABDOAjXHvPwtlwUwHduF4ZVhNu0dMXu0qOEIgfO08NTGg2Iuv+j3vZvbAE=
+	t=1782463693; cv=none; b=DrRBMjvFQJ7yu7r6z1aW1Noe0/w5ciGkzHe4B/PHMXOk1zZECp0SiSkGIvxJRqxKLGI5ast6juQJWvSwHb1sI74suqmKCwUOT6fzuJK6J7PJLbq/LUhrAo8G9JL5MI5xxcTBusVy3//GIdfFvYU/2BeJ4SHc6HOTijCXq8RnsrY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782457496; c=relaxed/simple;
-	bh=RW1jPPYUb7bCu9ec/0Fv/4Q/N/7nYv7QouMskKa0t6o=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=I8aZDmxBlPzJGhJoLtziip8jE68JZoadbYbBptEu0Mpjlr97286ddYNOiy1m6zAg5bNd7aG3+1qzWajUng0pk9BQi1vp6YVzypXK6z7wrr+dcMfyZJdlJD1OfXcM1hCywqBVSMSlCKKFga6mO78LwY/fhx7TxcFK4Mf+B4aJ5AY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=VqNt3WOT; arc=none smtp.client-ip=220.197.31.2
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1782463693; c=relaxed/simple;
+	bh=97Pgkq6adF67eZdz/+XepyKwUN1XtS5Xtm1EzLtTGRM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=rPI9Ha2zPtW+2gpkEJfUY0IA+ctLwvBtOJL0lclkp+HNgx6OURJIZWwECUYO10tk5jJ0OisC1GM0ocqlv/yG9QN9oCxEYSwrVrvFA/PX2JCwvEsKWW/5qhPK+ZHyvS3H59zpt3sIDMB2F3a8vSMLRFvPGDrdiY/gfCyt1Oso/c4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=hQr5S+RC; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=D6m8j1DR; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="VqNt3WOT"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=6+
-	fhL15IpXELWBk5X5Yj6nvB2KblT0bo0DI5mw+pYgU=; b=VqNt3WOTTzEg46+myV
-	qEGM1V/jAIWA0OG52dQI20qc6XZ0nANoMyXXdrI+sBDZOkDHsNoQ/4BPZLubhZ3N
-	d/Z9PvN+rSx8nbgb3SYYwkFW5UixLkpTXi/TzQdxBatrSkQNiiI38jCcloCT0FfM
-	aJAYFc206obsV0QNpvsD0eVwc=
-Received: from localhost.localdomain (unknown [])
-	by gzsmtp5 (Coremail) with SMTP id QCgvCgCXH_GKJD5qqPCwEA--.52186S2;
-	Fri, 26 Jun 2026 15:04:43 +0800 (CST)
-From: "rom.wang" <r4o5m6e8o@163.com>
-To: "Michael S . Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Paolo Abeni <pabeni@redhat.com>,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org,
-	Yufeng Wang <wangyufeng@kylinos.cn>
-Subject: [PATCH v2] vhost/net: fix clear_user start address in VHOST_GET_FEATURES_ARRAY
-Date: Fri, 26 Jun 2026 15:04:38 +0800
-Message-Id: <20260626070438.59149-1-r4o5m6e8o@163.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="hQr5S+RC";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="D6m8j1DR"
+Date: Fri, 26 Jun 2026 10:48:05 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1782463690;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=jbME+aYeChhw+njOkhtdnmfsmFO39c1xH0hF4mprHBM=;
+	b=hQr5S+RC2eRu9S7NHE1xnWBkLxwZkglNFbDx5aO6m5GZfiSMwzlDvaLNYkvMGqGzWObkWm
+	nJ5Q6UcCzmXM19h3lnPwu/EKVAS9FgM6RrtWQUpG7k4/miKl7gYJVeFLHMxGZxfQ9A0u9G
+	JoUlnEIh80X7iKXX0O+1UJ1lgxNNA2G2i7n8UDaxZlZ9Dn/U6zRKFztWMHYRozmLY5Cm5A
+	99uacM0NSvo3kIxVhcUnYKfAMADdqM2wn6U31oHVUDI/a/adBoPlDLNJLGiZk3nO6XGqlC
+	KeATqSn4FHIP+jBEQCRLH88ET1rtP17IlX7gI9f/X/BT7N61yaKTVUhUdYRupg==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1782463690;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=jbME+aYeChhw+njOkhtdnmfsmFO39c1xH0hF4mprHBM=;
+	b=D6m8j1DRWFTBXmKkTp+cYL8Y9jVp9/66ve3/uCPppAIq2JFT4eWs4ARh8Txa2F8tD2YPCf
+	29ptwSplT1ImBsBQ==
+From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+To: Thomas Gleixner <tglx@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, 
+	David Woodhouse <dwmw2@infradead.org>, Miroslav Lichvar <mlichvar@redhat.com>, 
+	John Stultz <jstultz@google.com>, Stephen Boyd <sboyd@kernel.org>, 
+	Anna-Maria Behnsen <anna-maria@linutronix.de>, Frederic Weisbecker <frederic@kernel.org>, 
+	Arthur Kiyanovski <akiyano@amazon.com>, Rodolfo Giometti <giometti@enneenne.com>, 
+	Vincent Donnefort <vdonnefort@google.com>, Marc Zyngier <maz@kernel.org>, 
+	Oliver Upton <oliver.upton@linux.dev>, kvmarm@lists.linux.dev, Oliver Upton <oupton@kernel.org>, 
+	Richard Cochran <richardcochran@gmail.com>, netdev@vger.kernel.org, Takashi Iwai <tiwai@suse.com>, 
+	Miri Korenblit <miriam.rachel.korenblit@intel.com>, Johannes Berg <johannes.berg@intel.com>, 
+	Jacob Keller <jacob.e.keller@intel.com>, Tony Nguyen <anthony.l.nguyen@intel.com>, 
+	Saeed Mahameed <saeedm@nvidia.com>, Peter Hilber <peter.hilber@oss.qualcomm.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, linux-wireless@vger.kernel.org, 
+	linux-sound@vger.kernel.org
+Subject: Re: [patch 09/24] timekeeping: Add CLOCK_AUX support for
+ ktime_get_snapshot_id()
+Message-ID: <20260626103359-66ab2b54-d36f-416b-94a4-3f3708dccced@linutronix.de>
+References: <20260526165826.392227559@kernel.org>
+ <20260526171223.374814973@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:QCgvCgCXH_GKJD5qqPCwEA--.52186S2
-X-Coremail-Antispam: 1Uf129KBjvJXoW7AF18Jw1fJr1rKr4rAF43ZFb_yoW8ZF1xpF
-	Z7K3y5AFW5Cr4jyan2yrsrW3W8u3WfGFW0krW293y5CFn8Xry2yFs2kFW2qwnrWrWrJr13
-	AFn0qr15JFWDu37anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jUrc-UUUUU=
-X-CM-SenderInfo: 3uurkzkwhy0qqrwthudrp/xtbCzQxWy2o+JIx8MQAA3t
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260526171223.374814973@kernel.org>
 
-From: Yufeng Wang <wangyufeng@kylinos.cn>
+On Tue, May 26, 2026 at 07:14:13PM +0200, Thomas Gleixner wrote:
+(...)
 
-The clear_user() call in VHOST_GET_FEATURES_ARRAY incorrectly starts
-at argp, which is the beginning of the features array, overwriting the
-data just written by copy_to_user(). It should start after the copied
-elements at argp + copied * sizeof(u64) to only zero the trailing
-unused space.
+>  static inline void tk_update_aux_offs(struct timekeeper *tk, ktime_t offs)
+> @@ -1218,6 +1223,12 @@ bool ktime_get_snapshot_id(struct system
+>  		tkd = &tk_core;
+>  		offs = &tk_core.timekeeper.offs_boot;
+>  		break;
+> +	case CLOCK_AUX ... CLOCK_AUX_LAST:
+> +		tkd = aux_get_tk_data(clock_id);
+> +		if (!tkd)
+> +			return false;
+> +		offs = &tkd->timekeeper.offs_aux;
+> +		break;
 
-Use size_mul() for both the offset and length calculations so the
-arithmetic stays consistent with the surrounding code and remains
-overflow-safe.
+'tkd' is also used to compute 'monoraw'. However 'tkr_raw' and 'tkr_mono'
+are the same for auxilary clocks, so this will compute a wrong 'monoraw'.
+Instead 'monoraw' should be computed based on 'tk_core'.
+Which then also requires the sequence locking of 'tk_core'.
 
-Fixes: 333c515d1896 ("vhost-net: allow configuring extended features")
-Signed-off-by: Yufeng Wang <wangyufeng@kylinos.cn>
+As you know I have a series which unifies the locking between the
+different timekeepers. Maybe we revert this patch for 7.2 and I send
+a fixed variant including the prerequisites for 7.3.
 
----
-Changes in v2:
-- Use size_mul() for the offset calculation as well, per review feedback.
+(The same goes for get_device_system_crosststamp())
 
-Link to v1: https://lore.kernel.org/all/20260526080336.61296-1-r4o5m6e8o@163.com/
-
-Note:
-Thank you for your review and suggestions.
-
-I tried to add a switch in tools/virtio/vhost_net_test.c.
-The switch is meant to use VHOST_GET_FEATURES_ARRAY and
-VHOST_SET_FEATURES_ARRAY instead of the legacy versions.
-
-However, when I ran `make virtio` in the tools directory,
-the build failed with an error: missing asm/percpu_types.h.
-I fixed that error, but then another error appeared.
-
-Would it be acceptable to postpone the submission of
-this test case until I have sorted out all the build
-errors?
----
- drivers/vhost/net.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 77b59f49bddb..4b963dafa233 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -1784,7 +1784,8 @@ static long vhost_net_ioctl(struct file *f, unsigned int ioctl,
- 			return -EFAULT;
- 
- 		/* Zero the trailing space provided by user-space, if any */
--		if (clear_user(argp, size_mul(count - copied, sizeof(u64))))
-+		if (clear_user(argp + size_mul(copied, sizeof(u64)),
-+			       size_mul(count - copied, sizeof(u64))))
- 			return -EFAULT;
- 		return 0;
- 	case VHOST_SET_FEATURES_ARRAY:
--- 
-2.34.1
-
+>  	default:
+>  		WARN_ON_ONCE(1);
+>  		return false;
+> @@ -1228,6 +1239,10 @@ bool ktime_get_snapshot_id(struct system
+>  	do {
+>  		seq = read_seqcount_begin(&tkd->seq);
+>  
+> +		/* Aux clocks can be invalid */
+> +		if (!tk->clock_valid)
+> +			return false;
+> +
+>  		now = tk_clock_read(&tk->tkr_mono);
+>  		systime_snapshot->cs_id = tk->tkr_mono.clock->id;
+>  		systime_snapshot->cs_was_changed_seq = tk->cs_was_changed_seq;
+> 
