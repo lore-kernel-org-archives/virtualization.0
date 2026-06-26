@@ -1,156 +1,180 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oi1-f207.google.com (mail-oi1-f207.google.com [209.85.167.207])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF98A2E2840
-	for <virtualization@lists.linux.dev>; Fri, 26 Jun 2026 02:20:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A9953D566F
+	for <virtualization@lists.linux.dev>; Fri, 26 Jun 2026 06:20:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.207
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782440455; cv=none; b=tUBwBYXjn6oUsOKfsTkaate1xWf5S5BX7gItmqgTxn74Lpk0GAhiwSt5vARZaCCabZZijiGisS7lB1mFjGMMuTeZEUMMH+EflUff3btImmdOD7jv+GltETgKTAi8kP1ZOsSRoH9eeLsm+Y0H5TEtt5uUoug/QlJZMX1hQNeoJqk=
+	t=1782454823; cv=none; b=gihf8rRe5rPHj8prj/NT1mE7ABk92R8AbnZ/ts0zHnvnR9wxp2xZf+sHYOjIuxK4v2g/6BvinBqOopj7vwT+cPj2PDuC3WRjo6/QYKMp9OFvWXA2+FK284nyBITFXd4Y0bz+IkrIZoSkk8Ni6JuRXqvZU9JTVHffOSW4PqlQRNM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782440455; c=relaxed/simple;
-	bh=gHGXhrZOWUzF27PW7grMsw/KKp/8O4H77hQXuFerhXQ=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-type; b=Y5gRvHiakHO+Fj0sFh6eLLt8YNJE4hNWyreGpim24jvVy+B+Ie8tfdmioRsF/rf98wSweIgM5PHUV3RD9SD7L/xZlHCoGYp5hrVMHspIh7ft0PEbX14UcEj4OTNeK3BE7JO814y0R041MxJF1MzVgmhSwHwt6zrCgZZYf3/aeZs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cTZEflaX; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cTZEflaX"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1782440453;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=OxGcjxwlLcC8nEz7JDYi3CbjxSnldr+NBxZJ+E8h6AQ=;
-	b=cTZEflaXqvKwl/mjryT6QAHAOUGWC7fvSeoMSP2w7n/MYuyQ358QmaLu20pCr9qRt8apVv
-	DXjv9GA33+Yn//iUCAUTSTbJYROvLT/xUmj59o2PD2qh1HfMyrqosQb7nOy+iKMsxSiZ5F
-	hbKJ0SyH1aPhin1mFQvg47Ur8SV/XAY=
-Received: from mail-pj1-f71.google.com (mail-pj1-f71.google.com
- [209.85.216.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-147-GNgrdMvxPR-iT6VSXX0vMg-1; Thu, 25 Jun 2026 22:20:51 -0400
-X-MC-Unique: GNgrdMvxPR-iT6VSXX0vMg-1
-X-Mimecast-MFC-AGG-ID: GNgrdMvxPR-iT6VSXX0vMg_1782440450
-Received: by mail-pj1-f71.google.com with SMTP id 98e67ed59e1d1-37df6354960so335317a91.2
-        for <virtualization@lists.linux.dev>; Thu, 25 Jun 2026 19:20:51 -0700 (PDT)
+	s=arc-20240116; t=1782454823; c=relaxed/simple;
+	bh=lyZdV/EbBDKR8/goZdWfs2R3u+lOe2Ywc8YyeIAXZ9I=;
+	h=MIME-Version:Date:In-Reply-To:Message-ID:Subject:From:To:
+	 Content-Type; b=si3Lj1iyuUAvv3+w8TyAMiX9jFK9fbjyWM9wq3KOAqVOtEY4AwJfkOmooS6D5ZKTlufFB2KJcV3qsiRnCmsmCHgUEUKlT597udL8pDdXme4kzGXKQ+7qKJAl0dIic0uxeDYPTa5/RJ/9KE8d8JOJho1ZmsbQ2LxKnY+6+HAFplE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.167.207
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oi1-f207.google.com with SMTP id 5614622812f47-486a2231742so984904b6e.1
+        for <virtualization@lists.linux.dev>; Thu, 25 Jun 2026 23:20:21 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782440450; x=1783045250;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=OxGcjxwlLcC8nEz7JDYi3CbjxSnldr+NBxZJ+E8h6AQ=;
-        b=hqHYJ4zVm867kCSqkY4QrXLQPslnmjhLaVjdCn1ipmFHaDqPtJS/bJ1GHL75urhFDw
-         Ufy2zK3lb9eYIdiuVjjnDJoGgzQmpy9s2DBjBxlV1GYS0T8TN8kxQz4XUs2eqyaepwyY
-         6VGj7adpLm+WZebMI9IzPnr83YzPCGrvKnkhB1EuTk6SgStCvRHI8S3Lot8SM1y3ZQ/+
-         GvyBwIjdmBgow0weBDRVHwl5pobJQzvrPHaeT+UlC0ermUF5Plg2MTIXvS5Ez8FrLuTy
-         MTHahy6jI06ACLNGgTwfx473nOgYqEyU8AnQ0ePmFbC7wy2oza9X/q96YN6ru6WvkdJJ
-         Syzw==
-X-Forwarded-Encrypted: i=1; AHgh+Rryyvy+7AftANP37NNaxetRx17dSB0U1DxJVmYJzm21swwyzdtaEYpoTD2AUqbSoE3T1hkZd3hDWVOvt7JJhg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzvlZ32rUqT6dO/k65PSHyOivLyzp7MkhIe5RGU6TYMoJHCLnl6
-	kztyctvzfiUJvMz2oxuFBn3EKYsRpBpoTAzsZ43o41YzQXFI2FH8nuD9NA6NWG6oJFulIpvR4Ya
-	BKxFkghOKr1a03CpEmv62rgZZAZx5a3YqeFxHFWsxmyQL6TF8N86kz1A+QBdgZj6iyLAr
-X-Gm-Gg: AfdE7ckPiXdKT0h1/Nc/u2qzNlWOQidUXz7OevmjQpbX+BkA5Gz300ZUI68NFKaYizZ
-	6NOkjBNb7O1PkOWLflPVl8/2klGe0Ga2CwwOe5JF0lDmIdoXTHQy6zOqe8mH766s4QfvIMmeSA1
-	dtlVg7BMp/Q4uvLogaGx0o8jMFF7cGY3wpMJw23axDtvOeCdxAQhhSKlNjAEnZuN8d/PewEdZbY
-	36UC1IunsfQcpZ78E6x5R/cPhtxC9Vh4AF4OhuBEAmKr18oqG7nEo9ZQbye+GLnQh2wL7feLCG8
-	i3hvfXXGKkXJAN/D4kV5gk+yc2VFW3hM91zooVtXeQd9L6JUrKHOPJYgMAecmy3gJhNHrBu7/EN
-	zpdOSMmBSk1aiosLpz73StQ==
-X-Received: by 2002:a17:90b:4fcb:b0:36b:7ad1:df70 with SMTP id 98e67ed59e1d1-37dfa19c345mr4397850a91.2.1782440450278;
-        Thu, 25 Jun 2026 19:20:50 -0700 (PDT)
-X-Received: by 2002:a17:90b:4fcb:b0:36b:7ad1:df70 with SMTP id 98e67ed59e1d1-37dfa19c345mr4397791a91.2.1782440449574;
-        Thu, 25 Jun 2026 19:20:49 -0700 (PDT)
-Received: from localhost.localdomain ([208.115.228.234])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-37e058a010fsm1284571a91.7.2026.06.25.19.20.45
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Thu, 25 Jun 2026 19:20:49 -0700 (PDT)
-From: Jason Wang <jasowang@redhat.com>
-To: mst@redhat.com,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org
-Cc: eperezma@redhat.com,
-	kvm@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Jason Wang <jasowang@redhat.com>
-Subject: [PATCH] MAINTAINERS: Update Jason Wang's email address
-Date: Fri, 26 Jun 2026 10:20:38 +0800
-Message-ID: <20260626022039.96139-1-jasowang@redhat.com>
-X-Mailer: git-send-email 2.54.0
+        d=1e100.net; s=20251104; t=1782454821; x=1783059621;
+        h=to:from:subject:message-id:in-reply-to:date:mime-version
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=IRzKgTpajedmViehhXi8vTT76UuMXhSsrIZNew9B7fE=;
+        b=hiPlPZ1hcLbi0NNOeDJKQUci9d80o0NxtydPYQd246n18g775uZhRqROu1Q+N0/cAA
+         M0mjBpMF6wbfD3OjuQ3cjRVkOIPhew8mbze6A+IUSPjaBoE8BeJrLrgp6ZO7CmQQWVCs
+         PMHxTCpxXqPFNT9vbAzz/N0eLHSIFKBnoU4n7kJh5G63cY9WoTbAEOBZ8036kqSEKNLm
+         0kxFPIbL3X56FM0wPzrNlRk74FBX+i5RGmDSWjyUdv4GR8Y8ywl626OCWeRD7eBFT1Wx
+         C1Ohpv+ok5TFbuCAhmSd+lHcUqWYg6lil08WBiP2seCHt5Bk3xAzUrz/OnErHdUbtgo0
+         oEew==
+X-Forwarded-Encrypted: i=1; AFNElJ+X0yFE6CDEf7cnJjmuSu6zXrVN2cdphSACHGZOAIf9UlzzAbWZMFzocKeXjhSiMHL0AR4sbG0bpC9a4J2ifw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwQBT0NwrzPOhjH7gyFtOgd4SPbUQM5nCqqo3BRA2nfrmnVzxle
+	kU/ru3bEbDp5PK+S69VL4wdyuSa7GeiA8qhyMR38XZ+CV1F0COF4ECuKMqHWPGOP0NX9DDEJK+V
+	0M4X2gsdbuQPi+YiWMycLoHyW9GY7YsT5I6jtQMSHEOfkJS93c6LTQpKkLzM=
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: q9lt6lIx4LpIMcth-NnDymbiX6os2sy887UbNCVq8Q8_1782440450
-X-Mimecast-Originator: redhat.com
-Content-type: text/plain
-Content-Transfer-Encoding: 8bit
+X-Received: by 2002:a05:6808:19a0:b0:48a:c055:d791 with SMTP id
+ 5614622812f47-48ee2851637mr12741485b6e.5.1782454821205; Thu, 25 Jun 2026
+ 23:20:21 -0700 (PDT)
+Date: Thu, 25 Jun 2026 23:20:21 -0700
+In-Reply-To: <69ad01b6.050a0220.310d8.0006.GAE@google.com>
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <6a3e1a25.b42ede87.2ae58d.0000.GAE@google.com>
+Subject: Re: [syzbot] [net?] BUG: soft lockup in perf_event_open (2)
+From: syzbot <syzbot+e04801269a8f6321dd79@syzkaller.appspotmail.com>
+To: acme@kernel.org, adrian.hunter@intel.com, 
+	alexander.shishkin@linux.intel.com, andrew@lunn.ch, davem@davemloft.net, 
+	edumazet@google.com, eperezma@redhat.com, irogers@google.com, 
+	james.clark@linaro.org, jasowang@redhat.com, jolsa@kernel.org, 
+	kuba@kernel.org, linux-kernel@vger.kernel.org, 
+	linux-perf-users@vger.kernel.org, mark.rutland@arm.com, mingo@redhat.com, 
+	mst@redhat.com, namhyung@kernel.org, netdev@vger.kernel.org, 
+	pabeni@redhat.com, peterz@infradead.org, syzkaller-bugs@googlegroups.com, 
+	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
+Content-Type: text/plain; charset="UTF-8"
 
-I will use jasowangio@gmail.com for future review and discussion.
+syzbot has found a reproducer for the following issue on:
 
-Signed-off-by: Jason Wang <jasowang@redhat.com>
+HEAD commit:    4edcdefd4083 Merge tag 'bpf-fixes' of git://git.kernel.org..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=16da941e580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=3c3d59be33cf7e9a
+dashboard link: https://syzkaller.appspot.com/bug?extid=e04801269a8f6321dd79
+compiler:       Debian clang version 22.1.8 (++20260613092233+e80beda6e255-1~exp1~20260613092250.77), Debian LLD 22.1.8
+syz repro:      https://syzkaller.appspot.com/x/repro.syz?x=164054ea580000
+
+Downloadable assets:
+disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/d900f083ada3/non_bootable_disk-4edcdefd.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/01cc5d298db0/vmlinux-4edcdefd.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/59e4cf862ca3/bzImage-4edcdefd.xz
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+e04801269a8f6321dd79@syzkaller.appspotmail.com
+
+rcu: INFO: rcu_preempt detected stalls on CPUs/tasks:
+rcu: 	(detected by 0, t=10502 jiffies, g=61569, q=162 ncpus=1)
+rcu: All QSes seen, last rcu_preempt kthread activity 10502 (4294967357-4294956855), jiffies_till_next_fqs=1, root ->qsmask 0x0
+rcu: rcu_preempt kthread starved for 10502 jiffies! g61569 f0x2 RCU_GP_WAIT_FQS(5) ->state=0x0 ->cpu=0
+rcu: 	Unless rcu_preempt kthread gets sufficient CPU time, OOM is now expected behavior.
+rcu: RCU grace-period kthread stack dump:
+task:rcu_preempt     state:R  running task     stack:27464 pid:16    tgid:16    ppid:2      task_flags:0x208040 flags:0x00080000
+Call Trace:
+ <TASK>
+ context_switch kernel/sched/core.c:5510 [inline]
+ __schedule+0x17d9/0x56c0 kernel/sched/core.c:7234
+ __schedule_loop kernel/sched/core.c:7311 [inline]
+ schedule+0x164/0x2b0 kernel/sched/core.c:7326
+ schedule_timeout+0x152/0x2c0 kernel/time/sleep_timeout.c:99
+ rcu_gp_fqs_loop+0x30c/0x11f0 kernel/rcu/tree.c:2123
+ rcu_gp_kthread+0x9e/0x2b0 kernel/rcu/tree.c:2325
+ kthread+0x388/0x470 kernel/kthread.c:436
+ ret_from_fork+0x514/0xb70 arch/x86/kernel/process.c:158
+ ret_from_fork_asm+0x1a/0x30 arch/x86/entry/entry_64.S:245
+ </TASK>
+rcu: Stack dump where RCU GP kthread last ran:
+CPU: 0 UID: 0 PID: 5714 Comm: syz.3.20 Not tainted syzkaller #0 PREEMPT(full) 
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+RIP: 0010:unwind_next_frame+0x19ae/0x2550 arch/x86/kernel/unwind_orc.c:677
+Code: e8 03 42 0f b6 04 20 84 c0 0f 85 b6 0a 00 00 4c 89 e8 48 c1 e8 03 42 0f b6 04 20 84 c0 0f 85 c5 0a 00 00 48 0f bf 03 49 01 c0 <49> 8d 56 40 4c 89 f7 4c 89 c6 e8 33 0e 00 00 84 c0 0f 84 4e 01 00
+RSP: 0018:ffffc900000074e0 EFLAGS: 00000283
+RAX: fffffffffffffff0 RBX: ffffffff91709a28 RCX: 0000000000000000
+RDX: ffffffff91709a2a RSI: 0000000000000008 RDI: ffffc900000075e8
+RBP: 1ffffffff22e1345 R08: ffffc900034df7c8 R09: 0000000000000000
+R10: ffffc900000075d8 R11: fffff52000000ebd R12: dffffc0000000000
+R13: ffffffff91709a29 R14: ffffc90000007588 R15: ffffc900000075d0
+FS:  0000555594cee500(0000) GS:ffff88808c81b000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f5209872780 CR3: 0000000035426000 CR4: 0000000000352ef0
+Call Trace:
+ <IRQ>
+ arch_stack_walk+0x11b/0x150 arch/x86/kernel/stacktrace.c:25
+ stack_trace_save+0xa9/0x100 kernel/stacktrace.c:122
+ kasan_save_stack mm/kasan/common.c:57 [inline]
+ kasan_save_track+0x3e/0x80 mm/kasan/common.c:78
+ kasan_save_free_info+0x40/0x50 mm/kasan/generic.c:584
+ poison_slab_object mm/kasan/common.c:253 [inline]
+ __kasan_slab_free+0x5c/0x80 mm/kasan/common.c:285
+ kasan_slab_free include/linux/kasan.h:235 [inline]
+ slab_free_hook mm/slub.c:2705 [inline]
+ slab_free mm/slub.c:6405 [inline]
+ kmem_cache_free+0x182/0x650 mm/slub.c:6532
+ kfree_skb_reason include/linux/skbuff.h:1323 [inline]
+ kfree_skb include/linux/skbuff.h:1332 [inline]
+ hsr_forward_skb+0x1a27/0x28c0 net/hsr/hsr_forward.c:753
+ send_hsr_supervision_frame+0x733/0xcf0 net/hsr/hsr_device.c:364
+ hsr_announce+0x1db/0x370 net/hsr/hsr_device.c:421
+ call_timer_fn+0x192/0x5e0 kernel/time/timer.c:1748
+ expire_timers kernel/time/timer.c:1799 [inline]
+ __run_timers kernel/time/timer.c:2374 [inline]
+ __run_timer_base+0x652/0x8b0 kernel/time/timer.c:2386
+ run_timer_base kernel/time/timer.c:2395 [inline]
+ run_timer_softirq+0xb7/0x170 kernel/time/timer.c:2405
+ handle_softirqs+0x225/0x840 kernel/softirq.c:622
+ __do_softirq kernel/softirq.c:656 [inline]
+ invoke_softirq kernel/softirq.c:496 [inline]
+ __irq_exit_rcu+0xca/0x220 kernel/softirq.c:735
+ irq_exit_rcu+0x9/0x30 kernel/softirq.c:752
+ instr_sysvec_apic_timer_interrupt arch/x86/kernel/apic/apic.c:1062 [inline]
+ sysvec_apic_timer_interrupt+0xa6/0xc0 arch/x86/kernel/apic/apic.c:1062
+ </IRQ>
+ <TASK>
+ asm_sysvec_apic_timer_interrupt+0x1a/0x20 arch/x86/include/asm/idtentry.h:674
+RIP: 0010:finish_task_switch+0x417/0xc60 kernel/sched/core.c:5361
+Code: 04 00 00 41 c7 84 24 20 0e 00 00 00 00 00 00 0f 1f 44 00 00 49 83 c4 48 4c 89 e7 e8 a3 5a 23 0a e8 6e bc 39 00 fb 4c 8b 65 c8 <49> 8d bc 24 f8 16 00 00 48 89 f8 48 c1 e8 03 42 0f b6 04 30 84 c0
+RSP: 0018:ffffc900034df880 EFLAGS: 00000206
+RAX: 00000000000009c3 RBX: ffff88801fc3bf20 RCX: 0000000080000001
+RDX: 0000000000000006 RSI: ffffffff8dfe613c RDI: ffffffff8c2aaf80
+RBP: ffffc900034df8d0 R08: ffffffff9032f8f7 R09: 1ffffffff2065f1e
+R10: dffffc0000000000 R11: fffffbfff2065f1f R12: ffff88803292a540
+R13: ffff88801fc3bee8 R14: dffffc0000000000 R15: 1ffff11003f877e4
+ context_switch kernel/sched/core.c:5513 [inline]
+ __schedule+0x17e1/0x56c0 kernel/sched/core.c:7234
+ preempt_schedule_common+0x82/0xd0 kernel/sched/core.c:7413
+ preempt_schedule_thunk+0x16/0x40 arch/x86/entry/thunk.S:12
+ __mutex_lock_common kernel/locking/mutex.c:656 [inline]
+ __mutex_lock+0x321/0x1550 kernel/locking/mutex.c:821
+ __do_sys_perf_event_open kernel/events/core.c:14249 [inline]
+ __se_sys_perf_event_open+0x1984/0x1d40 kernel/events/core.c:13881
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0x174/0x580 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f520999ce59
+Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 e8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007ffd9f0e1458 EFLAGS: 00000246 ORIG_RAX: 000000000000012a
+RAX: ffffffffffffffda RBX: 00007f5209c15fa0 RCX: 00007f520999ce59
+RDX: bfffffffffffffff RSI: 0000000000000000 RDI: 0000200000000180
+RBP: 00007f5209a32e6f R08: 0000000000000000 R09: 0000000000000000
+R10: ffffffffffffffff R11: 0000000000000246 R12: 0000000000000000
+R13: 00007f5209c15fac R14: 00007f5209c15fa0 R15: 00007f5209c15fa0
+ </TASK>
+
+
 ---
- MAINTAINERS | 12 ++++++------
- 1 file changed, 6 insertions(+), 6 deletions(-)
-
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 15011f5752a9..40d9641cbc7a 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -27520,7 +27520,7 @@ F:	drivers/net/ethernet/dec/tulip/
- 
- TUN/TAP DRIVER
- M:	Willem de Bruijn <willemdebruijn.kernel@gmail.com>
--M:	Jason Wang <jasowang@redhat.com>
-+M:	Jason Wang <jasowangio@gmail.com>
- S:	Maintained
- W:	http://vtun.sourceforge.net/tun
- F:	Documentation/networking/tuntap.rst
-@@ -28512,7 +28512,7 @@ F:	include/uapi/linux/virtio_balloon.h
- 
- VIRTIO BLOCK AND SCSI DRIVERS
- M:	"Michael S. Tsirkin" <mst@redhat.com>
--M:	Jason Wang <jasowang@redhat.com>
-+M:	Jason Wang <jasowangio@gmail.com>
- R:	Paolo Bonzini <pbonzini@redhat.com>
- R:	Stefan Hajnoczi <stefanha@redhat.com>
- R:	Eugenio Pérez <eperezma@redhat.com>
-@@ -28541,7 +28541,7 @@ F:	include/uapi/linux/virtio_console.h
- 
- VIRTIO CORE
- M:	"Michael S. Tsirkin" <mst@redhat.com>
--M:	Jason Wang <jasowang@redhat.com>
-+M:	Jason Wang <jasowangio@gmail.com>
- R:	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
- R:	Eugenio Pérez <eperezma@redhat.com>
- L:	virtualization@lists.linux.dev
-@@ -28619,7 +28619,7 @@ F:	include/uapi/linux/virtio_gpu.h
- 
- VIRTIO HOST (VHOST)
- M:	"Michael S. Tsirkin" <mst@redhat.com>
--M:	Jason Wang <jasowang@redhat.com>
-+M:	Jason Wang <jasowangio@gmail.com>
- R:	Eugenio Pérez <eperezma@redhat.com>
- L:	kvm@vger.kernel.org
- L:	virtualization@lists.linux.dev
-@@ -28634,7 +28634,7 @@ F:	kernel/vhost_task.c
- 
- VIRTIO HOST (VHOST-SCSI)
- M:	"Michael S. Tsirkin" <mst@redhat.com>
--M:	Jason Wang <jasowang@redhat.com>
-+M:	Jason Wang <jasowangio@gmail.com>
- M:	Mike Christie <michael.christie@oracle.com>
- R:	Paolo Bonzini <pbonzini@redhat.com>
- R:	Stefan Hajnoczi <stefanha@redhat.com>
-@@ -28674,7 +28674,7 @@ F:	include/uapi/linux/virtio_mem.h
- 
- VIRTIO NET DRIVER
- M:	"Michael S. Tsirkin" <mst@redhat.com>
--M:	Jason Wang <jasowang@redhat.com>
-+M:	Jason Wang <jasowangio@gmail.com>
- R:	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
- R:	Eugenio Pérez <eperezma@redhat.com>
- L:	netdev@vger.kernel.org
--- 
-2.54.0
-
+If you want syzbot to run the reproducer, reply with:
+#syz test: git://repo/address.git branch-or-commit-hash
+If you attach or paste a git patch, syzbot will apply it before testing.
