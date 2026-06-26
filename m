@@ -1,108 +1,113 @@
-Received: from mail-qk1-f202.google.com (mail-qk1-f202.google.com [209.85.222.202])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 180062C15AC
-	for <virtualization@lists.linux.dev>; Thu, 25 Jun 2026 20:26:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.202
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 20A05283FD4;
+	Fri, 26 Jun 2026 00:51:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782419163; cv=none; b=AdL3vt6kQyrUmgKHug2wFCcbPY1/lSSwswZZxdus071VFJTxQJZEm8lShMBXZnqxFraVjAHkuxbYlWd7IUzNAG9ck05P6gNhORnZSMG1obw4GdGTaocdOmddfQYiIR7e4k0PXNxtjUbIZiAPen3MT7WXpxO3CNQbnd3aQtdpFYk=
+	t=1782435062; cv=none; b=MJ9qppf3VXdpkipvQ0yAVtwcSWIipR2JysrMuy7kIizjd7ASfxWWQSa5lk09qqnyGFv3QbqKLI0DvxvNlO8dF9XmZW0XrOa3h6Ow0N9uzClnDH7jvWUOF5t+PYBLwnVI5CAqz+lltz3VNIU9TM5Ig7C0+3M1Wt/KfYfPQvVmGoI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782419163; c=relaxed/simple;
-	bh=kH/nWE1uWj4nPX0coh0oI7W0Icpip5M6GBcvfIU9LV4=;
-	h=Date:In-Reply-To:Mime-Version:Message-ID:Subject:From:To:Cc:
-	 Content-Type; b=QXC3ioFlCmI9BtrlwuYS6CWpQHEXCdUsbr8cQhOe0MnetP4lLaTun9SGJMgMlP7F/Z3uUT0IhEIFokBc1Xucd2KjIILm2QA8BKratW5e+NVoFQ0Y5Xv4RUWFFtswcmeILyPHOV7GautDpt/JlTu6aFPPGRBFS7E5B4mS7PDwXe0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--briandaniels.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=TtYvaC/s; arc=none smtp.client-ip=209.85.222.202
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--briandaniels.bounces.google.com
+	s=arc-20240116; t=1782435062; c=relaxed/simple;
+	bh=UUNEW/3BM3oDz4zPKkzCZLrCik4vzpA79gZ+K/u0j9E=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=GzCXC7T3+0yiEqZVtH/Jy47Cr+17NYAlcqJwxx+Ndzh2+u1fNA75ph8hqnHMsVNqX5IaqPJR7SJBunLPKp/0SGUvZ/zfbSyLmkAtEyC0bqHFhAqzNZ3cd+czLWyL2lpuSktqUEsx6Gr+jOkvjmK/txWcMlL0RvSXLo799Uke/HM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IVQeQK2W; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="TtYvaC/s"
-Received: by mail-qk1-f202.google.com with SMTP id af79cd13be357-92045e86763so280417085a.1
-        for <virtualization@lists.linux.dev>; Thu, 25 Jun 2026 13:26:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1782419161; x=1783023961; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:from:subject:message-id
-         :mime-version:in-reply-to:date:from:to:cc:subject:date:message-id
-         :reply-to;
-        bh=nQTuInYbw/iuI+/cpa7ndKurPDuK7LO01xka1fr9WE0=;
-        b=TtYvaC/s4+7Y3ZbWyefqV920mR6RKaCGP5Z+AW/gatzEwBzZbbUhjPbcdeBjMgUu6i
-         yPbPnnR7/QeMccH9MiNhJIgMjelFYaHnWGNV/Jt+KrjRWBnCiJ1UGIIhfT5FlPssy8lY
-         ec1469wy9glfDiswS7FEMPLD6zzsPpxHrzU1rQpy6nmlTHzaULost3BI2A7xPI4yP1Iy
-         IsZip1hesDOzDLXIcEzr5lHpelUi8MCoObmrHuLzEGzoCG2ofz3MdHNZmGai+2iQoExq
-         TejbTHh4efHwl+xgLagpjXExBGJudRDcvMH09q+r3GxkgZ0J0tk6In3IszLp5dquyFQ3
-         1O2Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782419161; x=1783023961;
-        h=content-transfer-encoding:cc:to:from:subject:message-id
-         :mime-version:in-reply-to:date:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=nQTuInYbw/iuI+/cpa7ndKurPDuK7LO01xka1fr9WE0=;
-        b=DeYeMnIKrDSis/m5d9vI/rppBXxR8uiKGvSAI+7J8wpt90VQe+UHpiZCm7poO4vFqp
-         EkOrhX2NK03E5pLD/um/9s1jzvZ87gYluwUIKyyV69NpQ9Vy2iqMoQfi8wFandObUFFG
-         2wUozGR8n6ZOngTopDRtiqM8GObJ/YF1Jt8HHnT10R6qtyIGsYNSeD3XOswrufkEIFhX
-         7Qlpy2lbWTnGWCvjorpRfz1PqIc8dxRIeixWcDgUQLGqHrAYSkH2iPZbSIDBfjS9iGWj
-         Tqq/LdMpnoyUcv7HxNdbb1rRPVFS4ziKyCbvZTQh9kXTNJU+WRRSwn4i0ZWqMGdXvyYj
-         vmsg==
-X-Forwarded-Encrypted: i=1; AFNElJ+efBB+ThHHgX+UDudbK1fsEEgHjQ8mnupOFnUsQOK6Gdxn2HgmrHaMYePHWZBTFg88ga5oD6YQ7xq76D5M1w==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yym4t/dyO49eLhXdn2ikpK5P9ti489yFTJ6gDoDJhicWjDfpq0M
-	UO6fWCKX3QOMMAb6Vv7Vl7vomuBPqagbcz/aO5y+tDb+OFJeGcOhIZZpm16UQrpIWkF50bAfdTr
-	Nothv7Jdnq22uvPyIAjOq0tryZEyP
-X-Received: from qtbhx10.prod.google.com ([2002:a05:622a:668a:b0:517:7852:3f03])
- (user=briandaniels job=prod-delivery.src-stubby-dispatcher) by
- 2002:a05:622a:514:b0:50f:b61c:ec4c with SMTP id d75a77b69052e-51a72149df7mr49243091cf.7.1782419160377;
- Thu, 25 Jun 2026 13:26:00 -0700 (PDT)
-Date: Thu, 25 Jun 2026 16:25:46 -0400
-In-Reply-To: <ce63d29a-8c76-4a3d-ad8f-144f8b709cfa@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IVQeQK2W"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7DABE1F000E9;
+	Fri, 26 Jun 2026 00:50:57 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1782435060;
+	bh=IOza8xsp2dv/+CoiTNhe/XVYthd1WQ3C2F501Mbqnn0=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=IVQeQK2WRT2tWquvOPKU7LhLwB+KrcnBI5JqNhdT/ps8dG0B7WLYRsUKAMoP6rKDI
+	 brB39UXVroZFetYvkvOMYLd0LFOx13wS1BXFGB3Zt78BcQYcD1QLJONBWKn8SeQHBj
+	 dPd2XJN80T+2KXbG82O0KaRfsHtV1DKGATKm+nPWoHBjSZ9mbuFWDJJKE/DV9BosrP
+	 oruhk+XrTcC4Av1ZXZeCUQG1O8RdWoGNYLYM2YEAlUFjUoTWiokLZSe8Nycu7fqRoO
+	 tzsWvtQKIuEw10+pGFKlmML2U49gANYa47kxTbsDY1JqM74eHWOIZ4ICd9n6/sa1in
+	 Vf1KljXWR3iZw==
+Message-ID: <fe970394-176b-4add-be68-74f6074ba78c@kernel.org>
+Date: Fri, 26 Jun 2026 01:50:55 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.55.0.rc0.799.gd6f94ed593-goog
-Message-ID: <20260625202549.2988460-1-briandaniels@google.com>
-Subject: Re: [PATCH v4 2/8] media: virtio: Add virtio-media driver structs and
- function declarations
-From: Brian Daniels <briandaniels@google.com>
-To: "Bryan O'Donoghue" <bod@kernel.org>, Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: Brian Daniels <briandaniels@google.com>, acourbot@google.com, adelva@google.com, 
-	aesteve@redhat.com, changyeon@google.com, daniel.almeida@collabora.com, 
-	eperezma@redhat.com, gnurou@gmail.com, gurchetansingh@google.com, 
-	hverkuil@xs4all.nl, jasowang@redhat.com, linux-kernel@vger.kernel.org, 
-	linux-media@vger.kernel.org, mst@redhat.com, nicolas.dufresne@collabora.com, 
-	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v4 1/8] media: virtio: Add protocol
+To: Brian Daniels <briandaniels@google.com>,
+ Mauro Carvalho Chehab <mchehab@kernel.org>
+Cc: acourbot@google.com, adelva@google.com, aesteve@redhat.com,
+ changyeon@google.com, daniel.almeida@collabora.com, eperezma@redhat.com,
+ gnurou@gmail.com, gurchetansingh@google.com, hverkuil@xs4all.nl,
+ jasowang@redhat.com, linux-kernel@vger.kernel.org,
+ linux-media@vger.kernel.org, mst@redhat.com, nicolas.dufresne@collabora.com,
+ virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
+References: <V9qMNHLlezBTRwOQsdz9qWQfAsMwBr9PR4tKnaHWUJz7GVS5ttNlNILtzxYh1Rxd6_nL8p8Ffk9F7OqcHBYF3g==@protonmail.internalid>
+ <20260625202412.2986772-1-briandaniels@google.com>
+From: Bryan O'Donoghue <bod@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=bod@kernel.org; keydata=
+ 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
+In-Reply-To: <20260625202412.2986772-1-briandaniels@google.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-> > +extern char *virtio_media_driver_name;
-> > +extern bool virtio_media_allow_userptr;
->=20
-> This looks a bit funny to me - why do you have externs in your header ?
->=20
-> =E2=9E=9C   grep -r virtio * | grep extern
-> arch/mips/include/asm/mach-loongson64/builtin_dtbs.h:extern u32=20
-> __dtb_loongson64v_4core_virtio_begin[];
-> Documentation/virt/kvm/api.rst:    - virtio external interrupt; external=
-=20
-> interrupt
-> drivers/gpu/drm/virtio/virtgpu_drv.h:extern struct drm_ioctl_desc=20
-> virtio_gpu_ioctls[DRM_VIRTIO_NUM_IOCTLS];
-> drivers/net/wireless/virtual/mac80211_hwsim.c:extern int=20
-> hwsim_tx_virtio(struct mac80211_hwsim_data *data,
-> include/linux/virtio_anchor.h:extern bool=20
-> (*virtio_check_mem_acc_cb)(struct virtio_device *dev);
+On 25/06/2026 21:24, Brian Daniels wrote:
+> I'm not an expert here, but taking a look at those files, the vast majority of
+> those reserved fields appear to be padding to ensure the struct has 64-bit
+> alignment, which matches the use here in virtio-media as well.
+> 
+> virtio_pci appears to be the only device that explicitly states the
+> reserved bytes are for future extensions. Unless there's a good a reason to
+> expect a future use case where more space is needed, I would prefer to not add
+> more at this time.
 
-You're command will only return lines that contain both `virtio` and `exter=
-n`.
-If you instead wanted to find all header files that contain externs, I beli=
-eve
-you would want something like:
+I'm querying why just the one though ? Why not say four ?
 
-  find -type f -name '*.h' | xargs grep extern
+Perhaps something you could address in your commit log.
 
-When I run this I find many examples of `extern` in header files.
-
-That all being said, the reason the `extern`s are in the header file is so
-files that include said header file can access those variables. In this cas=
-e,
-these variables are used for different module parameters. We may be
-removing them though, check the other discussion thread.
+---
+bod
