@@ -1,170 +1,127 @@
-Received: from mout.web.de (mout.web.de [217.72.192.78])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADD7B366DB5
-	for <virtualization@lists.linux.dev>; Fri, 26 Jun 2026 13:33:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=217.72.192.78
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C0D173F786E
+	for <virtualization@lists.linux.dev>; Fri, 26 Jun 2026 13:48:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782480826; cv=none; b=bnEQ4YwF1D4CaMZwfP4kvi3TSbUPiQv59P82jPPwea/GTjzMflWbJWH6aZr4AS2v5UQc44M42AnUmRw19+9Nuu2BYLDpS7dAJlFqrlIIYh6RCBjd8sLKxzxJj6LxGe5MjVOIJ5uXpiXhviuc8nBdC8AUxmDKBW02Wd145mY2mbw=
+	t=1782481711; cv=none; b=CuZB+R1cx6noKFMTWtsnCaQSgzAU9Ss/ABmfcM68Yp7bR0PQjXp50GmETXar3DC5QHzirSYQ+LI+M8W3u80WWd13Ar2bvKR36PrsGhSFiWCvVbupbzjD2a8U8X4+cqHS+vkEprNYdA7Lm36ymgVUMLKiIPjdia9PY+vkorT9TNE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782480826; c=relaxed/simple;
-	bh=waumlgt5QqKJVN3YYu8NydotH0rJ3r/MyQ8sHnNFcG0=;
-	h=Message-ID:Date:MIME-Version:To:Cc:References:Subject:From:
-	 In-Reply-To:Content-Type; b=rjRjigm0sJXH9ytBvGWZ6N2ebMrJ90YNww0e3GHSW/DSV2LzDnAaOx89I9WP8gxcgtH1BCAqIA+guF+B4Z/+/vUk+BPYwRAWXohMatfSOVG432wFTWMcMu1tJBc5r11aIfHehO3Nds4SZ+Tque7lfa/66RMXTIl242FD5BGgO+w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de; spf=pass smtp.mailfrom=web.de; dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b=gmpKU+0a; arc=none smtp.client-ip=217.72.192.78
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=web.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=web.de
+	s=arc-20240116; t=1782481711; c=relaxed/simple;
+	bh=Z0WPHV8/Mv0LIJVrKuAdJ28C6sgGsMyxIyrReBvVNTA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Be7ptHyI3zfFkkhdifmKqC7E/7wnE370jXUfVo3kkaxM3o/MavMVlRHzBZgDI61k/Rcae/LHT7yui/AFYM14NkkMEjgUWE1ejcl9CA/nbYDHZYjfKAtpnAsZHkrg3LSjsdRxPI0TQJH6YV7llN0+fvr7ee82XxiIs9NRkfKKoTw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=D4VNKbAN; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=web.de header.i=markus.elfring@web.de header.b="gmpKU+0a"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=web.de;
-	s=s29768273; t=1782480798; x=1783085598; i=markus.elfring@web.de;
-	bh=+4eh1PkTo9SqnojCa0mnJc+3Wce32UMKJE5WtGSc80o=;
-	h=X-UI-Sender-Class:Message-ID:Date:MIME-Version:To:Cc:References:
-	 Subject:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:
-	 cc:content-transfer-encoding:content-type:date:from:message-id:
-	 mime-version:reply-to:subject:to;
-	b=gmpKU+0ahEHqK5HVIeyR59Nd41MMO395p1jrwQuDN8FFLi4IAUYsf/ZfSczI0rSq
-	 CdBbRdTtcKqIadUndH/MEpcZ38FUgT7mRQDtCtmKA5OoRTpi8qj8PFv+Z4fo0CNVs
-	 VZ84Z3hT5iW1rGJUj5NOVqK+4ETT6Y/bjjnUAz7lg1OSdputKPLpVJ0MpBE4tqsDH
-	 V6y1V6EpStid3EZprVqYgF8W8erDGU5Tsk+zS/l7p2jfyBkIV4ieBwsW3Etn5a5AH
-	 NznxMkWLmKdbFkZk2n9gDXKxP/ss/ogljCP0jDuRbfNeBAQdH4hLPMkLhVHE2xkIh
-	 TXwk08omjyoFqW+k1g==
-X-UI-Sender-Class: 814a7b36-bfc1-4dae-8640-3722d8ec6cd6
-Received: from client.hidden.invalid by smtp.web.de (mrweb105
- [213.165.67.124]) with ESMTPSA (Nemesis) id 1MDMvE-1wScId3nIU-008pRC; Fri, 26
- Jun 2026 15:33:17 +0200
-Message-ID: <3d94f9a7-6b26-4763-bc54-2e10910bf168@web.de>
-Date: Fri, 26 Jun 2026 15:33:11 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="D4VNKbAN"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1782481709;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=fZNpqQhDRtZVJSfSiG/V88dl8frC1MRUvBsYP5nVWQY=;
+	b=D4VNKbANx1H0LEOp9M7xz55Ip10pnwh9dmkiH3GEJt5Z9Jq4hKEVCrTUA5xgthuvrcVfiA
+	+IlYG9Ue8B0TpO/bWg+wYIppaPaARvEv3+UFt/Ikfa93eLmYI1xLZzrA/ubImRynSnySP6
+	xBXxK1fJ+2EPc9jtA0Suc2tZcRvqtbs=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-605-aMv2M4z4OYCdDpsDV98gdQ-1; Fri, 26 Jun 2026 09:48:27 -0400
+X-MC-Unique: aMv2M4z4OYCdDpsDV98gdQ-1
+X-Mimecast-MFC-AGG-ID: aMv2M4z4OYCdDpsDV98gdQ_1782481706
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-45f3d008865so710785f8f.0
+        for <virtualization@lists.linux.dev>; Fri, 26 Jun 2026 06:48:27 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782481706; x=1783086506;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=fZNpqQhDRtZVJSfSiG/V88dl8frC1MRUvBsYP5nVWQY=;
+        b=Jp02BcDYUoaFzG/x6mefgqJdw7YLRicGUDATxx1py9VJ60cKmvrNSl4A+kwnLHh6+m
+         rEMnEqBBmk0RR5AaSkG4PEVuOKNXy666UXEOEcdt/pP1xPp1CaILf2O3Q0li5MFBAGFl
+         auTzNgNRrgXLIqmJzPiMWJvIZc4UdNY+oKyttGhEP6/EhDBaXTYojjsBzEBQLh8n7daC
+         Zst57Uv8bYIPGQkgCwn4SzSuL/LE3lHLxyxXwduW7xbELqCzGyahJwOX+UXCuqXIANnI
+         RcP9xjTbD7pZbw6Y8WBBejdS+tQPJc+7ynrUL2yqvGgT5a7jLi3QO5p1FLRe4Lr+6Xu5
+         C/PA==
+X-Forwarded-Encrypted: i=1; AHgh+RpGLyswGAP6Z0W6RQYwuzD6CTTL4Nax9jaozQztf9fOD1eaAweHIUjqbPaq4G83FO86hj87BYLI2zCgyrbZ7A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwiZA8pRvydj6nNaDkYoixGkqN37dKhya3bHGfMOhbdQZ6PS1B0
+	mBZYJhwOA79pIKcjLb79lpiKv+huODdGxqWg8Gn8dYJVHq/VL41agK+1rVBSb2kIlIOQvjLc9c4
+	0qqvZPEDpCmOOhQMGBJpLGM/kPW+SFW1vUSav7J3Yg9x5RJ6DRzt5G6CyV1cujSN+fxkp
+X-Gm-Gg: AfdE7cl/dGxQ/t/RkqZuaXwU20pCRmtpU8Cv/uYt3xWTFXStbMmJ0Gb9oWcK/e6vmqw
+	T4Q3jLL5PcriDQDu0GUYPQ2fcbX4tMrEOPUnKMV2lJQiau6/PmYKmGZOTsDmQLoLTE+JS20fVk6
+	q0zdlJY03HAkpVEDumoVtkG3WmsHN4OKoDyFk//PSuGmljhCXODgFLmOIwnubw0LVIq01rfAtjy
+	YASZYUCK6w4R8wuqgeqe1WD4SMDaJG4cXLRCPYvS0h6yxVF0JTWHOv1YKMsLsZWA85nEfAw5Nm4
+	zGLI3eE+r4h+Z8hZjpXZiyYdUEptqq3rORMinIMjb9ZVfu7VXGxBrpyis1lLlPCHc4i9SuervR+
+	6Owyl0XkPrBMyO5YSxAHgLJCEBiCNT2yyh6gAxw8cK+GEeCI=
+X-Received: by 2002:a05:6000:46c8:b0:45e:dd32:92fa with SMTP id ffacd0b85a97d-46a7efb7522mr18779371f8f.12.1782481706438;
+        Fri, 26 Jun 2026 06:48:26 -0700 (PDT)
+X-Received: by 2002:a05:6000:46c8:b0:45e:dd32:92fa with SMTP id ffacd0b85a97d-46a7efb7522mr18779337f8f.12.1782481705917;
+        Fri, 26 Jun 2026 06:48:25 -0700 (PDT)
+Received: from stex1 (host-79-34-22-35.business.telecomitalia.it. [79.34.22.35])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-46caa798f43sm22722884f8f.8.2026.06.26.06.48.24
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 26 Jun 2026 06:48:24 -0700 (PDT)
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: netdev@vger.kernel.org
+Cc: Jason Wang <jasowang@redhat.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eric Dumazet <edumazet@google.com>,
+	Simon Horman <horms@kernel.org>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	linux-kernel@vger.kernel.org,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+Subject: [PATCH net 0/2] vsock/virtio: collapse receive queue under memory pressure
+Date: Fri, 26 Jun 2026 15:48:21 +0200
+Message-ID: <20260626134823.206676-1-sgarzare@redhat.com>
+X-Mailer: git-send-email 2.54.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-To: Alexandre Courbot <gnurou@gmail.com>,
- Brian Daniels <briandaniels@google.com>, linux-media@vger.kernel.org,
- virtualization@lists.linux.dev, Mauro Carvalho Chehab <mchehab@kernel.org>
-Cc: LKML <linux-kernel@vger.kernel.org>,
- Alexandre Courbot <acourbot@google.com>, Albert Esteve <aesteve@redhat.com>,
- Alistair Delva <adelva@google.com>, Changyeon Jo <changyeon@google.com>,
- Daniel Almeida <daniel.almeida@collabora.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Gurchetan Singh <gurchetansingh@google.com>,
- Hans Verkuil <hverkuil@xs4all.nl>, Jason Wang <jasowang@redhat.com>,
- "Michael S. Tsirkin" <mst@redhat.com>,
- Nicolas Dufresne <nicolas.dufresne@collabora.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-References: <20260622204343.1994418-7-briandaniels@google.com>
-Subject: Re: [PATCH v4 6/8] media: virtio: Add virtio_media_driver
-Content-Language: en-GB, de-DE
-From: Markus Elfring <Markus.Elfring@web.de>
-In-Reply-To: <20260622204343.1994418-7-briandaniels@google.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: quoted-printable
-X-Provags-ID: V03:K1:buZX+EgL0FFgsXLBbyUR5VfGptQNtkDqcIS7k8HxglTXFJ8iFyB
- S1CnRTX4796MqMSU5IRtA3zF0JNWBlGBL9bmP/pw1Z+p8wheEtZt/F2Xom9M7AwJbteveu8
- vc8CbuBWPMbGCfTINz2JNBL2Xy3vr/JpSXMeXR0bHtP5WbjULzMrGZkNKYBBHZ43/pMaH3l
- N0Eg9pu1c8CFKnAsD4uBg==
-X-Spam-Flag: NO
-UI-OutboundReport: notjunk:1;M01:P0:btpTLvdt72g=;o4zt1niBtmFQikHnr58FlAhy++l
- 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
- LOEkw3xI5tHWFSIg0hUeDX41lzWdvXBP8b3ViQ9
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 3b0fNc7HKXn2V5HN3D7pqI9W7Zl_PqwQbcWwyxRgP4o_1782481706
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 8bit
 
-=E2=80=A6
-> +++ b/drivers/media/virtio/virtio_media_driver.c
-> @@ -0,0 +1,959 @@
-=E2=80=A6
-> +static void virtio_media_session_free(struct virtio_media *vv,
-> +				      struct virtio_media_session *session)
-> +{
-> +	int i;
-> +
-> +	mutex_lock(&vv->sessions_lock);
-> +	list_del(&session->list);
-> +	mutex_unlock(&vv->sessions_lock);
-=E2=80=A6
+This series contains a patch (the first one) that is part of work I'm
+doing to improve the tracking of memory used by AF_VSOCK sockets.
+The second patch is a test for our suite that highlights the issue.
 
-Under which circumstances would you become interested to apply a statement
-like =E2=80=9Cguard(mutex)(&vv->sessions_lock);=E2=80=9D?
-https://elixir.bootlin.com/linux/v7.1.1/source/include/linux/mutex.h#L253
+Since Brien reported an issue with his environment (based on Linux 6.12.y)
+related to the work I’m doing, I extracted this patch and tried to make it
+as easy as possible to backport. Brien tested it by backporting it to
+6.12.y, which now contains the backport of the 059b7dbd20a6
+("vsock/virtio: fix potential unbounded skb queue").
 
-Regards,
-Markus
+This patch primarily fixes STREAM sockets, but also partially fixes
+SEQPACKET (with the exception of EOMs, which are kept in separate skbs to
+avoid overcomplicating the code).
+
+The rest of the work, I feel, is more net-next material and still needs
+some work to be completed.
+
+Thanks,
+Stefano
+
+Stefano Garzarella (2):
+  vsock/virtio: collapse receive queue under memory pressure
+  vsock/test: add test for small packets under pressure
+
+ net/vmw_vsock/virtio_transport_common.c | 148 +++++++++++++++++++++++-
+ tools/testing/vsock/vsock_test.c        |  87 ++++++++++++++
+ 2 files changed, 233 insertions(+), 2 deletions(-)
+
+-- 
+2.54.0
+
