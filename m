@@ -1,42 +1,40 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12B1D15E8B;
-	Sat, 27 Jun 2026 00:44:46 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7DA6E2F84F;
+	Sat, 27 Jun 2026 01:04:35 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782521087; cv=none; b=bvpETLJ+ZIhNM42fFvzRBLLUucRYtbcED0i4mLmnnYt78KLQIaYs7BNzkJLYLy26tj0Wse9Z1Jz7RPof5s+WEmupzn5DRSFr7qkdT7Q6thbut6TXp5BEpRD5WBIwMOvl3/a+rWgQGEdDK2sM6xNOlm7V0McawacgGeABm2+UiYQ=
+	t=1782522276; cv=none; b=nbniuM2AsWI+2H4S8PCXQuBEAeVv4F3/mNddxhxUUbAJ00pE6nm9D3UxiVjSKwhVEN6i/CrCUnt2aXZH7U9b14bRjq9fJ3Nk57SYMBLGA0UVPXx5AS83oUD5LWkcIRZ1ofPYIbZLdtCEDujFvTNT/gjF1uVFPO87IjMYssllE7g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782521087; c=relaxed/simple;
-	bh=kUr2yPQCOsok+8rxx1oCI1yb2iBBXfSozLF9w97A8c8=;
+	s=arc-20240116; t=1782522276; c=relaxed/simple;
+	bh=mZeJONeWC2+4NAO16Z4Q4zs8uJzgi3MSlcGjfB7ggDg=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=hTX909tjFYsIERs9vp56tMYLFNZy6zBvE+q6ShXPVZHxMBMBkvAsoBQHVmNjsO8YDFvupHO7oOZqefA2h1BIA63Keka0Aqa3CvEQZq1tOLLYRCp8sdXQzf7Ekt1KDi1aK6qBQm5nyoFMvOqI/04UFR1yQtQ18wgmQRwhUc6MQWw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=P3IrGto/; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=edjp/CcFgl9uLrOQP5XalyKMsVKNRXRJmGKIjcVkII4U8fn4KrWWbgbmvkXTaP9n1AAF709O50m7YfvSDdcgwkR31SDV8/xsV+zvJ5B/dV1DrB1c604RHVnWRUbR3gXF4vaAUuwd6Ql+ZVLNTstiDaJjpKGkl+fGmkSeQcSORsM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=cZkmGFrM; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="P3IrGto/"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4E7291F00A3A;
-	Sat, 27 Jun 2026 00:44:46 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="cZkmGFrM"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id B6A5F1F000E9;
+	Sat, 27 Jun 2026 01:04:34 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782521086;
-	bh=Xft+vbctEr1djAr+KskNxSck9zBs9troo/s4Ve2heuw=;
+	s=k20260515; t=1782522275;
+	bh=mZeJONeWC2+4NAO16Z4Q4zs8uJzgi3MSlcGjfB7ggDg=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=P3IrGto/ssl/6Aj0KV7T+Mcp2qpZPH2WtCGaQ498wYOm3HGEjWg/xQhVaFoYQHbl2
-	 drAJyC+/0xpmPtQV77AMKRAMxKE0xRzY6JwrobJIpo5H3oXLcfu5W0HpWVC5XYB68O
-	 DaEvnkJ4umHKsLVLlrQp6vfuQTm4XrujoWigKhf7LI561Z1EXhd/3n9YV5qLTIkail
-	 r92R0mgaeJKYLM6iwdVNam3lnHAJu0n9i7IoVl5XTFba54xQIM1ZRsQTdq2LLtzT27
-	 gqya1lJy5fQI+sGKvGfbdum8bbLUzCmQU7XKgREtqkJK1Zjra34tcddsQyXPuAvgKP
-	 fRZ0Ol0iJybRA==
-Date: Fri, 26 Jun 2026 17:44:45 -0700
+	b=cZkmGFrMR+ImhXOM5F3WmWB0SGF7d+fViBKGBWx3xpkybsMYL8p3PIwd6jDnc1vqX
+	 h44GKaSG/LFK16roKmJWyf863RHH8ebjl864/j3bkR1wILR9UKAERU2xEiVqEBawZq
+	 Gf9IqDWqicQbp8Z9CDHx14AwXK1Vl8uuGMmHW/yHjisjDLKUnyh9pwOSNFNN9Tm4e6
+	 nm0ocNA7giTXBnBtgbRjREHZ2TeLhWttJyMg7X+GtCj+ONTZPS3rid53NlMH/zS6wL
+	 ObPppVDRndlKjCI8nEf2XsUYu/UgpKIFxG+xVlFsKGRYXbqCQUVGitBH5zcsY2XCM+
+	 vVAh9QiBLAefw==
+Date: Fri, 26 Jun 2026 18:04:33 -0700
 From: Jakub Kicinski <kuba@kernel.org>
-To: Simon Horman <horms@kernel.org>, lange_tang@163.com
-Cc: mst@redhat.com, xuanzhuo@linux.alibaba.com, jasowang@redhat.com,
- edumazet@google.com, virtualization@lists.linux.dev,
- netdev@vger.kernel.org, tanglongjun@kylinos.cn
-Subject: Re: [PATCH v4] virtio_net: disable cb when NAPI is busy-polled
-Message-ID: <20260626174445.700df7e3@kernel.org>
-In-Reply-To: <20260626151508.1319440-1-horms@kernel.org>
-References: <20260625013733.29300-1-lange_tang@163.com>
-	<20260626151508.1319440-1-horms@kernel.org>
+To: Jason Wang <jasowang@redhat.com>
+Cc: mst@redhat.com, virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ eperezma@redhat.com, kvm@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] MAINTAINERS: Update Jason Wang's email address
+Message-ID: <20260626180433.3e302324@kernel.org>
+In-Reply-To: <20260626022039.96139-1-jasowang@redhat.com>
+References: <20260626022039.96139-1-jasowang@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -46,20 +44,9 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Fri, 26 Jun 2026 16:15:08 +0100 Simon Horman wrote:
-> > diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> > index 26afa6341d161..c1e252400c0fc 100644
-> > --- a/drivers/net/virtio_net.c
-> > +++ b/drivers/net/virtio_net.c
-> > @@ -3011,6 +3011,8 @@ static int virtnet_poll(struct napi_struct *napi, int budget)
-> >  	unsigned int xdp_xmit = 0;
-> >  	bool napi_complete;
-> >  
-> > +	virtqueue_disable_cb(rq->vq);
-> > +  
-> 
-> [Severity: High]
-> Can this unconditionally disable the RX callback and cause a permanent network
-> stall when polled by netpoll?
+On Fri, 26 Jun 2026 10:20:38 +0800 Jason Wang wrote:
+> I will use jasowangio@gmail.com for future review and discussion
 
-Good catch, Longjun just add if (budget)
+Do you want to add a mailmap entry, too?
+Otherwise I think you'll get CCed twice (once for MAINTAINERS and once
+because you given tags to previous changes)
