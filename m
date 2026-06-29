@@ -1,36 +1,35 @@
-Received: from smtpbgeu1.qq.com (smtpbgeu1.qq.com [52.59.177.22])
+Received: from smtpbgeu2.qq.com (smtpbgeu2.qq.com [18.194.254.142])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB73D1898FB
-	for <virtualization@lists.linux.dev>; Mon, 29 Jun 2026 02:22:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.59.177.22
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 174281898FB
+	for <virtualization@lists.linux.dev>; Mon, 29 Jun 2026 02:22:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=18.194.254.142
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782699739; cv=none; b=ZqJ5fDsYn9/0IM8evh3y/hxyfcr91aofaE5xJyz5EmlmKOYcvmQqksjcrBz2rq3A0y3exX6yCKqrCjTcu1GK8M24Z9Kk4YhKkCoNZA0o1h7TsUFNS8fusn37k9EVPjgkjFHZ2fiPLW/M108Cl7bmcXXi8TnYblEOXSAbbwOADRA=
+	t=1782699744; cv=none; b=cIH3RY+5kltDbBkBTG+4UJZrPX4HcjuTC6Ej8DeMSIX3Q2I+uavPZ2bnF/bV/R1EbSOCXdtpb5DbqJQpB8w2arrvj8Q+b5x5AoHNpaBdMbX16BlEUXKF5FVUjpq/GHG6R7eMvztix/MYC77CoQPywKArgq8j/s3XVWFzRNGh0Tg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782699739; c=relaxed/simple;
-	bh=HltxefiL6k+U5YK4QfCZDL/2FNEh6g7eQQ6RQWVBpB4=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Q2OpfZTamLAlwK1yQEP5bO3B1zkxt45QOVovc3Ju+BMrhlhfPibA0J1MPTqktDc1Bb3dwODEi3A3XrL+HyNHw1hW5xxwKOut0OKfZEuZ9ktr2TEagRYjhL6fckM3/Q6mQrVeBBSB3oXjtimUAAX+Vpof/9s6CvR5mBvshBrkxB4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com; spf=pass smtp.mailfrom=uniontech.com; dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b=WirkJdko; arc=none smtp.client-ip=52.59.177.22
+	s=arc-20240116; t=1782699744; c=relaxed/simple;
+	bh=3nkxDCu3UWu0wCVNaP1nNFi02fuWoYl6qmhyYv99x+I=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=Hzyl+TpYZ0VB5gebTTUzBowkAgdnRrcPKzo7Eqly2LlEgMvsXDDzXxtm7QnkpOy1z6Uw0E+8zT9VQxR8ZqgXqt8YgAGqoperWGydb4mRsIosYGGVBOEjnEPkOqL8uY8IjisUigkC+D3ZDCAw1Q1EiA83fAzP+rt6nJxaj2HxUL0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com; spf=pass smtp.mailfrom=uniontech.com; dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b=mRUUQp9A; arc=none smtp.client-ip=18.194.254.142
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b="WirkJdko"
+	dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b="mRUUQp9A"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
-	s=onoh2408; t=1782699716;
-	bh=Yz5AE38NhFeVYvoMwpCJmqJM6dGFyON92ilIWGAZwUE=;
+	s=onoh2408; t=1782699707;
+	bh=l/YS4S6iKk/bSfxSJQPof1byBXInLsH54l4IQ70u1TA=;
 	h=From:To:Subject:Date:Message-Id:MIME-Version;
-	b=WirkJdkoqZsCXwfbNCsK6XotbXShaV17oDsY0LhOd84qRe12RzeV9aBkf2qCxScJE
-	 gxvIl3rE76PwwGAfZ9/UYYH93M10mOC4Z5jz0/id0Bfmw42k4waMUMFmHSnorOQBAS
-	 zzj61lt7UQqXhMu4TY5YjKNaiUEiCe+Yhoq4oPuk=
-X-QQ-mid: esmtpsz17t1782699694td2e9c7b6
-X-QQ-Originating-IP: jEpqRrbJOYYw+/NSbVKSAiQ0KVR4AuvRLQaTnaCaoT0=
+	b=mRUUQp9AWKlV7QDdp2v7QH5QB4opmMi0CCmxaeWvSzbJWb9t8IBT/FLgwubbaS0pO
+	 V2+yZxArS18SjQ5wPhLjiFfKfnCNLLpjrlkuk92jjNLx/spWplHc/hCkaWPgN8sA0n
+	 5bRblZeaPjKn2v/mNTKFQjMahTX2devIvGy1ky7Q=
+X-QQ-mid: esmtpsz17t1782699688t46c759ad
+X-QQ-Originating-IP: Og7r9kw/BTYZZ9MyeMXtFncBesq+0ozWL9ugq02yIvU=
 Received: from uniontech.com ( [113.57.152.160])
 	by bizesmtp.qq.com (ESMTP) with 
-	id ; Mon, 29 Jun 2026 10:21:31 +0800 (CST)
+	id ; Mon, 29 Jun 2026 10:21:26 +0800 (CST)
 X-QQ-SSF: 0000000000000000000000000000000
 X-QQ-GoodBg: 1
-X-BIZMAIL-ID: 15598299483017084048
+X-BIZMAIL-ID: 11053355749960370675
 EX-QQ-RecipientCnt: 11
 From: Yichong Chen <chenyichong@uniontech.com>
 To: mst@redhat.com,
@@ -44,12 +43,10 @@ Cc: akpm@linux-foundation.org,
 	chenyichong@uniontech.com,
 	linux-kernel@vger.kernel.org,
 	virtualization@lists.linux.dev
-Subject: [PATCH v2 1/2] tools/virtio: Add missing compat definitions for vhost_net_test
-Date: Mon, 29 Jun 2026 10:21:23 +0800
-Message-Id: <20260629022124.131894-2-chenyichong@uniontech.com>
+Subject: [PATCH v2 0/2] tools: Fix tools/virtio test build
+Date: Mon, 29 Jun 2026 10:21:22 +0800
+Message-Id: <20260629022124.131894-1-chenyichong@uniontech.com>
 X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20260629022124.131894-1-chenyichong@uniontech.com>
-References: <20260629022124.131894-1-chenyichong@uniontech.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -59,204 +56,73 @@ MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 X-QQ-SENDSIZE: 520
 Feedback-ID: esmtpsz:uniontech.com:qybglogicsvrgz:qybglogicsvrgz3a-0
-X-QQ-XMAILINFO: MprLxAqa8sV2Jf+7vLNnca3+sXj1Q1HWA8rNBAH1Vnf3+izcjqCLNCcQ
-	eHP3Zwij6p6uy/kWpmaCyw4vHFIV1l5jovhOGl/VJh1PWmFVQwIs2vG+/gPdrsgLWuYV6Ip
-	Iy10W6CWejNbyeVCgyyHUn3IZ2eAyIQp/NLb+JSL22Y8nRxESWHtYWZr2C+x90Wt6XqWLas
-	LosjhTHSMvuRLo2QRgSMS4Gz2cB8Ogg2/Hpsn+r1CBwAD6ab1PE5iKaACYeeO98NQ46nOkt
-	N/vnafmrYCpThdYDJ1H10nsLdd/CxAzQIUgvefxvFoaKwL5wH/VMC/kEBGcCLJ46sy982G+
-	HYt35zLmW/1g5vhV1aSwLi6BpkvoOTppxs13yyYXDDgRz0hcquo28YyeJoWKkDBrOm1qSAu
-	qdjrNcmEG9/1tYVfjEr5GGKcYSd0yP+qv+L4gpFRpPUS4mzyu/0WUkqR3LV66h+J7A8Kfc1
-	6afujC2OAxPfhJa5ZmWp428J6Z8eNBUg3r0I58eJi70LP6gF0+5iC+BltFVDbNxe/ZOg5PS
-	3adduTzHaUujQN+QkETeS1GANFsRAbSeo4/Dut1U8X4rfNlxQKrIXQButzs7K4SwJ+oFpVp
-	smDyZWf+aqewuWFiSDKJ4Ip4Pf0PQLusFBX7Vy1IMX6/XFpEp+qNVvrLjWS5baIXWJUi9Qd
-	gLH3E10ZEVXg2Py6TadLzdxXpFF26jS4Iv+beh0Vqb48hnJWhFu0RtTHa97ZQ9ROdbtX/1u
-	jAv/hnDdhq23fxn6j57oUpVh1NqjIidQ28dT2ao/RurnDmP1nkWS0TAa4ofhcr3D6u4N17u
-	SUPxaVTGKDV3yKW2I0Je+l1m/hV52KhMj+pGSc5pXmtCI5m2OrkZ+E8BP378ZJCA2ox//tP
-	cfL7IAe4Y53avsC8zu/yyNN6paD/yuotCEMYaIThKCei+1VEHLAs1av8XsMIvmskpNN59jM
-	8AzaLP7+gbOsV1mR2jIIVkHChddwsmlHDGYwsitZwnuXcZtmnbGRGMiNF45wQYdcgyk1MPb
-	B2G9vc3R+Xw2xwbLveROBztGfhJeWq51i+W2L7GGxn+0GEF3pV3JF3VFhswagSECnuqQiMZ
-	3qU6tl0Ecjg
-X-QQ-XMRINFO: NS+P29fieYNwqS3WCnRCOn9D1NpZuCnCRA==
+X-QQ-XMAILINFO: NvnyAkFVlrEw4EPZn6G9vkzrJrZDrgWcNuNYO5NBv/tujiZ3svFg0NlK
+	t1NlTCcsC6yai39DxIXDRJOxbA3EEI6B+Tm6GehMq7i0XItXYu1JNC4F++ZcGV+w+tZkhDi
+	m02yDCSKbitL+j7SVlwrIM0S2QcNcDQ554C5ewAAej6P+tOmPYNT+p3Fq2UrAZodB1RUS06
+	x3wQx+VCTZvBObe6MvntkPA1KbApt+Xy0ASrZre5Ckt4RdB2G6PlTd4RIQi/QBkRlFgt5ZD
+	0EfNOofZRLKcvcoNGFkIEqYoZHewARcxDWDAz+c+fxiawCDqBZHYXq0J1IXddoddQOad30H
+	31U/zDefZByo1NKeZCYPJ9F2X4n4OV9+HjttpcIRF15z5oYNZc7jXEjE5iFDebcYPzfzVei
+	LXiF+AXzuZ0793KRp331pO8goMxRDVtZ2oXnxSXHG7domqdzA8jLP/SpQhp1nSSPo9vHyl8
+	6BkwW/CfeH4D4CZE852pZFKerznH8B8e/gOBRVLEzJdebdtqVIDuqYB9ve1Y4kqTFvU3deT
+	V/uViIG0mi4DEeCdC0Ap72gtvXp94EOfLv2ZBoe5k/lhcWfOcjrqCO0rirAYRfo3oLBnSiP
+	epr6OUYzXUvZxBvLdar82d/ll5qtOHResTgLbT8nRtAF4yOKjZvK6sUGEzAqN7G6uzKOnJW
+	G7Pcj9f903XCrFxwyp8yX6Pbkvypsev4S8Jlo3bkaZ9qv2Or5hw39hCC2vd5S6fR3I7ub0D
+	IK6YQZNz6NgYzilGChPDTJhdS/OsyEUbiCQzMOi7PPuKWxWKjeDwByQEiQXrjLPbUITE1i5
+	cFMzp8IOxp7WubfwOE4n+SVdWPbJyxuX8EcQWczJeiy3XHnq0dSIjbGfyr3+2I+O9z7yhxM
+	mIECC7kJhoRFP+6XZjyJp5i0t5QMtBqwkZZ2s2rORh/Kuc7eDAkOFUEurpw/rWbs04Rg7Wj
+	31BP0vbQn/UStR24hvKgFkkk456upyHZKzvc79VLRIBI2h2wcJ428vliXPQoqtUjZhTER9a
+	beDCvvug+r9qClKXq6F9CzKGsnTBqfuE+81OnyYQ==
+X-QQ-XMRINFO: OD9hHCdaPRBwH5bRRRw8tsiH4UAatJqXfg==
 X-QQ-RECHKSPAM: 0
 
-vhost_net_test builds virtio_ring.c in userspace.
+Hi,
 
-Recent virtio headers pull in helper headers that are not provided by
-the tools/virtio compatibility layer, including asm/percpu_types.h,
-linux/completion.h, linux/mod_devicetable.h and
-linux/virtio_features.h.
+This series fixes build failures hit by:
 
-Add the missing compat definitions and the DMA attribute used by the
-current virtio ring code.
+  make -C tools/virtio test
 
-Signed-off-by: Yichong Chen <chenyichong@uniontech.com>
----
+It is based on linux-next commit:
+
+  commit 3d5670d672ae ("Add linux-next specific files for 20260626")
+
+Patch 1 adds tools/virtio compatibility definitions needed by current
+virtio headers when building the tools/virtio tests. Patch 2 makes
+tools/include/linux/overflow.h include stdint.h for SIZE_MAX, which is
+used by its size helper functions.
+
+With the series applied, make -C tools/virtio test builds virtio_test,
+vringh_test and vhost_net_test successfully.
+
+Tested on x86_64 and arm64 with:
+
+  make -C tools/virtio clean
+  make -C tools/virtio test
+
+Changes in v2:
+- Rebase and retest on linux-next.
+- Add the missing asm/percpu_types.h compat header reported by Eugenio.
+- Keep the tools/virtio compat definitions aligned with current
+  virtio_features.h helpers.
+- Drop the slab.h kmalloc_obj/kmalloc_objs change because linux-next
+  already defines them in tools/virtio/linux/kernel.h.
+
+Yichong Chen (2):
+  tools/virtio: Add missing compat definitions for vhost_net_test
+  tools/include: Include stdint.h for SIZE_MAX in overflow.h
+
+ tools/include/linux/overflow.h       |  1 +
  tools/virtio/asm/percpu_types.h      |  7 +++
  tools/virtio/linux/completion.h      |  9 ++++
  tools/virtio/linux/device.h          |  1 +
  tools/virtio/linux/dma-mapping.h     |  1 +
  tools/virtio/linux/mod_devicetable.h | 14 +++++
  tools/virtio/linux/virtio_features.h | 79 ++++++++++++++++++++++++++++
- 6 files changed, 111 insertions(+)
+ 7 files changed, 112 insertions(+)
  create mode 100644 tools/virtio/asm/percpu_types.h
  create mode 100644 tools/virtio/linux/completion.h
  create mode 100644 tools/virtio/linux/mod_devicetable.h
  create mode 100644 tools/virtio/linux/virtio_features.h
 
-diff --git a/tools/virtio/asm/percpu_types.h b/tools/virtio/asm/percpu_types.h
-new file mode 100644
-index 000000000000..4eb53d93c099
---- /dev/null
-+++ b/tools/virtio/asm/percpu_types.h
-@@ -0,0 +1,7 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _ASM_PERCPU_TYPES_H
-+#define _ASM_PERCPU_TYPES_H
-+
-+#define __percpu_qual
-+
-+#endif /* _ASM_PERCPU_TYPES_H */
-diff --git a/tools/virtio/linux/completion.h b/tools/virtio/linux/completion.h
-new file mode 100644
-index 000000000000..5e54b679721b
---- /dev/null
-+++ b/tools/virtio/linux/completion.h
-@@ -0,0 +1,9 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _LINUX_COMPLETION_H
-+#define _LINUX_COMPLETION_H
-+
-+struct completion {
-+	unsigned int done;
-+};
-+
-+#endif /* _LINUX_COMPLETION_H */
-diff --git a/tools/virtio/linux/device.h b/tools/virtio/linux/device.h
-index 075c2140d975..abf100cb0023 100644
---- a/tools/virtio/linux/device.h
-+++ b/tools/virtio/linux/device.h
-@@ -1,4 +1,5 @@
- #ifndef LINUX_DEVICE_H
-+#define LINUX_DEVICE_H
- 
- struct device {
- 	void *parent;
-diff --git a/tools/virtio/linux/dma-mapping.h b/tools/virtio/linux/dma-mapping.h
-index 8d1a16cb20db..b9fc5e8338e3 100644
---- a/tools/virtio/linux/dma-mapping.h
-+++ b/tools/virtio/linux/dma-mapping.h
-@@ -61,5 +61,6 @@ enum dma_data_direction {
- #define DMA_MAPPING_ERROR		(~(dma_addr_t)0)
- 
- #define DMA_ATTR_CPU_CACHE_CLEAN	(1UL << 11)
-+#define DMA_ATTR_DEBUGGING_IGNORE_CACHELINES	0
- 
- #endif
-diff --git a/tools/virtio/linux/mod_devicetable.h b/tools/virtio/linux/mod_devicetable.h
-new file mode 100644
-index 000000000000..3ba594b8229d
---- /dev/null
-+++ b/tools/virtio/linux/mod_devicetable.h
-@@ -0,0 +1,14 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _LINUX_MOD_DEVICETABLE_H
-+#define _LINUX_MOD_DEVICETABLE_H
-+
-+#include <linux/types.h>
-+
-+struct virtio_device_id {
-+	__u32 device;
-+	__u32 vendor;
-+};
-+
-+#define VIRTIO_DEV_ANY_ID	0xffffffff
-+
-+#endif /* _LINUX_MOD_DEVICETABLE_H */
-diff --git a/tools/virtio/linux/virtio_features.h b/tools/virtio/linux/virtio_features.h
-new file mode 100644
-index 000000000000..04cbb9622ec7
---- /dev/null
-+++ b/tools/virtio/linux/virtio_features.h
-@@ -0,0 +1,79 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _LINUX_VIRTIO_FEATURES_H
-+#define _LINUX_VIRTIO_FEATURES_H
-+
-+#include <linux/bug.h>
-+#include <linux/string.h>
-+#include <linux/types.h>
-+
-+#define VIRTIO_FEATURES_U64S	2
-+#define VIRTIO_FEATURES_BITS	(VIRTIO_FEATURES_U64S * 64)
-+
-+#define VIRTIO_BIT(b)		(1ULL << ((b) & 0x3f))
-+#define VIRTIO_U64(b)		((b) >> 6)
-+
-+#define VIRTIO_DECLARE_FEATURES(name)			\
-+	union {						\
-+		u64 name;					\
-+		u64 name##_array[VIRTIO_FEATURES_U64S];\
-+	}
-+
-+static inline bool virtio_features_chk_bit(unsigned int bit)
-+{
-+	return bit < VIRTIO_FEATURES_BITS;
-+}
-+
-+static inline bool virtio_features_test_bit(const u64 *features,
-+					    unsigned int bit)
-+{
-+	return virtio_features_chk_bit(bit) &&
-+	       !!(features[VIRTIO_U64(bit)] & VIRTIO_BIT(bit));
-+}
-+
-+static inline void virtio_features_set_bit(u64 *features, unsigned int bit)
-+{
-+	if (virtio_features_chk_bit(bit))
-+		features[VIRTIO_U64(bit)] |= VIRTIO_BIT(bit);
-+}
-+
-+static inline void virtio_features_clear_bit(u64 *features, unsigned int bit)
-+{
-+	if (virtio_features_chk_bit(bit))
-+		features[VIRTIO_U64(bit)] &= ~VIRTIO_BIT(bit);
-+}
-+
-+static inline void virtio_features_zero(u64 *features)
-+{
-+	memset(features, 0, sizeof(features[0]) * VIRTIO_FEATURES_U64S);
-+}
-+
-+static inline void virtio_features_from_u64(u64 *features, u64 from)
-+{
-+	virtio_features_zero(features);
-+	features[0] = from;
-+}
-+
-+static inline bool virtio_features_equal(const u64 *f1, const u64 *f2)
-+{
-+	int i;
-+
-+	for (i = 0; i < VIRTIO_FEATURES_U64S; ++i)
-+		if (f1[i] != f2[i])
-+			return false;
-+	return true;
-+}
-+
-+static inline void virtio_features_copy(u64 *to, const u64 *from)
-+{
-+	memcpy(to, from, sizeof(to[0]) * VIRTIO_FEATURES_U64S);
-+}
-+
-+static inline void virtio_features_andnot(u64 *to, const u64 *f1, const u64 *f2)
-+{
-+	int i;
-+
-+	for (i = 0; i < VIRTIO_FEATURES_U64S; i++)
-+		to[i] = f1[i] & ~f2[i];
-+}
-+
-+#endif /* _LINUX_VIRTIO_FEATURES_H */
 -- 
 2.51.0
 
