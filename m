@@ -1,81 +1,156 @@
-Received: from outbound.baidu.com (mx21.baidu.com [220.181.3.85])
+Received: from galois.linutronix.de (Galois.linutronix.de [193.142.43.55])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BD4137E307
-	for <virtualization@lists.linux.dev>; Mon, 29 Jun 2026 03:40:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.181.3.85
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CB783451B3;
+	Mon, 29 Jun 2026 03:55:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=193.142.43.55
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782704451; cv=none; b=AdkazOOvAJm6FtnURGJIp3ayFqhh3Tg9tRP0cPa6uo02eQ3eAEvpN3qX8BcrC7vXkgWvwmmWdrZfqCucoyBDwwpEZMXwJm7QVBv681G/dcAavcijLQ1EcypCuzhDESpE3C1OOGNPz4O1w5REpPdunXnxE62E9YcEhtUv4FUM/8k=
+	t=1782705316; cv=none; b=qMmtlfJ+CiQ9YCpqCzomNKPr+SQJyv83/JWfrcaYS3bBKiVksRvWn+j79TlbACuNcBEsVKDtrxy79eQxQCeC3TS/sd5VpkTDv6Qsg3ihvTIauFvY848bIgabew2qepbreS5n6jjAnB6HjDMcAbqUHl9AKkbR7bdibkMBAEToON8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782704451; c=relaxed/simple;
-	bh=hwkxUyIsfpta/NE0NJqD/hBEaJak7J+Jufh8kCGuBuw=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=EsZhthDnOZQnX7d5G8hz0xLgZvfaTWLSUXwpZk4ngK8Lv5naB3LZrS1N5Er6yGZ2GZrJX6u4hGW004aTW2w3INmAMPv4ortZHUFn3L0sPizBpkUjY3tUb7wdWgpWoOEKM/qj/7Kewg6Y3r/a6rQwElsatg3+V2vP5pK4X/J/jTk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=baidu.com; spf=pass smtp.mailfrom=baidu.com; dkim=pass (2048-bit key) header.d=baidu.com header.i=@baidu.com header.b=kWgwj6PG; arc=none smtp.client-ip=220.181.3.85
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=baidu.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baidu.com
+	s=arc-20240116; t=1782705316; c=relaxed/simple;
+	bh=+9Gt5xbV0f6uwKj3h75aKeru0YfHJBPFQCGeKZXf2cU=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=WMnsH4DOmlBU6m99/XjkspTaEtkwLNxrHx41sMAds6AfFBRbBzXYGqlVrSo/9a0G5cdxycoffXhyFAiKIC52ye0xpe8hCYUgCH8kcChVgqgu7DuC0LFlzKRU6idEVfnFRaOnjL/iL+BcDzWCTOYcI0Zn/bimUnB9rKy4Sx3j6gg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de; spf=pass smtp.mailfrom=linutronix.de; dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=Pft78SEo; dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b=mhU/07WU; arc=none smtp.client-ip=193.142.43.55
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linutronix.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linutronix.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baidu.com header.i=@baidu.com header.b="kWgwj6PG"
-X-MD-Sfrom: lirongqing@baidu.com
-X-MD-SrcIP: 172.31.50.47
-From: lirongqing <lirongqing@baidu.com>
-To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?q?Eugenio=20P=C3=A9rez?=
-	<eperezma@redhat.com>, Jiri Pirko <jiri@resnulli.us>,
-	<virtualization@lists.linux.dev>, <linux-kernel@vger.kernel.org>
-CC: Li RongQing <lirongqing@baidu.com>
-Subject: [PATCH] virtio_pci: fix wrong queue index for admin vq in intx path
-Date: Mon, 29 Jun 2026 11:35:38 +0800
-Message-ID: <20260629033538.2476-1-lirongqing@baidu.com>
-X-Mailer: git-send-email 2.17.1
+	dkim=pass (2048-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="Pft78SEo";
+	dkim=permerror (0-bit key) header.d=linutronix.de header.i=@linutronix.de header.b="mhU/07WU"
+Date: Mon, 29 Jun 2026 05:55:13 +0200
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020; t=1782705313;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=fphPRIfC3c7/rVG8Mt/TDc8McgZz28sFey5ZU2tWKdc=;
+	b=Pft78SEoAU9N4qr3lmpoTg0M92qy3Nft6vgej121eR9dSbMe0f8peTU3UQ5ZdZp4xb32eB
+	b7WgzU76UpqfIi0KH7Nok5zMxvDv0BWBBliu/F8F1xalkGFAYdD3oGsQzbc0O5OjAwtWCF
+	mXycnLD/Wd7oQtN0SElsTscfGpUIJ3xYAESLabeu0rfoa+vtgLN19lNYJ3atZNfWAGOetu
+	XZifQFpTfhxnNu61bjULxpRwl9PAqqmE3eXNeppbBRnouZ1TD+2oTzJkKTam5Hq6Pq/Lz1
+	Zl42CcwgABCE3nJlNBy1i0YxdmOXGkBpyzioiyLcnR307F4EAjjODdDMzVT1mA==
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=linutronix.de;
+	s=2020e; t=1782705313;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=fphPRIfC3c7/rVG8Mt/TDc8McgZz28sFey5ZU2tWKdc=;
+	b=mhU/07WU2k0PFYZQUZgClVivDlMZa7FcCpph6HWnRTGAFP5kbPcuuzB14gmyxBBGCv5W+f
+	6CGdzH8OyJeCbxDw==
+From: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
+To: Thomas Gleixner <tglx@kernel.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, 
+	David Woodhouse <dwmw2@infradead.org>, Miroslav Lichvar <mlichvar@redhat.com>, 
+	John Stultz <jstultz@google.com>, Stephen Boyd <sboyd@kernel.org>, 
+	Anna-Maria Behnsen <anna-maria@linutronix.de>, Frederic Weisbecker <frederic@kernel.org>, 
+	Arthur Kiyanovski <akiyano@amazon.com>, Rodolfo Giometti <giometti@enneenne.com>, 
+	Vincent Donnefort <vdonnefort@google.com>, Marc Zyngier <maz@kernel.org>, 
+	Oliver Upton <oliver.upton@linux.dev>, kvmarm@lists.linux.dev, Oliver Upton <oupton@kernel.org>, 
+	Richard Cochran <richardcochran@gmail.com>, netdev@vger.kernel.org, Takashi Iwai <tiwai@suse.com>, 
+	Miri Korenblit <miriam.rachel.korenblit@intel.com>, Johannes Berg <johannes.berg@intel.com>, 
+	Jacob Keller <jacob.e.keller@intel.com>, Tony Nguyen <anthony.l.nguyen@intel.com>, 
+	Saeed Mahameed <saeedm@nvidia.com>, Peter Hilber <peter.hilber@oss.qualcomm.com>, 
+	"Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, linux-wireless@vger.kernel.org, 
+	linux-sound@vger.kernel.org
+Subject: Re: [patch 09/24] timekeeping: Add CLOCK_AUX support for
+ ktime_get_snapshot_id()
+Message-ID: <20260629055344-b74c43de-2a2b-4608-ae4e-ed0ac8e12fd1@linutronix.de>
+References: <20260526165826.392227559@kernel.org>
+ <20260526171223.374814973@kernel.org>
+ <20260626103359-66ab2b54-d36f-416b-94a4-3f3708dccced@linutronix.de>
+ <87echtk24a.ffs@fw13>
+ <20260626125819-d8b197fc-7671-4d12-a578-9025affc52d9@linutronix.de>
+ <87fr29ib4v.ffs@fw13>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-ClientProxiedBy: bjkjy-exc5.internal.baidu.com (172.31.50.49) To
- bjkjy-exc3.internal.baidu.com (172.31.50.47)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=baidu.com;
-	s=selector1; t=1782704146;
-	bh=aeXdvYgGpBbCs1bQTBcM6yPRYqaDQ3U5E+sGUIpE+Iw=;
-	h=From:To:CC:Subject:Date:Message-ID:Content-Type;
-	b=kWgwj6PGslBu7k8yslaD0JLzJzNwXuko/o2iR2Vkiz2PCxziJwHr6dnciehaCmF83
-	 a5gmLmQfBkmvmIZWSsTILul5pev0JJngBBVafaJ8+mG+Ep4lyobwLIn/F0CMz1clGh
-	 SufwtdXagdkImcPcinE28zGruPXLge182Bkg7ojp5jZ2ZQClOmMggYsFEYtW50naCf
-	 hpRQ2w30B4+7Z8JtCRpilTFvEembxCuF9oxhzrS6tAeQxWzn09bSDhG/TgIMVd0jeF
-	 tGGWdBlmotD4GyqkNUnocPxYReOWCIoH4LkdDGZkLfXeQOMEd5zFEVXMLqoVX4mqq5
-	 WKOwSHcgZst2A==
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <87fr29ib4v.ffs@fw13>
 
-From: Li RongQing <lirongqing@baidu.com>
+On Fri, Jun 26, 2026 at 05:17:52PM +0200, Thomas Gleixner wrote:
+> On Fri, Jun 26 2026 at 13:03, Thomas Weißschuh wrote:
+> > On Fri, Jun 26, 2026 at 12:49:41PM +0200, Thomas Gleixner wrote:
+> >> On Fri, Jun 26 2026 at 10:48, Thomas Weißschuh wrote:
+> >> > On Tue, May 26, 2026 at 07:14:13PM +0200, Thomas Gleixner wrote:
+> >> > (...)
+> >> >
+> >> >>  static inline void tk_update_aux_offs(struct timekeeper *tk, ktime_t offs)
+> >> >> @@ -1218,6 +1223,12 @@ bool ktime_get_snapshot_id(struct system
+> >> >>  		tkd = &tk_core;
+> >> >>  		offs = &tk_core.timekeeper.offs_boot;
+> >> >>  		break;
+> >> >> +	case CLOCK_AUX ... CLOCK_AUX_LAST:
+> >> >> +		tkd = aux_get_tk_data(clock_id);
+> >> >> +		if (!tkd)
+> >> >> +			return false;
+> >> >> +		offs = &tkd->timekeeper.offs_aux;
+> >> >> +		break;
+> >> >
+> >> > 'tkd' is also used to compute 'monoraw'. However 'tkr_raw' and 'tkr_mono'
+> >> > are the same for auxilary clocks, so this will compute a wrong 'monoraw'.
+> >> 
+> >> AUX clocks are independent in the first place and the MONORAW part is
+> >> the "MONORAW" related to the AUX clock itself. 
+> >> 
+> >> > Instead 'monoraw' should be computed based on 'tk_core'.
+> >> > Which then also requires the sequence locking of 'tk_core'.
+> >> 
+> >> No. From a PTP and steering point of view you want the "raw" value which
+> >> is related to the AUX clock itself and not the global one.
+> >
+> > Ack.
+> >
+> > However the kdocs call it 'CLOCK_MONOTONIC_RAW'. Can we clean this up?
+> 
+> Yes. Something like the below?
 
-In vp_find_vqs_intx(), the admin vq was set up using the local
-queue_idx counter instead of avq->vq_index (the actual queue index
-obtained from the device). This differs from vp_find_vqs_msix() which
-correctly uses avq->vq_index. Using the wrong index causes the admin
-virtqueue to be mapped to an incorrect hardware queue.
+Looks good, thanks.
+The corresponding structure definitions are a also affected, though.
 
-Fix it by using avq->vq_index consistent with the msix path.
-
-Fixes: af22bbe1f4a5 ("virtio: create admin queues alongside other virtqueues")
-Signed-off-by: Li RongQing <lirongqing@baidu.com>
----
- drivers/virtio/virtio_pci_common.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/virtio/virtio_pci_common.c b/drivers/virtio/virtio_pci_common.c
-index 164f480..10371ec 100644
---- a/drivers/virtio/virtio_pci_common.c
-+++ b/drivers/virtio/virtio_pci_common.c
-@@ -499,7 +499,7 @@ static int vp_find_vqs_intx(struct virtio_device *vdev, unsigned int nvqs,
- 	if (!avq_num)
- 		return 0;
- 	sprintf(avq->name, "avq.%u", avq->vq_index);
--	vq = vp_setup_vq(vdev, queue_idx++, vp_modern_avq_done, avq->name,
-+	vq = vp_setup_vq(vdev, avq->vq_index, vp_modern_avq_done, avq->name,
- 			 false, VIRTIO_MSI_NO_VECTOR,
- 			 &vp_dev->admin_vq.info);
- 	if (IS_ERR(vq)) {
--- 
-2.9.4
-
+> Thanks,
+> 
+>         tglx
+> ---
+> --- a/kernel/time/timekeeping.c
+> +++ b/kernel/time/timekeeping.c
+> @@ -1202,10 +1202,21 @@ static inline u64 tk_clock_read_snapshot
+>  
+>  /**
+>   * ktime_get_snapshot_id -  Simultaneously snapshot a given clock ID with
+> - *			    CLOCK_MONOTONIC_RAW and the underlying
+> + *			    the corresponding monotonic raw the underlying
+>   *			    clocksource counter value.
+>   * @clock_id:		The clock ID to snapshot
+>   * @systime_snapshot:	Pointer to struct receiving the system time snapshot
+> + *
+> + * For the system time keeping clocks (REALTIME, MONOTONIC and BOOTTIME) the
+> + * monotonic raw clock is CLOCK_MONOTONIC_RAW. For AUX clocks this is the
+> + * monotonic raw clock related to the AUX clock. These AUX clock related
+> + * monotonic raw clocks have a strict linear offset to the system time
+> + * CLOCK_MONOTONIC_RAW:
+> + *
+> + *	MONOTONIC_RAW(AUX$N) = CLOCK_MONOTONIC_RAW(system) + offset(AUX$N)
+> + *
+> + * The offset is established when a AUX clock is initialized, but it is
+> + * currently not accessible.
+>   */
+>  void ktime_get_snapshot_id(clockid_t clock_id, struct system_time_snapshot *systime_snapshot)
+>  {
+> @@ -1512,6 +1523,9 @@ EXPORT_SYMBOL_GPL(ktime_real_to_base_clo
+>   * @xtstamp:		Receives simultaneously captured system and device time
+>   *
+>   * Reads a timestamp from a device and correlates it to system time
+> + *
+> + * See documentation for ktime_get_snapshot_id() for information about the raw
+> + * monotonic time stamp which is used here.
+>   */
+>  int get_device_system_crosststamp(int (*get_time_fn)
+>  				  (ktime_t *device_time,
+> 
