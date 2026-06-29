@@ -1,169 +1,206 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from flow-a7-smtp.messagingengine.com (flow-a7-smtp.messagingengine.com [103.168.172.142])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F3AB13382E1;
-	Mon, 29 Jun 2026 06:18:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7C14F3A9D9B;
+	Mon, 29 Jun 2026 06:52:42 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.142
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782713904; cv=none; b=cecrf/zWFM3EGNJTChLUJ25seH6z7OGdmnfN0nXL+sYx0tAqDKvxD5FsKQ8QQq+0QI4Yp3547DNtmIElvC5QYfdM4VW+KUJ68CvOq3Z89HEotZkVofR+ogZd3x249DcG2R2F0qy2Rd2XZ+/JMZBIpFaO4mRkYut3U2Krnk12mXo=
+	t=1782715965; cv=none; b=WNukvshhnJkMqJBrSROazgTBp/aNL0z0aSUiHeCC6lGNic7EZyj+kn4BZPp511yrNGQzSO9mLPx8eMBB6Y4JKaUeEDc7JIOSEWa3XQxLTNB+xV1Hx3kj8WQpMUV8OHsibPk5XTDpdUs8xtMr3DUSlSDsUqaQxKARfHh4Gkw6WFQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782713904; c=relaxed/simple;
-	bh=vApNqwkvQQpL4XpH6DZ3LaYV4Wz9r2wVqhLbY5fY9p8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=NVBTS6HpGFl/v/YKn9YRC1lyzA95gWvyc4me4MeZP9Psf6YZLVyzo+vIN6/eBvuhpklQfki2IEmOedYxe4hNp4IIVTC7RJCFjImE5ztrV8bqhv7k4akU7SA3Q+hx9s/USz33Rdv/WVsa9EXYPuECt8Gjf1r61wQvoymY+MUwrno=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fFtSviu6; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782715965; c=relaxed/simple;
+	bh=H2lwxsHZZ7EtTub4WwMeUp/eTT8kysSLHLDVR3xxm8k=;
+	h=MIME-Version:Date:From:To:Cc:Message-Id:In-Reply-To:References:
+	 Subject:Content-Type; b=KKsoXH/8hwsJhExR7X/khsHMbB7QJFaGcun7LAMsYVzgiT2v9Nj0k5bb5CUtCwnI3/Xdih9pJMKgmIsPi4P2Vch0y1pk7Zz2UPHXeDNvN8qCHD4TS6pDMoQ8xIiDYdNsOv5N2LPdSo8l/an2SMNPKT1n/2SmZ3b7zLshmlsZyco=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de; spf=pass smtp.mailfrom=arndb.de; dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b=moVeurPh; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=hB46Z3Kr; arc=none smtp.client-ip=103.168.172.142
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=arndb.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=arndb.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fFtSviu6"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 402781F000E9;
-	Mon, 29 Jun 2026 06:18:20 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782713903;
-	bh=w0ovM7v4M4lPB1O8CvYfSspaqGe7fUKJGGFa//9xLpk=;
-	h=Date:Subject:To:References:From:In-Reply-To;
-	b=fFtSviu6LRpTEy9B6NfICV5rQK12iBkG58BAGj5JfaKltTH0Hn1LF7FYzlThzEh7Q
-	 b/zetp3T1W8RwED0JnEQCaCjRo1diBYDaCK/qQCyXFBU2PPkm9MoILmUa/mv8+utOO
-	 yQtoKJJwd3w5DsTes7Gutl34DQvmONdZ5mvjXF437Qf7qEdRJUCemsrJxl2rhu0XVz
-	 ZSYNN1kwPiIwytMtijgZAK8nCIGDAH5xpoDx+q2uPBO/f2kJBk34jSL0q5XU89nodl
-	 d72AM3kK3IQLUJr/WKcDQ/xoo3FOmIkwytlyMYDVC3jBeXt8enNeSDjSacaXqRoCIm
-	 44fynz2a2wDnQ==
-Message-ID: <944c64d6-d6d2-4e63-907c-64ea115a3888@kernel.org>
-Date: Mon, 29 Jun 2026 08:18:19 +0200
+	dkim=pass (2048-bit key) header.d=arndb.de header.i=@arndb.de header.b="moVeurPh";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="hB46Z3Kr"
+Received: from phl-compute-04.internal (phl-compute-04.internal [10.202.2.44])
+	by mailflow.phl.internal (Postfix) with ESMTP id 8ADB1138013F;
+	Mon, 29 Jun 2026 02:52:41 -0400 (EDT)
+Received: from phl-imap-05 ([10.202.2.95])
+  by phl-compute-04.internal (MEProxy); Mon, 29 Jun 2026 02:52:41 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=arndb.de; h=cc
+	:cc:content-transfer-encoding:content-type:content-type:date
+	:date:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to; s=fm1; t=1782715961;
+	 x=1782723161; bh=tOv4MTUTsrDaiEgHTG/NX+h1I0Ci3tUDRjXnSX8B8ZY=; b=
+	moVeurPh2zmNrJzP8rbqUPqQIFGV1KR17RcUSPE3wJu/2S/XINfbBToo5f9RQh1/
+	clf/45HkV8kiwjLDnKA0ZGB+xXs/LxQ97UYdGp3mAyhY1rMWfb2ut8ebDlQumP3M
+	VdcxoT0cWYJThMe3tHYwBYuJA8gYjCl4dkRIsx+Q/6emrBa3QY8Idt3PtT6T4gzt
+	pjXS/9QEWhZ2jfyda0VyMgxTDzLco04X3qt/vrJYJWvdC+PMyVwHCjEhVeOyJIAS
+	gEH+rz/z5nLfxJeyVUnha0jbbsfFFgbhjlE2+BlgPqMCXL8vkYcgC6UiT7hGGY74
+	xGTwwQphEUZ53wLPdY/lOQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-transfer-encoding
+	:content-type:content-type:date:date:feedback-id:feedback-id
+	:from:from:in-reply-to:in-reply-to:message-id:mime-version
+	:references:reply-to:subject:subject:to:to:x-me-proxy
+	:x-me-sender:x-me-sender:x-sasl-enc; s=fm1; t=1782715961; x=
+	1782723161; bh=tOv4MTUTsrDaiEgHTG/NX+h1I0Ci3tUDRjXnSX8B8ZY=; b=h
+	B46Z3KrfXyr5c4NuJHJwRpFO3VNQg2XJYEDC6YUGKJUsEhIcM3CblEFDPTT7wsQg
+	LH0S5A3tvITWrXHqFdF1EkeHZjTnuQT+pgHJLOdtZCOrRZh456xh3Sx0k+T+zXCp
+	kNYUxD9xFRSmKJKTjyfm848VuBVywgSQdS0Y1730vc3RugkRsZPqt6GHmPUgFsPs
+	4nONFFGrtMfsX7i/XMkZbKMKnAy+BEdiCfia6dBPn42W2/ZviCTsT6LG5Oj/ruof
+	ficdFWVRuGB5I8j63MB1URziScDM3F1SM330Kw/lKTbew/mmDBQO8+P/9fMGp4QQ
+	AUBT5DiFaGcisBboaL0uQ==
+X-ME-Sender: <xms:NxZCaklUX7qMSFvSQI3f1it9KkLu2jpq-bfNhuZJai7DIcz_l7yaVw>
+    <xme:NxZCaupMK91NnfDxBP2Jl6u4UEarGr4W4BjRkQiIO7vCuXpmdFgh7w7Ak6Ow7kDLB
+    GwQtBq3A_KdmViF1Mt2hB3V4JkgKSjPIp_adeSQyOs0PGQS4AmZ4t8m>
+X-ME-Proxy-Cause: dmFkZTGwOHixY05HMZ27iS84Skvde8o1DDsiwY6D60DzXWO2ZVrwdRrpSa8R1278jed1uY
+    wlWCiz3tDrtZHQkvMp/MBP5v/ghF2ufPQuFtrtJ4F0wh9DtG/XVpt0pROqEThSmUEDgCf0
+    eTVEoMiS68VQPXRPt6VCUkkecnFqx+ZBjUZbbdMDP3RsDcc++iQYtFCDsx7qN3zPyVD3xY
+    9i6Bzl+AIdZTqf3H9PE4La2YJtJbmBtGNvfDerKjWxD0tIQdIxc4ff6CyIl+oAxSN3L67g
+    IQoXuyz4qEo4Q1DYv/YVlijZQSf0JOEgla6HGT0QZP1hJCRQsFe920XNZ7JCBQqZpPrjbH
+    Tnk4/qORnBMbT1wfL00kYIifWwvRfHEzwO8X4XjYvXGKPupOF+Aih7SyjMueufJZIiNJhm
+    gk+r3F4ioudpLQgLl8s2Bai/sQm/lpFYJPWmS816rZo8N1I3fGaKF8vaCjnsPMfwksRvl0
+    6Af/2BtixmkFEnOpg4axh9H+xCdn89MnkDhmnuoJzY/popvh/LfTLliWEeyDWOhpCgCE4O
+    h18zdmDtHrrW/u8WZmRXrY3iQ3r0wTSENEm+dusuNb8xtIAhju1BiHn0naN+53TgzSbvzd
+    yzmZYCi7ifaUifdFk2wMrmhMIjP1c9DeNzX5Xx4Sctv2yWtIBtVWa0+zIeZw
+X-ME-Proxy: <xmx:NxZCavqymErkIRztjouBu-7V0slB3o25MfBbVM9KSCex8QOrTFeOZg>
+    <xmx:NxZCan2DdzgvxbYRzX6pYCwK3xwrIk-cU2tFN57SqHbLubX7sFp6RQ>
+    <xmx:NxZCaigvrzp3oRkZE6LwBiBQXYgj4l_X1hgb0NxTXofsjKmlb0-Pzg>
+    <xmx:NxZCamzJNW0pQlTHLc_D5xB2Wj8XraMxhsaupP8Tsn_eAmCJi2chTA>
+    <xmx:ORZCasPFEmYzO9oCU9bgbYUUKaJzQAtBQ2CkEcKsKYO_AOQRt9ou1Eza>
+Feedback-ID: i56a14606:Fastmail
+Received: by mailuser.phl.internal (Postfix, from userid 501)
+	id 54A63182007E; Mon, 29 Jun 2026 02:52:39 -0400 (EDT)
+X-Mailer: MessagingEngine.com Webmail Interface
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] virtio_mem: fix hardcoded 'vm' variable in bbm iteration
- macros
-To: lirongqing <lirongqing@baidu.com>, "Michael S . Tsirkin"
- <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
-References: <20260629033738.2617-1-lirongqing@baidu.com>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <20260629033738.2617-1-lirongqing@baidu.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+X-ThreadId: ApSqBjiSqQZ-
+Date: Mon, 29 Jun 2026 08:52:18 +0200
+From: "Arnd Bergmann" <arnd@arndb.de>
+To: "Juergen Gross" <jgross@suse.com>, linux-kernel@vger.kernel.org,
+ linux-pm@vger.kernel.org,
+ "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>, x86@kernel.org,
+ linux-acpi@vger.kernel.org, kvm@vger.kernel.org, linux-coco@lists.linux.dev,
+ linux-pci@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-ide@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ linux-fbdev@vger.kernel.org, linux-crypto@vger.kernel.org,
+ "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+ linux-hyperv@vger.kernel.org, linux-hwmon@vger.kernel.org,
+ linux-perf-users@vger.kernel.org, linux-mtd@lists.infradead.org,
+ platform-driver-x86@vger.kernel.org
+Cc: "Rafael J . Wysocki" <rafael@kernel.org>,
+ "Daniel Lezcano" <daniel.lezcano@kernel.org>,
+ "Zhang Rui" <rui.zhang@intel.com>,
+ "lukasz.luba@arm.com" <lukasz.luba@arm.com>,
+ "Jason Baron" <jbaron@akamai.com>, "Borislav Petkov" <bp@alien8.de>,
+ "Tony Luck" <tony.luck@intel.com>,
+ "Yazen Ghannam" <yazen.ghannam@amd.com>, "Len Brown" <lenb@kernel.org>,
+ "Pavel Machek" <pavel@kernel.org>, "Thomas Gleixner" <tglx@kernel.org>,
+ "Ingo Molnar" <mingo@redhat.com>,
+ "Dave Hansen" <dave.hansen@linux.intel.com>,
+ "H. Peter Anvin" <hpa@zytor.com>,
+ "Sean Christopherson" <seanjc@google.com>,
+ "Paolo Bonzini" <pbonzini@redhat.com>,
+ "Kirill A. Shutemov" <kas@kernel.org>,
+ "Rick Edgecombe" <rick.p.edgecombe@intel.com>, "Pu Wen" <puwen@hygon.cn>,
+ "Bjorn Helgaas" <bhelgaas@google.com>,
+ "Ajay Kaher" <ajay.kaher@broadcom.com>,
+ "Alexey Makhalov" <alexey.makhalov@broadcom.com>,
+ "Broadcom internal kernel review list"
+ <bcm-kernel-feedback-list@broadcom.com>,
+ "Viresh Kumar" <viresh.kumar@linaro.org>,
+ "Reinette Chatre" <reinette.chatre@intel.com>,
+ "Dave Martin" <Dave.Martin@arm.com>, "James Morse" <james.morse@arm.com>,
+ "Babu Moger" <babu.moger@amd.com>,
+ "Tony W Wang-oc" <TonyWWang-oc@zhaoxin.com>,
+ "Damien Le Moal" <dlemoal@kernel.org>,
+ "Niklas Cassel" <cassel@kernel.org>, "Dave Airlie" <airlied@redhat.com>,
+ "Helge Deller" <deller@gmx.de>, linux-geode@lists.infradead.org,
+ "Olivia Mackall" <olivia@selenic.com>,
+ "Herbert Xu" <herbert@gondor.apana.org.au>,
+ "Linus Walleij" <linusw@kernel.org>,
+ "Bartosz Golaszewski" <brgl@kernel.org>,
+ "Greg Kroah-Hartman" <gregkh@linuxfoundation.org>,
+ "K. Y. Srinivasan" <kys@microsoft.com>,
+ "Haiyang Zhang" <haiyangz@microsoft.com>, "Wei Liu" <wei.liu@kernel.org>,
+ "Dexuan Cui" <decui@microsoft.com>, "Long Li" <longli@microsoft.com>,
+ "Guenter Roeck" <linux@roeck-us.net>,
+ "Peter Zijlstra" <peterz@infradead.org>,
+ "Arnaldo Carvalho de Melo" <acme@kernel.org>,
+ "Namhyung Kim" <namhyung@kernel.org>,
+ "Mark Rutland" <mark.rutland@arm.com>,
+ "Alexander Shishkin" <alexander.shishkin@linux.intel.com>,
+ "Jiri Olsa" <jolsa@kernel.org>, "Ian Rogers" <irogers@google.com>,
+ "Adrian Hunter" <adrian.hunter@intel.com>,
+ "James Clark" <james.clark@linaro.org>,
+ "Josh Poimboeuf" <jpoimboe@kernel.org>,
+ "Pawan Gupta" <pawan.kumar.gupta@linux.intel.com>,
+ "Vitaly Kuznetsov" <vkuznets@redhat.com>,
+ "Andy Lutomirski" <luto@kernel.org>,
+ "Boris Ostrovsky" <boris.ostrovsky@oracle.com>,
+ "Huang Rui" <ray.huang@amd.com>,
+ "Mario Limonciello" <mario.limonciello@amd.com>,
+ "Perry Yuan" <perry.yuan@amd.com>,
+ "K Prateek Nayak" <kprateek.nayak@amd.com>,
+ "srinivas.pandruvada@linux.intel.com"
+ <srinivas.pandruvada@linux.intel.com>,
+ "Artem Bityutskiy" <artem.bityutskiy@linux.intel.com>,
+ "Artem Bityutskiy" <dedekind1@gmail.com>,
+ "Miquel Raynal" <miquel.raynal@bootlin.com>,
+ "Richard Weinberger" <richard@nod.at>,
+ "Vignesh Raghavendra" <vigneshr@ti.com>,
+ "Ashok Raj" <ashok.raj.linux@gmail.com>,
+ "Hans de Goede" <hansg@kernel.org>,
+ =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ "Rajneesh Bhardwaj" <irenic.rajneesh@gmail.com>,
+ "David E Box" <david.e.box@intel.com>, xen-devel@lists.xenproject.org
+Message-Id: <d7c1db52-529a-43cc-ac7d-38b52627e8bc@app.fastmail.com>
+In-Reply-To: <20260629060526.3638272-1-jgross@suse.com>
+References: <20260629060526.3638272-1-jgross@suse.com>
+Subject: Re: [PATCH 00/32] x86/msr: Drop 32-bit MSR interfaces
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-On 6/29/26 05:37, lirongqing wrote:
-> From: Li RongQing <lirongqing@baidu.com>
-> 
-> virtio_mem_bbm_for_each_bb() and virtio_mem_bbm_for_each_bb_rev()
-> accept a '_vm' parameter to allow callers to pass any variable name
-> referring to the virtio_mem instance. However, the 'for' loop
-> initializer and part of the loop condition use the bare name 'vm'
-> instead of the macro parameter '_vm':
+On Mon, Jun 29, 2026, at 08:04, Juergen Gross wrote:
+> For accessing the MSR registers on the local CPU, there are 2 types of
+> interfaces: the "modern" 64-bit ones (rdmsrq() etc.) and the 32-bit
+> ones (rdmsr() etc.) which are using the upper and lower 32-bit halves
+> of the 64-bit wide MSR register values.
+>
+> The 32-bit interfaces are not optimal for 3 reasons:
+>
+> - They are based on primitives using 64-bit sized values anyway.
+>
+> - Modern x86 CPUs have added support for MSR access instructions using
+>   an immediate value instead of a register for addressing the MSR,
+>   while the value is in a 64-bit register.
+>
+> - rdmsr() is a macro storing the upper and lower 32-bit halves in
+>   variables specified as macro parameters. This is obscuring variable
+>   assignment through a macro. Additionally rdmsrq() is mimicking this
+>   pattern by being a macro, too, with the target variable specified as
+>   a parameter as well.
+>
+> For those reasons drop the 32-bit interfaces for accessing the x86 MSR
+> registers completely and only use the 64-bit variants.
 
-Right.
+Hi J=C3=BCrgen,
 
-> 
-> All current call sites happen to pass a variable named 'vm', so the
-> bug is latent and does not cause a regression today.
+I assume this is fine, but since you don't mention it explicitly here,
+please clarify what this means for 32-bit CPUs without the rdmsrq
+instruction. Those will continue using the same instructions as before
+and just change the calling conventions, right?
 
-Unlikely to happen, because no code that iterates memory blocks deals with two
-virtio-mem devices at the same time.
+> Note that most patches of this series are independent from each other.
+> Only the patches removing a specific interface (patches 7, 15, 26 and
+> 30) and the last two patches of the series depend on all previous
+> patches.
 
-> Nevertheless,
-> the macros are formally broken: any future caller using a different
-> variable name would silently capture the outer 'vm' from the
-> enclosing scope, leading to incorrect iteration bounds.
+It looks like you are touching most files twice or more here, to
+first convert from rdmsr to rdmsrq and then to change the
+two-argument rdmsrq() macro to a single-argument inline. If you
+introduce the inline version of rdmsrq() first, you should be
+able to skip the second step (patch 31) as they could be able
+to coexist.
 
-Again, unlikely, but we should clean this up.
-
-> 
-> Fix by replacing all bare 'vm->' references inside the macros with
-> the '_vm' parameter, and wrap in parentheses following kernel macro
-> hygiene conventions.
-> 
-> Fixes: 4ba50cd3355d ("virtio-mem: Big Block Mode (BBM) memory hotplug")
-
-There is no user-visible bug, so drop the Fixes: tag.
-
-> Signed-off-by: Li RongQing <lirongqing@baidu.com>
-> ---
->  drivers/virtio/virtio_mem.c | 8 ++++----
->  1 file changed, 4 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-> index 11c4415..82a285c 100644
-> --- a/drivers/virtio/virtio_mem.c
-> +++ b/drivers/virtio/virtio_mem.c
-> @@ -423,14 +423,14 @@ static int virtio_mem_bbm_bb_states_prepare_next_bb(struct virtio_mem *vm)
->  }
->  
->  #define virtio_mem_bbm_for_each_bb(_vm, _bb_id, _state) \
-> -	for (_bb_id = vm->bbm.first_bb_id; \
-> -	     _bb_id < vm->bbm.next_bb_id && _vm->bbm.bb_count[_state]; \
-> +	for (_bb_id = (_vm)->bbm.first_bb_id; \
-> +	     _bb_id < (_vm)->bbm.next_bb_id && (_vm)->bbm.bb_count[_state]; \
->  	     _bb_id++) \
->  		if (virtio_mem_bbm_get_bb_state(_vm, _bb_id) == _state)
->  
->  #define virtio_mem_bbm_for_each_bb_rev(_vm, _bb_id, _state) \
-> -	for (_bb_id = vm->bbm.next_bb_id - 1; \
-> -	     _bb_id >= vm->bbm.first_bb_id && _vm->bbm.bb_count[_state]; \
-> +	for (_bb_id = (_vm)->bbm.next_bb_id - 1; \
-> +	     _bb_id >= (_vm)->bbm.first_bb_id && (_vm)->bbm.bb_count[_state]; \
->  	     _bb_id--) \
->  		if (virtio_mem_bbm_get_bb_state(_vm, _bb_id) == _state)
->  
-
-Without the Fixes: tag
-
-Acked-by: David Hildenbrand (Arm) <david@kernel.org>
-
-Thanks!
-
-
--- 
-Cheers,
-
-David
+     Arnd
