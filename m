@@ -1,113 +1,145 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8C1D33932F7;
-	Mon, 29 Jun 2026 08:39:32 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE8763AE6FC
+	for <virtualization@lists.linux.dev>; Mon, 29 Jun 2026 09:09:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782722373; cv=none; b=MdLMRKqNfqnW2gzooSgvUOIg2tMftwdc+caUyQb000X9GD5uXT0Hi+RU+EaoKmICYH3RosdbnIpYJPOErG1l3TcjUZVGZaLOnxgbqXuuOL92KA3L7sQkHC7IvabkOhBHclt8qzttOkaTsP7kPzx8sifLr3RvXhuXLYBXRzNn5M4=
+	t=1782724183; cv=none; b=A4S6IEiKn7u/cNfEAyNFDMYzlCKjb+J5IybvHvFn6WwYXJMqIpEfDXk0qcS63DFNHRfQo+YzQhev7OopsyFxsA44qtQG8AC6m1vHfPGQEwRo8vPAIE24gByxfT9FcRgay0fi2dmfGfOHkhGCwHD9trdb2SwKANw/Rnd5xKfHzcg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782722373; c=relaxed/simple;
-	bh=c4sIW5ycgpKIzndr7OBsugpKjXxHJyhKvNXgVBgHeU4=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=LFy8mFWRDuEQS6JACV50YjB7neu0+Zbt4F0q2ffy7yPMDLqFFtSvXdWQjB/I2i+Zk4uH8APkb8jfZoCQZOIryD+us4Yni7GAj2RyR1AdELeGZZ3Bw5mV5zXsaunY9rzBOh9Q/Q7dBgzBcX7pPDwgXhq70o4RUrclAEkkvRmuu/Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=g0jrwcN7; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1782724183; c=relaxed/simple;
+	bh=DO2hy3VaEELpIe1xk2Qt4w/uJ2K5R5ZnILb/Ih20kAA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=pKw7IovpnO1CQ8SpsNHeQ5x0/Sk5AgSdP069m/w5TvWBZqxhrenuTCH/QXPQqkJLiGKMNmlJTxROEOcqa9XGIbrqe7XGRVCMKNnEssZRVi1FSHqcYWicbhUJAQdvfzjexE9zEpa3+y4vSDgDRCHC7bDhCI7KC+AqqBYpX5dn3VA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=YipubIwU; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="g0jrwcN7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D224C1F000E9;
-	Mon, 29 Jun 2026 08:39:30 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782722372;
-	bh=lq5LQ9JJIDNlCaG6JOmQhcLy406DV5gppuzq/19j6u4=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=g0jrwcN7FicUiZjmTdmUTBj9Jd6bDziwdyJEXWr9dwXtodAHHfT4gyhX90rCOLzMG
-	 LZ/WbKKfW/llBWAnPUID5vrxbWnIsEMzfnmmGlddoEw07yl0+kN0xTCAnYFMAM1lgw
-	 VfQZ+UddMWjc14ffDQM+l63bdsgK0VxxksGsknHAOJfI4QtBSUKewhoH7Zg50oam7D
-	 BqB5DEpDacVIFF3iKVxhOclY55m87G0cONuxRo9/FtK7dRlsqIymFhcCpQ6mQGksTH
-	 q0ZAahQkgb57Le0NwhxkQtp0csuXF43ZGmnQ3v0UfdtZvb8F5+QwwU8dDaVVxRiAnh
-	 0/tWhLjmKBD7Q==
-From: Thomas Gleixner <tglx@kernel.org>
-To: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, David Woodhouse
- <dwmw2@infradead.org>, Miroslav Lichvar <mlichvar@redhat.com>, John Stultz
- <jstultz@google.com>, Stephen Boyd <sboyd@kernel.org>, Anna-Maria Behnsen
- <anna-maria@linutronix.de>, Frederic Weisbecker <frederic@kernel.org>,
- Arthur Kiyanovski <akiyano@amazon.com>, Rodolfo Giometti
- <giometti@enneenne.com>, Vincent Donnefort <vdonnefort@google.com>, Marc
- Zyngier <maz@kernel.org>, Oliver Upton <oliver.upton@linux.dev>,
- kvmarm@lists.linux.dev, Oliver Upton <oupton@kernel.org>, Richard Cochran
- <richardcochran@gmail.com>, netdev@vger.kernel.org, Takashi Iwai
- <tiwai@suse.com>, Miri Korenblit <miriam.rachel.korenblit@intel.com>,
- Johannes Berg <johannes.berg@intel.com>, Jacob Keller
- <jacob.e.keller@intel.com>, Tony Nguyen <anthony.l.nguyen@intel.com>,
- Saeed Mahameed <saeedm@nvidia.com>, Peter Hilber
- <peter.hilber@oss.qualcomm.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- virtualization@lists.linux.dev, linux-wireless@vger.kernel.org,
- linux-sound@vger.kernel.org
-Subject: Re: [patch 09/24] timekeeping: Add CLOCK_AUX support for
- ktime_get_snapshot_id()
-In-Reply-To: <20260629055344-b74c43de-2a2b-4608-ae4e-ed0ac8e12fd1@linutronix.de>
-References: <20260526165826.392227559@kernel.org>
- <20260526171223.374814973@kernel.org>
- <20260626103359-66ab2b54-d36f-416b-94a4-3f3708dccced@linutronix.de>
- <87echtk24a.ffs@fw13>
- <20260626125819-d8b197fc-7671-4d12-a578-9025affc52d9@linutronix.de>
- <87fr29ib4v.ffs@fw13>
- <20260629055344-b74c43de-2a2b-4608-ae4e-ed0ac8e12fd1@linutronix.de>
-Date: Mon, 29 Jun 2026 10:39:26 +0200
-Message-ID: <87bjctsptt.ffs@fw13>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="YipubIwU"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1782724180;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Pd8r9rCcJi49nZQiw9Z6HNd8xI6UP5ito/Ie4AKM6YQ=;
+	b=YipubIwUpP0LCTDvjwlSUdcoeoz4kE8TaRKo9V23tJrsg0RJ3lM4N86q4Vu0EYjcb3g8LL
+	ZjFBJeatjpq+RxYoFnS2uul/K4mjyWt65XAZuA3e7R7iAdLLAJ+xxPyEISwvhR9Y9+lmGo
+	Snu01SmhcfRK9ro67lZxpBwqPFsFBVI=
+Received: from mail-yx1-f72.google.com (mail-yx1-f72.google.com
+ [74.125.224.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-246-05CxeZ-8MOy4fGXDuX4OUQ-1; Mon, 29 Jun 2026 05:09:39 -0400
+X-MC-Unique: 05CxeZ-8MOy4fGXDuX4OUQ-1
+X-Mimecast-MFC-AGG-ID: 05CxeZ-8MOy4fGXDuX4OUQ_1782724178
+Received: by mail-yx1-f72.google.com with SMTP id 956f58d0204a3-664a090b4dcso4333809d50.3
+        for <virtualization@lists.linux.dev>; Mon, 29 Jun 2026 02:09:39 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782724178; x=1783328978;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=Pd8r9rCcJi49nZQiw9Z6HNd8xI6UP5ito/Ie4AKM6YQ=;
+        b=R54bSdENLTHP5NkEYnhJ8/9vq3FpP78oE5y60qkTvYIbBeU8qb5DnaSG1geEO+4Xcy
+         J1skAzo5rs9StZ+QqW+PoYolEJ/8zIGUvO7UlhLyerFQboioSqkk0mGuLw9yddVkOUgX
+         VBjwPZsO0NxON4swJNOHZ0z/VfSNP9aibJCoDbHyRtMFFRLp41a8EYyQmNhwmFxyl+hS
+         dFVKc4E7RkCd9EPxMcN7g+pIRAOrylQYRL0FBd8GmbnBmY3HStz9oityn8dCsAbNk+vQ
+         TtfIexN6YfqFqpBhV8NeKFkKBpnXyosTfH3hn4dkupwnUFy/iXPjZAW/WM/K7v/wCFp8
+         xySQ==
+X-Forwarded-Encrypted: i=1; AHgh+RpgQ5/Okm4F6IfykE3ttgx8OceXnGFZ05ygtcOPuyFICkrGy6Aiv1ptadxTFk3xqgklQ/Rl8gG4s057w9aGRw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyxm4cvyPDF2B3EevnFQaJtA80fJUUxMPnil48mvzDNfWUKOhYH
+	HiZZ7TGip0Oa5KJvCnZ6k1eLJv6mZN+zowFydX9CImhpPmdZHH3JSb1uVAeNLBkKm54szNaBP09
+	A1CZSfmM8DVNylenPJRHSFg94OQ1UQ0RWwEY/VJ8MMSn7UdN5eyW1+d6Mb71ywemXonTcrGaZfT
+	898Zife9cAOHjenlqoK4l4LjmLSL3dUzbbRTIZkyWGY+w=
+X-Gm-Gg: AfdE7cnOy3XMhjju+lxbUsagR8BNq8LnYa+HSKUhn+XiJwD7iqTibESjbVfJClPA937
+	F4flmq0P0BCLjhYZd+FsoHeYuLIWz0iYP/R+LMG/SlKUqHQcVHmitQKMiKsESgnEZAljvngmLyT
+	Ov1H2ZX8kayqu5ffRR54LphynUQyGYvrISJ14S4xtFQaio4gDnc0rxChsxoo6WBXNxRzGDn42nf
+	maUCbgTWeS1TWoRyidH0Su7qDK8qahi7IDTFhOrtN8RckfSjYZDi0xnlm7PDhVMWNsB4A==
+X-Received: by 2002:a05:690e:4893:20b0:660:54e4:5db5 with SMTP id 956f58d0204a3-66487e0d2b2mr10042380d50.56.1782724178519;
+        Mon, 29 Jun 2026 02:09:38 -0700 (PDT)
+X-Received: by 2002:a05:690e:4893:20b0:660:54e4:5db5 with SMTP id
+ 956f58d0204a3-66487e0d2b2mr10042364d50.56.1782724178093; Mon, 29 Jun 2026
+ 02:09:38 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+References: <20260629022124.131894-1-chenyichong@uniontech.com>
+In-Reply-To: <20260629022124.131894-1-chenyichong@uniontech.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Mon, 29 Jun 2026 11:09:01 +0200
+X-Gm-Features: AVVi8Cf6Ejxv8Mg9H2oH7NckRFNreqIs6ENUixvb0iEFgrRhruEK0eMdMrRpJuk
+Message-ID: <CAJaqyWfAOA9LHZ1DQ1oyZx2WNJzfCHttoo9LPjZoKCJ6B8KX0w@mail.gmail.com>
+Subject: Re: [PATCH v2 0/2] tools: Fix tools/virtio test build
+To: Yichong Chen <chenyichong@uniontech.com>
+Cc: mst@redhat.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, 
+	akpm@linux-foundation.org, rppt@kernel.org, ljs@kernel.org, pabeni@redhat.com, 
+	linux-kernel@vger.kernel.org, virtualization@lists.linux.dev
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: VLA_7d-QHjsl4xin54-0_qwIIiVsZXDEmUw5YF64AOA_1782724178
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
 Content-Transfer-Encoding: quoted-printable
 
-On Mon, Jun 29 2026 at 05:55, Thomas Wei=C3=9Fschuh wrote:
-> On Fri, Jun 26, 2026 at 05:17:52PM +0200, Thomas Gleixner wrote:
->> On Fri, Jun 26 2026 at 13:03, Thomas Wei=C3=9Fschuh wrote:
->> > On Fri, Jun 26, 2026 at 12:49:41PM +0200, Thomas Gleixner wrote:
->> >> On Fri, Jun 26 2026 at 10:48, Thomas Wei=C3=9Fschuh wrote:
->> >> > On Tue, May 26, 2026 at 07:14:13PM +0200, Thomas Gleixner wrote:
->> >> > (...)
->> >> >
->> >> >>  static inline void tk_update_aux_offs(struct timekeeper *tk, ktim=
-e_t offs)
->> >> >> @@ -1218,6 +1223,12 @@ bool ktime_get_snapshot_id(struct system
->> >> >>  		tkd =3D &tk_core;
->> >> >>  		offs =3D &tk_core.timekeeper.offs_boot;
->> >> >>  		break;
->> >> >> +	case CLOCK_AUX ... CLOCK_AUX_LAST:
->> >> >> +		tkd =3D aux_get_tk_data(clock_id);
->> >> >> +		if (!tkd)
->> >> >> +			return false;
->> >> >> +		offs =3D &tkd->timekeeper.offs_aux;
->> >> >> +		break;
->> >> >
->> >> > 'tkd' is also used to compute 'monoraw'. However 'tkr_raw' and 'tkr=
-_mono'
->> >> > are the same for auxilary clocks, so this will compute a wrong 'mon=
-oraw'.
->> >>=20
->> >> AUX clocks are independent in the first place and the MONORAW part is
->> >> the "MONORAW" related to the AUX clock itself.=20
->> >>=20
->> >> > Instead 'monoraw' should be computed based on 'tk_core'.
->> >> > Which then also requires the sequence locking of 'tk_core'.
->> >>=20
->> >> No. From a PTP and steering point of view you want the "raw" value wh=
-ich
->> >> is related to the AUX clock itself and not the global one.
->> >
->> > Ack.
->> >
->> > However the kdocs call it 'CLOCK_MONOTONIC_RAW'. Can we clean this up?
->>=20
->> Yes. Something like the below?
+On Mon, Jun 29, 2026 at 4:22=E2=80=AFAM Yichong Chen <chenyichong@uniontech=
+.com> wrote:
 >
-> Looks good, thanks.
-> The corresponding structure definitions are a also affected, though.
+> Hi,
+>
+> This series fixes build failures hit by:
+>
+>   make -C tools/virtio test
+>
+> It is based on linux-next commit:
+>
+>   commit 3d5670d672ae ("Add linux-next specific files for 20260626")
+>
+> Patch 1 adds tools/virtio compatibility definitions needed by current
+> virtio headers when building the tools/virtio tests. Patch 2 makes
+> tools/include/linux/overflow.h include stdint.h for SIZE_MAX, which is
+> used by its size helper functions.
+>
+> With the series applied, make -C tools/virtio test builds virtio_test,
+> vringh_test and vhost_net_test successfully.
+>
+> Tested on x86_64 and arm64 with:
+>
+>   make -C tools/virtio clean
+>   make -C tools/virtio test
+>
 
-True.
+Acked-by: Eugenio P=C3=A9rez <eperezma@redhat.com>
+
+Thanks!
+
+> Changes in v2:
+> - Rebase and retest on linux-next.
+> - Add the missing asm/percpu_types.h compat header reported by Eugenio.
+> - Keep the tools/virtio compat definitions aligned with current
+>   virtio_features.h helpers.
+> - Drop the slab.h kmalloc_obj/kmalloc_objs change because linux-next
+>   already defines them in tools/virtio/linux/kernel.h.
+>
+> Yichong Chen (2):
+>   tools/virtio: Add missing compat definitions for vhost_net_test
+>   tools/include: Include stdint.h for SIZE_MAX in overflow.h
+>
+>  tools/include/linux/overflow.h       |  1 +
+>  tools/virtio/asm/percpu_types.h      |  7 +++
+>  tools/virtio/linux/completion.h      |  9 ++++
+>  tools/virtio/linux/device.h          |  1 +
+>  tools/virtio/linux/dma-mapping.h     |  1 +
+>  tools/virtio/linux/mod_devicetable.h | 14 +++++
+>  tools/virtio/linux/virtio_features.h | 79 ++++++++++++++++++++++++++++
+>  7 files changed, 112 insertions(+)
+>  create mode 100644 tools/virtio/asm/percpu_types.h
+>  create mode 100644 tools/virtio/linux/completion.h
+>  create mode 100644 tools/virtio/linux/mod_devicetable.h
+>  create mode 100644 tools/virtio/linux/virtio_features.h
+>
+> --
+> 2.51.0
+>
+
