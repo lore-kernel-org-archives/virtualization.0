@@ -1,329 +1,374 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+Received: from mail-wm1-f48.google.com (mail-wm1-f48.google.com [209.85.128.48])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 99F373B42C3
-	for <virtualization@lists.linux.dev>; Mon, 29 Jun 2026 06:57:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3478A3BED2B
+	for <virtualization@lists.linux.dev>; Mon, 29 Jun 2026 07:01:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782716248; cv=none; b=MSz2UO46cxwkPl0OcZMaUsp6S+R+R+iknt9ylkPqFDBjRuNOKqCsrZOVGhr7AM7Dwgtq3zRBJTAwglQcH2vQNgQX4InRQew3Uem07qis431mK+FhXmppFwW1dlk98pVkqEiscMyskd/S7jA8QozFsMcfY9fhjLzP57CpXCMn6FY=
+	t=1782716502; cv=none; b=srsG+kjOwY3IXZC6AMsd7tTqIL2QEfo+0DSx2m+ljIqAt86T80Um7x3dQyFQ9wSsHGpJPqh6J+0MTTK9/I8HlsFfENgA764lIKinns2Sl28fssVzkrsepbgwUGsTvNEFyDDGuxe26T5AKe7sbxOHqwZvWo9LC7HAfKY2s8lyqPY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782716248; c=relaxed/simple;
-	bh=j3ne/82Yr82DgtcVaUgK5Wdw5lCJFi+rvgV8G97EiKw=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=dLH6lTOnFvBPAFMGUKLgCVP6qTTo2iCn3PXGaG8qKLePbFxCzDvUaFRj8cyaDFdggYU4VYZ+FV4f20NCyP4rJXO50+3SQd3VlL+7iGzmvPO0/DJgKmBgawFZ22EsIuNnaRoJbsdWdOvK1Cu1VaXCcpY/kMIiA8j0SIFlX4RJVJY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=qtXio51s; dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b=qtXio51s; arc=none smtp.client-ip=195.135.223.130
+	s=arc-20240116; t=1782716502; c=relaxed/simple;
+	bh=WsztnGJuvJ11fz8SxjeHaBbToOxHKZqr51yhgWwvivM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=i5wRoyU56X8BiAAklEd9KmjF6eF2s40I11ly2SRjuzIXPrU7zyPVKQMaN80gf4pUjRVnIdECSP1iiOnhk0w++OEeB4WjYGZC3dXNiZ4dQxQwN3dHP6mPfoGqxiVQfM6TYUHa8fordOeNyDfa7b8wm/u9FZOEIuYM1uB9wuCB1L4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=auQezMHX; arc=none smtp.client-ip=209.85.128.48
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="qtXio51s";
-	dkim=pass (1024-bit key) header.d=suse.com header.i=@suse.com header.b="qtXio51s"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 0B8F671266;
-	Mon, 29 Jun 2026 06:57:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1782716245; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=kvT1/Ns4kcPPhOZM3ZKygNe0p0OIDDA1BMerN9MWMVQ=;
-	b=qtXio51s9vRBNrjVztTe2VOWwoTfcyXsYhZ4xAgnwwWAEmck5WondFV8R0yw6noaOMizw3
-	926ae94j56WeSF+EgVjDhN5FggneBHh0TdR5Y7iadexU/PDC1fg1/GjZmYb0Du7EZnv9+v
-	qhU5KRtj/+O1q/Hryvqyp08KsSuYcpY=
-Authentication-Results: smtp-out1.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.com; s=susede1;
-	t=1782716245; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=kvT1/Ns4kcPPhOZM3ZKygNe0p0OIDDA1BMerN9MWMVQ=;
-	b=qtXio51s9vRBNrjVztTe2VOWwoTfcyXsYhZ4xAgnwwWAEmck5WondFV8R0yw6noaOMizw3
-	926ae94j56WeSF+EgVjDhN5FggneBHh0TdR5Y7iadexU/PDC1fg1/GjZmYb0Du7EZnv9+v
-	qhU5KRtj/+O1q/Hryvqyp08KsSuYcpY=
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 89772779A8;
-	Mon, 29 Jun 2026 06:57:24 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id v4wdIFQXQmqbQgAAD6G6ig
-	(envelope-from <jgross@suse.com>); Mon, 29 Jun 2026 06:57:24 +0000
-From: Juergen Gross <jgross@suse.com>
-To: linux-kernel@vger.kernel.org,
-	x86@kernel.org,
-	virtualization@lists.linux.dev,
-	llvm@lists.linux.dev
-Cc: Juergen Gross <jgross@suse.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Thomas Gleixner <tglx@kernel.org>,
-	Ingo Molnar <mingo@redhat.com>,
-	Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>,
-	"H. Peter Anvin" <hpa@zytor.com>,
-	Nathan Chancellor <nathan@kernel.org>,
-	Nick Desaulniers <nick.desaulniers+lkml@gmail.com>,
-	Bill Wendling <morbo@google.com>,
-	Justin Stitt <justinstitt@google.com>
-Subject: [PATCH v4 17/18] x86/paravirt: Use alternatives for MSR access with paravirt
-Date: Mon, 29 Jun 2026 08:55:43 +0200
-Message-ID: <20260629065544.3643253-18-jgross@suse.com>
-X-Mailer: git-send-email 2.54.0
-In-Reply-To: <20260629065544.3643253-1-jgross@suse.com>
-References: <20260629065544.3643253-1-jgross@suse.com>
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="auQezMHX"
+Received: by mail-wm1-f48.google.com with SMTP id 5b1f17b1804b1-4939a809b24so13495245e9.1
+        for <virtualization@lists.linux.dev>; Mon, 29 Jun 2026 00:01:39 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=suse.com; s=google; t=1782716499; x=1783321299; darn=lists.linux.dev;
+        h=in-reply-to:autocrypt:from:content-language:references:cc:to
+         :subject:user-agent:mime-version:date:message-id:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=WsztnGJuvJ11fz8SxjeHaBbToOxHKZqr51yhgWwvivM=;
+        b=auQezMHXEUQIFQ5iIDsd8nDdq4CG1JCy4Pj6Xz1ftbIeunYeCyp6GWQ7u8FxLu/BRQ
+         GZc0IxPJN99D/kCydFcf2TQSt4WDa5KGvwZcxK6nIbFt2DZGPDfKu6/kdbyGygOA+17E
+         9+QZQ3118TBPr9gHAZ+j73Ws2SdSsw7OfVPY8gV9bLFLknSs1GMzziSFevQHfffAtis5
+         bTome4wctGS/MYU6WG6ieiGyJmKWj9n5eIXpCmG+l49cKi00X8UU2R2wQ0DFWv03Ty5c
+         xXX5IhS1AX7W6NJMx4BDy8tIlJ/Ycn7wqmmNrbCHW7cqK5MaZDKCNAISV3fkhTHysPh+
+         g9zw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782716499; x=1783321299;
+        h=in-reply-to:autocrypt:from:content-language:references:cc:to
+         :subject:user-agent:mime-version:date:message-id:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to;
+        bh=WsztnGJuvJ11fz8SxjeHaBbToOxHKZqr51yhgWwvivM=;
+        b=qzFcC852ZXo+Ln4Uq/xc4nxMbRRtbLDp528/kRY3bASQf2uZnkD5QbPKUxIBKF7TYi
+         HdEaCza5GpcrDoeAoQalb1T/roj9AUJNOLqE7bOBqSV8+YpRrPFkCfpDda32HQ5gKmhQ
+         kZy3xj05upO7CpwwnJbXFdZtX7v3QLR42ZwGqk7TgnoJMuL+fc68eb0xPnEP3fmikExO
+         nU+KiBQ0p5T7u5qV/+nB9UkSp2t6xUfL4MWcDpvezBgs+zlxcdcC3r1sfhqzow5lEfzV
+         AB79T/s8jXx5u1TVGpu4dMlwJuwcUUt4VOM2S9SlOQR5/bmTS3zIZC04mgaTzBCg4pVY
+         FsbQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+erRbjh5SmmqHJNIeAK5C15G9izk7WT1LgXWMuxyZxBX0kw62kAqKvcJ50fCTfEUOUkHdnSukxdo6iJqQ2Xw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy/wEVpec2opbE56MFGAfCRUOIpSx5SMQNKrJ16gY6TscNYsG26
+	qr6H3DZHZM1N9s+q0Foh7fQTO1UaSP1GL2jPN8Vr3y8xbDT4TlMd/bcc+RDvYAH+EKo=
+X-Gm-Gg: AfdE7ckeUyxKawBJKMQOjVlBklyuFnla5XZiR37OqEvY/WX+ZHO05XtTXP8HeNwt8SN
+	vL8lyqbd06kTZtZOLO4P1h7UZW2y8oUnOYcX+y83sphBNlsS042pfO4qveauWh486c7ozmtKEnv
+	v0kGjGYITnZqkdfJNQZbSHKsBwR8F5W14VSThoyLYVFtQWy9oQUvORixahywB0IDCLUsbRM++V1
+	HaAbL9TaiSowkiz0tUeiSqVCXXprtw/aABttZhJjanS1+jgqOM11sqR4okY84PvAOwT/KWp8pSa
+	8lHViVtnRPSBgszaoD4T2cj2wEXkaHh9aCjrJyoSIptuEczbSMhH+fKNWknKzIhqKYmeJYqZW8p
+	wzeGvf8ieS6qqBo+iB8+zx5vq5aIsJBMce4AlMSPl5aWGHW7WMMWuyXquPICrXKig/1zCB6Yu1F
+	OIir+h7ryYe5P7KoezLHeMHrA3gw73sPjlb2Y07lPjAAtWiHmqcNuGQJ19g7f5QOcqIAA3+s/a2
+	IG2+pga7M6oCefeArstRbPjywa0
+X-Received: by 2002:a05:600c:138e:b0:490:d38c:7836 with SMTP id 5b1f17b1804b1-49266832313mr240270835e9.3.1782716498009;
+        Mon, 29 Jun 2026 00:01:38 -0700 (PDT)
+Received: from ?IPV6:2a00:12d0:af5d:ad01:5d3f:14e6:9bcb:5112? (2a00-12d0-af5d-ad01-5d3f-14e6-9bcb-5112.ip.tng.de. [2a00:12d0:af5d:ad01:5d3f:14e6:9bcb:5112])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-493b124ceeesm37235175e9.11.2026.06.29.00.01.34
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 29 Jun 2026 00:01:37 -0700 (PDT)
+Message-ID: <c1608c48-13c2-4290-826b-28b5ca51eaf7@suse.com>
+Date: Mon, 29 Jun 2026 09:01:34 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-Spam-Flag: NO
-X-Spamd-Result: default: False [-5.30 / 50.00];
-	REPLY(-4.00)[];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	MID_CONTAINS_FROM(1.00)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	R_MISSING_CHARSET(0.50)[];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	MIME_TRACE(0.00)[0:+];
-	RCPT_COUNT_TWELVE(0.00)[17];
-	DKIM_SIGNED(0.00)[suse.com:s=susede1];
-	TO_MATCH_ENVRCPT_ALL(0.00)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	ARC_NA(0.00)[];
-	FREEMAIL_CC(0.00)[suse.com,broadcom.com,kernel.org,redhat.com,alien8.de,linux.intel.com,zytor.com,gmail.com,google.com];
-	RCVD_TLS_ALL(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	TO_DN_SOME(0.00)[];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:email,suse.com:mid,imap1.dmz-prg2.suse.org:helo];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	TAGGED_RCPT(0.00)[lkml];
-	R_RATELIMIT(0.00)[to_ip_from(RLfdszjqhz8kzzb9uwpzdm8png)];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com]
-X-Spam-Level: 
-X-Spam-Score: -5.30
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH 00/32] x86/msr: Drop 32-bit MSR interfaces
+To: Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org,
+ linux-pm@vger.kernel.org,
+ "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>, x86@kernel.org,
+ linux-acpi@vger.kernel.org, kvm@vger.kernel.org, linux-coco@lists.linux.dev,
+ linux-pci@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-ide@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ linux-fbdev@vger.kernel.org, linux-crypto@vger.kernel.org,
+ "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+ linux-hyperv@vger.kernel.org, linux-hwmon@vger.kernel.org,
+ linux-perf-users@vger.kernel.org, linux-mtd@lists.infradead.org,
+ platform-driver-x86@vger.kernel.org
+Cc: "Rafael J . Wysocki" <rafael@kernel.org>,
+ Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
+ "lukasz.luba@arm.com" <lukasz.luba@arm.com>, Jason Baron
+ <jbaron@akamai.com>, Borislav Petkov <bp@alien8.de>,
+ Tony Luck <tony.luck@intel.com>, Yazen Ghannam <yazen.ghannam@amd.com>,
+ Len Brown <lenb@kernel.org>, Pavel Machek <pavel@kernel.org>,
+ Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>,
+ Sean Christopherson <seanjc@google.com>, Paolo Bonzini
+ <pbonzini@redhat.com>, "Kirill A. Shutemov" <kas@kernel.org>,
+ Rick Edgecombe <rick.p.edgecombe@intel.com>, Pu Wen <puwen@hygon.cn>,
+ Bjorn Helgaas <bhelgaas@google.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
+ Alexey Makhalov <alexey.makhalov@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>,
+ Viresh Kumar <viresh.kumar@linaro.org>,
+ Reinette Chatre <reinette.chatre@intel.com>,
+ Dave Martin <Dave.Martin@arm.com>, James Morse <james.morse@arm.com>,
+ Babu Moger <babu.moger@amd.com>, Tony W Wang-oc <TonyWWang-oc@zhaoxin.com>,
+ Damien Le Moal <dlemoal@kernel.org>, Niklas Cassel <cassel@kernel.org>,
+ Dave Airlie <airlied@redhat.com>, Helge Deller <deller@gmx.de>,
+ linux-geode@lists.infradead.org, Olivia Mackall <olivia@selenic.com>,
+ Herbert Xu <herbert@gondor.apana.org.au>, Linus Walleij <linusw@kernel.org>,
+ Bartosz Golaszewski <brgl@kernel.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ "K. Y. Srinivasan" <kys@microsoft.com>,
+ Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
+ Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>,
+ Guenter Roeck <linux@roeck-us.net>, Peter Zijlstra <peterz@infradead.org>,
+ Arnaldo Carvalho de Melo <acme@kernel.org>,
+ Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+ Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
+ Adrian Hunter <adrian.hunter@intel.com>, James Clark
+ <james.clark@linaro.org>, Josh Poimboeuf <jpoimboe@kernel.org>,
+ Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+ Vitaly Kuznetsov <vkuznets@redhat.com>, Andy Lutomirski <luto@kernel.org>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>, Huang Rui <ray.huang@amd.com>,
+ Mario Limonciello <mario.limonciello@amd.com>,
+ Perry Yuan <perry.yuan@amd.com>, K Prateek Nayak <kprateek.nayak@amd.com>,
+ "srinivas.pandruvada@linux.intel.com" <srinivas.pandruvada@linux.intel.com>,
+ Artem Bityutskiy <artem.bityutskiy@linux.intel.com>,
+ Artem Bityutskiy <dedekind1@gmail.com>,
+ Miquel Raynal <miquel.raynal@bootlin.com>,
+ Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>,
+ Ashok Raj <ashok.raj.linux@gmail.com>, Hans de Goede <hansg@kernel.org>,
+ =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ Rajneesh Bhardwaj <irenic.rajneesh@gmail.com>,
+ David E Box <david.e.box@intel.com>, xen-devel@lists.xenproject.org
+References: <20260629060526.3638272-1-jgross@suse.com>
+ <d7c1db52-529a-43cc-ac7d-38b52627e8bc@app.fastmail.com>
+Content-Language: en-US
+From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+Autocrypt: addr=jgross@suse.com; keydata=
+ xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
+ ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
+ dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
+ NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
+ XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
+ AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
+ CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
+ mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
+ G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
+ kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
+ Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
+ RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
+ vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
+ sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
+ aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
+ w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
+ auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
+ 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
+ fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
+ HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
+ QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
+ ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
+In-Reply-To: <d7c1db52-529a-43cc-ac7d-38b52627e8bc@app.fastmail.com>
+Content-Type: multipart/signed; micalg=pgp-sha256;
+ protocol="application/pgp-signature";
+ boundary="------------o4KOfe8V3soJd2q9AonYj03N"
 
-When not running as Xen PV guest, patch in the optimal MSR instructions
-via alternative and use direct calls otherwise.
+This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
+--------------o4KOfe8V3soJd2q9AonYj03N
+Content-Type: multipart/mixed; boundary="------------JoYEqla26Z38LihNsoOMoTiX";
+ protected-headers="v1"
+From: =?UTF-8?B?SsO8cmdlbiBHcm/Dnw==?= <jgross@suse.com>
+To: Arnd Bergmann <arnd@arndb.de>, linux-kernel@vger.kernel.org,
+ linux-pm@vger.kernel.org,
+ "linux-edac@vger.kernel.org" <linux-edac@vger.kernel.org>, x86@kernel.org,
+ linux-acpi@vger.kernel.org, kvm@vger.kernel.org, linux-coco@lists.linux.dev,
+ linux-pci@vger.kernel.org, virtualization@lists.linux.dev,
+ linux-ide@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ linux-fbdev@vger.kernel.org, linux-crypto@vger.kernel.org,
+ "open list:GPIO SUBSYSTEM" <linux-gpio@vger.kernel.org>,
+ linux-hyperv@vger.kernel.org, linux-hwmon@vger.kernel.org,
+ linux-perf-users@vger.kernel.org, linux-mtd@lists.infradead.org,
+ platform-driver-x86@vger.kernel.org
+Cc: "Rafael J . Wysocki" <rafael@kernel.org>,
+ Daniel Lezcano <daniel.lezcano@kernel.org>, Zhang Rui <rui.zhang@intel.com>,
+ "lukasz.luba@arm.com" <lukasz.luba@arm.com>, Jason Baron
+ <jbaron@akamai.com>, Borislav Petkov <bp@alien8.de>,
+ Tony Luck <tony.luck@intel.com>, Yazen Ghannam <yazen.ghannam@amd.com>,
+ Len Brown <lenb@kernel.org>, Pavel Machek <pavel@kernel.org>,
+ Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>,
+ Dave Hansen <dave.hansen@linux.intel.com>, "H. Peter Anvin" <hpa@zytor.com>,
+ Sean Christopherson <seanjc@google.com>, Paolo Bonzini
+ <pbonzini@redhat.com>, "Kirill A. Shutemov" <kas@kernel.org>,
+ Rick Edgecombe <rick.p.edgecombe@intel.com>, Pu Wen <puwen@hygon.cn>,
+ Bjorn Helgaas <bhelgaas@google.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
+ Alexey Makhalov <alexey.makhalov@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>,
+ Viresh Kumar <viresh.kumar@linaro.org>,
+ Reinette Chatre <reinette.chatre@intel.com>,
+ Dave Martin <Dave.Martin@arm.com>, James Morse <james.morse@arm.com>,
+ Babu Moger <babu.moger@amd.com>, Tony W Wang-oc <TonyWWang-oc@zhaoxin.com>,
+ Damien Le Moal <dlemoal@kernel.org>, Niklas Cassel <cassel@kernel.org>,
+ Dave Airlie <airlied@redhat.com>, Helge Deller <deller@gmx.de>,
+ linux-geode@lists.infradead.org, Olivia Mackall <olivia@selenic.com>,
+ Herbert Xu <herbert@gondor.apana.org.au>, Linus Walleij <linusw@kernel.org>,
+ Bartosz Golaszewski <brgl@kernel.org>,
+ Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ "K. Y. Srinivasan" <kys@microsoft.com>,
+ Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
+ Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>,
+ Guenter Roeck <linux@roeck-us.net>, Peter Zijlstra <peterz@infradead.org>,
+ Arnaldo Carvalho de Melo <acme@kernel.org>,
+ Namhyung Kim <namhyung@kernel.org>, Mark Rutland <mark.rutland@arm.com>,
+ Alexander Shishkin <alexander.shishkin@linux.intel.com>,
+ Jiri Olsa <jolsa@kernel.org>, Ian Rogers <irogers@google.com>,
+ Adrian Hunter <adrian.hunter@intel.com>, James Clark
+ <james.clark@linaro.org>, Josh Poimboeuf <jpoimboe@kernel.org>,
+ Pawan Gupta <pawan.kumar.gupta@linux.intel.com>,
+ Vitaly Kuznetsov <vkuznets@redhat.com>, Andy Lutomirski <luto@kernel.org>,
+ Boris Ostrovsky <boris.ostrovsky@oracle.com>, Huang Rui <ray.huang@amd.com>,
+ Mario Limonciello <mario.limonciello@amd.com>,
+ Perry Yuan <perry.yuan@amd.com>, K Prateek Nayak <kprateek.nayak@amd.com>,
+ "srinivas.pandruvada@linux.intel.com" <srinivas.pandruvada@linux.intel.com>,
+ Artem Bityutskiy <artem.bityutskiy@linux.intel.com>,
+ Artem Bityutskiy <dedekind1@gmail.com>,
+ Miquel Raynal <miquel.raynal@bootlin.com>,
+ Richard Weinberger <richard@nod.at>, Vignesh Raghavendra <vigneshr@ti.com>,
+ Ashok Raj <ashok.raj.linux@gmail.com>, Hans de Goede <hansg@kernel.org>,
+ =?UTF-8?Q?Ilpo_J=C3=A4rvinen?= <ilpo.jarvinen@linux.intel.com>,
+ Rajneesh Bhardwaj <irenic.rajneesh@gmail.com>,
+ David E Box <david.e.box@intel.com>, xen-devel@lists.xenproject.org
+Message-ID: <c1608c48-13c2-4290-826b-28b5ca51eaf7@suse.com>
+Subject: Re: [PATCH 00/32] x86/msr: Drop 32-bit MSR interfaces
+References: <20260629060526.3638272-1-jgross@suse.com>
+ <d7c1db52-529a-43cc-ac7d-38b52627e8bc@app.fastmail.com>
+In-Reply-To: <d7c1db52-529a-43cc-ac7d-38b52627e8bc@app.fastmail.com>
 
-This will especially have positive effects for performance when not
-running as a Xen PV guest with paravirtualization enabled, as there
-will be no call overhead for MSR access functions any longer.
+--------------JoYEqla26Z38LihNsoOMoTiX
+Content-Type: multipart/mixed; boundary="------------fBgEihXXOOIkwk7ugHYodmnI"
 
-Signed-off-by: Juergen Gross <jgross@suse.com>
----
-V3:
-- new patch
-V4:
-- fix build error with clang (kernel test robot)
----
- arch/x86/include/asm/paravirt-msr.h   | 136 ++++++++++++++++++++------
- arch/x86/include/asm/paravirt_types.h |   1 +
- 2 files changed, 109 insertions(+), 28 deletions(-)
+--------------fBgEihXXOOIkwk7ugHYodmnI
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: base64
 
-diff --git a/arch/x86/include/asm/paravirt-msr.h b/arch/x86/include/asm/paravirt-msr.h
-index 4b71a1cd780c..ba3ee64446db 100644
---- a/arch/x86/include/asm/paravirt-msr.h
-+++ b/arch/x86/include/asm/paravirt-msr.h
-@@ -27,67 +27,147 @@ extern struct pv_msr_ops pv_ops_msr;
- #define PV_CALLEE_SAVE_REGS_MSR_THUNK(func)		\
- 	__PV_CALLEE_SAVE_REGS_THUNK(func, ".text", MSR)
- 
-+#define ASM_CLRERR	"xor %[err],%[err]\n"
-+
-+#define PV_RDMSR_VAR(__msr, __val, __type, __func, __err)		\
-+	asm volatile(							\
-+		"1:\n"							\
-+		ALTERNATIVE_2(PARAVIRT_CALL,				\
-+			RDMSR_AND_SAVE_RESULT ASM_CLRERR, X86_FEATURE_ALWAYS, \
-+			ALT_CALL_INSTR, ALT_XEN_CALL)			\
-+		"2:\n"							\
-+		_ASM_EXTABLE_TYPE_REG(1b, 2b, __type, %[err])		\
-+		: [err] "=d" (__err), [val] "=a" (__val),		\
-+		  ASM_CALL_CONSTRAINT					\
-+		: paravirt_ptr(pv_ops_msr, __func), "c" (__msr)		\
-+		: "cc")
-+
-+#define PV_RDMSR_CONST(__msr, __val, __type, __func, __err)		\
-+	asm volatile(							\
-+		"1:\n"							\
-+		ALTERNATIVE_3(PARAVIRT_CALL,				\
-+			RDMSR_AND_SAVE_RESULT ASM_CLRERR, X86_FEATURE_ALWAYS, \
-+			ASM_RDMSR_IMM ASM_CLRERR, X86_FEATURE_MSR_IMM,	\
-+			ALT_CALL_INSTR, ALT_XEN_CALL)			\
-+		"2:\n"							\
-+		_ASM_EXTABLE_TYPE_REG(1b, 2b, __type, %[err])		\
-+		: [err] "=d" (__err), [val] "=a" (__val),		\
-+		  ASM_CALL_CONSTRAINT					\
-+		: paravirt_ptr(pv_ops_msr, __func),			\
-+		  "c" (__msr), [msr] "i" (__msr)			\
-+		: "cc")
-+
-+#define PV_WRMSR(__msr, __val, __type, __func, __err)			\
-+({									\
-+	unsigned long rdx = rdx;					\
-+	asm volatile(							\
-+		"1:\n"							\
-+		ALTERNATIVE_2(PARAVIRT_CALL,				\
-+			"wrmsr;" ASM_CLRERR, X86_FEATURE_ALWAYS,	\
-+			ALT_CALL_INSTR, ALT_XEN_CALL)			\
-+		"2:\n"							\
-+		_ASM_EXTABLE_TYPE_REG(1b, 2b, __type, %[err])		\
-+		: [err] "=a" (__err), "=d" (rdx), ASM_CALL_CONSTRAINT	\
-+		: paravirt_ptr(pv_ops_msr, __func),			\
-+		  "0" (__val), "1" ((__val) >> 32), "c" (__msr)		\
-+		: "memory", "cc");					\
-+})
-+
-+#define PV_WRMSRNS_VAR(__msr, __val, __type, __func, __err)		\
-+({									\
-+	unsigned long rdx = rdx;					\
-+	asm volatile(							\
-+		"1:\n"							\
-+		ALTERNATIVE_3(PARAVIRT_CALL,				\
-+			"wrmsr;" ASM_CLRERR, X86_FEATURE_ALWAYS,	\
-+			ASM_WRMSRNS ASM_CLRERR, X86_FEATURE_WRMSRNS,	\
-+			ALT_CALL_INSTR, ALT_XEN_CALL)			\
-+		"2:\n"							\
-+		_ASM_EXTABLE_TYPE_REG(1b, 2b, __type, %[err])		\
-+		: [err] "=a" (__err), "=d" (rdx), ASM_CALL_CONSTRAINT	\
-+		: paravirt_ptr(pv_ops_msr, __func),			\
-+		  "0" (__val), "1" ((__val) >> 32), "c" (__msr)		\
-+		: "memory", "cc");					\
-+})
-+
-+#define PV_WRMSRNS_CONST(__msr, __val, __type, __func, __err)		\
-+({									\
-+	unsigned long rdx = rdx;					\
-+	asm volatile(							\
-+		"1:\n"							\
-+		ALTERNATIVE_4(PARAVIRT_CALL,				\
-+			"wrmsr;" ASM_CLRERR, X86_FEATURE_ALWAYS,	\
-+			ASM_WRMSRNS ASM_CLRERR, X86_FEATURE_WRMSRNS,	\
-+			ASM_WRMSRNS_IMM ASM_CLRERR, X86_FEATURE_MSR_IMM,\
-+			ALT_CALL_INSTR, ALT_XEN_CALL)			\
-+		"2:\n"							\
-+		_ASM_EXTABLE_TYPE_REG(1b, 2b, __type, %[err])		\
-+		: [err] "=a" (__err), "=d" (rdx), ASM_CALL_CONSTRAINT	\
-+		: paravirt_ptr(pv_ops_msr, __func),			\
-+		  [val] "0" (__val), "1" ((__val) >> 32),		\
-+		  "c" (__msr), [msr] "i" (__msr)			\
-+		: "memory", "cc");					\
-+})
-+
- static __always_inline u64 read_msr(u32 msr)
- {
- 	u64 val;
-+	u64 err;
- 
--	asm volatile(PARAVIRT_CALL
--		     : "=a" (val), ASM_CALL_CONSTRAINT
--		     : paravirt_ptr(pv_ops_msr, read_msr), "c" (msr)
--		     : "rdx");
-+	if (__builtin_constant_p(msr))
-+		PV_RDMSR_CONST(msr, val, EX_TYPE_RDMSR, read_msr, err);
-+	else
-+		PV_RDMSR_VAR(msr, val, EX_TYPE_RDMSR, read_msr, err);
- 
- 	return val;
- }
- 
- static __always_inline void write_msr(u32 msr, u64 val)
- {
--	asm volatile(PARAVIRT_CALL
--		     : ASM_CALL_CONSTRAINT
--		     : paravirt_ptr(pv_ops_msr, write_msr), "c" (msr), "a" (val)
--		     : "memory", "rdx");
-+	u64 err;
-+
-+	PV_WRMSR(msr, val, EX_TYPE_WRMSR, write_msr, err);
- }
- 
- static __always_inline void write_msrns(u32 msr, u64 val)
- {
--	asm volatile(PARAVIRT_CALL
--		     : ASM_CALL_CONSTRAINT
--		     : paravirt_ptr(pv_ops_msr, write_msr), "c" (msr), "a" (val)
--		     : "memory", "rdx");
-+	u64 err;
-+
-+	if (__builtin_constant_p(msr))
-+		PV_WRMSRNS_CONST(msr, val, EX_TYPE_WRMSR, write_msr, err);
-+	else
-+		PV_WRMSRNS_VAR(msr, val, EX_TYPE_WRMSR, write_msr, err);
- }
- 
- static __always_inline int read_msr_safe(u32 msr, u64 *val)
- {
--	int err;
-+	u64 err;
- 
--	asm volatile(PARAVIRT_CALL
--		     : [err] "=d" (err), "=a" (*val), ASM_CALL_CONSTRAINT
--		     : paravirt_ptr(pv_ops_msr, read_msr_safe), "c" (msr));
-+	if (__builtin_constant_p(msr))
-+		PV_RDMSR_CONST(msr, *val, EX_TYPE_RDMSR_SAFE, read_msr_safe, err);
-+	else
-+		PV_RDMSR_VAR(msr, *val, EX_TYPE_RDMSR_SAFE, read_msr_safe, err);
- 
- 	return err ? -EIO : 0;
- }
- 
- static __always_inline int write_msr_safe(u32 msr, u64 val)
- {
--	int err;
-+	u64 err;
- 
--	asm volatile(PARAVIRT_CALL
--		     : [err] "=a" (err), ASM_CALL_CONSTRAINT
--		     : paravirt_ptr(pv_ops_msr, write_msr_safe),
--			"c" (msr), "a" (val)
--		     : "memory", "rdx");
-+	PV_WRMSR(msr, val, EX_TYPE_WRMSR_SAFE, write_msr_safe, err);
- 
- 	return err ? -EIO : 0;
- }
- 
- static __always_inline int write_msrns_safe(u32 msr, u64 val)
- {
--	int err;
-+	u64 err;
- 
--	asm volatile(PARAVIRT_CALL
--		     : [err] "=a" (err), ASM_CALL_CONSTRAINT
--		     : paravirt_ptr(pv_ops_msr, write_msr_safe),
--			"c" (msr), "a" (val)
--		     : "memory", "rdx");
-+	if (__builtin_constant_p(msr))
-+		PV_WRMSRNS_CONST(msr, val, EX_TYPE_WRMSR_SAFE, write_msr_safe, err);
-+	else
-+		PV_WRMSRNS_VAR(msr, val, EX_TYPE_WRMSR_SAFE, write_msr_safe, err);
- 
- 	return err ? -EIO : 0;
- }
-diff --git a/arch/x86/include/asm/paravirt_types.h b/arch/x86/include/asm/paravirt_types.h
-index 740ea819bbab..54f7c3d8fadf 100644
---- a/arch/x86/include/asm/paravirt_types.h
-+++ b/arch/x86/include/asm/paravirt_types.h
-@@ -442,6 +442,7 @@ extern struct paravirt_patch_template pv_ops;
- #endif	/* __ASSEMBLER__ */
- 
- #define ALT_NOT_XEN	ALT_NOT(X86_FEATURE_XENPV)
-+#define ALT_XEN_CALL	ALT_DIRECT_CALL(X86_FEATURE_XENPV)
- 
- #ifdef CONFIG_X86_32
- /* save and restore all caller-save registers, except return value */
--- 
-2.54.0
+T24gMjkuMDYuMjYgMDg6NTIsIEFybmQgQmVyZ21hbm4gd3JvdGU6DQo+IE9uIE1vbiwgSnVu
+IDI5LCAyMDI2LCBhdCAwODowNCwgSnVlcmdlbiBHcm9zcyB3cm90ZToNCj4+IEZvciBhY2Nl
+c3NpbmcgdGhlIE1TUiByZWdpc3RlcnMgb24gdGhlIGxvY2FsIENQVSwgdGhlcmUgYXJlIDIg
+dHlwZXMgb2YNCj4+IGludGVyZmFjZXM6IHRoZSAibW9kZXJuIiA2NC1iaXQgb25lcyAocmRt
+c3JxKCkgZXRjLikgYW5kIHRoZSAzMi1iaXQNCj4+IG9uZXMgKHJkbXNyKCkgZXRjLikgd2hp
+Y2ggYXJlIHVzaW5nIHRoZSB1cHBlciBhbmQgbG93ZXIgMzItYml0IGhhbHZlcw0KPj4gb2Yg
+dGhlIDY0LWJpdCB3aWRlIE1TUiByZWdpc3RlciB2YWx1ZXMuDQo+Pg0KPj4gVGhlIDMyLWJp
+dCBpbnRlcmZhY2VzIGFyZSBub3Qgb3B0aW1hbCBmb3IgMyByZWFzb25zOg0KPj4NCj4+IC0g
+VGhleSBhcmUgYmFzZWQgb24gcHJpbWl0aXZlcyB1c2luZyA2NC1iaXQgc2l6ZWQgdmFsdWVz
+IGFueXdheS4NCj4+DQo+PiAtIE1vZGVybiB4ODYgQ1BVcyBoYXZlIGFkZGVkIHN1cHBvcnQg
+Zm9yIE1TUiBhY2Nlc3MgaW5zdHJ1Y3Rpb25zIHVzaW5nDQo+PiAgICBhbiBpbW1lZGlhdGUg
+dmFsdWUgaW5zdGVhZCBvZiBhIHJlZ2lzdGVyIGZvciBhZGRyZXNzaW5nIHRoZSBNU1IsDQo+
+PiAgICB3aGlsZSB0aGUgdmFsdWUgaXMgaW4gYSA2NC1iaXQgcmVnaXN0ZXIuDQo+Pg0KPj4g
+LSByZG1zcigpIGlzIGEgbWFjcm8gc3RvcmluZyB0aGUgdXBwZXIgYW5kIGxvd2VyIDMyLWJp
+dCBoYWx2ZXMgaW4NCj4+ICAgIHZhcmlhYmxlcyBzcGVjaWZpZWQgYXMgbWFjcm8gcGFyYW1l
+dGVycy4gVGhpcyBpcyBvYnNjdXJpbmcgdmFyaWFibGUNCj4+ICAgIGFzc2lnbm1lbnQgdGhy
+b3VnaCBhIG1hY3JvLiBBZGRpdGlvbmFsbHkgcmRtc3JxKCkgaXMgbWltaWNraW5nIHRoaXMN
+Cj4+ICAgIHBhdHRlcm4gYnkgYmVpbmcgYSBtYWNybywgdG9vLCB3aXRoIHRoZSB0YXJnZXQg
+dmFyaWFibGUgc3BlY2lmaWVkIGFzDQo+PiAgICBhIHBhcmFtZXRlciBhcyB3ZWxsLg0KPj4N
+Cj4+IEZvciB0aG9zZSByZWFzb25zIGRyb3AgdGhlIDMyLWJpdCBpbnRlcmZhY2VzIGZvciBh
+Y2Nlc3NpbmcgdGhlIHg4NiBNU1INCj4+IHJlZ2lzdGVycyBjb21wbGV0ZWx5IGFuZCBvbmx5
+IHVzZSB0aGUgNjQtYml0IHZhcmlhbnRzLg0KPiANCj4gSGkgSsO8cmdlbiwNCj4gDQo+IEkg
+YXNzdW1lIHRoaXMgaXMgZmluZSwgYnV0IHNpbmNlIHlvdSBkb24ndCBtZW50aW9uIGl0IGV4
+cGxpY2l0bHkgaGVyZSwNCj4gcGxlYXNlIGNsYXJpZnkgd2hhdCB0aGlzIG1lYW5zIGZvciAz
+Mi1iaXQgQ1BVcyB3aXRob3V0IHRoZSByZG1zcnENCj4gaW5zdHJ1Y3Rpb24uIFRob3NlIHdp
+bGwgY29udGludWUgdXNpbmcgdGhlIHNhbWUgaW5zdHJ1Y3Rpb25zIGFzIGJlZm9yZQ0KPiBh
+bmQganVzdCBjaGFuZ2UgdGhlIGNhbGxpbmcgY29udmVudGlvbnMsIHJpZ2h0Pw0KDQpZZXMu
+IEkgdGhvdWdodCB0aGlzIHdvdWxkIGJlIGNsZWFyIGZyb20gdGhlIGZvbGxvd2luZzoNCg0K
+ICAgLSBUaGV5IGFyZSBiYXNlZCBvbiBwcmltaXRpdmVzIHVzaW5nIDY0LWJpdCBzaXplZCB2
+YWx1ZXMgYW55d2F5Lg0KDQo+IA0KPj4gTm90ZSB0aGF0IG1vc3QgcGF0Y2hlcyBvZiB0aGlz
+IHNlcmllcyBhcmUgaW5kZXBlbmRlbnQgZnJvbSBlYWNoIG90aGVyLg0KPj4gT25seSB0aGUg
+cGF0Y2hlcyByZW1vdmluZyBhIHNwZWNpZmljIGludGVyZmFjZSAocGF0Y2hlcyA3LCAxNSwg
+MjYgYW5kDQo+PiAzMCkgYW5kIHRoZSBsYXN0IHR3byBwYXRjaGVzIG9mIHRoZSBzZXJpZXMg
+ZGVwZW5kIG9uIGFsbCBwcmV2aW91cw0KPj4gcGF0Y2hlcy4NCj4gDQo+IEl0IGxvb2tzIGxp
+a2UgeW91IGFyZSB0b3VjaGluZyBtb3N0IGZpbGVzIHR3aWNlIG9yIG1vcmUgaGVyZSwgdG8N
+Cj4gZmlyc3QgY29udmVydCBmcm9tIHJkbXNyIHRvIHJkbXNycSBhbmQgdGhlbiB0byBjaGFu
+Z2UgdGhlDQo+IHR3by1hcmd1bWVudCByZG1zcnEoKSBtYWNybyB0byBhIHNpbmdsZS1hcmd1
+bWVudCBpbmxpbmUuIElmIHlvdQ0KPiBpbnRyb2R1Y2UgdGhlIGlubGluZSB2ZXJzaW9uIG9m
+IHJkbXNycSgpIGZpcnN0LCB5b3Ugc2hvdWxkIGJlDQo+IGFibGUgdG8gc2tpcCB0aGUgc2Vj
+b25kIHN0ZXAgKHBhdGNoIDMxKSBhcyB0aGV5IGNvdWxkIGJlIGFibGUNCj4gdG8gY29leGlz
+dC4NCg0KSSd2ZSBkaXNjdXNzZWQgaG93IHRvIHN0cnVjdHVyZSB0aGUgc2VyaWVzIHdpdGgg
+SW5nbyBNb2xuYXIgYmVmb3JlIFsxXS4gVGhlDQpjdXJyZW50IGFwcHJvYWNoIHdhcyBoaXMg
+cHJlZmVyZW5jZS4NCg0KDQpKdWVyZ2VuDQoNClsxXTogaHR0cHM6Ly9sb3JlLmtlcm5lbC5v
+cmcvbGttbC9mOGQwMmM3OC00NjgxLTQwNDMtYTVmYS05MjFmYTc5MGIxYjRAc3VzZS5jb20v
+DQo=
+--------------fBgEihXXOOIkwk7ugHYodmnI
+Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
+Content-Description: OpenPGP public key
+Content-Transfer-Encoding: quoted-printable
 
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+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
+kt+z4drzFUyEjLM1vVvIMjkUoJs=3D
+=3DeeAB
+-----END PGP PUBLIC KEY BLOCK-----
+
+--------------fBgEihXXOOIkwk7ugHYodmnI--
+
+--------------JoYEqla26Z38LihNsoOMoTiX--
+
+--------------o4KOfe8V3soJd2q9AonYj03N
+Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmpCGE4FAwAAAAAACgkQsN6d1ii/Ey/w
+Ngf/UvpAlY37jaRXT4Gj/Y5F0ZXdp1ZD2E1apa1aY7dceskTJxh6t6dc4UlMxlSkdQuy7J8+SnQA
+z6DChoOnF2eFbku2qFsuycbu8XWJ4j9zWGuHe0BcSjvbbSwGDjD+ZXZ2TBjC8YLlRmxihOW7ZQeF
+Lmh1U4jclRtlqR9YSq6BTOkev78sF7Hfpuye36htzf2g0AIsLgY5RceceASRLnfUptj5FOodVIp1
+APSbWUMLrRockjd/KqHA4pbUfR7nhmIv7YKmA5HBiibHb1sYvm1qU1Z1ANroFmvCS88IpklxQYcT
+S6h8+CM6IjjDB+a9m/DLfALjGqC4pRDPSQiZTXhG+w==
+=s0zj
+-----END PGP SIGNATURE-----
+
+--------------o4KOfe8V3soJd2q9AonYj03N--
