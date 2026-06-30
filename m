@@ -1,250 +1,250 @@
-Received: from mail-oi1-f179.google.com (mail-oi1-f179.google.com [209.85.167.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9DB63EE1F2
-	for <virtualization@lists.linux.dev>; Tue, 30 Jun 2026 09:47:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.179
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782812844; cv=pass; b=SZfQLWzR7DDqbxEXYu8K0ijqCs3Q1x8P8j1hdckbSuUGZGGIE1E3h9wkyDpg+YOc1kLeSTfI5L91Vmq209GJo9d7FjebC0aNyUpTIkN07j5NiCowfiv2If7uGGpBxSssX7YTfVZF1WlXIdodbyXJrDdFUhs/ZxJUElJ/8ySGh60=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782812844; c=relaxed/simple;
-	bh=mbKVpQPDeDDFht6FcdGf+b590T3tEEZuvC93vpYd4Sc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=K4HmqVXxo99tXGcRL2iX+RENtDK1hIEhrl+D/CkUYksr/DZKcpumfo5OfkwzfH8NoaSl1mI2/oJ5IxklJftlUMdUmJywpLFvusNQ7vxMN15BN1T/J+vGRVHIXI8Sc/X3z2MJvByMl97Fr9ZWNjbXvY1N6y8EZDXpf2VGpoZD8vE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WQb6c7eV; arc=pass smtp.client-ip=209.85.167.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 07452282F3A
+	for <virtualization@lists.linux.dev>; Tue, 30 Jun 2026 09:53:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782813194; cv=none; b=QKBEhLLzUMBjIV7T84gt317h8zpEqUmrLART/Nezph+m2+M7KPwj6EFkXw9/5/N3myI8YStWloHRxRcnWLlcSO1OWDVeKrTvrX4lLCdhksQHzRp8MzegGUVNXsmYwdtUmWFXVgvAvaPPRu25vR9Y8YTqexOqDnnsGwYAtT9GFf8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782813194; c=relaxed/simple;
+	bh=NbDEHp0gquR5Nq2A/cm+7E2L5SZ1Jhgmv94kZhkUywY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=DkvklrK4z6OR1CfuMJxMQwdORDEPjHHxfDRb191YIz7iyqyS3bZ3Vi4IJqklfcNrOdc1CtNdjL1roD3i4IUPuwMfOvh404g6GyM9MagrP0l0wFDmo/u3ITk9OHQejUMIoAPzgUth9T0+LOiiQ1slVRmjTQ5cI/FUMGUF3zqNZOs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=C5umb2BG; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WQb6c7eV"
-Received: by mail-oi1-f179.google.com with SMTP id 5614622812f47-4877a7b451dso2799083b6e.0
-        for <virtualization@lists.linux.dev>; Tue, 30 Jun 2026 02:47:22 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1782812842; cv=none;
-        d=google.com; s=arc-20260327;
-        b=rJUFTZd2DZE9rAYGOq+tfi4/x8zPmV9W9hpW6NlEn4XMTPvI4SYx9k9hGfjP4PgBbH
-         SK/6dPDBSfDC7FMf63Mbfa6elhhiTut7Xj6Kdt4XIbGmF2SSFzYNKJZMPg7TByGk3CXR
-         TH7IsMfu8biYkzqInxcrF/9TR8iNwkuPu7hE811ZSid9dbsfqkR261XWdPDA6VssDFFR
-         Q31L4AcxNz5wpUTmUPKURqOu4gyrrbssKRHMsf9Bf7mL786bjnhZ+ZzJa2PRgwVGyYMw
-         y9DhCzj9Oc0dYOMJnhP1sBJl08wOZkbciFBRbr+P+Prj/+rwzfmiCf41mN25q9JRO/RZ
-         EMZg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=KBIcT5HxVe2+MOLGkActp5e844bC5vrv0teTaWEFK6Y=;
-        fh=8lKpY3QUb0SK+8CIs3STibeM41nmNCrhHCZmvnG9Pwc=;
-        b=n9Ub7wc+O9F45VLDuRfbMzwTG9ElpusxUFbtbkvKSHU+ymnp+OOw55khtt5970jIms
-         irlvc4HNuXDcJViYAQwu5Aj3O+iI11U54wDT3IAZrxoswqlP9rGlV0BURyOr8wCoLLMu
-         0eTe31A08H48rGWQbY0GYk9oHepIciqHf4g44r55vjYWxg2GxCzQx240VrwbjWDtnIjI
-         ZgUB4HRUShxZ6ZjVeqOU/secYEiJfyTTrRvBhX9SeNQ987Hw7avISp9gtgwElehaZdni
-         /VhMIQwVOrGLw3XDBTaQtwBJCK5qEbB44Mlm8vINF/Jn2LyvPSwYNfEKXkUJgFkjYSk4
-         udgA==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782812842; x=1783417642; darn=lists.linux.dev;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:from:to:cc:subject:date:message-id:reply-to;
-        bh=KBIcT5HxVe2+MOLGkActp5e844bC5vrv0teTaWEFK6Y=;
-        b=WQb6c7eVveYFiksY/oLSjxVE7rjXHRO2L65gZzalczXNT/7YSHB2+kbu1E2hnorBTk
-         ZV1SXM0Gl2PMu1jtZQJqhTNkmbSD+A1QVlLCGg30ITVNZWlbU+So9RIXiVVMbWjIyrI8
-         jYq10KJLXTM8jYcS/B8i0U7Bsjgmp4f2Jc36+lQATDlQ8RVRzmYLPhocva+KFmdEVi+G
-         XuseRD4CDcCglhW2Im3rVNKHXPFxad+rXMhSQSV3ntIOPoK+zmukudyG/6kkrs7DZ2vw
-         7xqnJ7e9618staRZp3hTWadvWvJfkI1IiwRueN4bRXnoYsW4e84AAkpg2MUo7MKL0iqQ
-         Mleg==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="C5umb2BG"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1782813192;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=4wTpFP+uURpV7Es5gbDN0xr6tXZLlBB9VR1MULvKZf4=;
+	b=C5umb2BGPMCRvH/AL2ijiS3Iy2RTgFJyXyE2AQmrw4nv273PJAV/8bLBAf21d5oeMWTcc7
+	Y7NXcaq9vtEjPi7NU+Y2CI1HOFaY9COuAwFATAjL0AWE2NdOBl3Rcbb9wsOrvrgX2NmEmz
+	6dMeiw8oDooP6bpOg74y/vcMmkZUeRg=
+Received: from mail-wr1-f69.google.com (mail-wr1-f69.google.com
+ [209.85.221.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-561-NSRaXPS2NPSDx5EmckHS1A-1; Tue, 30 Jun 2026 05:53:09 -0400
+X-MC-Unique: NSRaXPS2NPSDx5EmckHS1A-1
+X-Mimecast-MFC-AGG-ID: NSRaXPS2NPSDx5EmckHS1A_1782813188
+Received: by mail-wr1-f69.google.com with SMTP id ffacd0b85a97d-47162f83c75so281084f8f.1
+        for <virtualization@lists.linux.dev>; Tue, 30 Jun 2026 02:53:09 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782812842; x=1783417642;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=KBIcT5HxVe2+MOLGkActp5e844bC5vrv0teTaWEFK6Y=;
-        b=LTjiEibunPRUUYGKyNZDvTroPoILC7TP2CXexO4rIuZP5lyCzEU45lGRvO7m8Ll33/
-         2Y7EFUxifESWhs5hj55prbs53vybYCbl9GuLBO3j8tVJKqN1VW+h38Pw9bCi40QoQWNx
-         ghK39q5S6/YkJe1qw8XlfdoxOV5rehXGCbYIkE0UUzTfSSaMjMDXu6Vfdt+7BPKNyWNA
-         bTzosy2dp6LoDciYAdmn0Ku/f36IC/QiGIFKjFJVHFvCCp+PlW8Y3yvuCk3Pl+mpZr9H
-         fz3J2GTn27UA0FOpEWPBCZ5MBRw0EsUlEaxzVc3AQ8Dl50ESzOIyCnEQCeQ+x25xqZML
-         h+bQ==
-X-Forwarded-Encrypted: i=1; AFNElJ+3QXRu3CQIV1tCxp3yX1muJlKUA++olTRR8YG4dMWRIO+1idwxQgwmAW3R0WiSKc7JUc++kOCzwpVfv4bllg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwNHJ2WyL2ApuknjaPoW3AcPjkNOpa56XyazKdTfXghJ+CNud+g
-	uFSj9bc0MadScMPPO3VUSkKeXZkq8CnLNt8f5K6/W/Wh0NKaQbTBExAtwKsKcZ8FWK7bHPdy+kG
-	QFEgDKiBXFQZEBIlHUca7C3QLeiuWneM=
-X-Gm-Gg: AfdE7ckZRnsfeEBBJTfWDuTuQu9nYqF+UlTtbuSJ9zX5jPgoCa3a0xSLef7Ik6CoGXU
-	M4f6k3qxOXvbWwwkepF53kJzK7gkrhy7oYIacXuIGo9uJA5/7Z1t3UJwhZ7scRM/mpYkZqz+iYJ
-	MxpR2bVFVA5lbG3naP6hTS4JtWhN1O3mpsr37ibJsx6ms89CnqXJRVP5kMves7GrWuI9FjvS793
-	e9bAxn6bge5ob8HI8w/wjsdCkkHyzFCpP14BS8bLPSqVzsCuzdiBpDRnxSlMOll61f43x/Olzs=
-X-Received: by 2002:a05:6808:e86:b0:491:177:c22d with SMTP id
- 5614622812f47-495eb113c92mr2503729b6e.36.1782812841661; Tue, 30 Jun 2026
- 02:47:21 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1782813188; x=1783417988;
+        h=content-transfer-encoding:in-reply-to:content-language:from
+         :references:cc:to:subject:user-agent:mime-version:date:message-id
+         :x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=4wTpFP+uURpV7Es5gbDN0xr6tXZLlBB9VR1MULvKZf4=;
+        b=A8EuDz+f5kQcJnSbuLW5nT0ZtqnIkMQBji2q3u9b0wpvtChMDKhzIDYKDHeFveNnJY
+         1BFeYx28vF5df2PV4XDA52rXhf9EchYrrtjirY+RwKvvIed7m0gJm4T9ZLcWFf+cHl71
+         Xb9Vuds0co9cONzQPCA2Rvg5UTUHz/dsYIegk2PjR4Rd6aSuajeuV9Xuy8IG+JL49VDn
+         hyILbhVdMEfjuF2Zsme+atqmSKl/BbNA6mHMeuq/UhrKMjpVVnyqvV46//wPbNbj9udv
+         iyD/7eefKlYhgFjLyoHw28YdLAYqCEQM2IDPITQN6+I5D3VZKC8p7u+qf99diE6vjPfm
+         nIDA==
+X-Forwarded-Encrypted: i=1; AHgh+Rr06TnabT0gGPeNkuDSmeKtTQVpoz3mYgRSEenkS2b3a4tPa73V90/jZirXR9NDEiyzsiYBNX+PcMEBovCx8Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyqMjJF0vn+YXtVnjIUIUWb5QNDeETTqq8pKGM6FJO3mZBsQqN2
+	zymNL4QgfBvyPua6UpvYWztupmOxkNSuSV0S0jsL1/85M2YD5ExAUt9Z5Y0E7zDxfqhBr4/h/XU
+	hlnKMpu5AankDRSBW7G9Rnt/axSxfDgA+7egbDpJWW4l+4mkVJD++4wJFh5l8hLvOfpid
+X-Gm-Gg: AfdE7cmlXfxUPM3lRZnvh1Nvi1gUK+/DmiqPMOOrbfmDzQ9OOD1O8IvioW7Lkx9fTX4
+	ilch8CpcqwA4TVgNcfJcpFd0EMSVxTI+w959Jdr5Kg+pFfBUiSt1a5/q8LQb65cvKowokDETDXK
+	tQtyhj2t/6OqwYLbO+IuVdGb6f5ZSWUfV2hytNwkd7MI5e8O1EwRnd/e158dJ4xp/Pe5Asu6WIJ
+	CQh2+8BMGXk6UMbkqWH75m/rlfpW0Uz11kfVQNHUec9DmH0olZ+fdyzULfe96U1c227FNMGR7ub
+	dr9taDHAEkp0LOhdg5Wxdar51G8HrGgpwoOk78nW1rpaHmxL0m0IKIBIPZV28sjWKdEvwcYrya9
+	3hONvxJI7twPlsW4+NoSFIiyWYGI82F8YYiVWUAV74Utq2gEWADXBvkw0AeuTJlcuATRejgMGDv
+	VDDe67ZfRd+Q==
+X-Received: by 2002:a05:6000:1847:b0:45d:4c30:81a6 with SMTP id ffacd0b85a97d-475f4fb5d50mr1344045f8f.5.1782813188226;
+        Tue, 30 Jun 2026 02:53:08 -0700 (PDT)
+X-Received: by 2002:a05:6000:1847:b0:45d:4c30:81a6 with SMTP id ffacd0b85a97d-475f4fb5d50mr1344016f8f.5.1782813187784;
+        Tue, 30 Jun 2026 02:53:07 -0700 (PDT)
+Received: from ?IPV6:2a0d:3344:5521:6b10:2eb7:f61a:75:4534? ([2a0d:3344:5521:6b10:2eb7:f61a:75:4534])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-4756636cf65sm6669391f8f.21.2026.06.30.02.53.05
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Tue, 30 Jun 2026 02:53:05 -0700 (PDT)
+Message-ID: <6a6be4b0-e02d-46ca-b8bf-c27bd681d253@redhat.com>
+Date: Tue, 30 Jun 2026 11:53:04 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260630092338.2094628-1-me@linux.beauty>
-In-Reply-To: <20260630092338.2094628-1-me@linux.beauty>
-From: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
-Date: Tue, 30 Jun 2026 11:47:09 +0200
-X-Gm-Features: AVVi8CcDtRS43Sq7ele27Lz7sTO6pgEllQzoWJX7MfY6faDfvLddPHeZ0ZfhVIY
-Message-ID: <CAM9Jb+gvNYvnqE65WWpXig-VE53KnMZpLf1CF6vxk51cBySKgA@mail.gmail.com>
-Subject: Re: [PATCH v7 00/12] nvdimm: virtio_pmem: fix flush/request failure paths
-To: Li Chen <me@linux.beauty>
-Cc: Vishal Verma <vishal.l.verma@intel.com>, Dave Jiang <dave.jiang@intel.com>, 
-	Alison Schofield <alison.schofield@intel.com>, virtualization@lists.linux.dev, 
-	nvdimm@lists.linux.dev, linux-kernel@vger.kernel.org, 
-	"Michael S . Tsirkin" <mst@redhat.com>, Dan Williams <djbw@kernel.org>
-Content-Type: text/plain; charset="UTF-8"
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net 1/2] vsock/virtio: collapse receive queue under memory
+ pressure
+To: Stefano Garzarella <sgarzare@redhat.com>, netdev@vger.kernel.org
+Cc: Jason Wang <jasowang@redhat.com>, Jakub Kicinski <kuba@kernel.org>,
+ "Michael S. Tsirkin" <mst@redhat.com>, kvm@vger.kernel.org,
+ virtualization@lists.linux.dev, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Eric Dumazet <edumazet@google.com>, Simon Horman <horms@kernel.org>,
+ linux-kernel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
+ "David S. Miller" <davem@davemloft.net>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, stable@vger.kernel.org,
+ Brien Oberstein <brienpub@gmail.com>
+References: <20260626134823.206676-1-sgarzare@redhat.com>
+ <20260626134823.206676-2-sgarzare@redhat.com>
+From: Paolo Abeni <pabeni@redhat.com>
+In-Reply-To: <20260626134823.206676-2-sgarzare@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: FS7EQMw1UGR7Asw7W8UScicK3gInm-kF_zz5-jY1R9Q_1782813188
+X-Mimecast-Originator: redhat.com
+Content-Language: en-US
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-+CC Dan's correct email address and MST's email.
+On 6/26/26 3:48 PM, Stefano Garzarella wrote:
+> From: Stefano Garzarella <sgarzare@redhat.com>
+> 
+> When many small packets accumulate in the receive queue, the skb overhead
+> can exceed buf_alloc even while the payload is within bounds. This causes
+> virtio_transport_inc_rx_pkt() to reject packets, leading to connection
+> resets during large transfers under backpressure.
+> 
+> The issue was reported by Brien, who has a reproducer, but it is also
+> easily reproducible with iperf-vsock [1] using a small packet size:
+> 
+>   iperf3 --vsock -c $CID -l 129
+> 
+> which fails immediately without this patch but with commit 059b7dbd20a6
+> ("vsock/virtio: fix potential unbounded skb queue").
+> 
+> Inspired by TCP's tcp_collapse() which solves a similar problem, add
+> virtio_transport_collapse_rx_queue() that walks the receive queue and
+> re-copies data into compact linear skbs to reduce the overhead.
+> 
+> The collapse is triggered from virtio_transport_recv_enqueue() when
+> virtio_transport_inc_rx_pkt() fails. A pre-scan counts the eligible bytes
+> to size each allocation precisely, avoiding waste for isolated small
+> packets. Partially consumed skbs are kept as-is to preserve
+> buf_used/fwd_cnt accounting, EOM-marked skbs to maintain SEQPACKET
+> message boundaries, and skbs already larger than the collapse target
+> because they already have a good data-to-overhead ratio.
+> 
+> [1] https://github.com/stefano-garzarella/iperf-vsock
+> 
+> Fixes: 059b7dbd20a6 ("vsock/virtio: fix potential unbounded skb queue")
+> Cc: stable@vger.kernel.org
+> Reported-by: Brien Oberstein <brienpub@gmail.com>
+> Closes: https://lore.kernel.org/netdev/618701dd023e$063de350$12b9a9f0$@gmail.com/
+> Tested-by: Brien Oberstein <brienpub@gmail.com>
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> ---
+>  net/vmw_vsock/virtio_transport_common.c | 148 +++++++++++++++++++++++-
+>  1 file changed, 146 insertions(+), 2 deletions(-)
+> 
+> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+> index 09475007165b..304ea424995d 100644
+> --- a/net/vmw_vsock/virtio_transport_common.c
+> +++ b/net/vmw_vsock/virtio_transport_common.c
+> @@ -420,6 +420,137 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+>  	return ret;
+>  }
+>  
+> +static bool virtio_transport_can_collapse(struct sk_buff *skb,
+> +					  unsigned int size)
 
-> Hi,
->
-> This series started as a virtio-pmem request lifetime and broken virtqueue
-> fix, but the rerolls have picked up several related flush-path fixes found
-> during local testing and review. Since the series is now broader than the
-> original lifetime bug, this cover letter calls out where the patches came
-> from.
->
-> The nvdimm flush helper maps provider flush failures to -EIO. That should
-> remain the default for provider/backend failures because host-side errors are
-> still best reported as generic I/O errors to the guest. However, virtio-pmem
-> may also fail a guest-local flush request allocation with -ENOMEM before any
-> request is submitted to the host. Reporting that resource failure as -EIO
-> makes memory pressure look like media failure.
->
-> The raw failure seen in the local mkfs sanity test was:
->
->   wipefs: /dev/pmem0: cannot flush modified buffers: Input/output error
->   mkfs.ext4: Input/output error while writing out and closing file system
->   nd_region region0: dbg: nvdimm_flush rc=-5
->
-> Patch 1 comes from that local failure, with the error policy narrowed after
-> Pankaj pointed out that host/backend provider errors should not all be exposed
-> directly to the guest. It now preserves only -ENOMEM and keeps other provider
-> flush failures mapped to -EIO.
->
-> Patches 2 and 3 come from review of the pmem flush path. Patch 2 keeps a
-> failed REQ_PREFLUSH from being overwritten after data copy, and patch 3 is the
-> dataless-bio guard added after the Sashiko review. Patch 4 comes from the
-> local child flush bio allocation failure, but v7 reworks the v6 synchronous
-> FUA approach after Pankaj noted that the old child flush bio path completed
-> asynchronously. This version removes the child bio while keeping parent bio
-> completion asynchronous: the provider returns NVDIMM_FLUSH_ASYNC, queues
-> ordered WQ_MEM_RECLAIM work, and completes the parent bio after
-> virtio_pmem_flush() finishes. Patch 5 is the remaining allocation-policy
-> follow-up for the actual virtio-pmem flush request object, not for a child
-> bio.
->
-> Patches 6 and 7 are the older waiter fixes. Patch 6 wakes one -ENOSPC waiter
-> for each reclaimed used buffer, and patch 7 makes the wait flags explicit
-> READ_ONCE()/WRITE_ONCE() accesses. Pankaj asked for those changes to be split
-> across patches, and patch 7 carries his Acked-by.
->
-> Patch 8 is the original KASAN use-after-free fix for the request token
-> lifetime. Patches 9 and 10 are follow-up hardening in the same completion
-> path: order response publication before the submitter reads resp.ret, and keep
-> the DMA_FROM_DEVICE response buffer away from CPU-owned request fields. Patch
-> 11 addresses the broken virtqueue / notify failure path reported by LKP and
-> reproduced locally with fault injection. It also serializes async parent-bio
-> flush work against broken-state publication, so remove/freeze cannot drain the
-> workqueue before a racing FUA bio queues new completion work. Patch 12 handles
-> teardown: it drains requests across freeze/remove and also addresses the
-> Sashiko-reported req_vq-after-free/NULL-deref class by clearing req_vq after
-> del_vqs() and making the drain helper tolerate a NULL queue. It also stops the
-> submit path from checking req_vq after the broken state is visible.
->
-> The original repros were on QEMU x86_64 with a virtio-pmem device exported
-> as /dev/pmem0. For this v7 reroll, the series applies to v7.1-rc7.
->
-> Thanks,
-> Li Chen
->
-> Changelog:
-> v6->v7:
-> - Address Pankaj's feedback on nvdimm_flush() error policy.
-> - Preserve only -ENOMEM from provider flush callbacks and continue to map
->   other provider/backend failures to -EIO.
-> - Address Pankaj's feedback on the FUA flush behavior: replace the v6
->   synchronous FUA path with provider-owned asynchronous parent bio completion.
-> - Add NVDIMM_FLUSH_ASYNC and use ordered WQ_MEM_RECLAIM work to run
->   virtio_pmem_flush() and complete the parent bio after the host flush.
-> - Keep GFP_NOIO for the virtio-pmem request allocation, but no longer describe
->   it as a child bio allocation fix.
-> - Add Pankaj's Acked-by on the READ_ONCE()/WRITE_ONCE() patch.
-> - Serialize async parent-bio flush work against broken-state publication in
->   the broken-virtqueue patch, so remove/freeze cannot drain the workqueue
->   before a racing FUA bio queues new completion work.
-> - Fold the Sashiko-reported req_vq NULL-deref fix into the freeze/remove
->   drain patch.
-> - Update commit messages and this cover letter to describe patch origins.
-> v5->v6:
-> - Address Sashiko review feedback:
->   - Add a data-loop guard for dataless bios in pmem_submit_bio().
->   - Replace the child flush bio allocation with synchronous FUA flushing.
->   - Keep GFP_NOIO only for the virtio-pmem request allocation.
->   - Publish request completion with release/acquire ordering.
->   - Isolate the DMA_FROM_DEVICE response buffer from CPU-owned fields.
->   - Wake the in-flight host-completion waiter when marking the queue broken.
-> - Clear req_vq after del_vqs() and make drain tolerate a NULL queue.
-> v4->v5:
-> - Address review feedback about REQ_PREFLUSH ordering and active virtqueue
->   detach.
-> - Add 2/8 so a failed REQ_PREFLUSH fails the bio before any data copy, and
->   make REQ_PREFLUSH use a synchronous provider flush instead of a deferred
->   child bio.
-> - Rework broken-queue handling so runtime failure marking only stops new
->   submissions and wakes local -ENOSPC waiters; used/unused token draining is
->   done after device reset in remove() and freeze().
-> - Remove the broken-state shortcut from the host-completion wait so the
->   submitter never reads an uninitialized response field.
-> - Keep the raw broken-virtqueue dmesg in 7/8 while updating the teardown
->   rationale.
-> - Renumber the old virtio-pmem fixes after the new pmem PREFLUSH patch.
-> v3->v4:
-> - Rebased the series onto v7.1-rc7 so it applies cleanly to Linux 7.1-rc7.
-> - Update the allocation site in 6/7 from kmalloc(sizeof(*req_data),
->   GFP_KERNEL) to kmalloc_obj(*req_data) to match current nvdimm code.
-> - Add 1/7 to preserve provider flush callback errors in nvdimm_flush().
-> - Include the GFP_NOIO child flush bio allocation fix as 2/7.
-> - Renumber the old request lifetime and broken virtqueue fixes after the two
->   new flush error patches.
-> v2->v3:
-> - Split patch 1 as suggested by Pankaj Gupta: keep the waiter wakeup
->   ordering change in 1/5 and move READ_ONCE()/WRITE_ONCE() updates to
->   2/5 (no functional change intended).
-> - Add log report to commit msg.
-> - Fold the export fix into 4/5 to keep the series bisectable when
->   CONFIG_VIRTIO_PMEM=m.
-> v1->v2:
-> - Add the export patch to fix compile issue.
->
-> Links:
-> v6: https://lore.kernel.org/all/20260621130246.2973254-1-me@linux.beauty/
-> v5: https://lore.kernel.org/all/20260617122442.2118957-1-me@linux.beauty/
-> v4: https://lore.kernel.org/all/20260609120726.1714780-1-me@linux.beauty/
-> v3: https://lore.kernel.org/all/20260226025712.2236279-1-me@linux.beauty/#t
-> v2: https://lore.kernel.org/all/20251225042915.334117-1-me@linux.beauty/
-> v1: https://www.spinics.net/lists/kernel/msg5974818.html
->
-> Li Chen (12):
->   nvdimm: preserve flush callback -ENOMEM
->   nvdimm: pmem: keep PREFLUSH before data writes
->   nvdimm: pmem: guard data loop for dataless bios
->   nvdimm: virtio_pmem: stop allocating child flush bio
->   nvdimm: virtio_pmem: use GFP_NOIO for flush requests
->   nvdimm: virtio_pmem: always wake -ENOSPC waiters
->   nvdimm: virtio_pmem: use READ_ONCE()/WRITE_ONCE() for wait flags
->   nvdimm: virtio_pmem: refcount requests for token lifetime
->   nvdimm: virtio_pmem: publish done with release/acquire
->   nvdimm: virtio_pmem: isolate DMA request buffers
->   nvdimm: virtio_pmem: converge broken virtqueue to -EIO
->   nvdimm: virtio_pmem: drain requests in freeze
->
->  drivers/nvdimm/nd_virtio.c   | 265 +++++++++++++++++++++++++++++------
->  drivers/nvdimm/pmem.c        |  51 ++++---
->  drivers/nvdimm/region_devs.c |   5 +-
->  drivers/nvdimm/virtio_pmem.c |  65 ++++++++-
->  drivers/nvdimm/virtio_pmem.h |  22 ++-
->  include/linux/libnvdimm.h    |   9 ++
->  6 files changed, 343 insertions(+), 74 deletions(-)
->
-> --
-> 2.52.0
+Why passing a `size` argument here? AFAICS the actual argument is always
+a constant and IMHO rightfully so.
+
+> +{
+> +	/* skbs that are partially consumed, mark a SEQPACKET message boundary,
+> +	 * or are already large enough should not be collapsed: they either
+> +	 * need special accounting, carry protocol state, or already have a
+> +	 * good data-to-overhead ratio.
+> +	 */
+> +	if (VIRTIO_VSOCK_SKB_CB(skb)->offset)
+> +		return false;
+> +	if (le32_to_cpu(virtio_vsock_hdr(skb)->flags) & VIRTIO_VSOCK_SEQ_EOM)
+> +		return false;
+> +	if (skb->len >= size)
+> +		return false;
+> +	return true;
+> +}
+> +
+> +/* Iterate through the packets in the queue starting from the current skb to
+> + * count the number of bytes we can collapse.
+> + */
+> +static unsigned int
+> +virtio_transport_collapse_size(struct sk_buff *skb,
+> +			       struct sk_buff_head *queue,
+> +			       unsigned int max_size)
+> +{
+> +	unsigned int target = skb->len - VIRTIO_VSOCK_SKB_CB(skb)->offset;
+> +
+> +	while ((skb = skb_peek_next(skb, queue)) &&
+> +	       virtio_transport_can_collapse(skb, max_size)) {
+> +		unsigned int len = skb->len - VIRTIO_VSOCK_SKB_CB(skb)->offset;
+> +
+> +		if (len > max_size - target)
+> +			return target;
+> +
+> +		target += len;
+> +	}
+> +
+> +	return target;
+> +}
+> +
+> +/* Called under lock_sock when skb overhead exceeds the budget. */
+> +static void virtio_transport_collapse_rx_queue(struct virtio_vsock_sock *vvs)
+> +{
+> +	/* Use the same linear allocation threshold as virtio_vsock_alloc_skb()
+> +	 * to avoid adding pressure on the page allocator.
+> +	 */
+> +	unsigned int collapse_max = SKB_MAX_ORDER(VIRTIO_VSOCK_SKB_HEADROOM,
+> +						  PAGE_ALLOC_COSTLY_ORDER);
+> +	struct sk_buff *skb, *next_skb, *new_skb = NULL;
+> +	struct sk_buff_head new_queue;
+> +
+> +	__skb_queue_head_init(&new_queue);
+> +
+> +	skb_queue_walk_safe(&vvs->rx_queue, skb, next_skb) {
+
+If the queue is relevantly big, walking all of it may take a significant
+amount of time/cache misses and causes traffic burstines. I think you
+could add an additional stop condition, i.e. when the current queue size
+is below a reasonable threshold (allowing the current packet to be
+inserted plus some more slack).
+
+/P
+
+> +		struct virtio_vsock_hdr *hdr = virtio_vsock_hdr(skb);
+> +		u32 src_off = VIRTIO_VSOCK_SKB_CB(skb)->offset;
+> +		u32 src_len = skb->len - src_off;
+> +		bool keep = false;
+> +
+> +		if (!virtio_transport_can_collapse(skb, collapse_max)) {
+
+Minor nit, possibly something alike the following lead to more
+compact/more readable code:
+
+
+		keep = !virtio_transport_can_collapse(skb, collapse_max);
+		if (keep) {
+
+> +			/* Finalize pending collapsed skb to preserve packet
+> +			 * ordering.
+> +			 */
+> +			if (new_skb) {
+> +				__skb_queue_tail(&new_queue, new_skb);
+> +				new_skb = NULL;
+> +			}
+> +			keep = true;
+> +			goto next;
+> +		}
+> +
+> +		/* Finalize if this packet won't fit in the remaining tailroom,
+> +		 * so we can allocate a right-sized new_skb.
+> +		 */
+> +		if (new_skb && src_len > skb_tailroom(new_skb)) {
+> +			__skb_queue_tail(&new_queue, new_skb);
+> +			new_skb = NULL;
+
+Possibly introduce an helper for the above 2 statements?
+
+/P
+
