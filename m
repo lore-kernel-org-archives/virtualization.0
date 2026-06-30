@@ -1,204 +1,211 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from sender4-op-o15.zoho.com (sender4-op-o15.zoho.com [136.143.188.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4B89316192
-	for <virtualization@lists.linux.dev>; Tue, 30 Jun 2026 09:17:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782811024; cv=none; b=pFaxMl5oNTzu7IApoH/swLFRzkTpCbdCv86wevohvfUGA6GzKRpYmddqyk3aNlSQQtL4NBY2gFWKiLa7q/AD0D0Lru6at4kB2u8iA4LJHSE86640ErF6odvCyaXW1fBOtyYPZDjZ01hVNBdNdkfZwrUsgc8AG4EuvVSRYR0QLcI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782811024; c=relaxed/simple;
-	bh=qVZVunnAIEFClL5xxjyBkQV2G0Ey392PyLu0V5W6xQo=;
-	h=From:Date:Subject:MIME-Version:Message-Id:To:Cc:Content-Type; b=qKIAdrFhGj4U14Ft8qk7+pWHQ799TkNnyqfXhfIbgj0tqqlscdCpAcJSQeOUEUs1lDV8H3qOXw7pwaLwdD6Z6F1R0XHfauyVp7BulcPZ9h+nxJ3VHm2vKHb+H8VEcXQwLJXuNkueHCwez5UgaO9YShDaRSIEuxIPh381aEm8ZiY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZdjYdih3; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F199395D8E;
+	Tue, 30 Jun 2026 09:24:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.15
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782811444; cv=pass; b=TTQFVb0O87QYrdnJvgyIgtT6Ot24yGi5dY5oJtUOmngvdr6ibMIwqshoa6qORNhCk3vUmcST903mKk6RdpiQOKdAoPJ1+ZX/6h+hgfvPfzj5asZGwSZ8bhkbYJzr61Vv7pMJxRuDd2seC7eElKVOlSyD0yP8kaOpVOsklWbN030=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782811444; c=relaxed/simple;
+	bh=aCJR3OsyfhjtOZ4S1TnvcYa+RHEuZG/LtBUWcNg1f7U=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Un0WsGm1iLjZdFWD7U8N4XNBbrGy82lLG9nS7IKPio+KMHyL4DB1RL8oiNkmaRSVCtkzjNXPGh/EvVS6xzd8bRhAC8FM4+Q3rWsrZRSWLYGond6WpSX7r5Y0t0QCwe6rGpEQKtgqAjoIDU5TnGKDSF+FhBW+DkS91MhELltg844=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.beauty; spf=pass smtp.mailfrom=linux.beauty; dkim=pass (1024-bit key) header.d=linux.beauty header.i=me@linux.beauty header.b=aH/nw5rt; arc=pass smtp.client-ip=136.143.188.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.beauty
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.beauty
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZdjYdih3"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1782811021;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding;
-	bh=SQjV7ILhB1oO4EWB5BntYJkQ/7T/8cRlQn3mNNHBaBw=;
-	b=ZdjYdih3JLxVd8WWorRre9ENZ4ez2fYMg1nIHD3YKwNs3iPeCLy9q+k/mlX56iafxhuXVE
-	2MZaKnsBu8LfpcagTptHi3rUh681GXIJc1ox9QSGIbM5teaTBD5hIN2nxsBo/UlGgJSzJR
-	R/yLxSLnePV5+kvXMyMZ32UCcHmGzO0=
-Received: from mail-pf1-f200.google.com (mail-pf1-f200.google.com
- [209.85.210.200]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-382-sUnH7FYYPN6QqPtCsc54gw-1; Tue, 30 Jun 2026 05:16:59 -0400
-X-MC-Unique: sUnH7FYYPN6QqPtCsc54gw-1
-X-Mimecast-MFC-AGG-ID: sUnH7FYYPN6QqPtCsc54gw_1782811019
-Received: by mail-pf1-f200.google.com with SMTP id d2e1a72fcca58-84622d6102dso2397530b3a.1
-        for <virtualization@lists.linux.dev>; Tue, 30 Jun 2026 02:16:59 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782811019; x=1783415819;
-        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
-         :date:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=SQjV7ILhB1oO4EWB5BntYJkQ/7T/8cRlQn3mNNHBaBw=;
-        b=GAcHjt+lejEjesj6SrRQXZoA9PUieKGZJ795wXhkE9i93WXGMG36pcCRRJmnX39q2X
-         IqWC2+ZIvXUiDd4YltTbx5W9CDcWSnOeqWqU+JayajTAXp/+ydIGkpjSnz5YHbSsvuqZ
-         qJwn3o3/0IySdGysacIMJSqROEFlELc1gCf4QJ2L2BoyBpJxYiVp3SV8OY8XstFztBsO
-         eTGj4uRkm0Z4TCrNcn0zA/Nnudjp3+TZZBDCgYuTy+2GZ2wxeYH6sF7kMpVeW2JkdW/A
-         Jf0HSlJW33oxEw8hbduSqwQM6FmMkdtRi3Tf/x1D6cmBrr8Xt8COoyNHwvwWyjlbDg5O
-         TVtg==
-X-Forwarded-Encrypted: i=1; AHgh+Rose+NL6y+yNB4+qegCd+X1RVYvPahFuj3+0gQk5aN7g4SowuexMOR3YcbpIvD5nD+xaoQT6o2EsvFYG5vIUg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyE+7c0rDtd+FVL9tb+bi1+5M6PX8uYekbw+OlmwfudpXADQS/k
-	ySzlfGJ2b0X0XKY0SJXSRlrYCPfwgeckKZdC8kjW1IREYyEDTWMEt3YaIxtqdkSusbMwz+cXwCq
-	qQsWzu4hqhsyfZx89XLJ12vW8dmDrhemgPCHRs9uft6h8hiEdDG9WrGyKccm1iN2fI9b8
-X-Gm-Gg: AfdE7cmG7InVYVayrY/W4Av7stOkV4L4f2Pin4EYzxuhKYK4cpKEN99fDZpZgJ0GYwj
-	zkmgyMOP4XGVkaXYjhGA1shp1XaVZnUwskGDOhNj+80Rd+NtUFSJ/UpaYMIQiYYaE0pzKnRecTA
-	2lgl3FYMrghTAQBBmIbLV4ymIgJdYfDS7z66JeVaOB9qlvyeoIScvFThTSh/zKMMewC6FdJSSor
-	GSwQvkSbM2PcNS94nAt0+5lFCmIb6cRywB93au1+jGPde+ev7r204NI1Yr3zee5vF5xDAijILQY
-	5Vj2kMwFj2pIgiM+3t33TiMD+GjWFO1sYWsNVGe+Op0McGa+vWAoxpkIAqoR2s8sq5LNS8u+6hh
-	SGXm7j16BgxMqyLfOxYuOdKKH/wd9rnnYeWTcyCQpOMyGdetQ
-X-Received: by 2002:a05:6a00:9505:b0:847:8f68:e8d7 with SMTP id d2e1a72fcca58-8479ee9a5bdmr2034494b3a.8.1782811018754;
-        Tue, 30 Jun 2026 02:16:58 -0700 (PDT)
-X-Received: by 2002:a05:6a00:9505:b0:847:8f68:e8d7 with SMTP id d2e1a72fcca58-8479ee9a5bdmr2034475b3a.8.1782811018268;
-        Tue, 30 Jun 2026 02:16:58 -0700 (PDT)
-Received: from ryasuoka-thinkpadx1carbongen9.tokyo.csb ([126.143.164.49])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-847a005af85sm1494569b3a.25.2026.06.30.02.16.53
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Jun 2026 02:16:57 -0700 (PDT)
-From: Ryosuke Yasuoka <ryasuoka@redhat.com>
-Date: Tue, 30 Jun 2026 18:16:42 +0900
-Subject: [PATCH] drm/virtio: defer hotplug event from dequeue worker to
- avoid deadlock
+	dkim=pass (1024-bit key) header.d=linux.beauty header.i=me@linux.beauty header.b="aH/nw5rt"
+ARC-Seal: i=1; a=rsa-sha256; t=1782811438; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=RTSPOqsU3ruYmR4C6fU9TRxn1ag9YOIUvH95Obsz3nplsKd88cyfpFSNjvzhPV25QIxPgykHXLl7fSznQbPy/YoygbNS06iPMJullNlJlpKczvoNiIiyFOb6iXizZNq5TogYcjss2TUJfHknXml+AKbysXHBwJ4nHYYh6QNvD3o=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1782811438; h=Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:MIME-Version:Message-ID:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=WijgoF9Dul3mkkiRPC6Esz0tO9Ln7QES9luLkjdebrk=; 
+	b=NocyU6BXv1GuUWVS079Fs/47PcAkpf56udqYiwg4IV13MCUcuSVACXkjeAW7x9VOvlJrDOPblqeK4rXC6j5Ivu/Hm7GWHFGKSOA9K76ysP/oUnuFBs8DpZ5CKxR0OtBPf5BZ73E4MhN5PQcz/Q5ERcZ+qQ9x35I4zaDk8FCTqyY=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=linux.beauty;
+	spf=pass  smtp.mailfrom=me@linux.beauty;
+	dmarc=pass header.from=<me@linux.beauty>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1782811437;
+	s=zmail; d=linux.beauty; i=me@linux.beauty;
+	h=From:From:To:To:Cc:Cc:Subject:Subject:Date:Date:Message-ID:MIME-Version:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=WijgoF9Dul3mkkiRPC6Esz0tO9Ln7QES9luLkjdebrk=;
+	b=aH/nw5rtgDzm8X7zeAjEzkpxL7u9QY8TorOqFl9Ji/8OpIjm42V9gVz2q4sNZamT
+	T6D96URBDCNSdRwF5yeQYRjCc3r8yMv1UoQSQWh5bzWu6w7KS+ifdk6SFvVyu4946gT
+	WuMUqCfQPzK85m6ogvzepBWE+C+jmiwddrt3ZNS0=
+Received: by mx.zohomail.com with SMTPS id 1782811433585611.9453027209239;
+	Tue, 30 Jun 2026 02:23:53 -0700 (PDT)
+From: Li Chen <me@linux.beauty>
+To: Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+	Vishal Verma <vishal.l.verma@intel.com>,
+	Dave Jiang <dave.jiang@intel.com>,
+	Alison Schofield <alison.schofield@intel.com>,
+	virtualization@lists.linux.dev,
+	nvdimm@lists.linux.dev
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH v7 00/12] nvdimm: virtio_pmem: fix flush/request failure paths
+Date: Tue, 30 Jun 2026 17:23:25 +0800
+Message-ID: <20260630092338.2094628-1-me@linux.beauty>
+X-Mailer: git-send-email 2.52.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Message-Id: <20260630-virtiogpu_syzbot-v1-1-0aa06630750e@redhat.com>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x3MQQqAIBBA0avErBMsSKqrRETqaLPR0IpKvHvS8
- i3+TxAxEEYYqwQBL4rkXUFTV6C21VlkpIuh5a3gohnYReEgb/dzic8r/cGkXmXHe2OU7qBke0B
- D97+c5pw/IIUSo2IAAAA=
-X-Change-ID: 20260619-virtiogpu_syzbot-bdab508ffcd5
-To: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
- Dmitry Osipenko <dmitry.osipenko@collabora.com>, 
- Gurchetan Singh <gurchetansingh@chromium.org>, 
- Chia-I Wu <olvaffe@gmail.com>, 
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
- Simona Vetter <simona@ffwll.ch>, Dmitry Baryshkov <lumag@kernel.org>, 
- Javier Martinez Canillas <javierm@redhat.com>
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev, 
- linux-kernel@vger.kernel.org, Ryosuke Yasuoka <ryasuoka@redhat.com>
-X-Mailer: b4 0.14.3
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: DdDxRjbAYVxrIvd_od6wMAzhH6iBVn0xl718EYffgv4_1782811019
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
+X-ZohoMailClient: External
 
-A probe-time deadlock can occur between the dequeue worker and
-drm_client_register(). During probe, drm_client_register() holds
-clientlist_mutex and calls the fbdev hotplug callback, which triggers an
-atomic commit that ends up sleeping in virtio_gpu_queue_ctrl_sgs()
-waiting for virtqueue space. The dequeue worker that would free that
-space calls virtio_gpu_cmd_get_display_info_cb(), which invokes
-drm_kms_helper_hotplug_event() -> drm_client_dev_hotplug(), attempting
-to acquire the same clientlist_mutex. Since wake_up() is only called
-after the resp_cb loop, the probe thread is never woken and both threads
-deadlock.
+Hi,
 
-Fix this by deferring the hotplug notification from
-virtio_gpu_cmd_get_display_info_cb() to a separate work item. The
-display data (outputs[i].info) is still updated synchronously in the
-callback, and the deferred work only triggers a re-probe notification to
-DRM clients.
+This series started as a virtio-pmem request lifetime and broken virtqueue
+fix, but the rerolls have picked up several related flush-path fixes found
+during local testing and review. Since the series is now broader than the
+original lifetime bug, this cover letter calls out where the patches came
+from.
 
-Fixes: 27655b9bb9f0 ("drm/client: Send hotplug event after registering a client")
-Closes: https://syzkaller.appspot.com/bug?id=d6dd6f86d3aaf7eebe7406e45c1c6e549453f224
-Closes: https://syzkaller.appspot.com/bug?id=908bd910da5dd79b88de4cf7baf376cc873a922e
-Signed-off-by: Ryosuke Yasuoka <ryasuoka@redhat.com>
----
- drivers/gpu/drm/virtio/virtgpu_drv.h |  3 +++
- drivers/gpu/drm/virtio/virtgpu_kms.c |  3 +++
- drivers/gpu/drm/virtio/virtgpu_vq.c  | 12 ++++++++++--
- 3 files changed, 16 insertions(+), 2 deletions(-)
+The nvdimm flush helper maps provider flush failures to -EIO. That should
+remain the default for provider/backend failures because host-side errors are
+still best reported as generic I/O errors to the guest. However, virtio-pmem
+may also fail a guest-local flush request allocation with -ENOMEM before any
+request is submitted to the host. Reporting that resource failure as -EIO
+makes memory pressure look like media failure.
 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 7449907754a4..27ffa4697ae9 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -264,6 +264,8 @@ struct virtio_gpu_device {
- 
- 	struct work_struct config_changed_work;
- 
-+	struct work_struct hotplug_work;
-+
- 	struct work_struct obj_free_work;
- 	spinlock_t obj_free_lock;
- 	struct list_head obj_free_list;
-@@ -350,6 +352,7 @@ void virtio_gpu_cmd_transfer_to_host_2d(struct virtio_gpu_device *vgdev,
- 					uint32_t x, uint32_t y,
- 					struct virtio_gpu_object_array *objs,
- 					struct virtio_gpu_fence *fence);
-+void virtio_gpu_hotplug_work_func(struct work_struct *work);
- void virtio_gpu_panic_cmd_resource_flush(struct virtio_gpu_device *vgdev,
- 					 uint32_t resource_id,
- 					 uint32_t x, uint32_t y,
-diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-index cfde9f573df6..cfb532ba43a4 100644
---- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-@@ -154,6 +154,8 @@ int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev)
- 	INIT_WORK(&vgdev->config_changed_work,
- 		  virtio_gpu_config_changed_work_func);
- 
-+	INIT_WORK(&vgdev->hotplug_work, virtio_gpu_hotplug_work_func);
-+
- 	INIT_WORK(&vgdev->obj_free_work,
- 		  virtio_gpu_array_put_free_work);
- 	INIT_LIST_HEAD(&vgdev->obj_free_list);
-@@ -293,6 +295,7 @@ void virtio_gpu_deinit(struct drm_device *dev)
- 	flush_work(&vgdev->obj_free_work);
- 	flush_work(&vgdev->ctrlq.dequeue_work);
- 	flush_work(&vgdev->cursorq.dequeue_work);
-+	flush_work(&vgdev->hotplug_work);
- 	flush_work(&vgdev->config_changed_work);
- 	virtio_reset_device(vgdev->vdev);
- 	vgdev->vdev->config->del_vqs(vgdev->vdev);
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index 67865810a2e7..084d98f5dc7b 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -816,6 +816,15 @@ virtio_gpu_cmd_resource_detach_backing(struct virtio_gpu_device *vgdev,
- 	virtio_gpu_queue_fenced_ctrl_buffer(vgdev, vbuf, fence);
- }
- 
-+void virtio_gpu_hotplug_work_func(struct work_struct *work)
-+{
-+	struct virtio_gpu_device *vgdev =
-+		container_of(work, struct virtio_gpu_device, hotplug_work);
-+
-+	if (!drm_helper_hpd_irq_event(vgdev->ddev))
-+		drm_kms_helper_hotplug_event(vgdev->ddev);
-+}
-+
- static void virtio_gpu_cmd_get_display_info_cb(struct virtio_gpu_device *vgdev,
- 					       struct virtio_gpu_vbuffer *vbuf)
- {
-@@ -841,8 +850,7 @@ static void virtio_gpu_cmd_get_display_info_cb(struct virtio_gpu_device *vgdev,
- 	spin_unlock(&vgdev->display_info_lock);
- 	wake_up(&vgdev->resp_wq);
- 
--	if (!drm_helper_hpd_irq_event(vgdev->ddev))
--		drm_kms_helper_hotplug_event(vgdev->ddev);
-+	schedule_work(&vgdev->hotplug_work);
- }
- 
- static void virtio_gpu_cmd_get_capset_info_cb(struct virtio_gpu_device *vgdev,
+The raw failure seen in the local mkfs sanity test was:
 
----
-base-commit: dc59e4fea9d83f03bad6bddf3fa2e52491777482
-change-id: 20260619-virtiogpu_syzbot-bdab508ffcd5
+  wipefs: /dev/pmem0: cannot flush modified buffers: Input/output error
+  mkfs.ext4: Input/output error while writing out and closing file system
+  nd_region region0: dbg: nvdimm_flush rc=-5
 
-Best regards,
+Patch 1 comes from that local failure, with the error policy narrowed after
+Pankaj pointed out that host/backend provider errors should not all be exposed
+directly to the guest. It now preserves only -ENOMEM and keeps other provider
+flush failures mapped to -EIO.
+
+Patches 2 and 3 come from review of the pmem flush path. Patch 2 keeps a
+failed REQ_PREFLUSH from being overwritten after data copy, and patch 3 is the
+dataless-bio guard added after the Sashiko review. Patch 4 comes from the
+local child flush bio allocation failure, but v7 reworks the v6 synchronous
+FUA approach after Pankaj noted that the old child flush bio path completed
+asynchronously. This version removes the child bio while keeping parent bio
+completion asynchronous: the provider returns NVDIMM_FLUSH_ASYNC, queues
+ordered WQ_MEM_RECLAIM work, and completes the parent bio after
+virtio_pmem_flush() finishes. Patch 5 is the remaining allocation-policy
+follow-up for the actual virtio-pmem flush request object, not for a child
+bio.
+
+Patches 6 and 7 are the older waiter fixes. Patch 6 wakes one -ENOSPC waiter
+for each reclaimed used buffer, and patch 7 makes the wait flags explicit
+READ_ONCE()/WRITE_ONCE() accesses. Pankaj asked for those changes to be split
+across patches, and patch 7 carries his Acked-by.
+
+Patch 8 is the original KASAN use-after-free fix for the request token
+lifetime. Patches 9 and 10 are follow-up hardening in the same completion
+path: order response publication before the submitter reads resp.ret, and keep
+the DMA_FROM_DEVICE response buffer away from CPU-owned request fields. Patch
+11 addresses the broken virtqueue / notify failure path reported by LKP and
+reproduced locally with fault injection. It also serializes async parent-bio
+flush work against broken-state publication, so remove/freeze cannot drain the
+workqueue before a racing FUA bio queues new completion work. Patch 12 handles
+teardown: it drains requests across freeze/remove and also addresses the
+Sashiko-reported req_vq-after-free/NULL-deref class by clearing req_vq after
+del_vqs() and making the drain helper tolerate a NULL queue. It also stops the
+submit path from checking req_vq after the broken state is visible.
+
+The original repros were on QEMU x86_64 with a virtio-pmem device exported
+as /dev/pmem0. For this v7 reroll, the series applies to v7.1-rc7.
+
+Thanks,
+Li Chen
+
+Changelog:
+v6->v7:
+- Address Pankaj's feedback on nvdimm_flush() error policy.
+- Preserve only -ENOMEM from provider flush callbacks and continue to map
+  other provider/backend failures to -EIO.
+- Address Pankaj's feedback on the FUA flush behavior: replace the v6
+  synchronous FUA path with provider-owned asynchronous parent bio completion.
+- Add NVDIMM_FLUSH_ASYNC and use ordered WQ_MEM_RECLAIM work to run
+  virtio_pmem_flush() and complete the parent bio after the host flush.
+- Keep GFP_NOIO for the virtio-pmem request allocation, but no longer describe
+  it as a child bio allocation fix.
+- Add Pankaj's Acked-by on the READ_ONCE()/WRITE_ONCE() patch.
+- Serialize async parent-bio flush work against broken-state publication in
+  the broken-virtqueue patch, so remove/freeze cannot drain the workqueue
+  before a racing FUA bio queues new completion work.
+- Fold the Sashiko-reported req_vq NULL-deref fix into the freeze/remove
+  drain patch.
+- Update commit messages and this cover letter to describe patch origins.
+v5->v6:
+- Address Sashiko review feedback:
+  - Add a data-loop guard for dataless bios in pmem_submit_bio().
+  - Replace the child flush bio allocation with synchronous FUA flushing.
+  - Keep GFP_NOIO only for the virtio-pmem request allocation.
+  - Publish request completion with release/acquire ordering.
+  - Isolate the DMA_FROM_DEVICE response buffer from CPU-owned fields.
+  - Wake the in-flight host-completion waiter when marking the queue broken.
+- Clear req_vq after del_vqs() and make drain tolerate a NULL queue.
+v4->v5:
+- Address review feedback about REQ_PREFLUSH ordering and active virtqueue
+  detach.
+- Add 2/8 so a failed REQ_PREFLUSH fails the bio before any data copy, and
+  make REQ_PREFLUSH use a synchronous provider flush instead of a deferred
+  child bio.
+- Rework broken-queue handling so runtime failure marking only stops new
+  submissions and wakes local -ENOSPC waiters; used/unused token draining is
+  done after device reset in remove() and freeze().
+- Remove the broken-state shortcut from the host-completion wait so the
+  submitter never reads an uninitialized response field.
+- Keep the raw broken-virtqueue dmesg in 7/8 while updating the teardown
+  rationale.
+- Renumber the old virtio-pmem fixes after the new pmem PREFLUSH patch.
+v3->v4:
+- Rebased the series onto v7.1-rc7 so it applies cleanly to Linux 7.1-rc7.
+- Update the allocation site in 6/7 from kmalloc(sizeof(*req_data),
+  GFP_KERNEL) to kmalloc_obj(*req_data) to match current nvdimm code.
+- Add 1/7 to preserve provider flush callback errors in nvdimm_flush().
+- Include the GFP_NOIO child flush bio allocation fix as 2/7.
+- Renumber the old request lifetime and broken virtqueue fixes after the two
+  new flush error patches.
+v2->v3:
+- Split patch 1 as suggested by Pankaj Gupta: keep the waiter wakeup
+  ordering change in 1/5 and move READ_ONCE()/WRITE_ONCE() updates to
+  2/5 (no functional change intended).
+- Add log report to commit msg.
+- Fold the export fix into 4/5 to keep the series bisectable when
+  CONFIG_VIRTIO_PMEM=m.
+v1->v2:
+- Add the export patch to fix compile issue.
+
+Links:
+v6: https://lore.kernel.org/all/20260621130246.2973254-1-me@linux.beauty/
+v5: https://lore.kernel.org/all/20260617122442.2118957-1-me@linux.beauty/
+v4: https://lore.kernel.org/all/20260609120726.1714780-1-me@linux.beauty/
+v3: https://lore.kernel.org/all/20260226025712.2236279-1-me@linux.beauty/#t
+v2: https://lore.kernel.org/all/20251225042915.334117-1-me@linux.beauty/
+v1: https://www.spinics.net/lists/kernel/msg5974818.html
+
+Li Chen (12):
+  nvdimm: preserve flush callback -ENOMEM
+  nvdimm: pmem: keep PREFLUSH before data writes
+  nvdimm: pmem: guard data loop for dataless bios
+  nvdimm: virtio_pmem: stop allocating child flush bio
+  nvdimm: virtio_pmem: use GFP_NOIO for flush requests
+  nvdimm: virtio_pmem: always wake -ENOSPC waiters
+  nvdimm: virtio_pmem: use READ_ONCE()/WRITE_ONCE() for wait flags
+  nvdimm: virtio_pmem: refcount requests for token lifetime
+  nvdimm: virtio_pmem: publish done with release/acquire
+  nvdimm: virtio_pmem: isolate DMA request buffers
+  nvdimm: virtio_pmem: converge broken virtqueue to -EIO
+  nvdimm: virtio_pmem: drain requests in freeze
+
+ drivers/nvdimm/nd_virtio.c   | 265 +++++++++++++++++++++++++++++------
+ drivers/nvdimm/pmem.c        |  51 ++++---
+ drivers/nvdimm/region_devs.c |   5 +-
+ drivers/nvdimm/virtio_pmem.c |  65 ++++++++-
+ drivers/nvdimm/virtio_pmem.h |  22 ++-
+ include/linux/libnvdimm.h    |   9 ++
+ 6 files changed, 343 insertions(+), 74 deletions(-)
+
 -- 
-Ryosuke Yasuoka <ryasuoka@redhat.com>
-
+2.52.0
