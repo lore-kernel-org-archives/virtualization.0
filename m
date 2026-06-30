@@ -1,43 +1,43 @@
 Received: from sender4-op-o11.zoho.com (sender4-op-o11.zoho.com [136.143.188.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74D344192EE
-	for <virtualization@lists.linux.dev>; Tue, 30 Jun 2026 13:17:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C47D22FDC28
+	for <virtualization@lists.linux.dev>; Tue, 30 Jun 2026 13:36:24 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.11
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782825463; cv=pass; b=WxfTXtrhPymLSKVWxYc6aXqi8/Bp2f3xnxWpqdJdF5fnB9gmCT4WG/x7vpIIKiuNBB5YxptYZozsh3swIO0sotp5D7FiZ2t6Xh04n+bkUwisu5MTfyy1e/3psR35Xswwp6bHNMIIjt24dVbSb4/aQxYcoTB9VwU+1rCK91z7R7g=
+	t=1782826586; cv=pass; b=b8vWwdKmIHUDEMrNwk94T0JdHss+5in4gq9t780HUO1XzAjPOrX4/KDPKUhHIRpncx8JWWo3g8cYh8kDjySUvHU4ogEeSSo7/jlSJKBVom1Ff0nW4O66gd6vguLhqgkf5NHOwubyN0cPnNqARraxTCp47TWm6ev9w4/tbLAUFzA=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782825463; c=relaxed/simple;
-	bh=8hAqR/yS1KwSK/zhAGJ3YKTCWZjVSrIHg2+k6TRSmJ0=;
+	s=arc-20240116; t=1782826586; c=relaxed/simple;
+	bh=w7V+/t98X//ER1JpcGflSroSoE/UEpLFxmPniLkcyBM=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=J/ADBh8KG7AnmsRrOmKQdeKWJ7bmFlu+goFyQwR55ACUS1cW6jrgOA4Hif6/z1PJMglMALMJelejS7Ew8llamVaOrd1XtfQLtyQgvy+7O1TYgAPJ7aAwseKU/0nwB22NnXyw1g5IknXMZL2hOwDqujdVPizSlR38uMn7K8sPLf8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=SoZFKDcP; arc=pass smtp.client-ip=136.143.188.11
+	 In-Reply-To:Content-Type; b=C/eW6n/0pBfVlum7WXG2j2oYhn69lyqcQs9krgsHY6WGl1sHkjDU50XREGo4zQlzNq5fS1HZQWuSrYTw4Fgrfwzv0TViwK+1hlPuzjxOcCQ50HlfLPyjgLb8zDg8Y90DTbsVLymk/V9xDRS3xZTyZCe9Yg4O4KpNdnk3CcGIXNQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=jQeUkXaX; arc=pass smtp.client-ip=136.143.188.11
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="SoZFKDcP"
-ARC-Seal: i=1; a=rsa-sha256; t=1782825458; cv=none; 
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="jQeUkXaX"
+ARC-Seal: i=1; a=rsa-sha256; t=1782826576; cv=none; 
 	d=zohomail.com; s=zohoarc; 
-	b=FfUKkEaCXJeFEQNUxbJo3AZ1UNgYjnFvHWqO2RjDUFGEkoj1L10m5n9f5Zh1rs42wGR/YL2KNjuPD9VNC/DiBuK3BTq/QKVzeOFbOFcg6TI6Vao9sccNXENsI6zJcRXq/atYzSQvQTFALmrAuvtlh3FlbQbehuFySZBPoFKpFqY=
+	b=iV4WbuHYbx4El2QN61U4+XCdM6ADLZUd9cw93wbPW/MwutofO4DghizvGbdQ3n0l4tUoyE67v4DPZZ1/8NbuMSTTuX7chFtKzArCmfEoG5qdUJ1AySrskCWiB/uLgWLSGP2gZJdqisA8piVts2fLEWzsUb+t6GUMWJUIfomDyhA=
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1782825458; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=l/Gb2r1RUizRn8tgbt0oiaU7MKiOg59aENHKzJck/80=; 
-	b=AMz/8tr1qyWeZOnaQWpo6WmLkdI0PhCcuHXVTtfO/SLGbhJ5TaptPMjNu0bJ0VSiKmNbLNVYSpjxnKWcZY7rYh1+OrqrKLXcqv/sV5p/k9rU6venxvskiipDvHhywTFG5Nx2Mhn9Y1Ol0JlSofUxluHmkyLYtNejHyQdGP2ctLk=
+	t=1782826576; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=4IDuFu2HV5TP+YThiZHAtkhhu5xuMhrAYpBnN8AraGU=; 
+	b=Vy58HD8wZr7ETdX96G9l/PDSus4RTwNyAfi17/n/QPkEU1h8pYBFa/6wM36kmCqth9n3FUGdVgQEybCYTOQh+qgIwhAQjC4Ka5f5ySyxNZayq+iwt5pYbGlsvVaPNVba19jfTCVdvLTduJvRMRE3Cf29EnyDoVqi6W7ZWcgEKIE=
 ARC-Authentication-Results: i=1; mx.zohomail.com;
 	dkim=pass  header.i=collabora.com;
 	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
 	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1782825458;
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1782826576;
 	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
 	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=l/Gb2r1RUizRn8tgbt0oiaU7MKiOg59aENHKzJck/80=;
-	b=SoZFKDcP3STBZcAKh3qM2yEjfpRJmHCFcNOk7/PlRTeh4yJbcq/haBtVU8LVn98y
-	TO+qrudh+y9PlHZnDoHsoEDQJZbZ2wVVEUp0+jlq+R2fqLCaMkPZGt1K6PTPMuGeKtq
-	UY6MfNe4YK75XMSyQZAlyi1MVxMigaxYskOGUOfI=
-Received: by mx.zohomail.com with SMTPS id 1782825456755695.4332253165277;
-	Tue, 30 Jun 2026 06:17:36 -0700 (PDT)
-Message-ID: <36a2a25f-c73c-491f-b889-5a0c4662bced@collabora.com>
-Date: Tue, 30 Jun 2026 16:17:32 +0300
+	bh=4IDuFu2HV5TP+YThiZHAtkhhu5xuMhrAYpBnN8AraGU=;
+	b=jQeUkXaXl/Ox+TWruew3PgdhLj+v3vgR73ov0x5CZnTZ3MRzVRA5T/HezOU6Qb6o
+	MxM+e8MwF/K2Qc8bIu8eeTCKCjwcy57T0J8B0xvn2FFzmaaTAsyQGR9IhOhZ+v/Iweo
+	WC+aRN0Fgh2vbfmDbyzczMt2m0/DkQ95tWvfV8Mo=
+Received: by mx.zohomail.com with SMTPS id 1782826573752150.0126917208695;
+	Tue, 30 Jun 2026 06:36:13 -0700 (PDT)
+Message-ID: <f5c5fc6c-3c6e-4068-80d7-f1acebff7168@collabora.com>
+Date: Tue, 30 Jun 2026 16:36:08 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -45,58 +45,65 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] drm/virtio: bound EDID block reads to the response buffer
-To: hexlabsecurity@proton.me, David Airlie <airlied@redhat.com>,
+Subject: Re: [PATCH] drm/virtio: fail init on display-info timeout
+To: Pengpeng Hou <pengpeng@iscas.ac.cn>, David Airlie <airlied@redhat.com>,
  Gerd Hoffmann <kraxel@redhat.com>
-Cc: linux-kernel@vger.kernel.org,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, dri-devel@lists.freedesktop.org,
- virtualization@lists.linux.dev
-References: <20260620-b4-disp-22bba7bf-v1-1-b95924cee742@proton.me>
+Cc: Gurchetan Singh <gurchetansingh@chromium.org>,
+ Chia-I Wu <olvaffe@gmail.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Simona Vetter <simona@ffwll.ch>, dri-devel@lists.freedesktop.org,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+References: <20260625030202.82590-1-pengpeng@iscas.ac.cn>
 Content-Language: en-US
 From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <20260620-b4-disp-22bba7bf-v1-1-b95924cee742@proton.me>
+In-Reply-To: <20260625030202.82590-1-pengpeng@iscas.ac.cn>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 X-ZohoMailClient: External
 
-On 6/21/26 05:43, Bryam Vargas via B4 Relay wrote:
-> From: Bryam Vargas <hexlabsecurity@proton.me>
+On 6/25/26 06:02, Pengpeng Hou wrote:
+> virtio_gpu_init() sends GET_DISPLAY_INFO when scanouts are present and
+> waits for display_info_pending to clear. If the response never arrives,
+> the wait result is ignored and probe still succeeds.
 > 
-> virtio_get_edid_block() validates the read offset only against the
-> device-supplied resp->size field, never against the fixed-size resp->edid
-> array. The EDID block index is driven by the device-supplied extension
-> count, so a malicious virtio-gpu backend can advertise a large size
-> together with a high block count and read far past the array into adjacent
-> kernel memory, which is then surfaced in the parsed EDID (an out-of-bounds
-> read / info leak).
+> Return -ETIMEDOUT on display-info timeout. Because this happens after
+> virtio_device_ready(), reset the device and tear down modesetting before
+> using the existing vbuf and virtqueue cleanup path.
 > 
-> Also reject any read whose end exceeds the size of the edid array.
-> Conforming EDID responses stay within the array and are unaffected.
-> 
-> Fixes: b4b01b4995fb ("drm/virtio: add edid support")
-> Cc: stable@vger.kernel.org
-> Signed-off-by: Bryam Vargas <hexlabsecurity@proton.me>
+> Signed-off-by: Pengpeng Hou <pengpeng@iscas.ac.cn>
 > ---
->  drivers/gpu/drm/virtio/virtgpu_vq.c | 3 ++-
->  1 file changed, 2 insertions(+), 1 deletion(-)
+>  drivers/gpu/drm/virtio/virtgpu_kms.c | 12 ++++++++++--
+>  1 file changed, 10 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> index 67865810a2e7..c8b9475a7472 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-> @@ -897,7 +897,8 @@ static int virtio_get_edid_block(void *data, u8 *buf,
->  	struct virtio_gpu_resp_edid *resp = data;
->  	size_t start = block * EDID_LENGTH;
->  
-> -	if (start + len > le32_to_cpu(resp->size))
-> +	if (start + len > le32_to_cpu(resp->size) ||
-> +	    start + len > sizeof(resp->edid))
->  		return -EINVAL;
->  	memcpy(buf, resp->edid + start, len);
+> diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+> index cfde9f573df6..31209bea97ae 100644
+> --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
+> +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+> @@ -262,11 +262,19 @@ int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev)
+>  			virtio_gpu_cmd_get_edids(vgdev);
+>  		virtio_gpu_cmd_get_display_info(vgdev);
+>  		virtio_gpu_notify(vgdev);
+> -		wait_event_timeout(vgdev->resp_wq, !vgdev->display_info_pending,
+> -				   5 * HZ);
+> +		if (!wait_event_timeout(vgdev->resp_wq,
+> +					!vgdev->display_info_pending,
+> +					5 * HZ)) {
+> +			DRM_ERROR("timed out waiting for display info\n");
+> +			ret = -ETIMEDOUT;
+> +			goto err_ready;
+> +		}
+>  	}
 >  	return 0;
+>  
+> +err_ready:
+> +	virtio_reset_device(vgdev->vdev);
+> +	virtio_gpu_modeset_fini(vgdev);
+>  err_scanouts:
+>  	virtio_gpu_free_vbufs(vgdev);
+>  err_vbufs:
 
-Applied to misc-fixes, thanks!
+Rebased and applied to misc-next, thanks!
 
 -- 
 Best regards,
