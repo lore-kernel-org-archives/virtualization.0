@@ -1,209 +1,250 @@
-Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oi1-f179.google.com (mail-oi1-f179.google.com [209.85.167.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 661783A874F
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jun 2026 09:41:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782812480; cv=none; b=qTr+Oha3DvQPKVA+rscWdXUuLZNLpgt5LR8SjjuPvyMLmnLV9drOgcVFaF89P1ryU+C/EvqZBgHyISvaCmB0IUOpz44Nr+rXxoTHzijd2CAHHU0I2mZJAXa2qPyIyyhxDjIe0SSjyVXxoxHvmjTNw5FoVhe5kCmDKhDJ/YsLH7I=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782812480; c=relaxed/simple;
-	bh=YqmB8gQ2CSWotm3YyLmOYcMApzVTX/fpUiUxd3r4ALA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=dlKrLvQIYXV1gaUHT4s0TLXlJ5/ZTxA4GWpb7mE3Uc/F2fs7mDMurWLh9uRWqSFMrkiUokiH/WvHjwvM4Md73UdohKwKuE/Mn0SjCjPkuf7QlqU6mu8oEjt3UVAkZsgGJ/qDaMQCBhup1M40haKtfl5PTxFqIZ3uxB6X6SSQyXQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=N5jUq8qt; arc=none smtp.client-ip=140.211.166.138
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B9DB63EE1F2
+	for <virtualization@lists.linux.dev>; Tue, 30 Jun 2026 09:47:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.167.179
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782812844; cv=pass; b=SZfQLWzR7DDqbxEXYu8K0ijqCs3Q1x8P8j1hdckbSuUGZGGIE1E3h9wkyDpg+YOc1kLeSTfI5L91Vmq209GJo9d7FjebC0aNyUpTIkN07j5NiCowfiv2If7uGGpBxSssX7YTfVZF1WlXIdodbyXJrDdFUhs/ZxJUElJ/8ySGh60=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782812844; c=relaxed/simple;
+	bh=mbKVpQPDeDDFht6FcdGf+b590T3tEEZuvC93vpYd4Sc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=K4HmqVXxo99tXGcRL2iX+RENtDK1hIEhrl+D/CkUYksr/DZKcpumfo5OfkwzfH8NoaSl1mI2/oJ5IxklJftlUMdUmJywpLFvusNQ7vxMN15BN1T/J+vGRVHIXI8Sc/X3z2MJvByMl97Fr9ZWNjbXvY1N6y8EZDXpf2VGpoZD8vE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=WQb6c7eV; arc=pass smtp.client-ip=209.85.167.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="N5jUq8qt"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp1.osuosl.org (Postfix) with ESMTP id 1F7BE82337
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jun 2026 09:41:19 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -5.792
-X-Spam-Level:
-Received: from smtp1.osuosl.org ([127.0.0.1])
- by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 85w0bAJ6Zbzs for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Jun 2026 09:41:18 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=170.10.129.124; helo=us-smtp-delivery-124.mimecast.com; envelope-from=sgarzare@redhat.com; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org 1437B8233A
-Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org 1437B8233A
-Authentication-Results: smtp1.osuosl.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.a=rsa-sha256 header.s=mimecast20190719 header.b=N5jUq8qt
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	by smtp1.osuosl.org (Postfix) with ESMTPS id 1437B8233A
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jun 2026 09:41:17 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1782812476;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=sT7VxdFpL+bwbQAtpOmSJ4nkpUzUgPkf4e0PHfftdcI=;
-	b=N5jUq8qteDoM2HBNvyK73qszNNqKgxoj9PCsuFRJxktYMpuj3xaYNgBI+BlxA353im8Im2
-	JH/aDt3RvCg7h7+fOHhTuyFdKZR82WRO3GvOmK+t8mmcYA15WZ8vcjz5EtJeqXN7QlL5y+
-	OVBbQVFnPeSqyE+4bRBaWB8eEzZVILM=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-379-1_sUdPvgOeuGahOvkgThSA-1; Tue, 30 Jun 2026 05:41:14 -0400
-X-MC-Unique: 1_sUdPvgOeuGahOvkgThSA-1
-X-Mimecast-MFC-AGG-ID: 1_sUdPvgOeuGahOvkgThSA_1782812473
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-492714d002cso16486495e9.0
-        for <virtualization@lists.linux-foundation.org>; Tue, 30 Jun 2026 02:41:14 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="WQb6c7eV"
+Received: by mail-oi1-f179.google.com with SMTP id 5614622812f47-4877a7b451dso2799083b6e.0
+        for <virtualization@lists.linux.dev>; Tue, 30 Jun 2026 02:47:22 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1782812842; cv=none;
+        d=google.com; s=arc-20260327;
+        b=rJUFTZd2DZE9rAYGOq+tfi4/x8zPmV9W9hpW6NlEn4XMTPvI4SYx9k9hGfjP4PgBbH
+         SK/6dPDBSfDC7FMf63Mbfa6elhhiTut7Xj6Kdt4XIbGmF2SSFzYNKJZMPg7TByGk3CXR
+         TH7IsMfu8biYkzqInxcrF/9TR8iNwkuPu7hE811ZSid9dbsfqkR261XWdPDA6VssDFFR
+         Q31L4AcxNz5wpUTmUPKURqOu4gyrrbssKRHMsf9Bf7mL786bjnhZ+ZzJa2PRgwVGyYMw
+         y9DhCzj9Oc0dYOMJnhP1sBJl08wOZkbciFBRbr+P+Prj/+rwzfmiCf41mN25q9JRO/RZ
+         EMZg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=KBIcT5HxVe2+MOLGkActp5e844bC5vrv0teTaWEFK6Y=;
+        fh=8lKpY3QUb0SK+8CIs3STibeM41nmNCrhHCZmvnG9Pwc=;
+        b=n9Ub7wc+O9F45VLDuRfbMzwTG9ElpusxUFbtbkvKSHU+ymnp+OOw55khtt5970jIms
+         irlvc4HNuXDcJViYAQwu5Aj3O+iI11U54wDT3IAZrxoswqlP9rGlV0BURyOr8wCoLLMu
+         0eTe31A08H48rGWQbY0GYk9oHepIciqHf4g44r55vjYWxg2GxCzQx240VrwbjWDtnIjI
+         ZgUB4HRUShxZ6ZjVeqOU/secYEiJfyTTrRvBhX9SeNQ987Hw7avISp9gtgwElehaZdni
+         /VhMIQwVOrGLw3XDBTaQtwBJCK5qEbB44Mlm8vINF/Jn2LyvPSwYNfEKXkUJgFkjYSk4
+         udgA==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1782812842; x=1783417642; darn=lists.linux.dev;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:from:to:cc:subject:date:message-id:reply-to;
+        bh=KBIcT5HxVe2+MOLGkActp5e844bC5vrv0teTaWEFK6Y=;
+        b=WQb6c7eVveYFiksY/oLSjxVE7rjXHRO2L65gZzalczXNT/7YSHB2+kbu1E2hnorBTk
+         ZV1SXM0Gl2PMu1jtZQJqhTNkmbSD+A1QVlLCGg30ITVNZWlbU+So9RIXiVVMbWjIyrI8
+         jYq10KJLXTM8jYcS/B8i0U7Bsjgmp4f2Jc36+lQATDlQ8RVRzmYLPhocva+KFmdEVi+G
+         XuseRD4CDcCglhW2Im3rVNKHXPFxad+rXMhSQSV3ntIOPoK+zmukudyG/6kkrs7DZ2vw
+         7xqnJ7e9618staRZp3hTWadvWvJfkI1IiwRueN4bRXnoYsW4e84AAkpg2MUo7MKL0iqQ
+         Mleg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782812473; x=1783417273;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=sT7VxdFpL+bwbQAtpOmSJ4nkpUzUgPkf4e0PHfftdcI=;
-        b=hZ7Qo76a4sobAc1ABjtI78P0jJlhjYsYQL+q2s7/vFdDV9c7KG7GboVMx+J9Okwxi9
-         +vU4ad1Yf+L6A/xRp9ACZkZ9ebETXmQVYhKU1mJ7mGYI9uyaiPkQGbc9sh8adPv9v135
-         W98fxm9dRMeUTlqqTdj1oKu8SxxmW9vACOpoEvfM/ihCLWXA5KkGa9AX70LLtieoiGvd
-         CCvkBomIJhty3wg5cPmpXjImeaSXwpyQ4xMqz0tKTb7DwbUMpUwSPY7I/6rpc1R9Eiq3
-         RS9K0WdISijFOgCZ8h+ZHhgdqVj1pUzmdYevC+vBkE9MGevOh9Ce0JMeKsi7DvOiCBRn
-         QTmA==
-X-Forwarded-Encrypted: i=1; AFNElJ8uIeX1vJVqSEGXwgDb+RsWwsOoKhWF5IAg30uM2XfNk41p4QXKxta33CMrEL8pmgvS4AF67ZVchT+/Mqj6GA==@lists.linux-foundation.org
-X-Gm-Message-State: AOJu0Ywoo8sFZM7+TIqSKhn8qenbHtPzP1CoVNsVUGb4R9kV/0v3vZrN
-	xtCAFEyokoyO6XwqIom/PiLkSAaNrWG/ysKdyGsITe0A0QvEHB7DNHYa1aa1yIsYb/Yyx9WcoMW
-	3HkDYdQMa4oVGzXTHnuOPAQCv/XAxfRk8QoUT7SOB9pkIuf9+ARjM22tuLLGt34buq3hCaS7wlz
-	hkY4uTQfg=
-X-Gm-Gg: AfdE7cltN6WWoz7b7aVEAiPdcvjLGTUPW3LjNnN7xEIVe7jlm3RJip17xSwENc0cnDt
-	dS6MGTknlrFFmXPdAngIgKkYCBmyqf8Ia7AEilsWxibYTC3t3VqU/DdPFes+z4Vjf0fKw4a0/MO
-	THYJkYZsccFoiaOqNTRtHjVhUbbQIttAl9P8LHx4N6JNox3VXa9zc3J2GuCApyW5gWivP3Lsnhk
-	2524/Tvmef7RThpESiYKCo2IEjMahc8kuCSI3g1s9MXZIOE5DY0xjsVwUxcHHYd18UjwG1Tet/c
-	tDt3B5iBx466q2rgr2WD5yMMLxU68sp+5JJqG4Gx78iwvCJMvw2O9UTU7lu0TMxDhHoCqbAsKwm
-	861asir9/hwNCe6utrWXDM5TytfyE1D6L7YMFrmeJe5Asu+MtblM0bFtmGHRr
-X-Received: by 2002:a05:600c:a403:b0:493:a5d0:d1a1 with SMTP id 5b1f17b1804b1-493b82bc279mr38092575e9.31.1782812473030;
-        Tue, 30 Jun 2026 02:41:13 -0700 (PDT)
-X-Received: by 2002:a05:600c:a403:b0:493:a5d0:d1a1 with SMTP id 5b1f17b1804b1-493b82bc279mr38092065e9.31.1782812472479;
-        Tue, 30 Jun 2026 02:41:12 -0700 (PDT)
-Received: from sgarzare-redhat (host-79-34-22-35.business.telecomitalia.it. [79.34.22.35])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-493b8d0bbbcsm64869355e9.13.2026.06.30.02.41.10
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 30 Jun 2026 02:41:11 -0700 (PDT)
-Date: Tue, 30 Jun 2026 11:41:07 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Arseniy Krasnov <avkrasnov@rulkc.org>
-Cc: Stefan Hajnoczi <stefanha@redhat.com>, 
-	"David S. Miller" <davem@davemloft.net>, Eric Dumazet <edumazet@google.com>, 
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	"Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
-	Bobby Eshleman <bobbyeshleman@meta.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, Simon Horman <horms@kernel.org>, kvm@vger.kernel.org, 
-	virtualization@lists.linux-foundation.org, netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	oxffffaa@gmail.com, rulkc@linuxtesting.org
-Subject: Re: [PATCH net-next v4] vsock/virtio: rewrite MSG_ZEROCOPY flag
- handling
-Message-ID: <akOOf7ShQS4OBJrd@sgarzare-redhat>
-References: <20260628182052.951760-1-avkrasnov@rulkc.org>
+        d=1e100.net; s=20251104; t=1782812842; x=1783417642;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=KBIcT5HxVe2+MOLGkActp5e844bC5vrv0teTaWEFK6Y=;
+        b=LTjiEibunPRUUYGKyNZDvTroPoILC7TP2CXexO4rIuZP5lyCzEU45lGRvO7m8Ll33/
+         2Y7EFUxifESWhs5hj55prbs53vybYCbl9GuLBO3j8tVJKqN1VW+h38Pw9bCi40QoQWNx
+         ghK39q5S6/YkJe1qw8XlfdoxOV5rehXGCbYIkE0UUzTfSSaMjMDXu6Vfdt+7BPKNyWNA
+         bTzosy2dp6LoDciYAdmn0Ku/f36IC/QiGIFKjFJVHFvCCp+PlW8Y3yvuCk3Pl+mpZr9H
+         fz3J2GTn27UA0FOpEWPBCZ5MBRw0EsUlEaxzVc3AQ8Dl50ESzOIyCnEQCeQ+x25xqZML
+         h+bQ==
+X-Forwarded-Encrypted: i=1; AFNElJ+3QXRu3CQIV1tCxp3yX1muJlKUA++olTRR8YG4dMWRIO+1idwxQgwmAW3R0WiSKc7JUc++kOCzwpVfv4bllg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwNHJ2WyL2ApuknjaPoW3AcPjkNOpa56XyazKdTfXghJ+CNud+g
+	uFSj9bc0MadScMPPO3VUSkKeXZkq8CnLNt8f5K6/W/Wh0NKaQbTBExAtwKsKcZ8FWK7bHPdy+kG
+	QFEgDKiBXFQZEBIlHUca7C3QLeiuWneM=
+X-Gm-Gg: AfdE7ckZRnsfeEBBJTfWDuTuQu9nYqF+UlTtbuSJ9zX5jPgoCa3a0xSLef7Ik6CoGXU
+	M4f6k3qxOXvbWwwkepF53kJzK7gkrhy7oYIacXuIGo9uJA5/7Z1t3UJwhZ7scRM/mpYkZqz+iYJ
+	MxpR2bVFVA5lbG3naP6hTS4JtWhN1O3mpsr37ibJsx6ms89CnqXJRVP5kMves7GrWuI9FjvS793
+	e9bAxn6bge5ob8HI8w/wjsdCkkHyzFCpP14BS8bLPSqVzsCuzdiBpDRnxSlMOll61f43x/Olzs=
+X-Received: by 2002:a05:6808:e86:b0:491:177:c22d with SMTP id
+ 5614622812f47-495eb113c92mr2503729b6e.36.1782812841661; Tue, 30 Jun 2026
+ 02:47:21 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260628182052.951760-1-avkrasnov@rulkc.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Ah1vNLAJlfECjaRpTqrwvvf6-8yNzewmf1wo2wxCqWI_1782812473
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+References: <20260630092338.2094628-1-me@linux.beauty>
+In-Reply-To: <20260630092338.2094628-1-me@linux.beauty>
+From: Pankaj Gupta <pankaj.gupta.linux@gmail.com>
+Date: Tue, 30 Jun 2026 11:47:09 +0200
+X-Gm-Features: AVVi8CcDtRS43Sq7ele27Lz7sTO6pgEllQzoWJX7MfY6faDfvLddPHeZ0ZfhVIY
+Message-ID: <CAM9Jb+gvNYvnqE65WWpXig-VE53KnMZpLf1CF6vxk51cBySKgA@mail.gmail.com>
+Subject: Re: [PATCH v7 00/12] nvdimm: virtio_pmem: fix flush/request failure paths
+To: Li Chen <me@linux.beauty>
+Cc: Vishal Verma <vishal.l.verma@intel.com>, Dave Jiang <dave.jiang@intel.com>, 
+	Alison Schofield <alison.schofield@intel.com>, virtualization@lists.linux.dev, 
+	nvdimm@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	"Michael S . Tsirkin" <mst@redhat.com>, Dan Williams <djbw@kernel.org>
+Content-Type: text/plain; charset="UTF-8"
 
-On Sun, Jun 28, 2026 at 09:20:52PM +0300, Arseniy Krasnov wrote:
->Logically it was based on TCP implementation, so to make further support
->easier, rewrite it in the TCP way (like in 'tcp_sendmsg_locked()'). By
->this way, patch also adds handling case when 'msg_ubuf' is already set.
++CC Dan's correct email address and MST's email.
 
-Thanks for this!
-
-IIUC the result will be similar of commit eb315a7d1396 ("tcp: support 
-externally provided ubufs") for tcp. Maybe I would have added it to the 
-commit description, anyway the patch LGTM:
-
-Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-
+> Hi,
 >
->Signed-off-by: Arseniy Krasnov <avkrasnov@rulkc.org>
->---
-> Changelog v1->v2:
-> * Rebase on last 'net-next'. Don't need 'skb_zcopy_set()' now - it was
->   already added.
-> Changelog v2->v3:
-> * Update commit message.
-> * Remove one empty line.
-> Changelog v3->v4:
-> * Update commit message.
+> This series started as a virtio-pmem request lifetime and broken virtqueue
+> fix, but the rerolls have picked up several related flush-path fixes found
+> during local testing and review. Since the series is now broader than the
+> original lifetime bug, this cover letter calls out where the patches came
+> from.
 >
-> net/vmw_vsock/virtio_transport_common.c | 47 ++++++++++++-------------
-> 1 file changed, 22 insertions(+), 25 deletions(-)
+> The nvdimm flush helper maps provider flush failures to -EIO. That should
+> remain the default for provider/backend failures because host-side errors are
+> still best reported as generic I/O errors to the guest. However, virtio-pmem
+> may also fail a guest-local flush request allocation with -ENOMEM before any
+> request is submitted to the host. Reporting that resource failure as -EIO
+> makes memory pressure look like media failure.
 >
->diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->index 09475007165b..41c2a0b82a8e 100644
->--- a/net/vmw_vsock/virtio_transport_common.c
->+++ b/net/vmw_vsock/virtio_transport_common.c
->@@ -328,38 +328,35 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
-> 	if (pkt_len == 0 && info->op == VIRTIO_VSOCK_OP_RW)
-> 		return pkt_len;
+> The raw failure seen in the local mkfs sanity test was:
 >
->-	if (info->msg) {
->-		/* If zerocopy is not enabled by 'setsockopt()', we behave as
->-		 * there is no MSG_ZEROCOPY flag set.
->+	if (info->msg && (info->msg->msg_flags & MSG_ZEROCOPY)) {
->+		/* If 'info->msg' is not NULL, this is only VIRTIO_VSOCK_OP_RW.
->+		 * 'MSG_ZEROCOPY' flag handling here is based on the same flag
->+		 * handling from 'tcp_sendmsg_locked()'.
-> 		 */
->-		if (!sock_flag(sk_vsock(vsk), SOCK_ZEROCOPY))
->-			info->msg->msg_flags &= ~MSG_ZEROCOPY;
->+		if (info->msg->msg_ubuf) {
->+			uarg = info->msg->msg_ubuf;
->+			can_zcopy = virtio_transport_can_zcopy(t_ops, info, pkt_len);
->+		} else if (sock_flag(sk_vsock(vsk), SOCK_ZEROCOPY)) {
->+			uarg = msg_zerocopy_realloc(sk_vsock(vsk), pkt_len,
->+						    NULL, false);
->+			if (!uarg) {
->+				virtio_transport_put_credit(vvs, pkt_len);
->+				return -ENOMEM;
->+			}
+>   wipefs: /dev/pmem0: cannot flush modified buffers: Input/output error
+>   mkfs.ext4: Input/output error while writing out and closing file system
+>   nd_region region0: dbg: nvdimm_flush rc=-5
 >
->-		if (info->msg->msg_flags & MSG_ZEROCOPY)
-> 			can_zcopy = virtio_transport_can_zcopy(t_ops, info, pkt_len);
->+			if (!can_zcopy)
->+				uarg_to_msgzc(uarg)->zerocopy = 0;
+> Patch 1 comes from that local failure, with the error policy narrowed after
+> Pankaj pointed out that host/backend provider errors should not all be exposed
+> directly to the guest. It now preserves only -ENOMEM and keeps other provider
+> flush failures mapped to -EIO.
 >
->+			have_uref = true;
->+		}
->+
->+		/* 'can_zcopy' means that this transmission will be
->+		 * in zerocopy way (e.g. using 'frags' array).
->+		 */
-> 		if (can_zcopy)
-> 			max_skb_len = min_t(u32, VIRTIO_VSOCK_MAX_PKT_BUF_SIZE,
-> 					    (MAX_SKB_FRAGS * PAGE_SIZE));
->-
->-		if (info->msg->msg_flags & MSG_ZEROCOPY &&
->-		    info->op == VIRTIO_VSOCK_OP_RW) {
->-			uarg = info->msg->msg_ubuf;
->-
->-			if (!uarg) {
->-				uarg = msg_zerocopy_realloc(sk_vsock(vsk),
->-							    pkt_len, NULL, false);
->-				if (!uarg) {
->-					virtio_transport_put_credit(vvs, pkt_len);
->-					return -ENOMEM;
->-				}
->-
->-				if (!can_zcopy)
->-					uarg_to_msgzc(uarg)->zerocopy = 0;
->-
->-				have_uref = true;
->-			}
->-		}
-> 	}
+> Patches 2 and 3 come from review of the pmem flush path. Patch 2 keeps a
+> failed REQ_PREFLUSH from being overwritten after data copy, and patch 3 is the
+> dataless-bio guard added after the Sashiko review. Patch 4 comes from the
+> local child flush bio allocation failure, but v7 reworks the v6 synchronous
+> FUA approach after Pankaj noted that the old child flush bio path completed
+> asynchronously. This version removes the child bio while keeping parent bio
+> completion asynchronous: the provider returns NVDIMM_FLUSH_ASYNC, queues
+> ordered WQ_MEM_RECLAIM work, and completes the parent bio after
+> virtio_pmem_flush() finishes. Patch 5 is the remaining allocation-policy
+> follow-up for the actual virtio-pmem flush request object, not for a child
+> bio.
 >
-> 	rest_len = pkt_len;
->-- 
->2.25.1
+> Patches 6 and 7 are the older waiter fixes. Patch 6 wakes one -ENOSPC waiter
+> for each reclaimed used buffer, and patch 7 makes the wait flags explicit
+> READ_ONCE()/WRITE_ONCE() accesses. Pankaj asked for those changes to be split
+> across patches, and patch 7 carries his Acked-by.
 >
-
+> Patch 8 is the original KASAN use-after-free fix for the request token
+> lifetime. Patches 9 and 10 are follow-up hardening in the same completion
+> path: order response publication before the submitter reads resp.ret, and keep
+> the DMA_FROM_DEVICE response buffer away from CPU-owned request fields. Patch
+> 11 addresses the broken virtqueue / notify failure path reported by LKP and
+> reproduced locally with fault injection. It also serializes async parent-bio
+> flush work against broken-state publication, so remove/freeze cannot drain the
+> workqueue before a racing FUA bio queues new completion work. Patch 12 handles
+> teardown: it drains requests across freeze/remove and also addresses the
+> Sashiko-reported req_vq-after-free/NULL-deref class by clearing req_vq after
+> del_vqs() and making the drain helper tolerate a NULL queue. It also stops the
+> submit path from checking req_vq after the broken state is visible.
+>
+> The original repros were on QEMU x86_64 with a virtio-pmem device exported
+> as /dev/pmem0. For this v7 reroll, the series applies to v7.1-rc7.
+>
+> Thanks,
+> Li Chen
+>
+> Changelog:
+> v6->v7:
+> - Address Pankaj's feedback on nvdimm_flush() error policy.
+> - Preserve only -ENOMEM from provider flush callbacks and continue to map
+>   other provider/backend failures to -EIO.
+> - Address Pankaj's feedback on the FUA flush behavior: replace the v6
+>   synchronous FUA path with provider-owned asynchronous parent bio completion.
+> - Add NVDIMM_FLUSH_ASYNC and use ordered WQ_MEM_RECLAIM work to run
+>   virtio_pmem_flush() and complete the parent bio after the host flush.
+> - Keep GFP_NOIO for the virtio-pmem request allocation, but no longer describe
+>   it as a child bio allocation fix.
+> - Add Pankaj's Acked-by on the READ_ONCE()/WRITE_ONCE() patch.
+> - Serialize async parent-bio flush work against broken-state publication in
+>   the broken-virtqueue patch, so remove/freeze cannot drain the workqueue
+>   before a racing FUA bio queues new completion work.
+> - Fold the Sashiko-reported req_vq NULL-deref fix into the freeze/remove
+>   drain patch.
+> - Update commit messages and this cover letter to describe patch origins.
+> v5->v6:
+> - Address Sashiko review feedback:
+>   - Add a data-loop guard for dataless bios in pmem_submit_bio().
+>   - Replace the child flush bio allocation with synchronous FUA flushing.
+>   - Keep GFP_NOIO only for the virtio-pmem request allocation.
+>   - Publish request completion with release/acquire ordering.
+>   - Isolate the DMA_FROM_DEVICE response buffer from CPU-owned fields.
+>   - Wake the in-flight host-completion waiter when marking the queue broken.
+> - Clear req_vq after del_vqs() and make drain tolerate a NULL queue.
+> v4->v5:
+> - Address review feedback about REQ_PREFLUSH ordering and active virtqueue
+>   detach.
+> - Add 2/8 so a failed REQ_PREFLUSH fails the bio before any data copy, and
+>   make REQ_PREFLUSH use a synchronous provider flush instead of a deferred
+>   child bio.
+> - Rework broken-queue handling so runtime failure marking only stops new
+>   submissions and wakes local -ENOSPC waiters; used/unused token draining is
+>   done after device reset in remove() and freeze().
+> - Remove the broken-state shortcut from the host-completion wait so the
+>   submitter never reads an uninitialized response field.
+> - Keep the raw broken-virtqueue dmesg in 7/8 while updating the teardown
+>   rationale.
+> - Renumber the old virtio-pmem fixes after the new pmem PREFLUSH patch.
+> v3->v4:
+> - Rebased the series onto v7.1-rc7 so it applies cleanly to Linux 7.1-rc7.
+> - Update the allocation site in 6/7 from kmalloc(sizeof(*req_data),
+>   GFP_KERNEL) to kmalloc_obj(*req_data) to match current nvdimm code.
+> - Add 1/7 to preserve provider flush callback errors in nvdimm_flush().
+> - Include the GFP_NOIO child flush bio allocation fix as 2/7.
+> - Renumber the old request lifetime and broken virtqueue fixes after the two
+>   new flush error patches.
+> v2->v3:
+> - Split patch 1 as suggested by Pankaj Gupta: keep the waiter wakeup
+>   ordering change in 1/5 and move READ_ONCE()/WRITE_ONCE() updates to
+>   2/5 (no functional change intended).
+> - Add log report to commit msg.
+> - Fold the export fix into 4/5 to keep the series bisectable when
+>   CONFIG_VIRTIO_PMEM=m.
+> v1->v2:
+> - Add the export patch to fix compile issue.
+>
+> Links:
+> v6: https://lore.kernel.org/all/20260621130246.2973254-1-me@linux.beauty/
+> v5: https://lore.kernel.org/all/20260617122442.2118957-1-me@linux.beauty/
+> v4: https://lore.kernel.org/all/20260609120726.1714780-1-me@linux.beauty/
+> v3: https://lore.kernel.org/all/20260226025712.2236279-1-me@linux.beauty/#t
+> v2: https://lore.kernel.org/all/20251225042915.334117-1-me@linux.beauty/
+> v1: https://www.spinics.net/lists/kernel/msg5974818.html
+>
+> Li Chen (12):
+>   nvdimm: preserve flush callback -ENOMEM
+>   nvdimm: pmem: keep PREFLUSH before data writes
+>   nvdimm: pmem: guard data loop for dataless bios
+>   nvdimm: virtio_pmem: stop allocating child flush bio
+>   nvdimm: virtio_pmem: use GFP_NOIO for flush requests
+>   nvdimm: virtio_pmem: always wake -ENOSPC waiters
+>   nvdimm: virtio_pmem: use READ_ONCE()/WRITE_ONCE() for wait flags
+>   nvdimm: virtio_pmem: refcount requests for token lifetime
+>   nvdimm: virtio_pmem: publish done with release/acquire
+>   nvdimm: virtio_pmem: isolate DMA request buffers
+>   nvdimm: virtio_pmem: converge broken virtqueue to -EIO
+>   nvdimm: virtio_pmem: drain requests in freeze
+>
+>  drivers/nvdimm/nd_virtio.c   | 265 +++++++++++++++++++++++++++++------
+>  drivers/nvdimm/pmem.c        |  51 ++++---
+>  drivers/nvdimm/region_devs.c |   5 +-
+>  drivers/nvdimm/virtio_pmem.c |  65 ++++++++-
+>  drivers/nvdimm/virtio_pmem.h |  22 ++-
+>  include/linux/libnvdimm.h    |   9 ++
+>  6 files changed, 343 insertions(+), 74 deletions(-)
+>
+> --
+> 2.52.0
