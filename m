@@ -1,96 +1,201 @@
-Received: from outbound.baidu.com (mx20.baidu.com [111.202.115.85])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 848AE299927
-	for <virtualization@lists.linux.dev>; Tue, 30 Jun 2026 05:02:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=111.202.115.85
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C309C3DDDBB;
+	Tue, 30 Jun 2026 07:39:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782795736; cv=none; b=EObJB4dYnlgL0Am62vuJ070Aak/ZfTEPlWegwCcII0Fr1DBev5doh5NxsmcG3NHIRxDg13/ScoqKyNDziBELY61oEMSMf62W4JP3G2uEjelkdMtGKNQztbu3yRsgUm9kWARrF/C0jrr6hGmnz5LbodmsGVEBPlcoaaiZGlO8hcY=
+	t=1782805159; cv=none; b=CwC6rpGfSwVswnEfzptLP/rGkR4PbE5aENsd/warvrH3LN5Omy0wJk19IQyni5GumdNVOYJ/8Wpwp7A3EiWefMXmAUvu+EZ3eqFyXKr+kV7TzEvteBnBOSBV+UapkKwGDKStP1ZmB0JpvaYVrX7EqwD1DmP3wfBsVwfvM+jY/ZQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782795736; c=relaxed/simple;
-	bh=OkiZFf5CzVRp4+/LGGSfiPdpxdnJIPRDxhcZIH5nOCY=;
-	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=oxqHQcWnEQLJZq02ikbSHt7mvM8TWTeW4J7vEUDjg1VJqGwWL1Wn+vv8ds7zFDjklIqQGoBLysOrrm5sgbgUptrv/SuxqOIhL/YcwYkzdEktMWtTQDTDGoJljOr5ApWL126/dIFx/ktrEi+TGXTTdUK3ZdKOfOhyDcrjI4wOoQc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=baidu.com; spf=pass smtp.mailfrom=baidu.com; dkim=pass (2048-bit key) header.d=baidu.com header.i=@baidu.com header.b=mw+FLgho; arc=none smtp.client-ip=111.202.115.85
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=baidu.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baidu.com
+	s=arc-20240116; t=1782805159; c=relaxed/simple;
+	bh=lvjAdPL/53pFYItQkwcVoVpd0+EC0h2230TPbhE1lZQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=HmSpzoSYxrc4H5ztsmq6lCNMe1UnwxMnCR6alLswoUBlxALPDtcz9XI4vOhxpZZI+6+wzjuvcin7O/PEafze9SLaaJMMufggJK3GI+Tk2WUKOpUDSa0gNDa/G9QkNqlN1ict13FNuALj8TYZM44J5QoNM0tpvdCM1tK3gNL5rGY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=fDaf4ZqW; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=baidu.com header.i=@baidu.com header.b="mw+FLgho"
-X-MD-Sfrom: lirongqing@baidu.com
-X-MD-SrcIP: 172.31.50.47
-From: lirongqing <lirongqing@baidu.com>
-To: David Hildenbrand <david@kernel.org>, "Michael S . Tsirkin"
-	<mst@redhat.com>, Jason Wang <jasowang@redhat.com>, Xuan Zhuo
-	<xuanzhuo@linux.alibaba.com>, =?UTF-8?q?Eugenio=20P=C3=A9rez?=
-	<eperezma@redhat.com>, <virtualization@lists.linux.dev>,
-	<linux-kernel@vger.kernel.org>
-CC: Li RongQing <lirongqing@baidu.com>
-Subject: [PATCH v2] virtio_mem: fix hardcoded 'vm' variable in bbm iteration macros
-Date: Tue, 30 Jun 2026 12:59:52 +0800
-Message-ID: <20260630045952.2188-1-lirongqing@baidu.com>
-X-Mailer: git-send-email 2.17.1
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="fDaf4ZqW"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A8F3C1F00A3D;
+	Tue, 30 Jun 2026 07:38:58 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1782805156;
+	bh=QFTirDmiRXM2E2UxDPivyHpH5WU8vmAPSC3LpjlrT8o=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=fDaf4ZqW3PD9fY8acsrJCsXc7pOEzc4lLsW2jgJhfYGl7NXG5KcVo4Pxek2Uz+Nla
+	 tOcu2NuZHwmic0JpBPUEEgMmuaTGNKExmRCbT0ES7+8QhHL9YqeimbRUf62O0HtMfs
+	 LYny1udM2eWLdF0sRgHD+bBsvogcyV+srg+CrLasOfuUZDDcJr8dZlygrFZBfDoggP
+	 p2mllhEamdnPs77YGrH3WGaXXIkqv4Xgyt7g+R7YVqHEf/NFyfi55aJUF3SRsQX/b0
+	 NUbVhpaMaUvlKWWtDdlDlkLmrVKracrOVgHvCwNbE5g49j/+vG6Xvy5Wxh+acQ6BjY
+	 MYjz8K0OvlQ3A==
+Date: Tue, 30 Jun 2026 08:38:51 +0100
+From: Lorenzo Stoakes <ljs@kernel.org>
+To: Zi Yan <ziy@nvidia.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, 
+	Thomas Bogendoerfer <tsbogend@alpha.franken.de>, Madhavan Srinivasan <maddy@linux.ibm.com>, 
+	Michael Ellerman <mpe@ellerman.id.au>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+	Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
+	Lucas Stach <l.stach@pengutronix.de>, Inki Dae <inki.dae@samsung.com>, 
+	Seung-Woo Kim <sw0312.kim@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, 
+	Krzysztof Kozlowski <krzk@kernel.org>, Peter Griffin <peter.griffin@linaro.org>, 
+	Jani Nikula <jani.nikula@linux.intel.com>, Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, 
+	Rodrigo Vivi <rodrigo.vivi@intel.com>, Tvrtko Ursulin <tursulin@ursulin.net>, 
+	Rob Clark <robin.clark@oss.qualcomm.com>, Dmitry Baryshkov <lumag@kernel.org>, 
+	Lyude Paul <lyude@redhat.com>, Danilo Krummrich <dakr@kernel.org>, 
+	Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>, Sandy Huang <hjc@rock-chips.com>, 
+	Heiko =?utf-8?Q?St=C3=BCbner?= <heiko@sntech.de>, Andy Yan <andy.yan@rock-chips.com>, 
+	Thierry Reding <thierry.reding@kernel.org>, Mikko Perttunen <mperttunen@nvidia.com>, 
+	Jonathan Hunter <jonathanh@nvidia.com>, Gerd Hoffmann <kraxel@redhat.com>, 
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>, Zack Rusin <zack.rusin@broadcom.com>, 
+	Matthew Brost <matthew.brost@intel.com>, Thomas Hellstrom <thomas.hellstrom@linux.intel.com>, 
+	Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>, Helge Deller <deller@gmx.de>, Benjamin LaHaise <bcrl@kvack.org>, 
+	Alexander Viro <viro@zeniv.linux.org.uk>, Christian Brauner <brauner@kernel.org>, 
+	Muchun Song <muchun.song@linux.dev>, Oscar Salvador <osalvador@suse.de>, 
+	David Hildenbrand <david@kernel.org>, Baolin Wang <baolin.wang@linux.alibaba.com>, 
+	"Liam R . Howlett" <liam@infradead.org>, Nico Pache <npache@redhat.com>, 
+	Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
+	Lance Yang <lance.yang@linux.dev>, Hugh Dickins <hughd@google.com>, 
+	Vlastimil Babka <vbabka@kernel.org>, Mike Rapoport <rppt@kernel.org>, 
+	Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>, Jann Horn <jannh@google.com>, 
+	Pedro Falcato <pfalcato@suse.de>, Kees Cook <kees@kernel.org>, Jaroslav Kysela <perex@perex.cz>, 
+	Takashi Iwai <tiwai@suse.com>, linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linuxppc-dev@lists.ozlabs.org, dri-devel@lists.freedesktop.org, etnaviv@lists.freedesktop.org, 
+	linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, 
+	intel-gfx@lists.freedesktop.org, linux-arm-msm@vger.kernel.org, freedreno@lists.freedesktop.org, 
+	nouveau@lists.freedesktop.org, linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org, 
+	virtualization@lists.linux.dev, intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org, 
+	linux-fbdev@vger.kernel.org, linux-aio@kvack.org, linux-fsdevel@vger.kernel.org, 
+	linux-mm@kvack.org, linux-sound@vger.kernel.org
+Subject: Re: [PATCH 01/13] mm: introduce vma_flags_can_grow() and
+ vma_can_grow()
+Message-ID: <akNucoP3eaDN2_Vz@lucifer>
+References: <cover.1782760670.git.ljs@kernel.org>
+ <f2e8c32515d328db62279cc8bab8398ea278d74f.1782760670.git.ljs@kernel.org>
+ <DJLTDCPWMXDL.4ICZ77A1LPZZ@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain
-X-ClientProxiedBy: bjhj-exc14.internal.baidu.com (172.31.4.12) To
- bjkjy-exc3.internal.baidu.com (172.31.50.47)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=baidu.com;
-	s=selector1; t=1782795602;
-	bh=qJJIYCHO+t3AFM9u2YeN//KfUnYWWc9YJwl+4wfDh/U=;
-	h=From:To:CC:Subject:Date:Message-ID:Content-Type;
-	b=mw+FLghor0B3ld1lHEWAtg0W/gZVlBGLGQ2vRugnOOPITbvlYPZ4rZKRnL8bu/mbR
-	 VuqDlml+DslZkJfyGwLKcai/YmdYMFcK8KXZ9FkArX34MOPgSu4C0MR7t2OKzuG3IE
-	 V4gD1tKIlaH6/RsfvRATlNTcuQg/gBjHZ0n1+576EKI/s/Q9hDtaqXhMGw+mZEvP7u
-	 lgfDdP6U+CtWLtudeMXtBGld1+RqsgNiHeuJO8neHDQOmZU5JXeb2dGc4uqU299S30
-	 OSwricuP13ib1AJZAKcC9gnofs6p26786W092pgGWwIGRpIEMbz3MCgpFXpxg0Sbj8
-	 J/cdPqNNrZmAA==
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <DJLTDCPWMXDL.4ICZ77A1LPZZ@nvidia.com>
 
-From: Li RongQing <lirongqing@baidu.com>
+On Mon, Jun 29, 2026 at 04:26:18PM -0400, Zi Yan wrote:
+> On Mon Jun 29, 2026 at 3:25 PM EDT, Lorenzo Stoakes wrote:
+> > These test whether the VMA has stack sematics, i.e. is able to grow upwards
+> > or downwards depending on the architecture.
+> >
+> > In order to account for arches which do not support upward-growing stacks,
+> > introduce VMA_GROWSUP whose definition depends on the architecture
+> > supporting it, and use vma_flags_test_single_mask() in vma_flags_can_grow()
+> > to account for this.
+> >
+> > Update the VMA userland tests to reflect the changes
+> >
+> > No functional change intended.
+> >
+> > Signed-off-by: Lorenzo Stoakes <ljs@kernel.org>
+> > ---
+> >  include/linux/mm.h              | 21 ++++++++++++++++++---
+> >  tools/testing/vma/include/dup.h |  4 ++++
+> >  2 files changed, 22 insertions(+), 3 deletions(-)
+> >
+> > diff --git a/include/linux/mm.h b/include/linux/mm.h
+> > index 868b2334bff3..cf7df1569052 100644
+> > --- a/include/linux/mm.h
+> > +++ b/include/linux/mm.h
+> > @@ -472,6 +472,7 @@ enum {
+> >  #define VM_SAO		INIT_VM_FLAG(SAO)
+> >  #elif defined(CONFIG_PARISC)
+> >  #define VM_GROWSUP	INIT_VM_FLAG(GROWSUP)
+> > +#define VMA_GROWSUP	mk_vma_flags(VMA_GROWSUP_BIT)
+> >  #elif defined(CONFIG_SPARC64)
+> >  #define VM_SPARC_ADI	INIT_VM_FLAG(SPARC_ADI)
+> >  #define VM_ARCH_CLEAR	INIT_VM_FLAG(ARCH_CLEAR)
+> > @@ -483,6 +484,7 @@ enum {
+> >  #endif
+> >  #ifndef VM_GROWSUP
+> >  #define VM_GROWSUP	VM_NONE
+> > +#define VMA_GROWSUP	EMPTY_VMA_FLAGS
+> >  #endif
+> >  #ifdef CONFIG_ARM64_MTE
+> >  #define VM_MTE		INIT_VM_FLAG(MTE)
+> > @@ -1563,11 +1565,24 @@ static inline bool vma_is_initial_stack(const struct vm_area_struct *vma)
+> >  		vma->vm_end >= vma->vm_mm->start_stack;
+> >  }
+> >
+> > -static inline bool vma_is_temporary_stack(const struct vm_area_struct *vma)
+> > +static inline bool vma_flags_can_grow(const vma_flags_t *flags)
+> >  {
+> > -	int maybe_stack = vma->vm_flags & (VM_GROWSDOWN | VM_GROWSUP);
+> > +	if (vma_flags_test_single_mask(flags, VMA_GROWSUP))
+> > +		return true;
+> > +	if (vma_flags_test(flags, VMA_GROWSDOWN_BIT))
+> > +		return true;
+> > +
+> > +	return false;
+> > +}
+> >
+> > -	if (!maybe_stack)
+> > +static inline bool vma_can_grow(const struct vm_area_struct *vma)
+> > +{
+> > +	return vma_flags_can_grow(&vma->flags);
+>
+> Would it save vma_flags_can_grow() if we do below?
+>
+> return vma_test(vma, VMA_GROWSDOWN_BIT) || vma_test_single_mask(vma, VMA_GROWSUP);
+>
+> I find these two functions when I am reading mm.h.
 
-virtio_mem_bbm_for_each_bb() and virtio_mem_bbm_for_each_bb_rev()
-accept a '_vm' parameter to allow callers to pass any variable name
-referring to the virtio_mem instance. However, the 'for' loop
-initializer and part of the loop condition use the bare name 'vm'
-instead of the macro parameter '_vm'.
+Yeah but we require vma_flags_can_grow() for code in mmap.c, the majority of
+checks of this have only vma_flags_t to work with not a VMA :)
 
-Fix by replacing all bare 'vm->' references inside the macros with
-the '_vm' parameter, and wrap in parentheses following kernel macro
-conventions.
+>
+> > +}
+> > +
+> > +static inline bool vma_is_temporary_stack(const struct vm_area_struct *vma)
+> > +{
+> > +	if (!vma_can_grow(vma))
+> >  		return false;
+> >
+> >  	if ((vma->vm_flags & VM_STACK_INCOMPLETE_SETUP) ==
+> > diff --git a/tools/testing/vma/include/dup.h b/tools/testing/vma/include/dup.h
+> > index 5d7d0afd7765..6f5bcd7fbcd8 100644
+> > --- a/tools/testing/vma/include/dup.h
+> > +++ b/tools/testing/vma/include/dup.h
+> > @@ -245,8 +245,10 @@ enum {
+> >  #define VM_STACK	INIT_VM_FLAG(STACK)
+> >  #ifdef CONFIG_STACK_GROWS_UP
+> >  #define VM_STACK_EARLY	INIT_VM_FLAG(STACK_EARLY)
+> > +#define VMA_STACK_EARLY mk_vma_flags(VMA_STACK_EARLY_BIT)
+> >  #else
+> >  #define VM_STACK_EARLY	VM_NONE
+> > +#define VMA_STACK_EARLY EMPTY_VMA_FLAGS
+> >  #endif
+> >  #ifdef CONFIG_ARCH_HAS_PKEYS
+> >  #define VM_PKEY_SHIFT ((__force int)VMA_HIGH_ARCH_0_BIT)
+> > @@ -315,6 +317,8 @@ enum {
+> >
+> >  /* Bits set in the VMA until the stack is in its final location */
+> >  #define VM_STACK_INCOMPLETE_SETUP (VM_RAND_READ | VM_SEQ_READ | VM_STACK_EARLY)
+> > +#define VMA_STACK_INCOMPLETE_SETUP append_vma_flags(		\
+> > +	VMA_STACK_EARLY, VMA_RAND_READ_BIT, VMA_SEQ_READ_BIT)
+> >
+> >  #define TASK_EXEC_BIT ((current->personality & READ_IMPLIES_EXEC) ? \
+> >  		       VM_EXEC_BIT : VM_READ_BIT)
+>
+> Why are VMA_STACK_EARLY and VMA_STACK_INCOMPLETE_SETUP added here but
+> not in mm.h?
 
-Signed-off-by: Li RongQing <lirongqing@baidu.com>
-Acked-by: David Hildenbrand (Arm) <david@kernel.org>
----
-diff with v1: drop the Fixes tag, since there is no user-visible bug
+Yeah urgh oops my bad. It doesn't really break anything but I'll fix it if a
+respin is needed...
 
- drivers/virtio/virtio_mem.c | 8 ++++----
- 1 file changed, 4 insertions(+), 4 deletions(-)
+>
+>
+> --
+> Best Regards,
+> Yan, Zi
+>
 
-diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index 11c4415..82a285c 100644
---- a/drivers/virtio/virtio_mem.c
-+++ b/drivers/virtio/virtio_mem.c
-@@ -423,14 +423,14 @@ static int virtio_mem_bbm_bb_states_prepare_next_bb(struct virtio_mem *vm)
- }
- 
- #define virtio_mem_bbm_for_each_bb(_vm, _bb_id, _state) \
--	for (_bb_id = vm->bbm.first_bb_id; \
--	     _bb_id < vm->bbm.next_bb_id && _vm->bbm.bb_count[_state]; \
-+	for (_bb_id = (_vm)->bbm.first_bb_id; \
-+	     _bb_id < (_vm)->bbm.next_bb_id && (_vm)->bbm.bb_count[_state]; \
- 	     _bb_id++) \
- 		if (virtio_mem_bbm_get_bb_state(_vm, _bb_id) == _state)
- 
- #define virtio_mem_bbm_for_each_bb_rev(_vm, _bb_id, _state) \
--	for (_bb_id = vm->bbm.next_bb_id - 1; \
--	     _bb_id >= vm->bbm.first_bb_id && _vm->bbm.bb_count[_state]; \
-+	for (_bb_id = (_vm)->bbm.next_bb_id - 1; \
-+	     _bb_id >= (_vm)->bbm.first_bb_id && (_vm)->bbm.bb_count[_state]; \
- 	     _bb_id--) \
- 		if (virtio_mem_bbm_get_bb_state(_vm, _bb_id) == _state)
- 
--- 
-2.9.4
-
+Thanks, Lorenzo
