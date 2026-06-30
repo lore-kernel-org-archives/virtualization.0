@@ -1,625 +1,204 @@
-Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46EA23E5EEA
-	for <virtualization@lists.linux.dev>; Tue, 30 Jun 2026 07:57:46 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4B89316192
+	for <virtualization@lists.linux.dev>; Tue, 30 Jun 2026 09:17:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782806268; cv=none; b=Rm0pvf2I2rz7W8MIhmxJBM4BEbzUNFcKZ+XSGRyjdcVTSQZOScOjuEMuC50yjKohGvCfJv8tFCwRM34lF04fm//A2HkCXQRIkIqpt8LIaoC0pbeZUzsx893juHHSXZTKqvDXQlg6TdOq8/4qfIkiJGHek0TPRh0D6jeihu1D2E0=
+	t=1782811024; cv=none; b=pFaxMl5oNTzu7IApoH/swLFRzkTpCbdCv86wevohvfUGA6GzKRpYmddqyk3aNlSQQtL4NBY2gFWKiLa7q/AD0D0Lru6at4kB2u8iA4LJHSE86640ErF6odvCyaXW1fBOtyYPZDjZ01hVNBdNdkfZwrUsgc8AG4EuvVSRYR0QLcI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782806268; c=relaxed/simple;
-	bh=R5rkvQdM7LADmJE0nWfc0HRcKopfhmxuB2lL8dShcDg=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=HHQw2bzZYLDvXA/HZk4zxquk75mvk6ZlU2Sf28TWKTys7TbWW7RtWGEibVx5Sjp6CRRKN71BJK4mYQ2THGbbGt+xp1Fs1l+Y77cNcz8Zw3FQU/AhMPdBMrJXMyUeNPqucz5opqBHzQy0PQv8yNyQvJ5l0hcv3NYEolP6RpzsbYA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=TCj059ky; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=scbLV3fB; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=tB7o2hVE; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=H4eo+7cv; arc=none smtp.client-ip=195.135.223.130
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	s=arc-20240116; t=1782811024; c=relaxed/simple;
+	bh=qVZVunnAIEFClL5xxjyBkQV2G0Ey392PyLu0V5W6xQo=;
+	h=From:Date:Subject:MIME-Version:Message-Id:To:Cc:Content-Type; b=qKIAdrFhGj4U14Ft8qk7+pWHQ799TkNnyqfXhfIbgj0tqqlscdCpAcJSQeOUEUs1lDV8H3qOXw7pwaLwdD6Z6F1R0XHfauyVp7BulcPZ9h+nxJ3VHm2vKHb+H8VEcXQwLJXuNkueHCwez5UgaO9YShDaRSIEuxIPh381aEm8ZiY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ZdjYdih3; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="TCj059ky";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="scbLV3fB";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="tB7o2hVE";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="H4eo+7cv"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out1.suse.de (Postfix) with ESMTPS id 594197352F;
-	Tue, 30 Jun 2026 07:57:38 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1782806259; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=iQHCNvm5iCydx06BYNg5wSgQa22mMWiSbgAwpdJ6eo0=;
-	b=TCj059ky++vMgM2QvNFn9/ABeGYUawaK8Dv/kSoYP+ONT6VTlDX8yQqlAkbG8KhdS9avzJ
-	TjAiLyDHvWXVfZpZ5bmxGOTg4MGdzM+Ct5x66dG4naG7kv5tlRXLM8+fpoclCragTQXr5z
-	l4T11swnBl8LitfRbVCHJqJMI6RPlNY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1782806259;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=iQHCNvm5iCydx06BYNg5wSgQa22mMWiSbgAwpdJ6eo0=;
-	b=scbLV3fBQVk1L+SWml2DR27VJhqZ2trcAgXHjdB505du65np2Jnm8pG4xRF2kLQLD8tU5y
-	LVJWgD61d/WhcNBw==
-Authentication-Results: smtp-out1.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1782806258; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=iQHCNvm5iCydx06BYNg5wSgQa22mMWiSbgAwpdJ6eo0=;
-	b=tB7o2hVE2NY3ju+y5PzpGlEPnSG+rDztdj+v7T6UMWhCGwDkS9Aczg3Kf0cGsxji1WsIwW
-	+0lCSt+f8+3jzgwe/84P9Nf/cP++BiG9bTzoQYiJyKjLU6mKxnPEj+y+NgWyZeG+g8KeXH
-	rfE7zcfrtlxtXLoy0H68mQZh35eK/BY=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1782806258;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=iQHCNvm5iCydx06BYNg5wSgQa22mMWiSbgAwpdJ6eo0=;
-	b=H4eo+7cvHga0nEJD8ke0xovVvvECqvwyQliBIgkoG2uIQw+ZoTpxfgvLHVsTGVHJENshZ1
-	5Ib6rR6lGiHJjNBw==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 78828779A8;
-	Tue, 30 Jun 2026 07:57:36 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id argyHPB2Q2qYcwAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Tue, 30 Jun 2026 07:57:36 +0000
-Message-ID: <b64fa406-f66d-4b98-9916-d2a4896e5c81@suse.de>
-Date: Tue, 30 Jun 2026 09:57:35 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ZdjYdih3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1782811021;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding;
+	bh=SQjV7ILhB1oO4EWB5BntYJkQ/7T/8cRlQn3mNNHBaBw=;
+	b=ZdjYdih3JLxVd8WWorRre9ENZ4ez2fYMg1nIHD3YKwNs3iPeCLy9q+k/mlX56iafxhuXVE
+	2MZaKnsBu8LfpcagTptHi3rUh681GXIJc1ox9QSGIbM5teaTBD5hIN2nxsBo/UlGgJSzJR
+	R/yLxSLnePV5+kvXMyMZ32UCcHmGzO0=
+Received: from mail-pf1-f200.google.com (mail-pf1-f200.google.com
+ [209.85.210.200]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-382-sUnH7FYYPN6QqPtCsc54gw-1; Tue, 30 Jun 2026 05:16:59 -0400
+X-MC-Unique: sUnH7FYYPN6QqPtCsc54gw-1
+X-Mimecast-MFC-AGG-ID: sUnH7FYYPN6QqPtCsc54gw_1782811019
+Received: by mail-pf1-f200.google.com with SMTP id d2e1a72fcca58-84622d6102dso2397530b3a.1
+        for <virtualization@lists.linux.dev>; Tue, 30 Jun 2026 02:16:59 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782811019; x=1783415819;
+        h=cc:to:message-id:content-transfer-encoding:mime-version:subject
+         :date:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=SQjV7ILhB1oO4EWB5BntYJkQ/7T/8cRlQn3mNNHBaBw=;
+        b=GAcHjt+lejEjesj6SrRQXZoA9PUieKGZJ795wXhkE9i93WXGMG36pcCRRJmnX39q2X
+         IqWC2+ZIvXUiDd4YltTbx5W9CDcWSnOeqWqU+JayajTAXp/+ydIGkpjSnz5YHbSsvuqZ
+         qJwn3o3/0IySdGysacIMJSqROEFlELc1gCf4QJ2L2BoyBpJxYiVp3SV8OY8XstFztBsO
+         eTGj4uRkm0Z4TCrNcn0zA/Nnudjp3+TZZBDCgYuTy+2GZ2wxeYH6sF7kMpVeW2JkdW/A
+         Jf0HSlJW33oxEw8hbduSqwQM6FmMkdtRi3Tf/x1D6cmBrr8Xt8COoyNHwvwWyjlbDg5O
+         TVtg==
+X-Forwarded-Encrypted: i=1; AHgh+Rose+NL6y+yNB4+qegCd+X1RVYvPahFuj3+0gQk5aN7g4SowuexMOR3YcbpIvD5nD+xaoQT6o2EsvFYG5vIUg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyE+7c0rDtd+FVL9tb+bi1+5M6PX8uYekbw+OlmwfudpXADQS/k
+	ySzlfGJ2b0X0XKY0SJXSRlrYCPfwgeckKZdC8kjW1IREYyEDTWMEt3YaIxtqdkSusbMwz+cXwCq
+	qQsWzu4hqhsyfZx89XLJ12vW8dmDrhemgPCHRs9uft6h8hiEdDG9WrGyKccm1iN2fI9b8
+X-Gm-Gg: AfdE7cmG7InVYVayrY/W4Av7stOkV4L4f2Pin4EYzxuhKYK4cpKEN99fDZpZgJ0GYwj
+	zkmgyMOP4XGVkaXYjhGA1shp1XaVZnUwskGDOhNj+80Rd+NtUFSJ/UpaYMIQiYYaE0pzKnRecTA
+	2lgl3FYMrghTAQBBmIbLV4ymIgJdYfDS7z66JeVaOB9qlvyeoIScvFThTSh/zKMMewC6FdJSSor
+	GSwQvkSbM2PcNS94nAt0+5lFCmIb6cRywB93au1+jGPde+ev7r204NI1Yr3zee5vF5xDAijILQY
+	5Vj2kMwFj2pIgiM+3t33TiMD+GjWFO1sYWsNVGe+Op0McGa+vWAoxpkIAqoR2s8sq5LNS8u+6hh
+	SGXm7j16BgxMqyLfOxYuOdKKH/wd9rnnYeWTcyCQpOMyGdetQ
+X-Received: by 2002:a05:6a00:9505:b0:847:8f68:e8d7 with SMTP id d2e1a72fcca58-8479ee9a5bdmr2034494b3a.8.1782811018754;
+        Tue, 30 Jun 2026 02:16:58 -0700 (PDT)
+X-Received: by 2002:a05:6a00:9505:b0:847:8f68:e8d7 with SMTP id d2e1a72fcca58-8479ee9a5bdmr2034475b3a.8.1782811018268;
+        Tue, 30 Jun 2026 02:16:58 -0700 (PDT)
+Received: from ryasuoka-thinkpadx1carbongen9.tokyo.csb ([126.143.164.49])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-847a005af85sm1494569b3a.25.2026.06.30.02.16.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 30 Jun 2026 02:16:57 -0700 (PDT)
+From: Ryosuke Yasuoka <ryasuoka@redhat.com>
+Date: Tue, 30 Jun 2026 18:16:42 +0900
+Subject: [PATCH] drm/virtio: defer hotplug event from dequeue worker to
+ avoid deadlock
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 08/13] mm: introduce vma_get_page_prot() and use it
-To: Lorenzo Stoakes <ljs@kernel.org>,
- Andrew Morton <akpm@linux-foundation.org>
-Cc: Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, David Airlie <airlied@gmail.com>,
- Simona Vetter <simona@ffwll.ch>, Lucas Stach <l.stach@pengutronix.de>,
- Inki Dae <inki.dae@samsung.com>, Seung-Woo Kim <sw0312.kim@samsung.com>,
- Kyungmin Park <kyungmin.park@samsung.com>,
- Krzysztof Kozlowski <krzk@kernel.org>,
- Peter Griffin <peter.griffin@linaro.org>,
- Jani Nikula <jani.nikula@linux.intel.com>,
- Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
- Rodrigo Vivi <rodrigo.vivi@intel.com>, Tvrtko Ursulin
- <tursulin@ursulin.net>, Rob Clark <robin.clark@oss.qualcomm.com>,
- Dmitry Baryshkov <lumag@kernel.org>, Lyude Paul <lyude@redhat.com>,
- Danilo Krummrich <dakr@kernel.org>,
- Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
- Sandy Huang <hjc@rock-chips.com>, =?UTF-8?Q?Heiko_St=C3=BCbner?=
- <heiko@sntech.de>, Andy Yan <andy.yan@rock-chips.com>,
- Thierry Reding <thierry.reding@kernel.org>,
- Mikko Perttunen <mperttunen@nvidia.com>,
- Jonathan Hunter <jonathanh@nvidia.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- Zack Rusin <zack.rusin@broadcom.com>, Matthew Brost
- <matthew.brost@intel.com>,
- Thomas Hellstrom <thomas.hellstrom@linux.intel.com>,
- Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
- Helge Deller <deller@gmx.de>, Benjamin LaHaise <bcrl@kvack.org>,
- Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>, Muchun Song <muchun.song@linux.dev>,
- Oscar Salvador <osalvador@suse.de>, David Hildenbrand <david@kernel.org>,
- Zi Yan <ziy@nvidia.com>, Baolin Wang <baolin.wang@linux.alibaba.com>,
- "Liam R . Howlett" <liam@infradead.org>, Nico Pache <npache@redhat.com>,
- Ryan Roberts <ryan.roberts@arm.com>, Dev Jain <dev.jain@arm.com>,
- Barry Song <baohua@kernel.org>, Lance Yang <lance.yang@linux.dev>,
- Hugh Dickins <hughd@google.com>, Vlastimil Babka <vbabka@kernel.org>,
- Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>,
- Michal Hocko <mhocko@suse.com>, Jann Horn <jannh@google.com>,
- Pedro Falcato <pfalcato@suse.de>, Kees Cook <kees@kernel.org>,
- Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
- linux-mips@vger.kernel.org, linux-kernel@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, dri-devel@lists.freedesktop.org,
- etnaviv@lists.freedesktop.org, linux-arm-kernel@lists.infradead.org,
- linux-samsung-soc@vger.kernel.org, intel-gfx@lists.freedesktop.org,
- linux-arm-msm@vger.kernel.org, freedreno@lists.freedesktop.org,
- nouveau@lists.freedesktop.org, linux-rockchip@lists.infradead.org,
- linux-tegra@vger.kernel.org, virtualization@lists.linux.dev,
- intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org,
- linux-fbdev@vger.kernel.org, linux-aio@kvack.org,
- linux-fsdevel@vger.kernel.org, linux-mm@kvack.org,
- linux-sound@vger.kernel.org
-References: <cover.1782760670.git.ljs@kernel.org>
- <3bb8bdc4788230c33102166d56cbc5abfad9d4cb.1782760670.git.ljs@kernel.org>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <3bb8bdc4788230c33102166d56cbc5abfad9d4cb.1782760670.git.ljs@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Flag: NO
-X-Spamd-Result: default: False [-8.30 / 50.00];
-	REPLY(-4.00)[];
-	BAYES_HAM(-3.00)[100.00%];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-1.000];
-	MIME_GOOD(-0.10)[text/plain];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	ARC_NA(0.00)[];
-	TO_DN_SOME(0.00)[];
-	MIME_TRACE(0.00)[0:+];
-	MID_RHS_MATCH_FROM(0.00)[];
-	RCVD_TLS_ALL(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FROM_HAS_DN(0.00)[];
-	FREEMAIL_CC(0.00)[alpha.franken.de,linux.ibm.com,ellerman.id.au,linux.intel.com,kernel.org,gmail.com,ffwll.ch,pengutronix.de,samsung.com,linaro.org,intel.com,ursulin.net,oss.qualcomm.com,redhat.com,ideasonboard.com,rock-chips.com,sntech.de,nvidia.com,collabora.com,broadcom.com,epam.com,gmx.de,kvack.org,zeniv.linux.org.uk,linux.dev,suse.de,linux.alibaba.com,infradead.org,arm.com,google.com,suse.com,perex.cz,vger.kernel.org,lists.ozlabs.org,lists.freedesktop.org,lists.infradead.org,lists.linux.dev,lists.xenproject.org];
-	R_RATELIMIT(0.00)[to_ip_from(RLn3s9x7hsi3roeqzgsrnd8bnd)];
-	FROM_EQ_ENVFROM(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_SOME(0.00)[];
-	RCPT_COUNT_GT_50(0.00)[82];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.de:email,suse.de:mid,imap1.dmz-prg2.suse.org:helo,suse.com:url]
-X-Spam-Level: 
-X-Spam-Score: -8.30
+Message-Id: <20260630-virtiogpu_syzbot-v1-1-0aa06630750e@redhat.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/x3MQQqAIBBA0avErBMsSKqrRETqaLPR0IpKvHvS8
+ i3+TxAxEEYYqwQBL4rkXUFTV6C21VlkpIuh5a3gohnYReEgb/dzic8r/cGkXmXHe2OU7qBke0B
+ D97+c5pw/IIUSo2IAAAA=
+X-Change-ID: 20260619-virtiogpu_syzbot-bdab508ffcd5
+To: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
+ Dmitry Osipenko <dmitry.osipenko@collabora.com>, 
+ Gurchetan Singh <gurchetansingh@chromium.org>, 
+ Chia-I Wu <olvaffe@gmail.com>, 
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+ Simona Vetter <simona@ffwll.ch>, Dmitry Baryshkov <lumag@kernel.org>, 
+ Javier Martinez Canillas <javierm@redhat.com>
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev, 
+ linux-kernel@vger.kernel.org, Ryosuke Yasuoka <ryasuoka@redhat.com>
+X-Mailer: b4 0.14.3
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: DdDxRjbAYVxrIvd_od6wMAzhH6iBVn0xl718EYffgv4_1782811019
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
 
+A probe-time deadlock can occur between the dequeue worker and
+drm_client_register(). During probe, drm_client_register() holds
+clientlist_mutex and calls the fbdev hotplug callback, which triggers an
+atomic commit that ends up sleeping in virtio_gpu_queue_ctrl_sgs()
+waiting for virtqueue space. The dequeue worker that would free that
+space calls virtio_gpu_cmd_get_display_info_cb(), which invokes
+drm_kms_helper_hotplug_event() -> drm_client_dev_hotplug(), attempting
+to acquire the same clientlist_mutex. Since wake_up() is only called
+after the resp_cb loop, the probe thread is never woken and both threads
+deadlock.
 
+Fix this by deferring the hotplug notification from
+virtio_gpu_cmd_get_display_info_cb() to a separate work item. The
+display data (outputs[i].info) is still updated synchronously in the
+callback, and the deferred work only triggers a re-probe notification to
+DRM clients.
 
-Am 29.06.26 um 21:25 schrieb Lorenzo Stoakes:
-> There's a large number of vm_get_page_prot(vma->vm_flags) invocations. Make
-> life easier by introducing vma_get_page_prot() parameterised by the VMA.
->
-> This also makes converting vm_get_page_prot() to vma_flags_t easier.
->
-> Also update the userland VMA tests to reflect the change.
->
-> No functional change intended.
->
-> Signed-off-by: Lorenzo Stoakes <ljs@kernel.org>
+Fixes: 27655b9bb9f0 ("drm/client: Send hotplug event after registering a client")
+Closes: https://syzkaller.appspot.com/bug?id=d6dd6f86d3aaf7eebe7406e45c1c6e549453f224
+Closes: https://syzkaller.appspot.com/bug?id=908bd910da5dd79b88de4cf7baf376cc873a922e
+Signed-off-by: Ryosuke Yasuoka <ryasuoka@redhat.com>
+---
+ drivers/gpu/drm/virtio/virtgpu_drv.h |  3 +++
+ drivers/gpu/drm/virtio/virtgpu_kms.c |  3 +++
+ drivers/gpu/drm/virtio/virtgpu_vq.c  | 12 ++++++++++--
+ 3 files changed, 16 insertions(+), 2 deletions(-)
 
-For the DRM changes:
+diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+index 7449907754a4..27ffa4697ae9 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_drv.h
++++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+@@ -264,6 +264,8 @@ struct virtio_gpu_device {
+ 
+ 	struct work_struct config_changed_work;
+ 
++	struct work_struct hotplug_work;
++
+ 	struct work_struct obj_free_work;
+ 	spinlock_t obj_free_lock;
+ 	struct list_head obj_free_list;
+@@ -350,6 +352,7 @@ void virtio_gpu_cmd_transfer_to_host_2d(struct virtio_gpu_device *vgdev,
+ 					uint32_t x, uint32_t y,
+ 					struct virtio_gpu_object_array *objs,
+ 					struct virtio_gpu_fence *fence);
++void virtio_gpu_hotplug_work_func(struct work_struct *work);
+ void virtio_gpu_panic_cmd_resource_flush(struct virtio_gpu_device *vgdev,
+ 					 uint32_t resource_id,
+ 					 uint32_t x, uint32_t y,
+diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+index cfde9f573df6..cfb532ba43a4 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_kms.c
++++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+@@ -154,6 +154,8 @@ int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev)
+ 	INIT_WORK(&vgdev->config_changed_work,
+ 		  virtio_gpu_config_changed_work_func);
+ 
++	INIT_WORK(&vgdev->hotplug_work, virtio_gpu_hotplug_work_func);
++
+ 	INIT_WORK(&vgdev->obj_free_work,
+ 		  virtio_gpu_array_put_free_work);
+ 	INIT_LIST_HEAD(&vgdev->obj_free_list);
+@@ -293,6 +295,7 @@ void virtio_gpu_deinit(struct drm_device *dev)
+ 	flush_work(&vgdev->obj_free_work);
+ 	flush_work(&vgdev->ctrlq.dequeue_work);
+ 	flush_work(&vgdev->cursorq.dequeue_work);
++	flush_work(&vgdev->hotplug_work);
+ 	flush_work(&vgdev->config_changed_work);
+ 	virtio_reset_device(vgdev->vdev);
+ 	vgdev->vdev->config->del_vqs(vgdev->vdev);
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 67865810a2e7..084d98f5dc7b 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -816,6 +816,15 @@ virtio_gpu_cmd_resource_detach_backing(struct virtio_gpu_device *vgdev,
+ 	virtio_gpu_queue_fenced_ctrl_buffer(vgdev, vbuf, fence);
+ }
+ 
++void virtio_gpu_hotplug_work_func(struct work_struct *work)
++{
++	struct virtio_gpu_device *vgdev =
++		container_of(work, struct virtio_gpu_device, hotplug_work);
++
++	if (!drm_helper_hpd_irq_event(vgdev->ddev))
++		drm_kms_helper_hotplug_event(vgdev->ddev);
++}
++
+ static void virtio_gpu_cmd_get_display_info_cb(struct virtio_gpu_device *vgdev,
+ 					       struct virtio_gpu_vbuffer *vbuf)
+ {
+@@ -841,8 +850,7 @@ static void virtio_gpu_cmd_get_display_info_cb(struct virtio_gpu_device *vgdev,
+ 	spin_unlock(&vgdev->display_info_lock);
+ 	wake_up(&vgdev->resp_wq);
+ 
+-	if (!drm_helper_hpd_irq_event(vgdev->ddev))
+-		drm_kms_helper_hotplug_event(vgdev->ddev);
++	schedule_work(&vgdev->hotplug_work);
+ }
+ 
+ static void virtio_gpu_cmd_get_capset_info_cb(struct virtio_gpu_device *vgdev,
 
-Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de>
+---
+base-commit: dc59e4fea9d83f03bad6bddf3fa2e52491777482
+change-id: 20260619-virtiogpu_syzbot-bdab508ffcd5
 
-> ---
->   drivers/gpu/drm/drm_gem.c                   |  2 +-
->   drivers/gpu/drm/drm_gem_dma_helper.c        |  2 +-
->   drivers/gpu/drm/drm_gem_shmem_helper.c      |  2 +-
->   drivers/gpu/drm/etnaviv/etnaviv_gem.c       |  2 +-
->   drivers/gpu/drm/exynos/exynos_drm_gem.c     |  6 +++---
->   drivers/gpu/drm/i915/gem/i915_gem_mman.c    | 12 ++++++------
->   drivers/gpu/drm/msm/msm_gem.c               |  2 +-
->   drivers/gpu/drm/nouveau/nouveau_gem.c       |  2 +-
->   drivers/gpu/drm/omapdrm/omap_fbdev.c        |  2 +-
->   drivers/gpu/drm/omapdrm/omap_gem.c          |  6 +++---
->   drivers/gpu/drm/rockchip/rockchip_drm_gem.c |  2 +-
->   drivers/gpu/drm/tegra/gem.c                 |  2 +-
->   drivers/gpu/drm/virtio/virtgpu_vram.c       |  2 +-
->   drivers/gpu/drm/vmwgfx/vmwgfx_page_dirty.c  |  2 +-
->   drivers/gpu/drm/xe/xe_device.c              |  2 +-
->   drivers/gpu/drm/xe/xe_mmio_gem.c            |  2 +-
->   drivers/gpu/drm/xen/xen_drm_front_gem.c     |  2 +-
->   drivers/video/fbdev/core/fb_io_fops.c       |  2 +-
->   include/linux/mm.h                          | 10 +++++++++-
->   mm/vma.c                                    |  2 +-
->   mm/vma_exec.c                               |  2 +-
->   sound/core/memalloc.c                       |  2 +-
->   tools/testing/vma/include/dup.h             |  4 ++++
->   23 files changed, 43 insertions(+), 31 deletions(-)
->
-> diff --git a/drivers/gpu/drm/drm_gem.c b/drivers/gpu/drm/drm_gem.c
-> index e3ed684ddcf2..32a05d889b9a 100644
-> --- a/drivers/gpu/drm/drm_gem.c
-> +++ b/drivers/gpu/drm/drm_gem.c
-> @@ -1252,7 +1252,7 @@ int drm_gem_mmap_obj(struct drm_gem_object *obj, unsigned long obj_size,
->   		}
->   
->   		vm_flags_set(vma, VM_IO | VM_PFNMAP | VM_DONTEXPAND | VM_DONTDUMP);
-> -		vma->vm_page_prot = pgprot_writecombine(vm_get_page_prot(vma->vm_flags));
-> +		vma->vm_page_prot = pgprot_writecombine(vma_get_page_prot(vma));
->   		vma->vm_page_prot = pgprot_decrypted(vma->vm_page_prot);
->   	}
->   
-> diff --git a/drivers/gpu/drm/drm_gem_dma_helper.c b/drivers/gpu/drm/drm_gem_dma_helper.c
-> index 1c00a71ab3c9..7d9612075d31 100644
-> --- a/drivers/gpu/drm/drm_gem_dma_helper.c
-> +++ b/drivers/gpu/drm/drm_gem_dma_helper.c
-> @@ -540,7 +540,7 @@ int drm_gem_dma_mmap(struct drm_gem_dma_object *dma_obj, struct vm_area_struct *
->   	vm_flags_mod(vma, VM_DONTDUMP | VM_DONTEXPAND, VM_PFNMAP);
->   
->   	if (dma_obj->map_noncoherent) {
-> -		vma->vm_page_prot = vm_get_page_prot(vma->vm_flags);
-> +		vma->vm_page_prot = vma_get_page_prot(vma);
->   
->   		ret = dma_mmap_pages(drm_dev_dma_dev(dma_obj->base.dev),
->   				     vma, vma->vm_end - vma->vm_start,
-> diff --git a/drivers/gpu/drm/drm_gem_shmem_helper.c b/drivers/gpu/drm/drm_gem_shmem_helper.c
-> index c989459eb215..06d019d51d3e 100644
-> --- a/drivers/gpu/drm/drm_gem_shmem_helper.c
-> +++ b/drivers/gpu/drm/drm_gem_shmem_helper.c
-> @@ -764,7 +764,7 @@ int drm_gem_shmem_mmap(struct drm_gem_shmem_object *shmem, struct vm_area_struct
->   		return ret;
->   
->   	vm_flags_set(vma, VM_PFNMAP | VM_DONTEXPAND | VM_DONTDUMP);
-> -	vma->vm_page_prot = vm_get_page_prot(vma->vm_flags);
-> +	vma->vm_page_prot = vma_get_page_prot(vma);
->   	if (shmem->map_wc)
->   		vma->vm_page_prot = pgprot_writecombine(vma->vm_page_prot);
->   
-> diff --git a/drivers/gpu/drm/etnaviv/etnaviv_gem.c b/drivers/gpu/drm/etnaviv/etnaviv_gem.c
-> index 2e4d6d117ee2..f9c8b7b2bfc7 100644
-> --- a/drivers/gpu/drm/etnaviv/etnaviv_gem.c
-> +++ b/drivers/gpu/drm/etnaviv/etnaviv_gem.c
-> @@ -133,7 +133,7 @@ static int etnaviv_gem_mmap_obj(struct etnaviv_gem_object *etnaviv_obj,
->   
->   	vm_flags_set(vma, VM_PFNMAP | VM_DONTEXPAND | VM_DONTDUMP);
->   
-> -	vm_page_prot = vm_get_page_prot(vma->vm_flags);
-> +	vm_page_prot = vma_get_page_prot(vma);
->   
->   	if (etnaviv_obj->flags & ETNA_BO_WC) {
->   		vma->vm_page_prot = pgprot_writecombine(vm_page_prot);
-> diff --git a/drivers/gpu/drm/exynos/exynos_drm_gem.c b/drivers/gpu/drm/exynos/exynos_drm_gem.c
-> index 9a6270f3dca6..0208c9259572 100644
-> --- a/drivers/gpu/drm/exynos/exynos_drm_gem.c
-> +++ b/drivers/gpu/drm/exynos/exynos_drm_gem.c
-> @@ -377,13 +377,13 @@ static int exynos_drm_gem_mmap(struct drm_gem_object *obj, struct vm_area_struct
->   
->   	/* non-cachable as default. */
->   	if (exynos_gem->flags & EXYNOS_BO_CACHABLE)
-> -		vma->vm_page_prot = vm_get_page_prot(vma->vm_flags);
-> +		vma->vm_page_prot = vma_get_page_prot(vma);
->   	else if (exynos_gem->flags & EXYNOS_BO_WC)
->   		vma->vm_page_prot =
-> -			pgprot_writecombine(vm_get_page_prot(vma->vm_flags));
-> +			pgprot_writecombine(vma_get_page_prot(vma));
->   	else
->   		vma->vm_page_prot =
-> -			pgprot_noncached(vm_get_page_prot(vma->vm_flags));
-> +			pgprot_noncached(vma_get_page_prot(vma));
->   
->   	ret = exynos_drm_gem_mmap_buffer(exynos_gem, vma);
->   	if (ret)
-> diff --git a/drivers/gpu/drm/i915/gem/i915_gem_mman.c b/drivers/gpu/drm/i915/gem/i915_gem_mman.c
-> index 0644f85c6c8e..9ca90c1bb5b4 100644
-> --- a/drivers/gpu/drm/i915/gem/i915_gem_mman.c
-> +++ b/drivers/gpu/drm/i915/gem/i915_gem_mman.c
-> @@ -112,7 +112,7 @@ i915_gem_mmap_ioctl(struct drm_device *dev, void *data,
->   		vma = find_vma(mm, addr);
->   		if (vma && __vma_matches(vma, obj->base.filp, addr, args->size))
->   			vma->vm_page_prot =
-> -				pgprot_writecombine(vm_get_page_prot(vma->vm_flags));
-> +				pgprot_writecombine(vma_get_page_prot(vma));
->   		else
->   			addr = -ENOMEM;
->   		mmap_write_unlock(mm);
-> @@ -1024,7 +1024,7 @@ i915_gem_object_mmap(struct drm_i915_gem_object *obj,
->   	fput(anon);
->   
->   	if (obj->ops->mmap_ops) {
-> -		vma->vm_page_prot = pgprot_decrypted(vm_get_page_prot(vma->vm_flags));
-> +		vma->vm_page_prot = pgprot_decrypted(vma_get_page_prot(vma));
->   		vma->vm_ops = obj->ops->mmap_ops;
->   		vma->vm_private_data = obj->base.vma_node.driver_private;
->   		return 0;
-> @@ -1035,7 +1035,7 @@ i915_gem_object_mmap(struct drm_i915_gem_object *obj,
->   	switch (mmo->mmap_type) {
->   	case I915_MMAP_TYPE_WC:
->   		vma->vm_page_prot =
-> -			pgprot_writecombine(vm_get_page_prot(vma->vm_flags));
-> +			pgprot_writecombine(vma_get_page_prot(vma));
->   		vma->vm_ops = &vm_ops_cpu;
->   		break;
->   
-> @@ -1043,19 +1043,19 @@ i915_gem_object_mmap(struct drm_i915_gem_object *obj,
->   		GEM_WARN_ON(1);
->   		fallthrough;
->   	case I915_MMAP_TYPE_WB:
-> -		vma->vm_page_prot = vm_get_page_prot(vma->vm_flags);
-> +		vma->vm_page_prot = vma_get_page_prot(vma);
->   		vma->vm_ops = &vm_ops_cpu;
->   		break;
->   
->   	case I915_MMAP_TYPE_UC:
->   		vma->vm_page_prot =
-> -			pgprot_noncached(vm_get_page_prot(vma->vm_flags));
-> +			pgprot_noncached(vma_get_page_prot(vma));
->   		vma->vm_ops = &vm_ops_cpu;
->   		break;
->   
->   	case I915_MMAP_TYPE_GTT:
->   		vma->vm_page_prot =
-> -			pgprot_writecombine(vm_get_page_prot(vma->vm_flags));
-> +			pgprot_writecombine(vma_get_page_prot(vma));
->   		vma->vm_ops = &vm_ops_gtt;
->   		break;
->   	}
-> diff --git a/drivers/gpu/drm/msm/msm_gem.c b/drivers/gpu/drm/msm/msm_gem.c
-> index cbf723a5d86f..6a78e242de7c 100644
-> --- a/drivers/gpu/drm/msm/msm_gem.c
-> +++ b/drivers/gpu/drm/msm/msm_gem.c
-> @@ -1125,7 +1125,7 @@ static int msm_gem_object_mmap(struct drm_gem_object *obj, struct vm_area_struct
->   	struct msm_gem_object *msm_obj = to_msm_bo(obj);
->   
->   	vm_flags_set(vma, VM_PFNMAP | VM_DONTEXPAND | VM_DONTDUMP);
-> -	vma->vm_page_prot = msm_gem_pgprot(msm_obj, vm_get_page_prot(vma->vm_flags));
-> +	vma->vm_page_prot = msm_gem_pgprot(msm_obj, vma_get_page_prot(vma));
->   
->   	return 0;
->   }
-> diff --git a/drivers/gpu/drm/nouveau/nouveau_gem.c b/drivers/gpu/drm/nouveau/nouveau_gem.c
-> index 20dba02d6175..9a6ee2e880c0 100644
-> --- a/drivers/gpu/drm/nouveau/nouveau_gem.c
-> +++ b/drivers/gpu/drm/nouveau/nouveau_gem.c
-> @@ -55,7 +55,7 @@ static vm_fault_t nouveau_ttm_fault(struct vm_fault *vmf)
->   		goto error_unlock;
->   
->   	nouveau_bo_del_io_reserve_lru(bo);
-> -	prot = vm_get_page_prot(vma->vm_flags);
-> +	prot = vma_get_page_prot(vma);
->   	ret = ttm_bo_vm_fault_reserved(vmf, prot, TTM_BO_VM_NUM_PREFAULT);
->   	nouveau_bo_add_io_reserve_lru(bo);
->   	if (ret == VM_FAULT_RETRY && !(vmf->flags & FAULT_FLAG_RETRY_NOWAIT))
-> diff --git a/drivers/gpu/drm/omapdrm/omap_fbdev.c b/drivers/gpu/drm/omapdrm/omap_fbdev.c
-> index ca3fb186bf19..4881777642d2 100644
-> --- a/drivers/gpu/drm/omapdrm/omap_fbdev.c
-> +++ b/drivers/gpu/drm/omapdrm/omap_fbdev.c
-> @@ -84,7 +84,7 @@ static int omap_fbdev_pan_display(struct fb_var_screeninfo *var, struct fb_info
->   
->   static int omap_fbdev_fb_mmap(struct fb_info *info, struct vm_area_struct *vma)
->   {
-> -	vma->vm_page_prot = pgprot_writecombine(vm_get_page_prot(vma->vm_flags));
-> +	vma->vm_page_prot = pgprot_writecombine(vma_get_page_prot(vma));
->   
->   	return fb_deferred_io_mmap(info, vma);
->   }
-> diff --git a/drivers/gpu/drm/omapdrm/omap_gem.c b/drivers/gpu/drm/omapdrm/omap_gem.c
-> index 00404fb6c29a..fb0e6f556b31 100644
-> --- a/drivers/gpu/drm/omapdrm/omap_gem.c
-> +++ b/drivers/gpu/drm/omapdrm/omap_gem.c
-> @@ -538,9 +538,9 @@ static int omap_gem_object_mmap(struct drm_gem_object *obj, struct vm_area_struc
->   	vm_flags_set(vma, VM_DONTEXPAND | VM_DONTDUMP | VM_IO | VM_MIXEDMAP);
->   
->   	if (omap_obj->flags & OMAP_BO_WC) {
-> -		vma->vm_page_prot = pgprot_writecombine(vm_get_page_prot(vma->vm_flags));
-> +		vma->vm_page_prot = pgprot_writecombine(vma_get_page_prot(vma));
->   	} else if (omap_obj->flags & OMAP_BO_UNCACHED) {
-> -		vma->vm_page_prot = pgprot_noncached(vm_get_page_prot(vma->vm_flags));
-> +		vma->vm_page_prot = pgprot_noncached(vma_get_page_prot(vma));
->   	} else {
->   		/*
->   		 * We do have some private objects, at least for scanout buffers
-> @@ -558,7 +558,7 @@ static int omap_gem_object_mmap(struct drm_gem_object *obj, struct vm_area_struc
->   		vma->vm_pgoff -= drm_vma_node_start(&obj->vma_node);
->   		vma_set_file(vma, obj->filp);
->   
-> -		vma->vm_page_prot = vm_get_page_prot(vma->vm_flags);
-> +		vma->vm_page_prot = vma_get_page_prot(vma);
->   	}
->   
->   	vma->vm_page_prot = pgprot_decrypted(vma->vm_page_prot);
-> diff --git a/drivers/gpu/drm/rockchip/rockchip_drm_gem.c b/drivers/gpu/drm/rockchip/rockchip_drm_gem.c
-> index b188539dca0b..9a1dc9f12072 100644
-> --- a/drivers/gpu/drm/rockchip/rockchip_drm_gem.c
-> +++ b/drivers/gpu/drm/rockchip/rockchip_drm_gem.c
-> @@ -255,7 +255,7 @@ static int rockchip_drm_gem_object_mmap(struct drm_gem_object *obj,
->   	 */
->   	vm_flags_mod(vma, VM_IO | VM_DONTEXPAND | VM_DONTDUMP, VM_PFNMAP);
->   
-> -	vma->vm_page_prot = pgprot_writecombine(vm_get_page_prot(vma->vm_flags));
-> +	vma->vm_page_prot = pgprot_writecombine(vma_get_page_prot(vma));
->   	vma->vm_page_prot = pgprot_decrypted(vma->vm_page_prot);
->   
->   	if (rk_obj->pages)
-> diff --git a/drivers/gpu/drm/tegra/gem.c b/drivers/gpu/drm/tegra/gem.c
-> index 1d8d27a5ea89..f76af733ea79 100644
-> --- a/drivers/gpu/drm/tegra/gem.c
-> +++ b/drivers/gpu/drm/tegra/gem.c
-> @@ -602,7 +602,7 @@ int __tegra_gem_mmap(struct drm_gem_object *gem, struct vm_area_struct *vma)
->   
->   		vma->vm_pgoff = vm_pgoff;
->   	} else {
-> -		pgprot_t prot = vm_get_page_prot(vma->vm_flags);
-> +		pgprot_t prot = vma_get_page_prot(vma);
->   
->   		vm_flags_mod(vma, VM_MIXEDMAP, VM_PFNMAP);
->   
-> diff --git a/drivers/gpu/drm/virtio/virtgpu_vram.c b/drivers/gpu/drm/virtio/virtgpu_vram.c
-> index 4ae3cbc35dd3..544a6abddbc8 100644
-> --- a/drivers/gpu/drm/virtio/virtgpu_vram.c
-> +++ b/drivers/gpu/drm/virtio/virtgpu_vram.c
-> @@ -55,7 +55,7 @@ static int virtio_gpu_vram_mmap(struct drm_gem_object *obj,
->   
->   	vma->vm_pgoff -= drm_vma_node_start(&obj->vma_node);
->   	vm_flags_set(vma, VM_MIXEDMAP | VM_DONTEXPAND);
-> -	vma->vm_page_prot = vm_get_page_prot(vma->vm_flags);
-> +	vma->vm_page_prot = vma_get_page_prot(vma);
->   	vma->vm_page_prot = pgprot_decrypted(vma->vm_page_prot);
->   	vma->vm_ops = &virtio_gpu_vram_vm_ops;
->   
-> diff --git a/drivers/gpu/drm/vmwgfx/vmwgfx_page_dirty.c b/drivers/gpu/drm/vmwgfx/vmwgfx_page_dirty.c
-> index 45561bc1c9ef..a9fd4015a0ca 100644
-> --- a/drivers/gpu/drm/vmwgfx/vmwgfx_page_dirty.c
-> +++ b/drivers/gpu/drm/vmwgfx/vmwgfx_page_dirty.c
-> @@ -481,7 +481,7 @@ vm_fault_t vmw_bo_vm_fault(struct vm_fault *vmf)
->   	if (vbo->dirty && vbo->dirty->method == VMW_BO_DIRTY_MKWRITE)
->   		prot = vm_get_page_prot(vma->vm_flags & ~VM_SHARED);
->   	else
-> -		prot = vm_get_page_prot(vma->vm_flags);
-> +		prot = vma_get_page_prot(vma);
->   
->   	ret = ttm_bo_vm_fault_reserved(vmf, prot, num_prefault);
->   	if (ret == VM_FAULT_RETRY && !(vmf->flags & FAULT_FLAG_RETRY_NOWAIT))
-> diff --git a/drivers/gpu/drm/xe/xe_device.c b/drivers/gpu/drm/xe/xe_device.c
-> index d224861b6f6f..758acaae85d3 100644
-> --- a/drivers/gpu/drm/xe/xe_device.c
-> +++ b/drivers/gpu/drm/xe/xe_device.c
-> @@ -281,7 +281,7 @@ static vm_fault_t barrier_fault(struct vm_fault *vmf)
->   	pgprot_t prot;
->   	int idx;
->   
-> -	prot = vm_get_page_prot(vma->vm_flags);
-> +	prot = vma_get_page_prot(vma);
->   
->   	if (drm_dev_enter(dev, &idx)) {
->   		unsigned long pfn;
-> diff --git a/drivers/gpu/drm/xe/xe_mmio_gem.c b/drivers/gpu/drm/xe/xe_mmio_gem.c
-> index 8c803ef233cc..3741ae60f532 100644
-> --- a/drivers/gpu/drm/xe/xe_mmio_gem.c
-> +++ b/drivers/gpu/drm/xe/xe_mmio_gem.c
-> @@ -149,7 +149,7 @@ static int xe_mmio_gem_mmap(struct drm_gem_object *base, struct vm_area_struct *
->   
->   	/* Set vm_pgoff (used as a fake buffer offset by DRM) to 0 */
->   	vma->vm_pgoff = 0;
-> -	vma->vm_page_prot = pgprot_noncached(vm_get_page_prot(vma->vm_flags));
-> +	vma->vm_page_prot = pgprot_noncached(vma_get_page_prot(vma));
->   	vm_flags_set(vma, VM_IO | VM_PFNMAP | VM_DONTEXPAND | VM_DONTDUMP |
->   		     VM_DONTCOPY | VM_NORESERVE);
->   
-> diff --git a/drivers/gpu/drm/xen/xen_drm_front_gem.c b/drivers/gpu/drm/xen/xen_drm_front_gem.c
-> index eec4c1da3f9e..dd158443f55f 100644
-> --- a/drivers/gpu/drm/xen/xen_drm_front_gem.c
-> +++ b/drivers/gpu/drm/xen/xen_drm_front_gem.c
-> @@ -80,7 +80,7 @@ static int xen_drm_front_gem_object_mmap(struct drm_gem_object *gem_obj,
->   	 * which is mapped as Normal Inner Write-Back Outer Write-Back
->   	 * Inner-Shareable.
->   	 */
-> -	vma->vm_page_prot = vm_get_page_prot(vma->vm_flags);
-> +	vma->vm_page_prot = vma_get_page_prot(vma);
->   
->   	/*
->   	 * vm_operations_struct.fault handler will be called if CPU access
-> diff --git a/drivers/video/fbdev/core/fb_io_fops.c b/drivers/video/fbdev/core/fb_io_fops.c
-> index 6ab60fcd0050..6d0a8c8e141a 100644
-> --- a/drivers/video/fbdev/core/fb_io_fops.c
-> +++ b/drivers/video/fbdev/core/fb_io_fops.c
-> @@ -161,7 +161,7 @@ int fb_io_mmap(struct fb_info *info, struct vm_area_struct *vma)
->   		len = info->fix.mmio_len;
->   	}
->   
-> -	vma->vm_page_prot = vm_get_page_prot(vma->vm_flags);
-> +	vma->vm_page_prot = vma_get_page_prot(vma);
->   	vma->vm_page_prot = pgprot_framebuffer(vma->vm_page_prot, vma->vm_start,
->   					       vma->vm_end, start);
->   
-> diff --git a/include/linux/mm.h b/include/linux/mm.h
-> index c8336f68d7bb..b55790c75038 100644
-> --- a/include/linux/mm.h
-> +++ b/include/linux/mm.h
-> @@ -4575,6 +4575,10 @@ static inline pgprot_t vma_flags_to_page_prot(vma_flags_t vma_flags)
->   	return vm_get_page_prot(vm_flags);
->   }
->   
-> +static inline pgprot_t vma_get_page_prot(const struct vm_area_struct *vma)
-> +{
-> +	return vma_flags_to_page_prot(vma->flags);
-> +}
->   void vma_set_page_prot(struct vm_area_struct *vma);
->   #else
->   static inline pgprot_t vm_get_page_prot(vm_flags_t vm_flags)
-> @@ -4585,9 +4589,13 @@ static inline pgprot_t vma_flags_to_page_prot(vma_flags_t vma_flags)
->   {
->   	return __pgprot(0);
->   }
-> +static inline pgprot_t vma_get_page_prot(const struct vm_area_struct *vma)
-> +{
-> +	return __pgprot(0);
-> +}
->   static inline void vma_set_page_prot(struct vm_area_struct *vma)
->   {
-> -	vma->vm_page_prot = vm_get_page_prot(vma->vm_flags);
-> +	vma->vm_page_prot = vma_get_page_prot(vma);
->   }
->   #endif
->   
-> diff --git a/mm/vma.c b/mm/vma.c
-> index fcdd2ac3ac68..b81c05e67a61 100644
-> --- a/mm/vma.c
-> +++ b/mm/vma.c
-> @@ -3429,7 +3429,7 @@ struct vm_area_struct *__install_special_mapping(
->   	if (pgtable_supports_soft_dirty())
->   		vm_flags |= VM_SOFTDIRTY;
->   	vm_flags_init(vma, vm_flags & ~VM_LOCKED_MASK);
-> -	vma->vm_page_prot = vm_get_page_prot(vma->vm_flags);
-> +	vma->vm_page_prot = vma_get_page_prot(vma);
->   
->   	vma->vm_ops = ops;
->   	vma->vm_private_data = priv;
-> diff --git a/mm/vma_exec.c b/mm/vma_exec.c
-> index c0f7ba2cfb27..b01c4964f2c9 100644
-> --- a/mm/vma_exec.c
-> +++ b/mm/vma_exec.c
-> @@ -146,7 +146,7 @@ int create_init_stack_vma(struct mm_struct *mm, struct vm_area_struct **vmap,
->   	if (pgtable_supports_soft_dirty())
->   		flags |= VM_SOFTDIRTY;
->   	vm_flags_init(vma, flags);
-> -	vma->vm_page_prot = vm_get_page_prot(vma->vm_flags);
-> +	vma->vm_page_prot = vma_get_page_prot(vma);
->   
->   	err = insert_vm_struct(mm, vma);
->   	if (err)
-> diff --git a/sound/core/memalloc.c b/sound/core/memalloc.c
-> index 9320671dfcc8..5bc7e586b430 100644
-> --- a/sound/core/memalloc.c
-> +++ b/sound/core/memalloc.c
-> @@ -851,7 +851,7 @@ static void snd_dma_noncoherent_free(struct snd_dma_buffer *dmab)
->   static int snd_dma_noncoherent_mmap(struct snd_dma_buffer *dmab,
->   				    struct vm_area_struct *area)
->   {
-> -	area->vm_page_prot = vm_get_page_prot(area->vm_flags);
-> +	area->vm_page_prot = vma_get_page_prot(area);
->   	return dma_mmap_pages(dmab->dev.dev, area,
->   			      area->vm_end - area->vm_start,
->   			      virt_to_page(dmab->area));
-> diff --git a/tools/testing/vma/include/dup.h b/tools/testing/vma/include/dup.h
-> index 1ffac38a5377..d86bef8cb37f 100644
-> --- a/tools/testing/vma/include/dup.h
-> +++ b/tools/testing/vma/include/dup.h
-> @@ -1577,3 +1577,7 @@ static inline pgoff_t linear_page_index(const struct vm_area_struct *vma,
->   	pgoff += vma_start_pgoff(vma);
->   	return pgoff;
->   }
-> +static inline pgprot_t vma_get_page_prot(const struct vm_area_struct *vma)
-> +{
-> +	return vma_flags_to_page_prot(vma->flags);
-> +}
-
+Best regards,
 -- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
-GF: Jochen Jaser, Andrew McDonald, Werner Knoblich, (HRB 36809, AG Nürnberg)
-
+Ryosuke Yasuoka <ryasuoka@redhat.com>
 
