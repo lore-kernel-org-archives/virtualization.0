@@ -1,276 +1,316 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from out-182.mta0.migadu.com (out-182.mta0.migadu.com [91.218.175.182])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48E6D3FBB6D
-	for <virtualization@lists.linux.dev>; Wed,  1 Jul 2026 10:14:00 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2087644A71B
+	for <virtualization@lists.linux.dev>; Wed,  1 Jul 2026 11:08:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.182
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782900842; cv=none; b=PAl+yqdJO4mM4SZYc47+m/Y8l1BZ85YWmD16STlG0eFhbf7X2+UICUCnptWCVcrHcGE7sSVNAQ5JRfn8zkOMh01PCYjuOVGibeI+C+0My2BbQoczG0IRfJA2aFbXBGxbsXErHl+AocXhlrg0IqQZetzYJ+SaWiLkBWhQJT5nR14=
+	t=1782904116; cv=none; b=HgSwaFEkk3rFi1Bma07MgX3pFnJC0V2n8DDz2MMCqPnSxoPdvERjBURZaHLtnYu+1xMsjmayqF6FR7vTFGtdl9OYEDMOyvcfNbEPSDJe4KNS3AgoALiI7t+D71a3dFLr+eeI9O43WvyIVFVgtCkx64rHMLk3fvt3X0lv6Q4nWFU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782900842; c=relaxed/simple;
-	bh=GBtUTmM/TptETllHS9g9icbUVF6l6FK8VygeaCK4Sl8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=IDDUE2PSTVwQKcXJ0vVISIuG1ljl2c+Cm0ZAqPwAW3angzWwz2FiWdxEM3D15SfF2ohFStCs+Z/8Hw0/TwPFE19+1TWKmDzu4CgNhV7ZxpIlCU7V6b/Y3XrIHSnpz7N5kiVpUf/5by96Hg3U8h5+gQLOTiANZuF128p6cKTfF3U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gtRUTBBJ; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1782904116; c=relaxed/simple;
+	bh=S9U/QQkOj2QcN7GOUDf8Nq4vJ3cWwPyQIEl2/pEFaPo=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=nXfo+oSY3u9mSxOKmejcpOU5DT6MFt1QsTUaZXP9VC9XKwFoG+T6eVp2VLrbAfi0guUICF7bmvuDJ+bE21X3crYT/QNuMGY/otOF7jc4CAce988qdAw/wd8FbJdGE+laM1vee+6NTUc3YT5oqCHJ8dFlFy5pnvTXF2k7I7P+Bjo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=QRnvYhKi; arc=none smtp.client-ip=91.218.175.182
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gtRUTBBJ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1782900839;
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="QRnvYhKi"
+Message-ID: <0efcc0a9-a51d-4de8-8406-b8fa536a91b7@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1782904099;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=ZP4pVQuwbXb6A4JsfHgerWuH1Q6CnZ/ETjBsK07QGkY=;
-	b=gtRUTBBJLBuQWUDXKV+tfNrjyl1UvzPifDaqwH0ShIEqvMLKWR9TmYSWaEGazDn2I2sNRN
-	gUtAn0xO9x7LpcKs2uAXFnmA6vzVflMZ5M3T+MH8fUiv67EOX84PZet3RKI80FV7r7ewqF
-	yXx/Fi0umMqYXM/K/obzWFnDescrAsk=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-629-SIhogdeSOyeMx7cIIQNWnw-1; Wed, 01 Jul 2026 06:13:58 -0400
-X-MC-Unique: SIhogdeSOyeMx7cIIQNWnw-1
-X-Mimecast-MFC-AGG-ID: SIhogdeSOyeMx7cIIQNWnw_1782900837
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-493bab443f7so5406865e9.0
-        for <virtualization@lists.linux.dev>; Wed, 01 Jul 2026 03:13:57 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782900837; x=1783505637;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=ZP4pVQuwbXb6A4JsfHgerWuH1Q6CnZ/ETjBsK07QGkY=;
-        b=iabFeBxO3H06WdbkIuCfFIW0R0SAwuklzr4Z+kGPWXLbioGQg5jaxZdpqyjU3YwpxL
-         TgqnmCSgTjtD+mlrA08vwmbrnX1tQuZ9oPQ3fWoUBuNFeye2wTL1VqcDCGAXa1J2Tl63
-         y4RUFKx/KUysO0dqVjepXW4fItc9xYP3ZJxfZNPj6rR/bBoIrI39w7dUFO7miUOBeYbl
-         bC6j9nBh/0MugtwKk+iQtvTuPQJdSdM2irvb8MkcVeKIciTaluFgLf11fPNZOPkqB9gO
-         qGc/p7mlt3NV9CTT8DLUKI53SFUHLI8zveMB7cZcAeEKLuTXeYYRScOQbWz+kP5+Upvs
-         SlVw==
-X-Forwarded-Encrypted: i=1; AFNElJ+2YQwIhKQur2KVFKiSTspezHKwqRS8s5r/1SNjn3d+JNSHkIxMiAqKG79G3IKdMGGpVvS/lJLIAvSAy7f5JQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yxi+hcrTUxPtK4oH4UNevrMNwTy8ja9zlKifW9KwZ6zgRCbW3F/
-	a7puxVH0vopHZ8KAiR9L+5lNg6PKI7hBJ9RK7+8/S+B5fE2hEvD3zWh4XNXMIz9EuAqLBQuxU7V
-	7b2xOv5IUIwimUdervTO/XdULFqok2vS+hemuOG9ywR/6RVIQ62tTufWWGMqPAigXORGn
-X-Gm-Gg: AfdE7cn1xZlqJJcpg7W2Ci4ukcL1dAdqLyZnhYXqAcH9ckWq17xDUErzzDqpc1cvCFK
-	36QA0+3oc4Lv5hinsuTa22gYyzwz/uv6bdzFFqh9JkBx8rdGyiAj6kscKyVwi5m/MVEONqvaC2e
-	W/SopZ/gIvOSKriK/51Lzn2PmY0SMt1wAka+KEwO7F7AqvVPjBPRKGL5e41JNSLvKzy7hQli8ED
-	ZLmFYI3/9QxzFCP+C/iJDcK+7dA59EMIe80rLUHnWBMx6iwPBgUkLDvW4aeE+B7qqHZxRI6YXA1
-	/kYj+AdWFmijgpo+7HelCQgS4yHM/KqIkc+4R8m7NIAs8zhPLx9T39KUnXK8t2Nav6yRssXUQRP
-	Kg++6ZdiZY5i77yEp2qMG6beykxCmOKFNYe1iejAVuzIo5vN1L3xb3LT+a5K3
-X-Received: by 2002:a05:600c:4f83:b0:493:c064:316f with SMTP id 5b1f17b1804b1-493c230bb07mr13955685e9.3.1782900835811;
-        Wed, 01 Jul 2026 03:13:55 -0700 (PDT)
-X-Received: by 2002:a05:600c:4f83:b0:493:c064:316f with SMTP id 5b1f17b1804b1-493c230bb07mr13955285e9.3.1782900835180;
-        Wed, 01 Jul 2026 03:13:55 -0700 (PDT)
-Received: from sgarzare-redhat (host-79-34-22-35.business.telecomitalia.it. [79.34.22.35])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-493be82fd71sm91335615e9.15.2026.07.01.03.13.52
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Jul 2026 03:13:53 -0700 (PDT)
-Date: Wed, 1 Jul 2026 12:13:47 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Paolo Abeni <pabeni@redhat.com>
-Cc: netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>, 
-	Jakub Kicinski <kuba@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	Eric Dumazet <edumazet@google.com>, Simon Horman <horms@kernel.org>, linux-kernel@vger.kernel.org, 
-	Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
-	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, stable@vger.kernel.org, Brien Oberstein <brienpub@gmail.com>
-Subject: Re: [PATCH net 1/2] vsock/virtio: collapse receive queue under
- memory pressure
-Message-ID: <akTMf-DWZVAzYIPu@sgarzare-redhat>
-References: <20260626134823.206676-1-sgarzare@redhat.com>
- <20260626134823.206676-2-sgarzare@redhat.com>
- <6a6be4b0-e02d-46ca-b8bf-c27bd681d253@redhat.com>
+	bh=ieMgPSS1eIBfAPTWcoeMePMwN2vKLGAwkXUol+yS3JM=;
+	b=QRnvYhKi7ifn2CAOqwrrTALRRhFuKdBNRY4USBSzQESgxOH79yyPbWsw+wvjxJGm9pDQu3
+	75wHltVABewcdEultw97xVO9Srux+vxmHLrM1y3qkyY8Qi8RlcbW/19L2d+jmEkSOqKAw5
+	8d3ZpLHm3o4fEt3mWUbZ+Ie+mvfoBxk=
+Date: Wed, 1 Jul 2026 19:07:22 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <6a6be4b0-e02d-46ca-b8bf-c27bd681d253@redhat.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: EDhgOHoqfleq8Ltz8wPaurG8v4L6MQ_-KZElKsMO4N8_1782900837
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Subject: Re: [PATCH v3 1/7] list: Add mutable iterator variants
+To: Jani Nikula <jani.nikula@linux.intel.com>,
+ David Laight <david.laight.linux@gmail.com>,
+ =?UTF-8?Q?Christian_K=C3=B6nig?= <christian.koenig@amd.com>,
+ "David Hildenbrand (Arm)" <david@kernel.org>,
+ Alexei Starovoitov <ast@kernel.org>
+Cc: Andrew Morton <akpm@linux-foundation.org>, Jens Axboe <axboe@kernel.dk>,
+ Tejun Heo <tj@kernel.org>, Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>,
+ Daniel Borkmann <daniel@iogearbox.net>, Andrii Nakryiko <andrii@kernel.org>,
+ Johannes Weiner <hannes@cmpxchg.org>, Peter Zijlstra <peterz@infradead.org>,
+ Ingo Molnar <mingo@redhat.com>, Arnaldo Carvalho de Melo <acme@kernel.org>,
+ Namhyung Kim <namhyung@kernel.org>, Thomas Gleixner <tglx@kernel.org>,
+ Juri Lelli <juri.lelli@redhat.com>,
+ Vincent Guittot <vincent.guittot@linaro.org>,
+ Paul Moore <paul@paul-moore.com>,
+ Andy Shevchenko <andriy.shevchenko@linux.intel.com>,
+ "Paul E. McKenney" <paulmck@kernel.org>,
+ Shakeel Butt <shakeel.butt@linux.dev>, David Howells <dhowells@redhat.com>,
+ Simona Vetter <simona.vetter@ffwll.ch>, Randy Dunlap
+ <rdunlap@infradead.org>, Luca Ceresoli <luca.ceresoli@bootlin.com>,
+ Philipp Stanner <phasta@kernel.org>, linux-block@vger.kernel.org,
+ linux-kernel@vger.kernel.org, cgroups@vger.kernel.org,
+ linux-ntfs-dev@lists.sourceforge.net, linux-fsdevel@vger.kernel.org,
+ io-uring@vger.kernel.org, audit@vger.kernel.org, bpf@vger.kernel.org,
+ netdev@vger.kernel.org, dri-devel@lists.freedesktop.org,
+ linux-perf-users@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+ kexec@lists.infradead.org, live-patching@vger.kernel.org,
+ linux-modules@vger.kernel.org, linux-crypto@vger.kernel.org,
+ linux-pm@vger.kernel.org, rcu@vger.kernel.org, sched-ext@lists.linux.dev,
+ linux-mm@kvack.org, virtualization@lists.linux.dev, damon@lists.linux.dev,
+ llvm@lists.linux.dev, Kaitao Cheng <chengkaitao@kylinos.cn>,
+ Muchun Song <muchun.song@linux.dev>
+References: <20260622040533.29824-1-kaitao.cheng@linux.dev>
+ <20260622040533.29824-2-kaitao.cheng@linux.dev>
+ <20260622094242.64531b9a@pumpkin>
+ <351a6b67-b394-4c58-aee2-88b6c8089ad5@linux.dev>
+ <cf8467c7-b98f-44a5-9cf9-60b43b5da711@amd.com>
+ <20260624152324.3def88ce@pumpkin>
+ <0ed6b5c3-e955-46e2-9fc6-075a0dfd1c4f@linux.dev>
+ <734f66ca51485ee3ec9788c0eaaead681e00664b@intel.com>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Kaitao Cheng <kaitao.cheng@linux.dev>
+In-Reply-To: <734f66ca51485ee3ec9788c0eaaead681e00664b@intel.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
-On Tue, Jun 30, 2026 at 11:53:04AM +0200, Paolo Abeni wrote:
->On 6/26/26 3:48 PM, Stefano Garzarella wrote:
->> From: Stefano Garzarella <sgarzare@redhat.com>
+在 2026/6/25 19:00, Jani Nikula 写道:
+> On Thu, 25 Jun 2026, Kaitao Cheng <kaitao.cheng@linux.dev> wrote:
+>> 在 2026/6/24 22:23, David Laight 写道:
+>>> On Wed, 24 Jun 2026 15:23:47 +0200
+>>> Christian König <christian.koenig@amd.com> wrote:
+>>>> On 6/24/26 15:14, Kaitao Cheng wrote:
+>>>>> 在 2026/6/22 16:42, David Laight 写道:  
+>>>>>> On Mon, 22 Jun 2026 12:05:31 +0800
+>>>>>> Kaitao Cheng <kaitao.cheng@linux.dev> wrote:
+>>>>>>  
+>>>>>>> From: Kaitao Cheng <chengkaitao@kylinos.cn>
+>>>>>>>
+>>>>>>> The list_for_each*_safe() helpers are used when the loop body may
+>>>>>>> remove the current entry.  Their API exposes the temporary cursor at
+>>>>>>> every call site, even though most users only need it for the iterator
+>>>>>>> implementation and never reference it in the loop body.
+>>>>>>>
+>>>>>>> Add *_mutable() variants for list and hlist iteration.  The new helpers
+>>>>>>> support both forms: callers may keep passing an explicit temporary cursor
+>>>>>>> when they need to inspect or reset it, or omit it and let the helper use
+>>>>>>> a unique internal cursor.  
+>>>>>>
+>>>>>> I'm not really sure 'mutable' means anything either.
+>>>>>> It is possible to make it valid for the loop body (or even other threads)
+>>>>>> to delete arbitrary list items - but that needs significant extra overheads.
+>>>>>>
+>>>>>> It might be worth doing something that doesn't need the extra variable,
+>>>>>> but there is little point doing all the churn just to rename things.
+>>>>>>  
+>>>>>>>
+>>>>>>> This makes call sites that only mutate the list through the current entry
+>>>>>>> less noisy, while keeping the existing *_safe() helpers available for
+>>>>>>> compatibility.
+>>>>>>>
+>>>>>>> Signed-off-by: Kaitao Cheng <chengkaitao@kylinos.cn>
+>>>>>>> ---
+>>>>>>>  include/linux/list.h | 269 +++++++++++++++++++++++++++++++++++++------
+>>>>>>>  1 file changed, 231 insertions(+), 38 deletions(-)
+>>>>>>>
+>>>>>>> diff --git a/include/linux/list.h b/include/linux/list.h
+>>>>>>> index 09d979976b3b..1081def7cea9 100644
+>>>>>>> --- a/include/linux/list.h
+>>>>>>> +++ b/include/linux/list.h
+>>>>>>> @@ -7,6 +7,7 @@
+>>>>>>>  #include <linux/stddef.h>
+>>>>>>>  #include <linux/poison.h>
+>>>>>>>  #include <linux/const.h>
+>>>>>>> +#include <linux/args.h>
+>>>>>>>  
+>>>>>>>  #include <asm/barrier.h>
+>>>>>>>  
+>>>>>>> @@ -763,28 +764,72 @@ static inline void list_splice_tail_init(struct list_head *list,
+>>>>>>>  #define list_for_each_prev(pos, head) \
+>>>>>>>  	for (pos = (head)->prev; !list_is_head(pos, (head)); pos = pos->prev)
+>>>>>>>  
+>>>>>>> -/**
+>>>>>>> - * list_for_each_safe - iterate over a list safe against removal of list entry
+>>>>>>> - * @pos:	the &struct list_head to use as a loop cursor.
+>>>>>>> - * @n:		another &struct list_head to use as temporary storage
+>>>>>>> - * @head:	the head for your list.
+>>>>>>> +/*
+>>>>>>> + * list_for_each_safe is an old interface, use list_for_each_mutable instead.
+>>>>>>>   */
+>>>>>>>  #define list_for_each_safe(pos, n, head) \
+>>>>>>>  	for (pos = (head)->next, n = pos->next; \
+>>>>>>>  	     !list_is_head(pos, (head)); \
+>>>>>>>  	     pos = n, n = pos->next)
+>>>>>>>  
+>>>>>>> +#define __list_for_each_mutable_internal(pos, tmp, head)		\
+>>>>>>> +	for (typeof(pos) tmp = (pos = (head)->next)->next;		\  
+>>>>>>
+>>>>>> Use auto
+>>>>>>  
+>>>>>>> +	     !list_is_head(pos, (head));				\
+>>>>>>> +	     pos = tmp, tmp = pos->next)
+>>>>>>> +
+>>>>>>> +#define __list_for_each_mutable1(pos, head)				\
+>>>>>>> +	__list_for_each_mutable_internal(pos, __UNIQUE_ID(next), head)
+>>>>>>> +
+>>>>>>> +#define __list_for_each_mutable2(pos, next, head)			\
+>>>>>>> +	list_for_each_safe(pos, next, head)
+>>>>>>> +
+>>>>>>>  /**
+>>>>>>> - * list_for_each_prev_safe - iterate over a list backwards safe against removal of list entry
+>>>>>>> + * list_for_each_mutable - iterate over a list safe against entry removal
+>>>>>>>   * @pos:	the &struct list_head to use as a loop cursor.
+>>>>>>> - * @n:		another &struct list_head to use as temporary storage
+>>>>>>> - * @head:	the head for your list.
+>>>>>>> + * @...:	either (head) or (next, head)
+>>>>>>> + *
+>>>>>>> + * next:	another &struct list_head to use as optional temporary storage.
+>>>>>>> + *		The temporary cursor is internal unless explicitly supplied by
+>>>>>>> + *		the caller.
+>>>>>>> + * head:	the head for your list.
+>>>>>>> + */
+>>>>>>> +#define list_for_each_mutable(pos, ...)					\
+>>>>>>> +	CONCATENATE(__list_for_each_mutable, COUNT_ARGS(__VA_ARGS__))	\
+>>>>>>> +		(pos, __VA_ARGS__)  
+>>>>>>
+>>>>>> The variable argument count logic really just slows down compilation.
+>>>>>> Maybe there aren't enough copies of this code to make that significant.
+>>>>>> But just because you can do it doesn't mean it is a gooD idea.
+>>>>>> I'm also not sure it really adds anything to the readability.
+>>>>>>
+>>>>>> And, it you are going to make the middle argument optional there is
+>>>>>> no need to change the macro name.  
+>>>>>
+>>>>> Christian König and Jani Nikula also disagree with the variadic-argument
+>>>>> implementation approach. If we abandon that method, it means we will
+>>>>> inevitably need to add some new macros. If mutable is not a good name,
+>>>>> suggestions for better alternatives would be welcome; coming up with a
+>>>>> suitable name is indeed rather tricky.  
+>>>>
+>>>> I don't think you need to add a new macro for the specific use case that people want to modify the next element of the iteration.
+>>>>
+>>>> If I remember your numbers correctly that is a really corner case and keeping using the existing *_safe() macros for that sounds perfectly fine to me.
+>>>
+>>> IIRC currently you have a choice of either:
+>>> 	define               Item that can't be deleted
+>>> 	list_for_each()	     The current item.
+>>> 	list_for_each_safe() The next item.
+>>> There is also likely to be code that updates the variables to allow
+>>> for other scenarios.
+>>>
+>>> Note that if increase a reference count and release a lock then list_for_each()
+>>> is likely safer than list_for_each_safe() :-)
+>>>
+>>> list.h has 9 variants of the 'safe' loop.
+>>> The bloat of another 9 is getting excessive.
+>>>
+>>> It has to be said that this is one of my least favourite type of list...
 >>
->> When many small packets accumulate in the receive queue, the skb overhead
->> can exceed buf_alloc even while the payload is within bounds. This causes
->> virtio_transport_inc_rx_pkt() to reject packets, leading to connection
->> resets during large transfers under backpressure.
+>> Hi Christian König, David Laight, Jani Nikula, David Hildenbrand,
+>> Andy Shevchenko, Alexei Starovoitov
 >>
->> The issue was reported by Brien, who has a reproducer, but it is also
->> easily reproducible with iperf-vsock [1] using a small packet size:
+>> For ease of discussion, I need to summarize the currently possible
+>> approaches and briefly describe their respective pros and cons,
+>> using the list_for_each_entry* interfaces as examples.
 >>
->>   iperf3 --vsock -c $CID -l 129
+>> 1. Add list_for_each_entry_mutable, while keeping list_for_each_entry
+>> and list_for_each_entry_safe unchanged. list_for_each_entry_mutable
+>> would be used specifically for safe deletion scenarios that do not
+>> need to expose the temporary cursor externally. The code can refer to
+>> the v1 version.
 >>
->> which fails immediately without this patch but with commit 059b7dbd20a6
->> ("vsock/virtio: fix potential unbounded skb queue").
+>> Pros: Does not depend on immediate per-subsystem adaptation and can be
+>>       merged directly.
+>> Cons: Requires adding a whole set of mutable interfaces, which makes the
+>>       code somewhat redundant.
+> 
+> Seems fine, and the original _safe naming is ambiguous anyway.
+> 
+>> 2. Directly optimize away the temporary cursor in list_for_each_entry_safe
+>> and define it inside the loop instead, changing the interface from four
+>> arguments to three.
 >>
->> Inspired by TCP's tcp_collapse() which solves a similar problem, add
->> virtio_transport_collapse_rx_queue() that walks the receive queue and
->> re-copies data into compact linear skbs to reduce the overhead.
+>> Pros: Does not add redundant interfaces.
+>> Cons: (1) Users need to manually update special cases that use the
+>>       traversal variable of list_for_each_entry_safe, the new
+>>       list_for_each_entry_safe would no longer apply there and would
+>>       need to be open-coded.
+>>       (2) Because the macro arguments changes, all list_for_each_entry_safe
+>>       callers would need to be modified and merged together, making it
+>>       difficult to merge such a large amount of code at once.
+> 
+> This won't fly because there are literally thousands of
+> list_for_each_entry_safe() users.
+> 
+>> 3. Use a variadic macro approach to optimize list_for_each_entry_safe,
+>> so that it supports both three and four arguments.
 >>
->> The collapse is triggered from virtio_transport_recv_enqueue() when
->> virtio_transport_inc_rx_pkt() fails. A pre-scan counts the eligible bytes
->> to size each allocation precisely, avoiding waste for isolated small
->> packets. Partially consumed skbs are kept as-is to preserve
->> buf_used/fwd_cnt accounting, EOM-marked skbs to maintain SEQPACKET
->> message boundaries, and skbs already larger than the collapse target
->> because they already have a good data-to-overhead ratio.
+>> Pros: (1) Does not add redundant interfaces.
+>>       (2) Does not depend on immediate per-subsystem adaptation and can
+>>       be merged directly.
+>> Cons: (1) Increases compile time.
+>>       (2) Makes the interface harder for users to use.
+> 
+> Basically I'm against any variadic macro tricks where the optional
+> argument is not the last argument. That's just way too surprising, and
+> goes against common practice in just about all other languages.
+> 
+>> 4. Optimize list_for_each_entry by defining the temporary cursor internally,
+>> making it compatible with the functionality of list_for_each_entry_safe.
+>> The code can refer to the v2 version.
 >>
->> [1] https://github.com/stefano-garzarella/iperf-vsock
+>> Pros: (1) Does not add redundant interfaces.
+>>       (2) The number of externally visible arguments of list_for_each_entry
+>>       remains unchanged, still three.
+>> Cons: (1) list_for_each_entry and list_for_each_entry_safe would be merged
+>>       into one, and list_for_each_entry_safe would gradually be deprecated.
+>>       (2) Users need to manually update special cases that use the traversal
+>>       variable of list_for_each_entry, the new list_for_each_entry would no
+>>       longer apply there and would need to be open-coded. There are 15 such
+>>       cases in total.
+> 
+> This sounds good to me, though I take it there's some code size increase
+> and/or performance penalty?
+> 
+> Maybe the 15 cases are questionable anyway?
+> 
+>> 5. Use a variadic macro approach to optimize list_for_each_entry, so that
+>> it supports both three and four arguments.
 >>
->> Fixes: 059b7dbd20a6 ("vsock/virtio: fix potential unbounded skb queue")
->> Cc: stable@vger.kernel.org
->> Reported-by: Brien Oberstein <brienpub@gmail.com>
->> Closes: https://lore.kernel.org/netdev/618701dd023e$063de350$12b9a9f0$@gmail.com/
->> Tested-by: Brien Oberstein <brienpub@gmail.com>
->> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
->> ---
->>  net/vmw_vsock/virtio_transport_common.c | 148 +++++++++++++++++++++++-
->>  1 file changed, 146 insertions(+), 2 deletions(-)
->>
->> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
->> index 09475007165b..304ea424995d 100644
->> --- a/net/vmw_vsock/virtio_transport_common.c
->> +++ b/net/vmw_vsock/virtio_transport_common.c
->> @@ -420,6 +420,137 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
->>  	return ret;
->>  }
->>
->> +static bool virtio_transport_can_collapse(struct sk_buff *skb,
->> +					  unsigned int size)
->
->Why passing a `size` argument here? AFAICS the actual argument is always
->a constant and IMHO rightfully so.
+>> Pros: (1) Does not add redundant interfaces.
+>>       (2) Does not depend on immediate per-subsystem adaptation and can be
+>>       merged directly.
+>> Cons: (1) Increases compile time.
+>>       (2) list_for_each_entry and list_for_each_entry_safe would be merged
+>>       into one, and list_for_each_entry_safe would gradually be deprecated.
+> 
+> Please don't do the macro tricks.
+> 
+>> 6. Make no changes, keep the current logic unchanged, and close the current
+>> email discussion.
+> 
+> I like hiding the temporary stuff when possible.
+> 
+> BR,
+> Jani.
 
-This comes from a previous implementation where this was not constant.
-With the current code, I agree that a macro should be better.
+Hi all,
+If there are no objections, I will make the changes using the first approach.
 
-I'll fix it.
 
->
->> +{
->> +	/* skbs that are partially consumed, mark a SEQPACKET message boundary,
->> +	 * or are already large enough should not be collapsed: they either
->> +	 * need special accounting, carry protocol state, or already have a
->> +	 * good data-to-overhead ratio.
->> +	 */
->> +	if (VIRTIO_VSOCK_SKB_CB(skb)->offset)
->> +		return false;
->> +	if (le32_to_cpu(virtio_vsock_hdr(skb)->flags) & VIRTIO_VSOCK_SEQ_EOM)
->> +		return false;
->> +	if (skb->len >= size)
->> +		return false;
->> +	return true;
->> +}
->> +
->> +/* Iterate through the packets in the queue starting from the current skb to
->> + * count the number of bytes we can collapse.
->> + */
->> +static unsigned int
->> +virtio_transport_collapse_size(struct sk_buff *skb,
->> +			       struct sk_buff_head *queue,
->> +			       unsigned int max_size)
->> +{
->> +	unsigned int target = skb->len - VIRTIO_VSOCK_SKB_CB(skb)->offset;
->> +
->> +	while ((skb = skb_peek_next(skb, queue)) &&
->> +	       virtio_transport_can_collapse(skb, max_size)) {
->> +		unsigned int len = skb->len - VIRTIO_VSOCK_SKB_CB(skb)->offset;
->> +
->> +		if (len > max_size - target)
->> +			return target;
->> +
->> +		target += len;
->> +	}
->> +
->> +	return target;
->> +}
->> +
->> +/* Called under lock_sock when skb overhead exceeds the budget. */
->> +static void virtio_transport_collapse_rx_queue(struct virtio_vsock_sock *vvs)
->> +{
->> +	/* Use the same linear allocation threshold as virtio_vsock_alloc_skb()
->> +	 * to avoid adding pressure on the page allocator.
->> +	 */
->> +	unsigned int collapse_max = SKB_MAX_ORDER(VIRTIO_VSOCK_SKB_HEADROOM,
->> +						  PAGE_ALLOC_COSTLY_ORDER);
->> +	struct sk_buff *skb, *next_skb, *new_skb = NULL;
->> +	struct sk_buff_head new_queue;
->> +
->> +	__skb_queue_head_init(&new_queue);
->> +
->> +	skb_queue_walk_safe(&vvs->rx_queue, skb, next_skb) {
->
->If the queue is relevantly big, walking all of it may take a significant
->amount of time/cache misses and causes traffic burstines. I think you
->could add an additional stop condition, i.e. when the current queue size
->is below a reasonable threshold (allowing the current packet to be
->inserted plus some more slack).
+Hi David Laight,
+You previously expressed a different opinion. Do you have any further comments
+on the current proposed approach?
 
-Makes sense, any suggestion on the threshold?
-
-I was thinking something like this: merge until we have space for at 
-least 2 skbs (because for now we estimate the overhead based on the 
-number of skbs, but in the future I'd like to support truesize), but 
-still trying to fill collapse_max as much as possible.
-
-Does that make sense, or should we be more aggressive?
-
->
->/P
->
->> +		struct virtio_vsock_hdr *hdr = virtio_vsock_hdr(skb);
->> +		u32 src_off = VIRTIO_VSOCK_SKB_CB(skb)->offset;
->> +		u32 src_len = skb->len - src_off;
->> +		bool keep = false;
->> +
->> +		if (!virtio_transport_can_collapse(skb, collapse_max)) {
->
->Minor nit, possibly something alike the following lead to more
->compact/more readable code:
->
->
->		keep = !virtio_transport_can_collapse(skb, collapse_max);
->		if (keep) {
->
-
-Yeah, so I can remove the initialization to false. I'll change it.
-
->> +			/* Finalize pending collapsed skb to preserve packet
->> +			 * ordering.
->> +			 */
->> +			if (new_skb) {
->> +				__skb_queue_tail(&new_queue, new_skb);
->> +				new_skb = NULL;
->> +			}
->> +			keep = true;
->> +			goto next;
->> +		}
->> +
->> +		/* Finalize if this packet won't fit in the remaining tailroom,
->> +		 * so we can allocate a right-sized new_skb.
->> +		 */
->> +		if (new_skb && src_len > skb_tailroom(new_skb)) {
->> +			__skb_queue_tail(&new_queue, new_skb);
->> +			new_skb = NULL;
->
->Possibly introduce an helper for the above 2 statements?
-
-Do you mean something like this?
-
-static void virtio_transport_queue_skb(struct sk_buff_head *queue,
-				       struct sk_buff **skb)
-{
-	__skb_queue_tail(queue, *skb);
-	*skb = NULL;
-}
-
-Not sure, just for 2 places, but if you prefer it, I can change.
-
-Thanks,
-Stefano
+-- 
+Thanks
+Kaitao Cheng
 
