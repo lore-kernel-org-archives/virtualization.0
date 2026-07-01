@@ -1,306 +1,293 @@
-Received: from mail-ot1-f44.google.com (mail-ot1-f44.google.com [209.85.210.44])
+Received: from mail-pj1-f74.google.com (mail-pj1-f74.google.com [209.85.216.74])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B0762374E7A
-	for <virtualization@lists.linux.dev>; Wed,  1 Jul 2026 16:34:44 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B889337DAAA
+	for <virtualization@lists.linux.dev>; Wed,  1 Jul 2026 19:32:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.74
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782923688; cv=none; b=CgzghzMw+2gt/7lVTd+shrsbwMSdPq61cDjihSY43LY1SxVezHwgoijb/igIKFOnYIGJJ29bz1WLJpoNcKzP05xwRQ3QfLoyr11eSnHPZG191vjpu7zt38YRn6t/JX1D96H88O8x0SKsDcANp/t9drOjafoNjpdAwoddZh8GS1M=
+	t=1782934347; cv=none; b=nTm3JgwGs9aer6PmwVVMizeUK0+lDut1Zv/Ru5x74LZPkTY2CA3hF5h55flwj3nwj79gEo2HqvTjasUkeUzYLQ2LhQigy6TIfOqrDRr4p4+5EagvD6A4V2tUWm3BLhVyHwoLkraADiVOdBZob2frFeUFRckUHPCoPLh5loPgeGY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782923688; c=relaxed/simple;
-	bh=IgxZJkAX83JEoUd7zhGT0HcnVVm/OyxbDgl2DsEOM60=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=Rjnj/gkQyFYQYOf4/leIL6QWGKvaIj8yndyU8NHDESSop5XX3dGl50b5YVBMTmCeyLwohzklu80acXdBpQLzzMyi5RDp1JpkaZNAW0AflWaQpClpF7FO3OLU5QSk9CKdKcbiCKPgUNieUJLkC3Ig5oK1SjG7CktzbPeWJtpkrOM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=P9jREve/; arc=none smtp.client-ip=209.85.210.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1782934347; c=relaxed/simple;
+	bh=UrrHgI5nxuV0K+nJlkYSwNJvN7a9iCCs3OUNM2aMIUE=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=jJ06W5mHYyg9JPrc4ytRgGIOd5uftq2tKMzo+wDDoDfzB60ghCLw4xiK4dPNFqC+WqH006fFN/KdVJcjk5i3hvThL610v1teGkUXiXhRCk4qimf8hu0HmYkPcQ6oIB07R1ZINABn6hbvIcoGcMACIm7bHwzQsVMYT75WAbcPJDk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=gk08FxnF; arc=none smtp.client-ip=209.85.216.74
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="P9jREve/"
-Received: by mail-ot1-f44.google.com with SMTP id 46e09a7af769-7e9f829d75aso548776a34.0
-        for <virtualization@lists.linux.dev>; Wed, 01 Jul 2026 09:34:44 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="gk08FxnF"
+Received: by mail-pj1-f74.google.com with SMTP id 98e67ed59e1d1-37ffaca522dso715948a91.2
+        for <virtualization@lists.linux.dev>; Wed, 01 Jul 2026 12:32:25 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1782923683; x=1783528483; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=1aq9FrQ86evQJPeL1WihgSaD08JDHC1d1jP4T/r4tmg=;
-        b=P9jREve/2TPT4yETOncDNI0vAWwXBwG2JqmUvVaup4zZAw0SxKdYrliv/rH/kDdyLs
-         jagc5d9LmZpf9U8lqK4q3hrNQb8CrSG1FtT8qCCL42Vzz3abClWsIl9VIDdHiw/SDKhs
-         csMtiPlLwthF0LMkdYcagNbkiTn0HWVBEtCVbD30aazxlSoXrCJXbR1MNjr4M15Z/YY/
-         TxHJlYTeBbINay5xRDxGle6jQXD7Qa3JuZDO8g3K+IJPnpSEwyiH/JK9JJBqcjR/OntF
-         /f8x1pjbYmTnXJgYjavQVuPu7xbwynFYIP7KGgIQ+YYXccUkwmDUutB8vouW6Vu2JrV3
-         i78g==
+        d=google.com; s=20251104; t=1782934345; x=1783539145; darn=lists.linux.dev;
+        h=content-type:cc:to:from:subject:message-id:mime-version:date
+         :reply-to:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=Q5DLB1BjKje3f1c5FruZIw3+wsrQVQC55+bIjsMSwHk=;
+        b=gk08FxnFN/T47lbRHzNumWs7MVkFcroGEifHXOsVRr5d9ltTMdsPnecz75WprIIXce
+         tN0EWoivWbhhYdekr9neX2H4BKkoy5POkLc1MZ8VW3Jz+D3sIRqBdtZfcTspFxmYR/l9
+         8PBa2qppW29sdZaUvfWieaSAqIbNY2ABLB8QXkMxBGcy7EXQCgoc8UErMEt4p/ZerrOj
+         UCaPPAA8hGqsMEzaofe+e6fDYTDLn1kdXP/6scz8Jitx9vY2K79BMsP7uQ6jQMApO5Fe
+         9Nt5pMAz/FvC2briva0kfSD0PK7hLeCZaq5Qw2vyDeNEJsVgl3yv51hBZbQ3MutGO/59
+         DmQA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782923683; x=1783528483;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=1aq9FrQ86evQJPeL1WihgSaD08JDHC1d1jP4T/r4tmg=;
-        b=ekvImGq2o8vf+Cg2Q8UIQKcdKHKR16UerWAQ3n2MhOhiVqWWiw/PlF7Ec89jjqHBKQ
-         UF6J3rSduP5GB/5MxT7YTX0NvRFjMFu0ygbLI1Nnd0kIJwt6sUx/Swe9UZprbghbim3J
-         glLPIXvMDkEztHDE4f+cQCR1JQAteqvV+eYx4bTP9sPF9ijCy0aTd9P1E8JN+wtZfKd9
-         rx637hwRgdtKCOCwFjj8W01BborVr8b8migE3sB1bllQQZBBfzgLlNA1AOMb8THwnHNG
-         nkuR6YJdbZUSFKlU9gX5bYYVG3KrbhUb2A768SeoTtTcuKTLAth7RPDWZUNxe5a77E17
-         nLhA==
-X-Forwarded-Encrypted: i=1; AFNElJ+DvU5V+Q21hc9QLhROuBs7vJG845Xq5IN+R/WqdXnKrL0nXHbHeyieKMp8pOedc3g/eu92G7+7ywouxPH/Ew==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yx3myAt7YqZrbnTeor95aYX91tnmIBrA+5eXj+zPYYpgDkQldAQ
-	RzfU/9x0I3pIaY4RgvRP9oinGY50kmNclaWSW/y8bMJwNRYN+eEVFSoW
-X-Gm-Gg: AfdE7cmqTTKtse+tGVqkI9/TmKSAHGfGLlmlf8iKn9aAftyJ3QPmR5KrDHl4uvDosdl
-	bUuiJkXJ/dvNQCRvFeke1zQYfykRr6v0eVRty6nmU1JSBkgdbfGUWlRu7xt3DT/EHBNADDw02Rb
-	0PL+2QDIbOe8E1/OC+/Juw+ZHl22H4RA7hod3eY3T/gH1t2IDBNwZtzvCo3s8qX5+J7Th/v8Kq7
-	wgEbWznglCLgNjRSHAPxpXkysVaKsxADcJJfownSPG3MfnRaDZGk42+vfdRGIyIPjb0kQxKh6Kf
-	9+XkyN1yJwpPd6syt3OPbhh1hUcqjsR0a3FWafqjvRMNlpMsc2vETdZ4O05ya7AjVY4W9juAzGz
-	XsnvFiOEOeJDctr0SGWqIMwnTL9oMHBdpw4hIUBMU/5+JhGLCtv/Zc6Rmn+E58wSNwccrDZ+n4q
-	EdAQhHDtYGhr0fr+t3BaOz+cH4flcAMKevcQ==
-X-Received: by 2002:a05:6830:3784:b0:7e9:c2d8:1789 with SMTP id 46e09a7af769-7eb504be755mr1070845a34.18.1782923683262;
-        Wed, 01 Jul 2026 09:34:43 -0700 (PDT)
-Received: from devvm29614.prn0.facebook.com ([2a03:2880:ff:50::])
-        by smtp.gmail.com with ESMTPSA id 46e09a7af769-7eb542d017csm410999a34.8.2026.07.01.09.34.41
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Jul 2026 09:34:42 -0700 (PDT)
-Date: Wed, 1 Jul 2026 09:34:35 -0700
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	"Michael S. Tsirkin" <mst@redhat.com>, kvm@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eric Dumazet <edumazet@google.com>, Simon Horman <horms@kernel.org>,
-	linux-kernel@vger.kernel.org, Stefan Hajnoczi <stefanha@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	stable@vger.kernel.org, Brien Oberstein <brienpub@gmail.com>
-Subject: Re: [PATCH net 1/2] vsock/virtio: collapse receive queue under
- memory pressure
-Message-ID: <akVBmydgSd0Eb46/@devvm29614.prn0.facebook.com>
-References: <20260626134823.206676-1-sgarzare@redhat.com>
- <20260626134823.206676-2-sgarzare@redhat.com>
+        d=1e100.net; s=20251104; t=1782934345; x=1783539145;
+        h=content-type:cc:to:from:subject:message-id:mime-version:date
+         :reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=Q5DLB1BjKje3f1c5FruZIw3+wsrQVQC55+bIjsMSwHk=;
+        b=imOSAxTjg7vMdfRhXx4QHWX4HYkVBFDzMEKIU1C6WVZR2BbLmYkg7enlvmK4A5TW2K
+         Lr7GCmxLA99K22zooeZEentCiDD/Od0eag611DfuiqFAG5KoMAWDVJ4+5HzuTNr1DnwU
+         YUPL12MZq/+KID7Qg/jcBII6JjyR4eXjBk6v5BK62pQ2WyC0sFl+Lk1+mTYJqGVcRK39
+         I9oeSGBmsRCRzsq0+TRwFz1c33DEAw4fmKq8VbU852SO7tCYkWzTqTa6nbct0/5HzVsq
+         Zdrjiz0s/2iJ5P9xGgcHULdmiIKN1trVZiDJSCIbh/BCdngnPJm+Fq/tpvkKpQy23rRi
+         RFtA==
+X-Forwarded-Encrypted: i=1; AHgh+RouVc+IH3f0ZIpvavtu6lzMU/QNNc5kvWwYYuwEdjooL8YrIwuz8ee4/KQjL4B27eyN7x7ZXYpUxYjwA8DPxQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwnMpRJfI1DL4wZavtEmHbZbGO0OBIYHIponEIhcx4IqbzQERQv
+	Xqq2/WDfcuSBLXCpsfiITb2s59N3T8pmGy1AljTJxFu0NEnLvf8mY97rUNg16BKK1c8PIgsPgqE
+	IvllILg==
+X-Received: from pjtl15.prod.google.com ([2002:a17:90a:c58f:b0:380:5553:77a7])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:52:b0:37f:9ce1:735e
+ with SMTP id 98e67ed59e1d1-380ba94a46bmr2041513a91.31.1782934344390; Wed, 01
+ Jul 2026 12:32:24 -0700 (PDT)
+Reply-To: Sean Christopherson <seanjc@google.com>
+Date: Wed,  1 Jul 2026 12:31:21 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260626134823.206676-2-sgarzare@redhat.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.55.0.rc0.799.gd6f94ed593-goog
+Message-ID: <20260701193212.749551-1-seanjc@google.com>
+Subject: [PATCH v5 00/51] x86: Try to wrangle PV clocks vs. TSC
+From: Sean Christopherson <seanjc@google.com>
+To: Jonathan Corbet <corbet@lwn.net>, Paolo Bonzini <pbonzini@redhat.com>, 
+	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
+	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org, 
+	Kiryl Shutsemau <kas@kernel.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, 
+	Sean Christopherson <seanjc@google.com>, "K. Y. Srinivasan" <kys@microsoft.com>, 
+	Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
+	Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>, 
+	Ajay Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.makhalov@broadcom.com>, 
+	Jan Kiszka <jan.kiszka@siemens.com>, Andy Lutomirski <luto@kernel.org>, 
+	Peter Zijlstra <peterz@infradead.org>, Juergen Gross <jgross@suse.com>, 
+	Daniel Lezcano <daniel.lezcano@kernel.org>, John Stultz <jstultz@google.com>
+Cc: Shuah Khan <skhan@linuxfoundation.org>, "H. Peter Anvin" <hpa@zytor.com>, 
+	Vitaly Kuznetsov <vkuznets@redhat.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stephen Boyd <sboyd@kernel.org>, linux-doc@vger.kernel.org, 
+	kvm@vger.kernel.org, linux-kernel@vger.kernel.org, linux-coco@lists.linux.dev, 
+	linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev, 
+	xen-devel@lists.xenproject.org, Tom Lendacky <thomas.lendacky@amd.com>, 
+	Nikunj A Dadhania <nikunj@amd.com>, David Woodhouse <dwmw@amazon.co.uk>, 
+	David Woodhouse <dwmw2@infradead.org>, Michael Kelley <mhklinux@outlook.com>, 
+	Thomas Gleixner <tglx@linutronix.de>
+Content-Type: text/plain; charset="UTF-8"
 
-On Fri, Jun 26, 2026 at 03:48:22PM +0200, Stefano Garzarella wrote:
-> From: Stefano Garzarella <sgarzare@redhat.com>
-> 
-> When many small packets accumulate in the receive queue, the skb overhead
-> can exceed buf_alloc even while the payload is within bounds. This causes
-> virtio_transport_inc_rx_pkt() to reject packets, leading to connection
-> resets during large transfers under backpressure.
-> 
-> The issue was reported by Brien, who has a reproducer, but it is also
-> easily reproducible with iperf-vsock [1] using a small packet size:
-> 
->   iperf3 --vsock -c $CID -l 129
-> 
-> which fails immediately without this patch but with commit 059b7dbd20a6
-> ("vsock/virtio: fix potential unbounded skb queue").
-> 
-> Inspired by TCP's tcp_collapse() which solves a similar problem, add
-> virtio_transport_collapse_rx_queue() that walks the receive queue and
-> re-copies data into compact linear skbs to reduce the overhead.
-> 
-> The collapse is triggered from virtio_transport_recv_enqueue() when
-> virtio_transport_inc_rx_pkt() fails. A pre-scan counts the eligible bytes
-> to size each allocation precisely, avoiding waste for isolated small
-> packets. Partially consumed skbs are kept as-is to preserve
-> buf_used/fwd_cnt accounting, EOM-marked skbs to maintain SEQPACKET
-> message boundaries, and skbs already larger than the collapse target
-> because they already have a good data-to-overhead ratio.
-> 
-> [1] https://github.com/stefano-garzarella/iperf-vsock
-> 
-> Fixes: 059b7dbd20a6 ("vsock/virtio: fix potential unbounded skb queue")
-> Cc: stable@vger.kernel.org
-> Reported-by: Brien Oberstein <brienpub@gmail.com>
-> Closes: https://lore.kernel.org/netdev/618701dd023e$063de350$12b9a9f0$@gmail.com/
-> Tested-by: Brien Oberstein <brienpub@gmail.com>
-> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-> ---
->  net/vmw_vsock/virtio_transport_common.c | 148 +++++++++++++++++++++++-
->  1 file changed, 146 insertions(+), 2 deletions(-)
-> 
-> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
-> index 09475007165b..304ea424995d 100644
-> --- a/net/vmw_vsock/virtio_transport_common.c
-> +++ b/net/vmw_vsock/virtio_transport_common.c
-> @@ -420,6 +420,137 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
->  	return ret;
->  }
->  
-> +static bool virtio_transport_can_collapse(struct sk_buff *skb,
-> +					  unsigned int size)
-> +{
-> +	/* skbs that are partially consumed, mark a SEQPACKET message boundary,
-> +	 * or are already large enough should not be collapsed: they either
-> +	 * need special accounting, carry protocol state, or already have a
-> +	 * good data-to-overhead ratio.
-> +	 */
-> +	if (VIRTIO_VSOCK_SKB_CB(skb)->offset)
-> +		return false;
-> +	if (le32_to_cpu(virtio_vsock_hdr(skb)->flags) & VIRTIO_VSOCK_SEQ_EOM)
-> +		return false;
-> +	if (skb->len >= size)
-> +		return false;
-> +	return true;
-> +}
-> +
-> +/* Iterate through the packets in the queue starting from the current skb to
-> + * count the number of bytes we can collapse.
-> + */
-> +static unsigned int
-> +virtio_transport_collapse_size(struct sk_buff *skb,
-> +			       struct sk_buff_head *queue,
-> +			       unsigned int max_size)
-> +{
-> +	unsigned int target = skb->len - VIRTIO_VSOCK_SKB_CB(skb)->offset;
-> +
-> +	while ((skb = skb_peek_next(skb, queue)) &&
-> +	       virtio_transport_can_collapse(skb, max_size)) {
-> +		unsigned int len = skb->len - VIRTIO_VSOCK_SKB_CB(skb)->offset;
-> +
-> +		if (len > max_size - target)
-> +			return target;
-> +
-> +		target += len;
-> +	}
-> +
-> +	return target;
-> +}
-> +
-> +/* Called under lock_sock when skb overhead exceeds the budget. */
-> +static void virtio_transport_collapse_rx_queue(struct virtio_vsock_sock *vvs)
-> +{
-> +	/* Use the same linear allocation threshold as virtio_vsock_alloc_skb()
-> +	 * to avoid adding pressure on the page allocator.
-> +	 */
-> +	unsigned int collapse_max = SKB_MAX_ORDER(VIRTIO_VSOCK_SKB_HEADROOM,
-> +						  PAGE_ALLOC_COSTLY_ORDER);
-> +	struct sk_buff *skb, *next_skb, *new_skb = NULL;
-> +	struct sk_buff_head new_queue;
-> +
-> +	__skb_queue_head_init(&new_queue);
-> +
-> +	skb_queue_walk_safe(&vvs->rx_queue, skb, next_skb) {
-> +		struct virtio_vsock_hdr *hdr = virtio_vsock_hdr(skb);
-> +		u32 src_off = VIRTIO_VSOCK_SKB_CB(skb)->offset;
-> +		u32 src_len = skb->len - src_off;
-> +		bool keep = false;
-> +
-> +		if (!virtio_transport_can_collapse(skb, collapse_max)) {
-> +			/* Finalize pending collapsed skb to preserve packet
-> +			 * ordering.
-> +			 */
-> +			if (new_skb) {
-> +				__skb_queue_tail(&new_queue, new_skb);
-> +				new_skb = NULL;
-> +			}
-> +			keep = true;
-> +			goto next;
-> +		}
-> +
-> +		/* Finalize if this packet won't fit in the remaining tailroom,
-> +		 * so we can allocate a right-sized new_skb.
-> +		 */
-> +		if (new_skb && src_len > skb_tailroom(new_skb)) {
-> +			__skb_queue_tail(&new_queue, new_skb);
-> +			new_skb = NULL;
-> +		}
-> +
-> +		if (!new_skb) {
-> +			unsigned int alloc_size;
-> +
-> +			alloc_size = virtio_transport_collapse_size(skb, &vvs->rx_queue,
-> +								    collapse_max);
-> +
-> +			/* Only this skb's data is eligible, nothing to merge
-> +			 * with. Keep as-is.
-> +			 */
-> +			if (alloc_size <= src_len) {
-> +				keep = true;
-> +				goto next;
-> +			}
-> +
-> +			new_skb = virtio_vsock_alloc_linear_skb(alloc_size +
-> +					VIRTIO_VSOCK_SKB_HEADROOM, GFP_KERNEL);
-> +			if (!new_skb)
-> +				goto out;
-> +
-> +			memcpy(virtio_vsock_hdr(new_skb), hdr,
-> +			       sizeof(struct virtio_vsock_hdr));
-> +			virtio_vsock_hdr(new_skb)->len = 0;
-> +		}
-> +
-> +		/* Cannot fail since src_off/src_len are within bounds, but if
-> +		 * it does, discard new_skb to avoid queuing corrupted data.
-> +		 */
-> +		if (WARN_ON_ONCE(skb_copy_bits(skb, src_off,
-> +					       skb_put(new_skb, src_len),
-> +					       src_len))) {
-> +			kfree_skb(new_skb);
-> +			new_skb = NULL;
-> +			goto out;
-> +		}
-> +
-> +		le32_add_cpu(&virtio_vsock_hdr(new_skb)->len, src_len);
-> +		virtio_vsock_hdr(new_skb)->flags |= hdr->flags;
-> +
-> +next:
-> +		__skb_unlink(skb, &vvs->rx_queue);
-> +		if (keep)
-> +			__skb_queue_tail(&new_queue, skb);
-> +		else
-> +			consume_skb(skb);
-> +	}
-> +out:
-> +	if (new_skb)
-> +		__skb_queue_tail(&new_queue, new_skb);
-> +
-> +	skb_queue_splice(&new_queue, &vvs->rx_queue);
+The primary goal of this series to fix flaws with SNP and TDX guests where a
+PV clock provided by the untrusted hypervisor is used instead of the secure
+TSC that is controlled by trusted firmware.
 
-I think the new skbs will also need skb_set_owner_sk_safe(skb, sk)
-when adding to rx_queue?
+The secondary goal is modernize running under KVM.  Currently, KVM guests will
+use TSC for clocksource, but not sched_clock.  And Linux-as-a-KVM-guest doesn't
+support paravirt enumeration of the TSC/APIC frequencies, even though QEMU
+provides that information by default.
 
-Best,
-Bobby
+The tertiary goal is to clean up the PV clock code to deduplicate logic across
+hypervisors, and to hopefully make it all easier to maintain going forward.
 
-> +}
-> +
->  static bool virtio_transport_inc_rx_pkt(struct virtio_vsock_sock *vvs,
->  					u32 len)
->  {
-> @@ -1363,8 +1494,21 @@ virtio_transport_recv_enqueue(struct vsock_sock *vsk,
->  	spin_lock_bh(&vvs->rx_lock);
->  
->  	can_enqueue = virtio_transport_inc_rx_pkt(vvs, len);
-> -	if (!can_enqueue)
-> -		goto out;
-> +	if (!can_enqueue) {
-> +		/* Try to collapse the receive queue to reduce skb overhead and
-> +		 * make room for this packet.
-> +		 * Unlock rx_lock since the collapse may sleep or, in any case,
-> +		 * take some time to collapse the skbs, but this is safe, since
-> +		 * sk_lock is held by caller so no one else can enqueue or
-> +		 * dequeue.
-> +		 */
-> +		spin_unlock_bh(&vvs->rx_lock);
-> +		virtio_transport_collapse_rx_queue(vvs);
-> +		spin_lock_bh(&vvs->rx_lock);
-> +		can_enqueue = virtio_transport_inc_rx_pkt(vvs, len);
-> +		if (!can_enqueue)
-> +			goto out;
-> +	}
->  
->  	if (le32_to_cpu(hdr->flags) & VIRTIO_VSOCK_SEQ_EOM)
->  		vvs->msg_count++;
-> -- 
-> 2.54.0
-> 
-> 
+The quaternary goal is to clean up the TSC calibration code, which was made
+stupidly hard to follow by hypervisor code mixing in with the native
+calibration routines, instead of being implemented as a pure alternative.
+
+Note, the VMware and Xen changes still probably should get acks from those
+maintainers, as my understanding of what they're trying to do may be flawed.
+
+Lots more background on the SNP/TDX motiviation:
+https://lore.kernel.org/all/20250106124633.1418972-13-nikunj@amd.com
+
+As before, I deliberately omitted jailhouse-dev@googlegroups.com from the To/Cc,
+as those emails bounced on v1, AFAICT nothing has changed.
+
+v5:
+ - Use cpu_feature_enabled() instead of boot_cpu_has(). [Boris]
+ - WARN if recalibrate_cpu_khz() runs on a system with TSC_KNOWN_FREQ. [Thomas]
+ - Opportunistically drop a line break in native_calibrate_tsc(). [Thomas]
+ - Rely on callers of cpuid_get_tsc_info() to check the result instead of
+   unnecessarily zeroing the structure. [Boris]
+ - Ignore tsc_early_khz if the TSC frequency is provided by trusted firmware
+   or by the hypervisor. [Thomas, Sashiko]
+ - Cache CPUID output in acrn_init_platform() to avoid introducing a transient
+   bug where TSC_KNOWN_FREQ could be set even if the ACRN hypervisor didn't
+   actually provide the frequency. [Sashiko]
+ - Drop kvmclock's useless/dead check_tsc_unstable() call (it occurs before the
+   command line parameter is parsed). [Sashiko]
+ - Add helpers to set lapic_timer_period, to fix not-so-theoretical overflow
+   in the various "khz * 1000 / HZ" patterns. [Sashiko]
+ - Drop the "x86/xen: Obtain TSC frequency from CPUID if present" patch as it
+   doesn't have any dependencies/conflicts on/with this series, and Sashiko had
+   concerns about the assumptions it was making. [Sashiko]
+ - Collect reviews. [David] (Kirill's got dropped because the patch he reviewed
+   got completely rewritten).
+
+
+v4:
+ - Use x86_init_noop() to skip save/restore on VMware and Xen instead of
+   nullifying x86_platform.{save,restore}_sched_clock_state. [Sashiko]
+ - Use '0' to indicate "failure" when getting the CPU frequency from CPUID, to
+   avoid using an out-param and thus make it all but impossible to
+   unintentionally clobber the global cpu_khz (which v3 did). [Sashiko]
+ - Rename cpuid_get_cpu_freq() => __cpu_khz_from_cpuid() to capture its
+   relationship with cpu_khz_from_cpuid().
+ - Compute lapic_timer_period in units of ticks, not Khz. [Sashiko]
+ - Kill off x86_platform_ops.calibrate_{cpu,tsc}(), and instead use dedicated
+   hooks for hypervisor code, and direct calls for TDX and SNP. [David, loosely]
+ - Drop SNP's secure TSC override of _CPU_ calibration, as there's zero
+   evidence it's justified or a net positive.
+ - Collect reviews/acks. [David, Wei]
+ - Decouple getting TSC/APIC frequencies from KVM PV CPUID from kvmclock. [David]
+ - Fix an amusing number of Opportunistically misspellings. [David]
+ - Set kvm_sched_clock_offset _before_ registering kvmclock as sched_clock,
+   and add a comment to guard against future goofs. [Sashiko]
+ - Keep "setup_force_cpu_cap(X86_FEATURE_TSC_RELIABLE)" in Hyper-V's handling
+   of HV_ACCESS_TSC_INVARIANT, as it's technically possible to have a VM
+   with HV_ACCESS_TSC_INVARIANT but not HV_ACCESS_FREQUENCY_MSRS.  Though as
+   a _very_ nice side effect of using dedicated sequencing for selecting the
+   TSC frequency source, this would have naturally happened anyways. [Sashiko]
+
+v3:
+ - https://lore.kernel.org/all/20260515191942.1892718-1-seanjc@google.com
+ - Collect reviews. [Michael, Thomas]
+ - Use Hyper-V reference counter / refcounter instead of Hyper-V timer. [Michael]
+ - Use the paravirt CPUID interface first proposed by VMware for KVM's
+   "official" mechanism for communicating frequency to KVM-aware guests,
+   instead of abusing Intel's CPUID leafs. [David]
+ - Deal with paravirt code being moved into asm/timers.h and
+   arch/x86/kernel/tsc.c.
+
+v2:
+ - https://lore.kernel.org/all/Z8YWttWDtvkyCtdJ@google.com
+ - Add struct to hold the TSC CPUID output. [Boris]
+ - Don't pointlessly inline the TSC CPUID helpers. [Boris]
+ - Fix a variable goof in a helper, hopefully for real this time. [Dan]
+ - Collect reviews. [Nikunj]
+ - Override the sched_clock save/restore hooks if and only if a PV clock
+   is successfully registered.
+ - During resome, restore clocksources before reading persistent time.
+ - Clean up more warts created by kvmclock.
+ - Fix more bugs in kvmclock's suspend/resume handling.
+ - Try to harden kvmclock against future bugs.
+
+v1: https://lore.kernel.org/all/20250201021718.699411-1-seanjc@google.com
+
+David Woodhouse (2):
+  KVM: x86: Officially define CPUID 0x40000010 as PV Timing Info (TSC
+    and Bus)
+  x86/kvm: Obtain TSC frequency from PV CPUID if present
+
+Sean Christopherson (49):
+  x86/apic: Provide helpers to set local APIC timer period in hz and khz
+  x86/apic: Add CONFIG_X86_LOCAL_APIC=n stubs for
+    apic_set_timer_period_{,k}hz()
+  x86/tsc: Ensure that TSC recalibration doesn't run if TSC frequency is
+    known
+  x86/tsc: Restrict recalibrate_cpu_khz() export to p4-clockmod and
+    powernow-k7
+  x86/sev: Mark TSC as reliable when configuring Secure TSC
+  x86/sev: Don't override CPU frequency calibration for SNP's Secure TSC
+  x86/sev: Move check for SNP Secure TSC support to tsc_early_init()
+  x86/sev: Shove SNP's secure/trusted TSC frequency directly into
+    "calibration"
+  x86/tsc: Add a standalone helper for getting TSC info from CPUID.0x15
+  x86/tdx: Force TSC frequency with CPUID-based info provided by the
+    TDX-Module
+  x86/tsc: Add dedicated hypervisor hooks for getting known TSC/CPU
+    frequencies
+  x86/acrn: Register TSC/CPU frequency callbacks iff frequency is
+    actually in CPUID
+  x86/acrn: Mark TSC frequency as known when using ACRN for calibration
+  x86/tsc: Consolidate forcing of X86_FEATURE_TSC_KNOWN_FREQ for PV code
+  x86/tsc: Kill off x86_platform_ops.calibrate_{cpu,tsc}() hooks
+  x86/tsc: Rename pit_hpet_ptimer_calibrate_cpu() =>
+    native_calibrate_cpu_late()
+  x86/tsc: Fold native_calibrate_cpu() into recalibrate_cpu_khz()
+  x86/kvmclock: Rename kvm_get_tsc_khz() to kvmclock_get_tsc_khz()
+  x86/kvmclock: Drop dead check on TSC being unstable during
+    kvmclock_init()
+  x86/kvm: Mark TSC as reliable when it's constant and nonstop
+  x86/tsc: Add standalone helper for getting CPU frequency from CPUID
+  x86/kvm: Get CPU base frequency from CPUID when it's available
+  clocksource: hyper-v: Register sched_clock save/restore iff it's
+    necessary
+  clocksource: hyper-v: Drop wrappers to sched_clock save/restore
+    helpers
+  clocksource: hyper-v: Don't save/restore TSC offset when using HV
+    sched_clock
+  x86/kvmclock: Setup kvmclock for secondary CPUs iff CONFIG_SMP=y
+  x86/kvm: Don't disable kvmclock on BSP in syscore_suspend()
+  x86/paravirt: Remove unnecessary PARAVIRT=n stub for
+    paravirt_set_sched_clock()
+  x86/paravirt: Move handling of unstable PV clocks into
+    paravirt_set_sched_clock()
+  x86/kvmclock: Move sched_clock save/restore helpers up in kvmclock.c
+  x86/xen/time: NOP-ify x86_platform's sched_clock save/restore hooks
+  x86/vmware: NOP-ify save/restore hooks when using VMware's sched_clock
+  x86/tsc: WARN if TSC sched_clock save/restore used with PV sched_clock
+  x86/paravirt: Pass sched_clock save/restore helpers during
+    registration
+  x86/kvmclock: Move kvm_sched_clock_init() down in kvmclock.c
+  x86/xen/time: Mark xen_setup_vsyscall_time_info() as __init
+  x86/pvclock: Mark setup helpers and related various as
+    __init/__ro_after_init
+  x86/pvclock: WARN if pvclock's valid_flags are overwritten
+  x86/kvmclock: Refactor handling of PVCLOCK_TSC_STABLE_BIT during
+    kvmclock_init()
+  timekeeping: Resume clocksources before reading persistent clock
+  x86/kvmclock: Hook clocksource.suspend/resume when kvmclock isn't
+    sched_clock
+  x86/kvmclock: WARN if wall clock is read while kvmclock is suspended
+  x86/paravirt: Mark __paravirt_set_sched_clock() as __init
+  x86/paravirt: Plumb a return code into __paravirt_set_sched_clock()
+  x86/paravirt: Don't use a PV sched_clock in CoCo guests with trusted
+    TSC
+  x86/kvmclock: Use TSC for sched_clock if it's constant and non-stop
+  x86/kvmclock: Plumb in AP-online and BSP-resume to kvmlock, for
+    documentation
+  x86/paravirt: Move using_native_sched_clock() stub into timer.h
+  x86/kvm: Get local APIC bus frequency from PV CPUID Timing Info
+
+ .../admin-guide/kernel-parameters.txt         |   5 +
+ Documentation/virt/kvm/x86/cpuid.rst          |  12 +
+ arch/x86/coco/sev/core.c                      |  21 +-
+ arch/x86/coco/tdx/tdx.c                       |  19 +-
+ arch/x86/include/asm/acrn.h                   |   5 -
+ arch/x86/include/asm/apic.h                   |   5 +-
+ arch/x86/include/asm/kvm_para.h               |  12 +-
+ arch/x86/include/asm/sev.h                    |   4 +-
+ arch/x86/include/asm/tdx.h                    |   2 +
+ arch/x86/include/asm/timer.h                  |  15 +-
+ arch/x86/include/asm/tsc.h                    |  10 +-
+ arch/x86/include/asm/x86_init.h               |   8 +-
+ arch/x86/include/uapi/asm/kvm_para.h          |  11 +
+ arch/x86/kernel/apic/apic.c                   |  12 +-
+ arch/x86/kernel/cpu/acrn.c                    |  14 +-
+ arch/x86/kernel/cpu/mshyperv.c                |  70 +-----
+ arch/x86/kernel/cpu/vmware.c                  |  19 +-
+ arch/x86/kernel/jailhouse.c                   |   9 +-
+ arch/x86/kernel/kvm.c                         | 101 ++++++--
+ arch/x86/kernel/kvmclock.c                    | 208 +++++++++++------
+ arch/x86/kernel/pvclock.c                     |   9 +-
+ arch/x86/kernel/tsc.c                         | 218 +++++++++++-------
+ arch/x86/kernel/tsc_msr.c                     |   4 +-
+ arch/x86/kernel/x86_init.c                    |   2 -
+ arch/x86/mm/mem_encrypt_amd.c                 |   3 -
+ arch/x86/xen/time.c                           |  14 +-
+ drivers/clocksource/hyperv_timer.c            |  38 ++-
+ include/clocksource/hyperv_timer.h            |   2 -
+ kernel/time/timekeeping.c                     |   9 +-
+ 29 files changed, 540 insertions(+), 321 deletions(-)
+
+
+base-commit: dc59e4fea9d83f03bad6bddf3fa2e52491777482
+-- 
+2.55.0.rc0.799.gd6f94ed593-goog
+
