@@ -1,57 +1,56 @@
-Received: from mail-pj1-f73.google.com (mail-pj1-f73.google.com [209.85.216.73])
+Received: from mail-pg1-f201.google.com (mail-pg1-f201.google.com [209.85.215.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2D1C42C4B8
-	for <virtualization@lists.linux.dev>; Wed,  1 Jul 2026 19:33:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.73
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4382342E8DF
+	for <virtualization@lists.linux.dev>; Wed,  1 Jul 2026 19:33:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782934411; cv=none; b=GwgKham3TzF5kjGdt/7z+yHs8WAbLpnRMTSyKhyYuEw8dduY2r2OGGOINyujnWVFnbHa0EJ8R88atHqeRYScLKi8MuKEyYPLNxKEZmuHCj1GjDhqyH1LvcxC5zBZhPI9wcTX29ImAt5+BuERgK3qQ1x/etQhlw+12lePtE/sfeY=
+	t=1782934412; cv=none; b=ZT4eE9OQ21ZLvkvYMH6/0YQuXhh4kucd+AxNqZimhYzkZJZb5ed+7Ymlv9f40aWrSmKkdrue2Q/oiq/zD0btPeOLSl2CJNt9aUi3V5o+joiWQXtuM3oT6/ZqrbZpwGYyfN/97maD7H+xGr1F07uzc4JFPVhviXP1AUeYGIyiMK0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782934411; c=relaxed/simple;
-	bh=eWWyL7UaDO+jO5zpybHvT2ywbxk2X6+2Y5u8hqaq4xo=;
+	s=arc-20240116; t=1782934412; c=relaxed/simple;
+	bh=t2gV+eBO9o787fvbLEefqahl8FVWKIIpfUP+z3tzyok=;
 	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=BIvNJwmwoR5Uy2ClN/zNDAlH6sFM2U9+4ZgYeh9lCgiSdprBTcUO0oeYUSd0fReQ31kYYrw7SrGOXaC+NI2DwWsooCg6m46kVjM2Ep0l3tNjRnwPDblfQXEk+23fwJ5e8HMa7YPaM8RC7NU4ussp+waHoLZuAIjZlMPIUcGKihk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=D1lJwJLE; arc=none smtp.client-ip=209.85.216.73
+	 To:Cc:Content-Type; b=SsKa+A1ZHJWdQ6LvviY9Ck7l6P5pJORB79lddYP+pgz2zMa4FwuyiqyFFXQEtXJv5UeaC08jr0E7XriCiPM9beZhw3OaSx5Nab0j78B6+xu/3YqKi9GMWGtrLp9QDPA3yBkRenRaOfPQsq5w4Yo3UEZezY9/dRY3sXUudNLKNXc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=Ylw1Qqlc; arc=none smtp.client-ip=209.85.215.201
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="D1lJwJLE"
-Received: by mail-pj1-f73.google.com with SMTP id 98e67ed59e1d1-37ffaca522dso716948a91.2
-        for <virtualization@lists.linux.dev>; Wed, 01 Jul 2026 12:33:27 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="Ylw1Qqlc"
+Received: by mail-pg1-f201.google.com with SMTP id 41be03b00d2f7-c88aab7c1fcso999694a12.3
+        for <virtualization@lists.linux.dev>; Wed, 01 Jul 2026 12:33:29 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1782934407; x=1783539207; darn=lists.linux.dev;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:reply-to:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=BBdglu7Hd/NWIo80QzRStfEHhLuTnQAY4zgBWN5WaBQ=;
-        b=D1lJwJLE+Pj8h2fjTWNcl6auRv4Uia8mNG6JzESHj96qjZv5WShm1XdO6/9JAYVRtz
-         2aF5uLjKiDJ3ldl9jdxwQPUEdSofEUq7aBhGmLDIs39+ks76QN4yAb1eMl1ydRCHPlDH
-         95X2iXybMQf9hQTvVatjQe9euWAwpGfi1VOzVnxGbICdiPw5KgK40UE+fnOrlzv0dKky
-         dXvMgypZxr9F1rMM9IXOOgMdV94AYsmTjvne8HEd3x5j4/ZMX2yjySjm4aCr/UzTUGhd
-         bR87vkg83j7KG9LdvAuLHlKwO+Any0z5kk/TsS/kX4wp0b7mJcymOdsR3jtANVQufyyn
-         xR3A==
+        d=google.com; s=20251104; t=1782934408; x=1783539208; darn=lists.linux.dev;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:reply-to:from:to:cc:subject:date:message-id:reply-to;
+        bh=ukYnz5D3jEol4z1WUeRHDVtFiLPopAappLYurzMw/rI=;
+        b=Ylw1QqlcDHA3VtYD7VrbOqwDRoy0vzDWIuciKnPSlUgGcu7Ae5JWZfZdZqXFOdq4sd
+         Echw4wTWuWMh3nQKjnYnMGa1p0M8eyUAFtbOo2XRhYRxxr/rHmidiydF0KE90xcHgwK0
+         K54y9397nco9UUxO91fv4P2/02rssOCRlH3VNgdPR5gUzgSw3VD1jH3TDjr1e5jnMSsf
+         qXxBmxgEHywyJZU6miZJ1KK+L67xk2DBzSTlSfPSSYuUmT5TGErmkAqnc2ptmtJjlZ8m
+         WhWV5vh0BU/HUMPNSaXiC7tIXxuKDOTJmcFFr6OUaPbh5nutoiKHl8FHEFgSGnSgV6QV
+         cHzw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782934407; x=1783539207;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:reply-to:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=BBdglu7Hd/NWIo80QzRStfEHhLuTnQAY4zgBWN5WaBQ=;
-        b=ECH997eEuHpdj8jG+RniU/ROyvoIJus7gmlTEto9cols5ZZgzecu+MOy7cy1atzXS+
-         KxDKiE6pX4cGRfdVQI7+W8POOV3FOVfOjjP5jApmByWBVDWwrWbJCUZNzulty/FVuZ1c
-         vYXXOEPhbAA3/gwW13Q0jLMlPybZVA58fXhhfUz3Ly8DliMY0tC9xAikr9AROxD5Z0BB
-         ScLh6ZEPInHu5HgO3onTf6n79bflCxk6y+NROfReidqqeeUnQ+uEVPJ/ESRm1GpAAxU0
-         /A+qVehQHpLLuP82pm9MHeFIAqpXLFz+Fo/djo7Nr/t+yYwawb0C1JFsabSPU/MPWgKK
-         h/8w==
-X-Forwarded-Encrypted: i=1; AHgh+RqzH0evF/Fd+eX3kqtThmEGG3Adk3VH2Of7A4sdjn377rZGBBHI1FSI3wPppAIFROCSs8EWXI108LagBnhlIw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxHS9NjBI0QBt5loWDUNZkrTo1LJ5OQWwGP8vYeT43d9rH3ih30
-	1WrrfVLE0KzdgpR3fu3IMIWuJrgBS9V2t9FaYYKcU1B3EmzZE+98m3rYKxstnHT9KeXLEOc07cC
-	PRe0nBw==
-X-Received: from pjbmt23.prod.google.com ([2002:a17:90b:2317:b0:380:79f2:a916])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:3a47:b0:37e:2005:6507
- with SMTP id 98e67ed59e1d1-380ba84865cmr1899432a91.15.1782934406994; Wed, 01
- Jul 2026 12:33:26 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1782934408; x=1783539208;
+        h=cc:to:from:subject:message-id:references:mime-version:in-reply-to
+         :date:reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to;
+        bh=ukYnz5D3jEol4z1WUeRHDVtFiLPopAappLYurzMw/rI=;
+        b=VB42UHO4lEuxa25hhD8vPV5/Bi2x+gLKTvXIKWuajlzGX7ca0A+b/KCZKWp28ZgjNQ
+         6/E9HG+4TAtoTDZR9Pyyx/1AbQo7lNOj8gYxiCHxdQhKVsMQoxigPdLFadjw3GA3TpLQ
+         rLKzu28Ii5G6xIZTMwqsUW53V7tsjiOpk/xStgjbgpzZgFwhRcRtFFtroNus1OTS9nn0
+         2k2GdBOa1Rm1Zs0eILW4CHbb+3upkAoNcPVQzejI4ymR0kyLoJuuUgxohNrPwiQX7vhM
+         buzCItoWRRH5409DOXd618wGgp3PuUP8ByDB3Q+hytuTNjp3RbUYcagqXNXGqA0W6Uco
+         ERiA==
+X-Forwarded-Encrypted: i=1; AFNElJ+6nNJcmvBF7C0RoonTiiZYqTQwCIvmuXs2Fj104vw3DRTfmHCotTnP0eMiGNZQTQrZqS8Qz91Kwcs0yLKlYA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyjTs5nMNRe+WtlfTfFE/2nchjk1OJR20zvZOoZnJjlh0FKCzKW
+	bAiKgeh0HQnAQZk8ik1lViskh+afyYBoJv0tOrcLfBO4gQKJveEQbCgSqtoh0rB4ClfQUwyEtCF
+	fLuIbLw==
+X-Received: from pgad26.prod.google.com ([2002:a05:6a02:4f5a:b0:c99:d21a:f6b7])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a21:748b:b0:3bf:d1f9:b1db
+ with SMTP id adf61e73a8af0-3bfed5e1001mr3530009637.52.1782934408107; Wed, 01
+ Jul 2026 12:33:28 -0700 (PDT)
 Reply-To: Sean Christopherson <seanjc@google.com>
-Date: Wed,  1 Jul 2026 12:32:11 -0700
+Date: Wed,  1 Jul 2026 12:32:12 -0700
 In-Reply-To: <20260701193212.749551-1-seanjc@google.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -61,9 +60,9 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 Mime-Version: 1.0
 References: <20260701193212.749551-1-seanjc@google.com>
 X-Mailer: git-send-email 2.55.0.rc0.799.gd6f94ed593-goog
-Message-ID: <20260701193212.749551-51-seanjc@google.com>
-Subject: [PATCH v5 50/51] x86/paravirt: Move using_native_sched_clock() stub
- into timer.h
+Message-ID: <20260701193212.749551-52-seanjc@google.com>
+Subject: [PATCH v5 51/51] x86/kvm: Get local APIC bus frequency from PV CPUID
+ Timing Info
 From: Sean Christopherson <seanjc@google.com>
 To: Jonathan Corbet <corbet@lwn.net>, Paolo Bonzini <pbonzini@redhat.com>, 
 	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
@@ -88,57 +87,44 @@ Cc: Shuah Khan <skhan@linuxfoundation.org>, "H. Peter Anvin" <hpa@zytor.com>,
 	Thomas Gleixner <tglx@linutronix.de>
 Content-Type: text/plain; charset="UTF-8"
 
-Now that timer.h ended up with CONFIG_PARAVIRT #ifdeffery anyways, move the
-PARAVIRT=n using_native_sched_clock() stub into timer.h as a "free"
-optimization.
+When running as a KVM guest with PV timing info provided by the host,
+stuff the APIC timer period/frequency with the local APIC bus frequency
+reported in CPUID.0x40000010.EBX instead of trying to calibrate/guess the
+frequency.
 
-No functional change intended.
+See Documentation/virt/kvm/x86/cpuid.rst for details.
 
 Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
 Signed-off-by: Sean Christopherson <seanjc@google.com>
 ---
- arch/x86/include/asm/timer.h | 6 ++++--
- arch/x86/kernel/tsc.c        | 2 --
- 2 files changed, 4 insertions(+), 4 deletions(-)
+ arch/x86/kernel/kvm.c | 7 ++++++-
+ 1 file changed, 6 insertions(+), 1 deletion(-)
 
-diff --git a/arch/x86/include/asm/timer.h b/arch/x86/include/asm/timer.h
-index ca5c95d48c03..a52388af6055 100644
---- a/arch/x86/include/asm/timer.h
-+++ b/arch/x86/include/asm/timer.h
-@@ -11,9 +11,9 @@ extern void recalibrate_cpu_khz(void);
+diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
+index f9a6346077b0..beea0b6aa78e 100644
+--- a/arch/x86/kernel/kvm.c
++++ b/arch/x86/kernel/kvm.c
+@@ -990,7 +990,7 @@ static void __init kvm_init_platform(void)
+ 		.mask_lo = (u32)(~(SZ_4G - tolud - 1)) | MTRR_PHYSMASK_V,
+ 		.mask_hi = (BIT_ULL(boot_cpu_data.x86_phys_bits) - 1) >> 32,
+ 	};
+-	u32 timing_info_leaf;
++	u32 timing_info_leaf, apic_khz;
+ 	bool tsc_is_reliable;
  
- extern int no_timer_check;
- 
--extern bool using_native_sched_clock(void);
--
- #ifdef CONFIG_PARAVIRT
-+extern bool using_native_sched_clock(void);
+ 	if (cc_platform_has(CC_ATTR_GUEST_MEM_ENCRYPT) &&
+@@ -1052,6 +1052,11 @@ static void __init kvm_init_platform(void)
+ 			x86_init.hyper.get_tsc_khz = kvm_get_tsc_khz;
+ 			x86_init.hyper.get_cpu_khz = kvm_get_tsc_khz;
+ 		}
 +
- int __init __paravirt_set_sched_clock(u64 (*func)(void), bool stable,
- 				      void (*save)(void), void (*restore)(void));
++		/* The leaf also includes the local APIC bus/timer frequency.*/
++		apic_khz = cpuid_ebx(timing_info_leaf);
++		if (apic_khz)
++			apic_set_timer_period_khz(apic_khz, "KVM hypervisor");
+ 	}
  
-@@ -23,6 +23,8 @@ static __always_inline void paravirt_set_sched_clock(u64 (*func)(void),
- {
- 	(void)__paravirt_set_sched_clock(func, true, save, restore);
- }
-+#else
-+static inline bool using_native_sched_clock(void) { return true; }
- #endif
- 
- /*
-diff --git a/arch/x86/kernel/tsc.c b/arch/x86/kernel/tsc.c
-index a146fc7b5e74..564be4faa5a0 100644
---- a/arch/x86/kernel/tsc.c
-+++ b/arch/x86/kernel/tsc.c
-@@ -302,8 +302,6 @@ int __init __paravirt_set_sched_clock(u64 (*func)(void), bool stable,
- }
- #else
- u64 sched_clock_noinstr(void) __attribute__((alias("native_sched_clock")));
--
--bool using_native_sched_clock(void) { return true; }
- #endif
- 
- notrace u64 sched_clock(void)
+ 	/*
 -- 
 2.55.0.rc0.799.gd6f94ed593-goog
 
