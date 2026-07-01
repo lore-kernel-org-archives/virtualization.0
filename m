@@ -1,58 +1,85 @@
-Received: from smtp4.osuosl.org (smtp4.osuosl.org [140.211.166.137])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-oa1-f44.google.com (mail-oa1-f44.google.com [209.85.160.44])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8FEE47B401
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jun 2026 20:32:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.137
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F122224FA
+	for <virtualization@lists.linux.dev>; Wed,  1 Jul 2026 00:12:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.160.44
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782851548; cv=none; b=eq8mGyQma2DzB4As0Bz0uwS5uqtcFDDpdzt/ueyVrEZ7Rt6zdulHX13nLGFXhAwegiyMLXK+J5KaM/1JLEMOTaqmVmh97CNcNuvR7wn7mCLj6bwFuD+EN20m9/F1BC24j8DiSxXJOdYpXKDst5qJc/JtTr12oniwsANfdqgjjCE=
+	t=1782864731; cv=none; b=a+riYBovF/2+ddKwcC/Cxgpc/bMMOoONigreouxaPWm9gN4nNv0c+tXsVW0zJ8s5GWYyPUjALbtiRr1FDGUXwtmJC//qO/TLKucZeWUPU3GWmbrNFgv5Z2H3FKRMHgUL0882uDfcd8io6xGbAlNQ0WIbKfSgvexe59o2VEsBdS4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782851548; c=relaxed/simple;
-	bh=+0vnvc0Lj/Of1cM+Yk8+OLr0KRKRO9Qc9+jopixFTfw=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=M8bAvOgM30OWxzfR1shhlOXH538+Y9ensts1k5V6JmklR8c1SIBRiIScYBTExbcgVhPajQTG6dORTtO0Y1hGtauAz5S2pzCDEONxUKmePGxKHDDs5Ek1dB8qLQzlKwqCT2zwJaR+8CYpp0CHsw+xPoAyNeRE+Js2G9hHU4o748M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GLrtswsw; arc=none smtp.client-ip=140.211.166.137
+	s=arc-20240116; t=1782864731; c=relaxed/simple;
+	bh=FNPAmZC9QW0FcXQDJ4HDqkQLOrQ452JWlOTpJCafqw0=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=ibLg595G0onxUnpQZ+jxEty9BITPCW1CZZcJmfd7MarW58YwROeoLDLbIV5c7iBdf0r7wK5uGXwTyHLhanGqOvYKVJuuD2DOngpROfRWxV0Q0LsPNZBrVDlbWwhkGyewxHbCMZ5U2NuQ1alyNokGZEaFrgKnuBODCTyo75pbdMo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=d0tH/4Z0; arc=none smtp.client-ip=209.85.160.44
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GLrtswsw"
-Received: from localhost (localhost [127.0.0.1])
-	by smtp4.osuosl.org (Postfix) with ESMTP id 9976F411F3
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jun 2026 20:32:27 +0000 (UTC)
-X-Virus-Scanned: amavis at osuosl.org
-X-Spam-Flag: NO
-X-Spam-Score: -2.101
-X-Spam-Level:
-Received: from smtp4.osuosl.org ([127.0.0.1])
- by localhost (smtp4.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
- id 5RhEl2ZDWuxQ for <virtualization@lists.linux-foundation.org>;
- Tue, 30 Jun 2026 20:32:27 +0000 (UTC)
-Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=2600:3c0a:e001:78e:0:1991:8:25; helo=sea.source.kernel.org; envelope-from=patchwork-bot+netdevbpf@kernel.org; receiver=<UNKNOWN> 
-DMARC-Filter: OpenDMARC Filter v1.4.2 smtp4.osuosl.org E0EE8411D0
-Authentication-Results: smtp4.osuosl.org; dmarc=pass (p=quarantine dis=none) header.from=kernel.org
-DKIM-Filter: OpenDKIM Filter v2.11.0 smtp4.osuosl.org E0EE8411D0
-Authentication-Results: smtp4.osuosl.org;
-	dkim=pass (2048-bit key, unprotected) header.d=kernel.org header.i=@kernel.org header.a=rsa-sha256 header.s=k20260515 header.b=GLrtswsw
-Received: from sea.source.kernel.org (sea.source.kernel.org [IPv6:2600:3c0a:e001:78e:0:1991:8:25])
-	by smtp4.osuosl.org (Postfix) with ESMTPS id E0EE8411D0
-	for <virtualization@lists.linux-foundation.org>; Tue, 30 Jun 2026 20:32:26 +0000 (UTC)
-Received: from smtp.kernel.org (quasi.space.kernel.org [100.103.45.18])
-	by sea.source.kernel.org (Postfix) with ESMTP id CB44A41096;
-	Tue, 30 Jun 2026 20:32:25 +0000 (UTC)
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id AC1461F000E9;
-	Tue, 30 Jun 2026 20:32:25 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782851545;
-	bh=Ee0DW3u1OlD5/tDh+LJKu7ztlAs2aVA5k16PIo1KX+k=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc;
-	b=GLrtswswueibf9TbwxLG6RHEqxAXwDHnvwO5ikdxKbEytrpbwQyitN4Uv1eEAwlII
-	 9lIjqZlU6blDHghNITxhoN3THzQFzGDxNUEO+IZAku+1ru0DXcph8LUYvRY29EUn+E
-	 pDl94gc4wPHNG9zMOre3lkVksmZg4pC9D3Kqa2+V6u0jqpOtOWdgSvYz3Zlwh4DAMX
-	 A1xkZTXFngUtdcl1ULhF1BGHWeW6+OFxYlfiLVdkLkppuJCCX7XOIrGtrVItvTnzFq
-	 iVaYG/ciGMJpaIpn258ajMjqDZCRNBx45O7LtOBMwY8AJ4QCQOF2wNHvpR33HwQ9pf
-	 v+BhNfIHpoTEg==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id D0B11393A951;
-	Tue, 30 Jun 2026 20:32:10 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="d0tH/4Z0"
+Received: by mail-oa1-f44.google.com with SMTP id 586e51a60fabf-4414d76270cso25709fac.1
+        for <virtualization@lists.linux.dev>; Tue, 30 Jun 2026 17:12:09 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1782864729; x=1783469529; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=Y3CY3QZ2wnue9rhqKHqLfVQqYV670BNtYmleR0mKcr4=;
+        b=d0tH/4Z0N3muO/lVb/PeeuT4GVxGdUsyw79s4J302/nUoYsFviJQQxdd1+S7ffn54K
+         tQBscSJXVIaMkuBH1LuAmS+0lIQFxuV1ikhs3cl6RkL4vn31jdqGJSxrnfAJ0SxrEvpZ
+         NuO4vG/A0LlLESBblRcKv3IWHeP+o2c/qAsDDOyM5mAnMOVlCwaTY4aVsG/w8UCtw3p/
+         nsS4DV5q3iTo3ESspbKBTnUiqT6xwBw3n7hLhfQSj3m9pop8IkctcoBl2ciJmDvfLA3d
+         LwDDThjlcX/UiqJjGrfZMnldGYUKl0uUVBWs/tlAGrlMTC5UVam5I00V/chIcxFqTprc
+         Z/AA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782864729; x=1783469529;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=Y3CY3QZ2wnue9rhqKHqLfVQqYV670BNtYmleR0mKcr4=;
+        b=LbFX1beAr/xbLDnCRNx42a7UJgdqH1jszYhL57t6P+qhVqvlv47z7ssm/FqJvJYQJ9
+         jkkEOkjQEoPOp7goEawUX/xM7V11wvmq6S+OK8uxQDodzm0M8USwi5dOvMrtw9bWDV1x
+         B32IcR72057SdpWWoY59q3Mt+v6GJsMMsbgrnv6BDtx/ilmonfY02oK/n+WQxwfVCZ/U
+         ixrNSEFQ/gi/UzMCynfr+G6EiDxQvaseKwyLLFUOWfhZIDPNb2RG94eViZqY8VEis+xQ
+         s3JSvk6ShezcDOyrho5IOEDpE8hJTus5xXZU23NfdmbKHrn0PhuOHRvg8Vi+PG7h/NXY
+         cg3g==
+X-Forwarded-Encrypted: i=1; AHgh+RrS8Vm/eFlANw2bDx+Fq7Pqm6+qdpxd7HkrZzJEUx3jk4GkFL9wUesKZLZZQCYTlLh7xG2vKLvQJc2fNM+7XA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzeRdQBjaSlwibo2Zc1tZh57jjvGUGA0A/L+Y055WzlODIwhv2P
+	I7g8oo5y724vwd6jikwAxbXtECKD6NTB1xEcruCe4pmvJcchKLAh257v
+X-Gm-Gg: AfdE7cn1jBO372IW/Dh2o3ZIO/bI2neGHmRvt7N8JPF3zAwU5DqJjwSgqqPQ7YnoO8i
+	3U90dIP7L8/OmtRFE1u/4udzsiRxY7as2nP5BOsBXmAPke2WXbgulrpo4OM7pOMAYrfV/3oLAsj
+	Y+V65C5PmUbvv0ErRWFmSqt96cX/ljZJMlpEpZRDRItJQHu1FuHKUavAO4rwdQKewhXvP8VwH+y
+	7TZ6UVS3Huegw1BMmoEKnImi/O0vxz/NYrLiRcHPcceJXe7YAq0A7TzvotI2xQqb0El8CFabNxc
+	3/VT/HNoFziLJbSO0Yefn3i6BP5ds+1BWWbBxt8ZHK4s3JnL4Kxny9NRqSzUb3j2N77E17Whho/
+	iytcKXH7gL7r7sDvGNq6armao1B75f5dfITbVRZXnTvfmSDsp4cq+z1CUWPUoTPVipCi5r6cnnC
+	8v94ivOQ3o2Lj2AaH8383MGBap7zC5h0boyxOGPQ24nmjx+Ty3yxqYYSDf1r/l6PxR
+X-Received: by 2002:a05:6871:7297:b0:448:ca59:a162 with SMTP id 586e51a60fabf-448dc9b8df0mr4555071fac.34.1782864729159;
+        Tue, 30 Jun 2026 17:12:09 -0700 (PDT)
+Received: from localhost ([2a03:2880:ff:73::])
+        by smtp.gmail.com with ESMTPSA id 586e51a60fabf-44c685ae7a3sm272526fac.16.2026.06.30.17.12.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 30 Jun 2026 17:12:07 -0700 (PDT)
+From: Joanne Koong <joannelkoong@gmail.com>
+To: brauner@kernel.org,
+	hch@lst.de
+Cc: djwong@kernel.org,
+	willy@infradead.org,
+	hsiangkao@linux.alibaba.com,
+	linux-fsdevel@vger.kernel.org,
+	linux-xfs@vger.kernel.org,
+	Miklos Szeredi <miklos@szeredi.hu>,
+	German Maglione <gmaglione@redhat.com>,
+	Vivek Goyal <vgoyal@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	fuse-devel@lists.linux.dev (open list:FUSE FILESYSTEM [CORE]),
+	linux-kernel@vger.kernel.org (open list),
+	virtualization@lists.linux.dev (open list:VIRTIO FILE SYSTEM)
+Subject: [PATCH v2 14/18] fuse: convert iomap ops to ->iomap_next()
+Date: Tue, 30 Jun 2026 17:09:29 -0700
+Message-ID: <20260701000949.1666714-15-joannelkoong@gmail.com>
+X-Mailer: git-send-email 2.52.0
+In-Reply-To: <20260701000949.1666714-1-joannelkoong@gmail.com>
+References: <20260701000949.1666714-1-joannelkoong@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -60,52 +87,73 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net-next v4] vsock/virtio: rewrite MSG_ZEROCOPY flag
- handling
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <178285152938.267316.4321290266039198269.git-patchwork-notify@kernel.org>
-Date: Tue, 30 Jun 2026 20:32:09 +0000
-References: <20260628182052.951760-1-avkrasnov@rulkc.org>
-In-Reply-To: <20260628182052.951760-1-avkrasnov@rulkc.org>
-To: Arseniy Krasnov <avkrasnov@rulkc.org>
-Cc: stefanha@redhat.com, sgarzare@redhat.com, davem@davemloft.net,
- edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, mst@redhat.com,
- jasowang@redhat.com, bobbyeshleman@meta.com, xuanzhuo@linux.alibaba.com,
- eperezma@redhat.com, horms@kernel.org, kvm@vger.kernel.org,
- virtualization@lists.linux-foundation.org, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org, oxffffaa@gmail.com, rulkc@linuxtesting.org
 
-Hello:
+Convert fuse iomap_ops to the new ->iomap_next() callback. This uses the
+iomap_process() helper, which finishes the previous mapping if needed
+and produces the next one. No functional changes are intended.
 
-This patch was applied to netdev/net-next.git (main)
-by Paolo Abeni <pabeni@redhat.com>:
+Signed-off-by: Joanne Koong <joannelkoong@gmail.com>
+---
+ fs/fuse/dax.c       | 10 ++++++++--
+ fs/fuse/file.c      |  8 +++++++-
+ fs/fuse/virtio_fs.c |  2 +-
+ 3 files changed, 16 insertions(+), 4 deletions(-)
 
-On Sun, 28 Jun 2026 21:20:52 +0300 you wrote:
-> Logically it was based on TCP implementation, so to make further support
-> easier, rewrite it in the TCP way (like in 'tcp_sendmsg_locked()'). By
-> this way, patch also adds handling case when 'msg_ubuf' is already set.
-> 
-> Signed-off-by: Arseniy Krasnov <avkrasnov@rulkc.org>
-> ---
->  Changelog v1->v2:
->  * Rebase on last 'net-next'. Don't need 'skb_zcopy_set()' now - it was
->    already added.
->  Changelog v2->v3:
->  * Update commit message.
->  * Remove one empty line.
->  Changelog v3->v4:
->  * Update commit message.
-> 
-> [...]
-
-Here is the summary with links:
-  - [net-next,v4] vsock/virtio: rewrite MSG_ZEROCOPY flag handling
-    https://git.kernel.org/netdev/net-next/c/f456c1922c49
-
-You are awesome, thank you!
+diff --git a/fs/fuse/dax.c b/fs/fuse/dax.c
+index 8b53625ac7ab..e8d8c9f5d728 100644
+--- a/fs/fuse/dax.c
++++ b/fs/fuse/dax.c
+@@ -653,9 +653,15 @@ static int fuse_iomap_end(struct inode *inode, loff_t pos, loff_t length,
+ 	return 0;
+ }
+ 
++static int fuse_iomap_next(const struct iomap_iter *iter, struct iomap *iomap,
++			   struct iomap *srcmap)
++{
++	return iomap_process(iter, iomap, srcmap, fuse_iomap_begin,
++			     fuse_iomap_end);
++}
++
+ static const struct iomap_ops fuse_iomap_ops = {
+-	.iomap_begin = fuse_iomap_begin,
+-	.iomap_end = fuse_iomap_end,
++	.iomap_next = fuse_iomap_next,
+ };
+ 
+ static void fuse_wait_dax_page(struct inode *inode)
+diff --git a/fs/fuse/file.c b/fs/fuse/file.c
+index e052a0d44dee..5c0d400629cc 100644
+--- a/fs/fuse/file.c
++++ b/fs/fuse/file.c
+@@ -890,8 +890,14 @@ static int fuse_iomap_begin(struct inode *inode, loff_t offset, loff_t length,
+ 	return 0;
+ }
+ 
++static int fuse_iomap_next(const struct iomap_iter *iter, struct iomap *iomap,
++			   struct iomap *srcmap)
++{
++	return iomap_process(iter, iomap, srcmap, fuse_iomap_begin, NULL);
++}
++
+ static const struct iomap_ops fuse_iomap_ops = {
+-	.iomap_begin	= fuse_iomap_begin,
++	.iomap_next	= fuse_iomap_next,
+ };
+ 
+ struct fuse_fill_read_data {
+diff --git a/fs/fuse/virtio_fs.c b/fs/fuse/virtio_fs.c
+index df25d4faca41..84e699f88574 100644
+--- a/fs/fuse/virtio_fs.c
++++ b/fs/fuse/virtio_fs.c
+@@ -1024,7 +1024,7 @@ static void virtio_fs_cleanup_vqs(struct virtio_device *vdev)
+ }
+ 
+ /* Map a window offset to a page frame number.  The window offset will have
+- * been produced by .iomap_begin(), which maps a file offset to a window
++ * been produced by .iomap_next(), which maps a file offset to a window
+  * offset.
+  */
+ static long virtio_fs_direct_access(struct dax_device *dax_dev, pgoff_t pgoff,
 -- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
+2.52.0
 
