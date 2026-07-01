@@ -1,173 +1,249 @@
-Received: from SA9PR02CU001.outbound.protection.outlook.com (mail-southcentralusazon11013049.outbound.protection.outlook.com [40.93.196.49])
+Received: from out-188.mta0.migadu.com (out-188.mta0.migadu.com [91.218.175.188])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1147435E1BF
-	for <virtualization@lists.linux.dev>; Wed,  1 Jul 2026 15:02:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.196.49
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782918146; cv=fail; b=ADQJsejURlVj8+EAWouZF3Heab6xM4qHWwyjhQGxuXbgNnEAKTo94wAazmsl3elXs/5SVyl9ig9KcPT0HoptvmzdRujyNpT3ZO7FbEnSIrscd0D47jAZg7wdrhH+DQTuLLanzwV3aOJYsVF10Kq9ONoCb0NKVR6goq7YCuyaT7o=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782918146; c=relaxed/simple;
-	bh=cviEHZEYWKFEtSjtoe3LaVwDXP9Sqj3PwAPAXZOMvI0=;
-	h=Message-ID:Date:Subject:To:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=Ux5yOuEjhL09i87RUpT3QEUqimYSQWM+fJ6DwExAT6im3pEWv5B1R0rIlDFu3rhINWpEBAgZnJu8D3g7MFh38gXYm/BIcsUiKujDTi9zAluTNcgGVMa0IvglscYRC7YPuwqDJJgdwQUPOqwKp5XFR+h9qaJrCiJ41ueszEOnfPI=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=rzyzglPw; arc=fail smtp.client-ip=40.93.196.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2F684A3409
+	for <virtualization@lists.linux.dev>; Wed,  1 Jul 2026 16:09:53 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.188
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1782922195; cv=none; b=hNJETxz9qSbJd57ykbf2UVUB+fcXYGQtVBd/7Ok8NERIj693I9myB3oPSHkcp3h3vWydcsZYNGPMDRUCIh5mY7dsPRzQtNxkRKPWG39/sIVOTohWPyITgWPWumBThfYzr2AY9ZecY3ZjgND3sYDcrurdb6sVcPsu39mt3Tw7QJs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1782922195; c=relaxed/simple;
+	bh=8e1pR5ODf4qR1XSRT43hMYiO0BUA8niL6+sOiP2Ey+A=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=FvXEJ7vcI7LBaVEQlWDHEfAcY0RtYjXzQ5h1wJaC48IxwPs1meUeWtKtM6qx8K4eWjjumAvqH8CoOCaRambvZxcbZIv638uSq9IyswhOuBk1t85rlPmg9gmO7S4AgcKSn3vPd113uFoZeM/SHKOPHGcinSxXjQzXSKy9xJNwO24=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=GKsigi9j; arc=none smtp.client-ip=91.218.175.188
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="rzyzglPw"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=gQK/LJKiWAbyoZJTECkJrd17uGX8rFdI6FsHGdioebMJh1YZZi4+tDFJEadQgLVCnuPBtzELEhrjM1G3o1y9S8I7xhsMxxpqIh7vUN+parHX1exmOkQHiullAxCCIlVZVTEXQBaGrQmGQz8fR+bc+MpmYAcyhd4UVB4sj9OzxRsJ6BNFEAVTjytIqOKKyIFSBiPigs2H1hpvGn6DPScYb6KcCtfV33uZXj/hMP1UhOZ9u5wLPGjNdYgCi9oZTuzc2LoRSDYWZX9ZIhRjaulSHSqE/03ZsMmOOm0+CzgB4uEEZBnFktwxnlV4em/2lmGbnT1a72q+PUVoxkcFfb5ttg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=lIc0ZaHWrNeGf4EOPTScurJxhvfTx5s0zXyOsQq0n0U=;
- b=oYbNbgFTzZT80OLXLrsopSgN9YxrI3TthpHLFvMODrxS3WiyvBMEXW4Ww7FEIBse4qsPfRXLb1dvKUJspXuAMVTlyvH0eenfgP77mdSrExSbdebK98BY+G06p0lktwIBQD9J21Sz85H7/DKl1kTCSgfXLvdp4tFvTUUb/0VMNySwUBOc3a6eN8qTFWzCZLIb4EoYI4iLvccbufyUDQ6DDRIeGyiitp6hC2EZflZrFMcuE4R3OV5EHYRbEio+tNu+6zcQ8jj56lfu3mBV82AAkP7nLBS07MHHMpKluM7dRzxl/K4NrwGigdXoI3cFOx/HXTgG2Ee/c4uLuefh5IJBaw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=lIc0ZaHWrNeGf4EOPTScurJxhvfTx5s0zXyOsQq0n0U=;
- b=rzyzglPwz5g7Sb9QmC0+t6ffGrJQjQna81geBFqyX15qbTILGnEGp3lomAjGOevBOU0XE7OXJyiQqsbsmO8RsKI+FLeT03zfb/axJ1RDvCZXdtA/qGGLQlqdhZan++NDWkvMHaq17FwJUQHaUevLVvAH4c/M2UzLwuAAoEtZHljNS1xNyIui6DABoCoYm+mhEJlEAzeDRmKsyKy0Sm8VfRSSc1NqnQntYsTJODWu8Yrk8ZNI8jsOGlag5jJkwNkF9qVV8pSOBxtfrEgTD+6wZEWcfmzZgD1H806+wV8cAl360EnZCjUc90+jxDTaw3VAO/2Oy2/o/wLKVIJcgCeXXQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CH3PR12MB8728.namprd12.prod.outlook.com (2603:10b6:610:171::12)
- by MW4PR12MB7237.namprd12.prod.outlook.com (2603:10b6:303:22a::6) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.181.8; Wed, 1 Jul 2026
- 15:02:15 +0000
-Received: from CH3PR12MB8728.namprd12.prod.outlook.com
- ([fe80::2641:1046:bdf3:93d7]) by CH3PR12MB8728.namprd12.prod.outlook.com
- ([fe80::2641:1046:bdf3:93d7%6]) with mapi id 15.21.0181.008; Wed, 1 Jul 2026
- 15:02:13 +0000
-Message-ID: <e7af1b74-774f-483c-a920-2c1f22e76112@nvidia.com>
-Date: Wed, 1 Jul 2026 17:02:09 +0200
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] vdpa/mlx5: fix wrong list iterated in add_direct_chain
- error path
-To: lirongqing <lirongqing@baidu.com>, "Michael S . Tsirkin"
- <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Kees Cook <kees@kernel.org>,
- Rosen Penev <rosenp@gmail.com>, Parav Pandit <parav@mellanox.com>,
- Eli Cohen <eli@mellanox.com>, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
-References: <20260701113608.1972-1-lirongqing@baidu.com>
-Content-Language: en-US
-From: Dragos Tatulea <dtatulea@nvidia.com>
-In-Reply-To: <20260701113608.1972-1-lirongqing@baidu.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: FR2P281CA0039.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:92::10) To CH3PR12MB8728.namprd12.prod.outlook.com
- (2603:10b6:610:171::12)
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="GKsigi9j"
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1782922180;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=32k3xy2qoDs5v558QiIXDOBJrw4XcLaI228zHYcvJQI=;
+	b=GKsigi9jw5iEZkRAOu0U35OCwwNX+WFYQBJnw1VnjqCFwAV1xkeG5HVPPXjVerUIFCpvkl
+	1sYFG/+4cZNO5RnH+3ZGNEajZyzEn2vDXqeNcTTch6ZM0ZT3P4Eo/8D1DaouN8eSB+B2FA
+	bvbtO9Gx6J4K8rZ0y4m06I1Z9Hu4ibM=
+From: Lance Yang <lance.yang@linux.dev>
+To: ljs@kernel.org
+Cc: akpm@linux-foundation.org,
+	tsbogend@alpha.franken.de,
+	maddy@linux.ibm.com,
+	mpe@ellerman.id.au,
+	maarten.lankhorst@linux.intel.com,
+	mripard@kernel.org,
+	tzimmermann@suse.de,
+	airlied@gmail.com,
+	simona@ffwll.ch,
+	l.stach@pengutronix.de,
+	inki.dae@samsung.com,
+	sw0312.kim@samsung.com,
+	kyungmin.park@samsung.com,
+	krzk@kernel.org,
+	peter.griffin@linaro.org,
+	jani.nikula@linux.intel.com,
+	joonas.lahtinen@linux.intel.com,
+	rodrigo.vivi@intel.com,
+	tursulin@ursulin.net,
+	robin.clark@oss.qualcomm.com,
+	lumag@kernel.org,
+	lyude@redhat.com,
+	dakr@kernel.org,
+	tomi.valkeinen@ideasonboard.com,
+	hjc@rock-chips.com,
+	heiko@sntech.de,
+	andy.yan@rock-chips.com,
+	thierry.reding@kernel.org,
+	mperttunen@nvidia.com,
+	jonathanh@nvidia.com,
+	kraxel@redhat.com,
+	dmitry.osipenko@collabora.com,
+	zack.rusin@broadcom.com,
+	matthew.brost@intel.com,
+	thomas.hellstrom@linux.intel.com,
+	oleksandr_andrushchenko@epam.com,
+	deller@gmx.de,
+	bcrl@kvack.org,
+	viro@zeniv.linux.org.uk,
+	brauner@kernel.org,
+	muchun.song@linux.dev,
+	osalvador@suse.de,
+	david@kernel.org,
+	ziy@nvidia.com,
+	baolin.wang@linux.alibaba.com,
+	liam@infradead.org,
+	npache@redhat.com,
+	ryan.roberts@arm.com,
+	dev.jain@arm.com,
+	baohua@kernel.org,
+	lance.yang@linux.dev,
+	hughd@google.com,
+	vbabka@kernel.org,
+	rppt@kernel.org,
+	surenb@google.com,
+	mhocko@suse.com,
+	jannh@google.com,
+	pfalcato@suse.de,
+	kees@kernel.org,
+	perex@perex.cz,
+	tiwai@suse.com,
+	linux-mips@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	linuxppc-dev@lists.ozlabs.org,
+	dri-devel@lists.freedesktop.org,
+	etnaviv@lists.freedesktop.org,
+	linux-arm-kernel@lists.infradead.org,
+	linux-samsung-soc@vger.kernel.org,
+	intel-gfx@lists.freedesktop.org,
+	linux-arm-msm@vger.kernel.org,
+	freedreno@lists.freedesktop.org,
+	nouveau@lists.freedesktop.org,
+	linux-rockchip@lists.infradead.org,
+	linux-tegra@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	intel-xe@lists.freedesktop.org,
+	xen-devel@lists.xenproject.org,
+	linux-fbdev@vger.kernel.org,
+	linux-aio@kvack.org,
+	linux-fsdevel@vger.kernel.org,
+	linux-mm@kvack.org,
+	linux-sound@vger.kernel.org
+Subject: Re: [PATCH 12/13] mm/mprotect: convert mprotect code to use vma_flags_t
+Date: Thu,  2 Jul 2026 00:09:17 +0800
+Message-Id: <20260701160917.91435-1-lance.yang@linux.dev>
+In-Reply-To: <7ef626d8a12dc742cfc09d080be5dc09850e873a.1782760670.git.ljs@kernel.org>
+References: <7ef626d8a12dc742cfc09d080be5dc09850e873a.1782760670.git.ljs@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH3PR12MB8728:EE_|MW4PR12MB7237:EE_
-X-MS-Office365-Filtering-Correlation-Id: 0fd7a27a-0af8-4af1-fc4e-08ded781bbc6
-X-LD-Processed: 43083d15-7273-40c1-b7db-39efd9ccc17a,ExtAddr
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|376014|23010399003|1800799024|366016|921020|11063799006|56012099006|22082099003|18002099003;
-X-Microsoft-Antispam-Message-Info:
-	QGaun8JSGG856Z3q810GGkkFxHccsXqbwhuR+s/CQVph2TS3AHnIYPto0iDkWpIwA8hKr0E2+gR8PAdOOIag8PGevS41D1Rn+ymlZJorFuxiEWSggOTk0uiji/N4zx+X+q5kM2QOZ3PyVO2fiuS4k1dnMOdOgKjHUBcWXIxvN4XmAhdCgeOm+FkV+JDnbZo2E+bWK5IQHUPGEphXeW4q8jCXduDs3lAFbHAMy2o8HFN7xjZorWHlx8OY8zcSnrI5ImIx5lL/zhwrvvu3WdxTA2oA7XXJse65OBsvvTLyLLKHKkHPvSfOR8Pdg1tAuC9q6JVNznzA8UewKTAz1PRUY/Wa05VJ1HwmGeLDZSnNBZYmGFgAkcaZgiBNkeZJKnhkhUjY/6m48SDwz6taVnHb3vr9yfTUxoHEk4jSew3OSM6Jz9Rx0eoM2qQuye1c+k2/5Vm1bc7k8bH4TgMMLWYoSFrvaiUwZ1FuilMsfbQeA677+xAaSwpcTdZVuYw1DzN+tDjry3EaMOWQdPifJ0Pj1T+O/ClmT3KIeguB5vNDyYjWpoQYp5FiEh4uOmIcJ0cB9vVLqBJdumR1lm0I7Z/RYUQcJB4Tnp1td9L6aL+H7X6R/AxGQkiSyxufNlG9rFR/xZxSQkqlflKX6Luckbgp+1llF/1Stnjv8kwStwnxosJtt8jLi/QHF5PqTpvMiCU5w0Cx/zKq2g+2eGKJ8ZAAcg==
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH3PR12MB8728.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(376014)(23010399003)(1800799024)(366016)(921020)(11063799006)(56012099006)(22082099003)(18002099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?YW9sTWJEZC90Vm1SNE9ma1R0ZWNMdnZBZUFGbFBZWHk5a2pzS05XVE1rbnBS?=
- =?utf-8?B?ZUtLU2VzNnlCYzhXSWYxUURnY0RUOHNFejdpMXVVNEhRTTZramdhQmEzZXhZ?=
- =?utf-8?B?dU5Va2V4bldCSHBvSitTcVBITHVWbTd3TkZ1WXRLb0Q3dTdXdklJTXZtTVZF?=
- =?utf-8?B?VzdrdTJGclpsZEszR0Vyc003TW1SYUYvTjJCbXUzcEFCQ3Fxcnc0Ti9SL1pU?=
- =?utf-8?B?ZkxuM1dnOGx4bXBsM1NnM2VNVEhZbm05OUltZFhIbnpXaHQ4QmVXdUlhdHJB?=
- =?utf-8?B?Y0RDbEtWUk9lWnd2SVNIRndJYWtyVkpHdW9EeTkrN3B2Q0tvSExERVZzN21j?=
- =?utf-8?B?Q0dPOVJaSVNaYVkyWmhvRU1CQ1Y5TENNc2JxdW9adkdWUFovV2pjdGY0cUpm?=
- =?utf-8?B?ZzdGTW1hQ1lPZzVHRjB5YlZLOFR5WS85b2ZKMCt0dnVtaUVBWURheXE5TldX?=
- =?utf-8?B?U1VoWFgvS3JPVzdFelpTb3ZQcDVpd3Mvc1RVSTNGaGpLZFN4cFNld3lpZ1Nk?=
- =?utf-8?B?Y3lhV0J2Y0lsdXJ1WEhZOTY0dHFPZlV5VytpMFV0S1RGbkMrcHorUHU4ZHNS?=
- =?utf-8?B?L3ZZbk12eFY1SDJYQWFCS3RtTFZ3MzVhT2Y5aWlMSnBKN2E4ajI4S3dvdUxR?=
- =?utf-8?B?dW5IaGxSTlNiNkJyWGliZ2w0aXZZT0ljOW56Mm4yQkFNUkhVZUdtbW8waENZ?=
- =?utf-8?B?WEkyUTRoOWpQbHR6ZzBHbG9SWFZYYlJ0WHpNUUN0UDZUQjNFdlFxS0ZVcTZS?=
- =?utf-8?B?d3JpdW5zRkw2c3VyYmxURUlmN1lKMWVNNTZJSG1JTTFjMlR1T3g4QjJMOGtN?=
- =?utf-8?B?OGt0ZkRjQzJxNkRvVVFROVpFeFQzQ1JmZEZ3b21QVVc5STlTeFhMVytYZG44?=
- =?utf-8?B?ZzkrYWpZTCtZUno4Tmo4WFErVVRnZkRTV3BFSGJDakoyRkU1aFlya3FGVWpk?=
- =?utf-8?B?Si8xNjRtdXpVZUg2ZWhkNitESE95UEVUb1ZEd0tQKzNTRlF4d0M5cDNoM0pl?=
- =?utf-8?B?WDlHU3I2TXlNdm1KaWdmWkMxUmtkSnNWa1hSOVp3MUM2QXEwNUgzKzZBdHQ4?=
- =?utf-8?B?cXRYR2dVUWprMmw5MnE2UUp3SXV4YVRrZjZYUHNucU02eXA0ODZJMG1rK05w?=
- =?utf-8?B?TTVXbnpOV3ZEc29XbnFIcEZiVEY1MWNCUi9yYUNLcUVMRldHWEh3R0JTS2N5?=
- =?utf-8?B?d2lPNkw0K2d3eE0xbEd5YjZEYkRERklBblgwY0FhUDRXL1QzcGZVQnd3cytZ?=
- =?utf-8?B?Y1k4R3Z6cWJ6WEpQeENRVjNoUno2czFveEN1WEhnY3cxS0NGbVVuOUh3YTdy?=
- =?utf-8?B?L2xlS3RpZnZReXB3ZHV2elc5OGJNS29PamJrK0tFdk1mYXRHenJCd1JoOFdP?=
- =?utf-8?B?VE9IdzIxRXYxVEs2eUNHbHYvbFNrNjBGYVFZN1FtUXRXM0txcmU1eGlPTHV2?=
- =?utf-8?B?WnFJREFYYXRwdy9vejNSZU9zMGF1VWlRTi9KS0s1cjZMVGZjUEpIQW0ycnJ1?=
- =?utf-8?B?WFJhWTBiWjFacEVNNkhkMC9TTU9RZ09wK0lBWVFqVUJlV3BzdkFCOTk1L2JP?=
- =?utf-8?B?UlJRdDRITjNta05DbnF0VGdnMnNkWitxZEZiMExCVW1yOVhrUW1nVWs2MHFJ?=
- =?utf-8?B?MzB3NkFrR1BWQXpQbXcxY0phZURFSXRrZDZIY3oxRTJEcWxOd1hHS2h2eGx2?=
- =?utf-8?B?S283SnoySXRwdGFCNm4vRHNIaUh4aDlHdDVBUTRWWkdKbTVlejlEcUxETkRa?=
- =?utf-8?B?VURJdlFGdU5PbkNBNm1LSUtlSmFvUG9LZ2ErS3prYWZ1NEhtaUpiTzNiQWVJ?=
- =?utf-8?B?R3VPQVc4RmdScG1ZTTBBR3VLNmUxQVRRZ1FDUkErQWFwdEExMGV4Zmp4OUpk?=
- =?utf-8?B?blZtc1grakFjS1MydGJzdlA5WGwyMWd3VUdBVFF2QXlaYXBTM2ptL2czM1FV?=
- =?utf-8?B?cUhIM2dwbEtDNU5NRWFQcUFLNzhUWHpkQ1NUYllRUzMvVjUwemF3WWRWSTdI?=
- =?utf-8?B?aFVrK3dpQ0x4YXRPSDArbWtqQjhpSGNSZjEvMzN3K2lrQ3ZaR1NvZ2QzQWFk?=
- =?utf-8?B?WmJxWFFndjVtV1B0OG13eU1WcjRCYUl1Si9hd2xWVmUxNm8xN3phUVZRd1Mz?=
- =?utf-8?B?ZS84aFNwaS9TczBpU1pqYXdtcmZNZi9JS0s4OEZnNGhmczJrNzlLeEdCVVNR?=
- =?utf-8?B?TGJVbG1IVUdScTJPWXM4Y1JyQVg0UytESnpNcGVrSXRNRnJLSTRtTElnelov?=
- =?utf-8?B?dDFGNVhKd01ad0c0cVAxUytqQmU3amJGM1VaY3l5WGRGM0h6T3paNUU1NE1O?=
- =?utf-8?B?dGNqOUdvRm1XRTZ2UUtuVERKODRSZ25obTlNL016RXN3QU5nazNIQT09?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 0fd7a27a-0af8-4af1-fc4e-08ded781bbc6
-X-MS-Exchange-CrossTenant-AuthSource: CH3PR12MB8728.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 01 Jul 2026 15:02:13.8000
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: PxlnhKDKXkaEsXgACJGqpD3eby4ePC2zdYNTxTR6vRlQoYSWUZ0oo5jUL2qKmQaW+sYrLOSSDgtKPKzilLG9TA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW4PR12MB7237
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Migadu-Flow: FLOW_OUT
 
 
-
-On 01.07.26 13:36, lirongqing wrote:
-> From: Li RongQing <lirongqing@baidu.com>
+On Mon, Jun 29, 2026 at 08:25:35PM +0100, Lorenzo Stoakes wrote:
+>Replace use of the legacy vm_flags_t flags with vma_flags_t values
+>throughout the mprotect logic.
+>
+>Note that we retain the legacy vm_flags_t bit shifting code in
+>do_mprotect_key(), deferring a vma_flags_t approach to this for the time
+>being.
+>
+>Additionally update comments to reflect the changes to be consistent.
+>
+>No functional change intended.
+>
+>Signed-off-by: Lorenzo Stoakes <ljs@kernel.org>
+>---
+> mm/mprotect.c | 16 ++++++++--------
+> 1 file changed, 8 insertions(+), 8 deletions(-)
+>
+>diff --git a/mm/mprotect.c b/mm/mprotect.c
+>index 9cbf932b028c..c9504b2a2525 100644
+>--- a/mm/mprotect.c
+>+++ b/mm/mprotect.c
+>@@ -40,7 +40,7 @@
 > 
-> In add_direct_chain(), newly allocated direct MR entries are added to
-> the local list 'tmp', which is spliced into mr->head only on success.
-> On the error path, the cleanup loop was incorrectly iterating over
-> mr->head instead of tmp.
+> static bool maybe_change_pte_writable(struct vm_area_struct *vma, pte_t pte)
+> {
+>-	if (WARN_ON_ONCE(!(vma->vm_flags & VM_WRITE)))
+>+	if (WARN_ON_ONCE(!vma_test(vma, VMA_WRITE_BIT)))
+> 		return false;
 > 
-> Fix by iterating over 'tmp' in the err_alloc cleanup path.
+> 	/* Don't touch entries that are not even readable. */
+>@@ -97,7 +97,7 @@ static bool can_change_shared_pte_writable(struct vm_area_struct *vma,
+> bool can_change_pte_writable(struct vm_area_struct *vma, unsigned long addr,
+> 			     pte_t pte)
+> {
+>-	if (!(vma->vm_flags & VM_SHARED))
+>+	if (!vma_test(vma, VMA_SHARED_BIT))
+> 		return can_change_private_pte_writable(vma, addr, pte);
 > 
-> Fixes: 94abbccdf291 ("vdpa/mlx5: Add shared memory registration code")
-> Signed-off-by: Li RongQing <lirongqing@baidu.com>
-> ---
->  drivers/vdpa/mlx5/core/mr.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+> 	return can_change_shared_pte_writable(vma, pte);
+>@@ -194,7 +194,7 @@ static __always_inline void set_write_prot_commit_flush_ptes(struct vm_area_stru
+> {
+> 	bool set_write;
 > 
-> diff --git a/drivers/vdpa/mlx5/core/mr.c b/drivers/vdpa/mlx5/core/mr.c
-> index 6d02ccf..1a224f0 100644
-> --- a/drivers/vdpa/mlx5/core/mr.c
-> +++ b/drivers/vdpa/mlx5/core/mr.c
-> @@ -480,7 +480,7 @@ static int add_direct_chain(struct mlx5_vdpa_dev *mvdev,
->  	return 0;
->  
->  err_alloc:
-> -	list_for_each_entry_safe(dmr, n, &mr->head, list) {
-> +	list_for_each_entry_safe(dmr, n, &tmp, list) {
->  		list_del_init(&dmr->list);
->  		unmap_direct_mr(mvdev, dmr);
->  		kfree(dmr);
+>-	if (vma->vm_flags & VM_SHARED) {
+>+	if (vma_test(vma, VMA_SHARED_BIT)) {
+> 		set_write = can_change_shared_pte_writable(vma, ptent);
+> 		prot_commit_flush_ptes(vma, addr, ptep, oldpte, ptent, nr_ptes,
+> 				       /* idx = */ 0, set_write, tlb);
+>@@ -811,8 +811,8 @@ mprotect_fixup(struct vma_iterator *vmi, struct mmu_gather *tlb,
+> 		vm_unacct_memory(nrpages);
+> 
+> 	/*
+>-	 * Private VM_LOCKED VMA becoming writable: trigger COW to avoid major
+>-	 * fault on access.
+>+	 * Private VMA_LOCKED_BIT VMA becoming writable: trigger COW to avoid
+>+	 * major fault on access.
+> 	 */
+> 	if (vma_flags_test(&new_vma_flags, VMA_WRITE_BIT) &&
+> 	    vma_flags_test(&old_vma_flags, VMA_LOCKED_BIT) &&
+>@@ -886,7 +886,7 @@ static int do_mprotect_pkey(unsigned long start, size_t len,
+> 			goto out;
+> 		start = vma->vm_start;
+> 		error = -EINVAL;
+>-		if (!(vma->vm_flags & VM_GROWSDOWN))
+>+		if (!vma_test(vma, VMA_GROWSDOWN_BIT))
+> 			goto out;
+> 	} else {
+> 		if (vma->vm_start > start)
+>@@ -894,7 +894,7 @@ static int do_mprotect_pkey(unsigned long start, size_t len,
+> 		if (unlikely(grows & PROT_GROWSUP)) {
+> 			end = vma->vm_end;
+> 			error = -EINVAL;
+>-			if (!(vma->vm_flags & VM_GROWSUP))
+>+			if (!vma_test(vma, VMA_GROWSUP_BIT))
 
-Thanks for your patch!
-Reviewed-by: Dragos Tatulea <dtatulea@nvidia.com>
+IIUC, should this be
 
-Thanks,
-Dragos
+if (!vma_test_single_mask(vma, VMA_GROWSUP))
+
+instead?
+
+#elif defined(CONFIG_PARISC)
+#define VM_GROWSUP	INIT_VM_FLAG(GROWSUP)
+...
+#ifndef VM_GROWSUP
+#define VM_GROWSUP	VM_NONE
+...
+
+VM_GROWSUP is only defined as GROWSUP on parisc and becomes VM_NONE
+elsewhere. But VMA_GROWSUP_BIT is the raw ARCH_1 bit, which is also used
+for other arch-specific VMA flags:
+
+	DECLARE_VMA_BIT_ALIAS(SAO, ARCH_1),		/* Strong Access Ordering (powerpc) */
+	DECLARE_VMA_BIT_ALIAS(GROWSUP, ARCH_1),		/* parisc */
+	DECLARE_VMA_BIT_ALIAS(SPARC_ADI, ARCH_1),	/* sparc64 */
+	DECLARE_VMA_BIT_ALIAS(ARM64_BTI, ARCH_1),	/* arm64 */
+	DECLARE_VMA_BIT_ALIAS(ARCH_CLEAR, ARCH_1),	/* sparc64, arm64 */
+	DECLARE_VMA_BIT_ALIAS(MAPPED_COPY, ARCH_1),	/* !CONFIG_MMU */
+
+Other vma_test() changes look fine to me: just fixed INIT_VM_FLAG()
+masks matching their VMA_*_BIT :)
+
+Cheers, Lance
+
+> 				goto out;
+> 		}
+> 	}
+>@@ -918,7 +918,7 @@ static int do_mprotect_pkey(unsigned long start, size_t len,
+> 		}
+> 
+> 		/* Does the application expect PROT_READ to imply PROT_EXEC */
+>-		if (rier && (vma->vm_flags & VM_MAYEXEC))
+>+		if (rier && vma_test(vma, VMA_MAYEXEC_BIT))
+> 			prot |= PROT_EXEC;
+> 
+> 		/*
+>-- 
+>2.54.0
+>
+>
