@@ -1,266 +1,352 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A9EC38656D
-	for <virtualization@lists.linux.dev>; Wed,  1 Jul 2026 09:23:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DC2C3C81B5
+	for <virtualization@lists.linux.dev>; Wed,  1 Jul 2026 10:13:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782897797; cv=none; b=AaMqua3SIgktJqZU+iAiR4XQSkPTrbMSeXzx8Y9dB9pBqn9FrLP4VFL9BJOG1zKubUMl8oLl7dJ/rjeNPE8e3vhx8KDH+EY7y+/m+vLsombm/o08KtdW24w3t4PvHfzdCMgvNsNT1x92df51LvtyWTZr25v9UgmTmbevEm1KxDE=
+	t=1782900838; cv=none; b=AqPZ8eHg2Z10Pws1qEpRxppFIDnjsFvuDvTTltvqsYBTSnLbTDUNX1JtzfQa9Xr98O7P/ryOxJFaH2NXKLG0nhHCbi1ZSk9xReh8SIV6zslkB4sUcfs4lWEf/nZ9ulHRNhUAdTZTVAqm5ApeJXSI2NEKqEMl4Z59cutvED2qtqY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782897797; c=relaxed/simple;
-	bh=hSJ+fVg5DqIhyNfk7G+vNuKE8xNz7vhz0PBxqg7y988=;
-	h=MIME-Version:From:To:In-Reply-To:Cc:Subject:Message-ID:Date:
-	 Content-Type; b=C0XZjyXou9iM2SOXGo31jbJD3SoMbraP8Wg+FtgfqzPHKnq8xpbBh5JGk5jDCTFO+JmCJZjRq0GAfftMJ6s2ZPFTUErFG8CAfDZ8vKhVuWsrHF3xoJJKLVFUW48+wSr3Mv1YV01SesxSijDAS3jzB6i9OT80pDzoolQAIBWRrU4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WsfYHXLo; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1782900838; c=relaxed/simple;
+	bh=nu3dFizFFDwleuu4pYeeKi97FA2l9/Cw/yOx7g6woaU=;
+	h=Date:From:To:Cc:Subject:Message-ID; b=gzBZSvYjdjqChAY6IeQWh91JotcucLNOwP9bgPuLnrF1edtmIJ7MCH5mN2fHALuW1EhBAlryjUwjkLQTiY0qbFN1271uO7lESdX5MNDMaBFLeKF4F0LWzSqc7FeFqEn5JEi4b/dKCbMf5DUOWm4DcTfdWsn5Ofrb2HYqiKKUyDU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=D66Sg05I; arc=none smtp.client-ip=198.175.65.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WsfYHXLo"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1782897794;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:  in-reply-to:in-reply-to;
-	bh=ujysy+ydPxBsX1pWUIjvfD6kA9LpBP3ShklG8JNE8wg=;
-	b=WsfYHXLo7QP5gm/6+mEzMkJH4768X+AyvMkMobfEPOiBdLG/7zI7hKU+Qv8sfepBsgbryY
-	R2WuierzG1+DqjfY6nQiAHmK6hjKcusS2Bgyybx2XIImLWPKIw18uYHnNJ7c/oFWyPvHjE
-	6fuuw89FwOJpcakJ+ETtofzvAH6Nv98=
-Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
- [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-660-Pgnl_qQgNW2UTa_-QCAY_g-1; Wed, 01 Jul 2026 05:23:13 -0400
-X-MC-Unique: Pgnl_qQgNW2UTa_-QCAY_g-1
-X-Mimecast-MFC-AGG-ID: Pgnl_qQgNW2UTa_-QCAY_g_1782897792
-Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-38001e788d6so496875a91.3
-        for <virtualization@lists.linux.dev>; Wed, 01 Jul 2026 02:23:13 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782897792; x=1783502592;
-        h=content-transfer-encoding:date:message-id:subject:cc:in-reply-to:to
-         :from:mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=WwNeizDBR0L7D6u80TuuTOjUtXht3070o55b7PDf+lc=;
-        b=g5XBM+wv/JBQx1JG/a3EW1Yzqc32mZhva9AM5eyGcXtdoiWZ1k784+WAXyuqC4SW+I
-         L0vRHXz+4GHgunLV4Aj5S/NGzCluoHQCkhBAx9jdDp87HQu35ZzV4lCqSJ9B51VMehSg
-         5czphl5wmuSTmmF/j1EfZo5X668jD+4TCE+37LJeTmK+HHVBf3Us8cg8zpPWVBbv0uYV
-         cZZQrmiQo/lkG3h6aT73zUFNGfmWstLsZZl0AztrDNlbMmaIRrnNW/3Nv55cN7fyrD8H
-         pQ8dIBqaNgHboFxjXqfSDcc37Pjxu5kwQXGlctyErIwCcWWfhTbsrUaHER+xa4nSHP7d
-         cz8w==
-X-Forwarded-Encrypted: i=1; AHgh+Roi+k3IuQspj5rvpgt1KQ1I3/uFxZpXb1xKfQW+oRvryMyfkpzi2uyrDpZxPzVse0fL2tVXN1PKVuLRlrTu/g==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwoaNCfA+tIb3T3twcbR4wjhxvubcw9d5jN4prNPP6nN8ZVGu5s
-	HRII0/yArOluUywGzLiLzJxpk4M5za62S7Bno0ILclIUxIBdAY+zJIFZFHXMS/n9bHiUY4qb+NV
-	S7mOmAcmZs1nA3Yup6T+HnEhvlTsH8E0LXyCkpC32527Y3o/Esayla/N9kIZdHGO/p/dh
-X-Gm-Gg: AfdE7ckRXaOUXRRVgbEPn7lgHnJc0fZrpoPHNHZn+B1fXlHwCvkARz9WVsKjgWb9qJv
-	Jdbj4p8SoMABKCqaHZnhWqcXBlfEMSRDbSAEjBGoJu7kcVQBHOFinlvWuAQIoguSLWXAADB0c0O
-	9NSuCWXwlCZLwv1W4e5kjwZF/7uFmmpVCu9JhD7wgGTRyk7wtDUbobtTmVmnHPceLV0BWf7qz0+
-	GClKCA+RN+44ngCPxvjMd6j3VJi0OLSh7pQtyJPxXb6xO6UGwBChlikF+Egxlc8WFcaLOMaUOxy
-	Lj9cn0A7HZJngXgcpz5VeAr7R8l5hCOcn9NInp15QNwxHICRHMed2UrOGJ4FtQR8OeWg9Rq9J+t
-	3SXODRtv/gLp/Uzh/T1WX2PeRIAqhbQSkJGjkBCqk1JK8USt4
-X-Received: by 2002:a17:90b:3a45:b0:37f:9cdf:f0ac with SMTP id 98e67ed59e1d1-380aa234f58mr758679a91.27.1782897792170;
-        Wed, 01 Jul 2026 02:23:12 -0700 (PDT)
-X-Received: by 2002:a17:90b:3a45:b0:37f:9cdf:f0ac with SMTP id 98e67ed59e1d1-380aa234f58mr758663a91.27.1782897791674;
-        Wed, 01 Jul 2026 02:23:11 -0700 (PDT)
-Received: from ryasuoka-thinkpadx1carbongen9.tokyo.csb ([126.143.164.49])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-38095d46b9esm1493384a91.2.2026.07.01.02.23.07
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Jul 2026 02:23:11 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="D66Sg05I"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
+  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
+  t=1782900836; x=1814436836;
+  h=date:from:to:cc:subject:message-id;
+  bh=nu3dFizFFDwleuu4pYeeKi97FA2l9/Cw/yOx7g6woaU=;
+  b=D66Sg05IKB0vL2raHxGuoozj+NAW3m80+mq0SSY1aq5p9VvKXxksHWBU
+   BDOQYMTZjoA6e6Svcu9oYftiJvvASx584flVxAaiCq7kHLFH9IZTVsb83
+   HSe8j8eaK/wBIJgyoHYisqqYfa4nUfEUqV/UsPKPFaxFwliAhh3KSLUTz
+   CLwnkFSF8wYiPDnYlVAV3c16fub4T1G3XfXo3eUaRQIGFaAOG2qquaZFs
+   h88PAS6kO1mztCHmriwZmKyLpGe5pcI4iJOXp0VKH8mnu4Z4Sl7xza1+u
+   l61zKo98LNMRuSaTAsM9EXliFaiLdXeOOKY/YmGSsgZnyMvDWH3Y3YY0N
+   w==;
+X-CSE-ConnectionGUID: prGZmYazQ261Fgd5rGmmqQ==
+X-CSE-MsgGUID: 8u8focuoQnioFW3M3QFtTw==
+X-IronPort-AV: E=McAfee;i="6800,10657,11833"; a="93985564"
+X-IronPort-AV: E=Sophos;i="6.24,235,1774335600"; 
+   d="scan'208";a="93985564"
+Received: from orviesa010.jf.intel.com ([10.64.159.150])
+  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jul 2026 03:13:40 -0700
+X-CSE-ConnectionGUID: XFPk9g1dTTae1GuN35VlHQ==
+X-CSE-MsgGUID: XgGvB5sJR4Sola9dNJ93KA==
+X-ExtLoop1: 1
+X-IronPort-AV: E=Sophos;i="6.24,235,1774335600"; 
+   d="scan'208";a="251481385"
+Received: from lkp-server02.sh.intel.com (HELO ea128546eb3d) ([10.239.97.151])
+  by orviesa010.jf.intel.com with ESMTP; 01 Jul 2026 03:13:38 -0700
+Received: from kbuild by ea128546eb3d with local (Exim 4.98.2)
+	(envelope-from <lkp@intel.com>)
+	id 1werwP-000000009BX-1oUE;
+	Wed, 01 Jul 2026 10:13:25 +0000
+Date: Wed, 01 Jul 2026 18:12:07 +0800
+From: kernel test robot <lkp@intel.com>
+To: Andrew Morton <akpm@linux-foundation.org>
+Cc: Linux Memory Management List <linux-mm@kvack.org>,
+ apparmor@lists.ubuntu.com, linux-arm-kernel@lists.infradead.org,
+ linux-input@vger.kernel.org, linux-remoteproc@vger.kernel.org,
+ linux-rockchip@lists.infradead.org, linux-usb@vger.kernel.org,
+ virtualization@lists.linux.dev, Mark Brown <broonie@kernel.org>
+Subject: [linux-next:master] BUILD REGRESSION
+ be5c93fa674f0fc3c8f359c2143abce6bbb422e6
+Message-ID: <202607011852.7VW94YAL-lkp@intel.com>
+User-Agent: s-nail v14.9.25
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-From: "Ryosuke Yasuoka" <ryasuoka@redhat.com>
-To: "Dmitry Osipenko" <dmitry.osipenko@collabora.com>, 
-	"David Airlie" <airlied@redhat.com>, "Gerd Hoffmann" <kraxel@redhat.com>, 
-	"Gurchetan Singh" <gurchetansingh@chromium.org>, 
-	"Chia-I Wu" <olvaffe@gmail.com>, 
-	"Maarten Lankhorst" <maarten.lankhorst@linux.intel.com>, 
-	"Maxime Ripard" <mripard@kernel.org>, 
-	"Thomas Zimmermann" <tzimmermann@suse.de>, 
-	"Simona Vetter" <simona@ffwll.ch>, "Dmitry Baryshkov" <lumag@kernel.org>, 
-	"Javier Martinez Canillas" <javierm@redhat.com>
-In-Reply-To: <5aa634c1-7530-4b1f-931a-a5a5ac6c908a@collabora.com>
-Cc: <dri-devel@lists.freedesktop.org>, <virtualization@lists.linux.dev>, 
-	<linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] drm/virtio: defer hotplug event from dequeue worker to avoid
-	 deadlock
-Message-ID: <18be2016e26ade27.a6e9e2496bc1f978.9bc3a62421115997@ryasuoka-thinkpadx1carbongen9.tokyo.csb>
-Date: Wed, 1 Jul 2026 09:23:05 +0000
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: -oV1OCOe04lu3OufmT1mzsFSqxhKBwHKR-Ei5kJfI6s_1782897792
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
 
+tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git master
+branch HEAD: be5c93fa674f0fc3c8f359c2143abce6bbb422e6  Add linux-next specific files for 20260630
 
+Error/Warning (recently discovered and may have been fixed):
 
-On 30/06/2026 16:46, Dmitry Osipenko wrote:
-> Hi,
->=20
-> On 6/30/26 12:16, Ryosuke Yasuoka wrote:
->> A probe-time deadlock can occur between the dequeue worker and
->> drm_client_register(). During probe, drm_client_register() holds
->> clientlist_mutex and calls the fbdev hotplug callback, which triggers an
->> atomic commit that ends up sleeping in virtio_gpu_queue_ctrl_sgs()
->> waiting for virtqueue space. The dequeue worker that would free that
->> space calls virtio_gpu_cmd_get_display_info_cb(), which invokes
->> drm_kms_helper_hotplug_event() -> drm_client_dev_hotplug(), attempting
->> to acquire the same clientlist_mutex. Since wake_up() is only called
->> after the resp_cb loop, the probe thread is never woken and both threads
->> deadlock.
->>=20
->> Fix this by deferring the hotplug notification from
->> virtio_gpu_cmd_get_display_info_cb() to a separate work item. The
->> display data (outputs[i].info) is still updated synchronously in the
->> callback, and the deferred work only triggers a re-probe notification to
->> DRM clients.
->>=20
->> Fixes: 27655b9bb9f0 ("drm/client: Send hotplug event after registering a=
- client")
->> Closes: https://syzkaller.appspot.com/bug?id=3Dd6dd6f86d3aaf7eebe7406e45=
-c1c6e549453f224
->> Closes: https://syzkaller.appspot.com/bug?id=3D908bd910da5dd79b88de4cf7b=
-af376cc873a922e
->> Signed-off-by: Ryosuke Yasuoka <ryasuoka@redhat.com>
->> ---
->>  drivers/gpu/drm/virtio/virtgpu_drv.h |  3 +++
->>  drivers/gpu/drm/virtio/virtgpu_kms.c |  3 +++
->>  drivers/gpu/drm/virtio/virtgpu_vq.c  | 12 ++++++++++--
->>  3 files changed, 16 insertions(+), 2 deletions(-)
->>=20
->> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virt=
-io/virtgpu_drv.h
->> index 7449907754a4..27ffa4697ae9 100644
->> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
->> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
->> @@ -264,6 +264,8 @@ struct virtio_gpu_device {
->> =20
->>  =09struct work_struct config_changed_work;
->> =20
->> +=09struct work_struct hotplug_work;
->> +
->>  =09struct work_struct obj_free_work;
->>  =09spinlock_t obj_free_lock;
->>  =09struct list_head obj_free_list;
->> @@ -350,6 +352,7 @@ void virtio_gpu_cmd_transfer_to_host_2d(struct virti=
-o_gpu_device *vgdev,
->>  =09=09=09=09=09uint32_t x, uint32_t y,
->>  =09=09=09=09=09struct virtio_gpu_object_array *objs,
->>  =09=09=09=09=09struct virtio_gpu_fence *fence);
->> +void virtio_gpu_hotplug_work_func(struct work_struct *work);
->>  void virtio_gpu_panic_cmd_resource_flush(struct virtio_gpu_device *vgde=
-v,
->>  =09=09=09=09=09 uint32_t resource_id,
->>  =09=09=09=09=09 uint32_t x, uint32_t y,
->> diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virt=
-io/virtgpu_kms.c
->> index cfde9f573df6..cfb532ba43a4 100644
->> --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
->> +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
->> @@ -154,6 +154,8 @@ int virtio_gpu_init(struct virtio_device *vdev, stru=
-ct drm_device *dev)
->>  =09INIT_WORK(&vgdev->config_changed_work,
->>  =09=09  virtio_gpu_config_changed_work_func);
->> =20
->> +=09INIT_WORK(&vgdev->hotplug_work, virtio_gpu_hotplug_work_func);
->> +
->>  =09INIT_WORK(&vgdev->obj_free_work,
->>  =09=09  virtio_gpu_array_put_free_work);
->>  =09INIT_LIST_HEAD(&vgdev->obj_free_list);
->> @@ -293,6 +295,7 @@ void virtio_gpu_deinit(struct drm_device *dev)
->>  =09flush_work(&vgdev->obj_free_work);
->>  =09flush_work(&vgdev->ctrlq.dequeue_work);
->>  =09flush_work(&vgdev->cursorq.dequeue_work);
->> +=09flush_work(&vgdev->hotplug_work);
->>  =09flush_work(&vgdev->config_changed_work);
->>  =09virtio_reset_device(vgdev->vdev);
->>  =09vgdev->vdev->config->del_vqs(vgdev->vdev);
->> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virti=
-o/virtgpu_vq.c
->> index 67865810a2e7..084d98f5dc7b 100644
->> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
->> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
->> @@ -816,6 +816,15 @@ virtio_gpu_cmd_resource_detach_backing(struct virti=
-o_gpu_device *vgdev,
->>  =09virtio_gpu_queue_fenced_ctrl_buffer(vgdev, vbuf, fence);
->>  }
->> =20
->> +void virtio_gpu_hotplug_work_func(struct work_struct *work)
->> +{
->> +=09struct virtio_gpu_device *vgdev =3D
->> +=09=09container_of(work, struct virtio_gpu_device, hotplug_work);
->> +
->> +=09if (!drm_helper_hpd_irq_event(vgdev->ddev))
->> +=09=09drm_kms_helper_hotplug_event(vgdev->ddev);
->> +}
->> +
->>  static void virtio_gpu_cmd_get_display_info_cb(struct virtio_gpu_device=
- *vgdev,
->>  =09=09=09=09=09       struct virtio_gpu_vbuffer *vbuf)
->>  {
->> @@ -841,8 +850,7 @@ static void virtio_gpu_cmd_get_display_info_cb(struc=
-t virtio_gpu_device *vgdev,
->>  =09spin_unlock(&vgdev->display_info_lock);
->>  =09wake_up(&vgdev->resp_wq);
->> =20
->> -=09if (!drm_helper_hpd_irq_event(vgdev->ddev))
->> -=09=09drm_kms_helper_hotplug_event(vgdev->ddev);
->> +=09schedule_work(&vgdev->hotplug_work);
->>  }
->> =20
->>  static void virtio_gpu_cmd_get_capset_info_cb(struct virtio_gpu_device =
-*vgdev,
->=20
+    https://lore.kernel.org/oe-kbuild-all/202607010945.6lDjBFTU-lkp@intel.com
+    https://lore.kernel.org/oe-kbuild-all/202607011210.PI7XDDb1-lkp@intel.com
 
-Hi,
-Thank you for your review.
+    drivers/remoteproc/remoteproc_internal.h:131:5: error: incompatible integer to pointer conversion assigning to 'void *' from 'int' [-Wint-conversion]
+    drivers/remoteproc/remoteproc_internal.h:131:7: error: call to undeclared function 'ioremap_prot'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+    drivers/remoteproc/remoteproc_internal.h:146:2: error: call to undeclared function 'iounmap'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
+    mm/hugetlb.c:3095:4: warning: array subscript -1 is below array bounds of 'struct list_head[1]' [-Warray-bounds]
 
-> Could you please move drm_kms_helper_hotplug_event() to virtio_gpu_init()=
-, placing it after wait_event_timeout(display_info_pending)? This will avoi=
-d additional work_struct that otherwise needs to be cancelled in virtio_gpu=
-_init() on the timeout.
+Unverified Error/Warning (likely false positive, kindly check if interested):
 
-IIUC, moving the drm_kms_helper_hotplug_event() and _hpd_irq_event()
-into virtio_gpu_init() after wait_event_timeout() would not prevent the
-issue.
+    https://lore.kernel.org/oe-kbuild/202607010826.2wLg1q08-lkp@intel.com
+    https://lore.kernel.org/oe-kbuild/202607011451.icwPyCIk-lkp@intel.com
 
-Looking at the syzbot call traces[1][2], the deadlock occurs during
-drm_client_setup(), which runs after virtio_gpu_init() has already
-returned. The display_info_cb that triggers the deadlock is called from
-the dequeue worker while drm_client_register() holds clientlist_mutex.
+    drivers/hid/hid-asus.c:620 asus_kbd_backlight_work() error: calling 'spin_unlock_irqrestore()' with bogus flags
+    drivers/i2c/busses/i2c-rk3x.c:1131 rk3x_i2c_xfer_common() error: calling 'spin_unlock_irqrestore()' with bogus flags
+    drivers/rpmsg/rpmsg_char.c:236 rpmsg_eptdev_read_iter() error: calling 'spin_unlock_irqrestore()' with bogus flags
+    drivers/usb/host/ehci-hub.c:1080 ehci_hub_control() error: calling 'spin_unlock_irqrestore()' with bogus flags
+    drivers/usb/host/ehci-hub.c:691 ehci_hub_status_data() error: calling 'spin_unlock_irqrestore()' with bogus flags
+    drivers/usb/host/ehci-sched.c:1290 itd_urb_transaction() error: calling 'spin_unlock_irqrestore()' with bogus flags
+    drivers/usb/host/ehci-sched.c:2093 sitd_urb_transaction() error: calling 'spin_unlock_irqrestore()' with bogus flags
+    drivers/virtio/virtio_input.c:333 virtinput_probe() error: calling 'spin_unlock_irqrestore()' with bogus flags
+    drivers/virtio/virtio_input.c:56 virtinput_recv_events() error: calling 'spin_unlock_irqrestore()' with bogus flags
+    security/apparmor/apparmorfs.c:590 policy_update() warn: passing zero to 'PTR_ERR'
 
-Thread A:
-virtio_gpu_probe()
- -> virtio_gpu_init()   // sends GET_DISPLAY_INFO and waits up to 5s
- -> drm_dev_register()
- -> drm_client_setup()   // deadlock happens HERE
-     -> drm_client_register()   // holds clientlist_mutex
-     ...
-     -> virtio_gpu_queue_fenced_ctrl_buffer()
-         -> wait_event() // waits for free space
+Error/Warning ids grouped by kconfigs:
 
-Thread B:
-virtio_gpu_dequeue_ctrl_func()
- -> reclaim_vbufs()   // make free space
- -> resp_cb()
-     -> virtio_gpu_cmd_get_display_info_cb
-         -> drm_helper_hpd_irq_event()
-         -> drm_kms_helper_hotplug_event()
-             -> drm_client_dev_hotplug() // need to lock clientlist_mutex
- -> wake_up()   // never reached
+recent_errors
+|-- s390-randconfig-002-20260701
+|   |-- drivers-remoteproc-remoteproc_internal.h:error:call-to-undeclared-function-ioremap_prot-ISO-C99-and-later-do-not-support-implicit-function-declarations
+|   |-- drivers-remoteproc-remoteproc_internal.h:error:call-to-undeclared-function-iounmap-ISO-C99-and-later-do-not-support-implicit-function-declarations
+|   `-- drivers-remoteproc-remoteproc_internal.h:error:incompatible-integer-to-pointer-conversion-assigning-to-void-from-int
+|-- sparc-randconfig-r131-20260701
+|   `-- mm-hugetlb.c:warning:array-subscript-is-below-array-bounds-of-struct-list_head
+`-- x86_64-randconfig-161-20260701
+    |-- drivers-hid-hid-asus.c-asus_kbd_backlight_work()-error:calling-spin_unlock_irqrestore()-with-bogus-flags
+    |-- drivers-i2c-busses-i2c-rk3x.c-rk3x_i2c_xfer_common()-error:calling-spin_unlock_irqrestore()-with-bogus-flags
+    |-- drivers-rpmsg-rpmsg_char.c-rpmsg_eptdev_read_iter()-error:calling-spin_unlock_irqrestore()-with-bogus-flags
+    |-- drivers-usb-host-ehci-hub.c-ehci_hub_control()-error:calling-spin_unlock_irqrestore()-with-bogus-flags
+    |-- drivers-usb-host-ehci-hub.c-ehci_hub_status_data()-error:calling-spin_unlock_irqrestore()-with-bogus-flags
+    |-- drivers-usb-host-ehci-sched.c-itd_urb_transaction()-error:calling-spin_unlock_irqrestore()-with-bogus-flags
+    |-- drivers-usb-host-ehci-sched.c-sitd_urb_transaction()-error:calling-spin_unlock_irqrestore()-with-bogus-flags
+    |-- drivers-virtio-virtio_input.c-virtinput_probe()-error:calling-spin_unlock_irqrestore()-with-bogus-flags
+    |-- drivers-virtio-virtio_input.c-virtinput_recv_events()-error:calling-spin_unlock_irqrestore()-with-bogus-flags
+    `-- security-apparmor-apparmorfs.c-policy_update()-warn:passing-zero-to-PTR_ERR
 
-IIUC the hotplug notification in display_info_cb is needed because it
-notifies DRM after updating by the callback with fresh data from the host.
+elapsed time: 823m
 
-This work_struct ensures display_info_cb never blocks on
-clientlist_mutex in the dequeue worker, while preserving the hotplug
-notification with fresh data.
+configs tested: 227
+configs skipped: 6
 
-[1] https://syzkaller.appspot.com/bug?id=3Dd6dd6f86d3aaf7eebe7406e45c1c6e54=
-9453f224
-[2] https://syzkaller.appspot.com/bug?id=3D908bd910da5dd79b88de4cf7baf376cc=
-873a922e
+tested configs:
+alpha                             allnoconfig    gcc-16.1.0
+alpha                            allyesconfig    gcc-16.1.0
+alpha                               defconfig    gcc-16.1.0
+arc                              allmodconfig    clang-23
+arc                              allmodconfig    gcc-16.1.0
+arc                               allnoconfig    gcc-16.1.0
+arc                              allyesconfig    clang-23
+arc                              allyesconfig    gcc-16.1.0
+arc                                 defconfig    gcc-16.1.0
+arc                   randconfig-001-20260701    gcc-12.5.0
+arc                   randconfig-002-20260701    gcc-12.5.0
+arm                               allnoconfig    clang-17
+arm                               allnoconfig    gcc-16.1.0
+arm                              allyesconfig    clang-23
+arm                              allyesconfig    gcc-16.1.0
+arm                                 defconfig    clang-23
+arm                                 defconfig    gcc-16.1.0
+arm                   randconfig-001-20260701    gcc-12.5.0
+arm                   randconfig-002-20260701    gcc-12.5.0
+arm                   randconfig-003-20260701    gcc-12.5.0
+arm                   randconfig-004-20260701    gcc-12.5.0
+arm64                            allmodconfig    clang-23
+arm64                             allnoconfig    gcc-16.1.0
+arm64                               defconfig    gcc-16.1.0
+arm64                 randconfig-001-20260701    gcc-12.5.0
+arm64                 randconfig-001-20260701    gcc-16.1.0
+arm64                 randconfig-002-20260701    clang-17
+arm64                 randconfig-002-20260701    gcc-12.5.0
+arm64                 randconfig-003-20260701    gcc-12.5.0
+arm64                 randconfig-004-20260701    clang-17
+arm64                 randconfig-004-20260701    gcc-12.5.0
+csky                             allmodconfig    gcc-16.1.0
+csky                              allnoconfig    gcc-16.1.0
+csky                                defconfig    gcc-16.1.0
+csky                  randconfig-001-20260701    gcc-10.5.0
+csky                  randconfig-001-20260701    gcc-12.5.0
+csky                  randconfig-002-20260701    gcc-12.5.0
+hexagon                          allmodconfig    clang-23
+hexagon                          allmodconfig    gcc-16.1.0
+hexagon                           allnoconfig    clang-23
+hexagon                           allnoconfig    gcc-16.1.0
+hexagon                             defconfig    clang-23
+hexagon                             defconfig    gcc-16.1.0
+hexagon                        randconfig-001    gcc-11.5.0
+hexagon               randconfig-001-20260701    clang-23
+hexagon               randconfig-001-20260701    gcc-11.5.0
+hexagon                        randconfig-002    gcc-11.5.0
+hexagon               randconfig-002-20260701    clang-17
+hexagon               randconfig-002-20260701    gcc-11.5.0
+i386                             allmodconfig    clang-22
+i386                             allmodconfig    gcc-14
+i386                              allnoconfig    gcc-14
+i386                              allnoconfig    gcc-16.1.0
+i386                             allyesconfig    clang-22
+i386                             allyesconfig    gcc-14
+i386        buildonly-randconfig-001-20260701    clang-22
+i386        buildonly-randconfig-002-20260701    clang-22
+i386        buildonly-randconfig-003-20260701    clang-22
+i386        buildonly-randconfig-004-20260701    clang-22
+i386        buildonly-randconfig-005-20260701    clang-22
+i386        buildonly-randconfig-006-20260701    clang-22
+i386                                defconfig    clang-22
+i386                                defconfig    gcc-16.1.0
+i386                  randconfig-001-20260701    clang-22
+i386                  randconfig-002-20260701    clang-22
+i386                  randconfig-003-20260701    clang-22
+i386                  randconfig-004-20260701    clang-22
+i386                  randconfig-005-20260701    clang-22
+i386                  randconfig-006-20260701    clang-22
+i386                  randconfig-007-20260701    clang-22
+i386                  randconfig-011-20260701    gcc-14
+i386                  randconfig-012-20260701    gcc-14
+i386                  randconfig-013-20260701    gcc-14
+i386                  randconfig-014-20260701    gcc-14
+i386                  randconfig-015-20260701    gcc-14
+i386                  randconfig-016-20260701    gcc-14
+i386                  randconfig-017-20260701    gcc-14
+loongarch                        allmodconfig    clang-19
+loongarch                        allmodconfig    clang-23
+loongarch                         allnoconfig    clang-20
+loongarch                         allnoconfig    gcc-16.1.0
+loongarch                           defconfig    clang-23
+loongarch                      randconfig-001    gcc-11.5.0
+loongarch             randconfig-001-20260701    clang-23
+loongarch             randconfig-001-20260701    gcc-11.5.0
+loongarch                      randconfig-002    gcc-11.5.0
+loongarch             randconfig-002-20260701    clang-19
+loongarch             randconfig-002-20260701    gcc-11.5.0
+m68k                             allmodconfig    gcc-16.1.0
+m68k                              allnoconfig    gcc-16.1.0
+m68k                             allyesconfig    clang-23
+m68k                             allyesconfig    gcc-16.1.0
+m68k                                defconfig    clang-23
+m68k                                defconfig    gcc-16.1.0
+microblaze                        allnoconfig    gcc-16.1.0
+microblaze                       allyesconfig    gcc-16.1.0
+microblaze                          defconfig    clang-23
+microblaze                          defconfig    gcc-16.1.0
+mips                             allmodconfig    gcc-16.1.0
+mips                              allnoconfig    gcc-16.1.0
+mips                             allyesconfig    gcc-16.1.0
+mips                            gpr_defconfig    clang-23
+nios2                            allmodconfig    clang-20
+nios2                            allmodconfig    gcc-11.5.0
+nios2                             allnoconfig    clang-23
+nios2                             allnoconfig    gcc-11.5.0
+nios2                               defconfig    clang-23
+nios2                               defconfig    gcc-11.5.0
+nios2                          randconfig-001    gcc-11.5.0
+nios2                 randconfig-001-20260701    gcc-11.5.0
+nios2                          randconfig-002    gcc-11.5.0
+nios2                 randconfig-002-20260701    gcc-11.5.0
+nios2                 randconfig-002-20260701    gcc-8.5.0
+openrisc                         allmodconfig    clang-20
+openrisc                         allmodconfig    gcc-16.1.0
+openrisc                          allnoconfig    clang-23
+openrisc                          allnoconfig    gcc-16.1.0
+openrisc                            defconfig    gcc-16.1.0
+parisc                           allmodconfig    gcc-16.1.0
+parisc                            allnoconfig    clang-23
+parisc                            allnoconfig    gcc-16.1.0
+parisc                           allyesconfig    clang-17
+parisc                           allyesconfig    gcc-16.1.0
+parisc                              defconfig    gcc-16.1.0
+parisc                randconfig-001-20260701    clang-17
+parisc                randconfig-001-20260701    gcc-13.4.0
+parisc                randconfig-002-20260701    clang-17
+parisc                randconfig-002-20260701    gcc-15.2.0
+parisc64                            defconfig    clang-23
+parisc64                            defconfig    gcc-16.1.0
+powerpc                          allmodconfig    gcc-16.1.0
+powerpc                           allnoconfig    clang-23
+powerpc                           allnoconfig    gcc-16.1.0
+powerpc               randconfig-001-20260701    clang-17
+powerpc               randconfig-001-20260701    gcc-8.5.0
+powerpc               randconfig-002-20260701    clang-17
+powerpc               randconfig-002-20260701    clang-23
+powerpc64             randconfig-001-20260701    clang-17
+powerpc64             randconfig-002-20260701    clang-17
+riscv                            allmodconfig    clang-23
+riscv                             allnoconfig    clang-23
+riscv                             allnoconfig    gcc-16.1.0
+riscv                            allyesconfig    clang-23
+riscv                               defconfig    gcc-16.1.0
+riscv                 randconfig-001-20260701    clang-23
+riscv                 randconfig-002-20260701    clang-23
+s390                             allmodconfig    clang-17
+s390                             allmodconfig    clang-23
+s390                              allnoconfig    clang-23
+s390                             allyesconfig    gcc-16.1.0
+s390                                defconfig    gcc-16.1.0
+s390                  randconfig-001-20260701    clang-23
+s390                  randconfig-002-20260701    clang-23
+sh                               allmodconfig    gcc-16.1.0
+sh                                allnoconfig    clang-23
+sh                                allnoconfig    gcc-16.1.0
+sh                               allyesconfig    clang-17
+sh                               allyesconfig    gcc-16.1.0
+sh                                  defconfig    gcc-14
+sh                    randconfig-001-20260701    clang-23
+sh                    randconfig-002-20260701    clang-23
+sparc                             allnoconfig    clang-23
+sparc                             allnoconfig    gcc-16.1.0
+sparc                               defconfig    gcc-16.1.0
+sparc                 randconfig-001-20260701    gcc-13.4.0
+sparc                 randconfig-002-20260701    gcc-13.4.0
+sparc64                          allmodconfig    clang-20
+sparc64                             defconfig    gcc-14
+sparc64               randconfig-001-20260701    gcc-13.4.0
+sparc64               randconfig-002-20260701    gcc-13.4.0
+um                               allmodconfig    clang-17
+um                                allnoconfig    clang-17
+um                                allnoconfig    clang-23
+um                               allyesconfig    gcc-14
+um                               allyesconfig    gcc-16.1.0
+um                                  defconfig    gcc-14
+um                             i386_defconfig    gcc-14
+um                    randconfig-001-20260701    gcc-13.4.0
+um                    randconfig-002-20260701    gcc-13.4.0
+um                           x86_64_defconfig    gcc-14
+x86_64                           allmodconfig    clang-22
+x86_64                            allnoconfig    clang-22
+x86_64                            allnoconfig    clang-23
+x86_64                           allyesconfig    clang-22
+x86_64      buildonly-randconfig-001-20260701    clang-22
+x86_64      buildonly-randconfig-001-20260701    gcc-14
+x86_64      buildonly-randconfig-002-20260701    clang-22
+x86_64      buildonly-randconfig-003-20260701    clang-22
+x86_64      buildonly-randconfig-004-20260701    clang-22
+x86_64      buildonly-randconfig-004-20260701    gcc-14
+x86_64      buildonly-randconfig-005-20260701    clang-22
+x86_64      buildonly-randconfig-006-20260701    clang-22
+x86_64                              defconfig    gcc-14
+x86_64                                  kexec    clang-22
+x86_64                randconfig-001-20260701    clang-22
+x86_64                randconfig-001-20260701    gcc-14
+x86_64                randconfig-002-20260701    gcc-14
+x86_64                randconfig-003-20260701    gcc-14
+x86_64                randconfig-004-20260701    clang-22
+x86_64                randconfig-004-20260701    gcc-14
+x86_64                randconfig-005-20260701    gcc-14
+x86_64                randconfig-006-20260701    gcc-14
+x86_64                randconfig-011-20260701    gcc-14
+x86_64                randconfig-012-20260701    gcc-14
+x86_64                randconfig-013-20260701    gcc-14
+x86_64                randconfig-014-20260701    gcc-14
+x86_64                randconfig-015-20260701    gcc-14
+x86_64                randconfig-016-20260701    gcc-14
+x86_64                randconfig-071-20260701    gcc-14
+x86_64                randconfig-072-20260701    gcc-14
+x86_64                randconfig-073-20260701    gcc-14
+x86_64                randconfig-074-20260701    gcc-14
+x86_64                randconfig-075-20260701    gcc-14
+x86_64                randconfig-076-20260701    gcc-14
+x86_64                               rhel-9.4    clang-22
+x86_64                           rhel-9.4-bpf    gcc-14
+x86_64                          rhel-9.4-func    clang-22
+x86_64                    rhel-9.4-kselftests    clang-22
+x86_64                         rhel-9.4-kunit    gcc-14
+x86_64                           rhel-9.4-ltp    gcc-14
+x86_64                          rhel-9.4-rust    clang-22
+xtensa                            allnoconfig    clang-23
+xtensa                            allnoconfig    gcc-16.1.0
+xtensa                           allyesconfig    clang-20
+xtensa                           allyesconfig    gcc-16.1.0
+xtensa                randconfig-001-20260701    gcc-13.4.0
+xtensa                randconfig-002-20260701    gcc-13.4.0
 
-Best regards,
-Ryosuke
-
+--
+0-DAY CI Kernel Test Service
+https://github.com/intel/lkp-tests/wiki
