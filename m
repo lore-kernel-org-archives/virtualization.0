@@ -1,352 +1,276 @@
-Received: from mgamail.intel.com (mgamail.intel.com [198.175.65.11])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1DC2C3C81B5
-	for <virtualization@lists.linux.dev>; Wed,  1 Jul 2026 10:13:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=198.175.65.11
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48E6D3FBB6D
+	for <virtualization@lists.linux.dev>; Wed,  1 Jul 2026 10:14:00 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782900838; cv=none; b=AqPZ8eHg2Z10Pws1qEpRxppFIDnjsFvuDvTTltvqsYBTSnLbTDUNX1JtzfQa9Xr98O7P/ryOxJFaH2NXKLG0nhHCbi1ZSk9xReh8SIV6zslkB4sUcfs4lWEf/nZ9ulHRNhUAdTZTVAqm5ApeJXSI2NEKqEMl4Z59cutvED2qtqY=
+	t=1782900842; cv=none; b=PAl+yqdJO4mM4SZYc47+m/Y8l1BZ85YWmD16STlG0eFhbf7X2+UICUCnptWCVcrHcGE7sSVNAQ5JRfn8zkOMh01PCYjuOVGibeI+C+0My2BbQoczG0IRfJA2aFbXBGxbsXErHl+AocXhlrg0IqQZetzYJ+SaWiLkBWhQJT5nR14=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782900838; c=relaxed/simple;
-	bh=nu3dFizFFDwleuu4pYeeKi97FA2l9/Cw/yOx7g6woaU=;
-	h=Date:From:To:Cc:Subject:Message-ID; b=gzBZSvYjdjqChAY6IeQWh91JotcucLNOwP9bgPuLnrF1edtmIJ7MCH5mN2fHALuW1EhBAlryjUwjkLQTiY0qbFN1271uO7lESdX5MNDMaBFLeKF4F0LWzSqc7FeFqEn5JEi4b/dKCbMf5DUOWm4DcTfdWsn5Ofrb2HYqiKKUyDU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com; spf=pass smtp.mailfrom=intel.com; dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b=D66Sg05I; arc=none smtp.client-ip=198.175.65.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=intel.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=intel.com
+	s=arc-20240116; t=1782900842; c=relaxed/simple;
+	bh=GBtUTmM/TptETllHS9g9icbUVF6l6FK8VygeaCK4Sl8=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=IDDUE2PSTVwQKcXJ0vVISIuG1ljl2c+Cm0ZAqPwAW3angzWwz2FiWdxEM3D15SfF2ohFStCs+Z/8Hw0/TwPFE19+1TWKmDzu4CgNhV7ZxpIlCU7V6b/Y3XrIHSnpz7N5kiVpUf/5by96Hg3U8h5+gQLOTiANZuF128p6cKTfF3U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=gtRUTBBJ; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=intel.com header.i=@intel.com header.b="D66Sg05I"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple;
-  d=intel.com; i=@intel.com; q=dns/txt; s=Intel;
-  t=1782900836; x=1814436836;
-  h=date:from:to:cc:subject:message-id;
-  bh=nu3dFizFFDwleuu4pYeeKi97FA2l9/Cw/yOx7g6woaU=;
-  b=D66Sg05IKB0vL2raHxGuoozj+NAW3m80+mq0SSY1aq5p9VvKXxksHWBU
-   BDOQYMTZjoA6e6Svcu9oYftiJvvASx584flVxAaiCq7kHLFH9IZTVsb83
-   HSe8j8eaK/wBIJgyoHYisqqYfa4nUfEUqV/UsPKPFaxFwliAhh3KSLUTz
-   CLwnkFSF8wYiPDnYlVAV3c16fub4T1G3XfXo3eUaRQIGFaAOG2qquaZFs
-   h88PAS6kO1mztCHmriwZmKyLpGe5pcI4iJOXp0VKH8mnu4Z4Sl7xza1+u
-   l61zKo98LNMRuSaTAsM9EXliFaiLdXeOOKY/YmGSsgZnyMvDWH3Y3YY0N
-   w==;
-X-CSE-ConnectionGUID: prGZmYazQ261Fgd5rGmmqQ==
-X-CSE-MsgGUID: 8u8focuoQnioFW3M3QFtTw==
-X-IronPort-AV: E=McAfee;i="6800,10657,11833"; a="93985564"
-X-IronPort-AV: E=Sophos;i="6.24,235,1774335600"; 
-   d="scan'208";a="93985564"
-Received: from orviesa010.jf.intel.com ([10.64.159.150])
-  by orvoesa103.jf.intel.com with ESMTP/TLS/ECDHE-RSA-AES256-GCM-SHA384; 01 Jul 2026 03:13:40 -0700
-X-CSE-ConnectionGUID: XFPk9g1dTTae1GuN35VlHQ==
-X-CSE-MsgGUID: XgGvB5sJR4Sola9dNJ93KA==
-X-ExtLoop1: 1
-X-IronPort-AV: E=Sophos;i="6.24,235,1774335600"; 
-   d="scan'208";a="251481385"
-Received: from lkp-server02.sh.intel.com (HELO ea128546eb3d) ([10.239.97.151])
-  by orviesa010.jf.intel.com with ESMTP; 01 Jul 2026 03:13:38 -0700
-Received: from kbuild by ea128546eb3d with local (Exim 4.98.2)
-	(envelope-from <lkp@intel.com>)
-	id 1werwP-000000009BX-1oUE;
-	Wed, 01 Jul 2026 10:13:25 +0000
-Date: Wed, 01 Jul 2026 18:12:07 +0800
-From: kernel test robot <lkp@intel.com>
-To: Andrew Morton <akpm@linux-foundation.org>
-Cc: Linux Memory Management List <linux-mm@kvack.org>,
- apparmor@lists.ubuntu.com, linux-arm-kernel@lists.infradead.org,
- linux-input@vger.kernel.org, linux-remoteproc@vger.kernel.org,
- linux-rockchip@lists.infradead.org, linux-usb@vger.kernel.org,
- virtualization@lists.linux.dev, Mark Brown <broonie@kernel.org>
-Subject: [linux-next:master] BUILD REGRESSION
- be5c93fa674f0fc3c8f359c2143abce6bbb422e6
-Message-ID: <202607011852.7VW94YAL-lkp@intel.com>
-User-Agent: s-nail v14.9.25
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="gtRUTBBJ"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1782900839;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=ZP4pVQuwbXb6A4JsfHgerWuH1Q6CnZ/ETjBsK07QGkY=;
+	b=gtRUTBBJLBuQWUDXKV+tfNrjyl1UvzPifDaqwH0ShIEqvMLKWR9TmYSWaEGazDn2I2sNRN
+	gUtAn0xO9x7LpcKs2uAXFnmA6vzVflMZ5M3T+MH8fUiv67EOX84PZet3RKI80FV7r7ewqF
+	yXx/Fi0umMqYXM/K/obzWFnDescrAsk=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-629-SIhogdeSOyeMx7cIIQNWnw-1; Wed, 01 Jul 2026 06:13:58 -0400
+X-MC-Unique: SIhogdeSOyeMx7cIIQNWnw-1
+X-Mimecast-MFC-AGG-ID: SIhogdeSOyeMx7cIIQNWnw_1782900837
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-493bab443f7so5406865e9.0
+        for <virtualization@lists.linux.dev>; Wed, 01 Jul 2026 03:13:57 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782900837; x=1783505637;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=ZP4pVQuwbXb6A4JsfHgerWuH1Q6CnZ/ETjBsK07QGkY=;
+        b=iabFeBxO3H06WdbkIuCfFIW0R0SAwuklzr4Z+kGPWXLbioGQg5jaxZdpqyjU3YwpxL
+         TgqnmCSgTjtD+mlrA08vwmbrnX1tQuZ9oPQ3fWoUBuNFeye2wTL1VqcDCGAXa1J2Tl63
+         y4RUFKx/KUysO0dqVjepXW4fItc9xYP3ZJxfZNPj6rR/bBoIrI39w7dUFO7miUOBeYbl
+         bC6j9nBh/0MugtwKk+iQtvTuPQJdSdM2irvb8MkcVeKIciTaluFgLf11fPNZOPkqB9gO
+         qGc/p7mlt3NV9CTT8DLUKI53SFUHLI8zveMB7cZcAeEKLuTXeYYRScOQbWz+kP5+Upvs
+         SlVw==
+X-Forwarded-Encrypted: i=1; AFNElJ+2YQwIhKQur2KVFKiSTspezHKwqRS8s5r/1SNjn3d+JNSHkIxMiAqKG79G3IKdMGGpVvS/lJLIAvSAy7f5JQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxi+hcrTUxPtK4oH4UNevrMNwTy8ja9zlKifW9KwZ6zgRCbW3F/
+	a7puxVH0vopHZ8KAiR9L+5lNg6PKI7hBJ9RK7+8/S+B5fE2hEvD3zWh4XNXMIz9EuAqLBQuxU7V
+	7b2xOv5IUIwimUdervTO/XdULFqok2vS+hemuOG9ywR/6RVIQ62tTufWWGMqPAigXORGn
+X-Gm-Gg: AfdE7cn1xZlqJJcpg7W2Ci4ukcL1dAdqLyZnhYXqAcH9ckWq17xDUErzzDqpc1cvCFK
+	36QA0+3oc4Lv5hinsuTa22gYyzwz/uv6bdzFFqh9JkBx8rdGyiAj6kscKyVwi5m/MVEONqvaC2e
+	W/SopZ/gIvOSKriK/51Lzn2PmY0SMt1wAka+KEwO7F7AqvVPjBPRKGL5e41JNSLvKzy7hQli8ED
+	ZLmFYI3/9QxzFCP+C/iJDcK+7dA59EMIe80rLUHnWBMx6iwPBgUkLDvW4aeE+B7qqHZxRI6YXA1
+	/kYj+AdWFmijgpo+7HelCQgS4yHM/KqIkc+4R8m7NIAs8zhPLx9T39KUnXK8t2Nav6yRssXUQRP
+	Kg++6ZdiZY5i77yEp2qMG6beykxCmOKFNYe1iejAVuzIo5vN1L3xb3LT+a5K3
+X-Received: by 2002:a05:600c:4f83:b0:493:c064:316f with SMTP id 5b1f17b1804b1-493c230bb07mr13955685e9.3.1782900835811;
+        Wed, 01 Jul 2026 03:13:55 -0700 (PDT)
+X-Received: by 2002:a05:600c:4f83:b0:493:c064:316f with SMTP id 5b1f17b1804b1-493c230bb07mr13955285e9.3.1782900835180;
+        Wed, 01 Jul 2026 03:13:55 -0700 (PDT)
+Received: from sgarzare-redhat (host-79-34-22-35.business.telecomitalia.it. [79.34.22.35])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-493be82fd71sm91335615e9.15.2026.07.01.03.13.52
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 01 Jul 2026 03:13:53 -0700 (PDT)
+Date: Wed, 1 Jul 2026 12:13:47 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Paolo Abeni <pabeni@redhat.com>
+Cc: netdev@vger.kernel.org, Jason Wang <jasowang@redhat.com>, 
+	Jakub Kicinski <kuba@kernel.org>, "Michael S. Tsirkin" <mst@redhat.com>, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
+	Eric Dumazet <edumazet@google.com>, Simon Horman <horms@kernel.org>, linux-kernel@vger.kernel.org, 
+	Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
+	Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, stable@vger.kernel.org, Brien Oberstein <brienpub@gmail.com>
+Subject: Re: [PATCH net 1/2] vsock/virtio: collapse receive queue under
+ memory pressure
+Message-ID: <akTMf-DWZVAzYIPu@sgarzare-redhat>
+References: <20260626134823.206676-1-sgarzare@redhat.com>
+ <20260626134823.206676-2-sgarzare@redhat.com>
+ <6a6be4b0-e02d-46ca-b8bf-c27bd681d253@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
+MIME-Version: 1.0
+In-Reply-To: <6a6be4b0-e02d-46ca-b8bf-c27bd681d253@redhat.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: EDhgOHoqfleq8Ltz8wPaurG8v4L6MQ_-KZElKsMO4N8_1782900837
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-tree/branch: https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git master
-branch HEAD: be5c93fa674f0fc3c8f359c2143abce6bbb422e6  Add linux-next specific files for 20260630
+On Tue, Jun 30, 2026 at 11:53:04AM +0200, Paolo Abeni wrote:
+>On 6/26/26 3:48 PM, Stefano Garzarella wrote:
+>> From: Stefano Garzarella <sgarzare@redhat.com>
+>>
+>> When many small packets accumulate in the receive queue, the skb overhead
+>> can exceed buf_alloc even while the payload is within bounds. This causes
+>> virtio_transport_inc_rx_pkt() to reject packets, leading to connection
+>> resets during large transfers under backpressure.
+>>
+>> The issue was reported by Brien, who has a reproducer, but it is also
+>> easily reproducible with iperf-vsock [1] using a small packet size:
+>>
+>>   iperf3 --vsock -c $CID -l 129
+>>
+>> which fails immediately without this patch but with commit 059b7dbd20a6
+>> ("vsock/virtio: fix potential unbounded skb queue").
+>>
+>> Inspired by TCP's tcp_collapse() which solves a similar problem, add
+>> virtio_transport_collapse_rx_queue() that walks the receive queue and
+>> re-copies data into compact linear skbs to reduce the overhead.
+>>
+>> The collapse is triggered from virtio_transport_recv_enqueue() when
+>> virtio_transport_inc_rx_pkt() fails. A pre-scan counts the eligible bytes
+>> to size each allocation precisely, avoiding waste for isolated small
+>> packets. Partially consumed skbs are kept as-is to preserve
+>> buf_used/fwd_cnt accounting, EOM-marked skbs to maintain SEQPACKET
+>> message boundaries, and skbs already larger than the collapse target
+>> because they already have a good data-to-overhead ratio.
+>>
+>> [1] https://github.com/stefano-garzarella/iperf-vsock
+>>
+>> Fixes: 059b7dbd20a6 ("vsock/virtio: fix potential unbounded skb queue")
+>> Cc: stable@vger.kernel.org
+>> Reported-by: Brien Oberstein <brienpub@gmail.com>
+>> Closes: https://lore.kernel.org/netdev/618701dd023e$063de350$12b9a9f0$@gmail.com/
+>> Tested-by: Brien Oberstein <brienpub@gmail.com>
+>> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+>> ---
+>>  net/vmw_vsock/virtio_transport_common.c | 148 +++++++++++++++++++++++-
+>>  1 file changed, 146 insertions(+), 2 deletions(-)
+>>
+>> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+>> index 09475007165b..304ea424995d 100644
+>> --- a/net/vmw_vsock/virtio_transport_common.c
+>> +++ b/net/vmw_vsock/virtio_transport_common.c
+>> @@ -420,6 +420,137 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+>>  	return ret;
+>>  }
+>>
+>> +static bool virtio_transport_can_collapse(struct sk_buff *skb,
+>> +					  unsigned int size)
+>
+>Why passing a `size` argument here? AFAICS the actual argument is always
+>a constant and IMHO rightfully so.
 
-Error/Warning (recently discovered and may have been fixed):
+This comes from a previous implementation where this was not constant.
+With the current code, I agree that a macro should be better.
 
-    https://lore.kernel.org/oe-kbuild-all/202607010945.6lDjBFTU-lkp@intel.com
-    https://lore.kernel.org/oe-kbuild-all/202607011210.PI7XDDb1-lkp@intel.com
+I'll fix it.
 
-    drivers/remoteproc/remoteproc_internal.h:131:5: error: incompatible integer to pointer conversion assigning to 'void *' from 'int' [-Wint-conversion]
-    drivers/remoteproc/remoteproc_internal.h:131:7: error: call to undeclared function 'ioremap_prot'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-    drivers/remoteproc/remoteproc_internal.h:146:2: error: call to undeclared function 'iounmap'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]
-    mm/hugetlb.c:3095:4: warning: array subscript -1 is below array bounds of 'struct list_head[1]' [-Warray-bounds]
+>
+>> +{
+>> +	/* skbs that are partially consumed, mark a SEQPACKET message boundary,
+>> +	 * or are already large enough should not be collapsed: they either
+>> +	 * need special accounting, carry protocol state, or already have a
+>> +	 * good data-to-overhead ratio.
+>> +	 */
+>> +	if (VIRTIO_VSOCK_SKB_CB(skb)->offset)
+>> +		return false;
+>> +	if (le32_to_cpu(virtio_vsock_hdr(skb)->flags) & VIRTIO_VSOCK_SEQ_EOM)
+>> +		return false;
+>> +	if (skb->len >= size)
+>> +		return false;
+>> +	return true;
+>> +}
+>> +
+>> +/* Iterate through the packets in the queue starting from the current skb to
+>> + * count the number of bytes we can collapse.
+>> + */
+>> +static unsigned int
+>> +virtio_transport_collapse_size(struct sk_buff *skb,
+>> +			       struct sk_buff_head *queue,
+>> +			       unsigned int max_size)
+>> +{
+>> +	unsigned int target = skb->len - VIRTIO_VSOCK_SKB_CB(skb)->offset;
+>> +
+>> +	while ((skb = skb_peek_next(skb, queue)) &&
+>> +	       virtio_transport_can_collapse(skb, max_size)) {
+>> +		unsigned int len = skb->len - VIRTIO_VSOCK_SKB_CB(skb)->offset;
+>> +
+>> +		if (len > max_size - target)
+>> +			return target;
+>> +
+>> +		target += len;
+>> +	}
+>> +
+>> +	return target;
+>> +}
+>> +
+>> +/* Called under lock_sock when skb overhead exceeds the budget. */
+>> +static void virtio_transport_collapse_rx_queue(struct virtio_vsock_sock *vvs)
+>> +{
+>> +	/* Use the same linear allocation threshold as virtio_vsock_alloc_skb()
+>> +	 * to avoid adding pressure on the page allocator.
+>> +	 */
+>> +	unsigned int collapse_max = SKB_MAX_ORDER(VIRTIO_VSOCK_SKB_HEADROOM,
+>> +						  PAGE_ALLOC_COSTLY_ORDER);
+>> +	struct sk_buff *skb, *next_skb, *new_skb = NULL;
+>> +	struct sk_buff_head new_queue;
+>> +
+>> +	__skb_queue_head_init(&new_queue);
+>> +
+>> +	skb_queue_walk_safe(&vvs->rx_queue, skb, next_skb) {
+>
+>If the queue is relevantly big, walking all of it may take a significant
+>amount of time/cache misses and causes traffic burstines. I think you
+>could add an additional stop condition, i.e. when the current queue size
+>is below a reasonable threshold (allowing the current packet to be
+>inserted plus some more slack).
 
-Unverified Error/Warning (likely false positive, kindly check if interested):
+Makes sense, any suggestion on the threshold?
 
-    https://lore.kernel.org/oe-kbuild/202607010826.2wLg1q08-lkp@intel.com
-    https://lore.kernel.org/oe-kbuild/202607011451.icwPyCIk-lkp@intel.com
+I was thinking something like this: merge until we have space for at 
+least 2 skbs (because for now we estimate the overhead based on the 
+number of skbs, but in the future I'd like to support truesize), but 
+still trying to fill collapse_max as much as possible.
 
-    drivers/hid/hid-asus.c:620 asus_kbd_backlight_work() error: calling 'spin_unlock_irqrestore()' with bogus flags
-    drivers/i2c/busses/i2c-rk3x.c:1131 rk3x_i2c_xfer_common() error: calling 'spin_unlock_irqrestore()' with bogus flags
-    drivers/rpmsg/rpmsg_char.c:236 rpmsg_eptdev_read_iter() error: calling 'spin_unlock_irqrestore()' with bogus flags
-    drivers/usb/host/ehci-hub.c:1080 ehci_hub_control() error: calling 'spin_unlock_irqrestore()' with bogus flags
-    drivers/usb/host/ehci-hub.c:691 ehci_hub_status_data() error: calling 'spin_unlock_irqrestore()' with bogus flags
-    drivers/usb/host/ehci-sched.c:1290 itd_urb_transaction() error: calling 'spin_unlock_irqrestore()' with bogus flags
-    drivers/usb/host/ehci-sched.c:2093 sitd_urb_transaction() error: calling 'spin_unlock_irqrestore()' with bogus flags
-    drivers/virtio/virtio_input.c:333 virtinput_probe() error: calling 'spin_unlock_irqrestore()' with bogus flags
-    drivers/virtio/virtio_input.c:56 virtinput_recv_events() error: calling 'spin_unlock_irqrestore()' with bogus flags
-    security/apparmor/apparmorfs.c:590 policy_update() warn: passing zero to 'PTR_ERR'
+Does that make sense, or should we be more aggressive?
 
-Error/Warning ids grouped by kconfigs:
+>
+>/P
+>
+>> +		struct virtio_vsock_hdr *hdr = virtio_vsock_hdr(skb);
+>> +		u32 src_off = VIRTIO_VSOCK_SKB_CB(skb)->offset;
+>> +		u32 src_len = skb->len - src_off;
+>> +		bool keep = false;
+>> +
+>> +		if (!virtio_transport_can_collapse(skb, collapse_max)) {
+>
+>Minor nit, possibly something alike the following lead to more
+>compact/more readable code:
+>
+>
+>		keep = !virtio_transport_can_collapse(skb, collapse_max);
+>		if (keep) {
+>
 
-recent_errors
-|-- s390-randconfig-002-20260701
-|   |-- drivers-remoteproc-remoteproc_internal.h:error:call-to-undeclared-function-ioremap_prot-ISO-C99-and-later-do-not-support-implicit-function-declarations
-|   |-- drivers-remoteproc-remoteproc_internal.h:error:call-to-undeclared-function-iounmap-ISO-C99-and-later-do-not-support-implicit-function-declarations
-|   `-- drivers-remoteproc-remoteproc_internal.h:error:incompatible-integer-to-pointer-conversion-assigning-to-void-from-int
-|-- sparc-randconfig-r131-20260701
-|   `-- mm-hugetlb.c:warning:array-subscript-is-below-array-bounds-of-struct-list_head
-`-- x86_64-randconfig-161-20260701
-    |-- drivers-hid-hid-asus.c-asus_kbd_backlight_work()-error:calling-spin_unlock_irqrestore()-with-bogus-flags
-    |-- drivers-i2c-busses-i2c-rk3x.c-rk3x_i2c_xfer_common()-error:calling-spin_unlock_irqrestore()-with-bogus-flags
-    |-- drivers-rpmsg-rpmsg_char.c-rpmsg_eptdev_read_iter()-error:calling-spin_unlock_irqrestore()-with-bogus-flags
-    |-- drivers-usb-host-ehci-hub.c-ehci_hub_control()-error:calling-spin_unlock_irqrestore()-with-bogus-flags
-    |-- drivers-usb-host-ehci-hub.c-ehci_hub_status_data()-error:calling-spin_unlock_irqrestore()-with-bogus-flags
-    |-- drivers-usb-host-ehci-sched.c-itd_urb_transaction()-error:calling-spin_unlock_irqrestore()-with-bogus-flags
-    |-- drivers-usb-host-ehci-sched.c-sitd_urb_transaction()-error:calling-spin_unlock_irqrestore()-with-bogus-flags
-    |-- drivers-virtio-virtio_input.c-virtinput_probe()-error:calling-spin_unlock_irqrestore()-with-bogus-flags
-    |-- drivers-virtio-virtio_input.c-virtinput_recv_events()-error:calling-spin_unlock_irqrestore()-with-bogus-flags
-    `-- security-apparmor-apparmorfs.c-policy_update()-warn:passing-zero-to-PTR_ERR
+Yeah, so I can remove the initialization to false. I'll change it.
 
-elapsed time: 823m
+>> +			/* Finalize pending collapsed skb to preserve packet
+>> +			 * ordering.
+>> +			 */
+>> +			if (new_skb) {
+>> +				__skb_queue_tail(&new_queue, new_skb);
+>> +				new_skb = NULL;
+>> +			}
+>> +			keep = true;
+>> +			goto next;
+>> +		}
+>> +
+>> +		/* Finalize if this packet won't fit in the remaining tailroom,
+>> +		 * so we can allocate a right-sized new_skb.
+>> +		 */
+>> +		if (new_skb && src_len > skb_tailroom(new_skb)) {
+>> +			__skb_queue_tail(&new_queue, new_skb);
+>> +			new_skb = NULL;
+>
+>Possibly introduce an helper for the above 2 statements?
 
-configs tested: 227
-configs skipped: 6
+Do you mean something like this?
 
-tested configs:
-alpha                             allnoconfig    gcc-16.1.0
-alpha                            allyesconfig    gcc-16.1.0
-alpha                               defconfig    gcc-16.1.0
-arc                              allmodconfig    clang-23
-arc                              allmodconfig    gcc-16.1.0
-arc                               allnoconfig    gcc-16.1.0
-arc                              allyesconfig    clang-23
-arc                              allyesconfig    gcc-16.1.0
-arc                                 defconfig    gcc-16.1.0
-arc                   randconfig-001-20260701    gcc-12.5.0
-arc                   randconfig-002-20260701    gcc-12.5.0
-arm                               allnoconfig    clang-17
-arm                               allnoconfig    gcc-16.1.0
-arm                              allyesconfig    clang-23
-arm                              allyesconfig    gcc-16.1.0
-arm                                 defconfig    clang-23
-arm                                 defconfig    gcc-16.1.0
-arm                   randconfig-001-20260701    gcc-12.5.0
-arm                   randconfig-002-20260701    gcc-12.5.0
-arm                   randconfig-003-20260701    gcc-12.5.0
-arm                   randconfig-004-20260701    gcc-12.5.0
-arm64                            allmodconfig    clang-23
-arm64                             allnoconfig    gcc-16.1.0
-arm64                               defconfig    gcc-16.1.0
-arm64                 randconfig-001-20260701    gcc-12.5.0
-arm64                 randconfig-001-20260701    gcc-16.1.0
-arm64                 randconfig-002-20260701    clang-17
-arm64                 randconfig-002-20260701    gcc-12.5.0
-arm64                 randconfig-003-20260701    gcc-12.5.0
-arm64                 randconfig-004-20260701    clang-17
-arm64                 randconfig-004-20260701    gcc-12.5.0
-csky                             allmodconfig    gcc-16.1.0
-csky                              allnoconfig    gcc-16.1.0
-csky                                defconfig    gcc-16.1.0
-csky                  randconfig-001-20260701    gcc-10.5.0
-csky                  randconfig-001-20260701    gcc-12.5.0
-csky                  randconfig-002-20260701    gcc-12.5.0
-hexagon                          allmodconfig    clang-23
-hexagon                          allmodconfig    gcc-16.1.0
-hexagon                           allnoconfig    clang-23
-hexagon                           allnoconfig    gcc-16.1.0
-hexagon                             defconfig    clang-23
-hexagon                             defconfig    gcc-16.1.0
-hexagon                        randconfig-001    gcc-11.5.0
-hexagon               randconfig-001-20260701    clang-23
-hexagon               randconfig-001-20260701    gcc-11.5.0
-hexagon                        randconfig-002    gcc-11.5.0
-hexagon               randconfig-002-20260701    clang-17
-hexagon               randconfig-002-20260701    gcc-11.5.0
-i386                             allmodconfig    clang-22
-i386                             allmodconfig    gcc-14
-i386                              allnoconfig    gcc-14
-i386                              allnoconfig    gcc-16.1.0
-i386                             allyesconfig    clang-22
-i386                             allyesconfig    gcc-14
-i386        buildonly-randconfig-001-20260701    clang-22
-i386        buildonly-randconfig-002-20260701    clang-22
-i386        buildonly-randconfig-003-20260701    clang-22
-i386        buildonly-randconfig-004-20260701    clang-22
-i386        buildonly-randconfig-005-20260701    clang-22
-i386        buildonly-randconfig-006-20260701    clang-22
-i386                                defconfig    clang-22
-i386                                defconfig    gcc-16.1.0
-i386                  randconfig-001-20260701    clang-22
-i386                  randconfig-002-20260701    clang-22
-i386                  randconfig-003-20260701    clang-22
-i386                  randconfig-004-20260701    clang-22
-i386                  randconfig-005-20260701    clang-22
-i386                  randconfig-006-20260701    clang-22
-i386                  randconfig-007-20260701    clang-22
-i386                  randconfig-011-20260701    gcc-14
-i386                  randconfig-012-20260701    gcc-14
-i386                  randconfig-013-20260701    gcc-14
-i386                  randconfig-014-20260701    gcc-14
-i386                  randconfig-015-20260701    gcc-14
-i386                  randconfig-016-20260701    gcc-14
-i386                  randconfig-017-20260701    gcc-14
-loongarch                        allmodconfig    clang-19
-loongarch                        allmodconfig    clang-23
-loongarch                         allnoconfig    clang-20
-loongarch                         allnoconfig    gcc-16.1.0
-loongarch                           defconfig    clang-23
-loongarch                      randconfig-001    gcc-11.5.0
-loongarch             randconfig-001-20260701    clang-23
-loongarch             randconfig-001-20260701    gcc-11.5.0
-loongarch                      randconfig-002    gcc-11.5.0
-loongarch             randconfig-002-20260701    clang-19
-loongarch             randconfig-002-20260701    gcc-11.5.0
-m68k                             allmodconfig    gcc-16.1.0
-m68k                              allnoconfig    gcc-16.1.0
-m68k                             allyesconfig    clang-23
-m68k                             allyesconfig    gcc-16.1.0
-m68k                                defconfig    clang-23
-m68k                                defconfig    gcc-16.1.0
-microblaze                        allnoconfig    gcc-16.1.0
-microblaze                       allyesconfig    gcc-16.1.0
-microblaze                          defconfig    clang-23
-microblaze                          defconfig    gcc-16.1.0
-mips                             allmodconfig    gcc-16.1.0
-mips                              allnoconfig    gcc-16.1.0
-mips                             allyesconfig    gcc-16.1.0
-mips                            gpr_defconfig    clang-23
-nios2                            allmodconfig    clang-20
-nios2                            allmodconfig    gcc-11.5.0
-nios2                             allnoconfig    clang-23
-nios2                             allnoconfig    gcc-11.5.0
-nios2                               defconfig    clang-23
-nios2                               defconfig    gcc-11.5.0
-nios2                          randconfig-001    gcc-11.5.0
-nios2                 randconfig-001-20260701    gcc-11.5.0
-nios2                          randconfig-002    gcc-11.5.0
-nios2                 randconfig-002-20260701    gcc-11.5.0
-nios2                 randconfig-002-20260701    gcc-8.5.0
-openrisc                         allmodconfig    clang-20
-openrisc                         allmodconfig    gcc-16.1.0
-openrisc                          allnoconfig    clang-23
-openrisc                          allnoconfig    gcc-16.1.0
-openrisc                            defconfig    gcc-16.1.0
-parisc                           allmodconfig    gcc-16.1.0
-parisc                            allnoconfig    clang-23
-parisc                            allnoconfig    gcc-16.1.0
-parisc                           allyesconfig    clang-17
-parisc                           allyesconfig    gcc-16.1.0
-parisc                              defconfig    gcc-16.1.0
-parisc                randconfig-001-20260701    clang-17
-parisc                randconfig-001-20260701    gcc-13.4.0
-parisc                randconfig-002-20260701    clang-17
-parisc                randconfig-002-20260701    gcc-15.2.0
-parisc64                            defconfig    clang-23
-parisc64                            defconfig    gcc-16.1.0
-powerpc                          allmodconfig    gcc-16.1.0
-powerpc                           allnoconfig    clang-23
-powerpc                           allnoconfig    gcc-16.1.0
-powerpc               randconfig-001-20260701    clang-17
-powerpc               randconfig-001-20260701    gcc-8.5.0
-powerpc               randconfig-002-20260701    clang-17
-powerpc               randconfig-002-20260701    clang-23
-powerpc64             randconfig-001-20260701    clang-17
-powerpc64             randconfig-002-20260701    clang-17
-riscv                            allmodconfig    clang-23
-riscv                             allnoconfig    clang-23
-riscv                             allnoconfig    gcc-16.1.0
-riscv                            allyesconfig    clang-23
-riscv                               defconfig    gcc-16.1.0
-riscv                 randconfig-001-20260701    clang-23
-riscv                 randconfig-002-20260701    clang-23
-s390                             allmodconfig    clang-17
-s390                             allmodconfig    clang-23
-s390                              allnoconfig    clang-23
-s390                             allyesconfig    gcc-16.1.0
-s390                                defconfig    gcc-16.1.0
-s390                  randconfig-001-20260701    clang-23
-s390                  randconfig-002-20260701    clang-23
-sh                               allmodconfig    gcc-16.1.0
-sh                                allnoconfig    clang-23
-sh                                allnoconfig    gcc-16.1.0
-sh                               allyesconfig    clang-17
-sh                               allyesconfig    gcc-16.1.0
-sh                                  defconfig    gcc-14
-sh                    randconfig-001-20260701    clang-23
-sh                    randconfig-002-20260701    clang-23
-sparc                             allnoconfig    clang-23
-sparc                             allnoconfig    gcc-16.1.0
-sparc                               defconfig    gcc-16.1.0
-sparc                 randconfig-001-20260701    gcc-13.4.0
-sparc                 randconfig-002-20260701    gcc-13.4.0
-sparc64                          allmodconfig    clang-20
-sparc64                             defconfig    gcc-14
-sparc64               randconfig-001-20260701    gcc-13.4.0
-sparc64               randconfig-002-20260701    gcc-13.4.0
-um                               allmodconfig    clang-17
-um                                allnoconfig    clang-17
-um                                allnoconfig    clang-23
-um                               allyesconfig    gcc-14
-um                               allyesconfig    gcc-16.1.0
-um                                  defconfig    gcc-14
-um                             i386_defconfig    gcc-14
-um                    randconfig-001-20260701    gcc-13.4.0
-um                    randconfig-002-20260701    gcc-13.4.0
-um                           x86_64_defconfig    gcc-14
-x86_64                           allmodconfig    clang-22
-x86_64                            allnoconfig    clang-22
-x86_64                            allnoconfig    clang-23
-x86_64                           allyesconfig    clang-22
-x86_64      buildonly-randconfig-001-20260701    clang-22
-x86_64      buildonly-randconfig-001-20260701    gcc-14
-x86_64      buildonly-randconfig-002-20260701    clang-22
-x86_64      buildonly-randconfig-003-20260701    clang-22
-x86_64      buildonly-randconfig-004-20260701    clang-22
-x86_64      buildonly-randconfig-004-20260701    gcc-14
-x86_64      buildonly-randconfig-005-20260701    clang-22
-x86_64      buildonly-randconfig-006-20260701    clang-22
-x86_64                              defconfig    gcc-14
-x86_64                                  kexec    clang-22
-x86_64                randconfig-001-20260701    clang-22
-x86_64                randconfig-001-20260701    gcc-14
-x86_64                randconfig-002-20260701    gcc-14
-x86_64                randconfig-003-20260701    gcc-14
-x86_64                randconfig-004-20260701    clang-22
-x86_64                randconfig-004-20260701    gcc-14
-x86_64                randconfig-005-20260701    gcc-14
-x86_64                randconfig-006-20260701    gcc-14
-x86_64                randconfig-011-20260701    gcc-14
-x86_64                randconfig-012-20260701    gcc-14
-x86_64                randconfig-013-20260701    gcc-14
-x86_64                randconfig-014-20260701    gcc-14
-x86_64                randconfig-015-20260701    gcc-14
-x86_64                randconfig-016-20260701    gcc-14
-x86_64                randconfig-071-20260701    gcc-14
-x86_64                randconfig-072-20260701    gcc-14
-x86_64                randconfig-073-20260701    gcc-14
-x86_64                randconfig-074-20260701    gcc-14
-x86_64                randconfig-075-20260701    gcc-14
-x86_64                randconfig-076-20260701    gcc-14
-x86_64                               rhel-9.4    clang-22
-x86_64                           rhel-9.4-bpf    gcc-14
-x86_64                          rhel-9.4-func    clang-22
-x86_64                    rhel-9.4-kselftests    clang-22
-x86_64                         rhel-9.4-kunit    gcc-14
-x86_64                           rhel-9.4-ltp    gcc-14
-x86_64                          rhel-9.4-rust    clang-22
-xtensa                            allnoconfig    clang-23
-xtensa                            allnoconfig    gcc-16.1.0
-xtensa                           allyesconfig    clang-20
-xtensa                           allyesconfig    gcc-16.1.0
-xtensa                randconfig-001-20260701    gcc-13.4.0
-xtensa                randconfig-002-20260701    gcc-13.4.0
+static void virtio_transport_queue_skb(struct sk_buff_head *queue,
+				       struct sk_buff **skb)
+{
+	__skb_queue_tail(queue, *skb);
+	*skb = NULL;
+}
 
---
-0-DAY CI Kernel Test Service
-https://github.com/intel/lkp-tests/wiki
+Not sure, just for 2 places, but if you prefer it, I can change.
+
+Thanks,
+Stefano
+
