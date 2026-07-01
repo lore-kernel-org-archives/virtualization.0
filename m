@@ -1,31 +1,31 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D7C5348B39C;
-	Wed,  1 Jul 2026 13:35:12 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8706248AE3C;
+	Wed,  1 Jul 2026 13:36:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782912915; cv=none; b=R0iw+pHmaRVPDEiUslmV8U1ivi0gx5Ifkl9QKl3LEEvhLo8Sm7SlGiG8d2QFuKC+XsgtnE8VJgSptzjbTqmOWT/ecIBswkr+pkvfImz5SO5bQDEvDBja4E4Socy9R0kL/eo6F7kZIH03G3YEs/yY/m+dHSx2p3Nt2TFPY+4F6LM=
+	t=1782913021; cv=none; b=Yl4rcN6I977UZuOwbG25ayyH5zy68dfpPtWPMBSlU7IEwg91Bc0YiE3GByZ3Zy4ukdxHIFxKlWknkEaGeQKSJUllVWj3W5yjvi5Iu81Ysw9vjhSxuEcURd+Sd9tZKXzi4W5BxEtTFDu5pG7C+wui6DgqtXt3/v2K4FWXMpmSKfc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782912915; c=relaxed/simple;
-	bh=8zmM3nS5JDP7Whs7pyvlwa6MpB93nmm41PuAEpM1spk=;
+	s=arc-20240116; t=1782913021; c=relaxed/simple;
+	bh=NwGSdqTaP4ZXnnBxO2ywFqRooIZC0B9rkEoCCDCFzSU=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=t/pzyh2p74LRY8w5vKSwHoTO9Ykv9WDmaF68kX1xnnULDGeJ9Pm3qMjm+SZgCIM/DYlUhC1SRYhw6BScH/hzGMEZWoygvNbmbyKUYNAk8uhK5Qpy1qT6HWhL3Oi71Pq4MoMJqtcS1Jogs2wLwZavoIqheXo1RRtVFNA81uTSYXA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=B1aUVHJV; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version; b=jn4HI+uEmxKR4wr4EC+h2e2WY2eGDBJjLRxRPCmiIJhOGerI0fCDRyJSSjhHqYRzEwCyyYNkTzbHWq62zBtyLB4XCMK1Rij39SlVvCco/G1NgFMgRwbNM0LZFCzJGwflVKPXeLV3QEENEDPq4l9VZpKAJJrlQiQK5JWt6Nop+CA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AR2vILCE; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="B1aUVHJV"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id CAA0C1F00A3A;
-	Wed,  1 Jul 2026 13:35:11 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AR2vILCE"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 16F5E1F000E9;
+	Wed,  1 Jul 2026 13:36:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1782912912;
-	bh=TDtIVXdwymmau5YBonxKDiyA8oWA/yXad6fZUU/kE9g=;
+	s=k20260515; t=1782913018;
+	bh=X5gvaHOuX9GV+Ui1w2GFmghDgrrTp6lqOfin9/MymH4=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=B1aUVHJVCw1/e9U+LeS6Rho8g5wTrGdzD/n79X6pXJxqKm+8m7rBfjUEDZjfeJbbH
-	 A89qEU6wptFKuLN6DSUvfD8ex7+0hNZMZGWe9CIXxlBR/kNaBauELfJu4Smb8KZb62
-	 0rbrTpTjD5T/cIYBxsxNUI167b6TSMoLE+3OLIyH2PABDt29z1I3DsULcE1Ws97x6v
-	 vUs+pyVPVjIrjOB6DaccGEGSBbsQGsYDiJcBZACa3A7eaZrq2OjdPXL9x4X0cmex43
-	 9r7KslF+GpNiliFN2ssox6ltqVIJLp6a4dIsDNKmDc4tDuh9Z7hiPmqdt0KPoXCla3
-	 SQ2C6xlz+XBEQ==
+	b=AR2vILCEqbdQzcPkcSjXZxBYVOzobevy08pHrGMQLodr6iClYbTx+bFyMAb3G16VZ
+	 VW20Ul/q0fE2yomDYPSCzXalobClET2rmXXlXz/XShXoDQD2ac3xVcfjAHbyF3M8kC
+	 tPx5sRPcsMzYYS+9uM1ch2D6jMoOPE3Y3oYM/pMjK7rEbAOxfXEGCbJS5Kf9jioo3G
+	 Z3rOaR2HU2Vz4tqu7Bx10xU2qjlbqUPzXdiU2Z5PfBkqTxeNHjQ1KK1/bBsjS7XtoV
+	 sm4z7knaAyf1Dc+JA+pXbc9lRcUuYtTBGW400YVkZ5HBt8SJ9nAJyVrk/SaA914++H
+	 k8sMFwPjp5UPw==
 From: SJ Park <sj@kernel.org>
 To: Yichong Chen <chenyichong@uniontech.com>
 Cc: SJ Park <sj@kernel.org>,
@@ -39,11 +39,11 @@ Cc: SJ Park <sj@kernel.org>,
 	pabeni@redhat.com,
 	linux-kernel@vger.kernel.org,
 	virtualization@lists.linux.dev
-Subject: Re: [PATCH v2 2/2] tools/include: Include stdint.h for SIZE_MAX in overflow.h
-Date: Wed,  1 Jul 2026 06:35:02 -0700
-Message-ID: <20260701133503.41823-1-sj@kernel.org>
+Subject: Re: [PATCH v2 1/2] tools/virtio: Add missing compat definitions for vhost_net_test
+Date: Wed,  1 Jul 2026 06:36:55 -0700
+Message-ID: <20260701133655.59115-1-sj@kernel.org>
 X-Mailer: git-send-email 2.47.3
-In-Reply-To: <20260629022124.131894-3-chenyichong@uniontech.com>
+In-Reply-To: <20260629022124.131894-2-chenyichong@uniontech.com>
 References: 
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -53,62 +53,24 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-On Mon, 29 Jun 2026 10:21:24 +0800 Yichong Chen <chenyichong@uniontech.com> wrote:
+On Mon, 29 Jun 2026 10:21:23 +0800 Yichong Chen <chenyichong@uniontech.com> wrote:
 
-> tools/include/linux/overflow.h uses SIZE_MAX in its size helper
-> functions.
+> vhost_net_test builds virtio_ring.c in userspace.
 > 
-> Include stdint.h so tools users that include overflow.h without another
-> SIZE_MAX provider can build.
+> Recent virtio headers pull in helper headers that are not provided by
+> the tools/virtio compatibility layer, including asm/percpu_types.h,
+> linux/completion.h, linux/mod_devicetable.h and
+> linux/virtio_features.h.
+> 
+> Add the missing compat definitions and the DMA attribute used by the
+> current virtio ring code.
 
-On the latest mm-new reverting this patch (for test), I was able to build
-tools/virtio.
-
-    git checkout akpm.korg.mm/mm-new
-    [...]
-    HEAD is now at f5ea2fbe68e0c mm/swap, PM: hibernate: atomically replace hibernation pin
-    $ git revert 9d462d8b9b705548451325ee4376dfd549e14aa2 -s --no-edit
-    [detached HEAD f2202247e38d9] Revert "tools/include: include stdint.h for SIZE_MAX in overflow.h"
-     Date: Wed Jul 1 06:33:03 2026 -0700
-     1 file changed, 1 deletion(-)
-    $ make -C tools/virtio/ clean
-    make: Entering directory '/home/lkhack/worktree.linux/tools/virtio'
-    rm -f *.o vringh_test virtio_test vhost_net_test vhost_test/*.o \
-                  vhost_test/.*.cmd vhost_test/Module.symvers \
-                  vhost_test/modules.order *.d
-    make: Leaving directory '/home/lkhack/worktree.linux/tools/virtio'
-    $ make -C tools/virtio/ test
-    make: Entering directory '/home/lkhack/worktree.linux/tools/virtio'
-    cc -g -O2 -Werror -Wno-maybe-uninitialized -Wall -I. -I../include/ -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -include ../../include/linux/kconfig.h -mfunction-return=thunk -fcf-protection=none -mindirect-branch-register -pthread   -c -o virtio_test.o virtio_test.c
-    cc -g -O2 -Werror -Wno-maybe-uninitialized -Wall -I. -I../include/ -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -include ../../include/linux/kconfig.h -mfunction-return=thunk -fcf-protection=none -mindirect-branch-register -pthread   -c -o virtio_ring.o ../../drivers/virtio/virtio_ring.c
-    cc -pthread  virtio_test.o virtio_ring.o   -o virtio_test
-    cc -g -O2 -Werror -Wno-maybe-uninitialized -Wall -I. -I../include/ -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -include ../../include/linux/kconfig.h -mfunction-return=thunk -fcf-protection=none -mindirect-branch-register -pthread   -c -o vringh_test.o vringh_test.c
-    cc -g -O2 -Werror -Wno-maybe-uninitialized -Wall -I. -I../include/ -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -include ../../include/linux/kconfig.h -mfunction-return=thunk -fcf-protection=none -mindirect-branch-register -pthread   -c -o vringh.o ../../drivers/vhost/vringh.c
-    cc -pthread  vringh_test.o vringh.o virtio_ring.o   -o vringh_test
-    cc -g -O2 -Werror -Wno-maybe-uninitialized -Wall -I. -I../include/ -I ../../usr/include/ -Wno-pointer-sign -fno-strict-overflow -fno-strict-aliasing -fno-common -MMD -U_FORTIFY_SOURCE -include ../../include/linux/kconfig.h -mfunction-return=thunk -fcf-protection=none -mindirect-branch-register -pthread   -c -o vhost_net_test.o vhost_net_test.c
-    cc -pthread  vhost_net_test.o virtio_ring.o   -o vhost_net_test
-    make: Leaving directory '/home/lkhack/worktree.linux/tools/virtio'
-
-
-Am I missing something?
+I confirmed this patch fixes the build on my setup.
 
 > 
 > Signed-off-by: Yichong Chen <chenyichong@uniontech.com>
-> ---
->  tools/include/linux/overflow.h | 1 +
->  1 file changed, 1 insertion(+)
-> 
-> diff --git a/tools/include/linux/overflow.h b/tools/include/linux/overflow.h
-> index 3427d7880326..98963688143f 100644
-> --- a/tools/include/linux/overflow.h
-> +++ b/tools/include/linux/overflow.h
-> @@ -1,4 +1,5 @@
->  /* SPDX-License-Identifier: GPL-2.0 OR MIT */
-> +#include <stdint.h>
->  #ifndef __LINUX_OVERFLOW_H
->  #define __LINUX_OVERFLOW_H
 
-Shouldn't the include placed after #define __LINUX_OVERFLOW_H ?
+Tested-by: SJ Park <sj@kernel.org>
 
 
 Thanks,
