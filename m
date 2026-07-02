@@ -1,142 +1,179 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F2273033F8
-	for <virtualization@lists.linux.dev>; Thu,  2 Jul 2026 04:03:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D6D2638E8DC
+	for <virtualization@lists.linux.dev>; Thu,  2 Jul 2026 07:12:51 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782965020; cv=none; b=Gf70Qb85L9RvMoFAnLvaTgmObI6O461A7ymRhnDPROptecCYoiwStYCcrrP+3zqlRnwfGjPk1Zjk6beaItyjk5PbO29DwbgpNv7YobxJyr49KiBuh+wPnUiMJvv9/wsMxijAIrJn/GP2jkEeYXpEtSc6WC5eEZVil4DoAtl3/wc=
+	t=1782976373; cv=none; b=fOBZFwv4vYKePaFkWzGl5ozNE+QQ0kqWtnd75SlwqtaC2E1gE7M+RjLnJA5ISlu+Uu9/gn+dJPwgo08+isexsm6cYtecXJ4JSObV0Xx6bDZkar3f5OvWS1NbedzvX3mg0pD55FVPj/fVoPsmiCw0l1V+mnm0I+vUVJbi+/rr8z4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782965020; c=relaxed/simple;
-	bh=Tkvv/zdSmt+g6XEEVdG2makQ5P51TMRJmaRm1Qrs2EM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=j+EjoaM2I9+TJYjduqRJTrcx1frRNPl9lob7nzFjJpxtvtjo8JKGUSIZcASQKlu6PTzN3j3pOh5fmYHmV2vqvVYATk0KED+G0oEIaK8gsWVAljStOkAmt/4z9aABAluGIWblFDBqcFtTvZlXS5d/i2SdUWQCQKr+a0o3+uQjjcY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cL811s0F; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1782976373; c=relaxed/simple;
+	bh=27dcR1DIgJXwa9YNkW/Zb4HNwCqBEnyovfUit2VscA8=;
+	h=MIME-Version:From:To:In-Reply-To:Cc:Subject:Message-ID:Date:
+	 Content-Type; b=TnBWTmdLE5BO3EKiqHFRTbBqJhMWlsaa6l38ARc6zPtBqSaUcBWhE6AI2CjtFIqkAUK1zbevdVrQG+S+rEJU66JUVouIptwtV4LIySq5z5TnTjS6KwE66WMM0R6jyJf563nqwi/SDtZGZ0DRnoSlPB7twjoskQulRrnESbpslJs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=fyKxElqR; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cL811s0F"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="fyKxElqR"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1782965017;
+	s=mimecast20190719; t=1782976370;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=kuaTEjeYBWxwOkgYoO9Z5VTdSu33mHKEAQ6hsmDBY08=;
-	b=cL811s0FmW1iHDS93q1EbLuGFO+dRcNPA1e0NqrNRBNaDbLZuOnAAG8GDQE6Mzc7MkeFxt
-	Es8Vn0q30xWL2S0OFrLO7dAyskQT9S5Q8D3tBEGkfpB9hZ2+V+NXv4e6PJAo1U6wXwBjv9
-	KnZ3OI5nZYp8ClHUcfXJAf1lBrzCsz4=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	 content-transfer-encoding:content-transfer-encoding:  in-reply-to:in-reply-to;
+	bh=hxdCQj6NzsZ0fMBpIQu3pY1Ddr/TRKQeJvgNYNHVEJc=;
+	b=fyKxElqRMxQbwLXUVDzEm7SM6V1IsPsjejZJp4nrHsU1KHCslgvsvxtdVjdnhl3hlt0EY9
+	5FTbnwnEa+KvXZk5S2ivc83wgZNCEg0IWhEe9VUSr51OcSY+3khtBLYgjNJl+S2YI7TgyC
+	smEhmPKPgIgS/Ci6DKPafotgC6yywQY=
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com
+ [209.85.216.69]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-496-L7F6K1z4Pbm4R3zhIoz1ZA-1; Thu, 02 Jul 2026 00:03:35 -0400
-X-MC-Unique: L7F6K1z4Pbm4R3zhIoz1ZA-1
-X-Mimecast-MFC-AGG-ID: L7F6K1z4Pbm4R3zhIoz1ZA_1782965015
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-493c526df6bso2967585e9.3
-        for <virtualization@lists.linux.dev>; Wed, 01 Jul 2026 21:03:35 -0700 (PDT)
+ us-mta-681-xhdFSWlmN5-3NPLRahDi6Q-1; Thu, 02 Jul 2026 03:12:49 -0400
+X-MC-Unique: xhdFSWlmN5-3NPLRahDi6Q-1
+X-Mimecast-MFC-AGG-ID: xhdFSWlmN5-3NPLRahDi6Q_1782976369
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-38010ab3c0bso1738499a91.0
+        for <virtualization@lists.linux.dev>; Thu, 02 Jul 2026 00:12:49 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1782965014; x=1783569814;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=kuaTEjeYBWxwOkgYoO9Z5VTdSu33mHKEAQ6hsmDBY08=;
-        b=NKeAluEo1X/9b65vSMsawhH5bwae3E/Ex0Lp6Nyw147uQ6m18y+WaJLCeHThZvKCTg
-         0H2zIubX67bii2j8YIp5HtqfFKAPF29VwFOwKn+43CqtkuG3ONJPZRW/WX2JBD2o3zSE
-         A8jl4m5PzCPh5iRTjlqOBBBkBHixQe4Z7LUsnIbl6pOP/i0SACGGcsx+Q4QzJhmz3x2/
-         Lct1TSGHQSDE8JOIXhp+reWrlRUKzs6zOA5BuO/TQd2f8l2kG/bt63lyJj45yDcOYsU6
-         S5iEw0ihi1lTzwMm3KBa5GPGHNnAQddI1/qr0VIdaCpq4LurVXpHqR/R7lLS24E/3rUt
-         3y8w==
-X-Forwarded-Encrypted: i=1; AFNElJ+JMEJ3megAwxNjikjOlPtFBHBe/i79u9j10eTBdAMvikmBqpFNi2SVHSOmGpde9bs+njMVwCRmo8DFvZr7Yg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwESipi2dIwh+XDgSDktwzGcJvD3t1Fl9nPDcma7jcknbxhHiv5
-	DpKHgFRAV1q+Ki74ze+iVfeT6ZsQXADsNVoApSuzlW2EwGx7jRXaJnNHulCGuIKALfEXIDaAIzI
-	4m36Ca6xgDKtEPnknCf7DjFHhAwnC4pNxDIwNbE5PrQKTy7iMKiZDKK8mPmG7Q7I/tXjW
-X-Gm-Gg: AfdE7cl9E42iU/gIxjzgDeH5SeQwIeoBzI7tvLYldcQWIIDLLG/C8zSoSpniSIyfl6C
-	ILeiv3j0Meqql2KDGS6kRMCMNed7dGRD+1IZpAIxTFaeToH2ae9uJix3Yxl0q+ICOY+i+TUMVX9
-	bFUbJnpuWt4wW4Aj7PNPaLshxzacPit0QJqVeJv6L/CoD5OTpdROCiibXNgZcCnROwelrMaH1yI
-	bJXmjMwEsKskk+Z1qkkopZEXjBe3UTpuGW3T30uw9QTt9V2GepuJcZaENyS8gJ8mqghFOWRGx/N
-	bbN+kCu+oJiBslgmnoYTHKIMHAHahjBnQmXF6MT7iB2AYmMp13k0XRervbqb9TbtveG0gObGMtx
-	sm0N8Ay8so1oRgsa+OCPjIU0BdzzvG7FN
-X-Received: by 2002:a05:600c:60a:b0:492:68bc:3237 with SMTP id 5b1f17b1804b1-493c3cf8cc5mr31230655e9.32.1782965014443;
-        Wed, 01 Jul 2026 21:03:34 -0700 (PDT)
-X-Received: by 2002:a05:600c:60a:b0:492:68bc:3237 with SMTP id 5b1f17b1804b1-493c3cf8cc5mr31230455e9.32.1782965013999;
-        Wed, 01 Jul 2026 21:03:33 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-68-31.inter.net.il. [80.230.68.31])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-493c63b6f8csm11868245e9.11.2026.07.01.21.03.30
+        d=1e100.net; s=20251104; t=1782976369; x=1783581169;
+        h=content-transfer-encoding:date:message-id:subject:cc:in-reply-to:to
+         :from:mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to;
+        bh=PhGng+hd9qECLzQceD/9OUpAsw5HRAD3GeuzTLZHbzY=;
+        b=K65G7L22y6VfGpL6uwJNFJQdzJQwtE/uc2l2DG2XxiHMzddICmuASeheLR4bH0Ya2J
+         GjPwjVjwV/XyIs+UN/FiJgxuRdZK+Isuj1CqxFn/cEqIpymUegPnzKsU6ROccPr3P/YN
+         M+Iwmj0BTkMubQ+in5rxgMQ7tK7QPMbMDhOVt4bRIm9cluKrUvny0b+GUFotcARo1VPc
+         q2suIwZea8A5qUoAbDPy2QS2HtuTQOUZH5TU1n5nH7DUDV/lym5+wrN9tvzEhAxD7UcO
+         zNR5irOxaGpIA4xX89r2XXxuAhagVHdWQwCe/ZO/K3xCcZuBBsxdSnKJ6AVhcJbqRzMr
+         pTKg==
+X-Forwarded-Encrypted: i=1; AHgh+RpsqcFZlyvtbtGB/bLyiOrkyRrs9O3FM8+Hn8F+zfhon9+ZGcw5rztTt6e8EaIQCQTLy+bXLOJByyJyetn67g==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyf/ts2gP8Rg9kwKnztiTzjSsHo6V+U6q3DGpqbhd24kX/cGyVU
+	dwoHl83ny39zCQqjan0uSsSZWBdxRLsdWVjzZZBhV/VkhbcLz1IqFRWmC8PVtthkBTIHZQCyCru
+	bqTpGvXO95CWRC+oqNInQ0zOECr9bqvo3wEzD6Aai2YD89BWHJygAcQgyebUFZHPOcx8Z
+X-Gm-Gg: AfdE7clCuGW1S91QrO2EWpnA3U8qKknDfCNMUVlywQRpd/u2em33352T2pc2alUHA+l
+	3uiKxGYxVj7CYEMFIcXIxWiZz2Ud18gwIZyB52Ghezjn4iuG6NqeiDl6pmLOHaOuBsVFKO13m1w
+	jMTSk3nQ7+uxPrlihDnjmHfCmPXgffs1MQToOaTx0N2ANw/R4lSlafkn459K+MKl20NPLWoBinW
+	up9KjrE9Ui21/Od9pAubFGJqQf6VFdMHq+kKq3pJ3Cj8ZIrkEJhGO40XSrPxPaEbeQktsPgh9S7
+	HH02AsyKT8rkr/aEgJJjowLfA1fUFilatEd0qPymbbnCLSEPQ2Vd1cwwG5U3fDx1Yj6K6a5TGA2
+	BtTcirg3BEyc5MBOBnAVmWCXZnOGn9P9vlk4TGgTs1fU85VCN
+X-Received: by 2002:a17:90b:5148:b0:380:21b7:e727 with SMTP id 98e67ed59e1d1-380ba8d0fd6mr4293590a91.14.1782976368560;
+        Thu, 02 Jul 2026 00:12:48 -0700 (PDT)
+X-Received: by 2002:a17:90b:5148:b0:380:21b7:e727 with SMTP id 98e67ed59e1d1-380ba8d0fd6mr4293543a91.14.1782976367846;
+        Thu, 02 Jul 2026 00:12:47 -0700 (PDT)
+Received: from ryasuoka-thinkpadx1carbongen9.tokyo.csb ([126.143.164.49])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-380e17cb4b7sm577673a91.13.2026.07.02.00.12.44
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 01 Jul 2026 21:03:32 -0700 (PDT)
-Date: Thu, 2 Jul 2026 00:03:28 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Alyssa Ross <hi@alyssa.is>
-Cc: Sergio Lopez <slp@redhat.com>, Chia-I Wu <olvaffe@gmail.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	linux-kernel@vger.kernel.org, Simona Vetter <simona@ffwll.ch>,
-	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-	Thomas Zimmermann <tzimmermann@suse.de>,
-	David Airlie <airlied@redhat.com>,
-	Gurchetan Singh <gurchetansingh@chromium.org>,
-	Gerd Hoffmann <kraxel@redhat.com>, virtualization@lists.linux.dev,
-	dri-devel@lists.freedesktop.org, Maxime Ripard <mripard@kernel.org>,
-	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
-Subject: Re: [PATCH v2 2/3] drm/virtio: honor blob_alignment requirements
-Message-ID: <20260702000144-mutt-send-email-mst@kernel.org>
-References: <20260428194450.518296-1-slp@redhat.com>
- <20260428194450.518296-3-slp@redhat.com>
- <akT1XEW766c7Imst@mbp.qyliss.net>
+        Thu, 02 Jul 2026 00:12:47 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <akT1XEW766c7Imst@mbp.qyliss.net>
+From: "Ryosuke Yasuoka" <ryasuoka@redhat.com>
+To: "Hillf Danton" <hdanton@sina.com>
+In-Reply-To: <20260701234301.361-1-hdanton@sina.com>
+Cc: "Dmitry Osipenko" <dmitry.osipenko@collabora.com>, 
+	"Dmitry Baryshkov" <lumag@kernel.org>, 
+	"Javier Martinez Canillas" <javierm@redhat.com>, 
+	<dri-devel@lists.freedesktop.org>, <virtualization@lists.linux.dev>, 
+	<linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] drm/virtio: defer hotplug event from dequeue worker to avoid
+	 deadlock
+Message-ID: <18be678e97322160.8f56a0770e5621ab.8d175eba8a62d6be@ryasuoka-thinkpadx1carbongen9.tokyo.csb>
+Date: Thu, 2 Jul 2026 07:12:44 +0000
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: e0xQKJVbAfwX6nfR_gO82YilN3RSYHCCKsJlt-I6iIc_1782965015
+X-Mimecast-MFC-PROC-ID: CwArIW89haypxEtA3l7m6JiT-LkrCdHAMUjRvQ0I3Ng_1782976369
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Wed, Jul 01, 2026 at 01:10:30PM +0200, Alyssa Ross wrote:
-> On Tue, Apr 28, 2026 at 09:44:49PM +0200, Sergio Lopez wrote:
-> > If VIRTIO_GPU_F_BLOB_ALIGNMENT has been negotiated, blob size must be
-> > aligned to blob_alignment. Validate this in verify_blob() so that
-> > invalid requests are rejected early.
-> >
-> > Signed-off-by: Sergio Lopez <slp@redhat.com>
-> 
-> FYI: this change breaks crosvm, which is squatting the 5 and 6 values
-> of VIRTIO_GPU_F_* with different meanings.  I've reported it as a
-> crosvm bug, so hopefully it can be taken care of there.
-> 
-> https://issuetracker.google.com/issues/529852979
 
-Move fast and beak things, then it takes a wile to fix them)
-Do you understand who uses it maybe? Maybe if there's a PR
-for both sides it will be handled faster.
 
-> > ---
-> >  drivers/gpu/drm/virtio/virtgpu_ioctl.c | 5 +++++
-> >  1 file changed, 5 insertions(+)
-> >
-> > diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> > index c33c057365f8..d0c4edf1eaf4 100644
-> > --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> > +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
-> > @@ -489,6 +489,11 @@ static int verify_blob(struct virtio_gpu_device *vgdev,
-> >  	params->size = rc_blob->size;
-> >  	params->blob = true;
-> >  	params->blob_flags = rc_blob->blob_flags;
-> > +
-> > +	if (vgdev->has_blob_alignment &&
-> > +	    !IS_ALIGNED(params->size, vgdev->blob_alignment))
-> > +		return -EINVAL;
-> > +
-> >  	return 0;
-> >  }
-> >
-> > --
-> > 2.53.0
-> >
+On 02/07/2026 07:43, Hillf Danton wrote:
+> On Wed, 1 Jul 2026 09:23:05 +0000 Ryosuke Yasuoka wrote:
+>>On 30/06/2026 16:46, Dmitry Osipenko wrote:
+>>> Could you please move drm_kms_helper_hotplug_event() to virtio_gpu_init=
+(),
+>>> placing it after wait_event_timeout(display_info_pending)? This will av=
+oid
+>>> additional work_struct that otherwise needs to be cancelled in
+>>> virtio_gpu_init() on the timeout.
+>>
+>>IIUC, moving the drm_kms_helper_hotplug_event() and _hpd_irq_event()
+>>into virtio_gpu_init() after wait_event_timeout() would not prevent the
+>>issue.
+>>
+>>Looking at the syzbot call traces[1][2], the deadlock occurs during
+>>drm_client_setup(), which runs after virtio_gpu_init() has already
+>>returned. The display_info_cb that triggers the deadlock is called from
+>>the dequeue worker while drm_client_register() holds clientlist_mutex.
+>>
+>>Thread A:
+>>virtio_gpu_probe()
+>> -> virtio_gpu_init()   // sends GET_DISPLAY_INFO and waits up to 5s
+>> -> drm_dev_register()
+>> -> drm_client_setup()   // deadlock happens HERE
+>>     -> drm_client_register()   // holds clientlist_mutex
+>>     ...
+>>     -> virtio_gpu_queue_fenced_ctrl_buffer()
+>>         -> wait_event() // waits for free space
+>>
+>>Thread B:
+>>virtio_gpu_dequeue_ctrl_func()
+>> -> reclaim_vbufs()   // make free space
+>=20
+> I wonder if the deadlock could be cured by alternatively adding a wakeup
+> before the responce cb, given that free space is available.
 
+Thanks for your comment. I agree that moving wake_up() before response
+cb would help in most cases, and I think it is a reasonable aproach.
+However, there are a few rare scenarios where the deadlock can still
+occur:
+
+1. If reclaim_vbufs() does not free enough slots to satisfy
+num_free >=3D elemcnt, wake_up() fires but the wait_event() condition
+evaluates false. Thread A remains asleep holding clientlist_mutex, and
+the dequeue worker proceeds to display_info_cb which blocks on
+clientlist_mutex.
+2. Even if enough slots are freed, there is a small window between
+wait_event() returning and Thread A acquiring spin_lock(&qlock) at the
+"goto again" path in virtio_gpu_queue_ctrl_sgs(). Another thread can
+consume the freed slots during this window, causing Thread A to loop=20
+back to wait_event() still holding clientlist_mutex.
+3. Reordering wake_up() before resp_cb inverts the natural "process
+response, then signal completion" pattern, which could introduce subtle
+issues if a future resp_cb depends on side effects that should happen
+after wake_up(), I believe.
+
+These scenarios are likely rare in practice, but the schedule_work()
+approach avoids all of them entirely by ensuring the dequeue worker
+never touches clientlist_mutex. It also follows the same pattern
+already used by config_changed_work in this driver.
+
+Best regards
+Ryosuke
+
+>=20
+>> -> resp_cb()
+>>     -> virtio_gpu_cmd_get_display_info_cb
+>>         -> drm_helper_hpd_irq_event()
+>>         -> drm_kms_helper_hotplug_event()
+>>             -> drm_client_dev_hotplug() // need to lock clientlist_mutex
+>> -> wake_up()   // never reached
+>>
+>>IIUC the hotplug notification in display_info_cb is needed because it
+>>notifies DRM after updating by the callback with fresh data from the host=
+.
+>>
+>>This work_struct ensures display_info_cb never blocks on
+>>clientlist_mutex in the dequeue worker, while preserving the hotplug
+>>notification with fresh data.
+>>
+>>[1] https://syzkaller.appspot.com/bug?id=3Dd6dd6f86d3aaf7eebe7406e45c1c6e=
+549453f224
+>>[2] https://syzkaller.appspot.com/bug?id=3D908bd910da5dd79b88de4cf7baf376=
+cc873a922e
+>>
+>>Best regards,
+>>Ryosuke
 
