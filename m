@@ -1,32 +1,32 @@
-Received: from out-180.mta0.migadu.com (out-180.mta0.migadu.com [91.218.175.180])
+Received: from out-178.mta1.migadu.com (out-178.mta1.migadu.com [95.215.58.178])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E24A247DD7F
-	for <virtualization@lists.linux.dev>; Thu,  2 Jul 2026 12:25:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6DD6E26ED40
+	for <virtualization@lists.linux.dev>; Thu,  2 Jul 2026 12:39:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=95.215.58.178
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782995150; cv=none; b=QXL/hNYDlH5NbCPAeGmVVNTqb/ZP9vtPESka/1DFBdgSd2IANDrY2SZZTchSodvoIe02OWqeavqPUyQEcX/rSVv66Z/yN18tUtHsA+qnerjrbptjP8VdIZYFo0C8jkKfOSt4JFZ5HKguD5sEWh2kZYrSb1PDvB6e1rzwavbJFf8=
+	t=1782995999; cv=none; b=VSds1PX+XC3LkbvgdUF9qGswpKgLxBz5czzYJGBe64JqOE9mfd7ATmV4+rmck1sZ3Of2kKDOcWFRlXCzx8TAgx5FpHqRSBQHUjfCVeSPo5NQu9A9lECbw6dc1l25rCiu+/SxKzyN8uz9KHyT/WbYwjUv3z9wOcqObJiU/BbQ0x4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782995150; c=relaxed/simple;
-	bh=7Ko6g/fNv98hSurpFrjSC8unNT/smMh3pnGqTobbcqg=;
+	s=arc-20240116; t=1782995999; c=relaxed/simple;
+	bh=kWlPB3bl2hFIoKRfAQQlliaKbL0nQpTVsDlwq9+KKyQ=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=u+mgg9f3Fy9B9Od4CtaXdVoFnvAJ4/8zEPHJ29LRfdVqPXjKnTSHmwQ/4pS0pIFerKiTwmvlqSzWtScKBAmHJh787/dYXfrplfTHtm+4BNAU32ZlkkFfP3smpfrBqoniwLi8PdO8s4VucS9gdTw83O2Frl71xWYEMwju8Gwy154=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=b+ldrvkt; arc=none smtp.client-ip=91.218.175.180
+	 MIME-Version:Content-Type; b=csnlzfotrxdV8GADJh/+TpkO/0UQmduiKA1KLqq9VXhhlP+iKQMlHsSMpR6xtnDh8HmBFNKp1eZS61MZXlD4B6EyZgVa8XQxWvPDZu1YWbbJlcAIGsKIopi7v736Cto8Jkkw3sgJ7KJ04GwVbxiadInIHsC28CZ65/jtVkLqYL8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=F10EZD2M; arc=none smtp.client-ip=95.215.58.178
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="b+ldrvkt"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="F10EZD2M"
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1782995144;
+	t=1782995985;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=7Ko6g/fNv98hSurpFrjSC8unNT/smMh3pnGqTobbcqg=;
-	b=b+ldrvkt8ZmJ+OrI3yxcQgFLnRxGCWHjhsFZZL3rVzLaxyNILjolYA01aJGr58GPqotONa
-	C0qfjyiCv0Ek1cqalMJ+/t7YCyD5CeARmY/TMOXt2of2lM3qjKi0LZINpNnLjdz9QLcCqu
-	OOzdaIK15Lm4UMi7JwMdKk4MKXYIZlw=
+	bh=MSqvG6QTDeOE5qt8LI9tLb3iySB/2eramUM4HlZdPG8=;
+	b=F10EZD2MKuMsgIZGg+Kv4CpsFBAqfutqUSZV+CnlSj4mTRO6SM+hx7IFnwTXi02n4W5ksq
+	B3eV7EruPZaVg8GiZqN77RrtZjvlyRAPzkka+Z5kYwT5shcZ0occtt6vxWz8dsjkDZRJwI
+	jZvjN/4FCRiAB3/YW0BqvRoNYnrlgRU=
 From: Lance Yang <lance.yang@linux.dev>
 To: ljs@kernel.org
 Cc: akpm@linux-foundation.org,
@@ -111,11 +111,11 @@ Cc: akpm@linux-foundation.org,
 	linux-fsdevel@vger.kernel.org,
 	linux-mm@kvack.org,
 	linux-sound@vger.kernel.org
-Subject: Re: [PATCH 07/13] mm/vma: rename vma_get_page_prot to vma_flags_to_page_prot
-Date: Thu,  2 Jul 2026 20:25:15 +0800
-Message-Id: <20260702122515.74271-1-lance.yang@linux.dev>
-In-Reply-To: <fc8ac30d03d29d236e76542b36432bba315aca60.1782760670.git.ljs@kernel.org>
-References: <fc8ac30d03d29d236e76542b36432bba315aca60.1782760670.git.ljs@kernel.org>
+Subject: Re: [PATCH 08/13] mm: introduce vma_get_page_prot() and use it
+Date: Thu,  2 Jul 2026 20:38:45 +0800
+Message-Id: <20260702123845.95316-1-lance.yang@linux.dev>
+In-Reply-To: <3bb8bdc4788230c33102166d56cbc5abfad9d4cb.1782760670.git.ljs@kernel.org>
+References: <3bb8bdc4788230c33102166d56cbc5abfad9d4cb.1782760670.git.ljs@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -127,18 +127,43 @@ Content-Transfer-Encoding: 8bit
 X-Migadu-Flow: FLOW_OUT
 
 
-On Mon, Jun 29, 2026 at 08:25:30PM +0100, Lorenzo Stoakes wrote:
->Having vma_get_page_prot() refer to VMA flags and vma_set_page_prot() refer
->to a VMA is confusing.
+On Mon, Jun 29, 2026 at 08:25:31PM +0100, Lorenzo Stoakes wrote:
+>There's a large number of vm_get_page_prot(vma->vm_flags) invocations. Make
+>life easier by introducing vma_get_page_prot() parameterised by the VMA.
 >
->Rename vma_get_page_prot() to vma_flags_to_page_prot() to resolve this
->confusion.
+>This also makes converting vm_get_page_prot() to vma_flags_t easier.
+>
+>Also update the userland VMA tests to reflect the change.
 >
 >No functional change intended.
 >
 >Signed-off-by: Lorenzo Stoakes <ljs@kernel.org>
 >---
+> drivers/gpu/drm/drm_gem.c                   |  2 +-
+> drivers/gpu/drm/drm_gem_dma_helper.c        |  2 +-
+> drivers/gpu/drm/drm_gem_shmem_helper.c      |  2 +-
+> drivers/gpu/drm/etnaviv/etnaviv_gem.c       |  2 +-
+> drivers/gpu/drm/exynos/exynos_drm_gem.c     |  6 +++---
+> drivers/gpu/drm/i915/gem/i915_gem_mman.c    | 12 ++++++------
+> drivers/gpu/drm/msm/msm_gem.c               |  2 +-
+> drivers/gpu/drm/nouveau/nouveau_gem.c       |  2 +-
+> drivers/gpu/drm/omapdrm/omap_fbdev.c        |  2 +-
+> drivers/gpu/drm/omapdrm/omap_gem.c          |  6 +++---
+> drivers/gpu/drm/rockchip/rockchip_drm_gem.c |  2 +-
+> drivers/gpu/drm/tegra/gem.c                 |  2 +-
+> drivers/gpu/drm/virtio/virtgpu_vram.c       |  2 +-
+> drivers/gpu/drm/vmwgfx/vmwgfx_page_dirty.c  |  2 +-
+> drivers/gpu/drm/xe/xe_device.c              |  2 +-
+> drivers/gpu/drm/xe/xe_mmio_gem.c            |  2 +-
+> drivers/gpu/drm/xen/xen_drm_front_gem.c     |  2 +-
+> drivers/video/fbdev/core/fb_io_fops.c       |  2 +-
 
-straight rename, no stale callers that I can spot ;) Feel free to add:
+One missed?
 
-Reviewed-by: Lance Yang <lance.yang@linux.dev>
+drivers/gpu/drm/panthor/panthor_gem.c still has:
+
+	vma->vm_page_prot = vm_get_page_prot(vma->vm_flags);
+
+Can use vma_get_page_prot(vma) too.
+
+[...]
