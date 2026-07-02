@@ -1,262 +1,142 @@
-Received: from smtpbgeu1.qq.com (smtpbgeu1.qq.com [52.59.177.22])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D0372BEC4E
-	for <virtualization@lists.linux.dev>; Thu,  2 Jul 2026 03:04:47 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=52.59.177.22
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3F2273033F8
+	for <virtualization@lists.linux.dev>; Thu,  2 Jul 2026 04:03:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782961490; cv=none; b=p3/Breb8jiWj6mA20i++oJ8Fb0gKK6XEhpEV5IdLWvAsk7ssAHPD8kVC6DBlOPkDGbQ65VDxjYZ/FW10ZIEd3Y0Y6ZRJrwGmILaxwhZ3m4LVyS28X0dezYH/t7z/xJOYkC/HuOO7fqpqD4/fm/48r7QAxTW4QNoAgIjnNdPc+Rg=
+	t=1782965020; cv=none; b=Gf70Qb85L9RvMoFAnLvaTgmObI6O461A7ymRhnDPROptecCYoiwStYCcrrP+3zqlRnwfGjPk1Zjk6beaItyjk5PbO29DwbgpNv7YobxJyr49KiBuh+wPnUiMJvv9/wsMxijAIrJn/GP2jkEeYXpEtSc6WC5eEZVil4DoAtl3/wc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782961490; c=relaxed/simple;
-	bh=TEPRqTYbMTe/BUqltdsIC35f7WnouKJWyYVmxon8PSU=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=f8mU141i8wcPqi8KSzu1wDtnNULJkgozhePgyz7BjIWaMWLWCHls/12UoM6pNLanzI0OxTu7PUa3/KsqkGVDV+XOYyFdJoMBil0++uRitOKKnhqHVXCp3rmHmm7il19QWmK/4kP0RK36bdcXavY561bn7bNxlAvwahEvyF4+Ud4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com; spf=pass smtp.mailfrom=uniontech.com; dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b=BRKTSq2c; arc=none smtp.client-ip=52.59.177.22
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
+	s=arc-20240116; t=1782965020; c=relaxed/simple;
+	bh=Tkvv/zdSmt+g6XEEVdG2makQ5P51TMRJmaRm1Qrs2EM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=j+EjoaM2I9+TJYjduqRJTrcx1frRNPl9lob7nzFjJpxtvtjo8JKGUSIZcASQKlu6PTzN3j3pOh5fmYHmV2vqvVYATk0KED+G0oEIaK8gsWVAljStOkAmt/4z9aABAluGIWblFDBqcFtTvZlXS5d/i2SdUWQCQKr+a0o3+uQjjcY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cL811s0F; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b="BRKTSq2c"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
-	s=onoh2408; t=1782961466;
-	bh=/8dZy5foASdLgCT2t4XH4YFVkJ+c1YLZPElgqEIeEnw=;
-	h=From:To:Subject:Date:Message-Id:MIME-Version;
-	b=BRKTSq2cp53UbMzio7EGEuHJUScWYnh/iPXZYBdYS37XZsLAUJiNOD1VZ860NdLBc
-	 HlZXrox+rERCSMk8ELTqaEaD7yo8Qa9QZb/D1MNAEf3U0Dl6TKxvP/6NB7esYSRXun
-	 IWwTaBpnX0zAZ/6NRmQi5OPwxOrnmvbInbNzKFHo=
-X-QQ-mid: esmtpgz15t1782961448t4ba970d3
-X-QQ-Originating-IP: Y6qJD1ojZm95O781LwkvXw/EwEQCsB5RbP0JgBDy+iA=
-Received: from uniontech.com ( [113.57.152.160])
-	by bizesmtp.qq.com (ESMTP) with 
-	id ; Thu, 02 Jul 2026 11:04:05 +0800 (CST)
-X-QQ-SSF: 0000000000000000000000000000000
-X-QQ-GoodBg: 1
-X-BIZMAIL-ID: 9065969092702021597
-EX-QQ-RecipientCnt: 12
-From: Yichong Chen <chenyichong@uniontech.com>
-To: mst@redhat.com,
-	jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	eperezma@redhat.com,
-	akpm@linux-foundation.org
-Cc: sj@kernel.org,
-	rppt@kernel.org,
-	ljs@kernel.org,
-	pabeni@redhat.com,
-	chenyichong@uniontech.com,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: [PATCH v3 1/2] tools/virtio: Add missing compat definitions for vhost_net_test
-Date: Thu,  2 Jul 2026 11:03:57 +0800
-Message-Id: <20260702030358.308155-2-chenyichong@uniontech.com>
-X-Mailer: git-send-email 2.20.1
-In-Reply-To: <20260702030358.308155-1-chenyichong@uniontech.com>
-References: <20260702030358.308155-1-chenyichong@uniontech.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cL811s0F"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1782965017;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=kuaTEjeYBWxwOkgYoO9Z5VTdSu33mHKEAQ6hsmDBY08=;
+	b=cL811s0FmW1iHDS93q1EbLuGFO+dRcNPA1e0NqrNRBNaDbLZuOnAAG8GDQE6Mzc7MkeFxt
+	Es8Vn0q30xWL2S0OFrLO7dAyskQT9S5Q8D3tBEGkfpB9hZ2+V+NXv4e6PJAo1U6wXwBjv9
+	KnZ3OI5nZYp8ClHUcfXJAf1lBrzCsz4=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-496-L7F6K1z4Pbm4R3zhIoz1ZA-1; Thu, 02 Jul 2026 00:03:35 -0400
+X-MC-Unique: L7F6K1z4Pbm4R3zhIoz1ZA-1
+X-Mimecast-MFC-AGG-ID: L7F6K1z4Pbm4R3zhIoz1ZA_1782965015
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-493c526df6bso2967585e9.3
+        for <virtualization@lists.linux.dev>; Wed, 01 Jul 2026 21:03:35 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1782965014; x=1783569814;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=kuaTEjeYBWxwOkgYoO9Z5VTdSu33mHKEAQ6hsmDBY08=;
+        b=NKeAluEo1X/9b65vSMsawhH5bwae3E/Ex0Lp6Nyw147uQ6m18y+WaJLCeHThZvKCTg
+         0H2zIubX67bii2j8YIp5HtqfFKAPF29VwFOwKn+43CqtkuG3ONJPZRW/WX2JBD2o3zSE
+         A8jl4m5PzCPh5iRTjlqOBBBkBHixQe4Z7LUsnIbl6pOP/i0SACGGcsx+Q4QzJhmz3x2/
+         Lct1TSGHQSDE8JOIXhp+reWrlRUKzs6zOA5BuO/TQd2f8l2kG/bt63lyJj45yDcOYsU6
+         S5iEw0ihi1lTzwMm3KBa5GPGHNnAQddI1/qr0VIdaCpq4LurVXpHqR/R7lLS24E/3rUt
+         3y8w==
+X-Forwarded-Encrypted: i=1; AFNElJ+JMEJ3megAwxNjikjOlPtFBHBe/i79u9j10eTBdAMvikmBqpFNi2SVHSOmGpde9bs+njMVwCRmo8DFvZr7Yg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwESipi2dIwh+XDgSDktwzGcJvD3t1Fl9nPDcma7jcknbxhHiv5
+	DpKHgFRAV1q+Ki74ze+iVfeT6ZsQXADsNVoApSuzlW2EwGx7jRXaJnNHulCGuIKALfEXIDaAIzI
+	4m36Ca6xgDKtEPnknCf7DjFHhAwnC4pNxDIwNbE5PrQKTy7iMKiZDKK8mPmG7Q7I/tXjW
+X-Gm-Gg: AfdE7cl9E42iU/gIxjzgDeH5SeQwIeoBzI7tvLYldcQWIIDLLG/C8zSoSpniSIyfl6C
+	ILeiv3j0Meqql2KDGS6kRMCMNed7dGRD+1IZpAIxTFaeToH2ae9uJix3Yxl0q+ICOY+i+TUMVX9
+	bFUbJnpuWt4wW4Aj7PNPaLshxzacPit0QJqVeJv6L/CoD5OTpdROCiibXNgZcCnROwelrMaH1yI
+	bJXmjMwEsKskk+Z1qkkopZEXjBe3UTpuGW3T30uw9QTt9V2GepuJcZaENyS8gJ8mqghFOWRGx/N
+	bbN+kCu+oJiBslgmnoYTHKIMHAHahjBnQmXF6MT7iB2AYmMp13k0XRervbqb9TbtveG0gObGMtx
+	sm0N8Ay8so1oRgsa+OCPjIU0BdzzvG7FN
+X-Received: by 2002:a05:600c:60a:b0:492:68bc:3237 with SMTP id 5b1f17b1804b1-493c3cf8cc5mr31230655e9.32.1782965014443;
+        Wed, 01 Jul 2026 21:03:34 -0700 (PDT)
+X-Received: by 2002:a05:600c:60a:b0:492:68bc:3237 with SMTP id 5b1f17b1804b1-493c3cf8cc5mr31230455e9.32.1782965013999;
+        Wed, 01 Jul 2026 21:03:33 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-68-31.inter.net.il. [80.230.68.31])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-493c63b6f8csm11868245e9.11.2026.07.01.21.03.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 01 Jul 2026 21:03:32 -0700 (PDT)
+Date: Thu, 2 Jul 2026 00:03:28 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Alyssa Ross <hi@alyssa.is>
+Cc: Sergio Lopez <slp@redhat.com>, Chia-I Wu <olvaffe@gmail.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	linux-kernel@vger.kernel.org, Simona Vetter <simona@ffwll.ch>,
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+	Thomas Zimmermann <tzimmermann@suse.de>,
+	David Airlie <airlied@redhat.com>,
+	Gurchetan Singh <gurchetansingh@chromium.org>,
+	Gerd Hoffmann <kraxel@redhat.com>, virtualization@lists.linux.dev,
+	dri-devel@lists.freedesktop.org, Maxime Ripard <mripard@kernel.org>,
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Subject: Re: [PATCH v2 2/3] drm/virtio: honor blob_alignment requirements
+Message-ID: <20260702000144-mutt-send-email-mst@kernel.org>
+References: <20260428194450.518296-1-slp@redhat.com>
+ <20260428194450.518296-3-slp@redhat.com>
+ <akT1XEW766c7Imst@mbp.qyliss.net>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-X-QQ-SENDSIZE: 520
-Feedback-ID: esmtpgz:uniontech.com:qybglogicsvrgz:qybglogicsvrgz3a-0
-X-QQ-XMAILINFO: MrfJYRspGRl/w59Ftt3d+EsXVNW2qQ1SqIORpITpzWqdv0vgaFHqR9Y1
-	lJf7HleWsfkjLdCf6YEh+sKVoxE7w1HOYbTCyBcDWm6L2w5Ul4RJmOfRMAt4/bY1dC72hHK
-	Ek705+33RUdO+W+nV7JxFN7VcH/WmlI9Ws5715yEyvcNJjX0Eltqc5HwsAhvaS7vea9OQ7z
-	RarrAN8zoN3QqT+kQ9VQyfKw1fBFGI/FFV5sB4xwSESZ2+8Bu4zZ6dM3ChSObcdPWIu8HTw
-	WcXIxS9AGQdNwq/PVfmDFYa6eTzEjx7Dnz9K75neb/iXSS3BZSoGxDZE4RqQ3lpC67mBpLj
-	HmVq4+o+daEYolAVaF75fidE+Z8D98AfcZzIynOXfjN0RYl2nm08+tanRxswLhThIPEoX6r
-	IaZbRyZYJkzke6Pgv4oSritH+8SmX5No1wZ67CvNGGeq/XCUzIlO4+mur1hxAHskRVX3Sxw
-	YUDTVOjr5iClu3TFQf59+WyhkYXdYX9uMIXIQt70MaaFlyySNoZZzQFehl/l2lTxjggkBzC
-	mz7JdOiCrEl7UC5BVWLFaVRmg+AglDsYzjqQUukWamdz8EpXMe1z0m3q4HkgnE5Jl5++yFc
-	uruHei+yDzoHNmkOE1NNO+tDWfseo3Y5t1hhPyH0axtI3MmO7YvwrWsaO7HzEbk4UNO3Wgt
-	NTEAru9sK3b1Vo/6mk+z9qEIECuz0FAiGDZc6zVjatAvLcsFiyEnGNZlp4WqWKQXBMsAGlu
-	x+V8aLBpeaVuXm4riKTmyAFCTKLGlp5sEO5KZNNNHiPs5J09rsXcHNbR/akaSIb1OO+uVMF
-	RblXAAqLtBfdRz2gujQEFCPjnoMI1KCM2sHsqe3xouTkmO3bVnP/CIgVqavm2mAliQrSMn3
-	Eo6hw1PWo4HJ1HXiRlh78GNW+sCYglz7yremDcbpI+BzdC02sW2I0oradLVk9F69Tvzfwoz
-	8rMUgciaLWiHqyrnl0byq5qQRPKXe5NiurNUR13eRxVlDF18hdHE8GW01Jfc6mmD0pib1y/
-	q0pNfbREjVeX29cZHk8Pe2XH3Y7Ote+IIFH0bO7+CfdX5Y62BQ
-X-QQ-XMRINFO: Nq+8W0+stu50tPAe92KXseR0ZZmBTk3gLg==
-X-QQ-RECHKSPAM: 0
+In-Reply-To: <akT1XEW766c7Imst@mbp.qyliss.net>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: e0xQKJVbAfwX6nfR_gO82YilN3RSYHCCKsJlt-I6iIc_1782965015
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-vhost_net_test builds virtio_ring.c in userspace.
+On Wed, Jul 01, 2026 at 01:10:30PM +0200, Alyssa Ross wrote:
+> On Tue, Apr 28, 2026 at 09:44:49PM +0200, Sergio Lopez wrote:
+> > If VIRTIO_GPU_F_BLOB_ALIGNMENT has been negotiated, blob size must be
+> > aligned to blob_alignment. Validate this in verify_blob() so that
+> > invalid requests are rejected early.
+> >
+> > Signed-off-by: Sergio Lopez <slp@redhat.com>
+> 
+> FYI: this change breaks crosvm, which is squatting the 5 and 6 values
+> of VIRTIO_GPU_F_* with different meanings.  I've reported it as a
+> crosvm bug, so hopefully it can be taken care of there.
+> 
+> https://issuetracker.google.com/issues/529852979
 
-Recent virtio headers pull in helper headers that are not provided by
-the tools/virtio compatibility layer, including asm/percpu_types.h,
-linux/completion.h, linux/mod_devicetable.h and linux/virtio_features.h.
+Move fast and beak things, then it takes a wile to fix them)
+Do you understand who uses it maybe? Maybe if there's a PR
+for both sides it will be handled faster.
 
-Add the missing compat definitions and the DMA attribute used by the
-current virtio ring code.
+> > ---
+> >  drivers/gpu/drm/virtio/virtgpu_ioctl.c | 5 +++++
+> >  1 file changed, 5 insertions(+)
+> >
+> > diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> > index c33c057365f8..d0c4edf1eaf4 100644
+> > --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> > +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+> > @@ -489,6 +489,11 @@ static int verify_blob(struct virtio_gpu_device *vgdev,
+> >  	params->size = rc_blob->size;
+> >  	params->blob = true;
+> >  	params->blob_flags = rc_blob->blob_flags;
+> > +
+> > +	if (vgdev->has_blob_alignment &&
+> > +	    !IS_ALIGNED(params->size, vgdev->blob_alignment))
+> > +		return -EINVAL;
+> > +
+> >  	return 0;
+> >  }
+> >
+> > --
+> > 2.53.0
+> >
 
-Signed-off-by: Yichong Chen <chenyichong@uniontech.com>
-Tested-by: SJ Park <sj@kernel.org>
----
- tools/virtio/asm/percpu_types.h      |  7 +++
- tools/virtio/linux/completion.h      |  9 ++++
- tools/virtio/linux/device.h          |  1 +
- tools/virtio/linux/dma-mapping.h     |  1 +
- tools/virtio/linux/mod_devicetable.h | 14 +++++
- tools/virtio/linux/virtio_features.h | 79 ++++++++++++++++++++++++++++
- 6 files changed, 111 insertions(+)
- create mode 100644 tools/virtio/asm/percpu_types.h
- create mode 100644 tools/virtio/linux/completion.h
- create mode 100644 tools/virtio/linux/mod_devicetable.h
- create mode 100644 tools/virtio/linux/virtio_features.h
-
-diff --git a/tools/virtio/asm/percpu_types.h b/tools/virtio/asm/percpu_types.h
-new file mode 100644
-index 000000000000..4eb53d93c099
---- /dev/null
-+++ b/tools/virtio/asm/percpu_types.h
-@@ -0,0 +1,7 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _ASM_PERCPU_TYPES_H
-+#define _ASM_PERCPU_TYPES_H
-+
-+#define __percpu_qual
-+
-+#endif /* _ASM_PERCPU_TYPES_H */
-diff --git a/tools/virtio/linux/completion.h b/tools/virtio/linux/completion.h
-new file mode 100644
-index 000000000000..5e54b679721b
---- /dev/null
-+++ b/tools/virtio/linux/completion.h
-@@ -0,0 +1,9 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _LINUX_COMPLETION_H
-+#define _LINUX_COMPLETION_H
-+
-+struct completion {
-+	unsigned int done;
-+};
-+
-+#endif /* _LINUX_COMPLETION_H */
-diff --git a/tools/virtio/linux/device.h b/tools/virtio/linux/device.h
-index 075c2140d975..abf100cb0023 100644
---- a/tools/virtio/linux/device.h
-+++ b/tools/virtio/linux/device.h
-@@ -1,4 +1,5 @@
- #ifndef LINUX_DEVICE_H
-+#define LINUX_DEVICE_H
- 
- struct device {
- 	void *parent;
-diff --git a/tools/virtio/linux/dma-mapping.h b/tools/virtio/linux/dma-mapping.h
-index 8d1a16cb20db..b9fc5e8338e3 100644
---- a/tools/virtio/linux/dma-mapping.h
-+++ b/tools/virtio/linux/dma-mapping.h
-@@ -61,5 +61,6 @@ enum dma_data_direction {
- #define DMA_MAPPING_ERROR		(~(dma_addr_t)0)
- 
- #define DMA_ATTR_CPU_CACHE_CLEAN	(1UL << 11)
-+#define DMA_ATTR_DEBUGGING_IGNORE_CACHELINES	0
- 
- #endif
-diff --git a/tools/virtio/linux/mod_devicetable.h b/tools/virtio/linux/mod_devicetable.h
-new file mode 100644
-index 000000000000..3ba594b8229d
---- /dev/null
-+++ b/tools/virtio/linux/mod_devicetable.h
-@@ -0,0 +1,14 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _LINUX_MOD_DEVICETABLE_H
-+#define _LINUX_MOD_DEVICETABLE_H
-+
-+#include <linux/types.h>
-+
-+struct virtio_device_id {
-+	__u32 device;
-+	__u32 vendor;
-+};
-+
-+#define VIRTIO_DEV_ANY_ID	0xffffffff
-+
-+#endif /* _LINUX_MOD_DEVICETABLE_H */
-diff --git a/tools/virtio/linux/virtio_features.h b/tools/virtio/linux/virtio_features.h
-new file mode 100644
-index 000000000000..04cbb9622ec7
---- /dev/null
-+++ b/tools/virtio/linux/virtio_features.h
-@@ -0,0 +1,79 @@
-+/* SPDX-License-Identifier: GPL-2.0 */
-+#ifndef _LINUX_VIRTIO_FEATURES_H
-+#define _LINUX_VIRTIO_FEATURES_H
-+
-+#include <linux/bug.h>
-+#include <linux/string.h>
-+#include <linux/types.h>
-+
-+#define VIRTIO_FEATURES_U64S	2
-+#define VIRTIO_FEATURES_BITS	(VIRTIO_FEATURES_U64S * 64)
-+
-+#define VIRTIO_BIT(b)		(1ULL << ((b) & 0x3f))
-+#define VIRTIO_U64(b)		((b) >> 6)
-+
-+#define VIRTIO_DECLARE_FEATURES(name)			\
-+	union {						\
-+		u64 name;					\
-+		u64 name##_array[VIRTIO_FEATURES_U64S];\
-+	}
-+
-+static inline bool virtio_features_chk_bit(unsigned int bit)
-+{
-+	return bit < VIRTIO_FEATURES_BITS;
-+}
-+
-+static inline bool virtio_features_test_bit(const u64 *features,
-+					    unsigned int bit)
-+{
-+	return virtio_features_chk_bit(bit) &&
-+	       !!(features[VIRTIO_U64(bit)] & VIRTIO_BIT(bit));
-+}
-+
-+static inline void virtio_features_set_bit(u64 *features, unsigned int bit)
-+{
-+	if (virtio_features_chk_bit(bit))
-+		features[VIRTIO_U64(bit)] |= VIRTIO_BIT(bit);
-+}
-+
-+static inline void virtio_features_clear_bit(u64 *features, unsigned int bit)
-+{
-+	if (virtio_features_chk_bit(bit))
-+		features[VIRTIO_U64(bit)] &= ~VIRTIO_BIT(bit);
-+}
-+
-+static inline void virtio_features_zero(u64 *features)
-+{
-+	memset(features, 0, sizeof(features[0]) * VIRTIO_FEATURES_U64S);
-+}
-+
-+static inline void virtio_features_from_u64(u64 *features, u64 from)
-+{
-+	virtio_features_zero(features);
-+	features[0] = from;
-+}
-+
-+static inline bool virtio_features_equal(const u64 *f1, const u64 *f2)
-+{
-+	int i;
-+
-+	for (i = 0; i < VIRTIO_FEATURES_U64S; ++i)
-+		if (f1[i] != f2[i])
-+			return false;
-+	return true;
-+}
-+
-+static inline void virtio_features_copy(u64 *to, const u64 *from)
-+{
-+	memcpy(to, from, sizeof(to[0]) * VIRTIO_FEATURES_U64S);
-+}
-+
-+static inline void virtio_features_andnot(u64 *to, const u64 *f1, const u64 *f2)
-+{
-+	int i;
-+
-+	for (i = 0; i < VIRTIO_FEATURES_U64S; i++)
-+		to[i] = f1[i] & ~f2[i];
-+}
-+
-+#endif /* _LINUX_VIRTIO_FEATURES_H */
--- 
-2.51.0
 
