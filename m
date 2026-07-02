@@ -1,206 +1,193 @@
-Received: from SA9PR02CU001.outbound.protection.outlook.com (mail-southcentralusazolkn19013047.outbound.protection.outlook.com [52.103.14.47])
+Received: from OSPPR02CU001.outbound.protection.outlook.com (mail-norwayeastazon11023087.outbound.protection.outlook.com [40.107.159.87])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EE4D3360EF2;
-	Thu,  2 Jul 2026 17:48:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.103.14.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2D1F381E99
+	for <virtualization@lists.linux.dev>; Thu,  2 Jul 2026 17:50:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.159.87
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783014515; cv=fail; b=O6R3Y5JfEcbYKSDddKT4SPTVtR/fUNJ/RzkCVQp39Q2N+auCCVXfdRX0yMMLkVIYhiis/klAhqGwT0k1ECmkDC9sj0TB5D7u9ynNO6rQ5fLtOCBNe3pgHLqTRr9++IfTHrr88PGlbBkhEG+6nw0bXVMQRoi+DVl/f+md8j+nu3I=
+	t=1783014617; cv=fail; b=riszgEd4cPhQrRNS0kel7UHHAwy+PQPpLjtBL9nzOpFq/3vmKjiqO+ZdqKBfjyuM4JCa5M4veB5C4ANEVlhdPKF9g5q4RiEjNlP0VEX2yIWRbGRVJzxmZcYBkOICXC9vV7K2ErAns6vl91Czo6qiUDxB0PGeg4NgLixeZ2r5m94=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783014515; c=relaxed/simple;
-	bh=Jb0wOMLqFRBGYe1s+0DgahA0kTtcOf5OcrmY1EPL9s4=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=RHYgVJI5B/eFxZrLpmuX44ujoMFUVgppM/p4U/N6/kSUxobOV92L4cbUk9EaUtWHKzawiyJmJMRuqSjfRTgS4PzMmBWWjKK5vM2x0LUhSJs9rui+0i0QTNVtGRpImH0ELVIKP0zLZob3Wuprc9WK6TzBNzt3xSuej5TGpvs5UfY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=R7APknHl; arc=fail smtp.client-ip=52.103.14.47
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
+	s=arc-20240116; t=1783014617; c=relaxed/simple;
+	bh=S2DGmyD8HaYEnj5QRtT9VI+R0J2Ri5xmI+OhcdzhNvs=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=KrejsyenfeASPo6Pq7kkN52mj+Xi6w6iILj/ErZJWO3lE+j1iQeqUQ0wKvW6ExzBM2Di1SkjJvD/ULtCpJU44KbLlL+dfkYiDENWSb2Pfu/GYAyySuvpw8xJMwAeWxmvSD9leFyLpHMrDP56opMW7s8x+rQRd4P5u+OhRyHeHOA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=virtuozzo.com; spf=pass smtp.mailfrom=virtuozzo.com; dkim=pass (2048-bit key) header.d=virtuozzo.com header.i=@virtuozzo.com header.b=pN3IOWE7; arc=fail smtp.client-ip=40.107.159.87
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=virtuozzo.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=virtuozzo.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="R7APknHl"
+	dkim=pass (2048-bit key) header.d=virtuozzo.com header.i=@virtuozzo.com header.b="pN3IOWE7"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=ieEeUfKOgC00JIcY3PvHgwK7QYDQvGSCasQvpxg6c8IH7ncCF09epUR7IORg7pwa1yzjTTnRDBmQfxNAlUJEwsdHgcLJjkqYmnkt2tM3Ib2sXeUE80hbPZvhwjPzUTiyrpbnq7s1CKbp7Ux3T3unDi+ZLE/YFVdk+vFUHLDk2RadfBsfpKnnVVPsP2cxn9col1omt8zj0yHkoQH2oSs35Qh5ColbY5Y/wxCBZ3t/wla9l0nIV9Sl1S72iCdIk0Lev32HMOC5TsWSqOytSAcRePbN9PTZbS5N/TzFNmXc//HWZjSgGu6K/tHCn9ewIdHYdFcLSBhSKXMD/WUZ2a83DQ==
+ b=bM9AcExIa68y6IAMSw3OG3p/cpXTnJZpShwEkJtdqMSKPS590pLKox6tF5VMOrX8aFyK1niUaWGrh1uW7QDRlmleAWMQ0Ry7KbE2J2vZD2ceLvu6/OcXf05rGWrDhUIeITHDluAVq/K+8kvPz5uv1fNrV/5dv0jg9Nv+Q9v45qu+QNgJlOKcQ4Rey/1STJs4CjMjn8T6b3Wxlbc0oCJFG6cZ+qPpZGKcgKLMzNocPMagdsXY+Zwb2qro7VxNKRE5XvUdTm5p58gKGI6cm2pQqFAkXejRBefuUE1Kxz7IJi8Ebid7lnDw4XPZarjdGxEjezuKIsKacjYtbgngFoe1Kw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=NbBFbp/nzUuGrsjGnl+g4Yfp6IgxX5osOjXE0eNcIFY=;
- b=VG3s8DbNm0ylTYmmX0zWdJvU4dLxDOU8uW0u2fuPPDx4OyjnhCiyj1MRa7H4f2k9bvNQ2ewKmx5+t9xs3KQRKgZQ6SJQwzlBHF18ZsvWxeCqxe7YIY0QuPb1w6RqCbrFqVd2O+a7+IqIkqT1aOk7/jRTrhg5li9IYaaDrvhPZ6E8o1d9a6PNLM+JU53PI6iWh7RN6TiM+W4qjYFWdRR+BtJaH5rvbFL7IOfAH7oFmZ69xRhCB2YjzSfVbTBMAiE+cX7nGjcehn44Wn3UsCWa32Y9LcSooamEPMxfJwUL5tIlLyBF4mqfNnth0FxKFbhs9l9ZTC1jf4wEpDJ0pOPrdw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
- s=selector1;
+ bh=+v/0K4iz8GuiSRyPKdwFoC+fn2PHdEKvrH1DXXOMjO4=;
+ b=v642NlX0mZrrB9Q9KdWFDAO0QVkNp7f/4msUauFtfan/kdXZHc+rnR9l9OOSkndQ6VHIELOF6IfLjkHdQop7TcOZxkELvHWAoBkapnasa6hIk0NDBo4hNJkRiHRWWTd7o/OGGdcW0+/5/4p0ZZejgjfWGOHAxax1KiFmhTRAJo4URmb+N85YYDp2OojsZ2BT2RXPjB/ld5g6y7aO4LBkvdTvfx6KdDX8KK/2XZjRMnmy929VemzZg7Vf5oma18n/qksW9mzWHT7scTC1fP71qbwF3/p8xtarKy4WndRK5YIvd2EqmF2xgZ4RmKEfjM5/nAKmgx1gukMRNXsD8AINsw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=virtuozzo.com; dmarc=pass action=none
+ header.from=virtuozzo.com; dkim=pass header.d=virtuozzo.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=virtuozzo.com;
+ s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=NbBFbp/nzUuGrsjGnl+g4Yfp6IgxX5osOjXE0eNcIFY=;
- b=R7APknHlBYFtJGoVLN5EBazyu5cgiI9bcsty7hyFb13oOSvuxvDls2gyoPIlZoeVg8NV9phoaMsMu+B9P1EopBpCZkj5HWwoVxsljT1mDpn4Kf5ZzqPy0tmGbM18+HiAl9nwUgsmRYk1DV1LTMY9wJPCyHw9VPlOheU2/lGwhRgHw1HWbDGHaIKXEDzuoI2dWpifmqf1D3Vif4VxbG7t9tZg61ffJawpS4SI8cqcSz9yu0SdVxX6oqDdT9y7Oa1O66XNOi9q4SJG9eTLE4zDxgubRJquL/hQL7udfZNSZF0vpCSYtOojHpBjNPZv4dcOAao4yEogaDQsXAxc0YlmHw==
-Received: from SN6PR02MB4157.namprd02.prod.outlook.com (2603:10b6:805:33::23)
- by LV8PR02MB10144.namprd02.prod.outlook.com (2603:10b6:408:18f::17) with
+ bh=+v/0K4iz8GuiSRyPKdwFoC+fn2PHdEKvrH1DXXOMjO4=;
+ b=pN3IOWE7and48PqN0Osnun4P4b9P2NThnOJIj4L0r9vlQMD3bXbEOWAcJ/FBIF2yihJKGHTAZimrfLEgNvJ9ob+sDYO1U3JcXUVnAM9ItfDVpaDQXl/0cNGghnCM4TiFzo+LcX4Az9+1mYnRkSPoMpzfwrawRSd3ByoghEBDd4/R1eDEduE+2tEJVHgoaieZj0KMtOCz5kbsFIXL/vIp8TCTbm++OVuuAAq6JEytuMH7SArukpUa1r0jVmU2UK6bYZvhhSJJFt13+eyDWhkzkWZcs52wb1uxyWzf04mvRUNS0NHNXvtWcTuXr+9npa9QVHJ3jdTLhZJdu1rqq/O+eQ==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=virtuozzo.com;
+Received: from AM9PR08MB5892.eurprd08.prod.outlook.com (2603:10a6:20b:2dd::16)
+ by GVXPR08MB10431.eurprd08.prod.outlook.com (2603:10a6:150:15c::14) with
  Microsoft SMTP Server (version=TLS1_2,
  cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.181.8; Thu, 2 Jul 2026
- 17:48:27 +0000
-Received: from SN6PR02MB4157.namprd02.prod.outlook.com
- ([fe80::900:1ccf:2b1e:52b6]) by SN6PR02MB4157.namprd02.prod.outlook.com
- ([fe80::900:1ccf:2b1e:52b6%3]) with mapi id 15.21.0181.008; Thu, 2 Jul 2026
- 17:48:27 +0000
-From: Michael Kelley <mhklinux@outlook.com>
-To: Sean Christopherson <seanjc@google.com>, Jonathan Corbet <corbet@lwn.net>,
-	Paolo Bonzini <pbonzini@redhat.com>, Thomas Gleixner <tglx@kernel.org>, Ingo
- Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, Dave Hansen
-	<dave.hansen@linux.intel.com>, "x86@kernel.org" <x86@kernel.org>, Kiryl
- Shutsemau <kas@kernel.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, "K.
- Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>,
-	Wei Liu <wei.liu@kernel.org>, Dexuan Cui <decui@microsoft.com>, Long Li
-	<longli@microsoft.com>, Ajay Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov
-	<alexey.makhalov@broadcom.com>, Jan Kiszka <jan.kiszka@siemens.com>, Andy
- Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Juergen
- Gross <jgross@suse.com>, Daniel Lezcano <daniel.lezcano@kernel.org>, John
- Stultz <jstultz@google.com>
-CC: Shuah Khan <skhan@linuxfoundation.org>, "H. Peter Anvin" <hpa@zytor.com>,
-	Vitaly Kuznetsov <vkuznets@redhat.com>, Broadcom internal kernel review list
-	<bcm-kernel-feedback-list@broadcom.com>, Boris Ostrovsky
-	<boris.ostrovsky@oracle.com>, Stephen Boyd <sboyd@kernel.org>,
-	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>,
-	"kvm@vger.kernel.org" <kvm@vger.kernel.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "linux-coco@lists.linux.dev"
-	<linux-coco@lists.linux.dev>, "linux-hyperv@vger.kernel.org"
-	<linux-hyperv@vger.kernel.org>, "virtualization@lists.linux.dev"
-	<virtualization@lists.linux.dev>, "xen-devel@lists.xenproject.org"
-	<xen-devel@lists.xenproject.org>, Tom Lendacky <thomas.lendacky@amd.com>,
-	Nikunj A Dadhania <nikunj@amd.com>, David Woodhouse <dwmw@amazon.co.uk>,
-	David Woodhouse <dwmw2@infradead.org>, Michael Kelley <mhklinux@outlook.com>,
-	Thomas Gleixner <tglx@linutronix.de>
-Subject: RE: [PATCH v5 47/51] x86/paravirt: Don't use a PV sched_clock in CoCo
- guests with trusted TSC
-Thread-Topic: [PATCH v5 47/51] x86/paravirt: Don't use a PV sched_clock in
- CoCo guests with trusted TSC
-Thread-Index: AQHdCZB9X/lWZeCwrUy8v9Xjt7LqZrZagtZQ
-Date: Thu, 2 Jul 2026 17:48:27 +0000
-Message-ID:
- <SN6PR02MB4157453D405AB80859B12DF9D4F52@SN6PR02MB4157.namprd02.prod.outlook.com>
-References: <20260701193212.749551-1-seanjc@google.com>
- <20260701193212.749551-48-seanjc@google.com>
-In-Reply-To: <20260701193212.749551-48-seanjc@google.com>
-Accept-Language: en-US
+ 17:50:13 +0000
+Received: from AM9PR08MB5892.eurprd08.prod.outlook.com
+ ([fe80::94bb:633f:1f55:4bbd]) by AM9PR08MB5892.eurprd08.prod.outlook.com
+ ([fe80::94bb:633f:1f55:4bbd%2]) with mapi id 15.21.0181.010; Thu, 2 Jul 2026
+ 17:50:13 +0000
+Message-ID: <c18ed056-72f3-4eab-a370-c02b735e536e@virtuozzo.com>
+Date: Thu, 2 Jul 2026 19:50:12 +0200
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 0/4] virtio_balloon: quiesce balloon work on device
+ shutdown
+To: "Denis V. Lunev" <den@openvz.org>, mst@redhat.com, david@kernel.org
+Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+References: <20260624140846.2616797-1-den@openvz.org>
 Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: SN6PR02MB4157:EE_|LV8PR02MB10144:EE_
-x-ms-office365-filtering-correlation-id: 5bf48bad-71fc-4fda-a241-08ded8621f36
-x-ms-exchange-slblob-mailprops:
- qdrM8TqeFBvhuFgLLe5qs4jWk9CHdv0AYy8cQ/QUVhQUEcb7T5SCn14eOaFpictd8GSq+faiQenIYJC3hGGrRCyh+R4fFG3ungSx8vvHg6Tjppm2dQnX30ASlF2J96QIDukoKi+xo7ESP1SYnfq23VqRdmy4dlG1AImTkwtYVhea+dWishLk7ttaDW5e2MCVTeygprhy6mIjolk5/1ZkSCiLgGXo/7gwBvYMwpsk/fFicMxPgE1dL52nd/rhroAqmrRKfO+NNNgpZlYYEt2eDv5KwnzFeljrtJ3b6MadCUpbo6jUr6cKoQIKhKAQzjb++BfqdoPQWSANfgUv9sVrqwoNJFtrgJ0xG5h1yPAVKiYuNLEYW9ZbyML6iQU+b2tNL0uDDuwRReAvWedIRwzl2V0XzfR/JVqg8nGAj0sMpdrgdGvZmpt87zaFiUuILg0yDo8iTQRZ3MaGZcIh2sRuGfHJAlo6AU+LJWJoOqUgCyguuK/Zblb6CFmUxoDfAznroIyLhua0X/accY6iVlFXFEJJ/jdlNdan73cTEXblbhVTQbGEQbV/43vfoQopcX5g2ROdfHk3BJJweSzOR5U29C143Rh5etZR1sVjLbPSr4/ifndXV6afz5bxvfPGRxqRRrULlrDQYWa776RnE3r4cN84Q8De9cD6C6M0tpxkns64W++g7SC/15nyqLx03lOosuKPf31tAMBbtHUB/3Ev2QLp0nsFrqt8v/79G33kP2t0BfC0NZBRp0EGQoTcV2rCju4mAXp1g+O7/fbjSJnS7lWGyb1FRNMk
-x-microsoft-antispam:
- BCL:0;ARA:14566002|16051099003|51005399006|19101099003|2604032031799003|704163111799003|37011999003|13091999003|8060799015|8062599012|31061999003|41001999006|19110799012|25010399006|15080799012|40105399003|12091999003|102099032|440099028|3412199025|1710799026;
-x-microsoft-antispam-message-info:
- =?us-ascii?Q?5q25IsYCsTrASI9NXfU4P8ec+nkHfyWyOIdXMISJZkyJv0QJ7STvp5XcT1W7?=
- =?us-ascii?Q?/QKhsM5M3Miw6nR+GJ6iwocnKGOnuL/6RkuMyjUY3MpNToGlVOkxjLb+8nT3?=
- =?us-ascii?Q?+fFDQWdp/6r9O1Jc+EGvh2PUBXWRRqp28RUTSaXZNxmg4kFfaAvKzjbSFuTo?=
- =?us-ascii?Q?TqDqyzBlR6mdHcE5kz41tPHZiScYWwAhhR+IH8jMMREKrxVO0pdIuRfF2U3l?=
- =?us-ascii?Q?opBVxRkyjKFv7VXnnoOTPiBSlf6Oh0JMz5p5F3GWpYwCZcRNoyTGhk3Tuvzh?=
- =?us-ascii?Q?f+zyK+U2GLO2hhXDEjjmNdqg6ZJE/17O7gxDFW/j4bED5LKa1aPzDt2LifD1?=
- =?us-ascii?Q?PavW6l8RW/bmbbUPXpoMFkM1UjRXHf4R6q+A8uyeaUVUYTfEujzUvulKEWhY?=
- =?us-ascii?Q?lmhylgj8nZGoxzB4Mg6Db82p8IAvfqWRJHopDwP+2qKeX9sAEsEBoIXsgtX7?=
- =?us-ascii?Q?kj5UdvFVAI9F479/BOhDgRS9g01bef0+khEuvG95gNCWP8jh8vULlZThaSqo?=
- =?us-ascii?Q?9cjUoxk1uOWXSVQhdh1GSCCZwEiivnIv3WB+gf7lC1g7eKw8jDG3pKgSKgDy?=
- =?us-ascii?Q?XQRIqrWsh/+s/FhRUVEzJRiymsoRNQqnfR/YwuM57Dd33lP02HkKFsMfrc5Q?=
- =?us-ascii?Q?DZaavCwuekpRC9PUpiLvK/7QmyYuCBRh5D/PCK/SwvXRf58DNKFM72HZB9C8?=
- =?us-ascii?Q?d60fJGMNhaolO2amArN70YOnG9mdjpj2kGAD7Xu8m/p0qtBLXvW4/DPWrAuN?=
- =?us-ascii?Q?lmdf4lv8h36ypDREoeUYLgJcJlLy/JsmRGKaGUj4GhRRl1u8MYs6I05wjcHI?=
- =?us-ascii?Q?WvfocHk38DfI1bMfRXe3rXkPDXenVW6WgaV0badRV7kxbWsEUoHt1Rhh7Sbf?=
- =?us-ascii?Q?keTVebboyDJqEh+q1dh1RjWbX2LHTW3shgPTEenOVvu16/SADvIMwRV1SthY?=
- =?us-ascii?Q?yPYEBgnTjbsVTl9dmWaSw16Giy4xdtrHNYOXe8/FOzN7ZLjlfRvxwExp/WBA?=
- =?us-ascii?Q?HCOE4TrHVGz0CcQ4T5dPSHolsfLYmeKIDvaqbExVwEq6Scck1/x8rhQWXsoX?=
- =?us-ascii?Q?N3HXqjHt5BoNS4vFRJNJO1gmxRtBcsfeeQkZsvKPSWirB/oKkKQxPdiiTYVx?=
- =?us-ascii?Q?3Ep2Ifg1ZvbXynIkGkm5HIZK7kEmQIodZLFwYFmCKrAXnDBqz6AxVgMwO80x?=
- =?us-ascii?Q?kYOb8ZVrEng6XqO7NM7f3GWeHViBVsmUDrJ7gw=3D=3D?=
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?7ZODV6s9+KgwoUB9aH93lAXzLBMUrLUPS6UpHgZTToRjFFPgYrhYHnGagxox?=
- =?us-ascii?Q?z5xnafvLdobfSsJY9UmQbFDepqNijntrvvz9mJ/2aor1u0ClTVJFtHVzuPMa?=
- =?us-ascii?Q?eVR0QU1Ex9kgHxXryv9nlRbKaVVsv0I9Ao12/ePQRyzD4TmOG65wwEGqvLge?=
- =?us-ascii?Q?Nbd2MrQI9qX4j5MS0kzCCXLdvj0AIWY1yK3fcLBPoMIcYgnikE9M9SRSvXCp?=
- =?us-ascii?Q?KIvQqwobbHXjb+hClkOz4blrKqZE+0eijqFqYVji15kEAZ+D3hU4WLi0Y40L?=
- =?us-ascii?Q?9pwn1kfnIBAHmxoThDW/Y4vso5XmizuweJbViqyycyq3Md+d8oRCvBr4WaBk?=
- =?us-ascii?Q?tJIcrjjJnNnB1iSmx17WQ6Xf7snGDPLfbCFRIQH5bCpAca0rHsySxFwLL6C4?=
- =?us-ascii?Q?Kz1b6DAGMHvGzRa+4vf+KLp4jCGH00ieS9scORtZutlhZWmFh3K07vqywkMp?=
- =?us-ascii?Q?8XIO1YKikGOXuJTWa9c0+XRBZlHZJtfASPJ7FHfVDectRzVWdUYOS2x9kfuj?=
- =?us-ascii?Q?qBPwsXEylWkjWW8hKm3W5z5jVVfKdICUbqeum9S2nFDkltjMAUoDZcKPg+hZ?=
- =?us-ascii?Q?GRvgfD5shKwi0tVO4BR657VS5yHHmaDjxHi03txTRzckmEWLpps3ep8kM3Hl?=
- =?us-ascii?Q?BvbNuptg4i0r3setc4pHerG9YbaOhtc5jGL6pA85bLOw3kgONsAzlIDLd/0p?=
- =?us-ascii?Q?FbOEMHbixneKp451NYZ+D7ODJyI08ydYOGv2lwUTmWCkVCffLeDIbfB8/IZi?=
- =?us-ascii?Q?D/NzRZu4OZm+49Fmnml69sq8z79Q1jROgKiKSdYfDpjh+7BhScgrq9JiXcvQ?=
- =?us-ascii?Q?9pKcto81Te9x9HCYf4gelvZ8oL3SPam2fV2N621arFvM1gphFNUxivUucnWM?=
- =?us-ascii?Q?NeLzFim7/IQFP2WM0n2EMfk+qwGY09T3Aw5Rt+2o+QWyeYwjeSQ8r/6+8RwQ?=
- =?us-ascii?Q?jyTyfgi8YHhdSoe+weDeCFNj27v9HMzk5WOulPd3BnlkGd2jLsuVQYDSFe1G?=
- =?us-ascii?Q?VIOv0JuLrxnBENW3AOQzgq3kt7bZS9EbVr5Kz3esENIJaX1bk2ff5fKi2mWZ?=
- =?us-ascii?Q?L9UeJcI81yWWpQY2uumolT/EJwNxRXViH5VlUgr9q2r3BCw/l8AT+aGyH2UU?=
- =?us-ascii?Q?MRZgCf4h+ssxwRiddWTLXvwv3Jzj0MM8wZidGxhEeWHfAh8OlhOK1oOtj/yS?=
- =?us-ascii?Q?QBWyD6Qjn2dV4IGzcJb47teDLTv4873vJhGIzD2CfUKnpYT+U8aQxrI452q8?=
- =?us-ascii?Q?miyTh8sSu+2SESot8bC3VX6aHBvM/zuCAOC0xmBKyYR3FrwTjAmzeymOF9HG?=
- =?us-ascii?Q?ftisthux+koPRFIisQZ5TyogjMEGb0FEQmPFh/s/e+JT/h5xCsOeZDuBJywh?=
- =?us-ascii?Q?wZSjFIw=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+From: "Denis V. Lunev" <den@virtuozzo.com>
+In-Reply-To: <20260624140846.2616797-1-den@openvz.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-ClientProxiedBy: VIZP296CA0014.AUTP296.PROD.OUTLOOK.COM
+ (2603:10a6:800:2a8::13) To AM9PR08MB5892.eurprd08.prod.outlook.com
+ (2603:10a6:20b:2dd::16)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: outlook.com
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: AM9PR08MB5892:EE_|GVXPR08MB10431:EE_
+X-MS-Office365-Filtering-Correlation-Id: da162720-0ee0-4e42-0163-08ded8625e29
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|10070799003|366016|23010399003|376014|1800799024|56012099006|18002099003|6133799003|22082099003;
+X-Microsoft-Antispam-Message-Info:
+	3kx64FiKM7fqNJAI85U21tSVQ7DHhBTsV498i0ehLcOZoL8qTxJTeTu85/q54ogEp5IiAOjdcza1vBmFLLyE9wlk352AQaduIbNvp2/Sf1O70XuQrTGfyrPCPHFtiAOlvBPoTBZI/FxcSrd90Ta+UT4/WBSsC8lc7muYNp6f0rj13eq6QMb9P0+xkl7orBZMyxfqx9VbLEKDNqBNAcOz5NCm1BjUQxqShogU0y5mxgePxdtBg21kiF63yZJqhZez0NVz5S4tH6kjJONXDX5cklUeGwribSB+8pKbgYiJ5EOxm9QZWLAaHKUZ0spaxa+lOpmoKnXVa+pvBSlgbkgS+/IOFYH7FIgxV30RKKzMIgWIjbo6b2MgGosa6U+NH37tap8lPRsanIOqvhjh4DMYX5e9L0HrMGRmMkjDa3ZZN/suWNdil1OYSyFv2/7jyZMn0iaz/x5Lq7Tm+NZxzpQ0zCOmUh7junWJQTN2+5iixuhu0Ly6LO6zqFiNmJ055o0/dlc+kXWye2XYV8yZbi8TNzgnDFUGToYbKrU4Ja2j2i7aGdeNlKUYlEobnVebD18acuk5U63ziNVD/T8sL0aViey2se52Gyj4m9HGxApSztZ0647LQ4nZ8g7wnR3tM1LvwcUIJ6hW3cwjS9Ke/1Ycn5s6VfSjJrJOCm2CuZyRu6k=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM9PR08MB5892.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(10070799003)(366016)(23010399003)(376014)(1800799024)(56012099006)(18002099003)(6133799003)(22082099003);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 2
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?MUlxT0N1a3BVbnNUbHJqMy90Vmx3TFJNNXFyOGYvYjdwdTRBR0h2MnN5THJY?=
+ =?utf-8?B?Y2hOMkVNQWYxTzJ4UTJHU0NlazRtYXQ5SkdNUEhkc3V3WG01NGN2RmRwcFkx?=
+ =?utf-8?B?ejcwZ0V4VmFKakR5blluZ1pCZ3FkZEk5eHlGRHNpSFk1amNSRVZBNTBrWHcz?=
+ =?utf-8?B?TGxlVTJQKzBTOVplYzk3cS9mMXhSakFhNXNVTmhGN0FqZXFFSjFYeVFweHAx?=
+ =?utf-8?B?V0RaYXM4SjZ6OWY3WG5aZVI1RGhURUphUU5iQ0tZWjMrbzJqUEpvUzBWcFRG?=
+ =?utf-8?B?Tm1RemFmbHdiVFFLUWpJSDdVWUgwZ1hsaC8vb2ZBUGRSWWExemZqaDlzSHNF?=
+ =?utf-8?B?SGd2cTZOV2tFQ3hYelNIL1ZZNzVPaGJNbEEvTjRGOHhHaWtIQnErS3k0U1pW?=
+ =?utf-8?B?b2lyOERXeVpYUFlyRVlaVVNrNnhEL0RSUFJWSUljbGR5aExudjhPMSswVjhv?=
+ =?utf-8?B?RjNMMHpGZ09sVFBuYU5jV0pPeHV6SXZxUXg4NDYwRkxSSFA5ZTR5MUhGdmJu?=
+ =?utf-8?B?cWNUMG5CVm5ESGtoSFdOOVErWjRnQjJjcWpwaVJtK2ViaXZieWx1S1V0dWtV?=
+ =?utf-8?B?OHdXQ1c5S2hIVExxSzdCR3Y1U1VlNDFpbGc2ZktxeDhERUVTa0xxMzFOZXNL?=
+ =?utf-8?B?NFpJcUF6ZzVlSmROVldwUk9PdHVVOWFFQXNjUWNpazhxNk80azJkbnJtanQr?=
+ =?utf-8?B?SjNIamtuTVI0QjVvTTVmNGVrdnhmRk1NajBTRjFkYU1GYVE0dm5Zd1cxdmI2?=
+ =?utf-8?B?YWRVcmRRTVNaeEtDQlkwaFRuZkJMOWE1S0ZJMW5pWjBNazBjengxT0hmU3dh?=
+ =?utf-8?B?TndWbFhwWlFKdXUvekxoTFJMVFlacitEU1kwczBvN0xVRng3Y3I1R1JSWFQ5?=
+ =?utf-8?B?ZU00WUFrc0swa1hUSTA1YzFCR09kNWNDM0xkRzMrOGxRV3VURTRVd2R2S2FJ?=
+ =?utf-8?B?V2lkUEd2c0dTSWR5Y3JianZGdVF4RndtQW9nRDF2Y1lNbUtKRVFvMlhaSUpo?=
+ =?utf-8?B?NTlXWVlwOUpMTy9pbW5vakFkNEljR3pGWmtDVkZmRC9SWDVVdzN5aiswbUho?=
+ =?utf-8?B?Q2MrejhIaEdITmN5Y3RaVittTDBFanplaS81SzNETlJEckZobnUzVnFERXlw?=
+ =?utf-8?B?QTgzUWRaRWcrWklWNUkvQ0t6RjJxSnhkdy9COHQ5clUybnVuRHJXUkg5dEdJ?=
+ =?utf-8?B?cGxxR2tianc1Y0NLVnFRZEliZjhNLzRQNkhMYVYvd1dLaWFJRDlIdUFRY2dv?=
+ =?utf-8?B?OEtlcGpJTmFDc1psZ3VkOHM0UEh1UUhnUFZFVlMvY2JESWJxc1FzNStGWDQ2?=
+ =?utf-8?B?RW1VRUc3SHQva1lyR0NHZVora1o3cHZST1ZIdVliTXArOTZJazUvbmNWbVhE?=
+ =?utf-8?B?RGcvMXlmVnNVOCtKR1pQakNVZVIramRUSFZaWmdCYjRUZTAxWHJjMXBiQW5I?=
+ =?utf-8?B?REt0a1hSTmc5azB1dityTDRWbWZtb21rckI1QWtndXJPeGkzY1NPZHBLanRz?=
+ =?utf-8?B?L1BhNzJ1a0VrSEtIS3I0TU1qK2ordEtVa2k2am5GWUlnSi9vRUtzMDA2Wk4z?=
+ =?utf-8?B?RThPV3U1WjNINldDOGxMbEF6ZlRTSTRaYVlZeTRJS0VjajhYd2ZqM2RHTnl0?=
+ =?utf-8?B?VWZxSlhwVGxFZDlaaWU1QUVoL010T3QzUEVTcmVvazRleW5HV2l0cmpVOWV4?=
+ =?utf-8?B?ZWFpTnJrV2ZJSDBUeUVMYzljNGtVNlpZdHo0MG8yQnNSWUlmdDV4cGc0c050?=
+ =?utf-8?B?WlUrV0NybVNic080aGw2Wis5RzFlOVB2N0FjVzB2UktacGt5dHlWQjZzZ0o2?=
+ =?utf-8?B?Wk54dFVHY2RzMU9aNjU0US96U1dFTmxFblk1SDVxRkdFM2dTOFdvayt2eVl2?=
+ =?utf-8?B?cWU0cFRYQkJYZlVKYkNZaWI4bGozTzVSRWw0TTAxT2dxaVpDWU4zV3lhK2wx?=
+ =?utf-8?B?SVh5NkNGQUZCVFdoc2lSU0R2WTlJeEZ1THRWUkVwNDArVEt0U0FnOTdIVWc5?=
+ =?utf-8?B?UnVYKzJpNE5zNmFZUVhpUk9LRXFBbGRCQ04yQm9CeHZFSHJUeGNpQmViNmN4?=
+ =?utf-8?B?cUZqSGNCT3NCZ1BYK01wTHFZWWtpN01oYWtLRDRqTTB5dmVpSUZobjErTWE4?=
+ =?utf-8?B?eG43eDQrUm1MWUJTS0J2OFJHQi9MRC9HTTZ1aWxmTW41cUt5NFdRUW96UjM3?=
+ =?utf-8?B?dEEza3ZEcUN3QjNrMlJtSDJQWXNPQnRwU3k4Z2lkRkNEOWs3eW9wVUErZ29s?=
+ =?utf-8?B?SkttMDgwSTdod055VkduZmNMVml2M3ZhemV5OWowZnZlRjNTZ3JnZ3Q3T2N4?=
+ =?utf-8?B?VXkzZGx2bzNPMGY5MERlMzdhRkhXNW9qOEtMSkZPTzVZVEovQXJPdEFqcXl3?=
+ =?utf-8?Q?qmyR+5q43dTZkph6f/joAs4bYcgVq+Gf9OO88EtbljFWW?=
+X-MS-Exchange-AntiSpam-MessageData-1: LOm5lVx/wLemZQ==
+X-OriginatorOrg: virtuozzo.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: da162720-0ee0-4e42-0163-08ded8625e29
+X-MS-Exchange-CrossTenant-AuthSource: AM9PR08MB5892.eurprd08.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: SN6PR02MB4157.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5bf48bad-71fc-4fda-a241-08ded8621f36
-X-MS-Exchange-CrossTenant-originalarrivaltime: 02 Jul 2026 17:48:27.4623
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 02 Jul 2026 17:50:13.2330
  (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: LV8PR02MB10144
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 0bc7f26d-0264-416e-a6fc-8352af79c58f
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: BI3apd+6EaOUy20ifUm2UHxJVeTQ9j1eLhZbEfzPRw6z47ye1nDojxTKspJBlQ9y8d+tgmb/aFYNAzwKQHMgyg==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: GVXPR08MB10431
 
-From: Sean Christopherson <seanjc@google.com> Sent: Wednesday, July 1, 2026=
- 12:32 PM
->=20
-> Silently ignore attempts to switch to a paravirt sched_clock when running
-> as a CoCo guest with trusted TSC.  In hand-wavy theory, a misbehaving
-> hypervisor could attack the guest by manipulating the PV clock to affect
-> guest scheduling in some weird and/or predictable way.  More importantly,
-> reading TSC on such platforms is faster than any PV clock, and sched_cloc=
-k
-> is all about speed.
->=20
-> Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
-> Signed-off-by: Sean Christopherson <seanjc@google.com>
-> ---
->  arch/x86/kernel/tsc.c | 9 +++++++++
->  1 file changed, 9 insertions(+)
->=20
-> diff --git a/arch/x86/kernel/tsc.c b/arch/x86/kernel/tsc.c
-> index 012321fed5e5..a146fc7b5e74 100644
-> --- a/arch/x86/kernel/tsc.c
-> +++ b/arch/x86/kernel/tsc.c
-> @@ -283,6 +283,15 @@ bool using_native_sched_clock(void)
->  int __init __paravirt_set_sched_clock(u64 (*func)(void), bool stable,
->  				      void (*save)(void), void (*restore)(void))
->  {
-> +	/*
-> +	 * Don't replace TSC with a PV clock when running as a CoCo guest and
-> +	 * the TSC is secure/trusted; PV clocks are emulated by the hypervisor,
-> +	 * which isn't in the guest's TCB.
-> +	 */
-> +	if (cc_platform_has(CC_ATTR_GUEST_SNP_SECURE_TSC) ||
-> +	    boot_cpu_has(X86_FEATURE_TDX_GUEST))
-> +		return -EPERM;
+On 6/24/26 16:08, Denis V. Lunev wrote:
+> This email originated from an IP that might not be authorized by the domain it was sent from.
+> Do not click links or open attachments unless it is an email you expected to receive.
+> Since commit 8bd2fa086a04 ("virtio: break and reset virtio devices on
+> device_shutdown()") the virtio bus breaks and resets every virtio device
+> during device_shutdown(), i.e. on reboot and kexec. virtio_balloon has no
+> .shutdown of its own, so that generic path runs while the balloon's
+> asynchronous work is still armed: the free page reporting worker, the
+> inflate/deflate and stats workers, the OOM notifier and the free page
+> shrinker.
+>
+> Once the device has been broken, virtqueue_add_inbuf() in
+> virtballoon_free_page_report() returns -EIO and trips its WARN_ON_ONCE().
+> On a kernel booted with panic_on_warn that turns an ordinary reboot into a
+> fatal panic in the middle of device_shutdown(), so the machine never
+> reaches the new kernel. The inflate/deflate and OOM paths do not warn but
+> are no better off: they call wait_event(vb->acked, ...) and would block
+> forever on a queue that can no longer complete.
+>
+> This was hit in the field as an intermittent failure of a virtualization
+> cluster upgrade: guest storage nodes were rebooted via kexec into the new
+> kernel, and the ones whose free page reporting happened to run during
+> device_shutdown() panicked (the guests run with panic_on_warn) and never
+> came back, stalling the rolling upgrade. The crash dump showed the WARN at
+> virtio_balloon.c:216 in a page_reporting kworker, with all the balloon
+> virtqueues already broken.
+>
+> Validated by churning balloon inflate/deflate from the host while
+> kexec-rebooting the guest in a loop under panic_on_warn: the unpatched
+> kernel reproduces the WARN within a couple of cycles, while the patched
+> kernel survives many consecutive kexec cycles cleanly (12/12 in the final
+> run, 0 WARNs). checkpatch is clean across the series.
+>
+> Changes in v2:
+> - Add a virtio_device_shutdown() core helper and call it from the balloon
+>   .shutdown handler instead of open-coding break + synchronize_cbs + reset
+>   (David Hildenbrand).
+> - New patch: make tell_host() warn and bail instead of hanging if a buffer
+>   add ever fails (David Hildenbrand); kept as a separate patch
+>   (Michael S. Tsirkin).
+>
+> v1: https://lore.kernel.org/all/20260622133715.3707707-1-den@openvz.org
+>
+> Denis V. Lunev (4):
+>   virtio: add virtio_device_shutdown() helper
+>   virtio_balloon: factor out virtballoon_quiesce()
+>   virtio_balloon: quiesce balloon work before device shutdown
+>   virtio_balloon: warn on failed buffer add in tell_host()
+>
+>  drivers/virtio/virtio.c         | 41 ++++++++++++++++++++++-----------
+>  drivers/virtio/virtio_balloon.c | 40 ++++++++++++++++++++++++--------
+>  include/linux/virtio.h          |  1 +
+>  3 files changed, 59 insertions(+), 23 deletions(-)
+>
+Hi, David!
 
-Do a pr_warn() in the error case? Your commit message says to
-do the ignore silently, but I wonder if that's a good idea. At least
-for Hyper-V, the error case shouldn't happen.
+Is this good to go in? I have not seen the confirmation that the
+series is taken into your tree.
 
-Michael
-
-> +
->  	if (!stable)
->  		clear_sched_clock_stable();
->=20
-> --
-> 2.55.0.rc0.799.gd6f94ed593-goog
->=20
-
+Thank you in advance,
+    Den
