@@ -1,52 +1,56 @@
-Received: from mail3-164.sinamail.sina.com.cn (mail3-164.sinamail.sina.com.cn [202.108.3.164])
+Received: from smtpbg150.qq.com (smtpbg150.qq.com [18.132.163.193])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2DCE3CF02B
-	for <virtualization@lists.linux.dev>; Wed,  1 Jul 2026 23:45:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=202.108.3.164
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 73D242DEA7B
+	for <virtualization@lists.linux.dev>; Thu,  2 Jul 2026 02:21:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=18.132.163.193
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782949548; cv=none; b=ZEN4y606DyZc1OZ4gvkEzguIXd4emYsu/KLwJ8kB3lQgxDs4l3BUMFWFYkRs1IkyuLLDxJvQ7omzuoXnXJloZ4FBS7QfyyKUlpKKiyV1aVi9vpBDZV6a9k1j31gPipv/tvdu6gb++v/8Qx+qTeyNcnDKNqc27f5YW1PeRYf3LgQ=
+	t=1782958892; cv=none; b=kSp8r7Z0vYG4sjdudiK3tecJgUi/yI4MP7q5kKpNasYTWFUNonU6SCtQYbFnKaiGPBqWbDQ/jFlE0KnBfyhlWT4hwqG9zUx9map0gJ5bYG0DPJhMIZ3YzbZOBIdFpQuC7Iww75Fg9O4fElzaLTqee6iFJf5CNOPnBJlui4RHaLg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782949548; c=relaxed/simple;
-	bh=yCY1ZQ4+Oy4DwpOkJs5s9wVPlWFSgUreezLQhSyNDb4=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=hSEfoUG3nHHSCOytw3TobNDdj5EU4v82I0MsODn5aODaJEhSUDODLDRv7JAeT6lJzWINKS6LmoeqoaiRj02rO99iEPvdt3NHu2it2McuXUDd2bUgt8oW8wMF64kMtBxoGmPaNGVc7iHpZyPN1Eb9W1K7eWLQNlRHPbQjJjrt1eU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sina.com; spf=pass smtp.mailfrom=sina.com; dkim=pass (1024-bit key) header.d=sina.com header.i=@sina.com header.b=scNntZUO; arc=none smtp.client-ip=202.108.3.164
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=sina.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=sina.com
+	s=arc-20240116; t=1782958892; c=relaxed/simple;
+	bh=2Ndl/mRuVtdCs70NpAmZsm/XnxGCp953NlnHqmYAZKY=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=NwVPb3NEv7ZlYnGrU2qIj7mvdrnBlGPnEdXL/hcGFfe645L4g/pp2C96RsrtVpBthBuP+F6Ar14Hhng0pxzpuUwc0cH6F7/klUfTSk6YGi8M4G9zOrDViazVUCrnQzMFi1Boi9yhTmRiKS3T/fN+ACkJNChKhHYBXJrRahrDMqI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com; spf=pass smtp.mailfrom=uniontech.com; dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b=PzLDD4x5; arc=none smtp.client-ip=18.132.163.193
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=uniontech.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=uniontech.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=sina.com header.i=@sina.com header.b="scNntZUO"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sina.com; s=201208; t=1782949544;
-	bh=xQ23ltzGIx0al3TzodxktcL0AEOqsC47kRrB7dugiMI=;
-	h=From:Subject:Date:Message-ID;
-	b=scNntZUOYAvW4HU/7qpjqHmHZVBzOd3PkqxzhJd0b2dxFHe85iwVwItSxmA6CxcWd
-	 ZbPBIQYZe4KH4D7Xga7FGGTUDtBptHjJ7KyG34mGR4SBOcaS8P4e/tJyLD1kLnSOn/
-	 rQP3/A/HMclBlDrFgh/Gerzyi4qErz6/aptppOk0=
-X-SMAIL-HELO: localhost.localdomain
-Received: from unknown (HELO localhost.localdomain)([114.249.62.144])
-	by sina.com (10.54.253.32) with ESMTP
-	id 6A45A60F00003880; Wed, 2 Jul 2026 07:43:14 +0800 (CST)
-X-Sender: hdanton@sina.com
-X-Auth-ID: hdanton@sina.com
-Authentication-Results: sina.com;
-	 spf=none smtp.mailfrom=hdanton@sina.com;
-	 dkim=none header.i=none;
-	 dmarc=none action=none header.from=hdanton@sina.com
-X-SMAIL-MID: 6550824456920
-X-SMAIL-UIID: DBFA2DA1DDDE481C94AB2F6835CD65D8-20260702-074314-1
-From: Hillf Danton <hdanton@sina.com>
-To: Ryosuke Yasuoka <ryasuoka@redhat.com>
-Cc: Dmitry Osipenko <dmitry.osipenko@collabora.com>,
-	Dmitry Baryshkov <lumag@kernel.org>,
-	Javier Martinez Canillas <javierm@redhat.com>,
-	dri-devel@lists.freedesktop.org,
+	dkim=pass (1024-bit key) header.d=uniontech.com header.i=@uniontech.com header.b="PzLDD4x5"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=uniontech.com;
+	s=onoh2408; t=1782958866;
+	bh=2Ndl/mRuVtdCs70NpAmZsm/XnxGCp953NlnHqmYAZKY=;
+	h=From:To:Subject:Date:Message-Id:MIME-Version;
+	b=PzLDD4x5ffXEY8Ef7S6xbH5EuxhzZnOuzE8qUf3yQgTlwOq8xdrxGjLZZ9m6gmiw+
+	 U4wIfppI/JwroMZa3AneASPNXgJw8LhyfgHCIu8s+vTi1WA+tpN6Ff1bURGSY9hhjH
+	 D4JHqUJKGeyq4yb4ZwaDh4z5K4OhadnHAtpah128=
+X-QQ-mid: zesmtpgz8t1782958847t5911ad0a
+X-QQ-Originating-IP: TIqPUYdNphPiOHUZ09zuMwgfWlNYp6TE1cknZU+QQU4=
+Received: from uniontech.com ( [113.57.152.160])
+	by bizesmtp.qq.com (ESMTP) with 
+	id ; Thu, 02 Jul 2026 10:20:45 +0800 (CST)
+X-QQ-SSF: 0000000000000000000000000000000
+X-QQ-GoodBg: 1
+X-BIZMAIL-ID: 17772042891314411197
+EX-QQ-RecipientCnt: 12
+From: Yichong Chen <chenyichong@uniontech.com>
+To: sj@kernel.org
+Cc: akpm@linux-foundation.org,
+	chenyichong@uniontech.com,
+	eperezma@redhat.com,
+	jasowang@redhat.com,
+	linux-kernel@vger.kernel.org,
+	ljs@kernel.org,
+	mst@redhat.com,
+	pabeni@redhat.com,
+	rppt@kernel.org,
 	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] drm/virtio: defer hotplug event from dequeue worker to avoid deadlock
-Date: Thu,  2 Jul 2026 07:43:00 +0800
-Message-ID: <20260701234301.361-1-hdanton@sina.com>
-In-Reply-To: <18be2016e26ade27.a6e9e2496bc1f978.9bc3a62421115997@ryasuoka-thinkpadx1carbongen9.tokyo.csb>
-References: 
+	xuanzhuo@linux.alibaba.com
+Subject: Re: [PATCH v2 2/2] tools/include: Include stdint.h for SIZE_MAX in overflow.h
+Date: Thu,  2 Jul 2026 10:20:45 +0800
+Message-Id: <20260702022045.306377-1-chenyichong@uniontech.com>
+X-Mailer: git-send-email 2.20.1
+In-Reply-To: <20260701133503.41823-1-sj@kernel.org>
+References: <20260701133503.41823-1-sj@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -54,56 +58,33 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
+X-QQ-SENDSIZE: 520
+Feedback-ID: zesmtpgz:uniontech.com:qybglogicsvrgz:qybglogicsvrgz3a-0
+X-QQ-XMAILINFO: MDN2VRNR2P4wXuzwOC4l+Prg4QUbovmX//y16PaF0AX1eeHC5Fz7Vzf+
+	7waGoNY07Wx+lGVzKX4OB/JCi3am1f0MRRpr2v1GXST4riszv/HyMGXSFWRTpRrl8nBuhyV
+	BdJImeLyEb1aZr4OwuBncuUkX5Nnk6tSYAjMBxiWEjM9G2mbtGRuhex1jK37lhFnx5Ogh/j
+	QW4VvlLnSfuEXGZcm1Kt4+UXdBJqThxplWvBZ/sO6ElIZ6va8hnW40vIN+VGD/P8cU67PU+
+	sSB+c6uPPrvJ+FIowJ8bFaQzPfyujNuU774EgBy9z+weuFwgxCF8HMe0vnIHmPvoDTwt893
+	PaZDCcAjlZQUuzXgq+jFiza3lWp22OVJV/HOSfNAoISe8znG2Oypn8b94LFRuFw/4jJEJ/r
+	16Zn6ylEFkyRvAd3GLgd4wyqtsQybyS3tpZw213wdlo3ZoozT3SZePVg11+aIZ5MJ+NweCF
+	hX+Yo3WJgiDIOfErRoXgf6JP82YT6zKoIre0bm9ONQ/LHpPkpU7VjcwSsFj5DxFsNE2omLP
+	UwCk49tNVTYn/eHnBqFo2VTYQWLMl7bXw+Ua8Ao668HGq6mQiIaV4r9f3INKo9HCl6wCjd6
+	wyRTr3QLyG5SmzYGAAQ8y0Fz4iui/I8CFg+gE5Dzrt5vVxMyQOpHRR3eMM4sSGd+mcUlYQL
+	Z0SPldYUU1cJTcaMJhRqHXigTslr3njmpDteOVSXRFDOvifwYTokQSG4XpI5cWZvctzDxCP
+	G/RfQabQnIKWLkRm0SPFfM8dbfvEsF1GUoZEBXCUiqHdFt1k0Jdd4YTbyQOD7HG747ZtMIW
+	C/j2SYernb8y2hRVDRRR7GLe5p+B7JO5XHaPd8dhh1h8LGsTnXvfdxlchuD5pEU6z3xPW38
+	KUC2yaMmNMEdrq4pbP6NqXcqG5FueZveu9RSGhUNQ6UrMC94IDayrPh2juy6xycVw1bOcmO
+	ZFoN8DpDu00+5CV7QvBTtj/7tREt+74vNbfoAKW3yfv4yQwrtvlyMSmcla2x0sDTUDl9Pi6
+	29YBHqcw==
+X-QQ-XMRINFO: Mp0Kj//9VHAxzExpfF+O8yhSrljjwrznVg==
+X-QQ-RECHKSPAM: 0
 
-On Wed, 1 Jul 2026 09:23:05 +0000 Ryosuke Yasuoka wrote:
->On 30/06/2026 16:46, Dmitry Osipenko wrote:
->> Could you please move drm_kms_helper_hotplug_event() to virtio_gpu_init(),
->> placing it after wait_event_timeout(display_info_pending)? This will avoid
->> additional work_struct that otherwise needs to be cancelled in
->> virtio_gpu_init() on the timeout.
->
->IIUC, moving the drm_kms_helper_hotplug_event() and _hpd_irq_event()
->into virtio_gpu_init() after wait_event_timeout() would not prevent the
->issue.
->
->Looking at the syzbot call traces[1][2], the deadlock occurs during
->drm_client_setup(), which runs after virtio_gpu_init() has already
->returned. The display_info_cb that triggers the deadlock is called from
->the dequeue worker while drm_client_register() holds clientlist_mutex.
->
->Thread A:
->virtio_gpu_probe()
-> -> virtio_gpu_init()   // sends GET_DISPLAY_INFO and waits up to 5s
-> -> drm_dev_register()
-> -> drm_client_setup()   // deadlock happens HERE
->     -> drm_client_register()   // holds clientlist_mutex
->     ...
->     -> virtio_gpu_queue_fenced_ctrl_buffer()
->         -> wait_event() // waits for free space
->
->Thread B:
->virtio_gpu_dequeue_ctrl_func()
-> -> reclaim_vbufs()   // make free space
+Hi SJ,
 
-I wonder if the deadlock could be cured by alternatively adding a wakeup
-before the responce cb, given that free space is available.
+You are right. The include should be inside the header guard, after
+#define __LINUX_OVERFLOW_H.
 
-> -> resp_cb()
->     -> virtio_gpu_cmd_get_display_info_cb
->         -> drm_helper_hpd_irq_event()
->         -> drm_kms_helper_hotplug_event()
->             -> drm_client_dev_hotplug() // need to lock clientlist_mutex
-> -> wake_up()   // never reached
->
->IIUC the hotplug notification in display_info_cb is needed because it
->notifies DRM after updating by the callback with fresh data from the host.
->
->This work_struct ensures display_info_cb never blocks on
->clientlist_mutex in the dequeue worker, while preserving the hotplug
->notification with fresh data.
->
->[1] https://syzkaller.appspot.com/bug?id=d6dd6f86d3aaf7eebe7406e45c1c6e549453f224
->[2] https://syzkaller.appspot.com/bug?id=908bd910da5dd79b88de4cf7baf376cc873a922e
->
->Best regards,
->Ryosuke
+I will fix it in the next version.
+
+Thanks,
+Yichong
