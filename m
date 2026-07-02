@@ -1,32 +1,32 @@
-Received: from out-181.mta0.migadu.com (out-181.mta0.migadu.com [91.218.175.181])
+Received: from out-185.mta0.migadu.com (out-185.mta0.migadu.com [91.218.175.185])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2194A37646E
-	for <virtualization@lists.linux.dev>; Thu,  2 Jul 2026 12:10:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.181
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 84FA247DD54
+	for <virtualization@lists.linux.dev>; Thu,  2 Jul 2026 12:21:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.185
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1782994259; cv=none; b=pGDAxsM3FBaTKyx0Ktw1b11rFpnNm9L9uu/bJkRMz5w0kTHDcdk6Rj0ftKzYpdIs5lcWcr1iN0HYKVLkmbPhX7EKxihsf8ThOomfFZCSe8/NLdlVLiQpCo2bsI2KKLkmTNRypaK/COK16pfh2p9sIBI3Gztg1VB+28plk7KrKi0=
+	t=1782994915; cv=none; b=c1dZkUwXhGaNGkfoO4a1wcD1ZfwKSZjA5zTn9Ac65ner+7LIhsk4L845JTUrPkIZKGyAHMJmqBppVCaY4YkEEqqyj3EcbWPRkKLGzMv+OIG/YaIjXMv5XL8xURwpFy+Z3BWeGxBWToMgSvp04UzqToYFiJibH6dfYlbD1zruUTc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1782994259; c=relaxed/simple;
-	bh=kq0EROHRAMyH30t9/IFYi2AfFSrm3TyBHx9kn2N5NhY=;
+	s=arc-20240116; t=1782994915; c=relaxed/simple;
+	bh=HAAT0DQ/UAvdNOs6dKZMzpAmDc0tMByxgXgKCu3IuzE=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=lVVKxuhXUhd+2uS20j7MRF4zrgjupPROipEFKx0TAIHYL4b962w1QC2elqgtx6Y2FUPZDdEze0Si7687BMvfJqQSe+m0ExHFDoJPUw/3xt8ts37VCYmDMefZktTWck5FTRrbsMahJsN6fKU+9r98xpeYtrBgqyh4WnQnkpq3S+k=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=o2h14zEv; arc=none smtp.client-ip=91.218.175.181
+	 MIME-Version:Content-Type; b=BiexOGmUP6hbataPl4CiZWtcwZ3+C9KhSKpt5KywB/a/Jghem6scp+lBPwC64n7YCWwDVe5oOezhldpBMy6xu6Lwsi+LPealrMkFMCuBK3iGBBGnb30gpZKiR7AVB3RlP4OxtZC0gcBvO+5HWc+dKbhV8pewFogYQ6TLR831fMk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=lN0+Boa2; arc=none smtp.client-ip=91.218.175.185
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="o2h14zEv"
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="lN0+Boa2"
 X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1782994254;
+	t=1782994911;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=szYxJDyUXLwpHCPYtdT5QZRTamk7ohIwjDiVPC1pzUs=;
-	b=o2h14zEvKcQ49vaQ50LBNnbgHGGpFBTA0OsIFCWdpiUc7gYaraiUcJHgmdFM4mBzY7pBJH
-	3Nawgn9WkBzIHxRb3Nw1H0UdEQI7UMwMGIksMhfoUjYHvm6uqPS5csZAIdTgWkWJ0NxwiR
-	+fbu3PSBP2IvpsY/0wNqYNag0+1ZZPU=
+	bh=flDoJiJgtgGf3x2zlQX9jaS5nhFTdBgmSXvfG9PiFjA=;
+	b=lN0+Boa2ASIcCLc47EPvtXVMZuYaw78VJ/wVLmRpCeGudutYAguuVxwIGwqQDa2oDibvGW
+	bIpbbgc5ew0Ij3QtFyyGuneAdXTOrpkXqfYfNRMzfKjFKxKgZCy8wM/iRDCenl6trdMYJz
+	+LOdf87J+2yAD0n3s3yNqonkzwm6x4w=
 From: Lance Yang <lance.yang@linux.dev>
 To: ljs@kernel.org
 Cc: akpm@linux-foundation.org,
@@ -111,11 +111,11 @@ Cc: akpm@linux-foundation.org,
 	linux-fsdevel@vger.kernel.org,
 	linux-mm@kvack.org,
 	linux-sound@vger.kernel.org
-Subject: Re: [PATCH 05/13] mm: prefer mm->def_vma_flags in mm logic
-Date: Thu,  2 Jul 2026 20:10:22 +0800
-Message-Id: <20260702121022.49113-1-lance.yang@linux.dev>
-In-Reply-To: <3b4ccdc38819b42ddc79ee5a795831208ac7986c.1782760670.git.ljs@kernel.org>
-References: <3b4ccdc38819b42ddc79ee5a795831208ac7986c.1782760670.git.ljs@kernel.org>
+Subject: Re: [PATCH 06/13] mm/vma: convert vm_pgprot_modify() to use vma_flags_t and rename
+Date: Thu,  2 Jul 2026 20:21:16 +0800
+Message-Id: <20260702122116.65642-1-lance.yang@linux.dev>
+In-Reply-To: <548ba81b2971734d4d2143237ad1465bd1b2f525.1782760670.git.ljs@kernel.org>
+References: <548ba81b2971734d4d2143237ad1465bd1b2f525.1782760670.git.ljs@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -127,44 +127,46 @@ Content-Transfer-Encoding: 8bit
 X-Migadu-Flow: FLOW_OUT
 
 
-On Mon, Jun 29, 2026 at 08:25:28PM +0100, Lorenzo Stoakes wrote:
->Currently mm->def_flags (of type vm_flags_t) is union'd with
->mm->def_vma_flags (of type vma_flags_t).
+On Mon, Jun 29, 2026 at 08:25:29PM +0100, Lorenzo Stoakes wrote:
+>Update vm_pgprot_modify() to use the new VMA flags type vma_flags_t, and
+>rename to vma_pgprot_modify() accordingly.
 >
->As part of the effort to convert vm_flags_t usage to vma_flags_t (in order
->to no longer be arbitrarily limited to a system word size for VMA flags),
->prefer mm->def_vma_flags to mm->def_flags throughout the mm logic.
+>This is part of the ongoing work to convert vm_flags_t to vma_flags_t, in
+>order to eliminate the arbitrary limit of the number of bits in a system
+>word on available VMA flags.
+>
+>Update VMA userland tests accordingly, updating vma_set_page_prot() to no
+>longer inline vma_pgprot_modify(), rather we can simply define
+>vma_pgprot_modify() as a static inline function and the tests will pick it
+>up from vma.h.
 >
 >No functional change intended.
 >
 >Signed-off-by: Lorenzo Stoakes <ljs@kernel.org>
 >---
-> mm/debug.c |  2 +-
-> mm/mlock.c | 13 +++++++------
-> mm/mmap.c  | 11 ++++++-----
-> mm/vma.c   |  4 ++--
-> 4 files changed, 16 insertions(+), 14 deletions(-)
->
->diff --git a/mm/debug.c b/mm/debug.c
->index 497654b36f1a..f0a354a9496a 100644
->--- a/mm/debug.c
->+++ b/mm/debug.c
->@@ -226,7 +226,7 @@ void dump_mm(const struct mm_struct *mm)
-> 		mm->numa_next_scan, mm->numa_scan_offset, mm->numa_scan_seq,
-> #endif
-> 		atomic_read(&mm->tlb_flush_pending),
->-		mm->def_flags, &mm->def_flags
->+		vma_flags_to_legacy(mm->def_vma_flags), &mm->def_vma_flags
-> 	);
+[...]
+>diff --git a/mm/vma.h b/mm/vma.h
+>index bcf0c2773449..6a8abb8ae937 100644
+>--- a/mm/vma.h
+>+++ b/mm/vma.h
+>@@ -522,9 +522,11 @@ static inline bool vma_wants_manual_pte_write_upgrade(struct vm_area_struct *vma
+> }
+> 
+> #ifdef CONFIG_MMU
+>-static inline pgprot_t vm_pgprot_modify(pgprot_t oldprot, vm_flags_t vm_flags)
+>+static inline pgprot_t vma_pgprot_modify(pgprot_t oldprot, vma_flags_t vma_flags)
+> {
+>-	return pgprot_modify(oldprot, vm_get_page_prot(vm_flags));
+>+	const pgprot_t prot = vma_get_page_prot(vma_flags);
+>+
+>+	return pgprot_modify(oldprot, prot);
 
-While at it, one thing for later: dump_mm() still assumes one-world VMA
-flags. That works today since vma_flags_t is one word. Maybe worth a
-BUILD_BUG_ON() here, before that stops being true?
+Nit: could this just stay as a single return? something like:
 
-Not a big deal though. Feel free to add:
+return pgprot_modify(oldprot, vma_get_page_prot(vma_flags));
+
+Otherwise, LGTM, feel free to add: 
 
 Reviewed-by: Lance Yang <lance.yang@linux.dev>
 
-> }
-> EXPORT_SYMBOL(dump_mm);
 [...]
