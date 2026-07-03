@@ -1,271 +1,400 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from smtp-out1.suse.de (smtp-out1.suse.de [195.135.223.130])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0062935E1A3
-	for <virtualization@lists.linux.dev>; Fri,  3 Jul 2026 05:58:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6BD59353A71
+	for <virtualization@lists.linux.dev>; Fri,  3 Jul 2026 07:26:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.130
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783058313; cv=none; b=iWYxnpsHe+A8bBSduuFGgQf3r6fK6TD5IB3sWQEZ7kNYm9phIln6OKpYQqsn73quN3hJ4dISwx7sFwADuGwjptc45HghOZDXTEIMOi8wHVqqItYxDaNoK/DDNUZWlG1cXU1NdIIOe1tYOtv1jRWviF9tCEyKPr+qsfaayLNm50M=
+	t=1783063588; cv=none; b=Bmm6O8KWNNkc9maJYkGqNEpwkhxfd/I4N0cqq5BST/lmuaokeFAaSP/x7zsOKATxzvkN3QbyC3tc5Qe3vI4jBpewdA6ld8EHDCOBkAT/tT2Bh3H4KRfgbp9XXJZZiXiPCt2raYUsWxErP4094Ilnm4q0rSzCL5Rbp7RfdaV1CVQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783058313; c=relaxed/simple;
-	bh=rQPpB1Fj0MsZNrN+zIUSc/l+uFINRFmqoxMEasdllQ8=;
-	h=MIME-Version:From:To:In-Reply-To:Cc:Subject:Message-ID:Date:
-	 Content-Type; b=rPhENB6BKiModWdMz7PnXzPGjhaGy4T3np/CbZbt4L6u7NJi/pyZAPxqWGMaU4Az3F/WACYWZBhADr66CBD+vKF9rggBWm3xhz81PEQtr8Ac+xcrwh0Q9iugG8q4Y2KE+7ZdeEgU26Yj7sgN19xqstJD9axkQ5c14ygTfIIN2xg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=FhH4YerW; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1783063588; c=relaxed/simple;
+	bh=37AqsWWIOFl+M7xRMXp9PmLubBEGFkqbw4xNr7p7gIg=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=gvaHfzTkSdkLDNk74RuQ+4OShvqpCm/UaUGojbgbkh7X4IDhUQlGPHTO5py4WI1L5SI1hrnY4bx94svaEtQGyX437noAVIUwE+7AjKBkJJ6+cn1xx3T7puw0/njTyBdcEh/jrdqYjBm0gwlHuodz6P3ldBshZPKo3IS5100SyhM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=MYNsAChM; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=4iSYiX3O; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=MYNsAChM; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=4iSYiX3O; arc=none smtp.client-ip=195.135.223.130
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="FhH4YerW"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1783058310;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:  in-reply-to:in-reply-to;
-	bh=T1Ub9EzZwRRVeQ1vc9r5jPdFwTwN77c6/6bNi9H21to=;
-	b=FhH4YerWVzJrd27B85aQPbvDMlWfrCcGkm7QcqL3ZKWl/t+p7+CAOKdwKYQkhWj+0NVU3g
-	N6mAEkpoirrtJaMNv7JOxE0INN1RSdLwliuMrvmUbcdYRdUqUfDDviwpPpZbRGO9LyogXL
-	dWyoSFqYYVAhAus4aK+dsnmmLgYpuh0=
-Received: from mail-pj1-f70.google.com (mail-pj1-f70.google.com
- [209.85.216.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-280-8uwLBeRuMGaEsmSeZ277cA-1; Fri, 03 Jul 2026 01:58:26 -0400
-X-MC-Unique: 8uwLBeRuMGaEsmSeZ277cA-1
-X-Mimecast-MFC-AGG-ID: 8uwLBeRuMGaEsmSeZ277cA_1783058306
-Received: by mail-pj1-f70.google.com with SMTP id 98e67ed59e1d1-37c9127e316so490279a91.1
-        for <virtualization@lists.linux.dev>; Thu, 02 Jul 2026 22:58:26 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783058305; x=1783663105;
-        h=content-transfer-encoding:date:message-id:subject:cc:in-reply-to:to
-         :from:mime-version:x-gm-gg:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to;
-        bh=GW2Z614cbbyH0tCcImMalWsa+hYlOLUUE+Wc31pCfnc=;
-        b=d+mJVtaTRX8Y/2YsSP293zA3EZfR0E8dNgfNUtezNLymg5jvMELliJ1oSGVNDLTZs2
-         Mw08XgOZl1vEGOKuQ+/jQzea8SvGM+ID20lqm6JfXOQ5kWMHRCjmv3uIkWjd8f+q5tE4
-         QYwDmQAlzRcrThOcSKL3CLqXXBmfXTtHXZkHE0HyM0aq2ZCfcE7LqLY8pTtyUUWjQuU8
-         +tF1FYTxOhuw8yux9br6vUL0ifoN/fEQyvASVOWjeQgYqg2n2Zf/6/WyZjFuUsE6B/jL
-         UdazcWeZ6H1J5ZMzs4AhQxv/8D3kj6/sDIqzm02W0HqgSQO+gu0rNwcj7ECTXVDdPkHK
-         xrLg==
-X-Forwarded-Encrypted: i=1; AHgh+Rq05KI3QejyhCay+KkYCPxr05+wMnaLrzVU4iM0NsP4C8oDn83OEV9aWYEOMdafS1hYno547OC5P4maOuzQ5Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyVQ2hkPZOQ1NKe/FG60zfg/zwrowz+c0fugnLA9OTlQ3Y0JPMi
-	5ti+in1sMuf6kugksB9m22yaLq/5KQuRCR+P8hh//RVNpinzwUyYRhLcSnIWkeSsgNGfa9mxlJh
-	27Vg5M3BUedHfdy/dB3KfLYXX6AkQZ6WHK4ZZW745oEBYQXSKWDS1j/i8X2oNTzBZ2TcA25D46q
-	0WHmGeSbxsvEzpVHMd7E8S6HlfsZd/ws/UBrPJQrjoffpJ9zIoc+ODNiY=
-X-Gm-Gg: AfdE7clDIkv69HsEwAiQpeI4fhQqeTgd6Y52aqyWwBWHKGnO/Vu2m43QN5hv25gg3V+
-	fP58hktN4Hcolv+9+QYnBkKmIf0yoKmKkO7dMQt5fnh2T5nUpv4V87Dw2YVKS37JLC0b3cjqeDo
-	3IcMRjgan/hfApP7JVTxe9umrzuDiD4otOJyjejNhvlk+v/PQRL2FCXihYZN22wY3GNo9ye9XFf
-	fQ+b14G3TUmLgunk7S2UuoUwn1+bHD8BAGB7luRj/IP1n7OgxJkqiTJh55X4YWjN0Sz/b0Sy9N1
-	w7GErKsBSLuoVtRBh2qPhTSFZL9hlQBP2o1+qZ1weS9wu5dWHes/HMQcfwIovxfdMiMYt7DUK7A
-	tiApxUnvWTyRNB2q/RfwkSOkKGcruBynP8DguJpHYfSQ/amcq
-X-Received: by 2002:a17:90b:3c44:b0:37f:9ce2:348f with SMTP id 98e67ed59e1d1-380aa2225dfmr9516841a91.32.1783058305486;
-        Thu, 02 Jul 2026 22:58:25 -0700 (PDT)
-X-Received: by 2002:a17:90b:3c44:b0:37f:9ce2:348f with SMTP id 98e67ed59e1d1-380aa2225dfmr9516792a91.32.1783058304725;
-        Thu, 02 Jul 2026 22:58:24 -0700 (PDT)
-Received: from ryasuoka-thinkpadx1carbongen9.tokyo.csb ([126.143.164.49])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-38097cfcf1dsm2194113a91.1.2026.07.02.22.58.20
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 02 Jul 2026 22:58:24 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="MYNsAChM";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="4iSYiX3O";
+	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="MYNsAChM";
+	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="4iSYiX3O"
+Received: from imap1.dmz-prg2.suse.org (imap1.dmz-prg2.suse.org [IPv6:2a07:de40:b281:104:10:150:64:97])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by smtp-out1.suse.de (Postfix) with ESMTPS id 823B7747A1;
+	Fri,  3 Jul 2026 07:26:24 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1783063584; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=MmLI7YRYrWrGvjWrJYSSmDPsMivgSqlLvyhn40gpqes=;
+	b=MYNsAChMFJfNozLrnG5K6oip935Xl69QjFjGBCX7VT7FmYkCNS7PlSQ6AbWutwCZMrAqbd
+	u5y3skH9GCsOc3oe7MEoSX3dyaJQxc6n/qK7cgTlIHNC4Y3j2KA64O0BsXJxcLW6bPc90y
+	hfW7M6RW66w082kF9OdeH9AFicmIIeA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1783063584;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=MmLI7YRYrWrGvjWrJYSSmDPsMivgSqlLvyhn40gpqes=;
+	b=4iSYiX3Op+p4+ZHWG44/8StvvFtOV5Q39skjur0BuFefvUBd7FJkPzeTSv4bNM386NhUVt
+	rFuyiF93hULSK/Aw==
+Authentication-Results: smtp-out1.suse.de;
+	dkim=pass header.d=suse.de header.s=susede2_rsa header.b=MYNsAChM;
+	dkim=pass header.d=suse.de header.s=susede2_ed25519 header.b=4iSYiX3O
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
+	t=1783063584; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=MmLI7YRYrWrGvjWrJYSSmDPsMivgSqlLvyhn40gpqes=;
+	b=MYNsAChMFJfNozLrnG5K6oip935Xl69QjFjGBCX7VT7FmYkCNS7PlSQ6AbWutwCZMrAqbd
+	u5y3skH9GCsOc3oe7MEoSX3dyaJQxc6n/qK7cgTlIHNC4Y3j2KA64O0BsXJxcLW6bPc90y
+	hfW7M6RW66w082kF9OdeH9AFicmIIeA=
+DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
+	s=susede2_ed25519; t=1783063584;
+	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
+	 mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
+	bh=MmLI7YRYrWrGvjWrJYSSmDPsMivgSqlLvyhn40gpqes=;
+	b=4iSYiX3Op+p4+ZHWG44/8StvvFtOV5Q39skjur0BuFefvUBd7FJkPzeTSv4bNM386NhUVt
+	rFuyiF93hULSK/Aw==
+Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
+	(No client certificate requested)
+	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id 1BF98779AA;
+	Fri,  3 Jul 2026 07:26:24 +0000 (UTC)
+Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
+	by imap1.dmz-prg2.suse.org with ESMTPSA
+	id HIz6BCBkR2pmeAAAD6G6ig
+	(envelope-from <tzimmermann@suse.de>); Fri, 03 Jul 2026 07:26:24 +0000
+Message-ID: <3b192119-9709-4f21-841f-a4706cc85e4a@suse.de>
+Date: Fri, 3 Jul 2026 09:26:23 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-From: "Ryosuke Yasuoka" <ryasuoka@redhat.com>
-To: "Dmitry Osipenko" <dmitry.osipenko@collabora.com>, 
-	"David Airlie" <airlied@redhat.com>, "Gerd Hoffmann" <kraxel@redhat.com>, 
-	"Gurchetan Singh" <gurchetansingh@chromium.org>, 
-	"Chia-I Wu" <olvaffe@gmail.com>, 
-	"Maarten Lankhorst" <maarten.lankhorst@linux.intel.com>, 
-	"Maxime Ripard" <mripard@kernel.org>, 
-	"Thomas Zimmermann" <tzimmermann@suse.de>, 
-	"Simona Vetter" <simona@ffwll.ch>, "Dmitry Baryshkov" <lumag@kernel.org>, 
-	"Javier Martinez Canillas" <javierm@redhat.com>
-In-Reply-To: <1b56e514-17b5-4da1-9ebd-4534e3204ea4@collabora.com>
-Cc: <dri-devel@lists.freedesktop.org>, <virtualization@lists.linux.dev>, 
-	<linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] drm/virtio: defer hotplug event from dequeue worker to avoid
-	 deadlock
-Message-ID: <18beb213335dd544.57cdc20d9a554be2.724d3e176f79ad9@ryasuoka-thinkpadx1carbongen9.tokyo.csb>
-Date: Fri, 3 Jul 2026 05:58:18 +0000
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: A1pBuv1RqOZhy3gR3fBg8vNpo_a_-HxGAaljtWjJCC8_1783058306
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v3] drm/vblank: Don't arm vblank timer with invalid frame
+ duration
+To: Roman Ilin <me@romanilin.is>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, David Airlie <airlied@gmail.com>,
+ Simona Vetter <simona@ffwll.ch>
+Cc: Louis Chauvet <louis.chauvet@bootlin.com>,
+ Javier Martinez Canillas <javierm@redhat.com>,
+ Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, =?UTF-8?B?VmlsbGUgU3lyasOkbMOk?=
+ <ville.syrjala@linux.intel.com>,
+ Thorsten Leemhuis <regressions@leemhuis.info>,
+ Peter Arnesen <peter.m.arnesen@gmail.com>
+References: <20260613224434.96501-1-me@romanilin.is>
+ <20260702181027.98526-1-me@romanilin.is>
+ <E697A2AE-5413-48AE-BFD6-3383819B388B@romanilin.is>
+Content-Language: en-US
+From: Thomas Zimmermann <tzimmermann@suse.de>
+Autocrypt: addr=tzimmermann@suse.de; keydata=
+ xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
+ XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
+ BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
+ hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
+ 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
+ AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
+ AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
+ AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
+ lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
+ U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
+ vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
+ 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
+ j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
+ T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
+ 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
+ GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
+ hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
+ EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
+ C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
+ yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
+ SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
+ Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
+ 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
+In-Reply-To: <E697A2AE-5413-48AE-BFD6-3383819B388B@romanilin.is>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Rspamd-Action: no action
+X-Rspamd-Queue-Id: 823B7747A1
+X-Spam-Flag: NO
+X-Spam-Score: -3.01
+X-Spam-Level: 
+X-Spamd-Result: default: False [-3.01 / 50.00];
+	BAYES_HAM(-3.00)[100.00%];
+	SUSPICIOUS_RECIPS(1.50)[];
+	NEURAL_HAM_LONG(-1.00)[-1.000];
+	R_DKIM_ALLOW(-0.20)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	NEURAL_HAM_SHORT(-0.20)[-1.000];
+	MIME_GOOD(-0.10)[text/plain];
+	MX_GOOD(-0.01)[];
+	TO_MATCH_ENVRCPT_ALL(0.00)[];
+	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
+	FREEMAIL_TO(0.00)[romanilin.is,linux.intel.com,kernel.org,gmail.com,ffwll.ch];
+	ARC_NA(0.00)[];
+	FUZZY_RATELIMITED(0.00)[rspamd.com];
+	RCPT_COUNT_TWELVE(0.00)[14];
+	MIME_TRACE(0.00)[0:+];
+	FREEMAIL_ENVRCPT(0.00)[gmail.com];
+	FREEMAIL_CC(0.00)[bootlin.com,redhat.com,collabora.com,lists.freedesktop.org,lists.linux.dev,vger.kernel.org,linux.intel.com,leemhuis.info,gmail.com];
+	RCVD_TLS_ALL(0.00)[];
+	RCVD_COUNT_TWO(0.00)[2];
+	FROM_EQ_ENVFROM(0.00)[];
+	FROM_HAS_DN(0.00)[];
+	TO_DN_SOME(0.00)[];
+	DNSWL_BLOCKED(0.00)[2a07:de40:b281:106:10:150:64:167:received];
+	TAGGED_RCPT(0.00)[];
+	MID_RHS_MATCH_FROM(0.00)[];
+	DKIM_TRACE(0.00)[suse.de:+];
+	RCVD_VIA_SMTP_AUTH(0.00)[];
+	DBL_BLOCKED_OPENRESOLVER(0.00)[romanilin.is:email,suse.de:dkim,suse.de:email,suse.de:mid,suse.com:url,bootlin.com:url]
+X-Rspamd-Server: rspamd1.dmz-prg2.suse.org
+
+Hi
+
+Am 02.07.26 um 20:23 schrieb Roman Ilin:
+> Apologies, I accidentally fired off send-email before saving my final
+> changelog notes. Please ignore the changelog and notes in the original
+> v3 email.
+>
+> The actual changes in v3 are:
+>
+> - Changed the WARN_ON_ONCE to drm_dbg_kms (to avoid user-triggerable
+>    panics).
+
+We want to know when this happens. And user space will only be able to 
+trigger this once, so there's no risk of spamming the kernel log.
+
+So this is not really a problem. drm_WARN_ON_ONCE was ok for that. You 
+can also use a regular DRM print macro. But instead of drm_dbg_kms() 
+should use drm_err_once(). But please also output linedur_ns and 
+framedur_ns in the error. We want to know which of them is incorrect. 
+You can also add more information to the error message. See [1] for the 
+mode-formating macros.
+
+[1] 
+https://elixir.bootlin.com/linux/v7.1.2/source/include/drm/drm_modes.h#L422
 
 
+> - Updated drm_calc_timestamping_constants with the goto error fallback
+>    to clear the stale state.
+>
+> Also, an automated review bot pointed out an AB-BA deadlock in
+> drm_crtc_vblank_start_timer(). But I am leaving this out of the patch to
+> keep the fixes orthogonal.
+>
+> Sorry for the noise.
+>
+>> On Jul 2, 2026, at 21:10, Roman Ilin <me@romanilin.is> wrote:
+>>
+>> When a CRTC's display mode carries a too small pixel clock,
+>> drm_calc_timestamping_constants() computes a frame duration that
+>> exceeds INT_MAX. drm_vblank_crtc.framedur_ns becomes negative.
+>> drm_crtc_vblank_start_timer() then arms the vblank hrtimer with this
+>> interval, after which vblank events are no longer delivered. Pending
+>> page flips never complete and the display appears frozen.
+>>
+>> This could be triggered on virtio-gpu guests that have dynamic resolution
+>> enabled: when the SPICE agent or the X server resizes the output, it
+>> submits a mode whose pixel clock is off by a factor of 1000, e.g.:
+>>
+>>     clock = 406 kHz, htotal = 3152, vtotal = 2148
+>>
+>>     framedur_ns = 3152 * 2148 * 1000000 / 406 = 16675852216 ns (~16.7 s)
+>>
+>> 16675852216 does not fit into an int and wraps to roughly -504000000.
+>> ns_to_ktime() then yields a negative interval and the timer stops working.
+>>
+>> Found by bisection, which pointed at commit a036f5fceedb ("drm/virtgpu:
+>> Use vblank timer"). That commit merely made virtio-gpu use the vblank
+>> timer and thereby exposed the pre-existing problem in the timer setup
+>> added by commit 74afeb812850 ("drm/vblank: Add vblank timer").
+>>
+>> To fix this, modify drm_calc_timestamping_constants() to use u64 for
+>> calculations, check for INT_MAX overflows, and return an error code.
+>> drm_crtc_vblank_start_timer() will then propagate the error, enabling
+>> the driver to fall back to immediate vblank events. Valid modes are
+>> unaffected, and the timer self-heals on the next mode with a sane clock.
+>>
+>> Fixes: 74afeb812850 ("drm/vblank: Add vblank timer")
+>> Suggested-by: Thomas Zimmermann <tzimmermann@suse.de>
+>> Signed-off-by: Roman Ilin <me@romanilin.is>
+>> ---
+>> Changes in v3:
+>>
+>> - Changed the WARN_ON_ONCE to drm_err_once
+>>
+>> Notes:
+>>
+>>
+>>
+>> drivers/gpu/drm/drm_vblank.c | 71 +++++++++++++++++++++++-------------
+>> include/drm/drm_vblank.h     |  4 +-
+>> 2 files changed, 48 insertions(+), 27 deletions(-)
+>>
+>> diff --git a/drivers/gpu/drm/drm_vblank.c b/drivers/gpu/drm/drm_vblank.c
+>> index f90fb2d13..629b9fcc7 100644
+>> --- a/drivers/gpu/drm/drm_vblank.c
+>> +++ b/drivers/gpu/drm/drm_vblank.c
+>> @@ -631,42 +631,51 @@ EXPORT_SYMBOL(drm_crtc_vblank_waitqueue);
+>>   * drm_crtc_vblank_helper_get_vblank_timestamp(). They are derived from
+>>   * CRTC's true scanout timing, so they take things like panel scaling or
+>>   * other adjustments into account.
+>> + *
+>> + * Returns:
+>> + * 0 on success, or a negative errno code otherwise.
+>>   */
+>> -void drm_calc_timestamping_constants(struct drm_crtc *crtc,
+>> -     const struct drm_display_mode *mode)
+>> +int drm_calc_timestamping_constants(struct drm_crtc *crtc,
+>> +    const struct drm_display_mode *mode)
+>> {
+>> struct drm_device *dev = crtc->dev;
+>> unsigned int pipe = drm_crtc_index(crtc);
+>> struct drm_vblank_crtc *vblank = drm_crtc_vblank_crtc(crtc);
+>> - int linedur_ns = 0, framedur_ns = 0;
+>> + u64 linedur_ns, framedur_ns;
+>> int dotclock = mode->crtc_clock;
+>> + unsigned int frame_size;
+>>
+>> if (!drm_dev_has_vblank(dev))
+>> - return;
+>> + return 0;
+>>
+>> if (drm_WARN_ON(dev, pipe >= dev->num_crtcs))
+>> - return;
+>> + return -EINVAL;
+>>
+>> - /* Valid dotclock? */
+>> - if (dotclock > 0) {
+>> - int frame_size = mode->crtc_htotal * mode->crtc_vtotal;
+>> + if (dotclock <= 0) {
+>> + drm_err(dev, "crtc %u: Can't calculate constants, dotclock = %d!\n",
 
-On 02/07/2026 14:26, Dmitry Osipenko wrote:
-> On 7/1/26 12:23, Ryosuke Yasuoka wrote:
->>=20
->>=20
->> On 30/06/2026 16:46, Dmitry Osipenko wrote:
->>> Hi,
->>>
->>> On 6/30/26 12:16, Ryosuke Yasuoka wrote:
->>>> A probe-time deadlock can occur between the dequeue worker and
->>>> drm_client_register(). During probe, drm_client_register() holds
->>>> clientlist_mutex and calls the fbdev hotplug callback, which triggers =
-an
->>>> atomic commit that ends up sleeping in virtio_gpu_queue_ctrl_sgs()
->>>> waiting for virtqueue space. The dequeue worker that would free that
->>>> space calls virtio_gpu_cmd_get_display_info_cb(), which invokes
->>>> drm_kms_helper_hotplug_event() -> drm_client_dev_hotplug(), attempting
->>>> to acquire the same clientlist_mutex. Since wake_up() is only called
->>>> after the resp_cb loop, the probe thread is never woken and both threa=
-ds
->>>> deadlock.
->>>>
->>>> Fix this by deferring the hotplug notification from
->>>> virtio_gpu_cmd_get_display_info_cb() to a separate work item. The
->>>> display data (outputs[i].info) is still updated synchronously in the
->>>> callback, and the deferred work only triggers a re-probe notification =
-to
->>>> DRM clients.
->>>>
->>>> Fixes: 27655b9bb9f0 ("drm/client: Send hotplug event after registering=
- a client")
->>>> Closes: https://syzkaller.appspot.com/bug?id=3Dd6dd6f86d3aaf7eebe7406e=
-45c1c6e549453f224
->>>> Closes: https://syzkaller.appspot.com/bug?id=3D908bd910da5dd79b88de4cf=
-7baf376cc873a922e
->>>> Signed-off-by: Ryosuke Yasuoka <ryasuoka@redhat.com>
->>>> ---
->>>>  drivers/gpu/drm/virtio/virtgpu_drv.h |  3 +++
->>>>  drivers/gpu/drm/virtio/virtgpu_kms.c |  3 +++
->>>>  drivers/gpu/drm/virtio/virtgpu_vq.c  | 12 ++++++++++--
->>>>  3 files changed, 16 insertions(+), 2 deletions(-)
->>>>
->>>> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/vi=
-rtio/virtgpu_drv.h
->>>> index 7449907754a4..27ffa4697ae9 100644
->>>> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
->>>> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
->>>> @@ -264,6 +264,8 @@ struct virtio_gpu_device {
->>>> =20
->>>>  =09struct work_struct config_changed_work;
->>>> =20
->>>> +=09struct work_struct hotplug_work;
->>>> +
->>>>  =09struct work_struct obj_free_work;
->>>>  =09spinlock_t obj_free_lock;
->>>>  =09struct list_head obj_free_list;
->>>> @@ -350,6 +352,7 @@ void virtio_gpu_cmd_transfer_to_host_2d(struct vir=
-tio_gpu_device *vgdev,
->>>>  =09=09=09=09=09uint32_t x, uint32_t y,
->>>>  =09=09=09=09=09struct virtio_gpu_object_array *objs,
->>>>  =09=09=09=09=09struct virtio_gpu_fence *fence);
->>>> +void virtio_gpu_hotplug_work_func(struct work_struct *work);
->>>>  void virtio_gpu_panic_cmd_resource_flush(struct virtio_gpu_device *vg=
-dev,
->>>>  =09=09=09=09=09 uint32_t resource_id,
->>>>  =09=09=09=09=09 uint32_t x, uint32_t y,
->>>> diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/vi=
-rtio/virtgpu_kms.c
->>>> index cfde9f573df6..cfb532ba43a4 100644
->>>> --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
->>>> +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
->>>> @@ -154,6 +154,8 @@ int virtio_gpu_init(struct virtio_device *vdev, st=
-ruct drm_device *dev)
->>>>  =09INIT_WORK(&vgdev->config_changed_work,
->>>>  =09=09  virtio_gpu_config_changed_work_func);
->>>> =20
->>>> +=09INIT_WORK(&vgdev->hotplug_work, virtio_gpu_hotplug_work_func);
->>>> +
->>>>  =09INIT_WORK(&vgdev->obj_free_work,
->>>>  =09=09  virtio_gpu_array_put_free_work);
->>>>  =09INIT_LIST_HEAD(&vgdev->obj_free_list);
->>>> @@ -293,6 +295,7 @@ void virtio_gpu_deinit(struct drm_device *dev)
->>>>  =09flush_work(&vgdev->obj_free_work);
->>>>  =09flush_work(&vgdev->ctrlq.dequeue_work);
->>>>  =09flush_work(&vgdev->cursorq.dequeue_work);
->>>> +=09flush_work(&vgdev->hotplug_work);
->>>>  =09flush_work(&vgdev->config_changed_work);
->>>>  =09virtio_reset_device(vgdev->vdev);
->>>>  =09vgdev->vdev->config->del_vqs(vgdev->vdev);
->>>> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/vir=
-tio/virtgpu_vq.c
->>>> index 67865810a2e7..084d98f5dc7b 100644
->>>> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
->>>> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
->>>> @@ -816,6 +816,15 @@ virtio_gpu_cmd_resource_detach_backing(struct vir=
-tio_gpu_device *vgdev,
->>>>  =09virtio_gpu_queue_fenced_ctrl_buffer(vgdev, vbuf, fence);
->>>>  }
->>>> =20
->>>> +void virtio_gpu_hotplug_work_func(struct work_struct *work)
->>>> +{
->>>> +=09struct virtio_gpu_device *vgdev =3D
->>>> +=09=09container_of(work, struct virtio_gpu_device, hotplug_work);
->>>> +
->>>> +=09if (!drm_helper_hpd_irq_event(vgdev->ddev))
->>>> +=09=09drm_kms_helper_hotplug_event(vgdev->ddev);
->>>> +}
->>>> +
->>>>  static void virtio_gpu_cmd_get_display_info_cb(struct virtio_gpu_devi=
-ce *vgdev,
->>>>  =09=09=09=09=09       struct virtio_gpu_vbuffer *vbuf)
->>>>  {
->>>> @@ -841,8 +850,7 @@ static void virtio_gpu_cmd_get_display_info_cb(str=
-uct virtio_gpu_device *vgdev,
->>>>  =09spin_unlock(&vgdev->display_info_lock);
->>>>  =09wake_up(&vgdev->resp_wq);
->>>> =20
->>>> -=09if (!drm_helper_hpd_irq_event(vgdev->ddev))
->>>> -=09=09drm_kms_helper_hotplug_event(vgdev->ddev);
->>>> +=09schedule_work(&vgdev->hotplug_work);
->>>>  }
->>>> =20
->>>>  static void virtio_gpu_cmd_get_capset_info_cb(struct virtio_gpu_devic=
-e *vgdev,
->>>
->>=20
->> Hi,
->> Thank you for your review.
->>=20
->>> Could you please move drm_kms_helper_hotplug_event() to virtio_gpu_init=
-(), placing it after wait_event_timeout(display_info_pending)? This will av=
-oid additional work_struct that otherwise needs to be cancelled in virtio_g=
-pu_init() on the timeout.
->>=20
->> IIUC, moving the drm_kms_helper_hotplug_event() and _hpd_irq_event()
->> into virtio_gpu_init() after wait_event_timeout() would not prevent the
->> issue.
->>=20
->> Looking at the syzbot call traces[1][2], the deadlock occurs during
->> drm_client_setup(), which runs after virtio_gpu_init() has already
->> returned. The display_info_cb that triggers the deadlock is called from
->> the dequeue worker while drm_client_register() holds clientlist_mutex.
->>=20
->> Thread A:
->> virtio_gpu_probe()
->>  -> virtio_gpu_init()   // sends GET_DISPLAY_INFO and waits up to 5s
->=20
-> You mean that the timeout happens and it's again syzkaller report for a
-> broken host. A day ago I applied [1] that should fix this "bogus"
-> syzkaller report.
->=20
-> [1] https://patchwork.freedesktop.org/patch/735301/
+Please turn this into drm_err_once() because this call can actually be 
+triggered repeatedly from userspace.
 
-Thank you for [1] and the clarificaiton. I agree that [1] addresses the
-broken host scenario where virtio_gpu_init() times out and probe
-continues with a pending display_info response. I think there is another
-scenario causing the same deadlock reported by syzbot and my patch
-addresses both cases.
+Best regards
+Thomas
 
-The deadlock can also occur with the following scenario:
-after virtio_gpu_init() completes successfully (wait_event_timeout
-returns), if a config_changed event arrives before drm_client_setup()
-completes, config_changed_work_func() sends a new GET_DISPLAY_INFO. Its
-display_info_cb fires in the dequeue worker and blocks on
-clientlist_mutex held by drm_client_register(). This is the same
-deadlock path reported by syzbot.
 
-Since [1] only prevents the timeout case, I believe the schedule_work()
-approach is still needed to prevent display_info_cb from blocking on
-clientlist_mutex in the dequeue worker context, regardless of the
-trigger.
+>> + crtc->base.id, dotclock);
+>> + goto error;
+>> + }
+>>
+>> - /*
+>> - * Convert scanline length in pixels and video
+>> - * dot clock to line duration and frame duration
+>> - * in nanoseconds:
+>> - */
+>> - linedur_ns  = div_u64((u64) mode->crtc_htotal * 1000000, dotclock);
+>> - framedur_ns = div_u64((u64) frame_size * 1000000, dotclock);
+>> + frame_size = (unsigned int)mode->crtc_htotal * (unsigned int)mode->crtc_vtotal;
+>>
+>> - /*
+>> - * Fields of interlaced scanout modes are only half a frame duration.
+>> - */
+>> - if (mode->flags & DRM_MODE_FLAG_INTERLACE)
+>> - framedur_ns /= 2;
+>> - } else {
+>> - drm_err(dev, "crtc %u: Can't calculate constants, dotclock = 0!\n",
+>> - crtc->base.id);
+>> + /*
+>> + * Convert scanline length in pixels and video dot clock to line duration
+>> + * and frame duration in nanoseconds.
+>> + */
+>> + linedur_ns  = div_u64((u64)mode->crtc_htotal * 1000000, dotclock);
+>> + framedur_ns = div_u64((u64)frame_size * 1000000, dotclock);
+>> +
+>> + /*
+>> + * Fields of interlaced scanout modes are only half a frame duration.
+>> + */
+>> + if (mode->flags & DRM_MODE_FLAG_INTERLACE)
+>> + framedur_ns /= 2;
+>> +
+>> + if (linedur_ns > INT_MAX || framedur_ns > INT_MAX) {
+>> + drm_dbg_kms(dev, "crtc %u: Can't calculate constants, mode clock too small!\n",
+>> +    crtc->base.id);
+>> + goto error;
+>> }
+>>
+>> vblank->linedur_ns  = linedur_ns;
+>> @@ -678,7 +687,16 @@ void drm_calc_timestamping_constants(struct drm_crtc *crtc,
+>>      crtc->base.id, mode->crtc_htotal,
+>>      mode->crtc_vtotal, mode->crtc_vdisplay);
+>> drm_dbg_core(dev, "crtc %u: clock %d kHz framedur %d linedur %d\n",
+>> -     crtc->base.id, dotclock, framedur_ns, linedur_ns);
+>> +     crtc->base.id, dotclock,
+>> +     vblank->framedur_ns, vblank->linedur_ns);
+>> +
+>> + return 0;
+>> +
+>> +error:
+>> + vblank->linedur_ns  = 0;
+>> + vblank->framedur_ns = 0;
+>> + drm_mode_copy(&vblank->hwmode, mode);
+>> + return -EINVAL;
+>> }
+>> EXPORT_SYMBOL(drm_calc_timestamping_constants);
+>>
+>> @@ -2221,6 +2239,7 @@ int drm_crtc_vblank_start_timer(struct drm_crtc *crtc)
+>> struct drm_vblank_crtc *vblank = drm_crtc_vblank_crtc(crtc);
+>> struct drm_vblank_crtc_timer *vtimer = &vblank->vblank_timer;
+>> unsigned long flags;
+>> + int ret;
+>>
+>> if (!vtimer->crtc) {
+>> /*
+>> @@ -2239,7 +2258,9 @@ int drm_crtc_vblank_start_timer(struct drm_crtc *crtc)
+>> hrtimer_try_to_cancel(&vtimer->timer);
+>> }
+>>
+>> - drm_calc_timestamping_constants(crtc, &crtc->mode);
+>> + ret = drm_calc_timestamping_constants(crtc, &crtc->mode);
+>> + if (ret)
+>> + return ret;
+>>
+>> spin_lock_irqsave(&vtimer->interval_lock, flags);
+>> vtimer->interval = ns_to_ktime(vblank->framedur_ns);
+>> diff --git a/include/drm/drm_vblank.h b/include/drm/drm_vblank.h
+>> index 2fcef9c0f..d99772dfa 100644
+>> --- a/include/drm/drm_vblank.h
+>> +++ b/include/drm/drm_vblank.h
+>> @@ -311,8 +311,8 @@ void drm_crtc_vblank_on(struct drm_crtc *crtc);
+>> u64 drm_crtc_accurate_vblank_count(struct drm_crtc *crtc);
+>> void drm_crtc_vblank_restore(struct drm_crtc *crtc);
+>>
+>> -void drm_calc_timestamping_constants(struct drm_crtc *crtc,
+>> -     const struct drm_display_mode *mode);
+>> +int drm_calc_timestamping_constants(struct drm_crtc *crtc,
+>> +    const struct drm_display_mode *mode);
+>> wait_queue_head_t *drm_crtc_vblank_waitqueue(struct drm_crtc *crtc);
+>> void drm_crtc_set_max_vblank_count(struct drm_crtc *crtc,
+>>    u32 max_vblank_count);
+>> -- 
+>> 2.54.0
+>>
 
-Best regards,
-Ryosuke
+-- 
+--
+Thomas Zimmermann
+Graphics Driver Developer
+SUSE Software Solutions Germany GmbH
+Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
+GF: Jochen Jaser, Andrew McDonald, Werner Knoblich, (HRB 36809, AG Nürnberg)
+
 
