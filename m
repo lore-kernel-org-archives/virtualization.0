@@ -1,170 +1,132 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f181.google.com (mail-pl1-f181.google.com [209.85.214.181])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 82CB5328B5E;
-	Sun,  5 Jul 2026 12:38:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 149F9B672
+	for <virtualization@lists.linux.dev>; Sun,  5 Jul 2026 15:59:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.181
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783255088; cv=none; b=H8tAZXrdrePe77ZxYlKtVuVfwQXv7uFPWVk6f+8Y662+RlRRut6woi0kZcxaqiqkGTYFBZlcuiwZYcV5lnfULa2YNpwIbfIUgzMU6YxtBLlmF9dvf/YaKcMc0mPpMvo0FSdrJeg6r8SypseUBad2OwPXJtkZuE/prThS07PRQMc=
+	t=1783267188; cv=none; b=nOpqbP75n1SeE5Qmy7iFSdTC6mJhqReN4IIaN1JevCLr6Ov4mHQibmBn3g6etYngA2T7E3RuywiKVRjrQukyJddNCXN+5MUfH5HHr2PLKCks3AVJk/8i2CZ1kkb+udZ9XHj6XlhNZFZDUyiOf7sTe7o5FGJEOuaaIPupJLn2NmY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783255088; c=relaxed/simple;
-	bh=Gl8MfTt8suXBO7Pu5/maEDsc0GlZdohSGzjmR3J0T+U=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
-	 MIME-Version:Content-Type; b=KQQL6WvnXw+CCDhDvn6005N5+JBdq7hlwBPl3JlGyKZ6gr/wusKJH7W7eLdaMHyUvqEWCsNi/M6F+erk8U5sAKnPpv6vrqlknm96IDc93NplJaLW2ckX6m8rT4xrW88lLlmaFKvg6PqstKXMqyAFYoVSzjTJ9uz70RT0lsl0p1M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b3ypc1ba; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783267188; c=relaxed/simple;
+	bh=xPyvtKmNvExaeH5iOJF/u3wmRDZK6SHOgH8krALFXzA=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=oGAJA9E+4Zkw5Mx2VbVuMFDg3vpDUPi3Lj+EnmkPmc2q8XUniTarQ7JuEWs6MHaZ2ookl3PUbNlX7CK3+K4VdF9mA+MJPDrV/Y4QRqZ7XaRjeuh7Uu+lVmiZIxjh48FiFKaVChIh2iB/VXH+jdUsj5jDtU6Xsy5tsaCBEAv1xJk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=FbxC/tVV; arc=none smtp.client-ip=209.85.214.181
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b3ypc1ba"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7D2471F000E9;
-	Sun,  5 Jul 2026 12:38:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783255087;
-	bh=rVncT2+p9KqQfIvl5pGhLMSnQrP7IONrb76DatfXrmU=;
-	h=From:To:Cc:Subject:In-Reply-To:References:Date;
-	b=b3ypc1baMCcYHKP78bk38XYOF7stZ4HSVpDDcrLmr72LmG+/JXlrWkfL+/2DskJle
-	 NSV1L6u47otAthV4uhriDp9PDhmZ7H/mX3/A0xmfQb99kVxYTtCEJyqdsxVHVBW1Dv
-	 nLtJReYfY0sJLhQbCiwkaHDACS4HjAYHF6tN3XQdt/uMARPTPejO58C1hqEZRCKZ+P
-	 Ja3tgg6+AdxwVbLgHeYnTTfXQ5P8NZkVasSr0jN03qaB1loYDUqYIozwhTl8I+VTti
-	 XVB6D0KorrlmcfO/oUGrK9vwheVY1+uN8d0vtZX2TSU+SvdesPhy2fx08xCpB+nWSv
-	 ZLgNQHDn4S5BQ==
-From: Thomas Gleixner <tglx@kernel.org>
-To: Thomas =?utf-8?Q?Wei=C3=9Fschuh?= <thomas.weissschuh@linutronix.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, David Woodhouse
- <dwmw2@infradead.org>, Miroslav Lichvar <mlichvar@redhat.com>, John Stultz
- <jstultz@google.com>, Stephen Boyd <sboyd@kernel.org>, Anna-Maria Behnsen
- <anna-maria@linutronix.de>, Frederic Weisbecker <frederic@kernel.org>,
- Arthur Kiyanovski <akiyano@amazon.com>, Rodolfo Giometti
- <giometti@enneenne.com>, Vincent Donnefort <vdonnefort@google.com>, Marc
- Zyngier <maz@kernel.org>, Oliver Upton <oliver.upton@linux.dev>,
- kvmarm@lists.linux.dev, Oliver Upton <oupton@kernel.org>, Richard Cochran
- <richardcochran@gmail.com>, netdev@vger.kernel.org, Takashi Iwai
- <tiwai@suse.com>, Miri Korenblit <miriam.rachel.korenblit@intel.com>,
- Johannes Berg <johannes.berg@intel.com>, Jacob Keller
- <jacob.e.keller@intel.com>, Tony Nguyen <anthony.l.nguyen@intel.com>,
- Saeed Mahameed <saeedm@nvidia.com>, Peter Hilber
- <peter.hilber@oss.qualcomm.com>, "Michael S. Tsirkin" <mst@redhat.com>,
- virtualization@lists.linux.dev, linux-wireless@vger.kernel.org,
- linux-sound@vger.kernel.org
-Subject: [PATCH] timekeeping: Document monotonic raw timestamps in snapshots
- correctly
-In-Reply-To: <87bjctsptt.ffs@fw13>
-References: <20260526165826.392227559@kernel.org>
- <20260526171223.374814973@kernel.org>
- <20260626103359-66ab2b54-d36f-416b-94a4-3f3708dccced@linutronix.de>
- <87echtk24a.ffs@fw13>
- <20260626125819-d8b197fc-7671-4d12-a578-9025affc52d9@linutronix.de>
- <87fr29ib4v.ffs@fw13>
- <20260629055344-b74c43de-2a2b-4608-ae4e-ed0ac8e12fd1@linutronix.de>
- <87bjctsptt.ffs@fw13>
-Date: Sun, 05 Jul 2026 14:38:04 +0200
-Message-ID: <87wlv9k3wz.ffs@fw13>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="FbxC/tVV"
+Received: by mail-pl1-f181.google.com with SMTP id d9443c01a7336-2c7c61b5292so31279755ad.0
+        for <virtualization@lists.linux.dev>; Sun, 05 Jul 2026 08:59:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1783267186; x=1783871986; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to;
+        bh=2h3lN4661rhNBRpzqyqQ47ADQ5d9ZH08acIhfwExsJ4=;
+        b=FbxC/tVVBm99aGcmvviDV09uXQQdDKqhUvV5eIr+F89pqpCsx2u+6XTElg9+Dv9VJY
+         kSLX9giCtnYvxltDRHLneaktvyxkSWvzZwVewI4Sk5dj+QubF+hhFWKrdNe0T/KUjbKl
+         mIK1L9N8ESWCC8KGfkh3zGNrQO0T4pjpAcX+u3/uN8OwsJKzKP5W4grNMwmxHgxs5ml+
+         NWfjvCdpngi7q3TDqWS4fhfv07/l1n/M+u3cLY32a9pXKKho+YYwtk/VRSSPsNf03Ezy
+         GJ1AJ3yW4pnqtq5iFHWsURGPxT8jQRmFrbZovwvnNYJJD8ySoS83g4RwtPVEyP8M2h28
+         XgHQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783267186; x=1783871986;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to;
+        bh=2h3lN4661rhNBRpzqyqQ47ADQ5d9ZH08acIhfwExsJ4=;
+        b=mkW4Nl2C2r76O2GMT1s0++Dkqnf3c5UGJsJeSghgNGibymyEuGL8lvchZOTtIh16FL
+         tI5D9lLsqdPINzyWVI/07XXJGwcBE5ett4YwFUZaM/JPDdFJQ4EECy8Jgjg1+vNmNRe3
+         dA37ZivqtjsqM4AH04uKLegGTgvvoFOHF+4x28nDlb6TEfjA8vUshOs+akhzuHIhYzdc
+         CKlWcvDEjIR5H1FUfp8UmpJ7zTW5ycHMyZi49ort9rEviqI6JijtJ0IH+2TY6zQi3f6o
+         rhiHkoQubkW6aBulWnAIS88GWlu/UXVdZLVrGIsMBIhtet3j3tDWE0ruPFc+5lUA/xij
+         fwqQ==
+X-Forwarded-Encrypted: i=1; AHgh+RqNrdMcIgdxSbllihoEjq/aS9LLcwKUVd3zNStxW6akrm7qvLO1qrlMvLEBIcaHrJ9li85+l6h1S4MinyyJGQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyTpruMdTop90K4EHo41my62MagSgUXRgMt1/IH3qPIxrp9nhVd
+	mxgQKdrttzgK2+FejI56woL3bW9YfEAoWA9jB4pypHEQt7r9wDDhw4WRMF+jQWAetSc=
+X-Gm-Gg: AfdE7cn9GH05bxJ+XoT2GtzyZ6nAkDlC4W7R2K1GvXFcDjAzQ0R5+iSFq4NMAe5+jX2
+	FeniRZ5jphWM3nziXPLienlRk15JzXJBLY103u1btdFuAjdH4z4bpgrdrbdgyjZBVD271q3sfoZ
+	eLKqJUh7lhnAI9c1z1oiLE7M+RoMzBLFuHoIHgrEj5avz7sR80fjIYJNozxo8A2LhI9XMKxH7Tu
+	eaWFnQ0XHL3kSriy8htvkxXBXJpNtJHe1ZzZU01T+Jo4CA6bp9tdkbzWVAnTQHBh8YBgHS03Mhs
+	MnonfJ6oMYNsdZ6if4YaF+3tl48iKOgw7xvagTLluylnxX5HZGnvbwSA7CHdXIKFbtrOV0IjO6o
+	9/ZOV/OHoxspAEumrhwZuuAL2C5c7Xxrj8bTpsgYwErzBzFjKFtJChNvTeZMnBUUrB7xJ51lO8q
+	GPsQ==
+X-Received: by 2002:a17:902:f788:b0:2c8:1c05:16aa with SMTP id d9443c01a7336-2cbb7511947mr65538905ad.19.1783267186422;
+        Sun, 05 Jul 2026 08:59:46 -0700 (PDT)
+Received: from lgs.. ([101.36.111.22])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2cad78aa06bsm35281165ad.84.2026.07.05.08.59.43
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 05 Jul 2026 08:59:45 -0700 (PDT)
+From: Guangshuo Li <lgs201920130244@gmail.com>
+To: Viresh Kumar <viresh.kumar@linaro.org>,
+	"Chen, Jian Jun" <jian.jun.chen@intel.com>,
+	Andi Shyti <andi.shyti@kernel.org>,
+	linux-i2c@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Cc: Guangshuo Li <lgs201920130244@gmail.com>
+Subject: [PATCH] i2c: virtio: Reset virtqueue before freeing interrupted requests
+Date: Sun,  5 Jul 2026 23:59:25 +0800
+Message-ID: <20260705155925.292765-1-lgs201920130244@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-The comments related to raw monotonic timestamps for the various
-snapshot mechanisms in code and struct documentation are ambiguous. They
-reference them as CLOCK_MONOTONIC_RAW timestamps, but with the arrival
-of AUX clocks that's not longer correct.
+virtio_i2c_complete_reqs() waits for each queued request to complete
+before releasing the per-message DMA-safe buffer. The request array is
+then freed by virtio_i2c_xfer().
 
-The raw monotonic timestamps only represent CLOCK_MONOTONIC_RAW for the
-system time clock IDs, i.e. REALTIME, MONOTONIC, BOOTTIME, TAI.
+After wait_for_completion_interruptible() was introduced, the wait can
+return before the current request has completed. In that case, the
+request and the remaining requests may still be owned by the virtqueue
+and may still be completed by the device later.
 
-For AUX clocks they refer to the monotonic raw clock which is related to
-the individual AUX clocks. These monotonic raw timestamps have the same
-conversion factor as CLOCK_MONOTONIC_RAW, but differ from that by an
-offset:
+The error path nevertheless continues to release each message buffer and
+virtio_i2c_xfer() frees the request array. A later device completion can
+then write to freed request memory or call complete() on a freed
+completion object.
 
-	MONORAW(AUX$N) =3D MONORAW(SYSTEM) + OFFSET(AUX$N)
+Reset the virtqueue when the wait is interrupted so that outstanding
+buffers are recovered before the request array and message buffers are
+freed.
 
-The offset is established when a AUX clock is enabled and stays constant
-for the lifetime of the AUX clock.
-
-Update the comments so they reflect reality.
-
-Signed-off-by: Thomas Gleixner <tglx@kernel.org>
-Reported-by: Thomas Wei=C3=9Fschuh <thomas.weissschuh@linutronix.de>
+Fixes: a663b3c47ab1 ("i2c: virtio: Avoid hang by using interruptible completion wait")
+Signed-off-by: Guangshuo Li <lgs201920130244@gmail.com>
 ---
- include/linux/timekeeping.h |   10 +++++++++-
- kernel/time/timekeeping.c   |   16 +++++++++++++++-
- 2 files changed, 24 insertions(+), 2 deletions(-)
+ drivers/i2c/busses/i2c-virtio.c | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
 
---- a/include/linux/timekeeping.h
-+++ b/include/linux/timekeeping.h
-@@ -276,7 +276,7 @@ static inline bool ktime_get_aux_ts64(cl
- #endif
-=20
- /**
-- * struct system_time_snapshot - Simultaneous time capture of CLOCK_MONOTO=
-NIC_RAW,
-+ * struct system_time_snapshot - Simultaneous time capture of monotonic ra=
-w time,
-  *				 a selected CLOCK_* and the clocksource counter value
-  * @cycles:		Clocksource counter value to produce the system times
-  * @hw_cycles:		For derived clocksources, the hardware counter value from
-@@ -289,6 +289,10 @@ static inline bool ktime_get_aux_ts64(cl
-  * @clock_was_set_seq:	The sequence number of clock-was-set events
-  * @cs_was_changed_seq:	The sequence number of clocksource change events
-  * @valid:		True if the snapshot is valid
-+ *
-+ * @monoraw is CLOCK_MONOTONIC_RAW for system time CLOCK ids. For CLOCK_AU=
-X$N
-+ * clock ids it's the monotonic raw time related to the AUX clock, which is
-+ * CLOCK_MONOTONIC_RAW plus a AUX clock specific offset.
-  */
- struct system_time_snapshot {
- 	u64			cycles;
-@@ -326,6 +330,10 @@ struct system_counterval_t {
-  * @sys_counter:	Clocksource counter value simultaneous with device time
-  * @sys_systime:	System time for @clock_id
-  * @sys_monoraw:	Monotonic raw simultaneous with device time
-+ *
-+ * @sys_monoraw is CLOCK_MONOTONIC_RAW for system time CLOCK ids. For
-+ * CLOCK_AUX$N clock ids it's the monotonic raw time related to the AUX cl=
-ock,
-+ * which is CLOCK_MONOTONIC_RAW plus a AUX clock specific offset.
-  */
- struct system_device_crosststamp {
- 	clockid_t			clock_id;
---- a/kernel/time/timekeeping.c
-+++ b/kernel/time/timekeeping.c
-@@ -1202,10 +1202,21 @@ static inline u64 tk_clock_read_snapshot
-=20
- /**
-  * ktime_get_snapshot_id -  Simultaneously snapshot a given clock ID with
-- *			    CLOCK_MONOTONIC_RAW and the underlying
-+ *			    the corresponding monotonic raw and the underlying
-  *			    clocksource counter value.
-  * @clock_id:		The clock ID to snapshot
-  * @systime_snapshot:	Pointer to struct receiving the system time snapshot
-+ *
-+ * For the system time keeping clocks (REALTIME, MONOTONIC and BOOTTIME) t=
-he
-+ * monotonic raw clock is CLOCK_MONOTONIC_RAW. For AUX clocks this is the
-+ * monotonic raw clock related to the AUX clock. These AUX clock related
-+ * monotonic raw clocks have a strict linear offset to the system time
-+ * CLOCK_MONOTONIC_RAW:
-+ *
-+ *	MONOTONIC_RAW(AUX$N) =3D CLOCK_MONOTONIC_RAW(system) + offset(AUX$N)
-+ *
-+ * The offset is established when a AUX clock is initialized, but it is
-+ * currently not accessible.
-  */
- void ktime_get_snapshot_id(clockid_t clock_id, struct system_time_snapshot=
- *systime_snapshot)
- {
-@@ -1512,6 +1523,9 @@ EXPORT_SYMBOL_GPL(ktime_real_to_base_clo
-  * @xtstamp:		Receives simultaneously captured system and device time
-  *
-  * Reads a timestamp from a device and correlates it to system time
-+ *
-+ * See documentation for ktime_get_snapshot_id() for information about the=
- raw
-+ * monotonic time stamp which is used here.
-  */
- int get_device_system_crosststamp(int (*get_time_fn)
- 				  (ktime_t *device_time,
+diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
+index 5da6fef92bec..6ef09eda3ed0 100644
+--- a/drivers/i2c/busses/i2c-virtio.c
++++ b/drivers/i2c/busses/i2c-virtio.c
+@@ -117,12 +117,19 @@ static int virtio_i2c_complete_reqs(struct virtqueue *vq,
+ 		struct virtio_i2c_req *req = &reqs[i];
+ 
+ 		if (!failed) {
+-			if (wait_for_completion_interruptible(&req->completion))
++			if (wait_for_completion_interruptible(&req->completion)) {
++				/*
++				 * The remaining buffers may still be owned by
++				 * the device. Reset the virtqueue before freeing
++				 * the request array and message buffers.
++				 */
++				virtqueue_reset(vq, NULL, NULL);
+ 				failed = true;
+-			else if (req->in_hdr.status != VIRTIO_I2C_MSG_OK)
++			} else if (req->in_hdr.status != VIRTIO_I2C_MSG_OK) {
+ 				failed = true;
+-			else
++			} else {
+ 				j++;
++			}
+ 		}
+ 
+ 		i2c_put_dma_safe_msg_buf(reqs[i].buf, &msgs[i], !failed);
+-- 
+2.43.0
+
