@@ -1,139 +1,89 @@
-Received: from mail-pg1-f179.google.com (mail-pg1-f179.google.com [209.85.215.179])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
-	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 917161B7910
-	for <virtualization@lists.linux.dev>; Mon,  6 Jul 2026 04:09:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.179
+Received: from outbound.baidu.com (mx15.baidu.com [111.202.115.100])
+	by smtp.subspace.kernel.org (Postfix) with SMTP id 1DA5637C0F3
+	for <virtualization@lists.linux.dev>; Mon,  6 Jul 2026 06:09:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=111.202.115.100
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783310942; cv=none; b=gk2RlhnKDMvWc3CXBVD+PvUYdPuBUrFU1U3u65a9+WJr9l37Fig+RhiaOEJbvwrun/ebk1naq6k9JiqF4o7INAciXfxfZ4++dOyFaMSiFMNwlihmd4nxivYe8pKEha7HAp4NKsht7G3I4oOq/RC4vKvh22zac0q7Fcb3fMp8FT0=
+	t=1783318176; cv=none; b=DC7KLLNdCkNS9yzQzfVBT3PbJcQaUHE6yGYSRSASz0bk9D6SNH+byCMg3edsEheBmeW+eG3hQ45zpRsEQAm9q5xiYs6e06dArmrbrpyaXtp/N8e+zi/bLF5v3f7Y1ryAPy7mlkgprtgV+kmvs3O934kcX4/FbPecNqvly/h97MU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783310942; c=relaxed/simple;
-	bh=gesLhmjDATHcNmyKwVTHjKEW+LBwNmx7XQdwBmxHfxA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=MQYLsmQ3LqPhcSWdWmrb0m/u4sAETubjN1RVJuRcr2+vd7yiG2J4tKtE6lIeeKow7WjjM3uYnNWefx1D0Kuty+ORXImFAwfzEq/EKXmLuVZtQHv+lEZzFGSimrPEXpqv+0SwHurPDWO3HIiYmdtL/UIMpj1tGqc9nN8SvEIDMKE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org; spf=pass smtp.mailfrom=linaro.org; dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b=K7sc3ZmR; arc=none smtp.client-ip=209.85.215.179
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linaro.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linaro.org
+	s=arc-20240116; t=1783318176; c=relaxed/simple;
+	bh=mZ8RdtoHoaP2zKecqF7SODEaHQyJcEThwFDo29lFUhE=;
+	h=From:To:CC:Subject:Date:Message-ID:MIME-Version:Content-Type; b=s4V4OAboEjbj4t1WSSIvVDzU+JfvbzXZ/3/OvsLto4qs9mY5KOMRQ+8zrlb4if5qShWV0XX0hAhAfN/+zawz6Kg0iTf6SI2Q0TXnRWm/ubDBLuQoI7Ta8lDQ7/dK5dq9uwgU07ZBHR0MY22jc4zOaXUYfWPzytYZshOYJk5UaVw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=baidu.com; spf=pass smtp.mailfrom=baidu.com; dkim=pass (2048-bit key) header.d=baidu.com header.i=@baidu.com header.b=f36j00JH; arc=none smtp.client-ip=111.202.115.100
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=baidu.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=baidu.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=linaro.org header.i=@linaro.org header.b="K7sc3ZmR"
-Received: by mail-pg1-f179.google.com with SMTP id 41be03b00d2f7-c96cb024ee0so1756407a12.1
-        for <virtualization@lists.linux.dev>; Sun, 05 Jul 2026 21:09:01 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=linaro.org; s=google; t=1783310941; x=1783915741; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:from:to:cc:subject:date:message-id:reply-to;
-        bh=nUpTmSp9slqIVLS0De2fE7WAIj9ccgm7yyep1NzPYZg=;
-        b=K7sc3ZmRHolFPGCkjNqrWSU8HPG812G9BOjo+aEHqpcf6FO7Odr2rO9MZjEQrMNHY8
-         A9pjLVtbRI33kCe1EGMYwzl169ymlwejjmCaS5TotJAXDlPK2Yo5lYIC01Mf+CK/noan
-         GyGuGYmIGt5Mn09lPM6tjKLuQAHHBc//RSe9O4U9UjTYUadHy75PtcNX7fJa+lxodbPJ
-         Km+MOnkP8eoOjNeI5geX9H3lnXRrvQLhGyiik9Wqxqkbzd/wgqzPCXguiKWZ+1VG1ivQ
-         1hrUFl776bSim5UQxC/VGZKGPzb/u4AKi30hG7+6qvfDWw5Pfrv7GdUT5WnJwJeuPeES
-         3jWg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783310941; x=1783915741;
-        h=in-reply-to:content-disposition:mime-version:references:message-id
-         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to;
-        bh=nUpTmSp9slqIVLS0De2fE7WAIj9ccgm7yyep1NzPYZg=;
-        b=NWxrsRBTvYMq6Mlqd5GMBzeJOiyE5hO5nXnTqJu5V5PZwikpb8za79RfFs4vZYNjAo
-         afJIBM5xJfOw8hj3DCB2kFcBJTvjH3CGZwK+z+QcMmQXu56tEZ3KGGai6UHCuygtCcrv
-         uNEvQr8gZLiBTzCxCyxVvzcTwFJzKVY62maf9grHkZLSH72paIyuP+IZ5ilYeTmXPJ1T
-         RxcDZRsVj2G35w2xFdIVR+bKlefFitMxKVSsIoKPTMsONteJeBVdw9QMyMrfGTvk43Ll
-         Su00IKAthGYssz18O1sJgPQVPQoZwLN5cSrEe4ZQbe/JPAwcKNmfv08S8VzlDUVaki/5
-         n2fw==
-X-Forwarded-Encrypted: i=1; AHgh+Rr+k7w0U3+20BWrJJzPxdNmqZ0xGtnq0/QWYdFWQAaPXRnVbI0T+90QMGyzUSs2dDw0SN53Y0j5GfFsnXgQjw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwCVh86FvSDvupW9CpY8d58FZXLaAYyrjhka35wJBoNj2hA7/S6
-	6knipqLnRwF2h2AwfFuGWlq59sGKRorWmPYURGOXMt/uBz3yfZ2JKSk4IqXyWG3MwGA=
-X-Gm-Gg: AfdE7cndtKHlT76VQntpiAkgBZo49n5uu1671kMDHi2PgGaHl5EEX/FRXp8N5z00Bic
-	VWPKmjkwZVOU0zFBu1x409V4sRULP8erMc763mF8c1Jb88N8Y6Dzuy7jgykB3CuuF/V/zLx+ICP
-	sBX8CMlqOKPaMHSXBkz/6fHxT0bbJFEO1iPEFgYuK+A3EtTZh50hRpt+BBrKxKBldGdb+9ho3IC
-	FSEMXTyepNkbxMJwJr7Q7j1EYpFH0z8cFuvR0aA0Lr+aVzks9hdx/SMI7ZZPR32nYfO81zlHU5s
-	53RKcai4+i499Mlgzn3QLZgWi4ye6IwdLChD7Dy1qRVxXO0CSgBlEhmhfL5WBNW9q/HB4ESE9GV
-	MWbkp4otSUBkDpObaZv8vNJqLphJKn0tnsYxsvMHER1W5GMkdmrBW5Xu7M0sUmUSNQwJrA5SwWZ
-	bzrMIhpPfLE3TK
-X-Received: by 2002:a05:6a21:310e:b0:3bf:9fc0:f6c2 with SMTP id adf61e73a8af0-3c03e18bc01mr8997778637.11.1783310940716;
-        Sun, 05 Jul 2026 21:09:00 -0700 (PDT)
-Received: from localhost ([122.172.82.94])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-30f0bc2e119sm48016654eec.28.2026.07.05.21.08.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 05 Jul 2026 21:08:59 -0700 (PDT)
-Date: Mon, 6 Jul 2026 09:38:56 +0530
-From: Viresh Kumar <viresh.kumar@linaro.org>
-To: Guangshuo Li <lgs201920130244@gmail.com>, 
-	Gavin Li <gavin.li@samsara.com>
-Cc: "Chen, Jian Jun" <jian.jun.chen@intel.com>, 
-	Andi Shyti <andi.shyti@kernel.org>, linux-i2c@vger.kernel.org, virtualization@lists.linux.dev, 
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] i2c: virtio: Reset virtqueue before freeing interrupted
- requests
-Message-ID: <krqh3ya6km5g43tp3nmtq5n6liwghilfsvzrsyh7zdywtn23of@5iztbohhsxfg>
-References: <20260705155925.292765-1-lgs201920130244@gmail.com>
+	dkim=pass (2048-bit key) header.d=baidu.com header.i=@baidu.com header.b="f36j00JH"
+X-MD-Sfrom: lirongqing@baidu.com
+X-MD-SrcIP: 172.31.50.47
+From: lirongqing <lirongqing@baidu.com>
+To: Dragos Tatulea <dtatulea@nvidia.com>, "Michael S . Tsirkin"
+	<mst@redhat.com>, Jason Wang <jasowangio@gmail.com>, Xuan Zhuo
+	<xuanzhuo@linux.alibaba.com>, =?UTF-8?q?Eugenio=20P=C3=A9rez?=
+	<eperezma@redhat.com>, Cindy Lu <lulu@redhat.com>, Kees Cook
+	<kees@kernel.org>, <virtualization@lists.linux.dev>,
+	<linux-kernel@vger.kernel.org>
+CC: Li RongQing <lirongqing@baidu.com>
+Subject: [PATCH] vdpa/mlx5: fix wrong MLX5_ADDR_OF struct type in alloc_inout()
+Date: Mon, 6 Jul 2026 14:09:02 +0800
+Message-ID: <20260706060902.2341-1-lirongqing@baidu.com>
+X-Mailer: git-send-email 2.17.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260705155925.292765-1-lgs201920130244@gmail.com>
+Content-Type: text/plain
+X-ClientProxiedBy: bjkjy-exc13.internal.baidu.com (172.31.51.13) To
+ bjkjy-exc3.internal.baidu.com (172.31.50.47)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=baidu.com;
+	s=selector1; t=1783318166;
+	bh=dOY/T0UMhDtLTqbVSJGV9b3hkKpMYso8tQdta9n8M/I=;
+	h=From:To:CC:Subject:Date:Message-ID:Content-Type;
+	b=f36j00JH7+p6N1q2sOzcb+ea4/6z7y8yvlzqXaSBDvTWeh0Lq3CF2exF8XfpS+dFg
+	 LfbvRKu5tzHafRIlL99IbyROUfzQQ+oz6Tt7jG6vH24DnmTpIvy2Nq/dUqSurebO1V
+	 IaTiTD8+7r6jkGt9c5+m6A44co1ZWspcodb+WskkL6Jpl3IkW1keRUBvzeX9ZgaHiq
+	 VKlWclmMjP+0L7Iynlpa74g0AtGnq5JEoZ3ucOFr12TPyIQdyt/I8z5tvO6xkvegOr
+	 MTGmUifdO6gLpN/OWfAOBMArAM3R76DdEBczIBKo0e8EqokfTmq8NVcOlzkFCW/oZC
+	 jgD01syghdVgw==
 
-On 05-07-26, 23:59, Guangshuo Li wrote:
-> virtio_i2c_complete_reqs() waits for each queued request to complete
-> before releasing the per-message DMA-safe buffer. The request array is
-> then freed by virtio_i2c_xfer().
-> 
-> After wait_for_completion_interruptible() was introduced, the wait can
-> return before the current request has completed. In that case, the
-> request and the remaining requests may still be owned by the virtqueue
-> and may still be completed by the device later.
-> 
-> The error path nevertheless continues to release each message buffer and
-> virtio_i2c_xfer() frees the request array. A later device completion can
-> then write to freed request memory or call complete() on a freed
-> completion object.
-> 
-> Reset the virtqueue when the wait is interrupted so that outstanding
-> buffers are recovered before the request array and message buffers are
-> freed.
-> 
-> Fixes: a663b3c47ab1 ("i2c: virtio: Avoid hang by using interruptible completion wait")
-> Signed-off-by: Guangshuo Li <lgs201920130244@gmail.com>
-> ---
->  drivers/i2c/busses/i2c-virtio.c | 13 ++++++++++---
->  1 file changed, 10 insertions(+), 3 deletions(-)
-> 
-> diff --git a/drivers/i2c/busses/i2c-virtio.c b/drivers/i2c/busses/i2c-virtio.c
-> index 5da6fef92bec..6ef09eda3ed0 100644
-> --- a/drivers/i2c/busses/i2c-virtio.c
-> +++ b/drivers/i2c/busses/i2c-virtio.c
-> @@ -117,12 +117,19 @@ static int virtio_i2c_complete_reqs(struct virtqueue *vq,
->  		struct virtio_i2c_req *req = &reqs[i];
->  
->  		if (!failed) {
-> -			if (wait_for_completion_interruptible(&req->completion))
-> +			if (wait_for_completion_interruptible(&req->completion)) {
-> +				/*
-> +				 * The remaining buffers may still be owned by
-> +				 * the device. Reset the virtqueue before freeing
-> +				 * the request array and message buffers.
-> +				 */
-> +				virtqueue_reset(vq, NULL, NULL);
->  				failed = true;
-> -			else if (req->in_hdr.status != VIRTIO_I2C_MSG_OK)
-> +			} else if (req->in_hdr.status != VIRTIO_I2C_MSG_OK) {
->  				failed = true;
-> -			else
-> +			} else {
->  				j++;
-> +			}
->  		}
->  
->  		i2c_put_dma_safe_msg_buf(reqs[i].buf, &msgs[i], !failed);
+From: Li RongQing <lirongqing@baidu.com>
 
-+ Gavin, who was also trying to solve this path recently.
+In alloc_inout(), the qpc field offset was computed using
+MLX5_ADDR_OF(rst2init_qp_in, ...) in both the INIT2RTR_QP and
+RTR2RTS_QP cases. This is a copy-paste error: each case should use
+its own input structure type to get the correct qpc offset.
 
-https://lore.kernel.org/all/20260610155834.79207-1-gavin.li@samsara.com/
+Fix the INIT2RTR_QP case to use MLX5_ADDR_OF(init2rtr_qp_in, ...)
+and the RTR2RTS_QP case to use MLX5_ADDR_OF(rtr2rts_qp_in, ...).
 
+Signed-off-by: Li RongQing <lirongqing@baidu.com>
+---
+ drivers/vdpa/mlx5/net/mlx5_vnet.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+index ad0d5fbb..eb431a1 100644
+--- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
++++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
+@@ -1080,7 +1080,7 @@ static void alloc_inout(struct mlx5_vdpa_net *ndev, int cmd, void **in, int *inl
+ 		MLX5_SET(init2rtr_qp_in, *in, opcode, cmd);
+ 		MLX5_SET(init2rtr_qp_in, *in, uid, ndev->mvdev.res.uid);
+ 		MLX5_SET(init2rtr_qp_in, *in, qpn, qpn);
+-		qpc = MLX5_ADDR_OF(rst2init_qp_in, *in, qpc);
++		qpc = MLX5_ADDR_OF(init2rtr_qp_in, *in, qpc);
+ 		MLX5_SET(qpc, qpc, mtu, MLX5_QPC_MTU_256_BYTES);
+ 		MLX5_SET(qpc, qpc, log_msg_max, 30);
+ 		MLX5_SET(qpc, qpc, remote_qpn, rqpn);
+@@ -1098,7 +1098,7 @@ static void alloc_inout(struct mlx5_vdpa_net *ndev, int cmd, void **in, int *inl
+ 		MLX5_SET(rtr2rts_qp_in, *in, opcode, cmd);
+ 		MLX5_SET(rtr2rts_qp_in, *in, uid, ndev->mvdev.res.uid);
+ 		MLX5_SET(rtr2rts_qp_in, *in, qpn, qpn);
+-		qpc = MLX5_ADDR_OF(rst2init_qp_in, *in, qpc);
++		qpc = MLX5_ADDR_OF(rtr2rts_qp_in, *in, qpc);
+ 		pp = MLX5_ADDR_OF(qpc, qpc, primary_address_path);
+ 		MLX5_SET(ads, pp, ack_timeout, 14);
+ 		MLX5_SET(qpc, qpc, retry_count, 7);
 -- 
-viresh
+2.9.4
+
