@@ -1,170 +1,146 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BBE1B3DDAE5
-	for <virtualization@lists.linux.dev>; Mon,  6 Jul 2026 12:59:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8FEAB420884
+	for <virtualization@lists.linux.dev>; Mon,  6 Jul 2026 13:00:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783342772; cv=none; b=sh8h07r0AkYo6Gw555ZfDbxh60gNNdhAv8HuAzBDaRWHY2VzYrAM3cYfs3PzeY2R4+xllsOYKmEG6DleQRyhbUFUbJdboNOK+fOmtTdCBuNHW1dB8j4sa+RgniYleyaF4rrizk8NTj7NYzvZW151xIzgzMasmFDI4dX+g3HdYzE=
+	t=1783342803; cv=none; b=iz8kQwDZcS1E8q1Ni/rYgWsXeNyxWyssRBwRQrnX1oxKNUSG2qbm6UI5jYRGxbN5maJ9oi4TLO/RwGTTu0mIWhLu9R2uxvupbism8oKdeQ4qd3SZg95Rktv8jA7VeXrj63u1t03+FOgHsF8SwzAm9pHiW79qb2E+pKCvzTxfs6o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783342772; c=relaxed/simple;
-	bh=FifK7jN6Cu1Qxry7NO3XnKyC8D9yPjG9kd22WOrNNnc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=JACrq8HNJ0lNTaJYLU2rKYX0sTfAhNXaScOwKmx76iWgPzrUIHl+IKbZ6g0qWz8JeLMteqzLT7f0BgaAnwIDJUZVJkUNVT+Vm/1Jr/AqWAs82tyRvfhlmwzAsnAeOqhElMO1QDFtRMvjjfxl8M4pFtIbv5MkWxuHKdBF/f7nUcs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=Uoy/vRCL; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1783342803; c=relaxed/simple;
+	bh=3u09jUh7gLp5iv+UmhDqp0BEuE3lOYgqyKuJNhryqts=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=kA6bfAhrjqE7YeaeXtO+l0ce8bfUraq4l0JTQqL5sU9/Y5hpNvIbPajC0W7WKnJ0vF32OHrTIUI6vLgwsgu9g1JGsjEVLNETDkxR5Ewz/mduxYa0wa/C9Qs/RKRx1zIVF5WnTdOdYB6pNPfKmnUDez0uvInAl7tNVrABOY5p4Gw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=KRmcX5dr; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="Uoy/vRCL"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 666BISxk3447713;
-	Mon, 6 Jul 2026 12:59:29 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=zudwVz
-	ZVIiUvZFfeArOUlYRwLpKRLTCHHcE0xj02bGc=; b=Uoy/vRCLTQLP2KxoawocqQ
-	5EnXflvgvq9dRBKvEqZZketRwbgfCyV25NYIMd/eOTo4+I7V7BUs+HL1PpPHKWHN
-	XzNL6JlTC+dnkFaZ5/OZSLF6VKeOD8XWNTPuWvn6wE4XLT1RVnytqhXBhFoW1Cqj
-	r+NFtQI2pGN+VI30rwAOPMWDF0kL/o/5L3wo61hHSAZnYyoSLMtB00kl7puu+vtv
-	Td52GUdxjEqBdKUies8fmwoF3OkHn7DAF2uI/jlmpIsZlJo5sR4plJPpOxyY1axo
-	xhLEks6FMVAn0CUXrDsNlSk6DS54LCN8BfvUI7zDUYppvQgdcMA+MiuZFMWYLVLw
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4f6stsj001-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 06 Jul 2026 12:59:29 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 666Cnleg015849;
-	Mon, 6 Jul 2026 12:59:28 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4f7cvvwsca-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 06 Jul 2026 12:59:28 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (smtpav05.fra02v.mail.ibm.com [10.20.54.104])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 666CxQ7454723002
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 6 Jul 2026 12:59:26 GMT
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 9035120043;
-	Mon,  6 Jul 2026 12:59:26 +0000 (GMT)
-Received: from smtpav05.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4070920040;
-	Mon,  6 Jul 2026 12:59:26 +0000 (GMT)
-Received: from [9.224.77.173] (unknown [9.224.77.173])
-	by smtpav05.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon,  6 Jul 2026 12:59:26 +0000 (GMT)
-Message-ID: <530d7a50-3bd0-496a-bf41-3b99c8fbbad4@linux.ibm.com>
-Date: Mon, 6 Jul 2026 14:59:26 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="KRmcX5dr"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1783342801;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=GV9yo9jBEBI28o7XznZuNHujDFZwTfJarP6O8dyD09o=;
+	b=KRmcX5drb3QrsIMsOUZ3+JwbPN1H5Suv5EgvuEltFq0DLWd3agG/R9jtkIM3FiT2yX2hK+
+	0/J1QbluleKrlteihoo2bGJWA87kuIl58M8kFqP242GkFb1WLitjnVybiuTq7yHxtH6RlI
+	9j3S06KwNPBRfEds42i/ztG8K6061gI=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-561-LS-giU0QNyKOlo9Pa8_ehA-1; Mon, 06 Jul 2026 09:00:00 -0400
+X-MC-Unique: LS-giU0QNyKOlo9Pa8_ehA-1
+X-Mimecast-MFC-AGG-ID: LS-giU0QNyKOlo9Pa8_ehA_1783342799
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4926596eebcso19514375e9.3
+        for <virtualization@lists.linux.dev>; Mon, 06 Jul 2026 06:00:00 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783342799; x=1783947599;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=GV9yo9jBEBI28o7XznZuNHujDFZwTfJarP6O8dyD09o=;
+        b=fxh2+M9gfKE6jiX/Z2KoLfqEDWClC2tPSyp5Jz50cReXya/DPAOHrVaX0BcD5YeG4K
+         idCXVCVg1T8tuPb6KXhTCzVrDZvZ0kUQP6SG4FDC5SKXONPQ9Pf4DJ1bV+R0OWgEtxYn
+         fMpYXsvrRZc6sTK+y4+/Jn/nFkc16LJ0HM9VEgbNXw75/T5gYj88yvdc2SVRy34/0P5z
+         ohskISvUTb6g22WGaykCNyJnH/pYG8El1lMrz0nfWxu56AtwbJzIHEVEqbN2QGV9y77e
+         agM96JWLM6wpLF3ihdZpfFsbmO4aR2Pv4WzgX45yVPzqdtJEXXyUbrLefpEXAWXGe05v
+         t/hw==
+X-Forwarded-Encrypted: i=1; AHgh+RprrRcfITJo21DFkn93Cuw7Mb0DmPE7fip+g5ZHjYVFFbrIRECN3C8MEBtwiVoE1/VdqgMqm7gYVE4QB1T62Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz4V692J4gOmeGmUTaIWLpUJz1AWdeXHOAYfJzLZgzy+UXu53vb
+	I4wRdLHb4HkzxUYGxGHpHVo9MgaYk93fG2i3bjIn9d4WcbpEDkcp//vnwU/nFswUtnJnO/ju/A2
+	N6qAYa4Fjc3xDE/8xHvsKg7SqAR/c0TcQMxgvDTkWkVBhNRNCnFMwzRDlfAdPFd5+Ge6g
+X-Gm-Gg: AfdE7cnrV9zJrJ1WCDyc+nmN9fXgLuqloiNfvHji9sGdUPfahFtsPonKYR+NAt4SOfd
+	oBCsVTLBsDilx3kc0UB/kFU/0kYqrquCgv2/BB7Eu6TNt7LHhsLgNrSkj8kafJ/VOY6WCRN7znr
+	LM3YckR8BHlIB6t2JGaBPRIwoy+I54YA5hjqOCuPB3f1EtFfPgKuy5Bxc+fHw8l4kQH4UBqjzHD
+	QOaBYeVM0JWnuoF/ZFp32pKoQbbjrcWxC3HPzvmAmQVQS43lT/Sj0BbcnAFBXZj/Sa2eA7WOml5
+	ffBmWAFWPlgCGqu8BuA/bO78NseBiPZahSVVbzCOi7nzhoNHpc6UktSj8SYX5Y8G46wbn+RIl+s
+	9gHSsSmjWicILl9SACTHcYh4L3uIXFu+7
+X-Received: by 2002:a05:600c:a00a:b0:492:7142:f46e with SMTP id 5b1f17b1804b1-493df038767mr4416625e9.2.1783342799094;
+        Mon, 06 Jul 2026 05:59:59 -0700 (PDT)
+X-Received: by 2002:a05:600c:a00a:b0:492:7142:f46e with SMTP id 5b1f17b1804b1-493df038767mr4416205e9.2.1783342798623;
+        Mon, 06 Jul 2026 05:59:58 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-68-31.inter.net.il. [80.230.68.31])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-493ccdabda3sm287154295e9.5.2026.07.06.05.59.55
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 06 Jul 2026 05:59:57 -0700 (PDT)
+Date: Mon, 6 Jul 2026 08:59:53 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: linux-kernel@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Adam Litke <agl@us.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>,
+	virtualization@lists.linux.dev,
+	Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org
+Subject: Re: [PATCH v2] virtio_balloon: prime stats vq after
+ virtio_device_ready()
+Message-ID: <20260706070936-mutt-send-email-mst@kernel.org>
+References: <2f0d0de033f3005d3b985883be3e5cf37b3f6c42.1783278596.git.mst@redhat.com>
+ <13794c5e-375a-4fc5-84b4-a637d077f8a0@kernel.org>
+ <20260706042207-mutt-send-email-mst@kernel.org>
+ <6b8e4ad3-6909-4d0a-89a4-104a5ad9fe79@kernel.org>
+ <20260706044122-mutt-send-email-mst@kernel.org>
+ <24336f56-1024-4c9b-8653-b1a4658b627c@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [RFC/PATCH] vdpa/mlx5: Fix buffer length in create_direct_keys()
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-        virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-References: <20260706100129.1541140-1-borntraeger@linux.ibm.com>
- <06b371e3-418c-41d8-8c06-1971cc24d8d4@linux.ibm.com>
- <d7272d8d-8146-4ed0-90d6-2a27eae5ab6e@nvidia.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <d7272d8d-8146-4ed0-90d6-2a27eae5ab6e@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-ORIG-GUID: RUhYWlvgKVn7U6yaKQ6zY9FvGUE8Kxch
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzA2MDEzMCBTYWx0ZWRfXzxjgkGK3kCvi
- PP0dse4sboJB5qRItODe0Uomk5YWrbj7nP55Payfdfxp/jdaX8Fy8Lb63fEdwWu7+ZdUx0BvOUf
- 5GUjw9QdjDoQn3fI60ujfMGkQS99q1U=
-X-Authority-Analysis: v=2.4 cv=DKW/JSNb c=1 sm=1 tr=0 ts=6a4ba6b1 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=5a6MezmEKx9941N3190A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: RUhYWlvgKVn7U6yaKQ6zY9FvGUE8Kxch
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzA2MDEzMCBTYWx0ZWRfX6XPo9yPbwRPQ
- to/f9UElnmc1ToQYhts7Tq7bcVJCr716Gg/jAG2ixmvfGfCvcbhOJvX3bngT4HfEAetR+CpGCJt
- sftqxySO0fOgDKPvkgkHLvHNpscPvQFzr/z1k9KG8nO0dNGdJUQ7UzR6wwY9g3G4RjiqHKnm5Io
- 90YHoOcq+OYfqUjXhVO6ZX9WQ7E3JzTwTPXJDwJzdfu9lUcudQ5Kori4er3672bFyJY88y8aYoO
- DnuGm+rFkYUS/PpPy/QOjtCAvtCy8UDT7XW6MlKA5bb/Klx8j66po5ibhlaT9IqlvduXxLtOG7e
- zynD/vYrEcP33o5WEga/nFpyCFRGituFweBNRhH26aZSQBljA5x3u2zXJ+/EbigrgbGzoh4SK+V
- fDKutl+xlDbNEqsYs/qO+pEoSVyMLcDANkmXY+BfYdhk58Q1dFU3vgxq8VWaaBjO2bqkmRjAvRi
- 7XMbrcK61Sjt1QvRvYQ==
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-06_01,2026-07-06_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 bulkscore=0 clxscore=1015 phishscore=0 impostorscore=0
- priorityscore=1501 adultscore=0 lowpriorityscore=0 suspectscore=0
- malwarescore=0 classifier=typeunknown authscore=0 authtc= authcc=
- route=outbound adjust=0 reason=mlx scancount=1 engine=8.22.0-2606150000
- definitions=main-2607060130
+In-Reply-To: <24336f56-1024-4c9b-8653-b1a4658b627c@kernel.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: IZhvV3dAmsPFpeMlUYDnL0ysR3IB4A846ZjKHB60uAM_1783342799
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+
+On Mon, Jul 06, 2026 at 10:57:33AM +0200, David Hildenbrand (Arm) wrote:
+> On 7/6/26 10:43, Michael S. Tsirkin wrote:
+> > On Mon, Jul 06, 2026 at 10:38:18AM +0200, David Hildenbrand (Arm) wrote:
+> >>>
+> >>> Yes.
+> >>>
+> >>>
+> >>> Why not?
+> >>
+> >> I was wondering whether the spec would state something about that.
+> > 
+> > Sorry I do not get the question. Virtio API expects
+> > callers to serialize calls for each VQ. So this just prevents the work
+> > from running and accessing the VQ while probe calls add_buf/kick.
+> > I'll add a comment explaining that.
+> > But it has nothing to do with the spec.
+> 
+> The device is clearly not properly initialized yet.
+> 
+> Yet, we expect that we get a stats_request() callback that would try to
+> queue_work(). And IIUC, the stats_request() will be directly issued by the device.
+
+With an in-spec device, it can happen right after virtio_device_ready.
+We could defer it a bit, but I don't see what this gets us, and
+this also protects against any out of spec ones.
 
 
-
-Am 06.07.26 um 14:24 schrieb Dragos Tatulea:
+> In QEMU, that would mean that balloon_stats_poll_cb() runs, which would do a
+> 
+> if (s->stats_vq_elem == NULL) {
+> 	...
+> 	return
+> }
+> 
+> virtqueue_push(s->svq, s->stats_vq_elem, 0);
+> virtio_notify(vdev, s->svq);
 > 
 > 
-> On 06.07.26 12:13, Christian Borntraeger wrote:
->>
->>
->> Am 06.07.26 um 12:01 schrieb Christian Borntraeger:
->>> We have seen in our CI the following KASAN message:
->>> BUG: KASAN: slab-out-of-bounds in cmd_exec+0x550/0xca0 [mlx5_core]
->>> Read of size 272 at addr 0000000176795020 by task qemu-system-s39/82764
->>> [...]
->>> [<000011388ab3a7a0>] cmd_exec+0x550/0xca0 [mlx5_core]
->>> [<000011388ab3b61c>] mlx5_cmd_exec_cb+0x25c/0x4f0 [mlx5_core]
->>> [<000011388b21e82e>] mlx5_vdpa_exec_async_cmds+0x22e/0x5e0 [mlx5_vdpa]
->>> [<000011388b21fd44>] create_direct_keys+0x954/0xef0 [mlx5_vdpa]
->>> [...]
->>> The buggy address is located 4128 bytes inside of
->>> allocated 4384-byte region [0000000176794000, 0000000176795120)
->>>
->>> So in essence we read 16 bytes beyond 4384-byte allocation.
->>> create_direct_keys calculates the pointer and length for in and out
->>> buffers.
->>> The size calculation for in includes the entire structure
->>> size (out + in + mtt[]) but the pointer passed to cmd_exec points only
->>> to the 'in' field, skipping the 'out' field.
->>>
->>> This causes mlx5_copy_to_msg() to read beyond the allocated buffer
->>> by sizeof(out) bytes when copying command data.
->>>
->>> Calculates the input size as sizeof(in) + mtt_array_size to match the
->>> pointer and allocation size.
->>>
->>> Fixes: 0071b138d44a ("vdpa/mlx5: Create direct MKEYs in parallel")
->>> Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
->>> ---
->>>    drivers/vdpa/mlx5/core/mr.c | 2 +-
->>>    1 file changed, 1 insertion(+), 1 deletion(-)
->>>
->>> diff --git a/drivers/vdpa/mlx5/core/mr.c b/drivers/vdpa/mlx5/core/mr.c
->>> index 6d02ccf9eb91..03fe7f5ca412 100644
->>> --- a/drivers/vdpa/mlx5/core/mr.c
->>> +++ b/drivers/vdpa/mlx5/core/mr.c
->>> @@ -233,7 +233,7 @@ static int create_direct_keys(struct mlx5_vdpa_dev *mvdev, struct mlx5_vdpa_mr *
->>>    		cmds[i].out = cmd_mem->out;
->>>    		cmds[i].outlen = sizeof(cmd_mem->out);
->>>    		cmds[i].in = cmd_mem->in;
->>> -		cmds[i].inlen = struct_size(cmd_mem, mtt, mttcount);
->>> +		cmds[i].inlen = sizeof(cmd_mem->in) + (mttcount * sizeof(cmd_mem->mtt[0]));
-> Woops... Thanks for the catch. The fix is good.
-> 
->>
->> Assuming the fix is the correct fix, question is, if I should use the offset of in instead, e.g.
->>
->> 		cmds[i].inlen = struct_size(cmd_mem, mtt, mttcount) - offsetof(cmd_mem, in);
->>
->> to handle potential alignment and padding aspects.
->>
-> Seems harder to read. Why not:
-> sizeof(cmd_mem->in) + flex_array_size(cmd_mem, mtts, mttcount) ?
+> That's why I'm confused :)
 
-Can do that. I assume we do not have any implicit holes in the structure due to alignment? In
-other words, sizeof(cmd_mem->in) can never be something like 20 (and then the flex array would
-start at 24 to align 8 byte elements). If thats the case I will respin with your proposal.
+First the spec says there could be interrupts for no reasons right after
+DRIVER_OK. Second there are situations in which qemu might
+consume a buffer without a kick and then an interrupt
+races with the kick.
+
+> -- 
+> Cheers,
+> 
+> David
+
