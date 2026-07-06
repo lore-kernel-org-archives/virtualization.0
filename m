@@ -1,180 +1,194 @@
-Received: from mail-oa1-f49.google.com (mail-oa1-f49.google.com [209.85.160.49])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from CH1PR05CU001.outbound.protection.outlook.com (mail-northcentralusazon11010046.outbound.protection.outlook.com [52.101.193.46])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B5DA84229CB
-	for <virtualization@lists.linux.dev>; Mon,  6 Jul 2026 11:55:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 391AF42A16E
+	for <virtualization@lists.linux.dev>; Mon,  6 Jul 2026 12:24:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.193.46
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783338914; cv=pass; b=F70CMMV9sHCwOgRcmi1oJTjLAfq3s6yr2XnHTWxWUmhBt+93qudf4ZcaeWU7A9/Pr7Y3Wg0G9Hfe+JnG4hFxq4sET32Ku1EbKhjR2zUQ23hh8MzxwQmTV6eYxBCHmiWQnl8xAs2Xav9XpuAH2TGsyOLJWZ+ecCmChdBJFZTWJwo=
+	t=1783340658; cv=fail; b=PdBiXtKbx0xeum/gJfxfJM050lu34ps355xM7ALygJ796AXKJ63SByRbE1DbWZHFY+pZSS44AV6agJRV9VE8+Cp7SNX6x1WAlrNZ0BLLo7+2stVUm6Tdh+Jq3M8cJbLx1ocZUz78HQIGKKwYUd5e/3YYQjlcZHHigAoI7rXc0og=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783338914; c=relaxed/simple;
-	bh=oELiRmArb5ClQEoFheQBb03GBeALw9I3nDP+vOH+JTI=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=QLOBTLx4Vjpq2fKKk/B1pnAlzzwqgTrcopKGmpczOz1IDurwcuXNeOn3QWAPh8ShgMrgspM4tAGsG4eV5ah9qlNj63WqEXkZL3LMVW3QRKpso9kjg9xOVkFs6lpbeIuinlUhEKHXr/vd2QThd3ONPrvkK79R+60Kfu+ZWlKQi6s=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=RxoD8WZs; arc=pass smtp.client-ip=209.85.160.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	s=arc-20240116; t=1783340658; c=relaxed/simple;
+	bh=pBC+8TYzfqZdj7B6w6JnMBWF0PDmyp+zWD/ELqataio=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=ANOY3ylfiogq+fhSwRjmTqPxcjXHzpeGv0bffKYKnOIsY2f5payqkP7OHkn+/GDrzWFbc0NjDmULza4nLYw9xBSCH66MLMmmaauH8qviFkkaNHHgp6BamTmOnZfX6G05TaQiGBppKw8TdleVz7a5pOTyuoFj85YvdzTHFotNhpQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=WnOzDC9q; arc=fail smtp.client-ip=52.101.193.46
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="RxoD8WZs"
-Received: by mail-oa1-f49.google.com with SMTP id 586e51a60fabf-44cf70de986so938129fac.0
-        for <virtualization@lists.linux.dev>; Mon, 06 Jul 2026 04:55:12 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1783338912; cv=none;
-        d=google.com; s=arc-20260327;
-        b=QDUyJacsqaQaqC/IThJvMOZ2y6q38pF5LBhNFmOtJs/fong3W6auv4ifkzvztbtik6
-         FhTwhEm7gE+1oUMfgjJnI+hnqKzy+p+R/u4QIejyfpF046OyXmCL/rQHhKiEJFYa5RtN
-         GiZ+DQDEOyD6N8nTRtkzyb4j1tEF6rETxRMeeHjeMeJvejd13Y6SuITgpyGu0+ENmlVH
-         2jdgioacY5ymPO/QYr9zNbPDZ7g//9VJB3ZkmbKUsXJT1okHweoxgT47dGU43ecEVtkG
-         EM1/GZEM/ng+d1GCAMCZN5/dWjDlzR9IGlLgUxgFnLF1ttIoAFefe6du6TVmRp1kZGvG
-         CvvQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=7IUJO7hHDOl/XD/w+GraDDTln5F69OzxpzwVyfa1liE=;
-        fh=4exaSM2OEufWQkeicvEHR+6UTHzcap1/TPB5jHXu6yE=;
-        b=BNVu8RufilisMDsD63ukSCzyA6Vi6Xm/iXGWAEHFRlYAim77gGdj2xX2ZXkBOB69/B
-         Zi4WWQAxccJcr+IOor5YjmxIEPJD2n6rECPQCS94AyYvv4Qnv6NN4fjyfzel6I5W/947
-         VYlZue6hD/Tvai2U28qFxaqA9eOCusrF4XuQhMqIGmgVnWVjmbOx7ELsTFgZ6thEg1pw
-         c9z6npLVaEPjCDoaQ9hrBxUGKDaeRhlxRWiMKX5/Dgq1YdQqaoBoh+6esjAW29cQ3Vjn
-         cjJFxtKQRsOm1WCTFFg2HlEw0c3cwbk1Lq6XZYeX1dgxyEzoR5etqGlAp38/xblPSBph
-         f+dA==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1783338912; x=1783943712; darn=lists.linux.dev;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:from:to:cc:subject:date
-         :message-id:reply-to;
-        bh=7IUJO7hHDOl/XD/w+GraDDTln5F69OzxpzwVyfa1liE=;
-        b=RxoD8WZsO8HmIlbRu6HwvjylFuwM3YodI2R2TkXIW/WkULkVSfwVFwZ6P0D0e+zV1g
-         mE78l7b4uM4R0enGafQ6jLUvz9MqPTBYNch7UBb0lIb2QOm2h7LOl6BXvhRXePLEOnAr
-         K2dQ+pMkpo7BkOPcp7cCPDVrtgFEVIrbQ1UckzS0Z2DnG5xoicNQfYg9RR+kUH6A4EIu
-         8ojvMG9ZSu71onOw8+zZno5sUCGD51pQoE338b0XI5MXWLaQEL4CubQQv8HNR9xqluOw
-         Jhm0fSEFqdtoCmdwQCxHP8PhcQZP2j6Ppq1uP0NVGTR5/bUAZI45hQmR22eTR4xsbVUV
-         NODg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783338912; x=1783943712;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to;
-        bh=7IUJO7hHDOl/XD/w+GraDDTln5F69OzxpzwVyfa1liE=;
-        b=c1zIcKvxv13LmOrWxeCeEbYZARZYYDZkcR3okOi/waxThZtBmKTgjTD7jCv1t6LYuD
-         HQrXwj1UffANkzFUDNXc5gZs8pAKeR+EIKgEDEpoxkQ2adK3ZmuX/W9WEv15zWvxZyuJ
-         Y5gjjdjsMzw7PkqUHL8MQiV2pAOOM1tXv69ITqMFnrIee2XQuvuhULyKNEqsH1uqq8Sg
-         9pdmYbsPTtJ774pDFIirFzNcnZmpOrgSmWMH1PhUmKJs4eDieH/O3TvWZ6RfA3WOmlaz
-         TNyCZ0LPDgGshZ6PjZh94bGZgG93PLlWR9+0spAvQL8dkXwVaKd+poJBlM0p7g/jiLOS
-         C7yQ==
-X-Forwarded-Encrypted: i=1; AHgh+RoMZxUkHDrvRP2IU4NMIulguY6kOJW5f/lb/4HHNBNVl0nlenhjHvj7E04pjmeftqYKaeo5rOmQ3gtOCbsACw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzQ1WNk4NuJMHCQk/L6l64JyEe1KEjHbu028z57FMkkEn+2l/pP
-	9H0QgsuyMDDGmE0rqZcTGlNijGt7BfHFBSU/IHM/a0LUHwXMOdNREe0aFjfI14P4SzSc2c5Tr5v
-	hQIW+jSw7EAOjJ0hl/D/LcLK+erMsA6HkoRFDGu0p
-X-Gm-Gg: AfdE7cn1OCQ4ROEwdimHKmg10kYLu6QDzuGPBw2oIvo64ZmEY0paL3xgZndtcPdA+y+
-	gPtIRSHU3lpUXJGCdxSrTy0su1dx3hFjyIjHw13izyHXySBgcgqVWGt459rnAaKN3BwpI/XNg94
-	pdzdk0nB/hYSESbaWzVg0Fw1N/NOeUK158pbQ5SZzSTGPnmj18kt0j1QhIdjYfWNT455QnwnKZA
-	T00xxVOXmud/6b25dMqNjs/3RzF9+xb9AQ6IfxcHOE7aEdzg11OkT2Cx/jc/hcsJ/8cmPey+2Wk
-	BhmVZABqHLNlNIrkYNYUKLXkwdFYZ0RKlsTLGnkFAF0uh7rZCVLUEH3x/OaFduOl+VmuOAgoEpc
-	kRuPn064wPhUXab73GA1QXB5beXwZwnomFNLvUKvUB5VryRKp5A==
-X-Received: by 2002:a05:6871:2016:b0:448:84c0:fcf5 with SMTP id
- 586e51a60fabf-45106080959mr17902fac.20.1783338911104; Mon, 06 Jul 2026
- 04:55:11 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="WnOzDC9q"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=WvORcwKtZRgmRUh+pcolCRPsPZNIytSFKwWKrPjOJo4tYbXsZp5uu84g78mofbXdZ4n4tHsjkn7jGTDtLno0ns+D5560WWR36MWw6oQEjNpE7TCVtndxj/4aG3fCGJSjBuzEbyIjHqpSP030c2l9ztuY7K7adEZvjHJKDFLr3LT/d58tjyv8JEOhyWKMRPdzbnSzz2O2hCYVQkegRClaLqzL/u2l3DkCQPUMLrwe375clZ9/mbU7H/1h49gpBrbpQ+f76Ug/psf4qLsAMXLNbSgwkN3lwNrwkWd4g0m7fXKEGlcZLL+kKhXbQ9kuvHiSzy101o9NY4wXlp2n9besoQ==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=GmE1uT4Vz14SnWxWRw9m0wB2v0ryNKqAMwhFJxOKmCc=;
+ b=yRLaD+DbEE8eQW1CL8yY/F0Sfx0f6Lat/5PJxEHsUjpPHKwKaytpKJGACpF5sa4lN+BpNNyGVIcHD59nkRSdb/5kvpoqvMtCzRS8CMR5ge3yY/j9ZOoGKHb2/VLEoAsRWBCckyoiwtFEsVTYsKirWHMWZCZXeARL7P1cXyHhvVPoBQ28Zld3+P5VUEIHufb0YWgVhFhCMDJU0XJuwRh8B+q26e0vywOtU1j3CHj/PihM5FJjcrg5kfjSQOSSGFoinFJ2OiA8td4Ho0sQycbP2vGwu+SCby6rtApDbJCXQ5F/OFhb3HvaEAvSdfA2B/ntlnqcjU6/vl8if53z2FeREA==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
+ dkim=pass header.d=nvidia.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=GmE1uT4Vz14SnWxWRw9m0wB2v0ryNKqAMwhFJxOKmCc=;
+ b=WnOzDC9qPS3J9T+GaMbmPAAXouXiogak7C3rRC4TDqwPV7dvPuMnG0aEzaouoaWmN/MepKZ478NTwqP8LK6ynU7tKFlZgsNwRMF0eMZ7yfqcFRgjgNXhenu7qh4nUTmfe0QbzDKq1+QPlBR3NIYrjK0Ib99U3ctCfyK/dYfpEA1ot92gUzhrnumpGtOI2lcAVz217X1sGHJA7sHTzk2RhTEZ1I/CgWyn5bC5XfWzw0fq5PFuZ09w6VbMZfOnDTcAlZcOBCYJ1b5znJsHUW7sagyFWDDj26hRFjWCTdBV1DqTVj4Vts8cP4DksBFtP71EYtD5KxNC5EjJaTUcrPlnxA==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=nvidia.com;
+Received: from CH3PR12MB8728.namprd12.prod.outlook.com (2603:10b6:610:171::12)
+ by CYXPR12MB9339.namprd12.prod.outlook.com (2603:10b6:930:d5::15) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.181.10; Mon, 6 Jul
+ 2026 12:24:12 +0000
+Received: from CH3PR12MB8728.namprd12.prod.outlook.com
+ ([fe80::2641:1046:bdf3:93d7]) by CH3PR12MB8728.namprd12.prod.outlook.com
+ ([fe80::2641:1046:bdf3:93d7%6]) with mapi id 15.21.0181.009; Mon, 6 Jul 2026
+ 12:24:12 +0000
+Message-ID: <d7272d8d-8146-4ed0-90d6-2a27eae5ab6e@nvidia.com>
+Date: Mon, 6 Jul 2026 14:24:08 +0200
+User-Agent: Mozilla Thunderbird
+Subject: Re: [RFC/PATCH] vdpa/mlx5: Fix buffer length in create_direct_keys()
+To: Christian Borntraeger <borntraeger@linux.ibm.com>
+Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+References: <20260706100129.1541140-1-borntraeger@linux.ibm.com>
+ <06b371e3-418c-41d8-8c06-1971cc24d8d4@linux.ibm.com>
+Content-Language: en-US
+From: Dragos Tatulea <dtatulea@nvidia.com>
+In-Reply-To: <06b371e3-418c-41d8-8c06-1971cc24d8d4@linux.ibm.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: FR4P281CA0118.DEUP281.PROD.OUTLOOK.COM
+ (2603:10a6:d10:bb::9) To CH3PR12MB8728.namprd12.prod.outlook.com
+ (2603:10b6:610:171::12)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <6a3c3ed6.80e5668d.5d0ef.0001.GAE@google.com> <d1e9d389-affa-4d12-aaf7-3fcf3218966c@huawei.com>
- <CAGxU2F582RpWGOUxTU783zZuxWj7e4eZtiDcNdUmWobLSFSq2g@mail.gmail.com> <0e51efaa-24b7-4a19-97f4-0669fd92d513@huawei.com>
-In-Reply-To: <0e51efaa-24b7-4a19-97f4-0669fd92d513@huawei.com>
-From: Aleksandr Nogikh <nogikh@google.com>
-Date: Mon, 6 Jul 2026 13:54:59 +0200
-X-Gm-Features: AVVi8CeBOFPrQ1zTHfcvlgKLuME2AIe_WExrBUVuPzho7a99Z1Y55-T5aiUpW6s
-Message-ID: <CANp29Y6QgCh5wc=O_B-qj-t=7f-r5XYWMnbmBNY2E7mSLTn62w@mail.gmail.com>
-Subject: Re: [syzbot] Monthly virt report (Jun 2026)
-To: mawupeng <mawupeng1@huawei.com>
-Cc: sgarzare@redhat.com, 
-	syzbot+listbf7b8eeeb8dda31d6de1@syzkaller.appspotmail.com, 
-	linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com, 
-	virtualization@lists.linux.dev, mst@redhat.com, jasowang@redhat.com, 
-	xuanzhuo@linux.alibaba.com, eperezma@redhat.com, stefanha@redhat.com, 
-	davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
-	horms@kernel.org, kvm@vger.kernel.org, netdev@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CH3PR12MB8728:EE_|CYXPR12MB9339:EE_
+X-MS-Office365-Filtering-Correlation-Id: 61d2d8cf-3bd1-4b22-c320-08dedb597c6d
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|366016|23010399003|376014|1800799024|4143699003|56012099006|18002099003|22082099003|11063799006;
+X-Microsoft-Antispam-Message-Info:
+	OJUlWYLqttSmguY4sOxEUMGagE3pXJlMPR+IokKdKIgJGj1UArpNQCqvNqV+jpFwWsgTbWIqrqhTHUGfVKWTMoZqaDkWENVT5inl3fFlKNgGyyD3HbpAwpU9D9yzDk5KVzZZdrKzT2g3rHS5OohhCvRjUBdnVfFyS+U/Zp1/OvNJmd8UlFHk4CdLy3TF++EnGhD1C4XrmVYxF1aFsEJHoKRNaettnQpYGCwbf8UrlROwIeAAFXoDocb7b0kjQFHp5SDO6GgsxElehWeQiX8MrCyh+kuHOxLhwxGY5AFok9FNbbTYrGmDJdt8nZ9nVreGzjdbzsQ4koc5nPBShFo+HrQmrgfg8uEUpW/AlpZe+RKtrjepWs1XhTapi0e+Xi2BH/qMJjEfnXzXny+FOt90aAXeQbMu/LbBXQcqkuc09tRixYi00W5+kzGl5mkotoAawk96ZMKbcd4OJCY3FoiRo7Llr1TJ/gzSY9a7dkYUeNVsMeglVoSWb5Z9fkoebFdUonEYiN6jsb+hTNDznwjbEjWJrvKQu5Ib4AusLL+MG5dVufFuUqbBNcUSDMjYSIleX7B0BICzvufmIOhjX+UnbpYiaPDCNAcxBDrt8LGrKyW60PRdS/nL2OqNqOtNFC/VL6reIxj1jPJCGimO+so22Q9WoZQyrXW8Arnd5Q0g1wA=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH3PR12MB8728.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(23010399003)(376014)(1800799024)(4143699003)(56012099006)(18002099003)(22082099003)(11063799006);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?NzExZWFPYWVQYlEvV0F5K2pWemNadnpzekJZT0xsbHU5R2hhVDRWQ0haSmxv?=
+ =?utf-8?B?dHNJRkNEM1VKajBMUjV1bzFuQlJ6NS9PN3duSlJIWVNqZFdJWHRKdkV3ejJh?=
+ =?utf-8?B?NjVlMW1pVEFxQ2FwTk4xaDZmekRPNEhyUnV5WldOMUlHWStFamlyMTdFZ3pq?=
+ =?utf-8?B?Rm93OXV4d2ZxdEFQWFFrYVdic3ZmWGZEV3ZBd0ZucXJ6dEhFdnd1dUhuM3lH?=
+ =?utf-8?B?eCszT2tJaktNSXBpU3UvOUQ3UTluT0RuRjdsV3BRWUxUdzF5dmErQXEwZlRr?=
+ =?utf-8?B?NFF0dXR0RFpKaHBweUFQU1ptUktzVVBOUi9RM0hoUWluK2x0ZWR4WW1EU3FD?=
+ =?utf-8?B?SjRCN2hCK0g4K1hlNFZadE1GcXZ0S0tKcm5EOU9qZFpublNkM0NWY2E3UnpR?=
+ =?utf-8?B?S3paNXVwY2JXakJ0Wjh0TFdPdnJYM0dVcmxFcjUyWUNpNXhJREZ0ckNJNUxM?=
+ =?utf-8?B?Vy9EWk1QdjVLcE5rVDhpaGFUS2I1WTlSOVV4aHduakFJblFUeUhKR3M3dFFo?=
+ =?utf-8?B?YTBhY2hBNVBBbnNTUCsyWUhKL1dqYmY1MExMbVViUWdpNXpkcko1Tlc0WVlU?=
+ =?utf-8?B?dmpHbXdPc0dQR204UHJQWVh2QTZJaDNtM1ZZMXdjN1EwQUJ4RDJzUHdxcDNW?=
+ =?utf-8?B?dWdSc3ROcHZwdEFiUGFDQjhHazk3Nkw1ajlocENOYlduK1NvMThxOENyd0J6?=
+ =?utf-8?B?ZjlINmNYYXduNi9tckdlN3hDRTRCSDZmbk9Ucm5LWDNXTkFNVHNSR01nRTVG?=
+ =?utf-8?B?MS8yRUZjY3NKUGJOeTNuS1VYYXBnQkpQbXB5N2p6R2RYc0hxcC82L2ZrWDZT?=
+ =?utf-8?B?c0gwSVJsRlhDSHBadnpZTXhpQTM1Mk1QSDFMY2RxeUVNN29xMllRNTdwRFhS?=
+ =?utf-8?B?OFlRbGtrYzlablJNakIzamQ5YXVzZGNIMnFzQ3EzdS9ZYWREWjE5NUxFcUhy?=
+ =?utf-8?B?MVAvSFVNNlhzQ3RqVThBTXdtbWNZVDB5N3JTUnFkWTNvMEtUTkM5MVBVbnRZ?=
+ =?utf-8?B?c0RWZzRRTURxekx4ME1MWHdIMXh0SWtCMVFkd0VzM3Rld0pUR1gyaUV4TGN5?=
+ =?utf-8?B?WTBrckxhTnNONDVoV0NNUW9YbnhYTkFOaVVZeUFEOE1scVhNM1JrZ25kckFH?=
+ =?utf-8?B?WXlzbjJxM2VpdzNmMS9WZFU4TjdXcXNlWGhYR0g0M2xzM2huUksyeGlsN0xS?=
+ =?utf-8?B?QmFGNU9LVGF2cklUVDZlR05Rc1BPaVRkcDdibmdnZ0NRR3hPd3FrMmhySzZO?=
+ =?utf-8?B?ODM1eFJMSklaL1BEajRzazlHNTVwRDNNNjNqc0tVUi9rVDgvR25NMmlobnB3?=
+ =?utf-8?B?a3ZXSUF1cVlrWWtDaXFsVmtUTzFzZll3K2ZXZnFwYitOOERCRGdzQjZIMWJi?=
+ =?utf-8?B?RFRNTjVIa2U2bFFMQzkzUzdtbUI1SHFNUzNlSVdiTkVTU3JkamRVcTRLU0to?=
+ =?utf-8?B?R0Znd3Y1cXlpQWlrL1VLWWo1RHlneGZ0MmJzQnVxK0tXbzlRMmltK1ZPNGpr?=
+ =?utf-8?B?bDR4SFRha3o5cDNDai92WlZvLzkwVmk0RDFiQzVWQkVVYUhjSkFEMjd5alRn?=
+ =?utf-8?B?c2RIYzRTcDlmQXRFV0taeFVlZHJxNTdtVjg2U2NLV1p0VUx6aVpZSk8xQk41?=
+ =?utf-8?B?TmxYdkFiUGZPZEhKQ2tTdWZ3ekhqSGk0QVUwdzUvaDM3b3FrT2g3QmZ1akwx?=
+ =?utf-8?B?WWxNTU00dk16dklZUTBiczZERHhYR1VFdWVFUnJmU2phRTJ6bVRQVFkxSzU0?=
+ =?utf-8?B?RU9OVk1uMmxBNDU1YlROeVVGN1lNWTdPT2ZCUXh4dVh4NDRWaC9ZNjFmcTNu?=
+ =?utf-8?B?OE9sYVNkZHNtajcxOXVYZUhRSEVacXh0RzhheDhRYlUydHJyTnpmVVBYNGtM?=
+ =?utf-8?B?MTNVNVZ0d1NSMXhWSGNuamdqeUhpVWpKVUZvanhzOUVqc2V2blY5ZUZtVXRI?=
+ =?utf-8?B?VSt6Yk00cWxWZnYyc2prTXNQcGF5L3ZPT2hrNmJVSGNjbUdveDBYUldhR0NB?=
+ =?utf-8?B?Mm41ZDFtVG16WlNJYldmOVNFV3h6TGducjIwa1dhWnNBdmZsSDRBbjFNWTZG?=
+ =?utf-8?B?YjcwT0xuUnYrQjVEKzVDWG9mcDdWTmxNbk5IbWFlczVqOHFhbUF4cW9aVUZl?=
+ =?utf-8?B?NGduSThqOFI2ejlvV3paQVZBYktqbC9Vb1pOR3RPQXN2c20rQVUwV2crQnJO?=
+ =?utf-8?B?RTBxSW9BOE9ZNkV2QmFjaEd2MWVnSFVqcjdXZFVuVkN6UUx2dkxGNVVHa05Z?=
+ =?utf-8?B?UkVHL0xNN0FDSjdDeFIwaytMeEpGakFvcmtRL0Fwd0Z2ZWJmZEtwWGJZM2dV?=
+ =?utf-8?B?YncxOERwcTBHYkRENU1RNG9uSmFub0x4Qk4vcDdiUUZ5Z2U4Tmtxdz09?=
+X-OriginatorOrg: Nvidia.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 61d2d8cf-3bd1-4b22-c320-08dedb597c6d
+X-MS-Exchange-CrossTenant-AuthSource: CH3PR12MB8728.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Jul 2026 12:24:12.3289
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: 7kGQyB2OLlIGp+Rk2abZe3B5x18E2S4yFbYMWtAhm3zAg9GIf5CvdYB9CLvf1fwi4j5FqzXHerKAK9I9PyPCcQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: CYXPR12MB9339
 
-On Mon, Jul 6, 2026 at 1:32=E2=80=AFPM 'mawupeng' via syzkaller-bugs
-<syzkaller-bugs@googlegroups.com> wrote:
->
->
->
-> On =E5=91=A8=E4=B8=80 2026-7-6 17:24, Stefano Garzarella wrote:
-> > On Thu, 2 Jul 2026 at 04:55, mawupeng <mawupeng1@huawei.com> wrote:
-> >> On =E5=91=A8=E5=9B=9B 2026-6-25 04:32, syzbot wrote:
-> >>> Hello virt maintainers/developers,
-> >>>
-> >>> This is a 31-day syzbot report for the virt subsystem.
-> >>> All related reports/information can be found at:
-> >>> https://syzkaller.appspot.com/upstream/s/virt
-> >>>
-> >>> During the period, 0 new issues were detected and 0 were fixed.
-> >>> In total, 5 issues are still open and 61 have already been fixed.
-> >>> There are also 2 low-priority issues.
-> >>>
-> >>> Some of the still happening issues:
-> >>>
-> >>> Ref Crashes Repro Title
-> >>> <1> 24      No    WARNING: refcount bug in call_timer_fn (4)
-> >>>                   https://syzkaller.appspot.com/bug?extid=3D07dcf509f=
-4c013e25dc5
-> >>> <2> 3       Yes   memory leak in __vsock_create (2)
-> >>>                   https://syzkaller.appspot.com/bug?extid=3D1b2c9c4a0=
-f8708082678
-> >>
-> >> Hi,
-> >>
-> >> This is regarding the still-open "memory leak in __vsock_create (2)"
-> >> bug (#2 in the monthly virt report, extid 1b2c9c4a0f8708082678):
-> >>   https://syzkaller.appspot.com/bug?extid=3D1b2c9c4a0f8708082678
-> >>
-> >> I spent some time analyzing the root cause and the previous fix
-> >> attempt; below is a summary and a direction that tested out.
-> >
-> > [...]
-> >
-> >>
-> >> I'm not subscribed to follow the list at full volume; happy to send a
-> >> formal patch (with the af_vsock.h / pending_work changes folded in)
-> >> if the direction looks right to the maintainers.
-> >
-> > Yes, please, a formal patch with a great commit message is much better
-> > than a long text to read IMO.
->
-> Thanks for replying.
->
-> As we conducted more thorough testing and further analysis of our own fix=
-,
-> we found that it is not as comprehensive as the existing AI-generated fix
-> provided[1].
->
-> Could you please let us know if there are any issues with this AI-generat=
-ed fix?
->
-> [1]: https://syzkaller.appspot.com/ai_job?id=3Dcd978d21-2110-4f57-9525-d7=
-d91c4a7e02
 
-I'll chime in from the syzbot side.
-If anything is missing, please let us know :)
 
-Otherwise, please note that the bot can incorporate code review notes
-and, once the patch is ready, submit it to the LKML:
-https://github.com/google/syzkaller/blob/master/docs/syzbot_ai_patches.md
+On 06.07.26 12:13, Christian Borntraeger wrote:
+> 
+> 
+> Am 06.07.26 um 12:01 schrieb Christian Borntraeger:
+>> We have seen in our CI the following KASAN message:
+>> BUG: KASAN: slab-out-of-bounds in cmd_exec+0x550/0xca0 [mlx5_core]
+>> Read of size 272 at addr 0000000176795020 by task qemu-system-s39/82764
+>> [...]
+>> [<000011388ab3a7a0>] cmd_exec+0x550/0xca0 [mlx5_core]
+>> [<000011388ab3b61c>] mlx5_cmd_exec_cb+0x25c/0x4f0 [mlx5_core]
+>> [<000011388b21e82e>] mlx5_vdpa_exec_async_cmds+0x22e/0x5e0 [mlx5_vdpa]
+>> [<000011388b21fd44>] create_direct_keys+0x954/0xef0 [mlx5_vdpa]
+>> [...]
+>> The buggy address is located 4128 bytes inside of
+>> allocated 4384-byte region [0000000176794000, 0000000176795120)
+>>
+>> So in essence we read 16 bytes beyond 4384-byte allocation.
+>> create_direct_keys calculates the pointer and length for in and out
+>> buffers.
+>> The size calculation for in includes the entire structure
+>> size (out + in + mtt[]) but the pointer passed to cmd_exec points only
+>> to the 'in' field, skipping the 'out' field.
+>>
+>> This causes mlx5_copy_to_msg() to read beyond the allocated buffer
+>> by sizeof(out) bytes when copying command data.
+>>
+>> Calculates the input size as sizeof(in) + mtt_array_size to match the
+>> pointer and allocation size.
+>>
+>> Fixes: 0071b138d44a ("vdpa/mlx5: Create direct MKEYs in parallel")
+>> Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
+>> ---
+>>   drivers/vdpa/mlx5/core/mr.c | 2 +-
+>>   1 file changed, 1 insertion(+), 1 deletion(-)
+>>
+>> diff --git a/drivers/vdpa/mlx5/core/mr.c b/drivers/vdpa/mlx5/core/mr.c
+>> index 6d02ccf9eb91..03fe7f5ca412 100644
+>> --- a/drivers/vdpa/mlx5/core/mr.c
+>> +++ b/drivers/vdpa/mlx5/core/mr.c
+>> @@ -233,7 +233,7 @@ static int create_direct_keys(struct mlx5_vdpa_dev *mvdev, struct mlx5_vdpa_mr *
+>>   		cmds[i].out = cmd_mem->out;
+>>   		cmds[i].outlen = sizeof(cmd_mem->out);
+>>   		cmds[i].in = cmd_mem->in;
+>> -		cmds[i].inlen = struct_size(cmd_mem, mtt, mttcount);
+>> +		cmds[i].inlen = sizeof(cmd_mem->in) + (mttcount * sizeof(cmd_mem->mtt[0]));
+Woops... Thanks for the catch. The fix is good.
 
-Best Regards,
-Aleksandr
+> 
+> Assuming the fix is the correct fix, question is, if I should use the offset of in instead, e.g.
+> 
+> 		cmds[i].inlen = struct_size(cmd_mem, mtt, mttcount) - offsetof(cmd_mem, in);
+> 
+> to handle potential alignment and padding aspects.
+> 
+Seems harder to read. Why not:
+sizeof(cmd_mem->in) + flex_array_size(cmd_mem, mtts, mttcount) ?
 
->
-> >
-> > Thanks,
-> > Stefano
-> >
-> >
->
+Thanks,
+Dragos
+
+
