@@ -1,126 +1,128 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 32E743E8C74;
-	Mon,  6 Jul 2026 08:43:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F00B93EFD0F
+	for <virtualization@lists.linux.dev>; Mon,  6 Jul 2026 08:44:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783327440; cv=none; b=rri/yu4wc2XMtieTEtLLrukuOEnN8puV06GU1MV7t7jn4zDCoGw4gMeDQePf/4UGzyCIYZLwINbdHhJsR1nes5vkDWiBmNsaRG95yZbknwWSO2r9b4mPqFg0B70SDfppswX4p76P/TJ/DtfzekBCa7ItgHfht/2OppgTAbgMqIg=
+	t=1783327461; cv=none; b=TqLCuw/087MK8+dk6ZTAkY5ZhhOE3RCtO57vlqpOo7bqgeDwR6g9mKY6zvOrTOWIWEB5g0LIbcfJf4Lyr1jrbT3W7F5FBac7hQYzjpSZRYEKXKox5Gj6mX2eA7MXKsZ7UBNqBNb//fikKK11vAq1VZcQT4xxEMqePnlS9ktdpGs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783327440; c=relaxed/simple;
-	bh=U7GhdRfRvIyCBNPF4h4EHoagmHEWIrU+SZ1qmZrm24s=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=W5IykpGnpjMtlV8usfkRNzZYhnqKjPw0AFo05yqmXxaSrms+SZI5fL//rc1nKzXAETxWOk/Ki4ULchT7bgmNb5sWJ1tYReQeuue/AyvgtAbLBQILUWsrppJLzLZeCGUOJE3sU+N5x1aaDbne2WJ4Y86/TmtJFej5cSI7yrhTD48=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FM2o3YH2; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783327461; c=relaxed/simple;
+	bh=fcHRSt2uu6fC372J+gEM8pzdWzCOu8p2V+bxQ9uVUUs=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=SmgsVC+isHgoyJNWAOIehrHxRmFMFtsnVOljBGZL9Hx3XnhFT1rgYQQzGlyvPSCk2m9MDtpBinv9HjfxDzVi0/Bvp67LJX3T5JP8ZINyp7qv6gSQW3uQQJhsPp9mFxp0dFIeMdAXj7iJW0N8Zvw+Qzh3lJSeAWmbxWvu4nRAVfU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TQ8xpR3B; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FM2o3YH2"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 11A531F00A3A;
-	Mon,  6 Jul 2026 08:43:45 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783327428;
-	bh=0y0kRMTQfo/DHb2o+rZKE9e33Pd2Rhdbgb4tqfzhP+A=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=FM2o3YH2s2+Hh4n+vLgLLEMx8m7d1wQE8xZozdmaZcrHrl+EZyUrMFrmAU2gHQ6cx
-	 kjIrKErttX/Z4tS4mZzwmAoJzf46FLy7VGP+C+uqNrv89Yjl6hQ5pgu2J6RCfmeiKJ
-	 O0QnnN6QaQ6mrYwlF6cAUu060e6DrXep4M2zittmL9a4xd/kFSFwPjSVRRoZ8OIiUU
-	 W7yFgk9lraNB8C5X9D7aMgZpSbVeioX6xOsZMEoBaa5WlbaNHmVbyNiF9PgsmD8bFY
-	 ZaK2hZxC8FKlVzMxM3+o4wYTSKUlYk70qloCsnMs/upRgoOPey6ZS/4oZZVtQ63RKb
-	 9kxqQZi9oxScg==
-Message-ID: <cab40882-66c3-4dce-be29-7a636aa3f983@kernel.org>
-Date: Mon, 6 Jul 2026 10:43:44 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TQ8xpR3B"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1783327445;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=RLCqgq8bJA3wDjgxn0V0PvA/+/Oia2v1so+e3G6fRBo=;
+	b=TQ8xpR3BtfIHIjkL6h55ltfki8UrsG+lzlNzk8Pjddr6DWTUFYRJevKJWSNfR/nfw/OLhb
+	0zSqQvGZwp4VvAghkjAXkqEll9VNTO5QwDlDF4guKl6+ofI8o04ecOZUH7+GuZx7uH/Vcn
+	l/rg7kJ/p5l/Gl6pJSgWgcPS+ocIT1M=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-364-N2wtby1TO-aMMURXJwo5Iw-1; Mon, 06 Jul 2026 04:44:04 -0400
+X-MC-Unique: N2wtby1TO-aMMURXJwo5Iw-1
+X-Mimecast-MFC-AGG-ID: N2wtby1TO-aMMURXJwo5Iw_1783327443
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-476608a9fefso757433f8f.1
+        for <virtualization@lists.linux.dev>; Mon, 06 Jul 2026 01:44:03 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783327443; x=1783932243;
+        h=in-reply-to:content-disposition:mime-version:references:message-id
+         :subject:cc:to:from:date:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to;
+        bh=RLCqgq8bJA3wDjgxn0V0PvA/+/Oia2v1so+e3G6fRBo=;
+        b=qrCQHQyE7amE3WeYP8DpCadcWkkvRRaPk1wK39XwCTtZqy7L/ep6/LuDhf3vpyeigh
+         bpCmF+HIW4EEIKgOUm7IbAoK0qAz0vrd9Fu9REIPAPDL0UHEUi6lRgMcikqNog1krILh
+         pq5Cl8rGf5Q1lSDCY+zLO/N6IQ0/eLQDe2eMd3QHE1pjJGqH1trxPiDP0GY+CuJZ9XYQ
+         6tjhK9fYN16iuhhHCCx5CKLuDNrAqnc+A2qiuVVN+I+2XE3uotGLTS/7SGCdEJDpO+3S
+         EuJ4HLFxVcj2jsV7iayRTVgGx9TsLUxrtWekR/ExjANi/0EbqCgXGXU9091tmqEclqa+
+         0Gtw==
+X-Forwarded-Encrypted: i=1; AHgh+Rr8kBqeWcaG6IuVwY/sC9987BNhFRpInL6k0MBpjbIkwQlGX6p9mTlh/zfuL+oAgEVW2MyoEbwnLohHMCEzzQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywvt9/UPjClVC/KTUkYw6meiEi8Hye1PKQcyLtqTFjxpo6hyVvn
+	QKdxU5UESJfZughdnsLHxiFBukPj4UOVloETHoq30pzUtEIPbz/LmLpRj15OGFMkHWWHyedwECh
+	jMp5+vc5LPyX5dtMbZVK0sxVwNFC/YiXoTOzKSOxJe47TdW4o9LYRA5kmef//GxYPnhMk
+X-Gm-Gg: AfdE7clU5AF4drFKATjeZhE+PIxgM8XND5kwyLaZxjo7Eid8AIIO6wmzjTRmRR3FR9X
+	H+tUaQseVxbf2pGc51y/RBdpZIAQyqx4gyQt3sPrAGKqVQkSdBTHaqsmKu0P3Qq7W/GvNLjAjUZ
+	RQrMd72ZCVM6ufEGq7wkkcN4qWp03MRc6QXrh6/Mw04H5yKFP9/K2VG6h0tg96wZeorOoKuHMTu
+	fpXDOc4NVJEeO0PMAv2H/9CY3HPIh+kDT3BljgfibyoxjWkaEaNwBZeXv0F8DHSo7hIlJbPRXpM
+	uvTc9L8nRGHRQ1dWPX2XOkiJ/a0I+KC0BUCdGE6VlQCUKi9xaB3uMqH2LFwifu7fszJrnAUUiAU
+	FXaalhOIVpaZpOnc7ChkkzLIH2XKfUDTC
+X-Received: by 2002:a5d:5d85:0:b0:473:6590:c42a with SMTP id ffacd0b85a97d-47abad9f1d4mr10815759f8f.9.1783327442841;
+        Mon, 06 Jul 2026 01:44:02 -0700 (PDT)
+X-Received: by 2002:a5d:5d85:0:b0:473:6590:c42a with SMTP id ffacd0b85a97d-47abad9f1d4mr10815728f8f.9.1783327442334;
+        Mon, 06 Jul 2026 01:44:02 -0700 (PDT)
+Received: from redhat.com (IGLD-80-230-68-31.inter.net.il. [80.230.68.31])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47aa0960af0sm21194916f8f.30.2026.07.06.01.44.00
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 06 Jul 2026 01:44:01 -0700 (PDT)
+Date: Mon, 6 Jul 2026 04:43:59 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: linux-kernel@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Adam Litke <agl@us.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>,
+	virtualization@lists.linux.dev,
+	Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org
+Subject: Re: [PATCH v2] virtio_balloon: prime stats vq after
+ virtio_device_ready()
+Message-ID: <20260706044122-mutt-send-email-mst@kernel.org>
+References: <2f0d0de033f3005d3b985883be3e5cf37b3f6c42.1783278596.git.mst@redhat.com>
+ <13794c5e-375a-4fc5-84b4-a637d077f8a0@kernel.org>
+ <20260706042207-mutt-send-email-mst@kernel.org>
+ <6b8e4ad3-6909-4d0a-89a4-104a5ad9fe79@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] virtio_balloon: disable indirect descriptors
-To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
-Cc: Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
- =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
- Andrew Morton <akpm@linux-foundation.org>,
- Alexander Duyck <alexander.h.duyck@linux.intel.com>,
- virtualization@lists.linux.dev
-References: <73fac8a629fd9aca7bb3265ac243a769c28af25d.1783232420.git.mst@redhat.com>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <73fac8a629fd9aca7bb3265ac243a769c28af25d.1783232420.git.mst@redhat.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <6b8e4ad3-6909-4d0a-89a4-104a5ad9fe79@kernel.org>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: ypcp0NqWW9xjmZDRcvTAYGrgYzkgRfXFV4w1W_duh0U_1783327443
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-On 7/5/26 08:24, Michael S. Tsirkin wrote:
-> The page reporting callback submits an sg list to the reporting
-> virtqueue.  With VIRTIO_RING_F_INDIRECT_DESC negotiated and
-> total_sg > 1 (which it typically is), virtqueue_add reports it to the
-> host by allocating an indirect descriptor via kmalloc(GFP_KERNEL).
+On Mon, Jul 06, 2026 at 10:38:18AM +0200, David Hildenbrand (Arm) wrote:
+> >>> -		virtqueue_kick(vb->stats_vq);
+> >>> +		disable_work(&vb->update_balloon_stats_work);
+> >>
+> >> That's to stop the stats queue triggering stats_request() I assume?
+> > 
+> > Yes.
+> > 
+> >> Is that
+> >> valid before we actually added+kicked ourselves?
+> > 
+> > Why not?
 > 
-> This is not pretty: the reporting worker isolates potentially hundreds
-> of MB of free pages from the buddy allocator (reported pages are at
-> least pageblock_order, and the sg can contain up to
-> PAGE_REPORTING_CAPACITY entries of varying orders).  As the result,
-> very theoretically, the kmalloc might trigger OOM when we have in fact a
-> ton of free memory.
-> 
-> Clear VIRTIO_RING_F_INDIRECT_DESC, to avoid using indirect descriptors.
-> 
-> Fixes: b0c504f15471 ("virtio-balloon: add support for providing free page reports to host")
-> Assisted-by: Claude:claude-opus-4-6
-> Acked-by: David Hildenbrand (Arm) <david@kernel.org>
-> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
-> ---
-> 
-> 
-> I assume I'm the one merging this?
-> 
+> I was wondering whether the spec would state something about that.
 
-I would think so :)
+Sorry I do not get the question. Virtio API expects
+callers to serialize calls for each VQ. So this just prevents the work
+from running and accessing the VQ while probe calls add_buf/kick.
+I'll add a comment explaining that.
+But it has nothing to do with the spec.
 
--- 
-Cheers,
+> > 
+> >> Also, can't we simply handle that in stats_request(), just ignoring it there?
+> > 
+> > Then we'd need to maintain a special flag and I dislike that.
+> 
+> I was hoping that we could use the device-ready indication, but there would be a
+> small race window indeed.
+> 
+> -- 
+> Cheers,
+> 
+> David
 
-David
