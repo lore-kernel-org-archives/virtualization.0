@@ -1,138 +1,131 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 431B73ED5AE;
-	Mon,  6 Jul 2026 08:57:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEC593AE1BB
+	for <virtualization@lists.linux.dev>; Mon,  6 Jul 2026 09:24:33 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783328270; cv=none; b=CnXCELBQr8Ve/i6GAP5+iY/b8a3k/YTcizBY+CDabdFSN8F1RfRhsDpNSifMH1ai9WpSsxJI6EINc0AYVUnv2oLLK2hqKMV5TBu0xWXs808UHupOT/tBRsY1BJaypd1g9FYKvwjYfQ3EKvLqSVuWz9iJ12X31nZalnt0rmdGoj8=
+	t=1783329880; cv=none; b=dj20G2R6UMjtTeDq/AydsEOHHmxEiPxKBw0wjzNU/GRO7VYWEgEkQU9+yAKud1Emxu4mrEEbgcWyzGQK5YNB/QDqjHY7yknH8zUNPxu3qoVQRRtR3oRX0iCUC33HIxG1IByM6MlTLfmuadTTV6RBD7J59+VGxdmVJNWgpWd83QY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783328270; c=relaxed/simple;
-	bh=M8VAosZ8D1dCevz+Nez8m/pZWrsu6mS7ZhkfLdD3l38=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=MXHPhKNrZXwyABBAecgWAuMN6nvzObMbDUFmKHxY7ng8cu7q65YNZQ11VgmsYYAd3bheJdHhhwBR8SWju3N5PpO/tC2iDm26tIh8FaAk3ZTrC0WQkWUadDqulMNSiQ19Tg84EDf8YJfVLR8oa5Um6eV4j4ot0mBQeqQptGCvJTw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=IVPjzY/b; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783329880; c=relaxed/simple;
+	bh=bjF0BZXpIAjW/Uu1wH2j5e53ZR+HCAlpR+B3xXBi2vY=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=fUdSv0o9izHyaPeh32ji/ofIiXYXgFU+MTX+V1uD5IIqqH/bQbg8AVDfG9FwZrg9iVi4O14OcsICHram1wc3f0//HBry9sg+LKgRGGPeSIVWK3KQfh7WYBPn/BdHmy54Zn561HPxl31makcSWNQokPJ5j/HXh79iLcrfaUhSbMk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Qu0sfzs3; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="IVPjzY/b"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 806EA1F00A3D;
-	Mon,  6 Jul 2026 08:57:35 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783328258;
-	bh=jkxD1mDZYWnsiqnV1zbOwqumBmcmbVddb3oJ2Wo7P+g=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=IVPjzY/bqVgdmT5bXj2hktmiNtZM7Kw24TlGzLWs7bqU2G1tjqG1pJlVWLVxc8SFu
-	 i5O5c13zyeuCv6dJrzDpLZ8OJBHgZGHtZ8gB9aofSq8cl1P4tePCjsxAlmgkb1/nvD
-	 ybcIQZGZ0ayIyvocwbd2MP7x8d58kPq1SDtjhZOY6NHjM+G7yoP/wyvt+DFIB+LzXv
-	 LzbUXxcx5ATdVPDgHciAU9YohHZXmhbZb503ngfqhnv6XyzuzAvin/GaCZP2oLLMmk
-	 /CwIK2QUGgMGzsEAfcO8uqb6qATVHSy46ROe1yKUwDdBdBs/z3uBcOE6ZibFGiY9Gh
-	 kxiEvbVnfzZJg==
-Message-ID: <24336f56-1024-4c9b-8653-b1a4658b627c@kernel.org>
-Date: Mon, 6 Jul 2026 10:57:33 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Qu0sfzs3"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1783329870;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=Yn0KzcK21NnwKHwgbzUJWvl8KnNJxuskf2Di9W9STHQ=;
+	b=Qu0sfzs35LqlFGeInch5gaxB4uuOKILwNlKyHKosOPx1l0sRCaR6H+dN/JLKxcayuYyRLz
+	vxIa3Rq6ka/m3bHSfMzSfew/tBN5Ob4YwyBM+CEEVxOIdLzWkKbiMG4RmG5ZtUe1nR7J4i
+	dNd5IiOzI4vhZqCYV3CbLF6pwqE5pYQ=
+Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
+ [209.85.214.199]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-251-nOlrd3WsNTqngq9RxlGxkQ-1; Mon, 06 Jul 2026 05:24:29 -0400
+X-MC-Unique: nOlrd3WsNTqngq9RxlGxkQ-1
+X-Mimecast-MFC-AGG-ID: nOlrd3WsNTqngq9RxlGxkQ_1783329868
+Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-2cc77a6943eso55801045ad.0
+        for <virtualization@lists.linux.dev>; Mon, 06 Jul 2026 02:24:28 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783329868; x=1783934668;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to;
+        bh=Yn0KzcK21NnwKHwgbzUJWvl8KnNJxuskf2Di9W9STHQ=;
+        b=PkAHCb4FmxLlyf0RBsMcM2FmxJMK7kk8H0GW+vewhURYxA5BQtr7i0bMcyvOtmGfPZ
+         G5QSzAHr+dh1oTeP7q5bB5K2rSQJhWbQUvfUqbnb8AjqgajnVi3dn2fLSqQE7ppU+5is
+         6wmaH9cjNKTCSpz/phhyQLn2J6YUbbfj4HcOzFgmWSr5lDzpwernzTbUcMVZLTmjc+pM
+         7pnEOferldssYMK5LxlCOJAHCcrWYoAO5D5NTzSxY4q2299iNMdjESD6M4OVGL8+wQrN
+         PIky6Xd/gbMjvk+FaSTzkzd19FPpEMym42wuLLDt9gs2VpJHTzprFlhTMgo+NFmF6j7n
+         irag==
+X-Forwarded-Encrypted: i=1; AHgh+RpeqKoK28ghuBffiYwOYbQ/olg+SYgnIu2l89KhIVxoZzr1NktU2RxFF45m0homiFy5KDvhWWKsqHHpICyvFg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yze/GR5Py3DlycQe0tz0WvZxZkGuNYlcmU6JK4WbbrIIOd88S5z
+	F5fvOziQyDiS4A5OtN3o3NrAruX3GKLfkrVaGlUwdm2UECAMETupq9/R/JmVJWCeWnf1NvEIov6
+	1G6154tDtsbUyGYnBBw73ifM2eyWW+UyCAEEIBc9qmJJDjHGxyh5AYQKML+Q9nj5u1q7pHioBd6
+	fw2f8GlZ7Pl/meg3ac928IXoCmm00zGmVFjIUUPck5izM=
+X-Gm-Gg: AfdE7cnywD5ms6jrWeDw/mxQjjkQSFnD4FA178PGLdk6FfJptg5iEYoIOrN/mgqsUAV
+	bYGKHZhUWcKD3KklBPeDEYSS9g3bMNsOfEMzsW/hiapO5qwdUlDB3TAR7L9X7+jkw35ypOMHBd5
+	beKllaPwAX23ySl8kFdAiFsqh+/Fn5gaSLbcRmGzT4R7PmpCeuYbuxZoa/tT9a0SMX
+X-Received: by 2002:a17:902:d4c8:b0:2c7:1200:bd7e with SMTP id d9443c01a7336-2cbb7511a14mr91874295ad.18.1783329865776;
+        Mon, 06 Jul 2026 02:24:25 -0700 (PDT)
+X-Received: by 2002:a17:902:d4c8:b0:2c7:1200:bd7e with SMTP id
+ d9443c01a7336-2cbb7511a14mr91874005ad.18.1783329865282; Mon, 06 Jul 2026
+ 02:24:25 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2] virtio_balloon: prime stats vq after
- virtio_device_ready()
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: linux-kernel@vger.kernel.org, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Adam Litke <agl@us.ibm.com>,
- Rusty Russell <rusty@rustcorp.com.au>, virtualization@lists.linux.dev,
- Andrew Morton <akpm@linux-foundation.org>, linux-mm@kvack.org
-References: <2f0d0de033f3005d3b985883be3e5cf37b3f6c42.1783278596.git.mst@redhat.com>
- <13794c5e-375a-4fc5-84b4-a637d077f8a0@kernel.org>
- <20260706042207-mutt-send-email-mst@kernel.org>
- <6b8e4ad3-6909-4d0a-89a4-104a5ad9fe79@kernel.org>
- <20260706044122-mutt-send-email-mst@kernel.org>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <20260706044122-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+References: <6a3c3ed6.80e5668d.5d0ef.0001.GAE@google.com> <d1e9d389-affa-4d12-aaf7-3fcf3218966c@huawei.com>
+In-Reply-To: <d1e9d389-affa-4d12-aaf7-3fcf3218966c@huawei.com>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Date: Mon, 6 Jul 2026 11:24:14 +0200
+X-Gm-Features: AVVi8CdUM8gLEd1esj3vEBaF7KM2cPEVYji_lbVGfB2Yvj6K1tMDr3_xJ0gDydo
+Message-ID: <CAGxU2F582RpWGOUxTU783zZuxWj7e4eZtiDcNdUmWobLSFSq2g@mail.gmail.com>
+Subject: Re: [syzbot] Monthly virt report (Jun 2026)
+To: mawupeng <mawupeng1@huawei.com>
+Cc: syzbot+listbf7b8eeeb8dda31d6de1@syzkaller.appspotmail.com, 
+	linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com, 
+	virtualization@lists.linux.dev, mst@redhat.com, jasowang@redhat.com, 
+	xuanzhuo@linux.alibaba.com, eperezma@redhat.com, stefanha@redhat.com, 
+	davem@davemloft.net, edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, 
+	horms@kernel.org, kvm@vger.kernel.org, netdev@vger.kernel.org
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: HdzOB69OGj1zRgnsJikPQvoP98_I4fkp2bXUpdK7ELk_1783329868
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 7/6/26 10:43, Michael S. Tsirkin wrote:
-> On Mon, Jul 06, 2026 at 10:38:18AM +0200, David Hildenbrand (Arm) wrote:
->>>
->>> Yes.
->>>
->>>
->>> Why not?
->>
->> I was wondering whether the spec would state something about that.
-> 
-> Sorry I do not get the question. Virtio API expects
-> callers to serialize calls for each VQ. So this just prevents the work
-> from running and accessing the VQ while probe calls add_buf/kick.
-> I'll add a comment explaining that.
-> But it has nothing to do with the spec.
+On Thu, 2 Jul 2026 at 04:55, mawupeng <mawupeng1@huawei.com> wrote:
+> On =E5=91=A8=E5=9B=9B 2026-6-25 04:32, syzbot wrote:
+> > Hello virt maintainers/developers,
+> >
+> > This is a 31-day syzbot report for the virt subsystem.
+> > All related reports/information can be found at:
+> > https://syzkaller.appspot.com/upstream/s/virt
+> >
+> > During the period, 0 new issues were detected and 0 were fixed.
+> > In total, 5 issues are still open and 61 have already been fixed.
+> > There are also 2 low-priority issues.
+> >
+> > Some of the still happening issues:
+> >
+> > Ref Crashes Repro Title
+> > <1> 24      No    WARNING: refcount bug in call_timer_fn (4)
+> >                   https://syzkaller.appspot.com/bug?extid=3D07dcf509f4c=
+013e25dc5
+> > <2> 3       Yes   memory leak in __vsock_create (2)
+> >                   https://syzkaller.appspot.com/bug?extid=3D1b2c9c4a0f8=
+708082678
+>
+> Hi,
+>
+> This is regarding the still-open "memory leak in __vsock_create (2)"
+> bug (#2 in the monthly virt report, extid 1b2c9c4a0f8708082678):
+>   https://syzkaller.appspot.com/bug?extid=3D1b2c9c4a0f8708082678
+>
+> I spent some time analyzing the root cause and the previous fix
+> attempt; below is a summary and a direction that tested out.
 
-The device is clearly not properly initialized yet.
+[...]
 
-Yet, we expect that we get a stats_request() callback that would try to
-queue_work(). And IIUC, the stats_request() will be directly issued by the device.
+>
+> I'm not subscribed to follow the list at full volume; happy to send a
+> formal patch (with the af_vsock.h / pending_work changes folded in)
+> if the direction looks right to the maintainers.
 
-In QEMU, that would mean that balloon_stats_poll_cb() runs, which would do a
+Yes, please, a formal patch with a great commit message is much better
+than a long text to read IMO.
 
-if (s->stats_vq_elem == NULL) {
-	...
-	return
-}
+Thanks,
+Stefano
 
-virtqueue_push(s->svq, s->stats_vq_elem, 0);
-virtio_notify(vdev, s->svq);
-
-
-That's why I'm confused :)
-
--- 
-Cheers,
-
-David
