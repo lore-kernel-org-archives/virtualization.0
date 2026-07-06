@@ -1,182 +1,206 @@
-Received: from MW6PR02CU001.outbound.protection.outlook.com (mail-westus2azon11012034.outbound.protection.outlook.com [52.101.48.34])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 291763CAA2E
-	for <virtualization@lists.linux.dev>; Mon,  6 Jul 2026 07:10:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.48.34
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783321809; cv=fail; b=m6OvvNnkA7P4r6LenstpI1KEm8YE8NEzTrvMsEcZw1LDUYlwZrZ3Af+T3YKxmzJ7onXkd1PRXMzxUkrL9GFTtsVG9ukoFjlIoEC/vQckI3S4kcB2Zv4rmnHyBCpW0u2DrnIUp2eH+56TUIt99oOuJYgD4x6n9Kz0iOkRowL96mg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783321809; c=relaxed/simple;
-	bh=byaIg2GdZFg6I9agx6Gs/3ZKGkrAiyXpwzewV1rZp2U=;
-	h=Message-ID:Date:Subject:To:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=ikNT/9DUScR/h48yHwX1yKEBTIsi3TqRIASgYtJY4lKx05VNuprhFtH4jblTgCl5HPHVZmzda48QdQi8dvBiceC0iAxjTeCwxICC50cQzFwfO9cfD6EEjntABeM99wjAksQXhgTtFKVPcL6clfR1Vfwck6XHVMyPAbwbLVfdFAs=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=r/m2xo8m; arc=fail smtp.client-ip=52.101.48.34
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 478313EDE7A;
+	Mon,  6 Jul 2026 07:28:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783322939; cv=none; b=aY08DfFbBC4sDYFhukbWkNbIbaI6AOW7HCCpI1NnyjQ0xqv84IAMJMNk759BZ0TIUY38eP3zKihs1M4MhxRYmfm+rimAL/QK84vNH3Qsv+h+9hkqJfsWXkhQ985jEB9tlsJFWWpGMFalX0DNmk7tWYmb3+b4Mg2ebI8dJwTExo8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783322939; c=relaxed/simple;
+	bh=2xPZLCyu6U8/zbE8Zx5Ha8xuBUEk3fl2YhDFeyYX9AE=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=u+PRDFMWMMk0BFl96CsATD/3xYZ5Yy+sFt7E+F/SzRTyqw5pyap1dirGUNJvQXOZ/cvWmbfnHJ3kkm5ydWpdH1HP+Wrz3e49WwMryB0PHHBsLE7AEuohIl33RtO4TFXu78ASfZUk9/aQ9ay6LFjp6KV2J9EF59s8f1Id1auWpMA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=AlPLbPc8; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="r/m2xo8m"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=jEcOc2fIjxsgbDZETeAZOivRIBQFA4UJ8P7pBVJ3/92PLYK/dPkP4I1gPJEQVWCff1JjJi9oflBqMBjLc1NHJLEjxi1j5Qi/Ve+o1z2JG4oktwDRlS7vccKWw50iegT4kIJWLB50mRJUlyddCEntC974OLVwHX5vdgMqPEyGA9TpuqrMPAtQVeilredxadwW+uXs0vCZ195OFg69Y4uLyIDvig8Yxjq9WssDj9GLXVk8gAWMFPPGfNeeKuaH/yrLvPSRrpqcdcevmYKu5ms8ZB+frEjsJ4MHYbjQqjY3umSuwHUaBVJpKA+qg5r3rkOy1uPNmXjAnr5o3w89ho8tBg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=cKnWs42t1SeCcrbwj9kRYixEWCRD47liHNDmEex7Zc4=;
- b=KGDMiv3TKRxdWqZdiESUqcoFPFutM9YjffYDHPAMRzBxRjPUBjAYbD3dX4NOU9ARS/EDeGE7eZoXSn4/LcnkVuf+p2xmWRArCDG/tg9HnkYGvNQcxPuJZQZQbfFNIMNk51vS9bFja4Jkel/pg7K3m1dS8pNSd4oO2vSJHUrI1xfZ6n7qL1i7gBaOdoNZ7nLWw5Wa9H9GRofXIkt3j5th+4PaQQWchftaGgAyaHq1QY+ftUR1bOPjvM8W9SpyxzDneumzWQRXR6C19E12C4zeu5g2vU1+B+s2Qi1Wo6KBYvO6/AK13y0bQm2fIuczAvW1mlDTT1IJv6m7ZEj8mzFHAQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=cKnWs42t1SeCcrbwj9kRYixEWCRD47liHNDmEex7Zc4=;
- b=r/m2xo8mzBqMCyK0+/WsdzAKS4S3RAU+ACeGue2hzcxY4BCn2CGvLrrAlfJyeInl9OOUlixMKgYgk7u723wqL8QxbuGHJ0hmjC/aPb2XTINHYHgsyXmlqwlgM8YRIzfcakt/wvzbSWsGiTXfN30rB3wnbEol3AJXrKwduen3OJzTq/wnUBzSxkAPIaiXx7PEy6Vs2mmuqqd/JhtLRxzu1bKkM96LJ7LYgVLBQBqyG6aOtuiAlnBFItNZRvMPUejc6oVGuumzfPGOYYDNoDCwG3pB5dWzfCsjIbs6c+UIBej+aR2rZFSKl7P84sJyP5rkPasKhQTNdjrVIJrmhOvnog==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from CH3PR12MB8728.namprd12.prod.outlook.com (2603:10b6:610:171::12)
- by SN7PR12MB8435.namprd12.prod.outlook.com (2603:10b6:806:2e2::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.181.8; Mon, 6 Jul 2026
- 07:09:52 +0000
-Received: from CH3PR12MB8728.namprd12.prod.outlook.com
- ([fe80::2641:1046:bdf3:93d7]) by CH3PR12MB8728.namprd12.prod.outlook.com
- ([fe80::2641:1046:bdf3:93d7%6]) with mapi id 15.21.0181.009; Mon, 6 Jul 2026
- 07:09:52 +0000
-Message-ID: <0ae3c300-01b4-49e5-a094-1b4cccc4f114@nvidia.com>
-Date: Mon, 6 Jul 2026 09:09:48 +0200
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] vdpa/mlx5: fix wrong MLX5_ADDR_OF struct type in
- alloc_inout()
-To: lirongqing <lirongqing@baidu.com>, "Michael S . Tsirkin"
- <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, Cindy Lu <lulu@redhat.com>,
- Kees Cook <kees@kernel.org>, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
-References: <20260706060902.2341-1-lirongqing@baidu.com>
-Content-Language: en-US
-From: Dragos Tatulea <dtatulea@nvidia.com>
-In-Reply-To: <20260706060902.2341-1-lirongqing@baidu.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: FR4P281CA0131.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:b9::9) To CH3PR12MB8728.namprd12.prod.outlook.com
- (2603:10b6:610:171::12)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="AlPLbPc8"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 4B1851F000E9;
+	Mon,  6 Jul 2026 07:28:52 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783322934;
+	bh=HkDczeYQYsOmrsz59HCm+BoyWNh+mF0I2Z4wZmf+oWE=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=AlPLbPc8Yfr2j/WCNcgTwHSHw/i7+X0DXty0U49Tq72Lc0AdLcqqFJ7Rok1WYRYEt
+	 wZP7ebXK3WT0r/Q6ee9ax6gZTpI7P89CbjqaU1V/kNthYVxWGZE3SmdHPTBvPIifa6
+	 avYbw768X3XCK3u2XGvtaI4Cnncjnya3KAUg3KNpSFzp0WAzWRF9hu24RiUrnP+JeL
+	 qBwFSWy+SgYEjPl7OJ9DZZ7qH7rZVy2Zbs34BUi12yIKNIOjJQ+03vaJc4WS4jzPpC
+	 /vopDOanG3puM7wXBbrow1Xw3Hi15h8l2nwJyFRHMYvi8rXWJXVjgpdaB1loG6FKlp
+	 I6gwFmozL6dSQ==
+Message-ID: <13794c5e-375a-4fc5-84b4-a637d077f8a0@kernel.org>
+Date: Mon, 6 Jul 2026 09:28:50 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CH3PR12MB8728:EE_|SN7PR12MB8435:EE_
-X-MS-Office365-Filtering-Correlation-Id: 6aa7526d-ef3a-42f8-b4bd-08dedb2d934d
-X-LD-Processed: 43083d15-7273-40c1-b7db-39efd9ccc17a,ExtAddr
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|23010399003|376014|366016|1800799024|11063799006|56012099006|18002099003|22082099003;
-X-Microsoft-Antispam-Message-Info:
-	oJ2PQSht9Ovk80mNhdZB59VLwD+nLjKbqRquDeJ8ELN0bryoLcjTHPhsdTnX8uSWfZKYbIpMbqWuE6zhbbP4m76quJsizFXQaVBNIFTEv2OB9lLrofMOn+znO549IBQAIvhHJBbNoeu1MVDnwyDu3KPcbQDPELk7a2UUtfDxPjcG9bKkp2JBPEkbTfMLlCLCjFiCLvVo0T5EX4q3g5dFW0Y6E+vsZS3yRbwF/9qGOJOYt4gHzYtHbpsGw0rE8gryC8iG0i1ziNcyqgqG5xrRZGrWbTodVNx6Bh7Aw3gkveILx7zV/cCbPJLTojL+03P1shNi1UIiy2CjhylFT8Hzl1jRtn2Ypa3m/YPkcHzaYUMIZe6/PwijkEoUMnUeT41NUhr+qLrwB1xdvjojuJoMM1Mt9vhLh7lw1lioeBLsZw+IF7FhAV8ZKuSnjgPrXA04LCaFehmEQS3nOJ767GhC7nVh5uwyeKYrB4M6KDYcQWTC9iSogghmvs6L545s+jVWh0/vF6jJiMO7uyE3m1W1//lGbnO9sFipdEXPLqfUTGRQkQErCYJLRkR9rdEiPJdl4RsXhrqMWq7BR/r8QN8dVifuRLKgZVSW1EPL0LTyTuRFzyEPKD/t/oEPBomBCOzm4RiOLZ5Odym2Kuz6o2SoRStH/fVyNxfttlYhG7J+Kmo=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CH3PR12MB8728.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(376014)(366016)(1800799024)(11063799006)(56012099006)(18002099003)(22082099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?QjVJcWd3SnZycUVmQW0xZnd0V2ttbGJZQ3dhQ0dJU2xEOHJ6V3JsRkVUSnli?=
- =?utf-8?B?RWxrSEpHcWZHN3UzZmF4MXF2b0pFYkRjNURGdWpPeURKNUFoVmE3S2FJd0Zu?=
- =?utf-8?B?eTRNSlVZQzB1ZDdaZ1RkVFU3RjlEUmQ3d2xJbSt3MDNrcmtwN0h6Qlo0enUx?=
- =?utf-8?B?a2FXQ1FYYUZHV0dLT1hUc3VyOGJnSWw2eVlqdC9MZXN5VUxhZmVIRXl1RkVG?=
- =?utf-8?B?Y0pEREVzVTFuQ1YwRGQ0NFZZUnRPT3g1OGYzUndpSTFxNytiN0wvRWtNMEEx?=
- =?utf-8?B?R0pSWEF0cGZqNkFzNlR1dW4vTjZOcTg3ZnMzNVVvcmJxeCtkbEdYT3RrT0Yx?=
- =?utf-8?B?b0dDejhKWUJPcHcyWWh2dmx2ZnNpV2dXdklzdnpzbmUva2FabkZnblNMKzcy?=
- =?utf-8?B?SmZpT3cybXhDd25nblA5d3RJVVBGZmRxRTZPdG1GNUF6WXdjUEs3Q0hweTF2?=
- =?utf-8?B?OS9GaDBrdm0rbThiM3BXdW1XZ0RTUDRhcTBadERhVWxjOVlURzMycmptNGp0?=
- =?utf-8?B?L2ViZzVSOWhEdG05d3JacWE5UW5DdFdwbWpoUU5NOSszYmlSelBra2RlQWxZ?=
- =?utf-8?B?c1NzWEU4WXlJc0xuLzFvbkpHTjFTR1RsQU1wamxCNTNvYlFnUTRhU0tPTkow?=
- =?utf-8?B?SFMyVWE1Y2NsVnJqc0hablN3RDlxdURnMm9qNmpDMWVSL1RTcWJGNlZSN0N3?=
- =?utf-8?B?YmpoK2dZWURpR0JxNHoxNFZ5b3RNUFJoc2JONVNnV05QN1BIUUQ4R0hKOThL?=
- =?utf-8?B?OEMvanB1dGNzVTF1S21CdTEwNDBYak8wOGVYblJtbUZhcndnSkp6OWhiNXJG?=
- =?utf-8?B?aHdmclhmNGQvVnlDNlorZGZKMmhDZW9DbEQvbUdubnExTTZWdGZhVlFFbS8r?=
- =?utf-8?B?YjVZZC9ZTFdtcjFkUCtOcGFvWUV2RnBGNDU1U0toNVlLb3dGZG03NHRvYjRJ?=
- =?utf-8?B?cERmVGVpVE5SQWp0SUpzRkZwN0FJUnJoNGZsS2hqTE80MkltakppTUdiSEEw?=
- =?utf-8?B?N1lCeGxCT3BFZTk1VnhvMFpCT0E1WUtjczBpN0k2MmRCM3RPdjhIVExxeTRH?=
- =?utf-8?B?VG4weHNQVGZQWGZyU3VMdngrWmtQemU5aTRDMk9qV0VwVW1YU1h1TjNaT0xN?=
- =?utf-8?B?TldXc2p6UnZOblBlb3BKSE52N1MxZk5nNEliZkF6b3R6Yk1HZ3pVa1Nkbzc3?=
- =?utf-8?B?cm54ZnAvd0x6SVArbUd0MDNwSTJuWURZeW1kMi9JRXdBcUY3dC8wQWR3YzNz?=
- =?utf-8?B?UHFFaUhrc3hYT01Ga0JHNWlxWS8xVUtxKzMySzdQeW9HcklWTlExMXFzNm5p?=
- =?utf-8?B?bHZ1ZXNxdmVXYTFBUVE2eFVVK3NqVjM5dCs2L2Y4R3VaL1VYVXkyS0k5L3A4?=
- =?utf-8?B?WXRkUG5xYVNEK3JHN01YM3g5S0ZqV2NPdWduVnIrREpjUk1qU3JQWHBRWTht?=
- =?utf-8?B?RmRpRFdoY3VQN0tCSGVVdUd3OEtaTGM3d3VDOWdkM0prVm5CbFFzSDV5cGJG?=
- =?utf-8?B?cWNTZGFkVmdUOUtjd3Nwd292Nkx5U1NXdW1nVy9ZandYUnRjbWY5TDA2aU5W?=
- =?utf-8?B?ejZraGdiOXpYNDBlTW5VMTNhdVhiNUM2R2RPY1NvajZ6eG5nbklTMTdoWlJl?=
- =?utf-8?B?U1J4bXpPSzNIT3gvbU14alZnOTJHV0tMbHZyK1M2QUxvR0FpM2JjVW9Va1lG?=
- =?utf-8?B?dS90K29nT3ZuZG1GcEpJMEVGSkl4WDBnZE1xRGdjekxabHlaSXU5UjdUWjlI?=
- =?utf-8?B?QXM0YWlhc3d2UlpYT1V1enVCbDIwWUtYL3krdzdIMXJjMWVMWkVUYi9pWC80?=
- =?utf-8?B?ZktET1VFV3JPOHRaM0tVRk4yajY0NklKQXI0TjlwQ2RPZm1jWGp0c1JCdmxa?=
- =?utf-8?B?eUp1c1JEWDNTSFp3RmpXeHE5NURoVk1uclVib3NNTmpSNFlIL1IyTE04TTZJ?=
- =?utf-8?B?YVpKbk8zMWphNEczdlo4U3BHTnBRYXVZVUtNZml2V0hjTng5MElyUkk0VXJ5?=
- =?utf-8?B?U3QzcFJNMWsrZUlxSzRaeWRZc2JScDBwdWRMbTJZaFlBYXJxckh1YmY4WUlz?=
- =?utf-8?B?OSsySEQyeSthL0dOa1RicGZYdWFzVG9xSzdyNmMyOHRCK3d4SFNYTDlxZ2RO?=
- =?utf-8?B?WlREcVVZZnpVY20wdHhCUFU2bldxbEc0R3A3U2J1U0JZYW01aENVeGJwVmcr?=
- =?utf-8?B?a1NySEhGNEhhbDYwUDAvUzBUTDZNZmJjWE5GS1dGaTMweCtsSHhzTHZvaTNI?=
- =?utf-8?B?S1ZLY1IwMTVnMTdhTy9jcFB4OWx2TUh3RVd4YXF0cnJUNXcxN1BVaWJSODA2?=
- =?utf-8?B?WEIxeFVtYU9vTHNwaE1Pckp2ZnlpSEt3WTB1UWczY1F4OEEzVS9SZz09?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 6aa7526d-ef3a-42f8-b4bd-08dedb2d934d
-X-MS-Exchange-CrossTenant-AuthSource: CH3PR12MB8728.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 06 Jul 2026 07:09:52.7416
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: wEIYpoDOza3K+awRTERjyL+tRtzJ1uxHMgwN2kY+ox36hZNBPx3h7YbBkSSY9ymEHgr7PwWvkn4dZ6LfmJ+dgA==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: SN7PR12MB8435
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2] virtio_balloon: prime stats vq after
+ virtio_device_ready()
+To: "Michael S. Tsirkin" <mst@redhat.com>, linux-kernel@vger.kernel.org
+Cc: Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ Adam Litke <agl@us.ibm.com>, Rusty Russell <rusty@rustcorp.com.au>,
+ virtualization@lists.linux.dev, Andrew Morton <akpm@linux-foundation.org>,
+ linux-mm@kvack.org
+References: <2f0d0de033f3005d3b985883be3e5cf37b3f6c42.1783278596.git.mst@redhat.com>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <2f0d0de033f3005d3b985883be3e5cf37b3f6c42.1783278596.git.mst@redhat.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-
-
-On 06.07.26 08:09, lirongqing wrote:
-> From: Li RongQing <lirongqing@baidu.com>
+On 7/5/26 21:12, Michael S. Tsirkin wrote:
+> The virtio spec requires the driver not to kick the device before
+> DRIVER_OK is set.  init_vqs() primes the stats virtqueue with a buffer
+> and kicks the device before virtio_device_ready() is called in
+> virtballoon_probe(), violating this requirement.
 > 
-> In alloc_inout(), the qpc field offset was computed using
-> MLX5_ADDR_OF(rst2init_qp_in, ...) in both the INIT2RTR_QP and
-> RTR2RTS_QP cases. This is a copy-paste error: each case should use
-> its own input structure type to get the correct qpc offset.
+> Further, if the device responds to the early kick by processing the
+> buffer before DRIVER_OK, stats_request() fires and queues
+> update_balloon_stats_work.  Should probe then fail and free vb, the work
+> runs against freed memory.
 > 
-> Fix the INIT2RTR_QP case to use MLX5_ADDR_OF(init2rtr_qp_in, ...)
-> and the RTR2RTS_QP case to use MLX5_ADDR_OF(rtr2rts_qp_in, ...).
+> To fix, move buffer setup to after DRIVER_OK. Be careful to
+> disable update_balloon_stats_work while this is going on,
+> to make sure it does not race with the setup.
 > 
-> Signed-off-by: Li RongQing <lirongqing@baidu.com>
+> setup_vqs() warns but does not fail probe or restore if
+> virtqueue_add_outbuf() fails; the call never actually fails in these
+> contexts since the queue is freshly initialized and empty.
+> 
+> Testing: tested that stats still work after the change.
+> 
+> Fixes: 9564e138b1f6 ("virtio: Add memory statistics reporting to the balloon driver (V4)")
+> Reported-by: Sashiko:gemini-3.1-pro-preview
+> Cc: David Hildenbrand <david@kernel.org>
+> Assisted-by: Claude:claude-sonnet-4-6
+> Signed-off-by: Michael S. Tsirkin <mst@redhat.com>
 > ---
->  drivers/vdpa/mlx5/net/mlx5_vnet.c | 4 ++--
->  1 file changed, 2 insertions(+), 2 deletions(-)
 > 
-> diff --git a/drivers/vdpa/mlx5/net/mlx5_vnet.c b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> index ad0d5fbb..eb431a1 100644
-> --- a/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> +++ b/drivers/vdpa/mlx5/net/mlx5_vnet.c
-> @@ -1080,7 +1080,7 @@ static void alloc_inout(struct mlx5_vdpa_net *ndev, int cmd, void **in, int *inl
->  		MLX5_SET(init2rtr_qp_in, *in, opcode, cmd);
->  		MLX5_SET(init2rtr_qp_in, *in, uid, ndev->mvdev.res.uid);
->  		MLX5_SET(init2rtr_qp_in, *in, qpn, qpn);
-> -		qpc = MLX5_ADDR_OF(rst2init_qp_in, *in, qpc);
-> +		qpc = MLX5_ADDR_OF(init2rtr_qp_in, *in, qpc);
->  		MLX5_SET(qpc, qpc, mtu, MLX5_QPC_MTU_256_BYTES);
->  		MLX5_SET(qpc, qpc, log_msg_max, 30);
->  		MLX5_SET(qpc, qpc, remote_qpn, rqpn);
-> @@ -1098,7 +1098,7 @@ static void alloc_inout(struct mlx5_vdpa_net *ndev, int cmd, void **in, int *inl
->  		MLX5_SET(rtr2rts_qp_in, *in, opcode, cmd);
->  		MLX5_SET(rtr2rts_qp_in, *in, uid, ndev->mvdev.res.uid);
->  		MLX5_SET(rtr2rts_qp_in, *in, qpn, qpn);
-> -		qpc = MLX5_ADDR_OF(rst2init_qp_in, *in, qpc);
-> +		qpc = MLX5_ADDR_OF(rtr2rts_qp_in, *in, qpc);
->  		pp = MLX5_ADDR_OF(qpc, qpc, primary_address_path);
->  		MLX5_SET(ads, pp, ack_timeout, 14);
->  		MLX5_SET(qpc, qpc, retry_count, 7);
+> changes from v1:
+> 	check that work enable/disable is balanced
+> 	explain how add buf never fails in probe/restore
+> 
+>  drivers/virtio/virtio_balloon.c | 50 +++++++++++++++++++++------------
+>  1 file changed, 32 insertions(+), 18 deletions(-)
+> 
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index 088b3a0e6ce6..bc0a2b19ca7d 100644
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -611,25 +611,8 @@ static int init_vqs(struct virtio_balloon *vb)
+>  	vb->inflate_vq = vqs[VIRTIO_BALLOON_VQ_INFLATE];
+>  	vb->deflate_vq = vqs[VIRTIO_BALLOON_VQ_DEFLATE];
+>  	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ)) {
+> -		struct scatterlist sg;
+> -		unsigned int num_stats;
+>  		vb->stats_vq = vqs[VIRTIO_BALLOON_VQ_STATS];
+> -
+> -		/*
+> -		 * Prime this virtqueue with one buffer so the hypervisor can
+> -		 * use it to signal us later (it can't be broken yet!).
+> -		 */
+> -		num_stats = update_balloon_stats(vb);
+> -
+> -		sg_init_one(&sg, vb->stats, sizeof(vb->stats[0]) * num_stats);
+> -		err = virtqueue_add_outbuf(vb->stats_vq, &sg, 1, vb,
+> -					   GFP_KERNEL);
+> -		if (err) {
+> -			dev_warn(&vb->vdev->dev, "%s: add stat_vq failed\n",
+> -				 __func__);
+> -			return err;
+> -		}
+> -		virtqueue_kick(vb->stats_vq);
+> +		disable_work(&vb->update_balloon_stats_work);
 
-Thanks for the catch. Luckily those structs have the same layout.
+That's to stop the stats queue triggering stats_request() I assume? Is that
+valid before we actually added+kicked ourselves?
 
-Reviewed-by: Dragos Tatulea <dtatulea@nvidia.com>
+Also, can't we simply handle that in stats_request(), just ignoring it there?
+Then  we wouldn't have to go through the siable + enable.
 
-Thanks,
-Dragos
+>  	}
+>  
+>  	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
+> @@ -916,6 +899,33 @@ static int virtio_balloon_register_shrinker(struct virtio_balloon *vb)
+>  	return 0;
+>  }
+>  
+> +static void setup_vqs(struct virtio_balloon *vb)
+> +{
+> +	struct scatterlist sg;
+> +	unsigned int num_stats;
+> +	bool ret;
+> +
+> +	if (!virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_STATS_VQ))
+> +		return;
+> +
+> +	/*
+> +	 * Prime this virtqueue with one buffer so the hypervisor can
+> +	 * use it to signal us later (it can't be broken yet!).
+> +	 */
+> +	num_stats = update_balloon_stats(vb);
+> +	sg_init_one(&sg, vb->stats, sizeof(vb->stats[0]) * num_stats);
+> +	if (virtqueue_add_outbuf(vb->stats_vq, &sg, 1, vb, GFP_KERNEL)) {
+> +		dev_warn(&vb->vdev->dev, "%s: add stat_vq failed\n", __func__);
+> +		return;
+> +	}
+> +	virtqueue_kick(vb->stats_vq);
+> +
+> +	ret = enable_and_queue_work(system_freezable_wq,
+> +				    &vb->update_balloon_stats_work);
+> +	/* Make sure we balanced enable/disable, or we won't report stats. */
+> +	BUG_ON(!ret);
+
+A WARN_ON_ONCE() should be good enough here, no need to crash the kernel (no new
+BUG_ON's).
+
+-- 
+Cheers,
+
+David
