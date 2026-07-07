@@ -1,316 +1,301 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from sender4-op-o11.zoho.com (sender4-op-o11.zoho.com [136.143.188.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 032BB414A10
-	for <virtualization@lists.linux.dev>; Tue,  7 Jul 2026 12:34:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783427645; cv=none; b=RM8WeZ9eWdhCzBMSWNnSOqkroqg8JrAAQJ6boACYSXHhM6hebazjMnCTll5kumN8VMtMMLqEIRwWDP2NugSPr71L8L9dpdT4WG1tr1wy6S6WVXxUJkXB9EEgeuWbmELAPE/dTyVLT2AklMBtItC4aPr+cPgDp76YIbpObZTWaMM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783427645; c=relaxed/simple;
-	bh=+PMUpeHFownqavkM664xh18/sqDnJ5wuBbwBA9MF8Kc=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=FFOHIgaxxryozmAl4RcL2nt7UrLje8Kp/a8qOTn92Nh6boW/NgVzrIFKzC8VkRo+sze+CyY7B3jysWzAse7b283oyOdQ9t1UR2rWoRy5MnCpHCz2PSa3hlrJafD5z08pvXO4Ns3MvMsbhkOH7dbk6OyC76m2fqlGEjRl1o3j4nk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=eamu8cil; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7F6373783C7
+	for <virtualization@lists.linux.dev>; Tue,  7 Jul 2026 15:11:10 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.11
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783437072; cv=pass; b=u4KOTFFN9kws/rukPKheebR0NREE1k7MWXtrmoBX38r4SoxaeFnPN44HUEUI/clSFoTu0EUcTFi2jNT3wzoOsaqn44lcimzf8dUi97nSKYmRfsaN/IpjCYePxLLI2TSzae2FyaTA7tUpGHYM0uNVP0sj5csKhG2U+5m163pBg9o=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783437072; c=relaxed/simple;
+	bh=voi3oyw22CkG0qwclJrZ8GK9ImBElAC2l6KzeNOwFFY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=N6+wT20fvjVCXQUZa0Xh6ySCl8GU/uFdkV5wjShAG1zlw+woJyfbgZjaESgfy7o2QYC6JjYOlY0UH5kD12Q9BIxuk3Y2IcRaYehOsq3rbSEIh+ORnxS1rtFrn/m0xPk9T1R0GeKZ21ivTyCvHIZ2sWbq3b8XuYLs+ce3ZY8ae8Q=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=kSpo+r2W; arc=pass smtp.client-ip=136.143.188.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="eamu8cil"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1783427643;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=IaBxdT85oE96XeUpht4f4Aq+rhLmG8Gh+RXSlyU+iL8=;
-	b=eamu8cilPEazLcFKNpY2hKz14+B1zva2ZBr0X+pykhBhKqLXuGNgMD8P6zY+L7oi7NJNyu
-	CCYJFk/zEi0NAzx6ORu7jfZaFH0tc4SbBSuRe8gaK+xhnqerjSMeZFvcnUK/uZoQ64g8ta
-	f1BhBpLGtJc3rP/twTpGK76RDO30q7U=
-Received: from mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com
- (ec2-54-186-198-63.us-west-2.compute.amazonaws.com [54.186.198.63]) by
- relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
- cipher=TLS_AES_256_GCM_SHA384) id us-mta-219-4sz9HsRtOLq4n-9nkYj3qA-1; Tue,
- 07 Jul 2026 08:33:59 -0400
-X-MC-Unique: 4sz9HsRtOLq4n-9nkYj3qA-1
-X-Mimecast-MFC-AGG-ID: 4sz9HsRtOLq4n-9nkYj3qA_1783427638
-Received: from mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.95])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
-	(No client certificate requested)
-	by mx-prod-mc-01.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 53D5D1954120;
-	Tue,  7 Jul 2026 12:33:58 +0000 (UTC)
-Received: from fedora.redhat.com (unknown [10.44.48.55])
-	by mx-prod-int-10.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id BAF443691B;
-	Tue,  7 Jul 2026 12:33:54 +0000 (UTC)
-From: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
-To: "Michael S . Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowangio@gmail.com>,
-	linux-kernel@vger.kernel.org,
-	Laurent Vivier <lvivier@redhat.com>,
-	Yongji Xie <xieyongji@bytedance.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Stefano Garzarella <sgarzare@redhat.com>,
-	virtualization@lists.linux.dev,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	Maxime Coquelin <mcoqueli@redhat.com>
-Subject: [PATCH v5 2/2] vduse: Add suspend
-Date: Tue,  7 Jul 2026 14:33:44 +0200
-Message-ID: <20260707123344.244575-3-eperezma@redhat.com>
-In-Reply-To: <20260707123344.244575-1-eperezma@redhat.com>
-References: <20260707123344.244575-1-eperezma@redhat.com>
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="kSpo+r2W"
+ARC-Seal: i=1; a=rsa-sha256; t=1783437059; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=d+GEGtixobrI9AQMcY0LkClOUFcI3wi52SiSYU4IlIV2A53YW1AlISLWAyjlpnzTgYwtSvR8UaL9El9YSasjE/ypaW+HwWgd/vbRzrp1aujFdfWfAQO5jF8Rhb1JBLuDvuVDxFVl56DIUaGCTJG4wRfuZD86bz6dSq3OIzpZLD4=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1783437059; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=zbMlIGQ0sYd7uDW1jFhubeLMro2JlZCRFaoEbfN6HZY=; 
+	b=gRFQnkYN0Sg4YW3ooHUt0GznWlMTfZagodfk8lakaBqVzH8XOs0Zy0idBJwgHunuvu4Ioy5Lklxy4kbKIy8GShgG3pia0htkU/3zs6f7yCUyEkkae7foTl9FHQm7hLgYgPlbE33wVIkGyyE7669cqs0zkquh10+/DrBHiNpXsXk=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1783437059;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=zbMlIGQ0sYd7uDW1jFhubeLMro2JlZCRFaoEbfN6HZY=;
+	b=kSpo+r2Ww8xKg34qcXQL3DPWZaQEuw5QeFH3IZHqUiPs+022zr4hDkIRc4IgMw0e
+	WpogWcqXymeYUL0/N85ifdy1UCI9qFTvWQrbaSZTgcKvbWHw7ZhqLBBJOSX0lcAB22k
+	SbgV1WIZ3gm+tMp1OtTQjQovgoR/u2cyxpXA+yJU=
+Received: by mx.zohomail.com with SMTPS id 1783437057836994.9405528357895;
+	Tue, 7 Jul 2026 08:10:57 -0700 (PDT)
+Message-ID: <8b02c456-fb23-4c17-ad20-a2bab2d588b1@collabora.com>
+Date: Tue, 7 Jul 2026 18:10:52 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-Scanned-By: MIMEDefang 3.6 on 10.30.177.95
-X-Mimecast-MFC-PROC-ID: DbjO6Flgz845ulAPyfZ4lUfCDJxYo4Q8yoApgLMpmiA_1783427638
-X-Mimecast-Originator: redhat.com
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] drm/virtio: defer hotplug event from dequeue worker to
+ avoid deadlock
+To: Ryosuke Yasuoka <ryasuoka@redhat.com>, David Airlie <airlied@redhat.com>,
+ Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Simona Vetter <simona@ffwll.ch>, Dmitry Baryshkov <lumag@kernel.org>,
+ Javier Martinez Canillas <javierm@redhat.com>
+Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org
+References: <18beb213335dd544.57cdc20d9a554be2.724d3e176f79ad9@ryasuoka-thinkpadx1carbongen9.tokyo.csb>
+Content-Language: en-US
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <18beb213335dd544.57cdc20d9a554be2.724d3e176f79ad9@ryasuoka-thinkpadx1carbongen9.tokyo.csb>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: 7bit
+X-ZohoMailClient: External
 
-Implement suspend operation for vduse devices, so vhost-vdpa will offer
-that backend feature and userspace can effectively suspend the device.
+On 7/3/26 08:58, Ryosuke Yasuoka wrote:
+> 
+> 
+> On 02/07/2026 14:26, Dmitry Osipenko wrote:
+>> On 7/1/26 12:23, Ryosuke Yasuoka wrote:
+>>>
+>>>
+>>> On 30/06/2026 16:46, Dmitry Osipenko wrote:
+>>>> Hi,
+>>>>
+>>>> On 6/30/26 12:16, Ryosuke Yasuoka wrote:
+>>>>> A probe-time deadlock can occur between the dequeue worker and
+>>>>> drm_client_register(). During probe, drm_client_register() holds
+>>>>> clientlist_mutex and calls the fbdev hotplug callback, which triggers an
+>>>>> atomic commit that ends up sleeping in virtio_gpu_queue_ctrl_sgs()
+>>>>> waiting for virtqueue space. The dequeue worker that would free that
+>>>>> space calls virtio_gpu_cmd_get_display_info_cb(), which invokes
+>>>>> drm_kms_helper_hotplug_event() -> drm_client_dev_hotplug(), attempting
+>>>>> to acquire the same clientlist_mutex. Since wake_up() is only called
+>>>>> after the resp_cb loop, the probe thread is never woken and both threads
+>>>>> deadlock.
+>>>>>
+>>>>> Fix this by deferring the hotplug notification from
+>>>>> virtio_gpu_cmd_get_display_info_cb() to a separate work item. The
+>>>>> display data (outputs[i].info) is still updated synchronously in the
+>>>>> callback, and the deferred work only triggers a re-probe notification to
+>>>>> DRM clients.
+>>>>>
+>>>>> Fixes: 27655b9bb9f0 ("drm/client: Send hotplug event after registering a client")
+>>>>> Closes: https://syzkaller.appspot.com/bug?id=d6dd6f86d3aaf7eebe7406e45c1c6e549453f224
+>>>>> Closes: https://syzkaller.appspot.com/bug?id=908bd910da5dd79b88de4cf7baf376cc873a922e
+>>>>> Signed-off-by: Ryosuke Yasuoka <ryasuoka@redhat.com>
+>>>>> ---
+>>>>>  drivers/gpu/drm/virtio/virtgpu_drv.h |  3 +++
+>>>>>  drivers/gpu/drm/virtio/virtgpu_kms.c |  3 +++
+>>>>>  drivers/gpu/drm/virtio/virtgpu_vq.c  | 12 ++++++++++--
+>>>>>  3 files changed, 16 insertions(+), 2 deletions(-)
+>>>>>
+>>>>> diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
+>>>>> index 7449907754a4..27ffa4697ae9 100644
+>>>>> --- a/drivers/gpu/drm/virtio/virtgpu_drv.h
+>>>>> +++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
+>>>>> @@ -264,6 +264,8 @@ struct virtio_gpu_device {
+>>>>>  
+>>>>>  	struct work_struct config_changed_work;
+>>>>>  
+>>>>> +	struct work_struct hotplug_work;
+>>>>> +
+>>>>>  	struct work_struct obj_free_work;
+>>>>>  	spinlock_t obj_free_lock;
+>>>>>  	struct list_head obj_free_list;
+>>>>> @@ -350,6 +352,7 @@ void virtio_gpu_cmd_transfer_to_host_2d(struct virtio_gpu_device *vgdev,
+>>>>>  					uint32_t x, uint32_t y,
+>>>>>  					struct virtio_gpu_object_array *objs,
+>>>>>  					struct virtio_gpu_fence *fence);
+>>>>> +void virtio_gpu_hotplug_work_func(struct work_struct *work);
+>>>>>  void virtio_gpu_panic_cmd_resource_flush(struct virtio_gpu_device *vgdev,
+>>>>>  					 uint32_t resource_id,
+>>>>>  					 uint32_t x, uint32_t y,
+>>>>> diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
+>>>>> index cfde9f573df6..cfb532ba43a4 100644
+>>>>> --- a/drivers/gpu/drm/virtio/virtgpu_kms.c
+>>>>> +++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+>>>>> @@ -154,6 +154,8 @@ int virtio_gpu_init(struct virtio_device *vdev, struct drm_device *dev)
+>>>>>  	INIT_WORK(&vgdev->config_changed_work,
+>>>>>  		  virtio_gpu_config_changed_work_func);
+>>>>>  
+>>>>> +	INIT_WORK(&vgdev->hotplug_work, virtio_gpu_hotplug_work_func);
+>>>>> +
+>>>>>  	INIT_WORK(&vgdev->obj_free_work,
+>>>>>  		  virtio_gpu_array_put_free_work);
+>>>>>  	INIT_LIST_HEAD(&vgdev->obj_free_list);
+>>>>> @@ -293,6 +295,7 @@ void virtio_gpu_deinit(struct drm_device *dev)
+>>>>>  	flush_work(&vgdev->obj_free_work);
+>>>>>  	flush_work(&vgdev->ctrlq.dequeue_work);
+>>>>>  	flush_work(&vgdev->cursorq.dequeue_work);
+>>>>> +	flush_work(&vgdev->hotplug_work);
+>>>>>  	flush_work(&vgdev->config_changed_work);
+>>>>>  	virtio_reset_device(vgdev->vdev);
+>>>>>  	vgdev->vdev->config->del_vqs(vgdev->vdev);
+>>>>> diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
+>>>>> index 67865810a2e7..084d98f5dc7b 100644
+>>>>> --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
+>>>>> +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+>>>>> @@ -816,6 +816,15 @@ virtio_gpu_cmd_resource_detach_backing(struct virtio_gpu_device *vgdev,
+>>>>>  	virtio_gpu_queue_fenced_ctrl_buffer(vgdev, vbuf, fence);
+>>>>>  }
+>>>>>  
+>>>>> +void virtio_gpu_hotplug_work_func(struct work_struct *work)
+>>>>> +{
+>>>>> +	struct virtio_gpu_device *vgdev =
+>>>>> +		container_of(work, struct virtio_gpu_device, hotplug_work);
+>>>>> +
+>>>>> +	if (!drm_helper_hpd_irq_event(vgdev->ddev))
+>>>>> +		drm_kms_helper_hotplug_event(vgdev->ddev);
+>>>>> +}
+>>>>> +
+>>>>>  static void virtio_gpu_cmd_get_display_info_cb(struct virtio_gpu_device *vgdev,
+>>>>>  					       struct virtio_gpu_vbuffer *vbuf)
+>>>>>  {
+>>>>> @@ -841,8 +850,7 @@ static void virtio_gpu_cmd_get_display_info_cb(struct virtio_gpu_device *vgdev,
+>>>>>  	spin_unlock(&vgdev->display_info_lock);
+>>>>>  	wake_up(&vgdev->resp_wq);
+>>>>>  
+>>>>> -	if (!drm_helper_hpd_irq_event(vgdev->ddev))
+>>>>> -		drm_kms_helper_hotplug_event(vgdev->ddev);
+>>>>> +	schedule_work(&vgdev->hotplug_work);
+>>>>>  }
+>>>>>  
+>>>>>  static void virtio_gpu_cmd_get_capset_info_cb(struct virtio_gpu_device *vgdev,
+>>>>
+>>>
+>>> Hi,
+>>> Thank you for your review.
+>>>
+>>>> Could you please move drm_kms_helper_hotplug_event() to virtio_gpu_init(), placing it after wait_event_timeout(display_info_pending)? This will avoid additional work_struct that otherwise needs to be cancelled in virtio_gpu_init() on the timeout.
+>>>
+>>> IIUC, moving the drm_kms_helper_hotplug_event() and _hpd_irq_event()
+>>> into virtio_gpu_init() after wait_event_timeout() would not prevent the
+>>> issue.
+>>>
+>>> Looking at the syzbot call traces[1][2], the deadlock occurs during
+>>> drm_client_setup(), which runs after virtio_gpu_init() has already
+>>> returned. The display_info_cb that triggers the deadlock is called from
+>>> the dequeue worker while drm_client_register() holds clientlist_mutex.
+>>>
+>>> Thread A:
+>>> virtio_gpu_probe()
+>>>  -> virtio_gpu_init()   // sends GET_DISPLAY_INFO and waits up to 5s
+>>
+>> You mean that the timeout happens and it's again syzkaller report for a
+>> broken host. A day ago I applied [1] that should fix this "bogus"
+>> syzkaller report.
+>>
+>> [1] https://patchwork.freedesktop.org/patch/735301/
+> 
+> Thank you for [1] and the clarificaiton. I agree that [1] addresses the
+> broken host scenario where virtio_gpu_init() times out and probe
+> continues with a pending display_info response. I think there is another
+> scenario causing the same deadlock reported by syzbot and my patch
+> addresses both cases.
+> 
+> The deadlock can also occur with the following scenario:
+> after virtio_gpu_init() completes successfully (wait_event_timeout
+> returns), if a config_changed event arrives before drm_client_setup()
+> completes, config_changed_work_func() sends a new GET_DISPLAY_INFO. Its
+> display_info_cb fires in the dequeue worker and blocks on
+> clientlist_mutex held by drm_client_register(). This is the same
+> deadlock path reported by syzbot.
+> 
+> Since [1] only prevents the timeout case, I believe the schedule_work()
+> approach is still needed to prevent display_info_cb from blocking on
+> clientlist_mutex in the dequeue worker context, regardless of the
+> trigger.
 
-This is a must before get virtqueue indexes (base) for live migration,
-since the device could modify them after userland gets them.
+The config_changed_work_func() already invokes
+drm_helper_hpd_irq_event() by itself [1].
 
-This patch does not implement resume, so VMM resets the whole device
-to recover from a live migration failure.  Resume optimization can be
-implemented on top of these patches, as other vDPA devices have done in
-the past.
+[1]
+https://elixir.bootlin.com/linux/v7.1.2/source/drivers/gpu/drm/virtio/virtgpu_kms.c#L52
 
-Signed-off-by: Eugenio Pérez <eperezma@redhat.com>
----
- drivers/vdpa/vdpa_user/vduse_dev.c | 95 +++++++++++++++++++++++++++---
- include/uapi/linux/vduse.h         |  4 ++
- 2 files changed, 92 insertions(+), 7 deletions(-)
+The drm_helper_hpd_irq_event() itself calls
+drm_kms_helper_hotplug_event() [2].
 
-diff --git a/drivers/vdpa/vdpa_user/vduse_dev.c b/drivers/vdpa/vdpa_user/vduse_dev.c
-index 347afe7c6d92..0064891a08b2 100644
---- a/drivers/vdpa/vdpa_user/vduse_dev.c
-+++ b/drivers/vdpa/vdpa_user/vduse_dev.c
-@@ -54,7 +54,8 @@
- #define IRQ_UNBOUND -1
- 
- /* Supported VDUSE features */
--static const uint64_t vduse_features = BIT_U64(VDUSE_F_QUEUE_READY);
-+static const uint64_t vduse_features = BIT_U64(VDUSE_F_QUEUE_READY) |
-+				       BIT_U64(VDUSE_F_SUSPEND);
- 
- /*
-  * VDUSE instance have not asked the vduse API version, so assume 0.
-@@ -86,6 +87,7 @@ struct vduse_virtqueue {
- 	int irq_effective_cpu;
- 	struct cpumask irq_affinity;
- 	struct kobject kobj;
-+	struct vduse_dev *dev;
- };
- 
- struct vduse_dev;
-@@ -135,6 +137,7 @@ struct vduse_dev {
- 	int minor;
- 	bool broken;
- 	bool connected;
-+	bool suspended;
- 	u64 api_version;
- 	u64 device_features;
- 	u64 driver_features;
-@@ -504,6 +507,7 @@ static void vduse_dev_reset(struct vduse_dev *dev)
- 	}
- 
- 	scoped_guard(rwsem_write, &dev->rwsem) {
-+		dev->suspended = false;
- 		dev->status = 0;
- 		dev->driver_features = 0;
- 		dev->generation++;
-@@ -564,6 +568,10 @@ static int vduse_vdpa_set_vq_address(struct vdpa_device *vdpa, u16 idx,
- 
- static void vduse_vq_kick(struct vduse_virtqueue *vq)
- {
-+	guard(rwsem_read)(&vq->dev->rwsem);
-+	if (vq->dev->suspended)
-+		return;
-+
- 	guard(spinlock)(&vq->kick_lock);
- 	scoped_guard(spinlock_bh, &vq->ready_lock)
- 		if (!vq->ready)
-@@ -928,6 +936,27 @@ static int vduse_vdpa_set_map(struct vdpa_device *vdpa,
- 	return 0;
+[2]
+https://elixir.bootlin.com/linux/v7.1.2/source/drivers/gpu/drm/drm_probe_helper.c#L1113
+
+Isn't drm_helper_hpd_irq_event() call done by
+virtio_gpu_cmd_get_display_info_cb() already partially redundant? I.e.
+only it's needed by virtio_gpu_init() and not by
+config_changed_work_func(). And then we can move
+drm_helper_hpd_irq_event() to virtio_gpu_init():
+
+```
+diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c
+b/drivers/gpu/drm/virtio/virtgpu_kms.c
+index 922782bdc9cd..9805283683c1 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_kms.c
++++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+@@ -303,6 +303,7 @@ int virtio_gpu_init(struct virtio_device *vdev,
+struct drm_device *dev)
+                virtio_gpu_notify(vgdev);
+                wait_event_timeout(vgdev->resp_wq,
+!vgdev->display_info_pending,
+                                   5 * HZ);
++               drm_helper_hpd_irq_event(vgdev->ddev);
+        }
+
+        vgdev->pm_nb.notifier_call = virtio_gpu_pm_notifier;
+diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c
+b/drivers/gpu/drm/virtio/virtgpu_vq.c
+index 68d097ad9d1d..aa6440a9b81e 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_vq.c
++++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
+@@ -880,9 +880,6 @@ static void
+virtio_gpu_cmd_get_display_info_cb(struct virtio_gpu_device *vgdev,
+        vgdev->display_info_pending = false;
+        spin_unlock(&vgdev->display_info_lock);
+        wake_up(&vgdev->resp_wq);
+-
+-       if (!drm_helper_hpd_irq_event(vgdev->ddev))
+-               drm_kms_helper_hotplug_event(vgdev->ddev);
  }
- 
-+static int vduse_vdpa_suspend(struct vdpa_device *vdpa)
-+{
-+	struct vduse_dev *dev = vdpa_to_vduse(vdpa);
-+	struct vduse_dev_msg msg = { 0 };
-+	int ret;
-+
-+	msg.req.type = VDUSE_SUSPEND;
-+
-+	ret = vduse_dev_msg_sync(dev, &msg);
-+	if (ret == 0) {
-+		scoped_guard(rwsem_write, &dev->rwsem)
-+			dev->suspended = true;
-+
-+		cancel_work_sync(&dev->inject);
-+		for (u32 i = 0; i < dev->vq_num; i++)
-+			cancel_work_sync(&dev->vqs[i]->inject);
-+	}
-+
-+	return ret;
-+}
-+
- static void vduse_vdpa_free(struct vdpa_device *vdpa)
- {
- 	struct vduse_dev *dev = vdpa_to_vduse(vdpa);
-@@ -969,6 +998,41 @@ static const struct vdpa_config_ops vduse_vdpa_config_ops = {
- 	.free			= vduse_vdpa_free,
- };
- 
-+static const struct vdpa_config_ops vduse_vdpa_config_ops_with_suspend = {
-+	.set_vq_address		= vduse_vdpa_set_vq_address,
-+	.kick_vq		= vduse_vdpa_kick_vq,
-+	.set_vq_cb		= vduse_vdpa_set_vq_cb,
-+	.set_vq_num             = vduse_vdpa_set_vq_num,
-+	.get_vq_size		= vduse_vdpa_get_vq_size,
-+	.get_vq_group		= vduse_get_vq_group,
-+	.set_vq_ready		= vduse_vdpa_set_vq_ready,
-+	.get_vq_ready		= vduse_vdpa_get_vq_ready,
-+	.set_vq_state		= vduse_vdpa_set_vq_state,
-+	.get_vq_state		= vduse_vdpa_get_vq_state,
-+	.get_vq_align		= vduse_vdpa_get_vq_align,
-+	.get_device_features	= vduse_vdpa_get_device_features,
-+	.set_driver_features	= vduse_vdpa_set_driver_features,
-+	.get_driver_features	= vduse_vdpa_get_driver_features,
-+	.set_config_cb		= vduse_vdpa_set_config_cb,
-+	.get_vq_num_max		= vduse_vdpa_get_vq_num_max,
-+	.get_device_id		= vduse_vdpa_get_device_id,
-+	.get_vendor_id		= vduse_vdpa_get_vendor_id,
-+	.get_status		= vduse_vdpa_get_status,
-+	.set_status		= vduse_vdpa_set_status,
-+	.get_config_size	= vduse_vdpa_get_config_size,
-+	.get_config		= vduse_vdpa_get_config,
-+	.set_config		= vduse_vdpa_set_config,
-+	.get_generation		= vduse_vdpa_get_generation,
-+	.set_vq_affinity	= vduse_vdpa_set_vq_affinity,
-+	.get_vq_affinity	= vduse_vdpa_get_vq_affinity,
-+	.reset			= vduse_vdpa_reset,
-+	.set_map		= vduse_vdpa_set_map,
-+	.set_group_asid		= vduse_set_group_asid,
-+	.get_vq_map		= vduse_get_vq_map,
-+	.suspend		= vduse_vdpa_suspend,
-+	.free			= vduse_vdpa_free,
-+};
-+
- static void vduse_dev_sync_single_for_device(union virtio_map token,
- 					     dma_addr_t dma_addr, size_t size,
- 					     enum dma_data_direction dir)
-@@ -1181,6 +1245,10 @@ static void vduse_dev_irq_inject(struct work_struct *work)
- {
- 	struct vduse_dev *dev = container_of(work, struct vduse_dev, inject);
- 
-+	guard(rwsem_read)(&dev->rwsem);
-+	if (dev->suspended)
-+		return;
-+
- 	spin_lock_bh(&dev->irq_lock);
- 	if (dev->config_cb.callback)
- 		dev->config_cb.callback(dev->config_cb.private);
-@@ -1192,6 +1260,10 @@ static void vduse_vq_irq_inject(struct work_struct *work)
- 	struct vduse_virtqueue *vq = container_of(work,
- 					struct vduse_virtqueue, inject);
- 
-+	guard(rwsem_read)(&vq->dev->rwsem);
-+	if (vq->dev->suspended)
-+		return;
-+
- 	guard(spinlock_bh)(&vq->irq_lock);
- 	guard(spinlock_bh)(&vq->ready_lock);
- 	if (vq->ready && vq->cb.callback)
-@@ -1202,6 +1274,10 @@ static bool vduse_vq_signal_irqfd(struct vduse_virtqueue *vq)
- {
- 	bool signal = false;
- 
-+	guard(rwsem_read)(&vq->dev->rwsem);
-+	if (vq->dev->suspended)
-+		return false;
-+
- 	if (!vq->cb.trigger)
- 		return false;
- 
-@@ -1221,9 +1297,9 @@ static int vduse_dev_queue_irq_work(struct vduse_dev *dev,
- {
- 	int ret = -EINVAL;
- 
--	down_read(&dev->rwsem);
--	if (!(dev->status & VIRTIO_CONFIG_S_DRIVER_OK))
--		goto unlock;
-+	guard(rwsem_read)(&dev->rwsem);
-+	if (dev->suspended || !(dev->status & VIRTIO_CONFIG_S_DRIVER_OK))
-+		return ret;
- 
- 	ret = 0;
- 	if (irq_effective_cpu == IRQ_UNBOUND)
-@@ -1231,8 +1307,6 @@ static int vduse_dev_queue_irq_work(struct vduse_dev *dev,
- 	else
- 		queue_work_on(irq_effective_cpu,
- 			      vduse_irq_bound_wq, irq_work);
--unlock:
--	up_read(&dev->rwsem);
- 
- 	return ret;
- }
-@@ -1990,6 +2064,7 @@ static int vduse_dev_init_vqs(struct vduse_dev *dev, u32 vq_align, u32 vq_num)
- 		}
- 
- 		dev->vqs[i]->index = i;
-+		dev->vqs[i]->dev = dev;
- 		dev->vqs[i]->irq_effective_cpu = IRQ_UNBOUND;
- 		INIT_WORK(&dev->vqs[i]->inject, vduse_vq_irq_inject);
- 		INIT_WORK(&dev->vqs[i]->kick, vduse_vq_kick_work);
-@@ -2466,12 +2541,18 @@ static struct vduse_mgmt_dev *vduse_mgmt;
- static int vduse_dev_init_vdpa(struct vduse_dev *dev, const char *name)
- {
- 	struct vduse_vdpa *vdev;
-+	const struct vdpa_config_ops *ops;
- 
- 	if (dev->vdev)
- 		return -EEXIST;
- 
-+	if (dev->vduse_features & BIT_U64(VDUSE_F_SUSPEND))
-+		ops = &vduse_vdpa_config_ops_with_suspend;
-+	else
-+		ops = &vduse_vdpa_config_ops;
-+
- 	vdev = vdpa_alloc_device(struct vduse_vdpa, vdpa, dev->dev,
--				 &vduse_vdpa_config_ops, &vduse_map_ops,
-+				 ops, &vduse_map_ops,
- 				 dev->ngroups, dev->nas, name, true);
- 	if (IS_ERR(vdev))
- 		return PTR_ERR(vdev);
-diff --git a/include/uapi/linux/vduse.h b/include/uapi/linux/vduse.h
-index 7285f8570237..b7f8c04a0a44 100644
---- a/include/uapi/linux/vduse.h
-+++ b/include/uapi/linux/vduse.h
-@@ -17,6 +17,9 @@
- /* The VDUSE instance expects a request for vq ready */
- #define VDUSE_F_QUEUE_READY	0
- 
-+/* The VDUSE instance expects a request for suspend */
-+#define VDUSE_F_SUSPEND		1
-+
- /*
-  * Get the version of VDUSE API that kernel supported (VDUSE_API_VERSION).
-  * This is used for future extension.
-@@ -335,6 +338,7 @@ enum vduse_req_type {
- 	VDUSE_UPDATE_IOTLB,
- 	VDUSE_SET_VQ_GROUP_ASID,
- 	VDUSE_SET_VQ_READY,
-+	VDUSE_SUSPEND,
- };
- 
- /**
+
+ static void virtio_gpu_cmd_get_capset_info_cb(struct virtio_gpu_device
+*vgdev,
+```
+
+Isn't it a bug that config_changed_work_func() doesn't wait for
+display_info_pending event?
+
+
+```
+diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c
+b/drivers/gpu/drm/virtio/virtgpu_kms.c
+index 922782bdc9cd..dd2d5c896c39 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_kms.c
++++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
+@@ -50,6 +50,8 @@ static void virtio_gpu_config_changed_work_func(struct
+work_struct *work)
+                                virtio_gpu_cmd_get_edids(vgdev);
+                        virtio_gpu_cmd_get_display_info(vgdev);
+                        virtio_gpu_notify(vgdev);
++                       wait_event_timeout(vgdev->resp_wq,
+!vgdev->display_info_pending,
++                                          5 * HZ);
+                        drm_helper_hpd_irq_event(vgdev->ddev);
+                }
+                events_clear |= VIRTIO_GPU_EVENT_DISPLAY;
+
+```
+
 -- 
-2.55.0
-
+Best regards,
+Dmitry
