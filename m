@@ -1,142 +1,352 @@
-Received: from sender4-op-o11.zoho.com (sender4-op-o11.zoho.com [136.143.188.11])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ot1-f50.google.com (mail-ot1-f50.google.com [209.85.210.50])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 356A53161A3
-	for <virtualization@lists.linux.dev>; Thu,  9 Jul 2026 16:23:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.11
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783614235; cv=pass; b=oOgMTZbsga1CkxrFindr83WfDK6SddhUkBImZGmSmmys6TGvWJgiQNtjaKeA09tY1eoeHUwdSxmzL5RYeBg5/vlQPq/pav3qOaaZtIpHy8RfeS9xd8eyUEzJpaxjGO+PEpFpciBfD2tr4Nh5l1SZKgX0diuEHByXSSd0GN0x1io=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783614235; c=relaxed/simple;
-	bh=BBApX0PqsAOuNnIS3W4g8ASQYn99wRqfx5cOW2l60EY=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=gpSuBL8iCEDhqGxjyGKfsQVllyx7MPqv45WCcpJJrNLKJDIjhLzP7aSxRrqitYZhcnkPZzhPWI/pvAOilEruvgRJ8joW+tH+E+Hby6BZwjDzeDFWzUJ0Hu8B2is/ZCbDHPzC6ufoCm0+2lv7mpT9yA3/e0DsPFikzAdizmU0nVM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=h+la/lxc; arc=pass smtp.client-ip=136.143.188.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CAB4C39D6D6
+	for <virtualization@lists.linux.dev>; Thu,  9 Jul 2026 19:07:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.50
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783624045; cv=none; b=e8p8VkbNp3rMddtKZQmQ1Xgn4RQ8egBpPoOu3PvijqrIOy4lynexFxOvTO7Fs9s6n+aeT+Wf2+mbM7Wlc48RaXRkKA7+gdP8S7KUEBcw1BRsAdg4rK+qGXF23+FwnmP2nr7OL9nUrHk+z7a/DBwPP3ukHq32dlvQ39O+Qtxm+WE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783624045; c=relaxed/simple;
+	bh=VroJ2dbVb3R/itAA7+lxyItCUx+B4jc4xjtV+qTeyaw=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=R3YEurV9s4CVhEkcaH4/50sBhheWUqko+ejRR8mk9FODPYhfnHqnx4P4fgpiva5RNeBiaqGtKcqpPnHlpyTNgzzTyFnYPTMaGFd9lA595B0AaUlrFqDBtfWlIFY3W69Ayd/xjTnIH95Np20x0zXjq0xSkOmRVCxqBwJJ74j4xR4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hff6opKT; arc=none smtp.client-ip=209.85.210.50
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="h+la/lxc"
-ARC-Seal: i=1; a=rsa-sha256; t=1783614229; cv=none; 
-	d=zohomail.com; s=zohoarc; 
-	b=niRRZPQrz7T9Zk4CpSbMjy+G5SmXE5ukVbQBZlG3yh0LAInb4W6FvVV42AP0kic6et8FZXRpxFsVRWv8uszXkotC9VwF4Uwvo+G+wuXw1iBou49xRF82hIx6RPxtfZUnH4QkBR2qiX6UNUveDb1SY8TngvyUcazqs/uPWovAwJ8=
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
-	t=1783614229; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
-	bh=epF0rxB7lKg2IRD6abbcyUE44UYIuJo/f9yIkc845WQ=; 
-	b=bbSCRqrpBlFFMjDXzJ8WiCam4UjId+wp6Ynyl1nQa5/6f2QCzXbvEyA/ecwKPbpzFu9C9iXR07XVkGU6yjPer7s+fTJe4u+LyFynh+iARgjFi9QHLJib+uPypXvEtlPBd32KWAxoYbcJX8VSVpH8Je7RAKKkYAvgX/uwOuphRr8=
-ARC-Authentication-Results: i=1; mx.zohomail.com;
-	dkim=pass  header.i=collabora.com;
-	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
-	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
-DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1783614229;
-	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
-	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
-	bh=epF0rxB7lKg2IRD6abbcyUE44UYIuJo/f9yIkc845WQ=;
-	b=h+la/lxcm6pcWpmugBmcJ7E9CK/fnTfWZKbbKZqHNRAfjau2jof0kwhT5lwbd+YZ
-	v3n4GiIXt/y5atyn/5ZGDSfO8DaJCoaajTc8qqNnJ/1AXOKYBZltWOu5ehS2FHKwZqD
-	n7c7djpnQqpcP1GivxvtIchSyLO1/GT7/IMD3uJQ=
-Received: by mx.zohomail.com with SMTPS id 1783614227917726.9600571528584;
-	Thu, 9 Jul 2026 09:23:47 -0700 (PDT)
-Message-ID: <e9d5c9ee-88b1-4e9c-9999-74edbb2c59f3@collabora.com>
-Date: Thu, 9 Jul 2026 19:23:43 +0300
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hff6opKT"
+Received: by mail-ot1-f50.google.com with SMTP id 46e09a7af769-7ebd88be784so154714a34.2
+        for <virtualization@lists.linux.dev>; Thu, 09 Jul 2026 12:07:23 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1783624042; x=1784228842; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=Zo12XTQ5Euo3ISLCQIk6AAgRt58NE8CSZ/ONmSgOX+c=;
+        b=hff6opKTD7od9pPwvC+Cjxs32RsN2ZPJ4jOBjFAD0AMU2sH1kQP8+VOnoH4xlOEMbi
+         DusX4UBkX73LVUm75bKb68p84GcoXfWG8SieRwn8VHSQnSmcqcIfBzf87WHaxHKiD0W3
+         MewYKTOpsWFWVNLqIXEjP8ddK7h2ppz4+YA545dtcSQlCVT/vqpDZ+zQlHmTFPtcrfc/
+         cjme27O4zvn4fEzX52mXlKsh48g1oqLb31Fr560Lhv8cBSZoooay+xsKxKHMG5tw84o1
+         PRYLWP6EHD202tEQaGQnpFfl0dzEMvuszj3sdpV5BOP9CCTwA9rfG0e6Vxg4j10TnvwQ
+         we3g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1783624042; x=1784228842;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Zo12XTQ5Euo3ISLCQIk6AAgRt58NE8CSZ/ONmSgOX+c=;
+        b=DA3j/Xvx89Z9QcdcJ+hbdJ1K06awaxmMmTpfeCETHhu96nFOjmJqeYpxf0IfH2Ezys
+         UUo2TxVOfqidRFDXpe1eGpvUNsIQcKVCxhNcehhQ0K5EGtchMoxlmEtVvAduMeD6pccR
+         H3kCRtWcXims0Q/T2cbZsFlyVJH+tJ8zpo0XV562DyQOhg3eplik79ccETP5GYhYfSTB
+         fgTnU6S9mJtxhvct4xhHAs4Z+VwwAnNwuXLioAuIKP8DWxqS9LAX9KJxKaOxjQHotN2C
+         gwkq8FOhX+pJV9ALaSfIZVAVJ22tH0f8A1dMLU9Yy1Zqmq4pF1f9vgO2wj+Wcue6GlIE
+         WhGw==
+X-Forwarded-Encrypted: i=1; AFNElJ+X3LErlv55rSEY7LNbXaprRsSyGEWKoNDEE/bhr3iBjIMs1GfF6qndkXFwVbLzmJ3ZiOMOHehN8oVNjXBgdw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxCBy7AUjl9wW0pZBBgeaENYsZLfl/NXFZ3NlsG8xMLyIPG+g4F
+	l1eG5gSxAZIT+qsvn3+3pj+slTEmpD6KmzfmjbZ5f6SHka2tIv4xlBaI
+X-Gm-Gg: AfdE7cn/LhXqUJweebbAT8tBP7cwVD+NgVPUdBJC0GtbWlfkl8Q3QQSdO5dNHADOqRQ
+	3/7bN453csTeCeAKV543R5UZMBYfeA1YIXDjNtWCm0iONM3Guyx5fT7lw0D1OWHXcq1MmTImNUF
+	5qMITtYAauLiSUeVAi5Zw4jdNfbVQ84w0bLDbtj/yEUX+8oN3w6EusDlQqA3QznHYeRn3DHLwf9
+	Hay2oUDpkbVvMXILzu38ZNuJZKGO99jBIMTN+PeSBrxJjBS1kDAK/r5MRk3Jv/TqyyQE5FNhznn
+	Q4eyom9C5Q7zG+g8GpDiyc2FwoFMf9Qt5tzLSyj+6twKADqGEK6mawsuVoe/9kL1vmH9Qjkb/lW
+	YBc2xgNWahkAcS+W4pbCqAfrqb+CqLpzOux2ADb2XGCvxLAyl+B/Ycv+l46fUUwsQYNN2LY9cIl
+	ZPSpGA6d8KMWtuzcdEHrXhZNFL/eu0s1Q5/g==
+X-Received: by 2002:a05:6830:3486:b0:7ea:b8c:41a2 with SMTP id 46e09a7af769-7ebcfb9d02fmr6503635a34.0.1783624041937;
+        Thu, 09 Jul 2026 12:07:21 -0700 (PDT)
+Received: from devvm29614.prn0.facebook.com ([2a03:2880:ff:4f::])
+        by smtp.gmail.com with ESMTPSA id 46e09a7af769-7ebcafda2ffsm4763568a34.12.2026.07.09.12.07.18
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 09 Jul 2026 12:07:20 -0700 (PDT)
+Date: Thu, 9 Jul 2026 12:07:16 -0700
+From: Bobby Eshleman <bobbyeshleman@gmail.com>
+To: Stefano Garzarella <sgarzare@redhat.com>
+Cc: netdev@vger.kernel.org, Jason Wang <jasowangio@gmail.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eric Dumazet <edumazet@google.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
+	kvm@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
+	virtualization@lists.linux.dev, Jakub Kicinski <kuba@kernel.org>,
+	Jason Wang <jasowang@redhat.com>, stable@vger.kernel.org,
+	Brien Oberstein <brienpub@gmail.com>
+Subject: Re: [PATCH net v2 1/2] vsock/virtio: collapse receive queue under
+ memory pressure
+Message-ID: <ak/xZI08Ra1fVgm+@devvm29614.prn0.facebook.com>
+References: <20260708102904.50732-1-sgarzare@redhat.com>
+ <20260708102904.50732-2-sgarzare@redhat.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] drm/virtio: Don't detach GEM from a non-created context
-To: Yiwei Zhang <zzyiwei@google.com>
-Cc: Jason Macnak <natsu@google.com>, David Airlie <airlied@redhat.com>,
- Gerd Hoffmann <kraxel@redhat.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>,
- dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, stable@vger.kernel.org
-References: <20260625170828.3335431-1-natsu@google.com>
- <7202d2dc-b6fe-440e-88b0-aefb26c38b86@collabora.com>
- <CAKT=dD=YecudFK1L9wJ22BO41qXt7V4Qm=nNQQiuwheKejoHdg@mail.gmail.com>
-Content-Language: en-US
-From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
-In-Reply-To: <CAKT=dD=YecudFK1L9wJ22BO41qXt7V4Qm=nNQQiuwheKejoHdg@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-ZohoMailClient: External
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260708102904.50732-2-sgarzare@redhat.com>
 
-On 7/7/26 22:01, Yiwei Zhang wrote:
-> On Mon, Jun 29, 2026 at 2:39 PM Dmitry Osipenko
-> <dmitry.osipenko@collabora.com> wrote:
->>
->> Hi,
->>
->> On 6/25/26 20:08, Jason Macnak wrote:
->>> Applies the same treatment as commit 7cf6dd467e87 ("drm/virtio:
->>> Don't attach GEM to a non-created context in gem_object_open()")
->>> to virtio_gpu_gem_object_close() to avoid trying to detach
->>> a resource that was never attached due to a context
->>> never being created when context_init is supported.
->>>
->>> Fixes: 086b9f27f0ab ("drm/virtio: Don't create a context with default param if context_init is supported")
->>> Cc: <stable@vger.kernel.org> # v6.14+
->>> Signed-off-by: Jason Macnak <natsu@google.com>
->>> ---
->>>  drivers/gpu/drm/virtio/virtgpu_gem.c | 14 ++++++++------
->>>  1 file changed, 8 insertions(+), 6 deletions(-)
->>>
->>> diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
->>> index 435d37d36034..66c3f6f74e9c 100644
->>> --- a/drivers/gpu/drm/virtio/virtgpu_gem.c
->>> +++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
->>> @@ -139,13 +139,15 @@ void virtio_gpu_gem_object_close(struct drm_gem_object *obj,
->>>       if (!vgdev->has_virgl_3d)
->>>               return;
->>>
->>> -     objs = virtio_gpu_array_alloc(1);
->>> -     if (!objs)
->>> -             return;
->>> -     virtio_gpu_array_add_obj(objs, obj);
->>> +     if (vfpriv->context_created) {
->>> +             objs = virtio_gpu_array_alloc(1);
->>> +             if (!objs)
->>> +                     return;
->>> +             virtio_gpu_array_add_obj(objs, obj);
->>>
->>> -     virtio_gpu_cmd_context_detach_resource(vgdev, vfpriv->ctx_id,
->>> -                                            objs);
->>> +             virtio_gpu_cmd_context_detach_resource(vgdev, vfpriv->ctx_id,
->>> +                                                    objs);
->>> +     }
->>>       virtio_gpu_notify(vgdev);
->>>  }
->>
->> The following scenario still will be troubling:
->>
->> 1. vgdev->has_context_init = true
->> 2. virtio_gpu_gem_object_open() invoked, GEM created and not attached to ctx
->> 3. virtio_gpu_context_init_ioctl() invoked, now vfpriv->context_created
->> = true
->> 4. virtio_gpu_gem_object_close() will detach resource that wasn't attached
->>
->> Add obj->ctx_attached member to struct virtio_gpu_object. See
->> virtio_gpu_object_attach() that uses obj->attached, do the same for
->> virtio_gpu_cmd_context_attach_resource().
->>
->> --
->> Best regards,
->> Dmitry
+On Wed, Jul 08, 2026 at 12:29:03PM +0200, Stefano Garzarella wrote:
+> From: Stefano Garzarella <sgarzare@redhat.com>
 > 
-> Hi Dmitry,
+> When many small packets accumulate in the receive queue, the skb overhead
+> can exceed buf_alloc even while the payload is within bounds. This causes
+> virtio_transport_inc_rx_pkt() to reject packets, leading to connection
+> resets during large transfers under backpressure.
 > 
-> WIth context_init, resource attach/detach is per-context based. So a
-> simple obj->ctx_attached won't work. One would have to track in the
-> guest context_init ctx for whether a bo has been attached or not.
+> The issue was reported by Brien, who has a reproducer, but it is also
+> easily reproducible with iperf-vsock [1] using a small packet size:
 > 
-> Another option is to accept this patch and live with the case you
-> mentioned. We can consider that "invalid" user behavior.
+>   iperf3 --vsock -c $CID -l 129
+> 
+> which fails immediately without this patch but with commit 059b7dbd20a6
+> ("vsock/virtio: fix potential unbounded skb queue").
+> 
+> Inspired by TCP's tcp_collapse() which solves a similar problem, add
+> virtio_transport_collapse_rx_queue() that walks the receive queue and
+> re-copies data into compact linear skbs to reduce the overhead.
+> 
+> The collapse is triggered proactively from when the number of skb queued
+> is close to exceeding the overhead budget.
+> 
+> A pre-scan counts the eligible bytes to size each allocation precisely,
+> avoiding waste for isolated small packets. Partially consumed skbs are
+> kept as-is to preserve buf_used/fwd_cnt accounting, EOM-marked skbs to
+> maintain SEQPACKET message boundaries, and skbs already larger than the
+> collapse target because they already have a good data-to-overhead ratio.
+> 
+> Walking a large queue may take a significant amount of time and cache
+> misses, causing traffic burstiness. To limit this, the collapse stops
+> once enough room is freed for this packet and the next one, but may
+> opportunistically free more to fill each collapsed skb to capacity.
+> 
+> [1] https://github.com/stefano-garzarella/iperf-vsock
+> 
+> Fixes: 059b7dbd20a6 ("vsock/virtio: fix potential unbounded skb queue")
+> Cc: stable@vger.kernel.org
+> Reported-by: Brien Oberstein <brienpub@gmail.com>
+> Closes: https://lore.kernel.org/netdev/618701dd023e$063de350$12b9a9f0$@gmail.com/
+> Tested-by: Brien Oberstein <brienpub@gmail.com>
+> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+> ---
+> v2:
+> - defined MAX_COLLAPSE_LEN macro instead of using a variable [Paolo]
+> - added a threshold to avoid walking all the queue while collapsing
+>   [Paolo]
+> - collapsed the queue before calling virtio_transport_inc_rx_pkt().
+>   While working on the threshold, I figured out that the check I was
+>   introducing can also be used to proactively trigger the collapse, so I
+>   moved the call to virtio_transport_collapse_rx_queue() before acquiring
+>   the rx_lock to have also a better diff to simplify backports
+> - improved code readability (removed `out` label, `keep` initialization,
+>   etc.) [Paolo + other small stuff]
+> - Brien kindly retested this version as well (thank you so much)
+> ---
+>  net/vmw_vsock/virtio_transport_common.c | 165 +++++++++++++++++++++++-
+>  1 file changed, 164 insertions(+), 1 deletion(-)
+> 
+> diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+> index 09475007165b..8becad81279c 100644
+> --- a/net/vmw_vsock/virtio_transport_common.c
+> +++ b/net/vmw_vsock/virtio_transport_common.c
+> @@ -26,6 +26,13 @@
+>  /* Threshold for detecting small packets to copy */
+>  #define GOOD_COPY_LEN  128
+>  
+> +/* Max payload that can be collapsed into a single linear skb, using the same
+> + * allocation threshold as virtio_vsock_alloc_skb() to avoid adding pressure
+> + * on the page allocator.
+> + */
+> +#define MAX_COLLAPSE_LEN \
+> +	SKB_MAX_ORDER(VIRTIO_VSOCK_SKB_HEADROOM, PAGE_ALLOC_COSTLY_ORDER)
+> +
+>  static void virtio_transport_cancel_close_work(struct vsock_sock *vsk,
+>  					       bool cancel_timeout);
+>  static s64 virtio_transport_has_space(struct virtio_vsock_sock *vvs);
+> @@ -420,6 +427,145 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+>  	return ret;
+>  }
+>  
+> +static bool virtio_transport_can_collapse(struct sk_buff *skb)
+> +{
+> +	/* skbs that are partially consumed, mark a SEQPACKET message boundary,
+> +	 * or are already large enough should not be collapsed: they either
+> +	 * need special accounting, carry protocol state, or already have a
+> +	 * good data-to-overhead ratio.
+> +	 */
+> +	if (VIRTIO_VSOCK_SKB_CB(skb)->offset)
+> +		return false;
+> +	if (le32_to_cpu(virtio_vsock_hdr(skb)->flags) & VIRTIO_VSOCK_SEQ_EOM)
+> +		return false;
+> +	if (skb->len >= MAX_COLLAPSE_LEN)
+> +		return false;
+> +	return true;
+> +}
+> +
+> +/* Iterate through the packets in the queue starting from the current skb to
+> + * count the number of bytes we can collapse.
+> + */
+> +static unsigned int
+> +virtio_transport_collapse_size(struct sk_buff *skb, struct sk_buff_head *queue)
+> +{
+> +	unsigned int target = skb->len - VIRTIO_VSOCK_SKB_CB(skb)->offset;
+> +
+> +	while ((skb = skb_peek_next(skb, queue)) &&
+> +	       virtio_transport_can_collapse(skb)) {
+> +		unsigned int len = skb->len - VIRTIO_VSOCK_SKB_CB(skb)->offset;
+> +
+> +		if (len > MAX_COLLAPSE_LEN - target)
+> +			return target;
+> +
+> +		target += len;
+> +	}
+> +
+> +	return target;
+> +}
+> +
+> +/* Called under lock_sock to compact the receive queue by merging small skbs.
+> + * @min_to_free: minimum number of skbs to eliminate from the queue. May free
+> + *               more to fill each collapsed skb to capacity.
+> + */
+> +static void
+> +virtio_transport_collapse_rx_queue(struct virtio_vsock_sock *vvs,
+> +				   u32 min_to_free)
+> +{
+> +	struct sk_buff *skb, *next_skb, *new_skb = NULL;
+> +	struct sk_buff_head new_queue;
+> +	u32 saved = 0;
+> +
+> +	__skb_queue_head_init(&new_queue);
+> +
+> +	skb_queue_walk_safe(&vvs->rx_queue, skb, next_skb) {
+> +		struct virtio_vsock_hdr *hdr = virtio_vsock_hdr(skb);
+> +		u32 src_off = VIRTIO_VSOCK_SKB_CB(skb)->offset;
+> +		u32 src_len = skb->len - src_off;
+> +		bool keep;
+> +
+> +		keep = !virtio_transport_can_collapse(skb);
+> +		if (keep) {
+> +			/* Finalize pending collapsed skb to preserve packet
+> +			 * ordering.
+> +			 */
+> +			if (new_skb) {
+> +				__skb_queue_tail(&new_queue, new_skb);
+> +				new_skb = NULL;
+> +				saved--;
+> +			}
+> +			goto next;
+> +		}
+> +
+> +		/* Finalize if this packet won't fit in the remaining tailroom,
+> +		 * so we can allocate a right-sized new_skb.
+> +		 */
+> +		if (new_skb && src_len > skb_tailroom(new_skb)) {
+> +			__skb_queue_tail(&new_queue, new_skb);
+> +			new_skb = NULL;
+> +			saved--;
+> +		}
+> +
+> +		if (!new_skb) {
+> +			unsigned int alloc_size;
+> +
+> +			/* Check after finalizing to opportunistically fill
+> +			 * each collapsed skb to capacity, merging more skbs
+> +			 * than strictly required.
+> +			 */
+> +			if (saved >= min_to_free)
+> +				break;
+> +
+> +			alloc_size = virtio_transport_collapse_size(skb, &vvs->rx_queue);
+> +
+> +			/* Only this skb's data is eligible, nothing to merge
+> +			 * with. Keep as-is.
+> +			 */
+> +			if (alloc_size <= src_len) {
+> +				keep = true;
+> +				goto next;
+> +			}
+> +
+> +			new_skb = virtio_vsock_alloc_linear_skb(alloc_size +
+> +					VIRTIO_VSOCK_SKB_HEADROOM, GFP_KERNEL);
+> +			if (!new_skb)
+> +				break;
+> +
+> +			memcpy(virtio_vsock_hdr(new_skb), hdr,
+> +			       sizeof(struct virtio_vsock_hdr));
+> +			virtio_vsock_hdr(new_skb)->len = 0;
+> +		}
+> +
+> +		/* Cannot fail since src_off/src_len are within bounds, but if
+> +		 * it does, discard new_skb to avoid queuing corrupted data.
+> +		 */
+> +		if (WARN_ON_ONCE(skb_copy_bits(skb, src_off,
+> +					       skb_put(new_skb, src_len),
+> +					       src_len))) {
+> +			kfree_skb(new_skb);
+> +			new_skb = NULL;
+> +			break;
+> +		}
+> +
+> +		le32_add_cpu(&virtio_vsock_hdr(new_skb)->len, src_len);
+> +		virtio_vsock_hdr(new_skb)->flags |= hdr->flags;
+> +
+> +next:
+> +		__skb_unlink(skb, &vvs->rx_queue);
+> +		if (keep) {
+> +			__skb_queue_tail(&new_queue, skb);
+> +		} else {
+> +			consume_skb(skb);
+> +			saved++;
+> +		}
+> +	}
+> +
+> +	if (new_skb)
+> +		__skb_queue_tail(&new_queue, new_skb);
+> +
+> +	skb_queue_splice(&new_queue, &vvs->rx_queue);
+> +}
+> +
+>  static bool virtio_transport_inc_rx_pkt(struct virtio_vsock_sock *vvs,
+>  					u32 len)
+>  {
+> @@ -1354,12 +1500,29 @@ virtio_transport_recv_enqueue(struct vsock_sock *vsk,
+>  {
+>  	struct virtio_vsock_sock *vvs = vsk->trans;
+>  	bool can_enqueue, free_pkt = false;
+> +	u32 len, queue_max, queue_len;
+>  	struct virtio_vsock_hdr *hdr;
+> -	u32 len;
+>  
+>  	hdr = virtio_vsock_hdr(skb);
+>  	len = le32_to_cpu(hdr->len);
+>  
+> +	/* virtio_transport_inc_rx_pkt() rejects packets when the per-skb
+> +	 * overhead (skb_queue_len * SKB_TRUESIZE(0)) exceeds buf_alloc.
+> +	 * Proactively collapse the queue before that happens.
+> +	 * No rx_lock needed: lock_sock is held by caller, preventing
+> +	 * concurrent enqueue or dequeue.
+> +	 */
+> +	queue_max = vvs->buf_alloc / SKB_TRUESIZE(0);
+> +	queue_len = skb_queue_len(&vvs->rx_queue);
+> +	if (queue_len >= queue_max) {
+> +		/* Walking a large queue may take a significant amount of time
+> +		 * and cache misses, causing traffic burstiness. Limit the
+> +		 * collapse to freeing room for this packet and the next one.
+> +		 * It may free more to fill each collapsed skb to capacity.
+> +		 */
+> +		virtio_transport_collapse_rx_queue(vvs, queue_len + 2 - queue_max);
+> +	}
+> +
+>  	spin_lock_bh(&vvs->rx_lock);
+>  
+>  	can_enqueue = virtio_transport_inc_rx_pkt(vvs, len);
 
-Indeed, obj->ctx_attached shouldn't work for a shared/exported BO. Will
-think on it for a couple days more and then merge this version if no
-better ideas will appear.
+The changes still look good to me.
 
--- 
-Best regards,
-Dmitry
+Reviewed-by: Bobby Eshleman <bobbyeshleman@meta.com>
+
+Thanks,
+Bobby
