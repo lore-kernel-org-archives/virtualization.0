@@ -1,217 +1,179 @@
-Received: from mail-oo1-f51.google.com (mail-oo1-f51.google.com [209.85.161.51])
+Received: from mail-pj1-f73.google.com (mail-pj1-f73.google.com [209.85.216.73])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 164DE3793A6
-	for <virtualization@lists.linux.dev>; Thu,  9 Jul 2026 19:49:01 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.161.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E4BF43ACF0C
+	for <virtualization@lists.linux.dev>; Thu,  9 Jul 2026 22:43:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.73
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783626543; cv=none; b=KbxJf0vINTeXCppCnfiLfyu11XJBluHROkijvsIciDe5IJoY4KEbSv+CgJY2EfJXh5+j9z0O5P8yvSE4ZVKYqhanjBwLRx4v2rGaZ0R7odcuRlOtP+HM9+cOvdEtOkBP+1o2x5xYWgGFrKPC3uGPHzhmX247re8PkgTVC6h1mKU=
+	t=1783637017; cv=none; b=SLMH5l7H/ENtRqc6yfGpQeNDCint9olHm4/WpW1mAHhzt0umUsouF/62Jbes4w4pkHn3/4viFg6XAvhX6k3ea4udDCptxE1jQSyGLFba6TW1TAmw+jom9CaQYBsjyAm1k9n4gN32J7jmreOyy98k7P9l2NEbQhCu0Z5SEKYavgY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783626543; c=relaxed/simple;
-	bh=UFc5NYkNHpWBb0ABwv4btzCtbc/6m2TSiIZHIWB4Gls=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=ldWU80XZCYiRvBOrTwxT/WIZCX62cQh5AIZLE8kjTh9wWHeSOErEK7RXQz1vDFO2CGtw6XkWITXmlr9Kvx5spQXOgbbSoolaWxZkpirmD062AmoFc96kCfLmuoomYu47BgPe08SH7Eyj6KdzzGzxQIYssAM9NF2GwHI/8Qh45+Y=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=mqs9JlqX; arc=none smtp.client-ip=209.85.161.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1783637017; c=relaxed/simple;
+	bh=6BE50PGYfcOzHfiZFXGJg6UpG1dZIU8pbR5ePtZrrEU=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=TQpW3ul1qRpLk1BwM5x5cEaNkCzfhFhkZnuaRgQ+mdf2wfzCJ2jW21vY0YQ4gPTFkgzGP8NdWNhyXDXA3JLdkFgr7TUgHOXe1eeMNXa1Cymy92Q4crSqF1wAY8g0zsq92g5QFsaaA4vTv5ejslr0RcBhOYJvzWcXE+wotlaIMQw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--linkl.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=dawtmVCY; arc=none smtp.client-ip=209.85.216.73
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--linkl.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="mqs9JlqX"
-Received: by mail-oo1-f51.google.com with SMTP id 006d021491bc7-6a1160a2c42so183172eaf.0
-        for <virtualization@lists.linux.dev>; Thu, 09 Jul 2026 12:49:01 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="dawtmVCY"
+Received: by mail-pj1-f73.google.com with SMTP id 98e67ed59e1d1-3811279d51aso789382a91.1
+        for <virtualization@lists.linux.dev>; Thu, 09 Jul 2026 15:43:35 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1783626541; x=1784231341; darn=lists.linux.dev;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=f/r3c0ypjapIfRHS5El1n40WfDRGvPfw2APfHzflGpQ=;
-        b=mqs9JlqXhCMxw+ruUiAinUjoACirJ413Q7BGBejRqytR0gq1j4u0aoSfAyDdRLBQGW
-         anoIqWOkWqrgdkuVx/A+DLlF7Hw25nbUo3vm96ZO/G3ZJAsUOACNWCa/gXomUFQtG8d1
-         SoUOAooYPe7BDyaquwl2dYo9hUNKRyWdb9CPHZ3lTqPzgbcAj/eX7sQ9wK8IUNmrzk33
-         IVqlGd2YnO5sJaotK2rdrHpx6Z8fDFlv1ix99kti+UUg0n5UaxlVwxhX0OfMcGutFL/p
-         /wJn6qKkuhDMTpqU+65xD3GRK5c8ETfTe0IJNeyRi39r61UPzg4GV+C2iBQwxzy19yll
-         FkHA==
+        d=google.com; s=20251104; t=1783637015; x=1784241815; darn=lists.linux.dev;
+        h=content-type:cc:to:from:subject:message-id:mime-version:date:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=oJx78Z8LFnN8gG9u1+4qNl1x5zV0JVCwAKu/BmzTVP8=;
+        b=dawtmVCYaIvFgYXyxDzFEkDm/pJsGCiqIIbkfuQHfr9CrdMvar+gj8/4ALDj31ejxS
+         JobmCK7/j6yjA+d7zFg6eD4cILM7riW5kjMK8vVLbhPEagH4RSQgy1s3YsEGIdV9CxNr
+         M6YUx/sUAVgSFmUx5TncOcRIyfaKnUJqGEKCsfZRaMS5o2HzMMWO+4koJKtXDpd8vm4C
+         nrxpsuh8SP+sDaZkp8rAQyH828LvNYORRYQc0V3qqPrgZgF+ov/99n43xWxoMt244jdx
+         RLGYm3PnxqRmoH+Uz78qU2iNwbupY1/3y+ZgTr4c/PkmfDD4sRg3T0xGZ/e6utgutiEX
+         m4kg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783626541; x=1784231341;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
+        d=1e100.net; s=20251104; t=1783637015; x=1784241815;
+        h=content-type:cc:to:from:subject:message-id:mime-version:date
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=f/r3c0ypjapIfRHS5El1n40WfDRGvPfw2APfHzflGpQ=;
-        b=nYs5shzwO5EUxSsAJOx/dGXD1Loe3x/fJKP0E/N+cEVP+cLiBKLEPhba7Z7OzSMgOV
-         aQ0uqhkzdg0v0xD2j4jMKAfhCU0AVf8T/qLAnQtAmuWV82tCsEu2nJnoLinpKyG0q73H
-         yVuWh5hTt//Q4l6OiZUUv44bIuCfpY4dNYCU8yofB40grBL1QFHsdo8r639h9SFvnAR/
-         vOO7IgAccFPDQ5fhq6wghWVzcEeMISwzGQiq2xe3KZ8T5zle7js/Bs4Oz4Hq0tCYcGcf
-         Wk+i+qAulAP1Pas1E4Cp5rsJ06tIGyGvOjTGWM+fDegPkP1jCiZX+HDt1sGisIAJOpS9
-         fvCg==
-X-Forwarded-Encrypted: i=1; AFNElJ8WJ9WvLBmqxORUEBIB2RPmpGk1JK5Ft1jLzdMnEiajfrDCfSdEJ8jzuiHeEcs1IgKzrrKpUJDXajtEGvBzww==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzoL9+cVddsyFGvEGZwkys6Bt35g+EUUJkaQ87DQdiEbzNGbUMQ
-	mo8T33ny+/WeVfdilHC8hIB7s8VXGhbLH1ZBki160b3CDFEQW9e6cbbq
-X-Gm-Gg: AfdE7cmsIcl4zKCQ/uWO3Yq4SpvdEhVZj0cQsmCrDdhACVPi7FBt2sr0WFRcb7ZcWoQ
-	hzLOkhICc+PKlxGhOH7WEbonSb6sywQxPwCaagDvRqnNQ2JktC+PhrXHyrFOXl7hScdxuDEnlVG
-	mhSE8HUMc2O206FtG5s7HRzLbpOWm8Tr8cnOQZbCo5PKPNbjKNfGazroyLoeh6Dul1glUvRYyH2
-	xHe5d/0FTEEllnlQawtcYRnJIvUSLazpxYvc4aRt6OCflKXxN/XB7ALK9qaYSRCHiIL9JYAaRyt
-	qee2HuyQzsbilHXPCnHyWn2dIwvy9n3qLg1SWYudtoaRr8cm3LL93Ins/OA2Els0KPA43lLg9+0
-	15eJ5L5ryJn17oqlralMFZpnE+oGMKedJqWL1IQ6+4eyWFq2WAO/HSEEMnTdOfzCkF3jqjbrJke
-	Tx3Gii+kx6wUxS2yd6MERoxm/A9DHb4gi5
-X-Received: by 2002:a05:6820:992:b0:69e:97da:285a with SMTP id 006d021491bc7-6a36d98dd7dmr6355429eaf.29.1783626540946;
-        Thu, 09 Jul 2026 12:49:00 -0700 (PDT)
-Received: from devvm29614.prn0.facebook.com ([2a03:2880:ff:6::])
-        by smtp.gmail.com with ESMTPSA id 006d021491bc7-6a36a66b668sm4932299eaf.8.2026.07.09.12.48.59
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Jul 2026 12:49:00 -0700 (PDT)
-Date: Thu, 9 Jul 2026 12:48:57 -0700
-From: Bobby Eshleman <bobbyeshleman@gmail.com>
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: netdev@vger.kernel.org, Jason Wang <jasowangio@gmail.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eric Dumazet <edumazet@google.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Simon Horman <horms@kernel.org>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	"David S. Miller" <davem@davemloft.net>,
-	linux-kernel@vger.kernel.org, "Michael S. Tsirkin" <mst@redhat.com>,
-	kvm@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>,
-	virtualization@lists.linux.dev, Jakub Kicinski <kuba@kernel.org>,
-	Jason Wang <jasowang@redhat.com>
-Subject: Re: [PATCH net v2 2/2] vsock/test: add test for small packets under
- pressure
-Message-ID: <ak/7KFNi7CJzgbX6@devvm29614.prn0.facebook.com>
-References: <20260708102904.50732-1-sgarzare@redhat.com>
- <20260708102904.50732-3-sgarzare@redhat.com>
+        bh=oJx78Z8LFnN8gG9u1+4qNl1x5zV0JVCwAKu/BmzTVP8=;
+        b=WsMQkBV5corywJprqiUkMfIZD9jd7H7bAn5LCv/C5F+jJBBEy2UOLvlu0qGONKGyMO
+         YVKxzytMwX54BWZlWp+6eA3UkLzU+/fgs7BW98gPAljsrFPcTKU3RDVbAtRtrBaioCgY
+         xUp8qXwO5ahk5GQ1QvPScddWVvv0zs3mmJcuUCr2RJ7clhcqIIqwukWqNahIuIHx9dIW
+         RPeZo4zfckQWe/+Og3lpU8BvKAfOmU4/pb4dqP89qUEgCRtEpFN7819i9419RQq48ucp
+         klZpsFhf49/Gf6Aq/VP3y9fbShBCO/BX28/8mUIWfECzR0eKT5WplHJo2Jp94dcw05/I
+         35cg==
+X-Gm-Message-State: AOJu0YwzgnrAczpCdP0ZqKCpENcLemr2y0ZPleYhpQtCYsf5UbD8Iw7P
+	UURuS+aHU7ibvkCS4NdkqE6/nm0oT34K7yw4aOpXPhgXQPH9jtdx1YGIU0ySBfW4yMTrZfRaUko
+	r6Q==
+X-Received: from pluo8.prod.google.com ([2002:a17:903:4b08:b0:2ce:6df9:bda5])
+ (user=linkl job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:3f4f:b0:387:e0db:3fad
+ with SMTP id 98e67ed59e1d1-38942799755mr9097424a91.38.1783637014957; Thu, 09
+ Jul 2026 15:43:34 -0700 (PDT)
+Date: Thu,  9 Jul 2026 22:43:30 +0000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20260708102904.50732-3-sgarzare@redhat.com>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.55.0.795.g602f6c329a-goog
+Message-ID: <20260709224330.946683-1-linkl@google.com>
+Subject: [RFC] virtio_balloon: fix Use-After-Free in page reporting during PM freeze
+From: Link Lin <linkl@google.com>
+To: Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@kernel.org>, 
+	"Michael S . Tsirkin" <mst@redhat.com>, David Hildenbrand <david@kernel.org>
+Cc: virtualization@lists.linux.dev, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, prasin@google.com, rientjes@google.com, 
+	duenwen@google.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, 
+	Ammar Faizi <ammarfaizi2@openresty.com>, jiaqiyan@google.com, ahwilkins@google.com, 
+	Greg Thelen <gthelen@google.com>, Alexander Duyck <alexander.duyck@gmail.com>, 
+	Link Lin <linkl@google.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On Wed, Jul 08, 2026 at 12:29:04PM +0200, Stefano Garzarella wrote:
-> From: Stefano Garzarella <sgarzare@redhat.com>
-> 
-> Add a test that sends 2 MB of data using randomly sized small packets
-> (129-512 bytes) over a SOCK_STREAM connection. Packets above
-> GOOD_COPY_LEN (128) bypass the in-place coalescing in recv_enqueue(),
-> forcing each one into its own skb.
-> 
-> Without receive queue collapsing, the per-skb overhead eventually
-> exceeds buf_alloc and the connection is reset. The test verifies
-> that all data arrives and that content integrity is preserved.
-> 
-> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
-> ---
->  tools/testing/vsock/vsock_test.c | 87 ++++++++++++++++++++++++++++++++
->  1 file changed, 87 insertions(+)
-> 
-> diff --git a/tools/testing/vsock/vsock_test.c b/tools/testing/vsock/vsock_test.c
-> index 76be0e4a7f0e..b4ff9f946565 100644
-> --- a/tools/testing/vsock/vsock_test.c
-> +++ b/tools/testing/vsock/vsock_test.c
-> @@ -2347,6 +2347,88 @@ static void test_stream_tx_credit_bounds_server(const struct test_opts *opts)
->  	close(fd);
->  }
->  
-> +/* Test that many small packets don't cause a connection reset under pressure
-> + * and that data integrity is preserved.  Packet sizes vary randomly between
-> + * 129 and 512 bytes, above GOOD_COPY_LEN (128) to bypass in-place coalescing
-> + * in recv_enqueue, forcing each one into its own skb.  Without receive queue
-> + * collapsing, the per-skb overhead eventually exceeds buf_alloc and the
-> + * connection is reset.
-> + */
-> +#define COLLAPSE_PKT_MIN 129
-> +#define COLLAPSE_PKT_MAX 512
-> +#define COLLAPSE_TOTAL (2 * 1024 * 1024)
-> +
-> +static void test_stream_collapse_client(const struct test_opts *opts)
-> +{
-> +	unsigned char *data;
-> +	unsigned long hash;
-> +	size_t offset = 0;
-> +	int i, fd;
-> +
-> +	data = malloc(COLLAPSE_TOTAL);
-> +	if (!data) {
-> +		perror("malloc");
-> +		exit(EXIT_FAILURE);
-> +	}
-> +
-> +	for (i = 0; i < COLLAPSE_TOTAL; i++)
-> +		data[i] = rand() & 0xff;
-> +
-> +	fd = vsock_stream_connect(opts->peer_cid, opts->peer_port);
-> +	if (fd < 0) {
-> +		perror("connect");
-> +		exit(EXIT_FAILURE);
-> +	}
-> +
-> +	while (offset < COLLAPSE_TOTAL) {
-> +		size_t pkt_size = COLLAPSE_PKT_MIN +
-> +			rand() % (COLLAPSE_PKT_MAX - COLLAPSE_PKT_MIN + 1);
-> +
-> +		pkt_size = min(pkt_size, COLLAPSE_TOTAL - offset);
-> +
-> +		send_buf(fd, data + offset, pkt_size, 0, pkt_size);
-> +		offset += pkt_size;
-> +	}
-> +
-> +	hash = hash_djb2(data, COLLAPSE_TOTAL);
-> +	control_writeulong(hash);
-> +
-> +	free(data);
-> +	close(fd);
-> +}
-> +
-> +static void test_stream_collapse_server(const struct test_opts *opts)
-> +{
-> +	unsigned long hash, remote_hash;
-> +	unsigned char *data;
-> +	int fd;
-> +
-> +	data = malloc(COLLAPSE_TOTAL);
-> +	if (!data) {
-> +		perror("malloc");
-> +		exit(EXIT_FAILURE);
-> +	}
-> +
-> +	fd = vsock_stream_accept(VMADDR_CID_ANY, opts->peer_port, NULL);
-> +	if (fd < 0) {
-> +		perror("accept");
-> +		exit(EXIT_FAILURE);
-> +	}
-> +
-> +	recv_buf(fd, data, COLLAPSE_TOTAL, 0, COLLAPSE_TOTAL);
-> +
-> +	hash = hash_djb2(data, COLLAPSE_TOTAL);
-> +	remote_hash = control_readulong();
-> +	if (hash != remote_hash) {
-> +		fprintf(stderr, "hash mismatch: local %lu remote %lu\n",
-> +			hash, remote_hash);
-> +		exit(EXIT_FAILURE);
-> +	}
-> +
-> +	free(data);
-> +	close(fd);
-> +}
-> +
->  static struct test_case test_cases[] = {
->  	{
->  		.name = "SOCK_STREAM connection reset",
-> @@ -2546,6 +2628,11 @@ static struct test_case test_cases[] = {
->  		.run_client = test_stream_msg_peek_client,
->  		.run_server = test_stream_peek_after_recv_server,
->  	},
-> +	{
-> +		.name = "SOCK_STREAM small packets backpressure",
-> +		.run_client = test_stream_collapse_client,
-> +		.run_server = test_stream_collapse_server,
-> +	},
->  	{},
->  };
->  
-> -- 
-> 2.55.0
-> 
+During system power management freeze (e.g. ACPI S3 suspend or S4
+hibernation), virtballoon_freeze() calls remove_common() to reset the
+virtio device and delete all virtqueues via vdev->config->del_vqs().
+However, unlike virtballoon_remove(), virtballoon_freeze() fails to call
+page_reporting_unregister(&vb->pr_dev_info).
 
-Reviewed-by: Bobby Eshleman <bobbyeshleman@meta.com>
+The comment in virtballoon_freeze() states:
+    /*
+     * The workqueue is already frozen by the PM core before this
+     * function is called.
+     */
+
+While this comment was accurate in 2011 for balloon-internal workqueues
+(such as balloon_wq, which was created with WQ_FREEZABLE and is paused
+by the PM freezer), it is invalid for Free Page Reporting.
+
+Free Page Reporting (mm/page_reporting.c) schedules its delayed work
+(prdev->work) on the global system_wq. Because system_wq lacks the
+WQ_FREEZABLE flag, the PM freezer (freeze_workqueues_busy()) explicitly
+skips it. Consequently, page_reporting_process() on system_wq remains
+active and unfrozen throughout device suspend.
+
+If memory is freed into the buddy allocator or a delayed work timer
+expires while the device is being frozen, page_reporting_process() fires
+on system_wq and calls virtballoon_free_page_report(). This function
+passes vb->reporting_vq into virtqueue_add_inbuf() / virtqueue_add_split().
+Because the virtqueues were already destroyed by del_vqs(), this results
+in a Use-After-Free / General Protection Fault:
+
+    [  250.709271] general protection fault, probably for non-canonical address 0x7f728084daf08d5e: 0000 [#1] SMP PTI
+    [  250.732967] CPU: 2 PID: 38 Comm: kworker/2:1 Not tainted 5.10.0-44-cloud-amd64 #1 Debian 5.10.257-1
+    [  250.751575] Workqueue: events page_reporting_process
+    [  250.756665] RIP: 0010:virtqueue_add_split+0x233/0x4c0 [virtio_ring]
+    ...
+    [  250.867678] virtballoon_free_page_report+0x3a/0xe0 [virtio_balloon]
+    [  250.883446] page_reporting_process+0x225/0x4f0
+
+(Note: The OOM Notifier and Shrinker/Free Page Hinting features suffer
+from an identical lifecycle flaw and are also vulnerable to UAFs during
+S4 hibernation when memory pressure spikes. This patch focuses on Free
+Page Reporting, which runs periodically, to ensure clean backports to
+stable kernels).
+
+Fix this by:
+1. Unregistering page reporting in virtballoon_freeze() prior to calling
+   remove_common(). This clears the RCU pr_dev_info pointer and flushes/
+   cancels prdev->work on system_wq via cancel_delayed_work_sync().
+2. Re-registering page reporting in virtballoon_restore() after the
+   virtqueues are re-initialized and virtio_device_ready() has been called.
+3. Unwinding virtqueue initialization via remove_common() in 
+   virtballoon_restore() if page_reporting_register() fails.
+
+Fixes: 924a663f75e2 ("virtio-balloon: Reporting free page reservations")
+Cc: stable@vger.kernel.org
+Cc: jasowang@redhat.com
+Cc: xuanzhuo@linux.alibaba.com
+Cc: Ammar Faizi <ammarfaizi2@openresty.com>
+Cc: jiaqiyan@google.com
+Cc: ahwilkins@google.com
+Cc: Greg Thelen <gthelen@google.com>
+Cc: Alexander Duyck <alexander.duyck@gmail.com>
+Signed-off-by: Link Lin <linkl@google.com>
+---
+ drivers/virtio/virtio_balloon.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index a1b2c3d4e5f6..45a90fb3abf8 100640
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -1055,6 +1055,9 @@ static int virtballoon_freeze(struct virtio_device *vdev)
+ 	 * The workqueue is already frozen by the PM core before this
+ 	 * function is called.
+ 	 */
++	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING))
++		page_reporting_unregister(&vb->pr_dev_info);
++
+ 	remove_common(vb);
+ 	return 0;
+ }
+ 
+ static int virtballoon_restore(struct virtio_device *vdev)
+ {
+ 	struct virtio_balloon *vb = vdev->priv;
+ 	int ret;
+ 
+ 	ret = init_vqs(vdev->priv);
+ 	if (ret)
+ 		return ret;
+ 
+ 	virtio_device_ready(vdev);
+ 
++	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING)) {
++		ret = page_reporting_register(&vb->pr_dev_info);
++		if (ret)
++			goto out_remove_vqs;
++	}
++
+ 	if (towards_target(vb))
+ 		virtballoon_changed(vdev);
+ 	update_balloon_size(vb);
+ 	return 0;
++
++out_remove_vqs:
++	remove_common(vb);
++	return ret;
+ }
+-- 
+2.45.0
