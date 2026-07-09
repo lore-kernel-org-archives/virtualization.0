@@ -1,70 +1,70 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C12583FCB2A
-	for <virtualization@lists.linux.dev>; Thu,  9 Jul 2026 08:54:45 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DAD4A3FBEC9
+	for <virtualization@lists.linux.dev>; Thu,  9 Jul 2026 09:18:04 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783587288; cv=none; b=elCuww79vx8I1i9X3qBmx/olFoSW+xT7Ox9grCUE8Q6VGetUlsiIg4VJR9MY+MwOlQiqcOoyUgFnNKpUrsNdcdKnP4CLc4y/ra/h1GrkuKa2cw7iPqW7MLarloJIuWcO0VyWe+pdsWBXJzNZkP3I1aM4/RCPu+yV2mNjXSNhJeU=
+	t=1783588686; cv=none; b=KkY+HTjve7v7Xx2BlzXDmYlUgAJ766SnNX6GLawRCs1HJJO7/MnMbg7+JYi8NTymzUver58J7IeVYM85W0JL0pE/RiikFyEOtM3r2Kb2Pqgj/Zq7IyY689vVrjtmWKE/PzODqqQTF0rxA7ydRN4vPRYaX8qB4gxKRekIr10xO/I=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783587288; c=relaxed/simple;
-	bh=wRRaBds4GutgazHTelDLWoEKQjUD+qekfGeab8oKIas=;
+	s=arc-20240116; t=1783588686; c=relaxed/simple;
+	bh=FjpUXsvhXEAkUlVQP4tEH1Ee2iSdcpYkelan5p5vzPs=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=CrRXCrs+LlDluXzCDXTRtqwN77VE35VTqrekzDYCVhu2lvLp0+5YVfmCPeWJPFHVpFd9P/zY8jkU+IelgaLiCo35ueIiBlTSbGMwje2uwMeofIenoYvBA+UJzZMzaC/CyKySO9iJbKvsfLYiVW5GyT8djNpmw8ac0SyIsNY5blo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=BlAyjAbL; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=tgFH/+y/OuIwDJeq1sekrcjWDz0buCL1SQhfuWACAT1Qda7CskVhtV1+66IybJX9kMyXzbjsie6rpU/aUhBFol9Q3i4MbhK0hPf+NKlKGDQLimF8vcHz1QA6EFE7urVuFJ7K7vRLpD+CE77y7mB+JsX0Ao26OBlo2d3gkn82BYc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=F0C8P9f4; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="BlAyjAbL"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="F0C8P9f4"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1783587284;
+	s=mimecast20190719; t=1783588684;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=jKBatJUUTBddrBcocZDnsS1t1LpIJaEaNIf3BrEu4hE=;
-	b=BlAyjAbLykGVnxtSiIUcYYke3Ot7vTQth/cP4NWIv/m6yme76bTdo9jqpsi3IYY+qSWdvD
-	SKW+4Du4VQksNJlpdpoG0V2F1lHYKZGzb9QLREV/M3l1h9mJ0K4HFkiHgR3ii7CKsWXGyS
-	7EePKe9LQiCImxRy38vrkBO56kdltGw=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=lcgAW3wWwD+CDc95tyrJwQ6t0jD3GIhvTCB6YDG1NyM=;
+	b=F0C8P9f4PCpYe67uxZ2dquAVNhcBCKlBshRLmIblMnlq7VjR6m9MjHAiiQiKTNTqaH0itS
+	CCByddcGbZkU4OQkPrs88JSfV689igPe8TunaZmTdiFSyQflvrnOiTicQ0LEenhECHwmYc
+	Fghza4DH9JOfapbjALd1TQ3yJF5/dNk=
+Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
+ [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-623-WbMXoQKdMceLObTZ0l8c_g-1; Thu, 09 Jul 2026 04:54:43 -0400
-X-MC-Unique: WbMXoQKdMceLObTZ0l8c_g-1
-X-Mimecast-MFC-AGG-ID: WbMXoQKdMceLObTZ0l8c_g_1783587282
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-493bc2b376fso13892395e9.3
-        for <virtualization@lists.linux.dev>; Thu, 09 Jul 2026 01:54:43 -0700 (PDT)
+ us-mta-30-jZIgTfzNNt-50yN3JbdzHQ-1; Thu, 09 Jul 2026 05:18:00 -0400
+X-MC-Unique: jZIgTfzNNt-50yN3JbdzHQ-1
+X-Mimecast-MFC-AGG-ID: jZIgTfzNNt-50yN3JbdzHQ_1783588679
+Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-474170b59dfso1094259f8f.3
+        for <virtualization@lists.linux.dev>; Thu, 09 Jul 2026 02:18:00 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783587282; x=1784192082;
+        d=1e100.net; s=20251104; t=1783588679; x=1784193479;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=jKBatJUUTBddrBcocZDnsS1t1LpIJaEaNIf3BrEu4hE=;
-        b=RvAvZFoiK6fEdKD0sPqlGKALD+W0S9y/YuA4pvtLj29OngcFN/hS7eCh9fQRUEZbYm
-         yWSjmf+9Go0qZQtNALeUKp++3lbJYMDF2dhRVKmJB3vEsiyuipQo1U8r7puWr/3cKPH4
-         4iQy2/CCEo8jbI1RLjMJ/ol5/hQY1rOdbp90XBGEpjsUIRw+5ne7wmoivljFd8Gnb8ie
-         EgNNrdRB+Uz8v7pnau5Q9xhdTN/qi+7b5Jbk3o/BNp579qy7iGLWnGA3xRuhNBO6jABO
-         kprE/Y9rCaz3j+lB9GVhEfU+qHpGUxswb/kYudDfmGtYnFXo2JXPtlJpDJQtWBV8h9Of
-         N6tQ==
-X-Forwarded-Encrypted: i=1; AHgh+RoAPYRpNFxRyfqlZmJhCMTwoQEWRrOKHyQkUcoaZXSslFRr8+nGNpVsi+HyPNdBrAXPL1OVLYUhGEEzGm7oYg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzbCdBMwH7wfliZNozHAHLPTcuTvwzu8MBLjV8kYKuzRLxszkJL
-	O9sVmJO6MZ0Loq6d94hQ3zKHPPNOlFT90uI2o20pxNroOPAb02a/yeC0SIQo4lI4JWHKHpTTUnr
-	2S74uF7AnNmKS/JsyPJ5BqizKVKyYeqSg0jHt1rZy1sj43jqvGfI968vrDJaoxPNEUzhk
-X-Gm-Gg: AfdE7ckPRglTKECEZT1r3nksIbZJGsb2JjzYD4j01iUKjJBpxfpYGIkOxy4zWvOwXAw
-	gLKH1xwDiqfjTRw+zOZ5vC85H7zDYEjxZUSpDuwGcldGNHQscEO/CLgyVUp/o04Csar8IFjF4VN
-	OjfiU1xPajx2A4vS3MIMPEm8J1LGeLpluC6LDxhyRpMCy+QkIIh2Bb4iFVrk09sEK4BPL10TbcC
-	so76zCG2LKKJnn6/owv6Oh5zHHxy1C/Q6RNl8N1Z1B9Trr5gVwi0Ypagj2R5G6J065M6Omrfauc
-	KaFh+3d0YbxtH5+oZnS8F2V4VUpZJcSeatzGM1IF8PyAuP6qJYWKBWvZ1O4eJf8CTwc0SVdscL9
-	p5yjxzmc0h14WuHBhMjn1P4+lZBSm88wXBSXm8rio4eoc/oIdx+TU56rL3eV0
-X-Received: by 2002:a05:600c:1993:b0:48a:906b:14ca with SMTP id 5b1f17b1804b1-493e68c6c98mr55722805e9.20.1783587282372;
-        Thu, 09 Jul 2026 01:54:42 -0700 (PDT)
-X-Received: by 2002:a05:600c:1993:b0:48a:906b:14ca with SMTP id 5b1f17b1804b1-493e68c6c98mr55722455e9.20.1783587281922;
-        Thu, 09 Jul 2026 01:54:41 -0700 (PDT)
+        bh=lcgAW3wWwD+CDc95tyrJwQ6t0jD3GIhvTCB6YDG1NyM=;
+        b=SywWxs98KLTSrLKBQSzGihTsvwtle4Ay99ieBMKd6vTxSOzFJBy5KfzIykXP0k8fJ8
+         f3GW4zPTdhJ/2o1EF9zVF9mFBvjIWxK/CBQ2ZlyDfkLvQFvgtifJYoPfvy1ORdbluwJs
+         1+zQSap9Euf6Jr7TpnjQgROzGCTksI+cTTCIPO5dKCRImO1JUzrslk3otFRD6Sp7Ydns
+         lgIHeSTDxTjMTg2+o7OJsdq8P+Al2yaXe1KowAvbb7x8GaclxNS05055Rv0vO0BKoa3o
+         Mtu0qq8EIcOhZEzGpNOqtaCDUHUN0YvjAZtU5HqfDMMCs20p4O1Er4sXyF40pR3W1vyC
+         ZZXA==
+X-Forwarded-Encrypted: i=1; AHgh+RojG3Lf7slsuN76j5CfGkUIBRS2qUn9zs5dteXuIvvuzozp0l1GcR8Ou4MAlOLcaOoLkGoxuVjWt2bHWA4C8Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwjJeBdqyG477KJgBcdhW7nO75DYfLKw3Ght22+pj8/s81gDITD
+	RCquPeMX5rNoGqkXlub4qS5TOSSTw4gbtKs7O2MaeFVtfK4NLYFKSUXzpOmbdupB3OPvdo3yjZ1
+	TwKiFXSo05Dyyr6i21Pbx3xkeaHInWbM0RUtdELGLRshpQ4BLM7GWs62dTBK7iF0copm8
+X-Gm-Gg: AfdE7ckq6cpoLvQaXmvcavWqTfwh6o8MSgAC5THTUeQAdMgOhdSt2q++isvVvwKy1fY
+	lpSeSeMayNmmDT7+DNn85inEeKSw+GmGHur7H29WKTMLahmC7pA1CNiIyxnlMbh1/NtSLNA8NCO
+	ZecDnY9qe9orX9zl3sHijhlTr6Y58VP0tSlule+4ZmBQquZcKVk8WjmSXUwhyNJWEdlfAt0R7nh
+	ahI4ZZnZAHePy0viVI6M7Snq8SAzS+555OOlaybApoSNXdnEVv3LKaFFtY4nxNlLFsYDUGjR+9y
+	e2EYV2Xk0h95VLQCCoc+Ds3zHu+ZEIoxo2W30JH+9a+So3gwMziqV3DpGOeaOwmqEkw1YrVrlcD
+	6v5Uw2E24DXZHUpdObH9DBJxb+TuUippye+EKeok2zDBUpRQ/YB5UvrJdP4Zk
+X-Received: by 2002:a05:6000:1a85:b0:460:1223:a044 with SMTP id ffacd0b85a97d-47df06c10c9mr6983275f8f.0.1783588679370;
+        Thu, 09 Jul 2026 02:17:59 -0700 (PDT)
+X-Received: by 2002:a05:6000:1a85:b0:460:1223:a044 with SMTP id ffacd0b85a97d-47df06c10c9mr6983241f8f.0.1783588678905;
+        Thu, 09 Jul 2026 02:17:58 -0700 (PDT)
 Received: from sgarzare-redhat (host-79-34-22-35.business.telecomitalia.it. [79.34.22.35])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-493eb6df6d9sm54564705e9.7.2026.07.09.01.54.40
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47a9de1d910sm48486557f8f.6.2026.07.09.02.17.57
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Jul 2026 01:54:41 -0700 (PDT)
-Date: Thu, 9 Jul 2026 10:54:34 +0200
+        Thu, 09 Jul 2026 02:17:58 -0700 (PDT)
+Date: Thu, 9 Jul 2026 11:17:52 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: netdev@vger.kernel.org, Jason Wang <jasowangio@gmail.com>, 
@@ -73,78 +73,57 @@ Cc: netdev@vger.kernel.org, Jason Wang <jasowangio@gmail.com>,
 	Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
 	linux-kernel@vger.kernel.org, kvm@vger.kernel.org, Paolo Abeni <pabeni@redhat.com>, 
 	virtualization@lists.linux.dev, Jakub Kicinski <kuba@kernel.org>, 
-	Jason Wang <jasowang@redhat.com>, stable@vger.kernel.org, Brien Oberstein <brienpub@gmail.com>
-Subject: Re: [PATCH net v2 1/2] vsock/virtio: collapse receive queue under
- memory pressure
-Message-ID: <ak9fGNnW7gdqVXie@sgarzare-redhat>
+	Jason Wang <jasowang@redhat.com>
+Subject: Re: [PATCH net v2 2/2] vsock/test: add test for small packets under
+ pressure
+Message-ID: <ak9h1kWcLmpP74PI@sgarzare-redhat>
 References: <20260708102904.50732-1-sgarzare@redhat.com>
- <20260708102904.50732-2-sgarzare@redhat.com>
- <20260708065947-mutt-send-email-mst@kernel.org>
+ <20260708102904.50732-3-sgarzare@redhat.com>
+ <20260708065853-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260708065947-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20260708065853-mutt-send-email-mst@kernel.org>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: _okE85-ux8zUXE1NH4pRbU28tfo4B5shIoSc83O1oLs_1783587282
+X-Mimecast-MFC-PROC-ID: 3T1z2JAYXPYpKukRfGOjVSP1z-oHvzMDAZ24ff00d2s_1783588679
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
 
-On Wed, Jul 08, 2026 at 07:00:00AM -0400, Michael S. Tsirkin wrote:
->On Wed, Jul 08, 2026 at 12:29:03PM +0200, Stefano Garzarella wrote:
+On Wed, Jul 08, 2026 at 06:59:41AM -0400, Michael S. Tsirkin wrote:
+>On Wed, Jul 08, 2026 at 12:29:04PM +0200, Stefano Garzarella wrote:
 >> From: Stefano Garzarella <sgarzare@redhat.com>
 >>
->> When many small packets accumulate in the receive queue, the skb overhead
->> can exceed buf_alloc even while the payload is within bounds. This causes
->> virtio_transport_inc_rx_pkt() to reject packets, leading to connection
->> resets during large transfers under backpressure.
+>> Add a test that sends 2 MB of data using randomly sized small packets
+>> (129-512 bytes) over a SOCK_STREAM connection. Packets above
+>> GOOD_COPY_LEN (128) bypass the in-place coalescing in recv_enqueue(),
+>> forcing each one into its own skb.
 >>
->> The issue was reported by Brien, who has a reproducer, but it is also
->> easily reproducible with iperf-vsock [1] using a small packet size:
+>> Without receive queue collapsing, the per-skb overhead eventually
+>> exceeds buf_alloc and the connection is reset. The test verifies
+>> that all data arrives and that content integrity is preserved.
 >>
->>   iperf3 --vsock -c $CID -l 129
->>
->> which fails immediately without this patch but with commit 059b7dbd20a6
->> ("vsock/virtio: fix potential unbounded skb queue").
->>
->> Inspired by TCP's tcp_collapse() which solves a similar problem, add
->> virtio_transport_collapse_rx_queue() that walks the receive queue and
->> re-copies data into compact linear skbs to reduce the overhead.
->>
->> The collapse is triggered proactively from when the number of skb queued
->> is close to exceeding the overhead budget.
->>
->> A pre-scan counts the eligible bytes to size each allocation precisely,
->> avoiding waste for isolated small packets. Partially consumed skbs are
->> kept as-is to preserve buf_used/fwd_cnt accounting, EOM-marked skbs to
->> maintain SEQPACKET message boundaries, and skbs already larger than the
->> collapse target because they already have a good data-to-overhead ratio.
->>
->> Walking a large queue may take a significant amount of time and cache
->> misses, causing traffic burstiness. To limit this, the collapse stops
->> once enough room is freed for this packet and the next one, but may
->> opportunistically free more to fill each collapsed skb to capacity.
->>
->> [1] https://github.com/stefano-garzarella/iperf-vsock
->>
->> Fixes: 059b7dbd20a6 ("vsock/virtio: fix potential unbounded skb queue")
->> Cc: stable@vger.kernel.org
->> Reported-by: Brien Oberstein <brienpub@gmail.com>
->> Closes: https://lore.kernel.org/netdev/618701dd023e$063de350$12b9a9f0$@gmail.com/
->> Tested-by: Brien Oberstein <brienpub@gmail.com>
 >> Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
 >
+>maybe cut down SO_VM_SOCKETS_BUFFER_SIZE? will make it easier to
+>trigger?
+
+Currently, with the default value, the trigger is practically immediate 
+for packets between 129 and 512 bytes, but yes, a smaller buffer size 
+certainly makes this effect even more pronounced.
+
 >
->this is the right approach
-
-Yeah, I have a follow up to start to use skb->truesize, etc. but I guess 
-more net-next material.
-
+>anyway
 >
 >Acked-by: Michael S. Tsirkin <mst@redhat.com>
+
+Thanks!
+
+If I need to post a v3, I'll add it; otherwise, I guess we can leave it 
+as is or send a follow-up for net-next.
 
 Thanks,
 Stefano
