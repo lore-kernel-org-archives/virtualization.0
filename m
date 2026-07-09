@@ -1,34 +1,34 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1320641325F
-	for <virtualization@lists.linux.dev>; Thu,  9 Jul 2026 11:52:07 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 31D893BE15E
+	for <virtualization@lists.linux.dev>; Thu,  9 Jul 2026 11:52:28 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783597930; cv=none; b=RBmUQj7zZTmvD1TDrlLdZ4kSFEmsM4LsRW7Fg8rybv/YngzzR4CGbrLW/uVFpv9KLwmL+6iMfNUYmfanSxRzSfctQMFa5Gv4k4F4GwRLzGBvqdkD3f976j/w3pwKBzKLQcvJ3NsoIFD5S9klomTBCWX2Rg27O/q3CpzVCQUgHgk=
+	t=1783597950; cv=none; b=OH5qo2ZUl/0Q+Gftlsqbp61Y/ls/p783VBUGDG8GYuDkKOxha2wlOcdgBNj1yhc0v3vML5uFpucTr5XisSSRPqMOtlAEapG60zIgqGqjgAxbKsG3yKgIO2oKUtMRrR+fgeDLo+o7+JBVEqQ6NqohnqK4rfj5OlZVxCBJxrdadtY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783597930; c=relaxed/simple;
-	bh=iB3IFbnkOCSsE341iR9t8/psVxzRnGrLpW1XI7sxqKc=;
+	s=arc-20240116; t=1783597950; c=relaxed/simple;
+	bh=EEhNCVcvm0ncL0FeAcn9jYtAFuyPuJEjp5YuNPd9HrM=;
 	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=W8dbXjcOY93D0BugJw5FeEJWyeNzRmIK7ZYsgpWHKCmpdSRKulzhOMWeo/s0K6FswYPppg9kwYG6hmUqZT/4jRZrr+O/qOKoJZ5tiI9YoGSzwEc4Emnmr3S8Lo3msEXHu0CxCR1louLGmJ4jca4VGRt7fCBrkpZCod9N4i6JH1I=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GGu0Fz5f; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:To:Cc; b=dtpwqWoRw/B40IdMMdTnD1fOr+5jHuK/39F0axHXYD4PEkut6tFko3Q6jFDQjXc7Lg2mddOnkhVGL4Q8VTzslsRJ0i65aaJieJKgj27sxaHTBp3uxJP4IvwRfRzuL0uxDors39civJTLOVDjAJNAn1hiuHQ/gJ2iAhPqGYqGV2U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=itxrAkDR; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GGu0Fz5f"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 1B3EE1F00A3E;
-	Thu,  9 Jul 2026 11:52:06 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="itxrAkDR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3F20B1F00A3A;
+	Thu,  9 Jul 2026 11:52:28 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783597927;
-	bh=+1e9cR4+p1bSGfVryzAyywUSLYuvj5n21WtxKSL/jDs=;
+	s=k20260515; t=1783597948;
+	bh=iFJVkHvoWaBPkQ2EJEsQP5a1tCmw1TvrC5jvJr+OHiU=;
 	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=GGu0Fz5f3G8zllolFQhMJL+3MJuGhxVrqil6Dl5FeAy7nTR+JRjwBbpQb0lbdD7m/
-	 AtNIYKY4HLAneQLsTgKBSi1iN+bs3AmZpp47jpN0ONaVo7wlIjeOE96BeAkxUQ6b4v
-	 1Br1NRfjB2ry8Qp4n6iEFAAub72ZR9RVrXwCYoQ6ck9vACgYXV6sicvBU4Sb6+fqhz
-	 dtxNJp96PH3f21d0A1wc7NH9v1QeU75FhNaDHb2H4MPa8+uA7CWO1r9RuKFW3TW1qX
-	 SP+LrqdHnwisM/H5qB3Bh61KXhNeZ84xJxe1lvk6S8ObVQrm63LlCvx2xOCwFQHA+M
-	 kszBjcbNudepw==
+	b=itxrAkDRUDZ0c1q8o5l8+0YJboeCSgd1Frftj5kZqg4ZqlLFOslX8jETWZx+9IwDz
+	 buOuAw+rj93KyQtDsaIQ9Ay39xHfLVm4NCtkdCD57iocOMEo74RaJM0Ik8qOkjl2r8
+	 rFYs0mrPnvrdNHh+J8fgAa5sfIoTJqmSdN+Vi4E0PtEqR/74YLBoLzLtwNRkVOezY1
+	 9dQALgVFJdAzwfioorHXCYBaDhv4cpVEhciUS6ID0PFhB1ih15qbzy8JfxbI4uVOHg
+	 3MSQSkjzlraour99WpZ47vwrTDJaQJH/oDcZmhahm0RO8j3M+g9+fMLhdNjy38jWsk
+	 X+R7n2tcaoRZg==
 From: Maxime Ripard <mripard@kernel.org>
-Date: Thu, 09 Jul 2026 13:50:53 +0200
-Subject: [PATCH 27/60] drm/qxl: Convert to atomic_create_state
+Date: Thu, 09 Jul 2026 13:51:02 +0200
+Subject: [PATCH 36/60] drm/virtio: Convert to atomic_create_state
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -37,22 +37,23 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260709-drm-no-more-plane-reset-v1-27-302d986fe5f0@kernel.org>
+Message-Id: <20260709-drm-no-more-plane-reset-v1-36-302d986fe5f0@kernel.org>
 References: <20260709-drm-no-more-plane-reset-v1-0-302d986fe5f0@kernel.org>
 In-Reply-To: <20260709-drm-no-more-plane-reset-v1-0-302d986fe5f0@kernel.org>
 To: Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
  Thomas Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@gmail.com>, 
  Simona Vetter <simona@ffwll.ch>
 Cc: dri-devel@lists.freedesktop.org, Maxime Ripard <mripard@kernel.org>, 
- airlied@redhat.com, kraxel@redhat.com, spice-devel@lists.freedesktop.org, 
+ airlied@redhat.com, dmitry.osipenko@collabora.com, 
+ gurchetansingh@chromium.org, kraxel@redhat.com, olvaffe@gmail.com, 
  virtualization@lists.linux.dev
 X-Mailer: b4 0.14.3
-X-Developer-Signature: v=1; a=openpgp-sha256; l=6661; i=mripard@kernel.org;
- h=from:subject:message-id; bh=iB3IFbnkOCSsE341iR9t8/psVxzRnGrLpW1XI7sxqKc=;
- b=owGbwMvMwCmsHn9OcpHtvjLG02pJDFn+3aI7n+7dEGmYWWPxgPnzww1HL/tlWk5YN6fZrCwo8
- MevbUKGHVNZGIQ5GWTFFFmeyISdXt6+uMrBfuUPmDmsTCBDGLg4BWAi/e2MDe8+dQa+4FtectjU
- Mr606Wt1r7vw6lhjifce14P4lDZvcXzP07rqQXCtwhoBe1bBFzzOjA1T9zyPNPqXph6dlaG7dKO
- R74cl85msczvOzMw4s76kVOQTh47A9Esu/XNurk85ve3czEcA
+X-Developer-Signature: v=1; a=openpgp-sha256; l=6083; i=mripard@kernel.org;
+ h=from:subject:message-id; bh=EEhNCVcvm0ncL0FeAcn9jYtAFuyPuJEjp5YuNPd9HrM=;
+ b=owGbwMvMwCmsHn9OcpHtvjLG02pJDFn+3ZJTlpop9e8+/TJne/z5G/kxUSIGBfFLk++r8r1at
+ Xji1EajjqksDMKcDLJiiixPZMJOL29fXOVgv/IHzBxWJpAhDFycAjAR3x7GOsXMOTsPTJmnE/9L
+ jqFEMt97Ns+BnTM2+exN+575UceKP+J0aM7O9c93yC77Xaxb+rB8OWPD9Gd8bZ5HDn+uFP3if12
+ rYEE8121Xrdcfzm486/sgf/FND8Fjj8vNY9SLZ33YcVxGu1EHAA==
 X-Developer-Key: i=mripard@kernel.org; a=openpgp;
  fpr=BE5675C37E818C8B5764241C254BCFC56BF6CE8D
 
@@ -323,43 +324,32 @@ expression PS;
 Signed-off-by: Maxime Ripard <mripard@kernel.org>
 ---
 Cc: airlied@redhat.com
+Cc: dmitry.osipenko@collabora.com
+Cc: gurchetansingh@chromium.org
 Cc: kraxel@redhat.com
-Cc: spice-devel@lists.freedesktop.org
+Cc: olvaffe@gmail.com
 Cc: virtualization@lists.linux.dev
 ---
- drivers/gpu/drm/qxl/qxl_display.c | 4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/gpu/drm/virtio/virtgpu_plane.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/gpu/drm/qxl/qxl_display.c b/drivers/gpu/drm/qxl/qxl_display.c
-index a026bd35ef48..d0e47be7febd 100644
---- a/drivers/gpu/drm/qxl/qxl_display.c
-+++ b/drivers/gpu/drm/qxl/qxl_display.c
-@@ -927,11 +927,11 @@ static const struct drm_plane_helper_funcs qxl_cursor_helper_funcs = {
+diff --git a/drivers/gpu/drm/virtio/virtgpu_plane.c b/drivers/gpu/drm/virtio/virtgpu_plane.c
+index 1d1b27ece62a..52971864db50 100644
+--- a/drivers/gpu/drm/virtio/virtgpu_plane.c
++++ b/drivers/gpu/drm/virtio/virtgpu_plane.c
+@@ -89,11 +89,11 @@ drm_plane_state *virtio_gpu_plane_duplicate_state(struct drm_plane *plane)
+ }
  
- static const struct drm_plane_funcs qxl_cursor_plane_funcs = {
- 	.update_plane	= drm_atomic_helper_update_plane,
- 	.disable_plane	= drm_atomic_helper_disable_plane,
- 	.destroy	= drm_plane_helper_destroy,
--	.reset		= drm_atomic_helper_plane_reset,
+ static const struct drm_plane_funcs virtio_gpu_plane_funcs = {
+ 	.update_plane		= drm_atomic_helper_update_plane,
+ 	.disable_plane		= drm_atomic_helper_disable_plane,
+-	.reset			= drm_atomic_helper_plane_reset,
 +	.atomic_create_state = drm_atomic_helper_plane_create_state,
- 	.atomic_duplicate_state = drm_atomic_helper_plane_duplicate_state,
- 	.atomic_destroy_state = drm_atomic_helper_plane_destroy_state,
+ 	.atomic_duplicate_state = virtio_gpu_plane_duplicate_state,
+ 	.atomic_destroy_state	= drm_atomic_helper_plane_destroy_state,
  };
  
- static const uint32_t qxl_primary_plane_formats[] = {
-@@ -949,11 +949,11 @@ static const struct drm_plane_helper_funcs primary_helper_funcs = {
- 
- static const struct drm_plane_funcs qxl_primary_plane_funcs = {
- 	.update_plane	= drm_atomic_helper_update_plane,
- 	.disable_plane	= drm_atomic_helper_disable_plane,
- 	.destroy	= drm_plane_helper_destroy,
--	.reset		= drm_atomic_helper_plane_reset,
-+	.atomic_create_state = drm_atomic_helper_plane_create_state,
- 	.atomic_duplicate_state = drm_atomic_helper_plane_duplicate_state,
- 	.atomic_destroy_state = drm_atomic_helper_plane_destroy_state,
- };
- 
- static struct drm_plane *qxl_create_plane(struct qxl_device *qdev,
+ static int virtio_gpu_plane_atomic_check(struct drm_plane *plane,
 
 -- 
 2.54.0
