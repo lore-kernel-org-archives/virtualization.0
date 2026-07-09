@@ -1,659 +1,142 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from sender4-op-o11.zoho.com (sender4-op-o11.zoho.com [136.143.188.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 56E8132D0E3
-	for <virtualization@lists.linux.dev>; Thu,  9 Jul 2026 14:18:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783606719; cv=none; b=k7DU8Fiqjm+Ic89qbM0yBzZViZhlr5ipgiZXaA374rGYXrz9E39hmac6xOJVz/xRdchhFfQq1A8OZJXKYJHtPxhyYxPVcc0UpjtqUnnyg4CxXAARZNft22SUIm2cI/jMUImAHdmC6b+KIJrnxCxw/6Wh/mMncnd4aIJw7HAco3s=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783606719; c=relaxed/simple;
-	bh=SlFgaiOH3FixZAoh9yFr6gRzMiDsnEKRv7BlWDhHUxI=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=A0rT1wPpq/ODtCznus1/ofwJVXBJxq76hs11lD+6iJIfPdLwfVPyLwvmLzdfPTjmA1kXJvEB821L9MRPgUFaf6rTHnucZK9uiC8Hu8k1PbLvQVHVA6JMIjCkDSaq/FBd3Cfht4UgNCgsxsMA2xy+xGERfbtxdQ71Br6MVL5A3BE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=bWP2nT1R; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 356A53161A3
+	for <virtualization@lists.linux.dev>; Thu,  9 Jul 2026 16:23:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=136.143.188.11
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1783614235; cv=pass; b=oOgMTZbsga1CkxrFindr83WfDK6SddhUkBImZGmSmmys6TGvWJgiQNtjaKeA09tY1eoeHUwdSxmzL5RYeBg5/vlQPq/pav3qOaaZtIpHy8RfeS9xd8eyUEzJpaxjGO+PEpFpciBfD2tr4Nh5l1SZKgX0diuEHByXSSd0GN0x1io=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1783614235; c=relaxed/simple;
+	bh=BBApX0PqsAOuNnIS3W4g8ASQYn99wRqfx5cOW2l60EY=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=gpSuBL8iCEDhqGxjyGKfsQVllyx7MPqv45WCcpJJrNLKJDIjhLzP7aSxRrqitYZhcnkPZzhPWI/pvAOilEruvgRJ8joW+tH+E+Hby6BZwjDzeDFWzUJ0Hu8B2is/ZCbDHPzC6ufoCm0+2lv7mpT9yA3/e0DsPFikzAdizmU0nVM=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com; spf=pass smtp.mailfrom=collabora.com; dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b=h+la/lxc; arc=pass smtp.client-ip=136.143.188.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=collabora.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=collabora.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="bWP2nT1R"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1783606715;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=xb/LJu4OOQxQAYufEtNVOwYqJ/399Yhfo9VycoonqIU=;
-	b=bWP2nT1RsKdjhiFG05rlaXiB52IAyRN43SA0mR+XwLuN3mIz22doz8llX8AxZL+E2YELZ8
-	foSnjfP1dOKlFnfUxQHpsZlcGkNCop7NuBJOq+sKsZIRx+gaY+tr6qjSH1Kh3/OQowPSwK
-	UgjHtlUTnhBJpmbr/5/+5upG3gCcm68=
-Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
- [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-582-Nn-8O2v0OLKQKyPWYC70Tg-1; Thu, 09 Jul 2026 10:18:34 -0400
-X-MC-Unique: Nn-8O2v0OLKQKyPWYC70Tg-1
-X-Mimecast-MFC-AGG-ID: Nn-8O2v0OLKQKyPWYC70Tg_1783606713
-Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-c15d4bd2afeso87297466b.3
-        for <virtualization@lists.linux.dev>; Thu, 09 Jul 2026 07:18:33 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783606713; x=1784211513;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=xb/LJu4OOQxQAYufEtNVOwYqJ/399Yhfo9VycoonqIU=;
-        b=VoS0IQIsVf6si4XuJg+iYlO+oCKCywDZwor8mDBVQv3cm4QhLQDBLGJ5/HAQ8yQlLc
-         V+hkzkqjqX/qt9qv2sp1/yPIBxpoJp47na+LD50ci56YGgsS2goFjPT4pvMjBhJlkedd
-         PsXPo+aRg8e9+LOoTiN+cF5pAs+Kl1z6QaHTAaeWgN9tgv059cLb2RahIta7M29DH1Bl
-         Hqmxm2RmzVBf/C3IRE1TNSEXcB7M1kK6gByWt46DwUV1XQ9HEiPveVvCZyX5SUsZk6Kv
-         HDSLm0lU4UWSCys14p3UfZvUM6UnzKaOQfMohnkYkDQTmiWB3S5v0ixPWl6SCGf9BJRM
-         E6ZA==
-X-Forwarded-Encrypted: i=1; AHgh+Rq5j1QEY7DUfN0SgXCi8N7intA8ZFGbm+0pA0emGmCEIvHzxbe9mL5Uhrc2y3seGCmrQXQI4Xr59/b2hEMGFQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yw8U6t38gIIXfYPymVV5amwQsmuxVnt9FzSpgpRv0AGT2JKA6Sd
-	0xwdbxQdLOeVMGQs7Kf6RubvcWV9z9H4u6Kjwh+fSKjEVUfMGo+QGl/P9z5/LltGwkEf8TR9UMV
-	J1ndnBrd1BiGLd639uN36rmQhuuf5vXNzMAIk6wvS7Jsxi2TjrcKvKpMZOciy9E0+PmeU
-X-Gm-Gg: AfdE7clOQBLBTewL2/5tV6OkN3Owgjugj6woeiy9yRKCKFIsa7kFHZzvWVhtuGNUAG5
-	tHp/tFs6UUJFPGJyBeMNI5BgL7Y4KZsA/0cLbkhcNgYjaKN+3g8XO7ylPtn653SCi/IPIRmU7aW
-	GZ4cwjkgiqjCX1tUqlMJOZegVxvxh7nFW2Jhte9YaJSkTS2qg5qWCb7CGm6ZCntkDRJZxWatWIR
-	nU5/DBJd4lWaDtaBV6OckBYd6f/T+9MrRLUkwrlT/h20jvX/MOAwMXPlnnf/Vzany/GviHXSJn5
-	Dff341i4x9Hriy8eckRvggtcgq9Q7iso6squ6+Na9bl2BvSWCvqQq/IbgHNS+dwW4jv+TJ3Y6yc
-	a76z4vLNMcncY5tlhaZuNYEO9kcSYTgYG
-X-Received: by 2002:a17:907:d28:b0:c12:1651:17b2 with SMTP id a640c23a62f3a-c15cdfe933cmr339596066b.9.1783606712519;
-        Thu, 09 Jul 2026 07:18:32 -0700 (PDT)
-X-Received: by 2002:a17:907:d28:b0:c12:1651:17b2 with SMTP id a640c23a62f3a-c15cdfe933cmr339593266b.9.1783606711679;
-        Thu, 09 Jul 2026 07:18:31 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-68-31.inter.net.il. [80.230.68.31])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c15ce1b374asm284426366b.60.2026.07.09.07.18.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 09 Jul 2026 07:18:31 -0700 (PDT)
-Date: Thu, 9 Jul 2026 10:18:27 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Shahar Shitrit <shshitrit@nvidia.com>
-Cc: Daniel Jurgens <danielj@nvidia.com>, netdev@vger.kernel.org,
-	jasowang@redhat.com, pabeni@redhat.com,
-	virtualization@lists.linux.dev, parav@nvidia.com, yohadt@nvidia.com,
-	xuanzhuo@linux.alibaba.com, eperezma@redhat.com, jgg@ziepe.ca,
-	kevin.tian@intel.com, kuba@kernel.org, andrew+netdev@lunn.ch,
-	edumazet@google.com
-Subject: Re: [PATCH net-next v20 05/12] virtio_net: Query and set flow filter
- caps
-Message-ID: <20260709101706-mutt-send-email-mst@kernel.org>
-References: <20260205224707.16995-1-danielj@nvidia.com>
- <20260205224707.16995-6-danielj@nvidia.com>
- <20260208063807-mutt-send-email-mst@kernel.org>
- <a7f724e5-7648-4362-bfc0-ef4cd87211a8@nvidia.com>
+	dkim=pass (1024-bit key) header.d=collabora.com header.i=dmitry.osipenko@collabora.com header.b="h+la/lxc"
+ARC-Seal: i=1; a=rsa-sha256; t=1783614229; cv=none; 
+	d=zohomail.com; s=zohoarc; 
+	b=niRRZPQrz7T9Zk4CpSbMjy+G5SmXE5ukVbQBZlG3yh0LAInb4W6FvVV42AP0kic6et8FZXRpxFsVRWv8uszXkotC9VwF4Uwvo+G+wuXw1iBou49xRF82hIx6RPxtfZUnH4QkBR2qiX6UNUveDb1SY8TngvyUcazqs/uPWovAwJ8=
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=zohomail.com; s=zohoarc; 
+	t=1783614229; h=Content-Type:Content-Transfer-Encoding:Cc:Cc:Date:Date:From:From:In-Reply-To:MIME-Version:Message-ID:References:Subject:Subject:To:To:Message-Id:Reply-To; 
+	bh=epF0rxB7lKg2IRD6abbcyUE44UYIuJo/f9yIkc845WQ=; 
+	b=bbSCRqrpBlFFMjDXzJ8WiCam4UjId+wp6Ynyl1nQa5/6f2QCzXbvEyA/ecwKPbpzFu9C9iXR07XVkGU6yjPer7s+fTJe4u+LyFynh+iARgjFi9QHLJib+uPypXvEtlPBd32KWAxoYbcJX8VSVpH8Je7RAKKkYAvgX/uwOuphRr8=
+ARC-Authentication-Results: i=1; mx.zohomail.com;
+	dkim=pass  header.i=collabora.com;
+	spf=pass  smtp.mailfrom=dmitry.osipenko@collabora.com;
+	dmarc=pass header.from=<dmitry.osipenko@collabora.com>
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed; t=1783614229;
+	s=zohomail; d=collabora.com; i=dmitry.osipenko@collabora.com;
+	h=Message-ID:Date:Date:MIME-Version:Subject:Subject:To:To:Cc:Cc:References:From:From:In-Reply-To:Content-Type:Content-Transfer-Encoding:Message-Id:Reply-To;
+	bh=epF0rxB7lKg2IRD6abbcyUE44UYIuJo/f9yIkc845WQ=;
+	b=h+la/lxcm6pcWpmugBmcJ7E9CK/fnTfWZKbbKZqHNRAfjau2jof0kwhT5lwbd+YZ
+	v3n4GiIXt/y5atyn/5ZGDSfO8DaJCoaajTc8qqNnJ/1AXOKYBZltWOu5ehS2FHKwZqD
+	n7c7djpnQqpcP1GivxvtIchSyLO1/GT7/IMD3uJQ=
+Received: by mx.zohomail.com with SMTPS id 1783614227917726.9600571528584;
+	Thu, 9 Jul 2026 09:23:47 -0700 (PDT)
+Message-ID: <e9d5c9ee-88b1-4e9c-9999-74edbb2c59f3@collabora.com>
+Date: Thu, 9 Jul 2026 19:23:43 +0300
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <a7f724e5-7648-4362-bfc0-ef4cd87211a8@nvidia.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: M9VwurnJ-kPHSMhlWBiPiy0U8rDe_VxShSdIdJSH1C8_1783606713
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] drm/virtio: Don't detach GEM from a non-created context
+To: Yiwei Zhang <zzyiwei@google.com>
+Cc: Jason Macnak <natsu@google.com>, David Airlie <airlied@redhat.com>,
+ Gerd Hoffmann <kraxel@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>,
+ dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, stable@vger.kernel.org
+References: <20260625170828.3335431-1-natsu@google.com>
+ <7202d2dc-b6fe-440e-88b0-aefb26c38b86@collabora.com>
+ <CAKT=dD=YecudFK1L9wJ22BO41qXt7V4Qm=nNQQiuwheKejoHdg@mail.gmail.com>
+Content-Language: en-US
+From: Dmitry Osipenko <dmitry.osipenko@collabora.com>
+In-Reply-To: <CAKT=dD=YecudFK1L9wJ22BO41qXt7V4Qm=nNQQiuwheKejoHdg@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-ZohoMailClient: External
 
-On Thu, Jul 09, 2026 at 04:37:11PM +0300, Shahar Shitrit wrote:
+On 7/7/26 22:01, Yiwei Zhang wrote:
+> On Mon, Jun 29, 2026 at 2:39 PM Dmitry Osipenko
+> <dmitry.osipenko@collabora.com> wrote:
+>>
+>> Hi,
+>>
+>> On 6/25/26 20:08, Jason Macnak wrote:
+>>> Applies the same treatment as commit 7cf6dd467e87 ("drm/virtio:
+>>> Don't attach GEM to a non-created context in gem_object_open()")
+>>> to virtio_gpu_gem_object_close() to avoid trying to detach
+>>> a resource that was never attached due to a context
+>>> never being created when context_init is supported.
+>>>
+>>> Fixes: 086b9f27f0ab ("drm/virtio: Don't create a context with default param if context_init is supported")
+>>> Cc: <stable@vger.kernel.org> # v6.14+
+>>> Signed-off-by: Jason Macnak <natsu@google.com>
+>>> ---
+>>>  drivers/gpu/drm/virtio/virtgpu_gem.c | 14 ++++++++------
+>>>  1 file changed, 8 insertions(+), 6 deletions(-)
+>>>
+>>> diff --git a/drivers/gpu/drm/virtio/virtgpu_gem.c b/drivers/gpu/drm/virtio/virtgpu_gem.c
+>>> index 435d37d36034..66c3f6f74e9c 100644
+>>> --- a/drivers/gpu/drm/virtio/virtgpu_gem.c
+>>> +++ b/drivers/gpu/drm/virtio/virtgpu_gem.c
+>>> @@ -139,13 +139,15 @@ void virtio_gpu_gem_object_close(struct drm_gem_object *obj,
+>>>       if (!vgdev->has_virgl_3d)
+>>>               return;
+>>>
+>>> -     objs = virtio_gpu_array_alloc(1);
+>>> -     if (!objs)
+>>> -             return;
+>>> -     virtio_gpu_array_add_obj(objs, obj);
+>>> +     if (vfpriv->context_created) {
+>>> +             objs = virtio_gpu_array_alloc(1);
+>>> +             if (!objs)
+>>> +                     return;
+>>> +             virtio_gpu_array_add_obj(objs, obj);
+>>>
+>>> -     virtio_gpu_cmd_context_detach_resource(vgdev, vfpriv->ctx_id,
+>>> -                                            objs);
+>>> +             virtio_gpu_cmd_context_detach_resource(vgdev, vfpriv->ctx_id,
+>>> +                                                    objs);
+>>> +     }
+>>>       virtio_gpu_notify(vgdev);
+>>>  }
+>>
+>> The following scenario still will be troubling:
+>>
+>> 1. vgdev->has_context_init = true
+>> 2. virtio_gpu_gem_object_open() invoked, GEM created and not attached to ctx
+>> 3. virtio_gpu_context_init_ioctl() invoked, now vfpriv->context_created
+>> = true
+>> 4. virtio_gpu_gem_object_close() will detach resource that wasn't attached
+>>
+>> Add obj->ctx_attached member to struct virtio_gpu_object. See
+>> virtio_gpu_object_attach() that uses obj->attached, do the same for
+>> virtio_gpu_cmd_context_attach_resource().
+>>
+>> --
+>> Best regards,
+>> Dmitry
 > 
+> Hi Dmitry,
 > 
-> On 08/02/2026 13:51, Michael S. Tsirkin wrote:
-> > On Thu, Feb 05, 2026 at 04:47:00PM -0600, Daniel Jurgens wrote:
-> >> When probing a virtnet device, attempt to read the flow filter
-> >> capabilities. In order to use the feature the caps must also
-> >> be set. For now setting what was read is sufficient.
-> >>
-> >> This patch adds uapi definitions virtio_net flow filters define in
-> >> version 1.4 of the VirtIO spec.
-> >>
-> >> Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
-> >> Reviewed-by: Parav Pandit <parav@nvidia.com>
-> >> Reviewed-by: Shahar Shitrit <shshitrit@nvidia.com>
-> >>
-> >> ---
-> >> v4:
-> >>     - Validate the length in the selector caps
-> >>     - Removed __free usage.
-> >>     - Removed for(int.
-> >> v5:
-> >>     - Remove unneed () after MAX_SEL_LEN macro (test bot)
-> >> v6:
-> >>     - Fix sparse warning "array of flexible structures" Jakub K/Simon H
-> >>     - Use new variable and validate ff_mask_size before set_cap. MST
-> >> v7:
-> >>     - Set ff->ff_{caps, mask, actions} NULL in error path. Paolo Abeni
-> >>     - Return errors from virtnet_ff_init, -ENOTSUPP is not fatal. Xuan
-> >>
-> >> v8:
-> >>     - Use real_ff_mask_size when setting the selector caps. Jason Wang
-> >>
-> >> v9:
-> >>     - Set err after failed memory allocations. Simon Horman
-> >>
-> >> v10:
-> >>     - Return -EOPNOTSUPP in virnet_ff_init before allocing any memory.
-> >>       Jason/Paolo.
-> >>
-> >> v11:
-> >>     - Return -EINVAL if any resource limit is 0. Simon Horman
-> >>     - Ensure we don't overrun alloced space of ff->ff_mask by moving the
-> >>       real_ff_mask_size > ff_mask_size check into the loop. Simon Horman
-> >>
-> >> v12:
-> >>     - Move uapi includes to virtio_net.c vs header file. MST
-> >>     - Remove kernel.h header in virtio_net_ff uapi. MST
-> >>     - WARN_ON_ONCE in error paths validating selectors. MST
-> >>     - Move includes from .h to .c files. MST
-> >>     - Add WARN_ON_ONCE if obj_destroy fails. MST
-> >>     - Comment cleanup in virito_net_ff.h uapi. MST
-> >>     - Add 2 byte pad to the end of virtio_net_ff_cap_data.
-> >>       https://lore.kernel.org/virtio-comment/20251119044029-mutt-send-email-mst@kernel.org/T/#m930988a5d3db316c68546d8b61f4b94f6ebda030
-> >>     - Cleanup and reinit in the freeze/restore path. MST
-> >>
-> >> v13:
-> >>     - Added /* private: */ comment before reserved field. Jakub
-> >>     - Change ff_mask validation to break at unkonwn selector type. This
-> >>       will allow compatability with newer controllers if the types of
-> >>       selectors is expanded. MST
-> >>
-> >> v14:
-> >>     - Handle err from virtnet_ff_init in virtnet_restore_up. MST
-> >>
-> >> v15:
-> >>     - In virtnet_restore_up only call virtnet_close in err path if
-> >>       netif_runnig. AI
-> >>
-> >> v16:
-> >>     - Return 0 from virtnet_restore_up if virtnet_init_ff return not
-> >>       supported. AI
-> >>
-> >> v17:
-> >>     - During restore freeze_down on error during ff_init. AI
-> >>
-> >> v18:
-> >>     - Changed selector cap validation to verify size for each type
-> >>       instead of just checking they weren't bigger than max size. AI
-> >>     - Added __count_by attribute to flexible members in uapi. Paolo A
-> >>
-> >> v19:
-> >>     - Fixed ;; and incorrect plural in comment. AI
-> >>
-> >> v20:
-> >>     - include uapi/linux/stddef.h for __counted_by. AI
-> > 
-> > AI has led you astray, sadly (
-> will fix in v21
-> > 
-> > 
-> > 
-> > 
-> >> ---
-> >>  drivers/net/virtio_net.c           | 231 ++++++++++++++++++++++++++++-
-> >>  include/uapi/linux/virtio_net_ff.h |  91 ++++++++++++
-> >>  2 files changed, 321 insertions(+), 1 deletion(-)
-> >>  create mode 100644 include/uapi/linux/virtio_net_ff.h
-> >>
-> >> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> >> index db88dcaefb20..2cfa37e2f83f 100644
-> >> --- a/drivers/net/virtio_net.c
-> >> +++ b/drivers/net/virtio_net.c
-> >> @@ -26,6 +26,11 @@
-> >>  #include <net/netdev_rx_queue.h>
-> >>  #include <net/netdev_queues.h>
-> >>  #include <net/xdp_sock_drv.h>
-> >> +#include <linux/virtio_admin.h>
-> >> +#include <net/ipv6.h>
-> >> +#include <net/ip.h>
-> >> +#include <uapi/linux/virtio_pci.h>
-> >> +#include <uapi/linux/virtio_net_ff.h>
-> >>  
-> >>  static int napi_weight = NAPI_POLL_WEIGHT;
-> >>  module_param(napi_weight, int, 0444);
-> >> @@ -281,6 +286,14 @@ static const struct virtnet_stat_desc virtnet_stats_tx_speed_desc_qstat[] = {
-> >>  	VIRTNET_STATS_DESC_TX_QSTAT(speed, ratelimit_packets, hw_drop_ratelimits),
-> >>  };
-> >>  
-> >> +struct virtnet_ff {
-> >> +	struct virtio_device *vdev;
-> >> +	bool ff_supported;
-> >> +	struct virtio_net_ff_cap_data *ff_caps;
-> >> +	struct virtio_net_ff_cap_mask_data *ff_mask;
-> >> +	struct virtio_net_ff_actions *ff_actions;
-> >> +};
-> >> +
-> >>  #define VIRTNET_Q_TYPE_RX 0
-> >>  #define VIRTNET_Q_TYPE_TX 1
-> >>  #define VIRTNET_Q_TYPE_CQ 2
-> >> @@ -488,6 +501,7 @@ struct virtnet_info {
-> >>  	TRAILING_OVERLAP(struct virtio_net_rss_config_trailer, rss_trailer, hash_key_data,
-> >>  		u8 rss_hash_key_data[VIRTIO_NET_RSS_MAX_KEY_SIZE];
-> >>  	);
-> >> +	struct virtnet_ff ff;
-> >>  };
-> >>  static_assert(offsetof(struct virtnet_info, rss_trailer.hash_key_data) ==
-> >>  	      offsetof(struct virtnet_info, rss_hash_key_data));
-> >> @@ -526,6 +540,7 @@ static struct sk_buff *virtnet_skb_append_frag(struct sk_buff *head_skb,
-> >>  					       struct page *page, void *buf,
-> >>  					       int len, int truesize);
-> >>  static void virtnet_xsk_completed(struct send_queue *sq, int num);
-> >> +static void remove_vq_common(struct virtnet_info *vi);
-> >>  
-> >>  enum virtnet_xmit_type {
-> >>  	VIRTNET_XMIT_TYPE_SKB,
-> >> @@ -5684,6 +5699,192 @@ static const struct netdev_stat_ops virtnet_stat_ops = {
-> >>  	.get_base_stats		= virtnet_get_base_stats,
-> >>  };
-> >>  
-> >> +static size_t get_mask_size(u16 type)
-> >> +{
-> >> +	switch (type) {
-> >> +	case VIRTIO_NET_FF_MASK_TYPE_ETH:
-> >> +		return sizeof(struct ethhdr);
-> >> +	case VIRTIO_NET_FF_MASK_TYPE_IPV4:
-> >> +		return sizeof(struct iphdr);
-> >> +	case VIRTIO_NET_FF_MASK_TYPE_IPV6:
-> >> +		return sizeof(struct ipv6hdr);
-> >> +	case VIRTIO_NET_FF_MASK_TYPE_TCP:
-> >> +		return sizeof(struct tcphdr);
-> >> +	case VIRTIO_NET_FF_MASK_TYPE_UDP:
-> >> +		return sizeof(struct udphdr);
-> >> +	}
-> >> +
-> >> +	return 0;
-> >> +}
-> >> +
-> >> +static int virtnet_ff_init(struct virtnet_ff *ff, struct virtio_device *vdev)
-> >> +{
-> >> +	size_t ff_mask_size = sizeof(struct virtio_net_ff_cap_mask_data) +
-> >> +			      sizeof(struct virtio_net_ff_selector) *
-> >> +			      VIRTIO_NET_FF_MASK_TYPE_MAX;
-> >> +	struct virtio_admin_cmd_query_cap_id_result *cap_id_list;
-> >> +	struct virtio_net_ff_selector *sel;
-> >> +	unsigned long sel_types = 0;
-> >> +	size_t real_ff_mask_size;
-> >> +	int err;
-> >> +	int i;
-> >> +
-> >> +	if (!vdev->config->admin_cmd_exec)
-> >> +		return -EOPNOTSUPP;
-> >> +
-> >> +	cap_id_list = kzalloc(sizeof(*cap_id_list), GFP_KERNEL);
-> >> +	if (!cap_id_list)
-> >> +		return -ENOMEM;
-> >> +
-> >> +	err = virtio_admin_cap_id_list_query(vdev, cap_id_list);
-> >> +	if (err)
-> >> +		goto err_cap_list;
-> >> +
-> >> +	if (!(VIRTIO_CAP_IN_LIST(cap_id_list,
-> >> +				 VIRTIO_NET_FF_RESOURCE_CAP) &&
-> >> +	      VIRTIO_CAP_IN_LIST(cap_id_list,
-> >> +				 VIRTIO_NET_FF_SELECTOR_CAP) &&
-> >> +	      VIRTIO_CAP_IN_LIST(cap_id_list,
-> >> +				 VIRTIO_NET_FF_ACTION_CAP))) {
-> >> +		err = -EOPNOTSUPP;
-> >> +		goto err_cap_list;
-> >> +	}
-> >> +
-> >> +	ff->ff_caps = kzalloc(sizeof(*ff->ff_caps), GFP_KERNEL);
-> >> +	if (!ff->ff_caps) {
-> >> +		err = -ENOMEM;
-> >> +		goto err_cap_list;
-> >> +	}
-> >> +
-> >> +	err = virtio_admin_cap_get(vdev,
-> >> +				   VIRTIO_NET_FF_RESOURCE_CAP,
-> >> +				   ff->ff_caps,
-> >> +				   sizeof(*ff->ff_caps));
-> >> +
-> >> +	if (err)
-> >> +		goto err_ff;
-> >> +
-> >> +	if (!ff->ff_caps->groups_limit ||
-> >> +	    !ff->ff_caps->classifiers_limit ||
-> >> +	    !ff->ff_caps->rules_limit ||
-> >> +	    !ff->ff_caps->rules_per_group_limit) {
-> >> +		err = -EINVAL;
-> >> +		goto err_ff;
-> >> +	}
-> >> +
-> >> +	/* VIRTIO_NET_FF_MASK_TYPE start at 1 */
-> >> +	for (i = 1; i <= VIRTIO_NET_FF_MASK_TYPE_MAX; i++)
-> >> +		ff_mask_size += get_mask_size(i);
-> >> +
-> >> +	ff->ff_mask = kzalloc(ff_mask_size, GFP_KERNEL);
-> >> +	if (!ff->ff_mask) {
-> >> +		err = -ENOMEM;
-> >> +		goto err_ff;
-> >> +	}
-> >> +
-> >> +	err = virtio_admin_cap_get(vdev,
-> >> +				   VIRTIO_NET_FF_SELECTOR_CAP,
-> >> +				   ff->ff_mask,
-> >> +				   ff_mask_size);
-> > 
-> > So ff_actions is from device and ff_actions->count does not seem to be checked.
-> > 
-> > If device somehow gains a larger mask down the road, can it not then overflow?
-> > or malicious?
-> see below
-> > 
-> > 
-> >> +
-> >> +	if (err)
-> >> +		goto err_ff_mask;
-> >> +
-> >> +	ff->ff_actions = kzalloc(sizeof(*ff->ff_actions) +
-> >> +					VIRTIO_NET_FF_ACTION_MAX,
-> >> +					GFP_KERNEL);
-> >> +	if (!ff->ff_actions) {
-> >> +		err = -ENOMEM;
-> >> +		goto err_ff_mask;
-> >> +	}
-> >> +
-> >> +	err = virtio_admin_cap_get(vdev,
-> >> +				   VIRTIO_NET_FF_ACTION_CAP,
-> >> +				   ff->ff_actions,
-> >> +				   sizeof(*ff->ff_actions) + VIRTIO_NET_FF_ACTION_MAX);
-> > 
-> > So ff_actions is from device and ff_actions->count is not checked.
-> > 
-> > If device gains a ton of actions down the road, can it not then overflow?
-> > or malicious?
+> WIth context_init, resource attach/detach is per-context based. So a
+> simple obj->ctx_attached won't work. One would have to track in the
+> guest context_init ctx for whether a bo has been attached or not.
 > 
-> it can't overflow, as it can write up to sizeof(*ff->ff_actions) +
-> VIRTIO_NET_FF_ACTION_MAX bytes. But it is a valid concern in case of
-> someone in the future iterates on count. Better to handle it now so it
-> won't be forgotten. Checking that ff_actions->count doesn't exceed
-> VIRTIO_NET_FF_ACTION_MAX can break backward compatibility.
+> Another option is to accept this patch and live with the case you
+> mentioned. We can consider that "invalid" user behavior.
 
-These are admin commands right? They are truncated silently.
-All you have to do is just check the length returned.
-At least that's my vague understanding, don't have the
-time to re-review now. HTH
+Indeed, obj->ctx_attached shouldn't work for a shared/exported BO. Will
+think on it for a couple days more and then merge this version if no
+better ideas will appear.
 
-> If this max
-> value is extended in a new spec/controller then this driver would fail
-> to load. Instead, I will assign ff->ff_actions->count with the minimum
-> of what we got and the max.
-> > 
-> >> +
-> >> +	if (err)
-> >> +		goto err_ff_action;
-> >> +
-> >> +	err = virtio_admin_cap_set(vdev,
-> >> +				   VIRTIO_NET_FF_RESOURCE_CAP,
-> >> +				   ff->ff_caps,
-> >> +				   sizeof(*ff->ff_caps));
-> >> +	if (err)
-> >> +		goto err_ff_action;
-> >> +
-> >> +	real_ff_mask_size = sizeof(struct virtio_net_ff_cap_mask_data);
-> >> +	sel = (void *)&ff->ff_mask->selectors;
-> >> +
-> >> +	for (i = 0; i < ff->ff_mask->count; i++) {
-> >> +		/* If the selector type is unknown it may indicate the spec
-> >> +		 * has been revised to include new types of selectors
-> >> +		 */
-> >> +		if (sel->type > VIRTIO_NET_FF_MASK_TYPE_MAX)
-> > 
-> > do you want to check sel->type 0 too?
-> yes, will add in v21.
-> > 
-> >> +			break;
-> > 
-> > but count remains unchanged? should we not to reduce count here
-> > so device knows what driver can drive?
-> 
-> we should. will add it in v21.
-> > 
-> > 
-> >> +
-> >> +		if (sel->length != get_mask_size(sel->type) ||
-> >> +		    test_and_set_bit(sel->type, &sel_types)) {
-> >> +			WARN_ON_ONCE(true);
-> >> +			err = -EINVAL;
-> >> +			goto err_ff_action;
-> >> +		}
-> >> +		real_ff_mask_size += sizeof(struct virtio_net_ff_selector) + sel->length;
-> >> +		if (real_ff_mask_size > ff_mask_size) {
-> >> +			WARN_ON_ONCE(true);
-> >> +			err = -EINVAL;
-> >> +			goto err_ff_action;
-> >> +		}
-> >> +		sel = (void *)sel + sizeof(*sel) + sel->length;
-> >> +	}
-> >> +
-> >> +	err = virtio_admin_cap_set(vdev,
-> >> +				   VIRTIO_NET_FF_SELECTOR_CAP,
-> >> +				   ff->ff_mask,
-> >> +				   real_ff_mask_size);
-> >> +	if (err)
-> >> +		goto err_ff_action;
-> >> +
-> >> +	err = virtio_admin_cap_set(vdev,
-> >> +				   VIRTIO_NET_FF_ACTION_CAP,
-> >> +				   ff->ff_actions,
-> >> +				   sizeof(*ff->ff_actions) + VIRTIO_NET_FF_ACTION_MAX);
-> >> +	if (err)
-> >> +		goto err_ff_action;
-> >> +
-> >> +	ff->vdev = vdev;
-> >> +	ff->ff_supported = true;
-> >> +
-> >> +	kfree(cap_id_list);
-> >> +
-> >> +	return 0;
-> >> +
-> >> +err_ff_action:
-> >> +	kfree(ff->ff_actions);
-> >> +	ff->ff_actions = NULL;
-> >> +err_ff_mask:
-> >> +	kfree(ff->ff_mask);
-> >> +	ff->ff_mask = NULL;
-> >> +err_ff:
-> >> +	kfree(ff->ff_caps);
-> >> +	ff->ff_caps = NULL;
-> >> +err_cap_list:
-> >> +	kfree(cap_id_list);
-> >> +
-> >> +	return err;
-> >> +}
-> >> +
-> >> +static void virtnet_ff_cleanup(struct virtnet_ff *ff)
-> >> +{
-> >> +	if (!ff->ff_supported)
-> >> +		return;
-> >> +
-> >> +	kfree(ff->ff_actions);
-> >> +	kfree(ff->ff_mask);
-> >> +	kfree(ff->ff_caps);
-> >> +	ff->ff_supported = false;
-> >> +}
-> >> +
-> >>  static void virtnet_freeze_down(struct virtio_device *vdev)
-> >>  {
-> >>  	struct virtnet_info *vi = vdev->priv;
-> >> @@ -5702,6 +5903,10 @@ static void virtnet_freeze_down(struct virtio_device *vdev)
-> >>  	netif_tx_lock_bh(vi->dev);
-> >>  	netif_device_detach(vi->dev);
-> >>  	netif_tx_unlock_bh(vi->dev);
-> >> +
-> >> +	rtnl_lock();
-> >> +	virtnet_ff_cleanup(&vi->ff);
-> >> +	rtnl_unlock();
-> >>  }
-> >>  
-> >>  static int init_vqs(struct virtnet_info *vi);
-> >> @@ -5727,10 +5932,23 @@ static int virtnet_restore_up(struct virtio_device *vdev)
-> >>  			return err;
-> >>  	}
-> >>  
-> >> +	/* Initialize flow filters. Not supported is an acceptable and common
-> >> +	 * return code
-> >> +	 */
-> >> +	rtnl_lock();
-> >> +	err = virtnet_ff_init(&vi->ff, vi->vdev);
-> >> +	if (err && err != -EOPNOTSUPP) {
-> >> +		rtnl_unlock();
-> >> +		virtnet_freeze_down(vi->vdev);
-> >> +		remove_vq_common(vi);
-> >> +		return err;
-> >> +	}
-> >> +	rtnl_unlock();
-> >> +
-> >>  	netif_tx_lock_bh(vi->dev);
-> >>  	netif_device_attach(vi->dev);
-> >>  	netif_tx_unlock_bh(vi->dev);
-> >> -	return err;
-> >> +	return 0;
-> >>  }
-> >>  
-> >>  static int virtnet_set_guest_offloads(struct virtnet_info *vi, u64 offloads)
-> >> @@ -7058,6 +7276,15 @@ static int virtnet_probe(struct virtio_device *vdev)
-> >>  	}
-> >>  	vi->guest_offloads_capable = vi->guest_offloads;
-> >>  
-> >> +	/* Initialize flow filters. Not supported is an acceptable and common
-> >> +	 * return code
-> >> +	 */
-> >> +	err = virtnet_ff_init(&vi->ff, vi->vdev);
-> >> +	if (err && err != -EOPNOTSUPP) {
-> >> +		rtnl_unlock();
-> >> +		goto free_unregister_netdev;
-> >> +	}
-> >> +
-> >>  	rtnl_unlock();
-> >>  
-> >>  	err = virtnet_cpu_notif_add(vi);
-> >> @@ -7073,6 +7300,7 @@ static int virtnet_probe(struct virtio_device *vdev)
-> >>  
-> >>  free_unregister_netdev:
-> >>  	unregister_netdev(dev);
-> >> +	virtnet_ff_cleanup(&vi->ff);
-> >>  free_failover:
-> >>  	net_failover_destroy(vi->failover);
-> >>  free_vqs:
-> >> @@ -7121,6 +7349,7 @@ static void virtnet_remove(struct virtio_device *vdev)
-> >>  	virtnet_free_irq_moder(vi);
-> >>  
-> >>  	unregister_netdev(vi->dev);
-> >> +	virtnet_ff_cleanup(&vi->ff);
-> >>  
-> >>  	net_failover_destroy(vi->failover);
-> >>  
-> >> diff --git a/include/uapi/linux/virtio_net_ff.h b/include/uapi/linux/virtio_net_ff.h
-> >> new file mode 100644
-> >> index 000000000000..552a6b3a8a91
-> >> --- /dev/null
-> >> +++ b/include/uapi/linux/virtio_net_ff.h
-> >> @@ -0,0 +1,91 @@
-> >> +/* SPDX-License-Identifier: GPL-2.0 WITH Linux-syscall-note
-> >> + *
-> >> + * Header file for virtio_net flow filters
-> >> + */
-> >> +#ifndef _LINUX_VIRTIO_NET_FF_H
-> >> +#define _LINUX_VIRTIO_NET_FF_H
-> >> +
-> >> +#include <linux/types.h>
-> >> +#include <uapi/linux/stddef.h>
-> >> +
-> >> +#define VIRTIO_NET_FF_RESOURCE_CAP 0x800
-> >> +#define VIRTIO_NET_FF_SELECTOR_CAP 0x801
-> >> +#define VIRTIO_NET_FF_ACTION_CAP 0x802
-> >> +
-> >> +/**
-> >> + * struct virtio_net_ff_cap_data - Flow filter resource capability limits
-> >> + * @groups_limit: maximum number of flow filter groups supported by the device
-> >> + * @classifiers_limit: maximum number of classifiers supported by the device
-> >> + * @rules_limit: maximum number of rules supported device-wide across all groups
-> >> + * @rules_per_group_limit: maximum number of rules allowed in a single group
-> >> + * @last_rule_priority: priority value associated with the lowest-priority rule
-> >> + * @selectors_per_classifier_limit: maximum selectors allowed in one classifier
-> >> + */
-> >> +struct virtio_net_ff_cap_data {
-> >> +	__le32 groups_limit;
-> >> +	__le32 classifiers_limit;
-> >> +	__le32 rules_limit;
-> >> +	__le32 rules_per_group_limit;
-> >> +	__u8 last_rule_priority;
-> >> +	__u8 selectors_per_classifier_limit;
-> >> +	/* private: */
-> >> +	__u8 reserved[2];
-> >> +};
-> >> +
-> >> +/**
-> >> + * struct virtio_net_ff_selector - Selector mask descriptor
-> >> + * @type: selector type, one of VIRTIO_NET_FF_MASK_TYPE_* constants
-> >> + * @flags: selector flags, see VIRTIO_NET_FF_MASK_F_* constants
-> >> + * @reserved: must be set to 0 by the driver and ignored by the device
-> >> + * @length: size in bytes of @mask
-> >> + * @reserved1: must be set to 0 by the driver and ignored by the device
-> >> + * @mask: variable-length mask payload for @type, length given by @length
-> >> + *
-> >> + * A selector describes a header mask that a classifier can apply. The format
-> >> + * of @mask depends on @type.
-> >> + */
-> >> +struct virtio_net_ff_selector {
-> >> +	__u8 type;
-> >> +	__u8 flags;
-> >> +	__u8 reserved[2];
-> >> +	__u8 length;
-> >> +	__u8 reserved1[3];
-> >> +	__u8 mask[] __counted_by(length);
-> >> +};
-> >> +
-> >> +#define VIRTIO_NET_FF_MASK_TYPE_ETH  1
-> >> +#define VIRTIO_NET_FF_MASK_TYPE_IPV4 2
-> >> +#define VIRTIO_NET_FF_MASK_TYPE_IPV6 3
-> >> +#define VIRTIO_NET_FF_MASK_TYPE_TCP  4
-> >> +#define VIRTIO_NET_FF_MASK_TYPE_UDP  5
-> >> +#define VIRTIO_NET_FF_MASK_TYPE_MAX  VIRTIO_NET_FF_MASK_TYPE_UDP
-> >> +
-> >> +/**
-> >> + * struct virtio_net_ff_cap_mask_data - Supported selector mask formats
-> >> + * @count: number of entries in @selectors
-> >> + * @reserved: must be set to 0 by the driver and ignored by the device
-> >> + * @selectors: packed array of struct virtio_net_ff_selector.
-> >> + */
-> >> +struct virtio_net_ff_cap_mask_data {
-> >> +	__u8 count;
-> >> +	__u8 reserved[7];
-> >> +	__u8 selectors[] __counted_by(count);
-> > 
-> > This looks wrong to me. count is # of selectors (packed entries) not
-> > bytes.
-> right, will remove it.
-> > >
-> > 
-> > 
-> >> +};
-> >> +
-> >> +#define VIRTIO_NET_FF_MASK_F_PARTIAL_MASK (1 << 0)
-> >> +
-> >> +#define VIRTIO_NET_FF_ACTION_DROP 1
-> >> +#define VIRTIO_NET_FF_ACTION_RX_VQ 2
-> >> +#define VIRTIO_NET_FF_ACTION_MAX  VIRTIO_NET_FF_ACTION_RX_VQ
-> >> +/**
-> >> + * struct virtio_net_ff_actions - Supported flow actions
-> >> + * @count: number of supported actions in @actions
-> >> + * @reserved: must be set to 0 by the driver and ignored by the device
-> >> + * @actions: array of action identifiers (VIRTIO_NET_FF_ACTION_*)
-> >> + */
-> >> +struct virtio_net_ff_actions {
-> >> +	__u8 count;
-> >> +	__u8 reserved[7];
-> >> +	__u8 actions[] __counted_by(count);
-> > 
-> > 
-> > this too.
-> count directly represents the number of __u8 elements in actions[], so
-> the size of the flexible array is count * sizeof(__u8). Therefore, here
-> it is correct.
-> > 
-> >> +};
-> >> +#endif
-> >> -- 
-> >> 2.50.1
-> > 
-> > 
-
+-- 
+Best regards,
+Dmitry
