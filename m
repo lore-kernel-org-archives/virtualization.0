@@ -1,135 +1,175 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8B5E62D3A69
-	for <virtualization@lists.linux.dev>; Sat, 11 Jul 2026 15:52:22 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 629732BE621;
+	Sat, 11 Jul 2026 16:23:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783785144; cv=none; b=FFj9FRYAcVCMsDT78RvJSIAVTGT/819NsmpgibvgIUAV+q681aD//1uRUyVvMSLn3fhEybZynve4yehIMQ9HcxW6ZvYA10T/Y5T29RP092H2jD4FQ5tpk291Q7ndl/V3RzXMkM0vG12L6jMQ1qXdfRgqcEJKey/GigKsgLZ01zk=
+	t=1783787027; cv=none; b=d1xC2NSIOdBNXbMbXg4DMdOn2m2DCIiTL8JMWJpko6Xho1wRSzl+QMpDQ9X5wSsuU+ePxY84yGzSLCPG6+pM3oO/vRahsVyojE64s1Ih3n0LjJUfA3kbi+esa94N7FMlmaWRxfJgwM8mQEdjQqa+j7gIBHsroY2qj/2WcbiS+S0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783785144; c=relaxed/simple;
-	bh=lCnQkqEcnAuVhVKI8VK8T1Nky8MXYsIIAssTgtxhdA0=;
+	s=arc-20240116; t=1783787027; c=relaxed/simple;
+	bh=mlCWd+T+sfJrTdPTWC6+HrMQ1/LRhJFcY2rMuHhyc0k=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=asnpuNIXt/RYQNUSkov8lZCyPKHKCVGhWrXVrPDkzyjIwACU5sCp/UMXz5WoejCVgVhkHIzsrbl+k4yKSJUsv6a8YcQZz764BmYiMTJvP5Pw7b4g8bId7+kuOsrR8l1uzMTHKIN2SZR2IwTuIC3m02qxktBjQdOlPqKXz/WOnCk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=HT35FGNM; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=kaiTvf0ZcXFTbY4xCAbFnd6Jt6MJPgMpB8NmQT00iEZvZbhfjKfQ8VSlVDzbcoYKXk+kw7L4sN/dZkluRF+YfehRoj/j3z76En+eju5Ggt0tlj9lx9ZG7x/UBdVJvVaUjTOU0iVKolRGSEsBWm5McTWs/iIGfyAaqGnutJ5p3io=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=oHKCbOs5; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="HT35FGNM"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1783785141;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=8GQsJAkqOxpmPMDLvAmr6k9Ihtgwa7qxpwDTrH4YfZ0=;
-	b=HT35FGNMhLLxx2tRhBsITrCo5/zjuED4XwrVet8L6a3Y3ZDOY0OFqiggik1f9eO6JK9ufH
-	IDz5gfHF4WBSa9Xfm/QHxLXy32+k52pWK7Wkl1aJ1lKTAD05B8KKGAJc6JNgkAlq54L/Rv
-	l7y0kPe6Hpl7FOvXdDFzdLvirYpEjUo=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-460-AlYoGKuOO_OLp5OcSVRbNA-1; Sat, 11 Jul 2026 11:52:20 -0400
-X-MC-Unique: AlYoGKuOO_OLp5OcSVRbNA-1
-X-Mimecast-MFC-AGG-ID: AlYoGKuOO_OLp5OcSVRbNA_1783785139
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-493bdf90adaso14168675e9.2
-        for <virtualization@lists.linux.dev>; Sat, 11 Jul 2026 08:52:20 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1783785139; x=1784389939;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=8GQsJAkqOxpmPMDLvAmr6k9Ihtgwa7qxpwDTrH4YfZ0=;
-        b=c0VeSSHYs5ypNvb1JfGIZdtwUisM2caU6KXp1m0sXED7pUzWfHdLRBoFRCFTYFJ5C4
-         hKl3Q9ff3M6eorvjGuLZC59h9nfepDw3vPEGVxfDna1tkZyQlvOac8OyIyoJnwedR+yw
-         vUyrijumVKyGEkSZ1vqBNFTbj3RuyEYGVKYyf9V14bntrpWOa4FjWcv5075sR3zmV2en
-         klkQrzAr8GPoJBCZx2nshCq0WM4gDolIDRqhUhS8ESqSVUVzpskSvHI8AexqaI7X04LB
-         7dCamuyrwTEESUt3jTRvInlAI6X4rg1wltoczceEPJgdPmE1Pac6V5moKJBzxnmsXcAs
-         FWbg==
-X-Forwarded-Encrypted: i=1; AHgh+Rp335uz2C9ygy2A420GclKxIU9BWxuEE1BIwe2I5eVjy49H/sILOCXD8vcrioq0IFc9yZUyzbSYSb29bpqdMA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yye4BDa1i734/I/Nxvz6sc1os1BuZNxF88JK2EXXzQyLWyYKo7x
-	F9+A5+MAC7pBB/xVaBPoelVp3B3YlE1UqDg1onhpV6RzCwwitvzV2iqzc+hLDakPhRw/48I1yXl
-	ZUtiV1tNJNc/eVLEm0CFr7b8l63DVVcIXEtE6oTH+BHpQ7DIdoNro7P8Sn7/WYvOljPGS
-X-Gm-Gg: AfdE7ckl0Oz9JrMqMlm0tMu2VqjTJPERu515xxY7XX1VwBo9JbFii1iLNPa9bAUnpF7
-	2sEvY6moph48tHygcRiZJbScGVJSq8gKB1iNNv/U2s7TBu+HwacZRz7DzXZj7XIKIp9O+tefbqZ
-	d/bLDVyQ+UziVVQlMayiq1fq7zOURZYjjg9S/qDywpAWnCZw2I74SgX1T/3k40VlCO2+64AGQq8
-	8iFq+x9b98bbo8qNTrXk2uzfXBcWtwEA90itYnrW1Eqlx3WUhH5P1ecz5XJ7V7kMfBDguhcUi3k
-	qnhLXjHtdgLjOdgIX3d8FkX0PKOJv6yheesbIb9/O2+ityStx6DcswroafZECa6cxS4hFSxJA6Q
-	u8c+cLhFLOUkaxNzDt5AoY/Gk/03+fnYy7/6ggawoVw==
-X-Received: by 2002:a05:600c:310f:b0:493:d115:d835 with SMTP id 5b1f17b1804b1-493f87d5800mr26790725e9.8.1783785138877;
-        Sat, 11 Jul 2026 08:52:18 -0700 (PDT)
-X-Received: by 2002:a05:600c:310f:b0:493:d115:d835 with SMTP id 5b1f17b1804b1-493f87d5800mr26790445e9.8.1783785138430;
-        Sat, 11 Jul 2026 08:52:18 -0700 (PDT)
-Received: from redhat.com (bzq-79-177-145-168.red.bezeqint.net. [79.177.145.168])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-493eb6f373csm375363835e9.14.2026.07.11.08.52.15
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sat, 11 Jul 2026 08:52:17 -0700 (PDT)
-Date: Sat, 11 Jul 2026 11:52:13 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Michael Bommarito <michael.bommarito@gmail.com>
-Cc: Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	Andrew Lunn <andrew+netdev@lunn.ch>,
-	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
-	virtualization@lists.linux.dev, netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org, stable@vger.kernel.org
-Subject: Re: [PATCH] virtio_net: validate device stats reply records before
- use
-Message-ID: <20260711114248-mutt-send-email-mst@kernel.org>
-References: <20260711150754.2918392-1-michael.bommarito@gmail.com>
- <20260711111503-mutt-send-email-mst@kernel.org>
- <CAJJ9bXwUtQ3pHqZ=AMuwaNLs16pmujiMdeBQtB5kFc6JjM-Pug@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="oHKCbOs5"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id CA7C21F000E9;
+	Sat, 11 Jul 2026 16:23:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1783787026;
+	bh=eyGPCpKJAg7fhbXBnd8C7Wrqfsg9VL7dUFWJAu8QPbU=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=oHKCbOs50OGhdryTHZVIrJJAH5cNWadJ96vBPL21JseHby43owQLI4TQNXRn8X6gJ
+	 TAnHb0VclvTH/ELo5PXr26ZhLJbSwD3gVlLvJn7Z0/7xX0d8g4qtgVFjgxpWwxbv1a
+	 7r5CcrXGWEbeyhCP39VRFFsSay0aVbIrR1SurkK/zcKs46h1LZbloHKdjmJ9QcIWOB
+	 93pv7I3n5DE5yAji0/HPOsX0hhylbUPeh4N5mBIdjWYLPd6EljlcjYkvh2JpbnVfqK
+	 2Dhr9fLfrHgsT5U9G1HrOgWT69oD72z/B+kQJ6Kj2KlR/byBhBoVckK6V+QXJUFKRE
+	 5uoKO6B92zc7w==
+Date: Sat, 11 Jul 2026 17:23:19 +0100
+From: Lorenzo Stoakes <ljs@kernel.org>
+To: Zi Yan <ziy@nvidia.com>
+Cc: Lance Yang <lance.yang@linux.dev>, akpm@linux-foundation.org, 
+	tsbogend@alpha.franken.de, maddy@linux.ibm.com, mpe@ellerman.id.au, 
+	maarten.lankhorst@linux.intel.com, mripard@kernel.org, tzimmermann@suse.de, airlied@gmail.com, 
+	simona@ffwll.ch, l.stach@pengutronix.de, inki.dae@samsung.com, 
+	sw0312.kim@samsung.com, kyungmin.park@samsung.com, krzk@kernel.org, 
+	peter.griffin@linaro.org, jani.nikula@linux.intel.com, joonas.lahtinen@linux.intel.com, 
+	rodrigo.vivi@intel.com, tursulin@ursulin.net, robin.clark@oss.qualcomm.com, 
+	lumag@kernel.org, lyude@redhat.com, dakr@kernel.org, 
+	tomi.valkeinen@ideasonboard.com, hjc@rock-chips.com, heiko@sntech.de, andy.yan@rock-chips.com, 
+	thierry.reding@kernel.org, mperttunen@nvidia.com, jonathanh@nvidia.com, kraxel@redhat.com, 
+	dmitry.osipenko@collabora.com, zack.rusin@broadcom.com, matthew.brost@intel.com, 
+	thomas.hellstrom@linux.intel.com, oleksandr_andrushchenko@epam.com, deller@gmx.de, bcrl@kvack.org, 
+	viro@zeniv.linux.org.uk, brauner@kernel.org, muchun.song@linux.dev, osalvador@suse.de, 
+	david@kernel.org, baolin.wang@linux.alibaba.com, liam@infradead.org, 
+	npache@redhat.com, ryan.roberts@arm.com, dev.jain@arm.com, baohua@kernel.org, 
+	hughd@google.com, vbabka@kernel.org, rppt@kernel.org, surenb@google.com, 
+	mhocko@suse.com, jannh@google.com, pfalcato@suse.de, kees@kernel.org, 
+	perex@perex.cz, tiwai@suse.com, linux-mips@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org, dri-devel@lists.freedesktop.org, 
+	etnaviv@lists.freedesktop.org, linux-arm-kernel@lists.infradead.org, 
+	linux-samsung-soc@vger.kernel.org, intel-gfx@lists.freedesktop.org, linux-arm-msm@vger.kernel.org, 
+	freedreno@lists.freedesktop.org, nouveau@lists.freedesktop.org, 
+	linux-rockchip@lists.infradead.org, linux-tegra@vger.kernel.org, virtualization@lists.linux.dev, 
+	intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org, linux-fbdev@vger.kernel.org, 
+	linux-aio@kvack.org, linux-fsdevel@vger.kernel.org, linux-mm@kvack.org, 
+	linux-sound@vger.kernel.org
+Subject: Re: [PATCH 10/13] mm/vma: convert miscellaneous uses of VMA flags in
+ core mm
+Message-ID: <alJqjo_MZCFWj3Wt@lucifer>
+References: <1e7d834c887b6a65627d730addcff13d458c6268.1782760670.git.ljs@kernel.org>
+ <20260702131233.59026-1-lance.yang@linux.dev>
+ <akaGxiTaJreEQn8T@lucifer>
+ <DJTNXVOWGWJ4.3MDNLPMY0Y3RF@nvidia.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CAJJ9bXwUtQ3pHqZ=AMuwaNLs16pmujiMdeBQtB5kFc6JjM-Pug@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: e5BzgyuHWq7IFsdPEfMz-brtwzlUzK17saWVs73RV2s_1783785139
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <DJTNXVOWGWJ4.3MDNLPMY0Y3RF@nvidia.com>
 
-On Sat, Jul 11, 2026 at 11:29:56AM -0400, Michael Bommarito wrote:
-> On Sat, Jul 11, 2026 at 11:20 AM Michael S. Tsirkin <mst@redhat.com> wrote:
-> > Why does it "matter most", or at all, there?
-> > Host can always deny guest service. In fact, this is how cloud vendors
-> > charge their clients, by denying service to whoever did not pay them.
-> ...
-> > I'm all for making things easier to debug even when the device is buggy.
-> > But I'm not inclined to add tons of hard to maintain code to
-> > that end, and I would be worried broken hosts will come to
-> > rely on drivers working around them.
-> 
-> I am always confused by the CoCo threat model to be honest,
+On Wed, Jul 08, 2026 at 09:52:19PM -0400, Zi Yan wrote:
+> On Thu Jul 2, 2026 at 11:46 AM EDT, Lorenzo Stoakes wrote:
+> > On Thu, Jul 02, 2026 at 09:12:33PM +0800, Lance Yang wrote:
+> >>
+> >> On Mon, Jun 29, 2026 at 08:25:33PM +0100, Lorenzo Stoakes wrote:
+> >> >Update various uses of legacy flags in vma.c and mmap.c to the new
+> >> >vma_flags_t type, updating comments alongside them to be consistent.
+> >> >
+> >> >Also update __install_special_mapping() to rearrange things slightly to
+> >> >accommodate the changes.
+> >> >
+> >> >Signed-off-by: Lorenzo Stoakes <ljs@kernel.org>
+> >> >---
+> >> [...]
+> >> >diff --git a/mm/vma.c b/mm/vma.c
+> >> >index b81c05e67a61..ab2ef0f04420 100644
+> >> >--- a/mm/vma.c
+> >> >+++ b/mm/vma.c
+> >> >@@ -3417,23 +3417,27 @@ struct vm_area_struct *__install_special_mapping(
+> >> > 	vm_flags_t vm_flags, void *priv,
+> >> > 	const struct vm_operations_struct *ops)
+> >> > {
+> >> >-	int ret;
+> >> >+	vma_flags_t vma_flags = legacy_to_vma_flags(vm_flags);
+> >> > 	struct vm_area_struct *vma;
+> >> >+	int ret;
+> >> >
+> >> > 	vma = vm_area_alloc(mm);
+> >> >-	if (unlikely(vma == NULL))
+> >> >+	if (unlikely(!vma))
+> >> > 		return ERR_PTR(-ENOMEM);
+> >> >
+> >> >-	vma_set_range(vma, addr, addr + len, 0);
+> >> >-	vm_flags |= vma_flags_to_legacy(mm->def_vma_flags) | VM_DONTEXPAND;
+> >> >+	vma_flags_set_mask(&vma_flags, mm->def_vma_flags);
+> >> >+	vma_flags_set(&vma_flags, VMA_DONTEXPAND_BIT);
+> >> > 	if (pgtable_supports_soft_dirty())
+> >> >-		vm_flags |= VM_SOFTDIRTY;
+> >> >-	vm_flags_init(vma, vm_flags & ~VM_LOCKED_MASK);
+> >> >+		vma_flags_set(&vma_flags, VMA_SOFTDIRTY_BIT);
+> >> >+	vma_flags_clear_mask(&vma_flags, VMA_LOCKED_MASK);
+> >> >+	vma->flags = vma_flags;
+> >>
+> >> Maybe worth a vma_flags_init() helper here to mirror vm_flags_init()?
+> >> With this open-coded, we lose the soft-dirty WARN_ON_ONCE sanity check.
+> >>
+> >> Might be nicer to keep that check in one place ;)
+> >
+> > I really hate all the VMA flag accessors, they conflate things horribly - we
+> > should be explicitly taking VMA write locks when we need to (and often killable
+> > ones actually) not assuming that a VMA flags accessor does (they should at most
+> > assert).
+> >
+> > This case is even more terribly egregious - you are setting flags at an
+> > arbitrary time, why are we asserting something about softdirty?
+> >
+> > You may update them as part of initialisation, maybe not. It's far from a
+> > guarantee and feels like a lazy place to put it.
+> >
+> > BUT obviously it's an oversight not to open code that here, so I'll update the
+> > patch to do that!
+>
+> What do you want to open code here? softdirty WARN_ON_ONCE()?
 
-Confidential computing? It's vague at points, given the term covers a
-lot of different hardware. But one thing is clear - it's about
-confidentiality.  DoS by host is empathically outside the threat model.
-On any virtualization platform I know without exception,
-host can just exit the VM, done, service denied.
+As you can tell I said this reflexively without checking the code :)
 
-> since it
-> seems like some people care a lot about maximalist reliance on the
-> contract and other people are more practical about how many other
-> vectors exist anyway.
+>
+> vma_flags gets VMA_SOFTDIRTY_BIT just above vma->flags, why do we need a
+> check after that?
 
-I don't really know what "vectors" or "the contract" are here.
+And yeah it's completely unnecessary, indeed.
 
-Making a guest recover from a misbehaving device has as much a chance
-to reduce security as increase it. So the only benefit is
-robustness for users/developers, not security. And that
-has to be weighted against the maintainance cost of the change.
-This one is too costly, I judge.
+>
+> BTW, if you think the check is needed, patch 9 will need to be updated,
+> since the same pattern appears in create_init_stack_vma().
 
->  No hard feelings if you want to NACK, but at
-> least it's documented publicly now for people to consider.
-> 
-> Thanks,
-> Mike
+I'll check to see if it's valid there.
 
+For me it just feels like the most silly place to put that check, a VMA flags
+update should update VMA flags not start randomly asserting silly things :)
+
+>
+> >
+> > I want VMA flags to be a clean stateless thing, other than the flags
+> > themselves. Implicit, unrelated, asserts or lock acquisitions in general should
+> > be done separately IMO.
+> >
+>
+> Anyway,
+>
+> Reviewed-by: Zi Yan <ziy@nvidia.com>
+
+Thanks!
+
+>
+> --
+> Best Regards,
+> Yan, Zi
+>
+
+Cheers, Lorenzo
