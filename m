@@ -1,295 +1,374 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 26AC630CDAE;
-	Sat, 11 Jul 2026 18:50:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BDF51371D0E;
+	Sun, 12 Jul 2026 06:30:19 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783795816; cv=none; b=UzyeQHh9IpO+0u+5nvjOYwq+r3aAXh8V239lXM/dxVVTUbgXE15NNigZ8xlQmdvXFSB7zfbjbCx69ay8+Np88EBbVulTuYMf4aZZhodK5DH52rIEYqW0DdWc709IqisbGkYRQnE4y8/29mIiusGG+gZWSDg1lefGylU0zrqdoKY=
+	t=1783837823; cv=none; b=a/5l93uNZKIp0ELK0lK3ubAx26i2xtGL9qLIrQjptmvBa6O59yQpmMIiVxeW5G5Er2KFFMGg34s6GV5pJG1Hh99Dyq/3K4B6PajElfW14a45iRTw85WndFBzkrcTWj2QBV3PmuDY98fSxyl+sJKCt3kwWRCvjjYZvNwWaV7hXnQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783795816; c=relaxed/simple;
-	bh=PIqQBUvFAhhZLltfbuAmGUSiDj9zb0uqnBAJox/uNeE=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=faMGCPEwVO9QMpfJFpumIbpgWZuKuEtTnsaj2TIqK4NClBjE6Ar8fBB7vjZyvIoQi+5elRStoUlSuoVuWmlTrLzoosIvuvi84ztkncqzHZskMYBfTD28gpDkbap3dfQGUNDB4FPOt9hgP6KbEmexqndSZlxFzgeEvBpEBOCr9Yo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=kGl604zO; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1783837823; c=relaxed/simple;
+	bh=vND1owE+3H5x+oLJk96fTVvLr1nQS25d367M9mQN/dk=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=GLzQARGmmnKnvZP+/nZT7+M6kfH6kLbEAWxkeU6EnejgH5PlfB9rZqRaV6wln3pzLYiBQeiPuA9W7pbtlrViy9u+hdGGiUgmIwHA0dJBFfy2SHLbyE8KiogqTppA6BA36Lym7PHDv21IVHC3gFkrOaJRh8DRhhxaWUFpBkda7Bg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=GLoRaaPR; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="kGl604zO"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2690E1F00A3A;
-	Sat, 11 Jul 2026 18:49:53 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="GLoRaaPR"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 8CDC21F000E9;
+	Sun, 12 Jul 2026 06:30:14 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783795814;
-	bh=VYkDI6h+waLNcPjkBya9DGnDggZvgWVLygEReXlfsZM=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc;
-	b=kGl604zOY5i/9BHc7cLc4ryqHD+01SAUicrFqMKwslfHQhi80jDyaMm2MyxhO5qOt
-	 5Pq/TrS3o9h1Q+W/qwP8lSEVI5jCfMdWQHJGOSTzqQxcgi/ZcaaOXqvQkVb1FUVgE6
-	 9YbVEPYs9ZC7WBFyRZhHqrj+/ntYKTZVK3XRtCayQvKHxiWeP6HYUE54e0sI1syKFA
-	 s2zK3U9ax8wTAugutxfyxWaRWS5LrbXoh4d2i5NgoY8R2qopkb5XoFfc+IxgcXnP6J
-	 LumgNfEnvhlL0OZHtdfacxoMtfjedGIBKxF4rKadinDpk8PtJvmtheBqh+pFiShHQX
-	 BbDB2Fj9clkaw==
-From: Lorenzo Stoakes <ljs@kernel.org>
-Date: Sat, 11 Jul 2026 19:45:10 +0100
-Subject: [PATCH v2 13/13] mm/mremap: convert mremap code to use vma_flags_t
+	s=k20260515; t=1783837818;
+	bh=IDE0Lylbde4Bg5+kRb66nf482oHQ73v2lGmIWyDCUy4=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References;
+	b=GLoRaaPRXF4Z6JnZsUE1jXeRx+M231qiU0tT4cFS3MayUAaIq9a5m+FxHlTYb7+Of
+	 yjYl2dTAzOLyEJNQT7IGrZ7GsgQZAH+L5iIa7aTYvw4jM5zIGWGCbwZU7PlIN4F4uX
+	 GqgBRK/abwZxzsc5YgT2x3qPLODGPjNG1ywayL9D9lV2f7LtVbYs+jCNIB5eLUvIF2
+	 wLBdklstj9Uj/4C0E8d5XfGR9xqrInapwf6XbjXcecFtFYMMTy3AP6r/SHpYGAEOqh
+	 XyqfUuVLTdtfv74Vh49IGwWBdBroGhVv1Y9zVHBc9m8dUyFfLswJlsjVvYVn/tVpkQ
+	 0TtrVXQaXSNQg==
+Date: Sun, 12 Jul 2026 08:30:11 +0200
+From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
+To: Brian Daniels <briandaniels@google.com>
+Cc: acourbot@google.com, adelva@google.com, aesteve@redhat.com,
+ changyeon@google.com, daniel.almeida@collabora.com, eperezma@redhat.com,
+ gnurou@gmail.com, gurchetansingh@google.com, hverkuil@xs4all.nl,
+ jasowang@redhat.com, linux-kernel@vger.kernel.org,
+ linux-media@vger.kernel.org, mchehab@kernel.org, mst@redhat.com,
+ nicolas.dufresne@collabora.com, virtualization@lists.linux.dev,
+ xuanzhuo@linux.alibaba.com
+Subject: Re: [PATCH v3] media: add virtio-media driver
+Message-ID: <20260712082408.49de652a@foz.lan>
+In-Reply-To: <20260529160314.1224731-1-briandaniels@google.com>
+References: <20250909111216.18d5f78c@foz.lan>
+	<20260529160314.1224731-1-briandaniels@google.com>
+X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260711-b4-vma-flags-mm-v2-13-0fa2357d5431@kernel.org>
-References: <20260711-b4-vma-flags-mm-v2-0-0fa2357d5431@kernel.org>
-In-Reply-To: <20260711-b4-vma-flags-mm-v2-0-0fa2357d5431@kernel.org>
-To: Andrew Morton <akpm@linux-foundation.org>, 
- David Hildenbrand <david@kernel.org>, 
- "Liam R. Howlett" <liam@infradead.org>, Vlastimil Babka <vbabka@kernel.org>, 
- Mike Rapoport <rppt@kernel.org>, Suren Baghdasaryan <surenb@google.com>, 
- Michal Hocko <mhocko@suse.com>, 
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>, 
- Benjamin LaHaise <bcrl@kvack.org>, Alexander Viro <viro@zeniv.linux.org.uk>, 
- Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>, 
- Hugh Dickins <hughd@google.com>, 
- Baolin Wang <baolin.wang@linux.alibaba.com>, Jann Horn <jannh@google.com>, 
- Pedro Falcato <pfalcato@suse.de>, Muchun Song <muchun.song@linux.dev>, 
- Oscar Salvador <osalvador@suse.de>, Zi Yan <ziy@nvidia.com>, 
- Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>, 
- Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>, 
- Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>, 
- Madhavan Srinivasan <maddy@linux.ibm.com>, 
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>, 
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>, 
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
- Lucas Stach <l.stach@pengutronix.de>, 
- Russell King <linux+etnaviv@armlinux.org.uk>, 
- Christian Gmeiner <christian.gmeiner@gmail.com>, 
- Inki Dae <inki.dae@samsung.com>, Seung-Woo Kim <sw0312.kim@samsung.com>, 
- Kyungmin Park <kyungmin.park@samsung.com>, 
- Krzysztof Kozlowski <krzk@kernel.org>, 
- Peter Griffin <peter.griffin@linaro.org>, 
- Alim Akhtar <alim.akhtar@samsung.com>, 
- Jani Nikula <jani.nikula@linux.intel.com>, 
- Joonas Lahtinen <joonas.lahtinen@linux.intel.com>, 
- Rodrigo Vivi <rodrigo.vivi@intel.com>, 
- Tvrtko Ursulin <tursulin@ursulin.net>, 
- Rob Clark <robin.clark@oss.qualcomm.com>, 
- Dmitry Baryshkov <lumag@kernel.org>, 
- Abhinav Kumar <abhinav.kumar@linux.dev>, 
- Jessica Zhang <jesszhan0024@gmail.com>, Sean Paul <sean@poorly.run>, 
- Marijn Suijten <marijn.suijten@somainline.org>, 
- Lyude Paul <lyude@redhat.com>, Danilo Krummrich <dakr@kernel.org>, 
- Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>, 
- Sandy Huang <hjc@rock-chips.com>, 
- =?utf-8?q?Heiko_St=C3=BCbner?= <heiko@sntech.de>, 
- Andy Yan <andy.yan@rock-chips.com>, 
- Thierry Reding <thierry.reding@kernel.org>, 
- Mikko Perttunen <mperttunen@nvidia.com>, 
- Jonathan Hunter <jonathanh@nvidia.com>, Gerd Hoffmann <kraxel@redhat.com>, 
- Dmitry Osipenko <dmitry.osipenko@collabora.com>, 
- Gurchetan Singh <gurchetansingh@chromium.org>, 
- Chia-I Wu <olvaffe@gmail.com>, Zack Rusin <zack.rusin@broadcom.com>, 
- Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
- Matthew Brost <matthew.brost@intel.com>, 
- =?utf-8?q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>, 
- Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>, 
- Helge Deller <deller@gmx.de>, Kees Cook <kees@kernel.org>, 
- Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>, 
- Boris Brezillon <boris.brezillon@collabora.com>, 
- Steven Price <steven.price@arm.com>, Liviu Dudau <liviu.dudau@arm.com>
-Cc: Lorenzo Stoakes <ljs@kernel.org>, linux-mm@kvack.org, 
- linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org, 
- linux-aio@kvack.org, linux-fsdevel@vger.kernel.org, 
- linuxppc-dev@lists.ozlabs.org, dri-devel@lists.freedesktop.org, 
- etnaviv@lists.freedesktop.org, linux-arm-kernel@lists.infradead.org, 
- linux-samsung-soc@vger.kernel.org, intel-gfx@lists.freedesktop.org, 
- linux-arm-msm@vger.kernel.org, freedreno@lists.freedesktop.org, 
- nouveau@lists.freedesktop.org, linux-rockchip@lists.infradead.org, 
- linux-tegra@vger.kernel.org, virtualization@lists.linux.dev, 
- intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org, 
- linux-fbdev@vger.kernel.org, linux-sound@vger.kernel.org
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=6381; i=ljs@kernel.org;
- h=from:subject:message-id; bh=PIqQBUvFAhhZLltfbuAmGUSiDj9zb0uqnBAJox/uNeE=;
- b=owGbwMvMwCV2fu7ZrsZH9SKMp9WSGLKC+q2WCm/T1ymxZjMq/yxer2XvM7/x212H55Myy179n
- RqvN8Gno5SFQYyLQVZMkeX5F/H9QSJh8zov+LvBzGFlAhnCwMUpABPpOszIsGhLcPGPAz1FjgKb
- Jc53v4/W6X/HznOmXdW58Edb+l2lCQz/DLaa7emYsZ9lb/CKY38l3gjvWSW8537dgQvfdvIpbK9
- 8xgIA
-X-Developer-Key: i=ljs@kernel.org; a=openpgp;
- fpr=E7F417BF5214569E89D04F46CF9DCD8A81E27F14
 
-Replace use of the legacy vm_flags_t flags with vma_flags_t values
-throughout the mremap logic.
+On Fri, 29 May 2026 12:03:04 -0400
+Brian Daniels <briandaniels@google.com> wrote:
 
-Note that, in replacing vm_flags_clear() (which takes the VMA write lock)
-with vma_clear_flags() and vma_clear_flags_mask() (which do not)
-respectively in unmap_source_vma() and dontunmap_complete(), we do not add
-a VMA write lock to account for htis.
+> Hi there! My name is Brian Daniels and I'll be taking over upstreaming this
+> driver from Alexandre Courbot.
+> 
+> I've consulted with Alexandre and my plan is to upload a v4 set of patches
+> shortly based on the feedback from this revision.
 
-This is because, in both cases, move_vma() is their calling function and
-this has already acquired the VMA write lock on vrm->vma whose VMA flags
-are being cleared.
+As you promised a v5 to Michael, I'll wait for it to review the new series.
 
-In the case of vma_set_flags() in unmap_source_vma() we do need to do this
-- as prev and next were not necessarily write locked at this point.
+For now, let me address the replies from you on the top of v3.
 
-Additionally update comments to reflect the changes to be consistent.
+> Before doing so, I'd like to address some of your comments:
+> 
+> > Hi Alex,
+> > 
+> > I didn't see on a first glance anything that would cause locking
+> > issues here, but, as I pointed on my last e-mail, testing with
+> > qv4l2 at the max res of my C920 camera, it ended keeping 24 CPUs
+> > busy without showing any results with qv4l2 (via ssh at the same
+> > machine). So, I suspect that there are issues somewhere, but I didn't
+> > debug any further.
+> > 
+> > Please do some tests with a high-res camera, using either ssh or
+> > GPU emulation to see how this behaves with real apps.  
+> 
+> I did some testing with a 1080p USB webcam over ssh using ffmpeg and I was able
+> to stream video to disk without any issue. Let me know if you'd prefer I test
+> with a specific setup.
 
-No functional change intended.
+You need to test it displaying on a X11 or Wayland window inside the VM, not 
+just via an app like ffmeg.
 
-Reviewed-by: Zi Yan <ziy@nvidia.com>
-Signed-off-by: Lorenzo Stoakes <ljs@kernel.org>
----
- mm/mremap.c | 38 ++++++++++++++++++++------------------
- 1 file changed, 20 insertions(+), 18 deletions(-)
+> 
+> > > +config MEDIA_VIRTIO
+> > > +	tristate "Virtio-media Driver"
+> > > +	depends on VIRTIO && VIDEO_DEV && 64BIT && (X86 || (ARM && CPU_LITTLE_ENDIAN))  
+> >
+> > Why are you limiting it to x86_64 and arm64 little endian?  
+> 
+> The little endian requirement comes for the section 5.22.6.1.5 of the virtio
+> v1.4 specification [1]. The limitation to x86_64 and arm64 is for two reasons:
+> 
+> 1. The specification requires all v4l2 structures to use the 64-bit layout
+> 2. This driver has only been tested on x86_64 and arm64 so far
 
-diff --git a/mm/mremap.c b/mm/mremap.c
-index 384ef4cc2195..b64aa1f6e07e 100644
---- a/mm/mremap.c
-+++ b/mm/mremap.c
-@@ -68,7 +68,7 @@ struct vma_remap_struct {
- 	bool populate_expand;		/* mlock()'d expanded, must populate. */
- 	enum mremap_type remap_type;	/* expand, shrink, etc. */
- 	bool mmap_locked;		/* Is mm currently write-locked? */
--	unsigned long charged;		/* If VM_ACCOUNT, # pages to account. */
-+	unsigned long charged;		/* If VMA_ACCOUNT_BIT, # pgs to account */
- 	bool vmi_needs_invalidate;	/* Is the VMA iterator invalidated? */
- };
- 
-@@ -963,7 +963,7 @@ static unsigned long vrm_set_new_addr(struct vma_remap_struct *vrm)
- 
- 	if (vrm->flags & MREMAP_FIXED)
- 		map_flags |= MAP_FIXED;
--	if (vma->vm_flags & VM_MAYSHARE)
-+	if (vma_test(vma, VMA_MAYSHARE_BIT))
- 		map_flags |= MAP_SHARED;
- 
- 	res = get_unmapped_area(vma->vm_file, new_addr, vrm->new_len, pgoff,
-@@ -985,7 +985,7 @@ static bool vrm_calc_charge(struct vma_remap_struct *vrm)
- {
- 	unsigned long charged;
- 
--	if (!(vrm->vma->vm_flags & VM_ACCOUNT))
-+	if (!vma_test(vrm->vma, VMA_ACCOUNT_BIT))
- 		return true;
- 
- 	/*
-@@ -1012,7 +1012,7 @@ static bool vrm_calc_charge(struct vma_remap_struct *vrm)
-  */
- static void vrm_uncharge(struct vma_remap_struct *vrm)
- {
--	if (!(vrm->vma->vm_flags & VM_ACCOUNT))
-+	if (!vma_test(vrm->vma, VMA_ACCOUNT_BIT))
- 		return;
- 
- 	vm_unacct_memory(vrm->charged);
-@@ -1032,7 +1032,7 @@ static void vrm_stat_account(struct vma_remap_struct *vrm,
- 	struct vm_area_struct *vma = vrm->vma;
- 
- 	vm_stat_account(mm, vma->vm_flags, pages);
--	if (vma->vm_flags & VM_LOCKED)
-+	if (vma_test(vma, VMA_LOCKED_BIT))
- 		mm->locked_vm += pages;
- }
- 
-@@ -1176,7 +1176,7 @@ static void unmap_source_vma(struct vma_remap_struct *vrm)
- 	 * arose, in which case we _do_ wish to unmap the _new_ VMA, which means
- 	 * we actually _do_ want it be unaccounted.
- 	 */
--	bool accountable_move = (vma->vm_flags & VM_ACCOUNT) &&
-+	bool accountable_move = vma_test(vma, VMA_ACCOUNT_BIT) &&
- 		!(vrm->flags & MREMAP_DONTUNMAP);
- 
- 	/*
-@@ -1195,7 +1195,7 @@ static void unmap_source_vma(struct vma_remap_struct *vrm)
- 	 * portions of the original VMA that remain.
- 	 */
- 	if (accountable_move) {
--		vm_flags_clear(vma, VM_ACCOUNT);
-+		vma_clear_flags(vma, VMA_ACCOUNT_BIT);
- 		/* We are about to split vma, so store the start/end. */
- 		vm_start = vma->vm_start;
- 		vm_end = vma->vm_end;
-@@ -1220,8 +1220,8 @@ static void unmap_source_vma(struct vma_remap_struct *vrm)
- 	 * |             |
- 	 * |-------------|
- 	 *
--	 * Having cleared VM_ACCOUNT from the whole VMA, after we unmap above
--	 * we'll end up with:
-+	 * Having cleared VMA_ACCOUNT_BIT from the whole VMA, after we unmap
-+	 * above we'll end up with:
- 	 *
- 	 *    addr  end
- 	 *     |     |
-@@ -1241,13 +1241,15 @@ static void unmap_source_vma(struct vma_remap_struct *vrm)
- 		if (vm_start < addr) {
- 			struct vm_area_struct *prev = vma_prev(&vmi);
- 
--			vm_flags_set(prev, VM_ACCOUNT); /* Acquires VMA lock. */
-+			vma_start_write(prev);
-+			vma_set_flags(prev, VMA_ACCOUNT_BIT);
- 		}
- 
- 		if (vm_end > end) {
- 			struct vm_area_struct *next = vma_next(&vmi);
- 
--			vm_flags_set(next, VM_ACCOUNT); /* Acquires VMA lock. */
-+			vma_start_write(next);
-+			vma_set_flags(next, VMA_ACCOUNT_BIT);
- 		}
- 	}
- }
-@@ -1330,8 +1332,8 @@ static void dontunmap_complete(struct vma_remap_struct *vrm,
- 	unsigned long old_start = vrm->vma->vm_start;
- 	unsigned long old_end = vrm->vma->vm_end;
- 
--	/* We always clear VM_LOCKED[ONFAULT] on the old VMA. */
--	vm_flags_clear(vrm->vma, VM_LOCKED_MASK);
-+	/* We always clear VMA_LOCKED[ONFAULT]_BIT on the old VMA. */
-+	vma_clear_flags_mask(vrm->vma, VMA_LOCKED_MASK);
- 
- 	/*
- 	 * anon_vma links of the old vma is no longer needed after its page
-@@ -1767,14 +1769,14 @@ static int check_prep_vma(struct vma_remap_struct *vrm)
- 	 * based on the original.  There are no known use cases for this
- 	 * behavior.  As a result, fail such attempts.
- 	 */
--	if (!old_len && !(vma->vm_flags & (VM_SHARED | VM_MAYSHARE))) {
-+	if (!old_len && !vma_test_any(vma, VMA_SHARED_BIT, VMA_MAYSHARE_BIT)) {
- 		pr_warn_once("%s (%d): attempted to duplicate a private mapping with mremap.  This is not supported.\n",
- 			     current->comm, current->pid);
- 		return -EINVAL;
- 	}
- 
- 	if ((vrm->flags & MREMAP_DONTUNMAP) &&
--			(vma->vm_flags & (VM_DONTEXPAND | VM_PFNMAP)))
-+	    vma_test_any(vma, VMA_DONTEXPAND_BIT, VMA_PFNMAP_BIT))
- 		return -EINVAL;
- 
- 	/*
-@@ -1804,7 +1806,7 @@ static int check_prep_vma(struct vma_remap_struct *vrm)
- 		return 0;
- 
- 	/* We are expanding and the VMA is mlock()'d so we need to populate. */
--	if (vma->vm_flags & VM_LOCKED)
-+	if (vma_test(vma, VMA_LOCKED_BIT))
- 		vrm->populate_expand = true;
- 
- 	/* Need to be careful about a growing mapping */
-@@ -1812,10 +1814,10 @@ static int check_prep_vma(struct vma_remap_struct *vrm)
- 	if (pgoff + (new_len >> PAGE_SHIFT) < pgoff)
- 		return -EINVAL;
- 
--	if (vma->vm_flags & (VM_DONTEXPAND | VM_PFNMAP))
-+	if (vma_test_any(vma, VMA_DONTEXPAND_BIT, VMA_PFNMAP_BIT))
- 		return -EFAULT;
- 
--	if (!mlock_future_ok(mm, vma->vm_flags & VM_LOCKED, vrm->delta))
-+	if (!mlock_future_ok(mm, vma_test(vma, VMA_LOCKED_BIT), vrm->delta))
- 		return -EAGAIN;
- 
- 	if (!may_expand_vm(mm, &vma->flags, vrm->delta >> PAGE_SHIFT))
+I don't like non-portable interfaces. If the spec is not good, it needs to
+be fixed; if the problem is at the API interface, you may need compat32 or
+similar to ensure that the interface will work independently on host/guest
+CPU differences.
 
--- 
-2.55.0
+> 
+> 
+> > > +/**
+> > > + * enum virtio_media_memory - Memory types supported by virtio-media.
+> > > + * @VIRTIO_MEDIA_MMAP: memory allocated and managed by device. Can be mapped
+> > > + * into the guest using VIRTIO_MEDIA_CMD_MMAP.
+> > > + * @VIRTIO_MEDIA_SHARED_PAGES: memory allocated by the driver. Passed to the
+> > > + * device using virtio_media_sg_entry.
+> > > + * @VIRTIO_MEDIA_OBJECT: memory backed by a virtio object.
+> > > + */
+> > > +enum virtio_media_memory {
+> > > +	VIRTIO_MEDIA_MMAP = V4L2_MEMORY_MMAP,
+> > > +	VIRTIO_MEDIA_SHARED_PAGES = V4L2_MEMORY_USERPTR,
+> > > +	VIRTIO_MEDIA_OBJECT = V4L2_MEMORY_DMABUF,
+> > > +};  
+> > 
+> > I'm not a big fan of renaming USERPTR to SHARED_PAGES and
+> > DMABUF to OBJECT, as it makes harder for reviewers and contributors
+> > to remember about this mapping. Also, everybody knows exactly what
+> > DMABUF means, so, it sounds to me that this obfuscates a little bit 
+> > the driver.
+> > 
+> > Also, why are you encapsulating V4L2 names into VIRTIO_* namespace?
+> > This just adds extra complexity for reviewers without any real
+> > benefit.
+> > 
+> > Besides that, doing a grep on the patch, it sounds that this ma
+> > is not used anywhere.
+> > 
+> > So, please drop this mapping.  
+> 
+> Agreed I don't see it being used anywhere, I think this was included originally
+> since it's part of the virtio spec. I will remove it.
+> 
+> 
+> > > +#define VIRTIO_MEDIA_EVT_ERROR 0
+> > > +#define VIRTIO_MEDIA_EVT_DQBUF 1
+> > > +#define VIRTIO_MEDIA_EVT_EVENT 2  
+> > 
+> > OK, here, media events are different than virtio events, so having
+> > a virtio-specific events make sense. Yet, better to add a comment
+> > about that. 
+> > 
+> > Also, V4L events are defined as:
+> > 
+> > 	#define V4L2_EVENT_ALL                          0
+> > 	#define V4L2_EVENT_VSYNC                        1
+> > 	#define V4L2_EVENT_EOS                          2
+> > 	#define V4L2_EVENT_CTRL                         3
+> > 	#define V4L2_EVENT_FRAME_SYNC                   4
+> > 	#define V4L2_EVENT_SOURCE_CHANGE                5
+> > 	#define V4L2_EVENT_MOTION_DET                   6
+> > 	#define V4L2_EVENT_PRIVATE_START                0x08000000
+> > 
+> > As one may end wanting to map them on some future, I would change
+> > the definitions above to:
+> > 
+> > 	#define VIRTIO_MEDIA_EVT_ERROR V4L2_EVENT_PRIVATE_START
+> > 	#define VIRTIO_MEDIA_EVT_DQBUF (V4L2_EVENT_PRIVATE_START + 1)
+> > 	#define VIRTIO_MEDIA_EVT_EVENT (V4L2_EVENT_PRIVATE_START + 2)  
+> 
+> These event values (VIRTIO_MEDIA_EVT_*) are set by section 5.22.6.2.1 of the
+> virtio v1.4 specification [2]. I don't believe we have the ability to change
+> these values as suggested without changing the specification. That would most
+> likely be a lengthy process, so I'd prefer to keep it as written if that's not
+> an issue.
 
+The specs you pointed seem to be specific to V4L2. I can't see any reason
+why not adjusting it to provide an interface that doesn't conflict with
+V4L2 existing events.
+
+> 
+> > > +#define VIRTIO_MEDIA_MAX_PLANES VIDEO_MAX_PLANES  
+> > 
+> > Here: why renaming it to VIRTIO_* namespace?  
+> 
+> This matches the name in section 5.22.6.2.3 of the virtio v1.4 specification
+> [3]. And Alexandre stated the reason why it was renamed from VIDEO_* to
+> VIRTIO_MEDIA_* was from an early piece of feedback to avoid V4L2-specific names.
+> Even though virtio-media reuses the v4l2 structures and API, its possible to use
+> virtio-media with a different media implementation other than v4l2.
+
+In thesis, it would be possible, but it sounds unlikely that this would
+ever happen, as other OSes may have completely different media APIs.
+
+So, in practice, if one wants, let's say, a Windows host to run a media 
+virio, it would either need to implement V4L2 internally or will need
+different virtio drivers using a different API.
+
+> > > +/**
+> > > + * struct virtio_media_session - A session on a virtio_media device.
+> > > + * @fh: file handler for the session.
+> > > + * @id: session ID used to communicate with the device.
+> > > + * @nonblocking_dequeue: whether dequeue should block or not (nonblocking if
+> > > + * file opened with O_NONBLOCK).
+> > > + * @uses_mplane: whether the queues for this session use the MPLANE API or not.
+> > > + * @cmd: union of session-related commands. A session can have one command currently running.
+> > > + * @resp: union of session-related responses. A session can wait on one command only.
+> > > + * @shadow_buf: shadow buffer where data to be added to the descriptor chain can
+> > > + * be staged before being sent to the device.
+> > > + * @command_sgs: SG table gathering descriptors for a given command and its response.
+> > > + * @queues: state of all the queues for this session.
+> > > + * @queues_lock: protects all members fo the queues for this session.
+> > > + * virtio_media_queue_state`.
+> > > + * @dqbuf_wait: waitqueue for dequeued buffers, if ``VIDIOC_DQBUF`` needs to
+> > > + * block or when polling.
+> > > + * @list: link into the list of sessions for the device.
+> > > + */
+> > > +struct virtio_media_session {
+> > > +	struct v4l2_fh fh;
+> > > +	u32 id;
+> > > +	bool nonblocking_dequeue;
+> > > +	bool uses_mplane;
+> > > +
+> > > +	union {
+> > > +		struct virtio_media_cmd_close close;
+> > > +		struct virtio_media_cmd_ioctl ioctl;
+> > > +		struct virtio_media_cmd_mmap mmap;
+> > > +	} cmd;
+> > > +
+> > > +	union {
+> > > +		struct virtio_media_resp_ioctl ioctl;
+> > > +		struct virtio_media_resp_mmap mmap;
+> > > +	} resp;
+> > > +  
+> > 
+> > Heh, the above is tricky, as to parse the struct, one needs first
+> > to check cmd.cmd to identify what values to pick from enums.
+> > Also, the command is stored as: cmd.[close|ioctl|imap].cmd.
+> > 
+> > IMO, better to place the headers explicitly there, e.g.
+> > 
+> > 	union {
+> > 		struct virtio_media_cmd_header hdr;
+> > 		struct virtio_media_cmd_close close;
+> > 		struct virtio_media_cmd_ioctl ioctl;
+> > 		struct virtio_media_cmd_mmap mmap;
+> > 	} send;
+> > 	union {
+> > 		struct virtio_media_resp_header hdr;
+> > 		struct virtio_media_resp_ioctl ioctl;
+> > 		struct virtio_media_resp_mmap mmap;
+> > 	} resp;
+> > 
+> > Also, currently, there are 5 defined commands:
+> > 
+> > 	#define VIRTIO_MEDIA_CMD_OPEN 1
+> > 	#define VIRTIO_MEDIA_CMD_CLOSE 2
+> > 	#define VIRTIO_MEDIA_CMD_IOCTL 3
+> > 	#define VIRTIO_MEDIA_CMD_MMAP 4
+> > 	#define VIRTIO_MEDIA_CMD_MUNMAP 5
+> > 
+> > If the data struct is limited only for close/ioctl/mmap, please
+> > document it and point what structure(s) other commands use.  
+> 
+> Tricky indeed!
+> 
+> However, I don't believe its necessary to add an explict header member to the
+> union.
+
+My main concern is that the field used to check what is the content
+of the union is inside the union itself, e.g. virtio_media_cmd_header.cmd.
+
+So, if one does:
+
+	struct virtio_media_session session;
+
+it can't check what's the command with session.cmd or session.hdr.cmd.
+Instead, it needs to guess one type, like session.close.cmd to check
+if the command encoded there is close, mmap or ioctl.
+
+> Whenever the driver parses the union, it already has the necessary
+> context to determine which union member to use:
+> 
+> - The struct virtio_media_cmd_* instances are always created by the driver and
+>   sent to the device, so there are no unknowns there
+> - The struct virtio_media_resp_* instances are always parsed in the same
+>   function that sends the corresponding command, so again there's no
+>   uncertainty about which union member to access.
+
+If it is always the same function that creates and uses it, you don't
+need an union. You can just use for instance
+
+	struct virtio_media_cmd_ioctl
+
+inside the instances that deal with ioctl resp (or ioctl creation).
+
+> 
+> For these reasons, I would hesistate to add the `struct virtio_media_cmd_header
+> hdr` as previously suggested. Please let me know if you disagree or if I've
+> misunderstood your concern.
+
+> 
+> That all being said, I have added comments about which structures use which
+> commands in the upcoming v4 of the patches.
+> 
+> 
+> > > +/**
+> > > + * struct virtio_media - Virtio-media device.
+> > > + * @v4l2_dev: v4l2_device for the media device.
+> > > + * @video_dev: video_device for the media device.
+> > > + * @virtio_dev: virtio device for the media device.
+> > > + * @commandq: virtio command queue.
+> > > + * @eventq: virtio event queue.
+> > > + * @eventq_work: work to run when events are received on @eventq.
+> > > + * @mmap_region: region into which MMAP buffers are mapped by the host.
+> > > + * @event_buffer: buffer for event descriptors.
+> > > + * @sessions: list of active sessions on the device.
+> > > + * @sessions_lock: protects @sessions and ``virtio_media_session::list``.
+> > > + * @events_lock: prevents concurrent processing of events.
+> > > + * @cmd: union of device-related commands.
+> > > + * @resp: union of device-related responses.
+> > > + * @vlock: serializes access to the command queue.
+> > > + * @wq: waitqueue for host responses on the command queue.
+> > > + */
+> > > +struct virtio_media {
+> > > +	struct v4l2_device v4l2_dev;
+> > > +	struct video_device video_dev;
+> > > +
+> > > +	struct virtio_device *virtio_dev;
+> > > +	struct virtqueue *commandq;
+> > > +	struct virtqueue *eventq;
+> > > +	struct work_struct eventq_work;
+> > > +
+> > > +	struct virtio_shm_region mmap_region;
+> > > +
+> > > +	void *event_buffer;
+> > > +
+> > > +	struct list_head sessions;
+> > > +	struct mutex sessions_lock;
+> > > +
+> > > +	struct mutex events_lock;
+> > > +
+
+> > > +	union {
+> > > +		struct virtio_media_cmd_open open;
+> > > +		struct virtio_media_cmd_munmap munmap;
+> > > +	} cmd;
+> > > +
+> > > +	union {
+> > > +		struct virtio_media_resp_open open;
+> > > +		struct virtio_media_resp_munmap munmap;
+> > > +	} resp;  
+
+btw the same comment about the past union also applies here:
+if the code needs somehow to identify if the command is open or
+munmap, the field used to determine what command is there should
+be independent of open/munmap.
+
+> > 
+> > Based on struct virtio_media_session, I'm assuming here that
+> > this struct is used only for two commands, right? Please document
+> > it at kernel-doc markup and add a point to the other structure used 
+> > for the other commands.
+> > 
+> > The same comment about headers apply to the union here: place
+> > the header explicitly at the union.  
+> 
+> The same thing I said above applies here as well. I will add the comments as
+> requested in v4.
+> 
+> [1] https://docs.oasis-open.org/virtio/virtio/v1.4/csprd01/virtio-v1.4-csprd01-diff-from-v1.2-cs01.html#x1-8360005
+> [2] https://docs.oasis-open.org/virtio/virtio/v1.4/csprd01/virtio-v1.4-csprd01-diff-from-v1.2-cs01.html#x1-8560001
+> [3] https://docs.oasis-open.org/virtio/virtio/v1.4/csprd01/virtio-v1.4-csprd01-diff-from-v1.2-cs01.html#x1-8600003
+
+
+
+Thanks,
+Mauro
