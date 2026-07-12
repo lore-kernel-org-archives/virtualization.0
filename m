@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D52DA352C35;
-	Sun, 12 Jul 2026 07:10:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46963370D55;
+	Sun, 12 Jul 2026 07:28:49 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783840243; cv=none; b=E2sKlGZjXuDI6cXVkf2Ub3f3lA5Akx/iYidbiozXo4gEurCRGHdg/LiijfT06T67/px0JWsLQvTxv1bgYZCs7Ysb2UYML/BLSOzP8b/l0ZIsaRI0WLrCkrjgQqfEjHrTYSWHBpiZwxqQKdGqoJBlmSXpwQNXx+qSbu+7sU6l8GM=
+	t=1783841330; cv=none; b=iy5a5bjoXQKwJL1LvhWMTr2m3XW5ilxzk5j+vRREE8WFc955xr5w4RlBqtuDWTwymyfn5KbbB9L7LUjaxtDrL9xylA1KyeQtKvmlB23Hsk5dqM+uoqbVzeWOKIaZxDVnskLaFR3r2aQpkZZyHyNpgrAD6wBuqKCySHcnQzQjkxY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783840243; c=relaxed/simple;
-	bh=ewZwKx8MO5dqB+JlWtw6uwySbY+raeNAfe0OrBOf7kU=;
+	s=arc-20240116; t=1783841330; c=relaxed/simple;
+	bh=5BOFacPND8ISS4crT9SHPgUhToi/2xztiD+LMeGDkm0=;
 	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Ex/ndtHje31RbepxxN0gYlY23vGbc+r6wU1URQJCZBuPsj0IrrqDU48EC67aeRuQ6GsZhosDcmCxSuRDb2SFMhyPB5I5Liug++Lo/gMBOkaB1z/oOWro1Z7/9F9j7qUCEEPXSVYwwakfhvnEd3kgnyINmQ8Z6Re6zLyEyposv/A=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YdB3Anbc; arc=none smtp.client-ip=100.103.45.18
+	 MIME-Version:Content-Type; b=LXYg/rps+4h2w/+i14pZYpnw+PE6/P7mMY4osY4BfYuGJO3IAhoLlA5WRPp4bVg/vwQvRK+ZpX3mvlAHgo8IQ4NN2t/vXIRKj3tHVyXdNE+4S6xl+A+ObfoYtcfpW4Fr56xBgmF++kPYJeKbrTJujcaGs2U6YMXkI3FPUUnOQP0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=UiEnhstT; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YdB3Anbc"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id E019D1F000E9;
-	Sun, 12 Jul 2026 07:10:38 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="UiEnhstT"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 667391F000E9;
+	Sun, 12 Jul 2026 07:28:45 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1783840242;
-	bh=HhnMoXP32pcQQfm7pYPdDLSgY8bpdim9TS9niEyNijk=;
+	s=k20260515; t=1783841328;
+	bh=IyLG5vUJ5BxzOvkdssoUJgDbAacivAL1j1MZkWc9uFI=;
 	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=YdB3Anbcn61g6KsA0UhNJHc2ow1QuO6UFacVyRw1FRNGJvCL/m+PKRMw6UrVXMuJa
-	 grVMm3z6xC8peoV8DPNbfoZfqTi0LaJWRRbkkO7s64gPz4p95my+8LUqqS35mSm5Df
-	 pt+Bi7N20MSi9URHUHJLiIOJRD3elajiiZvKYgyok4+ufwn5xayjjQpPdf8qYeFg7T
-	 7XyohuXbDpLzw3DZWgMyztBwQ4K/SCLByHTl+IbH4J0piwg3HJ9lRvm9VNtW1Q/YJs
-	 SAu3CsCL6OCf+RUUOPtD1IlbnGyB6FW80mDBnK0eM+pqP6cDnYJOz0o0GmuJi77Fts
-	 zfc07N2ZEgbIQ==
-Date: Sun, 12 Jul 2026 09:10:36 +0200
+	b=UiEnhstTiFNFTxFAgLpH5KG4gl3knGP350GUup+JwXBTkNkYzokvasVMbiJUQchv3
+	 csLW/F2hC2gxPpDe7rvduVMFl2lWvZRsWSTh/m5bAC3v69rxq7GXobHhM0JKR947TO
+	 Iv2op/uipRnIWA5DkMaAQE3L5WWJvFSha0naRwHWoBesBpkOsGlDoTl5ARKy+SgFDQ
+	 /Ub42YC82IhAfPh2aiBzV4sv8rmibKgo1G808XZ9pMUjCcFPMSF+1h3InTSTIiOv88
+	 IE86JHbpdmW6HA+enuicnw26/fDSUE64XJ4NMxjLdwAFy8339fge1r0vTDLLIeC2TF
+	 Tq9puB1E4Y0WA==
+Date: Sun, 12 Jul 2026 09:28:42 +0200
 From: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
 To: Brian Daniels <briandaniels@google.com>
 Cc: Mauro Carvalho Chehab <mchehab@kernel.org>, acourbot@google.com,
@@ -36,10 +36,11 @@ Cc: Mauro Carvalho Chehab <mchehab@kernel.org>, acourbot@google.com,
  linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, mst@redhat.com,
  nicolas.dufresne@collabora.com, virtualization@lists.linux.dev,
  xuanzhuo@linux.alibaba.com
-Subject: Re: [PATCH v4 0/8] media: add virtio-media driver
-Message-ID: <20260712091036.5b0f170c@foz.lan>
-In-Reply-To: <20260622204343.1994418-1-briandaniels@google.com>
+Subject: Re: [PATCH v4 1/8] media: virtio: Add protocol
+Message-ID: <20260712092836.488acb8d@foz.lan>
+In-Reply-To: <20260622204343.1994418-2-briandaniels@google.com>
 References: <20260622204343.1994418-1-briandaniels@google.com>
+	<20260622204343.1994418-2-briandaniels@google.com>
 X-Mailer: Claws Mail 4.4.0 (GTK 3.24.52; x86_64-redhat-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -50,62 +51,265 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 
-On Mon, 22 Jun 2026 16:43:35 -0400
+On Mon, 22 Jun 2026 16:43:36 -0400
 Brian Daniels <briandaniels@google.com> wrote:
 
 > From: Alexandre Courbot <gnurou@gmail.com>
 > 
-> Add the first version of the virtio-media driver.
+> Add the identifiers and structs used to implement the virtio interface
+> as described in section 5.22 of version 1.4 of the virtio spec:
 > 
-> This driver acts roughly as a V4L2 relay between user-space and the
-> virtio virtual device on the host, so it is relatively simple, yet
-> unconventional. It doesn't use VB2 or other frameworks typically used in
-> a V4L2 driver, and most of its complexity resides in correctly and
-> efficiently building the virtio descriptor chain to pass to the host,
-> avoiding copies whenever possible. This is done by
-> scatterlist_builder.[ch].
+> https://docs.oasis-open.org/virtio/virtio/v1.4/csprd01/virtio-v1.4-csprd01-diff-from-v1.2-cs01.html#x1-82200022
 > 
-> This version supports MMAP buffers, while USERPTR buffers can also be
-> enabled through a driver option. DMABUF support is still pending.
-
-In practice, USERPTR was used on several drivers that wanted to
-share buffers between V4L2 and GPU (so, a previous approach before
-DMABUF implementation).
-
-On my tests with this driver, I was unable use a 1080p camera with
-V4L2 and GPU on crossvm. Lower resolutions worked. No idea if this
-was a limitation of crossvm (I only used it to test this driver)
-or if it is due to a poor MMAP implementation.
-
-
-
-> Compliance Testing
+> Signed-off-by: Alexandre Courbot <gnurou@gmail.com>
+> Co-developed-by: Brian Daniels <briandaniels@google.com>
+> Signed-off-by: Brian Daniels <briandaniels@google.com>
+> ---
+>  drivers/media/virtio/protocol.h | 287 ++++++++++++++++++++++++++++++++
+>  1 file changed, 287 insertions(+)
+>  create mode 100644 drivers/media/virtio/protocol.h
 > 
-> This was tested using v4l2-compliance. Since virtio-media serves as
-> a proxy to host devices for the guest VMs, we expect the guest
-> compliance test to essentially match the host compliance test for the
-> same device.
-> 
-> NOTE: v4l2-compliance changes its test behavior depending on the driver
-> name. In the guest, the driver name for virtio-media proxied-devices is
-> always "virtio-media", even if the actual host device has a driver name
-> of e.g. "uvcvideo". To ensure the test is consistent between the host
-> and the guest, I created a patch for the v4l2-compliance tool that
-> allows you to override the driver name. All test results that follow use
-> this patch:
-> https://lore.kernel.org/r/20260528163448.4031965-1-briandaniels@google.com/
+> diff --git a/drivers/media/virtio/protocol.h b/drivers/media/virtio/protocol.h
+> new file mode 100644
+> index 000000000..5878d107c
+> --- /dev/null
+> +++ b/drivers/media/virtio/protocol.h
+> @@ -0,0 +1,287 @@
+> +/* SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0+ */
+> +
+> +/*
+> + * Definitions of virtio-media protocol structures.
+> + *
+> + * Copyright (c) 2024-2025 Google LLC.
+> + */
+> +
+> +#ifndef __VIRTIO_MEDIA_PROTOCOL_H
+> +#define __VIRTIO_MEDIA_PROTOCOL_H
+> +
+> +#include <linux/videodev2.h>
+> +#include <linux/bits.h>
+> +
+> +/*
+> + * Virtio protocol definition.
+> + */
+> +
+> +/**
+> + * struct virtio_media_cmd_header - Header for all virtio-media commands.
+> + * @cmd: one of VIRTIO_MEDIA_CMD_*.
+> + * @__reserved: must be set to zero by the driver.
+> + *
+> + * This header starts all commands from the driver to the device on the
+> + * commandq.
+> + */
+> +struct virtio_media_cmd_header {
+> +	u32 cmd;
+> +	u32 __reserved;
+> +};
+> +
+> +/**
+> + * struct virtio_media_resp_header - Header for all virtio-media responses.
+> + * @status: 0 if the command was successful, or one of the standard Linux error
+> + * codes.
+> + * @__reserved: must be set to zero by the device.
+> + *
+> + * This header starts all responses from the device to the driver on the
+> + * commandq.
+> + */
+> +struct virtio_media_resp_header {
+> +	u32 status;
+> +	u32 __reserved;
+> +};
+> +
+> +/**
+> + * VIRTIO_MEDIA_CMD_OPEN - Command for creating a new session.
+> + *
+> + * This is the equivalent of calling `open` on a V4L2 device node. Upon
+> + * success, a session id is returned which can be used to perform other
+> + * commands on the session, notably ioctls.
+> + */
+> +#define VIRTIO_MEDIA_CMD_OPEN 1
+> +
+> +/**
+> + * struct virtio_media_cmd_open - Driver command for VIRTIO_MEDIA_CMD_OPEN.
+> + * @hdr: header with cmd member set to VIRTIO_MEDIA_CMD_OPEN.
+> + */
+> +struct virtio_media_cmd_open {
+> +	struct virtio_media_cmd_header hdr;
+> +};
+> +
+> +/**
+> + * struct virtio_media_resp_open - Device response for VIRTIO_MEDIA_CMD_OPEN.
+> + * @hdr: header containing the status of the command.
+> + * @session_id: if hdr.status == 0, contains the id of the newly created
+> + *              session.
+> + * @__reserved: must be set to zero by the device.
+> + */
+> +struct virtio_media_resp_open {
+> +	struct virtio_media_resp_header hdr;
+> +	u32 session_id;
+> +	u32 __reserved;
+> +};
+> +
+> +/**
+> + * VIRTIO_MEDIA_CMD_CLOSE - Command for closing an active session.
+> + *
+> + * This is the equivalent of calling `close` on a previously opened V4L2
+> + * session. All resources associated with this session will be freed and the
+> + * session ID shall not be used again after queueing this command.
+> + *
+> + * This command does not require a response from the device.
+> + */
+> +#define VIRTIO_MEDIA_CMD_CLOSE 2
+> +
+> +/**
+> + * struct virtio_media_cmd_close - Driver command for VIRTIO_MEDIA_CMD_CLOSE.
+> + * @hdr: header with cmd member set to VIRTIO_MEDIA_CMD_CLOSE.
+> + * @session_id: id of the session to close.
+> + * @__reserved: must be set to zero by the driver.
+> + */
+> +struct virtio_media_cmd_close {
+> +	struct virtio_media_cmd_header hdr;
+> +	u32 session_id;
+> +	u32 __reserved;
+> +};
+> +
+> +/**
+> + * VIRTIO_MEDIA_CMD_IOCTL - Driver command for executing an ioctl.
+> + *
+> + * This command asks the device to run one of the `VIDIOC_*` ioctls on the
+> + * active session.
+> + *
+> + * The code of the ioctl is extracted from the VIDIOC_* definitions in
+> + * `videodev2.h`, and consists of the second argument of the `_IO*` macro.
+> + *
+> + * Each ioctl has a payload, which is defined by the third argument of the
+> + * `_IO*` macro defining it. It can be writable by the driver (`_IOW`), the
+> + * device (`_IOR`), or both (`_IOWR`).
+> + *
+> + * If an ioctl is writable by the driver, it must be followed by a
+> + * driver-writable descriptor containing the payload.
+> + *
+> + * If an ioctl is writable by the device, it must be followed by a
+> + * device-writable descriptor of the size of the payload that the device will
+> + * write into.
+> + *
+> + */
+> +#define VIRTIO_MEDIA_CMD_IOCTL 3
+> +
+> +/**
+> + * struct virtio_media_cmd_ioctl - Driver command for VIRTIO_MEDIA_CMD_IOCTL.
+> + * @hdr: header with cmd member set to VIRTIO_MEDIA_CMD_IOCTL.
+> + * @session_id: id of the session to run the ioctl on.
+> + * @code: code of the ioctl to run.
+> + */
+> +struct virtio_media_cmd_ioctl {
+> +	struct virtio_media_cmd_header hdr;
+> +	u32 session_id;
+> +	u32 code;
+> +};
+> +
+> +/**
+> + * struct virtio_media_resp_ioctl - Device response for VIRTIO_MEDIA_CMD_IOCTL.
+> + * @hdr: header containing the status of the ioctl.
+> + */
+> +struct virtio_media_resp_ioctl {
+> +	struct virtio_media_resp_header hdr;
+> +};
+> +
+> +/**
+> + * struct virtio_media_sg_entry - Description of part of a scattered guest
+> + *                                memory.
+> + * @start: start guest address of the memory segment.
+> + * @len: length of this memory segment.
+> + * @__reserved: must be set to zero by the driver.
+> + */
+> +struct virtio_media_sg_entry {
+> +	u64 start;
+> +	u32 len;
+> +	u32 __reserved;
+> +};
+> +
+> +#define VIRTIO_MEDIA_MMAP_FLAG_RW BIT(0)
+> +
+> +/**
+> + * VIRTIO_MEDIA_CMD_MMAP - Command for mapping a MMAP buffer into the driver's
+> + * address space.
+> + *
+> + */
+> +#define VIRTIO_MEDIA_CMD_MMAP 4
+> +
+> +/**
+> + * struct virtio_media_cmd_mmap - Driver command for VIRTIO_MEDIA_CMD_MMAP.
+> + * @hdr: header with cmd member set to VIRTIO_MEDIA_CMD_MMAP.
+> + * @session_id: ID of the session we are mapping for.
+> + * @flags: combination of VIRTIO_MEDIA_MMAP_FLAG_*.
+> + * @offset: mem_offset field of the plane to map, as returned by
+> + *          VIDIOC_QUERYBUF.
+> + */
+> +struct virtio_media_cmd_mmap {
+> +	struct virtio_media_cmd_header hdr;
+> +	u32 session_id;
+> +	u32 flags;
+> +	u32 offset;
+> +};
+> +
+> +/**
+> + * struct virtio_media_resp_mmap - Device response for VIRTIO_MEDIA_CMD_MMAP.
+> + * @hdr: header containing the status of the command.
+> + * @driver_addr: offset into SHM region 0 of the start of the mapping.
+> + * @len: length of the mapping.
+> + */
+> +struct virtio_media_resp_mmap {
+> +	struct virtio_media_resp_header hdr;
+> +	u64 driver_addr;
+> +	u64 len;
+> +};
+> +
+> +/**
+> + * VIRTIO_MEDIA_CMD_MUNMAP - Unmap a MMAP buffer previously mapped using
+> + * VIRTIO_MEDIA_CMD_MMAP.
+> + */
+> +#define VIRTIO_MEDIA_CMD_MUNMAP 5
+> +
+> +/**
+> + * struct virtio_media_cmd_munmap - Driver command for VIRTIO_MEDIA_CMD_MUNMAP.
+> + * @hdr: header with cmd member set to VIRTIO_MEDIA_CMD_MUNMAP.
+> + * @driver_addr: offset into SHM region 0 at which the buffer has been
+> + *               previously
+> + * mapped.
+> + */
+> +struct virtio_media_cmd_munmap {
+> +	struct virtio_media_cmd_header hdr;
+> +	u64 driver_addr;
+> +};
+> +
+> +/**
+> + * struct virtio_media_resp_munmap - Device response for
+> + *                                   VIRTIO_MEDIA_CMD_MUNMAP.
+> + * @hdr: header containing the status of the command.
+> + */
+> +struct virtio_media_resp_munmap {
+> +	struct virtio_media_resp_header hdr;
+> +};
+> +
+> +/* The values for these events are set by the virtio-media specification. */
+> +#define VIRTIO_MEDIA_EVT_ERROR 0
+> +#define VIRTIO_MEDIA_EVT_DQBUF 1
+> +#define VIRTIO_MEDIA_EVT_EVENT 2
 
-As mentioned before, please submit this with their rationale in
-separate as a [PATCH v4l-utils] to linux-media ML.
+As I mentioned on v3, media also has events. Some userspace apps may 
+need them to do some optimizations related to buffer sync, source
+changes, motion detection and such. See the specs:
 
-> 
-> All tests used a Logitech USB Webcam C925e.
+	https://linuxtv.org/downloads/v4l-dvb-apis-new/userspace-api/v4l/vidioc-dqevent.html#event-type
+	https://linuxtv.org/downloads/v4l-dvb-apis-new/driver-api/v4l2-event.html
 
-Please test it displaying inside crossvm - or even better to QEMU if 
-you manage to add virtio-media support to it.
+As the virtio driver may end needing such events in the future,
+it needs to start numbering its private events after:
 
-Being at QEMU makes a lot easier for everyone to test it.
+	#define V4L2_EVENT_PRIVATE_START                0x08000000
 
+which is where driver-specific events should be placed.
 
 Thanks,
 Mauro
