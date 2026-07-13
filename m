@@ -1,183 +1,165 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from fhigh-a5-smtp.messagingengine.com (fhigh-a5-smtp.messagingengine.com [103.168.172.156])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1A33A37A839;
-	Mon, 13 Jul 2026 11:07:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 947B6384CD6
+	for <virtualization@lists.linux.dev>; Mon, 13 Jul 2026 11:19:26 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.156
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783940874; cv=none; b=OyI/YAUarbzGH0KlaQM4b/K4lyUPY6MwuvQqaDmOoAlHZHh+RGuKAh4XGUe6rTgjfP/KlkFhlTQMa0M/oYwjC2+MV+a0mQ1hENCghp+rY+NSloYVZ8hSBiyU1P6ns5uKluT908YKQ6sO6qj928/wGXctd8qUNLKoW4/+q0LcOxk=
+	t=1783941569; cv=none; b=ihiz771BHXXS7P3H19Kg0f8+HuAryHBHiW/G9fWf4xiN0pq127QQgUc5soSTyEm4RzHiydiKNdsc4/J6kZLejv5bjB0HApcVX93OSj94MpFXaDMDGiNAVg19dgKTJ7+TseW07FkhoQMyCAX1IwBLBIINZ8Jtszy4jruJuhlblGk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783940874; c=relaxed/simple;
-	bh=gFPfNAZb5Emut5tl59jtS1GCSawh67g0IOaptPFibj4=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:References:
-	 In-Reply-To:To:Cc; b=GWYRxsUty+wLcsMpnbfHJJWMAUu8+8jg62cmjmBdts+oKht/WX+5IAVEMeG196UjLjXIRY+tevO3TN/vQ4coFP92r16LPo97nj67/Gium+xE7jGhMg7f70WlrjDV0JTq8UDb1EbWEUVw4AXbP2LIOxytiN3ejksN2GhuHynSN8o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=OoTPnIF6; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1783941569; c=relaxed/simple;
+	bh=ELrUc+qIZAHX5TohPOy6RNcckYyiJKDrR2q1xBOaXZo=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=ijTpoVC1IT+Ss1Uu4dokzWluJP/CVB06KkevZqMaIofmK060TcvaZyrWuVMjW7lPDWP14w50WUZr621bVbT7L9/7o2Q0Nmq9+UK6GihcNtFyLKTeADdWYzzO2ajHPILFvRORPw2w+j+oV31TTYAmKqvbLnBJCXzlked4/b+3nWA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alyssa.is; spf=pass smtp.mailfrom=alyssa.is; dkim=pass (2048-bit key) header.d=alyssa.is header.i=@alyssa.is header.b=RWP92p1H; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=qWXdBcI+; arc=none smtp.client-ip=103.168.172.156
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alyssa.is
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alyssa.is
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="OoTPnIF6"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id C59C1C2BCF5;
-	Mon, 13 Jul 2026 11:07:53 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1783940873;
-	bh=gFPfNAZb5Emut5tl59jtS1GCSawh67g0IOaptPFibj4=;
-	h=From:Date:Subject:References:In-Reply-To:To:Cc:From;
-	b=OoTPnIF6SRLmVMupyhjeUKZcJU6AwKweMwZvPnhmtHyFwjFGZN6LED68Pg9kUqDIh
-	 QnIthYMOQS0FSZyN1buNkwC7IBnD/H8mjUCso0YSIVQgD3rz7hwLyyHbzgQHsM/7et
-	 ZMhrwojxoZ1IP71Bxifb4A/pv98lRSCNrDNqk2b+hWFAtomwindDIrfc8DsdmItmku
-	 9UWDy/4ZhoDm6QwHErqcuP1uhsqGZI4fOzzRpLoXobSgVpMST0T+HlbbsFjoxIVHg/
-	 J3TRolG2lzwG4pisXO7RHNB6bmwRtJM2ALur1waxVeb26jVXjtOo06m7mJb102PZH8
-	 SjIX+F9U8UW0w==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id A3BBCC44507;
-	Mon, 13 Jul 2026 11:07:53 +0000 (UTC)
-From: Joel Granados <joel.granados@kernel.org>
-Date: Mon, 13 Jul 2026 13:07:42 +0200
-Subject: [PATCH RFC net-next v3 1/3] net: enforce net sysctl registration
+	dkim=pass (2048-bit key) header.d=alyssa.is header.i=@alyssa.is header.b="RWP92p1H";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="qWXdBcI+"
+Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
+	by mailfhigh.phl.internal (Postfix) with ESMTP id 86E10140012F;
+	Mon, 13 Jul 2026 07:19:25 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-05.internal (MEProxy); Mon, 13 Jul 2026 07:19:25 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alyssa.is; h=cc
+	:cc:content-type:content-type:date:date:from:from:in-reply-to
+	:in-reply-to:message-id:mime-version:references:reply-to:subject
+	:subject:to:to; s=fm1; t=1783941565; x=1784027965; bh=yT9VqomZcO
+	G4Li63LujiZvIPJTvQIbrR8WYQQGQ3dLo=; b=RWP92p1HPNRwXIAJTA6wxYiR5s
+	dDVZ+vxkWdiuMHCSLNF1yCSYL9DVbKSMpwUds6Qy5bQWgQ6nxdLf+Z2JROrp8ZJo
+	sYCB9gdPEaGHScxdhiXs0Ual8GuGschwpvTNSPJyY9GFVBMRiNsK63syvsLXKYpo
+	uNKijbuX+akrLEsJBEGzCuIhI19NC68podVTa0mV6MTA9Q8XapDT0FBqbRp9kYGu
+	qr66hyr2rPlQuOQkeH8kbCKjBy78+BSMPVkf6LvyyKZ13OpYJoyQ5QDjtvzjAyjB
+	1bXMLokh9+QdUTJEkPCoC8yr8XlK4hs2JsUYjamc967yRYdzmoUaCfNjHcvA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:subject:to
+	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
+	1783941565; x=1784027965; bh=yT9VqomZcOG4Li63LujiZvIPJTvQIbrR8WY
+	QQGQ3dLo=; b=qWXdBcI+9mMUyOV736pzhMKnIosxPDD03Pdg27SRAGr+XMzTPcg
+	piJkRc1b3qAMmtRlm6zvAa+lJsSas9bHiOHiXX2APl1MxritVjJ95+9+R2jTCuTy
+	uyjQa5SGLPLtJbqjrw1ZjOxl/sbKlNoqiUAl5Zw4Q3rQVKeaFReE3rvbmRp4936i
+	CYPkF9X1jIaJs2SFTMYEHhtZORtPTqtZHefkkD8k2XCYig5CXQ1q4mGdydEcXTLV
+	upgSkw5Rsv5AxmN2Vx2CKklFC9h/WQnQJuY4NfKBtIoBXC2aVr5uRFGg+1Rp1YF8
+	q33ZHAuzYizLNAOwl9Zv3SznpWYmPUWnr6Q==
+X-ME-Sender: <xms:vMlUamNdeIIBqEmyROVTindp-ddbQb1HTXYfPj-ckTY79qhXozxIxg>
+    <xme:vMlUajWf3fXvjU0xT0_go4n7v9qMmeZov4i9RIbq6WU89N9iLG-WhHBBh4HX230UM
+    sNkPIK0Pd54B1m4_VJjqtf8T9RkbHJ1-VjIxDwMGsJv4bKRGnIToQ>
+X-ME-Received: <xmr:vMlUapQgrgIAjV9-nJn_YfiikwEBRbVl4G5Xg_J9BNWZiVCk4KhKCW0PpmCut9Z2_o_FQPJod49Qo66fjy2IffKgOlmd>
+X-ME-Proxy-Cause: dmFkZTEmqZ7TAdgkhsVLF10QcecpSioUfFnynZGAJevuRYSinOHZT6954DLFDLV2f197AC
+    xIkjtIsnFeEOiRWxHQ92KhHJ5FbE2CIVXtVQp35m5vgB1TdteP1uF+zxwXpsEU2IowTr6a
+    p/nQIxJ/OD0BssMZbEYK6obpZNWtBrrYekvopJ9YQQ/zxWnLjYpJsy1JDV/HuS8tuHCYGW
+    iEobftEBqrjqwIeuPDCgNo8+hnb3iXO1gXd6bsCkXdSfHxUs1UxAk1BMLFKlWJOa8ehTK1
+    /QjhZvRqsjH5E45ff666SyjY9AwjnzOly2LFKu7IQNJvsxFqfbWc8lCfFZ8kbDQ0p5A9S5
+    Mn4xvw1cIfoW306LXPcAp9Z+4cMAui/AHBudqGkybOysHVJqNnomvR3MO5Ex0l8N7U8ZgX
+    scfkjRtzlwImm4vmsKYXzgEe4qL9CjdGTVwHtJ0GdLkGK2OTZMtAyHhPmIo5xQPIbtN8Ir
+    cdZotW86mZJw9XNd9V+gCUbz1unWGQvj+eGZWj1aAv5odjLHiJbhylFBnpwHp15IbSqZ0f
+    FOCROf2zc+gF8d6gqcAPEGQhEAOb1xjUJb2sASw27YLFLGvFi3DpriLJs6dyn+DrWZCrEL
+    0RUZomherRYtTDtIfEprWLE7HJraZSduIcSdjdvqtDEAkXEX3iCjq6RDVRfw
+X-ME-Proxy: <xmx:vMlUap1tNLbI5SugvJogY_LLDP7haIQlrJsMbjffSWwIIJU3XXk9jg>
+    <xmx:vMlUamjbU-tGiTq3DMwFyGW9ynaTZGYbJ0Ybj7eoOIJJt16KJAKs1g>
+    <xmx:vMlUanaPwsc1riTEhM_Qp-Q90cgDM44AorzDJJmFq7bOGptfNiDZxQ>
+    <xmx:vMlUavMmPe6ZrnxAtTGKoxljiieRFiQN0i04_IPKFtk4I2rvUkW-RA>
+    <xmx:vclUasgGEu-j-JiFb4k_0JnM1LH1EgVIUD9WD8Pbo-w7snFB3q7JdVnZ>
+Feedback-ID: i12284293:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Mon,
+ 13 Jul 2026 07:19:24 -0400 (EDT)
+Received: by mbp.qyliss.net (Postfix, from userid 1000)
+	id 180CE8917846; Mon, 13 Jul 2026 13:19:22 +0200 (CEST)
+From: Alyssa Ross <hi@alyssa.is>
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>, Sergio Lopez
+ <slp@redhat.com>, Yiwei Zhang <zzyiwei@chromium.org>, Sergi Blanch Torne
+ <sergi@collabora.com>, Valentine Burley <valentine.burley@collabora.com>
+Cc: Chia-I Wu <olvaffe@gmail.com>, Jason Wang <jasowang@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Eugenio =?utf-8?Q?P=C3=A9rez?=
+ <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ linux-kernel@vger.kernel.org, Simona Vetter <simona@ffwll.ch>, Thomas
+ Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Gerd Hoffmann
+ <kraxel@redhat.com>, virtualization@lists.linux.dev,
+ dri-devel@lists.freedesktop.org, Maxime Ripard <mripard@kernel.org>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Subject: Re: [PATCH v2 2/3] drm/virtio: honor blob_alignment requirements
+In-Reply-To: <c8bf0c19-316a-442e-a63e-1b52e7bb67c2@collabora.com>
+References: <20260428194450.518296-1-slp@redhat.com>
+ <20260428194450.518296-3-slp@redhat.com> <akT1XEW766c7Imst@mbp.qyliss.net>
+ <c8bf0c19-316a-442e-a63e-1b52e7bb67c2@collabora.com>
+Date: Mon, 13 Jul 2026 13:19:20 +0200
+Message-ID: <87v7ajyw5j.fsf@alyssa.is>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260713-jag-net_const_qualify-v3-1-7289fe9eaea6@kernel.org>
-References: <20260713-jag-net_const_qualify-v3-0-7289fe9eaea6@kernel.org>
-In-Reply-To: <20260713-jag-net_const_qualify-v3-0-7289fe9eaea6@kernel.org>
-To: "David S. Miller" <davem@davemloft.net>, 
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
- David Ahern <dsahern@kernel.org>, Ido Schimmel <idosch@nvidia.com>, 
- Pablo Neira Ayuso <pablo@netfilter.org>, Florian Westphal <fw@strlen.de>, 
- Phil Sutter <phil@nwl.cc>, 
- Marcelo Ricardo Leitner <marcelo.leitner@gmail.com>, 
- Xin Long <lucien.xin@gmail.com>, 
- Steffen Klassert <steffen.klassert@secunet.com>, 
- Herbert Xu <herbert@gondor.apana.org.au>, 
- "D. Wythe" <alibuda@linux.alibaba.com>, Dust Li <dust.li@linux.alibaba.com>, 
- Sidraya Jayagond <sidraya@linux.ibm.com>, 
- Wenjia Zhang <wenjia@linux.ibm.com>, 
- Mahanta Jambigi <mjambigi@linux.ibm.com>, 
- Tony Lu <tonylu@linux.alibaba.com>, Wen Gu <guwen@linux.alibaba.com>, 
- Kuniyuki Iwashima <kuniyu@google.com>, 
- Stefano Garzarella <sgarzare@redhat.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
- netfilter-devel@vger.kernel.org, coreteam@netfilter.org, 
- linux-sctp@vger.kernel.org, linux-rdma@vger.kernel.org, 
- linux-s390@vger.kernel.org, virtualization@lists.linux.dev, 
- Joel Granados <joel.granados@kernel.org>
-X-Mailer: b4 0.14.2
-X-Developer-Signature: v=1; a=openpgp-sha256; l=3574;
- i=joel.granados@kernel.org; h=from:subject:message-id;
- bh=gFPfNAZb5Emut5tl59jtS1GCSawh67g0IOaptPFibj4=;
- b=owJ4nAHtARL+kA0DAAoBupfNUreWQU8ByyZiAGpUxwZskgenDOU98txc57mfzp9zCAPadshX1
- w9t16Ag3hXFGYkBswQAAQoAHRYhBK5HCVcl5jElzssnkLqXzVK3lkFPBQJqVMcGAAoJELqXzVK3
- lkFPFuML/RuQe3IepvdaZwOqXPTFSxjiaQ9bHG5EjMlqTZJymTxUXke4CX6cffYqR8LOCXv/zqI
- Xz6yMTCeEaKdC/KbKlarrXHYnX0dUo/F3SqzxbWAoouVQN77rnoI7iQbY+TDK0GEy2zZONsm95u
- Vf+EfOQeGZuxwgpbCYUR8IBhhpqcVfuF0vI8vaxi7bhmmK30aRoBtLG+WYyHIgf/N7CXmGwRFxC
- yDHVArNMtiBNObUr0CVTFLxn8/BXuAIVrsNttsPGQm6aDvm3AQd87+wUS2otzOefZp82bJUl73e
- IzkI9JlAq/XN9dgNUEPdpolmegObR57+ikTaZzNrILLpVchdIIKBR4cZfPkGGVcjwBnrXrvM9Zy
- kksDs+AIzzP/SDuNq8GseNIMT37Jo/NFsSdfK+eblk8DVjuKx+gEwV7GHjkzZkGe6PEWWgIhT8f
- uCYW4EEdIC4+bpgG8ygVgbaTDyA1+W81V10LuKN5vBvLR6iuqzESCQGH1rg5ryeHGO+tKQvK3f8
- Ig=
-X-Developer-Key: i=joel.granados@kernel.org; a=openpgp;
- fpr=F1F8E46D30F0F6C4A45FF4465895FAAC338C6E77
-X-Endpoint-Received: by B4 Relay for joel.granados@kernel.org/default with
- auth_id=239
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha512; protocol="application/pgp-signature"
 
-Replace the warning and file permission change with an error when an
-"unsafe" net sysctl registration is detected.
+--=-=-=
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-One of the barriers preventing the const qualification of the ctl_tables
-in the net directory is the permission (->mode) change in
-ensure_safe_net_sysctl. This prep commit removes that barrier and
-ensures that the received ctl_table pointer to the net ctl_table
-register function is const.
+Dmitry Osipenko <dmitry.osipenko@collabora.com> writes:
 
-Signed-off-by: Joel Granados <joel.granados@kernel.org>
----
- include/net/net_namespace.h |  4 ++--
- net/sysctl_net.c            | 24 ++++++++++++------------
- 2 files changed, 14 insertions(+), 14 deletions(-)
+> On 7/1/26 14:10, Alyssa Ross wrote:
+>> On Tue, Apr 28, 2026 at 09:44:49PM +0200, Sergio Lopez wrote:
+>>> If VIRTIO_GPU_F_BLOB_ALIGNMENT has been negotiated, blob size must be
+>>> aligned to blob_alignment. Validate this in verify_blob() so that
+>>> invalid requests are rejected early.
+>>>
+>>> Signed-off-by: Sergio Lopez <slp@redhat.com>
+>>=20
+>> FYI: this change breaks crosvm, which is squatting the 5 and 6 values
+>> of VIRTIO_GPU_F_* with different meanings.  I've reported it as a
+>> crosvm bug, so hopefully it can be taken care of there.
+>>=20
+>> https://issuetracker.google.com/issues/529852979
+>>=20
+>>> ---
+>>>  drivers/gpu/drm/virtio/virtgpu_ioctl.c | 5 +++++
+>>>  1 file changed, 5 insertions(+)
+>>>
+>>> diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm/v=
+irtio/virtgpu_ioctl.c
+>>> index c33c057365f8..d0c4edf1eaf4 100644
+>>> --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+>>> +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+>>> @@ -489,6 +489,11 @@ static int verify_blob(struct virtio_gpu_device *v=
+gdev,
+>>>  	params->size =3D rc_blob->size;
+>>>  	params->blob =3D true;
+>>>  	params->blob_flags =3D rc_blob->blob_flags;
+>>> +
+>>> +	if (vgdev->has_blob_alignment &&
+>>> +	    !IS_ALIGNED(params->size, vgdev->blob_alignment))
+>>> +		return -EINVAL;
+>>> +
+>>>  	return 0;
+>>>  }
+>>>
+>>> --
+>>> 2.53.0
+>>>
+>
+> Thanks for the report. Indeed, crosvm will need to fix its experimental
+> caps. CI will likely run into this problem first once it will update
+> guest to 7.2+ kernel.
 
-diff --git a/include/net/net_namespace.h b/include/net/net_namespace.h
-index 80de5e98a66d6c9273aa7c5b9d489b22cef8559a..dca0ec809483bec604f4ca3d99dfea32834af8fa 100644
---- a/include/net/net_namespace.h
-+++ b/include/net/net_namespace.h
-@@ -522,12 +522,12 @@ struct ctl_table;
- #ifdef CONFIG_SYSCTL
- int net_sysctl_init(void);
- struct ctl_table_header *register_net_sysctl_sz(struct net *net, const char *path,
--					     struct ctl_table *table, size_t table_size);
-+					     const struct ctl_table *table, size_t table_size);
- void unregister_net_sysctl_table(struct ctl_table_header *header);
- #else
- static inline int net_sysctl_init(void) { return 0; }
- static inline struct ctl_table_header *register_net_sysctl_sz(struct net *net,
--	const char *path, struct ctl_table *table, size_t table_size)
-+	const char *path, const struct ctl_table *table, size_t table_size)
- {
- 	return NULL;
- }
-diff --git a/net/sysctl_net.c b/net/sysctl_net.c
-index 19e8048241bacb18de853d3b904d0f97fd2fe78a..4714887113d90a191c300c9c49a6317d5609efeb 100644
---- a/net/sysctl_net.c
-+++ b/net/sysctl_net.c
-@@ -114,16 +114,16 @@ __init int net_sysctl_init(void)
- 	goto out;
- }
- 
--/* Verify that sysctls for non-init netns are safe by either:
-+/* Return error when sysctls for non-init netns are unsafe by verifying:
-  * 1) being read-only, or
-  * 2) having a data pointer which points outside of the global kernel/module
-  *    data segment, and rather into the heap where a per-net object was
-  *    allocated.
-  */
--static void ensure_safe_net_sysctl(struct net *net, const char *path,
--				   struct ctl_table *table, size_t table_size)
-+static int ensure_safe_net_sysctl(struct net *net, const char *path,
-+				  const struct ctl_table *table, size_t table_size)
- {
--	struct ctl_table *ent;
-+	const struct ctl_table *ent;
- 
- 	pr_debug("Registering net sysctl (net %p): %s\n", net, path);
- 	ent = table;
-@@ -149,24 +149,24 @@ static void ensure_safe_net_sysctl(struct net *net, const char *path,
- 		else
- 			continue;
- 
--		/* If it is writable and points to kernel/module global
--		 * data, then it's probably a netns leak.
--		 */
-+		/* Warn on netns leak. */
- 		WARN(1, "sysctl %s/%s: data points to %s global data: %ps\n",
--		     path, ent->procname, where, ent->data);
-+			path, ent->procname, where, ent->data);
- 
--		/* Make it "safe" by dropping writable perms */
--		ent->mode &= ~0222;
-+		return -EACCES;
- 	}
-+
-+	return 0;
- }
- 
- struct ctl_table_header *register_net_sysctl_sz(struct net *net,
- 						const char *path,
--						struct ctl_table *table,
-+						const struct ctl_table *table,
- 						size_t table_size)
- {
- 	if (!net_eq(net, &init_net))
--		ensure_safe_net_sysctl(net, path, table, table_size);
-+		if (ensure_safe_net_sysctl(net, path, table, table_size))
-+			return NULL;
- 
- 	return __register_sysctl_table(&net->sysctls, path, table, table_size);
- }
+I sent
+https://chromium-review.googlesource.com/c/crosvm/crosvm/+/8064741 last
+week but still waiting to hear anything.  Do you have any insight into
+whether it's still used / being pursued?
 
--- 
-2.50.1
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
 
+iHUEARYKAB0WIQRV/neXydHjZma5XLJbRZGEIw/wogUCalTJuAAKCRBbRZGEIw/w
+olSQAP9qzYChgBOtNgtwj23gpSHyaReaZOMLJq5xNMgU5uryywEA88prn6UVr8ZA
+o6rYMiGcL4mLSwcdy71KOyCnjbegdw0=
+=IPYo
+-----END PGP SIGNATURE-----
+--=-=-=--
