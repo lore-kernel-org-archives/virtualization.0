@@ -1,45 +1,39 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.5])
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.3])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 71E033A381D;
-	Tue, 14 Jul 2026 02:59:49 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0424C3382C5
+	for <virtualization@lists.linux.dev>; Tue, 14 Jul 2026 03:24:23 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.3
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783997993; cv=none; b=CIHpboDI5q5NtbTWhedIlSGJOUS6Laq3Kz/+Xl1J+B+fAxO1PspREoickQvijAeoqq8Zwcde8lEY7l2C6HhoV/hWA3EofRDFsH1u7LYL0kLhTFJoxWFFfFPZOOT3E94y2h+mD0bapk0jYdy6LI/0DjlCnuxljVn7iipJgeg4ZxU=
+	t=1783999467; cv=none; b=gB+AdXxQ9mqp8s0AQym5Hm6Z80wP4HLaGoovLa1mDXlTuuScQe8QprsuAJiS3PIQ5W8QC3XmPfhZf6hjRfFWDYro99GDyuZyhtBqdXuiLMAssL10FkCiNBT9dk2qVf/cfpnue2LiNlIu2XFBC9RnWow4tPAuIWIUbm68R64YbBg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783997993; c=relaxed/simple;
-	bh=U4zm0NbUyWOtwjIaogLD31LYoHgMaECzne8hEE3A+FI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=iyel2y+WCJupVHGkHWOjD1pibPeyUIVMkaailmCqV2gb33jNVB8N+mZqaqmIeCRH1pWwtM+NxXTNeRvUZHfHmeFP1amSBcQbR7SIL/Q+BMqRK89MCJ/uX4J+WELZ6V2HsCubFqmXy7QL2mIvp/tQx9EGs57D0S3uJYFnO/5TPuY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=J58lV9VP; arc=none smtp.client-ip=117.135.210.5
+	s=arc-20240116; t=1783999467; c=relaxed/simple;
+	bh=jKpDtyQZEpk/Okad7ueehj/BvCAlYBxNMmHS+NI/mDY=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=ILEF29BZSsYBGdgCKk9pWFwjvDq4GA3f6tD2VTqgkvxG67Lv/gYA07w/ReSQhdqjoxMiB6426m3/V/hpjhxOKbJg5Iw0gen/uULQMbm+trsQ7y7YFZrASk5UteVxEnQYr/BxRhpjnyQNPbHREcfmnq6i1UO/iCMwpZk11kT0WyE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=f6NdErHx; arc=none smtp.client-ip=220.197.31.3
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="J58lV9VP"
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="f6NdErHx"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version; bh=T5
-	cE0KN11dI/E52Yvv7eqo+cESpCYIhwJSXgrjLqYyQ=; b=J58lV9VPw/vvkt6724
-	bNPKPQENki4SxJkJ3wygKCY3ctytfYQ5JQ6g5ynV6I3Ms+BnoGwEVuNM+H3OmsmO
-	I1IaCZKkRwnRRcWRWIz3s5G5UYJ+0N6PTSdnOg93ErHqJAl8zgOzoVpkiUBbpLKf
-	JePPImSFl3kCjIBPNCPNAY4zs=
+	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version; bh=Qn
+	kcrxOZBDZlnQiCf8DFNuzu8auyAbknY82gsxd/Bm8=; b=f6NdErHxE8Hct8AVre
+	Hc+lL6roWqukL6WQZjZNKEqnfOmpld5Vb8suW8Uqhf18lgYWZRxy0mbll/L/dGRX
+	85bVQWCj2MmMwSCpsbrBgZ1a3qj7AEarFnuZq4wEPjoJapQn+ZQ3XMWz1XA0hT06
+	EZye+319Uyll2ANDyMJ0Si6ZI=
 Received: from xwm-TianYi510Pro-14IMB.. (unknown [])
-	by gzga-smtp-mtada-g0-1 (Coremail) with SMTP id _____wD3b_8CplVqBxNXJA--.48351S3;
-	Tue, 14 Jul 2026 10:59:22 +0800 (CST)
-From: weimin xiong <15927021679@163.com>
-To: Jean-Philippe Brucker <jpb@kernel.org>,
-	Joerg Roedel <joro@8bytes.org>,
-	Will Deacon <will@kernel.org>
-Cc: Robin Murphy <robin.murphy@arm.com>,
+	by gzga-smtp-mtada-g0-4 (Coremail) with SMTP id _____wDHhCThq1Vqf2GzJg--.22706S2;
+	Tue, 14 Jul 2026 11:24:17 +0800 (CST)
+From: weimin xiong <xiongwm2026@163.com>
+To: mst@redhat.com
+Cc: jasowangio@gmail.com,
+	david@redhat.com,
 	virtualization@lists.linux.dev,
-	iommu@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	Xiong Weimin <xiongweimin@kylinos.cn>
-Subject: [PATCH v1 1/2] iommu/virtio: Set driver data before enabling virtqueues
-Date: Tue, 14 Jul 2026 10:59:13 +0800
-Message-ID: <20260714025914.193580-2-15927021679@163.com>
+	xiongweimin <xiongweimin@kylinos.cn>
+Subject: [PATCH] virtio_mem: fix typo in comment
+Date: Tue, 14 Jul 2026 11:24:17 +0800
+Message-ID: <20260714032417.201353-1-xiongwm2026@163.com>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260714025914.193580-1-15927021679@163.com>
-References: <20260714025914.193580-1-15927021679@163.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -47,63 +41,39 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wD3b_8CplVqBxNXJA--.48351S3
-X-Coremail-Antispam: 1Uf129KBjvJXoW7tFyDur1rWF13CFW3XrWxCrg_yoW8Ww43pF
-	4DCas8GrWjqFyfGa43Jw4UZFWYvwsava4IgFW5Xan5Wr1Ykr90yFy2yFyUtw1xArWkGa1a
-	va48X3ZFyFn8uFJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jseOXUUUUU=
-X-CM-SenderInfo: jprvmjixqsilmxzbiqqrwthudrp/xtbC0QqbJGpVpgqTpQAA3B
+X-CM-TRANSID:_____wDHhCThq1Vqf2GzJg--.22706S2
+X-Coremail-Antispam: 1Uf129KBjvdXoWrKrWDWw4rKryDXF45KryDJrb_yoWfWFgEkr
+	48X397tFn8WFn2kFWDArZ5uryYya18ZFykWan3t3yxX3y8ta1DGFZrWr4UGFy3Wr4xKFZx
+	Ars5XrnYqw4SkjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUvcSsGvfC2KfnxnUUI43ZEXa7IUeJDG5UUUUU==
+X-CM-SenderInfo: x0lr0wdzpsijqw6rljoofrz/xtbCzQETompVq+HlfwAA3S
 
-From: Xiong Weimin <xiongweimin@kylinos.cn>
+From: xiongweimin <xiongweimin@kylinos.cn>
 
-The event virtqueue callback retrieves the driver state through
-vq->vdev->priv. viommu_probe() currently initializes that pointer only
-after virtio_device_ready() and after the event queue is populated.
+Correct "actipn" to "action".
 
-Store the driver data before creating the virtqueues so callbacks always
-see initialized driver state once the device is made ready. Clear the
-pointer again on probe failure.
-
-Signed-off-by: Xiong Weimin <xiongweimin@kylinos.cn>
+Signed-off-by: xiongweimin <xiongweimin@kylinos.cn>
 ---
- drivers/iommu/virtio-iommu.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/virtio/virtio_mem.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-index 9118377d7..4c91a82d2 100644
---- a/drivers/iommu/virtio-iommu.c
-+++ b/drivers/iommu/virtio-iommu.c
-@@ -1173,11 +1173,12 @@ static int viommu_probe(struct virtio_device *vdev)
- 	ida_init(&viommu->domain_ids);
- 	viommu->dev = dev;
- 	viommu->vdev = vdev;
-+	vdev->priv = viommu;
- 	INIT_LIST_HEAD(&viommu->requests);
- 
- 	ret = viommu_init_vqs(viommu);
- 	if (ret)
--		return ret;
-+		goto err_clear_priv;
- 
- 	virtio_cread_le(vdev, struct virtio_iommu_config, page_size_mask,
- 			&viommu->pgsize_bitmap);
-@@ -1238,8 +1239,6 @@ static int viommu_probe(struct virtio_device *vdev)
- 	if (ret)
- 		goto err_free_vqs;
- 
--	vdev->priv = viommu;
--
- 	ret = iommu_device_register(&viommu->iommu, &viommu_ops, parent_dev);
- 	if (ret)
- 		goto err_remove_sysfs;
-@@ -1254,6 +1253,7 @@ static int viommu_probe(struct virtio_device *vdev)
- 	iommu_device_sysfs_remove(&viommu->iommu);
- err_free_vqs:
- 	vdev->config->del_vqs(vdev);
-+err_clear_priv:
- 	vdev->priv = NULL;
- 
- 	return ret;
+diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
+index 11c441501..90d8ef0b9 100644
+--- a/drivers/virtio/virtio_mem.c
++++ b/drivers/virtio/virtio_mem.c
+@@ -1080,7 +1080,7 @@ static int virtio_mem_memory_notifier_cb(struct notifier_block *nb,
+ 		atomic64_sub(size, &vm->offline_size);
+ 		/*
+ 		 * Start adding more memory once we onlined half of our
+-		 * threshold. Don't trigger if it's possibly due to our actipn
++		 * threshold. Don't trigger if it's possibly due to our action
+ 		 * (e.g., us adding memory which gets onlined immediately from
+ 		 * the core).
+ 		 */
 -- 
 2.43.0
+
+
+No virus found
+		Checked by Hillstone Network AntiVirus
 
