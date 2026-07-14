@@ -1,30 +1,30 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.3])
+Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.2])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 613B9309DB1;
-	Tue, 14 Jul 2026 02:50:26 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11CF23A0E97;
+	Tue, 14 Jul 2026 02:59:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.2
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1783997430; cv=none; b=q+H7AHrjniSd5ftr7Wz77cxCbVxOxOrAWePpYhGWBTbdvHaX9y1qfehuG7AqRpnD2UXAis+PRMfe6OndPLSLFuPHNy6OPUopZdQQko8QFUAgRAgt6sRU/Ty7MZcvQNWpsuGU5TI8LY4qJ3NrMpFCO2I1gOBi55VCtYHoZaIWwsM=
+	t=1783997988; cv=none; b=LRRVT+Z93a9mNMW42kDi1hY/ulWmzKv0Uwoe/5H01/sK99hNnRXmuuazu4MYkGiYePhNUNRd2kFYTIlwuHLNW1w2NBDeRdhX9gNvLDl+CmQt9rJz4ucFcVKwFTnpi9XOgAS1YFZgiP3VV609pqiKZFClhh6/tGRN3Wv8egVQZM8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1783997430; c=relaxed/simple;
-	bh=ya/eCWkRFhoEVs1Rvnde76R0Tdx+naOW1iFvHff1a2M=;
+	s=arc-20240116; t=1783997988; c=relaxed/simple;
+	bh=rVhO9deu1bdk3yb64ULoUPj80nzZOzHqnrMXjqgLQVk=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=meN6y+XQbedjcK6u84UOWuadCdueb9VTsUJhi6ZNq6J5fyzyuvzrM84MpD4fjwRuKrBoSGybYfnElyhkKSGeAirdMziRZG5CkK5hl9UM2lLNME2ZC7dsebaDVp0+FyxSC0Oqb0ordLyLc1UXQEr5TI3geoJgFeno92R6LKnw9HY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=hVlp7HNF; arc=none smtp.client-ip=117.135.210.3
+	 MIME-Version; b=Gexo29owsSyjFHF3Z29Dkx0z7JnsodTMSYcgGSxKgu7gqQSqiHc7hyFuTBQEXr2fJ7B4VBLO48265WPV2GactXIsuwIaMnz5+B6pU2BvI1ayC10GJAuRqimaKEANrJF0/oxwfHMzj8XUxG7ohZBlIerMsDNtPlLkWfF/APlhXQo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=qVjxkOLj; arc=none smtp.client-ip=117.135.210.2
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="hVlp7HNF"
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="qVjxkOLj"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version; bh=qc
-	nLT+eEmwVk5tjFJsgW+fJ2wvhyEu0DistlKj3OBsQ=; b=hVlp7HNFjF+dGXn88k
-	IehBxKCo5lt83mJXnvUMBBOA0oiB1FP1p7W65ZLP32/CJErUdVn/Vm+XmH8aHouX
-	SLh8pZ75mEa5MNjApCMxZgfakleJGExJUTVkT/OmOA8DGXyUugjwKZCEw9RBZcnn
-	HPUofy9pL3QEBmkcKXHwo1SeA=
+	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version; bh=Lh
+	NrACahs4ufRrQbVXxlco155SnB1aDDsdao2QJJ0wI=; b=qVjxkOLjKsrN3LSBiF
+	hi6KCcMKYQJ2s4ZoTzR695HWG8NgUgL37ONGKn/7K5PCxW4WvG+xKVk6Qxh5DBCI
+	QZQgB/FX0YiB+P7mkBiDqmDPUsUY5pYHewte/DYNOj/bR1aiMBf7ExkwlODOIL8f
+	w5kRuB2OozT5lnTA3VnJE4aCs=
 Received: from xwm-TianYi510Pro-14IMB.. (unknown [])
-	by gzga-smtp-mtada-g1-1 (Coremail) with SMTP id _____wCXNQLNo1VqB9jsJA--.61058S3;
-	Tue, 14 Jul 2026 10:49:59 +0800 (CST)
+	by gzga-smtp-mtada-g0-1 (Coremail) with SMTP id _____wD3b_8CplVqBxNXJA--.48351S4;
+	Tue, 14 Jul 2026 10:59:22 +0800 (CST)
 From: weimin xiong <15927021679@163.com>
 To: Jean-Philippe Brucker <jpb@kernel.org>,
 	Joerg Roedel <joro@8bytes.org>,
@@ -34,12 +34,12 @@ Cc: Robin Murphy <robin.murphy@arm.com>,
 	iommu@lists.linux.dev,
 	linux-kernel@vger.kernel.org,
 	Xiong Weimin <xiongweimin@kylinos.cn>
-Subject: [PATCH v1 1/2] iommu/virtio: Avoid use-after-put in viommu_get_by_fwnode
-Date: Tue, 14 Jul 2026 10:49:48 +0800
-Message-ID: <20260714024949.190014-2-15927021679@163.com>
+Subject: [PATCH v1 2/2] iommu/virtio: Reject short event buffers
+Date: Tue, 14 Jul 2026 10:59:14 +0800
+Message-ID: <20260714025914.193580-3-15927021679@163.com>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260714024949.190014-1-15927021679@163.com>
-References: <20260714024949.190014-1-15927021679@163.com>
+In-Reply-To: <20260714025914.193580-1-15927021679@163.com>
+References: <20260714025914.193580-1-15927021679@163.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -47,50 +47,40 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wCXNQLNo1VqB9jsJA--.61058S3
-X-Coremail-Antispam: 1Uf129KBjvJXoW7ZrW5Xr4UGFWUZFyxGF17Wrg_yoW8Jw18pr
-	y5Ga4DKrWUGF1xK3WxJw43uF1Yvan2yayfAFWFq39Ygrn5K34UtFyYyFyjqw1fArWkGr1a
-	qw18Xa4vkrs8ZrJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07j5HUDUUUUU=
-X-CM-SenderInfo: jprvmjixqsilmxzbiqqrwthudrp/xtbC8xcOlmpVo9ffiAAA3g
+X-CM-TRANSID:_____wD3b_8CplVqBxNXJA--.48351S4
+X-Coremail-Antispam: 1Uf129KBjvdXoWrtr1UXw4fWry7Ary7CrW5Awb_yoWDZFc_ur
+	yvvr9rJr1UZFZ0yryUKr1I9r9aka90vrn3uFWFgrWrJ348Xws7Cryvqrs5GFW7Wr4vkFnI
+	yws0y3WrXryfWjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUvcSsGvfC2KfnxnUUI43ZEXa7IU0fwIDUUUUU==
+X-CM-SenderInfo: jprvmjixqsilmxzbiqqrwthudrp/xtbC0QqbJGpVpgqTpgAA3C
 
 From: Xiong Weimin <xiongweimin@kylinos.cn>
 
-bus_find_device() returns a device reference that must be released with
-put_device(). viommu_get_by_fwnode() currently drops that reference
-before dereferencing the device to fetch the virtio-IOMMU private data.
+viommu_event_handler() only rejects event buffers that are larger than
+struct viommu_event. A short buffer is also invalid, but the handler
+would still read evt->head and, for fault events, the rest of evt->fault.
 
-Fetch the private data while the reference is still held, then release
-the device reference before returning.
+Require the used length to match the event buffer size before looking at
+the event contents.
 
 Signed-off-by: Xiong Weimin <xiongweimin@kylinos.cn>
 ---
- drivers/iommu/virtio-iommu.c | 8 ++++++--
- 1 file changed, 6 insertions(+), 2 deletions(-)
+ drivers/iommu/virtio-iommu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
 diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-index 587fc1319..342785c76 100644
+index 4c91a82d2..4b7f0dcfa 100644
 --- a/drivers/iommu/virtio-iommu.c
 +++ b/drivers/iommu/virtio-iommu.c
-@@ -1009,12 +1009,16 @@ static int viommu_match_node(struct device *dev, const void *data)
+@@ -635,7 +635,7 @@ static void viommu_event_handler(struct virtqueue *vq)
+ 	struct viommu_dev *viommu = vq->vdev->priv;
  
- static struct viommu_dev *viommu_get_by_fwnode(struct fwnode_handle *fwnode)
- {
-+	struct viommu_dev *viommu = NULL;
- 	struct device *dev = bus_find_device(virtio_bus_type, NULL, fwnode,
- 					     viommu_match_node);
- 
--	put_device(dev);
-+	if (dev) {
-+		viommu = dev_to_virtio(dev)->priv;
-+		put_device(dev);
-+	}
- 
--	return dev ? dev_to_virtio(dev)->priv : NULL;
-+	return viommu;
- }
- 
- static struct iommu_device *viommu_probe_device(struct device *dev)
+ 	while ((evt = virtqueue_get_buf(vq, &len)) != NULL) {
+-		if (len > sizeof(*evt)) {
++		if (len != sizeof(*evt)) {
+ 			dev_err(viommu->dev,
+ 				"invalid event buffer (len %u != %zu)\n",
+ 				len, sizeof(*evt));
 -- 
 2.43.0
 
