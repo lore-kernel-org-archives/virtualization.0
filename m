@@ -1,222 +1,174 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from AM0PR02CU008.outbound.protection.outlook.com (mail-westeuropeazon11023088.outbound.protection.outlook.com [52.101.72.88])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C07483112C1
-	for <virtualization@lists.linux.dev>; Tue, 14 Jul 2026 13:24:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784035479; cv=none; b=tG+AYd2wpc8bMjuIUOo8b+q+YKn0AbUUBkPKLkZYlQ7S8vx8GDNmVSRswdAvu+A4tB2eAIxqgZWXR/U4WV1A55VpKNhzwv1CU91nthqft+nhutbQmLP9IWYsK1n46z2PT7C8N5yGRK7eEM8dXIALhRSeZOODNhxD2TL1huev1UI=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784035479; c=relaxed/simple;
-	bh=9l3q0B/E0FjBFxb2LJmMKlw9pl5hcTfSNOB811iBgVg=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=SQAZ0Cw/YQX73ZmCxHaLh9nvmPipGnVLyz2MO4UHNoeHB4Bm7QOcFIng3XAWFydqrTc3R/bxklPDaloGqiiSLMzdPh5IMIDAWnd+OUPExAh7fJTSunmUmVsBHzrzMyWhCbDvkKgkp1XFArsarOGAmGEixOSdQ2fnbTQas3ubdHQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WCY38rmv; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7BA96495522
+	for <virtualization@lists.linux.dev>; Tue, 14 Jul 2026 15:16:52 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.72.88
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784042214; cv=fail; b=E1MpuAwd+jPodSEdLtHVP7egh2R8S2119ux66K1ELcn4gp7MviYuQgM/csazgtpGK2AuUYhtOOYzxZUK9cFriLqYdhrkuNOPvqrprS4ff28YDfGji4y2Ls0DAQ1ffnN2gxMarxHqqgo6ikJXdc/RLzTnpADlFz4aRM7Uf7Tuw1M=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784042214; c=relaxed/simple;
+	bh=b8uRF0emTAt3PAVYx1tGx3e2GCRccnC3zSioko3y430=;
+	h=From:To:Cc:Subject:Date:Message-ID:Content-Type:MIME-Version; b=CBpZIxFtd2W2EboGq6ifwpjqsR06A8vOMvHUD1H70fOR/sB7GtJOeiOwDJ01J9VuCFzCoh4JolDW8dAPp3ePOdmwaEM8dkVA9KCUaDt1J+2mJXf3C4L3ZmuruS0TMjZZrcAHuUMTVWo68EnQty2x5LT86ci9Ji1sssqoZcJEsBU=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=virtuozzo.com; spf=pass smtp.mailfrom=virtuozzo.com; dkim=pass (2048-bit key) header.d=virtuozzo.com header.i=@virtuozzo.com header.b=q0szfJ06; arc=fail smtp.client-ip=52.101.72.88
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=virtuozzo.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=virtuozzo.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WCY38rmv"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1784035475;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=8CpLHRy6/20YstfcDyrkyOratDSzuro/7QBC+7w5m58=;
-	b=WCY38rmviGa2bbBEX5YlQWLXF2Fl9FLA5/DapYBxPGvwKdGg6UJaY7lfns7Acj1/icljnU
-	7o3Tk1hesyal+0FnKZ6N/zMec4BiTXuRS2HGf5Xx2jcPxNnSXCfY25dFo0zg6PKvyRVzIt
-	zUk0A8+320F31s2maTr95haWDsVexpQ=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-441-mFhfmAPPPWuP45-BfDD-2A-1; Tue, 14 Jul 2026 09:24:34 -0400
-X-MC-Unique: mFhfmAPPPWuP45-BfDD-2A-1
-X-Mimecast-MFC-AGG-ID: mFhfmAPPPWuP45-BfDD-2A_1784035473
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-49244130073so45155215e9.1
-        for <virtualization@lists.linux.dev>; Tue, 14 Jul 2026 06:24:34 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784035473; x=1784640273;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=8CpLHRy6/20YstfcDyrkyOratDSzuro/7QBC+7w5m58=;
-        b=CiZFRol1G0P0y4pQQPX665/b/nudms+gc9xcfeF6NrdNdpbneELcmk9ddJSQbRdFmr
-         PHOrf0KfspH5VUNqtyurXzGVvO8Z0VPz/iEiTh7cetEljrymIsLZrJC8xQXwGrjJtal1
-         JS1aws4ShO+X3w70k/siFC5UXpDb/8ZiZ4lKVLQV62sun6FSv97q/JBM9aXNeaz1Bl9Q
-         yaNAXcI9Mt80TWyExRNl+9FwzGjqnd7MqRlkBeEIaAqEhlSNFW+ugsTBQnrCjetzSUAR
-         28N8eQq0iwqnhwtAEX2mgOCvyZgqQq5lp/RAFtysj7OEXCEbXY29X0yd++FIW9/skyKN
-         mCJg==
-X-Forwarded-Encrypted: i=1; AHgh+RqiFbFIqxLj+xEmCofkun8ewHnbpxzAALbNym5WeOf3XC95+55NvYTHbKyTosr23/LoG6Zl8JTbHR9nLzGUjg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwAi5o5a91aO0tN2+un/DhXSBBvVZIudij1FSWibyLUOi8KCSwU
-	AnzHpGurMAVRzBvdWWDTogWzbPmsCa96yuL+M9/O9oiZOsD1+cjS7k2qXJiJYCw+Kuea4WP+O4Y
-	dA+g4ZjnGgIuhtCESpZqm9foBKlSJFaUXGbsOjJ+cYvSVdqy44bIkRSB6btZC50dKQjkt
-X-Gm-Gg: AfdE7cnRXhmWjshDFJvVpF9YuTq4rKQEYWtMGhpNbZLBq6bki39EX1ojyG9OU4JPfaG
-	AaD5Zypg5MUl4kV1hYHqssujaIvJGwxXUhIRmIVpydmWPG/TnNzQL4g0AROiSQ8aNydd5ktOGfL
-	oVdBdIO+QT0bh/ty1z0DRUHy9POE0kcPy7v6b+aPE60CM4RPrQ2oEFOqE4fhCJeuvwEpsCv72fX
-	CZbfbrBwxRn4+fToYMtFNeQFph48m1rxbrmCHmKVVJRBcJpcFDbxXhnSxMz7jpFliWWsOAXjksD
-	WDWSrRD9AJ7eUFCFH3wneM+H21ejPANaEQR7Y2pj5XUgxfDCpno7TJX8PT79+p25mrTeGWgnBcv
-	hJSMznYu5UpuABMXfD5gIVriSm52ePKUe4mg=
-X-Received: by 2002:a05:600c:699a:b0:493:bcba:46a4 with SMTP id 5b1f17b1804b1-495389bcc5bmr25895005e9.20.1784035472835;
-        Tue, 14 Jul 2026 06:24:32 -0700 (PDT)
-X-Received: by 2002:a05:600c:699a:b0:493:bcba:46a4 with SMTP id 5b1f17b1804b1-495389bcc5bmr25894565e9.20.1784035472269;
-        Tue, 14 Jul 2026 06:24:32 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-24-117.inter.net.il. [80.230.24.117])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4950a32b9f3sm86514755e9.13.2026.07.14.06.24.29
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 14 Jul 2026 06:24:31 -0700 (PDT)
-Date: Tue, 14 Jul 2026 09:24:28 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: Link Lin <linkl@google.com>, Andrew Morton <akpm@linux-foundation.org>,
-	Vlastimil Babka <vbabka@kernel.org>, virtualization@lists.linux.dev,
-	linux-mm@kvack.org, linux-kernel@vger.kernel.org, prasin@google.com,
-	rientjes@google.com, duenwen@google.com, jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com, Ammar Faizi <ammarfaizi2@openresty.com>,
-	jiaqiyan@google.com, ahwilkins@google.com,
-	Greg Thelen <gthelen@google.com>,
-	Alexander Duyck <alexander.duyck@gmail.com>, stable@vger.kernel.org
-Subject: Re: [RFC] virtio_balloon: fix Use-After-Free in page reporting
- during PM freeze
-Message-ID: <20260714092146-mutt-send-email-mst@kernel.org>
-References: <20260709224330.946683-1-linkl@google.com>
- <8d316b6c-41fb-4ae3-8923-3b649b92b33d@kernel.org>
+	dkim=pass (2048-bit key) header.d=virtuozzo.com header.i=@virtuozzo.com header.b="q0szfJ06"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=fxKeD1IHp8WuLjGlYOFer+fCioIAs9L7PrIM/YF2GMko9o/09Pvqz92GKh+TTrySXaAXK7UkUeebL1AeHWURAha2JM+rVyklAusGdCN+VpuwXmONeuY+jMTb8UFnm00yD6cM01OFAeeHeb97efGEcVhtDrHm5ivJiSkQ4gEEgt6brCio6arNHoNHa/NrVosswQ8bW5WkklE+hlX+k5XcltQW59Vm/4LdtU15B1bvB2VlzAf9y6XDK+U7QqyPyvYYyQkmshHQT7wmrMeELbPHrnzPOIGwFTUa34LSQIfSsMMRorad5WeuildI6cKV2EXRGRLui7YW3++2uTbuA8u0Bg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=9BtX2Cbqi8Qd1lSZ3KPP4MasZ595d9hlHqGnEa+IRCk=;
+ b=kU+kztqfZGgFTTakYooIQLLIaCXh4kAYAVzlm5fCKBQWcP8TAGOGyJ88pN9oGJyieqmUPKkJ2QRzNI6Zvd4MbpFWv8wR4NZ+tzRTTglD/8umBu1PZo4Ex9KlC815h+TWNU8kbIokfC71nOorYFPm8IaIZgat9cuH7m5H8LKK+nB2ho+mycfCI31yjPUcyc8aEJY3F01Qd6Ftp7ZR+uPea8z4bvkCLRiczi+8ajuUzoyVvDWdlcnxUNxKGOpkin8AR0j9ynW9+WUlEAi88B/yNVFsumZ/oiSsnKGzrNdR1LpB6MWf9U6zycyH+o7jQ6qDV8kqkIBjEa4DYD58vogVkw==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=virtuozzo.com; dmarc=pass action=none
+ header.from=virtuozzo.com; dkim=pass header.d=virtuozzo.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=virtuozzo.com;
+ s=selector2;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=9BtX2Cbqi8Qd1lSZ3KPP4MasZ595d9hlHqGnEa+IRCk=;
+ b=q0szfJ06DM7yRFO9fg1utGP51vkIxIzOpSZ3K3mzS/w0gDGRuyHweIZBOWUSiMmS6eKCp+rZCs3/dqr36Y/pmRm97MZJqYr2A2Q/k8Bj5eb0oUnXQUWAmMDgUDTbOQFuHobgpcvdRco0thJEmJO/DaTpDmprUvPXVKKmoGEBnKGvX1uPBunVDk7IEPsBiyD60iZoac9ui4Hg2UIOuswzGncTtyvfo7TgdoOvz0PgKljzpj2SWAey0jOw6g2vpzFGfnoj9FvHU4HsDU5NPPZV4T2wpUPRFvcWmznZrvxVUGlK3Mj3gHbX6s+v/urRs18JxTL2gazbgtEQE7yiD1XvGA==
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=virtuozzo.com;
+Received: from VI0PR08MB10656.eurprd08.prod.outlook.com
+ (2603:10a6:800:20a::12) by DU0PR08MB7692.eurprd08.prod.outlook.com
+ (2603:10a6:10:3a4::13) with Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.202.18; Tue, 14 Jul
+ 2026 15:16:48 +0000
+Received: from VI0PR08MB10656.eurprd08.prod.outlook.com
+ ([fe80::4e37:b189:ddcd:3dd8]) by VI0PR08MB10656.eurprd08.prod.outlook.com
+ ([fe80::4e37:b189:ddcd:3dd8%7]) with mapi id 15.21.0202.014; Tue, 14 Jul 2026
+ 15:16:48 +0000
+From: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
+To: linux-kernel@vger.kernel.org
+Cc: kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	netdev@vger.kernel.org,
+	sgarzare@redhat.com,
+	mst@redhat.com,
+	stefanha@redhat.com,
+	dongli.zhang@oracle.com,
+	maciej.szmigiero@oracle.com,
+	bchaney@akamai.com,
+	mark.kanda@oracle.com,
+	ptikhomirov@virtuozzo.com,
+	den@openvz.org,
+	andrey.drobyshev@virtuozzo.com
+Subject: [PATCH v4 0/5] vhost/vsock: add support for VHOST_RESET_OWNER and CPR migration
+Date: Tue, 14 Jul 2026 18:16:33 +0300
+Message-ID: <20260714151638.143019-1-andrey.drobyshev@virtuozzo.com>
+X-Mailer: git-send-email 2.47.1
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain
+X-ClientProxiedBy: VI1PR09CA0107.eurprd09.prod.outlook.com
+ (2603:10a6:803:78::30) To VI0PR08MB10656.eurprd08.prod.outlook.com
+ (2603:10a6:800:20a::12)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <8d316b6c-41fb-4ae3-8923-3b649b92b33d@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: D9Mu9WnhzY5sLVYUMCipLW_9hT_MVSZZ8kakJTmPlBw_1784035473
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: VI0PR08MB10656:EE_|DU0PR08MB7692:EE_
+X-MS-Office365-Filtering-Correlation-Id: 5697c46b-da1d-4a29-db77-08dee1baec61
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|23010399003|366016|376014|52116014|7416014|1800799024|56012099006|38350700014|18002099003;
+X-Microsoft-Antispam-Message-Info:
+	h4LyYHRKX0RsEifC/hdbM7Sokali7d0hI6dtW/5534jhzw9wPqplkSAqvZrvK5SxkC/sX0LkpzfaN0SWZaTjyWITVdbf2OvyKT5BFTOTHD17mZpngFU8eOcz4sHGMRGYvYXiOfK7EZuh5iQJLNV9CtM+lXtZoW2mCDZ3kI+HhJywfBe1y4vqqDxRqO4xQ/+G3plfxkyAPMtkK3GRFtl2oVrTj2krzVZxwdzfuQh/3RT9PVVUW1uCqncmgTF1+HMPbdCxkfFlsFpNUEgSN3qoT79O8g1tIh5EJq64hn7WPhA1JvFeycTamdE/4GRKWiR/MDJ2KsBmGOfWtQFOz9HHz95dSUSZ0rFHQ4CzBpv7KlZ9wl1tl5QunyTCmhcMBFQaMTIaMErxWI6CMifYUixqKIFeCmx8JREVxSve1TJKXGh/ezZdAsIqZ81lwiHtwnOen6itQn92nrTbPjCuIG1Z8MgejM72vzrkBZLTas8yQx0LDpzmIO7BfVy7e7UjUUkRT1hpXajoUqfMaec7jFXsQKUlhvdSrlKXV61M1WnST3lq1r0VAJESPDAlOvQSYJhmsQiyjfsHMHUqi1CVK74zDKEsRbU6PzR97gIDVEp2GxLuBMKyAUalD4G593N2BdPOEi0Nixd9mhBS+aDe5q4hzYz28MLMWEqwx4ns580aAU0T5H9fqvqW/pl1U/oL4zytk11aGAltCYRF0TS4YzcKMFM9uxTXlhxFFgDE6B5BDus=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI0PR08MB10656.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(366016)(376014)(52116014)(7416014)(1800799024)(56012099006)(38350700014)(18002099003);DIR:OUT;SFP:1102;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?us-ascii?Q?kp0o4WxEMqi5hFDkn+tTSdYtXby2TlvUduHOB9DYslOQKOWBokWU7a3NyzrN?=
+ =?us-ascii?Q?b5YyOsbwPh3Hu8uEkZBiVaLnrEsfj3xd78n4qHp39t+DkxHl8Yv/fVY81OM4?=
+ =?us-ascii?Q?hjVglUbIei6P0N3UCXVB3P80zJF8zz5j5uxKxfxpTMH6hP8xoo9gisUDOtJO?=
+ =?us-ascii?Q?8tGXaWBOdbP8RTRWbyxJXlS7omEmc9zawq5yuuifRQ2KnS+azOj0z0Kn5jNf?=
+ =?us-ascii?Q?uupt63p5dLcHeXNqEJJ1I9JKsu4S2F6A26v3haltiUus1AfgXVvSQ64m8Eg2?=
+ =?us-ascii?Q?4OWvVdQteapOK75+0ZUT+QYuj1OFLxERyJtZL4UKubEMdp+guynaOHWLvKSK?=
+ =?us-ascii?Q?/M0XcVqwT/MEPn5NMgNOETOFsu740fTvwgX3exiKmrMQHu1x4fCb6fMSH4rc?=
+ =?us-ascii?Q?LzeCVP7KdVSjXV53XoDI6S3MPv9AF4xnZE/3k/DKk3z7VWXwtAhWalSyvROS?=
+ =?us-ascii?Q?lIYqNA7f4wKsMfL9qDMbPBwYTOPRLGRQsEIotdH8ffHhxpwsM8OthFewg0XB?=
+ =?us-ascii?Q?d/L8dzCvD2sc0S2JX7Yvs/CPWcYNcaVokq32Yenf6Gk8DBD+TP2ZC5DUDr4g?=
+ =?us-ascii?Q?P/dsv14zj1EEJncy/wnQn30OkUvIcj43w2Xzg+aW9vGVLVdozMvIRl5QAg//?=
+ =?us-ascii?Q?o1a3kVhPhVBTvZ39bcurXvSRHFFwT8ImF+njagZAuPlbRV94q564NEWnV+8+?=
+ =?us-ascii?Q?ARwqoiTIHtksc/yvXVGpn4DQQava2XJnm5azDpq/mZoDph2DZtTgp1Dj3TN8?=
+ =?us-ascii?Q?Ny0YipbUnTxuGtWj4/S+BoOdAOqpcua5RvxmW2Bz5KNBLspcRJwFjPA1Q9hz?=
+ =?us-ascii?Q?9cd6FXSGfLPGYb0aN1bIqs8CuUadshKhAUfyDDwS6dRgw6gd3MwoL9L0I1Ml?=
+ =?us-ascii?Q?zE4vencKOm5Srr6QlE1UoPngmPIl5eTZEwZI61zsChEAM76T0T5nlKWJY5Qq?=
+ =?us-ascii?Q?iyH46Pi14y3k3+ZbVeFjosdLDLLQ8tkBOvKoMV5d26rWSMqnROD0aumYzl5z?=
+ =?us-ascii?Q?9WtI5MZoaIhlp/G4BtcOInmMwDYRCw+GT4J0afqdrSZQMUij/7AxxnWoJj2c?=
+ =?us-ascii?Q?bfljtRP6bmlJOXpoTYpKZGo25eV87mKAM7M02Jlez0p+u9wAoyX4j+T6ryXY?=
+ =?us-ascii?Q?Pa57YvwpJpLS3C2GoWSxv6TTipQWdTsZ+po9aQXX3552Ql/D6/xuY9irWMp9?=
+ =?us-ascii?Q?53PlF30+cHntHvvTRydmERB/KVLX7aaJ7YlcbjG8uX3R1CYhqLVi0YVOCMiK?=
+ =?us-ascii?Q?ZRIU2GVuLxWqZnquuOxbZdUG8zfk+MyWmO6clA4iqQR49od8OdUNm7n9LMv4?=
+ =?us-ascii?Q?XaZVoBXoslVPwZrwusBEN5r58zcx9A3wS2UcfmkXk4+iTrNZgLIfVU0YsHKo?=
+ =?us-ascii?Q?5FeslU2MoLZvSHG+wdwpZ4g2+AU+VIXVcQTTprxV1XCQ7iTbjtei34fsu0de?=
+ =?us-ascii?Q?wlJOJ2okNR/MAr0Nxx+GkSyxNlPRMevRLIMYFDoduVl+sIanLtiKIK2DvME0?=
+ =?us-ascii?Q?phR6tRyC8aABm/WtceSDTgJnF/oPN0CXlVVflVbRkAMCurYyW57Ra6nRMz1N?=
+ =?us-ascii?Q?PxJU9Kd0Bmj1vIkBns0bW+svRHWqe1u9LijYoupYs+5hy1o6UwG/TNtisqW9?=
+ =?us-ascii?Q?ikzzIA+hAmiki4Gj+Jj+wLGnBA9QY94bR7l+mprY94Rj/FoXuwV+TQRLx24H?=
+ =?us-ascii?Q?HItNH5kcG9CN8+dP1fa5r4Zb4RCFKTSuPLRG8k1y6rWL8hsGS3i0YQRygjPf?=
+ =?us-ascii?Q?5HC5a4VyJEeqS46LIT4x/n/XnZ+DOBU=3D?=
+X-OriginatorOrg: virtuozzo.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 5697c46b-da1d-4a29-db77-08dee1baec61
+X-MS-Exchange-CrossTenant-AuthSource: VI0PR08MB10656.eurprd08.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Jul 2026 15:16:48.1136
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 0bc7f26d-0264-416e-a6fc-8352af79c58f
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: DqxCSKWg9FSdqZJnD0LB3hLI0N6EX66fMT+CdWxbVfkr6YXdA+UtgLKZQdBj1KS9zlX7Y9+GMBKTOHhR1hD05haOfAZJE25sUz/Gu57z684=
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DU0PR08MB7692
 
-On Tue, Jul 14, 2026 at 03:17:42PM +0200, David Hildenbrand (Arm) wrote:
-> On 7/10/26 00:43, Link Lin wrote:
-> > During system power management freeze (e.g. ACPI S3 suspend or S4
-> > hibernation), virtballoon_freeze() calls remove_common() to reset the
-> > virtio device and delete all virtqueues via vdev->config->del_vqs().
-> > However, unlike virtballoon_remove(), virtballoon_freeze() fails to call
-> > page_reporting_unregister(&vb->pr_dev_info).
-> > 
-> > The comment in virtballoon_freeze() states:
-> >     /*
-> >      * The workqueue is already frozen by the PM core before this
-> >      * function is called.
-> >      */
-> > 
-> > While this comment was accurate in 2011 for balloon-internal workqueues
-> > (such as balloon_wq, which was created with WQ_FREEZABLE and is paused
-> > by the PM freezer), it is invalid for Free Page Reporting.
-> > 
-> > Free Page Reporting (mm/page_reporting.c) schedules its delayed work
-> > (prdev->work) on the global system_wq. Because system_wq lacks the
-> > WQ_FREEZABLE flag, the PM freezer (freeze_workqueues_busy()) explicitly
-> > skips it. Consequently, page_reporting_process() on system_wq remains
-> > active and unfrozen throughout device suspend.
-> > 
-> > If memory is freed into the buddy allocator or a delayed work timer
-> > expires while the device is being frozen, page_reporting_process() fires
-> > on system_wq and calls virtballoon_free_page_report(). This function
-> > passes vb->reporting_vq into virtqueue_add_inbuf() / virtqueue_add_split().
-> > Because the virtqueues were already destroyed by del_vqs(), this results
-> > in a Use-After-Free / General Protection Fault:
-> > 
-> >     [  250.709271] general protection fault, probably for non-canonical address 0x7f728084daf08d5e: 0000 [#1] SMP PTI
-> >     [  250.732967] CPU: 2 PID: 38 Comm: kworker/2:1 Not tainted 5.10.0-44-cloud-amd64 #1 Debian 5.10.257-1
-> >     [  250.751575] Workqueue: events page_reporting_process
-> >     [  250.756665] RIP: 0010:virtqueue_add_split+0x233/0x4c0 [virtio_ring]
-> >     ...
-> >     [  250.867678] virtballoon_free_page_report+0x3a/0xe0 [virtio_balloon]
-> >     [  250.883446] page_reporting_process+0x225/0x4f0
-> > 
-> > (Note: The OOM Notifier and Shrinker/Free Page Hinting features suffer
-> > from an identical lifecycle flaw and are also vulnerable to UAFs during
-> > S4 hibernation when memory pressure spikes. This patch focuses on Free
-> > Page Reporting, which runs periodically, to ensure clean backports to
-> > stable kernels).
-> > 
-> > Fix this by:
-> > 1. Unregistering page reporting in virtballoon_freeze() prior to calling
-> >    remove_common(). This clears the RCU pr_dev_info pointer and flushes/
-> >    cancels prdev->work on system_wq via cancel_delayed_work_sync().
-> > 2. Re-registering page reporting in virtballoon_restore() after the
-> >    virtqueues are re-initialized and virtio_device_ready() has been called.
-> > 3. Unwinding virtqueue initialization via remove_common() in 
-> >    virtballoon_restore() if page_reporting_register() fails.
-> > 
-> > Fixes: 924a663f75e2 ("virtio-balloon: Reporting free page reservations")
-> > Cc: stable@vger.kernel.org
-> > Cc: jasowang@redhat.com
-> > Cc: xuanzhuo@linux.alibaba.com
-> > Cc: Ammar Faizi <ammarfaizi2@openresty.com>
-> > Cc: jiaqiyan@google.com
-> > Cc: ahwilkins@google.com
-> > Cc: Greg Thelen <gthelen@google.com>
-> > Cc: Alexander Duyck <alexander.duyck@gmail.com>
-> > Signed-off-by: Link Lin <linkl@google.com>
-> > ---
-> >  drivers/virtio/virtio_balloon.c | 11 +++++++++++
-> >  1 file changed, 11 insertions(+)
-> > 
-> > diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> > index a1b2c3d4e5f6..45a90fb3abf8 100640
-> > --- a/drivers/virtio/virtio_balloon.c
-> > +++ b/drivers/virtio/virtio_balloon.c
-> > @@ -1055,6 +1055,9 @@ static int virtballoon_freeze(struct virtio_device *vdev)
-> >  	 * The workqueue is already frozen by the PM core before this
-> >  	 * function is called.
-> >  	 */
-> > +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING))
-> > +		page_reporting_unregister(&vb->pr_dev_info);
-> > +
-> >  	remove_common(vb);
-> >  	return 0;
-> >  }
-> >  
-> >  static int virtballoon_restore(struct virtio_device *vdev)
-> >  {
-> >  	struct virtio_balloon *vb = vdev->priv;
-> >  	int ret;
-> >  
-> >  	ret = init_vqs(vdev->priv);
-> >  	if (ret)
-> >  		return ret;
-> >  
-> >  	virtio_device_ready(vdev);
-> >  
-> > +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING)) {
-> > +		ret = page_reporting_register(&vb->pr_dev_info);
-> > +		if (ret)
-> > +			goto out_remove_vqs;
-> > +	}
-> 
-> Hm, that failure handling is rather nasty.
-> 
-> 
-> In virtballoon_freeze() we document:
-> 
-> "The workqueue is already frozen by the PM core before this function is called"
-> 
-> Your report states:
-> 
-> "Workqueue: events page_reporting_process"
-> 
-> 
-> I assume that workqueue is not frozen yet because ... it's not freezable :)
-> 
-> So could we queue to system_freezable_wq instead, or define our own freezable
-> workqueue there? Then a driver doesn't have to worry about that.
-> 
-> -- 
-> Cheers,
-> 
-> David
+The main change since v3: as suggested by Stefano, the worker teardown
+race is now fixed where it actually lives, i.e. in vhost_workers_free(),
+instead of being guarded from the vsock side.  The new patch 4 makes the
+teardown wait out the RCU readers which might still be queueing work on
+a worker, and then run whatever they queued, before the workers are
+freed.
 
-+1.  Just system_freezable_wq will do the trick.
+With the teardown itself made safe, queueing work on a stopped device
+is harmless again: the work handlers check the backend under vq->mutex
+and simply return.  So the backend guards in send_pkt()/cancel_pkt()
+and the synchronize_rcu() in reset_owner() from v3 are no longer needed
+and are gone.
+
+v3 -> v4:
+
+  * Patch 2:
+    - rename 'started' -> 'ever_started';
+    - reword commit message;
+  * Patch 3: reword commit message and code comment;
+  * Patch 4 (NEW) ("vhost: synchronize with RCU readers when freeing workers"):
+    - fix the vq->worker UAF and the stuck VHOST_WORK_QUEUED bit
+      generically in vhost_workers_free();
+  * Patch 4 -> 5 ("vhost/vsock: add VHOST_RESET_OWNER ioctl"):
+    - drop the backend guards in send_pkt()/cancel_pkt() and the
+      synchronize_rcu() in reset_owner() - covered by patch 4 now;
+    - make vhost_vsock_reset_owner() return long;
+    - reword commit message.
+
+v3: https://lore.kernel.org/virtualization/20260625155416.480669-1-andrey.drobyshev@virtuozzo.com
+
+Andrey Drobyshev (3):
+  vhost/vsock: suppress EHOSTUNREACH fast-fail during CPR pause
+  vhost/vsock: re-scan TX virtqueue on device start
+  vhost: synchronize with RCU readers when freeing workers
+
+Pavel Tikhomirov (2):
+  vhost/vsock: split out vhost_vsock_drop_backends helper
+  vhost/vsock: add VHOST_RESET_OWNER ioctl
+
+ drivers/vhost/vhost.c | 15 ++++++++++
+ drivers/vhost/vsock.c | 80 +++++++++++++++++++++++++++++++++++++++------------
+ 2 files changed, 76 insertions(+), 19 deletions(-)
 
 -- 
-MST
+2.47.1
 
