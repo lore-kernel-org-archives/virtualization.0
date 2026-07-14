@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1FADB421F1B
-	for <virtualization@lists.linux.dev>; Tue, 14 Jul 2026 08:44:31 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADBBBEAC7;
+	Tue, 14 Jul 2026 13:17:46 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784018674; cv=none; b=q/cVDmNobW5TNpPY8idJXeuaX0GEEOaArGoYWo35lTA6OUottIl3RKGrnPfFIYo67cvb/GtAe6LwCbvKUCCsXNrui2NDWzhp38EtktvvhkGQJSi38xcEXizq+t/DfiVI5Tvr/GqNlX03IwkQZmFD3oxvtqW5hZLRPSdfVbExCwg=
+	t=1784035067; cv=none; b=SHJLHQTz4nlhum8mHTn5O1EtRne3DtrIR8Aza/M1kHl+pCnK3LZB3lepMBgrpvlseHiSfKVvIc+YobagcnwoteOVQE5fVlVkBH/xerOxHWs5AjQyNHXuxn4yKjEAh2Xzh8wOEDq5mFi0nAw82CIGVMx09EfSEufkdnbHdBdQAP8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784018674; c=relaxed/simple;
-	bh=GW8qOLYQ35NLPrkvIMcP0ldEkZxiq69SLRatcvmmT4g=;
+	s=arc-20240116; t=1784035067; c=relaxed/simple;
+	bh=w1ZUj1749/I3WMkB1bXQWcYiLYcInm+Txyh34c/H1cM=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=BysPySeG4E/2c6j3m8rADI/3uwgfsCCvuRyzIcuO6TuZzMmkpiFl9D0PyzsLx8YXEHP4lqH2OlyMFLe3DWCgGRYxN8nZ7rOTqrm2xwuR//+Jbhk8665QhF2N65j77/pAfaRroCeZ0l2KDB0FcObLGCIA7FUneW1g9O575FKZ4Jk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=b5QdyAQh; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=IeyZeGuH8ZaYdlQaxQv05wMoiIxrHOSId18Mx3/nBa4JCN9SurSq+Ci2xaMgjz5px/GTllAaKQd5ihZCXsmnlxlONZZQPI378Yw4pxQU5Qwyj+MbgYwocXt0+hXr4gX3R0ZVSAOqCw8HWSCjpDMqq8rfFhrEib0+dIjrPEAyb2g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=FED4vNrC; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="b5QdyAQh"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 46F921F000E9;
-	Tue, 14 Jul 2026 08:44:29 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="FED4vNrC"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 887CA1F00A3A;
+	Tue, 14 Jul 2026 13:17:43 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784018670;
-	bh=TWVvNjnW87fFFZAJeselJ64hc9Q6Yf/scZcflDLH9IY=;
+	s=k20260515; t=1784035066;
+	bh=XPP2myTGPA5lMKiNw+TtdOeHCWrcAC/vqmt4XlyULw4=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=b5QdyAQhcz8YW3/MtoFfwo4FIFOip9KuNd0UpktCNrFwXKlozHyOMtvVv/r7sgMNi
-	 dytpFmKb1l6cF8QVQhQkSauA8U7iV+BU5BowX8koswL/zpjHsfkOyc1kxazr0AxXVn
-	 /iCaFUyiaW1AuLPvpAOG7EoR69ad8fqZyc5AfUx0Lvk5/9ULWus3AwojQz0vSCy065
-	 6ZmlcSCyoiXOCMQM8jXLgAxMhJFdlEdudEouadabsCtH3n5/7UaisPydVIT95nwuCh
-	 JNSN7mrhl+nhFbyW3au3HzYJbN97RCj1jGPODwAj1nzSQMx2dhF+urq4Ny5Zo7Qk5s
-	 ixHTVbdnmjtzA==
-Message-ID: <b2725271-d587-4e1d-a6a3-15d68fa7fbc6@kernel.org>
-Date: Tue, 14 Jul 2026 10:44:27 +0200
+	b=FED4vNrCvRA+E87/OHhMTv0sfCp09VAGYZiCGXNOiE/pu8OVC+5T3j135myCIb0B+
+	 HyytLmY+Zx+54l8JqAbasXFFpi4S5Wvw45Hyr3VUpIrati8G7aqxEqOIwPHfmZDNlM
+	 WWJIeDXiIWaWuTZ88BGzH1cfhWqwQQHEHu0p9yjTXmw/Am4wTsLlVQuzpZofqiFlW0
+	 AD+aQnQhQCtuAJkK/rd8PGJjcdPzRLRFWEm7QIwUMLdDEDo3j0ey9lq/HkjI8UL5Wt
+	 tbhorm20fDX8meWpCOhymc5mNvLYAPYcYIUtkesKWymOv+FhcI7oF58MmI83iUWW2L
+	 bq9WyWLH+mVnA==
+Message-ID: <8d316b6c-41fb-4ae3-8923-3b649b92b33d@kernel.org>
+Date: Tue, 14 Jul 2026 15:17:42 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -35,11 +35,17 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] virtio_mem: fix typo in comment
-To: weimin xiong <xiongwm2026@163.com>, mst@redhat.com
-Cc: jasowangio@gmail.com, virtualization@lists.linux.dev,
- xiongweimin <xiongweimin@kylinos.cn>
-References: <20260714032417.201353-1-xiongwm2026@163.com>
+Subject: Re: [RFC] virtio_balloon: fix Use-After-Free in page reporting during
+ PM freeze
+To: Link Lin <linkl@google.com>, Andrew Morton <akpm@linux-foundation.org>,
+ Vlastimil Babka <vbabka@kernel.org>, "Michael S . Tsirkin" <mst@redhat.com>
+Cc: virtualization@lists.linux.dev, linux-mm@kvack.org,
+ linux-kernel@vger.kernel.org, prasin@google.com, rientjes@google.com,
+ duenwen@google.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com,
+ Ammar Faizi <ammarfaizi2@openresty.com>, jiaqiyan@google.com,
+ ahwilkins@google.com, Greg Thelen <gthelen@google.com>,
+ Alexander Duyck <alexander.duyck@gmail.com>, stable@vger.kernel.org
+References: <20260709224330.946683-1-linkl@google.com>
 From: "David Hildenbrand (Arm)" <david@kernel.org>
 Content-Language: en-US
 Autocrypt: addr=david@kernel.org; keydata=
@@ -86,35 +92,125 @@ Autocrypt: addr=david@kernel.org; keydata=
  3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
  CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
  qIws/H2t
-In-Reply-To: <20260714032417.201353-1-xiongwm2026@163.com>
+In-Reply-To: <20260709224330.946683-1-linkl@google.com>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-On 7/14/26 05:24, weimin xiong wrote:
-> From: xiongweimin <xiongweimin@kylinos.cn>
+On 7/10/26 00:43, Link Lin wrote:
+> During system power management freeze (e.g. ACPI S3 suspend or S4
+> hibernation), virtballoon_freeze() calls remove_common() to reset the
+> virtio device and delete all virtqueues via vdev->config->del_vqs().
+> However, unlike virtballoon_remove(), virtballoon_freeze() fails to call
+> page_reporting_unregister(&vb->pr_dev_info).
 > 
-> Correct "actipn" to "action".
+> The comment in virtballoon_freeze() states:
+>     /*
+>      * The workqueue is already frozen by the PM core before this
+>      * function is called.
+>      */
 > 
-> Signed-off-by: xiongweimin <xiongweimin@kylinos.cn>
+> While this comment was accurate in 2011 for balloon-internal workqueues
+> (such as balloon_wq, which was created with WQ_FREEZABLE and is paused
+> by the PM freezer), it is invalid for Free Page Reporting.
+> 
+> Free Page Reporting (mm/page_reporting.c) schedules its delayed work
+> (prdev->work) on the global system_wq. Because system_wq lacks the
+> WQ_FREEZABLE flag, the PM freezer (freeze_workqueues_busy()) explicitly
+> skips it. Consequently, page_reporting_process() on system_wq remains
+> active and unfrozen throughout device suspend.
+> 
+> If memory is freed into the buddy allocator or a delayed work timer
+> expires while the device is being frozen, page_reporting_process() fires
+> on system_wq and calls virtballoon_free_page_report(). This function
+> passes vb->reporting_vq into virtqueue_add_inbuf() / virtqueue_add_split().
+> Because the virtqueues were already destroyed by del_vqs(), this results
+> in a Use-After-Free / General Protection Fault:
+> 
+>     [  250.709271] general protection fault, probably for non-canonical address 0x7f728084daf08d5e: 0000 [#1] SMP PTI
+>     [  250.732967] CPU: 2 PID: 38 Comm: kworker/2:1 Not tainted 5.10.0-44-cloud-amd64 #1 Debian 5.10.257-1
+>     [  250.751575] Workqueue: events page_reporting_process
+>     [  250.756665] RIP: 0010:virtqueue_add_split+0x233/0x4c0 [virtio_ring]
+>     ...
+>     [  250.867678] virtballoon_free_page_report+0x3a/0xe0 [virtio_balloon]
+>     [  250.883446] page_reporting_process+0x225/0x4f0
+> 
+> (Note: The OOM Notifier and Shrinker/Free Page Hinting features suffer
+> from an identical lifecycle flaw and are also vulnerable to UAFs during
+> S4 hibernation when memory pressure spikes. This patch focuses on Free
+> Page Reporting, which runs periodically, to ensure clean backports to
+> stable kernels).
+> 
+> Fix this by:
+> 1. Unregistering page reporting in virtballoon_freeze() prior to calling
+>    remove_common(). This clears the RCU pr_dev_info pointer and flushes/
+>    cancels prdev->work on system_wq via cancel_delayed_work_sync().
+> 2. Re-registering page reporting in virtballoon_restore() after the
+>    virtqueues are re-initialized and virtio_device_ready() has been called.
+> 3. Unwinding virtqueue initialization via remove_common() in 
+>    virtballoon_restore() if page_reporting_register() fails.
+> 
+> Fixes: 924a663f75e2 ("virtio-balloon: Reporting free page reservations")
+> Cc: stable@vger.kernel.org
+> Cc: jasowang@redhat.com
+> Cc: xuanzhuo@linux.alibaba.com
+> Cc: Ammar Faizi <ammarfaizi2@openresty.com>
+> Cc: jiaqiyan@google.com
+> Cc: ahwilkins@google.com
+> Cc: Greg Thelen <gthelen@google.com>
+> Cc: Alexander Duyck <alexander.duyck@gmail.com>
+> Signed-off-by: Link Lin <linkl@google.com>
 > ---
->  drivers/virtio/virtio_mem.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/virtio/virtio_balloon.c | 11 +++++++++++
+>  1 file changed, 11 insertions(+)
 > 
-> diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-> index 11c441501..90d8ef0b9 100644
-> --- a/drivers/virtio/virtio_mem.c
-> +++ b/drivers/virtio/virtio_mem.c
-> @@ -1080,7 +1080,7 @@ static int virtio_mem_memory_notifier_cb(struct notifier_block *nb,
->  		atomic64_sub(size, &vm->offline_size);
->  		/*
->  		 * Start adding more memory once we onlined half of our
-> -		 * threshold. Don't trigger if it's possibly due to our actipn
-> +		 * threshold. Don't trigger if it's possibly due to our action
->  		 * (e.g., us adding memory which gets onlined immediately from
->  		 * the core).
->  		 */
+> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+> index a1b2c3d4e5f6..45a90fb3abf8 100640
+> --- a/drivers/virtio/virtio_balloon.c
+> +++ b/drivers/virtio/virtio_balloon.c
+> @@ -1055,6 +1055,9 @@ static int virtballoon_freeze(struct virtio_device *vdev)
+>  	 * The workqueue is already frozen by the PM core before this
+>  	 * function is called.
+>  	 */
+> +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING))
+> +		page_reporting_unregister(&vb->pr_dev_info);
+> +
+>  	remove_common(vb);
+>  	return 0;
+>  }
+>  
+>  static int virtballoon_restore(struct virtio_device *vdev)
+>  {
+>  	struct virtio_balloon *vb = vdev->priv;
+>  	int ret;
+>  
+>  	ret = init_vqs(vdev->priv);
+>  	if (ret)
+>  		return ret;
+>  
+>  	virtio_device_ready(vdev);
+>  
+> +	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING)) {
+> +		ret = page_reporting_register(&vb->pr_dev_info);
+> +		if (ret)
+> +			goto out_remove_vqs;
+> +	}
 
-Acked-by: David Hildenbrand (Arm) <david@kernel.org>
+Hm, that failure handling is rather nasty.
+
+
+In virtballoon_freeze() we document:
+
+"The workqueue is already frozen by the PM core before this function is called"
+
+Your report states:
+
+"Workqueue: events page_reporting_process"
+
+
+I assume that workqueue is not frozen yet because ... it's not freezable :)
+
+So could we queue to system_freezable_wq instead, or define our own freezable
+workqueue there? Then a driver doesn't have to worry about that.
 
 -- 
 Cheers,
