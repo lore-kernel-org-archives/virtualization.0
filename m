@@ -1,201 +1,130 @@
-Received: from AM0PR02CU008.outbound.protection.outlook.com (mail-westeuropeazon11023088.outbound.protection.outlook.com [52.101.72.88])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4B32A4BC01B
-	for <virtualization@lists.linux.dev>; Tue, 14 Jul 2026 15:17:02 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.72.88
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1F01A3C872A
+	for <virtualization@lists.linux.dev>; Tue, 14 Jul 2026 18:05:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.171
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784042223; cv=fail; b=pgmIUMl7RQQAuQkr/inf/fbO8IugleVMcWnH8gDnSX26eiVvbTq59w7CIEIeaY00lk6cGtqdAr8TqQp2Kr8Ha/CaCWFD/6HZgIxWa+VgpHBnR5BLLVpb5G4D4lL3eKf/EiEt0Sg7Es+uj4gvWCHKEInYtzkfsTqq3UW3ZE8UqHo=
+	t=1784052328; cv=pass; b=UxcqaB2Ckpecj0bMXS+oBb5ytrk0f/R0NZlsuYcw0bVzn2UlApf+k2JmeFQ6dlaPNjZjOFvTyzy2c9bfkehe8xL5Nt7vk9xAabnl94+/30cSlp0xiWc2x/X5rPEGumZe/Dg4S2BwxPMsnTJYq2aNuZ+M/1zuuzBK6Q79TLw2YsQ=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784042223; c=relaxed/simple;
-	bh=7yhxoBZ/wxX+Ctp+AT/GMSPp27/7YYLiXHLe8jO/KOI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=eZhet6N9s50gGt6vxFooNNGlfZLUoeN7p4Bq1oDkJQoln5Fcx/PeWckPmkit5Alv/uzP+DTSpiKmEGz2FROPHeJjHnTGjBsc8bfffQTQfj/aQRhUwhgsybs0jef3C9LMlhB/xAZLqzkOVcp4sdDhprnK5PVQV6gB/slVVTp9p80=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=virtuozzo.com; spf=pass smtp.mailfrom=virtuozzo.com; dkim=pass (2048-bit key) header.d=virtuozzo.com header.i=@virtuozzo.com header.b=jTJWbXu3; arc=fail smtp.client-ip=52.101.72.88
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=virtuozzo.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=virtuozzo.com
+	s=arc-20240116; t=1784052328; c=relaxed/simple;
+	bh=bMqv6qMH/Xe06iopa2RDT3Ru0gHSO0znvKQJMuoe1f8=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=EH+dLeLhvFfPuV+S2JH2HXa+Fh+qjHsTePF3Y+rSMuTY9nlnl11VxEQQRw6d9lQwywDAepSaE4Poffad2XdIciSEa2l9y/Ifw9Fp4on0snGstLltpPDl0hthq4OJ1uGvjgpX8Zh2lvyTdNPBc4DV1S//KZfsSK/2PaaG6VBAyfQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=QLGfXEF/; arc=pass smtp.client-ip=209.85.214.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=virtuozzo.com header.i=@virtuozzo.com header.b="jTJWbXu3"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=CIv9eZ272Nhd0XmBbF8yhHRI9pUWA+6LgzDsubtSMTwR9qVGUim2idfnr0+K6OhwBJZcA3He6r+seBxLqR8IWCvEkNUuHnGAUmh6Zuab9PIgXDnCyCj3ddUTfdMOP1KIaLztent20ofRo88RMEDpMnYqhgON8rFg4YLw99XYW2G+Rq2roQ/uuV4WEu8VTNCl+tKSU8aGUjID6nqhGFTfGzrUJxoo9Cd+ixpM57HlVRU0eZiG4vTvH/x8jd71jC8Bigc7XXKKStZRQZ9k8/PcNAv/1Me68RH0moVOyccxOuLQk8xWPgbEIeFX1cp7FtX2GseAkf1iB8dm9s85BX1CQA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=IENLpuB5Ml/RTZriyLBBAEVfZVZ5lSB57FR7jCjqQys=;
- b=v+L9hgfiKp1XFdSgFV9HxrTA+QYdgr2KAsZJIFHsoyASQU5QvJoS4QAgwvX09xj2eeyyBkVEHbHz5hFkAEVNkSqKmOfYuyi3xGQP4P3GCb7gEg/uBvCO3EA/pZt9/b5qQ0yXV9/NYc8zjNzRJgEQ5T38M21GgwgjihHuOdUlv8W29sIFsrChVR/IP9DN1tFVMzPF6YrZchvuwt9S3lyd9jPJ2J1itA//EzzDhjYpftp5R76jBaI3BDhozJw254sK3gzDKggas1c0GDhtKAxT/VxAzlaZKBeKjs8tToq/49u4KN/0Jznq8galo88C39XnJ9ux8rCa03EVacI+d625mA==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=virtuozzo.com; dmarc=pass action=none
- header.from=virtuozzo.com; dkim=pass header.d=virtuozzo.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=virtuozzo.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=IENLpuB5Ml/RTZriyLBBAEVfZVZ5lSB57FR7jCjqQys=;
- b=jTJWbXu3LdBm3ZIxrfogIj+D6dMi+4AAcNaB78z2uR+UwfixxrJxBiePOxBE8CvzkHhP6SG0dCzjsIjJ6GF1zowfAqrglnuP2oc7QA/l/oobr+Mgs9lKGg/Twc7wP/jy7LEZ/IoMIYmKtCZ8d7zrrWYSx4oSsc8N4KfZXht9E378rjWrD/1jXi4QBy8qtzlW/SoXti87Wadse0UgpUOSeJHUdpGNfVlb3SfP1WZmhY+4urUaHm6ENeeBfRkVCvyoTkFLNd7imkrdV1XGqe9w+ruNtHQl4cYfxGp5XcqbJ72WgjzdY7YfA3N6zohfMztimZ0cs3qw4B0qJib8pdFlIQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=virtuozzo.com;
-Received: from VI0PR08MB10656.eurprd08.prod.outlook.com
- (2603:10a6:800:20a::12) by DU0PR08MB7692.eurprd08.prod.outlook.com
- (2603:10a6:10:3a4::13) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.202.18; Tue, 14 Jul
- 2026 15:16:53 +0000
-Received: from VI0PR08MB10656.eurprd08.prod.outlook.com
- ([fe80::4e37:b189:ddcd:3dd8]) by VI0PR08MB10656.eurprd08.prod.outlook.com
- ([fe80::4e37:b189:ddcd:3dd8%7]) with mapi id 15.21.0202.014; Tue, 14 Jul 2026
- 15:16:53 +0000
-From: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
-To: linux-kernel@vger.kernel.org
-Cc: kvm@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	netdev@vger.kernel.org,
-	sgarzare@redhat.com,
-	mst@redhat.com,
-	stefanha@redhat.com,
-	dongli.zhang@oracle.com,
-	maciej.szmigiero@oracle.com,
-	bchaney@akamai.com,
-	mark.kanda@oracle.com,
-	ptikhomirov@virtuozzo.com,
-	den@openvz.org,
-	andrey.drobyshev@virtuozzo.com
-Subject: [PATCH v4 5/5] vhost/vsock: add VHOST_RESET_OWNER ioctl
-Date: Tue, 14 Jul 2026 18:16:38 +0300
-Message-ID: <20260714151638.143019-6-andrey.drobyshev@virtuozzo.com>
-X-Mailer: git-send-email 2.47.1
-In-Reply-To: <20260714151638.143019-1-andrey.drobyshev@virtuozzo.com>
-References: <20260714151638.143019-1-andrey.drobyshev@virtuozzo.com>
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: VI1PR09CA0107.eurprd09.prod.outlook.com
- (2603:10a6:803:78::30) To VI0PR08MB10656.eurprd08.prod.outlook.com
- (2603:10a6:800:20a::12)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="QLGfXEF/"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2cacef7d299so171565ad.1
+        for <virtualization@lists.linux.dev>; Tue, 14 Jul 2026 11:05:27 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784052326; cv=none;
+        d=google.com; s=arc-20260327;
+        b=NJ9yHHUfSGix0fWJUJek51Q3xcIo8enpMawh2mdO5eCTh3U62jU3lLTOef54Jr2z63
+         SXl5ecXmYyjqJe5ogJJwER3/4ZjVR7HnxE6gcJs/A+ZD1Bt2qV0YiueNmEr7v8lSvA4V
+         X1hYxN39W22oKLo52vTP9MEvcF1jFWCT1Y7QjvAzInqgL2z7Bva72CZKNIbBlfJoOn6+
+         rd0rQ4xRHbKaHgEygBmXIlHAfc6H+tHK0jizoNtk0KLGJ8HmObVMHFSGSDpUvBFm6uWo
+         lRQSw81oVNQYOZGrGw4n47xcwrcGpXEzv5Qwm/+BI0dHI8mL31wFUVRqF1KGppsno9d9
+         LzIA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=uqRkl63C710v7jj++AXCujyuoY1ta/1fvK0KnGvJPsM=;
+        fh=SuE0NOduTpGle2MT4PgrgaAw4qwXjhsMM4JUgFzJvlY=;
+        b=KygF9eGRUjpzY6eu2erPpAbyhCsYy6rfTCZ1t10Gmteg6wYIUw5zxkX+a9KMi9PYV2
+         il/ZMKbLsnf5R715Y/qVUiImwRB12+AtIakHEhEdAnDeOSZj0ZNqpLwClz7LmE/HZgVG
+         pmLSUc+/YNLjHS8wclylqjDkdf8Ihga3UgdwrlNUJhJw5h6ZruYu8T+5Up5S9VD3+mNp
+         B77BZkM/YgUHskDWscY4eMVOo+ZMnN2oEXxnAyIYvbdXbpTDczGxoTUxBZnOv7ZjUDsT
+         81SDozKZaTwqNoX47Xu6AsHIHVjAvBkfpUnvs909pCvI/2fgfaPBD35EmVfM1noUnlOk
+         fPaw==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1784052326; x=1784657126; darn=lists.linux.dev;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=uqRkl63C710v7jj++AXCujyuoY1ta/1fvK0KnGvJPsM=;
+        b=QLGfXEF/Thk9nuP0T1a7Y/7HV9PsyshfkLp6X9GHlGXeqAI9Y9STfO9kFYL6+tHskt
+         hSC9eDHfS9Kmxtd5TNSsTn7dHwWk68I7D4TRw1xYvx9KDQDVXX1ltAYd1xnpPfYFLcIn
+         RxR6y4Iz+YSI0lwwfS2WeQPXPoat6jDgDLu7l5x6Jx8zyscF1vVnpkceUZkUdwKwxOCB
+         MBYRCl3c8iJ7J96k7DUfCjN+9yrHYfqcRZorffYNX5F5Srz+bOJZ9EVQy2sfzfFuGBYn
+         KH2/Hsm6E6ZwGZQbbI5hJ9ECkiqH/BMgPj6JFP3l51wmFLsF13l4N2pMCEbpEv/CTko4
+         mySg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784052326; x=1784657126;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=uqRkl63C710v7jj++AXCujyuoY1ta/1fvK0KnGvJPsM=;
+        b=qPrrvx+3BHmkPwBd6bEnSzXfVx7a+JJSOok+CknPe0Id+y9lGTK7wKtNaoAA5u2ymc
+         nJU/7fmBQCw9AsZHUlJR6nH0fC0B8LIEXOHBw5LSZxRnSChcc9mW9V4RIwci3EMl5gFu
+         1lZC5d18NctNZG4KzuzN8hGXD2hWtWUoVaQ1C3+7WNF4dYKfEIFaJ/LTpzlaJEmXWDfK
+         1bJtPQe9kDyah6c5q9QEcBhyFWIdT9hGub0oxQiF01EJCS0blIa1CvCZQSB6GUdvEShD
+         idVxUATkxd2Zv2qa6SMKtWy4iZ/1TPKliy7IwDvvMsFwlJd0uuvbq9t4o4nGSwhOlNt0
+         haMw==
+X-Forwarded-Encrypted: i=1; AHgh+RprEvFJgOwkduY7Ri6LB1KrRXDCwx5XmiIn4VWQxsK4s/7QVVOahooU2yowiyEiKtI4rm0f2SgbFA87AydJ1Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YywD9feuup77LmhnRBkIFKvq3OlHMjL33Etly0d4BBTUJfqSAAu
+	2ypHH1uXBVg2YYQtnZDF8Yy1yofhuN6JNVVcWz4QzIUFKEJudx+wmJuMknNNz5t00bL5MtYLGuf
+	ICcMAbL02ZeXjUzd2gjWGV1MmK3o+/kD094brHNZt
+X-Gm-Gg: AfdE7cm+K3xyAkjOPPt7vmeE78I7BN+9iqlGVTkHMZSujst5epwGUGLXDt3lkVie9s7
+	By7j0fE7dvqsXjjqRIjVXth28kVtGY4Q2gimzTyUFGQpn+hGuKJBXuGNN1ZohnMz1DSHyzQmXqb
+	oEFoPihV8cRo5lObbInMuPmhSMp3/3uUBKUCOW2Uub80cWpR8ft56l/X1mrrAUIlJ93jXQikga0
+	UTKgkDBiZmzSva5rqfyhq2TsgfHtiKeY4tZom9KL2ZTJoEFLCmszn0nHehmOHai2++vVOKM1XNz
+	jwJ9BgvRsIeYZ9iw1XDLqrYW1w==
+X-Received: by 2002:a17:902:c40a:b0:2c9:b404:b55 with SMTP id
+ d9443c01a7336-2cee166107dmr5050295ad.6.1784052325956; Tue, 14 Jul 2026
+ 11:05:25 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: VI0PR08MB10656:EE_|DU0PR08MB7692:EE_
-X-MS-Office365-Filtering-Correlation-Id: 7845cc5b-6772-4526-4636-08dee1baee87
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|23010399003|366016|376014|52116014|7416014|1800799024|56012099006|38350700014|22082099003|18002099003;
-X-Microsoft-Antispam-Message-Info:
-	946jBYZ45mAHPBO33hxS+GK/jZRPOuJ7vB447lcUm/HVNwBZWnQr2dX9VVsOOmuFpqStIiz/5/z+CF7e5yN+PcQMp+k2lNykGIKhcQGE7cmV+8FLimRnRLM6GU4dmclyOsTMhCxRIdnlkkwohkbh0Bz1BWqnYeHbjur6wYzKzmKQJrjH5gqkbSxs1Z7epDlx+Hhgym748iV6a4COXU/lEHNLeSX8lFRmQssLVCdJW8/wIPCUhL9NATkPHRLF9bERPkOnl9p+Xm8VGhMkw0mALFlZkIREDk9EKBK/aRdBkYFq46gU1pOLegoQZG/R4igs15nVg0XvRScuKzDY+eBCvMS+94RsHG/2hVdew/iVHZRPoU4twMMeYb6Cj55Ji9HT2FR1dqGx0EEuEimNlyHKnMWPjQhJW+V98n9F71yvH/Ec6MSYfTYm1gZnIvrQkRQ3shq/LndzjRT00nNA1mXianwPTZ45Yn0eX4Lo+otLzjr7k4KOl5QNVY9iLCFgtROznOk4+Xq7pr5MR4DMKktXQtQP4x7qTO8dE37QjUrhoKVAoQJT2EyjZX8KKV+V5e5a2d1EeEvaSkgdooO+rO5Ju1MYLsvkaSPWmpUETLB//3iCwEeBKaxW90JK9tMo9JWcJ6BaIH0TTd9WHyJmO1D2Q/kxT4kh5FbjKmK/s7hwW/0Y9acySXbtrOiFBoSLifN/KvO6YalGcCrhZch7pVXDThXxIlcemW/K1CRxY+HA2v8=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI0PR08MB10656.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(366016)(376014)(52116014)(7416014)(1800799024)(56012099006)(38350700014)(22082099003)(18002099003);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?o+GjTcPv04UJw7He4lKwzVv5AL2XcQPkxvuLjcMnv5QX8afjRfj4DfOl4gfR?=
- =?us-ascii?Q?UgdMkLal6RrfO1fXDv2FSRt/Pz/jTiTEx1gUg9NzXjBsvbByWAM+W0zYOkkP?=
- =?us-ascii?Q?l4yBGiRhcBWnf+BW2LZDAPbs3wotWr10s9ysvzmuOfUHu1cZWG1/VLeSiFZz?=
- =?us-ascii?Q?Y7BA95Q97JSauLP1AhRn49x+ctc55N6+AZ2ShqRw5nOuf9rPpPGVaxRU0kWr?=
- =?us-ascii?Q?hPVh7zJNQHKdPpiDAYJGHc1qZlO2LmszI1IdqBK8zJgf9j3Zj57wMKgg7T6n?=
- =?us-ascii?Q?3u5Hh9iCfMeFfXWSJj70/fABKZ2y5M6dhfcr3xEBLytMpM+07hrOqbFJ/G0f?=
- =?us-ascii?Q?wpoThggBBmX7xZKr98OScTiBJTNFRprw/xDispSth0w1ifsZRXIFo8Kljubr?=
- =?us-ascii?Q?C/RxMnP0zrne8WgLBIXTxAIM9hfdWRNi2sF1RhcnT/4XwSJMeho4igUe0kzo?=
- =?us-ascii?Q?VvrUWD0dD9d8zwLM5zbq1EdmGTzLSDjpFcsjtQS9ZiyEJTO2vM/CtGNO9xRc?=
- =?us-ascii?Q?oqhSCllmLVGZ+TrRPdm0u0+FUnQwPoVVKXa/xs2/fgnnfg7J+p+3FutdAOij?=
- =?us-ascii?Q?6WzNM6LpEuxs/0AarR0G0bvvWF4bjovojPo5pVOTGTaGjls994H2LFDcDLkC?=
- =?us-ascii?Q?qhclLDc28BBHhdkW6iJ/d5AbwklRgu+YpW2kGqJ/z1b5A/czuw/W86W8U8XW?=
- =?us-ascii?Q?rCs4dEobw5DSz7ZK9QyeRimsHNowJBVgGyCEggw4mzPKYNJAY9NtNRH18lxK?=
- =?us-ascii?Q?fbhbqATBTyIx8liXGJnrKWWF0vLTh5AC+HzfG+XqTy6xMrf4vTqEbXjLnThZ?=
- =?us-ascii?Q?IsQjYQcrz69aKLRcLXIhqFghYMmU3jsOJbUj4A2r1+9o5H0UwR+bdb1y730O?=
- =?us-ascii?Q?hEZzfyEbffoN8xqAj/2tA9kXs6gVNVEsoqV++m26hQDLRrPrB0/kr4oNCnWB?=
- =?us-ascii?Q?W5o9YhWb4E53uRntGvCtCqcm5TXVsMcc/mtqUgLRLR98oxR5EMmS232D7onW?=
- =?us-ascii?Q?+CzmLjtKdMmxZPM98OQcK5BtX+qN9ZFR/JIzvQS5E1DXrKuV9oCO+yAvzCbU?=
- =?us-ascii?Q?onLFW4m+Haz012cKwAxIpkSZZTAVMSuxYlBPp0nM/ssJsYncCFBvU6jMfRiO?=
- =?us-ascii?Q?S3FovA4xUJTGyt2RaOVm/rd+RTOjumi1XLJ9pz9T7wh1Lo9IW+fuoof5NiZ3?=
- =?us-ascii?Q?KABY1aKdLZD8Ynu4K7N46eB24aMlwu1Wcibdpynuvu6nfapmHk1UgQLtCgI6?=
- =?us-ascii?Q?Rpb6Y0j97G1RjlYvJBLvC2pQ2VUO0niouqDqSGAraY5wKory+46XkBmnPq8E?=
- =?us-ascii?Q?0mR0Tfw5MQFynzFO2m7L+XtuS1KQSpwZzLXfx7csyyXRt7zdQjLRCYmSZw+p?=
- =?us-ascii?Q?LH1bDvqzXxoBQCWB8DH04HFVLe7SWDLV81pOiPv1FPHkyF68YR6ynxVrNx48?=
- =?us-ascii?Q?djUcU+w0XXc0zdACMqC3wn4uI3s+hCrZ/rB7nrIr0/WLu5GdpQ1MHvSbm+Mc?=
- =?us-ascii?Q?TKP/C36s/zmFpylciQAMTnzrqLkGhslePyFN9j1EBoMfGx3EexxX2BBhPziM?=
- =?us-ascii?Q?Rz4WFzU8h4ksp5f0AXmEWxYjQtJ1KQTtGKld9OXpscA6aZ5ADt8zNU3xqk1P?=
- =?us-ascii?Q?0vxvBysJD8h0Tf/578lOU/bqnX+KaSb+LBBLaD2d31faXHrQD5Fv+K+Y/iSS?=
- =?us-ascii?Q?hyuRxIaPwx8BPcPZOfXKJYkQKEx8G7i+ZVpL/GG9Zgo/3qEMZk4Qh3Ak8WYl?=
- =?us-ascii?Q?3rJebhAbrCjzLhQoQEAPij20fWXQKXg=3D?=
-X-OriginatorOrg: virtuozzo.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 7845cc5b-6772-4526-4636-08dee1baee87
-X-MS-Exchange-CrossTenant-AuthSource: VI0PR08MB10656.eurprd08.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 14 Jul 2026 15:16:51.6529
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 0bc7f26d-0264-416e-a6fc-8352af79c58f
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: +eZaUA0nGl029oPphJ3/jxMHtHMqW/iXtAM657Ywtm9iH8JB62qXzZs9iMswijHOWouJ1qPJAtQ9mPqXkWWi0UkDxgx5wYaS+xgXc40agM8=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DU0PR08MB7692
+References: <20260709224330.946683-1-linkl@google.com> <8d316b6c-41fb-4ae3-8923-3b649b92b33d@kernel.org>
+ <20260714092146-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20260714092146-mutt-send-email-mst@kernel.org>
+From: Link Lin <linkl@google.com>
+Date: Tue, 14 Jul 2026 11:05:13 -0700
+X-Gm-Features: AUfX_mx5k9DBPXvby8jHd85RScNqoUx2Mk5ySUSPxdCd7MSrVwbUj5pXe7nTaQQ
+Message-ID: <CALUx4KSxjpHhgkHZ5p1khLSe7+-cDHd+ZtBEJS1HytWSo5WbHQ@mail.gmail.com>
+Subject: Re: [RFC] virtio_balloon: fix Use-After-Free in page reporting during
+ PM freeze
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "David Hildenbrand (Arm)" <david@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, 
+	Vlastimil Babka <vbabka@kernel.org>, virtualization@lists.linux.dev, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, prasin@google.com, rientjes@google.com, 
+	duenwen@google.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, 
+	Ammar Faizi <ammarfaizi2@openresty.com>, jiaqiyan@google.com, ahwilkins@google.com, 
+	Greg Thelen <gthelen@google.com>, Alexander Duyck <alexander.duyck@gmail.com>, stable@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-From: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
+On Mon, Jul 13, 2026 at 6:17 AM David Hildenbrand wrote:
+> I assume that workqueue is not frozen yet because ... it's not freezable :)
+> So could we queue to system_freezable_wq instead, or define our own freezable
+> workqueue there? Then a driver doesn't have to worry about that.
 
-This ioctl is needed for QEMU's CPR (checkpoint-restore) migration of
-the guest with vhost-vsock device.  For this to work, we need to reset
-the device ownership on the source side by calling RESET_OWNER, and then
-claim it on the dest side by calling SET_OWNER.  We expect not to lose any
-AF_VSOCK connection while this happens.
+Exactly. As noted in the RFC, the root cause is indeed that system_wq
+lacks the WQ_FREEZABLE flag, leaving it active during suspend.
 
-To that end, unlike the release path, RESET_OWNER keeps the guest CID
-hashed: established connections survive, and host sends issued while
-the device is between owners simply stay on send_pkt_queue until the
-next device start drains them.
+Switching the worker over to system_freezable_wq is a brilliant idea.
+It's a much cleaner abstraction that solves the problem at the core,
+saving individual drivers from having to micromanage this lifecycle
+and handle failure unwinding during freeze/restore.
 
-Since the device stays reachable through the CID hash, the lockless
-send/cancel paths can race with the worker teardown in
-vhost_workers_free().  The previous commit ("vhost: synchronize with
-RCU readers when freeing workers") makes that safe.
+On Mon, Jul 13, 2026 at 6:26 AM Michael S. Tsirkin wrote:
+> +1.  Just system_freezable_wq will do the trick.
 
-Signed-off-by: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
-Signed-off-by: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
----
- drivers/vhost/vsock.c | 25 +++++++++++++++++++++++++
- 1 file changed, 25 insertions(+)
+Thanks, David and Michael. I will drop the virtio-balloon specific
+unregister logic and adopt this approach.
 
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index d5022d21120b..86f25ff80722 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -903,6 +903,29 @@ static int vhost_vsock_set_features(struct vhost_vsock *vsock, u64 features)
- 	return -EFAULT;
- }
- 
-+static long vhost_vsock_reset_owner(struct vhost_vsock *vsock)
-+{
-+	struct vhost_iotlb *umem;
-+	long err;
-+
-+	mutex_lock(&vsock->dev.mutex);
-+	err = vhost_dev_check_owner(&vsock->dev);
-+	if (err)
-+		goto done;
-+	umem = vhost_dev_reset_owner_prepare();
-+	if (!umem) {
-+		err = -ENOMEM;
-+		goto done;
-+	}
-+	vhost_vsock_drop_backends(vsock);
-+	vhost_vsock_flush(vsock);
-+	vhost_dev_stop(&vsock->dev);
-+	vhost_dev_reset_owner(&vsock->dev, umem);
-+done:
-+	mutex_unlock(&vsock->dev.mutex);
-+	return err;
-+}
-+
- static long vhost_vsock_dev_ioctl(struct file *f, unsigned int ioctl,
- 				  unsigned long arg)
- {
-@@ -946,6 +969,8 @@ static long vhost_vsock_dev_ioctl(struct file *f, unsigned int ioctl,
- 			return -EOPNOTSUPP;
- 		vhost_set_backend_features(&vsock->dev, features);
- 		return 0;
-+	case VHOST_RESET_OWNER:
-+		return vhost_vsock_reset_owner(vsock);
- 	default:
- 		mutex_lock(&vsock->dev.mutex);
- 		r = vhost_dev_ioctl(&vsock->dev, ioctl, argp);
--- 
-2.47.1
+Per the earlier feedback to keep these fixes independent, I'll format
+v2 as a 3-part patch series:
+  [PATCH v2 1/3] mm/page_reporting: use system_freezable_wq
+  [PATCH v2 2/3] virtio_balloon: fix shrinker UAF during PM freeze
+  [PATCH v2 3/3] virtio_balloon: fix OOM notifier UAF during PM freeze
 
+I'll send that out shortly.
+
+Thanks,
+Link
