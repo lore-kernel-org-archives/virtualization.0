@@ -1,64 +1,64 @@
-Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com [209.85.218.54])
+Received: from mail-ej1-f43.google.com (mail-ej1-f43.google.com [209.85.218.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 11C7D367F45
-	for <virtualization@lists.linux.dev>; Wed, 15 Jul 2026 14:23:52 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.54
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 3575236F8E8
+	for <virtualization@lists.linux.dev>; Wed, 15 Jul 2026 14:23:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784125436; cv=none; b=s6c9WIrJVEnGWWatythZrt20yMLBosefBQu9ACOE+d1669F9vWI4Lyxl8CwMveLESlUW/ETr0m7LdxL08ShCch4ww7cPN13lteqI4Hz18Y9BMntoyJ/9OXm2I7HKBJknRPJyShk1wYahsQLDm5R7XhiB968Kcllxp6x2VkKltmM=
+	t=1784125438; cv=none; b=m6Kq7lwsAxP+6omPMcJ0W0oV+XRbprvpmFzj0NMebElc08FSswa8+nfRLDuKEvHWXB0dTjwtPjZWFpd/5bxUgPOb9Gphqv5EKI+G09lc0Za4y0lOqcyq8/AmKMWOiifbPie/G+92U4FsFxER6N/cRFXc7qyx00TrKuKLOOU0a7c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784125436; c=relaxed/simple;
-	bh=8X6+CQq3Hs1h/DFamxBzRSZL9Lbvylt2J3qL223C0to=;
+	s=arc-20240116; t=1784125438; c=relaxed/simple;
+	bh=tWfme+tzQ9G7mAqvSYSvjdoyZ1LogMZJCZU9ph6QRJY=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jPwHx71wIXN0tA08NGg/j6DQajddua7v7HV0+ZSaGjYo5NZ8SMns/rf9/cqdYkB9wVcGR8A0ddK9UHPpKJMybU9muii9j3wVkbD4d+nw3gcqq6ObeYVdkmNZJy9N0JhTYo4ROoCUqBbbFE78ZqNY4EI6d4ZbKDQoTegB566+a0M=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=pg3fXCeB; arc=none smtp.client-ip=209.85.218.54
+	 MIME-Version; b=nkQ35oxxouXIGoFNWls9GeK3t2Lu5SnQuvtURUL+FJJM4Xr/l9mwTPpwTKoSpDJAi4pvE8nbZ2sf+cXExxCtwtJCmtRZIAJotcwxL6cAPjcrBQDUhDz0txd/jt+gsMI88HlcV9G2jRKLK5xrqieEKxbZzQCTFcpR4SSugEB/G0Q=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=ELVf0zf/; arc=none smtp.client-ip=209.85.218.43
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="pg3fXCeB"
-Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-c15d3cd51b2so647525466b.3
-        for <virtualization@lists.linux.dev>; Wed, 15 Jul 2026 07:23:52 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="ELVf0zf/"
+Received: by mail-ej1-f43.google.com with SMTP id a640c23a62f3a-c15ba5b151dso285432066b.3
+        for <virtualization@lists.linux.dev>; Wed, 15 Jul 2026 07:23:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784125431; x=1784730231; darn=lists.linux.dev;
+        d=gmail.com; s=20251104; t=1784125432; x=1784730232; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=XBjSAX2B0WW1W8im1PxsWC01gxxXxQM2EqUc+55Cths=;
-        b=pg3fXCeBDWlxdfx0ZvzNzA7IWRi2s/9Xu5+6ThzZumaAW0XUPq/1qPJDaDnmKrmyKS
-         6n89sRYw3IMd0BiWbyDnzn1bIXt7aXaDEY0jHlTav+hmv3RNm5k/28micTmXrUq8+ijt
-         OHENFv9bNA9uXcBG7rZDbcUavnmQcAr6gb/hy72+uZzAQzehibyBnOtRxmtQf5FxWknq
-         fSp+hfiqExObdhELZLm0ZvqKq/CkXj2JKuk3tNB3H8YjcrMnn5eLNJNkzZWSTEEx6QmF
-         eXGE5MAXRM10W4uIb67FV1a7xVK7zSKDUZRHR7/+isdiwg4Vt1zNJxe317xU6vpXEeGr
-         wzmQ==
+        bh=gSGPZtrn7btUtmz6wHgzIANbziCZWoxzvDyAbH1+WOo=;
+        b=ELVf0zf/fg6soe4YuD9REbQ5PgHThvVieyy1pUDGCtIQBoP1c3ENmN1zLf8qcPe6a0
+         xT06PItCJRUtclDMSK9WwtShMdR0r2sn/j4whGmvBcejaH0+hf6nfHjAsScfdumCyrNs
+         scAnmBTLJjpMqX7fJ91MYWqHXs9C7zwrk7WzKG0n5GyjVyqWqsZMU+Pu0+CjwwgTHrOE
+         QtN4/yk3AqYJxIZ+cruwMNh3WwM/1mtN5Emcqw5/3RlV7Yd1AhfYmHkcPQxnsdykfKVh
+         mZqlmkX0EXIl2o1HLwidpA063g1pqItX5jV9dHr5tPRYUZa5Ra7I+nE9ChHudD2Po+Hk
+         Thdw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784125431; x=1784730231;
+        d=1e100.net; s=20251104; t=1784125432; x=1784730232;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=XBjSAX2B0WW1W8im1PxsWC01gxxXxQM2EqUc+55Cths=;
-        b=QKtnmoexfvSwKXLx2ZkHXOY6Y09Bk5dBTi2aVhILt87DHP2+sIs1/idoVRyJpBT+Ju
-         7bGHKgVhPMOio2YNHW01v9ZGmNoyRBA6FLLuygJQyrIwqutjm3zbuWNgvktWYkcWM365
-         QsSfbeASxPW/2aEWQ+Qb1rVHXAiFXVHaO/QSvdytpRPjxHml72ujD0sWON0HZNKWKlM8
-         X8H2yHz9h54jslvmGb9B2Ayj82WsCyNXGwi3Bn/Z5ZFzNyHVLyOAx67aV7iDRJTHMVBR
-         Tyq3PHzaIdVNnHyFIMRT2sU9l84aqBJKeZ+X44yrZu3oCxlhCpbFikh8sYmunHNLwr4g
-         suLg==
-X-Forwarded-Encrypted: i=1; AHgh+RpeabfcWOJxp0BJ5UBl3q0FNzUu+SyxlyWyuaGPra8fpzbB9XsRVRG3gBcswyJgCjdlIgGTmfUQX+LIcTf6Yg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzpnAb4CWpafdMqSbIZw30b/0TwCQIDIcAVjQbH1iXhnifnlOmX
-	dn7YtXCrp3WFZdvlhE0ILfKEoICHf+e3GfdDJ7oPONYuc0pcXG0XiOTk
-X-Gm-Gg: AfdE7clb0Tq9O30gvdtxxXG+amknFoFp3Mt02VqhN5xz000idAwBKoFaoeR9TPFisdX
-	HMhD56aGqSsFiZua0ecBgC4bcYdVbEzIszygJrqYBRcT1L6fYZqljGMaCGj1DCuo8oO4ibfrFzl
-	KRlNTSq5I2UrfYV6+kH4bIHzgpujz0SeSkkLWUFFPMzgU6As2h1uYuUTjRYMG5m0S7Szi1VjuTw
-	WSd1HM7yK7OMuIc3GihneXuNoso+3K5FWumuXRtovobQ24TCPg2eRek7lT5GWM6wDIvUbaSrNtw
-	Aqx4ycAqq9+36Oi1XRHFcCwki2g/BQ9Abnnc9qPiVCpfdcHTCSCdHZ8KuuAJbh/NxK+r8Ns1Bpt
-	iLOtMQK5xWqJZPzf5j4R/ado+PuWR5+MHWaVpS1H1roY71PgHkv6NApIe8qBZprMZQnDROwLiUp
-	ag7EOcl/5ozNLDxjdbLHDGJsaXA1XJMBmOaPK7jMUZKKTAT3c7z+Ft+5SRX16sUNJEIxHes2yIf
-	iWz
-X-Received: by 2002:a17:907:3e9f:b0:c12:7b74:7812 with SMTP id a640c23a62f3a-c1679533edcmr210683766b.59.1784125431131;
-        Wed, 15 Jul 2026 07:23:51 -0700 (PDT)
+        bh=gSGPZtrn7btUtmz6wHgzIANbziCZWoxzvDyAbH1+WOo=;
+        b=my0YuqQJXQ5Xh1i0a6Rx0ZtIRttc9g6Y2th3YubHdLQy79TWFjDKjcK+ks++JGy5YU
+         P+WbPSxwDTyssmdyV0W1fnwCO+ZUlnlW3jtZf2jsCTjGDbTd0o1G6HYMcfpdowRwBILV
+         za/vMy8pQ5o07acJZtRoAHW/gHuxNtNe5TEcRLDXoc6spSzVw0CxPEhM/AOsHe11/kYi
+         UJZz64MIUavs2XbkBqlmj1RKGA02Ba9yabfQ6pXH0dZgwZ+MiDAeZimfA8pfFsR4MEMr
+         fHFed5WdjgtKk6VWF9do0kWRAeL0OG6cFslFlyz8476xtTKhv/1FW7uldp7X5C8faeCr
+         GZ2g==
+X-Forwarded-Encrypted: i=1; AHgh+RpxsQAXguv+ftNm3pZ201rmbZk9gIg0TS5HxTosQ8AFyLK2/HWx0omQxe8wqWEKcxydLPutoGm1G9jJTaBM4g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwwsHb98abQFGco91gUmVmIuq+K8S1XsVDHEKB8uI1KOOVp5w67
+	sAzVUb3GpKIu96rEArtaRO7vXlHMIwV6jcWYNMDtikDVIqA0qTjwS2aS
+X-Gm-Gg: AfdE7cml1s3kg5pME8o23/X7rZaGwMPxp5g1kkhT7GYcA2diAWHYRpyUeBqZx4kHQLZ
+	OaRM0YS1LPwKG8Mn+hBZ7UI1gLmuA8mDsi5PHI5NRA1WbeM4T82v9BYD9R5mVn+RYJOUN7ScHDy
+	+XNVcru8xMOrkcIUZuZS8odLyn3xNrlZMdDqWEBIxxdLApY5Vv5ChEy0wFklOHCobk2IHQk/NW+
+	q83dgwuvzKoAWK9HKgYb2PsETI/ZQ2fP/EdTPLRmkzRdf7Fqs8IWzmL9zOHCDbfDuXhM6PmxIcN
+	hkKEv1g2eQX0OIcRLaXsObVGQyp6pClHfMPgRgY9NHXVd+CbMpGTN26lG0Xr2SzuSzRzOMeMZlZ
+	A8MUIglTMGAXsuW/j2M/G2N6h5Fsgn5qoMNGPGBBOTCBBoMb4Qm3MhM3amBxQCbNNtCkZDQlnnQ
+	mzZi5gpS555eFxqTGvY5EQLR7v6Znh2P90ipbkysDfy5L1G3PjYEox1rDSUYC3DAN1knScBSn/U
+	Sqp
+X-Received: by 2002:a17:907:3f96:b0:c15:f26a:3438 with SMTP id a640c23a62f3a-c161ea32e98mr929035366b.24.1784125432269;
+        Wed, 15 Jul 2026 07:23:52 -0700 (PDT)
 Received: from misharu.home (2a02-a463-a071-0-8f3f-3afb-28f6-19c0.fixed6.kpn.net. [2a02:a463:a071:0:8f3f:3afb:28f6:19c0])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c168744bd40sm38743766b.43.2026.07.15.07.23.50
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c168744bd40sm38743766b.43.2026.07.15.07.23.51
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Jul 2026 07:23:50 -0700 (PDT)
+        Wed, 15 Jul 2026 07:23:51 -0700 (PDT)
 From: Hari Mishal <harimishal1@gmail.com>
 To: Amit Shah <amit@kernel.org>,
 	Arnd Bergmann <arnd@arndb.de>,
@@ -74,9 +74,9 @@ Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	linux-kernel@vger.kernel.org,
 	linux-input@vger.kernel.org,
 	Hari Mishal <harimishal1@gmail.com>
-Subject: [PATCH 3/4] virtio_console: avoid NULL portdev dereference in in_intr()
-Date: Wed, 15 Jul 2026 16:22:42 +0200
-Message-ID: <20260715142337.22811-4-harimishal1@gmail.com>
+Subject: [PATCH 4/4] virtio_console: take a kref in find_port_by_vq() to fix port UAF
+Date: Wed, 15 Jul 2026 16:22:43 +0200
+Message-ID: <20260715142337.22811-5-harimishal1@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260715142337.22811-1-harimishal1@gmail.com>
 References: <20260715142337.22811-1-harimishal1@gmail.com>
@@ -88,37 +88,96 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-A port's virtqueue is not torn down immediately if the port itself is
-hot-unplugged (unplug_port() only nulls port->portdev; the vq
-callback stays registered until the whole device is removed).
-If in_intr() fires for a port in that window it dereferences
-port->portdev->vdev via is_rproc_serial(), crashing on the NULL
-portdev.
+find_port_by_vq() returns a raw struct port pointer without taking a
+reference on it, unlike find_port_by_devt_in_portdev() which does.
+find_port_by_vq()'s only two callers, in_intr() and out_intr(), run
+as virtqueue interrupt callbacks, entirely independent of and
+possibly concurrently with unplug_port(), which itself runs from a
+workqueue when the host sends a VIRTIO_CONSOLE_PORT_REMOVE control
+message.
 
-Bail out early when portdev has already been cleared.
+unplug_port() removes the port from portdev->ports under ports_lock,
+then later drops its last reference with kref_put(), freeing it via
+remove_port(). find_port_by_vq() also walks portdev->ports under
+ports_lock, so if it finds the port still on the list, the list
+removal, and therefore the eventual kref_put(), has not happened yet,
+and taking a reference at that point is always safe. Without doing
+so, in_intr()/out_intr() can be left holding a pointer to a port that
+unplug_port() frees on another core before they are done using it.
 
-Assisted-by: gkh_clanker:t1000
+Both triggers are host-controlled as the host decides when to send the
+PORT_REMOVE control message and when to kick the port's data vq. So a
+malicious backend could race the two on purpose, without any guest side
+cooperation. The freed object is a generic kmalloc allocation containing
+a wait_queue_head_t, which in_intr()/out_intr() pass to
+wake_up_interruptible() after touching the stale pointer.
+wake_up_interruptible() invokes a function pointer read out of the
+wait queue's entries. If the freed slab slot is reclaimed with
+attacker influenced content before that call, then this is an arbitrary
+function call primitive rather than just undefined behaviour.
+
+Take a reference in find_port_by_vq() while still holding ports_lock,
+matching find_port_by_devt_in_portdev(), and release it in in_intr()
+and out_intr() once they are done with the port.
+
 Signed-off-by: Hari Mishal <harimishal1@gmail.com>
 ---
- drivers/char/virtio_console.c | 5 +++++
- 1 file changed, 5 insertions(+)
+ drivers/char/virtio_console.c | 13 ++++++++++++-
+ 1 file changed, 12 insertions(+), 1 deletion(-)
 
 diff --git a/drivers/char/virtio_console.c b/drivers/char/virtio_console.c
-index 198b97314168..faef362dae85 100644
+index faef362dae85..1b7593684ed9 100644
 --- a/drivers/char/virtio_console.c
 +++ b/drivers/char/virtio_console.c
-@@ -1720,6 +1720,11 @@ static void in_intr(struct virtqueue *vq)
+@@ -304,6 +304,11 @@ static struct port *find_port_by_id(struct ports_device *portdev, u32 id)
+ 	return port;
+ }
+ 
++/*
++ * The port object's reference is incremented now and
++ * it is the caller's responsibility to decrement it
++ */
++
+ static struct port *find_port_by_vq(struct ports_device *portdev,
+ 				    struct virtqueue *vq)
+ {
+@@ -312,8 +317,10 @@ static struct port *find_port_by_vq(struct ports_device *portdev,
+ 
+ 	spin_lock_irqsave(&portdev->ports_lock, flags);
+ 	list_for_each_entry(port, &portdev->ports, list)
+-		if (port->in_vq == vq || port->out_vq == vq)
++		if (port->in_vq == vq || port->out_vq == vq) {
++			kref_get(&port->kref);
+ 			goto out;
++		}
+ 	port = NULL;
+ out:
+ 	spin_unlock_irqrestore(&portdev->ports_lock, flags);
+@@ -1706,6 +1713,7 @@ static void out_intr(struct virtqueue *vq)
  	}
  
- 	spin_lock_irqsave(&port->inbuf_lock, flags);
-+	if (!port->portdev) {
-+		/* Port is being unplugged, ignore further data. */
-+		spin_unlock_irqrestore(&port->inbuf_lock, flags);
-+		return;
-+	}
- 	port->inbuf = get_inbuf(port);
+ 	wake_up_interruptible(&port->waitqueue);
++	kref_put(&port->kref, remove_port);
+ }
  
- 	/*
+ static void in_intr(struct virtqueue *vq)
+@@ -1723,6 +1731,7 @@ static void in_intr(struct virtqueue *vq)
+ 	if (!port->portdev) {
+ 		/* Port is being unplugged, ignore further data. */
+ 		spin_unlock_irqrestore(&port->inbuf_lock, flags);
++		kref_put(&port->kref, remove_port);
+ 		return;
+ 	}
+ 	port->inbuf = get_inbuf(port);
+@@ -1756,6 +1765,8 @@ static void in_intr(struct virtqueue *vq)
+ 
+ 	if (is_console_port(port) && hvc_poll(port->cons.hvc))
+ 		hvc_kick();
++
++	kref_put(&port->kref, remove_port);
+ }
+ 
+ static void control_intr(struct virtqueue *vq)
 -- 
 2.43.0
 
