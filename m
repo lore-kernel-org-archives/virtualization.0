@@ -1,34 +1,34 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.4])
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.5])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D4E243C8C43
-	for <virtualization@lists.linux.dev>; Wed, 15 Jul 2026 08:09:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.4
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29AFF315D3E
+	for <virtualization@lists.linux.dev>; Wed, 15 Jul 2026 08:09:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784102966; cv=none; b=W9ou9OnsCaa14jEqpLye9wfkBJQxg6KStDSBHSw0r9oLC7PAl/YeULqDxnUeIc/a/HQ5+wTxKVIcngyEr4Uhq0kcchff1F/GY/5ftGOKATUY0efKNnPOEVnIn07NaGXAJERBdM0KXEaqYP2WJ1XFOClSKXOPm24tKYaSAnpzY6Q=
+	t=1784102967; cv=none; b=o7MhKkX5w7eAMyCn0STTxmpFvyZFLaBUOBpKo654k4RUhGJZb4Fj37bZznJG5adhhdOBej9IQmv1we0xwX33SvalrGFUkdffjYDbhdDU+gLr8b/5xCujX7Y/Q6CMs4uViLyIj+hCkwa0pPalCwATSw7RJi5tMLHdm67SeTuGwo8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784102966; c=relaxed/simple;
-	bh=5tcPKwpIDjsWKs6MzlT9FnZF6+EyCK51e2bEgoE20HI=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version; b=EYv5GIReaHLX8PBIOvmOyj2c/ja4ckFPIqxHSH7tg8yW3ad3m0u4TP0ceAggmLXBNcM27LYS/g6we9cZoe3TuETXoNBGOGaoOa6yCcmYTsi7sKkf1KR5BmKubegXpdt8E6GpHsT8DFMz4LJ9IWxpGqtgOaONjCRd8E+t/42KCs8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=H5okIFV7; arc=none smtp.client-ip=117.135.210.4
+	s=arc-20240116; t=1784102967; c=relaxed/simple;
+	bh=SJFmFkfhsltfgrz2J9eDAQcLIP4a8wUqpNXfcN9yNqA=;
+	h=From:To:Subject:Date:Message-ID:MIME-Version; b=P186zyaqgc4N/0j75qv9ZW3jSwwfFoKkmoVmydNIiq7rh+Q8qz7HTE4QeBCWzjejCsn0VqzfeVO9UVqwj9k52jpWobfEwsrMurElcwDd/QcC+YficyQ+oR6qb24wxV7EPRfKon51ZjUHOPiYpdilL0JX9nqeqpn687FrvTYGp9M=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=LvW9LIQV; arc=none smtp.client-ip=220.197.31.5
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="H5okIFV7"
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="LvW9LIQV"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version; bh=Si
-	IXtYrxZlh56/rCFMqeqwyfNP9xaxjnOp6azq+VESk=; b=H5okIFV7ptMUF1rq4F
-	MRg5glr7KClInyOPMusO8Pc4X1lWbuA6B9b7MqFueaaAZzJu3Lu6zfwjV+57O7ZM
-	Q4pVCG9K54GildMrXx+Pzuw2LwKLdTgTTzemnKiuT8+6gbFAZ86fBdNMR4iSNf3f
-	EoRGpmVlw5UdQTlq8Qos+c2ZM=
+	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version; bh=Hk
+	c4BqTzkBkrdhNJBK7oj/vlJFH0BXOJ/8VY4yK1mkI=; b=LvW9LIQVCcI/YX0kT8
+	27U5kGlwM9TmHRTPxD8DrM7+/zTbC9FXk8NyBggNpDH7Lp79iCNyPqMOwux+cIgN
+	mZgWNxjwHLrNUyDFElUwesyYBizrSBzSnDXTL+tlahsRwPp6Ot3dptaoyH8OqQwj
+	duoyDLOTqCcd41dhm75aj3u5U=
 Received: from xwm-TianYi510Pro-14IMB.. (unknown [])
-	by gzsmtp5 (Coremail) with SMTP id QCgvCgAH7u0vQFdqNnVMHQ--.33855S2;
-	Wed, 15 Jul 2026 16:09:19 +0800 (CST)
+	by gzga-smtp-mtada-g0-3 (Coremail) with SMTP id _____wCHjxkrQFdqkOeoJg--.39348S2;
+	Wed, 15 Jul 2026 16:09:16 +0800 (CST)
 From: Weimin Xiong <xiongwm2026@163.com>
 To: virtualization@lists.linux.dev
-Subject: [PATCH 09/12] vhost-net: use sizeof(*featurep) instead of sizeof(u64)
-Date: Wed, 15 Jul 2026 16:09:19 +0800
-Message-ID: <20260715080919.21837-1-xiongwm2026@163.com>
+Subject: [PATCH 02/12] vhost-scsi: remove dead commented code in vhost_scsi_make_tport
+Date: Wed, 15 Jul 2026 16:09:15 +0800
+Message-ID: <20260715080915.21742-1-xiongwm2026@163.com>
 X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -37,60 +37,39 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:QCgvCgAH7u0vQFdqNnVMHQ--.33855S2
-X-Coremail-Antispam: 1Uf129KBjvJXoW7KFW7Gr4xtFy8XrW8Kr15urg_yoW8AF4Upa
-	95K34UAFyUGr12yanFvr9xZ3W3J3ZxCa1UKr9293yrXF15ury5C3ZFkFy2qrZrJryUuryr
-	JF1DtFy5C398Zr7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07j5KsUUUUUU=
-X-CM-SenderInfo: x0lr0wdzpsijqw6rljoofrz/xtbC7w+LG2pXQC-4UgAA3I
+X-CM-TRANSID:_____wCHjxkrQFdqkOeoJg--.39348S2
+X-Coremail-Antispam: 1Uf129KBjvdXoWrKrWfKw1kurW7Cr4fWr4kZwb_yoW3KrX_u3
+	yFqr1DXFn3Cr4vvw4kAFy3A34Fkw48Xr1kuasYyrZxZr9rXrn0ka4kAF95Ar47Zry8GF9r
+	CFs8AFyUZw4IyjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUvcSsGvfC2KfnxnUUI43ZEXa7IU0-db5UUUUU==
+X-CM-SenderInfo: x0lr0wdzpsijqw6rljoofrz/xtbCzQyLG2pXQCyvmwAA30
 
 From: xiongweimin <xiongwm2026@163.com>
 
-Use sizeof(*featurep) instead of sizeof(u64) for better type safety
-and consistency with kernel coding style. While sizeof(u64) equals
-sizeof(*featurep) on all supported platforms, using sizeof(*featurep)
-makes the code more maintainable.
+Remove dead commented-out code that was left behind during previous
+refactoring. The code checked for invalid WWN parsing but is no longer
+used.
 
 Signed-off-by: Weimin Xiong <xiongwm2026@163.com>
 Co-authored-by: Cursor <cursoragent@cursor.com>
 ---
- drivers/vhost/net.c | 10 +++++-----
- 1 file changed, 5 insertions(+), 5 deletions(-)
+ drivers/vhost/scsi.c | 3 ---
+ 1 file changed, 3 deletions(-)
 
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index c6854cba5..94028598f 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -1777,14 +1777,14 @@ static long vhost_net_ioctl(struct file *f, unsigned int ioctl,
- 			return -EFAULT;
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index 81e905c4c..77e47f246 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -2841,9 +2841,6 @@ vhost_scsi_make_tport(struct target_fabric_configfs *tf,
+ 	u64 wwpn = 0;
+ 	int off = 0;
  
- 		/* Copy the net features, up to the user-provided buffer size */
--		argp += sizeof(u64);
-+		argp += sizeof(*featurep);
- 		copied = min(count, (u64)VIRTIO_FEATURES_U64S);
- 		if (copy_to_user(argp, vhost_net_features,
--				 copied * sizeof(u64)))
-+				 copied * sizeof(*featurep)))
- 			return -EFAULT;
- 
- 		/* Zero the trailing space provided by user-space, if any */
--		if (clear_user(argp, size_mul(count - copied, sizeof(u64))))
-+		if (clear_user(argp, size_mul(count - copied, sizeof(*featurep))))
- 			return -EFAULT;
- 		return 0;
- 	case VHOST_SET_FEATURES_ARRAY:
-@@ -1792,9 +1792,9 @@ static long vhost_net_ioctl(struct file *f, unsigned int ioctl,
- 			return -EFAULT;
- 
- 		virtio_features_zero(all_features);
--		argp += sizeof(u64);
-+		argp += sizeof(*featurep);
- 		copied = min(count, (u64)VIRTIO_FEATURES_U64S);
--		if (copy_from_user(all_features, argp, copied * sizeof(u64)))
-+		if (copy_from_user(all_features, argp, copied * sizeof(*featurep)))
- 			return -EFAULT;
- 
- 		/*
+-	/* if (vhost_scsi_parse_wwn(name, &wwpn, 1) < 0)
+-		return ERR_PTR(-EINVAL); */
+-
+ 	tport = kzalloc_obj(*tport);
+ 	if (!tport) {
+ 		pr_err("Unable to allocate struct vhost_scsi_tport");
 -- 
 2.43.0
 
