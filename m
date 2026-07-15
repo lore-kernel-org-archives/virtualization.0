@@ -1,54 +1,120 @@
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.2])
+Received: from mailout1.w1.samsung.com (mailout1.w1.samsung.com [210.118.77.11])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EED4A305047
-	for <virtualization@lists.linux.dev>; Wed, 15 Jul 2026 08:33:42 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.2
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92D4D3D47A6
+	for <virtualization@lists.linux.dev>; Wed, 15 Jul 2026 08:50:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=210.118.77.11
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784104427; cv=none; b=jn+8o8uMOJ7IIczSYISxn43zuUjS+mxP9JHh2LeUQHuNlcbXUOcyw8e3VWa4JPiWfM1xuSswk6DGbw0yf85cIM632EzeId2tzp1MMOo3jVtn1X9edD6+5jwEBCKSfFkqmNCaXFm54WXBGTrU/mdrU05U8+WS6FKFByATfyuK8yU=
+	t=1784105410; cv=none; b=cn2Nst2xdzvnCjGb1oa61WL2k7XM8SIQ9o/XoCo4Tvd0v4QgCPUQ7QMJU2KP7mKzUlP4p+XFYhZ45WhD/mLYVibETYIe38jjwSbvzY9yJ0blDQLH4YRSJbSy2HM82ZfCNOvQjjERJUK5kqt0orywr2d8K9/kA+3rXxIvI/CYzyE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784104427; c=relaxed/simple;
-	bh=U6JR/PoX3S+8pkFQ9lQp6OpGeokwyfDEgky1PWHD/+8=;
-	h=From:To:Subject:Date:Message-ID:MIME-Version:Content-Type; b=TwOcU0Tpe7jNomxd8tEdT/YCtPh8rZhp/a5cKawKTtKQyZFAiB89kJmZQeHzOZD1dh4M34sWSUUCbeRBW7omUiyRXt7jCpot9zXZrCISwQkUAOyQaJl0fNLt3VQ66QHsaH8JoHZMjufNLSp+1Mx+Pt+5Xf7IyY++nV3ZDPfk97g=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=Xj7SNS5w; arc=none smtp.client-ip=220.197.31.2
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1784105410; c=relaxed/simple;
+	bh=I5OAkfmHEvsQbo1hvOZkHC/fWbcEfAyx7MnKvtFUAyg=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:In-Reply-To:
+	 Content-Type:References; b=HAPLBPIR/nnDmPhM1PXxTjr2cAQZf2xW0+UqD3syd8UuKLMSU9h154AXX37i9HybSKiW0i2GC6mZebrNTij4QPXk7jedmjcle1rK1iET22YA7Vx1Dq4HcUOW4V5Y7RRObqynHOB9ufQ0czFWgj7L6VoELdRo0qXrDIgq8uh65Gw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com; spf=pass smtp.mailfrom=samsung.com; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=vfnltAKj; arc=none smtp.client-ip=210.118.77.11
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=samsung.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="Xj7SNS5w"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version:
-	Content-Type; bh=U6JR/PoX3S+8pkFQ9lQp6OpGeokwyfDEgky1PWHD/+8=;
-	b=Xj7SNS5wTVoI+gm22IRrMoULd37ta7ZMPAvFAEFBsrwkbOv3XsNvy/c/MH5DA8
-	0FP+gORoj+doCz4dKL7Kz36h+yViVwMsqFIkCaLfhK4BOWWZxt/xuKap6NbXV3t4
-	+4D74/72wFTYnREhh7mdTJkqGBgbwxYcXcD9hhkyYapiw=
-Received: from xwm-TianYi510Pro-14IMB.. (unknown [])
-	by gzga-smtp-mtada-g1-3 (Coremail) with SMTP id _____wDn8xDfRVdqVvEJIg--.101S2;
-	Wed, 15 Jul 2026 16:33:38 +0800 (CST)
-From: Weimin Xiong <xiongwm2026@163.com>
-To: virtualization@lists.linux.dev
-Subject: [PATCH 00/12] vhost: cleanups and improvements - PLEASE IGNORE
-Date: Wed, 15 Jul 2026 16:33:35 +0800
-Message-ID: <20260715081400.1-xiongwm2026@163.com>
-X-Mailer: git-send-email 2.43.0
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="vfnltAKj"
+Received: from eucas1p1.samsung.com (unknown [182.198.249.206])
+	by mailout1.w1.samsung.com (KnoxPortal) with ESMTP id 20260715084952euoutp01f2a1a93d007d7346c19fe5983b817765~CambQFxpU2313523135euoutp01i
+	for <virtualization@lists.linux.dev>; Wed, 15 Jul 2026 08:49:52 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.w1.samsung.com 20260715084952euoutp01f2a1a93d007d7346c19fe5983b817765~CambQFxpU2313523135euoutp01i
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1784105392;
+	bh=W+ZhuCKZnyUyI5mfgulmDYNya+im90TvyaU9a/3RrHQ=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=vfnltAKjC22aVV87YrEA6i9yZNifCxQpgooZdLtCDUkHiwbm8oK3c/rBoHWlt9kgu
+	 TMdw1hvIE+X0ZukSnNggVmVJcwjWJWs8HlRN1JxcWrdHtEoTCbgHCipIs2w8iLiwqr
+	 zFGza3P9/aoYKxgHF8s14cA5ed3wnsk3WdkSLLZM=
+Received: from eusmtip2.samsung.com (unknown [203.254.199.222]) by
+	eucas1p2.samsung.com (KnoxPortal) with ESMTPA id
+	20260715084952eucas1p263586986449da01e2cca9851c4118919~CambGuAoD2082520825eucas1p2y;
+	Wed, 15 Jul 2026 08:49:52 +0000 (GMT)
+Received: from AMDC4622.eu.corp.samsungelectronics.net (unknown
+	[106.120.77.34]) by eusmtip2.samsung.com (KnoxPortal) with ESMTPA id
+	20260715084951eusmtip25a541156a238e99f8ef7d8ce7ba9deac~CamasCW5p1038310383eusmtip2T;
+	Wed, 15 Jul 2026 08:49:51 +0000 (GMT)
+Date: Wed, 15 Jul 2026 10:49:46 +0200
+From: Jakub Raczynski <j.raczynski@samsung.com>
+To: weimin xiong <15927021679@163.com>
+Cc: netdev@vger.kernel.org, mst@redhat.com, jasowangio@gmail.com,
+	xuanzhuo@linux.alibaba.com, eperezma@redhat.com,
+	virtualization@lists.linux.dev, xiongweimin <xiongweimin@kylinos.cn>
+Subject: Re: [PATCH] virtio_net: fix spelling of aggressively in comments
+Message-ID: <aldJquLV8Up9o3X2@AMDC4622.eu.corp.samsungelectronics.net>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wDn8xDfRVdqVvEJIg--.101S2
-X-Coremail-Antispam: 1Uf129KBjDUn29KB7ZKAUJUUUUU529EdanIXcx71UUUUU7v73
-	VFW2AGmfu7bjvjm3AaLaJ3UbIYCTnIWIevJa73UjIFyTuYvjxU2T5lUUUUU
-X-CM-SenderInfo: x0lr0wdzpsijqw6rljoofrz/xtbC7wL5iWpXReKAkAAA3X
-Message-ID: <20260715083335.OhWale_r6s57Xqy4DWDdEp5HNioUuPo3VMiT_OC7bLo@z>
+In-Reply-To: <20260714024037.186799-1-15927021679@163.com>
+X-CMS-MailID: 20260715084952eucas1p263586986449da01e2cca9851c4118919
+X-Msg-Generator: CA
+Content-Type: multipart/mixed;
+	boundary="----F80QVkSs0AhR68Zg0oSW-b5-i4-oaHVRPVEJevbh2s58A1oD=_34582_"
+X-RootMTR: 20260715084952eucas1p263586986449da01e2cca9851c4118919
+X-EPHeader: CA
+X-CMS-RootMailID: 20260715084952eucas1p263586986449da01e2cca9851c4118919
+References: <20260714024037.186799-1-15927021679@163.com>
+	<CGME20260715084952eucas1p263586986449da01e2cca9851c4118919@eucas1p2.samsung.com>
 
-Please ignore the previous series "[PATCH 00/12] vhost: cleanups and improvements"
-sent earlier today. There were missing CC recipients. A corrected version
-will be resent shortly.
+------F80QVkSs0AhR68Zg0oSW-b5-i4-oaHVRPVEJevbh2s58A1oD=_34582_
+Content-Type: text/plain; charset="us-ascii"
+Content-Disposition: inline
 
-Sorry for the noise.
+Please read
+https://www.kernel.org/doc/html/latest/process/maintainer-netdev.html
 
-Weimin Xiong
+This patch should target net-next tree and is not actively CC'ing any
+maintainer. Use 'get_maintainer.pl' script to get correct recipents.
 
+BR
+Jakub Raczynski
+
+On Tue, Jul 14, 2026 at 10:40:37AM +0800, weimin xiong wrote:
+> From: xiongweimin <xiongweimin@kylinos.cn>
+> 
+> Two receive-path comments misspell "aggressively" as "agressively".
+> 
+> Signed-off-by: xiongweimin <xiongweimin@kylinos.cn>
+> ---
+>  drivers/net/virtio_net.c | 4 ++--
+>  1 file changed, 2 insertions(+), 2 deletions(-)
+> 
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 3e2a5876c..f3c7b28ce 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -3190,7 +3190,7 @@ static int virtnet_open(struct net_device *dev)
+>  
+>  	for (i = 0; i < vi->max_queue_pairs; i++) {
+>  		if (i < vi->curr_queue_pairs)
+> -			/* Pre-fill rq agressively, to make sure we are ready to
+> +			/* Pre-fill rq aggressively, to make sure we are ready to
+>  			 * get packets immediately.
+>  			 */
+>  			try_fill_recv(vi, &vi->rq[i], GFP_KERNEL);
+> @@ -3419,7 +3419,7 @@ static void virtnet_rx_resume(struct virtnet_info *vi,
+>  			      bool refill)
+>  {
+>  	if (netif_running(vi->dev)) {
+> -		/* Pre-fill rq agressively, to make sure we are ready to get
+> +		/* Pre-fill rq aggressively, to make sure we are ready to get
+>  		 * packets immediately.
+>  		 */
+>  		if (refill)
+> -- 
+> 2.43.0
+> 
+> 
+> No virus found
+> 		Checked by Hillstone Network AntiVirus
+> 
+
+------F80QVkSs0AhR68Zg0oSW-b5-i4-oaHVRPVEJevbh2s58A1oD=_34582_
+Content-Type: text/plain; charset="utf-8"
+
+
+------F80QVkSs0AhR68Zg0oSW-b5-i4-oaHVRPVEJevbh2s58A1oD=_34582_--
