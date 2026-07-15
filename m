@@ -1,88 +1,183 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.2])
+Received: from fhigh-a1-smtp.messagingengine.com (fhigh-a1-smtp.messagingengine.com [103.168.172.152])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 81AB3438036
-	for <virtualization@lists.linux.dev>; Wed, 15 Jul 2026 09:36:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.2
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 09B7743E497
+	for <virtualization@lists.linux.dev>; Wed, 15 Jul 2026 10:14:02 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=103.168.172.152
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784108187; cv=none; b=I0Hq7l0HwlDPOuyoMiLaGqCXSTeSA3f2sYvdT+Pd3YfrNy/PadnUbWEIvVG53+C2qBPBY/mhcuABGBd5+41+KrYrjIOlzDDsSejDv3De3Sp5BRVcGe6CmaDbEaSIvUsQkWq+KGn2HmXpahSxRdl4wd0/0jE7PQURsHffpiO7JBA=
+	t=1784110445; cv=none; b=R7dLC76Lsno45D/ccsImdoAigvecwyIUTJDQTm3dqdLmwdYYL+P5GIowmj4MH835WgdYHznhatWw6Obfexn7ZV98ATUcg03Y+ETgdFadNWKZ1jD0NbuhWLM7gNzKQs+cx5WjBGS8JOR09voksseHT7Rt4pTxOu1fc0AICEh5G5w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784108187; c=relaxed/simple;
-	bh=qCBEc0lLVnvyODJrSLVo6C8mYtRajqqgkMNuhL42ATc=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References:Content-Type:
-	 MIME-Version:Message-ID; b=lgzx+pjzYSAe6ZqKDs9XgVOoi20e7viYHOjRui1nVIvGUirj5xR4I4HmGB02EfjNCB9HBn/D5yctbVdE2KZVaZH4h5WyGpMyia3nnd4UdBAyOiw27wSXI+0RyZ0EADGawZrtwUyjWz/2C3VVhuEKHXDpAxTBLw5QTG9fnvLtznk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=JoIoeVJq; arc=none smtp.client-ip=117.135.210.2
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1784110445; c=relaxed/simple;
+	bh=vcHpXZWbYk2ay6D9Hi5DiFsrsvAyFpVQV7XV2sBhgLw=;
+	h=From:To:Cc:Subject:In-Reply-To:References:Date:Message-ID:
+	 MIME-Version:Content-Type; b=UixwhdK2KHqMkbSVx0QKtmIoziskM5bDT0o4qviBUQnJ/aZzq5m/pBYCzDplfjLZUivbuoZWlAs7mpSG5SeqipIInSVgfZm2ChypHblAjdPwkBvbx7H6rfwjYwp/s9QvOaE4j0TlldamRFmpR6IUhCr4oNnGSI/16E/+FmQLGn8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alyssa.is; spf=pass smtp.mailfrom=alyssa.is; dkim=pass (2048-bit key) header.d=alyssa.is header.i=@alyssa.is header.b=LzrXnvng; dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b=DhiKl2h+; arc=none smtp.client-ip=103.168.172.152
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=alyssa.is
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=alyssa.is
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="JoIoeVJq"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=Date:From:To:Subject:Content-Type:MIME-Version:
-	Message-ID; bh=qCBEc0lLVnvyODJrSLVo6C8mYtRajqqgkMNuhL42ATc=; b=J
-	oIoeVJqXjjr3EMIpNjx6UW0N7MB68XCOEhPneZAvlH2mJp1p73MAnXlGkeDRisWv
-	wGE4fjtsda/L6/j1JmK4/KWhi/qpMgT4qEvhKWSdczbK+dhQ3gsFSY1eHz6gTHj9
-	ukT97lpoYMIhgfo215jUtGL7gPj+9Tb7P/tMSbE2to=
-Received: from xiongwm2026$163.com ( [116.128.244.169] ) by
- ajax-webmail-wmsvr-40-144 (Coremail) ; Wed, 15 Jul 2026 17:36:13 +0800
- (CST)
-Date: Wed, 15 Jul 2026 17:36:13 +0800 (CST)
-From: xiongwm2026  <xiongwm2026@163.com>
-To: "Bobby Eshleman" <bobbyeshleman@gmail.com>
-Cc: virtualization@lists.linux.dev
-Subject: Re:Re: [PATCH 01/12] vhost-scsi: improve BIDI operation comments
-X-Priority: 3
-X-Mailer: Coremail Webmail Server Version 2023.4-cmXT build
- 20260511(2e539873) Copyright (c) 2002-2026 www.mailtech.cn 163com
-In-Reply-To: <aldR5cNr3SlVoBX/@devvm29614.prn0.facebook.com>
-References: <20260715080906.21689-1-xiongwm2026@163.com>
- <aldR5cNr3SlVoBX/@devvm29614.prn0.facebook.com>
-X-NTES-SC: AL_Qu2TBv2bt0ks5SOQbOkckk8Ugeg8Xsewsvgh249ec+wGggHJyBoQb05hIkLH+sOFFRCKuSK5Xxdf6OZWUIZi2bSHs6jITa1Lh2yYqEp9Ew==
-Content-Transfer-Encoding: base64
-Content-Type: text/plain; charset=GBK
+	dkim=pass (2048-bit key) header.d=alyssa.is header.i=@alyssa.is header.b="LzrXnvng";
+	dkim=pass (2048-bit key) header.d=messagingengine.com header.i=@messagingengine.com header.b="DhiKl2h+"
+Received: from phl-compute-05.internal (phl-compute-05.internal [10.202.2.45])
+	by mailfhigh.phl.internal (Postfix) with ESMTP id 108921400088;
+	Wed, 15 Jul 2026 06:14:02 -0400 (EDT)
+Received: from phl-frontend-04 ([10.202.2.163])
+  by phl-compute-05.internal (MEProxy); Wed, 15 Jul 2026 06:14:02 -0400
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=alyssa.is; h=cc
+	:cc:content-type:content-type:date:date:from:from:in-reply-to
+	:in-reply-to:message-id:mime-version:references:reply-to:subject
+	:subject:to:to; s=fm1; t=1784110442; x=1784196842; bh=49aI14s90h
+	B7x4wh35JZ4l2pUhHMlrif5urm+QT7X7o=; b=LzrXnvngE2TSpcTLWF/uDGXsqa
+	f50kqKHw5H4EALcZQDfUcVDrjbvJGpf24g2T2tDL5hg9jSe0I6Sg3zO4lwAtici2
+	8S3cpohzwtcTTA19cvWissO3Uwantq7BJUlAeCTtlsHe4e7KRlAMpRS4xvrMFFdv
+	jJqkNDmFDb+Q0I/p+qOsi9r8vp2WsDdVLnOe/yl7bf0EKr4WAYy/Pm42v1ndfSaO
+	+eUPGLspQVFRITW9BdJNUnHxhyFh1xWUPtsr6WQLKRPfYbcT6HHsk4LX7Yk8H/+r
+	08p2jHFVDYVESAweil2hThicmsCHfcrOVtiWLvSKNWA8AXPpwqY9aWNr1glA==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=
+	messagingengine.com; h=cc:cc:content-type:content-type:date:date
+	:feedback-id:feedback-id:from:from:in-reply-to:in-reply-to
+	:message-id:mime-version:references:reply-to:subject:subject:to
+	:to:x-me-proxy:x-me-sender:x-me-sender:x-sasl-enc; s=fm2; t=
+	1784110442; x=1784196842; bh=49aI14s90hB7x4wh35JZ4l2pUhHMlrif5ur
+	m+QT7X7o=; b=DhiKl2h+fb3t6jUeCompbKuSVRfoLZAugZHtchef58gMus6CLtp
+	NTaEGHEyMPyqtz3DshTqEVPVhnYjp9hOLPc1nPwv0pPA+NYiDkXlJb36jAoWE3KA
+	uCLN7VSJJ2ZwNkQPz1TR/W5f5oYstYA2eklDVT5Y7el+4cNJfT5CRjiqbHIwVMTv
+	BoI+GQI/QOdz0uXvIUePmxib56CK7LxtAg85oMJ1R803dXIKyT+ZoHYntyyA0flh
+	2xDEhpoK0pD9Ixx2RvC0PB52GJBT1KTTNIODpQN/Tfb24PIDpBaLGdsvG1F4oWlM
+	etKEUJHO2MMV2fX3XrdTt3gGPvC+zx4tqAQ==
+X-ME-Sender: <xms:aF1XapUe7kavbl7yOBCFYM-giYrJMEnY62m5qdxvDDRrfNK-x3QLcQ>
+    <xme:aF1Xan_Nq91OgWXosRYiBGJn4P-hQ3xYDRuF_ELGxDXJsWCGq2dGG1b81h1dF8b2F
+    klyE4rjkRlwQZiWsYhQrN-UxKgliFG5Ya56cdL5zc1eGC8fwFvICg>
+X-ME-Received: <xmr:aF1XahZSRst61nr1I-2QfNBaRHSZ5PnFdIRctrtg1PzPDd_qV-2bVf5krEkv_db_T0G5>
+X-ME-Proxy-Cause: dmFkZTEoZOCIo4U6eq8f47vDa/o8pjYC8gX3I8aBhns7yWEI2JBeaRsdm2VQ7mvZdD9VXV
+    nRIXJ7wOh9ZYtMJ6UgKwt4ebVYd5IaSpwFcscVV/YTVady2bCueuKlR8+9hXQSzJFQuI2z
+    p2CrOfl+djXZectdT5ovTMgrEQ2zW9b37Nn3iB7Zb2fpX2omM2OpkNZ07a8pO0UUsWQ6ua
+    2XP4Y5fcbwzwJhazpvPQV353NItlZHPj0wNLmFhQ0Dvo7jK6jlSECWTKJm/5GnAQWiApO/
+    gDgsRf1tZ6OQUPOowcYNa1XWEEkCBvOp2WriQicy8BJAp0tLlf+My2WbC+SnsXARoWECQg
+    YCcha2v/vzeVMkZp74a36knLzKscHFwQFAbeecwrYI2sN6nrdaf1TWTOk2vLAjnZPxPtZP
+    RRM0KjJGAwfpmELPEyigSKe2kA1vm3uAPqfHhhfvvIQJY81JaI0pz2OBqnkqaByrQ0hpHg
+    VS/PginqA2x36Y6P0cqDr4feyeKgsIJ0Ac1a5+uTGvMGVFkhdjpUz8lu8zjD1daktnj+B5
+    Rl+gZXXv6K4618mtVsu9T87QTgKZljbknCRbEHTeIiRLIYGrzj+KsCGlHUXYgg6YKbGn1V
+    cN2oi0ciVQFjW+fx6VP7WC0/HEmPQlV+0bfKq3oyiPBrfehc8h+5wGT6LwPg
+X-ME-Proxy: <xmx:aF1XavdNVDuR9t-DnUqHx3VTuzFvNZceWW8tOBXtMQs46L3BtipzYg>
+    <xmx:aF1Xaro9bxys4jXKn8A_bDnAp6qart2O2he8J5inkfmgJ8_ZixJPzg>
+    <xmx:aF1XamAYWQo-K31X8QPtYm3UzLREbUagmdY3LY28U_bwEJE9leuGuw>
+    <xmx:aF1XapWuD6tSdte7JetpU8ZYj26tKMpdfo8tnlgWYijsYArXAcVWEQ>
+    <xmx:al1XagrRcM8koWdN0wZHEPEXNHgnTn8GS_Wf4naQmdvWrppngiQKCvLE>
+Feedback-ID: i12284293:Fastmail
+Received: by mail.messagingengine.com (Postfix) with ESMTPA; Wed,
+ 15 Jul 2026 06:14:00 -0400 (EDT)
+Received: by mbp.qyliss.net (Postfix, from userid 1000)
+	id 088FF894299A; Wed, 15 Jul 2026 12:13:54 +0200 (CEST)
+From: Alyssa Ross <hi@alyssa.is>
+To: Dmitry Osipenko <dmitry.osipenko@collabora.com>, Sergio Lopez
+ <slp@redhat.com>, Yiwei Zhang <zzyiwei@chromium.org>, Sergi Blanch Torne
+ <sergi@collabora.com>, Valentine Burley <valentine.burley@collabora.com>
+Cc: Chia-I Wu <olvaffe@gmail.com>, Jason Wang <jasowang@redhat.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Eugenio =?utf-8?Q?P=C3=A9rez?=
+ <eperezma@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ linux-kernel@vger.kernel.org, Simona Vetter <simona@ffwll.ch>, Thomas
+ Zimmermann <tzimmermann@suse.de>, David Airlie <airlied@redhat.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Gerd Hoffmann
+ <kraxel@redhat.com>, virtualization@lists.linux.dev,
+ dri-devel@lists.freedesktop.org, Maxime Ripard <mripard@kernel.org>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>
+Subject: Re: [PATCH v2 2/3] drm/virtio: honor blob_alignment requirements
+In-Reply-To: <17764937-21dc-4b4a-8def-e738b361bcd1@collabora.com>
+References: <20260428194450.518296-1-slp@redhat.com>
+ <20260428194450.518296-3-slp@redhat.com> <akT1XEW766c7Imst@mbp.qyliss.net>
+ <c8bf0c19-316a-442e-a63e-1b52e7bb67c2@collabora.com>
+ <87v7ajyw5j.fsf@alyssa.is>
+ <17764937-21dc-4b4a-8def-e738b361bcd1@collabora.com>
+Date: Wed, 15 Jul 2026 12:13:52 +0200
+Message-ID: <87ldbc4l27.fsf@alyssa.is>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Message-ID: <54f9bf1c.87fc.19f65224854.Coremail.xiongwm2026@163.com>
-X-Coremail-Locale: zh_CN
-X-CM-TRANSID:kCgvCgD3HzONVFdqxLoeAA--.12933W
-X-CM-SenderInfo: x0lr0wdzpsijqw6rljoofrz/xtbC7w2oOGpXVI3ebgAA3m
-X-Coremail-Antispam: 1U5529EdanIXcx71UUUUU7vcSsGvfC2KfnxnUU==
+Content-Type: multipart/signed; boundary="=-=-=";
+	micalg=pgp-sha512; protocol="application/pgp-signature"
 
-CgpIaSBCb2JieSwKCgpUaGFua3MgZm9yIHRoZSBmZWVkYmFjay4KCgpVbmRlcnN0b29kLiBJIHdp
-bGwgZHJvcCB0aGlzIGNvbW1lbnQtb25seSBjaGFuZ2UgYW5kIGZvY3VzIG9uIGZpeGVzIHdpdGgK
-YSBjb25jcmV0ZSBidWcgc2NlbmFyaW8gb3IgcmVwcm9kdWNlci4KCgpCZXN0LApXZWltaW4KCgpB
-dCAyMDI2LTA3LTE1IDE3OjI0OjUzLCAiQm9iYnkgRXNobGVtYW4iIDxib2JieWVzaGxlbWFuQGdt
-YWlsLmNvbT4gd3JvdGU6Cj5PbiBXZWQsIEp1bCAxNSwgMjAyNiBhdCAwNDowOTowNlBNICswODAw
-LCBXZWltaW4gWGlvbmcgd3JvdGU6Cj4+IEZyb206IHhpb25nd2VpbWluIDx4aW9uZ3dtMjAyNkAx
-NjMuY29tPgo+PiAKPj4gUmVwbGFjZSBGSVhNRSBjb21tZW50cyB3aXRoIGNsZWFyZXIgTm90ZSBj
-b21tZW50cyBkb2N1bWVudGluZwo+PiB0aGF0IEJJREkgKGJpZGlyZWN0aW9uYWwpIG9wZXJhdGlv
-bnMgYXJlIG5vdCB5ZXQgc3VwcG9ydGVkLgo+PiAKPj4gU2lnbmVkLW9mZi1ieTogV2VpbWluIFhp
-b25nIDx4aW9uZ3dtMjAyNkAxNjMuY29tPgo+PiBDby1hdXRob3JlZC1ieTogQ3Vyc29yIDxjdXJz
-b3JhZ2VudEBjdXJzb3IuY29tPgo+PiAtLS0KPj4gIGRyaXZlcnMvdmhvc3Qvc2NzaS5jIHwgNCAr
-Ky0tCj4+ICAxIGZpbGUgY2hhbmdlZCwgMiBpbnNlcnRpb25zKCspLCAyIGRlbGV0aW9ucygtKQo+
-PiAKPj4gZGlmZiAtLWdpdCBhL2RyaXZlcnMvdmhvc3Qvc2NzaS5jIGIvZHJpdmVycy92aG9zdC9z
-Y3NpLmMKPj4gaW5kZXggOWExMjUzYjlkLi44MWU5MDVjNGMgMTAwNjQ0Cj4+IC0tLSBhL2RyaXZl
-cnMvdmhvc3Qvc2NzaS5jCj4+ICsrKyBiL2RyaXZlcnMvdmhvc3Qvc2NzaS5jCj4+IEBAIC0xMDQ3
-LDcgKzEwNDcsNyBAQCBzdGF0aWMgdm9pZCB2aG9zdF9zY3NpX3RhcmdldF9xdWV1ZV9jbWQoc3Ry
-dWN0IHZob3N0X3Njc2lfbmV4dXMgKm5leHVzLAo+PiAgCXN0cnVjdCBzZV9jbWQgKnNlX2NtZCA9
-ICZjbWQtPnR2Y19zZV9jbWQ7Cj4+ICAJc3RydWN0IHNjYXR0ZXJsaXN0ICpzZ19wdHIsICpzZ19w
-cm90X3B0ciA9IE5VTEw7Cj4+ICAKPj4gLQkvKiBGSVhNRTogQklESSBvcGVyYXRpb24gKi8KPj4g
-KwkvKiBOb3RlOiBCSURJIChiaWRpcmVjdGlvbmFsKSBvcGVyYXRpb25zIGFyZSBub3QgeWV0IHN1
-cHBvcnRlZCAqLwo+PiAgCWlmIChjbWQtPnR2Y19zZ2xfY291bnQpIHsKPj4gIAkJc2dfcHRyID0g
-Y21kLT50YWJsZS5zZ2w7Cj4+ICAKPj4gQEAgLTExNjgsNyArMTE2OCw3IEBAIHZob3N0X3Njc2lf
-Z2V0X2Rlc2Moc3RydWN0IHZob3N0X3Njc2kgKnZzLCBzdHJ1Y3Qgdmhvc3RfdmlydHF1ZXVlICp2
-cSwKPj4gIAo+PiAgCS8qCj4+ICAJICogR2V0IHRoZSBzaXplIG9mIHJlcXVlc3QgYW5kIHJlc3Bv
-bnNlIGJ1ZmZlcnMuCj4+IC0JICogRklYTUU6IE5vdCBjb3JyZWN0IGZvciBCSURJIG9wZXJhdGlv
-bgo+PiArCSAqIE5vdGU6IFNpemUgY2FsY3VsYXRpb24gaXMgbm90IGNvcnJlY3QgZm9yIEJJREkg
-b3BlcmF0aW9ucy4KPj4gIAkgKi8KPj4gIAl2Yy0+b3V0X3NpemUgPSBpb3ZfbGVuZ3RoKHZxLT5p
-b3YsIHZjLT5vdXQpOwo+PiAgCXZjLT5pbl9zaXplID0gaW92X2xlbmd0aCgmdnEtPmlvdlt2Yy0+
-b3V0XSwgdmMtPmluKTsKPj4gLS0gCj4+IDIuNDMuMAo+PiAKPgo+SGV5IFdlaW1pbiwKPgo+VGhp
-cyBzZXJpZXMgaXMgcHJvYmFibHkgZ29pbmcgdG8gYmUgaWdub3JlZC4gQ29tbWVudC1vbmx5IGNo
-YW5nZXMgYXJlCj5hbG1vc3QgbmV2ZXIgbWVyZ2VkLCBhbmQgdGhlIGNvZGUgY2hhbmdlcyBoZXJl
-IGRvbid0IGxvb2sgbGlrZSBnZW51aW5lCj5idWdzLgo+Cj5JbiB0aGUgY2FzZSB0aGF0IHRoZXJl
-IGFyZSBzb21lIHJlYWwgYnVncywgSSdkIHJlY29tbWVuZCB0byBzZXR1cCBhCj5zeXN0ZW0gYW5k
-IHRyaWdnZXIgYSBidWcsIGFuZCBwcm92aWRlIGEgcmVwcm9kdWNlci4KPgo+QmVzdCwKPkJvYmJ5
-Cg==
+--=-=-=
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
+
+Dmitry Osipenko <dmitry.osipenko@collabora.com> writes:
+
+> On 7/13/26 14:19, Alyssa Ross wrote:
+>> Dmitry Osipenko <dmitry.osipenko@collabora.com> writes:
+>>=20
+>>> On 7/1/26 14:10, Alyssa Ross wrote:
+>>>> On Tue, Apr 28, 2026 at 09:44:49PM +0200, Sergio Lopez wrote:
+>>>>> If VIRTIO_GPU_F_BLOB_ALIGNMENT has been negotiated, blob size must be
+>>>>> aligned to blob_alignment. Validate this in verify_blob() so that
+>>>>> invalid requests are rejected early.
+>>>>>
+>>>>> Signed-off-by: Sergio Lopez <slp@redhat.com>
+>>>>
+>>>> FYI: this change breaks crosvm, which is squatting the 5 and 6 values
+>>>> of VIRTIO_GPU_F_* with different meanings.  I've reported it as a
+>>>> crosvm bug, so hopefully it can be taken care of there.
+>>>>
+>>>> https://issuetracker.google.com/issues/529852979
+>>>>
+>>>>> ---
+>>>>>  drivers/gpu/drm/virtio/virtgpu_ioctl.c | 5 +++++
+>>>>>  1 file changed, 5 insertions(+)
+>>>>>
+>>>>> diff --git a/drivers/gpu/drm/virtio/virtgpu_ioctl.c b/drivers/gpu/drm=
+/virtio/virtgpu_ioctl.c
+>>>>> index c33c057365f8..d0c4edf1eaf4 100644
+>>>>> --- a/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+>>>>> +++ b/drivers/gpu/drm/virtio/virtgpu_ioctl.c
+>>>>> @@ -489,6 +489,11 @@ static int verify_blob(struct virtio_gpu_device =
+*vgdev,
+>>>>>  	params->size =3D rc_blob->size;
+>>>>>  	params->blob =3D true;
+>>>>>  	params->blob_flags =3D rc_blob->blob_flags;
+>>>>> +
+>>>>> +	if (vgdev->has_blob_alignment &&
+>>>>> +	    !IS_ALIGNED(params->size, vgdev->blob_alignment))
+>>>>> +		return -EINVAL;
+>>>>> +
+>>>>>  	return 0;
+>>>>>  }
+>>>>>
+>>>>> --
+>>>>> 2.53.0
+>>>>>
+>>>
+>>> Thanks for the report. Indeed, crosvm will need to fix its experimental
+>>> caps. CI will likely run into this problem first once it will update
+>>> guest to 7.2+ kernel.
+>>=20
+>> I sent
+>> https://chromium-review.googlesource.com/c/crosvm/crosvm/+/8064741 last
+>> week but still waiting to hear anything.  Do you have any insight into
+>> whether it's still used / being pursued?
+>
+> The GUEST_HANDLE should be used by Android [1]. The FENCE_PASSING
+> shouldn't be used in production, though don't know for sure.
+>
+> Crosvm should bump its experimental defines by +10 to prevent clash with
+> upstream in future.
+>
+> [1]
+> https://github.com/google/gfxstream/blob/main/host/vulkan/vk_decoder_glob=
+al_state.cpp#L107
+
+Thanks for the extra info. :) They've agreed to go ahead and remove both
+of them, so the problem is solved.
+
+--=-=-=
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iHUEARYKAB0WIQRV/neXydHjZma5XLJbRZGEIw/wogUCalddYAAKCRBbRZGEIw/w
+orGgAQC/YXYu4X+sdCLEkVpxdPV5ypPiF82l9tUZ4Wd+kuwJqQEA3aMqqCYrmTX3
+e4gNsI1wlXn3W9wPHQe7CSogvsTvPQM=
+=xZq0
+-----END PGP SIGNATURE-----
+--=-=-=--
