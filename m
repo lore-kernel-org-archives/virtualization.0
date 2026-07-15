@@ -1,134 +1,121 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ed1-f53.google.com (mail-ed1-f53.google.com [209.85.208.53])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 182E23ADB97
-	for <virtualization@lists.linux.dev>; Wed, 15 Jul 2026 16:11:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4900D3AF64F
+	for <virtualization@lists.linux.dev>; Wed, 15 Jul 2026 16:41:46 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.208.53
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784131881; cv=none; b=uYL2gqX/6J1Hq3qmtaOEMbx9Bcy9EfbUjjIVp60qngwKHLzwoGSsEkiB4g5yWoXUD1yWbq94Nk/9ynnw5eNTbwtRmQnjwseb+xeNHJGhUGYZcQhgosKApQbXFNnTMH9bTzd3/8dibpqrlzqE011MQbOdqOwBFeSnuV9owutGeEs=
+	t=1784133707; cv=none; b=j6hai0CIsRcZjRA6C9nde3rTt0oCNAPLHHARE3VAPjcvZw0bZ09U5fpp2a0c7UEbfh7UGHfH31EuoAJ62jkfE9SZ8UaoI4Y3YrDR7nNPT1Ol/mvhjXiufNixE5+WFfE+Iam8DdOe/Pmz19joJg7lhcQ7J3N+qgIG+eTyxcVwGIg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784131881; c=relaxed/simple;
-	bh=CgCDTCWRSJkLOMyNqmIyUWLC21lERecNvLqhW68S8k8=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=AHtJ9Qm1pmBeYNnJybYltxiN3XRnRjAuhlcgnThTpTYBwW5RYiNeweAnz44tZOIK15tAAbrZZHBk3Gnwg0b3WB9jq9MFNSnLcv04cY6C/I2FBU5341WUSGEARCcwDBU2wysftG/BBq9Gd69T4kXmAqONUjgpHUUbXDLVuHMUKy4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Cj+rKdVC; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1784133707; c=relaxed/simple;
+	bh=as2NseqLHB8OpIJRUSf7g5/LPjW5htjv0klwLkaYtF4=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=tFDytKfEBEdP8p2+BNFhQ7pu5z4bDknKuEZxEzSrPjp6u6K/dBBO8oSloFE48eJ1TprF+GF9OM7fte8uITX/UYst/+LSLuOEGzPy68DgCbzx+Lc84g0+FpYSEntpfnlUKENBEY/X+hRZeaNlr5lMSM6VU8I95KobPbXneD4PUiY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NhvFHrtP; arc=none smtp.client-ip=209.85.208.53
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Cj+rKdVC"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1784131879;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=u018p3vyJrvV+UM2lycGYWrJgbwr8WQB52QeOVOHYUg=;
-	b=Cj+rKdVCdt8S8mBSQLEdUpqV+Un3E6e4v5glE+RHesTwIhrEUgd1ZIiY6cxJA41q8TJ6Tw
-	OqZTjkOQhXHyLeyUdlqRNH0Zyx+TUOmULIkjyqcbHipDO3+NpakxEFDRZAMQHvcpsSY27s
-	SvasW25mOIcuLeWJt9Zp6GDebTpWDVs=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-464-1BFDgMHSNf-tgKgN0DIcEw-1; Wed, 15 Jul 2026 12:11:17 -0400
-X-MC-Unique: 1BFDgMHSNf-tgKgN0DIcEw-1
-X-Mimecast-MFC-AGG-ID: 1BFDgMHSNf-tgKgN0DIcEw_1784131877
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-492488f8583so80396215e9.2
-        for <virtualization@lists.linux.dev>; Wed, 15 Jul 2026 09:11:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NhvFHrtP"
+Received: by mail-ed1-f53.google.com with SMTP id 4fb4d7f45d1cf-6984169c126so10447693a12.1
+        for <virtualization@lists.linux.dev>; Wed, 15 Jul 2026 09:41:46 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784133704; x=1784738504; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=+NFSo1vQVlWE8/tJS9jN6+QBQqVdI/OFH03uGFW+Opk=;
+        b=NhvFHrtPpSnEV2Gbji8PB9zvh4aRfWjDYgDd9sQQHfUllJ/dbBX0ceE634Zhuj3fBs
+         5NCUI0iQn3VfLw7brnDMG236WE69mwhRCnOSonzWLSFW7ltKYqv+pYdvv7crT5y0tKX0
+         +BEl4aryOPM5+BW/nSnBNJXlvKESEv14iJeBPd5CmhBOXyCxlMBrwo2u+3pHlWHo3WVG
+         vxaEt7UJmbwZKkBPLEFXApwB5JpIXRl6xs8dukLysHPAmrhfnfDBZFFpaM3tX4jjBc5R
+         HV/5hlfJDutlQq2JAnQpifUoaE3gIFni4HRDAkLVnHZxPB/i7CjHx5tiC+ugt5BGN9zO
+         JN3g==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784131876; x=1784736676;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=u018p3vyJrvV+UM2lycGYWrJgbwr8WQB52QeOVOHYUg=;
-        b=feCfHhTcxAdXqDyKp13Xk+Ldqggdxd8qM/G1W0sT7n/V45v0j3qJ67/USF0NegpzMi
-         KSVKRJhA7iG5wisD1JyI6m+6URuNNhcHcsyhzrloI/HPKJy73N6sieNev/r4ziO4EEMp
-         19dcKwFKnZ8qteGyQTBmrEGEActXz305SqPbtEF37oslqgtm4ZHUqNoAxeCEUMmQurqc
-         IbARevLTMda2+IqClQOfvCAequA3HLX2nosabppPHyf8J3LYLP5KmW6SNC8lYiRxWO9Q
-         chJfCkNx3/kD771q3VEJ0jPM9QVpZSpcRcVEBACSqKDxAWcvsQHl4LEprJpBzeenGpvZ
-         LLbQ==
-X-Forwarded-Encrypted: i=1; AHgh+RqvPofZLJJLrWnamqL82Y4qvZfMSLWp8LOJ/nrfqKQaxGiEDC03qwItU+8lZiMZCHuOsejWaf9NgvmcFqSnXw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yy3yjkO+T/RqXp5kwsY50M3cDU9ALGx0aZjCzhAPmjq20/cFyPg
-	7J6JdQnCKENVQEjJpQIC73Z+GIjhANSFG4MbJcw6WuWx/uYhP+HaLfF33FkwwaXSNLULrrbOzgx
-	UWf7eXTJoSF7fLtQeBs0mB25lJ4g/Y2PUPfJSlQPeMpsWYZK71nQwYATOznbA1+sYmJOK
-X-Gm-Gg: AfdE7cmRAUj/bfjYdTbVTiaVksjGCRptsJ+irQ4GEEpJs0rglvfFnp8Oxxl4iUa+da+
-	lKqZTb26bbccFTp4yDBNn+tsizg6wqFfLwR17Rp+wjKh6PzYwIQCmG6CYh4p9YcJXa8V54MHlcd
-	x/f/fldMovXk4MboZZuim1y6WOtJLc95dpEje8tN6fomujLOpIxQB59NXLkCt0XX3QEFqZ1fKCd
-	s/5/O//G6ZsqRzp7K+t5o0mwaWdhhLXKrhogtgPxJ8CyRj0qOpfD4SrYlUDWdKWbyFffIFSLOYn
-	53wzbkrVMKCJLdzrXaevYVZMPELphIBpjzfBLy7IFm9v8ha9/ixPQpVR4IqlcZSpbRiiplbcvko
-	q0t6IEuKHzVYJo/08QZmRKyufgF2VDfgVVsk=
-X-Received: by 2002:a05:600c:6207:b0:493:e504:cbef with SMTP id 5b1f17b1804b1-495389731b5mr84415815e9.0.1784131876367;
-        Wed, 15 Jul 2026 09:11:16 -0700 (PDT)
-X-Received: by 2002:a05:600c:6207:b0:493:e504:cbef with SMTP id 5b1f17b1804b1-495389731b5mr84415185e9.0.1784131875797;
-        Wed, 15 Jul 2026 09:11:15 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-24-117.inter.net.il. [80.230.24.117])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4953c710facsm39394605e9.2.2026.07.15.09.11.13
+        d=1e100.net; s=20251104; t=1784133704; x=1784738504;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=+NFSo1vQVlWE8/tJS9jN6+QBQqVdI/OFH03uGFW+Opk=;
+        b=cXgGsS5lWwPL/BwtKc0A/xGwDF2Pln/tVn0TBS26tq+qIj07dxzKnK5UpM5YMeiG5p
+         XvFqEoZqWed6Veh7rYryCa+xisFBYXf8gZjAR2/0ctUyC82u6mozWSYWo0Z8pY3lOaMX
+         xsdrm0WEn3NP5rOiFA36GaaJOpvLjQNt6uOoknIhHptsSWlBOeTsJGhBtHxCNTyIfjk4
+         GhtASePP7zdVTSWv7S1XVxf6L3UExt/PAdxstoV4a4XYK6nxEFcsuSebGiuBeJk/k5Z+
+         G0F9dcQsc41ZOgcsGoH8F0dF0t69tRHA0RvLP5cY7h1cp2jf2pMLUPOtAQ6RKIhKPmSE
+         O9Ng==
+X-Forwarded-Encrypted: i=1; AHgh+Rrcx75l5jaThIzn4PL9BkCFIJNpV3z5VmmyNedHMOfPg5KqWHVfKswRVsiz3Z5QWmuBeC9ZcnFM0E2j8VKKLA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxhgjXOHWLx32296JUArCTke7+UQmp7/jwSl71kF1CYEMCOLIOe
+	AEUMHoZFAqHDb7ozDXQ3ZiWv9RoXFAosVx3m7zSKTfb3BTOqUFz7tzh+
+X-Gm-Gg: AfdE7cmgC3u1W/0AukNxD8gJsvpi0F1lLgY5nmu/4ypswEfCcrnWFfWTov+CjHOyxmB
+	0NzsLJr/isNVPyzJ6x1kk2lF0i7Zcg8wD3LLq0eFPsFKW/fbzawpmz48oi0fZnFgsMfIzDAn8FU
+	Fl9VTgpUtbfMSKSUEkIMZ67R4FDcAsYhUqZEz1zW8uYsDsBS7ahndxv/6GBRxL4E1H0GJLPM6B8
+	7sjNR6OtPwggbBKmX2i8c2NwFJTkElkWF3flDWPQuhXAlDsR9IZj6sXWvexr5szHproOwLc6bKU
+	B3RK+qsytxCSQVJsH8ODNNoVuReIawcPQDya7xgRMFDj/gVzHRevKrYXfe9Qw32LUreWbwCUGPe
+	z1OulZRzFqsK0WOjBNvz+NQQuuoJeiMa0EaUNjBBsc/eN7cXVWc6rKc0UXnlQUduAFfi7gVVpLv
+	6ZTq4rbQzQfMfck7fuPEc9PrE9W+XKB3fh2TR2Nuu7tNBv29fnc6hH0eRl3wIURSY9yZDCSwnTh
+	38v
+X-Received: by 2002:a05:6402:524d:b0:69a:aa50:32b8 with SMTP id 4fb4d7f45d1cf-69e19be95b5mr2052572a12.36.1784133704261;
+        Wed, 15 Jul 2026 09:41:44 -0700 (PDT)
+Received: from misharu.home (2a02-a463-a071-0-8f3f-3afb-28f6-19c0.fixed6.kpn.net. [2a02:a463:a071:0:8f3f:3afb:28f6:19c0])
+        by smtp.gmail.com with ESMTPSA id 4fb4d7f45d1cf-69cd26e239esm3355874a12.0.2026.07.15.09.41.42
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Jul 2026 09:11:15 -0700 (PDT)
-Date: Wed, 15 Jul 2026 12:11:12 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Hari Mishal <harimishal1@gmail.com>
-Cc: Amit Shah <amit@kernel.org>, Arnd Bergmann <arnd@arndb.de>,
-	Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Gerd Hoffmann <kraxel@redhat.com>,
-	Jason Wang <jasowangio@gmail.com>,
-	David Hildenbrand <david@kernel.org>,
-	Henrik Rydberg <rydberg@bitmath.org>,
+        Wed, 15 Jul 2026 09:41:43 -0700 (PDT)
+From: Hari Mishal <harimishal1@gmail.com>
+To: David Hildenbrand <david@kernel.org>,
+	"Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	linux-input@vger.kernel.org
-Subject: Re: [PATCH 2/4] virtio_input: validate device-reported multitouch
- slot count
-Message-ID: <20260715120911-mutt-send-email-mst@kernel.org>
-References: <20260715142337.22811-1-harimishal1@gmail.com>
- <20260715142337.22811-3-harimishal1@gmail.com>
- <20260715115018-mutt-send-email-mst@kernel.org>
- <CAMmC+=AnE-p7B=DbBPYeNzJdcdiBf7q=5bfcuV0VQrPRK+pmug@mail.gmail.com>
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Hari Mishal <harimishal1@gmail.com>
+Subject: [PATCH v2 1/4] virtio-mem: validate device-reported block size
+Date: Wed, 15 Jul 2026 18:41:16 +0200
+Message-ID: <20260715164139.40957-1-harimishal1@gmail.com>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260715142337.22811-2-harimishal1@gmail.com>
+References: <20260715142337.22811-2-harimishal1@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CAMmC+=AnE-p7B=DbBPYeNzJdcdiBf7q=5bfcuV0VQrPRK+pmug@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 6j3bEXT7UsdNBsmy33tOMYxUTISb9eQ2pRMJP8vDeXE_1784131877
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
 
-On Wed, Jul 15, 2026 at 06:07:56PM +0200, Hari Mishal wrote:
-> On Wed, Jul 15, 2026 at 5:50 PM Michael S. Tsirkin <mst@redhat.com> wrote:
-> >
-> > On Wed, Jul 15, 2026 at 04:22:41PM +0200, Hari Mishal wrote:
-> > > nslots is derived from the ABS_MT_SLOT maximum reported by the
-> > > virtio device. A device could report a bogus maximum (e.g. -1)
-> > > making nslots = 0, which input_mt_init_slots() does not reject;
-> > > it returns success without allocating any slot storage, silently
-> > > leaving the device registered as multitouch capable with no
-> > > backing state.
-> >
-> > So let's disable multitouch instead?
-> >
-> 
-> So rather than failing the whole probe, just warn and clear
-> ABS_MT_SLOT from absbit in that case, so the rest of the device
-> still registers? I took my lead from input_mt_init_slots(), which
-> has its own internal cap and returns -EINVAL when the device
-> reports more than 1024 slots.
-> Shall I modify that case to get the same "warn and disable
-> multitouch" for consistency, or is a hard failure better there since
-> it's a different type of bad device data?
+The device_block_size read from the virtio-mem config space is used as a
+divisor and also in ALIGN_DOWN() further down the code path in the
+driver without further validation. A zero value leads to a division by
+zero, and a non-power-of-two value corrupts the ALIGN_DOWN() bitmask
+arithmetic leading to a misreporting of guest-usable ram, post crash.
 
-I don't really know enough for sure but generally if the device can
-kinda work it's better than not working, and adding
-a capability to a device that driver can't use should
-generally just ignore the capability, not fail probe.
+Reject both at init time instead of trusting the device.
 
-> Happy to fix it either way! Just want to confirm before sending V2.
-> 
-> Cheers,
-> Hari
+Signed-off-by: Hari Mishal <harimishal1@gmail.com>
+---
+v2: dropped the redundant explicit zero check, since
+    is_power_of_2(0) already returns false.
+
+ drivers/virtio/virtio_mem.c | 6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
+index 11c441501582..0e04fec458af 100644
+--- a/drivers/virtio/virtio_mem.c
++++ b/drivers/virtio/virtio_mem.c
+@@ -2847,6 +2847,12 @@ static int virtio_mem_init(struct virtio_mem *vm)
+ 			&vm->plugged_size);
+ 	virtio_cread_le(vm->vdev, struct virtio_mem_config, block_size,
+ 			&vm->device_block_size);
++	if (!is_power_of_2(vm->device_block_size)) {
++		dev_err(&vm->vdev->dev,
++			"invalid device block size: 0x%llx\n",
++			(unsigned long long)vm->device_block_size);
++		return -EINVAL;
++	}
+ 	virtio_cread_le(vm->vdev, struct virtio_mem_config, node_id,
+ 			&node_id);
+ 	vm->nid = virtio_mem_translate_node_id(vm, node_id);
+-- 
+2.43.0
 
