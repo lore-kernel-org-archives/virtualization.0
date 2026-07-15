@@ -1,64 +1,64 @@
-Received: from mail-ej1-f50.google.com (mail-ej1-f50.google.com [209.85.218.50])
+Received: from mail-ej1-f54.google.com (mail-ej1-f54.google.com [209.85.218.54])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 25EF135AC09
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F39F234AAE9
 	for <virtualization@lists.linux.dev>; Wed, 15 Jul 2026 14:23:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.50
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.218.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784125434; cv=none; b=Ru+MqfCsnbS3K6c/AAcgNlBQP5UAhN1/z1hI44aGG33oJZDSTMaCaaMJeYvDceofefa/7T9m4rqB4C0+2BlAocwY/vc5N8t4fAhYVhSJ6BgulQx4ooL84c9aP7uQl4kRXKICv+UPkDH0GH3AEz/kmyUwd+vOyRTKxKH0r2hqv8E=
+	t=1784125434; cv=none; b=kfIFz1ZwQx7YDpiAJKBHALRZg7VU8MB4505nlar5GVOMonEA3QWRrnA8TSwYG8iK8+NxHJVv8bYC71dwytKmJKSfrPgVUlmOb5VmfdnnBg56z/lKaUU1TwJWdPkDrbsVwLrh6CwpGIJ8ubpIiZ0ygcOL550uU3uIr3K31kxYEWs=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1784125434; c=relaxed/simple;
-	bh=iLWHG7Z9ifkUCPM3I0W59CT2LgsbHMZPMVoaijdCcg4=;
+	bh=p/A+hyd8Czmzv+d6bee7JEW5kyJdrX0FwFb3c+j1AQE=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=FnvkMHGlqFcMkMz7LA/5bjm/6jiwKTtaGbv9lOhPdnigATUvpNYA0k+dZKsNV6IV7E36um4QDGrElgXAgRtHNbyD+7GRIp5aAe7aKiERgX9enIQ8JXH9x5Nn2mY3X+mTChbIyemmfQRvTF3RI7JxKz+LOzTfSv7i6yG6g5cuOn0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=UzT74Zb7; arc=none smtp.client-ip=209.85.218.50
+	 MIME-Version; b=VqMFOFvLe1DAhNp9qnA11OwhNVVaZPVnw/fMSB+EQJKtJwXcsLIhy/xeSwJ8ieA4Ze6Ax+1xhtj2oLunbfoJ8hV9skicgYUyia97k7Ty+VOJMDFt+rHHeZeYimXmsPAI09HHbsDhFwNSH7z2rBN6ZCfSwLmCYKAp0Q3fnf7Ul7U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=qYr3sTAQ; arc=none smtp.client-ip=209.85.218.54
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="UzT74Zb7"
-Received: by mail-ej1-f50.google.com with SMTP id a640c23a62f3a-c15f020a223so736964166b.1
-        for <virtualization@lists.linux.dev>; Wed, 15 Jul 2026 07:23:50 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="qYr3sTAQ"
+Received: by mail-ej1-f54.google.com with SMTP id a640c23a62f3a-c12614b81c9so1022576866b.3
+        for <virtualization@lists.linux.dev>; Wed, 15 Jul 2026 07:23:51 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784125429; x=1784730229; darn=lists.linux.dev;
+        d=gmail.com; s=20251104; t=1784125430; x=1784730230; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=Yo/c4CjAVn9rvKKIkMq0mVxy9jNtcNfgzZTIdJ3Ac40=;
-        b=UzT74Zb7VRrdcxOonjcpYYNK7iYmCAR11Xl58ZoEG+8BA1Z1c5b5q36SI8fzGpse41
-         /qYDMByCY9m6CTTJ/3qZ8uRfdDPSFlznlkcIrWs8Qq0dmVDMqmWEel9ZeGm4COFpTPcX
-         xA0XlxaNTB1jw0dRhFN8sDVrAQMu7jhorK4cYx2i5+2Fv8FDQzwi8fe/oCuIEb2hyAYK
-         34pwLTMahanlN8UI9H5YaMV1eYAJv+u/sY1E9AzQiocsq+IuEHD0ZHN09z3EzOsmRh4A
-         JTEBKDQVlhTxt1Rk7zj6LJgkjdQnjXKKa2WR1FZiRBYafkYisvrpzuWX/4q2+M2aX5jr
-         8zbQ==
+        bh=b3M40eRQW8Z0pMjSw8FZJIlwcW2HMM9RvErrQLP04DY=;
+        b=qYr3sTAQa+lHajUv5IGGnXonxQikbxQLrTdqrF2yMkBcz8Ux1hxmGNKXmX0bCpJTYG
+         /eOxx/3FqPFpFOe3h6Z03V22izbqSVDlVSLIZiarBEaGw0yJ9/HlUE5e2r5/ufBiKuOI
+         LrQUXl3k4AvPM8+BfXpCylrWoXuk/TL9bTjPvqn9ewa43II4GWhBD4kRfTkym1A+TvOM
+         8+HzDsXBXUa1ZMlB5C/zX0WHMEhn8ant/iH124aNFIblN+hN5pLlBQU0JW6GYZCHjAan
+         yrz6+Yjo4awHrVwd96s52f3iiDfCatKPXsFHV1Uq5CIkMXcCrARgD3FBFhMc5H8Qqh4S
+         BHMA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784125429; x=1784730229;
+        d=1e100.net; s=20251104; t=1784125430; x=1784730230;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=Yo/c4CjAVn9rvKKIkMq0mVxy9jNtcNfgzZTIdJ3Ac40=;
-        b=YROYMwFFZ93aRmdW2jlbNyKcz/XcfWPvp17i87klH7OyLg3p+lq2/RXwbcxbNKMDuu
-         kQoa3CdUAc5JMAE1X6GYDILc0chzj5ntd8rbiXtA58l3JQvYRNr4+G/ycixpPGTJnJ6M
-         zi61PIdekH/h/ekv4g1mQ5CpmRCSitqzCN1ODklg1FpfHFj+8gvQXpKSvYFIdnRsasoh
-         9fWExgHnXW1WcG+ebfHHXjg+egfl0pdkgPJ5+QYMFYUGOBPEYadUnrBH6MbJYWciE5XH
-         o71p1RLVGM/9P5RVWaZiTVoRTXxyB7ogrEPOYG9CjMITrRAIfsU2fx2KarTKvZD5eTTP
-         2UCw==
-X-Forwarded-Encrypted: i=1; AHgh+Rqsef+QUba4fq40dhm8X2RJWJnp3o+BU0+WfxQuSE9A1aVUkjHA3eWQ7kacK9z4P/lpVgbDI+/S4NM6YlBB9w==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzmtaknRF3X16aJh3FhDxdfiWxPL/aH9N6d1demRsRAU9ZpQVBU
-	2W3VLzusktl8MOmG4jhaYP+VELKuHYNxNW3TVXIdsbCMrbSXwV2vf9PeOkJdVDGFaym0jg==
-X-Gm-Gg: AfdE7cnmEB27DFAxm0wfvqmk/C4iYvDAyeL4OcvdKN2TsciQndh4FpqWVHSnUnoYgX2
-	CDfAvs6t5q951N5ImB5UBUWV/os3mFmiWa6sYDbS/JV0OINx4B8eFpQy8vHUAEmt0lDYYlld8xL
-	AdfaFbY+G3haybZcZwYLkW366URk8gpL1JCisDZzY+S7z3iRDsm7S8DKhVs0wHHaSBWwEARKoEf
-	dG6K+36/3H7upjRrFoik6lroeqQGUg86wtPyVTiKRSyv6T/KG+rbCvgIYTjRJkIn40gsc8a2G0h
-	ZDJ4SPmjjUeg59Dr3M1WpWjLmXF+JnWbO5Shs523KdXDRdL1u+qt4Tp9cGKyZduCAj9PskXhpoR
-	NVFlfmO0vzTFaPgmk9tKmdydiVFQr5OC0sbcVpaEqKDQ7vIQAyOFVYSu9qD9wfuwog3Fw3+OWVA
-	XftKH/Tu88qXwXWdkC2TL968zNq+FK2jePVUFcxwK3UOn1cDAKmQldO1vwoUJMCBe9Uwdq4IuDQ
-	wT1fyq6i4xI8mg=
-X-Received: by 2002:a17:907:e1ca:20b0:c16:8933:3501 with SMTP id a640c23a62f3a-c1689334452mr16024566b.42.1784125428901;
-        Wed, 15 Jul 2026 07:23:48 -0700 (PDT)
+        bh=b3M40eRQW8Z0pMjSw8FZJIlwcW2HMM9RvErrQLP04DY=;
+        b=gmZMsKzymRkmBBS6vXT5TJoYJEGkiHchkt+X53t7PkOrrFXTCMoACqD2TO3x8cZKPT
+         V+LRE5EHH5crY7XQP7+sgaJLsBFp2nx/N5BwBVdLIvuUlOuVcicj7lyOmNMN/4zWlp3a
+         yRy5pavOSuBQFURpDoJfWtweWN6GQQg5QMzOeWdrjl7Ao3Ha6yplY2MLDebT3O+aBEcV
+         UYAPbyb8+QvNpDEflsDcYnDNFY6wuEmGWEVgz1m9Y2LFLxlFjiEqqfoneqGTLJY+lf5V
+         wOoUIvlWgQ5gDBd9G5gElJMvvdTG12cucwTVoTugUaA1CeeaR/agi61Kf5BESagIDUYL
+         ndwg==
+X-Forwarded-Encrypted: i=1; AHgh+RpUVDVK64p74dhjsNgMyWEdc+Iyn2g+p1aqxNe9Ej3aUHjWbbti8Ybyn+bWTakRG9DwXL+RdatvWddDG1zWvA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwOfUDwhZTUtCi7hgOBmi/WM0aeO6gxRxgwHIkwEShPgoWTi4YE
+	Ho1mABW7AUXRgQFSAfVsVpXt/jp6Bz24ZsPGvLExWwptGNr0ac4x4O2F
+X-Gm-Gg: AfdE7cm4t7LXgFBgYUXEpwyhgpsYv4AvAxd0/+uuVs8XNbfBU6b1g+TUhI+JD3aag4i
+	LO2ESp8wTdTDGOQo6JKYnGNtuE8pPXaSlPzwVM0/vcfqFrMe7ARg6F5lxh4jhUDb8jpdUcwlG1G
+	4T1/I37m6rVMhAqigTrqUMUiRBPOBvGswW5yP293o5J4Wq8pRWsdfiXfYAwi1sdACgDcYLEC/7h
+	mit1lBUBNJlELYHJ5khVqyAskn7p6fwiRb1AvfqPPE/O3TH7m5IcRwB7bUifbN2fNm5vTXkdk4Z
+	hz4rvdPQcmEyGFmEQhxUiTy82Be9qwBK74t+WlEq8QfJa9/ZgRA8m4TLGMPFfKwOjIoUDXboxJ8
+	IYmOqMnhGgn+8jPFkCFuumJ93D2DgGnpPNW0/9esddaDAvFffk+o+vWZbPdWqteYujcbAISwM34
+	hvzxh38g0vNRajqMV8u4Mk2pHrC9bgM53E+Rl7bj/79m5Lo44vuSJh7bUpchP09ZXlVO6bk8oUZ
+	bTe
+X-Received: by 2002:a17:907:d16:b0:c15:bc2d:e938 with SMTP id a640c23a62f3a-c16792a5887mr227159666b.32.1784125429946;
+        Wed, 15 Jul 2026 07:23:49 -0700 (PDT)
 Received: from misharu.home (2a02-a463-a071-0-8f3f-3afb-28f6-19c0.fixed6.kpn.net. [2a02:a463:a071:0:8f3f:3afb:28f6:19c0])
-        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c168744bd40sm38743766b.43.2026.07.15.07.23.47
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c168744bd40sm38743766b.43.2026.07.15.07.23.49
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 15 Jul 2026 07:23:48 -0700 (PDT)
+        Wed, 15 Jul 2026 07:23:49 -0700 (PDT)
 From: Hari Mishal <harimishal1@gmail.com>
 To: Amit Shah <amit@kernel.org>,
 	Arnd Bergmann <arnd@arndb.de>,
@@ -74,9 +74,9 @@ Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
 	linux-kernel@vger.kernel.org,
 	linux-input@vger.kernel.org,
 	Hari Mishal <harimishal1@gmail.com>
-Subject: [PATCH 1/4] virtio-mem: validate device-reported block size
-Date: Wed, 15 Jul 2026 16:22:40 +0200
-Message-ID: <20260715142337.22811-2-harimishal1@gmail.com>
+Subject: [PATCH 2/4] virtio_input: validate device-reported multitouch slot count
+Date: Wed, 15 Jul 2026 16:22:41 +0200
+Message-ID: <20260715142337.22811-3-harimishal1@gmail.com>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260715142337.22811-1-harimishal1@gmail.com>
 References: <20260715142337.22811-1-harimishal1@gmail.com>
@@ -88,37 +88,35 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-The device_block_size read from the virtio-mem config space is used
-as a divisor and also in ALIGN_DOWN() further down the code path in
-the driver without further validation. A zero value leads to a division
-by zero, and a non-power-of-two value corrupts the ALIGN_DOWN() bitmask
-arithmetic leading to a misreporting of guest usable guest ram, post
-crash. Reject both at init time instead of trusting the device.
+nslots is derived from the ABS_MT_SLOT maximum reported by the
+virtio device. A device could report a bogus maximum (e.g. -1)
+making nslots = 0, which input_mt_init_slots() does not reject;
+it returns success without allocating any slot storage, silently
+leaving the device registered as multitouch capable with no
+backing state. Reject non-positive slot counts before calling
+input_mt_init_slots().
 
 Assisted-by: gkh_clanker:t1000
 Signed-off-by: Hari Mishal <harimishal1@gmail.com>
 ---
- drivers/virtio/virtio_mem.c | 7 +++++++
- 1 file changed, 7 insertions(+)
+ drivers/virtio/virtio_input.c | 4 ++++
+ 1 file changed, 4 insertions(+)
 
-diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
-index 11c441501582..43d12ec7c323 100644
---- a/drivers/virtio/virtio_mem.c
-+++ b/drivers/virtio/virtio_mem.c
-@@ -2847,6 +2847,13 @@ static int virtio_mem_init(struct virtio_mem *vm)
- 			&vm->plugged_size);
- 	virtio_cread_le(vm->vdev, struct virtio_mem_config, block_size,
- 			&vm->device_block_size);
-+	if (!vm->device_block_size ||
-+	    !is_power_of_2(vm->device_block_size)) {
-+		dev_err(&vm->vdev->dev,
-+			"invalid device block size: 0x%llx\n",
-+			(unsigned long long)vm->device_block_size);
-+		return -EINVAL;
-+	}
- 	virtio_cread_le(vm->vdev, struct virtio_mem_config, node_id,
- 			&node_id);
- 	vm->nid = virtio_mem_translate_node_id(vm, node_id);
+diff --git a/drivers/virtio/virtio_input.c b/drivers/virtio/virtio_input.c
+index deec24e8e682..2cc19782cdd3 100644
+--- a/drivers/virtio/virtio_input.c
++++ b/drivers/virtio/virtio_input.c
+@@ -312,6 +312,10 @@ static int virtinput_probe(struct virtio_device *vdev)
+ 
+ 		if (test_bit(ABS_MT_SLOT, vi->idev->absbit)) {
+ 			nslots = input_abs_get_max(vi->idev, ABS_MT_SLOT) + 1;
++			if (nslots <= 0) {
++				err = -EINVAL;
++				goto err_mt_init_slots;
++			}
+ 			err = input_mt_init_slots(vi->idev, nslots, 0);
+ 			if (err)
+ 				goto err_mt_init_slots;
 -- 
 2.43.0
 
