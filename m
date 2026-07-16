@@ -1,29 +1,29 @@
-Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.3])
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CEF78279907
-	for <virtualization@lists.linux.dev>; Thu, 16 Jul 2026 03:02:38 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E5EA02E7621
+	for <virtualization@lists.linux.dev>; Thu, 16 Jul 2026 03:02:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784170963; cv=none; b=baPY/FB+74fQqXOv4kEmxOUZvAtTQRk5qhhvoRVP0CM03+tpEhZ3D9Lzm/bsyYd/67/cIXgsfF/rxJphQZTc13MC7XiduwlZD0rQRutP+PTKcZXNfwMzTxww9RB3DBjX0GTJVm6qXLIcpN/fxL2pI9nGdFVLC5/U4Xp9eq8mQd4=
+	t=1784170965; cv=none; b=jxFB8h4LaKwbKsWZPFJ/52eXBL22upbW6WxreYjgdvoGRlJ9m2CvO8Mj3pkPZlSgkWnvlwFJSabV1NIgXPfyVEpVJNQ9GvRRXkc5+5mgA6Iih8LmPkr9yBc56iqAXBA37T2xuFTrQJmPgPA6UiYj7LGDdyloV6CcUsSSal2lOmU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784170963; c=relaxed/simple;
-	bh=DFZRlVoWzPVMZ2jvsLr8WRYOGQcz7fh8eTIjkDXEqfw=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=rgTWTEu4HEHuI6PgP6gSJlOm1VyjYIrpRDTJMridtwRNsJCa+g48VESzwuHXrcLhOliwVFDo2HzX7wRelhnQp6Iw4OAJxfwpJwXvDfVYS4snuWbE61xOBBymihGdN9RGQmLkXXcQNyW3IffFKF37R/ECLix22fZlWujuCHg/WlI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=Swamz4Do; arc=none smtp.client-ip=117.135.210.3
+	s=arc-20240116; t=1784170965; c=relaxed/simple;
+	bh=BmEQ1JjP3yY06yAm1q24o7DQiuX5kKIWSratjSc/NsI=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=J89SSV1AAahJ6ySIVGB/4ta3zK70rG/LH8i49vGllANsdnFPAAH8KOhP9eCy4TkQjshbSZONJ38TXIYrWs3HtvxCAuvhwMoEbW9tXdABPbRpUcbUl8W6Pp0j3mu7fxYz/jOCt57t35NDWT24HIUmr/flJb+0kPWHAYgALPIsnaY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=g9cuT17m; arc=none smtp.client-ip=220.197.31.4
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="Swamz4Do"
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="g9cuT17m"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version; bh=NV
-	gqlwNf7WiTSJJImnUuHurU6cSUXveORdu3yb81gdo=; b=Swamz4DoZLQT+30slX
-	pFfJ5E6R6th9WWJovHhbFx+O9/9k1PvTpwhiK+3vXStkBufrlz5tfm96e9BBLRdx
-	ohzm0zNNiKLo+hZ4rotWzeP49yxnXsLDYIWJzwFuoa9ayi3OkH3oVpwzgSJ77WAu
-	gCLtEVRdc38gouDLNL8WUz93U=
+	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version; bh=0t
+	KiRx3pNUsOkbx59/0aLdgFv6oElr06UU1M1CtyXFY=; b=g9cuT17m4OuCXSuooW
+	JMzdT3mRIj3bzPTnWzKdKatV5sqwHZ42jIy4mFAS4HSRUK886iXKu/NNNjN2k3vr
+	vXWG1bvdt7cmtMAelECtgy2+7ZtBf8p125Ag8dwQwh6+jfi+FMX5u11A74Tsr0na
+	CECDvAmWuqJFRWdpgTmr9lpqM=
 Received: from xwm-TianYi510Pro-14IMB.. (unknown [])
-	by gzga-smtp-mtada-g0-4 (Coremail) with SMTP id _____wDXJ1nISVhqrJ88KA--.23413S2;
-	Thu, 16 Jul 2026 11:02:32 +0800 (CST)
+	by gzga-smtp-mtada-g1-1 (Coremail) with SMTP id _____wD370XJSVhqov9lJg--.23S2;
+	Thu, 16 Jul 2026 11:02:34 +0800 (CST)
 From: Weimin Xiong <xiongwm2026@163.com>
 To: virtualization@lists.linux.dev
 Cc: mst@redhat.com,
@@ -32,9 +32,9 @@ Cc: mst@redhat.com,
 	netdev@vger.kernel.org,
 	kvm@vger.kernel.org,
 	xiongweimin <xiongweimin@kylinos.cn>
-Subject: [PATCH] vhost: reject zero-size IOTLB INVALIDATE
-Date: Thu, 16 Jul 2026 11:02:36 +0800
-Message-ID: <20260716030236.124322-1-xiongwm2026@163.com>
+Subject: [PATCH] vhost-vdpa: reject zero-size unmap
+Date: Thu, 16 Jul 2026 11:02:38 +0800
+Message-ID: <20260716030238.124368-1-xiongwm2026@163.com>
 X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -43,39 +43,42 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:_____wDXJ1nISVhqrJ88KA--.23413S2
-X-Coremail-Antispam: 1Uf129KBjvdXoW7Xr4kGw1kZw1xWw18Cry7Awb_yoW3trb_ua
-	yfXr1xJFn3tr1qq3Z2yFy5Ar9IyrsrWr4DXasYy343Zr17Jw15u3y8Zrn8A3Z5Ww4jqF9x
-	Aws0kw10vF1SqjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+X-CM-TRANSID:_____wD370XJSVhqov9lJg--.23S2
+X-Coremail-Antispam: 1Uf129KBjvdXoW7Jw4DWr43Cr43CF43uFy7GFg_yoWDJrXEg3
+	95Crn7Jr1S9r4qyF1I9rW3A34avFZruFZ09asYg345XwnxXw4ay3y8Zrn3J3WfurWUAFn3
+	Aw4vyr10qw1SqjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
 	9fnUUvcSsGvfC2KfnxnUUI43ZEXa7IUnZNVDUUUUU==
-X-CM-SenderInfo: x0lr0wdzpsijqw6rljoofrz/xtbCzQk1xGpYSclRkQAA3H
+X-CM-SenderInfo: x0lr0wdzpsijqw6rljoofrz/xtbCzgo1xGpYScphxAAA3h
 
 From: xiongweimin <xiongweimin@kylinos.cn>
 
-Reject VHOST_IOTLB_INVALIDATE messages with size == 0 to prevent
-iova + size - 1 from underflowing to U64_MAX, which would
-incorrectly delete the entire IOTLB.
+Reject unmap requests with size == 0 to prevent iova + size - 1
+from underflowing to U64_MAX, which would incorrectly unmap the
+entire IOTLB range.
+
+This fix also covers the error rollback path in vhost_vdpa_va_map:
+when the first VMA lookup fails, map_iova equals iova, resulting
+in a zero-size unmap that would otherwise clear the whole IOTLB.
 
 Signed-off-by: xiongweimin <xiongweimin@kylinos.cn>
 ---
- drivers/vhost/vhost.c | 4 ++++
- 1 file changed, 4 insertions(+)
+ drivers/vhost/vdpa.c | 5 +++++
+ 1 file changed, 5 insertions(+)
 
-diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-index 3c080c454e374cabd7321416ed92c5f7d3135254..xxxxxxxxxx 100644
---- a/drivers/vhost/vhost.c
-+++ b/drivers/vhost/vhost.c
-@@ -1656,6 +1656,10 @@ static int vhost_process_iotlb_msg(struct vhost_dev *dev, u32 asid,
- 		if (!dev->iotlb) {
- 			ret = -EFAULT;
- 			break;
-+		}
-+		if (!msg->size) {
-+			ret = -EINVAL;
-+			break;
- 		}
- 		vhost_vq_meta_reset(dev);
- 		vhost_iotlb_del_range(dev->iotlb, msg->iova,
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index bb96b1aa5..f49bf1cfb 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -1035,6 +1035,9 @@ static void vhost_vdpa_unmap(struct vhost_vdpa *v,
+ 	const struct vdpa_config_ops *ops = vdpa->config;
+ 	u32 asid = iotlb_to_asid(iotlb);
+ 
++	if (!size)
++		return;
++
+ 	vhost_vdpa_iotlb_unmap(v, iotlb, iova, iova + size - 1, asid);
+ 
+ 	if (ops->set_map) {
 --
 2.39.3
 
