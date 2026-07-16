@@ -1,176 +1,139 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CF24D3F44FF
-	for <virtualization@lists.linux.dev>; Thu, 16 Jul 2026 08:57:36 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 011343F7892
+	for <virtualization@lists.linux.dev>; Thu, 16 Jul 2026 09:41:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784192261; cv=none; b=kiTD15rBjw6BxbKSrE9ZvHHAH5Sy/2+ifEoL/p326TmdqO/LmARJ28TPXmUPT1dF7aLqjEFvIvi4VNOyp2ZuQEkZJ832z9bdl3/dzPyvvFOpXbVXjOP2QNc5cgcXsNPhOqNcyN33z+SlI4eZB/5PZH3w7Y5cRViVMn8U399edKE=
+	t=1784194917; cv=none; b=aRsVa8djMLDlfTr8DmwH8Z2EMqxbahZcanizbyRfe5hFjoZQoN2isSohS9GkEMRvPAxLqSwrzYnyIZJ8X0fUrBpJY2TWbiJY6AxfY+MDbGxrN/OVSkid9NUqhBCa+O8GF01VrqsmjIN5l8y9GkQxBAHhWiCnAJzZ41QVidUx8nI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784192261; c=relaxed/simple;
-	bh=mEjKg4AVLSWrUhKw9xfuQN61xzTZPl4Xk3fNow6F/Kw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=WyJBHI8ocO/cRfVNErOK+LpL9/m32X+t+lE6PjFtJ944rQwMzJgKPJxq0I9+S9UpZvZlXFVhRlYF4C9bdPKBqiJm8kYTcKnxpO7+rk4O8ln9ZWB0lNc6X90MVDrxjUta6z2KHUBoLV0/5Hy2Hp0cWnKeB+AeULZhBXqWc4NhtVw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=JLVq3Wz+; arc=none smtp.client-ip=170.10.133.124
+	s=arc-20240116; t=1784194917; c=relaxed/simple;
+	bh=LqqsdM1x0Zd6TudpeBiM7tPh+032sxPHxb49LL/o6kA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=KWfJbivUTEbJAG80D8PCCgbX1kFhEWQdLdtTGIlxHo4R9LmKE4Q8OP2yuMF49eufZ5GYX+OTb/Z0adjNRromSnVJHadZKSKFh0kqBVY2xvmuoRgslHbCNilgYskfMquFP8IOqQhuEgiTrSpPhQCgiAfGRMA92VU6yPvM1HhPcjQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=G1f9jGbM; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="JLVq3Wz+"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="G1f9jGbM"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1784192253;
+	s=mimecast20190719; t=1784194912;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=FhxSO78Yf0RPA4wZRxf7Fd3u153hjXB7c8vtU2XnoBg=;
-	b=JLVq3Wz+gYNU7egeg4nWqf+5RyefD+z7JeSxx6TxeyoYy3zfhPbnE8rYRTxt3YlMp5zGUR
-	dLl9SfF8OjiR9rFF7Oc5X2fmh46wED7FyY3eb+vliAf9QcvaSWDIroBjnHJGDV8l0nbvdT
-	JsSkrhipz7dIGvqUmlgPTf4KI+POBW8=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=EXu8rj/Lq4zKxTkQDISmUqipyXnuZss0b7jMIW5OWBE=;
+	b=G1f9jGbMcwFJ0tDY9Df77AdUu0mrCFca2RyaslpcWANFnOTI7eXgBB+bNLXiG6fkGYKvcP
+	PB1An7YaqVkVZmCznOIRqGnu8gBhtDTjX8WE0JiwWDDXgxvhNkgomJR8gG6uPPtPWVqjss
+	IxFcn34Oj/sOIh7m0veu/Sz/oThzbJU=
+Received: from mail-yw1-f197.google.com (mail-yw1-f197.google.com
+ [209.85.128.197]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-662-IdzN81BXNKe20i_rdvKJLw-1; Thu, 16 Jul 2026 04:57:30 -0400
-X-MC-Unique: IdzN81BXNKe20i_rdvKJLw-1
-X-Mimecast-MFC-AGG-ID: IdzN81BXNKe20i_rdvKJLw_1784192249
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-474170b59dfso3549954f8f.3
-        for <virtualization@lists.linux.dev>; Thu, 16 Jul 2026 01:57:30 -0700 (PDT)
+ us-mta-328-F8tV9FAmOhubterrVlFiAw-1; Thu, 16 Jul 2026 05:41:51 -0400
+X-MC-Unique: F8tV9FAmOhubterrVlFiAw-1
+X-Mimecast-MFC-AGG-ID: F8tV9FAmOhubterrVlFiAw_1784194910
+Received: by mail-yw1-f197.google.com with SMTP id 00721157ae682-81e92ddc199so139241517b3.0
+        for <virtualization@lists.linux.dev>; Thu, 16 Jul 2026 02:41:50 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784192249; x=1784797049;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
+        d=1e100.net; s=20251104; t=1784194910; x=1784799710;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=FhxSO78Yf0RPA4wZRxf7Fd3u153hjXB7c8vtU2XnoBg=;
-        b=ad0JfrCghQcqM4yErdi74z9PiyX+JXwOL9Mrg/Tn4n4/5XfRrzKmk+TNZQGDxHNrME
-         YWlghTTCS37nddibrO64mSINmCVw/mVZlWIKkyMwzWTsnf5lzAELxLSmLZFI4LMLjVQv
-         qu6JsCBT3fsTxxXLRTaUmLBmsx2ahIvFISgqzafpBVrNdPQ/5qPV+EMVncvUHbFdNptJ
-         /bXB5ZmzhSZCYra5dAEAp70SQSpS52tvjvsIvk3vQHcc9zUJB5emcrVoFiaRuInVCdfd
-         hpuUzh8g0B1iAJOqx+ejIh+OWXfgc1APYbCD5OoYANrWOnvckQagOHKPjyo4BEfq7q2e
-         990Q==
-X-Forwarded-Encrypted: i=1; AHgh+RoZZtI/iOnJXRrZTM+5mnY7mjWQ08kv0H/Qe0xsKubjO9V20TAhG/eY8bivNfd8aXUC73mcxu/y4pdxU0+PNA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzDQrlMNsgJyijouXkBcOk+kmBB7wGqPK/PX3CEeOzFAORMZfPF
-	/B1XpJOFt+FRkg1XZtyQ9sH7Y8rwts4u1h2FJoc6vEiPEhyVDZ7i3J0y0hAEzm2dCRoiZMy+Rup
-	IHEu9WJyJtCem0/vI0fKA5NiCqGyzrIffBvqoYr9/gIWc3rlkzMDIMr8Ol7oj/3Yk6sOj
-X-Gm-Gg: AfdE7cnp5dAJJ5OD+0Rg2qWEi3f1P6CI+jAvqsy/TTds0fLuqa/Yq9CnMO22dwMj7Kk
-	mo14t9hVf3ONQYXHySGVsvUKiT5/Ht/bBWrQlbHTZES54wHLLchf5vEB9CdnDgZoIHv+cmR8s67
-	z7p0NvBWk62E1f/iEFxpZHNDpoGqbnaC90Qp6TL1yHSj0WobvQ8qzRWz37l3F+5Is1vyHWa4mAs
-	wLey18NhxTY96WQ/OYIog040aofPdnfYcWMjJqnH2JYJCtFYUS4XmcVpfVvzAiEPKwpB9PdqzhO
-	bcT0upc1Xhel9VqaIjuuClfKdKKBMMP8JoFnrc5tLSq/gCHqh+l2Ro8JM1oxHMoETrfUTWRaCGi
-	APQSauprWVtH2mkfDKT4ok9fzPadyVO+v8c6n+5+M7aqR98gzZw==
-X-Received: by 2002:a05:6000:46c2:b0:47f:5298:a010 with SMTP id ffacd0b85a97d-47f5298a31emr4384407f8f.41.1784192248999;
-        Thu, 16 Jul 2026 01:57:28 -0700 (PDT)
-X-Received: by 2002:a05:6000:46c2:b0:47f:5298:a010 with SMTP id ffacd0b85a97d-47f5298a31emr4384387f8f.41.1784192248495;
-        Thu, 16 Jul 2026 01:57:28 -0700 (PDT)
-Received: from sgarzare-redhat (host-82-53-135-65.retail.telecomitalia.it. [82.53.135.65])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47f4635aa34sm20900447f8f.15.2026.07.16.01.57.26
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Jul 2026 01:57:27 -0700 (PDT)
-Date: Thu, 16 Jul 2026 10:57:19 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org, mst@redhat.com, stefanha@redhat.com, 
-	dongli.zhang@oracle.com, maciej.szmigiero@oracle.com, bchaney@akamai.com, 
-	mark.kanda@oracle.com, ptikhomirov@virtuozzo.com, den@openvz.org
-Subject: Re: [PATCH v4 4/5] vhost: synchronize with RCU readers when freeing
- workers
-Message-ID: <alibLtcrC7o5r4Dh@sgarzare-redhat>
-References: <20260714151638.143019-1-andrey.drobyshev@virtuozzo.com>
- <20260714151638.143019-5-andrey.drobyshev@virtuozzo.com>
+        bh=EXu8rj/Lq4zKxTkQDISmUqipyXnuZss0b7jMIW5OWBE=;
+        b=PdrE2Q9CIaNVPuWgKheMTpoNAHZMtnBZhiY79bveiG++NT3lRWMYQe+cRF6w5vgj+7
+         i1nLJR/FxTXLsoTtO80qwF5Q7FEpwvOfoPH6x72gaI0oMIA4KY6qiSITEcf4sGl6lIC+
+         LEZ2s61LTlKK5OZOMBkiusbpyaS14I9Oe1B7mj9w95xmqB7ZKz91GcwwS8/Vx8TrWWMe
+         0HgLb8i9/EWAlr4fLTGtNJy6j2oLGV1GtCeWV2xxlSJ76aBdrPJlcUGA9Ue1h1za+byP
+         PguHM8FOv7AbIw/bM+rv3DnQ6S1LQvAHfVwEBzd3LYJzGtTL1GMO3Q9gdHapA2htWJgi
+         0AQA==
+X-Gm-Message-State: AOJu0YwzWGUXI38aViiycgTKgJWho1nWW8LfUb50/CdXtSR5gLe1wmP9
+	PgOUeB96OYVkWmS8enuUKE+722jg+G0/ErSVn167K7j5L4Gi/WwWG9gJjNbR30Azj7qCxyA8jaA
+	6fJmq9qMS7hyI1Pja0b+FAAK24tpmFJXux74q7m8tD13R+2GwR4XbfGsJGYFLXRuuE2IRKzSHRA
+	pnyyMDwztQvxTrA6hdq7rFgxvXMw2wl1hLZJzy+9RFshk=
+X-Gm-Gg: AfdE7cnMicP40QSGzR3tDYSeEFSOteHXHGSmzdwwlMENTpRKbrLaYe+j/9jD6KJThW4
+	eZ6j6dfNM9VHwBA7XZprWHaIQvuUyyzosAvX8vgvDsWy8h7rK1SzNSTO/SlbzkdE0ZHMRybXpCm
+	HMsHawyJngGrQRihxUrRmX6CKgbKe/74Dungzt0HOMxqQSm1cEQbgJB1EXp+Yc/HY5KpnhuPNVp
+	/IoaWnvKikxrNre0H7u2ZlNoHkHLSBE8ipueljIBlq3SmDWJ9AV6IUiSV3x15y4Q7QBkChhHs1p
+	ieoZr3yyX1F69PI=
+X-Received: by 2002:a05:690c:6a12:b0:809:fd83:a88b with SMTP id 00721157ae682-81ebfda0fedmr73234467b3.3.1784194910347;
+        Thu, 16 Jul 2026 02:41:50 -0700 (PDT)
+X-Received: by 2002:a05:690c:6a12:b0:809:fd83:a88b with SMTP id
+ 00721157ae682-81ebfda0fedmr73234217b3.3.1784194909834; Thu, 16 Jul 2026
+ 02:41:49 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260714151638.143019-5-andrey.drobyshev@virtuozzo.com>
+References: <20260716030236.124322-1-xiongwm2026@163.com>
+In-Reply-To: <20260716030236.124322-1-xiongwm2026@163.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Thu, 16 Jul 2026 11:41:13 +0200
+X-Gm-Features: AUfX_myzajePn8mltUINphDNuq-00hOZMHHFFuGnRbdhRoWqlQATXfpqP4mVDnA
+Message-ID: <CAJaqyWfW9n5o+ojrEjK-m+6cwH_TSxWckjkvEXowZA8r=vDmdQ@mail.gmail.com>
+Subject: Re: [PATCH] vhost: reject zero-size IOTLB INVALIDATE
+To: Weimin Xiong <xiongwm2026@163.com>
+Cc: virtualization@lists.linux.dev, mst@redhat.com, jasowangio@gmail.com, 
+	netdev@vger.kernel.org, kvm@vger.kernel.org, 
+	xiongweimin <xiongweimin@kylinos.cn>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: gN8t-6J6V1DAFptKdRNXAwCYGfM4867PcK1MYPwcILU_1784192249
+X-Mimecast-MFC-PROC-ID: qWCNGttuKP5jPhlE2efwnBSXwS6NTXcA7OfLkcSi9rQ_1784194910
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jul 14, 2026 at 06:16:37PM +0300, Andrey Drobyshev wrote:
->vhost_vq_work_queue() only holds the RCU read lock while it dereferences
->vq->worker and queues work on it.  vhost_workers_free() however clears
->the vq->worker pointers and immediately frees the workers, without
->waiting for a grace period.  A caller that fetched the worker right
->before the pointer was cleared can therefore still be queueing work on
->it while it is freed.  And even when the queueing itself wins the race,
->the work is never run, so its VHOST_WORK_QUEUED bit stays set and all
->future attempts to queue it are silently skipped.
+On Thu, Jul 16, 2026 at 5:02=E2=80=AFAM Weimin Xiong <xiongwm2026@163.com> =
+wrote:
 >
->None of the current callers can actually hit this: net and scsi stop
->their virtqueues before the workers are freed, and vsock unhashes the
->device and does synchronize_rcu() of its own in vhost_vsock_dev_release()
->before the workers go away.  But the upcoming VHOST_RESET_OWNER support
->in vhost-vsock keeps the device hashed while its workers are freed, so
->the lockless send/cancel paths become able to race with the teardown.
+> From: xiongweimin <xiongweimin@kylinos.cn>
 >
->Close this the way vhost_worker_killed() already does: clear the
->vq->worker pointers, wait for a grace period, run whatever the last
->readers may have queued, and only then free the workers.  The
->synchronize_rcu() is skipped if the device has no workers, so cleanup of
->devices which never got an owner stays cheap.
+> Reject VHOST_IOTLB_INVALIDATE messages with size =3D=3D 0 to prevent
+> iova + size - 1 from underflowing to U64_MAX, which would
+> incorrectly delete the entire IOTLB.
 >
-
-Do we need a Fixes tag for this?
-
-Thanks for pointing out that the issue wasn't occurring, but I think we 
-should add it because it's a sneaky problem we discovered by chance.
-IMO the code should already have `synchronize_rcu()` after 
-`rcu_assign_pointer()` loop.
-
-@Michael, what do you think?
-
->Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
->Signed-off-by: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
->---
-> drivers/vhost/vhost.c | 15 +++++++++++++++
-> 1 file changed, 15 insertions(+)
+> Signed-off-by: xiongweimin <xiongweimin@kylinos.cn>
+> ---
+>  drivers/vhost/vhost.c | 4 ++++
+>  1 file changed, 4 insertions(+)
 >
->diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
->index 4c525b3e16ea..0d1414d40f4e 100644
->--- a/drivers/vhost/vhost.c
->+++ b/drivers/vhost/vhost.c
->@@ -729,6 +729,21 @@ static void vhost_workers_free(struct vhost_dev *dev)
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 3c080c454e374cabd7321416ed92c5f7d3135254..xxxxxxxxxx 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -1656,6 +1656,10 @@ static int vhost_process_iotlb_msg(struct vhost_de=
+v *dev, u32 asid,
+>                 if (!dev->iotlb) {
+>                         ret =3D -EFAULT;
+>                         break;
+> +               }
+> +               if (!msg->size) {
+> +                       ret =3D -EINVAL;
+> +                       break;
+>                 }
+
+I think the issue is real, but how about adding the condition to the
+caller vhost_chr_write_iter? It is already the
+
+if (msg.type =3D=3D VHOST_IOTLB_UPDATE && msg.size =3D=3D 0) {
+        ret =3D -EINVAL;
+        goto done;
+}
+
+So it should be somthing in the line of:
+
+if ((msg.type =3D=3D VHOST_IOTLB_UPDATE || msg.type =3D=3D
+VHOST_IOTLB_INVALIDATE) && msg.size =3D=3D 0) {
+        ret =3D -EINVAL;
+        goto done;
+}
+
+With that, please add my acked-by.
+
+>                 vhost_vq_meta_reset(dev);
+>                 vhost_iotlb_del_range(dev->iotlb, msg->iova,
+> --
+> 2.39.3
 >
-> 	for (i = 0; i < dev->nvqs; i++)
-> 		rcu_assign_pointer(dev->vqs[i]->worker, NULL);
->+
->+	/*
->+	 * vhost_vq_work_queue() reads vq->worker under rcu_read_lock(), so a
->+	 * caller that fetched a worker before we cleared the pointers above
->+	 * may still be about to queue work on it.  Wait for those RCU readers
->+	 * to finish before freeing the worker, then run whatever they queued
->+	 * so nothing is left with VHOST_WORK_QUEUED set.  Mirrors
->+	 * vhost_worker_killed().
->+	 */
->+	if (!xa_empty(&dev->worker_xa)) {
->+		synchronize_rcu();
->+		xa_for_each(&dev->worker_xa, i, worker)
->+			vhost_run_work_list(worker);
->+	}
->+
-
-Following sashiko review [1], I tried to undersand why we need this, but 
-TBH I'm really confused. That said, this seems wrong also because it 
-will work only with vhost_tasks, and not with kthreads.
-
-IIUC vhost_worker_killed() will be called anyway when calling 
-vhost_worker_destroy(). For vhost_tasks, it will call 
-vhost_task_do_stop() that calls vhost_task_stop(). This sets 
-VHOST_TASK_FLAGS_STOP and wait the worker on vtsk->exited before freeing 
-stuff. The worker breaks the loop and calls vtsk->handle_sigkill() that 
-is exactly vhost_worker_killed() you mentioned we are mirroring here.
-
-So, why we need this?
-
-Should be enough to call synchronize_rcu() in any case after the 
-rcu_assign_pointer() loop?
-
-Thanks,
-Stefano
-
-[1] 
-https://sashiko.dev/#/patchset/20260714151638.143019-1-andrey.drobyshev@virtuozzo.com?part=4
 
