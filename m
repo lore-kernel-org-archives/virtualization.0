@@ -1,264 +1,251 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-lf1-f51.google.com (mail-lf1-f51.google.com [209.85.167.51])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3EA4356746
-	for <virtualization@lists.linux.dev>; Thu, 16 Jul 2026 16:13:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 965B73F65EB
+	for <virtualization@lists.linux.dev>; Thu, 16 Jul 2026 16:37:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784218395; cv=none; b=pebtZ21c7BJN4y+2wJutQjZNlbUrMc/1CJFdaAJF6SkkmCLQhhFOeJc9Yr3YQNxgKn2no7BptXMGRfveD4z6f/Qh2j4YhSl0r8k0xMt7reWyquZYrMNC7mMrz67QsqdYC4xrrNNt78JM+A50mVNAcTyc2laOF79P0Uc7KslzUlc=
+	t=1784219876; cv=none; b=Ii/DYIIyyJERFqUAyk/aRngPskkVok8eAEIvMAZQNQeXL8yh/ipVUhPRvBKhLhTLfh4r5DF/BugcZCcAdwS1QbKLEowAau4wYT7XWNbRqRqkZgEOvhOdmj+fs+CQDB9qDl6lEr4vWyg53I5nJiKUY8XxnKxfwRQOlYGc+JtQ0LE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784218395; c=relaxed/simple;
-	bh=kKKZU3L+6reK4B7gcJARVHlxz60vhrpuTNd2xoB+G8o=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=SSy1s7cngpwR7OLoIG+KhtHFfauVMkKQ6Y9Tlwn0ksGpFqCMSLwqfKL+VRoVtYhIud3wfnm4uFSvBeAixg08/rlYH0ebejph4jZQtfpLkZAxLX1KzYQtw2ZNMU8T2mqkeA8MEwWocCmsKP8Hsl/ewAI36QMavhTQG6Bo3t0ByKE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XyJ37Wt5; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1784219876; c=relaxed/simple;
+	bh=o/HwCVgYgQFkz0/ODb7pKMxQLGAduLjD199HG59bSMo=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=SuVpSumQZv+89Ve/ncWcAcDsGqJ+DaCIu9l+VnSn57AQmeIOU3xfFD9dvrCvqiEgtCSyiKY6HHReA1Ys+ivwjsR+IFmqs8DKhzON2tHQMkF5pNcPRop5CW7LoKIVyC8yOjHGH8fMlM0+u/rJnb1M1In8w6ZAY0a1LYdVXd0tULg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=TB18mtE0; arc=none smtp.client-ip=209.85.167.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XyJ37Wt5"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1784218392;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=x9r6s/Iraoqi/k6oOHzDzgVXH/SASqKiz7NyQ8JhZ6M=;
-	b=XyJ37Wt5Zisk5aTJPh45GIMqn6f50AnsL6AgY/kJiuS9U59p+/sr0ZuOq4yp4Ja4QLqxpM
-	tjVGOFFw9qUWPmtIrpfrMwibiT5UsYQ0XZmkje89h21UGw2d6yfnwoqmbxev/FvywCvh/g
-	o8d3HqA5+zM2lBeJSiXi3eHpfDx6k2Q=
-Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
- [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-467-Ablm7b5GN8682yTC56ysRQ-1; Thu, 16 Jul 2026 12:13:10 -0400
-X-MC-Unique: Ablm7b5GN8682yTC56ysRQ-1
-X-Mimecast-MFC-AGG-ID: Ablm7b5GN8682yTC56ysRQ_1784218389
-Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-493bd52dae6so46055535e9.0
-        for <virtualization@lists.linux.dev>; Thu, 16 Jul 2026 09:13:10 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="TB18mtE0"
+Received: by mail-lf1-f51.google.com with SMTP id 2adb3069b0e04-5aeb24c0807so5186316e87.0
+        for <virtualization@lists.linux.dev>; Thu, 16 Jul 2026 09:37:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784219862; x=1784824662; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=7CwBdf7YTl0lNtDo3SBe9j9ZzLE2uAoBiUh1WwfPJrk=;
+        b=TB18mtE0S4VKHaKDMjOQNulx7semRdyDD0GUGlNXHw27hJ40URWV1A4I0TP4V+7YNH
+         aBh0+Ym0V3oFZIdcJghCvlEiEAMzcQ6tPu3aEmjZd9qObcycuBCcFFh6/rLdpXfh2hOo
+         p4qrDfMOWGHQm8pCRicTG5XV7MyfEa/TSbBmgFfdMtg2viR6GIzfyfRtI/L6gKP2zNZx
+         Z2xC0Ci5una9IInRARD9C/eHApI+NPfAA2Il+kCiBU8oiBdXY8R4QrE9g2EHerdn6P83
+         mpaOjLe12u6Q+R2nyDpgQ98z1ARc1MxUh9qtPfH3i9ZLEJn5MEfwZVX/t7N9JMHYfMaG
+         xCOg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784218389; x=1784823189;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=x9r6s/Iraoqi/k6oOHzDzgVXH/SASqKiz7NyQ8JhZ6M=;
-        b=YINDHO8OotpWtOEFnuVY1TPFOwBH1F6PTobnUEMGe6Vnu664xiQNowk0sbvGl4sPOu
-         7wtZPTtH4anZHRnkMkx7ce+7moZyomFb5YQFLt6b030dD7IdfaCxI2fsn/pCvfPR8oHk
-         rLzsIeue+dcsj7ahr66zBSFgZUWk87WLHeJAn2WiVF/Z6QgR6FIKnoxs3i71tqRwXYd2
-         o872Cr3mCUKyxjQ/AKaqV3J98J2PAkGOB9XX/qJHxJNEbLtXKKjr7sxkAStOOc+D8LKQ
-         sUf8B17MIF8hSGFDTGKDyYL1txBPex2KBrIN4jj81zFrLsxk0VjSMQUItrPvJiMGilyR
-         ykCg==
-X-Forwarded-Encrypted: i=1; AHgh+RogJqEvGP4V3mWwT7PcyAfFtSkTEixyGUjQouB399tQ0BEfffodb8CMbhIXpDEkzpl14EBg72iJgL3V8+upnA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxFNKqlUs48z2CbO4CLqeVsBQ3VwyHzVDx1eTJv9V67++VPVm05
-	Ptl1YHiJ3zzBTBAHmYs08/J3RY8etnyzu1Hytf6Wmfu9wg7rpfXv9ZaQVbJrz/LT30NXiYrBFGJ
-	0ty8jmwvPVeSkCaI73NJRcQfijw6QIRwmo/K8qblTThV/qq6yLT02pnLk3OzHv9zUolJY
-X-Gm-Gg: AfdE7cmTroS2tIYcwPl2jtmFgyPX4t6UNNCqipWstZa37yjsGq48hIHyTYPy6arcICd
-	pES0Rb4UJzjtXggmIsuzKLakzmO7uOK2o/T/xztIicHFu7eSq79iGx+r/HZH+qB2EyoNmnAmwg6
-	mSvZvoDv4PZAyIt1GNd/M0OUPe2FB18kGIO91ep+dNLDVePoo0QWRIxAiS45J6Y9o5vj0HGOxtM
-	HxnLnzGscldCc1iVRd2GFe6RCpm4WjUTbIOcKT85I/EcXcIBGgmnoVWPmEjjFAfYYMcVHXXwRc8
-	w0PwgiTp25L7gHBb8+5IQu/UHJeZoSmy2spjEC0Zl8ggTv9UgGlo1cqZ/l1Lxd/hEtbORhcXOh9
-	5R7jr5iCztWCCpTeRO9m7tgGH3qmsH8oBOEBROIHkVxOghFljfQ==
-X-Received: by 2002:a05:600d:6445:20b0:495:4182:444c with SMTP id 5b1f17b1804b1-49541824759mr38415325e9.26.1784218389344;
-        Thu, 16 Jul 2026 09:13:09 -0700 (PDT)
-X-Received: by 2002:a05:600d:6445:20b0:495:4182:444c with SMTP id 5b1f17b1804b1-49541824759mr38414535e9.26.1784218388605;
-        Thu, 16 Jul 2026 09:13:08 -0700 (PDT)
-Received: from sgarzare-redhat (host-82-53-135-65.retail.telecomitalia.it. [82.53.135.65])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49541e9ee07sm70836725e9.15.2026.07.16.09.13.06
+        d=1e100.net; s=20251104; t=1784219862; x=1784824662;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=7CwBdf7YTl0lNtDo3SBe9j9ZzLE2uAoBiUh1WwfPJrk=;
+        b=leNex91iwUU327Dl7UaUcbOjotMXTVW+vdLNLRK6KGiMFDUObSHlDRDKMvUzflRgbj
+         k185Nh7jzFLCHUAAppZnQYCl3sXdoCNCr4j3tDortt8chzapeWfLspJBdD1EfeKd3c4C
+         hS1d9yi91hMoDZ+y6WPfEMaNWEeP1p0cCAP7JngDFH2Mo8t7dvWiBCRKAeveldxUuVpb
+         /XSxq0elFs5AGD+8eNLvCi24w2dSK64TchfAdc6MewG6pg6sSU0tuZ1L5EGn1LrSOJKi
+         9FFaJTGV2Wmb+nhZ9v6FGpFXqkTmmT8Ejm3qoHJtzLwmrJii/XOM4wR9Z0J3pR0a3TuF
+         C0+g==
+X-Forwarded-Encrypted: i=1; AHgh+RqHnskBm5c8qsGboMdELqZcPdzAxvbQXOVChH6B6Pbn59po5LWPyEPmCxY6q3LtucqTaOyDgQG350Q69DI17A==@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywo7uur+ZjVTfVE5HyGEBNxMj+HCxFS7O5h3JQPsYwPQFxLA4KP
+	3/JvIzS1AKBE5CB3IzbGX3yAouut8DlAeac8BnMqX4UO+dM7pwVNN32U
+X-Gm-Gg: AfdE7ckdz9Y/q6HAKVTt3QNQ9ITXQUpCnjfk7U8/7mfng3SH/5nbSuukprAzggDZnH/
+	ekMjSKH2KTt3Pbsle1YuDN/Z0hqvkjiv8oKyk0tnPj6OkmtQCEZpD13NjCIdiFkEapDiLhDZboR
+	d3ddXsKPd875zqgAUbcj5TlJQgm2VyyfeUz8ND2YIVYkB70AO8seZ7Vr7PGe0s1be+t7Oh/5dnr
+	Xiq/7CGIdXMAuXRl/6kA1r+sFX729rSTuMb0tVYt0AFaRaeZQuHnIUlYsoKTAxVA9g/yO0CYsZO
+	LwCMFKsA3Aq0GkfnoKW9rlfg+En1xcKwWq0jWFU6SgP5DJwF8XB91QtC3ZmM3ruB2EFfn5rjC/9
+	L8pHZySNfBuwSrf1CxVubHA/24LSoLxnbX2T/EzHdeaMOt3UoBzxlvdwnJk5FjjfweBCkbKWu9n
+	fCSFq1tCga
+X-Received: by 2002:a05:6512:3b20:b0:5b0:21e3:672a with SMTP id 2adb3069b0e04-5b159b8b887mr2052865e87.56.1784219862231;
+        Thu, 16 Jul 2026 09:37:42 -0700 (PDT)
+Received: from grower.astralinux.ru ([81.9.21.4])
+        by smtp.gmail.com with ESMTPSA id 2adb3069b0e04-5b01caaf468sm5164318e87.68.2026.07.16.09.37.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Jul 2026 09:13:07 -0700 (PDT)
-Date: Thu, 16 Jul 2026 18:13:02 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org, mst@redhat.com, stefanha@redhat.com, 
-	dongli.zhang@oracle.com, maciej.szmigiero@oracle.com, bchaney@akamai.com, 
-	mark.kanda@oracle.com, ptikhomirov@virtuozzo.com, den@openvz.org
-Subject: Re: [PATCH v4 4/5] vhost: synchronize with RCU readers when freeing
- workers
-Message-ID: <alj_YKTitwqMjAez@sgarzare-redhat>
-References: <20260714151638.143019-1-andrey.drobyshev@virtuozzo.com>
- <20260714151638.143019-5-andrey.drobyshev@virtuozzo.com>
- <alibLtcrC7o5r4Dh@sgarzare-redhat>
- <2f680236-f4c1-418b-8401-4dea1230caf0@virtuozzo.com>
+        Thu, 16 Jul 2026 09:37:40 -0700 (PDT)
+From: Alexander Martyniuk <alexevgmart@gmail.com>
+To: stable@vger.kernel.org,
+	Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Alexander Martyniuk <alexevgmart@gmail.com>,
+	lvc-project@linuxtesting.org,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>,
+	Arseniy Krasnov <avkrasnov@salutedevices.com>,
+	virtualization@lists.linux.dev,
+	kvm@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Maher Azzouzi <maherazz04@gmail.com>
+Subject: [PATCH 6.12] vsock/virtio: fix zerocopy completion for multi-skb sends
+Date: Thu, 16 Jul 2026 19:35:59 +0300
+Message-ID: <20260716163600.115458-1-alexevgmart@gmail.com>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <2f680236-f4c1-418b-8401-4dea1230caf0@virtuozzo.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: YjfESTQAc5_UQW-j0X-f6hxZ7lR4kYt3EwVmRekxI90_1784218389
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Thu, Jul 16, 2026 at 06:39:48PM +0300, Andrey Drobyshev wrote:
->On 7/16/26 11:57 AM, Stefano Garzarella wrote:
->> On Tue, Jul 14, 2026 at 06:16:37PM +0300, Andrey Drobyshev wrote:
->>> vhost_vq_work_queue() only holds the RCU read lock while it dereferences
->>> vq->worker and queues work on it.  vhost_workers_free() however clears
->>> the vq->worker pointers and immediately frees the workers, without
->>> waiting for a grace period.  A caller that fetched the worker right
->>> before the pointer was cleared can therefore still be queueing work on
->>> it while it is freed.  And even when the queueing itself wins the race,
->>> the work is never run, so its VHOST_WORK_QUEUED bit stays set and all
->>> future attempts to queue it are silently skipped.
->>>
->>> None of the current callers can actually hit this: net and scsi stop
->>> their virtqueues before the workers are freed, and vsock unhashes the
->>> device and does synchronize_rcu() of its own in vhost_vsock_dev_release()
->>> before the workers go away.  But the upcoming VHOST_RESET_OWNER support
->>> in vhost-vsock keeps the device hashed while its workers are freed, so
->>> the lockless send/cancel paths become able to race with the teardown.
->>>
->>> Close this the way vhost_worker_killed() already does: clear the
->>> vq->worker pointers, wait for a grace period, run whatever the last
->>> readers may have queued, and only then free the workers.  The
->>> synchronize_rcu() is skipped if the device has no workers, so cleanup of
->>> devices which never got an owner stays cheap.
->>>
->>
->> Do we need a Fixes tag for this?
->>
->
->I'm guessing it should be:
->
->Fixes: 228a27cf78af ("vhost: Allow worker switching while work is queueing")
->
->> Thanks for pointing out that the issue wasn't occurring, but I think we
->> should add it because it's a sneaky problem we discovered by chance.
->> IMO the code should already have `synchronize_rcu()` after
->> `rcu_assign_pointer()` loop.
->>
->> @Michael, what do you think?
->>
->>> Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
->>> Signed-off-by: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
->>> ---
->>> drivers/vhost/vhost.c | 15 +++++++++++++++
->>> 1 file changed, 15 insertions(+)
->>>
->>> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
->>> index 4c525b3e16ea..0d1414d40f4e 100644
->>> --- a/drivers/vhost/vhost.c
->>> +++ b/drivers/vhost/vhost.c
->>> @@ -729,6 +729,21 @@ static void vhost_workers_free(struct vhost_dev *dev)
->>>
->>> 	for (i = 0; i < dev->nvqs; i++)
->>> 		rcu_assign_pointer(dev->vqs[i]->worker, NULL);
->>> +
->>> +	/*
->>> +	 * vhost_vq_work_queue() reads vq->worker under rcu_read_lock(), so a
->>> +	 * caller that fetched a worker before we cleared the pointers above
->>> +	 * may still be about to queue work on it.  Wait for those RCU readers
->>> +	 * to finish before freeing the worker, then run whatever they queued
->>> +	 * so nothing is left with VHOST_WORK_QUEUED set.  Mirrors
->>> +	 * vhost_worker_killed().
->>> +	 */
->>> +	if (!xa_empty(&dev->worker_xa)) {
->>> +		synchronize_rcu();
->>> +		xa_for_each(&dev->worker_xa, i, worker)
->>> +			vhost_run_work_list(worker);
->>> +	}
->>> +
->>
->> Following sashiko review [1], I tried to undersand why we need this, but
->> TBH I'm really confused. That said, this seems wrong also because it
->> will work only with vhost_tasks, and not with kthreads.
->>
->> IIUC vhost_worker_killed() will be called anyway when calling
->> vhost_worker_destroy(). For vhost_tasks, it will call
->> vhost_task_do_stop() that calls vhost_task_stop(). This sets
->> VHOST_TASK_FLAGS_STOP and wait the worker on vtsk->exited before freeing
->> stuff. The worker breaks the loop and calls vtsk->handle_sigkill() that
->> is exactly vhost_worker_killed() you mentioned we are mirroring here.
->>
->
->Hmm, are we sure it's the case for our codepath?  Looking at the
->vhost_task loop function:
->
->> static int vhost_task_fn(void *data)
->> {
->>     for (;;) {
->>         if (signal_pending(current)) {
->>             if (get_signal(&ksig))
->>                 break;
->>         }
->>         ...
->>         if (test_bit(VHOST_TASK_FLAGS_STOP, &vtsk->flags)) {
->>             __set_current_state(TASK_RUNNING);
->>             break;
->>         }
->>         did_work = vtsk->fn(vtsk->data);
->>         ...
->>     }
->>
->>     ...
->>
->>     if (!test_bit(VHOST_TASK_FLAGS_STOP, &vtsk->flags)) {
->>         set_bit(VHOST_TASK_FLAGS_KILLED, &vtsk->flags);
->>         vtsk->handle_sigkill(vtsk->data);
->>     }
->>     ...
->> }
->
->AFAICT, we exit the loop in 2 cases: signal delivery or STOP bit
->setting.  Like you said, STOP is set by vhost_task_stop.  E.g. for our
->RESET_OWNER case:
->
->vhost_vsock_reset_owner()
->  vhost_dev_reset_owner()
->    vhost_dev_cleanup()
->      vhost_workers_free()
->        vhost_worker_destroy()
->          vhost_task_stop()  // for vhost_task_ops backend
->            set_bit(VHOST_TASK_FLAGS_STOP)
->
->So, first of all, actual work by .fn() callback is done after the exit
->checks, therefore we skip it - no chance to drain there.
->
->Secondly, the handle_sigkill() callback is deliberately NOT called in
->the STOP case and only called on fatal signal delivery.  And for
->vhost_task backend the .handle_sigkill() callback is exactly
->vhost_worker_killed().
->
->So my understanding is: if we only call synchronize_rcu() here and leave
->this path undrained, then whatever work which was put by send_pkt() for
->the worker currently being freed - will be lost.  Please correct me if
->I'm wrong.
+From: Stefano Garzarella <sgarzare@redhat.com>
 
-Yep, your right. But what will be the issue of loosing them?
+commit ae38d9179190a956e2a87a69ef1dd6f451b51c4d upstream.
 
-IIUC we are not loosing any data, just avoiding some works that will be 
-handled later when/if will set a new owner.
+When a large message is fragmented into multiple skbs, the zerocopy
+uarg is only allocated and attached to the last skb in the loop.
+Non-final skbs carry pinned user pages with no completion tracking,
+so the kernel has no way to notify userspace when those pages are safe
+to reuse. If the loop breaks early the uarg is never allocated at all,
+leaking pinned pages with no completion notification.
 
->
->That said, I agree that vhost_run_work_list() will only work with
->vhost_task backend, not with kthreads backend.  If we do
->vhost_worker_flush() instead - I guess it'll keep the drain here, yet
->become backend-agnostic. I.e.:
->
->> +       if (!xa_empty(&dev->worker_xa)) {
->> +               synchronize_rcu();
->> +               xa_for_each(&dev->worker_xa, i, worker)
->> +                       vhost_worker_flush(worker);
->> +       }
->
->With the last 2 lines being equivalent to just calling
->vhost_dev_flush(dev).  And once we become backend-agnostic here, I'm
->guessing the warning reported by Sashiko should be dealt with as well.
+Fix this by following the approach used by TCP: allocate the zerocopy
+uarg (if not provided by the caller) before the send loop and attach
+it to every skb via skb_zcopy_set(), which takes a reference per skb.
+Each skb's completion properly decrements the refcount, and the
+notification only fires after the last skb is freed.
+On failure, if no data was sent, the uarg is cleanly aborted via
+net_zcopy_put_abort().
 
-I'd avoid `if !xa_empty(&dev->worker_xa)` at all, and call 
-synchronize_rcu() in any case.
+This issue was initially discovered by sashiko while reviewing commit
+1cb36e252211 ("vsock/virtio: fix MSG_ZEROCOPY pinned-pages accounting")
+but was pre-existing.
 
-About vhost_dev_flush(), we are calling it in several places, and maybe 
-we should re-check them. E.g. we call in vhost_vsock_flush(), but it's 
-also called by vhost_dev_stop(), maybe we can avoid to call 
-vhost_vsock_flush() if we call vhost_dev_stop().
+Fixes: 581512a6dc93 ("vsock/virtio: MSG_ZEROCOPY flag support")
+Closes: https://sashiko.dev/#/patchset/20260420132051.217589-1-sgarzare%40redhat.com
+Reported-by: Maher Azzouzi <maherazz04@gmail.com>
+Signed-off-by: Stefano Garzarella <sgarzare@redhat.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: Arseniy Krasnov <avkrasnov@salutedevices.com>
+Link: https://patch.msgid.link/20260514092948.268720-1-sgarzare@redhat.com
+Signed-off-by: Jakub Kicinski <kuba@kernel.org>
+Signed-off-by: Alexander Martyniuk <alexevgmart@gmail.com>
+---
+Backport fix for CVE-2026-53365
+ net/vmw_vsock/virtio_transport_common.c | 78 +++++++++++--------------
+ 1 file changed, 34 insertions(+), 44 deletions(-)
 
-I'm not sure we really need another one here, but if you think some 
-other works can be queued between the vhost_dev_stop() and the 
-synchronize_rcu() we are adding here, then okay, it may have sense.
-
-Thanks,
-Stefano
+diff --git a/net/vmw_vsock/virtio_transport_common.c b/net/vmw_vsock/virtio_transport_common.c
+index 95170c7be758..aeb205e84bd3 100644
+--- a/net/vmw_vsock/virtio_transport_common.c
++++ b/net/vmw_vsock/virtio_transport_common.c
+@@ -72,35 +72,6 @@ static bool virtio_transport_can_zcopy(const struct virtio_transport *t_ops,
+ 	return true;
+ }
+ 
+-static int virtio_transport_init_zcopy_skb(struct vsock_sock *vsk,
+-					   struct sk_buff *skb,
+-					   struct msghdr *msg,
+-					   bool zerocopy)
+-{
+-	struct ubuf_info *uarg;
+-
+-	if (msg->msg_ubuf) {
+-		uarg = msg->msg_ubuf;
+-		net_zcopy_get(uarg);
+-	} else {
+-		struct iov_iter *iter = &msg->msg_iter;
+-		struct ubuf_info_msgzc *uarg_zc;
+-
+-		uarg = msg_zerocopy_realloc(sk_vsock(vsk),
+-					    iter->count,
+-					    NULL);
+-		if (!uarg)
+-			return -1;
+-
+-		uarg_zc = uarg_to_msgzc(uarg);
+-		uarg_zc->zerocopy = zerocopy ? 1 : 0;
+-	}
+-
+-	skb_zcopy_init(skb, uarg);
+-
+-	return 0;
+-}
+-
+ static int virtio_transport_fill_skb(struct sk_buff *skb,
+ 				     struct virtio_vsock_pkt_info *info,
+ 				     size_t len,
+@@ -321,8 +292,10 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+ 	u32 src_cid, src_port, dst_cid, dst_port;
+ 	const struct virtio_transport *t_ops;
+ 	struct virtio_vsock_sock *vvs;
++	struct ubuf_info *uarg = NULL;
+ 	u32 pkt_len = info->pkt_len;
+ 	bool can_zcopy = false;
++	bool have_uref = false;
+ 	u32 rest_len;
+ 	int ret;
+ 
+@@ -364,6 +337,25 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+ 		if (can_zcopy)
+ 			max_skb_len = min_t(u32, VIRTIO_VSOCK_MAX_PKT_BUF_SIZE,
+ 					    (MAX_SKB_FRAGS * PAGE_SIZE));
++
++		if (info->msg->msg_flags & MSG_ZEROCOPY &&
++		    info->op == VIRTIO_VSOCK_OP_RW) {
++			uarg = info->msg->msg_ubuf;
++
++			if (!uarg) {
++				uarg = msg_zerocopy_realloc(sk_vsock(vsk),
++							    pkt_len, NULL);
++				if (!uarg) {
++					virtio_transport_put_credit(vvs, pkt_len);
++					return -ENOMEM;
++				}
++
++				if (!can_zcopy)
++					uarg_to_msgzc(uarg)->zerocopy = 0;
++
++				have_uref = true;
++			}
++		}
+ 	}
+ 
+ 	rest_len = pkt_len;
+@@ -382,21 +374,7 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+ 			break;
+ 		}
+ 
+-		/* We process buffer part by part, allocating skb on
+-		 * each iteration. If this is last skb for this buffer
+-		 * and MSG_ZEROCOPY mode is in use - we must allocate
+-		 * completion for the current syscall.
+-		 */
+-		if (info->msg && info->msg->msg_flags & MSG_ZEROCOPY &&
+-		    skb_len == rest_len && info->op == VIRTIO_VSOCK_OP_RW) {
+-			if (virtio_transport_init_zcopy_skb(vsk, skb,
+-							    info->msg,
+-							    can_zcopy)) {
+-				kfree_skb(skb);
+-				ret = -ENOMEM;
+-				break;
+-			}
+-		}
++		skb_zcopy_set(skb, uarg, NULL);
+ 
+ 		virtio_transport_inc_tx_pkt(vvs, skb);
+ 
+@@ -420,6 +398,18 @@ static int virtio_transport_send_pkt_info(struct vsock_sock *vsk,
+ 
+ 	virtio_transport_put_credit(vvs, rest_len);
+ 
++	/* msg_zerocopy_realloc() initializes the ubuf_info refcnt to 1.
++	 * skb_zcopy_set() increases it for each skb, so we can drop that
++	 * initial reference to keep it balanced.
++	 */
++	if (have_uref) {
++		if (rest_len == pkt_len)
++			/* No data sent, abort the notification. */
++			net_zcopy_put_abort(uarg, true);
++		else
++			net_zcopy_put(uarg);
++	}
++
+ 	/* Return number of bytes, if any data has been sent. */
+ 	if (rest_len != pkt_len)
+ 		ret = pkt_len - rest_len;
+-- 
+2.43.0
 
