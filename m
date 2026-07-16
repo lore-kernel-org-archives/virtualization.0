@@ -1,303 +1,162 @@
-Received: from AM0PR83CU005.outbound.protection.outlook.com (mail-westeuropeazon11020118.outbound.protection.outlook.com [52.101.69.118])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC2333101A0
-	for <virtualization@lists.linux.dev>; Thu, 16 Jul 2026 15:39:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.69.118
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784216397; cv=fail; b=gat7xkrfCdTgAmhXvXsYXzWdnEVxl/oLYfxqv7n2GqIIMGl/5hMYww9p2GG95ARiVWMNPIHR8Vowe0Qsn2r2Or4qrj24fjYgZp3V0S8YIZXHx/eER+prO1hjIk4wqpuWV4qV58SLxcSAr9znZSCdYhbRP3tkPF0oopySQ70mC4Y=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784216397; c=relaxed/simple;
-	bh=JWx2quMd/HEG5y4gIm9TU6a1zmHcOb8hNoCk82dFNpE=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=aaGHTx/cOq/Mwh2PgkOPDjQZshqJK+EW6mkbg7Auc4ltAABjhhs6O0so321CGf640GSzTlIiG+rOm1P/WD8dalqTYN7g0j2jlsG+qasmx5YWnholPjpwddvmoCGju75bsImxrb0NLYEXQP73qt+AsyvSktu+8tC4Aqmg/HHh3h8=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=virtuozzo.com; spf=pass smtp.mailfrom=virtuozzo.com; dkim=pass (2048-bit key) header.d=virtuozzo.com header.i=@virtuozzo.com header.b=O7rQks+F; arc=fail smtp.client-ip=52.101.69.118
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=virtuozzo.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=virtuozzo.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE1F5326939;
+	Thu, 16 Jul 2026 15:59:08 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784217549; cv=none; b=QbECHYs47e7q1zCr5XlPXeGWKQWimyarSuSaUyn4qOTsO1RrAjQDRx49Y/IQ0NdjkGOHkRtudiASVbN8vhfbw9If8DHbmuyBrXpBReAYElqy4n1oj928Skvjag8qrbXiO3S/jc4fh+zu7p3JqMFpx8yUTDV0xknfxHNdOtK8/uk=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784217549; c=relaxed/simple;
+	bh=o9J/LzxGBatWLKXqnEywvDyDPx7v734TbngQgdcQdu8=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=LPvHFKMV6pgNw20VGh4NcU6tC48Orvizg5AfKfNfnx6XW0YdK/kJiaQQ0unqzi2XS5CYcns2KsKN2MMc3kOZE6kiXul0yu+xF52yUX0r37/ppYvglwML8r1B3QH4zDWzcEwDhX7JGThjOgkuGlHjeRGH4M7UlQtlIGiO9yIH9Xc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hvhizm3c; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=virtuozzo.com header.i=@virtuozzo.com header.b="O7rQks+F"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=d6ByxqRTXRWbF4vx3qSoqMR5j47cCPWak0WvhYwHd5rDi8fjA8zLxp3bylNAlbFn/Ilr6DGSBR9xCUh/GxidJXTihhLbm/NsdH7fWZy01owAiFQLhalFki/orMiqXbe58XXKBs7BnrwQr8xGexNV3dYYa4M9uueJF4FRDv5cg6N8idonWWmhyQ0ox0fkVFeP4X+apMQYV+WoHZY/DooCftY1q5619X6eWERkbju0oXD2Ei8waSxuTSiAmzmOFx4p8yGZD1nvUxBNzkdkIkIVSRWzMAnPoPc3wuIpbLfu9kcjcxYg5awJxunQX4ij/QwIag/Tr7/8QfWiQIq10qA9QQ==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=e7MsonTAmiHKtK+k7ga7AWErWmbayxuuaHZRKhxOFxs=;
- b=ITth9ZEvTAqajRMUNw9mjIqOQtpBSPNecaxOdNTQ4AdHyl7TLbcBAQnaxf/QuGA7iJVike0wx8vToJgCLd3zgAeI9pTgJ8X7JAD5MiKavIXEWd3YlKfEgJRceAJeHPnXH8TMj/MwXy4H9a5o8JF+9gkCwT8KG+DkU2oi9LlKMO4YVVDTo+TgaEOBrqOh72e+8cn+cY4elNy2HMWKuflhRlGuAdp8/uftD7V8UhpdHcTHChcuxC1KrT9cRA0lNyaQR/tOoLXFmS3SYKtE/ef/K0DH1SznoH+RaTBp6i1D0rp2Kpo3OusDzM6hc+CEBMxvR5mKr6EgOAzAghGLC6m+Tw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=virtuozzo.com; dmarc=pass action=none
- header.from=virtuozzo.com; dkim=pass header.d=virtuozzo.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=virtuozzo.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=e7MsonTAmiHKtK+k7ga7AWErWmbayxuuaHZRKhxOFxs=;
- b=O7rQks+FL3KX3OrfJLecxYELXl6ViB9MPBKPFCFglkq9tPWe86o1TfjuQq3/7TIGjQ+SFm2vclcvtdkVktMbCwzLo4WD89p8MYg6ro7vxmoiqztbg3kNeWJt3WDKhP7nSz+yOJNqmNDazgpuNujXNUa9SjiYc89ZZQdRIdNIXT6JHJewu4EiFMJszLDmxpmFd5R8fwAI05PZq2ZW1asi4jA1JoY+T25wyz0P8KBwjAOxeLurSFl2x6WxObVKkzhAE9hNVSXdBUZkJ4vbmSjL5ZgpnSLi/4GfSe2t8oaRMdjvX6UbyoodAfcMvf2JFNcuR/CG3gGLztqldE66BsuyeQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=virtuozzo.com;
-Received: from VI0PR08MB10656.eurprd08.prod.outlook.com
- (2603:10a6:800:20a::12) by AS8PR08MB5927.eurprd08.prod.outlook.com
- (2603:10a6:20b:292::19) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.223.12; Thu, 16 Jul
- 2026 15:39:50 +0000
-Received: from VI0PR08MB10656.eurprd08.prod.outlook.com
- ([fe80::4e37:b189:ddcd:3dd8]) by VI0PR08MB10656.eurprd08.prod.outlook.com
- ([fe80::4e37:b189:ddcd:3dd8%7]) with mapi id 15.21.0223.011; Thu, 16 Jul 2026
- 15:39:49 +0000
-Message-ID: <2f680236-f4c1-418b-8401-4dea1230caf0@virtuozzo.com>
-Date: Thu, 16 Jul 2026 18:39:48 +0300
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v4 4/5] vhost: synchronize with RCU readers when freeing
- workers
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
- virtualization@lists.linux.dev, netdev@vger.kernel.org, mst@redhat.com,
- stefanha@redhat.com, dongli.zhang@oracle.com, maciej.szmigiero@oracle.com,
- bchaney@akamai.com, mark.kanda@oracle.com, ptikhomirov@virtuozzo.com,
- den@openvz.org
-References: <20260714151638.143019-1-andrey.drobyshev@virtuozzo.com>
- <20260714151638.143019-5-andrey.drobyshev@virtuozzo.com>
- <alibLtcrC7o5r4Dh@sgarzare-redhat>
-Content-Language: en-US
-From: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
-In-Reply-To: <alibLtcrC7o5r4Dh@sgarzare-redhat>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: FR0P281CA0246.DEUP281.PROD.OUTLOOK.COM
- (2603:10a6:d10:af::11) To VI0PR08MB10656.eurprd08.prod.outlook.com
- (2603:10a6:800:20a::12)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hvhizm3c"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12CCE1F000E9;
+	Thu, 16 Jul 2026 15:59:06 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784217548;
+	bh=VvrAaVuJW2sJqd5QlurBdy47wMk/grx8DjUuKRz+kNo=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=hvhizm3cEUd0tiIyUAGB+X7wFnEYxAEVoYmT5A+icAS5L0y72o1pgB1mPISoso9TQ
+	 fM8M1d96fm3i8dL9QiKRTG2x0OtIVl5cZz6eAAg9EGQaxYZVIB3IacKLtkZIxcNRB4
+	 nQ6XxyIHD35n6/olcc4q2liTh7ipLnbB1yzvi2FBKe4cCUzPZs0fyJgrgEf69mPCz+
+	 +zVuX57YbeDG2lgJ6TbXTvpSMW00biFUbJuw8g89wKmHU2yS+R4EwXsOniFkb29WKG
+	 UtJXj9x+xdGiQtOMUrGPAwrGgFZf9q2xfiSQ6JBD2p4LClVjmA6ZuxPspnHbtHUVKH
+	 gdYRZ6JaOjtUQ==
+Message-ID: <4dda47ba-534a-4297-a25e-0d63d9167033@kernel.org>
+Date: Thu, 16 Jul 2026 17:59:05 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: VI0PR08MB10656:EE_|AS8PR08MB5927:EE_
-X-MS-Office365-Filtering-Correlation-Id: 5f23bbd3-2376-4778-7377-08dee35078cd
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|366016|23010399003|376014|7416014|10067099003|4143699003|22082099003|56012099006|5023799004|18002099003;
-X-Microsoft-Antispam-Message-Info:
-	yLTSU1r1F4jHjf6/aZ9D6jAvEJqkbhc0dr5MqscSctgoeEaOPHX50aHEEAf6pvlOSm1oGnH1o5UAOl5BviVs6Up4rF90ifgPRDrmoJXm4mSznJrbQgLU9rRVQh+LBx6HVlMApkEC3x10igNKFeHvkWJVWZ4qMM198JZcI+NZOu7Iir5TRW0Jy7GDvgSRizVIhWFqWe3p1nDQg3jWwWYOHRvji2qA5ktVjtzb1W+vozApu/66iY9J574zES+QIKJ4oDzdCmaCv5DSAcDtWt2cynCv/paF+4d+yjYqObWH5YoJPPGKoeo4Puc0VTZmyguTVfK6RmdyrTypka8+aDSSwulAsH/Xxc61l3S76exLqg3ctJ1Lzr5mqk0AIngaDk1XwTr6DOLJAeHGykPHI/cwDVRhaZUvpnGmovN8o9CGTYliNlC77htzyTz6k/asw2kupRLjx2kX5dMsfB8ElumEwvUqN68D40VYSSZKO56v40/UaAWeUcH9uatmA5Qbpun92C4xA/qcZPVLghVuy96vVdpIKyek6y/lCN3kQzB+vk8QdCJmP6m/KE9cfRV2G8ZBy6c85AJkHOT3Jo1wk5tlGyxt9SJZKY5gVOQextJrnh4=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI0PR08MB10656.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(23010399003)(376014)(7416014)(10067099003)(4143699003)(22082099003)(56012099006)(5023799004)(18002099003);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?Q3R6emJsYTZwMUxBaHpGbEQ3QVRINEJRRElWbEdMNzFuVXJha251SEFsTFh5?=
- =?utf-8?B?VG1pT0MvSzc2WWhvamxTb25ScFBrbUxVcHM0aStjREFjWWFZQzY1ZFljdFAw?=
- =?utf-8?B?czNPL3N3eFNIcXpVcUhZd0NqV0NXdDRWMTlkYmRZUDFrZjRQK2h4Qk42c3Fk?=
- =?utf-8?B?bmNqdEtTdk5oSXdKRHRMRUJldUVURW5JNURoQkd4ck1LWnN4ZEpUbS9aY1Iz?=
- =?utf-8?B?dmt5TnBKelhkZ0REL0MzUFBQN3ZDRHBVaTBDcFIxR2p5WlBZUEJiVktQR1FU?=
- =?utf-8?B?bGtVSnBvWnhEL3RxL0ZhdTNFdlkzL0xJV2UvUDFIbnVXOHdzbDdaNjJ3alBC?=
- =?utf-8?B?ZWtlWVMxOHdpTjBGNWdCZlhBdUd1aTlpcGVyYkRZQ084Y29qMnd3Y1c3SGND?=
- =?utf-8?B?aXJ0bTlXTGZEdUdSaWZ2VmtjMExueW5MK25TcVEybFJmOEhXamM3a21QMWg3?=
- =?utf-8?B?UCswa0lZKzlZQVUrMnNEWVJVeVFpeWc0Z01TRHNzT1JCTndUZGVWa2FKa29q?=
- =?utf-8?B?anRwSlNpSUNmdTdzbTZncmZMSUNyblZOK2pmZmhDM29nMWlDVWI4eVFQRW84?=
- =?utf-8?B?VjB6K1FLSUtaNTlxV0lQbmpCaVpHSlJiT0I0aFV2MUxUQVUxZ3VpZzRNQkc4?=
- =?utf-8?B?cjRQU1RUNGhnVDRWSkR4WkRvZnFvRU9xYnE1dEdNZ0lHR1BMUkF1TDlvS3lz?=
- =?utf-8?B?VU80MTVLcXVDUk00dytpNENBbmd1cVlKZnZrNEREdWhGc3pnY3FwMmpsNEhE?=
- =?utf-8?B?cDZKUUMyZGtTNGVPSjBzQ1JaSHBpWU1sNCtwTnRTYnRuZ0kwRGFyanEwTisx?=
- =?utf-8?B?WlA3TklYZE81djRXOVBVQjEyN0xucVpSTG84MnI4NWxyMVk5Rm12UU1WTmZI?=
- =?utf-8?B?V2lLNjk1L0FOUW5YYUtwR2hqLzh0cUFYd0ZIYWRmRWE5VDY5VHZSTldTSTRj?=
- =?utf-8?B?dEp5UzJ6Sm56Nm5tS0t0OGw3VTJFTUlLdklSZVNMN2ZIQTRyclRTeVhTZkhu?=
- =?utf-8?B?L2t2bWxlcWp0cjRBNk9lMGgrTmJBMGF3eE5MTU1RRDBWOTYwK0t0V2IxZXc0?=
- =?utf-8?B?MlBZa2NHZUVEUytwYXVnUUhUTG1kaE5LQmZjM0Fqc215dGZaUDM4OUIrcURJ?=
- =?utf-8?B?YW5vUVpBendOc3dYdTZhOTlpZXpVcGNmYlF0b1UxMUZNV2RVcFNIWHZDcFNP?=
- =?utf-8?B?L2hnbXBSaE5LQXoySlNpRHJjK1ZGVW0xQVJDRnNoVFZEU1RGVDVRVE1UOXBB?=
- =?utf-8?B?TnF2N1k5b0FiU2JrR3hyUEc5WVNMZHBadjZwMXNyT3dEcExmYTA5MWFYeExw?=
- =?utf-8?B?T2xKYTdHb3hYKzFyNlNnb1dJY04yVkw4NE5INmdBR2w3UmdNS1Yydi9sM0xV?=
- =?utf-8?B?SEdhMUdCK1BGeHFma0ZWL3FlcWJsNkF3N1BJMXJ5ZkkrYytJNVd3bWl5alhQ?=
- =?utf-8?B?YkNudFBvSzMrT3dtVjUxWi91OEdTQlI2YVJPOUd0VnNSNGRnaEpkSFkzYnlE?=
- =?utf-8?B?NGlyZ2R5VUdpekI0SHpOcWR2TUdBd1I0dmdDeGRLbGgwcGtSSDFSWTBBZWlk?=
- =?utf-8?B?eEhGZVRoWjliOUxIWTl3Z00vVENLTndkR3J0eTR1SnlteUxadjRFTzJqMXVJ?=
- =?utf-8?B?QmVkNkptQlNmV1dxU09ZTnVwR2Q3VlU2TW1BcHI4NjhWcmhvZGFCNWwvR0I3?=
- =?utf-8?B?c0xqYzFwYWRwdVdZYUFxNWVFNWlLMnlXOUIzejdUb0hwK0xQMjZhZzY1T3Ba?=
- =?utf-8?B?ek90a0tkc0lqTmlMU2toUHlFSWl1ZUtWSVp2K1lvRzZBWTM3Y2JRK3Zzamdl?=
- =?utf-8?B?MGF1aEprNEhZS3hiNTFqdk0yYWtUcUJuZ0FQMXNzNW9BWkg4RWlXZ2w1UlR0?=
- =?utf-8?B?OGpLQ081YTgvVFcvN1hOaUNPVVZqcGlUUm5CcithMnhnRTd2K0VrajZvUGFH?=
- =?utf-8?B?TCtabng5UHpka3B6MzRYM3lXNEVjNk5Eb0owRWZJTHNkL3RrZlBoQ1N4Z1FB?=
- =?utf-8?B?MmRXRzFDK2dSTGl6TENmZGk4NHd3aFNIN3lmRGFpdEJpbmRKd21Rdnp3ZVlV?=
- =?utf-8?B?TVcxZWlUdWtnTzMrYXAwTXlWeVpRRDhOb3drZkNkRkkyamExK2REaWJLWUw3?=
- =?utf-8?B?ZUVBTkI2dVdCblFWcVh4cG5WeUlOd1B3SkdJcklaNkFhTGZSV3ZWZTdjSERG?=
- =?utf-8?B?WGZaL1Z4ZUd2c2FSdEh3OHdDYzRBZ29UZUJ5WC9VNzliZDJuY09YQUtoWGpS?=
- =?utf-8?B?VTVVYjB6VmlIdEdjZEZqQzVwcXdKMkY3OTUrbXFEUCt6NnJKTy85NlVBdW1r?=
- =?utf-8?B?YXhqR0ppN2tPY213VGVscFVWdG1xb2l6UDZBbGIyNm1BOHFjMFgyN3doNjZC?=
- =?utf-8?Q?rRjDQQYErITObIxU=3D?=
-X-OriginatorOrg: virtuozzo.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 5f23bbd3-2376-4778-7377-08dee35078cd
-X-MS-Exchange-CrossTenant-AuthSource: VI0PR08MB10656.eurprd08.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 16 Jul 2026 15:39:49.8097
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 0bc7f26d-0264-416e-a6fc-8352af79c58f
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: ueQFx40CHHZod7G0vwjlGvQ1ja0FFi2b1+G+1XlbRUu8Fn8YLpljmkrcg8wyjN+wAk2g0t3ImMy8n65KWGfedaqWnDJWJ22u6nrPFRXCaZI=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: AS8PR08MB5927
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/4] virtio-mem: validate device-reported block size
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Hari Mishal <harimishal1@gmail.com>, "Michael S . Tsirkin"
+ <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org
+References: <20260715142337.22811-2-harimishal1@gmail.com>
+ <20260715164139.40957-1-harimishal1@gmail.com>
+ <b2176313-b444-4f66-a71c-647b92cc16a8@kernel.org>
+ <2026071635-relive-flogging-2a81@gregkh>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ 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
+ qIws/H2t
+In-Reply-To: <2026071635-relive-flogging-2a81@gregkh>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On 7/16/26 11:57 AM, Stefano Garzarella wrote:
-> On Tue, Jul 14, 2026 at 06:16:37PM +0300, Andrey Drobyshev wrote:
->> vhost_vq_work_queue() only holds the RCU read lock while it dereferences
->> vq->worker and queues work on it.  vhost_workers_free() however clears
->> the vq->worker pointers and immediately frees the workers, without
->> waiting for a grace period.  A caller that fetched the worker right
->> before the pointer was cleared can therefore still be queueing work on
->> it while it is freed.  And even when the queueing itself wins the race,
->> the work is never run, so its VHOST_WORK_QUEUED bit stays set and all
->> future attempts to queue it are silently skipped.
+On 7/16/26 16:18, Greg Kroah-Hartman wrote:
+> On Thu, Jul 16, 2026 at 10:55:42AM +0200, David Hildenbrand (Arm) wrote:
+>> On 7/15/26 18:41, Hari Mishal wrote:
+>>> The device_block_size read from the virtio-mem config space is used as a
+>>> divisor and also in ALIGN_DOWN() further down the code path in the
+>>> driver without further validation. A zero value leads to a division by
+>>> zero, and a non-power-of-two value corrupts the ALIGN_DOWN() bitmask
+>>> arithmetic leading to a misreporting of guest-usable ram, post crash.
+>>>
+>>> Reject both at init time instead of trusting the device.
+>>>
+>>> Signed-off-by: Hari Mishal <harimishal1@gmail.com>
+>>> ---
+>>> v2: dropped the redundant explicit zero check, since
+>>>     is_power_of_2(0) already returns false.
+>>>
+>>>  drivers/virtio/virtio_mem.c | 6 ++++++
+>>>  1 file changed, 6 insertions(+)
+>>>
+>>> diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
+>>> index 11c441501582..0e04fec458af 100644
+>>> --- a/drivers/virtio/virtio_mem.c
+>>> +++ b/drivers/virtio/virtio_mem.c
+>>> @@ -2847,6 +2847,12 @@ static int virtio_mem_init(struct virtio_mem *vm)
+>>>  			&vm->plugged_size);
+>>>  	virtio_cread_le(vm->vdev, struct virtio_mem_config, block_size,
+>>>  			&vm->device_block_size);
+>>> +	if (!is_power_of_2(vm->device_block_size)) {
+>>> +		dev_err(&vm->vdev->dev,
+>>> +			"invalid device block size: 0x%llx\n",
+>>> +			(unsigned long long)vm->device_block_size);
+>>> +		return -EINVAL;
+>>> +	}
 >>
->> None of the current callers can actually hit this: net and scsi stop
->> their virtqueues before the workers are freed, and vsock unhashes the
->> device and does synchronize_rcu() of its own in vhost_vsock_dev_release()
->> before the workers go away.  But the upcoming VHOST_RESET_OWNER support
->> in vhost-vsock keeps the device hashed while its workers are freed, so
->> the lockless send/cancel paths become able to race with the teardown.
+>> The spec states "The device MUST set block_size to a power of two."
 >>
->> Close this the way vhost_worker_killed() already does: clear the
->> vq->worker pointers, wait for a grace period, run whatever the last
->> readers may have queued, and only then free the workers.  The
->> synchronize_rcu() is skipped if the device has no workers, so cleanup of
->> devices which never got an owner stays cheap.
->>
+>> I'm missing the point here.
 > 
-> Do we need a Fixes tag for this?
->
+> So what happens if we have a non-spec-compliant device?  Shouldn't we be
+> attempting to verify this before doing something with the data?
 
-I'm guessing it should be:
+The problem I see is that there are plenty of other devices where a
+non-compliant device might cause problems.
 
-Fixes: 228a27cf78af ("vhost: Allow worker switching while work is queueing")
+Like, we request to hotplug some memory block and our device ACKs it, but it
+simply didn't do that.
 
-> Thanks for pointing out that the issue wasn't occurring, but I think we 
-> should add it because it's a sneaky problem we discovered by chance.
-> IMO the code should already have `synchronize_rcu()` after 
-> `rcu_assign_pointer()` loop.
+Or we request to hotunplug a memory block and instead it hotplugs some random
+other memory block.
+
+Or we sense whether a memory block is plugged and the device lies to us.
+
 > 
-> @Michael, what do you think?
-> 
->> Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
->> Signed-off-by: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
->> ---
->> drivers/vhost/vhost.c | 15 +++++++++++++++
->> 1 file changed, 15 insertions(+)
->>
->> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
->> index 4c525b3e16ea..0d1414d40f4e 100644
->> --- a/drivers/vhost/vhost.c
->> +++ b/drivers/vhost/vhost.c
->> @@ -729,6 +729,21 @@ static void vhost_workers_free(struct vhost_dev *dev)
->>
->> 	for (i = 0; i < dev->nvqs; i++)
->> 		rcu_assign_pointer(dev->vqs[i]->worker, NULL);
->> +
->> +	/*
->> +	 * vhost_vq_work_queue() reads vq->worker under rcu_read_lock(), so a
->> +	 * caller that fetched a worker before we cleared the pointers above
->> +	 * may still be about to queue work on it.  Wait for those RCU readers
->> +	 * to finish before freeing the worker, then run whatever they queued
->> +	 * so nothing is left with VHOST_WORK_QUEUED set.  Mirrors
->> +	 * vhost_worker_killed().
->> +	 */
->> +	if (!xa_empty(&dev->worker_xa)) {
->> +		synchronize_rcu();
->> +		xa_for_each(&dev->worker_xa, i, worker)
->> +			vhost_run_work_list(worker);
->> +	}
->> +
-> 
-> Following sashiko review [1], I tried to undersand why we need this, but 
-> TBH I'm really confused. That said, this seems wrong also because it 
-> will work only with vhost_tasks, and not with kthreads.
-> 
-> IIUC vhost_worker_killed() will be called anyway when calling 
-> vhost_worker_destroy(). For vhost_tasks, it will call 
-> vhost_task_do_stop() that calls vhost_task_stop(). This sets 
-> VHOST_TASK_FLAGS_STOP and wait the worker on vtsk->exited before freeing 
-> stuff. The worker breaks the loop and calls vtsk->handle_sigkill() that 
-> is exactly vhost_worker_killed() you mentioned we are mirroring here.
->
+> Or do we just always trust virtio mem devices explicitly?
 
-Hmm, are we sure it's the case for our codepath?  Looking at the
-vhost_task loop function:
+It's hard for me to understand where we draw the line, really.
 
-> static int vhost_task_fn(void *data)                                            
-> {
->     for (;;) {                                                                                                                                                   
->         if (signal_pending(current)) {
->             if (get_signal(&ksig))                                                 
->                 break;                                                          
->         }                                                                       
->         ...
->         if (test_bit(VHOST_TASK_FLAGS_STOP, &vtsk->flags)) {
->             __set_current_state(TASK_RUNNING);
->             break;
->         }                                                                          
->         did_work = vtsk->fn(vtsk->data);                                           
->         ...
->     }
->                                                                                 
->     ...
->
->     if (!test_bit(VHOST_TASK_FLAGS_STOP, &vtsk->flags)) {                       
->         set_bit(VHOST_TASK_FLAGS_KILLED, &vtsk->flags);                         
->         vtsk->handle_sigkill(vtsk->data);                                       
->     }                                                                           
->     ...                                                                
-> } 
+But maybe MST can clarify what we care about in virtio world where the
+hypervisor is fully in charge of the device,
 
-AFAICT, we exit the loop in 2 cases: signal delivery or STOP bit
-setting.  Like you said, STOP is set by vhost_task_stop.  E.g. for our
-RESET_OWNER case:
+-- 
+Cheers,
 
-vhost_vsock_reset_owner()
-  vhost_dev_reset_owner()
-    vhost_dev_cleanup()
-      vhost_workers_free()
-        vhost_worker_destroy()
-          vhost_task_stop()  // for vhost_task_ops backend
-            set_bit(VHOST_TASK_FLAGS_STOP)
-
-So, first of all, actual work by .fn() callback is done after the exit
-checks, therefore we skip it - no chance to drain there.
-
-Secondly, the handle_sigkill() callback is deliberately NOT called in
-the STOP case and only called on fatal signal delivery.  And for
-vhost_task backend the .handle_sigkill() callback is exactly
-vhost_worker_killed().
-
-So my understanding is: if we only call synchronize_rcu() here and leave
-this path undrained, then whatever work which was put by send_pkt() for
-the worker currently being freed - will be lost.  Please correct me if
-I'm wrong.
-
-That said, I agree that vhost_run_work_list() will only work with
-vhost_task backend, not with kthreads backend.  If we do
-vhost_worker_flush() instead - I guess it'll keep the drain here, yet
-become backend-agnostic. I.e.:
-
-> +       if (!xa_empty(&dev->worker_xa)) {
-> +               synchronize_rcu();
-> +               xa_for_each(&dev->worker_xa, i, worker)
-> +                       vhost_worker_flush(worker);
-> +       }
-
-With the last 2 lines being equivalent to just calling
-vhost_dev_flush(dev).  And once we become backend-agnostic here, I'm
-guessing the warning reported by Sashiko should be dealt with as well.
-
-WDYT?
-
-Andrey
-
-
-> So, why we need this?
-> 
-> Should be enough to call synchronize_rcu() in any case after the 
-> rcu_assign_pointer() loop?
-> 
-> Thanks,
-> Stefano
->
-> [1] 
-> https://sashiko.dev/#/patchset/20260714151638.143019-1-andrey.drobyshev@virtuozzo.com?part=4
-> 
-
+David
