@@ -1,162 +1,264 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BE1F5326939;
-	Thu, 16 Jul 2026 15:59:08 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3EA4356746
+	for <virtualization@lists.linux.dev>; Thu, 16 Jul 2026 16:13:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784217549; cv=none; b=QbECHYs47e7q1zCr5XlPXeGWKQWimyarSuSaUyn4qOTsO1RrAjQDRx49Y/IQ0NdjkGOHkRtudiASVbN8vhfbw9If8DHbmuyBrXpBReAYElqy4n1oj928Skvjag8qrbXiO3S/jc4fh+zu7p3JqMFpx8yUTDV0xknfxHNdOtK8/uk=
+	t=1784218395; cv=none; b=pebtZ21c7BJN4y+2wJutQjZNlbUrMc/1CJFdaAJF6SkkmCLQhhFOeJc9Yr3YQNxgKn2no7BptXMGRfveD4z6f/Qh2j4YhSl0r8k0xMt7reWyquZYrMNC7mMrz67QsqdYC4xrrNNt78JM+A50mVNAcTyc2laOF79P0Uc7KslzUlc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784217549; c=relaxed/simple;
-	bh=o9J/LzxGBatWLKXqnEywvDyDPx7v734TbngQgdcQdu8=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=LPvHFKMV6pgNw20VGh4NcU6tC48Orvizg5AfKfNfnx6XW0YdK/kJiaQQ0unqzi2XS5CYcns2KsKN2MMc3kOZE6kiXul0yu+xF52yUX0r37/ppYvglwML8r1B3QH4zDWzcEwDhX7JGThjOgkuGlHjeRGH4M7UlQtlIGiO9yIH9Xc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=hvhizm3c; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784218395; c=relaxed/simple;
+	bh=kKKZU3L+6reK4B7gcJARVHlxz60vhrpuTNd2xoB+G8o=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=SSy1s7cngpwR7OLoIG+KhtHFfauVMkKQ6Y9Tlwn0ksGpFqCMSLwqfKL+VRoVtYhIud3wfnm4uFSvBeAixg08/rlYH0ebejph4jZQtfpLkZAxLX1KzYQtw2ZNMU8T2mqkeA8MEwWocCmsKP8Hsl/ewAI36QMavhTQG6Bo3t0ByKE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XyJ37Wt5; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="hvhizm3c"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 12CCE1F000E9;
-	Thu, 16 Jul 2026 15:59:06 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784217548;
-	bh=VvrAaVuJW2sJqd5QlurBdy47wMk/grx8DjUuKRz+kNo=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=hvhizm3cEUd0tiIyUAGB+X7wFnEYxAEVoYmT5A+icAS5L0y72o1pgB1mPISoso9TQ
-	 fM8M1d96fm3i8dL9QiKRTG2x0OtIVl5cZz6eAAg9EGQaxYZVIB3IacKLtkZIxcNRB4
-	 nQ6XxyIHD35n6/olcc4q2liTh7ipLnbB1yzvi2FBKe4cCUzPZs0fyJgrgEf69mPCz+
-	 +zVuX57YbeDG2lgJ6TbXTvpSMW00biFUbJuw8g89wKmHU2yS+R4EwXsOniFkb29WKG
-	 UtJXj9x+xdGiQtOMUrGPAwrGgFZf9q2xfiSQ6JBD2p4LClVjmA6ZuxPspnHbtHUVKH
-	 gdYRZ6JaOjtUQ==
-Message-ID: <4dda47ba-534a-4297-a25e-0d63d9167033@kernel.org>
-Date: Thu, 16 Jul 2026 17:59:05 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XyJ37Wt5"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1784218392;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=x9r6s/Iraoqi/k6oOHzDzgVXH/SASqKiz7NyQ8JhZ6M=;
+	b=XyJ37Wt5Zisk5aTJPh45GIMqn6f50AnsL6AgY/kJiuS9U59p+/sr0ZuOq4yp4Ja4QLqxpM
+	tjVGOFFw9qUWPmtIrpfrMwibiT5UsYQ0XZmkje89h21UGw2d6yfnwoqmbxev/FvywCvh/g
+	o8d3HqA5+zM2lBeJSiXi3eHpfDx6k2Q=
+Received: from mail-wm1-f72.google.com (mail-wm1-f72.google.com
+ [209.85.128.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-467-Ablm7b5GN8682yTC56ysRQ-1; Thu, 16 Jul 2026 12:13:10 -0400
+X-MC-Unique: Ablm7b5GN8682yTC56ysRQ-1
+X-Mimecast-MFC-AGG-ID: Ablm7b5GN8682yTC56ysRQ_1784218389
+Received: by mail-wm1-f72.google.com with SMTP id 5b1f17b1804b1-493bd52dae6so46055535e9.0
+        for <virtualization@lists.linux.dev>; Thu, 16 Jul 2026 09:13:10 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784218389; x=1784823189;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=x9r6s/Iraoqi/k6oOHzDzgVXH/SASqKiz7NyQ8JhZ6M=;
+        b=YINDHO8OotpWtOEFnuVY1TPFOwBH1F6PTobnUEMGe6Vnu664xiQNowk0sbvGl4sPOu
+         7wtZPTtH4anZHRnkMkx7ce+7moZyomFb5YQFLt6b030dD7IdfaCxI2fsn/pCvfPR8oHk
+         rLzsIeue+dcsj7ahr66zBSFgZUWk87WLHeJAn2WiVF/Z6QgR6FIKnoxs3i71tqRwXYd2
+         o872Cr3mCUKyxjQ/AKaqV3J98J2PAkGOB9XX/qJHxJNEbLtXKKjr7sxkAStOOc+D8LKQ
+         sUf8B17MIF8hSGFDTGKDyYL1txBPex2KBrIN4jj81zFrLsxk0VjSMQUItrPvJiMGilyR
+         ykCg==
+X-Forwarded-Encrypted: i=1; AHgh+RogJqEvGP4V3mWwT7PcyAfFtSkTEixyGUjQouB399tQ0BEfffodb8CMbhIXpDEkzpl14EBg72iJgL3V8+upnA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxFNKqlUs48z2CbO4CLqeVsBQ3VwyHzVDx1eTJv9V67++VPVm05
+	Ptl1YHiJ3zzBTBAHmYs08/J3RY8etnyzu1Hytf6Wmfu9wg7rpfXv9ZaQVbJrz/LT30NXiYrBFGJ
+	0ty8jmwvPVeSkCaI73NJRcQfijw6QIRwmo/K8qblTThV/qq6yLT02pnLk3OzHv9zUolJY
+X-Gm-Gg: AfdE7cmTroS2tIYcwPl2jtmFgyPX4t6UNNCqipWstZa37yjsGq48hIHyTYPy6arcICd
+	pES0Rb4UJzjtXggmIsuzKLakzmO7uOK2o/T/xztIicHFu7eSq79iGx+r/HZH+qB2EyoNmnAmwg6
+	mSvZvoDv4PZAyIt1GNd/M0OUPe2FB18kGIO91ep+dNLDVePoo0QWRIxAiS45J6Y9o5vj0HGOxtM
+	HxnLnzGscldCc1iVRd2GFe6RCpm4WjUTbIOcKT85I/EcXcIBGgmnoVWPmEjjFAfYYMcVHXXwRc8
+	w0PwgiTp25L7gHBb8+5IQu/UHJeZoSmy2spjEC0Zl8ggTv9UgGlo1cqZ/l1Lxd/hEtbORhcXOh9
+	5R7jr5iCztWCCpTeRO9m7tgGH3qmsH8oBOEBROIHkVxOghFljfQ==
+X-Received: by 2002:a05:600d:6445:20b0:495:4182:444c with SMTP id 5b1f17b1804b1-49541824759mr38415325e9.26.1784218389344;
+        Thu, 16 Jul 2026 09:13:09 -0700 (PDT)
+X-Received: by 2002:a05:600d:6445:20b0:495:4182:444c with SMTP id 5b1f17b1804b1-49541824759mr38414535e9.26.1784218388605;
+        Thu, 16 Jul 2026 09:13:08 -0700 (PDT)
+Received: from sgarzare-redhat (host-82-53-135-65.retail.telecomitalia.it. [82.53.135.65])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49541e9ee07sm70836725e9.15.2026.07.16.09.13.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 16 Jul 2026 09:13:07 -0700 (PDT)
+Date: Thu, 16 Jul 2026 18:13:02 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, mst@redhat.com, stefanha@redhat.com, 
+	dongli.zhang@oracle.com, maciej.szmigiero@oracle.com, bchaney@akamai.com, 
+	mark.kanda@oracle.com, ptikhomirov@virtuozzo.com, den@openvz.org
+Subject: Re: [PATCH v4 4/5] vhost: synchronize with RCU readers when freeing
+ workers
+Message-ID: <alj_YKTitwqMjAez@sgarzare-redhat>
+References: <20260714151638.143019-1-andrey.drobyshev@virtuozzo.com>
+ <20260714151638.143019-5-andrey.drobyshev@virtuozzo.com>
+ <alibLtcrC7o5r4Dh@sgarzare-redhat>
+ <2f680236-f4c1-418b-8401-4dea1230caf0@virtuozzo.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/4] virtio-mem: validate device-reported block size
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: Hari Mishal <harimishal1@gmail.com>, "Michael S . Tsirkin"
- <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
-References: <20260715142337.22811-2-harimishal1@gmail.com>
- <20260715164139.40957-1-harimishal1@gmail.com>
- <b2176313-b444-4f66-a71c-647b92cc16a8@kernel.org>
- <2026071635-relive-flogging-2a81@gregkh>
-From: "David Hildenbrand (Arm)" <david@kernel.org>
-Content-Language: en-US
-Autocrypt: addr=david@kernel.org; keydata=
- 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
- qIws/H2t
-In-Reply-To: <2026071635-relive-flogging-2a81@gregkh>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <2f680236-f4c1-418b-8401-4dea1230caf0@virtuozzo.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: YjfESTQAc5_UQW-j0X-f6hxZ7lR4kYt3EwVmRekxI90_1784218389
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On 7/16/26 16:18, Greg Kroah-Hartman wrote:
-> On Thu, Jul 16, 2026 at 10:55:42AM +0200, David Hildenbrand (Arm) wrote:
->> On 7/15/26 18:41, Hari Mishal wrote:
->>> The device_block_size read from the virtio-mem config space is used as a
->>> divisor and also in ALIGN_DOWN() further down the code path in the
->>> driver without further validation. A zero value leads to a division by
->>> zero, and a non-power-of-two value corrupts the ALIGN_DOWN() bitmask
->>> arithmetic leading to a misreporting of guest-usable ram, post crash.
+On Thu, Jul 16, 2026 at 06:39:48PM +0300, Andrey Drobyshev wrote:
+>On 7/16/26 11:57 AM, Stefano Garzarella wrote:
+>> On Tue, Jul 14, 2026 at 06:16:37PM +0300, Andrey Drobyshev wrote:
+>>> vhost_vq_work_queue() only holds the RCU read lock while it dereferences
+>>> vq->worker and queues work on it.  vhost_workers_free() however clears
+>>> the vq->worker pointers and immediately frees the workers, without
+>>> waiting for a grace period.  A caller that fetched the worker right
+>>> before the pointer was cleared can therefore still be queueing work on
+>>> it while it is freed.  And even when the queueing itself wins the race,
+>>> the work is never run, so its VHOST_WORK_QUEUED bit stays set and all
+>>> future attempts to queue it are silently skipped.
 >>>
->>> Reject both at init time instead of trusting the device.
+>>> None of the current callers can actually hit this: net and scsi stop
+>>> their virtqueues before the workers are freed, and vsock unhashes the
+>>> device and does synchronize_rcu() of its own in vhost_vsock_dev_release()
+>>> before the workers go away.  But the upcoming VHOST_RESET_OWNER support
+>>> in vhost-vsock keeps the device hashed while its workers are freed, so
+>>> the lockless send/cancel paths become able to race with the teardown.
 >>>
->>> Signed-off-by: Hari Mishal <harimishal1@gmail.com>
+>>> Close this the way vhost_worker_killed() already does: clear the
+>>> vq->worker pointers, wait for a grace period, run whatever the last
+>>> readers may have queued, and only then free the workers.  The
+>>> synchronize_rcu() is skipped if the device has no workers, so cleanup of
+>>> devices which never got an owner stays cheap.
+>>>
+>>
+>> Do we need a Fixes tag for this?
+>>
+>
+>I'm guessing it should be:
+>
+>Fixes: 228a27cf78af ("vhost: Allow worker switching while work is queueing")
+>
+>> Thanks for pointing out that the issue wasn't occurring, but I think we
+>> should add it because it's a sneaky problem we discovered by chance.
+>> IMO the code should already have `synchronize_rcu()` after
+>> `rcu_assign_pointer()` loop.
+>>
+>> @Michael, what do you think?
+>>
+>>> Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+>>> Signed-off-by: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
 >>> ---
->>> v2: dropped the redundant explicit zero check, since
->>>     is_power_of_2(0) already returns false.
+>>> drivers/vhost/vhost.c | 15 +++++++++++++++
+>>> 1 file changed, 15 insertions(+)
 >>>
->>>  drivers/virtio/virtio_mem.c | 6 ++++++
->>>  1 file changed, 6 insertions(+)
+>>> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+>>> index 4c525b3e16ea..0d1414d40f4e 100644
+>>> --- a/drivers/vhost/vhost.c
+>>> +++ b/drivers/vhost/vhost.c
+>>> @@ -729,6 +729,21 @@ static void vhost_workers_free(struct vhost_dev *dev)
 >>>
->>> diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
->>> index 11c441501582..0e04fec458af 100644
->>> --- a/drivers/virtio/virtio_mem.c
->>> +++ b/drivers/virtio/virtio_mem.c
->>> @@ -2847,6 +2847,12 @@ static int virtio_mem_init(struct virtio_mem *vm)
->>>  			&vm->plugged_size);
->>>  	virtio_cread_le(vm->vdev, struct virtio_mem_config, block_size,
->>>  			&vm->device_block_size);
->>> +	if (!is_power_of_2(vm->device_block_size)) {
->>> +		dev_err(&vm->vdev->dev,
->>> +			"invalid device block size: 0x%llx\n",
->>> +			(unsigned long long)vm->device_block_size);
->>> +		return -EINVAL;
+>>> 	for (i = 0; i < dev->nvqs; i++)
+>>> 		rcu_assign_pointer(dev->vqs[i]->worker, NULL);
+>>> +
+>>> +	/*
+>>> +	 * vhost_vq_work_queue() reads vq->worker under rcu_read_lock(), so a
+>>> +	 * caller that fetched a worker before we cleared the pointers above
+>>> +	 * may still be about to queue work on it.  Wait for those RCU readers
+>>> +	 * to finish before freeing the worker, then run whatever they queued
+>>> +	 * so nothing is left with VHOST_WORK_QUEUED set.  Mirrors
+>>> +	 * vhost_worker_killed().
+>>> +	 */
+>>> +	if (!xa_empty(&dev->worker_xa)) {
+>>> +		synchronize_rcu();
+>>> +		xa_for_each(&dev->worker_xa, i, worker)
+>>> +			vhost_run_work_list(worker);
 >>> +	}
+>>> +
 >>
->> The spec states "The device MUST set block_size to a power of two."
+>> Following sashiko review [1], I tried to undersand why we need this, but
+>> TBH I'm really confused. That said, this seems wrong also because it
+>> will work only with vhost_tasks, and not with kthreads.
 >>
->> I'm missing the point here.
-> 
-> So what happens if we have a non-spec-compliant device?  Shouldn't we be
-> attempting to verify this before doing something with the data?
+>> IIUC vhost_worker_killed() will be called anyway when calling
+>> vhost_worker_destroy(). For vhost_tasks, it will call
+>> vhost_task_do_stop() that calls vhost_task_stop(). This sets
+>> VHOST_TASK_FLAGS_STOP and wait the worker on vtsk->exited before freeing
+>> stuff. The worker breaks the loop and calls vtsk->handle_sigkill() that
+>> is exactly vhost_worker_killed() you mentioned we are mirroring here.
+>>
+>
+>Hmm, are we sure it's the case for our codepath?  Looking at the
+>vhost_task loop function:
+>
+>> static int vhost_task_fn(void *data)
+>> {
+>>     for (;;) {
+>>         if (signal_pending(current)) {
+>>             if (get_signal(&ksig))
+>>                 break;
+>>         }
+>>         ...
+>>         if (test_bit(VHOST_TASK_FLAGS_STOP, &vtsk->flags)) {
+>>             __set_current_state(TASK_RUNNING);
+>>             break;
+>>         }
+>>         did_work = vtsk->fn(vtsk->data);
+>>         ...
+>>     }
+>>
+>>     ...
+>>
+>>     if (!test_bit(VHOST_TASK_FLAGS_STOP, &vtsk->flags)) {
+>>         set_bit(VHOST_TASK_FLAGS_KILLED, &vtsk->flags);
+>>         vtsk->handle_sigkill(vtsk->data);
+>>     }
+>>     ...
+>> }
+>
+>AFAICT, we exit the loop in 2 cases: signal delivery or STOP bit
+>setting.  Like you said, STOP is set by vhost_task_stop.  E.g. for our
+>RESET_OWNER case:
+>
+>vhost_vsock_reset_owner()
+>  vhost_dev_reset_owner()
+>    vhost_dev_cleanup()
+>      vhost_workers_free()
+>        vhost_worker_destroy()
+>          vhost_task_stop()  // for vhost_task_ops backend
+>            set_bit(VHOST_TASK_FLAGS_STOP)
+>
+>So, first of all, actual work by .fn() callback is done after the exit
+>checks, therefore we skip it - no chance to drain there.
+>
+>Secondly, the handle_sigkill() callback is deliberately NOT called in
+>the STOP case and only called on fatal signal delivery.  And for
+>vhost_task backend the .handle_sigkill() callback is exactly
+>vhost_worker_killed().
+>
+>So my understanding is: if we only call synchronize_rcu() here and leave
+>this path undrained, then whatever work which was put by send_pkt() for
+>the worker currently being freed - will be lost.  Please correct me if
+>I'm wrong.
 
-The problem I see is that there are plenty of other devices where a
-non-compliant device might cause problems.
+Yep, your right. But what will be the issue of loosing them?
 
-Like, we request to hotplug some memory block and our device ACKs it, but it
-simply didn't do that.
+IIUC we are not loosing any data, just avoiding some works that will be 
+handled later when/if will set a new owner.
 
-Or we request to hotunplug a memory block and instead it hotplugs some random
-other memory block.
+>
+>That said, I agree that vhost_run_work_list() will only work with
+>vhost_task backend, not with kthreads backend.  If we do
+>vhost_worker_flush() instead - I guess it'll keep the drain here, yet
+>become backend-agnostic. I.e.:
+>
+>> +       if (!xa_empty(&dev->worker_xa)) {
+>> +               synchronize_rcu();
+>> +               xa_for_each(&dev->worker_xa, i, worker)
+>> +                       vhost_worker_flush(worker);
+>> +       }
+>
+>With the last 2 lines being equivalent to just calling
+>vhost_dev_flush(dev).  And once we become backend-agnostic here, I'm
+>guessing the warning reported by Sashiko should be dealt with as well.
 
-Or we sense whether a memory block is plugged and the device lies to us.
+I'd avoid `if !xa_empty(&dev->worker_xa)` at all, and call 
+synchronize_rcu() in any case.
 
-> 
-> Or do we just always trust virtio mem devices explicitly?
+About vhost_dev_flush(), we are calling it in several places, and maybe 
+we should re-check them. E.g. we call in vhost_vsock_flush(), but it's 
+also called by vhost_dev_stop(), maybe we can avoid to call 
+vhost_vsock_flush() if we call vhost_dev_stop().
 
-It's hard for me to understand where we draw the line, really.
+I'm not sure we really need another one here, but if you think some 
+other works can be queued between the vhost_dev_stop() and the 
+synchronize_rcu() we are adding here, then okay, it may have sense.
 
-But maybe MST can clarify what we care about in virtio world where the
-hypervisor is fully in charge of the device,
+Thanks,
+Stefano
 
--- 
-Cheers,
-
-David
