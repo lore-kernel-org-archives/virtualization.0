@@ -1,132 +1,130 @@
-Received: from mail-qt1-f172.google.com (mail-qt1-f172.google.com [209.85.160.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76BC93655E3
-	for <virtualization@lists.linux.dev>; Fri, 17 Jul 2026 03:08:56 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.172
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784257738; cv=pass; b=gxSLEFfbfzWaNaVN+TOCR56PienSRiQhjXlTuZaU7s7VLRorqPE3yLwpmFH9ELxAI0O/ZeEMGm4/LN3KKL4EI9mJgGIemjxCXkYV32AahxEC3dAeetGcf4ODvcA1v2LfjhtBdmF03BCrFTxz/uAcKmvlEqqsnm8YVtq4xKagV7k=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784257738; c=relaxed/simple;
-	bh=xkE7Fo4sqZ/86+n7TYPmzgcfuvqX35lIQ9Nzu1Gipdo=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=YgEQWqfB3lIbKB0wEbpNU50JZkAAsbUsJIqLW/J55bCmUdmYaPNoHgkIuJLoT5SZd/60I7JqK7xIN9ylT8NMKm0NwkDa/YJRtJhaY8K6Fwtdy6lVhbCR4hIxuJv5dxVEHLFyxlmZJvrRGapg5MN1t/DB2TljoB6wqferzPnO4H0=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=llWQRUYZ; arc=pass smtp.client-ip=209.85.160.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4891B2609DC;
+	Fri, 17 Jul 2026 05:04:29 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784264671; cv=none; b=JK5dnIKIRPyUsc6hUZIYZQyOyK4dMANQL3tg3O517wRWcfdgpo/sLJj0w1lPjqwdy3BIPtKG/ok9c5S7z9Ghp8W0iUHtaSqAw0i+xRNZRE91GZAgoEMwOM89nOZ46z6tT72v47k47yRpqKhfFN5HjXWLF1ts/uKUZ92j31jSRFQ=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784264671; c=relaxed/simple;
+	bh=cxdPs20Eu/jhJfQgTq9D5ZvNhHnuWGdOsGV8PHnoC5I=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=aPmJNKfhSltbaYjGH5t1zZTLm/70i8OJze9IYCHr91AT5GiDrt25E7J30cAtMVfsjRNTQe/nRghH/28K+/Qh0BKwcWMRS92K3XVaQjtvia8nFbVRdrq+mJb5g+IIv8HZ5KS5dh1MgwF9ExKqysXUupFg/AOiUJOmMEDW3wdTk4s=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=DKU/4MGr; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="llWQRUYZ"
-Received: by mail-qt1-f172.google.com with SMTP id d75a77b69052e-51c10e86e52so239291cf.1
-        for <virtualization@lists.linux.dev>; Thu, 16 Jul 2026 20:08:56 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784257735; cv=none;
-        d=google.com; s=arc-20260327;
-        b=dgsNTkGbLiQNsaFSj2Usf06DN7NIlxMmy9D4XBXitDu1di/Ay9JHQOrPlu1N/J9clE
-         XTPAKFTOQqOL+wcsWtfQfQ5BfMWppIzA9weqpw6yYkDxuRB32Umyc7aMi5mh+n7ROxSI
-         TM4B3SlkwvPQUB3yH3AG+fryjlSsTIDTiCGYWqxmh4Kv1hjJRD+UXkIoCPjI7g/fG8Xt
-         abBtdTMgQx+r/YVpW/bCjHHVAu3Tlu4Cf1NhFMcv1L/kc6FAlwlihhFP1Pxo97+jyoj/
-         veF3cOqPHH1FceB0ioN6SE+3lmb742UVnxJtI3q3sUmFIeUaEWjQlMv79m0svBUY05XZ
-         2Ifg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=xkE7Fo4sqZ/86+n7TYPmzgcfuvqX35lIQ9Nzu1Gipdo=;
-        fh=hGz2EXp8vUA1KmntgXirweFnKlGa1kQWPEnnS5ORT2Q=;
-        b=Coz0owAroAKKwjT2VBypWPRORQ9XhNxF3wsxvttbpvrM15IWfgaAUuq2KWA+NBcizF
-         xmz75rXC/Xv56oqM/7aUOA467cJsBaQ3pou7EfrIBscfeCoiuvPZmsMxtA8wIcdPR28/
-         wLsSpISye1iTjZtMWHZQy1EcNiCzzThPwHsQLZtWkvfPLsa8+y66WyJGFalG6i/QFvJr
-         uVgaELmDHZ6T8nN/QW4LvgSIuPctuvpUYlss2N34DxSfTMWZE50dlEBcU3q2sypQmD3d
-         W67qXq5XnuK/q0bzYKaGXEYAvMrKZlWGc+6kFoIp2xvE/8CPZSJh3LGzS2yvnnadlkYF
-         Te6g==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1784257735; x=1784862535; darn=lists.linux.dev;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=xkE7Fo4sqZ/86+n7TYPmzgcfuvqX35lIQ9Nzu1Gipdo=;
-        b=llWQRUYZKbGO9xqI8AZMBvmbzxMs1fSOnm6znoXDD8Vc7dSXUlDCQJS7C0i90oJGiI
-         keuNN/n3I4GSvfdOUTo1guqw19UKZGYJmHs0TQPUk8zerXA450TboOLwEVWroBVNp2H3
-         aGVhcnNW96UDMYL1a4vAoJ/jOvCMLnqPIFnVVInHTcngpjci+4oK1IkMaeupj/K6ysTD
-         NA/gDDPJBw37vva0eGjVeLcHBGkHYO7SQsOcSLQjNnlUWp9x4pM+eElCt3Uo9LMXM8db
-         IdH1pyZZMg/aGxHdME5pl6ZfgZqaqDa5fbJT9iepnD9tqcPRVKnzGT56NLJY3DVB8yRS
-         +4/Q==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784257735; x=1784862535;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=xkE7Fo4sqZ/86+n7TYPmzgcfuvqX35lIQ9Nzu1Gipdo=;
-        b=mqj34DlN4/UDPohd9OtRIKGSNL9cSREwzWgsz7ICNwLhkm4FRA5sCHgdhpNt/vjVtn
-         N2J057B7YJ98FQaQNqW/hlftzir42Az53JA9gRp9PPvxPKoGZMRUQgcf1oynMIbowrx4
-         u5m1Zt7sZCQ7gQfTOgS/iVYjqRXjcRjtb7zExFmEMmJDPAm/9FOTMy5GtNcIq/QO69Ox
-         eKNcexuGER8nj8HJAa5xIwscipBaeDMJD4Wl7804Kj/boMMjovaN5o6EsPedwNOw8a9w
-         91+P3CZso3UtYeGw/igJDUhoWJrlpc86qX38xZQzGAvfV5MUqixTnv5adsNW6hnEkl9B
-         J9tg==
-X-Gm-Message-State: AOJu0Yx9SbVQLbwdEGUUTunkc4pzB5G4q1ZBNgokyUfRnS87TMjBCOY6
-	XvB2M6nyDkmYE4Z8V6eBA9VEdypvNhy4UFPc5C/ek67HI7d8lxq6jOgzIj52a9sbax5/ezLpPTw
-	7OSyapLPqQ5o/AWJ80FK4LTMkumicIjKut1ryyqru
-X-Gm-Gg: AfdE7clik7lvutLTxCidlO3YkcIhfqS0k2apTdBclb7FveNbammhinZ8EGgOUaNyMJ1
-	ooQFBfBKPzNL2yD9PEnjaGxXQm02uNovyI/EtR3PJESOms36/KedGxjKmE7P6GewXH7/QUeOULu
-	KBiykTOK2XE/fcZDmuAjOS8oBMi34AgvYWFeyksPIQtNJNS0qWMSlt83IyIn45NrklRBvHserG2
-	MhuB1Os8cbyld6D/Z8GeA3AdfqLwSNmuMI+XVDJvVcuA7GdhCuJ4SxERKkY3iuWJ3bG7GBFUyhT
-	KC1AxndFIttCdiTU
-X-Received: by 2002:a05:622a:a908:b0:516:d570:82c0 with SMTP id
- d75a77b69052e-520fee19f7fmr3120471cf.15.1784257734125; Thu, 16 Jul 2026
- 20:08:54 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="DKU/4MGr"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 421D41F000E9;
+	Fri, 17 Jul 2026 05:04:29 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
+	s=korg; t=1784264669;
+	bh=uqMDORnaDkb/GazZKXO/AHenm3CZXjcna9P91ykw3nY=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To;
+	b=DKU/4MGrsY+hKg6T5FMZM5LGN7ToXxw7YfujZ2inFssxJMfsnxCef3DreRxx31GaQ
+	 iqcmbeHyrHqIA0bh8AfpRmmTfrDutBEGames8D6XB9ohue9TE04BvLC9VR0qfxq+JY
+	 VSFHA6XTuUl62EhEKXh975+E4W9SVIMlycH1MjFc=
+Date: Fri, 17 Jul 2026 07:03:09 +0200
+From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+To: "David Hildenbrand (Arm)" <david@kernel.org>
+Cc: Hari Mishal <harimishal1@gmail.com>,
+	"Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH v2 1/4] virtio-mem: validate device-reported block size
+Message-ID: <2026071700-kitten-contort-cad2@gregkh>
+References: <20260715142337.22811-2-harimishal1@gmail.com>
+ <20260715164139.40957-1-harimishal1@gmail.com>
+ <b2176313-b444-4f66-a71c-647b92cc16a8@kernel.org>
+ <2026071635-relive-flogging-2a81@gregkh>
+ <4dda47ba-534a-4297-a25e-0d63d9167033@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260717002311.681748-1-linkl@google.com> <20260717002311.681748-3-linkl@google.com>
-In-Reply-To: <20260717002311.681748-3-linkl@google.com>
-From: Link Lin <linkl@google.com>
-Date: Thu, 16 Jul 2026 20:08:42 -0700
-X-Gm-Features: AUfX_mxICqJHmAVK8TinFxnPQuIwu8KNDwpqoJsVqWM4NDLatLe37O_LMt6bETw
-Message-ID: <CALUx4KTH4-D9ZpTrEikHajp=R2VxXqLACsJC1aOhX_W8+TApAg@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] virtio_balloon: avoid shrinker execution during PM suspend
-To: Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@kernel.org>, 
-	"Michael S . Tsirkin" <mst@redhat.com>, David Hildenbrand <david@kernel.org>
-Cc: virtualization@lists.linux.dev, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, prasin@google.com, rientjes@google.com, 
-	duenwen@google.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, 
-	Ammar Faizi <ammarfaizi2@openresty.com>, jiaqiyan@google.com, ahwilkins@google.com, 
-	Greg Thelen <gthelen@google.com>, Alexander Duyck <alexander.duyck@gmail.com>, jthoughton@google.com, 
-	stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4dda47ba-534a-4297-a25e-0d63d9167033@kernel.org>
 
-On Thu, Jul 16, 2026 at 5:24 PM Link Lin <linkl@google.com> wrote:
->
-> During PM freeze (e.g. S4 hibernation), virtballoon_freeze() calls
-> remove_common() which resets the virtio device and deletes all virtqueues.
-> However, the balloon shrinker remains registered with core MM.
->
-> If memory pressure occurs during S4 hibernation image creation/saving, MM
-> invokes virtio_balloon_shrinker_scan(), which attempts to reclaim free
-> pages. Although return_free_pages_to_mm() only frees pages back to MM,
-> reclaiming free pages under memory pressure can trigger page reporting
-> which might access the deleted reporting virtqueue if it is not yet
-> frozen, or interact with other parts of the driver in a teardown state.
->
-> Avoid this by adding a `suspended` flag to `struct virtio_balloon`. Set
-> this flag to true in virtballoon_freeze() and false in
-> virtballoon_restore(). Check this flag in both shrinker callbacks (scan
-> and count) and return 0 if the device is suspended, preventing any
-> shrinker execution while virtqueues are deleted. Wrap the lockless reads
-> in READ_ONCE() and writes in WRITE_ONCE() to prevent compiler
-> optimization issues and KCSAN data race warnings.
->
-> Fixes: 71019de8219b ("virtio_balloon: Add free page hinting support")
-> Cc: stable@vger.kernel.org
-> Acked-by: David Rientjes <rientjes@google.com>
-> Signed-off-by: Link Lin <linkl@google.com>
+On Thu, Jul 16, 2026 at 05:59:05PM +0200, David Hildenbrand (Arm) wrote:
+> On 7/16/26 16:18, Greg Kroah-Hartman wrote:
+> > On Thu, Jul 16, 2026 at 10:55:42AM +0200, David Hildenbrand (Arm) wrote:
+> >> On 7/15/26 18:41, Hari Mishal wrote:
+> >>> The device_block_size read from the virtio-mem config space is used as a
+> >>> divisor and also in ALIGN_DOWN() further down the code path in the
+> >>> driver without further validation. A zero value leads to a division by
+> >>> zero, and a non-power-of-two value corrupts the ALIGN_DOWN() bitmask
+> >>> arithmetic leading to a misreporting of guest-usable ram, post crash.
+> >>>
+> >>> Reject both at init time instead of trusting the device.
+> >>>
+> >>> Signed-off-by: Hari Mishal <harimishal1@gmail.com>
+> >>> ---
+> >>> v2: dropped the redundant explicit zero check, since
+> >>>     is_power_of_2(0) already returns false.
+> >>>
+> >>>  drivers/virtio/virtio_mem.c | 6 ++++++
+> >>>  1 file changed, 6 insertions(+)
+> >>>
+> >>> diff --git a/drivers/virtio/virtio_mem.c b/drivers/virtio/virtio_mem.c
+> >>> index 11c441501582..0e04fec458af 100644
+> >>> --- a/drivers/virtio/virtio_mem.c
+> >>> +++ b/drivers/virtio/virtio_mem.c
+> >>> @@ -2847,6 +2847,12 @@ static int virtio_mem_init(struct virtio_mem *vm)
+> >>>  			&vm->plugged_size);
+> >>>  	virtio_cread_le(vm->vdev, struct virtio_mem_config, block_size,
+> >>>  			&vm->device_block_size);
+> >>> +	if (!is_power_of_2(vm->device_block_size)) {
+> >>> +		dev_err(&vm->vdev->dev,
+> >>> +			"invalid device block size: 0x%llx\n",
+> >>> +			(unsigned long long)vm->device_block_size);
+> >>> +		return -EINVAL;
+> >>> +	}
+> >>
+> >> The spec states "The device MUST set block_size to a power of two."
+> >>
+> >> I'm missing the point here.
+> > 
+> > So what happens if we have a non-spec-compliant device?  Shouldn't we be
+> > attempting to verify this before doing something with the data?
+> 
+> The problem I see is that there are plenty of other devices where a
+> non-compliant device might cause problems.
+> 
+> Like, we request to hotplug some memory block and our device ACKs it, but it
+> simply didn't do that.
+> 
+> Or we request to hotunplug a memory block and instead it hotplugs some random
+> other memory block.
+> 
+> Or we sense whether a memory block is plugged and the device lies to us.
+> 
+> > 
+> > Or do we just always trust virtio mem devices explicitly?
+> 
+> It's hard for me to understand where we draw the line, really.
+> 
+> But maybe MST can clarify what we care about in virtio world where the
+> hypervisor is fully in charge of the device,
 
-Apologies, I missed adding a tag for the feedback that led to the
-TOCTOU locking fix in this patch.
+That would be good to figure out, and write down somewhere, so we know
+what to worry about here.
 
-Maintainers, if this series is applied, could you please add the following?
-Suggested-by: James Houghton <jthoughton@google.com>
+Right now, for almost all subsystems, Linux trusts the hardware
+explicitly.  But for some subsystems, it doesn't, or doesn't until
+"something" happens (example, USB devices are untrusted until we bind a
+driver to the device, and then they are trusted.)
 
-(I will be sure to include it if a v3 is otherwise required).
+But there are some people that want to never trust the hardware, or have
+it in different states, specifically for virtual machines like this
+driver operates in.  The CoC model is just that, and patches from Dan
+are working toward clearing this up a lot for some types of devices (PCI
+and IOMMU), but I don't think they have thought about virtio devices
+yet...
+
+thanks,
+
+greg k-h
