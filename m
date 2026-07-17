@@ -1,152 +1,249 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f174.google.com (mail-pl1-f174.google.com [209.85.214.174])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D58453F86EB
-	for <virtualization@lists.linux.dev>; Fri, 17 Jul 2026 16:31:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784305913; cv=none; b=lLmtHjedxsZxmjBdcv9LZTEln48UTZZIKfXZEQJ6MsS7cttH8jEC+Bf6h+QpWQV5qgG4eZN7mYF6Ndyt/gub3hoKdj655aSXrcXxTqthVsysc2YaN2MYYhK3Oezougbn3E6CHt8un/xyyk2XHeoueT5m/RVGtALj+tFcgN8ppeM=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784305913; c=relaxed/simple;
-	bh=CBfSqK2AvgdhR+Bzp0CO34iyovUNpliOo+OgVtl30zk=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=vBqPCFNWQG6QpZsTg6dIUr6g0mtomNFpZr8IU7y2Ac8MJmL1ydBYu/iJfrrjEnOf3LD/QuSm1zBHu/kUJOjD+cCdfuU0uaBJz9puclbNxn/GZ1GJX2usAV2o0fPBvcA4l7UQSFOmGhgmI0rrpFxV428/FAsjE0LXQxeKDdgzp0E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Bsn0bczL; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4CC89175A6C
+	for <virtualization@lists.linux.dev>; Fri, 17 Jul 2026 19:46:49 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.174
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784317611; cv=pass; b=tHRZz3Ro0dz6piYi4fYdpBZ/kyYzJx/ffR7JHDMk4GT4tMMnNAx8G3Gzk+kx2ZXofEZQYKea1pRGnn0vckdWqBlxJ16Ox8IEqg3ranbLaZsFgrHDDe25ReakUzF7WVboUTSFVaOhj9wGqfpafgdT1eL6DT8O5MIJ5js6gUYHpDE=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784317611; c=relaxed/simple;
+	bh=zoiSF3JeQIqnQcvMW43JD4qB9vpjOVAXImiebAn+BPg=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=EPg0AnTEaaSCbPdKKziyHlzpKlEuArHO7nhRQ9hlMJ8uEST7wlSF+b9igkBbnzAVuVyPXGEGRZcIIqIvowRIxI3JbfDeepbtSCacWMUzVjsRYeP75TE+Lv63mzC7jN0Lc1/Xq67aDUrxNXX96kAauRmmbrCQx4mVx7P9BCfjHQI=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=cUumI9jR; arc=pass smtp.client-ip=209.85.214.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Bsn0bczL"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1784305906;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=J0HLfgnrtjxNOO4Lwlf1DY9lZMzmjOSTkB4j+MM+kqU=;
-	b=Bsn0bczLdgO6ODU5YGth9ShbPJ3wdpdgDnC1jBL7O3u0AQtABAu140HnkQkgKOUUBfpdqf
-	EXFDSvXEcYaXi08BbTS9mF3qo6YTRu9CPpnQvin+0HSc8TM0Qw/d9ySobltthCAgrMmqVx
-	aF/Yiec2y5zrkD4bebIk9zTlYL1DP6Y=
-Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
- [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-473-Bm0-IVisMH20hyQMX8NH8A-1; Fri, 17 Jul 2026 12:31:44 -0400
-X-MC-Unique: Bm0-IVisMH20hyQMX8NH8A-1
-X-Mimecast-MFC-AGG-ID: Bm0-IVisMH20hyQMX8NH8A_1784305904
-Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-4729d2a64efso1080717f8f.0
-        for <virtualization@lists.linux.dev>; Fri, 17 Jul 2026 09:31:44 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="cUumI9jR"
+Received: by mail-pl1-f174.google.com with SMTP id d9443c01a7336-2cede6375caso183235ad.0
+        for <virtualization@lists.linux.dev>; Fri, 17 Jul 2026 12:46:49 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784317609; cv=none;
+        d=google.com; s=arc-20260327;
+        b=jYo72Re9MdtdgTDbFMGoTNg6kGukzh9VFLQCSsBI4BgTDUwA2Yw8hsYIk26g2UFtXy
+         xrI5XfmhC1NLCmnB+0a6gMZBSd+q7dJtr9NYZGhJrS/EfCeVkE7urOPPs+zcUkJlRCph
+         +B+R9wQLEvXTvvBTNTgChdzoLCBx+1/1/1BHyf7uXXDZmWHNiWY098As3JJ3OanUXUOg
+         J2Vp1TL27csgjvoMMdB4FZ2Ny+7nRf501U2wJeEEuwMtMhh//eA0AqOpYhHlwQBnYCRj
+         a6sbMI9hIGotuzgajevKrgyO29T/mynm1RdFM3kz91TF3bEQLuVPIWSsFjxIP8/f385U
+         heAg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=nsZo6eYxZiNwWUFhdwOagBZhkMfykQcqUISKPpPxaDA=;
+        fh=UIQ/7Y0XddmwvcdM4aGJMCHylXvLAxwGij5qKERvqy8=;
+        b=XCDs/naN2eVrnG7ZD1ZDhVMPXTBW3NmZSzXmmlUYev5WsW9aAyHj3VwZOf9xhXnYSd
+         fj97GieEcOq+s0zDxbpzWF3XUFINvbRuR4F8SZ9lVBAnZrZr3TZZAg4ODQnBW4Jjv901
+         AUmyfb4LDzHqJqs9EVsfe4kuCEtgKa/Fe56ODjEdX9lWZk4zYPgQgdqvqRP3gOrIm/a7
+         S/pL5XzN11QoUJKI8HmkQCpaAJuZ16Q9n9tqoDET9CSbZ6RborjQ5UWCr/j7srMzVQdU
+         UzRDg4uesEkIEZhUMc9ILovTdIZHCtxKNoTPxX3h0+dsxQZ3xfmqhV3UxV/FVmuwvvNh
+         IxtA==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1784317609; x=1784922409; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=nsZo6eYxZiNwWUFhdwOagBZhkMfykQcqUISKPpPxaDA=;
+        b=cUumI9jRT5W2hbhVq7XaViBfHIrjQOGSOuYbMjqTwGn7dJGv1CKawHmHh3GogTYId/
+         E/8+sR8HzzcGdpYjaXAKnMjBRoPH249cjU8VvcoOxGQbZganqiFkyF+mx7RmZolqNfKz
+         KAaI7kLIFMtb8bqdGZeUZEtRpM1SPQ96oN/gGwyJF3KW2rjdS9hW00upcVMb86t7YEOE
+         PVE2Ha9XWOjcuMvmprlcRZaTH+hk60sA/vn/QIcuVYPRbh4tjvWbo0uvYSYr+6qnSqY2
+         oogYR8Ky92km9DQzIYG24AQrUDoaBtOeUVI+qbRR9C+W/jduvAbuTRHbKIazi58kHUhy
+         PUMQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784305903; x=1784910703;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
+        d=1e100.net; s=20251104; t=1784317609; x=1784922409;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=J0HLfgnrtjxNOO4Lwlf1DY9lZMzmjOSTkB4j+MM+kqU=;
-        b=NEbJV6/aL5RLclb8odyaUCfQCGBvDaiIZaJmrQQ7wxAUKamUTqWfUm5OCD3aEtU/O5
-         aSr9iQJTenhwahXBUnC0dAuP8G+E/bXm7b/oGkw2buS3Q8XiZHr3N968jtrMAd5UytYr
-         a96Ss49o7zvjduSrbdNFgHxxqlgUKcoMI8Dka7oM4rxJKM0CQjj77ZEmTzxPTT6FqHTr
-         jyUbG6JzibdroxuFmcJ8eoHTpVXEUsZRKI6imW4sAkYlMtBJWcot3tCdVWklfOB5C8J1
-         s9yjufH8hmZhd5SNNxRDk89bkKoYpuYY2aq2GEI8k2rnXewU3Iy6tetzoYQ9h8mkz1FD
-         vvFw==
-X-Forwarded-Encrypted: i=1; AHgh+Ro77I0yIq0JGofGcomaPNK2rHK2SrXWemKkWRpDPWYJhLMhnZWkuHb+RT6/igBXyCvRx+Gk/rVo/w8uTjmfZA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywc0Qx4hgNzsocCNxwpdM2oy/kKo/yAAr26RjpD0LRRsz2NNjB1
-	4gZP0RFhUMeMYKT0FDA5OolmWwUBMx5Xaq7xl6qlnMb/rku5j4iUUNhzD3ILgj3OpcdEiT4IuCl
-	PMoAtxNF3PHn/z5OClQtO5rcm0NJh5/eAR1XLBeedRAzYUl8X752PIyp8lOSBtImca/F5
-X-Gm-Gg: AfdE7ckWwN+vif6Mjf0pzC2rybKzLPrMKoggtq0sR2Ro56eDtQzqUG2A81uKYJ2vx+f
-	QcGvQDSFNQH6b2vGrFh4kGqkExfljOnCSu7tp11qr2wLFGN+hdVb33mEVuNgi6mfrelS7Mdpuz8
-	7PzRCC2BQIfQ1f4wtcm/c2YJm9Rv6jXCKu9HaJZ6ugYDnG7w53izJkpPlygS3SOcV9ny8Dz/y9U
-	lMjGZZ+m93qsIx5XPIH1CsOblLkmGX+acl4HjqBmfLXUaFrpU93DlTC1mFRiVnSGsoVVjsodtfa
-	2rp0yefwlJK8qIQ4zDfVeJQTIMpc9esyVMNzSxnrg43TEFpIqCSPZxKszOkmVLwFKLhzCF/cQna
-	JGWFFgV1FuyKEZOeNyBEjFpgq
-X-Received: by 2002:a05:6000:2f85:b0:46e:6959:35a7 with SMTP id ffacd0b85a97d-47f623e803emr4407832f8f.22.1784305903404;
-        Fri, 17 Jul 2026 09:31:43 -0700 (PDT)
-X-Received: by 2002:a05:6000:2f85:b0:46e:6959:35a7 with SMTP id ffacd0b85a97d-47f623e803emr4407792f8f.22.1784305902878;
-        Fri, 17 Jul 2026 09:31:42 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-24-117.inter.net.il. [80.230.24.117])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47f63eeece9sm5310864f8f.37.2026.07.17.09.31.40
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Jul 2026 09:31:42 -0700 (PDT)
-Date: Fri, 17 Jul 2026 12:31:39 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Mike Christie <michael.christie@oracle.com>
-Cc: Jia Jia <physicalmtea@gmail.com>, jasowang@redhat.com,
-	Linfeng Sun <slf@hdu.edu.cn>, pbonzini@redhat.com,
-	stefanha@redhat.com, eperezma@redhat.com,
-	virtualization@lists.linux.dev, kvm@vger.kernel.org,
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-	stable@vger.kernel.org
-Subject: Re: [PATCH] vhost-scsi: Prevent OOM from invalid protection SGL count
-Message-ID: <20260717123129-mutt-send-email-mst@kernel.org>
-References: <20260717142205.103515-1-physicalmtea@gmail.com>
- <8f5b5350-0be9-4b79-a6c9-069d418dee30@oracle.com>
+        bh=nsZo6eYxZiNwWUFhdwOagBZhkMfykQcqUISKPpPxaDA=;
+        b=a9r4sNsPvhzg8OD1QghPjlruSQYf2k8Jh7MpfAFWyeV3CKXLtMq1GjP1fjfrvKuG0T
+         J19gVX197eVunns36NK/m519CZA0GxbxKawGWLg1FSUvg4y7sZybec/n44xvZO8cWplk
+         jV3hNmMC3n5ovSJ2/Z/xw5ZZ3k6+lOY3qgd6ynjb3Lhcu76WV9Hmwq/6rwYriTaIElZP
+         iYuUkXnE1jSpVZ29w53mZYCYt6gujt9bo3z+/AaMSPU3vIij1qCw7W8r0Fs81iNUW3EA
+         E9A+BYIpjDoyhBNsck6u6Sxsk+4Na/X4xB8XaDv8n3oWOubeum3OgeLQHTaY4sJGB61u
+         W/nA==
+X-Forwarded-Encrypted: i=1; AHgh+RpDTrP70KLWsL+vSNd5Mybziz1eXmTCG7IRvllgn+RPI9//4pm3yY/Auvm+mjbubAwx3bSAycJxEU157GNCqA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxIhz5uGp2TQFsqTomOLXitXgFADkeatMMiANE4M2pcdyG5FCd0
+	NAhCQlRoRmdz+POqnJ6mok9AHUwnaXIYIJWE0TTTJDLDUIuNb63EJ/QTj0xVO1VwX2lQo1LLJPB
+	J0BY8/s6cLQwmH7KJFQ7olf/7vwwFroU5r6zvxR8=
+X-Gm-Gg: AfdE7ckxUaOaUg+aW+3xnXOM/7miCiN0bxZly9ugKCnK1UFH0ahJlzDGA1Lxbb3hDbb
+	Dfg/bsT6stwk8XGtjPhGGveMg9LcKERrvAolDdKQF99v7td+RcZzJGptpLMDyQFZwBsYbsPF10C
+	RHZQ3PmQE517VakXF/cCLf3Iq8npQcR8iW2bJ7zbXBameSoRto88ENaoIOB+pc48bwjARgLOouK
+	NS2r06A8FtcYiuItjIDy4K6d42iohuegouCEGkk27vnGH6PPFs/5Bu/apkeUPl49nJf+HA=
+X-Received: by 2002:a17:902:cec8:b0:2cf:41ba:96b8 with SMTP id
+ d9443c01a7336-2cf45301963mr639285ad.6.1784317608017; Fri, 17 Jul 2026
+ 12:46:48 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <8f5b5350-0be9-4b79-a6c9-069d418dee30@oracle.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: 0Q-WBAj8Gj7JAKpzQNHFaJpZfr1rgI0bAPoXq53QNf0_1784305904
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <20260622204343.1994418-1-briandaniels@google.com>
+ <20260622204343.1994418-3-briandaniels@google.com> <20260622170708-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20260622170708-mutt-send-email-mst@kernel.org>
+From: Brian Daniels <briandaniels@google.com>
+Date: Fri, 17 Jul 2026 15:46:36 -0400
+X-Gm-Features: AUfX_mw74d-5_R4YCuTDMGPYdle20s2YGu2aL-50gbj-ggLz6JZziwCSX5CR83w
+Message-ID: <CAD4i_GTBkZRAnBTohkzJSh2XTx+MHkTS_KokEMQ4s0-WP+DxcA@mail.gmail.com>
+Subject: Re: [PATCH v4 2/8] media: virtio: Add virtio-media driver structs and
+ function declarations
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Mauro Carvalho Chehab <mchehab@kernel.org>, acourbot@google.com, adelva@google.com, 
+	aesteve@redhat.com, changyeon@google.com, daniel.almeida@collabora.com, 
+	eperezma@redhat.com, gnurou@gmail.com, gurchetansingh@google.com, 
+	hverkuil@xs4all.nl, jasowang@redhat.com, linux-kernel@vger.kernel.org, 
+	linux-media@vger.kernel.org, nicolas.dufresne@collabora.com, 
+	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, Jul 17, 2026 at 10:13:36AM -0500, Mike Christie wrote:
-> cc'ing Linfeng.
-> 
-> Linfeng also reported this bug and provided a patch that has your check and
-> an extra check to avoid calling into the function in the first place. It's
-> been stuck in some other list.
-> 
-> I think it might be best for Linfeng to re-submit their patch now so it can
-> get merged. For that patch, I think there was one outstanding question left
-> where Michael had asked if the issue was found with AI so the proper tag
-> could be added. I don't think that question was responded to.
-
-Right, was waiting for that.
-
-> 
-> On 7/17/26 9:22 AM, Jia Jia wrote:
-> > The protection SGL path passes the result of vhost_scsi_calc_sgls()
-> > directly to sg_alloc_table_chained(). The helper returns a negative
-> > errno when the iterator is invalid or the request exceeds the segment
-> > limit. The negative errno is then treated as a very large unsigned count
-> > and sends the request into the SGL allocation path with an invalid size.
-> > 
-> > Repeated malformed T10-PI submissions from a host-side application caused
-> > memory usage to rise sharply. MemAvailable fell to about 200 MB, and PSI
-> > full avg10 reached about 1.46. The OOM killer terminated several userspace
-> > processes before the endpoint cleanup completed. The kernel log included:
-> > 
-> >      [17036.451028] Out of memory: Killed process 2345 (systemd)
-> >      [17036.493325] Out of memory: Killed process 2349 (sd-pam)
-> >      [17078.265127] Out of memory: Killed process 1793 (networkd-dispat)
-> > 
-> > Return the calculation error before setting up the protection SGL. This
-> > keeps the protection path consistent with the data SGL path and prevents
-> > the invalid count from entering the allocation path.
-> > 
-> > Fixes: bca939d5bcd0 ("vhost-scsi: Dynamically allocate scatterlists")
-> > Cc: stable@vger.kernel.org
-> > Signed-off-by: Jia Jia <physicalmtea@gmail.com>
+On Mon, Jun 22, 2026 at 5:08=E2=80=AFPM Michael S. Tsirkin <mst@redhat.com>=
+ wrote:
+>
+> On Mon, Jun 22, 2026 at 04:43:37PM -0400, Brian Daniels wrote:
+> > From: Alexandre Courbot <gnurou@gmail.com>
+> >
+> > Add the structs and function declarations for the new virtio-media drvi=
+er.
+> >
+> > Signed-off-by: Alexandre Courbot <gnurou@gmail.com>
+> > Co-developed-by: Brian Daniels <briandaniels@google.com>
+> > Signed-off-by: Brian Daniels <briandaniels@google.com>
 > > ---
-> >   drivers/vhost/scsi.c | 3 +++
-> >   1 file changed, 3 insertions(+)
-> > 
-> > diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-> > index 9a1253b9d..8486652fd 100644
-> > --- a/drivers/vhost/scsi.c
-> > +++ b/drivers/vhost/scsi.c
-> > @@ -972,6 +972,9 @@ vhost_scsi_mapal(struct vhost_scsi *vs, struct vhost_scsi_cmd *cmd,
-> >   	if (prot_bytes) {
-> >   		sgl_count = vhost_scsi_calc_sgls(prot_iter, prot_bytes,
-> >   						 VHOST_SCSI_PREALLOC_PROT_SGLS);
-> > +		if (sgl_count < 0)
-> > +			return sgl_count;
+> >  drivers/media/virtio/virtio_media.h | 95 +++++++++++++++++++++++++++++
+> >  1 file changed, 95 insertions(+)
+> >  create mode 100644 drivers/media/virtio/virtio_media.h
+> >
+> > diff --git a/drivers/media/virtio/virtio_media.h b/drivers/media/virtio=
+/virtio_media.h
+> > new file mode 100644
+> > index 000000000..52809d4e9
+> > --- /dev/null
+> > +++ b/drivers/media/virtio/virtio_media.h
+> > @@ -0,0 +1,95 @@
+> > +/* SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0+ */
 > > +
-> >   		cmd->prot_table.sgl = cmd->prot_sgl;
-> >   		ret = sg_alloc_table_chained(&cmd->prot_table, sgl_count,
-> >   					     cmd->prot_table.sgl,
-> > -- 
-> > 2.43.0
-> > 
+> > +/*
+> > + * Virtio-media structures & functions declarations.
+> > + *
+> > + * Copyright (c) 2024-2025 Google LLC.
+> > + */
+> > +
+> > +#ifndef __VIRTIO_MEDIA_H
+> > +#define __VIRTIO_MEDIA_H
+> > +
+> > +#include <linux/virtio_config.h>
+> > +#include <media/v4l2-device.h>
+> > +
+> > +#include "protocol.h"
+> > +
+> > +#define DESC_CHAIN_MAX_LEN SG_MAX_SINGLE_ALLOC
+> > +
+> > +#define VIRTIO_MEDIA_DEFAULT_DRIVER_NAME "virtio-media"
+> > +
+> > +extern char *virtio_media_driver_name;
+> > +extern bool virtio_media_allow_userptr;
+> > +
+> > +/**
+> > + * struct virtio_media - Virtio-media device.
+> > + * @v4l2_dev: v4l2_device for the media device.
+> > + * @video_dev: video_device for the media device.
+> > + * @virtio_dev: virtio device for the media device.
+> > + * @commandq: virtio command queue.
+> > + * @eventq: virtio event queue.
+> > + * @eventq_work: work to run when events are received on @eventq.
+> > + * @mmap_region: region into which MMAP buffers are mapped by the host=
+.
+> > + * @event_buffer: buffer for event descriptors.
+> > + * @sessions: list of active sessions on the device.
+> > + * @sessions_lock: protects @sessions and ``virtio_media_session::list=
+``.
+> > + * @events_lock: prevents concurrent processing of events.
+> > + * @cmd: union of the device commands "open" and "munmap". The other
+> > + *       commands are handled by @struct virtio_media_session
+> > + * @resp: union of responses.to device commands "open" and "munmap". T=
+he
+> > + *        other responses are handled by @struct virtio_media_session
+> > + * @vlock: serializes access to the command queue.
+> > + * @wq: waitqueue for host responses on the command queue.
+> > + */
+> > +struct virtio_media {
+> > +     struct v4l2_device v4l2_dev;
+> > +     struct video_device video_dev;
+> > +
+> > +     struct virtio_device *virtio_dev;
+> > +     struct virtqueue *commandq;
+> > +     struct virtqueue *eventq;
+> > +     struct work_struct eventq_work;
+> > +
+> > +     struct virtio_shm_region mmap_region;
+> > +
+> > +     void *event_buffer;
+> > +
+> > +     struct list_head sessions;
+> > +     struct mutex sessions_lock; /* protects sessions list */
+> > +
+> > +     struct mutex events_lock; /* prevents concurrent event processing=
+ */
+> > +
+> > +     union {
+> > +             struct virtio_media_cmd_open open;
+> > +             struct virtio_media_cmd_munmap munmap;
+> > +     } cmd;
+> > +
+> > +     union {
+> > +             struct virtio_media_resp_open open;
+> > +             struct virtio_media_resp_munmap munmap;
+> > +     } resp;
+>
+>
+> You need DMA alignment padding for these things.
 
+Each member of the above unions is already padded to 64-bit alignment,
+is that sufficient?
+
+If not, could you tell me what else is necessary?
+
+> Which one can only see when I reads the actual driver 8 patches down.
+> Which is why it's not a sensible way to split patches.
+>
+> A sensible way is to have a driver then add functionality
+> in logical pieces gradually.
+>
+
+Appreciate the feedback. There was a previous comment requesting to
+split the patch into c/h file pairs, but I can try reformatting it as
+you suggest for v5.
+
+> > +
+> > +     struct mutex vlock; /* serializes command queue access */
+> > +     wait_queue_head_t wq;
+> > +};
+> > +
+> > +static inline struct virtio_media *
+> > +to_virtio_media(struct video_device *video_dev)
+> > +{
+> > +     return container_of(video_dev, struct virtio_media, video_dev);
+> > +}
+> > +
+> > +/* virtio_media_driver.c */
+> > +
+> > +int virtio_media_send_command(struct virtio_media *vv, struct scatterl=
+ist **sgs,
+> > +                           const size_t out_sgs, const size_t in_sgs,
+> > +                           size_t minimum_resp_len, size_t *resp_len);
+> > +void virtio_media_process_events(struct virtio_media *vv);
+> > +
+> > +/* virtio_media_ioctls.c */
+> > +
+> > +long virtio_media_device_ioctl(struct file *file, unsigned int cmd,
+> > +                            unsigned long arg);
+> > +extern const struct v4l2_ioctl_ops virtio_media_ioctl_ops;
+> > +
+> > +#endif // __VIRTIO_MEDIA_H
+> > --
+> > 2.55.0.rc0.799.gd6f94ed593-goog
+>
