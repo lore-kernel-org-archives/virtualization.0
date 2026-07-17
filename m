@@ -1,116 +1,126 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CA4693A3E87
-	for <virtualization@lists.linux.dev>; Fri, 17 Jul 2026 05:48:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAF62305E28;
+	Fri, 17 Jul 2026 08:39:43 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784267293; cv=none; b=pK30Zo/PPDFCgivbZ/8aW6b7ge30rM08fCnYuBROuHEvbHXiKz1mcU3vIP93Bb1ZA3nWOsMfmuFRbVmCJJVqdHsQf8dM+Rm/OYZx4b3zC2/rkE3lFX+wGBUdlW5UyOVuYnPAZxO655CxnKglcVJgpzZL3rnqSDZnhlfnvvH60Zo=
+	t=1784277584; cv=none; b=QSb+wyNzjkJ/l0uqX7QZSwj+HAkqFrnpw3mPdoMlgZcUksnFpp89uGWAdGjaFdroC4oa1sXv1fbPxVaIPPKNdY2eDUmXA/+WjSSOLMtZXB6fSbM58T8KLhn+EQATE2CJj0hqw9p24DZXd/ZRw6UdmzHqJVQeujXk6lEjMg2Hw+E=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784267293; c=relaxed/simple;
-	bh=PcZZ4BBE+qex8AVlaEqF+DYjJeKsaWGxZ57l7lqcnPs=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=rEcHPIMZwCpaFGy5A2naWhkF3ki1u6J+eRR7fmPhnN5LDNw6f5hXTrqQ+r3ghFHJWqCS+CqQbkzrPEeBrNlyHzT5JUPlVuO9uCNy5umnHr/Hulwafyp8YpdoTpbiX0FoVY2fKmvxnMxtkdSathzriGruc3hW+vUAy95niy4TWrE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=XBgLbBZ/; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1784277584; c=relaxed/simple;
+	bh=/W2XSUMI1QpGUUU/OS/kEgCWBkbP6kSYkJ/BwnCyIsk=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=GQR0viN+uLgzZZtdFpNMDafWrbjOxN0TjECIaDQpJUwKPlV5oC9X7lTMGDPERxU0pWvPkPZprDuyYdN8vJsYYiUi9/yiiWDPY22BoxHvyjhUnHFyvToaGC8DWafzZnhVHSO7gO71Fqvw3GvQ5r89qXST/QPRT8vNtj0x6pSofsY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=EwhfdSj6; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="XBgLbBZ/"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1784267290;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=Bmyp7ZomJkfJKG4Wnb+pC/++rhVrw/gdjngW3ibbXhE=;
-	b=XBgLbBZ/5f1NbWLyGA6e3mj4CB3HBByDRaYXwI+V70YYAQPM6XYTb57/4RnWyhwNH8QaRy
-	dBtAZUWKt7gioMlRyj7Km9Qcg+j4rjFTatS3VU9vjSHnALKoX0y+j9uuLcn9cAMUinvWQw
-	CGaYmfJxS2GUaYYA5DRWV1++qzTMd20=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-584-U7fK3ztBMm-IKU0baSXCTw-1; Fri, 17 Jul 2026 01:48:08 -0400
-X-MC-Unique: U7fK3ztBMm-IKU0baSXCTw-1
-X-Mimecast-MFC-AGG-ID: U7fK3ztBMm-IKU0baSXCTw_1784267287
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-49402f0af24so40200715e9.0
-        for <virtualization@lists.linux.dev>; Thu, 16 Jul 2026 22:48:08 -0700 (PDT)
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784267287; x=1784872087;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=Bmyp7ZomJkfJKG4Wnb+pC/++rhVrw/gdjngW3ibbXhE=;
-        b=UjHGFMjq88YBXLB7YU28fWx+ibex3jIaWDsT3kUknvh80sWQdkyQWf2LgY/AwoPh16
-         xuMXP7W9RGwRS7mN0p3knYUYABjBgoyzCgKeQ7pkXRY4fo0R2X4KUGxhEYci/Uxm2IE8
-         LB7MgYsWh/cGUceanz9tCaX4IXl/PcmDJJvvLLYzYjNE5cIIMGD1HeVQ9tU4yNvtim/K
-         p+hXKG5d1zeGHzLVZJDTzPU7gTyoAobpUZx2Iv0OXlsp7YmANfGh12juLat9BwNuhX5O
-         x8HxZofi+NOjD+A1mCLxLHM8SHWffSehVKBpbdhu4wnPo/UFdfw1cEFXjARkU+mqBpR7
-         XUKA==
-X-Forwarded-Encrypted: i=1; AHgh+RqtJHyaSdeYanj0Mn4EolURdviUA6TfJgJTmtNmeP17AzDGh0vfNZXW7L24hPSxkZoDIB85St0UZPWt7oNtBQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwzPTvgrVXxYlhCsJ6KfIAyYeQmQdbHKfn0D/TgpZkd9T7nn5RL
-	K5H+zRK2SP3oGMbeeCEBRZ9MkPSYcCv4MwbxV2meYRyEy9Veba9b4H7sTOKimY3HW59JUDw8FzV
-	XSvnZIKmtkf7SO4jnXnT3Dvgwjd1xeXBxjNuVUC+ZDrj2+GAL6PvssQWRmhlkTctCRhf3
-X-Gm-Gg: AfdE7ckaK6C1eL6mnZ3Qu4g8r9vZibG8qw8AVIqdxcraFieVojtQ+4wGlUx5xkHIdYR
-	3X2ppJF1/Jn9YZjPBHOuDfKQD5svoea1oVqIlJYWc06Zd2HqYZXMSMS7Fbz6okiyK5fyJqFfoS1
-	UZv+DauSrURKVQjBmoWQ4kAuLxZ13pTdUFrsb3up3h+NWwC6TEgIBZUF+n5vu91fpdIaUyonVmv
-	UnF2TgkDQsEwMkGNu1cn3L/g3uZ4su7zvmPlgyVo9KMc65qvIFu77qRPQK0+VzyGtmnVrM/bueW
-	891qDDW9YXic33Z0jwAeT/67dvbvmC7bWN/vsvVTGCjOL/21waoQ77ffpmeXF0ZINtEOjN/v66W
-	NKWTpQppVXDjahebbmrV76wKl
-X-Received: by 2002:a05:600c:4689:b0:495:4b56:f127 with SMTP id 5b1f17b1804b1-4954b56f1d0mr2196845e9.25.1784267287002;
-        Thu, 16 Jul 2026 22:48:07 -0700 (PDT)
-X-Received: by 2002:a05:600c:4689:b0:495:4b56:f127 with SMTP id 5b1f17b1804b1-4954b56f1d0mr2196525e9.25.1784267286510;
-        Thu, 16 Jul 2026 22:48:06 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-24-117.inter.net.il. [80.230.24.117])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-495499d1d4asm17178085e9.2.2026.07.16.22.48.04
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 16 Jul 2026 22:48:05 -0700 (PDT)
-Date: Fri, 17 Jul 2026 01:48:01 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
-	Hari Mishal <harimishal1@gmail.com>,
-	Jason Wang <jasowangio@gmail.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	elena.reshetova@intel.com, carlos.bilbao.osdev@gmail.com
-Subject: Re: [PATCH v2 1/4] virtio-mem: validate device-reported block size
-Message-ID: <20260717014134-mutt-send-email-mst@kernel.org>
-References: <20260715142337.22811-2-harimishal1@gmail.com>
- <20260715164139.40957-1-harimishal1@gmail.com>
- <b2176313-b444-4f66-a71c-647b92cc16a8@kernel.org>
- <2026071635-relive-flogging-2a81@gregkh>
- <4dda47ba-534a-4297-a25e-0d63d9167033@kernel.org>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="EwhfdSj6"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id DC39E1F000E9;
+	Fri, 17 Jul 2026 08:39:41 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784277583;
+	bh=oTJFz+0OffnUUewQpXgs3USC/Xlj1tIievJPKzcBgPA=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=EwhfdSj6o64rQKnCEwrXA8nB0f9rxnQv0rvMmhS2rxQtXFdqZd0UIJbv1f7uYCiKL
+	 MQw07JanhlTuVOBj4pnbZjy4vLJtRd0Gv1kt3DHQ/YnicZL+GbBd2iVToeoMaKIIT5
+	 vPIFRpsZlaXFLNJUezyXSG1+tFeF6UAfMpMAkGOxyrPfFM0b7m8BHy662JSzVQkbGy
+	 b9cJAHGnimzuFJnGCnZtEHrYZDhUfoAG/bM7j6u1D41nIqSVUKXcq0mcFwJEw+dtC8
+	 pigyAphc1b5ADTh5F7jdKHGABJnlRIIMd4Qvcs/ErKGFDNyFqIc9zKRICG7+8VD+bL
+	 uXs4vrYlgeFLw==
+Message-ID: <3b32a38f-0964-45b9-9529-933abedbf69b@kernel.org>
+Date: Fri, 17 Jul 2026 10:39:40 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <4dda47ba-534a-4297-a25e-0d63d9167033@kernel.org>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: ulw3kPaCoYn_B03nVujkppBaEn-4v8N0nvM2_HIE-b4_1784267287
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/4] virtio-mem: validate device-reported block size
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
+ Hari Mishal <harimishal1@gmail.com>, Jason Wang <jasowangio@gmail.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
+ <eperezma@redhat.com>, virtualization@lists.linux.dev,
+ linux-kernel@vger.kernel.org, elena.reshetova@intel.com,
+ carlos.bilbao.osdev@gmail.com
+References: <20260715142337.22811-2-harimishal1@gmail.com>
+ <20260715164139.40957-1-harimishal1@gmail.com>
+ <b2176313-b444-4f66-a71c-647b92cc16a8@kernel.org>
+ <2026071635-relive-flogging-2a81@gregkh>
+ <4dda47ba-534a-4297-a25e-0d63d9167033@kernel.org>
+ <20260717014134-mutt-send-email-mst@kernel.org>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
+ dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
+ QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
+ XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
+ Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
+ PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
+ WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
+ UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
+ jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
+ B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABzS5EYXZpZCBIaWxk
+ ZW5icmFuZCAoQ3VycmVudCkgPGRhdmlkQGtlcm5lbC5vcmc+wsGQBBMBCAA6AhsDBQkmWAik
+ AgsJBBUKCQgCFgICHgUCF4AWIQQb2cqtc1xMOkYN/MpN3hD3AP+DWgUCaYJt/AIZAQAKCRBN
+ 3hD3AP+DWriiD/9BLGEKG+N8L2AXhikJg6YmXom9ytRwPqDgpHpVg2xdhopoWdMRXjzOrIKD
+ g4LSnFaKneQD0hZhoArEeamG5tyo32xoRsPwkbpIzL0OKSZ8G6mVbFGpjmyDLQCAxteXCLXz
+ ZI0VbsuJKelYnKcXWOIndOrNRvE5eoOfTt2XfBnAapxMYY2IsV+qaUXlO63GgfIOg8RBaj7x
+ 3NxkI3rV0SHhI4GU9K6jCvGghxeS1QX6L/XI9mfAYaIwGy5B68kF26piAVYv/QZDEVIpo3t7
+ /fjSpxKT8plJH6rhhR0epy8dWRHk3qT5tk2P85twasdloWtkMZ7FsCJRKWscm1BLpsDn6EQ4
+ jeMHECiY9kGKKi8dQpv3FRyo2QApZ49NNDbwcR0ZndK0XFo15iH708H5Qja/8TuXCwnPWAcJ
+ DQoNIDFyaxe26Rx3ZwUkRALa3iPcVjE0//TrQ4KnFf+lMBSrS33xDDBfevW9+Dk6IISmDH1R
+ HFq2jpkN+FX/PE8eVhV68B2DsAPZ5rUwyCKUXPTJ/irrCCmAAb5Jpv11S7hUSpqtM/6oVESC
+ 3z/7CzrVtRODzLtNgV4r5EI+wAv/3PgJLlMwgJM90Fb3CB2IgbxhjvmB1WNdvXACVydx55V7
+ LPPKodSTF29rlnQAf9HLgCphuuSrrPn5VQDaYZl4N/7zc2wcWM7BTQRVy5+RARAA59fefSDR
+ 9nMGCb9LbMX+TFAoIQo/wgP5XPyzLYakO+94GrgfZjfhdaxPXMsl2+o8jhp/hlIzG56taNdt
+ VZtPp3ih1AgbR8rHgXw1xwOpuAd5lE1qNd54ndHuADO9a9A0vPimIes78Hi1/yy+ZEEvRkHk
+ /kDa6F3AtTc1m4rbbOk2fiKzzsE9YXweFjQvl9p+AMw6qd/iC4lUk9g0+FQXNdRs+o4o6Qvy
+ iOQJfGQ4UcBuOy1IrkJrd8qq5jet1fcM2j4QvsW8CLDWZS1L7kZ5gT5EycMKxUWb8LuRjxzZ
+ 3QY1aQH2kkzn6acigU3HLtgFyV1gBNV44ehjgvJpRY2cC8VhanTx0dZ9mj1YKIky5N+C0f21
+ zvntBqcxV0+3p8MrxRRcgEtDZNav+xAoT3G0W4SahAaUTWXpsZoOecwtxi74CyneQNPTDjNg
+ azHmvpdBVEfj7k3p4dmJp5i0U66Onmf6mMFpArvBRSMOKU9DlAzMi4IvhiNWjKVaIE2Se9BY
+ FdKVAJaZq85P2y20ZBd08ILnKcj7XKZkLU5FkoA0udEBvQ0f9QLNyyy3DZMCQWcwRuj1m73D
+ sq8DEFBdZ5eEkj1dCyx+t/ga6x2rHyc8Sl86oK1tvAkwBNsfKou3v+jP/l14a7DGBvrmlYjO
+ 59o3t6inu6H7pt7OL6u6BQj7DoMAEQEAAcLBfAQYAQgAJgIbDBYhBBvZyq1zXEw6Rg38yk3e
+ EPcA/4NaBQJonNqrBQkmWAihAAoJEE3eEPcA/4NaKtMQALAJ8PzprBEXbXcEXwDKQu+P/vts
+ IfUb1UNMfMV76BicGa5NCZnJNQASDP/+bFg6O3gx5NbhHHPeaWz/VxlOmYHokHodOvtL0WCC
+ 8A5PEP8tOk6029Z+J+xUcMrJClNVFpzVvOpb1lCbhjwAV465Hy+NUSbbUiRxdzNQtLtgZzOV
+ Zw7jxUCs4UUZLQTCuBpFgb15bBxYZ/BL9MbzxPxvfUQIPbnzQMcqtpUs21CMK2PdfCh5c4gS
+ sDci6D5/ZIBw94UQWmGpM/O1ilGXde2ZzzGYl64glmccD8e87OnEgKnH3FbnJnT4iJchtSvx
+ yJNi1+t0+qDti4m88+/9IuPqCKb6Stl+s2dnLtJNrjXBGJtsQG/sRpqsJz5x1/2nPJSRMsx9
+ 5YfqbdrJSOFXDzZ8/r82HgQEtUvlSXNaXCa95ez0UkOG7+bDm2b3s0XahBQeLVCH0mw3RAQg
+ r7xDAYKIrAwfHHmMTnBQDPJwVqxJjVNr7yBic4yfzVWGCGNE4DnOW0vcIeoyhy9vnIa3w1uZ
+ 3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
+ CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
+ qIws/H2t
+In-Reply-To: <20260717014134-mutt-send-email-mst@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Thu, Jul 16, 2026 at 05:59:05PM +0200, David Hildenbrand (Arm) wrote:
-> > Or do we just always trust virtio mem devices explicitly?
+On 7/17/26 07:48, Michael S. Tsirkin wrote:
+> On Thu, Jul 16, 2026 at 05:59:05PM +0200, David Hildenbrand (Arm) wrote:
+>>> Or do we just always trust virtio mem devices explicitly?
+>>
+>> It's hard for me to understand where we draw the line, really.
+>>
+>> But maybe MST can clarify what we care about in virtio world where the
+>> hypervisor is fully in charge of the device,
 > 
-> It's hard for me to understand where we draw the line, really.
-> 
-> But maybe MST can clarify what we care about in virtio world where the
-> hypervisor is fully in charge of the device,
+> Generally:
+> - The guest is expected to whitelist drivers (most drivers have not
+>   been audited).
 
-Generally:
-- The guest is expected to whitelist drivers (most drivers have not
-  been audited).
-- Denial of service by the hypervisor is not considered a threat
-  (this is how cloud vendors charge their clients, by denying
-  service to whoever did not pay).
+But even if you audited your driver, who makes sure that we consider all ways
+where the device could mess with us?
 
+Something feels off here.
 
+Handling selected out-of-spec scenarios like this feels like a band-aid. Happy
+to be corrected.
 
 -- 
-MST
+Cheers,
 
+David
