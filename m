@@ -1,32 +1,32 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 438003EDAA2;
-	Fri, 17 Jul 2026 10:44:56 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BC8252DF13A;
+	Fri, 17 Jul 2026 10:46:59 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784285098; cv=none; b=o/nX8g+2BcK4rp1Nt6Re4TZszZHwJWe14UY+o2JGfSJOoD9SLJ4n7Spl5JO3IOwLXGQZbox7b+WxCWBd0zuMg4o8rlE9MmUfH7yvypYQQM/qqtTZT5DMUu5A+OWP5Se2LgRO+d4wsM0yRIMUDyMY9pWEADnMrLg9RyOADbsYb9I=
+	t=1784285220; cv=none; b=S5N8kGSlCIj7Bt7zp5JVeDXESBhduPaIFh+RuXx64NB95fJBNLlKcgDQDDgghqH/8kI13GaQoitvarC90tQLVRQsm5vgogVTvBBpHcY6BDO92JouqZl5Z0KCIyRnZxeOImC+Pz3nS9+Sr5ihF8NqyIcFH/O/YTDnctOYsOtj+S8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784285098; c=relaxed/simple;
-	bh=9VESTv34SwKu5EPEhC7WVOcTKXT3ryne/CRt34QAqxo=;
+	s=arc-20240116; t=1784285220; c=relaxed/simple;
+	bh=QbDntJQUg8aSU5l6RntLD0PGFpwbkXibl2dy0D3vNeI=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=B3cF8dC5OKlIlLi4F9xFsEjXXCmlj52A9fPRH5WrntFN5XOT8rAy4JSbPwdxGn3Ou7A/85Enem65/j/lQR9Y/liUoayCHBuMijBBWLA00ZmvrB2bpx7PwRvknwRrpODoeeOJVEo9FpDHGQAThOsUD6aSKipCtZ75sxR0gAgYn/o=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=xH3Z88QL; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=FEKmDMDrnC3+eButELbu1tM4FwbDYF3ixO8ilrVq8spVJTRGwwIkLr/ZIC6UbJKdf0h1qI7Z+0D8cRA7gOqlEchyQXt/Q/bTEDWq2sY9YJbFeiRDoS2maX2vqTJeDlabJfs6LrCHPq1RA3QgdVz9rwi/zYzdtky5AEnxcyUDXrk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b=Hahu2xhA; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="xH3Z88QL"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 5BFBF1F000E9;
-	Fri, 17 Jul 2026 10:44:56 +0000 (UTC)
+	dkim=pass (1024-bit key) header.d=linuxfoundation.org header.i=@linuxfoundation.org header.b="Hahu2xhA"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id ED4B01F000E9;
+	Fri, 17 Jul 2026 10:46:58 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linuxfoundation.org;
-	s=korg; t=1784285096;
-	bh=yRWXerK8Zlb/jzpAdXS7EXG0BOBX6b6ooZ3AHSG5q4g=;
+	s=korg; t=1784285219;
+	bh=aFvLRemG6V0pC7imrlyMd3IKWqpMMFZ9SQZVIJOwxgk=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=xH3Z88QLGPIfC9gjNPCIyHgUxtHjYV27Qmtkczl49gcq/Lh590YNf1Iyd3F3I/U6V
-	 ozftgxRxT8GZoBkzy8sbVyeiZtAn4sJWmTpDx2pn7H5cmwgCvj5fUytdisOqppPBj0
-	 0HshoteE5MCCL2RnHiOfGuA1U9lXIfXhIyRRVXv0=
-Date: Fri, 17 Jul 2026 12:44:49 +0200
+	b=Hahu2xhATtTf/Tge29GyVfTwDyxxtTpnXR4wC1LdArLfFauW3Spmelibqa5KMWmRV
+	 sXr5/D0UnKhwAOfAcXF11tbjdbiDQDJt+n0UF+aedRCBmh3MWsnN1qs3LE2YkEr/zi
+	 FZpqrMYsHNmLPNDMSdn3Z6TZKNQC+6oZ2SL44ZWI=
+Date: Fri, 17 Jul 2026 12:46:52 +0200
 From: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
 	Hari Mishal <harimishal1@gmail.com>,
 	Jason Wang <jasowangio@gmail.com>,
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
@@ -34,7 +34,7 @@ Cc: "Michael S. Tsirkin" <mst@redhat.com>,
 	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
 	elena.reshetova@intel.com, carlos.bilbao.osdev@gmail.com
 Subject: Re: [PATCH v2 1/4] virtio-mem: validate device-reported block size
-Message-ID: <2026071717-unfiled-manned-3305@gregkh>
+Message-ID: <2026071724-asleep-pedigree-ea54@gregkh>
 References: <b2176313-b444-4f66-a71c-647b92cc16a8@kernel.org>
  <2026071635-relive-flogging-2a81@gregkh>
  <4dda47ba-534a-4297-a25e-0d63d9167033@kernel.org>
@@ -44,55 +44,105 @@ References: <b2176313-b444-4f66-a71c-647b92cc16a8@kernel.org>
  <2026071746-deviation-clad-1712@gregkh>
  <20260717060822-mutt-send-email-mst@kernel.org>
  <2026071757-grout-composer-165d@gregkh>
- <5877a6ae-5a9c-4376-8297-f17695964db0@kernel.org>
+ <20260717061901-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
-In-Reply-To: <5877a6ae-5a9c-4376-8297-f17695964db0@kernel.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260717061901-mutt-send-email-mst@kernel.org>
 
-On Fri, Jul 17, 2026 at 11:21:34AM +0100, David Hildenbrand (Arm) wrote:
-> On 7/17/26 12:15, Greg Kroah-Hartman wrote:
+On Fri, Jul 17, 2026 at 06:23:57AM -0400, Michael S. Tsirkin wrote:
+> On Fri, Jul 17, 2026 at 12:15:09PM +0200, Greg Kroah-Hartman wrote:
 > > On Fri, Jul 17, 2026 at 06:10:41AM -0400, Michael S. Tsirkin wrote:
-> >> On Fri, Jul 17, 2026 at 11:14:23AM +0200, Greg Kroah-Hartman wrote:
-> >>>
-> >>> Why not do what USB does?  Don't trust the device until AFTER probe()
-> >>> succeeds?  All of the needed checking should happen before then, as that
-> >>> is a "slow path" so lots of validation and the like can happen at that
-> >>> point.
-> >>>
-> >>> After that, during the normal data paths, after the driver is bound,
-> >>> trust it all you want as attempting to validate every single packet is
-> >>> just going to be impossible.
-> >>>
-> >>> thanks,
-> >>>
-> >>> greg k-h
-> >>
-> >> People do expect that data path validation at this point.
+> > > On Fri, Jul 17, 2026 at 11:14:23AM +0200, Greg Kroah-Hartman wrote:
+> > > > On Fri, Jul 17, 2026 at 04:59:32AM -0400, Michael S. Tsirkin wrote:
+> > > > > On Fri, Jul 17, 2026 at 10:39:40AM +0200, David Hildenbrand (Arm) wrote:
+> > > > > > On 7/17/26 07:48, Michael S. Tsirkin wrote:
+> > > > > > > On Thu, Jul 16, 2026 at 05:59:05PM +0200, David Hildenbrand (Arm) wrote:
+> > > > > > >>> Or do we just always trust virtio mem devices explicitly?
+> > > > > > >>
+> > > > > > >> It's hard for me to understand where we draw the line, really.
+> > > > > > >>
+> > > > > > >> But maybe MST can clarify what we care about in virtio world where the
+> > > > > > >> hypervisor is fully in charge of the device,
+> > > > > > > 
+> > > > > > > Generally:
+> > > > > > > - The guest is expected to whitelist drivers (most drivers have not
+> > > > > > >   been audited).
+> > > > > > 
+> > > > > > But even if you audited your driver, who makes sure that we consider all ways
+> > > > > > where the device could mess with us?
+> > > > > 
+> > > > > A lot of this is up to a correct setup. For example, make sure all
+> > > > > filesystems are encrypted and refuse to mount unencrypted ones.
+> > > > > 
+> > > > > > Something feels off here.
+> > > > > > 
+> > > > > > Handling selected out-of-spec scenarios like this feels like a band-aid. Happy
+> > > > > > to be corrected.
+> > > > > 
+> > > > > Well Documentation/security/snp-tdx-threat-model.rst puts it like this:
+> > > > > 	It is important to note
+> > > > > 	that this doesn’t imply that the host or VMM are intentionally
+> > > > > 	malicious, but that there exists a security value in having a small CoCo
+> > > > > 	VM TCB.
+> > > > > 
+> > > > > and
+> > > > > 
+> > > > > 	While traditionally the host has unlimited access to guest data and can
+> > > > > 	leverage this access to attack the guest, the CoCo systems mitigate such
+> > > > > 	attacks by adding security features like guest data confidentiality and
+> > > > > 	integrity protection.
+> > > > > 
+> > > > > 
+> > > > > now, when we are talking about "mitigation" it is indeed becoming a bit
+> > > > > murky.
+> > > > > 
+> > > > > 
+> > > > > For me, a rule of thumb I came up with is that if the validation happens
+> > > > > to also be helful for users e.g. to work around buggy devices,
+> > > > > or maybe because we feel failing gracefully is nice because this
+> > > > > will allow to later make use of this config and old drivers will
+> > > > > fail but at least not panic, then it is good to include.
+> > > > 
+> > > > Why not do what USB does?  Don't trust the device until AFTER probe()
+> > > > succeeds?  All of the needed checking should happen before then, as that
+> > > > is a "slow path" so lots of validation and the like can happen at that
+> > > > point.
+> > > > 
+> > > > After that, during the normal data paths, after the driver is bound,
+> > > > trust it all you want as attempting to validate every single packet is
+> > > > just going to be impossible.
+> > > > 
+> > > > thanks,
+> > > > 
+> > > > greg k-h
+> > > 
+> > > People do expect that data path validation at this point.
 > > 
 > > Ok, so you want this patch :)
+> > 
+> > And more, as you need to treat everything from the host as "untrusted",
+> > and it must be "verified".
 > 
-> I fail to see the value of this patch given that there are plenty of other cases
-> the device can mess with us.
+> Well. First it's not me) Second it's only specific configurations -
+> for example there's no short term plan to validate filesystem code, people
+> are expected to rely on encryption. The reasons have more to do
+> with the available manpower than anything else.
 
-How can the device mess with us?
+Sure, but again, for subsystems, you have to define your threat model as
+the LLMs are churning against the code base and coming up with lots of
+crazy ideas if a device should or should not be trusted and spitting out
+patches and reports like the ones that are in the first few patches of
+this series.
 
-> But sure, let's check for some conditions if it makes us feel warm and fluffy as
-> we audited a driver and it's now super safe, fine with me.
-
-I'm all for the folly of "it's an audited driver!" claims, but you all
-need to decide either you do or you do not trust the device.  Either way
-is fine with me.
-
-If you don't trust it, great, take patches that fix that.  If you do
-trust it, great, reject those types of patches.
-
-But pick one please.
+So please, pick a model, let's document it, and go with that.  I am
+getting directly conflicting responses here.
 
 thanks,
 
