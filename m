@@ -1,285 +1,152 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 28A7942CAE5
-	for <virtualization@lists.linux.dev>; Fri, 17 Jul 2026 16:30:51 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D58453F86EB
+	for <virtualization@lists.linux.dev>; Fri, 17 Jul 2026 16:31:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784305856; cv=none; b=CkUOCPdxT38ukZqcShoeuS3nVi3/sxfbsUGXquVjZb//tSQPc98+zJzpDuJbbAn9nEn1N6po+jA79XxO38dFnQMIHOsROoIzHnOQDqD2SzqI2u1JWD/jI79M2EkvobnX0GP6errgECpi/7Z/RYTbrYk73h3Y2s88mn2B6jT7Q6k=
+	t=1784305913; cv=none; b=lLmtHjedxsZxmjBdcv9LZTEln48UTZZIKfXZEQJ6MsS7cttH8jEC+Bf6h+QpWQV5qgG4eZN7mYF6Ndyt/gub3hoKdj655aSXrcXxTqthVsysc2YaN2MYYhK3Oezougbn3E6CHt8un/xyyk2XHeoueT5m/RVGtALj+tFcgN8ppeM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784305856; c=relaxed/simple;
-	bh=RmbGwGg1KzfgJFoufQ7Ebzl+MgXG82cSgzTROQ+0NxU=;
+	s=arc-20240116; t=1784305913; c=relaxed/simple;
+	bh=CBfSqK2AvgdhR+Bzp0CO34iyovUNpliOo+OgVtl30zk=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=qYoU654OdF/f2clupsugpnJD1PqGsfPNqekXJjeGXYjwAuuHGCpyMLCdtBceCQOzePXtTPS7hlcmUb5Zn5de4FtF6HO8FLayKTyE045fLapnlzA8t7FVEb8PFBHyQ7tYV+j+si8j1Wa5o07sl+EwS6akjyUae3VRaryknfrCNTI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Tg/mbYQY; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=vBqPCFNWQG6QpZsTg6dIUr6g0mtomNFpZr8IU7y2Ac8MJmL1ydBYu/iJfrrjEnOf3LD/QuSm1zBHu/kUJOjD+cCdfuU0uaBJz9puclbNxn/GZ1GJX2usAV2o0fPBvcA4l7UQSFOmGhgmI0rrpFxV428/FAsjE0LXQxeKDdgzp0E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=Bsn0bczL; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Tg/mbYQY"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="Bsn0bczL"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1784305848;
+	s=mimecast20190719; t=1784305906;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=1QyVdvyYwjyVRXdVeS5K/eO0SzcexWnTtdt9J6XLMqg=;
-	b=Tg/mbYQYK+eXdN1eqNd1dVzolFQ/kz6T6b1OtMmO6ItjB40DGrZ6xLeLn6IwSPGW3JhDEU
-	rtEK4ZboRugHfH4DTWvJsNFF9NRkgmJstePSpOHQcTgsGh8GLNwydj41aUOCICHripxHvC
-	KMpwwo9QGkWXSLVwFoaC61sngBEJrCs=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=J0HLfgnrtjxNOO4Lwlf1DY9lZMzmjOSTkB4j+MM+kqU=;
+	b=Bsn0bczLdgO6ODU5YGth9ShbPJ3wdpdgDnC1jBL7O3u0AQtABAu140HnkQkgKOUUBfpdqf
+	EXFDSvXEcYaXi08BbTS9mF3qo6YTRu9CPpnQvin+0HSc8TM0Qw/d9ySobltthCAgrMmqVx
+	aF/Yiec2y5zrkD4bebIk9zTlYL1DP6Y=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-478-WJCm_yADPhWVWTKElbC15Q-1; Fri, 17 Jul 2026 12:30:47 -0400
-X-MC-Unique: WJCm_yADPhWVWTKElbC15Q-1
-X-Mimecast-MFC-AGG-ID: WJCm_yADPhWVWTKElbC15Q_1784305846
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-473e18559b2so2852020f8f.0
-        for <virtualization@lists.linux.dev>; Fri, 17 Jul 2026 09:30:46 -0700 (PDT)
+ us-mta-473-Bm0-IVisMH20hyQMX8NH8A-1; Fri, 17 Jul 2026 12:31:44 -0400
+X-MC-Unique: Bm0-IVisMH20hyQMX8NH8A-1
+X-Mimecast-MFC-AGG-ID: Bm0-IVisMH20hyQMX8NH8A_1784305904
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-4729d2a64efso1080717f8f.0
+        for <virtualization@lists.linux.dev>; Fri, 17 Jul 2026 09:31:44 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784305846; x=1784910646;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=1QyVdvyYwjyVRXdVeS5K/eO0SzcexWnTtdt9J6XLMqg=;
-        b=BEZheys1ItZPWUjIGjUfNNTnXhHHTayY/CLowqDljnMaDOjbQB7MEd2/PYmZxzY23c
-         LJr6LEDNepqJSmYXxMpcUmTsLqa0ud33C+oMgqdofQjdoKgvHhv0dTo4VFoCGBQz/ql0
-         BeZOR2gZgFCwfaXLg+Krz/UahL8MSl/FF3PYSnrGpHqTi37IevADZ8Q2SsD/1Dsm8QDw
-         cGca0+nd4UidiosYl4Z+LZgtq+GTAg3ICG4tCiVRpzuNi594L20zz9Oz15kgr1dhJBmU
-         NS3ZYLXJdhmv03LmP2+BhsIjkNGpMqqIzf/6OVAXePVkEr0m8NQOqSGLjM104AlLpbvl
-         P40w==
-X-Forwarded-Encrypted: i=1; AHgh+RqLGYW+0XfQDTi+DmbzMIrJycJEGQKBTou/1euKgio6eaNJ0rEvErrB4lQttvdABgHIhzdgWLzNtLIZM1NE/Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyExjnmUKQ/WtCx9B1hC+aSerQu2/iQwJhmkjVckMIMMTU+jQA6
-	bY0233C+EQBQK65opXdvKU7DeMHC3NDbtF/jAS/I1hljikRIQfFbF2UrBJSDzFm0PVSiC3dMHOG
-	pkNC6qE3mFl96g5fOSm2Ulj88T6Yl66mncj3HbDELBJ81mYq3qhrw/crYJr8H5o8aplSj
-X-Gm-Gg: AfdE7ckpPZgnldy1PP6genP24ZNeBdNcFhGpYtkDQGKUDHIBHT7GtRJUavHVtp07nd0
-	73Oj6UDybItrPcqbc3GZ4maSv85DV+LKXTNuTW3ZcuONhF+vfh14IKzlb5dbCUc9rPsYqCOLdDf
-	VCfg6OayP+q8LXYr0itDV8wV2Z3FovTEfwDWCBqnWXEKJMtzA9/uf76Wc1X1A1TMe7JgC05NxR6
-	sBAgQ987DRkaOyGRcsLckOZ99OgLKaDuUtk8HVoJS4kDYgv200NOZbQOy4Mtl5elqiifr+EGR08
-	O4jIsmKWraz/8XtT+/T73aBFftSdWtPTpkR0t0Jx2vMamO9sq1eRaVOmMRPni7LspG+sfIEULK+
-	m77fBRJlDn/VXmjyXp3xox1JU
-X-Received: by 2002:a05:6000:2c03:b0:473:975c:4fd1 with SMTP id ffacd0b85a97d-47f62314f83mr4384478f8f.25.1784305845549;
-        Fri, 17 Jul 2026 09:30:45 -0700 (PDT)
-X-Received: by 2002:a05:6000:2c03:b0:473:975c:4fd1 with SMTP id ffacd0b85a97d-47f62314f83mr4384417f8f.25.1784305844884;
-        Fri, 17 Jul 2026 09:30:44 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1784305903; x=1784910703;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=J0HLfgnrtjxNOO4Lwlf1DY9lZMzmjOSTkB4j+MM+kqU=;
+        b=NEbJV6/aL5RLclb8odyaUCfQCGBvDaiIZaJmrQQ7wxAUKamUTqWfUm5OCD3aEtU/O5
+         aSr9iQJTenhwahXBUnC0dAuP8G+E/bXm7b/oGkw2buS3Q8XiZHr3N968jtrMAd5UytYr
+         a96Ss49o7zvjduSrbdNFgHxxqlgUKcoMI8Dka7oM4rxJKM0CQjj77ZEmTzxPTT6FqHTr
+         jyUbG6JzibdroxuFmcJ8eoHTpVXEUsZRKI6imW4sAkYlMtBJWcot3tCdVWklfOB5C8J1
+         s9yjufH8hmZhd5SNNxRDk89bkKoYpuYY2aq2GEI8k2rnXewU3Iy6tetzoYQ9h8mkz1FD
+         vvFw==
+X-Forwarded-Encrypted: i=1; AHgh+Ro77I0yIq0JGofGcomaPNK2rHK2SrXWemKkWRpDPWYJhLMhnZWkuHb+RT6/igBXyCvRx+Gk/rVo/w8uTjmfZA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Ywc0Qx4hgNzsocCNxwpdM2oy/kKo/yAAr26RjpD0LRRsz2NNjB1
+	4gZP0RFhUMeMYKT0FDA5OolmWwUBMx5Xaq7xl6qlnMb/rku5j4iUUNhzD3ILgj3OpcdEiT4IuCl
+	PMoAtxNF3PHn/z5OClQtO5rcm0NJh5/eAR1XLBeedRAzYUl8X752PIyp8lOSBtImca/F5
+X-Gm-Gg: AfdE7ckWwN+vif6Mjf0pzC2rybKzLPrMKoggtq0sR2Ro56eDtQzqUG2A81uKYJ2vx+f
+	QcGvQDSFNQH6b2vGrFh4kGqkExfljOnCSu7tp11qr2wLFGN+hdVb33mEVuNgi6mfrelS7Mdpuz8
+	7PzRCC2BQIfQ1f4wtcm/c2YJm9Rv6jXCKu9HaJZ6ugYDnG7w53izJkpPlygS3SOcV9ny8Dz/y9U
+	lMjGZZ+m93qsIx5XPIH1CsOblLkmGX+acl4HjqBmfLXUaFrpU93DlTC1mFRiVnSGsoVVjsodtfa
+	2rp0yefwlJK8qIQ4zDfVeJQTIMpc9esyVMNzSxnrg43TEFpIqCSPZxKszOkmVLwFKLhzCF/cQna
+	JGWFFgV1FuyKEZOeNyBEjFpgq
+X-Received: by 2002:a05:6000:2f85:b0:46e:6959:35a7 with SMTP id ffacd0b85a97d-47f623e803emr4407832f8f.22.1784305903404;
+        Fri, 17 Jul 2026 09:31:43 -0700 (PDT)
+X-Received: by 2002:a05:6000:2f85:b0:46e:6959:35a7 with SMTP id ffacd0b85a97d-47f623e803emr4407792f8f.22.1784305902878;
+        Fri, 17 Jul 2026 09:31:42 -0700 (PDT)
 Received: from redhat.com (IGLD-80-230-24-117.inter.net.il. [80.230.24.117])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47f63e52f81sm5426688f8f.9.2026.07.17.09.30.43
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47f63eeece9sm5310864f8f.37.2026.07.17.09.31.40
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 17 Jul 2026 09:30:44 -0700 (PDT)
-Date: Fri, 17 Jul 2026 12:30:41 -0400
+        Fri, 17 Jul 2026 09:31:42 -0700 (PDT)
+Date: Fri, 17 Jul 2026 12:31:39 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
-Cc: "David Hildenbrand (Arm)" <david@kernel.org>,
-	Hari Mishal <harimishal1@gmail.com>,
-	Jason Wang <jasowangio@gmail.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
-	elena.reshetova@intel.com, carlos.bilbao.osdev@gmail.com
-Subject: Re: [PATCH v2 1/4] virtio-mem: validate device-reported block size
-Message-ID: <20260717122954-mutt-send-email-mst@kernel.org>
-References: <2026071746-deviation-clad-1712@gregkh>
- <20260717060822-mutt-send-email-mst@kernel.org>
- <2026071757-grout-composer-165d@gregkh>
- <20260717061901-mutt-send-email-mst@kernel.org>
- <2026071724-asleep-pedigree-ea54@gregkh>
- <20260717065219-mutt-send-email-mst@kernel.org>
- <2026071759-thermal-synopsis-7568@gregkh>
- <20260717085838-mutt-send-email-mst@kernel.org>
- <2026071724-modulator-pliable-fa1c@gregkh>
- <20260717122729-mutt-send-email-mst@kernel.org>
+To: Mike Christie <michael.christie@oracle.com>
+Cc: Jia Jia <physicalmtea@gmail.com>, jasowang@redhat.com,
+	Linfeng Sun <slf@hdu.edu.cn>, pbonzini@redhat.com,
+	stefanha@redhat.com, eperezma@redhat.com,
+	virtualization@lists.linux.dev, kvm@vger.kernel.org,
+	netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+	stable@vger.kernel.org
+Subject: Re: [PATCH] vhost-scsi: Prevent OOM from invalid protection SGL count
+Message-ID: <20260717123129-mutt-send-email-mst@kernel.org>
+References: <20260717142205.103515-1-physicalmtea@gmail.com>
+ <8f5b5350-0be9-4b79-a6c9-069d418dee30@oracle.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260717122729-mutt-send-email-mst@kernel.org>
+In-Reply-To: <8f5b5350-0be9-4b79-a6c9-069d418dee30@oracle.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: OFHFFuUo0UGcayOwW7S6LWdkFLKBsuoGyb9yvAbGH4g_1784305846
+X-Mimecast-MFC-PROC-ID: 0Q-WBAj8Gj7JAKpzQNHFaJpZfr1rgI0bAPoXq53QNf0_1784305904
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 
-On Fri, Jul 17, 2026 at 12:28:45PM -0400, Michael S. Tsirkin wrote:
-> On Fri, Jul 17, 2026 at 04:31:03PM +0200, Greg Kroah-Hartman wrote:
-> > On Fri, Jul 17, 2026 at 09:08:23AM -0400, Michael S. Tsirkin wrote:
-> > > On Fri, Jul 17, 2026 at 02:07:50PM +0200, Greg Kroah-Hartman wrote:
-> > > > On Fri, Jul 17, 2026 at 06:52:46AM -0400, Michael S. Tsirkin wrote:
-> > > > > On Fri, Jul 17, 2026 at 12:46:52PM +0200, Greg Kroah-Hartman wrote:
-> > > > > > On Fri, Jul 17, 2026 at 06:23:57AM -0400, Michael S. Tsirkin wrote:
-> > > > > > > On Fri, Jul 17, 2026 at 12:15:09PM +0200, Greg Kroah-Hartman wrote:
-> > > > > > > > On Fri, Jul 17, 2026 at 06:10:41AM -0400, Michael S. Tsirkin wrote:
-> > > > > > > > > On Fri, Jul 17, 2026 at 11:14:23AM +0200, Greg Kroah-Hartman wrote:
-> > > > > > > > > > On Fri, Jul 17, 2026 at 04:59:32AM -0400, Michael S. Tsirkin wrote:
-> > > > > > > > > > > On Fri, Jul 17, 2026 at 10:39:40AM +0200, David Hildenbrand (Arm) wrote:
-> > > > > > > > > > > > On 7/17/26 07:48, Michael S. Tsirkin wrote:
-> > > > > > > > > > > > > On Thu, Jul 16, 2026 at 05:59:05PM +0200, David Hildenbrand (Arm) wrote:
-> > > > > > > > > > > > >>> Or do we just always trust virtio mem devices explicitly?
-> > > > > > > > > > > > >>
-> > > > > > > > > > > > >> It's hard for me to understand where we draw the line, really.
-> > > > > > > > > > > > >>
-> > > > > > > > > > > > >> But maybe MST can clarify what we care about in virtio world where the
-> > > > > > > > > > > > >> hypervisor is fully in charge of the device,
-> > > > > > > > > > > > > 
-> > > > > > > > > > > > > Generally:
-> > > > > > > > > > > > > - The guest is expected to whitelist drivers (most drivers have not
-> > > > > > > > > > > > >   been audited).
-> > > > > > > > > > > > 
-> > > > > > > > > > > > But even if you audited your driver, who makes sure that we consider all ways
-> > > > > > > > > > > > where the device could mess with us?
-> > > > > > > > > > > 
-> > > > > > > > > > > A lot of this is up to a correct setup. For example, make sure all
-> > > > > > > > > > > filesystems are encrypted and refuse to mount unencrypted ones.
-> > > > > > > > > > > 
-> > > > > > > > > > > > Something feels off here.
-> > > > > > > > > > > > 
-> > > > > > > > > > > > Handling selected out-of-spec scenarios like this feels like a band-aid. Happy
-> > > > > > > > > > > > to be corrected.
-> > > > > > > > > > > 
-> > > > > > > > > > > Well Documentation/security/snp-tdx-threat-model.rst puts it like this:
-> > > > > > > > > > > 	It is important to note
-> > > > > > > > > > > 	that this doesn’t imply that the host or VMM are intentionally
-> > > > > > > > > > > 	malicious, but that there exists a security value in having a small CoCo
-> > > > > > > > > > > 	VM TCB.
-> > > > > > > > > > > 
-> > > > > > > > > > > and
-> > > > > > > > > > > 
-> > > > > > > > > > > 	While traditionally the host has unlimited access to guest data and can
-> > > > > > > > > > > 	leverage this access to attack the guest, the CoCo systems mitigate such
-> > > > > > > > > > > 	attacks by adding security features like guest data confidentiality and
-> > > > > > > > > > > 	integrity protection.
-> > > > > > > > > > > 
-> > > > > > > > > > > 
-> > > > > > > > > > > now, when we are talking about "mitigation" it is indeed becoming a bit
-> > > > > > > > > > > murky.
-> > > > > > > > > > > 
-> > > > > > > > > > > 
-> > > > > > > > > > > For me, a rule of thumb I came up with is that if the validation happens
-> > > > > > > > > > > to also be helful for users e.g. to work around buggy devices,
-> > > > > > > > > > > or maybe because we feel failing gracefully is nice because this
-> > > > > > > > > > > will allow to later make use of this config and old drivers will
-> > > > > > > > > > > fail but at least not panic, then it is good to include.
-> > > > > > > > > > 
-> > > > > > > > > > Why not do what USB does?  Don't trust the device until AFTER probe()
-> > > > > > > > > > succeeds?  All of the needed checking should happen before then, as that
-> > > > > > > > > > is a "slow path" so lots of validation and the like can happen at that
-> > > > > > > > > > point.
-> > > > > > > > > > 
-> > > > > > > > > > After that, during the normal data paths, after the driver is bound,
-> > > > > > > > > > trust it all you want as attempting to validate every single packet is
-> > > > > > > > > > just going to be impossible.
-> > > > > > > > > > 
-> > > > > > > > > > thanks,
-> > > > > > > > > > 
-> > > > > > > > > > greg k-h
-> > > > > > > > > 
-> > > > > > > > > People do expect that data path validation at this point.
-> > > > > > > > 
-> > > > > > > > Ok, so you want this patch :)
-> > > > > > > > 
-> > > > > > > > And more, as you need to treat everything from the host as "untrusted",
-> > > > > > > > and it must be "verified".
-> > > > > > > 
-> > > > > > > Well. First it's not me) Second it's only specific configurations -
-> > > > > > > for example there's no short term plan to validate filesystem code, people
-> > > > > > > are expected to rely on encryption. The reasons have more to do
-> > > > > > > with the available manpower than anything else.
-> > > > > > 
-> > > > > > Sure, but again, for subsystems, you have to define your threat model as
-> > > > > > the LLMs are churning against the code base and coming up with lots of
-> > > > > > crazy ideas if a device should or should not be trusted and spitting out
-> > > > > > patches and reports like the ones that are in the first few patches of
-> > > > > > this series.
-> > > > > > 
-> > > > > > So please, pick a model, let's document it, and go with that.  I am
-> > > > > > getting directly conflicting responses here.
-> > > > > > 
-> > > > > > thanks,
-> > > > > > 
-> > > > > > greg k-h
-> > > > > 
-> > > > > Supposed to be this one:
-> > > > > Documentation/security/snp-tdx-threat-model.rst
-> > > > > 
-> > > > > what is missing?
-> > > > 
-> > > > A policy decision that needs to be made.  All that document does is
-> > > > describe a bunch of different "threats" yet does not decide what to do
-> > > > about them at all from what I can tell.
-> > > 
-> > > That would be this section I think:
-> > > 
-> > > 	The **Linux kernel CoCo VM security objectives** can be summarized as follows:
-> > > 
-> > > it does, indeed, not go into detail about how to interact, safely,
-> > > with untrusted entities. Does it really need to be spelled out?
-> > 
-> > Seems like it as I didn't figure it out at all :)
-> > 
-> > > > And that's just for one subset of the CoC world, right?  Is that
-> > > > something that all virtio drivers need/want to care about?
-> > > 
-> > > What is missing, and what you seem to be asking for, is an opinionated
-> > > stance on which drivers we care about in this world?
-> > > True.
-> > 
-> > Yes.
-> > 
-> > > coco guys tried to annotate drivers at some point to do exactly that.
-> > > this was rejected upstream from the position that this is not
-> > > different from handling buggy hardware, and just to fix all drivers.
-> > > so it's up to users, and I guess for virtio the answer is yes
-> > > with some exceptions because we don't have a better answer right now.
-> > 
-> > Ok, so back to the original question here:
-> > 
-> > > > So I don't see a real answer to the "does Linux trust the host to give
-> > > > you good data or not" question in that file, am I missing it?
-> > > > 
-> > > > thanks,
-> > > > 
-> > > > greg k-h
-> > > 
-> > > This? Note the last sentence.
-> > > 
-> > > The **Linux CoCo VM attack surface** is any interface exposed from a CoCo
-> > > guest Linux kernel towards an untrusted host that is not covered by the
-> > > CoCo technology SW/HW protection. This includes any possible
-> > > side-channels, as well as transient execution side channels. Examples of
-> > > explicit (not side-channel) interfaces include accesses to port I/O, MMIO
-> > > and DMA interfaces, access to PCI configuration space, VMM-specific
-> > > hypercalls (towards Host-side VMM), access to shared memory pages,
-> > > interrupts allowed to be injected into the guest kernel by the host, as
-> > > well as CoCo technology-specific hypercalls, if present. Additionally, the
-> > > host in a CoCo system typically controls the process of creating a CoCo
-> > > guest: it has a method to load into a guest the firmware and bootloader
-> > > images, the kernel image together with the kernel command line. All of this
-> > > data should also be considered untrusted until its integrity and
-> > > authenticity is established via attestation.
-> > 
-> > Great, so you are saying that we need to fix any bug found where a host
-> > could be sending "bad" data over the virtio path before, and after, the
-> > driver is bound to the device.  That's a solid answer, and let's let the
-> > LLMs run with that!
-> > 
-> > Which also implies that the first 3 patches here are acceptable, right?
-> > :)
-> > 
-> > thanks,
-> > 
-> > greg k-h
+On Fri, Jul 17, 2026 at 10:13:36AM -0500, Mike Christie wrote:
+> cc'ing Linfeng.
 > 
-> The 1st patch has nothing to do with coco. Bad values it checks do not
-> lead to any information leak. I'm fine with it as such
-> but I
-> would like the commit log to make that clearer.
+> Linfeng also reported this bug and provided a patch that has your check and
+> an extra check to avoid calling into the function in the first place. It's
+> been stuck in some other list.
+> 
+> I think it might be best for Linfeng to re-submit their patch now so it can
+> get merged. For that patch, I think there was one outstanding question left
+> where Michael had asked if the issue was found with AI so the proper tag
+> could be added. I don't think that question was responded to.
 
-
-Or to be more precise, I'd like the motivation to be documented,
-given it is not coco, and then I can judge the merits.
+Right, was waiting for that.
 
 > 
-> -- 
-> MST
+> On 7/17/26 9:22 AM, Jia Jia wrote:
+> > The protection SGL path passes the result of vhost_scsi_calc_sgls()
+> > directly to sg_alloc_table_chained(). The helper returns a negative
+> > errno when the iterator is invalid or the request exceeds the segment
+> > limit. The negative errno is then treated as a very large unsigned count
+> > and sends the request into the SGL allocation path with an invalid size.
+> > 
+> > Repeated malformed T10-PI submissions from a host-side application caused
+> > memory usage to rise sharply. MemAvailable fell to about 200 MB, and PSI
+> > full avg10 reached about 1.46. The OOM killer terminated several userspace
+> > processes before the endpoint cleanup completed. The kernel log included:
+> > 
+> >      [17036.451028] Out of memory: Killed process 2345 (systemd)
+> >      [17036.493325] Out of memory: Killed process 2349 (sd-pam)
+> >      [17078.265127] Out of memory: Killed process 1793 (networkd-dispat)
+> > 
+> > Return the calculation error before setting up the protection SGL. This
+> > keeps the protection path consistent with the data SGL path and prevents
+> > the invalid count from entering the allocation path.
+> > 
+> > Fixes: bca939d5bcd0 ("vhost-scsi: Dynamically allocate scatterlists")
+> > Cc: stable@vger.kernel.org
+> > Signed-off-by: Jia Jia <physicalmtea@gmail.com>
+> > ---
+> >   drivers/vhost/scsi.c | 3 +++
+> >   1 file changed, 3 insertions(+)
+> > 
+> > diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+> > index 9a1253b9d..8486652fd 100644
+> > --- a/drivers/vhost/scsi.c
+> > +++ b/drivers/vhost/scsi.c
+> > @@ -972,6 +972,9 @@ vhost_scsi_mapal(struct vhost_scsi *vs, struct vhost_scsi_cmd *cmd,
+> >   	if (prot_bytes) {
+> >   		sgl_count = vhost_scsi_calc_sgls(prot_iter, prot_bytes,
+> >   						 VHOST_SCSI_PREALLOC_PROT_SGLS);
+> > +		if (sgl_count < 0)
+> > +			return sgl_count;
+> > +
+> >   		cmd->prot_table.sgl = cmd->prot_sgl;
+> >   		ret = sg_alloc_table_chained(&cmd->prot_table, sgl_count,
+> >   					     cmd->prot_table.sgl,
+> > -- 
+> > 2.43.0
+> > 
 
