@@ -1,130 +1,132 @@
-Received: from mail-qt1-f178.google.com (mail-qt1-f178.google.com [209.85.160.178])
+Received: from mail-qt1-f172.google.com (mail-qt1-f172.google.com [209.85.160.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D489935AC03
-	for <virtualization@lists.linux.dev>; Fri, 17 Jul 2026 03:03:10 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 76BC93655E3
+	for <virtualization@lists.linux.dev>; Fri, 17 Jul 2026 03:08:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.172
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784257392; cv=pass; b=fxG2mRorFiG5uF01ewKVg/P96PBtbbHsDO2YoFIF0UFxG2gA0XK5fco30q77LY6HeZs+tOTMXhQWmsh95Rsmhz4hqtV4ZdM7eNgdeYIRJpAj/eE+zv6b6Tm+WSwXvIkKoEDt/BhXFD9R/j79PZJ5E8vWLv1RtAvR+cCNAY/t21o=
+	t=1784257738; cv=pass; b=gxSLEFfbfzWaNaVN+TOCR56PienSRiQhjXlTuZaU7s7VLRorqPE3yLwpmFH9ELxAI0O/ZeEMGm4/LN3KKL4EI9mJgGIemjxCXkYV32AahxEC3dAeetGcf4ODvcA1v2LfjhtBdmF03BCrFTxz/uAcKmvlEqqsnm8YVtq4xKagV7k=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784257392; c=relaxed/simple;
-	bh=WAbBvTLsXgnlOQja7as0tCtAkZ5zkXcTjFdj96YQCh8=;
+	s=arc-20240116; t=1784257738; c=relaxed/simple;
+	bh=xkE7Fo4sqZ/86+n7TYPmzgcfuvqX35lIQ9Nzu1Gipdo=;
 	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=pXixBAQX4tZ+wCt/uy5f1CDUvd2Tgqpz3Nq4Zazv16mZ1wi57Cet0vndDSrgppnrtptx/4UZtseL4/eT++VCgcdGXrOGBM1IsxyWWoEGVBvywZn6aq5RD1BWrMBickls86zo6cf7sJyBOebyK0Ws2Zvzdy1tsAULKXwSNBe0/+U=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=OEkgOqvX; arc=pass smtp.client-ip=209.85.160.178
+	 To:Cc:Content-Type; b=YgEQWqfB3lIbKB0wEbpNU50JZkAAsbUsJIqLW/J55bCmUdmYaPNoHgkIuJLoT5SZd/60I7JqK7xIN9ylT8NMKm0NwkDa/YJRtJhaY8K6Fwtdy6lVhbCR4hIxuJv5dxVEHLFyxlmZJvrRGapg5MN1t/DB2TljoB6wqferzPnO4H0=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=llWQRUYZ; arc=pass smtp.client-ip=209.85.160.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="OEkgOqvX"
-Received: by mail-qt1-f178.google.com with SMTP id d75a77b69052e-51c10ed63c0so243821cf.1
-        for <virtualization@lists.linux.dev>; Thu, 16 Jul 2026 20:03:10 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784257390; cv=none;
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="llWQRUYZ"
+Received: by mail-qt1-f172.google.com with SMTP id d75a77b69052e-51c10e86e52so239291cf.1
+        for <virtualization@lists.linux.dev>; Thu, 16 Jul 2026 20:08:56 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784257735; cv=none;
         d=google.com; s=arc-20260327;
-        b=n7sm2QEm5JP0+s9/UExvw072v/lZonTpkxGtA5zll7eXG477my1GB8F9P7md3DnO94
-         4/bzuy4clEu1J0saYn27KZDLfyFUJnLk9lroHEUAawTooYLGgHqgPOAAhZMESG8pJQbI
-         sCXSGM1Z9SMjEu0PHussFIn0srCu0HDLbmscu9+46+kHGHcbrctk/jB48WP/TuaCY8Ey
-         RD+wSNjkDxmN+4daJ3MwJX41K2prP1MT6FlPCtQwnVawHowz34EGic5kR1nmj4eAjGwe
-         se3tFkCDfYDZbxPypJJRm2ned0ISinPE3b6TCv5rvIewwzQX0WGoYhpTu0meaYtZwOz3
-         5VEQ==
+        b=dgsNTkGbLiQNsaFSj2Usf06DN7NIlxMmy9D4XBXitDu1di/Ay9JHQOrPlu1N/J9clE
+         XTPAKFTOQqOL+wcsWtfQfQ5BfMWppIzA9weqpw6yYkDxuRB32Umyc7aMi5mh+n7ROxSI
+         TM4B3SlkwvPQUB3yH3AG+fryjlSsTIDTiCGYWqxmh4Kv1hjJRD+UXkIoCPjI7g/fG8Xt
+         abBtdTMgQx+r/YVpW/bCjHHVAu3Tlu4Cf1NhFMcv1L/kc6FAlwlihhFP1Pxo97+jyoj/
+         veF3cOqPHH1FceB0ioN6SE+3lmb742UVnxJtI3q3sUmFIeUaEWjQlMv79m0svBUY05XZ
+         2Ifg==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
         h=cc:to:subject:message-id:date:from:in-reply-to:references
          :mime-version:dkim-signature;
-        bh=oikrldI+OBOTPyHwwL9NWbSdthSThDKPFciiKUoHmng=;
-        fh=MXw6l98E70IZ1alrgRuiX02XdygTwEFyMJvxzK4rNc0=;
-        b=WZp5g2M5s2DAm2hpTCmbmv5M70DC8YELbY/pEO8UaKWPAEUT+N3Tc5qh8PECKwfFgJ
-         f0Pkvbxg8wn9HWgcbJAKyUvNxtPJ9RNRVzXykW4lngmEh6UAr/pp4NyQvbru1BjsD6NT
-         Civgbp3QuWexEpFKEIs0E9il+DnaPtzmGdzZSR35E2vuQ792ag/Pa5tEmlAwmXdK7o+M
-         +EZZILVL1iTq4jOdc1UqQq8WPGEm9kp/5Deu93xa2kDwsGBi2WPepJCUZaGc8Vgv/9/O
-         2k0R2NXzsyWZeXi9s7AcyU9ZsrVpPAlWLLpMKOWKmnbuxMaGX69RwQzhoL2qa71x9VAs
-         zQlA==;
+        bh=xkE7Fo4sqZ/86+n7TYPmzgcfuvqX35lIQ9Nzu1Gipdo=;
+        fh=hGz2EXp8vUA1KmntgXirweFnKlGa1kQWPEnnS5ORT2Q=;
+        b=Coz0owAroAKKwjT2VBypWPRORQ9XhNxF3wsxvttbpvrM15IWfgaAUuq2KWA+NBcizF
+         xmz75rXC/Xv56oqM/7aUOA467cJsBaQ3pou7EfrIBscfeCoiuvPZmsMxtA8wIcdPR28/
+         wLsSpISye1iTjZtMWHZQy1EcNiCzzThPwHsQLZtWkvfPLsa8+y66WyJGFalG6i/QFvJr
+         uVgaELmDHZ6T8nN/QW4LvgSIuPctuvpUYlss2N34DxSfTMWZE50dlEBcU3q2sypQmD3d
+         W67qXq5XnuK/q0bzYKaGXEYAvMrKZlWGc+6kFoIp2xvE/8CPZSJh3LGzS2yvnnadlkYF
+         Te6g==;
         darn=lists.linux.dev
 ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1784257390; x=1784862190; darn=lists.linux.dev;
+        d=google.com; s=20251104; t=1784257735; x=1784862535; darn=lists.linux.dev;
         h=content-type:cc:to:subject:message-id:date:from:in-reply-to
          :references:mime-version:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=oikrldI+OBOTPyHwwL9NWbSdthSThDKPFciiKUoHmng=;
-        b=OEkgOqvX8svW2XMvLvEvQc0Ax5OYZE4ubcAJpkBSX7rlL4D0Mi8nacef6VIe8pGuVq
-         lNhJIiYnJXSzNDjWUUjh3mp56+JASozvRyNcBASAkM7KqcctIrONzP/O9hlgcwplECk2
-         QRMrbbFOqqBQvS7rPcxeGTnEbPeAKIo4gsy5MBdmNEbY8mM6ZDAXEETShUTJIG96wQCh
-         HlOozk9YUGnP/bcqz+IeQ2JxYhUNv3dcPTBkab5dyy4USQwK50QBjKl+frKiuAE7/i9g
-         Zk2B7H/vNbbaz1X6G4B8cjRE2dx9adyWLM/Es0kyXFOg0OaJ4ujd9Ba2HSd+g8dP9AwW
-         J4kQ==
+        bh=xkE7Fo4sqZ/86+n7TYPmzgcfuvqX35lIQ9Nzu1Gipdo=;
+        b=llWQRUYZKbGO9xqI8AZMBvmbzxMs1fSOnm6znoXDD8Vc7dSXUlDCQJS7C0i90oJGiI
+         keuNN/n3I4GSvfdOUTo1guqw19UKZGYJmHs0TQPUk8zerXA450TboOLwEVWroBVNp2H3
+         aGVhcnNW96UDMYL1a4vAoJ/jOvCMLnqPIFnVVInHTcngpjci+4oK1IkMaeupj/K6ysTD
+         NA/gDDPJBw37vva0eGjVeLcHBGkHYO7SQsOcSLQjNnlUWp9x4pM+eElCt3Uo9LMXM8db
+         IdH1pyZZMg/aGxHdME5pl6ZfgZqaqDa5fbJT9iepnD9tqcPRVKnzGT56NLJY3DVB8yRS
+         +4/Q==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784257390; x=1784862190;
+        d=1e100.net; s=20251104; t=1784257735; x=1784862535;
         h=content-type:cc:to:subject:message-id:date:from:in-reply-to
          :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
          :subject:date:message-id:reply-to:content-type;
-        bh=oikrldI+OBOTPyHwwL9NWbSdthSThDKPFciiKUoHmng=;
-        b=oXvtjfBnvp+QnE+c8PnD0q0ok/YtSEnaOZeUeBbzprVROl7L43VSAn1lRCAM3FW4CK
-         oy2cea7QkBHAmhx7nsda/EvE8MjIc/lkWELzibwDu279XqK0jNXjZbDTcdC3IPOs70Nq
-         YtH3GcIFJCRYsBa2xE/sd/HPn09gaPa77nFh/jJbeK19tam3y0wju9hQX9+UPxT5pKxo
-         xIkiabJAksvBDjUGVE4oz0ynPHbByhHSc92hREy0s25NcRzb9XzVOEMW7QaUSrjoQKFj
-         YhaW0vSxj9w/TyYF8Rte1V2b3lLsAWk93lZv0qBh9tviUhFV/PKJB4wxIi42Dh9L2c1u
-         r9VQ==
-X-Forwarded-Encrypted: i=1; AHgh+RpL7ethE3bG6jryRsNTD7DisLtzQmAWDodhDDFPGFdXrGoLqR2bfnPrSYqsKwC0kfX+8USMWjOoF0tAI0tECg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzzT4CJbcOnuAcp3lmmGNJuWAkrDJ0u34xKLKT9QJYTpMTLaz/n
-	m9ogpWhr/hJvKpsq8zpFX8kxpViNiCZws/wKqzomyNdT2qm7VFYpSdZLx/ectr2tt2enuPdGPKn
-	JlMBt8+2ow6eBAtFm3cHSOqF6IQDZTdw6utw4GfGQ
-X-Gm-Gg: AfdE7cmpqyDMLgwLHxcS0jBOs1qDUvD7BGJx/tG9/4aJx6SaEp1hkSg3sk5d9JPIgz+
-	27ClEskyMH2VNzJVgyJUZLgQxR38hiT8Akv8P1RS4W6A+Pue2OO5vBOw8fXZasEmPzit5RJSZ1c
-	YvESLoSdPyeAb+ERoH1pU1bEzNAn7M+yr/khX2UilnKZr/qv0y9NAq6mQvwYDjkZEERfE6lSGnn
-	LfgZUJZaWKiOoJNrQyxkixmw8ZGFZhJCnaMpW2hO6GHCscoasB/WNrDJ6yA1xuzSFOQK0VWYJQy
-	9UQCMkbM/5UWWtZm
-X-Received: by 2002:a05:622a:3d2:b0:517:38aa:c2b3 with SMTP id
- d75a77b69052e-520d52524e6mr5272751cf.14.1784257389146; Thu, 16 Jul 2026
- 20:03:09 -0700 (PDT)
+        bh=xkE7Fo4sqZ/86+n7TYPmzgcfuvqX35lIQ9Nzu1Gipdo=;
+        b=mqj34DlN4/UDPohd9OtRIKGSNL9cSREwzWgsz7ICNwLhkm4FRA5sCHgdhpNt/vjVtn
+         N2J057B7YJ98FQaQNqW/hlftzir42Az53JA9gRp9PPvxPKoGZMRUQgcf1oynMIbowrx4
+         u5m1Zt7sZCQ7gQfTOgS/iVYjqRXjcRjtb7zExFmEMmJDPAm/9FOTMy5GtNcIq/QO69Ox
+         eKNcexuGER8nj8HJAa5xIwscipBaeDMJD4Wl7804Kj/boMMjovaN5o6EsPedwNOw8a9w
+         91+P3CZso3UtYeGw/igJDUhoWJrlpc86qX38xZQzGAvfV5MUqixTnv5adsNW6hnEkl9B
+         J9tg==
+X-Gm-Message-State: AOJu0Yx9SbVQLbwdEGUUTunkc4pzB5G4q1ZBNgokyUfRnS87TMjBCOY6
+	XvB2M6nyDkmYE4Z8V6eBA9VEdypvNhy4UFPc5C/ek67HI7d8lxq6jOgzIj52a9sbax5/ezLpPTw
+	7OSyapLPqQ5o/AWJ80FK4LTMkumicIjKut1ryyqru
+X-Gm-Gg: AfdE7clik7lvutLTxCidlO3YkcIhfqS0k2apTdBclb7FveNbammhinZ8EGgOUaNyMJ1
+	ooQFBfBKPzNL2yD9PEnjaGxXQm02uNovyI/EtR3PJESOms36/KedGxjKmE7P6GewXH7/QUeOULu
+	KBiykTOK2XE/fcZDmuAjOS8oBMi34AgvYWFeyksPIQtNJNS0qWMSlt83IyIn45NrklRBvHserG2
+	MhuB1Os8cbyld6D/Z8GeA3AdfqLwSNmuMI+XVDJvVcuA7GdhCuJ4SxERKkY3iuWJ3bG7GBFUyhT
+	KC1AxndFIttCdiTU
+X-Received: by 2002:a05:622a:a908:b0:516:d570:82c0 with SMTP id
+ d75a77b69052e-520fee19f7fmr3120471cf.15.1784257734125; Thu, 16 Jul 2026
+ 20:08:54 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260709224330.946683-1-linkl@google.com> <8d316b6c-41fb-4ae3-8923-3b649b92b33d@kernel.org>
- <20260714092146-mutt-send-email-mst@kernel.org> <CALUx4KSxjpHhgkHZ5p1khLSe7+-cDHd+ZtBEJS1HytWSo5WbHQ@mail.gmail.com>
-In-Reply-To: <CALUx4KSxjpHhgkHZ5p1khLSe7+-cDHd+ZtBEJS1HytWSo5WbHQ@mail.gmail.com>
+References: <20260717002311.681748-1-linkl@google.com> <20260717002311.681748-3-linkl@google.com>
+In-Reply-To: <20260717002311.681748-3-linkl@google.com>
 From: Link Lin <linkl@google.com>
-Date: Thu, 16 Jul 2026 20:02:58 -0700
-X-Gm-Features: AUfX_mxvju2ajwqaWLph45EfnN052a5lxttcd4lHH1YraUcmngeJ8Hc_Z-8C0HE
-Message-ID: <CALUx4KRiyxDfoA9D48zz0fChrsc_NUFk3gDacZrMjsntj1m=dw@mail.gmail.com>
-Subject: Re: [RFC] virtio_balloon: fix Use-After-Free in page reporting during
- PM freeze
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: "David Hildenbrand (Arm)" <david@kernel.org>, Andrew Morton <akpm@linux-foundation.org>, 
-	Vlastimil Babka <vbabka@kernel.org>, virtualization@lists.linux.dev, linux-mm@kvack.org, 
+Date: Thu, 16 Jul 2026 20:08:42 -0700
+X-Gm-Features: AUfX_mxICqJHmAVK8TinFxnPQuIwu8KNDwpqoJsVqWM4NDLatLe37O_LMt6bETw
+Message-ID: <CALUx4KTH4-D9ZpTrEikHajp=R2VxXqLACsJC1aOhX_W8+TApAg@mail.gmail.com>
+Subject: Re: [PATCH v2 2/2] virtio_balloon: avoid shrinker execution during PM suspend
+To: Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@kernel.org>, 
+	"Michael S . Tsirkin" <mst@redhat.com>, David Hildenbrand <david@kernel.org>
+Cc: virtualization@lists.linux.dev, linux-mm@kvack.org, 
 	linux-kernel@vger.kernel.org, prasin@google.com, rientjes@google.com, 
 	duenwen@google.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, 
 	Ammar Faizi <ammarfaizi2@openresty.com>, jiaqiyan@google.com, ahwilkins@google.com, 
-	Greg Thelen <gthelen@google.com>, Alexander Duyck <alexander.duyck@gmail.com>, stable@vger.kernel.org
+	Greg Thelen <gthelen@google.com>, Alexander Duyck <alexander.duyck@gmail.com>, jthoughton@google.com, 
+	stable@vger.kernel.org
 Content-Type: text/plain; charset="UTF-8"
 
-On Tue, Jul 14, 2026 at 11:05 AM Link Lin <linkl@google.com> wrote:
+On Thu, Jul 16, 2026 at 5:24 PM Link Lin <linkl@google.com> wrote:
 >
-> Per the earlier feedback to keep these fixes independent, I'll format
-> v2 as a 3-part patch series:
->   [PATCH v2 1/3] mm/page_reporting: use system_freezable_wq
->   [PATCH v2 2/3] virtio_balloon: fix shrinker UAF during PM freeze
->   [PATCH v2 3/3] virtio_balloon: fix OOM notifier UAF during PM freeze
+> During PM freeze (e.g. S4 hibernation), virtballoon_freeze() calls
+> remove_common() which resets the virtio device and deletes all virtqueues.
+> However, the balloon shrinker remains registered with core MM.
 >
-> I'll send that out shortly.
+> If memory pressure occurs during S4 hibernation image creation/saving, MM
+> invokes virtio_balloon_shrinker_scan(), which attempts to reclaim free
+> pages. Although return_free_pages_to_mm() only frees pages back to MM,
+> reclaiming free pages under memory pressure can trigger page reporting
+> which might access the deleted reporting virtqueue if it is not yet
+> frozen, or interact with other parts of the driver in a teardown state.
+>
+> Avoid this by adding a `suspended` flag to `struct virtio_balloon`. Set
+> this flag to true in virtballoon_freeze() and false in
+> virtballoon_restore(). Check this flag in both shrinker callbacks (scan
+> and count) and return 0 if the device is suspended, preventing any
+> shrinker execution while virtqueues are deleted. Wrap the lockless reads
+> in READ_ONCE() and writes in WRITE_ONCE() to prevent compiler
+> optimization issues and KCSAN data race warnings.
+>
+> Fixes: 71019de8219b ("virtio_balloon: Add free page hinting support")
+> Cc: stable@vger.kernel.org
+> Acked-by: David Rientjes <rientjes@google.com>
+> Signed-off-by: Link Lin <linkl@google.com>
 
-Hi everyone,
+Apologies, I missed adding a tag for the feedback that led to the
+TOCTOU locking fix in this patch.
 
-I have just sent out the v2 patch series in a new thread:
-https://lore.kernel.org/all/20260717002311.681748-1-linkl@google.com/
+Maintainers, if this series is applied, could you please add the following?
+Suggested-by: James Houghton <jthoughton@google.com>
 
-Just a quick update: I previously mentioned I would include a fix for
-the OOM notifier as part 3. However, upon further audit, the PM core
-explicitly disables the OOM killer (via oom_killer_disable()) during
-freeze_processes() before device drivers are frozen.
-
-Therefore, the virtio_balloon_oom_notify callback cannot trigger while
-the virtqueues are deleted. Since it is already safe, I dropped it
-from the series.
-
-v2 now consists solely of the page reporting workqueue migration and
-the shrinker TOCTOU fix. Thanks again for the reviews!
-
-Best,
-Link
+(I will be sure to include it if a v3 is otherwise required).
