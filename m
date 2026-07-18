@@ -1,257 +1,178 @@
-Received: from mail-pf1-f175.google.com (mail-pf1-f175.google.com [209.85.210.175])
+Received: from mail-wm1-f49.google.com (mail-wm1-f49.google.com [209.85.128.49])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8159D30C146
-	for <virtualization@lists.linux.dev>; Sat, 18 Jul 2026 17:41:30 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.175
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 669BE2FDC3C
+	for <virtualization@lists.linux.dev>; Sat, 18 Jul 2026 23:35:59 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.49
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784396491; cv=none; b=Zkh6WvaVB2vB5z33/7as12L3nEouA8vJMh566Wx7A+hd0mOOBdY3PfHyL9yIBg4xRAPX9nmQEhbMKtNH5uvonh5RrebOcJe66+IS/YAHEr3qJClKE9MFnvWK6IZEGDih4heEhUZupuhXjGgMU4L+wSKx2o1c1BHaKTG7VWIFnEU=
+	t=1784417761; cv=none; b=Rfl6gNzi5CYpDve2VUGU24l9b/eYg5TDAr+3Dfer08L0K0eo+t7ZCOYBFR1OBxHUEAxalVSdy1zSSN3WPXxuUJ3oJoKh8q1frzx3Wwx8qrpLdHmOv6GE8WsCrw8wpZnzBxN70EKP6Go3Bi8gUTVfmj6oPXhNJNVqDGdv8dhxIz4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784396491; c=relaxed/simple;
-	bh=CEpVNIMFamK8ZFZw4YMxNorECvmbWE2CGRI+ZPpAoZk=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=csUn1Hg9T3pHVkvvt8zEfpMzFh9nlpp/oVem64FcltuO+vgJSf0/A0A4qv+yaoly9LzR2Da/IgnIDjtgOWRVVHPTqc1FJpKwC6oGyHbVTQhnlVhhcIfD5pjr3uDHlC0stTGaNzbN5Q5NcThpVoH+ebpwmVM23McuUl3pKj3alT4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=HzdnMn0D; arc=none smtp.client-ip=209.85.210.175
+	s=arc-20240116; t=1784417761; c=relaxed/simple;
+	bh=4VckNmYkZcMe07k6xO/fIqj/JsCM+9ZJGLo0Ai8FnTM=;
+	h=From:Subject:Date:Message-Id:MIME-Version:Content-Type:To:Cc; b=kbl/C0UTVI7blxTCQ2fczT0IRzBYqJj470bhOITab68sK3+r4cKhEg3GPZUGs7U2EDksVZYCHpuCU2mFojUDE1Vb1hE6/ZFO2PMrhQOBQK/cg7/Ux6pm2yFezr7imnV9OML4s0n75ywNhShiqOAmzcygojuZa9fstBh4bEqeDVY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=orKSji0F; arc=none smtp.client-ip=209.85.128.49
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="HzdnMn0D"
-Received: by mail-pf1-f175.google.com with SMTP id d2e1a72fcca58-8487b7b3fc8so8900515b3a.3
-        for <virtualization@lists.linux.dev>; Sat, 18 Jul 2026 10:41:30 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="orKSji0F"
+Received: by mail-wm1-f49.google.com with SMTP id 5b1f17b1804b1-4954df200ddso7180985e9.0
+        for <virtualization@lists.linux.dev>; Sat, 18 Jul 2026 16:35:59 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784396490; x=1785001290; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=1FYkIyXnGh51CvHiVgoa6lNBE/dJN10l2yCF+0lEhds=;
-        b=HzdnMn0DKfSMKubU4rXrIieK5HfzLmwbRiCY69uLDS4jJA0NSuMVXYVsAi8s2ZftFB
-         C4nWukGgLIkqTw2S79FnHVGvVyon95lSG14YJKtuyr34b66LIICcikecjwWRgpdvDiDk
-         cIoOkXqsCiV0UzKZM96NK2SDew1SVgLWATPrE8XD9t6TgdVVrGTgEURcuPusYQNRhlB/
-         7XnJaZ+eSLcX4v3RunbIruT6YTaF+WuLhVvckbKesTqvhRGZk1n4ZcoIBh/h7gc21TAC
-         a6/ySJERNL6+bVlIorYAONrOJBRYe5SyBXyhq1H7PswH39cwiqMJHIkHDPo/8Zc7Mm8o
-         EzCQ==
+        d=gmail.com; s=20251104; t=1784417758; x=1785022558; darn=lists.linux.dev;
+        h=cc:to:content-transfer-encoding:content-type:mime-version
+         :message-id:date:subject:from:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=fbveywkXEOoKA5l+wqrU0DqqoG4NoX/G8iLvkPe8hb4=;
+        b=orKSji0FwMx83XvlwxI38wc3UjkquIRTquZ37RUHgKeZIeWWe1F3Gfffl+YC1Bdtf1
+         86zx7NkrotZ0R4RxO9NhH1fkrHMhW+m8+0bkkStFbSypXZIW0DchAdSajIKZOOlPe4xL
+         EOF/7RRZR/1tx3AiWxpE60HXLzI3A1zl0xPIrNUVTAQVZdj0t6j6tSi6nTzqIc/8maR6
+         1ubE3IUAnQHijeUrCiDhYdX5aapBe/XWr4CPfZ5OQMQ8FqHz8qV8zWT78CdDStdhZM5K
+         GvZKibh1nUsonbFibJF6IZxCBTLX5P957HUj6amb70Phr4/loIki+8hXc+U3I1nZCt3n
+         T3fg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784396490; x=1785001290;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=1FYkIyXnGh51CvHiVgoa6lNBE/dJN10l2yCF+0lEhds=;
-        b=ehg8eOAkRZhoyxRmRWPY6xdm8AEzz8PVBVEmLJrljbwTYoaDKJCNZl6jbRcytyqV61
-         P67DVwWzcBnynAGN2CbLUfcmAshlJ4rJc5qnPVyQGgfEcP+1ZTMztI5ZQT05iySl/q2U
-         wj2ulTZrJBbMOraYlxgBcBoX9zPIxvuXZ+GqUA6mO6TwEQ1fcIbsXWYrE4nRy5vManFq
-         i9TTXIoFwQSK3kgxI79MqDY2iV/cYZoo+PPSLtlpbcou9kHpH86S7nNU2dTj4x5XyIKE
-         HhTEhmuz1JROkqq81Ysjk8u2HFVSCNO8flS+UYNT63sgajCYdyByqnlxXJplfld1RBY2
-         utxg==
-X-Forwarded-Encrypted: i=1; AHgh+Rrqg51byigoLB418BLKs2MPWs7c3HvhIZwdT4sYJV1FjEGvDSSx9RmoY7WneBHFtqOvS+R4xalBtgXekxoyHw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyulHA2MWUBPTN+NS9GFqniOJ31RP4or4O3Ha6/b8K5TlhTejnO
-	bjtNQaz3AyFEoMA41wcaoZKLOCgcQCytb/jPGyWv50W88vtDBMxSqD1A
-X-Gm-Gg: AfdE7clewt/42GUebB1ZwOMLdq0j6zgu/wm+jmNmtp1kGpfk+isdyYYcRSZ9YIJDTZ7
-	V+HeGpArg1HFsQgPcS7FtBoDwOVMeL3sdzAalmK4vEphGxrNO8cvHnUxbfEUWBD1Pw3xeaSasQC
-	B02ByBTt1GmygfCJ0SmJ7eMl5OM2D7DLdugIcSm2VwRQ33aOYuIjzTQVjHqGuPbjbKpDinx3Hpq
-	jiv7lROdFgVqlX0y/yVMGHBXP5vemGG0xpsDS4uRUG5VCdbYJTkR5bpWjlY5+JpT7VmEeIeFqJA
-	Zssv0CWaFred+0wZ+sOHAtT8JwDVAHiso9YjdK6jE55iqmqefYMfOfryh2IOpXBZhi+rDTPGaqU
-	wnFd2tjycvfSNyp56k9Nd6FLS6YhgIWBloDRwQDQbTSjWNwwb7iz35446TUF+HDN7F/ujK0vHfA
-	KqDdsfSViEpYE3KOmV+9k=
-X-Received: by 2002:a05:6300:2284:b0:3c0:9c1a:8943 with SMTP id adf61e73a8af0-3c3ada5be63mr8296643637.75.1784396489817;
-        Sat, 18 Jul 2026 10:41:29 -0700 (PDT)
-Received: from [192.168.86.23] ([136.25.189.61])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31429fdcaefsm19500844eec.10.2026.07.18.10.41.28
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Sat, 18 Jul 2026 10:41:29 -0700 (PDT)
-Message-ID: <f8c50876-e18d-4493-ba91-7a4090b6385a@gmail.com>
-Date: Sat, 18 Jul 2026 10:41:26 -0700
+        d=1e100.net; s=20251104; t=1784417758; x=1785022558;
+        h=cc:to:content-transfer-encoding:content-type:mime-version
+         :message-id:date:subject:from:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=fbveywkXEOoKA5l+wqrU0DqqoG4NoX/G8iLvkPe8hb4=;
+        b=JTBJmpoB6+/0kK47qjV6M/X5xvp98jIbZfVtmG4t2e24hjyH/usG9Jut4qbsr8gm16
+         PM8r+5gjlJfc53aeeZb37WviZuWIfxK3JNbpnxCTqa5JKpzDhJlrP64R7SQRLunz2DVG
+         uMr/I7Afy1N7H2LIjkWp2BQB82/wch0yuaKeVOECsdzScCFK0+/CMAR6lyMu7mNy3yCA
+         B/OfV7bKuBM46CaX5QMKVYUn1Lb8mv+zhrj7XFk/nUM/Q0ut7AkVpiS3UZSLBV7exM9n
+         +LKi0XliAF75+N8rt4Rg+QMEDtpkAc/davZAX0um1uCc6uXUUBNpbd7ztDasmMZDMzPu
+         /oOQ==
+X-Forwarded-Encrypted: i=1; AHgh+RoeyHApVG7JB/XPIt6V2MrseA4puY1f5dVpLRZqM5irH3yKWTsCdcBeC0zhhfg+s5PkvlWePJkOvibKa5voXA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yy5aXjBtR2QuX4deMccUuyd4JRnxQvLnIzy/qDFud66DgGUTBU3
+	l9EZ5T+0+/MACgnhVH4azgjK/p9wx1m6P9MMcXH4hRiMt9KViLakL82k
+X-Gm-Gg: AfdE7clgBhGpvTe2bUbFHK5mNfLdRmqj3RrSG5KyVGaHQIlxITBK2WwZWVHHx16kFaX
+	jk/Za0C7E756VA3YfiQGwW0RmO7Sd8elcfllSHBx/Kc2dYXKlbbn0dHAo/yTfQ5Y2a688q7UveQ
+	KsohYugS8FQU+lZzXRRVm9XKbxNVDVBQmUw2v/Q3TrsDmpohaGeDYEWMTMOw3uj1M9yKF/pfFA9
+	/Yxtmhn//VU2sLEmxTr0IynvVp0Nns6C6B+GSfzBtIQSYcM6IKQpL1/GjkaWkLZjmQaXl8FUOM6
+	3EOYTl1UTn5DCWU9bxAn/6l8LnwadYPPJKKlttcGECIPMOM1CJtB96JsXMuXQP/PizVWbVZrwue
+	KV5isEgwICe6US7PGixvufph89TGPUgY1cWUKQoUw3nq2ujIG+1lYwNK4opGChs0WRs7X70BmeB
+	muAjIdwGIkDg==
+X-Received: by 2002:a05:600c:1989:b0:495:699:84ca with SMTP id 5b1f17b1804b1-4954a798f17mr83663665e9.28.1784417757432;
+        Sat, 18 Jul 2026 16:35:57 -0700 (PDT)
+Received: from [127.0.0.2] ([2a01:14:111:ccf0:645b:9e5c:7fe3:c09f])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4954a2a24b6sm160964675e9.3.2026.07.18.16.35.53
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sat, 18 Jul 2026 16:35:56 -0700 (PDT)
+From: Diogo Silva <diogompaissilva@gmail.com>
+Subject: [PATCH 00/15] drm/drm_simple: remove drm_simple_encoder_init
+Date: Sun, 19 Jul 2026 01:35:31 +0200
+Message-Id: <20260719-drm_simple_encoder_init-v1-0-a78c509e3062@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/4] virtio-mem: validate device-reported block size
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- "David Hildenbrand (Arm)" <david@kernel.org>,
- Hari Mishal <harimishal1@gmail.com>, Jason Wang <jasowangio@gmail.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, elena.reshetova@intel.com,
- huster@cs.uni-goettingen.de, mhollick@seemoo.de, jiska.classen@hpi.de
-References: <20260717060822-mutt-send-email-mst@kernel.org>
- <2026071757-grout-composer-165d@gregkh>
- <20260717061901-mutt-send-email-mst@kernel.org>
- <2026071724-asleep-pedigree-ea54@gregkh>
- <20260717065219-mutt-send-email-mst@kernel.org>
- <2026071759-thermal-synopsis-7568@gregkh>
- <20260717085838-mutt-send-email-mst@kernel.org>
- <1fe328d1-edf9-4e72-a145-be74ede20e60@gmail.com>
- <2026071803-passage-dares-8240@gregkh>
- <ae5bc86b-cb8d-4530-9e58-d285007deac0@gmail.com>
- <20260718131715-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-From: Carlos Bilbao <carlos.bilbao.osdev@gmail.com>
-In-Reply-To: <20260718131715-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: 7bit
+X-B4-Tracking: v=1; b=H4sIAMQNXGoC/yXM0QqCQBBG4VeRuW5hlVDrVSIWnf2tiVxlRiMQ3
+ 72tLr+LczYyqMDoXGykeInJlDLKQ0F879INTmI2Vb6qfVO2LuoYTMb5iYDEU4QGSbK46OtTd2R
+ uhranXM+KQd6/8+X6t639A7x8d7TvHyUPD1h7AAAA
+X-Change-ID: 20260718-drm_simple_encoder_init-d069a4cc7f8b
+To: Jingoo Han <jingoohan1@gmail.com>, Inki Dae <inki.dae@samsung.com>, 
+ Seung-Woo Kim <sw0312.kim@samsung.com>, 
+ Kyungmin Park <kyungmin.park@samsung.com>, David Airlie <airlied@gmail.com>, 
+ Simona Vetter <simona@ffwll.ch>, Krzysztof Kozlowski <krzk@kernel.org>, 
+ Peter Griffin <peter.griffin@linaro.org>, 
+ Alim Akhtar <alim.akhtar@samsung.com>, 
+ Laurent Pinchart <laurent.pinchart@ideasonboard.com>, 
+ Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>, 
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
+ Michal Simek <michal.simek@amd.com>, 
+ Thierry Reding <thierry.reding@kernel.org>, 
+ Mikko Perttunen <mperttunen@nvidia.com>, 
+ Jonathan Hunter <jonathanh@nvidia.com>, Stefan Agner <stefan@agner.ch>, 
+ Alison Wang <alison.wang@nxp.com>, 
+ Anitha Chrisanthus <anitha.chrisanthus@intel.com>, 
+ David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
+ Dmitry Osipenko <dmitry.osipenko@collabora.com>, 
+ Gurchetan Singh <gurchetansingh@chromium.org>, 
+ Chia-I Wu <olvaffe@gmail.com>, Jyri Sarha <jyri.sarha@iki.fi>, 
+ Liu Ying <victor.liu@nxp.com>, Frank Li <Frank.Li@nxp.com>, 
+ Sascha Hauer <s.hauer@pengutronix.de>, 
+ Pengutronix Kernel Team <kernel@pengutronix.de>, 
+ Fabio Estevam <festevam@gmail.com>, Chun-Kuang Hu <chunkuang.hu@kernel.org>, 
+ Philipp Zabel <p.zabel@pengutronix.de>, 
+ Matthias Brugger <matthias.bgg@gmail.com>, 
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
+ Geert Uytterhoeven <geert+renesas@glider.be>, 
+ Xinliang Liu <xinliang.liu@linaro.org>, 
+ Sumit Semwal <sumit.semwal@linaro.org>, 
+ Yongqin Liu <yongqin.liu@linaro.org>, John Stultz <jstultz@google.com>, 
+ Liviu Dudau <liviu.dudau@arm.com>, 
+ Neil Armstrong <neil.armstrong@linaro.org>, 
+ Kevin Hilman <khilman@baylibre.com>, Jerome Brunet <jbrunet@baylibre.com>, 
+ Martin Blumenstingl <martin.blumenstingl@googlemail.com>, 
+ Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>
+Cc: dri-devel@lists.freedesktop.org, linux-arm-kernel@lists.infradead.org, 
+ linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org, 
+ linux-tegra@vger.kernel.org, virtualization@lists.linux.dev, 
+ imx@lists.linux.dev, linux-mediatek@lists.infradead.org, 
+ linux-renesas-soc@vger.kernel.org, linux-amlogic@lists.infradead.org, 
+ linux-doc@vger.kernel.org, Diogo Silva <diogompaissilva@gmail.com>
+X-Mailer: b4 0.15.2
 
-Hello Michael,
+The simple KMS helpers are deprecated because they only add an
+intermediate layer between drivers and atomic modesetting.
 
-On 7/18/26 10:21, Michael S. Tsirkin wrote:
-> On Sat, Jul 18, 2026 at 10:07:30AM -0700, Carlos Bilbao wrote:
->> On 7/17/26 22:29, Greg Kroah-Hartman wrote:
->>
->>> On Fri, Jul 17, 2026 at 08:31:09PM -0700, Carlos Bilbao wrote:
->>>> Historically, one of the biggest criticisms of coco, especially around
->>>> device hardening, was that there were too many values that a
->>>> malicious/buggy device could misreport, making it a losing battle. That is
->>>> no longer the case with LLMs, and we have the advantage (and challenge) of
->>>> open-source dev, which allows us to receive many of these fixes "for free".
->>>> If others want to burn their tokens, let them :)
->>> I have lots of tokens to burn :)
->>>
->>> So along those lines, any suggestions on how best to fuzz these code
->>> paths?  Any workloads you all use for testing that I can take advantage
->>> of?
->>
->> We've the virtio-mem config struct layout and the kernel source, so for
->> obvious fixes like a NULL check, static analysis is better than fuzzing.
->> Claude took a few mins to find me two examples:
->>
->> Patch 1: virtio-mem: reject non-power-of-two device_block_size
->> This one is for virtio_mem_init() to check if
->> !is_power_of_2(vm->device_block_size)
->>
->> Patch 2: virto-mem: validate region_size and usable_region_size
->> THis one checks region_size != 0 and vm->usable_reion_size >
->> vm->region_size.
->>
->> An endless factory of "silly" checks like these are low hanging fruit.
-> At the same time, these checks don't actually help within the coco
-> threat model, do they?
->
->> Now, for harder bugs, looking around for fuzz options, VirtFuzz [1] looks
->> like a great candidate for those interested in pursuing this direction.
->>
->>
->> Their PoC fuzzes wireless/Bluetooth stack, but nothing our AI overlords
->> can't quickly adapt for virtio-mem and other virtio drivers; the JSON
->> definition to describe device behavior is easily extensible. Their threat
->> model [2] describes an external attacker, but in the context of coco, the
->> virtio device itself is the attacker.
-> What we need, however, is to exclude DoS attacks - these are outside the
-> threat model. If people try to address all DoS attacks uncritically we
-> just get a churn of changes which just might introduce issues of their
-> own.
->
-> Example:
->
-> 	BUG_ON(!is_power_of_2(....));
-> panics, non exploitable.
->
-> 	if(!is_power_of_2(....))
-> 		goto error;
->
-> can become exploitable if the cleanup is done wrong.
+This series open-codes all remaining drm_simple_encoder_init() users by
+calling drm_encoder_init() directly and providing driver-local
+drm_encoder_funcs where needed. After the driver conversions, the helper
+is removed and the completed DRM todo item is dropped.
 
+Signed-off-by: Diogo Silva <diogompaissilva@gmail.com>
+---
+Diogo Silva (15):
+      drm/exynos: remove dependency on DRM simple helpers
+      drm/xlnx/zynqmp_dpsub: remove dependency on DRM simple helpers
+      drm/tegra: remove dependency on DRM simple helpers
+      drm/fsl-dcu: remove dependency on DRM simple helpers
+      drm/kmb: remove dependency on DRM simple helpers
+      drm/virtio: remove dependency on DRM simple helpers
+      drm/tidss: remove dependency on DRM simple helpers
+      drm/imx: remove dependency on DRM simple helpers
+      drm/mediatek: remove dependency on DRM simple helpers
+      drm/renesas/shmobile: remove dependency on DRM simple helpers
+      drm/hisilicon/kirin: remove dependency on DRM simple helpers
+      drm/arm/komeda: remove dependency on DRM simple helpers
+      drm/meson: remove dependency on DRM simple helpers
+      drm/drm_simple: remove deprecated drm_simple_encoder_init function
+      Documentation/gpu: remove completed drm_simple_encoder_init() todo
 
-Yes, you are 100% technically right about the scope of the threat model.
-DoS is out of scope because it is a fundamentally unreachable goal; the
-cloud provider can always just "pull the plug". The dangers of
-"vibe-coding" you point out are real, over-eager LLMs fixing up and down
-will create new vulnerabilities in complex cleanup paths. Also, TBH, I
-sympathize with a maintainer's disinterest in reviewing a million stupid
-checks.
+ Documentation/gpu/todo.rst                        | 15 ---------------
+ drivers/gpu/drm/arm/display/komeda/komeda_crtc.c  |  9 +++++++--
+ drivers/gpu/drm/drm_simple_kms_helper.c           | 13 ++-----------
+ drivers/gpu/drm/exynos/exynos_dp.c                | 13 +++++++++++--
+ drivers/gpu/drm/exynos/exynos_drm_dpi.c           | 14 ++++++++++++--
+ drivers/gpu/drm/exynos/exynos_drm_dsi.c           | 11 +++++++++--
+ drivers/gpu/drm/exynos/exynos_drm_vidi.c          | 14 ++++++++++++--
+ drivers/gpu/drm/exynos/exynos_hdmi.c              | 15 +++++++++++++--
+ drivers/gpu/drm/fsl-dcu/fsl_dcu_drm_rgb.c         | 10 +++++++---
+ drivers/gpu/drm/hisilicon/kirin/dw_drm_dsi.c      |  9 +++++++--
+ drivers/gpu/drm/imx/dc/dc-kms.c                   |  8 ++++++--
+ drivers/gpu/drm/kmb/kmb_dsi.c                     |  9 +++++++--
+ drivers/gpu/drm/mediatek/mtk_dsi.c                | 10 +++++++---
+ drivers/gpu/drm/meson/meson_encoder_cvbs.c        | 11 ++++++++---
+ drivers/gpu/drm/meson/meson_encoder_dsi.c         | 11 ++++++++---
+ drivers/gpu/drm/meson/meson_encoder_hdmi.c        | 11 ++++++++---
+ drivers/gpu/drm/renesas/shmobile/shmob_drm_crtc.c | 10 +++++++---
+ drivers/gpu/drm/tegra/dsi.c                       | 17 ++++++++++++++---
+ drivers/gpu/drm/tegra/rgb.c                       | 14 ++++++++++++--
+ drivers/gpu/drm/tidss/tidss_encoder.c             | 10 +++++++---
+ drivers/gpu/drm/virtio/virtgpu_display.c          | 12 ++++++++++--
+ drivers/gpu/drm/xlnx/zynqmp_kms.c                 | 13 +++++++++++--
+ include/drm/drm_simple_kms_helper.h               |  4 ----
+ 23 files changed, 185 insertions(+), 78 deletions(-)
+---
+base-commit: e55c6b9a3522aaf1441a0662d534c1c7bfa9b860
+change-id: 20260718-drm_simple_encoder_init-d069a4cc7f8b
 
-But, to play devil's advocate: this assumes a missing check
-like is_power_of_2 only ever leads to a benign crash, rather than already
-cascading into an unknown, exploitable state down the line.
-
-So these checks are not _just_ to prevent DoS!
-
-Anyhow, this is the exact justification for VirtFuzz. If your main concern
-is that adding validation checks might introduce subtle exploit paths in
-the error-cleanup code, VirtFuzz and tools like that, can fuzz those new
-paths exhaustively. It gives the automated safety net needed to scale coco
-device with as little regressions as possible.
-
-
-> 		
->
->
->>   Here's a vibe coded PR of what I mean:
->>
->> https://github.com/seemoo-lab/VirtFuzz/pull/7
->>
->> CCed the creators/authors, thanks for open sourcing this!
->>
->> Thanks,
->> Carlos
->>
->> [1] https://github.com/seemoo-lab/VirtFuzz
->>
->> On 7/17/26 22:29, Greg Kroah-Hartman wrote:
->>
->>> On Fri, Jul 17, 2026 at 08:31:09PM -0700, Carlos Bilbao wrote:
->>>> Historically, one of the biggest criticisms of coco, especially around
->>>> device hardening, was that there were too many values that a
->>>> malicious/buggy device could misreport, making it a losing battle. That is
->>>> no longer the case with LLMs, and we have the advantage (and challenge) of
->>>> open-source dev, which allows us to receive many of these fixes "for free".
->>>> If others want to burn their tokens, let them :)
->>> I have lots of tokens to burn :)
->>>
->>> So along those lines, any suggestions on how best to fuzz these code
->>> paths?  Any workloads you all use for testing that I can take advantage
->>> of?
->>
->> We've the virto-mem config struct layout and the kernel source, so for
->> obvious fixes like a NULL check, static analysis is better than fuzzing.
->> Claude took a few mins to find me two examples:
->>
->> Patch 1: virtio-mem: reject non-power-of-two device_block_size
->> This one is for virtio_mem_init() to check if
->> !is_power_of_2(vm->device_block_size)
->>
->> Patch 2: virto-mem: validate region_size and usable_region_size
->> THis one checks region_size != 0 and vm->usable_reion_size >
->> vm->region_size.
->>
->> An endless factory of "silly" checks like these are low hanging fruit.
->>
->> Now, for harder bugs, looking around for fuzz options, VirtFuzz [1] looks
->> like a great candidate for those interested in pursuing this direction.
->>
->>
->> Their PoC fuzzes wireless/Bluetooth stack, but nothing our AI overlords
->> can't quickly adapt for virtio-mem and other virtio drivers; the JSON
->> definition to describe device behavior is easily extensible. Their threat
->> model [2] describes an external attacker, but in the context of coco, the
->> virtio device itself is the attacker. Here's a vibe coded PR of what I mean:
->>
->> https://github.com/seemoo-lab/VirtFuzz/pull/7
->>
->> CCed the creators/authors, thanks for open sourcing this!
->>
->> Thanks,
->> Carlos
->>
->> [1] https://github.com/seemoo-lab/VirtFuzz
->> [2] https://www.computer.org/csdl/proceedings-article/sp/2024/313000a024/1RjEa0y9RMQ
->>
->>
->>> thanks,
->>>
->>> greg k-h
->> [2] https://www.computer.org/csdl/proceedings-article/sp/2024/313000a024/1RjEa0y9RMQ
->>
->>
->>> thanks,
->>>
->>> greg k-h
-
-
-Thanks,
-
-Carlos
+Best regards,
+--  
+Diogo Silva <diogompaissilva@gmail.com>
 
