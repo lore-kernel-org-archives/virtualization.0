@@ -1,178 +1,200 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4D9A23B7750
-	for <virtualization@lists.linux.dev>; Mon, 20 Jul 2026 08:53:23 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A8257225775;
+	Mon, 20 Jul 2026 09:19:13 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784537605; cv=none; b=TTPlpZt6ee66QAGB/xsro10V9nj2wGzAF6kmEu89scMcu+mxBiMrmeo2dSu6zR0AEtnl7emsHExB9FpwVQ6jE9Fvt7umLNLAULibdkXp8DcIa98bAoCTDdKU2ZgLjZoNcAhs6GsvRkFAq3MCsgy2idwsc0wsUHx4RJs7yG0WhYA=
+	t=1784539154; cv=none; b=Pt0gpxgFIpzTefu11hI2G4rf/iyOMpOpGjaKJrcvyyRDFJI1fIY4irodJjPsCHIYELuT6+i/qf8VhjZKs90M8h+ToJWlCzoAk3F7nsD1opiCYIjEfw09shxfFThyFsgiNPMrKNfsaBCF5nq62EergSwCT/HB+iIoviv41Fb/TXw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784537605; c=relaxed/simple;
-	bh=o6QS22hcefobTL4agDYyTXy5uvYvNFggHdA5faPCDDo=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=miOII4zdYcA0SqieQLAkF4ppW6optly42sk05DJBvioDGxi43oEANP++N6jORo2cz6lY0rv2dOCrbmNbgwBBNpYW0HomSb5XuqTBzvewZdqBB5pYbmIVckq+AoAVZSZJheqrUO0upwcpOSp9lQspG7jNnsWMBVhQ4UULYVJ2Dxs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=hg3CQhBm; arc=none smtp.client-ip=209.85.216.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1784539154; c=relaxed/simple;
+	bh=ofItN/0KklKTFKqq2IJ1f8qp/AjbRaGdZsnOCa00tnA=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=kNSJHPqetNN6ELYWiPI+jQ0ahiDPb1ehOL1UokEw7+RU+P9amAWK5WP7YhxmccgKQRmu9y08FZmDRqnCSCb32PtJUcoNdeGbODCqZrUHIZY1iFSpFDMt7XANEr7CBs/RABS2jtAZhhw7QJO1Tbb3QzqN9dJpP8790U2jFtHt+/U=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=V9A7v2Uw; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="hg3CQhBm"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-38df94d4dd8so4579737a91.2
-        for <virtualization@lists.linux.dev>; Mon, 20 Jul 2026 01:53:23 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784537603; x=1785142403; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=ZyobmQNbF473X4YAV4bIq6NV92V1jhbfZhYiYWm1O2k=;
-        b=hg3CQhBm9i3GYMWvlU/IKhX+j8DbobIO2HG+EqEU3xIDwNUxomnq7ANWUatwNdAmqQ
-         qi4J9GEIeLEZW8RpNe+aLrwErkdj5qbWKYf7a6m5x3xw+xR2x/NHnkvmmVl8S5DGwWZB
-         48BftBRXOIFcELKLFwA/gBYlGw32G7Tpn5o6UeOn3ufCMne/VFeV6ZiVUMg91VnjxmFY
-         f/b8Ymxq0Bqxn2VPV/cXvOiAhn1hsrTpYL0LRasincZE3oZTefMu1qIy5VXBvYlbSONj
-         WSItJqzdydsTSyrlBTRyJjO40hYugCZYXUHitW9yXsWJ6AE90lg3dM+kFoVWCu9A0dsl
-         ZUyw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784537603; x=1785142403;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=ZyobmQNbF473X4YAV4bIq6NV92V1jhbfZhYiYWm1O2k=;
-        b=Dm/0AC6J1JiN/ne27l5Y1JjQq5zgBWd3GAFkWd9VtHhsCemYUnZrtRbYe7UXSD3H/C
-         XhSqfj+POrZtvt3OdGquZ8BY3pLxwY4O5HMhG6nfg+rfNjnhuuvUIqkHIQVBRMqqnzky
-         Ca8MyYzAwBkrlIJahpJKkHTO2cy5lIJOS/W0VzcRAlKMBPv6Xpy+Yy7BHu50Tl02TjJp
-         my6Re/Aq/dISbajjYq3tzNLJsFT28w/s53sX+L4IVhxQw0J1XFcYKpyz4QQDMMxKLSB4
-         Ac+nNcsMD+dVzo0dS638KQfaQZgZaSXwvPo5XJYeL8+wrRnp+zL9niv37IZ5dUe/mcDU
-         dDoA==
-X-Forwarded-Encrypted: i=1; AHgh+Roawc/tPEbAZgRuUro8ThK837txNtFM3pNPllLxIDxuZ6VYfargb5FagOtdi7VCaHG68KE9vwZdUnlxd9WxHQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyPiLkBTFu2XydLoylTFJLUD85Eonqm9hssVeZBwURZO6kZsuMa
-	QXwxQkGQ+XNJJQD2jTeFV+IzoKyXWFkVf2FOXIcGlhGgfwUf6+jNQh4S
-X-Gm-Gg: AfdE7cm8qRTOz8owlZjxqfMfmHvpbyjNCeF8pnnuCZvhV+QK4WzwOwOIXfbSdG+I1KH
-	LeQqza6jXFinQU+vUlMcOviUd1jEWADnBJBQFhW4inozli70HHn8fCsto4qqvCcWXAVi78g3ytY
-	3shwH5wTdT8xXVOkEtxE79JxzM8heiTgLB9D/CvThzcT1OEANkOACcTRjkAxRum5aI7MOXlKniA
-	b8YPQIH4+8oBqr3LcAmohXpCXw6hoHeDDz0zirQgSyaZg/j7gFD/WsZ6zH0udG4q1Hdl+G72ZLh
-	lApPh5G0eYOBUw+ayNwe9yHxWzRtF1/m4g/SP9dDIlwW1pwKGcPef/1tZFU1El2Urok0dW7fkmy
-	805ryk1dh9Z7xED+ryjrJ0cniewrODua7LJ1mvXP3kMZry6Tv52sCadzvNJ1yegm1Pg+Nwd9XvI
-	2LvQ/t
-X-Received: by 2002:a17:90a:d44e:b0:38d:ddc2:7ccb with SMTP id 98e67ed59e1d1-38e4b3d0fdamr13257377a91.1.1784537602406;
-        Mon, 20 Jul 2026 01:53:22 -0700 (PDT)
-Received: from [127.0.1.1] ([188.253.12.32])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13ce2cbb69bsm25224068c88.11.2026.07.20.01.53.19
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 20 Jul 2026 01:53:22 -0700 (PDT)
-From: Jia Jia <physicalmtea@gmail.com>
-To: mst@redhat.com,
-	jasowangio@gmail.com,
-	michael.christie@oracle.com
-Cc: pbonzini@redhat.com,
-	stefanha@redhat.com,
-	eperezma@redhat.com,
-	virtualization@lists.linux.dev,
-	kvm@vger.kernel.org
-Subject:
- [RFC PATCH] vhost-scsi: Serialize completion notification with callfd updates
-Date: Mon, 20 Jul 2026 16:53:06 +0800
-Message-Id: <20260720085306.1519294-1-physicalmtea@gmail.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="V9A7v2Uw"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 272D01F000E9;
+	Mon, 20 Jul 2026 09:19:09 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784539153;
+	bh=sOZ25ao2M2d19WvDiN3lH8T4Vu10ouOQROWrJY5Nxkw=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=V9A7v2UwKNZyhKWq7ZrKejum3QmW+L8sNyc8l64ga1ZcNGA9a/7Ke8sEeUwZNIcAf
+	 9ma/UFI4g2LPhJ5DV4geTumwCm/8W2al5cQWyVk6dNAUOFqDAostDpCB64GNCTQG8/
+	 4n7os4daWZUxgGdmkHj0ehZVK78tDnIjLGOHeI/H6lRBTwd7se1ormFawONgZi3F5s
+	 fmuC6pei1px1fuJJEAZzKETu38VwL1gNg4OORl/+6mTG6qMnWeZrKpXIyfcASRwTFY
+	 jGcWrUF1w53RFODPJSkqHKRFtp82MTH176k+vz+P8+L7R6kg3gUk2UX96NUPjwS3uP
+	 Epc4ekV5TIY6A==
+Message-ID: <8237ffef-4fb4-40b4-82c3-e9236032ab7e@kernel.org>
+Date: Mon, 20 Jul 2026 10:19:09 +0100
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 1/4] virtio-mem: validate device-reported block size
+To: Greg Kroah-Hartman <gregkh@linuxfoundation.org>
+Cc: Carlos Bilbao <carlos.bilbao.osdev@gmail.com>,
+ "Michael S. Tsirkin" <mst@redhat.com>, Hari Mishal <harimishal1@gmail.com>,
+ Jason Wang <jasowangio@gmail.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+ elena.reshetova@intel.com, huster@cs.uni-goettingen.de, mhollick@seemoo.de,
+ jiska.classen@hpi.de
+References: <2026071757-grout-composer-165d@gregkh>
+ <20260717061901-mutt-send-email-mst@kernel.org>
+ <2026071724-asleep-pedigree-ea54@gregkh>
+ <20260717065219-mutt-send-email-mst@kernel.org>
+ <2026071759-thermal-synopsis-7568@gregkh>
+ <20260717085838-mutt-send-email-mst@kernel.org>
+ <1fe328d1-edf9-4e72-a145-be74ede20e60@gmail.com>
+ <2026071803-passage-dares-8240@gregkh>
+ <ae5bc86b-cb8d-4530-9e58-d285007deac0@gmail.com>
+ <9569e577-aa82-4642-b9d9-fd496fc12849@kernel.org>
+ <2026072036-outburst-rebel-c71b@gregkh>
+From: "David Hildenbrand (Arm)" <david@kernel.org>
+Content-Language: en-US
+Autocrypt: addr=david@kernel.org; keydata=
+ xsFNBFXLn5EBEAC+zYvAFJxCBY9Tr1xZgcESmxVNI/0ffzE/ZQOiHJl6mGkmA1R7/uUpiCjJ
+ dBrn+lhhOYjjNefFQou6478faXE6o2AhmebqT4KiQoUQFV4R7y1KMEKoSyy8hQaK1umALTdL
+ QZLQMzNE74ap+GDK0wnacPQFpcG1AE9RMq3aeErY5tujekBS32jfC/7AnH7I0v1v1TbbK3Gp
+ XNeiN4QroO+5qaSr0ID2sz5jtBLRb15RMre27E1ImpaIv2Jw8NJgW0k/D1RyKCwaTsgRdwuK
+ Kx/Y91XuSBdz0uOyU/S8kM1+ag0wvsGlpBVxRR/xw/E8M7TEwuCZQArqqTCmkG6HGcXFT0V9
+ PXFNNgV5jXMQRwU0O/ztJIQqsE5LsUomE//bLwzj9IVsaQpKDqW6TAPjcdBDPLHvriq7kGjt
+ WhVhdl0qEYB8lkBEU7V2Yb+SYhmhpDrti9Fq1EsmhiHSkxJcGREoMK/63r9WLZYI3+4W2rAc
+ UucZa4OT27U5ZISjNg3Ev0rxU5UH2/pT4wJCfxwocmqaRr6UYmrtZmND89X0KigoFD/XSeVv
+ jwBRNjPAubK9/k5NoRrYqztM9W6sJqrH8+UWZ1Idd/DdmogJh0gNC0+N42Za9yBRURfIdKSb
+ B3JfpUqcWwE7vUaYrHG1nw54pLUoPG6sAA7Mehl3nd4pZUALHwARAQABzS5EYXZpZCBIaWxk
+ ZW5icmFuZCAoQ3VycmVudCkgPGRhdmlkQGtlcm5lbC5vcmc+wsGQBBMBCAA6AhsDBQkmWAik
+ AgsJBBUKCQgCFgICHgUCF4AWIQQb2cqtc1xMOkYN/MpN3hD3AP+DWgUCaYJt/AIZAQAKCRBN
+ 3hD3AP+DWriiD/9BLGEKG+N8L2AXhikJg6YmXom9ytRwPqDgpHpVg2xdhopoWdMRXjzOrIKD
+ g4LSnFaKneQD0hZhoArEeamG5tyo32xoRsPwkbpIzL0OKSZ8G6mVbFGpjmyDLQCAxteXCLXz
+ ZI0VbsuJKelYnKcXWOIndOrNRvE5eoOfTt2XfBnAapxMYY2IsV+qaUXlO63GgfIOg8RBaj7x
+ 3NxkI3rV0SHhI4GU9K6jCvGghxeS1QX6L/XI9mfAYaIwGy5B68kF26piAVYv/QZDEVIpo3t7
+ /fjSpxKT8plJH6rhhR0epy8dWRHk3qT5tk2P85twasdloWtkMZ7FsCJRKWscm1BLpsDn6EQ4
+ jeMHECiY9kGKKi8dQpv3FRyo2QApZ49NNDbwcR0ZndK0XFo15iH708H5Qja/8TuXCwnPWAcJ
+ DQoNIDFyaxe26Rx3ZwUkRALa3iPcVjE0//TrQ4KnFf+lMBSrS33xDDBfevW9+Dk6IISmDH1R
+ HFq2jpkN+FX/PE8eVhV68B2DsAPZ5rUwyCKUXPTJ/irrCCmAAb5Jpv11S7hUSpqtM/6oVESC
+ 3z/7CzrVtRODzLtNgV4r5EI+wAv/3PgJLlMwgJM90Fb3CB2IgbxhjvmB1WNdvXACVydx55V7
+ LPPKodSTF29rlnQAf9HLgCphuuSrrPn5VQDaYZl4N/7zc2wcWM7BTQRVy5+RARAA59fefSDR
+ 9nMGCb9LbMX+TFAoIQo/wgP5XPyzLYakO+94GrgfZjfhdaxPXMsl2+o8jhp/hlIzG56taNdt
+ VZtPp3ih1AgbR8rHgXw1xwOpuAd5lE1qNd54ndHuADO9a9A0vPimIes78Hi1/yy+ZEEvRkHk
+ /kDa6F3AtTc1m4rbbOk2fiKzzsE9YXweFjQvl9p+AMw6qd/iC4lUk9g0+FQXNdRs+o4o6Qvy
+ iOQJfGQ4UcBuOy1IrkJrd8qq5jet1fcM2j4QvsW8CLDWZS1L7kZ5gT5EycMKxUWb8LuRjxzZ
+ 3QY1aQH2kkzn6acigU3HLtgFyV1gBNV44ehjgvJpRY2cC8VhanTx0dZ9mj1YKIky5N+C0f21
+ zvntBqcxV0+3p8MrxRRcgEtDZNav+xAoT3G0W4SahAaUTWXpsZoOecwtxi74CyneQNPTDjNg
+ azHmvpdBVEfj7k3p4dmJp5i0U66Onmf6mMFpArvBRSMOKU9DlAzMi4IvhiNWjKVaIE2Se9BY
+ FdKVAJaZq85P2y20ZBd08ILnKcj7XKZkLU5FkoA0udEBvQ0f9QLNyyy3DZMCQWcwRuj1m73D
+ sq8DEFBdZ5eEkj1dCyx+t/ga6x2rHyc8Sl86oK1tvAkwBNsfKou3v+jP/l14a7DGBvrmlYjO
+ 59o3t6inu6H7pt7OL6u6BQj7DoMAEQEAAcLBfAQYAQgAJgIbDBYhBBvZyq1zXEw6Rg38yk3e
+ EPcA/4NaBQJonNqrBQkmWAihAAoJEE3eEPcA/4NaKtMQALAJ8PzprBEXbXcEXwDKQu+P/vts
+ IfUb1UNMfMV76BicGa5NCZnJNQASDP/+bFg6O3gx5NbhHHPeaWz/VxlOmYHokHodOvtL0WCC
+ 8A5PEP8tOk6029Z+J+xUcMrJClNVFpzVvOpb1lCbhjwAV465Hy+NUSbbUiRxdzNQtLtgZzOV
+ Zw7jxUCs4UUZLQTCuBpFgb15bBxYZ/BL9MbzxPxvfUQIPbnzQMcqtpUs21CMK2PdfCh5c4gS
+ sDci6D5/ZIBw94UQWmGpM/O1ilGXde2ZzzGYl64glmccD8e87OnEgKnH3FbnJnT4iJchtSvx
+ yJNi1+t0+qDti4m88+/9IuPqCKb6Stl+s2dnLtJNrjXBGJtsQG/sRpqsJz5x1/2nPJSRMsx9
+ 5YfqbdrJSOFXDzZ8/r82HgQEtUvlSXNaXCa95ez0UkOG7+bDm2b3s0XahBQeLVCH0mw3RAQg
+ r7xDAYKIrAwfHHmMTnBQDPJwVqxJjVNr7yBic4yfzVWGCGNE4DnOW0vcIeoyhy9vnIa3w1uZ
+ 3iyY2Nsd7JxfKu1PRhCGwXzRw5TlfEsoRI7V9A8isUCoqE2Dzh3FvYHVeX4Us+bRL/oqareJ
+ CIFqgYMyvHj7Q06kTKmauOe4Nf0l0qEkIuIzfoLJ3qr5UyXc2hLtWyT9Ir+lYlX9efqh7mOY
+ qIws/H2t
+In-Reply-To: <2026072036-outburst-rebel-c71b@gregkh>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-During userspace stress testing on a KASAN-enabled host, a host-side
-callfd replacement concurrent with ordinary SCSI completions exposed an
-eventfd_ctx lifetime race. The test requires access to /dev/vhost-scsi and
-a host process that can issue VHOST_SET_VRING_CALL; on the default device
-permissions this normally means root or an explicitly delegated service.
+>>> We've the virto-mem config struct layout and the kernel source, so for
+>>> obvious fixes like a NULL check, static analysis is better than fuzzing.
+>>> Claude took a few mins to find me two examples:
+>>>
+>>> Patch 1: virtio-mem: reject non-power-of-two device_block_size
+>>> This one is for virtio_mem_init() to check if
+>>> !is_power_of_2(vm->device_block_size)
+>>>
+>>> Patch 2: virto-mem: validate region_size and usable_region_size
+>>> THis one checks region_size != 0 and vm->usable_reion_size >
+>>> vm->region_size.
+>>>
+>>> An endless factory of "silly" checks like these are low hanging fruit.
+>>
+>> "silly" is the right word.
+> 
+> "silly" in what way?
+>
 
-The test used TUR completions while closing the old callfd and binding a
-new one. The unbind form tends to produce a NULL pointer, while replacing
-the callfd after closing the old file makes the old eventfd_ctx eligible
-for release.
+As in producing "silly" low-hanging fruit patches that don't move the needle
+when it comes to security.
 
-vhost_scsi_complete_cmd_work() drops vq->mutex before calling
-vhost_signal(). VHOST_SET_VRING_CALL updates call_ctx under the same mutex
-and puts the old eventfd_ctx before returning. vhost_signal() does not take
-the mutex or hold a reference to call_ctx.ctx:
+> Seriously, I'm trying to figure out what you all care about here and
+> what exactly the threat model you want this driver to work in, and I'm
+> getting conflicting answers.
+> 
+> Either you all do worry about the "device" sending bad data and want to
+> protect from that, or you don't and you trust it.  Pick one please so
+> that we know how to deal with these bug reports we are getting.
+> 
+> For example, for USB we have said our threat model is:
+> 
+>   - we do NOT trust the device before a driver is bound to the device,
+>     so if a malicious device can do something to the kernel, the kernel
+>     needs to be fixed.
+>   - During the probe() call for a USB driver, the driver does NOT trust
+>     the device, and again, anything a malicious device can do to the
+>     kernel, the kernel should fix.
+>   - After probe() for a USB driver succeeds, it's up to the driver if it
+>     wants to validate all data coming from the device or not.  Right
+>     now, in general, the kernel trusts the device at that point in time
+>     so additional checks are discretionary and at the whim of the
+>     maintainer.
+> 
+> For that last point, I will note that some BIG users of Linux (i.e.
+> billions of Android devices) still explicitly do NOT want to trust the
+> USB device at this point in time, and are relying on the kernel to
+> protect the system from bad devices.  In that case, various patches have
+> been taken to different drivers and subsystems to play whack-a-mole on
+> while Android gets their act together to finally come up with a solid
+> defensive plan (like ChromeOS has had for a decade.)  It will be seen
+> which happens first, all drivers are properly fuzzed and fixed up, or
+> Android gets their act together and finally fixes their b0rked system
+> trust model.  I think Android management is relying on the kernel
+> community to do the kernel work as they keep refusing to staff the
+> userspace work that they need to do here...
 
-	if (vq->call_ctx.ctx && vhost_notify(dev, vq))
-		eventfd_signal(vq->call_ctx.ctx);
+Right, and for virtio devices trusting the device after probe is just extremely
+questionable.
 
-	CPU 0 (ioctl / callfd replace)		CPU 1 (vhost worker)
+What changes during probe that the device suddenly sends us good data?
 
-						vhost_scsi_complete_cmd_work()
-						mutex_unlock(&vq->mutex)
-						vhost_signal()
-						  /* load old ctx */
-						  vhost_notify() ...
+Why would a hypervisor that tried to break us before probe not try to break us
+after probe?
 
-	VHOST_SET_VRING_CALL
-	mutex_lock(&vq->mutex)
-	swap(vq->call_ctx.ctx, new)
-	eventfd_ctx_put(old)	/* free */
-	mutex_unlock(&vq->mutex)
+> 
+> And yes, I really need to write this up in a more solid document for USB
+> and get it into the tree, but at least this email thread has forced me
+> to write down the above :)
+> 
+> 
+> So, again, for virtio drivers, what exactly do you all want to say is
+> your threat model that the drivers need to handle?  Can you all agree on
+> something please?  Otherwise, for new developers like Hari, this is
+> totaly confusion as to what they should be doing.
 
-						eventfd_signal(old)
-						  /* use-after-free */
+Well, I am also totally confused why we end up checking against some MUST
+clauses in the spec, but not against others.
 
-On the reproducing run, the worker ran on CPU 1 and the callfd ioctl path
-ran on CPU 0. KASAN reported:
+I am very much in favor of making virtio-mem completely safe to use even in
+coco, where it is currently not used at all.
 
-	BUG: KASAN: slab-use-after-free in eventfd_signal_mask+0x6c/0x110
+If it's really about "don't let a device trigger any unexpected kernel code
+execution by sanitizing all input data", fine with me. We should do exactly
+that. Try checking all MUST clauses etc.
 
-The use stack was:
+But I don't think doing the "low hanging fruit" adds any security. It should be
+done properly or not at all.
 
-	eventfd_signal_mask
-	vhost_signal
-	vhost_scsi_complete_cmd_work
-	vhost_run_work_list
-	vhost_task_fn
-
-The freeing stack was:
-
-	eventfd_ctx_put
-	vhost_vring_ioctl
-	vhost_scsi_ioctl
-	__x64_sys_ioctl
-
-Hold vq->mutex across vhost_signal() so SET_VRING_CALL cannot swap and
-release the context while the completion worker is notifying the guest.
-This gives the completion and callfd update a clear ordering without
-changing the vhost API or adding a new lock. Other vhost-scsi response
-paths already signal while holding the virtqueue mutex.
-
-A private eventfd reference taken under the mutex would allow signalling
-after unlock, but it needs additional reference-count plumbing. An RCU
-design would require broader vhost-core changes for all call_ctx readers
-and additional eventfd lifetime rules. Since callfd changes are a
-control-plane operation, extending the existing per-virtqueue critical
-section is the smaller complete fix.
-
-This is an RFC because keeping vhost_notify() and eventfd_signal() inside
-the virtqueue critical section extends the lock hold time slightly. I'd
-appreciate feedback on whether this is acceptable or whether a
-reference-pinning approach, taking the reference under the mutex and
-releasing it after unlock, would be preferable.
-
-Signed-off-by: Jia Jia <physicalmtea@gmail.com>
----
- drivers/vhost/scsi.c | 2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index 9a1253b9d8c5..7f46bc0de3c2 100644
---- a/drivers/vhost/scsi.c
-+++ b/drivers/vhost/scsi.c
-@@ -735,10 +735,9 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
- 		vhost_scsi_release_cmd_res(se_cmd);
- 	}
- 
--	mutex_unlock(&svq->vq.mutex);
--
- 	if (signal)
- 		vhost_signal(&svq->vs->dev, &svq->vq);
-+	mutex_unlock(&svq->vq.mutex);
- }
- 
- static struct vhost_scsi_cmd *
 -- 
-2.34.1
+Cheers,
+
+David
