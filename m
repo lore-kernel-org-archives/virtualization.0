@@ -1,439 +1,369 @@
-Received: from smtp-out2.suse.de (smtp-out2.suse.de [195.135.223.131])
+Received: from mail-ua1-f41.google.com (mail-ua1-f41.google.com [209.85.222.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2EAE3EFFAE
-	for <virtualization@lists.linux.dev>; Mon, 20 Jul 2026 11:05:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=195.135.223.131
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784545515; cv=none; b=LO1n0g2v7LMQoT63ons7Ch5hoAepPU40ZV7sxZlvTK58RPgj6lgDXfZaNB3m3Z3E1vEB2Gql+b/z33WhWM5vxo315EuIOKJAL0VIqNageXXnyleapi91RpmuXVzuYIeZKqv0sHFGg8UQeQ5T3DYm1aCuXeSmzzKVh2T4HIFUD7M=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784545515; c=relaxed/simple;
-	bh=Cr0D8IrXdc7M3cfjxvsuMeRGNkhVfxYYqCumwIz6RgQ=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=On21FO4OIw86q4pAKxFnLLiBClvTc7RMO9RjO+hk73BC9Cx7+LuKWPxhjIUSwIn8selpXjrDT9w9tQUNU5ctc8ORc3AMNgQgt0JdKBMOcsb3O+V8Rhuvkh0YlxgboBctekl9/9o5aM8rr73M2yLAL+6Gt2Ktt6xsSz7eVjEP8A8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de; spf=pass smtp.mailfrom=suse.de; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=y2FwkocI; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=SF9cBLWT; dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b=y2FwkocI; dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b=SF9cBLWT; arc=none smtp.client-ip=195.135.223.131
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=suse.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.de
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9B1E94192FD
+	for <virtualization@lists.linux.dev>; Mon, 20 Jul 2026 12:35:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.222.41
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784550934; cv=pass; b=vCIpW9zAVjoFHHiNvDCSADACSiMo2gTLacMgmPtE/U+mKyKqhDX//5R0YBfqtavNXGl75nHKivGJoNdDLY1xRIbB7cCfglpeCjuWD8XohVdRg7eKiWXYnKKVS2gwGWHPKiYjsD38ylSRdnXF9PNqOnvAOjfCW/7pz2uB49CT/sg=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784550934; c=relaxed/simple;
+	bh=UvbBTMKoPXsh3DPN/yaSeC34UC/Z+/EiQKZzUC4gry4=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=jof+QRhik/QyvU6/Er/MisygO4RoS0l+TPS0B1F/Pyl1j8WC1TJN3G6P+8NYdklxMgmA1Nuoa6qO5MxDQ9aXniIThL5IAJFbZzTTMKPZsv6fOvO4iXt9D6VSPURI/uS1voAQe//4MuATBe+lJfcxtC2eZ1b8wihCALZkzlYFKjA=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=XrlwGZ8q; arc=pass smtp.client-ip=209.85.222.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="y2FwkocI";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="SF9cBLWT";
-	dkim=pass (1024-bit key) header.d=suse.de header.i=@suse.de header.b="y2FwkocI";
-	dkim=permerror (0-bit key) header.d=suse.de header.i=@suse.de header.b="SF9cBLWT"
-Received: from imap1.dmz-prg2.suse.org (unknown [10.150.64.97])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by smtp-out2.suse.de (Postfix) with ESMTPS id 30D0A3E09;
-	Mon, 20 Jul 2026 11:05:07 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1784545507; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=jy7YQBE9HAIVBFE0VOkSBBzLYevZIQzBSEslKdqseyw=;
-	b=y2FwkocI3YQIQJFXqrW9ZKICtrgU7bGVS3vz/2uDjZt14w7zVOXlNMnQ4XTNJUK34rzpem
-	JLpUktCdpsjMGideeJkQRJwuSLFJDvapFsfvDgZzS0FCBSnObDwNE5QRv++UUjkN1mcj24
-	5ZICafeK/+n3gCHZyy4tZSyWy5JZ2yo=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1784545507;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=jy7YQBE9HAIVBFE0VOkSBBzLYevZIQzBSEslKdqseyw=;
-	b=SF9cBLWTd+GoNKIEYOgPttCZT+F5hmFW/zHjyXOkatbqIxXJH/pnUErjpIGt+RTdjV8E6n
-	kYPGn/y9Fv7Ta9Bg==
-Authentication-Results: smtp-out2.suse.de;
-	none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=suse.de; s=susede2_rsa;
-	t=1784545507; h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=jy7YQBE9HAIVBFE0VOkSBBzLYevZIQzBSEslKdqseyw=;
-	b=y2FwkocI3YQIQJFXqrW9ZKICtrgU7bGVS3vz/2uDjZt14w7zVOXlNMnQ4XTNJUK34rzpem
-	JLpUktCdpsjMGideeJkQRJwuSLFJDvapFsfvDgZzS0FCBSnObDwNE5QRv++UUjkN1mcj24
-	5ZICafeK/+n3gCHZyy4tZSyWy5JZ2yo=
-DKIM-Signature: v=1; a=ed25519-sha256; c=relaxed/relaxed; d=suse.de;
-	s=susede2_ed25519; t=1784545507;
-	h=from:from:reply-to:date:date:message-id:message-id:to:to:cc:cc:
-	 mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references:autocrypt:autocrypt;
-	bh=jy7YQBE9HAIVBFE0VOkSBBzLYevZIQzBSEslKdqseyw=;
-	b=SF9cBLWTd+GoNKIEYOgPttCZT+F5hmFW/zHjyXOkatbqIxXJH/pnUErjpIGt+RTdjV8E6n
-	kYPGn/y9Fv7Ta9Bg==
-Received: from imap1.dmz-prg2.suse.org (localhost [127.0.0.1])
-	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
-	 key-exchange X25519 server-signature RSA-PSS (4096 bits) server-digest SHA256)
-	(No client certificate requested)
-	by imap1.dmz-prg2.suse.org (Postfix) with ESMTPS id BEE11779AA;
-	Mon, 20 Jul 2026 11:05:05 +0000 (UTC)
-Received: from dovecot-director2.suse.de ([2a07:de40:b281:106:10:150:64:167])
-	by imap1.dmz-prg2.suse.org with ESMTPSA
-	id cqwbLeEAXmpUBAAAD6G6ig
-	(envelope-from <tzimmermann@suse.de>); Mon, 20 Jul 2026 11:05:05 +0000
-Message-ID: <4af254a4-beb7-4f77-830f-42d5bacb10a4@suse.de>
-Date: Mon, 20 Jul 2026 13:05:03 +0200
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="XrlwGZ8q"
+Received: by mail-ua1-f41.google.com with SMTP id a1e0cc1a2514c-9690c99c917so2574141241.2
+        for <virtualization@lists.linux.dev>; Mon, 20 Jul 2026 05:35:32 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784550931; cv=none;
+        d=google.com; s=arc-20260327;
+        b=A+Fl5vz/u9+mFg2mBLM26LqWOKnEphPqT7UswrDkJoL+MRasCIjMdJ8N2y3szZiRzp
+         B8P7BRQcQUS2F0dK2W3Hdiw2z9qx6FrNfubjQrOeVcd0bRx4QkmWWQc4mE+IsPwJgRdh
+         2CfgXODtO2AY6eEzrSw85dl1WZQj/F9AvE2r6T5JFbpPnrBjL4Fygzemkggi8kVQKwwc
+         dQxV1++MTkSBbxzvgUJq8tYdRwKl53/KC1aVRYKHk90uPeooD1qkwL6xpsWwutVcQ1cb
+         73eK+D6N8mB1dukwFns5c+q3Q+4ksCFdnG6XO6cH9eObUi2EF9kBhG9h4l/QIcf7Tq+N
+         LCzA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=FJdZgmXdl95EzfJaX2vfpeNo7f8JMkb0O8aB4sRTCUY=;
+        fh=dqGC8mEtiCbd97SNqlQDcXF8C7u+fPjpLu3U6QuEhbM=;
+        b=qea/SGiWz3aneeSr08CE8dpnT2d+sW0/UBf6p0XxlvlWO/jOv1RnNpKUNCR4En2A22
+         5nt6atM5mSmp8u+q9Q3I+CZ9KPtiUrrPyo6gSTaGkHIeIn1aO2X1tZo5C+u2f6kH7PbA
+         74XcTP50y8JUuzaAFLFfgT0q7FIPn/AHZhcHQ5KSqDSDPvcH56fsRDm09UZmnbNVdjzA
+         tTXHsflak8pO1X8MkO5uZO3shTHGjWnZvgVTAtAVARerKDgxjVfbYjPYbNaSSbsD/KLN
+         JP5g23kGuY2zC1j0vOuhmkeUT41lkjh3T1gnH2gSgVJyGmLPHuD7GKF+KH3N8ZgaEf4Z
+         oYTQ==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1784550931; x=1785155731; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=FJdZgmXdl95EzfJaX2vfpeNo7f8JMkb0O8aB4sRTCUY=;
+        b=XrlwGZ8qGeWfgkeWUSXMpNLecswDddyOcc494uvVOjJecGTCxifX4NpneZQMXW47qr
+         LIwwPFjot5ftHDXl3Hc3Fut5u4w02NEIuHlNu0S5R410kEfPSnUhjqhjSdUjBy1LCJqB
+         m+q4N3hyF6PpTQAFABGSi9kqHRhJ93Ps0hYqFW6Ux2ZcY/dwlnIevoQ032ajEfxEqvD4
+         hVg1P4M/T8KeQoHfo+6LLdEi7rwa2Q9zmePrGJFiC6eKjTCXlYy2ln+Fu5OzxmcUO+j5
+         YGAY5mKLNK8B2tlYABEgDNSit0e4XameewexJNPt8PsUWJo8ES1QimxmQIwI44nTVrF+
+         xmMg==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784550931; x=1785155731;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=FJdZgmXdl95EzfJaX2vfpeNo7f8JMkb0O8aB4sRTCUY=;
+        b=XxFcstYvjLvh8JnSBj8lSQD3FQMUjr5w1Rxbcyed5kl4Gk9eCMeFO6PQd/StStnEZM
+         NHQDkwjoSgeYQ2XukytF1zF7sWPYTc2VbhJkZuyZ0HlpaMImkT2/7GUqt4mPo/gENrjO
+         g29b9HytlO2duKDeTSJT0IXSZQOulglLMCloaz1t/u+ayvHRYpP6ZGXGPabIOJ++CQ8K
+         j+Q0Fgtvow9zaRfgn9Vp08CkTxtKYUdC+OLkylkejLy39uaCTceGCZjr28wBKf6OgOw+
+         KJ4tQFmHf2GgrJho1uLNszdNLvS06rTQytMjT8urlnV0bkleSgaTjkRQoBr5FEG7KBqH
+         cLaA==
+X-Forwarded-Encrypted: i=1; AHgh+RpRrYmIXDMhD+FL+1T8mTpOv+zT/yOKpXxJOnG8GFklnchkONgM1rKA3S84yXYgKX7RGmTSF1ZYP2izqxCnqg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxwDm9GXBynUmKbSuDwR3Mg4wOaN58aTZK5YrAvKkiW/j4+F4S/
+	cin+eBjme8goTahfcQrRKctPfXwx1GtjPfNIfhemeVPF9e+BLnHfIMZiHjo12dSfUftD9kDBBLJ
+	D0VryvE+l1QcOrxCQqRIzLiNk6WZs5ALHL6v5tILw
+X-Gm-Gg: AfdE7cm7z2B2yr0jwbt4k5JwQnn9nICTdVDfacO6JtdlguFv+ZIIc2205PsuGQNz0au
+	aneY+RSaiV0JDitd7bSOE1LZ4r0kVGjycOx5AVvN2M2sszRiFtUztzTtaT6sxSKUcfAgrwcSAIs
+	w7vUtOWtarl7BGStJBMCfN/mI2Mn6AVlc923vx0z7EoFslWIzfgk/ERMBD7KrNVr+GWoleG6hkY
+	ftDuGJb8N+amLU77uRBks2o3USEg7Gw5zgU2F4VrzseeB2UUjRdm/hAFJQ/yvuEXRN7WJU=
+X-Received: by 2002:a05:6102:370b:b0:745:6b55:30c8 with SMTP id
+ ada2fe7eead31-7475379582cmr3097214137.27.1784550930790; Mon, 20 Jul 2026
+ 05:35:30 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 01/15] drm/exynos: remove dependency on DRM simple helpers
-To: Diogo Silva <diogompaissilva@gmail.com>, Jingoo Han
- <jingoohan1@gmail.com>, Inki Dae <inki.dae@samsung.com>,
- Seung-Woo Kim <sw0312.kim@samsung.com>,
- Kyungmin Park <kyungmin.park@samsung.com>, David Airlie <airlied@gmail.com>,
- Simona Vetter <simona@ffwll.ch>, Krzysztof Kozlowski <krzk@kernel.org>,
- Peter Griffin <peter.griffin@linaro.org>,
- Alim Akhtar <alim.akhtar@samsung.com>,
- Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
- Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Michal Simek <michal.simek@amd.com>,
- Thierry Reding <thierry.reding@kernel.org>,
- Mikko Perttunen <mperttunen@nvidia.com>,
- Jonathan Hunter <jonathanh@nvidia.com>, Stefan Agner <stefan@agner.ch>,
- Alison Wang <alison.wang@nxp.com>,
- Anitha Chrisanthus <anitha.chrisanthus@intel.com>,
- David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Jyri Sarha <jyri.sarha@iki.fi>,
- Liu Ying <victor.liu@nxp.com>, Frank Li <Frank.Li@nxp.com>,
- Sascha Hauer <s.hauer@pengutronix.de>,
- Pengutronix Kernel Team <kernel@pengutronix.de>,
- Fabio Estevam <festevam@gmail.com>, Chun-Kuang Hu <chunkuang.hu@kernel.org>,
- Philipp Zabel <p.zabel@pengutronix.de>,
- Matthias Brugger <matthias.bgg@gmail.com>,
- AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
- Geert Uytterhoeven <geert+renesas@glider.be>,
- Xinliang Liu <xinliang.liu@linaro.org>,
- Sumit Semwal <sumit.semwal@linaro.org>, Yongqin Liu
- <yongqin.liu@linaro.org>, John Stultz <jstultz@google.com>,
- Liviu Dudau <liviu.dudau@arm.com>, Neil Armstrong
- <neil.armstrong@linaro.org>, Kevin Hilman <khilman@baylibre.com>,
- Jerome Brunet <jbrunet@baylibre.com>,
- Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
- Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>
-Cc: dri-devel@lists.freedesktop.org, linux-arm-kernel@lists.infradead.org,
- linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-tegra@vger.kernel.org, virtualization@lists.linux.dev,
- imx@lists.linux.dev, linux-mediatek@lists.infradead.org,
- linux-renesas-soc@vger.kernel.org, linux-amlogic@lists.infradead.org,
- linux-doc@vger.kernel.org
-References: <20260719-drm_simple_encoder_init-v1-0-a78c509e3062@gmail.com>
- <20260719-drm_simple_encoder_init-v1-1-a78c509e3062@gmail.com>
-Content-Language: en-US
-From: Thomas Zimmermann <tzimmermann@suse.de>
-Autocrypt: addr=tzimmermann@suse.de; keydata=
- xsBNBFs50uABCADEHPidWt974CaxBVbrIBwqcq/WURinJ3+2WlIrKWspiP83vfZKaXhFYsdg
- XH47fDVbPPj+d6tQrw5lPQCyqjwrCPYnq3WlIBnGPJ4/jreTL6V+qfKRDlGLWFjZcsrPJGE0
- BeB5BbqP5erN1qylK9i3gPoQjXGhpBpQYwRrEyQyjuvk+Ev0K1Jc5tVDeJAuau3TGNgah4Yc
- hdHm3bkPjz9EErV85RwvImQ1dptvx6s7xzwXTgGAsaYZsL8WCwDaTuqFa1d1jjlaxg6+tZsB
- 9GluwvIhSezPgnEmimZDkGnZRRSFiGP8yjqTjjWuf0bSj5rUnTGiyLyRZRNGcXmu6hjlABEB
- AAHNJ1Rob21hcyBaaW1tZXJtYW5uIDx0emltbWVybWFubkBzdXNlLmRlPsLAjgQTAQgAOAIb
- AwULCQgHAgYVCgkICwIEFgIDAQIeAQIXgBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftODH
- AAoJEGgNwR1TC3ojx1wH/0hKGWugiqDgLNXLRD/4TfHBEKmxIrmfu9Z5t7vwUKfwhFL6hqvo
- lXPJJKQpQ2z8+X2vZm/slsLn7J1yjrOsoJhKABDi+3QWWSGkaGwRJAdPVVyJMfJRNNNIKwVb
- U6B1BkX2XDKDGffF4TxlOpSQzdtNI/9gleOoUA8+jy8knnDYzjBNOZqLG2FuTdicBXblz0Mf
- vg41gd9kCwYXDnD91rJU8tzylXv03E75NCaTxTM+FBXPmsAVYQ4GYhhgFt8S2UWMoaaABLDe
- 7l5FdnLdDEcbmd8uLU2CaG4W2cLrUaI4jz2XbkcPQkqTQ3EB67hYkjiEE6Zy3ggOitiQGcqp
- j//OwE0EWznS4AEIAMYmP4M/V+T5RY5at/g7rUdNsLhWv1APYrh9RQefODYHrNRHUE9eosYb
- T6XMryR9hT8XlGOYRwKWwiQBoWSDiTMo/Xi29jUnn4BXfI2px2DTXwc22LKtLAgTRjP+qbU6
- 3Y0xnQN29UGDbYgyyK51DW3H0If2a3JNsheAAK+Xc9baj0LGIc8T9uiEWHBnCH+RdhgATnWW
- GKdDegUR5BkDfDg5O/FISymJBHx2Dyoklv5g4BzkgqTqwmaYzsl8UxZKvbaxq0zbehDda8lv
- hFXodNFMAgTLJlLuDYOGLK2AwbrS3Sp0AEbkpdJBb44qVlGm5bApZouHeJ/+n+7r12+lqdsA
- EQEAAcLAdgQYAQgAIAIbDBYhBHIX+6yM6c9jRKFo5WgNwR1TC3ojBQJftOH6AAoJEGgNwR1T
- C3ojVSkIALpAPkIJPQoURPb1VWjh34l0HlglmYHvZszJWTXYwavHR8+k6Baa6H7ufXNQtThR
- yIxJrQLW6rV5lm7TjhffEhxVCn37+cg0zZ3j7zIsSS0rx/aMwi6VhFJA5hfn3T0TtrijKP4A
- SAQO9xD1Zk9/61JWk8OysuIh7MXkl0fxbRKWE93XeQBhIJHQfnc+YBLprdnxR446Sh8Wn/2D
- Ya8cavuWf2zrB6cZurs048xe0UbSW5AOSo4V9M0jzYI4nZqTmPxYyXbm30Kvmz0rYVRaitYJ
- 4kyYYMhuULvrJDMjZRvaNe52tkKAvMevcGdt38H4KSVXAylqyQOW5zvPc4/sq9c=
-In-Reply-To: <20260719-drm_simple_encoder_init-v1-1-a78c509e3062@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Flag: NO
-X-Spam-Score: -2.80
-X-Spamd-Result: default: False [-2.80 / 50.00];
-	BAYES_HAM(-3.00)[100.00%];
-	SUSPICIOUS_RECIPS(1.50)[];
-	NEURAL_HAM_LONG(-1.00)[-1.000];
-	NEURAL_HAM_SHORT(-0.20)[-0.981];
-	MIME_GOOD(-0.10)[text/plain];
-	FUZZY_RATELIMITED(0.00)[rspamd.com];
-	TAGGED_RCPT(0.00)[renesas];
-	MIME_TRACE(0.00)[0:+];
-	RCVD_VIA_SMTP_AUTH(0.00)[];
-	ARC_NA(0.00)[];
-	FREEMAIL_TO(0.00)[gmail.com,samsung.com,ffwll.ch,kernel.org,linaro.org,ideasonboard.com,linux.intel.com,amd.com,nvidia.com,agner.ch,nxp.com,intel.com,redhat.com,collabora.com,chromium.org,iki.fi,pengutronix.de,glider.be,google.com,arm.com,baylibre.com,googlemail.com,lwn.net,linuxfoundation.org];
-	TO_DN_SOME(0.00)[];
-	FREEMAIL_ENVRCPT(0.00)[gmail.com];
-	MID_RHS_MATCH_FROM(0.00)[];
-	DKIM_SIGNED(0.00)[suse.de:s=susede2_rsa,suse.de:s=susede2_ed25519];
-	FROM_EQ_ENVFROM(0.00)[];
-	FROM_HAS_DN(0.00)[];
-	R_RATELIMIT(0.00)[to_ip_from(RL6e75e7xiqh135443e1d3zo16)];
-	RCVD_TLS_ALL(0.00)[];
-	RCVD_COUNT_TWO(0.00)[2];
-	TO_MATCH_ENVRCPT_SOME(0.00)[];
-	RCPT_COUNT_GT_50(0.00)[59];
-	DBL_BLOCKED_OPENRESOLVER(0.00)[suse.com:url,imap1.dmz-prg2.suse.org:helo,suse.de:mid]
-X-Spam-Level: 
+References: <20260622171017-mutt-send-email-mst@kernel.org>
+ <20260625201850.2981130-1-briandaniels@google.com> <20260712085726.19198fda@foz.lan>
+ <20260718132759-mutt-send-email-mst@kernel.org>
+In-Reply-To: <20260718132759-mutt-send-email-mst@kernel.org>
+From: Alistair Delva <adelva@google.com>
+Date: Mon, 20 Jul 2026 05:35:19 -0700
+X-Gm-Features: AUfX_myV_gcQhOt-mF2dgrkfwe13YMu_2UC0wTl03jSgp2LZR5qnj01EJpc8usY
+Message-ID: <CANDihLFeF_nKi5z=eH5Mwaa4s8fEU1chS4K2VQZ+0b-0OLybjg@mail.gmail.com>
+Subject: Re: [PATCH v4 6/8] media: virtio: Add virtio_media_driver
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>, Brian Daniels <briandaniels@google.com>, 
+	Mauro Carvalho Chehab <mchehab@kernel.org>, acourbot@google.com, aesteve@redhat.com, 
+	changyeon@google.com, daniel.almeida@collabora.com, eperezma@redhat.com, 
+	gnurou@gmail.com, gurchetansingh@google.com, hverkuil@xs4all.nl, 
+	jasowang@redhat.com, linux-kernel@vger.kernel.org, 
+	linux-media@vger.kernel.org, nicolas.dufresne@collabora.com, 
+	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-Hi
-
-Am 19.07.26 um 01:35 schrieb Diogo Silva:
-> The simple KMS helpers are deprecated because they only add an
-> intermediate layer between drivers and atomic modesetting.
+On Sat, Jul 18, 2026 at 10:29=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com=
+> wrote:
 >
-> Open-code drm_simple_encoder_init() by calling drm_encoder_init()
-> directly and providing driver-local drm_encoder_funcs.
-> Also check the return value from drm_encoder_init() to avoid silent
-> failures.
+> On Sun, Jul 12, 2026 at 08:57:26AM +0200, Mauro Carvalho Chehab wrote:
+> > On Thu, 25 Jun 2026 16:18:48 -0400
+> > Brian Daniels <briandaniels@google.com> wrote:
+> >
+> > > > > From: Alexandre Courbot <gnurou@gmail.com>
+> > > > >
+> > > > > virtio_media_driver.c provides the expected driver hooks, and sup=
+port
+> > > > > for mmapping and polling.
+> > > > >
+> > > > > Signed-off-by: Alexandre Courbot <gnurou@gmail.com>
+> > > > > Co-developed-by: Brian Daniels <briandaniels@google.com>
+> > > > > Signed-off-by: Brian Daniels <briandaniels@google.com>
+> > > > > ---
+> > > > >  drivers/media/virtio/virtio_media_driver.c | 959 +++++++++++++++=
+++++++
+> > > > >  1 file changed, 959 insertions(+)
+> > > > >  create mode 100644 drivers/media/virtio/virtio_media_driver.c
+> > > > >
+> > > > > diff --git a/drivers/media/virtio/virtio_media_driver.c b/drivers=
+/media/virtio/virtio_media_driver.c
+> > > > > new file mode 100644
+> > > > > index 000000000..d6363c673
+> > > > > --- /dev/null
+> > > > > +++ b/drivers/media/virtio/virtio_media_driver.c
+> > > > > @@ -0,0 +1,959 @@
+> > > > > +// SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0+
+> > > > > +
+> > > > > +/*
+> > > > > + * Virtio-media driver.
+> > > > > + *
+> > > > > + * Copyright (c) 2024-2025 Google LLC.
+> > > > > + */
+> > > > > +
+> > > > > +#include <linux/delay.h>
+> > > > > +#include <linux/device.h>
+> > > > > +#include <linux/dev_printk.h>
+> > > > > +#include <linux/mm.h>
+> > > > > +#include <linux/mutex.h>
+> > > > > +#include <linux/scatterlist.h>
+> > > > > +#include <linux/types.h>
+> > > > > +#include <linux/videodev2.h>
+> > > > > +#include <linux/vmalloc.h>
+> > > > > +#include <linux/wait.h>
+> > > > > +#include <linux/workqueue.h>
+> > > > > +#include <linux/module.h>
+> > > > > +#include <linux/moduleparam.h>
+> > > > > +#include <linux/virtio.h>
+> > > > > +#include <linux/virtio_config.h>
+> > > > > +#include <linux/virtio_ids.h>
+> > > > > +
+> > > > > +#include <media/frame_vector.h>
+> > > > > +#include <media/v4l2-dev.h>
+> > > > > +#include <media/v4l2-event.h>
+> > > > > +#include <media/videobuf2-memops.h>
+> > > > > +#include <media/v4l2-device.h>
+> > > > > +#include <media/v4l2-ioctl.h>
+> > > > > +
+> > > > > +#include "protocol.h"
+> > > > > +#include "session.h"
+> > > > > +#include "virtio_media.h"
+> > > > > +
+> > > > > +#define VIRTIO_MEDIA_NUM_EVENT_BUFS 16
+> > > > > +
+> > > > > +/* ID of the SHM region into which MMAP buffer will be mapped. *=
+/
+> > > > > +#define VIRTIO_MEDIA_SHM_MMAP 0
+> > > > > +
+> > > > > +/*
+> > > > > + * Name of the driver to expose to user-space.
+> > > > > + *
+> > > > > + * This is configurable because v4l2-compliance has workarounds =
+specific to
+> > > > > + * some drivers. When proxying these directly from the host, thi=
+s allows it to
+> > > > > + * apply them as needed.
+> > > > > + */
+> > > > > +char *virtio_media_driver_name;
+> > > > > +module_param_named(driver_name, virtio_media_driver_name, charp,=
+ 0660);
+> > > >
+> > > >
+> > > > Um. What? Not how it should be handled.
+> > >
+> > > I can remove this module param. I didn't end up using this when compl=
+iance testing.
+> > > Instead, I patched v4l-utils:
+> > > https://lore.kernel.org/all/20260528163448.4031965-1-briandaniels@goo=
+gle.com/
+> > >
+> > > Let me know if you think the v4l-utils patch is a good approach, othe=
+rwise let
+> > > me know how you'd prefer to address the v4l2-compliance driver-specif=
+ic workounds
+> > > when they're being proxied with virtio-media.
+> >
+> > This kind of discussion should happen on a separate PR for v4l2-complia=
+nce,
+> > c/c to the proper developers and maintainers of it.
 >
-> Signed-off-by: Diogo Silva <diogompaissilva@gmail.com>
-> ---
->   drivers/gpu/drm/exynos/exynos_dp.c       | 13 +++++++++++--
->   drivers/gpu/drm/exynos/exynos_drm_dpi.c  | 14 ++++++++++++--
->   drivers/gpu/drm/exynos/exynos_drm_dsi.c  | 11 +++++++++--
->   drivers/gpu/drm/exynos/exynos_drm_vidi.c | 14 ++++++++++++--
->   drivers/gpu/drm/exynos/exynos_hdmi.c     | 15 +++++++++++++--
->   5 files changed, 57 insertions(+), 10 deletions(-)
 >
-> diff --git a/drivers/gpu/drm/exynos/exynos_dp.c b/drivers/gpu/drm/exynos/exynos_dp.c
-> index b80540328150..1598892c602b 100644
-> --- a/drivers/gpu/drm/exynos/exynos_dp.c
-> +++ b/drivers/gpu/drm/exynos/exynos_dp.c
-> @@ -24,11 +24,11 @@
->   #include <drm/drm_bridge.h>
->   #include <drm/drm_bridge_connector.h>
->   #include <drm/drm_crtc.h>
-> +#include <drm/drm_encoder.h>
->   #include <drm/drm_of.h>
->   #include <drm/drm_panel.h>
->   #include <drm/drm_print.h>
->   #include <drm/drm_probe_helper.h>
-> -#include <drm/drm_simple_kms_helper.h>
->   #include <drm/exynos_drm.h>
->   
->   #include "exynos_drm_crtc.h"
-> @@ -79,6 +79,10 @@ static void exynos_dp_nop(struct drm_encoder *encoder)
->   	/* do nothing */
->   }
->   
-> +static const struct drm_encoder_funcs exynos_dp_encoder_funcs = {
-> +	.destroy = drm_encoder_cleanup,
-> +};
-> +
->   static const struct drm_encoder_helper_funcs exynos_dp_encoder_helper_funcs = {
->   	.mode_set = exynos_dp_mode_set,
->   	.enable = exynos_dp_nop,
-> @@ -95,7 +99,12 @@ static int exynos_dp_bind(struct device *dev, struct device *master, void *data)
->   
->   	dp->drm_dev = drm_dev;
->   
-> -	drm_simple_encoder_init(drm_dev, encoder, DRM_MODE_ENCODER_TMDS);
-> +	ret = drm_encoder_init(drm_dev, encoder, &exynos_dp_encoder_funcs,
-> +			       DRM_MODE_ENCODER_TMDS, NULL);
-> +	if (ret) {
-> +		dev_err(dp->dev, "Failed to initialize encoder\n");
+> I wonder how migration can work when guest is tied to host driver model l=
+ike
+> this.
 
-Preferably use drm_err and drm_dev.
+We haven't given migration much thought yet, but I think it wouldn't
+be so different to GPU, where to do snapshot/migration we have to
+record all initialization / context setup state and replay it against
+the GPU driver on restore (see https://github.com/google/gfxstream).
+Some migrations will be possible, some will not, and the host should
+be able to decide.
 
-> +		return ret;
-> +	}
->   
->   	drm_encoder_helper_add(encoder, &exynos_dp_encoder_helper_funcs);
->   
-> diff --git a/drivers/gpu/drm/exynos/exynos_drm_dpi.c b/drivers/gpu/drm/exynos/exynos_drm_dpi.c
-> index 0dc36df6ada3..4e42a1da81d1 100644
-> --- a/drivers/gpu/drm/exynos/exynos_drm_dpi.c
-> +++ b/drivers/gpu/drm/exynos/exynos_drm_dpi.c
-> @@ -12,10 +12,10 @@
->   #include <linux/regulator/consumer.h>
->   
->   #include <drm/drm_atomic_helper.h>
-> +#include <drm/drm_encoder.h>
->   #include <drm/drm_panel.h>
->   #include <drm/drm_print.h>
->   #include <drm/drm_probe_helper.h>
-> -#include <drm/drm_simple_kms_helper.h>
->   
->   #include <video/of_videomode.h>
->   #include <video/videomode.h>
-> @@ -140,6 +140,10 @@ static void exynos_dpi_disable(struct drm_encoder *encoder)
->   	}
->   }
->   
-> +static const struct drm_encoder_funcs exynos_dpi_encoder_funcs = {
-> +	.destroy = drm_encoder_cleanup,
-> +};
-> +
->   static const struct drm_encoder_helper_funcs exynos_dpi_encoder_helper_funcs = {
->   	.mode_set = exynos_dpi_mode_set,
->   	.enable = exynos_dpi_enable,
-> @@ -194,7 +198,13 @@ int exynos_dpi_bind(struct drm_device *dev, struct drm_encoder *encoder)
->   {
->   	int ret;
->   
-> -	drm_simple_encoder_init(dev, encoder, DRM_MODE_ENCODER_TMDS);
-> +	ret = drm_encoder_init(dev, encoder, &exynos_dpi_encoder_funcs,
-> +			       DRM_MODE_ENCODER_TMDS, NULL);
-> +	if (ret) {
-> +		DRM_DEV_ERROR(encoder_to_dpi(encoder)->dev,
+Also, Brian mentioned the host device pass-through use case, but we
+also have device implementations on the host that work with camera
+emulators or some other data source like video/webrtc, which will
+support snapshot/migration more easily. This use case will probably
+will see more real-world use and migration will be more relevant.
 
-It just failed to init the encoder, so better not use it here. The 
-device should be the same as passed to the function via 'dev'.
-
-> +			      "failed to create encoder ret = %d\n", ret);
-> +		return ret;
-> +	}
->   
->   	drm_encoder_helper_add(encoder, &exynos_dpi_encoder_helper_funcs);
->   
-> diff --git a/drivers/gpu/drm/exynos/exynos_drm_dsi.c b/drivers/gpu/drm/exynos/exynos_drm_dsi.c
-> index c4d098ab7863..6b7561ac9bb0 100644
-> --- a/drivers/gpu/drm/exynos/exynos_drm_dsi.c
-> +++ b/drivers/gpu/drm/exynos/exynos_drm_dsi.c
-> @@ -13,7 +13,7 @@
->   
->   #include <drm/bridge/samsung-dsim.h>
->   #include <drm/drm_probe_helper.h>
-> -#include <drm/drm_simple_kms_helper.h>
-> +#include <drm/drm_encoder.h>
->   
->   #include "exynos_drm_crtc.h"
->   #include "exynos_drm_drv.h"
-> @@ -22,6 +22,10 @@ struct exynos_dsi {
->   	struct drm_encoder encoder;
->   };
->   
-> +static const struct drm_encoder_funcs exynos_drm_dsi_encoder_funcs = {
-> +	.destroy = drm_encoder_cleanup,
-> +};
-> +
->   static irqreturn_t exynos_dsi_te_irq_handler(struct samsung_dsim *dsim)
->   {
->   	struct exynos_dsi *dsi = dsim->priv;
-> @@ -79,7 +83,10 @@ static int exynos_dsi_bind(struct device *dev, struct device *master, void *data
->   	struct drm_device *drm_dev = data;
->   	int ret;
->   
-> -	drm_simple_encoder_init(drm_dev, encoder, DRM_MODE_ENCODER_TMDS);
-> +	ret = drm_encoder_init(drm_dev, encoder, &exynos_drm_dsi_encoder_funcs,
-> +			       DRM_MODE_ENCODER_TMDS, NULL);
-> +	if (ret)
-> +		return ret;
->   
->   	ret = exynos_drm_set_possible_crtcs(encoder, EXYNOS_DISPLAY_TYPE_LCD);
->   	if (ret < 0)
-> diff --git a/drivers/gpu/drm/exynos/exynos_drm_vidi.c b/drivers/gpu/drm/exynos/exynos_drm_vidi.c
-> index 67bbf9b8bc0e..59dea853d364 100644
-> --- a/drivers/gpu/drm/exynos/exynos_drm_vidi.c
-> +++ b/drivers/gpu/drm/exynos/exynos_drm_vidi.c
-> @@ -13,10 +13,10 @@
->   
->   #include <drm/drm_atomic_helper.h>
->   #include <drm/drm_edid.h>
-> +#include <drm/drm_encoder.h>
->   #include <drm/drm_framebuffer.h>
->   #include <drm/drm_print.h>
->   #include <drm/drm_probe_helper.h>
-> -#include <drm/drm_simple_kms_helper.h>
->   #include <drm/drm_vblank.h>
->   #include <drm/exynos_drm.h>
->   
-> @@ -403,6 +403,10 @@ static void exynos_vidi_disable(struct drm_encoder *encoder)
->   {
->   }
->   
-> +static const struct drm_encoder_funcs exynos_vidi_encoder_funcs = {
-> +	.destroy = drm_encoder_cleanup,
-> +};
-> +
->   static const struct drm_encoder_helper_funcs exynos_vidi_encoder_helper_funcs = {
->   	.mode_set = exynos_vidi_mode_set,
->   	.enable = exynos_vidi_enable,
-> @@ -445,7 +449,13 @@ static int vidi_bind(struct device *dev, struct device *master, void *data)
->   		return PTR_ERR(ctx->crtc);
->   	}
->   
-> -	drm_simple_encoder_init(drm_dev, encoder, DRM_MODE_ENCODER_TMDS);
-> +	ret = drm_encoder_init(drm_dev, encoder, &exynos_vidi_encoder_funcs,
-> +			       DRM_MODE_ENCODER_TMDS, NULL);
-> +	if (ret) {
-> +		DRM_DEV_ERROR(dev, "failed to initialize encoder ret = %d\n",
-> +			      ret);
-
-Again, you rather want drm_err() with drm_dev here.
-
-I've briefly looked over the series and many patches seem affected. 
-Please prefer drm_ logging functions and DRM devices over the plain 
-device equivalents.
-
-Best regards
-Thomas
-
-
-> +		return ret;
-> +	}
->   
->   	drm_encoder_helper_add(encoder, &exynos_vidi_encoder_helper_funcs);
->   
-> diff --git a/drivers/gpu/drm/exynos/exynos_hdmi.c b/drivers/gpu/drm/exynos/exynos_hdmi.c
-> index 09b2cabb236f..f44586ce0fdf 100644
-> --- a/drivers/gpu/drm/exynos/exynos_hdmi.c
-> +++ b/drivers/gpu/drm/exynos/exynos_hdmi.c
-> @@ -36,9 +36,9 @@
->   #include <drm/drm_atomic_helper.h>
->   #include <drm/drm_bridge.h>
->   #include <drm/drm_edid.h>
-> +#include <drm/drm_encoder.h>
->   #include <drm/drm_print.h>
->   #include <drm/drm_probe_helper.h>
-> -#include <drm/drm_simple_kms_helper.h>
->   
->   #include "exynos_drm_crtc.h"
->   #include "regs-hdmi.h"
-> @@ -1575,6 +1575,11 @@ static void hdmi_disable(struct drm_encoder *encoder)
->   	mutex_unlock(&hdata->mutex);
->   }
->   
-> +static const struct drm_encoder_funcs exynos_hdmi_encoder_funcs = {
-> +	.destroy = drm_encoder_cleanup,
-> +};
-> +
-> +
->   static const struct drm_encoder_helper_funcs exynos_hdmi_encoder_helper_funcs = {
->   	.mode_fixup	= hdmi_mode_fixup,
->   	.enable		= hdmi_enable,
-> @@ -1862,7 +1867,13 @@ static int hdmi_bind(struct device *dev, struct device *master, void *data)
->   
->   	hdata->phy_clk.enable = hdmiphy_clk_enable;
->   
-> -	drm_simple_encoder_init(drm_dev, encoder, DRM_MODE_ENCODER_TMDS);
-> +	ret = drm_encoder_init(drm_dev, encoder, &exynos_hdmi_encoder_funcs,
-> +			       DRM_MODE_ENCODER_TMDS, NULL);
-> +	if (ret) {
-> +		DRM_DEV_ERROR(dev, "failed to initialize encoder ret = %d\n",
-> +			      ret);
-> +		return ret;
-> +	}
->   
->   	drm_encoder_helper_add(encoder, &exynos_hdmi_encoder_helper_funcs);
->   
+> > >
+> > > > > +
+> > > > > +/*
+> > > > > + * Whether USERPTR buffers are allowed.
+> > > > > + *
+> > > > > + * This is disabled by default as USERPTR buffers are dangerous,=
+ but the option
+> > > > > + * is left to enable them if desired.
+> > > > > + */
+> > > > > +bool virtio_media_allow_userptr;
+> > > > > +module_param_named(allow_userptr, virtio_media_allow_userptr, bo=
+ol, 0660);
+> > > >
+> > > >
+> > > > is this kind of thing common?
+> >
+> > There is one old media device that has it (saa7134).
+> >
+> > >
+> > > To be honest, I don't really know. I'm also not that familiar with th=
+e USERPTR
+> > > issues. I see a few references online about their use being discourag=
+ed due to
+> > > possible race conditions, perhaps that was the original motivation fo=
+r this
+> > > parameter (I'm not the original author of this driver).
+> > >
+> > > I'm open to alternatives, feel free to let me know if you have a pref=
+erence.
+> >
+> > We tend to not implement USERPTR on newer drivers. I suggest you
+> > to place the logic with regards to V4L2_MEMORY_USERPTR on a separate
+> > patch for further discussions.
+> >
+> > >
+> > > > > +
+> > > > > +/**
+> > > > > + * virtio_media_session_alloc - Allocate a new session.
+> > > > > + * @vv: virtio-media device the session belongs to.
+> > > > > + * @id: ID of the session.
+> > > > > + * @nonblocking_dequeue: whether dequeuing of buffers should be =
+blocking or
+> > > > > + * not.
+> > > > > + *
+> > > > > + * The ``id`` and ``list`` fields must still be set by the calle=
+r.
+> > > >
+> > > > still in what sense?
+> > >
+> > > Based on the code below, I'm not so sure that the caller is responsib=
+le for
+> > > setting these values. They seem to be initialized in the function.
+> > >
+> > > Perhaps Alexandre Courbot (the original author) would know more. Unle=
+ss he
+> > > says otherwise though I'm inclined to remove this comment.
+> > >
+> > > > > + */
+> > > > > +static struct virtio_media_session *
+> > > > > +virtio_media_session_alloc(struct virtio_media *vv, u32 id,
+> > > > > +                          struct file *file)
+> > > > > +{
+> > > > > +       struct virtio_media_session *session;
+> > > > > +       int i;
+> > > > > +       int ret;
+> > > > > +
+> > > > > +       session =3D kzalloc_obj(*session, GFP_KERNEL);
+> > > > > +       if (!session)
+> > > > > +               goto err_session;
+> > > > > +
+> > > > > +       session->shadow_buf =3D kzalloc(VIRTIO_SHADOW_BUF_SIZE, G=
+FP_KERNEL);
+> > > > > +       if (!session->shadow_buf)
+> > > > > +               goto err_shadow_buf;
+> > > > > +
+> > > > > +       ret =3D sg_alloc_table(&session->command_sgs, DESC_CHAIN_=
+MAX_LEN,
+> > > > > +                            GFP_KERNEL);
+> > > > > +       if (ret)
+> > > > > +               goto err_payload_sgs;
+> > > > > +
+> > > > > +       session->id =3D id;
+> > > > > +       session->nonblocking_dequeue =3D file->f_flags & O_NONBLO=
+CK;
+> > > > > +
+> > > > > +       INIT_LIST_HEAD(&session->list);
+> > > > > +       v4l2_fh_init(&session->fh, &vv->video_dev);
+> > > > > +       virtio_media_session_fh_add(session, file);
+> > > > > +
+> > > > > +       for (i =3D 0; i <=3D VIRTIO_MEDIA_LAST_QUEUE; i++)
+> > > > > +               INIT_LIST_HEAD(&session->queues[i].pending_dqbufs=
+);
+> > > > > +       mutex_init(&session->queues_lock);
+> > > > > +
+> > > > > +       init_waitqueue_head(&session->dqbuf_wait);
+> > > > > +
+> > > > > +       mutex_lock(&vv->sessions_lock);
+> > > > > +       list_add_tail(&session->list, &vv->sessions);
+> > > > > +       mutex_unlock(&vv->sessions_lock);
+> > > > > +
+> > > > > +       return session;
+> > > > > +
+> > > > > +err_payload_sgs:
+> > > > > +       kfree(session->shadow_buf);
+> > > > > +err_shadow_buf:
+> > > > > +       kfree(session);
+> > > > > +err_session:
+> > > > > +       return ERR_PTR(-ENOMEM);
+> > > > > +}
+> > > > > +
+> > > > > +/**
+> > > > > + * virtio_media_session_free - Free all resources of a session.
+> > > > > + * @vv: virtio-media device the session belongs to.
+> > > > > + * @session: session to destroy.
+> > > > > + *
+> > > > > + * All the resources of @sesssion, as well as the backing memory=
+ of @session
+> > > > > + * itself, are freed.
+> > > >
+> > > > why @ here and `` above? And typo in the name.
+> > >
+> > > The `@` here was an attempt to follow the guide here for referencing =
+function
+> > > parameters:
+> > > https://docs.kernel.org/doc-guide/kernel-doc.html#highlights-and-cros=
+s-references
+> >
+> > Yes. This is part of Linux Kernel kernel-doc markup: when referring to
+> > struct fields, you should use @field (or ``field`` if one wants to plac=
+e an
+> > asterisk on it, like ``*field``).
+> >
+> > >
+> > > That being said, I don't believe this file is 100% consistent with th=
+at. I will
+> > > spend some time cleaning up the comments throughout this patch set to=
+ get them
+> > > consistent for v5. Thanks!
+> >
+> > Please use it on a consistent way along the driver.
+> >
+> >
+> > Thanks,
+> > Mauro
 >
-
--- 
---
-Thomas Zimmermann
-Graphics Driver Developer
-SUSE Software Solutions Germany GmbH
-Frankenstr. 146, 90461 Nürnberg, Germany, www.suse.com
-GF: Jochen Jaser, Andrew McDonald, (HRB 36809, AG Nürnberg)
-
-
