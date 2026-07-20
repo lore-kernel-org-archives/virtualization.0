@@ -1,354 +1,195 @@
-Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D2E9143784D
-	for <virtualization@lists.linux.dev>; Mon, 20 Jul 2026 15:49:09 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.171
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784562551; cv=pass; b=ODYGMX7MKqMIo3+MYh4jDzCtfHKMEm5DAy94SoflK0xXqI0O1T4D6xD4TwqPMjy6/ytymL2GLYf1MeLe/tMuUuf48Fw1X3sdwOd34wxzp43mbDRcrncTfji5/SCiFCGmS+o8Dk+h6SzlS3NViU6BIiqDXYikCxx97TfcxUqTV6Y=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784562551; c=relaxed/simple;
-	bh=9IHkLXWFTSQVwdp6rmoJfE1bYrN4W9BCKMG9hqh6Y1I=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=HBIIvzNREL+0tkGaM+HPOAil2qsrPQe/6bFdSqRGMEQ9hTuyBrxfyKjyui+B6nTLfhMJaXZ9m0vHLBQk8M0CxiPaI/glvHvDT1CMfqt/zea8XjU033LEluXoOhM0OC2xChdSTI7NXmxneMxHkvdYI5ByfFSTQPwxjIGekLy7s5w=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=o3d6p+uD; arc=pass smtp.client-ip=209.85.214.171
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C44D445AF9
+	for <virtualization@lists.linux.dev>; Mon, 20 Jul 2026 17:23:44 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784568229; cv=none; b=AGKNMipW+RNzBIWfDTWNxITGAqmYLB4iFa2ilwQQKcrvbOn/5HlgIcLvIGDmnY4l6Xtsx4+6GZNEeX6lMKFdfDQEObySW1YKgEGU6WimFRYSeQYYDOHno4lvkMk8VLwn0eGKuYj+leUjVc4to5TXYfa7vw3krQBnnvVNNZGJXzI=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784568229; c=relaxed/simple;
+	bh=dqOWdcCZX2VlhJA4pzXkTcQFDzFSnKgIi2ryjATM0bA=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=qxUg/Y455nUp0X+vUkEXIWj8Yejq7jrQYBjTVW/sOgyKlGJeD8H3+qpYx0BWJtqX6AhztXnZ/DB38gQgNjGPIYYiXb3zBItn4CcQk/aAgbXgwYwdjFs213B3qAOl2a/tAEEuxuTp62+QxFN7TrUrsw4wJ672vgf3u7fCBbY00qc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=B/hdMBjp; arc=none smtp.client-ip=148.163.158.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="o3d6p+uD"
-Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2cab97c86bdso395885ad.1
-        for <virtualization@lists.linux.dev>; Mon, 20 Jul 2026 08:49:09 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784562549; cv=none;
-        d=google.com; s=arc-20260327;
-        b=GyZfJHxLSjhY/wgSLkpH6TRZmhOPOb8kQxnMGjIXthMaDlZnAn3MnKBtiiGAjnXCe/
-         Cl+FvuksIxXuFnXi+V6c7ZyOh5+IPCWNZP+QKS2pBAYt/gGBBGUQ6qfBRIXDlp7uq6Ho
-         dAeBfQD/jrK9UmEa6RZj28vReKHTNGWBrw4gJq4+Jng6OjIcTZU/uOMibfpbkRtwFrl8
-         N7X3Qq08UQP+UJ8gEvjFoSmLegfyWyiCzY6XijqOIrp+l+2l56grf+MLKgBEl9xw7RYl
-         J6ZNIcaoanzU71alglpenvVWA5UFMuPgiLymPsJHbJ2kDfzP8KX9hq1XvGyiuud76vFa
-         3isw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=s5oTv9im5ZGYwoCoeEyWerVwRP7Sucl0k2LnrtSJ/dM=;
-        fh=KoQfxXjN5cmUARvaIiAhmFpDNwr1sJ9ASSC1xtnauAA=;
-        b=flGZrqsqDDnZC9gDTpu2EqDApmILgRdxTlpw4OoYwgtsNPQhFHz3+Q5WOaqDjudWrj
-         5URpgmOhhZke8oo0fqugeRhLb+KpRgOMbbcz1H505vy7eJ8xSlqRVAaIeCRuuJQPBSFc
-         8VZQKJH7Uv0lhL8GLj3cGkipjCsV/RQOuwpYCDZLahyXqyEgapsTdr8kiWy0Q72lCK1E
-         agzdP71Q6e5p8s8sD9MzrsAu+omptlhsif1AcBuSEKKcQYv/13VhYnSY5vgtQNIxb1YK
-         9VSbNaaGDBCTX7uN72ccg0uZTrww/BxZcf8Jy7dIcVgqUa0VgB41WfUF90r5xdtaNsRl
-         RyiQ==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1784562549; x=1785167349; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=s5oTv9im5ZGYwoCoeEyWerVwRP7Sucl0k2LnrtSJ/dM=;
-        b=o3d6p+uDYJKDVg+7wHoUhMEUfYVY5K4LKpmsg5YgAGz/R0uRgNCaIbKBi+deIUPbdY
-         MmObx0D7SMbt0p5/Uno8uc2sNjSjbNb+X5G9r2JUOBpCtqgxJCWN3XYk6yqO0TSFSqjC
-         dkp+PckBd7Fx9u+nmFJieifD/X5UBTcOu/wBXQsfwZmhQXAUd1Pg+4rFht94zpWIi57N
-         9WFwyx5BQT9EzoT1FDlGuum8v32nHXFN809I6qJM8MANPJMALszZcdq9chRebZ4F4gcW
-         M15NZ6iA5qlMJG4tWa3iwfNmrUDhT9pjZ20mBf90s4JOz6exOpc9SHDsuww2+DO+NJEm
-         /p/g==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784562549; x=1785167349;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=s5oTv9im5ZGYwoCoeEyWerVwRP7Sucl0k2LnrtSJ/dM=;
-        b=s77q1hH3HdqajXcNXSwbffIhUIA6zj+NGz56nR3H2O/pgJElLHvnRXSuop2ISIFC8u
-         F7CLUgN8/EBEWRp7qdbnK8EpvhfOJIP5pCV5auJSbpIrfTgyHACXAKFp+92i5QJTgodq
-         OmKTfqScPns7TSYbbxil5rHLyQy4/A9V8a0sqqhNtkZGIxv39fEzgPhVG9ZSVyQTVfdr
-         53aBac/DTuejQ+jrUMZAmcl3z/9mBCykpwEcdzRB2r/JtDX1i3DCDp5XeEBmyMVSsEg2
-         ZeZcEvTor/v+fTCUbRx+1ciHVgoSCxxxGCX7Bhq2C7qxSchoMrF/o0UsIqfo0znFy+G8
-         2sDg==
-X-Forwarded-Encrypted: i=1; AHgh+Rq1c29Mz16FyGaqmeCmClLQzLVc3DDk4kD3kyklnrSX8WWzfqrxODt0hpgtW2/ra9SrHWqYLrv6yPz+GbxiJQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzM/RqaKW30N9J4nSW371whcqNBr4MIcoSjTe8dBQrW4OHntLde
-	6lZbkQR83CDuQ3TuIESArndlqApkL7Z38bqmVFYkA+MLv/H3Dvkdn8Rr2VmQk6C2ZmAnXoZA4cG
-	UIygNCLlMvuhpfrZxtnldBzp8gFpvq1Mo0AGHWnE=
-X-Gm-Gg: AR+sD10Zp3S/5SGLQNgYEfDbbFGzi+82cifZuMd0Ebn4Q4bzhVYm0GSSc7S3KDDlTUY
-	eUr8diVscIBHdTbocrF+4vZrFWlY2rcDiDywLOoY+fomRKlGZobSIA7gCtZ7HuspoJ5Rgywvi1/
-	IYzTD5gC+FCUTWJPuv14FT+iwyNDWc4fwcYk2oHq6iJGPiNcqAH7HvAqSJHsokZR2K/Ior5JRiB
-	0tEQ5Pml8Ic4OzJY1uJXUlNkx++/rOxhlYgUrMMMFfrCFTvjwHoFPWixZXOeLRKo4y93/A=
-X-Received: by 2002:a17:902:c94f:b0:2c0:bf57:8746 with SMTP id
- d9443c01a7336-2cf7b6989a3mr1047145ad.18.1784562548557; Mon, 20 Jul 2026
- 08:49:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="B/hdMBjp"
+Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
+	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66KHBp1r2713374;
+	Mon, 20 Jul 2026 17:23:22 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
+	:content-transfer-encoding:date:from:in-reply-to:message-id
+	:mime-version:references:subject:to; s=pp1; bh=42tRobD+wTCxjiLRN
+	3tF22lDXmf9gwQXTXq2JNgKVRo=; b=B/hdMBjpzYaRTXl8PX1VooT4O12TexKMO
+	zUNqhSilwnj97lec7so/OnUMgej13BlFB3hJ5tfs74QquL0nXGhZLW+ObKVSBFm4
+	T1MmzEOBZMUpkZJtitzGPUOOLhW8OxPtqLDtgPV5tBJNxqQbDslctLidFsSH8c5c
+	CwlTD8DhEhV7z4pYbqC5QG0k1+4+KNV9978dB4NUJfXdB45ukJR/yC+p8KHYXpie
+	n2ATqnF7KxMheZCH6/vv1UTOB+K8fRPsAIyTOlMpFjXsFahGsoOQO0/lIyR4tjy5
+	F4pMvHxW1snWau/cRNESqQGYKYOD3KpcyQW2f0t1d/YEjA2OI/YpA==
+Received: from ppma21.wdc07v.mail.ibm.com (5b.69.3da9.ip4.static.sl-reverse.com [169.61.105.91])
+	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg78g0d5s-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 20 Jul 2026 17:23:21 +0000 (GMT)
+Received: from pps.filterd (ppma21.wdc07v.mail.ibm.com [127.0.0.1])
+	by ppma21.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66KH4cnP016150;
+	Mon, 20 Jul 2026 17:23:21 GMT
+Received: from smtprelay06.fra02v.mail.ibm.com ([9.218.2.230])
+	by ppma21.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fgmtjpkxp-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
+	Mon, 20 Jul 2026 17:23:20 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
+	by smtprelay06.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66KHNGUd29753830
+	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Mon, 20 Jul 2026 17:23:16 GMT
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id ACECC2004E;
+	Mon, 20 Jul 2026 17:23:16 +0000 (GMT)
+Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
+	by IMSVA (Postfix) with ESMTP id 1229920043;
+	Mon, 20 Jul 2026 17:23:08 +0000 (GMT)
+Received: from li-7bb28a4c-2dab-11b2-a85c-887b5c60d769.ibm.com.com (unknown [9.39.17.130])
+	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
+	Mon, 20 Jul 2026 17:23:07 +0000 (GMT)
+From: Shrikanth Hegde <sshegde@linux.ibm.com>
+To: linux-kernel@vger.kernel.org, mingo@kernel.org, peterz@infradead.org,
+        juri.lelli@redhat.com, vincent.guittot@linaro.org,
+        yury.norov@gmail.com, kprateek.nayak@amd.com, iii@linux.ibm.com,
+        corbet@lwn.net
+Cc: sshegde@linux.ibm.com, tglx@kernel.org, gregkh@linuxfoundation.org,
+        pbonzini@redhat.com, seanjc@google.com, vschneid@redhat.com,
+        huschle@linux.ibm.com, rostedt@goodmis.org, dietmar.eggemann@arm.com,
+        maddy@linux.ibm.com, srikar@linux.ibm.com, hdanton@sina.com,
+        chleroy@kernel.org, vineeth@bitbyteword.org, frederic@kernel.org,
+        arighi@nvidia.com, pauld@redhat.com, christian.loehle@arm.com,
+        tj@kernel.org, tommaso.cucinotta@gmail.com, maz@kernel.org,
+        rafael@kernel.org, rdunlap@infradead.org, kernellwp@gmail.com,
+        linux-doc@vger.kernel.org, jgross@suse.com,
+        virtualization@lists.linux.dev, kernel test robot <lkp@intel.com>
+Subject: [PATCH v8 01/11] sched/docs: Document cpu_preferred_mask and Preferred CPU concept
+Date: Mon, 20 Jul 2026 22:52:40 +0530
+Message-ID: <20260720172250.2257582-2-sshegde@linux.ibm.com>
+X-Mailer: git-send-email 2.54.0
+In-Reply-To: <20260720172250.2257582-1-sshegde@linux.ibm.com>
+References: <20260720172250.2257582-1-sshegde@linux.ibm.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260622171017-mutt-send-email-mst@kernel.org>
- <20260625201850.2981130-1-briandaniels@google.com> <20260712085726.19198fda@foz.lan>
-In-Reply-To: <20260712085726.19198fda@foz.lan>
-From: Brian Daniels <briandaniels@google.com>
-Date: Mon, 20 Jul 2026 11:48:56 -0400
-X-Gm-Features: AUfX_mw4MXvWhNuerdRMN-iqz-guHtGrBirhPauSpR73MGgBqfY_Ti9V6_c9yaQ
-Message-ID: <CAD4i_GQk=GhpVfevReO_mr_KZguzo37d7zdEmuzL+f_u2ye0vg@mail.gmail.com>
-Subject: Re: [PATCH v4 6/8] media: virtio: Add virtio_media_driver
-To: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, Mauro Carvalho Chehab <mchehab@kernel.org>, acourbot@google.com, 
-	adelva@google.com, aesteve@redhat.com, changyeon@google.com, 
-	daniel.almeida@collabora.com, eperezma@redhat.com, gnurou@gmail.com, 
-	gurchetansingh@google.com, hverkuil@xs4all.nl, jasowang@redhat.com, 
-	linux-kernel@vger.kernel.org, linux-media@vger.kernel.org, 
-	nicolas.dufresne@collabora.com, virtualization@lists.linux.dev, 
-	xuanzhuo@linux.alibaba.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-TM-AS-GCONF: 00
+X-Proofpoint-Reinject: loops=2 maxloops=12
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIwMDE5MSBTYWx0ZWRfX75JsjDgUTbv5
+ GSTytuAiSoTOAhCYUjv532Ggc+qjgiLx42qGlYJeV/2p81fzoSC5ehBsXxviKyoeAeqkiTmgTqi
+ Tt0vl4UlIowJvz+e+8OFcyqf8X7ITgyTrz9xQxBNPmaRs5TabKOf+626IcrT7/eeGChYxH1dtQt
+ g6AvniFK/2/5pH0dZR/ae1a4wNNd5NiuykxeNpsqrHIq5qC/TGSXgR2Um13V7Lv8A7NFTfowycq
+ ARQjILxGQmJSSrd+4zXcjb8hu0zZh4T/D9FmOkXsvdziHseIgQmdJF6tiAEnHwBTvaV1XLfGNP4
+ aIC7bemkqDr4XBdXJPD3Hb9JJyAZjWBNA6OUFy86S+T8/Vz8jNk6E6SbyIwFG8q3rkJbyCIK8fZ
+ ab/3cTSasWL4bMxu2GEh7AZIYrQyBkoJGgzLNLEtBzExtlH0NUYmkXBXbnotoxCADKVpMBK//qn
+ X95rL69oiePsXCIeW3g==
+X-Proofpoint-GUID: gwTy5Sd5vLSl-e7sRmyMt8llY1Mv0fsj
+X-Authority-Analysis: v=2.4 cv=MelcfZ/f c=1 sm=1 tr=0 ts=6a5e598a cx=c_pps
+ a=GFwsV6G8L6GxiO2Y/PsHdQ==:117 a=GFwsV6G8L6GxiO2Y/PsHdQ==:17
+ a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=RnoormkPH1_aCDwRdu11:22
+ a=V8glGbnc2Ofi9Qvn3v5h:22 a=VwQbUJbxAAAA:8 a=QyXUC8HyAAAA:8 a=VnNF1IyMAAAA:8
+ a=d8MiXRUMn4SEn--m04oA:9
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIwMDE5MSBTYWx0ZWRfX1WItabpm635J
+ mP4jPvSlWeC7CpJ5OvGRjF3qAdmnLpFU6+6tVSexa0INs6AB16gIkUMz6W6Ggv7AyMD5kPcFOTY
+ /a7k76ZZEWZEGvgc315JV+IWVSoWBZE=
+X-Proofpoint-ORIG-GUID: TMbTfP6QlKi6KnhQfW4FJ5O2XpfN5BsF
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-20_04,2026-07-20_03,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ impostorscore=0 lowpriorityscore=0 priorityscore=1501 bulkscore=0 spamscore=0
+ clxscore=1015 malwarescore=0 phishscore=0 adultscore=0 suspectscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607200191
 
-On Sun, Jul 12, 2026 at 2:57=E2=80=AFAM Mauro Carvalho Chehab
-<mchehab+huawei@kernel.org> wrote:
->
-> On Thu, 25 Jun 2026 16:18:48 -0400
-> Brian Daniels <briandaniels@google.com> wrote:
->
-> > > > From: Alexandre Courbot <gnurou@gmail.com>
-> > > >
-> > > > virtio_media_driver.c provides the expected driver hooks, and suppo=
-rt
-> > > > for mmapping and polling.
-> > > >
-> > > > Signed-off-by: Alexandre Courbot <gnurou@gmail.com>
-> > > > Co-developed-by: Brian Daniels <briandaniels@google.com>
-> > > > Signed-off-by: Brian Daniels <briandaniels@google.com>
-> > > > ---
-> > > >  drivers/media/virtio/virtio_media_driver.c | 959 +++++++++++++++++=
-++++
-> > > >  1 file changed, 959 insertions(+)
-> > > >  create mode 100644 drivers/media/virtio/virtio_media_driver.c
-> > > >
-> > > > diff --git a/drivers/media/virtio/virtio_media_driver.c b/drivers/m=
-edia/virtio/virtio_media_driver.c
-> > > > new file mode 100644
-> > > > index 000000000..d6363c673
-> > > > --- /dev/null
-> > > > +++ b/drivers/media/virtio/virtio_media_driver.c
-> > > > @@ -0,0 +1,959 @@
-> > > > +// SPDX-License-Identifier: BSD-3-Clause OR GPL-2.0+
-> > > > +
-> > > > +/*
-> > > > + * Virtio-media driver.
-> > > > + *
-> > > > + * Copyright (c) 2024-2025 Google LLC.
-> > > > + */
-> > > > +
-> > > > +#include <linux/delay.h>
-> > > > +#include <linux/device.h>
-> > > > +#include <linux/dev_printk.h>
-> > > > +#include <linux/mm.h>
-> > > > +#include <linux/mutex.h>
-> > > > +#include <linux/scatterlist.h>
-> > > > +#include <linux/types.h>
-> > > > +#include <linux/videodev2.h>
-> > > > +#include <linux/vmalloc.h>
-> > > > +#include <linux/wait.h>
-> > > > +#include <linux/workqueue.h>
-> > > > +#include <linux/module.h>
-> > > > +#include <linux/moduleparam.h>
-> > > > +#include <linux/virtio.h>
-> > > > +#include <linux/virtio_config.h>
-> > > > +#include <linux/virtio_ids.h>
-> > > > +
-> > > > +#include <media/frame_vector.h>
-> > > > +#include <media/v4l2-dev.h>
-> > > > +#include <media/v4l2-event.h>
-> > > > +#include <media/videobuf2-memops.h>
-> > > > +#include <media/v4l2-device.h>
-> > > > +#include <media/v4l2-ioctl.h>
-> > > > +
-> > > > +#include "protocol.h"
-> > > > +#include "session.h"
-> > > > +#include "virtio_media.h"
-> > > > +
-> > > > +#define VIRTIO_MEDIA_NUM_EVENT_BUFS 16
-> > > > +
-> > > > +/* ID of the SHM region into which MMAP buffer will be mapped. */
-> > > > +#define VIRTIO_MEDIA_SHM_MMAP 0
-> > > > +
-> > > > +/*
-> > > > + * Name of the driver to expose to user-space.
-> > > > + *
-> > > > + * This is configurable because v4l2-compliance has workarounds sp=
-ecific to
-> > > > + * some drivers. When proxying these directly from the host, this =
-allows it to
-> > > > + * apply them as needed.
-> > > > + */
-> > > > +char *virtio_media_driver_name;
-> > > > +module_param_named(driver_name, virtio_media_driver_name, charp, 0=
-660);
-> > >
-> > >
-> > > Um. What? Not how it should be handled.
-> >
-> > I can remove this module param. I didn't end up using this when complia=
-nce testing.
-> > Instead, I patched v4l-utils:
-> > https://lore.kernel.org/all/20260528163448.4031965-1-briandaniels@googl=
-e.com/
-> >
-> > Let me know if you think the v4l-utils patch is a good approach, otherw=
-ise let
-> > me know how you'd prefer to address the v4l2-compliance driver-specific=
- workounds
-> > when they're being proxied with virtio-media.
->
-> This kind of discussion should happen on a separate PR for v4l2-complianc=
-e,
-> c/c to the proper developers and maintainers of it.
+Add documentation for new cpumask called cpu_preferred_mask. This could
+help users in understanding what this mask is and the concept behind it.
 
-I've removed the driver name module parameter in v5. Let's continue
-the compliance testing discussion on the v4l-utils patch:
-https://lore.kernel.org/all/20260528163448.4031965-1-briandaniels@google.co=
-m/
+Document how to enable it and implementation aspects of it.
 
-> >
-> > > > +
-> > > > +/*
-> > > > + * Whether USERPTR buffers are allowed.
-> > > > + *
-> > > > + * This is disabled by default as USERPTR buffers are dangerous, b=
-ut the option
-> > > > + * is left to enable them if desired.
-> > > > + */
-> > > > +bool virtio_media_allow_userptr;
-> > > > +module_param_named(allow_userptr, virtio_media_allow_userptr, bool=
-, 0660);
-> > >
-> > >
-> > > is this kind of thing common?
->
-> There is one old media device that has it (saa7134).
->
-> >
-> > To be honest, I don't really know. I'm also not that familiar with the =
-USERPTR
-> > issues. I see a few references online about their use being discouraged=
- due to
-> > possible race conditions, perhaps that was the original motivation for =
-this
-> > parameter (I'm not the original author of this driver).
-> >
-> > I'm open to alternatives, feel free to let me know if you have a prefer=
-ence.
->
-> We tend to not implement USERPTR on newer drivers. I suggest you
-> to place the logic with regards to V4L2_MEMORY_USERPTR on a separate
-> patch for further discussions.
+Reported-by: kernel test robot <lkp@intel.com>
+Closes: https://lore.kernel.org/oe-kbuild-all/202606180717.yNM0yb41-lkp@intel.com/
+Signed-off-by: Shrikanth Hegde <sshegde@linux.ibm.com>
+---
+ Documentation/scheduler/sched-arch.rst | 58 ++++++++++++++++++++++++++
+ 1 file changed, 58 insertions(+)
 
-Will do in v5.
+diff --git a/Documentation/scheduler/sched-arch.rst b/Documentation/scheduler/sched-arch.rst
+index ed07efea7d02..1ce0f92bc3f2 100644
+--- a/Documentation/scheduler/sched-arch.rst
++++ b/Documentation/scheduler/sched-arch.rst
+@@ -62,6 +62,64 @@ Your cpu_idle routines need to obey the following rules:
+ arch/x86/kernel/process.c has examples of both polling and
+ sleeping idle functions.
+ 
++Preferred CPUs
++==============
++
++In virtualised environments it is possible to overcommit CPU resources. i.e.
++the sum of virtual CPUs (vCPUs) of all VMs is greater than number of physical
++CPUs (pCPUs). Under such conditions when all or many VMs have high utilization,
++hypervisor won't be able to satisfy the CPU requirement and has to context
++switch within or across VMs. The hypervisor needs to preempt one vCPU to run
++another. This is called vCPU preemption. This is more expensive compared to
++task context switch within a vCPU.
++
++In such cases it is better that combined vCPU ask from all VMs is reduced
++by not using some of the vCPUs in each VM. vCPUs where workload can be safely
++scheduled which won't increase any contention for pCPU are called as
++"Preferred CPUs".
++
++Main design construct is preferred CPUs are always a subset of active CPUs.
++In most cases preferred CPUs will be same as active CPUs, when there is pCPU
++contention, Preferred CPUs will reduce based on the amount of steal time.
++When the pCPU contention goes away as indicated by steal time, Preferred CPUs
++will become same as active CPUs again. This is done by loading the
++steal_governor driver available at drivers/virt/steal_governor.
++
++For scheduling decisions such as wakeup, pushing the task etc, needs this
++CPU state info. This is maintained in cpu_preferred_mask.
++vCPUs which are not in cpu_preferred_mask should be treated as vCPUs which
++should not be used at this moment provided it doesn't break user affinity.
++
++This is achieved by:
++
++1. Selecting a preferred CPU at wakeup using fallback mechanism.
++2. Push the task away from non-preferred CPU at tick.
++3. Only select preferred CPUs for load balance.
++
++/sys/devices/system/cpu/preferred prints the current cpu_preferred_mask in
++cpulist format.
++
++Notes:
++
++1. This feature is available under CONFIG_PREFERRED_CPU. It is selected
++   by steal_governor driver (CONFIG_STEAL_GOVERNOR). On enabling the
++   driver, CPU preferred state can change based on steal time. Without that
++   driver, preferred CPUs is same as active CPUs.
++
++2. This feature works for FAIR class only.
++
++3. A task pinned, which can't be moved to preferred CPUs will continue
++   to run based on its affinity. But no load balancing happens.
++
++4. Decision to use/not use is driven by kernel. Hence it shouldn't
++   break user affinities. One of the main reasons why CPU hotplug
++   or Isolated cpuset partitions was not a solution.
++
++5. This feature works best only when all the VMs enable the feature as
++   it is a co-operative scheme. If a specific VM doesn't enable this feature
++   it may end up with more CPUs than others, still should lead to better
++   performance when seen from system view.
++   Users who enable this driver must ensure it is enabled in all VMs.
+ 
+ Possible arch/ problems
+ =======================
+-- 
+2.47.3
 
-> >
-> > > > +
-> > > > +/**
-> > > > + * virtio_media_session_alloc - Allocate a new session.
-> > > > + * @vv: virtio-media device the session belongs to.
-> > > > + * @id: ID of the session.
-> > > > + * @nonblocking_dequeue: whether dequeuing of buffers should be bl=
-ocking or
-> > > > + * not.
-> > > > + *
-> > > > + * The ``id`` and ``list`` fields must still be set by the caller.
-> > >
-> > > still in what sense?
-> >
-> > Based on the code below, I'm not so sure that the caller is responsible=
- for
-> > setting these values. They seem to be initialized in the function.
-> >
-> > Perhaps Alexandre Courbot (the original author) would know more. Unless=
- he
-> > says otherwise though I'm inclined to remove this comment.
-
-Removed in v5
-
-> > > > + */
-> > > > +static struct virtio_media_session *
-> > > > +virtio_media_session_alloc(struct virtio_media *vv, u32 id,
-> > > > +                    struct file *file)
-> > > > +{
-> > > > + struct virtio_media_session *session;
-> > > > + int i;
-> > > > + int ret;
-> > > > +
-> > > > + session =3D kzalloc_obj(*session, GFP_KERNEL);
-> > > > + if (!session)
-> > > > +         goto err_session;
-> > > > +
-> > > > + session->shadow_buf =3D kzalloc(VIRTIO_SHADOW_BUF_SIZE, GFP_KERNE=
-L);
-> > > > + if (!session->shadow_buf)
-> > > > +         goto err_shadow_buf;
-> > > > +
-> > > > + ret =3D sg_alloc_table(&session->command_sgs, DESC_CHAIN_MAX_LEN,
-> > > > +                      GFP_KERNEL);
-> > > > + if (ret)
-> > > > +         goto err_payload_sgs;
-> > > > +
-> > > > + session->id =3D id;
-> > > > + session->nonblocking_dequeue =3D file->f_flags & O_NONBLOCK;
-> > > > +
-> > > > + INIT_LIST_HEAD(&session->list);
-> > > > + v4l2_fh_init(&session->fh, &vv->video_dev);
-> > > > + virtio_media_session_fh_add(session, file);
-> > > > +
-> > > > + for (i =3D 0; i <=3D VIRTIO_MEDIA_LAST_QUEUE; i++)
-> > > > +         INIT_LIST_HEAD(&session->queues[i].pending_dqbufs);
-> > > > + mutex_init(&session->queues_lock);
-> > > > +
-> > > > + init_waitqueue_head(&session->dqbuf_wait);
-> > > > +
-> > > > + mutex_lock(&vv->sessions_lock);
-> > > > + list_add_tail(&session->list, &vv->sessions);
-> > > > + mutex_unlock(&vv->sessions_lock);
-> > > > +
-> > > > + return session;
-> > > > +
-> > > > +err_payload_sgs:
-> > > > + kfree(session->shadow_buf);
-> > > > +err_shadow_buf:
-> > > > + kfree(session);
-> > > > +err_session:
-> > > > + return ERR_PTR(-ENOMEM);
-> > > > +}
-> > > > +
-> > > > +/**
-> > > > + * virtio_media_session_free - Free all resources of a session.
-> > > > + * @vv: virtio-media device the session belongs to.
-> > > > + * @session: session to destroy.
-> > > > + *
-> > > > + * All the resources of @sesssion, as well as the backing memory o=
-f @session
-> > > > + * itself, are freed.
-> > >
-> > > why @ here and `` above? And typo in the name.
-> >
-> > The `@` here was an attempt to follow the guide here for referencing fu=
-nction
-> > parameters:
-> > https://docs.kernel.org/doc-guide/kernel-doc.html#highlights-and-cross-=
-references
->
-> Yes. This is part of Linux Kernel kernel-doc markup: when referring to
-> struct fields, you should use @field (or ``field`` if one wants to place =
-an
-> asterisk on it, like ``*field``).
->
-> >
-> > That being said, I don't believe this file is 100% consistent with that=
-. I will
-> > spend some time cleaning up the comments throughout this patch set to g=
-et them
-> > consistent for v5. Thanks!
->
-> Please use it on a consistent way along the driver.
-
-I went through and cleaned up all of the files in v5 so they should
-use kernel-doc consistently now.
-
-> Thanks,
-> Mauro
