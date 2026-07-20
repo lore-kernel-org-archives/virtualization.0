@@ -1,230 +1,239 @@
-Received: from PH0PR06CU001.outbound.protection.outlook.com (mail-westus3azon11011067.outbound.protection.outlook.com [40.107.208.67])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f172.google.com (mail-pl1-f172.google.com [209.85.214.172])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C38543B3D0;
-	Mon, 20 Jul 2026 17:50:16 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.208.67
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 650D73B6362
+	for <virtualization@lists.linux.dev>; Mon, 20 Jul 2026 18:11:56 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.172
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784569822; cv=fail; b=XpqalE8GlU5N863lkmbruocxAGbXStjQl7vfTDcDBnSo2t7mUb6JBUqQbD1LyBonfjLrpu2enT7Z75qDkGDwJzFYiWgnFlNDJ8PF63CaxlSOdyJqnOZ1hci43alirRtbmWpfPyPD3Pc4alKVOeunnxAnplZDWQG5UX3DEh5y/c8=
+	t=1784571117; cv=pass; b=RtLDKJYIqEbNaTnLzerWhBIojP3dM3t8apHh/85PmcVgcGYl3W4l0xkZAeKx1M+tURgELdK2Z84u/pzh0yfIDv39ZYlNz+1/JU9qKAxzJE90S4ReerbRE+Tpik74Z3M3/FEWGUjNfu75dXg1gFyNblvs+zF0TiRk94CPeULcISY=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784569822; c=relaxed/simple;
-	bh=wL4kAWJmRt3UeBFmjURJ8zNhom5wUz6B4IsIiIcns14=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=I+VuDyYPQGOWcdOpHzVb97+idFpiCM1YvpceyDUNCftRFPjSSs20zbIlnOQ2aJVMKtZa86OApG7Na6cX839NmewNJDeZN6v3PE4NcsWq0SqzcwXdY1cdtD2FwJ/PmNzpZUIv6UvqA/+IV9LGEEwoMoDUKjNRGfUX2Ws5NFGdnRY=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=w3mbZiwh; arc=fail smtp.client-ip=40.107.208.67
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
+	s=arc-20240116; t=1784571117; c=relaxed/simple;
+	bh=JAjXHOi+mA5sLbGUiviDveQxxklnyDZVQ4AeXIMFrHM=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=HKF1IIYkkM5w+uYocBEqV0wHiIxrotqRut5lPhqUrQdIS9onsFA0VhMRJ6UEueok0l9bVBBvMOmpFQD1llbMDLyIFjetdERI6YF21hrLWx2pEdysF/GwpdaDtEsn5q91BLei7pg1Yq9pPQ9ZjnEqHLP25XTPUvCKZu9T5bzy4V4=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=MGhWQtga; arc=pass smtp.client-ip=209.85.214.172
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="w3mbZiwh"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=fJ4o9L2DV7cQV3Bxf9lj/wBaanczPU9uZfx7QrusVc+Ptz5xWI2q/StW43vYFkSWzHxHN37eRC5xt1mmfiMBCHKXbZh5v8fvNt4FlE5h5A7XOMJZa8FTr2p9DvLgoXBmntONruMvRg1jNUpuC9Rdi46lYaA3WI7fRbm7H5Anurj1tS86/ce+JdVize7R45gGIRknrBSFDPAiNP3uWs01WWN5fduCATwB4lo4pYaT/+J0mL32jSlBJteLFSPkKgq8LEyMLpamfE1DhIiozTJjQtes4yerZvAbPk9333A/6GR+XwsbIq1nOYWNctHU0gMqtEg0AQmwe6jK4TDNcL/Slw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=o39wuaCrLqxFExrN5GxONTRjd88b+OhZ+T2Cm0ji7BA=;
- b=sYCya6L1AD4Kc5c/CajOLgRx2LdFzSmn9aJrHrKI1FbpQeMGLEoxb8WWjidVFFXsKj5QyhbyQ27Di4owzDJYsrA5/Vb5p2gR5soR/9WsnVCDU03r8+lYvtaGnyQFMLm/AmDe6jaSjClx+JjVbCCA53lq4BYxoSQWetaUsI7LXs0+nfBZGEJXRiBJJLJv37b7zn0mu78DQJhxSKTADvgYA7yWk8owT3LReuDZJpqbtIqLUHnt4mcdAQZ4CpzJRiLjf6ydXwgJi3XZsYNOHvk6NsHiW0TV4NGQdq0EzZ3PhxOZzuKjnWXITHIdCIOo8baFIk2NikF/pxWZHpD4v/2seQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
- header.d=amd.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=o39wuaCrLqxFExrN5GxONTRjd88b+OhZ+T2Cm0ji7BA=;
- b=w3mbZiwhxmccFxnBd8d0V9LArpfonHuzprHlfSzTTI6z4bXpgOI+WF4nefowotzVLOp1DOlZoChjsfep4nbxI/OOYo6zfS4+GQ7FRetjgYs0tRsZ/R9tlKtaSf74dQp6CVdui5aYL8FDoY1inL8+WwheKgFP0eBpp1F2fpj9Crk=
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=amd.com;
-Received: from CY1PR12MB9697.namprd12.prod.outlook.com (2603:10b6:930:107::6)
- by PH0PR12MB7932.namprd12.prod.outlook.com (2603:10b6:510:280::8) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.223.18; Mon, 20 Jul
- 2026 17:50:04 +0000
-Received: from CY1PR12MB9697.namprd12.prod.outlook.com
- ([fe80::3a41:55a0:8203:596d]) by CY1PR12MB9697.namprd12.prod.outlook.com
- ([fe80::3a41:55a0:8203:596d%6]) with mapi id 15.21.0223.017; Mon, 20 Jul 2026
- 17:50:03 +0000
-Message-ID: <37bafd27-7adc-4e15-bbf6-7afdbb0b8f22@amd.com>
-Date: Mon, 20 Jul 2026 23:19:41 +0530
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 02/15] drm/xlnx/zynqmp_dpsub: remove dependency on DRM
- simple helpers
-To: Diogo Silva <diogompaissilva@gmail.com>, Jingoo Han
- <jingoohan1@gmail.com>, Inki Dae <inki.dae@samsung.com>,
- Seung-Woo Kim <sw0312.kim@samsung.com>,
- Kyungmin Park <kyungmin.park@samsung.com>, David Airlie <airlied@gmail.com>,
- Simona Vetter <simona@ffwll.ch>, Krzysztof Kozlowski <krzk@kernel.org>,
- Peter Griffin <peter.griffin@linaro.org>,
- Alim Akhtar <alim.akhtar@samsung.com>,
- Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
- Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- Michal Simek <michal.simek@amd.com>,
- Thierry Reding <thierry.reding@kernel.org>,
- Mikko Perttunen <mperttunen@nvidia.com>,
- Jonathan Hunter <jonathanh@nvidia.com>, Stefan Agner <stefan@agner.ch>,
- Alison Wang <alison.wang@nxp.com>,
- Anitha Chrisanthus <anitha.chrisanthus@intel.com>,
- David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Jyri Sarha <jyri.sarha@iki.fi>,
- Liu Ying <victor.liu@nxp.com>, Frank Li <Frank.Li@nxp.com>,
- Sascha Hauer <s.hauer@pengutronix.de>,
- Pengutronix Kernel Team <kernel@pengutronix.de>,
- Fabio Estevam <festevam@gmail.com>, Chun-Kuang Hu <chunkuang.hu@kernel.org>,
- Philipp Zabel <p.zabel@pengutronix.de>,
- Matthias Brugger <matthias.bgg@gmail.com>,
- AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
- Geert Uytterhoeven <geert+renesas@glider.be>,
- Xinliang Liu <xinliang.liu@linaro.org>,
- Sumit Semwal <sumit.semwal@linaro.org>, Yongqin Liu
- <yongqin.liu@linaro.org>, John Stultz <jstultz@google.com>,
- Liviu Dudau <liviu.dudau@arm.com>, Neil Armstrong
- <neil.armstrong@linaro.org>, Kevin Hilman <khilman@baylibre.com>,
- Jerome Brunet <jbrunet@baylibre.com>,
- Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
- Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>
-Cc: dri-devel@lists.freedesktop.org, linux-arm-kernel@lists.infradead.org,
- linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
- linux-tegra@vger.kernel.org, virtualization@lists.linux.dev,
- imx@lists.linux.dev, linux-mediatek@lists.infradead.org,
- linux-renesas-soc@vger.kernel.org, linux-amlogic@lists.infradead.org,
- linux-doc@vger.kernel.org
-References: <20260720-drm_simple_encoder_init-v2-0-5020b630668a@gmail.com>
- <20260720-drm_simple_encoder_init-v2-2-5020b630668a@gmail.com>
-Content-Language: en-US
-From: "Pandey, Radhey Shyam" <radheys@amd.com>
-In-Reply-To: <20260720-drm_simple_encoder_init-v2-2-5020b630668a@gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: PN4P287CA0040.INDP287.PROD.OUTLOOK.COM
- (2603:1096:c01:271::11) To CY1PR12MB9697.namprd12.prod.outlook.com
- (2603:10b6:930:107::6)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="MGhWQtga"
+Received: by mail-pl1-f172.google.com with SMTP id d9443c01a7336-2cab97c86bdso423965ad.1
+        for <virtualization@lists.linux.dev>; Mon, 20 Jul 2026 11:11:56 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1784571116; cv=none;
+        d=google.com; s=arc-20260327;
+        b=D9VfKfMx4sBGcyc5B9yfjMaSLnxCRyGJQV+kqZdf6ERfUkhKKA98/ZHn18emkATvNN
+         OvnIDGG4rGkcaIMfM7WSUnA/9jqEbKJwrhPT0SrUb4fcoQM2u8UtZPwdpm/Lo82fJf5e
+         gxgV7FN4Q6klICewRgD+rsBb3KnEzjdCpix6bs/BRJ66fIPBYq5+A7uEoejp91FtItCJ
+         5CLdH1uWeEqUmCs5ecKrIqSdWRGtZOHLEnkMXSWoEPUcF5GH7weXsgHWhwO3hxN5LPhP
+         0fID0DezX17EAcm/Wu1kPHkPIupgzcMgcSddSB+7vf0586uOyZACb7B2kEqhM/lhee7f
+         NbPg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=1CKlYAx3ZqeDb0/tpWFTjgJVt3tNaV59m+Y0rInN34s=;
+        fh=5eiXn5qkyOWtBbbJPQdbIfLhReACVLmoq8EmP1rvj7Q=;
+        b=JCJ8Kr7y14X5+6dka3QRnDrnanQkeF+062RoMZjpWWEvZHgKF0DAY08qVCOtv5/F2N
+         6FzoKrAtR2uxIsibXDenYsMaGiPcuvQ913bqhHY4PA/Z+gW+CnCbm7rBnl9T63iwkHAa
+         hTmM05eaotavLCPdL5/aSCFPdl97v/5d4sKiihfjdVZsUdpb5Lh5POtn2GNeFtaouq6p
+         SFyzpp+smzENyyF4yHMJEls5yNSDCZtdSdwHKsWrEpSv3u+IrZ6LvFSCMC1v7A4OuAC0
+         1V6ppyuTjMnEoyf93ADPU37m/8cr5GMptA6kEAKg3d2NZl9zm75MN7gqrpz6f+UaxQ0W
+         GDyg==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1784571116; x=1785175916; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=1CKlYAx3ZqeDb0/tpWFTjgJVt3tNaV59m+Y0rInN34s=;
+        b=MGhWQtgad4TsPit+xIIdsfS5FKr92YD78Btw192MaRBiRd3YRUaQr5xJWuKWuYYdXD
+         bDqlBM4R6s5u6Sql4qijzUf2nctaXQ5DK6/qcOU+im58/c9fZf8akGRhq7N5QF2gpXj6
+         bJSr1vIcczL0HPKxd1S7r0+Q59v8OKlOpquZ8bqD57MFywvxWgTj18VAlQM9EXflIBkt
+         JqLlHaDGWGehEFZyMEoKyrWHrzY/T17Crs/0VoMK6rybjJsjv9l5VG4r5qIVlWL+BL4w
+         HQ6Y4NqHlKH59w1lKUbuwKnx8O/IYJQzgIqaH+NU5evWifgPQ7SlOT2GZw0PuiGa9F+6
+         TQbA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784571116; x=1785175916;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=1CKlYAx3ZqeDb0/tpWFTjgJVt3tNaV59m+Y0rInN34s=;
+        b=luJ7rRLBt7BzTIC1/roCWaM7lma9kYg0BYiGOJKLERSKpNZrFQ9AyecDEaojkRN1tJ
+         xfFBF2g0FY2kPcnjfjo7mb6Def6zoXVIcbbUn08dhQJ9M5UPpddwty4SkIRsuRh5BSPz
+         QYZdglJD3pppEBxVSRwqYr11Ka52AlEhcgzC2kLWgLAbNcBGgWkso3XoPZ4izp9mPCSU
+         wXBsWs6nUFC0D0QmzPT7EtpNUqM59OH+m6pCyYdftv+JKAdUxLxczDDTiperGuVzjkCD
+         6tm5pWrpMvkuNf/ohYm4G5zYcAsyNK5RxgQDKjxyfpxAEYM5NBhQsMSw1avP/SvK+Pwz
+         SFlA==
+X-Forwarded-Encrypted: i=1; AHgh+RqUqsVE3O+3/p5YGQZYr1Vlgaoha51Fx3nQuh6hCl9OFWCJtsMm+ydAFcWd6X8NRjkZ9DJRCqW/f7IqsbIjrA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz5Qt2A20z8cvMA8J2/o9J6W+CsVAPBimG5RC51Ke+WodTT4G3Q
+	+gsMw91mFwLMM9DYbx12loiah96YF1dAvSO7/wIVznQvocePlSttQ1GJbhaqX3Qa6DNiLSHgFa4
+	FhVUwZWszzMvLHdv14ubivlYvsPYlatQE4PwTTf8=
+X-Gm-Gg: AR+sD12lB/5WRqhUoosN8ZkDjXq5+VQ5dpSt9yYza8mTp3+CbSkzex2GzgPDPxRtlA5
+	8emZsPdkyL9vlJq/hvpHcdeDL2Dhd4LU/eP9kt58asMn7DxX1Wv+Ytme9Jr6lU0FO99qdrvV98u
+	7nuR46eOzVRXtoVRL/RKqQRMFq+IuA0g0rJqB3ODbqwIOQMZB4KDQY9ty2NwZm75Wocda7U6XER
+	FcGT20LsTbGFGFRyR4R4D+HQll3o2g1sye0RwgjgSxGgG2yEkbo4Bz4PntK
+X-Received: by 2002:a17:902:f54c:b0:2ce:7ae6:2a23 with SMTP id
+ d9443c01a7336-2cf7b702c3dmr1769225ad.27.1784571115038; Mon, 20 Jul 2026
+ 11:11:55 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: CY1PR12MB9697:EE_|PH0PR12MB7932:EE_
-X-MS-Office365-Filtering-Correlation-Id: faa4ed02-1be4-4d62-1cb7-08dee6875401
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|7416014|376014|23010399003|366016|921020|18002099003|22082099003|56012099006|4143699003|11063799006|10067099003;
-X-Microsoft-Antispam-Message-Info:
-	pmmbjoQR4MBCH0s5XGIXXUKTsAFm1jsHQ87haKRvxsgt1K+EnbVBQLdRf+SwI96/Y7fvpFGZlYF/30dBzWOz3/4iM/1zsCmquJUOJ1YJrM0jLMfuV3CjnfHp3OUYY1slMRaOkoDoaI2vV/hgs+ikXNwaaAZ/KFJWb7+7LrRRJ2hwhJNIpNO4tvaNztfzlUIFC750CFmyVWYDTrFrexEF5P7SqS8zUQS1Q696iPA9s/LNzpc38gq57MkCTW9HrBptmQBgkWxMxa34kvyfRmAYXWoLAnTnnkx4K/j3y8gn1Tx5fgEF/D8zdkV0kkbZRP0pMQ9YQbwpYYqi223s1i/iCRLISlFJ/ARPv9yykS+PJDLy5Dz8ZM8rZn8gP05lJoEFdRwpfRQJArI0D5GZ29gzH28vrTK6FL8BIAlVK58vgjxsX027rBO345wpUPwjW2GP7XfpLtZomtoSJnbBB4B3xtfLxYfk8a6Q2VkwAZRzy8tgkmrHZ4hvwmo7YClmOsSjjbyw7wbWHmcopQXD/DrJGI0Ta2y7Y2htmk7j9/j3qinOrQKbgKCXZ3TPpBtoZzhg8WMZbwMeJhJ7qNwyxLH/oC/5AsbS7ft551HghIdBtEZlltW28UH61tcnRLafmxMgzr8DfCvpjovyo3nFYQ1CCk8RkOov3Nz34wh5J0XZ7TSCVebWLs1DpVOHWXRJxDQBXhAdbiLzSUbBSuDMMVhGtg==
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY1PR12MB9697.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(7416014)(376014)(23010399003)(366016)(921020)(18002099003)(22082099003)(56012099006)(4143699003)(11063799006)(10067099003);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?dXZYMDBxdDBNSGk0RUZiS3BBenpMRVRGeUVsdDZNcWhEOEVQVHgxNU45VnpO?=
- =?utf-8?B?Ujl2NFNqS0xPMDZsbjFtYWhQZngrZEVNSEJMdCtlWHJzR0c1L2RUcUpwUHow?=
- =?utf-8?B?RkwxQ3F2akphSWdNeGtkNzRBbFBKTnp6UE5sdUlBeUdKb0NqQ0xsbm5xMEJV?=
- =?utf-8?B?MS9TTTV4SG0vejI2RmNMK0N0V0xoUEJDYTNmcnBmZzZjSmMwaXJpUUxmdElL?=
- =?utf-8?B?NmtYTjdTbDBndnFmdzNTbWdudlEvMG52WWhYOWRBQ3NQREMwNEcybTU0Tm03?=
- =?utf-8?B?M3UxZ3JIR0t0UGhIeGpIMVI5QlkvWkszZ00zWHFxS0pwUmpndnBodkcwbWF2?=
- =?utf-8?B?S0dGclR2eEJMN2lPcGFDTnIvbXFMMlB3SnVJbzh3NnFVSjBsZVF6ZVZZT1hk?=
- =?utf-8?B?NjNYd08xcERHbjVDbGRjSjVuU1QzS0YzU2pxN1lNcEFHMTcveSt2d2JTNGdv?=
- =?utf-8?B?cmpGanZGNTlFRXMwSC9UTEcwZ2ttWUVmQkZiRi9ybGNQVTNSeXBpK1pScXlR?=
- =?utf-8?B?SFJReVVFTW00cHpNeGU0WFVJQ2NYNlpKV3EyT29YR0MvaFFGV1Y0bWpwbHhv?=
- =?utf-8?B?UmFFOGViZGtkL3Q5SjhlSzFiYW5BNHkvd2R1NjNPR1dabmZxU3l4SEZiNDVt?=
- =?utf-8?B?QnZacVFLMEJRVG9HNXJsYmNxVHZnTkluS2ZhVlk5U0JabmRNNXFha0YyaGpP?=
- =?utf-8?B?Umo1Zmk2K092SSs4RktuY3krY0Q4b1I0dlRjQjN2TElkVS9yWVBRMzkrUGRa?=
- =?utf-8?B?M2RuRnJjS1NzTGZDMWFUb2F4a3RZRTBNenhrajlwcllqY2RodDMzQW1pZ0lh?=
- =?utf-8?B?MDBSVFVNU0lyUnJ2UWpqTkRsT3BqRkJBZzhta3NkcHFreUZBaS8vZ1R0eDVY?=
- =?utf-8?B?NjJ3ckE0Z3BDY2RrOTdqcTdvSDRrZlRSK1dXekFnZXJDOWU4em1NZmR4dUIy?=
- =?utf-8?B?UGxFYzEyUjFpT2dJU3RZV0pSZDZpUDN1SmVtOGFQUFhxL0d5aGhxN1gxZDl2?=
- =?utf-8?B?eGhNZ0FYaTFQTGRIbFB1K2pycHhMVTF3c2dJQldLMTBpalZXM0xhRXpSbi80?=
- =?utf-8?B?d25qU01US1RiajZtZnQ3bkdBTndHcjRlVmd3Tm92T3lob2FPRlNaWmJ0TVRK?=
- =?utf-8?B?bWJEUGhQNGIzbDRZdjhOL3BzT05SdGUrdXVYZ2x1d2VVdzhTUDlaSDJ4REdM?=
- =?utf-8?B?OUtiZXZjeGhHY1l3NmpjLzJJL1dmNmFkL3ZXSWc2NkNVazZ2TjhnR1VDUmNO?=
- =?utf-8?B?L21KM1pURG9vcGhpTWRwWUt1MC9mVDFTMHdmZkpOR21nR1k5ZkVYd25KOVpu?=
- =?utf-8?B?dGJaYnozQ1hDZDRrcS9xdTJ3ZlkwRm1sMUdncDI2UzByS0MwMyt0TjJMTnNI?=
- =?utf-8?B?Q05tSzhyTDJiVDQ4ZjRZeTRiQmp5L3Brd1BBOVJRbU0rRlBpWVdPaFl6OE1F?=
- =?utf-8?B?L3ZXQnRySWNnc2o1V0djTnV5OHpPdG1yWDkvYzJrYWRTc0hyTC81Zi9sYmRN?=
- =?utf-8?B?OWw3ZjZVUHRHeGRvbGdPMGF2QTNldVJjd3MzR3lPTk02WldybnhKaFN5QytV?=
- =?utf-8?B?NTRSMlBqTXpabmZVTG9OekdoNUVLUmR1eVo4eG51VStxam1mY1BiVWxMSW9w?=
- =?utf-8?B?ay8xenhQM1Q3bzhDV3laQUdvRmdvZzRXNmNTVW1lZjlKZXY4MG9XM3pQRU1M?=
- =?utf-8?B?M1JnQ2JwajYwRldSOE52Vy9JaHpmN0RHbGNjdnhGalI4djIvTitFdVZLcm1y?=
- =?utf-8?B?WHpvNlI1d3hSZHJINmI0cE1Ca3FudXh3MnR4RWMxWnFuMDVUOXhxMGd6Zk9j?=
- =?utf-8?B?VVJ6RzUySHcwZCtadW1lWTNQZ2svMklrbTBZb004UzhQVDA1SFZWajlWdTkw?=
- =?utf-8?B?YzZLNHhOSDVVL3R1SGNnSVZRcTZTeWQrMSs0WEdNSVUvRGRnTnQ0MUNvOGlZ?=
- =?utf-8?B?c1p0VDhSMml2QTFhMVN2NDRLbDRQeHVLM3hwQjN3SU1CZGhRa2tPblBlNlI1?=
- =?utf-8?B?T3lFd3J1VjZpYWpudFNKeSs3cnN4SzZ0amswYjVsRzMxb1lpWm9PSlRJVUlw?=
- =?utf-8?B?MUp0Z3RzNjN1YkVYZVJPeENnS1FpUjBRR0Z3T2VJMjhOR1FzaFdDVlBjaGhQ?=
- =?utf-8?B?WDhmV2Ira2FxK2NWR1MwRUtoaWRPTWpZdmh2VU5WMm9odmJXWE9zdnRFM1Bh?=
- =?utf-8?B?R2h2MFU0WUNqYTJNOHA4dTBaTEFDcHlsWWc1RXFZU1BrWmtiYURYb3NHWC8r?=
- =?utf-8?B?dUptaTJ1SlBkVVpkYThpdVVsSUFMbUxPRzFkczM3YXhFdC8zc0ZaMXhIS0Fy?=
- =?utf-8?B?Tmt1ZzVrdWFvbkZibW9oQVdsRHFocDlaRExzL00vOGs4TE1jUGZqdz09?=
-X-OriginatorOrg: amd.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: faa4ed02-1be4-4d62-1cb7-08dee6875401
-X-MS-Exchange-CrossTenant-AuthSource: CY1PR12MB9697.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Jul 2026 17:50:03.8455
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: cmEWwMXOfUaEzA7+4Onrv7NOl6vyngB6R4tmpEHMKSOHEv+IOnvdtKrMzMu6CRpd
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB7932
+References: <20260622204343.1994418-1-briandaniels@google.com>
+ <20260712091036.5b0f170c@foz.lan> <CADSE00JkzGmN8Hvo1fuAsO1o9TKMrPwpmag-dtcFH1+NvkP6HA@mail.gmail.com>
+In-Reply-To: <CADSE00JkzGmN8Hvo1fuAsO1o9TKMrPwpmag-dtcFH1+NvkP6HA@mail.gmail.com>
+From: Brian Daniels <briandaniels@google.com>
+Date: Mon, 20 Jul 2026 14:11:42 -0400
+X-Gm-Features: AUfX_mxjKSfqJr5UYn-MifRznqumqpOeJGfSnFSM3EQHWuVZoKEjfxE2uw5OwrE
+Message-ID: <CAD4i_GT7_K8LZea-Pk+LwpWSPiu6TO3WVi2ETxM-ET7f-ubQOg@mail.gmail.com>
+Subject: Re: [PATCH v4 0/8] media: add virtio-media driver
+To: Albert Esteve <aesteve@redhat.com>
+Cc: Mauro Carvalho Chehab <mchehab+huawei@kernel.org>, Mauro Carvalho Chehab <mchehab@kernel.org>, acourbot@google.com, 
+	adelva@google.com, changyeon@google.com, daniel.almeida@collabora.com, 
+	eperezma@redhat.com, gnurou@gmail.com, gurchetansingh@google.com, 
+	hverkuil@xs4all.nl, jasowang@redhat.com, linux-kernel@vger.kernel.org, 
+	linux-media@vger.kernel.org, mst@redhat.com, nicolas.dufresne@collabora.com, 
+	virtualization@lists.linux.dev, xuanzhuo@linux.alibaba.com
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On 7/20/2026 9:10 PM, Diogo Silva wrote:
-> The simple KMS helpers are deprecated because they only add an
-> intermediate layer between drivers and atomic modesetting.
-> 
-> Open-code drm_simple_encoder_init() by calling drm_encoder_init()
-> directly and providing driver-local drm_encoder_funcs.
-> Also check the return value from drm_encoder_init() to avoid silent
-> failures.
-> 
-> Signed-off-by: Diogo Silva <diogompaissilva@gmail.com>
+On Mon, Jul 13, 2026 at 3:00=E2=80=AFAM Albert Esteve <aesteve@redhat.com> =
+wrote:
+>
+> On Sun, Jul 12, 2026 at 9:10=E2=80=AFAM Mauro Carvalho Chehab
+> <mchehab+huawei@kernel.org> wrote:
+> >
+> > On Mon, 22 Jun 2026 16:43:35 -0400
+> > Brian Daniels <briandaniels@google.com> wrote:
+> >
+> > > From: Alexandre Courbot <gnurou@gmail.com>
+> > >
+> > > Add the first version of the virtio-media driver.
+> > >
+> > > This driver acts roughly as a V4L2 relay between user-space and the
+> > > virtio virtual device on the host, so it is relatively simple, yet
+> > > unconventional. It doesn't use VB2 or other frameworks typically used=
+ in
+> > > a V4L2 driver, and most of its complexity resides in correctly and
+> > > efficiently building the virtio descriptor chain to pass to the host,
+> > > avoiding copies whenever possible. This is done by
+> > > scatterlist_builder.[ch].
+> > >
+> > > This version supports MMAP buffers, while USERPTR buffers can also be
+> > > enabled through a driver option. DMABUF support is still pending.
+> >
+> > In practice, USERPTR was used on several drivers that wanted to
+> > share buffers between V4L2 and GPU (so, a previous approach before
+> > DMABUF implementation).
+> >
+> > On my tests with this driver, I was unable use a 1080p camera with
+> > V4L2 and GPU on crossvm. Lower resolutions worked. No idea if this
+> > was a limitation of crossvm (I only used it to test this driver)
+> > or if it is due to a poor MMAP implementation.
+> >
 
-Reviewed-by: Radhey Shyam Pandey <radhey.shyam.pandey@amd.com>
-Thanks!
-> ---
->   drivers/gpu/drm/xlnx/zynqmp_kms.c | 14 ++++++++++++--
->   1 file changed, 12 insertions(+), 2 deletions(-)
-> 
-> diff --git a/drivers/gpu/drm/xlnx/zynqmp_kms.c b/drivers/gpu/drm/xlnx/zynqmp_kms.c
-> index d5f922450565..ac9197e026af 100644
-> --- a/drivers/gpu/drm/xlnx/zynqmp_kms.c
-> +++ b/drivers/gpu/drm/xlnx/zynqmp_kms.c
-> @@ -29,8 +29,8 @@
->   #include <drm/drm_managed.h>
->   #include <drm/drm_mode_config.h>
->   #include <drm/drm_plane.h>
-> +#include <drm/drm_print.h>
->   #include <drm/drm_probe_helper.h>
-> -#include <drm/drm_simple_kms_helper.h>
->   #include <drm/drm_vblank.h>
->   
->   #include <linux/clk.h>
-> @@ -417,6 +417,10 @@ static const struct drm_driver zynqmp_dpsub_drm_driver = {
->   	.minor				= 0,
->   };
->   
-> +static const struct drm_encoder_funcs zynqmp_dpsub_encoder_funcs = {
-> +	.destroy = drm_encoder_cleanup,
-> +};
-> +
->   static int zynqmp_dpsub_kms_init(struct zynqmp_dpsub *dpsub)
->   {
->   	struct drm_encoder *encoder = &dpsub->drm->encoder;
-> @@ -436,7 +440,13 @@ static int zynqmp_dpsub_kms_init(struct zynqmp_dpsub *dpsub)
->   
->   	/* Create the encoder and attach the bridge. */
->   	encoder->possible_crtcs |= drm_crtc_mask(&dpsub->drm->crtc);
-> -	drm_simple_encoder_init(&dpsub->drm->dev, encoder, DRM_MODE_ENCODER_NONE);
-> +	ret = drm_encoder_init(&dpsub->drm->dev, encoder,
-> +			       &zynqmp_dpsub_encoder_funcs,
-> +			       DRM_MODE_ENCODER_NONE, NULL);
-> +	if (ret) {
-> +		drm_err(&dpsub->drm->dev, "failed to initialize encoder\n");
-> +		return ret;
-> +	}
->   
->   	ret = drm_bridge_attach(encoder, dpsub->bridge, NULL,
->   				DRM_BRIDGE_ATTACH_NO_CONNECTOR);
-> 
+I followed these instructions to test with crosvm on my wayland machine:
+https://crosvm.dev/book/devices/wayland.html
 
+Note that I built with `cargo build --features "gpu,media"`, not just
+`cargo build --features "gpu"` to ensure virtio-media was enabled.
+
+My crosvm command was as follows:
+
+./crosvm/target/release/crosvm run \
+  linux_upstream/arch/x86/boot/bzImage \
+  --disable-sandbox \
+  --block old-debian-12.img \
+  -p "root=3D/dev/vda1" \
+  --net tap-name=3Dcrosvm_tap \
+  -m 8192 \
+  -c num-cores=3D16 \
+  -s /tmp/crosvm.sock \
+  --v4l2-proxy=3D/dev/video0 \
+  --gpu=3Dcontext-types=3Dcross-domain \
+  --wayland-sock $XDG_RUNTIME_DIR/wayland-0 \
+  --serial type=3Dstdout,hardware=3Dvirtio-console,console=3Dtrue,stdin=3Dt=
+rue
+
+The path to your kernel, block device image, and /dev/video* device
+may be different
+depending on your development setup.
+
+In the guest, I launched qv4l2 with the following command:
+
+sommelier --virtgpu-channel qv4l2 -platform wayland
+
+I had to disable OpenGL rendering under the "Capture" menu (otherwise
+the rendered
+window just showed up as white) but other than that it rendered 1080p
+smoothly using
+the MJPEG format.
+
+Here's a video showing 1080p working smoothly:
+
+https://www.youtube.com/watch?v=3Daw03pM_-7oA
+
+> >
+> > > Compliance Testing
+> > >
+> > > This was tested using v4l2-compliance. Since virtio-media serves as
+> > > a proxy to host devices for the guest VMs, we expect the guest
+> > > compliance test to essentially match the host compliance test for the
+> > > same device.
+> > >
+> > > NOTE: v4l2-compliance changes its test behavior depending on the driv=
+er
+> > > name. In the guest, the driver name for virtio-media proxied-devices =
+is
+> > > always "virtio-media", even if the actual host device has a driver na=
+me
+> > > of e.g. "uvcvideo". To ensure the test is consistent between the host
+> > > and the guest, I created a patch for the v4l2-compliance tool that
+> > > allows you to override the driver name. All test results that follow =
+use
+> > > this patch:
+> > > https://lore.kernel.org/r/20260528163448.4031965-1-briandaniels@googl=
+e.com/
+> >
+> > As mentioned before, please submit this with their rationale in
+> > separate as a [PATCH v4l-utils] to linux-media ML.
+
+Sounds good, let's continue the discussion on my existing [PATCH
+v4l-utils] thread:
+https://lore.kernel.org/all/20260528163448.4031965-1-briandaniels@google.co=
+m/
+
+> > >
+> > > All tests used a Logitech USB Webcam C925e.
+> >
+> > Please test it displaying inside crossvm - or even better to QEMU if
+> > you manage to add virtio-media support to it.
+> >
+> > Being at QEMU makes a lot easier for everyone to test it.
+>
+> Hi,
+>
+> Regarding the QEMU support mention, I created this series in QEMU to
+> add the virtio-media PCI device:
+> https://lore.kernel.org/all/20260630112310.552606-1-aesteve@redhat.com/
+>
+> Testing was done using an older driver version at
+> https://github.com/chromeos/virtio-media/tree/main/driver as described
+> in the cover letter. But I can try testing it with this series. Either
+> way, the procedure for using QEMU is in the cover letter, so anyone
+> can try it.
+
+If you'd be able to test again with this series and post your results
+that would be great, thanks Albert!
+
+> BR,
+> Albert.
+>
+> >
+> >
+> > Thanks,
+> > Mauro
+> >
+>
