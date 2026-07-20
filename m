@@ -1,170 +1,230 @@
-Received: from mail-pf1-f174.google.com (mail-pf1-f174.google.com [209.85.210.174])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from PH0PR06CU001.outbound.protection.outlook.com (mail-westus3azon11011067.outbound.protection.outlook.com [40.107.208.67])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D32E03F9A16
-	for <virtualization@lists.linux.dev>; Mon, 20 Jul 2026 17:34:11 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.174
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784568860; cv=none; b=IkrJh10QMV60IiFpK4GqiFCnsGABKugoda/DEjQ7ccpHgs76pThyYs2T0iMygo03QtRn1K3szLkUVDF/fJ95ReAHCrhXjiTxSZw1JjacB+wAP2S9IYWtMgF4fd/Ctky+VFhYOULQ88a9x94Frdd94HbjWX696P6s+x0AKe2A0cQ=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784568860; c=relaxed/simple;
-	bh=9rPa7ILsFfD4wiBH1dl7enIOztDBOtxFqZVsoJxy5aM=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ZipQPKO6ydXYwKv5hn9ieoTN24v/SCTlFTwc8zsm4X+eeurMNqGxlaAjEzAIJGTIyx5zjsgqNpUX70anjbpE2CHCgyQ1oxpy7+rQTezWSAZOQ5MHynYws/O9ZxLWLzElpRuZga2uw5iPiJWzD8zhG6ueNWIqtqKIuMx6taHku8U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GwKF5v++; arc=none smtp.client-ip=209.85.210.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 1C38543B3D0;
+	Mon, 20 Jul 2026 17:50:16 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.208.67
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784569822; cv=fail; b=XpqalE8GlU5N863lkmbruocxAGbXStjQl7vfTDcDBnSo2t7mUb6JBUqQbD1LyBonfjLrpu2enT7Z75qDkGDwJzFYiWgnFlNDJ8PF63CaxlSOdyJqnOZ1hci43alirRtbmWpfPyPD3Pc4alKVOeunnxAnplZDWQG5UX3DEh5y/c8=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784569822; c=relaxed/simple;
+	bh=wL4kAWJmRt3UeBFmjURJ8zNhom5wUz6B4IsIiIcns14=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=I+VuDyYPQGOWcdOpHzVb97+idFpiCM1YvpceyDUNCftRFPjSSs20zbIlnOQ2aJVMKtZa86OApG7Na6cX839NmewNJDeZN6v3PE4NcsWq0SqzcwXdY1cdtD2FwJ/PmNzpZUIv6UvqA/+IV9LGEEwoMoDUKjNRGfUX2Ws5NFGdnRY=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=w3mbZiwh; arc=fail smtp.client-ip=40.107.208.67
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GwKF5v++"
-Received: by mail-pf1-f174.google.com with SMTP id d2e1a72fcca58-84536ecfc5bso6952522b3a.2
-        for <virtualization@lists.linux.dev>; Mon, 20 Jul 2026 10:34:11 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784568849; x=1785173649; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=tJrcjKpXVQnKLdbBW9eWHsb14u8QHsUOoad2GXTIGJA=;
-        b=GwKF5v+++NqbXhPNDufeZZ2ALUuVNDpCXltCJ9H6VHXsTZfcyKqdOH//N2HVMkJQV3
-         +hvgG6fcOXNoKzkwVrR7GxU+MBYLO5sZbUndgR78PIQFiZfqY0BvFSYG2ZGR8+dwWYbr
-         B038SNtlbah1bEc+RDusBdTCRz7EfDt72CNv1NbrbTHoMRIFDm2Md0y25MfI6TxGRKfV
-         sIuvGc8Kz0CftZwLhE4GZY6eU6vJKD6gI7RBGnHZlUr6UKBpFILj4VoJyx2ign8QtPbO
-         5KVGMFZQkgsHHSIJeDBduNuD41m/L6czIn3Nmjxynd+1ESPAoMjCdcmxsg7WIqmA7+LO
-         JxRw==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784568849; x=1785173649;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=tJrcjKpXVQnKLdbBW9eWHsb14u8QHsUOoad2GXTIGJA=;
-        b=lxbptSZGnwIlj5242TMstbsyUMnHspF7F4X4F0QRrp53TXsLG9YgodtkFDBy0Rjrns
-         BBWaSgw+86DqpLBd/OzSGJq53ZtKx1u8+aNZfRhedai37+47Guh/SEZQ5Oc+IzV2KWtN
-         UVeUsVF0aFnvJyJDEq4lKhBippGZycnEH9zJW+Ns8VqLLXBkpBZHib/LvjsZ6vFWs51g
-         HiwPK+Ph4acC7KKzq7Xp0osRcF8+Dm+7D6QUTktFrKpx+99VBWTgDBeVI7JvVGRd01Xp
-         3TW5zHMAph/fKj6ukWX1wF1VPuG0u/hClUKdCTasIpGoHaRYTMvlWxD6UgTIRztPf3Pr
-         7aQw==
-X-Forwarded-Encrypted: i=1; AHgh+RrE9OP0guJDuuHJhAJY4VXYWDa9lPqJNPUD9X8yGS74BZEZUe1Ap4sjaNLBztx7jSViidttfewuQGmy1tZTlA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yywr1SqBwQu8g9hI8r1CBQD/iY3DW1BF+olRgKvNwBz/MpZJVfx
-	yo5uj/cubqAs+iDU+CquGYgmzxbVK5HYYWOX9+cVneatH9KCBV5EQ2/7
-X-Gm-Gg: AfdE7cl7uQWT07iJssGgVdvV46KBufgknyLxTuCXY5Nf2LsRKQC0QlTnQRDTe2sz+cZ
-	lL3F/fdMvOHnCEdViqTCrQVgyGaDGxlyyGp3TvYboUKrfjRNunlODsCDUm4T8kfjg8uSOu89dUp
-	oQGOBPsFsWMm2vNS7JIQGUJOBcJy0mlmdkf9V5wx8j+TE2aMDXQhZLKi8deFgtB9+a5X9ZFOVcw
-	u8K0ZRG9bTg8XuZ8Q0dRCfZvEMMXXyejuKwOFJ5QSzf2cRkqDF4XO5I3pBdSGy1tsUC+dV1idn6
-	tU0kQQ+fQT2xY2v5oNoYmp1DqtOy6c3lCFKasKBaMVHniiIrP3kfxWfo7znC6z+ndNOejl/WZQM
-	hU4QyJTiVoUlfWb13fsWOQVWGK6Fbh5pfZgegJPREBOQEVstDmoBGEgFA1742ZSCEddnxvONRMK
-	EGXGulYeMxxvpx7dhl5jg7ZFp9xkxr9ZmiI9kdj/H1oyjGjMoKWUJpHfpl
-X-Received: by 2002:a05:6a21:6803:b0:3c3:4ab3:608f with SMTP id adf61e73a8af0-3c3ad81f240mr16989952637.29.1784568849345;
-        Mon, 20 Jul 2026 10:34:09 -0700 (PDT)
-Received: from ?IPV6:2406:3003:2007:2131:a42d:c0cf:43eb:f0ff? ([2406:3003:2007:2131:a42d:c0cf:43eb:f0ff])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-31429f9bcd9sm39542802eec.3.2026.07.20.10.34.05
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Mon, 20 Jul 2026 10:34:08 -0700 (PDT)
-Message-ID: <78225425-1ca7-45fb-85cb-9e04f489e68f@gmail.com>
-Date: Tue, 21 Jul 2026 01:34:03 +0800
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="w3mbZiwh"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=fJ4o9L2DV7cQV3Bxf9lj/wBaanczPU9uZfx7QrusVc+Ptz5xWI2q/StW43vYFkSWzHxHN37eRC5xt1mmfiMBCHKXbZh5v8fvNt4FlE5h5A7XOMJZa8FTr2p9DvLgoXBmntONruMvRg1jNUpuC9Rdi46lYaA3WI7fRbm7H5Anurj1tS86/ce+JdVize7R45gGIRknrBSFDPAiNP3uWs01WWN5fduCATwB4lo4pYaT/+J0mL32jSlBJteLFSPkKgq8LEyMLpamfE1DhIiozTJjQtes4yerZvAbPk9333A/6GR+XwsbIq1nOYWNctHU0gMqtEg0AQmwe6jK4TDNcL/Slw==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=o39wuaCrLqxFExrN5GxONTRjd88b+OhZ+T2Cm0ji7BA=;
+ b=sYCya6L1AD4Kc5c/CajOLgRx2LdFzSmn9aJrHrKI1FbpQeMGLEoxb8WWjidVFFXsKj5QyhbyQ27Di4owzDJYsrA5/Vb5p2gR5soR/9WsnVCDU03r8+lYvtaGnyQFMLm/AmDe6jaSjClx+JjVbCCA53lq4BYxoSQWetaUsI7LXs0+nfBZGEJXRiBJJLJv37b7zn0mu78DQJhxSKTADvgYA7yWk8owT3LReuDZJpqbtIqLUHnt4mcdAQZ4CpzJRiLjf6ydXwgJi3XZsYNOHvk6NsHiW0TV4NGQdq0EzZ3PhxOZzuKjnWXITHIdCIOo8baFIk2NikF/pxWZHpD4v/2seQ==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=o39wuaCrLqxFExrN5GxONTRjd88b+OhZ+T2Cm0ji7BA=;
+ b=w3mbZiwhxmccFxnBd8d0V9LArpfonHuzprHlfSzTTI6z4bXpgOI+WF4nefowotzVLOp1DOlZoChjsfep4nbxI/OOYo6zfS4+GQ7FRetjgYs0tRsZ/R9tlKtaSf74dQp6CVdui5aYL8FDoY1inL8+WwheKgFP0eBpp1F2fpj9Crk=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from CY1PR12MB9697.namprd12.prod.outlook.com (2603:10b6:930:107::6)
+ by PH0PR12MB7932.namprd12.prod.outlook.com (2603:10b6:510:280::8) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.223.18; Mon, 20 Jul
+ 2026 17:50:04 +0000
+Received: from CY1PR12MB9697.namprd12.prod.outlook.com
+ ([fe80::3a41:55a0:8203:596d]) by CY1PR12MB9697.namprd12.prod.outlook.com
+ ([fe80::3a41:55a0:8203:596d%6]) with mapi id 15.21.0223.017; Mon, 20 Jul 2026
+ 17:50:03 +0000
+Message-ID: <37bafd27-7adc-4e15-bbf6-7afdbb0b8f22@amd.com>
+Date: Mon, 20 Jul 2026 23:19:41 +0530
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 02/15] drm/xlnx/zynqmp_dpsub: remove dependency on DRM
+ simple helpers
+To: Diogo Silva <diogompaissilva@gmail.com>, Jingoo Han
+ <jingoohan1@gmail.com>, Inki Dae <inki.dae@samsung.com>,
+ Seung-Woo Kim <sw0312.kim@samsung.com>,
+ Kyungmin Park <kyungmin.park@samsung.com>, David Airlie <airlied@gmail.com>,
+ Simona Vetter <simona@ffwll.ch>, Krzysztof Kozlowski <krzk@kernel.org>,
+ Peter Griffin <peter.griffin@linaro.org>,
+ Alim Akhtar <alim.akhtar@samsung.com>,
+ Laurent Pinchart <laurent.pinchart@ideasonboard.com>,
+ Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ Michal Simek <michal.simek@amd.com>,
+ Thierry Reding <thierry.reding@kernel.org>,
+ Mikko Perttunen <mperttunen@nvidia.com>,
+ Jonathan Hunter <jonathanh@nvidia.com>, Stefan Agner <stefan@agner.ch>,
+ Alison Wang <alison.wang@nxp.com>,
+ Anitha Chrisanthus <anitha.chrisanthus@intel.com>,
+ David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Jyri Sarha <jyri.sarha@iki.fi>,
+ Liu Ying <victor.liu@nxp.com>, Frank Li <Frank.Li@nxp.com>,
+ Sascha Hauer <s.hauer@pengutronix.de>,
+ Pengutronix Kernel Team <kernel@pengutronix.de>,
+ Fabio Estevam <festevam@gmail.com>, Chun-Kuang Hu <chunkuang.hu@kernel.org>,
+ Philipp Zabel <p.zabel@pengutronix.de>,
+ Matthias Brugger <matthias.bgg@gmail.com>,
+ AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>,
+ Geert Uytterhoeven <geert+renesas@glider.be>,
+ Xinliang Liu <xinliang.liu@linaro.org>,
+ Sumit Semwal <sumit.semwal@linaro.org>, Yongqin Liu
+ <yongqin.liu@linaro.org>, John Stultz <jstultz@google.com>,
+ Liviu Dudau <liviu.dudau@arm.com>, Neil Armstrong
+ <neil.armstrong@linaro.org>, Kevin Hilman <khilman@baylibre.com>,
+ Jerome Brunet <jbrunet@baylibre.com>,
+ Martin Blumenstingl <martin.blumenstingl@googlemail.com>,
+ Jonathan Corbet <corbet@lwn.net>, Shuah Khan <skhan@linuxfoundation.org>
+Cc: dri-devel@lists.freedesktop.org, linux-arm-kernel@lists.infradead.org,
+ linux-samsung-soc@vger.kernel.org, linux-kernel@vger.kernel.org,
+ linux-tegra@vger.kernel.org, virtualization@lists.linux.dev,
+ imx@lists.linux.dev, linux-mediatek@lists.infradead.org,
+ linux-renesas-soc@vger.kernel.org, linux-amlogic@lists.infradead.org,
+ linux-doc@vger.kernel.org
+References: <20260720-drm_simple_encoder_init-v2-0-5020b630668a@gmail.com>
+ <20260720-drm_simple_encoder_init-v2-2-5020b630668a@gmail.com>
+Content-Language: en-US
+From: "Pandey, Radhey Shyam" <radheys@amd.com>
+In-Reply-To: <20260720-drm_simple_encoder_init-v2-2-5020b630668a@gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: PN4P287CA0040.INDP287.PROD.OUTLOOK.COM
+ (2603:1096:c01:271::11) To CY1PR12MB9697.namprd12.prod.outlook.com
+ (2603:10b6:930:107::6)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH] vsock: use sock_error() to consume sk_err after connect
- timeout
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
- syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com,
- virtualization@lists.linux.dev, netdev@vger.kernel.org,
- linux-kernel@vger.kernel.org
-References: <20260719220103.684489-1-phind.uet@gmail.com>
- <al3UuvBhfxp82krV@sgarzare-redhat>
-Content-Language: en-US
-From: Phi Nguyen <phind.uet@gmail.com>
-In-Reply-To: <al3UuvBhfxp82krV@sgarzare-redhat>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: CY1PR12MB9697:EE_|PH0PR12MB7932:EE_
+X-MS-Office365-Filtering-Correlation-Id: faa4ed02-1be4-4d62-1cb7-08dee6875401
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|1800799024|7416014|376014|23010399003|366016|921020|18002099003|22082099003|56012099006|4143699003|11063799006|10067099003;
+X-Microsoft-Antispam-Message-Info:
+	pmmbjoQR4MBCH0s5XGIXXUKTsAFm1jsHQ87haKRvxsgt1K+EnbVBQLdRf+SwI96/Y7fvpFGZlYF/30dBzWOz3/4iM/1zsCmquJUOJ1YJrM0jLMfuV3CjnfHp3OUYY1slMRaOkoDoaI2vV/hgs+ikXNwaaAZ/KFJWb7+7LrRRJ2hwhJNIpNO4tvaNztfzlUIFC750CFmyVWYDTrFrexEF5P7SqS8zUQS1Q696iPA9s/LNzpc38gq57MkCTW9HrBptmQBgkWxMxa34kvyfRmAYXWoLAnTnnkx4K/j3y8gn1Tx5fgEF/D8zdkV0kkbZRP0pMQ9YQbwpYYqi223s1i/iCRLISlFJ/ARPv9yykS+PJDLy5Dz8ZM8rZn8gP05lJoEFdRwpfRQJArI0D5GZ29gzH28vrTK6FL8BIAlVK58vgjxsX027rBO345wpUPwjW2GP7XfpLtZomtoSJnbBB4B3xtfLxYfk8a6Q2VkwAZRzy8tgkmrHZ4hvwmo7YClmOsSjjbyw7wbWHmcopQXD/DrJGI0Ta2y7Y2htmk7j9/j3qinOrQKbgKCXZ3TPpBtoZzhg8WMZbwMeJhJ7qNwyxLH/oC/5AsbS7ft551HghIdBtEZlltW28UH61tcnRLafmxMgzr8DfCvpjovyo3nFYQ1CCk8RkOov3Nz34wh5J0XZ7TSCVebWLs1DpVOHWXRJxDQBXhAdbiLzSUbBSuDMMVhGtg==
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:CY1PR12MB9697.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(7416014)(376014)(23010399003)(366016)(921020)(18002099003)(22082099003)(56012099006)(4143699003)(11063799006)(10067099003);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?dXZYMDBxdDBNSGk0RUZiS3BBenpMRVRGeUVsdDZNcWhEOEVQVHgxNU45VnpO?=
+ =?utf-8?B?Ujl2NFNqS0xPMDZsbjFtYWhQZngrZEVNSEJMdCtlWHJzR0c1L2RUcUpwUHow?=
+ =?utf-8?B?RkwxQ3F2akphSWdNeGtkNzRBbFBKTnp6UE5sdUlBeUdKb0NqQ0xsbm5xMEJV?=
+ =?utf-8?B?MS9TTTV4SG0vejI2RmNMK0N0V0xoUEJDYTNmcnBmZzZjSmMwaXJpUUxmdElL?=
+ =?utf-8?B?NmtYTjdTbDBndnFmdzNTbWdudlEvMG52WWhYOWRBQ3NQREMwNEcybTU0Tm03?=
+ =?utf-8?B?M3UxZ3JIR0t0UGhIeGpIMVI5QlkvWkszZ00zWHFxS0pwUmpndnBodkcwbWF2?=
+ =?utf-8?B?S0dGclR2eEJMN2lPcGFDTnIvbXFMMlB3SnVJbzh3NnFVSjBsZVF6ZVZZT1hk?=
+ =?utf-8?B?NjNYd08xcERHbjVDbGRjSjVuU1QzS0YzU2pxN1lNcEFHMTcveSt2d2JTNGdv?=
+ =?utf-8?B?cmpGanZGNTlFRXMwSC9UTEcwZ2ttWUVmQkZiRi9ybGNQVTNSeXBpK1pScXlR?=
+ =?utf-8?B?SFJReVVFTW00cHpNeGU0WFVJQ2NYNlpKV3EyT29YR0MvaFFGV1Y0bWpwbHhv?=
+ =?utf-8?B?UmFFOGViZGtkL3Q5SjhlSzFiYW5BNHkvd2R1NjNPR1dabmZxU3l4SEZiNDVt?=
+ =?utf-8?B?QnZacVFLMEJRVG9HNXJsYmNxVHZnTkluS2ZhVlk5U0JabmRNNXFha0YyaGpP?=
+ =?utf-8?B?Umo1Zmk2K092SSs4RktuY3krY0Q4b1I0dlRjQjN2TElkVS9yWVBRMzkrUGRa?=
+ =?utf-8?B?M2RuRnJjS1NzTGZDMWFUb2F4a3RZRTBNenhrajlwcllqY2RodDMzQW1pZ0lh?=
+ =?utf-8?B?MDBSVFVNU0lyUnJ2UWpqTkRsT3BqRkJBZzhta3NkcHFreUZBaS8vZ1R0eDVY?=
+ =?utf-8?B?NjJ3ckE0Z3BDY2RrOTdqcTdvSDRrZlRSK1dXekFnZXJDOWU4em1NZmR4dUIy?=
+ =?utf-8?B?UGxFYzEyUjFpT2dJU3RZV0pSZDZpUDN1SmVtOGFQUFhxL0d5aGhxN1gxZDl2?=
+ =?utf-8?B?eGhNZ0FYaTFQTGRIbFB1K2pycHhMVTF3c2dJQldLMTBpalZXM0xhRXpSbi80?=
+ =?utf-8?B?d25qU01US1RiajZtZnQ3bkdBTndHcjRlVmd3Tm92T3lob2FPRlNaWmJ0TVRK?=
+ =?utf-8?B?bWJEUGhQNGIzbDRZdjhOL3BzT05SdGUrdXVYZ2x1d2VVdzhTUDlaSDJ4REdM?=
+ =?utf-8?B?OUtiZXZjeGhHY1l3NmpjLzJJL1dmNmFkL3ZXSWc2NkNVazZ2TjhnR1VDUmNO?=
+ =?utf-8?B?L21KM1pURG9vcGhpTWRwWUt1MC9mVDFTMHdmZkpOR21nR1k5ZkVYd25KOVpu?=
+ =?utf-8?B?dGJaYnozQ1hDZDRrcS9xdTJ3ZlkwRm1sMUdncDI2UzByS0MwMyt0TjJMTnNI?=
+ =?utf-8?B?Q05tSzhyTDJiVDQ4ZjRZeTRiQmp5L3Brd1BBOVJRbU0rRlBpWVdPaFl6OE1F?=
+ =?utf-8?B?L3ZXQnRySWNnc2o1V0djTnV5OHpPdG1yWDkvYzJrYWRTc0hyTC81Zi9sYmRN?=
+ =?utf-8?B?OWw3ZjZVUHRHeGRvbGdPMGF2QTNldVJjd3MzR3lPTk02WldybnhKaFN5QytV?=
+ =?utf-8?B?NTRSMlBqTXpabmZVTG9OekdoNUVLUmR1eVo4eG51VStxam1mY1BiVWxMSW9w?=
+ =?utf-8?B?ay8xenhQM1Q3bzhDV3laQUdvRmdvZzRXNmNTVW1lZjlKZXY4MG9XM3pQRU1M?=
+ =?utf-8?B?M1JnQ2JwajYwRldSOE52Vy9JaHpmN0RHbGNjdnhGalI4djIvTitFdVZLcm1y?=
+ =?utf-8?B?WHpvNlI1d3hSZHJINmI0cE1Ca3FudXh3MnR4RWMxWnFuMDVUOXhxMGd6Zk9j?=
+ =?utf-8?B?VVJ6RzUySHcwZCtadW1lWTNQZ2svMklrbTBZb004UzhQVDA1SFZWajlWdTkw?=
+ =?utf-8?B?YzZLNHhOSDVVL3R1SGNnSVZRcTZTeWQrMSs0WEdNSVUvRGRnTnQ0MUNvOGlZ?=
+ =?utf-8?B?c1p0VDhSMml2QTFhMVN2NDRLbDRQeHVLM3hwQjN3SU1CZGhRa2tPblBlNlI1?=
+ =?utf-8?B?T3lFd3J1VjZpYWpudFNKeSs3cnN4SzZ0amswYjVsRzMxb1lpWm9PSlRJVUlw?=
+ =?utf-8?B?MUp0Z3RzNjN1YkVYZVJPeENnS1FpUjBRR0Z3T2VJMjhOR1FzaFdDVlBjaGhQ?=
+ =?utf-8?B?WDhmV2Ira2FxK2NWR1MwRUtoaWRPTWpZdmh2VU5WMm9odmJXWE9zdnRFM1Bh?=
+ =?utf-8?B?R2h2MFU0WUNqYTJNOHA4dTBaTEFDcHlsWWc1RXFZU1BrWmtiYURYb3NHWC8r?=
+ =?utf-8?B?dUptaTJ1SlBkVVpkYThpdVVsSUFMbUxPRzFkczM3YXhFdC8zc0ZaMXhIS0Fy?=
+ =?utf-8?B?Tmt1ZzVrdWFvbkZibW9oQVdsRHFocDlaRExzL00vOGs4TE1jUGZqdz09?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: faa4ed02-1be4-4d62-1cb7-08dee6875401
+X-MS-Exchange-CrossTenant-AuthSource: CY1PR12MB9697.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 20 Jul 2026 17:50:03.8455
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: cmEWwMXOfUaEzA7+4Onrv7NOl6vyngB6R4tmpEHMKSOHEv+IOnvdtKrMzMu6CRpd
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: PH0PR12MB7932
 
-On 7/20/2026 4:17 PM, Stefano Garzarella wrote:
-> On Mon, Jul 20, 2026 at 05:57:47AM +0800, Nguyen Dinh Phi wrote:
->> After vsock_connect() exits the wait loop due to sk->sk_err being
->> set, the error was read but not cleared. This left sk->sk_err set
->> for subsequent operations.
+On 7/20/2026 9:10 PM, Diogo Silva wrote:
+> The simple KMS helpers are deprecated because they only add an
+> intermediate layer between drivers and atomic modesetting.
 > 
-> So, is this a fix? If yes, we should put a Fixes tag.
+> Open-code drm_simple_encoder_init() by calling drm_encoder_init()
+> directly and providing driver-local drm_encoder_funcs.
+> Also check the return value from drm_encoder_init() to avoid silent
+> failures.
 > 
-> Also, can you describe how to trigger the issue?
+> Signed-off-by: Diogo Silva <diogompaissilva@gmail.com>
+
+Reviewed-by: Radhey Shyam Pandey <radhey.shyam.pandey@amd.com>
+Thanks!
+> ---
+>   drivers/gpu/drm/xlnx/zynqmp_kms.c | 14 ++++++++++++--
+>   1 file changed, 12 insertions(+), 2 deletions(-)
 > 
-> Because I see this in vsock_connect(), so I thought it was in some way 
-> already handled:
+> diff --git a/drivers/gpu/drm/xlnx/zynqmp_kms.c b/drivers/gpu/drm/xlnx/zynqmp_kms.c
+> index d5f922450565..ac9197e026af 100644
+> --- a/drivers/gpu/drm/xlnx/zynqmp_kms.c
+> +++ b/drivers/gpu/drm/xlnx/zynqmp_kms.c
+> @@ -29,8 +29,8 @@
+>   #include <drm/drm_managed.h>
+>   #include <drm/drm_mode_config.h>
+>   #include <drm/drm_plane.h>
+> +#include <drm/drm_print.h>
+>   #include <drm/drm_probe_helper.h>
+> -#include <drm/drm_simple_kms_helper.h>
+>   #include <drm/drm_vblank.h>
+>   
+>   #include <linux/clk.h>
+> @@ -417,6 +417,10 @@ static const struct drm_driver zynqmp_dpsub_drm_driver = {
+>   	.minor				= 0,
+>   };
+>   
+> +static const struct drm_encoder_funcs zynqmp_dpsub_encoder_funcs = {
+> +	.destroy = drm_encoder_cleanup,
+> +};
+> +
+>   static int zynqmp_dpsub_kms_init(struct zynqmp_dpsub *dpsub)
+>   {
+>   	struct drm_encoder *encoder = &dpsub->drm->encoder;
+> @@ -436,7 +440,13 @@ static int zynqmp_dpsub_kms_init(struct zynqmp_dpsub *dpsub)
+>   
+>   	/* Create the encoder and attach the bridge. */
+>   	encoder->possible_crtcs |= drm_crtc_mask(&dpsub->drm->crtc);
+> -	drm_simple_encoder_init(&dpsub->drm->dev, encoder, DRM_MODE_ENCODER_NONE);
+> +	ret = drm_encoder_init(&dpsub->drm->dev, encoder,
+> +			       &zynqmp_dpsub_encoder_funcs,
+> +			       DRM_MODE_ENCODER_NONE, NULL);
+> +	if (ret) {
+> +		drm_err(&dpsub->drm->dev, "failed to initialize encoder\n");
+> +		return ret;
+> +	}
+>   
+>   	ret = drm_bridge_attach(encoder, dpsub->bridge, NULL,
+>   				DRM_BRIDGE_ATTACH_NO_CONNECTOR);
 > 
->          /* sk_err might have been set as a result of an earlier
->           * (failed) connect attempt.
->           */
->          sk->sk_err = 0;
-> 
-This only handles the case where the function following the failed 
-connect is another connect() call.
 
->> Switch to sock_error() which atomically reads and clears sk->sk_err,
->> so the error is consumed when returned.
->>
->> Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
->> Reported-by: syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com
-> 
-> Can you explain how this patch fixes that issue?
-> (this should be the first information to be put in the commit message IMHO)
-> 
-> I'd like to understand better if this is a fix of real bug or just an 
-> improvement to the code (which is fine by me).
-> 
-> Thanks,
-> Stefano
-> 
-Here are the steps of the syzkaller reproducer:
-
-   r0 = socket(AF_VSOCK, SOCK_STREAM, 0) 
-
-   bind(r0, {VMADDR_CID_ANY, PORT}) 
-
-   connect(r0, {VMADDR_CID_LOCAL, PORT}) 
-
-   listen(r0, backlog)
-  
-
-   r1 = socket(AF_VSOCK, SOCK_STREAM, 0) 
-
-   connect(r1, {VMADDR_CID_LOCAL, PORT})
-
-   connect(r0 -> self) -> -1, EPROTO 
-
-   listen(r0)          -> 0 
-
-   connect(r1 -> r0)   -> 0 
-
-   accept(r0)          -> -1, EPROTO
-
-Basically, it creates a socket (r0) and triggers a self-connect after 
-binding it. This self-connect fails with EPROTO because it loops back to 
-r0 while the socket is still in the TCP_SYN_SENT state, causing it to be 
-incorrectly dispatched to the connecting-client path. The unexpected 
-packet type encountered there sets sk_err to EPROTO.
-
-After that, it invokes a listen() call on the same socket. This listen() 
-call succeeds because the kernel's listening path never inspects or 
-clears sk_err. Then, a new socket (r1) is created as a normal client and 
-connects to r0. However, vsock_accept() rejects this incoming connection 
-because the listener's sk_err still holds the EPROTO error from the 
-earlier failed self-connect.
-
-This rejection causes the child socket created for r1's connection to 
-never be freed on virtio or hyperv transports; only the VMCI transport 
-implements pending_work to revisit and clean up a rejected socket
-This patch will prevent the rejection branch to occur in this scenario.
-
-I think we might schedule the cleanup worker to run in the rejection 
-path for these transports as well.
-
-Thanks,
-Phi
