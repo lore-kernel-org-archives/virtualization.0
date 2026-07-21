@@ -1,158 +1,115 @@
-Received: from mail-pj1-f53.google.com (mail-pj1-f53.google.com [209.85.216.53])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CE52D433BA9
-	for <virtualization@lists.linux.dev>; Tue, 21 Jul 2026 07:37:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1E44433BA8
+	for <virtualization@lists.linux.dev>; Tue, 21 Jul 2026 07:46:15 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784619427; cv=none; b=braMTvJzYmroxNcJ4mtCZC35fmjio1LDp5DDoLBFaFFplptAq84GmKJlQphtQt7rui7Gb13r/iJ3/tZNsw2fP8eP330X3tN79bBWbeeCe2/bwElQNE94UwsQYEsSQj5G+i+xTmCzEB+T32ndyWH9kVZ9Z4YimaspNLbfj9q4Ax4=
+	t=1784619977; cv=none; b=UrjxOebs8HefRXmK2dHU2ltZmcOabmI5wGUSX3Fie9iK6IcVP3rauGYl45ec3OmyY6PkzFTOaB5TnLD2AXOqWUSsVrHbVnHagzvVypGM4gu5q+T0vBf2U5iskjj4N4/DTWmFNQPqYHlyJuM2vMk7udHP1D8+9tM+BWl86lL/PCo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784619427; c=relaxed/simple;
-	bh=PBJgJTVktA6dk4pRBadGmyyYxpIPFy/6kLS3RcLYINk=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=E1coPjRvM1WVBA1J+IRUA5gBfT+XT9qzfWn/BQQ9M4ZBvt4M9umtGCSjCimMa90jLlIBI8zZ5EsCxVdBzM+A/nnMoM20tOcag1ccf015cGk+w5pKpxEehcX43Zn2z8fNnMYbFyldYAqXXCKXW1z78t4eksV65n5e2AFmfF7eNyg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kFmOLPgp; arc=none smtp.client-ip=209.85.216.53
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1784619977; c=relaxed/simple;
+	bh=dau4m55i0N+huU1Tx4LV5VNIWA7SxLqAMiCgmbSBsQM=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=m+LpM4FBNBOzwejNlamOQ7I5h1qxBBIreAxDEp85B+m3ZAm6FYOI0vwHBM4Ie4rojmEvgSMwwhh0zJukY7qX0eSK+76d8L5CQZN0GWnWJ4fBYBOUJuk45Su5NjjzhKRFIqgRjCwieqfky2gLvz21AhHCvIZeO7ZEwUmRd0gM0/w=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dIlOrAVp; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kFmOLPgp"
-Received: by mail-pj1-f53.google.com with SMTP id 98e67ed59e1d1-38dcbade417so9161483a91.1
-        for <virtualization@lists.linux.dev>; Tue, 21 Jul 2026 00:37:04 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784619424; x=1785224224; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=35d5h6tDV+eeR0qT67WDhTn7rqN/E2touheot1irCJc=;
-        b=kFmOLPgpXXrJl9/OQlCcza4a8n8oHCxhq0Ua+9WYAiPkAu8ywB1sxhjqVeD+iA8K8X
-         IMCYc+ZMeooi0mgSC/2VJ+Jgm0i7N0WdD4Fs0frvOOl+bzttrQdTh/3nWJxtYCFHnhrB
-         lsDf9jg1Q3MR303hfmQqN9RjZvXHrEnxIsTm7NmQATzEM+0mxKn75yc3wwCe9EWhQP5M
-         logvbJT7uBoslX8LXxrLCilFuZuWoYY0cHh22OWJlwMpfLt7h9W2Vr+m8hxizkytS4UV
-         XjjajtGeIEMCExoONZI0a4kUI8QxNwWjVAvRcGaWgEexu28bzhT7U0y9bWpvvoeT2C3x
-         Mm9g==
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dIlOrAVp"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1784619974;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=4Ais/X6bRzcXYsevthemLaBtrh2axhIC1Q39swas2MM=;
+	b=dIlOrAVp0Ji2V5uTVEmBpiea9pMbIx6M+OOB5ZyTDB9+QstjgsdxLFRwYx+IDMirRWlz3A
+	I5t7Bbn21g1YWyf9E3TJo3/Ve7vdCvvZvzEhgj36aQStbhoRc9XqkdQ120s9gPrVDSdswn
+	kH67gkVnw4dLHFn2v6eWHyf1mQmyLfM=
+Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
+ [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-687-mL6fLCdvNF2pTmbpnZnTiw-1; Tue, 21 Jul 2026 03:46:13 -0400
+X-MC-Unique: mL6fLCdvNF2pTmbpnZnTiw-1
+X-Mimecast-MFC-AGG-ID: mL6fLCdvNF2pTmbpnZnTiw_1784619972
+Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-495689bfcc8so1062285e9.1
+        for <virtualization@lists.linux.dev>; Tue, 21 Jul 2026 00:46:13 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784619424; x=1785224224;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=35d5h6tDV+eeR0qT67WDhTn7rqN/E2touheot1irCJc=;
-        b=VMyYNWW+jL7Sv9pQblXPdm+JZFvrehpm9c+V8nUVZ/ChAjVSihP5AF4a5WXqBB5LbG
-         VroEywjH4BU+iBfl5LbQ0L/2dK5ET46//PSvmIpMJ2FjSZqAiykNfwD47YfXo1vj2yLv
-         ZgUno64Wc7EJZlx+oIqKejtrWycyv8/aHW24j24/WdDHf+IeMMldbVEJFAiwmJBvTvsm
-         zw1PHv14vyI/WV/lJDSnJvZTFc/ZbCBQiDRbCVNONqcoiftmxoT9aGwWa+eTM0GG3Q7b
-         UEkMwhw2nuxKrg9k2ncDqw+nlTByYUryYdNSID7PYZE621gKNBM8CAQQXzVB4Ma7zZAr
-         n9GA==
-X-Forwarded-Encrypted: i=1; AHgh+RqT8UTH4Bceb0P8h4Tys6rYhMcQkWwpW5ORnZ7JYAuqFCRozWyiY9/brSIu0ibqoB+eGaLb5ot3w1BTN4OrKA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Ywt9zEuuMJd3uTBEJbA64DO1mMiCFJhu9qKrn9tTHON80frz6jP
-	khk/Z3VScXibKJGc3rdiC48nEh7Be/QTp+L66VzbsJYnXbW1ByVAbLwx
-X-Gm-Gg: AR+sD1111NEHAPOMHRmBmtGAjzPdE4iWgpFJAI4p2D79Ssy1vxk0WVLtm0UIOgZJ2Yy
-	0t3tteqPMxh7KEhEFXw9WntGjeEP/+qLEGSNUERL9+XCCnmZqbjp9+hBKdkWLL0qaMeYkE/GJHz
-	aB5KzT7K7nEUgZkE345p8YAJFyzeQTaV9IRCdsZ46fp3tcY4MfttRaVzLF0UnrdA9wuXZYmYkLV
-	RHEuIxGkq8nZ1Mx0ESvoBIzSyy48mfL3mXT6S4cESdGmC6GxWD0OzJzr+JSmI92j4d0mH80BZoQ
-	nMouK0/rL54x2iukccOyYKRwZs0xrsnxFAC3UaTF67xsLyX4xujgWIl0G4VTiHPOrcjCMrWMsGN
-	LJjDY7mYysT8uG3HbP83UcU1g4g5HvQFLVNtGJXWPYkD1weVmTW732DMpMsGW+5Ryu/ABnQ==
-X-Received: by 2002:a17:90a:c885:b0:380:83fc:4315 with SMTP id 98e67ed59e1d1-38e4b538938mr18875650a91.21.1784619423827;
-        Tue, 21 Jul 2026 00:37:03 -0700 (PDT)
-Received: from jia ([188.253.12.32])
-        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-38e92169cebsm1070482a91.11.2026.07.21.00.37.00
+        d=1e100.net; s=20251104; t=1784619972; x=1785224772;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=4Ais/X6bRzcXYsevthemLaBtrh2axhIC1Q39swas2MM=;
+        b=P55upCu1ttotAqpdzhwpEFuJyP8JjmVdyLJH8efW5cRGKSl7kCzNiEopJX+00EgeRD
+         TXe3HW8s2Rl9e8tkVy3WWh37oOPRZzxlUFqVg1clrLGGXXqf8pQ4q5E0mKwCqv9gh/3u
+         IU9SFvF3XsMAy8kZc8Yym350L3dTFZQGVQlFRTasNlhZN8FehJYErEQbycvDgEaUjNrQ
+         ldNJnkAAh0RcXZoSQtnb3s+9LB55e/+/pOU/Qpwaub0PshSm2TwPz2WULqI6B1No/vBT
+         ULU0IeQwy3geDJrXoLYWSgyJo5mJ6uDxM5wl8zidy0PRWp+7GKVZIRfPoKxBA5/WLXZ9
+         /v2Q==
+X-Forwarded-Encrypted: i=1; AHgh+RrZor+2E4omv2pA9g0RfCNxcko+D6GR57VVgi5E54lgxDYZYZvSA16C+41ztGBVez6Xhosn0GPEw0LsRlgBqA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yym2VnkF4lVZT+knMAuxqsNyaGQDn1EpvWS/rtGtZsyj98+jsJw
+	dJwU0VKlubgORSF03wHl0gJcIB6mZ5E67LLsHbsM3dbpL86WrkKxWrEvHVU/FasY09pTQTT+EBo
+	YsbD/PMzpEHHCQsv1ANWNcn404v8nRQBWz2yH3eHyKKc0z/mYUhdTygAoe8CaovDmNf87
+X-Gm-Gg: AfdE7clmDUoTHpYTTpyQ5ALRLPsQvYmeqXxL7pnIsr0SLEsXLbyMHnBpn/mjDZ9ibyM
+	WAlJoveDN2zfPDYhyP2/EBAMkK1D0BBYWRDl+HP/kMosi23VIgKSPEdLHgIszjiiUcJB+J9jWgy
+	I7O0cjgCBGyX3wqfqdIWbva7zNKgGKa+vQADg0OjyZFTNiZc3io28G4JGhR4GvbYVjhpfLSx1IP
+	adQ/kDoydxVKt+5lNltxYC7gPfJsyWqma0+o3vv/tAK74LhSHYvcnhmmfYWEK1pTJuVu4kirFJt
+	3dMdg74ifzAhe4E25AiYzW0VgWS3pIEhj5EflJ03EmK3rOQZ7aNoKH59vCtJr/IFFWlCjk0B6ZY
+	N3NqGgMDNKig6JtJQ5lLfs+82Wv+e8vy2xsHOypcfmJARy33HdA==
+X-Received: by 2002:a05:600c:3515:b0:495:5b4a:53c9 with SMTP id 5b1f17b1804b1-4955b95bfbbmr89971115e9.39.1784619971793;
+        Tue, 21 Jul 2026 00:46:11 -0700 (PDT)
+X-Received: by 2002:a05:600c:3515:b0:495:5b4a:53c9 with SMTP id 5b1f17b1804b1-4955b95bfbbmr89970765e9.39.1784619971248;
+        Tue, 21 Jul 2026 00:46:11 -0700 (PDT)
+Received: from sgarzare-redhat (host-82-53-135-65.retail.telecomitalia.it. [82.53.135.65])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47f63e49ce4sm37180764f8f.8.2026.07.21.00.46.09
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Jul 2026 00:37:03 -0700 (PDT)
-From: Jia Jia <physicalmtea@gmail.com>
-To: "Michael S . Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowangio@gmail.com>,
-	Mike Christie <michael.christie@oracle.com>
-Cc: Paolo Bonzini <pbonzoni@redhat.com>,
-	Stefan Hajnoci <stefanha@redhat.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	virtualization@lists.linux.dev,
-	kvm@vger.kernel.org,
-	netdev@vger.kernel.org,
-	Jia Jia <physicalmtea@gmail.com>
-Subject: [PATCH] vhost-scsi: flush backend after device ioctls
-Date: Tue, 21 Jul 2026 15:36:39 +0800
-Message-Id: <20260721073639.1532488-1-physicalmtea@gmail.com>
-X-Mailer: git-send-email 2.34.1
+        Tue, 21 Jul 2026 00:46:10 -0700 (PDT)
+Date: Tue, 21 Jul 2026 09:46:00 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Manos Pitsidianakis <manos@pitsidianak.is>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, 
+	Manos Pitsidianakis <manos.pitsidianakis@linaro.org>, Peter Hilber <peter.hilber@oss.qualcomm.com>, 
+	Stefan Hajnoczi <stefanha@redhat.com>, Viresh Kumar <viresh.kumar@linaro.org>, 
+	Miguel Ojeda <ojeda@kernel.org>, Boqun Feng <boqun@kernel.org>, Gary Guo <gary@garyguo.net>, 
+	=?utf-8?B?QmrDtnJu?= Roy Baron <bjorn3_gh@protonmail.com>, Benno Lossin <lossin@kernel.org>, 
+	Andreas Hindborg <a.hindborg@kernel.org>, Alice Ryhl <aliceryhl@google.com>, 
+	Trevor Gross <tmgross@umich.edu>, Danilo Krummrich <dakr@kernel.org>, 
+	Daniel Almeida <daniel.almeida@collabora.com>, rust-for-linux@vger.kernel.org, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH RFC v3 0/6] Add Rust virtio bindings and sample device
+Message-ID: <al8isqIL6gwGlPc0@sgarzare-redhat>
+References: <20260510-rust-virtio-v3-0-1427f14d67e1@pitsidianak.is>
+ <tiiht3.22qk83rct1pd@pitsidianak.is>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <tiiht3.22qk83rct1pd@pitsidianak.is>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: C1Eh6uBCurQhC168q4yJLhfEPW_n_Od3EgmZznprmpY_1784619972
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-vhost-scsi translates guest response descriptors into userspace iovecs
-at command submission time and later completes those commands
-asynchronously through target-core. Device-wide control operations such
-as VHOST_SET_MEM_TABLE replace the memory table under the device and
-virtqueue mutexes, but historically returned without waiting for
-outstanding SCSI commands that still hold the pre-update response
-iovecs.
+On Tue, Jul 21, 2026 at 09:21:15AM +0300, Manos Pitsidianakis wrote:
+>Ping.
+>
+>I have a different version of the series WIP with a virtio-rng instead 
+>of virtio-rtc, based on https://lore.kernel.org/lkml/20260529-rust-hw_random-virtio-rng-v1-0-b3153dd90311@pitsidianak.is/ 
+>(which needs a v2 also)
+>
+>But since this series hasn't gotten any feedback on the virtio part, 
+>I'd like to ask if there is any before respinning.
 
-After such a replacement, completion may write virtio_scsi_cmd_resp
-through the old host virtual addresses. If the owner has already
-remapped those addresses, the write lands on the wrong userspace object.
-The kernel tree has carried a TODO for this since the 2012 split of
-vhost_dev_ioctl() and vhost_vring_ioctl():
+Sorry I haven't replied until now, but I haven't been able to find the 
+time to take a look. I'm very interested in seeing Rust used in virtio 
+drivers, and I'd be happy to help maintain them.
 
-  /* TODO: flush backend after dev ioctl. */
+I'll send you my feedback within the next few days.
 
-A userspace test kept a READ(10) pending, replaced the memory table so
-the response GPA mapped to a new HVA, remapped the old response address
-as a victim page, and then let the command complete. The completion
-wrote the victim page (victim_changed=yes) and left the replacement
-page unchanged; a later TUR updated the new mapping instead. So the
-pending command retained the pre-update response address across
-VHOST_SET_MEM_TABLE.
-
-That same 2012 change deliberately avoided a second backend flush on the
-vring-ioctl path: vring updates already flush where appropriate, and an
-extra heavy flush would hurt when kick or call fds are reconfigured on
-the data path. This fix does not reintroduce that. The default branch
-still routes unknown commands through vhost_dev_ioctl() first; only a
-non-ENOIOCTLCMD result flushes. Vring ops such as SET_VRING_KICK/CALL,
-num, addr, and base return -ENOIOCTLCMD there and fall through to
-vhost_vring_ioctl() without this backend flush.
-
-What vhost_dev_ioctl() actually handles on this path is small:
-VHOST_SET_OWNER, VHOST_SET_MEM_TABLE, VHOST_SET_LOG_BASE,
-VHOST_SET_LOG_FD, and the optional fork-owner ioctls when enabled.
-Flushing after those is fine: they are rare device-wide control ops,
-and SET_OWNER normally runs before any inflight SCSI work. Call
-vhost_scsi_flush() so pre-update worker work and target-core inflight
-commands finish before the ioctl returns. As with the existing net
-pattern, any non-ENOIOCTLCMD result flushes, including failures that
-may have applied a partial update such as VHOST_SET_LOG_BASE.
-
-I later noticed vhost-net and vhost-vsock already use the same device
-versus vring split.
-
-This is a control-plane barrier only. Ordinary submission, completion,
-kick, and call paths are unchanged. The owner is expected to keep
-pre-update mappings valid until the device ioctl returns. Completion
-copies the response and signals from the vhost worker without needing
-further userspace progress, so waiting in this ioctl does not leave the
-owner process stuck on itself.
-
-Signed-off-by: Jia Jia <physicalmtea@gmail.com>
----
- drivers/vhost/scsi.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index 9a1253b9d8c5..c3e8f1a0b2d4 100644
---- a/drivers/vhost/scsi.c
-+++ b/drivers/vhost/scsi.c
-@@ -2424,10 +2424,11 @@ vhost_scsi_ioctl(struct file *f, unsigned int ioctl, unsigned long arg)
- 	default:
- 		mutex_lock(&vs->dev.mutex);
- 		r = vhost_dev_ioctl(&vs->dev, ioctl, argp);
--		/* TODO: flush backend after dev ioctl. */
- 		if (r == -ENOIOCTLCMD)
- 			r = vhost_vring_ioctl(&vs->dev, ioctl, argp);
-+		else
-+			vhost_scsi_flush(vs);
- 		mutex_unlock(&vs->dev.mutex);
- 		return r;
- 	}
- }
--- 
-2.43.0
+Thanks for your work!
+Stefano
 
