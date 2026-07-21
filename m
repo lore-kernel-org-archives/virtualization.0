@@ -1,171 +1,213 @@
-Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com [209.85.214.198])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mail.nessuent.net (mail.nessuent.net [188.245.177.90])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48DFE3F1AC4
-	for <virtualization@lists.linux.dev>; Tue, 21 Jul 2026 00:56:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.198
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 750A142D760
+	for <virtualization@lists.linux.dev>; Tue, 21 Jul 2026 06:33:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=188.245.177.90
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784595416; cv=none; b=BCR6KEZl00NAH4zggTXmCyzk6GLZGIeSFs1PnEdSkzCYmzuSA8HU0CWKorQE/nyySkkE8bGzSzOzfLK87QPD5A1ajkj37EEQbsR2dM88LIuzGpHS3DAngvQd04PmlXQHNR46BK8B23ORdVpi2S3Wj/3NzdhJhdY9P6H4oYueVp8=
+	t=1784615642; cv=none; b=Vp9n+CZsa4f5B64vrzEsz1L7F5p1a7tsqUdBwXHWd2NXzenKSgF2WII2Gy7k3z5JFYLsiVxHpIigSvx9dW8dqgLJkK8kQaCAOsZHU1r3fTwCmEYqgSiL4o0ql5LvwqToF9rUTIHkJiXNVKFTrgbLVo29aKu6FD13fSAQKh0iIdk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784595416; c=relaxed/simple;
-	bh=Jf1Z3wiUSnHmBFlRFZCz2LuluHz3SAmuUlW9niHQURk=;
-	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=m6vHdXfsN6mulyqTk/ZOXwLkbz4Bfmb1L5BYbPWlBjz3dGEPPRMX25DymsrmXFv4CSdcuZlngXgoM7sGdEF3+4ZyOIqbTH+kCkLL4YZJGpAaDtaw7WbLp7VVt4WJWFEINu7/YV/5FCPYl9W59CRgySEXLq54fJVbS8TJH3nxgWQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--linkl.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=iBeMWZxE; arc=none smtp.client-ip=209.85.214.198
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--linkl.bounces.google.com
+	s=arc-20240116; t=1784615642; c=relaxed/simple;
+	bh=3XJuxbyJU3SOETjQPb5o1aamkVzycCtdZRVU1KptSZc=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:Message-ID:
+	 MIME-Version:Content-Type; b=g0j9UJB8upMrSAHWIgztO3SKB+vofjmSazeKcg6XMqxOF1WHeutoQ6Mzl5fTel8z//oHOILJCsRp/4YtjtQUHQLedHbiNUESKW/LH9eJgcoTlfzGc+TVLhEYhj5ajQHf9oRcR/76fGrBi2QeeOjTMegexIFttsI3ulri0/Eu2a4=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=pitsidianak.is; spf=pass smtp.mailfrom=pitsidianak.is; dkim=pass (4096-bit key) header.d=pitsidianak.is header.i=@pitsidianak.is header.b=hapaQfIR; arc=none smtp.client-ip=188.245.177.90
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=pitsidianak.is
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=pitsidianak.is
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="iBeMWZxE"
-Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-2cf7dd9fd91so6025965ad.1
-        for <virtualization@lists.linux.dev>; Mon, 20 Jul 2026 17:56:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1784595413; x=1785200213; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:cc:to:from:subject
-         :message-id:mime-version:date:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=dVZeqaiAWbMoulLNM+KQI45sBsT7cMtZAQ/ZsFxQyUg=;
-        b=iBeMWZxECYpRwTUZnK/snC2X825IuMD8ZAEVmC+wlHJZoNIpJx15/SVnAtshk7k8/c
-         +DDpXYTBD79QCq/whxlIz8h/cq+7zfAfos7CDD39oC8iMC5QBWYDhiOBT28EM6FMLJt5
-         G9mLyC+a8VKdM0LkHbpmjU5lcGP0f4t8e0i9ObMJSupclOGUFhdhhwyTNyL4aW1PCKQw
-         Xq6EBlgGRYDtNAtvEW10dti8uzQCFtF7C46ymqI8XilLyNpzuCbkZJIqFKLzQPcUiWRi
-         30DHIH3qtXZ/SZ8Rm5mSYtS+Mom+pmQm3X9Xr0pKEmEAGtzu0TpQU2RMSA29rb0jvNxS
-         So4w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784595413; x=1785200213;
-        h=content-transfer-encoding:content-type:cc:to:from:subject
-         :message-id:mime-version:date:x-gm-message-state:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=dVZeqaiAWbMoulLNM+KQI45sBsT7cMtZAQ/ZsFxQyUg=;
-        b=SKcRtmjOc0T9QVN9gM8CylWI+rUh6s3iMiHMCOJ5yPwKZV1eY7Zk04FobJfvSStjYF
-         U15TgJjHD+yrggChGNQM4jjSljNbD7EmSLua3xhZtSArKCHXHlqnr71KZdYuxsLicloh
-         v47i0a1Mumw9JfpPnfCwyP3IM7YUhcsCS1vHx2hhQeGTYWFrhEb4liIGg4dwvXcbLyxB
-         o8ab7dgOq+AA8ZGc1vcSuWrzI/c7oVWrCQ9MIfICmqeyL9096DE7+4FS+PD001+ffWPq
-         5NlLHCmJQO1n1GSRMYK3k2kAi5sia6DyfjQFLzgAolHdN0lp0tiZuFr166sxLamM21Fa
-         WBYQ==
-X-Gm-Message-State: AOJu0YwmkE7y3d5p9unEXM1kX2znMulyIikI0z7PyTTjNgx6EXYdq9nb
-	H3/nxr40R+auM0Tg4+4xLdHmmFa0bmARKH8l7zwNJqiKPFt7FiKgcZvWDS1eEnOZzgxtirxFf/t
-	MFg==
-X-Received: from pjbng10.prod.google.com ([2002:a17:90b:1a8a:b0:38e:7f2c:2c4b])
- (user=linkl job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:3886:b0:36b:944b:fd81
- with SMTP id 98e67ed59e1d1-38e4b3d27c3mr16883838a91.4.1784595413290; Mon, 20
- Jul 2026 17:56:53 -0700 (PDT)
-Date: Tue, 21 Jul 2026 00:55:33 +0000
+	dkim=pass (4096-bit key) header.d=pitsidianak.is header.i=@pitsidianak.is header.b="hapaQfIR"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=pitsidianak.is;
+	s=mailSelector; t=1784615081;
+	bh=3XJuxbyJU3SOETjQPb5o1aamkVzycCtdZRVU1KptSZc=;
+	h=Date:From:To:Cc:Subject:References:In-Reply-To:From:Subject;
+	b=hapaQfIR7HNwaLtNFKqQKsGT3GxCYwLXgLGN0D0kr+N7MvpdrlPl9Lud39SkHxe6a
+	 0ydCRH2CdjL8cYioaXcjjeHba3WDZsdqibfB+quYpnBpCMwFUaRYgvIRdNLiQSo0uK
+	 fpWgV9t1CWXX0l57rIxBdVaLgN8TvkmUd9ZtMuf9gQSbqzCsQ8tskS59hfJzSp7PCl
+	 X5Jnp/SqH5EUBlkBxc4He5E5a1aVCyAkZg0NQjhJyQ3yeFTKct9Xv/zvC8kqwL8e/e
+	 QieYvf0RgCmlecTn/Nj3el8syF5enm+WuY6P59kg49i80I/r4JQibxzSzx976LopW2
+	 IYIIhnb7PZqXk/qsMmY4qT66MBaNoyPvk/wX29AlrRASFeIya8yt4m7OR9wI9c+/ES
+	 7+zznh8HFdeozvUyyR28/1pfsx1bsEm5l0pFRGSnsr18cnq1dj3KJ0SKbIX64nwyYv
+	 mct7N00LhCKKZopW4dxLQeRrMu/9wrPxzaRnVQdUVciQnLUKBbRzj1Fl5ZGahN2276
+	 jL4MQPn7rgtkELThmpvkOywXLzgE1NfWu//7nmAkxiP33bK4lN36h4RCtskb1fKiR4
+	 dtNjX1xGDPdh1vIy+JbIiGo5fLcpjjXc2HqNN7BBQ2oKsEx4Z59R8nNRPeUpl/tujI
+	 vaHE+urZyjlGohdU2k1zzRTs=
+Date: Tue, 21 Jul 2026 09:21:15 +0300
+From: Manos Pitsidianakis <manos@pitsidianak.is>
+To: "Michael S. Tsirkin" <mst@redhat.com>
+Cc: Manos Pitsidianakis <manos.pitsidianakis@linaro.org>, Peter Hilber <peter.hilber@oss.qualcomm.com>, Stefano Garzarella <sgarzare@redhat.com>, Stefan Hajnoczi <stefanha@redhat.com>, Viresh Kumar <viresh.kumar@linaro.org>, Miguel Ojeda <ojeda@kernel.org>, Boqun Feng <boqun@kernel.org>, Gary Guo <gary@garyguo.net>, Bj=?UTF-8?B?w7Zybg==?= Roy Baron <bjorn3_gh@protonmail.com>, Benno Lossin <lossin@kernel.org>, Andreas Hindborg <a.hindborg@kernel.org>, Alice Ryhl <aliceryhl@google.com>, Trevor Gross <tmgross@umich.edu>, Danilo Krummrich <dakr@kernel.org>, Daniel Almeida <daniel.almeida@collabora.com>, rust-for-linux@vger.kernel.org, Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio P=?UTF-8?B?w6lyZXo=?= <eperezma@redhat.com>, virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, Manos Pitsidianakis <manos@pitsidianak.is>
+Subject: Re: [PATCH RFC v3 0/6] Add Rust virtio bindings and sample device
+User-Agent: meli/0.8.13
+References: <20260510-rust-virtio-v3-0-1427f14d67e1@pitsidianak.is>
+In-Reply-To: <20260510-rust-virtio-v3-0-1427f14d67e1@pitsidianak.is>
+Message-ID: <tiiht3.22qk83rct1pd@pitsidianak.is>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-X-Mailer: git-send-email 2.55.0.229.g6434b31f56-goog
-Message-ID: <20260721005603.1710551-1-linkl@google.com>
-Subject: [PATCH v3] mm/page_reporting: use system_freezable_wq to fix UAF
- during suspend
-From: Link Lin <linkl@google.com>
-To: Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@kernel.org>, 
-	"Michael S . Tsirkin" <mst@redhat.com>, David Hildenbrand <david@kernel.org>
-Cc: virtualization@lists.linux.dev, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, prasin@google.com, rientjes@google.com, 
-	duenwen@google.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, 
-	Ammar Faizi <ammarfaizi2@openresty.com>, jiaqiyan@google.com, ahwilkins@google.com, 
-	Greg Thelen <gthelen@google.com>, Alexander Duyck <alexander.duyck@gmail.com>, jthoughton@google.com, 
-	stable@vger.kernel.org, Link Lin <linkl@google.com>
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+MIME-Version: 1.0
+Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=utf-8; format=flowed
 
-During PM freeze (e.g. S3 suspend or S4 hibernation), device drivers like
-virtio_balloon reset their underlying virtio devices and delete their
-virtqueues via vdev->config->del_vqs().
+Ping.
 
-However, page reporting work (page_reporting_process) was scheduled on
-the global system_wq. Because system_wq lacks the WQ_FREEZABLE flag, the
-PM freezer skips it, leaving page_reporting_process active during suspend.
+I have a different version of the series WIP with a virtio-rng instead 
+of virtio-rtc, based on 
+https://lore.kernel.org/lkml/20260529-rust-hw_random-virtio-rng-v1-0-b3153dd90311@pitsidianak.is/ 
+(which needs a v2 also)
 
-If pages are freed into the buddy allocator while suspending (for example,
-when core MM invokes the balloon shrinker during S4 hibernation image
-saving), page reporting triggers virtballoon_free_page_report() on deleted
-virtqueues, resulting in a Use-After-Free / General Protection Fault:
+But since this series hasn't gotten any feedback on the virtio part, I'd 
+like to ask if there is any before respinning.
 
-    [  196.795226] general protection fault, probably for non-canonical add=
-ress 0xaa1436fe70dae6df: 0000 [#1] SMP NOPTI
-    [  196.825967] Workqueue: events page_reporting_process
-    [  196.831038] RIP: 0010:virtqueue_add_split+0x233/0x4c0 [virtio_ring]
-    [  196.927073] virtballoon_free_page_report+0x3a/0xe0 [virtio_balloon]
-    [  196.946943] page_reporting_process+0x370/0x4f0
+Thanks!
 
-Fix this by switching page reporting work to system_freezable_wq. This
-ensures that the PM freezer pauses page_reporting_process before device
-drivers destroy their reporting virtqueues. Because the reporting worker
-is frozen, memory reclamation/freeing (e.g. via shrinker execution) can
-safely return pages to MM during freeze without triggering unfrozen
-reporting work on deleted virtqueues.
+On Sun, 10 May 2026 16:38, Manos Pitsidianakis <manos@pitsidianak.is> wrote:
+>Hi all, this RFC series adds Rust bindings for Virtio drivers
+>(frontends in virtio parlance).
+>
+>As a PoC, it also adds a sample virtio-rtc driver which performs
+>capability discovery through the virtqueue without registering any clock.
+>
+>Before I send a cleaned-up non-RFC I would like some initial feedback
+>(i.e. is it something the upstream wants?)
+>
+>This was tested with the rust-vmm vhost-device-rtc device backend that I
+>wrote[^0]:
+>
+>[^0]: https://github.com/rust-vmm/vhost-device/tree/main/vhost-device-rtc
+>
+>Instructions:
+>
+>  Run the daemon in a separate terminal:
+>
+>  $ cargo run --bin vhost-device-rtc -- -s /tmp/rtc.sock
+>
+>  Then run the VM:
+>
+>  $ qemu-system-aarch64 \
+>    -machine type=virt,virtualization=off,acpi=on \
+>    -cpu host \
+>    -smp 8 \
+>    -accel kvm \
+>    -drive if=virtio,format=qcow2,file=./debian-13-nocloud-arm64-daily.qcow2 \
+>    -device virtio-net-pci,netdev=unet \
+>    -device virtio-scsi-pci \
+>    -serial mon:stdio \
+>    -m 8192 \
+>    -object memory-backend-memfd,id=mem,size=8G,share=on \
+>    -numa node,memdev=mem \
+>    -display none \
+>    -vga none \
+>    -kernel /path/to/linux/build/arch/arm64/boot/Image \
+>    -device vhost-user-test-device,chardev=rtc,id=rtc,virtio-id=17,num_vqs=2,vq_size=1024 \
+>    -chardev socket,path=/tmp/rtc.sock,id=rtc \
+>    ...
+>
+>  Example output:
+>    [    1.105238] rust_virtio_rtc: Probe Rust virtio driver sample.
+>    [    1.105645] rust_virtio_rtc: Found 1 vqs.
+>    [    1.136050] rust_virtio_rtc: process_requestq got buf 16 bytes
+>    [    1.136125] rust_virtio_rtc: Got response! Ok(RespCfg { head: ReqHead { msg_type: Le16(0), reserved: [0, 0, 0, 0, 0, 0] }, num_clocks: Le16(3), reserved: [0, 0, 0, 0, 0, 0] })
+>    [    1.136701] rust_virtio_rtc: Got response! Ok(RespClockCap { head: ReqHead { msg_type: Le16(0), reserved: [0, 0, 0, 0, 0, 0] }, clock_type: 3, leap_second_smearing: 0, flags: 0, reserved: [0, 0, 0, 0, 0] })
+>    [    1.136724] rust_virtio_rtc virtio0: cannot expose clock 0 (type 3, variant 0, flags 0) to userspace
+>    [    1.137259] rust_virtio_rtc: Got response! Ok(RespRead { head: ReqHead { msg_type: Le16(0), reserved: [0, 0, 0, 0, 0, 0] }, clock_reading: Le64(1777890485031060388) })
+>    [    1.137277] rust_virtio_rtc: #0 clock reading = 1777890485031060388
+>    [    1.137749] rust_virtio_rtc: Got response! Ok(RespClockCap { head: ReqHead { msg_type: Le16(0), reserved: [0, 0, 0, 0, 0, 0] }, clock_type: 1, leap_second_smearing: 0, flags: 0, reserved: [0, 0, 0, 0, 0] })
+>    [    1.137769] rust_virtio_rtc virtio0: cannot expose clock 1 (type 1, variant 0, flags 0) to userspace
+>    [    1.138247] rust_virtio_rtc: Got response! Ok(RespRead { head: ReqHead { msg_type: Le16(0), reserved: [0, 0, 0, 0, 0, 0] }, clock_reading: Le64(1777890485032086075) })
+>    [    1.138264] rust_virtio_rtc: #1 clock reading = 1777890485032086075
+>    [    1.138730] rust_virtio_rtc: Got response! Ok(RespClockCap { head: ReqHead { msg_type: Le16(0), reserved: [0, 0, 0, 0, 0, 0] }, clock_type: 2, leap_second_smearing: 0, flags: 0, reserved: [0, 0, 0, 0, 0] })
+>    [    1.138751] rust_virtio_rtc virtio0: cannot expose clock 2 (type 2, variant 0, flags 0) to userspace
+>    [    1.139253] rust_virtio_rtc: Got response! Ok(RespRead { head: ReqHead { msg_type: Le16(0), reserved: [0, 0, 0, 0, 0, 0] }, clock_reading: Le64(338567896865557) })
+>    [    1.139270] rust_virtio_rtc: #2 clock reading = 338567896865557
+>
+>Concerns - Notes - TODOs
+>========================
+>
+>- Virtqueue lifetimes don't neatly apply to Rust as expected, so a lot
+>  of times we have to go through unsafe pointer dereferences (though
+>  which are guaranteed by Virtio subsystem to be valid, for example when
+>  a callback is called with the vq argument). There's a potential for
+>  misuse and definitely could use better thinking.
+>- `struct virtio_device` is not reference-counted like other implemented
+>  device types in rust/kernel. Maybe we need to change C API first to
+>  make them reference counted, assuming this doesn't break anything?
+>- The sample driver obviously conflicts with the C implementation, so
+>  this would either need to move out of samples/ or figure out some way
+>  to handle this in kbuild.
+>- kernel::virtio module and its types need a few rustdoc examples that I
+>  will add in followup series
+>- Note that the registration of RTC clocks etc in the sample driver is
+>  not done, I'm putting it off until I receive some feedback first. The
+>  sample driver otherwise does send and receive data from the virtqueue
+>  as a PoC.
+>
+>PS: No LLMs used so any mistakes and goofs are solely written by me.
+>
+>Signed-off-by: Manos Pitsidianakis <manos@pitsidianak.is>
+>---
+>Changes in v3:
+>- Removed unused methods from virtio API
+>- Clean up how scattergather lists are added to virtqueues by using
+>  owned SGTables only, and make the API safe(r)
+>- Add RAII cleanup for find_vqs return value that calls del_vqs
+>- Reset device after remove callback
+>- Significantly clean up sample driver as a result of the other cleanups
+>- Link to v2: https://lore.kernel.org/r/20260509-rust-virtio-v2-0-c1e30ec2bd21@pitsidianak.is
+>
+>Changes in v2:
+>- Move helper ifdefs to helper file (thanks Alice)
+>- Changed CONFIG checks to IS_ENABLED to allow for CONFIG_VIRTIO=m
+>- Split all use imports to one item per line according to style guide
+>- Fixed wait_for_completion_interruptible*() rustdocs
+>- Use Jiffy type alias in wait_for_completion_interruptible_timeout()
+>- Pepper and salt #[inline]s wherever appropriate as per style guide
+>- Split probe() into probe() and init() to allow cleaning up if init
+>  fails
+>- Remove unnecessary Send and Sync unsafe impls for
+>  kernel::virtio::Device
+>- Remove unnecessary LeSize and BeSize 
+>- Accept Option<_> for virtqueue callback when creating a VirtqueueInfo
+>- Made all vq buffer adding operations unsafe
+>- Use AtomicU16 instead of Cell<u16> for sample virtio driver
+>- Fix RespHead field types in sample virtio driver
+>- Fix response error checking in sample virtio driver
+>- Change some device contexts in method signatures
+>- Link to v1: https://lore.kernel.org/r/20260505-rust-virtio-v1-0-9563383909e4@pitsidianak.is
+>
+>---
+>Manos Pitsidianakis (6):
+>      rust/bindings: generate virtio bindings
+>      rust/helpers: add virtio.c
+>      rust/kernel/device: return parent at same context
+>      rust: add virtio module
+>      rust: impl interruptible waits for Completion
+>      samples/rust: Add sample virtio-rtc driver [WIP]
+>
+> MAINTAINERS                     |   9 +
+> rust/bindings/bindings_helper.h |   5 +
+> rust/helpers/helpers.c          |   1 +
+> rust/helpers/virtio.c           |  37 ++++
+> rust/kernel/device.rs           |   2 +-
+> rust/kernel/lib.rs              |   2 +
+> rust/kernel/sync/completion.rs  |  42 +++-
+> rust/kernel/virtio.rs           | 423 ++++++++++++++++++++++++++++++++++++++++
+> rust/kernel/virtio/utils.rs     |  57 ++++++
+> rust/kernel/virtio/virtqueue.rs | 314 +++++++++++++++++++++++++++++
+> samples/rust/Kconfig            |  15 ++
+> samples/rust/Makefile           |   1 +
+> samples/rust/rust_virtio_rtc.rs | 403 ++++++++++++++++++++++++++++++++++++++
+> 13 files changed, 1309 insertions(+), 2 deletions(-)
+>---
+>base-commit: 028ef9c96e96197026887c0f092424679298aae8
+>change-id: 20260504-rust-virtio-8523b01dfdc2
+>
+>Best regards,
+>-- 
+>Manos Pitsidianakis <manos@pitsidianak.is>
+>
 
-This aligns with the driver's existing design. The comment in
-virtballoon_freeze() states:
-    /*
-     * The workqueue is already frozen by the PM core before this
-     * function is called.
-     */
 
-Testing:
-I have verified these fixes using Google=E2=80=99s virtualization infrastru=
-cture by
-running continuous suspend/resume iterations (40+ cycles) while churning
-memory using stress-ng (`stress-ng --vm 4 --vm-bytes 60% --timeout 1`) to
-constantly create free pages for the buddy allocator. We also set the
-`page_reporting_order` parameter to 0 to make the page reporting worker
-highly sensitive, forcing it to pick up any 4K free pages. This confirmed
-that the UAF crashes are no longer reproducible.
+-- 
 
-Fixes: 924a663f75e2 ("virtio-balloon: Reporting free page reservations")
-Cc: stable@vger.kernel.org
-Suggested-by: David Hildenbrand (Arm) <david@kernel.org>
-Suggested-by: Michael S. Tsirkin <mst@redhat.com>
-Acked-by: David Rientjes <rientjes@google.com>
-Acked-by: David Hildenbrand (Arm) <david@kernel.org>
-Acked-by: Michael S. Tsirkin <mst@redhat.com>
-Signed-off-by: Link Lin <linkl@google.com>
----
-v3:
-  - Dropped Patch 2/2 (virtio_balloon shrinker flag). Freeing pages via
-    the shrinker only returns pages to MM; with page reporting work now
-    properly serialized on system_freezable_wq, shrinker execution during
-    freeze is harmless and requires no additional locking/flags in
-    virtio_balloon.
-  - Link to v2: https://lore.kernel.org/all/20260717002311.681748-1-linkl@g=
-oogle.com/
-
-v2:
-  - Split into a 2-patch series including explicit shrinker fencing.
-  - Link to RFC: https://lore.kernel.org/all/20260709224330.946683-1-linkl@=
-google.com/
-
- mm/page_reporting.c | 6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-diff --git a/mm/page_reporting.c b/mm/page_reporting.c
-index 7418f2e500..4dc6f4b852 100644
---- a/mm/page_reporting.c
-+++ b/mm/page_reporting.c
-@@ -80,7 +80,8 @@ __page_reporting_request(struct page_reporting_dev_info *=
-prdev)
- 	 * now we are limiting this to running no more than once every
- 	 * couple of seconds.
- 	 */
--	schedule_delayed_work(&prdev->work, PAGE_REPORTING_DELAY);
-+	queue_delayed_work(system_freezable_wq, &prdev->work,
-+			   PAGE_REPORTING_DELAY);
- }
-=20
- /* notify prdev of free page reporting request */
-@@ -343,7 +344,8 @@ static void page_reporting_process(struct work_struct *=
-work)
- 	 */
- 	state =3D atomic_cmpxchg(&prdev->state, state, PAGE_REPORTING_IDLE);
- 	if (state =3D=3D PAGE_REPORTING_REQUESTED)
--		schedule_delayed_work(&prdev->work, PAGE_REPORTING_DELAY);
-+		queue_delayed_work(system_freezable_wq, &prdev->work,
-+				   PAGE_REPORTING_DELAY);
- }
-=20
- static DEFINE_MUTEX(page_reporting_mutex);
---=20
-2.55.0
+foo
