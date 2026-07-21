@@ -1,156 +1,171 @@
-Received: from mail-pl1-f177.google.com (mail-pl1-f177.google.com [209.85.214.177])
+Received: from mail-pl1-f198.google.com (mail-pl1-f198.google.com [209.85.214.198])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 29C392FD1A5
-	for <virtualization@lists.linux.dev>; Mon, 20 Jul 2026 23:44:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.214.177
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784591066; cv=pass; b=ghvR5yxxj2A9s7YOzs1KlDX2tzXqyXJSV8IacVUVI1nDwc4iIaUzwpxGS722f1MsZDHOoRu1PgcQq1OUpCrnJvqkJlVTKxl/uM9Xt+N6eoJwfCe6DihMdU3Dr/PjM+AS8l9/76w23cit6Z5bjHLraWkLL4Lf/kFzkrZZIT7Sg7s=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784591066; c=relaxed/simple;
-	bh=riG3LbV3k8BvVbdgieZV9J6mlRu1bGRgQczBpq3mS/M=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=vEKv+Tp5F6RGEGfH06va9zGdT3Jjh/RaXdk0PJ3LRIvNtkUvjIUT5ndhmbhyC6+TlwZwMcqzhkTx4kzoA2kjdgOHvOA10diZFtgan8+Qx+AhihOvy76ati46Vs35gaFdr/sLltqFJTLnfcucDrVeepQRgRjDh9xRZbRuv4I2Uzo=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=LEBxawxh; arc=pass smtp.client-ip=209.85.214.177
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 48DFE3F1AC4
+	for <virtualization@lists.linux.dev>; Tue, 21 Jul 2026 00:56:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.198
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784595416; cv=none; b=BCR6KEZl00NAH4zggTXmCyzk6GLZGIeSFs1PnEdSkzCYmzuSA8HU0CWKorQE/nyySkkE8bGzSzOzfLK87QPD5A1ajkj37EEQbsR2dM88LIuzGpHS3DAngvQd04PmlXQHNR46BK8B23ORdVpi2S3Wj/3NzdhJhdY9P6H4oYueVp8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784595416; c=relaxed/simple;
+	bh=Jf1Z3wiUSnHmBFlRFZCz2LuluHz3SAmuUlW9niHQURk=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=m6vHdXfsN6mulyqTk/ZOXwLkbz4Bfmb1L5BYbPWlBjz3dGEPPRMX25DymsrmXFv4CSdcuZlngXgoM7sGdEF3+4ZyOIqbTH+kCkLL4YZJGpAaDtaw7WbLp7VVt4WJWFEINu7/YV/5FCPYl9W59CRgySEXLq54fJVbS8TJH3nxgWQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--linkl.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=iBeMWZxE; arc=none smtp.client-ip=209.85.214.198
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--linkl.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="LEBxawxh"
-Received: by mail-pl1-f177.google.com with SMTP id d9443c01a7336-2cede6375caso386785ad.0
-        for <virtualization@lists.linux.dev>; Mon, 20 Jul 2026 16:44:25 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784591064; cv=none;
-        d=google.com; s=arc-20260327;
-        b=dwbB9CuUIuiuKz+CW3hRiV2CwZxPXWiOTEa+v5+ENlBEFbKD8c/86obnlOhRBIpdQy
-         XrjfBbZstzvCqKlu3GJ2ll3yWHvQ4BQsxEIVpop8bs9bG9rlTdxMZdobDVMGqgrZm0mH
-         F0Z0qG67or5Cge2qCjk4wU14JvGunxkZ6hIuKar1cB9AdvfDmpCV8m0nj5NYCKx4Bj9I
-         jVfN9WXZ8GJ9JJuFwZKBANdaFN9t+Il/Q8J/EJrY4CfRr4rGN9lllUnXYwWtntCJSpNy
-         c/RXpHvW1RnpsQnEAOYZKq4Az4KrBXiRkt8/mCB5gz9XpEXl92pgiyeW839Vy9TrJ5mC
-         qJ+w==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=cc:to:subject:message-id:date:from:in-reply-to:references
-         :mime-version:dkim-signature;
-        bh=riG3LbV3k8BvVbdgieZV9J6mlRu1bGRgQczBpq3mS/M=;
-        fh=SzSyoxRPHia+PdIeNk2ENxVi/0kbMYtLKh1o2Lh8a98=;
-        b=hfp0PbMpTgYLlzonuTbajqXpMWJWKTZtN7+Rv/xC4nHZk822GOevu/oi0RQLJWb+4g
-         +pDAKrEk9/z8CYmjravxtHVbd5RDS5N05K4BVRbewl6XObSjtDCuZzsZtN3ewjPb3H1Q
-         FsCpTAH2ZKPXTDs/PgrkNgL5M5lg7+eNtJpHinRWBuzLRfyX2EybaERFKeWQjRotOLg2
-         dxVq0XkqPnreJLuFRMDt8M9wPd0uJiuMaW8g9ExQfheyfT50q2uRr64COV9MV5nF+saF
-         vrzP76VpIZOYV7pni/p6vmF56mNTnxYl8RCcf0kD7rAhDyfYhC4LtrPFz9GVjU0xut47
-         BuWQ==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="iBeMWZxE"
+Received: by mail-pl1-f198.google.com with SMTP id d9443c01a7336-2cf7dd9fd91so6025965ad.1
+        for <virtualization@lists.linux.dev>; Mon, 20 Jul 2026 17:56:54 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1784591064; x=1785195864; darn=lists.linux.dev;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=riG3LbV3k8BvVbdgieZV9J6mlRu1bGRgQczBpq3mS/M=;
-        b=LEBxawxhCTcdRdwJJjnxmKusu+rf1b2IkQuSh3ZwKiPRIilceqcA444W74s7DG0nRy
-         CgQqHZQ0l1MxFDmWHOqAqJ3NA+JY2ia61cKfxrkPoVxyYC1e1rRC+gR4UHFeEfO6E9kU
-         d2UpSZk6euy93Htjehh+vXAraf8w8TmdXCFGCmhdzSENFj2AfKXl7o5WcMfmHm1Gh1+s
-         iB7v+zWgbex8L1wl7kwtRwSpmA2uAjIYvoeleVX9M7WYP1VfQnZQJjx8UHtWE2vAm49R
-         XwmDEzhmT4EPscWVb/JvLffxuwWdAsALWEPfW2cS5DUyb5/cil+UKvE8zraA1w5F9nzf
-         z0/Q==
+        d=google.com; s=20251104; t=1784595413; x=1785200213; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:cc:to:from:subject
+         :message-id:mime-version:date:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=dVZeqaiAWbMoulLNM+KQI45sBsT7cMtZAQ/ZsFxQyUg=;
+        b=iBeMWZxECYpRwTUZnK/snC2X825IuMD8ZAEVmC+wlHJZoNIpJx15/SVnAtshk7k8/c
+         +DDpXYTBD79QCq/whxlIz8h/cq+7zfAfos7CDD39oC8iMC5QBWYDhiOBT28EM6FMLJt5
+         G9mLyC+a8VKdM0LkHbpmjU5lcGP0f4t8e0i9ObMJSupclOGUFhdhhwyTNyL4aW1PCKQw
+         Xq6EBlgGRYDtNAtvEW10dti8uzQCFtF7C46ymqI8XilLyNpzuCbkZJIqFKLzQPcUiWRi
+         30DHIH3qtXZ/SZ8Rm5mSYtS+Mom+pmQm3X9Xr0pKEmEAGtzu0TpQU2RMSA29rb0jvNxS
+         So4w==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784591064; x=1785195864;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=riG3LbV3k8BvVbdgieZV9J6mlRu1bGRgQczBpq3mS/M=;
-        b=CSr5OB19QIC1D9sfQ8hhGvzUnKrNl3iKyAMykCR1W7YSpGMMzkQyymqyIEb48NoR2n
-         45Ro3umt+ub94mt1znWwmKvQEle7HDEkjQSdF24k8wO71eng85OkfItXXukO+ptY4Mha
-         kEEPRe6W/BIrsFhDveQ6+JXyyiAh3yr5sN2kZhtWcaTbHbgEBjhoyYUvsqeoGDT1mrBU
-         F0ICNmULuzNSWHEBz0rvjr1lq36YJQJwEBYOmll0PzVQWomnGIzL2pSfNYaa6LdvUt0N
-         yPRGn9agztBhDw4kqCFej08Zg2TYO0Tn4m/10D91/236gvbLHy/Jfz09oEFd5GZaPuMl
-         qeLg==
-X-Forwarded-Encrypted: i=1; AHgh+RpFM3ViAVdH+c32H5bjkmnZgjuj+QxeJ1okSn96zBYQhpRzcVC7JtVaHmOf5yCdKcWMx2x4hVz18OnI7HGr4g==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yyj7SDDo4svYE4ACig/IPFcb830BTbLNgtQeChGcTMJG0UaaB5E
-	OV0Muy/DI3yF61eza6rgKhcuub38ZqyaDUx2qupmMBbdhv8eAa9ramcs9mUrPi9xCZOczHudSrP
-	bK2Ph82Ds1o8r9RBjldIbKxGiyqH0PpigyLGUZ1Wg
-X-Gm-Gg: AR+sD10ousRAC3QDMxsndRbM4yy9FPB3uEV3q5Z1x/nUbexAh80ZjftZA3XrPcXynTF
-	8jwWhkwH4PfAjHuklbOVigkIMYUjKg9aJpbbB0DQod7UBjEFTu+eaf+kAZ/Ikmo0Rl1nmUUTjwZ
-	9Lxr5z5gRhd/M7uqp/fh5rYHoMjwwD7euyl5GDAXdMSXr6qEKIzVWRmL9gaOEgzBurXXO9G2UZ9
-	Gzod6MeDq3ANakhxrqTyLOCJxts53khTrosJ6DE/rK8EvAwghPDzHLJO8zb4pEivUauRi7a2nco
-	NNFiHE+ThjLk/lZy
-X-Received: by 2002:a17:902:c94e:b0:2cc:a859:d404 with SMTP id
- d9443c01a7336-2cf7b6d3247mr3540335ad.23.1784591063975; Mon, 20 Jul 2026
- 16:44:23 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1784595413; x=1785200213;
+        h=content-transfer-encoding:content-type:cc:to:from:subject
+         :message-id:mime-version:date:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=dVZeqaiAWbMoulLNM+KQI45sBsT7cMtZAQ/ZsFxQyUg=;
+        b=SKcRtmjOc0T9QVN9gM8CylWI+rUh6s3iMiHMCOJ5yPwKZV1eY7Zk04FobJfvSStjYF
+         U15TgJjHD+yrggChGNQM4jjSljNbD7EmSLua3xhZtSArKCHXHlqnr71KZdYuxsLicloh
+         v47i0a1Mumw9JfpPnfCwyP3IM7YUhcsCS1vHx2hhQeGTYWFrhEb4liIGg4dwvXcbLyxB
+         o8ab7dgOq+AA8ZGc1vcSuWrzI/c7oVWrCQ9MIfICmqeyL9096DE7+4FS+PD001+ffWPq
+         5NlLHCmJQO1n1GSRMYK3k2kAi5sia6DyfjQFLzgAolHdN0lp0tiZuFr166sxLamM21Fa
+         WBYQ==
+X-Gm-Message-State: AOJu0YwmkE7y3d5p9unEXM1kX2znMulyIikI0z7PyTTjNgx6EXYdq9nb
+	H3/nxr40R+auM0Tg4+4xLdHmmFa0bmARKH8l7zwNJqiKPFt7FiKgcZvWDS1eEnOZzgxtirxFf/t
+	MFg==
+X-Received: from pjbng10.prod.google.com ([2002:a17:90b:1a8a:b0:38e:7f2c:2c4b])
+ (user=linkl job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:3886:b0:36b:944b:fd81
+ with SMTP id 98e67ed59e1d1-38e4b3d27c3mr16883838a91.4.1784595413290; Mon, 20
+ Jul 2026 17:56:53 -0700 (PDT)
+Date: Tue, 21 Jul 2026 00:55:33 +0000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-References: <20260717002311.681748-1-linkl@google.com> <20260717002311.681748-3-linkl@google.com>
- <29457fe7-0fe6-4bc0-81a8-9e67f85b3a3a@kernel.org>
-In-Reply-To: <29457fe7-0fe6-4bc0-81a8-9e67f85b3a3a@kernel.org>
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.55.0.229.g6434b31f56-goog
+Message-ID: <20260721005603.1710551-1-linkl@google.com>
+Subject: [PATCH v3] mm/page_reporting: use system_freezable_wq to fix UAF
+ during suspend
 From: Link Lin <linkl@google.com>
-Date: Mon, 20 Jul 2026 16:44:12 -0700
-X-Gm-Features: AUfX_mx2yFU1L9Gcg6BFQSpQ6hI0WeLlvWjDg_00zh0kZZHsctUEsZJDtTWk7bI
-Message-ID: <CALUx4KT_EPWmKhEb5hTD2tk5k+WU2oT+q9Bwk4z1sHBKi0ZJ7A@mail.gmail.com>
-Subject: Re: [PATCH v2 2/2] virtio_balloon: avoid shrinker execution during PM suspend
-To: "David Hildenbrand (Arm)" <david@kernel.org>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@kernel.org>, 
-	"Michael S . Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev, linux-mm@kvack.org, 
+To: Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@kernel.org>, 
+	"Michael S . Tsirkin" <mst@redhat.com>, David Hildenbrand <david@kernel.org>
+Cc: virtualization@lists.linux.dev, linux-mm@kvack.org, 
 	linux-kernel@vger.kernel.org, prasin@google.com, rientjes@google.com, 
 	duenwen@google.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, 
 	Ammar Faizi <ammarfaizi2@openresty.com>, jiaqiyan@google.com, ahwilkins@google.com, 
 	Greg Thelen <gthelen@google.com>, Alexander Duyck <alexander.duyck@gmail.com>, jthoughton@google.com, 
-	stable@vger.kernel.org
+	stable@vger.kernel.org, Link Lin <linkl@google.com>
 Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Fri, 17 Jul 2026 02:17:24 -0400 "Michael S. Tsirkin" <mst@redhat.com> wrote:
-> > reclaiming free pages under memory pressure can trigger page reporting
-> > which might access the deleted reporting virtqueue if it is not yet
-> > frozen, or interact with other parts of the driver in a teardown state.
->
-> i feel this is the thing to fix then? not the freeing itself.
->
-> ...
->
-> this is remove, taking locks seems futile - if something will acquire
-> the lock here, we will be in trouble.
+During PM freeze (e.g. S3 suspend or S4 hibernation), device drivers like
+virtio_balloon reset their underlying virtio devices and delete their
+virtqueues via vdev->config->del_vqs().
 
-On Fri, 17 Jul 2026 11:30:44 +0200 David Hildenbrand <david@kernel.org> wrote:
-> Why not set the boolean immediately after this, and call it "shrinker_disabled"
-> instead of "suspended"?
->
-> Then you can keep calling "return_free_pages_to_mm(vb, ULONG_MAX);" here.
+However, page reporting work (page_reporting_process) was scheduled on
+the global system_wq. Because system_wq lacks the WQ_FREEZABLE flag, the
+PM freezer skips it, leaving page_reporting_process active during suspend.
 
-Hi Michael, David,
+If pages are freed into the buddy allocator while suspending (for example,
+when core MM invokes the balloon shrinker during S4 hibernation image
+saving), page reporting triggers virtballoon_free_page_report() on deleted
+virtqueues, resulting in a Use-After-Free / General Protection Fault:
 
-Michael, your intuition here is exactly right: the freeing itself is
-perfectly safe, and taking locks in the teardown path is an
-anti-pattern we should absolutely avoid.
+    [  196.795226] general protection fault, probably for non-canonical add=
+ress 0xaa1436fe70dae6df: 0000 [#1] SMP NOPTI
+    [  196.825967] Workqueue: events page_reporting_process
+    [  196.831038] RIP: 0010:virtqueue_add_split+0x233/0x4c0 [virtio_ring]
+    [  196.927073] virtballoon_free_page_report+0x3a/0xe0 [virtio_balloon]
+    [  196.946943] page_reporting_process+0x370/0x4f0
 
-After re-tracing the execution paths based on your feedback, I
-realized that Patch 2/2 is completely unnecessary.
+Fix this by switching page reporting work to system_freezable_wq. This
+ensures that the PM freezer pauses page_reporting_process before device
+drivers destroy their reporting virtqueues. Because the reporting worker
+is frozen, memory reclamation/freeing (e.g. via shrinker execution) can
+safely return pages to MM during freeze without triggering unfrozen
+reporting work on deleted virtqueues.
 
-The FPH shrinker doesn't touch virtqueues itself. It simply returns
-pages to the buddy allocator. While this can trigger Free Page
-Reporting, Patch 1/2 migrates the reporting worker to
-system_freezable_wq, meaning the PM core natively guarantees that
-worker is frozen before virtballoon_freeze() ever runs.
+This aligns with the driver's existing design. The comment in
+virtballoon_freeze() states:
+    /*
+     * The workqueue is already frozen by the PM core before this
+     * function is called.
+     */
 
-Furthermore, any asynchronous FPH hinting work happens on
-vb->balloon_wq (triggered via config changes). Because vb->balloon_wq
-is natively allocated with WQ_FREEZABLE, the PM core successfully
-freezes this worker prior to virtballoon_freeze() as well.
+Testing:
+I have verified these fixes using Google=E2=80=99s virtualization infrastru=
+cture by
+running continuous suspend/resume iterations (40+ cycles) while churning
+memory using stress-ng (`stress-ng --vm 4 --vm-bytes 60% --timeout 1`) to
+constantly create free pages for the buddy allocator. We also set the
+`page_reporting_order` parameter to 0 to make the page reporting worker
+highly sensitive, forcing it to pick up any 4K free pages. This confirmed
+that the UAF crashes are no longer reproducible.
 
-Because all downstream paths are safely frozen by the PM core, a
-concurrent shrinker call during suspend is entirely harmless. It will
-merely return 0 (since remove_common() safely drains the
-free_page_list anyway using ULONG_MAX) or safely execute without
-interacting with a teardown state.
+Fixes: 924a663f75e2 ("virtio-balloon: Reporting free page reservations")
+Cc: stable@vger.kernel.org
+Suggested-by: David Hildenbrand (Arm) <david@kernel.org>
+Suggested-by: Michael S. Tsirkin <mst@redhat.com>
+Acked-by: David Rientjes <rientjes@google.com>
+Acked-by: David Hildenbrand (Arm) <david@kernel.org>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
+Signed-off-by: Link Lin <linkl@google.com>
+---
+v3:
+  - Dropped Patch 2/2 (virtio_balloon shrinker flag). Freeing pages via
+    the shrinker only returns pages to MM; with page reporting work now
+    properly serialized on system_freezable_wq, shrinker execution during
+    freeze is harmless and requires no additional locking/flags in
+    virtio_balloon.
+  - Link to v2: https://lore.kernel.org/all/20260717002311.681748-1-linkl@g=
+oogle.com/
 
-David, thank you for the cleaner `shrinker_disabled` suggestion, but
-since the asynchronous workers are already natively frozen, we can
-avoid touching the teardown paths and locking logic altogether.
+v2:
+  - Split into a 2-patch series including explicit shrinker fencing.
+  - Link to RFC: https://lore.kernel.org/all/20260709224330.946683-1-linkl@=
+google.com/
 
-I am going to drop this patch entirely from the series. I will send
-out a single-patch v3 consisting solely of the page reporting fix
-(Patch 1/2) shortly. Thank you both for the rigorous review that
-steered us away from this unnecessary complexity!
+ mm/page_reporting.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
 
-Best,
-Link
+diff --git a/mm/page_reporting.c b/mm/page_reporting.c
+index 7418f2e500..4dc6f4b852 100644
+--- a/mm/page_reporting.c
++++ b/mm/page_reporting.c
+@@ -80,7 +80,8 @@ __page_reporting_request(struct page_reporting_dev_info *=
+prdev)
+ 	 * now we are limiting this to running no more than once every
+ 	 * couple of seconds.
+ 	 */
+-	schedule_delayed_work(&prdev->work, PAGE_REPORTING_DELAY);
++	queue_delayed_work(system_freezable_wq, &prdev->work,
++			   PAGE_REPORTING_DELAY);
+ }
+=20
+ /* notify prdev of free page reporting request */
+@@ -343,7 +344,8 @@ static void page_reporting_process(struct work_struct *=
+work)
+ 	 */
+ 	state =3D atomic_cmpxchg(&prdev->state, state, PAGE_REPORTING_IDLE);
+ 	if (state =3D=3D PAGE_REPORTING_REQUESTED)
+-		schedule_delayed_work(&prdev->work, PAGE_REPORTING_DELAY);
++		queue_delayed_work(system_freezable_wq, &prdev->work,
++				   PAGE_REPORTING_DELAY);
+ }
+=20
+ static DEFINE_MUTEX(page_reporting_mutex);
+--=20
+2.55.0
