@@ -1,115 +1,362 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A1E44433BA8
-	for <virtualization@lists.linux.dev>; Tue, 21 Jul 2026 07:46:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0783B3C3F6C
+	for <virtualization@lists.linux.dev>; Tue, 21 Jul 2026 09:10:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784619977; cv=none; b=UrjxOebs8HefRXmK2dHU2ltZmcOabmI5wGUSX3Fie9iK6IcVP3rauGYl45ec3OmyY6PkzFTOaB5TnLD2AXOqWUSsVrHbVnHagzvVypGM4gu5q+T0vBf2U5iskjj4N4/DTWmFNQPqYHlyJuM2vMk7udHP1D8+9tM+BWl86lL/PCo=
+	t=1784625032; cv=none; b=ezjW2+BvVVcegkIXYc7/8gBOEudXuBNNVYvWEeSJKmWCbpO8zsSZ5MsgAI1Pi/Wrz+9HqjuNQxOAF8x/jbc6Rvhnohz3L1W37/gRjQ7JT0jJKluWIClU/CVsgilzMXqPfq2itJuoTAl82I5vVk6B/X3gpBX9L0lJMPRJ2itzScE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784619977; c=relaxed/simple;
-	bh=dau4m55i0N+huU1Tx4LV5VNIWA7SxLqAMiCgmbSBsQM=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=m+LpM4FBNBOzwejNlamOQ7I5h1qxBBIreAxDEp85B+m3ZAm6FYOI0vwHBM4Ie4rojmEvgSMwwhh0zJukY7qX0eSK+76d8L5CQZN0GWnWJ4fBYBOUJuk45Su5NjjzhKRFIqgRjCwieqfky2gLvz21AhHCvIZeO7ZEwUmRd0gM0/w=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=dIlOrAVp; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1784625032; c=relaxed/simple;
+	bh=FO6kAcx02wAcP7yQ8pr7IPPuxHiVb6JN3TdWIN1pm7Q=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=r/fOaZzWRGGQHyLUdJXi0fys9DXKRN2/NfCxNmRazjR5LxQF3vDoYNLSra9qhAIkTzR82FeRrEO+deQOA/N6wrBxZ+8/GNjb5C8NFt+xub1PwqwsnDKeOPRZEIK16rqmJKcHFAM4j0k0SFk+wd+0UQHcBRw6rXzffX5eLh4tpgo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=cfA4uB69; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="dIlOrAVp"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="cfA4uB69"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1784619974;
+	s=mimecast20190719; t=1784625027;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
 	 in-reply-to:in-reply-to:references:references;
-	bh=4Ais/X6bRzcXYsevthemLaBtrh2axhIC1Q39swas2MM=;
-	b=dIlOrAVp0Ji2V5uTVEmBpiea9pMbIx6M+OOB5ZyTDB9+QstjgsdxLFRwYx+IDMirRWlz3A
-	I5t7Bbn21g1YWyf9E3TJo3/Ve7vdCvvZvzEhgj36aQStbhoRc9XqkdQ120s9gPrVDSdswn
-	kH67gkVnw4dLHFn2v6eWHyf1mQmyLfM=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=slsU2Ayz2bb8lrdP9X/oYxa3SWjpysmpRrrI6Ee/Hrg=;
+	b=cfA4uB69+fFPs2fNXMJSMwhyD9IownYYEcLJOd8DC2PievpadGMe2uI3BImzqYD9n7NhJH
+	x87azvoN7YAqe7Lu74CFTS+bsl3SvzcSyrleUQaG0aNmN+1HKeloq5x71voNJnWuycuYmu
+	SWSiKc3CZ2p82YveWt4rVysJf0M1PlU=
+Received: from mail-yw1-f200.google.com (mail-yw1-f200.google.com
+ [209.85.128.200]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-687-mL6fLCdvNF2pTmbpnZnTiw-1; Tue, 21 Jul 2026 03:46:13 -0400
-X-MC-Unique: mL6fLCdvNF2pTmbpnZnTiw-1
-X-Mimecast-MFC-AGG-ID: mL6fLCdvNF2pTmbpnZnTiw_1784619972
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-495689bfcc8so1062285e9.1
-        for <virtualization@lists.linux.dev>; Tue, 21 Jul 2026 00:46:13 -0700 (PDT)
+ us-mta-542-BSuSe39wOk-G8799vE0iJA-1; Tue, 21 Jul 2026 05:10:23 -0400
+X-MC-Unique: BSuSe39wOk-G8799vE0iJA-1
+X-Mimecast-MFC-AGG-ID: BSuSe39wOk-G8799vE0iJA_1784625023
+Received: by mail-yw1-f200.google.com with SMTP id 00721157ae682-81eddfe28b4so120800527b3.3
+        for <virtualization@lists.linux.dev>; Tue, 21 Jul 2026 02:10:23 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784619972; x=1785224772;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
+        d=1e100.net; s=20251104; t=1784625023; x=1785229823;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=4Ais/X6bRzcXYsevthemLaBtrh2axhIC1Q39swas2MM=;
-        b=P55upCu1ttotAqpdzhwpEFuJyP8JjmVdyLJH8efW5cRGKSl7kCzNiEopJX+00EgeRD
-         TXe3HW8s2Rl9e8tkVy3WWh37oOPRZzxlUFqVg1clrLGGXXqf8pQ4q5E0mKwCqv9gh/3u
-         IU9SFvF3XsMAy8kZc8Yym350L3dTFZQGVQlFRTasNlhZN8FehJYErEQbycvDgEaUjNrQ
-         ldNJnkAAh0RcXZoSQtnb3s+9LB55e/+/pOU/Qpwaub0PshSm2TwPz2WULqI6B1No/vBT
-         ULU0IeQwy3geDJrXoLYWSgyJo5mJ6uDxM5wl8zidy0PRWp+7GKVZIRfPoKxBA5/WLXZ9
-         /v2Q==
-X-Forwarded-Encrypted: i=1; AHgh+RrZor+2E4omv2pA9g0RfCNxcko+D6GR57VVgi5E54lgxDYZYZvSA16C+41ztGBVez6Xhosn0GPEw0LsRlgBqA==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yym2VnkF4lVZT+knMAuxqsNyaGQDn1EpvWS/rtGtZsyj98+jsJw
-	dJwU0VKlubgORSF03wHl0gJcIB6mZ5E67LLsHbsM3dbpL86WrkKxWrEvHVU/FasY09pTQTT+EBo
-	YsbD/PMzpEHHCQsv1ANWNcn404v8nRQBWz2yH3eHyKKc0z/mYUhdTygAoe8CaovDmNf87
-X-Gm-Gg: AfdE7clmDUoTHpYTTpyQ5ALRLPsQvYmeqXxL7pnIsr0SLEsXLbyMHnBpn/mjDZ9ibyM
-	WAlJoveDN2zfPDYhyP2/EBAMkK1D0BBYWRDl+HP/kMosi23VIgKSPEdLHgIszjiiUcJB+J9jWgy
-	I7O0cjgCBGyX3wqfqdIWbva7zNKgGKa+vQADg0OjyZFTNiZc3io28G4JGhR4GvbYVjhpfLSx1IP
-	adQ/kDoydxVKt+5lNltxYC7gPfJsyWqma0+o3vv/tAK74LhSHYvcnhmmfYWEK1pTJuVu4kirFJt
-	3dMdg74ifzAhe4E25AiYzW0VgWS3pIEhj5EflJ03EmK3rOQZ7aNoKH59vCtJr/IFFWlCjk0B6ZY
-	N3NqGgMDNKig6JtJQ5lLfs+82Wv+e8vy2xsHOypcfmJARy33HdA==
-X-Received: by 2002:a05:600c:3515:b0:495:5b4a:53c9 with SMTP id 5b1f17b1804b1-4955b95bfbbmr89971115e9.39.1784619971793;
-        Tue, 21 Jul 2026 00:46:11 -0700 (PDT)
-X-Received: by 2002:a05:600c:3515:b0:495:5b4a:53c9 with SMTP id 5b1f17b1804b1-4955b95bfbbmr89970765e9.39.1784619971248;
-        Tue, 21 Jul 2026 00:46:11 -0700 (PDT)
-Received: from sgarzare-redhat (host-82-53-135-65.retail.telecomitalia.it. [82.53.135.65])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47f63e49ce4sm37180764f8f.8.2026.07.21.00.46.09
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Tue, 21 Jul 2026 00:46:10 -0700 (PDT)
-Date: Tue, 21 Jul 2026 09:46:00 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Manos Pitsidianakis <manos@pitsidianak.is>
-Cc: "Michael S. Tsirkin" <mst@redhat.com>, 
-	Manos Pitsidianakis <manos.pitsidianakis@linaro.org>, Peter Hilber <peter.hilber@oss.qualcomm.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, Viresh Kumar <viresh.kumar@linaro.org>, 
-	Miguel Ojeda <ojeda@kernel.org>, Boqun Feng <boqun@kernel.org>, Gary Guo <gary@garyguo.net>, 
-	=?utf-8?B?QmrDtnJu?= Roy Baron <bjorn3_gh@protonmail.com>, Benno Lossin <lossin@kernel.org>, 
-	Andreas Hindborg <a.hindborg@kernel.org>, Alice Ryhl <aliceryhl@google.com>, 
-	Trevor Gross <tmgross@umich.edu>, Danilo Krummrich <dakr@kernel.org>, 
-	Daniel Almeida <daniel.almeida@collabora.com>, rust-for-linux@vger.kernel.org, Jason Wang <jasowang@redhat.com>, 
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RFC v3 0/6] Add Rust virtio bindings and sample device
-Message-ID: <al8isqIL6gwGlPc0@sgarzare-redhat>
-References: <20260510-rust-virtio-v3-0-1427f14d67e1@pitsidianak.is>
- <tiiht3.22qk83rct1pd@pitsidianak.is>
+        bh=slsU2Ayz2bb8lrdP9X/oYxa3SWjpysmpRrrI6Ee/Hrg=;
+        b=WsIr9IfGj8rGirqNiwEHCdfZVFyFpgNas6F7Jee5MUE+StSrgaeVAyszLyiofkBx6O
+         9XwvrFrIMepSMJBvpC5hyMOXxoE+kPbOfJfAbER3ugSlkzb/1xuUnbNDj/mY3QYruAIO
+         80t25oApTlnYWKGz00nCgElmnmqw9EdscBEHeC5T8MIxtIOkhrYLGh/rCfvbCyliEsjw
+         DQwlLkJxapajPQAaWKMQ+u2bTYK7gwKi+X/WVyxyRT71XRDj8r1hUwNJDkBL5k/YyCGa
+         cTRVea+IZvFPpNx1O/yhbQjYZtPFIvieBhfG4QgefGfOAjy+anW+1YQk7D4NJNkgtiWs
+         /EFg==
+X-Forwarded-Encrypted: i=1; AHgh+Ro8ggQUtcYpKdy9LRnl1eC7UR7eLZ6dyfuPJpsMIRXQuRqq4qqaj6LVivTUc+RYfAu51fLqgTqdtZYA8NQYQg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxqwTpULc2Ty/csM+G3ozPT+1rl5T0LWJ6NRDE4IeEg9obyDjK3
+	plFfZjM4cabevbIvuAwyEn+STfBezGQDHhLISDzaSS47kffLztiNuOUPsqfr86YutbKE8PwOc5q
+	3FybxIDORpHVrRLyVH5zT2buRTN4jaB5drnWtzxPDpwJut/H5bGks+2L9UuY0srbSYjPEmpuRUo
+	/kFgcUNt29t/FRDoc8TWANx8+ZpT0NYCsEEsCTuyI9Aog=
+X-Gm-Gg: AR+sD13EUPzDen6lL7zeqF5eykD7LtqGtTss8Z6cF3wJIBhnrcZlPxfz4TCUVQdJUrc
+	AOxN09cfhhY4lCpOoVr9z/aYltZiHHzAwdh3sdHcZd3f5d2T/6I+L13hJuXR9Ne1u4rn5zBDaGb
+	52pAkbAQTALXQJMQn9Lv434S/Ld/Bi2LHUtmUY/7M3ihLtqJOikvtC5sLbfDm4l7tZVPQNGTMht
+	aYz7e4rTs4GajvpyPhdmZDtRv+HTF8etEMwp0OcWULihng5UzzbgFgQmg8=
+X-Received: by 2002:a05:690c:dd0:b0:80d:5ddd:1989 with SMTP id 00721157ae682-81ef256b495mr59429997b3.10.1784625022832;
+        Tue, 21 Jul 2026 02:10:22 -0700 (PDT)
+X-Received: by 2002:a05:690c:dd0:b0:80d:5ddd:1989 with SMTP id
+ 00721157ae682-81ef256b495mr59429897b3.10.1784625022303; Tue, 21 Jul 2026
+ 02:10:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <tiiht3.22qk83rct1pd@pitsidianak.is>
+References: <20260720141040.181946-1-r4o5m6e8o@163.com>
+In-Reply-To: <20260720141040.181946-1-r4o5m6e8o@163.com>
+From: Eugenio Perez Martin <eperezma@redhat.com>
+Date: Tue, 21 Jul 2026 11:09:44 +0200
+X-Gm-Features: AUfX_mypA7oTxSucKfqGCkqmjhFuRqPhh_bDH2dF50m_ZTQcNCE2RIvdENtQTlY
+Message-ID: <CAJaqyWe_nhVOvfA03So_edVO_+1UeHCC6RGnHRQB9dq7CWS4LQ@mail.gmail.com>
+Subject: Re: [RFC PATCH 0/4] virtio: SQ/CQ doorbell polling for vhost-scsi
+To: "rom.wang" <r4o5m6e8o@163.com>
+Cc: mst@redhat.com, jasowangio@gmail.com, stefanha@redhat.com, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	linux-scsi@vger.kernel.org, kvm@vger.kernel.org, qemu-devel@nongnu.org, 
+	Yufeng Wang <wangyufeng@kylinos.cn>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: C1Eh6uBCurQhC168q4yJLhfEPW_n_Od3EgmZznprmpY_1784619972
+X-Mimecast-MFC-PROC-ID: LYrprBfWuZkt_plmbrURRiKj4S58sOJmHjXX_pjBVSo_1784625023
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Tue, Jul 21, 2026 at 09:21:15AM +0300, Manos Pitsidianakis wrote:
->Ping.
+On Mon, Jul 20, 2026 at 4:19=E2=80=AFPM rom.wang <r4o5m6e8o@163.com> wrote:
 >
->I have a different version of the series WIP with a virtio-rng instead 
->of virtio-rtc, based on https://lore.kernel.org/lkml/20260529-rust-hw_random-virtio-rng-v1-0-b3153dd90311@pitsidianak.is/ 
->(which needs a v2 also)
+> From: Yufeng Wang <wangyufeng@kylinos.cn>
 >
->But since this series hasn't gotten any feedback on the virtio part, 
->I'd like to ask if there is any before respinning.
+> This RFC proposes a new virtio transport feature, VIRTIO_F_SQCQ_POLL,
+> that eliminates VM exits on both submission and completion paths for
+> vhost-scsi by using shared-memory doorbells and kernel polling
+> threads, following the io_uring SQPOLL model.
+>
+> This is an early RFC to gather design feedback. The implementation is
+> functional and has been tested on arm64 and x86_64. We are not
+> requesting merge at this time.
+>
+>
+> Problem
+> -------
+>
+> vhost-scsi uses MMIO writes (Guest -> Host) and MSI-X interrupts
+> (Host -> Guest) for notification. Each notification involves a VM exit,
+> which becomes a bottleneck at high IOPS:
+>
+>   - 4K random read, QD32, 8 jobs: 341K IOPS baseline
+>   - With ~340K VM exits/second, the exit overhead dominates
+>
+> Existing mitigations (vhost-net's tx polling, blk-mq iopoll) only
+> address one direction or require the submitting task to poll. Neither
+> eliminates VM exits on both paths simultaneously.
+>
+>
+> Solution
+> --------
+>
+> Introduce two cache-line-aligned doorbell structures, SQ (Submission
+> Queue) and CQ (Completion Queue), placed alongside the standard split
+> virtqueue:
+>
+>   - Guest writes sq->idx instead of MMIO kick; Host poll thread
+>     detects the change and processes submissions.
+>   - Host writes cq->idx instead of MSI-X interrupt; Guest poll
+>     thread detects the change and invokes completion callbacks.
+>
+> A NEED_WAKEUP protocol (mirroring io_uring's SQ_NEED_WAKEUP) allows
+> either side to sleep when idle, with the other side responsible for
+> waking it via eventfd.
+>
+> Feature negotiation via VIRTIO_F_SQCQ_POLL (bit 42) ensures zero
+> overhead when not negotiated =E2=80=94 the driver falls back to tradition=
+al
+> MMIO kick + MSI-X interrupt.
+>
+>
+> Performance
+> -----------
+>
+> Benchmark: fio, 4K random I/O
+>
+> Test configuration:
+>
+>   arm64:
+>     CPU:   Kunpeng 920 (2.6GHz), 8 vCPUs
+>     Disk:  NVMe INTEL SSDPED1K375GA (375GB)
+>
+>   x86_64:
+>     CPU:   Intel Xeon E5-2680 v4 @ 2.40GHz, 8 vCPUs
+>     Disk:  NVMe SAMSUNG MZ1LB960HAJQ-000MV (960GB)
+>
+>   Backend: vhost-scsi with TCM loopback to NVMe device
+>   QEMU:    vhost-scsi-pci with VIRTIO_F_SQCQ_POLL negotiated
+>
+> arm64 results:
+>
+>   Test              Baseline     SQ/CQ Poll   Change
+>   -----------       ----------   ----------   -------
+>   randread QD1      22,427       28,289       +26%
+>   randread QD32 NJ1 89,910       75,665       -16%
+>   randread QD32 NJ4 186,763      379,549      +103%
+>   randread QD32 NJ8 199,967      550,633      +175%
+>   randwrite QD1     21,912       27,261       +24%
+>   randwrite QD32 NJ1 85,349      81,389       -5%
+>   randwrite QD32 NJ4 190,443     355,811      +87%
+>   randwrite QD32 NJ8 196,552     566,640      +188%
+>
+> x86_64 results:
+>
+>   Test              Baseline     SQ/CQ Poll   Change
+>   -----------       ----------   ----------   -------
+>   randread QD1      8,263        9,552        +16%
+>   randread QD32 NJ1 127,412      162,805      +28%
+>   randread QD32 NJ4 303,208      375,056      +24%
+>   randread QD32 NJ8 341,625      371,193      +9%
+>   randwrite QD1     20,773       30,332       +46%
+>   randwrite QD32 NJ1 133,316      159,207      +19%
+>   randwrite QD32 NJ4 233,373      229,224      -2%
+>   randwrite QD32 NJ8 231,442      231,676      +0%
+>
+> Multi-queue workloads (NJ4/NJ8) see significant improvement on arm64
+> (87-188%) and moderate improvement on x86_64 (9-24%). Single-VQ
+> high-queue-depth workloads show a minor regression on arm64 due to
+> polling overhead vs. VM-exit savings trade-off, while x86_64 shows
+> improvement across most configurations (16-46% for QD1, 19-28%
+> for QD32-NJ1) due to lower per-VM-exit cost on x86.
+>
+>
+> Why Not vDPA?
+> -------------
+>
+> vhost-vDPA already provides doorbell mmap and polling. A reasonable
+> reviewer would ask: why not extend vhost-vDPA instead?
+>
+> Three reasons:
+>
+> 1. No vdpa-scsi device exists. The vDPA framework
+>    (drivers/vdpa/) currently has hardware devices for net (mlx5,
+>    ifcvf, etc.) and software devices for net and blk (vdpa_sim).
+>    There is no virtio-scsi vDPA device, hardware or software.
+>    Building one means re-implementing vhost-scsi's TCM integration
+>    (SCSI CDB processing, ALUA, persistent reservations) under the
+>    vDPA device abstraction =E2=80=94 3-5x the work of extending vhost-scs=
+i.
+>
 
-Sorry I haven't replied until now, but I haven't been able to find the 
-time to take a look. I'm very interested in seeing Rust used in virtio 
-drivers, and I'd be happy to help maintain them.
+I don't have a lot of experience in vhost-scsi, but maybe using
+generic vdpa device and ~passthrough all those calls to something
+similar to vhost-scsi helps? Live migration is still a challenge that
+way but you already mention that in Known Limitations, so maybe going
+to generic saves a significant amount of work.
 
-I'll send you my feedback within the next few days.
+https://patchew.org/QEMU/20221215134944.2809-1-longpeng2@huawei.com/
 
-Thanks for your work!
-Stefano
+Also, I'm failing to see the advantage of the Send / Completion queues
+over a more agressive usage of event_idx, VIRTQ_USED_F_NO_NOTIFY /
+VIRTQ_AVAIL_F_NO_INTERRUPT or VIRTIO_F_NOTIFICATION_DATA combined. Can
+we explore what does these lacks compared with the send and completion
+queues?
+
+> 2. vhost-scsi is a deployed interface. libvirt, QEMU, and
+>    OpenStack have vhost-scsi configuration APIs and operational
+>    tooling. Switching to vhost-vdpa requires a new backend, user
+>    migration, and toolchain updates. SQ/CQ poll as a vhost-scsi
+>    feature is fully backward-compatible =E2=80=94 no existing deployments
+>    break.
+>
+> 3. The protocol is transport-agnostic. The SQ/CQ doorbell design
+>    (struct vring_sq, struct vring_cq, NEED_WAKEUP handshake) is
+>    orthogonal to vhost vs. vDPA. The same UAPI can be consumed by
+>    vhost-scsi today and a future vdpa-scsi device. Implementing in
+>    vhost-scsi first does not block future vDPA integration.
+>
+> We acknowledge that vDPA is the long-term direction for virtio
+> backends. If this SQ/CQ poll protocol is accepted, it can be ported
+> to the vDPA framework; a vdpa-scsi device is independent work.
+>
+>
+> Patch Structure
+> ---------------
+>
+>   Patch 1: UAPI definitions (virtio_config.h, virtio_ring.h,
+>            virtio_pci.h) =E2=80=94 shared interface for all components
+>   Patch 2: vhost kernel support (vhost.c, vhost.h, scsi.c,
+>            vhost.h UAPI, vhost_types.h UAPI) =E2=80=94 Host poll thread
+>   Patch 3: virtio guest driver (virtio_ring.c, virtio_sqcq_poll.c,
+>            virtio_pci_modern.c, virtio.c, virtio_scsi.c) =E2=80=94 Guest
+>            poll thread and submission path
+>   Patch 4: QEMU support (virtio-pci.c, vhost.c) =E2=80=94 PCI config
+>            forwarding and vhost ioctl bridge
+>
+> Patches 1-3 apply to the Linux kernel tree. Patch 4 applies to
+> the QEMU tree separately.
+>
+>
+> Spec Status
+> -----------
+>
+> A virtio-spec format document has been prepared and will be submitted
+> to the OASIS virtio TC as a proposal. This RFC stage seeks design
+> feedback before initiating the formal spec process.
+>
+>
+> Known Limitations (Future Work)
+> -------------------------------
+>
+>   - CPU hotplug: no notifier registered; poll thread may be
+>     migrated when its CPU goes offline. Planned: kthread_park +
+>     dynamic rebind.
+>   - Live migration: no explicit stop/flush coordination during
+>     migration. Planned: VHOST_BACKEND_F_SUSPEND/RESUME integration.
+>   - SMAP overhead: Host uses get_user/put_user for doorbell access.
+>     Future optimization: GUP + kmap to map pages into kernel space.
+>   - Backpressure: no "slow down" signal from device to driver.
+>     Future: CQ throttle flag or avail_event reuse.
+>   - Packed ring: not supported; explicitly rejected at feature
+>     negotiation. Future: add packed ring doorbell support.
+>
+>
+> RFC Goals
+> ---------
+>
+>   1. Validate the overall design direction (doorbell + polling
+>      model, NEED_WAKEUP protocol)
+>   2. Get feedback on the feature bit allocation (42) and UAPI
+>      structure design
+>   3. Understand whether vDPA concern is a blocker or can be
+>      addressed with the transport-agnostic argument
+>   4. Collect guidance on prioritizing future work items
+>      (hotplug, migration, spec process)
+>
+> We welcome all feedback, especially on:
+>   - Whether the NEED_WAKEUP protocol design is sound
+>   - Whether the per-device Guest poll thread model (vs per-VQ)
+>     is acceptable
+>   - Whether feature bit 42 is appropriate or if a different
+>     allocation is needed
+>   - Any concerns about the SMAP overhead in the Host poll path
+>
+>
+> How to Test
+> -----------
+>
+> Patch usage:
+>   Guest Kernel: apply patch 1 (UAPI) + patch 3 (guest driver)
+>   Host Kernel:  apply patch 1 (UAPI) + patch 2 (vhost support)
+>   QEMU:        apply patch 4 (vhost-scsi bridge)
+>
+> 1. Set up vhost-scsi target on the host (see:
+>    https://wiki.libvirt.org/Vhost-scsi_target.html#Host_Setup)
+>    using targetcli to create a TCM loopback device, e.g.:
+>    targetcli /backstores/loopback create dev=3D/dev/sda
+>    targetcli /vhost create naa.5001405376e34400
+>    targetcli /vhost/naa.5001405376e34400/lun create \
+>      /backstores/loopback/dev,/dev/sda
+>
+> 2. Boot VM with vhost-scsi using patched QEMU:
+>    qemu-system-aarch64 ... \
+>      -device vhost-scsi-pci,wwpn=3Dnaa.5001405376e34400
+>
+> 3. Verify SQ/CQ poll mode is active on the host:
+>    dmesg | grep "vhost-sqcq"
+>    # Expected: "vhost-sqcq: vq[N] poll thread bound to cpuN"
+>    # and 10s stats: "vhost-sqcq: vq[N] cq=3D... ema_lat=3D... interval=3D=
+..."
+>
+> 4. Verify feature negotiated in guest:
+>    dmesg | grep "VIRTIO_F_SQCQ_POLL"
+>    # Expected: "VIRTIO_F_SQCQ_POLL negotiated, starting poll thread"
+>    # and 10s stats: "io_stats: cq=3D... avg_lat=3D... interval=3D..."
+>
+> 5. Run fio benchmark (compare with unpatched QEMU/kernel baseline):
+>    fio --name=3Drandread --rw=3Drandread --bs=3D4k --iodepth=3D32 \
+>        --numjobs=3D4 --runtime=3D60 --time_based --direct=3D1 \
+>        --filename=3D/dev/sda
+>
+> Test scripts (run-sqcq-compare.sh, compare-sqcq-results.sh) are
+> available and will be sent as a follow-up to this RFC.
+>
+>
+> Thank you for your time.
+>
+> ---
+> Yufeng Wang (4):
+>   common: add UAPI for SQ/CQ doorbell polling
+>   vhost: host kernel support for SQ/CQ polling
+>   virtio: guest driver support for SQ/CQ polling
+>   qemu: add SQ/CQ polling mode support for vhost-scsi
+>
+> Patch 1 (UAPI, 3 files): +41 -1
+> Patch 2 (vhost, 5 files): +794 -20
+> Patch 3 (virtio guest, 10 files): +840 -3
+> Patch 4 (QEMU, 14 files): +179 -3
+>
+> Total: 32 files changed, 1854 insertions(+), 27 deletions(-)
+>
+> --
+> 2.34.1
+>
 
