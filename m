@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B85931985D;
-	Wed, 22 Jul 2026 13:26:47 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AEF5534CFDE;
+	Wed, 22 Jul 2026 13:34:15 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784726808; cv=none; b=BPZJh+ukxZgdP3h2iBwBEgpqRF6H1uUTYe/OWXOZ8KzVar49rasEHhQkKjebHj5yiT94hKB/68Y7q5+t6Y7Ees7RjzgrXDWw+5ztDr5ueMYFRboPTFWro5S2k/riBcegm1RS7k5oN2Z2NYAxx4WaOjBCfNBxkov0uhnZBoqsgsI=
+	t=1784727260; cv=none; b=THmg18ZynrrY/DdOWzCct4vkfrSZFUhOvU0TpbL0nNn27QIuDG/tc+44pHLo3AhTI5LvVHb1xI27oWIMe2MV+fH8X1PQuIwpVSb6SjkEfvWfnew73ST8XJivtPTBG+yX2DOwo3ZWbWtkaI34l6qKZd5Nb8Q0jXMuCikSr4gbcNk=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784726808; c=relaxed/simple;
-	bh=UWi3r29cBMam1NM4lvTIpGcRqsuVWnrHk+mnAJ32GJU=;
+	s=arc-20240116; t=1784727260; c=relaxed/simple;
+	bh=uYctUh44CY7wmwKelNOi55sZT7wKaC8vAy7dQEi4MM0=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=NW8RcDdwudvu1gsouNUb++qIqu3ttLkwsbPnGXK005Zc6LnafQ9C/s3f5u+FvmDyCqG5vU5TE5mAjiLTcxRnLnes43KogOSzz/8ueFqPpMbIItwkixEiAOb74F9ZdEjVaQJY1Z4ef6CD1Pokkbui+SVy7ba0k2iywlCGP+8idLE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZXxvQz/+; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=ElrvLnTcINLHWjA2YYJZZQg2H3+WA7i4iTerwfkiVQpbOPAZrQUGbPIkGSwJ6mx8OZYnbMtNNOq7I7v1vuvUhPEAmxi1ooX+ip6QHH39FOjY3QsuFxwgLrw5HOUT+lmMKwkjh99e1eVP1OjEPJxaQNIWsUBEK41bD4wVWpUdRMk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Xf2Qo7nf; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZXxvQz/+"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 409D51F000E9;
-	Wed, 22 Jul 2026 13:26:28 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Xf2Qo7nf"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id D05801F000E9;
+	Wed, 22 Jul 2026 13:33:54 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784726806;
-	bh=+M61kMMTxzMqLJW/I9S72vEXtmCkFlbPyR+NRZBxKrM=;
+	s=k20260515; t=1784727253;
+	bh=DjW3IoJngeCa8GtjqJn2j2qE4s7NfPfHtuHffq4DmkI=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=ZXxvQz/+5vEhls9X1WnsdaijtSh4+KMh+sWHRLjatPV9xb4hEbr8G7i+SgsJpyldQ
-	 mfdIbbK/dtwweQdY6q9Z2dTqHvG52A7c0ZGpajSxdgBLMT2ZHax1fZUdkSJwotodwB
-	 GIZ8il6H1obl/L2YNl/gvIQ9I7nGSRtDtHY3VNq7vMpOeuCV07KK7YlHMiYwT2CMau
-	 PsBYdDJ/BmBPkoAkpFxvcPBQkMkbFXmT76mSfEXcHUk8JW4aoAwNQKlZUyKfOxL3CS
-	 hmwrMiEce5S8fEue7P5cjfo10ImHtxtE2AnFwqacXJFSzF8f9QoiB5KF/gtv5iDKns
-	 H6mqJTkUMl9fg==
-Message-ID: <848cc2f9-9314-427c-90e9-39a6e483a335@kernel.org>
-Date: Wed, 22 Jul 2026 15:26:25 +0200
+	b=Xf2Qo7nfk8o5oFsdnRyvwfFlDT+UNHYxpWkdWS9jpYlddyaBbeTmAt4TSKYjBQ6nC
+	 VQT5FSiqo8vVJq/R82X3RyjGnMFjVe2qzMcG3VgXV669ofkFC8DZnKS+UkWwrpzb6q
+	 Fi0Sx6sVMnRuvnBvyBvom3YRXCjGdDRHypbqW5x1R/Uji66gdMwF7l9mOVCq62z3nl
+	 gJr90z+D+N2GhFNNOkLY7sMLu7nS8Z2MkG2ZCFRrrGTu/B/Ym82LsdWUrflTm6uGaV
+	 oU9g4AgXa58RSoCWW8YaDO+USyZcemM+PmqZeWYEvuz91dURSvCpGTEaOa63HF+ZkH
+	 oAveIZpLt2mkA==
+Message-ID: <5d133def-b9ab-4c4a-8c37-3acd05841756@kernel.org>
+Date: Wed, 22 Jul 2026 15:33:53 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -35,8 +35,7 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 01/13] mm: introduce vma_flags_can_grow() and
- vma_can_grow()
+Subject: Re: [PATCH v2 02/13] mm/vma: update do_mmap() to use vma_flags_t
 Content-Language: en-US
 To: Lorenzo Stoakes <ljs@kernel.org>,
  Andrew Morton <akpm@linux-foundation.org>,
@@ -104,7 +103,7 @@ Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org,
  linux-fbdev@vger.kernel.org, linux-sound@vger.kernel.org
 References: <20260711-b4-vma-flags-mm-v2-0-0fa2357d5431@kernel.org>
- <20260711-b4-vma-flags-mm-v2-1-0fa2357d5431@kernel.org>
+ <20260711-b4-vma-flags-mm-v2-2-0fa2357d5431@kernel.org>
 From: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>
 Autocrypt: addr=vbabka@kernel.org; keydata=
  xsFNBFZdmxYBEADsw/SiUSjB0dM+vSh95UkgcHjzEVBlby/Fg+g42O7LAEkCYXi/vvq31JTB
@@ -145,23 +144,37 @@ Autocrypt: addr=vbabka@kernel.org; keydata=
  NcaZ+c6J4H+nEJGi2SkHAUJz5oBzuThvPudLvPA/SK8sKoM01IRxSihev/S/5WLazXB1PGem
  OCbvzC1IjWJJraxiDJ5IygokapUa2RP7+WBR22skQ3SSl6G107QgWKSyTOGWEaRmV53vxQLV
  jXuCmzSSasTL60zq5yGrT4/DYQVSNEUiUbG4pYekxJujNeEDkUlky0Y=
-In-Reply-To: <20260711-b4-vma-flags-mm-v2-1-0fa2357d5431@kernel.org>
+In-Reply-To: <20260711-b4-vma-flags-mm-v2-2-0fa2357d5431@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 7/11/26 20:44, Lorenzo Stoakes wrote:
-> These test whether the VMA has stack semantics, i.e. is able to grow
-> upwards or downwards depending on the architecture.
+> The core do_mmap() function accepts a vm_flags_t parameter which it then
+> manipulates before passing to mmap_region() to do the heavy lifting of the
+> memory mapping.
 > 
-> In order to account for arches which do not support upward-growing stacks,
-> introduce VMA_GROWSUP whose definition depends on the architecture
-> supporting it, and use vma_flags_test_single_mask() in vma_flags_can_grow()
-> to account for this.
+> Update do_mmap() to instead accept a vma_flags_t parameter, and adjust all
+> the logic within do_mmap() to manipulate this instead.
+> 
+> This is as part of the ongoing effort to convert VMA flags from a system
+> word size to a bitmap type which allows us to unrestrict the number of VMA
+> flags, as well as gain control over how VMA flag manipulation occurs.
+> 
+> We do not cascade these changes to all functions which accept vm_flags_t,
+> but rather use vma_flags_to_legacy() where necessary, specifically
+> deferring converting calc_vm_prot_bits(), calc_vm_flag_bits() and
+> __get_unmapped_area() to vma_flags_t.
+> 
+> Also utilise the new vma_flags_can_grow() predicate which correctly handles
+> the case of architectures without upward growing stacks.
+> 
+> As part of this change, introduce VMA_SHADOW_STACK so we can correctly
+> handle the case of the shadow stack not being defined.
 > 
 > No functional change intended.
 > 
-> Reviewed-by: Zi Yan <ziy@nvidia.com>
 > Reviewed-by: Lance Yang <lance.yang@linux.dev>
+> Reviewed-by: Zi Yan <ziy@nvidia.com>
 > Signed-off-by: Lorenzo Stoakes <ljs@kernel.org>
 
 Reviewed-by: Vlastimil Babka (SUSE) <vbabka@kernel.org>
