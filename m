@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FD0C1A3166;
-	Wed, 22 Jul 2026 14:31:42 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B3CBD364029;
+	Wed, 22 Jul 2026 14:35:11 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784730703; cv=none; b=BOKWz45HKCnnIOHSOpwB1POIvPiaj2a17o6EemIsz1qT47bwVmsIMA3z8oarH7VrfcnPmxPFNQ5pl00ad/jwdruvRs2/QBtDrk+13s4i1Mk3ZLp/TJxTC0cdtvG2PzPCFrZiYdXRFhceP4+4WLsxGHWDF3dEiLcZzCMPFtylezo=
+	t=1784730914; cv=none; b=tkn2QE8lTd6AS4QB/qyOosz+5HlbeJYUOi41B3EKd6zSme6+m/zhHBv4ez3XzRzp+jR5uzo5BtADuUn7dgknBxKHSeCIAcHkgLKtP93wp32OdVNBRBMeqVZMp8OqvcbHxEhMOYb4+PG0vDLdc4M9qE4slcl6Ffs9csVFwfbPcO4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784730703; c=relaxed/simple;
-	bh=ezjMxUkVIEAxlGL4vlgh7gp8k2nWMU1TDBdNgwGi+7E=;
+	s=arc-20240116; t=1784730914; c=relaxed/simple;
+	bh=yvN/SexlJDkJ9mm+/DqP12a3YaFhKkDL44GO1C86pZg=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=IxH7VCEDjgNT3Km71HWjY2QUDxx2jlJ+38MwfoPGq+uHgIwS3gS8mJHMKzyAf6DvCNnvd+XFaQaZFh4xmayT2cpyZk6TpefKU9gk12PEh9VmuiKdKNGWEJU/SO8gD7/1PRfAUq9GKTUVJVFpqmTnv2XOJuUHM+1xTskoyMaHCMQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z312ICh0; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=Nn8IQ7Gb13tqOnimOVxvop8DgH2QdFgrbSo8+1G2rD9lOI6e3oHgFjbjeQP/uLv/f+EdBzYAUHbbKGnk8KgCvEaJbTIJiOYUlrlxMxNVkk9OL3fAoYDpGi+Jjje5YCOjvDFt3vIOqX2dxwwdcevkBW2BxgqMDvjBQ+ujGDQNW5k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BoNSrvzJ; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z312ICh0"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 735B01F00A3A;
-	Wed, 22 Jul 2026 14:31:24 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BoNSrvzJ"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 526301F000E9;
+	Wed, 22 Jul 2026 14:34:53 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784730702;
-	bh=OvPrDFwM1EEVYtQ4pZxzQ4Crg7V635gU058Fwjy4pjg=;
+	s=k20260515; t=1784730911;
+	bh=v3Dka0Kxl0RaJGtuTH0yTzaDEXoIUNO9u9IFv8oVYKs=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=Z312ICh01hwf5PNipjdUbCmTEpxOFlzpFrFpEbvVg2M62vqBeTEwf2myPaFZw7tPE
-	 VB8S2/xH3Cb64UA1VtTgUUNTgWkDHNnMSRIScWWwylFYdqQUJf29ZSBT+8tvuVKFT+
-	 qpgOuQvv4nbvr4jbtsA43T6qNk4ivRr13hGczyw/g2FSRI/UCbh4ijU+6nZylJLPk5
-	 +vUMLKp/zTcjlaGh9h6kCxmkwMXMYDyA4hWh4uxOZC5o0Hhq3C4INZyEa9oR4qk8id
-	 AL8BavBz/vrgJflUQPB3q0Ym1iVOZACXNzbgj3bOumnwJsWuqmyNhwK6KU112+LaeT
-	 oiB3ruF4FVC7g==
-Message-ID: <0c9b4dbb-95c2-4d19-935e-18a45d8aefd2@kernel.org>
-Date: Wed, 22 Jul 2026 16:31:22 +0200
+	b=BoNSrvzJYQLAEfX3sCIxyc7ZkwirgsWknsff/Mra8/IlU74HXActL9HeMA579jh44
+	 T9qmfb4rlcf+ZSuQDXLSpBUeDY2tak0s32nJdFgrBrk09Qk7VXEx5T5+B2A9t2i4lb
+	 T7KREF6hvGI4oAnK+1xITP1UHiLneP8l7RBubqbljEBi0slULes/fvkmxRdOX71MpV
+	 bMSLulS5NDO9ufYBlKQbRqcLa2jMXn1Kw4jzPErEyJEwl6CA4ywx5ldWZSfTgLsHwM
+	 sBj+KtFeUnsVFLsqvy7yitX1QTr82nsrUT3PDi6UDnxpJzhWaBjScQs6EGuKMa4pWl
+	 ZBBB1SQ2Xhywg==
+Message-ID: <eea9c6bf-5ff9-45de-ac92-784a174ff61b@kernel.org>
+Date: Wed, 22 Jul 2026 16:34:51 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -35,7 +35,8 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 05/13] mm: prefer mm->def_vma_flags in mm logic
+Subject: Re: [PATCH v2 06/13] mm/vma: convert vm_pgprot_modify() to use
+ vma_flags_t and rename
 Content-Language: en-US
 To: Lorenzo Stoakes <ljs@kernel.org>,
  Andrew Morton <akpm@linux-foundation.org>,
@@ -103,7 +104,7 @@ Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org,
  linux-fbdev@vger.kernel.org, linux-sound@vger.kernel.org
 References: <20260711-b4-vma-flags-mm-v2-0-0fa2357d5431@kernel.org>
- <20260711-b4-vma-flags-mm-v2-5-0fa2357d5431@kernel.org>
+ <20260711-b4-vma-flags-mm-v2-6-0fa2357d5431@kernel.org>
 From: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>
 Autocrypt: addr=vbabka@kernel.org; keydata=
  xsFNBFZdmxYBEADsw/SiUSjB0dM+vSh95UkgcHjzEVBlby/Fg+g42O7LAEkCYXi/vvq31JTB
@@ -144,33 +145,28 @@ Autocrypt: addr=vbabka@kernel.org; keydata=
  NcaZ+c6J4H+nEJGi2SkHAUJz5oBzuThvPudLvPA/SK8sKoM01IRxSihev/S/5WLazXB1PGem
  OCbvzC1IjWJJraxiDJ5IygokapUa2RP7+WBR22skQ3SSl6G107QgWKSyTOGWEaRmV53vxQLV
  jXuCmzSSasTL60zq5yGrT4/DYQVSNEUiUbG4pYekxJujNeEDkUlky0Y=
-In-Reply-To: <20260711-b4-vma-flags-mm-v2-5-0fa2357d5431@kernel.org>
+In-Reply-To: <20260711-b4-vma-flags-mm-v2-6-0fa2357d5431@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 7/11/26 20:45, Lorenzo Stoakes wrote:
-> Currently mm->def_flags (of type vm_flags_t) is union'd with
-> mm->def_vma_flags (of type vma_flags_t).
+> Update vm_pgprot_modify() to use the new VMA flags type vma_flags_t, and
+> rename to vma_pgprot_modify() accordingly.
 > 
-> As part of the effort to convert vm_flags_t usage to vma_flags_t (in order
-> to no longer be arbitrarily limited to a system word size for VMA flags),
-> prefer mm->def_vma_flags to mm->def_flags throughout the mm logic.
+> This is part of the ongoing work to convert vm_flags_t to vma_flags_t, in
+> order to eliminate the arbitrary limit of the number of bits in a system
+> word on available VMA flags.
 > 
-> We update dump_mm() to use the %*pb format which means we make no
-> assumption about the number of VMA flag bits on output when outputting
-> default VMA flags.
+> Update VMA userland tests accordingly, updating vma_set_page_prot() to no
+> longer inline vma_pgprot_modify(), rather we can simply define
+> vma_pgprot_modify() as a static inline function and the tests will pick it
+> up from vma.h.
 > 
 > No functional change intended.
 > 
 > Reviewed-by: Lance Yang <lance.yang@linux.dev>
 > Reviewed-by: Zi Yan <ziy@nvidia.com>
 > Signed-off-by: Lorenzo Stoakes <ljs@kernel.org>
-> ---
->  mm/debug.c |  5 +++--
->  mm/mlock.c | 13 +++++++------
->  mm/mmap.c  | 11 ++++++-----
->  mm/vma.c   |  2 +-
->  4 files changed, 17 insertions(+), 14 deletions(-)
 
 Reviewed-by: Vlastimil Babka (SUSE) <vbabka@kernel.org>
 
