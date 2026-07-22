@@ -1,229 +1,167 @@
-Received: from mail-ed1-f52.google.com (mail-ed1-f52.google.com [209.85.208.52])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5BE43361DCB
-	for <virtualization@lists.linux.dev>; Wed, 22 Jul 2026 15:14:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.52
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784733296; cv=pass; b=uxIOMzP2du+kC+RmvRIadk2IOysGjPveoQezqAaBJyE87B3yltw5aRf3Kw12FUoi5Kvq4bb/qjptVYT9Z9qa6MKkRp+quPR16XyOGb//YGvD5//J7BrH+PQXX+nTIaz3L2IL4eZrTHETExI4FPbzHOo3213DZwCaIyVKAnZMPnw=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784733296; c=relaxed/simple;
-	bh=bGgTQXexaMUZVxmxmRTODsDlDix0mOZ0dyS6nk/xZjk=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=qJfsCtxPdcbdNr3916J72XdYAykpJ5f8p6kYuoPhfhWxLWylTE2SViLvnx3wPxgHT0gBAoNsVUd2a9eCanEJaQNbhi9Tj8TIXWejSoiJn1NMYcEQ6HJOUCNbWGdQOsCv7efRfh9ryJOjg5r5nVPIPG6tOn5EuMd5HF1lNRZW5iU=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YszlGEsa; arc=pass smtp.client-ip=209.85.208.52
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4358343BDD4;
+	Wed, 22 Jul 2026 15:43:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784734994; cv=none; b=QU0KVXHKBUo8o9Olx8WgiHXzyXMcpAcqx+XHfsABmG0gP2O/ClFs/NIAHJcWBk7yQUfTMrww3Cal/k+zTkTQn+jjLCJUX4uTxCn/ezxFTjVRYn4hm+7cRCWZut6JAkTUpShQ0npeLTBDUQFoM1Ul5nD5eh8i128CfCY8KEE2zY0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784734994; c=relaxed/simple;
+	bh=mBFLFVFffpX3sBe5RLViCnoS1wBcAEUdd0R2wLYoPDI=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=Sz+68OJbPlhebZglF/y0swNsmOoFCX7aC/SlYKFYsxbU6UTZWeVxtjsE2Qio9YnKvu0vEsKgOnsXdWHiWVcIWveLJjCdNkmg5wdFLSQS3kT7TO08EImrXldeqnFQnduCL0/plEouKJD05m0enJGM44wzXQ46ktEQC6RQ7euvoKs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CLM0aR9e; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YszlGEsa"
-Received: by mail-ed1-f52.google.com with SMTP id 4fb4d7f45d1cf-69c1220bd51so15454445a12.3
-        for <virtualization@lists.linux.dev>; Wed, 22 Jul 2026 08:14:54 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1784733293; cv=none;
-        d=google.com; s=arc-20260327;
-        b=ksYboE1bK1uwJSbTPrMN52rLzUx5GgLKJhDtzGbQ7P7Av4bteM3hP7MoUeg52ILD/e
-         1AY4CL+wvpoTgyedSW5Gn+35YTrwJBkw7trRxNZ9NrKgUf55G3yLdjf/4eYCwbm+kaqk
-         orGWKi+f6teaDug6r3rwOUvqqemu4SFCQvzhg+bnMW4zYaSc0/nCz05+R5czK/avQyaW
-         k9m4SowVGw5Z0+0B2dtKdUVmHa/Oblxr59b1C2Tj0HgacmXdeoPxnInECMvBZeizoCj1
-         JLdQBM8g95zeOZMtR6axOAB7GEaQSy2js+DpFfpN+R0zjWmJa93fGfaIsiDtsQpO9n4f
-         1gTw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=5jBltnYvZaWbSQtBkyiLeAfwiYZjm0Y7WEn+J7RU7qk=;
-        fh=2g7VkOgCR9jx1tSr0NqKtgU59fw6KyA9oRAmWMExtq0=;
-        b=kJeRul7Mjp9rm6niAA9aoqWUDe0528hEzECdTlGLks8S3KL9MNYoVBAujWbJl8qzOR
-         MeO4PkJJVDqlRws0S/n2XUdpd2tqECBxr76RnVu0ij8IBRXMkeJAmWkBlgFPUTl0UKcW
-         O+1nLw6ORcIL41bi5n9ZnhAdZrYwLMHTlyxFeIvJLrzQ3IELWq7yMJSS3+jgF6jz4fH0
-         1xcudXvBMFHbR69Uder2H5DBK3jAnF7sf/uUdapGPLLz/D3zo0e1hSVLPa10Mn2G/iAz
-         d2Q5PpFAF6x+RJY9hFV/cokhInouDTjaxrF1K75ckX8zK+86L7UkhLNFobuA3jrFYMCY
-         TrHQ==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784733293; x=1785338093; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=5jBltnYvZaWbSQtBkyiLeAfwiYZjm0Y7WEn+J7RU7qk=;
-        b=YszlGEsaKe8O8blB1cvuFEOfmItGvz4+QsrZjj8gTRAlgLuXnPgw8YA1yY2/mR47BQ
-         lZFg1WjHUOc2QNp+BbhkU6y3k9+u9d+L2+LHX1xRVc1FMpKf4MoD8IPGCyGXWsn0zc3Q
-         2e+194HHGmPy5PkI8x/e7zPWNC9dBHmFMBa59wdmMg3eA3pUrJE/n02AYo598Fk/O5fl
-         GfFULTasJqEb97kggm45VzqFjtAZrHsiKhC7ayZCMvgQSj/WSthdExN2jcGlkKz5ViDE
-         z1Be8xJLB1tw4QYrf7RWQPBEYQQo1CJPcP8umJ/qYLvWhJSlA6pkonmxBraXnA+R6fGz
-         jKtA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784733293; x=1785338093;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=5jBltnYvZaWbSQtBkyiLeAfwiYZjm0Y7WEn+J7RU7qk=;
-        b=oa7M8Dh6M89R2n68b0vXDin08IV26kiM6wg735xtzF4lFVBdmWU89wXx8zFf+7Y5VN
-         hegzbO6FGe+RziEDTWyAjarKsHSTuWR9LueLy//o/MofmGp6EUiSjKgLFlPm+jfq5M/y
-         VXMNcykiEQ0SbXQphtEFHyJxiPtMNeN3KmvdQJiwGwb0jmWehoVLnCoVHhfY7o0QHHKh
-         lm7rRTHE1kx0Lal1BtT9F7aBxMGVctip3BSNcatNWBqRSfcAG+qiwLc/H1O7sW9QFlyP
-         btpkpZa57KkAyh9YMe7ogl8n93SfMQbRxS90VSrzG3ASMKbz/2OcJMB5TJHAhWc74Yhz
-         V1rA==
-X-Forwarded-Encrypted: i=1; AHgh+RpTesxrGRwuX8YIpUsvEWFKulj/1CfGk4C/AaRwbbExm9k5yyMWrjNSKVMvKXnlEuAQkb6oSDhtdaFF3KpAAw==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yzt6dq5Ghn3zdUKvRJQh38G4NWP9G9BJN9EaRWsUDvjzn3OLG/T
-	9HUh/M+lq3g+Usnt3FkRmEpLA4yVXmZT2VaFunBbm3CvLaWaJSRD395557LCvXFW6tvZtDR1HlN
-	Mqw2a2naowg570nP129VXuaFDvK/RD4M=
-X-Gm-Gg: AR+sD11ogMxLzT2glA1qBNferjWx5z99v0rqADfhD0xuOjKkvL9JaIklRJNiWYiex+N
-	YNBs06tu4ZCsHWD8vgoEjacuI378/9hmQb+1nCASY2Gs2s7kKYt9R8gJC90tVJ+FQOkVuhnxjiX
-	VRQ4Bbq7zj3SsTB4zx8qRSG0xMNyflOZwn2Umk0nLv1wDISRJnWiFHgCLlDZEM4mp9leMMyn/Rq
-	DyFFpohy5bzGvDGTX4vdXA/VNDRRMd0oOtO/Hriwd6mreH3LgqH+qPOhVgvwYoUryNMVw13666I
-	6liyz9WbJffdEtx0b6dR
-X-Received: by 2002:a05:6402:234f:b0:698:3b7b:e48b with SMTP id
- 4fb4d7f45d1cf-69e652f8f0bmr8733772a12.33.1784733292473; Wed, 22 Jul 2026
- 08:14:52 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CLM0aR9e"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 604121F000E9;
+	Wed, 22 Jul 2026 15:42:51 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784734992;
+	bh=z8WqCRRmqZNU6m++x/hJd+wI7SHuI+FdIhlbamrdG1A=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=CLM0aR9eFhPZ9spOJaHdGqkYPBvjwdadVJYlKZTl2YKiFfjcVhRSxPh1PIcdSZLqF
+	 2uDQVrjKOL7KmFktl7pClbl7cKII+MRZc9/6UaOyQfALqfqRWzhAtz2P2hISt6DjII
+	 CWqB/cDSvIql3IGoYwtilPu5JaZMRbvxlUgx/GqldGAVbyRwWh0ci6cxI6Nrz0fqLU
+	 /E1KAynocQ7mEgmRpP4IShX5p2k0UIxlo2mteluahBk9DcIHRIpb9ZDQ/ba/6DRjn5
+	 oYakHop6ZZ+DFl5M5Rcin/qKgqClJMkqtRONWZt8Qxm6ThTbv5R0wMwmL93ssw6GKd
+	 eiwmeo4mk1lEw==
+Message-ID: <2eb7b45e-0bf6-4b09-9b8a-ecc0f57f2c39@kernel.org>
+Date: Wed, 22 Jul 2026 17:42:49 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260722063609.1546421-1-physicalmtea@gmail.com>
-In-Reply-To: <20260722063609.1546421-1-physicalmtea@gmail.com>
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Date: Wed, 22 Jul 2026 11:14:39 -0400
-X-Gm-Features: AUfX_mxnip1n59a4HRupWqE15wspcC5IuPhTMVkgIZO6ooPz8i07n-zmk1peQik
-Message-ID: <CAJSP0QXMamS2rGRr4MtDM3ymtoH_DAD01NGkt4CjEJzZ6qbR5w@mail.gmail.com>
-Subject: Re: [PATCH] vhost-scsi: fix T10-PI lifecycle hard BUG after endpoint
-To: Jia Jia <physicalmtea@gmail.com>
-Cc: mst@redhat.com, jasowangio@gmail.com, michael.christie@oracle.com, 
-	pbonzini@redhat.com, stefanha@redhat.com, eperezma@redhat.com, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 08/13] mm: introduce vma_get_page_prot() and use it
+Content-Language: en-US
+To: Lorenzo Stoakes <ljs@kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ David Hildenbrand <david@kernel.org>, "Liam R. Howlett"
+ <liam@infradead.org>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Benjamin LaHaise <bcrl@kvack.org>, Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+ Hugh Dickins <hughd@google.com>, Baolin Wang
+ <baolin.wang@linux.alibaba.com>, Jann Horn <jannh@google.com>,
+ Pedro Falcato <pfalcato@suse.de>, Muchun Song <muchun.song@linux.dev>,
+ Oscar Salvador <osalvador@suse.de>, Zi Yan <ziy@nvidia.com>,
+ Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
+ Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
+ Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+ Lucas Stach <l.stach@pengutronix.de>,
+ Russell King <linux+etnaviv@armlinux.org.uk>,
+ Christian Gmeiner <christian.gmeiner@gmail.com>,
+ Inki Dae <inki.dae@samsung.com>, Seung-Woo Kim <sw0312.kim@samsung.com>,
+ Kyungmin Park <kyungmin.park@samsung.com>,
+ Krzysztof Kozlowski <krzk@kernel.org>,
+ Peter Griffin <peter.griffin@linaro.org>,
+ Alim Akhtar <alim.akhtar@samsung.com>,
+ Jani Nikula <jani.nikula@linux.intel.com>,
+ Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+ Rodrigo Vivi <rodrigo.vivi@intel.com>, Tvrtko Ursulin
+ <tursulin@ursulin.net>, Rob Clark <robin.clark@oss.qualcomm.com>,
+ Dmitry Baryshkov <lumag@kernel.org>, Abhinav Kumar
+ <abhinav.kumar@linux.dev>, Jessica Zhang <jesszhan0024@gmail.com>,
+ Sean Paul <sean@poorly.run>, Marijn Suijten <marijn.suijten@somainline.org>,
+ Lyude Paul <lyude@redhat.com>, Danilo Krummrich <dakr@kernel.org>,
+ Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
+ Sandy Huang <hjc@rock-chips.com>, =?UTF-8?Q?Heiko_St=C3=BCbner?=
+ <heiko@sntech.de>, Andy Yan <andy.yan@rock-chips.com>,
+ Thierry Reding <thierry.reding@kernel.org>,
+ Mikko Perttunen <mperttunen@nvidia.com>,
+ Jonathan Hunter <jonathanh@nvidia.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Zack Rusin <zack.rusin@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>,
+ Matthew Brost <matthew.brost@intel.com>,
+ =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+ Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
+ Helge Deller <deller@gmx.de>, Kees Cook <kees@kernel.org>,
+ Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
+ Boris Brezillon <boris.brezillon@collabora.com>,
+ Steven Price <steven.price@arm.com>, Liviu Dudau <liviu.dudau@arm.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+ linux-mips@vger.kernel.org, linux-aio@kvack.org,
+ linux-fsdevel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ dri-devel@lists.freedesktop.org, etnaviv@lists.freedesktop.org,
+ linux-samsung-soc@vger.kernel.org, intel-gfx@lists.freedesktop.org,
+ linux-arm-msm@vger.kernel.org, freedreno@lists.freedesktop.org,
+ nouveau@lists.freedesktop.org, linux-tegra@vger.kernel.org,
+ virtualization@lists.linux.dev, intel-xe@lists.freedesktop.org,
+ xen-devel@lists.xenproject.org, linux-fbdev@vger.kernel.org,
+ linux-sound@vger.kernel.org, Jani Nikula <jani.nikula@intel.com>
+References: <20260711-b4-vma-flags-mm-v2-0-0fa2357d5431@kernel.org>
+ <20260711-b4-vma-flags-mm-v2-8-0fa2357d5431@kernel.org>
+From: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>
+Autocrypt: addr=vbabka@kernel.org; keydata=
+ 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
+In-Reply-To: <20260711-b4-vma-flags-mm-v2-8-0fa2357d5431@kernel.org>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-On Wed, Jul 22, 2026 at 2:40=E2=80=AFAM Jia Jia <physicalmtea@gmail.com> wr=
-ote:
->
-> vhost_scsi_setup_vq_cmds() runs only from VHOST_SCSI_SET_ENDPOINT and
-> allocates each command's protection scatterlist array (prot_sgl) only
-> when VIRTIO_SCSI_F_T10_PI is already set at that moment.  Command pools
-> are not rebuilt later.  vhost_scsi_set_features() may still flip that
-> bit after the endpoint is live: it updates acked_features and returns
-> success without reallocating prot_sgl.
->
-> That is a feature-versus-resource lifetime mismatch.  The broken order
-> is:
->
->   VHOST_SET_FEATURES(0)
->   VHOST_SCSI_SET_ENDPOINT
->       setup_vq_cmds() sees no T10-PI -> prot_sgl stays NULL
->   VHOST_SET_FEATURES(VIRTIO_SCSI_F_T10_PI)
->       only acked_features changes; command resources stay as above
+On 7/11/26 20:45, Lorenzo Stoakes wrote:
+> There's a large number of vm_get_page_prot(vma->vm_flags) invocations. Make
+> life easier by introducing vma_get_page_prot() parameterised by the VMA.
+> 
+> This also makes converting vm_get_page_prot() to vma_flags_t easier.
+> 
+> Also update the userland VMA tests to reflect the change.
+> 
+> No functional change intended.
+> 
+> Acked-by: Zi Yan <ziy@nvidia.com>
+> Acked-by: Jani Nikula <jani.nikula@intel.com> # for i915
+> Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de> # for DRM
+> Signed-off-by: Lorenzo Stoakes <ljs@kernel.org>
 
-VIRTIO_SCSI_F_T10_PI is defined in the VIRTIO spec. VIRTIO feature
-bits do not change once negotiated. The device must be reset in order
-to set the feature bits again.
+Reviewed-by: Vlastimil Babka (SUSE) <vbabka@kernel.org>
 
-VHOST_F_LOG_ALL is a vhost-specific feature bit that is not covered by
-the VIRTIO spec and it can be changed at runtime. It is an exception.
-
-Please generalize this fix to only allow VHOST_F_LOG_ALL to be changed
-at runtime. Rather than protecting VIRTIO_SCSI_F_T10_PI specifically,
-attempts to change feature bits other than VHOST_F_LOG_ALL once the
-device is operational must be rejected.
-
-Perhaps other vhost device implementations have the same issue?
-
-Thanks,
-Stefan
-
->   submit a T10-PI WRITE with a 129-page protection payload
->
-> The I/O path then follows the new feature bit while using the old
-> command objects.  vhost_scsi_mapal() (static, inlined into
-> vhost_scsi_handle_vq() here) does:
->
->   sg_alloc_table_chained(table, 129, first_chunk=3DNULL,
->                          nents_first_chunk=3Dinline_sg_cnt)
->
-> With first_chunk NULL, __sg_alloc_table() sets curr_max_ents from
-> nents_first_chunk and calls sg_pool_alloc(129).  sg_pool_index() then
-> hits:
->
->   BUG_ON(nents > SG_CHUNK_SIZE);   /* 129 > 128 */
->
-> The kernel reported the following call trace and register state:
->
->   Call Trace:
->    <TASK>
->    ? __sg_alloc_table+0x1d8/0x250
->    ? __pfx_vhost_run_work_list+0x10/0x10 [vhost]
->    sg_alloc_table_chained+0x59/0xf0
->    ? __pfx_sg_pool_alloc+0x10/0x10
->    ? vhost_scsi_calc_sgls.constprop.0+0x43/0x60 [vhost_scsi]
->    vhost_scsi_handle_vq+0xf02/0x1700 [vhost_scsi]
->    ? __pfx_vhost_scsi_handle_vq+0x10/0x10 [vhost_scsi]
->    vhost_scsi_handle_kick+0x37/0x50 [vhost_scsi]
->    vhost_run_work_list+0x8e/0xd0 [vhost]
->    vhost_task_fn+0xe1/0x210
->    ret_from_fork+0x348/0x540
->    </TASK>
->
->   RIP: 0010:0x4
->   CR2: 0000000000000004
->   RSP: 0018:ffffc90000dbf940 EFLAGS: 00010202
->   RAX: ffffffff82396810 RBX: ffff88811dc28b80 RCX: 0000000000000000
->   RDX: 0000000000000000 RSI: 0000000000000820 RDI: 0000000000000081
->
-> The host worker dies and the machine stops accepting network service
-> until reset.  The missing object is prot_sgl after a post-endpoint
-> T10-PI enable introduced by commit bf2d650391be ("vhost-scsi: Allocate
-> T10 PI structs only when enabled").
->
-> I also checked the other feature bits handled around endpoint setup.
-> Only T10-PI allocates this endpoint-time per-command resource and does
-> not rebuild it on a later SET_FEATURES.  LOG_ALL uses lazy tvc_log and
-> already tears log storage down when cleared; HOTPLUG does not allocate
-> prot_sgl.  So the chosen fix is to refuse T10-PI enable/disable while
-> an endpoint is active, rather than adding a second rebuild path in
-> set_features().
->
-> Return -EBUSY if vs->vs_tpg is set and the T10-PI bit would change.
-> Userspace must CLEAR_ENDPOINT, SET_FEATURES, then SET_ENDPOINT again so
-> setup_vq_cmds() can allocate protection SGLs when needed.  That matches
-> the existing "build command resources at endpoint" model.
->
-> Fixes: bf2d650391be ("vhost-scsi: Allocate T10 PI structs only when enabl=
-ed")
-> Signed-off-by: Jia Jia <physicalmtea@gmail.com>
-> ---
->  drivers/vhost/scsi.c | 10 ++++++++++
->  1 file changed, 10 insertions(+)
->
-> diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-> index 9a1253b9d8c5..000000000000 100644
-> --- a/drivers/vhost/scsi.c
-> +++ b/drivers/vhost/scsi.c
-> @@ -2219,6 +2219,7 @@ static int vhost_scsi_set_features(struct vhost_scs=
-i *vs, u64 features)
->  {
->         struct vhost_virtqueue *vq;
->         bool is_log, was_log;
-> +       bool is_t10_pi, was_t10_pi;
->         int i;
->
->         if (features & ~VHOST_SCSI_FEATURES)
-> @@ -2234,6 +2235,13 @@ static int vhost_scsi_set_features(struct vhost_sc=
-si *vs, u64 features)
->         if (!vs->dev.nvqs)
->                 goto out;
->
-> +       is_t10_pi =3D features & (1ULL << VIRTIO_SCSI_F_T10_PI);
-> +       was_t10_pi =3D vhost_has_feature(&vs->vqs[0].vq, VIRTIO_SCSI_F_T1=
-0_PI);
-> +       if (vs->vs_tpg && is_t10_pi !=3D was_t10_pi) {
-> +               mutex_unlock(&vs->dev.mutex);
-> +               return -EBUSY;
-> +       }
-> +
->         is_log =3D features & (1 << VHOST_F_LOG_ALL);
->         /*
->          * All VQs should have same feature.
-> --
-> 2.43.0
->
