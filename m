@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F257E35CB7C;
-	Wed, 22 Jul 2026 14:19:53 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7FD0C1A3166;
+	Wed, 22 Jul 2026 14:31:42 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784729995; cv=none; b=aZE5wrLemavw7dzSgmUOJq5Ut4GlYauYZRG/6FoGmbWbOhVls9ZaP4HzTqd7kQ+m5+PWsnkF4XASSBUId1PZx1pK3YzQ9lPVHJVu8Z6dkdkkPDQL8tH1Mx0hTqKHTuZJcnvOE0JGMee+/fZ/YXV5YtlaeqnXb2AaAODS+AT/r+o=
+	t=1784730703; cv=none; b=BOKWz45HKCnnIOHSOpwB1POIvPiaj2a17o6EemIsz1qT47bwVmsIMA3z8oarH7VrfcnPmxPFNQ5pl00ad/jwdruvRs2/QBtDrk+13s4i1Mk3ZLp/TJxTC0cdtvG2PzPCFrZiYdXRFhceP4+4WLsxGHWDF3dEiLcZzCMPFtylezo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784729995; c=relaxed/simple;
-	bh=Dk4MmWK8TDUalYiEaIQchMNeRJm3LAApjZ7Jhey6oBs=;
+	s=arc-20240116; t=1784730703; c=relaxed/simple;
+	bh=ezjMxUkVIEAxlGL4vlgh7gp8k2nWMU1TDBdNgwGi+7E=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Qy79jLZGSVJUTb4jDCmqFSgG9gSiIrI6KZkpm159jl3bSJnpZ/sd6VZKASaKncg0CvEOl+6gls8OwAG87wWGykEjl1vkt4QMqiuh1iNPbNGgDQoQF5JmNBtEuuGsvyKZgdtUlXqFiHhGJ6j+zhZT0Rrqvv1TKDUhCTcK1XODOFc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BqxaWu0Y; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=IxH7VCEDjgNT3Km71HWjY2QUDxx2jlJ+38MwfoPGq+uHgIwS3gS8mJHMKzyAf6DvCNnvd+XFaQaZFh4xmayT2cpyZk6TpefKU9gk12PEh9VmuiKdKNGWEJU/SO8gD7/1PRfAUq9GKTUVJVFpqmTnv2XOJuUHM+1xTskoyMaHCMQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Z312ICh0; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BqxaWu0Y"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E6961F000E9;
-	Wed, 22 Jul 2026 14:19:35 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Z312ICh0"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 735B01F00A3A;
+	Wed, 22 Jul 2026 14:31:24 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784729993;
-	bh=E1fZtyJMG9BfhlBz0sxJsvbizOy4XPOaAolVzZbKG2U=;
+	s=k20260515; t=1784730702;
+	bh=OvPrDFwM1EEVYtQ4pZxzQ4Crg7V635gU058Fwjy4pjg=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=BqxaWu0YTlU0ACbArZmL1FzVAFZZB99uC8ks1vtMhYpCgqApT2szyxYcg1xfNPabV
-	 vGSiTNffzTx44l3VWUJEAhlKvwfBY3Xra1IVdmogCBtFsk9nzjk+BGE1KLD5RpS7yY
-	 xng/3auPQfLkXlvbFds3mkE+ZTq8CD+HG6nXSTfbPPYRYcfhkE8M7wT9pQKJoGIC6I
-	 AbYfEKSjq3JxuczuH2nnoB2mE1hfB2CFJxBsxovd00Kl34r3hXvL97tmTc4k/sHWSy
-	 TmquS1Z60ecsbwmO27nqyZ5HdEjOPRSPo1EtEzsS8vtOCqC7V2r8idg0kkU4mns8HT
-	 nM+l659nsR41A==
-Message-ID: <141b2b88-477c-4f54-a378-fbd3bb596cfd@kernel.org>
-Date: Wed, 22 Jul 2026 16:19:34 +0200
+	b=Z312ICh01hwf5PNipjdUbCmTEpxOFlzpFrFpEbvVg2M62vqBeTEwf2myPaFZw7tPE
+	 VB8S2/xH3Cb64UA1VtTgUUNTgWkDHNnMSRIScWWwylFYdqQUJf29ZSBT+8tvuVKFT+
+	 qpgOuQvv4nbvr4jbtsA43T6qNk4ivRr13hGczyw/g2FSRI/UCbh4ijU+6nZylJLPk5
+	 +vUMLKp/zTcjlaGh9h6kCxmkwMXMYDyA4hWh4uxOZC5o0Hhq3C4INZyEa9oR4qk8id
+	 AL8BavBz/vrgJflUQPB3q0Ym1iVOZACXNzbgj3bOumnwJsWuqmyNhwK6KU112+LaeT
+	 oiB3ruF4FVC7g==
+Message-ID: <0c9b4dbb-95c2-4d19-935e-18a45d8aefd2@kernel.org>
+Date: Wed, 22 Jul 2026 16:31:22 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -35,8 +35,7 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 04/13] mm: update generic_get_unmapped_area[_topdown]()
- to use vma_flags_t
+Subject: Re: [PATCH v2 05/13] mm: prefer mm->def_vma_flags in mm logic
 Content-Language: en-US
 To: Lorenzo Stoakes <ljs@kernel.org>,
  Andrew Morton <akpm@linux-foundation.org>,
@@ -104,7 +103,7 @@ Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org,
  linux-fbdev@vger.kernel.org, linux-sound@vger.kernel.org
 References: <20260711-b4-vma-flags-mm-v2-0-0fa2357d5431@kernel.org>
- <20260711-b4-vma-flags-mm-v2-4-0fa2357d5431@kernel.org>
+ <20260711-b4-vma-flags-mm-v2-5-0fa2357d5431@kernel.org>
 From: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>
 Autocrypt: addr=vbabka@kernel.org; keydata=
  xsFNBFZdmxYBEADsw/SiUSjB0dM+vSh95UkgcHjzEVBlby/Fg+g42O7LAEkCYXi/vvq31JTB
@@ -145,24 +144,33 @@ Autocrypt: addr=vbabka@kernel.org; keydata=
  NcaZ+c6J4H+nEJGi2SkHAUJz5oBzuThvPudLvPA/SK8sKoM01IRxSihev/S/5WLazXB1PGem
  OCbvzC1IjWJJraxiDJ5IygokapUa2RP7+WBR22skQ3SSl6G107QgWKSyTOGWEaRmV53vxQLV
  jXuCmzSSasTL60zq5yGrT4/DYQVSNEUiUbG4pYekxJujNeEDkUlky0Y=
-In-Reply-To: <20260711-b4-vma-flags-mm-v2-4-0fa2357d5431@kernel.org>
+In-Reply-To: <20260711-b4-vma-flags-mm-v2-5-0fa2357d5431@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 7/11/26 20:45, Lorenzo Stoakes wrote:
-> As part of the changes converting VMA flags from a system word size to a
-> bitmap, extend this change to generic_get_unmapped_area() and
-> generic_get_unmapped_area_topdown(), which also allows us to convert
-> stack_guard_placement() as well.
+> Currently mm->def_flags (of type vm_flags_t) is union'd with
+> mm->def_vma_flags (of type vma_flags_t).
 > 
-> We retain arch_get_unmapped_area() and arch_get_unmapped_area_topdown()
-> as-is for now, using legacy_to_vma_flags() as necessary to do so.
+> As part of the effort to convert vm_flags_t usage to vma_flags_t (in order
+> to no longer be arbitrarily limited to a system word size for VMA flags),
+> prefer mm->def_vma_flags to mm->def_flags throughout the mm logic.
+> 
+> We update dump_mm() to use the %*pb format which means we make no
+> assumption about the number of VMA flag bits on output when outputting
+> default VMA flags.
 > 
 > No functional change intended.
 > 
-> Reviewed-by: Zi Yan <ziy@nvidia.com>
 > Reviewed-by: Lance Yang <lance.yang@linux.dev>
+> Reviewed-by: Zi Yan <ziy@nvidia.com>
 > Signed-off-by: Lorenzo Stoakes <ljs@kernel.org>
+> ---
+>  mm/debug.c |  5 +++--
+>  mm/mlock.c | 13 +++++++------
+>  mm/mmap.c  | 11 ++++++-----
+>  mm/vma.c   |  2 +-
+>  4 files changed, 17 insertions(+), 14 deletions(-)
 
 Reviewed-by: Vlastimil Babka (SUSE) <vbabka@kernel.org>
 
