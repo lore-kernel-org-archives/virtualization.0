@@ -1,253 +1,168 @@
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.3])
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42F9D3FFF85
-	for <virtualization@lists.linux.dev>; Wed, 22 Jul 2026 11:00:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6B85931985D;
+	Wed, 22 Jul 2026 13:26:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784718042; cv=none; b=YBJmLWPQDCHZgWnhPnHYtOP6cpfQRxmCrGEQPRr2opzkBLfx7qcvcXeLpgj27qTPyiIstQgWCl5TZ+x4FUf+E9up0aKkGAo8jLE9XxK4JL8dlJkkIAWrXAeTqJ2vSkz1xuzJ0S5GuWv73P2m1HW2miUD7emciZs6fR/rzeuT5Ow=
+	t=1784726808; cv=none; b=BPZJh+ukxZgdP3h2iBwBEgpqRF6H1uUTYe/OWXOZ8KzVar49rasEHhQkKjebHj5yiT94hKB/68Y7q5+t6Y7Ees7RjzgrXDWw+5ztDr5ueMYFRboPTFWro5S2k/riBcegm1RS7k5oN2Z2NYAxx4WaOjBCfNBxkov0uhnZBoqsgsI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784718042; c=relaxed/simple;
-	bh=J4//k8F4CKWCeCkVZTCfcqspAs0oy2D95UO839DycsU=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=q4ig+cZdbaDmNQooqN6NVRmz01tBXyXQ0D0a8riugOKdY6M+5DKHF5hI6IGAd1YpJ5p2wD6slb5dYnPuW/owuFDW69gGP3/I8s9NuB1DtgvukKc1vCfKY+ieQkvU4K1bpf6SfQNYSY6cPyzuzCKfUScyVx0Dn3tkCHgnpTqRyZs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=lM60eQgA; arc=none smtp.client-ip=220.197.31.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
+	s=arc-20240116; t=1784726808; c=relaxed/simple;
+	bh=UWi3r29cBMam1NM4lvTIpGcRqsuVWnrHk+mnAJ32GJU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=NW8RcDdwudvu1gsouNUb++qIqu3ttLkwsbPnGXK005Zc6LnafQ9C/s3f5u+FvmDyCqG5vU5TE5mAjiLTcxRnLnes43KogOSzz/8ueFqPpMbIItwkixEiAOb74F9ZdEjVaQJY1Z4ef6CD1Pokkbui+SVy7ba0k2iywlCGP+8idLE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=ZXxvQz/+; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="lM60eQgA"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version:
-	Content-Type; bh=XnmlT92hOs66o6RQdjF+BmjHjTM+urZmrZEBSz9w3VU=;
-	b=lM60eQgA9OzLcosbGfoVOBNJjLLdcO/CNP4fEp8BCqfmOIVKgVScs/UOduHNkv
-	aKdFzDH2nC5IkEgI4xP5EDMw3eb0mvBWKfDeO1ONqI4sdSN5Qdz11DVVKezKzmm1
-	WsJOXi9fMC0kX0X7/aGULSL3Z04YgWtnK3HExJ9z+ZuDk=
-Received: from localhost.localdomain (unknown [])
-	by gzsmtp5 (Coremail) with SMTP id QCgvCgCntOrNomBqcjHiIQ--.3460S2;
-	Wed, 22 Jul 2026 19:00:30 +0800 (CST)
-From: "rom.wang" <r4o5m6e8o@163.com>
-To: mst@redhat.com,
-	jasowangio@gmail.com,
-	eperezma@redhat.com
-Cc: virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	linux-scsi@vger.kernel.org,
-	kvm@vger.kernel.org,
-	Yufeng Wang <wangyufeng@kylinos.cn>
-Subject: Re: [RFC PATCH 0/4] virtio: SQ/CQ doorbell polling for vhost-scsi
-Date: Wed, 22 Jul 2026 19:00:29 +0800
-Message-Id: <20260722110029.88909-1-r4o5m6e8o@163.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <CAJaqyWe_nhVOvfA03So_edVO_+1UeHCC6RGnHRQB9dq7CWS4LQ@mail.gmail.com>
-References: <CAJaqyWe_nhVOvfA03So_edVO_+1UeHCC6RGnHRQB9dq7CWS4LQ@mail.gmail.com>
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="ZXxvQz/+"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 409D51F000E9;
+	Wed, 22 Jul 2026 13:26:28 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1784726806;
+	bh=+M61kMMTxzMqLJW/I9S72vEXtmCkFlbPyR+NRZBxKrM=;
+	h=Date:Subject:To:Cc:References:From:In-Reply-To;
+	b=ZXxvQz/+5vEhls9X1WnsdaijtSh4+KMh+sWHRLjatPV9xb4hEbr8G7i+SgsJpyldQ
+	 mfdIbbK/dtwweQdY6q9Z2dTqHvG52A7c0ZGpajSxdgBLMT2ZHax1fZUdkSJwotodwB
+	 GIZ8il6H1obl/L2YNl/gvIQ9I7nGSRtDtHY3VNq7vMpOeuCV07KK7YlHMiYwT2CMau
+	 PsBYdDJ/BmBPkoAkpFxvcPBQkMkbFXmT76mSfEXcHUk8JW4aoAwNQKlZUyKfOxL3CS
+	 hmwrMiEce5S8fEue7P5cjfo10ImHtxtE2AnFwqacXJFSzF8f9QoiB5KF/gtv5iDKns
+	 H6mqJTkUMl9fg==
+Message-ID: <848cc2f9-9314-427c-90e9-39a6e483a335@kernel.org>
+Date: Wed, 22 Jul 2026 15:26:25 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH v2 01/13] mm: introduce vma_flags_can_grow() and
+ vma_can_grow()
+Content-Language: en-US
+To: Lorenzo Stoakes <ljs@kernel.org>,
+ Andrew Morton <akpm@linux-foundation.org>,
+ David Hildenbrand <david@kernel.org>, "Liam R. Howlett"
+ <liam@infradead.org>, Mike Rapoport <rppt@kernel.org>,
+ Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
+ Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
+ Benjamin LaHaise <bcrl@kvack.org>, Alexander Viro <viro@zeniv.linux.org.uk>,
+ Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
+ Hugh Dickins <hughd@google.com>, Baolin Wang
+ <baolin.wang@linux.alibaba.com>, Jann Horn <jannh@google.com>,
+ Pedro Falcato <pfalcato@suse.de>, Muchun Song <muchun.song@linux.dev>,
+ Oscar Salvador <osalvador@suse.de>, Zi Yan <ziy@nvidia.com>,
+ Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
+ Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
+ Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>,
+ Madhavan Srinivasan <maddy@linux.ibm.com>,
+ Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
+ "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
+ Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
+ Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
+ David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
+ Lucas Stach <l.stach@pengutronix.de>,
+ Russell King <linux+etnaviv@armlinux.org.uk>,
+ Christian Gmeiner <christian.gmeiner@gmail.com>,
+ Inki Dae <inki.dae@samsung.com>, Seung-Woo Kim <sw0312.kim@samsung.com>,
+ Kyungmin Park <kyungmin.park@samsung.com>,
+ Krzysztof Kozlowski <krzk@kernel.org>,
+ Peter Griffin <peter.griffin@linaro.org>,
+ Alim Akhtar <alim.akhtar@samsung.com>,
+ Jani Nikula <jani.nikula@linux.intel.com>,
+ Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
+ Rodrigo Vivi <rodrigo.vivi@intel.com>, Tvrtko Ursulin
+ <tursulin@ursulin.net>, Rob Clark <robin.clark@oss.qualcomm.com>,
+ Dmitry Baryshkov <lumag@kernel.org>, Abhinav Kumar
+ <abhinav.kumar@linux.dev>, Jessica Zhang <jesszhan0024@gmail.com>,
+ Sean Paul <sean@poorly.run>, Marijn Suijten <marijn.suijten@somainline.org>,
+ Lyude Paul <lyude@redhat.com>, Danilo Krummrich <dakr@kernel.org>,
+ Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
+ Sandy Huang <hjc@rock-chips.com>, =?UTF-8?Q?Heiko_St=C3=BCbner?=
+ <heiko@sntech.de>, Andy Yan <andy.yan@rock-chips.com>,
+ Thierry Reding <thierry.reding@kernel.org>,
+ Mikko Perttunen <mperttunen@nvidia.com>,
+ Jonathan Hunter <jonathanh@nvidia.com>, Gerd Hoffmann <kraxel@redhat.com>,
+ Dmitry Osipenko <dmitry.osipenko@collabora.com>,
+ Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
+ <olvaffe@gmail.com>, Zack Rusin <zack.rusin@broadcom.com>,
+ Broadcom internal kernel review list
+ <bcm-kernel-feedback-list@broadcom.com>,
+ Matthew Brost <matthew.brost@intel.com>,
+ =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
+ Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
+ Helge Deller <deller@gmx.de>, Kees Cook <kees@kernel.org>,
+ Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
+ Boris Brezillon <boris.brezillon@collabora.com>,
+ Steven Price <steven.price@arm.com>, Liviu Dudau <liviu.dudau@arm.com>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+ linux-mips@vger.kernel.org, linux-aio@kvack.org,
+ linux-fsdevel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
+ dri-devel@lists.freedesktop.org, etnaviv@lists.freedesktop.org,
+ linux-samsung-soc@vger.kernel.org, intel-gfx@lists.freedesktop.org,
+ linux-arm-msm@vger.kernel.org, freedreno@lists.freedesktop.org,
+ nouveau@lists.freedesktop.org, linux-rockchip@lists.infradead.org,
+ linux-tegra@vger.kernel.org, virtualization@lists.linux.dev,
+ intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org,
+ linux-fbdev@vger.kernel.org, linux-sound@vger.kernel.org
+References: <20260711-b4-vma-flags-mm-v2-0-0fa2357d5431@kernel.org>
+ <20260711-b4-vma-flags-mm-v2-1-0fa2357d5431@kernel.org>
+From: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>
+Autocrypt: addr=vbabka@kernel.org; keydata=
+ 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
+In-Reply-To: <20260711-b4-vma-flags-mm-v2-1-0fa2357d5431@kernel.org>
 Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:QCgvCgCntOrNomBqcjHiIQ--.3460S2
-X-Coremail-Antispam: 1Uf129KBjvJXoW3GrW3tr48KF1ftw1DGF4rZrb_yoWfJryxpr
-	W3Gr1ayr1DAFykWw1UAr4UXw1xXrZ5Xanxtr18KrW8ua45Ar1jqF4UtF4rWrWUX398Kw47
-	Xr1jqF45uFWDA37anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07U3b15UUUUU=
-X-CM-SenderInfo: 3uurkzkwhy0qqrwthudrp/xtbC7w+OBGpgos9UOAAA3h
+Content-Transfer-Encoding: 7bit
 
-From: Yufeng Wang <wangyufeng@kylinos.cn>
+On 7/11/26 20:44, Lorenzo Stoakes wrote:
+> These test whether the VMA has stack semantics, i.e. is able to grow
+> upwards or downwards depending on the architecture.
+> 
+> In order to account for arches which do not support upward-growing stacks,
+> introduce VMA_GROWSUP whose definition depends on the architecture
+> supporting it, and use vma_flags_test_single_mask() in vma_flags_can_grow()
+> to account for this.
+> 
+> No functional change intended.
+> 
+> Reviewed-by: Zi Yan <ziy@nvidia.com>
+> Reviewed-by: Lance Yang <lance.yang@linux.dev>
+> Signed-off-by: Lorenzo Stoakes <ljs@kernel.org>
 
-Thank you for the detailed feedback. We've completed benchmark
-testing comparing the existing notification mechanisms against the
-proposed SQ/CQ polling. The results are informative.
-
-
-Test Modes Explained
---------------------
-
-To answer your second question with data, we tested four modes:
-
-1. **baseline**: Default vhost-scsi with event_idx auto-negotiated.
-   I/O engine: libaio. Submission uses MMIO kick (VM exit), completion
-   uses MSI-X interrupt (VM exit). The guest driver dynamically toggles
-   NO_NOTIFY/NO_INTERRUPT during completion processing, but these are
-   short windows — most I/O still incurs VM exits on both paths.
-
-2. **poll-queue**: This mode combines the existing notification features
-   you mentioned:
-   - VIRTIO_RING_F_EVENT_IDX: auto-negotiated (same as baseline)
-   - VIRTQ_AVAIL_F_NO_INTERRUPT: effectively permanent — poll queue
-     VQs have callback=NULL and no MSI-X vector, so the guest never
-     receives completion interrupts regardless of the flag state
-   - VIRTQ_USED_F_NO_NOTIFY: vhost dynamically toggles this during
-     active processing (vhost_disable_notify/enable_notify)
-   - VIRTIO_F_NOTIFICATION_DATA: negotiated but vhost kernel does not
-     process notification data, so no practical effect
-   
-   Implemented via virtio-scsi poll queues (virtscsi_poll_queues=16,
-   callback=NULL, no MSI-X vector) + io_uring IOPOLL mode (--hipri).
-   blk-mq polls the used ring for completions via virtscsi_mq_poll().
-   This eliminates completion-side VM exits. However, submission still
-   uses MMIO kick (VM exit). Note: libaio cannot use this mode because
-   aio.c strips IOCB_HIPRI ("no one is going to poll for this I/O").
-
-3. **sqcq-poll**: The proposed SQ/CQ doorbell polling (this RFC) with
-   libaio. Guest writes sq->idx instead of MMIO kick (no VM exit).
-   Guest poll thread checks used ring via more_used() (no interrupt).
-   NEED_WAKEUP protocol enables adaptive sleep when idle. Eliminates
-   VM exits on BOTH submission and completion paths.
-
-4. **sqcq-uring**: Same SQ/CQ polling but with io_uring + --hipri.
-   Included to isolate the I/O engine variable from the polling
-   mechanism.
-
-
-Results
--------
-
-Test configuration:
-  x86_64: Intel Xeon E5-2680 v4 @ 2.40GHz, 16 vCPUs
-          NVMe SAMSUNG MZ1LB960HAJQ-000MV (960GB)
-  arm64:  Kunpeng 920 (2.6GHz), 16 vCPUs
-          NVMe INTEL SSDPED1K375GA (375GB)
-  Backend: vhost-scsi with TCM loopback to NVMe
-
-arm64 IOPS (best of 3 runs, fio 4K random I/O):
-
-  Test              baseline   poll-queue    sqcq-poll   sqcq-uring
-  ─────────────     ────────   ──────────    ─────────   ──────────
-  randread QD1       23,751      29,892       29,680      26,427
-  randread QD32 NJ1  93,221     162,849 *     84,967      70,271
-  randread QD32 NJ4 184,939     186,859      340,780     235,310
-  randread QD32 NJ8 190,562     188,382      520,946     518,197
-  randwrite QD1      24,131          —        25,520      25,485
-  randwrite QD32 NJ1 84,725          —        70,652      68,518
-  randwrite QD32 NJ4 204,745          —       323,449     312,204
-  randwrite QD32 NJ8 193,802          —       522,322     516,448
-
-  * poll-queue NJ1 read shows high IOPS but hangs at NJ≥4 (see below)
-
-x86_64 IOPS (best of 3 runs):
-
-  Test              baseline   poll-queue    sqcq-poll   sqcq-uring
-  ─────────────     ────────   ──────────    ─────────   ──────────
-  randread QD1        8,316       9,022        9,533       9,489
-  randread QD32 NJ1 124,909     146,744      165,761     165,929
-  randread QD32 NJ4 305,951     332,139      378,305     379,546
-  randread QD32 NJ8 344,223     356,328      374,932     374,976
-  randwrite QD1      20,106      24,464       27,265      27,768
-  randwrite QD32 NJ1 131,836    153,203      162,145     161,402
-  randwrite QD32 NJ4 232,908    234,559      232,976     231,336
-  randwrite QD32 NJ8 231,242    229,858      231,828     231,465
-
-
-Key Findings
-------------
-
-1. **poll-queue excels at NJ=1 (arm64)**: On arm64 4K randread QD32
-   NJ1, poll-queue achieved 163K IOPS — significantly higher than
-   baseline (93K, +75%) and SQ/CQ polling (85K). io_uring IOPOLL
-   mode is very efficient for single-queue workloads because the
-   submitting task polls for completion directly, avoiding both
-   interrupt latency and poll thread scheduling overhead.
-
-2. **SQ/CQ dramatically outperforms poll-queue at NJ≥4 (arm64)**:
-   At 4K randread QD32, poll-queue and SQ/CQ diverge sharply:
-   - NJ4: poll-queue 187K vs SQ/CQ 341K (+82% over poll-queue)
-   - NJ8: poll-queue 188K vs SQ/CQ 521K (+177% over poll-queue)
-   SQ/CQ also outperforms baseline by +84% (NJ4) and +173% (NJ8).
-
-3. **libaio incompatibility**: The existing poll queue mechanism
-   requires io_uring IOPOLL mode. libaio explicitly strips IOCB_HIPRI
-   (fs/aio.c: "no one is going to poll for this I/O"), so poll queues
-   are inaccessible to libaio users. SQ/CQ works with any I/O engine
-   because the poll thread is independent of the submitting task.
-
-
-Development Insights
---------------------
-
-Beyond eliminating VM exits, two engineering decisions were critical
-to achieving the performance shown above:
-
-1. **TCM completion CPU steering**: Our initial goal was 5-10% IOPS
-   improvement at 4K random I/O QD1 NJ1. After implementing the basic
-   polling and NEED_WAKEUP protocol, this target was not met. The
-   bottleneck was that TCM completions were being scheduled on the same
-   CPU as the busy poll thread, starving the completion workqueue. We
-   added vhost_sqcq_pick_completion_cpu() to steer TCM completions to
-   a free CPU (avoiding busy poll cores), with fallback to next-CPU
-   when all cores are occupied. This closed the gap and achieved the
-   QD1 target.
-
-2. **Adaptive idle policy with EMA**: After QD1 targets were met,
-   we tested higher concurrency (QD32 NJ4/NJ8) and found that
-   aggressive polling caused performance degradation under
-   multi-queue workloads — likely due to the poll thread consuming
-   excessive CPU cycles that competing vCPUs needed. We solved this
-   by implementing an EMA-based adaptive spin budget: the poll thread
-   spins within a time window derived from recent I/O latency, then
-   yields. Combined with the NEED_WAKEUP protocol, this allows the
-   poll thread to busy-spin when active but sleep when idle, avoiding
-   CPU contention with other vCPUs.
-
-
-On the vDPA Question
---------------------
-
-The generic vDPA device approach you suggested is indeed a better
-direction. The QEMU-side zero-code advantage (leveraging existing
-vdpa-dev.c) is very attractive. Our concern is that vhost-scsi's
-TCM integration (SCSI CDB, ALUA, persistent reservations) would
-need to be wrapped as a vDPA backend. This feels like a 0-to-1
-engineering effort, and we're uncertain about the actual scope of
-work involved. If there are additional guidelines or examples
-available, we'd be very willing to explore this direction.
-
-
-One More Thing: SQ/CQ + poll-queue Combined
---------------------------------------------
-
-During arm64 testing, we accidentally ran the poll-queue benchmark
-(--hipri, io_uring, virtscsi_poll_queues=16) on a kernel that also
-had VIRTIO_F_SQCQ_POLL negotiated. This "poll-sqcq" mode combines
-both mechanisms simultaneously:
-
-  - Submission: SQ/CQ doorbell (sq->idx write, no VM exit)
-  - Completion: both SQ/CQ poll thread AND blk-mq poll via io_uring
-
-The results were surprisingly strong (arm64, 4K random I/O):
-
-  Test              baseline   poll-queue   poll-sqcq   sqcq-poll
-  ─────────────     ────────   ──────────   ─────────   ─────────
-  randread QD1       23,751      29,892      41,683      29,680
-  randread QD32 NJ1  93,221     162,849     193,029      84,967
-  randread QD32 NJ4 184,939     186,859     585,445     340,780
-  randread QD32 NJ8 190,562     188,382     560,727     520,946
-  randwrite QD1      24,131          —       38,591      25,520
-  randwrite QD32 NJ1 84,725          —      187,421      70,652
-  randwrite QD32 NJ4 204,745          —      598,419     323,449
-  randwrite QD32 NJ8 193,802          —      569,890     522,322
-
-poll-sqcq outperforms both individual mechanisms across all test
-cases. We haven't fully analyzed why, but suspect the combination
-benefits from:
-  - SQ/CQ eliminating submission VM exits
-  - io_uring IOPOLL providing low-latency completion detection via
-    blk-mq (directly in submitting task context)
-  - SQ/CQ poll thread as a secondary completion poller covering VQs
-    that blk-mq doesn't reach
-
-This is preliminary and accidental data, but we think it's worth
-sharing as it suggests the two mechanisms are complementary rather
-than mutually exclusive.
-
-Benchmark scripts and raw fio JSON data are available and can be
-sent as a follow-up upon request.
-
-
-Best regards,
-Yufeng
-
-Signed-off-by: Yufeng Wang <wangyufeng@kylinos.cn>
+Reviewed-by: Vlastimil Babka (SUSE) <vbabka@kernel.org>
 
