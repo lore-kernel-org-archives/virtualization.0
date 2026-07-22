@@ -1,161 +1,213 @@
-Received: from SJ2PR03CU001.outbound.protection.outlook.com (mail-westusazon11012016.outbound.protection.outlook.com [52.101.43.16])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A72693DCDBB
-	for <virtualization@lists.linux.dev>; Wed, 22 Jul 2026 07:39:39 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.43.16
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784705980; cv=fail; b=leyxoGudRvvbP5aF5OLSlPUh0vWWdWgVvGq+lqKNsBJ+pLreAloQCto1jN61XrvyYHpqyFSrTfvdURkHb0f7bYm/yUWkCOyxF/Ud/QcWPldUxpztzhi7p9pzPVpxiJkUIEM7UkFjQC0InQEKiQwlc9eweeqw1piHzwqMTeoa/R4=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784705980; c=relaxed/simple;
-	bh=OcpBiic7Z0y3ZQJg6O5+XDzKKsP2GE28ov4CTN/G0QU=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=Xux/IamN4F+NWKKmPgZV+KFhVgLfWDHo3C5baRXtZTh/j8EgwnuApt/VkgM5zSN+mPs2FQBxDS6WJ8gZ3coFur+LbJojkQKOqbAGGumgNm8CCj6x5IbzPycwNci2Aob2DJuSiLM3By9u5OGjwG9DRtb5WWwBlNuVs7A7Obi9DtA=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=omP46HWc; arc=fail smtp.client-ip=52.101.43.16
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A46EC476CEA
+	for <virtualization@lists.linux.dev>; Wed, 22 Jul 2026 07:55:36 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784706938; cv=none; b=BsgpSXrdnPza2ihI1j3lXJFs6DTYK6lLRxVX/r4yh72YaIJrXI+quqvmqUNVDB4BxXTgsPeFY/DOU5B2j0u+vmDfomcTKqOY0pjzR8FzBzkVh/+07nOEvr9gMboNrh2WAHr7iuNTopjnnI561UIcuDIqNrX7L1DDXT4LzWOBpeE=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784706938; c=relaxed/simple;
+	bh=Xx9sghwnKgI4fIxeF/d2xK09aWg3iZvHjBXrHQegByY=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=nSIMchKcS6P6FfjP/0M4wkHPwa1AjeiqvZHKt09d0i8WKmoc/Bf+kQ9GvBJ4XUp6/Gjwe/yPVOcdJOBgob5Z0KFxKsFx0I+i1d3PHB9MgJoA9r8ucTdi4V9fRSYEtIj3Aq9pL2jRCiq4of+uQcKiSF2OPGQF/yASmSzuHx/7is0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GroCRByo; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="omP46HWc"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=K4vGf0CT/NQeuJVZ0NylKTKqRw/Hyelo9pPib8CCJxzz/qbixBrq8QqXqsigOTHqExx09kLMGxHpTfCcWDZosIgs3UwLAHWphjKJeDC1ZvnzuV/vgmzqCHkL2dvj3hOYCqexViipARsefRcQAcViixt7GUnZnjh8eqcgxLBVoHQWxnabBblBrNdfaj4mYDgMDNrKWsV1eUCNo8zDEKBhoDAi4GHD2UfoELhz8id+WFVLHY4wpgKEEwUtu4VU+Ed9EYuWbwZfhbUC9+1ekvolUzYi4f2eGIqLRVCUkOmwUiQN/oevZ+gYb24OVP9GgCldwfqZQiJz6hQY0fvb9grX5g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=YEHd6QhZBudN5sAEVUXh4jD8AjnQkYMlX3WX6QcLVlY=;
- b=H7VP0Kxl3QBU011Ri2y5gUQsyusXgGxZKKx5CRGcY/NHXSGOkCtz1Iskb+ceglV8tDJ6tvbQ2Dss0fpQ1DpvpQA0XCVKQ3UZU/JUaDjsjac6IA2EfIk1PvMpFB8/5KJ8W+ATw/7pbj81ND9J3Xm+FmXWL6b7DTc3kVMEI3Zhlg+mpfa/O4wUqEQwes6rBNPIqDVdQssh31fCQ6SAG5yyOvrLwMvLxDCzHfWO4m8AWBWFBu4nhqHPx/zlsW+FSITW3CAKNWc1jA+DO6fHPpTRn1YfxIJ6cgfTCdIomIQRTblZ7GFZrCO4JvCRDcq6Z4taiy1SUNKJAdeyxqkU8vW4SQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
- dkim=pass header.d=nvidia.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=YEHd6QhZBudN5sAEVUXh4jD8AjnQkYMlX3WX6QcLVlY=;
- b=omP46HWcgISZhLR2mztgKr1HJ/CNXDQlMHQClZHkvCZq6R99z5UROxYSVo55rNA8Xb2Md00cvKG3t4O9LUQHS/xxQijCDQKvvlWlW6ufxqkOaMSREciYc76KZ4qhm/VAhwxvwaJrpX0IqMP71vSUYQtD3/wNv5u+9/xFIVrTXacMEfUfp/qLUzlw6IL5qmAMGPykdtDkT1BTUS8pP4Sss8ilp8r78EjHOMaFVfuUKXYw3sDwIFgnX/1TmIcvwNNhnpvdeow3CxgVvkNXaEUMOnebh6bgzkduPYsK/l0rzAYG0Df4y6XarJlyawFm+GOuVEG+/qsMCYlPgBV07Z0Sqg==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nvidia.com;
-Received: from LV3PR12MB9356.namprd12.prod.outlook.com (2603:10b6:408:20c::21)
- by MW6PR12MB8949.namprd12.prod.outlook.com (2603:10b6:303:248::11) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.223.18; Wed, 22 Jul
- 2026 07:39:34 +0000
-Received: from LV3PR12MB9356.namprd12.prod.outlook.com
- ([fe80::1c36:31b4:c420:6286]) by LV3PR12MB9356.namprd12.prod.outlook.com
- ([fe80::1c36:31b4:c420:6286%5]) with mapi id 15.21.0245.009; Wed, 22 Jul 2026
- 07:39:34 +0000
-Date: Wed, 22 Jul 2026 03:39:33 -0400
-From: Yury Norov <ynorov@nvidia.com>
-To: Shrikanth Hegde <sshegde@linux.ibm.com>
-Cc: linux-kernel@vger.kernel.org, mingo@kernel.org, peterz@infradead.org,
-	juri.lelli@redhat.com, vincent.guittot@linaro.org,
-	yury.norov@gmail.com, kprateek.nayak@amd.com, iii@linux.ibm.com,
-	corbet@lwn.net, tglx@kernel.org, gregkh@linuxfoundation.org,
-	pbonzini@redhat.com, seanjc@google.com, vschneid@redhat.com,
-	huschle@linux.ibm.com, rostedt@goodmis.org,
-	dietmar.eggemann@arm.com, maddy@linux.ibm.com, srikar@linux.ibm.com,
-	hdanton@sina.com, chleroy@kernel.org, vineeth@bitbyteword.org,
-	frederic@kernel.org, arighi@nvidia.com, pauld@redhat.com,
-	christian.loehle@arm.com, tj@kernel.org,
-	tommaso.cucinotta@gmail.com, maz@kernel.org, rafael@kernel.org,
-	rdunlap@infradead.org, kernellwp@gmail.com,
-	linux-doc@vger.kernel.org, jgross@suse.com,
-	virtualization@lists.linux.dev
-Subject: Re: [PATCH v8 10/11] virt/steal_governor: Implement steal_governor
- policy loop
-Message-ID: <amBztSFLg2X72P2N@yury>
-References: <20260720172250.2257582-1-sshegde@linux.ibm.com>
- <20260720172250.2257582-11-sshegde@linux.ibm.com>
- <al_IbeAa3sDrt9A7@yury>
- <c64ed18e-7863-44c3-9c7b-2f1efd1a805e@linux.ibm.com>
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c64ed18e-7863-44c3-9c7b-2f1efd1a805e@linux.ibm.com>
-X-ClientProxiedBy: BN9PR03CA0686.namprd03.prod.outlook.com
- (2603:10b6:408:10e::31) To LV3PR12MB9356.namprd12.prod.outlook.com
- (2603:10b6:408:20c::21)
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GroCRByo"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1784706935;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=BPG0rooSRzO/25F209RlQglMVA0XYnQGnrJRERDKE5k=;
+	b=GroCRByoOWd6KvtgJpU229w19NdHxkkw8ZKcYK+gBsY0BwWkkPWzpeUz3Viumuw7jE/Hj6
+	Uz9oV5tmh7PocEX9ZdW2nqz4sm42zZrfhKGgb/t/Rfzyxl6P2qUJhl+KnGZSURQveDjAjP
+	ZLWn9iyy2tJj5H50Y8p59W8+XMa6OWs=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-367-3tfZylbgPaCL0dCqZOB9gA-1; Wed, 22 Jul 2026 03:55:33 -0400
+X-MC-Unique: 3tfZylbgPaCL0dCqZOB9gA-1
+X-Mimecast-MFC-AGG-ID: 3tfZylbgPaCL0dCqZOB9gA_1784706933
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4955e865174so20188755e9.3
+        for <virtualization@lists.linux.dev>; Wed, 22 Jul 2026 00:55:33 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784706932; x=1785311732;
+        h=in-reply-to:content-transfer-encoding:content-disposition
+         :content-type:mime-version:references:message-id:subject:cc:to:from
+         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=BPG0rooSRzO/25F209RlQglMVA0XYnQGnrJRERDKE5k=;
+        b=nWsp8A617sspfqtKYqF7+cBsfpdR2PPHtGNvhP1JwqVE8p6LqBnYQZ40hvuwUuvpFh
+         +x4snO6y7WVuQABdqZDglq7FWZdDNDKVR09Fm+L7GPnZzi9Uk6DFTdGRwpx7LMA210zz
+         uZEJjCOlESu105IHaSkhIa7ps5YSZDM4/+wZq6FV+tXONGsTAXURnQ6avJW75OMtnVuM
+         ok6M90KziW7MrYZ0BTYSqXH4CcG4IT/y1ZPVVbxw5VA42hDrlQGeLjD0VqHZOsBE2OV0
+         hXz6bsqjHjVV8Yy0N2mpguYDsWH3GmGOnrHvNPG/J1qOlGLzOk8f+m0hrd1FMdnriohp
+         MYtg==
+X-Forwarded-Encrypted: i=1; AHgh+Ro88KOR3dMkgzqlGHBV4iMozx4nqLIFzwupBXtbcKavgQuo1Yc+CJrZR2t24/uqxj5xLZ6tORDhezgVcc8gIw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzhLmfezv1VVEGSUIMbXSI2ZGVm7jgKgVLnQVqpkRUr+lbsuklm
+	QdQ3fvI4SNGuZnAYZieHvRtdy28Xc/7RO4AJhLBkoeN9K8OwhDYvsEeIS9quYvRVIDq8ZFo4rbI
+	925frt4eCraXCXeaI5UzNTM6EIs1D+NJCweVIhKAfWVnj9V5zW/4ssdYyxy8eYIm38LCq
+X-Gm-Gg: AR+sD13IA0Sn4R5QmMKr8ogK52VdfrPy0OJzdVgYuZQCYe803i2fIbGBwog5IdWKz2C
+	lTTytKpuMpCWD8Pf0DJeXt8Q7EuIE5wMoz/SviFX6LxcarUFb0OhaxxmppHobAJkZU/3ihC+Y4T
+	c2P+DNoIyyjb2VMWqU/FSr7f2ZrVA95fRhP5NVwJmN1Lw3rB6zNh3F5jI4GN4UEA05CBK98R/Hi
+	eo+SDHe/75rbQ3cCNlWCCyMr4TlmdkeBUQcD/mu/0fYmiftKMpmFfKO6W2/2pkX48Y5qbAVqPAx
+	y5EUWD3bTuZgAWEbz4jZhOIzeq1QSe0eHuo1k2J6Z65+turozRZqfoBt/uYW58xWwAdgwRpZqRt
+	iPfo8cCdB2mqdtYhCMzKtqdJmXrHnWp7s/1tzueQdf1LOY6wlBA==
+X-Received: by 2002:a05:600c:190b:b0:493:c77c:108a with SMTP id 5b1f17b1804b1-4954aa1a10amr234396245e9.36.1784706932517;
+        Wed, 22 Jul 2026 00:55:32 -0700 (PDT)
+X-Received: by 2002:a05:600c:190b:b0:493:c77c:108a with SMTP id 5b1f17b1804b1-4954aa1a10amr234395945e9.36.1784706931995;
+        Wed, 22 Jul 2026 00:55:31 -0700 (PDT)
+Received: from sgarzare-redhat (host-82-53-135-65.retail.telecomitalia.it. [82.53.135.65])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4956b0571f5sm29377185e9.4.2026.07.22.00.55.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Jul 2026 00:55:31 -0700 (PDT)
+Date: Wed, 22 Jul 2026 09:55:25 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Phi Nguyen <phind.uet@gmail.com>
+Cc: "David S. Miller" <davem@davemloft.net>, 
+	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, 
+	Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>, 
+	syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com, virtualization@lists.linux.dev, netdev@vger.kernel.org, 
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] vsock: use sock_error() to consume sk_err after connect
+ timeout
+Message-ID: <amB15TdzPAEk9A9C@sgarzare-redhat>
+References: <20260719220103.684489-1-phind.uet@gmail.com>
+ <al3UuvBhfxp82krV@sgarzare-redhat>
+ <78225425-1ca7-45fb-85cb-9e04f489e68f@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV3PR12MB9356:EE_|MW6PR12MB8949:EE_
-X-MS-Office365-Filtering-Correlation-Id: 2b103616-ff35-4da7-ccd0-08dee7c46008
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|366016|376014|7416014|23010399003|22082099003|18002099003|4143699003|11063799006|10067099003|56012099006;
-X-Microsoft-Antispam-Message-Info:
-	E0P0wzaYackfmHUOXZr1w/VsubyE6cDqt85bk9SjhQ9i6yjhi5NS5y6jAGpOmdUCObALmlE2NVsx3kDQt55mM+X7n7TTRHB2pwCg+1gah14e8wkouCqQPHNAtuREjBxFWVXswuO7ZcUACNoYt7clLF+dtfpFBBcD2rdj9S923VNZiJQeliNNyWE4vuf3HIHf1qi0qVCvyPAXlmFydW//lheel/94lboQHuxjA4dC+UAQwznVJtyntA98uOPvZ9wN4Jx5777zSDhs415SZIpUB7KJ+uItvytI7r4pUTOz3sQ+COC67SFG0d8Sf9lqa4uOeJVN6KhSAhsjSonwHLJw2vTYjU3fCrSFRj/LBKkUsPOGmaQucv9KxLzzFFoByAcSVDlvssKQMExlt3RPtxbZF0091/HbLYoaRfRzMN/iDwaxXdPBEZYPOAJfe3TPiFIY37ZxYQXMSPsbqJUqLc4l1AkytKe1ib9VCw8Qej5FH4jleiDmTJpblXwsTpU/D5b0H/0PTvMOp0tGi6osEzZ1pqAhqxu7YBE93WIHLlJaSSkO5QhyWDqzJig4FFVWemQC2IxTibiOGkmW0G3pgEkr2wpkDaW0/+Dk7OBst/APE9wacQ0g5vozC7Kf4RBBJiW/+uNhpgMJyfhVrAY7xudMl7y0Y9ed44hSKNpIa9ledrI=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV3PR12MB9356.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(376014)(7416014)(23010399003)(22082099003)(18002099003)(4143699003)(11063799006)(10067099003)(56012099006);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?us-ascii?Q?YLGrT8Mbi8s6q7oOM4oX5g8xNswxBHRO2cZflFNUjtUoMxd+HshuIaguA3KP?=
- =?us-ascii?Q?oAloKnqV2RM05566Y2vxjvy/UH+LKVThnU2HPAIN+c3MOUJANTv+YEDJCSyg?=
- =?us-ascii?Q?7AB3PMtP419H4e+LPBRaKtWG7wDdfIpXlwPxI6YxCHwRtrIzr5Yr+TJ51CtM?=
- =?us-ascii?Q?3N+n7sLvKGWagquWEDUMe+ayfpvksOU1qRhZqqsWV2EVJt1JETsWpynterUr?=
- =?us-ascii?Q?KHMBkoOT0LVCe6/Dqh3hFNXQR30ilNTya3NqDI7/oiZfOf7Z8+GoR8XVq2jv?=
- =?us-ascii?Q?qh1FwfwMH43e7UT8cwTSgkvB2aGOed/yrIZD8qDcYNc8AYRwg2Or39U4ssba?=
- =?us-ascii?Q?M1ubYcjvcsaxmfVrH1Iz71aAhSsQM9W3f3V8/6Y3X2VZgEzz8cLrMXQ7kuEc?=
- =?us-ascii?Q?xG6/fWXdmosk8oepJ4yTXkFdhZ7hyDf3ib5f2GXNj/0bWvM3pFH92mFP/QhX?=
- =?us-ascii?Q?hEuy/kjZkGFOdxPwvYmOoJvls1pVTKVsxboh1CuNEKVhdIIMQVB3cXipmGKB?=
- =?us-ascii?Q?/TZ5MTgbwCuaVp9/EQTxC8NA5g2sKmpcXE3ru8WuhJyudLCSvZPXLlfFb5ma?=
- =?us-ascii?Q?OW6AnCFcD+0DoEMtdsPbzun2sVQK6pGxSnVspU61ihTvq4ygwG8NbNOFMFS7?=
- =?us-ascii?Q?YKHCngOb9IvlM+VIuTgR8Dcg35N1a9Ailbptb7A+9U6y/YXU2B2vJit/1lTF?=
- =?us-ascii?Q?+rEl4/0yaQHX/DitplxCHvz7G7AoV8T/Cn1w8KdcYt+wSzYtDv/449G0QJU+?=
- =?us-ascii?Q?TZxVVAAmQN9MsZ82ohPUVfzlniIKXPTY/6OI2AwvHZy1wJZgelnP7zgvMYe9?=
- =?us-ascii?Q?//6q1RlJP5mz7L93Br4zoOaFhNgwCuoJHPl8PtWIwvGcEyx8qN6VfcKaZCOV?=
- =?us-ascii?Q?Sdmh34Z+J5twLWYK1AUQD9ymH+uoNJOXR0HIsytyYZG6EF++9sCwaEUfbzrH?=
- =?us-ascii?Q?8PE8Nz7T1Zm8/QIlpGBWzpkcKw/Zkyew+fGeWLkZUIDxIShfg45zWyaq7ze+?=
- =?us-ascii?Q?A/3oh6JNYK8Gf4HoB+gflgQutfaoHHEtpVmwXrhY5+m8JRvqTn3D8cL2JffS?=
- =?us-ascii?Q?Cap2DP+9j94Q1VhdyhvC196/Xub6vqvXoXc1KSoR8mrO+Ob+DesuyPb8kaWD?=
- =?us-ascii?Q?gpBrsmDi9Yev0ii1jvMuS3I+I1TRGDj6xx7gDUPQjYRixnWhwE2RB5Pwtc7X?=
- =?us-ascii?Q?5dtUrPISagky4gdZKHxSbqW/2Wn7yUjvVT9nCJW0Q2XABkpkLD987kYsUyGh?=
- =?us-ascii?Q?8cbNlbhQQW2VXHqR5+JYl4Uevx3kiPl5QPFlKrDCyp1UtqF1qGmh0KwAf0dH?=
- =?us-ascii?Q?a3oTYOkzB4MhBqes1d3UEQmocoTVtpXmTTxCdyAyRQBvxEKTve3fwhgm5M7F?=
- =?us-ascii?Q?dP+0hdPpO4SjCKoV1+c4xw5zGzCYBPQ78IGgLySeYrob2nKBamGrTem7lyTh?=
- =?us-ascii?Q?+/UyY54AYRko2xooGdJZ7zSulto//W8EaWRFOywaBOTeSCoXRavGtHoOrY7X?=
- =?us-ascii?Q?X+hIHT7WULtFjWQIHd3rjcTRIfGhJJnyM/H/WRy52i5YGVZHAotDf9Co4hDE?=
- =?us-ascii?Q?GyXWm6choMIkJbxxzRa3ttyVL9ntZ37Vt5mGeqPRrTmor+pbzYL+uE5qyjD7?=
- =?us-ascii?Q?zDpUxoi6ViTaBxGnJO0fElZ+xbqR/0jObG8Ks0VxeuYkjIATqK/JefmtYC0H?=
- =?us-ascii?Q?7yQCiTyT3iWiKFloc5utFru/wmQYilfndlWM718OnMNtj1Fcttm4igIjjLTL?=
- =?us-ascii?Q?+r5hn7sBew=3D=3D?=
-X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 2b103616-ff35-4da7-ccd0-08dee7c46008
-X-MS-Exchange-CrossTenant-AuthSource: LV3PR12MB9356.namprd12.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 22 Jul 2026 07:39:34.5981
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: u0pMAZBX5MFxyPV/Z6NnuCkXSRxGni6zTbt3i6rF5fKna05732CAooFcjZPEsdQNiZTfZDu8wyNdx2egCqmRZg==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: MW6PR12MB8949
+In-Reply-To: <78225425-1ca7-45fb-85cb-9e04f489e68f@gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: 7KDbelThrewre4lwauEnw8VCvZvmUhL2wJIEte-kmIg_1784706933
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 
-On Wed, Jul 22, 2026 at 12:44:03PM +0530, Shrikanth Hegde wrote:
-> Hi Yury.
+On Tue, Jul 21, 2026 at 01:34:03AM +0800, Phi Nguyen wrote:
+>On 7/20/2026 4:17 PM, Stefano Garzarella wrote:
+>>On Mon, Jul 20, 2026 at 05:57:47AM +0800, Nguyen Dinh Phi wrote:
+>>>After vsock_connect() exits the wait loop due to sk->sk_err being
+>>>set, the error was read but not cleared. This left sk->sk_err set
+>>>for subsequent operations.
+>>
+>>So, is this a fix? If yes, we should put a Fixes tag.
+>>
+>>Also, can you describe how to trigger the issue?
+>>
+>>Because I see this in vsock_connect(), so I thought it was in some 
+>>way already handled:
+>>
+>>         /* sk_err might have been set as a result of an earlier
+>>          * (failed) connect attempt.
+>>          */
+>>         sk->sk_err = 0;
+>>
+>This only handles the case where the function following the failed 
+>connect is another connect() call.
 
-...
+So, can we remove that with this patch, or better to leave as defensive
+action?
 
-> > > +	schedule_delayed_work(&sg_core_ctx.work,
-> > > +			      msecs_to_jiffies(sg_core_ctx.interval_ms));
-> > 
-> > If you need jiffies, why don't you have them in the structure, instead of
-> > milliseconds?
-> > 
-> > 	schedule_delayed_work(&sg_core_ctx.work, sg_core_ctx.delay);
-> > 
-> 
-> I would prefer milliseconds as jiffies is very difficult for users to understand.
-> It depends on HZ value and one has to query from configs.
-> 
-> HZ can very from 100 to 1000 today. Again I will have to play tricks to schedule
-> the governor at fixed intervals.
-> 
-> So i think it is better to use milliseconds here.
-> Correct me if i am not making sense.
+>
+>>>Switch to sock_error() which atomically reads and clears sk->sk_err,
+>>>so the error is consumed when returned.
+>>>
+>>>Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
+>>>Reported-by: syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com
+>>
+>>Can you explain how this patch fixes that issue?
+>>(this should be the first information to be put in the commit message IMHO)
+>>
+>>I'd like to understand better if this is a fix of real bug or just 
+>>an improvement to the code (which is fine by me).
+>>
+>>Thanks,
+>>Stefano
+>>
+>Here are the steps of the syzkaller reproducer:
+>
+>  r0 = socket(AF_VSOCK, SOCK_STREAM, 0)
+>
+>  bind(r0, {VMADDR_CID_ANY, PORT})
+>
+>  connect(r0, {VMADDR_CID_LOCAL, PORT})
+>
+>  listen(r0, backlog)
+>
+>  r1 = socket(AF_VSOCK, SOCK_STREAM, 0)
+>
+>  connect(r1, {VMADDR_CID_LOCAL, PORT})
+>
+>  connect(r0 -> self) -> -1, EPROTO
+>
+>  listen(r0)          -> 0
+>
+>  connect(r1 -> r0)   -> 0
+>
+>  accept(r0)          -> -1, EPROTO
+>
+>Basically, it creates a socket (r0) and triggers a self-connect after 
+>binding it. This self-connect fails with EPROTO because it loops back 
+>to r0 while the socket is still in the TCP_SYN_SENT state, causing it 
+>to be incorrectly dispatched to the connecting-client path. The 
+>unexpected packet type encountered there sets sk_err to EPROTO.
+>
+>After that, it invokes a listen() call on the same socket. This 
+>listen() call succeeds because the kernel's listening path never 
+>inspects or clears sk_err. Then, a new socket (r1) is created as a 
+>normal client and connects to r0. However, vsock_accept() rejects this 
+>incoming connection because the listener's sk_err still holds the 
+>EPROTO error from the earlier failed self-connect.
+>
+>This rejection causes the child socket created for r1's connection to 
+>never be freed on virtio or hyperv transports; only the VMCI transport 
+>implements pending_work to revisit and clean up a rejected socket
+>This patch will prevent the rejection branch to occur in this scenario.
+
+Okay, get it now, thanks! Please include a summary of this in the commit 
+description.
+
+I understand that this resolves syzbot's specific test case, but it 
+would be best to handle rejected sockets more effectively in af_vsock.c 
+rather than in the transport layers (if possible). In any case, this can 
+be done in another patch.
+
+>
+>I think we might schedule the cleanup worker to run in the rejection 
+>path for these transports as well.
+
+Yeah, we need to handle that part better, I think it's a leftover when 
+we generalized AF_VSOCK to support more transport than vmci.
+
+Indeed this part is a bit confusing:
+
+		/* If the listener socket has received an error, then we should
+		 * reject this socket and return.  Note that we simply mark the
+		 * socket rejected, drop our reference, and let the cleanup
+		 * function handle the cleanup; the fact that we found it in
+		 * the listener's accept queue guarantees that the cleanup
+		 * function hasn't run yet.
+		 */
+		if (err) {
+			vconnected->rejected = true;
+		} else {
 
 
-User provides milliseconds, then in init() you convert them into
-jiffies and save in sg.delay. That's it.
+Would be nice to handle everything in af_vsock.c in some way.
+
+In conclusion, the patch LGTM, but please expand the commit description, 
+add the Fixes tag, and target the net tree in the v2.
+
+Thanks,
+Stefano
+
