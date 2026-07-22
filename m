@@ -1,167 +1,152 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4358343BDD4;
-	Wed, 22 Jul 2026 15:43:12 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 46AF63515F4
+	for <virtualization@lists.linux.dev>; Wed, 22 Jul 2026 15:48:09 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784734994; cv=none; b=QU0KVXHKBUo8o9Olx8WgiHXzyXMcpAcqx+XHfsABmG0gP2O/ClFs/NIAHJcWBk7yQUfTMrww3Cal/k+zTkTQn+jjLCJUX4uTxCn/ezxFTjVRYn4hm+7cRCWZut6JAkTUpShQ0npeLTBDUQFoM1Ul5nD5eh8i128CfCY8KEE2zY0=
+	t=1784735291; cv=none; b=qj26A32VHtMTQuyOmXyyRAy6rTAo0LBg1tL8eVZuYRoTalH9G26bOgTh+RmzvtG1MZnKil8DgF3/RXvLNqqgoF/z2gPsnoV/RNqYxL60OnuAydZDnyT2V+9V1oa3NttMRIIFD0Ao6FOVyTfMvNr0Cvd4bGRVxGnrp+2JDDdhCdY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784734994; c=relaxed/simple;
-	bh=mBFLFVFffpX3sBe5RLViCnoS1wBcAEUdd0R2wLYoPDI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Sz+68OJbPlhebZglF/y0swNsmOoFCX7aC/SlYKFYsxbU6UTZWeVxtjsE2Qio9YnKvu0vEsKgOnsXdWHiWVcIWveLJjCdNkmg5wdFLSQS3kT7TO08EImrXldeqnFQnduCL0/plEouKJD05m0enJGM44wzXQ46ktEQC6RQ7euvoKs=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=CLM0aR9e; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784735291; c=relaxed/simple;
+	bh=+Rvc1vJii0V7ir/NkGyyB5IORynfDUzGTfbHXnEy9g4=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=pewCO9ujOdDLtV1rCYVMN+ag2pqTQiG2H3ZgxdJn3iXvUMCqzUgfqIE3tpn74JTHIF79C/MmFwhPeOpBbHZTPIuZrNLlTm0AxzFuR7lKW6ibyWK7cwPJuUhDVOP8mJ8hzRdhjXs6tienb8MTZLsoruWsi1UTngJy/yTcdUcJPVk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=oetnZ/K9; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=BphcFOaK; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="CLM0aR9e"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 604121F000E9;
-	Wed, 22 Jul 2026 15:42:51 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784734992;
-	bh=z8WqCRRmqZNU6m++x/hJd+wI7SHuI+FdIhlbamrdG1A=;
-	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=CLM0aR9eFhPZ9spOJaHdGqkYPBvjwdadVJYlKZTl2YKiFfjcVhRSxPh1PIcdSZLqF
-	 2uDQVrjKOL7KmFktl7pClbl7cKII+MRZc9/6UaOyQfALqfqRWzhAtz2P2hISt6DjII
-	 CWqB/cDSvIql3IGoYwtilPu5JaZMRbvxlUgx/GqldGAVbyRwWh0ci6cxI6Nrz0fqLU
-	 /E1KAynocQ7mEgmRpP4IShX5p2k0UIxlo2mteluahBk9DcIHRIpb9ZDQ/ba/6DRjn5
-	 oYakHop6ZZ+DFl5M5Rcin/qKgqClJMkqtRONWZt8Qxm6ThTbv5R0wMwmL93ssw6GKd
-	 eiwmeo4mk1lEw==
-Message-ID: <2eb7b45e-0bf6-4b09-9b8a-ecc0f57f2c39@kernel.org>
-Date: Wed, 22 Jul 2026 17:42:49 +0200
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="oetnZ/K9";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="BphcFOaK"
+Received: from pps.filterd (m0279868.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66MFXwf51176081
+	for <virtualization@lists.linux.dev>; Wed, 22 Jul 2026 15:48:08 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=qcppdkim1; bh=Raz4alVB0GePm5R01e5NWC1k
+	FuMU19+HyNsvRe8tJ+U=; b=oetnZ/K94qahcJtXJ8/l8ysg786JU6ndpLJBdVod
+	jG6yA71Yv3e67iFO5EOPEDg8+M5iqZ+XVYYRN6G3BGyGr30g2aohFamuYCRolylg
+	rhEK5FY+/WIU1T29tav6QKdAtPkbn3EljvQwfa4lZaoLyHJUlBGgNGdJl8McWzlv
+	iiNCaogR707SwOQC7g2mB4oZHm3P/zCGYqL9GviRgsH132deOAC5sauPIkjgESvQ
+	vHn3s3mH8SY8TfjKULv9JF3SehYtguzrxSjdctG/lkRVoNqxfwnZfd0T9B0iBok9
+	pC0U0agCXlLRXI9g1OxVBatQmT1iKvcWxWW6YASd+emejg==
+Received: from mail-qt1-f199.google.com (mail-qt1-f199.google.com [209.85.160.199])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4fjxm10nvt-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <virtualization@lists.linux.dev>; Wed, 22 Jul 2026 15:48:08 +0000 (GMT)
+Received: by mail-qt1-f199.google.com with SMTP id d75a77b69052e-522de3c645dso117696701cf.3
+        for <virtualization@lists.linux.dev>; Wed, 22 Jul 2026 08:48:08 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1784735288; x=1785340088; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=Raz4alVB0GePm5R01e5NWC1kFuMU19+HyNsvRe8tJ+U=;
+        b=BphcFOaKt8TDneDdURvdaq+tol5TtHiC3JES/whzVFqBRhVo/Pp1o30uhkKDlcUPDt
+         XX77RX2mlVus2yMtjmOtjaEHTQsbncLNJpMVI8tHScvczDy+AK7ud7DFV/6GPDf9S0mq
+         mn4uDfbiBJqZZtTPJswu1BORJZ/VGS7pJ377LwwZcQZtIUwMIwyTdABpjyE0D94cRPlH
+         Ayw0UTa4xJWMFgW2f5fher62pV45fJy6Yf4hokebSunNuzXWc+fY0Lvmcs6e3ILlR8FP
+         osIdpCcY/ooCriVrnTFG0YA67vZ1hTe4WdocT80gaSKOXeUBvnMWcXoIlfoG/iV8cp+r
+         nJmw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784735288; x=1785340088;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Raz4alVB0GePm5R01e5NWC1kFuMU19+HyNsvRe8tJ+U=;
+        b=bGAWE8Gextf+u7l4EETSQX1xtoVIVisxaYT6vtyGw1LP8tTsphu+FjTj9SATVoZ6xI
+         dNopJC+k6HHuHs5NrvmbqgebvcDHWx9wiByH8dNp0CJala0TtiVtZFFNJKq03KIX5n2Y
+         ip+Ul3CkvOyX/9PWfNg9l8EV7UREzrqC1wyp7uDdR8yjM1E+0/L1/o7VJk0OsnB1rMLt
+         bpDMkkcK95lUJR3OoKgvb5DsaWiX5sUE/1xMtG/3PI3gBYXRkJ4xNHJaV35cipUcQ+9I
+         7CGwWVLsJwR6etuBJP529Bro788FytOsfETDWYVTAHv3utnTk8k2dpTh5KtDEFH+3pFw
+         gcxg==
+X-Forwarded-Encrypted: i=1; AHgh+RoE7N+75ELCw1oXddiLkQ/VH20Qz3xdMiCP57Erj37YMyEqrBfpNeO6B4P0G0BiPLNY3B6AeqbY0kKfUd2MOg==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yxat4kZWLjj+IJ2wy30X1OdO2zt8zVL71Yl94T1fIj8LY9AUl7w
+	KHpKFiKtgiPQuw8rCZHKYmzgrCou3Ntj7GAR0fzq5Rww83uw7hwU97xlie1QY12cXnYTvNKkRXR
+	O5LaCM7DpKbzMEKEN7FRTk7HNf5hLSnUJIm9YyiHV6TsitjMfkQwrVNgkvVZrSa0eRHpqlg==
+X-Gm-Gg: AR+sD13JgeEBm+t/23kQl7r66SOFNUbvmrxIuuWfWAUs2wsIPvXyndj+KZIVq49xy6o
+	bGfliN1KoEfQre7pxc5v+64pwREDiSTxLbN7XOkHtuGpXVkZRSE59RGjXTZkmT5kKxbKgvnmP07
+	ypMTBHdmEGOkcgkpSApZ4X2xqkj6wQC3waLdJeSGaw6//T1oB3Lf8GOD/ZiCg++uqEUfgXIiRJu
+	U8MHtHjOkyvEwypR5BGFqmJyWoCBMmeSwS54yDkoeGGU44H9f1E1u8sZJHtS55h4hJj/m0Ci1Gl
+	Ni07nAMmowxi4yg6NpROO7Aab2oTN532pCK5MDRzg1x1iivUpwTA1Shds6VI+S9deOCkCo9p+XE
+	sOaQ7fHxJq2ICTWs4Y52TBiyczjlUxCHRrFc=
+X-Received: by 2002:ac8:5dc7:0:b0:514:9ece:a15a with SMTP id d75a77b69052e-5213c7e6a0bmr236164671cf.45.1784735288064;
+        Wed, 22 Jul 2026 08:48:08 -0700 (PDT)
+X-Received: by 2002:ac8:5dc7:0:b0:514:9ece:a15a with SMTP id d75a77b69052e-5213c7e6a0bmr236164241cf.45.1784735287579;
+        Wed, 22 Jul 2026 08:48:07 -0700 (PDT)
+Received: from QCOM-LDTZRie9bq.na.qualcomm.com ([212.136.9.4])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c1c32ac936dsm131989266b.22.2026.07.22.08.48.05
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 22 Jul 2026 08:48:06 -0700 (PDT)
+Date: Wed, 22 Jul 2026 17:48:05 +0200
+From: Peter Hilber <peter.hilber@oss.qualcomm.com>
+To: GuoHan Zhao <zhaoguohan@kylinos.cn>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>, virtualization@lists.linux.dev,
+        Jason Wang <jasowangio@gmail.com>,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+        Alexandre Belloni <alexandre.belloni@bootlin.com>,
+        linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] virtio: rtc: time out alarm requests
+Message-ID: <oeenihyehhfjnnbvrogrxyjyfqcak4jkwxmem3ww6pfpo66png@gyccpwq7eapk>
+References: <20260714024352.71307-1-zhaoguohan@kylinos.cn>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 08/13] mm: introduce vma_get_page_prot() and use it
-Content-Language: en-US
-To: Lorenzo Stoakes <ljs@kernel.org>,
- Andrew Morton <akpm@linux-foundation.org>,
- David Hildenbrand <david@kernel.org>, "Liam R. Howlett"
- <liam@infradead.org>, Mike Rapoport <rppt@kernel.org>,
- Suren Baghdasaryan <surenb@google.com>, Michal Hocko <mhocko@suse.com>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- Benjamin LaHaise <bcrl@kvack.org>, Alexander Viro <viro@zeniv.linux.org.uk>,
- Christian Brauner <brauner@kernel.org>, Jan Kara <jack@suse.cz>,
- Hugh Dickins <hughd@google.com>, Baolin Wang
- <baolin.wang@linux.alibaba.com>, Jann Horn <jannh@google.com>,
- Pedro Falcato <pfalcato@suse.de>, Muchun Song <muchun.song@linux.dev>,
- Oscar Salvador <osalvador@suse.de>, Zi Yan <ziy@nvidia.com>,
- Nico Pache <npache@redhat.com>, Ryan Roberts <ryan.roberts@arm.com>,
- Dev Jain <dev.jain@arm.com>, Barry Song <baohua@kernel.org>,
- Lance Yang <lance.yang@linux.dev>, Usama Arif <usama.arif@linux.dev>,
- Madhavan Srinivasan <maddy@linux.ibm.com>,
- Michael Ellerman <mpe@ellerman.id.au>, Nicholas Piggin <npiggin@gmail.com>,
- "Christophe Leroy (CS GROUP)" <chleroy@kernel.org>,
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>,
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>,
- David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>,
- Lucas Stach <l.stach@pengutronix.de>,
- Russell King <linux+etnaviv@armlinux.org.uk>,
- Christian Gmeiner <christian.gmeiner@gmail.com>,
- Inki Dae <inki.dae@samsung.com>, Seung-Woo Kim <sw0312.kim@samsung.com>,
- Kyungmin Park <kyungmin.park@samsung.com>,
- Krzysztof Kozlowski <krzk@kernel.org>,
- Peter Griffin <peter.griffin@linaro.org>,
- Alim Akhtar <alim.akhtar@samsung.com>,
- Jani Nikula <jani.nikula@linux.intel.com>,
- Joonas Lahtinen <joonas.lahtinen@linux.intel.com>,
- Rodrigo Vivi <rodrigo.vivi@intel.com>, Tvrtko Ursulin
- <tursulin@ursulin.net>, Rob Clark <robin.clark@oss.qualcomm.com>,
- Dmitry Baryshkov <lumag@kernel.org>, Abhinav Kumar
- <abhinav.kumar@linux.dev>, Jessica Zhang <jesszhan0024@gmail.com>,
- Sean Paul <sean@poorly.run>, Marijn Suijten <marijn.suijten@somainline.org>,
- Lyude Paul <lyude@redhat.com>, Danilo Krummrich <dakr@kernel.org>,
- Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>,
- Sandy Huang <hjc@rock-chips.com>, =?UTF-8?Q?Heiko_St=C3=BCbner?=
- <heiko@sntech.de>, Andy Yan <andy.yan@rock-chips.com>,
- Thierry Reding <thierry.reding@kernel.org>,
- Mikko Perttunen <mperttunen@nvidia.com>,
- Jonathan Hunter <jonathanh@nvidia.com>, Gerd Hoffmann <kraxel@redhat.com>,
- Dmitry Osipenko <dmitry.osipenko@collabora.com>,
- Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu
- <olvaffe@gmail.com>, Zack Rusin <zack.rusin@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>,
- Matthew Brost <matthew.brost@intel.com>,
- =?UTF-8?Q?Thomas_Hellstr=C3=B6m?= <thomas.hellstrom@linux.intel.com>,
- Oleksandr Andrushchenko <oleksandr_andrushchenko@epam.com>,
- Helge Deller <deller@gmx.de>, Kees Cook <kees@kernel.org>,
- Jaroslav Kysela <perex@perex.cz>, Takashi Iwai <tiwai@suse.com>,
- Boris Brezillon <boris.brezillon@collabora.com>,
- Steven Price <steven.price@arm.com>, Liviu Dudau <liviu.dudau@arm.com>
-Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
- linux-mips@vger.kernel.org, linux-aio@kvack.org,
- linux-fsdevel@vger.kernel.org, linuxppc-dev@lists.ozlabs.org,
- dri-devel@lists.freedesktop.org, etnaviv@lists.freedesktop.org,
- linux-samsung-soc@vger.kernel.org, intel-gfx@lists.freedesktop.org,
- linux-arm-msm@vger.kernel.org, freedreno@lists.freedesktop.org,
- nouveau@lists.freedesktop.org, linux-tegra@vger.kernel.org,
- virtualization@lists.linux.dev, intel-xe@lists.freedesktop.org,
- xen-devel@lists.xenproject.org, linux-fbdev@vger.kernel.org,
- linux-sound@vger.kernel.org, Jani Nikula <jani.nikula@intel.com>
-References: <20260711-b4-vma-flags-mm-v2-0-0fa2357d5431@kernel.org>
- <20260711-b4-vma-flags-mm-v2-8-0fa2357d5431@kernel.org>
-From: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>
-Autocrypt: addr=vbabka@kernel.org; keydata=
- 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
-In-Reply-To: <20260711-b4-vma-flags-mm-v2-8-0fa2357d5431@kernel.org>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20260714024352.71307-1-zhaoguohan@kylinos.cn>
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIyMDE1NSBTYWx0ZWRfX0Kx9RhMi6AjU
+ 8oh9iI0ArFYfEp+5lP/PgnXT6hDwc9vPfxq8PUAWMm4a5Feep1fTFlWNYybRJKxAfzuTvvy6JcT
+ Kd3m6aobtN/v3TFWlvD6eHSHXNFdg0I=
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIyMDE1NSBTYWx0ZWRfXyrwYx9PQ76yQ
+ s88CmdJ0kN2BssdLvI9SyEyeNlrXk68HSAvuw3M9pvvJnGi6NwRN8qu/YM1LGLHqKUw4cP4LES0
+ r0bNJzF6exdWLCIKgqrshkHjLpsDfAdgPscKyu3O/YzXEr9J6KDvZ9ZVl2kLzu6IJjovT7Ryynk
+ TjMwG46o/pCHBcnued2RFSHig2jOVxh+03vNpfc4sNZ69JrdPXNVW4qkAs+VoUJFEb7OOL0CU7H
+ WO5p2Gyx+sBeEQZ21KFIwv3awSMszjUCrwjwkIn89xoIk9F2x9+A8o4hxpCIO86CLfhWKvH/4H9
+ RU/HJIff6asl3iME+kICJCRPldXnflX50B8opZQVmn0nBFuNVfgca28KdQEIZubVXI3HII0JGT/
+ 4/iGmkl/2qkrzPUiFG7bLVyiu4H8BpLTzh9YFq1XegFR9v7MtXR2/VXFh4/VIv3VzccEIAM9cVM
+ l3iTq8cm10tEadfxlog==
+X-Authority-Analysis: v=2.4 cv=Rsv16imK c=1 sm=1 tr=0 ts=6a60e638 cx=c_pps
+ a=WeENfcodrlLV9YRTxbY/uA==:117 a=dNlqnMcrdpbb+gQrTujlOQ==:17
+ a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=ZpdpYltYx_vBUK5n70dp:22
+ a=EUspDBNiAAAA:8 a=JFUxWelGuBFJwVQvUPMA:9 a=CjuIK1q_8ugA:10
+ a=kacYvNCVWA4VmyqE58fU:22
+X-Proofpoint-GUID: GEtjRvJ-ImNjmZ02kX2cUuTFsiFAqTEA
+X-Proofpoint-ORIG-GUID: GEtjRvJ-ImNjmZ02kX2cUuTFsiFAqTEA
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-22_04,2026-07-22_02,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 bulkscore=0 phishscore=0 spamscore=0 impostorscore=0
+ malwarescore=0 adultscore=0 lowpriorityscore=0 suspectscore=0 clxscore=1011
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607220155
 
-On 7/11/26 20:45, Lorenzo Stoakes wrote:
-> There's a large number of vm_get_page_prot(vma->vm_flags) invocations. Make
-> life easier by introducing vma_get_page_prot() parameterised by the VMA.
+On Tue, Jul 14, 2026 at 10:43:52AM +0800, GuoHan Zhao wrote:
+> RTC class operations run with rtc_device.ops_lock held. The virtio RTC
+> alarm requests currently wait without a timeout for the device to return
+> their requestq buffers.
 > 
-> This also makes converting vm_get_page_prot() to vma_flags_t easier.
+> On surprise removal, virtio-pci marks the virtqueues broken before
+> unregistering the virtio device. If an alarm request is waiting when the
+> device stops responding, viortc_remove() blocks in viortc_class_stop()
+> while trying to acquire ops_lock. The request cannot complete and device
+> removal hangs until the waiting task is signalled.
 > 
-> Also update the userland VMA tests to reflect the change.
+> Use the same 60-second timeout as clock read requests for alarm reads,
+> alarm programming, and alarm interrupt enable requests. The existing
+> message reference counting keeps a timed-out request alive until a late
+> response or device teardown.
 > 
-> No functional change intended.
-> 
-> Acked-by: Zi Yan <ziy@nvidia.com>
-> Acked-by: Jani Nikula <jani.nikula@intel.com> # for i915
-> Reviewed-by: Thomas Zimmermann <tzimmermann@suse.de> # for DRM
-> Signed-off-by: Lorenzo Stoakes <ljs@kernel.org>
+> Fixes: 9d4f22fd563e ("virtio_rtc: Add RTC class driver")
+> Assisted-by: Codex:gpt-5.6-sol
+> Signed-off-by: GuoHan Zhao <zhaoguohan@kylinos.cn>
 
-Reviewed-by: Vlastimil Babka (SUSE) <vbabka@kernel.org>
+Thanks for the fix!
 
+Reviewed-by: Peter Hilber <peter.hilber@oss.qualcomm.com>
