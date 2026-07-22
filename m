@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CBB4A35837C;
-	Wed, 22 Jul 2026 16:09:35 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2768F23C8AE;
+	Wed, 22 Jul 2026 16:15:32 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784736576; cv=none; b=uYVeoLEDvjCB1OgvsGvWsSGMLxyPiHZBIdbBwcpNCoOfjwrgFqaB8svHaka9BxjZp45fK1XkY+UOngYkFglTLFTKSHk1RFuch1geh9Ln1BU07T3CsSMv655Cv9Cvh3IeC8r2stgGNiYhIBIT2PEfO09PQWbEpZ1GS59joBPMPsk=
+	t=1784736934; cv=none; b=EUQq5FMzKE0H6ckrMq3m4/skkQ1WLdLqmjq+TvMpeckA/xtv4JfDDwZqv+8D1UxpJn0UhVlekj0Z2WWe/dxjySnVG3jnwMu+M5QVJ7o97Y9RGryrI3P8MoGRQbPm3iB+4TmDHSwKKzbcV462ql5uOJUprsW7/Ye2vqW28SMN6NU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784736576; c=relaxed/simple;
-	bh=juBjTjn8ADLrd4+kykufNVYOvjljyCUTWCivARA/tP8=;
+	s=arc-20240116; t=1784736934; c=relaxed/simple;
+	bh=l6waauqbvZ9fTvDHa+GP5PMKycTldx9oe0/F+z40GQs=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=QtUH3r9t8WFZRcJeFZi9luVxO4NAK7S911eQOBgALdg8aU5qz12AwNtykgBl8rzZAmYCNkDTpYN62PjtNJV5B26YCLBkU+MOqORD8XQYH/9LmuHrH9s9GpsoN5dkVSvJhy5MsShblIGpEBFf22dn+7caxKfWKkaqRfvvixC5ewU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ust3bdj7; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=g2RVo/RLup9SkuhwmYpA59XLVS3Qf0Bf9Ju8qVvqRnpeIZzQG9M7xAZr50sMbcD+5D+3BilExJfh+JmKivJQosCsuRyB1ju+J7ADKmXmcDlXgr+pPmNwqyCkUjcnbBwKsdDsP7Zx764EwUHEIj/Qme0I/g4C/jU6XBBdAKKt0io=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=DZFALzRw; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ust3bdj7"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 7B26D1F000E9;
-	Wed, 22 Jul 2026 16:09:18 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="DZFALzRw"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id A3F941F000E9;
+	Wed, 22 Jul 2026 16:15:13 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784736575;
-	bh=hm/5iL9EveGYA3vJkgF8R7lbasRuEO1iSSKVyzrOX0w=;
+	s=k20260515; t=1784736932;
+	bh=YtoXCA62CyJBNC7Tbkqm6QUVmIJyF8vWZgzG8HkNlzI=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=Ust3bdj7ZEAIy4n4wtOYmRrwIQMPYailb9NKjIw+PKcSHQ8vdpkni8H9CvqYAd7ol
-	 sYRVz/kVItg+dwjuYK2krwBem8+veFMitxTLh/YTkHWhVNjP51455v1a9nrqh6Ik0y
-	 viIYvdj57qXS44HtDjKV8s67omerf7XX+Dc7blWdQgjVJBj1PsD9HIXLgWzqmt11EB
-	 SfbWgbCZAj446RLfe1lnmBgaAIG3mecQ4G6Pux5a/pXFPkXy2VrYG9pruPTPvsgQc4
-	 DKAHr6nz3y5prdMIJ1evrpm4+rGT63RjYoIMfAKzeOw1IfR0c0eJfd7IjnNEuR5DmG
-	 V8ez2dOJEIeUw==
-Message-ID: <1bab7f72-9de0-4237-971e-6b8e1aff1d6d@kernel.org>
-Date: Wed, 22 Jul 2026 18:09:16 +0200
+	b=DZFALzRwUkrcWF32RmBloDBG4APMVkGxhtgaZyfkfq4w77n6RpNrdAHXIykI0LwMX
+	 tGTerPv7RnSpnWTQAISeMEzjQWr0uGJk7k+k1pIaGnKeBR4YxJpt9RyDLS1Ii9bIGB
+	 43/hCcIIVUkgRJS7+JSbLJBvsJXvM8ST2ld2ORuO4pGg5dZ4eXczqK6/TJ9lcC7zTV
+	 184NzHUANyj1upIfiufIzTzgFXEU4ol0nH+6Z9pEAlACTIbjzOLfqyhBSUIaxXrwXh
+	 gLiKpiTLLNgHpkBvl6V4zRf6clxml/U/1TOwopiR7NwCRl7coCul519YgSFNAZ8pPL
+	 5ogQPeJG8QmfA==
+Message-ID: <fd9defdf-5d82-4f07-a496-4fe8064710ff@kernel.org>
+Date: Wed, 22 Jul 2026 18:15:11 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -35,7 +35,7 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 12/13] mm/mprotect: convert mprotect code to use
+Subject: Re: [PATCH v2 13/13] mm/mremap: convert mremap code to use
  vma_flags_t
 Content-Language: en-US
 To: Lorenzo Stoakes <ljs@kernel.org>,
@@ -104,7 +104,7 @@ Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  xen-devel@lists.xenproject.org, linux-fbdev@vger.kernel.org,
  linux-sound@vger.kernel.org
 References: <20260711-b4-vma-flags-mm-v2-0-0fa2357d5431@kernel.org>
- <20260711-b4-vma-flags-mm-v2-12-0fa2357d5431@kernel.org>
+ <20260711-b4-vma-flags-mm-v2-13-0fa2357d5431@kernel.org>
 From: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>
 Autocrypt: addr=vbabka@kernel.org; keydata=
  xsFNBFZdmxYBEADsw/SiUSjB0dM+vSh95UkgcHjzEVBlby/Fg+g42O7LAEkCYXi/vvq31JTB
@@ -145,22 +145,31 @@ Autocrypt: addr=vbabka@kernel.org; keydata=
  NcaZ+c6J4H+nEJGi2SkHAUJz5oBzuThvPudLvPA/SK8sKoM01IRxSihev/S/5WLazXB1PGem
  OCbvzC1IjWJJraxiDJ5IygokapUa2RP7+WBR22skQ3SSl6G107QgWKSyTOGWEaRmV53vxQLV
  jXuCmzSSasTL60zq5yGrT4/DYQVSNEUiUbG4pYekxJujNeEDkUlky0Y=
-In-Reply-To: <20260711-b4-vma-flags-mm-v2-12-0fa2357d5431@kernel.org>
+In-Reply-To: <20260711-b4-vma-flags-mm-v2-13-0fa2357d5431@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 7/11/26 20:45, Lorenzo Stoakes wrote:
 > Replace use of the legacy vm_flags_t flags with vma_flags_t values
-> throughout the mprotect logic.
+> throughout the mremap logic.
 > 
-> Note that we retain the legacy vm_flags_t bit shifting code in
-> do_mprotect_pkey(), deferring a vma_flags_t approach to this for the time
-> being.
+> Note that, in replacing vm_flags_clear() (which takes the VMA write lock)
+> with vma_clear_flags() and vma_clear_flags_mask() (which do not)
+> respectively in unmap_source_vma() and dontunmap_complete(), we do not add
+> a VMA write lock to account for htis.
+> 
+> This is because, in both cases, move_vma() is their calling function and
+> this has already acquired the VMA write lock on vrm->vma whose VMA flags
+> are being cleared.
+> 
+> In the case of vma_set_flags() in unmap_source_vma() we do need to do this
+> - as prev and next were not necessarily write locked at this point.
 > 
 > Additionally update comments to reflect the changes to be consistent.
 > 
 > No functional change intended.
 > 
+> Reviewed-by: Zi Yan <ziy@nvidia.com>
 > Signed-off-by: Lorenzo Stoakes <ljs@kernel.org>
 
 Reviewed-by: Vlastimil Babka (SUSE) <vbabka@kernel.org>
