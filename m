@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F16133BCD13;
-	Wed, 22 Jul 2026 15:52:55 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03A5A361978;
+	Wed, 22 Jul 2026 16:04:38 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784735577; cv=none; b=Yw19o9/syz9uopZ+U0lLmGs1gFaM8L+oWzFcRhkiAnbiAzqeZndAaILb2KqRkm7ooKiVwKzVh4oAQtRcyixqyvt+IyttBwSAOhCtWWSWVcP1fPxg54iOiKUOZ9GpbED72ck5+d0nIvJ8sC5fzpFL1iw1C3Fmc6nS2QnELyGbWtk=
+	t=1784736280; cv=none; b=XQLxKl+bOcV2UaF+3NnpLm1ZZgYjal7A/TUYbtM7wy4EjOEpSXOhAcPAjMolnNql0n4TaPppF524P7n4TWa4+JkGPOXno+KKk9KgIjPJboSydBEWiBVbl/28kPE2b5HDjSd3w72R6dDmCnTxwVdWwkQB46v3NXWiKGcLpAAE7Dw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784735577; c=relaxed/simple;
-	bh=+qZGwqGphy0QHhR7QioqZcrFiPH53V4loJ6lyPtanLg=;
+	s=arc-20240116; t=1784736280; c=relaxed/simple;
+	bh=qZO5d0+VOeaGrH2DcqscVnfaTXrbooJmQsGMLN49U/s=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=ZAmfofjNEmb/3zBjk+6USsibz15TO6anrSgGJFY/+5h8j4k1OEvYbrTZiG3PL1TLVXtPu92nE0ZFg/kztV2Aow3nJMN2gX9HLoOROnqwQjDKALACu+KApAA02EcPJoYXAW/pyBNwWMQmuay5v1HDauh5DOKs0TQiEJBI5ib3RWg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=lzeLJ+Mk; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=uzPAamYorQ/uKbEoQSv5AH/tMMzWtQ+7QXWjQR8IlHPgu3k0x35NzSE3zCrB3Fs4PUxJzkUx9agpqDZO+c3ypBFcmGx2gKIzY1uTMv4+/Yi65kZeqOUUg9zMYHIpNuaUuKGjQJdnk/BJcqgXmJFhH2R8PJhIoJctcFvgN4nu8WI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Ms6o+w4c; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="lzeLJ+Mk"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id D900D1F000E9;
-	Wed, 22 Jul 2026 15:52:37 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Ms6o+w4c"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3754D1F000E9;
+	Wed, 22 Jul 2026 16:04:21 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784735575;
-	bh=ufiVbs4gFZoTgyjZH/ZnFnJ99kcRuL/B6RsmsdF3mq8=;
+	s=k20260515; t=1784736278;
+	bh=JGI6yPwNeBlQcmkYkwZnOGVunqjOzUuog/BHm26YT2g=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=lzeLJ+MkKsdPmOuFrEroytGywJNyjc5go9z+BRGANnrrerkTLT/cUGS0MryhpCrCz
-	 JdnKkJXBXQDM1y9cnTXkAr+L8PkN74T9bfVYvVLVxwI2l26MDbErHm0dHSRnCdonnL
-	 RS8BbhjVo2GZtG/uKLPlYNjbwXf0EqigSTo9sTrTgwAXfegti5hbCb82Ksax3+7W+n
-	 QT+A4kOxO47PX305QOEXl/P2XsuHb7+PKLUJ9j688+bgVNRQrqfPt/YGk7hqqkhk7v
-	 RW33FQF/uI3VdGs/EfFg+aU8yARX/BME5FRohcAXZwHejlJ9HpNhFnfFCSrg51Y2pZ
-	 5PZGfjggIWn2Q==
-Message-ID: <f241a140-cb65-4a77-8dc9-dfa450b2e0fa@kernel.org>
-Date: Wed, 22 Jul 2026 17:52:36 +0200
+	b=Ms6o+w4c+2Xirt4wfC02ta/k/1aAw+NVhQXCtWhHHBgGhc26HNZ6GokEaoDd/oT1n
+	 1Z4WoxFTQnFlX/5jbkXGg4b0auOB24CqXpo7xPvVMgmywlqaGJXPKO5XCs7UAhrhN+
+	 frCMgd+z7SKYWLV0DCRn1hYlKmvxDbGPdz0M0t48FHDVBH/q8dru6Wzl7Ix7/AqcT8
+	 gehnFY5/MRkKV7Y45Sqdjv3T9DFlx9vLAMdBkUxFFwrOIoku3EDIgyOwrPaaU0OHkc
+	 D0ulgeLOR5tFCS7ytlEEnUrMeRFCrrgUo6xWzkFU+g1g5scLc4rvdvMNmuUo3BJ5sX
+	 Vk/ngokFr4u7Q==
+Message-ID: <aca6e793-c2dc-40cd-b489-80fb638dced4@kernel.org>
+Date: Wed, 22 Jul 2026 18:04:19 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -35,8 +35,8 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 09/13] mm/vma: update create_init_stack_vma() to use
- vma_flags_t
+Subject: Re: [PATCH v2 10/13] mm/vma: convert miscellaneous uses of VMA flags
+ in core mm
 Content-Language: en-US
 To: Lorenzo Stoakes <ljs@kernel.org>,
  Andrew Morton <akpm@linux-foundation.org>,
@@ -104,7 +104,7 @@ Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  xen-devel@lists.xenproject.org, linux-fbdev@vger.kernel.org,
  linux-sound@vger.kernel.org
 References: <20260711-b4-vma-flags-mm-v2-0-0fa2357d5431@kernel.org>
- <20260711-b4-vma-flags-mm-v2-9-0fa2357d5431@kernel.org>
+ <20260711-b4-vma-flags-mm-v2-10-0fa2357d5431@kernel.org>
 From: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>
 Autocrypt: addr=vbabka@kernel.org; keydata=
  xsFNBFZdmxYBEADsw/SiUSjB0dM+vSh95UkgcHjzEVBlby/Fg+g42O7LAEkCYXi/vvq31JTB
@@ -145,22 +145,17 @@ Autocrypt: addr=vbabka@kernel.org; keydata=
  NcaZ+c6J4H+nEJGi2SkHAUJz5oBzuThvPudLvPA/SK8sKoM01IRxSihev/S/5WLazXB1PGem
  OCbvzC1IjWJJraxiDJ5IygokapUa2RP7+WBR22skQ3SSl6G107QgWKSyTOGWEaRmV53vxQLV
  jXuCmzSSasTL60zq5yGrT4/DYQVSNEUiUbG4pYekxJujNeEDkUlky0Y=
-In-Reply-To: <20260711-b4-vma-flags-mm-v2-9-0fa2357d5431@kernel.org>
+In-Reply-To: <20260711-b4-vma-flags-mm-v2-10-0fa2357d5431@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 7/11/26 20:45, Lorenzo Stoakes wrote:
-> Replace use of the legacy vm_flags_t flags with vma_flags_t values in
-> create_init_stack_vma().
-> 
-> As part of this change we add VMA_STACK_EARLY and VMA_STACK_INCOMPLETE
-> vma_flags_t defines, and slightly rework create_init_stack_vma() for
-> clarity.
+> Update various uses of legacy flags in vma.c and mmap.c to the new
+> vma_flags_t type, updating comments alongside them to be consistent.
 > 
 > No functional change intended.
 > 
 > Reviewed-by: Zi Yan <ziy@nvidia.com>
-> Reviewed-by: Lance Yang <lance.yang@linux.dev>
 > Signed-off-by: Lorenzo Stoakes <ljs@kernel.org>
 
 Reviewed-by: Vlastimil Babka (SUSE) <vbabka@kernel.org>
