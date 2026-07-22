@@ -1,167 +1,185 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f179.google.com (mail-pl1-f179.google.com [209.85.214.179])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7693733F5B6
-	for <virtualization@lists.linux.dev>; Wed, 22 Jul 2026 05:59:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60B2D2F3C37
+	for <virtualization@lists.linux.dev>; Wed, 22 Jul 2026 06:36:20 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.179
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784699955; cv=none; b=gRQY1V/8plaQP6vm9HcCIcoYgsk8Htd2uNlb624iAhUwII0tGiE1dZRs8PdhJrGCvgVSznc6vTio4WgwPWiLHSzPL2gWwMcj82bFJuvxRNCL6oKpWdzDfIGim9XjcOAQDhYNf9uB4JeU/u8PxYqyjIj2GM1RJBsASGr3EXeASsM=
+	t=1784702181; cv=none; b=liTBmU29y/f4ATKh+/hT9hK8OChzYR2TRqjt+qmpB0+FfvOsjASLgmBvmGylKOpFzc9giWylU1uwxHUKbvsH4G5myFXI+PQM/suXu1lN7pd6mLOH76LADxUS3nEbwQUJT29FqEOKlmGQ+drJuXKy7fW5DRX6xnQJfvZwtIro5c8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784699955; c=relaxed/simple;
-	bh=BUtoyWqo8hHh51ufZgbD2+/4ap/luAAtRwkjA0cje5o=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=P1i5dT5EeUMk3DRXCildPLqAxRmjFB3Ru6qvIu1uZcWKGb7lmg5SO47Lw+ZECA5aYvou3jLQpEdtXlTYkStZQrKeN/pwqa5sLjlfRt4O8xA1VSi500hOtDEOSlznwAfk/lXCIjwbXHibm5XII5meh/bhd4TDSk8zq8MADjarbv0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=GiLg25iX; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1784702181; c=relaxed/simple;
+	bh=xsmEthjq16+kC+Vph+G1U9fU4ClDR58MsihFmYHvaU4=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=g2CRdhmnkCYwtdVhiX6aB/lYZz3ex+3+MVZHbsh06w54d3lrdvdWNfwR4jdoHfRkDkixUb3BKJAgaEAmqRL92tKoEn1IHZI+Q/DqJ0niHjnYpP6RHtvvjRANZvxvpWbZ9bHQCQLpjJjvlw0etO0YPoEdUZz0g9TGfF/8QIxX+W8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=PkEYLgOM; arc=none smtp.client-ip=209.85.214.179
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="GiLg25iX"
-Received: from pps.filterd (m0360072.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66M5Bnjt3152891;
-	Wed, 22 Jul 2026 05:58:48 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=B0W/aO
-	WXVQjI8IfpoQVtBte2anI1EBYumbYb8b/oY1w=; b=GiLg25iX8LNT8gysq+NA1A
-	OipYB0tfQmPZ/fk+I5d/v/oOh9ncZIQqGNIwRCRynqsuIBG37Kkx6ifKxD2DhVWZ
-	4FdO37gnwSAk+IJRXweY/tVJTCF5/bHoOoDjhoIryMdwIdzAMmi8WwTM/XOI9yAR
-	gm90Yr4e/Xf1dx/dLrry2GVTakx5661Eg5Euc0jkpI0bDQUSytoOAuIJE22u8zoC
-	hGKecSXvl7LzjioS1kfwkAJrgN2GGMpbZ7JMzVHB9P4uyJy2isJK+xC6DNMZwH21
-	h3KNAx+3KCP31NdEsu7L2TM6dsR/TH2hkWIpaTUim/4bmGREagTonSMd9c4rDVVg
-	==
-Received: from ppma12.dal12v.mail.ibm.com (dc.9e.1632.ip4.static.sl-reverse.com [50.22.158.220])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fg7ah81x1-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Jul 2026 05:58:48 +0000 (GMT)
-Received: from pps.filterd (ppma12.dal12v.mail.ibm.com [127.0.0.1])
-	by ppma12.dal12v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66M5ngFb030991;
-	Wed, 22 Jul 2026 05:58:47 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma12.dal12v.mail.ibm.com (PPS) with ESMTPS id 4fgktq637a-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Wed, 22 Jul 2026 05:58:46 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66M5wgJg47317306
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 22 Jul 2026 05:58:42 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id D011E2007B;
-	Wed, 22 Jul 2026 05:38:59 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id CFB7B20077;
-	Wed, 22 Jul 2026 05:38:50 +0000 (GMT)
-Received: from [9.124.218.133] (unknown [9.124.218.133])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Wed, 22 Jul 2026 05:38:50 +0000 (GMT)
-Message-ID: <2bfa5d49-0ca9-41db-9729-244fcbb351b0@linux.ibm.com>
-Date: Wed, 22 Jul 2026 11:08:49 +0530
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="PkEYLgOM"
+Received: by mail-pl1-f179.google.com with SMTP id d9443c01a7336-2cedda2ce6fso76178585ad.1
+        for <virtualization@lists.linux.dev>; Tue, 21 Jul 2026 23:36:20 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784702180; x=1785306980; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=kO1PiIP2Hl5OInAMYdlLbjh+bJ0nA/ItDty/+1ZP4t0=;
+        b=PkEYLgOMz8QIzqlS2xLj7ket5mS8LwivSCLq+FoPuCYxT7XIRehzLj8bI/ndlipKAz
+         QQ5XT/OhDHEUZqRe0qT9sUxRexk98pPZd8ufSIQJpcJ5RuIdfw4AK6Q9cvk+hnIjnZK+
+         UH8afBwJXE68190964V+qaGlME838g5AWtYMu6xAI+KSHEXeufT42dbiIpf2hpy/+Gcx
+         yvGlR4iXMeZQYW2AyWtngcAA/oUxJWeEFzlxsdgEqk8+ztUtWagt7xH/VbZFDKcvVq3/
+         JFSGUmqvhEtFDYIQm0xHfn6DHD0v8ayiu+zLKcxf5Gqs0DPoY17krHy4GV3epTwFj3Eb
+         /rnQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784702180; x=1785306980;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=kO1PiIP2Hl5OInAMYdlLbjh+bJ0nA/ItDty/+1ZP4t0=;
+        b=JHVUqhD4rZzqPP23MVTzB9NMwQs+QpN49vKqJHYVLndk9rzmyfdpWaL4hGIS2vtr5v
+         lM07rNcbHT2nWyC4oIC9M5r1MvbdFzC10sNhwxWCDDWRowmy48tcHLvTlQQFVQbVcEUE
+         mbNQei/8Wt6PWJ9xn1NNfo316IeLMiiwprYvSOGigq3xdzJEqbx6dePjCZimatQ3tg8A
+         xZ/lX80sd4gqZDvj0ZlJ2gCp2QiZW8OjqxlrTE19w4bOJqHguIimLHxG6mBi8lA622aC
+         Feoi7/r6msYYAE1kBJ9EHw6aFGgYv4J4a631RPj3nLChpOeHyCfUS5AwOkxOvLRzjCfx
+         lzhA==
+X-Forwarded-Encrypted: i=1; AHgh+Ro1wHjHRABcJVyUNp2uIuIkxFSqxavrRNuZeJS3Juw/9bV++SIMMqyUp9zigX3N7DvHpLqsvJr7Uk8t0l1Z5g==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxntALzxPJYDZkept0jOUj9qPD9HSxB+xVzAvDGa2Jc56Azk8Hj
+	O5HTNqXu9jgKXy5aeK5p/NsmED1aCht6zaf4wqu6CWCJwwup5EwAVrISJacyNGFg99MlaA==
+X-Gm-Gg: AR+sD10B99ZwXmSnI7tJS5RhXydHmGC/5VjYhRIaAfQYjveX5VaBt8mr4kbWfjnS6PV
+	ygvc0kBg28Y8U5eH64uHhcy4ajcS5oepaZZT3xs1rF89+7LOKBRTXovK4FBmUMJpbGnHuk3AeTm
+	9MolZznnFPaFQQucnKJ1Pr8B6OSl42G4/++3b7TEQvZvVKnqTuh5XW3JPC3KxebgJv7GYWEdjKO
+	Q4quhqiCU8NthkWVtYZj6OEzYN/r9SXctrHixPuO0UasrIsc98p5Je86QWrlI35MwzfvvUOclTE
+	Fpl4L3kaQD4a4UiYmP9v7nymeqqiCU5gadOoxXs/8S9hbLQ2e4BRjIH7onvy5eeQzNgj7zv5tOd
+	J2pLjXnR1OoZ4tl81XtsJQawEckIzq28VAU+gs2nmj0YifB4ybk16B5kVE20nDsv5kBumhMAcJ6
+	ENsw==
+X-Received: by 2002:a17:903:1a87:b0:2c8:25c8:85a6 with SMTP id d9443c01a7336-2cf3481b77fmr230776485ad.2.1784702179371;
+        Tue, 21 Jul 2026 23:36:19 -0700 (PDT)
+Received: from gmail.com ([188.253.12.32])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2cf8f38a40fsm8908685ad.78.2026.07.21.23.36.16
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 21 Jul 2026 23:36:19 -0700 (PDT)
+From: Jia Jia <physicalmtea@gmail.com>
+To: mst@redhat.com
+Cc: jasowangio@gmail.com,
+	michael.christie@oracle.com,
+	pbonzini@redhat.com,
+	stefanha@redhat.com,
+	eperezma@redhat.com,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org,
+	Jia Jia <physicalmtea@gmail.com>
+Subject: [PATCH] vhost-scsi: fix T10-PI lifecycle hard BUG after endpoint
+Date: Wed, 22 Jul 2026 14:36:09 +0800
+Message-Id: <20260722063609.1546421-1-physicalmtea@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v8 08/11] virt: Introduce steal governor driver
-To: Yury Norov <ynorov@nvidia.com>
-Cc: linux-kernel@vger.kernel.org, mingo@kernel.org, peterz@infradead.org,
-        juri.lelli@redhat.com, vincent.guittot@linaro.org,
-        yury.norov@gmail.com, kprateek.nayak@amd.com, iii@linux.ibm.com,
-        corbet@lwn.net, tglx@kernel.org, gregkh@linuxfoundation.org,
-        pbonzini@redhat.com, seanjc@google.com, vschneid@redhat.com,
-        huschle@linux.ibm.com, rostedt@goodmis.org, dietmar.eggemann@arm.com,
-        maddy@linux.ibm.com, srikar@linux.ibm.com, hdanton@sina.com,
-        chleroy@kernel.org, vineeth@bitbyteword.org, frederic@kernel.org,
-        arighi@nvidia.com, pauld@redhat.com, christian.loehle@arm.com,
-        tj@kernel.org, tommaso.cucinotta@gmail.com, maz@kernel.org,
-        rafael@kernel.org, rdunlap@infradead.org, kernellwp@gmail.com,
-        linux-doc@vger.kernel.org, jgross@suse.com,
-        virtualization@lists.linux.dev
-References: <20260720172250.2257582-1-sshegde@linux.ibm.com>
- <20260720172250.2257582-9-sshegde@linux.ibm.com> <al-n0iPGnlTr39P9@yury>
-Content-Language: en-US
-From: Shrikanth Hegde <sshegde@linux.ibm.com>
-In-Reply-To: <al-n0iPGnlTr39P9@yury>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: sr7KaQdur-H0UOWs1OGIOXdcmj6aDUbh
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzIyMDA1MCBTYWx0ZWRfX7Uh3xuQz4/yp
- FAjTHavWPXHOUAj0T/tpULCFOU+DV4Sb27iLcQ9c6uhQcFXlt+c3jbNcOM8I98nfu1xeWltJSzm
- A43ngYwq2LAoDj1FyT0GNeVeO2t6cZtgIL7AISuyvKUhMzPXtdBKdkzhmCvBu0UdSrgA9Lbm9MF
- 6STmxEocEmPhaW1MtMPdyPoIQK4DBw4GbXfdf6TV2c/5E0VkPrLcTKjgwD74/IU4eAIm9xIRkv2
- 8zUH0b8yuESId9MNqfTvqj0hqF5P+Mr4rB/sTkBjZPtAhzCCK+b9YJknQnfIUENIOyLINQ4w9L6
- OtxREDELNG6fdy403C9UGk0eUSqmTQdZDPxW5OpoBD7w8AhyZHpb0wEHCJf5w04u0hgtIkC8CVB
- mwxBZ8rz7FPIIJBm2OAi2ECt3q9tSOuxhKT8ckjDeop6amFgx0JSU67rXAQ2WJ/DMDETzvzgpTf
- xxkzrj7rMqpaibU5Xag==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzIyMDA1MCBTYWx0ZWRfX7v2e+gmaquUD
- zexr/+TCmDMrtNm2RwHags8M4niJ8sej6lo/uqGUsmEuUHlM/KeAnK26yYOEikMfoddsLqUm0t6
- 2mj2DSIekmfPzEkqp8ox4W4zi+ByUXI=
-X-Proofpoint-GUID: 6TkdxTCnHZxNi9SpA4xI2TAmM8DfSCz_
-X-Authority-Analysis: v=2.4 cv=SM5ykuvH c=1 sm=1 tr=0 ts=6a605c18 cx=c_pps
- a=bLidbwmWQ0KltjZqbj+ezA==:117 a=bLidbwmWQ0KltjZqbj+ezA==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=RzCfie-kr_QcCd8fBx8p:22 a=VnNF1IyMAAAA:8
- a=KrMzzVSTZiWGVZp01ooA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-22_02,2026-07-21_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- clxscore=1015 lowpriorityscore=0 bulkscore=0 suspectscore=0 adultscore=0
- spamscore=0 malwarescore=0 priorityscore=1501 phishscore=0 impostorscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607220050
+Content-Transfer-Encoding: 8bit
 
-Hi Yury,
-Thanks for taking a look at the series. Much appreciated _/\_
+vhost_scsi_setup_vq_cmds() runs only from VHOST_SCSI_SET_ENDPOINT and
+allocates each command's protection scatterlist array (prot_sgl) only
+when VIRTIO_SCSI_F_T10_PI is already set at that moment.  Command pools
+are not rebuilt later.  vhost_scsi_set_features() may still flip that
+bit after the endpoint is live: it updates acked_features and returns
+success without reallocating prot_sgl.
 
-On 7/21/26 10:39 PM, Yury Norov wrote:
-> On Mon, Jul 20, 2026 at 10:52:47PM +0530, Shrikanth Hegde wrote:
->> Introduce a new driver in virt named steal_governor. This driver
->> will compute the steal time and drive the policy decisions of preferred
->> CPU state.
->>
->> More on it can be found in the Documentation/driver-api/steal-governor.rst
->>
->> There is a new kconfig called STEAL_GOVERNOR which is introduced in
->> subsequent patches. That driver is going to select PREFERRED_CPU.
->> This makes configs driven by user preference.
->> When the driver is disabled, preferred CPUs is same as active CPUs.
->>
->> File layout of the driver is being kept simple.
->> - core.c - contains main driver code. This includes the periodic
->>    work function and take action on steal time which is introduced
->>    in subsequent patches.
->> - core.h - header file which includes data structure.
->>
->> Main structure of steal governor has,
->> - work: deferred periodic work function
->> - steal, time: To calculate the delta in periodic work.
->> - interval_ms, high_threshold, low_threshold: debug knobs of
->>    steal_governor.
->>
->> While there, Add MAINTAINERS entry for this new driver.
->>
->> Signed-off-by: Shrikanth Hegde <sshegde@linux.ibm.com>
->> ---
->>   Documentation/driver-api/index.rst          |   1 +
->>   Documentation/driver-api/steal-governor.rst | 117 ++++++++++++++++++++
->>   MAINTAINERS                                 |   9 ++
->>   drivers/virt/steal_governor/core.c          |  48 ++++++++
->>   drivers/virt/steal_governor/core.h          |  25 +++++
-> 
-> Unless I missed something, you don't use struct steal_governor out of
-> the driver. If so, you don't need this layout. Just put everything in
-> drivers/virt/steal_governor.c.
->
+That is a feature-versus-resource lifetime mismatch.  The broken order
+is:
 
-Ok.
+  VHOST_SET_FEATURES(0)
+  VHOST_SCSI_SET_ENDPOINT
+      setup_vq_cmds() sees no T10-PI -> prot_sgl stays NULL
+  VHOST_SET_FEATURES(VIRTIO_SCSI_F_T10_PI)
+      only acked_features changes; command resources stay as above
+  submit a T10-PI WRITE with a 129-page protection payload
 
-By that I assume you mean to move all those headers also into 
-steal_governor.c, remove core.h and remove folder for steal_governor.
+The I/O path then follows the new feature bit while using the old
+command objects.  vhost_scsi_mapal() (static, inlined into
+vhost_scsi_handle_vq() here) does:
 
+  sg_alloc_table_chained(table, 129, first_chunk=NULL,
+                         nents_first_chunk=inline_sg_cnt)
 
-> Thanks,
-> Yury
+With first_chunk NULL, __sg_alloc_table() sets curr_max_ents from
+nents_first_chunk and calls sg_pool_alloc(129).  sg_pool_index() then
+hits:
 
+  BUG_ON(nents > SG_CHUNK_SIZE);   /* 129 > 128 */
+
+The kernel reported the following call trace and register state:
+
+  Call Trace:
+   <TASK>
+   ? __sg_alloc_table+0x1d8/0x250
+   ? __pfx_vhost_run_work_list+0x10/0x10 [vhost]
+   sg_alloc_table_chained+0x59/0xf0
+   ? __pfx_sg_pool_alloc+0x10/0x10
+   ? vhost_scsi_calc_sgls.constprop.0+0x43/0x60 [vhost_scsi]
+   vhost_scsi_handle_vq+0xf02/0x1700 [vhost_scsi]
+   ? __pfx_vhost_scsi_handle_vq+0x10/0x10 [vhost_scsi]
+   vhost_scsi_handle_kick+0x37/0x50 [vhost_scsi]
+   vhost_run_work_list+0x8e/0xd0 [vhost]
+   vhost_task_fn+0xe1/0x210
+   ret_from_fork+0x348/0x540
+   </TASK>
+
+  RIP: 0010:0x4
+  CR2: 0000000000000004
+  RSP: 0018:ffffc90000dbf940 EFLAGS: 00010202
+  RAX: ffffffff82396810 RBX: ffff88811dc28b80 RCX: 0000000000000000
+  RDX: 0000000000000000 RSI: 0000000000000820 RDI: 0000000000000081
+
+The host worker dies and the machine stops accepting network service
+until reset.  The missing object is prot_sgl after a post-endpoint
+T10-PI enable introduced by commit bf2d650391be ("vhost-scsi: Allocate
+T10 PI structs only when enabled").
+
+I also checked the other feature bits handled around endpoint setup.
+Only T10-PI allocates this endpoint-time per-command resource and does
+not rebuild it on a later SET_FEATURES.  LOG_ALL uses lazy tvc_log and
+already tears log storage down when cleared; HOTPLUG does not allocate
+prot_sgl.  So the chosen fix is to refuse T10-PI enable/disable while
+an endpoint is active, rather than adding a second rebuild path in
+set_features().
+
+Return -EBUSY if vs->vs_tpg is set and the T10-PI bit would change.
+Userspace must CLEAR_ENDPOINT, SET_FEATURES, then SET_ENDPOINT again so
+setup_vq_cmds() can allocate protection SGLs when needed.  That matches
+the existing "build command resources at endpoint" model.
+
+Fixes: bf2d650391be ("vhost-scsi: Allocate T10 PI structs only when enabled")
+Signed-off-by: Jia Jia <physicalmtea@gmail.com>
+---
+ drivers/vhost/scsi.c | 10 ++++++++++
+ 1 file changed, 10 insertions(+)
+
+diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
+index 9a1253b9d8c5..000000000000 100644
+--- a/drivers/vhost/scsi.c
++++ b/drivers/vhost/scsi.c
+@@ -2219,6 +2219,7 @@ static int vhost_scsi_set_features(struct vhost_scsi *vs, u64 features)
+ {
+ 	struct vhost_virtqueue *vq;
+ 	bool is_log, was_log;
++	bool is_t10_pi, was_t10_pi;
+ 	int i;
+ 
+ 	if (features & ~VHOST_SCSI_FEATURES)
+@@ -2234,6 +2235,13 @@ static int vhost_scsi_set_features(struct vhost_scsi *vs, u64 features)
+ 	if (!vs->dev.nvqs)
+ 		goto out;
+ 
++	is_t10_pi = features & (1ULL << VIRTIO_SCSI_F_T10_PI);
++	was_t10_pi = vhost_has_feature(&vs->vqs[0].vq, VIRTIO_SCSI_F_T10_PI);
++	if (vs->vs_tpg && is_t10_pi != was_t10_pi) {
++		mutex_unlock(&vs->dev.mutex);
++		return -EBUSY;
++	}
++
+ 	is_log = features & (1 << VHOST_F_LOG_ALL);
+ 	/*
+ 	 * All VQs should have same feature.
+-- 
+2.43.0
