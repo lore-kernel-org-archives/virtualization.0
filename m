@@ -1,42 +1,43 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 41751367B7E;
-	Wed, 22 Jul 2026 21:41:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5C8B5426ECF;
+	Wed, 22 Jul 2026 21:42:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784756519; cv=none; b=LXH7lZpfQl/YoFB1wHx9MEzNYiez5hpxH8ulGmcL5G3Hg0s3zJg2V6XzeKcdTe5ZTF9h0kxPBOM55orQ+YFYz32Y/m2mCEvK5JSS5b5SOHeyU2i1SYaTrdUQbqu+iZiI0qxpJKUBbHv11pJpYMOn/FBtvnOYjP7sZW5+3xAy1/Q=
+	t=1784756531; cv=none; b=o0JTbWTfb5z8VgIZWOeKZZuNZHpoAkz8b+27Gb3PIA5fVvzaQ5BsAf4IDBtZ7DJMaQR+rZ4z3ZRDfFAxOn9xCP71sIJoe7eaadqEi7QxClipo1nqXCR1R9mdhoZLHNKlvIMI1azR7/81i1Bf+c6UiRAouGs5Qx3OAA0Zv8ZRR8c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784756519; c=relaxed/simple;
-	bh=JHrNG0stqT3vK7t8UorMtDpmI0P24mpvO+ZxB6H4wfU=;
+	s=arc-20240116; t=1784756531; c=relaxed/simple;
+	bh=xVqncMVdBXMw28pX73y6xIsrPGLKgJC40RvJvGxuJE4=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=isKMw8nLKOkEBNwLXTBQfNZA1k41SziM52z6hVW6CDR0aHT4d6LvQM9YkrVedATW/+xR9bd5xTKZ7EQSJc9jetedqrm85rRD4AXNye/vfJM2HViFuXw55wLivOi1NRy8iaraJgTE9Hr7rI5S94CWXv3bnalri+OkAR97/rg3EEU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BDt2MUic; arc=none smtp.client-ip=100.103.45.18
+	 Content-Type:Content-Disposition:In-Reply-To; b=AQpCphfuLL7K/HFkmQoih0fPXAvtn4942+e7mA9Kp7UVvxPK94AYpmEmc9NTiXS0EL7yvrHvWBkhNSEXroOwTcDH3uj1hR5+Rqz916qPtLxhNL+52O5fRAnvhzB+/nVDE96LM3dV1z6hvmVhdqg06meeaQrKc6/kcY2UyC5uHko=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=aM5Ul6To; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BDt2MUic"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 3B8201F000E9;
-	Wed, 22 Jul 2026 21:41:56 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="aM5Ul6To"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 61EFA1F000E9;
+	Wed, 22 Jul 2026 21:42:08 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784756517;
-	bh=9qVG3+dHTaNyTap80hFFEZLeBns5/en0IKN6qYD4piM=;
+	s=k20260515; t=1784756530;
+	bh=li08vqzkfChXm7L2fLWJCauLBLfkW4tcSfSVjkWfxe0=;
 	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=BDt2MUicJrbMNxbnMtOBdA9o/e2z95C6JedXpvhOoIHQ3o+aNu3w+r6YZwJ8Gs5sg
-	 tkpOX5WKFv5ZSSB1QDAow+cKq+nZA2ePfvr71fbHBRj/eHmAhuU/5aPcNF/B8bj5e1
-	 UGYfmcghkOacGIC1uKsNn1lxZ4wZowY0MkP/93KchgcZ9kWKHi6T3USIRNV6aGsjeX
-	 RLO+IkjKtYuOx5aB6dPVVCzls4RaVFX1U9DGSfSuBUtdbhvFpbQ++Aeruv15oScpcE
-	 qFHcvYlwrIDy8lHMPXTRmFAnnU9YzkOwGn7PBGz7tYBRwmLzZ1KU7iZyfFQ5dRjwxE
-	 l3kGw65QaZXfw==
-Date: Wed, 22 Jul 2026 22:41:53 +0100
+	b=aM5Ul6Toqu5GrPLH6J07mgg2tVd9KHjlwXKTnRhKVlD4QB2dh+CNKKJLbxSXpcCyE
+	 bYy82BT5zJfP6HzLF0xbHDszDOARddtbmz6uMp6TKPwlvCFHCfnFdb8Vzk4yMOL/bs
+	 wBwS8zJ2/6VKCXE+o6yG8dXS8wv6XdnXWR/9fTOAyLlq7/KJn/6VCMVwWCBr5rXRxO
+	 hYx15xIHMcsciQYfYxUK98WCYGad90rnr+FBYVbfMtlaAS+sMeAMDUnG1/J4Gc0OXL
+	 9Bf6KyrZ/bC/76JDbcaLWKm9gpCnIBffYo3EtzQ9TetrGFy6CBccn1Qqufa1D5Fpya
+	 7iF/+rwuj+gog==
+Date: Wed, 22 Jul 2026 22:42:05 +0100
 From: Will Deacon <will@kernel.org>
 To: weimin xiong <15927021679@163.com>
 Cc: Jean-Philippe Brucker <jpb@kernel.org>, Joerg Roedel <joro@8bytes.org>,
 	Robin Murphy <robin.murphy@arm.com>, virtualization@lists.linux.dev,
 	iommu@lists.linux.dev, linux-kernel@vger.kernel.org,
 	Xiong Weimin <xiongweimin@kylinos.cn>
-Subject: Re: [PATCH v1 2/2] iommu/virtio: Reject short event buffers
-Message-ID: <amE5Id5R6tGuIlRg@willie-the-truck>
+Subject: Re: [PATCH v1 1/2] iommu/virtio: Set driver data before enabling
+ virtqueues
+Message-ID: <amE5Ld70N9tsf_dL@willie-the-truck>
 References: <20260714025914.193580-1-15927021679@163.com>
- <20260714025914.193580-3-15927021679@163.com>
+ <20260714025914.193580-2-15927021679@163.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -45,39 +46,41 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260714025914.193580-3-15927021679@163.com>
+In-Reply-To: <20260714025914.193580-2-15927021679@163.com>
 
-On Tue, Jul 14, 2026 at 10:59:14AM +0800, weimin xiong wrote:
+On Tue, Jul 14, 2026 at 10:59:13AM +0800, weimin xiong wrote:
 > From: Xiong Weimin <xiongweimin@kylinos.cn>
 > 
-> viommu_event_handler() only rejects event buffers that are larger than
-> struct viommu_event. A short buffer is also invalid, but the handler
-> would still read evt->head and, for fault events, the rest of evt->fault.
+> The event virtqueue callback retrieves the driver state through
+> vq->vdev->priv. viommu_probe() currently initializes that pointer only
+> after virtio_device_ready() and after the event queue is populated.
 > 
-> Require the used length to match the event buffer size before looking at
-> the event contents.
+> Store the driver data before creating the virtqueues so callbacks always
+> see initialized driver state once the device is made ready. Clear the
+> pointer again on probe failure.
 > 
 > Signed-off-by: Xiong Weimin <xiongweimin@kylinos.cn>
 > ---
->  drivers/iommu/virtio-iommu.c | 2 +-
->  1 file changed, 1 insertion(+), 1 deletion(-)
+>  drivers/iommu/virtio-iommu.c | 6 +++---
+>  1 file changed, 3 insertions(+), 3 deletions(-)
 > 
 > diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
-> index 4c91a82d2..4b7f0dcfa 100644
+> index 9118377d7..4c91a82d2 100644
 > --- a/drivers/iommu/virtio-iommu.c
 > +++ b/drivers/iommu/virtio-iommu.c
-> @@ -635,7 +635,7 @@ static void viommu_event_handler(struct virtqueue *vq)
->  	struct viommu_dev *viommu = vq->vdev->priv;
+> @@ -1173,11 +1173,12 @@ static int viommu_probe(struct virtio_device *vdev)
+>  	ida_init(&viommu->domain_ids);
+>  	viommu->dev = dev;
+>  	viommu->vdev = vdev;
+> +	vdev->priv = viommu;
+>  	INIT_LIST_HEAD(&viommu->requests);
 >  
->  	while ((evt = virtqueue_get_buf(vq, &len)) != NULL) {
-> -		if (len > sizeof(*evt)) {
-> +		if (len != sizeof(*evt)) {
->  			dev_err(viommu->dev,
->  				"invalid event buffer (len %u != %zu)\n",
->  				len, sizeof(*evt));
+>  	ret = viommu_init_vqs(viommu);
+>  	if (ret)
+> -		return ret;
+> +		goto err_clear_priv;
 
-See Jean-Phillipe's previous reply to an identical patch:
-
-https://lore.kernel.org/all/6800BE0812AF0897+20260706083148.788991-1-raoxu@uniontech.com/
+I guess it would make sense to pass the 'vdev' instead of the 'viommu'
+pointer to viommu_init_vqs(), now that you have linked them together.
 
 Will
