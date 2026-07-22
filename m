@@ -1,33 +1,33 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 12804306764;
-	Wed, 22 Jul 2026 14:18:03 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F257E35CB7C;
+	Wed, 22 Jul 2026 14:19:53 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784729885; cv=none; b=NFyq8sDsdxVDm0FtWe05iQLXYHxd5P9LMdPLw+j9zow0JKPUdg516kN7tOzIO+T6+nxIIvKYPDCmICrS1w4HZ6n9VzqhrRwio21ETMtVYnU/CYRNUJdVeobgHA2KrjVjNMlFwMytZBLvQfVjp3mVXznUJRaZ7KFF1CyqdAve6wM=
+	t=1784729995; cv=none; b=aZE5wrLemavw7dzSgmUOJq5Ut4GlYauYZRG/6FoGmbWbOhVls9ZaP4HzTqd7kQ+m5+PWsnkF4XASSBUId1PZx1pK3YzQ9lPVHJVu8Z6dkdkkPDQL8tH1Mx0hTqKHTuZJcnvOE0JGMee+/fZ/YXV5YtlaeqnXb2AaAODS+AT/r+o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784729885; c=relaxed/simple;
-	bh=np4yayh2BMzDrIbeGsDIccHY4xwm2Ph+deSS9Lu+mrc=;
+	s=arc-20240116; t=1784729995; c=relaxed/simple;
+	bh=Dk4MmWK8TDUalYiEaIQchMNeRJm3LAApjZ7Jhey6oBs=;
 	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=el71np27iqmyVtSo01el7is+WblCD4XWe8cGnUIbZGeEKpIeI2gsZODQj2/JEkVGPJLStjtrVgZOxHl10OUuatO68BdYKBlmlUzvzhRJcPpPzsJt6nd4GzuJ/rjqfuOXAzfRX7/1m0/qfMu40102hsHooqZZBqOgMZBqkz7eSmQ=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=a4vdnNdZ; arc=none smtp.client-ip=100.103.45.18
+	 In-Reply-To:Content-Type; b=Qy79jLZGSVJUTb4jDCmqFSgG9gSiIrI6KZkpm159jl3bSJnpZ/sd6VZKASaKncg0CvEOl+6gls8OwAG87wWGykEjl1vkt4QMqiuh1iNPbNGgDQoQF5JmNBtEuuGsvyKZgdtUlXqFiHhGJ6j+zhZT0Rrqvv1TKDUhCTcK1XODOFc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=BqxaWu0Y; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="a4vdnNdZ"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 998571F000E9;
-	Wed, 22 Jul 2026 14:17:45 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="BqxaWu0Y"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 0E6961F000E9;
+	Wed, 22 Jul 2026 14:19:35 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1784729883;
-	bh=nr20QdluTC6Xb2QJCx/L2OqHD3wYjRZzxUHD+ltN0io=;
+	s=k20260515; t=1784729993;
+	bh=E1fZtyJMG9BfhlBz0sxJsvbizOy4XPOaAolVzZbKG2U=;
 	h=Date:Subject:To:Cc:References:From:In-Reply-To;
-	b=a4vdnNdZSy07RDuS+C9gat8xlWANgEMGre2Gt8w50+S/RARkD/NxqriSXn9wrozPj
-	 E5W9CBr1d7eepeguATkGjOrPXaqKaMp0+xcdJH6JVLGWRdkxSRqsBQirTItAu9VNRf
-	 xKAJOUg/URAYNGPYd8y4vGKj+ONw/nWOpgBtlfPsR8ltFxfx8IoinmWT2jtQMA7WpP
-	 nozoGRCEMkB8851Fg9u/prJ/JOJKbaLEpz8L+8Zr68k62Ilb0p88pE+y3ZC8cSKbhK
-	 kBpgQZfX/d3Rxy5rU6yBQqCx1AN3uW+o51yyGmm2In6YviRmTxHVmf6qDl7Zlbt9Ib
-	 DwnPnhWrhgAMw==
-Message-ID: <ac18f5bc-62a9-41b0-8980-a4c465a4229a@kernel.org>
-Date: Wed, 22 Jul 2026 16:17:43 +0200
+	b=BqxaWu0YTlU0ACbArZmL1FzVAFZZB99uC8ks1vtMhYpCgqApT2szyxYcg1xfNPabV
+	 vGSiTNffzTx44l3VWUJEAhlKvwfBY3Xra1IVdmogCBtFsk9nzjk+BGE1KLD5RpS7yY
+	 xng/3auPQfLkXlvbFds3mkE+ZTq8CD+HG6nXSTfbPPYRYcfhkE8M7wT9pQKJoGIC6I
+	 AbYfEKSjq3JxuczuH2nnoB2mE1hfB2CFJxBsxovd00Kl34r3hXvL97tmTc4k/sHWSy
+	 TmquS1Z60ecsbwmO27nqyZ5HdEjOPRSPo1EtEzsS8vtOCqC7V2r8idg0kkU4mns8HT
+	 nM+l659nsR41A==
+Message-ID: <141b2b88-477c-4f54-a378-fbd3bb596cfd@kernel.org>
+Date: Wed, 22 Jul 2026 16:19:34 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -35,8 +35,8 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 03/13] mm: convert __get_unmapped_area() to use
- vma_flags_t
+Subject: Re: [PATCH v2 04/13] mm: update generic_get_unmapped_area[_topdown]()
+ to use vma_flags_t
 Content-Language: en-US
 To: Lorenzo Stoakes <ljs@kernel.org>,
  Andrew Morton <akpm@linux-foundation.org>,
@@ -104,7 +104,7 @@ Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
  intel-xe@lists.freedesktop.org, xen-devel@lists.xenproject.org,
  linux-fbdev@vger.kernel.org, linux-sound@vger.kernel.org
 References: <20260711-b4-vma-flags-mm-v2-0-0fa2357d5431@kernel.org>
- <20260711-b4-vma-flags-mm-v2-3-0fa2357d5431@kernel.org>
+ <20260711-b4-vma-flags-mm-v2-4-0fa2357d5431@kernel.org>
 From: "Vlastimil Babka (SUSE)" <vbabka@kernel.org>
 Autocrypt: addr=vbabka@kernel.org; keydata=
  xsFNBFZdmxYBEADsw/SiUSjB0dM+vSh95UkgcHjzEVBlby/Fg+g42O7LAEkCYXi/vvq31JTB
@@ -145,23 +145,23 @@ Autocrypt: addr=vbabka@kernel.org; keydata=
  NcaZ+c6J4H+nEJGi2SkHAUJz5oBzuThvPudLvPA/SK8sKoM01IRxSihev/S/5WLazXB1PGem
  OCbvzC1IjWJJraxiDJ5IygokapUa2RP7+WBR22skQ3SSl6G107QgWKSyTOGWEaRmV53vxQLV
  jXuCmzSSasTL60zq5yGrT4/DYQVSNEUiUbG4pYekxJujNeEDkUlky0Y=
-In-Reply-To: <20260711-b4-vma-flags-mm-v2-3-0fa2357d5431@kernel.org>
+In-Reply-To: <20260711-b4-vma-flags-mm-v2-4-0fa2357d5431@kernel.org>
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
 On 7/11/26 20:45, Lorenzo Stoakes wrote:
-> Update __get_unmapped_area() to be parameterised by vma_flags_t rather than
-> vm_flags_t as part of the effort to move VMA flags from a system word to a
-> bitmap.
+> As part of the changes converting VMA flags from a system word size to a
+> bitmap, extend this change to generic_get_unmapped_area() and
+> generic_get_unmapped_area_topdown(), which also allows us to convert
+> stack_guard_placement() as well.
 > 
-> We cascade the changes up to arch_get_unmapped_area_topdown() and
-> arch_get_unmapped_area(), where, for now, we use vma_flags_to_legacy() in
-> order to propagate the VMA flags.
+> We retain arch_get_unmapped_area() and arch_get_unmapped_area_topdown()
+> as-is for now, using legacy_to_vma_flags() as necessary to do so.
 > 
 > No functional change intended.
 > 
-> Reviewed-by: Lance Yang <lance.yang@linux.dev>
 > Reviewed-by: Zi Yan <ziy@nvidia.com>
+> Reviewed-by: Lance Yang <lance.yang@linux.dev>
 > Signed-off-by: Lorenzo Stoakes <ljs@kernel.org>
 
 Reviewed-by: Vlastimil Babka (SUSE) <vbabka@kernel.org>
