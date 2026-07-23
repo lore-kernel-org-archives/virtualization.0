@@ -1,89 +1,89 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.4])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2244821883E;
-	Thu, 23 Jul 2026 00:36:40 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2541D283FDD;
+	Thu, 23 Jul 2026 01:54:31 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784767002; cv=none; b=rkJAmvIm62G+1eAfW0r3BAsqipUzl3K2CTCxryNq4zTSSLoyV7S3soNg1XqULGWVwb2S3AP2BejiK11+FvRfkC5iwVjTLNcpN+K5NIp5jHjYuGV9YNrsrPRtj4S/vPWglFO0q18nUez7kPG8Aywp8qZQAdyO3OkM9yh+W7uyMKQ=
+	t=1784771676; cv=none; b=TJQDBtp3uGq/FOy+D1EfY+rsxuhvWMTNwIG589MBm++R19M2LjvnEz8fBCWy66Vsx4RfbR6xXSLL/yWkSJ8A0Bfut/5vqOgD7ufWgqXXWrCBfC8EWOkfTQA7eh4YSHLhEwkEV9LBxtvqK78q4JIHXNJngFf4UICXcW9GLWA7/NU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784767002; c=relaxed/simple;
-	bh=2Bv3svHGu6TJLhCiQRhXkMiJ3PT3WF51LHCru/WTxA4=;
-	h=Date:From:To:Cc:Subject:Message-Id:In-Reply-To:References:
-	 Mime-Version:Content-Type; b=OJNS26WzVE5aUfIoFcDHlw3WcVTvC4t35QJqP4J9ghyJ9UN+IXbkvlkSbx3+cuXcrRguBtlYs5/+4HlQ154a4RVCn3HRlvjZwttfJZBVuHXtHPR1hDJf4cJ5yk9UNd0SjL1zUWI9hupkWc+kyPI7PjADRd8IgHna2IZIziZOtBA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b=I1rExJ7H; arc=none smtp.client-ip=100.103.45.18
+	s=arc-20240116; t=1784771676; c=relaxed/simple;
+	bh=SC0rg+x03vywBcBZlzeedgSQzH5J/lge60v4ABi6CrA=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=e1VWXQPRldA/1LpPacyQGUnB/W1gV3XvvD8gb1Jla/7WvKvqftqJce89P6HZtnPTpYV9DYdIg+Khs4rCQGjucMJUXS0elO0jwT2M1SZjWOKV2wLSvH8Wo5kK1/Q9439PIK7xHP+W1Jmfu4LE7JGuouUgkPlkmXSZiYYUE0KLr1o=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=iPOQeVMy; arc=none smtp.client-ip=117.135.210.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux-foundation.org header.i=@linux-foundation.org header.b="I1rExJ7H"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 168AA1F000E9;
-	Thu, 23 Jul 2026 00:36:40 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-	d=linux-foundation.org; s=korg; t=1784767000;
-	bh=8fHddoiy2ssGES1+pkTKa3f6U/9rZANITkdG9dYpmkM=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=I1rExJ7HbucjG8Nn1+3y6cPgEqcv0oeMs54cOuvhn1mFD3lhLjY4JHzpWproZDE9g
-	 3v/GM6QlOwfpWIyAPWR46bGgxgNP0+Q4Da3I2NVtdmcJPsSwfvX5SbyX0g6Y/bYVZO
-	 g5ghIaYOOe3OhWBMxnJkY100QK2m+8yxOBG6LgE4=
-Date: Wed, 22 Jul 2026 17:36:39 -0700
-From: Andrew Morton <akpm@linux-foundation.org>
-To: Link Lin <linkl@google.com>
-Cc: Vlastimil Babka <vbabka@kernel.org>, "Michael S . Tsirkin"
- <mst@redhat.com>, David Hildenbrand <david@kernel.org>,
- virtualization@lists.linux.dev, linux-mm@kvack.org,
- linux-kernel@vger.kernel.org, prasin@google.com, rientjes@google.com,
- duenwen@google.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, Ammar
- Faizi <ammarfaizi2@openresty.com>, jiaqiyan@google.com,
- ahwilkins@google.com, Greg Thelen <gthelen@google.com>, Alexander Duyck
- <alexander.duyck@gmail.com>, jthoughton@google.com, stable@vger.kernel.org
-Subject: Re: [PATCH v3] mm/page_reporting: use system_freezable_wq to fix
- UAF during suspend
-Message-Id: <20260722173639.34d3f58413354218b24a5b0d@linux-foundation.org>
-In-Reply-To: <20260721005603.1710551-1-linkl@google.com>
-References: <20260721005603.1710551-1-linkl@google.com>
-X-Mailer: Sylpheed 3.8.0beta1 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="iPOQeVMy"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-ID:MIME-Version:
+	Content-Type; bh=paZdsCGqBdUsjK0gMnjdeBOx6BhxhyfrY1AIHZrqBdM=;
+	b=iPOQeVMyZC9MECl8WbSyWi4UmbxVwbIOu77LPgz03ldLBp72H1w8ISWhA7pVig
+	vzFkmEIA7h6/g7aSBv02VEjbmfT7PKDZWUfuDJbOUArlO4CkbeqEst8QV53JP0It
+	8li0SZrY1pueW+6kdciskaVxWqHIrgYhrKHXrtYHV1sow=
+Received: from xwm-TianYi510Pro-14IMB.. (unknown [])
+	by gzsmtp4 (Coremail) with SMTP id PygvCgD3Xy5BdGFqQfyBIg--.17302S5;
+	Thu, 23 Jul 2026 09:54:11 +0800 (CST)
+From: Weimin Xiong <xiongwm2026@163.com>
+To: Jean-Philippe Brucker <jpb@kernel.org>,
+	Joerg Roedel <joro@8bytes.org>,
+	Will Deacon <will@kernel.org>
+Cc: Xiong Weimin <xiongweimin@kylinos.cn>,
+	Robin Murphy <robin.murphy@arm.com>,
+	virtualization@lists.linux.dev,
+	iommu@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2 3/3] iommu/virtio: Reject short event buffers
+Date: Thu, 23 Jul 2026 09:54:09 +0800
+Message-ID: <20260723095103.1-xiongweimin@kylinos.cn>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260716012157.88769-2-xiongwm2026@163.com>
+References: <20260716012157.88769-2-xiongwm2026@163.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:PygvCgD3Xy5BdGFqQfyBIg--.17302S5
+X-Coremail-Antispam: 1Uf129KBjvdXoWrZw1fCF1xGr1kCw1kJr1fWFg_yoWkJFc_ur
+	yvvr9rJr1UZFZ0yr4UKryIgr9Ikay5Zrn3uFWFgrWrJ348Xwn5Cryvqr1kKFW7Wr4UKFnx
+	tws0y3WfXryfWjkaLaAFLSUrUUUUjb8apTn2vfkv8UJUUUU8Yxn0WfASr-VFAUDa7-sFnT
+	9fnUUvcSsGvfC2KfnxnUUI43ZEXa7IU5Wa0PUUUUU==
+X-CM-SenderInfo: x0lr0wdzpsijqw6rljoofrz/xtbC8AMgr2phdEPWAQAA3X
 
-On Tue, 21 Jul 2026 00:55:33 +0000 Link Lin <linkl@google.com> wrote:
+From: Xiong Weimin <xiongweimin@kylinos.cn>
 
-> During PM freeze (e.g. S3 suspend or S4 hibernation), device drivers like
-> virtio_balloon reset their underlying virtio devices and delete their
-> virtqueues via vdev->config->del_vqs().
-> 
-> ...
-> 
-> Fix this by switching page reporting work to system_freezable_wq.
->
-> ...
->
+From: Xiong Weimin <xiongweimin@kylinos.cn>
 
-Thanks.
+viommu_event_handler() only rejects event buffers that are larger than
+struct viommu_event. A short buffer is also invalid, but the handler
+would still read evt->head and, for fault events, the rest of evt->fault.
 
-> Fixes: 924a663f75e2 ("virtio-balloon: Reporting free page reservations")
+Require the used length to match the event buffer size before looking at
+the event contents.
 
-hm, now where did that come from.  I can find no such commit and that's
-the second time this very unusual thing has happened in 30 minutes!  I
-wonder what's going on.
+Signed-off-by: Xiong Weimin <xiongweimin@kylinos.cn>
+---
+ drivers/iommu/virtio-iommu.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
 
-I'll use
-
-	36e66c554b5c ("mm: introduce Reported pages")
-
-OK?
-
-> Cc: stable@vger.kernel.org
-
-The bug is very old so I won't fast-track this fix into 7.2-rcX.
-
-AI review pointed at a possible pre-existing use-after-free issue,
-related to virtio-balloon.  But I think this is a rephrasing of the
-issue it flagged against your v2 patch.
-
-	https://sashiko.dev/#/patchset/20260721005603.1710551-1-linkl@google.com
-
+diff --git a/drivers/iommu/virtio-iommu.c b/drivers/iommu/virtio-iommu.c
+index 587fc1319..fb19d0bf4 100644
+--- a/drivers/iommu/virtio-iommu.c
++++ b/drivers/iommu/virtio-iommu.c
+@@ -635,7 +635,7 @@ static void viommu_event_handler(struct virtqueue *vq)
+ 	struct viommu_dev *viommu = vq->vdev->priv;
+ 
+ 	while ((evt = virtqueue_get_buf(vq, &len)) != NULL) {
+-		if (len > sizeof(*evt)) {
++		if (len != sizeof(*evt)) {
+ 			dev_err(viommu->dev,
+ 				"invalid event buffer (len %u != %zu)\n",
+ 				len, sizeof(*evt));
+-- 
+2.43.0
 
