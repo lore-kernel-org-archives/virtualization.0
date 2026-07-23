@@ -1,149 +1,167 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f171.google.com (mail-pl1-f171.google.com [209.85.214.171])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 60295416134
-	for <virtualization@lists.linux.dev>; Thu, 23 Jul 2026 09:15:31 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 798FC43B4A7
+	for <virtualization@lists.linux.dev>; Thu, 23 Jul 2026 10:26:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.171
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784798133; cv=none; b=NNSeCd0zg6QMuVrdw8O9OmMOtWdrdr/BGeojACWtNxxnpOxzDlt4kGVrsdqgg/WQRNwh9fF0KLn4m1yLit0SlTUQmTJMNmP9eRbcFgRTN2hjIqnVQ/rYGUD6lN1VupNZYeSrGpIQHnUhNN3/9k/DeuZOV+0AfP8Nm8wDIv5JIv4=
+	t=1784802412; cv=none; b=s9i+GEsoZOToAD1MK3ueqK5EYMqi8FGp4pn2VzH8/H9jy1kNY0BW4UCygmpQVxZIiyRPEEyjJdw+l5nSCLVd3bElFTd29ODUOnTyWYNyZWbfKQgDgu0qUO1EX0cxVOotESHgrF+v+deKRJVgcmbq4OiOi2tgngtWwYcDvT7+L0o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784798133; c=relaxed/simple;
-	bh=/r59B+4fbS2XEZA7YWBaen4M7zk7M6FzVG8lMCu5vdA=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=QRTzVj24iM1QYB6J5Qf36deqdclBtXiDxDOg7YKjkEQHv/lC20eHjBnGuYtc4JbjJK3euN44ZClgVn78AfwnDD3ZCu3wcaRZLm9rA3CciW0b0FHnvWMqdiA0a8VV/bqfaygwAi8CBXPzJ22wVqTrjzcHuBEolZ6K4V4sHd0pkxM=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=WYEhTiqR; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1784802412; c=relaxed/simple;
+	bh=gR+hILfs9JaVILip6p2fY59TZJegMJ+6aegMjs81qKM=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=PhEIEyqwc6ZttX+YwCAbl5MHfMyumm5qtg5l1ee7IImrzWPzqmxCXNefIcH/lVmEDJMG//dvLCV5k4wHAEi5QFluPh9M1FcVU9kZodKOSWMfcU6EqQn5QdhttPpm81/oirzPqxMhUQcQdG7mrYYbrYAGteKso5AG4j2S49w4E/k=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=YIU4nmeI; arc=none smtp.client-ip=209.85.214.171
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="WYEhTiqR"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1784798129;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=HFDQsWaV4YVMqaytcd/qULKOMwPiXTV9I3KQpj/1PB4=;
-	b=WYEhTiqRlpe1bu5fdwDiuxmU8TBupREdCAej0k/He3vq60p3sPvTPaa8Ru4k1N9BLdg98v
-	EZFd7sP1FGQgmYQiMLmUfwN06oQtiy/Qj61jN/PhdRYvT1fjaPgroB1joPjzd8SMVslp6J
-	7dY9im7lsqIr7u2uMKgagY55cnL3BpU=
-Received: from mail-wm1-f69.google.com (mail-wm1-f69.google.com
- [209.85.128.69]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-42-H9qj9NpTMEqg3O7yik_CWw-1; Thu, 23 Jul 2026 05:15:27 -0400
-X-MC-Unique: H9qj9NpTMEqg3O7yik_CWw-1
-X-Mimecast-MFC-AGG-ID: H9qj9NpTMEqg3O7yik_CWw_1784798126
-Received: by mail-wm1-f69.google.com with SMTP id 5b1f17b1804b1-4955843c6cdso4706755e9.1
-        for <virtualization@lists.linux.dev>; Thu, 23 Jul 2026 02:15:27 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="YIU4nmeI"
+Received: by mail-pl1-f171.google.com with SMTP id d9443c01a7336-2cace91f112so5703495ad.0
+        for <virtualization@lists.linux.dev>; Thu, 23 Jul 2026 03:26:50 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1784802410; x=1785407210; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:in-reply-to:from:references
+         :cc:to:content-language:subject:user-agent:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=01n37iktC7STPimw6Zf4vYgQpw8EUgozHpcb0fjUKyc=;
+        b=YIU4nmeIXC2R9pPvlB1B+s/XEMP6IUYUbDzezhKljmHd1oKYve8Hre7mfHomyo6iV8
+         sEDW8nIT7NscO1GcALHKB+CL9tOqwpmguwT5ka3XVxKerwQhhlP2Qg0igJulvXKh0vf5
+         QPYosbIle6sBQjlHWK3jausJSxsYJ5ECZ2WjMRTjT4Ca8d1LWv6ttCqa5d2s3wjrFSO3
+         iuL707SZpPPOI55cSFNeD/HYUZJRADMUqza3fm0ipSyyNa1XpBcz8+4Jf8XG2I7jmEhw
+         JqZKhhm9Sk7ZSPhPS71qQ75JN+dTpxO2JuTAXyTTRo1ZtWSiKrESTrYixjQSZXPRZHY1
+         FrZw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784798126; x=1785402926;
-        h=in-reply-to:content-transfer-encoding:content-disposition
-         :content-type:mime-version:references:message-id:subject:cc:to:from
-         :date:x-gm-gg:x-gm-message-state:from:to:cc:subject:date:message-id
-         :reply-to:content-type;
-        bh=HFDQsWaV4YVMqaytcd/qULKOMwPiXTV9I3KQpj/1PB4=;
-        b=jd/jUMpGGaSHrq80HEK+TZ8j7aThgpruQqTNdIrY/xB9b1XdnwRolPVPZvwJ2HGmUc
-         AmDwsXhFgkH0CocwxyGB7FxULpwnjFn3oR9m5ofQdPtpnABO/LFbxwvf6kJcOW1oavBr
-         YoN04XPjS8j1DJx32rd9aJ841Dd0Dxk85CxiW/1hTKi5Y0hw1mJcWs1qIOJhprmvaeBA
-         X2n4ScnTtfNqxt7LXwKsePVTIFHnT6dwTPbweQHl3BBDPWy+9MpHO/DHYirFeZPD+TPS
-         ztvbQim3qFaEby4gD18Yki/EYYaiNS1J8VcD5rIzd0bJBlWZF17XMV35UwSJemXxNExq
-         ipWA==
-X-Forwarded-Encrypted: i=1; AHgh+Rq316f0ztl6iGzBPmV1rZfPW4XyWDW8cTFsyA+nLlDf9GCOgDQhq41iamnVOf+KrTVNyivdnaFX6hdpogMxNQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxwogOplZDl4B7UwazyWL1G1Xzosau1p7SdDiR+aCp0SL6Nw8in
-	Cm2NBNEMF26Lvimf9d+tZSRCKZ143JdgdRTq28BGFfsDDuK0gdcsNQhYopopyn8pMmcJUlExtB4
-	PA0wRPd+wxKvBToMl5tVahQQD9BoPeuggQAJAt68d/SKNo0Wc3WP/FbX3mnvw8oc3Gzd+
-X-Gm-Gg: AR+sD11hd40rthZNzt4x6uiTqAViQAf2Vvs3Xe5UU4qgejy+OpPR8hx036wo7hdBHML
-	rBvHHMLkUSomBFEe9r9/vKzQlBQbtCFlkNhE2puImqAA5x/y2acvsYOdJ4yo3yNOtp0ko5HaYuq
-	FDERAJlv2XHOEME/ZcKbPezHUFQEC4z/DvlGw01uZ4XAYysCN2ScPZPOVTjJPSMmeOD0fS+arsT
-	CU33HDgtYRmU1i8FxSagFLageC+FqrD7Y4OJWJDuhT801878YTUX07GsuVGDU66BgFuJjOHltjy
-	t0+QPlRnjcVj5+kyYl8Ocy83MHIs3fWFzoRQa+GYwU+kWT4xUpAIjx8ITc2c+yRxhbCMmxNOMvF
-	u77d0HyOL4UbPt8X7Ms9hQg==
-X-Received: by 2002:a05:600c:548a:b0:493:eb71:5cc6 with SMTP id 5b1f17b1804b1-49573d0eac1mr23927615e9.27.1784798126321;
-        Thu, 23 Jul 2026 02:15:26 -0700 (PDT)
-X-Received: by 2002:a05:600c:548a:b0:493:eb71:5cc6 with SMTP id 5b1f17b1804b1-49573d0eac1mr23927055e9.27.1784798125726;
-        Thu, 23 Jul 2026 02:15:25 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-37-66.inter.net.il. [80.230.37.66])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4956b72fac1sm108575995e9.1.2026.07.23.02.15.22
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Jul 2026 02:15:24 -0700 (PDT)
-Date: Thu, 23 Jul 2026 05:15:21 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Link Lin <linkl@google.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>,
-	Vlastimil Babka <vbabka@kernel.org>,
-	David Hildenbrand <david@kernel.org>,
-	virtualization@lists.linux.dev, linux-mm@kvack.org,
-	linux-kernel@vger.kernel.org, prasin@google.com,
-	rientjes@google.com, duenwen@google.com, jasowang@redhat.com,
-	xuanzhuo@linux.alibaba.com, Ammar Faizi <ammarfaizi2@openresty.com>,
-	jiaqiyan@google.com, ahwilkins@google.com,
-	Greg Thelen <gthelen@google.com>,
-	Alexander Duyck <alexander.duyck@gmail.com>, jthoughton@google.com,
-	stable@vger.kernel.org
-Subject: Re: [PATCH v3] mm/page_reporting: use system_freezable_wq to fix UAF
- during suspend
-Message-ID: <20260723051327-mutt-send-email-mst@kernel.org>
-References: <20260721005603.1710551-1-linkl@google.com>
- <20260722173639.34d3f58413354218b24a5b0d@linux-foundation.org>
- <CALUx4KSfUUud86k4SLwETJAciRc8kZ9QocvBj39KmzXDiQ7J1g@mail.gmail.com>
+        d=1e100.net; s=20251104; t=1784802410; x=1785407210;
+        h=content-transfer-encoding:content-type:in-reply-to:from:references
+         :cc:to:content-language:subject:user-agent:mime-version:date
+         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=01n37iktC7STPimw6Zf4vYgQpw8EUgozHpcb0fjUKyc=;
+        b=J2Nt/B8q7jFeeAGAcH6/+8aAY/QmQTUbE++ByrNpAvt9oCsFRiBurlggxVnHmNHBmk
+         9xJManlya7YptSZj8w1ob9/T/gY0xUGWzrt6nXIPY2LzASoH/HwYW1MzT75Xz3BlwKmj
+         DdlIbEDi/uvtTTn04SXjp2hSK4j7R+ZROQAa8961tv9wcLqO8fbI3iIq8PQfHrocoXsy
+         S4H6BN/8x0I4/Digtvxwg2fzSDRCnrim+uWIOcxiJ5AqgMaNpBB5X6Nyn3Jm1OnynBn0
+         L5eulvYEFH9cq/6CT068o7dQXq+qZonk1o68VMKBPiDpzlouxNA5/oedkrM0GYVKnM8T
+         CqwQ==
+X-Forwarded-Encrypted: i=1; AHgh+RrI/jcuIBTBZMAFMW9D457U43hEpryESM6S8uU2pSnyDnltTmIGaRr25M6KJTnjBBKLzdDI0kf7IW7lwc6t6w==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx/qDEUg+r5eqL2aRkia6ye8FmHo9oH4nB3ZDLeV58x6IJZpd/5
+	u22UgSJ7r1MXA0995qLhhazAopy9nRoXnWDWKC640w8uKT3Q+2ZYG+cn
+X-Gm-Gg: AR+sD136Kt7pPtiCsaTohEcxGo6i/XK9+q9hWDkjMmYpPkRfYLzAWBmPgfvWLT9xP8L
+	zdI2NV4y0+dyed0ZatwsbvZKq3WgAT8TrvasV8IFjGHZA8KWJNN85bRPs6zqQsr1LS/sZ6d5pqq
+	1JIwRjqGnHwj0uCWOkeE9qQawR1528eAbbecUj+he13CtAzQlz0jVo03d42TawCf1qA3STPrm8V
+	li/RpSWdijdZsv+PFzCL/Cg/RXBwbwk4EYmjtZR+ROFHnWNpxBWXee+LBwTSPRhVZeRyxqcOw2E
+	/ecSFWMibS4u7UE6fLZwMbUCxrRb7jyY6Vwhf+2B6hmx2kMyZ2pa43IDaEIcgDGuhED5+5PfXeK
+	FnDXXlTumrCr2XIj3tKJPvPuroXPtW1pGsTGc9tQTEtBjRsBG2SbJn15ASZDkTO3aArNSJCs7Az
+	y0vg+FDy5EGQE+vV+D
+X-Received: by 2002:a17:902:f68b:b0:2cf:32bc:971e with SMTP id d9443c01a7336-2cfa6c66618mr27394975ad.29.1784802409495;
+        Thu, 23 Jul 2026 03:26:49 -0700 (PDT)
+Received: from [10.22.76.22] ([122.11.166.8])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2cf8f2e5effsm31822045ad.47.2026.07.23.03.26.46
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Thu, 23 Jul 2026 03:26:48 -0700 (PDT)
+Message-ID: <27412e44-ab4b-4dd3-9685-481875683860@gmail.com>
+Date: Thu, 23 Jul 2026 18:26:44 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <CALUx4KSfUUud86k4SLwETJAciRc8kZ9QocvBj39KmzXDiQ7J1g@mail.gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: SfJfe5bx2S0dK77my74Vb30sTBCdwtzgr1734FK5FUk_1784798126
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] vsock: use sock_error() to consume sk_err after connect
+ timeout
+Content-Language: en-GB
+To: Stefano Garzarella <sgarzare@redhat.com>, Michal Luczaj <mhal@rbox.co>
+Cc: "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+ syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20260719220103.684489-1-phind.uet@gmail.com>
+ <al3UuvBhfxp82krV@sgarzare-redhat>
+ <78225425-1ca7-45fb-85cb-9e04f489e68f@gmail.com>
+ <amB15TdzPAEk9A9C@sgarzare-redhat>
+ <b81bfea4-6b19-4cc8-95c0-dcd4ad42476e@gmail.com>
+ <95cd0d4e-58c9-44ab-b94f-fcf57b88583b@rbox.co>
+ <amHN9mOGj7oMak4-@sgarzare-redhat>
+From: "Nguyen Dinh Phi [SG]" <phind.uet@gmail.com>
+In-Reply-To: <amHN9mOGj7oMak4-@sgarzare-redhat>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 8bit
 
-On Wed, Jul 22, 2026 at 09:07:04PM -0700, Link Lin wrote:
-> On Tue, Jul 21, 2026 at 5:36 PM Andrew Morton <akpm@linux-foundation.org> wrote:
-> > hm, now where did that come from. I can find no such commit and that's
-> > the second time this very unusual thing has happened in 30 minutes! I
-> > wonder what's going on.
-> >
-> > I'll use
-> > 36e66c554b5c ("mm: introduce Reported pages")
-> > OK?
+On 23/7/26 16:24, Stefano Garzarella wrote:
+> On Thu, Jul 23, 2026 at 08:00:31AM +0200, Michal Luczaj wrote:
+>> On 7/23/26 06:14, Nguyen Dinh Phi [SG] wrote:
+>>> On 22/7/26 15:55, Stefano Garzarella wrote:
+>>>> On Tue, Jul 21, 2026 at 01:34:03AM +0800, Phi Nguyen wrote:
+>>>>> On 7/20/2026 4:17 PM, Stefano Garzarella wrote:
+>>>>>> On Mon, Jul 20, 2026 at 05:57:47AM +0800, Nguyen Dinh Phi wrote:
+>>>>>>> After vsock_connect() exits the wait loop due to sk->sk_err being
+>>>>>>> set, the error was read but not cleared. This left sk->sk_err set
+>>>>>>> for subsequent operations.
+>>>>>>
+>>>>>> So, is this a fix? If yes, we should put a Fixes tag.
+>>>>>>
+>>>>>> Also, can you describe how to trigger the issue?
+>>>>>>
+>>>>>> Because I see this in vsock_connect(), so I thought it was in some
+>>>>>> way already handled:
+>>>>>>
+>>>>>>         /* sk_err might have been set as a result of an earlier
+>>>>>>          * (failed) connect attempt.
+>>>>>>          */
+>>>>>>         sk->sk_err = 0;
+>>>>>>
+>>>>> This only handles the case where the function following the failed
+>>>>> connect is another connect() call.
+>>>>
+>>>> So, can we remove that with this patch, or better to leave as defensive
+>>>> action?
+>>>>
+>>>
+>>> I prefer to keep it here as defensive action
+>>
+>> Is changing how vsock_poll() behaves intended?
 > 
-> Yes, that Fixes tag is perfectly OK. I pulled the previous hash from
-> an internal downstream tree by mistake. Thank you for catching that
-> and correcting it!
-> 
-> > The bug is very old so I won't fast-track this fix into 7.2-rcX.
-> 
-> Completely understood and agreed.
-> 
-> > AI review pointed at a possible pre-existing use-after-free issue,
-> > related to virtio-balloon. But I think this is a rephrasing of the
-> > issue it flagged against your v2 patch.
-> 
-> I actually looked closely at Sashiko's flag, and to my surprise, it is not a
-> rephrasing—it caught a completely separate, valid edge case.
-> 
-> My patch fixes the UAF on the PM suspend/teardown path. However, Sashiko noticed
-> a UAF on the PM *restore* error path. If virtballoon_restore() fails during
-> init_vqs(), it aborts without unregistering the page reporting worker. When
-> system_freezable_wq thaws, the reporting worker wakes up and dereferences the
-> now-dangling vb->reporting_vq pointer.
-> 
-> Since it's a driver-specific lifecycle bug rather than a core MM workqueue
-> issue, I will write up a separate follow-up patch to address it in
-> virtio_balloon.c
-> shortly.
-> 
-> Thank you again for shepherding this fix into -mm!
-> 
-> Best,
-> Link
 
+I think connect() already delivered the error directly to the
+caller when it returned -- there's no reason for poll() to keep
+reporting that same, already-handled error afterward.
 
-I suspect rest of work items we have, e.g. update_balloon_stats_work/update_balloon_size_work
-all have issues around freeze/restore and error handling.
+> Good point, but IIUC __inet_stream_connect() is also using consuming the 
+> error with sock_error().
+> 
+>>
+>> I.e. if sk_err should be kept after a failed connect(), what about
+>> `sk->sk_err = 0;` in vsock_listen() instead?
+> 
+> Yeah, maybe this is a bit less invasive.
+> 
 
--- 
-MST
+yes, __inet_stream_connect() does it, and actually, other protocols like 
+Bluetooth, TIPC, x25... are also consume sk_err with sock_error() after 
+their wait loop.
+
+I think it is an established pattern, so I'd rather keep sock_error() in 
+vsock_connect() than move it to vsock_listen(). vsock_listen() would 
+only protect the listen() path; I see other places in af_vsock.c use 
+this sk_err.
+
+>>
+>>>> ...
+>>>> Yeah, we need to handle that part better, I think it's a leftover when
+>>>> we generalized AF_VSOCK to support more transport than vmci.
+>>
+>> Speaking of leftovers, I have trouble understanding where does vsock set
+>> sk_err on listener sockets anyway. If it doesn't, why vsock_accept() 
+>> checks
+>> for it?
+> 
+> I can't also see where it can be set TBH. Should we remove it ?
+
+I couldn't find it for listener side too.
+
+Thanks,
+Phi.
 
