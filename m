@@ -1,261 +1,136 @@
-Received: from DB3PR0202CU003.outbound.protection.outlook.com (mail-northeuropeazon11020080.outbound.protection.outlook.com [52.101.84.80])
+Received: from relay.hostedemail.com (smtprelay0015.hostedemail.com [216.40.44.15])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 168EE33C18B
-	for <virtualization@lists.linux.dev>; Thu, 23 Jul 2026 14:31:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.84.80
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784817121; cv=fail; b=TVOsmWzB1eQ1inadKCynbssvqVJ188atCsgr25LozELPsRDCIbA7HMRPpzLAXcPQjQ0rF7jdSYrqdeVeAredLDUdSagua/d9xE9SDU8MuRu5Qp3fEsHDWtjYuX/RHHHic5mwytY3JGUQyCZfxtoIJPh3yZPLMGMxSK2lwEG07jQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784817121; c=relaxed/simple;
-	bh=lZaZAT51fUulEip9c6avPeTXoTTHTOnfrRQezmyTSP8=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=f1kSdgdiIwMbi6Vj7A4STGCO1ewrVqqQ8CsS0xMjEvsuzHTzERNG8S3X+Byj9xJzGoanDkW3Woc3OfIQsANhbmKAdgHpfh9OHDabXB0q2QCKYnxfkZnLqbj8Kc6muNMjGhktZRXR1qul22EnFsMSHADbSf/X7sXJQLSp13CD8Ds=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=virtuozzo.com; spf=pass smtp.mailfrom=virtuozzo.com; dkim=pass (2048-bit key) header.d=virtuozzo.com header.i=@virtuozzo.com header.b=ggq1bOrR; arc=fail smtp.client-ip=52.101.84.80
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=virtuozzo.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=virtuozzo.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=virtuozzo.com header.i=@virtuozzo.com header.b="ggq1bOrR"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=FRdNrpuJASM5QXulXumi/VWgpYMQE3uZE66qQCtUwp3zaWGSSOq7auuCQ1TJMpjvp8WM/oQwvygLUfEcpbfvJunnIdX3VEvUa5wFsu20q9sHlhknR9LVK+D0HmVgW0KGsJgYNXWiobZ7nRgYuUkKMIJmlfcw7n9GQRVjvVwvvDEWPduf89nJajlheE2gtix3B+ZzLaumpZ4HmHpoYBwlYJ5PdL8JUQIbOnJn+0bA//N/O4n7/wjzEeWsBqBdovj6Acom5pAo8BcCz190xSlmhsgC8c8OXzQR35putpSaM1NU//buTssSf+6evULlQjfWbPB1QpAkRwVzwC2CdDf4Og==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=58lIAJPR4sFsluweVkKOZohILeV7j1NU+JKmoKkNw4c=;
- b=c+EzzA9IR2hPSImixePn6IlbD4cq6GCoYu/gehBaDJxc5PjknBBbfAs8eXLck3xe7yNFAWV1dqsrha/AMrg8Edzs8k9RVY3OnnWB3o0yemkb8B7tJF1xJAPoLr4fEc2cmVKFTsqlfY9K4vhd2BNXKUkMH0d6a/N7ypAIdUz+jnxm25K7GeS3zyri9UdWbF/BnVQbCNfiyipeLp8DIaTKzfRui9r+lRM7oU7Pxquvxic4P/1vhOV1iVI5iDfoyf5H88DszxzXYY0aSc/WwYX2ZppofMcQYnR3fQRgU9O9T5V5Uy4LBsk4rRuDrG/u40aeuVOhJfafKy2pFdiNTkd4YQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=virtuozzo.com; dmarc=pass action=none
- header.from=virtuozzo.com; dkim=pass header.d=virtuozzo.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=virtuozzo.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=58lIAJPR4sFsluweVkKOZohILeV7j1NU+JKmoKkNw4c=;
- b=ggq1bOrRX639yGTqVxtemyxjLKr8dQBaOTZ/8/bhg21bNyBD7mnl4GuDBgskGqw0g6gTp3y+o1PlER8FeiJ5b/Bjmf6SgpwPEwGqoUk+YhGDPrqtuf1Vy4XW07lFCNcWIgdI3ch7b2+et2xQQuDwHVS86/tbpJfTbT0i+pKv3pjAfJCOuPpj+7BncFh5i+BtdFeTlXPiWW/8fsjD8VzaFq0NRmkprYihkc6RvY+29ay0DiyobqbF9W/fZ0qZllHN/XYB12mvs8QudHhhl0yF4ND6x7N07rera4OptWh7e3t6ThLWBQVTej6ltkeaSlxm2JO8qEoD6V8jWea6MocLAw==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=virtuozzo.com;
-Received: from AM9PR08MB5892.eurprd08.prod.outlook.com (2603:10a6:20b:2dd::16)
- by DU0PR08MB8809.eurprd08.prod.outlook.com (2603:10a6:10:477::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.245.10; Thu, 23 Jul
- 2026 14:31:55 +0000
-Received: from AM9PR08MB5892.eurprd08.prod.outlook.com
- ([fe80::94bb:633f:1f55:4bbd]) by AM9PR08MB5892.eurprd08.prod.outlook.com
- ([fe80::94bb:633f:1f55:4bbd%2]) with mapi id 15.21.0245.010; Thu, 23 Jul 2026
- 14:31:55 +0000
-Message-ID: <68c497d0-0c6d-4a4b-b99e-1d38601a0809@virtuozzo.com>
-Date: Thu, 23 Jul 2026 16:31:54 +0200
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v5 4/5] vhost: synchronize with RCU readers when freeing
- workers
-To: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>,
- Stefano Garzarella <sgarzare@redhat.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
- virtualization@lists.linux.dev, netdev@vger.kernel.org, mst@redhat.com,
- stefanha@redhat.com, dongli.zhang@oracle.com, maciej.szmigiero@oracle.com,
- bchaney@akamai.com, mark.kanda@oracle.com, ptikhomirov@virtuozzo.com,
- den@openvz.org
-References: <20260720102241.371610-1-andrey.drobyshev@virtuozzo.com>
- <20260720102241.371610-5-andrey.drobyshev@virtuozzo.com>
- <amCPLOrnpYmr5n0p@sgarzare-redhat>
- <82066fcb-150f-47ef-86a7-0df0f9eb41c5@virtuozzo.com>
- <amIe79X3j7GxDBdO@sgarzare-redhat>
- <f21667c3-64f1-40c6-9941-9453af173eda@virtuozzo.com>
-Content-Language: en-US
-From: "Denis V. Lunev" <den@virtuozzo.com>
-In-Reply-To: <f21667c3-64f1-40c6-9941-9453af173eda@virtuozzo.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: VIXP296CA0011.AUTP296.PROD.OUTLOOK.COM
- (2603:10a6:800:2a9::10) To AM9PR08MB5892.eurprd08.prod.outlook.com
- (2603:10a6:20b:2dd::16)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD73049251F;
+	Thu, 23 Jul 2026 14:34:06 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.40.44.15
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1784817250; cv=none; b=CmNQyjkZxuUJqXb0hWrUy1QI2/Dweo6JAFrN5W/ZnL0PUrh8PQoArD4z6m0oiA7yvJr5MhGkmnawOX0W9fL8Ih8QQmrKqptezbvIgEZjdLW098QJBiZk1dppzIO32FKYG7D+/uwb0tsZoFI4N/MR4vqU5T66SNGlEFYhZbUgPLs=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1784817250; c=relaxed/simple;
+	bh=rnzS3t2OB9mXDKCdXxoAM7rMpi7xvwiWGRBta5UVvXE=;
+	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=EcaAyn79OI8k9n+VDUcznDz1X1J3b1w0gLJgE3i8te3b5bLeLo4QDI/nQrCFloGwvWCTjMoGvEpbJKGQobyfz1pEIbnqYD4WWQPsIipA9E7qbQLTONNBdtVEYZam7/V82bynGMZPdnUvLZf2JaUlxJ8s0HHLMnsWu2t3lW4aDZU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org; spf=pass smtp.mailfrom=goodmis.org; arc=none smtp.client-ip=216.40.44.15
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=goodmis.org
+Received: from omf12.hostedemail.com (lb01a-stub [10.200.18.249])
+	by unirelay09.hostedemail.com (Postfix) with ESMTP id 9876C804F4;
+	Thu, 23 Jul 2026 14:34:00 +0000 (UTC)
+Received: from [HIDDEN] (Authenticated sender: rostedt@goodmis.org) by omf12.hostedemail.com (Postfix) with ESMTPA id 056E717;
+	Thu, 23 Jul 2026 14:33:13 +0000 (UTC)
+Date: Thu, 23 Jul 2026 10:33:36 -0400
+From: Steven Rostedt <rostedt@goodmis.org>
+To: Andi Kleen <ak@linux.intel.com>
+Cc: Markus Elfring <Markus.Elfring@web.de>, acpica-devel@lists.linux.dev,
+ bpf@vger.kernel.org, coresight@lists.linaro.org, kvm@vger.kernel.org,
+ linux-acpi@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
+ linux-gpio@vger.kernel.org, linux-kselftest@vger.kernel.org,
+ linux-mm@kvack.org, linux-perf-users@vger.kernel.org,
+ linux-pm@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
+ linuxppc-dev@lists.ozlabs.org, mptcp@lists.linux.dev,
+ netdev@vger.kernel.org, platform-driver-x86@vger.kernel.org,
+ virtualization@lists.linux.dev, Adrian Hunter <adrian.hunter@intel.com>,
+ Alex Mastro <amastro@fb.com>, Alex Williamson <alex@shazbot.org>, Alexander
+ Shishkin <alexander.shishkin@linux.intel.com>, Alexei Starovoitov
+ <ast@kernel.org>, Andrew Lunn <andrew+netdev@lunn.ch>, Andrew Morton
+ <akpm@linux-foundation.org>, Andrii Nakryiko <andrii@kernel.org>, Ankur
+ Arora <ankur.a.arora@oracle.com>, Arnaldo Carvalho de Melo
+ <acme@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, Bobby Eshleman
+ <bobbyeshleman@meta.com>, Christian =?UTF-8?B?Qm9ybnRyw6RnZXI=?=
+ <borntraeger@linux.ibm.com>, Christophe Leroy <chleroy@kernel.org>,
+ Chun-Tse Shao <ctshao@google.com>, Claudio Imbrenda
+ <imbrenda@linux.ibm.com>, Costa Shulyupin <costa.shul@redhat.com>, Crystal
+ Wood <crwood@redhat.com>, Daniel Borkmann <daniel@iogearbox.net>, Daniel
+ Lezcano <daniel.lezcano@kernel.org>, David Hildenbrand <david@kernel.org>,
+ David Matlack <dmatlack@google.com>, "David S. Miller"
+ <davem@davemloft.net>, Donald Hunter <donald.hunter@gmail.com>, Eduard
+ Zingerman <eddyz87@gmail.com>, Emil Tsalapatis <emil@etsalapatis.com>, Eric
+ Dumazet <edumazet@google.com>, Gabriele Monaco <gmonaco@redhat.com>,
+ Geliang Tang <geliang@kernel.org>, Ian Rogers <irogers@google.com>, Ingo
+ Molnar <mingo@redhat.com>, Ivan Pravdin <ipravdin.official@gmail.com>,
+ Jakub Kicinski <kuba@kernel.org>, James Clark <james.clark@linaro.org>,
+ Janosch Frank <frankja@linux.ibm.com>, Jason Xing
+ <kerneljasonxing@gmail.com>, Jiri Olsa <jolsa@kernel.org>, Joe Damato
+ <joe@dama.to>, John Garry <john.g.garry@oracle.com>, Josh Poimboeuf
+ <jpoimboe@kernel.org>, Kaushlendra Kumar <kaushlendra.kumar@intel.com>,
+ Kent Gibson <warthog618@gmail.com>, Kumar Kartikeya Dwivedi
+ <memxor@gmail.com>, Len Brown <lenb@kernel.org>, Leo Yan
+ <leo.yan@linux.dev>, Lukasz Luba <lukasz.luba@arm.com>, Madhavan Srinivasan
+ <maddy@linux.ibm.com>, Mark Rutland <mark.rutland@arm.com>, Martin KaFai
+ Lau <martin.lau@linux.dev>, Masami Hiramatsu <mhiramat@kernel.org>, Mat
+ Martineau <martineau@kernel.org>, Matthieu Baerts <matttbe@kernel.org>,
+ Michael Ellerman <mpe@ellerman.id.au>, Mike Leach <mike.leach@arm.com>,
+ Mina Almasry <almasrymina@google.com>, Mykyta Yatsenko <yatsenko@meta.com>,
+ Nam Cao <namcao@linutronix.de>, Namhyung Kim <namhyung@kernel.org>,
+ Nicholas Piggin <npiggin@gmail.com>, Paolo Abeni <pabeni@redhat.com>, Paolo
+ Bonzini <pbonzini@redhat.com>, Pawel Chmielewski
+ <pawel.chmielewski@intel.com>, Peter Zijlstra <peterz@infradead.org>,
+ Quentin Monnet <qmo@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>,
+ Raghavendra Rao Ananta <rananta@google.com>, Saket Dumbre
+ <saket.dumbre@intel.com>, Shuah Khan <shuah@kernel.org>, Simon Horman
+ <horms@kernel.org>, Song Liu <song@kernel.org>, Srinivas Pandruvada
+ <srinivas.pandruvada@linux.intel.com>, Stanislav Fomichev
+ <sdf@fomichev.me>, Stefano Garzarella <sgarzare@redhat.com>, Suzuki K
+ Poulose <suzuki.poulose@arm.com>, Swapnil Sapkal <swapnil.sapkal@amd.com>,
+ Thomas =?UTF-8?B?V2Vpw59zY2h1aA==?= <linux@weissschuh.net>, Tomas Glozar
+ <tglozar@redhat.com>, Vipin Sharma <vipinsh@google.com>, Wander Lairson
+ Costa <wander@redhat.com>, Will Deacon <will@kernel.org>, Willem de Bruijn
+ <willemdebruijn.kernel@gmail.com>, Willy Tarreau <w@1wt.eu>, Yonghong Song
+ <yonghong.song@linux.dev>, Zhang Chujun <zhangchujun@cmss.chinamobile.com>,
+ Zhang Rui <rui.zhang@intel.com>, LKML <linux-kernel@vger.kernel.org>,
+ kernel-janitors@vger.kernel.org
+Subject: Re: [PATCH] tools: Use fputc() calls in some functions
+Message-ID: <20260723103336.6593118b@gandalf.local.home>
+In-Reply-To: <amIbVOIsOeZgcBZF@tassilo>
+References: <48f2d61f-d468-49b7-881e-f00777db073f@web.de>
+	<amIbVOIsOeZgcBZF@tassilo>
+X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AM9PR08MB5892:EE_|DU0PR08MB8809:EE_
-X-MS-Office365-Filtering-Correlation-Id: 97e73d65-ee14-45d7-0265-08dee8c7252e
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|23010399003|1800799024|366016|7416014|376014|10070799003|6133799003|56012099006|4143699003|10067099003|22082099003|18002099003;
-X-Microsoft-Antispam-Message-Info:
-	Rq2xJOOVv9Ac8i7v46d6Fz7KjUO/gmPfVmYEgQNsG08aWlhjvA+sbFX2EeCDxIjjaQAN7FpkE+9Th7hDu2BkA7baBTIgP6U754VxPzzGbY9vmMEZaGcYD/v39m4WfIagzO03LBPl+uvUJe/nW8bc2QRIL/cnf+PjUXcH2szc1ixNUD6yGJFiqdOxUo6t9pwUpB8i8N5+6HGtYBamf7AZbGQ5AA02mXpNG6lFv4j6AAGZfWiWL9/rdDW7aiiL6OQA2Mso+l04FvFvjADGvzO32Ghauu8d7E5/oEtXN79CD2bLKbmikiPCUrj4hFt6/I6PhAq4GhW+LcBiFX8ah57kE7iSFnf/Y8t9JGf1jMlAYdyC+x1rLwUfUILB+oLqbGNEr74jGKsy4PYcUUVzTUxGa1V7w9YV6tztdYrCxhIavyzat56mVKzenQPKIG7uxa4+6TNJi1yiLLe5v8yQ1xmS5oWfNn/qi8J13KUG131gXHcM4myTOPbPFguDmepuFUqqqFvGQwy/+GONUESaVeTi9zA5VMowh7F8v1QyU68ubYAN9eqyrOhv1B3d26f3eRRpM6/YcNtzIUREwdtEYEn+SXhxtQ3TZFXItXZo0E/4cVE=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:AM9PR08MB5892.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(1800799024)(366016)(7416014)(376014)(10070799003)(6133799003)(56012099006)(4143699003)(10067099003)(22082099003)(18002099003);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 2
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?QnJ6cjFTM3kweUZuMHVnYWsvTzBwWFFRTGkyVkF6MXAvV2Q0Q1dWRWZ1Y3Qx?=
- =?utf-8?B?YVJBRkhFTnpHeHl3VHYvV1ltZFdSaEt5d0Eydk9TWmRvUi81Z0djeTB5QmVX?=
- =?utf-8?B?UzA1QjBlL2JpcWU3VDViWGJQbVlFbzNmb25DR25ZS0lvUVRkSTFZbDRmQkw4?=
- =?utf-8?B?QThObW9CczNjdHhCYmwrSyttamZuVFh6YkZXTmFKNDRWbU5rQTUzcjFVWUQz?=
- =?utf-8?B?TmkvOENwZ1ZnYUg4dEpWem5rOU5BR3lzVHE2WnIybVVUUkt5eFlFdzQya3V3?=
- =?utf-8?B?aHkzUkY5T0JsWVpjNVFETGoxUGUrMTRpZjc2M2MvMGhTT0c1Z0JmUi9hdmVV?=
- =?utf-8?B?S2N6S3dvU0pCUXhFYm1MdHIxWDNkc2tQMHJyVmJnampBVkhadUwwcjBhNGVC?=
- =?utf-8?B?VEpWclhuLzZMbmo3TkFzeUtwTHpuZVA0bGhKV0dIdFd0Y1ZUSUV1YXdHU0o4?=
- =?utf-8?B?MlNOWllQOWxGVlNhZE13V3BnanFpN3JUVW9YMjlxdzE0OC9oQXdSNDVqMkhR?=
- =?utf-8?B?L0d2L0duQVoyWGwydkdCVXpMVW5iWWZ3ay9XbVdGd3hsRzNQdXUvemkrZHB6?=
- =?utf-8?B?dnBqOFg5Zi9ZdGRBdXpjK2xZck5nWm9xbERhbGhxdjJqci8yeTBQNXkvcFRF?=
- =?utf-8?B?ZE5MTUxxOHpPOHRNUmZiQjQ5WVV2T3VyNStxL25UdnF1M1dxMnM0V2sraC91?=
- =?utf-8?B?aHduV2liVEFIc09BWTEzalUvSjBSQnpMdzJXM2grbTRFcFc4RUoweGJENFFT?=
- =?utf-8?B?ZWJEc3lSZ3U4aHpMY2I3aUJZS05nYmJMYTVHUjJ2WmtkaVlMVFB0c0k5V2dq?=
- =?utf-8?B?MzNTZWNRS2kwdVZRWDhWZXNPYUJwZ0RNcGZkY3I3Rmc1RU14cHpPcy9ZRFJZ?=
- =?utf-8?B?M0lvbmpyWGJyM09xMmY5SzlNaGlUbEN6d0dCbEwxYk9TakxZRjdvU0Vla2ll?=
- =?utf-8?B?TVZQeVIvSjZEMFpyS3hjbit2MmNnKy92aG5zSU00b2dsNzBNRSthM1MvNkIz?=
- =?utf-8?B?RXI1K1NSOHlCTEcxdTFQV0lMaTJ4Wi9CcHRaZnZVdEM4blhOYThkeFBsOXBO?=
- =?utf-8?B?UXNJU2MwU3FRVWdpU1pvSHZ1RE80Q2hGV2tJOHQwc0d5akl2Y0tTRE9EbjJv?=
- =?utf-8?B?U0w1UkdhU3FqSVZ1T0ZGcFNrdnFVMnhDNjE2UHBXSGdDTUhlRWUwMGNEeWUx?=
- =?utf-8?B?R2JSVFB2N3lpeXV6aWwrZGwzWFVpUXBwYkNNYVRIeVQxMVZ1ajhYbGpJdWN1?=
- =?utf-8?B?SkZyeWtIc3hzZy9lZ05HUDFLZlZMNnVqd1BRTFpqZXFxb1VkSmdDNFE5S1Bu?=
- =?utf-8?B?bVpaU3oxVlhsY0pMZGNIL2lVZUFKRW5FM1JtZ0dVb0xTM1B1MEJPcWk1N0Fx?=
- =?utf-8?B?QlZKeDFnaUdFVGtHOWFremVVeFdFOUtLVTNSNXFoUHFCVk91dXBEUWVDMXR5?=
- =?utf-8?B?ck9wQ3lrUUg0RE9xTlEySWRJVC8zZ1RidWtCdzY3eWlrQlNLRFE2Z3c3dFFJ?=
- =?utf-8?B?Mzh3bk94QTRQYzIvWFo1bk5TSG1xY3N0WEcyd1hLV3ROVHRPSGdQOUlTZm0z?=
- =?utf-8?B?R3drb0ExWmdUM2ozOUs4Q2xRWUtJVDhCZ1N3Wms3ZHAxZmRDMm9hYWlMeDBM?=
- =?utf-8?B?S3VpSWFkN1ZXNU1wZGxVUEUraEh0OXBSaWJkTFdkejhSZ200ak5PMVpCa0Iw?=
- =?utf-8?B?UFBmV2xoUEFzWHIwQTVYdk5mYko5S2w3Q1BIeXU4ZmcyQlRYbXVaUklocXZi?=
- =?utf-8?B?ZmxuZlpnNGRySHJ0K01ac1NaSjNrNHhwZVpXcXd4NjFaZnRYRGpqSm1NRVdF?=
- =?utf-8?B?cW5DbjBvTEFndCtNMEgvOE11cXA0cVJWZHRSTnVCWjdHNHg5MUZnZ0lDWHBr?=
- =?utf-8?B?UTNIN2UralYwZ0dpZFY3V1dEOUFHdWFVeVplVFdtWTRBMnhldnlEQUxWNWZK?=
- =?utf-8?B?T0dPMGpOTjBDOXVkaWE4Ym9nYyt4K3hKRUowc2hhSzZUUnRiYURYRkV6eFpw?=
- =?utf-8?B?Z2pQYmFXNDcwbGF3VTVRMERkcCtJdU5RS0xQd2c4eGNaMkFwaUtRblNNUUhs?=
- =?utf-8?B?MVIrMEpCc3BEUi9BaU91OVZWdDhNNWFRY1hkR0lTMlNlbjFNam5KVHlJL1ZY?=
- =?utf-8?B?b1pFc0J1eU96QW9xZWcxeHkxLzVic0tXc3I3MjFFN1FqLzNsSmQ1RnNTSHBk?=
- =?utf-8?B?cE1tUS9WMzZxOFZ2V2gzS2w2eDNVQ1orSHBnbWUrMXZNaGJ5dWZoeW9KaTRX?=
- =?utf-8?B?VktKZzYwcXZERW1mT0MvQWlVSmgwc1RKbEh1N3R3VjNpNWdTYXpvaVVNMzh1?=
- =?utf-8?B?V1lCQTNTR01OMWlaWUxkeGtMZ1Z6QXFFY0RKb0hEclBjc2hQemNpRnFDWkxO?=
- =?utf-8?Q?GMsngmHyJV1yYH32sjeEc7g6taKIHCKjXG+RXO8FEFBEN?=
-X-MS-Exchange-AntiSpam-MessageData-1: 6xJ1naCUtDIx3w==
-X-OriginatorOrg: virtuozzo.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 97e73d65-ee14-45d7-0265-08dee8c7252e
-X-MS-Exchange-CrossTenant-AuthSource: AM9PR08MB5892.eurprd08.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 23 Jul 2026 14:31:55.4041
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 0bc7f26d-0264-416e-a6fc-8352af79c58f
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: AYBhJorB8VZKzfmjjAHkTtsR+f516UKlCgZLvh1bWwflI4kt5jtSP10dPKokLPvtBcdtx1aOjdcN9AIL6n/qjw==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DU0PR08MB8809
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Stat-Signature: ncsjbmpq4hct7p4sj4iefr1r53tacukj
+X-Rspamd-Server: rspamout02
+X-Rspamd-Queue-Id: 056E717
+X-Session-Marker: 726F737465647440676F6F646D69732E6F7267
+X-Session-ID: U2FsdGVkX1+f7u83oRUulG9XwKl2P+q3kHYGrSLtLJ0=
+X-HE-Tag: 1784817193-538669
+X-HE-Meta: U2FsdGVkX19mSJrQ4yCgpa5T21s3DOyupJQtrDkbhb4BdFNkpGoXwq/ibfVmVhXFNmqX8uwKJldaBwfXYwLpcFxk6WAoDZEXT/gOP4/87ir9dCPM++yAwBRZudspVL4fEcLJ8BQR+IIioDSpRN3BUfGiJrTRVS7/uta9AmYBpm0bV/zvbFblUCnE1I0vyxTsAPHkh0LX+JrCxO4Fb8yldd7jKVRG3hDwMmD/y539S+5vq64BAxIp9RMpMFz5panzgBl/T6DnlC5NF2X6cBflLJ9t5of1YaVukjrextWC1Mkdf4ypcuVGdK7IR4N2F6BEhF3E+awXwxrLnbww9pI6GrXPJih6633rwSWNy/mC4FmaOinac79jHA==
 
-On 7/23/26 16:29, Andrey Drobyshev wrote:
-> On 7/23/26 5:03 PM, Stefano Garzarella wrote:
->> On Thu, Jul 23, 2026 at 04:57:47PM +0300, Andrey Drobyshev wrote:
->>> On 7/22/26 12:43 PM, Stefano Garzarella wrote:
->>>> On Mon, Jul 20, 2026 at 01:22:40PM +0300, Andrey Drobyshev wrote:
->>>>> vhost_vq_work_queue() only holds the RCU read lock while it dereferences
->>>>> vq->worker and queues work on it.  vhost_workers_free() however clears
->>>>> the vq->worker pointers and immediately frees the workers, without
->>>>> waiting for a grace period.  A caller that fetched the worker right
->>>>> before the pointer was cleared can therefore still be queueing work on
->>>>> it while it is freed.  And even when the queueing itself wins the race,
->>>>> the work is never run, so its VHOST_WORK_QUEUED bit stays set and all
->>>>> future attempts to queue it are silently skipped.
->>>>>
->>>>> None of the current callers can actually hit this: net and scsi stop
->>>>> their virtqueues before the workers are freed, and vsock unhashes the
->>>>> device and does synchronize_rcu() of its own in vhost_vsock_dev_release()
->>>>> before the workers go away.  But the upcoming VHOST_RESET_OWNER support
->>>>> in vhost-vsock keeps the device hashed while its workers are freed, so
->>>>> the lockless send/cancel paths become able to race with the teardown.
->>>>>
->>>>> Fix this by clearing the vq->worker pointers, waiting for a grace
->>>>> period, and then flushing the workers so any work the last readers
->>>>> queued runs before the workers are freed.
->>>>>
->>>>> Fixes: 228a27cf78af ("vhost: Allow worker switching while work is queueing")
->>>>> Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
->>>>> Signed-off-by: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
->>>>> ---
->>>>> drivers/vhost/vhost.c | 11 +++++++++++
->>>>> 1 file changed, 11 insertions(+)
->>>> Sashiko reported some potential issues here:
->>>> https://sashiko.dev/#/patchset/20260720102241.371610-1-andrey.drobyshev@virtuozzo.com?part=4
->>>>
->>>> IMO the first one is pre-existing, but not really sure it is a real
->>>> issue since happening when the worker/vmm is going to be killed.
->>>>
->>> Sashiko claims:
->>>
->>>> Will this leave the queued work unexecuted and permanently break the
->>> virtqueue by leaving VHOST_WORK_QUEUED set?
->>>
->>> I agree this issue is pre-existing and doesn't have much to do with our
->>> series here.  It looks real, but in reality should be harmless since we
->>> may only hit it while the device already dying.  Means there's no VQ
->>> state to be saved.  The only potentially observable artifact I guess is
->>> a warning here:
->>>
->>> vhost_workers_free()
->>>  vhost_worker_destroy()
->>>    WARN_ON(!llist_empty())
->>>
->>> So more of a cosmetic noise on a dying device.  Again, not relevant to
->>> this series.  But one optional way to make it go away would be to clear
->>> vq->worker under vq->mutex in vhost_workers_free() (mirroring
->>> vhost_worker_killed()).
->>>> The second one also not sure if it's an issue since the sender is not
->>>> lockless IIUC.
->>>>
->>> The term 'sender' is confusing here:
->>>
->>> * vhost_transport_send_pkt() is the .send_pkt() method of struct
->>> virtio_transport.  It only stores skbs into the queue, doesn't process
->>> them. It indeed is lockless as it doesn't take vq->mutex.
->>>
->>> * vhost_transport_send_pkt_work() is the .fn() method of send_pkt_work.
->>> It's called by the worker thread to process skbs in the queue, calls
->>> vhost_transport_do_send_pkt() which does in turn take vq->mutex.
->>>
->>> I think sashiko points out to the former.  Still, I don't think it's an
->>> actual bug.  Look:
->>>
->>> 1) By invoking flush, we wake the worker thread:
->>> vhost_dev_flush()
->>>  __vhost_worker_flush()
->>>    vhost_worker_queue(flush.work)
->>>      worker->ops->wakeup()
->>>
->>> 2) Then woken worker does:
->>> vhost_run_work_list()
->>>  llist_for_each_entry_safe(work) {
->>>    clear_bit(VHOST_WORK_QUEUED, &work->flags)
->>>    work->fn(work) // for send_pkt_work = vhost_transport_send_pkt_work
->>>  }
->>>
->>> 3) And then in work->fn() (vhost_transport_send_pkt_work):
->>> vhost_transport_send_pkt_work()
->>>  vhost_transport_do_send_pkt()
->>>    if (!vhost_vq_get_backend(vq))
->>>      goto out;
->>>
->>> As you can see, we return early in case backend was unset.
->>>
->>> So after doing this flush, we have: 1) QUEUED bit is unset; that makes
->>> send_pkt_work re-queueable. 2) But the queue doesn't actually get
->>> processed, and VQ state isn't actually touched here - so I guess
->>> Sashiko's conclusion is incorrect and there's no actual bug.
->>>
->>>> But, please can you double check them?
->>>>
->>> In general I'd leave this patch as-is as Sashiko's complaints aren't
->>> very convincing so far.  If you want I can add another patch which wraps
->>> NULLifying workers in vhost_workers_free() in vq->mutex.
->>>
->>> WDYT?
->> Yeah, I agree, about the other patch, up to you, but I'll eventually 
->> send it separately.
->>
->> Thanks,
->> Stefano
->>
-> Alright, then let me resend it once more along with this 6th patch, so
-> that we don't have it uncovered.
->
-> Andrey
-I am sending 6/5 patch as followup in such a case :-) and respin
-only if rejected.
+On Thu, 23 Jul 2026 06:47:00 -0700
+Andi Kleen <ak@linux.intel.com> wrote:
 
-Den
+> > The source code was transformed by using the Coccinelle software.  
+> 
+> gcc already does this transformation automatically.
+
+Yep, I showed this in my talk[1] that looked at what printf("Hello World!")
+does. Doing an objdump of:
+
+#include <stdio.h>
+
+int main(void) {
+	printf("Hello World!\n");
+	return 0;
+}
+
+has:
+
+0000000000001139 <main>:
+    1139:       55                      push   %rbp
+    113a:       48 89 e5                mov    %rsp,%rbp
+    113d:       48 8d 05 c0 0e 00 00    lea    0xec0(%rip),%rax        # 2004 <_IO_stdin_used+0x4>
+    1144:       48 89 c7                mov    %rax,%rdi
+    1147:       e8 e4 fe ff ff          call   1030 <puts@plt>  <<<--- puts and not printf
+    114c:       b8 00 00 00 00          mov    $0x0,%eax
+    1151:       5d                      pop    %rbp
+    1152:       c3                      ret
+
+-- Steve
+
+[1] https://www.youtube.com/watch?v=JRyrhsx-L5Y
