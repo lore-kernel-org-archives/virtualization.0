@@ -1,136 +1,226 @@
-Received: from relay.hostedemail.com (smtprelay0015.hostedemail.com [216.40.44.15])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DD73049251F;
-	Thu, 23 Jul 2026 14:34:06 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=216.40.44.15
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 55CF14C0436
+	for <virtualization@lists.linux.dev>; Thu, 23 Jul 2026 14:39:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784817250; cv=none; b=CmNQyjkZxuUJqXb0hWrUy1QI2/Dweo6JAFrN5W/ZnL0PUrh8PQoArD4z6m0oiA7yvJr5MhGkmnawOX0W9fL8Ih8QQmrKqptezbvIgEZjdLW098QJBiZk1dppzIO32FKYG7D+/uwb0tsZoFI4N/MR4vqU5T66SNGlEFYhZbUgPLs=
+	t=1784817571; cv=none; b=DSrmNH1qiygrvLUDESF0W6YxR/drGp1CX8A0e3BhuIclwpaVnm7n1KTmT9LH39GHmrbKL41n4krDaQrjmiGnK+Qtwpf6V6nraoc0nhdNkQ9EHv7vMxLjRFALQIsOlRKfR15rQysuyBAaBf0hiVfq2HqY7CzAieoV1l0nDrFVT0g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784817250; c=relaxed/simple;
-	bh=rnzS3t2OB9mXDKCdXxoAM7rMpi7xvwiWGRBta5UVvXE=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=EcaAyn79OI8k9n+VDUcznDz1X1J3b1w0gLJgE3i8te3b5bLeLo4QDI/nQrCFloGwvWCTjMoGvEpbJKGQobyfz1pEIbnqYD4WWQPsIipA9E7qbQLTONNBdtVEYZam7/V82bynGMZPdnUvLZf2JaUlxJ8s0HHLMnsWu2t3lW4aDZU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org; spf=pass smtp.mailfrom=goodmis.org; arc=none smtp.client-ip=216.40.44.15
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=goodmis.org
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=goodmis.org
-Received: from omf12.hostedemail.com (lb01a-stub [10.200.18.249])
-	by unirelay09.hostedemail.com (Postfix) with ESMTP id 9876C804F4;
-	Thu, 23 Jul 2026 14:34:00 +0000 (UTC)
-Received: from [HIDDEN] (Authenticated sender: rostedt@goodmis.org) by omf12.hostedemail.com (Postfix) with ESMTPA id 056E717;
-	Thu, 23 Jul 2026 14:33:13 +0000 (UTC)
-Date: Thu, 23 Jul 2026 10:33:36 -0400
-From: Steven Rostedt <rostedt@goodmis.org>
-To: Andi Kleen <ak@linux.intel.com>
-Cc: Markus Elfring <Markus.Elfring@web.de>, acpica-devel@lists.linux.dev,
- bpf@vger.kernel.org, coresight@lists.linaro.org, kvm@vger.kernel.org,
- linux-acpi@vger.kernel.org, linux-arm-kernel@lists.infradead.org,
- linux-gpio@vger.kernel.org, linux-kselftest@vger.kernel.org,
- linux-mm@kvack.org, linux-perf-users@vger.kernel.org,
- linux-pm@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
- linuxppc-dev@lists.ozlabs.org, mptcp@lists.linux.dev,
- netdev@vger.kernel.org, platform-driver-x86@vger.kernel.org,
- virtualization@lists.linux.dev, Adrian Hunter <adrian.hunter@intel.com>,
- Alex Mastro <amastro@fb.com>, Alex Williamson <alex@shazbot.org>, Alexander
- Shishkin <alexander.shishkin@linux.intel.com>, Alexei Starovoitov
- <ast@kernel.org>, Andrew Lunn <andrew+netdev@lunn.ch>, Andrew Morton
- <akpm@linux-foundation.org>, Andrii Nakryiko <andrii@kernel.org>, Ankur
- Arora <ankur.a.arora@oracle.com>, Arnaldo Carvalho de Melo
- <acme@kernel.org>, Bartosz Golaszewski <brgl@kernel.org>, Bobby Eshleman
- <bobbyeshleman@meta.com>, Christian =?UTF-8?B?Qm9ybnRyw6RnZXI=?=
- <borntraeger@linux.ibm.com>, Christophe Leroy <chleroy@kernel.org>,
- Chun-Tse Shao <ctshao@google.com>, Claudio Imbrenda
- <imbrenda@linux.ibm.com>, Costa Shulyupin <costa.shul@redhat.com>, Crystal
- Wood <crwood@redhat.com>, Daniel Borkmann <daniel@iogearbox.net>, Daniel
- Lezcano <daniel.lezcano@kernel.org>, David Hildenbrand <david@kernel.org>,
- David Matlack <dmatlack@google.com>, "David S. Miller"
- <davem@davemloft.net>, Donald Hunter <donald.hunter@gmail.com>, Eduard
- Zingerman <eddyz87@gmail.com>, Emil Tsalapatis <emil@etsalapatis.com>, Eric
- Dumazet <edumazet@google.com>, Gabriele Monaco <gmonaco@redhat.com>,
- Geliang Tang <geliang@kernel.org>, Ian Rogers <irogers@google.com>, Ingo
- Molnar <mingo@redhat.com>, Ivan Pravdin <ipravdin.official@gmail.com>,
- Jakub Kicinski <kuba@kernel.org>, James Clark <james.clark@linaro.org>,
- Janosch Frank <frankja@linux.ibm.com>, Jason Xing
- <kerneljasonxing@gmail.com>, Jiri Olsa <jolsa@kernel.org>, Joe Damato
- <joe@dama.to>, John Garry <john.g.garry@oracle.com>, Josh Poimboeuf
- <jpoimboe@kernel.org>, Kaushlendra Kumar <kaushlendra.kumar@intel.com>,
- Kent Gibson <warthog618@gmail.com>, Kumar Kartikeya Dwivedi
- <memxor@gmail.com>, Len Brown <lenb@kernel.org>, Leo Yan
- <leo.yan@linux.dev>, Lukasz Luba <lukasz.luba@arm.com>, Madhavan Srinivasan
- <maddy@linux.ibm.com>, Mark Rutland <mark.rutland@arm.com>, Martin KaFai
- Lau <martin.lau@linux.dev>, Masami Hiramatsu <mhiramat@kernel.org>, Mat
- Martineau <martineau@kernel.org>, Matthieu Baerts <matttbe@kernel.org>,
- Michael Ellerman <mpe@ellerman.id.au>, Mike Leach <mike.leach@arm.com>,
- Mina Almasry <almasrymina@google.com>, Mykyta Yatsenko <yatsenko@meta.com>,
- Nam Cao <namcao@linutronix.de>, Namhyung Kim <namhyung@kernel.org>,
- Nicholas Piggin <npiggin@gmail.com>, Paolo Abeni <pabeni@redhat.com>, Paolo
- Bonzini <pbonzini@redhat.com>, Pawel Chmielewski
- <pawel.chmielewski@intel.com>, Peter Zijlstra <peterz@infradead.org>,
- Quentin Monnet <qmo@kernel.org>, "Rafael J. Wysocki" <rafael@kernel.org>,
- Raghavendra Rao Ananta <rananta@google.com>, Saket Dumbre
- <saket.dumbre@intel.com>, Shuah Khan <shuah@kernel.org>, Simon Horman
- <horms@kernel.org>, Song Liu <song@kernel.org>, Srinivas Pandruvada
- <srinivas.pandruvada@linux.intel.com>, Stanislav Fomichev
- <sdf@fomichev.me>, Stefano Garzarella <sgarzare@redhat.com>, Suzuki K
- Poulose <suzuki.poulose@arm.com>, Swapnil Sapkal <swapnil.sapkal@amd.com>,
- Thomas =?UTF-8?B?V2Vpw59zY2h1aA==?= <linux@weissschuh.net>, Tomas Glozar
- <tglozar@redhat.com>, Vipin Sharma <vipinsh@google.com>, Wander Lairson
- Costa <wander@redhat.com>, Will Deacon <will@kernel.org>, Willem de Bruijn
- <willemdebruijn.kernel@gmail.com>, Willy Tarreau <w@1wt.eu>, Yonghong Song
- <yonghong.song@linux.dev>, Zhang Chujun <zhangchujun@cmss.chinamobile.com>,
- Zhang Rui <rui.zhang@intel.com>, LKML <linux-kernel@vger.kernel.org>,
- kernel-janitors@vger.kernel.org
-Subject: Re: [PATCH] tools: Use fputc() calls in some functions
-Message-ID: <20260723103336.6593118b@gandalf.local.home>
-In-Reply-To: <amIbVOIsOeZgcBZF@tassilo>
-References: <48f2d61f-d468-49b7-881e-f00777db073f@web.de>
-	<amIbVOIsOeZgcBZF@tassilo>
-X-Mailer: Claws Mail 3.20.0git84 (GTK+ 2.24.33; x86_64-pc-linux-gnu)
+	s=arc-20240116; t=1784817571; c=relaxed/simple;
+	bh=epZHNJdb1jvaOZ4O6cy2hUvP2FOzogSGFkn2SNuLRcA=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=SRl9cMxEKMFYsXcSkVx0xT2ODeUT0n0rzfWxHN6VKpHM8E8Sz17CHAVfnnelymmlSRA2yk539ooNPsRnGdlzdQbBh8SpDS7BslD+6p8JLdF+JDyf5xkTJAdNs8HkGRIzIzXeVYKSVzZw3GLJIPuJ8Hs3DozGhFS077R8pU04JL0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=MP8n1E3w; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="MP8n1E3w"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1784817560;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=gqFSWQaMTz+T5mXHuwtGx1/VHZD0uStv1s9M8jprGVg=;
+	b=MP8n1E3wkpjQpj98nIEC11pHyU6OaUVvEILOWuYB/HQtvbZ/UgsLwaasA8ovyi8Hy9zFEt
+	B4dOYSnt1Hh0SZuHKNFGIum4DlfQX8Kv1nN0CQJSix+cGa05+Cyi0QnxLUUXyMQ/PWfDVR
+	Ci1QsCkvfoj6egblcfKV8TocKqtehFg=
+Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
+ [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-60--zwwoprdO8e0T1lbqePX8w-1; Thu, 23 Jul 2026 10:39:18 -0400
+X-MC-Unique: -zwwoprdO8e0T1lbqePX8w-1
+X-Mimecast-MFC-AGG-ID: -zwwoprdO8e0T1lbqePX8w_1784817558
+Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-4740be00302so683394f8f.2
+        for <virtualization@lists.linux.dev>; Thu, 23 Jul 2026 07:39:18 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1784817557; x=1785422357;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=gqFSWQaMTz+T5mXHuwtGx1/VHZD0uStv1s9M8jprGVg=;
+        b=kGg/5MULzoZMu+8r25I5M81xN/A3bKhlw6pYRuOStoYkweraZqZR2XD+S7gnOJ4xjB
+         1Nb0MXoshhXosO+sOh3C5sneodttOjjbVrUiwjxb7DuLwoNAvv0YQYYxTYvTdCxfBwoy
+         LvRFpqhKfpKebeQ2JNbOJ72ac0+1p/nHFc6blpMdHlImVk49Rtl/L7XitTNrhufOJAQL
+         14H/+AZQsMKDu9oBY231u6E3//Vy57JHQO1DboI9y20xowlgClDeB8EKqsPmR6QhIKxz
+         8yh8UX1lqZJY4Bjs3sZw5FcRpE0rS/HfOQzfTxq3nud/+iO88fsuVQGYRZAXfv7EFTsq
+         8wlA==
+X-Forwarded-Encrypted: i=1; AHgh+RopOfL3CgoO3vjSLiEgwJbgD0jhzMaYJ9wexEbRgK/qvcxs9oxGdPm3tUWrVzLXmc01zLBH7yk3444uR6V6yg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxrkyDk0Q3VFyr7evOdUC6wvgBGEcUODUEpnGMwP7b5Pm+XMmOV
+	v2DdKRvi0A3XvHUNUIzX6SPe8dg4vxlIdwtR1XplohzPycGt7+bxtI8NkUx5p2dPxWy5M9ZVyQb
+	w8prqCXgPX8VY4bxonUnxKdjHwikCwpZU54C3PJTZwHmW8ul4kWrlnVEH+ApjE6z4ZoayGL43P/
+	Ke
+X-Gm-Gg: AR+sD11FuD+EKcvy/ZJgV8krl1HfuSBdtHeO5jrsh9T9uzHcM+QY44Y8rMsukvr/iHP
+	UqVFGjuvwkSrIhfjuA+AKRN3yEpkkuCwm8kNlRXoDFS9qab/aBlQ0R4GyuK66w+D/xfATQkf8U8
+	Z+qj3tabmZLvFf4euCz4rQeIk2T3lOLt71/ZOEmyXVMeeDT5rYEHWtrL0XOBOfIy6MDvOVdQu55
+	B9yz4i2QznybcDW+myUx6E8OzWC7ACco5gEqWai2lfyExRDrQAXafoO6QtoeYM4dAlsyPp2BEfG
+	V6vsTXg+NBUF0QtSbEuEJydBJkNddvHcnWXvl9umnkBPlJKi8Pc+3ZOhkF04vdqFMhy4lcQEUMB
+	Z4AERyaM5v2pDA3/y6Jm8pvMVN6P24ZUORPTLko68ngpn0cEhEg==
+X-Received: by 2002:a5d:5e87:0:b0:47f:6d9a:d7a6 with SMTP id ffacd0b85a97d-47f8d72996fmr4387780f8f.25.1784817557345;
+        Thu, 23 Jul 2026 07:39:17 -0700 (PDT)
+X-Received: by 2002:a5d:5e87:0:b0:47f:6d9a:d7a6 with SMTP id ffacd0b85a97d-47f8d72996fmr4387716f8f.25.1784817556761;
+        Thu, 23 Jul 2026 07:39:16 -0700 (PDT)
+Received: from sgarzare-redhat (host-82-53-135-65.retail.telecomitalia.it. [82.53.135.65])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47f85c531basm15770037f8f.19.2026.07.23.07.39.15
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 23 Jul 2026 07:39:15 -0700 (PDT)
+Date: Thu, 23 Jul 2026 16:39:11 +0200
+From: Stefano Garzarella <sgarzare@redhat.com>
+To: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, mst@redhat.com, stefanha@redhat.com, 
+	dongli.zhang@oracle.com, maciej.szmigiero@oracle.com, bchaney@akamai.com, 
+	mark.kanda@oracle.com, ptikhomirov@virtuozzo.com, den@openvz.org
+Subject: Re: [PATCH v5 4/5] vhost: synchronize with RCU readers when freeing
+ workers
+Message-ID: <amInL2hPEG9ejUd0@sgarzare-redhat>
+References: <20260720102241.371610-1-andrey.drobyshev@virtuozzo.com>
+ <20260720102241.371610-5-andrey.drobyshev@virtuozzo.com>
+ <amCPLOrnpYmr5n0p@sgarzare-redhat>
+ <82066fcb-150f-47ef-86a7-0df0f9eb41c5@virtuozzo.com>
+ <amIe79X3j7GxDBdO@sgarzare-redhat>
+ <f21667c3-64f1-40c6-9941-9453af173eda@virtuozzo.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-Stat-Signature: ncsjbmpq4hct7p4sj4iefr1r53tacukj
-X-Rspamd-Server: rspamout02
-X-Rspamd-Queue-Id: 056E717
-X-Session-Marker: 726F737465647440676F6F646D69732E6F7267
-X-Session-ID: U2FsdGVkX1+f7u83oRUulG9XwKl2P+q3kHYGrSLtLJ0=
-X-HE-Tag: 1784817193-538669
-X-HE-Meta: U2FsdGVkX19mSJrQ4yCgpa5T21s3DOyupJQtrDkbhb4BdFNkpGoXwq/ibfVmVhXFNmqX8uwKJldaBwfXYwLpcFxk6WAoDZEXT/gOP4/87ir9dCPM++yAwBRZudspVL4fEcLJ8BQR+IIioDSpRN3BUfGiJrTRVS7/uta9AmYBpm0bV/zvbFblUCnE1I0vyxTsAPHkh0LX+JrCxO4Fb8yldd7jKVRG3hDwMmD/y539S+5vq64BAxIp9RMpMFz5panzgBl/T6DnlC5NF2X6cBflLJ9t5of1YaVukjrextWC1Mkdf4ypcuVGdK7IR4N2F6BEhF3E+awXwxrLnbww9pI6GrXPJih6633rwSWNy/mC4FmaOinac79jHA==
+In-Reply-To: <f21667c3-64f1-40c6-9941-9453af173eda@virtuozzo.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: akUP-svkSRuhzL8f7AVgUlc_MPqWp_8ruC-zfDMc9PE_1784817558
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Disposition: inline
 
-On Thu, 23 Jul 2026 06:47:00 -0700
-Andi Kleen <ak@linux.intel.com> wrote:
+On Thu, Jul 23, 2026 at 05:29:12PM +0300, Andrey Drobyshev wrote:
+>On 7/23/26 5:03 PM, Stefano Garzarella wrote:
+>> On Thu, Jul 23, 2026 at 04:57:47PM +0300, Andrey Drobyshev wrote:
+>>> On 7/22/26 12:43 PM, Stefano Garzarella wrote:
+>>>> On Mon, Jul 20, 2026 at 01:22:40PM +0300, Andrey Drobyshev wrote:
+>>>>> vhost_vq_work_queue() only holds the RCU read lock while it dereferences
+>>>>> vq->worker and queues work on it.  vhost_workers_free() however clears
+>>>>> the vq->worker pointers and immediately frees the workers, without
+>>>>> waiting for a grace period.  A caller that fetched the worker right
+>>>>> before the pointer was cleared can therefore still be queueing work on
+>>>>> it while it is freed.  And even when the queueing itself wins the race,
+>>>>> the work is never run, so its VHOST_WORK_QUEUED bit stays set and all
+>>>>> future attempts to queue it are silently skipped.
+>>>>>
+>>>>> None of the current callers can actually hit this: net and scsi stop
+>>>>> their virtqueues before the workers are freed, and vsock unhashes the
+>>>>> device and does synchronize_rcu() of its own in vhost_vsock_dev_release()
+>>>>> before the workers go away.  But the upcoming VHOST_RESET_OWNER support
+>>>>> in vhost-vsock keeps the device hashed while its workers are freed, so
+>>>>> the lockless send/cancel paths become able to race with the teardown.
+>>>>>
+>>>>> Fix this by clearing the vq->worker pointers, waiting for a grace
+>>>>> period, and then flushing the workers so any work the last readers
+>>>>> queued runs before the workers are freed.
+>>>>>
+>>>>> Fixes: 228a27cf78af ("vhost: Allow worker switching while work is queueing")
+>>>>> Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+>>>>> Signed-off-by: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
+>>>>> ---
+>>>>> drivers/vhost/vhost.c | 11 +++++++++++
+>>>>> 1 file changed, 11 insertions(+)
+>>>>
+>>>> Sashiko reported some potential issues here:
+>>>> https://sashiko.dev/#/patchset/20260720102241.371610-1-andrey.drobyshev@virtuozzo.com?part=4
+>>>>
+>>>> IMO the first one is pre-existing, but not really sure it is a real
+>>>> issue since happening when the worker/vmm is going to be killed.
+>>>>
+>>>
+>>> Sashiko claims:
+>>>
+>>>> Will this leave the queued work unexecuted and permanently break the
+>>> virtqueue by leaving VHOST_WORK_QUEUED set?
+>>>
+>>> I agree this issue is pre-existing and doesn't have much to do with our
+>>> series here.  It looks real, but in reality should be harmless since we
+>>> may only hit it while the device already dying.  Means there's no VQ
+>>> state to be saved.  The only potentially observable artifact I guess is
+>>> a warning here:
+>>>
+>>> vhost_workers_free()
+>>>  vhost_worker_destroy()
+>>>    WARN_ON(!llist_empty())
+>>>
+>>> So more of a cosmetic noise on a dying device.  Again, not relevant to
+>>> this series.  But one optional way to make it go away would be to clear
+>>> vq->worker under vq->mutex in vhost_workers_free() (mirroring
+>>> vhost_worker_killed()).
+>>>> The second one also not sure if it's an issue since the sender is not
+>>>> lockless IIUC.
+>>>>
+>>>
+>>> The term 'sender' is confusing here:
+>>>
+>>> * vhost_transport_send_pkt() is the .send_pkt() method of struct
+>>> virtio_transport.  It only stores skbs into the queue, doesn't process
+>>> them. It indeed is lockless as it doesn't take vq->mutex.
+>>>
+>>> * vhost_transport_send_pkt_work() is the .fn() method of send_pkt_work.
+>>> It's called by the worker thread to process skbs in the queue, calls
+>>> vhost_transport_do_send_pkt() which does in turn take vq->mutex.
+>>>
+>>> I think sashiko points out to the former.  Still, I don't think it's an
+>>> actual bug.  Look:
+>>>
+>>> 1) By invoking flush, we wake the worker thread:
+>>> vhost_dev_flush()
+>>>  __vhost_worker_flush()
+>>>    vhost_worker_queue(flush.work)
+>>>      worker->ops->wakeup()
+>>>
+>>> 2) Then woken worker does:
+>>> vhost_run_work_list()
+>>>  llist_for_each_entry_safe(work) {
+>>>    clear_bit(VHOST_WORK_QUEUED, &work->flags)
+>>>    work->fn(work) // for send_pkt_work = vhost_transport_send_pkt_work
+>>>  }
+>>>
+>>> 3) And then in work->fn() (vhost_transport_send_pkt_work):
+>>> vhost_transport_send_pkt_work()
+>>>  vhost_transport_do_send_pkt()
+>>>    if (!vhost_vq_get_backend(vq))
+>>>      goto out;
+>>>
+>>> As you can see, we return early in case backend was unset.
+>>>
+>>> So after doing this flush, we have: 1) QUEUED bit is unset; that makes
+>>> send_pkt_work re-queueable. 2) But the queue doesn't actually get
+>>> processed, and VQ state isn't actually touched here - so I guess
+>>> Sashiko's conclusion is incorrect and there's no actual bug.
+>>>
+>>>> But, please can you double check them?
+>>>>
+>>>
+>>> In general I'd leave this patch as-is as Sashiko's complaints aren't
+>>> very convincing so far.  If you want I can add another patch which wraps
+>>> NULLifying workers in vhost_workers_free() in vq->mutex.
+>>>
+>>> WDYT?
+>>
+>> Yeah, I agree, about the other patch, up to you, but I'll eventually
+>> send it separately.
+>>
+>> Thanks,
+>> Stefano
+>>
+>
+>Alright, then let me resend it once more along with this 6th patch, so
+>that we don't have it uncovered.
 
-> > The source code was transformed by using the Coccinelle software.  
-> 
-> gcc already does this transformation automatically.
+But why it should be part of this series?
 
-Yep, I showed this in my talk[1] that looked at what printf("Hello World!")
-does. Doing an objdump of:
+If there is no strong reason, I'd send it as a separate patch.
 
-#include <stdio.h>
+E.g. even this patch in theory may be a separate one, but this is 
+related to this series, so makes sense to have this included.
 
-int main(void) {
-	printf("Hello World!\n");
-	return 0;
-}
+Thanks,
+Stefano
 
-has:
-
-0000000000001139 <main>:
-    1139:       55                      push   %rbp
-    113a:       48 89 e5                mov    %rsp,%rbp
-    113d:       48 8d 05 c0 0e 00 00    lea    0xec0(%rip),%rax        # 2004 <_IO_stdin_used+0x4>
-    1144:       48 89 c7                mov    %rax,%rdi
-    1147:       e8 e4 fe ff ff          call   1030 <puts@plt>  <<<--- puts and not printf
-    114c:       b8 00 00 00 00          mov    $0x0,%eax
-    1151:       5d                      pop    %rbp
-    1152:       c3                      ret
-
--- Steve
-
-[1] https://www.youtube.com/watch?v=JRyrhsx-L5Y
