@@ -1,289 +1,217 @@
-Received: from mail-pl1-f180.google.com (mail-pl1-f180.google.com [209.85.214.180])
+Received: from mail-pj1-f72.google.com (mail-pj1-f72.google.com [209.85.216.72])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D96F8003D
-	for <virtualization@lists.linux.dev>; Fri, 24 Jul 2026 01:16:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E34E317170
+	for <virtualization@lists.linux.dev>; Fri, 24 Jul 2026 01:46:19 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.72
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784855797; cv=none; b=hRaGWTWYv+y2msXlvBQtVnnKS9GrCgWDSDSJMQEwF5W/rmqcxBUezxd1mxmoSWe6rNXppB8cL0aMZUAFc6WWYIq6btja7BhwqeJh4s3/V+6XHp80YZyOoSQtijujf8d9XWgZ+n0MzdqujFh1C3j83n86uGAaQUVhcacPybdHTCA=
+	t=1784857582; cv=none; b=gIwzSN5UYGlHQwf7o5D1jeBJ6kQZspLMqjePJsFiTMYM923IfiFvlrI2zHBYF2jFfbBL8Pz/gm7gUSMLSc27VEr4AFJjcHLLuD8OqAszDT040heKv1I88GQ2jLLmtjuXUp0CZH49ZE7YJiHuk1cmvqgF6v+exo7Shyyuibf1Crw=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784855797; c=relaxed/simple;
-	bh=wJzD9QvTCglgx3fR3MrpGanUghvfUXMDCYIwZaPGglw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=NJ4xoKZQN2fHU1Yy+rpjxDXSc9B5L92+kqdXvH4oUK/WMQdgnQexFuxEEs56MCAB89nNHFwm8GvlKNXEUFnGVH8rCtZYMWoS3j2JNR1KvknmjFK8g07kjEfCUkOH7LR/aHII4YZsIkkUlVWLDtmdQrZ7Qor6GtkWsHu0z+pmDnA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=fgRrD6EE; arc=none smtp.client-ip=209.85.214.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1784857582; c=relaxed/simple;
+	bh=ISGoxkb0uMTtloHIIQl13lAb+eAHI6nVD1FKbzcjAZo=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=TbYHV4ZfCSC5HJLIardbdKSM4u6+Jc+e4cnJCoq2wgs1p19cgdMQHAug1F+oHkQvWeN1UeMkbS7vqabYWRtPLXsT2FOM6cup7EWmPCiTaGNQxyOItL45reMB7tQdbCf0TPElR77TXqckGvBBQ0KznBwdzqfwkgigdWVysDclJ28=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--linkl.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=hOLJF9g/; arc=none smtp.client-ip=209.85.216.72
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--linkl.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="fgRrD6EE"
-Received: by mail-pl1-f180.google.com with SMTP id d9443c01a7336-2ceae1ed204so13104855ad.0
-        for <virtualization@lists.linux.dev>; Thu, 23 Jul 2026 18:16:36 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="hOLJF9g/"
+Received: by mail-pj1-f72.google.com with SMTP id 98e67ed59e1d1-38e1118e4abso2293425a91.0
+        for <virtualization@lists.linux.dev>; Thu, 23 Jul 2026 18:46:19 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784855796; x=1785460596; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=+P68SGyEkXyuPtnYKgNRn5xkOTG48cqiZ8JIO+6h7/0=;
-        b=fgRrD6EEXbAPGPJEqjo26Q1D6UU40EPIiwflcswprZDSSLCiZtan3qaQXo8rZ3w0H4
-         BJAtUOh9eV+LP+kkXaJpxZ9VWBeGnPIPgu2QuesAALb13nagL1+5lJnTzLWpXFuoHPdU
-         uQQpTwyNiHGUSRUbc4oWHqRHGm2Ql4jM3GWEmMtcAn704zZuRDTki4v6Qt6fkHZi1YQi
-         sYZaXf/dJVnN2L4+lP91+o2pRPzkfH8CnV32blAg9C28mfl9WQ/ZGOn70wZZm56jKfqw
-         8uhmVYrbwgsB43UexYpBvKcsl72p0kCDZAgDhExPcHlIdUHha/DI3A69Ee8eh7+gHKxg
-         /4YQ==
+        d=google.com; s=20251104; t=1784857578; x=1785462378; darn=lists.linux.dev;
+        h=content-type:cc:to:from:subject:message-id:mime-version:date:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=G+1WbU2W0Xow25CzRoAw91vdRYKBdi1C3Nbcp/adKJ8=;
+        b=hOLJF9g/F7QElruR93XKMdYqhzOKfbKOlKoptMkJBxv02x7gl5Xo8h172f7c1GG046
+         zm6ohSf2TEu+Hua/tY4eOcnKMCoQZD4yJlXWWaXNslD7OUKN1kB1VQnyPw52J7TjQUDH
+         EK8tXycF9wJHcnJjqELAnWf7lalHQkmKxvyP8uUw75vmau5OsXeOMl8fApKN4SEnQ02X
+         kS8Y2mU0pBNTvXqpzwYNRWneaQWugx1YT70rwvdSVDclArwU02j21dzvVmYHZHNRx18s
+         /+tUQFzLbJE2/Qg0mEgjKzL82uhjjlq70OM93xrQ26h+sDWoXytFwXdPQ1CyNHO8b/s9
+         /chQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784855796; x=1785460596;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=+P68SGyEkXyuPtnYKgNRn5xkOTG48cqiZ8JIO+6h7/0=;
-        b=J1tEkN8lVHiFhBMCpfY2jKsbwGydgH/s3kVDeRMVvPLymbeUWlPwXJGjL6B96XbjZj
-         YIW34B8Dj1AZqFEqlr1N0MJdeqKuW/X7m1XflMvofmzwu3hwp20M0doSJeBw2xEoq4Nd
-         /9e70gn4jRww1Jk1WvTki/B0FrePv3EuXe/1ARl/EHqm4yutsLFUbHboeBIsT1M+CI5D
-         BIDYDThHVYXC9iLRVbgzXtSoAVnjtZ+iE3FxNDxcye2h6QwQf0QnJzl98g7Lv/RN4u0P
-         4Bpac+c9ZBK4cpvfAtEYz27dYXRMFhhZEe9eFZxJfcm3CaU4pdEjuCZzlnOSoVApO8c+
-         kkqA==
-X-Forwarded-Encrypted: i=1; AHgh+RqLZoXkud6G4eHpgTzXcsFdQGbE7Nxl/hzpxI/mstuf9uSqppvfCI1q4RIpoDl6tew8kqLKaeNXzS+BFfTciw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwZh5KuCsee8TvLred18VN9CO4jdipxm58GLL6eW05TXm7QsnNg
-	d0RE3u4u6rQRSmCj8IodUwJADjxbXLLYZsRjqM+xaZVAvB60p9D/CzPP
-X-Gm-Gg: AR+sD10wQPjiZimY1OdLIuzt1um1ghnBhOQ4kgzaBhUpkoHww4E37Guh+UqKU2Z81jm
-	iR3iXWvThK5YvIlubG/mKUK6QXkC3/2uigtIidsZVIZGXX/DdzJMrhLwfIWEzqeTuNGlunzJRVC
-	p90w1aFlWTz+/uTOmpeMBzhkDvdLuQc8+Tm47TzlRk/8EYVRmPL51rLMXe27tVs+qGIKeJ0ZCuw
-	v5X5ujtZF0EiL2UUigPw47jJv97mDK9VWvXU66LTTeLnztZr+3mbcpi8rb68ofeSvtK8mwoZ5Mf
-	F/WOK8Bj4mdE5mCZzdRV8XMZAdUwM3dMHUaeSb3+3w0ttbs2hiaPzGy5g5oFGi0LQ7zFf5gkEIV
-	hbvuBYvr8lGDAWLEV+IFdGjv4KRZgz3jousXxzHdcvSyt/hiQxZFYlexa7CZq3Zh8AJHIYmq+x2
-	dCA7VeLXHBCiiN/Z/aP7Y=
-X-Received: by 2002:a17:90b:590d:b0:387:e0db:bc23 with SMTP id 98e67ed59e1d1-38ec65f41c9mr5899490a91.35.1784855794548;
-        Thu, 23 Jul 2026 18:16:34 -0700 (PDT)
-Received: from [192.168.86.23] ([136.25.189.61])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13d1300401fsm26431307c88.3.2026.07.23.18.16.32
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Thu, 23 Jul 2026 18:16:33 -0700 (PDT)
-Message-ID: <08078e22-81d3-4d8a-ad31-c73964ee13b3@gmail.com>
-Date: Thu, 23 Jul 2026 18:16:26 -0700
+        d=1e100.net; s=20251104; t=1784857578; x=1785462378;
+        h=content-type:cc:to:from:subject:message-id:mime-version:date
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=G+1WbU2W0Xow25CzRoAw91vdRYKBdi1C3Nbcp/adKJ8=;
+        b=r03sVXwimiQ31Z6RCu3wGItKlh7qlAQGutC6MRsElOI1I7Y/kLYeluXC8aoDg7Xxu8
+         BTOFH5DdgN3ZkNZGuMPLpPudcLPF1r0D/AmDA/4zoenVSPreRexB34s6vZtqJSBVl6Lk
+         7lygQE6+ExNOBtYULOPGRFHCzaitfyhYK61zLtwKKZYZRhznubKs4n557nhnt/pFNCPY
+         KZHKNIhJrJoq7TTfoVbWb+L0ocbT53sd1bBO+Eonynz05eQ7iZKbvrEYZif6l5wMgy7u
+         U7enV+eGxZk8sMn4/8QCEdOqfunJYyz/mVIjbQWuvTvyXNgTfrDFA45M2IHPo1lD+rlQ
+         0wSw==
+X-Forwarded-Encrypted: i=1; AHgh+Ro+neM2Xnjx3TF9sAJsqpmGGTbtRk+0P9ZiC78JnB0tF/BCicGVpCsaSG7wk3Ja8UgqC5H2iRYNGFBlx7FzDQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyGeY+hmH3gmiwGgilsKqE9giRmJxR0M8DGqMG1oMRUKjRM73kP
+	1KGKBg+sF7Omn5Q4ZkOAZHGc3Hsf0QQSTJJ4J0lu9QKoET/rYqEfCabroDnGWOWaYnCK21VPXRF
+	JMA==
+X-Received: from pjbbo4.prod.google.com ([2002:a17:90b:904:b0:381:1d7f:b8db])
+ (user=linkl job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:35cb:b0:38e:69f8:cc49
+ with SMTP id 98e67ed59e1d1-38ec65e374fmr5127138a91.40.1784857577957; Thu, 23
+ Jul 2026 18:46:17 -0700 (PDT)
+Date: Fri, 24 Jul 2026 01:46:05 +0000
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v2 1/4] virtio-mem: validate device-reported block size
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Greg Kroah-Hartman <gregkh@linuxfoundation.org>,
- "David Hildenbrand (Arm)" <david@kernel.org>,
- Hari Mishal <harimishal1@gmail.com>, Jason Wang <jasowangio@gmail.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>, =?UTF-8?Q?Eugenio_P=C3=A9rez?=
- <eperezma@redhat.com>, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org, elena.reshetova@intel.com,
- huster@cs.uni-goettingen.de, mhollick@seemoo.de, jiska.classen@hpi.de
-References: <20260717061901-mutt-send-email-mst@kernel.org>
- <2026071724-asleep-pedigree-ea54@gregkh>
- <20260717065219-mutt-send-email-mst@kernel.org>
- <2026071759-thermal-synopsis-7568@gregkh>
- <20260717085838-mutt-send-email-mst@kernel.org>
- <1fe328d1-edf9-4e72-a145-be74ede20e60@gmail.com>
- <2026071803-passage-dares-8240@gregkh>
- <ae5bc86b-cb8d-4530-9e58-d285007deac0@gmail.com>
- <20260718131715-mutt-send-email-mst@kernel.org>
- <f8c50876-e18d-4493-ba91-7a4090b6385a@gmail.com>
- <20260723195258-mutt-send-email-mst@kernel.org>
-Content-Language: en-US
-From: Carlos Bilbao <carlos.bilbao.osdev@gmail.com>
-In-Reply-To: <20260723195258-mutt-send-email-mst@kernel.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.55.0.229.g6434b31f56-goog
+Message-ID: <20260724014605.3377283-1-linkl@google.com>
+Subject: [RFC PATCH] virtio_balloon: add VIRTIO_BALLOON_F_REPORTING_PM_SAFE
+ feature bit
+From: Link Lin <linkl@google.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@kernel.org>, 
+	Vlastimil Babka <vbabka@kernel.org>, virtualization@lists.linux.dev, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, prasin@google.com, rientjes@google.com, 
+	duenwen@google.com, jiaqiyan@google.com, ahwilkins@google.com, 
+	Greg Thelen <gthelen@google.com>, Alexander Duyck <alexander.duyck@gmail.com>, jthoughton@google.com, 
+	stable@vger.kernel.org, Cory Maccarrone <maccarro@google.com>, 
+	Taylor Scanlon <tayy@google.com>, Link Lin <linkl@google.com>
+Content-Type: text/plain; charset="UTF-8"
 
-On 7/23/26 16:59, Michael S. Tsirkin wrote:
+Following up on the fix for the PM suspend Use-After-Free race condition in
+mm/page_reporting (merged in mm-hotfixes-unstable: 
+https://lore.kernel.org/all/20260723003650.CAAF01F000E9@smtp.kernel.org/), 
+we face a hypervisor-side deployment dilemma.
 
-> On Sat, Jul 18, 2026 at 10:41:26AM -0700, Carlos Bilbao wrote:
->> Hello Michael,
->>
->> On 7/18/26 10:21, Michael S. Tsirkin wrote:
->>> On Sat, Jul 18, 2026 at 10:07:30AM -0700, Carlos Bilbao wrote:
->>>> On 7/17/26 22:29, Greg Kroah-Hartman wrote:
->>>>
->>>>> On Fri, Jul 17, 2026 at 08:31:09PM -0700, Carlos Bilbao wrote:
->>>>>> Historically, one of the biggest criticisms of coco, especially around
->>>>>> device hardening, was that there were too many values that a
->>>>>> malicious/buggy device could misreport, making it a losing battle. That is
->>>>>> no longer the case with LLMs, and we have the advantage (and challenge) of
->>>>>> open-source dev, which allows us to receive many of these fixes "for free".
->>>>>> If others want to burn their tokens, let them :)
->>>>> I have lots of tokens to burn :)
->>>>>
->>>>> So along those lines, any suggestions on how best to fuzz these code
->>>>> paths?  Any workloads you all use for testing that I can take advantage
->>>>> of?
->>>> We've the virtio-mem config struct layout and the kernel source, so for
->>>> obvious fixes like a NULL check, static analysis is better than fuzzing.
->>>> Claude took a few mins to find me two examples:
->>>>
->>>> Patch 1: virtio-mem: reject non-power-of-two device_block_size
->>>> This one is for virtio_mem_init() to check if
->>>> !is_power_of_2(vm->device_block_size)
->>>>
->>>> Patch 2: virto-mem: validate region_size and usable_region_size
->>>> THis one checks region_size != 0 and vm->usable_reion_size >
->>>> vm->region_size.
->>>>
->>>> An endless factory of "silly" checks like these are low hanging fruit.
->>> At the same time, these checks don't actually help within the coco
->>> threat model, do they?
->>>
->>>> Now, for harder bugs, looking around for fuzz options, VirtFuzz [1] looks
->>>> like a great candidate for those interested in pursuing this direction.
->>>>
->>>>
->>>> Their PoC fuzzes wireless/Bluetooth stack, but nothing our AI overlords
->>>> can't quickly adapt for virtio-mem and other virtio drivers; the JSON
->>>> definition to describe device behavior is easily extensible. Their threat
->>>> model [2] describes an external attacker, but in the context of coco, the
->>>> virtio device itself is the attacker.
->>> What we need, however, is to exclude DoS attacks - these are outside the
->>> threat model. If people try to address all DoS attacks uncritically we
->>> just get a churn of changes which just might introduce issues of their
->>> own.
->>>
->>> Example:
->>>
->>> 	BUG_ON(!is_power_of_2(....));
->>> panics, non exploitable.
->>>
->>> 	if(!is_power_of_2(....))
->>> 		goto error;
->>>
->>> can become exploitable if the cleanup is done wrong.
->>
->> Yes, you are 100% technically right about the scope of the threat model.
->> DoS is out of scope because it is a fundamentally unreachable goal; the
->> cloud provider can always just "pull the plug". The dangers of
->> "vibe-coding" you point out are real, over-eager LLMs fixing up and down
->> will create new vulnerabilities in complex cleanup paths. Also, TBH, I
->> sympathize with a maintainer's disinterest in reviewing a million stupid
->> checks.
->>
->> But, to play devil's advocate: this assumes a missing check
->> like is_power_of_2 only ever leads to a benign crash, rather than already
->> cascading into an unknown, exploitable state down the line.
->>
->> So these checks are not _just_ to prevent DoS!
-> I don't get it. It's normally for bug reporters to show the problem
-> is real. How about analysing what's going on eh?
-> The situation where a misbehaving hypervisor crashes guest
-> and this is reported as a "security problem" is unsustainable.
->
->> Anyhow, this is the exact justification for VirtFuzz. If your main concern
->> is that adding validation checks might introduce subtle exploit paths in
->> the error-cleanup code, VirtFuzz and tools like that, can fuzz those new
->> paths exhaustively. It gives the automated safety net needed to scale coco
->> device with as little regressions as possible.
-> Sorry I'm pretty sceptic how far this will get us, supposedly
-> all virtio drivers have been fuzzed by now.
->
-> Are we gonnu be inserting specilation barriers around all these
-> "security checks", as one example?
->
-> If there's something that never happens, I'm okay with just BUG_ON
-> instead of carefully propagating errors all around the place.
+Cloud hypervisors want to safely enable the Free Page Reporting (FPR) 
+virtqueue across their fleets, but enabling it indiscriminately on guests 
+without the recent suspend fix exposes them to UAF crashes. Relying on 
+out-of-band metadata (e.g., OS image tags) to selectively enable the 
+feature is fragile for custom user images or live-patched kernels.
 
+To address this at the protocol level, we propose adding a new feature bit 
+to the Virtio Specification: 
+VIRTIO_BALLOON_F_REPORTING_PM_SAFE (Bit 6)
 
-The cleanest solution is to stop conflating the two threat models at the
-driver level entirely. coco guests already select per-arch configs, so the
-kernel already knows at build time whether the device is untrusted. We can
-gate the hardening checks behind CONFIG_CONFIDENTIAL_COMPUTING and let
-that config carry the threat model and its consequences, i.e., stricter
-validation requirements, without burdening mainline virtio or maintainers
-with DoS stuff that may not belong here.
+This establishes a formal device lifecycle contract for power management:
+If negotiated, the driver MUST guarantee that all page reporting operations
+are halted and pending requests are flushed before the device/system
+transitions into a suspended state (e.g., ACPI S3/S4).
 
-Under this scheme, yes, BUG_ON for invariants that can't trigger outside
-of coco either. The config wrapper would be reserved for checks that are
-only meaningful for coco; so the DoS-vs-exploit distinction is structurally
-clear instead of something y'all need to wage every time a patch needs
-review.
+Deployment semantics:
+- Hypervisors operating in a strict "safe mode" can offer Bit 6 exclusively 
+  (suppressing Bit 5 / VIRTIO_BALLOON_F_REPORTING).
+- Older, unpatched Linux guests will see Bit 5 is absent, ignore Bit 6, and 
+  safely skip FPR initialization, preventing the suspend crash. Standard
+  ballooning remains 100% functional.
+- Patched Linux guests will recognize Bit 6 and safely initialize FPR.
+- Note for fleet deployments: Non-Linux guests (e.g., Windows, FreeBSD) 
+  that rely on Bit 5 will temporarily lose FPR if the hypervisor exclusively 
+  offers Bit 6. This is considered an acceptable trade-off to globally 
+  protect unpatched guests without relying on OS image tags, until those 
+  respective virtio drivers adopt Bit 6.
 
+Implementation Note on Upstream/Downstream Dependencies:
+--------------------------------------------------------
+Because it is critical that downstream Linux distros do not accidentally 
+backport Bit 6 without the core MM UAF fix, the final upstream 
+implementation of this patch will enforce a strict compile-time dependency. 
+We plan to export a macro (e.g., PAGE_REPORTING_HAS_FREEZABLE_WQ) from the 
+core MM fix, and wrap Bit 6 behind an #ifdef of that macro in 
+virtio_balloon.c. This guarantees that compiler backports must consume the 
+entire dependency chain to advertise the feature.
 
->
->>> 		
->>>
->>>
->>>>    Here's a vibe coded PR of what I mean:
->>>>
->>>> https://github.com/seemoo-lab/VirtFuzz/pull/7
->>>>
->>>> CCed the creators/authors, thanks for open sourcing this!
->>>>
->>>> Thanks,
->>>> Carlos
->>>>
->>>> [1] https://github.com/seemoo-lab/VirtFuzz
->>>>
->>>> On 7/17/26 22:29, Greg Kroah-Hartman wrote:
->>>>
->>>>> On Fri, Jul 17, 2026 at 08:31:09PM -0700, Carlos Bilbao wrote:
->>>>>> Historically, one of the biggest criticisms of coco, especially around
->>>>>> device hardening, was that there were too many values that a
->>>>>> malicious/buggy device could misreport, making it a losing battle. That is
->>>>>> no longer the case with LLMs, and we have the advantage (and challenge) of
->>>>>> open-source dev, which allows us to receive many of these fixes "for free".
->>>>>> If others want to burn their tokens, let them :)
->>>>> I have lots of tokens to burn :)
->>>>>
->>>>> So along those lines, any suggestions on how best to fuzz these code
->>>>> paths?  Any workloads you all use for testing that I can take advantage
->>>>> of?
->>>> We've the virto-mem config struct layout and the kernel source, so for
->>>> obvious fixes like a NULL check, static analysis is better than fuzzing.
->>>> Claude took a few mins to find me two examples:
->>>>
->>>> Patch 1: virtio-mem: reject non-power-of-two device_block_size
->>>> This one is for virtio_mem_init() to check if
->>>> !is_power_of_2(vm->device_block_size)
->>>>
->>>> Patch 2: virto-mem: validate region_size and usable_region_size
->>>> THis one checks region_size != 0 and vm->usable_reion_size >
->>>> vm->region_size.
->>>>
->>>> An endless factory of "silly" checks like these are low hanging fruit.
->>>>
->>>> Now, for harder bugs, looking around for fuzz options, VirtFuzz [1] looks
->>>> like a great candidate for those interested in pursuing this direction.
->>>>
->>>>
->>>> Their PoC fuzzes wireless/Bluetooth stack, but nothing our AI overlords
->>>> can't quickly adapt for virtio-mem and other virtio drivers; the JSON
->>>> definition to describe device behavior is easily extensible. Their threat
->>>> model [2] describes an external attacker, but in the context of coco, the
->>>> virtio device itself is the attacker. Here's a vibe coded PR of what I mean:
->>>>
->>>> https://github.com/seemoo-lab/VirtFuzz/pull/7
->>>>
->>>> CCed the creators/authors, thanks for open sourcing this!
->>>>
->>>> Thanks,
->>>> Carlos
->>>>
->>>> [1] https://github.com/seemoo-lab/VirtFuzz
->>>> [2] https://www.computer.org/csdl/proceedings-article/sp/2024/313000a024/1RjEa0y9RMQ
->>>>
->>>>
->>>>> thanks,
->>>>>
->>>>> greg k-h
->>>> [2] https://www.computer.org/csdl/proceedings-article/sp/2024/313000a024/1RjEa0y9RMQ
->>>>
->>>>
->>>>> thanks,
->>>>>
->>>>> greg k-h
->>
->> Thanks,
->>
->> Carlos
+Below is the proposed Linux proof-of-concept based on upstream master. We 
+introduce a helper virtio_balloon_has_reporting() to ensure virtqueues are 
+properly allocated, torn down, and validated if either bit is negotiated.
 
+If this architectural approach is acceptable for cloud deployments, we will 
+formally submit this patch and open a corresponding issue for the OASIS 
+Virtio specification.
 
-Thanks,
+Depends-on: <Message-ID: 20260723003650.CAAF01F000E9@smtp.kernel.org>
+Signed-off-by: Link Lin <linkl@google.com>
+---
+ drivers/virtio/virtio_balloon.c     | 15 +++++++++++----
+ include/uapi/linux/virtio_balloon.h |  1 +
+ 2 files changed, 12 insertions(+), 4 deletions(-)
 
-Carlos
-
+diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
+index 581ac799d9..00e8273dc3 100644
+--- a/drivers/virtio/virtio_balloon.c
++++ b/drivers/virtio/virtio_balloon.c
+@@ -39,6 +39,12 @@
+ 	(1 << (VIRTIO_BALLOON_HINT_BLOCK_ORDER + PAGE_SHIFT))
+ #define VIRTIO_BALLOON_HINT_BLOCK_PAGES (1 << VIRTIO_BALLOON_HINT_BLOCK_ORDER)
+ 
++static inline bool virtio_balloon_has_reporting(struct virtio_device *vdev)
++{
++	return virtio_has_feature(vdev, VIRTIO_BALLOON_F_REPORTING) ||
++	       virtio_has_feature(vdev, VIRTIO_BALLOON_F_REPORTING_PM_SAFE);
++}
++
+ enum virtio_balloon_vq {
+ 	VIRTIO_BALLOON_VQ_INFLATE,
+ 	VIRTIO_BALLOON_VQ_DEFLATE,
+@@ -598,7 +604,7 @@ static int init_vqs(struct virtio_balloon *vb)
+ 	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
+ 		vqs_info[VIRTIO_BALLOON_VQ_FREE_PAGE].name = "free_page_vq";
+ 
+-	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING)) {
++	if (virtio_balloon_has_reporting(vb->vdev)) {
+ 		vqs_info[VIRTIO_BALLOON_VQ_REPORTING].name = "reporting_vq";
+ 		vqs_info[VIRTIO_BALLOON_VQ_REPORTING].callback = balloon_ack;
+ 	}
+@@ -635,7 +641,7 @@ static int init_vqs(struct virtio_balloon *vb)
+ 	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
+ 		vb->free_page_vq = vqs[VIRTIO_BALLOON_VQ_FREE_PAGE];
+ 
+-	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING))
++	if (virtio_balloon_has_reporting(vb->vdev))
+ 		vb->reporting_vq = vqs[VIRTIO_BALLOON_VQ_REPORTING];
+ 
+ 	return 0;
+@@ -1013,7 +1019,7 @@ static int virtballoon_probe(struct virtio_device *vdev)
+ 	}
+ 
+ 	vb->pr_dev_info.report = virtballoon_free_page_report;
+-	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING)) {
++	if (virtio_balloon_has_reporting(vb->vdev)) {
+ 		unsigned int capacity;
+ 
+ 		capacity = virtqueue_get_vring_size(vb->reporting_vq);
+@@ -1099,7 +1105,7 @@ static void virtballoon_remove(struct virtio_device *vdev)
+ {
+ 	struct virtio_balloon *vb = vdev->priv;
+ 
+-	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING))
++	if (virtio_balloon_has_reporting(vb->vdev))
+ 		page_reporting_unregister(&vb->pr_dev_info);
+ 	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
+ 		unregister_oom_notifier(&vb->oom_nb);
+@@ -1162,8 +1168,10 @@ static int virtballoon_validate(struct virtio_device *vdev)
+ 	 */
+ 	if (!want_init_on_free() && !page_poisoning_enabled_static())
+ 		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_PAGE_POISON);
+-	else if (!virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON))
++	else if (!virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON)) {
+ 		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING);
++		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING_PM_SAFE);
++	}
+ 
+ 	__virtio_clear_bit(vdev, VIRTIO_F_ACCESS_PLATFORM);
+ 	return 0;
+@@ -1176,6 +1184,7 @@ static unsigned int features[] = {
+ 	VIRTIO_BALLOON_F_FREE_PAGE_HINT,
+ 	VIRTIO_BALLOON_F_PAGE_POISON,
+ 	VIRTIO_BALLOON_F_REPORTING,
++	VIRTIO_BALLOON_F_REPORTING_PM_SAFE,
+ };
+ 
+ static struct virtio_driver virtio_balloon_driver = {
+diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
+index ee35a37280..d206f156d6 100644
+--- a/include/uapi/linux/virtio_balloon.h
++++ b/include/uapi/linux/virtio_balloon.h
+@@ -37,6 +37,7 @@
+ #define VIRTIO_BALLOON_F_FREE_PAGE_HINT	3 /* VQ to report free pages */
+ #define VIRTIO_BALLOON_F_PAGE_POISON	4 /* Guest is using page poisoning */
+ #define VIRTIO_BALLOON_F_REPORTING	5 /* Page reporting virtqueue */
++#define VIRTIO_BALLOON_F_REPORTING_PM_SAFE	6 /* PM-safe page reporting */
+ 
+ /* Size of a PFN in the balloon interface. */
+ #define VIRTIO_BALLOON_PFN_SHIFT 12
+--
