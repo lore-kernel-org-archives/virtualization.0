@@ -1,123 +1,118 @@
-Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
+Received: from mail-pl1-f176.google.com (mail-pl1-f176.google.com [209.85.214.176])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B8489381EB3
-	for <virtualization@lists.linux.dev>; Fri, 24 Jul 2026 06:09:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA333377A87
+	for <virtualization@lists.linux.dev>; Fri, 24 Jul 2026 07:34:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784873371; cv=none; b=hsrY10btpm3uxjBHkjeP+/Sf8bnpmHYCnY8wqSyRBRNmFizYMN6M2ykD4OcW4mkGoAqRcCo25i1baVoDiYU23TEVB+5V4Oilq1mCUa9UhYQj3etNOpJHPGb65xh1bzeTLNTQ+8NhS5wn7GMtB/q7lnknJoPsd3yUl0xi5A2noYs=
+	t=1784878469; cv=none; b=CSutyUWwOdJDz6iRXRncKXwV/CpuATlNtJdqFlSu9Clqv4w3HC5QuSVT6+no+k9OaEzr6pzO4nNFH4qbvyXAOModoZ0zE2eTU7U61KCN3LJaQc+k12W85ATl8Cc3LxUO97t+WWzOZOzuungrwIqV76UJH+byHLGmlpfSnO0kWGM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784873371; c=relaxed/simple;
-	bh=Yv76Uc6eNIRwoHRE5OWMEIz+p5C5RfrnI2mMnfhCH1o=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=FnwYtNaBZD4E908yrKqmkMkjJoMHt9K2cJdysjjvY9i9H81cOIU45MDXlB5+2kYXItq1VSmgfjVNFPSuoJieRU8GoPpFg2mtPX6s7NpRpNqcnBtnrJfvgO+SGK4OoQzy7R/Hyg30n7/VRZcL43PjStUonQzSSaScS4Zuc464Jy4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=N3pTZazQ; arc=none smtp.client-ip=209.85.210.176
+	s=arc-20240116; t=1784878469; c=relaxed/simple;
+	bh=vXpRSWi/oVCMquWL7cTrWQgG+Q6PVnMDhgoEilSgEXU=;
+	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
+	 In-Reply-To:Content-Type; b=TDWHnVAfLb3ArmSzqn4LmdxHgZUIODAxxPKhmQ8o62c0GNlXWQ3dtgBTLU0+HRRs2yANpbkqpG24hsq+f3KI62UL9w+2WomhHV9cBE+8rjEKDKXROIorzKjiuPG7ENtbozfGzkNtv9EwVjzmcMbvkzJBt62XKlx2MgnKQjFp6D8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=NtzViVZs; arc=none smtp.client-ip=209.85.214.176
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="N3pTZazQ"
-Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-84864086bfeso45170b3a.1
-        for <virtualization@lists.linux.dev>; Thu, 23 Jul 2026 23:09:29 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="NtzViVZs"
+Received: by mail-pl1-f176.google.com with SMTP id d9443c01a7336-2cad4170e8eso2133515ad.3
+        for <virtualization@lists.linux.dev>; Fri, 24 Jul 2026 00:34:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1784873369; x=1785478169; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=0SdJQwjXICAfEV1ZszzabJCCVlp1hRyGFUjJs/6dLPw=;
-        b=N3pTZazQI3ERwrymlz1uQ60wiLbzkR+TCeeri22tExVoGa2bgY63ckTG03eScbF9yz
-         NwzV+exm2jQtu+BlRvZuHfVoA/OQjlW+0mWoafF4DAvz8EUh4vuCH9hH2O1wagDa4jVJ
-         ES5ywWaiTlSPDNqXaHZ5tivbbvpMd0zOo4aqyu6S+Xp3Wy27c8snoRTiyhZC2hBleir0
-         zDzPzmlbXB0TgkT46yQllvt9/ryvPRRwWEWJVgtHuxh5IT1DIvcXdrhGX9F0Di5E/UOO
-         G4oR2H0Ku1PbRLjwtFIXu2i6j93ySmXX9bXh1VKyPTiikIg9VvA1rthl5urHSOMXNlb5
-         ihvQ==
+        d=gmail.com; s=20251104; t=1784878467; x=1785483267; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:in-reply-to:from:references
+         :cc:to:content-language:subject:user-agent:mime-version:date
+         :message-id:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=3LzKJmUsJl3t+t7LREmJa3ZK6twh8h3ZLCQyYGIQu7w=;
+        b=NtzViVZs5adX/L6xQjMgTdtlggQeJZFmH9adv1MbF2Cd3ECxBN3r7MaA80S+X6lN2N
+         ffykPqkMQOI1S9WDVhUijUaqudgBYGNzFWDKSnq62EsVTPtagYHsPgNpzyYMmK/BjkEb
+         iemYMmw6AMAKV4Gtj/UCjQY4NweNgilBPVx2CN0Fg0YfXC5CsmyH4j+GtCkMpNvyKciv
+         ZBC9s0yFIajcCPCwL4f/UnfM1iEkWg6OzkyMMLov9P17HrVbuwc1B4xqbqI2Ib1aX7Fc
+         rzzksUQD4Vz6WDRhgAfCm3RKSEz2ouLFUVuj6l769Ze0aoUhcpsow+X26pLM2s78rPtO
+         TaYw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1784873369; x=1785478169;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=0SdJQwjXICAfEV1ZszzabJCCVlp1hRyGFUjJs/6dLPw=;
-        b=YYWTUHj2+qD4GuJqQFJcOb97z4xPg5BlB7aG4Ah3Z76VeOIpillgrUK8A4yiqclhLp
-         ukkBKsEHXQuJQPaq0xgv9VTFED9d8RKo5CE/Yx/F3UdhJ/DMNs2mAweMUjls/x8EAi4e
-         6NcLCrP+2EozvGIgtMPBnuOU0SWtOK2UBD0BbWMJKFRfKBIKU7KPLLfJzhlxrP19T13z
-         qYVYtNn0PNc8Piimry4PyQkOi7ICBnyuHvl3GXjCuHua37n1qOLuEydj51kiVkC6FSav
-         iwBKxVs3GSpw5/LFWEUXiNlFUlgFxDi830VF9Dld8QOA4QV4xzIfaTMmaA4Un67MoYVj
-         SW9w==
-X-Forwarded-Encrypted: i=1; AHgh+Rq9By7Fvubd2lfMgn4tgaeUThk4CYndWtyT+fOcF53DA1jFYaJQMLWCcMMvHOe11VP5++XzhxzV7iHs9e8dqg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxG6qMDgK1g2unaKHBL/1IWLCh4IXeDagAdoClbJhK/7ijnrjLZ
-	3tFRyRpTg/jeWkh4BBenVnavK6fAgqAKUZXUKZLF4PWUqe6QA9BP812r
-X-Gm-Gg: AR+sD10N8BSkPmOVHktZgvuyx+aLfFetVG+r/F/GHnBUivw1+oRZKM5a25mMqkeUgWJ
-	gpePAjCvZj3nYZfgw6LNiZCgN+xRjWBsY9sd5HuiNyjQxZ3uu+2LNQl3GFzpXYbeOnQYf8oIbOo
-	kUqTmIhBpgNOqCA0JbyBDifak1Y5P6Y8IIKMWf3hUNBm1O7GQzuEbdxTX+Rk+/amoXNkv9DgZ78
-	kf4IMDC9bzDEhO7jf+bKO+2sldPKHNnRudhSI7/uDLaC78+Lwmn3oDkypuVO4LLkOiRG4YNLoUn
-	hxmlAd5nUypppmc5VwJbu6WEqZkGru5LWJ6+kcf4o2QvMohNehyfGXS0VYBYOMo9ljkfC2VEqGu
-	N7nsqbgJ/Fs0+Er0DPi2biw/qP2KpMFP7Lh9nAW89KQGXb2M5V/j7HPi8MInRwmpK3ojXHN0s9L
-	kIYKwA
-X-Received: by 2002:a05:6a00:2d2a:b0:848:63fb:fda5 with SMTP id d2e1a72fcca58-84e2c1b9f89mr6544139b3a.41.1784873368593;
-        Thu, 23 Jul 2026 23:09:28 -0700 (PDT)
-Received: from jia ([188.253.12.32])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84e172984b0sm4133451b3a.27.2026.07.23.23.09.25
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 23 Jul 2026 23:09:28 -0700 (PDT)
-From: Jia Jia <physicalmtea@gmail.com>
-To: michael.christie@oracle.com,
-	mst@redhat.com,
-	jasowangio@gmail.com
-Cc: pbonzini@redhat.com,
-	stefanha@redhat.com,
-	eperezma@redhat.com,
-	virtualization@lists.linux.dev,
-	kvm@vger.kernel.org
-Subject: [PATCH v2] vhost-scsi: flush backend after device ioctls
-Date: Fri, 24 Jul 2026 14:09:19 +0800
-Message-Id: <20260724060919.1569170-1-physicalmtea@gmail.com>
-In-Reply-To: <20260721073639.1532488-1-physicalmtea@gmail.com>
-References: <20260721073639.1532488-1-physicalmtea@gmail.com>
+        d=1e100.net; s=20251104; t=1784878467; x=1785483267;
+        h=content-transfer-encoding:content-type:in-reply-to:from:references
+         :cc:to:content-language:subject:user-agent:mime-version:date
+         :message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=3LzKJmUsJl3t+t7LREmJa3ZK6twh8h3ZLCQyYGIQu7w=;
+        b=imgagdhgCPB252hwav0MVY1ER63TzedEs6GGfOISAucljGJqklk6K4K1E8Od4I7fOB
+         xoPIEnFl2fK05+0bgjPBb2c/wwEqWWaxzldgJm7sCLx2+xXgeFl6cBEijagts7LoBwQr
+         5Fd5Dvple0Sd3gOc88OzJQ/aKKPr+B4uFugIcAzsipGcCAz75s0nAO1q1roT+CaWAw5E
+         ehKQMeGKx6x76xC+lFLNN6xIS3Yw0ZEs+XLE7hSBWR2ZkDnQzyo0wqbOGnG+aouMQReb
+         /G/ABGNjWb2CFZ8ixiTgyLByAViuveDbkCt/b7wpc6LmwW3Rm+ZVWl3n/V0SMxuW4TY9
+         MLCQ==
+X-Forwarded-Encrypted: i=1; AHgh+Ro3GrQt5h3z/GSTbIk14VmgKzxByuR6KbgExlxQskHk3+9dvtGt3iCM/dxDL4E1ChR0fUnxuBowGE9iYmclSw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yzn7FwppWSyBb7m0Fc92YkQU4l5SaTdvxrHeH3YQt0l2gMrqETo
+	UWpvTCA7WRo+GIgSf/AS6L8Z8BELee35BoSOUklsR4DBgcE9zEfC8v08
+X-Gm-Gg: AR+sD129gVD6x2DFrDXfzPq2Wn1QJHUhJjuGFyVnYB+2tIWJRM2UmEWJ/OxqZQGcwvX
+	KUUK+aZ9yHqIowm1wKgUEeDQSQ5jLhQPSazVABW+XkLNkWtPM7uwXpyOjGQkQJZI9TRaOQtsBNd
+	1K+ltP/4Iob2dgD2PzNoK1QScvsxYQ0/fNgY57omDWvlYpnRNFtEOPYBE8ocPt9a0H/voK/PYMy
+	uUUcLzYl6lWaKk8zpslaaSxBfyiqBN7OtvvDp5yKsyqqfG9m9iikBVxEKjdE4RmAsLUdeTxK+Zn
+	7dP9XpzeGF04qhhdpGQQcP4VQ2cljgLen/KzrVLGmXe42nJiSo2ShhGkj6JNVdN1MA7QlbnQIQR
+	IbYKAJmAycKVp0B/mdbznQ5CzB3ikMaJd5rJ5DcnKCk5y5LWnH1CROCvoj58hAZQQs1hm/PO7FY
+	e2qJtM9CcdyTlGWUUNc5g=
+X-Received: by 2002:a17:903:468e:b0:2c9:fbde:ab66 with SMTP id d9443c01a7336-2cfa6c72079mr71784215ad.37.1784878467184;
+        Fri, 24 Jul 2026 00:34:27 -0700 (PDT)
+Received: from [10.22.76.22] ([111.223.92.222])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2cf8efa39ddsm46944805ad.17.2026.07.24.00.34.24
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Fri, 24 Jul 2026 00:34:26 -0700 (PDT)
+Message-ID: <6b684c2f-1f98-43ea-84c9-9b6f162d5e9f@gmail.com>
+Date: Fri, 24 Jul 2026 15:34:23 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] vsock: use sock_error() to consume sk_err after connect
+ timeout
+Content-Language: en-GB
+To: Michal Luczaj <mhal@rbox.co>, Stefano Garzarella <sgarzare@redhat.com>
+Cc: "David S. Miller" <davem@davemloft.net>,
+ Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
+ Paolo Abeni <pabeni@redhat.com>, Simon Horman <horms@kernel.org>,
+ syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com,
+ virtualization@lists.linux.dev, netdev@vger.kernel.org,
+ linux-kernel@vger.kernel.org
+References: <20260719220103.684489-1-phind.uet@gmail.com>
+ <al3UuvBhfxp82krV@sgarzare-redhat>
+ <78225425-1ca7-45fb-85cb-9e04f489e68f@gmail.com>
+ <amB15TdzPAEk9A9C@sgarzare-redhat>
+ <b81bfea4-6b19-4cc8-95c0-dcd4ad42476e@gmail.com>
+ <95cd0d4e-58c9-44ab-b94f-fcf57b88583b@rbox.co>
+ <amHN9mOGj7oMak4-@sgarzare-redhat>
+ <27412e44-ab4b-4dd3-9685-481875683860@gmail.com>
+ <a6cb1b8f-d8cf-412a-a204-3a26e4db0bd0@rbox.co>
+From: "Nguyen Dinh Phi [SG]" <phind.uet@gmail.com>
+In-Reply-To: <a6cb1b8f-d8cf-412a-a204-3a26e4db0bd0@rbox.co>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-vhost-scsi translates guest response descriptors into userspace iovecs
-when commands are submitted.  Target-core completes those commands
-asynchronously, so VHOST_SET_MEM_TABLE can replace the memory table while
-an in-flight command still retains response iovecs translated through the
-old table.
+On 24/7/26 05:43, Michal Luczaj wrote:
+> On 7/23/26 12:26, Nguyen Dinh Phi [SG] wrote:
+>>>>>> ...
+>>>>>> Yeah, we need to handle that part better, I think it's a leftover when
+>>>>>> we generalized AF_VSOCK to support more transport than vmci.
+>>>>
+>>>> Speaking of leftovers, I have trouble understanding where does vsock set
+>>>> sk_err on listener sockets anyway. If it doesn't, why vsock_accept()
+>>>> checks for it?
+>>>
+>>> I can't also see where it can be set TBH. Should we remove it ?
+>>
+>> I couldn't find it for listener side too.
+> 
+> Removing sk_err handling from vsock_accept() solves the problem, right?
+> 
+> thanks,
+> Michal
 
-If the old mapping is reused after VHOST_SET_MEM_TABLE returns, command
-completion can write the response to an unrelated userspace object.
+Yes, confirmed, removing sk_err checks from vsock_accept() does solve 
+the problem.
 
-Flush the vhost-scsi backend after vhost_dev_ioctl() handles a device
-ioctl.  This waits for in-flight commands that can still use the old
-response iovecs before the ioctl returns.
-
-Changes in v2:
-- Shorten the changelog and remove investigation details.
-
-Signed-off-by: Jia Jia <physicalmtea@gmail.com>
----
- drivers/vhost/scsi.c | 4 +++-
- 1 file changed, 3 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index 9a1253b9d8c5..c3e8f1a0b2d4 100644
---- a/drivers/vhost/scsi.c
-+++ b/drivers/vhost/scsi.c
-@@ -2424,10 +2424,11 @@ vhost_scsi_ioctl(struct file *f, unsigned int ioctl, unsigned long arg)
- 	default:
- 		mutex_lock(&vs->dev.mutex);
- 		r = vhost_dev_ioctl(&vs->dev, ioctl, argp);
--		/* TODO: flush backend after dev ioctl. */
- 		if (r == -ENOIOCTLCMD)
- 			r = vhost_vring_ioctl(&vs->dev, ioctl, argp);
-+		else
-+			vhost_scsi_flush(vs);
- 		mutex_unlock(&vs->dev.mutex);
- 		return r;
- 	}
- }
--- 
-2.43.0
-
+Thanks,
+Phi
