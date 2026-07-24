@@ -1,48 +1,47 @@
-Received: from CH5PR02CU005.outbound.protection.outlook.com (mail-northcentralusazon11012059.outbound.protection.outlook.com [40.107.200.59])
+Received: from BL2PR02CU003.outbound.protection.outlook.com (mail-eastusazon11011067.outbound.protection.outlook.com [52.101.52.67])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2E3B43C585B
-	for <virtualization@lists.linux.dev>; Fri, 24 Jul 2026 21:05:15 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.200.59
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C7D14908A5
+	for <virtualization@lists.linux.dev>; Fri, 24 Jul 2026 21:40:40 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.52.67
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1784927117; cv=fail; b=qd8vGgN+T7piTQvBbighbUBr6iW//kocO30RwYFhRylWO8FfefLRBLMU2ZJHvIC3tjGRGAvgW2EnJCwv+qhUwkDmx4q05TN4keftNacr/G8Wd5WOeFgDEugwfIHpG1bXQm9jsSaM4kmY+WzpQm1bmgOqyP1cJiCctwvI0OXDe+E=
+	t=1784929242; cv=fail; b=CDwPzH8der4lBhXLCGLUz/Du+cKF4dzs72yG6v5nWZ7vX+BZt/A1EjwvGkPFqxnX4wty0XXM2Nz3PWjFlKmQk0Q1A/eO9paBRZOeHxXkT4re4tO2hx6t/kdD4CooJtTXebt8r5fGizWdnauiH431+IU+StDoHx/F7WMRcGP1UzQ=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1784927117; c=relaxed/simple;
-	bh=xmiBpVxOypuDv61O9yoFdOapRg5MdQp+rLhVHdWgSV4=;
+	s=arc-20240116; t=1784929242; c=relaxed/simple;
+	bh=QrOeCA5/kml4OL+UKCUKiSiJC4CIkogUB1+IcD6Vaa8=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:Content-Type:
-	 Content-Disposition:In-Reply-To:MIME-Version; b=QyDmbQWOBW0c9UuIZ+9xXqYDYC/DMmxS0juRfTO9GjEghC+RE1KmsHDCf0KKw1nCxtZgt0WHIt32pyWjsvX0qP9yH01Hvy4K9OZLfXYnKp1G8+6Y+jk5GYqwwBPmZ74QWAhMnXJLovcDWI9rOT8NONAtwyy/WBNeZ3W91HrgxyM=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=fail (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=fail (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=RVNSMj1A reason="signature verification failed"; arc=fail smtp.client-ip=40.107.200.59
-Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=reject dis=none) header.from=nvidia.com
+	 Content-Disposition:In-Reply-To:MIME-Version; b=WQRQGdkQLIFSvoM0egDvEmCXN3jwoe4oBmfsP2vGyC5qx9kNgZ4IMFJzzvGEwHZ4z/B2mBVstOdR829/CoUl60pfPOfNnGBwjUjzbO9uCZ1CccI2cdLR572PpEGusQGF37V7YPd49fqgg7HZqpOJtYFJEdFbBlgvCw7K/a0KvUk=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com; spf=fail smtp.mailfrom=nvidia.com; dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b=jqrQENZa; arc=fail smtp.client-ip=52.101.52.67
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nvidia.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=fail reason="signature verification failed" (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="RVNSMj1A"
+	dkim=pass (2048-bit key) header.d=Nvidia.com header.i=@Nvidia.com header.b="jqrQENZa"
 ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=Ay3Rvb1o4K7bRFYr2JTpTvxgse/JaaE8yWL62dzOJXDG1Ej4XAPuMMGLmI7siR84SKfnX9Fd3fxz8hxlBH5evL91FFdRrSMT4h+t0zCZHQjXBq9MmgggiUXlf5pFfIR32kWlkq/4gbMnk5/HNQRGMp2WOsr4HeHnqPj+wFptSxJvnpLhDQR+o6v8diV73HCp8zSHnjI3WK9THOhet2vz2MA481PKDhFIg9vACC1f6xtUglqrT87WS+XrAzci7NRNo+Ic9RplKYL0Po+iQwSfCn/MyBACcOEf8yf/XW3koJ7DLfy4DYE7ZDygkNWXkWqN46s0znDjUhrRcNj7nfv4qw==
+ b=LpJhMGq9Y/Xqp5c2J3lfsjdUXCC5HBwK6RoXfLVQYEaNhVAhkkgjuy/yUYH0UoaqeKW3dm904I0+4CUqVpxrjJgL2NmdJ6XblK8u2h7N8qkPUVZAP7AjMOk8hMcGBZwZesGbzX/dm9A/Nv9A5wOv8CMXTtVlGcnL5xv5oELJ67c4KwBEUbwB9vOSxaYZEwNvWrFAcAoqNd6c/Pi6RJX4QLPBI9R2KENgCgdFijEITM7+HQZq3Q3QeRWd/M8RuY5S1QyfJZ7xKUzljzTWGaC34ZhOmktwVWjZAFWeLkQfRk+IPodDlAzrFByjKDOxS5B3xsYpaNckXCQWMTI8cuJCHw==
 ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
  s=arcselector10001;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=g/VhMBtFc5veIGoo8YR4fgT7i9ixEiXqFWyen26HB7c=;
- b=CMZDqJj6Bw8d+dltFVj4GfvMMT8+w1zZsJwgZiVYzMbRUPurqK3hdVxtQMc9Qzzm9qj7ZlMnEMOYPxuCCMOaZ+jh2yzvFgCFcKx/3L3COIpS3cplpnFhFgGjF99CkDqPZz6llUm7s/PmobZ7vMWjrORH1mQ+Pcd+mMVmsyLWZAMqUpQw3kyU1sS5UjZvR+LurV7li7KBHQ1l+hSgemW1K/l2VlYfT0tuLVipLOfufon/9YORa4LqVosg5KepCqo2VJKIC61o679GM9YPfqusa770lRnh+i6odMqQwl4v/O3lUS8O9JWwoPWnu13/CIi3FUswTqd/NXA4Qy+JDo4pcQ==
+ bh=uqVLL2KGNBFEuUaSROl91UrwpdTDjupRFnvSBHe3qp8=;
+ b=ZkZgDRssvSITNftS7wOp3mHwEESSPfne8BhSYOW9qSeyocdTtkkBVF4sN22wW8oObKTG8PRhMppSqMIPDEsE7p95zmUaGmIIDrtYiMXQLHghcFq7Rr0tmaoaUGSJ+qYK9JyXFmbvR3hsK/WzNCGPMYsdhotZ+GAZ9Gifhes1cwjCcTm0ExIJbEyCO7wjOl+WrC//fKJ4XaF3fpTgIqlrG8xwjsWXQKZPHOSCxTYVxQWKgXAYwrKqYVzS9GJznuSSr55K23ZdSbyKC/nnG8DA/1hrmiFPHxxYRRIuH8h73/jBxMZKESJDC5YUvLrASAkJuOxQp1ZcJZXSgDBrlMqc4g==
 ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
  smtp.mailfrom=nvidia.com; dmarc=pass action=none header.from=nvidia.com;
  dkim=pass header.d=nvidia.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=Nvidia.com;
  s=selector2;
  h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=g/VhMBtFc5veIGoo8YR4fgT7i9ixEiXqFWyen26HB7c=;
- b=RVNSMj1AxugGg0dqgkNKaELlHl6OIqBGD9TL8bSVI5/RBoa7VuQyutvJZz7hh86CUJHEdatFS+n5CXrsamHyREdRtAs5wKChXqxia3k2tkk5fxnqZEVxib2E3oRFO+3n9jnvryxhH8nFqDDrIAnIemrTqVut2nu0oL5o1ZA5qrf5AECS5aXGMbrh+uX7JHr87hpfSp2rfoPrFwhgh7AHcV7EbRHd/Qdx2kDSOUvulHTOogj8rBU2msWlyLcFbjMdqPJPpDvRUEdsgCJ9PSTVgyK/yGaAw+EEQKBwiGQI66pQ3l6GNVv1Zjb9Pxievtx5laajFyrKF8P/EdH/j72Vkg==
+ bh=uqVLL2KGNBFEuUaSROl91UrwpdTDjupRFnvSBHe3qp8=;
+ b=jqrQENZa9CKVf/QgmGY976etbCNwlgcZpSjDPvTL/IT4G7or6gu5AeNZVN7QQwP7KD8O3FspHbiyaRRAtXOjeuc4ek7xAF+ET3NMH02Oe60wFE5XaGmbW0aamtwUHJyOg0sl30l9ryl7kAp3NRzmMSBc9d/0PE8pe+AJkajJclbcfzhj8Oy1b8jHK+NwWSXoYj5/TwFzaQxwyq0uBWQNVyCm10GYZL4EcdzoyiZRxS5i2lsb/i3rRjsQGOpC2hHW7P0D8y1970n9XKCDqQxTERgbqPh4Hd+2RjMqdBVNcXTgpmPIi4Pvk7DOwJt3z6ib07IjmoBvrII/vWfRUJtS7Q==
 Authentication-Results: dkim=none (message not signed)
  header.d=none;dmarc=none action=none header.from=nvidia.com;
 Received: from LV3PR12MB9356.namprd12.prod.outlook.com (2603:10b6:408:20c::21)
- by IA0PPF7D094C5BF.namprd12.prod.outlook.com (2603:10b6:20f:fc04::bd4) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.223.18; Fri, 24 Jul
- 2026 21:05:10 +0000
+ by DM4PR12MB6423.namprd12.prod.outlook.com (2603:10b6:8:bd::8) with Microsoft
+ SMTP Server (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
+ 15.21.245.11; Fri, 24 Jul 2026 21:40:32 +0000
 Received: from LV3PR12MB9356.namprd12.prod.outlook.com
  ([fe80::1c36:31b4:c420:6286]) by LV3PR12MB9356.namprd12.prod.outlook.com
  ([fe80::1c36:31b4:c420:6286%5]) with mapi id 15.21.0245.010; Fri, 24 Jul 2026
- 21:05:10 +0000
-Date: Fri, 24 Jul 2026 17:05:07 -0400
+ 21:40:28 +0000
+Date: Fri, 24 Jul 2026 17:40:26 -0400
 From: Yury Norov <ynorov@nvidia.com>
 To: Shrikanth Hegde <sshegde@linux.ibm.com>
 Cc: linux-kernel@vger.kernel.org, mingo@kernel.org, peterz@infradead.org,
@@ -59,17 +58,16 @@ Cc: linux-kernel@vger.kernel.org, mingo@kernel.org, peterz@infradead.org,
 	rdunlap@infradead.org, kernellwp@gmail.com,
 	linux-doc@vger.kernel.org, jgross@suse.com,
 	virtualization@lists.linux.dev
-Subject: Re: [PATCH v9 10/11] virt/steal_governor: Implement steal_governor
- policy loop
-Message-ID: <amPTg78qsOw4WpqB@yury>
+Subject: Re: [PATCH v9 05/11] sched/fair: Load balance only among preferred
+ CPUs
+Message-ID: <amPbythM-IBt6j_e@yury>
 References: <20260724140732.2683314-1-sshegde@linux.ibm.com>
- <20260724140732.2683314-11-sshegde@linux.ibm.com>
-Content-Type: text/plain; charset=iso-8859-1
+ <20260724140732.2683314-6-sshegde@linux.ibm.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20260724140732.2683314-11-sshegde@linux.ibm.com>
-X-ClientProxiedBy: SJ0PR03CA0237.namprd03.prod.outlook.com
- (2603:10b6:a03:39f::32) To LV3PR12MB9356.namprd12.prod.outlook.com
+In-Reply-To: <20260724140732.2683314-6-sshegde@linux.ibm.com>
+X-ClientProxiedBy: SJ2PR07CA0005.namprd07.prod.outlook.com
+ (2603:10b6:a03:505::29) To LV3PR12MB9356.namprd12.prod.outlook.com
  (2603:10b6:408:20c::21)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
@@ -78,365 +76,143 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: LV3PR12MB9356:EE_|IA0PPF7D094C5BF:EE_
-X-MS-Office365-Filtering-Correlation-Id: b002bfca-9287-4d72-dd9e-08dee9c73f0f
+X-MS-TrafficTypeDiagnostic: LV3PR12MB9356:EE_|DM4PR12MB6423:EE_
+X-MS-Office365-Filtering-Correlation-Id: 8bab16c6-23fb-431c-5fa9-08dee9cc2df0
 X-MS-Exchange-SenderADCheck: 1
 X-MS-Exchange-AntiSpam-Relay: 0
 X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|1800799024|366016|7416014|376014|23010399003|22082099003|18002099003|4143699003|10067099003|11063799006|5023799004|56012099006|6133799003;
+	BCL:0;ARA:13230040|7416014|376014|23010399003|366016|1800799024|6133799003|18002099003|22082099003|5023799004|11063799006|4143699003|56012099006|10067099003;
 X-Microsoft-Antispam-Message-Info:
-	taOk7V5QsI1Vq1T5KdH+0gdSV6RyPFh5D1TjpvfT9JSV1Uat5dZJkLOw2eCECwkgmSL6qD8zOfIpekTom4vBfRVbNmwVVKM5RchajgEw2Yaw0KTkxSmrOSFnHD83ahQkHdaW50SE3kiwIn8LTBkjvvPKfT9pCu2SWED13lx7hCZEFDxETrbSAkVZEoSIQykr/gT+MEil6NKv5vkUzEPTfeWOzzqbGXZT5Uz7QuTq004EbBrH1qtinyrGt7V5UowuApQZ384wlmuqfm1EkD4Iev8xSmsg6RY1hJWGkaknVkfj1ch933hb+eKwIg+z6fWwHrwM2rdDRazFgV9QfoWHgkkGz4qSXyZF2WLnkofNckUVhhhoQRkvocDoYU1BsSuWy8b4ynaabG0tF8L+Mx0SSzgr17agvKhre7UTRz58n/R/wStpdrovX2JzohilFn21YblB/NIH3F59e1sS+g5yGDzQhoS4v+M4yeJLZAfWF6j4PiRGfYwjvDzZnLGf49DglhO0G+9wvsNrWmHy6/tMsV4l4bHICXRLny5e4QTZd6xmZskf9t4QpxKmKlhIm0WMya7Smfs7LMd/lFtsWaDs02mBeaPXtqR5TED6Z/6ARMLSPB3rsRmawc+bjVXBpC5+IgxGUw3c1TpnHlkRQd6JnuhB5XSWFhjt7jQ2jxU30IM=
+	MD08qvtZDyeeLRwfJ1ZcdwjgzvBxArT1b9hOf4308zPMcyL4Gf/7VazQhsY6MOriiaKrHVPKpIMnz4DQqmppxa5cWoWdKYNp/ZaN80oMEtek482JI8VurbyEzp8bS8QaUdUgy6X+dzFDhNGHFddcgIaZPRqRNqK0uc++1H3vCLxNYfxhgbyIpmR8NdGFMkVP+C3WhEn7WaoEP5lX65kuBXjEPELzJWxTh4mq8g6vThM75DC7A+Bj+1y0e2pxvgj9GDFhz9i8mKZrE9Xb7s96saz7rQQZbmkCrnGmOiJdCIh+fQaqh6uMTmTqao6H2PfzvwmJumXAKP41EIP8o++X7S1JFL7l1l/RRu+47tIT02neZnjujEIUNA4FXj8X1CsFgW+5gSnqvmIjx4VZYC12yB2+WYHERKQb2SdA/uNF0IC/UUOy2ehLGkYXEu4lUffyYO8NH1UMgEj08cJAfCM/35RdSPGuqhfJgpKQrwqPRlYDA6D4wnNl5EgjQY/XA2bnds1c5YelsBC+QS3/hibl3DHaAXF3dLXMVwtuBJaU+YzKLZAaQJc/iuw2Jncg7UZ0IuzLpJTUYeEUT7jXpsA5zkAxEWzFrbYTM/6n/2rHPLrgPclwRetxXxAq/zPuFSN/Ub+5L3BREAiTbxE5q8z3uKjSK3dylDGxnmUwZmnOPxI=
 X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV3PR12MB9356.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(1800799024)(366016)(7416014)(376014)(23010399003)(22082099003)(18002099003)(4143699003)(10067099003)(11063799006)(5023799004)(56012099006)(6133799003);DIR:OUT;SFP:1101;
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:LV3PR12MB9356.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(23010399003)(366016)(1800799024)(6133799003)(18002099003)(22082099003)(5023799004)(11063799006)(4143699003)(56012099006)(10067099003);DIR:OUT;SFP:1101;
 X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
 X-MS-Exchange-AntiSpam-MessageData-0:
-	=?iso-8859-1?Q?a9rbo/n/n6An3G+YZw/0ybTPf+D8xbQdF5RzHhzmjfb9F4F0nNq1vJFC/v?=
- =?iso-8859-1?Q?6SlkPRWRktf/i3ESFmpjF1zjSCtORB2vU4e/BEuVLnB8A9GtB2sjxbDxJE?=
- =?iso-8859-1?Q?gulFmN3yrgjt07gvXK41XQ0yCYhBQaX+0T9bzcGNqCMxUBDIG2WfuGQnLv?=
- =?iso-8859-1?Q?4rwIR8BLblEdry+T0m/BharzqjYT4q+aUfPw1zRU761R5y6/VL+dXaiZfA?=
- =?iso-8859-1?Q?QT/Rk61Va95OMlTppEdj5WRptluwCWHXK8WNhFsSPw04/9bDamMzJNA76R?=
- =?iso-8859-1?Q?r9uFNYhlvlTsdEpVt3+Hq+c+6/EFATzkhlP2viMyAuSheCLN0vsLRWdTgk?=
- =?iso-8859-1?Q?HBRmJ6Zq6gbjEteXMjvPdBHab99fkyeowC8gtNQYOO2Sdd72pxr8q4tBnB?=
- =?iso-8859-1?Q?uw8G/gOB/5kjcDy2+pV0rO4185VG0w6thdiRC39jAywgmLB2hDiicHPgNJ?=
- =?iso-8859-1?Q?JbbYnn4XF/lpCebuw+5Ehf5442vIxK7TuBvY00rFd13qYPn2rTNrnqg7rF?=
- =?iso-8859-1?Q?ph8k5TRcvRQ3O1TccbpkjTsGpyAiVYtJWTVMWbTrYsIDqYKCiPMOUYo4IO?=
- =?iso-8859-1?Q?zjwv8BZDx2LYWNFC6nFU30g+PH0QBKUwHIXOirmNeeRDqdZBmt7S6wCqn5?=
- =?iso-8859-1?Q?eCTneAdk/mOt6NxAlMuEvsyvkOkT4AYNgEy516HuUvDAtI0lNVjCHqg5vh?=
- =?iso-8859-1?Q?HUQH8gUdpBc7HdTFmEb7Y6MptEWNdb3eG4CzZXJiDLuno45g52U9zbjdVD?=
- =?iso-8859-1?Q?ZxVMmyJ51J0o5piNBDmpbQUWQSXDpKIyssV2TSY1vcPurasVcuI6xLS+nn?=
- =?iso-8859-1?Q?S4jqUnjd+rTjcYazzv6kQNoc6AOcYhZdX4MDmTrvwlm0AwOH80scW6TNwj?=
- =?iso-8859-1?Q?i4Tiwe5BIYkKw4gyPv+76RA7T9IzhWsiR+Bf9VNrWJfqVwHmnjifelrdOy?=
- =?iso-8859-1?Q?wDj2+Uvd1MP96b1If4U5VsjPPQtqWUgPJ1zQMZK64o98Lvmig+m3Io4hDo?=
- =?iso-8859-1?Q?qV/oEK6RWhu2cQ2J/zHMUtLTIDExLOKkuJsW6GzjvRDJOgmjD8qUPeaglg?=
- =?iso-8859-1?Q?8CpTcWT9zXc4oHBG69d3rp6QeaIzmPx303Km8rPriWYmy3924RKbQrS25j?=
- =?iso-8859-1?Q?I3aMhXjJAqWXk8ANMmTh9Fy+uJfcR4HcV+lx2jFwoGqis4MYVU6I5LeyPP?=
- =?iso-8859-1?Q?ggGXKC3OT/9f9P8fESSeWSCY7psUuuKxePiMRNI5o3W2IfYJeJB7ofE8Ea?=
- =?iso-8859-1?Q?nXkJ+nkCURG99tHY6mKASYykCVQNbLkfVIa3no6CWcioM7e9x39VJu/Kzd?=
- =?iso-8859-1?Q?p2c8OvRLe1+Wy5onptqjT6l2iwrKCUwaJYnJmLBIq5xWQltSjyBHCMKQXS?=
- =?iso-8859-1?Q?peuvyUBiitCS9ljiI4lJxn5oV1ZtIjd7IU7Z0Z+up7HW73lOr4pdRUetDB?=
- =?iso-8859-1?Q?6dwnzZeCYAneZtjt5l5+MfxPtzfmg4T13yD48Ydx5KCiLcp/EFIG6CrbPF?=
- =?iso-8859-1?Q?varnGUlz0XCvSp/3Se1NHiyYsND6+vgOMki2wLQvG8PcgnQqPe5OpHSaIZ?=
- =?iso-8859-1?Q?tVbHdjUCJz6YlQ8wahAx2bSmvTP5ySYou+SSf831qdxwV1q+T/2DiTrKGt?=
- =?iso-8859-1?Q?x1u5AcrcdLlNv1jZfLG2J2Fn+zzB/DYD+RoVTW9pEPijmgm+fw4mna8Ihm?=
- =?iso-8859-1?Q?3IUHLsDHbgdvgoxBgVMO3jFzMahZ1eET6ssntN+cwKT3YnEqw/fZPICdi2?=
- =?iso-8859-1?Q?Dgu38jha/TJ8cHmF62QMLG+7Af31iEQIlFOTtfzVX5NIo17N6yaEM5V3Sv?=
- =?iso-8859-1?Q?erhHMwCKrA=3D=3D?=
+	=?us-ascii?Q?w3NTt+LwZLgkXkYnu+iix49U8FNdqf0MVTu8v2MvnhEDEw40xW1xhGeQIOI2?=
+ =?us-ascii?Q?0Se8Jl2M80nJnKFJ62U7ZjuOWBsjZdv9Usfk38cIDu4Zr/s3Ygg3uL0knHuw?=
+ =?us-ascii?Q?aQbZvbxZQzEsrKk6CEoD8ZuxakKEXyUlt5FiT+oJMlAHWhgp0Ka79DJN76yr?=
+ =?us-ascii?Q?X6LIzTjfT/R4K0Eprui3v4OndZPY2jqu+vyrfIoNe/jrn24nzdaMEhhAi66d?=
+ =?us-ascii?Q?xPbBH3+FDUieBMBz4ULndSKHRqNpypub7GJgM4WiuEY8Wuh24opgB6Px6/7l?=
+ =?us-ascii?Q?4KgjO65MOEfsONMHngCVGxgp/IOBr38jh5bItU11jYjbeay5qsMhAYmcLj2k?=
+ =?us-ascii?Q?5wEfd+WnsYClNP5NvUPEXyeMJUrMnMWx0Zm7I8QaEutX4F3gNuOvwadp0EpV?=
+ =?us-ascii?Q?o8q+1wGakX4MlypOoNneLzZvRWO7M6uKW/Wmj/EkFASsKQyjfKTaTiqcKoco?=
+ =?us-ascii?Q?Jrtd4MvHHEjiUiOGZ7mL7eY2BbC+jSI+hKJrjgnSCI+dkcB0ra8RPeri+MaV?=
+ =?us-ascii?Q?iJmXNjPxqT+3PMPlE3Hci8HurPTvRWstnDZZLP2k7VsMES8rCjGmMznZ69MZ?=
+ =?us-ascii?Q?cKRQ2RrfsEs0SaKUFWqZwope5xZKWbncJ/yFziwoo5Aqhh3/UOCdBs8NRE/m?=
+ =?us-ascii?Q?eeukwURS9l16qE1phe1OoQbe37PL2iAne/DvhmX0kkJRps9SZEpJsN7LsZJf?=
+ =?us-ascii?Q?fQPvazw8kFhhtqQiQV7a/rHDibosnRBgT+FIiQACtPfAblwJub8umU3fVCdh?=
+ =?us-ascii?Q?OG+yYV7OSsUUEPVNTRZlNZSpjICGnNGeaU6YUXswIQvM6KQ7SeQDwYnp63jq?=
+ =?us-ascii?Q?dAmAQeHOGIGH9ZPkg3o1w3t/IwpZSEWO+pU+0Yzoi97nCNpZndhyRqwToe48?=
+ =?us-ascii?Q?EOD0tT1xgOu4xBNF0qQZLfE0K+ibIoHSk3VZRYSNyyU2E21v/jt+oEIjZDJ0?=
+ =?us-ascii?Q?eoSstRcTmGYxVX3bS7rUqf1zBOcDpgfg35u7BZBbTHZbL8D+wvOAI6cL9Dh1?=
+ =?us-ascii?Q?o/cMnDg0PywF/zY/Lp6n7THp5ifOuz9iB/w2BopujSMIw/glZEQWZ0cDQbqX?=
+ =?us-ascii?Q?Af48vmx9BKnAGua/3dxxpGzVd3/zRn2NLljrhg5Ao8Wl0C5FzUJsVsFlaDdf?=
+ =?us-ascii?Q?9ezZv3egF9/CQrh788BxlgnQ1WpDNfFTdGsXO4fBJEKodd0oqYm32avxRZFc?=
+ =?us-ascii?Q?K+xNuCLmurjsLPzCcEOA5C/h9dUWgCEIqJ8rRDJckhnnXKhtUmcPvMK1N7BD?=
+ =?us-ascii?Q?Tqc79hka7iCeoRLOOpqObUn40RZ+ensseXssnRBCV9KC85yi/zbheLgxVUJa?=
+ =?us-ascii?Q?zB25S2DOIrGG9V8dOVxmhivb9eOZNYIq2W/rZVeNCCELkdmqpF7EMNNzZDW0?=
+ =?us-ascii?Q?gdT8vbvDEJiU3RViu/tHX1zgp3lxhowpLwjq5J+UuP2uBeWBZfm3UzoP8TIL?=
+ =?us-ascii?Q?2WWYcXWISimsUob/iUKeZeaL7UIidIAZKnRyhinyeIAGcIfJo8r2bwNozr59?=
+ =?us-ascii?Q?ALoP/HpRFzLiUKw0Ll39TP9QQnoiPVPp//Nwp+OOlyqAdKQONWvDiVKX8SMG?=
+ =?us-ascii?Q?amboO/x0ZwX/+N3U/HbaDS5mQLrdGLxf7gmLWw8WhqqtaqNuMPoK8I07+Jlz?=
+ =?us-ascii?Q?uMOSYqFjIJ6b/el+lRs4ytjpynrLxUcXdP044Y0ar1ZgxbqWbC9wae1acQBY?=
+ =?us-ascii?Q?xcAKZg+S6x7tNMqlj1/hXeYyiNbQJIopboi/b7akhRxGj1FLG8QrFcvZYgTE?=
+ =?us-ascii?Q?9/qbi11OyA=3D=3D?=
 X-OriginatorOrg: Nvidia.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: b002bfca-9287-4d72-dd9e-08dee9c73f0f
+X-MS-Exchange-CrossTenant-Network-Message-Id: 8bab16c6-23fb-431c-5fa9-08dee9cc2df0
 X-MS-Exchange-CrossTenant-AuthSource: LV3PR12MB9356.namprd12.prod.outlook.com
 X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Jul 2026 21:05:10.0699
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 24 Jul 2026 21:40:28.7948
  (UTC)
 X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
 X-MS-Exchange-CrossTenant-Id: 43083d15-7273-40c1-b7db-39efd9ccc17a
 X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: VZgz12KxyFrwf3lowHHyccYk8IpLP4XRASQMD5AcUJgJCIjMhYrNAfk+r0TKFhaX+gwa36iXuyiMSMmScvwH8w==
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: IA0PPF7D094C5BF
+X-MS-Exchange-CrossTenant-UserPrincipalName: TkFAKOZlIsNqohttWguJsAe3bv0GswyFeim3mHcAvWe36rsNE/kLb37j/oBpUNMpuT+CFZ2DIXZj5pr70wBz3g==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: DM4PR12MB6423
 
-On Fri, Jul 24, 2026 at 07:37:31PM +0530, Shrikanth Hegde wrote:
-> schedule work at regular intervals to implement the steal_governor
-> policy of monitoring the steal time and take action on the state of
-> preferred CPUs. The interval is determined by interval_ms parameter.
-> schedule_delayed_work is used since interval_ms
-> is in the order of milliseconds. Work need not happen instantly.
+On Fri, Jul 24, 2026 at 07:37:26PM +0530, Shrikanth Hegde wrote:
+> When cpu is marked as non preferred, any load pulled towards it is
+> pointless since in the next tick task will be pushed out again.
+> So, Consider only preferred CPUs for load balance.
 > 
-> Periodic policy loop essentially does:
-> - Gets the total/delta steal values and cpus to use steal_ratio.
-> - Calculate the steal_ratio as below.
+> This makes it not fight against the push task mechanism which happens
+> at tick. Also, this stops active balance to happen on non-preferred CPU
+> pulling the load.
 > 
->        steal_ratio = (delta_steal * 100*100)/(delta_ns * num_cpus())
+> This means there is no load balancing if the task is pinned only to
+> non-preferred CPUs. They will continue to run where they were previously
+> running before the CPUs was marked as non-preferred.
 > 
->   It is calculated to consider the fractional values of steal time.
->   I.e 10 means 0.1% steal time. A few tricks such as divide by 10,000
->   are used to avoid possible overflow.
-> - If steal value is higher than high threshold, call the method to reduce
->   the preferred CPUs.
-> - If steal value is lower or equal to low threshold, call the method to
->   increase the preferred CPUs.
-> - If the steal value is in between, no action is taken.
-> - Save the values for next delta calculations.
-> - Ensure design checks are met.
->   1. At least one core/CPU must be there in preferred mask.
->   2. preferred CPUs is subset of active CPUs.
-> If not met, then restore preferred CPUs to active and stop
-> requeue of the work. Driver is effectively non-functional after that.
-> 
-> 
-> In order to help the above loop, a few helper functions have been added.
-> 
-> 1. get_system_steal_time()
-> - steal governor takes global view of steal time instead of individual
->   vCPU. Collect the steal values across the vCPUs of interest.
-> - Sum up steal time values across possible CPUs. This helps to keep it
->   a monotonically increasing number and avoids spikes due to CPU
->   hotplug.
-
-This is questionable. See below. There should be a better way to
-calculate steal ratio, rather then accounting offlined CPUs stats.
-
-> 
-> 2. decrease_preferred_cpus()
-> - Called when there is high steal time. It needs to decide which CPUs to
->   mark as non-preferred and set that state.
-> - Get first housekeeping CPU and its core mask. Mark it as
->   protected core. This helps to keep at least one core as preferred.
->   kernel ensures at least one housekeeping CPU stays active.
-> - Find the last CPU outside of this protected core mask. (target CPU)
-> - Based on that target CPU, get its sibling and mark them as
->   non-preferred.
-> 
-> 3. increase_preferred_cpus()
-> - Called when there is low steal time. It needs to decide which CPUs to
->   mark as preferred and set that state.
-> - Get the first active non-preferred CPUs. This likely is the last
->   set of CPUs being marked as non-preferred.
-> - get the siblings of that CPU and mark them as preferred.
-> 
-> 4. get_system_cpus()
-> - informs how many CPUs needs to be considered for steal_ratio
->   calculations.
-> - Return number of possible CPUs as get_system_steal_time computes
->   steal values across possible CPUs.
-> 
-> Notes:
-> 1. Using core instead of individual CPUs performs better as SMT is
->    quite common and some hypervisor such as powerVM does core scheduling.
-> 
-> 2. This doesn't do any NUMA splicing to keep the code simpler and
->    minimal overhead. Current code expects CPUs spread uniformly
->    across NUMA nodes.
+> Bailout early for NEWIDLE and IDLE balance as load balancing is done
+> only on preferred CPUs.
 > 
 > Signed-off-by: Shrikanth Hegde <sshegde@linux.ibm.com>
 > ---
->  drivers/virt/steal_governor.c | 155 ++++++++++++++++++++++++++++++++++
->  1 file changed, 155 insertions(+)
+>  kernel/sched/fair.c | 11 +++++------
+>  1 file changed, 5 insertions(+), 6 deletions(-)
 > 
-> diff --git a/drivers/virt/steal_governor.c b/drivers/virt/steal_governor.c
-> index fda86777d6f0..991821a82485 100644
-> --- a/drivers/virt/steal_governor.c
-> +++ b/drivers/virt/steal_governor.c
-> @@ -13,13 +13,18 @@
+> diff --git a/kernel/sched/fair.c b/kernel/sched/fair.c
+> index df8c9c2c7918..12f5b7de28d2 100644
+> --- a/kernel/sched/fair.c
+> +++ b/kernel/sched/fair.c
+> @@ -13399,7 +13399,7 @@ static int sched_balance_rq(int this_cpu, struct rq *this_rq,
+>  	};
+>  	bool need_unlock = false;
 >  
->  #define pr_fmt(fmt) KBUILD_MODNAME ": " fmt
+> -	cpumask_and(cpus, sched_domain_span(sd), cpu_active_mask);
+> +	cpumask_and(cpus, sched_domain_span(sd), cpu_preferred_mask);
 >  
-> +#include <linux/cleanup.h>
->  #include <linux/cpuhplock.h>
->  #include <linux/cpumask.h>
->  #include <linux/init.h>
->  #include <linux/kernel.h>
-> +#include <linux/kernel_stat.h>
->  #include <linux/kconfig.h>
->  #include <linux/ktime.h>
-> +#include <linux/math64.h>
->  #include <linux/module.h>
-> +#include <linux/sched/isolation.h>
-> +#include <linux/topology.h>
->  #include <linux/types.h>
->  #include <linux/workqueue.h>
+>  	schedstat_inc(sd->lb_count[idle]);
 >  
-> @@ -108,6 +113,151 @@ module_param_named(low_threshold, sg_ctx.low_threshold, uint, 0444);
->  MODULE_PARM_DESC(low_threshold,
->  		 "Low steal threshold. default: 200 i.e 2%. Must be < high_threshold");
+> @@ -14337,7 +14337,8 @@ static void _nohz_idle_balance(struct rq *this_rq, unsigned int flags)
+>  			update_rq_clock(rq);
+>  			rq_unlock_irqrestore(rq, &rf);
 >  
-> +/* Return collective steal time across system. */
-> +static u64 get_system_steal_time(void)
-> +{
-> +	int cpu;
-> +	u64 total_steal = 0;
-> +
-> +	for_each_possible_cpu(cpu)
-> +		total_steal += kcpustat_cpu(cpu).cpustat[CPUTIME_STEAL];
-> +
-> +	return total_steal;
-> +}
+> -			if (flags & NOHZ_BALANCE_KICK)
+> +			if (flags & NOHZ_BALANCE_KICK &&
+> +			    cpu_preferred(balance_cpu))
+>  				sched_balance_domains(rq, CPU_IDLE);
 
-In v8 I pointed to the identical function in s390 code, and you agreed
-to unify them, but that didn't happen. Please do that in the next
-version.
+Here you skip the sched_balance_domains() for idle non-preferred CPUs,
+which means you don't re-calculate the rq->next_balance.
 
-> +/* Return number of CPUs to consider steal ratio. */
-> +static unsigned int get_system_cpus(void)
-> +{
-> +	return num_possible_cpus();
-> +}
-> +
-> +/*
-> + *
+In the following code, we update the global nohz.next_balance
+depending on the new rq->next_balance, which doesn't happen if
+the sched_balance_domains() is not invoked.
 
-Useless line
+So, you propagate an already-expired per-CPU deadline back into the
+global NOHZ deadline. It may lead to unneeded asynchronous IPI in the
+nohz_balancer_kick() -> kick_ilb() path.
 
-> + * Called when the steal governor detects high physical CPU contention.
-> + * It finds the last active core in the preferred mask and mark those
-> + * CPUs as non-preferred.
-> + *
-> + * Must ensure:
-> + * - at least one core is always kept as preferred
-> + * - preferred is always subset of active.
-> + */
-> +static void decrease_preferred_cpus(void)
-> +{
-> +	const struct cpumask *first_hk_core;
-> +	int target_cpu = nr_cpu_ids;
-> +	int cpu;
-> +
-> +	guard(cpus_read_lock)();
-> +	cpu = cpumask_first_and(housekeeping_cpumask(HK_TYPE_KERNEL_NOISE),
-> +				cpu_preferred_mask);
-> +	if (cpu >= nr_cpu_ids)
-> +		return;
-> +
-> +	/* Always leave first housekeeping core as preferred. */
-> +	first_hk_core = topology_sibling_cpumask(cpu);
-> +	cpu = cpumask_last(cpu_preferred_mask);
-> +	if (cpu >= nr_cpu_ids)
-> +		return;
-> +
-> +	/* Find the last CPU which doesn't belong to that first hk_core. */
-> +	if (!cpumask_test_cpu(cpu, first_hk_core)) {
-> +		target_cpu = cpu;
-> +	} else {
-> +		for_each_cpu_andnot(cpu, cpu_preferred_mask, first_hk_core)
-> +			target_cpu = cpu;
-> +	}
-> +
-> +	/* Only the first housekeeping core remains */
-> +	if (target_cpu >= nr_cpu_ids)
-> +		return;
-> +
-> +	for_each_cpu_and(cpu, topology_sibling_cpumask(target_cpu),
-> +			 cpu_preferred_mask)
-> +		set_cpu_preferred(cpu, false);
-> +}
-> +
-> +/*
-> + * Called when the steal governor detects no/low physical CPU contention.
-> + * It finds the first active core outside of preferred mask and mark
-> + * those CPUs as preferred.
-> + *
-> + * Must ensure preferred is subset of active.
-> + */
-> +static void increase_preferred_cpus(void)
-> +{
-> +	int first_cpu, cpu;
-> +
-> +	guard(cpus_read_lock)();
-> +	first_cpu = cpumask_first_andnot(cpu_active_mask, cpu_preferred_mask);
-> +
-> +	/* All CPUs are preferred. Nothing to increase further */
-> +	if (first_cpu >= nr_cpu_ids)
-> +		return;
-> +
-> +	for_each_cpu_and(cpu, topology_sibling_cpumask(first_cpu),
-> +			 cpu_active_mask)
-> +		set_cpu_preferred(cpu, true);
-> +}
-> +
-> +static bool preferred_cpus_valid(void)
-> +{
-> +	if (cpumask_empty(cpu_preferred_mask)) {
-> +		pr_err("empty preferred mask. stopping\n");
-> +		return false;
-> +	}
-> +
-> +	if (!cpumask_subset(cpu_preferred_mask, cpu_active_mask)) {
-> +		pr_err("preferred: %*pbl is not subset of active: %*pbl, stopping\n",
-> +		       cpumask_pr_args(cpu_preferred_mask),
-> +		       cpumask_pr_args(cpu_active_mask));
-> +		return false;
-> +	}
-> +
-> +	return true;
-> +}
-> +
-> +static void compute_preferred_cpus_work(struct work_struct *work)
+I think, you need another helper, something like:
 
-Bad name. You're not only computing here, but actually adjusting the
-preferred CPUs mask.
+        void sched_balance_domains(rq, idle)
+        {
+                __sched_balance_domains(rq, idle);
+                advance_rq_next_balance(rq, idle);
+        }
 
-> +{
-> +	u64 curr_steal, delta_steal, delta_ns, steal_ratio;
-> +	ktime_t now;
-> +
-> +	now = ktime_get();
-> +	delta_ns = ktime_to_ns(ktime_sub(now, sg_ctx.time));
-> +
-> +	if (unlikely(delta_ns < NSEC_PER_MSEC)) {
-> +		pr_err_ratelimited("work scheduled too soon delta_ns: %llu\n", delta_ns);
-> +		goto requeue_work;
-> +	}
-> +
-> +	curr_steal = get_system_steal_time();
-> +	delta_steal = curr_steal > sg_ctx.steal ? curr_steal - sg_ctx.steal : 0;
-> +	sg_ctx.steal = curr_steal;
-> +	sg_ctx.time = now;
-> +
-> +	/*
-> +	 * steal_ratio = (delta_steal * 100*100)/(delta_ns * num_cpus())
-> +	 * To avoid possible overflow, divide the denominator early.
-> +	 * Note minimum interval is 100ms.
-> +	 */
-> +	delta_ns = max_t(u64, div_u64(delta_ns * get_system_cpus(), 10000), 1);
-> +	steal_ratio = div64_u64(delta_steal, delta_ns);
+And then in the code above:
 
-So if:
+        if (flags & NOHZ_BALANCE_KICK) {
+                if (cpu_preferred(balance_cpu))
+                        __sched_balance_domains(rq, CPU_IDLE);
 
-Possible CPUs = 128
-Active CPUs = 8
-Steal on online CPUs = 50%
-Steal on offline CPUS = 0%
+                advance_rq_next_balance(rq, idle);
+        }
 
-Then calculated ratio would be:
-
-        (50% × 8 + 0% * 120) / 128 = 3.125%
-
-Instead of decreasing the number of preferred CPUs, you'll do nothing
-under default thresholds, or even increase.
-
-Have you tested your driver against such a configuration?
-
-Also, I'm not quite sure how you'd handle a case when you have half
-of CPUS in your core offlined, but you manage preferred mask per-core,
-so you offline or online less CPUs than expected. Can you mention that
-scenario in the documentation?
-
-> +
-> +	if (steal_ratio > sg_ctx.high_threshold)
-> +		decrease_preferred_cpus();
-> +	else if (steal_ratio <= sg_ctx.low_threshold)
-> +		increase_preferred_cpus();
-> +	else
-> +		goto requeue_work;
-> +
-> +	if (!preferred_cpus_valid()) {
-> +		restore_preferred_to_active();
-> +		return;
-> +	}
-> +
-> +requeue_work:
-> +	schedule_delayed_work(&sg_ctx.work, sg_ctx.delay);
-> +}
-> +
->  static int __init steal_governor_init(void)
->  {
->  	if (sg_ctx.low_threshold >= sg_ctx.high_threshold) {
-> @@ -117,6 +267,10 @@ static int __init steal_governor_init(void)
->  	}
+> @@ -14481,10 +14482,8 @@ static int sched_balance_newidle(struct rq *this_rq, struct rq_flags *rf)
+>  	 */
+>  	this_rq->idle_stamp = rq_clock(this_rq);
 >  
->  	sg_ctx.delay = msecs_to_jiffies(sg_ctx.interval_ms);
-> +	INIT_DELAYED_WORK(&sg_ctx.work, compute_preferred_cpus_work);
-> +	sg_ctx.steal = get_system_steal_time();
-> +	sg_ctx.time = ktime_get();
-> +	schedule_delayed_work(&sg_ctx.work, sg_ctx.delay);
->  	pr_info("enabled. interval: %ums, high_threshold: %u, low_threshold: %u\n",
->  		sg_ctx.interval_ms, sg_ctx.high_threshold, sg_ctx.low_threshold);
+> -	/*
+> -	 * Do not pull tasks towards !active CPUs...
+> -	 */
+> -	if (!cpu_active(this_cpu))
+> +	/* Do not pull tasks towards !preferred CPUs */
+> +	if (!cpu_preferred(this_cpu))
+>  		return 0;
 >  
-> @@ -125,6 +279,7 @@ static int __init steal_governor_init(void)
->  
->  static void __exit steal_governor_exit(void)
->  {
-> +	disable_delayed_work_sync(&sg_ctx.work);
->  	restore_preferred_to_active();
->  	pr_info("disabled\n");
->  }
+>  	/*
 > -- 
 > 2.47.3
