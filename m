@@ -1,195 +1,216 @@
-Received: from mail-ej1-f53.google.com (mail-ej1-f53.google.com [209.85.218.53])
+Received: from mail-pj1-f51.google.com (mail-pj1-f51.google.com [209.85.216.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 17F1D30FC1F
-	for <virtualization@lists.linux.dev>; Sun, 26 Jul 2026 12:27:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.218.53
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785068844; cv=pass; b=YlBSri+4k7wslz3ErGuf+jjrfoh1JHkdfjFIf/KWJ/pX5HOqrGb3HnR3K10bug8E70wN210xPDThWNMIA/ZTUrt4KZl6hHsWLlegdqzMRWMzDxguukZ/TS9ULIwGl7GdMkoOqWPT0LbFsBe1TlPpXqLUxpX7bgzHLSndRAv8z7s=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785068844; c=relaxed/simple;
-	bh=mXkz0AgBpkq7qVI/SL08TnVaEhv5pAVhp1igDWKjQko=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=d+DCNSssP6PXtzUcLExLljrwxQxGvZ0MNceu37N5B07tabX2IBltyRZG8rXgJFkEy9GjXxUDDOP7Sze4AHWdmqLiZTDx4VkdqYeuQ2BpCHtinJBrvS238qvqf35TB9pWiZWiYuULLTEjAX/vwOO384rn6gF8mRSoQa9zJxmwYAs=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bOo6btjP; arc=pass smtp.client-ip=209.85.218.53
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CB23337BE8B
+	for <virtualization@lists.linux.dev>; Sun, 26 Jul 2026 14:12:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.51
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785075146; cv=none; b=iIdyuHAmPyj3Bl7ApyByL0iZLHL3tNQbgzPJAMbVec2EgHdxM5WBK6GGk2aRLWUpLS689Z38ubkuPTx+ApvFh4AXKtISbo9k8UR/O0wyMUbhBrUsebyzuyKz5209MlRPibFGz9KK6jKIUG5nckEkPVYRynkj0+5eBlpLbC//xjc=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785075146; c=relaxed/simple;
+	bh=hAzGSzba1NEi7B4ecRdbiFHQv/Op0Tbx9G5qrGuEuC0=;
+	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=g6c9/j7pgGQBXcBFWG8PfG5tiX+tffJjuqs1UcalCvljDpE6oAjAZ6fLRtEtpdYlqjbPDbMEVGt7Y8p8FVvYmV9Pp+4G9dA3Q5Fw7ix2KCSUEGKnhkQ2Dq+4wnxiUTxd9pME9Xh9GAV4JDYd9pnePf/nO9lJMlsbjCe/56+YUqc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=GuJTIftd; arc=none smtp.client-ip=209.85.216.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bOo6btjP"
-Received: by mail-ej1-f53.google.com with SMTP id a640c23a62f3a-c15dd4b9132so278694266b.1
-        for <virtualization@lists.linux.dev>; Sun, 26 Jul 2026 05:27:21 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785068840; cv=none;
-        d=google.com; s=arc-20260327;
-        b=T512H/+yFTqrrRewQKbp/ZaobeV64XwRA+KLctvJACm9ZG3SFHTuK0r9sjyzWy2bcO
-         Hw72WXpxU/9LPf/HHAPzIacnWIqrznGhO9o6uqnplgIXIL/Hw+nmRIysVi92cY2wmIv1
-         XZIpc9hIDCyv7WT5TOzbw6cr57MJCMOeqqWH5Jh6uB+7FZmyayepCnhCZi+ruSotqTaj
-         2TG0RoYWG/yZldPs7Y1OvgfiWy+vpLfGADEB0dKrHE4IvVG/4mrgfw9W3SwnEpLXyUhm
-         jIN0x0PNsej5D2UpsDitpinhPoFDciy/Nk45LhRWTjwZKHzGVzxzuYlCUOr/b1Q+JNGA
-         E7Kg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=Wyil4C1cCxXCXkVj+zHgoBrvuhi4HPmJDngO8ZhDz0c=;
-        fh=NUiwm1nE8WhND5M/Xjhs/jqanhZ9N5S5+uI5RHwy1TU=;
-        b=O3yLodjFTVpZ352Vc7lapmBW50sU6YhCbeKnmxq8fSC0iiCCUTXkZdRa6hhnZbcgO4
-         LJTn996j50Wi50Z/1EsLuUqHpmNnRUuEmCs9olvZk2pvxqMBktFcFAm30ecCJcfxiV2f
-         Jm+c2S5cEwoEUGrk21hNFItfZ0ryesLdzbNy3jJ3aVdaibpdbuQeedAhgkG+NahqcqwU
-         4vl6DrNQZgsFOnY+BfK5fX2duAgLGDAdSkic2GUemvUWR+/3v0I6/fswri9JqJ4KImBk
-         MpUTwBiN8CMKAKotzqGXYN6ZICnfTia3YqPHETmXRxgsTZC5UW4rtFdFJ3PEK8IsOJ45
-         j4FA==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="GuJTIftd"
+Received: by mail-pj1-f51.google.com with SMTP id 98e67ed59e1d1-38dfe7eb825so1433957a91.0
+        for <virtualization@lists.linux.dev>; Sun, 26 Jul 2026 07:12:24 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785068840; x=1785673640; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=Wyil4C1cCxXCXkVj+zHgoBrvuhi4HPmJDngO8ZhDz0c=;
-        b=bOo6btjP5SO23ipCPpp0d43gKJxOq7SANjkfArgXMfWixdyPSpasl/lB+AHJGsC8uF
-         Rp1VtqWFauu/cj8aL66MNApuYD4E8uDPJEeQikOJ8xZdFqtQLwexuOQFka87rS7QmjSe
-         bSy77cRJzT9PSAIe8t/T29+Y24b27zDxaSELnhKOCX0DU6Qm+6dKsTlwtYChaCaF4pnc
-         wcqQyPHNl3mJkatXzxNVNxoYrdlCuPydojg7S31evf7/UwgY+97OG3jm4dr3phX+3IhE
-         I54SxfKiK26pZHaubktdg//PnmdLnJJ1zbicR/7Fm7Wnvi7HB3kVACdxGp9pow4Ou5Qx
-         Nkxg==
+        d=gmail.com; s=20251104; t=1785075144; x=1785679944; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=QKBVDCs0y9smsIpgENM3SuWaNy6SuXbVP3tPSuphxHk=;
+        b=GuJTIftdJ3/aYpnHQnQD1mTS9qCCAdWltYy0F4ifQUrq5brc0GTUhpJLxy+1cdU/ym
+         ZYeBcouk8uD/3pCH91i/vsU6oMvWfN0ah9sdd3jpnaMFlugIhPxiLvPkPIpqzEkVELYY
+         pbLqEZp1vGE+/Cg7PdFQbnQgiY9dtgrdmY5gxGS/Awt/cqANRS4JSrLgch39dFUcjubs
+         preaQO61nbf+b1N1unI0GxOcQOWxDW/rsPaBttjH8uQrS0LFzxY1y/BYgbOaASzuWMtO
+         a2PQDZcrEl3NOlHt1sxl2XdnOeOwxGrUFoqpdHOxKs+WIKSSMVFnsiPqBriYia/FFwhX
+         7aaA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785068840; x=1785673640;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=Wyil4C1cCxXCXkVj+zHgoBrvuhi4HPmJDngO8ZhDz0c=;
-        b=NXhI9JnLdDnMWLIg1PowZeZxwEZCXf1FbhKvnHCSOf6S11aSQBZYa6bH4k0fElTlM0
-         ZEWPDOJEdvULa4TgeL9eYxXJRnNQU6z2VYsuhKYNd4A0xnFehzV1MdjRkJM0nk4oUalS
-         RcJlcM3W9Rx2uC+QWHk23rsdQPEMeMMleSXKmiY8s/2NZ7WjK2c+VgCmWHxYWcU1/v1z
-         MXA1/PMlqRHXHRBobgneho65/p/RCzNpKTVbRVvh1qrFI0nt8XXBb3B4S7VwjXPEV6aA
-         hEDCQO1IAeZWXsGBVxyMAYxwkIcuCRngumHn+zaqOHr9DLWUXJ5g9K2lJGv4xF3X4taG
-         S10w==
-X-Forwarded-Encrypted: i=1; AHgh+Rq1bNyRt5n96LFHbfRFogHG9lm/qBoYrOYnudbshKgPd5kMqKQZ5pN6kFUxWwZca3vXZjMKirOFgas/jwOzTQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyC7jOcfOZjRiO+aYMj9bZxs7Mz1SMWFIdy9cVMN6/nU3hVNVSK
-	0g4JeFMIpB8NUzHlxKOUn2LQ+EoskeJBWmmqPHnZMzE8AJpO6SXDWYE1lfbNik29UcI7uf5myPO
-	6XeK7lhSKWytAdRyQ8gYzWVqb9EAa3Wk=
-X-Gm-Gg: AR+sD139aG/ReC/zd4VRto8neG5lVVyIU7/s2nMjO4oEXkVG9p66lmMjQdtVacP7jNK
-	mSOatlxWPH/hteX37FjF8wV+WlyYwZu7j9Xr7KxWfBPMrMcR0mXsPC+3t0tMWU4jnOUGbzmIV3D
-	bYG1NL1/cB7B82AabumzE3+iwsX/UnuMT6S4uunqWKJ+c8OdCluA04S/mxBoIb96nW0jOPAfKVz
-	AavJIKc7FJD9W/nnINq5HxqLg+XW4SwCQG5mkmSvaJUD1J7dTonCbGPzqsP633Jd3YOjivtYtCY
-	1nNz+xbmMYenauAcn/I=
-X-Received: by 2002:a17:907:3e28:b0:c12:34ed:da11 with SMTP id
- a640c23a62f3a-c1f1f194d2dmr206577266b.61.1785068840219; Sun, 26 Jul 2026
- 05:27:20 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1785075144; x=1785679944;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=QKBVDCs0y9smsIpgENM3SuWaNy6SuXbVP3tPSuphxHk=;
+        b=MQAF08V74Vh4gr/QONEbi5ElNvMm2ELPewxHftNsMiVBFalVTUT5uFVMN4SNRzZyF4
+         WeKPV93aO5ilCPsjhSSFiYoeAGCTqsrs3ADw2SBM/KR0Q3lOljKicfEUUqOB/2f+jSlV
+         yCCQLPuzOf8cHHbj2cLdJUygmgSafzOJOuD+hizsZZvghyE29jyZkemLc+N9DcUCWVe4
+         fdutgks+GDCtiwdGe+NKnEaBMNRafTz9gBjjgRFjmBFbgsQeK6bfWSYDB9bo0ZrmxOHx
+         rQAW/7FxLMqvoAq/M+xXlLVaZA/Oz+Rv/b+qPiJ4HD7HizJaZJlL2QlTmlasyGBHOwYM
+         aepg==
+X-Forwarded-Encrypted: i=1; AHgh+RqiTnLi50jQEML9icqkIcAZOKZgP4fw1NY6hNnZV3xl2Z/yc71U3ZtwasJ7+c6sOkFt7GGq1X+dsNDtcdJOZQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxZE1RcTgE73vMsr+y5fAGGl2sKU53BjVpvavayya70LHQ7O9fM
+	dRnj1dgdvCq6tu9pBaA9+aTcnTtIHa68qv9HC26cFNS725BkkNEsOO/L
+X-Gm-Gg: AR+sD11USMVi0uTJ32KW+luN2v4zpwu0PFtCj67Khq8/f7f2MpnkETlwBvco8UJLi+F
+	WkH5NoaOqcQ+eywJjqxnmO6YUN/HOVmA4u/orHhOtjVklvGAs9LseomJ+GuD7nDVhh5W67aMeDi
+	ytMFtycBSVbN5di/83LID4Jp2N5jW/ktmIJ2yJ3KFeP4QpZutDrJar78/CMxwvO6OIwRikRts7T
+	4rBALtjXtQz2o87YMARuftLiH+qAsaLdjXvxB9Fxqhj9Yu/LdfO9o9q1gqGwj0ZBbcZgGOcVbbc
+	AzkFkThArAlhovXCF2eYXKPwgfkLOiwf6UDJxRn5+HXS0rJ0kWUpeV2A9sOGVefYvFW66rTLL5g
+	Z7H6qcu3POBrI2Nv/csWXDzCLbhAF1ESgxuDgVjUoBg8LNko9206ljq/0/be9juOCvaGLFxIuaw
+	jXmw==
+X-Received: by 2002:a17:90b:4b8e:b0:38e:2a4:cffc with SMTP id 98e67ed59e1d1-38f2961561dmr5471035a91.25.1785075143784;
+        Sun, 26 Jul 2026 07:12:23 -0700 (PDT)
+Received: from gmail.com ([188.253.12.32])
+        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13e0f4a039asm17136083c88.9.2026.07.26.07.12.21
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Sun, 26 Jul 2026 07:12:23 -0700 (PDT)
+From: Jia Jia <physicalmtea@gmail.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>
+Cc: =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	physicalmtea@gmail.com
+Subject: [PATCH] vhost_net: reject unsafe feature changes after activation
+Date: Sun, 26 Jul 2026 22:11:58 +0800
+Message-Id: <20260726141158.1652386-1-physicalmtea@gmail.com>
+X-Mailer: git-send-email 2.34.1
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <CAJSP0QXMamS2rGRr4MtDM3ymtoH_DAD01NGkt4CjEJzZ6qbR5w@mail.gmail.com>
- <20260724034355.1568036-1-physicalmtea@gmail.com>
-In-Reply-To: <20260724034355.1568036-1-physicalmtea@gmail.com>
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Date: Sun, 26 Jul 2026 08:27:08 -0400
-X-Gm-Features: AUfX_mwboETJLV27B7ugbvskkWXv5NHGQep0lkDZbniR2yMW8JQe4s-Q7uSjxfI
-Message-ID: <CAJSP0QVQVp0r5cbVEQ60Z0PntfOkap5GtWxPxWVRwcatTP6Hew@mail.gmail.com>
-Subject: Re: [PATCH v2] vhost-scsi: reject feature changes after endpoint
-To: Jia Jia <physicalmtea@gmail.com>
-Cc: mst@redhat.com, jasowangio@gmail.com, michael.christie@oracle.com, 
-	pbonzini@redhat.com, stefanha@redhat.com, eperezma@redhat.com, 
-	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
 
-On Thu, Jul 23, 2026 at 11:44=E2=80=AFPM Jia Jia <physicalmtea@gmail.com> w=
-rote:
->
-> vhost_scsi_setup_vq_cmds() runs from VHOST_SCSI_SET_ENDPOINT and allocate=
-s
-> each command's protection scatterlist array (prot_sgl) according to the
-> acknowledged VIRTIO_SCSI_F_T10_PI bit.  The command pools are not rebuilt
-> when VHOST_SET_FEATURES changes that bit later.
->
-> Although virtio feature bits must not change after feature negotiation,
-> vhost_scsi_set_features() currently accepts such a request after the
-> endpoint is active and updates acked_features.  Enabling T10-PI after
-> endpoint setup therefore leaves prot_sgl NULL while the I/O path follows
-> the new feature bit.
->
-> For a 129-page protection payload, vhost_scsi_mapal() passes the missing
-> first chunk to sg_alloc_table_chained():
->
->   sg_alloc_table_chained(table, 129, first_chunk=3DNULL,
->                          nents_first_chunk=3Dinline_sg_cnt)
->
-> sg_pool_index() then hits:
->
->   BUG_ON(nents > SG_CHUNK_SIZE);   /* 129 > 128 */
->
-> The kernel reported the following call trace and register state:
->
->   Call Trace:
->    <TASK>
->    ? __sg_alloc_table+0x1d8/0x250
->    ? __pfx_vhost_run_work_list+0x10/0x10 [vhost]
->    sg_alloc_table_chained+0x59/0xf0
->    ? __pfx_sg_pool_alloc+0x10/0x10
->    ? vhost_scsi_calc_sgls.constprop.0+0x43/0x60 [vhost_scsi]
->    vhost_scsi_handle_vq+0xf02/0x1700 [vhost_scsi]
->    ? __pfx_vhost_scsi_handle_vq+0x10/0x10 [vhost_scsi]
->    vhost_scsi_handle_kick+0x37/0x50 [vhost_scsi]
->    vhost_run_work_list+0x8e/0xd0 [vhost]
->    vhost_task_fn+0xe1/0x210
->    ret_from_fork+0x348/0x540
->    </TASK>
->
->   RIP: 0010:0x4
->   CR2 =3D 0x4
->   RSP: 0018:ffffc90000dbf940 EFLAGS: 00010202
->   RAX: ffffffff82396810 RBX: ffff88811dc28b80 RCX: 0000000000000000
->   RDX: 0000000000000000 RSI: 0000000000000820 RDI: 0000000000000081
->
-> VHOST_F_LOG_ALL is a vhost-specific runtime feature and remains the only
-> exception.
->
-> Reject changes to any feature other than VHOST_F_LOG_ALL while the
-> endpoint is active.  This preserves the existing runtime log toggle while
-> preventing feature-dependent command resources and data-path state from
-> becoming inconsistent.  Userspace must clear the endpoint before changing
-> any other negotiated feature and set the endpoint up again afterward.
->
-> Fixes: bf2d650391be ("vhost-scsi: Allocate T10 PI structs only when enabl=
-ed")
-> Signed-off-by: Jia Jia <physicalmtea@gmail.com>
-> ---
-> Changes in v2:
-> - Reject changes to every feature except VHOST_F_LOG_ALL after endpoint
->   setup, following review feedback.
-> - Keep the existing runtime VHOST_F_LOG_ALL cleanup path.
->  drivers/vhost/scsi.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
->
-> diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-> index 9a1253b9d8c5..000000000000 100644
-> --- a/drivers/vhost/scsi.c
-> +++ b/drivers/vhost/scsi.c
-> @@ -2219,6 +2219,7 @@ static int vhost_scsi_set_features(struct vhost_scs=
-i *vs, u64 features)
->  {
->         struct vhost_virtqueue *vq;
->         bool is_log, was_log;
-> +       u64 old_features;
->         int i;
->
->         if (features & ~VHOST_SCSI_FEATURES)
-> @@ -2234,6 +2235,14 @@ static int vhost_scsi_set_features(struct vhost_sc=
-si *vs, u64 features)
->         if (!vs->dev.nvqs)
->                 goto out;
->
-> +       old_features =3D vs->vqs[0].vq.acked_features;
-> +       if (vs->vs_tpg &&
-> +           ((features ^ old_features) &
-> +            ~(1ULL << VHOST_F_LOG_ALL))) {
-> +               mutex_unlock(&vs->dev.mutex);
-> +               return -EBUSY;
-> +       }
-> +
+vhost_net_set_features() is reachable through VHOST_SET_FEATURES and
+VHOST_SET_FEATURES_ARRAY. A successful VHOST_NET_SET_BACKEND with a
+socket backend invokes vhost_net_set_backend() and enables a virtqueue;
+a later VHOST_SET_FEATURES can still change feature-dependent state.
 
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
+When ACCESS_PLATFORM is first enabled, vhost_net_set_features() calls
+vhost_init_device_iotlb(). vhost_get_vq_desc() calls translate_desc(),
+which prefers dev->iotlb over dev->umem. Clearing ACCESS_PLATFORM
+updates acked_features but does not clear dev->iotlb, so the old IOTLB
+and its HVA entries remain in the descriptor path.
+
+With IN_ORDER disabled, vhost_get_vq_desc() reads the next head from
+the guest's avail ring but still advances vq->next_avail_head after a
+successful consume. Enabling IN_ORDER later makes vhost use that
+existing cursor without resetting it, so the next descriptor may not
+be the one from the guest's avail ring.
+
+Keep feature negotiation fixed after the first successful backend
+activation, except for VHOST_F_LOG_ALL. Reject clearing
+ACCESS_PLATFORM while a device IOTLB exists, and avoid rebuilding an
+existing IOTLB for a log-only update. Use VHOST_RESET_OWNER before
+starting a new feature negotiation.
+
+Fixes: 6b1e6cc7855b ("vhost: new device IOTLB API")
+Fixes: 45347e79b544 ("vhost_net: basic in_order support")
+Signed-off-by: Jia Jia <physicalmtea@gmail.com>
+---
+ drivers/vhost/net.c | 42 ++++++++++++++++++++++++++++++++++++++++--
+ 1 file changed, 40 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
+index 6edac0c1ba9b..df357142461a 100644
+--- a/drivers/vhost/net.c
++++ b/drivers/vhost/net.c
+@@ -144,6 +144,8 @@ struct vhost_net {
+ 	unsigned tx_zcopy_err;
+ 	/* Flush in progress. Protected by tx vq lock. */
+ 	bool tx_flush;
++	/* Feature negotiation is fixed after a backend has been started. */
++	bool features_locked;
+ 	/* Private page frag cache */
+ 	struct page_frag_cache pf_cache;
+ };
+@@ -318,6 +320,24 @@ static void vhost_net_vq_reset(struct vhost_net *n)
+ 
+ }
+ 
++/* Caller must hold n->dev.mutex. */
++static bool vhost_net_features_changed(struct vhost_net *n, const u64 *features)
++{
++	const u64 *acked = n->vqs[VHOST_NET_VQ_TX].vq.acked_features_array;
++	int i;
++
++	for (i = 0; i < VIRTIO_FEATURES_DWORDS; i++) {
++		u64 changed = features[i] ^ acked[i];
++
++		if (i == VIRTIO_DWORD(VHOST_F_LOG_ALL))
++			changed &= ~VIRTIO_BIT(VHOST_F_LOG_ALL);
++		if (changed)
++			return true;
++	}
++
++	return false;
++}
++
+ static void vhost_net_tx_packet(struct vhost_net *net)
+ {
+ 	++net->tx_packets;
+@@ -1321,6 +1341,7 @@ static int vhost_net_open(struct inode *inode, struct file *f)
+ 	n = kvmalloc(sizeof *n, GFP_KERNEL | __GFP_RETRY_MAYFAIL);
+ 	if (!n)
+ 		return -ENOMEM;
++	n->features_locked = false;
+ 	vqs = kmalloc_array(VHOST_NET_VQ_MAX, sizeof(*vqs), GFP_KERNEL);
+ 	if (!vqs) {
+ 		kvfree(n);
+@@ -1597,6 +1618,8 @@ static long vhost_net_set_backend(struct vhost_net *n, unsigned index, int fd)
+ 		vhost_dev_flush(&n->dev);
+ 		sockfd_put(oldsock);
+ 	}
++	if (sock)
++		n->features_locked = true;
+ 
+ 	mutex_unlock(&n->dev.mutex);
+ 	return 0;
+@@ -1637,6 +1660,7 @@ static long vhost_net_reset_owner(struct vhost_net *n)
+ 	vhost_dev_stop(&n->dev);
+ 	vhost_dev_reset_owner(&n->dev, umem);
+ 	vhost_net_vq_reset(n);
++	n->features_locked = false;
+ done:
+ 	mutex_unlock(&n->dev.mutex);
+ 	if (tx_sock)
+@@ -1649,6 +1673,8 @@ static long vhost_net_reset_owner(struct vhost_net *n)
+ static int vhost_net_set_features(struct vhost_net *n, const u64 *features)
+ {
+ 	size_t vhost_hlen, sock_hlen, hdr_len;
++	bool access_platform;
++	int r = -EFAULT;
+ 	int i;
+ 
+ 	hdr_len = virtio_features_test_bit(features, VIRTIO_NET_F_MRG_RXBUF) ||
+@@ -1672,11 +1698,23 @@ static int vhost_net_set_features(struct vhost_net *n, const u64 *features)
+ 		sock_hlen = hdr_len;
+ 	}
+ 	mutex_lock(&n->dev.mutex);
++	if (n->features_locked && vhost_net_features_changed(n, features)) {
++		r = -EBUSY;
++		goto out_unlock;
++	}
++
+ 	if (virtio_features_test_bit(features, VHOST_F_LOG_ALL) &&
+ 	    !vhost_log_access_ok(&n->dev))
+ 		goto out_unlock;
+ 
+-	if (virtio_features_test_bit(features, VIRTIO_F_ACCESS_PLATFORM)) {
++	access_platform =
++		virtio_features_test_bit(features, VIRTIO_F_ACCESS_PLATFORM);
++	if (!access_platform && n->dev.iotlb) {
++		r = -EBUSY;
++		goto out_unlock;
++	}
++
++	if (access_platform && !n->dev.iotlb) {
+ 		if (vhost_init_device_iotlb(&n->dev))
+ 			goto out_unlock;
+ 	}
+@@ -1694,7 +1732,7 @@ static int vhost_net_set_features(struct vhost_net *n, const u64 *features)
+ 
+ out_unlock:
+ 	mutex_unlock(&n->dev.mutex);
+-	return -EFAULT;
++	return r;
+ }
+ 
+ static long vhost_net_set_owner(struct vhost_net *n)
+-- 
+2.34.1
+
