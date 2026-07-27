@@ -1,171 +1,126 @@
-Received: from mail-pg1-f180.google.com (mail-pg1-f180.google.com [209.85.215.180])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from m16.mail.163.com (m16.mail.163.com [117.135.210.4])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F44E25D527
-	for <virtualization@lists.linux.dev>; Sun, 26 Jul 2026 14:43:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.180
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 05A7D2AE76;
+	Mon, 27 Jul 2026 00:46:48 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=117.135.210.4
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785077017; cv=none; b=edl0CZk4Di3TEbZwj4zfYuvwiQqKOWcZSve0XvPDvdKqcuNpUJ7pBH40wFMxuyztquoKfhP7eIuTgKN7ERuFWccy4cWC01O9IDgaxcNPZfwSFxuVWum13/s0WZIg99h5F9IDDZYYOrjEzlL+NpPes2pyBew0kj2iMvZ7G+C8uWk=
+	t=1785113214; cv=none; b=KfvyqXxRlCZ258XfBtMLvJvNjJo6SFYEhi8qlKrGy4dIUA+eRAcrjFA+cQoJpCnH+ThuEkiP1eGO1lE3JsBPNoo7VX3mPfNW05BKxlBgm/w10lca3GMOWCLyC9b8xXcaeuGTjjG8wyGWiuUVUf4eFVHw2DaF+yMvAA90d6Ksrpg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785077017; c=relaxed/simple;
-	bh=urFn2lf1yr2e4/zmFZtHljImz+Gvs/n+ivlMYOXJ1Ag=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=BdMQGzB71Xn3amSTiEepFSA8vAgj+CJ3XICp421C5P14au1sWmGKs43fW113FGcakx4lcuz6pGlmNYuhh1p/ZYwsfZ2SDknHfYNr9Cc4+9WPFqWH9qnAQnXJ4T9KP3W6dWLNE6ehMspc/CCliy5cICUd9D7taAg1ioPSNacBwwk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bv6lPJXO; arc=none smtp.client-ip=209.85.215.180
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1785113214; c=relaxed/simple;
+	bh=VyOy4u76rMRCeiFpWf33xMu+YlHLbRI1yLXz8GOhFP4=;
+	h=Content-Type:MIME-Version:From:To:Cc:Subject:Message-Id:Date; b=KMCiqUeuYPw7wq64OFT2bDHRxfhDPudBgZigyO+ZE+iHg58m/gu6OIw7XQ0McLfxur6CUUhzPfy54tTm51I74Ykgsu5ILbZJJ8A5kwSBraAuPNOy+Qoep7yV5BgcyvlC5j/0Ey0evv1o8n3kdpKOayaJsjdMytTyVvUoAHYDgXo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=knGhOxkM; arc=none smtp.client-ip=117.135.210.4
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bv6lPJXO"
-Received: by mail-pg1-f180.google.com with SMTP id 41be03b00d2f7-ca12086c06eso1515252a12.0
-        for <virtualization@lists.linux.dev>; Sun, 26 Jul 2026 07:43:36 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785077016; x=1785681816; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=8tnokq5piWSJeHnGq/Tb/6JZPo0EjC0d3idL2CeItMI=;
-        b=bv6lPJXOELUvYjHj4SUFKKWm+BloVaxToPm/RvcRqrdH7TIekTtZMhP/dcLbFI4TQk
-         6+rp7TtgZDCK824OtgRQO5C6QmIDmyDjjERYhg+ZWcBdKijEEoua5khC/22IQaDdo84t
-         1zdunEoEPOk8MdvazAn493lU0NlNfWORdCcM0/IhrUkS9hwQ2QG7vIZ9UP6Wn8n9LdG3
-         IisYfnki6F6J4xn26YbuB9grFQanp2t2Xh8fXevlYGCcn0pjTd57dQws4j1WYG0qlk5j
-         DqY+tfL/52ZR+tPLW+1ZxYW9Mrt37jPM4htW8BApUZ1RwcTODWUp/bV4HX808nVjLkoC
-         2DZA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785077016; x=1785681816;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=8tnokq5piWSJeHnGq/Tb/6JZPo0EjC0d3idL2CeItMI=;
-        b=f8YbkC5aKeQ/nHHlH5/V1iexuAzIY+qt+PuTMKGYK0TcUZKiwUBLeUPFxPyfysxSnW
-         A5eusioQSsveYAyR9/jJBHG3pHQz/UT2ZgyROgheZwIb+ZoRBDksuJeDUlWLUa5f+eAH
-         P3g40j5dYGIPqYSTE4e/jRH5wop2qoR7BVVHsmQew0m6agsR8xbvSr4tL8l9KZToGRHf
-         WF4m9UhToZebQctCfFDih7KuJ3bGiNU5m5GMhTN6Iv2Qsf72dGElk69xtJ0ZhhFp+CmS
-         E79l6EvTKuuiAUK0KhHrPyzmlsiI7C8vYNlQfOnYi06hzoIknfkyCKHugaWWt7jyWvnw
-         nAhw==
-X-Forwarded-Encrypted: i=1; AHgh+RrySTf4K1IAK2y41UKMb0kuAZ4S09fxAMfpU6B/FgEAAlnbDy9FUkZLgYtrH/BTZtuucHfEm/OwXIrs21basg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwtgY6q0oD97Y0XR352N4X3r3BRCqtjYFqtvUS8Kl21TbesMRKU
-	1SmBPxlL+oV8iGSOrPtYy13h1DewcLpr3hUjSGc4NkrBZefBB8ZvDlz+
-X-Gm-Gg: AR+sD10mj4t+GglniVPusDHf2V5fZuDW3w3U88gY4trwU51g+oOjYgw1FDO6MOyBwGa
-	3s4Lzwp4uy+mp4R5s8cz3lI//AhHdc6aOFTCs+iFkRluxLLYc0mwgOH+me3ocmaIFfmnEbBrRPj
-	2xvCdjv1tadeZd7QX5HmNWDSl0B29EB/gDYx1obnXtsYLi4kXBSrvGRIbYm++utOod8b5LYViVu
-	vvosch34EeQG0KeWw58W3ThU7kpjseONCAlJWH91Rr7nFt61mSYr8Ws/CEPZckEltHVCEVuhaol
-	bNVW5DynVHFm9G18KdtKsgBJ6fRyOlzdE+tPqFqBurR1I34ME8txvuQ/6l9z+iPEbQGpe+JCNdC
-	S9oO0m88bC7AMtTSHg0x4iuQtplYGgRx4fPvXEPaXkRhxk5X5xpiyQZOERndDUPPz46nFL0znLN
-	huGw==
-X-Received: by 2002:a05:6a21:68c:b0:3bf:c49d:9183 with SMTP id adf61e73a8af0-3c67df7c5f2mr4832845637.50.1785077015436;
-        Sun, 26 Jul 2026 07:43:35 -0700 (PDT)
-Received: from gmail.com ([188.253.12.32])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-314bc579127sm19101361eec.21.2026.07.26.07.43.32
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 26 Jul 2026 07:43:35 -0700 (PDT)
-From: Jia Jia <physicalmtea@gmail.com>
-To: "Michael S . Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Mike Christie <michael.christie@oracle.com>
-Cc: Paolo Bonzini <pbonzini@redhat.com>,
-	Stefan Hajnoczi <stefanha@redhat.com>,
-	virtualization@lists.linux.dev,
-	physicalmtea@gmail.com
-Subject: [PATCH v3] vhost-scsi: reject feature changes after endpoint
-Date: Sun, 26 Jul 2026 22:43:14 +0800
-Message-Id: <20260726144314.1652934-1-physicalmtea@gmail.com>
-X-Mailer: git-send-email 2.34.1
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="knGhOxkM"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=Content-Type:MIME-Version:From:To:Subject:
+	Message-Id:Date; bh=VyOy4u76rMRCeiFpWf33xMu+YlHLbRI1yLXz8GOhFP4=;
+	b=knGhOxkMaLOAPx594hVgQNlqCNsI+2QvldwpOxwxJlhUVfbXqY80tBT7I1xRi5
+	XLftavy0BrexQHWtNxbmD9L71+XxJPrUCwG3UzZC6lDlSR12QgEWpNdX7ZmC+bPg
+	YoFK2J+sp5ihS93EfKDQN5A7ei7wdQ43wXhFUW3V0JkbM=
+Received: from [127.0.1.1] (unknown [])
+	by gzsmtp4 (Coremail) with SMTP id PygvCgDnPMNSqmZqsjIPJQ--.43547S2;
+	Mon, 27 Jul 2026 08:46:12 +0800 (CST)
+Content-Type: text/plain; charset="utf-8"
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Transfer-Encoding: base64
+From: Weimin Xiong <xiongwm2026@163.com>
+To: Jean-Philippe Brucker <jpb@kernel.org>, Joerg Roedel <joro@8bytes.org>, Will Deacon <will@kernel.org>
+Cc: virtualization@lists.linux.dev, iommu@lists.linux.dev, linux-kernel@vger.kernel.org, Robin Murphy <robin.murphy@arm.com>
+Subject: =?utf-8?q?Re=3A_=5BPATCH_v3_0/2=5D_iommu/virtio=3A_Probe_fixes_for_proper_driver_state?=
+X-CM-TRANSID:PygvCgDnPMNSqmZqsjIPJQ--.43547S2
+Message-Id:<6A66AA54.2EBEFC.17686@m16.mail.163.com>
+X-Coremail-Antispam: 1Uf129KBjvJXoWxGF4rtFWxWF4rurWUWrW5GFg_yoWruw1UpF
+	WDGa45GrWUJr1xGa4fAa1UuFySvws7uay7XFy3WwsY9rn8Cr9YkFyIyFyjvw1fArWkG3W7
+	tw1kXFn7CFW5urJanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07jSCJ9UUUUU=
+Date: Mon, 27 Jul 2026 08:46:12 +0800 (CST)
+X-CM-SenderInfo: x0lr0wdzpsijqw6rljoofrz/xtbC8BTzg2pmqlRS9AAA3A
 
-vhost_scsi_setup_vq_cmds() runs from VHOST_SCSI_SET_ENDPOINT and allocates
-each command's protection scatterlist array (prot_sgl) according to the
-acknowledged VIRTIO_SCSI_F_T10_PI bit.  The command pools are not rebuilt
-when VHOST_SET_FEATURES changes that bit later.
+U3ViamVjdDogUmU6IFtQQVRDSCB2MyAwLzJdIGlvbW11L3ZpcnRpbzogUHJvYmUgZml4ZXMgZm9y
+IHByb3BlciBkcml2ZXIgc3RhdGUKCkhpIFdpbGwsCgpUaGFuayB5b3UgZm9yIHlvdXIgcGF0aWVu
+Y2UgYW5kIEknbSByZWFsbHkgc29ycnkgZm9yIHRoZSBpc3N1ZXMgeW91IHJhaXNlZC4KClBsZWFz
+ZSBub3RlOiBJIHNlbnQgYSBjb21iaW5lZCBwYXRjaCBlYXJsaWVyIChhcm91bmQgMTA6NDIgb24g
+SnVseSAyNCkgdGhhdCBzdXBlcnNlZGVzIHRoaXMgdjMgc2VyaWVzLiBZb3VyIHJlcGx5IGJlbG93
+IG1heSBoYXZlIGJlZW4gYmFzZWQgb24gdGhlIGVhcmxpZXIgdmVyc2lvbi4gVGhlIGNvbWJpbmVk
+IHBhdGNoIGFkZHJlc3NlZCBhbGwgdGhlIGlzc3VlcyBtZW50aW9uZWQgYmVsb3cuCgoxLiBBYm91
+dCBzZW5kaW5nIHBhdGNoZXMgYXMgYXR0YWNobWVudHM6CkkgYXBvbG9naXplLiBJIHdpbGwgcmVh
+ZCBEb2N1bWVudGF0aW9uL3Byb2Nlc3Mvc3VibWl0dGluZy1wYXRjaGVzLnJzdCBhbmQgbWFrZSBz
+dXJlIHRvIHNlbmQgcGF0Y2hlcyBhcyBpbmxpbmUgdGV4dCBpbiB0aGUgZW1haWwgYm9keSBmcm9t
+IG5vdyBvbi4KCjIuIEFib3V0IHRoZSBpbmNvcnJlY3QgUmV2aWV3ZWQtYnkgYW5kIFN1Z2dlc3Rl
+ZC1ieSB0YWdzOgpJIHNpbmNlcmVseSBhcG9sb2dpemUgZm9yIGluY2x1ZGluZyBpbmNvcnJlY3Qg
+UmV2aWV3ZWQtYnkgYW5kIFN1Z2dlc3RlZC1ieSB0YWdzIGluIG15IHByZXZpb3VzIHBhdGNoZXMu
+IFRoZXNlIHRhZ3Mgd2VyZSBhZGRlZCB3aXRob3V0IHlvdXIgZXhwbGljaXQgY29uc2VudCBhbmQg
+c2hvdWxkIG5vdCBoYXZlIGJlZW4gaW5jbHVkZWQuIEkgdGFrZSBmdWxsIHJlc3BvbnNpYmlsaXR5
+IGZvciB0aGlzIG1pc3Rha2UgYW5kIHdpbGwgYmUgbW9yZSBjYXJlZnVsIGluIHRoZSBmdXR1cmUu
+CgotLS0KClJlZ2FyZGluZyB0aGUgY29tYmluZWQgcGF0Y2g6CgpJJ3ZlIGNvbWJpbmVkIHRoZSB0
+d28gcHJvYmUgZml4ZXMgaW50byBhIHNpbmdsZSBwYXRjaC4gSGVyZSdzIHdoYXQgaXQgZG9lczoK
+CjEuIFN0b3JlIHZkZXYtPnByaXYgYmVmb3JlIGNyZWF0aW5nIHZpcnRxdWV1ZXMgc28gdGhlIGV2
+ZW50IGNhbGxiYWNrIGFsd2F5cyBzZWVzIGluaXRpYWxpemVkIGRyaXZlciBzdGF0ZQoKMi4gQ2hl
+Y2sgdGhlIHJldHVybiB2YWx1ZSBvZiBpb21tdV9kZXZpY2VfcmVnaXN0ZXIoKSBhbmQgY2xlYW4g
+dXAgc3lzZnMgZW50cmllcyBvbiBmYWlsdXJlCgozLiBDaGFuZ2VkIHZpb21tdV9pbml0X3Zxcygp
+IHRvIHRha2UgdmRldiBpbnN0ZWFkIG9mIHZpb21tdSwgc2luY2Ugd2UgYWxyZWFkeSBoYXZlIGEg
+bGluayBiZXR3ZWVuIHRoZW0KCkkndmUgYWxzbyBkcm9wcGVkIHRoZSAiUmVqZWN0IHNob3J0IGV2
+ZW50IGJ1ZmZlcnMiIHBhdGNoIHNpbmNlIFh1IFJhbyBpbmRlcGVuZGVudGx5IHN1Ym1pdHRlZCBh
+biBpZGVudGljYWwgZml4LgoKLS0tCgpUaGUgY2xlYW4gcGF0Y2ggaXMgaW5jbHVkZWQgaW5saW5l
+IGJlbG93OgoKRnJvbTogWGlvbmcgV2VpbWluIDx4aW9uZ3dlaW1pbkBreWxpbm9zLmNuPgpUbzog
+SmVhbi1QaGlsaXBwZSBCcnVja2VyIDxqcGJAa2VybmVsLm9yZz4sCglKb2VyZyBSb2VkZWwgPGpv
+cm9AOGJ5dGVzLm9yZz4sCglXaWxsIERlYWNvbiA8d2lsbEBrZXJuZWwub3JnPgpDYzogdmlydHVh
+bGl6YXRpb25AbGlzdHMubGludXguZGV2LAoJaW9tbXVAbGlzdHMubGludXguZGV2LAoJbGludXgt
+a2VybmVsQHZnZXIua2VybmVsLm9yZywKCVJvYmluIE11cnBoeSA8cm9iaW4ubXVycGh5QGFybS5j
+b20+ClN1YmplY3Q6IFtQQVRDSF0gaW9tbXUvdmlydGlvOiBGaXggcHJvYmUgZXJyb3IgaGFuZGxp
+bmcgYW5kIGRyaXZlciBzdGF0ZSBpbml0aWFsaXphdGlvbgoKVGhlIGV2ZW50IHZpcnRxdWV1ZSBj
+YWxsYmFjayByZXRyaWV2ZXMgdGhlIGRyaXZlciBzdGF0ZSB0aHJvdWdoCnZxLT52ZGV2LT5wcml2
+LiB2aW9tbXVfcHJvYmUoKSBjdXJyZW50bHkgaW5pdGlhbGl6ZXMgdGhhdCBwb2ludGVyIG9ubHkK
+YWZ0ZXIgdmlydGlvX2RldmljZV9yZWFkeSgpIGFuZCBhZnRlciB0aGUgZXZlbnQgcXVldWUgaXMg
+cG9wdWxhdGVkLgoKU3RvcmUgdGhlIGRyaXZlciBkYXRhIGJlZm9yZSBjcmVhdGluZyB0aGUgdmly
+dHF1ZXVlcyBzbyBjYWxsYmFja3MgYWx3YXlzCnNlZSBpbml0aWFsaXplZCBkcml2ZXIgc3RhdGUg
+b25jZSB0aGUgZGV2aWNlIGlzIG1hZGUgcmVhZHkuIENsZWFyIHRoZQpwb2ludGVyIGFnYWluIG9u
+IHByb2JlIGZhaWx1cmUuCgpBbHNvIGNoZWNrIHRoZSByZXR1cm4gdmFsdWUgb2YgaW9tbXVfZGV2
+aWNlX3JlZ2lzdGVyKCkgYW5kIHByb3Blcmx5CmNsZWFuIHVwIHN5c2ZzIGVudHJpZXMgb24gZmFp
+bHVyZS4gVGhpcyBlbnN1cmVzIHRoYXQgdGhlIGRldmljZSBzeXNmcwpkaXJlY3RvcnkgaXMgcmVt
+b3ZlZCBpZiByZWdpc3RyYXRpb24gZmFpbHMuCgpDaGFuZ2UgdmlvbW11X2luaXRfdnFzKCkgdG8g
+dGFrZSBhIHN0cnVjdCB2aXJ0aW9fZGV2aWNlICogaW5zdGVhZCBvZgpzdHJ1Y3QgdmlvbW11X2Rl
+diAqLCBzaW5jZSB3ZSBhbHJlYWR5IGhhdmUgYSBsaW5rIGJldHdlZW4gdGhlbS4KClNpZ25lZC1v
+ZmYtYnk6IFhpb25nIFdlaW1pbiA8eGlvbmd3ZWltaW5Aa3lsaW5vcy5jbj4KLS0tCiBkcml2ZXJz
+L2lvbW11L3ZpcnRpby1pb21tdS5jIHwgMjIgKysrKysrKysrKysrKysrLS0tLS0tLQogMSBmaWxl
+IGNoYW5nZWQsIDE1IGluc2VydGlvbnMoKyksIDcgZGVsZXRpb25zKC0pCgpkaWZmIC0tZ2l0IGEv
+ZHJpdmVycy9pb21tdS92aXJ0aW8taW9tbXUuYyBiL2RyaXZlcnMvaW9tbXUvdmlydGlvLWlvbW11
+LmMKaW5kZXggNTg3ZmMxMzE5Li4yODhlZWEzODYgMTAwNjQ0Ci0tLSBhL2RyaXZlcnMvaW9tbXUv
+dmlydGlvLWlvbW11LmMKKysrIGIvZHJpdmVycy9pb21tdS92aXJ0aW8taW9tbXUuYwpAQCAtMTEx
+MCw5ICsxMTEwLDkgQEAgc3RhdGljIGNvbnN0IHN0cnVjdCBpb21tdV9vcHMgdmlvbW11X29wcyA9
+IHsKIAl9CiB9OwogCi1zdGF0aWMgaW50IHZpb21tdV9pbml0X3ZxcyhzdHJ1Y3QgdmlvbW11X2Rl
+diAqdmlvbW11KQorc3RhdGljIGludCB2aW9tbXVfaW5pdF92cXMoc3RydWN0IHZpcnRpb19kZXZp
+Y2UgKnZkZXYpCiB7Ci0Jc3RydWN0IHZpcnRpb19kZXZpY2UgKnZkZXYgPSBkZXZfdG9fdmlydGlv
+KHZpb21tdS0+ZGV2KTsKKwlzdHJ1Y3QgdmlvbW11X2RldiAqdmlvbW11ID0gdmRldi0+cHJpdjsK
+IAlzdHJ1Y3QgdmlydHF1ZXVlX2luZm8gdnFzX2luZm9bXSA9IHsKIAkJeyAicmVxdWVzdCIgfSwK
+IAkJeyAiZXZlbnQiLCB2aW9tbXVfZXZlbnRfaGFuZGxlciB9LApAQCAtMTE2OSwxMSArMTE2OSwx
+MiBAQCBzdGF0aWMgaW50IHZpb21tdV9wcm9iZShzdHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldikK
+IAlpZGFfaW5pdCgmdmlvbW11LT5kb21haW5faWRzKTsKIAl2aW9tbXUtPmRldiA9IGRldjsKIAl2
+aW9tbXUtPnZkZXYgPSB2ZGV2OworCXZkZXYtPnByaXYgPSB2aW9tbXU7CiAJSU5JVF9MSVNUX0hF
+QUQoJnZpb21tdS0+cmVxdWVzdHMpOwogCi0JcmV0ID0gdmlvbW11X2luaXRfdnFzKHZpb21tdSk7
+CisJcmV0ID0gdmlvbW11X2luaXRfdnFzKHZkZXYpOwogCWlmIChyZXQpCi0JCXJldHVybiByZXQ7
+CisJCWdvdG8gZXJyX2NsZWFyX3ByaXY7CiAKIAl2aXJ0aW9fY3JlYWRfbGUodmRldiwgc3RydWN0
+IHZpcnRpb19pb21tdV9jb25maWcsIHBhZ2Vfc2l6ZV9tYXNrLAogCQkJJnZpb21tdS0+cGdzaXpl
+X2JpdG1hcCk7CkBAIC0xMjM2LDcgKzEyMzcsOSBAQCBzdGF0aWMgaW50IHZpb21tdV9wcm9iZShz
+dHJ1Y3QgdmlydGlvX2RldmljZSAqdmRldikKIAogCXZkZXYtPnByaXYgPSB2aW9tbXU7CiAKLQlp
+b21tdV9kZXZpY2VfcmVnaXN0ZXIoJnZpb21tdS0+aW9tbXUsICZ2aW9tbXVfb3BzLCBwYXJlbnRf
+ZGV2KTsKKwlyZXQgPSBpb21tdV9kZXZpY2VfcmVnaXN0ZXIoJnZpb21tdS0+aW9tbXUsICZ2aW9t
+bXVfb3BzLCBwYXJlbnRfZGV2KTsKKwlpZiAocmV0KQorCQlnb3RvIGVycl9mcmVlX3N5c2ZzOwog
+CiAJZGV2X2luZm8oZGV2LCAiaW5wdXQgYWRkcmVzczogJXUgYml0c1xuIiwKIAkJIG9yZGVyX2Jh
+c2VfMih2aW9tbXUtPmdlb21ldHJ5LmFwZXJ0dXJlX2VuZCkpOwpAQCAtMTI0NCw4ICsxMjQ3LDEy
+IEBAIHN0YXRpYyBpbnQgdmlvbW11X3Byb2JlKHN0cnVjdCB2aXJ0aW9fZGV2aWNlICp2ZGV2KQog
+CiAJcmV0dXJuIDA7CiAKK2Vycl9mcmVlX3N5c2ZzOgorCWlvbW11X2RldmljZV9zeXNmc19yZW1v
+dmUoJnZpb21tdS0+aW9tbXUpOwogZXJyX2ZyZWVfdnFzOgogCXZkZXYtPmNvbmZpZy0+ZGVsX3Zx
+cyh2ZGV2KTsKK2Vycl9jbGVhcl9wcml2OgorCXZkZXYtPnByaXYgPSBOVUxMOwogCiAJcmV0dXJu
+IHJldDsKIH0KClNvcnJ5IGFnYWluIGZvciB0aGUgY29uZnVzaW9uIGFuZCB0aGFuayB5b3UgZm9y
+IHlvdXIgcGF0aWVuY2UuCgpCZXN0IHJlZ2FyZHMsCldlaW1pbiBYaW9uZwo=
 
-Although virtio feature bits must not change after feature negotiation,
-vhost_scsi_set_features() currently accepts such a request after the
-endpoint is active and updates acked_features.  Enabling T10-PI after
-endpoint setup therefore leaves prot_sgl NULL while the I/O path follows
-the new feature bit.
-
-For a 129-page protection payload, vhost_scsi_mapal() passes the missing
-first chunk to sg_alloc_table_chained():
-
-  sg_alloc_table_chained(table, 129, first_chunk=NULL,
-                         nents_first_chunk=inline_sg_cnt)
-
-sg_pool_index() then hits:
-
-  BUG_ON(nents > SG_CHUNK_SIZE);   /* 129 > 128 */
-
-The kernel reported the following call trace and register state:
-
-  Call Trace:
-   <TASK>
-   ? __sg_alloc_table+0x1d8/0x250
-   ? __pfx_vhost_run_work_list+0x10/0x10 [vhost]
-   sg_alloc_table_chained+0x59/0xf0
-   ? __pfx_sg_pool_alloc+0x10/0x10
-   ? vhost_scsi_calc_sgls.constprop.0+0x43/0x60 [vhost_scsi]
-   vhost_scsi_handle_vq+0xf02/0x1700 [vhost_scsi]
-   ? __pfx_vhost_scsi_handle_vq+0x10/0x10 [vhost_scsi]
-   vhost_scsi_handle_kick+0x37/0x50 [vhost_scsi]
-   vhost_run_work_list+0x8e/0xd0 [vhost]
-   vhost_task_fn+0xe1/0x210
-   ret_from_fork+0x348/0x540
-   </TASK>
-
-  RIP: 0010:0x4
-  CR2 = 0x4
-  RSP: 0018:ffffc90000dbf940 EFLAGS: 00010202
-  RAX: ffffffff82396810 RBX: ffff88811dc28b80 RCX: 0000000000000000
-  RDX: 0000000000000000 RSI: 0000000000000820 RDI: 0000000000000081
-
-VHOST_F_LOG_ALL is a vhost-specific runtime feature and remains the only
-exception.
-
-Reject changes to any feature other than VHOST_F_LOG_ALL while the
-endpoint is active.  This preserves the existing runtime log toggle while
-preventing feature-dependent command resources and data-path state from
-becoming inconsistent.  Userspace must clear the endpoint before changing
-any other negotiated feature and set the endpoint up again afterward.
-
-Fixes: bf2d650391be ("vhost-scsi: Allocate T10 PI structs only when enabled")
-Signed-off-by: Jia Jia <physicalmtea@gmail.com>
-Reviewed-by: Stefan Hajnoczi <stefanha@redhat.com>
----
-Changes in v2:
-- Reject changes to every feature except VHOST_F_LOG_ALL after endpoint
-  setup, following review feedback.
-- Keep the existing runtime VHOST_F_LOG_ALL cleanup path.
- drivers/vhost/scsi.c | 8 ++++++++
- 1 file changed, 8 insertions(+)
-
-diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index 9a1253b9d8c5..000000000000 100644
---- a/drivers/vhost/scsi.c
-+++ b/drivers/vhost/scsi.c
-@@ -2219,6 +2219,7 @@ static int vhost_scsi_set_features(struct vhost_scsi *vs, u64 features)
- {
- 	struct vhost_virtqueue *vq;
- 	bool is_log, was_log;
-+	u64 old_features;
- 	int i;
- 
- 	if (features & ~VHOST_SCSI_FEATURES)
-@@ -2234,6 +2235,14 @@ static int vhost_scsi_set_features(struct vhost_scsi *vs, u64 features)
- 	if (!vs->dev.nvqs)
- 		goto out;
- 
-+	old_features = vs->vqs[0].vq.acked_features;
-+	if (vs->vs_tpg &&
-+	    ((features ^ old_features) &
-+	     ~(1ULL << VHOST_F_LOG_ALL))) {
-+		mutex_unlock(&vs->dev.mutex);
-+		return -EBUSY;
-+	}
-+
- 	is_log = features & (1 << VHOST_F_LOG_ALL);
- 	/*
- 	 * All VQs should have same feature.
--- 
-2.43.0
