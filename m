@@ -1,231 +1,275 @@
-Received: from mx0a-001b2d01.pphosted.com (mx0a-001b2d01.pphosted.com [148.163.156.1])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-wm1-f54.google.com (mail-wm1-f54.google.com [209.85.128.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2BB45288B1
-	for <virtualization@lists.linux.dev>; Mon, 27 Jul 2026 08:56:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.156.1
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5E13D3F6600
+	for <virtualization@lists.linux.dev>; Mon, 27 Jul 2026 11:04:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785142568; cv=none; b=bHEvZrfS3PHg/801Bg373bCGrSgIx2+ThaU1n6M49gyfftyr4C6DI+MrxUgn6oK3WK+vkpG90KsXPWJw7RCfQAtB6VCkTF6Sv7LGWbelQykNMAzKaTdXB5x4Pg+8FfT2w7Y+NTFAte3DAibgORGEzgroiM6js9QpR2BLq+DZa6A=
+	t=1785150289; cv=none; b=jYPU/HwIP1PcO+P0ZpLzJ+jnxv29AM+F3kk3DXxWqhvzan4JFJhH/sQQEbdnMrzdAB6M18PnYdvZ/XWgwg2jQQUPjwHZ9xG3IFGOXZ2uOaWONsGKvZNat6udMnEVdGAyOlupVUE5IIR++3tIChGpE2q1oLL2vJJlEYDHnDudL1o=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785142568; c=relaxed/simple;
-	bh=EwdRi4tElG+0qe0BnhMKaMjXX3+o9ZAFoaBHoLX+/oI=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=Nqd0NYtjISHbC3eH5h2YSfY7xVNLRnf5EjoopxNdvrz8g6p22XUIjC9+k86mGEPDP7WCuVjmD1+e589gDILiF4PuKnoXSDGpRSWt7v3NxtZlsqZuglVka+KPoX/+AF098jPGnthfUzGatuAAJ+MJZ+3BaGpIT8omJyyfepV+xYA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=aXXNMFWI; arc=none smtp.client-ip=148.163.156.1
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1785150289; c=relaxed/simple;
+	bh=ZSVdxXoqaN4miCQDh1UcXemCo+5Lz6q/t2f1JUT1vT8=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=ZGwiFIwDK31anayHpLmBwV8T1Uvgynr8HpAZiynor+zzFagn25z2Dc/WzVmCaXUipmzSoSYq6JF42JU80/wuJe8WhJbaoQsh2KiyplKOXjVcQ+kC0u517cyChJ4BRcLnL94pBJl4UUCT9XN3GgI/FxFT3AdSH3wCn7F54hIpJqQ=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bjFppY58; arc=none smtp.client-ip=209.85.128.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="aXXNMFWI"
-Received: from pps.filterd (m0353729.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66R7lgs43931632;
-	Mon, 27 Jul 2026 08:55:51 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=XgvhRK
-	XymUWn+Gm165KKZq2jgPIfLqjBSMLXta5XzNQ=; b=aXXNMFWIf/uytlBtAQz5az
-	9ZrSldBrLhOi0qpVxEclUcHr2C/pq/sVevomBxWh/zAJzgc1c8sWjmZ8pW3AdFd4
-	Vi6E6+bjs7MGtjFvK8QFghBrSorkERn4lElT1Kd41PbI/BmdFCpLF80msoMesptN
-	ZrIkeQs6g6aZjYn22527IeA5O/qji4Eabqfzjg3gTQo62jrTbi5aMtzzsXyCHvCp
-	tMgwBV8JbZHYDcs6lpWSTVa35BlBz4GRfJU6E4uhyQa6T7taR2LIPS4ndMvfhcLl
-	OhDlduGOGJV/0L2xQXypGKlT26MYXyGR8cM0NU+2kdtrJmBLbJZTFxAOXZ6uXr+w
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmuyc73rx-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 27 Jul 2026 08:55:51 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66R8fGAT018737;
-	Mon, 27 Jul 2026 08:55:49 GMT
-Received: from smtprelay07.fra02v.mail.ibm.com ([9.218.2.229])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn7uvvr5p-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Mon, 27 Jul 2026 08:55:49 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (smtpav02.fra02v.mail.ibm.com [10.20.54.101])
-	by smtprelay07.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66R8tj9c33423760
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Mon, 27 Jul 2026 08:55:45 GMT
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 963032007A;
-	Mon, 27 Jul 2026 08:55:45 +0000 (GMT)
-Received: from smtpav02.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 13B4820075;
-	Mon, 27 Jul 2026 08:55:36 +0000 (GMT)
-Received: from [9.39.23.10] (unknown [9.39.23.10])
-	by smtpav02.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Mon, 27 Jul 2026 08:55:35 +0000 (GMT)
-Message-ID: <93f57732-f110-4289-a9d3-b760da566bff@linux.ibm.com>
-Date: Mon, 27 Jul 2026 14:25:35 +0530
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bjFppY58"
+Received: by mail-wm1-f54.google.com with SMTP id 5b1f17b1804b1-4954afac04bso30364925e9.0
+        for <virtualization@lists.linux.dev>; Mon, 27 Jul 2026 04:04:47 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785150286; x=1785755086; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Q5i0GUCYnj0aBBUICYHMNZKYVOhAjS07u/AM3wMKFiY=;
+        b=bjFppY58gsbDZoQPMHHvivigDIXpszRzNBoVnI1+TxZNqJTu0wAFxa6021yHXPwGn1
+         Y9DVbj1eFGoxvBXzPoEz1vmsC68/S0W8310trUY6zCT7baTAgbrJoCtQ669t+Ek6mUVt
+         4oJT4R2lUC43oL/YCCmxulUgeO78yCtC7eEtyhNiK60IP1ICSgrRQkE4T2wBYudZfz3D
+         F3AbiVzCqFydf0gPe4hfi1/wDsBpfz7dS3TQCMSR4FhJAukaoG1tG04z8VYsaBkDUmNK
+         Sb8JGTQiCqB1REiDV/8hQ5Q5Dg645YiU3RXWAWkd2uEuEyzE0n8/AxkRIIl7RaQIG+Gk
+         BH0Q==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785150286; x=1785755086;
+        h=content-transfer-encoding:content-type:mime-version:message-id:date
+         :subject:cc:to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=Q5i0GUCYnj0aBBUICYHMNZKYVOhAjS07u/AM3wMKFiY=;
+        b=GvPV3nXNftOand3h9d0c1twdBWGeCSrkebf3PxmZ6h+AWEdMgEqRKYTYIkGZJ7CepO
+         93U9ptKMHj5EdRNuVHRFFM+oab2+V9exyCe09FHUV1T7A4IYBZgVXPvUPk8JY8iRIObW
+         HfNtjzMqzNvo/RRM5QGjgybNNLz9cQdC4ltjOOHqMuPOOmNSp5VRQD063qMd9dqHik+I
+         7Vw14xfjtVHOmxKpHmQYFKax6Y4wavyiIqJ01q+4uqC8Ohq5DqKsiJjmRYBpcW4q8H4t
+         zqM4V8GGQgo3NlfdzFP2Mcg22+GSnL1LcmCGVOoXrz0KXZL8sbtaNJAnoUJLqEBIQyYj
+         DEJg==
+X-Forwarded-Encrypted: i=1; AHgh+Rpa8x7yKjJQgm2H6YS7Z+8xmvSVYmzMoih6jdeTe6MWrbI6LfzxrKLqndp6G7lAVwPJkHQSpD9xg2bRukwqoA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yx/kS3G4b3JcRGVoRkJJESzB8wLUo2M//CNdIixhf47JwhpUzzW
+	TAlVDlO1oitQ+RXerbkSWD7xeyqiEiQ6N6ATog3IvQXys5uaOqPH18Y+
+X-Gm-Gg: AR+sD12xwPoclkvwBFTvxgw1yfGEid6YgxwThJ6B1Yh0Y7ZbsmTGxYvnWUXDPfNP+Ef
+	ryfTPbZs+eTFCVL88kLUpQpq4z5GvXtsulHlMyKS/4wU0zgcr0HgEfsAsxHDeHVAiit/Doy4tHQ
+	qkdfmXWpfxsimZ9RWNv/LebPpQZw9gxCDTx/RgDFTBJFLSS6VCyJcT/cwXSkm6OTw0gAO6MuWlW
+	NjbgZkQ1zF5W/nketU/aNutb1vEbkyN79glI42yBcAu7hrWlYHEWHDIicLpOW+d8M0JbyYpMkq2
+	+5DU1C9/mW+EKJ6P/XODxbu9CpOd7ya9o6SiPpcFHJ87Bg6FaMfBsab8FUUe/H4d5/JvH4/JjBY
+	CiT6qO39tzia2xpieymMmQIRP5kF56j5RvIqK2gTD3zznn7thfeKP0XGtZfgJOpnNL2eJyyoWmb
+	YHqIhceLdlPtxKpsTZLKNajmbvOXSkmKYu+zKasN3tRhW1Pn3v8XJqinNT5myPRXwNwvQRcT6WE
+	8x1
+X-Received: by 2002:a05:600c:310d:b0:495:7b1b:f387 with SMTP id 5b1f17b1804b1-496b56f141dmr101917265e9.24.1785150285281;
+        Mon, 27 Jul 2026 04:04:45 -0700 (PDT)
+Received: from torre-GIGABYTE-B550-AORUS-ELITE-V2 (212.pool95-21-2.static.orange.es. [95.21.2.212])
+        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-496b4858e28sm240519915e9.2.2026.07.27.04.04.44
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Mon, 27 Jul 2026 04:04:44 -0700 (PDT)
+From: =?UTF-8?q?=C3=93scar=20Meg=C3=ADa=20L=C3=B3pez?= <megia.oscar@gmail.com>
+To: Dave Airlie <airlied@redhat.com>,
+	Gerd Hoffmann <kraxel@redhat.com>
+Cc: =?UTF-8?q?=C3=93scar=20Meg=C3=ADa=20L=C3=B3pez?= <megia.oscar@gmail.com>,
+	virtualization@lists.linux.dev,
+	spice-devel@lists.freedesktop.org,
+	linux-kernel@vger.kernel.org,
+	linux-kernel-mentees@lists.linux.dev
+Subject: [PATCH v3] drm/qxl: fix use-after-free in qxl_irq_handler on PCI
+Date: Mon, 27 Jul 2026 13:01:55 +0200
+Message-ID: <20260727110212.64913-1-megia.oscar@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v9 06/11] sched/core: Push current task from non preferred
- CPU
-To: Yury Norov <ynorov@nvidia.com>
-Cc: linux-kernel@vger.kernel.org, mingo@kernel.org, peterz@infradead.org,
-        juri.lelli@redhat.com, vincent.guittot@linaro.org,
-        yury.norov@gmail.com, kprateek.nayak@amd.com, iii@linux.ibm.com,
-        corbet@lwn.net, tglx@kernel.org, gregkh@linuxfoundation.org,
-        pbonzini@redhat.com, seanjc@google.com, vschneid@redhat.com,
-        huschle@linux.ibm.com, rostedt@goodmis.org, dietmar.eggemann@arm.com,
-        maddy@linux.ibm.com, srikar@linux.ibm.com, hdanton@sina.com,
-        chleroy@kernel.org, vineeth@bitbyteword.org, frederic@kernel.org,
-        arighi@nvidia.com, pauld@redhat.com, christian.loehle@arm.com,
-        tj@kernel.org, tommaso.cucinotta@gmail.com, maz@kernel.org,
-        rafael@kernel.org, rdunlap@infradead.org, kernellwp@gmail.com,
-        linux-doc@vger.kernel.org, jgross@suse.com,
-        virtualization@lists.linux.dev
-References: <20260724140732.2683314-1-sshegde@linux.ibm.com>
- <20260724140732.2683314-7-sshegde@linux.ibm.com> <amPhfyyVK-5g1PV5@yury>
-From: Shrikanth Hegde <sshegde@linux.ibm.com>
-Content-Language: en-US
-In-Reply-To: <amPhfyyVK-5g1PV5@yury>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Reinject: loops=2 maxloops=12
-X-Proofpoint-ORIG-GUID: EWLXC-aeMlQ2WNURWcx9pbvyfgqVEuZH
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI3MDA4NiBTYWx0ZWRfX8busp0i0RAij
- ysue37k04cjlIISuH8nSqOrmdezAJblJUPQETxz/PCF2aWVe8y1hvlk3bAQlS6QnnYZwWZYMs9b
- LIc8jbJzQL8G+gTQ9E53VKsu2Sutazyrg+NN8kHhs25NHtLkbA37i+3nYAVeoiBWwB1pbzKrQGP
- rWifLPRhMABn9YrZkLmc6tfB/DE1LkoZhTvQh1WHIZO9L18EQU1gfFlrGJRUXNp0+eBShVdOTBq
- WkFfyZ3TZji/2NGdI/R68kmAbsKOpS/eEVcy4yhEL0ekj8nvsmYiTRgdRKtuKLycXDQQPSg6PDd
- lr7GkXn2ni8KIGrAYvOmUuan48CflmUFCsZ7z9HlGjp8WJrz4ZpnfC4NOLwcu73mQ+7FM7e40kM
- tc61wmnbfOri8gcwSdCXkMsdwNTHpXSCMIrvfLVIjOtQ2egeSf/ERD3mS7dqchHEVpGlErfZITh
- rDx2IfFVVGSCTFdOT3Q==
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI3MDA4NiBTYWx0ZWRfX7gNrW14KdPcE
- EMaLp/lv2OFb98Ynmd+znDp0adEN8ZxEoHdrtUDZQDQojf8YnxJ/dLrS/QrMOA3il/6hPgHdMyE
- OdO/dy/134YshUKAdHsRpXGjpEcFirc=
-X-Authority-Analysis: v=2.4 cv=AZeB2XXG c=1 sm=1 tr=0 ts=6a671d17 cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=uAbxVGIbfxUO_5tXvNgY:22 a=VnNF1IyMAAAA:8
- a=iZAcCB8-FdyIZWZutlUA:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: UIhXhdUf10bfwPHIA7vSQY3EhEl32iZI
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-27_02,2026-07-24_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- spamscore=0 priorityscore=1501 phishscore=0 adultscore=0 impostorscore=0
- clxscore=1015 malwarescore=0 suspectscore=0 lowpriorityscore=0 bulkscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607270086
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 
-Hi Yury,
+while :; do
+    echo [pci qxl id] > /sys/bus/pci/drivers/qxl/unbind
+    echo [pci qxl id] > /sys/bus/pci/drivers/qxl/bind
+done
 
-On 7/25/26 3:34 AM, Yury Norov wrote:
-> On Fri, Jul 24, 2026 at 07:37:27PM +0530, Shrikanth Hegde wrote:
->> Actively push out task running on a non-preferred CPU. Since the task is
->> running on the CPU, need to stop the cpu and push the task out.
->> However, if the task is pinned only to non-preferred CPUs, it will continue
->> running there. This will help in maintaining the userspace affinities
->> unlike CPU hotplug or isolated cpusets.
->>
->> Though code is similar to  __balance_push_cpu_stop and quite close to
->> push_cpu_stop, it is being kept separate as it provides a cleaner
->> implementation with CONFIG_PREFERRED_CPU.
->>
->> Add push_task_work_done flag to protect work buffer.
->> Works only with FAIR class.
->>
->> For now, only current running task is pushed out. This keeps the code
->> simpler. In future optimization maybe done to move all the queued
->> task on the rq.
->>
->> Signed-off-by: Shrikanth Hegde <sshegde@linux.ibm.com>
->> ---
->>   kernel/sched/core.c  | 78 ++++++++++++++++++++++++++++++++++++++++++++
->>   kernel/sched/sched.h |  8 +++++
->>   2 files changed, 86 insertions(+)
->>
->> diff --git a/kernel/sched/core.c b/kernel/sched/core.c
->> index 9e8eec4451b6..704043531b24 100644
->> --- a/kernel/sched/core.c
->> +++ b/kernel/sched/core.c
->> @@ -5774,6 +5774,9 @@ void sched_tick(void)
->>   	unsigned long hw_pressure;
->>   	u64 resched_latency;
->>   
->> +	if (!cpu_preferred(cpu))
->> +		sched_push_current_non_preferred_cpu(rq);
->> +
->>   	if (housekeeping_cpu(cpu, HK_TYPE_KERNEL_NOISE))
->>   		arch_scale_freq_tick();
->>   
->> @@ -11292,3 +11295,78 @@ void sched_change_end(struct sched_change_ctx *ctx)
->>   		p->sched_class->prio_changed(rq, p, ctx->prio);
->>   	}
->>   }
->> +
->> +#ifdef CONFIG_PREFERRED_CPU
->> +static DEFINE_PER_CPU(struct cpu_stop_work, npc_push_task_work);
->> +
->> +static int sched_non_preferred_cpu_push_stop(void *arg)
->> +{
->> +	struct task_struct *p = arg;
->> +	struct rq *rq = this_rq();
->> +	struct rq_flags rf;
->> +	int cpu;
->> +
->> +	if (cpu_preferred(rq->cpu)) {
->> +		scoped_guard(rq_lock, rq)
->> +			rq->push_task_work_done = false;
->> +		put_task_struct(p);
->> +		return 0;
->> +	}
->> +
->> +	raw_spin_lock_irq(&p->pi_lock);
->> +
->> +	/* This could take rq lock. So call it before rq lock is taken */
->> +	cpu = select_fallback_rq(rq->cpu, p);
->> +	rq_lock(rq, &rf);
->> +	rq->push_task_work_done = false;
->> +	update_rq_clock(rq);
->> +
->> +	context_unsafe_alias(rq);
->> +
->> +	if (task_rq(p) == rq && task_on_rq_queued(p) &&
->> +	    !is_migration_disabled(p))
->> +		rq = __migrate_task(rq, &rf, p, cpu);
->> +
->> +	rq_unlock(rq, &rf);
->> +	raw_spin_unlock_irq(&p->pi_lock);
->> +	put_task_struct(p);
->> +
->> +	return 0;
-> 
-> You always return 0, and don't test the return value. Just make it
-> void, or return (and handle) some error, please.
-> 
+After a few seconds, it reports:
 
-Currently all the function callbacks of stop_one_cpu_nowait return 0.
-This can't be changed to void today since signature mandates int.
+==================================================================
+BUG: KASAN: slab-use-after-free in qxl_irq_handler+0x269/0x2b0
+Read of size 8 at addr ffff888001c6cd48 by task swapper/0/0
 
-typedef int (*cpu_stop_fn_t)(void *arg);
+CPU: 0 UID: 0 PID: 0 Comm: swapper/0 Not tainted
+     7.1.0-10963-g1a3746ccbb0a #31 PREEMPT(lazy)
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009),
+               BIOS Arch Linux 1.17.0-2-2 04/01/2014
+Call Trace:
+ <IRQ>
+ dump_stack_lvl+0x4d/0x70
+ print_report+0x14b/0x4b0
+ ? __pfx__raw_spin_lock_irqsave+0x10/0x10
+ ? profile_tick+0x56/0x90
+ ? tick_nohz_handler+0x23c/0x5c0
+ kasan_report+0x117/0x140
+ ? qxl_irq_handler+0x269/0x2b0
+ ? qxl_irq_handler+0x269/0x2b0
+ ? __pfx_qxl_irq_handler+0x10/0x10
+ qxl_irq_handler+0x269/0x2b0
+ ? __pfx_qxl_irq_handler+0x10/0x10
+ ? __pfx_qxl_irq_handler+0x10/0x10
+ __handle_irq_event_percpu+0x116/0x450
+ ? __pfx__raw_spin_lock+0x10/0x10
+ handle_irq_event+0xa6/0x1c0
+ handle_fasteoi_irq+0x271/0xb10
+ ? __pfx_handle_fasteoi_irq+0x10/0x10
+ __common_interrupt+0x60/0x130
+ common_interrupt+0x7a/0x90
+ </IRQ>
+ <TASK>
+  asm_common_interrupt+0x26/0x40
+ RIP: 0010:pv_native_safe_halt+0xf/0x20
+ Code: 42 de 00 c3 cc cc cc cc 0f 1f 00 90 90 90 90 90 90 90 90 90
+       90 90 90 90 90 90 90 f3 0f 1e fa eb 07 0f 00 2d a3 cf 20 00
+       fb f4 <c3> cc cc cc cc 66 2e 0f 1f 84 00 00 00 00 00 66 90
+       90 90 90 90 90
+ RSP: 0018:ffffffffb8207e48 EFLAGS: 00000206
+ RAX: ffff8880b296f000 RBX: ffffffffb82146c0 RCX: 0000000000000001
+ RDX: 0000000000000001 RSI: 0000000000000004 RDI: 0000000000067a04
+ RBP: fffffbfff70428d8 R08: ffffffffb7247e1d R09: 1ffff1100d846202
+ R10: ffffed100d846203 R11: ffffed100d846203 R12: 0000000000000000
+ R13: 0000000000000000 R14: 1ffffffff7040fcd R15: dffffc0000000000
+  ? ct_kernel_exit.constprop.0+0x9d/0xc0
+  default_idle+0x9/0x10
+  default_idle_call+0x37/0x60
+  do_idle+0x3a8/0x5d0
+  ? __pfx___schedule+0x10/0x10
+  ? __pfx_do_idle+0x10/0x10
+  cpu_startup_entry+0x4e/0x60
+  rest_init+0x11a/0x120
+  start_kernel+0x382/0x390
+  x86_64_start_reservations+0x24/0x30
+  x86_64_start_kernel+0xd6/0xe0
+  common_startup_64+0x13e/0x158
+  </TASK>
 
-Also even if return value is of some error, it doesn't make any difference.
-This is because in cpu_stopper_thread, return value is propagated only if it
-wait for work to complete semantic. stop_one_cpu_nowait sets done=NULL.
+The qxl_pci_remove() function does not call free_irq(), allowing the IRQ
+handler to fire after the device has been torn down, accessing freed
+memory (qdev->ram_header, qdev->io_base).
 
-bool stop_one_cpu_nowait(unsigned int cpu, cpu_stop_fn_t fn, void *arg,
-                         struct cpu_stop_work *work_buf)
-{
-         *work_buf = (struct cpu_stop_work){ .fn = fn, .arg = arg, .caller = _RET_IP_, };
-         return cpu_stop_queue_work(cpu, work_buf);
-}
+I followed these steps to unload driver at link.
 
-cpu_stopper_thread:
-                 ret = fn(arg);
-                 if (done) {
-                         if (ret)
-                                 done->ret = ret;
-                         cpu_stop_signal_done(done);
-                 }
+Added Disable the device from generating IRQs, Release the IRQ (free_irq())
+at the start of qxl_pci_remove() to ensure no IRQs fire
+after teardown begins.
 
-If we really need to return void then we need a new function signature for nowait
-variant. Adding separate function signature just for nowait isn't probably worth.
-What do you think?
+Added at end Disable the device.
+
+Fix: Added goto fini in ttm_device_fini() on error.
+Bug: qxl_ttm_init never calls ttm_device_fini on failure
+If qxl_ttm_init_mem_type() fails after ttm_device_init() succeeded,
+ttm_glob_use_count stays incremented. All subsequent bind/unbind cycles
+see refcount > 0 and skip ttm_pool_mgr_{init,fini}() entirely.
+The global pool types are never finalized, and the list_lru_destroy fix
+in ttm_pool_mgr_fini never runs.
+
+Added free_irq on qxl_probe unload.
+
+Set to NULL after free on qxl_device_fini.
+
+Assisted-by: OpenCode:1.17.8-Big Pickle/DeepSeek V4 Flash
+Fixes: 48bd85808443 ("drm/qxl: Convert to Linux IRQ interfaces")
+Signed-off-by: Óscar Megía López <megia.oscar@gmail.com>
+Link: https://www.kernel.org/doc/html/latest/PCI/pci.html
+---
+ drivers/gpu/drm/qxl/qxl_drv.c |  9 +++++++++
+ drivers/gpu/drm/qxl/qxl_kms.c | 13 +++++++++++++
+ drivers/gpu/drm/qxl/qxl_ttm.c |  8 ++++++--
+ 3 files changed, 28 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/qxl/qxl_drv.c b/drivers/gpu/drm/qxl/qxl_drv.c
+index 1e6a2392d7c6..e109114ac691 100644
+--- a/drivers/gpu/drm/qxl/qxl_drv.c
++++ b/drivers/gpu/drm/qxl/qxl_drv.c
+@@ -128,6 +128,8 @@ qxl_pci_probe(struct pci_dev *pdev, const struct pci_device_id *ent)
+ 	qxl_modeset_fini(qdev);
+ unload:
+ 	qxl_device_fini(qdev);
++	qxl_io_reset(qdev);
++	free_irq(pdev->irq, &qdev->ddev);
+ put_vga:
+ 	if (pci_is_vga(pdev) && pdev->revision < 5)
+ 		vga_put(pdev, VGA_RSRC_LEGACY_IO);
+@@ -154,12 +156,19 @@ static void
+ qxl_pci_remove(struct pci_dev *pdev)
+ {
+ 	struct drm_device *dev = pci_get_drvdata(pdev);
++	struct qxl_device *qdev = to_qxl(dev);
++
++	qdev->ram_header->int_mask = 0;
++	outb(0, qdev->io_base + QXL_IO_UPDATE_IRQ);
++	free_irq(pdev->irq, dev);
++	cancel_work_sync(&qdev->client_monitors_config_work);
+ 
+ 	drm_kms_helper_poll_fini(dev);
+ 	drm_dev_unregister(dev);
+ 	drm_atomic_helper_shutdown(dev);
+ 	if (pci_is_vga(pdev) && pdev->revision < 5)
+ 		vga_put(pdev, VGA_RSRC_LEGACY_IO);
++	pci_disable_device(pdev);
+ }
+ 
+ static void
+diff --git a/drivers/gpu/drm/qxl/qxl_kms.c b/drivers/gpu/drm/qxl/qxl_kms.c
+index 461b7ab9ad5c..eb17d61eac11 100644
+--- a/drivers/gpu/drm/qxl/qxl_kms.c
++++ b/drivers/gpu/drm/qxl/qxl_kms.c
+@@ -313,11 +313,24 @@ void qxl_device_fini(struct qxl_device *qdev)
+ 	qxl_gem_fini(qdev);
+ 	qxl_bo_fini(qdev);
+ 	qxl_ring_free(qdev->command_ring);
++	qdev->command_ring = NULL;
+ 	qxl_ring_free(qdev->cursor_ring);
++	qdev->cursor_ring = NULL;
+ 	qxl_ring_free(qdev->release_ring);
++	qdev->release_ring = NULL;
+ 	io_mapping_free(qdev->surface_mapping);
++	qdev->surface_mapping = NULL;
+ 	io_mapping_free(qdev->vram_mapping);
++	qdev->vram_mapping = NULL;
+ 	iounmap(qdev->ram_header);
++	qdev->ram_header = NULL;
+ 	iounmap(qdev->rom);
+ 	qdev->rom = NULL;
++
++	idr_destroy(&qdev->release_idr);
++	idr_destroy(&qdev->surf_id_idr);
++	kfree(qdev->client_monitors_config);
++	qdev->client_monitors_config = NULL;
++
++	qdev->gc_work.func = NULL;
+ }
+diff --git a/drivers/gpu/drm/qxl/qxl_ttm.c b/drivers/gpu/drm/qxl/qxl_ttm.c
+index 5d495c4798a3..bdcc7560f3f1 100644
+--- a/drivers/gpu/drm/qxl/qxl_ttm.c
++++ b/drivers/gpu/drm/qxl/qxl_ttm.c
+@@ -207,13 +207,13 @@ int qxl_ttm_init(struct qxl_device *qdev)
+ 	r = qxl_ttm_init_mem_type(qdev, TTM_PL_VRAM, num_io_pages);
+ 	if (r) {
+ 		DRM_ERROR("Failed initializing VRAM heap.\n");
+-		return r;
++		goto fini;
+ 	}
+ 	r = qxl_ttm_init_mem_type(qdev, TTM_PL_PRIV,
+ 				  qdev->surfaceram_size / PAGE_SIZE);
+ 	if (r) {
+ 		DRM_ERROR("Failed initializing Surfaces heap.\n");
+-		return r;
++		goto fini;
+ 	}
+ 	DRM_INFO("qxl: %uM of VRAM memory size\n",
+ 		 (unsigned int)qdev->vram_size / (1024 * 1024));
+@@ -222,6 +222,10 @@ int qxl_ttm_init(struct qxl_device *qdev)
+ 	DRM_INFO("qxl: %uM of Surface memory size\n",
+ 		 (unsigned int)qdev->surfaceram_size / (1024 * 1024));
+ 	return 0;
++
++fini:
++	ttm_device_fini(&qdev->mman.bdev);
++	return r;
+ }
+ 
+ void qxl_ttm_fini(struct qxl_device *qdev)
+-- 
+2.55.0
 
