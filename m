@@ -1,64 +1,94 @@
-Received: from mail.ilvokhin.com (mail.ilvokhin.com [178.62.254.231])
+Received: from mx0b-0031df01.pphosted.com (mx0b-0031df01.pphosted.com [205.220.180.131])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D90C042048D
-	for <virtualization@lists.linux.dev>; Tue, 28 Jul 2026 11:16:58 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=178.62.254.231
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EC8B34676F
+	for <virtualization@lists.linux.dev>; Tue, 28 Jul 2026 12:53:55 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.180.131
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785237420; cv=none; b=CvJCC/CQdh0hmnLFGUth2IG+P4XmutVh7a16/x3NHhBm4yo8+otx7VMEx6XXTJviBjX1TN7NJJRlzA6LtC779Q7R6czR3RPuFLZskvo5hV1Y9FBH1rfg/qh6XJAsJxTNKu2cbMtaThBL6/P/BaEIZunseYWhnWINO6n6LOzkEPY=
+	t=1785243238; cv=none; b=ICmJaaFE/8Ss1Sp/XodchX9eXhRqv+dptNL9TMiAcPfqgFBElRinTgp7Q2PwT2l0Z5Msivpl/DGT/wWVZaYDnznsQY0DBVWnNquDTMgMaE33ayzJMQuihPgH8JUJNHRdO4XG8uLNN4Tk9GSKrbbmIDdh8K2Yn+mHzzpfzTm3h3g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785237420; c=relaxed/simple;
-	bh=Z7Qc2NcYtYt9kXB+gy+Ybj9A1mFMRthRE15p9KsYA2A=;
+	s=arc-20240116; t=1785243238; c=relaxed/simple;
+	bh=YysH5jsrtcGezK7MNG+pQ8CCef1obHxI/WILbeJeICA=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 Content-Type:Content-Disposition:In-Reply-To; b=A3deCQJIZPvebJQVgSQW3LBgmwe/OX6m3i43uJ8sGzSCNtTnfNjyQGG47EIhY3SCRQQk/7w2QTHMjQ1miHvmniwWdDLvJ7vkymh8RjXmclNqF4Wc5X50Qut40+0bTwRlEdIdv4xzuMzU1+RuguLQXZIRl6hthiJGotqPXbZ6HfA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ilvokhin.com; spf=pass smtp.mailfrom=ilvokhin.com; dkim=pass (1024-bit key) header.d=ilvokhin.com header.i=@ilvokhin.com header.b=acCvhA+D; arc=none smtp.client-ip=178.62.254.231
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=ilvokhin.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=ilvokhin.com
+	 Content-Type:Content-Disposition:In-Reply-To; b=a8qTKE4s0YlyRsJRNQsWRsZobnBXfVrIqo7fEnx3MiC0QyGa8yrwU0MsMEgjXQBi4TsJJ6ukrRNFpIp/AAGN5eNiWd8KbmUHFY+9Un6LmQYr9/c/KGZwS7rpHxugNVlMVY9t/CYHVyF/9ZYTu5AqwWtlztD2d9R9J0LRFhr3Qro=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com; spf=pass smtp.mailfrom=oss.qualcomm.com; dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b=mXkXupkS; dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b=ByRznZuT; arc=none smtp.client-ip=205.220.180.131
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oss.qualcomm.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oss.qualcomm.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=ilvokhin.com header.i=@ilvokhin.com header.b="acCvhA+D"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ilvokhin.com;
-	s=mail; t=1785236901;
-	bh=TY0hPq1DZRY+oQjDvxLhEtkwszNy4loaKqn689w042k=;
-	h=Date:From:To:Cc:Subject:References:In-Reply-To;
-	b=acCvhA+DUH9/IL5BtyczwSZ+lRbF0mTHcTf5yZzehWwcl/UKF3uCkKJprUAJooRsL
-	 +E1MSkaxPjbSFUUfsOARQxxS0I79jSNWZtvypMpYo2doS9wRsfiyFfOB+Ry25zmPID
-	 M3l4nDoOMtWc7/suDwSDxfVQ4mGy9wHcsFjPykMg=
-Received: from shell.ilvokhin.com (shell.ilvokhin.com [138.68.190.75])
-	(Authenticated sender: d@ilvokhin.com)
-	by mail.ilvokhin.com (Postfix) with ESMTPSA id 43E20E13B2;
-	Tue, 28 Jul 2026 11:08:21 +0000 (UTC)
-Date: Tue, 28 Jul 2026 11:08:17 +0000
-From: Dmitry Ilvokhin <d@ilvokhin.com>
-To: Peter Zijlstra <peterz@infradead.org>
-Cc: Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
-	Boqun Feng <boqun@kernel.org>, Waiman Long <longman@redhat.com>,
-	Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
-	Juergen Gross <jgross@suse.com>,
-	Ajay Kaher <ajay.kaher@broadcom.com>,
-	Alexey Makhalov <alexey.makhalov@broadcom.com>,
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>,
-	Thomas Gleixner <tglx@kernel.org>, Borislav Petkov <bp@alien8.de>,
-	Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
-	"H. Peter Anvin" <hpa@zytor.com>, Arnd Bergmann <arnd@arndb.de>,
-	Dennis Zhou <dennis@kernel.org>, Tejun Heo <tj@kernel.org>,
-	Christoph Lameter <cl@gentwo.org>,
-	Steven Rostedt <rostedt@goodmis.org>,
-	Masami Hiramatsu <mhiramat@kernel.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@efficios.com>,
-	linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
-	virtualization@lists.linux.dev, linux-arch@vger.kernel.org,
-	linux-mm@kvack.org, linux-trace-kernel@vger.kernel.org,
-	kernel-team@meta.com, "Paul E. McKenney" <paulmck@kernel.org>
-Subject: Re: [PATCH v6 5/7] locking: Add contended_release tracepoint to
- qspinlock
-Message-ID: <amiNocZ8olirlihI@shell.ilvokhin.com>
-References: <cover.1777999826.git.d@ilvokhin.com>
- <5d7ea75ffe74a785e6b234ada9f23c6373d4b4c1.1777999826.git.d@ilvokhin.com>
- <20260513193342.GB2545104@noisy.programming.kicks-ass.net>
- <agXBb0ga_6HJrrnm@shell.ilvokhin.com>
- <20260603120811.GW3493090@noisy.programming.kicks-ass.net>
- <aiA3dzjKVq2_cpSY@shell.ilvokhin.com>
- <20260603142659.GW3102624@noisy.programming.kicks-ass.net>
+	dkim=pass (2048-bit key) header.d=qualcomm.com header.i=@qualcomm.com header.b="mXkXupkS";
+	dkim=pass (2048-bit key) header.d=oss.qualcomm.com header.i=@oss.qualcomm.com header.b="ByRznZuT"
+Received: from pps.filterd (m0279869.ppops.net [127.0.0.1])
+	by mx0a-0031df01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66SBIVLk2819631
+	for <virtualization@lists.linux.dev>; Tue, 28 Jul 2026 12:53:54 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=qualcomm.com; h=
+	cc:content-type:date:from:in-reply-to:message-id:mime-version
+	:references:subject:to; s=qcppdkim1; bh=idUJR9vbh9mLeQ+LiDmPHED4
+	Y3DRfFI4oiLrXFaY0Jo=; b=mXkXupkShT/yLK+Wus0to8i5zGa4VNZDUaLkT49i
+	hprZ4t+eXVvkuXJDvEOqJOkAKM+yHsc3BjQnPyfAyQomwFn6O+wSot7MiKpgbNct
+	vc1gLdHTG6JwECYYqENVZKy3eZnVTIq29LTHlwVQjOahJKL3j2ayj9Ksh3uySujS
+	xeO2C46RcueOe78XgtLxazQ7Kw+Zm/NJmHtK1Dd5W5Tt+UIQgTEoQFd5mJ1A4+WW
+	aI6zxCl2RH9C3aehQ2lM6DjArW/CCe95/iJbrivKkbX2CFjUMNQlrXW3mmLBIJL9
+	78z9jBVCXh8Ai+lE05VzRah/flxMH0HsglAO6B9tv25Khw==
+Received: from mail-qt1-f197.google.com (mail-qt1-f197.google.com [209.85.160.197])
+	by mx0a-0031df01.pphosted.com (PPS) with ESMTPS id 4fpn3y21nu-1
+	(version=TLSv1.3 cipher=TLS_AES_128_GCM_SHA256 bits=128 verify=NOT)
+	for <virtualization@lists.linux.dev>; Tue, 28 Jul 2026 12:53:54 +0000 (GMT)
+Received: by mail-qt1-f197.google.com with SMTP id d75a77b69052e-51c20762d21so42236341cf.0
+        for <virtualization@lists.linux.dev>; Tue, 28 Jul 2026 05:53:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=oss.qualcomm.com; s=google; t=1785243233; x=1785848033; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=idUJR9vbh9mLeQ+LiDmPHED4Y3DRfFI4oiLrXFaY0Jo=;
+        b=ByRznZuTsMb4ZwZMaSIR8zXDN52ZpDqbc/Qa8EVHmZWFIkwHGn9u0AUxeYG/WSDK8b
+         nAuhV38AbEPxo58fHs8L7w9AGpawj1K2bJp7jhqBm+pR52xd6DqoCgD7W6SN6vEl9hMY
+         NNksVqi4b3NVX62Ijj94mUl5mdaLu7TFqefNJDnho6kcf1O9LK8/8QGxmlWCEfgiN9a3
+         mu3exSxndawTu5ZQYx7VcHzzbd8b7Jl0Ejg9caaxdytVo8VQLrloOYl0VayD8L3hm5/T
+         R+CBKWZLeKpCMZmG3pB7pyElfa8ev4+7jjz0wCrgp6utctCG8HZLsnpgGfoGqiOVAUrn
+         jiAQ==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785243233; x=1785848033;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=idUJR9vbh9mLeQ+LiDmPHED4Y3DRfFI4oiLrXFaY0Jo=;
+        b=hdN8sCy/cXLz7+H4b2IQrV8VKW6e0+4W1Rio0DPRl9uHmJ9RfQ+0AiH+4G82jdOrDM
+         EFsQ6UbiyVCqdJziZSahVzdVCzJwR0tcw4OQCOINMhbPkHHGp1cCEkEQwMM7JlTTHcP1
+         kQom8zInMp/W5FbrgXMKTFNGqO8N5tC6rvZEfNx1P/5hDeqyhslqNyud+mFnaUDLgonK
+         BXuUEDf/sbyx5bPHyobQGIkWFHzMEhtmmwzyLnNolceb1JdYMoV8+tRLLD55KnfS/Hg+
+         hfFVi9698UoZxy/ZTG6/YsBpQ/4Dt8b/GQ81wZtSgy5r3Mh+0ioOkQlUNkm0Ij5lq6Uh
+         BZ0w==
+X-Forwarded-Encrypted: i=1; AHgh+RoBfia/I+Oe53qds+1PsdHZu8NhzOWZ6ufhU0BtGJJLAk8q8LaFqLCgVoyvvu+h6Zr4AIzpi1qu36RV1o+7Nw==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yz4XFhoHhT/54KJ5QmBe9PrM9mYEZEp2kQ4RoSpyt70b1CIyMiv
+	b0Jtx8A49kgbyzrZOYKFB0jcyNfJaoqSu6CNVsMAxx0a3Gf0AJImEH0g1YGG6eg1IYK/PQJUTpI
+	7LGpEt3iZHE0Q+AcGO+np7bvdU1VjZDCNHZbT4edVASQNMCl9E4ui+UxYecdvDDDHQxOOYw==
+X-Gm-Gg: AR+sD10HC1yjE276gZbrxTIKu0XjhrZkPyHh3RkkQqh9t+yyJP+SpOojjmqEwIhvzfQ
+	uMTAnUL7Qmn3EOcxLIPeGNLV5R1uAZBFNWZxxEc0vhQ4djfFKkMHsU6TfC0gUGg4/TZewOwvi79
+	zOUjbm23kmdZA3BrnxgbMvbPCjMUNjyd1sUfy/AepPVWGPthBgCOUX2PlUMHuXBV4qmc9rp+Jid
+	s5eotDowHIK+ycki2l4DRfgYvR0J8TcyJsnJlyZhkiUzgrBF3l8tbWpv5PL3ASw5zK6PE9jMwoI
+	8CWbqY/KKd2beV4rKjDax7/xYKpG0FqKmpRrWLJt7czIo+N3Z5bKaKJq7UtWveGbV52jQZP4Dgy
+	ipNFCBgalO82LYsJ7MOB274qSxfxxfIdhTWs=
+X-Received: by 2002:a05:622a:1a85:b0:51c:1f97:e860 with SMTP id d75a77b69052e-529d70b9700mr17426841cf.3.1785243233399;
+        Tue, 28 Jul 2026 05:53:53 -0700 (PDT)
+X-Received: by 2002:a05:622a:1a85:b0:51c:1f97:e860 with SMTP id d75a77b69052e-529d70b9700mr17426311cf.3.1785243232759;
+        Tue, 28 Jul 2026 05:53:52 -0700 (PDT)
+Received: from QCOM-LDTZRie9bq.na.qualcomm.com ([212.136.9.4])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c1c492f451bsm685774066b.50.2026.07.28.05.53.50
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Tue, 28 Jul 2026 05:53:51 -0700 (PDT)
+Date: Tue, 28 Jul 2026 14:53:50 +0200
+From: Peter Hilber <peter.hilber@oss.qualcomm.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>
+Cc: Trilok Soni <trilok.soni@oss.qualcomm.com>, virtio-dev@lists.linux.dev,
+        Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+        Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>,
+        virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
+        Jason Wang <jasowangio@gmail.com>
+Subject: Re: [PATCH] virtio-mmio: add support for transport version 3
+Message-ID: <kmbjsoc532n7dfqzuagbgpqawwj23cbbyufwkilr3la63akzbf@tut6umu6qwyd>
+References: <20260605142921.2824-1-peter.hilber@oss.qualcomm.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -67,342 +97,109 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20260603142659.GW3102624@noisy.programming.kicks-ass.net>
+In-Reply-To: <20260605142921.2824-1-peter.hilber@oss.qualcomm.com>
+X-Authority-Analysis: v=2.4 cv=fbidDUQF c=1 sm=1 tr=0 ts=6a68a662 cx=c_pps
+ a=EVbN6Ke/fEF3bsl7X48z0g==:117 a=dNlqnMcrdpbb+gQrTujlOQ==:17
+ a=kj9zAlcOel0A:10 a=RAioF0-LDSMA:10 a=s4-Qcg_JpJYA:10
+ a=VkNPw1HP01LnGYTKEx00:22 a=u7WPNUs3qKkmUXheDGA7:22 a=_glEPmIy2e8OvE2BGh3C:22
+ a=NEAV23lmAAAA:8 a=EUspDBNiAAAA:8 a=sKjYTbxxC-ymcgnlkHUA:9 a=CjuIK1q_8ugA:10
+ a=a_PwQJl-kcHnX1M80qC6:22
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI4MDExNCBTYWx0ZWRfXxCzkci+PuFQm
+ qrI4qBd5vMtC6bhgctyQGeoME5eX+vbsstS7S+gGqxbMESfQ60KHe9DVvvLeXoyCE94gLSRHrbU
+ IMN7/Z+FrYgXZ/JKZRZ6XasAegXK+tk=
+X-Proofpoint-ORIG-GUID: ZZLpZZ4kFPq0GgWKN56ehCANcBO8gHDs
+X-Proofpoint-GUID: ZZLpZZ4kFPq0GgWKN56ehCANcBO8gHDs
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI4MDExNCBTYWx0ZWRfXwU6RIsYLsKNm
+ HLZG2DabQr5VARuTa4JZ/NciBOAc/Zd/Pwi0hE4eJ5Mi8mAFMCX5TKaQfy1RfkjN0qaJm1IpKU9
+ EhyMc2+pE2m2SRSIUGxJYjqRQjmdZN8yPtR3MjWGoveYRRcVftWcfAAKeRpkdsrH9zHW4Qet5MP
+ cQHSMNuW51s1IYmSN926MzuB+GGRq2ZvjNrFNGcKmDuOLSfJroB8a4VVxn980e4BVH1+aS84cZJ
+ WmE5MYKpGJPZGF4go4xkilVQLZoWIqPY7n82JnUuWOFD1JxN8IXkM3dMgyMdoORWDetBoAeFYgt
+ WM2EuuNho29cR5mFl5FPlU0CPRSekmSlaueIiwj4ftDDZKc7MgIepzHdMf9A0p3NVjH/Ca4qmDh
+ OGQtDWbTBewzhg7fzdkg3pNdnaYbbPQ8HT9CZxgN0riOVZ6LX+9h4CIPo4CJZGFmqFp1IKumsde
+ CDS1NZcO0MG9UoGlQDQ==
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-28_03,2026-07-28_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
+ priorityscore=1501 bulkscore=0 suspectscore=0 clxscore=1015 impostorscore=0
+ phishscore=0 lowpriorityscore=0 malwarescore=0 adultscore=0 spamscore=0
+ classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
+ reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607280114
 
-On Wed, Jun 03, 2026 at 04:26:59PM +0200, Peter Zijlstra wrote:
-> On Wed, Jun 03, 2026 at 02:17:27PM +0000, Dmitry Ilvokhin wrote:
+On Fri, Jun 05, 2026 at 04:29:21PM +0200, Peter Hilber wrote:
+> Virtio MMIO transport version 3 allows device reset to complete
+> asynchronously. Unlike version 2, where writing zero to Status must
+> complete the reset before the write returns, version 3 requires the
+> driver to poll Status until it reads back zero before considering reset
+> complete.
 > 
-> > > Something a little like so, which is completely untested, except to
-> > > build kernel/locking/spinlock.o (with clang-23).
-> > 
-> > Thanks a lot for taking a look, Peter.
-> > 
-> > I like the static_call idea. It's truly zero cost on x86 (and, as you
-> > note, even a byte smaller). The one caveat is that it relies on
-> > HAVE_STATIC_CALL_INLINE to stay free. 
-> > 
-> > So my plan would be: static_call where HAVE_STATIC_CALL_INLINE is
-> > available (x86), and a static branch fallback elsewhere, gated behind a
-> > default-off config so it imposes nothing on arches/kernels that don't
-> > opt in. I'm mostly interested in x86, but would like arm64 to work too,
-> > which would use the fallback.
+> Update virtio-mmio accordingly: accept transport version 3 and, during
+> reset, wait for Status to become zero. Keep the polling loop unbounded,
+> consistent with virtio-pci, since the reset callback does not return an
+> error code.
 > 
-> (i386 doesn't have STATIC_CALL_INLINE, but nobody cares about the
-> performance on that target, so anything goes really ;-)
+> Signed-off-by: Peter Hilber <peter.hilber@oss.qualcomm.com>
+> Link: https://github.com/oasis-tcs/virtio-spec/commit/bb1dd2e1fe89b862f38f15873d835a698b196f89
+
+Gentle ping on this patch from June 5th.
+
+(Adding Jason's updated address, since MAINTAINERS was updated after
+this was originally sent.)
+
+Best regards,
+
+Peter
+
+> ---
+>  drivers/virtio/virtio_mmio.c | 13 ++++++++++---
+>  1 file changed, 10 insertions(+), 3 deletions(-)
 > 
-> > 
-> > Concretely:
-> > 
-> > 1. Split the sleepable-lock patches out and send them separately.
-> >    They're independent of the static call work and look far less
-> >    controversial.
-> > 
-> > 2. Convert the paravirt spinlock unlock to a static_call, as the
-> >    foundation for the unlock tracepoint. I'm happy to take a stab at it.
-> >    Let me know if you'd rather do it yourself.
+> diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
+> index 510b7c4efdff..316f03b97356 100644
+> --- a/drivers/virtio/virtio_mmio.c
+> +++ b/drivers/virtio/virtio_mmio.c
+> @@ -55,6 +55,7 @@
+>  #define pr_fmt(fmt) "virtio-mmio: " fmt
+>  
+>  #include <linux/acpi.h>
+> +#include <linux/delay.h>
+>  #include <linux/dma-mapping.h>
+>  #include <linux/highmem.h>
+>  #include <linux/interrupt.h>
+> @@ -114,9 +115,9 @@ static int vm_finalize_features(struct virtio_device *vdev)
+>  	vring_transport_features(vdev);
+>  
+>  	/* Make sure there are no mixed devices */
+> -	if (vm_dev->version == 2 &&
+> +	if (vm_dev->version >= 2 &&
+>  			!__virtio_test_bit(vdev, VIRTIO_F_VERSION_1)) {
+> -		dev_err(&vdev->dev, "New virtio-mmio devices (version 2) must provide VIRTIO_F_VERSION_1 feature!\n");
+> +		dev_err(&vdev->dev, "New virtio-mmio devices (version >= 2) must provide VIRTIO_F_VERSION_1 feature!\n");
+>  		return -EINVAL;
+>  	}
+>  
+> @@ -254,6 +255,12 @@ static void vm_reset(struct virtio_device *vdev)
+>  
+>  	/* 0 status means a reset. */
+>  	writel(0, vm_dev->base + VIRTIO_MMIO_STATUS);
+> +
+> +	if (vm_dev->version >= 3) {
+> +		/* Wait for reset to complete. */
+> +		while (vm_get_status(vdev))
+> +			fsleep(1000);
+> +	}
+>  }
+>  
+>  
+> @@ -600,7 +607,7 @@ static int virtio_mmio_probe(struct platform_device *pdev)
+>  
+>  	/* Check device version */
+>  	vm_dev->version = readl(vm_dev->base + VIRTIO_MMIO_VERSION);
+> -	if (vm_dev->version < 1 || vm_dev->version > 2) {
+> +	if (vm_dev->version < 1 || vm_dev->version > 3) {
+>  		dev_err(&pdev->dev, "Version %ld not supported!\n",
+>  				vm_dev->version);
+>  		rc = -ENXIO;
+> -- 
+> 2.43.0
 > 
-> Yeah, I think that patch as-is *should* work, but like said, I haven't
-> even tried it, so it could be terribly broken :-)
-
-Hello Peter,
-
-I picked up your static_call() paravirt-spinlock draft and fixed it up
-to where it boots. I think it stands on its own as a cleanup,
-independent of the contended_release tracepoint it was meant to enable,
-so I'd like to submit it for wider review.
-
-On top of your draft:
-
-- Fix the CONFIG_PARAVIRT_SPINLOCKS=n build.
-
-- Pass @lock to the callee-save unlock. Without it the boot hungs under
-  CONFIG_CALL_DEPTH_TRACKING.
-
-- Teach __static_call_validate() about the inline unlock insn so the
-  site can be re-validated after it's patched to the movb.
-
-- Make the slowpath site module-safe: static_call_mod() +
-  EXPORT_STATIC_CALL_TRAMP().
-
-Boot tested native and as a KVM PV guest.
-
-One important thing missing is your Signed-off-by. Is there any chance
-you could provide one if you're happy with the result?
-
-Let me know if you'd like to submit this patch yourself.
-
-From b6a114c9cd7698115c78812115199087a6cd8276 Mon Sep 17 00:00:00 2001
-From: Dmitry Ilvokhin <d@ilvokhin.com>
-Date: Mon, 29 Jun 2026 09:46:05 -0700
-Subject: [PATCH] x86/paravirt: Use static_call() for the paravirt spinlock ops
-
-From: Peter Zijlstra <peterz@infradead.org>
-
-queued_spin_lock_slowpath() and queued_spin_unlock() are dispatched
-through pv_ops_lock via the paravirt-ops ALTERNATIVE machinery, which
-picks the target (native inline store / hypervisor call) once at boot
-and cannot change at runtime.
-
-Convert both to static_call(). The site becomes a direct call patched in
-place (one byte smaller), and on native the unlock still collapses to
-the inline "movb $0, (%rdi)" store, so the fast path is unchanged.
-
-Unlike the ALTERNATIVE mechanism, a static_call() target can also be
-updated at runtime via static_call_update(). This is a prerequisite for
-the contended_release tracepoint, which has to swap in a traced unlock
-while the system is running.
-
-Drop the now-unused
-pv_ops_lock.{queued_spin_lock_slowpath,queued_spin_unlock} members and
-the X86_FEATURE_PVUNLOCK feature bit. KVM, Xen and Hyper-V install their
-backends with static_call_update(), and pv_is_native_spin_unlock() reads
-the current target with static_call_query(). The native unlock is
-emitted inline at the call site from __static_call_transform(),
-mirroring the existing __static_call_return0 and __WARN_trap special
-cases.
-
-[ ilvokhin: fix PARAVIRT_SPINLOCKS=n build; teach
-  __static_call_validate() about the inline unlock insn; make the
-  slowpath site module-safe: static_call_mod() +
-  EXPORT_STATIC_CALL_TRAMP(); pass @lock to the callee-save unlock,
-  fixing a boot hang under CALL_DEPTH_TRACKING. Boot tested native + KVM
-  PV guest. ]
-
-Link: https://lore.kernel.org/all/20260603120811.GW3493090@noisy.programming.kicks-ass.net/
-Co-developed-by: Dmitry Ilvokhin <d@ilvokhin.com>
-Signed-off-by: Dmitry Ilvokhin <d@ilvokhin.com>
----
- arch/x86/hyperv/hv_spinlock.c            |  4 ++--
- arch/x86/include/asm/cpufeatures.h       |  1 -
- arch/x86/include/asm/paravirt-spinlock.h | 19 +++++++++++------
- arch/x86/kernel/kvm.c                    |  5 ++---
- arch/x86/kernel/paravirt-spinlocks.c     | 12 +++++------
- arch/x86/kernel/static_call.c            | 27 ++++++++++++++++++++++++
- arch/x86/xen/spinlock.c                  |  5 ++---
- tools/arch/x86/include/asm/cpufeatures.h |  1 -
- 8 files changed, 51 insertions(+), 23 deletions(-)
-
-diff --git a/arch/x86/hyperv/hv_spinlock.c b/arch/x86/hyperv/hv_spinlock.c
-index 210b494e4de0..6b4bdea18218 100644
---- a/arch/x86/hyperv/hv_spinlock.c
-+++ b/arch/x86/hyperv/hv_spinlock.c
-@@ -78,8 +78,8 @@ void __init hv_init_spinlocks(void)
- 	pr_info("PV spinlocks enabled\n");
- 
- 	__pv_init_lock_hash();
--	pv_ops_lock.queued_spin_lock_slowpath = __pv_queued_spin_lock_slowpath;
--	pv_ops_lock.queued_spin_unlock = PV_CALLEE_SAVE(__pv_queued_spin_unlock);
-+	static_call_update(queued_spin_lock_slowpath, __pv_queued_spin_lock_slowpath);
-+	static_call_update(queued_spin_unlock, __raw_callee_save___pv_queued_spin_unlock);
- 	pv_ops_lock.wait = hv_qlock_wait;
- 	pv_ops_lock.kick = hv_qlock_kick;
- 	pv_ops_lock.vcpu_is_preempted = PV_CALLEE_SAVE(hv_vcpu_is_preempted);
-diff --git a/arch/x86/include/asm/cpufeatures.h b/arch/x86/include/asm/cpufeatures.h
-index 1b4a48bff18f..e41fe5c24841 100644
---- a/arch/x86/include/asm/cpufeatures.h
-+++ b/arch/x86/include/asm/cpufeatures.h
-@@ -225,7 +225,6 @@
- #define X86_FEATURE_EPT_AD		( 8*32+17) /* "ept_ad" Intel Extended Page Table access-dirty bit */
- #define X86_FEATURE_VMCALL		( 8*32+18) /* Hypervisor supports the VMCALL instruction */
- #define X86_FEATURE_VMW_VMMCALL		( 8*32+19) /* VMware prefers VMMCALL hypercall instruction */
--#define X86_FEATURE_PVUNLOCK		( 8*32+20) /* PV unlock function */
- #define X86_FEATURE_VCPUPREEMPT		( 8*32+21) /* PV vcpu_is_preempted function */
- #define X86_FEATURE_TDX_GUEST		( 8*32+22) /* "tdx_guest" Intel Trust Domain Extensions Guest */
- 
-diff --git a/arch/x86/include/asm/paravirt-spinlock.h b/arch/x86/include/asm/paravirt-spinlock.h
-index 7beffcb08ed6..ff735830de4a 100644
---- a/arch/x86/include/asm/paravirt-spinlock.h
-+++ b/arch/x86/include/asm/paravirt-spinlock.h
-@@ -3,6 +3,7 @@
- #define _ASM_X86_PARAVIRT_SPINLOCK_H
- 
- #include <asm/paravirt_types.h>
-+#include <linux/static_call_types.h>
- 
- #ifdef CONFIG_SMP
- #include <asm/spinlock_types.h>
-@@ -11,9 +12,6 @@
- struct qspinlock;
- 
- struct pv_lock_ops {
--	void (*queued_spin_lock_slowpath)(struct qspinlock *lock, u32 val);
--	struct paravirt_callee_save queued_spin_unlock;
--
- 	void (*wait)(u8 *ptr, u8 val);
- 	void (*kick)(int cpu);
- 
-@@ -26,20 +24,27 @@ extern struct pv_lock_ops pv_ops_lock;
- extern void native_queued_spin_lock_slowpath(struct qspinlock *lock, u32 val);
- extern void __pv_init_lock_hash(void);
- extern void __pv_queued_spin_lock_slowpath(struct qspinlock *lock, u32 val);
-+extern void __raw_callee_save___native_queued_spin_unlock(struct qspinlock *lock);
- extern void __raw_callee_save___pv_queued_spin_unlock(struct qspinlock *lock);
- extern bool nopvspin;
- 
-+DECLARE_STATIC_CALL(queued_spin_lock_slowpath, native_queued_spin_lock_slowpath);
-+DECLARE_STATIC_CALL(queued_spin_unlock, __raw_callee_save___native_queued_spin_unlock);
-+
- static __always_inline void pv_queued_spin_lock_slowpath(struct qspinlock *lock,
- 							 u32 val)
- {
--	PVOP_VCALL2(pv_ops_lock, queued_spin_lock_slowpath, lock, val);
-+	static_call_mod(queued_spin_lock_slowpath)(lock, val);
- }
- 
- static __always_inline void pv_queued_spin_unlock(struct qspinlock *lock)
- {
--	PVOP_ALT_VCALLEE1(pv_ops_lock, queued_spin_unlock, lock,
--			  "movb $0, (%%" _ASM_ARG1 ")",
--			  ALT_NOT(X86_FEATURE_PVUNLOCK));
-+	PVOP_CALL_ARGS;
-+	__STATIC_CALL_MOD_ADDRESSABLE(queued_spin_unlock);
-+	asm volatile ("call " STATIC_CALL_TRAMP_STR(queued_spin_unlock)
-+		      : PVOP_VCALLEE_CLOBBERS, ASM_CALL_CONSTRAINT
-+		      : PVOP_CALL_ARG1(lock)
-+		      : "memory", "cc");
- }
- 
- static __always_inline bool pv_vcpu_is_preempted(long cpu)
-diff --git a/arch/x86/kernel/kvm.c b/arch/x86/kernel/kvm.c
-index dcef84da304b..253c159c4abe 100644
---- a/arch/x86/kernel/kvm.c
-+++ b/arch/x86/kernel/kvm.c
-@@ -1136,9 +1136,8 @@ void __init kvm_spinlock_init(void)
- 	pr_info("PV spinlocks enabled\n");
- 
- 	__pv_init_lock_hash();
--	pv_ops_lock.queued_spin_lock_slowpath = __pv_queued_spin_lock_slowpath;
--	pv_ops_lock.queued_spin_unlock =
--		PV_CALLEE_SAVE(__pv_queued_spin_unlock);
-+	static_call_update(queued_spin_lock_slowpath, __pv_queued_spin_lock_slowpath);
-+	static_call_update(queued_spin_unlock, __raw_callee_save___pv_queued_spin_unlock);
- 	pv_ops_lock.wait = kvm_wait;
- 	pv_ops_lock.kick = kvm_kick_cpu;
- 
-diff --git a/arch/x86/kernel/paravirt-spinlocks.c b/arch/x86/kernel/paravirt-spinlocks.c
-index 95452444868f..ddc19dc28ba1 100644
---- a/arch/x86/kernel/paravirt-spinlocks.c
-+++ b/arch/x86/kernel/paravirt-spinlocks.c
-@@ -25,9 +25,14 @@ __visible void __native_queued_spin_unlock(struct qspinlock *lock)
- }
- PV_CALLEE_SAVE_REGS_THUNK(__native_queued_spin_unlock);
- 
-+DEFINE_STATIC_CALL(queued_spin_lock_slowpath, native_queued_spin_lock_slowpath);
-+EXPORT_STATIC_CALL_TRAMP(queued_spin_lock_slowpath);
-+DEFINE_STATIC_CALL(queued_spin_unlock, __raw_callee_save___native_queued_spin_unlock);
-+EXPORT_STATIC_CALL_TRAMP(queued_spin_unlock);
-+
- bool pv_is_native_spin_unlock(void)
- {
--	return pv_ops_lock.queued_spin_unlock.func ==
-+	return static_call_query(queued_spin_unlock) ==
- 		__raw_callee_save___native_queued_spin_unlock;
- }
- 
-@@ -45,16 +50,11 @@ bool pv_is_native_vcpu_is_preempted(void)
- 
- void __init paravirt_set_cap(void)
- {
--	if (!pv_is_native_spin_unlock())
--		setup_force_cpu_cap(X86_FEATURE_PVUNLOCK);
--
- 	if (!pv_is_native_vcpu_is_preempted())
- 		setup_force_cpu_cap(X86_FEATURE_VCPUPREEMPT);
- }
- 
- struct pv_lock_ops pv_ops_lock = {
--	.queued_spin_lock_slowpath	= native_queued_spin_lock_slowpath,
--	.queued_spin_unlock		= PV_CALLEE_SAVE(__native_queued_spin_unlock),
- 	.wait				= paravirt_nop,
- 	.kick				= paravirt_nop,
- 	.vcpu_is_preempted		= PV_CALLEE_SAVE(__native_vcpu_is_preempted),
-diff --git a/arch/x86/kernel/static_call.c b/arch/x86/kernel/static_call.c
-index 61592e41a6b1..bab9406e6d6a 100644
---- a/arch/x86/kernel/static_call.c
-+++ b/arch/x86/kernel/static_call.c
-@@ -4,6 +4,12 @@
- #include <linux/bug.h>
- #include <asm/text-patching.h>
- 
-+/* Declared locally to avoid pulling asm/paravirt-spinlock.h header. */
-+#ifdef CONFIG_PARAVIRT_SPINLOCKS
-+struct qspinlock;
-+void __raw_callee_save___native_queued_spin_unlock(struct qspinlock *lock);
-+#endif
-+
- enum insn_type {
- 	CALL = 0, /* site call */
- 	NOP = 1,  /* site cond-call */
-@@ -31,6 +37,17 @@ static const u8 retinsn[] = { RET_INSN_OPCODE, 0xcc, 0xcc, 0xcc, 0xcc };
-  */
- static const u8 warninsn[] = { 0x67, 0x48, 0x0f, 0xb9, 0x3a };
- 
-+#ifdef CONFIG_PARAVIRT_SPINLOCKS
-+/*
-+ * ds ds movb $0, (_ASM_ARG1)
-+ */
-+#ifdef CONFIG_64BIT
-+static const u8 unlockinsn[] = { 0x3e, 0x3e, 0xc6, 0x07, 0x00 };
-+#else
-+static const u8 unlockinsn[] = { 0x3e, 0x3e, 0xc6, 0x00, 0x00 };
-+#endif
-+#endif
-+
- static u8 __is_Jcc(u8 *insn) /* Jcc.d32 */
- {
- 	u8 ret = 0;
-@@ -78,6 +95,12 @@ static void __ref __static_call_transform(void *insn, enum insn_type type,
- 			emulate = code;
- 			code = &warninsn;
- 		}
-+#ifdef CONFIG_PARAVIRT_SPINLOCKS
-+		if (func == &__raw_callee_save___native_queued_spin_unlock) {
-+			emulate = code;
-+			code = &unlockinsn;
-+		}
-+#endif
- 		break;
- 
- 	case NOP:
-@@ -139,6 +162,10 @@ static void __static_call_validate(u8 *insn, bool tail, bool tramp)
- 		    !memcmp(insn, xor5rax, 5) ||
- 		    !memcmp(insn, warninsn, 5))
- 			return;
-+#ifdef CONFIG_PARAVIRT_SPINLOCKS
-+		if (!memcmp(insn, unlockinsn, 5))
-+			return;
-+#endif
- 	}
- 
- 	/*
-diff --git a/arch/x86/xen/spinlock.c b/arch/x86/xen/spinlock.c
-index 83ac24ead289..f718e535ea7c 100644
---- a/arch/x86/xen/spinlock.c
-+++ b/arch/x86/xen/spinlock.c
-@@ -134,9 +134,8 @@ void __init xen_init_spinlocks(void)
- 	printk(KERN_DEBUG "xen: PV spinlocks enabled\n");
- 
- 	__pv_init_lock_hash();
--	pv_ops_lock.queued_spin_lock_slowpath = __pv_queued_spin_lock_slowpath;
--	pv_ops_lock.queued_spin_unlock =
--		PV_CALLEE_SAVE(__pv_queued_spin_unlock);
-+	static_call_update(queued_spin_lock_slowpath, __pv_queued_spin_lock_slowpath);
-+	static_call_update(queued_spin_unlock, __raw_callee_save___pv_queued_spin_unlock);
- 	pv_ops_lock.wait = xen_qlock_wait;
- 	pv_ops_lock.kick = xen_qlock_kick;
- 	pv_ops_lock.vcpu_is_preempted = PV_CALLEE_SAVE(xen_vcpu_stolen);
-diff --git a/tools/arch/x86/include/asm/cpufeatures.h b/tools/arch/x86/include/asm/cpufeatures.h
-index 86d17b195e79..61541f042f74 100644
---- a/tools/arch/x86/include/asm/cpufeatures.h
-+++ b/tools/arch/x86/include/asm/cpufeatures.h
-@@ -225,7 +225,6 @@
- #define X86_FEATURE_EPT_AD		( 8*32+17) /* "ept_ad" Intel Extended Page Table access-dirty bit */
- #define X86_FEATURE_VMCALL		( 8*32+18) /* Hypervisor supports the VMCALL instruction */
- #define X86_FEATURE_VMW_VMMCALL		( 8*32+19) /* VMware prefers VMMCALL hypercall instruction */
--#define X86_FEATURE_PVUNLOCK		( 8*32+20) /* PV unlock function */
- #define X86_FEATURE_VCPUPREEMPT		( 8*32+21) /* PV vcpu_is_preempted function */
- #define X86_FEATURE_TDX_GUEST		( 8*32+22) /* "tdx_guest" Intel Trust Domain Extensions Guest */
- 
--- 
-2.53.0-Meta
-
