@@ -1,31 +1,31 @@
 Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7EB6441BA98;
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7E9A840F74E;
 	Tue, 28 Jul 2026 09:26:41 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785230805; cv=none; b=VGJq1RlgfdGmU/DGvKFO2EF3xdLEA185qU6gB+qpu2KMYX/4d4jQaeWXRom3XR7x/bEcl2XyLvc4sWlc0aF821valBP17vsxBWtUSzpVKOekIZuvdTpeA/ndvdeRNVt5WHQJBwV2GZqD6bpjHjKWgLe5Ed5PH+vKkSlZPOroo+o=
+	t=1785230805; cv=none; b=j+z6CUscj14h1sOK3h8Zzm9USzmH8WFlsBaFSqSdxRqhjbrlDwE4vLc3u8TnGH/BcOZEuqbI0ZDvFE+oJwIeR52F4BbTadXdFTR3Qvg9DLNTgbf9Fzc6yg3rp1Is6knN8WThJ5YxJHcAgmOoiU5GXEXKhgN7ZFWPOAUn80G14VE=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1785230805; c=relaxed/simple;
-	bh=bNOk+umLasMzuoz+Z3Ftjk4tBniYB+/qICHKZehwDks=;
+	bh=qneMQZotvg+ykB7xElxLGuVMagk5ce9krFJ8kvSEgO8=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=qXsgl9LVg29yf3juD/IAwVaAdyil6KOBEXY2lXiWtd5vqzAMsVwpknccgsAY9UinQDDacxuRZdEj01ZGy4ZXjT3FlDs5Sma2IquJYHz50UWycU7spDYGuqRsbaWZ+jP57RVKz4JHiddnAMvBrmjLLMjSsqbAi2CETtCgByNbKSI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=tVfXl4OO; arc=none smtp.client-ip=129.217.128.51
+	 MIME-Version; b=o88bRD1BIe7CU2OXtP8xTKIjDcMg/StyyMQZ29iDyT94LFfBaTVz0KtmEGWuMGVgURr88pp6dqylTvMOiI7RUB72L/rutZZQGHdfFTPjF4YQcRCRm3JY5+VIQ4CY+Fks8BRDmDkezDABwnroFxiSxdmolfYNWI11l770i2uglE0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=CR8OtOoK; arc=none smtp.client-ip=129.217.128.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="tVfXl4OO"
+	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="CR8OtOoK"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tu-dortmund.de;
 	s=unimail; t=1785230603;
-	bh=CJDWP0RrRATJ39dktP1ubgvLcnOU5KeX0VfhsRNhudc=;
+	bh=w1+LneaDKmhTEBWcnDAGqBIH4Ciar5aipwxDRJbvV1A=;
 	h=From:To:Cc:Subject:Date:In-Reply-To:References;
-	b=tVfXl4OOKUccD9zNjLH5hH0LYVczkqPVxyHaUrjOgO/vUp9ZuqGugdRVP5ULphaxO
-	 7c6MKt+Sr9E8QNg1i2++SQS29hL72uc/Yf3oUms5R228O3HfUyW+pJikBDfmAYH040
-	 Dj1OZehw9BEk7+mI06WAmn/MoMjWJT3q6LhE60/o=
+	b=CR8OtOoK3/PuGKlU7eHT6/EOO0kQW85e0R7NAMLU9QXhzmAHU+ZmrcOISPxGGqHBu
+	 ipc/ILK+L0mixJioWtO1SdvLKVHei1ipzjYKwMZc4he7+KGJTr0vcenqdPCjR7TVWW
+	 0cJuCl7TRhUdJy6/1Dz+WwAg7khYLCztO8MgOFIk=
 Received: from simon-Latitude-5450.cni.e-technik.tu-dortmund.de ([129.217.186.117])
 	(authenticated bits=0)
-	by unimail.uni-dortmund.de (8.19.0.2/8.19.0.2) with ESMTPSA id 66S9NL4S004577
+	by unimail.uni-dortmund.de (8.19.0.2/8.19.0.2) with ESMTPSA id 66S9NL4U004577
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
 	Tue, 28 Jul 2026 11:23:23 +0200 (CEST)
 From: Simon Schippers <simon.schippers@tu-dortmund.de>
@@ -42,9 +42,9 @@ Cc: Willem de Bruijn <willemdebruijn.kernel@gmail.com>,
         Brett Sheffield <brett@librecast.net>, kvm@vger.kernel.org,
         virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
         Simon Schippers <simon.schippers@tu-dortmund.de>
-Subject: [PATCH net 3/4] Revert "vhost-net: wake queue of tun/tap after ptr_ring consume"
-Date: Tue, 28 Jul 2026 11:22:39 +0200
-Message-ID: <20260728092240.250257-4-simon.schippers@tu-dortmund.de>
+Subject: [PATCH net 4/4] Revert "tun/tap: add ptr_ring consume helper with netdev queue wakeup"
+Date: Tue, 28 Jul 2026 11:22:40 +0200
+Message-ID: <20260728092240.250257-5-simon.schippers@tu-dortmund.de>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260728092240.250257-1-simon.schippers@tu-dortmund.de>
 References: <20260728092240.250257-1-simon.schippers@tu-dortmund.de>
@@ -56,7 +56,7 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This reverts commit baf808fe4fcd35767ab732b4ab2ea80dabfd97a6.
+This reverts commit d4c22d70d7253dd727c71484c58d504f6c630343.
 
 There is no netdev queue left to wake after reverting
 commit 1d6e569b7d0c ("tun/tap & vhost-net: avoid ptr_ring tail-drop
@@ -64,122 +64,130 @@ when a qdisc is present").
 
 Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
 ---
- drivers/net/tun.c      | 23 -----------------------
- drivers/vhost/net.c    | 21 ++++++---------------
- include/linux/if_tun.h |  3 ---
- 3 files changed, 6 insertions(+), 41 deletions(-)
+ drivers/net/tun.c | 61 ++++-------------------------------------------
+ 1 file changed, 4 insertions(+), 57 deletions(-)
 
 diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index ec5573f545af..39abc3078097 100644
+index 39abc3078097..fed9dfdfcc3b 100644
 --- a/drivers/net/tun.c
 +++ b/drivers/net/tun.c
-@@ -3787,29 +3787,6 @@ struct ptr_ring *tun_get_tx_ring(struct file *file)
+@@ -145,8 +145,6 @@ struct tun_file {
+ 	struct list_head next;
+ 	struct tun_struct *detached;
+ 	struct ptr_ring tx_ring;
+-	/* Protected by tx_ring.consumer_lock */
+-	int cons_cnt;
+ 	struct xdp_rxq_info xdp_rxq;
+ };
+ 
+@@ -590,13 +588,8 @@ static void __tun_detach(struct tun_file *tfile, bool clean)
+ 		rcu_assign_pointer(tun->tfiles[index],
+ 				   tun->tfiles[tun->numqueues - 1]);
+ 		ntfile = rtnl_dereference(tun->tfiles[index]);
+-		spin_lock(&ntfile->tx_ring.consumer_lock);
+ 		ntfile->queue_index = index;
+ 		ntfile->xdp_rxq.queue_index = index;
+-		ntfile->cons_cnt = 0;
+-		if (__ptr_ring_empty(&ntfile->tx_ring))
+-			netif_wake_subqueue(tun->dev, index);
+-		spin_unlock(&ntfile->tx_ring.consumer_lock);
+ 		rcu_assign_pointer(tun->tfiles[tun->numqueues - 1],
+ 				   NULL);
+ 
+@@ -737,9 +730,6 @@ static int tun_attach(struct tun_struct *tun, struct file *file,
+ 		goto out;
+ 	}
+ 
+-	spin_lock(&tfile->tx_ring.consumer_lock);
+-	tfile->cons_cnt = 0;
+-	spin_unlock(&tfile->tx_ring.consumer_lock);
+ 	tfile->queue_index = tun->numqueues;
+ 	tfile->socket.sk->sk_shutdown &= ~RCV_SHUTDOWN;
+ 
+@@ -2126,46 +2116,13 @@ static ssize_t tun_put_user(struct tun_struct *tun,
+ 	return total;
  }
- EXPORT_SYMBOL_GPL(tun_get_tx_ring);
  
 -/* Callers must hold ring.consumer_lock */
--void tun_wake_queue(struct file *file, int consumed)
+-static void __tun_wake_queue(struct tun_struct *tun,
+-			     struct tun_file *tfile, int consumed)
 -{
--	struct tun_file *tfile;
--	struct tun_struct *tun;
+-	struct netdev_queue *txq = netdev_get_tx_queue(tun->dev,
+-						tfile->queue_index);
 -
--	if (file->f_op != &tun_fops)
--		return;
--
--	tfile = file->private_data;
--	if (!tfile)
--		return;
--
--	rcu_read_lock();
--
--	tun = rcu_dereference(tfile->tun);
--	if (tun)
--		__tun_wake_queue(tun, tfile, consumed);
--
--	rcu_read_unlock();
+-	/* Paired with smp_mb__after_atomic() in tun_net_xmit() */
+-	smp_mb();
+-	if (netif_tx_queue_stopped(txq)) {
+-		tfile->cons_cnt += consumed;
+-		if (tfile->cons_cnt >= tfile->tx_ring.size / 2 ||
+-		    __ptr_ring_empty(&tfile->tx_ring)) {
+-			netif_tx_wake_queue(txq);
+-			tfile->cons_cnt = 0;
+-		}
+-	}
 -}
--EXPORT_SYMBOL_GPL(tun_wake_queue);
 -
- module_init(tun_init);
- module_exit(tun_cleanup);
- MODULE_DESCRIPTION(DRV_DESCRIPTION);
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 3e72b9c6af0c..6949b704166d 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -176,21 +176,13 @@ static void *vhost_net_buf_consume(struct vhost_net_buf *rxq)
+-static void *tun_ring_consume(struct tun_struct *tun, struct tun_file *tfile)
+-{
+-	void *ptr;
+-
+-	spin_lock(&tfile->tx_ring.consumer_lock);
+-	ptr = __ptr_ring_consume(&tfile->tx_ring);
+-	if (ptr)
+-		__tun_wake_queue(tun, tfile, 1);
+-
+-	spin_unlock(&tfile->tx_ring.consumer_lock);
+-	return ptr;
+-}
+-
+-static void *tun_ring_recv(struct tun_struct *tun, struct tun_file *tfile,
+-			   int noblock, int *err)
++static void *tun_ring_recv(struct tun_file *tfile, int noblock, int *err)
+ {
+ 	DECLARE_WAITQUEUE(wait, current);
+ 	void *ptr = NULL;
+ 	int error = 0;
+ 
+-	ptr = tun_ring_consume(tun, tfile);
++	ptr = ptr_ring_consume(&tfile->tx_ring);
+ 	if (ptr)
+ 		goto out;
+ 	if (noblock) {
+@@ -2177,7 +2134,7 @@ static void *tun_ring_recv(struct tun_struct *tun, struct tun_file *tfile,
+ 
+ 	while (1) {
+ 		set_current_state(TASK_INTERRUPTIBLE);
+-		ptr = tun_ring_consume(tun, tfile);
++		ptr = ptr_ring_consume(&tfile->tx_ring);
+ 		if (ptr)
+ 			break;
+ 		if (signal_pending(current)) {
+@@ -2214,7 +2171,7 @@ static ssize_t tun_do_read(struct tun_struct *tun, struct tun_file *tfile,
+ 
+ 	if (!ptr) {
+ 		/* Read frames from ring */
+-		ptr = tun_ring_recv(tun, tfile, noblock, &err);
++		ptr = tun_ring_recv(tfile, noblock, &err);
+ 		if (!ptr)
+ 			return err;
+ 	}
+@@ -3669,16 +3626,6 @@ static int tun_queue_resize(struct tun_struct *tun)
+ 					  dev->tx_queue_len, GFP_KERNEL,
+ 					  tun_ptr_free);
+ 
+-	if (!ret) {
+-		for (i = 0; i < tun->numqueues; i++) {
+-			tfile = rtnl_dereference(tun->tfiles[i]);
+-			spin_lock(&tfile->tx_ring.consumer_lock);
+-			netif_wake_subqueue(tun->dev, tfile->queue_index);
+-			tfile->cons_cnt = 0;
+-			spin_unlock(&tfile->tx_ring.consumer_lock);
+-		}
+-	}
+-
+ 	kfree(rings);
  	return ret;
  }
- 
--static int vhost_net_buf_produce(struct sock *sk,
--				 struct vhost_net_virtqueue *nvq)
-+static int vhost_net_buf_produce(struct vhost_net_virtqueue *nvq)
- {
--	struct file *file = sk->sk_socket->file;
- 	struct vhost_net_buf *rxq = &nvq->rxq;
- 
- 	rxq->head = 0;
--	spin_lock(&nvq->rx_ring->consumer_lock);
--	rxq->tail = __ptr_ring_consume_batched(nvq->rx_ring, rxq->queue,
--					       VHOST_NET_BATCH);
--
--	if (rxq->tail)
--		tun_wake_queue(file, rxq->tail);
--
--	spin_unlock(&nvq->rx_ring->consumer_lock);
-+	rxq->tail = ptr_ring_consume_batched(nvq->rx_ring, rxq->queue,
-+					      VHOST_NET_BATCH);
- 	return rxq->tail;
- }
- 
-@@ -217,15 +209,14 @@ static int vhost_net_buf_peek_len(void *ptr)
- 	return __skb_array_len_with_tag(ptr);
- }
- 
--static int vhost_net_buf_peek(struct sock *sk,
--			      struct vhost_net_virtqueue *nvq)
-+static int vhost_net_buf_peek(struct vhost_net_virtqueue *nvq)
- {
- 	struct vhost_net_buf *rxq = &nvq->rxq;
- 
- 	if (!vhost_net_buf_is_empty(rxq))
- 		goto out;
- 
--	if (!vhost_net_buf_produce(sk, nvq))
-+	if (!vhost_net_buf_produce(nvq))
- 		return 0;
- 
- out:
-@@ -1013,7 +1004,7 @@ static int peek_head_len(struct vhost_net_virtqueue *rvq, struct sock *sk)
- 	unsigned long flags;
- 
- 	if (rvq->rx_ring)
--		return vhost_net_buf_peek(sk, rvq);
-+		return vhost_net_buf_peek(rvq);
- 
- 	spin_lock_irqsave(&sk->sk_receive_queue.lock, flags);
- 	head = skb_peek(&sk->sk_receive_queue);
-diff --git a/include/linux/if_tun.h b/include/linux/if_tun.h
-index 5f3e206c7a73..80166eb62f41 100644
---- a/include/linux/if_tun.h
-+++ b/include/linux/if_tun.h
-@@ -22,7 +22,6 @@ struct tun_msg_ctl {
- #if defined(CONFIG_TUN) || defined(CONFIG_TUN_MODULE)
- struct socket *tun_get_socket(struct file *);
- struct ptr_ring *tun_get_tx_ring(struct file *file);
--void tun_wake_queue(struct file *file, int consumed);
- 
- static inline bool tun_is_xdp_frame(void *ptr)
- {
-@@ -56,8 +55,6 @@ static inline struct ptr_ring *tun_get_tx_ring(struct file *f)
- 	return ERR_PTR(-EINVAL);
- }
- 
--static inline void tun_wake_queue(struct file *f, int consumed) {}
--
- static inline bool tun_is_xdp_frame(void *ptr)
- {
- 	return false;
 -- 
 2.43.0
 
