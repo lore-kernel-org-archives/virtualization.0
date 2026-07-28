@@ -1,123 +1,125 @@
-Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+Received: from smtp3.osuosl.org (smtp3.osuosl.org [140.211.166.136])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23C9A38F24B
-	for <virtualization@lists.linux.dev>; Wed, 29 Jul 2026 02:55:19 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.165.32
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id CDF2E437460
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Jul 2026 08:40:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.136
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785293721; cv=none; b=LSZD56sr3+TQoCmx84857xBetDVwg5r5dWoQcCNVKTkpQYAKfR/IXkXiAS1dZT74z25TQ13bF8JMOgYTJMfNK/Lq1AS508o3N4WzVa6VCK/r5Mu0vkQv8Be1MpT0m0cfDnUN6RUVwWZIfGSmUyWsPZ1pqTUPEdLJmapXoAVB2jg=
+	t=1785314434; cv=none; b=oTKwFRRxt0YB0wbULLk/8JoAle6UpRHhrm92s0hfmnhl8n5SqXEgoqiLKLHm6J/S7UuiZVV54bw/cD0J0v0j6Ua80OoiY+Bw0D8pgKnTGAIfKJWFLOmU3I0RdCYWOhtRfBrO8XDAPDM2CMjFrrQqV/WjnRrmP97wLW1vvry4rs0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785293721; c=relaxed/simple;
-	bh=UckLIlqhfKKaslobN3dZ4wlMj2Hoc5h514TBt3RewnI=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=o5SYDCmnWX0U6WZYnkRlBwiZS3qFqhdqfMSoGuWtmdNMETiUq1v48aUyutRYwT8gVGVAce8YCUTRxq5qFO0LMznonSRCta8o1ukBjp3IeD9kaVy9koOney9a1gxbu1QoGUfFGCac8JB/MLgJZPgV685ymJodM95QPgXAlKFVQeE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=T8uukTBm; arc=none smtp.client-ip=205.220.165.32
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
+	s=arc-20240116; t=1785314434; c=relaxed/simple;
+	bh=/lbc0ds/nEhSKq+pRS0v21OIZIp8lfmi/G5Th/cuNpI=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:MIME-Version:
+	 Content-Type:References; b=MsMAIIEvg93YdVEH3oFcjwh00DNsjd6cwE+nSTzOk7KICJeTZibLsuixi4rGTrjTZnR8UxdBMc7+4n/eIykT+LuCa5aIC5faFSt28MkoGdpnBUSyY//ro1ZeYKZgWm4p8DGnuGp9EoipEFFnb/RO9lg88uScgbQW4GjYMzxots8=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=saiJoAhy; arc=none smtp.client-ip=140.211.166.136
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="T8uukTBm"
-Received: from pps.filterd (m0333521.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66SItXHT1401722;
-	Wed, 29 Jul 2026 02:55:09 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=
-	corp-2025-04-25; bh=OTlTjNNYHQrAskcL7R1fmG8X72mJnxZrNgUjH4lFJZY=; b=
-	T8uukTBmfcHoMgTF7rkkOAJYfXfbMuE9OMICvtTTckF0qUQ+2yMMBVQ+5OIP1PNO
-	0hKZq5Wh3LVoYmcKZlwVpvnuBrKFC1QE68s6Z8WFzqDkw+3W3ruKxoVVSRZxoM6O
-	5OHu4XOZTFiYoauthgNq2Ni9tZaaEhImvLR7iGzOGyEiAk+KEbDSgN+6dUGJb5RA
-	SccxozUO+gvPG3C4UE/yvl6/xYuiHHdXEx2ZS28JJpOFhmLwCV+ityHv70DPM0K6
-	4ehKipR9QcE2EtN1c4khMcNPuA2njTYwvPFnpqyTInEVIZVbCCRtcS+tyoTJx8/+
-	+jryCas4iSqIpI8xVkvFOw==
-Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta02.appoci.oracle.com [147.154.114.232])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 4fmr0158jw-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 29 Jul 2026 02:55:09 +0000 (GMT)
-Received: from pps.filterd (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.7/8.18.1.7) with ESMTP id 66T2o5KU001381;
-	Wed, 29 Jul 2026 02:55:08 GMT
-Received: from pps.reinject (localhost [127.0.0.1])
-	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 4fnh87p0jv-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Wed, 29 Jul 2026 02:55:08 +0000 (GMT)
-Received: from phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.1.12) with ESMTP id 66T2t8jL012133;
-	Wed, 29 Jul 2026 02:55:08 GMT
-Received: from ca-mkp2.ca.oracle.com.com (mpeterse-ol9.allregionaliads.osdevelopmeniad.oraclevcn.com [100.100.251.135])
-	by phxpaimrmta02.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTP id 4fnh87p0jb-1;
-	Wed, 29 Jul 2026 02:55:08 +0000 (GMT)
-From: "Martin K. Petersen" <martin.petersen@oracle.com>
-To: "Michael S. Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-        Paolo Bonzini <pbonzini@redhat.com>,
-        Stefan Hajnoczi <stefanha@redhat.com>,
-        =?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-        "James E.J. Bottomley" <James.Bottomley@HansenPartnership.com>,
-        virtualization@lists.linux.dev, linux-scsi@vger.kernel.org,
-        linux-kernel@vger.kernel.org, Ben Dooks <ben.dooks@codethink.co.uk>
-Cc: "Martin K . Petersen" <martin.petersen@oracle.com>
-Subject: Re: [PATCH] scsi: virtio_scsi: fixup endian conversions for warning messages
-Date: Tue, 28 Jul 2026 22:54:55 -0400
-Message-ID: <178508193489.4027291.18390105698883371484.b4-ty@oracle.com>
-X-Mailer: git-send-email 2.53.0
-In-Reply-To: <20260623132427.838900-1-ben.dooks@codethink.co.uk>
-References: <20260623132427.838900-1-ben.dooks@codethink.co.uk>
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="saiJoAhy"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp3.osuosl.org (Postfix) with ESMTP id 7318E60768
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Jul 2026 08:40:32 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -5.792
+X-Spam-Level:
+Received: from smtp3.osuosl.org ([127.0.0.1])
+ by localhost (smtp3.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id LuBOeJ3rCOrf for <virtualization@lists.linux-foundation.org>;
+ Wed, 29 Jul 2026 08:40:31 +0000 (UTC)
+X-Greylist: delayed 323 seconds by postgrey-1.37 at util1.osuosl.org; Wed, 29 Jul 2026 08:40:29 UTC
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp3.osuosl.org 140DB606F0
+Authentication-Results: smtp3.osuosl.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp3.osuosl.org 140DB606F0
+Authentication-Results: smtp3.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=saiJoAhy
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=203.254.224.24; helo=mailout1.samsung.com; envelope-from=alok.rathore@samsung.com; receiver=<UNKNOWN> 
+Received: from mailout1.samsung.com (mailout1.samsung.com [203.254.224.24])
+	by smtp3.osuosl.org (Postfix) with ESMTPS id 140DB606F0
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Jul 2026 08:40:29 +0000 (UTC)
+Received: from epcas5p4.samsung.com (unknown [182.195.41.42])
+	by mailout1.samsung.com (KnoxPortal) with ESMTP id 20260729083503epoutp01e2e5b8498043a32f46321a90e5a539d1~GtbfPPWXm2398123981epoutp01J
+	for <virtualization@lists.linux-foundation.org>; Wed, 29 Jul 2026 08:35:03 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout1.samsung.com 20260729083503epoutp01e2e5b8498043a32f46321a90e5a539d1~GtbfPPWXm2398123981epoutp01J
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1785314103;
+	bh=nMumBf6pcwJN35QNg21EPnkz/AZt8LVlK2YGNnvhzR0=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References:From;
+	b=saiJoAhy/r7KRwVHHR7YIjl+Nj7jXx0336/L9WpCTejiCSFqRiZqSbxMvaUbv8NU+
+	 kkSUaNQ8zh8zuU9bBheB7sAGTwYiYPlFaARqwxR9n2aNYqgqXqjBwiJx3DUq/t9TEv
+	 QBtUstpUNwLJo7RQ4CaoQbXAPVsNOYFEScxUaHCY=
+Received: from epsnrtp01.localdomain (unknown [182.195.42.153]) by
+	epcas5p2.samsung.com (KnoxPortal) with ESMTPS id
+	20260729083502epcas5p2956791f6317ffa4deaefdfb2eaa3c15c~Gtbeng5sa2833528335epcas5p2F;
+	Wed, 29 Jul 2026 08:35:02 +0000 (GMT)
+Received: from epcpadp1new (unknown [182.195.40.141]) by
+	epsnrtp01.localdomain (Postfix) with ESMTP id 4h95HV4cXxz6B9m7; Wed, 29 Jul
+	2026 08:35:02 +0000 (GMT)
+Received: from epsmtip1.samsung.com (unknown [182.195.34.30]) by
+	epcas5p4.samsung.com (KnoxPortal) with ESMTPA id
+	20260728145333epcas5p427c6b6d72bff02de3f29e6a6a2108958~Ge8rj7-9K0791907919epcas5p40;
+	Tue, 28 Jul 2026 14:53:33 +0000 (GMT)
+Received: from green245.samsungds.net (unknown [107.99.41.245]) by
+	epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
+	20260728145330epsmtip1f20094ebf53bcd1bb08fe2dba866c798~Ge8oxGFnu0743207432epsmtip1b;
+	Tue, 28 Jul 2026 14:53:30 +0000 (GMT)
+From: Alok Rathore <alok.rathore@samsung.com>
+To: wangyang.guo@intel.com
+Cc: akpm@linux-foundation.org, axboe@fb.com, dan.liang@intel.com,
+	hch@lst.de, kbusch@kernel.org, linux-block@vger.kernel.org,
+	linux-kernel@vger.kernel.org, linux-nvme@lists.infradead.org,
+	ming.lei@redhat.com, rrendec@redhat.com, sagi@grimberg.me,
+	tglx@linutronix.de, tianyou.li@intel.com, tim.c.chen@linux.intel.com,
+	virtualization@lists.linux-foundation.org, asml.silence@gmail.com,
+	cpgs@samsung.com, gost.dev@samsung.com, alokrathore20@gmail.com,
+	nitheshshetty@gmail.com, Alok Rathore <alok.rathore@samsung.com>
+Subject: Re: [PATCH v2] lib/group_cpus: make group CPU cluster aware
+Date: Tue, 28 Jul 2026 20:23:03 +0530
+Message-Id: <561480862.11785314102640.JavaMail.epsvc@epcpadp1new>
+X-Mailer: git-send-email 2.39.5
+In-Reply-To: <20260113022958.3379650-1-wangyang.guo@intel.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 8bit
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-29_01,2026-07-28_02,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=notspam policy=default score=0
- lowpriorityscore=0 mlxscore=0 suspectscore=0 adultscore=0 mlxlogscore=849
- bulkscore=0 phishscore=0 spamscore=0 malwarescore=0 classifier=spam adjust=0
- reason=mlx scancount=1 engine=8.19.0-2606160000 definitions=main-2607290021
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzI5MDAyMSBTYWx0ZWRfX20OmHy1TV5Kc
- UfdWfnFCorlDkxTO3zA/R3KKwk5fE4RezWw7+DzbSBUNOaqSgEZMZA7rzqQVo6VSJ44lnMCxjwY
- WqI82Llwhwf/13dVtWqKFqyakx5Mv/Nyiu4T6qZ/a4FyLar5VHKj
-X-Proofpoint-GUID: lCTAr7mOFvFNIgn5EE3NKXKzij5lCEjE
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzI5MDAyMSBTYWx0ZWRfX1D2yuNTKZ0gg
- hdxzU7hR/8cioMhbOvnwUGvB7bmnvo5AHRsuN+VCaJp0nZuUbwvHXyOThAES+RQ8CZrffwj365o
- dkR2iONssm4wgDT9XlrGJGYjO6b0yyd1rCqJY07it2gCKXIteQuuchLqGJ3JXtCutCqLr1fomVq
- QlvalAe7qUgkHsWOEnvXMAyyta/g00gEOfq0O4ckanuvXhCvr/V/GkNx/clnsdrTCozUWCVeydF
- uSC1lY5pqdhwP595ocJaP4xEkV471NoBlu2uJDpn7sF1tgKndTMHW/uRqFAHP2Gj58ksZjtBYNf
- SUsv95aLHWlErv/Y5X3t8/M3K1yrGQNI7CrdCISModUMsmZwIskn2/MhU4X5T06damUy1dOeT+a
- HMQuC2qnDJfR81WTl3P13p5wZlR7XJbAwX5MXO1C5Lw2rrks5qJjtt8fxIOgELr2LhLR2Yxz8CI
- Rz1+iqRLADL6JRdPJwQ==
-X-Authority-Analysis: v=2.4 cv=KL1qylFo c=1 sm=1 tr=0 ts=6a696b8d cx=c_pps
- a=OOZaFjgC48PWsiFpTAqLcw==:117 a=OOZaFjgC48PWsiFpTAqLcw==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=jiCTI4zE5U7BLdzWsZGv:22 a=x0eKOSpe3m1H3M0S9YoZ:22 a=VwQbUJbxAAAA:8
- a=2BmogTH5GeLrU7O6-44A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-ORIG-GUID: lCTAr7mOFvFNIgn5EE3NKXKzij5lCEjE
+X-CMS-MailID: 20260728145333epcas5p427c6b6d72bff02de3f29e6a6a2108958
+X-Msg-Generator: CA
+Content-Type: text/plain; charset="utf-8"
+CMS-TYPE: 105P
+X-CPGSPASS: Y
+X-Hop-Count: 3
+X-CMS-RootMailID: 20260728145333epcas5p427c6b6d72bff02de3f29e6a6a2108958
+References: <20260113022958.3379650-1-wangyang.guo@intel.com>
+	<CGME20260728145333epcas5p427c6b6d72bff02de3f29e6a6a2108958@epcas5p4.samsung.com>
 
-On Tue, 23 Jun 2026 14:24:27 +0100, Ben Dooks wrote:
+For higher number of jobs(>=64), we are seeing ~8% regression with this patch.
 
-> There are several places where printing functions are being passed parameters
-> that have not been through endian conversion functions. Use the virtio32_to_cpu
-> to fix the warnings.
-> 
-> Fixes the following warnings from (prototype) sparse:
-> drivers/scsi/virtio_scsi.c:126:9: warning: incorrect type in argument 7 (different base types)
-> drivers/scsi/virtio_scsi.c:126:9:    expected unsigned int
-> drivers/scsi/virtio_scsi.c:126:9:    got restricted __virtio32 [usertype] sense_len
-> drivers/scsi/virtio_scsi.c:312:17: warning: incorrect type in argument 2 (different base types)
-> drivers/scsi/virtio_scsi.c:312:17:    expected unsigned int
-> drivers/scsi/virtio_scsi.c:312:17:    got restricted __virtio32 [usertype] reason
-> drivers/scsi/virtio_scsi.c:412:17: warning: incorrect type in argument 2 (different base types)
-> drivers/scsi/virtio_scsi.c:412:17:    expected unsigned int
-> drivers/scsi/virtio_scsi.c:412:17:    got restricted __virtio32 [usertype] event
-> 
-> [...]
+Tool: fio with io_uring engine [1]
++------------+------------+-------------------+  
+| numjobs    | before     | after patch       |  
++------------+------------+-------------------+  
+| 1          | 89         | 88.8 (-0.22%)     |  
+| 2          | 169        | 168 (-0.59%)      |  
+| 4          | 338        | 337 (-0.30%)      |  
+| 8          | 533        | 533 (0.00%)       |  
+| 16         | 538        | 541 (+0.56%)      |  
+| 32         | 685        | 716 (+4.53%)      |  
+| 64         | 933        | 859 (-7.93%)      |  
+| 128        | 941        | 867 (-7.86%)      |  
++------------+------------+-------------------+  
+* Metric: IOPS (K) (Block device, QD = 1, bs = 4K, Random Read)  
 
-Applied to 7.3/scsi-queue, thanks!
+As shown in the table above, while performance is comparable at low job
+counts, there is a drop starting from 64 jobs after this patch.
 
-[1/1] scsi: virtio_scsi: fixup endian conversions for warning messages
-      https://git.kernel.org/mkp/scsi/c/1e9036e7580b
+HW info:
+Intel(R) Core(TM) Ultra 7 265K
+CPU=20
+IRQ-CPU are 1:1 mapped.
 
--- 
-Martin K. Petersen
+[1] fio -filename=/dev/nvme0n1 -direct=1 -size=4g -rw=randread \
+-numjobs=$(numjobs) -bs=4096 -ioengine=io_uring -iodepth=1 \
+-name=uring_test --registerfiles=1 --ramp_time=5 \
+--group_reporting --thread
+
