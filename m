@@ -1,174 +1,113 @@
-Received: from AS8PR04CU009.outbound.protection.outlook.com (mail-westeuropeazon11021098.outbound.protection.outlook.com [52.101.70.98])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f177.google.com (mail-pf1-f177.google.com [209.85.210.177])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C127469823
-	for <virtualization@lists.linux.dev>; Wed, 29 Jul 2026 17:05:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.70.98
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785344739; cv=fail; b=Z1KREv4c+sQ5eozZGGXafQd8IO+iY5Yc5C9tmnzY0DphaVcNFp4m3yW2pXW/Lcj6pNlzYHEv6hPMzxip4ON2cp0HymHUoxspWj30ZH4nfuPlv+Eaayq31v4+HJlv2LtxptN7pU+W4Et+6cmJq6yR+Bq3eZFEOyx4pvMCqnOx2wA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785344739; c=relaxed/simple;
-	bh=/jdXWcKOPDVhf3ZnZSpFiLBd7F4tatN/QpSM/H6akfY=;
-	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
-	 Content-Type:MIME-Version; b=PEaAJquF/hosMK6J877DB3q1MI4YwKOys3v/ucvNMajFxnmKlU/jPl/zHSLk59MfnqbNlLK41/lsSyyKOA7xPW7R6dPHKeFqFHxHpdUE7Ty0gvwzV8VYG/0cjfmlzCOswb+45FaKZ+TJEqb82blqQVFO0lAkIR+E/QBBQStxXbQ=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=virtuozzo.com; spf=pass smtp.mailfrom=virtuozzo.com; dkim=pass (2048-bit key) header.d=virtuozzo.com header.i=@virtuozzo.com header.b=EO/+86Fl; arc=fail smtp.client-ip=52.101.70.98
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=virtuozzo.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=virtuozzo.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5853047D94B
+	for <virtualization@lists.linux.dev>; Wed, 29 Jul 2026 18:59:07 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.177
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785351548; cv=none; b=qMpq/P0Whma/Crfs0rTDynXgkzIR0nW8PB6Asw7ZVh18q5m+H3h/0mfO4UtOVHQv66//8mBrhFxQXmMAYZTMJ2jKdjzniLIVJ2LmPlxVqi1O5E18Me+Du7E7oaa3SD5qkle+BGc/jXfxYwDxL180OQ7KaUW+8FVFcmYSJAjpQLo=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785351548; c=relaxed/simple;
+	bh=6OQPemUbrtEvn35mHWX6wGaAzq7fYLjqo+G0OX7yMJQ=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=mz8Oi2HUIlLTx0423lCEs/ikgCNLv0snrdbf7APUpWJtGGftq5nqzPJBCsKUV++j/z3Ws89Bmhp5HDOrms0VWWnAnAaQYm9We6bw2ad/1/LME3uommXDgMjPvsKYaTaO/aKjqf570BbKZXeQggSVKj32Trl87/aeffj00Ne/uX0=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=Z8kn/ufh; arc=none smtp.client-ip=209.85.210.177
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=virtuozzo.com header.i=@virtuozzo.com header.b="EO/+86Fl"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=hzvAnMduCyIlj3tCLyqaA+5P3CJEEmLpPVLDyd0799DjjKE0Y74ZcwhfQjEFCczaLimFAZFytUs/t0NOqht+KpKFhmAbv+iddvq82/4/uvr7t766UWf8G3TktGdQq0t3tTSAsJUcqp8dC0LJkfGYsAzCxBr0eHzIlk9WnYUFwvFrY7MNR7ZQnx7HPZkr7Op7uyCgnik98SiwgUnB4Osf8kLl0YkeiR7YxLlxwFv311vu11PgBgBgExM/z5dRagb5yLJI/d2OfZ0sBMVs9MSE/xiAxnUYOpxazgnPhh1hnAj3boEdK32X8oNWssclj1PJHoe042HpKrILDWV7A9aQdg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=a+3V1RzvI/U3lGPCezaCCrmI1fAfY3sOon3iF0f1+ko=;
- b=fe3NjDJiN0loa79JeVddUP9UgLJxpH8hER+uNoPpDbfQzVSNpLyiR+CnbCQhAKdJ/3Z0yqwzm9dgh00OYzn0Kqfd4qBtSVsC4AhlDpikBvDW6cIFsLMWQmzgOsxp7BmKKxZONakPmOakgGTF6uO6U+5PYSsJRr+tCNU+Y8cHn2gmeE5E73E5EH+EsIoo2vJJhyqLhtWOzaOMUXlQ2J9tB151uVORUt8/yFM/2tNzVan5chS6xPYfI+cEoAH/smxYMiZ2l3Cu3j4G+R2oZOk6ftcMOWtixlMEG6wv3qxL7X7s7y6ZCFrk+zXlllv0vUdV+5Q9saJsFQs3P6TsJLZEsw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=virtuozzo.com; dmarc=pass action=none
- header.from=virtuozzo.com; dkim=pass header.d=virtuozzo.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=virtuozzo.com;
- s=selector2;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=a+3V1RzvI/U3lGPCezaCCrmI1fAfY3sOon3iF0f1+ko=;
- b=EO/+86Fl+dHE3ikvBda7iFSUCkqjMRCufYP59eURq7sEAZ1zZsOINStZV7PnXR19MzgRKhxCPtMm/HB3Y2ihalggj0EEDEMfJwA96mJTujb5rFl3AXleQBHRQ6XwTsc9zlJG5L4I9Mufyk9B1UqtNiTs6DHp9+9m8I33Sh+ePLM0qwhZStuj31eL5lqbhJf/C3Htv/nZg4lmaC5tiyCl5qpff5dO9yLL8QPVDfYXGoCU0KZ2v6gCt7YZWrGxw71O/22DaWSJlFSvruDA/2UlbW+3Yddj0vcoCpb/D2irr8gaH2AXTokou5pwuaza2hHoeteEvPzxTsjP8CglloZqRQ==
-Authentication-Results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=virtuozzo.com;
-Received: from VI0PR08MB10656.eurprd08.prod.outlook.com
- (2603:10a6:800:20a::12) by DU0PR08MB9847.eurprd08.prod.outlook.com
- (2603:10a6:10:444::19) with Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.270.12; Wed, 29 Jul
- 2026 17:05:33 +0000
-Received: from VI0PR08MB10656.eurprd08.prod.outlook.com
- ([fe80::4e37:b189:ddcd:3dd8]) by VI0PR08MB10656.eurprd08.prod.outlook.com
- ([fe80::4e37:b189:ddcd:3dd8%7]) with mapi id 15.21.0245.012; Wed, 29 Jul 2026
- 17:05:33 +0000
-Message-ID: <a33c24b3-72e5-4329-834a-e3890331d1a5@virtuozzo.com>
-Date: Wed, 29 Jul 2026 20:05:32 +0300
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v6 5/5] vhost/vsock: add VHOST_RESET_OWNER ioctl
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
- virtualization@lists.linux.dev, netdev@vger.kernel.org, mst@redhat.com,
- stefanha@redhat.com, dongli.zhang@oracle.com, maciej.szmigiero@oracle.com,
- bchaney@akamai.com, mark.kanda@oracle.com, ptikhomirov@virtuozzo.com,
- den@openvz.org
-References: <20260724114542.734623-1-andrey.drobyshev@virtuozzo.com>
- <20260724114542.734623-6-andrey.drobyshev@virtuozzo.com>
- <amow-BG29pG3eSCd@sgarzare-redhat>
-Content-Language: en-US
-From: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
-In-Reply-To: <amow-BG29pG3eSCd@sgarzare-redhat>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-ClientProxiedBy: VIVP296CA0140.AUTP296.PROD.OUTLOOK.COM
- (2603:10a6:800:359::13) To VI0PR08MB10656.eurprd08.prod.outlook.com
- (2603:10a6:800:20a::12)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="Z8kn/ufh"
+Received: by mail-pf1-f177.google.com with SMTP id d2e1a72fcca58-848d21bbaffso1481351b3a.0
+        for <virtualization@lists.linux.dev>; Wed, 29 Jul 2026 11:59:07 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785351547; x=1785956347; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:sender:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=SCI3GixEP2KXXtfpULqWtW8LurdBltars+anz7Y6MWw=;
+        b=Z8kn/ufhzp65A+63Tmy4GipJFMBoe5OgMTySeu1qMwBYmlK8OnRfyUPufx9Tfj44Ei
+         keRNiR2/LvD/K0RuDdw/Q4aUzlYKPWOvnz52RUee2/jt1MC+dbDpI2AaBYapE+zbu6nc
+         770uzBwPFm1r5kZjHmkzpklxxbM9ytD3QEiABdNH4w+qyefnYtrHGm1B8VfVeV/sTlDA
+         iSeSCq2DXD5sEWd3nxnLjPf/2Rk1kiwVvFz1dx2mVg1+qQwtbERWACqmhtAZi86+xlo7
+         X2Cv/BWRVkQFA1pG90egaQd432MKA6pcfzj5hUbIcSZjxBkW3NRji0C4Bl10cQvr0f2d
+         VQ3g==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785351547; x=1785956347;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:sender:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=SCI3GixEP2KXXtfpULqWtW8LurdBltars+anz7Y6MWw=;
+        b=DbivrSIOAP+NKYh+yJeJ+FezJ5HfywjwBHKLZSOfv81FWQ2GCANublHktKu6/QVN1g
+         AuJID6GIw6MU98bA1t7oZ8O6jCWD+T1gYPg3/SnUpVQv5Ma+4otTK6H+4M1gCEISMEJu
+         4QaHpNeNPpun9G0PgrUE4QYNu7BPsgUOjKTMkJUCYhS5coqtXM+b1oKnkZe7qaJSIKJi
+         A1l2CkmjRZS0GXLISjWRZG4qJd0jl7q46ZeVviG8Fe00KFo/2pftZB7kaqlKzNQGz2zn
+         iS7Sdwqhm6E+JkbcwMXp8Ry+Oln43dzrmEQtiUpHMKm2jSWtJWksybDPcn7zglmeRdlx
+         AdzA==
+X-Gm-Message-State: AOJu0Yx8J74bkrLdYL4hW+QMitxAi3EEHdKZZtDnl2gaqHI4cvNtC54O
+	Xtia+o6+C2dgMnWutdUoKLghJItYeU8PBa445c+XKZPgsdEfVEnGPaGA
+X-Gm-Gg: AR+sD10n1wkvGWpJam/UhdXS4cYi14TvkTaershmFqQ3YlS12nD5MzAkfj9tUic4GzR
+	ehtXP7WAb8F1XsrzI/ANfClFbE7xgJJhKMP1c57t2+USWmMm3vzFot6apU7AxXe2PVkgOYdZKIL
+	UzOvTilCgE0SFshvF0G8HMdcfKR9SQQ92eZ9m/kdqQ6TTEB7XExrGCU2UKsPh/12fMpZsGfZ3wi
+	WpP2IsK8ZDR8fcyKf5frdyGsIalAI2lIaD2eLkcBdvzrTXRdcpCWn2kqF4EbQd24JF9sMACm6tX
+	ZCDF4/7oY87P6DuT6U60cCJyUpbNeOCne4SPBDkAWpixp9hDVgtLRDpDJBCeNUzhdjJNZO5+yqY
+	re6ydYydO0Zhjpytj3Fs7igeMNm91PLA3FivTzGkQrONnPUTpk4NCHFueZ9xL1iAVSrTixsJTTV
+	0BOkVYrotvwRJ5Hp5Kzocr5UoWZoeR1RFUW1eQFmxDLG9Ze4pvcRSAmzvVjW/rl5XGGAuX2jDwo
+	v7mvDk=
+X-Received: by 2002:a05:6a21:730c:b0:3c0:9c19:6586 with SMTP id adf61e73a8af0-3c8ba5daf6dmr9429868637.64.1785351546675;
+        Wed, 29 Jul 2026 11:59:06 -0700 (PDT)
+Received: from bogon ([2408:8207:1832:1b44::c6b])
+        by smtp.gmail.com with ESMTPSA id 41be03b00d2f7-cbdba447107sm1237829a12.21.2026.07.29.11.59.01
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Wed, 29 Jul 2026 11:59:05 -0700 (PDT)
+Sender: Weiming Shi <thebestswings@gmail.com>
+From: Weiming Shi <bestswngs@gmail.com>
+To: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>
+Cc: virtualization@lists.linux.dev,
+	kvm@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Xiang Mei <xmei5@asu.edu>,
+	Bobby Eshleman <bobbyeshleman@meta.com>
+Subject: [PATCH v2 0/2] vsock/virtio: fix worker access after virtqueue teardown
+Date: Wed, 29 Jul 2026 11:58:26 -0700
+Message-ID: <20260729185831.3247971-1-bestswngs@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: VI0PR08MB10656:EE_|DU0PR08MB9847:EE_
-X-MS-Office365-Filtering-Correlation-Id: 45e94213-3060-4f4e-7f52-08deed939a19
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|7416014|376014|366016|1800799024|23010399003|56012099006|4143699003|22082099003|18002099003|10067099003;
-X-Microsoft-Antispam-Message-Info:
-	0egU69BxOJj1ZG6LCcVKuRU5HHxbNSwhMNzTSMnVixEpGZf7vO+kwxZVU+hENf0LYoel5M+3O+lWzYC90VFa2k9eGd+IHDxxOVjOIOMgZr7kB4RBvrVX2APxGXwwygQ9AJv5woRF8Wo/efZR0CWEbLSSXBHPnuSC7qdcFxqh0h/jn9m5AOWx/oXlwcBr/8LuyYmNqdBdu7rAlvGjIbsvI75f7bXXFB+2iMWJ0YcEjEPDLs+NzOacup8pv8XjzLDqumZtP9vRWtKa078wr63iSY5grAS7aHjNwGhGbhYY7ZzDEOlEFZ5EjP1VeacgXvv7b7HxcZs+O3ObyZgbdCgGIspSzfrXil9KISec6qfXW1Ff0prWGughqc9RJJwjJ95IturRQcFpbl1SBgQtCw/cKlo6wBbMnzi1CYFNXAtXkr2UcyDXPJEwfJ0Va+wptSmuPUWX08cKvc0pZzNfERQOekRpib44Mq+bQwxJunA93syi30xgF6YOnnR2JWjLxlfEVJfW4NRc0xnNJ4/yNi7QgWHsvZU6tBnv1EmMdfQEN6KzfErmFJhgQpp7Fk9GUe2hhjRoXqKII8vfSB/lTS4dLOgBReNBmdUMcNHZGwDWuXPygGCjw2f6p8Gs84dHJHc6Kr2TKlX7NyJhTj0UELH/xeDAAC+NV7quvxPMqqqmDrk=
-X-Forefront-Antispam-Report:
-	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:VI0PR08MB10656.eurprd08.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(7416014)(376014)(366016)(1800799024)(23010399003)(56012099006)(4143699003)(22082099003)(18002099003)(10067099003);DIR:OUT;SFP:1102;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	=?utf-8?B?emdTUi9FaGdSbEdYTVhDQWFNekRtL1dKSy91SWpRR01LdnpOUEpWNjRmc2Zl?=
- =?utf-8?B?N0NBU2JaV0VYWUQ0V1Q3aWZRMU5jbGR5b1o2MkdRUTFWcUpEU3Z6eDVHOWpE?=
- =?utf-8?B?SWFUaGVuZ1ZoNEk5ZHFQYUZ4Q3UremZpSUk3K0Jjaks0OXo5SHoxTjlRT1Fl?=
- =?utf-8?B?QnJ5VHBjMk9qOFdPTjZ2T0djTHlua3NkZFBDdjFDN0kxaEQ5TVpiZFlsQnB1?=
- =?utf-8?B?N21RZ0hCd2RibUlCVWdqNjRsU0hxd082S1FENnpWWkpIN2laM2VCYi9OU2xS?=
- =?utf-8?B?NkpKWVZSbmhBalFCYkYvMUN2UGRzTVpmOVM1WVVocGV2UjBsT0c1NUNzWHBu?=
- =?utf-8?B?Z09GcWo4SENiR0NaSzVjd0p2TklLVnl2amRkRlR3aXh2WDd4K3RNdVRUOVhX?=
- =?utf-8?B?NUluTmN1SGFDVFIwNVZ2ZDRINmtQTXBnVE1xRXA0dmNwOWJrYUxQMDlsVUlp?=
- =?utf-8?B?WmcrbTJMcjl1YmJNbWc3anlUV0JyWGdIL3VmOTVUektKdmovSW9ZRXcrNlla?=
- =?utf-8?B?R014MWxVaUFwMGhKaDYwVFl1VGNpdGZIbEMwZmV3NDkzVmUvZjVFV3Q3bHVE?=
- =?utf-8?B?Nm03MVhiYWUrVTJQL3ExL29YWWxyZ084MEtuVk5QOVEvaEpyVnU2NGkrMWpF?=
- =?utf-8?B?S0FTUnRxQkpWVUUzR2ZjQ1lFbmsreWk0WXQ1L05tM1hRbWp1VDJvVDRGaWNs?=
- =?utf-8?B?YmtIU3NhYThMUk05ZElVM2dySzJTdkZTcEo5V21RbEM0NUdYQzBCYlpQdDY2?=
- =?utf-8?B?SmVMcks1dUlxM0M0aCtoRE9vUnlTV3VjS3IvMXkwQWY5UExES0d2RXpUUzl6?=
- =?utf-8?B?SHE5eHd3TVNXT0NheVhuaHlydys2UTRLZmxnZC96NEY3RW56d1p0R3RiWjAv?=
- =?utf-8?B?TXBlMUxKMWhkc3ZWMWpISXp4ays5d3R2UCs4eURZUkNZclVOd0tLNXBod1Yv?=
- =?utf-8?B?OWF5WDhPcFFXbzZ2bUJVeXU2aUlSNzNLREpDTHZmYTY1K3lYWHBSL2EwZFFS?=
- =?utf-8?B?ZjBsenhRa1gxRjRUeS82UjRpc2tQUVRVVFVSaWlLMkZQR09qSVNvSUlEYk1J?=
- =?utf-8?B?cFJxMUNCSC9WY2pEQ2tLQW9tREdGT3EyREY0ZWZQbzByZ3NtSXgvckY0Y0Rs?=
- =?utf-8?B?ZkovcGllZ1M4bFE5QndQY3JacXRJMnNhZXA4bEU1V1BpbnlwZmptTkdIc0Fo?=
- =?utf-8?B?OWxET0dtdTZucERFZlcxY0V2YTJkb0paVjJ2TVF0RHdXbXR2NGYrYkpPY04y?=
- =?utf-8?B?YlBaaVpvTHI2ZS84UVI0ZFdWWDY3dDZkTEtqMHdvTFU4VUp2bVhFQ0hhN2lQ?=
- =?utf-8?B?cTNNaU4yZ2NkVTU5ZitmMTM2Kzd1YkJGRGs5RW5KcWFPZWdaTjh3Vnd6QVF6?=
- =?utf-8?B?bTBOc2g5a2g3NFlTR1ZURkE0NGdkajVHVFQvY3h2OVVram9VbkxKL0JSY1Ja?=
- =?utf-8?B?OXYwWmRjb2w5MzhtSDg5V0FLd1NTUWw4RGJ3YmNDRXdrNXhMbzRSSjlYb3o5?=
- =?utf-8?B?N1VDMW1uMDc3MFZWazJsOW02Tkd0ZHJkZ0dNZS82MlJORmhXeHJ3Q1F6MGVv?=
- =?utf-8?B?THN1MERHWUt1cEk3U1laeXhEQ1RvRHFOcDFTZ1JUdUJJMm1ndS82cTVaSzJj?=
- =?utf-8?B?NWY1QmdyK0ljUGFSbDd4Skh2bHZadUNPNU9ya2dPZUFzb1FoN2NSb3FMUkZn?=
- =?utf-8?B?UmZIc0pIeWV4V2dackRhbkM1N1gvWVArR1BQTDg0cDRRU21FZHp1RWtzWnRh?=
- =?utf-8?B?VkJWNWtjZjdEQU9vd0JTZUV4ZXIyYlN4MzA3TXlPSjZPS1JMNGZsVHVqTVhX?=
- =?utf-8?B?SGFnREdHSk5RMkd5U0lMQVBFdEJuMVlla1AzbEFFYU5VOUFUNy8wQlVFSmwr?=
- =?utf-8?B?dm54N0VUampXc3FXYUhnVHhnSVBVekF6bGo2d0wrd2pKMno5WWRidnZkdllJ?=
- =?utf-8?B?YTFDQlFFTGgyN1pFQ2Fya2dpK01EK0FBNDQ3QmNtRktBYlFEZHkzQkExK2Ux?=
- =?utf-8?B?Z3FQZ2VTRWlaREVOV1FENUcxb29SNmR5RUYrMENFMFVkM1FuOFpFRHU4YmZE?=
- =?utf-8?B?eGZraURjNzN0czg0SzBsNlA4TlZrN1VxUFJKanFEa2lTeXNOdTJJYXFSMlpC?=
- =?utf-8?B?aE1Zcng0N3diVzRObXRqMUdYT2pXcnRpRGtJZUh3SThqdUtwMlpBdUZSOWRW?=
- =?utf-8?B?MWZMUmN2aERoYUVXejNWZGhWUithMjRoNGx6OEZaU2ZSNk1GYmsxTFFzTDF1?=
- =?utf-8?B?UGwrUUxCeU5STlBqaXZqMXFuNlJZcHMyRGYvc3hZQi9jQ01Wd1dUNkdTU2la?=
- =?utf-8?B?eU9iSHJBNWdmdGJuU0lMajBhdUl4amx0dmw1NzMzbEtIK3pYaEc5emZIVjk3?=
- =?utf-8?Q?QanUh7cdKMSBiPFc=3D?=
-X-OriginatorOrg: virtuozzo.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: 45e94213-3060-4f4e-7f52-08deed939a19
-X-MS-Exchange-CrossTenant-AuthSource: VI0PR08MB10656.eurprd08.prod.outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 29 Jul 2026 17:05:33.5871
- (UTC)
-X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
-X-MS-Exchange-CrossTenant-Id: 0bc7f26d-0264-416e-a6fc-8352af79c58f
-X-MS-Exchange-CrossTenant-MailboxType: HOSTED
-X-MS-Exchange-CrossTenant-UserPrincipalName: 19E67fDVV/Ytb8Gf1Ei3jq6tusHGAt8Me/DCtKblXXXvgvzSs6pZuEWj2rt7OEmI0xd434BvRTXOvZ6eXSxbRuRlTayLLLo+lW6e4g3eQrk=
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DU0PR08MB9847
+Content-Transfer-Encoding: 8bit
 
-On 7/29/26 7:57 PM, Stefano Garzarella wrote:
-> On Fri, Jul 24, 2026 at 02:45:42PM +0300, Andrey Drobyshev wrote:
->> From: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
->>
->> This ioctl is needed for QEMU's CPR (checkpoint-restore) migration of
->> the guest with vhost-vsock device.  For this to work, we need to reset
->> the device ownership on the source side by calling RESET_OWNER, and then
->> claim it on the dest side by calling SET_OWNER.  We expect not to lose any
->> AF_VSOCK connection while this happens.
->>
->> To that end, unlike the release path, RESET_OWNER keeps the guest CID
->> hashed: established connections survive, and host sends issued while
->> the device is between owners simply stay on send_pkt_queue until the
->> next device start drains them.
->>
->> Since the device stays reachable through the CID hash, the lockless
->> send/cancel paths can race with the worker teardown in
->> vhost_workers_free().  The previous commit ("vhost: synchronize with
->> RCU readers when freeing workers") makes that safe.
->>
->> Signed-off-by: Pavel Tikhomirov <ptikhomirov@virtuozzo.com>
->> Signed-off-by: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
->> ---
->> drivers/vhost/vsock.c | 32 ++++++++++++++++++++++++++++++++
->> 1 file changed, 32 insertions(+)
-> 
-> I thought I had already reviewed this, but anyway:
-> 
-> Reviewed-by: Stefano Garzarella <sgarzare@redhat.com>
-> 
+Virtio-vsock workers can remain queued while freeze deletes the
+virtqueues.  This series prevents workers delayed across freeze and
+restore from retaining pointers to deleted queues, and prevents the RX
+worker from refilling its queue after teardown.
 
-I explicitly dropped your R-b since the logic was slightly altered as
-noted in the cover letter:
+Changes in v2:
+- Split the worker pointer changes from the RX refill fix because they
+  fix different commits.
+- Use bd50c5dc182b as the Fixes tag for the worker pointer changes.
+- Keep b917507e5ad9 as the Fixes tag for the RX refill fix.
+- Use the suggested out_nofill label when rx_run is clear.
 
-Patch 5: add 'sync' param to vhost_dev_reset_owner() call.
+Weiming Shi (2):
+  vsock/virtio: read virtqueues under worker locks
+  vsock/virtio: avoid refilling the RX queue after teardown
 
-Thank you,
-Andrey
+ net/vmw_vsock/virtio_transport.c | 14 ++++++++------
+ 1 file changed, 8 insertions(+), 6 deletions(-)
+
+
+base-commit: 51b093a7ba27476e1f639455f005e8d2e75390e4
+-- 
+2.55.0
