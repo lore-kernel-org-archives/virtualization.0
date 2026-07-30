@@ -1,270 +1,192 @@
-Received: from mail-ed1-f49.google.com (mail-ed1-f49.google.com [209.85.208.49])
+Received: from mail-oi1-f206.google.com (mail-oi1-f206.google.com [209.85.167.206])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 64D313B813A
-	for <virtualization@lists.linux.dev>; Wed, 29 Jul 2026 19:20:35 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.49
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785352840; cv=pass; b=B7HXaQfjGHmTcSdDJts+f3A/uXyXGKThgaqmlerMN5dPbwrAaPco0sAhzMgOyPbipV7+3caL7wu7qj4Mz7KuuxfV/RjBOoDa0Xuw8XpGfoIIQ/sNtVLuiylF9YNHwV1nzWyqLbRHeYRxuVyv+3EY3NZoL0zdE7q2+Zwd6bK5hLI=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785352840; c=relaxed/simple;
-	bh=v39J0NNGbheOQbg9MTs7WdorPz5bwtfU4Pews8O/IIA=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=Mg33E6DjSPgZ8uRFpCj/hXanGGIPbOQQc/QMEH/8++Gp07WDTIOa1T4h8cUMxKAGsTi08i8aWaeDl+tDaU30NTKui2EA7QEQwWLsoylPFxR72ZbdrDZf5ORBlGLyKLlUH6DidBqGONi55rk9Cfx7hYeXOI+rTeTbe0SazSej8Lw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=I82HX181; arc=pass smtp.client-ip=209.85.208.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="I82HX181"
-Received: by mail-ed1-f49.google.com with SMTP id 4fb4d7f45d1cf-699fbcd23ccso2059712a12.1
-        for <virtualization@lists.linux.dev>; Wed, 29 Jul 2026 12:20:34 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785352830; cv=none;
-        d=google.com; s=arc-20260327;
-        b=SDvGZmFA7+X7I+GggMJ1AbtjX9QQSuvKOF8QevtQmjfwC3vE18aqP8oC7UhhWPpcDP
-         Z9Oc/5JRThpPEwqmByu2vtz8tw1h5bRy6yEUHmYoct/Bh0V1IFA/NNwXZa+gOcvi7e7I
-         Gfuocd1P4Rb4kOyCbOJfXwOmnjuXu2TeGg3acwq9lhW6aSULSmNwi8cAWxmmJ37sw27l
-         97cAAsJWhKJ80yOqs1Dd/Amsg57RHnUVCHg+D8T1pCXfauJmLLYIpL78P+1vD9/+kVE/
-         caWf1hn88axyAw9Dvh3TCo2b5MDY6u362R2QzmefEQqLRC7suo/KRuRUXvMfC3HUC0EZ
-         z7NA==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=NDSAww7eofhNwmhBo8NXZ9YQ6g85WKpVrD6PKX308GA=;
-        fh=3MpXG+8+798CdniZcZCXycRKRCoy/tb3Xog5eC9gV7I=;
-        b=Tlah8u1myXp8JacGqJ/Oj7wxhzrGXex/fEekrYlyW8xca+OrW9PsvfVbW9u2Qs2fT8
-         S/we5EKWZgyor0RcA+oXs92dmj4DDnBAeA0NAzWHvFM4NucDVdNnLv77PmLDAj5mF3b8
-         gTRIMURpk5Tskk7ty3ovgOUvo1c3Xnsi7KfhTjGOKMLJCpCDjXbqyRD810BOYJdYGQ9G
-         qde8E2JhhIK/jdxz2f+KUDZf/gz9duTeVQOaNQzLRLytp9XYfrmqQwvWRH+13OVvlqWH
-         E7Y3UuuXVCICE/7om5c56DVqKcF/ZFMW7n4AOVYd00RPMZrQuMo9o5Y3ep3yvM2SECQA
-         0UWg==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785352830; x=1785957630; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=NDSAww7eofhNwmhBo8NXZ9YQ6g85WKpVrD6PKX308GA=;
-        b=I82HX181IlbJGXvwOxIUeJdIogPwVbOBLqDlMGORrOMX5lMHOzdjbYvsV5ZYc0f8vX
-         +NzX5N8tPCuTzzqZCYUvwuK/5rNtIVTwEHTYvSlZi1jScNiITQ+Te3uunchSpgdC0OBl
-         byG9oWh69Qyye5OYa2ciOUdnY+cmlUzMypZPrv9sru1B1Kn2DR4N6RRphw1fqWVNn4/3
-         XKR+C5B7LParj7kplUTyjT5W7DwEYsu8LLmf1baLNBCeLL3/tjlaDIe+BswRk3W1XtDc
-         i8O4dGNE92mLyH7zQq/Odlv31O3NmmCWMIsHys7GpLlMKu5EUqHswbfyzFbPa/K8ZuH+
-         zBNQ==
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6A5643A1B5
+	for <virtualization@lists.linux.dev>; Thu, 30 Jul 2026 00:09:25 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.167.206
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785370167; cv=none; b=lPZeaJtr4qoGKWQweEFX8Xb4bzCsy0ISi1sMrqIuSuleb1OXXDw2TPRhAyyRhy/G8lbB4fOVBRE2ZoQCX8a7on0udtlr1A6Scs4jECKvW20xZrMcDQiXdNN87LQ+4qAlzToZ6Lt7wcncIAxrZo8qa6nj0kBcEgyy5iOjSPPlXY0=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785370167; c=relaxed/simple;
+	bh=xkWIFbRtXZfTII9Q/1zyFSeENjPxLNd48/12cpMrdA8=;
+	h=MIME-Version:Date:Message-ID:Subject:From:To:Content-Type; b=j12KPlKu1NJ7vQipy6dJnerdQxWQcrIFpYbMwxrHl78iMhQJ2yuyCAgJhRJyNDFBoDb5TOP+ZTk/1X1uxWR0kFJfM585+LBozLZEt3bmv8s0GqWwz1UdGCm9wCKiEA3WSWECr9MmzKFdjZVSkhuSazJr6WHHsPXXDPDctrKVDfk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com; arc=none smtp.client-ip=209.85.167.206
+Authentication-Results: smtp.subspace.kernel.org; dmarc=fail (p=none dis=none) header.from=syzkaller.appspotmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=M3KW2WVRGUFZ5GODRSRYTGD7.apphosting.bounces.google.com
+Received: by mail-oi1-f206.google.com with SMTP id 5614622812f47-4a7c64fbbc6so1086790b6e.2
+        for <virtualization@lists.linux.dev>; Wed, 29 Jul 2026 17:09:25 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785352830; x=1785957630;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
+        d=1e100.net; s=20251104; t=1785370164; x=1785974964;
+        h=content-type:to:from:subject:message-id:date:mime-version
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=NDSAww7eofhNwmhBo8NXZ9YQ6g85WKpVrD6PKX308GA=;
-        b=Oica8UAt4OHwU5/6mRXPmUyY0f0iGx3jr4+/JuuTy0eq2jTCDoSbNum1/clD5iV71b
-         1HAe5RxXf58vQiq8kWNyXiCCKzLBIsWEIlcsl9B8+stFvXSdku+CxwS6P88ggOj+twWK
-         v5HNwUW5LASSugJNlojwgGItDpR47xyUItJWikU0eielrfnt///9M60RXDhdIxk7LJSN
-         Nm+Ig2XTJHgW3qeJN+Mv6Cb2eTYUciIOLxGG7UVcWA07C5iiGGmpiIbUw6WPjXX8kf7T
-         Ot27uKmEV9x83JEXY4mABw9D+N+X7kpiip0qlL0AxKWSr+09FuGfd2joZCuN98QdqbeM
-         jQSA==
-X-Forwarded-Encrypted: i=1; AHgh+Rr4biO9LlR618mSlhoOMWyDHLzwKHz/C+oeATKYSrnLhjxInCMHziWRUEIGefkwruphmAO24J5O9dBDqubwpg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwdLnjmbShmFT81TDU0O09QYEVDdAVPZiG3UacFSFhHuhRGNe01
-	q/DoRHnoVYTlpXPGAHShBkVg4iXtJncuM841QZUCBX84ppdXyZFzI/duehDQpgP/0Lj7smtdczB
-	cIzsfDyalaUqbyN7kWflAaEW542L1tB0=
-X-Gm-Gg: AR+sD13X/7q0qwUTCsudwN2yZPCJUZEn6mQzzuDjQ/Gt2DKqQa3H5DE0zXWHiJBJn5f
-	nyMGQa99zMHnZlwqbups/OGk3IMWTgmO6257NT3JQcrr9n5ONZ4B+52fc9MmPm9gGSgEOfqxxdh
-	t1hcXL6fSkBKBzDl4Aw/Aqo+B1K2ZJZfDfshPtcW+7Tce2sfX/PF2Tws0iCXWW9paucZGfMbddu
-	sDlcpuFEDobb7MxHWzoQo+j9vhvUWZHwzgYeM79mr2RPHCBPyBwTQilI/4K2nr0qJEIw3cSXPy3
-	eiZ6mI1fscgxnnoSu+VGli4TsMjC3LhlHXyyyGz66W21dkpS5mYP/NGsQqTvMkKIEwl2fO5p3RQ
-	=
-X-Received: by 2002:a17:906:6a0c:b0:c1f:922d:34c3 with SMTP id
- a640c23a62f3a-c1f922d3b72mr205963066b.14.1785352829519; Wed, 29 Jul 2026
- 12:20:29 -0700 (PDT)
+        bh=VHEqQhQNko68j/7DYTKu26LNRfja1lRL5AnJzb8MKGA=;
+        b=lVAI4+6CvSy0yCZF3qBRfu+yrFG4Wzb/yU4gPkNgcnzyVg6lVmkgbSLr/oib953mxn
+         GFHT/2S+Rim5/NBAXxy2doQfViWOzIZg8lt82StW/+MfDeBP85uBwSHPlRV4OizqCNPO
+         aLgqCxX4tH+STmnXCQDpTqSTtRiysPeptS8rtk7KRf6KK4Nj8J/21+gAj4z+2J61oyQ9
+         90Oj1iiWbQoEn/o8Ij1UeXgRBeBNz3TQ2eccK9Is16VUZnAegJQyQePpK7bJpJXkv7ig
+         DCJbf9XXCmmJLxnh00oI2J++UNh/CdPBkZ7KadKUtwGVH49ByKtTlfVOt1fJWl+XagWC
+         u8IQ==
+X-Forwarded-Encrypted: i=1; AHgh+RrC6SkRfD5eeURnA9mjCe7MyS8FJQ63I2ulTqFLCu6fFTTbtDTbmM9m+Jn05rmsAqOqbIQUMAMoexEUGC7iEg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyhWiz0cVGcGfoMTx/18vhOEWYcuV9Px8k1x4Fg5SdrnI/G0Bvd
+	MaluOOfLRfbgDA8v6vQQdprAmfDHDeOLctWkFO0PV1axFKM7Dveh/EzEADOGg5JwPVlG+UiwcuT
+	QK7Anr6CcV/XmUmC76ajDmHjUtebst/bbn0sWajUc57u9biDKsCe4a54onPg=
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260727035804.1860862-1-bestswngs@gmail.com> <amjkQ2F+NEK9SPAj@devvm29614.prn0.facebook.com>
- <amoR0pnMO2OQ2E6z@sgarzare-redhat> <CANgPUi2LFBiBG1c7+s_AyzrtDdncXDXQQuphNqmC0uktvBY1dg@mail.gmail.com>
-In-Reply-To: <CANgPUi2LFBiBG1c7+s_AyzrtDdncXDXQQuphNqmC0uktvBY1dg@mail.gmail.com>
-From: Weiming Shi <thebestswings@gmail.com>
-Date: Thu, 30 Jul 2026 03:19:52 +0800
-X-Gm-Features: AUfX_myMxXtcqQ9SsdbccjfyUGE7H8t5bNEP8VjBISktONh9Fw_cte5ZVhUeiaQ
-Message-ID: <CANgPUi3oUVf12GzPAWTX_3G6rEAssf6UwZi6dm7wW_YPjaMzmg@mail.gmail.com>
-Subject: Re: [PATCH] vsock/virtio: prevent workers from using deleted virtqueues
-To: Stefano Garzarella <sgarzare@redhat.com>
-Cc: Bobby Eshleman <bobbyeshleman@gmail.com>, "Michael S. Tsirkin" <mst@redhat.com>, 
-	Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>, 
-	=?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>, 
-	Stefan Hajnoczi <stefanha@redhat.com>, "David S. Miller" <davem@davemloft.net>, 
-	Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>, 
-	Simon Horman <horms@kernel.org>, virtualization@lists.linux.dev, kvm@vger.kernel.org, 
-	netdev@vger.kernel.org, linux-kernel@vger.kernel.org, 
-	Xiang Mei <xmei5@asu.edu>, stable@vger.kernel.org
+X-Received: by 2002:a05:6808:222a:b0:496:b7c:274b with SMTP id
+ 5614622812f47-4ad877bc3fbmr421332b6e.19.1785370164271; Wed, 29 Jul 2026
+ 17:09:24 -0700 (PDT)
+Date: Wed, 29 Jul 2026 17:09:24 -0700
+X-Google-Appengine-App-Id: s~syzkaller
+X-Google-Appengine-App-Id-Alias: syzkaller
+Message-ID: <6a6a9634.57649fcc.360844.000a.GAE@google.com>
+Subject: [syzbot] [virt?] [dri?] WARNING in virtio_gpu_alloc_vbufs
+From: syzbot <syzbot+1b129b44597a126d2d79@syzkaller.appspotmail.com>
+To: airlied@redhat.com, dmitry.osipenko@collabora.com, 
+	dri-devel@lists.freedesktop.org, gurchetansingh@chromium.org, 
+	kraxel@redhat.com, linux-kernel@vger.kernel.org, 
+	maarten.lankhorst@linux.intel.com, mripard@kernel.org, olvaffe@gmail.com, 
+	simona@ffwll.ch, syzkaller-bugs@googlegroups.com, tzimmermann@suse.de, 
+	virtualization@lists.linux.dev
 Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
 
-Weiming Shi <thebestswings@gmail.com> =E4=BA=8E2026=E5=B9=B47=E6=9C=8830=E6=
-=97=A5=E5=91=A8=E5=9B=9B 03:05=E5=86=99=E9=81=93=EF=BC=9A
->
-> Stefano Garzarella <sgarzare@redhat.com> =E4=BA=8E2026=E5=B9=B47=E6=9C=88=
-29=E6=97=A5=E5=91=A8=E4=B8=89 22:47=E5=86=99=E9=81=93=EF=BC=9A
-> >
-> > On Tue, Jul 28, 2026 at 10:17:55AM -0700, Bobby Eshleman wrote:
-> > >On Sun, Jul 26, 2026 at 08:58:01PM -0700, Weiming Shi wrote:
-> > >> The RX, TX and event workers read their virtqueue pointers before ta=
-king
-> > >> the mutex that protects the queue and its run flag. A work item dela=
-yed
-> > >> across freeze and restore can therefore retain a pointer deleted by
-> > >> virtio_vsock_vqs_del(), observe the run flag for the replacement que=
-ues,
-> > >> and use the freed pointer.
-> > >>
-> > >> RX has an additional path: when rx_run is clear, the common exit sti=
-ll
-> > >> refills the RX queue. A queued worker can consequently call
-> > >> virtqueue_add_sgs() immediately after freeze deletes the virtqueues.
-> > >>
-> > >> BUG: KASAN: slab-use-after-free in virtqueue_add_sgs
-> > >> Read of size 4 by task kworker/2:1
-> > >> Workqueue: virtio_vsock virtio_transport_rx_work
-> > >> Call Trace:
-> > >>  virtqueue_add_sgs (drivers/virtio/virtio_ring.c:2796)
-> > >>  virtio_vsock_rx_fill (net/vmw_vsock/virtio_transport.c:332)
-> > >>  virtio_transport_rx_work (net/vmw_vsock/virtio_transport.c:701)
-> > >>  process_one_work (kernel/workqueue.c:3314)
-> > >>  worker_thread (kernel/workqueue.c:3478)
-> > >>  kthread (kernel/kthread.c:436)
-> > >>  ret_from_fork (arch/x86/kernel/process.c:158)
-> > >>  ret_from_fork_asm (arch/x86/entry/entry_64.S:245)
-> > >> ...
-> > >> Freed by task 141:
-> > >>  kfree (mm/slub.c:6566)
-> > >>  vp_del_vq (drivers/virtio/virtio_pci_common.c:259)
-> > >>  vp_del_vqs (drivers/virtio/virtio_pci_common.c:285)
-> > >>  virtio_vsock_freeze (net/vmw_vsock/virtio_transport.c:912)
-> > >>  virtio_device_freeze (drivers/virtio/virtio.c:658)
-> > >>  virtio_pci_freeze (drivers/virtio/virtio_pci_common.c:601)
-> > >>  pci_pm_freeze (drivers/pci/pci-driver.c:1098)
-> > >>  device_suspend (drivers/base/power/main.c:1968)
-> > >> Kernel panic - not syncing: KASAN: panic_on_warn set ...
-> > >>
-> > >> Read each worker's virtqueue under its mutex after confirming that t=
-he
-> > >> queue is running, and only refill RX while RX is running.
-> > >>
-> > >> Fixes: b917507e5ad9 ("vsock/virtio: stop workers during the .remove(=
-)")
-> > >> Cc: stable@vger.kernel.org
-> > >> Reported-by: Xiang Mei <xmei5@asu.edu>
-> > >> Assisted-by: OpenAI-Codex:gpt-5
-> > >> Signed-off-by: Weiming Shi <bestswngs@gmail.com>
-> > >> ---
-> > >>  net/vmw_vsock/virtio_transport.c | 14 ++++++++------
-> > >>  1 file changed, 8 insertions(+), 6 deletions(-)
-> > >>
-> > >> diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio=
-_transport.c
-> > >> index 57f2d6ec3ffc..79cf19f58943 100644
-> > >> --- a/net/vmw_vsock/virtio_transport.c
-> > >> +++ b/net/vmw_vsock/virtio_transport.c
-> > >> @@ -346,12 +346,13 @@ static void virtio_transport_tx_work(struct wo=
-rk_struct *work)
-> > >>      struct virtqueue *vq;
-> > >>      bool added =3D false;
-> > >>
-> > >> -    vq =3D vsock->vqs[VSOCK_VQ_TX];
-> > >>      mutex_lock(&vsock->tx_lock);
-> > >>
-> > >>      if (!vsock->tx_run)
-> > >>              goto out;
-> > >>
-> > >> +    vq =3D vsock->vqs[VSOCK_VQ_TX];
-> > >> +
-> > >>      do {
-> > >>              struct sk_buff *skb;
-> > >>              unsigned int len;
-> > >> @@ -451,13 +452,13 @@ static void virtio_transport_event_work(struct=
- work_struct *work)
-> > >>              container_of(work, struct virtio_vsock, event_work);
-> > >>      struct virtqueue *vq;
-> > >>
-> > >> -    vq =3D vsock->vqs[VSOCK_VQ_EVENT];
-> > >> -
-> > >>      mutex_lock(&vsock->event_lock);
-> > >>
-> > >>      if (!vsock->event_run)
-> > >>              goto out;
-> > >>
-> > >> +    vq =3D vsock->vqs[VSOCK_VQ_EVENT];
-> > >> +
-> > >>      do {
-> > >>              struct virtio_vsock_event *event;
-> > >>              unsigned int len;
-> > >> @@ -634,13 +635,13 @@ static void virtio_transport_rx_work(struct wo=
-rk_struct *work)
-> > >>              container_of(work, struct virtio_vsock, rx_work);
-> > >>      struct virtqueue *vq;
-> > >>
-> > >> -    vq =3D vsock->vqs[VSOCK_VQ_RX];
-> > >> -
-> > >>      mutex_lock(&vsock->rx_lock);
-> > >>
-> > >>      if (!vsock->rx_run)
-> > >>              goto out;
-> > >>
-> > >> +    vq =3D vsock->vqs[VSOCK_VQ_RX];
-> > >> +
-> > >>      do {
-> > >>              virtqueue_disable_cb(vq);
-> > >>              for (;;) {
-> > >> @@ -689,7 +690,8 @@ static void virtio_transport_rx_work(struct work=
-_struct *work)
-> > >>      } while (!virtqueue_enable_cb(vq));
-> > >>
-> > >>  out:
-> > >> -    if (vsock->rx_buf_nr < vsock->rx_buf_max_nr / 2)
-> > >> +    if (vsock->rx_run &&
-> > >> +        vsock->rx_buf_nr < vsock->rx_buf_max_nr / 2)
-> > >>              virtio_vsock_rx_fill(vsock);
-> > >>      mutex_unlock(&vsock->rx_lock);
-> > >>  }
-> > >> --
-> > >> 2.55.0
-> > >
-> > >Not a strong opinion from me, but since this last hunk is the one that
-> > >fixes the bug and the other hunks are moreso hardening, maybe break
-> > >these out into two patches?
-> >
-> > I think also the other hunks fix an issue, but I agree on the split
-> > since IMO we are fixing 2 different commits. Commit b917507e5ad9
-> > ("vsock/virtio: stop workers during the .remove()") was before
-> > freeze/resume added by commit bd50c5dc182b ("vsock/virtio: add support
-> > for device suspend/resume"). Only after that one we can have the false
-> > -> true transition of *_run variables.
-> >
-> > So IMO hunks 1-3 should have Fixes: bd50c5dc182b ... and hunk 4 should
-> > have Fixes: b917507e5ad9 ...
-> >
-> > That said, it's not a strong opinion here too, but if you prefer a
-> > single patch, please add both Fixes.
-> >
-> > Thanks,
-> > Stefano
-> >
-> > >
-> > >Besides, that all looks good to me.
-> > >
-> > >Reviewed-by: Bobby Eshleman <bobbyeshleman@meta.com>
-> > >
-> >
->
-> Thanks for your review. v2 sent.
->
-> Best,
-> Weiming Shi
+Hello,
 
-Sorry for the noise; I resent the series as v3 with proper threading
-and no code changes.
+syzbot found the following issue on:
 
-https://lore.kernel.org/all/cover.1785352330.git.bestswngs@gmail.com/
+HEAD commit:    fc02acf6ac0c Merge tag 'platform-drivers-x86-v7.2-4' of gi..
+git tree:       upstream
+console output: https://syzkaller.appspot.com/x/log.txt?x=171d103e580000
+kernel config:  https://syzkaller.appspot.com/x/.config?x=145fa60d73086782
+dashboard link: https://syzkaller.appspot.com/bug?extid=1b129b44597a126d2d79
+compiler:       gcc (Debian 14.2.0-19) 14.2.0, GNU ld (GNU Binutils for Debian) 2.44
+
+Unfortunately, I don't have any reproducer for this issue yet.
+
+Downloadable assets:
+disk image (non-bootable): https://storage.googleapis.com/syzbot-assets/d900f083ada3/non_bootable_disk-fc02acf6.raw.xz
+vmlinux: https://storage.googleapis.com/syzbot-assets/eca05900a79c/vmlinux-fc02acf6.xz
+kernel image: https://storage.googleapis.com/syzbot-assets/e655b72e0b5f/bzImage-fc02acf6.xz
+
+IMPORTANT: if you fix the issue, please add the following tag to the commit:
+Reported-by: syzbot+1b129b44597a126d2d79@syzkaller.appspotmail.com
+
+[drm] features: -virgl +edid -resource_blob -host_visible
+[drm] features: -context_init -blob_alignment
+------------[ cut here ]------------
+kmem_cache of name 'virtio-gpu-vbufs' already exists
+WARNING: mm/slab_common.c:111 at kmem_cache_sanity_check mm/slab_common.c:111 [inline], CPU#2: syz.4.468/7600
+WARNING: mm/slab_common.c:111 at __kmem_cache_create_args+0xa6/0x420 mm/slab_common.c:352, CPU#2: syz.4.468/7600
+Modules linked in:
+CPU: 2 UID: 0 PID: 7600 Comm: syz.4.468 Not tainted syzkaller #0 PREEMPT(full) 
+Hardware name: QEMU Standard PC (Q35 + ICH9, 2009), BIOS 1.16.3-debian-1.16.3-2 04/01/2014
+RIP: 0010:kmem_cache_sanity_check mm/slab_common.c:111 [inline]
+RIP: 0010:__kmem_cache_create_args+0xa9/0x420 mm/slab_common.c:352
+Code: 48 8b 43 60 48 8d 58 a0 48 3d 30 82 d8 8e 74 1f 48 8b 7b 58 48 89 ee e8 a5 a3 5d 09 85 c0 75 e0 48 8d 3d fa 2d ce 0e 48 89 ee <67> 48 0f b9 3a be 20 00 00 00 48 89 ef e8 25 a5 5d 09 48 85 c0 0f
+RSP: 0018:ffffc9000c80ef58 EFLAGS: 00010246
+RAX: 0000000000000000 RBX: ffff888026364500 RCX: fffff52001901dc6
+RDX: 0000000000000000 RSI: ffffffff8c6f7ae0 RDI: ffffffff912750c0
+RBP: ffffffff8c6f7ae0 R08: 0000000000000000 R09: fffffbfff2244f3a
+R10: ffffc9000c80ef58 R11: 0000000000000000 R12: 0000000000000000
+R13: ffffc9000c80efc8 R14: 00000000000000d8 R15: 0000000000000000
+FS:  00007f71682e66c0(0000) GS:ffff8880d5fdc000(0000) knlGS:0000000000000000
+CS:  0010 DS: 0000 ES: 0000 CR0: 0000000080050033
+CR2: 00007f8a775556c8 CR3: 000000005c66a000 CR4: 0000000000352ef0
+Call Trace:
+ <TASK>
+ __kmem_cache_create include/linux/slab.h:399 [inline]
+ virtio_gpu_alloc_vbufs+0xc2/0x150 drivers/gpu/drm/virtio/virtgpu_vq.c:75
+ virtio_gpu_init.cold+0x51c/0x126e drivers/gpu/drm/virtio/virtgpu_kms.c:228
+ virtio_gpu_probe+0x21c/0x360 drivers/gpu/drm/virtio/virtgpu_drv.c:103
+ virtio_dev_probe+0x6a2/0xbe0 drivers/virtio/virtio.c:347
+ call_driver_probe drivers/base/dd.c:628 [inline]
+ really_probe+0x241/0xa60 drivers/base/dd.c:706
+ __driver_probe_device+0x20e/0x450 drivers/base/dd.c:868
+ driver_probe_device+0x4a/0x140 drivers/base/dd.c:898
+ __device_attach_driver+0x1df/0x320 drivers/base/dd.c:1026
+ bus_for_each_drv+0x159/0x1e0 drivers/base/bus.c:500
+ __device_attach+0x1e4/0x4d0 drivers/base/dd.c:1098
+ device_initial_probe+0xaf/0xd0 drivers/base/dd.c:1153
+ bus_probe_device+0x64/0x160 drivers/base/bus.c:620
+ device_add+0x121d/0x1970 drivers/base/core.c:3772
+ register_virtio_device+0x4f0/0x5d0 drivers/virtio/virtio.c:568
+ virtio_pci_probe+0x255/0x410 drivers/virtio/virtio_pci_common.c:722
+ local_pci_probe+0xdd/0x1b0 drivers/pci/pci-driver.c:332
+ pci_call_probe+0x176/0x800 drivers/pci/pci-driver.c:394
+ __pci_device_probe drivers/pci/pci-driver.c:455 [inline]
+ pci_device_probe+0x1cd/0x370 drivers/pci/pci-driver.c:489
+ call_driver_probe drivers/base/dd.c:628 [inline]
+ really_probe+0x241/0xa60 drivers/base/dd.c:706
+ __driver_probe_device+0x20e/0x450 drivers/base/dd.c:868
+ driver_probe_device+0x4a/0x140 drivers/base/dd.c:898
+ __device_attach_driver+0x1df/0x320 drivers/base/dd.c:1026
+ bus_for_each_drv+0x159/0x1e0 drivers/base/bus.c:500
+ __device_attach+0x1e4/0x4d0 drivers/base/dd.c:1098
+ device_initial_probe+0xaf/0xd0 drivers/base/dd.c:1153
+ pci_bus_add_device+0xc5/0x100 drivers/pci/bus.c:373
+ pci_bus_add_devices+0x9a/0x1f0 drivers/pci/bus.c:394
+ pci_rescan_bus+0x2a/0x40 drivers/pci/probe.c:3500
+ rescan_store+0xfb/0x130 drivers/pci/pci-sysfs.c:473
+ bus_attr_store+0x74/0xb0 drivers/base/bus.c:172
+ sysfs_kf_write+0xf2/0x150 fs/sysfs/file.c:145
+ kernfs_fop_write_iter+0x3e0/0x5f0 fs/kernfs/file.c:345
+ new_sync_write fs/read_write.c:595 [inline]
+ vfs_write+0x6ac/0x1050 fs/read_write.c:687
+ ksys_write+0x12a/0x250 fs/read_write.c:739
+ do_syscall_x64 arch/x86/entry/syscall_64.c:63 [inline]
+ do_syscall_64+0x115/0x870 arch/x86/entry/syscall_64.c:94
+ entry_SYSCALL_64_after_hwframe+0x77/0x7f
+RIP: 0033:0x7f716739df99
+Code: ff c3 66 2e 0f 1f 84 00 00 00 00 00 0f 1f 44 00 00 48 89 f8 48 89 f7 48 89 d6 48 89 ca 4d 89 c2 4d 89 c8 4c 8b 4c 24 08 0f 05 <48> 3d 01 f0 ff ff 73 01 c3 48 c7 c1 e8 ff ff ff f7 d8 64 89 01 48
+RSP: 002b:00007f71682e6028 EFLAGS: 00000246 ORIG_RAX: 0000000000000001
+RAX: ffffffffffffffda RBX: 00007f7167626090 RCX: 00007f716739df99
+RDX: 0000000000000001 RSI: 00002000000001c0 RDI: 0000000000000006
+RBP: 00007f7167434ec4 R08: 0000000000000000 R09: 0000000000000000
+R10: 0000000000000000 R11: 0000000000000246 R12: 0000000000000000
+R13: 00007f7167626128 R14: 00007f7167626090 R15: 00007ffd459912c8
+ </TASK>
+----------------
+Code disassembly (best guess):
+   0:	48 8b 43 60          	mov    0x60(%rbx),%rax
+   4:	48 8d 58 a0          	lea    -0x60(%rax),%rbx
+   8:	48 3d 30 82 d8 8e    	cmp    $0xffffffff8ed88230,%rax
+   e:	74 1f                	je     0x2f
+  10:	48 8b 7b 58          	mov    0x58(%rbx),%rdi
+  14:	48 89 ee             	mov    %rbp,%rsi
+  17:	e8 a5 a3 5d 09       	call   0x95da3c1
+  1c:	85 c0                	test   %eax,%eax
+  1e:	75 e0                	jne    0x0
+  20:	48 8d 3d fa 2d ce 0e 	lea    0xece2dfa(%rip),%rdi        # 0xece2e21
+  27:	48 89 ee             	mov    %rbp,%rsi
+* 2a:	67 48 0f b9 3a       	ud1    (%edx),%rdi <-- trapping instruction
+  2f:	be 20 00 00 00       	mov    $0x20,%esi
+  34:	48 89 ef             	mov    %rbp,%rdi
+  37:	e8 25 a5 5d 09       	call   0x95da561
+  3c:	48 85 c0             	test   %rax,%rax
+  3f:	0f                   	.byte 0xf
+
+
+---
+This report is generated by a bot. It may contain errors.
+See https://goo.gl/tpsmEJ for more information about syzbot.
+syzbot engineers can be reached at syzkaller@googlegroups.com.
+
+syzbot will keep track of this issue. See:
+https://goo.gl/tpsmEJ#status for how to communicate with syzbot.
+
+If the report is already addressed, let syzbot know by replying with:
+#syz fix: exact-commit-title
+
+If you want to overwrite report's subsystems, reply with:
+#syz set subsystems: new-subsystem
+(See the list of subsystem names on the web dashboard)
+
+If the report is a duplicate of another one, reply with:
+#syz dup: exact-subject-of-another-report
+
+If you want to undo deduplication, reply with:
+#syz undup
