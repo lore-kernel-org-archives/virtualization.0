@@ -1,160 +1,168 @@
-Received: from mx0b-001b2d01.pphosted.com (mx0b-001b2d01.pphosted.com [148.163.158.5])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AB183434E5C
-	for <virtualization@lists.linux.dev>; Thu, 30 Jul 2026 13:26:55 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=148.163.158.5
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9C6FA43933A
+	for <virtualization@lists.linux.dev>; Thu, 30 Jul 2026 13:55:17 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785418017; cv=none; b=YETTQBNa83CzHOKziwDPPq2im9VV0UU07VN6OuwxPDUQcHQSzUUoMhspkAMCrznpNhDnGhuLZZwCnNeUZ2HmhOEYuXiKb7aWKEpj1lsuB8tqpV2Wg1XX4UNqbIZMG/XnOqzxXg/16LxlB8wqm4L12Q5fhWQ+h3Y4xDngLrAgApI=
+	t=1785419719; cv=none; b=lRi8wJuXHUQxXLJqGLFoe9tbGi4a/NOLuPOyleQHak4NRjVU5REjzZn34P+I4PTGr+GvJJvgiUfBstFDpGE8CfzxvUV+gQq7vx7flcH1zPUw0R1CnV52uZAbaerEKuzi3gD3+oknsFV1x6kah0S+F05exeKrlA+4hm9koCNSIiA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785418017; c=relaxed/simple;
-	bh=MkgJagk0lqG9pqhxwgsWwBst8qzg0Js0R4D0qSlPnCw=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=U5fnqa8OniR923Umfbtev7DL0GfMFJr2eq2ffiXQoQ8EIPl328A4M53VFgBjEEJkhOiKSEhf6zySwyCo2arc/+egWNF6v+o3FnGI+xr0kGK5+jncMXvGZatJiwFk8z00cdC7pKXkolxuX0TLH9/34pgxpYJTmsM3VNqA5f5IRxo=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com; spf=pass smtp.mailfrom=linux.ibm.com; dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b=IofsaFeb; arc=none smtp.client-ip=148.163.158.5
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.ibm.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.ibm.com
+	s=arc-20240116; t=1785419719; c=relaxed/simple;
+	bh=jw2FzdY8gX+RdVSUNHD/1Z45SnK0pCPcHOh2A+Uq9oE=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=hxei5mIEUp3jnxFZApXONjLrJTrIZLvQwxrDYes/S0qkTAbUMkbdYy8tKKw62QcSWg4jwdG9ru6fYDJSsFMHlT6319esq89dJES12VIJTAamY6GndCMB8bf8Wztt3hOTAQpZDpZ5+iyYeyto57b993qnsLsKGFb+07TzO2TJDcw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=K1UD4rZf; arc=none smtp.client-ip=170.10.129.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=ibm.com header.i=@ibm.com header.b="IofsaFeb"
-Received: from pps.filterd (m0353725.ppops.net [127.0.0.1])
-	by mx0a-001b2d01.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66UDIbBd3023316;
-	Thu, 30 Jul 2026 13:26:54 GMT
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=ibm.com; h=cc
-	:content-transfer-encoding:content-type:date:from:in-reply-to
-	:message-id:mime-version:references:subject:to; s=pp1; bh=jurk0j
-	HsrA9x6gbe0RHvpqQrLRF5ebl/9BCJOBQFfIQ=; b=IofsaFebqPv2X73mpZuMUA
-	wC6a/hTdsYVw+E0WOMXvKwHVMbP9MBKMHDaGaRYbxfU/SMXiV1J3cCDfDV0CHBOl
-	VBf+hNxiLT2tuZU3XiwE57v1hGfpofKklCic35+uuiXnvC0SqZ1k/A947udp+kfK
-	8VQzXAsOACQ87tgfv4QI2Zuo/6xcB2QwsGVIs9Lc+tFk+qXokt8SaVeFdeNyIQNm
-	Y5pNCBE+4oYYsvR/B02OuwAEPE0sNO1ZRoi8cqhO/qHmamjJTzs+M2+Y7BHLf/oa
-	cFC+W574OQUqZACqKlER5VT7Nj7dFg1Cd3s84/lufIDuY7x+AAVvDLlLOZn+WBpA
-	==
-Received: from ppma22.wdc07v.mail.ibm.com (5c.69.3da9.ip4.static.sl-reverse.com [169.61.105.92])
-	by mx0a-001b2d01.pphosted.com (PPS) with ESMTPS id 4fmv0ny16b-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 30 Jul 2026 13:26:54 +0000 (GMT)
-Received: from pps.filterd (ppma22.wdc07v.mail.ibm.com [127.0.0.1])
-	by ppma22.wdc07v.mail.ibm.com (8.18.1.7/8.18.1.7) with ESMTP id 66UDQFYZ022852;
-	Thu, 30 Jul 2026 13:26:53 GMT
-Received: from smtprelay01.fra02v.mail.ibm.com ([9.218.2.227])
-	by ppma22.wdc07v.mail.ibm.com (PPS) with ESMTPS id 4fn7uwbmay-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=NOT);
-	Thu, 30 Jul 2026 13:26:53 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (smtpav04.fra02v.mail.ibm.com [10.20.54.103])
-	by smtprelay01.fra02v.mail.ibm.com (8.14.9/8.14.9/NCO v10.0) with ESMTP id 66UDQpPd32702932
-	(version=TLSv1/SSLv3 cipher=DHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Thu, 30 Jul 2026 13:26:51 GMT
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 706AC20043;
-	Thu, 30 Jul 2026 13:26:51 +0000 (GMT)
-Received: from smtpav04.fra02v.mail.ibm.com (unknown [127.0.0.1])
-	by IMSVA (Postfix) with ESMTP id 4774220040;
-	Thu, 30 Jul 2026 13:26:51 +0000 (GMT)
-Received: from [9.224.77.173] (unknown [9.224.77.173])
-	by smtpav04.fra02v.mail.ibm.com (Postfix) with ESMTP;
-	Thu, 30 Jul 2026 13:26:51 +0000 (GMT)
-Message-ID: <de0fcb62-f049-4c0d-a686-e0501c07cf09@linux.ibm.com>
-Date: Thu, 30 Jul 2026 15:26:51 +0200
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="K1UD4rZf"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1785419716;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=kA6RdxhutI1Br8ceaw7LS/E/bmiLwIkU0wCTumrQB6I=;
+	b=K1UD4rZflgk2j9n55IdrEcVM53/5xk+XmCWaEAs07biSLOvR26oyRBen/0Eoq7s0XxGqgY
+	JoxihF16hUgo+oFb7YjA+KGdb/g2C19zJ8wRIW+u1ngSHWdlhxt+57oeBkL28y+o+LRlZX
+	DKe4nzmWDMLivNiylSRyePOK9Vy1HX8=
+Received: from mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com
+ (ec2-35-165-154-97.us-west-2.compute.amazonaws.com [35.165.154.97]) by
+ relay.mimecast.com with ESMTP with STARTTLS (version=TLSv1.3,
+ cipher=TLS_AES_256_GCM_SHA384) id us-mta-607-tegOc7dLPx2YyIio0TIW2w-1; Thu,
+ 30 Jul 2026 09:55:12 -0400
+X-MC-Unique: tegOc7dLPx2YyIio0TIW2w-1
+X-Mimecast-MFC-AGG-ID: tegOc7dLPx2YyIio0TIW2w_1785419710
+Received: from mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com [10.30.177.111])
+	(using TLSv1.3 with cipher TLS_AES_256_GCM_SHA384 (256/256 bits)
+	 key-exchange X25519 server-signature RSA-PSS (2048 bits) server-digest SHA256)
+	(No client certificate requested)
+	by mx-prod-mc-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTPS id 54EE718004A9;
+	Thu, 30 Jul 2026 13:55:10 +0000 (UTC)
+Received: from localhost (unknown [10.2.16.133])
+	by mx-prod-int-08.mail-002.prod.us-west-2.aws.redhat.com (Postfix) with ESMTP id A7A85180049F;
+	Thu, 30 Jul 2026 13:55:09 +0000 (UTC)
+Date: Thu, 30 Jul 2026 09:55:08 -0400
+From: Stefan Hajnoczi <stefanha@redhat.com>
+To: Jia Jia <physicalmtea@gmail.com>
+Cc: sgarzare@redhat.com, mst@redhat.com, jasowang@gmail.com,
+	eperezma@redhat.com, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] vhost/vsock: prevent stale IOTLB after ACCESS_PLATFORM
+ changes
+Message-ID: <20260730135508.GC1442692@fedora>
+References: <20260730040938.1725757-1-physicalmtea@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3] vdpa/mlx5: Fix buffer length in create_direct_keys()
-To: Dragos Tatulea <dtatulea@nvidia.com>
-Cc: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>,
-        virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-References: <20260706141537.3510294-1-borntraeger@linux.ibm.com>
- <3508dbb8-d110-42dc-aa25-4b3e73057422@linux.ibm.com>
- <9f799ce2-f84c-4224-b91d-464dc767eb00@linux.ibm.com>
- <21e944c6-2039-4e34-a2f9-711ea4769294@nvidia.com>
- <be143bcb-8d26-4576-a5b4-278a2905e6d7@nvidia.com>
-Content-Language: en-US
-From: Christian Borntraeger <borntraeger@linux.ibm.com>
-In-Reply-To: <be143bcb-8d26-4576-a5b4-278a2905e6d7@nvidia.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-TM-AS-GCONF: 00
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMwMDEwMSBTYWx0ZWRfX1+KngBAK+4j9
- kmQ8wKu1NpKPPx/x9j8MTO9mB0rFauZLYMSYoek4njdTuKgazG49AGue8o2AotZAe2mKKlZhQkI
- aeTElhA/Gvoei5HtCijRD5uFe5ZgRFc=
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMwMDEwMSBTYWx0ZWRfXxFKrDsKRaM35
- 3W7JNn9cltWfptUPywtCJAUwqYyoEiowVp+J0CQeaayAV5KV2TRA689EjTF+jVw986FwR934kHO
- ejVcgVKDG6ORfaUGVVfkhQOniTDY0tUYz1D1o7lUIzBm896rVRy+9cqPpP6TG/bb5zAKOaDNzwn
- oVlzKLQrAzoS4qKWzEMtpwOC3NcNT/nCElV+je6qVepmgdHC3NqMHn7uaWGsROwfeFXzZYwkmtT
- GQRrVlqV5QThCDzP/mMtAWZ8ohwlnuq3inmG2ND/gnK2dnsvoGPvtmwAViZMONiz3Of4+IVmr0p
- IgZx8zOPdHgkYdCYmrh5OArzqQLTEdh3fABgOFq0aJc64RVNlepETsY5+TTjS5Evsizl+oK34qD
- 6YS6xQlXrXbNTFkAF7ixD8RmL9bsbC2p4LwMSeAOVXT8QVHfQG9TXhHb1IiG8QgibCg5ZjOd+ZE
- jdcEihxP+CV+3qSR+kQ==
-X-Authority-Analysis: v=2.4 cv=b5WCJNGx c=1 sm=1 tr=0 ts=6a6b511e cx=c_pps
- a=5BHTudwdYE3Te8bg5FgnPg==:117 a=5BHTudwdYE3Te8bg5FgnPg==:17
- a=IkcTkHD0fZMA:10 a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22
- a=RnoormkPH1_aCDwRdu11:22 a=V8glGbnc2Ofi9Qvn3v5h:22 a=VnNF1IyMAAAA:8
- a=Ikd4Dj_1AAAA:8 a=A0XsCsmqdwQqc1docJ8A:9 a=QEXdDO2ut3YA:10
-X-Proofpoint-GUID: gWpMJwxF0Mft-80OZ0V9rdontgPCn25I
-X-Proofpoint-ORIG-GUID: gWpMJwxF0Mft-80OZ0V9rdontgPCn25I
-X-Proofpoint-Virus-Version: vendor=baseguard
- engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
- definitions=2026-07-30_04,2026-07-29_01,2025-10-01_01
-X-Proofpoint-Spam-Details: rule=outbound_notspam policy=outbound score=0
- priorityscore=1501 spamscore=0 adultscore=0 malwarescore=0 impostorscore=0
- bulkscore=0 phishscore=0 suspectscore=0 clxscore=1015 lowpriorityscore=0
- classifier=typeunknown authscore=0 authtc= authcc= route=outbound adjust=0
- reason=mlx scancount=1 engine=8.22.0-2606150000 definitions=main-2607300101
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="SVDwW4C3wzVzfyYK"
+Content-Disposition: inline
+In-Reply-To: <20260730040938.1725757-1-physicalmtea@gmail.com>
+X-Scanned-By: MIMEDefang 3.4.1 on 10.30.177.111
 
-Am 10.07.26 um 13:37 schrieb Dragos Tatulea:
-> 
-> 
-> On 10.07.26 10:23, Dragos Tatulea wrote:
->>
->>
->> On 10.07.26 09:18, Christian Borntraeger wrote:
->>> Am 07.07.26 um 09:17 schrieb Christian Borntraeger:
->>>> Am 06.07.26 um 16:15 schrieb Christian Borntraeger:
->>>>> We have seen in our CI the following KASAN message:
->>>>> BUG: KASAN: slab-out-of-bounds in cmd_exec+0x550/0xca0 [mlx5_core]
->>>>> Read of size 272 at addr 0000000176795020 by task qemu-system-s39/82764
->>>>> [...]
->>>>> [<000011388ab3a7a0>] cmd_exec+0x550/0xca0 [mlx5_core]
->>>>> [<000011388ab3b61c>] mlx5_cmd_exec_cb+0x25c/0x4f0 [mlx5_core]
->>>>> [<000011388b21e82e>] mlx5_vdpa_exec_async_cmds+0x22e/0x5e0 [mlx5_vdpa]
->>>>> [<000011388b21fd44>] create_direct_keys+0x954/0xef0 [mlx5_vdpa]
->>>>> [...]
->>>>> The buggy address is located 4128 bytes inside of
->>>>> allocated 4384-byte region [0000000176794000, 0000000176795120)
->>>>>
->>>>> So in essence we read 16 bytes beyond 4384-byte allocation.
->>>>> create_direct_keys calculates the pointer and length for in and out
->>>>> buffers.
->>>>> The size calculation for in includes the entire structure
->>>>> size (out + in + mtt[]) but the pointer passed to cmd_exec points only
->>>>> to the 'in' field, skipping the 'out' field.
->>>>>
->>>>> This causes mlx5_copy_to_msg() to read beyond the allocated buffer
->>>>> by sizeof(out) bytes when copying command data.
->>>>>
->>>>> Properly calculate the input size to match the pointer and allocation size.
->>>>>
->>>>> Fixes: 0071b138d44a ("vdpa/mlx5: Create direct MKEYs in parallel")
->>>>> Signed-off-by: Christian Borntraeger <borntraeger@linux.ibm.com>
->>>>
->>>>
->>>> Dragos,
->>>>
->>>> With this fix our nighly CI did not result in a kasan message. As I only have
->>>> limited test coverage a full regression on your side might still be the right
->>>> thing to do.
->>>
->>> Any feedback?
->>>
->> Sorry, got carried away with other stuff. Yes, I will check it on our side.
->>
->> Until then:
->> Reviewed-by: Dragos Tatulea <dtatulea@nvidia.com>
->>
-> I was able to reproduce the issue with KASAN during our live migration tests.
-> With this patch the issue is gone. Thanks for the fix!
-> Tested-by: Dragos Tatulea <dtatulea@nvidia.com>
-Ping. I cannot find this in next.
+--SVDwW4C3wzVzfyYK
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Thu, Jul 30, 2026 at 12:09:38PM +0800, Jia Jia wrote:
+> vhost_vsock_set_features() initializes dev->iotlb when
+> VIRTIO_F_ACCESS_PLATFORM is enabled. It does not remove that IOTLB
+> when the feature is later cleared. The virtqueue still points at the
+> old IOTLB, and vhost_vsock_handle_tx_kick() passes descriptors to
+> vhost_get_vq_desc(), which translates them through that mapping.
+>=20
+> A userspace backend can enable ACCESS_PLATFORM, install an IOTLB entry
+> for a payload GPA, start the device, clear ACCESS_PLATFORM, replace the
+> memory table, and reuse the old HVA before submitting the same GPA
+> again. The feature state then says direct memory access is in use
+> while the TX path still uses the old IOTLB HVA.
+>=20
+> Reject clearing ACCESS_PLATFORM while the device IOTLB exists. Also
+> keep the existing IOTLB when a feature update leaves ACCESS_PLATFORM
+> enabled; VHOST_SET_FEATURES is used for runtime log updates and must
+> not discard the current translations by allocating an empty IOTLB.
+>=20
+> Fixes: e13a6915a03f ("vhost/vsock: add IOTLB API support")
+> Signed-off-by: Jia Jia <physicalmtea@gmail.com>
+> ---
+>  drivers/vhost/vsock.c | 12 ++++++++++--
+>  1 file changed, 10 insertions(+), 2 deletions(-)
+>=20
+> diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
+> index ae01457ea2cd..57e8fd1eb670 100644
+> --- a/drivers/vhost/vsock.c
+> +++ b/drivers/vhost/vsock.c
+> @@ -798,6 +798,7 @@ static int vhost_vsock_set_cid(struct vhost_vsock *vs=
+ock, u64 guest_cid)
+>  static int vhost_vsock_set_features(struct vhost_vsock *vsock, u64 featu=
+res)
+>  {
+>  	struct vhost_virtqueue *vq;
+> +	int ret =3D -EFAULT;
+>  	int i;
+> =20
+>  	if (features & ~VHOST_VSOCK_FEATURES)
+> @@ -809,7 +810,14 @@ static int vhost_vsock_set_features(struct vhost_vso=
+ck *vsock, u64 features)
+>  		goto err;
+>  	}
+> =20
+> -	if ((features & (1ULL << VIRTIO_F_ACCESS_PLATFORM))) {
+> +	if (!(features & (1ULL << VIRTIO_F_ACCESS_PLATFORM)) &&
+> +	    vsock->dev.iotlb) {
+> +		ret =3D -EBUSY;
+> +		goto err;
+> +	}
+
+This prevents one problem but there are still other issues with how
+feature bit negotiation and the IOTLB are implemented:
+
+1. VIRTIO_F_ACCESS_PLATFORM is defined by the VIRTIO spec and must not
+   be change after feature bit negotiation. Please reject all feature
+   bit updates except VHOST_F_LOG_ALL to comply with the VIRTIO spec and
+   eliminate potential bugs in drivers/vhost/vsock.c.
+
+2. When the device is reset, the iotlb cannot be left initialized
+   because there is no guarantee that VIRTIO_F_ACCESS_PLATFORM will be
+   negotiated again.
+
+> +	if ((features & (1ULL << VIRTIO_F_ACCESS_PLATFORM)) &&
+> +	    !vsock->dev.iotlb) {
+>  		if (vhost_init_device_iotlb(&vsock->dev))
+>  			goto err;
+>  	}
+> @@ -827,7 +835,7 @@ static int vhost_vsock_set_features(struct vhost_vsoc=
+k *vsock, u64 features)
+> =20
+>  err:
+>  	mutex_unlock(&vsock->dev.mutex);
+> -	return -EFAULT;
+> +	return ret;
+>  }
+> =20
+>  static long vhost_vsock_dev_ioctl(struct file *f, unsigned int ioctl,
+> --=20
+> 2.34.1
+>=20
+
+--SVDwW4C3wzVzfyYK
+Content-Type: application/pgp-signature; name=signature.asc
+
+-----BEGIN PGP SIGNATURE-----
+
+iQEzBAEBCgAdFiEEhpWov9P5fNqsNXdanKSrs4Grc8gFAmprV7wACgkQnKSrs4Gr
+c8iuEAf7BOAf4LqI2+MgMLd+yvBG8EGJT86K0c+qhFk2J8MtCQRS8WaKnPJmnDvS
+/oDOhvCpPZa1U07FFcrabv3hRF9pgJavgivzWwfOUyyb64tDiF71MhXv6dgv4Dh0
+048zctZ5eP1okqvt1jWTFWKAZwzcluvV5cwIt0BmqRqfpFmH0b2zMZy71opBE56Q
+dVgsw6ae4axuoZZZYsokOQ1JKzvRIQKj9oWlysHUhyL9WLsogB8wyKLi4F5KGcwk
+bZZWNbGffs2v8olgI+Iffni89ziilv+/3OL7lFlu4W6V9zIzbDjBFEaMJnqBWyYz
+YfZoegWbYr4DmbjdNnqH19M2He8wWQ==
+=0EEQ
+-----END PGP SIGNATURE-----
+
+--SVDwW4C3wzVzfyYK--
+
