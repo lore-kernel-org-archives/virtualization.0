@@ -1,117 +1,165 @@
-Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B76BB33AD88;
-	Thu, 30 Jul 2026 21:40:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 0FCB43D9DBD
+	for <virtualization@lists.linux.dev>; Thu, 30 Jul 2026 21:46:32 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785447626; cv=none; b=fmmAnSVyUSgZOnsDDBYs8LAuk3/G3bgr+2Vn6DFVLFrhb9mAoYFXjVckcw+4BQKlK1VpIs2wUYJcJwBg+iMPNz5X4SxbPf98OVBDF7jeqHphOFv6+fhrpcacSdJ1HWh0sfgeYGZsFGfGo1QhD38kD0YuEoQMVrOXqbt1SOZcYM4=
+	t=1785447996; cv=none; b=Ms6Hn2PQ2uhemyOITcyaSB8k1Hy8Ur8Wi6kIRh3DFMaVKK8V3AOXZdEhpLCldIm259wVFFD5+OBzvEXDakN1EqLjV6sI2XvDu3JUZhS0WvdJUWG53QRLAfMiY7iDUQjhdFxf2STSNahWdPSLRfCIucCE988u/Pemqns5GGbrX48=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785447626; c=relaxed/simple;
-	bh=lwyjYGWYFgTDpQ85Ojydg1Cb3khxAupjJPpngwLFhSk=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=LKc1ZZwk31IW547BBd3NBBhNFhImQKWjlBpr3+KPHuY5GGKNQb8glzlZDEUQuBeaavWXDnPfg0WVA80sKvzrOnYynASzZcXRhcOcrr7OFGBUP6NjkVc9i3GM9Mf0uQwf08XPMRbx+uPL+AsL7zopfFIGLzask7D91tlTk8V7eJg=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=JWSsgngE; arc=none smtp.client-ip=129.217.128.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
+	s=arc-20240116; t=1785447996; c=relaxed/simple;
+	bh=3dGuOtRuc7vDNnA6Xn+2Xxz1vdKxTTykCtGHwjG52jk=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=Be7ubAQXZDMgvn3xt0KV6SaNfqGYuDKvyiWlC3PY1L1tPklABgSw4L863fP4E/LxA1y3KOWzHWTmdEwvahB1OnwE3Dfi8Fpf8pE4Kmu2BNWVH8LX7fW2qJUjRNVRSkoH2ft4Qb3vDo6RnLZI1EIHO0lvBpmBp414nbqpXPLixkw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=IQsL6hrw; arc=none smtp.client-ip=209.85.216.47
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="JWSsgngE"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tu-dortmund.de;
-	s=unimail; t=1785447413;
-	bh=MPZXFC4u7gfjPVIpwagoHXEDBexqpmRoZFGvCwt4B40=;
-	h=From:To:Subject:Date:In-Reply-To:References;
-	b=JWSsgngEVIJE8fiwW0wfnhoHhzNMVinGJVwDHCNVjTaGbiJ5/QvlD2MheNJMNm28z
-	 mfDs3VOXlAi+QT0bZVr/dZrHkso0zzCDtCo75zdKfQonyEWR4LFVUv0tjaKRGc/dEw
-	 wbI82TivTFFDAXVwWkhnLYOEZR+gvrxsY8Rc618c=
-Received: from simon-Latitude-5450.fritz.box (pd9eaa9cd.dip0.t-ipconnect.de [217.234.169.205])
-	(authenticated bits=0)
-	by unimail.uni-dortmund.de (8.19.0.2/8.19.0.2) with ESMTPSA id 66ULan2q027704
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Thu, 30 Jul 2026 23:36:53 +0200 (CEST)
-From: Simon Schippers <simon.schippers@tu-dortmund.de>
-To: willemdebruijn.kernel@gmail.com, jasowangio@gmail.com, jasowang@redhat.com,
-        andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, mst@redhat.com,
-        eperezma@redhat.com, leiyang@redhat.com, stephen@networkplumber.org,
-        jon@nutanix.com, brett@librecast.net, corbet@lwn.net,
-        skhan@linuxfoundation.org, tim.gebauer@tu-dortmund.de,
-        simon.schippers@tu-dortmund.de, netdev@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, virtualization@lists.linux.dev
-Subject: [PATCH net-next v13 1/5] tun/tap: add IFF_BACKPRESSURE flag
-Date: Thu, 30 Jul 2026 23:36:35 +0200
-Message-ID: <20260730213639.726381-2-simon.schippers@tu-dortmund.de>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260730213639.726381-1-simon.schippers@tu-dortmund.de>
-References: <20260730213639.726381-1-simon.schippers@tu-dortmund.de>
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="IQsL6hrw"
+Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-38e58034d05so395113a91.2
+        for <virtualization@lists.linux.dev>; Thu, 30 Jul 2026 14:46:32 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785447991; x=1786052791; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=1/LZ3k1OCAQIJqEM26gNRTliKG7NkCB9s3f2/fI53JY=;
+        b=IQsL6hrw+LovXmObvABmpNsg6T/YoxSSHdrvHqlvghoQ0IYpNIkWONkXAXX9IZBlju
+         IM4+rYTdVb00d7PVTVaZOu56hO6xlt5WqiegtmJQjCiOkoVwLK1PVAi/seJpjJuZP5D3
+         FQMCyvf5gGQgbdI28muDXFN8ZfWnDzPD+J/6Mg2Zx7Sf34e+E50BaP0WUOmDV4wudTZr
+         rmuZMRFUOi7sxyyQTo8w2pNhzrvkRSLH8vy5ArvFeXxnVUMbZ4Bq/3dknvC6pi9JXJQs
+         NSZrYg9L3+vj26gyNJT+nFEzH6Rxzt35MV/Pz7DOEdEwwbkmizSoxciLLoL7DZc7SEmF
+         XelA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785447991; x=1786052791;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=1/LZ3k1OCAQIJqEM26gNRTliKG7NkCB9s3f2/fI53JY=;
+        b=PmhJRBNXdgLuSuCsTCN7hQJCnrviQEtDvOVg41li/ETs4Gex+KyebT3GmCGn2ISnSb
+         7/4WoxghG4gWhd2HLIcu+3q3gAd1dKIvBMgxj5vNaTlbVnb3M15BM/Zg7c1Oe/xTSj4N
+         ibkXlJeynVXx9YnslcBECCNtoNdc2t8EParsD/jfAVmIq28Ps59lBY1a5pa+EBs1ihaV
+         pRiXHSXdz07IIN2rhRZf1O2cSXfOvQKhPrlA1tRFuUPQmYZ69F+NKWSS4zYXkhIzBfNw
+         8BNMfR1dWhU4EL66fPAuYhHka7hDBDOM4mbYC1Cge7SW3cpP+NY23FDFxoeClnBdyKs1
+         pC0g==
+X-Forwarded-Encrypted: i=1; AHgh+RrypMg2hzmjr1kQytaOpU1YKQbsxHeh6XEq1J96YjssQQihzHZHb42qJGf8Ud56khePmCqavCvTbGraTyI/1Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyvrmXMpG/S0MO0UC8SHMwaf0iuOD7uaA4BhXwjiJhKd57dI6tr
+	fs4eYGFEnd+z0jmZi06HJaGIakj/rcXSqWs6OV0KnuRHZ47B28YgknMf
+X-Gm-Gg: AR+sD10MipG0h/WNU2khmzSRTkmMlF0qkKR/Qf35a4Gny0PoWmdm0pSgnNBtOB5Pei/
+	Kb/gaWMBTZuoER02qloBt7pugSzuEJee7Z1kvYE0gMqOfMl+tCyvsHxo6GBcwwBc4hx9s3hYCRd
+	ggS3/Py3CdjLu89OfJb9LLdzXT7k/idUy7Atv/DxR4sTnXoWljMCLD7aRwF8qyQ6U4oXYuDA6xd
+	Lla3VCe+aP5I00iuT7B8Z+3tAKPHclSseekcIUtuzWYTpTY/nNnpEdA6FHtIeQg2UVItwpvLak2
+	EPYzKE1Gx7MPUt0/etUYhQVg+rWuqmOpZcaf66i7V63x46VJVNifufOz4U4SCKcjrg36xJSMimX
+	EWjQqmULVIhSrNoy8rqUXvY3Y8/4clGZSuaFdmCY3oGP4XwGz1AKwjp8GUDLlT2MH8nBUXwgNly
+	9QPQoDZhWbDiinUmIa0e+o5j1HGY9WFWNZedfR4sZ4y7GRVyTTXh7iAwNWEYKetobmfSN0t0dIR
+	xfTgX2XIe8=
+X-Received: by 2002:a17:90b:55cb:b0:38e:c0f5:7c4 with SMTP id 98e67ed59e1d1-38f9c00dfc6mr3834752a91.30.1785447991438;
+        Thu, 30 Jul 2026 14:46:31 -0700 (PDT)
+Received: from devvm29614.prn0.facebook.com ([2a03:2880:ff:46::])
+        by smtp.gmail.com with ESMTPSA id 98e67ed59e1d1-38f9baeb56dsm1576842a91.17.2026.07.30.14.46.30
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 30 Jul 2026 14:46:30 -0700 (PDT)
+Date: Thu, 30 Jul 2026 14:46:28 -0700
+From: Bobby Eshleman <bobbyeshleman@gmail.com>
+To: Weiming Shi <bestswngs@gmail.com>
+Cc: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	Stefan Hajnoczi <stefanha@redhat.com>,
+	Stefano Garzarella <sgarzare@redhat.com>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>, Paolo Abeni <pabeni@redhat.com>,
+	Simon Horman <horms@kernel.org>, virtualization@lists.linux.dev,
+	kvm@vger.kernel.org, netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org, Xiang Mei <xmei5@asu.edu>,
+	Bobby Eshleman <bobbyeshleman@meta.com>
+Subject: Re: [PATCH v3 2/2] vsock/virtio: avoid refilling the RX queue after
+ teardown
+Message-ID: <amvGNBmggisFqA0k@devvm29614.prn0.facebook.com>
+References: <20260729185831.3247971-1-bestswngs@gmail.com>
+ <cover.1785352330.git.bestswngs@gmail.com>
+ <f9c8c1d64cad9d262f305d02ffe164c2f900fadf.1785352330.git.bestswngs@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <f9c8c1d64cad9d262f305d02ffe164c2f900fadf.1785352330.git.bestswngs@gmail.com>
 
-Add the IFF_BACKPRESSURE flag to the UAPI header and to TUN_FEATURES so
-that it can be set via TUNSETIFF. The flag has no effect yet, it is the
-gate for the qdisc backpressure logic added by the following patches.
+On Wed, Jul 29, 2026 at 12:16:55PM -0700, Weiming Shi wrote:
+> Commit b917507e5ad9 ("vsock/virtio: stop workers during the .remove()")
+> made the RX worker jump to its common exit when rx_run is clear.  That
+> exit still refills the RX queue when the buffer count is low, so work
+> queued across virtio_vsock_vqs_del() can add buffers after the virtqueues
+> have been deleted.
+> 
+> BUG: KASAN: slab-use-after-free in virtqueue_add_sgs
+> Read of size 4 by task kworker/0:1
+> Workqueue: virtio_vsock virtio_transport_rx_work
+> Call Trace:
+>  virtqueue_add_sgs (drivers/virtio/virtio_ring.c:2796)
+>  virtio_vsock_rx_fill (net/vmw_vsock/virtio_transport.c:332)
+>  virtio_transport_rx_work (net/vmw_vsock/virtio_transport.c:701)
+>  process_one_work (kernel/workqueue.c:3314)
+>  worker_thread (kernel/workqueue.c:3478)
+>  kthread (kernel/kthread.c:436)
+>  ret_from_fork (arch/x86/kernel/process.c:158)
+>  ret_from_fork_asm (arch/x86/entry/entry_64.S:245)
+> ...
+> Freed by task 141:
+>  kfree (mm/slub.c:6566)
+>  vp_del_vq (drivers/virtio/virtio_pci_common.c:259)
+>  vp_del_vqs (drivers/virtio/virtio_pci_common.c:285)
+>  virtio_vsock_freeze (net/vmw_vsock/virtio_transport.c:912)
+>  virtio_device_freeze (drivers/virtio/virtio.c:658)
+>  virtio_pci_freeze (drivers/virtio/virtio_pci_common.c:601)
+>  pci_pm_freeze (drivers/pci/pci-driver.c:1098)
+>  device_suspend (drivers/base/power/main.c:1968)
+> Kernel panic - not syncing: KASAN: panic_on_warn set ...
+> 
+> Jump to a no-refill exit when rx_run is clear, leaving the normal exit
+> to replenish a running queue.
+> 
+> Fixes: b917507e5ad9 ("vsock/virtio: stop workers during the .remove()")
+> Cc: stable@vger.kernel.org
+> Reported-by: Xiang Mei <xmei5@asu.edu>
+> Link: https://lore.kernel.org/r/20260727035804.1860862-1-bestswngs@gmail.com
+> Suggested-by: Stefano Garzarella <sgarzare@redhat.com>
+> Assisted-by: OpenAI-Codex:gpt-5
+> Signed-off-by: Weiming Shi <bestswngs@gmail.com>
+> ---
+>  net/vmw_vsock/virtio_transport.c | 3 ++-
+>  1 file changed, 2 insertions(+), 1 deletion(-)
+> 
+> diff --git a/net/vmw_vsock/virtio_transport.c b/net/vmw_vsock/virtio_transport.c
+> index a8e1dd95ba8c..96c9fe8d357c 100644
+> --- a/net/vmw_vsock/virtio_transport.c
+> +++ b/net/vmw_vsock/virtio_transport.c
+> @@ -638,7 +638,7 @@ static void virtio_transport_rx_work(struct work_struct *work)
+>  	mutex_lock(&vsock->rx_lock);
+>  
+>  	if (!vsock->rx_run)
+> -		goto out;
+> +		goto out_nofill;
+>  
+>  	vq = vsock->vqs[VSOCK_VQ_RX];
+>  
+> @@ -692,6 +692,7 @@ static void virtio_transport_rx_work(struct work_struct *work)
+>  out:
+>  	if (vsock->rx_buf_nr < vsock->rx_buf_max_nr / 2)
+>  		virtio_vsock_rx_fill(vsock);
+> +out_nofill:
+>  	mutex_unlock(&vsock->rx_lock);
+>  }
+>  
+> -- 
+> 2.55.0
+> 
 
-Keeping the flag and its users in separate patches would either leave a
-window where backpressure is unconditional, or make the gate a later
-add-on. Adding the flag first lets every following patch be a no-op
-unless it is set.
-
-Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
----
- drivers/net/tun.c                 | 3 ++-
- include/uapi/linux/if_tun.h       | 4 ++++
- tools/include/uapi/linux/if_tun.h | 4 ++++
- 3 files changed, 10 insertions(+), 1 deletion(-)
-
-diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index 51e80000bd0e..ea8573efb848 100644
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -98,7 +98,8 @@ static void tun_default_link_ksettings(struct net_device *dev,
- #define TUN_FASYNC	IFF_ATTACH_QUEUE
- 
- #define TUN_FEATURES (IFF_NO_PI | IFF_ONE_QUEUE | IFF_VNET_HDR | \
--		      IFF_MULTI_QUEUE | IFF_NAPI | IFF_NAPI_FRAGS)
-+		      IFF_MULTI_QUEUE | IFF_NAPI | IFF_NAPI_FRAGS | \
-+		      IFF_BACKPRESSURE)
- 
- #define GOODCOPY_LEN 128
- 
-diff --git a/include/uapi/linux/if_tun.h b/include/uapi/linux/if_tun.h
-index 79d53c7a1ebd..a0ddc50a7534 100644
---- a/include/uapi/linux/if_tun.h
-+++ b/include/uapi/linux/if_tun.h
-@@ -69,6 +69,10 @@
- #define IFF_NAPI_FRAGS	0x0020
- /* Used in TUNSETIFF to bring up tun/tap without carrier */
- #define IFF_NO_CARRIER	0x0040
-+/* Stop the queue instead of dropping when the internal ring is full, so an
-+ * attached qdisc applies backpressure instead of being bypassed.
-+ */
-+#define IFF_BACKPRESSURE	0x0080
- #define IFF_NO_PI	0x1000
- /* This flag has no real effect */
- #define IFF_ONE_QUEUE	0x2000
-diff --git a/tools/include/uapi/linux/if_tun.h b/tools/include/uapi/linux/if_tun.h
-index 2ec07de1d73b..2c85525704c1 100644
---- a/tools/include/uapi/linux/if_tun.h
-+++ b/tools/include/uapi/linux/if_tun.h
-@@ -67,6 +67,10 @@
- #define IFF_TAP		0x0002
- #define IFF_NAPI	0x0010
- #define IFF_NAPI_FRAGS	0x0020
-+/* Stop the queue instead of dropping when the internal ring is full, so an
-+ * attached qdisc applies backpressure instead of being bypassed.
-+ */
-+#define IFF_BACKPRESSURE	0x0080
- #define IFF_NO_PI	0x1000
- /* This flag has no real effect */
- #define IFF_ONE_QUEUE	0x2000
--- 
-2.43.0
-
+Reviewed-by: Bobby Eshleman <bobbyeshleman@meta.com>
