@@ -1,87 +1,117 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-qt1-f173.google.com (mail-qt1-f173.google.com [209.85.160.173])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DC8C42E974D;
-	Thu, 30 Jul 2026 00:20:50 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785370855; cv=none; b=IPOKfDq7oBJMXTfiov1bmRC6OMA4ykexTqzc3plww8VW0AOnmtRp7N6giBsEq+xVYZccfR4JmrSIR7sW/ijwAnzQ9T7Bv79VVML8xqyMtH8J3UdRy99+pS8I8tmPlkL1zbIw/O4u1OeL2YaiC9M2JyUMTPW3d1NSM5iogE2bYro=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785370855; c=relaxed/simple;
-	bh=MCvOERHoQ1utAVyBxtRKjPVQqF2sFvORAss1VbsTkWQ=;
-	h=Content-Type:MIME-Version:Subject:From:Message-Id:Date:References:
-	 In-Reply-To:To:Cc; b=NA0f36vkWG0bi+jNldcC93RL0qK/vzA7iHKm5lPkgVsrO0owbOMHFiqQ2davzzs7H4FBbYnUiRGKdrxWh6mqMVyRtb/pCO0kpKCj7RJLZMX5VSPOPDj1bCRDPs6jx/12YQYtwX0sfxUKY/n7UygIAO5U+U4EhsbT0+2PAro4Cl4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=VmiXSpVa; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D476368D40
+	for <virtualization@lists.linux.dev>; Thu, 30 Jul 2026 02:52:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.173
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785379945; cv=pass; b=imQZRi6fB3R4IW1WxWUlXzsk/vGOZd8Klhnk/gHsIeRFRE06SVf0SPFPkCAqT4pR1/eZ0GYAcPxvcQHIiO+4lScP4Bhz4F6h+Ta0MvaFglx7KgtRuo69KypX4M16mwNbP8y70VQdgRnPphV5KlJwBIJFWBPWUlFzYZT/pgTFGgY=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785379945; c=relaxed/simple;
+	bh=KxmpVJvWjMZMyt/jgVtLy2EX2JvxTMqxDINieHaDSfc=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=fkHpgB+0SCUsIyOKv16TIefqTx0oRfr/kINUiUgOg5EzUyF+bBf8OdgDoFYoiC+Un/gheJFfXHgxSlZ+HLhtqXv2qqKJjWsAURlJf1TfMBn3vBZrJpWQLaX1Qf+J055NJCUUkk1SSExi912Daai+nYpo0aKXRcKbr8EhTOwoosE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=jPvgYpeD; arc=pass smtp.client-ip=209.85.160.173
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="VmiXSpVa"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id 2B6111F000E9;
-	Thu, 30 Jul 2026 00:20:48 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785370848;
-	bh=Y/ar3p1LYVEouOsJQKs8P3xplzoQODF9Duqlif8Y8ew=;
-	h=Subject:From:Date:References:In-Reply-To:To:Cc;
-	b=VmiXSpVaoEF8+TNSMF8PWojUVW3wDykLCtyIXz6OAYNqt4MkBnsoPJDfe8gv9imAx
-	 Bxs0rInvkFI4ZePPLv/kKM1hOWHdGHNo49O3n/iagB3F/9jX2Y7osfsuEqcAdlGPRO
-	 1OO2RBQC3Zrr0VUFW12iHo008BijUCRlG9C6OIHZleiPO33YLVsMTn8wJdhvnu0Qwy
-	 IlXRvRndnDGncbQ8QxuzMNhvgcuje+/B6cbacTOcDcIXiMeatEOJrrO7rIDjl+G2xA
-	 skgTfARIDBYGHXJk0SbIy9rMwQe5WEKs1URffm9ST8LLt+YlRKt17F0EOha+8vwii4
-	 Qa1DoMzNQWKlQ==
-Received: from [10.30.226.235] (localhost [IPv6:::1])
-	by aws-us-west-2-korg-oddjob-rhel9-1.codeaurora.org (Postfix) with ESMTP id 56B3B3926250;
-	Thu, 30 Jul 2026 00:20:13 +0000 (UTC)
-Content-Type: text/plain; charset="utf-8"
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="jPvgYpeD"
+Received: by mail-qt1-f173.google.com with SMTP id d75a77b69052e-51c01c79467so155771cf.0
+        for <virtualization@lists.linux.dev>; Wed, 29 Jul 2026 19:52:24 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1785379943; cv=none;
+        d=google.com; s=arc-20260327;
+        b=T5NHnJlX7W+o06+ym3fNs4IQ+xYoYNexUO7k3onia74yF1KqQn5R/Zvf+1KRf/hL5u
+         2a/gqHEl4QaFK8EZbR/qvMQZUtX1lkn2z90qKmNELqVNnIkgywkPyUZR0CKTJ8E6cqhQ
+         lovhCm1ZCStShQhTTUl2gqtcWA70EoSfnV8ZICM7K2/qGkjK7vb66kiwE0X0CIIPynFw
+         MkQtFuD+0NnVNAP6/EIKqp0iLrZinkp4Z+gl0yRKemKa3NaPGGad96VZqxWCQm1RtER3
+         TOQTLfIJot4MaMN6NtYCybSVLewA/fs4Zio7K3ItFBK8J7WRCsybpGHpg1QuDcY2C4uk
+         2z8w==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=cc:to:subject:message-id:date:from:in-reply-to:references
+         :mime-version:dkim-signature;
+        bh=KxmpVJvWjMZMyt/jgVtLy2EX2JvxTMqxDINieHaDSfc=;
+        fh=ySYjV98uMrgl7FWO3xj8/RHhKda0pxNSTfkPSR90+/M=;
+        b=FgyqcDHmSzNrVLQyEoaWUIg5ztLU311T9L38RHoSxtRoIV0PGPEiMmnQj5zmq6uZe7
+         5PgB6sA9LAXGtRdYgwEW08d5euzciEk3G1OtZ00gEzBaOnot6zy2cgBqecW4D50kK0m+
+         IxmB0ISU9oWK3TtpWoUiRKRelD5pPqzq3BPhemtPbEtSTxSF4/NnHz9kQK1soNEOroOp
+         ShtiZ6zqPulN/OZ1JHjNYI+Yj5waRoJTu+WvcnKfwI17qK15F6PNuResU0ospgnp1DbS
+         ke3hefEfYkJTot/irtmIEIfO9T/i/hdIKn7vG0I5V65gZ6XNV8GasQn00dV8Yyegc6Fz
+         8q8A==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1785379943; x=1785984743; darn=lists.linux.dev;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=KxmpVJvWjMZMyt/jgVtLy2EX2JvxTMqxDINieHaDSfc=;
+        b=jPvgYpeDpja3WpLeDH+cJPZ9ChXQZ1VyJqMvXDBwWZk6SC4LFdAycRed1tzZr5/2r1
+         bXXw49hPK1IEwFxomRrNJubP3azbMNxeOrTjc6cM+Yb8jhIE4dzNRvATlqg0JkF0E3oH
+         oSWlilqy65fgCLk2iP7qEEWThPIYu5R0xhWcswYE1yhACwvrhzFmqpOqohC9UL6/yVBt
+         aKs8sY2CsbZpfp1tsmEEq1FksIHNGOXK0ewUpdtUkm+IINASEoCxgRZpJGK6p0T5WuAk
+         4nE/RzNhCX96PywdzFB1bXLG+zCq7tXvZqWfmJzOi/1bY2Lkuj38UK0JARmghzpYMlru
+         GoCw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785379943; x=1785984743;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=KxmpVJvWjMZMyt/jgVtLy2EX2JvxTMqxDINieHaDSfc=;
+        b=UncYNnmxOu0lXOV+OyBwVd3Zbt3B1Pzs9SswHkw0lUhCNlYYmD2FMMah4lXvsALGXK
+         qe8nMiFIVTDMcREMXaKbcokGzQeUxYPQGVd9J1sucP/faVLTAMRuZv+PuahOwZ4MKuqE
+         Pl2wA71GFVWD4aJKjg43X30SFWj7j408SkPwmNNArW54bQHVwUw3wRBsOhP4v7D/5r50
+         1SBEGtfqAJ4lgOnrbljIYFqq7NE3Zt8ZT2v0lv45tvdW+N/jTYTzYJds0QhXlbfVvHLd
+         1vaaR0GvlyaP3DGKISbLp/zx+nq34UdlMBUSLKqjyIODFOO+UKenxN1qDAYAx1/ZKqdP
+         UO1Q==
+X-Forwarded-Encrypted: i=1; AHgh+RqMFQB978vMDxeqAbiCnNxw0rvmUhYXI8KCmSO7ITMF4mYichwQ1CVNrM/4HfgK4EY0QVP8PVL8szqpL3gt9A==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzUYN6ImcZVc1bBXP0E7Na6n6uGLDUBbOncckYh/U+wqIpGcG0p
+	PGd6KS+ATVz7nuNykwlNxziiOmMaK1tvsfIxkaMU4ORbOVXRef3+g1lY5emfZ16udLX097lPMBB
+	eZEjuHOnE0FdY70wpxMK4yCbBBLXVDyu/0cPsEAhDcOH5TjVgJ6ZAxNdEh0GoOQ==
+X-Gm-Gg: AR+sD13YRobUVTJHFqAE/L5vcVWbuZyZim+1kYf2hLxfCtcaOuSpsTGHGO1XSPKPFvc
+	jcFozRSf0LiKOjYtX89S8JsBtBV5MrX4vXasxC2v18ip907V9wj636RjNgDpL3hdiiQLWz0HaMN
+	+2gY07TXLYzU/YUV2KcZXtivhpV1lRsUfj3m/4YUfrtD20L5MKnbNQw8mhCawUviIXWFqeu/bPJ
+	v4r002sG3PUZWJsGEcaVWCPuTdJzfFRQOeQYpJv8yOjNAo42IarPfC1QyR5wS9EeBdcPZzAPe+C
+	H1w59lKfgCXRoZvv95+GwVJAI+lSOeOWqYABoEepeVAVjyxsXCgkl+GN5/W75T7/SUVmg+GRs+E
+	=
+X-Received: by 2002:a05:622a:aa8c:10b0:51b:ff0a:2048 with SMTP id
+ d75a77b69052e-52b393ed56dmr4235251cf.3.1785379942843; Wed, 29 Jul 2026
+ 19:52:22 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Subject: Re: [PATCH net 0/4] Revert "tun/tap & vhost-net: apply qdisc
- backpressure
- on full ptr_ring to reduce TX drops"
-From: patchwork-bot+netdevbpf@kernel.org
-Message-Id: 
- <178537081189.3294584.1292356149475658515.git-patchwork-notify@kernel.org>
-Date: Thu, 30 Jul 2026 00:20:11 +0000
-References: <20260728092240.250257-1-simon.schippers@tu-dortmund.de>
-In-Reply-To: <20260728092240.250257-1-simon.schippers@tu-dortmund.de>
-To: Simon Schippers <simon.schippers@tu-dortmund.de>
-Cc: netdev@vger.kernel.org, willemdebruijn.kernel@gmail.com,
- jasowangio@gmail.com, andrew+netdev@lunn.ch, davem@davemloft.net,
- edumazet@google.com, kuba@kernel.org, pabeni@redhat.com, mst@redhat.com,
- eperezma@redhat.com, horms@kernel.org, tim.gebauer@tu-dortmund.de,
- brett@librecast.net, kvm@vger.kernel.org, virtualization@lists.linux.dev,
- linux-kernel@vger.kernel.org
+References: <20260724014605.3377283-1-linkl@google.com>
+In-Reply-To: <20260724014605.3377283-1-linkl@google.com>
+From: Link Lin <linkl@google.com>
+Date: Wed, 29 Jul 2026 19:52:11 -0700
+X-Gm-Features: AUfX_mxpFzT0hpVdDxPUqKHkGPgYahhbPQV0xHfM6lq50s8el3BKANlDBJ9mwYI
+Message-ID: <CALUx4KQfyRgG3ewQZMuU4+AMCyrh8+rH=-MOZLBv29PbPcnhYA@mail.gmail.com>
+Subject: Re: [RFC PATCH] virtio_balloon: add VIRTIO_BALLOON_F_REPORTING_PM_SAFE
+ feature bit
+To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@kernel.org>, 
+	Vlastimil Babka <vbabka@kernel.org>, virtualization@lists.linux.dev, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, prasin@google.com, rientjes@google.com, 
+	duenwen@google.com, jiaqiyan@google.com, ahwilkins@google.com, 
+	Greg Thelen <gthelen@google.com>, Alexander Duyck <alexander.duyck@gmail.com>, jthoughton@google.com, 
+	stable@vger.kernel.org, Cory Maccarrone <maccarro@google.com>, 
+	Taylor Scanlon <tayy@google.com>
+Content-Type: text/plain; charset="UTF-8"
 
-Hello:
+Hi all,
 
-This series was applied to netdev/net.git (main)
-by Jakub Kicinski <kuba@kernel.org>:
+Friendly ping on this RFC.
 
-On Tue, 28 Jul 2026 11:22:36 +0200 you wrote:
-> Commit 1d6e569b7d0c ("tun/tap & vhost-net: avoid ptr_ring tail-drop when
-> a qdisc is present") did not show a relevant performance regression in my
-> testing, but on Brett Sheffield's librecast testbed it causes a
-> significant throughput drop in an IPv6 multicast testcase. The regression
-> can be pinpointed to multiple iperf3 TCP threads sending: for 8 threads
-> the throughput dropped from 13.5 Gbit/s to 9.13 Gbit/s.
-> 
-> [...]
+We'd love your feedback on whether using a new feature bit
+(VIRTIO_BALLOON_F_REPORTING_PM_SAFE) to negotiate PM suspend safety is
+acceptable, or if you have concerns about protocol-level handshakes for
+kernel PM fix states.
 
-Here is the summary with links:
-  - [net,1/4] Revert "tun/tap & vhost-net: avoid ptr_ring tail-drop when a qdisc is present"
-    https://git.kernel.org/netdev/net/c/f11b48aa674b
-  - [net,2/4] Revert "ptr_ring: move free-space check into separate helper"
-    https://git.kernel.org/netdev/net/c/6bc85579c3bb
-  - [net,3/4] Revert "vhost-net: wake queue of tun/tap after ptr_ring consume"
-    https://git.kernel.org/netdev/net/c/8f83be72d9f5
-  - [net,4/4] Revert "tun/tap: add ptr_ring consume helper with netdev queue wakeup"
-    https://git.kernel.org/netdev/net/c/c3da92af07ea
+If you prefer an alternative approach for safe fleet deployment, please let
+us know. Thank you!
 
-You are awesome, thank you!
--- 
-Deet-doot-dot, I am a bot.
-https://korg.docs.kernel.org/patchwork/pwbot.html
-
-
+Sincerely,
+Link
