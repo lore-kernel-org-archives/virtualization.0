@@ -1,65 +1,65 @@
-Received: from mail-pg1-f171.google.com (mail-pg1-f171.google.com [209.85.215.171])
+Received: from mail-pf1-f172.google.com (mail-pf1-f172.google.com [209.85.210.172])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F359D3CB54E
-	for <virtualization@lists.linux.dev>; Thu, 30 Jul 2026 20:11:48 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.171
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5788F3AE6F4
+	for <virtualization@lists.linux.dev>; Thu, 30 Jul 2026 20:11:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.172
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785442312; cv=none; b=HVs9KQP+THfCTK2y+mBtrCGZ88db/7VDQGzbPONpmZ33Wk46OvpWYaGzQGIOXeGg2rUH19VzbaFulU9bwTBrZFU5rHW2UsyKeMvH0BaxdN4j00YStftlc6L3fcYcOr05x/mHSuHAWYd0At6Q9PksPOe0aRIKSAMefU0O55dzdLM=
+	t=1785442309; cv=none; b=QaKYbCU0r9KiTL65g5KwOk/g9HS64AvELbY8z8S1zDMF0AmN2KRi2nJ+3uniEVUhHSspw4qjKAOnBE9yKeXNS9KNMZl3tHHFKNo9nCfRFylvN48oZMmAvdHlVtgu9Dn/SHG874uV2WhVFBWkaXlQE36QZeRZCLl0PR8krenDxoc=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785442312; c=relaxed/simple;
-	bh=ZdvgeoWh2TerW5rE/vqKIpMlNmv0bCF+vIbf9z8+9Y8=;
+	s=arc-20240116; t=1785442309; c=relaxed/simple;
+	bh=cM4XkvF7y2BcRDcPI9DO0f3mTOQg4RfEJTwnq/GPqwE=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=OYzM2pjMjl2m55NG90ygyeUgDrdeRGYg7UsRzofVP7OQiTsIhshE+7M1Qa30VkL6c2ztNm88sivHB9TNf+vNv7jFEF4kXcIIWWN/PDgobhJY930mtAURPrfRlKHws8T+aniE2hZrwCi/QlctqkgcQ/Ca4nSDN4mjS6AskGUavX4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=OdQ774uV; arc=none smtp.client-ip=209.85.215.171
+	 MIME-Version; b=IeHr/LykRsNu8t/iHnYbUk+9vIENXiCq/Hi/A+ZUq+Ykm+4L9dKOnAPpkbQUkOk8nkcSadIcDXi2D+BmsBkDiqOAkHqQLVWWvlY6gbWScF+TRQF+yPSJDLg73AFsb2Io09E9J5+JejqHy5XC4QQT8mOAPCPKOOrraPsG42ZhqoI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=bSzR7/bE; arc=none smtp.client-ip=209.85.210.172
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="OdQ774uV"
-Received: by mail-pg1-f171.google.com with SMTP id 41be03b00d2f7-cbb7926836eso120479a12.3
-        for <virtualization@lists.linux.dev>; Thu, 30 Jul 2026 13:11:47 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="bSzR7/bE"
+Received: by mail-pf1-f172.google.com with SMTP id d2e1a72fcca58-84e0688b7e8so308585b3a.1
+        for <virtualization@lists.linux.dev>; Thu, 30 Jul 2026 13:11:37 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785442306; x=1786047106; darn=lists.linux.dev;
+        d=gmail.com; s=20251104; t=1785442296; x=1786047096; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:reply-to:references
          :in-reply-to:message-id:date:subject:cc:to:from:from:to:cc:subject
          :date:message-id:reply-to:content-type;
-        bh=W7nssRnI5PbZKyunLFrMTG5kzkBNYctSVirvyP8FTcY=;
-        b=OdQ774uVYYY9HG1C9ITZdZz6Is7o9pLwKlJlIkLcWYre4I5rRfTvnkotrp7PkVBKjs
-         SbrYtGIqleVRrcGK3DuzEx8tRwAXt2QW8u/ochuhpIMIKfGh8gZuW/FgVDDSQvGCXjDS
-         UZoMl8uMray50XdImapVOjVbyWUMRU0uQR41r6YbSMbHh0yuD5ejHxZYNuNYAagY9DnP
-         tzpr3vBWvCT8gCAvFKIvTckCSucc7lGonb/Er9c4+xad/zFu+wqabZ3c1hD7JrQd+2MJ
-         vfNG8TgCFVUsEKBXefYchjIuLgT3b126FmERZrM8Dgk41V2YGUYQ6/q9iH+yEAmZFV1b
-         VG2A==
+        bh=pHOPI0ut4H55mAZaYylYOWy1NMuvGn1YFD0lfQuRbRc=;
+        b=bSzR7/bEIsmxscrEut5M9okRV7bSZJhgkiGa9kKJFuGDPTFBYJH/5r3PQDs525RPuV
+         xHYkJYN6emToCvZbnPLFunKt+kbiQSCx8EgGwDmkzEObdfjJhg3CGoz4Jq42/z3QU3oP
+         1apf0tjyMOxztWs2tJbg1E4xr0tD5HQQojrpY5TcywDol7jFihFBUojXTwNSYw7fqOHL
+         z2PmjxCEW0LkRWhY3oSu55+NGMUquc5Qr75iIUAfzi0u/pP9uDUxdcSv5IzuOcG4kSpG
+         YJdJqwZFjU4IndA+1/m+9t2CDOU66YWz/ZRvpyFo4ydzlH4YBeP4LpraWmu+7UccA2iY
+         ZqWg==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785442306; x=1786047106;
+        d=1e100.net; s=20251104; t=1785442296; x=1786047096;
         h=content-transfer-encoding:mime-version:reply-to:references
          :in-reply-to:message-id:date:subject:cc:to:from:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=W7nssRnI5PbZKyunLFrMTG5kzkBNYctSVirvyP8FTcY=;
-        b=LtlG5JG4JBREuh386VEbt8XAFBoAyOgKzsv1ZdazXFW9uHD9rqx4QDBUAdSdXAUSGE
-         kSiPrgMb4PcihD+oR/+BI4K7r915+uDUc0sJetXwuYNZbuZDw1ULY3W70e7JPL3H5xW2
-         yj8awdEhRnoAt9jGU/7VqkUo6N+wUP+MIPdsX00ZzaHO5EwMA+Qi7qehTYRB1WqEA0zE
-         AB9nkmyhuEERLx0VaQudlolXb6f5JLAGEpWfhvcZUJJhgCil8+4VKGB5QRAKbSnxr4qd
-         umIyNwMpsMnhD9l4HDUYcp/n+AyQawmK+qYBKh0gV0zv8TLHiOrGlWpB8jdX55W+q9sk
-         GXjg==
-X-Forwarded-Encrypted: i=1; AHgh+RrA9KqzfhRWH54858kINcyOC/dEW7OCO0UZD6JW5Wv3ZvhGJxgdYtrztlW8A3xBk0OITV3XnbapAuL1Q/JJuw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwhB4GG/xFkspovW3m36OqsE/IdiKlKagrFSXun/JKTVURZTdSY
-	57htZ9dyWAVSJz0+iB3FcF70p6sUMI3uSokINcYe5aOGjACX91rc05yf
-X-Gm-Gg: AR+sD11X7qvtMl+6NHaMufWAveCal67ov0yVevEuHFpLnnCWV2ZHCSlQrrOD/7r2eKl
-	9e79X8cXYtF6lm9Ay1EHA96Vct0yJ4juxLLUERShqaA2RngQkI7gYI3mx86egh4bTiumj6GSFu4
-	hnp1y9DR6rv0Tz994Xtjg3EGozPUp/OycKe+IVWguDmz657h1noPCN2Knv/bxfPdSjbvi0EuUcs
-	s1myLi+tZtlWMV9V4CLE37fu9NXW0kR3d4Hqch2eptMc4CtLMzgi3/0f5a3e2QjDdUokStZXaWX
-	b/qlj72c24bEYqsvlPEF0q0tjAWJx78XsEX56KDXWzjHJwwWP57ufas09VDSnYZR1rSEQMlW3AT
-	JrPKjPCXOWeY/yqi4jrQmHNVDNuSpvIRr4LPt4vjGkXKBDzJlE+O9T1YniDfvw7xd9XGso8KHp7
-	0p1cPk95Vq2zEdHt00i0ohREAQsoRl5CtuEMYyoYUnoIMqxcp+QBWIyu6iCZhRiXGydWNDzbRn1
-	JOPjTpZzLxVwjgtTyu3gWaVqSghsrKcvXducwjQyzs=
-X-Received: by 2002:a05:6a00:1741:b0:848:5b1e:aec2 with SMTP id d2e1a72fcca58-84ebc3e39b5mr3714867b3a.54.1785442305476;
-        Thu, 30 Jul 2026 13:11:45 -0700 (PDT)
+        bh=pHOPI0ut4H55mAZaYylYOWy1NMuvGn1YFD0lfQuRbRc=;
+        b=U0eP9lb8uIj0ssHq+UwfVRKDBlHPw3LEq/IoVXF5qXkCSySKtsJVUXBNOdarkVQzks
+         AEVfXJ+yxMDeRXEGsebZzFR6PkrLMjxpDLzN8chIouOBee69abZzIpRAdNR4mVFs5FO+
+         QjZZ080wlU7YTpsGamIfQK+WVoOIcyA2Fd/Bfby2vLD880whujUPKuVwLgpJTWr3FlMx
+         Zu6rtlsW3KGlGnVgGzOpaOUwfS2Nqh4q68fkbWlolxYtiJVPEpN/301SSvM5pbmd/IiR
+         yP9VpQNW2mPqwiOOHHb+kO8daNxpbScD6ZS4mZvmGE0RUFQylWdf5Y1RuCdQUwpL4dRN
+         uLcQ==
+X-Forwarded-Encrypted: i=1; AHgh+RrQ4Z21ht1RS9nL5+SFqq+I+YaWKESdeyoNHkOa51Fc5VTJiD/oWcetNy/9vbJ2ZZO8aST4RBX5upPabW1eKw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YxTuZKTtH24DCZybxlz3WOVh+v0XXf6SBiHzSAL3YBUVKTaPtj4
+	8U/C5tUOWC9y7UIp0gY7GEZCBph1thUIqCYM1hjhVLznBC60ETSAYIvh
+X-Gm-Gg: AR+sD11c0A2UgeZDweQ4PlKjCdGd2ohROogEqjOz6JfAmTpf+8GHDo03rvKCkgLO15w
+	K4IO9VUyIF0up92gnwso2bFBZVvKDmOYUG7V0QfLizhvmqzLyZtwbwNxhMcO+sx3UHBv9YT8Z3p
+	XHdCIpNAiq9w+EseLXIY0Gwy+PfDLZQvLO35RuHeTzy3aE+kFt2A9yXsDlDvQ9wyCxTDzYeNlUr
+	1TC/qBuy3ECi/eaYl78yBIg/3Kttug9Cb+0yopy+udv9eCLU8zKhXpovZZQ68uD+7SptJDbzwD3
+	NuucWq03NZNqBWiO0Ps/1VEPeSMzoiFOxBRaHv3VL9dYdKDjX1MqvODJ68EyX7+v3kEMOFOTF8J
+	tKg4kBaJs81hDMbz60LahmL72UXUZhK5BdXLrgNRgwJjcM6haW81eEbfl3Pg2ogfHc4X5xCIBzc
+	3P/wBZgnXo2yUnv4G0pUPBBh2estkJFyjR8/Bsq3XOi8VNAXIYevNZMjcukznNkcnyPK9o7I/Iz
+	a9AEUTdkpejEti9iEQ03hRtj/f3ir5LZ0S6xOQIvLAc2GWOKNmS2A==
+X-Received: by 2002:a05:6a00:e13:b0:84a:64ea:e767 with SMTP id d2e1a72fcca58-84ebc3db9bdmr3490632b3a.49.1785442295721;
+        Thu, 30 Jul 2026 13:11:35 -0700 (PDT)
 Received: from localhost.localdomain (c-174-165-208-10.hsd1.wa.comcast.net. [174.165.208.10])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84ea0055325sm3689108b3a.15.2026.07.30.13.11.43
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84ea0055325sm3689108b3a.15.2026.07.30.13.11.33
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 Jul 2026 13:11:44 -0700 (PDT)
+        Thu, 30 Jul 2026 13:11:34 -0700 (PDT)
 From: Michael Kelley <mhkelley58@gmail.com>
 X-Google-Original-From: Michael Kelley <mhklinux@outlook.com>
 To: kys@microsoft.com,
@@ -95,9 +95,9 @@ Cc: x86@kernel.org,
 	netdev@vger.kernel.org,
 	linux-scsi@vger.kernel.org,
 	virtualization@lists.linux.dev
-Subject: [RESEND PATCH 5/6] scsi: storvsc: Remove support for storvsc protocol of old Hyper-V hosts
-Date: Thu, 30 Jul 2026 13:11:22 -0700
-Message-Id: <20260730201123.1767-6-mhklinux@outlook.com>
+Subject: [RESEND PATCH 1/6] Drivers: hv: Remove support for WS2012/2012R2 & Win8/8.1 version of Hyper-V
+Date: Thu, 30 Jul 2026 13:11:18 -0700
+Message-Id: <20260730201123.1767-2-mhklinux@outlook.com>
 X-Mailer: git-send-email 2.25.1
 In-Reply-To: <20260730201123.1767-1-mhklinux@outlook.com>
 References: <20260730201123.1767-1-mhklinux@outlook.com>
@@ -110,115 +110,186 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-With the overall removal of Linux support for running on Hyper-V
-hosts earlier than WS2016 and Windows 10, it's no longer necessary
-to support older storvsc protocols. Remove the support and associated
-special case code. However, support for the protocol for Windows
-Server 2012R2 and Win8.1 (protocol version 6.0) is *not* removed
-because it is activiely used by HvLite in the paravisor for Azure VMs.
+Linux code for running as a Hyper-V guest includes special cases for
+running on Hyper-V in WS2012/2012R2 and Windows 8/8.1. These versions
+were initially released 14 years ago, and official support ended in 2023
+(unless a customer has contracted for extended security updates). Given
+the release of subsequent versions with improved functionality, there's
+no need to continue to support the latest Linux kernels on these versions
+of Hyper-V. If someone is running Linux on one of these older Hyper-V
+versions and doesn't want to upgrade, they can continue to do so as
+presumably they don't want upgrade the Linux version either.
+
+Simplify Linux code by removing special cases for running on these
+old versions of Hyper-V. Remove the negotiation of the VMBus protocol
+versions for WS2012/Win8, and remove special case code based on those
+VMBus protocol versions. Also update the balloon and snapshot drivers
+to no longer negotiate driver-specific protocol versions for these
+older Hyper-V versions, and remove any related special cases.
 
 Signed-off-by: Michael Kelley <mhklinux@outlook.com>
 ---
- drivers/scsi/storvsc_drv.c | 53 +++++++-------------------------------
- 1 file changed, 10 insertions(+), 43 deletions(-)
+ drivers/hv/channel_mgmt.c |  4 ----
+ drivers/hv/connection.c   |  8 ++++----
+ drivers/hv/hv_balloon.c   | 36 +++++++++++++++---------------------
+ drivers/hv/hv_snapshot.c  |  5 -----
+ include/linux/hyperv.h    |  5 ++---
+ 5 files changed, 21 insertions(+), 37 deletions(-)
 
-diff --git a/drivers/scsi/storvsc_drv.c b/drivers/scsi/storvsc_drv.c
-index 571ea549152b..095fce47c5f1 100644
---- a/drivers/scsi/storvsc_drv.c
-+++ b/drivers/scsi/storvsc_drv.c
-@@ -47,9 +47,15 @@
-  * V1 RC < 2008/1/31: 1.0
-  * V1 RC > 2008/1/31:  2.0
-  * Win7: 4.2
-- * Win8: 5.1
-- * Win8.1: 6.0
-- * Win10: 6.2
-+ * Win8/WS2012: 5.1
-+ * Win8.1/WS2012R2: 6.0 (also for HvLite paravisor in Azure)
-+ * Win10/WS2016: 6.2
-+ *
-+ * Protocol versions earlier than Win8.1 are no longer supported since
-+ * Win8.1/WS2012R2 and earlier hosts are no longer supported by Linux.
-+ * But protocol version 6.0 is retained since it is used by the HvLite
-+ * paravisor in Azure. The #define's for the earlier versions remain
-+ * for the historical record.
-  */
+diff --git a/drivers/hv/channel_mgmt.c b/drivers/hv/channel_mgmt.c
+index 89d214dda360..84dc56a06c78 100644
+--- a/drivers/hv/channel_mgmt.c
++++ b/drivers/hv/channel_mgmt.c
+@@ -933,10 +933,6 @@ void vmbus_initiate_unload(bool crash)
+ 	if (xchg(&vmbus_connection.conn_state, DISCONNECTED) == DISCONNECTED)
+ 		return;
  
- #define VMSTOR_PROTO_VERSION(MAJOR_, MINOR_)	((((MAJOR_) & 0xff) << 8) | \
-@@ -218,7 +224,6 @@ struct vmscsi_request {
- static const int protocol_version[] = {
- 		VMSTOR_PROTO_VERSION_WIN10,
- 		VMSTOR_PROTO_VERSION_WIN8_1,
--		VMSTOR_PROTO_VERSION_WIN8,
+-	/* Pre-Win2012R2 hosts don't support reconnect */
+-	if (vmbus_proto_version < VERSION_WIN8_1)
+-		return;
+-
+ 	reinit_completion(&vmbus_connection.unload_event);
+ 	memset(&hdr, 0, sizeof(struct vmbus_channel_message_header));
+ 	hdr.msgtype = CHANNELMSG_UNLOAD;
+diff --git a/drivers/hv/connection.c b/drivers/hv/connection.c
+index 0fd50d4cb573..a9e87cf3f51c 100644
+--- a/drivers/hv/connection.c
++++ b/drivers/hv/connection.c
+@@ -47,7 +47,9 @@ EXPORT_SYMBOL_GPL(vmbus_proto_version);
+ 
+ /*
+  * Table of VMBus versions listed from newest to oldest.
+- * VERSION_WIN7 and VERSION_WS2008 are no longer supported in
++ * VERSION_WIN7,VERSION_WS2008, VERSION_WIN8 (which is
++ * Windows Server 2012) and VERSION_WIN8_1 (which is
++ * Windows Server 2012 R2) are no longer supported in
+  * Linux guests and are not listed.
+  */
+ static __u32 vmbus_versions[] = {
+@@ -57,9 +59,7 @@ static __u32 vmbus_versions[] = {
+ 	VERSION_WIN10_V5_1,
+ 	VERSION_WIN10_V5,
+ 	VERSION_WIN10_V4_1,
+-	VERSION_WIN10,
+-	VERSION_WIN8_1,
+-	VERSION_WIN8
++	VERSION_WIN10
  };
  
+ /*
+diff --git a/drivers/hv/hv_balloon.c b/drivers/hv/hv_balloon.c
+index 42ce27be344d..9cba97e81111 100644
+--- a/drivers/hv/hv_balloon.c
++++ b/drivers/hv/hv_balloon.c
+@@ -58,6 +58,10 @@
+ #define DYNMEM_MAJOR_VERSION(Version) ((__u32)(Version) >> 16)
+ #define DYNMEM_MINOR_VERSION(Version) ((__u32)(Version) & 0xff)
  
-@@ -1601,13 +1606,12 @@ static int storvsc_sdev_configure(struct scsi_device *sdevice,
- 	sdevice->no_write_same = 1;
++/*
++ * VERSION_1 and VERSION_2 are retained for the historical record,
++ * but are no longer supported in Linux guests.
++ */
+ enum {
+ 	DYNMEM_PROTOCOL_VERSION_1 = DYNMEM_MAKE_VERSION(0, 3),
+ 	DYNMEM_PROTOCOL_VERSION_2 = DYNMEM_MAKE_VERSION(1, 0),
+@@ -65,9 +69,7 @@ enum {
  
- 	/*
--	 * If the host is WIN8 or WIN8 R2, claim conformance to SPC-3
-+	 * If the host is WIN8 R2, claim conformance to SPC-3
- 	 * if the device is a MSFT virtual device.  If the host is
- 	 * WIN10 or newer, allow write_same.
- 	 */
- 	if (!strncmp(sdevice->vendor, "Msft", 4)) {
- 		switch (vmstor_proto_version) {
--		case VMSTOR_PROTO_VERSION_WIN8:
- 		case VMSTOR_PROTO_VERSION_WIN8_1:
- 			sdevice->scsi_level = SCSI_SPC_3;
- 			break;
-@@ -1703,28 +1707,6 @@ static enum scsi_timeout_action storvsc_eh_timed_out(struct scsi_cmnd *scmnd)
- 	return SCSI_EH_RESET_TIMER;
- }
- 
--static bool storvsc_scsi_cmd_ok(struct scsi_cmnd *scmnd)
--{
--	bool allowed = true;
--	u8 scsi_op = scmnd->cmnd[0];
+ 	DYNMEM_PROTOCOL_VERSION_WIN7 = DYNMEM_PROTOCOL_VERSION_1,
+ 	DYNMEM_PROTOCOL_VERSION_WIN8 = DYNMEM_PROTOCOL_VERSION_2,
+-	DYNMEM_PROTOCOL_VERSION_WIN10 = DYNMEM_PROTOCOL_VERSION_3,
 -
--	switch (scsi_op) {
--	/* the host does not handle WRITE_SAME, log accident usage */
--	case WRITE_SAME:
+-	DYNMEM_PROTOCOL_VERSION_CURRENT = DYNMEM_PROTOCOL_VERSION_WIN10
++	DYNMEM_PROTOCOL_VERSION_WIN10 = DYNMEM_PROTOCOL_VERSION_3
+ };
+ 
+ /*
+@@ -1434,19 +1436,9 @@ static void version_resp(struct hv_dynmem_device *dm,
+ 	version_req.version.version = dm->next_version;
+ 	dm->version = version_req.version.version;
+ 
 -	/*
--	 * smartd sends this command and the host does not handle
--	 * this. So, don't send it.
+-	 * Set the next version to try in case current version fails.
+-	 * Win7 protocol ought to be the last one to try.
 -	 */
--	case SET_WINDOW:
--		set_host_byte(scmnd, DID_ERROR);
--		allowed = false;
+-	switch (version_req.version.version) {
+-	case DYNMEM_PROTOCOL_VERSION_WIN8:
+-		dm->next_version = DYNMEM_PROTOCOL_VERSION_WIN7;
+-		version_req.is_last_attempt = 0;
 -		break;
 -	default:
--		break;
+-		dm->next_version = 0;
+-		version_req.is_last_attempt = 1;
 -	}
--	return allowed;
--}
--
- static enum scsi_qc_status storvsc_queuecommand(struct Scsi_Host *host,
- 						struct scsi_cmnd *scmnd)
++	/* Set the next version to try in case current version fails. */
++	dm->next_version = 0;
++	version_req.is_last_attempt = 1;
+ 
+ 	ret = vmbus_sendpacket(dm->dev->channel, &version_req,
+ 				sizeof(struct dm_version_request),
+@@ -1735,16 +1727,18 @@ static int balloon_connect_vsp(struct hv_device *dev)
+ 
+ 	/*
+ 	 * Initiate the hand shake with the host and negotiate
+-	 * a version that the host can support. We start with the
+-	 * highest version number and go down if the host cannot
+-	 * support it.
++	 * a version that the host can support. The mechanism is in place
++	 * to start with the highest version number and go down if the host
++	 * cannot support it. But currently we only try the WIN10 version
++	 * since support for older Hyper-V versions has been removed from
++	 * Linux.
+ 	 */
+ 	memset(&version_req, 0, sizeof(struct dm_version_request));
+ 	version_req.hdr.type = DM_VERSION_REQUEST;
+ 	version_req.hdr.size = sizeof(struct dm_version_request);
+ 	version_req.hdr.trans_id = atomic_inc_return(&trans_id);
+ 	version_req.version.version = DYNMEM_PROTOCOL_VERSION_WIN10;
+-	version_req.is_last_attempt = 0;
++	version_req.is_last_attempt = 1;
+ 	dm_device.version = version_req.version.version;
+ 
+ 	ret = vmbus_sendpacket(dev->channel, &version_req,
+@@ -1964,7 +1958,7 @@ static int balloon_probe(struct hv_device *dev,
+ #endif
+ 	dm_device.dev = dev;
+ 	dm_device.state = DM_INITIALIZING;
+-	dm_device.next_version = DYNMEM_PROTOCOL_VERSION_WIN8;
++	dm_device.next_version = 0;
+ 	init_completion(&dm_device.host_event);
+ 	init_completion(&dm_device.config_event);
+ 	INIT_LIST_HEAD(&dm_device.ha_region_list);
+diff --git a/drivers/hv/hv_snapshot.c b/drivers/hv/hv_snapshot.c
+index 506871aeacf0..847dc69e8250 100644
+--- a/drivers/hv/hv_snapshot.c
++++ b/drivers/hv/hv_snapshot.c
+@@ -372,11 +372,6 @@ static void vss_on_reset(void)
+ int
+ hv_vss_init(struct hv_util_service *srv)
  {
-@@ -1738,21 +1720,6 @@ static enum scsi_qc_status storvsc_queuecommand(struct Scsi_Host *host,
- 	u32 payload_sz;
- 	u32 length;
- 
--	if (vmstor_proto_version <= VMSTOR_PROTO_VERSION_WIN8) {
--		/*
--		 * On legacy hosts filter unimplemented commands.
--		 * Future hosts are expected to correctly handle
--		 * unsupported commands. Furthermore, it is
--		 * possible that some of the currently
--		 * unsupported commands maybe supported in
--		 * future versions of the host.
--		 */
--		if (!storvsc_scsi_cmd_ok(scmnd)) {
--			scsi_done(scmnd);
--			return 0;
--		}
+-	if (vmbus_proto_version < VERSION_WIN8_1) {
+-		pr_warn("Integration service 'Backup (volume snapshot)'"
+-			" not supported on this host version.\n");
+-		return -ENOTSUPP;
 -	}
--
- 	/* Setup the cmd request */
- 	cmd_request->cmd = scmnd;
+ 	recv_buffer = srv->recv_buffer;
+ 	vss_transaction.recv_channel = srv->channel;
+ 	vss_transaction.recv_channel->max_pkt_size = VSS_MAX_PKT_SIZE;
+diff --git a/include/linux/hyperv.h b/include/linux/hyperv.h
+index a2b484679eb4..9652083b6798 100644
+--- a/include/linux/hyperv.h
++++ b/include/linux/hyperv.h
+@@ -260,9 +260,8 @@ static inline u32 hv_get_avail_to_write_percent(
+  * 5 . 2  (Windows Server 2019, RS5)
+  * 5 . 3  (Windows Server 2022)
+  *
+- * The WS2008 and WIN7 versions are listed here for
+- * completeness but are no longer supported in the
+- * Linux kernel.
++ * The WS2008, WIN7, WIN8, and WIN8_1 versions are listed here for
++ * completeness but are no longer supported in the Linux kernel.
+  */
  
+ #define VMBUS_MAKE_VERSION(MAJ, MIN)	((((u32)MAJ) << 16) | (MIN))
 -- 
 2.25.1
 
