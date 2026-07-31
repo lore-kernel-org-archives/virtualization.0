@@ -1,134 +1,104 @@
-Received: from mail-qt1-f172.google.com (mail-qt1-f172.google.com [209.85.160.172])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 317E73750CF
-	for <virtualization@lists.linux.dev>; Fri, 31 Jul 2026 20:21:53 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.172
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785529314; cv=pass; b=Lku1RwbHODKKCxntvX4PFB/dsY6Xtk24iHS3NpK+K9I4en1U6XiXsiHgmrHf/nXcHFuU8j+/fxeTBKx029AFZ5fvi5oRWEkk13DNRy0byb0l0YmzSRMcQba5LXz4m00R6eyyYaxietjjThckiE+aVutcO0qeET32Yk7tFwaUNjQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785529314; c=relaxed/simple;
-	bh=e5CueYXbQOcoeKtu8qRFGDocoF+pTzEJV0YKoT1V3Gg=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=uIKT9hIakRWVuqlXrk1sAQcWBYkrN+dZNjTggeb67eIgjHk7LGVqmzsNjlwEV50FfWmA+tTjZ4TuB3Y2iz+HRIXA0CrPZFgG/jI6QkVFw9gI5kOdb6ZLjrdAAYtGUIwmgjYqciUV1yE1VfQPpXCl4rP5XU+52NH0pXsoyNHQ4wc=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=A6k6AwVl; arc=pass smtp.client-ip=209.85.160.172
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6650C2DEA7B
+	for <virtualization@lists.linux.dev>; Fri, 31 Jul 2026 22:13:38 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.165.32
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785536019; cv=none; b=a9QvUISYR4encGOkjElUiWEV1/Y9CMrrgZBs+AIUUV5D2FmkidNFQZeSMyKVzdWYxRPb2RRwvUjqS01yqP3Gq/ONJsBfEjWSmTD1rG/PyLyWxWh8AKjpX4LdEjcIqTTwI6ak4uj5H2vd3EI2vHYKwqIt3d2GpxzCGrfVnEYF8ts=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785536019; c=relaxed/simple;
+	bh=uj1F/cpMTObq5HK3aHXGqdVv7tyfxY7N7imH5LcYTIc=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=MC9zW3sF2q7cofOsKQLv8ZgEiqpJD4syT9dwe3WWO8Es6rTKyEJLzIQ0fIR6Pn/k+9EcwQ2fGGhEs25ypT8o6lQ1oCxSc8m1r33o2fHouEp8RoJRfSTG78+qFwQvkvDl/mWOu6UxMWafxNnDnZ/ohVrAnBkR/9fn8t6ZOLzQbps=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=V2hYPoq9; arc=none smtp.client-ip=205.220.165.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="A6k6AwVl"
-Received: by mail-qt1-f172.google.com with SMTP id d75a77b69052e-51c01c79467so57241cf.0
-        for <virtualization@lists.linux.dev>; Fri, 31 Jul 2026 13:21:52 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785529312; cv=none;
-        d=google.com; s=arc-20260327;
-        b=jY8MHblTJKrZUHNjpu7B+4zSIRARjrEwgUfn7xVNjFH77dRy2Xo9eiOoBVvDG5jJax
-         e1NMp6lsjX03Bl2QrxGIHoEK0YC4/5OKIWNmfMpD2IFcecPUxsdR2hxpnOLaW/n13JA5
-         qh0wbqEmQfxpTGwXF2mg3Tm76VGu5PgsmPIpDaM8vNFarjvAgHvzGFNKPtVi3fzLClQQ
-         6Lt03ihwCl3Xox4jn17sk7YTA3On4VPJbwtclrIC2TgqVpQdQscgEAtVyX0Vog2hIO/p
-         jqMulALVcfJIrxPOSGq0sL1mLBf7PhRmjnuAwgHwfS9GOCSW47sfxGWBFCzcUwPLmDc3
-         rN5A==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=e5CueYXbQOcoeKtu8qRFGDocoF+pTzEJV0YKoT1V3Gg=;
-        fh=91OkdNwBOf37DV0AsJOLWU0OrGQU1lQ2XzDRetqTAaE=;
-        b=F6ceMjlsDXSCfzaWWm+vojG6YiUgU52mXtdQ7NWVhjg3TR3yB09YbJ35uRcanM3LnP
-         DY25q0DsSWace2N+yEUq5j1nhQHoeERVp7N9bXFvqGrbmCYMo5YO6gUerQaYy+C1KydG
-         j0lGtQRBJaHI9A2HfrAMhv8/be9oTKf+vq0DLQioXM0WqQACTEoBeFIusMDmQv20qfWv
-         xz/Lb68HaRWdViEywi8Y3O3Z9xwEoMbWiE9pjqqnwyIQvSCqk/8kChKhlhm0Km80rHuA
-         fNiabVsJ1LjE1XWMbBeRxYVIYAAmS+jK6XC95+KC5DMlPILuFlzzgHcFLp/6cBczkEjN
-         7RjA==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1785529312; x=1786134112; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=e5CueYXbQOcoeKtu8qRFGDocoF+pTzEJV0YKoT1V3Gg=;
-        b=A6k6AwVlmfz0NHTyH/t58/Mr2cJT9tKUHdy0aMxtXuKS786lyg84opP+6cCSKvHPYw
-         Vf30iCMHx+GITYOyICzDfU09eMoLlb684Gmjmy83fvpCVq2blLY/ArIT0JPg0JQR3Yhk
-         SHuBzM6CCrh9jE4POYyq47SEj5G2FnSHbPmghsyhX/N8Bnm24xiLLlVd1X8druxyfJNj
-         pGs0mOjJjDO9SOv+kiEukksHKAY6YTke81XKSNuRbspJAXU0g7hzEY1/6LAcFqOab6JC
-         88YXq4qdymWqZqCni59U38A3e7NdcO6KF0mbEvmN5Y689wGW+6gSbiqrKue0gTAiZLZM
-         Lc3w==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785529312; x=1786134112;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=e5CueYXbQOcoeKtu8qRFGDocoF+pTzEJV0YKoT1V3Gg=;
-        b=TFnRtIsgOp1fO2Mt4tJ1lhWzR7S9Qakn5Oiz1W9X08hppfyGqKDL/Xh3viOo2e6m0v
-         iJ96TdveRGnOQzOuzSD5txPx45U9CJj76o5RKlyIAI/tYkKB71DKRjpLD02YX7tmP/MM
-         jxSc8FrliyHAniSI9WzT384kJiad8AOf1H7g6Rb/E7f13eK1ekWxDjQe1r5ZJeB14W5b
-         rbvVG9JGdR3wXLpr0akkw2nmA1693NitmE9yBThudf8jfhLXRB0q6dpAs6Z3oNhRMf3x
-         zxkf5DiNT9vfzD4FxSHXbZ9jVljkgYeSr+CNrHBBc/pyjIdNWFc9Iozp70F+x2qVpEsr
-         Rm5A==
-X-Forwarded-Encrypted: i=1; AHgh+RqUsTe7v6HIum/DAFYMnLlnVhi0WqyJd4HTFEQmdX0xmnIm1rDJjCWSHeLdfqlJcuDsUKZk9hsugsg++AKvPA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YzPKGrxZImgTqx4ppEM6AUTGlwTR1eSdwYNI+wseHFYmTEkqN5D
-	eGrwll531JOXiROWNoo/SdB+MiTqGoGculxKZX9vxsE3wNO2HZdJxVyZ/5TDyC54tvD24MVqukO
-	Ouv7kALnPxsMc7I/jFjooGaVqwB1IeKKKA9OUFyGw
-X-Gm-Gg: AR+sD10gR0gRVcVZrKvS+AdaezrIJup5dpQiFVXm21vqbmMKVc/SqbkkXuirKxIqdtV
-	1aB1D1+AhsdccPzt/HQKO6+HZ0ThfevInZjCiiqYU4K3Rl8/sH7Z6k7y0AlPjlRtVJ7z83YzRYd
-	HnhKtgtGlrC2AertKu+pq2ZQy8qApiMe3j8dRoarDP9rmseQHHUuVwQmXdkEXBH1mV44rwgcdvc
-	QftHYmSrk80Oveg/LqUGZgxcbbUWkHN7mQvrXX7G2Q4iVrLnhASJb4PanlOPMHG6DTOj+IlNb1G
-	UYzOVkRd+xUVtMyfxPAQU5bPPoRxwYAQcFbejA5J+Q8C11F2ezbUldEm88sqT/owJG19MJUL8wk
-	=
-X-Received: by 2002:a05:622a:1823:b0:51c:935d:8d74 with SMTP id
- d75a77b69052e-52b5b0e51demr641901cf.9.1785529311540; Fri, 31 Jul 2026
- 13:21:51 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="V2hYPoq9"
+Received: from pps.filterd (m0246629.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66VJtWfA556801;
+	Fri, 31 Jul 2026 22:13:37 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=corp-2025-04-25; bh=l/Oeh7aiJ4wgj9UZYxrPtACq6kt8F
+	MXBzr0Jw40bOMw=; b=V2hYPoq9ZcGIoOG3ed0grq2EZXsAZdCVxSEskdxfQ5bCx
+	7OdZp5vuyG/9xeB808fKd9Y2TEPiT4oM8SadVBY6iaAD6rQX/ekh5JasHt2uNz+h
+	RWXxkE5gcf9yiqJa0icUFTYYgFDL62ufqNlNkoGa7/6+9nTuuaRf1w1tcjIHpnZ/
+	sho80RI8W1lJxB/ZHNVPaztYnzTCLRypurufYCnLFAtUGsHTtDuTSGB/1VGZO4IT
+	x+rdFtSPWMsxmo/qVleUCpRqA70evU3SuOYtji9BO+WHnZJYKfj2ehVt01StWpwW
+	FAwmvvPEyYDJqyZ5RxFVDUXWYyVWtyE0Do1FxQZkg==
+Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 4fmr3pv3bb-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 31 Jul 2026 22:13:36 +0000 (GMT)
+Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.7/8.18.1.7) with ESMTP id 66VMA6ru007731;
+	Fri, 31 Jul 2026 22:13:36 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 4fnheq8a96-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 31 Jul 2026 22:13:36 +0000 (GMT)
+Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.1.12) with ESMTP id 66VMDZB5018145;
+	Fri, 31 Jul 2026 22:13:35 GMT
+Received: from localhost.localdomain (ca-dev80.us.oracle.com [10.211.9.80])
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTP id 4fnheq8a8s-1;
+	Fri, 31 Jul 2026 22:13:35 +0000 (GMT)
+From: Dongli Zhang <dongli.zhang@oracle.com>
+To: virtualization@lists.linux.dev
+Cc: mst@redhat.com, jasowangio@gmail.com, michael.christie@oracle.com,
+        pbonzini@redhat.com, stefanha@redhat.com, eperezma@redhat.com,
+        kvm@vger.kernel.org, joe.jin@oracle.com
+Subject: [PATCH 0/2] vhost-scsi: fix max_io_vqs handling
+Date: Fri, 31 Jul 2026 15:10:22 -0700
+Message-ID: <20260731221116.236791-1-dongli.zhang@oracle.com>
+X-Mailer: git-send-email 2.43.5
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260721005603.1710551-1-linkl@google.com> <20260722173639.34d3f58413354218b24a5b0d@linux-foundation.org>
- <CALUx4KSfUUud86k4SLwETJAciRc8kZ9QocvBj39KmzXDiQ7J1g@mail.gmail.com> <20260723051327-mutt-send-email-mst@kernel.org>
-In-Reply-To: <20260723051327-mutt-send-email-mst@kernel.org>
-From: Link Lin <linkl@google.com>
-Date: Fri, 31 Jul 2026 13:21:40 -0700
-X-Gm-Features: AUfX_mxNBDgDMslJcUjNED66vC66b1XZjumXM0ISgNPSYjId3DELRHMAgLjGE7s
-Message-ID: <CALUx4KRoCco0HA=Y_qFzSD=CegbJPUkQkvjRb1Y3UcgRdwQToA@mail.gmail.com>
-Subject: Re: [PATCH v3] mm/page_reporting: use system_freezable_wq to fix UAF
- during suspend
-To: "Michael S. Tsirkin" <mst@redhat.com>
-Cc: Andrew Morton <akpm@linux-foundation.org>, Vlastimil Babka <vbabka@kernel.org>, 
-	David Hildenbrand <david@kernel.org>, virtualization@lists.linux.dev, linux-mm@kvack.org, 
-	linux-kernel@vger.kernel.org, prasin@google.com, rientjes@google.com, 
-	duenwen@google.com, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, 
-	Ammar Faizi <ammarfaizi2@openresty.com>, jiaqiyan@google.com, ahwilkins@google.com, 
-	Greg Thelen <gthelen@google.com>, Alexander Duyck <alexander.duyck@gmail.com>, jthoughton@google.com, 
-	stable@vger.kernel.org
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-07-31_07,2026-07-30_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0
+ mlxscore=0 bulkscore=0 lowpriorityscore=0 suspectscore=0 mlxlogscore=870
+ spamscore=0 adultscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx
+ scancount=1 engine=8.19.0-2606160000 definitions=main-2607310167
+X-Proofpoint-GUID: zGfZHVW9PbkSeDW9tgZqBVP4gUn7ftwD
+X-Proofpoint-ORIG-GUID: zGfZHVW9PbkSeDW9tgZqBVP4gUn7ftwD
+X-Authority-Analysis: v=2.4 cv=RKWD2Yi+ c=1 sm=1 tr=0 ts=6a6d1e10 cx=c_pps
+ a=XiAAW1AwiKB2Y8Wsi+sD2Q==:117 a=XiAAW1AwiKB2Y8Wsi+sD2Q==:17
+ a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=jiCTI4zE5U7BLdzWsZGv:22
+ a=EIcjfB9IiI4px24ztqRk:22 a=W1Wc-le84Cf0Po2QwqYA:9 a=zZCYzV9kfG8A:10
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMxMDE2NyBTYWx0ZWRfXyVOUSG3C25Ek
+ DaSlTRWGWIh3QfAQ9uhp/txe0xWoRn0tF1wexCPzB6CSwQf0ZwqoZHG+ehEU01wyr0pa18BZFqW
+ gORBsxzpiok9HiHs8CPVjcWbeE9hwtOccTUsY5d4oxK5rnAJaBKCjMl74+VnJdpV3ufl0NshjDm
+ rgvbjjucyZ6mqef8NIMwc07hW1TCh2p4v5BYak/GmBfhK5CwXwhFvO5V7cim7V/2SBwuPlopQW+
+ CyEIrQmp0OOFlTgrKrVLOOpbH/boQKMDgR9yDRyvmTeoFWTs7NadCy2/Ha2tcLGyS20wzytruFq
+ cUYhaAg7MuGk1+zHDGkqIwCvYz4vFK03pGJyKdZnrEKaqvZo6Gy8dLgH8x4IbpzxSTXKjYDFblz
+ vpVl5/ttlWyrQZT5bAbPJ7eQmM/nAcdcSYeVXdFLll9xfKSLtD90MFkPzOG8WvG3tPlbr0KG5+C
+ zIxqvzYip73s6gisJHQ==
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMxMDE2NyBTYWx0ZWRfX3MhI7VXSWOvU
+ 4IjchoaQIl8srR2mONpXcZbeo/9dkucuqha5b2HZi0LRSyEnUgKzO3+3lNKoT268X7WvTRnhHXI
+ kuK94dpargr0hZJTF8DI5eODt/iL1f13/HfL7Iwtxh66kNEQkpJM
 
-On Thu, Jul 23, 2026 at 2:15=E2=80=AFAM Michael S. Tsirkin <mst@redhat.com>=
- wrote:
->
-> I suspect rest of work items we have, e.g. update_balloon_stats_work/upda=
-te_balloon_size_work
-> all have issues around freeze/restore and error handling.
->
-> --
-> MST
->
+Avoid high-order kmalloc() allocations for the vhost-scsi virtqueue array,
+and reject invalid max_io_vqs updates so the stored value remains within
+the supported range.
 
-Hi Michael,
+Dongli Zhang (2):
+  vhost-scsi: use kvzalloc for vq array allocation
+  vhost-scsi: reject invalid max_io_vqs module parameter
 
-We have indeed discovered a kernel crash in update_balloon_stats_work
-after the balloon driver failed to resume and initialize in our
-production fleet.
+ drivers/vhost/scsi.c | 33 +++++++++++++++++++--------------
+ 1 file changed, 19 insertions(+), 14 deletions(-)
 
-Alex Wilkins <ahwilkins@google.com> diagnosed, root caused, and
-reported this vulnerability. I am currently drafting and testing a
-2-patch series to gracefully unregister callbacks and cancel work
-items on resume failure so that the VM continues running without the
-balloon driver instead of crashing with a kernel panic.
+base-commit: 8ba098e6b6ff0db8edf28528d1552be261af30d4
 
-I wanted to follow up and let you know that we are actively working on
-this. I will send out the patches to the list as soon as they are
-sufficiently tested.
+Thank you very much!
 
-Best,
-Link
+Dongli Zhang
+
