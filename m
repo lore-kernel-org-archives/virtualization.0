@@ -1,122 +1,146 @@
-Received: from canpmsgout04.his.huawei.com (canpmsgout04.his.huawei.com [113.46.200.219])
+Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C3C733537C8
-	for <virtualization@lists.linux.dev>; Fri, 31 Jul 2026 09:02:36 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=113.46.200.219
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C39C88C1F
+	for <virtualization@lists.linux.dev>; Fri, 31 Jul 2026 09:38:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785488559; cv=none; b=DC0iY1hua23uRoKbAjq0tF4ZP540SSGCJGD5M2EbGEOI9gXWTPOlRaMdxW33LwEwHFPs62YiDqOfAo7dBvGwwoD+odkuabKh8DS9tWvL1RlQTp3JdqE502bJKsg3i3w3Hc+H6JqH4JL42/s9XvIJw+GyjqYkWyTEzlf7em0n3fI=
+	t=1785490694; cv=none; b=Ontl+MiGVTYDipe6p/O77+rYWtWVsC/jAhhbPsEh6rbuhMunOjzEr9hjDaLZQWzBP/uyTKXv5flvD3YReieYkHD+Dk14L7U7n1+u/BGFDkyvp2mTu6gsgyJmv5AO+bqDrMSOH6RSU6+xFerLCxvhAM66d0n8eZe0W3Wje+pH8tM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785488559; c=relaxed/simple;
-	bh=9Wu6ni//RDTH89qZ+fJlVozr4RuTN3CSIw7M8u4LoE0=;
-	h=From:To:CC:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=CKmtEzXJFR4NiCoW2xlfEewAJl0KWec2Ackfcg0eCZDGeImWl9YR3kP3hbhnh6WNTNJ8C9++IFrSgJ23w8IkJ9RuevB7WhhHRV0n1sbmeygAlXkllAPE51lvskaO+KEeOhUmFsYXw5j2X3NMmEdx9w0T2ZiuTFEJLYfi2wzL49Q=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com; spf=pass smtp.mailfrom=huawei.com; dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b=dpaW7WGX; arc=none smtp.client-ip=113.46.200.219
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=huawei.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=huawei.com
+	s=arc-20240116; t=1785490694; c=relaxed/simple;
+	bh=2JVB5NHlGcJkRbxyYTYM1W0SpjpRQTNPaqgefsqMK44=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 In-Reply-To:Content-Type:Content-Disposition; b=NPQvEJVawEpA9Aizq0+IUR0y3qKqpk92DXIQQ895gSMQjOngNz3Fe/b1pNz8yOjyDpEJoILzAHP0biDlotF2aInnApoURTP+TNDK6NvDFYlFMZbvdxMwF51D1FiPkRjUTTacv+kFxF7659nzVNc16skSdDuoJ2cqeakKdSjUq9A=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=LoOKlSMf; arc=none smtp.client-ip=170.10.133.124
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=huawei.com header.i=@huawei.com header.b="dpaW7WGX"
-dkim-signature: v=1; a=rsa-sha256; d=huawei.com; s=dkim;
-	c=relaxed/relaxed; q=dns/txt;
-	h=From;
-	bh=RXooLrgPteym4eqT+GWS7grT4yqXGxjvsdJATgOtNMM=;
-	b=dpaW7WGXfikih8MbQkrpwT5ctXP4U5mcQIJmVRD8frdBwDBgk2cOjOBOf0TPKW52lv2X9z10o
-	d5SVN1jJcdhBdnIwhlnBTIzMdDFO4NJC4J67cMPNfyUt+50bL3xXzX8NsjsZueCa8dgrW18qj8P
-	GgavTYuXIrKBDNlP9cRa+7w=
-Received: from mail.maildlp.com (unknown [172.19.162.140])
-	by canpmsgout04.his.huawei.com (SkyGuard) with ESMTPS id 4hBKbF54hQz1prKd;
-	Fri, 31 Jul 2026 16:52:57 +0800 (CST)
-Received: from dggpemr500006.china.huawei.com (unknown [7.185.36.185])
-	by mail.maildlp.com (Postfix) with ESMTPS id F38112025F;
-	Fri, 31 Jul 2026 17:02:27 +0800 (CST)
-Received: from localhost.localdomain (10.50.85.180) by
- dggpemr500006.china.huawei.com (7.185.36.185) with Microsoft SMTP Server
- (version=TLS1_2, cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id
- 15.2.1544.11; Fri, 31 Jul 2026 17:02:27 +0800
-From: Yao Kai <yaokai34@huawei.com>
-To: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>,
-	Dmitry Osipenko <dmitry.osipenko@collabora.com>, Gurchetan Singh
-	<gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>
-CC: <dri-devel@lists.freedesktop.org>, <virtualization@lists.linux.dev>,
-	<liuyongqiang13@huawei.com>, <jifa@huawei.com>
-Subject: [PATCH 1/2] drm/virtio: release object array when device is unplugged
-Date: Fri, 31 Jul 2026 17:22:35 +0800
-Message-ID: <20260731092236.2262403-2-yaokai34@huawei.com>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260731092236.2262403-1-yaokai34@huawei.com>
-References: <20260731092236.2262403-1-yaokai34@huawei.com>
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="LoOKlSMf"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
+	s=mimecast20190719; t=1785490691;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 in-reply-to:in-reply-to:references:references;
+	bh=XynOkVOU0Sg6QSEg62BZ8juSeRUPNKjmdjv0kL5gaaM=;
+	b=LoOKlSMfxhVPbdfhN0l2DOnpFF7eolzpR1/XfJmqOrcmmPpaZIUTRTUKj2Ck4RS9q2+xLs
+	c0PClRvMujK0Wp2s7OLNRm74ak/LomLtWLrMmOEG0i7lQx4tL66EPsGnruKJYnI8F6P44T
+	D27lwPmRjJny8fEFaxxD95KHcvEg4sQ=
+Received: from mail-ej1-f72.google.com (mail-ej1-f72.google.com
+ [209.85.218.72]) by relay.mimecast.com with ESMTP with STARTTLS
+ (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
+ us-mta-210-YnQ4U-cyPA-yvqLPe1KGjw-1; Fri, 31 Jul 2026 05:38:10 -0400
+X-MC-Unique: YnQ4U-cyPA-yvqLPe1KGjw-1
+X-Mimecast-MFC-AGG-ID: YnQ4U-cyPA-yvqLPe1KGjw_1785490689
+Received: by mail-ej1-f72.google.com with SMTP id a640c23a62f3a-c1630a90890so52290266b.1
+        for <virtualization@lists.linux.dev>; Fri, 31 Jul 2026 02:38:10 -0700 (PDT)
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785490689; x=1786095489;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=XynOkVOU0Sg6QSEg62BZ8juSeRUPNKjmdjv0kL5gaaM=;
+        b=bjcV3+9em31+wagf7CEkyrm7oDeWc8pBFkFbqvTD+CxanwIvj+yggT/2VuZSKI1qxp
+         jsJ5jXcYjnwsqtprFCs0CrlVKQNIWzxvalKpFgaC+Oxtn4YV9/BbtlBCXHbObxL580CZ
+         l7NsAxB7fT/0u/y8LQsIPuIMGOPOWaa5bkGBf/4WwY3A7Qe7hysoqjUmpKtEscSPWpSx
+         7B6i0tFaQ78QIY8QFMAd+yGQmFhE4xBa0oL93MT8nHw3xSj61Lh4sb28EK4UgJhjny++
+         CziaQ3Sqx8tMJHhSxw06Kmmb3IbaLhB8WeMIS0LCE1VSt1NFeJDE9mzdMtN7rFdaIs1N
+         lUKQ==
+X-Forwarded-Encrypted: i=1; AHgh+RrcttjUXnEvZ3rilHUzcxDhWFpzzNThCbHwrTXbWEcdUUKyOmmSkpUFzUEtIY83Xj9Xq6pt1KTVfHiNn37CQw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzsbitscNVKwRxZS/TdGegRRJCZNhCSCwuqbeZd1ks5ieHKqIHi
+	0HCHgm3bZ8RycP4rf0QQ05sFFLhJttq6K7H1sXV7rUR+al3/Z/ZrtHJzVcbAMTj1xrXGx8GSgfM
+	nrYr2xteT9jecfxbISRxtrQFALtXcJA1RWA0uyjyV7Kllw+IZoXiCKNZQunyBsP9/3CfR
+X-Gm-Gg: AR+sD1180WO3I0H8Vre40xzVFTlHB5JCpcsqHDuLu/Ww/3/0rYluJkE/wHomXVlGzwj
+	5kdmthNedHGZvP70iDl/V14km3GfkhkG6R0DoXWAIGvmjOhA9RKEDBHwH/uv9r4GKJAsTvPbmo4
+	Gpl3e994dcPVc6McgsEuLBZVY7OPMEOz/COenYNew8C6HSGxMQ2DdtOecnKTIBkVrAb9HmpZuQA
+	JFyP9+hVuxAUO2yEiI6HPO1KNoC/tKd2HRe/aDzHrt78hX9EqDk4pzuNuWdCyMLe+a/QAIfKYm4
+	LJOiKFgJETK9Ozd6y0lFikWoNWpAihWgo3rvARzqa6mlit0i/DzzBkBS4YPGgfuXcPa5as50t1z
+	F6xtbD3rjkoeUppxraKyAZoo=
+X-Received: by 2002:a17:907:b046:20b0:c16:16b9:9907 with SMTP id a640c23a62f3a-c1fd1e9acdfmr50313166b.15.1785490688970;
+        Fri, 31 Jul 2026 02:38:08 -0700 (PDT)
+X-Received: by 2002:a17:907:b046:20b0:c16:16b9:9907 with SMTP id a640c23a62f3a-c1fd1e9acdfmr50311166b.15.1785490688444;
+        Fri, 31 Jul 2026 02:38:08 -0700 (PDT)
+Received: from redhat.com (ppp-94-66-118-61.home.otenet.gr. [94.66.118.61])
+        by smtp.gmail.com with ESMTPSA id a640c23a62f3a-c1fd3c5b8c7sm92699366b.9.2026.07.31.02.38.06
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Fri, 31 Jul 2026 02:38:07 -0700 (PDT)
+Date: Fri, 31 Jul 2026 05:38:04 -0400
+From: "Michael S. Tsirkin" <mst@redhat.com>
+To: Jia Jia <physicalmtea@gmail.com>
+Cc: stefanha@redhat.com, kvm@vger.kernel.org,
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] vhost/vsock: prevent stale IOTLB after ACCESS_PLATFORM
+ changes
+Message-ID: <20260731053736-mutt-send-email-mst@kernel.org>
+References: <20260730104857-mutt-send-email-mst@kernel.org>
+ <20260731044145.1734317-1-physicalmtea@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
-Content-Type: text/plain
-X-ClientProxiedBy: kwepems200002.china.huawei.com (7.221.188.68) To
- dggpemr500006.china.huawei.com (7.185.36.185)
+In-Reply-To: <20260731044145.1734317-1-physicalmtea@gmail.com>
+X-Mimecast-Spam-Score: 0
+X-Mimecast-MFC-PROC-ID: hEDQiT4y5fGi95dCs5q9I_MNNfCRlBkpNwGhJdpKC0E_1785490689
+X-Mimecast-Originator: redhat.com
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Unbinding virtio-gpu while fbdev damage work is active can leave the VMA
-offset manager non-empty when the DRM device is released:
+On Fri, Jul 31, 2026 at 12:41:45PM +0800, Jia Jia wrote:
+> On Thu, Jul 30, 2026 at 10:51:15AM -0400, Michael S. Tsirkin wrote:
+> > I don't know if this will break anything. Why not just blow
+> > out the iotlb? kernel will rebuild it if it needs it afterwards
+> > for some reason.
+> >
+> > This part you are fixing is harmless. Let's make it a separate patch
+> > and document the motivation.
+> 
+> Thanks.
+> 
+> Yes, I considered discarding the IOTLB before choosing -EBUSY. My
+> hesitation was not about whether it could eventually be rebuilt, but
+> that doing so would no longer be only a control-plane validation
+> change. It would modify translation state directly used by running
+> virtqueues.
+> 
+> The minimum synchronization I had in mind was roughly:
+> 
+>   vhost_vsock_set_features(features):
+>       mutex_lock(dev.mutex)
+> 
+>       if (!(features & ACCESS_PLATFORM) && dev.iotlb):
+>           lock all vq.mutex in index order
+> 
+>           old = dev.iotlb
+>           dev.iotlb = NULL
+> 
+>           for each vq:
+>               vq.iotlb = NULL
+>               reset vq.meta_iotlb
+>               vq.acked_features = features
+> 
+>           unlock all vq.mutex
+>           vhost_iotlb_free(old)
+> 
+>       ...
+> 
+>       mutex_unlock(dev.mutex)
+> 
+> The switch has to be serialized against all active VQs. My hesitation
+> was that this turns VHOST_SET_FEATURES into a datapath synchronization
+> point: the ioctl may wait for in-flight kick handlers, and rebuilding
+> an empty IOTLB may stall queues on misses until the translations are
+> restored. If stopping or flushing the device is also required, the
+> disruption is larger than a normal feature update.
+> 
+> I was not sure whether VHOST_SET_FEATURES is expected to impose that
+> cost on a running device, or whether userspace should quiesce it first.
+> That is why I chose -EBUSY for v1. If synchronization with active VQs is
+> the intended behavior here, I can rework the patch accordingly.
+> 
+> I will also split the existing-IOTLB preservation change into a
+> separate patch and document its motivation.
 
-  Console: switching to colour VGA+ 80x25
-  ------------[ cut here ]------------
-  Memory manager not clean during takedown.
-  WARNING: drivers/gpu/drm/drm_mm.c:965 at drm_mm_takedown+0x28/0xc0
-  Call Trace:
-   drm_managed_release+0x95/0x130
-   drm_dev_put+0x54/0x70
-   virtio_dev_remove+0x3c/0x90
-   device_release_driver_internal+0x19a/0x200
-   unbind_store+0x9c/0xb0
-
-The remaining node belongs to the fbdev GEM object:
-
-  [drm:drm_mm_takedown] *ERROR* node [00100000 + 00000300]:
-   drm_mm_insert_node_in_range+0x2bf/0x530
-   drm_vma_offset_add+0x58/0x60
-   __drm_gem_shmem_create+0x71/0x150
-   virtio_gpu_object_create+0x41/0x3a0
-   virtio_gpu_mode_dumb_create+0xdc/0x190
-   drm_client_buffer_create_dumb+0x75/0xf0
-   drm_fbdev_shmem_driver_fbdev_probe+0x8b/0x230
-   __drm_fb_helper_initial_config_and_unlock+0x359/0x600
-   drm_fbdev_client_hotplug+0x61/0xb0
-   drm_client_register+0x5c/0x90
-   drm_fbdev_client_setup+0xd6/0x1d0
-   drm_client_setup+0x81/0xb0
-   virtio_gpu_probe+0xd6/0x180
-
-fbdev damage work can race with drm_dev_unplug(). It may build
-vbuf->objs and take GEM references after the device has been marked
-unplugged. drm_dev_enter() then fails, and the existing failure path
-unlocks fenced reservations and frees the vbuffer without releasing the
-object array. The unreachable array keeps the GEM object, and therefore
-its VMA offset node, alive through device release.
-
-Release the object array before freeing a control buffer rejected by
-drm_dev_enter().
-
-Fixes: b1df3a2b24a9 ("drm/virtio: add drm_driver.release callback.")
-Cc: stable@vger.kernel.org
-Reported-by: Ji Fa <jifa@huawei.com>
-Signed-off-by: Yao Kai <yaokai34@huawei.com>
----
- drivers/gpu/drm/virtio/virtgpu_vq.c | 1 +
- 1 file changed, 1 insertion(+)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index e5e1af8b8e8a..a470339b6747 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -383,6 +383,7 @@ static int virtio_gpu_queue_ctrl_sgs(struct virtio_gpu_device *vgdev,
- 	if (!drm_dev_enter(vgdev->ddev, &idx)) {
- 		if (fence && vbuf->objs)
- 			virtio_gpu_array_unlock_resv(vbuf->objs);
-+		virtio_gpu_array_put_free(vbuf->objs);
- 		free_vbuf(vgdev, vbuf);
- 		return -ENODEV;
- 	}
--- 
-2.43.0
+thanks
 
