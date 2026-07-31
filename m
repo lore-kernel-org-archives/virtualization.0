@@ -1,186 +1,134 @@
-Received: from SN4PR2101CU001.outbound.protection.outlook.com (mail-southcentralusazolkn19012011.outbound.protection.outlook.com [52.103.14.11])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 92DD3349CF0
-	for <virtualization@lists.linux.dev>; Fri, 31 Jul 2026 03:13:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.103.14.11
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785467608; cv=fail; b=tM6HWy08TuA/nnl5Vn5P7ZfPNYbwwXXT7ay87Iu2Ql+y4bW37vFVzDXvp44j1F/KiJRfJ3jV8xVMFyJLOJZAJtNN+00oSYdDLoeHkBU3yAQT5dIZ6XZs3zgB12wEaTGUrDmPxCGJAwPa8iyvE4+K1hEPf6Fe5qpes+JJIa9pWMQ=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785467608; c=relaxed/simple;
-	bh=CRyB1LrG7O1VZvKrhJqrg5oo0LSU1QdXYOAqiq/gHB4=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=e4uAzniT+YonvaumtZWWiswluYtlc1QTqsCOFIR8zFSdtX+mzRtzEBuEBU/PTVzVij6QNgIk++Pss8CO2b4mOpi9DDg8vY99si2bZrVLOaWRsgNzxesGrIb5OIVVs+hHmFDofe4sjObk16hxn7l3xMO5vLBMMTpwhfJUvqa+/AE=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com; spf=pass smtp.mailfrom=outlook.com; dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b=MgjrSi3e; arc=fail smtp.client-ip=52.103.14.11
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=outlook.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=outlook.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74ABA352010
+	for <virtualization@lists.linux.dev>; Fri, 31 Jul 2026 04:42:14 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785472935; cv=none; b=EsTUVebGBMCzol9TPE+Km5VXJyCmlZBEmMwHBxfmiDsO5ePS/4tZpzZUGNIYh+UemfIxrWf1AP+yb/FRpvTaA06Q0/C/TL1ibh2URl8BP2GK51EoXneZOaIBml6Dkh+djnwo+hODxMixBbAOrqT3dcQcgPtydapsLesKDnChb4E=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785472935; c=relaxed/simple;
+	bh=ZMvyUCyEVG3QAjdzCqMKBgh7MXLqXhHhJWMaYN5xfHY=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=oQAqvbvs9+GpmLDgXa0N9Z3Zj2wPmVyasbRrpZYBoKg+K8komGKdbLjn9nGgWwDlaVRYCIC7/9epGRjzkx7D6gYHdlX109he5p92A+1RAdHHZsHIsLX7FKNne+SNkQZuiP5QwWMvNVTXTxNTrIffH03YW/ajBy8cpjOFiIiq89E=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kz4qt/gV; arc=none smtp.client-ip=209.85.214.178
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=outlook.com header.i=@outlook.com header.b="MgjrSi3e"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=bMe3ZaDf04GFPzaLMWT9Iu5vqvlJfpSWVHbIN+z+IGGtMGf2D0IzS6Jq8avYvPHZBJv618LEfemeZ5dnLfuWwEtJMKKvfUwPKQ2zqVSQgwEO4+T8I7p+W384l0LfTizr4VWGsqyKyKhVTje8HzoAUHeWMBVYTuRuYs6rFgCe+0ZoN9cZvikMm5UeiS5jUaBRz/Y+SapFHTFfxuxE/lWRtnqzTqOxhx/2NI/zZzomfAbpsvmSCWoKdIKfcCcqg6HEqzjifghKMspbwZ3FVBcqLJU19HK0ASG0Bgye76prAivHsZjSbuqROxtgCM2TckcmxdQ7wGMCyPBR5bh8o/E5Yw==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=CRyB1LrG7O1VZvKrhJqrg5oo0LSU1QdXYOAqiq/gHB4=;
- b=YVPREyJJcHUmSbWVnLuxkrCbfQqKddVKFeyx0z6kmWqKuzTbGCh3NmWgVZyEC+Y7itv2vEEdnMeQY4hAUtaB2QaFNn7gmfwWxdAV3YxPnjg9Q7RyoNCKZ+wXTEJvYfZh173ylDZAtxqFHORsk/fAO2PDcnRmjDBjV5HzI1121pOZIBXdtV1Ey4Sw6VR1B1ZjeJjLPp1DixHXtogPNddr+3aaMKNGscjB1aE1c9eYrBx1JMFLAeSxXx5lFzToNrKXl1JhCgjBhAIlTSP+nMCfjPvnHEj4+oMWFp3xHfbTEvRP99gQHpiPQ9aGZzKsTxlEQbCnAQFEGIMz9PaSFy6kBw==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=none; dmarc=none;
- dkim=none; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=outlook.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=CRyB1LrG7O1VZvKrhJqrg5oo0LSU1QdXYOAqiq/gHB4=;
- b=MgjrSi3eGjjxwTKKq2PC3HxI7qlz6FzaxT9UXJxlhEMIY5wiOzht+NOEKPDyl/wG3efAbOWl5z08qwsM31zNZsC8cPGVYNL163MCwpf+13onC955DfsKYvlf3NvAleYTbkFu9/feFIj1MBlsFSvwucyysJ4T66PWSwy0nSLYRl/h1YecxHTYF0pbDThlLtzuo8bP/UtzdKj7kCWIh0tKsa8TiKjOgoRvuDXg2JjJN/MAS2IdH4dulxCa+UG5sFxdxMon85NmZsMrFJvYUfB6pGaDTzJcjiUNd5qkWHSekL74Q15DycISlS4axFxz4G5oBuwt5vpiOXirIEOevMPEaA==
-Received: from SN6PR02MB4157.namprd02.prod.outlook.com (2603:10b6:805:33::23)
- by CYYPR02MB9685.namprd02.prod.outlook.com (2603:10b6:930:c5::15) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.270.15; Fri, 31 Jul
- 2026 03:13:24 +0000
-Received: from SN6PR02MB4157.namprd02.prod.outlook.com
- ([fe80::900:1ccf:2b1e:52b6]) by SN6PR02MB4157.namprd02.prod.outlook.com
- ([fe80::900:1ccf:2b1e:52b6%3]) with mapi id 15.21.0270.012; Fri, 31 Jul 2026
- 03:13:24 +0000
-From: Michael Kelley <mhklinux@outlook.com>
-To: Dave Hansen <dave.hansen@intel.com>, "kys@microsoft.com"
-	<kys@microsoft.com>, "haiyangz@microsoft.com" <haiyangz@microsoft.com>,
-	"wei.liu@kernel.org" <wei.liu@kernel.org>, "decui@microsoft.com"
-	<decui@microsoft.com>, "longli@microsoft.com" <longli@microsoft.com>,
-	"tglx@kernel.org" <tglx@kernel.org>, "mingo@redhat.com" <mingo@redhat.com>,
-	"bp@alien8.de" <bp@alien8.de>, "dave.hansen@linux.intel.com"
-	<dave.hansen@linux.intel.com>, "hpa@zytor.com" <hpa@zytor.com>,
-	"daniel.lezcano@kernel.org" <daniel.lezcano@kernel.org>,
-	"ssengar@linux.microsoft.com" <ssengar@linux.microsoft.com>,
-	"maarten.lankhorst@linux.intel.com" <maarten.lankhorst@linux.intel.com>,
-	"mripard@kernel.org" <mripard@kernel.org>, "tzimmermann@suse.de"
-	<tzimmermann@suse.de>, "airlied@gmail.com" <airlied@gmail.com>,
-	"simona@ffwll.ch" <simona@ffwll.ch>, "andrew+netdev@lunn.ch"
-	<andrew+netdev@lunn.ch>, "davem@davemloft.net" <davem@davemloft.net>,
-	"edumazet@google.com" <edumazet@google.com>, "kuba@kernel.org"
-	<kuba@kernel.org>, "pabeni@redhat.com" <pabeni@redhat.com>,
-	"James.Bottomley@HansenPartnership.com"
-	<James.Bottomley@HansenPartnership.com>, "martin.petersen@oracle.com"
-	<martin.petersen@oracle.com>, "sgarzare@redhat.com" <sgarzare@redhat.com>,
-	"horms@kernel.org" <horms@kernel.org>
-CC: "x86@kernel.org" <x86@kernel.org>, "linux-hyperv@vger.kernel.org"
-	<linux-hyperv@vger.kernel.org>, "linux-kernel@vger.kernel.org"
-	<linux-kernel@vger.kernel.org>, "dri-devel@lists.freedesktop.org"
-	<dri-devel@lists.freedesktop.org>, "netdev@vger.kernel.org"
-	<netdev@vger.kernel.org>, "linux-scsi@vger.kernel.org"
-	<linux-scsi@vger.kernel.org>, "virtualization@lists.linux.dev"
-	<virtualization@lists.linux.dev>
-Subject: RE: [RESEND PATCH 0/6] Remove support for Windows Server 2012/2012R2
- & Win8/Win8.1 versions of Hyper-V
-Thread-Topic: [RESEND PATCH 0/6] Remove support for Windows Server 2012/2012R2
- & Win8/Win8.1 versions of Hyper-V
-Thread-Index: AQHykTBh5c+ZTCJ8JdYW7ttKg4YPnLZbx+cAgABKzoA=
-Date: Fri, 31 Jul 2026 03:13:23 +0000
-Message-ID:
- <SN6PR02MB4157C85C3BAEBD81262BF3D4D4C82@SN6PR02MB4157.namprd02.prod.outlook.com>
-References: <20260730201123.1767-1-mhklinux@outlook.com>
- <a5c7150f-44bc-4ed9-80de-631ddb37794a@intel.com>
-In-Reply-To: <a5c7150f-44bc-4ed9-80de-631ddb37794a@intel.com>
-Accept-Language: en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: SN6PR02MB4157:EE_|CYYPR02MB9685:EE_
-x-ms-office365-filtering-correlation-id: 231179a8-840b-4d66-1b43-08deeeb1aeab
-x-microsoft-antispam:
- BCL:0;ARA:14566002|51005399006|31061999003|13091999003|8060799015|19110799012|8062599012|37011999003|16051099003|24021099003|55001999006|15080799012|4140399003|25010399006|704163111799003|2604032031799003|40105399003|2607281247196008|102099032|3412199025|440099028;
-x-microsoft-antispam-message-info:
- =?us-ascii?Q?3J9FjV8iaMYWZP9jth8W9/ERbboZ6UK3RVhTlKdN9P+2KWmhopBay9X10LPn?=
- =?us-ascii?Q?kriqEvoEosA7SscrViJr8hTm484AyQxKOaXI46U6+6lu93DGcnEkUfqeIQ/S?=
- =?us-ascii?Q?NQDHdlHHjcJxUgDsV90Wv3vsgiemSecSV7+gTNi5qJV4//XpAEjMPQ1v7JHM?=
- =?us-ascii?Q?8RhxnQE5Zb30NoCvqALxTAyUeI0EsY3KahGUHbwKsEtLsbSYfo3VhZCnNfQw?=
- =?us-ascii?Q?qvgIz9SO9Mi1iG7Ec8uRQF3VWy33qoFaAjIJsdnU4Cq6mO1OtQGwnDoJYZ4K?=
- =?us-ascii?Q?WtKgKrx/MSVbKNurX7Ad2FkePJGGOVcNReO+6SCKQGzLow+18LYuKYSipLfL?=
- =?us-ascii?Q?5ygFHpDpjRixPgLQB56GvCeOXzKif4vIrSI08YkIBAG22BxuJfle4Jzp8ocC?=
- =?us-ascii?Q?VQ9d+GP27rLjEd2hiqOFnwxgltfxAbbT74ZgB5d+h/IKFmLGn9m81Azzv1aV?=
- =?us-ascii?Q?qrJTGrbtHK8sMMrXm+Eo7FCaVQO/P+iMVeln27KMIUKaDAVRtEt9DfuJAudp?=
- =?us-ascii?Q?IqBxmvtnUXpkDbegc8p7l9/rsp1zmVqJK7KZlxr9U9WIjEeAtZH1x4Kad/ay?=
- =?us-ascii?Q?DMpnb/NxiknegWoCzN+W1pTJVrVtwVQkDbudFNWjwBzrwH7Mi2V5zJdbNQvm?=
- =?us-ascii?Q?Lu3HWLoJQi25J3grAA/lnMX26sLk4L6St8MJW2UZOSeCo/x8N51L1HZdpzNC?=
- =?us-ascii?Q?bW6fVqPBgriDie3WKq+/kaGlStM3xVrt0E5LeVgET2e0anFyF611MMaGQub5?=
- =?us-ascii?Q?Nq+++DeBj/Oo5V0+BPLvwN06BUSD+qtL6YiWPeMuDKxhG5VYn0zzKNzhXJW2?=
- =?us-ascii?Q?HmCMbvi9wq8Z4EOWa6GUuAKctOnkxgNwFNuM5RmQ9O3aHXLn4OOto6K/uYNh?=
- =?us-ascii?Q?7Wob2XwWUuFlyC42VY2ZCUm46GoZ1PRDjbEQVTifxb/kHPX/3VzEXeW/xs0i?=
- =?us-ascii?Q?yeC8oFyXbSqMGRwsw4mDNgK6Ul4JVABN8iTTJT18xEADYKFIcVMRQUL2JK7I?=
- =?us-ascii?Q?NnuSHSfbKbsbbxE5RNGfx/DQyXeO22sR382ThGaiw9iN192QFIXFTO9x33NZ?=
- =?us-ascii?Q?zPDRVevkS6Yp5WfJUc3RetCnqX5AkC8fc2waE3PkbWFoxSH3aBvEVssmKUqr?=
- =?us-ascii?Q?8k0NJcREcwXVOsYxWRiSvGgkZHdId3oZBQ=3D=3D?=
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?jkEkQ8CtYbXJMiW7ShLAfU8Tu9QyPK2f7UT+ToOVwwl3qisoXW4lCEB+f8f6?=
- =?us-ascii?Q?OVPOyZB6e4c5RRYD7wILwDkAyzO7j4s0wg97CDVjjGCja2K004jR+g1qwA9z?=
- =?us-ascii?Q?UQzhFBt3Eds6kZS1/4KGkKbIqEaMFczVZlGbRLof32Z6WtwHRrmWV3iZAbwb?=
- =?us-ascii?Q?uZQ8U8oPzrNcRbn35AqEJE0hcFLnS2+V0KxnkCX7N0OmjPwg6Bo62I3Y2sfR?=
- =?us-ascii?Q?TF18bVhdwae1thQ9y8PwFJ6QWnAS2QHEmrNPdMcyVjcYrkfjTKpRKfqIHtIM?=
- =?us-ascii?Q?bKZk/YXB/NTtqVCPJiyaYTELjkjne8Fn4rSDh3jhdipM7JrNStqMncAeieb9?=
- =?us-ascii?Q?lIEQe0XeWGYxgOn1S+EmNAxENfcu1LsXd7w7BkzCujfpsAjFNTPJEAgPeiM/?=
- =?us-ascii?Q?28OMU6ZQHhUA+eKUNDcMMO0keFvg4Q8/PzaJNOEf86vOpC7VY43X3v2oG7/p?=
- =?us-ascii?Q?sfvx1Zm0SVO7lSS2gd+NY+gP6IZWnblV6IoBFZCyS9l6n9cT6JgQh1ESTwpB?=
- =?us-ascii?Q?xlYhp1DulpSjn2hxKZWw+r/XnUOdCA7D2/eytH3ylGzYZ5bN03TF8gflBy2R?=
- =?us-ascii?Q?IHuWJeHvCs/u6iAazsplGo/8wdyZOxfa5gi3XJrXsFkzIOGr0IK+pZ6nnsff?=
- =?us-ascii?Q?YdBuS65EpGyQXuvfqnFfUk7rA9aOC578+Idn0qTUUSKreeHrt/y0hGfxTVKo?=
- =?us-ascii?Q?wuWPG1nd9t8qc0WuRVneveGXbAthcr7P47yNd7zcnIC4qyhaAndqzyORmELO?=
- =?us-ascii?Q?0tNVgHEDfddrpdXt1O5NRpqBBH3+FEsRlzK/E3u6w/A1GLoP5qb/4W3syv74?=
- =?us-ascii?Q?F9Upd5rEgAlo6w+bXvRz+sAV1rJNvrXj+WboWBj2iQuCBLv0nL8SRJCQN7P1?=
- =?us-ascii?Q?/PVk3xZ/6OCJHplO6Tx4aBXkpOvzOPZ3fd8idawGXDdcE4IXzNSO43w2HMra?=
- =?us-ascii?Q?ved1zeX3g04LryRWQLLhvalDX8aEOwrdNvriSvVVOQ+FbRHWTGWguno2XTxj?=
- =?us-ascii?Q?yajrYqyYordAaZ7MFhARLLEJmI5qA+R8wvhWtIZISB9zPTMJ/sZPdaWz+xcf?=
- =?us-ascii?Q?KnHJvuboxDYeDsTkWU0WRh+WHeNtedEUIQUdV8iys3KKklmlECt08DoMAvfe?=
- =?us-ascii?Q?Qzm8lbDtO8PZgRL6tzn8LBoX7FJ+AIP6UmbX7cqXhYrW0ukZ9lXQJsBk6vyg?=
- =?us-ascii?Q?Zt+sT4n/yUv92kksXop4WihA4yNa8a+Y3DVOBhViVsGPMUtoMJswkWTYWv1s?=
- =?us-ascii?Q?e7Bc+nEJhcL1gdQNofQePq6QDroKaRxs+b9opMwXp/DFqQSOrnUD3BCxpzIg?=
- =?us-ascii?Q?iOx4YyEwdgspaSErxcJPJZvh0lw6wZTOAX+Dfj7vgc+4EN5hcVEFDrCoLsFG?=
- =?us-ascii?Q?5J6xOs0=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kz4qt/gV"
+Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2ce98cb8165so4337785ad.1
+        for <virtualization@lists.linux.dev>; Thu, 30 Jul 2026 21:42:14 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785472934; x=1786077734; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=UBxrxqOA4cNRIKhpkuQrq3xtaL8oWVG4/TQjb10K0NA=;
+        b=kz4qt/gVlhCmuTvY+1Bgz4bM1Zdzk2loxjSG1678FeTRmaihlWBnM7XydGPHHzYIty
+         y4Nb9ZJMeZGgi3Jph6GsDU5yDPBVoTGbvIXHCN0u1ak/w3UeTN3/cJkNlSO2hxT6BwC5
+         Q5USVmJbBA0GmfE+AwjJpHbMe0Fg68ihjHO10jiTUx7JThMo719L+oCT9cKZsC7lNMj8
+         yV9QPhOqX3CXen4cNhIMae74WamqObNYTaSa8x3/ZjhxldMRyRO55q8khTT79yLyCQXU
+         VziP9lwlnL0yQ8WCYUaqi54m/dp7NLvWLz7t6O+7a0d87Ti3ZvteZdjTXjOS/ntt1pjY
+         a4LA==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785472934; x=1786077734;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=UBxrxqOA4cNRIKhpkuQrq3xtaL8oWVG4/TQjb10K0NA=;
+        b=UDIaqsmhufBZUM8vl1G2HUd7AGxRLjFizaHbmZdj04tqONTDO1+lpd+MrHSQTQzHCh
+         iH6Gy38FIcfMK+NvTDpMKgmBp7HgtVdXrlVIYliTAdlWf5brVZYCS6lIxcf6b+tj7Gml
+         JRDKBUgEXcXcqCVBi0sXB6a2+Ev7gQS4N85O66+inC44J7QypvwsPfuK0wjXEdHfmkhi
+         Ros33fymVt9R3oKO7nYRaeTy0Ms2LYCAiAMCdX1QGgwp209JUN3yYT8SlhfI7oJPsWxL
+         lkRHRtwY0AM2WICqwEUZ3yhxLwMOp0ZZ+3D1d6HypJjBVJPD9eR6ez2s6xc1CJp+PC6k
+         mz5A==
+X-Forwarded-Encrypted: i=1; AHgh+RqyO0DzsOc9gfwxIczpswCxKdZWdl3DX+oQlY26yMuDRA8RsIjC6+19RhuaTzWfvomQ3FTL4r+hYmXaoF4ahg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwBm0B/CmigmC5or+BIm4KdNQVzm7CiDNrr0Hgkmz0tq4zMuguB
+	N0aIfj6CxS+6S0i5EgJn73RVIic4cryRQhJXBen0cNZS2ZKy3yCgOKp1
+X-Gm-Gg: AR+sD12YXxrm0b/d2GrXXul6CcTp23uM4Y6ioX5F9uaBK9J9wH2yNGhqgHIGnMZ4Wcp
+	6/8USv9VjTVDbQkMdSPtexOeAqoucygvYXYUQJG1XF4MH4jInbh4XmGTDzwuxSokY38MyytHtdP
+	H7ewboVlc583+thiFgqbvkqRUH/2ORB+SKUMNok4Q200W0GnGZAJummc1WSBMNLsnmqF6z3WaFt
+	e8PFvejChm++FFbAhmO0XW/Kg/tu+m/TJNjE0he8hTGYjU44guzx72V2qcA0Vg9ASXWzzx/dD2A
+	ufrMvcHo+3UlRzPxauYWVGnT/Oy4u8XCduuLWsTNsMwUwZhk4kHn4mgHc39yTBFqoO9hi9t18Qv
+	LhFIxlHszZfUI2te9SY2JFj8YpLUZC+kN4sDQN16XBLXMnanYABl3jreh9pVykO0m7ZT+7e6wKu
+	DXubFr30Xl7BFa8Q66NChFXtWMrnb22g/eDTsY5N6hXGtyIbX0tcKZ33sFgbLlvd0=
+X-Received: by 2002:a17:902:ceca:b0:2cc:ac15:ff4c with SMTP id d9443c01a7336-2d047d5481cmr4191885ad.8.1785472933339;
+        Thu, 30 Jul 2026 21:42:13 -0700 (PDT)
+Received: from [127.0.1.1] ([188.253.12.32])
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3153dd9c93dsm765243eec.8.2026.07.30.21.42.11
+        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
+        Thu, 30 Jul 2026 21:42:12 -0700 (PDT)
+From: Jia Jia <physicalmtea@gmail.com>
+To: mst@redhat.com
+Cc: stefanha@redhat.com,
+	kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject:
+ Re: [PATCH] vhost/vsock: prevent stale IOTLB after ACCESS_PLATFORM changes
+Date: Fri, 31 Jul 2026 12:41:45 +0800
+Message-Id: <20260731044145.1734317-1-physicalmtea@gmail.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20260730104857-mutt-send-email-mst@kernel.org>
+References: <20260730104857-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: outlook.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: SN6PR02MB4157.namprd02.prod.outlook.com
-X-MS-Exchange-CrossTenant-RMS-PersistedConsumerOrg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-CrossTenant-Network-Message-Id: 231179a8-840b-4d66-1b43-08deeeb1aeab
-X-MS-Exchange-CrossTenant-originalarrivaltime: 31 Jul 2026 03:13:23.9824
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 84df9e7f-e9f6-40af-b435-aaaaaaaaaaaa
-X-MS-Exchange-CrossTenant-rms-persistedconsumerorg: 00000000-0000-0000-0000-000000000000
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: CYYPR02MB9685
+Content-Transfer-Encoding: 8bit
 
-From: Dave Hansen <dave.hansen@intel.com> Sent: Thursday, July 30, 2026 3:4=
-6 PM
->=20
-> On 7/30/26 13:11, Michael Kelley wrote:
-> > Linux code for running as a Hyper-V guest includes special cases for
-> > running on Hyper-V in WS2012/2012R2 and Windows 8/8.1. These versions
-> > were initially released 14 years ago, and official support ended in 202=
-3
-> > (unless a customer has contracted for extended security updates).
->=20
-> If we had a time machine, it would be nice to go back to 2023, stick
-> some warnings in about this, and see if anyone screams. Could we add
-> some warnings the next time a Hyper-V host ends support, please?
+On Thu, Jul 30, 2026 at 10:51:15AM -0400, Michael S. Tsirkin wrote:
+> I don't know if this will break anything. Why not just blow
+> out the iotlb? kernel will rebuild it if it needs it afterwards
+> for some reason.
+>
+> This part you are fixing is harmless. Let's make it a separate patch
+> and document the motivation.
 
-Yes, that's a good idea. The next such milestone is Jan 12, 2027 when
-Windows Server 2016 support ends. I'll see about getting such a
-warning included in Linux 7.4 or 7.5.
+Thanks.
 
->=20
-> Also, what will an end user actually see if they boot a kernel with this
-> series applied on one of those hypervisors? Will it just not boot? Will
-> it run slowly?
+Yes, I considered discarding the IOTLB before choosing -EBUSY. My
+hesitation was not about whether it could eventually be rebuilt, but
+that doing so would no longer be only a control-plane validation
+change. It would modify translation state directly used by running
+virtqueues.
 
-The VM will fail to boot, with some error messages along the way.
-See my response to Hamza Mahfooz. I'll update the VMBus error
-message to be more explicit about an old version of Hyper-V as a
-potential cause.
+The minimum synchronization I had in mind was roughly:
 
-Michael
+  vhost_vsock_set_features(features):
+      mutex_lock(dev.mutex)
 
+      if (!(features & ACCESS_PLATFORM) && dev.iotlb):
+          lock all vq.mutex in index order
+
+          old = dev.iotlb
+          dev.iotlb = NULL
+
+          for each vq:
+              vq.iotlb = NULL
+              reset vq.meta_iotlb
+              vq.acked_features = features
+
+          unlock all vq.mutex
+          vhost_iotlb_free(old)
+
+      ...
+
+      mutex_unlock(dev.mutex)
+
+The switch has to be serialized against all active VQs. My hesitation
+was that this turns VHOST_SET_FEATURES into a datapath synchronization
+point: the ioctl may wait for in-flight kick handlers, and rebuilding
+an empty IOTLB may stall queues on misses until the translations are
+restored. If stopping or flushing the device is also required, the
+disruption is larger than a normal feature update.
+
+I was not sure whether VHOST_SET_FEATURES is expected to impose that
+cost on a running device, or whether userspace should quiesce it first.
+That is why I chose -EBUSY for v1. If synchronization with active VQs is
+the intended behavior here, I can rework the patch accordingly.
+
+I will also split the existing-IOTLB preservation change into a
+separate patch and document its motivation.
