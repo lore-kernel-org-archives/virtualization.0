@@ -1,76 +1,76 @@
-Received: from mail-pj1-f47.google.com (mail-pj1-f47.google.com [209.85.216.47])
+Received: from mail-pg1-f175.google.com (mail-pg1-f175.google.com [209.85.215.175])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 93DBB41A4EB
-	for <virtualization@lists.linux.dev>; Fri, 31 Jul 2026 10:34:37 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.47
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 68A583E5A19
+	for <virtualization@lists.linux.dev>; Fri, 31 Jul 2026 10:34:28 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.215.175
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785494082; cv=none; b=mF+cutPed2FvICYYLUsfWWRhAE0piazFwvMabwMHo3gGCj/EkKbH4cVoP1pVwcscNP7lD8Up8s48kKZh/PNENkSXWw9eoFuIvbAdgPfQMIDQm+Wm7/+4d82eLGMTftjzy6y4PF/TiiP9mMuOAIZTm6d0gEDgnCj+4ua10quRCdw=
+	t=1785494102; cv=none; b=fTSlkXTYNrpok4ijga0kX917TM8Ge1mjB3X/VPelsa661VhA5qaUanmekUSvV8yrY5aTXZUTIjRq8oLqdOQKalLOFEMogfaNmbY+l7wnw1FvOo/zxsUK88166OBiEf9AHJQza3YBNiau9eWrg/lJETGi+fD3RNwPwgWnVTIPfw4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785494082; c=relaxed/simple;
-	bh=8jBFo3leZDgnmqctwiw0V0hqICmlxQdyuA6JJbEn+2A=;
+	s=arc-20240116; t=1785494102; c=relaxed/simple;
+	bh=U469aFp4Lp1fRTMeW5nd1UcvqPVbOxTPZGKcaDLzNjM=;
 	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=fQG8N/wSEpKGvQ7g1IYoHE1BI/GFYA1cngRHcBdfxyBf/Drw69fgX5IwiN9P8UVN+gvOJ+bwyQECRbvasdEc71q9Bs0FaHrlzRIgBrhTsqAGl3AUPJ0ACpD4T5GjdVju0jAP1rsj9ypRBuiOCHDfjbaq4sctoTfRTx4SlrsWhFU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=MCq/xUHE; arc=none smtp.client-ip=209.85.216.47
+	 MIME-Version; b=DYfBStgbkf+N3D6Oi0iL7Q1t1kBvBOw91eZgARe3pIhySHA+sjn2UXGqbr3nWX9LfvpJGuH74tk/47lxxwwSq4EMO4kbIc2SRl8jcAnQC0mGTZTOvNi16MZWlCg8aKsJp0B5ra9D/UHMIV1YMxPVNOmAjta0M5NlDQ1aoJB3YQk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=C/5rjpXi; arc=none smtp.client-ip=209.85.215.175
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="MCq/xUHE"
-Received: by mail-pj1-f47.google.com with SMTP id 98e67ed59e1d1-38e7109321dso482985a91.3
-        for <virtualization@lists.linux.dev>; Fri, 31 Jul 2026 03:34:37 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="C/5rjpXi"
+Received: by mail-pg1-f175.google.com with SMTP id 41be03b00d2f7-ca766c1c9ccso445373a12.0
+        for <virtualization@lists.linux.dev>; Fri, 31 Jul 2026 03:34:27 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785494073; x=1786098873; darn=lists.linux.dev;
+        d=gmail.com; s=20251104; t=1785494063; x=1786098863; darn=lists.linux.dev;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:from:to:cc:subject:date
          :message-id:reply-to:content-type;
-        bh=2oD6x90/2ngEh3h/+xTr/e8V2AGqBaiy+5NsZiEXuL8=;
-        b=MCq/xUHE83Iv8YTGS70BqgQoORkWqGd42RuPlnrcTV/5KE4Q8ya4jlDWOOlIAtmT+f
-         eEA9qsZMGHski1wb9OtmPmgBb5vzf3xL85QqHiv6eZaNkCQ5lqnePSuzCymdr91bh0S7
-         7907+Xn95nJDrf4oylZk5xddYAEr8/KHL4VNozTcgntyhKzpZroaIPW1eDOHvTO136cp
-         LHF2Fe0RIBoOiwspJDpotUL+pfQLafdH2lGMBqk7bb0srwTM4qb2vgHblwtfBOowMQP1
-         6TYjAwULTisT/FHP/1vKQmLk7HeiUM8BK/oG5pfUIq3oJTtGAtcF5ErHq40MRr4K1CXp
-         IWaQ==
+        bh=sbNYQDbxVpxt5RpgjMtZTIhW1qly1fVv3fTNwcQpnVY=;
+        b=C/5rjpXiSgkfBx2OkZpgK2Rg6XTpb1S4vI/3favBnTSGrgYIWmaF8+oUNsROICHuzv
+         iQvwCevBpf5OcCY8gdr748tPBe50vucwcIzofq/coRQhDg7dZ+tDMd0SEE86J526Oo2O
+         sNwdNTnGF7cZi3JzT6l4q1Trru8KIw/d7lWccv7rx/gscrLld+0viOAMi7M1mm6vxb/g
+         W+hAJPRqyJYSKFcaYQpglnGqlOkXrUJGKvivlAlprhTi13yV7Y11cqPyoi/WTFTuOSq5
+         Sr8mXcZ7goiU/XaHBVYWJz7DRLKtim2cQ9z0u4hWP05eHdwZVsfy4daaJyh4fIge/tfE
+         mJMQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785494073; x=1786098873;
+        d=1e100.net; s=20251104; t=1785494063; x=1786098863;
         h=content-transfer-encoding:mime-version:references:in-reply-to
          :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
          :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=2oD6x90/2ngEh3h/+xTr/e8V2AGqBaiy+5NsZiEXuL8=;
-        b=Dd4TYuU578JPaDWewocKDaJPcOLKE4pguyiOVxsoXjr+gZ48V+L/Pc1y+5PU8PZb/I
-         0m98Foh5JKTg2rwaEFYTR2SBzikHEeR202Ic6oH1PNaGWa98Q6rusOEdRzMxzRWFsDvs
-         qObUNBwzdJzmPhc0FrNkegvk6hH758VwPyxTuJb0lvenyh/EonKpJmI/bP7ELNocIwPO
-         yoPbVid2CIH7+DxYNC89C7FqkbQbETe7JjTj5rilR/BcBa8Ljz8A/JU/7qE/+HcjMtkY
-         Phu5pjOSKTpANRbt+KqaEOsMqQtH/7DlaqgASe9hVQcd4cyUYI0bmzfadUiv1YW6TKic
-         x5DQ==
-X-Forwarded-Encrypted: i=1; AHgh+RoraaYp3HGa4fRHZJhzCsO03Wx/D3yuXBqzdvx5TubeS/Axt15e6jxGATcgN/izJS+AtPYk3dse8BFNM6zU7Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxuB3+Fm0c/RGeDYGKidC+QoAa7kxZJr6edj4LfPDmngDkf6KdC
-	2fwWt5DluMTrPj1IJHYSL9ueKEIBsuA5uw9nsHfO8sdf/LPtl2go9RWt
-X-Gm-Gg: AR+sD13a9BP8BvTTpqCo8l3tIOlks8sQiwF/g+/a5GYdRyncFqAycxbTH3u+WCpnaIX
-	afAubfCV3KAr4MVwzew3FJowuhFgylqI4vhJld/MjokveYJQrODDu+TyrX1UDo9h7RWUtXGXWuh
-	rws3ZRiIwK+GUoxQEAETQR9GmnLhbBxIgzWRCfd6Ih5bDtE4235rRl0ztGCu4eFdmi10kpDeXOW
-	kNBbPbPqaPq+Y8vwTMl7JbiDNQtIfya6607szgYsE7y+4Ktz/HgHh/TQ9RlrzM/He4hFbJMhHWj
-	eV/9c93dHRe6HkJBH3bAQHUOp2tpvWfPc5FrWSSpzJnNwxr9fDJoFLAv8MM69rzWuk+aq8xKP2Z
-	TXv2Vt8jXgfqFnQEc0/L2BpTpyq2XtpZuseo+KDPT1amtFHti11yzvBgTHPn0xujMCo7LgcSAQ+
-	zasYgdUG1mRikB+KQ3dNFYvR/9cOzCK2DpITG9L2uO22KGAYhOE6SOoBzCsvCn8eY=
-X-Received: by 2002:a17:90b:4d04:b0:38e:712a:be68 with SMTP id 98e67ed59e1d1-38fb15304fdmr1243750a91.43.1785494072849;
-        Fri, 31 Jul 2026 03:34:32 -0700 (PDT)
+        bh=sbNYQDbxVpxt5RpgjMtZTIhW1qly1fVv3fTNwcQpnVY=;
+        b=VXfaX10jbouKJEfa4cYpbIunvj5VjKUsAjmSuEZ93ZxQlSQRaQe/zx1QQUWQnjiyt7
+         CGOc6DZVPMO2ys0+MdgTeSr0scy/NcludbCwuQqX+E/MY+ffKKx62tZ3DKJC9wKUfcA0
+         f6HYURhRjlVoTrfF1bHhkkX31ux082/cLoRsxVgP1TekylXWi+2nSQRgZUqCLLZ5egdC
+         ELKw17qHt4gDLhAGo2asXQXfTf0Z4pRAJ4pHyawwm49bQ0c4/MGCq/wv3GHwmO/d8BX9
+         IWwJhk1/oRq3LhYALAyiPcsiuq6yIn5IU7fFStcjmabPDo4dwwu5XYgpQYvTxoxCjmQB
+         yS+Q==
+X-Forwarded-Encrypted: i=1; AHgh+RpJvSoFyM88VDj8ERqpWN4az05PUbQwoOzz8cKHIWPQdkBT7He5q0tzgiT+CkpA4Rga+xuaO67KN859/BEZtg==@lists.linux.dev
+X-Gm-Message-State: AOJu0YzchRBaO2EnE9cXgqWtJ+45smzxtTq1Vs2Ht2XIczR+vSmCjf84
+	Nx0xB+tI7DZSowoj4oMnsaYT8EPiIiaPPM3gWCaNYmwcNNP62Zb3duJn
+X-Gm-Gg: AR+sD12crOm06SDMFOHObXGtXULiQjn7xoFif4RgtxynQM5EwpVTNpinETZgeI0pxv5
+	uOjq7wdZFZB2RNziBHhVK6CDpkrRiyoZZAoHt+flQXj3U58bVdTKxuoFYEVmEtrunLRxljVH0t+
+	d5XxMZrWHq4d2D3Ay5mOE90+iIVl/hVRJexXWJRDqoEFoMg82LSYcpEH2SF9z/8Im2o8pa4Yc0v
+	2NyptM1HjpxkvPuKfj3AYpz5urGD0A+PZ76awWh9b0+hZBCba5AgHmYyI9WpA8VOHJlsocMiKx2
+	3/dGG81EiJ9wpxznsoManFxcd1QoY49mEGpyC822Im6ZgjM3h3KpMs3H3HDADVy6Nrx1QWaOM26
+	vBWrEijUYFz5WPMFw62fVOmc8WWMqCThlpeStJCpAEUMOHuRe+wAL0H+MtlIF0nLUwgOzIaH5Sj
+	m2AGo4efUCYO8sntrhL0/LYp+uxSOlzPGtjXf7s2boc5daNbHASqzpbB/HoySwLzFgZ/ThzPY1U
+	A==
+X-Received: by 2002:a05:6a21:1fc3:b0:3bf:a543:e7f5 with SMTP id adf61e73a8af0-3c91b05e368mr1197360637.3.1785494062695;
+        Fri, 31 Jul 2026 03:34:22 -0700 (PDT)
 Received: from [127.0.1.1] ([188.253.12.32])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13fab25227bsm1934172c88.7.2026.07.31.03.34.30
+        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3153e0700e8sm4510601eec.24.2026.07.31.03.34.20
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 31 Jul 2026 03:34:32 -0700 (PDT)
+        Fri, 31 Jul 2026 03:34:22 -0700 (PDT)
 From: Jia Jia <physicalmtea@gmail.com>
 To: mst@redhat.com
 Cc: stefanha@redhat.com,
 	kvm@vger.kernel.org,
 	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org
-Subject: [PATCH v2 2/2] vhost/vsock: keep IOTLB across feature updates
-Date: Fri, 31 Jul 2026 18:34:14 +0800
-Message-Id: <20260731103414.1746316-3-physicalmtea@gmail.com>
+Subject: [PATCH v2 0/2] vhost/vsock: fix device IOTLB feature lifecycle
+Date: Fri, 31 Jul 2026 18:34:12 +0800
+Message-Id: <20260731103414.1746316-1-physicalmtea@gmail.com>
 X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260731103414.1746316-1-physicalmtea@gmail.com>
+In-Reply-To: <20260730104857-mutt-send-email-mst@kernel.org>
 References: <20260730104857-mutt-send-email-mst@kernel.org>
- <20260731103414.1746316-1-physicalmtea@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -79,32 +79,28 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-VHOST_SET_FEATURES is also used to update logging while a device is
-running. When ACCESS_PLATFORM stays enabled, allocating a new empty
-IOTLB on every call drops valid translations and forces avoidable
-misses.
+As suggested, split the changes into two patches.
 
-Initialize the device IOTLB only when one does not already exist.
+Patch 1 detaches and frees the device IOTLB when ACCESS_PLATFORM is
+cleared. The device and virtqueue IOTLB pointers, metadata caches, and
+acked features are updated while all virtqueue mutexes are held. It also
+drops old IOTLB miss messages and wakes readers.
 
-Signed-off-by: Jia Jia <physicalmtea@gmail.com>
----
- drivers/vhost/vsock.c | 3 ++-
- 1 file changed, 2 insertions(+), 1 deletion(-)
+Patch 2 keeps the current IOTLB when ACCESS_PLATFORM remains enabled,
+so a runtime logging update does not discard valid translations.
 
-diff --git a/drivers/vhost/vsock.c b/drivers/vhost/vsock.c
-index 562b9e139a76..3703fd219039 100644
---- a/drivers/vhost/vsock.c
-+++ b/drivers/vhost/vsock.c
-@@ -893,7 +893,8 @@ static int vhost_vsock_set_features(struct vhost_vsock *vsock, u64 features)
- 		goto err;
- 	}
- 
--	if ((features & (1ULL << VIRTIO_F_ACCESS_PLATFORM))) {
-+	if ((features & (1ULL << VIRTIO_F_ACCESS_PLATFORM)) &&
-+	    !vsock->dev.iotlb) {
- 		if (vhost_init_device_iotlb(&vsock->dev))
- 			goto err;
- 	}
+Changes since v1:
+- discard the existing IOTLB instead of returning -EBUSY
+- serialize the switch against all virtqueues
+- clear old IOTLB messages and wake readers
+- move the existing-IOTLB preservation change to a separate patch
+
+Jia Jia (2):
+  vhost/vsock: discard IOTLB when ACCESS_PLATFORM is cleared
+  vhost/vsock: keep IOTLB across feature updates
+
+ drivers/vhost/vsock.c | 46 +++++++++++++++++++++++++++++++++++++------
+ 1 file changed, 40 insertions(+), 6 deletions(-)
+
 -- 
 2.34.1
-
