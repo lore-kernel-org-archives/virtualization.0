@@ -1,59 +1,59 @@
 Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D10603783B0
-	for <virtualization@lists.linux.dev>; Fri, 31 Jul 2026 22:13:38 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id AF2B02E5B21
+	for <virtualization@lists.linux.dev>; Fri, 31 Jul 2026 22:13:39 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.165.32
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785536020; cv=none; b=VE6aSdM8j8PcLXJbjzdZWUu6o6rnTwkTBM3QnGObCzTqXbo0ZfxpFVKXRgIElhqHq4eYnlyB0V95Luhr2Iz53omH0ZCVxiTIxHvxExSkoPW26eJaXa4onCm8Gk+zMxLTNsomxREvIWre2m7BhucWOIFk8wr9GLdf04ehXu3cPUw=
+	t=1785536020; cv=none; b=RxUx37ZCRrVeAWhyKbSfKa4UnayFWJTDdrlCuGtroVTuFNWZ6vOqfSIQXnPMTfiVTQlCJjnIp5YjJiwtNeLvn8ne78VB2qV0AVIk5pzgoR2RamBFCuE8SbN4GXRHaPeF+q+IHcNEM4OhwMjCALMpp6qijGna/vQMrz4p3g0Fq+c=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
 	s=arc-20240116; t=1785536020; c=relaxed/simple;
-	bh=cbg66S599oYEnTDxeHAko0kawMfXDkpEV5WIaR9/DTM=;
+	bh=LZr6Rq3+sRw/jpg5qBUv5dtZv1XugAnfzq1Sapd+fkM=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=MKKbTZfYzDREtJLI/3A6y4ggoJo114s/GVM9F+n0QnRwP51UMYHzOMpAFQPyonqgAtp9kJCbPfbLh5p72Km9cK/Ac0CTCTeKEznAzdr0TtA6DMnYW9tPQRc3hx5we0njiDoX33HsoW+t+2HzxzAgPRaLGFWDszc7e4WkASR1qew=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=hI/zdJTa; arc=none smtp.client-ip=205.220.165.32
+	 MIME-Version; b=gQQxj17LubfsLxdrqsu6mTgIdTJPqz4CruPWQdRXjwPvsns0nuxyWcn48Og/K0xj6m/i2ZsUO/JaQqAwyxqMVxTd3zVkWDGIWk70X4kAlr86/DVw7YJodNdJkC6zGADdSIA2XJdv5IRirApnyZoYWPkmnrpuP/vBFOLXUWPSRRc=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=Vn89MTic; arc=none smtp.client-ip=205.220.165.32
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="hI/zdJTa"
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="Vn89MTic"
 Received: from pps.filterd (m0246617.ppops.net [127.0.0.1])
-	by mx0b-00069f02.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66VJtYdJ333124;
-	Fri, 31 Jul 2026 22:13:37 GMT
+	by mx0b-00069f02.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 66VJtXZs333101;
+	Fri, 31 Jul 2026 22:13:38 GMT
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
 	:content-transfer-encoding:date:from:in-reply-to:message-id
-	:mime-version:references:subject:to; s=corp-2025-04-25; bh=S6TDc
-	bRmKTn+qMmttv38f3y+XW/b4MSfCGd0YqQCi30=; b=hI/zdJTadRUv/CdHrkg7R
-	5CBHBORwe1pzI2RXPX8NNQF2ZOjRg7ORVO1BTKFOQky7qxDKxDGQF8/etucOUjbh
-	KdL0psSXscn0kvBi7fBErpphAsiHSNyUyR7v/mHeLpMew2e21Oib8K407/Shxamo
-	vYLfTL2MVM0wXqxIJNQ5iT3XyEaq7GME+9PD5OH/UpxgtULy1OD+Yxk4o55xkqNS
-	PHdrKmUE3IpXF6geZpXGIMTzQM5zd3bSAA/aTEC4KhCRt65brvDKOmiF1RzkiSxp
-	TIUCGllekKE5f7fR9HcryK6sQyxImzqbSLKG+LY0c/RVcUiqMxuFkLbwRGOgSHJ5
+	:mime-version:references:subject:to; s=corp-2025-04-25; bh=v9cJp
+	qb9T3ZRbaEmCERPAxNMMXVZGWcvB56I78v/cCw=; b=Vn89MTicf1rkpDEf03xhN
+	NCb5eCs1fCkFeKJav5WGKTxQRIdnYy1xOHrzHNkAKJHs8skT6ddN0wOHeU4Fqq2Q
+	hRAjd2+Q+QC75RfQLyyam/wGEhdEdXRWRekQXgciGV6ceUxgC1e3kGeNEQBkDEQt
+	m/QcpaECP2X6kS+t+3zlF6wXhkjQnnPv2unhWIAWr1kumunTJV7hMWWLNTrq2yNG
+	VLROO65BGQBku/0Mw46ehotnVfbaV6B6ZXETfhMLleIHRR1YAGzz2Yio+XX+IGKv
+	7RmI/+V687nmDNPTK6NH5uh95m6ckqejfi3HxsHupWxSN2oBooAzkLcvryNcKIEf
 	w==
 Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.appoci.oracle.com [138.1.114.2])
-	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 4fmr1dm77t-1
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 4fmr1dm77u-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Fri, 31 Jul 2026 22:13:38 +0000 (GMT)
+Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.7/8.18.1.7) with ESMTP id 66VMA5Wo007514;
+	Fri, 31 Jul 2026 22:13:37 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 4fnheq8a9p-1
 	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
 	Fri, 31 Jul 2026 22:13:37 +0000 (GMT)
-Received: from pps.filterd (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (8.18.1.7/8.18.1.7) with ESMTP id 66VMA4oB007474;
-	Fri, 31 Jul 2026 22:13:36 GMT
-Received: from pps.reinject (localhost [127.0.0.1])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTPS id 4fnheq8a9b-1
-	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
-	Fri, 31 Jul 2026 22:13:36 +0000 (GMT)
 Received: from phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com [127.0.0.1])
-	by pps.reinject (8.18.1.12/8.18.1.12) with ESMTP id 66VMDZB7018145;
+	by pps.reinject (8.18.1.12/8.18.1.12) with ESMTP id 66VMDZB9018145;
 	Fri, 31 Jul 2026 22:13:36 GMT
 Received: from localhost.localdomain (ca-dev80.us.oracle.com [10.211.9.80])
-	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTP id 4fnheq8a8s-2;
+	by phxpaimrmta01.imrmtpd1.prodappphxaev1.oraclevcn.com (PPS) with ESMTP id 4fnheq8a8s-3;
 	Fri, 31 Jul 2026 22:13:36 +0000 (GMT)
 From: Dongli Zhang <dongli.zhang@oracle.com>
 To: virtualization@lists.linux.dev
 Cc: mst@redhat.com, jasowangio@gmail.com, michael.christie@oracle.com,
         pbonzini@redhat.com, stefanha@redhat.com, eperezma@redhat.com,
         kvm@vger.kernel.org, joe.jin@oracle.com
-Subject: [PATCH 1/2] vhost-scsi: use kvzalloc for vq array allocation
-Date: Fri, 31 Jul 2026 15:10:23 -0700
-Message-ID: <20260731221116.236791-2-dongli.zhang@oracle.com>
+Subject: [PATCH 2/2] vhost-scsi: reject invalid max_io_vqs module parameter
+Date: Fri, 31 Jul 2026 15:10:24 -0700
+Message-ID: <20260731221116.236791-3-dongli.zhang@oracle.com>
 X-Mailer: git-send-email 2.43.5
 In-Reply-To: <20260731221116.236791-1-dongli.zhang@oracle.com>
 References: <20260731221116.236791-1-dongli.zhang@oracle.com>
@@ -71,101 +71,103 @@ X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 malwarescore=0
  mlxscore=0 bulkscore=0 lowpriorityscore=0 suspectscore=0 mlxlogscore=999
  spamscore=0 adultscore=0 phishscore=0 classifier=spam adjust=0 reason=mlx
  scancount=1 engine=8.19.0-2606160000 definitions=main-2607310167
-X-Proofpoint-GUID: lkhiBy7uO6CFmNQ-FkVjEiieqqoUYoxI
-X-Authority-Analysis: v=2.4 cv=Y8fIdBeN c=1 sm=1 tr=0 ts=6a6d1e11 cx=c_pps
+X-Proofpoint-GUID: YmREneOD-9A2ohACfUON62VFTAUFpQ2C
+X-Authority-Analysis: v=2.4 cv=Y8fIdBeN c=1 sm=1 tr=0 ts=6a6d1e12 cx=c_pps
  a=XiAAW1AwiKB2Y8Wsi+sD2Q==:117 a=XiAAW1AwiKB2Y8Wsi+sD2Q==:17
  a=RAioF0-LDSMA:10 a=VkNPw1HP01LnGYTKEx00:22 a=jiCTI4zE5U7BLdzWsZGv:22
- a=7Gl3-_t3PgB9XO-mQDs3:22 a=yPCof4ZbAAAA:8 a=Aw3GVznJ7T6Chps5h7QA:9
- a=+jEqtf1s3R9VXZ0wqowq2kgwd+I=:19
-X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMxMDE2NyBTYWx0ZWRfX6QqqC7LQaZs9
- 0bPetRziJ60Snx7hXyZ+9H8EPEQh2MnVKU0eWEPD2aSEgMMrnt7fH0Zznxw5hciK3O41L+Xsbaa
- Y18VLohDAN7UgpTPa1Yk4zj4F4+jWVG4LfEPNquVCXpOfnrQ7/a6
-X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMxMDE2NyBTYWx0ZWRfXzb7along0v/Q
- BQB5GEhqazug2NqhUTawVfVcWXukjCxmf11DufeD+yw/s7oVltKCkiqax5kgIxPypDCVVJoqr43
- Fes1liOnJuwpgNh5WBdhO6+qNR0vAdN597KVggFgsoBWg9Bd5M750ZdzDzcWnwX6P84BAHBs707
- InwqT9sOm6WBtEWJYlecEAcgJ6bOIo+rsDbeRg7+6EKcQWL90Ndwe68muNVZxdDAozntif/95uD
- pH0QfssutKbnkpzNF09iGnc7HHrcM35vK6g5d9f8EyK0EDo/8gjfEGECdefZRV8lEk3vbiipbqi
- rb0j21bqsqi2Y4WwOZzTYsNZBsbpb5nX1ee+PG7veYaCsVn8VUr9klbpbBz1rRiO41srAZApGKv
- soAaKa1PlyODyxJ8E4jwvim6t/mOudueYK/YczTDLzTUw2oVFTgbmif5NWWGRDz6txvWVV5Omb/
- 8YQ++cWp4RH2at9PUAw==
-X-Proofpoint-ORIG-GUID: lkhiBy7uO6CFmNQ-FkVjEiieqqoUYoxI
+ a=7Gl3-_t3PgB9XO-mQDs3:22 a=yPCof4ZbAAAA:8 a=maETerZRP1bNTAtRvowA:9
+X-Proofpoint-Spam-Info: AW1haW4tMjYwNzMxMDE2NyBTYWx0ZWRfX+wfR6YdvlMxj
+ JFg4qMOdR4JsgcVJTHpTrc5EO/wtHoXCtMGoiQhKfrQgVjYslAB3DxUg6U6p8PN25I06RSAeMWX
+ RBLIbX3QFRmCvW6B1BwWRdH63X6T11uOd5kBnLaz/mLeSJBij0uy
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwNzMxMDE2NyBTYWx0ZWRfX+bY35HgDZRl9
+ k440yrBwbfb1dKs7i1URiimidTbALHJFSUfo1PHbmB2reMVzZ46/7OHvflbTAAuDy/VwU3yuuw5
+ lIC8LUc75jGPaviyFVhcZ5jRZ14YNyLuyhuZWvgRrdGvw2wRJ2UYJPt1RwOwBIOQUwN9c0zExnN
+ GSHD4ocGlmmkpf8FVOg5PwL55WspNPZR2HuYz31HLR5MuvCGERpM1sygFzUwA6ywCYQY+JqtA5u
+ WoC88gxpOXNbe/aI7NruFHE3T5B6kh/kIClNg0fDU05TePllYxjpI5w+NvD0rr+QykXB7bAvQEm
+ FDa8UYoqRHmJ7ZNzJtACnnrCR+wz84rXgUHfGcX3PDiXTpIRqiCXGoV6eud8uUohXDOXDddlAph
+ /mtCpPobdGTXSiooblk4to7ssAD+yzhutr2mgnMNRjvvWWI220ZuUFjDns8uK1fANHnxCw5kMZ2
+ M30wgra48sC9aFpT5Ag==
+X-Proofpoint-ORIG-GUID: YmREneOD-9A2ohACfUON62VFTAUFpQ2C
 
-vhost_scsi_open() allocates one "struct vhost_scsi_virtqueue" for each
-virtqueue. With large max_io_vqs values, this array can require a
-high-order contiguous allocation and trigger a page allocator warning.
+max_io_vqs is currently validated only when a vhost-scsi device is opened.
+This allows sysfs to show values larger than the driver will actually use,
+e.g. writing 2048 succeeds even though vhost_scsi_open() later clamps it to
+VHOST_SCSI_MAX_IO_VQ. This makes the sysfs value differ from the value that
+will actually be used.
+
+hv# echo 2048 > /sys/module/vhost_scsi/parameters/max_io_vqs
 
 hv# cat /sys/module/vhost_scsi/parameters/max_io_vqs
-256
+2048
 
-[  766.075787] ------------[ cut here ]------------
-[  766.077030] WARNING: mm/page_alloc.c:5280 at __alloc_frozen_pages_noprof+0x32c/0x15c0, CPU#23: qemu-system-x86/5964
-... ...
-[  766.080351] RIP: 0010:__alloc_frozen_pages_noprof+0x32c/0x15c0
-... ...
-[  766.085813] Call Trace:
-[  766.085969]  <TASK>
-[  766.086098]  ? srso_alias_return_thunk+0x5/0xfbef5
-[  766.086365]  ? context_struct_compute_av+0x38a/0x4b0
-[  766.086652]  alloc_pages_mpol+0x9f/0x170
-[  766.086883]  ___kmalloc_large_node+0xb6/0xd0
-[  766.087124]  ? srso_alias_return_thunk+0x5/0xfbef5
-[  766.087389]  __kmalloc_large_node_noprof+0x18/0xa0
-[  766.087655]  __kmalloc_noprof+0x3a0/0x440
-[  766.087877]  ? vhost_scsi_open+0xcb/0x2d0 [vhost_scsi]
-[  766.088162]  vhost_scsi_open+0xcb/0x2d0 [vhost_scsi]
-[  766.088449]  misc_open+0x123/0x160
-[  766.088679]  chrdev_open+0xb1/0x230
-[  766.088885]  ? __pfx_chrdev_open+0x10/0x10
-[  766.089157]  do_dentry_open+0x11a/0x470
-[  766.089389]  vfs_open+0x29/0xf0
-[  766.089596]  path_openat+0x7c0/0x1100
-[  766.089821]  do_file_open+0xdd/0x190
-[  766.090032]  ? srso_alias_return_thunk+0x5/0xfbef5
-[  766.090332]  do_sys_openat2+0x7e/0x100
-[  766.090601]  __x64_sys_openat+0x51/0xa0
-[  766.090857]  do_syscall_64+0xfe/0x590
-[  766.091087]  entry_SYSCALL_64_after_hwframe+0x77/0x7f
-[  766.091411] RIP: 0033:0x7f9525a11fa6
+[  315.630495] Invalid max_io_vqs of 2048. Using 1024.
 
-The array does not require physical contiguity, so allocate it with
-kvzalloc_objs() and free it with kvfree().
+Use a module parameter callback to reject out-of-range updates when the
+parameter is written. This keeps the visible parameter value consistent
+with the effective queue limit.
+
+With the parameter value kept in range, remove the duplicate validation
+from vhost_scsi_open().
+
+Invalid values now fail with -EINVAL at write/load time instead of being
+accepted and silently adjusted later when the device is opened.
 
 Signed-off-by: Dongli Zhang <dongli.zhang@oracle.com>
 ---
- drivers/vhost/scsi.c | 6 +++---
- 1 file changed, 3 insertions(+), 3 deletions(-)
+ drivers/vhost/scsi.c | 27 ++++++++++++++++-----------
+ 1 file changed, 16 insertions(+), 11 deletions(-)
 
 diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index 9a1253b9d8c5..0c0634eea144 100644
+index 0c0634eea144..c138c29ce3dd 100644
 --- a/drivers/vhost/scsi.c
 +++ b/drivers/vhost/scsi.c
-@@ -2295,7 +2295,7 @@ static int vhost_scsi_open(struct inode *inode, struct file *f)
- 	if (!vs->old_inflight)
- 		goto err_inflight;
+@@ -210,7 +210,20 @@ static const int vhost_scsi_bits[] = {
+ #define VHOST_SCSI_MAX_EVENT	128
  
--	vs->vqs = kmalloc_objs(*vs->vqs, nvqs, GFP_KERNEL | __GFP_ZERO);
-+	vs->vqs = kvzalloc_objs(*vs->vqs, nvqs);
- 	if (!vs->vqs)
- 		goto err_vqs;
+ static unsigned vhost_scsi_max_io_vqs = 128;
+-module_param_named(max_io_vqs, vhost_scsi_max_io_vqs, uint, 0644);
++
++static int vhost_scsi_set_max_io_vqs(const char *val,
++				     const struct kernel_param *kp)
++{
++	return param_set_uint_minmax(val, kp, 1, VHOST_SCSI_MAX_IO_VQ);
++}
++
++static const struct kernel_param_ops vhost_scsi_max_io_vqs_op = {
++	.set = vhost_scsi_set_max_io_vqs,
++	.get = param_get_uint,
++};
++
++module_param_cb(max_io_vqs, &vhost_scsi_max_io_vqs_op,
++		&vhost_scsi_max_io_vqs, 0644);
+ MODULE_PARM_DESC(max_io_vqs, "Set the max number of IO virtqueues a vhost scsi device can support. The default is 128. The max is 1024.");
  
-@@ -2331,7 +2331,7 @@ static int vhost_scsi_open(struct inode *inode, struct file *f)
- 	return 0;
+ struct vhost_scsi_virtqueue {
+@@ -2273,22 +2286,14 @@ static int vhost_scsi_open(struct inode *inode, struct file *f)
+ 	struct vhost_scsi_virtqueue *svq;
+ 	struct vhost_scsi *vs;
+ 	struct vhost_virtqueue **vqs;
+-	int r = -ENOMEM, i, nvqs = vhost_scsi_max_io_vqs;
++	int r = -ENOMEM, i, nvqs;
  
- err_local_vqs:
--	kfree(vs->vqs);
-+	kvfree(vs->vqs);
- err_vqs:
- 	kfree(vs->old_inflight);
- err_inflight:
-@@ -2352,7 +2352,7 @@ static int vhost_scsi_release(struct inode *inode, struct file *f)
- 	vhost_dev_stop(&vs->dev);
- 	vhost_dev_cleanup(&vs->dev);
- 	kfree(vs->dev.vqs);
--	kfree(vs->vqs);
-+	kvfree(vs->vqs);
- 	kfree(vs->old_inflight);
- 	kvfree(vs);
- 	return 0;
+ 	vs = kvzalloc_obj(*vs);
+ 	if (!vs)
+ 		goto err_vs;
+ 	vs->inline_sg_cnt = vhost_scsi_inline_sg_cnt;
+ 
+-	if (nvqs > VHOST_SCSI_MAX_IO_VQ) {
+-		pr_err("Invalid max_io_vqs of %d. Using %d.\n", nvqs,
+-		       VHOST_SCSI_MAX_IO_VQ);
+-		nvqs = VHOST_SCSI_MAX_IO_VQ;
+-	} else if (nvqs == 0) {
+-		pr_err("Invalid max_io_vqs of %d. Using 1.\n", nvqs);
+-		nvqs = 1;
+-	}
+-	nvqs += VHOST_SCSI_VQ_IO;
++	nvqs = vhost_scsi_max_io_vqs + VHOST_SCSI_VQ_IO;
+ 
+ 	vs->old_inflight = kmalloc_objs(*vs->old_inflight, nvqs,
+ 					GFP_KERNEL | __GFP_ZERO);
 -- 
 2.43.5
 
