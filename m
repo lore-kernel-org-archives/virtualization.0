@@ -1,134 +1,77 @@
-Received: from mail-pl1-f178.google.com (mail-pl1-f178.google.com [209.85.214.178])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 74ABA352010
-	for <virtualization@lists.linux.dev>; Fri, 31 Jul 2026 04:42:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.214.178
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B44BE3C3F5C
+	for <virtualization@lists.linux.dev>; Fri, 31 Jul 2026 08:24:12 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785472935; cv=none; b=EsTUVebGBMCzol9TPE+Km5VXJyCmlZBEmMwHBxfmiDsO5ePS/4tZpzZUGNIYh+UemfIxrWf1AP+yb/FRpvTaA06Q0/C/TL1ibh2URl8BP2GK51EoXneZOaIBml6Dkh+djnwo+hODxMixBbAOrqT3dcQcgPtydapsLesKDnChb4E=
+	t=1785486259; cv=none; b=HiS20qZUqNrjDvNlzZ+C6ujR3Jj68lLVW6sCh+MhlcOV8iACEuQUy9gHpR/hNC5o1DLDY1seFiTY39NC7Ttz1IuvIxLo60LhUpFcTv7QIFRrChdZWfwn0Le54VKuAOUyC1YinUUQkJpGQcoktsYGFjyjmCnvo+Z/IqbBxFjPI8w=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785472935; c=relaxed/simple;
-	bh=ZMvyUCyEVG3QAjdzCqMKBgh7MXLqXhHhJWMaYN5xfHY=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=oQAqvbvs9+GpmLDgXa0N9Z3Zj2wPmVyasbRrpZYBoKg+K8komGKdbLjn9nGgWwDlaVRYCIC7/9epGRjzkx7D6gYHdlX109he5p92A+1RAdHHZsHIsLX7FKNne+SNkQZuiP5QwWMvNVTXTxNTrIffH03YW/ajBy8cpjOFiIiq89E=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=kz4qt/gV; arc=none smtp.client-ip=209.85.214.178
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="kz4qt/gV"
-Received: by mail-pl1-f178.google.com with SMTP id d9443c01a7336-2ce98cb8165so4337785ad.1
-        for <virtualization@lists.linux.dev>; Thu, 30 Jul 2026 21:42:14 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785472934; x=1786077734; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=UBxrxqOA4cNRIKhpkuQrq3xtaL8oWVG4/TQjb10K0NA=;
-        b=kz4qt/gVlhCmuTvY+1Bgz4bM1Zdzk2loxjSG1678FeTRmaihlWBnM7XydGPHHzYIty
-         y4Nb9ZJMeZGgi3Jph6GsDU5yDPBVoTGbvIXHCN0u1ak/w3UeTN3/cJkNlSO2hxT6BwC5
-         Q5USVmJbBA0GmfE+AwjJpHbMe0Fg68ihjHO10jiTUx7JThMo719L+oCT9cKZsC7lNMj8
-         yV9QPhOqX3CXen4cNhIMae74WamqObNYTaSa8x3/ZjhxldMRyRO55q8khTT79yLyCQXU
-         VziP9lwlnL0yQ8WCYUaqi54m/dp7NLvWLz7t6O+7a0d87Ti3ZvteZdjTXjOS/ntt1pjY
-         a4LA==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785472934; x=1786077734;
-        h=content-transfer-encoding:mime-version:references:in-reply-to
-         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
-         :to:cc:subject:date:message-id:reply-to:content-type;
-        bh=UBxrxqOA4cNRIKhpkuQrq3xtaL8oWVG4/TQjb10K0NA=;
-        b=UDIaqsmhufBZUM8vl1G2HUd7AGxRLjFizaHbmZdj04tqONTDO1+lpd+MrHSQTQzHCh
-         iH6Gy38FIcfMK+NvTDpMKgmBp7HgtVdXrlVIYliTAdlWf5brVZYCS6lIxcf6b+tj7Gml
-         JRDKBUgEXcXcqCVBi0sXB6a2+Ev7gQS4N85O66+inC44J7QypvwsPfuK0wjXEdHfmkhi
-         Ros33fymVt9R3oKO7nYRaeTy0Ms2LYCAiAMCdX1QGgwp209JUN3yYT8SlhfI7oJPsWxL
-         lkRHRtwY0AM2WICqwEUZ3yhxLwMOp0ZZ+3D1d6HypJjBVJPD9eR6ez2s6xc1CJp+PC6k
-         mz5A==
-X-Forwarded-Encrypted: i=1; AHgh+RqyO0DzsOc9gfwxIczpswCxKdZWdl3DX+oQlY26yMuDRA8RsIjC6+19RhuaTzWfvomQ3FTL4r+hYmXaoF4ahg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwBm0B/CmigmC5or+BIm4KdNQVzm7CiDNrr0Hgkmz0tq4zMuguB
-	N0aIfj6CxS+6S0i5EgJn73RVIic4cryRQhJXBen0cNZS2ZKy3yCgOKp1
-X-Gm-Gg: AR+sD12YXxrm0b/d2GrXXul6CcTp23uM4Y6ioX5F9uaBK9J9wH2yNGhqgHIGnMZ4Wcp
-	6/8USv9VjTVDbQkMdSPtexOeAqoucygvYXYUQJG1XF4MH4jInbh4XmGTDzwuxSokY38MyytHtdP
-	H7ewboVlc583+thiFgqbvkqRUH/2ORB+SKUMNok4Q200W0GnGZAJummc1WSBMNLsnmqF6z3WaFt
-	e8PFvejChm++FFbAhmO0XW/Kg/tu+m/TJNjE0he8hTGYjU44guzx72V2qcA0Vg9ASXWzzx/dD2A
-	ufrMvcHo+3UlRzPxauYWVGnT/Oy4u8XCduuLWsTNsMwUwZhk4kHn4mgHc39yTBFqoO9hi9t18Qv
-	LhFIxlHszZfUI2te9SY2JFj8YpLUZC+kN4sDQN16XBLXMnanYABl3jreh9pVykO0m7ZT+7e6wKu
-	DXubFr30Xl7BFa8Q66NChFXtWMrnb22g/eDTsY5N6hXGtyIbX0tcKZ33sFgbLlvd0=
-X-Received: by 2002:a17:902:ceca:b0:2cc:ac15:ff4c with SMTP id d9443c01a7336-2d047d5481cmr4191885ad.8.1785472933339;
-        Thu, 30 Jul 2026 21:42:13 -0700 (PDT)
-Received: from [127.0.1.1] ([188.253.12.32])
-        by smtp.gmail.com with ESMTPSA id 5a478bee46e88-3153dd9c93dsm765243eec.8.2026.07.30.21.42.11
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 30 Jul 2026 21:42:12 -0700 (PDT)
-From: Jia Jia <physicalmtea@gmail.com>
+	s=arc-20240116; t=1785486259; c=relaxed/simple;
+	bh=rluc8i/Zl9lCBStyuXlWmXrybrCA2JmGlbdo5xZOZoA=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version:Content-Type; b=orYuS7LcOR4lsWPTDVUiIO1CdROl7GidPAdJi19RaJ4YdMSeGhUIyAc61VbdZnHDlGp8kyCU0waLy41CYPMF13Ju6/ZcN7bbCp/KXaEw7ySi1nN6Msg+Xsbwgcxzz9LZgTQ45z8JHCNFQFKwI6R5N+4MDLnR7CZoqqccN10Q2Ms=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
+X-UUID: 2f68db128cb911f1aa26b74ffac11d73-20260731
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.12,REQID:06d64418-1188-4c0e-9c3b-97a842079762,IP:0,U
+	RL:0,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
+	release,TS:0
+X-CID-META: VersionHash:e7bac3a,CLOUDID:56855669f31567fae26ca31122dd314a,BulkI
+	D:nil,BulkQuantity:0,Recheck:0,SF:80|81|82|83|102|136|865|898,TC:nil,Conte
+	nt:0|15|50,EDM:-3,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL
+	:0,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: 2f68db128cb911f1aa26b74ffac11d73-20260731
+X-User: liuxixin@kylinos.cn
+Received: from [127.0.1.1] [(10.44.16.150)] by mailgw.kylinos.cn
+	(envelope-from <liuxixin@kylinos.cn>)
+	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
+	with ESMTP id 458950696; Fri, 31 Jul 2026 16:24:01 +0800
+From: Xixin Liu <liuxixin@kylinos.cn>
 To: mst@redhat.com
-Cc: stefanha@redhat.com,
-	kvm@vger.kernel.org,
-	virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject:
- Re: [PATCH] vhost/vsock: prevent stale IOTLB after ACCESS_PLATFORM changes
-Date: Fri, 31 Jul 2026 12:41:45 +0800
-Message-Id: <20260731044145.1734317-1-physicalmtea@gmail.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260730104857-mutt-send-email-mst@kernel.org>
-References: <20260730104857-mutt-send-email-mst@kernel.org>
+Cc: linux-block@vger.kernel.org, virtualization@lists.linux.dev, jasowang@redhat.com, xuanzhuo@linux.alibaba.com, eperezma@redhat.com, pbonzini@redhat.com, stefanha@redhat.com, axboe@kernel.dk, linux-kernel@vger.kernel.org, liuxixin@kylinos.cn
+Subject: Re: [PATCH v1 2/2] virtio-blk: mark disk dead on ERS permanent failure
+Date: Fri, 31 Jul 2026 11:29:00 +0800
+Message-ID: <reply-virtio-blk-ers-mst.20260731.112900.liuxixin@kylinos.cn>
+In-Reply-To: <20260730190926-mutt-send-email-mst@kernel.org>
+References: <cover.virtio-blk-ers-v1.1780449274.git.liuxixin@kylinos.cn> <4740ae91d5be.1780449274.git.liuxixin@kylinos.cn> <20260730190926-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
+X-Mailer: patches/scripts/send-local.py
 
-On Thu, Jul 30, 2026 at 10:51:15AM -0400, Michael S. Tsirkin wrote:
-> I don't know if this will break anything. Why not just blow
-> out the iotlb? kernel will rebuild it if it needs it afterwards
-> for some reason.
->
-> This part you are fixing is harmless. Let's make it a separate patch
-> and document the motivation.
+Hi,
 
-Thanks.
+On Thu, 30 Jul 2026, Michael S. Tsirkin wrote:
+> Can you tell me was this written with use of AI? I ask because not many
+> people go out of their way to put in unicode dashes. Next step is what
+> emojis? Let's not go there pls.
+> And if yes pls disclose that as per Documentation.
 
-Yes, I considered discarding the IOTLB before choosing -EBUSY. My
-hesitation was not about whether it could eventually be rebuilt, but
-that doing so would no longer be only a control-plane validation
-change. It would modify translation state directly used by running
-virtqueues.
+Yes. I will add Assisted-by for the LLM help in v2.
 
-The minimum synchronization I had in mind was roughly:
+> Do we need this? virtqueue add will fail anyway.
 
-  vhost_vsock_set_features(features):
-      mutex_lock(dev.mutex)
+For a broken vq, yes, virtqueue_add already fails. The useful part is
+the !vblk->vqs check: after reset_prepare/freeze_priv the vqs pointer
+can be NULL, and virtio_queue_rq would deref it before add. v2 drops
+disk_live() and keeps only the NULL guards.
 
-      if (!(features & ACCESS_PLATFORM) && dev.iotlb):
-          lock all vq.mutex in index order
+> why not break first?
 
-          old = dev.iotlb
-          dev.iotlb = NULL
+Agreed. v2 calls virtio_break_device() before flush_work().
 
-          for each vq:
-              vq.iotlb = NULL
-              reset vq.meta_iotlb
-              vq.acked_features = features
+Thanks,
+Xixin
 
-          unlock all vq.mutex
-          vhost_iotlb_free(old)
-
-      ...
-
-      mutex_unlock(dev.mutex)
-
-The switch has to be serialized against all active VQs. My hesitation
-was that this turns VHOST_SET_FEATURES into a datapath synchronization
-point: the ioctl may wait for in-flight kick handlers, and rebuilding
-an empty IOTLB may stall queues on misses until the translations are
-restored. If stopping or flushing the device is also required, the
-disruption is larger than a normal feature update.
-
-I was not sure whether VHOST_SET_FEATURES is expected to impose that
-cost on a running device, or whether userspace should quiesce it first.
-That is why I chose -EBUSY for v1. If synchronization with active VQs is
-the intended behavior here, I can rework the patch accordingly.
-
-I will also split the existing-IOTLB preservation change into a
-separate patch and document its motivation.
