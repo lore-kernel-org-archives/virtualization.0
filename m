@@ -1,36 +1,37 @@
 Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 747C53BB115;
-	Sun,  2 Aug 2026 15:15:41 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EABB3AE18A;
+	Sun,  2 Aug 2026 16:35:18 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785683741; cv=none; b=NF7nOtex/GOSgGQZBGTCGHQP4HiNDpRcoJj6If7d8yVoZIgGA8a+UATTh3ssO6FACdkjvb3AIP2kTNgCWcL4iXc12mka/BbTGQumZ0+6LoSwlPmQe3Jqm+YwOjwlBTM7l/+Vdm32f7ujmiMiEwD1ehHhilCrqTPSPBbIjRPpuYk=
+	t=1785688518; cv=none; b=Rseg2P0RIw0DYogdLOQZIKZCNgMe/dSzemIUCksEoKuLiMIilPHqA9ZAJF3TxKTClfa+c0JedtLUJi/Y3nbx8m8tzP06Xr1fyZjkIAkn3dlYF5lpn7vbk6fzIQ7HkyecFmlKI6zE+9AQFLd+rjdWu6O7IRXT4GFiS+73/PVKsd8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785683741; c=relaxed/simple;
-	bh=urPKky9iUS+4jnryG34TFm1XyK7+FTAcIVwAzaFOXo8=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=HXvn9oYBhySujr9I5++XQ/Gbo7UyDaij0unvQH8HJ5Y7KpwQgVU6kZvWXAtedsNdPEMjs2+fPKerR4i/4VmPY6aa1GLgsAYeVmg9qFcVnkKEJiVMEekaqn8BN6+uoeZzwu7hOQRXZiNUzfzXzo0IvCcRrEOBFdnV/r7MIS+Wtjw=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=m6TclGC2; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1785688518; c=relaxed/simple;
+	bh=ukOtf677Gv6a8kEcPYzgmcecGQqi1e3EzxxsbW6ydfE=;
+	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=uQXr+Bz8XsYep8gCm2p99YqnEGcaeTR2Ynv18L62jNCf+mIooSEmmBEGPbm1jAGMBkvYOtYVSw3izDpNi1GD7MkLhf9mfXS0KaUogzG3yJYwXSVcH0YE3Px0Wh/TD2K43Q0Bjuf6FAPA/vKhuZDg5fvzkhs4WA0R1xHLYmPcGPU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mdIs1U6W; arc=none smtp.client-ip=10.30.226.201
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="m6TclGC2"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id E5144C19425;
-	Sun,  2 Aug 2026 15:15:40 +0000 (UTC)
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mdIs1U6W"
+Received: by smtp.kernel.org (Postfix) with ESMTPS id 17CA4C19425;
+	Sun,  2 Aug 2026 16:35:18 +0000 (UTC)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1785683741;
-	bh=urPKky9iUS+4jnryG34TFm1XyK7+FTAcIVwAzaFOXo8=;
+	s=k20201202; t=1785688518;
+	bh=ukOtf677Gv6a8kEcPYzgmcecGQqi1e3EzxxsbW6ydfE=;
 	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=m6TclGC2Fsx1eEWDXQT4tcv3jJ2g8ifewviD9qL43EjdZF2oTi6nPvb80q+DvNxWD
-	 zJbWEcpsRmYd4YdPSJBK8MSsrBlyJfmdTm5ZA53r1R8n8do1pAil5CVB1BLWCpG5+E
-	 NpWhSQ2DN9vuqlYLbiEyawldgow22tBWKph4A6C3kF3r86dyqyVajIUHPh3ESjmnDF
-	 oPOOFVk3oznZGbX0P12VHS1nv3ht9TvktvrLCCGPl6FY7Ze5d2tS+KZ6swknmIqGlH
-	 IrzP5pNEPJQ9pYQutOhjZGJ0lNpRcYjucH/mEUSW16S2NM4JfO/Jh2necD39nVZdv0
-	 gyD+FAFm4HWGw==
+	b=mdIs1U6WPQzGyn6sQ+KGteUUqOPL+wXGWpqeUUPquJSI/+2bcTA22XonWFEYL4nzy
+	 DpxpLBHweM/2CbXhnEry6/dJZzPJjpPn5CJHa0ikcDom8G9rcszDeogEUNb3H67VEA
+	 x7k8/gdt2TrLCEUNaYYh2vUQwP31CyBxMJkIBktvRRueLV5khsQr5JahBfR/sxMfy3
+	 G8mHvPWZlGcSy9A9ctCM13OQ3otATWuZnjJxH9MMtVqjhD0qCAfT1UYEbEl5i7yQqC
+	 piimdHK56Ie7j5ICG1nqXLPH7CDSS+0UZwu66D094DJ4F3cHAMNWmwfyW8xcGORE9y
+	 NmrZu3pMztbaw==
 Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id BF5E2C55162;
-	Sun,  2 Aug 2026 15:15:40 +0000 (UTC)
+	by smtp.lore.kernel.org (Postfix) with ESMTP id E2456C55177;
+	Sun,  2 Aug 2026 16:35:17 +0000 (UTC)
 From: Anuj Bolewar via B4 Relay <devnull+bolewara.gmail.com@kernel.org>
-Date: Sun, 02 Aug 2026 20:45:39 +0530
-Subject: [PATCH] drm/virtio: reclaim pending vbufs before tearing down vqs
+Date: Sun, 02 Aug 2026 22:05:17 +0530
+Subject: [PATCH v2] drm/virtio: reclaim pending vbufs before tearing down
+ vqs
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -39,10 +40,11 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
-Message-Id: <20260802-virtio-gpu-reclaim-vbufs-v1-1-9947f18b20e2@gmail.com>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/yXMQQ6CMBBA0auQWTtJaYBUr2JctMMUxyiQKW1MC
- He36vIt/t8hsQonuDQ7KBdJsswV7akBuvt5YpSxGqyxg3HGYhHdZMFpzahMTy8vLCHHhJ1rByL
- n+xDPUPNVOcr7t77e/k45PJi27w+O4wOifY00fAAAAA==
+Message-Id: <20260802-virtio-gpu-reclaim-vbufs-v2-1-5767fb860691@gmail.com>
+X-B4-Tracking: v=1; b=H4sIAAAAAAAC/42NQQ6CMBBFr0K6dkzbIBZX3sOwaOsUxgAlbWk0h
+ LsLeAGXL3n//YVFDISR3YqFBcwUyY8byFPBbKfHFoGeGzPJZcUVl5ApJPLQTjMEtL2mAbKZXYR
+ SicpapS/G1WybTwEdvY/0o/lxnM0Lbdp7u9FRTD58ju8sdu+PmyxAQF2XVyeUkRzlvR009WfrB
+ 9as6/oFiy4+ldIAAAA=
 X-Change-ID: 20260802-virtio-gpu-reclaim-vbufs-4816cc8a5bf9
 To: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
  Dmitry Osipenko <dmitry.osipenko@collabora.com>, 
@@ -56,11 +58,11 @@ Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev,
  syzbot+06f9b2a53ba4a5a47644@syzkaller.appspotmail.com, 
  Anuj Bolewar <bolewara@gmail.com>
 X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1785683738; l=3365;
+X-Developer-Signature: v=1; a=ed25519-sha256; t=1785688516; l=4832;
  i=bolewara@gmail.com; s=20260802; h=from:subject:message-id;
- bh=Izg2s1bAooCdMR8KgRv32DrBTVJEQzFdlvpjw9zx8Pk=;
- b=h9UpYnkRd1lshg3i4knVzp2mmcS70EAs631fM2L1vfWoXejfRLFr5wdjYjmmFIl2x2aHrub6k
- ZYLD+9wWZkXAaA0hTCemICJrlbtBADgeCiAmowELimV6O9h/YVTVTof
+ bh=ip9758ecvu5Lc+AGn+NJtR1MumyMs6TZADIy4kALth8=;
+ b=gueT/54Hp0J8eQ2wmW1BmksUne+9bduUi5wu1Rl2EqJkTwAsbMMASolkPJ1godpqMFGsH9RbA
+ x9WXXQxaMt5BBfNnS4RKf3cxHp/iZAOI7GPyoGlTnWPEximQE3zK2so
 X-Developer-Key: i=bolewara@gmail.com; a=ed25519;
  pk=XxcXxqFWk9xQziyNEfhS6NRJQR1shqHRRYzkbaYamm0=
 X-Endpoint-Received: by B4 Relay for bolewara@gmail.com/20260802 with
@@ -83,16 +85,41 @@ Drain any buffers still sitting in the control and cursor virtqueues in
 virtio_gpu_deinit() after the device has been reset and before the
 virtqueues are deleted, following the same pattern used by virtio_console's
 remove_vqs(). Each reclaimed buffer is released with free_vbuf(), dropping
-the reference on any GEM objects it holds.
+the reference on any GEM objects it holds. Pending RESOURCE_UNREF
+commands are handled as well: their resp_cb_data still references a GEM
+object, so it is cleaned up with virtio_gpu_cleanup_object() to avoid
+leaking it on teardown.
 
 Reported-by: syzbot+06f9b2a53ba4a5a47644@syzkaller.appspotmail.com
 Closes: https://syzkaller.appspot.com/bug?extid=06f9b2a53ba4a5a47644
 Signed-off-by: Anuj Bolewar <bolewara@gmail.com>
 ---
+This series fixes a syzbot-triggered WARNING in virtio_gpu_free_vbufs
+(cache object: virtio-gpu-vbufs) seen on device removal. Commands that
+are queued but never complete leave vbuffers stranded in the control and
+cursor virtqueues. virtio_gpu_deinit() reset the device and deleted the
+virtqueues without draining them, so a later kmem_cache_destroy() in
+virtio_gpu_release() ran with live objects still allocated.
+
+Patch 1 drains the queues in virtio_gpu_deinit(): after the device reset
+and before del_vqs(), virtio_gpu_reclaim_vbufs() detaches every unused
+buffer from both virtqueues, releases their object arrays, and runs the
+pending resource-unref cleanup so the referenced GEM objects are freed
+rather than leaked. This mirrors the drain pattern used by
+virtio_console's remove_vqs().
+
+Link: https://syzkaller.appspot.com/bug?extid=06f9b2a53ba4a5a47644
+---
+Changes in v2:
+- Also release the GEM object referenced by vbuf->resp_cb_data when
+  reclaiming stranded buffers, so pending RESOURCE_UNREF commands do not
+  leak their underlying objects on teardown.
+- Link to v1: https://patch.msgid.link/20260802-virtio-gpu-reclaim-vbufs-v1-1-9947f18b20e2@gmail.com
+---
  drivers/gpu/drm/virtio/virtgpu_drv.h |  1 +
  drivers/gpu/drm/virtio/virtgpu_kms.c |  1 +
- drivers/gpu/drm/virtio/virtgpu_vq.c  | 13 +++++++++++++
- 3 files changed, 15 insertions(+)
+ drivers/gpu/drm/virtio/virtgpu_vq.c  | 15 +++++++++++++++
+ 3 files changed, 17 insertions(+)
 
 diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
 index 7449907754a..3e491c80873 100644
@@ -119,10 +146,10 @@ index b4329f28e97..e5a6ae679f3 100644
  }
  
 diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index e5e1af8b8e8..95d7a9ef0d9 100644
+index e5e1af8b8e8..ab6106f4bdf 100644
 --- a/drivers/gpu/drm/virtio/virtgpu_vq.c
 +++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -208,6 +208,19 @@ static void free_vbuf(struct virtio_gpu_device *vgdev,
+@@ -208,6 +208,21 @@ static void free_vbuf(struct virtio_gpu_device *vgdev,
  	kmem_cache_free(vgdev->vbufs, vbuf);
  }
  
@@ -133,6 +160,8 @@ index e5e1af8b8e8..95d7a9ef0d9 100644
 +	while ((vbuf = virtqueue_detach_unused_buf(vgdev->ctrlq.vq))) {
 +		if (vbuf->objs)
 +			virtio_gpu_array_put_free(vbuf->objs);
++		if (vbuf->resp_cb_data)
++			virtio_gpu_cleanup_object(vbuf->resp_cb_data);
 +		free_vbuf(vgdev, vbuf);
 +	}
 +	while ((vbuf = virtqueue_detach_unused_buf(vgdev->cursorq.vq)))
