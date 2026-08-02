@@ -1,183 +1,109 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-1.web.codeaurora.org [10.30.226.201])
+Received: from mx0a-00069f02.pphosted.com (mx0a-00069f02.pphosted.com [205.220.165.32])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8EABB3AE18A;
-	Sun,  2 Aug 2026 16:35:18 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=10.30.226.201
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id DE373184
+	for <virtualization@lists.linux.dev>; Sun,  2 Aug 2026 17:28:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=205.220.165.32
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785688518; cv=none; b=Rseg2P0RIw0DYogdLOQZIKZCNgMe/dSzemIUCksEoKuLiMIilPHqA9ZAJF3TxKTClfa+c0JedtLUJi/Y3nbx8m8tzP06Xr1fyZjkIAkn3dlYF5lpn7vbk6fzIQ7HkyecFmlKI6zE+9AQFLd+rjdWu6O7IRXT4GFiS+73/PVKsd8=
+	t=1785691693; cv=none; b=VJKgxCpba/kOljJLNvNE4zFQXPCb/t4AFwNMQpZExcNyKKptsyoeLMBF+cAr4v6px0ciUjEDn0IdNv4pDPHqt4X/iUsTwjIZ+ArnCiFuTP3XXoKgl3GsRLbOPRsAlNg2wKGGwT43ZQq5K6AysmSBmcvTAuX1Pex+eV9V2m2/rJI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785688518; c=relaxed/simple;
-	bh=ukOtf677Gv6a8kEcPYzgmcecGQqi1e3EzxxsbW6ydfE=;
-	h=From:Date:Subject:MIME-Version:Content-Type:Message-Id:To:Cc; b=uQXr+Bz8XsYep8gCm2p99YqnEGcaeTR2Ynv18L62jNCf+mIooSEmmBEGPbm1jAGMBkvYOtYVSw3izDpNi1GD7MkLhf9mfXS0KaUogzG3yJYwXSVcH0YE3Px0Wh/TD2K43Q0Bjuf6FAPA/vKhuZDg5fvzkhs4WA0R1xHLYmPcGPU=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=mdIs1U6W; arc=none smtp.client-ip=10.30.226.201
+	s=arc-20240116; t=1785691693; c=relaxed/simple;
+	bh=mDq3AWn/JwiacVYVkvzK7pYEiWzF+qv3b+wSIDweVlU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=Cg4VYyd5AAEiQeRRL/s75hb2nm9vcbKQ4f/e+S/S72wo6HLw79e8jTKfwJRTBYbs+lL6jOm3yS39pu+H8sAo0XkNxB9BoXNeMsFGAm4bpWQufFhypFiG7fnL+YdxsU5iTbA81NgEjWb8rMTePcujVVz6Y+6sccF8Sj5B4mRiCbg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com; spf=pass smtp.mailfrom=oracle.com; dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b=WOe3N3r0; arc=none smtp.client-ip=205.220.165.32
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=oracle.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=oracle.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="mdIs1U6W"
-Received: by smtp.kernel.org (Postfix) with ESMTPS id 17CA4C19425;
-	Sun,  2 Aug 2026 16:35:18 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/simple; d=kernel.org;
-	s=k20201202; t=1785688518;
-	bh=ukOtf677Gv6a8kEcPYzgmcecGQqi1e3EzxxsbW6ydfE=;
-	h=From:Date:Subject:To:Cc:Reply-To:From;
-	b=mdIs1U6WPQzGyn6sQ+KGteUUqOPL+wXGWpqeUUPquJSI/+2bcTA22XonWFEYL4nzy
-	 DpxpLBHweM/2CbXhnEry6/dJZzPJjpPn5CJHa0ikcDom8G9rcszDeogEUNb3H67VEA
-	 x7k8/gdt2TrLCEUNaYYh2vUQwP31CyBxMJkIBktvRRueLV5khsQr5JahBfR/sxMfy3
-	 G8mHvPWZlGcSy9A9ctCM13OQ3otATWuZnjJxH9MMtVqjhD0qCAfT1UYEbEl5i7yQqC
-	 piimdHK56Ie7j5ICG1nqXLPH7CDSS+0UZwu66D094DJ4F3cHAMNWmwfyW8xcGORE9y
-	 NmrZu3pMztbaw==
-Received: from aws-us-west-2-korg-lkml-1.web.codeaurora.org (localhost.localdomain [127.0.0.1])
-	by smtp.lore.kernel.org (Postfix) with ESMTP id E2456C55177;
-	Sun,  2 Aug 2026 16:35:17 +0000 (UTC)
-From: Anuj Bolewar via B4 Relay <devnull+bolewara.gmail.com@kernel.org>
-Date: Sun, 02 Aug 2026 22:05:17 +0530
-Subject: [PATCH v2] drm/virtio: reclaim pending vbufs before tearing down
- vqs
+	dkim=pass (2048-bit key) header.d=oracle.com header.i=@oracle.com header.b="WOe3N3r0"
+Received: from pps.filterd (m0333521.ppops.net [127.0.0.1])
+	by mx0b-00069f02.pphosted.com (8.18.1.11/8.18.1.11) with ESMTP id 672DU2qR805819;
+	Sun, 2 Aug 2026 17:28:10 GMT
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=oracle.com; h=cc
+	:content-transfer-encoding:date:from:message-id:mime-version
+	:subject:to; s=corp-2025-04-25; bh=zn46TrKj46C6dHGtkHwecJrsSVP/U
+	eTDJC37sPVWJ0s=; b=WOe3N3r0j+O2SHptWtVywuIoZ0Y4NSY1rn2GzJ5DQqGIF
+	F/7WxYC/7A8sIKKsf32n0am9QEWqtOmZW75sv4NmyKJB2lp9C6q2J42pPSudMgr+
+	WkLOBr8buZMbpZ7BVdlEioMn04fBArxRHym37cKy3jOFdR69vOqjXUmF/G0xweoq
+	6282jwE3GYy84l8SBoIUxYNsM1UxPnTMgrWcGIgfMicaonegX0lVg/QirG4lODEX
+	Jj1f8oGipAitg79T9+nxVNDglpf9FRJtQ510CwmlyiVQuNQ2dy/GhtUfTsJ+5pnX
+	LF9FZp+2aGQBeo7xPBKDxr8Zim647iAdvbclCntwA==
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.appoci.oracle.com [147.154.18.20])
+	by mx0b-00069f02.pphosted.com (PPS) with ESMTPS id 4fs7qa31sk-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Sun, 02 Aug 2026 17:28:10 +0000 (GMT)
+Received: from pps.filterd (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (8.18.1.7/8.18.1.7) with ESMTP id 672HPpm1027653;
+	Sun, 2 Aug 2026 17:28:09 GMT
+Received: from pps.reinject (localhost [127.0.0.1])
+	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTPS id 4fs78r0h6v-1
+	(version=TLSv1.2 cipher=ECDHE-RSA-AES256-GCM-SHA384 bits=256 verify=OK);
+	Sun, 02 Aug 2026 17:28:09 +0000 (GMT)
+Received: from iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com [127.0.0.1])
+	by pps.reinject (8.18.1.12/8.18.1.12) with ESMTP id 672HS8PC032953;
+	Sun, 2 Aug 2026 17:28:08 GMT
+Received: from localhost.localdomain (ca-dev80.us.oracle.com [10.211.9.80])
+	by iadpaimrmta02.imrmtpd1.prodappiadaev1.oraclevcn.com (PPS) with ESMTP id 4fs78r0h6r-1;
+	Sun, 02 Aug 2026 17:28:08 +0000 (GMT)
+From: Dongli Zhang <dongli.zhang@oracle.com>
+To: virtualization@lists.linux.dev
+Cc: mst@redhat.com, jasowangio@gmail.com, michael.christie@oracle.com,
+        pbonzini@redhat.com, stefanha@redhat.com, eperezma@redhat.com,
+        kvm@vger.kernel.org, joe.jin@oracle.com
+Subject: [PATCH v2 0/2] vhost-scsi: fix max_io_vqs handling
+Date: Sun,  2 Aug 2026 10:24:54 -0700
+Message-ID: <20260802172534.260047-1-dongli.zhang@oracle.com>
+X-Mailer: git-send-email 2.43.5
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset="utf-8"
-Content-Transfer-Encoding: 7bit
-Message-Id: <20260802-virtio-gpu-reclaim-vbufs-v2-1-5767fb860691@gmail.com>
-X-B4-Tracking: v=1; b=H4sIAAAAAAAC/42NQQ6CMBBFr0K6dkzbIBZX3sOwaOsUxgAlbWk0h
- LsLeAGXL3n//YVFDISR3YqFBcwUyY8byFPBbKfHFoGeGzPJZcUVl5ApJPLQTjMEtL2mAbKZXYR
- SicpapS/G1WybTwEdvY/0o/lxnM0Lbdp7u9FRTD58ju8sdu+PmyxAQF2XVyeUkRzlvR009WfrB
- 9as6/oFiy4+ldIAAAA=
-X-Change-ID: 20260802-virtio-gpu-reclaim-vbufs-4816cc8a5bf9
-To: David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
- Dmitry Osipenko <dmitry.osipenko@collabora.com>, 
- Gurchetan Singh <gurchetansingh@chromium.org>, 
- Chia-I Wu <olvaffe@gmail.com>, 
- Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, 
- Maxime Ripard <mripard@kernel.org>, Thomas Zimmermann <tzimmermann@suse.de>, 
- Simona Vetter <simona@ffwll.ch>
-Cc: dri-devel@lists.freedesktop.org, virtualization@lists.linux.dev, 
- linux-kernel@vger.kernel.org, syzkaller-bugs@googlegroups.com, 
- syzbot+06f9b2a53ba4a5a47644@syzkaller.appspotmail.com, 
- Anuj Bolewar <bolewara@gmail.com>
-X-Mailer: b4 0.15.2
-X-Developer-Signature: v=1; a=ed25519-sha256; t=1785688516; l=4832;
- i=bolewara@gmail.com; s=20260802; h=from:subject:message-id;
- bh=ip9758ecvu5Lc+AGn+NJtR1MumyMs6TZADIy4kALth8=;
- b=gueT/54Hp0J8eQ2wmW1BmksUne+9bduUi5wu1Rl2EqJkTwAsbMMASolkPJ1godpqMFGsH9RbA
- x9WXXQxaMt5BBfNnS4RKf3cxHp/iZAOI7GPyoGlTnWPEximQE3zK2so
-X-Developer-Key: i=bolewara@gmail.com; a=ed25519;
- pk=XxcXxqFWk9xQziyNEfhS6NRJQR1shqHRRYzkbaYamm0=
-X-Endpoint-Received: by B4 Relay for bolewara@gmail.com/20260802 with
- auth_id=907
-X-Original-From: Anuj Bolewar <bolewara@gmail.com>
-Reply-To: bolewara@gmail.com
+Content-Transfer-Encoding: 8bit
+X-Proofpoint-Virus-Version: vendor=baseguard
+ engine=ICAP:2.0.293,Aquarius:18.0.1143,Hydra:6.1.134,FMLib:17.12.100.49
+ definitions=2026-08-02_05,2026-07-30_01,2025-10-01_01
+X-Proofpoint-Spam-Details: rule=notspam policy=default score=0 adultscore=0
+ spamscore=0 malwarescore=0 bulkscore=0 lowpriorityscore=0 mlxscore=0
+ phishscore=0 mlxlogscore=897 suspectscore=0 classifier=spam adjust=0
+ reason=mlx scancount=1 engine=8.19.0-2606160000 definitions=main-2608020159
+X-Proofpoint-Spam-Details-Enc: AW1haW4tMjYwODAyMDE1OSBTYWx0ZWRfX8YjciiN+5qGn
+ bN163RsuS9HuUi7lKcnxXlTjeyZYlnKdQdQYFON7pEky+TDaS8OLRzxLSMKvbOOqbH1gFdTS9Ex
+ AfzV5dNGbPxYEk2TJAfk5Gtyw1Q+dHPFlLxijNqvWuBv08BOmW9xtmN4l4cbjjrUBfVdx4B/s8r
+ zysf2T5iYP6251dhWiG1MC3g12TFBWBKNyvuL+USzDveAigX/TPEQG1SSWmVjF4YWXQSlwYX7Tw
+ DZRwTBHBt8Z24lBlmyBgxCTA6VLaGsJ5U2R7Q+CZYUBhli0jBWLECpyVnBjmq3oXIICvZVU/8Ef
+ 6XC2VECJSKVTxykFwlsXjOvMljdkJqF4vR3HvXjPWJbVvZP4EP/X2FHwfU14P2QTyxCBPqkkqu7
+ eYaZBGGTjXMtVwOktuVN3Lu+eAUWA9MSQqzG2yNX2uT9IlO6eYrgh8VAzy5/TtSjMW84bCuDI36
+ C3w45Hs01qYLLL3FHXpwZdwYSDJKHbQGF2z4HCAw=
+X-Proofpoint-GUID: FQmet4nVhuCggHhm_Nnsa7eEJxeJRe2i
+X-Authority-Analysis: v=2.4 cv=frDsol4f c=1 sm=1 tr=0 ts=6a6f7e2a b=1 cx=c_pps
+ a=e1sVV491RgrpLwSTMOnk8w==:117 a=e1sVV491RgrpLwSTMOnk8w==:17
+ a=Sv0fKeRqtYgA:10 a=VkNPw1HP01LnGYTKEx00:22 a=jiCTI4zE5U7BLdzWsZGv:22
+ a=x0eKOSpe3m1H3M0S9YoZ:22 a=-s18Wruy92E9eT26p_4A:9 a=zZCYzV9kfG8A:10
+ a=5yU3S35YU4bGjq-dph-N:22 a=Bho9c0fBagfJEIQBS7DQ:22 cc=ntf awl=host:13517
+X-Proofpoint-ORIG-GUID: FQmet4nVhuCggHhm_Nnsa7eEJxeJRe2i
+X-Proofpoint-Spam-Info: AW1haW4tMjYwODAyMDE1OSBTYWx0ZWRfX0RV84wRX7ENC
+ Z5ieF8m38+P5ZPGPr+CyGls2n610+277v1CMNi3H1qUs+KTVEG5jW/LdXsuWTKIhVIysbk+kN7X
+ UeGnHeqBkynjIUjG2pCgBGWBYMjRteA07YSRFzXgiOPXJS69SIos
 
-From: Anuj Bolewar <bolewara@gmail.com>
+Avoid high-order kmalloc() allocations for the vhost-scsi virtqueue array,
+and clamp out-of-range max_io_vqs updates so the stored value remains
+within the supported range.
 
-virtio_gpu_free_vbufs() destroys the vbufs kmem_cache after the virtqueues
-have already been released. Commands that were queued but never completed
-by the device leave their vbuffers stranded in the virtqueue, so the cache
-still holds live objects when virtio_gpu_deinit() tears everything down.
-This triggers a WARNING in virtio_gpu_free_vbufs:
+v1->v2:
+  - Access vhost_scsi_max_io_vqs with READ_ONCE().
+  - Clamp out-of-range max_io_vqs values instead of rejecting them.
 
-    BUG virtio-gpu-vbufs (Not tainted): Objects remaining in cache
-    on __kmem_cache_shutdown()
+Dongli Zhang (2):
+  vhost-scsi: use kvzalloc for vq array allocation
+  vhost-scsi: vhost-scsi: clamp max_io_vqs module parameter
 
-Drain any buffers still sitting in the control and cursor virtqueues in
-virtio_gpu_deinit() after the device has been reset and before the
-virtqueues are deleted, following the same pattern used by virtio_console's
-remove_vqs(). Each reclaimed buffer is released with free_vbuf(), dropping
-the reference on any GEM objects it holds. Pending RESOURCE_UNREF
-commands are handled as well: their resp_cb_data still references a GEM
-object, so it is cleaned up with virtio_gpu_cleanup_object() to avoid
-leaking it on teardown.
+ drivers/vhost/scsi.c | 49 ++++++++++++++++++++++++++++++++++-------------
+ 1 file changed, 36 insertions(+), 13 deletions(-)
 
-Reported-by: syzbot+06f9b2a53ba4a5a47644@syzkaller.appspotmail.com
-Closes: https://syzkaller.appspot.com/bug?extid=06f9b2a53ba4a5a47644
-Signed-off-by: Anuj Bolewar <bolewara@gmail.com>
----
-This series fixes a syzbot-triggered WARNING in virtio_gpu_free_vbufs
-(cache object: virtio-gpu-vbufs) seen on device removal. Commands that
-are queued but never complete leave vbuffers stranded in the control and
-cursor virtqueues. virtio_gpu_deinit() reset the device and deleted the
-virtqueues without draining them, so a later kmem_cache_destroy() in
-virtio_gpu_release() ran with live objects still allocated.
-
-Patch 1 drains the queues in virtio_gpu_deinit(): after the device reset
-and before del_vqs(), virtio_gpu_reclaim_vbufs() detaches every unused
-buffer from both virtqueues, releases their object arrays, and runs the
-pending resource-unref cleanup so the referenced GEM objects are freed
-rather than leaked. This mirrors the drain pattern used by
-virtio_console's remove_vqs().
-
-Link: https://syzkaller.appspot.com/bug?extid=06f9b2a53ba4a5a47644
----
-Changes in v2:
-- Also release the GEM object referenced by vbuf->resp_cb_data when
-  reclaiming stranded buffers, so pending RESOURCE_UNREF commands do not
-  leak their underlying objects on teardown.
-- Link to v1: https://patch.msgid.link/20260802-virtio-gpu-reclaim-vbufs-v1-1-9947f18b20e2@gmail.com
----
- drivers/gpu/drm/virtio/virtgpu_drv.h |  1 +
- drivers/gpu/drm/virtio/virtgpu_kms.c |  1 +
- drivers/gpu/drm/virtio/virtgpu_vq.c  | 15 +++++++++++++++
- 3 files changed, 17 insertions(+)
-
-diff --git a/drivers/gpu/drm/virtio/virtgpu_drv.h b/drivers/gpu/drm/virtio/virtgpu_drv.h
-index 7449907754a..3e491c80873 100644
---- a/drivers/gpu/drm/virtio/virtgpu_drv.h
-+++ b/drivers/gpu/drm/virtio/virtgpu_drv.h
-@@ -332,6 +332,7 @@ void virtio_gpu_array_put_free_work(struct work_struct *work);
- /* virtgpu_vq.c */
- int virtio_gpu_alloc_vbufs(struct virtio_gpu_device *vgdev);
- void virtio_gpu_free_vbufs(struct virtio_gpu_device *vgdev);
-+void virtio_gpu_reclaim_vbufs(struct virtio_gpu_device *vgdev);
- void virtio_gpu_cmd_create_resource(struct virtio_gpu_device *vgdev,
- 				    struct virtio_gpu_object *bo,
- 				    struct virtio_gpu_object_params *params,
-diff --git a/drivers/gpu/drm/virtio/virtgpu_kms.c b/drivers/gpu/drm/virtio/virtgpu_kms.c
-index b4329f28e97..e5a6ae679f3 100644
---- a/drivers/gpu/drm/virtio/virtgpu_kms.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_kms.c
-@@ -298,6 +298,7 @@ void virtio_gpu_deinit(struct drm_device *dev)
- 	flush_work(&vgdev->cursorq.dequeue_work);
- 	flush_work(&vgdev->config_changed_work);
- 	virtio_reset_device(vgdev->vdev);
-+	virtio_gpu_reclaim_vbufs(vgdev);
- 	vgdev->vdev->config->del_vqs(vgdev->vdev);
- }
- 
-diff --git a/drivers/gpu/drm/virtio/virtgpu_vq.c b/drivers/gpu/drm/virtio/virtgpu_vq.c
-index e5e1af8b8e8..ab6106f4bdf 100644
---- a/drivers/gpu/drm/virtio/virtgpu_vq.c
-+++ b/drivers/gpu/drm/virtio/virtgpu_vq.c
-@@ -208,6 +208,21 @@ static void free_vbuf(struct virtio_gpu_device *vgdev,
- 	kmem_cache_free(vgdev->vbufs, vbuf);
- }
- 
-+void virtio_gpu_reclaim_vbufs(struct virtio_gpu_device *vgdev)
-+{
-+	struct virtio_gpu_vbuffer *vbuf;
-+
-+	while ((vbuf = virtqueue_detach_unused_buf(vgdev->ctrlq.vq))) {
-+		if (vbuf->objs)
-+			virtio_gpu_array_put_free(vbuf->objs);
-+		if (vbuf->resp_cb_data)
-+			virtio_gpu_cleanup_object(vbuf->resp_cb_data);
-+		free_vbuf(vgdev, vbuf);
-+	}
-+	while ((vbuf = virtqueue_detach_unused_buf(vgdev->cursorq.vq)))
-+		free_vbuf(vgdev, vbuf);
-+}
-+
- static void reclaim_vbufs(struct virtqueue *vq, struct list_head *reclaim_list)
- {
- 	struct virtio_gpu_vbuffer *vbuf;
-
----
 base-commit: 2d2338c93da79b3bfe4b6099a931d9468d539952
-change-id: 20260802-virtio-gpu-reclaim-vbufs-4816cc8a5bf9
 
-Best regards,
---  
-Anuj Bolewar <bolewara@gmail.com>
+Thank you very much!
 
+Dongli Zhang
 
