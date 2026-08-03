@@ -1,68 +1,97 @@
-Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7A4AE3BB13F;
-	Tue,  4 Aug 2026 00:47:29 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id EA5DD36D9F9;
+	Tue,  4 Aug 2026 01:53:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785804450; cv=none; b=nIZZ+rCRGU24tSfZXiOEkC2+n5qfz2c8e6HFEnCnXlveJ479DsnX1OO1gmhrAOKUrzLvkK2fzZvNhOZcJmJlMjQGnIJO/7TXwRvIo6kro8iErfqiMsl+6x4D0dsnL5zlTsQ3RaaUYs0DmScF3/rkjVJMI9GY6bnVhZmZjsZyPN8=
+	t=1785808431; cv=none; b=Ul2J7LeiRs2Y5X8KxSfN+jTiuFijjJYsECs+sUOSa5ym/EYvC5Oy0WOeKs4dTYKjRVnY051C6lBs1D1g6f80GOx8VvIvfrTgLR3X8QSiNG4FZqcUiVL+ifm0eEdOe+M6KJdzqw5pdutUJ/0hpRzofIqs6bp+lsZg61mXyGE2RJU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785804450; c=relaxed/simple;
-	bh=gS/o7zThbJQOCe9OudjQMENmSmFF4opRlQ8azxJbJKk=;
-	h=Date:From:To:Cc:Subject:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=CfREiEg3O4q5wZZCdJgwZLJK0CkaeFRjLLSbAvRUAg+Hos2VlvUnycuBaTfIAb6HtEpEyUwtE6Sm2FJnnHV8v1t2czE5wgHFsrREC0pGkh5O0Gh/JuTKm2nDy/kQLd6hTEAVEksQBAl6fl3TgBrnqcQXPnq157IF2QiJirsnvx4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=Zmg6eV74; arc=none smtp.client-ip=100.103.45.18
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="Zmg6eV74"
-Received: by smtp.kernel.org (Postfix) with ESMTPSA id DD0E31F000E9;
-	Tue,  4 Aug 2026 00:47:27 +0000 (UTC)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
-	s=k20260515; t=1785804449;
-	bh=u4xwT9wFc5is/zo2LuqtmC3eq1JMh0EZpaYm3ysz+GI=;
-	h=Date:From:To:Cc:Subject:In-Reply-To:References;
-	b=Zmg6eV74RIaq7FfDVG8XRLksMiod//2XICtjFva71lm87iCzKLeIVXfScktFqEsAz
-	 44sEoPRAGtJjUO6nuc1s/8ZWcO678gfIw7/GdtWZZKljm/9MDeWqASGm03TGS0/KwB
-	 ctrVZsLeW2g32o4nk4lu8LM8DS64PTsQrLMkHtruPDst7XyttyJwkD8Ewbp5GbL76s
-	 nHphQEzF624mbXNHBxxL3JoUhMvmsh90SBSYQwGOdHGDSr0qCTVW/6yqc/cchVZF+v
-	 yYOUYeJf8eMNMvXBpT/ur2JGYUG0jBFB2Ln/4CxLKgOJUNJthGEHuYTOzKvXsroKbd
-	 SGgTZEyqQRHlg==
-Date: Mon, 3 Aug 2026 17:47:26 -0700
-From: Jakub Kicinski <kuba@kernel.org>
-To: chia-yu.chang@nokia-bell-labs.com
-Cc: linux-rdma@vger.kernel.org, eperezma@redhat.com, jasowang@redhat.com,
- virtualization@lists.linux.dev, mst@redhat.com, xuanzhuo@linux.alibaba.com,
- pabeni@redhat.com, edumazet@google.com, linux-doc@vger.kernel.org,
- corbet@lwn.net, horms@kernel.org, dsahern@kernel.org, kuniyu@google.com,
- bpf@vger.kernel.org, netdev@vger.kernel.org, dave.taht@gmail.com,
- jhs@mojatatu.com, stephen@networkplumber.org, xiyou.wangcong@gmail.com,
- jiri@resnulli.us, davem@davemloft.net, andrew+netdev@lunn.ch,
- donald.hunter@gmail.com, ast@fiberby.net, liuhangbin@gmail.com,
- shuah@kernel.org, linux-kselftest@vger.kernel.org, ij@kernel.org,
- ncardwell@google.com, koen.de_schepper@nokia-bell-labs.com,
- g.white@cablelabs.com, ingemar.s.johansson@ericsson.com,
- mirja.kuehlewind@ericsson.com, cheshire@apple.com, rs.ietf@gmx.at,
- Jason_Livingood@comcast.com, vidhi_goel@apple.com, Parav Pandit
- <parav@nvidia.com>
-Subject: Re: [PATCH v4 net-next 1/1] net: update comments for
- SKB_GSO_TCP_ECN and SKB_GSO_TCP_ACCECN
-Message-ID: <20260803174726.585aed45@kernel.org>
-In-Reply-To: <20260728161007.650717-1-chia-yu.chang@nokia-bell-labs.com>
-References: <20260728161007.650717-1-chia-yu.chang@nokia-bell-labs.com>
+	s=arc-20240116; t=1785808431; c=relaxed/simple;
+	bh=4OI3Hs0sv/S0B4vF5IVZYPEvHTmYHCo+FmYDpPmm8Hk=;
+	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=Pva5Dk/XPUTL7K88ndOEXprAIUaYgj7NVdS7eW+tVeVE9gmbsfbiGKOpuS64Lwy+JzMCRKyORmAk+VfVJc8dq1yXdottTayIqxKbLO3CRG/0/jrde0TTWeOgqReMIN6malFWIyVOtGZEiqXQjXa1c/He9D1c2G0Mqs/nw+10t5g=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; arc=none smtp.client-ip=129.217.128.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
+Received: from simon-Latitude-5450.. (tmo-075-57.customers.d1-online.com [80.187.75.57])
+	(authenticated bits=0)
+	by unimail.uni-dortmund.de (8.19.0.2/8.19.0.2) with ESMTPSA id 673Iars8011387
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Mon, 3 Aug 2026 20:36:57 +0200 (CEST)
+From: Simon Schippers <simon.schippers@tu-dortmund.de>
+To: willemdebruijn.kernel@gmail.com, jasowangio@gmail.com, jasowang@redhat.com,
+        andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, mst@redhat.com,
+        eperezma@redhat.com, leiyang@redhat.com, stephen@networkplumber.org,
+        jon@nutanix.com, brett@librecast.net, corbet@lwn.net,
+        skhan@linuxfoundation.org, tim.gebauer@tu-dortmund.de,
+        simon.schippers@tu-dortmund.de, netdev@vger.kernel.org,
+        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
+        kvm@vger.kernel.org, virtualization@lists.linux.dev
+Subject: [PATCH net-next v14 1/5] tun/tap: add IFF_BACKPRESSURE flag
+Date: Mon,  3 Aug 2026 20:36:37 +0200
+Message-ID: <20260803183641.96882-2-simon.schippers@tu-dortmund.de>
+X-Mailer: git-send-email 2.43.0
+In-Reply-To: <20260803183641.96882-1-simon.schippers@tu-dortmund.de>
+References: <20260803183641.96882-1-simon.schippers@tu-dortmund.de>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 8bit
 
-On Tue, 28 Jul 2026 18:10:07 +0200 chia-yu.chang@nokia-bell-labs.com
-wrote:
-> For RX, SKB_GSO_TCP_ECN shall NOT be used
+Add the IFF_BACKPRESSURE flag to the UAPI header and to its tools/ copy.
+The flag has no effect yet, it is the opt-in switch for the qdisc
+backpressure logic added by the following patches.
 
-but it _is_ still used in hns3, what's your plan there?
-Documenting something we adhere to at the outset seems like a red flag.
+It is added to TUN_FEATURES only in the last patch of the series, once the
+implementation is complete. Until then TUNSETIFF silently masks it off, as
+it does for any flag outside TUN_FEATURES.
+
+Keeping the flag and its users in separate patches would either leave a
+window where backpressure is unconditional, or make the opt-in a later
+add-on. Adding the flag first lets every following patch be a no-op
+unless it is set.
+
+Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
+---
+ include/uapi/linux/if_tun.h       | 4 ++++
+ tools/include/uapi/linux/if_tun.h | 4 ++++
+ 2 files changed, 8 insertions(+)
+
+diff --git a/include/uapi/linux/if_tun.h b/include/uapi/linux/if_tun.h
+index 79d53c7a1ebd..a0ddc50a7534 100644
+--- a/include/uapi/linux/if_tun.h
++++ b/include/uapi/linux/if_tun.h
+@@ -69,6 +69,10 @@
+ #define IFF_NAPI_FRAGS	0x0020
+ /* Used in TUNSETIFF to bring up tun/tap without carrier */
+ #define IFF_NO_CARRIER	0x0040
++/* Stop the queue instead of dropping when the internal ring is full, so an
++ * attached qdisc applies backpressure instead of being bypassed.
++ */
++#define IFF_BACKPRESSURE	0x0080
+ #define IFF_NO_PI	0x1000
+ /* This flag has no real effect */
+ #define IFF_ONE_QUEUE	0x2000
+diff --git a/tools/include/uapi/linux/if_tun.h b/tools/include/uapi/linux/if_tun.h
+index 2ec07de1d73b..2c85525704c1 100644
+--- a/tools/include/uapi/linux/if_tun.h
++++ b/tools/include/uapi/linux/if_tun.h
+@@ -67,6 +67,10 @@
+ #define IFF_TAP		0x0002
+ #define IFF_NAPI	0x0010
+ #define IFF_NAPI_FRAGS	0x0020
++/* Stop the queue instead of dropping when the internal ring is full, so an
++ * attached qdisc applies backpressure instead of being bypassed.
++ */
++#define IFF_BACKPRESSURE	0x0080
+ #define IFF_NO_PI	0x1000
+ /* This flag has no real effect */
+ #define IFF_ONE_QUEUE	0x2000
 -- 
-I'm expecting at least a commit msg update at the of the discussion so:
-pw-bot: cr
+2.43.0
+
