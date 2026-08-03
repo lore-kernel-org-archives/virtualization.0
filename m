@@ -1,24 +1,24 @@
 Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 37E6E3E8C5A;
-	Tue,  4 Aug 2026 01:55:04 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id C21382DF132;
+	Tue,  4 Aug 2026 01:56:01 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785808508; cv=none; b=cQxqQxPa1HqeCiuZmGi5F107JvzSI9cAD3NHDPXJ8nfrgeaCWIOQW4ErlR8xtIsCNhnO9tkt5cOAVVZvG8ah3S45ugcqvBiU6jFXKFYJF3oCPpm2SXyaKYiC1W2J6GbLDmJNMTRIYysLMh4pYsPAx8Vu9tNOT8LLMw8SOwuvP2c=
+	t=1785808563; cv=none; b=rrq78S94qM3MvxELnPNHTeC9EicKZjzQTaRgC2NETJDoe3ggPfY3HOiJk/bJvQSP7w6SpF6x+AB2wGl9a8ag7zCTQ9ZWSqXglj1i4ufKqL8Uo+D+QcoifrcaLWtrCqPWWf4nqvRq0wINIzv+3cH2WuESbsd7QGhkz7keG1ijG6g=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785808508; c=relaxed/simple;
-	bh=q1co3iadCb8BY0UmFxkJQFD+//2XEWlM5uUvIxwvgBA=;
+	s=arc-20240116; t=1785808563; c=relaxed/simple;
+	bh=xieuQ4srYX3Mb3DrLqjIEew0FZmS9X/F1GKmxTg6pQs=;
 	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=Pjvmcm5H4nRNeU7mZqPKz32jWbvAWr1PuwpdH7YNYbwhsCUta4T6YxAeCBDJIxU5+kYtzf0/SVdVki/dUP0y/Bsxry+1jUpMehvWf3j2TOsRZKa7YKDPjgfg1RW4/SwA+qBaeLTliEGY0+daO6Bmw/BFETNGQxRVeKMUb0HKS+k=
+	 MIME-Version; b=CWPgvjyONsthLPGSeVdheOA29ASlCB7p9oBCli0CTUSNNVcvwFoubVZeCicy/WUeEufFzNV2Hl6ThS4nQWqPktkq+pZUIzIy2WhPECS0+Y17oVQu8mNVEq4GeNpH6e3IgtH/bYuuTQZgSDKj19JGRjaku4sRITg7xr7dg0nnllI=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; arc=none smtp.client-ip=129.217.128.51
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
 Received: from simon-Latitude-5450.. (tmo-075-57.customers.d1-online.com [80.187.75.57])
 	(authenticated bits=0)
-	by unimail.uni-dortmund.de (8.19.0.2/8.19.0.2) with ESMTPSA id 673IarsG011387
+	by unimail.uni-dortmund.de (8.19.0.2/8.19.0.2) with ESMTPSA id 673IarsE011387
 	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 3 Aug 2026 20:37:01 +0200 (CEST)
+	Mon, 3 Aug 2026 20:37:00 +0200 (CEST)
 From: Simon Schippers <simon.schippers@tu-dortmund.de>
 To: willemdebruijn.kernel@gmail.com, jasowangio@gmail.com, jasowang@redhat.com,
         andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
@@ -29,9 +29,9 @@ To: willemdebruijn.kernel@gmail.com, jasowangio@gmail.com, jasowang@redhat.com,
         simon.schippers@tu-dortmund.de, netdev@vger.kernel.org,
         linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
         kvm@vger.kernel.org, virtualization@lists.linux.dev
-Subject: [PATCH net-next v14 5/5] tun/tap & vhost-net: stop tail-drop when IFF_BACKPRESSURE is set
-Date: Mon,  3 Aug 2026 20:36:41 +0200
-Message-ID: <20260803183641.96882-6-simon.schippers@tu-dortmund.de>
+Subject: [PATCH net-next v14 4/5] ptr_ring: move free-space check into separate helper
+Date: Mon,  3 Aug 2026 20:36:40 +0200
+Message-ID: <20260803183641.96882-5-simon.schippers@tu-dortmund.de>
 X-Mailer: git-send-email 2.43.0
 In-Reply-To: <20260803183641.96882-1-simon.schippers@tu-dortmund.de>
 References: <20260803183641.96882-1-simon.schippers@tu-dortmund.de>
@@ -43,243 +43,70 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-This commit prevents tail-drop when IFF_BACKPRESSURE is set, a qdisc is
-present and the ptr_ring becomes full. Once the ring reaches capacity
-after a produce attempt, the netdev queue is stopped instead of dropping
-subsequent packets. Without the flag, or if no qdisc is present, the
-previous tail-drop behavior is preserved.
+This patch moves the check for available free space for a new entry into
+a separate function. Existing callers that only check for a non-zero
+return value are unaffected. __ptr_ring_produce() now returns -EINVAL
+for a zero-size ring and -ENOSPC when full, whereas before both cases
+returned -ENOSPC. The new helper allows callers to determine in advance
+whether a single subsequent __ptr_ring_produce() call will succeed. This
+information can, for example, be used to temporarily stop producing until
+__ptr_ring_check_produce() indicates that space is available again.
 
-IFF_BACKPRESSURE is added to TUN_FEATURES here and not in the patch that
-defines it, so that TUNSETIFF honours the flag only once the
-implementation behind it is complete.
-
-The unconditional version of this behavior was reverted because it caused
-a significant throughput drop in an IPv6 multicast testcase on Brett
-Sheffield's librecast testbed [1]: with 8 iperf3 TCP threads sending, the
-throughput dropped from 13.5 Gbit/s to 9.13 Gbit/s. This is why the queue
-stopping is now gated on IFF_BACKPRESSURE.
-
-If producing an entry fails anyway due to a race, tun_net_xmit() drops
-the packet. Such rare races are expected because LLTX is enabled and the
-transmit path operates without the usual locking.
-
-The queue state is only touched while the device is running. The stop
-itself would be harmless during teardown, as tun_net_close() sets the
-same bit, but the re-check below it wakes the queue again and must not
-clear that stop.
-
-A later TUNSETIFF can clear the flag again while the device has at most
-one queue. Past that point tun_set_iff() returns before it writes
-tun->flags, which is how it already treats every other TUN_FEATURES bit.
-For the case where the flag does change, tun_set_iff() calls
-tun_force_wake_queue() for the attached tfiles, so that no queue stays
-stopped without a consumer that would wake it.
-
-The __tun_wake_queue() function of the consumer races with the producer
-for waking/stopping the netdev queue, which could result in a stalled
-queue. Therefore, an smp_mb__after_atomic() is introduced that pairs
-with the smp_mb() of the consumer. It follows the principle of store
-buffering described in tools/memory-model/Documentation/recipes.txt:
-
-- The producer in tun_net_xmit() first sets __QUEUE_STATE_DRV_XOFF,
-  followed by an smp_mb__after_atomic() (= smp_mb()), and then reads the
-  ring with __ptr_ring_check_produce().
-
-- The consumer in __tun_wake_queue() first writes zero to the ring in
-  __ptr_ring_consume(), followed by an smp_mb(), and then reads the queue
-  status with netif_tx_queue_stopped().
-
-=> Following the aforementioned principle, it is impossible for the
-   producer to see a full ring (and therefore not wake the queue on the
-   re-check) while the consumer simultaneously fails to see a stopped
-   queue (and therefore also does not wake it).
-
-tun_net_xmit() holds only the producer_lock and can not reset cons_cnt,
-which the consumer_lock protects, so the wake on the re-check leaves
-stale credit behind. That is accepted as best-effort, the re-check rarely
-succeeds and the next drain corrects the count.
-
-The documentation in tuntap.rst is updated accordingly.
-
-Benchmarks:
-My own benchmarks show a slight regression in raw transmission performance
-when using two sending threads. Packet loss also occurs only in the
-two-thread sending case; no packet loss was observed with a single
-sending thread.
-
-Test setup:
-AMD Ryzen 5 5600X at 4.3 GHz, 3200 MHz RAM, isolated QEMU threads;
-Average over 50 runs @ 100,000,000 packets. SRSO and spectre v2
-mitigations disabled.
-
-Note for tap+vhost-net:
-XDP drop program active in VM -> ~2.5x faster; slower for tap due to
-more syscalls (high utilization of entry_SYSRETQ_unsafe_stack in perf)
-
-+--------------------------+--------------+----------------+----------+
-| 1 thread                 | Stock        | Patched with   | diff     |
-| sending                  |              | fq_codel qdisc |          |
-+------------+-------------+--------------+----------------+----------+
-| TAP        | Received    | 1.132 Mpps   | 1.123 Mpps     | -0.8%    |
-|            +-------------+--------------+----------------+----------+
-|            | Lost/s      | 3.765 Mpps   | 0 pps          |          |
-+------------+-------------+--------------+----------------+----------+
-| TAP        | Received    | 3.857 Mpps   | 3.901 Mpps     | +1.1%    |
-|            +-------------+--------------+----------------+----------+
-| +vhost-net | Lost/s      | 0.802 Mpps   | 0 pps          |          |
-+------------+-------------+--------------+----------------+----------+
-
-+--------------------------+--------------+----------------+----------+
-| 2 threads                | Stock        | Patched with   | diff     |
-| sending                  |              | fq_codel qdisc |          |
-+------------+-------------+--------------+----------------+----------+
-| TAP        | Received    | 1.115 Mpps   | 1.081 Mpps     | -3.0%    |
-|            +-------------+--------------+----------------+----------+
-|            | Lost/s      | 8.490 Mpps   | 391 pps        |          |
-+------------+-------------+--------------+----------------+----------+
-| TAP        | Received    | 3.664 Mpps   | 3.555 Mpps     | -3.0%    |
-|            +-------------+--------------+----------------+----------+
-| +vhost-net | Lost/s      | 5.330 Mpps   | 938 pps        |          |
-+------------+-------------+--------------+----------------+----------+
-
-[1] https://lore.kernel.org/netdev/akVnoOYQOrt8k-Gu@karahi.librecast.net/
+The return values are documented above the helper, as a caller that waits
+for space must distinguish the transient -ENOSPC from the permanent
+-EINVAL.
 
 Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
 Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
 Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
-Link: https://lore.kernel.org/netdev/akVnoOYQOrt8k-Gu@karahi.librecast.net/
 ---
- Documentation/networking/tuntap.rst | 32 +++++++++++++++++++++++
- drivers/net/tun.c                   | 39 ++++++++++++++++++++++++-----
- 2 files changed, 65 insertions(+), 6 deletions(-)
+ include/linux/ptr_ring.h | 26 ++++++++++++++++++++++++--
+ 1 file changed, 24 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/networking/tuntap.rst b/Documentation/networking/tuntap.rst
-index 4d7087f727be..56c9dc7b96af 100644
---- a/Documentation/networking/tuntap.rst
-+++ b/Documentation/networking/tuntap.rst
-@@ -206,6 +206,38 @@ enable is true we enable it, otherwise we disable it::
-       return ioctl(fd, TUNSETQUEUE, (void *)&ifr);
-   }
+diff --git a/include/linux/ptr_ring.h b/include/linux/ptr_ring.h
+index d2c3629bbe45..631c43fde440 100644
+--- a/include/linux/ptr_ring.h
++++ b/include/linux/ptr_ring.h
+@@ -96,6 +96,26 @@ static inline bool ptr_ring_full_bh(struct ptr_ring *r)
+ 	return ret;
+ }
  
-+3.4 qdisc backpressure
-+----------------------
++/* Report whether the next __ptr_ring_produce() has room for one entry:
++ * 0 means the single slot at r->queue[r->producer] is free, -ENOSPC means
++ * the ring is full, which is transient, and -EINVAL means r->size is 0,
++ * which is permanent. A caller that stops producing and waits for space
++ * must therefore do so only for -ENOSPC.
++ *
++ * Note: callers invoking this in a loop must use a compiler barrier,
++ * for example cpu_relax(). Callers must hold producer_lock.
++ */
++static inline int __ptr_ring_check_produce(struct ptr_ring *r)
++{
++	if (unlikely(!r->size))
++		return -EINVAL;
 +
-+IFF_BACKPRESSURE can be set to enable qdisc backpressure. Without it, TX
-+drops occur when the internal ring buffer is full, so any attached qdisc
-+is effectively bypassed and applications only learn about congestion
-+through those drops.
++	if (data_race(r->queue[r->producer]))
++		return -ENOSPC;
 +
-+With it, the kernel stops the queue instead, letting the qdisc hold and
-+schedule packets, so its AQM, shaping and fairness actually apply. This
-+helps protocols like TCP, which cut throughput in reaction to packet
-+drops. With IFF_BACKPRESSURE, drops then only occur as a rare race.
-+Backpressure requires a qdisc to be attached and has no effect with
-+noqueue.
++	return 0;
++}
 +
-+The flag is a property of the TUN/TAP device rather than of the file
-+descriptor it was set on, so it applies to all queues of the device,
-+regardless of which process opened which queue.
-+
-+The flag can only be changed while the device has at most one queue. On a
-+multiqueue device that already has a second queue attached or detached, a
-+later TUNSETIFF succeeds but leaves the flag as it is. All the other
-+TUNSETIFF flags behave the same way.
-+
-+The txqueuelen can be reduced alongside this flag to further shift
-+buffering into the qdisc and reduce bufferbloat, at a possible
-+performance cost.
-+
-+When running multiple network streams in parallel through a single
-+TUN/TAP queue, the flag may reduce performance due to the extra overhead
-+of the backpressure mechanism.
-+
- Universal TUN/TAP device driver Frequently Asked Question
- =========================================================
- 
-diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index dc32566588d1..ec90fef4a42f 100644
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -98,7 +98,8 @@ static void tun_default_link_ksettings(struct net_device *dev,
- #define TUN_FASYNC	IFF_ATTACH_QUEUE
- 
- #define TUN_FEATURES (IFF_NO_PI | IFF_ONE_QUEUE | IFF_VNET_HDR | \
--		      IFF_MULTI_QUEUE | IFF_NAPI | IFF_NAPI_FRAGS)
-+		      IFF_MULTI_QUEUE | IFF_NAPI | IFF_NAPI_FRAGS | \
-+		      IFF_BACKPRESSURE)
- 
- #define GOODCOPY_LEN 128
- 
-@@ -1063,6 +1064,7 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
- 	struct netdev_queue *queue;
- 	struct tun_file *tfile;
- 	int len = skb->len;
-+	int ret;
- 
- 	rcu_read_lock();
- 	tfile = rcu_dereference(tun->tfiles[txq]);
-@@ -1117,13 +1119,35 @@ static netdev_tx_t tun_net_xmit(struct sk_buff *skb, struct net_device *dev)
- 
- 	nf_reset_ct(skb);
- 
--	if (ptr_ring_produce(&tfile->tx_ring, skb)) {
-+	queue = netdev_get_tx_queue(dev, txq);
-+
-+	spin_lock(&tfile->tx_ring.producer_lock);
-+	ret = __ptr_ring_produce(&tfile->tx_ring, skb);
-+	/* Do not touch the queue state of a device that is going down. */
-+	if ((tun->flags & IFF_BACKPRESSURE) && netif_running(dev) &&
-+	    !qdisc_txq_has_no_queue(queue) &&
-+	    __ptr_ring_check_produce(&tfile->tx_ring) == -ENOSPC) {
-+		netif_tx_stop_queue(queue);
-+		/* Paired with smp_mb() in __tun_wake_queue() */
-+		smp_mb__after_atomic();
-+		if (!__ptr_ring_check_produce(&tfile->tx_ring))
-+			netif_tx_wake_queue(queue);
-+	}
-+	spin_unlock(&tfile->tx_ring.producer_lock);
-+
-+	if (ret) {
-+		/* This should be a rare case if IFF_BACKPRESSURE is enabled and
-+		 * a qdisc is present, but can happen due to lltx.
-+		 * Since skb_tx_timestamp(), skb_orphan(),
-+		 * run_ebpf_filter() and pskb_trim() could have tinkered
-+		 * with the SKB, returning NETDEV_TX_BUSY is unsafe and
-+		 * we must drop instead.
-+		 */
- 		drop_reason = SKB_DROP_REASON_FULL_RING;
- 		goto drop;
- 	}
- 
- 	/* dev->lltx requires to do our own update of trans_start */
--	queue = netdev_get_tx_queue(dev, txq);
- 	txq_trans_cond_update(queue);
- 
- 	/* Notify and wake up reader process */
-@@ -2806,8 +2830,9 @@ static int tun_set_iff(struct net *net, struct file *file, struct ifreq *ifr)
+ /* Note: callers invoking this in a loop must use a compiler barrier,
+  * for example cpu_relax(). Callers must hold producer_lock.
+  * Callers are responsible for making sure pointer that is being queued
+@@ -103,8 +123,10 @@ static inline bool ptr_ring_full_bh(struct ptr_ring *r)
+  */
+ static inline int __ptr_ring_produce(struct ptr_ring *r, void *ptr)
  {
- 	struct tun_struct *tun;
- 	struct tun_file *tfile = file->private_data;
-+	struct tun_file *ntfile;
- 	struct net_device *dev;
--	int err;
-+	int err, i;
+-	if (unlikely(!r->size) || data_race(r->queue[r->producer]))
+-		return -ENOSPC;
++	int ret = __ptr_ring_check_produce(r);
++
++	if (ret)
++		return ret;
  
- 	if (tfile->detached)
- 		return -EINVAL;
-@@ -2936,8 +2961,10 @@ static int tun_set_iff(struct net *net, struct file *file, struct ifreq *ifr)
- 	/* Make sure persistent devices do not get stuck in
- 	 * xoff state.
- 	 */
--	if (netif_running(tun->dev))
--		netif_tx_wake_all_queues(tun->dev);
-+	for (i = 0; i < tun->numqueues; i++) {
-+		ntfile = rtnl_dereference(tun->tfiles[i]);
-+		tun_force_wake_queue(tun, ntfile);
-+	}
- 
- 	strscpy(ifr->ifr_name, tun->dev->name);
- 	return 0;
+ 	/* Make sure the pointer we are storing points to a valid data. */
+ 	/* Pairs with the dependency ordering in __ptr_ring_consume. */
 -- 
 2.43.0
 
