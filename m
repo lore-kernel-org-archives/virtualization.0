@@ -1,245 +1,161 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D1E2E38399C
-	for <virtualization@lists.linux.dev>; Mon,  3 Aug 2026 16:37:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id D8FDA358378
+	for <virtualization@lists.linux.dev>; Mon,  3 Aug 2026 16:39:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785775079; cv=none; b=pQNthaFVcb0Ts7kbEyPEwACQxFsprHS1bOpw+W7tTKjvC4Vhwu9B522YroVfBnu/Gj+7pg33HSUMVodIdrCFdGeuS7BOfBqk+tiQhhJg2iVbbqCHpGLJpHrLD73ydfpY4X+aJd8RbOoRkBzTgAJjC2E/2Uzciyg3TggHGC/yRB0=
+	t=1785775163; cv=none; b=l1N2T5Juyied/c+NJooeC/h0lmDuMGpA+vnD2zw58I4tRlqW2hxRfRbanNgEwvh9VkT6Vyy+3wU3liOfZ8PklO5GRVtR9k4FL86rPFPuPOBhllu1mF5mOc5TPgYzxxmZTVjq8aGusHDy1WmTK04oO7A94BOmkkVML4di2NP9tMg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785775079; c=relaxed/simple;
-	bh=jX3Az3+fX99ZWH+Ur9rGdltR5hWBIyl4+x/apMK8G+4=;
+	s=arc-20240116; t=1785775163; c=relaxed/simple;
+	bh=mqUEgn1Epw+wydGosGOX18016E8j2UEyqJXR33YIW5g=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=WA6zQUFPZkfLPwbPgxkdrjM0VYUzuvVreS3n7gbmnowPhk/tFx9KWZDOxz/5aNHGIU7rMl/5kOfOfk1iaK+0p0OubrV2Ray27W4NyCzlEVVPU97XBewUeGgZVHJO2jZ2IJ7nEE7euJOeBUbnGx4ECOCnWECIBa6bSeI+71qzti0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=GzKVfFIS; arc=none smtp.client-ip=170.10.129.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=GfR2k9XkRcc//IhTFa7YXWJrGKjAAJRngrHhufYD8SFi1pWixmm0be33G+Nvfsgzy119sBkUSYuoJF1yZO5jOveOxxFaRQ1Y0wPnwZ0oLMgzCprqacv8ETaDfEMBCkPK5JkthfX/oBx3UTdE5FK7b9vDGnNKXZwJlxvhYYAIFlo=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=TjXg0KAD; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="GzKVfFIS"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="TjXg0KAD"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1785775076;
+	s=mimecast20190719; t=1785775159;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=x8FCHZBZLrk/TMZLPtJVaBIhiotGy01B8YQOZQmpfV4=;
-	b=GzKVfFISokBjJ2DYzGvr/6lcsbn984P5pZ9haDgQ27CgxNDCc26UnsPjJnJncQANm0RPAT
-	v1eTie4XQubjjszZXHCm2Ao8XpCBR4EnCHXMCMr5jEY4ZQOUxU064QUBiIPvpxjlqr08ai
-	SPqL06zS9GjHHNUUxE5rNY1doTFv4Qc=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=x6ljzSC+4qTqONEyzGjxVIdBzwjub/8R38l2gLkronQ=;
+	b=TjXg0KAD+ZnDK9XOAtQ6eC5ZsDq45wbAR+lCNOszeLFAPAQ0fRBxZ7SqzjgoMaPKEPTDX7
+	N8OWBXMnqD+D+VBx6z4gEKsZL8dyfHyDB8ffxa9ov2A9BA1329F/3F8sqtey48VnOQDXXO
+	3EPDIx6OX2HffEtbpBxGY2ZUXYgTtQU=
+Received: from mail-wr1-f71.google.com (mail-wr1-f71.google.com
+ [209.85.221.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-287-q6NHFar7NyG8v0U5tXBWKA-1; Mon, 03 Aug 2026 12:37:55 -0400
-X-MC-Unique: q6NHFar7NyG8v0U5tXBWKA-1
-X-Mimecast-MFC-AGG-ID: q6NHFar7NyG8v0U5tXBWKA_1785775074
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-473ac08a6a4so2860509f8f.0
-        for <virtualization@lists.linux.dev>; Mon, 03 Aug 2026 09:37:55 -0700 (PDT)
+ us-mta-331-ti5y1qA-P5KJh75J4tL8uQ-1; Mon, 03 Aug 2026 12:39:18 -0400
+X-MC-Unique: ti5y1qA-P5KJh75J4tL8uQ-1
+X-Mimecast-MFC-AGG-ID: ti5y1qA-P5KJh75J4tL8uQ_1785775157
+Received: by mail-wr1-f71.google.com with SMTP id ffacd0b85a97d-47faa02f707so47422f8f.1
+        for <virtualization@lists.linux.dev>; Mon, 03 Aug 2026 09:39:18 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785775074; x=1786379874;
+        d=1e100.net; s=20251104; t=1785775157; x=1786379957;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=x8FCHZBZLrk/TMZLPtJVaBIhiotGy01B8YQOZQmpfV4=;
-        b=hxSzkPjgsyfKWzk0lR7/lGtAzt2HmDkiUK1uKSh4MCFeoTa7+mdaNbcuMEKmrn5TwL
-         iId1AV4ajR3CCrt4+9yII6ctmEYVKwoSl4eTOXbTMZ07HTxxG+7liTufV9h5S+M3REm+
-         B/oONkdnTZ9ZkUnd+0ABAp503RIzzKGmR2cIn+kivOglce+pRx83fdAHgQ5BPje0BwLO
-         notBxeibiCkTcmdhFGVvUUE15IqKqixc5sjfRdIuOChaEmpXIcnvkGXHr9ZTgTfKTMvO
-         Lbns2v/nrk8eZLoC8GKBrHMJ7OQlFofvT7Co/L1M7CvmkWYW4z/yeA5/GIXcFwAdU67H
-         BD/w==
-X-Forwarded-Encrypted: i=1; AHgh+RrHYuwcGPZydwcQtYkyA5h2le3qQvhcYR74Bs6yHFWOJ4xwf28G1Tk1N6W/HtgLONmMmi6brN0dBw3YKYql9Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwliFQha2PTNerSbZMNxpcIb3l9VH4GhQC5T7qwboHkGoV5V3iU
-	CY0eGVJ5fX6feYbHraZAmwciZL22zFutKy27q4aQPjuPQ8ro9vfu6rgKoHGBSjVZiYO+Lp5fugS
-	7F+9w9M7UbSyGHFeiRBbSGgJ3gFchaSkUNCqUTzDwOjqL2mu7NFJqKjby1eR0ptcA5f/B
-X-Gm-Gg: AR+sD12Dk2Lzu/edM/pY0PqYRdDsM/x/UTyRU0LzVS2SMs6kFhZXnNHqjCSUJDV08Xj
-	hBmehdM8dQ7UoYy8FSgup1NA1Gl319o/gQE75m8hRFVT2tyRwBUeiGET0Q/kkbLKdfdXDU41vHI
-	CYGNItCVq7pIqzViE9VSMd9jsuaF07KtSg3SmqzxJUJRXkM1qNImqBYia3hAbYtn8/dRlwmjuWG
-	zOIrqsn+V/UQHzinHt+Oyxf2MdN9EYGAQdULGoV1IpXjee/Ikyyb6fwg+HjkFZsiZNbgGQkCanE
-	slpLWxKcDAKjV/9VjwOJ8gU27jKx75CN6ac6N1VN7LcK0jQlIXsoh6Fs5inpyUz4Fm9Az5RVkS4
-	jTjy8UFwHyXfInxrFnXx91Q==
-X-Received: by 2002:a05:600c:4e89:b0:495:5e3d:15e1 with SMTP id 5b1f17b1804b1-4980c6788f8mr221835775e9.16.1785775074240;
-        Mon, 03 Aug 2026 09:37:54 -0700 (PDT)
-X-Received: by 2002:a05:600c:4e89:b0:495:5e3d:15e1 with SMTP id 5b1f17b1804b1-4980c6788f8mr221835075e9.16.1785775073758;
-        Mon, 03 Aug 2026 09:37:53 -0700 (PDT)
+        bh=x6ljzSC+4qTqONEyzGjxVIdBzwjub/8R38l2gLkronQ=;
+        b=eoQbclfmLMqnlFqUEl4kLIhMSmV2pROxb1AuuDkfrL1ikdG1NxXn8CLUx4XG6Avoky
+         h0kZOtekZn7A1HmxwnpTXMkth0wFSAIpnvIH4J2N2sQ8Ns4Va78PFzgfzrgQ3wp6gOdE
+         Xdzs0Ri5xTZ/NQmfwx1aRuleDRKdtqChQim2NR0mJmHKXLkmY/U7pPivCvIwXrI44m+p
+         ARDD5R7/bZ6+tDgA4YC2nCFBNwZ2VgsB2S9H1LfDfv94OvhKlL3V3iNvfRRCP0US3WR6
+         hptgpBgwSI8+cq7hauEA2+RBl7/DIgmW734NMRN27DAhgDCSRfGe0W+g//yzoRYSyDRR
+         BfxA==
+X-Forwarded-Encrypted: i=1; AHgh+RqmdBnkBDgFOtmHxjxnLlqJ1mb6pE+Oldnwur91GtTwLtY7iebR9BZdpztlf4APvfi1PQf+ccHfGZS7jnpjYQ==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yyan+LHjVnzMssdxMG6XlTIaGRFTl9X+0+xdKbeHG9ABn9CH8AM
+	kF3s7TIBQwJK1M79EBJNQTKqUNBIsIpBQKv2BA0rFw7dIJ1UJWmDoG6KOpX87g6MqjfwnCLWg/B
+	QjWB6xDBiQNLkvUyG5LJrzxJU3OUKtxViEw+Agz1oin81qgW7caAiCYifOXYbmZ6PjD3T
+X-Gm-Gg: AR+sD103Ih2XEK4NrHNsnKJHv9zGXORGZDGhmlPSL5MgMyfLQHCgEr+S4eQXqM7/+Ro
+	RKyObstAzYYYIFkPhhVsRCsGLWaqSoYt0/npjKDrlwxVZhBRuNnYZRXD+UolRIId6f3lq72aFZH
+	I3ex+8siDEYct3S2jeyICOZ9QFST/5olV5rWcK+GRp/+e9OaeZmPOEr5gDd9YKnyDathyBLO77N
+	vNhCVWUI71i5fMaQclrfMU4FWtWOp3fMNVI9Bnnaz4JAfsf1SKXe+XyPbzhwi/folMeGzhOUBOV
+	yPaYLR5Ok+L5nBtPkaq8nVj0onjXpitWE7R+3v2Z3iL2FRMmIXgQb388vWyunRgu6fwRyD3pZQL
+	u5XKBpmdXj2tGaXM04eqFrA==
+X-Received: by 2002:a5d:5f94:0:b0:47f:7fe0:a287 with SMTP id ffacd0b85a97d-47fe81983f1mr844386f8f.2.1785775157492;
+        Mon, 03 Aug 2026 09:39:17 -0700 (PDT)
+X-Received: by 2002:a5d:5f94:0:b0:47f:7fe0:a287 with SMTP id ffacd0b85a97d-47fe81983f1mr844296f8f.2.1785775157008;
+        Mon, 03 Aug 2026 09:39:17 -0700 (PDT)
 Received: from redhat.com (IGLD-80-230-28-14.inter.net.il. [80.230.28.14])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49949f68f95sm6288115e9.0.2026.08.03.09.37.51
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47fd4562667sm36096625f8f.24.2026.08.03.09.39.15
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Mon, 03 Aug 2026 09:37:53 -0700 (PDT)
-Date: Mon, 3 Aug 2026 12:37:49 -0400
+        Mon, 03 Aug 2026 09:39:16 -0700 (PDT)
+Date: Mon, 3 Aug 2026 12:39:13 -0400
 From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Shahar Shitrit <shshitrit@nvidia.com>
-Cc: netdev@vger.kernel.org, jasowang@redhat.com, pabeni@redhat.com,
-	virtualization@lists.linux.dev, parav@nvidia.com, yohadt@nvidia.com,
-	xuanzhuo@linux.alibaba.com, eperezma@redhat.com, jgg@ziepe.ca,
-	kevin.tian@intel.com, kuba@kernel.org, andrew+netdev@lunn.ch,
-	edumazet@google.com, danielj@nvidia.com
-Subject: Re: [PATCH net-next v21 13/13] virtio_net: Add get ethtool flow
- rules ops
-Message-ID: <20260803123507-mutt-send-email-mst@kernel.org>
-References: <20260803140721.1871678-1-shshitrit@nvidia.com>
- <20260803140721.1871678-14-shshitrit@nvidia.com>
+To: Jun Yang <juny24602@gmail.com>
+Cc: netdev@vger.kernel.org, Jun Yang <junvyyang@tencent.com>,
+	stable@kernel.org, TencentOS Corvus AI <corvus@tencent.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
+	kvm@vger.kernel.org, virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] vhost: reset the vring metadata cache on vring
+ reconfiguration
+Message-ID: <20260803123853-mutt-send-email-mst@kernel.org>
+References: <20260803014823.68623-1-juny24602@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260803140721.1871678-14-shshitrit@nvidia.com>
+In-Reply-To: <20260803014823.68623-1-juny24602@gmail.com>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: uA-czdak2UHF2gnbfUbvYvniAHIQK-9Emv7uCAgcShs_1785775074
+X-Mimecast-MFC-PROC-ID: 3wF5lMrTw1agxraNHm7VQW5r_d7SbYCXVwuQ3fyi784_1785775157
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 
-On Mon, Aug 03, 2026 at 05:07:21PM +0300, Shahar Shitrit wrote:
-> From: Daniel Jurgens <danielj@nvidia.com>
+On Mon, Aug 03, 2026 at 09:45:14AM +0800, Jun Yang wrote:
+> From: Jun Yang <junvyyang@tencent.com>
 > 
-> - Get total number of rules. There's no user interface for this.
+> vq->meta_iotlb[] caches the vhost_iotlb_map that backs each vring
+> metadata region, and iotlb_access_ok() returns early on a cache hit,
+> taking the hit as proof that the region has already been validated:
+> 
+> 	if (vhost_vq_meta_fetch(vq, addr, len, type))
+> 		return true;
+> 
+> The cache is reset on VHOST_IOTLB_UPDATE and VHOST_IOTLB_INVALIDATE, on
+> device IOTLB (re)initialisation and on vq reset, but not when
+> VHOST_SET_VRING_ADDR replaces vq->desc, vq->avail and vq->used, nor when
+> VHOST_SET_VRING_NUM changes the region sizes.
+> 
+> With a device IOTLB attached both ioctls are accepted while the vq is
+> live, and neither validates the addresses at ioctl time: vq_access_ok()
+> and vq_log_used_access_ok() return true early because the addresses are
+> GIOVAs, deferring validation to prefetch time.  Once the cache has been
+> populated that deferred validation no longer runs -- vq_meta_prefetch()
+> hits the stale entry and returns true -- and vhost_vq_meta_fetch() keeps
+> translating through the old mapping as
+> 
+> 	map->addr + addr - map->start
+> 
+> for an address the mapping no longer covers.  vhost_copy_to_user() and
+> vhost_copy_from_user() consume the result with __copy_to_user() and
+> __copy_from_user(), which do not check it either, so a subsequent used
+> ring update or descriptor fetch accesses memory outside the region the
+> IOTLB actually maps.
+> 
+> Reset the metadata cache whenever the vring is reconfigured, so the new
+> addresses are pushed back through iotlb_access_ok()'s slow path.
+> 
+> Fixes: f88949138058 ("vhost: introduce O(1) vq metadata cache")
+> Cc: stable@kernel.org
+> Reported-by: TencentOS Corvus AI <corvus@tencent.com>
+> Signed-off-by: Jun Yang <junvyyang@tencent.com>
 
-For what? Isn't this ETHTOOL_GRXCLSRLCNT ?
+patch itself ok:
 
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 
-> It is
->   used to allocate an appropriately sized buffer for getting all the
->   rules.
-> 
-> - Get specific rule
-> $ ethtool -u ens9 rule 0
-> 	Filter: 0
-> 		Rule Type: UDP over IPv4
-> 		Src IP addr: 0.0.0.0 mask: 255.255.255.255
-> 		Dest IP addr: 192.168.5.2 mask: 0.0.0.0
-> 		TOS: 0x0 mask: 0xff
-> 		Src port: 0 mask: 0xffff
-> 		Dest port: 4321 mask: 0x0
-> 		Action: Direct to queue 16
-> 
-> - Get all rules:
-> $ ethtool -u ens9
-> 31 RX rings available
-> Total 2 rules
-> 
-> Filter: 0
->         Rule Type: UDP over IPv4
->         Src IP addr: 0.0.0.0 mask: 255.255.255.255
->         Dest IP addr: 192.168.5.2 mask: 0.0.0.0
-> ...
-> 
-> Filter: 1
->         Flow Type: Raw Ethernet
->         Src MAC addr: 00:00:00:00:00:00 mask: FF:FF:FF:FF:FF:FF
->         Dest MAC addr: 08:11:22:33:44:54 mask: 00:00:00:00:00:00
-> 
-> Signed-off-by: Daniel Jurgens <danielj@nvidia.com>
-> Reviewed-by: Parav Pandit <parav@nvidia.com>
-> Reviewed-by: Xuan Zhuo <xuanzhuo@linux.alibaba.com>
-> Signed-off-by: Shahar Shitrit <shshitrit@nvidia.com>
 > ---
->  drivers/net/virtio_net.c | 75 ++++++++++++++++++++++++++++++++++++++++
->  1 file changed, 75 insertions(+)
+>  drivers/vhost/vhost.c | 8 ++++++++
+>  1 file changed, 8 insertions(+)
 > 
-> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
-> index 236887c7976d..3d5eb716361a 100644
-> --- a/drivers/net/virtio_net.c
-> +++ b/drivers/net/virtio_net.c
-> @@ -6552,6 +6552,58 @@ static int virtnet_ethtool_flow_remove(struct virtnet_ff *ff, int location)
->  	return err;
->  }
+> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> index 4c525b3e16ea..77c96993100b 100644
+> --- a/drivers/vhost/vhost.c
+> +++ b/drivers/vhost/vhost.c
+> @@ -2126,6 +2126,14 @@ static long vhost_vring_set_num_addr(struct vhost_dev *d,
+>  		BUG();
+>  	}
 >  
-> +static int virtnet_ethtool_get_flow_count(struct virtnet_ff *ff,
-> +					  struct ethtool_rxnfc *info)
-> +{
-> +	if (!ff->ff_supported)
-> +		return -EOPNOTSUPP;
+> +	/*
+> +	 * The metadata cache holds the IOTLB mapping that backed the previous
+> +	 * desc/avail/used addresses and vring size, both of which are being
+> +	 * replaced here.  iotlb_access_ok() takes a cache hit as proof that the
+> +	 * region was validated, so the stale entries have to go.
+> +	 */
+> +	__vhost_vq_meta_reset(vq);
 > +
-> +	info->rule_cnt = ff->ethtool.num_rules;
-> +	info->data = le32_to_cpu(ff->ff_caps->rules_limit) | RX_CLS_LOC_SPECIAL;
-
-maybe check rules_per_group_limit too? they are all in 1 group ..
-
-> +
-> +	return 0;
-> +}
-> +
-> +static int virtnet_ethtool_get_flow(struct virtnet_ff *ff,
-> +				    struct ethtool_rxnfc *info)
-> +{
-> +	struct virtnet_ethtool_rule *eth_rule;
-> +
-> +	if (!ff->ff_supported)
-> +		return -EOPNOTSUPP;
-> +
-> +	eth_rule = xa_load(&ff->ethtool.rules, info->fs.location);
-> +	if (!eth_rule)
-> +		return -ENOENT;
-> +
-> +	info->fs = eth_rule->flow_spec;
-> +
-> +	return 0;
-> +}
-> +
-> +static int
-> +virtnet_ethtool_get_all_flows(struct virtnet_ff *ff,
-> +			      struct ethtool_rxnfc *info, u32 *rule_locs)
-> +{
-> +	struct virtnet_ethtool_rule *eth_rule;
-> +	unsigned long i = 0;
-> +	int idx = 0;
-> +
-> +	if (!ff->ff_supported)
-> +		return -EOPNOTSUPP;
-> +
-> +	xa_for_each(&ff->ethtool.rules, i, eth_rule) {
-> +		if (idx == info->rule_cnt)
-> +			return -EMSGSIZE;
-> +		rule_locs[idx++] = i;
-> +	}
-> +
-> +	info->data = le32_to_cpu(ff->ff_caps->rules_limit);
-> +	info->rule_cnt = idx;
-> +
-> +	return 0;
-> +}
-> +
->  static size_t get_mask_size(u16 type)
->  {
->  	switch (type) {
-> @@ -6570,6 +6622,28 @@ static size_t get_mask_size(u16 type)
->  	return 0;
->  }
+>  	mutex_unlock(&vq->mutex);
 >  
-> +static int virtnet_get_rxnfc(struct net_device *dev, struct ethtool_rxnfc *info, u32 *rule_locs)
-> +{
-> +	struct virtnet_info *vi = netdev_priv(dev);
-> +	int rc;
-> +
-> +	switch (info->cmd) {
-> +	case ETHTOOL_GRXCLSRLCNT:
-> +		rc = virtnet_ethtool_get_flow_count(&vi->ff, info);
-> +		break;
-> +	case ETHTOOL_GRXCLSRULE:
-> +		rc = virtnet_ethtool_get_flow(&vi->ff, info);
-> +		break;
-> +	case ETHTOOL_GRXCLSRLALL:
-> +		rc = virtnet_ethtool_get_all_flows(&vi->ff, info, rule_locs);
-> +		break;
-> +	default:
-> +		rc = -EOPNOTSUPP;
-> +	}
-> +
-> +	return rc;
-> +}
-> +
->  static int virtnet_set_rxnfc(struct net_device *dev, struct ethtool_rxnfc *info)
->  {
->  	struct virtnet_info *vi = netdev_priv(dev);
-> @@ -6611,6 +6685,7 @@ static const struct ethtool_ops virtnet_ethtool_ops = {
->  	.get_rxfh_fields = virtnet_get_hashflow,
->  	.set_rxfh_fields = virtnet_set_hashflow,
->  	.get_rx_ring_count = virtnet_get_rx_ring_count,
-> +	.get_rxnfc = virtnet_get_rxnfc,
->  	.set_rxnfc = virtnet_set_rxnfc,
->  };
->  
+>  	return r;
 > -- 
-> 2.49.0
+> 2.55.0
 
