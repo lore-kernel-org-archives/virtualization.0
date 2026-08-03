@@ -1,165 +1,155 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-ua1-f54.google.com (mail-ua1-f54.google.com [209.85.222.54])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 23E01395AD5
-	for <virtualization@lists.linux.dev>; Mon,  3 Aug 2026 06:10:04 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 42BC035C183
+	for <virtualization@lists.linux.dev>; Mon,  3 Aug 2026 12:55:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.222.54
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785737416; cv=none; b=ifq+5lXVIDeVFkZq/sQ22nJxMmOkKoVw+Tilk44Kc5k/867xdHcFm0nJFiX10m3WOAwKtFV7wLnqJB2e0i9wRv7Xjkzuv4Ivh+QXqOV1jiNMiuE87ewBIGNZogUh0LP2uKW2VVdS+uQ7JjnAsCuecLzyptA+GOQ5ZsJz5924UU4=
+	t=1785761736; cv=none; b=bTxobz3t2Tk48CLNxWz/EM89tXewcovL6assD0+c/hRofYyqF8nKQFM1enh4rm+KoU1Lxn0KbFzOdsrbSfX99S5iLP1im78m1Nm0VtHEuFofO1ABjkijFAWU6eALo5F88p387kc8LN9FjsieQPqyqLqKuMzG0dYvWkyVBtrJ2uY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785737416; c=relaxed/simple;
-	bh=kGVTFjQOt0Sx2VxVQgyTluCNk7T0u6JCg8f0cfpLT/w=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=RmxLvVZSCzFWj1MjN9a1NZzwcPwNDboqWE4JAKEoTOYGnVWu5v7Ve0WF1DkK5Nd1D1QpMLs01ntx3zMzLHllbM5JZh0A+D7MY5uvu6xAz4NHzhaKBTJAbZ0gazQ7jjHqQpgJYkQIkvk2gHoJlXco0Y13X1Yod8q5M4Zq4oPKSR8=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=EaGhLpNi; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="EaGhLpNi"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1785737403;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=opESCzEHUJBRfpmQVy8tuXudchPZvHydKoko2MNrriA=;
-	b=EaGhLpNiq8t1ldPD3XGygu1ouySGKmoXbxVCTI8Sogav3U/f3Xsgmz2WggWGVZRYh8RfsT
-	VK0d0gOxlZlaey47wPVaaEhNQmENFO6X4V/jgRWjUSSQAJQ/yGgZoqRQzkPKLMq5yCDF+2
-	8r162hGgM/figPAM3Rm/H6gzJHwxJ80=
-Received: from mail-wr1-f70.google.com (mail-wr1-f70.google.com
- [209.85.221.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-695-w_J-sg9TOyW5yjdSQwcNew-1; Mon, 03 Aug 2026 02:09:57 -0400
-X-MC-Unique: w_J-sg9TOyW5yjdSQwcNew-1
-X-Mimecast-MFC-AGG-ID: w_J-sg9TOyW5yjdSQwcNew_1785737396
-Received: by mail-wr1-f70.google.com with SMTP id ffacd0b85a97d-47f6e8b5996so3181204f8f.2
-        for <virtualization@lists.linux.dev>; Sun, 02 Aug 2026 23:09:57 -0700 (PDT)
+	s=arc-20240116; t=1785761736; c=relaxed/simple;
+	bh=Ir8txI41duHjjdUa1tYJv/Mb4slAcXRYTZiQjfKa4u0=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=omEvfWvVb7RHUZ4hDTvR8/SLqMm7+MFLBGUu25XMcQJGS1+TQPY1i0FUGdmONsSPA90wRoMnpYvkiy27p+cjI0coOnXG4RA+/waF2WRgAlp+WT6IRIujzedVJn0IVUdTpVoGbTVIZC3QWhRf4lCaFxLNKcXAJob3ItMID5lANwU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org; spf=pass smtp.mailfrom=gmail.com; arc=none smtp.client-ip=209.85.222.54
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=linux-m68k.org
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Received: by mail-ua1-f54.google.com with SMTP id a1e0cc1a2514c-97723f98735so2053940241.3
+        for <virtualization@lists.linux.dev>; Mon, 03 Aug 2026 05:55:35 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785737396; x=1786342196;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=opESCzEHUJBRfpmQVy8tuXudchPZvHydKoko2MNrriA=;
-        b=P6sTnv+NYu3170s/epmA1rNXrKMpQCPhTL/1818uWuz4YdDf4+qDofMr2NAEkA7mL+
-         /FkRJNuVdAkqwGzmCk03qn28X2Z5wJFw8dl2v9esJri2VWwUHHyjaPRnfcCDH+CI2Vr1
-         yOvFzRvJQnAYbz+3WvLxgGzF0btUesglEYIs6bLttgffqxLt0xOGJG+8/JfN9rpBDP0n
-         O6LpgNpgHtQeLH/J7Ct1M4AuAqHA9xzrEvGSO2bNUbyzvVcTUS8QyE8V8PLTA4DDWDN0
-         gZA5/4GQEaJVPzN8wTY1sshYJBLHL8T89IZHzuEjVl53rGYiAImkag+NQu60eQcKukR5
-         FK/A==
-X-Forwarded-Encrypted: i=1; AHgh+Rq8Bv5cXNEh7R1uQdxPoCqHjknsxndYdSJZO7eg2meWmlnnoqvRY4ZUZ6mWwjIdHxcSOrqHxaSPnymXp+qiKw==@lists.linux.dev
-X-Gm-Message-State: AOJu0YxXKGz8A8KMNCgol8JThsVt97YrskF/xJGnTQEiQEVCEW6bu9Ej
-	x1w8swMuSx4zUyGSXvdISBCnVM6rspLWuT6Ck9ZVcsg4jBFIT43TJwQbg6NCITY/4dyJkcNWNLj
-	mU8UVBr7pI303a5I64Ee53KfYyYmn2LWvNsKcHilMUQOB0/HzNilPNhtOHtksQJhBY/VW
-X-Gm-Gg: AR+sD10itaihQqYU56zW15DSkRYcfSbyPjG1bo2THOBSa0nQh2u1drSowzNEpkD/ByK
-	1PfuvZx8OiW/KvmKx1uzkYlwNhrZak9yuSLDY6+dCdyWs2T1wQncIGbz+8Cf3jFlgcLqZNoR9OK
-	WRmRVdk1mM8RY6IZYqSPa7afe0g5Itg76tdh3mVOnQWk9G1QuO3UmZVdUKGw/S8+2bVKtS6g9+D
-	0alpAtOPkgzcyfHbpL+K2SqTpk0ru57DychTP19XxxQ3RqMdkgd2Rlyma22Tmt/D1ERWy6jlppH
-	FLo02HySKfjNMS2vBtVI+KWixt7wRyEW5KVTWIoC5nYLk5WfqSQqHfUrbDpMjqi48PqQwhIUfPp
-	/W/4H5KA8FlW69sE7c9cMOw==
-X-Received: by 2002:a05:600c:c490:b0:495:7538:d4ea with SMTP id 5b1f17b1804b1-4980c5fd773mr159725955e9.0.1785737396403;
-        Sun, 02 Aug 2026 23:09:56 -0700 (PDT)
-X-Received: by 2002:a05:600c:c490:b0:495:7538:d4ea with SMTP id 5b1f17b1804b1-4980c5fd773mr159725185e9.0.1785737395940;
-        Sun, 02 Aug 2026 23:09:55 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-28-14.inter.net.il. [80.230.28.14])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4980878dcb4sm327289125e9.13.2026.08.02.23.09.54
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Sun, 02 Aug 2026 23:09:55 -0700 (PDT)
-Date: Mon, 3 Aug 2026 02:09:52 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Jun Yang <juny24602@gmail.com>
-Cc: netdev@vger.kernel.org, Jun Yang <junvyyang@tencent.com>,
-	stable@kernel.org, TencentOS Corvus AI <corvus@tencent.com>,
-	Jason Wang <jasowangio@gmail.com>,
-	Eugenio =?iso-8859-1?Q?P=E9rez?= <eperezma@redhat.com>,
-	kvm@vger.kernel.org, virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] vhost: reset the vring metadata cache on vring
- reconfiguration
-Message-ID: <20260803020641-mutt-send-email-mst@kernel.org>
-References: <20260803014823.68623-1-juny24602@gmail.com>
+        d=1e100.net; s=20251104; t=1785761734; x=1786366534;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=WGVqxVKLC2Gks94xayPEyUqyvnJiYIaVHNXa8plDaec=;
+        b=jnirZ5v9d+60vBqoQ2dE1QcOLrlo68zHiwOumgDIFve8LbW64PVwpSNgyZONlDGWpR
+         e4MkDGYrVbVP5x6BKjGSGkXuxW8vZoCQT/quwDX81Lwh3GIssvb1CBTIw8OsgS+7kGVW
+         CtrT9t8P9PUvHTmQUUazDyLQZO0ix5WbrpTfU0/nUMIrEvb9mzbuvYUeWhctF8DEI4Zs
+         mrU1ObwJbpFMSpdYnDhEpY9NmqzMxjJhgmDQjgCl5MrWpkd3F/ykE0zfrc27ivvzR22/
+         DzKVhuvoeVbET4ShESJVP9HKILaqaspq/+HFwIeJaZRT2ZmVBDHODV7uH7KAmsiJ5ii9
+         DLrQ==
+X-Forwarded-Encrypted: i=1; AHgh+Rphk2L/38ePKB3p5JYO58IhYUcQW8esOuVb4ErbAqAYZJtzZ2loki7YW8YD4Y7RawXlKKBO//Ag7VuUpzRiaA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwcV+Uwuj61URT52QrRxYShjEqKIOYj6L893eIN5/8nUaaJidWN
+	73O6TlmXgbOepkPom4hHcl1AripPERuAo7t6fc2Y4uM16QuHvcJeBbZLTxPWX20A
+X-Gm-Gg: AR+sD10lSWyUINB2LMpxXl4h7zaVRaUpuKJodw0i50v+dOzRT11U/kGJ/ySKmV/feKW
+	c/egUgb//zRPaQmsZMCmURoqaqFOByE56DyTHa4T5+CBxyTQVeHSrY3peo3KkxQSqR7p41kJQns
+	gJOLxDzmrsePG++Y0avG06DMwQvzVGSChDk+2lab83WbvVcWyWvLSaw9xundM3K11dLOEN/aaST
+	/j/9CrYOcDJI3dYaXGIs8Y7hFoiiwmrjE+4scWDSzZ6Koyowj32SavZb823Eb9GhMjCnjPVTg6A
+	Uf9m0/FGzL6mF9q3Y8V1jhE33hY9+SAwEBkC6fWOL/lgogcKFJzyiYILZAJw3V57Y4T8+KrEm0D
+	Su9Tc8n+U/vpFPXrDpKaCnfI9Ibo+vq4mc3HstaGRtp5Fo1RLiT8aEEW7IIVNokS//X/jRFEzjk
+	kvgJmcH2qUTugnk/4xeRpLmxKZ3HC5CKSxof2QvAiTvYo6hbQcfjf0q7vNRCIFMSQ+TbkdEZJNx
+	T6PRusW4i+8u/UxvpJxnPUZFCmOgx5j2GkB
+X-Received: by 2002:a05:6102:160e:b0:752:757a:96f0 with SMTP id ada2fe7eead31-75b21a5ecf4mr8412508137.3.1785761733925;
+        Mon, 03 Aug 2026 05:55:33 -0700 (PDT)
+Received: from mail-vs1-f52.google.com (mail-vs1-f52.google.com. [209.85.217.52])
+        by smtp.gmail.com with ESMTPSA id a1e0cc1a2514c-977e6213f7dsm6018781241.7.2026.08.03.05.55.33
+        for <virtualization@lists.linux.dev>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Mon, 03 Aug 2026 05:55:33 -0700 (PDT)
+Received: by mail-vs1-f52.google.com with SMTP id ada2fe7eead31-74d55dac06eso1884580137.3
+        for <virtualization@lists.linux.dev>; Mon, 03 Aug 2026 05:55:33 -0700 (PDT)
+X-Forwarded-Encrypted: i=1; AHgh+RqZSGjsU7mccGaKMno+2dGE0L9czlxrllCU7vGgcy0AzXQ61o2xKQxLMbtxXCYYUOScj/ycfCwhB/LOH+QKCQ==@lists.linux.dev
+X-Received: by 2002:a05:6102:6a83:b0:729:affa:70fd with SMTP id
+ ada2fe7eead31-75b2295c6d6mr7103654137.8.1785761305110; Mon, 03 Aug 2026
+ 05:48:25 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260803014823.68623-1-juny24602@gmail.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: a5pgNYd5fYIYcDbNLP2jLfEb79JuTKuPkX7ZSXuz-bg_1785737396
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+References: <20260720-drm_simple_encoder_init-v2-0-5020b630668a@gmail.com> <20260720-drm_simple_encoder_init-v2-10-5020b630668a@gmail.com>
+In-Reply-To: <20260720-drm_simple_encoder_init-v2-10-5020b630668a@gmail.com>
+From: Geert Uytterhoeven <geert@linux-m68k.org>
+Date: Mon, 3 Aug 2026 14:48:14 +0200
+X-Gmail-Original-Message-ID: <CAMuHMdUe0F06RE4ahWb9ERFq0_pnNy-qGZ5ewod+59x-RtU_FQ@mail.gmail.com>
+X-Gm-Features: AUfX_mz7dUNKx_CkXmX2bBiqeRWfQJXaKympC5b4Q722_mZANMq2M_rTZsMnNYo
+Message-ID: <CAMuHMdUe0F06RE4ahWb9ERFq0_pnNy-qGZ5ewod+59x-RtU_FQ@mail.gmail.com>
+Subject: Re: [PATCH v2 10/15] drm/renesas/shmobile: remove dependency on DRM
+ simple helpers
+To: Diogo Silva <diogompaissilva@gmail.com>
+Cc: Jingoo Han <jingoohan1@gmail.com>, Inki Dae <inki.dae@samsung.com>, 
+	Seung-Woo Kim <sw0312.kim@samsung.com>, Kyungmin Park <kyungmin.park@samsung.com>, 
+	David Airlie <airlied@gmail.com>, Simona Vetter <simona@ffwll.ch>, 
+	Krzysztof Kozlowski <krzk@kernel.org>, Peter Griffin <peter.griffin@linaro.org>, 
+	Alim Akhtar <alim.akhtar@samsung.com>, 
+	Laurent Pinchart <laurent.pinchart@ideasonboard.com>, 
+	Tomi Valkeinen <tomi.valkeinen@ideasonboard.com>, 
+	Maarten Lankhorst <maarten.lankhorst@linux.intel.com>, Maxime Ripard <mripard@kernel.org>, 
+	Thomas Zimmermann <tzimmermann@suse.de>, Michal Simek <michal.simek@amd.com>, 
+	Thierry Reding <thierry.reding@kernel.org>, Mikko Perttunen <mperttunen@nvidia.com>, 
+	Jonathan Hunter <jonathanh@nvidia.com>, Stefan Agner <stefan@agner.ch>, 
+	Alison Wang <alison.wang@nxp.com>, Anitha Chrisanthus <anitha.chrisanthus@intel.com>, 
+	David Airlie <airlied@redhat.com>, Gerd Hoffmann <kraxel@redhat.com>, 
+	Dmitry Osipenko <dmitry.osipenko@collabora.com>, 
+	Gurchetan Singh <gurchetansingh@chromium.org>, Chia-I Wu <olvaffe@gmail.com>, 
+	Jyri Sarha <jyri.sarha@iki.fi>, Liu Ying <victor.liu@nxp.com>, Frank Li <Frank.Li@nxp.com>, 
+	Sascha Hauer <s.hauer@pengutronix.de>, Pengutronix Kernel Team <kernel@pengutronix.de>, 
+	Fabio Estevam <festevam@gmail.com>, Chun-Kuang Hu <chunkuang.hu@kernel.org>, 
+	Philipp Zabel <p.zabel@pengutronix.de>, Matthias Brugger <matthias.bgg@gmail.com>, 
+	AngeloGioacchino Del Regno <angelogioacchino.delregno@collabora.com>, 
+	Geert Uytterhoeven <geert+renesas@glider.be>, Xinliang Liu <xinliang.liu@linaro.org>, 
+	Sumit Semwal <sumit.semwal@linaro.org>, Yongqin Liu <yongqin.liu@linaro.org>, 
+	John Stultz <jstultz@google.com>, Liviu Dudau <liviu.dudau@arm.com>, 
+	Neil Armstrong <neil.armstrong@linaro.org>, Kevin Hilman <khilman@baylibre.com>, 
+	Jerome Brunet <jbrunet@baylibre.com>, 
+	Martin Blumenstingl <martin.blumenstingl@googlemail.com>, Jonathan Corbet <corbet@lwn.net>, 
+	Shuah Khan <skhan@linuxfoundation.org>, dri-devel@lists.freedesktop.org, 
+	linux-arm-kernel@lists.infradead.org, linux-samsung-soc@vger.kernel.org, 
+	linux-kernel@vger.kernel.org, linux-tegra@vger.kernel.org, 
+	virtualization@lists.linux.dev, imx@lists.linux.dev, 
+	linux-mediatek@lists.infradead.org, linux-renesas-soc@vger.kernel.org, 
+	linux-amlogic@lists.infradead.org, linux-doc@vger.kernel.org
+Content-Type: text/plain; charset="UTF-8"
 
-On Mon, Aug 03, 2026 at 09:45:14AM +0800, Jun Yang wrote:
-> From: Jun Yang <junvyyang@tencent.com>
-> 
-> vq->meta_iotlb[] caches the vhost_iotlb_map that backs each vring
-> metadata region, and iotlb_access_ok() returns early on a cache hit,
-> taking the hit as proof that the region has already been validated:
-> 
-> 	if (vhost_vq_meta_fetch(vq, addr, len, type))
-> 		return true;
-> 
-> The cache is reset on VHOST_IOTLB_UPDATE and VHOST_IOTLB_INVALIDATE, on
-> device IOTLB (re)initialisation and on vq reset, but not when
-> VHOST_SET_VRING_ADDR replaces vq->desc, vq->avail and vq->used, nor when
-> VHOST_SET_VRING_NUM changes the region sizes.
-> 
-> With a device IOTLB attached both ioctls are accepted while the vq is
-> live, and neither validates the addresses at ioctl time: vq_access_ok()
-> and vq_log_used_access_ok() return true early because the addresses are
-> GIOVAs, deferring validation to prefetch time.  Once the cache has been
-> populated that deferred validation no longer runs -- vq_meta_prefetch()
-> hits the stale entry and returns true -- and vhost_vq_meta_fetch() keeps
-> translating through the old mapping as
-> 
-> 	map->addr + addr - map->start
-> 
-> for an address the mapping no longer covers.  vhost_copy_to_user() and
-> vhost_copy_from_user() consume the result with __copy_to_user() and
-> __copy_from_user(), which do not check it either, so a subsequent used
-> ring update or descriptor fetch accesses memory outside the region the
-> IOTLB actually maps.
-> 
-> Reset the metadata cache whenever the vring is reconfigured, so the new
-> addresses are pushed back through iotlb_access_ok()'s slow path.
-> 
-> Fixes: f88949138058 ("vhost: introduce O(1) vq metadata cache")
-> Cc: stable@kernel.org
-> Reported-by: TencentOS Corvus AI <corvus@tencent.com>
-> Signed-off-by: Jun Yang <junvyyang@tencent.com>
+Hi Diogo,
 
-And it seems AI assisted writing at least the commit log am I right?
+On Mon, 20 Jul 2026 at 17:41, Diogo Silva <diogompaissilva@gmail.com> wrote:
+> The simple KMS helpers are deprecated because they only add an
+> intermediate layer between drivers and atomic modesetting.
+>
+> Open-code drm_simple_encoder_init() by calling drm_encoder_init()
+> directly and providing driver-local drm_encoder_funcs.
+>
+> Signed-off-by: Diogo Silva <diogompaissilva@gmail.com>
 
-You are supposed to use:
+Thanks for your patch!
 
-Assisted-by: AGENT_NAME:MODEL_VERSION 
+> --- a/drivers/gpu/drm/renesas/shmobile/shmob_drm_crtc.c
+> +++ b/drivers/gpu/drm/renesas/shmobile/shmob_drm_crtc.c
 
+> @@ -29,7 +30,6 @@
+>  #include <drm/drm_modeset_helper_vtables.h>
+>  #include <drm/drm_panel.h>
+>  #include <drm/drm_probe_helper.h>
+> -#include <drm/drm_simple_kms_helper.h>
+>  #include <drm/drm_vblank.h>
+>
+>  #include <video/videomode.h>
+> @@ -436,6 +436,10 @@ static const struct drm_encoder_helper_funcs encoder_helper_funcs = {
+>         .mode_fixup = shmob_drm_encoder_mode_fixup,
+>  };
+>
+> +static const struct drm_encoder_funcs shmob_encoder_funcs = {
 
+Nit: shmob_drm_encoder_funcs?
 
-> ---
->  drivers/vhost/vhost.c | 8 ++++++++
->  1 file changed, 8 insertions(+)
-> 
-> diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> index 4c525b3e16ea..77c96993100b 100644
-> --- a/drivers/vhost/vhost.c
-> +++ b/drivers/vhost/vhost.c
-> @@ -2126,6 +2126,14 @@ static long vhost_vring_set_num_addr(struct vhost_dev *d,
->  		BUG();
->  	}
->  
-> +	/*
-> +	 * The metadata cache holds the IOTLB mapping that backed the previous
-> +	 * desc/avail/used addresses and vring size, both of which are being
-> +	 * replaced here.  iotlb_access_ok() takes a cache hit as proof that the
-> +	 * region was validated, so the stale entries have to go.
-> +	 */
-> +	__vhost_vq_meta_reset(vq);
+> +       .destroy = drm_encoder_cleanup,
+> +};
 > +
->  	mutex_unlock(&vq->mutex);
->  
->  	return r;
-> -- 
-> 2.55.0
+>  /* -----------------------------------------------------------------------------
+>   * Encoder
+>   */
 
+Reviewed-by: Geert Uytterhoeven <geert+renesas@glider.be>
+
+Gr{oetje,eeting}s,
+
+                        Geert
+
+-- 
+Geert Uytterhoeven -- There's lots of Linux beyond ia32 -- geert@linux-m68k.org
+
+In personal conversations with technical people, I call myself a hacker. But
+when I'm talking to journalists I just say "programmer" or something like that.
+                                -- Linus Torvalds
