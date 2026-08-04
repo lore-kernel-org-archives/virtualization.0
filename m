@@ -1,47 +1,55 @@
-Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.3])
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 725A342E8EA
-	for <virtualization@lists.linux.dev>; Tue,  4 Aug 2026 08:01:41 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.3
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7511C446069
+	for <virtualization@lists.linux.dev>; Tue,  4 Aug 2026 08:53:41 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785830505; cv=none; b=pO2SEfyvun8TbufMv+UrnkVoXLOaRkTtbJ7JY7bK/OmGXhWe17mn2jGoB7+lWLDWaAoFsSbbgCqNx3mXMU7uHg7voZ0LDkgHja2ZwNzXdc3VaFPKI1X8BEwqcYxbtOzYZ7g0amXSjbEuSwcUUdMuuRWxdNSN8ijcQ/0Ctp3KI68=
+	t=1785833625; cv=none; b=LaWehjuniQRrqleV4fniUizkiGq8z4oL2OuHDedhX+P8Umk9BoHzsaIwU2h+w5QqB6egMekaYkoBfYMXgs0wx9KZq5KIjeqPOl6TNxNu6mDba/y+VOkhbOLTrqoBok4/cLgTeD7wIVQI+NX2GQ0WacCbJmeenhzZQJLGupm3epY=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785830505; c=relaxed/simple;
-	bh=XVsZHnCudTLeRuVV1elnZGe6ET8j4KF26RMgoOqlizo=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version; b=Oeu+rcS5eCWKuJV/7bjU7Oo+d/P/KTrSGyY6mYgbYlEL5qOHA51KM4eYpYxI0zxe4YOzOQ2tyR5Ac9KHN3Vb9+O94C45eJZFrRUbI3EFDnW7C19ZXKYd/338FqlVaf3KPYecxWTD3v0a2z+jQxOKZ37/fR+rU0l850g6FxtxicE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=QBW3RmvQ; arc=none smtp.client-ip=220.197.31.3
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="QBW3RmvQ"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
-	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=C4
-	R4R9pywm2EpuaFH/SxTHSerE/d1aZMpdI1LeEfYSI=; b=QBW3RmvQAPR9nGRZk+
-	2UeJ/KSH1YdHfrpcIvckFby81NLQq2a1McnBNkgYBMx4iGnvR6695XsODj675AUg
-	7fGJ5csqHq0H2/d1MJn1rcP813LESBZzqFqMVlvQV4yga/EB0d/SB+x7xx8JEuKO
-	VlaAvaHK0O3bmK4XvJMUWiqFs=
-Received: from localhost.localdomain (unknown [])
-	by gzsmtp3 (Coremail) with SMTP id PigvCgA3+bZVnHFqQsQvLQ--.12248S4;
-	Tue, 04 Aug 2026 16:01:28 +0800 (CST)
-From: "rom.wang" <r4o5m6e8o@163.com>
-To: virtualization@lists.linux.dev
-Cc: eperezma@redhat.com,
-	mst@redhat.com,
-	jasowang@redhat.com,
-	pabeni@redhat.com,
-	kvm@vger.kernel.org,
+	s=arc-20240116; t=1785833625; c=relaxed/simple;
+	bh=FGB0pzjgkMcvCsdYI2JBh77SS9vY5Qpxv9fJYcEcKnU=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=XprNEjFZYrkT4RD+yhsMbItQiioAXix3PpXyGSyrL0ggwiyX9cQvV+1u8jlHHSIz58/AmWcO1Q0+YleDkCR5NCRb4bFVVGkOFy+udzRQFpX/OIYHFnpH5cK3/lqjw56yoGiZ5Yw++4Fathti0RdbVyUjgwhIG1SpYr3SYEwknaA=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
+X-UUID: f9d30f1e8fe111f1aa26b74ffac11d73-20260804
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.12,REQID:19184ce3-2157-4415-af71-d15282bc5246,IP:0,U
+	RL:0,TC:0,Content:0,EDM:25,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION
+	:release,TS:25
+X-CID-META: VersionHash:e7bac3a,CLOUDID:51f877212722d72e1d95012732bfb843,BulkI
+	D:nil,BulkQuantity:0,Recheck:0,SF:102|136|865|898,TC:nil,Content:0|15|50,E
+	DM:5,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA:
+	0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: f9d30f1e8fe111f1aa26b74ffac11d73-20260804
+X-User: xiongweimin@kylinos.cn
+Received: from xwm-tianyi510pro-14imb.. [(10.44.16.150)] by mailgw.kylinos.cn
+	(envelope-from <xiongweimin@kylinos.cn>)
+	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
+	with ESMTP id 602898929; Tue, 04 Aug 2026 16:53:34 +0800
+From: Xiong Weimin <xiongweimin@kylinos.cn>
+To: "Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	Andrew Lunn <andrew+netdev@lunn.ch>,
+	"David S. Miller" <davem@davemloft.net>,
+	Eric Dumazet <edumazet@google.com>,
+	Jakub Kicinski <kuba@kernel.org>,
+	Paolo Abeni <pabeni@redhat.com>,
 	netdev@vger.kernel.org,
+	virtualization@lists.linux.dev,
 	linux-kernel@vger.kernel.org,
-	Yufeng Wang <wangyufeng@kylinos.cn>
-Subject: [PATCH 2/3] tools/virtio: add __must_be_array stub
-Date: Tue,  4 Aug 2026 16:01:24 +0800
-Message-Id: <20260804080125.79403-3-r4o5m6e8o@163.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260804080125.79403-1-r4o5m6e8o@163.com>
-References: <CAJaqyWfP7j5_PvOP0JiHuAQ8appGnoJDS3OB-qK7riBpZ_d_tQ@mail.gmail.com>
- <20260804080125.79403-1-r4o5m6e8o@163.com>
+	Xiong Weimin <xiongweimin@kylinos.cn>
+Subject: [PATCH net 1/2] virtio_net: check AF_XDP queue index before use
+Date: Tue,  4 Aug 2026 16:53:28 +0800
+Message-ID: <20260804085330.1333242-1-xiongweimin@kylinos.cn>
+X-Mailer: git-send-email 2.43.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -49,49 +57,39 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
-X-CM-TRANSID:PigvCgA3+bZVnHFqQsQvLQ--.12248S4
-X-Coremail-Antispam: 1Uf129KBjvJXoW7Cr1kWFWrXF4DAF4UXry7ZFb_yoW8Jw1xpF
-	nrWrn8Ka18ZrnIga4fta4fur1Uuw1fAw17GF93W34UuF98Jw1IvFnFkFW3K3y3uw4vgF1I
-	gryvqF1xGFZxZw7anT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
-	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07URwZcUUUUU=
-X-CM-SenderInfo: 3uurkzkwhy0qqrwthudrp/xtbC8Bg0qWpxnFjjKQAA3g
 
-From: Yufeng Wang <wangyufeng@kylinos.cn>
+Validate the AF_XDP queue index before dereferencing the receive or
+send queue arrays in virtnet_xsk_pool_enable().  This keeps an out of
+range queue id from reaching vi->rq[qid] while checking page_pool.
 
-struct_size() expands to flex_array_size(), which uses __must_be_array()
-to assert at build time that its argument is an array.  __must_be_array()
-is defined in the kernel's include/linux/compiler.h, but the tools/virtio
-compiler.h compat shim does not provide it, so any use of struct_size()
-in the test harness fails to build:
-
-  ../include/linux/overflow.h:161:44: error: implicit declaration of function '__must_be_array' [-Wimplicit-function-declaration]
-    161 |                     sizeof(*(p)->member) + __must_be_array((p)->member),\
-        |                                            ^~~~~~~~~~~~~~~
-  vhost_net_test.c:258:32: note: in expansion of macro 'struct_size'
-
-Stub __must_be_array() to 0, consistent with how BUILD_BUG_ON() and
-__must_check are already stubbed out in this environment.
-
-Signed-off-by: Yufeng Wang <wangyufeng@kylinos.cn>
+Signed-off-by: Xiong Weimin <xiongweimin@kylinos.cn>
 ---
- tools/virtio/linux/compiler.h | 1 +
- 1 file changed, 1 insertion(+)
+ drivers/net/virtio_net.c | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-diff --git a/tools/virtio/linux/compiler.h b/tools/virtio/linux/compiler.h
-index 0f25db473f55..3fa035296fab 100644
---- a/tools/virtio/linux/compiler.h
-+++ b/tools/virtio/linux/compiler.h
-@@ -40,5 +40,6 @@
- })
+diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+index 3e2a5876c..6160aa8ba 100644
+--- a/drivers/net/virtio_net.c
++++ b/drivers/net/virtio_net.c
+@@ -5896,15 +5896,15 @@ static int virtnet_xsk_pool_enable(struct net_device *dev,
+ 	if (vi->hdr_len > xsk_pool_get_headroom(pool))
+ 		return -EINVAL;
  
- #define __must_check
-+#define __must_be_array(a)	0
++	if (qid >= vi->curr_queue_pairs)
++		return -EINVAL;
++
+ 	/* In big_packets mode, xdp cannot work, so there is no need to
+ 	 * initialize xsk of rq.
+ 	 */
+ 	if (!vi->rq[qid].page_pool)
+ 		return -ENOENT;
  
- #endif
+-	if (qid >= vi->curr_queue_pairs)
+-		return -EINVAL;
+-
+ 	sq = &vi->sq[qid];
+ 	rq = &vi->rq[qid];
+ 
 -- 
-2.34.1
-
-
-No virus found
-		Checked by Hillstone Network AntiVirus
+2.43.0
 
