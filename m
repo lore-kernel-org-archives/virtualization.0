@@ -1,162 +1,103 @@
-Received: from mail-ot1-f49.google.com (mail-ot1-f49.google.com [209.85.210.49])
+Received: from va-2-43.ptr.blmpb.com (va-2-43.ptr.blmpb.com [209.127.231.43])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id F0DC2469823
-	for <virtualization@lists.linux.dev>; Tue,  4 Aug 2026 13:52:59 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.49
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id BAE26423EBA
+	for <virtualization@lists.linux.dev>; Tue,  4 Aug 2026 15:07:22 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.127.231.43
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785851581; cv=none; b=tWFMzSVB8bIjozyV+SfMUV4YAiU3DbA96/sDC5NlTkoOph9JvZi6d6nIDosL9U5cvNnsNyicG/TPx1Xh2DoNDOtVmpLWlWvWbmD4KrQ2NnOWU22BZzikqZkH9XlBsOCiWt1oSf0cLfh4xXGKRpPBbrWim2jPbkrrcjWI4TlLmuQ=
+	t=1785856044; cv=none; b=Y+z5RQdqx/duuRwlx+miJ4twm5LCTdeUs59SniPqc3d27RfG9m88JB10kMkY0Ap63tW+are/EkTiSns5uzVnlfT80LGggH80SLuEM62zxt0Y3DeC5Vcg2m4X+UUvEutlOsS+PE3qRQbqgJA5MEuJv6DqlebKyjiz+AeIRUidSeA=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785851581; c=relaxed/simple;
-	bh=sYuesqJRcMBILfBcDLpqyx4D7Li5OZlu3MjsUJUKCGc=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=dnHF386V0WBC3FPYZaRHdBSS6iaRmH+lzbnnR9xsGWDvGWZHJb33GBdRAIc4pDaLEjnx6VUeOwxg4LvlRzi5CxVJnPEDI/eqjEMe+FwEJ51Nn2Dx1DFJOOD1oWKLj4QmnCIZpt5gG94LtUNHdmjy+QCztrQ03HGZpFUljjq+p1U=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=jXyKc2R1; arc=none smtp.client-ip=209.85.210.49
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1785856044; c=relaxed/simple;
+	bh=3vCX73HTin8OMhCLrL4mg1udeBnAS0Z1tTY+9wzBoW4=;
+	h=To:Subject:Mime-Version:Cc:Date:Content-Type:References:From:
+	 Message-Id:In-Reply-To; b=VOg6+CoHh9cgcE4zUEXm3kuaYEnqI1vQKk0oO406932FuAHrKDwWAFgY5oN9vyi2+NLEnfv+1c1swDYgksnDwO3d8k5Pp4cP468Af1mBVUxhXrS/8TJeuBLvX9u1jJWm1sLhmTxTLqComXTpuRN2ic3lvy++GvPfSZrn43DJc5I=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fygo.io; spf=pass smtp.mailfrom=fygo.io; dkim=pass (2048-bit key) header.d=fygo-io.20200929.dkim.larksuite.com header.i=@fygo-io.20200929.dkim.larksuite.com header.b=hWciGx/n; arc=none smtp.client-ip=209.127.231.43
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=fygo.io
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=fygo.io
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="jXyKc2R1"
-Received: by mail-ot1-f49.google.com with SMTP id 46e09a7af769-7e9ecb1e13cso5137574a34.3
-        for <virtualization@lists.linux.dev>; Tue, 04 Aug 2026 06:52:59 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785851579; x=1786456379; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=drpKu4tj29YfpA+sxDZnVnvfwoyDj4O4bftTxpPVl9M=;
-        b=jXyKc2R1rnUNx5yF8223ooiFrghl9cUmBh4/+QHPKSGMZT9SwFxpqqK/mP0lRxbtPn
-         Qah6TN6YYSVWfLTLTRjeHwl4za/SXqQGigl2WKMZnl8gPtnoGuFT4rqOYXv7PNKRnOwm
-         Fpjhzy8mtZfwunDNSgnYmu72Z25uZygKQKgfr4DCZQ1hSNMrOJtatpllhPw4lr6IlZmC
-         T821Rphhv64DSLoH+hiPHg8mtp5Ft2rq946hTEID2u2DkCkj8iuneo0VLlcWhFDXgFcI
-         oMErdzNspWZRz0ZctgMTtWmL5RrnMpdhj4+XGWlhw8UvjP7a/Mxa6TRqAoZ5PC/Wf6w6
-         oamg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785851579; x=1786456379;
-        h=content-transfer-encoding:content-type:in-reply-to:from
-         :content-language:references:cc:to:subject:user-agent:mime-version
-         :date:message-id:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=drpKu4tj29YfpA+sxDZnVnvfwoyDj4O4bftTxpPVl9M=;
-        b=htvKWo3znUQiYXwiKUd7L3E8EqcS+uMYZyi0aVmkNsFUGERvIx7+9iad2bezcS/t9U
-         6A8EED9ZXI9PPM+uKuRd4KOhCUYjF4xgECz55TgulCYczeHt9U9WXxei2n7xRr5b/0ZB
-         5lQFbcYIJoSQ2uB6uPHXtC1A4KsjS5hj1+AqxT83or4ufhQ7Ay0ZOh7Gxu3BdjDPRY2T
-         C5uEjFLXtwV9C+eZkHdbdYoQWeKPC6Pq+TUTT/ui+lRHKiGbLAIafrEdG7+trSbdBfFH
-         oant1fM+M17weM3bNBJTnA4cCYzWBU0824A/OD1d9sEUEaUzAuLomGfkVgq87E4u4/sR
-         M3zQ==
-X-Forwarded-Encrypted: i=1; AHgh+RoKDhdeFD7nVHUVC1x7S5UDgApBbCrNxrCxdRkfEQyeYFmB597RXtrrwF6FsLDsk6deSb82dF88sYcNxx12fg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yym2Bdapz+0JQViRzjqbsXcSdXLJsBHLxeG9cAYKEe7Cq/SfA82
-	KuG6DesrQcgdN6nt0UR/8xG/Uev/BBYo2jhdOpzxgJVU4/bF64xB6MBh
-X-Gm-Gg: AR+sD11RVYRSjhyWl9OxRjpasWp/37PdlQ3cbss8dJY5KPgV9SQOxfIXzord2cL6BtC
-	TUsELY/3/axy0FS+3pjbq4l8tGXYaySQm2PKS6Fs36qvC1fvk3Isc8Y7hSx4V2mckVu9iCYAbaC
-	s74f9IpZIRY8pZXofm3Zkn2qtP740XGnm+a+oqRbDDJWePeOh6LfHt/sJipuKlHRsbgtZ/W4EE/
-	zSRoEzCPZXVkkeMUrOp1lYNGdyB43dH2K3GmweALfHEpwODABAmk9M7AsTjBgFRkJvfamMPgk9w
-	4wg5UagDw65P+GBSu3CKK6hgCKUDCW6l40b3qq1qY7ESzx24Szh5HxgDmmovoLXD/UBSTYniWfb
-	C8tcPYsektEnI7qF+KV2xk9m4RTWvaDxK1K0cks7DmgMEPKa9XtgnoIvO06jUt+lsIRSDbz/iOr
-	tJpobuv3olAFvHpTpEMSROq7rOFWvk07NXlYR0YRo1t9gyWoh306STYcwFfFZLJJNk/2awmUdCQ
-	FFLXw==
-X-Received: by 2002:a05:6830:6018:b0:7dc:c7aa:22bd with SMTP id 46e09a7af769-7f196bedf8cmr23522764a34.6.1785851578711;
-        Tue, 04 Aug 2026 06:52:58 -0700 (PDT)
-Received: from [10.22.76.20] ([111.223.92.222])
-        by smtp.gmail.com with ESMTPSA id 46e09a7af769-7f1df346a8bsm823526a34.11.2026.08.04.06.52.53
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 04 Aug 2026 06:52:58 -0700 (PDT)
-Message-ID: <1fbf5f0b-e9ed-4241-b986-76e71a1b0c89@gmail.com>
-Date: Tue, 4 Aug 2026 21:52:51 +0800
+	dkim=pass (2048-bit key) header.d=fygo-io.20200929.dkim.larksuite.com header.i=@fygo-io.20200929.dkim.larksuite.com header.b="hWciGx/n"
+DKIM-Signature: v=1; a=rsa-sha256; q=dns/txt; c=relaxed/relaxed;
+ s=s1; d=fygo-io.20200929.dkim.larksuite.com; t=1785856033;
+  h=from:subject:mime-version:from:date:message-id:subject:to:cc:
+ reply-to:content-type:mime-version:in-reply-to:message-id;
+ bh=aTkMnMJBZbmBk8aXgbvQ0jabgPpSOlUfMkXtPY+IHFY=;
+ b=hWciGx/nfSr6Hw5Z64Z2T3Z5ANa+tTAGOmZIvBkd9YhOh9q5nVKiFYBbmu2+8mwtGf7Rpr
+ v6ZKlDEVMbUd6752vqSdIZxr8aGtnx1gp0KOOfPc8CfEMIv3l6xB9LaL1gDEGxnvxtzFd3
+ 2DiI/V4z0yWJYiCRcKLnrhkdkO0/7v42/ljEU3GGL6rMpqB4ztTeOOz9wQXY0lHQuXTiPD
+ 2ZKXLeD7kBDLDrn3KoKExk/wd5Y6haSQlj89wFXxRZTGCJEWmyaL/sZcTiMGqgw+jjbNgo
+ Su7dhb354fuaJvhWkgCzW4p0RJXstOl7HrscXFC91/s8ZMUNAlouz74tYp59Gw==
+Reply-To: yukuai@fygo.io
+To: "Christoph Hellwig" <hch@lst.de>, "Jan Kara" <jack@suse.cz>, 
+	"yu kuai" <yukuai@fygo.io>
+Subject: Re: [RFC PATCH v1 1/3] blk-cgroup: add helpers for bio cgroup state
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
+Mime-Version: 1.0
+Content-Transfer-Encoding: quoted-printable
+Received: from [192.168.1.104] ([39.182.0.181]) by smtp.larksuite.com with ESMTPS; Tue, 04 Aug 2026 15:07:11 +0000
+Cc: "Yu Kuai" <yukuai@kernel.org>, "Jens Axboe" <axboe@kernel.dk>, 
+	"Tejun Heo" <tj@kernel.org>, "Johannes Weiner" <hannes@cmpxchg.org>, 
+	=?utf-8?q?Michal_Koutn=C3=BD?= <mkoutny@suse.com>, 
+	"Jonathan Corbet" <corbet@lwn.net>, "Josef Bacik" <josef@toxicpanda.com>, 
+	"Coly Li" <colyli@fygo.io>, 
+	"Kent Overstreet" <kent.overstreet@linux.dev>, 
+	"Alasdair Kergon" <agk@redhat.com>, "Mike Snitzer" <snitzer@kernel.org>, 
+	"Mikulas Patocka" <mpatocka@redhat.com>, 
+	"Benjamin Marzinski" <bmarzins@redhat.com>, "Song Liu" <song@kernel.org>, 
+	"Dan Williams" <djbw@kernel.org>, 
+	"Vishal Verma" <vishal.l.verma@intel.com>, 
+	"Dave Jiang" <dave.jiang@intel.com>, 
+	"Alison Schofield" <alison.schofield@intel.com>, 
+	"Pankaj Gupta" <pankaj.gupta.linux@gmail.com>, 
+	"Andreas Gruenbacher" <agruenba@redhat.com>, 
+	"Matthew Wilcox" <willy@infradead.org>, 
+	"Andrew Morton" <akpm@linux-foundation.org>, 
+	"Chris Li" <chrisl@kernel.org>, "Kairui Song" <kasong@tencent.com>, 
+	"Nilay Shroff" <nilay@linux.ibm.com>, "Tao Cui" <cui.tao@linux.dev>, 
+	<cgroups@vger.kernel.org>, <linux-doc@vger.kernel.org>, 
+	<linux-kernel@vger.kernel.org>, <linux-block@vger.kernel.org>, 
+	<linux-bcache@vger.kernel.org>, <dm-devel@lists.linux.dev>, 
+	<linux-raid@vger.kernel.org>, <nvdimm@lists.linux.dev>, 
+	<virtualization@lists.linux.dev>, <gfs2@lists.linux.dev>, 
+	<linux-fsdevel@vger.kernel.org>, <linux-mm@kvack.org>
+Date: Tue, 4 Aug 2026 23:07:03 +0800
+Content-Type: text/plain; charset=UTF-8
+X-Lms-Return-Path: <lba+26a720020+e59529+lists.linux.dev+yukuai@fygo.io>
+References: <20260804065313.2092022-1-yukuai@kernel.org> <20260804065313.2092022-2-yukuai@kernel.org> <prx5s4rwbgoeh7wtgyo7vwydh5iwqn6qc2utamowirsplspfmp@e3eteq5xwuyf> <20260804132527.GA8078@lst.de>
+From: "yu kuai" <yukuai@fygo.io>
+Message-Id: <a780016f-8f94-4337-b700-786f5487ca3f@fygo.io>
 User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH v3] vsock: use sock_error() to consume sk_err after a
- failed connect
-To: Stefano Garzarella <sgarzare@redhat.com>, Paolo Abeni
- <pabeni@redhat.com>, Michal Luczaj <mhal@rbox.co>
-Cc: "David S. Miller" <davem@davemloft.net>,
- Eric Dumazet <edumazet@google.com>, Jakub Kicinski <kuba@kernel.org>,
- Simon Horman <horms@kernel.org>, Andy King <acking@vmware.com>,
- George Zhang <georgezhang@vmware.com>, Dmitry Torokhov <dtor@vmware.com>,
- syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com,
- Wupeng Ma <mawupeng1@huawei.com>, virtualization@lists.linux.dev,
- netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20260730081843.287563-1-phind.uet@gmail.com>
- <6a2958d9-5d16-404a-ac02-21940e90162d@redhat.com>
- <anGyP3hBQfO0I1Pe@sgarzare-redhat>
-Content-Language: en-GB
-From: "Nguyen Dinh Phi [SG]" <phind.uet@gmail.com>
-In-Reply-To: <anGyP3hBQfO0I1Pe@sgarzare-redhat>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 8bit
+In-Reply-To: <20260804132527.GA8078@lst.de>
+X-Original-From: yu kuai <yukuai@fygo.io>
 
-On 4/8/26 17:37, Stefano Garzarella wrote:
-> On Tue, Aug 04, 2026 at 11:26:57AM +0200, Paolo Abeni wrote:
->>
->>
->> On 7/30/26 10:18 AM, phind.uet@gmail.com wrote:
->>> From: Nguyen Dinh Phi <phind.uet@gmail.com>
->>>
->>> Syzbot report an issue which can be reproduced with these steps:
->>>
->>>    r0 = socket(AF_VSOCK, SOCK_STREAM, 0)
->>>    bind(r0, {VMADDR_CID_ANY, PORT})
->>>    connect(r0, {VMADDR_CID_LOCAL, PORT})   -> -1, EPROTO  (self-connect)
->>>    listen(r0, backlog)                     -> 0
->>>    r1 = socket(AF_VSOCK, SOCK_STREAM, 0)
->>>    connect(r1, {VMADDR_CID_LOCAL, PORT})   -> 0
->>>    accept(r0)                              -> -1, EPROTO  (stale sk_err)
->>>
->>> Basically, it creates a socket (r0) and triggers a self-connect after
->>> binding it. This self-connect fails with EPROTO because it loops back to
->>> r0 while the socket is still in the TCP_SYN_SENT state, causing it to be
->>> incorrectly dispatched to the connecting-client path. The unexpected
->>> packet type encountered there sets sk_err to EPROTO.
->>>
->>> After that, it invokes a listen() call on the same socket. This listen()
->>> call succeeds because the kernel's listening path never inspects or
->>> clears sk_err. Then, a new socket (r1) is created as a normal client and
->>> connects to r0. However, vsock_accept() rejects this incoming connection
->>> because the listener's sk_err still holds the EPROTO error from the
->>> earlier failed self-connect.
->>>
->>> This rejection causes the child socket created for r1's connection to
->>> never be freed on virtio or hyperv transports; only the VMCI transport
->>> implements pending_work to revisit and clean up a rejected socket
->>>
->>> Fix the issue by using sock_error() to read the sk_err to prevent the
->>> rejection branch from occurring  in this scenario.
->>>
->>> sock_error() atomically reads and clears sk_err, ensuring the error is
->>> consumed when vsock_connect() returns and cannot affect subsequent
->>> operations on the same socket. This matches the established pattern
->>> used by other protocol connect() implementations in the network
->>> stack like __inet_stream_connect(), tipc_wait_for_connect()...
->>>
->>> Reported-by: syzbot+1b2c9c4a0f8708082678@syzkaller.appspotmail.com
->>> Closes: https://syzkaller.appspot.com/bug?extid=1b2c9c4a0f8708082678
->>> Fixes: d021c344051af ("VSOCK: Introduce VM Sockets")
->>> Signed-off-by: Nguyen Dinh Phi <phind.uet@gmail.com>
->>> Tested-by: Wupeng Ma <mawupeng1@huawei.com>
->> Sashiko nipa points out that the race still exits:
->>
->> https://netdev-ai.bots.linux.dev/sashiko/#/ 
->> patchset/20260730081843.287563-1-phind.uet%40gmail.com
-> 
-> Yeah, it seems the same conclusion we reached with Michal on v1 and Phi 
-> agreed on: https://lore.kernel.org/netdev/148e56ec-dc26-4be2-a7af- 
-> eb547b517a68@gmail.com/
-> 
-> Not sure why sk_err check was not removed in vsock_accept.
-> 
-> Phi can you check?
-> 
-> Thanks,
-> Stefano
-> 
+Hi,
 
-Sorry, I made a mistake when sending email.
-I've just sent a new version.
+=E5=9C=A8 2026/8/4 21:25, Christoph Hellwig =E5=86=99=E9=81=93:
+> On Tue, Aug 04, 2026 at 12:52:16PM +0200, Jan Kara wrote:
+>> Mostly looks good. Just I think bio_blkcg() should gracefully handle the
+>> case where bio->bi_blkg is NULL (and return NULL in that case). That way
+>> you can also get rid of somewhat odd pattern:
+>>
+>> 	if (!bio_blkg(bio))
+>> 		return ...;
+>> 	do something with bio_blkcg(bio)
+>>
+>> You can then just check bio_blkcg(bio) directly which is much more obvio=
+us.
+> Yes.  Looking at the whole series I'm also not sure that this makes too
+> much sense as a split out patch as the next one touches more than half
+> of the callsite anyway.
 
+Yes, this make sense, I'm trying not to cook a huge patch, but patch 2 is g=
+row
+much bigger than I was expected. Unless I figure out a nicer way to split p=
+atch 2,
+I'll merge them in the next version.
+
+>
+--=20
 Thanks,
-Phi.
+Kuai
