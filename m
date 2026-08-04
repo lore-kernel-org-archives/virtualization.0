@@ -1,40 +1,81 @@
-Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f48.google.com (mail-pj1-f48.google.com [209.85.216.48])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8F8CC1EB1AA;
-	Tue,  4 Aug 2026 01:57:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 274C940B114
+	for <virtualization@lists.linux.dev>; Tue,  4 Aug 2026 02:56:27 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.48
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785808649; cv=none; b=kA0azoa53zySq2YbDmvnvkWHyrujvH8ckpsDsfoCsLfZoUhOTUHkn5bFVbDFWVtutv1sHBbtpo7jl0G0rqerQ9YnF++mKiaH7/mx+bkhHlCwPBPpBs0eaI+6B7DowFwL5hw7nIPDO6mcja4DUhR+T7enWKIzidnJBCNesgSFCQw=
+	t=1785812190; cv=none; b=lGpsfPylzrbRPQOUucAmFWl2jdFsU4aKoloGcGZtbjEB5nMn19LYIrmOBKMkAv5vWMvPOP1z6RSzp2BNWAex+k9CAQcNEmaEna3yxOHtW7SGJru2GVLzJXYADDMHDpS7MCTcHACWi2V2TiEIMtYzG+fzFiBoZNJur/wpVbOevhU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785808649; c=relaxed/simple;
-	bh=8hfMPzXFg5icu3N7ulbKrmS664rccDHH789UrdEieDo=;
-	h=From:To:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version; b=jExNcP3znlyTEDuTjSsS4yexMuqliY83z+5JLw0z5BU/3tJHxrQ0nKMLZ1uCjWWODXylNE04VLEbm2ZjPUf+D8J98v7uHhO8ZVGS+QL2u5dUY8y9rLCVCfgWnjg7Msqk4oeWfO9h6POF2DIJ5eMuPdTpMurzVlDAi1LW91vE8aE=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; arc=none smtp.client-ip=129.217.128.51
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
-Received: from simon-Latitude-5450.. (tmo-075-57.customers.d1-online.com [80.187.75.57])
-	(authenticated bits=0)
-	by unimail.uni-dortmund.de (8.19.0.2/8.19.0.2) with ESMTPSA id 673IarsC011387
-	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
-	Mon, 3 Aug 2026 20:36:59 +0200 (CEST)
-From: Simon Schippers <simon.schippers@tu-dortmund.de>
-To: willemdebruijn.kernel@gmail.com, jasowangio@gmail.com, jasowang@redhat.com,
-        andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
-        kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, mst@redhat.com,
-        eperezma@redhat.com, leiyang@redhat.com, stephen@networkplumber.org,
-        jon@nutanix.com, brett@librecast.net, corbet@lwn.net,
-        skhan@linuxfoundation.org, tim.gebauer@tu-dortmund.de,
-        simon.schippers@tu-dortmund.de, netdev@vger.kernel.org,
-        linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org,
-        kvm@vger.kernel.org, virtualization@lists.linux.dev
-Subject: [PATCH net-next v14 3/5] vhost-net: wake queue of tun/tap after ptr_ring consume
-Date: Mon,  3 Aug 2026 20:36:39 +0200
-Message-ID: <20260803183641.96882-4-simon.schippers@tu-dortmund.de>
-X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260803183641.96882-1-simon.schippers@tu-dortmund.de>
-References: <20260803183641.96882-1-simon.schippers@tu-dortmund.de>
+	s=arc-20240116; t=1785812190; c=relaxed/simple;
+	bh=zqrmGtNYwoSSlb1WHgT3h/cWLH0pWZUE4OokQlWtRek=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=jlWh3/n93+lAvYnk2wn6xReYg4gerIO1rqJkDnnPsYeccbmtMYgOr3kFH7U5I8KbzZTCARGYZ63RQDlau3pVvw8oEGGA+JF2CpAwuX1kTYpQqHdqj1amn6lgoH9W8w41Tdy8OaEl7WMSNHXGeID3BLk8iGNNKR2mb0+VHEMnBAE=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=AICGUODt; arc=none smtp.client-ip=209.85.216.48
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="AICGUODt"
+Received: by mail-pj1-f48.google.com with SMTP id 98e67ed59e1d1-383b4a3755fso3878552a91.3
+        for <virtualization@lists.linux.dev>; Mon, 03 Aug 2026 19:56:27 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1785812187; x=1786416987; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=z1yxnvuZRVlxtf+BJKMZxwYjNsgm5M4Tjb/ynOLuWlk=;
+        b=AICGUODtG0Z7uU3hdTleohTQkhg+EA3hvyyp9XpjmIcS2kO1MPNQNO82wsllIvsAg1
+         d9sGQ6PzmB6Y+JNwZ8NOpS/vGZfX2cuRq7/snVMbT2L2c/CGorgjAi2Qy3yxsXaSIjIh
+         EzozL2Af0yU2G0W1B9R3tib1MGJPE3lw1bhn/q0FUrlnT3cfmf/Aw6jOsICIRIjOQrKl
+         7D2ti4MbKGSCytG1g4Bc99BD7EspYmmvEZSF/uN09/aPiKrFpAQdTqZmYhLRvnqB1OKI
+         bFeVjYgWRCvWHoV8QDo+1jSu+2Vrmw+SKrf8iJYYSiyZAd0rvqY28I2NLPNuTtVq5J9u
+         RGJw==
+X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=1e100.net; s=20251104; t=1785812187; x=1786416987;
+        h=content-transfer-encoding:mime-version:references:in-reply-to
+         :message-id:date:subject:cc:to:from:x-gm-gg:x-gm-message-state:from
+         :to:cc:subject:date:message-id:reply-to:content-type;
+        bh=z1yxnvuZRVlxtf+BJKMZxwYjNsgm5M4Tjb/ynOLuWlk=;
+        b=XMARPDWWo4FA4LUGfYvWHrkcDBhoOqVSLxPWrv9920xhRQZsRqOTURmNBtLEC6Sj3b
+         U8rvA9mXWkxtpGDuSjvdchVNU1wc8dUSi8aKSziWeePWaIVinLROEQZBilMMwRmk9WfE
+         u59gJZhS+0buV+hNoUteIuvojFCjStUncdjA5FyQDa7AMkQyIJzfY0fRiVYuR05ffAT0
+         13MY+1GMZqjY+ogIqKicYrsaxGlovN5YHNG9tLH9kQkSG4NPk1cY5VHOExv0uDdrMr7l
+         hBi7XypZB0NKPh9HpPdBnmRIm4k89oGzSnPIbs5OIx6JA/k96YRXeofrnKbFtN74sJ3w
+         U1xQ==
+X-Forwarded-Encrypted: i=1; AHgh+Rov4q1+RML8DoJHjATJz4OxbmEW97gpX2YnkOxnCH8yqTbfBIlZ5RyIAVZsFbb+xPj23zGqIKaw3zidFiR4uw==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwtSY5jq0jcw3uxgm5sBYDCxPvKb473sZEdp32EmWVwuXeJk/C3
+	GYXaQG4/EKyX9dyrgRheA1460KhOMcuLkNIrpyFNXtQj7odbf0KGEFcJ
+X-Gm-Gg: AR+sD13uDmqitpbPMxDJb+cl+ZZLdxDK/TM3sE3qnbJea6i+R2qvcjMdxYVGqBTukjt
+	stxSty4C4iwDNcTvpIVIl15+o4RLo3Kb+G8pcM+gqUYjqWBIqqMex3Wa0qRa+HXSbc3LUv2hP9I
+	0R1mnSOpRUS+Z+jDPxO5tjVQwEQ9EXGq5+h6l0TvNSR0UwiwV/ivOTGtEcrZITR/Rhg7byrcB2/
+	j2bC7P5j+SZkgcb/nro14W3BJ9X/FacJvXpCBknDrwkn5si2J3oJilxd7/ZEVh5IXxEwXTcZAg8
+	e0EFJWN/qd/fImubM3LuRqbuSf3C1Lu1eEMR3Jj3hZWzfmXABKuynijklTVDf/TQX/N/B3RfMkL
+	o7vieDnaWgn7FdA1FAhsBuQj4NFkVbQ6acEEpyZ1r2pcHgWcJLtkohu9wFjnB882iDFhzMDYI/r
+	SNOYr6m1mDIdMrUpxhzTHRPABIV5GRaAUBtsLL6wFnT8kFK/7S+0YSLosi3ibt65S+gs6Nej8vb
+	KtvURWY1hzgB/gng2rKOsEbEa0=
+X-Received: by 2002:a17:90b:590c:b0:387:e0db:3fb1 with SMTP id 98e67ed59e1d1-38fbc59b1aamr11609901a91.42.1785812187080;
+        Mon, 03 Aug 2026 19:56:27 -0700 (PDT)
+Received: from JUNVYYANG-MC1.tencent.com ([43.132.141.25])
+        by smtp.gmail.com with ESMTPSA id d9443c01a7336-2d04ae19ef2sm45373175ad.4.2026.08.03.19.56.24
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Mon, 03 Aug 2026 19:56:26 -0700 (PDT)
+From: Jun Yang <juny24602@gmail.com>
+To: netdev@vger.kernel.org
+Cc: Jun Yang <junvyyang@tencent.com>,
+	stable@kernel.org,
+	TencentOS Corvus AI <corvus@tencent.com>,
+	"Michael S. Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowangio@gmail.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
+	kvm@vger.kernel.org,
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: [PATCH v2] vhost: reset the vring metadata cache on vring reconfiguration
+Date: Tue,  4 Aug 2026 10:55:29 +0800
+Message-ID: <20260804025621.16580-1-juny24602@gmail.com>
+X-Mailer: git-send-email 2.50.1
+In-Reply-To: <20260803014823.68623-1-juny24602@gmail.com>
+References: <20260803014823.68623-1-juny24602@gmail.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -43,156 +84,70 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-Add tun_wake_queue() to tun.c and export it for use by vhost-net. The
-function validates that the file belongs to a device implemented by
-drivers/net/tun.c, in IFF_TUN as well as in IFF_TAP mode, and that the
-tfile exists, dereferences the tun_struct under RCU, and delegates to
-__tun_wake_queue().
+From: Jun Yang <junvyyang@tencent.com>
 
-vhost_net_buf_produce() now calls tun_wake_queue() after a successful
-batched consume of the ring to allow the netdev subqueue to be woken up.
-The point is to allow the queue to be stopped when it gets full, which is
-required for traffic shaping, implemented by the following
-"stop tail-drop when IFF_BACKPRESSURE is set".
-As __tun_wake_queue() returns early unless IFF_BACKPRESSURE is set, a
-tun/tap device that does not opt in only pays for the added check.
+vq->meta_iotlb[] caches the vhost_iotlb_map that backs each vring
+metadata region, and iotlb_access_ok() returns early on a cache hit,
+taking the hit as proof that the region has already been validated:
 
-macvtap and ipvtap rings, which get_tap_ptr_ring() accepts too, are
-unaffected: their producer is the tap_handle_frame() rx_handler and not
-ndo_start_xmit, so stopping a netdev TX queue would not hold it back.
-drivers/net/tap.c has no netdev_ops of its own either. No
-tap_wake_queue() is needed.
+	if (vhost_vq_meta_fetch(vq, addr, len, type))
+		return true;
 
-cons_cnt and the wake decision are best-effort and are not reverted by
-ptr_ring_unconsume(), so vhost_net_buf_unproduce() can leave the subqueue
-woken over a full ring. The producer re-stops it on the next packet, and
-that path only runs from vhost_net_stop_vq() and vhost_net_set_backend(),
-when the consumer is going away, so a stopped queue is the correct end
-state rather than a stall.
+The cache is reset on VHOST_IOTLB_UPDATE and VHOST_IOTLB_INVALIDATE, on
+device IOTLB (re)initialisation and on vq reset, but not when
+VHOST_SET_VRING_ADDR replaces vq->desc, vq->avail and vq->used, nor when
+VHOST_SET_VRING_NUM changes the region sizes.
 
-Co-developed-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
-Signed-off-by: Tim Gebauer <tim.gebauer@tu-dortmund.de>
-Signed-off-by: Simon Schippers <simon.schippers@tu-dortmund.de>
+With a device IOTLB attached both ioctls are accepted while the vq is
+live, and neither validates the addresses at ioctl time: vq_access_ok()
+and vq_log_used_access_ok() return true early because the addresses are
+GIOVAs, deferring validation to prefetch time.  Once the cache has been
+populated that deferred validation no longer runs -- vq_meta_prefetch()
+hits the stale entry and returns true -- and vhost_vq_meta_fetch() keeps
+translating through the old mapping as
+
+	map->addr + addr - map->start
+
+for an address the mapping no longer covers.  vhost_copy_to_user() and
+vhost_copy_from_user() consume the result with __copy_to_user() and
+__copy_from_user(), which do not check it either, so a subsequent used
+ring update or descriptor fetch accesses memory outside the region the
+IOTLB actually maps.
+
+Reset the metadata cache whenever the vring is reconfigured, so the new
+addresses are pushed back through iotlb_access_ok()'s slow path.
+
+Fixes: f88949138058 ("vhost: introduce O(1) vq metadata cache")
+Cc: stable@kernel.org
+Reported-by: TencentOS Corvus AI <corvus@tencent.com>
+Assisted-by: tencentos-corvus-ai:kimi-k3
+Signed-off-by: Jun Yang <junvyyang@tencent.com>
+Acked-by: Michael S. Tsirkin <mst@redhat.com>
 ---
- drivers/net/tun.c      | 25 +++++++++++++++++++++++++
- drivers/vhost/net.c    | 21 +++++++++++++++------
- include/linux/if_tun.h |  4 ++++
- 3 files changed, 44 insertions(+), 6 deletions(-)
+v2: add Assisted-by and Acked-by tags
 
-diff --git a/drivers/net/tun.c b/drivers/net/tun.c
-index d49b6bfd104d..dc32566588d1 100644
---- a/drivers/net/tun.c
-+++ b/drivers/net/tun.c
-@@ -3848,6 +3848,31 @@ struct ptr_ring *tun_get_tx_ring(struct file *file)
- }
- EXPORT_SYMBOL_GPL(tun_get_tx_ring);
+ drivers/vhost/vhost.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+index 4c525b3e16ea..77c96993100b 100644
+--- a/drivers/vhost/vhost.c
++++ b/drivers/vhost/vhost.c
+@@ -2126,6 +2126,14 @@ static long vhost_vring_set_num_addr(struct vhost_dev *d,
+ 		BUG();
+ 	}
  
-+/* Callers must hold ring.consumer_lock */
-+void tun_wake_queue(struct file *file, int consumed)
-+{
-+	struct tun_file *tfile;
-+	struct tun_struct *tun;
++	/*
++	 * The metadata cache holds the IOTLB mapping that backed the previous
++	 * desc/avail/used addresses and vring size, both of which are being
++	 * replaced here.  iotlb_access_ok() takes a cache hit as proof that the
++	 * region was validated, so the stale entries have to go.
++	 */
++	__vhost_vq_meta_reset(vq);
 +
-+	if (file->f_op != &tun_fops)
-+		return;
-+
-+	tfile = file->private_data;
-+	if (!tfile)
-+		return;
-+
-+	lockdep_assert_held(&tfile->tx_ring.consumer_lock);
-+
-+	rcu_read_lock();
-+
-+	tun = rcu_dereference(tfile->tun);
-+	if (tun)
-+		__tun_wake_queue(tun, tfile, consumed);
-+
-+	rcu_read_unlock();
-+}
-+EXPORT_SYMBOL_GPL(tun_wake_queue);
-+
- module_init(tun_init);
- module_exit(tun_cleanup);
- MODULE_DESCRIPTION(DRV_DESCRIPTION);
-diff --git a/drivers/vhost/net.c b/drivers/vhost/net.c
-index 6949b704166d..3e72b9c6af0c 100644
---- a/drivers/vhost/net.c
-+++ b/drivers/vhost/net.c
-@@ -176,13 +176,21 @@ static void *vhost_net_buf_consume(struct vhost_net_buf *rxq)
- 	return ret;
- }
+ 	mutex_unlock(&vq->mutex);
  
--static int vhost_net_buf_produce(struct vhost_net_virtqueue *nvq)
-+static int vhost_net_buf_produce(struct sock *sk,
-+				 struct vhost_net_virtqueue *nvq)
- {
-+	struct file *file = sk->sk_socket->file;
- 	struct vhost_net_buf *rxq = &nvq->rxq;
- 
- 	rxq->head = 0;
--	rxq->tail = ptr_ring_consume_batched(nvq->rx_ring, rxq->queue,
--					      VHOST_NET_BATCH);
-+	spin_lock(&nvq->rx_ring->consumer_lock);
-+	rxq->tail = __ptr_ring_consume_batched(nvq->rx_ring, rxq->queue,
-+					       VHOST_NET_BATCH);
-+
-+	if (rxq->tail)
-+		tun_wake_queue(file, rxq->tail);
-+
-+	spin_unlock(&nvq->rx_ring->consumer_lock);
- 	return rxq->tail;
- }
- 
-@@ -209,14 +217,15 @@ static int vhost_net_buf_peek_len(void *ptr)
- 	return __skb_array_len_with_tag(ptr);
- }
- 
--static int vhost_net_buf_peek(struct vhost_net_virtqueue *nvq)
-+static int vhost_net_buf_peek(struct sock *sk,
-+			      struct vhost_net_virtqueue *nvq)
- {
- 	struct vhost_net_buf *rxq = &nvq->rxq;
- 
- 	if (!vhost_net_buf_is_empty(rxq))
- 		goto out;
- 
--	if (!vhost_net_buf_produce(nvq))
-+	if (!vhost_net_buf_produce(sk, nvq))
- 		return 0;
- 
- out:
-@@ -1004,7 +1013,7 @@ static int peek_head_len(struct vhost_net_virtqueue *rvq, struct sock *sk)
- 	unsigned long flags;
- 
- 	if (rvq->rx_ring)
--		return vhost_net_buf_peek(rvq);
-+		return vhost_net_buf_peek(sk, rvq);
- 
- 	spin_lock_irqsave(&sk->sk_receive_queue.lock, flags);
- 	head = skb_peek(&sk->sk_receive_queue);
-diff --git a/include/linux/if_tun.h b/include/linux/if_tun.h
-index 80166eb62f41..eeb9ed3c5a23 100644
---- a/include/linux/if_tun.h
-+++ b/include/linux/if_tun.h
-@@ -22,6 +22,8 @@ struct tun_msg_ctl {
- #if defined(CONFIG_TUN) || defined(CONFIG_TUN_MODULE)
- struct socket *tun_get_socket(struct file *);
- struct ptr_ring *tun_get_tx_ring(struct file *file);
-+/* Callers must hold the consumer_lock of the ring of file */
-+void tun_wake_queue(struct file *file, int consumed);
- 
- static inline bool tun_is_xdp_frame(void *ptr)
- {
-@@ -55,6 +57,8 @@ static inline struct ptr_ring *tun_get_tx_ring(struct file *f)
- 	return ERR_PTR(-EINVAL);
- }
- 
-+static inline void tun_wake_queue(struct file *f, int consumed) {}
-+
- static inline bool tun_is_xdp_frame(void *ptr)
- {
- 	return false;
+ 	return r;
 -- 
-2.43.0
+2.50.1 (Apple Git-155)
 
