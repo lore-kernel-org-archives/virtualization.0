@@ -1,345 +1,96 @@
-Received: from mail-wm1-f45.google.com (mail-wm1-f45.google.com [209.85.128.45])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from m16.mail.163.com (m16.mail.163.com [220.197.31.5])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2598A427F8E
-	for <virtualization@lists.linux.dev>; Tue,  4 Aug 2026 07:57:27 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.128.45
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 88E5D3B2FFE
+	for <virtualization@lists.linux.dev>; Tue,  4 Aug 2026 08:01:35 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=220.197.31.5
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785830249; cv=none; b=KrdoWjmbwzYd1ukSfAVuD+EN280MS9ZdybxJI5Vvu38QS/3gBYh3Gc/aQ4yKP8o2WHWmecS8KRde0kkk7bIFOZKHYOWkStarJUto1rC4EAqYURgJPN9LMq4zvwTbBAh08PMWaEc+6vkFjbx5tDtWUExfNWeg80xoqrHYjtinglo=
+	t=1785830499; cv=none; b=sCc/4mxlfdsef2mCJmG/l65ca1ogECXEM2uZpGTmIMIUrCCodUJZJUN7+nN27VYWfYbbymopKXJnCdRf2WPIHEKX/QANfEaL4lsw2rPjry+b89F9uM04wMRUbzUn1YssKzWJrCZ5i9azSEIxNoYy7JC32l7OrgpnS4dxdIP7GR8=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785830249; c=relaxed/simple;
-	bh=qVb1MOqU1bZoDcbi0BZfBIW2AUDTbUQ2MWUzyPm0KVs=;
-	h=Message-ID:Date:MIME-Version:Subject:To:Cc:References:From:
-	 In-Reply-To:Content-Type; b=csTeZK4MohhjgNNgaikDCIn+jZh5AnTWu8ITwWNKiPPAgWRGiZujODTS7J77iu4RbJqyWcbgCCoYmdXBVD9k3hXhYIQCajArhQRT1lmBTgoYHNszWW7zCHfexK+1OjOI0ShJOu45Z+ZwniVJO3v5j18Pxxdq2wfDAbj6vJ8oHu4=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=H21J3IaR; arc=none smtp.client-ip=209.85.128.45
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
+	s=arc-20240116; t=1785830499; c=relaxed/simple;
+	bh=4ltpcuRttf9/xr0mubqBbCQuLlPMdkVNmsXuyfenKso=;
+	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
+	 MIME-Version; b=kUYbwN4CxFH/b2RghdTlbegzrbDBRbB9ie2htKRCGB9LuEHDVWCDuNO6Ajl1tzfRMRsbZlZNZAfPv5zu5L2NBE41U8Vl78CnaAG4sn+Zvu7IPoTyh6h/XoBJu38uDFb+2/ZI7G+kfeAWgSga0Dz0WXqlQ8ylNdYhISQ2MXvrLcg=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com; spf=pass smtp.mailfrom=163.com; dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b=G+XTHHrx; arc=none smtp.client-ip=220.197.31.5
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=163.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=163.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="H21J3IaR"
-Received: by mail-wm1-f45.google.com with SMTP id 5b1f17b1804b1-49558ce01afso22743255e9.1
-        for <virtualization@lists.linux.dev>; Tue, 04 Aug 2026 00:57:27 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=suse.com; s=google; t=1785830246; x=1786435046; darn=lists.linux.dev;
-        h=content-type:in-reply-to:autocrypt:from:content-language:references
-         :cc:to:subject:user-agent:mime-version:date:message-id:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=qVb1MOqU1bZoDcbi0BZfBIW2AUDTbUQ2MWUzyPm0KVs=;
-        b=H21J3IaRG+waYliuQFDGRIkyeSdhwY5NO0ydUiHAKRW813chQan+g9owiUN2RI8Yyc
-         HvJCtyu71wwJHnYi0kYDXZJi1nNjDfeCUFur5DmOqnbKJMC7kqAIUdetcjKzdYm3t7Wj
-         qTXgHPEvWvh3cUXPxKU5xWtj9RZjUp3CwoWDRTPMVe1oqt6b2kpVtz7EbEOsTVXLjqk6
-         O8Ch/4KXCcbDHiOuiR72GDI+zhUbF1MLOyYjhpl54NUJe7dqBktyV0uKQIBqgs8UlrH+
-         NAMeMdqAmYlMWV0dSzrcY9KiPWapE/mD1km51JOHdqZM4q+kIcGzhn2l4UU9BTMAZJwv
-         bUVQ==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785830246; x=1786435046;
-        h=content-type:in-reply-to:autocrypt:from:content-language:references
-         :cc:to:subject:user-agent:mime-version:date:message-id:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=qVb1MOqU1bZoDcbi0BZfBIW2AUDTbUQ2MWUzyPm0KVs=;
-        b=KYvm0c+91EGcmcCfXdbdFKepe1QI2FrMOo2L1/mWvwol72Zww7ovLGTYcCf2TGfPWN
-         ulqshOCFgXD5kXNpvc+MiEM+BwIPxshK63NmYAgPNRSYHmiOie4Kaz/imwqVndwa3mIB
-         W3CfX0JPoJnHZ0moTCZC2fxqzmSVyf4iM5IxQOOo9JOqW6OLYnNpvx2TG64yMhMCWnYE
-         RSoPO/y4KP+OalvEbuDim7tNOlP1cbUuYct6zqdHCjNKRCCg8y4wk978ABncmopA9du0
-         t4JYhE+Gay6WVKBB+iHiF/q+BQDrnyBNEJ+Baov0W/zAY4NHPE0SiGAhYZq3YtIPqw70
-         1VoQ==
-X-Forwarded-Encrypted: i=1; AHgh+RqbTn/qcH9Ex2+CVbnslLp4RSyviSpjP+cTQoerJVjycxEnYg//d8J7cACQTpd8L03NrX/3p0igJcE/n5d8lA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyULr6OvAvQwNnvw09EYG0w0wH5k2Rd82nGUrs0y6pPZC6Ojt8x
-	IDxuZwxOJ7M6zaNMq19/u3asld/xv8TurcYTqPNPhFCcBLvWvZrf9/y+wIoar9El0Gw=
-X-Gm-Gg: AR+sD11uUBk2LpfEId7qMaGw/l8FPesF0Nyozp9PpPu+58WRKnpLP1uZKahEb28LH7Y
-	kgibNi1Jm/O2XVDWsdee/LJGGHNTFdG25RSTet893jSwjIO7QqEv0wrScUbyEdZS4SCxl56uiyH
-	vLCHQR/vezLDGS4nOxVbkivJUJ//geeyuXNcjcA0VytAIsSv6XQSTh5wpvTp6f5aIit6O16O32P
-	8yTxYTg+l6D0e8KqUwxB5qtNDSWbznxoOmAQDvviAdqJAgqfuE/VSgY76ZQivR/I4u4rlm1FL9M
-	XCJA/aQ0MdLfKA97La0gn+zBTCXl2/HtctwkdteByfpYz5Om9pEkLcFOItdIsjRY9qrfA1sdS4r
-	dgAEwRAUrDikGipvuY8BF5vZe00KFjQdfZPD5NLrKlXr6ZYoXjOr1oqB7jz9GOUoUJSEQUJJT8n
-	JaVEiptPU1Es9QvBQI92LzvZPbYE9tOhuYEndWuaQ0roao6vkbJ3VA9C4WOXfYfS8XJVqll+nrE
-	3ZfqcKuU7ersqFG+DlCDi61erbUCPNT40mdbUTelHuEpBZEqhnyz0ou2RjSv/SHm0LQQaV3lMMX
-	CXiTEuggx9kRRm4=
-X-Received: by 2002:a05:600c:8b54:b0:495:4859:8f9b with SMTP id 5b1f17b1804b1-4980c674f25mr345983915e9.9.1785830245215;
-        Tue, 04 Aug 2026 00:57:25 -0700 (PDT)
-Received: from ?IPV6:2a00:12d0:af5d:ad01:5d3f:14e6:9bcb:5112? (2a00-12d0-af5d-ad01-5d3f-14e6-9bcb-5112.ip.tng.de. [2a00:12d0:af5d:ad01:5d3f:14e6:9bcb:5112])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4994a0f7b86sm64048765e9.10.2026.08.04.00.57.23
-        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
-        Tue, 04 Aug 2026 00:57:24 -0700 (PDT)
-Message-ID: <627c59ee-54b1-4f37-b849-c331a9d01618@suse.com>
-Date: Tue, 4 Aug 2026 09:57:23 +0200
+	dkim=pass (1024-bit key) header.d=163.com header.i=@163.com header.b="G+XTHHrx"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=163.com;
+	s=s110527; h=From:To:Subject:Date:Message-Id:MIME-Version; bh=iL
+	VaxcPkj4skGi7uPuGNvRNq5L8a7XcBkn06NEpQJNI=; b=G+XTHHrxtWE97Koiyz
+	wJyEWxZmnXm971yJcSzJuLXUiE9vKpXmeVKlwzU9gdiA4lH8iwqveCHpQmWWOAAV
+	sj35x1BVpq6r2PAbdsMwSSxgtAvIbSbG34/dmdIRuSf+fxn97EBwL5SfvDO0ilU5
+	S98hFbDXoOyqNUIPmYmnXFLCU=
+Received: from localhost.localdomain (unknown [])
+	by gzsmtp3 (Coremail) with SMTP id PigvCgA3+bZVnHFqQsQvLQ--.12248S3;
+	Tue, 04 Aug 2026 16:01:28 +0800 (CST)
+From: "rom.wang" <r4o5m6e8o@163.com>
+To: virtualization@lists.linux.dev
+Cc: eperezma@redhat.com,
+	mst@redhat.com,
+	jasowang@redhat.com,
+	pabeni@redhat.com,
+	kvm@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Yufeng Wang <wangyufeng@kylinos.cn>
+Subject: [PATCH 1/3] tools/virtio: add device-id compat header for virtio
+Date: Tue,  4 Aug 2026 16:01:23 +0800
+Message-Id: <20260804080125.79403-2-r4o5m6e8o@163.com>
+X-Mailer: git-send-email 2.34.1
+In-Reply-To: <20260804080125.79403-1-r4o5m6e8o@163.com>
+References: <CAJaqyWfP7j5_PvOP0JiHuAQ8appGnoJDS3OB-qK7riBpZ_d_tQ@mail.gmail.com>
+ <20260804080125.79403-1-r4o5m6e8o@163.com>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-User-Agent: Mozilla Thunderbird
-Subject: Re: [PATCH 0/5] locking/qspinlock: Add contended_release tracepoint
-To: Dmitry Ilvokhin <d@ilvokhin.com>, Peter Zijlstra <peterz@infradead.org>,
- Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
- Boqun Feng <boqun@kernel.org>, Waiman Long <longman@redhat.com>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- "K. Y. Srinivasan" <kys@microsoft.com>,
- Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
- Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>,
- Thomas Gleixner <tglx@kernel.org>, Borislav Petkov <bp@alien8.de>,
- Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
- "H. Peter Anvin" <hpa@zytor.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
- Alexey Makhalov <alexey.makhalov@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Paolo Bonzini
- <pbonzini@redhat.com>, Vitaly Kuznetsov <vkuznets@redhat.com>,
- Josh Poimboeuf <jpoimboe@kernel.org>, Jason Baron <jbaron@akamai.com>,
- Alice Ryhl <aliceryhl@google.com>, Steven Rostedt <rostedt@goodmis.org>,
- Ard Biesheuvel <ardb@kernel.org>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>, Arnd Bergmann <arnd@arndb.de>,
- Masami Hiramatsu <mhiramat@kernel.org>,
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
- linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
- kvm@vger.kernel.org, xen-devel@lists.xenproject.org,
- linux-arch@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
- kernel-team@meta.com
-References: <cover.1785778551.git.d@ilvokhin.com>
-Content-Language: en-US
-From: Juergen Gross <jgross@suse.com>
-Autocrypt: addr=jgross@suse.com; keydata=
- xsBNBFOMcBYBCACgGjqjoGvbEouQZw/ToiBg9W98AlM2QHV+iNHsEs7kxWhKMjrioyspZKOB
- ycWxw3ie3j9uvg9EOB3aN4xiTv4qbnGiTr3oJhkB1gsb6ToJQZ8uxGq2kaV2KL9650I1SJve
- dYm8Of8Zd621lSmoKOwlNClALZNew72NjJLEzTalU1OdT7/i1TXkH09XSSI8mEQ/ouNcMvIJ
- NwQpd369y9bfIhWUiVXEK7MlRgUG6MvIj6Y3Am/BBLUVbDa4+gmzDC9ezlZkTZG2t14zWPvx
- XP3FAp2pkW0xqG7/377qptDmrk42GlSKN4z76ELnLxussxc7I2hx18NUcbP8+uty4bMxABEB
- AAHNH0p1ZXJnZW4gR3Jvc3MgPGpncm9zc0BzdXNlLmNvbT7CwHkEEwECACMFAlOMcK8CGwMH
- CwkIBwMCAQYVCAIJCgsEFgIDAQIeAQIXgAAKCRCw3p3WKL8TL8eZB/9G0juS/kDY9LhEXseh
- mE9U+iA1VsLhgDqVbsOtZ/S14LRFHczNd/Lqkn7souCSoyWsBs3/wO+OjPvxf7m+Ef+sMtr0
- G5lCWEWa9wa0IXx5HRPW/ScL+e4AVUbL7rurYMfwCzco+7TfjhMEOkC+va5gzi1KrErgNRHH
- kg3PhlnRY0Udyqx++UYkAsN4TQuEhNN32MvN0Np3WlBJOgKcuXpIElmMM5f1BBzJSKBkW0Jc
- Wy3h2Wy912vHKpPV/Xv7ZwVJ27v7KcuZcErtptDevAljxJtE7aJG6WiBzm+v9EswyWxwMCIO
- RoVBYuiocc51872tRGywc03xaQydB+9R7BHPzsBNBFOMcBYBCADLMfoA44MwGOB9YT1V4KCy
- vAfd7E0BTfaAurbG+Olacciz3yd09QOmejFZC6AnoykydyvTFLAWYcSCdISMr88COmmCbJzn
- sHAogjexXiif6ANUUlHpjxlHCCcELmZUzomNDnEOTxZFeWMTFF9Rf2k2F0Tl4E5kmsNGgtSa
- aMO0rNZoOEiD/7UfPP3dfh8JCQ1VtUUsQtT1sxos8Eb/HmriJhnaTZ7Hp3jtgTVkV0ybpgFg
- w6WMaRkrBh17mV0z2ajjmabB7SJxcouSkR0hcpNl4oM74d2/VqoW4BxxxOD1FcNCObCELfIS
- auZx+XT6s+CE7Qi/c44ibBMR7hyjdzWbABEBAAHCwF8EGAECAAkFAlOMcBYCGwwACgkQsN6d
- 1ii/Ey9D+Af/WFr3q+bg/8v5tCknCtn92d5lyYTBNt7xgWzDZX8G6/pngzKyWfedArllp0Pn
- fgIXtMNV+3t8Li1Tg843EXkP7+2+CQ98MB8XvvPLYAfW8nNDV85TyVgWlldNcgdv7nn1Sq8g
- HwB2BHdIAkYce3hEoDQXt/mKlgEGsLpzJcnLKimtPXQQy9TxUaLBe9PInPd+Ohix0XOlY+Uk
- QFEx50Ki3rSDl2Zt2tnkNYKUCvTJq7jvOlaPd6d/W0tZqpyy7KVay+K4aMobDsodB3dvEAs6
- ScCnh03dDAFgIq5nsB11j3KPKdVoPlfucX2c7kGNH+LUMbzqV6beIENfNexkOfxHfw==
-In-Reply-To: <cover.1785778551.git.d@ilvokhin.com>
-Content-Type: multipart/signed; micalg=pgp-sha256;
- protocol="application/pgp-signature";
- boundary="------------AEfGGk6p5V0hCBAWv3tcK3FA"
+Content-Transfer-Encoding: 8bit
+X-CM-TRANSID:PigvCgA3+bZVnHFqQsQvLQ--.12248S3
+X-Coremail-Antispam: 1Uf129KBjvJXoW7tFyDtFyftr15ZryUurW3Jrb_yoW8Gr4xpa
+	1DCryqk3y8Ga4fAa4fW3WY9ry2vwsrAw4Svry2gr1UKF9xtFyDXrs3CrnFgwsrZr4jyFW0
+	yryfWF95KrykZ3DanT9S1TB71UUUUU7qnTZGkaVYY2UrUUUUjbIjqfuFe4nvWSU5nxnvy2
+	9KBjDUYxBIdaVFxhVjvjDU0xZFpf9x07j7AwxUUUUU=
+X-CM-SenderInfo: 3uurkzkwhy0qqrwthudrp/xtbCzhg0qWpxnFihbAAA3Z
 
-This is an OpenPGP/MIME signed message (RFC 4880 and 3156)
---------------AEfGGk6p5V0hCBAWv3tcK3FA
-Content-Type: multipart/mixed; boundary="------------HRWVg0V4yc1LTGims01Et589";
- protected-headers="v1"
-From: Juergen Gross <jgross@suse.com>
-To: Dmitry Ilvokhin <d@ilvokhin.com>, Peter Zijlstra <peterz@infradead.org>,
- Ingo Molnar <mingo@redhat.com>, Will Deacon <will@kernel.org>,
- Boqun Feng <boqun@kernel.org>, Waiman Long <longman@redhat.com>,
- Thomas Bogendoerfer <tsbogend@alpha.franken.de>,
- "K. Y. Srinivasan" <kys@microsoft.com>,
- Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>,
- Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>,
- Thomas Gleixner <tglx@kernel.org>, Borislav Petkov <bp@alien8.de>,
- Dave Hansen <dave.hansen@linux.intel.com>, x86@kernel.org,
- "H. Peter Anvin" <hpa@zytor.com>, Ajay Kaher <ajay.kaher@broadcom.com>,
- Alexey Makhalov <alexey.makhalov@broadcom.com>,
- Broadcom internal kernel review list
- <bcm-kernel-feedback-list@broadcom.com>, Paolo Bonzini
- <pbonzini@redhat.com>, Vitaly Kuznetsov <vkuznets@redhat.com>,
- Josh Poimboeuf <jpoimboe@kernel.org>, Jason Baron <jbaron@akamai.com>,
- Alice Ryhl <aliceryhl@google.com>, Steven Rostedt <rostedt@goodmis.org>,
- Ard Biesheuvel <ardb@kernel.org>,
- Boris Ostrovsky <boris.ostrovsky@oracle.com>, Arnd Bergmann <arnd@arndb.de>,
- Masami Hiramatsu <mhiramat@kernel.org>,
- Mathieu Desnoyers <mathieu.desnoyers@efficios.com>
-Cc: linux-kernel@vger.kernel.org, linux-mips@vger.kernel.org,
- linux-hyperv@vger.kernel.org, virtualization@lists.linux.dev,
- kvm@vger.kernel.org, xen-devel@lists.xenproject.org,
- linux-arch@vger.kernel.org, linux-trace-kernel@vger.kernel.org,
- kernel-team@meta.com
-Message-ID: <627c59ee-54b1-4f37-b849-c331a9d01618@suse.com>
-Subject: Re: [PATCH 0/5] locking/qspinlock: Add contended_release tracepoint
-References: <cover.1785778551.git.d@ilvokhin.com>
-In-Reply-To: <cover.1785778551.git.d@ilvokhin.com>
+From: Yufeng Wang <wangyufeng@kylinos.cn>
 
---------------HRWVg0V4yc1LTGims01Et589
-Content-Type: multipart/mixed; boundary="------------33sYuJhXGYzE04xG2wTAikO4"
+mod_devicetable.h was split into per-subsystem headers under
+include/linux/device-id/ (commit ad428f5811bd "mod_devicetable.h: Split
+into per subsystem headers"), and include/linux/virtio.h now includes
+<linux/device-id/virtio.h>.
 
---------------33sYuJhXGYzE04xG2wTAikO4
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: base64
+The tools/virtio compat layer has no counterpart for this new include, so
+building vhost_net_test fails:
 
-T24gMDQuMDguMjYgMDk6MTUsIERtaXRyeSBJbHZva2hpbiB3cm90ZToNCj4gVGhlIGNvbnRl
-bmRlZF9yZWxlYXNlIHRyYWNlcG9pbnQgbGFuZGVkIGluIHY3LjItcmMyIGZvciBzbGVlcGlu
-ZyBsb2Nrcw0KPiAoNGYwNzBjY2I0ZGM0ICJsb2NraW5nOiBBZGQgY29udGVuZGVkX3JlbGVh
-c2UgdHJhY2Vwb2ludCB0byBzbGVlcGFibGUNCj4gbG9ja3MiKS4gU3BpbmxvY2sgc3VwcG9y
-dCB3YXMgZHJvcHBlZCBmcm9tIHRoYXQgc2VyaWVzLiBUaGlzIG9uZSBhZGRzIGl0DQo+IGZv
-ciBxdWV1ZWQgc3BpbmxvY2tzLg0KPiANCj4gVGhlIGV4aXN0aW5nIGNvbnRlbnRpb25fYmVn
-aW4vY29udGVudGlvbl9lbmQgdHJhY2Vwb2ludHMgZmlyZSBvbiB0aGUNCj4gd2FpdGVyIHNp
-ZGUuIFRoZSBob2xkZXIncyBpZGVudGl0eSBhbmQgc3RhY2sgY2FuIGJlIGNhcHR1cmVkIGF0
-DQo+IGNvbnRlbnRpb25fYmVnaW4gdGltZSAoZS5nLiBwZXJmIGxvY2sgY29udGVudGlvbiAt
-LWxvY2stb3duZXIpLCBidXQgb25seQ0KPiBmb3IgbG9ja3Mgd2l0aCBhbiBvd25lciBmaWVs
-ZCB0byByZWFkOiBtdXRleCBhbmQgcndzZW0uIHFzcGlubG9jayBoYXMNCj4gbm9uZSwgc28g
-YSBjb250ZW5kZWQgc3BpbmxvY2sgY2Fubm90IGJlIGF0dHJpYnV0ZWQgdG8gaXRzIGhvbGRl
-ciBhdCBhbGwuDQo+IEV2ZW4gd2hlcmUgdGhlIG93bmVyIGNhbiBiZSByZWFkLCBpdCByZWZs
-ZWN0cyB0aGUgaG9sZGVyJ3Mgc3RhdGUgd2hlbiBhDQo+IHdhaXRlciBhcnJpdmVzLCBub3Qg
-d2hlbiB0aGUgbG9jayBpcyByZWxlYXNlZC4NCj4gDQo+IFRoaXMgc2VyaWVzIGFkZHMgYSBj
-b250ZW5kZWRfcmVsZWFzZSB0cmFjZXBvaW50IHRvIHFzcGlubG9jayB0aGF0IGZpcmVzDQo+
-IG9uIHRoZSBob2xkZXIgc2lkZSB3aGVuIGEgbG9jayB3aXRoIHdhaXRlcnMgaXMgcmVsZWFz
-ZWQuIFRoaXMgcHJvdmlkZXM6DQo+IA0KPiAtIEhvbGQgdGltZSBlc3RpbWF0aW9uOiB3aGVu
-IHRoZSBob2xkZXIncyBvd24gYWNxdWlzaXRpb24gd2FzDQo+ICAgIGNvbnRlbmRlZCwgaXRz
-IGNvbnRlbnRpb25fZW5kIChhY3F1aXNpdGlvbikgYW5kIGNvbnRlbmRlZF9yZWxlYXNlDQo+
-ICAgIGNhbiBiZSBjb3JyZWxhdGVkIHRvIG1lYXN1cmUgaG93IGxvbmcgdGhlIGxvY2sgd2Fz
-IGhlbGQgdW5kZXINCj4gICAgY29udGVudGlvbi4NCj4gDQo+IC0gVGhlIGhvbGRlcidzIHN0
-YWNrIGF0IHJlbGVhc2UgdGltZSwgd2hpY2ggZm9yIHNwaW5sb2NrcyBpcyBub3QNCj4gICAg
-YXZhaWxhYmxlIGJ5IGFueSBvdGhlciBtZWFucy4NCj4gDQo+IFRoZSB1bmxvY2sgcGF0aCBt
-aWdodCBiZSBxdWl0ZSBob3QsIHNvIHRoZSB0cmFjZXBvaW50IGlzIG1hZGUgYXMgY2hlYXAN
-Cj4gYXMgcG9zc2libGUsIHRvIGtlZXAgaXQgdXNhYmxlIGluIHByb2R1Y3Rpb246DQo+IA0K
-PiAtIHg4NiB3aXRoIFBBUkFWSVJUX1NQSU5MT0NLUz15LCB3aGljaCBpcyB3aGF0IGRpc3Ry
-aWJ1dGlvbnMgc2hpcCwgc3dhcHMNCj4gICAgdGhlIHVubG9jayBpbXBsZW1lbnRhdGlvbiB2
-aWEgc3RhdGljX2NhbGwoKSB3aGVuIHRoZSB0cmFjZXBvaW50IGlzDQo+ICAgIGVuYWJsZWQu
-IFRoZSBkaXNhYmxlZCBwYXRoIGlzIGJ5dGUtaWRlbnRpY2FsIHRvIHRvZGF5J3M6IHRoZSBz
-YW1lDQo+ICAgIGlubGluZSBtb3ZiLCBubyBOT1AgYW5kIG5vIGNhbGwuDQo+IA0KPiAtIEV2
-ZXJ5d2hlcmUgZWxzZSBhIHN0YXRpYy1icmFuY2ggY2hlY2sgaXMgY29tcGlsZWQgaW50bw0K
-PiAgICBxdWV1ZWRfc3Bpbl91bmxvY2soKS4gT24geDg2XzY0IHRoYXQgaXMgYSBzaW5nbGUg
-Tk9QIG9uIHRoZSBleGVjdXRlZA0KPiAgICBwYXRoLCB3aXRoIHRoZSBjYWxsIHRvIHRoZSB0
-cmFjZWQgaGVscGVyIGVtaXR0ZWQgb3V0IG9mIGxpbmUgYW5kDQo+ICAgIHVucmVhY2hhYmxl
-IHdoaWxlIHRoZSB0cmFjZXBvaW50IGlzIG9mZi4gT24gb3RoZXIgYXJjaGl0ZWN0dXJlcyBh
-IGZldw0KPiAgICBtb3JlIGluc3RydWN0aW9ucyB0byBtYW5hZ2UgYSBzdGFjayBmcmFtZSBs
-YW5kIG9uIHRoZSBleGVjdXRlZCBwYXRoDQo+ICAgIHRvbywgc28gdGhlIGdlbmVyaWMgcGF0
-aCBzaXRzIGJlaGluZA0KPiAgICBDT05GSUdfUVVFVUVEX1NQSU5MT0NLU19UUkFDRV9DT05U
-RU5ERURfUkVMRUFTRSAoZGVmYXVsdCBuKS4NCj4gDQo+IENvc3RzIGFuZCBtZWFzdXJlbWVu
-dHMgYXJlIGluIHRoZSBpbmRpdmlkdWFsIGNoYW5nZWxvZ3MuIEJyaWVmbHksIG5vDQo+IHRo
-cm91Z2hwdXQgb3IgbGF0ZW5jeSBjaGFuZ2UgaXMgbWVhc3VyYWJsZSBvbiBlaXRoZXIgeDg2
-XzY0IG9yIGFybTY0DQo+IHdpdGggUVVFVUVEX1NQSU5MT0NLU19UUkFDRV9DT05URU5ERURf
-UkVMRUFTRT15Lg0KPiANCj4gVGVzdGVkOiB4ODZfNjQgd2l0aCBQQVJBVklSVF9TUElOTE9D
-S1M9eSBhbmQgPW4sIGFybTY0LCB0cmFjZXBvaW50IG9uDQo+IGFuZCBvZmYsIGRpc2Fzc2Vt
-Ymx5IGNoZWNrZWQgaW4gYm90aCBzdGF0ZXMsIGxvY2t0b3J0dXJlIHdpdGggdHJhY2Vwb2lu
-dA0KPiBvbiBhbmQgb2ZmLg0KPiANCj4gTm90IGNvdmVyZWQ6IHFyd2xvY2ssIGFuZCBhcmNo
-aXRlY3R1cmVzIHdpdGggZnVsbHkgY3VzdG9tIHFzcGlubG9jaw0KPiBpbXBsZW1lbnRhdGlv
-bnMgKGUuZy4gUG93ZXJQQykuIFRoZSBzdGFjayBmcmFtZSBtYW5hZ2luZyBpbnN0cnVjdGlv
-bnMgb24NCj4gYXJtNjQgc2hvdWxkIGJlIGF2b2lkYWJsZSwgYnV0IHRoYXQgaXMgbm90IGRv
-bmUgaW4gdGhpcyBwYXRjaHNldC4NCj4gDQo+IFBhdGNoIDEgaXMgUGV0ZXIncyBkcmFmdCBm
-cm9tIFsxXSBhbmQgaXMgbWlzc2luZyBoaXMgU2lnbmVkLW9mZi1ieS4NCj4gUGV0ZXIsIHBs
-ZWFzZSBhZGQgaXQgaWYgeW91IGFyZSBoYXBweSB3aXRoIHRoZSBwYXRjaC4NCj4gDQo+IFsx
-XTogaHR0cHM6Ly9sb3JlLmtlcm5lbC5vcmcvYWxsLzIwMjYwNjAzMTIwODExLkdXMzQ5MzA5
-MEBub2lzeS5wcm9ncmFtbWluZy5raWNrcy1hc3MubmV0Lw0KPiANCj4gRG1pdHJ5IElsdm9r
-aGluICg0KToNCj4gICAgbG9ja2luZzogRmFjdG9yIG91dCBxdWV1ZWRfc3Bpbl9yZWxlYXNl
-KCkNCj4gICAgbG9ja2luZy9xc3BpbmxvY2s6IEFkZCBjb250ZW5kZWRfcmVsZWFzZSB0cmFj
-ZXBvaW50DQo+ICAgIHRyYWNpbmcvbG9jazogVXNlIFRSQUNFX0VWRU5UX0ZOKCkgZm9yIGNv
-bnRlbmRlZF9yZWxlYXNlDQo+ICAgIHg4Ni9wYXJhdmlydDogVHJhY2UgY29udGVuZGVkX3Jl
-bGVhc2Ugb24gdW5sb2NrDQo+IA0KPiBQZXRlciBaaWpsc3RyYSAoMSk6DQo+ICAgIHg4Ni9w
-YXJhdmlydDogVXNlIHN0YXRpY19jYWxsKCkgZm9yIHRoZSBwYXJhdmlydCBzcGlubG9jayBv
-cHMNCj4gDQo+ICAgYXJjaC9taXBzL2luY2x1ZGUvYXNtL3NwaW5sb2NrLmggICAgICAgICB8
-ICA2ICstLQ0KPiAgIGFyY2gveDg2L2h5cGVydi9odl9zcGlubG9jay5jICAgICAgICAgICAg
-fCAgNCArLQ0KPiAgIGFyY2gveDg2L2luY2x1ZGUvYXNtL2NwdWZlYXR1cmVzLmggICAgICAg
-fCAgMSAtDQo+ICAgYXJjaC94ODYvaW5jbHVkZS9hc20vcGFyYXZpcnQtc3BpbmxvY2suaCB8
-IDIxICsrKysrLS0tDQo+ICAgYXJjaC94ODYva2VybmVsL2t2bS5jICAgICAgICAgICAgICAg
-ICAgICB8ICA1ICstDQo+ICAgYXJjaC94ODYva2VybmVsL3BhcmF2aXJ0LXNwaW5sb2Nrcy5j
-ICAgICB8IDYzICsrKysrKysrKysrKysrKysrKysrKy0tLQ0KPiAgIGFyY2gveDg2L2tlcm5l
-bC9zdGF0aWNfY2FsbC5jICAgICAgICAgICAgfCAyNyArKysrKysrKysrDQo+ICAgYXJjaC94
-ODYveGVuL3NwaW5sb2NrLmMgICAgICAgICAgICAgICAgICB8ICA1ICstDQo+ICAgaW5jbHVk
-ZS9hc20tZ2VuZXJpYy9xc3BpbmxvY2suaCAgICAgICAgICB8IDM4ICsrKysrKysrKysrKy0t
-DQo+ICAgaW5jbHVkZS90cmFjZS9ldmVudHMvbG9jay5oICAgICAgICAgICAgICB8IDEwICsr
-Ky0NCj4gICBrZXJuZWwvS2NvbmZpZy5sb2NrcyAgICAgICAgICAgICAgICAgICAgIHwgMjAg
-KysrKysrKysNCj4gICBrZXJuZWwvbG9ja2luZy9tdXRleC5jICAgICAgICAgICAgICAgICAg
-IHwgIDQgKysNCj4gICBrZXJuZWwvbG9ja2luZy9xc3BpbmxvY2suYyAgICAgICAgICAgICAg
-IHwgMjIgKysrKysrKysrDQo+ICAgdG9vbHMvYXJjaC94ODYvaW5jbHVkZS9hc20vY3B1ZmVh
-dHVyZXMuaCB8ICAxIC0NCj4gICAxNCBmaWxlcyBjaGFuZ2VkLCAxOTUgaW5zZXJ0aW9ucygr
-KSwgMzIgZGVsZXRpb25zKC0pDQo+IA0KPiANCj4gYmFzZS1jb21taXQ6IDVlNjAxYWIzNjE1
-Yzg2YmU3YzQwNjhjZTk5MmY5NDY1NDY5M2EwMzINCg0KRm9yIHRoZSB3aG9sZSBzZXJpZXM6
-DQoNCkFja2VkLWJ5OiBKdWVyZ2VuIEdyb3NzIDxqZ3Jvc3NAc3VzZS5jb20+DQoNCkknbSBj
-b25zaWRlcmluZyBzb21lIGZvbGxvd3VwIHBhdGNoZXMgcmVwbGFjaW5nIHRoZSByZW1haW5p
-bmcgcGFyYXZpcnQNCmNhc2VzIG5vdCBjb3ZlcmVkIGJ5IENPTkZJR19QQVJBVklSVF9YWEwg
-d2l0aCBzdGF0aWNfY2FsbCgpLCB0b28uDQoNClRoaXMgd2lsbCBhbGxvdyB0byBkcm9wIHRo
-ZSAzMi1iaXQgcGFyYXZpcnQgcGF0Y2hpbmcgY29tcGxldGVseS4gOi0pDQoNClRoZSBxdWV1
-ZWRfc3Bpbl91bmxvY2soKSBob29rIHdhcyB0aGUgbWFpbiByZWFzb24gSSBkaWRuJ3QgZG8g
-dGhhdCB5ZXQuDQoNCg0KSnVlcmdlbg0K
---------------33sYuJhXGYzE04xG2wTAikO4
-Content-Type: application/pgp-keys; name="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Disposition: attachment; filename="OpenPGP_0xB0DE9DD628BF132F.asc"
-Content-Description: OpenPGP public key
-Content-Transfer-Encoding: quoted-printable
+  ../../include/linux/virtio.h:10:10: fatal error: linux/device-id/virtio.h: No such file or directory
+     10 | #include <linux/device-id/virtio.h>
+        |          ^~~~~~~~~~~~~~~~~~~~~~~~~~~
 
------BEGIN PGP PUBLIC KEY BLOCK-----
+Add tools/virtio/linux/device-id/virtio.h, which includes the real
+header, matching how the existing virtio.h compat shim reaches the
+kernel's include/linux/virtio.h.
 
-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
-kt+z4drzFUyEjLM1vVvIMjkUoJs=3D
-=3DeeAB
------END PGP PUBLIC KEY BLOCK-----
+Signed-off-by: Yufeng Wang <wangyufeng@kylinos.cn>
+---
+ tools/virtio/linux/device-id/virtio.h | 1 +
+ 1 file changed, 1 insertion(+)
+ create mode 100644 tools/virtio/linux/device-id/virtio.h
 
---------------33sYuJhXGYzE04xG2wTAikO4--
+diff --git a/tools/virtio/linux/device-id/virtio.h b/tools/virtio/linux/device-id/virtio.h
+new file mode 100644
+index 000000000000..18e3338158eb
+--- /dev/null
++++ b/tools/virtio/linux/device-id/virtio.h
+@@ -0,0 +1 @@
++#include <../../include/linux/device-id/virtio.h>
+-- 
+2.34.1
 
---------------HRWVg0V4yc1LTGims01Et589--
 
---------------AEfGGk6p5V0hCBAWv3tcK3FA
-Content-Type: application/pgp-signature; name="OpenPGP_signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="OpenPGP_signature.asc"
+No virus found
+		Checked by Hillstone Network AntiVirus
 
------BEGIN PGP SIGNATURE-----
-
-wsB5BAABCAAjFiEEhRJncuj2BJSl0Jf3sN6d1ii/Ey8FAmpxm2MFAwAAAAAACgkQsN6d1ii/Ey+9
-Agf+IWx5eXJ7mO6oP+n4rxGw46J5o8kxhJQXckuPe4UqJ4KZp2eDhMwkS/QfmUPt+V4ojeOdZa1V
-t5qalPRfTCjVf4ZjarkTErmzJEGtvM5UFOPA1nJBFIGlV8VkDzRzYXof0c0ySuzecPKbh7pY3vUz
-VAUq0Q4EI6/WZY9jlKSQPoVjFFnIaWF5MoA2mGETIaZNXIBKSb/JmKfyRKxoY+u6IIeXrzl3wnIp
-VRnKsfQY36idWLXCtgq72WaTEl8HBUfpg0cTNGX0Fs6DZ4wH41e/KenwyCtV/RoC9vMyVKhvshqA
-JQOnAn0AVEbRYSsu6FmlqT/H4mCv6HrNanDhE76nUA==
-=gT7a
------END PGP SIGNATURE-----
-
---------------AEfGGk6p5V0hCBAWv3tcK3FA--
