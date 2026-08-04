@@ -1,199 +1,207 @@
-Received: from MRWPR03CU001.outbound.protection.outlook.com (mail-francesouthazon11011050.outbound.protection.outlook.com [40.107.130.50])
+Received: from smtp1.osuosl.org (smtp1.osuosl.org [140.211.166.138])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 03E64353A90
-	for <virtualization@lists.linux.dev>; Tue,  4 Aug 2026 12:38:14 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.107.130.50
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785847096; cv=fail; b=rtpiW3gO/VH5VGmuwYd0cJrlipIC5udxPAVKwm2T8OKLtId2AptxjYsj34+qIlT+QZPbFoLaeP8weiYNKVKFYxKwphhbwvlY/aohdGQg/mtqiYE1zzVPymbP6kvQLwmgm8GJutG9wOJCSOGWJms+Imn1aZIGrPYTopI4XWrCnLA=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785847096; c=relaxed/simple;
-	bh=vgAq+KJgLccFNcJBy6CDHgu8lc7fgjgoI0iRn5SzaDQ=;
-	h=From:To:CC:Subject:Date:Message-ID:References:In-Reply-To:
-	 Content-Type:MIME-Version; b=bB3kQzDzrgJplnpog5S1vbCUhWSVtG0AvGkNrb4m+xL3veKWOHEQpwnSWMk6403dxvNf20YjRvWlIbCkl5xXnrOjHc5PP3hnCzZRAvcKMPd1O98VPyAN04IcmTKnFxM6NpweUvJ+wrfpv3bPiTqDJ/IcgEyxFtlYh+yZE1Yud6o=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nokia-bell-labs.com; spf=fail smtp.mailfrom=nokia-bell-labs.com; dkim=pass (2048-bit key) header.d=nokia-bell-labs.com header.i=@nokia-bell-labs.com header.b=phE3H37k; arc=fail smtp.client-ip=40.107.130.50
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nokia-bell-labs.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nokia-bell-labs.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2DFED3DAAD3
+	for <virtualization@lists.linux-foundation.org>; Tue,  4 Aug 2026 13:13:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=140.211.166.138
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785849220; cv=none; b=FeBNWPSHuEsDVrOGr1TCzR/DtmTiKDsM2Z8EsMtqy5x50fVPAH5oTPSzCssBrdK4VzjcM67QHpyp/QY5asVmyQFrxmp8cNMLnwXgNbslBRGnIRHT6G1TOGcBMeT1yNlJGcxp6Rh/62rpOtn+OVjZmcP0+k9AsWT6GAwdk1beEYA=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785849220; c=relaxed/simple;
+	bh=hhobeF0P1JpyFwf08e1roz4aoNovzKG+BxlS1ft92FQ=;
+	h=Date:From:To:Cc:Subject:Message-ID:MIME-Version:In-Reply-To:
+	 Content-Type:References; b=iuhwAVrIeX1aQetP6v2jC/MOw8kYORrGEssVmfOvWVyFjAkCy5J3B+hqiitsWc2OvZePvLzUE55907qk0wlH0RGTYaKITu6SYfuAVXCZJ3RBP3TC4zsKnqcxuXq8HKBqyw54T+38y+I7N9QzC+/IntH1wC2L8JATECjQvBCOAbU=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b=OShnb30O; arc=none smtp.client-ip=140.211.166.138
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nokia-bell-labs.com header.i=@nokia-bell-labs.com header.b="phE3H37k"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=W6uviyp5YfWQ0da2NWkAfK65Wqf+kEx+/304KncI2J6nMlduU+9df/KYZppkzfsdjKxLBZ8aNPvnEK3ELUlnzXGEtxxEBPyBqttmXpdqgdoD+t6qlld4XmagQDxIjYgx0P9LiZitbwuP7036LJIxD6kqJfv7ZpiznsyrXPDm0vF/EApuL4Kl54CbAdCejlXtG9+CcruU0NLQ/yuZZJC+GYFpJfy7nw/e9sB1Q4FZ8SM8R/o39+4vFc4BoqhBnNsI2WV27+HBcrpI3MY+xLXn6UUI2mITmfiyQv9/h2Wy+LgLPw07YChYEAKWKlAY6IYkIdhDLaqhNstM4E9Qlpvr2g==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=vgAq+KJgLccFNcJBy6CDHgu8lc7fgjgoI0iRn5SzaDQ=;
- b=V4xrFPGKzb14n9t+7IEQlsOeambuTfMCIMG+LAJ76pFSCtw18cOyw/+h6G3cSz5+5m/db378/6OjRW35isjTSGHmr29y8rQRZmbh9IPixfgzLBxOOl7ndWLak9Wj+GsRKs1ALcezlR/+Eg9YXDAvY8z0cjjLjbYm1YEnIZd0drVqxTFiYF6+PiSz1mpC1EPZG3swnq9z9mIcww1MX3/rvNp5lBsF4IwxjJQKS/ntu6WrqMA4lDbAQM9ADFA/N4rT7/kPkhu6cRX44IdGqo/jZ3DKnYzdQHR7UEOdp6ADIPeCrwk/5k/CulZr7FWst/84D9A1MXE3Y0BGgyy/WwzdSg==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
- smtp.mailfrom=nokia-bell-labs.com; dmarc=pass action=none
- header.from=nokia-bell-labs.com; dkim=pass header.d=nokia-bell-labs.com;
- arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nokia-bell-labs.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=vgAq+KJgLccFNcJBy6CDHgu8lc7fgjgoI0iRn5SzaDQ=;
- b=phE3H37kCyV/HKR7+EPBA6pGX7G/pdfrOqPW1+tA6Id5yIafme+5UNAjogb7JkEByUW9CCVYEkUqnLm/h0/1t8ZSlViFke9gnCDdvlg8emWWTFb+9Zd9GnfVZHIK6Vg2+zZGecbcqys230p7RchoSXKVbx1CNIHESYBDn+5vKTteu/UIeNCsrETCls41vif2UWxeoAyNSC9gMuxWUb1hZ9BcCrteEk6YpZzMtPdt197ea4Nm+6slnfNmnhouJZFYYSTrUf7BZPHBcuvxW6Dz8Y8rLQgv01+V8s7vEzwyg61y8o5FZ959dLnxIeNDr6yhikRiVmUS7AUKNIDt5liDqQ==
-Received: from PAXPR07MB7984.eurprd07.prod.outlook.com (2603:10a6:102:133::12)
- by PA4PR07MB7695.eurprd07.prod.outlook.com (2603:10a6:102:fb::9) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.292.15; Tue, 4 Aug
- 2026 12:38:10 +0000
-Received: from PAXPR07MB7984.eurprd07.prod.outlook.com
- ([fe80::f708:4bd3:9987:b9e5]) by PAXPR07MB7984.eurprd07.prod.outlook.com
- ([fe80::f708:4bd3:9987:b9e5%2]) with mapi id 15.21.0292.013; Tue, 4 Aug 2026
- 12:38:10 +0000
-From: "Chia-Yu Chang (Nokia)" <chia-yu.chang@nokia-bell-labs.com>
-To: Jakub Kicinski <kuba@kernel.org>
-CC: "linux-rdma@vger.kernel.org" <linux-rdma@vger.kernel.org>,
-	"eperezma@redhat.com" <eperezma@redhat.com>, "jasowang@redhat.com"
-	<jasowang@redhat.com>, "virtualization@lists.linux.dev"
-	<virtualization@lists.linux.dev>, "mst@redhat.com" <mst@redhat.com>,
-	"xuanzhuo@linux.alibaba.com" <xuanzhuo@linux.alibaba.com>,
-	"pabeni@redhat.com" <pabeni@redhat.com>, "edumazet@google.com"
-	<edumazet@google.com>, "linux-doc@vger.kernel.org"
-	<linux-doc@vger.kernel.org>, "corbet@lwn.net" <corbet@lwn.net>,
-	"horms@kernel.org" <horms@kernel.org>, "dsahern@kernel.org"
-	<dsahern@kernel.org>, "kuniyu@google.com" <kuniyu@google.com>,
-	"bpf@vger.kernel.org" <bpf@vger.kernel.org>, "netdev@vger.kernel.org"
-	<netdev@vger.kernel.org>, "dave.taht@gmail.com" <dave.taht@gmail.com>,
-	"jhs@mojatatu.com" <jhs@mojatatu.com>, "stephen@networkplumber.org"
-	<stephen@networkplumber.org>, "xiyou.wangcong@gmail.com"
-	<xiyou.wangcong@gmail.com>, "jiri@resnulli.us" <jiri@resnulli.us>,
-	"davem@davemloft.net" <davem@davemloft.net>, "andrew+netdev@lunn.ch"
-	<andrew+netdev@lunn.ch>, "donald.hunter@gmail.com" <donald.hunter@gmail.com>,
-	"ast@fiberby.net" <ast@fiberby.net>, "liuhangbin@gmail.com"
-	<liuhangbin@gmail.com>, "shuah@kernel.org" <shuah@kernel.org>,
-	"linux-kselftest@vger.kernel.org" <linux-kselftest@vger.kernel.org>,
-	"ij@kernel.org" <ij@kernel.org>, "ncardwell@google.com"
-	<ncardwell@google.com>, "Koen De Schepper (Nokia)"
-	<koen.de_schepper@nokia-bell-labs.com>, "g.white@cablelabs.com"
-	<g.white@cablelabs.com>, "ingemar.s.johansson@ericsson.com"
-	<ingemar.s.johansson@ericsson.com>, "mirja.kuehlewind@ericsson.com"
-	<mirja.kuehlewind@ericsson.com>, "cheshire@apple.com" <cheshire@apple.com>,
-	"rs.ietf@gmx.at" <rs.ietf@gmx.at>, "Jason_Livingood@comcast.com"
-	<Jason_Livingood@comcast.com>, "vidhi_goel@apple.com" <vidhi_goel@apple.com>,
-	Parav Pandit <parav@nvidia.com>
-Subject: RE: [PATCH v4 net-next 1/1] net: update comments for SKB_GSO_TCP_ECN
- and SKB_GSO_TCP_ACCECN
-Thread-Topic: [PATCH v4 net-next 1/1] net: update comments for SKB_GSO_TCP_ECN
- and SKB_GSO_TCP_ACCECN
-Thread-Index: AQHdHquky4Lusn6ys0yW+D1m17BB47aNGEwAgADE2PA=
-Date: Tue, 4 Aug 2026 12:38:10 +0000
-Message-ID:
- <PAXPR07MB798489DFC97547F586618BEEA3D42@PAXPR07MB7984.eurprd07.prod.outlook.com>
-References: <20260728161007.650717-1-chia-yu.chang@nokia-bell-labs.com>
- <20260803174726.585aed45@kernel.org>
-In-Reply-To: <20260803174726.585aed45@kernel.org>
-Accept-Language: en-GB, en-US
-Content-Language: en-US
-X-MS-Has-Attach:
-X-MS-TNEF-Correlator:
-authentication-results: dkim=none (message not signed)
- header.d=none;dmarc=none action=none header.from=nokia-bell-labs.com;
-x-ms-publictraffictype: Email
-x-ms-traffictypediagnostic: PAXPR07MB7984:EE_|PA4PR07MB7695:EE_
-x-ms-office365-filtering-correlation-id: d269d89d-c1f4-4e4e-0782-08def2253e62
-x-ms-exchange-senderadcheck: 1
-x-ms-exchange-antispam-relay: 0
-x-microsoft-antispam:
- BCL:0;ARA:13230040|366016|23010399003|1800799024|7416014|376014|10067099003|11063799006|4143699003|56012099006|22082099003|18002099003|38070700021;
-x-microsoft-antispam-message-info:
- rElUnhzrUO8uQs5GmMKhg6Byq6dcmp88z0oiwFP8c3sCekNIrsrrwnn7BPP647GtzMFADM8ZJwQ/UctEttxNH4yK+EEkx2HLvWONEXU8BrXhpTg9s80ICfFlGmSE7MB7TUcTKEpANys2oH+7J8mWvewrp9qdUv8d59KgL8OZzcycp161aivPSiWNT1UvXrkfxw2DRZxTRodBFlhEJNIFWlpO1d8faqiMofwX44IeUhNoTYmEbg1vz7+//roiXo0Qu62Q+7Dtqz24cAZ8B1S0P0CKjlgYnKFNPRChsCfAB+BhO4uosvyrOsqCzT1vibMwB7D7N6eGbCZp9QiotSs4hbaDSkZxvEfPmbyrLnp/21VjTZlkD9SXj++7m4aG2oxW2WiW/kz24fP3XD7zBXyAX6KUSSS+QLS4VfRt5/L/w97WFd1diBtsNLW2VrYQWIShQqLszm/1juiiUO8MJovmOwC1VeN8SKB9j1SKb1OSH3/kJFBH253pyNh0pn6IMe4uTc3CCU66Wfa2cReq5HcMJZ2ahLENCBlBppc/SfP8nVItGh5cCa0ee0UYV+w1NG34oYCH9LVTcJ6+0rMNwWfwsNPh89jkT5BHD8kTcQOD/sPgxoarskOqs86kn5ELy5d3z5WYuhMBKHDJlLJgWHgIDg5/hxCABU6nZFa/2mOFG04=
-x-forefront-antispam-report:
- CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:PAXPR07MB7984.eurprd07.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(366016)(23010399003)(1800799024)(7416014)(376014)(10067099003)(11063799006)(4143699003)(56012099006)(22082099003)(18002099003)(38070700021);DIR:OUT;SFP:1101;
-x-ms-exchange-antispam-messagedata-chunkcount: 1
-x-ms-exchange-antispam-messagedata-0:
- =?us-ascii?Q?z+NRBkvEbfb2Jzv1B7xaIXNdqZfD4q3hE3wY4X6c4Gv+seoiXcR8vNL7vTal?=
- =?us-ascii?Q?kKREFCafuIZbnR6v05hV0MpwirT9jbqi9ZcNLw8BsBghABYvYd1W3MRzIr4c?=
- =?us-ascii?Q?Q99LGL7Vap5aWjI/LUXEra4RnPEQP4xxrD2YchcATEoBKGnUjLvu+SdlZebs?=
- =?us-ascii?Q?zMjLJJhAWPOqBdsq9Tdizy4R76+7XolnZIeEw/ExPuISWDU6JsJ5+BkuIv5i?=
- =?us-ascii?Q?vuhX2tXEEp3G/SPYe6XEUTlgtJzi7rsnYm80WbvrUELlOLKa9vBOleip60xN?=
- =?us-ascii?Q?eOnIE0QwB2oPUVgyA8IohTYeTI1YzwyP7lnn40SSXDbXzNeJ8j1MqfiK6oLO?=
- =?us-ascii?Q?R//In4Sw2lVdtk+Z2mIRlxT+HU2sj3ccelkmhG4WYMqMQCTM2frI0OeomTuS?=
- =?us-ascii?Q?Wv7AU1z6f1ISSM9HYb9gYetFpHtV2nUvfQesH/B38ASKfGpN5vuDlYQa5cn1?=
- =?us-ascii?Q?aTAdgU6UUEYmex9NCdmCuOBEZMzIKQWcCSU7Xwu26j9MOTuVHGm3OpzaxYXR?=
- =?us-ascii?Q?CWCdbfbhl5Z+TMtkv61mC+pWBFXrBisxGbhr/Ra8ckLA8Aa3130WvCfDY4Gs?=
- =?us-ascii?Q?MN3POvC7lssF0sNuaCtd9RPwyR8dThEjbUUGRT2JQLzHGmp9/uTOprgepJCF?=
- =?us-ascii?Q?mEcgSgat5Mk4yPdcMlRACh22hnjjHDANDvc0hI/BBw0P+g/KAAGFPSbvWTVZ?=
- =?us-ascii?Q?WG8KtJDZREz1xWdlGqVmMo/9azek6rrYjGFdCe9HtvQgR87vzcDpyhRXytD0?=
- =?us-ascii?Q?S4brBuQZVqALrsWJaafevELL5jHqAzPfQBA0uVZN1aMdLiNM/T4HJ2bXuSNW?=
- =?us-ascii?Q?Bnz1HU3BK1KEkO0728m4QsyS2scW2PBqpR+lG/emOQKRHEIjvVY/SNdjSIRJ?=
- =?us-ascii?Q?ccPNdkj1dCAAEjWvlPxkralHthqk0bEW6nPZzHmPUbYOFXDwoFuX5rwFGZ+g?=
- =?us-ascii?Q?lOHAU1P4kgVQj8m4v3GQB0+FyzqM0jgzeeRMx16XBRhfckfPzMTT8TKOoie+?=
- =?us-ascii?Q?FigAEjmvqbkCQqYAW8r/Rk9i14yZJowIyboXlTnlHgDZy3xk/CD0oFdmuBf1?=
- =?us-ascii?Q?FuJGdE4cRAojdneEk7VayqNuDWplUv9JJ178vgWsJ1PViSOeLFrgAbgT8ak2?=
- =?us-ascii?Q?jNdf+5aTniXC65fR7P3CfY1oNoUR+2WeGLAqoh00ok/EeMFr1aAm/Km+2JA7?=
- =?us-ascii?Q?DRLFKk7Yx6wEbVrIbIKqd9Zot6yBiHcKAsVP7c0zcmpSY0/t02C88W2g8qVN?=
- =?us-ascii?Q?PhX98NnV0gxjjlC3nmKnafC7HFsfUzXDHyRhfwgJNbK0U3vAcifnEqTVaucd?=
- =?us-ascii?Q?XYDzrO8t44TusxZwkb2Mt2h8cd7QXQKrnReKcCCSdaB4PrrWjhwXzz/cvmkh?=
- =?us-ascii?Q?yASJeHhP3Wjd74BIxoFVtQYOSUfPaefSgvvXNxbHsOIeLQLuugwXRNl5av4J?=
- =?us-ascii?Q?yBVE90FNCngnu9zVNHNxyQVlzCQ/tNoqsBwCbxwy5GRWXHMtYD99O8XAuSDR?=
- =?us-ascii?Q?zzF1kuNYhAGmk07Af2cdjWIDrVxJCtKrD75OFxMgDJcFY5F+4E5kH62enfY4?=
- =?us-ascii?Q?GHHUj7+/LFgHJ3OUhkP96UIjyicVcBhFp25VqorXVYDMOJku15/6bMCXOF1h?=
- =?us-ascii?Q?i3NkS1M2x+TYWR8QT72pD5mkAlzbHyek7zkyYyJLlb9Bs69//V9IKtU6CVUK?=
- =?us-ascii?Q?QqZ+cy/hQEsaOM1qOk1zNbE01V3uGo2EzhGxzsLckwdfSkxHX8uVojo1gY5P?=
- =?us-ascii?Q?KWnm/Uzb62TtajA2JwZZTgat4Y5OY3U=3D?=
-Content-Type: text/plain; charset="us-ascii"
-Content-Transfer-Encoding: quoted-printable
+	dkim=pass (1024-bit key) header.d=samsung.com header.i=@samsung.com header.b="OShnb30O"
+Received: from localhost (localhost [127.0.0.1])
+	by smtp1.osuosl.org (Postfix) with ESMTP id BF83D80C6C
+	for <virtualization@lists.linux-foundation.org>; Tue,  4 Aug 2026 13:13:37 +0000 (UTC)
+X-Virus-Scanned: amavis at osuosl.org
+X-Spam-Flag: NO
+X-Spam-Score: -6.492
+X-Spam-Level:
+Received: from smtp1.osuosl.org ([127.0.0.1])
+ by localhost (smtp1.osuosl.org [127.0.0.1]) (amavis, port 10024) with ESMTP
+ id xT7Fk_5hFAJk for <virtualization@lists.linux-foundation.org>;
+ Tue,  4 Aug 2026 13:13:35 +0000 (UTC)
+X-Greylist: delayed 328 seconds by postgrey-1.37 at util1.osuosl.org; Tue, 04 Aug 2026 13:13:34 UTC
+DMARC-Filter: OpenDMARC Filter v1.4.2 smtp1.osuosl.org B565C80C69
+Authentication-Results: smtp1.osuosl.org; dmarc=pass (p=none dis=none) header.from=samsung.com
+DKIM-Filter: OpenDKIM Filter v2.11.0 smtp1.osuosl.org B565C80C69
+Authentication-Results: smtp1.osuosl.org;
+	dkim=pass (1024-bit key, unprotected) header.d=samsung.com header.i=@samsung.com header.a=rsa-sha256 header.s=mail20170921 header.b=OShnb30O
+Received-SPF: Pass (mailfrom) identity=mailfrom; client-ip=203.254.224.25; helo=mailout2.samsung.com; envelope-from=nj.shetty@samsung.com; receiver=<UNKNOWN> 
+Received: from mailout2.samsung.com (mailout2.samsung.com [203.254.224.25])
+	by smtp1.osuosl.org (Postfix) with ESMTPS id B565C80C69
+	for <virtualization@lists.linux-foundation.org>; Tue,  4 Aug 2026 13:13:34 +0000 (UTC)
+Received: from epcas5p2.samsung.com (unknown [182.195.41.40])
+	by mailout2.samsung.com (KnoxPortal) with ESMTP id 20260804130803epoutp02185d5a02fac46bfec5918ce4e859f461~InBjtobNO2917529175epoutp02u
+	for <virtualization@lists.linux-foundation.org>; Tue,  4 Aug 2026 13:08:03 +0000 (GMT)
+DKIM-Filter: OpenDKIM Filter v2.11.0 mailout2.samsung.com 20260804130803epoutp02185d5a02fac46bfec5918ce4e859f461~InBjtobNO2917529175epoutp02u
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=samsung.com;
+	s=mail20170921; t=1785848883;
+	bh=jnUkZ+BpvB6NJMBSwlqfaw25gpgbDKwOED+dgjvhpkw=;
+	h=Date:From:To:Cc:Subject:In-Reply-To:References:From;
+	b=OShnb30OmDCN7E9+MoRuI4JEsIpY5Hh1ODkmuLwyc8cZxE/AbMZ8qqGRsNeQMT5Al
+	 p1oYOv6Rt9OGbQiX1W0ViZE8L/hKWsH6bZQqFTRdmOEd8aGf/aj11dwarZ7c5gDQjP
+	 lX5PIVWnZWxcpzcPLT38f4qL0WApg9lCVkJP9Dzw=
+Received: from epsnrtp02.localdomain (unknown [182.195.42.154]) by
+	epcas5p2.samsung.com (KnoxPortal) with ESMTPS id
+	20260804130802epcas5p2b30cb9f257983bef8dfcc34c78546576~InBivRhgm0321903219epcas5p2u;
+	Tue,  4 Aug 2026 13:08:02 +0000 (GMT)
+Received: from epcpadp2new (unknown [182.195.40.142]) by
+	epsnrtp02.localdomain (Postfix) with ESMTP id 4hDv3k0Lfpz2SSKY; Tue,  4 Aug
+	2026 13:08:02 +0000 (GMT)
+Received: from epsmtip1.samsung.com (unknown [182.195.34.30]) by
+	epcas5p4.samsung.com (KnoxPortal) with ESMTPA id
+	20260804130521epcas5p4d81ad6c4799150dc98794e56a1e2edf2~Im-M2doGg1490014900epcas5p4Q;
+	Tue,  4 Aug 2026 13:05:21 +0000 (GMT)
+Received: from green245.gost (unknown [107.99.41.245]) by
+	epsmtip1.samsung.com (KnoxPortal) with ESMTPA id
+	20260804130518epsmtip1fa8d46a6cc1711f0a75e79ae2282e8b9~Im-KEFLsU0310603106epsmtip1j;
+	Tue,  4 Aug 2026 13:05:18 +0000 (GMT)
+Date: Tue, 4 Aug 2026 18:35:04 +0530
+From: Nitesh Shetty <nj.shetty@samsung.com>
+To: "Guo, Wangyang" <wangyang.guo@intel.com>
+Cc: Alok Rathore <alok.rathore@samsung.com>, "akpm@linux-foundation.org"
+	<akpm@linux-foundation.org>, "axboe@fb.com" <axboe@fb.com>, "Liang, Dan"
+	<dan.liang@intel.com>, "hch@lst.de" <hch@lst.de>, "kbusch@kernel.org"
+	<kbusch@kernel.org>, "linux-block@vger.kernel.org"
+	<linux-block@vger.kernel.org>, "linux-kernel@vger.kernel.org"
+	<linux-kernel@vger.kernel.org>, "linux-nvme@lists.infradead.org"
+	<linux-nvme@lists.infradead.org>, "ming.lei@redhat.com"
+	<ming.lei@redhat.com>, "rrendec@redhat.com" <rrendec@redhat.com>,
+	"sagi@grimberg.me" <sagi@grimberg.me>, "tglx@linutronix.de"
+	<tglx@linutronix.de>, "Li, Tianyou" <tianyou.li@intel.com>,
+	"tim.c.chen@linux.intel.com" <tim.c.chen@linux.intel.com>,
+	"virtualization@lists.linux-foundation.org"
+	<virtualization@lists.linux-foundation.org>, "asml.silence@gmail.com"
+	<asml.silence@gmail.com>, "cpgs@samsung.com" <cpgs@samsung.com>,
+	"gost.dev@samsung.com" <gost.dev@samsung.com>, "alokrathore20@gmail.com"
+	<alokrathore20@gmail.com>, "nitheshshetty@gmail.com"
+	<nitheshshetty@gmail.com>
+Subject: Re: lib/group_cpus: make group CPU cluster aware
+Message-ID: <270056930.01785848882032.JavaMail.epsvc@epcpadp2new>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-X-OriginatorOrg: nokia-bell-labs.com
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: PAXPR07MB7984.eurprd07.prod.outlook.com
-X-MS-Exchange-CrossTenant-Network-Message-Id: d269d89d-c1f4-4e4e-0782-08def2253e62
-X-MS-Exchange-CrossTenant-originalarrivaltime: 04 Aug 2026 12:38:10.6901
- (UTC)
-X-MS-Exchange-CrossTenant-fromentityheader: Hosted
-X-MS-Exchange-CrossTenant-id: 5d471751-9675-428d-917b-70f44f9630b0
-X-MS-Exchange-CrossTenant-mailboxtype: HOSTED
-X-MS-Exchange-CrossTenant-userprincipalname: PBzitiicG6ke6GSN4r7chRk8ZsDshbX7rTKjNVZBV160XTlEDGVIjrRJa+wd0Sueqw6NdpNoPNfNh+GxqVdE3st+lyBAhpJkeAou4feZGbT0GXXx/UcDaW3iNsQ9vqL3
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: PA4PR07MB7695
+In-Reply-To: <DS0PR11MB801889FC50AAB91FCCAF8D3A92C92@DS0PR11MB8018.namprd11.prod.outlook.com>
+X-CMS-MailID: 20260804130521epcas5p4d81ad6c4799150dc98794e56a1e2edf2
+X-Msg-Generator: CA
+Content-Type: multipart/mixed;
+	boundary="----8xxTakeuJ66kI_IBZqWF_Qqy5yET_M96iI-s.dWLk22.0KCZ=_104d19_"
+CMS-TYPE: 105P
+X-CPGSPASS: Y
+X-Hop-Count: 3
+X-CMS-RootMailID: 20260728145333epcas5p427c6b6d72bff02de3f29e6a6a2108958
+References: <20260113022958.3379650-1-wangyang.guo@intel.com>
+	<CGME20260728145333epcas5p427c6b6d72bff02de3f29e6a6a2108958@epcas5p4.samsung.com>
+	<561480862.11785314102640.JavaMail.epsvc@epcpadp1new>
+	<DS0PR11MB801889FC50AAB91FCCAF8D3A92C92@DS0PR11MB8018.namprd11.prod.outlook.com>
 
-> -----Original Message-----
-> From: Jakub Kicinski <kuba@kernel.org>=20
-> Sent: Tuesday, August 4, 2026 2:47 AM
-> To: Chia-Yu Chang (Nokia) <chia-yu.chang@nokia-bell-labs.com>
-> Cc: linux-rdma@vger.kernel.org; eperezma@redhat.com; jasowang@redhat.com;=
- virtualization@lists.linux.dev; mst@redhat.com; xuanzhuo@linux.alibaba.com=
-; pabeni@redhat.com; edumazet@google.com; linux-doc@vger.kernel.org; corbet=
-@lwn.net; horms@kernel.org; dsahern@kernel.org; kuniyu@google.com; bpf@vger=
-.kernel.org; netdev@vger.kernel.org; dave.taht@gmail.com; jhs@mojatatu.com;=
- stephen@networkplumber.org; xiyou.wangcong@gmail.com; jiri@resnulli.us; da=
-vem@davemloft.net; andrew+netdev@lunn.ch; donald.hunter@gmail.com; ast@fibe=
-rby.net; liuhangbin@gmail.com; shuah@kernel.org; linux-kselftest@vger.kerne=
-l.org; ij@kernel.org; ncardwell@google.com; Koen De Schepper (Nokia) <koen.=
-de_schepper@nokia-bell-labs.com>; g.white@cablelabs.com; ingemar.s.johansso=
-n@ericsson.com; mirja.kuehlewind@ericsson.com; cheshire@apple.com; rs.ietf@=
-gmx.at; Jason_Livingood@comcast.com; vidhi_goel@apple.com; Parav Pandit <pa=
-rav@nvidia.com>
-> Subject: Re: [PATCH v4 net-next 1/1] net: update comments for SKB_GSO_TCP=
-_ECN and SKB_GSO_TCP_ACCECN
->=20
->=20
-> CAUTION: This is an external email. Please be very careful when clicking =
-links or opening attachments. See the URL nok.it/ext for additional informa=
-tion.
->=20
->=20
->=20
-> On Tue, 28 Jul 2026 18:10:07 +0200 chia-yu.chang@nokia-bell-labs.com
-> wrote:
-> > For RX, SKB_GSO_TCP_ECN shall NOT be used
->=20
-> but it _is_ still used in hns3, what's your plan there?
-> Documenting something we adhere to at the outset seems like a red flag.
->=20
-Hello,
+------8xxTakeuJ66kI_IBZqWF_Qqy5yET_M96iI-s.dWLk22.0KCZ=_104d19_
+Content-Type: text/plain; charset="utf-8"; format="flowed"
+Content-Disposition: inline
 
-I would think to remove the SKB_GSO_TCP_ECN in hns3.
-Because hns3 will break the whole TOS byte based on Jijie's email: https://=
-lore.kernel.org/all/47530dd8-cba6-4282-ae80-4cabd52b08bc@huawei.com/#t
+On 30/07/26 06:58AM, Guo, Wangyang wrote:
+>> For higher number of jobs(>=64), we are seeing ~8% regression with this patch.
+>>
+>> HW info:
+>> Intel(R) Core(TM) Ultra 7 265K
+>> CPU=20
+>> IRQ-CPU are 1:1 mapped.
+>
+>If IRQ and CPUs are 1:1 mapping (20 IRQs/20 CPUs), the patch would not change anything. Every group is exactly 1 CPU, same as before.
 
-Also, the virtio related changes will be submitted only after the approval =
-from virtio-spec.
+We see its not the case, before this patch, irqs smp_allowed_list was
+sequential, but after the patch this changes.
 
-Thanks.
-Chia-Yu
+Hardware:
+Intel(R) Core(TM) Ultra 7 265K
+- 8 P-cores (each its own cluster, own L2)
+- 12 E-cores (3 clusters of 4 CPUs sharing L2)
+- 1 NUMA node, 20 CPUs total, 21 NVMe queues(admin+io)
+
+Cluster topology (from cluster_cpus_list):
+{0} {1} {2} {3} {4} {5} {6} {7} {8-11} {12-15} {16-19}
+
+Before:
+/proc/irq/168/smp_affinity_list:0
+/proc/irq/169/smp_affinity_list:1
+/proc/irq/170/smp_affinity_list:2
+/proc/irq/171/smp_affinity_list:3
+/proc/irq/172/smp_affinity_list:4
+/proc/irq/173/smp_affinity_list:5
+/proc/irq/174/smp_affinity_list:6
+/proc/irq/175/smp_affinity_list:7
+/proc/irq/176/smp_affinity_list:8
+/proc/irq/177/smp_affinity_list:9
+/proc/irq/178/smp_affinity_list:10
+/proc/irq/179/smp_affinity_list:11
+/proc/irq/180/smp_affinity_list:12
+/proc/irq/181/smp_affinity_list:13
+/proc/irq/182/smp_affinity_list:14
+/proc/irq/183/smp_affinity_list:15
+/proc/irq/184/smp_affinity_list:16
+/proc/irq/185/smp_affinity_list:17
+/proc/irq/186/smp_affinity_list:18
+/proc/irq/187/smp_affinity_list:19
+
+After patch:
+/proc/irq/168/smp_affinity_list:1
+/proc/irq/169/smp_affinity_list:4
+/proc/irq/170/smp_affinity_list:0
+/proc/irq/171/smp_affinity_list:5
+/proc/irq/172/smp_affinity_list:6
+/proc/irq/173/smp_affinity_list:7
+/proc/irq/174/smp_affinity_list:3
+/proc/irq/175/smp_affinity_list:2
+/proc/irq/176/smp_affinity_list:8
+/proc/irq/177/smp_affinity_list:9
+/proc/irq/178/smp_affinity_list:10
+/proc/irq/179/smp_affinity_list:11
+/proc/irq/180/smp_affinity_list:12
+/proc/irq/181/smp_affinity_list:13
+/proc/irq/182/smp_affinity_list:14
+/proc/irq/183/smp_affinity_list:15
+/proc/irq/184/smp_affinity_list:16
+/proc/irq/185/smp_affinity_list:17
+/proc/irq/186/smp_affinity_list:18
+/proc/irq/187/smp_affinity_list:19
+
+I think this has to do with cache locality effects, when tasks run on
+"wrong" CPUs. If you want us to check perf data, we can run that.
+
+Below patch[1] fixes the issue for us. Basically keep the cpu order if
+resources are equal, meanwhile keeping the benefit of your patches for
+clustering.
+
+[1]
+--- a/lib/group_cpus.c
++++ b/lib/group_cpus.c
+@@ -109,7 +109,11 @@ static int ncpus_cmp_func(const void *l, const void *r)
+{
+	const struct node_groups *ln = l;
+	const struct node_groups *rn = r;
+
+-       return ln->ncpus - rn->ncpus;
++       if (ln->ncpus != rn->ncpus)
++               return ln->ncpus - rn->ncpus;
++
++       /* Tie-break by id so equal-ncpus clusters keep discovery order */
++       return ln->id - rn->id;
+}
+
+Regards,
+-Nitesh
+
+------8xxTakeuJ66kI_IBZqWF_Qqy5yET_M96iI-s.dWLk22.0KCZ=_104d19_
+Content-Type: text/plain; charset="utf-8"
+
+
+------8xxTakeuJ66kI_IBZqWF_Qqy5yET_M96iI-s.dWLk22.0KCZ=_104d19_--
+
