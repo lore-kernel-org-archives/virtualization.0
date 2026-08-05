@@ -1,158 +1,178 @@
-Received: from mail-ed1-f44.google.com (mail-ed1-f44.google.com [209.85.208.44])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from SA9PR02CU001.outbound.protection.outlook.com (mail-southcentralusazon11013056.outbound.protection.outlook.com [40.93.196.56])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A00AF3CF976
-	for <virtualization@lists.linux.dev>; Wed,  5 Aug 2026 17:46:13 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.208.44
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id A2AEF3E92B5
+	for <virtualization@lists.linux.dev>; Wed,  5 Aug 2026 20:40:47 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=40.93.196.56
 ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785951975; cv=pass; b=WG3rC6Gb7ynuARrPqJlqiAaE+NHqY/FwV3Ga+5Ylchx506VCtdvupQLFsz42XYPKLkYf2UBBN+5Tyy9knXLuvTDquWANlRF5IK5YUNxneFoglV9qDMB5TafAdqWsUeQCvoqOcc2NaubNEPsaLDFzR0METpVgJB9NfVXMsQSVHjk=
+	t=1785962449; cv=fail; b=vBbgmb3yzvA18vs1MHDMsSTZLQi8LYDVjpGajRx0weSS0GowbnvabJyXrgAl/fsanmI16//OQgaH5bG1NcrkgNOriKg7va3Jr38HD6Iz0VURp+YLvb039BbZtR2QyPs35KmoCARsn4PJiYN3O5acYf7Z14UlS7jFoW2UlGmsXY4=
 ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785951975; c=relaxed/simple;
-	bh=Q8tCfALbF5G8yrnXE2kTrpygCvYojp+VnLyrKYqOvPc=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=WYeRZJvTH84YauuELGAcJxdfg/bAQDE8XXRJG+ZgUCdd9BMzycD4y2N398cexkfhImVBafxAwz3QzwlhxtzRoeYsXRv0HRJFU0mV5/Aj07KKJG8+oqS3vMf0AM8Vi6GcO2ME34iJ+J/6GwAuTrr3m0ylCM9I8hioLGX7qh/Vmdw=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=rfsj0Lat; arc=pass smtp.client-ip=209.85.208.44
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1785962449; c=relaxed/simple;
+	bh=fcVKNLBcz2AISrsoRTRxWfSszOMEeRpLflWnO3aTpss=;
+	h=Message-ID:Date:Subject:To:Cc:References:From:In-Reply-To:
+	 Content-Type:MIME-Version; b=hL5vRZwr+7j/Z4VS5e27GrGo9hd1fPmCo2luT2WuHQSNNNSYh/0mvoPlotdUhwzbMUzENPztUSA3PH4NMTBjK+Yu9n0ned12fuiim0xAhn/2ry4dasv7hKo9bwASy4DXOAyVJpuJo4d/MZ8p+C8b2TFOAfH6FjwfkwTGrvgBxqE=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com; spf=fail smtp.mailfrom=amd.com; dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b=laPLvAaF; arc=fail smtp.client-ip=40.93.196.56
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=amd.com
+Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=amd.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="rfsj0Lat"
-Received: by mail-ed1-f44.google.com with SMTP id 4fb4d7f45d1cf-6a10b20634fso2235174a12.3
-        for <virtualization@lists.linux.dev>; Wed, 05 Aug 2026 10:46:13 -0700 (PDT)
-ARC-Seal: i=1; a=rsa-sha256; t=1785951972; cv=none;
-        d=google.com; s=arc-20260327;
-        b=KkY7rNwPEht4Qg8cF7ADzL5JiUSEP0atA/D7SlLSVoflgQsHoMWHDa9UhQWEwUtl7r
-         985OFToxNCaLaOnr8CFOBPRcqnGBina3Oe8KEuE77qLJ5PVy6dNWhghEkktjE22KkdqB
-         DzMMYmWfFtrwhkXmjLcU32ryBAY8wqYNYaNIRoy2FPCDpcbYxvnwiAiYzdVp4B+cG1gE
-         J3o9VqddaypH7kTIDIkQlaMwVhcuZlWrqcLHF00Kr/CjYS099Y6EUyYcpaZIP1DqI32m
-         uEwbOtyKuTSArcogvWWtBJimbmf8d5MHMD3SXJK3zXzq9h92rl4yrI6NPm/2zZdPzAXa
-         iuyg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
-        h=content-transfer-encoding:cc:to:subject:message-id:date:from
-         :in-reply-to:references:mime-version:dkim-signature;
-        bh=X8Wl/efK7JZ+Giu9f6qAvq/D3h7y+eNbtsicK6kfncc=;
-        fh=+aIzL7kTXvAa4aLW9jiNX8fhxxG9pPq+J2kuQzmIyOE=;
-        b=s2mc4rpSh94E9Gy8EN0l74UwORqz7Jz4ZSkAQ1m/0OjR+LDI5n+HCr79jzrgxZ9xIs
-         ziP0qcYfib+2kVPBU8K5WqxWkqd2FENJfDSciAMuHjSJv1fPvZZL59rSYop0BKv9gzQd
-         GlgvFMVk/1ejy6Ec9JcI5AJ299WIXpxIZffMkwVAWJdOczYB2fYWEIKHJVMECUNnl2f1
-         M1HPjpOPQMfFl8GyjFEMCN3gKw/L3DQOaSD6spCiIHWcakszLRB8d2JSXAX7sOuXKzVT
-         Mx6jT/hhrs1rYnuoNpJnw9XjWDcp/umKQmrb1suf1zbD9Zf+sH7TlonChKG/SIP5q5ac
-         g7Cg==;
-        darn=lists.linux.dev
-ARC-Authentication-Results: i=1; mx.google.com; arc=none
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785951972; x=1786556772; darn=lists.linux.dev;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
-         :date:message-id:reply-to:content-type;
-        bh=X8Wl/efK7JZ+Giu9f6qAvq/D3h7y+eNbtsicK6kfncc=;
-        b=rfsj0LatxYkqmngwzJhQa+DN0ShJsOPob/C2dPG1/lIsWdj5361jMq5HAw8YQhap+2
-         zI/ix13PKONtG+aoX5Gm9leWqqERM8ysMZ5hkVYrv+v7tcrQoK8ww2xFITIH8OM8M/3m
-         kKyTb+5mLi3Pg8Dx0New432FbrxH1nyNgqyj8cAFHXWgu2h614aa13Niu4JJI0pSiIQO
-         M3QZ+PLWLkgtmc6PyaalRyu+dn5bfMLdLDjaV1pZ6LE7re55JD8oCEyYWU8zVdZDVY1G
-         ratCTsvQFC/QjMnCUetBJht4R08IhzB0NrrgDLMHAuW5isA29EOOixpsW2ugio6YD5nV
-         zJdg==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785951972; x=1786556772;
-        h=content-transfer-encoding:content-type:cc:to:subject:message-id
-         :date:from:in-reply-to:references:mime-version:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=X8Wl/efK7JZ+Giu9f6qAvq/D3h7y+eNbtsicK6kfncc=;
-        b=JAYGFypRDEHQCITODNtT3kWUANzgjk824MIbwnlcVsN6tgjl86cDItgTll6x9x4KzN
-         vu0rUrR26RLMITPKiyypv8aTCRo7BFy2FX1KdUBHaNUqy+9vp/ztvMpcKysAoPcFl7Nl
-         GbK53mNU2NupxnPCxfWrUxlqtz6lVL//Bg1VbxQ29dXvSNST+oznT3PLuhi30Ueu/D+l
-         VPh4k06z3vN5L2VWcywaTmJBCfYhCrd7yQVK8OUpi/C9T4wEJYAkS7OhhWZRjMfWMkUD
-         z8c6gT/6qv7pOnLib4cvrrt7pd9B02GHq3n/NnJ/xAycImqjvrC+IXRR2n2m1bCWjABD
-         gqlw==
-X-Forwarded-Encrypted: i=1; AHgh+Ro48V/gyCbH5qhxkJEYPKc5tGaFuY72zWgZq75dR5gthxZF1UtwmhjvfuJzhKbHz3H0YbqRiTEMuoNQhWcPAg==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyTtCj14c08q8WENvJga1qBC/MBXHjk0WJmS18Hc1YHkTRsEcvy
-	RKsHnnCNIY6FNwdk0fVT2ZZ/3URI0RWeat4DB4B3Y929PYEbjcsF9Q+maJp5KMXnlGBoNY7sQeg
-	nwv1mg49dSqvPqsEtEUT60WuTYS/VoQM=
-X-Gm-Gg: AR+sD1005gJ7ddbGMu79cdh8unl9R6ll4h7Ac/E5IptUy3JEOoCRlSJmomR9cfJrc+P
-	iCoXyAVmontMi506kWM57/bPukg8K2DO2M3etEafBp+X4lkYJ8lrR+AKZGaFnewHQ7lIiCcbk4R
-	ZQCeif3vfRh/TX9pQFhxV7FoBRrlKwxWH8rXxFjJ0Nl50CACfHU1OTVV2MiBcKPG4ejKJZlVkwy
-	b+hDvasto2AphKLBEB6KJIGchGJvvQEB4ynX08yNLI9Jw9D9g6EjnxYuZAZ1T8CHDfE2UzB7fg0
-	5rsqXZnKUEjL9cX9/nO4vvBBdY+ZPwXvOeHUh8N7eLujsbZxvV9ac1dqnn3mPvUnxDZY/ERvK2J
-	tcQ==
-X-Received: by 2002:a05:6402:190a:b0:6a1:2863:ad74 with SMTP id
- 4fb4d7f45d1cf-6a14f14c013mr4248984a12.16.1785951971642; Wed, 05 Aug 2026
- 10:46:11 -0700 (PDT)
+	dkim=pass (1024-bit key) header.d=amd.com header.i=@amd.com header.b="laPLvAaF"
+ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
+ b=g5Yr0ESS1MKslYa80ya/ipYI2f7vd8LVcgTpajnFVY5ir6lLuDUPOokAbXfNP86fwUCosFY2blnrpOgSvDAkUFojd20vjXfohXLQAVivInBN5TdmHuFRJ6jH3+zjiNezG815QpJOhF58wR5xBR3iZGVprr5R6dqPH3tamoqcPZzMySSR3K5Wch2/MK8wqTCG9X7Iyy/WJycgaklO0s0xzA85B/xgtaa9XcQFLeCVaYY6AQVhac7/N6AsinKhn0ExRU8iXpNpPmkwhf4F8dgqx7kVf/PF47AFICWMhlz6E8r64LABPoGH3hp28zntH3LkNedPoLfOahmmo59eMtFuJg==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
+ s=arcselector10001;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
+ bh=+qwUGxBNwrUhoagTkDAycPYLQzl31oM7PuLAhM9ArSM=;
+ b=JMVkLVRq2X3LnzhzcEzaL1ZycZtoL7gN551doRSjYRtHHqx2eLMwBWlms/7059/YT6MuicrIYuC/yW18hP9f9kjGf30/s7WldjnN2V3tiuiYIIMwBHEB7RnsEFv438/PXD7eNJbTONdigm0t8faS3I7dNrAFPQb5LQ4MZJ1eW9FpgG51ulxWWzaeJicYbyym3bIlKcIeHedf58cmGIMWjjap0/fmMiQ6sjrVnnrqTHOnJvBNyWfnpOWMbms7YjUkQ1T+h262S3mVz7g3VaD3z5sksuKKigoiraYVKGZeXuU+dX9J4eQCtDTeBpypMidItMMSGTuWFGbCKdk7V0uOvg==
+ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass
+ smtp.mailfrom=amd.com; dmarc=pass action=none header.from=amd.com; dkim=pass
+ header.d=amd.com; arc=none
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=amd.com; s=selector1;
+ h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
+ bh=+qwUGxBNwrUhoagTkDAycPYLQzl31oM7PuLAhM9ArSM=;
+ b=laPLvAaFu2sbzLaC09noIFbCUeL8+xXyVbD4hfb/1Q2q4CMJhyhS7Ygnk3oCVjUybibZ6LXCJtlYFkRDA6WhWNvz37rHkvOm+fs1PzT7fTXUbIPcTbqDBCPbxbext77JP9EmC2dwh9br0k8YNDzc7+l6wq8R2gcd3dnSl6cyFUQ=
+Authentication-Results: dkim=none (message not signed)
+ header.d=none;dmarc=none action=none header.from=amd.com;
+Received: from DM4PR12MB5389.namprd12.prod.outlook.com (2603:10b6:5:39e::8) by
+ SJ1PR12MB6267.namprd12.prod.outlook.com (2603:10b6:a03:456::10) with
+ Microsoft SMTP Server (version=TLS1_2,
+ cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.292.19; Wed, 5 Aug
+ 2026 20:40:43 +0000
+Received: from DM4PR12MB5389.namprd12.prod.outlook.com
+ ([fe80::1f4e:98f9:2c94:8e4e]) by DM4PR12MB5389.namprd12.prod.outlook.com
+ ([fe80::1f4e:98f9:2c94:8e4e%4]) with mapi id 15.21.0292.018; Wed, 5 Aug 2026
+ 20:40:42 +0000
+Message-ID: <08a8f40b-6c01-4296-8e49-432c9dbc3a9f@amd.com>
+Date: Wed, 5 Aug 2026 13:40:39 -0700
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH] vdpa/pds: check virtqueue notify mapping
+To: Xiong Weimin <xiongweimin@kylinos.cn>,
+ Brett Creeley <brett.creeley@amd.com>, "Michael S. Tsirkin"
+ <mst@redhat.com>, Jason Wang <jasowangio@gmail.com>
+Cc: Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ =?UTF-8?Q?Eugenio_P=C3=A9rez?= <eperezma@redhat.com>,
+ virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
+References: <20260804085341.1333303-1-xiongweimin@kylinos.cn>
+Content-Language: en-US
+From: "Creeley, Brett" <bcreeley@amd.com>
+In-Reply-To: <20260804085341.1333303-1-xiongweimin@kylinos.cn>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ClientProxiedBy: CH3P220CA0009.NAMP220.PROD.OUTLOOK.COM
+ (2603:10b6:610:1e8::27) To DM4PR12MB5389.namprd12.prod.outlook.com
+ (2603:10b6:5:39e::8)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <am2QeS/lS+Cova+I@yokbvdiprd370.nvidia.com>
-In-Reply-To: <am2QeS/lS+Cova+I@yokbvdiprd370.nvidia.com>
-From: Stefan Hajnoczi <stefanha@gmail.com>
-Date: Wed, 5 Aug 2026 13:45:58 -0400
-X-Gm-Features: AUfX_mxaQ4QsMMCnx01DLxTc-If0eVI8Hja4hw7pleDzHhZ5Yt_Htr4wrkge_oI
-Message-ID: <CAJSP0QVSBsg0_pCaxy8Sar3=G+sdj5Z8R5yNmUomGy+C5YrHJQ@mail.gmail.com>
-Subject: Re: [PATCH] virtio_blk: add use_irq_affinity module parameter
-To: "Liu, Changcheng" <jerrliu@nvidia.com>
-Cc: pbonzini@redhat.com, stefanha@redhat.com, virtualization@lists.linux.dev, 
-	changcheng.liu@aliyun.com
-Content-Type: text/plain; charset="UTF-8"
-Content-Transfer-Encoding: quoted-printable
+X-MS-PublicTrafficType: Email
+X-MS-TrafficTypeDiagnostic: DM4PR12MB5389:EE_|SJ1PR12MB6267:EE_
+X-MS-Office365-Filtering-Correlation-Id: 4cb314f2-719b-439c-42ea-08def331d136
+X-MS-Exchange-SenderADCheck: 1
+X-MS-Exchange-AntiSpam-Relay: 0
+X-Microsoft-Antispam:
+	BCL:0;ARA:13230040|23010399003|1800799024|376014|366016|56012099006|10067099003|22082099003|18002099003|11063799006;
+X-Microsoft-Antispam-Message-Info:
+	MvS/RukWywDLR+LTZaC0v7jXfSrpUtHlbHQdzGllUHPQbIQ5fN9O31OMihO2MQt0vRDRYWI2iRJxYvO1Nc5DJ88vBIf81LAcGga1rk612nB664xzU2pJMTBAiDYSONcHOOAYMZdoLOr2+8Ds3cF2Xsw0QTfh9u0QixbCzg5eLO7BYXTbAh5g3vx0GzbiRO/2ado6HIPyH3iQbV6erTPgojSzq+CwJ/RShDIWjarooGTSjES6cv3BKgBMx9l6ArharQYDORR+dRK+8+HuXrj/MAamhSHVFxbsGbSlYh7OUeeyJ9cV9AwEkNNME36jCjz9P1xieX/anLyf6bUxccz0W7Dkvcp0+kWpUM6BNMW6LoZZuFHzIxGMRs9jJp9hTULd9vULlsEMy6asp3ysY8Na8qX68/5XokNrN4TBlvvFz0KX/Ew6lY+MpQtNKoPwKx67Kx+dQo0TnqEG+zD0zqGjnH7h5jhM815EDcs9/meeBBcRfQVtIbKJ84TQCRi0bpdmU4ngtfsxrFZT8EA1OLz97vTZqaF2j/hoYEmtIOUy3pgMSZtwk0r/h+YbB0H8kcMtSx6UL6my1PS09eRKNB8Dbttcb97PtNxpfMtcCr1T9auOkJx6Y3pgT9PhC4oCmcCVXXRfzk8UYYiC4+/sIwSRviaNp+JRDgodepuKIS90+UM=
+X-Forefront-Antispam-Report:
+	CIP:255.255.255.255;CTRY:;LANG:en;SCL:1;SRV:;IPV:NLI;SFV:NSPM;H:DM4PR12MB5389.namprd12.prod.outlook.com;PTR:;CAT:NONE;SFS:(13230040)(23010399003)(1800799024)(376014)(366016)(56012099006)(10067099003)(22082099003)(18002099003)(11063799006);DIR:OUT;SFP:1101;
+X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
+X-MS-Exchange-AntiSpam-MessageData-0:
+	=?utf-8?B?dDMxQnpkWFpKZUVWMURGZFVaN2ZXWUVNNHpvNWs1U1hsNzZJbjRqYUExMWpn?=
+ =?utf-8?B?YnFvVmxvTXlxbFZHeU9EOUluRmlRZ1dCZGQvWnlYVUp3NS9pSHJMd01TVW9r?=
+ =?utf-8?B?cEUwcy81cmZBTDhsTDhwTndSdzVoQ08zc245MWVnVnlLTmVUT1dnQXFyVHZa?=
+ =?utf-8?B?M1lhVFBObU05bFZjMGtTeWg3OWtuVUZzTWRadkZPcHdkTHEvdlFsdkZWQ2JF?=
+ =?utf-8?B?WnFLb0FQSUQweHJRdW4wejQ1MDlYNHM3bmpRV3NBbnZIWExwWG03TDNKdEE0?=
+ =?utf-8?B?dUJDMUF6YkVCRlJHNHFINlN0ZkZXU2JDbTVPYjc1QWVrcjN4WVlIc2dVUzVW?=
+ =?utf-8?B?WGJvdDByQjZheHQ0bVM0cTc1T1pnd1A3b3Q3ajEyZm0rb1ZuVTJlbDRvSGdp?=
+ =?utf-8?B?bVYwbGY3dUFmajNTc09JQitrTGdKcnNsTE9JcjA3djc1MERqNW9mSkNtLzVS?=
+ =?utf-8?B?cE1qcnY4QlhZUjgrYzl1elVvWklaVjRxVnNtWTR5Wk5paWw4NkF6bDIwMTNB?=
+ =?utf-8?B?ditlWkN2Sm5FNzVlVnNrNHB1ZkxmV3VZSm9OTDFZTXFSOGVlZDNTdzRVcFpZ?=
+ =?utf-8?B?MDZ2RkQvSGVvSzY1SjlBN3ZSalYrMHNKUkQ2L0ZqL2xvd28wekp3Y29KMGF3?=
+ =?utf-8?B?N1krLzlOWFVNZzVvNmhjM2pZczZBY25yVVlCWlpVVXd5citEbTN1aVhoYzFC?=
+ =?utf-8?B?VjdMOGpWczIxQVp1d1BuY1l5NlFMVlZRdi9mczdwWmc0RWNSb20rek9vdC9B?=
+ =?utf-8?B?ekhVWkxQTXJwMTVMUWoxTENUb2VCczJLVWVrUHpOMVczZDNWQzdJRGN6UkY0?=
+ =?utf-8?B?VEsycTNlMDNiTGs4aVBEY2hjUXEzVmR5Z2pUcTBxdGJWV2xhdlJIY3NUM2Vn?=
+ =?utf-8?B?eGxtMTkxNUh1QjZjSVF2OGhLbVpZOEVzdjlNOFdaVFZZZTlTZy82RmhHUnRw?=
+ =?utf-8?B?cWVvYjlpRFFHMWxPaWQxRkhKUlZPQ21CM2NGRExzV3FVZ1VnQjhKazZSeTds?=
+ =?utf-8?B?KzNHMEk4QnplTWhtVnNqUTN2ZFpSRU5pdEd6eHlMVHZ3MjEzSk9kOW5CeHBq?=
+ =?utf-8?B?eEs5blBITjZlWUIvTVNENWE2RTNiTUJZVmNrbGZaR2k1a1o0RWc2akgzNXl3?=
+ =?utf-8?B?WCsrMG4vU2lnZk1LRE5kS0Q5MlJYM3NOVHl2M3QwcDRwc0RNQk9jMGFxcHV0?=
+ =?utf-8?B?SVV0MC9DYmxqeFNUUFNqemJaZXhDWnlHKzFtOHhFeU1zQ0lIelBBNG5oZm5Q?=
+ =?utf-8?B?Ymc5QnpFM3k4VzZsNFlLSk1sUWRhdGdpWG9SS2JWQUJFRlhEZzNwVWFQaFky?=
+ =?utf-8?B?N0ZZTU01L253MHRmRHZQRml6VEFaZ2JOblA2NENzWG0zSW44M1FBaUpneWZp?=
+ =?utf-8?B?Qk9NSmtOTjJHZzFiSkdKSHlDRllWRHdEUC9IeVhqTFJNU0R2dDZNTUlhVlAx?=
+ =?utf-8?B?SVI0QnJ0SEREQndYSzRPdERyNWtQNkdCNjVXN014NHBRaDhWaTJoc2FnT3hG?=
+ =?utf-8?B?ZVJsakxyQnJvWkx2YTVKYVZPQmduTllKclh4SXpzTXhoTFJyV3NoSjFwNUlx?=
+ =?utf-8?B?OXJBWGhwSFZibDZNVkx1NnRxb3FLUk1GK0lycHBhZldwWWFRNXRyL3V2a3B2?=
+ =?utf-8?B?Mks5TUIyTDhEQzRLdGwvSnhWd1FCR3ZrVm1qVFd0c3laQ0pROTdtS1NEem9x?=
+ =?utf-8?B?K28xbXI3eGUwZnE5bCtpWXpxeE5MRVBTVTloMCtpR1lENEVVcVlyNkRMQ0hU?=
+ =?utf-8?B?Y1phZ1Q5VkJqWlJ1Z0g5Qk1zUSs2eGdaM21WR1NqeXg3Rm1RdDNydVlVNzJ6?=
+ =?utf-8?B?Szk4MGVaRUFtMGVXY3czQ1lQNE5HdFl0eFhIRDNPWmQ0Vm01bVpqaWRIWXRD?=
+ =?utf-8?B?djQ4UEdBYUZNRWk3YnhPbndac2QvMzk5a3JoUGludFNQNTY4QjFkT0pvNEhX?=
+ =?utf-8?B?T2xBNmJLbzc4bm9mM01EWlVxRUNaMVZMQUNPWEQwMGV3UGViL3d6Vk5KZEIw?=
+ =?utf-8?B?WlVoVTR3WWpjM0djcURwQW5CZittSDlpSGxEUTJUVTlROUx4OUhqaUpkRXUy?=
+ =?utf-8?B?ZjNxdmpDb2JtZXIrbE5iWjhybUpKbGE4TVVoQ2NYTm9NQmZYNHVWUGZtTXRI?=
+ =?utf-8?B?ZXZNOHJGbHRka0U4cXNOY1ROODFBdjFQTGlYRkIzbXk3QUNPcUZXQTN4ZkdO?=
+ =?utf-8?B?RVhXTk41ajJxYkk2ZlpQVFdzWU11Umw1SWg3Q3YrYkdmT3lzUmVoYTFhNjc2?=
+ =?utf-8?B?NW1hVmY3YzJUU0x5Vm5oaVM2VGM0enZ1K0plS0p2dmFzRWg4a01JN3puTlZt?=
+ =?utf-8?B?dGtEVFVVNklQL2lsUFJBdGRtY1VUVXlwZ1RWK0xEd0lacGZ0ODA1UT09?=
+X-OriginatorOrg: amd.com
+X-MS-Exchange-CrossTenant-Network-Message-Id: 4cb314f2-719b-439c-42ea-08def331d136
+X-MS-Exchange-CrossTenant-AuthSource: DM4PR12MB5389.namprd12.prod.outlook.com
+X-MS-Exchange-CrossTenant-AuthAs: Internal
+X-MS-Exchange-CrossTenant-OriginalArrivalTime: 05 Aug 2026 20:40:42.4546
+ (UTC)
+X-MS-Exchange-CrossTenant-FromEntityHeader: Hosted
+X-MS-Exchange-CrossTenant-Id: 3dd8961f-e488-4e60-8e11-a82d994e183d
+X-MS-Exchange-CrossTenant-MailboxType: HOSTED
+X-MS-Exchange-CrossTenant-UserPrincipalName: J7sKXxS/T9VRxFb4Z+TMJVMGCoRZUWM01Dq0fBE2sfMlFHeqQmwLbKjep9Lc06NuJrOKKq4h1CzX0+sD7O45GQ==
+X-MS-Exchange-Transport-CrossTenantHeadersStamped: SJ1PR12MB6267
 
-On Sat, Aug 1, 2026 at 2:21=E2=80=AFAM Liu, Changcheng <jerrliu@nvidia.com>=
- wrote:
->
-> When creating many virtio-blk devices, probe starts failing with
-> -ENOSPC (-28) because the system runs out of interrupt vectors:
->
->   virtio_blk virtioNNN: probe with driver virtio_blk failed with error -2=
-8
->
-> By default virtio-blk uses managed IRQ affinity, which reserves an
-> interrupt vector on every CPU for each device (about nr_cpus vectors per
-> device). On a host with many CPUs and many devices this exhausts the
-> vectors long before all devices are probed.
->
-> Add use_irq_affinity (default true, no behaviour change). Set it to 0 to
-> use unmanaged interrupts, so each device only uses a couple of vectors
-> instead of one per CPU, allowing far more devices to probe.
->
-> Signed-off-by: Liu, Changcheng <jerrliu@nvidia.com>
 
-There is already a num_request_queues module parameter for cases where
-the user wishes to reduce the number of virtqueues. Did you benchmark
-that and decide the performance of many queues sharing a single irq
-makes it worth adding another module parameter?
 
-Stefan
-
-> diff --git a/drivers/block/virtio_blk.c b/drivers/block/virtio_blk.c
-> index 32bf3ba07a9d..184f1c1f4485 100644
-> --- a/drivers/block/virtio_blk.c
-> +++ b/drivers/block/virtio_blk.c
-> @@ -41,6 +41,11 @@ static unsigned int poll_queues;
->  module_param(poll_queues, uint, 0644);
->  MODULE_PARM_DESC(poll_queues, "The number of dedicated virtqueues for po=
-lling I/O");
+On 8/4/2026 1:53 AM, Xiong Weimin wrote:
+> [You don't often get email from xiongweimin@kylinos.cn. Learn why this is important at https://aka.ms/LearnAboutSenderIdentification ]
 >
-> +static bool use_irq_affinity =3D true;
-> +module_param(use_irq_affinity, bool, 0644);
-> +MODULE_PARM_DESC(use_irq_affinity,
-> +                "Use managed IRQ affinity for virtqueues (default: true)=
-");
+> Caution: This message originated from an External Source. Use proper caution when opening attachments, clicking links, or responding.
+>
+>
+> vp_modern_map_vq_notify() can fail and return NULL.  Check the notify
+> mapping while adding a pds vDPA device and use the existing teardown path
+> instead of storing a NULL doorbell pointer in the virtqueue state.
+>
+> Signed-off-by: Xiong Weimin <xiongweimin@kylinos.cn>
+> ---
+>   drivers/vdpa/pds/vdpa_dev.c | 6 ++++++
+>   1 file changed, 6 insertions(+)
+>
+> diff --git a/drivers/vdpa/pds/vdpa_dev.c b/drivers/vdpa/pds/vdpa_dev.c
+> index 43426bd97..df53cfce9 100644
+> --- a/drivers/vdpa/pds/vdpa_dev.c
+> +++ b/drivers/vdpa/pds/vdpa_dev.c
+> @@ -731,6 +731,12 @@ static int pds_vdpa_dev_add(struct vdpa_mgmt_dev *mdev, const char *name,
+>
+>                  notify = vp_modern_map_vq_notify(&pdsv->vdpa_aux->vd_mdev,
+>                                                   i, &pdsv->vqs[i].notify_pa);
+> +               if (!notify) {
+> +                       err = -EINVAL;
+> +                       dev_warn(dev, "Fail to map vq notify %d\n", i);
+
+Nit, but why dev_warn() instead of dev_err()? It looks like this was 
+copied, but I wonder if the other spot should be a dev_err() instead of 
+dev_warn too?
+
+Other than that, LGTM.
+
+Reviewed-by: Brett Creeley <brett.creeley@amd.com>
+> +                       goto err_unmap;
+> +               }
 > +
->  static int major;
->  static DEFINE_IDA(vd_index_ida);
->
-> @@ -1016,7 +1021,8 @@ static int init_vq(struct virtio_blk *vblk)
->         }
->
->         /* Discover virtqueues and write information to configuration.  *=
-/
-> -       err =3D virtio_find_vqs(vdev, num_vqs, vqs, vqs_info, &desc);
-> +       err =3D virtio_find_vqs(vdev, num_vqs, vqs, vqs_info,
-> +                             use_irq_affinity ? &desc : NULL);
->         if (err)
->                 goto out;
+>                  pds_vdpa_init_vqs_entry(pdsv, i, notify);
+>          }
 >
 > --
-> 2.43.7
+> 2.43.0
 >
->
+
