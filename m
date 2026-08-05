@@ -1,119 +1,77 @@
-Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
+Received: from unimail.uni-dortmund.de (mx1.hrz.uni-dortmund.de [129.217.128.51])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 7941E3C6A57
-	for <virtualization@lists.linux.dev>; Wed,  5 Aug 2026 03:29:43 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E2CFF33F383;
+	Wed,  5 Aug 2026 05:23:58 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=129.217.128.51
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785900585; cv=none; b=dfR0jR+s3gvXFUu8RC+iiAFKoloILGfvZmQTgk9S2PXXfcTVs+42SPZlNjgzNsVyDnreqDIPRCITFdC/o/trdd2EeUeg4Kyqdm6mqaLcDYvh3xiTVllzv368W99lBi+20HgoukJzgaK84YFO5SzFeDovwddK/YnEcT83NkSKmew=
+	t=1785907442; cv=none; b=m4l7QmOnfSwFD0mYAdr9RbskdV97lfaQF8kg8y4uN1My3gCtFhnBTI1XlfTcGpbqPRSy8HrjgJ3WM169SkPLvapZBMriqBRMp78zmG8Q+EDxaUKP0D6HrUWO9kFzmNx4GkcUh9b3UT6t1sM4wrFTf2LjluYfOsiLgPNhJENsJ00=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785900585; c=relaxed/simple;
-	bh=NyysX71tOEVitM986eCc7Wmaj8xSQdDVkejgQEJx5ZY=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=W9uMThk4H3KubDp6BSJniuYOUE8KIAOSiwlVjpWKs2eoWnrflY3N3JaabbgkBn42uViiVt5JJUAk1kr4UzUgzG0SfIPs4bAZlblUwlBiTiz5oI4fmSv+llEFRYbIsLVVg4UukVpp6jL+Dz4tBo/hr7ReripElU9iAdmxyiTAHxI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
-Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: e43b5566907d11f1aa26b74ffac11d73-20260805
-X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.12,REQID:354fc164-4eb8-47dd-b430-f707dde2152c,IP:0,U
-	RL:0,TC:0,Content:-5,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION
-	:release,TS:-5
-X-CID-META: VersionHash:e7bac3a,CLOUDID:292b35c7d482c131377138ba52ffc499,BulkI
-	D:nil,BulkQuantity:0,Recheck:0,SF:102|865|898,TC:nil,Content:0|15|50,EDM:-
-	3,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:0,OSA:0,A
-	V:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
-X-CID-BVR: 2,SSN|SDN
-X-CID-BAS: 2,SSN|SDN,0,_
-X-CID-FACTOR: TF_CID_SPAM_SNR
-X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: e43b5566907d11f1aa26b74ffac11d73-20260805
-X-User: xiongweimin@kylinos.cn
-Received: from xwm-tianyi510pro-14imb.. [(10.44.16.150)] by mailgw.kylinos.cn
-	(envelope-from <xiongweimin@kylinos.cn>)
-	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
-	with ESMTP id 100322220; Wed, 05 Aug 2026 11:29:39 +0800
-From: Xiong Weimin <xiongweimin@kylinos.cn>
-To: virtualization@lists.linux.dev,
-	linux-kernel@vger.kernel.org,
-	"Michael S. Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowangio@gmail.com>,
-	Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>,
-	stable@vger.kernel.org,
-	Xiong Weimin <xiongweimin@kylinos.cn>
-Subject: [PATCH] virtio_mmio: disable IRQ wake before free_irq
-Date: Wed,  5 Aug 2026 11:29:37 +0800
-Message-ID: <20260805032937.1606737-1-xiongweimin@kylinos.cn>
-X-Mailer: git-send-email 2.43.0
+	s=arc-20240116; t=1785907442; c=relaxed/simple;
+	bh=s1uXNVpEAHN4f/x9IHGPV+gZso6zL17IL/l6/kWi1+w=;
+	h=Message-ID:Date:MIME-Version:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=oSzCLAhGuOC1MJRkQ2mthZX3BAu3XEtjuIfxh3Qfy6Hrx7sCZzKwFefPhqca9Baq8kdT3NQ/uARzmJ/wlcuaU0k06vmRYziCEN1gY0v268pwjxFaNBjr8ryRbTomZzHBsY2wP2eGagtgHuAieIWppC84rBC7FiY/u/QwGUMcXac=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de; spf=pass smtp.mailfrom=tu-dortmund.de; dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b=dM1nqOnD; arc=none smtp.client-ip=129.217.128.51
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=tu-dortmund.de
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=tu-dortmund.de
+Authentication-Results: smtp.subspace.kernel.org;
+	dkim=pass (1024-bit key) header.d=tu-dortmund.de header.i=@tu-dortmund.de header.b="dM1nqOnD"
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=tu-dortmund.de;
+	s=unimail; t=1785907230;
+	bh=tnJ1K0fIN2izUR1UfRoFKGa/WS2bVfZZL5bJfos5cCk=;
+	h=Date:Subject:To:References:From:In-Reply-To;
+	b=dM1nqOnDArETP2YaQuChbwXjt658w2p/8a01FVV3lZYiPmkV1Km9pfbmjAeaqhEVb
+	 SyYdPGTZea9DQ4qf3zTB6goRoae/8SULlKeBjeVhLJMQzr3ntFv0/lRjkWv0grkOWC
+	 VFyAS9aFOZrv8ai5fBGfbXZKmXziVrsqNufENRPM=
+Received: from [IPV6:2a01:599:232:c1b0:84f0:11ed:69b4:d86b] (tmo-075-246.customers.d1-online.com [80.187.75.246])
+	(authenticated bits=0)
+	by unimail.uni-dortmund.de (8.19.0.2/8.19.0.2) with ESMTPSA id 6755KRMg017404
+	(version=TLSv1.3 cipher=TLS_AES_256_GCM_SHA384 bits=256 verify=NOT);
+	Wed, 5 Aug 2026 07:20:27 +0200 (CEST)
+Message-ID: <0e3efa4a-e9bb-4e98-8b1f-1a8637c429db@tu-dortmund.de>
+Date: Wed, 5 Aug 2026 07:20:26 +0200
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+User-Agent: Mozilla Thunderbird
+Subject: Re: [PATCH net-next v14 0/5] tun/tap & vhost-net: apply qdisc
+ backpressure on full ptr_ring to reduce TX drops
+To: willemdebruijn.kernel@gmail.com, jasowangio@gmail.com, jasowang@redhat.com,
+        andrew+netdev@lunn.ch, davem@davemloft.net, edumazet@google.com,
+        kuba@kernel.org, pabeni@redhat.com, horms@kernel.org, mst@redhat.com,
+        eperezma@redhat.com, leiyang@redhat.com, stephen@networkplumber.org,
+        jon@nutanix.com, brett@librecast.net, corbet@lwn.net,
+        skhan@linuxfoundation.org, tim.gebauer@tu-dortmund.de,
+        netdev@vger.kernel.org, linux-doc@vger.kernel.org,
+        linux-kernel@vger.kernel.org, kvm@vger.kernel.org,
+        virtualization@lists.linux.dev
+References: <20260803183641.96882-1-simon.schippers@tu-dortmund.de>
+Content-Language: en-US
+From: Simon Schippers <simon.schippers@tu-dortmund.de>
+In-Reply-To: <20260803183641.96882-1-simon.schippers@tu-dortmund.de>
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
-When the DT node has "wakeup-source", vm_find_vqs() calls
-enable_irq_wake() on the shared IRQ, but vm_del_vqs() freed that IRQ
-without a matching disable_irq_wake(). That leaves a wake reference
-behind and can warn on later free_irq()/request_irq() cycles.
+On 8/3/26 20:36, Simon Schippers wrote:
+> This patch series deals with tun/tap & vhost-net which drop incoming
+> SKBs whenever their internal ptr_ring buffer is full. Instead, with this
+> patch series, the associated netdev queue is stopped, but only when the
+> new IFF_BACKPRESSURE flag is set and a qdisc is attached. Without the
+> flag, or if no qdisc is present, the existing behavior is preserved. The
+> XDP transmit path is not affected. This patch series touches tun/tap and
+> vhost-net, as they share common logic and must be updated together.
+> Modifying only one of them would break the other.
+> 
 
-Record whether enable_irq_wake() succeeded, and disable it in
-vm_del_vqs() before free_irq().
+Sashiko is happy now.
 
-Fixes: 02213273f72a ("virtio_mmio: add support to set IRQ of a virtio device as wakeup source")
-Cc: stable@vger.kernel.org
-Signed-off-by: Xiong Weimin <xiongweimin@kylinos.cn>
----
- drivers/virtio/virtio_mmio.c | 16 +++++++++++++---
- 1 file changed, 13 insertions(+), 3 deletions(-)
-
-diff --git a/drivers/virtio/virtio_mmio.c b/drivers/virtio/virtio_mmio.c
-index 510b7c4ef..d5b148bde 100644
---- a/drivers/virtio/virtio_mmio.c
-+++ b/drivers/virtio/virtio_mmio.c
-@@ -87,6 +87,9 @@ struct virtio_mmio_device {
- 
- 	void __iomem *base;
- 	unsigned long version;
-+
-+	/* True if enable_irq_wake() succeeded for the shared IRQ. */
-+	bool wake_irq_enabled;
- };
- 
- /* Configuration interface */
-@@ -329,11 +332,17 @@ static void vm_del_vqs(struct virtio_device *vdev)
- {
- 	struct virtio_mmio_device *vm_dev = to_virtio_mmio_device(vdev);
- 	struct virtqueue *vq, *n;
-+	int irq = platform_get_irq(vm_dev->pdev, 0);
- 
- 	list_for_each_entry_safe(vq, n, &vdev->vqs, list)
- 		vm_del_vq(vq);
- 
--	free_irq(platform_get_irq(vm_dev->pdev, 0), vm_dev);
-+	if (vm_dev->wake_irq_enabled) {
-+		disable_irq_wake(irq);
-+		vm_dev->wake_irq_enabled = false;
-+	}
-+
-+	free_irq(irq, vm_dev);
- }
- 
- static void vm_synchronize_cbs(struct virtio_device *vdev)
-@@ -460,8 +469,9 @@ static int vm_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
- 	if (err)
- 		return err;
- 
--	if (of_property_read_bool(vm_dev->pdev->dev.of_node, "wakeup-source"))
--		enable_irq_wake(irq);
-+	if (of_property_read_bool(vm_dev->pdev->dev.of_node, "wakeup-source") &&
-+	    !enable_irq_wake(irq))
-+		vm_dev->wake_irq_enabled = true;
- 
- 	for (i = 0; i < nvqs; ++i) {
- 		struct virtqueue_info *vqi = &vqs_info[i];
--- 
-2.43.0
+Gemini reports in patch 2:
+"[Severity: Medium]
+Will vhost-net bypass this wrapper and cause permanent TX queue stalls when
+IFF_BACKPRESSURE is enabled?"
+... but this is added in patch 3. It just cant cross-reference it.
+So it is fine.
 
