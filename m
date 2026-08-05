@@ -1,183 +1,136 @@
-Received: from AS8PR04CU009.outbound.protection.outlook.com (mail-westeuropeazon11011059.outbound.protection.outlook.com [52.101.70.59])
+Received: from out-174.mta0.migadu.com (out-174.mta0.migadu.com [91.218.175.174])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2A01D43B4A3
-	for <virtualization@lists.linux.dev>; Tue,  4 Aug 2026 21:35:24 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=fail smtp.client-ip=52.101.70.59
-ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785879326; cv=fail; b=NVIFt8Z9Y1JqYRdMaEk9bHhHBmNv4UGCYNEPS2GWG0A1Vu+YHa1u569T8xIK0XHOHcDHovJMhEmOZLGVUHBRibfRV27jv82G1LFEfAhCTm8QU4H6rrolTZY3Qf5po7UqK1xXXupT7V0c/1M+2Y4uWVGx2j16+jldsaEh1JeKGQg=
-ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785879326; c=relaxed/simple;
-	bh=4jOaZwfp0H0UXI6ftUlkb1/34GT3+i7oFw1ALIklebs=;
-	h=From:To:Cc:Subject:Date:Message-Id:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=H0AbsywbTX1P2XG6iopO8kkiWsnPhHTYFI4imDKEh/8PpUjSY7RV+fNayeEUZexKrZiFjR9pnbstTlkkY+odUSmgQc5u9D7LfFjbnCyBlGlsskWHShU+6p+fi2i1DIjKGJtwHxIA/8TisJHeYYIRePa23U8Mm/rA/TiyaqxZUAg=
-ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nokia-bell-labs.com; spf=fail smtp.mailfrom=nokia-bell-labs.com; dkim=pass (2048-bit key) header.d=nokia-bell-labs.com header.i=@nokia-bell-labs.com header.b=nJV3q3NI; arc=fail smtp.client-ip=52.101.70.59
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=nokia-bell-labs.com
-Authentication-Results: smtp.subspace.kernel.org; spf=fail smtp.mailfrom=nokia-bell-labs.com
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2EB7D24A06D
+	for <virtualization@lists.linux.dev>; Wed,  5 Aug 2026 00:59:03 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.174
+ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1785891545; cv=none; b=pThNcwzxyI8URSR7MmDXDslv7WbB/se6gKoNTLGFPiZD+aUM0eTqhbuzI2tBcZupvJAge8obr+X4OpuAnhBTUCghP4uHgetrC7/4Q+/TL56kw8CQvAB8H3i35w8vw/glArC9WAFgPtv1ouHYY6g8P3onblHySZlOw7h5vz479+8=
+ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1785891545; c=relaxed/simple;
+	bh=QXq+No4NCvplH5iP+cVU/DLqFEsEiO2ABlKqbYf8N0U=;
+	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
+	 In-Reply-To:Content-Type; b=kqIpXP3C7i6Il3J96zQA2fgG46csQ5RfvI1c2puhoXuAu1ZyOa5ZQYqGA7Hr9udxNmq/kx2+WZ8AYwJAxQdJ33bhuSqJYuYJkbEPliaySy8S3iLRaDO/g+4vRPT76nsGh/4muZyQwd9jAaWLhIqhNJSWvv8QolM5spB/qsNdLDI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=UKD+o0Q9; arc=none smtp.client-ip=91.218.175.174
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=nokia-bell-labs.com header.i=@nokia-bell-labs.com header.b="nJV3q3NI"
-ARC-Seal: i=1; a=rsa-sha256; s=arcselector10001; d=microsoft.com; cv=none;
- b=XoGtuzaDra0oilsbZw2wmBimKX+wV+Ye/3DGQjqhmT0NaaL1EHSuSBWyT+v2hoN1x6qQai11ajJnnF2kHV9PB5VvRG44mC1LTIEOeLnN6ESE1ivsHtmQOmCERAgfJJyaCu6eCYrWlARLn9a6uzNi7X2q896E4wYw1cA96nFOic6Py3R+EB/0OuPLND8akIloHvVwG1zDzFXCLMegJ+iViqob8m1YjCiOF7XSgM52Cv32oIl2H7kYeNxPcmcaiqYr/oXZ1xkM6RfmbiHOtiV1CQdhLyGWoXEZjh1XnLvpY2L/wvm1x4aC0VRo479isjbDcNcWhN9oMXBP8QU/lD55Gg==
-ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=microsoft.com;
- s=arcselector10001;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-AntiSpam-MessageData-ChunkCount:X-MS-Exchange-AntiSpam-MessageData-0:X-MS-Exchange-AntiSpam-MessageData-1;
- bh=4rmvzitUsKC5xazc70vanyEYc+O77bfzPIMvM6IcIGc=;
- b=SZ9RthJXUg5v5vH/iWEzzei4VeG25QCGzgi1TnQRuod1mHgs6Ap8X+HhoAlmS7n5dBRLW3ifI2CElWIGf5HDpoP2x1Eh6X2hLooPryOdqjbjZCmcXZDvm21CXPLVZMKIvK547dl6TYkLkXEWElxRElvVGm4w/P6SDjNP3tFURl7Xj1XlZXdJ3koMe9gQQpfltlhsQio7VUZV0uA6xJE9OrB+zNaB94QFQkOBVvfZ1h8QEZpCQRCpWKyUA6uNeNc7pU5vIgI8OzlegipCLZdzRoxzHJECZDQwMoHI6ytoR2aLC4nxxf+l6+qMNuyDEqN3MTBTtbSIDkfutOki2y34kQ==
-ARC-Authentication-Results: i=1; mx.microsoft.com 1; spf=pass (sender ip is
- 131.228.6.101) smtp.rcpttodomain=apple.com smtp.mailfrom=nokia-bell-labs.com;
- dmarc=pass (p=reject sp=reject pct=100) action=none
- header.from=nokia-bell-labs.com; dkim=none (message not signed); arc=none (0)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=nokia-bell-labs.com;
- s=selector1;
- h=From:Date:Subject:Message-ID:Content-Type:MIME-Version:X-MS-Exchange-SenderADCheck;
- bh=4rmvzitUsKC5xazc70vanyEYc+O77bfzPIMvM6IcIGc=;
- b=nJV3q3NIVdUT4+SCPiPv90ClUqMCa1WAG32l781Z5No3o3a/36gFN+fhlBolRfcIQd0d3rWwDiA9KiiUOpmWqBqc/ZTzEgfm1unJihcDoqiL3NYJJR8+N2OZynYNvLgtF51NxTfVwiwXe40xx4jCRAoU3T4eBQYE30OjpSdA90+Vnm4Zlnhhdj6prK63uz3Jk/mlHJit4TOPep5ZRustra/M4tbH02OSgxo9FqYa2u2igSlvV2OMOZ2q8diRw1D19i/RuiEKsojsLdUlg16ojgLFVnod3a9TgQpFdLsotOLTBMPwSjEw0JID2C/bm+aYaeTGFmtdc4wJCpyZY3vf4Q==
-Received: from AS4PR10CA0023.EURPRD10.PROD.OUTLOOK.COM (2603:10a6:20b:5d8::15)
- by DBAPR07MB6726.eurprd07.prod.outlook.com (2603:10a6:10:192::19) with
- Microsoft SMTP Server (version=TLS1_2,
- cipher=TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384) id 15.21.292.15; Tue, 4 Aug
- 2026 21:35:20 +0000
-Received: from AM3PEPF00009BA0.eurprd04.prod.outlook.com
- (2603:10a6:20b:5d8:cafe::a7) by AS4PR10CA0023.outlook.office365.com
- (2603:10a6:20b:5d8::15) with Microsoft SMTP Server (version=TLS1_3,
- cipher=TLS_AES_256_GCM_SHA384) id 15.21.270.18 via Frontend Transport; Tue, 4
- Aug 2026 21:35:20 +0000
-X-MS-Exchange-Authentication-Results: spf=pass (sender IP is 131.228.6.101)
- smtp.mailfrom=nokia-bell-labs.com; dkim=none (message not signed)
- header.d=none;dmarc=pass action=none header.from=nokia-bell-labs.com;
-Received-SPF: Pass (protection.outlook.com: domain of nokia-bell-labs.com
- designates 131.228.6.101 as permitted sender)
- receiver=protection.outlook.com; client-ip=131.228.6.101;
- helo=fr712usmtp1.zeu.alcatel-lucent.com; pr=C
-Received: from fr712usmtp1.zeu.alcatel-lucent.com (131.228.6.101) by
- AM3PEPF00009BA0.mail.protection.outlook.com (10.167.16.25) with Microsoft
- SMTP Server (version=TLS1_3, cipher=TLS_AES_256_GCM_SHA384) id 15.21.292.8
- via Frontend Transport; Tue, 4 Aug 2026 21:35:19 +0000
-Received: from sarah.nbl.nsn-rdnet.net (sarah.nbl.nsn-rdnet.net [10.0.73.150])
-	by fr712usmtp1.zeu.alcatel-lucent.com (Postfix) with ESMTP id 3BCA01C0030;
-	Wed,  5 Aug 2026 00:35:18 +0300 (EEST)
-From: chia-yu.chang@nokia-bell-labs.com
-To: shaojijie@huawei.com,
-	shenjian15@huawei.com,
-	linux-rdma@vger.kernel.org,
-	eperezma@redhat.com,
-	jasowang@redhat.com,
-	virtualization@lists.linux.dev,
-	mst@redhat.com,
-	xuanzhuo@linux.alibaba.com,
-	pabeni@redhat.com,
-	edumazet@google.com,
-	linux-doc@vger.kernel.org,
-	corbet@lwn.net,
-	horms@kernel.org,
-	dsahern@kernel.org,
-	kuniyu@google.com,
-	bpf@vger.kernel.org,
-	netdev@vger.kernel.org,
-	dave.taht@gmail.com,
-	jhs@mojatatu.com,
-	kuba@kernel.org,
-	stephen@networkplumber.org,
-	xiyou.wangcong@gmail.com,
-	jiri@resnulli.us,
-	davem@davemloft.net,
-	andrew+netdev@lunn.ch,
-	donald.hunter@gmail.com,
-	ast@fiberby.net,
-	liuhangbin@gmail.com,
-	shuah@kernel.org,
-	linux-kselftest@vger.kernel.org,
-	ij@kernel.org,
-	ncardwell@google.com,
-	koen.de_schepper@nokia-bell-labs.com,
-	g.white@cablelabs.com,
-	ingemar.s.johansson@ericsson.com,
-	mirja.kuehlewind@ericsson.com,
-	cheshire@apple.com,
-	rs.ietf@gmx.at,
-	Jason_Livingood@comcast.com,
-	vidhi_goel@apple.com
-Cc: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
-Subject: [PATCH v5 net-next 2/2] net: hns3: fix GSO_ECN flag setting in the RX path
-Date: Tue,  4 Aug 2026 23:35:10 +0200
-Message-Id: <20260804213510.673084-3-chia-yu.chang@nokia-bell-labs.com>
-X-Mailer: git-send-email 2.34.1
-In-Reply-To: <20260804213510.673084-1-chia-yu.chang@nokia-bell-labs.com>
-References: <20260804213510.673084-1-chia-yu.chang@nokia-bell-labs.com>
+	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="UKD+o0Q9"
+Message-ID: <a340d525-5713-4cf4-b88c-77773ae349d7@linux.dev>
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
+	t=1785891530;
+	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
+	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
+	 content-transfer-encoding:content-transfer-encoding:
+	 in-reply-to:in-reply-to:references:references;
+	bh=kXCZx29YWK0KuSZTNZlcIo3NjcMPu1Ep/GSGxvMq9+g=;
+	b=UKD+o0Q9O0GP/b1+xVPt8DW6AJyHnKdGgtR0kNlepREPLrvPQUsgmz6uhTn2BgsnwwgsW7
+	6FERSa+9CQu0aEvQy/RHASDL9rD1MgLiRdBkudQn0F5tsVVNDL9YEXbEVMFS961KB/SsYE
+	mzNcNjONJWNh0bFcrOTll82xxRN0PX0=
+Date: Wed, 5 Aug 2026 08:58:09 +0800
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
+Cc: cui.tao@linux.dev, Yu Kuai <yukuai@kernel.org>,
+ Jens Axboe <axboe@kernel.dk>, Tejun Heo <tj@kernel.org>,
+ Johannes Weiner <hannes@cmpxchg.org>, =?UTF-8?Q?Michal_Koutn=C3=BD?=
+ <mkoutny@suse.com>, Jonathan Corbet <corbet@lwn.net>,
+ Josef Bacik <josef@toxicpanda.com>, Coly Li <colyli@fygo.io>,
+ Kent Overstreet <kent.overstreet@linux.dev>, Alasdair Kergon
+ <agk@redhat.com>, Mike Snitzer <snitzer@kernel.org>,
+ Mikulas Patocka <mpatocka@redhat.com>,
+ Benjamin Marzinski <bmarzins@redhat.com>, Song Liu <song@kernel.org>,
+ Dan Williams <djbw@kernel.org>, Vishal Verma <vishal.l.verma@intel.com>,
+ Dave Jiang <dave.jiang@intel.com>,
+ Alison Schofield <alison.schofield@intel.com>,
+ Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
+ Andreas Gruenbacher <agruenba@redhat.com>,
+ Matthew Wilcox <willy@infradead.org>, Jan Kara <jack@suse.cz>,
+ Andrew Morton <akpm@linux-foundation.org>, Chris Li <chrisl@kernel.org>,
+ Kairui Song <kasong@tencent.com>, Nilay Shroff <nilay@linux.ibm.com>,
+ cgroups@vger.kernel.org, linux-doc@vger.kernel.org,
+ linux-kernel@vger.kernel.org, linux-block@vger.kernel.org,
+ linux-bcache@vger.kernel.org, dm-devel@lists.linux.dev,
+ linux-raid@vger.kernel.org, nvdimm@lists.linux.dev,
+ virtualization@lists.linux.dev, gfs2@lists.linux.dev,
+ linux-fsdevel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC PATCH v1 2/3] blk-cgroup: store blkcg in bio instead of blkg
+To: yukuai@fygo.io, Christoph Hellwig <hch@lst.de>
+References: <20260804065313.2092022-1-yukuai@kernel.org>
+ <20260804065313.2092022-3-yukuai@kernel.org>
+ <a677f581-344b-4d99-846d-a00801e26033@linux.dev>
+ <20260804133208.GB8078@lst.de> <0fc5dd22-7a8d-43f0-8555-d2ca966efff6@fygo.io>
+X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
+From: Tao Cui <cui.tao@linux.dev>
+In-Reply-To: <0fc5dd22-7a8d-43f0-8555-d2ca966efff6@fygo.io>
+Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
-X-EOPAttributedMessage: 0
-X-MS-PublicTrafficType: Email
-X-MS-TrafficTypeDiagnostic: AM3PEPF00009BA0:EE_|DBAPR07MB6726:EE_
-Content-Type: text/plain
-X-MS-Office365-Filtering-Correlation-Id: e8e8d2ec-3a87-4c9e-7230-08def270488b
-X-MS-Exchange-SenderADCheck: 1
-X-MS-Exchange-AntiSpam-Relay: 0
-X-Microsoft-Antispam:
-	BCL:0;ARA:13230040|82310400026|376014|7416014|36860700016|23010399003|1800799024|11063799006|10067099003|56012099006|3023799007|22082099003|18002099003|921020;
-X-Microsoft-Antispam-Message-Info:
-	gQEryuspky913K1veG+KahkhX+IFIyGbXdqLTL7TnNN/woTbY6LNSqI2jTUfxTJ5tCeJjc98jCpnT64q3rHuulIDbkaO94Hh1bPiNKw3qzz/B43T8DAs/4VaV7RIvW5DMeZFcswxoyNgxD+f9PU6c9AofAfl73PfZ1HT2R08Q0BvlD1PFVNoa/reJcUd0qrvlIUoE66YQSnHUXb4OsqwQicv3Hb9NaBk4vU6cxFqM8dDrchDo3altkbN+Bb+jg+BjNwueqVyxYxEYgnOREj83CuzRyTMw+N39pohnqvC+q1sDhfyhO4Z7NPXgXYQwNSYSGglH5fZ85siHI3pdmdsbP5AU98QApzDD/vHp0jZypzUObU8OJMD6TO2iBuE3fv8qRtVdEhG1nwbZ1VAzy394TyDZJcwHNZLBAFL2DaluiTz8spq0BHjD1YAI9SKdppQTn+UR0pkbfu7XiiYps+alvqTv5DCYYu9XGAiHBJQoONklzYhHHEuPM2rCq8gxUA42R12ZJANIyLIm7kPs6eASAnDAVVr+IGPnURvWTPL6EFb79WRGXNEtvDGYHgvup1gstksihkum7Q1ZDL4kcF6I7Ax+X68dkg0+smwLqycYCFVmdybBte26WXcnCdODMGOxtaTWvMKuZ/1TKWnnN54LpbidUWCD2jQKE6D5AD+D0zta0oF+kFzuyT/TBEHFRWfcKXThWHfj09gs7kbcBXLtV+O2FDk4VZ1Xmm/1iTSSc4R2qGozj00P6+nvrnsGXfZ
-X-Forefront-Antispam-Report:
-	CIP:131.228.6.101;CTRY:FI;LANG:en;SCL:1;SRV:;IPV:CAL;SFV:NSPM;H:fr712usmtp1.zeu.alcatel-lucent.com;PTR:InfoDomainNonexistent;CAT:NONE;SFS:(13230040)(82310400026)(376014)(7416014)(36860700016)(23010399003)(1800799024)(11063799006)(10067099003)(56012099006)(3023799007)(22082099003)(18002099003)(921020);DIR:OUT;SFP:1101;
-X-MS-Exchange-AntiSpam-MessageData-ChunkCount: 1
-X-MS-Exchange-AntiSpam-MessageData-0:
-	kvw5b51LUwMK9Zw/CZU1S6bOM2mI1orYFnhP37QSO4ovtGW6i2lNw8/6ILv8m/r6+hAIMrd9sPlrPVeB81Ake9ilXHUF+u8xQ1EsTcQEa8mwKVWWtusPmhonNzsKXmYiq9Q7Kp1M1YPizXxDg1BPFcFMaaoV/U5BZ1NN1g1I2to7LafUqyIue8MHOnIoel3ME1FUkVjlIdXRfC/Dzn6+2aNyPa2TmJcwIoLoVpb+dXtuKuseFGzygt+spXc/+STZWr/MOLpiMZq37b7fvRqzh2IR5pDbfTN9LUUl8hsfi5yWVQt6r7SjS3t8YGW0iIyZO9fvXLTvzzdlOB6caPyULrFjxwiroMnpIjq6jdgYnjoXuB+KvemU2g+nNKF/74yGqtHXSozk5TlzAbBoHXUgZlX46skaOzG5wjsUoMBOTnP/gOuYhlDfEncXDnTf+ENq
-X-OriginatorOrg: nokia-bell-labs.com
-X-MS-Exchange-CrossTenant-OriginalArrivalTime: 04 Aug 2026 21:35:19.9770
- (UTC)
-X-MS-Exchange-CrossTenant-Network-Message-Id: e8e8d2ec-3a87-4c9e-7230-08def270488b
-X-MS-Exchange-CrossTenant-Id: 5d471751-9675-428d-917b-70f44f9630b0
-X-MS-Exchange-CrossTenant-OriginalAttributedTenantConnectingIp: TenantId=5d471751-9675-428d-917b-70f44f9630b0;Ip=[131.228.6.101];Helo=[fr712usmtp1.zeu.alcatel-lucent.com]
-X-MS-Exchange-CrossTenant-AuthAs: Internal
-X-MS-Exchange-CrossTenant-AuthSource: TreatMessagesAsInternal-AM3PEPF00009BA0.eurprd04.prod.outlook.com
-X-MS-Exchange-CrossTenant-FromEntityHeader: HybridOnPrem
-X-MS-Exchange-Transport-CrossTenantHeadersStamped: DBAPR07MB6726
+X-Migadu-Flow: FLOW_OUT
 
-From: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
 
-Currently, the hns3 Rx path sets the SKB_GSO_TCP_ECN flag when a TCP
-segment with the CWR flag set is received. This is incorrect because
-the hns3 hardware GRO resets the IP ToS byte to 0 during packet
-aggregation. Consequently, no valid ECN signals are carreid, meaning
-that it cannot support RFC3168 ECN or Accurate ECN protocols. Setting
-SKB_GSO_TCP_ECN or SKB_GSO_TCP_ACCECN under these conditions misleads
-the upper network stack.
+Hi Kuai,Christoph,
+在 2026/8/4 23:30, yu kuai 写道:
+> Hi,
+> 
+> 在 2026/8/4 21:32, Christoph Hellwig 写道:
+>> On Tue, Aug 04, 2026 at 05:19:24PM +0800, Tao Cui wrote:
+>>> While reading 2/3, one spot in bio_pinned_blkg() made me wonder, so I
+>>> gave it a try — and the WARN_ON_ONCE triggers every time for me.
+>>>
+>>> I may well be missing something, but my worry is that the bio's ref on
+>>> the blkg keeps the object alive, not its entry in the radix tree.
+>>> blkg_destroy() runs throtl_pd_offline (which only schedules an async
+>>> flush) before radix_tree_delete(), so the queued bio ends up dispatched
+>>> (blk_throtl_dispatch_work_fn -> blk_cgroup_bio_start ->
+>>> bio_pinned_blkg) after the blkg is already gone from the tree, and
+>>> blkg_lookup() returns NULL.
+>>>
+>>> I applied the series and wrote a small reproducer:
+>>>
+>>>    - null_blk, cgroup v2, a child cgroup with io.max rbps=4096;
+>>>    - a read issued in the child cgroup gets throttled and queued, pinning
+>>>      the blkg;
+>>>    - migrate the reader out and rmdir the cgroup; the queued bio is then
+>>>      flushed after the blkg has left the tree.
+>> Can you add this to blktests?
+>>
 
-Fix this by removing the incorrect SKB_GSO_TCP_ECN flag assignment
-in hns3_gro_complete().
+yes, I'll turn the reproducer into a blktests case and send
+it out. 
 
-Fixes: d474d88f88261 ("net: hns3: add hns3_gro_complete for HW GRO process")
+>>> Maybe keeping the pinned blkg pointer in the bio would sidestep this, so
+>>> the lookup can't miss?
+> 
+> The problem here is that blkg_destroy can be called while blkg is still pinned
+> by blkg_get, in this case remove the cgroup directly remove the blkg from radix
+> tree, that's why blkg_lookup can't find this blkg anymore, and the extra blkg ref
+> is leaked :(
+> 
+>> That would grow the bio, which we try hard to avoid.  I think the way to
+>> avoid this is to have active/passive refcounts on the blkg, where an
+>> active one keeps it in the radix tree, but a 0 passive one would prevent
+>> the caller from getting a new reference to it.  The users who rely on the
+>> pin for the I/O completion path would then just keep the active reference
+>> and use a pure lookup without getting a new passive reference in the
+>> completion path.  This would remove the need for BIO_BLKG_REF which
+>> feels a bit kludgy and eats up precious bio flag space.
+> 
+> The problem here is that remove a cgroup can also remove the blkg from radix tree,
+> even through it still has active refcounts. I think this can be fixed by checking
+> the cgroup online_pin first, if it's zero, we can search the blkg from the
+> request_queue blkg list, where blkg will not be removed until blkg_free_workfn().
+> What's better, if we can convert the blkg list to hash table with key as blk-cgroup,
+> it will be much better as we can lookup from this table instead of blkcg radix tree.
+> 
 
-Signed-off-by: Chia-Yu Chang <chia-yu.chang@nokia-bell-labs.com>
+Both of your approaches go further than my store-the-pointer idea;
+looking forward to the next version.
 
----
-v5:
-- Remove SKB_GSO_TCP_ECN flag and update the commit message
+Thanks,
+Tao
 
-v3:
-- Rewrite the commit message for clarity
----
- drivers/net/ethernet/hisilicon/hns3/hns3_enet.c | 2 --
- 1 file changed, 2 deletions(-)
-
-diff --git a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-index 6ecb32e28e79..5149eca0104a 100644
---- a/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-+++ b/drivers/net/ethernet/hisilicon/hns3/hns3_enet.c
-@@ -3916,8 +3916,6 @@ static int hns3_gro_complete(struct sk_buff *skb, u32 l234info)
- 	}
- 
- 	skb_shinfo(skb)->gso_segs = NAPI_GRO_CB(skb)->count;
--	if (th->cwr)
--		skb_shinfo(skb)->gso_type |= SKB_GSO_TCP_ECN;
- 
- 	if (l234info & BIT(HNS3_RXD_GRO_FIXID_B))
- 		skb_shinfo(skb)->gso_type |= SKB_GSO_TCP_FIXEDID;
--- 
-2.34.1
+>>
 
