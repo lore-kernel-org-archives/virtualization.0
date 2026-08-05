@@ -1,136 +1,72 @@
-Received: from out-174.mta0.migadu.com (out-174.mta0.migadu.com [91.218.175.174])
+Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2EB7D24A06D
-	for <virtualization@lists.linux.dev>; Wed,  5 Aug 2026 00:59:03 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=91.218.175.174
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 781CB19D07A
+	for <virtualization@lists.linux.dev>; Wed,  5 Aug 2026 01:39:50 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785891545; cv=none; b=pThNcwzxyI8URSR7MmDXDslv7WbB/se6gKoNTLGFPiZD+aUM0eTqhbuzI2tBcZupvJAge8obr+X4OpuAnhBTUCghP4uHgetrC7/4Q+/TL56kw8CQvAB8H3i35w8vw/glArC9WAFgPtv1ouHYY6g8P3onblHySZlOw7h5vz479+8=
+	t=1785893992; cv=none; b=I5V5KMsiyhm4bv3zqdyGorZ0qv7UdQvcGODHeiajJwS086ySsm9wb9AhPxCyeuSiilFatjJcGLSg1+QsTnsjEuNxzCwrAw3jCyDuDnba04NrkwI6sWnP/M9ssnFkFpgI/EIqjgw1+IAhi5Ds0FhW1n2St9jShxW33NW8WTx8Fo4=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785891545; c=relaxed/simple;
-	bh=QXq+No4NCvplH5iP+cVU/DLqFEsEiO2ABlKqbYf8N0U=;
-	h=Message-ID:Date:MIME-Version:Cc:Subject:To:References:From:
-	 In-Reply-To:Content-Type; b=kqIpXP3C7i6Il3J96zQA2fgG46csQ5RfvI1c2puhoXuAu1ZyOa5ZQYqGA7Hr9udxNmq/kx2+WZ8AYwJAxQdJ33bhuSqJYuYJkbEPliaySy8S3iLRaDO/g+4vRPT76nsGh/4muZyQwd9jAaWLhIqhNJSWvv8QolM5spB/qsNdLDI=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev; spf=pass smtp.mailfrom=linux.dev; dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b=UKD+o0Q9; arc=none smtp.client-ip=91.218.175.174
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=linux.dev
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=linux.dev
-Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=linux.dev header.i=@linux.dev header.b="UKD+o0Q9"
-Message-ID: <a340d525-5713-4cf4-b88c-77773ae349d7@linux.dev>
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=linux.dev; s=key1;
-	t=1785891530;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 content-transfer-encoding:content-transfer-encoding:
-	 in-reply-to:in-reply-to:references:references;
-	bh=kXCZx29YWK0KuSZTNZlcIo3NjcMPu1Ep/GSGxvMq9+g=;
-	b=UKD+o0Q9O0GP/b1+xVPt8DW6AJyHnKdGgtR0kNlepREPLrvPQUsgmz6uhTn2BgsnwwgsW7
-	6FERSa+9CQu0aEvQy/RHASDL9rD1MgLiRdBkudQn0F5tsVVNDL9YEXbEVMFS961KB/SsYE
-	mzNcNjONJWNh0bFcrOTll82xxRN0PX0=
-Date: Wed, 5 Aug 2026 08:58:09 +0800
+	s=arc-20240116; t=1785893992; c=relaxed/simple;
+	bh=ZPNBugyZWrwf/gkwaaW7RTX+lR1NT2WkZkvX9Wxq9no=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 Content-Type:MIME-Version; b=fDtqPLIB0ygkZax+jFAceaZCeZHOsjzJROPsa/eYiP0PeaG5Xlxc/ilFN37SqkzZeM9BJcqhbjoLQxBuD3QCtWESLjQ2e1VULlyYj2Gush3rkFVr4kNhNfG6GbFFX1hkDck2o/2bq2ucEdM7OSd2GYo7mHIvl7crMRaVNCs3LfI=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
+Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
+X-UUID: 871f92c0906e11f1aa26b74ffac11d73-20260805
+X-CID-P-RULE: Release_Ham
+X-CID-O-INFO: VERSION:1.3.12,REQID:1ef9035c-c9c9-4edb-8035-6bc3539d8a41,IP:0,U
+	RL:0,TC:0,Content:-5,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION
+	:release,TS:-5
+X-CID-META: VersionHash:e7bac3a,CLOUDID:56b2bf02d38db11b8e6a4ee9d99d0422,BulkI
+	D:nil,BulkQuantity:0,Recheck:0,SF:81|82|83|102|136|865|898,TC:nil,Content:
+	0|15|50,EDM:-3,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,
+	OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
+X-CID-BVR: 2,SSN|SDN
+X-CID-BAS: 2,SSN|SDN,0,_
+X-CID-FACTOR: TF_CID_SPAM_SNR
+X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
+X-UUID: 871f92c0906e11f1aa26b74ffac11d73-20260805
+X-User: xiongweimin@kylinos.cn
+Received: from [127.0.1.1] [(10.44.16.150)] by mailgw.kylinos.cn
+	(envelope-from <xiongweimin@kylinos.cn>)
+	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
+	with ESMTP id 1770405383; Wed, 05 Aug 2026 09:39:41 +0800
+From: Xiong Weimin <xiongweimin@kylinos.cn>
+To: Markus Elfring <Markus.Elfring@web.de>
+Cc: virtualization@lists.linux.dev, Zhu Lingshan <lingshan.zhu@kernel.org>,
+ LKML <linux-kernel@vger.kernel.org>,
+ Eugenio =?utf-8?q?P=C3=A9rez?= <eperezma@redhat.com>,
+ Jason Wang <jasowangio@gmail.com>, Michael S. Tsirkin <mst@redhat.com>,
+ Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Subject: Re: [PATCH] vdpa: ifcvf: Put device on unsupported feature error
+Date: Wed, 05 Aug 2026 09:39:40 +0800
+Message-ID: <178589398077.1551682.9339660780572106788@kylinos.cn>
+In-Reply-To: <c972f4a9-ed10-45bd-9541-25fa8d7b825a@web.de>
+References: <20260804092626.1344371-1-xiongweimin@kylinos.cn>
+ <c972f4a9-ed10-45bd-9541-25fa8d7b825a@web.de>
+User-Agent: git-send-email compatible Python smtplib
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Cc: cui.tao@linux.dev, Yu Kuai <yukuai@kernel.org>,
- Jens Axboe <axboe@kernel.dk>, Tejun Heo <tj@kernel.org>,
- Johannes Weiner <hannes@cmpxchg.org>, =?UTF-8?Q?Michal_Koutn=C3=BD?=
- <mkoutny@suse.com>, Jonathan Corbet <corbet@lwn.net>,
- Josef Bacik <josef@toxicpanda.com>, Coly Li <colyli@fygo.io>,
- Kent Overstreet <kent.overstreet@linux.dev>, Alasdair Kergon
- <agk@redhat.com>, Mike Snitzer <snitzer@kernel.org>,
- Mikulas Patocka <mpatocka@redhat.com>,
- Benjamin Marzinski <bmarzins@redhat.com>, Song Liu <song@kernel.org>,
- Dan Williams <djbw@kernel.org>, Vishal Verma <vishal.l.verma@intel.com>,
- Dave Jiang <dave.jiang@intel.com>,
- Alison Schofield <alison.schofield@intel.com>,
- Pankaj Gupta <pankaj.gupta.linux@gmail.com>,
- Andreas Gruenbacher <agruenba@redhat.com>,
- Matthew Wilcox <willy@infradead.org>, Jan Kara <jack@suse.cz>,
- Andrew Morton <akpm@linux-foundation.org>, Chris Li <chrisl@kernel.org>,
- Kairui Song <kasong@tencent.com>, Nilay Shroff <nilay@linux.ibm.com>,
- cgroups@vger.kernel.org, linux-doc@vger.kernel.org,
- linux-kernel@vger.kernel.org, linux-block@vger.kernel.org,
- linux-bcache@vger.kernel.org, dm-devel@lists.linux.dev,
- linux-raid@vger.kernel.org, nvdimm@lists.linux.dev,
- virtualization@lists.linux.dev, gfs2@lists.linux.dev,
- linux-fsdevel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: [RFC PATCH v1 2/3] blk-cgroup: store blkcg in bio instead of blkg
-To: yukuai@fygo.io, Christoph Hellwig <hch@lst.de>
-References: <20260804065313.2092022-1-yukuai@kernel.org>
- <20260804065313.2092022-3-yukuai@kernel.org>
- <a677f581-344b-4d99-846d-a00801e26033@linux.dev>
- <20260804133208.GB8078@lst.de> <0fc5dd22-7a8d-43f0-8555-d2ca966efff6@fygo.io>
-X-Report-Abuse: Please report any abuse attempt to abuse@migadu.com and include these headers.
-From: Tao Cui <cui.tao@linux.dev>
-In-Reply-To: <0fc5dd22-7a8d-43f0-8555-d2ca966efff6@fygo.io>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
-X-Migadu-Flow: FLOW_OUT
 
+On Tue, Aug 04, 2026 at 06:32:04PM +0200, Markus Elfring wrote:
+> How do you think about to add any tags (like =E2=80=9CFixes=E2=80=9D and =
+=E2=80=9CCc=E2=80=9D) accordingly?
 
-Hi Kuai,Christoph,
-在 2026/8/4 23:30, yu kuai 写道:
-> Hi,
-> 
-> 在 2026/8/4 21:32, Christoph Hellwig 写道:
->> On Tue, Aug 04, 2026 at 05:19:24PM +0800, Tao Cui wrote:
->>> While reading 2/3, one spot in bio_pinned_blkg() made me wonder, so I
->>> gave it a try — and the WARN_ON_ONCE triggers every time for me.
->>>
->>> I may well be missing something, but my worry is that the bio's ref on
->>> the blkg keeps the object alive, not its entry in the radix tree.
->>> blkg_destroy() runs throtl_pd_offline (which only schedules an async
->>> flush) before radix_tree_delete(), so the queued bio ends up dispatched
->>> (blk_throtl_dispatch_work_fn -> blk_cgroup_bio_start ->
->>> bio_pinned_blkg) after the blkg is already gone from the tree, and
->>> blkg_lookup() returns NULL.
->>>
->>> I applied the series and wrote a small reproducer:
->>>
->>>    - null_blk, cgroup v2, a child cgroup with io.max rbps=4096;
->>>    - a read issued in the child cgroup gets throttled and queued, pinning
->>>      the blkg;
->>>    - migrate the reader out and rmdir the cgroup; the queued bio is then
->>>      flushed after the blkg has left the tree.
->> Can you add this to blktests?
->>
+Yes, this is a bug fix for the feature provisioning error path, so adding
+the tags makes sense.
 
-yes, I'll turn the reproducer into a blktests case and send
-it out. 
+I will send a v2 with:
 
->>> Maybe keeping the pinned blkg pointer in the bio would sidestep this, so
->>> the lookup can't miss?
-> 
-> The problem here is that blkg_destroy can be called while blkg is still pinned
-> by blkg_get, in this case remove the cgroup directly remove the blkg from radix
-> tree, that's why blkg_lookup can't find this blkg anymore, and the extra blkg ref
-> is leaked :(
-> 
->> That would grow the bio, which we try hard to avoid.  I think the way to
->> avoid this is to have active/passive refcounts on the blkg, where an
->> active one keeps it in the radix tree, but a 0 passive one would prevent
->> the caller from getting a new reference to it.  The users who rely on the
->> pin for the I/O completion path would then just keep the active reference
->> and use a pure lookup without getting a new passive reference in the
->> completion path.  This would remove the need for BIO_BLKG_REF which
->> feels a bit kludgy and eats up precious bio flag space.
-> 
-> The problem here is that remove a cgroup can also remove the blkg from radix tree,
-> even through it still has active refcounts. I think this can be fixed by checking
-> the cgroup online_pin first, if it's zero, we can search the blkg from the
-> request_queue blkg list, where blkg will not be removed until blkg_free_workfn().
-> What's better, if we can convert the blkg list to hash table with key as blk-cgroup,
-> it will be much better as we can lookup from this table instead of blkcg radix tree.
-> 
-
-Both of your approaches go further than my store-the-pointer idea;
-looking forward to the next version.
+Fixes: 46fc0917bbab ("vDPA/ifcvf: implement features provisioning")
+Cc: stable@vger.kernel.org # v6.3+
 
 Thanks,
-Tao
-
->>
-
+Xiong
