@@ -1,49 +1,52 @@
 Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id ADB3E3DB32D
-	for <virtualization@lists.linux.dev>; Wed,  5 Aug 2026 06:19:57 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E3AA23DFC82
+	for <virtualization@lists.linux.dev>; Wed,  5 Aug 2026 06:47:10 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785910800; cv=none; b=nPUJmJnHWHd+h0kKxlR+Bet4HZSbR5QIX7JM0GR89qvUAND1HWC//PRtpX+oxaQSBtYPx27e/R11iD4nTAf0h6ki9lLr6PPvFxmnQ5GyeOp97EFJkGHlM7BJS72KrO+0wHMg7meZd2JW41nhwwSu/9oC2moFOwto1sFyPwRfZ9s=
+	t=1785912434; cv=none; b=uMFvb5v/PrZ7IXffHhUt2OUb5KCQk9+PK2YyQLL5xVUQC3F6ktiotox0lfE+nqsXDBHPno7lwaiBUXbK+unNvIPR/FftVjjvJSnPk3mVghHyOUAjKb1396RNZzwxTN746UIzPxLIOdXEjZHKZaWFnh37sfC76Vy+gRNRt48cQAQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785910800; c=relaxed/simple;
-	bh=0XOw1C9ItgiCeTFM3DaE2CekoPAexQ5WY5de2GlW7us=;
+	s=arc-20240116; t=1785912434; c=relaxed/simple;
+	bh=MDlDMSK9Fe5zd5PKe9gUeQRQD8s0u7xOUCFniDNxhDg=;
 	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 Content-Type:MIME-Version; b=bkn/zT7qxVnQ79cqwIgvZ1vIkMjic80K2F9AmQJ2it2A5mW/wVoFznSm2bj82/myJ407tX4hc4I4LxGs//qQJyfRon7H1drNUpzj5rarCYol+9/VqwVheq6JCddRyzggMqbBsCUKurUG79EJEg7YoUeXmVgZAFn5xyKa4rjGEoA=
+	 Content-Type:MIME-Version; b=O4iNzQSo9LOzh04LjKe8zmS7bqdrZdJMzKydwurRAqhRyxTKaOhmZiyEKIkkbX2VNaYGyqMViCLTKZfPR8TxX4Ev9Kn7EiTtfcIzHZWNz62yG/PQKaxoWI0rL2KPcy6xDcmcEbJa5nAXNMfs2ORPJcQQK+qd5lWBaHoR3mX5J5I=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: a83aa36a909511f1aa26b74ffac11d73-20260805
+X-UUID: 79796706909911f1aa26b74ffac11d73-20260805
+X-CID-CACHE: Type:Local,Time:202608051419+08,HitQuantity:1
 X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.12,REQID:3dbfcf06-89cc-4a55-a469-1bdbe9dd8c01,IP:0,U
-	RL:0,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
-	release,TS:0
-X-CID-META: VersionHash:e7bac3a,CLOUDID:956a6a86f20eb4449240837b94ee29b1,BulkI
-	D:nil,BulkQuantity:0,Recheck:0,SF:81|82|83|102|865|898,TC:nil,Content:0|15
-	|50,EDM:-3,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:
-	0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
+X-CID-O-INFO: VERSION:1.3.12,REQID:d2aeca45-cb1f-441b-aef2-b8be356d2a4f,IP:0,U
+	RL:0,TC:0,Content:-5,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION
+	:release,TS:-5
+X-CID-META: VersionHash:e7bac3a,CLOUDID:a393da99755c2632cb557be8aad85497,BulkI
+	D:nil,BulkQuantity:0,Recheck:0,SF:81|82|83|102|136|865|898,TC:nil,Content:
+	0|15|50,EDM:-3,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,
+	OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
 X-CID-BVR: 2,SSN|SDN
 X-CID-BAS: 2,SSN|SDN,0,_
 X-CID-FACTOR: TF_CID_SPAM_SNR
 X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: a83aa36a909511f1aa26b74ffac11d73-20260805
+X-UUID: 79796706909911f1aa26b74ffac11d73-20260805
 X-User: xiongweimin@kylinos.cn
 Received: from [127.0.1.1] [(10.44.16.150)] by mailgw.kylinos.cn
 	(envelope-from <xiongweimin@kylinos.cn>)
 	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
-	with ESMTP id 254697198; Wed, 05 Aug 2026 14:19:47 +0800
+	with ESMTP id 1317473087; Wed, 05 Aug 2026 14:47:06 +0800
 From: Xiong Weimin <xiongweimin@kylinos.cn>
 To: "Michael S. Tsirkin" <mst@redhat.com>
 Cc: virtualization@lists.linux.dev, linux-kernel@vger.kernel.org,
- Jason Wang <jasowangio@gmail.com>, Jason Wang <jasowang@redhat.com>,
- Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
+ Gerd Hoffmann <kraxel@redhat.com>, Jason Wang <jasowangio@gmail.com>,
+ Jason Wang <jasowang@redhat.com>, Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
  Eugenio =?utf-8?q?P=C3=A9rez?= <eperezma@redhat.com>, stable@vger.kernel.org
-Subject: Re: [PATCH] virtio_pci: do not mutate caller irq_affinity.pre_vectors
-Date: Wed, 05 Aug 2026 14:19:46 +0800
-Message-ID: <178591078690.1650419.2787765521595164465@kylinos.cn>
-In-Reply-To: <20260805032934.1606700-1-xiongweimin@kylinos.cn>
-References: <20260805032934.1606700-1-xiongweimin@kylinos.cn>
+Subject:
+ Re: [PATCH] virtio_input: reset device if input_register_device() fails
+Date: Wed, 05 Aug 2026 14:47:04 +0800
+Message-ID: <178591242400.1657366.6166270113709446188@kylinos.cn>
+In-Reply-To: <20260805012846-mutt-send-email-mst@kernel.org>
+References: <20260805032931.1606652-1-xiongweimin@kylinos.cn>
+ <20260805012846-mutt-send-email-mst@kernel.org>
 Content-Type: text/plain; charset="utf-8"
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -53,19 +56,21 @@ List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 
-On the virtio_input thread, Michael asked whether each of these patches
-is a real or a theoretical issue for stable. For this virtio_pci patch:
+On Wed, Aug 05, 2026 at 01:29:28AM -0400, Michael S. Tsirkin wrote:
+> for each of these patches: is this a real or a theoretical issue?
+> stable rules preclude the later kind.
 
-Real, when affinity is requested and MSI-X policy falls back.
+For this virtio_input patch: theoretical for stable.
 
-vp_find_vqs() retries EACH -> SHARED_SLOW -> SHARED. Each failed
-vp_request_msix_vectors() currently does desc->pre_vectors++ in place,
-so a later successful attempt sees a polluted pre_vectors and gets the
-wrong affinity layout. That fallback path is unconditional in the
-driver.
+On the failing path, virtio_device_ready() has run, but
+virtinput_fill_evt() has not, so the event queue still has no buffers.
+I have no evidence of device DMA into torn-down queues here; the change
+is lifecycle hygiene matching remove/freeze (clear DRIVER_OK before
+del_vqs()).
 
-I have not collected a userspace/IRQ-affinity failure log yet. Please
-let me know if you still want Cc: stable on this one.
+I will drop Cc: stable on a v2 and keep the fix for mainline only.
+I will answer the same question separately on the virtio_pci and
+virtio_mmio threads.
 
 Thanks,
 Xiong
