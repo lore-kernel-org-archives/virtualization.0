@@ -1,256 +1,292 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pj1-f69.google.com (mail-pj1-f69.google.com [209.85.216.69])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6E1BF3C73C9
-	for <virtualization@lists.linux.dev>; Thu,  6 Aug 2026 23:00:21 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2F4C0411F91
+	for <virtualization@lists.linux.dev>; Thu,  6 Aug 2026 23:36:24 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.69
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786057223; cv=none; b=tIaF7+jvq79omJ+gWDo1BwPYYyU5WAPqdAAGDocbHMudkl8SNOiGKln8ko/AOSsKkk0WK2zl23OEeRnnEGbYoue4136fa5S4jmfIpnfWi5rb9DLcmLsu/df/lFIv6hhcgG0Y34wIxoOoTz4z9O52jkCGYF4RZ+cDhxlZSMbe2A4=
+	t=1786059388; cv=none; b=HEKri+0iBIUUudYEsFmBjSeNxcL03H6PziHthY39nwn2SjBUufz4J171l6BCXgQ21tpeWAdfLbjtYUrnmANWDG8ju4e9SHkKlzLBlG/7eu2JyxS4DPiAd9L3s+OhXc3FkX0JXdtrQSPgTd6CGrrTN5eJJmjc9sBhFm5KtTxZ4m0=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786057223; c=relaxed/simple;
-	bh=I0wqDwZyoQSIsMb6537lKMySu1ARTn+0eN39hDtnsKo=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=Ot2r2D63RNJL9Ppi9X/qluarzAXEWgywD03TsrtT6dDrJUWuI8M7zarSTz1qPRnQYPHk0zKHtweFYb0IgvrlDXGHM/pTVGsXqxLVtXXNTSdM+cGmcvCie40MuEPRWJYNCGnQ8pSITQcJ/XZffySsDRvW09DQU74PfdvX6YMlptA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=ByvyTw1N; arc=none smtp.client-ip=170.10.133.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1786059388; c=relaxed/simple;
+	bh=lR9IkcHoGrXHsdwXoIduNalQpdmQkvbQdYBkWmYqX3U=;
+	h=Date:Mime-Version:Message-ID:Subject:From:To:Cc:Content-Type; b=H0/uCMPfQ8CCvgutu1dHxvTGKwkQX0mjNAzXb6kTvg/qDp7rCXd8b+Up+PGAGIjtdD6JVJ/BVo4ksbImMBCfzPPFdML+JBi0qmOqDYarhowH3YHNu+2z14CY6qQpe6Tw2/53OKITYxxxtvN7m326QwZ2Tw+PMVh/lnoshhQy5os=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=cK1DsgNp; arc=none smtp.client-ip=209.85.216.69
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="ByvyTw1N"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1786057220;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=V/XyIJ0P1Ncw2ZC5RUbuOjY9InJ1Bze3sfj+kDZLJRI=;
-	b=ByvyTw1N4MfMpMUK+t96yxbBqXKWefbzfGijHjLv7YxQQlixgy4L2VUEwNABGI9agKSNBa
-	tZB2+7gw2o4wQG+/KMNWs7XSCSsGTxDkm8C/S6PbMTCbpqFLJm149P03wKNWRQFSFF4S5V
-	2raOUtMTC1cmmaMv3URHB1naKWV/HO0=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-602-m_g47vQzNfyATyHyFfa1GQ-1; Thu, 06 Aug 2026 19:00:09 -0400
-X-MC-Unique: m_g47vQzNfyATyHyFfa1GQ-1
-X-Mimecast-MFC-AGG-ID: m_g47vQzNfyATyHyFfa1GQ_1786057208
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-49953abe51fso9937505e9.1
-        for <virtualization@lists.linux.dev>; Thu, 06 Aug 2026 16:00:08 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="cK1DsgNp"
+Received: by mail-pj1-f69.google.com with SMTP id 98e67ed59e1d1-38e7b87ce77so3015112a91.0
+        for <virtualization@lists.linux.dev>; Thu, 06 Aug 2026 16:36:24 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=google.com; s=20251104; t=1786059384; x=1786664184; darn=lists.linux.dev;
+        h=content-type:cc:to:from:subject:message-id:mime-version:date
+         :reply-to:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=keDa3uiMUyNdngDUOX3bQBFQQi+1yM63Rcdpk9ukwB4=;
+        b=cK1DsgNpDhpefT4dMCaCibhO/Qj3cQuvCfvHkme6t0+kwJ66TeHmm1RNqiDgNj0kbM
+         g84LH50j3UntSozJ17CHNMjGWclU4TjQ+eQxHUlFEkJrC3EbN/jTnHZC52/jxISJpbdP
+         Y0x11zXBrlWSqqNuGxUbMZSj1p+Q+F+Dx6CdgH5n1EKkCJdyyvhdJDU/Ha2dNh4AqSK1
+         QAmXS0ehQ5ETsBdrp3wBS1HxH4aeyL5yyARpfIED2pPDkUHzOQzb8g4r6ptvUuz/lQwS
+         F4NV/108oF2yDqd0lbPhZQVEY8I71TAyLvBJFqtOHRuzyuDX7cew24Z3N0ZhT9uxs5ZR
+         fMOQ==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786057208; x=1786662008;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=V/XyIJ0P1Ncw2ZC5RUbuOjY9InJ1Bze3sfj+kDZLJRI=;
-        b=JftQOmTPwEzJmfEdxIPIxJWF1vDAkjF26dEbevRV0x7SnhiEyC3mhXASD+fKxCpHdp
-         3fR37E47k83Msm14ZP7gJV+LXsKM8lPGLd0XW1331xuh9SCHBLNVfJ7kNMd2WujvKmqM
-         UMUvwcIemMvSwjGodAp+zjvSVAOR99bII7Z0ECm994sMIdY7Ru7QwEE3RM+tTSfWY175
-         JAT2Y86kYZCKxj8kkWTbVbCAcZvETYYYSPCONQuxIB7DbHwgCyQ682EMtFMi3lqHhFOv
-         y1BEtQk4q1inAH+H+zYE0F7Z31CdaFITfno9vw7jpKraA/9TN8cTaT1SNAAhCqvcUR+m
-         reLg==
-X-Forwarded-Encrypted: i=1; AHgh+Ro1sHVFF1dJev9Kd/JnIy7xxIANlCcqboz90ii+V9pAA7m6b8sFy2r+/MaxhvgO6oBY3m8NvzPx74LAJ8Dpng==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyudCgoDAoZ9Z7y1NQUYP0zCi3EDnGfyVpcBNpnYTX/v8wUdGkD
-	h8VDE+RIjTs1DGl73u2ZYZ4ETyWafDv+7Ih+CML10JPun669Tk08zgTwSsDQRcpna4mAesAkIVQ
-	WdTk1qAex96LZguEEq+dlk0bwqu6FJQL1ugLBvSQVCdsNZuQozqh5PFP8GMz3q3i1Fxhv
-X-Gm-Gg: AR+sD11/ac7sD5C9ssQyxtnN4dUdobN1GUpL3CJt/vnRucrowAEoyu+PO+vMUoNSpBo
-	dUQfedtCHkcjmPlAw5f0b2+YVGGagX3v8prAv5JQUGcISaCG2VqNLPAZyONPZ/CZTRBs12o92tr
-	VAfMSPuLLoxFKoO7Y799Y01jS3ZPBpNXzh9iK7OUfCBryp+U00228NxapQke1jm1B3Qc1Tg2uHW
-	gkROUcA5Mb8AJuwV1oX+TxondV0ArP/t362thdGIIrBjjMri9H8rZg9JSuOiqly+/qkrfb5DGL0
-	RpV9OBiv3+DWNAXFnWkPZ6mxSYOVJMJwm88GOSGylO6JW73HgunTmadZBh6TmiM0Gmg5iS55Dsh
-	JrUtQgndzAJaucjCh1HttaA==
-X-Received: by 2002:a05:600c:3b04:b0:495:5e86:4e11 with SMTP id 5b1f17b1804b1-4994e7baa85mr237163595e9.12.1786057207652;
-        Thu, 06 Aug 2026 16:00:07 -0700 (PDT)
-X-Received: by 2002:a05:600c:3b04:b0:495:5e86:4e11 with SMTP id 5b1f17b1804b1-4994e7baa85mr237162725e9.12.1786057207114;
-        Thu, 06 Aug 2026 16:00:07 -0700 (PDT)
-Received: from redhat.com (IGLD-80-230-28-14.inter.net.il. [80.230.28.14])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-4995d85254asm1707125e9.1.2026.08.06.16.00.03
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Aug 2026 16:00:06 -0700 (PDT)
-Date: Thu, 6 Aug 2026 19:00:01 -0400
-From: "Michael S. Tsirkin" <mst@redhat.com>
-To: Link Lin <linkl@google.com>
-Cc: Jason Wang <jasowang@redhat.com>,
-	Xuan Zhuo <xuanzhuo@linux.alibaba.com>,
-	Andrew Morton <akpm@linux-foundation.org>,
-	David Hildenbrand <david@kernel.org>,
-	Vlastimil Babka <vbabka@kernel.org>, virtualization@lists.linux.dev,
-	linux-mm@kvack.org, linux-kernel@vger.kernel.org, prasin@google.com,
-	rientjes@google.com, duenwen@google.com, jiaqiyan@google.com,
-	ahwilkins@google.com, Greg Thelen <gthelen@google.com>,
-	Alexander Duyck <alexander.duyck@gmail.com>, jthoughton@google.com,
-	stable@vger.kernel.org, Cory Maccarrone <maccarro@google.com>,
-	Taylor Scanlon <tayy@google.com>
-Subject: Re: [RFC PATCH] virtio_balloon: add
- VIRTIO_BALLOON_F_REPORTING_PM_SAFE feature bit
-Message-ID: <20260806185414-mutt-send-email-mst@kernel.org>
-References: <20260724014605.3377283-1-linkl@google.com>
+        d=1e100.net; s=20251104; t=1786059384; x=1786664184;
+        h=content-type:cc:to:from:subject:message-id:mime-version:date
+         :reply-to:x-gm-message-state:from:to:cc:subject:date:message-id
+         :reply-to:content-type;
+        bh=keDa3uiMUyNdngDUOX3bQBFQQi+1yM63Rcdpk9ukwB4=;
+        b=Z+pA9ZM4D+x/JDyEW5BdgG43q5brwUv3u3uQiKk7jwc33a/5jbzc3AkjZgXnDgIuu0
+         ADHJ+11eM93Mr8/Hd9uXZ6TlHMb5BHmlI+XPLCu+rf0rD7gFFP2TYf4SD7SFL3UdNAK0
+         +3/4wyZbNyT26FkvlgNs73bwgGzpok+VZBUf5MPAZAgQ1aYSgynH2Qvvr6Pibc6+uOtm
+         MFOcTnm4jeu05nYnpsl3jjNzzbuWxAsdUHMNJP7aAzfCpCz+aQubC0SWG8E/AOBko9dl
+         FF9rfp0BA76HwdBfe5W652hLeIg+P/+hdHtsvObIFtsfE69/40sH77nyQUGgJPU+49Zv
+         l8gw==
+X-Forwarded-Encrypted: i=1; AHgh+RrZZJCKYaQCAumkr3mSASmW619CZttvHzd5N0aeFJ5LHEvRyPNmmIAtfaMZ0cuZ3Fsae91MR3waOHNZ28b8qA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwjRj0QKHx5y/D/4NcLAjvleGkFYGZmWFU6ipng2xHCCIFdiOrw
+	ry41MLLyRUaR+V2swzYO0haKLEOEgC6AYYfPxlv0zI6XA+PwUD3C2qbqaMXQYphTIUsou/uBOBC
+	h50maAA==
+X-Received: from pjnu1.prod.google.com ([2002:a17:90a:8901:b0:383:c59b:fc00])
+ (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a17:90b:278c:b0:381:792d:f993
+ with SMTP id 98e67ed59e1d1-3903c5bf6fbmr20025179a91.17.1786059383863; Thu, 06
+ Aug 2026 16:36:23 -0700 (PDT)
+Reply-To: Sean Christopherson <seanjc@google.com>
+Date: Thu,  6 Aug 2026 16:35:17 -0700
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-MIME-Version: 1.0
-In-Reply-To: <20260724014605.3377283-1-linkl@google.com>
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Vbj_6U57atWBUyWn05OnNes26Wu0wU7RFaHUAdRPdZo_1786057208
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Mime-Version: 1.0
+X-Mailer: git-send-email 2.55.0.679.g6767b8d81c-goog
+Message-ID: <20260806233609.212337-1-seanjc@google.com>
+Subject: [PATCH v6 00/51] x86: Try to wrangle PV clocks vs. TSC
+From: Sean Christopherson <seanjc@google.com>
+To: Kiryl Shutsemau <kas@kernel.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, 
+	Sean Christopherson <seanjc@google.com>, Paolo Bonzini <pbonzini@redhat.com>, 
+	"K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
+	Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>, 
+	Ajay Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.makhalov@broadcom.com>, 
+	Jan Kiszka <jan.kiszka@siemens.com>, Dave Hansen <dave.hansen@linux.intel.com>, 
+	Andy Lutomirski <luto@kernel.org>, Peter Zijlstra <peterz@infradead.org>, Juergen Gross <jgross@suse.com>, 
+	Daniel Lezcano <daniel.lezcano@kernel.org>, Thomas Gleixner <tglx@kernel.org>, 
+	John Stultz <jstultz@google.com>
+Cc: Vitaly Kuznetsov <vkuznets@redhat.com>, 
+	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
+	Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stephen Boyd <sboyd@kernel.org>, 
+	Miroslav Lichvar <mlichvar@redhat.com>, x86@kernel.org, linux-coco@lists.linux.dev, 
+	kvm@vger.kernel.org, linux-hyperv@vger.kernel.org, 
+	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org, 
+	xen-devel@lists.xenproject.org, Michael Kelley <mhklinux@outlook.com>, 
+	Tom Lendacky <thomas.lendacky@amd.com>, Nikunj A Dadhania <nikunj@amd.com>, 
+	David Woodhouse <dwmw@amazon.co.uk>, David Woodhouse <dwmw2@infradead.org>, 
+	Thomas Gleixner <tglx@linutronix.de>
+Content-Type: text/plain; charset="UTF-8"
 
-On Fri, Jul 24, 2026 at 01:46:05AM +0000, Link Lin wrote:
-> Following up on the fix for the PM suspend Use-After-Free race condition in
-> mm/page_reporting (merged in mm-hotfixes-unstable: 
-> https://lore.kernel.org/all/20260723003650.CAAF01F000E9@smtp.kernel.org/), 
-> we face a hypervisor-side deployment dilemma.
-> 
-> Cloud hypervisors want to safely enable the Free Page Reporting (FPR) 
-> virtqueue across their fleets, but enabling it indiscriminately on guests 
-> without the recent suspend fix exposes them to UAF crashes. Relying on 
-> out-of-band metadata (e.g., OS image tags) to selectively enable the 
-> feature is fragile for custom user images or live-patched kernels.
-> 
-> To address this at the protocol level, we propose adding a new feature bit 
-> to the Virtio Specification: 
-> VIRTIO_BALLOON_F_REPORTING_PM_SAFE (Bit 6)
-> 
-> This establishes a formal device lifecycle contract for power management:
-> If negotiated, the driver MUST guarantee that all page reporting operations
-> are halted and pending requests are flushed before the device/system
-> transitions into a suspended state (e.g., ACPI S3/S4).
+The primary goal of this series to fix flaws with SNP and TDX guests where a
+PV clock provided by the untrusted hypervisor is used instead of the secure
+TSC that is controlled by trusted firmware.
+
+The secondary goal is modernize running under KVM.  Currently, KVM guests will
+use TSC for clocksource, but not sched_clock.  And Linux-as-a-KVM-guest doesn't
+support paravirt enumeration of the TSC/APIC frequencies, even though QEMU
+provides that information by default.
+
+The tertiary goal is to clean up the PV clock code to deduplicate logic across
+hypervisors, and to hopefully make it all easier to maintain going forward.
+
+The quaternary goal is to clean up the TSC calibration code, which was made
+stupidly hard to follow by hypervisor code mixing in with the native
+calibration routines, instead of being implemented as a pure alternative.
+
+Note, the VMware and Xen changes still probably should get acks from those
+maintainers, as my understanding of what they're trying to do may be flawed.
+
+Lots more background on the SNP/TDX motiviation:
+https://lore.kernel.org/all/20250106124633.1418972-13-nikunj@amd.com
+
+As before, I deliberately omitted jailhouse-dev@googlegroups.com from the To/Cc,
+as those emails bounced on v1, AFAICT nothing has changed.
+
+v5:
+ - Use cpu_feature_enabled() instead of boot_cpu_has(). [Boris]
+ - WARN if recalibrate_cpu_khz() runs on a system with TSC_KNOWN_FREQ. [Thomas]
+ - Opportunistically drop a line break in native_calibrate_tsc(). [Thomas]
+ - Rely on callers of cpuid_get_tsc_info() to check the result instead of
+   unnecessarily zeroing the structure. [Boris]
+ - Ignore tsc_early_khz if the TSC frequency is provided by trusted firmware
+   or by the hypervisor. [Thomas, Sashiko]
+ - Cache CPUID output in acrn_init_platform() to avoid introducing a transient
+   bug where TSC_KNOWN_FREQ could be set even if the ACRN hypervisor didn't
+   actually provide the frequency. [Sashiko]
+ - Drop kvmclock's useless/dead check_tsc_unstable() call (it occurs before the
+   command line parameter is parsed). [Sashiko]
+ - Add helpers to set lapic_timer_period, to fix not-so-theoretical overflow
+   in the various "khz * 1000 / HZ" patterns. [Sashiko]
+ - Drop the "x86/xen: Obtain TSC frequency from CPUID if present" patch as it
+   doesn't have any dependencies/conflicts on/with this series, and Sashiko had
+   concerns about the assumptions it was making. [Sashiko]
+ - Collect reviews. [David] (Kirill's got dropped because the patch he reviewed
+   got completely rewritten).
 
 
-> Deployment semantics:
-> - Hypervisors operating in a strict "safe mode" can offer Bit 6 exclusively 
->   (suppressing Bit 5 / VIRTIO_BALLOON_F_REPORTING).
-> - Older, unpatched Linux guests will see Bit 5 is absent, ignore Bit 6, and 
->   safely skip FPR initialization, preventing the suspend crash. Standard
->   ballooning remains 100% functional.
-> - Patched Linux guests will recognize Bit 6 and safely initialize FPR.
-> - Note for fleet deployments: Non-Linux guests (e.g., Windows, FreeBSD) 
->   that rely on Bit 5 will temporarily lose FPR if the hypervisor exclusively 
->   offers Bit 6. This is considered an acceptable trade-off to globally 
->   protect unpatched guests without relying on OS image tags, until those 
->   respective virtio drivers adopt Bit 6.
+v4:
+ - Use x86_init_noop() to skip save/restore on VMware and Xen instead of
+   nullifying x86_platform.{save,restore}_sched_clock_state. [Sashiko]
+ - Use '0' to indicate "failure" when getting the CPU frequency from CPUID, to
+   avoid using an out-param and thus make it all but impossible to
+   unintentionally clobber the global cpu_khz (which v3 did). [Sashiko]
+ - Rename cpuid_get_cpu_freq() => __cpu_khz_from_cpuid() to capture its
+   relationship with cpu_khz_from_cpuid().
+ - Compute lapic_timer_period in units of ticks, not Khz. [Sashiko]
+ - Kill off x86_platform_ops.calibrate_{cpu,tsc}(), and instead use dedicated
+   hooks for hypervisor code, and direct calls for TDX and SNP. [David, loosely]
+ - Drop SNP's secure TSC override of _CPU_ calibration, as there's zero
+   evidence it's justified or a net positive.
+ - Collect reviews/acks. [David, Wei]
+ - Decouple getting TSC/APIC frequencies from KVM PV CPUID from kvmclock. [David]
+ - Fix an amusing number of Opportunistically misspellings. [David]
+ - Set kvm_sched_clock_offset _before_ registering kvmclock as sched_clock,
+   and add a comment to guard against future goofs. [Sashiko]
+ - Keep "setup_force_cpu_cap(X86_FEATURE_TSC_RELIABLE)" in Hyper-V's handling
+   of HV_ACCESS_TSC_INVARIANT, as it's technically possible to have a VM
+   with HV_ACCESS_TSC_INVARIANT but not HV_ACCESS_FREQUENCY_MSRS.  Though as
+   a _very_ nice side effect of using dedicated sequencing for selecting the
+   TSC frequency source, this would have naturally happened anyways. [Sashiko]
 
-This makes no sense to me. So there's a bug in the guest and it crashes.
-Patch the guest.
+v3:
+ - https://lore.kernel.org/all/20260515191942.1892718-1-seanjc@google.com
+ - Collect reviews. [Michael, Thomas]
+ - Use Hyper-V reference counter / refcounter instead of Hyper-V timer. [Michael]
+ - Use the paravirt CPUID interface first proposed by VMware for KVM's
+   "official" mechanism for communicating frequency to KVM-aware guests,
+   instead of abusing Intel's CPUID leafs. [David]
+ - Deal with paravirt code being moved into asm/timers.h and
+   arch/x86/kernel/tsc.c.
 
-There's just no chance we'll add flags every time some guest drivers
-on some OSes have a UAF.
+v2:
+ - https://lore.kernel.org/all/Z8YWttWDtvkyCtdJ@google.com
+ - Add struct to hold the TSC CPUID output. [Boris]
+ - Don't pointlessly inline the TSC CPUID helpers. [Boris]
+ - Fix a variable goof in a helper, hopefully for real this time. [Dan]
+ - Collect reviews. [Nikunj]
+ - Override the sched_clock save/restore hooks if and only if a PV clock
+   is successfully registered.
+ - During resome, restore clocksources before reading persistent time.
+ - Clean up more warts created by kvmclock.
+ - Fix more bugs in kvmclock's suspend/resume handling.
+ - Try to harden kvmclock against future bugs.
 
-What makes this specific bug special?
+v1: https://lore.kernel.org/all/20250201021718.699411-1-seanjc@google.com
 
-Trust me when I say UAF issues e.g. around hotplug are a dime a dozen.
-Now what, let's add another one around hotplug? And so on.
+David Woodhouse (2):
+  KVM: x86: Officially define CPUID 0x40000010 as PV Timing Info (TSC
+    and Bus)
+  x86/kvm: Obtain TSC frequency from PV CPUID if present
 
-> 
-> Implementation Note on Upstream/Downstream Dependencies:
-> --------------------------------------------------------
-> Because it is critical that downstream Linux distros do not accidentally 
-> backport Bit 6 without the core MM UAF fix, the final upstream 
-> implementation of this patch will enforce a strict compile-time dependency. 
-> We plan to export a macro (e.g., PAGE_REPORTING_HAS_FREEZABLE_WQ) from the 
-> core MM fix, and wrap Bit 6 behind an #ifdef of that macro in 
-> virtio_balloon.c. This guarantees that compiler backports must consume the 
-> entire dependency chain to advertise the feature.
-> 
-> Below is the proposed Linux proof-of-concept based on upstream master. We 
-> introduce a helper virtio_balloon_has_reporting() to ensure virtqueues are 
-> properly allocated, torn down, and validated if either bit is negotiated.
-> 
-> If this architectural approach is acceptable for cloud deployments, we will 
-> formally submit this patch and open a corresponding issue for the OASIS 
-> Virtio specification.
-> 
-> Depends-on: <Message-ID: 20260723003650.CAAF01F000E9@smtp.kernel.org>
-> Signed-off-by: Link Lin <linkl@google.com>
-> ---
->  drivers/virtio/virtio_balloon.c     | 15 +++++++++++----
->  include/uapi/linux/virtio_balloon.h |  1 +
->  2 files changed, 12 insertions(+), 4 deletions(-)
-> 
-> diff --git a/drivers/virtio/virtio_balloon.c b/drivers/virtio/virtio_balloon.c
-> index 581ac799d9..00e8273dc3 100644
-> --- a/drivers/virtio/virtio_balloon.c
-> +++ b/drivers/virtio/virtio_balloon.c
-> @@ -39,6 +39,12 @@
->  	(1 << (VIRTIO_BALLOON_HINT_BLOCK_ORDER + PAGE_SHIFT))
->  #define VIRTIO_BALLOON_HINT_BLOCK_PAGES (1 << VIRTIO_BALLOON_HINT_BLOCK_ORDER)
->  
-> +static inline bool virtio_balloon_has_reporting(struct virtio_device *vdev)
-> +{
-> +	return virtio_has_feature(vdev, VIRTIO_BALLOON_F_REPORTING) ||
-> +	       virtio_has_feature(vdev, VIRTIO_BALLOON_F_REPORTING_PM_SAFE);
-> +}
-> +
->  enum virtio_balloon_vq {
->  	VIRTIO_BALLOON_VQ_INFLATE,
->  	VIRTIO_BALLOON_VQ_DEFLATE,
-> @@ -598,7 +604,7 @@ static int init_vqs(struct virtio_balloon *vb)
->  	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
->  		vqs_info[VIRTIO_BALLOON_VQ_FREE_PAGE].name = "free_page_vq";
->  
-> -	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING)) {
-> +	if (virtio_balloon_has_reporting(vb->vdev)) {
->  		vqs_info[VIRTIO_BALLOON_VQ_REPORTING].name = "reporting_vq";
->  		vqs_info[VIRTIO_BALLOON_VQ_REPORTING].callback = balloon_ack;
->  	}
-> @@ -635,7 +641,7 @@ static int init_vqs(struct virtio_balloon *vb)
->  	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_FREE_PAGE_HINT))
->  		vb->free_page_vq = vqs[VIRTIO_BALLOON_VQ_FREE_PAGE];
->  
-> -	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING))
-> +	if (virtio_balloon_has_reporting(vb->vdev))
->  		vb->reporting_vq = vqs[VIRTIO_BALLOON_VQ_REPORTING];
->  
->  	return 0;
-> @@ -1013,7 +1019,7 @@ static int virtballoon_probe(struct virtio_device *vdev)
->  	}
->  
->  	vb->pr_dev_info.report = virtballoon_free_page_report;
-> -	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING)) {
-> +	if (virtio_balloon_has_reporting(vb->vdev)) {
->  		unsigned int capacity;
->  
->  		capacity = virtqueue_get_vring_size(vb->reporting_vq);
-> @@ -1099,7 +1105,7 @@ static void virtballoon_remove(struct virtio_device *vdev)
->  {
->  	struct virtio_balloon *vb = vdev->priv;
->  
-> -	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_REPORTING))
-> +	if (virtio_balloon_has_reporting(vb->vdev))
->  		page_reporting_unregister(&vb->pr_dev_info);
->  	if (virtio_has_feature(vb->vdev, VIRTIO_BALLOON_F_DEFLATE_ON_OOM))
->  		unregister_oom_notifier(&vb->oom_nb);
-> @@ -1162,8 +1168,10 @@ static int virtballoon_validate(struct virtio_device *vdev)
->  	 */
->  	if (!want_init_on_free() && !page_poisoning_enabled_static())
->  		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_PAGE_POISON);
-> -	else if (!virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON))
-> +	else if (!virtio_has_feature(vdev, VIRTIO_BALLOON_F_PAGE_POISON)) {
->  		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING);
-> +		__virtio_clear_bit(vdev, VIRTIO_BALLOON_F_REPORTING_PM_SAFE);
-> +	}
->  
->  	__virtio_clear_bit(vdev, VIRTIO_F_ACCESS_PLATFORM);
->  	return 0;
-> @@ -1176,6 +1184,7 @@ static unsigned int features[] = {
->  	VIRTIO_BALLOON_F_FREE_PAGE_HINT,
->  	VIRTIO_BALLOON_F_PAGE_POISON,
->  	VIRTIO_BALLOON_F_REPORTING,
-> +	VIRTIO_BALLOON_F_REPORTING_PM_SAFE,
->  };
->  
->  static struct virtio_driver virtio_balloon_driver = {
-> diff --git a/include/uapi/linux/virtio_balloon.h b/include/uapi/linux/virtio_balloon.h
-> index ee35a37280..d206f156d6 100644
-> --- a/include/uapi/linux/virtio_balloon.h
-> +++ b/include/uapi/linux/virtio_balloon.h
-> @@ -37,6 +37,7 @@
->  #define VIRTIO_BALLOON_F_FREE_PAGE_HINT	3 /* VQ to report free pages */
->  #define VIRTIO_BALLOON_F_PAGE_POISON	4 /* Guest is using page poisoning */
->  #define VIRTIO_BALLOON_F_REPORTING	5 /* Page reporting virtqueue */
-> +#define VIRTIO_BALLOON_F_REPORTING_PM_SAFE	6 /* PM-safe page reporting */
->  
->  /* Size of a PFN in the balloon interface. */
->  #define VIRTIO_BALLOON_PFN_SHIFT 12
-> --
+Sean Christopherson (49):
+  x86/apic: Provide helpers to set local APIC timer frequency in hz and
+    khz
+  x86/apic: Add CONFIG_X86_LOCAL_APIC=n stubs for APIC timer frequency
+    APIs
+  x86/tsc: Ensure that TSC recalibration doesn't run if TSC frequency is
+    known
+  x86/tsc: Restrict recalibrate_cpu_khz() export to p4-clockmod and
+    powernow-k7
+  x86/sev: Mark TSC as reliable when configuring Secure TSC
+  x86/sev: Don't override CPU frequency calibration for SNP's Secure TSC
+  x86/sev: Move check for SNP Secure TSC support to tsc_early_init()
+  x86/sev: Shove SNP's secure/trusted TSC frequency directly into
+    "calibration"
+  x86/tsc: Add a standalone helper for getting TSC info from CPUID.0x15
+  x86/tdx: Force TSC frequency with CPUID-based info provided by the
+    TDX-Module
+  x86/tsc: Add dedicated hypervisor hooks for getting known TSC/CPU
+    frequencies
+  x86/acrn: Register TSC/CPU frequency callbacks iff frequency is
+    actually in CPUID
+  x86/acrn: Mark TSC frequency as known when using ACRN for calibration
+  x86/tsc: Consolidate forcing of X86_FEATURE_TSC_KNOWN_FREQ for PV code
+  x86/tsc: Kill off x86_platform_ops.calibrate_{cpu,tsc}() hooks
+  x86/tsc: Rename pit_hpet_ptimer_calibrate_cpu() =>
+    native_calibrate_cpu_late()
+  x86/tsc: Fold native_calibrate_cpu() into recalibrate_cpu_khz()
+  x86/kvmclock: Rename kvm_get_tsc_khz() to kvmclock_get_tsc_khz()
+  x86/kvmclock: Drop dead check on TSC being unstable during
+    kvmclock_init()
+  x86/kvm: Mark TSC as reliable when it's constant and nonstop
+  x86/tsc: Add standalone helper for getting CPU frequency from CPUID
+  x86/kvm: Get CPU base frequency from CPUID when it's available
+  clocksource: hyper-v: Register sched_clock save/restore iff it's
+    necessary
+  clocksource: hyper-v: Drop wrappers to sched_clock save/restore
+    helpers
+  clocksource: hyper-v: Don't save/restore TSC offset when using HV
+    sched_clock
+  x86/kvmclock: Setup kvmclock for secondary CPUs iff CONFIG_SMP=y
+  x86/kvm: Don't disable kvmclock on BSP in syscore_suspend()
+  x86/paravirt: Remove unnecessary PARAVIRT=n stub for
+    paravirt_set_sched_clock()
+  x86/paravirt: Move handling of unstable PV clocks into
+    paravirt_set_sched_clock()
+  x86/kvmclock: Move sched_clock save/restore helpers up in kvmclock.c
+  x86/xen/time: NOP-ify x86_platform's sched_clock save/restore hooks
+  x86/vmware: NOP-ify save/restore hooks when using VMware's sched_clock
+  x86/tsc: WARN if TSC sched_clock save/restore used with PV sched_clock
+  x86/paravirt: Pass sched_clock save/restore helpers during
+    registration
+  x86/kvmclock: Move kvm_sched_clock_init() down in kvmclock.c
+  x86/xen/time: Mark xen_setup_vsyscall_time_info() as __init
+  x86/pvclock: Mark setup helpers and related various as
+    __init/__ro_after_init
+  x86/pvclock: WARN if pvclock's valid_flags are overwritten
+  x86/kvmclock: Refactor handling of PVCLOCK_TSC_STABLE_BIT during
+    kvmclock_init()
+  timekeeping: Resume clocksources before reading persistent clock
+  x86/kvmclock: Hook clocksource.suspend/resume when kvmclock isn't
+    sched_clock
+  x86/kvmclock: WARN if wall clock is read while kvmclock is suspended
+  x86/paravirt: Mark __paravirt_set_sched_clock() as __init
+  x86/paravirt: Plumb a return code into __paravirt_set_sched_clock()
+  x86/paravirt: Don't use a PV sched_clock in CoCo guests with trusted
+    TSC
+  x86/kvmclock: Use TSC for sched_clock if it's constant and non-stop
+  x86/kvmclock: Plumb in AP-online and BSP-resume to kvmlock, for
+    documentation
+  x86/paravirt: Move using_native_sched_clock() stub into timer.h
+  x86/kvm: Get local APIC bus frequency from PV CPUID Timing Info
+
+ .../admin-guide/kernel-parameters.txt         |   5 +
+ Documentation/virt/kvm/x86/cpuid.rst          |  12 +
+ arch/x86/coco/sev/core.c                      |  21 +-
+ arch/x86/coco/tdx/tdx.c                       |  19 +-
+ arch/x86/include/asm/acrn.h                   |   5 -
+ arch/x86/include/asm/apic.h                   |   5 +-
+ arch/x86/include/asm/kvm_para.h               |  12 +-
+ arch/x86/include/asm/sev.h                    |   4 +-
+ arch/x86/include/asm/tdx.h                    |   2 +
+ arch/x86/include/asm/timer.h                  |  15 +-
+ arch/x86/include/asm/tsc.h                    |  10 +-
+ arch/x86/include/asm/x86_init.h               |   8 +-
+ arch/x86/include/uapi/asm/kvm_para.h          |  11 +
+ arch/x86/kernel/apic/apic.c                   |  19 +-
+ arch/x86/kernel/cpu/acrn.c                    |  14 +-
+ arch/x86/kernel/cpu/mshyperv.c                |  70 +-----
+ arch/x86/kernel/cpu/vmware.c                  |  19 +-
+ arch/x86/kernel/jailhouse.c                   |   9 +-
+ arch/x86/kernel/kvm.c                         | 101 ++++++--
+ arch/x86/kernel/kvmclock.c                    | 208 +++++++++++------
+ arch/x86/kernel/pvclock.c                     |   9 +-
+ arch/x86/kernel/tsc.c                         | 218 +++++++++++-------
+ arch/x86/kernel/tsc_msr.c                     |   4 +-
+ arch/x86/kernel/x86_init.c                    |   2 -
+ arch/x86/mm/mem_encrypt_amd.c                 |   3 -
+ arch/x86/xen/time.c                           |  14 +-
+ drivers/clocksource/hyperv_timer.c            |  38 ++-
+ include/clocksource/hyperv_timer.h            |   2 -
+ kernel/time/timekeeping.c                     |   9 +-
+ 29 files changed, 547 insertions(+), 321 deletions(-)
+
+
+base-commit: 6949feed6e32823a6628873000602988a4cafe06
+-- 
+2.55.0.679.g6767b8d81c-goog
 
