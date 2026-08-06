@@ -1,132 +1,244 @@
-Received: from mail-pj1-f43.google.com (mail-pj1-f43.google.com [209.85.216.43])
+Received: from mail-wr1-f41.google.com (mail-wr1-f41.google.com [209.85.221.41])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 6D87A3B9D95
-	for <virtualization@lists.linux.dev>; Thu,  6 Aug 2026 06:52:25 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.216.43
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id B1EC7431A55
+	for <virtualization@lists.linux.dev>; Thu,  6 Aug 2026 09:22:21 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.221.41
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1785999146; cv=none; b=fjxi9A4R90Y5TMkqqbYCaTwjkWtgjGo7jles51pY64uV+sitN38/mpbiTG8E/BCaWxxK8+ChdrCLxpXK1oPPaWnESZxLToZQZihpmU5vBgLB5hqxmxJv/E5h6MPahKK2YgimQgO8nEhXvh3qD16wQYd2k3JQT5JjPxBCh/l+uhI=
+	t=1786008144; cv=none; b=NCNLWfs8qd0adgdo4xUvJC4PDnyHNNyvNMy7thz16Cnr6mMDQegHT4wT0B13UvIgw/hZMwRwa/VeD9uDfHRi7PQ/ACCNh/rTa/dlw18MXgw6PZ5p96MzzaLnQa/qJEJqgTV4qvBkHsaNIEDuWAOQVWFBYdPmBtqMlhx3hSbRlqU=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1785999146; c=relaxed/simple;
-	bh=07xBgVVP2JBjaNjTf6tOGuw5SBbrqT7XyGX1346mHb8=;
-	h=From:To:Cc:Subject:Date:Message-Id:MIME-Version; b=UvZt/ONrerI57S6AxWlc85zJedBVhRU84ZY6U2ytTgcIyAm5rVqw5lSb/NZCDY8fzkpJ37wO6iW+9fkXMsc4REmupuCRkJTVk4WlPSgO7WWydd3yJ6MH0RH084MG+4uIWQoCnHu+Ag4QAVVc+5BnbPOpTJi8hRvIPicARvMrjBA=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=tE9IOgZP; arc=none smtp.client-ip=209.85.216.43
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1786008144; c=relaxed/simple;
+	bh=eAkOXZtlwNYjPhDGjyZtRke2iyDCQ2QqdzoXZFHQk1s=;
+	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
+	 Content-Type:Content-Disposition:In-Reply-To; b=peYCzunsIpHhDshU1aF5XVT+lomJrzEhIgdwsnO/Eor2xAAPFseNaM3dlZNUiRYHirpt4JsD9Olr9tbXxw7qo9cbiKqYkqljlTY3XPIaetOVOiueUsa8qSXWueQpVj5N9q4n1Shv6XyJI/MjGUQw/GH6Jnz54qFDWB1MEfO9QGM=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com; spf=pass smtp.mailfrom=suse.com; dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b=ECoCOaKX; arc=none smtp.client-ip=209.85.221.41
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=suse.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=suse.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="tE9IOgZP"
-Received: by mail-pj1-f43.google.com with SMTP id 98e67ed59e1d1-38dcbade417so1492618a91.1
-        for <virtualization@lists.linux.dev>; Wed, 05 Aug 2026 23:52:25 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=suse.com header.i=@suse.com header.b="ECoCOaKX"
+Received: by mail-wr1-f41.google.com with SMTP id ffacd0b85a97d-47fd66a094eso767797f8f.3
+        for <virtualization@lists.linux.dev>; Thu, 06 Aug 2026 02:22:21 -0700 (PDT)
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1785999145; x=1786603945; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=7Ci77Hl+QZM3Fah7Pj+TstLuIwRPYYUyZFUXDgpE0Gk=;
-        b=tE9IOgZPSbd8iKLOMX8d0QMT8vuZyhM0neHy5EMqmTrzxis3sADNGPEGA5UAx5ZcqE
-         eX1/Z2SBgebe28QD3n2kGTJQfKe9x9ynLkZ2AfL8fnlnOzI8SEubGO25rPW2uz4ojBWX
-         TTZuc78xb1F+bAa6CfZF4+3d+QgqARfs0q0uahH8SvqnpoclEfJG2LF2upY6mhuJCkKl
-         70VjbQSLo3oFElpIOe2I0Kh9a9kMEkyqx+NHh8Zrndg1AHNyCd8zl+dqRfeO+7pDY1Vn
-         UtiaEPRw0QuoUZzn+pAoewoBwsWAL9BhpzvGIsytYU0NXNIjil/t/33QKqLID8IxG0c5
-         ZggA==
+        d=suse.com; s=google; t=1786008140; x=1786612940; darn=lists.linux.dev;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=Pcnhqt0EtUylxXGbjqsf+1Pc4DS5YZiCgI0VutNek2Q=;
+        b=ECoCOaKXbYlFGAyOrJGA/zMVLSzl9yHDgt8sVuDLjWiS0vUZf6mts1nwPN4C8dhIyM
+         jSYUfMp5PWS0ifTSno2CDIsH6pM4IwcuPSOeDcTWvGrsQnKVz1LHewRn8nT/uR6edeEs
+         l8st+h3lhgVc6mFzplvfRE5bv7Q6EaH6ZHw+NwWr3mG95ud13rmraAbjccbfOIGR93Op
+         cXIsNq0/wt8dlW7+mNTTcL8gYRc8XAisSPnk0aJc0LuRHeeChL4Nvm/gO6KauHv2cu+g
+         143TQCFWLRYhrTDb3eKY29y80p9ZDWKIIQ07zE3zCxzHRQ1h9As0IgPlj2aI3QZ8t5kF
+         esmA==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1785999145; x=1786603945;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=7Ci77Hl+QZM3Fah7Pj+TstLuIwRPYYUyZFUXDgpE0Gk=;
-        b=o3Cdm2w3xh4P4OJYY1ZcJQajVC6InaKTBjXYkVj/j4aE78NOMTcz0zj/D/ao7QQC2Y
-         G8v43xbsmbqwfLlrsakJPe7d/LATSv6REutQrD+w0PqeVJ9y2Ku7SVcRtHz6UrU0BOk9
-         QG7zg8sh3bw0wIuDv5peruFO5Uxy7X6CmC2EXWgZmJF7qZ9BAQkH4CMt9JqxRx/yuqoB
-         jubzy3+R9UkbdokXBfaPW/37sMbcmRznM6cgNLG2fbbf41vGYR9/F8BysTd0HH7NGbwH
-         iLwHyeq5L+4LlmIVjFNKur1i0xlwLJZ7aALiLcaTDxtIfcS4VKcWJiHnDsrmBp/fBb2I
-         Oq5w==
-X-Forwarded-Encrypted: i=1; AHgh+RpTEcqiVoIm8AD88TQ+iQGIhnXruv+Mz/G8GLgFVuptxjdquC6I+Or951shVFkLCZiQVvUfZPGGg/K4i79IuQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YyvmIDo4lN3PY9tTBhhyraid5luHlTUejopsnJUjRDMgKy80RAk
-	d4cDrbUG4Wo7xHJ1pCH7F1L/5TniTwfPEzHIz/6/6i/Vcjp8s7O6568uIYlZT2V+/NVBYg==
-X-Gm-Gg: AR+sD11wjaIP0+0aGZMB+lEZI5u3d+qUVBIZgopemunZe/IXsYkbfotPmuYGhscL5Fr
-	L39DIyXjeTg2ZAyjNxBvNUoXBOmQce7A0ZJZDTmKBA7W+r/jCLit2NSVWgN2PucE2MzzFh5juQa
-	lycFp05VDKFlHs93HmkaOXYV86XI7BYHsrSoidxjaIr6lBP7HiT0ckkL7yh0ZSm2y3+TPsTd8TX
-	BDptZxvY+Wca9xig1SX5QX6HjtKh6O0sAQtUR8arrKCBpKgmtz+yakDxrk2tKzUhsEGdzP2Of9u
-	MJ4RAPN7dRjTdv2ZtToT7yMrp6wOhv5sYAOsZqkZ9J8vQjT/bNJLPEaHJFhcAcRDJjv3JAj3z3u
-	z9txqd5uBpA0uZjmRDUMmewoyDxkEQEin0gie6FQ9SyUMNGVOeqgPJyTsyQJJmqQfKxtktihJqG
-	lj1wx14CIQ0A6B+TNg39WA9ON/BEUfHJzeunc+Kh+8sB5p5+Yp9IP3MVk5UuEwQ3U=
-X-Received: by 2002:a17:90a:da83:b0:38e:500:3975 with SMTP id 98e67ed59e1d1-3903c5d82a3mr11893037a91.18.1785999144464;
-        Wed, 05 Aug 2026 23:52:24 -0700 (PDT)
-Received: from [127.0.1.1] ([188.253.12.32])
-        by smtp.gmail.com with ESMTPSA id a92af1059eb24-13fca508a48sm19408839c88.1.2026.08.05.23.52.20
+        d=1e100.net; s=20251104; t=1786008140; x=1786612940;
+        h=in-reply-to:content-disposition:content-type:mime-version
+         :references:message-id:subject:cc:to:from:date:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=Pcnhqt0EtUylxXGbjqsf+1Pc4DS5YZiCgI0VutNek2Q=;
+        b=M6j9agJLTa0XY+ba+NgI7UBXYHXuFZek+EFsdWKq7BHETaB4TnhX6NZJnn0G162kK6
+         QtmHLDGFVuZBdOycQC6Qi8TJAmVhEE916vFQfAvMWXPGend1gjKStcibNAVTrgBtrjsK
+         YoaBV8iUL3PkV3NlUhXrxLsOzD0S9+pfxAniTAPUHQ5tHUW9d50dBjtpulcDU7DDP2uj
+         9qUGbIB9MjLh61U7J4VYXx1cGzrIHxdjpJAR19PjRVoUi5jTq5Vr/1Dv6+SLelsGVS+l
+         Ze7tbX21WC21oNcCGEJlAA1wVJfpx1u61cbBGY9qJB/svjOQ7hnkj4F2BpXj6JDHxo7U
+         AlJA==
+X-Forwarded-Encrypted: i=1; AHgh+RpWdFnbRddU6UbA7vqOGhz8Qs00TrZ0kw1KKPt4RBW6TiiHjtAapWshZkffimvMt8eywo0K2kq+AqEAuTfofA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw5BNxwiyyfhcx/BnCmYr40kkhnMsC1QLK5bBGm8zqMbqRCwq6T
+	HP620e5WtJd4IyvkuBqcRWLyGDXnXBxPLrRXqyWBUBPqI7cI8DaB8sSbzFG8IdZYOCk=
+X-Gm-Gg: AR+sD11ern/awLcrjoVXuzC8iwll+9N7hjAS2D0Bu6xHQdEJIlbEL34+6HhE3KVF7Wg
+	XFhwdCxqFMoK9BbUkkOQ6dQ6z84VyGM5jxozpcQgYlS7huvWsxzW8V1gtnuocCfsSsAoMU3Jq/Z
+	rckRI+HGdkQA/nPUGCtAP3xEAHgmlNlziE3HyBaJQTV2d1ICrM6R0phnh4bZCrV5Kf8KQASTNdX
+	q25xVVAOs/LsbL3HO9nriB4g17NZBcWSi6RY21YKe/IDgi0m5yimJAejy/GyHaOyivtNq56dbrO
+	X/GHE9wcW732YCGKcqNGs9ye7eLO7mHybDEcgw/G0G/imQaYRkcwuflMn4pkb89W9VGuwj3uyz5
+	tgaOfJ8B88aEdXIz0zqqWpF2xOqlAveGqufyDJ3BLlehIi9vbHUVKAl9YSAhPcypnTbCC+zjuef
+	nXdYTkUQN4yk5Z2ANp+XTl7We5cBoxUNlh8F5UqLc+x+zgFhNIGzDGo4BFsA8zxkk/
+X-Received: by 2002:a5d:624a:0:b0:47f:9750:26cc with SMTP id ffacd0b85a97d-47fec630b5cmr16574414f8f.23.1786008139632;
+        Thu, 06 Aug 2026 02:22:19 -0700 (PDT)
+Received: from localhost.localdomain ([2001:af0:8000:1409:193:86:92:181])
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-47ff7b31975sm4112794f8f.33.2026.08.06.02.22.17
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Wed, 05 Aug 2026 23:52:24 -0700 (PDT)
-From: Jia Jia <physicalmtea@gmail.com>
-To: mst@redhat.com,
-	jasowang@redhat.com,
-	michael.christie@oracle.com
-Cc: pbonzini@redhat.com,
-	stefanha@redhat.com,
-	eperezma@redhat.com,
-	virtualization@lists.linux.dev,
-	kvm@vger.kernel.org,
-	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-Subject:
- [PATCH v2] vhost-scsi: serialize completion notification with callfd updates
-Date: Thu,  6 Aug 2026 14:51:43 +0800
-Message-Id: <20260806065143.55584-1-physicalmtea@gmail.com>
-X-Mailer: git-send-email 2.34.1
+        Thu, 06 Aug 2026 02:22:18 -0700 (PDT)
+Date: Thu, 6 Aug 2026 11:22:16 +0200
+From: Michal =?utf-8?Q?Koutn=C3=BD?= <mkoutny@suse.com>
+To: Yu Kuai <yukuai@kernel.org>
+Cc: Jens Axboe <axboe@kernel.dk>, Tejun Heo <tj@kernel.org>, 
+	Johannes Weiner <hannes@cmpxchg.org>, Jonathan Corbet <corbet@lwn.net>, Yu Kuai <yukuai@fygo.io>, 
+	Josef Bacik <josef@toxicpanda.com>, Coly Li <colyli@fygo.io>, 
+	Kent Overstreet <kent.overstreet@linux.dev>, Alasdair Kergon <agk@redhat.com>, 
+	Mike Snitzer <snitzer@kernel.org>, Mikulas Patocka <mpatocka@redhat.com>, 
+	Benjamin Marzinski <bmarzins@redhat.com>, Song Liu <song@kernel.org>, Dan Williams <djbw@kernel.org>, 
+	Vishal Verma <vishal.l.verma@intel.com>, Dave Jiang <dave.jiang@intel.com>, 
+	Alison Schofield <alison.schofield@intel.com>, Pankaj Gupta <pankaj.gupta.linux@gmail.com>, 
+	Andreas Gruenbacher <agruenba@redhat.com>, Matthew Wilcox <willy@infradead.org>, Jan Kara <jack@suse.cz>, 
+	Andrew Morton <akpm@linux-foundation.org>, Chris Li <chrisl@kernel.org>, Kairui Song <kasong@tencent.com>, 
+	Christoph Hellwig <hch@lst.de>, Nilay Shroff <nilay@linux.ibm.com>, Tao Cui <cui.tao@linux.dev>, 
+	cgroups@vger.kernel.org, linux-doc@vger.kernel.org, linux-kernel@vger.kernel.org, 
+	linux-block@vger.kernel.org, linux-bcache@vger.kernel.org, dm-devel@lists.linux.dev, 
+	linux-raid@vger.kernel.org, nvdimm@lists.linux.dev, virtualization@lists.linux.dev, 
+	gfs2@lists.linux.dev, linux-fsdevel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: [RFC PATCH v1 2/3] blk-cgroup: store blkcg in bio instead of blkg
+Message-ID: <anRPSKHWo59GPIA0@localhost.localdomain>
+References: <20260804065313.2092022-1-yukuai@kernel.org>
+ <20260804065313.2092022-3-yukuai@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha512;
+	protocol="application/pgp-signature"; boundary="ltojthlavrpt3nkl"
+Content-Disposition: inline
+In-Reply-To: <20260804065313.2092022-3-yukuai@kernel.org>
 
-vhost_scsi_complete_cmd_work() drops the virtqueue mutex before calling
-vhost_signal(). VHOST_SET_VRING_CALL replaces call_ctx.ctx and releases the
-old eventfd_ctx while holding the same mutex. vhost_signal() reads the call
-context before and after vhost_notify(), so a concurrent callfd update can
-make it signal a freed context or NULL.
 
-KASAN reported the use through:
+--ltojthlavrpt3nkl
+Content-Type: text/plain; protected-headers=v1; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+Subject: Re: [RFC PATCH v1 2/3] blk-cgroup: store blkcg in bio instead of blkg
+MIME-Version: 1.0
 
-	eventfd_signal_mask
-	vhost_signal
-	vhost_scsi_complete_cmd_work
+Hi Kuai.
 
-The context was released through:
+On Tue, Aug 04, 2026 at 02:53:12PM +0800, Yu Kuai <yukuai@kernel.org> wrote:
+> From: Yu Kuai <yukuai@fygo.io>
+>=20
+> A bio currently stores a queue-local blkg reference.  This forces bio
+> association and remap paths to look up or create a blkg even when the bio
+> will never enter a blkcg policy.
+>=20
+> Store the blkcg css association in the bio instead, and derive the blkg
+> from the bio's blkcg and current bdev when a policy needs it.  The first
+> successful policy lookup pins the blkg, records the pin with BIO_BLKG_REF,
+> and drops it from bio_clear_blkcg() or when bio_set_dev() changes the
+> lookup key.
+>=20
+> Keep lookup-only users from creating missing blkgs by using
+> bio_blkg_lookup(), and rename the bio cgroup association helpers to match
+> the stored blkcg state.
 
-	eventfd_ctx_put
-	vhost_vring_ioctl
-	vhost_scsi_ioctl
+I assume this should be OK due to limited lifetime of bios -- this would
+not lead no possibly indefinite accumulation of offlined blkcgs,
+correct?
 
-Keep the mutex held through vhost_signal() so completion notification and
-callfd updates are serialized.
+> -void bio_associate_blkg_from_css(struct bio *bio,
+> +void bio_associate_blkcg_from_css(struct bio *bio,
+>  				 struct cgroup_subsys_state *css)
+>  {
+> -	if (bio_blkg(bio))
+> -		blkg_put(bio_blkg(bio));
+> +	struct blkcg *blkcg;
+> =20
+> -	if (css && css->parent) {
+> -		bio->bi_blkg =3D blkg_tryget_closest(bio, css);
+> -	} else {
+> -		blkg_get(bdev_get_queue(bio->bi_bdev)->root_blkg);
+> -		bio->bi_blkg =3D bdev_get_queue(bio->bi_bdev)->root_blkg;
+> -	}
+> +	if (!css || !css->parent)
+> +		css =3D &blkcg_root.css;
+> +
+> +	blkcg =3D css_to_blkcg(css);
+> +	if (bio_blkcg(bio) =3D=3D blkcg)
+> +		return;
+> +
+> +	css_get(css);	<---
+> +	bio_clear_blkcg(bio);
+> +	bio->bi_blkcg =3D blkcg;
+>  }
+> -EXPORT_SYMBOL_GPL(bio_associate_blkg_from_css);
+> +EXPORT_SYMBOL_GPL(bio_associate_blkcg_from_css);
 
-Fixes: 057cbf49a1f0 ("tcm_vhost: Initial merge for vhost level target fabric driver")
-Link: https://lore.kernel.org/r/20260720085306.1519294-1-physicalmtea@gmail.com
-Signed-off-by: Jia Jia <physicalmtea@gmail.com>
----
-Changes since RFC:
-- Send as a non-RFC v2.
-- Add Fixes and Link tags.
+[skip to next comment below now]
 
- drivers/vhost/scsi.c | 3 +--
- 1 file changed, 1 insertion(+), 2 deletions(-)
+And here yet another (any) reference to same css is taken 2nd time.
 
-diff --git a/drivers/vhost/scsi.c b/drivers/vhost/scsi.c
-index 9a1253b9d8c5..7f46bc0de3c2 100644
---- a/drivers/vhost/scsi.c
-+++ b/drivers/vhost/scsi.c
-@@ -735,10 +735,9 @@ static void vhost_scsi_complete_cmd_work(struct vhost_work *work)
- 		vhost_scsi_release_cmd_res(se_cmd);
- 	}
- 
--	mutex_unlock(&svq->vq.mutex);
--
- 	if (signal)
- 		vhost_signal(&svq->vs->dev, &svq->vq);
-+	mutex_unlock(&svq->vq.mutex);
- }
- 
- static struct vhost_scsi_cmd *
--- 
-2.34.1
+[skip after next comment below :)]
+
+
+> =20
+>  /**
+> - * bio_associate_blkg - associate a bio with a blkg
+> + * bio_associate_blkcg - associate a bio with a blkcg
+>   * @bio: target bio
+>   *
+> - * Associate @bio with the blkg found from the bio's css and request_que=
+ue.
+> - * If one is not found, bio_lookup_blkg() creates the blkg.  If a blkg is
+> - * already associated, the css is reused and association redone as the
+> - * request_queue may have changed.
+> + * Associate @bio with the blkcg found from the bio's css.  If a blkcg is
+> + * already associated, keep it as blkcg association is not queue-local.
+>   */
+> -void bio_associate_blkg(struct bio *bio)
+
+
+> +void bio_associate_blkcg(struct bio *bio)
+>  {
+>  	struct cgroup_subsys_state *css;
+> =20
+>  	if (blk_op_is_passthrough(bio->bi_opf))
+>  		return;
+> =20
+> -	if (bio_blkg(bio)) {
+> -		css =3D bio_blkcg_css(bio);
+> -		bio_associate_blkg_from_css(bio, css);
+> -	} else {
+> -		rcu_read_lock();
+> -		css =3D blkcg_css();
+> -		if (!css_tryget_online(css))
+> -			css =3D NULL;
+> -		rcu_read_unlock();
+> +	if (bio_blkcg(bio))
+> +		return;
+> =20
+> -		bio_associate_blkg_from_css(bio, css);
+> -		if (css)
+> -			css_put(css);
+> -	}
+> +	rcu_read_lock();
+> +	css =3D blkcg_css();
+> +	if (!css_tryget_online(css))	<---
+> +		css =3D NULL;
+> +	rcu_read_unlock();
+> +
+> +	bio_associate_blkcg_from_css(bio, css);
+> +	if (css)
+> +		css_put(css);
+>  }
+> -EXPORT_SYMBOL_GPL(bio_associate_blkg);
+> +EXPORT_SYMBOL_GPL(bio_associate_blkcg);
+
+next:
+Here you take (online) reference to the blkcg->css.
+
+[return back to previous comment]
+
+
+after:
+Ideally, no tasks should be in offlined (blk)cgs, so the `current` would
+not resolve to blkcg_css() returning an offlined blkcgs. OTOH, it's
+generally good not to do _new_ associations to an offlined blkcg.
+Which is why I think this logic would better fit to
+bio_associate_blkcg_from_css()
+
+
+0.02=E2=82=AC,
+Michal
+
+
+--ltojthlavrpt3nkl
+Content-Type: application/pgp-signature; name="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+
+iJEEABYKADkWIQRCE24Fn/AcRjnLivR+PQLnlNv4CAUCanRSRBsUgAAAAAAEAA5t
+YW51MiwyLjUrMS4xMiwyLDIACgkQfj0C55Tb+Ahf+gEA5FtU8iXyQA9tlhJdWJEf
+nyf1IBDUt4tisH7UDE8KiSEBAP5BK6FXkSftml/wn918ol1iwizfBzFhephd2gZc
+e3UL
+=GgwG
+-----END PGP SIGNATURE-----
+
+--ltojthlavrpt3nkl--
