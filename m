@@ -1,74 +1,51 @@
-Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
+Received: from smtp.kernel.org (aws-us-west-2-korg-mail-alma10-1.taild15c8.ts.net [100.103.45.18])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D54B44CF4A
-	for <virtualization@lists.linux.dev>; Thu,  6 Aug 2026 15:03:54 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id E78133A5E7A;
+	Thu,  6 Aug 2026 16:04:11 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=100.103.45.18
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786028635; cv=none; b=n4eMlvNPfR7AXLgWVVOs15e4Vurlq3xuJyIcqrUkTw6qVN0cGyyUXisfnPE7FHRS7Kzm9FQVjPpirHDemXuc53aC4fsP5mqZnRNewsR1LKNSDSzBmcWlom6Lma17xIu1zIZeK87vrgpOAj+MsneHqzM5C3DS0MxjelrQYDV95kM=
+	t=1786032253; cv=none; b=HkLXBIS/t72b7ppaFs1BUpbbKVw9C/00hy2F1z0GwBGggJfbbeNoFedgVdM1qXpJyxM3vTTiifzN/1l6aQOkfLRlCqbNHq935VFzOUcm5KJaQIx7HCeQ/gf3ZOd4dZFgtCn4gk3d9HEO4JInyzX0naDW8rJUi8ow1yg9WmaFtWI=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786028635; c=relaxed/simple;
-	bh=cYbc1CQoQc5pfYhgLv/MYSip5jRcSrSImN64FkQfEWk=;
-	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kifswnt18XzTgPnk+4qkHMz3xzVdB/zAQSfAFFwbaJTaJckC/pu0pRLkJkn7P5JsBKXol2Z1+w9cWRICCIYUhLDWpmZeIMK/f4X5lWY+63Wdxv+LsyBl2slIMS0hW87b/9NfHNPsotFj0nIQI6FnHUJLFpuayRBQmLG63wrcedY=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=O3dOxaGL; arc=none smtp.client-ip=209.85.210.176
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
+	s=arc-20240116; t=1786032253; c=relaxed/simple;
+	bh=JA+f1SBJ0vX73iyDUgJmY52Xr8YlvdcqP3z/vMjhdP4=;
+	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
+	 MIME-Version; b=F68yyvf+e73KYEyWV2Z8DPPRbAwlUP+F/Ujnu6V0Nb8Eqtq1IufA7a2w1jXyIpu14pZQnFxBXt2ZeeVYf0EWnmEvYkIqRrTD7TvTeBocTf9Co2mcnNqUzTx1bHUixPCyDhUppehFJ43raZ56D9SanBNff62DSPOSwDw5LR/htTs=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b=YzWRoBPI; arc=none smtp.client-ip=100.103.45.18
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="O3dOxaGL"
-Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-8453427d3f4so2713733b3a.3
-        for <virtualization@lists.linux.dev>; Thu, 06 Aug 2026 08:03:54 -0700 (PDT)
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=gmail.com; s=20251104; t=1786028634; x=1786633434; darn=lists.linux.dev;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
-        bh=uJS+V1CTVjT7mHslf1lQhCi1CZlnPDrIe8kNgbgFr+I=;
-        b=O3dOxaGLhvBwAbUlPH7Zy7x2Ypj4WuZO6GVMRShci2lQd3+IHl+7qc1T8rcfNwk5R4
-         VjFuNbcwlWDDqRnCr9rr6QhxpysyIu/CnIG1f7AYBPY96MpEm/S2mabsN/hRuL+N3Qqr
-         P7Ec4WQKwdg1k81JOxLI8Lnx1CsL9STdcThBGrgQEDmgCEGaO7zYcpLnFF/WuYY82Y9k
-         eLnGv9FvlDLFbp62SkQVW5z0+cAYbfczzzYp82IcPBI4HvvrBcLaiqUiANUuqlgSrfYc
-         6yA5MlDIwIpF0sOkZjEbFVIxqNnwxSoDDkevI4hX8HG6lJ6UHoeU1rSypi7rHy8S0ll8
-         WM8A==
-X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786028634; x=1786633434;
-        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
-         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=uJS+V1CTVjT7mHslf1lQhCi1CZlnPDrIe8kNgbgFr+I=;
-        b=HLzot9t18frF/4mrZ/JKvrJiCllvCopjWCrPCdF32OeBmYZX1Keggk4cSHKSq8saAT
-         BuLDW4S0i3qgmuqmLleyrTCGdS55IXzqQnO6hn8G+hwnDaXh5di+9cHy6tMvT/sl96qJ
-         t9dcNx7tIJNo/sr1n/jTlDSlfv9O9Ok67P0TBAmDhFw1qq8Qz56p8KHVNJfn7BDj9mLF
-         Jc43A0nv9yVAlWPtGAqNJEr5D7+oMOV4ndM8k78YpZjfZuhlR+Vno3h2CUVHerXllph6
-         waNls1Yzw5+nguXbUhwrcauea6V+w4KLk/LBE9h3pY0o/i8Zz27w3DGuyGyuJW/rwtLu
-         Uygg==
-X-Gm-Message-State: AOJu0Yz/mtqsz48IHvV6mea0T1TP5Q3oYTiYMP0PKc+gKCByc4NgEaig
-	U1lKSqc9iTrlNoxiteZCcGCqnK7CsE0ZVffih5LkNFwZA6+KVbT1ublx
-X-Gm-Gg: AR+sD13As4vCWVNAqsuuP4oxA3xBcceIA6LiQyaGjw+x2mVFFMvj40PTMbBmrKoUj0V
-	3naxNQViYRaq+W4bAtBp2XKrUPIbC38jJEejsetC6J3d/rcZYtA/o2lNrt7Qz6DMurOx6w4m2iD
-	lkEPAjgXTWE8fnqkXT6Jc5qaUKh7KEqNjp2GTtTcXOUxkHlINw4F+nNN8ns/OfX5OatHn1iKuJE
-	S5yy6hf3alKR+y/XoGkeqqi/2mTlS2Yl8i04cQe67w3eZNnOrJUcFELe1oh+Z7Ri6uQPSfMeymQ
-	og10KsZ08iKn3BF7DzK0u9itOf41XVWClSd3QXKdZDx8bOJlPL/LIL9qWC1Efzgl2/xJz+yvYBI
-	8cizGcJSlwKvTHugNvclrYLAxn7rkp7Xwlu8wj2IWh9E4hWJihTBKlhMuENmaqZiUN6KbX4JEp3
-	BjOEOOSh+ZJ6cL5X/YRtdZ7QmeIHPje5tbJz/0otbZ1TxB87EW96huTXfTy8YLOIcwDcKHi90qO
-	VZOLl/7HayXM1pLbOsFnyvKO/HcrLPbU062RwEoM67BwiYvZeqdpabzwp93V+U4uQ==
-X-Received: by 2002:a05:6a00:2383:b0:848:44d2:72a2 with SMTP id d2e1a72fcca58-84f2e009b49mr13219705b3a.27.1786028633604;
-        Thu, 06 Aug 2026 08:03:53 -0700 (PDT)
-Received: from EAIT-H54D9Q2FJQ.eait.uq.edu.au ([130.102.10.60])
-        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84f456ba8b7sm1573356b3a.29.2026.08.06.08.03.49
-        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
-        Thu, 06 Aug 2026 08:03:53 -0700 (PDT)
-From: Yu Zhang <yuz08559@gmail.com>
-To: "Michael S . Tsirkin" <mst@redhat.com>,
-	Jason Wang <jasowang@redhat.com>,
-	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
-Cc: virtualization@lists.linux.dev,
-	kvm@vger.kernel.org,
+	dkim=pass (2048-bit key) header.d=kernel.org header.i=@kernel.org header.b="YzWRoBPI"
+Received: by smtp.kernel.org (Postfix) with ESMTPSA id 34DAF1F00A3A;
+	Thu,  6 Aug 2026 16:04:11 +0000 (UTC)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=kernel.org;
+	s=k20260515; t=1786032251;
+	bh=VwNctgsn7ev4d1iV7X14XkVZ4wfENwSBeCgpcUp54Ic=;
+	h=From:To:Cc:Subject:Date:In-Reply-To:References;
+	b=YzWRoBPIBmIjbRVA5/V9B2/I+zdIyOVOMdaKcK9s1sDFKA4nhwW8ud3pp+ZvEDJy1
+	 z00/BH9PZhQEiR4ismfnYEV37DoPdp79nMMubbf5BJsu22QSy5tP70/CbMHCDvKIiM
+	 LdBciS7rvCcGFWPgMJ/33zx9fVQs0dUSKcSzCwRIrg8v4OMV00JulT72ZN3FWVN4pi
+	 06TfnC1v/kTSfxqZUuAscJdUyouhnj1NrX4PpejygdSaQG8WqXdZenage9jB/DDDc2
+	 SRCfashtq2CI1dF4ogSGkshv2Qul7O6kM8ghY9E80Hb/1me8J2V/0QNejoYwoPjm+t
+	 Yq4qV8wnIJqKA==
+From: Jakub Kicinski <kuba@kernel.org>
+To: xiongweimin@kylinos.cn
+Cc: Jakub Kicinski <kuba@kernel.org>,
+	mst@redhat.com,
+	jasowangio@gmail.com,
+	xuanzhuo@linux.alibaba.com,
+	eperezma@redhat.com,
+	andrew+netdev@lunn.ch,
+	davem@davemloft.net,
+	edumazet@google.com,
+	pabeni@redhat.com,
 	netdev@vger.kernel.org,
-	linux-kernel@vger.kernel.org,
-	Yu Zhang <yuz08559@gmail.com>
-Subject: [PATCH] vhost-vdpa: drop the parent's vq callback before the call fd is released
-Date: Fri,  7 Aug 2026 01:03:23 +1000
-Message-ID: <20260806150323.2154-1-yuz08559@gmail.com>
+	virtualization@lists.linux.dev,
+	linux-kernel@vger.kernel.org
+Subject: Re: [PATCH net 1/2] virtio_net: check AF_XDP queue index before use
+Date: Thu,  6 Aug 2026 09:04:10 -0700
+Message-ID: <20260806160410.2689091-1-kuba@kernel.org>
 X-Mailer: git-send-email 2.55.0
+In-Reply-To: <20260804085330.1333242-1-xiongweimin@kylinos.cn>
+References: <20260804085330.1333242-1-xiongweimin@kylinos.cn>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -77,104 +54,138 @@ List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
 Content-Transfer-Encoding: 8bit
 
-VHOST_SET_VRING_CALL releases the previous call eventfd inside
-vhost_vring_ioctl() -- it swaps the new context into vq->call_ctx.ctx
-and then eventfd_ctx_put()s the old one, which is a synchronous
-kfree(). The parent vdpa device is only told about the change
-afterwards, when vhost_vdpa_vring_ioctl() reaches ops->set_vq_cb().
-
-Parent drivers cache the pointer handed to them in
-vdpa_callback::trigger and do not take a reference on it, so
-throughout that window the parent holds a dangling eventfd_ctx and may
-signal it. The documentation added with the field describes what
-signalling it means but says nothing about how long it stays valid.
-
-This is the same hazard that "vhost_vdpa: assign irq bypass producer
-token correctly" addressed for the irq bypass producer token, by
-moving vhost_vdpa_unsetup_vq_irq() ahead of the vhost_vring_ioctl()
-call. The producer token was only one of the two consumers of that
-pointer; the one the parent keeps via ->set_vq_cb() was left behind
-the free.
-
-With VDUSE the window is directly reachable from userspace, because
-the device emulation daemon can inject an interrupt at any time from a
-different fd, and neither side shares a lock with the other: VDUSE
-takes vq->irq_lock, vhost takes vhost_dev.mutex + vq->mutex.
-
-  BUG: KASAN: slab-use-after-free in _raw_spin_lock_irqsave+0x76/0xe0
-  Write of size 4 at addr ffff8881084e8788 by task vduse_uaf/2987
-
-  _raw_spin_lock_irqsave+0x76/0xe0
-  eventfd_signal_mask+0x69/0x120
-  vduse_dev_ioctl+0x337/0x1a60     <- vduse_vq_signal_irqfd(), inlined
-  __x64_sys_ioctl+0x120/0x170      <- VDUSE_VQ_INJECT_IRQ
-
-  Allocated by task 2986:
-   do_eventfd+0x50/0x200
-   __x64_sys_eventfd2+0x2e/0x40
-
-  kmalloc-64, freed 64-byte region [ffff8881084e8780, ffff8881084e87c0)
-
-One thread loops VHOST_SET_VRING_CALL on /dev/vhost-vdpa-N with a
-fresh eventfd and then unbinds it, while another loops
-VDUSE_VQ_INJECT_IRQ on /dev/vduse/<name>. This reproduces in 5 out of
-5 ten-second runs on v7.1.6 and 3 out of 3 on v7.2-rc6. With the patch
-there are no reports in 3 out of 3 runs on either, while the same
-workload still gets ~30000 interrupts per run delivered into live
-eventfds, so the path is still being exercised.
-
-Tell the parent to drop the callback before vhost_vring_ioctl() can
-free the eventfd, mirroring what is already done for the bypass
-producer, and restore it if the ioctl fails -- on failure the swap
-never happened, the old context is still installed, and leaving the
-parent without a callback would silently drop that vq's interrupts.
-
-Fixes: 5e68470f4e80 ("vdpa: Add eventfd for the vdpa callback")
-Signed-off-by: Yu Zhang <yuz08559@gmail.com>
+This is an AI-generated review of your patch. The human sending this
+email has considered the AI review valid, or at least plausible.
 ---
- drivers/vhost/vdpa.c | 23 ++++++++++++++++++++++-
- 1 file changed, 22 insertions(+), 1 deletion(-)
+virtio_net: check AF_XDP queue index before use
 
-diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
-index ac55275..b7833bd 100644
---- a/drivers/vhost/vdpa.c
-+++ b/drivers/vhost/vdpa.c
-@@ -714,13 +714,34 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
- 			if (ops->get_status(vdpa) &
- 			    VIRTIO_CONFIG_S_DRIVER_OK)
- 				vhost_vdpa_unsetup_vq_irq(v, idx);
-+			/*
-+			 * The parent caches call_ctx.ctx in cb.trigger without
-+			 * holding a reference, so it has to stop using it
-+			 * before vhost_vring_ioctl() drops the last one.
-+			 */
-+			cb.callback = NULL;
-+			cb.private = NULL;
-+			cb.trigger = NULL;
-+			ops->set_vq_cb(vdpa, idx, &cb);
- 		}
- 		break;
- 	}
- 
- 	r = vhost_vring_ioctl(&v->vdev, cmd, argp);
--	if (r)
-+	if (r) {
-+		/*
-+		 * A failure here means the swap never happened and the old
-+		 * context is still installed, so give the parent back the
-+		 * callback that was torn down above.
-+		 */
-+		if (cmd == VHOST_SET_VRING_CALL && vq->call_ctx.ctx) {
-+			cb.callback = vhost_vdpa_virtqueue_cb;
-+			cb.private = vq;
-+			cb.trigger = vq->call_ctx.ctx;
-+			ops->set_vq_cb(vdpa, idx, &cb);
-+		}
- 		return r;
-+	}
- 
- 	switch (cmd) {
- 	case VHOST_SET_VRING_ADDR:
+This moves the qid >= vi->curr_queue_pairs test in
+virtnet_xsk_pool_enable() so that it runs before the vi->rq[qid].page_pool
+check instead of after it.  The rest of the function is unchanged.
+
+> diff --git a/drivers/net/virtio_net.c b/drivers/net/virtio_net.c
+> index 3e2a5876c6c8c..6160aa8ba595e 100644
+> --- a/drivers/net/virtio_net.c
+> +++ b/drivers/net/virtio_net.c
+> @@ -5896,15 +5896,15 @@ static int virtnet_xsk_pool_enable(struct net_device *dev,
+>  	if (vi->hdr_len > xsk_pool_get_headroom(pool))
+>  		return -EINVAL;
+>  
+> +	if (qid >= vi->curr_queue_pairs)
+> +		return -EINVAL;
+> +
+>  	/* In big_packets mode, xdp cannot work, so there is no need to
+>  	 * initialize xsk of rq.
+>  	 */
+>  	if (!vi->rq[qid].page_pool)
+>  		return -ENOENT;
+>  
+> -	if (qid >= vi->curr_queue_pairs)
+> -		return -EINVAL;
+> -
+
+[Severity: Medium]
+The changelog says this "keeps an out of range queue id from reaching
+vi->rq[qid] while checking page_pool".  Was an out of range qid actually
+reachable here?
+
+vi->rq and vi->sq are sized max_queue_pairs in virtnet_alloc_queues():
+
+	vi->sq = kzalloc_objs(*vi->sq, vi->max_queue_pairs);
+	...
+	vi->rq = kzalloc_objs(*vi->rq, vi->max_queue_pairs);
+
+and the netdev is created with alloc_etherdev_mq(..., max_queue_pairs), so
+dev->num_rx_queues == dev->num_tx_queues == max_queue_pairs.
+
+The only path into virtnet_xsk_pool_enable() is
+xp_assign_dev() -> ndo_bpf(XDP_SETUP_XSK_POOL) -> virtnet_xsk_pool_setup(),
+and xp_assign_dev() first goes through xsk_reg_pool_at_qid() in
+net/xdp/xsk.c:
+
+	if (queue_id >= max(dev->real_num_rx_queues,
+			    dev->real_num_tx_queues))
+		return -EINVAL;
+
+real_num_rx_queues/real_num_tx_queues can never exceed num_rx_queues/
+num_tx_queues, so any qid that reaches the driver is already inside the
+allocated arrays and vi->rq[qid].page_pool was an in-bounds read.
+
+For a qid in [curr_queue_pairs, max_queue_pairs) the old ordering still
+rejected the request before sq/rq were used, so the only visible difference
+after the reorder appears to be -EINVAL instead of -ENOENT.  Could the
+changelog describe this as a defensive reordering rather than as preventing
+an out of range dereference?  As written it reads like a memory safety fix
+and may attract a stable backport.
+
+[Severity: High]
+This is a pre-existing issue and not something this patch introduces, but
+since the patch touches the enable-side qid test, is the symmetric test in
+virtnet_xsk_pool_disable() safe?
+
+	if (qid >= vi->curr_queue_pairs)
+		return -EINVAL;
+
+	sq = &vi->sq[qid];
+	rq = &vi->rq[qid];
+
+On that path the early return skips virtnet_rq_bind_xsk_pool(vi, rq, NULL),
+virtnet_sq_bind_xsk_pool(vi, sq, NULL), xsk_pool_dma_unmap(pool, 0), the
+virtqueue_unmap_single_attrs() of sq->xsk_hdr_dma_addr and
+kvfree(rq->xsk_buffs).
+
+Can curr_queue_pairs shrink below a qid that already has a pool bound?
+virtnet_xdp_set() raises it on attach:
+
+	err = virtnet_set_queues(vi, curr_qp + xdp_qp);
+	if (err)
+		goto err;
+	netif_set_real_num_rx_queues(dev, curr_qp + xdp_qp);
+	vi->xdp_queue_pairs = xdp_qp;
+
+With max_queue_pairs=8, curr_qp=4 and xdp_qp=4 an XDP attach gives
+curr_queue_pairs = real_num_rx_queues = 8, so a zero-copy socket can bind
+to qid 5 (xsk_reg_pool_at_qid() accepts it, virtnet_xsk_pool_enable()
+accepts it, and rq[5].page_pool is non-NULL because
+virtnet_create_page_pools() covers all max_queue_pairs queues).  Detaching
+the program then goes back to virtnet_set_queues(vi, curr_qp) with no
+AF_XDP-in-use check, unlike the ethtool channel paths which are guarded by
+netdev_queue_busy().
+
+When the socket is closed, xp_release_deferred() -> xp_clear_dev() ->
+xp_disable_drv_zc() calls ndo_bpf(XDP_SETUP_XSK_POOL, pool=NULL,
+queue_id=5), which now hits qid(5) >= curr_queue_pairs(4) and returns
+-EINVAL.  The core only warns:
+
+	WARN(1, "Failed to disable zero-copy!");
+
+so does this leak the kvzalloc'ed rq->xsk_buffs array, the xsk pool DMA
+mapping and sq->xsk_hdr_dma_addr?
+
+Beyond the leak, rq[5]->xsk_pool and sq[5]->xsk_pool still point at the
+pool that xp_release_deferred() then frees via xp_destroy().  If the queue
+count is grown again (XDP re-attach, or ethtool -L back to 8, which is now
+allowed because xsk_clear_pool_at_qid() already cleared dev->_rx[5].pool),
+the datapath dereferences it unconditionally in try_fill_recv():
+
+	if (rq->xsk_pool) {
+		err = virtnet_add_recvbuf_xsk(vi, rq, rq->xsk_pool, gfp);
+		goto kick;
+	}
+
+and similarly in virtnet_receive() and virtnet_poll_tx().  Can that be a
+use-after-free of the freed pool?
+
+Related to that, rq->xsk_buffs is never set to NULL after kvfree() in
+either virtnet_xsk_pool_disable() or the err_free_buffs path of
+virtnet_xsk_pool_enable():
+
+err_free_buffs:
+	kvfree(rq->xsk_buffs);
+	return err;
+
+so its safety depends entirely on rq->xsk_pool having been cleared first.
+Would it make sense to release the resources unconditionally in the
+disable path, or to block shrinking curr_queue_pairs while a pool is bound?
 -- 
-2.43.0
-
+pw-bot: cr
