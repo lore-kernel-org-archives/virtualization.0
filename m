@@ -1,118 +1,147 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 4C2862DB798
-	for <virtualization@lists.linux.dev>; Thu,  6 Aug 2026 14:12:14 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2ECB43CF678
+	for <virtualization@lists.linux.dev>; Thu,  6 Aug 2026 14:40:20 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786025535; cv=none; b=d8M2HfA+f+23nyYDEFdQJeDwO7JNkncmxlGPEf864XnHV4A0qjXElA4e91zyzoqUSJpkmKkOV8veiomZjCrEjXVdigF76b79rVLEfA5vZWzZpq2nqNH9kp9MrxK2D4OF4yclDRLu243hHo7vFEG4nyEnpw7DJAUZ9pIZX6OGnVw=
+	t=1786027221; cv=none; b=LkKgh4ZKTfQvb1K9xjTTNlHVSZoayiJeRFqUqzkmZRJoM+YoC60HDRb41KzG83B+Z7bvrPSlaq5mVVIH4XlSCSNeGJBKmfCAaUtYE0evvlQz4dOyiINU0mwmSSKUBhUEcfD/vw/FdDjAblgmCFDZlmz5mj82CIqIdOe4BGWfZdo=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786025535; c=relaxed/simple;
-	bh=tKT2WtltnHm9yotRiXX+eFUmEP1+4NC/PxFzeHnanKw=;
-	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=DPVp+d/zpRWLYvaBLdbAp/ye4FGNn6HO27NBHSp5i1B4QW90PnTyugt9eZP9Pq7qqHVYOitaR+oxbZiK22M82tUuO9mRPxxGL/0jPvgBKb7Zpq6mRmq+QkocCBlMwwrjnIx+wgW7fPFgXyXpyfs08ARRUWNFwi7JiOJYAfD4pm0=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=PMdonyuX; arc=none smtp.client-ip=170.10.129.124
+	s=arc-20240116; t=1786027221; c=relaxed/simple;
+	bh=gcjKawjwo26uLkajY4IH3jQHyOn7PT0OmTOcUrswS9E=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=eS41lzjBggtZCRoH00jQ+tdBbF6NKzbU2S1fmqXS0D5CXkuFxrC6r8eV8V61J8NG0t9dAGyNiyzIWuSS20DWqgotBUZA/pnJbtVtlEjm8X4WDKyxHiQkC8FAH6HnysdmSABsDXyzvNi3CBZhSafK+C+HKaX2En08fmoKmWtGJAk=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=alCl8suo; arc=none smtp.client-ip=170.10.129.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="PMdonyuX"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="alCl8suo"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1786025533;
+	s=mimecast20190719; t=1786027219;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=t7aUwMTNUpYcD120eKUj1K7e7+QcP8SwvajEqZfXsIM=;
-	b=PMdonyuXUhoh+yr+pDghVlar8BuOBW46ojoRqHM5Go8qUhmJhfTJPDu8dqlw8lprHA0mWx
-	K+Hyd1WT3HV0VMqV5ftJsZKonyqYtoU1at6R8rwkUJzuDH9toVP72is5NjHYviyN1FA9zm
-	WgyCo/SRHRcnAXZ73Cd+kSVuUR6WMI0=
-Received: from mail-wm1-f70.google.com (mail-wm1-f70.google.com
- [209.85.128.70]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=/p4TBvMBVw0EXOJptfY8mrIcbCKeY/alz7cq+D1eCSU=;
+	b=alCl8suoolMoyncx/Loac02th4Vh6cPgJRiDXZ+59kHgehbEBYWy/l0WH54BTV8IXug4Wt
+	ezeMhbArXe/yVJXtPBWjiQtRDIOtEJcKL2TMd8v7h/uOeXBP/71vYyDtNhFA10jT2yoIFv
+	FjwVXDEDFhjZYov8E8umNjr9jSabdP0=
+Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
+ [209.85.214.199]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-355-HhrA9fYYOzKmaN9iQ7aEbA-1; Thu, 06 Aug 2026 10:12:11 -0400
-X-MC-Unique: HhrA9fYYOzKmaN9iQ7aEbA-1
-X-Mimecast-MFC-AGG-ID: HhrA9fYYOzKmaN9iQ7aEbA_1786025530
-Received: by mail-wm1-f70.google.com with SMTP id 5b1f17b1804b1-4957287363bso13367475e9.0
-        for <virtualization@lists.linux.dev>; Thu, 06 Aug 2026 07:12:11 -0700 (PDT)
+ us-mta-145-U-CHIkhdOKmEi4gCIlq-lg-1; Thu, 06 Aug 2026 10:40:18 -0400
+X-MC-Unique: U-CHIkhdOKmEi4gCIlq-lg-1
+X-Mimecast-MFC-AGG-ID: U-CHIkhdOKmEi4gCIlq-lg_1786027217
+Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-2cc86a9ef97so38732755ad.3
+        for <virtualization@lists.linux.dev>; Thu, 06 Aug 2026 07:40:17 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786025530; x=1786630330;
-        h=in-reply-to:content-disposition:content-type:mime-version
-         :references:message-id:subject:cc:to:from:date:x-gm-gg
-         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=t7aUwMTNUpYcD120eKUj1K7e7+QcP8SwvajEqZfXsIM=;
-        b=YjDVAFDOvwoOUYbFcRdmCBhiC6cijzx7xH/W9ZcRTEOq8hIwN5q+LE9Dvo+DcbDD4Z
-         kBG3qw91Mc+r16T8JZnHLmV3x+hn+1FCZDVo69577SycafRA9oV+LJABM/v0lAPJrwG5
-         W2ldyR0A+FJsypKE6Xfte95XEKYu3IsTreisGoBpZbF3yGEwZglsM7TPTUvfHp9bTJej
-         BkvkL7zhZ8niW0rG/uZyXUPkYKDP1Ex+deEpDBxfqkjwM5XwFuCMZwUkuFVX68R0J70s
-         wEmC23+RNaSdfHQbgeo5j6JUJoi5g7s+gDDyddm9SVFZKItVKNvZh2s2yoHDbBhL4LKP
-         iZqg==
-X-Forwarded-Encrypted: i=1; AHgh+RotgdLpP3q2uHaAWCCuaaV3Mw7Hqmx3Uz+v/D2G87TrIkAYsW1jxp6Jac/Blrr+sc1ZhAFjeFeyC3qx/kcdhQ==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwEa6E6ujHR3Up3VQk6hY1T+WeBuMyZnT1d/v/pB5Rjji2eKslf
-	/GPLqL5f95XEA+hWjEsSX18ozuzOPJU+wyRIEq59rFqKwx/d+Lqmtqwre0Nj+QCfRWYrbO9jKor
-	fIc0cnBZk7yPFR7BKpW7zxyiipCFCogk3p5E53gW2azphxvGnLVG35fbpDroqU9VGZyGW
-X-Gm-Gg: AR+sD10IcAzObd6vkA/dBEfbfDq6ytjNNorYX7Zjsd9OwuaXvGO566JpXSyIVSjBrgq
-	xQE8/FGpTRrJrI/oEdvI8+/2l0gyv9Oxq7hxv+yIUcI1g+U7ItxIcXfWeAD4sm87D/J5J9LTY/K
-	O2liVppv1BPCq4OdeV8l4YgrNelz+W8IkxZoXc8Bn1q26XoRbOoJ5cblhWT6zUFYvIxtC5QiD3p
-	FRvuqF62SVOJeMb9pGBYyujvqEzwXBxvwiDdsP3oiuUk8KqyZWCkvAzIh2HOb+/hUjf3Pkfo8Nn
-	ETRDQftI2L9OrXcK2FINU3oAgcGBgGwZYZ9go08lzqwfZ5ECeZBRIT8l5jgI0j6UoBu106e6miZ
-	9cPw=
-X-Received: by 2002:a05:600c:3ba2:b0:493:aa0a:45ad with SMTP id 5b1f17b1804b1-4994e794edamr191371085e9.2.1786025530353;
-        Thu, 06 Aug 2026 07:12:10 -0700 (PDT)
-X-Received: by 2002:a05:600c:3ba2:b0:493:aa0a:45ad with SMTP id 5b1f17b1804b1-4994e794edamr191369505e9.2.1786025529693;
-        Thu, 06 Aug 2026 07:12:09 -0700 (PDT)
-Received: from sgarzare-redhat ([5.77.117.129])
-        by smtp.gmail.com with ESMTPSA id 5b1f17b1804b1-49952dda992sm35827965e9.2.2026.08.06.07.12.08
-        (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Thu, 06 Aug 2026 07:12:09 -0700 (PDT)
-Date: Thu, 6 Aug 2026 16:12:03 +0200
-From: Stefano Garzarella <sgarzare@redhat.com>
-To: Sean Christopherson <seanjc@google.com>
-Cc: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>, 
-	linux-kernel@vger.kernel.org, kvm@vger.kernel.org, virtualization@lists.linux.dev, 
-	netdev@vger.kernel.org, mst@redhat.com, stefanha@redhat.com, jasowangio@gmail.com, 
-	eperezma@redhat.com
-Subject: Re: [PATCH] vhost: clear vq->worker under vq->mutex when freeing
- workers
-Message-ID: <anSV9yFUHLubu7v4@sgarzare-redhat>
-References: <20260723153310.745855-1-andrey.drobyshev@virtuozzo.com>
- <anSMBpQJ8x-vXYy2@sgarzare-redhat>
- <anSRyFTNGC-XcFM1@google.com>
+        d=1e100.net; s=20251104; t=1786027217; x=1786632017;
+        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
+         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
+         :subject:date:message-id:reply-to:content-type;
+        bh=/p4TBvMBVw0EXOJptfY8mrIcbCKeY/alz7cq+D1eCSU=;
+        b=qEcKDG9qFTvUUdJ/Bh/pOCXOpVS4F0yCH7Z9OqzHbAckHnY1RIjyfMLAmHjq+0kmrA
+         em/9kg3mU43R2xfQsRFuXGcblGAegm3PKK8vNU/MDLLcA1XU4dSxfdOuUUYg9BXWFdWO
+         vqiKdWLdiHWrF7jcJzdiJGiZidY2e5rETaTlab2q+aOHEu2gzhafVdMzhOETp1bgw+QU
+         c+2CnU7i30vBpUFMdI7+Ck+6tDxMYPYNxLlttP5TReMf1jhnByumHTS2f5RIb0wc0lgt
+         hi+Zfhf6eteuLB/sXIZN4IuHOyOxOp838b5Oi3YIg2djUDUYfUBo9YXI1eVX+QY3rwg0
+         IJ1w==
+X-Forwarded-Encrypted: i=1; AHgh+RpN+a972xfjafGLcyFr0jXBRYSP+ZFaVGYKfnCEEqlgGyJKJbw6v1PRteYbYCnCKlhvUsKF4wkDFedz4d251Q==@lists.linux.dev
+X-Gm-Message-State: AOJu0YwXAQQg7Q85EEcNcYHN2Uoe7mqs67ptjaHtAg/+oiDbFJI0wuTp
+	a5bix8C2Nuj4WSv9Lk8kUsf/Fw7jrxN8536jfFBXDxPTh6mRJYTynzC3idSzS8DyYj3LF8Ru9i+
+	zHk5UsMPH0XobDY9PPXq0FtydbK2lFxKlgRiXb4lcwMxU1e5TW9dAnhMBBdRxYlPFvlTaNn4v8W
+	UtXS8TWngwpEyZTc3EndX2QieA33fTDI/ylNCNvMqwVpo=
+X-Gm-Gg: AR+sD116AHpBo9F2l7Z6K2DK8/lhX8gDEiQ8bfe+u8diCNRT92jVLY198KkQCWPa+5q
+	o12y7/QB6WeIrtbxMrnfJvYafyg8ryVE9qKqy5zcEkLmbq9PtdIXzNXgXxAF2P2vJ8cCZuhTRPW
+	Df0vQF8NzlFEP5oUTM/jRDrH+M0/Qo9rhVuaN7TlL8rWIY9B9Iyhz4r1c=
+X-Received: by 2002:a17:90b:580b:b0:38e:9e9d:9209 with SMTP id 98e67ed59e1d1-3903c5c51cdmr15623471a91.17.1786027216720;
+        Thu, 06 Aug 2026 07:40:16 -0700 (PDT)
+X-Received: by 2002:a17:90b:580b:b0:38e:9e9d:9209 with SMTP id
+ 98e67ed59e1d1-3903c5c51cdmr15623360a91.17.1786027216105; Thu, 06 Aug 2026
+ 07:40:16 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <anSRyFTNGC-XcFM1@google.com>
+References: <20260723153310.745855-1-andrey.drobyshev@virtuozzo.com> <anSMBpQJ8x-vXYy2@sgarzare-redhat>
+In-Reply-To: <anSMBpQJ8x-vXYy2@sgarzare-redhat>
+From: Stefano Garzarella <sgarzare@redhat.com>
+Date: Thu, 6 Aug 2026 16:40:04 +0200
+X-Gm-Features: AUfX_mxXaE00zqmd2DiALac4VL3A9WWcVSqpkYeQGMWjXcfcP0SiHhV-7fpbPQU
+Message-ID: <CAGxU2F4b7oy338gRSJyNko=Bnwyi+MCdzOKAtZSW2q_GJnT6=A@mail.gmail.com>
+Subject: Re: [PATCH] vhost: clear vq->worker under vq->mutex when freeing workers
+To: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
+Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
+	virtualization@lists.linux.dev, netdev@vger.kernel.org, mst@redhat.com, 
+	stefanha@redhat.com, jasowangio@gmail.com, eperezma@redhat.com
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: Tw_5P2FoKWgsXIdCPlqkTxm8rtx-fD5O0P18yE7P20k_1786025530
+X-Mimecast-MFC-PROC-ID: s6iUBZPPvn4IaGvngJQokNzE15wVBr2_LwVAyVyXO10_1786027217
 X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Disposition: inline
+Content-Type: text/plain; charset="UTF-8"
 
-On Thu, Aug 06, 2026 at 06:53:12AM -0700, Sean Christopherson wrote:
->On Thu, Aug 06, 2026, Stefano Garzarella wrote:
->> On Thu, Jul 23, 2026 at 06:33:10PM +0300, Andrey Drobyshev wrote:
->> > The effect is harmless in practice, as this only happens while the
->> > owning process (and thus the whole device) is dying, but the lockless
->> > write is inconsistent with the rest of the code.  Clear vq->worker under
->> > vq->mutex, like everyone else, so that all writers of vq->worker follow
->> > the same locking rule.
->> >
->> > This issue was found by Sashiko AI review.
->>
->> Can you share a link to the review?
->>
->> I don't know if it's common or not, but having the link in the commit or
->> after --- will help the reviewers.
+On Thu, 6 Aug 2026 at 15:35, Stefano Garzarella <sgarzare@redhat.com> wrote:
 >
->+1.  FWIW, I've been using and encouraging the "standard" Reported-by+Closes, e.g.
+> On Thu, Jul 23, 2026 at 06:33:10PM +0300, Andrey Drobyshev wrote:
+> >Every other update of vq->worker is done under vq->mutex - the worker
+> >attach/swap ioctls and vhost_worker_killed().  vhost_workers_free() is
+> >the sole exception: it clears vq->worker without holding the lock.
 >
->    Reported-by: Sashiko Bot <sashiko-bot@kernel.org>
->    Closes: https://lore.kernel.org/all/20260625212001.3B6561F000E9@smtp.kernel.org
+> mmm, vhost_dev_cleanup() updates vq->worker without the mutex too IIUC.
 >
+> >
+> >The effect is harmless in practice, as this only happens while the
+> >owning process (and thus the whole device) is dying, but the lockless
+> >write is inconsistent with the rest of the code.  Clear vq->worker under
+> >vq->mutex, like everyone else, so that all writers of vq->worker follow
+> >the same locking rule.
+> >
+> >This issue was found by Sashiko AI review.
+>
+> Can you share a link to the review?
+>
+> I don't know if it's common or not, but having the link in the commit or
+> after --- will help the reviewers.
+>
+> >
+> >Signed-off-by: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
+> >---
+> > drivers/vhost/vhost.c | 10 ++++++++--
+> > 1 file changed, 8 insertions(+), 2 deletions(-)
+> >
+> >diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
+> >index 4c525b3e16ea..dbb6cb5eccea 100644
+> >--- a/drivers/vhost/vhost.c
+> >+++ b/drivers/vhost/vhost.c
+> >@@ -722,13 +722,19 @@ static void vhost_worker_destroy(struct vhost_dev *dev,
+> > static void vhost_workers_free(struct vhost_dev *dev)
+> > {
+> >       struct vhost_worker *worker;
+> >+      struct vhost_virtqueue *vq;
+> >       unsigned long i;
+> >
+> >       if (!dev->use_worker)
+> >               return;
+> >
+> >-      for (i = 0; i < dev->nvqs; i++)
+> >-              rcu_assign_pointer(dev->vqs[i]->worker, NULL);
+> >+      for (i = 0; i < dev->nvqs; i++) {
+> >+              vq = dev->vqs[i];
+> >+
+> >+              mutex_lock(&vq->mutex);
+> >+              rcu_assign_pointer(vq->worker, NULL);
+> >+              mutex_unlock(&vq->mutex);
+> >+      }
+>
+> Pre-existing, but IIUC vhost_workers_free() is called only by
+> vhost_dev_cleanup() at the bottom, after a loop calls vhost_vq_reset()
+> on each virtqueue (without the mutex) where we already set `vq->worker`
+> to NULL, so IMO at this point it's already NULL, no?
 
-Yeah, this makes a lot of sense to me! I'll encourage the same.
+Oh, sashiko reported pretty much the same
+https://sashiko.dev/#/patchset/20260723153310.745855-1-andrey.drobyshev@virtuozzo.com?part=1
+
+So, yeah, I think it's a valid report we should fix.
 
 Thanks,
 Stefano
