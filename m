@@ -1,136 +1,136 @@
-Received: from mail-pf1-f197.google.com (mail-pf1-f197.google.com [209.85.210.197])
+Received: from mail-qt1-f177.google.com (mail-qt1-f177.google.com [209.85.160.177])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 611CE42CAE6
-	for <virtualization@lists.linux.dev>; Thu,  6 Aug 2026 22:18:07 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.197
-ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786054692; cv=none; b=tfs478VrJLm4wXPh8Bh4Lw3uMjz4NzcHccSD6d++XViEumWBnLfPeQ7VJXurlssa//HSEVak9SKlIQ6e0X6GeD3FFj2p6ZQIxm4EaB91U0XC4EWHgs/R4zEKpOPRubtODBK2fVTjUDB8XmOCJ4XKLiwCmDg6981RXLdzoid7EJ8=
-ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786054692; c=relaxed/simple;
-	bh=on3mRg2u5XTVO1NtPed6Wnq5su/1HFfJAZ0A5V6XV54=;
-	h=Date:In-Reply-To:Mime-Version:References:Message-ID:Subject:From:
-	 To:Cc:Content-Type; b=ljSIarqYqMFswvOi71iQ+a9w+qmPoydCVgFq9a+AQUeuseHyapF3RsxnFLRr4vYQ32jHyMEFSHxBgdlHTSlER0nqiyrkzjxUx/MkVPhaiVCTuQiu6/tjRNhMql19ySRFLSrMtyLKdctTHm3dhbbNVRBjACQzi/hGQcAkoztDUWc=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=B/lFDPtt; arc=none smtp.client-ip=209.85.210.197
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 8AD0E34752B
+	for <virtualization@lists.linux.dev>; Thu,  6 Aug 2026 22:45:37 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=pass smtp.client-ip=209.85.160.177
+ARC-Seal:i=2; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
+	t=1786056338; cv=pass; b=GrhTa+rQ9EDAItJXsk3B1wB9V7PPADEUEqU+vx7g49XqCz5MOx1fvSYF2CDsBWjYrm3uy4vVoWX85+FCqCSRj4wrjL2ikVUuZURXW7FiqAvwYXhQS6YRmR93t6hHcErgUTfTz5ZExLLCzOYp+QV6+GeaTuLLf+QLuaaoEWq3OOk=
+ARC-Message-Signature:i=2; a=rsa-sha256; d=subspace.kernel.org;
+	s=arc-20240116; t=1786056338; c=relaxed/simple;
+	bh=t6JgVqkbmtz5NpnUIHvX9HoVnvdw6c/HMcKh98oiDnA=;
+	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
+	 To:Cc:Content-Type; b=YNLkgGM5WIry7+6GT4m1rnlLHHjbfZWlTWOtc5R1e69T/QOJk3yfh02VlXc26nZHS2Wwa+tjTXX7XHLHq79ELcuvvLSfFXk0pmwujwV2li6NOzE3GxI54MPWGOoZlGxKN0TXyecNQ4m6FF+/YLco1G5Bf2ZQQbGjNRuOPoatQoQ=
+ARC-Authentication-Results:i=2; smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com; spf=pass smtp.mailfrom=google.com; dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b=i+gEpXk8; arc=pass smtp.client-ip=209.85.160.177
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=reject dis=none) header.from=google.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=flex--seanjc.bounces.google.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=google.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="B/lFDPtt"
-Received: by mail-pf1-f197.google.com with SMTP id d2e1a72fcca58-848d21bbb55so4548310b3a.0
-        for <virtualization@lists.linux.dev>; Thu, 06 Aug 2026 15:18:07 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=google.com header.i=@google.com header.b="i+gEpXk8"
+Received: by mail-qt1-f177.google.com with SMTP id d75a77b69052e-51c10ed63c0so49461cf.1
+        for <virtualization@lists.linux.dev>; Thu, 06 Aug 2026 15:45:37 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1786056336; cv=none;
+        d=google.com; s=arc-20260327;
+        b=pZjzHCw8KkJRaOCMV4gch8KKOFCkCKnxwA26knAIXr0+P6RSq2tYutryOJ3yvxSt1b
+         fYIvks3oj2vvJLLGQB4VufUNWFzVsoa6Cv4FE6N0VcVaYNRjGVbIbFVuJf/HLfEpZ+wg
+         D1NQWxyT4kXTj62UqW3QgpC5vtMDvlkbmQJMbeXBKNAEBEJ16yRyjAQMKv/MEQTFVIIN
+         nE3AjxiGhCnuGbhc9z2gZO+B7TLZrel4dGdCyWEJ16Ip1Qz6/MExnI0a7cCHYE3pkKf2
+         XPGcFvzbhbuNdlE4ndwOPEbXHVehlzUa7ly/2O69mv5EmvpoaoWQEpm4oR6Sj29nQZVx
+         cZLA==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20260327;
+        h=content-transfer-encoding:cc:to:subject:message-id:date:from
+         :in-reply-to:references:mime-version:dkim-signature;
+        bh=t6JgVqkbmtz5NpnUIHvX9HoVnvdw6c/HMcKh98oiDnA=;
+        fh=UtYhZ2SXbrCjbl+irxy2hxn7DR/5A8d+qC3IqmG9Mu8=;
+        b=UhXAPqnFv03nYxTM273FX0iaTeQB0fO+LsI2VIRGvsM8IoTb2UiTXV455KfCJW6Tva
+         Dm/SNgPLO6i0RT/HVb/HpKgAZ5UEzSW3tTw6QSOBYqz6GdR3nQlxwUu/AgWd9oDjUoBb
+         903htsoFAHzxJamzRqUAy206BQ7ftzvjuceSRP+nshrsep/Or17tARKbm2oAviL1IMFr
+         viZjdNdrXj6DkY584onKDQwlurvYjX4lfZ3ow4kr63AeTToMrlJAWUNBepXd242U99Ws
+         nDbBFNy92m88iXK65bVbJJ/t6qDh5FyYYivex3Xw/94m3sZLs1BmRswpU0J5QYroztDY
+         tsRA==;
+        darn=lists.linux.dev
+ARC-Authentication-Results: i=1; mx.google.com; arc=none
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=google.com; s=20251104; t=1786054686; x=1786659486; darn=lists.linux.dev;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:from:to:cc:subject:date:message-id:reply-to
-         :content-type;
-        bh=/BEVvi4/7i6XDSu/QYDIwcuZoEPs9pbAb29S0DeOBes=;
-        b=B/lFDPttdiaY0+MDQ4JS06lQaMv0Lr1rqFF3OovwQ9jeU236/Kqvxf4OHyiGhbZFFd
-         4Ad9advojSrrfRi9FtetBy6bj9lHEc26crDKa7lJi+v0yKqK+cl0w6oH5YfNZeyWeC9Z
-         oyLdifYZWivlOEfwWFT0eCeyQL8sMKcEEkA76PdO+VbkYZXobFJlr5BuEmg0cBvZhFpz
-         25YYdKQDhdlLH9k4GoxqGjX96kXVdhaooUWEAgysolF+EZDtGk6XAZ7c+xTxyGvLtWdQ
-         1PZXw82LGWXsoT5Xl34YAH9R1CXV+rJT9ueRnO9l+rWP5FbDY3eNTTev12tX5sPZ5Bak
-         /Lpg==
+        d=google.com; s=20251104; t=1786056336; x=1786661136; darn=lists.linux.dev;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:from:to:cc:subject
+         :date:message-id:reply-to:content-type;
+        bh=t6JgVqkbmtz5NpnUIHvX9HoVnvdw6c/HMcKh98oiDnA=;
+        b=i+gEpXk8sdq2U/KD3WV4umgNOvVwiVvWRQFyUcUsoVZK5FmqBeMBr9wULmQBTKFjss
+         BOx+lnGffCweXEt8CZu5N/QrQzXAkELhrvrxxV3ilCpBxQirKjYV0ncH9xTuJlyXtiMw
+         EgdqxLKNkVJnYpV79ZKDISD2uPEfUaGd+cxlam3jp/26yV4s93h7CMkYJp8+2K2K4LUq
+         qmvYtziNQc1CvIaHWVKaIM9ofoY/VgXJvTvQxGFaGVg/TIcCtTT259XUEk1G8ajbKUWM
+         eIV+0XHDE1ydTOVUNh3ddPLGvk1iqnEgZhA3aRLxjcdmA/uNn3Zhk38W7FL0IH7MlhON
+         YpEw==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786054686; x=1786659486;
-        h=content-type:cc:to:from:subject:message-id:references:mime-version
-         :in-reply-to:date:x-gm-message-state:from:to:cc:subject:date
-         :message-id:reply-to:content-type;
-        bh=/BEVvi4/7i6XDSu/QYDIwcuZoEPs9pbAb29S0DeOBes=;
-        b=IxlR4EJBizsnQw85cr7iviT/MAxHm2ccH5HBuh1fP3EyCkPSnz1XBqNzWajrnbwxB3
-         HbvaWVY3huUiEA6v1qWKKzyDim+MmnR6r1g9dvtnvJd2wOlEwBLmH9ZR0oMCEBW1fO0B
-         ndpIRS5foNKk1V/6OT0nzmUNaDa8S/30dadxW3sSZhjGmxcvLg8jhvxxMDkT/3YWqWpn
-         DC5lfStBO4HYb1WchcWrSJJmxMduPw4LTmTlBu0zwh4yQFGcxca+s8XiisZAGNTMOIUC
-         pGq/3vBiiLnmsb4+8NAj1lDuLUK+3fpvAfa3+D39PZeGlZl5B/Kf/HiUERACoTUx95v2
-         QqwQ==
-X-Forwarded-Encrypted: i=1; AHgh+Ro2JNkhPICvdKoa7OcXBQR5+bUmOXsxbWltjdUTz92orWS6T5g3nt7kpB1qWgb4vfcMIRcAZa739cQ4Of/HkA==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwD5oaOS8k1gFYiz+kgAE9lVOpyf42fJFy7jgM+YITqrecuYxj0
-	tfgcbgivJDW2PB2/0qBEtIDmLsQ97lROJU5U3hGC9uhP8EzivSbP3EBa5KnySn4jaW+QLMDDnZH
-	7yIn0iQ==
-X-Received: from pfbln15.prod.google.com ([2002:a05:6a00:3ccf:b0:848:5415:1869])
- (user=seanjc job=prod-delivery.src-stubby-dispatcher) by 2002:a05:6a00:3a0f:b0:848:3f07:c5a2
- with SMTP id d2e1a72fcca58-84f2dfd0a06mr18297213b3a.4.1786054685697; Thu, 06
- Aug 2026 15:18:05 -0700 (PDT)
-Date: Thu, 6 Aug 2026 15:18:05 -0700
-In-Reply-To: <SN6PR02MB4157453D405AB80859B12DF9D4F52@SN6PR02MB4157.namprd02.prod.outlook.com>
+        d=1e100.net; s=20251104; t=1786056336; x=1786661136;
+        h=content-transfer-encoding:content-type:cc:to:subject:message-id
+         :date:from:in-reply-to:references:mime-version:x-gm-gg
+         :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
+         :content-type;
+        bh=t6JgVqkbmtz5NpnUIHvX9HoVnvdw6c/HMcKh98oiDnA=;
+        b=AV73ypfWNsGvxsmhSQO6u7CTU616wRHN8AMIcYZZOnFd8t2l8AdnPFwh3ig1TVQTIn
+         LocxIQqzlLH9W20ezpB9c6uH9N3fKS2ZniPRAZX5X3iAEp+hP7SMOoRradSxa8wu4wiq
+         q6GAvfzw2TQaWqj6JmrGlEtgU92DELxTdNKN0vtBLqPTDmFiuLw8/qiWJCMDUAjEJ6Jc
+         /2gYPuVKvZIrOIwAPKqUQdhJTQmsO7di4lBJRbNbzqNDiyzjrdj44cHb30AAIeaOXnop
+         JT3BYVaaV39/egFDglNB9BhBzQIyi1XeAfQ2TRrRQy8grL4ODo+bxUwz6KkDjmlLlSNC
+         kaHw==
+X-Forwarded-Encrypted: i=1; AHgh+RpKGhVfDUf0ZPfVNDz0BRe/dQtd++xV1w1aWNP3nkMnpOUm6P712EMUVKKkHN7dV7SaIbKNJUDDdV3hkgGgNA==@lists.linux.dev
+X-Gm-Message-State: AOJu0YyBAiHDkTr2MQ3brv+Ly8k86Hv1QIUjdZtY9OshENI25qH/Tnc4
+	tJTu8Co+Cmy94ku250/EdaQ8pdLve+FMeILUrulCEa6q8JIcbHdMFgfweOCzCWKhOaekccH8wMo
+	xA1/1Unuw0gEaExX6ABKfEG6e/1NJQgi45vVg89at
+X-Gm-Gg: AR+sD11z2CXV9irTb0PkPuQvpzpDkH02oLTLYkFEFJiUUm86zhXXmtlPaE7zYNFgsGf
+	LibkGIXfv4SQBCrbJuNPoGTQC9FSFibvhrmlPhT1T/FeK08ZGkyqdjjDPvtjwurqvyeYs6pgrvh
+	JDBL8VOVhlHNZriwM+nnCDcrn/bZqmPCRYvRb/v0rqSoZuR77ugjcjkLdNFWVO5/8EE6td6IR7W
+	kGsOMPOgOvZWpSBJsUDXsJ6/GpnfrAax1KHbHtpp4Z13L6fwfhWqiOaVlPAuq1QvHLjBoCiN+r8
+	8lb4BjQfnxyma7+NDIkmqpNMTJ25/NB22F36dX6ALh6CGjY3NMKK3FWhnaSWK9hXoEkO8hxP8OI
+	=
+X-Received: by 2002:ac8:5893:0:b0:51c:104c:100c with SMTP id
+ d75a77b69052e-52d106def12mr5018131cf.2.1786056335879; Thu, 06 Aug 2026
+ 15:45:35 -0700 (PDT)
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
-Mime-Version: 1.0
-References: <20260701193212.749551-1-seanjc@google.com> <20260701193212.749551-48-seanjc@google.com>
- <SN6PR02MB4157453D405AB80859B12DF9D4F52@SN6PR02MB4157.namprd02.prod.outlook.com>
-Message-ID: <anUIHY-1_q3oVFPf@google.com>
-Subject: Re: [PATCH v5 47/51] x86/paravirt: Don't use a PV sched_clock in CoCo
- guests with trusted TSC
-From: Sean Christopherson <seanjc@google.com>
-To: Michael Kelley <mhklinux@outlook.com>
-Cc: Jonathan Corbet <corbet@lwn.net>, Paolo Bonzini <pbonzini@redhat.com>, 
-	Thomas Gleixner <tglx@kernel.org>, Ingo Molnar <mingo@redhat.com>, Borislav Petkov <bp@alien8.de>, 
-	Dave Hansen <dave.hansen@linux.intel.com>, "x86@kernel.org" <x86@kernel.org>, 
-	Kiryl Shutsemau <kas@kernel.org>, Rick Edgecombe <rick.p.edgecombe@intel.com>, 
-	"K. Y. Srinivasan" <kys@microsoft.com>, Haiyang Zhang <haiyangz@microsoft.com>, Wei Liu <wei.liu@kernel.org>, 
-	Dexuan Cui <decui@microsoft.com>, Long Li <longli@microsoft.com>, 
-	Ajay Kaher <ajay.kaher@broadcom.com>, Alexey Makhalov <alexey.makhalov@broadcom.com>, 
-	Jan Kiszka <jan.kiszka@siemens.com>, Andy Lutomirski <luto@kernel.org>, 
-	Peter Zijlstra <peterz@infradead.org>, Juergen Gross <jgross@suse.com>, 
-	Daniel Lezcano <daniel.lezcano@kernel.org>, John Stultz <jstultz@google.com>, 
-	Shuah Khan <skhan@linuxfoundation.org>, "H. Peter Anvin" <hpa@zytor.com>, 
-	Vitaly Kuznetsov <vkuznets@redhat.com>, 
-	Broadcom internal kernel review list <bcm-kernel-feedback-list@broadcom.com>, 
-	Boris Ostrovsky <boris.ostrovsky@oracle.com>, Stephen Boyd <sboyd@kernel.org>, 
-	"linux-doc@vger.kernel.org" <linux-doc@vger.kernel.org>, "kvm@vger.kernel.org" <kvm@vger.kernel.org>, 
-	"linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>, 
-	"linux-coco@lists.linux.dev" <linux-coco@lists.linux.dev>, 
-	"linux-hyperv@vger.kernel.org" <linux-hyperv@vger.kernel.org>, 
-	"virtualization@lists.linux.dev" <virtualization@lists.linux.dev>, 
-	"xen-devel@lists.xenproject.org" <xen-devel@lists.xenproject.org>, Tom Lendacky <thomas.lendacky@amd.com>, 
-	Nikunj A Dadhania <nikunj@amd.com>, David Woodhouse <dwmw@amazon.co.uk>, 
-	David Woodhouse <dwmw2@infradead.org>, Thomas Gleixner <tglx@linutronix.de>
-Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
+References: <20260724014605.3377283-1-linkl@google.com> <CALUx4KQfyRgG3ewQZMuU4+AMCyrh8+rH=-MOZLBv29PbPcnhYA@mail.gmail.com>
+In-Reply-To: <CALUx4KQfyRgG3ewQZMuU4+AMCyrh8+rH=-MOZLBv29PbPcnhYA@mail.gmail.com>
+From: Link Lin <linkl@google.com>
+Date: Thu, 6 Aug 2026 15:45:25 -0700
+X-Gm-Features: AUfX_myMFV1qJfbDkK0lr2_rAcEPde0PqT3TobQKcsNUoc9XJsFqir-koEVr8yU
+Message-ID: <CALUx4KS-xRf7m3jPDN5BKfFrpbojp9+0czRp5-siFed-Jj1G1A@mail.gmail.com>
+Subject: Re: [RFC PATCH] virtio_balloon: add VIRTIO_BALLOON_F_REPORTING_PM_SAFE
+ feature bit
+To: "Michael S . Tsirkin" <mst@redhat.com>, Jason Wang <jasowang@redhat.com>, 
+	Xuan Zhuo <xuanzhuo@linux.alibaba.com>
+Cc: Andrew Morton <akpm@linux-foundation.org>, David Hildenbrand <david@kernel.org>, 
+	Vlastimil Babka <vbabka@kernel.org>, virtualization@lists.linux.dev, linux-mm@kvack.org, 
+	linux-kernel@vger.kernel.org, prasin@google.com, rientjes@google.com, 
+	duenwen@google.com, jiaqiyan@google.com, ahwilkins@google.com, 
+	Greg Thelen <gthelen@google.com>, Alexander Duyck <alexander.duyck@gmail.com>, jthoughton@google.com, 
+	stable@vger.kernel.org, Cory Maccarrone <maccarro@google.com>, 
+	Taylor Scanlon <tayy@google.com>
+Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: quoted-printable
 
-On Thu, Jul 02, 2026, Michael Kelley wrote:
-> From: Sean Christopherson <seanjc@google.com> Sent: Wednesday, July 1, 2026 12:32 PM
-> > 
-> > Silently ignore attempts to switch to a paravirt sched_clock when running
-> > as a CoCo guest with trusted TSC.  In hand-wavy theory, a misbehaving
-> > hypervisor could attack the guest by manipulating the PV clock to affect
-> > guest scheduling in some weird and/or predictable way.  More importantly,
-> > reading TSC on such platforms is faster than any PV clock, and sched_clock
-> > is all about speed.
-> > 
-> > Reviewed-by: David Woodhouse <dwmw@amazon.co.uk>
-> > Signed-off-by: Sean Christopherson <seanjc@google.com>
-> > ---
-> >  arch/x86/kernel/tsc.c | 9 +++++++++
-> >  1 file changed, 9 insertions(+)
-> > 
-> > diff --git a/arch/x86/kernel/tsc.c b/arch/x86/kernel/tsc.c
-> > index 012321fed5e5..a146fc7b5e74 100644
-> > --- a/arch/x86/kernel/tsc.c
-> > +++ b/arch/x86/kernel/tsc.c
-> > @@ -283,6 +283,15 @@ bool using_native_sched_clock(void)
-> >  int __init __paravirt_set_sched_clock(u64 (*func)(void), bool stable,
-> >  				      void (*save)(void), void (*restore)(void))
-> >  {
-> > +	/*
-> > +	 * Don't replace TSC with a PV clock when running as a CoCo guest and
-> > +	 * the TSC is secure/trusted; PV clocks are emulated by the hypervisor,
-> > +	 * which isn't in the guest's TCB.
-> > +	 */
-> > +	if (cc_platform_has(CC_ATTR_GUEST_SNP_SECURE_TSC) ||
-> > +	    boot_cpu_has(X86_FEATURE_TDX_GUEST))
-> > +		return -EPERM;
-> 
-> Do a pr_warn() in the error case? Your commit message says to do the ignore
-> silently, but I wonder if that's a good idea. At least for Hyper-V, the error
-> case shouldn't happen.
+Hi all,
 
-I agree it's not a great idea, but unfortunately it's pretty much guaranteed to
-fire on KVM-based setups.  The KVM world hasn't been anywhere near as aggressive
-as Hyper-V in terms of killing off PV features when running SNP/TDX guests (which
-is largely how this series came to be in the first place).
+Following up on this RFC to see if anyone has had a chance to look it over.
 
-So while I'm conceptually not opposed to the idea of printing an error message,
-in practice I'm pretty strong against it because odds are very good I'll end up
-dealing with "bug" reports due to less-than-awesome setups.
+We'd appreciate any high-level feedback on whether using a dedicated featur=
+e
+bit (or a similar protocol-level handshake) is a viable path forward for
+safe hypervisor deployment, or if there is an alternative approach the
+maintainers would prefer.
+
+Thanks,
+Link
+
+
+On Wed, Jul 29, 2026 at 7:52=E2=80=AFPM Link Lin <linkl@google.com> wrote:
+>
+> Hi all,
+>
+> Friendly ping on this RFC.
+>
+> We'd love your feedback on whether using a new feature bit
+> (VIRTIO_BALLOON_F_REPORTING_PM_SAFE) to negotiate PM suspend safety is
+> acceptable, or if you have concerns about protocol-level handshakes for
+> kernel PM fix states.
+>
+> If you prefer an alternative approach for safe fleet deployment, please l=
+et
+> us know. Thank you!
+>
+> Sincerely,
+> Link
