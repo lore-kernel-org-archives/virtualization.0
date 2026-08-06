@@ -1,148 +1,180 @@
-Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.129.124])
-	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
+Received: from mail-pf1-f176.google.com (mail-pf1-f176.google.com [209.85.210.176])
+	(using TLSv1.2 with cipher ECDHE-RSA-AES128-GCM-SHA256 (128/128 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2ECB43CF678
-	for <virtualization@lists.linux.dev>; Thu,  6 Aug 2026 14:40:20 +0000 (UTC)
-Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.129.124
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9D54B44CF4A
+	for <virtualization@lists.linux.dev>; Thu,  6 Aug 2026 15:03:54 +0000 (UTC)
+Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=209.85.210.176
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786027221; cv=none; b=LkKgh4ZKTfQvb1K9xjTTNlHVSZoayiJeRFqUqzkmZRJoM+YoC60HDRb41KzG83B+Z7bvrPSlaq5mVVIH4XlSCSNeGJBKmfCAaUtYE0evvlQz4dOyiINU0mwmSSKUBhUEcfD/vw/FdDjAblgmCFDZlmz5mj82CIqIdOe4BGWfZdo=
+	t=1786028635; cv=none; b=n4eMlvNPfR7AXLgWVVOs15e4Vurlq3xuJyIcqrUkTw6qVN0cGyyUXisfnPE7FHRS7Kzm9FQVjPpirHDemXuc53aC4fsP5mqZnRNewsR1LKNSDSzBmcWlom6Lma17xIu1zIZeK87vrgpOAj+MsneHqzM5C3DS0MxjelrQYDV95kM=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786027221; c=relaxed/simple;
-	bh=gcjKawjwo26uLkajY4IH3jQHyOn7PT0OmTOcUrswS9E=;
-	h=MIME-Version:References:In-Reply-To:From:Date:Message-ID:Subject:
-	 To:Cc:Content-Type; b=eS41lzjBggtZCRoH00jQ+tdBbF6NKzbU2S1fmqXS0D5CXkuFxrC6r8eV8V61J8NG0t9dAGyNiyzIWuSS20DWqgotBUZA/pnJbtVtlEjm8X4WDKyxHiQkC8FAH6HnysdmSABsDXyzvNi3CBZhSafK+C+HKaX2En08fmoKmWtGJAk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=alCl8suo; arc=none smtp.client-ip=170.10.129.124
-Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
-Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
+	s=arc-20240116; t=1786028635; c=relaxed/simple;
+	bh=cYbc1CQoQc5pfYhgLv/MYSip5jRcSrSImN64FkQfEWk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version; b=kifswnt18XzTgPnk+4qkHMz3xzVdB/zAQSfAFFwbaJTaJckC/pu0pRLkJkn7P5JsBKXol2Z1+w9cWRICCIYUhLDWpmZeIMK/f4X5lWY+63Wdxv+LsyBl2slIMS0hW87b/9NfHNPsotFj0nIQI6FnHUJLFpuayRBQmLG63wrcedY=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com; spf=pass smtp.mailfrom=gmail.com; dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b=O3dOxaGL; arc=none smtp.client-ip=209.85.210.176
+Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=none dis=none) header.from=gmail.com
+Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=gmail.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="alCl8suo"
-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1786027219;
-	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
-	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
-	 in-reply-to:in-reply-to:references:references;
-	bh=/p4TBvMBVw0EXOJptfY8mrIcbCKeY/alz7cq+D1eCSU=;
-	b=alCl8suoolMoyncx/Loac02th4Vh6cPgJRiDXZ+59kHgehbEBYWy/l0WH54BTV8IXug4Wt
-	ezeMhbArXe/yVJXtPBWjiQtRDIOtEJcKL2TMd8v7h/uOeXBP/71vYyDtNhFA10jT2yoIFv
-	FjwVXDEDFhjZYov8E8umNjr9jSabdP0=
-Received: from mail-pl1-f199.google.com (mail-pl1-f199.google.com
- [209.85.214.199]) by relay.mimecast.com with ESMTP with STARTTLS
- (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-145-U-CHIkhdOKmEi4gCIlq-lg-1; Thu, 06 Aug 2026 10:40:18 -0400
-X-MC-Unique: U-CHIkhdOKmEi4gCIlq-lg-1
-X-Mimecast-MFC-AGG-ID: U-CHIkhdOKmEi4gCIlq-lg_1786027217
-Received: by mail-pl1-f199.google.com with SMTP id d9443c01a7336-2cc86a9ef97so38732755ad.3
-        for <virtualization@lists.linux.dev>; Thu, 06 Aug 2026 07:40:17 -0700 (PDT)
+	dkim=pass (2048-bit key) header.d=gmail.com header.i=@gmail.com header.b="O3dOxaGL"
+Received: by mail-pf1-f176.google.com with SMTP id d2e1a72fcca58-8453427d3f4so2713733b3a.3
+        for <virtualization@lists.linux.dev>; Thu, 06 Aug 2026 08:03:54 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20251104; t=1786028634; x=1786633434; darn=lists.linux.dev;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:from:to:cc:subject:date:message-id:reply-to:content-type;
+        bh=uJS+V1CTVjT7mHslf1lQhCi1CZlnPDrIe8kNgbgFr+I=;
+        b=O3dOxaGLhvBwAbUlPH7Zy7x2Ypj4WuZO6GVMRShci2lQd3+IHl+7qc1T8rcfNwk5R4
+         VjFuNbcwlWDDqRnCr9rr6QhxpysyIu/CnIG1f7AYBPY96MpEm/S2mabsN/hRuL+N3Qqr
+         P7Ec4WQKwdg1k81JOxLI8Lnx1CsL9STdcThBGrgQEDmgCEGaO7zYcpLnFF/WuYY82Y9k
+         eLnGv9FvlDLFbp62SkQVW5z0+cAYbfczzzYp82IcPBI4HvvrBcLaiqUiANUuqlgSrfYc
+         6yA5MlDIwIpF0sOkZjEbFVIxqNnwxSoDDkevI4hX8HG6lJ6UHoeU1rSypi7rHy8S0ll8
+         WM8A==
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786027217; x=1786632017;
-        h=content-type:cc:to:subject:message-id:date:from:in-reply-to
-         :references:mime-version:x-gm-gg:x-gm-message-state:from:to:cc
-         :subject:date:message-id:reply-to:content-type;
-        bh=/p4TBvMBVw0EXOJptfY8mrIcbCKeY/alz7cq+D1eCSU=;
-        b=qEcKDG9qFTvUUdJ/Bh/pOCXOpVS4F0yCH7Z9OqzHbAckHnY1RIjyfMLAmHjq+0kmrA
-         em/9kg3mU43R2xfQsRFuXGcblGAegm3PKK8vNU/MDLLcA1XU4dSxfdOuUUYg9BXWFdWO
-         vqiKdWLdiHWrF7jcJzdiJGiZidY2e5rETaTlab2q+aOHEu2gzhafVdMzhOETp1bgw+QU
-         c+2CnU7i30vBpUFMdI7+Ck+6tDxMYPYNxLlttP5TReMf1jhnByumHTS2f5RIb0wc0lgt
-         hi+Zfhf6eteuLB/sXIZN4IuHOyOxOp838b5Oi3YIg2djUDUYfUBo9YXI1eVX+QY3rwg0
-         IJ1w==
-X-Forwarded-Encrypted: i=1; AHgh+RpN+a972xfjafGLcyFr0jXBRYSP+ZFaVGYKfnCEEqlgGyJKJbw6v1PRteYbYCnCKlhvUsKF4wkDFedz4d251Q==@lists.linux.dev
-X-Gm-Message-State: AOJu0YwXAQQg7Q85EEcNcYHN2Uoe7mqs67ptjaHtAg/+oiDbFJI0wuTp
-	a5bix8C2Nuj4WSv9Lk8kUsf/Fw7jrxN8536jfFBXDxPTh6mRJYTynzC3idSzS8DyYj3LF8Ru9i+
-	zHk5UsMPH0XobDY9PPXq0FtydbK2lFxKlgRiXb4lcwMxU1e5TW9dAnhMBBdRxYlPFvlTaNn4v8W
-	UtXS8TWngwpEyZTc3EndX2QieA33fTDI/ylNCNvMqwVpo=
-X-Gm-Gg: AR+sD116AHpBo9F2l7Z6K2DK8/lhX8gDEiQ8bfe+u8diCNRT92jVLY198KkQCWPa+5q
-	o12y7/QB6WeIrtbxMrnfJvYafyg8ryVE9qKqy5zcEkLmbq9PtdIXzNXgXxAF2P2vJ8cCZuhTRPW
-	Df0vQF8NzlFEP5oUTM/jRDrH+M0/Qo9rhVuaN7TlL8rWIY9B9Iyhz4r1c=
-X-Received: by 2002:a17:90b:580b:b0:38e:9e9d:9209 with SMTP id 98e67ed59e1d1-3903c5c51cdmr15623471a91.17.1786027216720;
-        Thu, 06 Aug 2026 07:40:16 -0700 (PDT)
-X-Received: by 2002:a17:90b:580b:b0:38e:9e9d:9209 with SMTP id
- 98e67ed59e1d1-3903c5c51cdmr15623360a91.17.1786027216105; Thu, 06 Aug 2026
- 07:40:16 -0700 (PDT)
+        d=1e100.net; s=20251104; t=1786028634; x=1786633434;
+        h=content-transfer-encoding:mime-version:message-id:date:subject:cc
+         :to:from:x-gm-gg:x-gm-message-state:from:to:cc:subject:date
+         :message-id:reply-to:content-type;
+        bh=uJS+V1CTVjT7mHslf1lQhCi1CZlnPDrIe8kNgbgFr+I=;
+        b=HLzot9t18frF/4mrZ/JKvrJiCllvCopjWCrPCdF32OeBmYZX1Keggk4cSHKSq8saAT
+         BuLDW4S0i3qgmuqmLleyrTCGdS55IXzqQnO6hn8G+hwnDaXh5di+9cHy6tMvT/sl96qJ
+         t9dcNx7tIJNo/sr1n/jTlDSlfv9O9Ok67P0TBAmDhFw1qq8Qz56p8KHVNJfn7BDj9mLF
+         Jc43A0nv9yVAlWPtGAqNJEr5D7+oMOV4ndM8k78YpZjfZuhlR+Vno3h2CUVHerXllph6
+         waNls1Yzw5+nguXbUhwrcauea6V+w4KLk/LBE9h3pY0o/i8Zz27w3DGuyGyuJW/rwtLu
+         Uygg==
+X-Gm-Message-State: AOJu0Yz/mtqsz48IHvV6mea0T1TP5Q3oYTiYMP0PKc+gKCByc4NgEaig
+	U1lKSqc9iTrlNoxiteZCcGCqnK7CsE0ZVffih5LkNFwZA6+KVbT1ublx
+X-Gm-Gg: AR+sD13As4vCWVNAqsuuP4oxA3xBcceIA6LiQyaGjw+x2mVFFMvj40PTMbBmrKoUj0V
+	3naxNQViYRaq+W4bAtBp2XKrUPIbC38jJEejsetC6J3d/rcZYtA/o2lNrt7Qz6DMurOx6w4m2iD
+	lkEPAjgXTWE8fnqkXT6Jc5qaUKh7KEqNjp2GTtTcXOUxkHlINw4F+nNN8ns/OfX5OatHn1iKuJE
+	S5yy6hf3alKR+y/XoGkeqqi/2mTlS2Yl8i04cQe67w3eZNnOrJUcFELe1oh+Z7Ri6uQPSfMeymQ
+	og10KsZ08iKn3BF7DzK0u9itOf41XVWClSd3QXKdZDx8bOJlPL/LIL9qWC1Efzgl2/xJz+yvYBI
+	8cizGcJSlwKvTHugNvclrYLAxn7rkp7Xwlu8wj2IWh9E4hWJihTBKlhMuENmaqZiUN6KbX4JEp3
+	BjOEOOSh+ZJ6cL5X/YRtdZ7QmeIHPje5tbJz/0otbZ1TxB87EW96huTXfTy8YLOIcwDcKHi90qO
+	VZOLl/7HayXM1pLbOsFnyvKO/HcrLPbU062RwEoM67BwiYvZeqdpabzwp93V+U4uQ==
+X-Received: by 2002:a05:6a00:2383:b0:848:44d2:72a2 with SMTP id d2e1a72fcca58-84f2e009b49mr13219705b3a.27.1786028633604;
+        Thu, 06 Aug 2026 08:03:53 -0700 (PDT)
+Received: from EAIT-H54D9Q2FJQ.eait.uq.edu.au ([130.102.10.60])
+        by smtp.gmail.com with ESMTPSA id d2e1a72fcca58-84f456ba8b7sm1573356b3a.29.2026.08.06.08.03.49
+        (version=TLS1_3 cipher=TLS_CHACHA20_POLY1305_SHA256 bits=256/256);
+        Thu, 06 Aug 2026 08:03:53 -0700 (PDT)
+From: Yu Zhang <yuz08559@gmail.com>
+To: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	=?UTF-8?q?Eugenio=20P=C3=A9rez?= <eperezma@redhat.com>
+Cc: virtualization@lists.linux.dev,
+	kvm@vger.kernel.org,
+	netdev@vger.kernel.org,
+	linux-kernel@vger.kernel.org,
+	Yu Zhang <yuz08559@gmail.com>
+Subject: [PATCH] vhost-vdpa: drop the parent's vq callback before the call fd is released
+Date: Fri,  7 Aug 2026 01:03:23 +1000
+Message-ID: <20260806150323.2154-1-yuz08559@gmail.com>
+X-Mailer: git-send-email 2.55.0
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-References: <20260723153310.745855-1-andrey.drobyshev@virtuozzo.com> <anSMBpQJ8x-vXYy2@sgarzare-redhat>
-In-Reply-To: <anSMBpQJ8x-vXYy2@sgarzare-redhat>
-From: Stefano Garzarella <sgarzare@redhat.com>
-Date: Thu, 6 Aug 2026 16:40:04 +0200
-X-Gm-Features: AUfX_mxXaE00zqmd2DiALac4VL3A9WWcVSqpkYeQGMWjXcfcP0SiHhV-7fpbPQU
-Message-ID: <CAGxU2F4b7oy338gRSJyNko=Bnwyi+MCdzOKAtZSW2q_GJnT6=A@mail.gmail.com>
-Subject: Re: [PATCH] vhost: clear vq->worker under vq->mutex when freeing workers
-To: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
-Cc: linux-kernel@vger.kernel.org, kvm@vger.kernel.org, 
-	virtualization@lists.linux.dev, netdev@vger.kernel.org, mst@redhat.com, 
-	stefanha@redhat.com, jasowangio@gmail.com, eperezma@redhat.com
-X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: s6iUBZPPvn4IaGvngJQokNzE15wVBr2_LwVAyVyXO10_1786027217
-X-Mimecast-Originator: redhat.com
-Content-Type: text/plain; charset="UTF-8"
+Content-Transfer-Encoding: 8bit
 
-On Thu, 6 Aug 2026 at 15:35, Stefano Garzarella <sgarzare@redhat.com> wrote:
->
-> On Thu, Jul 23, 2026 at 06:33:10PM +0300, Andrey Drobyshev wrote:
-> >Every other update of vq->worker is done under vq->mutex - the worker
-> >attach/swap ioctls and vhost_worker_killed().  vhost_workers_free() is
-> >the sole exception: it clears vq->worker without holding the lock.
->
-> mmm, vhost_dev_cleanup() updates vq->worker without the mutex too IIUC.
->
-> >
-> >The effect is harmless in practice, as this only happens while the
-> >owning process (and thus the whole device) is dying, but the lockless
-> >write is inconsistent with the rest of the code.  Clear vq->worker under
-> >vq->mutex, like everyone else, so that all writers of vq->worker follow
-> >the same locking rule.
-> >
-> >This issue was found by Sashiko AI review.
->
-> Can you share a link to the review?
->
-> I don't know if it's common or not, but having the link in the commit or
-> after --- will help the reviewers.
->
-> >
-> >Signed-off-by: Andrey Drobyshev <andrey.drobyshev@virtuozzo.com>
-> >---
-> > drivers/vhost/vhost.c | 10 ++++++++--
-> > 1 file changed, 8 insertions(+), 2 deletions(-)
-> >
-> >diff --git a/drivers/vhost/vhost.c b/drivers/vhost/vhost.c
-> >index 4c525b3e16ea..dbb6cb5eccea 100644
-> >--- a/drivers/vhost/vhost.c
-> >+++ b/drivers/vhost/vhost.c
-> >@@ -722,13 +722,19 @@ static void vhost_worker_destroy(struct vhost_dev *dev,
-> > static void vhost_workers_free(struct vhost_dev *dev)
-> > {
-> >       struct vhost_worker *worker;
-> >+      struct vhost_virtqueue *vq;
-> >       unsigned long i;
-> >
-> >       if (!dev->use_worker)
-> >               return;
-> >
-> >-      for (i = 0; i < dev->nvqs; i++)
-> >-              rcu_assign_pointer(dev->vqs[i]->worker, NULL);
-> >+      for (i = 0; i < dev->nvqs; i++) {
-> >+              vq = dev->vqs[i];
-> >+
-> >+              mutex_lock(&vq->mutex);
-> >+              rcu_assign_pointer(vq->worker, NULL);
-> >+              mutex_unlock(&vq->mutex);
-> >+      }
->
-> Pre-existing, but IIUC vhost_workers_free() is called only by
-> vhost_dev_cleanup() at the bottom, after a loop calls vhost_vq_reset()
-> on each virtqueue (without the mutex) where we already set `vq->worker`
-> to NULL, so IMO at this point it's already NULL, no?
+VHOST_SET_VRING_CALL releases the previous call eventfd inside
+vhost_vring_ioctl() -- it swaps the new context into vq->call_ctx.ctx
+and then eventfd_ctx_put()s the old one, which is a synchronous
+kfree(). The parent vdpa device is only told about the change
+afterwards, when vhost_vdpa_vring_ioctl() reaches ops->set_vq_cb().
 
-Oh, sashiko reported pretty much the same
-https://sashiko.dev/#/patchset/20260723153310.745855-1-andrey.drobyshev@virtuozzo.com?part=1
+Parent drivers cache the pointer handed to them in
+vdpa_callback::trigger and do not take a reference on it, so
+throughout that window the parent holds a dangling eventfd_ctx and may
+signal it. The documentation added with the field describes what
+signalling it means but says nothing about how long it stays valid.
 
-So, yeah, I think it's a valid report we should fix.
+This is the same hazard that "vhost_vdpa: assign irq bypass producer
+token correctly" addressed for the irq bypass producer token, by
+moving vhost_vdpa_unsetup_vq_irq() ahead of the vhost_vring_ioctl()
+call. The producer token was only one of the two consumers of that
+pointer; the one the parent keeps via ->set_vq_cb() was left behind
+the free.
 
-Thanks,
-Stefano
+With VDUSE the window is directly reachable from userspace, because
+the device emulation daemon can inject an interrupt at any time from a
+different fd, and neither side shares a lock with the other: VDUSE
+takes vq->irq_lock, vhost takes vhost_dev.mutex + vq->mutex.
+
+  BUG: KASAN: slab-use-after-free in _raw_spin_lock_irqsave+0x76/0xe0
+  Write of size 4 at addr ffff8881084e8788 by task vduse_uaf/2987
+
+  _raw_spin_lock_irqsave+0x76/0xe0
+  eventfd_signal_mask+0x69/0x120
+  vduse_dev_ioctl+0x337/0x1a60     <- vduse_vq_signal_irqfd(), inlined
+  __x64_sys_ioctl+0x120/0x170      <- VDUSE_VQ_INJECT_IRQ
+
+  Allocated by task 2986:
+   do_eventfd+0x50/0x200
+   __x64_sys_eventfd2+0x2e/0x40
+
+  kmalloc-64, freed 64-byte region [ffff8881084e8780, ffff8881084e87c0)
+
+One thread loops VHOST_SET_VRING_CALL on /dev/vhost-vdpa-N with a
+fresh eventfd and then unbinds it, while another loops
+VDUSE_VQ_INJECT_IRQ on /dev/vduse/<name>. This reproduces in 5 out of
+5 ten-second runs on v7.1.6 and 3 out of 3 on v7.2-rc6. With the patch
+there are no reports in 3 out of 3 runs on either, while the same
+workload still gets ~30000 interrupts per run delivered into live
+eventfds, so the path is still being exercised.
+
+Tell the parent to drop the callback before vhost_vring_ioctl() can
+free the eventfd, mirroring what is already done for the bypass
+producer, and restore it if the ioctl fails -- on failure the swap
+never happened, the old context is still installed, and leaving the
+parent without a callback would silently drop that vq's interrupts.
+
+Fixes: 5e68470f4e80 ("vdpa: Add eventfd for the vdpa callback")
+Signed-off-by: Yu Zhang <yuz08559@gmail.com>
+---
+ drivers/vhost/vdpa.c | 23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/vhost/vdpa.c b/drivers/vhost/vdpa.c
+index ac55275..b7833bd 100644
+--- a/drivers/vhost/vdpa.c
++++ b/drivers/vhost/vdpa.c
+@@ -714,13 +714,34 @@ static long vhost_vdpa_vring_ioctl(struct vhost_vdpa *v, unsigned int cmd,
+ 			if (ops->get_status(vdpa) &
+ 			    VIRTIO_CONFIG_S_DRIVER_OK)
+ 				vhost_vdpa_unsetup_vq_irq(v, idx);
++			/*
++			 * The parent caches call_ctx.ctx in cb.trigger without
++			 * holding a reference, so it has to stop using it
++			 * before vhost_vring_ioctl() drops the last one.
++			 */
++			cb.callback = NULL;
++			cb.private = NULL;
++			cb.trigger = NULL;
++			ops->set_vq_cb(vdpa, idx, &cb);
+ 		}
+ 		break;
+ 	}
+ 
+ 	r = vhost_vring_ioctl(&v->vdev, cmd, argp);
+-	if (r)
++	if (r) {
++		/*
++		 * A failure here means the swap never happened and the old
++		 * context is still installed, so give the parent back the
++		 * callback that was torn down above.
++		 */
++		if (cmd == VHOST_SET_VRING_CALL && vq->call_ctx.ctx) {
++			cb.callback = vhost_vdpa_virtqueue_cb;
++			cb.private = vq;
++			cb.trigger = vq->call_ctx.ctx;
++			ops->set_vq_cb(vdpa, idx, &cb);
++		}
+ 		return r;
++	}
+ 
+ 	switch (cmd) {
+ 	case VHOST_SET_VRING_ADDR:
+-- 
+2.43.0
 
