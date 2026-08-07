@@ -1,70 +1,70 @@
 Received: from us-smtp-delivery-124.mimecast.com (us-smtp-delivery-124.mimecast.com [170.10.133.124])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 5698E312832
-	for <virtualization@lists.linux.dev>; Fri,  7 Aug 2026 14:09:26 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 330F131328E
+	for <virtualization@lists.linux.dev>; Fri,  7 Aug 2026 14:09:47 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=170.10.133.124
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786111772; cv=none; b=j/70Zn2lWl2OLdLEYlKa2IIefjzbcDhi2L9HXx1coblSP7H0AYbZU67zj+fBJmOaNdLn6XMEB3e5+ty37UkAhZQUVP59pAmgAnGby48aSW1IdtKdx35qmCRwpCUnb6Gr3Hgh2QYKfr7G6woK/dX4f6xWgtq5OTLeBvjFMIt/ffY=
+	t=1786111792; cv=none; b=cGs/X1OnH85Cu6L4xxw1w9HDwWBqb9dGfYyKcehqTeTknUMzVrwTxOIIHWy+Nnka2MjvUPbyXJ5YQEZ6bq8HuzX3SlMNLTrO9nHIW7xcuodu2pzVaDnv8SpZbEirk1A8cpvvMPgmY1X2KspPVavSgeBrHkmbz4u87l873lQShqg=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786111772; c=relaxed/simple;
-	bh=TlmwLf3trg9BQ0veZ2mCsGdbH3a+ENRbJEVBcvSvaYE=;
+	s=arc-20240116; t=1786111792; c=relaxed/simple;
+	bh=qdMfsQ+6JUOykZrUESeVCQ9Wa6OegXUnhtn5Av4QOoo=;
 	h=Date:From:To:Cc:Subject:Message-ID:References:MIME-Version:
-	 In-Reply-To:Content-Type:Content-Disposition; b=aaWYlP49v9O1+UGvnRZFIr41qrxtVHgqjr5TtYEURMj7pDhtZc5Jj/V/qFXxxQr428tRGjGr/hQ2CCA1hcEPKYqNcQqLkc52cjEhiEgry+ZJoU9fTmLR2e3hoMg+43vGsHf/9rFoR3TOXb1YinAt5wxfap4WleBN5pZHyHiLJvk=
-ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=hPAOdy0Z; arc=none smtp.client-ip=170.10.133.124
+	 In-Reply-To:Content-Type:Content-Disposition; b=EDHxcfs425fqskW0MpPD7rVraY7hTBCPyAdgRUTGGr7T8TtgEQOpiHthoKbuUiXheAuTjsVeOMU7lYqOiu+d1pltACsNAnOJH/hn8fvnn3wwY1BnayUz9ASAiAVkrFl8XwmbN4sJeXKXQwEBOL8TJzaQc0idy3E9cT6NZv9VYmw=
+ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com; spf=pass smtp.mailfrom=redhat.com; dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b=IgVj2Cjc; arc=none smtp.client-ip=170.10.133.124
 Authentication-Results: smtp.subspace.kernel.org; dmarc=pass (p=quarantine dis=none) header.from=redhat.com
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=redhat.com
 Authentication-Results: smtp.subspace.kernel.org;
-	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="hPAOdy0Z"
+	dkim=pass (1024-bit key) header.d=redhat.com header.i=@redhat.com header.b="IgVj2Cjc"
 DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=redhat.com;
-	s=mimecast20190719; t=1786111764;
+	s=mimecast20190719; t=1786111785;
 	h=from:from:reply-to:subject:subject:date:date:message-id:message-id:
 	 to:to:cc:cc:mime-version:mime-version:content-type:content-type:
 	 in-reply-to:in-reply-to:references:references;
-	bh=Eov3BeVvHFt//8xlh3ZDGtY67Cw28KsQxUVsXyTOjcU=;
-	b=hPAOdy0ZDLwkBa7D6ViRBPUOPi9fWBsACMvZ3Lj48FxAS864cQFKWIqBMllIoTWATqfVZB
-	txPzJ7adwywpWKDMsWsOzrrij8Cnwo2a361GhQYvkdTimMNwJzxOgbuSbaDgBYcCE8rB/b
-	pNnwqf75fZvgci/s7b47t8gzmf59YEQ=
-Received: from mail-wr1-f72.google.com (mail-wr1-f72.google.com
- [209.85.221.72]) by relay.mimecast.com with ESMTP with STARTTLS
+	bh=WJmTmr1ovwUxvnG+63lZARMXkZbeLyPLyhAdbBxSq4U=;
+	b=IgVj2CjcE+OPk9C+S2lKhSq/lTNipV4Ug4XjxNZtlmuMFivXCoQbZ8UQApzPjgM4OZemLS
+	q8bBQAlTOJKjYfRoh9g+tplQa1wZgLgVBcL05i6HGg2ORhhEyZrly9iOVUofQKilj1CiQV
+	32godLS59cl2m3nitN/8pwsU5CpKwCM=
+Received: from mail-wm1-f71.google.com (mail-wm1-f71.google.com
+ [209.85.128.71]) by relay.mimecast.com with ESMTP with STARTTLS
  (version=TLSv1.3, cipher=TLS_AES_256_GCM_SHA384) id
- us-mta-618-pFakVU28Pvue1bpKroHqhA-1; Fri, 07 Aug 2026 10:09:22 -0400
-X-MC-Unique: pFakVU28Pvue1bpKroHqhA-1
-X-Mimecast-MFC-AGG-ID: pFakVU28Pvue1bpKroHqhA_1786111753
-Received: by mail-wr1-f72.google.com with SMTP id ffacd0b85a97d-47fecbb553bso2689536f8f.2
-        for <virtualization@lists.linux.dev>; Fri, 07 Aug 2026 07:09:13 -0700 (PDT)
+ us-mta-240-ARRzrI0yO3GdBKzgzEnAdQ-1; Fri, 07 Aug 2026 10:09:44 -0400
+X-MC-Unique: ARRzrI0yO3GdBKzgzEnAdQ-1
+X-Mimecast-MFC-AGG-ID: ARRzrI0yO3GdBKzgzEnAdQ_1786111782
+Received: by mail-wm1-f71.google.com with SMTP id 5b1f17b1804b1-4994cf6cdb9so23206185e9.3
+        for <virtualization@lists.linux.dev>; Fri, 07 Aug 2026 07:09:43 -0700 (PDT)
 X-Google-DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
-        d=1e100.net; s=20251104; t=1786111753; x=1786716553;
+        d=1e100.net; s=20251104; t=1786111782; x=1786716582;
         h=in-reply-to:content-disposition:content-type:mime-version
          :references:message-id:subject:cc:to:from:date:x-gm-gg
          :x-gm-message-state:from:to:cc:subject:date:message-id:reply-to
          :content-type;
-        bh=Eov3BeVvHFt//8xlh3ZDGtY67Cw28KsQxUVsXyTOjcU=;
-        b=SvoH5n3mJKA3VqiGiu1CjyKYojT0V2NR4RCp0yKdnqhM3x2gHEyyRYfZQ4Kit3qdqO
-         rXKqAkLZ6GMVEUrOoqq5/R65SIrbkC7CG1jTb0+7DYGypb1jyTe47oCfKXUWni3w2UlA
-         TLBu5UlGfygFAcoOMLR7u10a+7QtBpRXBVh/DLRgUvqm4Ox8D/u47nNH3YGGznv0Bwgr
-         ShsD1GAuJPdVo4IuCxfbWgRzbTpwDZC1P8M6L2xj+hL4hGfOm77c8QfblQ03Bdc84G2q
-         12/9bs6ZfGlI2wdhUGpZblMnls/4fqOKDkSc+6t+RiWhsWnV+Csv5tFoec9Y+fDy46Wh
-         E6WQ==
-X-Forwarded-Encrypted: i=1; AHgh+Ro3JKyYnrrwZb1xhxvy2+iiF0s5wat6HGP90wyImJ19mWNNmN6czp972CZGKkZkTr1mOECGk2ibCTPrcbWvKg==@lists.linux.dev
-X-Gm-Message-State: AOJu0Yz1zYU//4n/k8yzVXyMaDI50x3bcaDBHfG8lwukLCTyRh0FVxtA
-	ceNnM+JFskmw4W0qrTMGehLl3vc6KMFSGX2snBfxmGVFe2/PgCVEsBy0B2UneuyJatmhdJHjdA2
-	TsseLXNZ/x2wjiMJawL1vCEdKnyDmvYvtgGHVbLS9hq6b/0Pszz1KeqWLPke9nl5PJcWF
-X-Gm-Gg: AR+sD12Lt5bbwleCaNBxxNhqTEU8px5ifqd85FHa7Ru922bko1vSA9/cQCo/5uWDjIX
-	L0CBLChfXZWNOk7qf+LrRrqZjVqmWMhkILtv91h+hpTU+B17KfTaoCkkDc5/0EkRG39M/fOhmjb
-	9cVrznC0csvu1yElcn7ZxpEUWmPRy8BiuAf7hh//xiKSLnpKA7mIfRn05qzoJX1d0aFrMA3ueyp
-	ZsTlIih4hfn4jYhLjhmdSdLQFQsNypKB1pKgkUt/kWyhLszkNPGr0878B0jTIYyngz95DVPPny1
-	Xo2hz0TtZlbJOuoAm434GkE1ZA7NBq7/zZfhKVFqoCW4KgZjYuTU7AoOmCIQmNAcRzCqkQKNLnz
-	eag==
-X-Received: by 2002:a5d:68c9:0:b0:474:18d9:8371 with SMTP id ffacd0b85a97d-47fec6359c1mr25283063f8f.28.1786111752473;
-        Fri, 07 Aug 2026 07:09:12 -0700 (PDT)
-X-Received: by 2002:a5d:68c9:0:b0:474:18d9:8371 with SMTP id ffacd0b85a97d-47fec6359c1mr25282961f8f.28.1786111751715;
-        Fri, 07 Aug 2026 07:09:11 -0700 (PDT)
+        bh=WJmTmr1ovwUxvnG+63lZARMXkZbeLyPLyhAdbBxSq4U=;
+        b=hw/SfZEg5LSu+io6+qmOFBrNVKXOqNaclBvbuclhmnebUajvZvZQEjbSQk5aHMo0HQ
+         oLcxffGSznreISFZ/LDl3kKS62lNmt128WMYXtkkIfPq5eIyiq59bnvpGgSeXdjUXg5O
+         nFRYuKMNCB8j47Kbcp3C2hvjTi66RoDOyqpxiSV/6rn+rf50568Th/0EugXsXzRiZ+Pn
+         GslrbfAJTqGzL3PWrh9dzpEbfjIW9x7I+QBJ0DHEYv/W5Qa0yjGToGkwkbTlQtwqgYIw
+         7jlAI8pN0SWbuRWLxpeyGTgaEO5snNfcUQLpih2SKu9us/GuhdJURsRVeOI4Xieu8yRx
+         JRjA==
+X-Forwarded-Encrypted: i=1; AHgh+RpllkGMLA14eSf5BhzIfZyDw4cpv3dfTOQIJF586tqrgqGT2L5AKPYUU2+v+9OlTZltevrIUVXhXaAGrrioKA==@lists.linux.dev
+X-Gm-Message-State: AOJu0Yw83Ca0q5ty3YcXgN/O2NApBuBcejjQN96XBO5IVsndd0nQECLw
+	LR6dLCLj2SNkRW1TkoL7uIys4Me1V8xqOeYQTtV7mPKOM454e3gzhhFDuu+ssfRPzReTuG0kRnF
+	5BRuv0sUYCfT4akgLbWZ8VZxbY2L6c9qNwqAM38PAfTaD8W6tFr1jrm7uMgfr92r+UR7l
+X-Gm-Gg: AR+sD125rdEepuvDwwEyGPCOZHB63tFbHow5hPLAIENHI9ZRIPbmWrWTFCIfRO+qz3e
+	nxzQ0Z7Bai6cL0S1x4TofLbWmNj9fmqTQ/P24d/B8LTW84bHWfI9NxtOhtc+i6dm8ZKmOq3nlAZ
+	olS8jLS6Vmf98qh8kNjsM5LJCrAjFOI9mGHBGrPK6HFOu6Rx4vvUqxuABLJA6HcVcGMc8fGNJLO
+	tvvmxmLVQ8D2CTSDfKjxWb715xa7PQWeQhPS/YT0iCx4MEpgy/x8FzLek8DhycvPWLGSOZf0eaB
+	MDjsWliD1xqqhEyvxtWIzBUVzcvmlb2N9aYfzLkaBxH77x5ajgAQe8l/KgvuDueq/UXP2CmKjRL
+	WZA==
+X-Received: by 2002:a05:600c:a47:b0:496:c379:b2a1 with SMTP id 5b1f17b1804b1-4994e71296fmr296803635e9.2.1786111782135;
+        Fri, 07 Aug 2026 07:09:42 -0700 (PDT)
+X-Received: by 2002:a05:600c:a47:b0:496:c379:b2a1 with SMTP id 5b1f17b1804b1-4994e71296fmr296802645e9.2.1786111781567;
+        Fri, 07 Aug 2026 07:09:41 -0700 (PDT)
 Received: from sgarzare-redhat ([5.77.96.150])
-        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-480021f8b9bsm6990792f8f.25.2026.08.07.07.09.07
+        by smtp.gmail.com with ESMTPSA id ffacd0b85a97d-48002150804sm5963244f8f.13.2026.08.07.07.09.34
         (version=TLS1_3 cipher=TLS_AES_256_GCM_SHA384 bits=256/256);
-        Fri, 07 Aug 2026 07:09:10 -0700 (PDT)
-Date: Fri, 7 Aug 2026 16:09:03 +0200
+        Fri, 07 Aug 2026 07:09:40 -0700 (PDT)
+Date: Fri, 7 Aug 2026 16:09:28 +0200
 From: Stefano Garzarella <sgarzare@redhat.com>
 To: Manos Pitsidianakis <manos@pitsidianak.is>
 Cc: Miguel Ojeda <ojeda@kernel.org>, 
@@ -77,794 +77,513 @@ Cc: Miguel Ojeda <ojeda@kernel.org>,
 	Daniel Almeida <daniel.almeida@collabora.com>, rust-for-linux@vger.kernel.org, Jason Wang <jasowang@redhat.com>, 
 	Xuan Zhuo <xuanzhuo@linux.alibaba.com>, Eugenio =?utf-8?B?UMOpcmV6?= <eperezma@redhat.com>, 
 	virtualization@lists.linux.dev, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH RFC v3 4/6] rust: add virtio module
-Message-ID: <anXddihIKoU9ZxmT@sgarzare-redhat>
+Subject: Re: [PATCH RFC v3 6/6] samples/rust: Add sample virtio-rtc driver
+ [WIP]
+Message-ID: <anXiIAJelE4aj3wq@sgarzare-redhat>
 References: <20260510-rust-virtio-v3-0-1427f14d67e1@pitsidianak.is>
- <20260510-rust-virtio-v3-4-1427f14d67e1@pitsidianak.is>
+ <20260510-rust-virtio-v3-6-1427f14d67e1@pitsidianak.is>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
 List-Subscribe: <mailto:virtualization+subscribe@lists.linux.dev>
 List-Unsubscribe: <mailto:virtualization+unsubscribe@lists.linux.dev>
 MIME-Version: 1.0
-In-Reply-To: <20260510-rust-virtio-v3-4-1427f14d67e1@pitsidianak.is>
+In-Reply-To: <20260510-rust-virtio-v3-6-1427f14d67e1@pitsidianak.is>
 X-Mimecast-Spam-Score: 0
-X-Mimecast-MFC-PROC-ID: lIUjIR-B7C8C4kRg-5WU7mxFPa-TVRP31XAKVpIAee0_1786111753
+X-Mimecast-MFC-PROC-ID: me4pXu1SZcAsq0SSebSDdXaS6YTqiLVWMH1uhRPF1Og_1786111782
 X-Mimecast-Originator: redhat.com
 Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Disposition: inline
 
-On Sun, May 10, 2026 at 04:38:17PM +0300, Manos Pitsidianakis wrote:
->Add module that exposes bindings for the virtio API.
+On Sun, May 10, 2026 at 04:38:19PM +0300, Manos Pitsidianakis wrote:
+>While the driver queries clocks and capabilities for each clock, it
+>doesn't actually register them yet (TODO).
+>
+>Until I implement missing functionality, there is some dead code and
+>some missing SAFETY comments.
 >
 >Signed-off-by: Manos Pitsidianakis <manos@pitsidianak.is>
 >---
-> MAINTAINERS                     |   2 +
-> rust/kernel/lib.rs              |   2 +
-> rust/kernel/virtio.rs           | 423 ++++++++++++++++++++++++++++++++++++++++
-> rust/kernel/virtio/utils.rs     |  57 ++++++
-> rust/kernel/virtio/virtqueue.rs | 314 +++++++++++++++++++++++++++++
-> 5 files changed, 798 insertions(+)
+> MAINTAINERS                     |   1 +
+> samples/rust/Kconfig            |  15 ++
+> samples/rust/Makefile           |   1 +
+> samples/rust/rust_virtio_rtc.rs | 403 ++++++++++++++++++++++++++++++++++++++++
+> 4 files changed, 420 insertions(+)
 >
 >diff --git a/MAINTAINERS b/MAINTAINERS
->index 48c9c666d90b5a256ab6fae1f42508b789a0ce50..e8012f708df5d4ee858c82aec3269e615fc8caad 100644
+>index e8012f708df5d4ee858c82aec3269e615fc8caad..3ed579e8d3cc64d1749cf261cd68f6338a830c4d 100644
 >--- a/MAINTAINERS
 >+++ b/MAINTAINERS
->@@ -27935,6 +27935,8 @@ M:	Manos Pitsidianakis <manos@pitsidianak.is>
-> L:	virtualization@lists.linux.dev
-> S:	Maintained
+>@@ -27937,6 +27937,7 @@ S:	Maintained
 > F:	rust/helpers/virtio.c
->+F:	rust/kernel/virtio.rs
->+F:	rust/kernel/virtio/
+> F:	rust/kernel/virtio.rs
+> F:	rust/kernel/virtio/
+>+F:	samples/rust/rust_virtio_rtc.rs
 >
 > VIRTIO CRYPTO DRIVER
 > M:	Gonglei <arei.gonglei@huawei.com>
->diff --git a/rust/kernel/lib.rs b/rust/kernel/lib.rs
->index d93292d47420f1f298a452ade5feefedce5ade86..061394f441dfa27f99939b5c4160e4161a7eaa1e 100644
->--- a/rust/kernel/lib.rs
->+++ b/rust/kernel/lib.rs
->@@ -161,6 +161,8 @@
-> pub mod uaccess;
-> #[cfg(CONFIG_USB = "y")]
-> pub mod usb;
->+#[cfg(CONFIG_VIRTIO = "y")]
->+pub mod virtio;
-> pub mod workqueue;
-> pub mod xarray;
+>diff --git a/samples/rust/Kconfig b/samples/rust/Kconfig
+>index c49ab910634596aea4a1a73dac87585e084f420a..96a16aecc27198fd99f4ffd0ecdf0bc0876860c6 100644
+>--- a/samples/rust/Kconfig
+>+++ b/samples/rust/Kconfig
+>@@ -179,4 +179,19 @@ config SAMPLE_RUST_HOSTPROGS
 >
->diff --git a/rust/kernel/virtio.rs b/rust/kernel/virtio.rs
+> 	  If unsure, say N.
+>
+>+config SAMPLE_RUST_VIRTIO_RTC
+>+	tristate "Rust Virtio RTC driver"
+>+	depends on VIRTIO
+>+	depends on PTP_1588_CLOCK_OPTIONAL
+>+	help
+>+	 This driver provides current time from a Virtio RTC device. The driver
+>+	 provides the time through one or more clocks. The Virtio RTC PTP
+>+	 clocks and/or the Real Time Clock driver for Virtio RTC must be
+>+	 enabled to expose the clocks to userspace.
+>+
+>+	 To compile this code as a module, choose M here: the module will be
+>+	 called rust_virtio_rtc.
+>+
+>+	 If unsure, say M.
+>+
+> endif # SAMPLES_RUST
+>diff --git a/samples/rust/Makefile b/samples/rust/Makefile
+>index 6c0aaa58ccccfd12ef019f68ca784f6d977bc668..0142fd8656bb8cdc95b7ef54e3183b5e51358954 100644
+>--- a/samples/rust/Makefile
+>+++ b/samples/rust/Makefile
+>@@ -16,6 +16,7 @@ obj-$(CONFIG_SAMPLE_RUST_DRIVER_FAUX)		+= rust_driver_faux.o
+> obj-$(CONFIG_SAMPLE_RUST_DRIVER_AUXILIARY)	+= rust_driver_auxiliary.o
+> obj-$(CONFIG_SAMPLE_RUST_CONFIGFS)		+= rust_configfs.o
+> obj-$(CONFIG_SAMPLE_RUST_SOC)			+= rust_soc.o
+>+obj-$(CONFIG_SAMPLE_RUST_VIRTIO_RTC)		+= rust_virtio_rtc.o
+>
+> rust_print-y := rust_print_main.o rust_print_events.o
+>
+>diff --git a/samples/rust/rust_virtio_rtc.rs b/samples/rust/rust_virtio_rtc.rs
 >new file mode 100644
->index 0000000000000000000000000000000000000000..a5a4e2cfec55bc7cbca0d42b198fde6cd2b25f1c
+>index 0000000000000000000000000000000000000000..81f8b377f6c92716c17ea11542fb4262cfd90e1c
 >--- /dev/null
->+++ b/rust/kernel/virtio.rs
->@@ -0,0 +1,423 @@
+>+++ b/samples/rust/rust_virtio_rtc.rs
+>@@ -0,0 +1,403 @@
 >+// SPDX-License-Identifier: GPL-2.0
 >+
->+//! VIRTIO abstraction.
->+//!
->+//! To implement a VIRTIO driver:
->+//!
->+//! - Implement the [`Driver`] trait for your driver type (use [`virtio_device_table`] macro to
->+//!   declare the `ID_TABLE` associated item)
->+//! - Use the [`module_virtio_driver`] macro to declare your module
->+
->+use crate::{
->+    bindings,
->+    device_id::RawDeviceId,
->+    error::{
->+        from_result,
->+        to_result,
->+        Error,
->+        Result, //
->+    },
->+    ffi::c_uint,
->+    prelude::*,
->+    types::Opaque, //
->+};
+>+//! Rust virtio driver sample.
 >+
 >+use core::{
->+    marker::PhantomData,
->+    pin::Pin,
 >+    ptr::NonNull, //
+>+    sync::atomic::{
+>+        AtomicU16,
+>+        Ordering, //
+>+    },
 >+};
 >+
->+pub mod utils;
->+pub mod virtqueue;
->+
->+/// IdTable type for virtio drivers.
->+pub type IdTable<T> = &'static dyn crate::device_id::IdTable<DeviceId, T>;
->+
->+/// A VIRTIO device id.
->+///
->+/// [`struct virtio_device_id`]: srctree/include/linux/mod_devicetable.h
->+#[repr(transparent)]
->+#[derive(Clone, Copy)]
->+pub struct DeviceId(bindings::virtio_device_id);
->+
->+// SAFETY: `DeviceId` is a `#[repr(transparent)]` wrapper of `struct virtio_device_id` and
->+// does not add additional invariants, so it's safe to transmute to `RawType`.
->+unsafe impl RawDeviceId for DeviceId {
->+    type RawType = bindings::virtio_device_id;
->+}
->+
->+impl DeviceId {
->+    #[inline]
->+    /// Create a new device id
->+    pub const fn new(device: VirtioID) -> Self {
->+        Self::new_with_vendor(device, VIRTIO_DEV_ANY_ID)
->+    }
->+
->+    #[inline]
->+    /// Create a new device id with vendor
->+    pub const fn new_with_vendor(device: VirtioID, vendor: u32) -> Self {
->+        // Replace with `bindings::virtio_device_id::default()` once stabilized for `const`.
->+        // SAFETY: FFI type is valid to be zero-initialized.
->+        let mut ret: bindings::virtio_device_id = unsafe { core::mem::zeroed() };
->+        ret.device = device as u32;
->+        ret.vendor = vendor;
->+        Self(ret)
->+    }
->+}
->+
->+/// Create a virtio `IdTable` with its alias for modpost.
->+#[macro_export]
->+macro_rules! virtio_device_table {
->+    ($table_name:ident, $module_table_name:ident, $id_info_type: ty, $table_data:expr) => {
->+        const $table_name: $crate::device_id::IdArray<
->+            $crate::virtio::DeviceId,
->+            $id_info_type,
->+            { $table_data.len() },
->+        > = $crate::device_id::IdArray::new_without_index($table_data);
->+
->+        $crate::module_device_table!("virtio", $module_table_name, $table_name);
->+    };
->+}
->+
->+/// Declares a kernel module that exposes a single virtio driver.
->+#[macro_export]
->+macro_rules! module_virtio_driver {
->+($($f:tt)*) => {
->+    $crate::module_driver!(<T>, $crate::virtio::Adapter<T>, { $($f)* });
+>+use kernel::{
+>+    device::{
+>+        Bound,
+>+        Core, //
+>+    },
+>+    new_mutex,    //
+>+    new_spinlock, //
+>+    prelude::*,
+>+    sync::{
+>+        Completion,
+>+        Mutex,
+>+        SpinLock, //
+>+    },
+>+    virtio::{
+>+        self,
+>+        utils::*,
+>+        virtqueue::*, //
+>+    },
 >+};
+>+
+>+use pin_init::{
+>+    stack_pin_init,
+>+    stack_try_pin_init, //
+>+};
+>+
+>+#[pin_data]
+>+struct Token {
+>+    resp_actual_size: u32,
+>+    #[pin]
+>+    responded: Completion,
 >+}
 >+
->+/// The Virtio driver trait.
->+///
->+/// Drivers must implement this trait in order to get a virtio driver registered.
->+pub trait Driver: Send {
->+    /// The type holding information about each device id supported by the driver.
->+    // TODO: Use `associated_type_defaults` once stabilized:
->+    //
->+    // ```
->+    // type IdInfo: 'static = ();
->+    // ```
->+    type IdInfo: 'static;
+>+#[derive(Copy, Clone, Debug, Zeroable)]
+>+#[repr(C)]
+>+#[doc(alias = "virtio_rtc_req_head")]
+>+struct ReqHead {
+>+    msg_type: Le16,
+>+    reserved: [u8; 6],
+>+}
+>+
+>+#[derive(Copy, Clone, Debug, Zeroable)]
+>+#[repr(C)]
+>+#[doc(alias = "virtio_rtc_resp_head")]
+>+struct RespHead {
+>+    status: u8,
+>+    reserved: [u8; 7],
+>+}
+>+
+>+#[derive(Copy, Clone, Debug, Zeroable)]
+>+#[repr(C)]
+>+#[doc(alias = "virtio_rtc_resp_cfg")]
+>+struct RespCfg {
+>+    head: RespHead,
+>+    /** # of clocks -> clock ids < num_clocks are valid */
+>+    num_clocks: Le16,
+>+    reserved: [u8; 6],
+>+}
+>+
+>+#[derive(Debug, Zeroable)]
+>+#[repr(C)]
+>+#[doc(alias = "virtio_rtc_req_clock_cap")]
+>+struct ReqClockCap {
+>+    head: ReqHead,
+>+    clock_id: Le16,
+>+    reserved: [u8; 6],
+>+}
+>+
+>+#[derive(Copy, Clone, Debug, Zeroable)]
+>+#[repr(C)]
+>+#[doc(alias = "virtio_rtc_resp_clock_cap")]
+>+struct RespClockCap {
+>+    head: RespHead,
+>+    clock_type: u8,
+>+    leap_second_smearing: u8,
+>+    flags: u8,
+>+    reserved: [u8; 5],
+>+}
+>+
+>+#[derive(Debug, Zeroable)]
+>+#[repr(C)]
+>+#[doc(alias = "virtio_rtc_req_read")]
+>+struct ReqRead {
+>+    head: ReqHead,
+>+    clock_id: Le16,
+>+    reserved: [u8; 6],
+>+}
+>+
+>+#[derive(Copy, Clone, Debug, Zeroable)]
+>+#[repr(C)]
+>+#[doc(alias = "virtio_rtc_resp_read")]
+>+struct RespRead {
+>+    head: RespHead,
+>+    clock_reading: Le64,
+>+}
+>+
+>+#[repr(u8)]
+>+enum ClockType {
+>+    #[doc(alias = "VIRTIO_RTC_CLOCK_UTC")]
+>+    Utc = 0,
+>+    #[doc(alias = "VIRTIO_RTC_CLOCK_TAI")]
+>+    Tai = 1,
+>+    #[doc(alias = "VIRTIO_RTC_CLOCK_MONOTONIC")]
+>+    Monotonic = 2,
+>+    #[doc(alias = "VIRTIO_RTC_CLOCK_UTC_SMEARED")]
+>+    UtcSmeared = 3,
+>+    #[doc(alias = "VIRTIO_RTC_CLOCK_UTC_MAYBE_SMEARED")]
+>+    UtcMaybeSmeared = 4,
+>+}
+>+
+>+/// Send a message and receive reply
+>+fn send<Request: Zeroable + 'static, Response: Zeroable + Copy + 'static>(
+>+    req_data: Request,
+>+    vq: &SpinLock<VirtioRtcVq>,
+>+    timeout_jiffies: c_ulong,
+>+) -> Result<Response> {
+>+    // FIXME: This lock should also disable irqs.
+>+    let guard = vq.lock();
+>+
+>+    let req = VBox::<Request>::new(req_data, GFP_KERNEL)?;
+
+I think we need to be careful with GFP_KERNEL allocations and spinlock, 
+since IIRC GFP_KERNEL allocations may sleep.
+
+>+    let mut resp = VBox::<Response>::new_uninit(GFP_KERNEL)?;
+>+    let resp_ptr = NonNull::new(resp.as_mut_ptr()).unwrap();
+>+
+>+    stack_pin_init!(let token = pin_init!(Token {
+>+        resp_actual_size: 0,
+>+        responded <- Completion::new(),
+>+    }));
+>+    stack_try_pin_init!(let req_sgs = guard.reqvq().new_readable_sgtable(req, GFP_KERNEL));
+>+    let req_sgs: Pin<&mut _> = req_sgs?;
+>+    stack_try_pin_init!(let resp_sgs = guard.reqvq().new_writable_sgtable(resp, GFP_KERNEL));
+>+    let resp_sgs: Pin<&mut _> = resp_sgs?;
+>+
+>+    guard
+>+        .reqvq()
+>+        .add_sgs(&req_sgs, &resp_sgs, token.as_ref(), GFP_ATOMIC)?;
+>+
+>+    if guard.reqvq().kick_prepare() {
+>+        guard.reqvq().notify();
+>+    }
+>+    drop(guard);
+>+
+>+    if timeout_jiffies > 0 {
+>+        token
+>+            .responded
+>+            .wait_for_completion_interruptible_timeout(timeout_jiffies)?;
+>+    } else {
+>+        token.responded.wait_for_completion_interruptible()?;
+>+    }
+>+
+>+    if token.resp_actual_size as usize >= core::mem::size_of::<RespHead>() {
+>+        // SAFETY: all response types contain a `RespHead` header at the start.
+>+        let head: &RespHead = unsafe { resp_ptr.cast().as_ref() };
+>+        match head.status {
+>+            0 => {
+>+                // OK, do nothing.
+>+            }
+>+            1 => return Err(ENOTSUPP),
+>+            2 => return Err(ENODEV),
+>+            3 => return Err(EINVAL),
+>+            4 | 5_u8..=u8::MAX => return Err(EIO),
+>+        }
+>+    } else if token.resp_actual_size as usize != core::mem::size_of::<Response>() {
+
+I think we should remove the else here, or check this condition first.
+
+>+        return Err(EINVAL);
+>+    }
+>+    // SAFETY: we have checked that the device wrote the correct amount of bytes for this type and
+>+    // has returned a successful status code.
+>+    let resp = unsafe { *resp_ptr.as_ref() };
+>+
+>+    Ok(resp)
+>+}
+>+
+>+const VIRTIO_RTC_REQ_READ: u16 = 0x0001;
+>+const VIRTIO_RTC_REQ_CFG: u16 = 0x1000;
+>+const VIRTIO_RTC_REQ_CLOCK_CAP: u16 = 0x1001;
+>+
+>+struct VirtioRtcVq {
+>+    inner: Virtqueues,
+>+}
+>+
+>+// SAFETY: `VirtioRtcVq` is safe to be send to any task.
+>+unsafe impl Send for VirtioRtcVq {}
+>+
+>+impl VirtioRtcVq {
+>+    fn new(inner: Virtqueues) -> impl PinInit<SpinLock<Self>> {
+>+        new_spinlock!(Self { inner })
+>+    }
+>+
+>+    fn reqvq(&self) -> &Virtqueue {
+>+        unsafe { self.inner[0].as_ref() }
+>+    }
+>+}
+>+
+>+#[pin_data(PinnedDrop)]
+>+struct VirtioRtcDriver {
+>+    #[pin]
+>+    virtqueues: SpinLock<VirtioRtcVq>,
+>+    num_clocks: AtomicU16,
+>+    #[pin]
+>+    registered_clocks: Mutex<KVec<()>>,
+>+}
+>+
+>+#[pinned_drop]
+>+impl PinnedDrop for VirtioRtcDriver {
+>+    fn drop(self: Pin<&mut Self>) {
+>+        pr_info!("Remove Rust virtio driver sample.\n");
+>+    }
+>+}
+>+
+>+extern "C" fn vq_requestq_callback(vq: *mut kernel::bindings::virtqueue) {
+>+    // SAFETY: The kernel called this virtqueue callback and it must have provided a valid `vq`
+>+    // pointer
+>+    let vq = unsafe { Virtqueue::from_raw(vq) };
+>+    let dev: &virtio::Device<Bound> = vq.dev().expect("Could not get device");
+>+    let data = dev
+>+        .as_ref()
+>+        .drvdata::<VirtioRtcDriver>()
+>+        .expect("Could not borrow drvdata");
+>+    data.process_requestq();
+>+}
+>+
+>+impl VirtioRtcDriver {
+>+    /// Submit `VIRTIO_RTC_REQ_CFG` and return response (`num_clocks`)
+>+    fn req_cfg(&self) -> Result<u16> {
+>+        let head = ReqHead {
+>+            msg_type: VIRTIO_RTC_REQ_CFG.into(),
+>+            reserved: [0; 6],
+>+        };
+>+        let response: RespCfg = send(head, &self.virtqueues, 0)?;
+>+        pr_info!("Got response! {response:?}\n");
+>+
+>+        Ok(response.num_clocks.into())
+>+    }
+>+
+>+    fn process_requestq(&self) {
+>+        let mut cb_enabled = true;
+>+        loop {
+>+            // FIXME: This lock should also disable irqs.
+>+            let guard = self.virtqueues.lock();
+>+            if cb_enabled {
+>+                guard.reqvq().disable_cb();
+>+                cb_enabled = false;
+>+            }
+>+            if let Some((token, len)) = guard.reqvq().get_buf() {
+>+                drop(guard);
+>+                pr_info!("process_requestq got buf {len} bytes\n");
+>+                let mut token = token.cast::<Token>();
+>+                // SAFETY: pointer points to a valid Token that we have added to the virtqueue.
+>+                let token_ref = unsafe { token.as_mut() };
+
+Could this be an UB?
+
+IIUC send() still holds a Pin<&mut Token> on its stack, blocked in the 
+completion wait, so we will have 2 exclusive references to the same 
+object.
+
+
+>+                token_ref.resp_actual_size = len;
+>+                token_ref.responded.complete_all();
+>+                pr_info!("process_requestq ok\n");
+>+            } else {
+>+                if guard.reqvq().enable_cb() {
+>+                    return;
+>+                }
+>+                cb_enabled = true;
+>+            }
+>+        }
+>+    }
+>+
+>+    fn clock_cap(&self, clock_id: u16) -> Result<RespClockCap> {
+>+        let req = ReqClockCap {
+>+            head: ReqHead {
+>+                msg_type: VIRTIO_RTC_REQ_CLOCK_CAP.into(),
+>+                reserved: [0; 6],
+>+            },
+>+            clock_id: clock_id.into(),
+>+            reserved: [0; 6],
+>+        };
+>+        let response: RespClockCap = send(req, &self.virtqueues, 0)?;
+>+        pr_info!("Got response: {response:?}\n");
+>+        Ok(response)
+>+    }
+>+
+>+    fn read(&self, clock_id: u16) -> Result<u64> {
+>+        let req = ReqRead {
+>+            head: ReqHead {
+>+                msg_type: VIRTIO_RTC_REQ_READ.into(),
+>+                reserved: [0; 6],
+>+            },
+>+            clock_id: clock_id.into(),
+>+            reserved: [0; 6],
+>+        };
+>+        let response: RespRead = send(req, &self.virtqueues, 0)?;
+>+        pr_info!("Got response: {response:?}\n");
+>+        Ok(response.clock_reading.into())
+>+    }
+>+}
+>+
+>+impl virtio::Driver for VirtioRtcDriver {
+>+    type IdInfo = ();
 >+
 >+    /// The table of device ids supported by the driver.
->+    const ID_TABLE: IdTable<Self::IdInfo>;
+>+    const ID_TABLE: virtio::IdTable<Self::IdInfo> = &VIRTIO_RTC_TABLE;
 >+
->+    /// virtio driver probe.
->+    ///
->+    /// Called when a new virtio device is added or discovered. Implementers should
->+    /// attempt to initialize the device here, but should try not sleep since driver data is set
->+    /// after this method returns successfully.
->+    fn probe(dev: &Device<crate::device::Core>) -> impl PinInit<Self, Error>;
+>+    fn probe(vdev: &virtio::Device<Core>) -> impl PinInit<Self, Error> {
+>+        let vqs_info: [VirtqueueInfo; 1] = [
+>+            VirtqueueInfo::new(c"requestq", false, Some(vq_requestq_callback)),
+>+            //VirtqueueInfo::new(c"alarmq", false, vq_callback),
+>+        ];
+>+        try_pin_init!(Self {
+>+            num_clocks: AtomicU16::new(0),
+>+            virtqueues <- {
+>+                pr_info!("Probe Rust virtio driver sample.\n");
+>+                let vqs = match vdev.find_vqs(&vqs_info) {
+>+                    Ok(vqs) => {
+>+                        pr_info!("Found {} vqs.\n", vqs.len());
+>+                        vqs
+>+                    }
+>+                    Err(err) => {
+>+                        pr_info!("Could not find vqs: {err:?}.\n");
 >+
->+    /// virtio driver init.
->+    ///
->+    /// Called after a virtio device is probed successfully, can sleep.
->+    fn init(&self, dev: &Device<crate::device::Bound>) -> Result;
+>+                        return Err(err);
+>+                    }
+>+                };
 >+
->+    /// virtio driver remove.
->+    ///
->+    /// Called when a [`Device`] is removed from its [`Driver`]. Implementing this callback
->+    /// is optional.
->+    ///
->+    /// This callback serves as a place for drivers to perform teardown operations that require a
->+    /// `&Device<Core>` or `&Device<Bound>` reference. For instance, drivers may try to perform I/O
->+    /// operations to gracefully tear down the device.
->+    ///
->+    /// Otherwise, release operations for driver resources should be performed in `Self::drop`.
->+    fn remove(dev: &Device<crate::device::Core>, this: Pin<&Self>) {
->+        _ = (dev, this);
->+    }
->+}
->+
->+/// Abstraction for the virtio device structure (`struct virtio_device`).
->+///
->+/// [`struct virtio_device`]: srctree/include/linux/virtio.h
->+#[repr(transparent)]
->+pub struct Device<Ctx: crate::device::DeviceContext = crate::device::Normal>(
->+    Opaque<bindings::virtio_device>,
->+    PhantomData<Ctx>,
->+);
->+
->+impl<Ctx: crate::device::DeviceContext> Device<Ctx> {
->+    #[inline]
->+    fn as_raw(&self) -> *mut bindings::virtio_device {
->+        self.0.get()
->+    }
->+}
->+
->+// SAFETY: `virtio::Device` is a transparent wrapper of `struct virtio_device`.
->+// The offset is guaranteed to point to a valid device field inside `virtio::Device`.
->+unsafe impl<Ctx: crate::device::DeviceContext> crate::device::AsBusDevice<Ctx> for Device<Ctx> {
->+    const OFFSET: usize = core::mem::offset_of!(bindings::virtio_device, dev);
->+}
->+
->+// SAFETY: `Device` is a transparent wrapper of a type that doesn't depend on `Device`'s generic
->+// argument.
->+kernel::impl_device_context_deref!(unsafe { Device });
->+
->+impl<Ctx: crate::device::DeviceContext> Device<Ctx> {
->+    // TODO: return VirtioID
->+    /// Returns the virtio device ID.
->+    #[inline]
->+    pub fn device_id(&self) -> u32 {
->+        // SAFETY: By its type invariant `self.as_raw` is always a valid pointer to a
->+        // `struct virtio_device`.
->+        unsafe { (*self.as_raw()).id.device }
->+    }
->+
->+    /// Returns the virtio vendor ID.
->+    #[inline]
->+    pub fn vendor_id(&self) -> u32 {
->+        // SAFETY: `self.as_raw` is a valid pointer to a `struct virtio_device`.
->+        unsafe { (*self.as_raw()).id.vendor }
->+    }
->+
->+    /// Reset device.
->+    #[doc(alias = "virtio_reset_device")]
->+    #[inline]
->+    pub fn reset(&self) {
->+        // SAFETY: By its type invariant `self.as_raw` is always a valid pointer to a
->+        // `struct virtio_device`.
->+        unsafe { bindings::virtio_reset_device(self.as_raw()) }
->+    }
->+
->+    /// Mark device as ready.
->+    #[doc(alias = "virtio_device_ready")]
->+    #[inline]
->+    pub fn ready(&self) {
->+        // SAFETY: By its type invariant `self.as_raw` is always a valid pointer to a
->+        // `struct virtio_device`.
->+        unsafe { bindings::virtio_device_ready(self.as_raw()) }
->+    }
->+
->+    /// Return virtqueues for this device.
->+    #[doc(alias = "virtio_find_vqs")]
->+    pub fn find_vqs(&self, info: &[virtqueue::VirtqueueInfo]) -> Result<virtqueue::Virtqueues> {
->+        let mut vqs = KVec::with_capacity(info.len(), GFP_KERNEL)?;
->+        // SAFETY: By its type invariant `self.as_raw` is always a valid pointer to a
->+        // `struct virtio_device`.
->+        to_result(unsafe {
->+            bindings::virtio_find_vqs(
->+                self.as_raw(),
->+                info.len().try_into()?,
->+                vqs.spare_capacity_mut().as_mut_ptr().cast(),
->+                info.as_ptr().cast_mut().cast(),
->+                core::ptr::null_mut(),
->+            )
->+        })?;
->+        // SAFETY: virtio_find_vqs returned successfully so `vqs` must be populated.
->+        unsafe { vqs.inc_len(info.len()) };
->+        let mut inner = KVec::with_capacity(vqs.len(), GFP_KERNEL)?;
->+        for vq in vqs {
->+            inner.push(NonNull::new(vq).ok_or(EINVAL)?, GFP_KERNEL)?;
->+        }
->+        Ok(virtqueue::Virtqueues { inner })
->+    }
->+
->+    /// Delete virtqueues from this device.
->+    pub(crate) fn del_vqs(&self) {
->+        // SAFETY: By its type invariant `self.as_raw` is always a valid pointer to a
->+        // `struct virtio_device`.
->+        let config = unsafe { (*self.as_raw()).config };
->+        // SAFETY: `config` points to a valid virtqueue config struct.
->+        if let Some(del_vqs) = unsafe { (*config).del_vqs } {
->+            // SAFETY: By its type invariant `self.as_raw` is always a valid pointer to a
->+            // `struct virtio_device`.
->+            unsafe { del_vqs(self.as_raw()) }
->+        }
->+    }
->+
->+    /// Checks if the device has a feature bit.
->+    #[inline]
->+    pub fn has_feature(&self, fbit: c_uint) -> bool {
->+        // SAFETY: By its type invariant `self.as_raw` is always a valid pointer to a
->+        // `struct virtio_device`.
->+        unsafe { bindings::virtio_has_feature(self.as_raw(), fbit) }
->+    }
->+}
->+
->+impl<Ctx: crate::device::DeviceContext> AsRef<crate::device::Device<Ctx>> for Device<Ctx> {
->+    #[inline]
->+    fn as_ref(&self) -> &crate::device::Device<Ctx> {
->+        // SAFETY: By the type invariant of `Self`, `self.as_raw()` is a pointer to a valid
->+        // `struct virtio_device`.
->+        let dev = unsafe { core::ptr::addr_of_mut!((*self.as_raw()).dev) };
->+
->+        // SAFETY: `dev` points to a valid `struct device`.
->+        unsafe { crate::device::Device::from_raw(dev) }
->+    }
->+}
->+
->+/// An adapter for the registration of virtio drivers.
->+pub struct Adapter<T: Driver>(T);
->+
->+// SAFETY:
->+// - `bindings::virtio_driver` is a C type declared as `repr(C)`.
->+// - `T` is the type of the driver's device private data.
->+// - `struct virtio_driver` embeds a `struct device_driver`.
->+// - `DEVICE_DRIVER_OFFSET` is the correct byte offset to the embedded `struct device_driver`.
->+unsafe impl<T: Driver + 'static> crate::driver::DriverLayout for Adapter<T> {
->+    type DriverType = bindings::virtio_driver;
->+    type DriverData = T;
->+    const DEVICE_DRIVER_OFFSET: usize = core::mem::offset_of!(Self::DriverType, driver);
->+}
->+
->+// SAFETY: A call to `unregister` for a given instance of `DriverType` is guaranteed to be valid if
->+// a preceding call to `register` has been successful.
->+unsafe impl<T: Driver + 'static> crate::driver::RegistrationOps for Adapter<T> {
->+    unsafe fn register(
->+        vdrv: &Opaque<Self::DriverType>,
->+        name: &'static CStr,
->+        module: &'static ThisModule,
->+    ) -> Result {
->+        // SAFETY: It's safe to set the fields of `struct virtio_driver` on initialization.
->+        unsafe {
->+            (*vdrv.get()).driver.name = name.as_char_ptr();
->+            (*vdrv.get()).id_table = T::ID_TABLE.as_ptr();
->+            (*vdrv.get()).probe = Some(Self::probe_callback);
->+            (*vdrv.get()).remove = Some(Self::remove_callback);
->+        }
->+
->+        // SAFETY: `vdrv` is guaranteed to be a valid `DriverType`.
->+        to_result(unsafe { bindings::__register_virtio_driver(vdrv.get(), module.0) })
->+    }
->+
->+    unsafe fn unregister(vdrv: &Opaque<Self::DriverType>) {
->+        // SAFETY: `vdrv` is guaranteed to be a valid `DriverType`.
->+        unsafe { bindings::unregister_virtio_driver(vdrv.get()) }
->+    }
->+}
->+
->+impl<T: Driver + 'static> Adapter<T> {
->+    extern "C" fn probe_callback(vdev: *mut bindings::virtio_device) -> c_int {
->+        // SAFETY: The kernel only ever calls the probe callback with a valid pointer to a `struct
->+        // virtio_device`.
->+        //
->+        // INVARIANT: `vdev` is valid for the duration of `probe_callback()`.
->+        let dev = unsafe { &*vdev.cast::<Device<crate::device::CoreInternal>>() };
->+        from_result(|| {
->+            let data = T::probe(dev);
->+
->+            dev.as_ref().set_drvdata(data)?;
->+            // SAFETY: `Device::set_drvdata()` was just called so it's safe to borrow the data.
->+            let data = unsafe { dev.as_ref().drvdata_borrow::<T>() };
->+            dev.ready();
->+            if let Err(err) = T::init(&data, dev) {
->+                // SAFETY: `Device::set_drvdata()` was just called so it's safe to re-obtain the
->+                // data.
->+                let data = unsafe { dev.as_ref().drvdata_obtain::<T>() }.unwrap();
->+                T::remove(dev, data.as_ref());
->+                drop(data);
->+                return Err(err);
->+            }
->+            Ok(0)
+>+                VirtioRtcVq::new(vqs)
+>+            },
+>+            registered_clocks <- new_mutex!(KVec::with_capacity(0, GFP_KERNEL)?),
 >+        })
 >+    }
 >+
->+    extern "C" fn remove_callback(vdev: *mut bindings::virtio_device) {
->+        // SAFETY: The kernel only ever calls the remove callback with a valid pointer to a `struct
->+        // virtio_device`.
->+        //
->+        // INVARIANT: `vdev` is valid for the duration of `remove_callback()`.
->+        let dev = unsafe { &*vdev.cast::<Device<crate::device::CoreInternal>>() };
+>+    fn init(&self, vdev: &virtio::Device<Bound>) -> Result {
+>+        let num_clocks = self.req_cfg()?;
+>+        self.num_clocks.store(num_clocks, Ordering::SeqCst);
+>+        for i in 0..num_clocks {
+>+            let mut is_exposed = false;
 >+
->+        // SAFETY: `remove_callback` is only ever called after a successful call to
->+        // `probe_callback`, hence it's guaranteed that `Device::set_drvdata()` has been called
->+        // and stored a `Pin<KBox<T>>`.
->+        let data = unsafe { dev.as_ref().drvdata_borrow::<T>() };
+>+            let resp = self.clock_cap(i)?;
+>+            let (clock_type, leap_second_smearing, flags) =
+>+                (resp.clock_type, resp.leap_second_smearing, resp.flags);
+>+            if cfg!(CONFIG_VIRTIO_RTC_CLASS)
+>+                && (clock_type == ClockType::Utc as u8
+>+                    || clock_type == ClockType::UtcSmeared as u8
+>+                    || clock_type == ClockType::UtcMaybeSmeared as u8)
+>+            {
+>+                // TODO:
 >+
->+        T::remove(dev, data);
->+        dev.reset();
->+    }
->+}
->+
->+/// Any vendor
->+pub const VIRTIO_DEV_ANY_ID: u32 = 0xffffffff;
->+
->+/// Virtio IDs
->+///
->+/// C header: [`include/uapi/linux/virtio_ids.h`](srctree/include/uapi/linux/virtio_ids.h)
->+#[repr(u32)]
->+pub enum VirtioID {
->+    /// virtio net
->+    Net = bindings::VIRTIO_ID_NET,
->+    /// virtio block
->+    Block = bindings::VIRTIO_ID_BLOCK,
->+    /// virtio console
->+    Console = bindings::VIRTIO_ID_CONSOLE,
->+    /// virtio rng
->+    Rng = bindings::VIRTIO_ID_RNG,
->+    /// virtio balloon
->+    Balloon = bindings::VIRTIO_ID_BALLOON,
->+    /// virtio ioMemory
->+    IOMem = bindings::VIRTIO_ID_IOMEM,
->+    /// virtio remote processor messaging
->+    RPMSG = bindings::VIRTIO_ID_RPMSG,
->+    /// virtio scsi
->+    Scsi = bindings::VIRTIO_ID_SCSI,
->+    /// 9p virtio console
->+    NineP = bindings::VIRTIO_ID_9P,
->+    /// virtio WLAN MAC
->+    Mac80211Wlan = bindings::VIRTIO_ID_MAC80211_WLAN,
->+    /// virtio remoteproc serial link
->+    RPROCSerial = bindings::VIRTIO_ID_RPROC_SERIAL,
->+    /// Virtio caif
->+    CAIF = bindings::VIRTIO_ID_CAIF,
->+    /// virtio memory balloon
->+    MemoryBalloon = bindings::VIRTIO_ID_MEMORY_BALLOON,
->+    /// virtio GPU
->+    GPU = bindings::VIRTIO_ID_GPU,
->+    /// virtio clock/timer
->+    Clock = bindings::VIRTIO_ID_CLOCK,
->+    /// virtio input
->+    Input = bindings::VIRTIO_ID_INPUT,
->+    /// virtio vsock transport
->+    VSock = bindings::VIRTIO_ID_VSOCK,
->+    /// virtio crypto
->+    Crypto = bindings::VIRTIO_ID_CRYPTO,
->+    /// virtio signal distribution device
->+    SignalDist = bindings::VIRTIO_ID_SIGNAL_DIST,
->+    /// virtio pstore device
->+    Pstore = bindings::VIRTIO_ID_PSTORE,
->+    /// virtio IOMMU
->+    Iommu = bindings::VIRTIO_ID_IOMMU,
->+    /// virtio mem
->+    Mem = bindings::VIRTIO_ID_MEM,
->+    /// virtio sound
->+    Sound = bindings::VIRTIO_ID_SOUND,
->+    /// virtio filesystem
->+    FS = bindings::VIRTIO_ID_FS,
->+    /// virtio pmem
->+    PMem = bindings::VIRTIO_ID_PMEM,
->+    /// virtio rpmb
->+    RPMB = bindings::VIRTIO_ID_RPMB,
->+    /// virtio mac80211-hwsim
->+    Mac80211Hwsim = bindings::VIRTIO_ID_MAC80211_HWSIM,
->+    /// virtio video encoder
->+    VideoEncoder = bindings::VIRTIO_ID_VIDEO_ENCODER,
->+    /// virtio video decoder
->+    VideoDecoder = bindings::VIRTIO_ID_VIDEO_DECODER,
->+    /// virtio SCMI
->+    SCMI = bindings::VIRTIO_ID_SCMI,
->+    /// virtio nitro secure module
->+    NitroSecMod = bindings::VIRTIO_ID_NITRO_SEC_MOD,
->+    /// virtio i2c adapter
->+    I2CAdapter = bindings::VIRTIO_ID_I2C_ADAPTER,
->+    /// virtio watchdog
->+    Watchdog = bindings::VIRTIO_ID_WATCHDOG,
->+    /// virtio can
->+    CAN = bindings::VIRTIO_ID_CAN,
->+    /// virtio dmabuf
->+    DMABuf = bindings::VIRTIO_ID_DMABUF,
->+    /// virtio parameter server
->+    ParamServ = bindings::VIRTIO_ID_PARAM_SERV,
->+    /// virtio audio policy
->+    AudioPolicy = bindings::VIRTIO_ID_AUDIO_POLICY,
->+    /// virtio bluetooth
->+    BT = bindings::VIRTIO_ID_BT,
->+    /// virtio gpio
->+    GPIO = bindings::VIRTIO_ID_GPIO,
->+    /// virtio spi
->+    SPI = bindings::VIRTIO_ID_SPI,
->+}
->diff --git a/rust/kernel/virtio/utils.rs b/rust/kernel/virtio/utils.rs
->new file mode 100644
->index 0000000000000000000000000000000000000000..8dca373f10a6906b891a9420c13cd8e9e929c412
->--- /dev/null
->+++ b/rust/kernel/virtio/utils.rs
->@@ -0,0 +1,57 @@
->+// SPDX-License-Identifier: GPL-2.0
->+
->+//! Helper types and utilities
->+
->+macro_rules! endian_type {
->+    ($old_type:ident, $new_type:ident, $to_new:ident, $from_new:ident) => {
->+        /// An unsigned integer type of with an explicit endianness.
->+        #[derive(Copy, Clone, Eq, PartialEq, Debug, Default, pin_init::Zeroable)]
->+        #[repr(transparent)]
->+        pub struct $new_type($old_type);
->+
->+        $crate::static_assert!(
->+            ::core::mem::align_of::<$new_type>() == ::core::mem::align_of::<$old_type>()
->+        );
->+        $crate::static_assert!(
->+            ::core::mem::size_of::<$new_type>() == ::core::mem::size_of::<$old_type>()
->+        );
->+
->+        impl $new_type {
->+            /// Convert to CPU/native endianness.
->+            pub const fn to_cpu(self) -> $old_type {
->+                $old_type::$from_new(self.0)
+>+                // 	ret = viortc_init_rtc_class_clock(viortc, vio_clk_id,
+>+                // 					  clock_type, flags);
+>+                // 	if (ret < 0)
+>+                // 		return ret;
+>+                // 	if (ret > 0)
+>+                // 		is_exposed = true;
+>+                dev_warn!(vdev.as_ref(), "CONFIG_VIRTIO_RTC_CLASS TODO ");
 >+            }
->+        }
 >+
->+        impl PartialEq<$old_type> for $new_type {
->+            fn eq(&self, other: &$old_type) -> bool {
->+                self.0 == $old_type::$to_new(*other)
+>+            if cfg!(CONFIG_VIRTIO_RTC_PTP) {
+>+                // TODO:
+>+
+>+                // 	ret = viortc_init_ptp_clock(viortc, vio_clk_id, clock_type,
+>+                // 				    leap_second_smearing);
+>+                // 	if (ret < 0)
+>+                // 		return ret;
+>+                // 	if (ret > 0)
+>+                // 		is_exposed = true;
+>+                // todo!()
+>+                dev_warn!(vdev.as_ref(), "CONFIG_VIRTIO_RTC_PTP TODO ");
 >+            }
->+        }
 >+
->+        impl PartialEq<$new_type> for $old_type {
->+            fn eq(&self, other: &$new_type) -> bool {
->+                $old_type::$to_new(other.0) == *self
+>+            if !is_exposed {
+>+                dev_warn!(
+>+                    vdev.as_ref(),
+>+                    "cannot expose clock {i} (type {clock_type}, variant {leap_second_smearing}, \
+>+                    flags {flags}) to userspace\n"
+>+                );
 >+            }
+>+            let clock_reading = self.read(i)?;
+>+            pr_info!("#{i} clock reading = {clock_reading}\n");
 >+        }
+>+        Ok(())
+>+    }
 >+
->+        impl From<$new_type> for $old_type {
->+            fn from(v: $new_type) -> $old_type {
->+                v.to_cpu()
->+            }
->+        }
->+
->+        impl From<$old_type> for $new_type {
->+            fn from(v: $old_type) -> $new_type {
->+                $new_type($old_type::$to_new(v))
->+            }
->+        }
->+    };
->+}
->+
->+endian_type!(u16, Le16, to_le, from_le);
->+endian_type!(u32, Le32, to_le, from_le);
->+endian_type!(u64, Le64, to_le, from_le);
->+endian_type!(u16, Be16, to_be, from_be);
->+endian_type!(u32, Be32, to_be, from_be);
->+endian_type!(u64, Be64, to_be, from_be);
->diff --git a/rust/kernel/virtio/virtqueue.rs b/rust/kernel/virtio/virtqueue.rs
->new file mode 100644
->index 0000000000000000000000000000000000000000..781326c1723eb67a8c62524795ba431141fea202
->--- /dev/null
->+++ b/rust/kernel/virtio/virtqueue.rs
->@@ -0,0 +1,314 @@
->+// SPDX-License-Identifier: GPL-2.0
->+
->+//! Virtqueue functionality.
->+//!
->+//! # Discovering virtqueues
->+//!
->+//! Inside your driver's [`kernel::virtio::Driver::probe`] method, call
->+//! [`kernel::virtio::Device::find_vqs`] method with your [`VirtqueueInfo`] struct.
->+//!
->+//! # Passing data to virtqueues
->+//!
->+//! Create your data as owned [`SGTable`] with:
->+//!
->+//! - [`Virtqueue::new_readable_sgtable`] for data that can be read from the device, and
->+//! - [`Virtqueue::new_writable_sgtable`] for data that can be written from the device
->+//!
->+//! These methods will make sure to create the scatter-gather tables and DMA map them to the
->+//! appropriate VIRTIO transport.
->+//!
->+//! To add the tables to the virtqueue, call [`Virtqueue::add_sgs`].
->+
->+use crate::{
->+    alloc::{
->+        allocator::VmallocPageIter,
->+        Flags, //
->+    },
->+    bindings,
->+    device::Bound,
->+    dma::DataDirection,
->+    error::{
->+        code::{
->+            EINVAL,
->+            ENOENT, //
->+        },
->+        to_result,
->+        Error,
->+        Result, //
->+    },
->+    page::AsPageIter,
->+    prelude::*,
->+    scatterlist::{
->+        Owned,
->+        SGTable, //
->+    },
->+    str::{
->+        self,
->+        CStr, //
->+    },
->+    types::Opaque,
->+    virtio::Device, //
->+};
->+
->+use core::{
->+    ptr::NonNull, //
->+};
->+
->+/// Info for a virtqueue.
->+///
->+/// [`struct virtqueue_info`]: srctree/include/linux/virtio_config.h
->+#[doc(alias = "virtqueue_info")]
->+#[repr(transparent)]
->+pub struct VirtqueueInfo(Opaque<bindings::virtqueue_info>);
->+
->+impl VirtqueueInfo {
->+    #[inline]
->+    /// Create a new [`VirtqueueInfo`]
->+    pub const fn new(
->+        name: &'static CStr,
->+        ctx: bool,
->+        callback: Option<unsafe extern "C" fn(*mut bindings::virtqueue)>,
->+    ) -> Self {
->+        Self(Opaque::new(bindings::virtqueue_info {
->+            name: str::as_char_ptr_in_const_context(name),
->+            ctx,
->+            callback,
->+        }))
+>+    fn remove(_: &virtio::Device<Core>, _this: Pin<&Self>) {
+>+        pr_info!("Removing Rust virtio driver sample.\n");
 >+    }
 >+}
 >+
->+/// A container for discovered virtqueues returned by [`Device::find_vqs`] method.
->+///
->+/// This type dereferences to a `NonNull<Virtqueue>` slice.
->+///
->+/// It deletes the virtqueues when dropped.
->+pub struct Virtqueues {
->+    pub(crate) inner: KVec<NonNull<Virtqueue>>,
+>+kernel::virtio_device_table!(
+>+    VIRTIO_RTC_TABLE,
+>+    MODULE_VIRTIO_RTC_TABLE,
+>+    <VirtioRtcDriver as virtio::Driver>::IdInfo,
+>+    [(virtio::DeviceId::new(virtio::VirtioID::Clock), ())]
+>+);
+>+
+>+kernel::module_virtio_driver! {
+>+    type: VirtioRtcDriver,
+>+    name: "rust_virtio_rtc",
+>+    authors: ["Manos Pitsidianakis"],
+>+    description: "Rust virtio driver",
+>+    license: "GPL v2",
 >+}
->+
->+impl Drop for Virtqueues {
->+    fn drop(&mut self) {
->+        let inner = core::mem::take(&mut self.inner);
->+        let Some(first) = inner.into_iter().next() else {
->+            return;
->+        };
->+        let first_ref = unsafe { first.as_ref() };
->+        let Ok(vdev) = first_ref.dev() else {
->+            return;
->+        };
->+        vdev.del_vqs();
->+    }
->+}
->+
->+impl core::ops::Deref for Virtqueues {
->+    type Target = [NonNull<Virtqueue>];
->+
->+    #[inline]
->+    fn deref(&self) -> &Self::Target {
->+        &self.inner
->+    }
->+}
->+
->+/// An opaque handler for a virtqueue.
->+///
->+/// [`struct virtqueue`]: srctree/include/linux/virtio.h
->+#[repr(transparent)]
->+pub struct Virtqueue(Opaque<bindings::virtqueue>);
->+
->+impl Virtqueue {
->+    /// Create a [`Virtqueue`] from a raw pointer.
->+    ///
->+    /// # Safety
->+    ///
->+    /// Callers must ensure that `ptr` is a properly initialized valid `virtqueue` pointer.
->+    #[inline]
->+    pub unsafe fn from_raw<'a>(ptr: *mut bindings::virtqueue) -> &'a Self {
->+        // SAFETY: The safety requirements of this function guarantee that `ptr` is a valid
->+        // pointer to a `struct virtqueue` for the duration of `'a`.
->+        unsafe { &*ptr.cast() }
->+    }
->+
->+    /// Obtain the raw `struct virtqueue *`.
->+    #[inline]
->+    pub(crate) fn as_raw(&self) -> *mut bindings::virtqueue {
->+        self.0.get()
->+    }
->+
->+    /// Get the [`Device`] associated with this virtqueue.
->+    #[inline]
->+    pub fn dev(&self) -> Result<&Device<Bound>> {
->+        // SAFETY: By the type invariants, `self.as_raw()` is a valid pointer to a `struct
->+        // virtqueue`.
->+        if unsafe { (*self.as_raw()).vdev }.is_null() {
->+            return Err(ENOENT);
->+        }
->+        // SAFETY: the pointer has been promised to be valid when self was created
->+        Ok(unsafe { &*(&*self.as_raw()).vdev.cast::<Device<Bound>>() })
->+    }
->+
->+    /// Get the vring size.
->+    #[inline]
->+    #[doc(alias = "virtqueue_get_vring_size")]
->+    pub fn vring_size(&self) -> u32 {
->+        // SAFETY: the pointer has been promised to be valid when self was created
->+        unsafe { bindings::virtqueue_get_vring_size(self.as_raw()) }
->+    }
->+
->+    /// Notify virtqueue.
->+    #[inline]
->+    #[doc(alias = "virtqueue_notify")]
->+    pub fn notify(&self) -> bool {
->+        // SAFETY: the pointer has been promised to be valid when self was created
->+        unsafe { bindings::virtqueue_notify(self.as_raw()) }
->+    }
->+
->+    /// Kick and prepare virtqueue.
->+    #[inline]
->+    #[doc(alias = "virtqueue_kick_prepare")]
->+    pub fn kick_prepare(&self) -> bool {
->+        // SAFETY: the pointer has been promised to be valid when self was created
->+        unsafe { bindings::virtqueue_kick_prepare(self.as_raw()) }
->+    }
->+
->+    /// Kick virtqueue.
->+    #[inline]
->+    #[doc(alias = "virtqueue_kick")]
->+    pub fn kick(&self) -> bool {
->+        // SAFETY: the pointer has been promised to be valid when self was created
->+        unsafe { bindings::virtqueue_kick(self.as_raw()) }
->+    }
->+
->+    /// Enable virtqueue's callback.
->+    #[inline]
->+    #[doc(alias = "virtqueue_enable_cb")]
->+    pub fn enable_cb(&self) -> bool {
->+        // SAFETY: the pointer has been promised to be valid when self was created
->+        unsafe { bindings::virtqueue_enable_cb(self.as_raw()) }
->+    }
->+
->+    /// Disable virtqueue's callback.
->+    #[inline]
->+    #[doc(alias = "virtqueue_disable_cb")]
->+    pub fn disable_cb(&self) {
->+        // SAFETY: the pointer has been promised to be valid when self was created
->+        unsafe { bindings::virtqueue_disable_cb(self.as_raw()) }
->+    }
->+
->+    /// Get a buffer from the virtqueue, if available.
->+    ///
->+    /// This method returns a pointer to the `token` value passed in [`Virtqueue::add_sgs`] method
->+    /// and the amount of bytes that were written by the device.
->+    #[inline]
->+    #[doc(alias = "virtqueue_get_buf")]
->+    pub fn get_buf(&'_ self) -> Option<(NonNull<u8>, u32)> {
->+        let mut len = 0;
->+        // SAFETY: the pointer has been promised to be valid when self was created
->+        let ptr = unsafe { bindings::virtqueue_get_buf(self.as_raw(), &mut len) };
->+        Some((NonNull::new(ptr.cast())?, len))
->+    }
->+
->+    /// Add a list of scatter-gather lists to virtqueue.
->+    #[inline]
->+    #[doc(alias = "virtqueue_add_sgs")]
->+    pub fn add_sgs<'token, PIn, POut, Token>(
->+        &'_ self,
->+        out_sgs: &'token SGTableReadable<POut>,
->+        in_sgs: &'token SGTableWritable<PIn>,
->+        token: Pin<&'token Token>,
->+        gfp: Flags,
->+    ) -> Result
->+    where
->+        for<'a> PIn: AsPageIter<Iter<'a> = VmallocPageIter<'a>> + 'static,
->+        for<'a> POut: AsPageIter<Iter<'a> = VmallocPageIter<'a>> + 'static,
->+    {
->+        let out_sgs_num = u32::try_from(out_sgs.inner.iter().count())?;
->+        let in_sgs_num = u32::try_from(in_sgs.inner.iter().count())?;
->+
->+        let Some(total_size) = out_sgs_num.checked_add(in_sgs_num) else {
->+            return Err(EINVAL);
->+        };
->+
->+        let mut sgs = KVec::with_capacity(2, GFP_KERNEL)?;
-
-Should we use the `gfp` flags insteaf of GFP_KERNEL in this function ?
-
-The rest LGTM with a quick look.
-
-Stefano
+>
+>-- 
+>2.47.3
+>
 
