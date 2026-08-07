@@ -1,50 +1,46 @@
 Received: from mailgw.kylinos.cn (mailgw.kylinos.cn [124.126.103.232])
 	(using TLSv1.2 with cipher ECDHE-RSA-AES256-GCM-SHA384 (256/256 bits))
 	(No client certificate requested)
-	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 2973C347BA9
-	for <virtualization@lists.linux.dev>; Fri,  7 Aug 2026 02:44:02 +0000 (UTC)
+	by smtp.subspace.kernel.org (Postfix) with ESMTPS id 9E436347BA9
+	for <virtualization@lists.linux.dev>; Fri,  7 Aug 2026 02:44:08 +0000 (UTC)
 Authentication-Results: smtp.subspace.kernel.org; arc=none smtp.client-ip=124.126.103.232
 ARC-Seal:i=1; a=rsa-sha256; d=subspace.kernel.org; s=arc-20240116;
-	t=1786070645; cv=none; b=MKmVkoiNEdOp/jo3TgajO/dr290tEROzQtwYbMBwEVmpbS6YvNSsRLQA650SYEVrW1yPkLzXAmDPOB5XxI4E8WXHiN1+MizliY4fWTIclKo83ZlkO+0cr4ErrrjLmQW+lAbrGSOMHjN0znjU5Zgl+ldhjB+wApnIP6lIrFj5JWc=
+	t=1786070650; cv=none; b=Jt0KlBtJVENd1FpIwwYU6f6N5Kr+YW4qVA+MB5K2828AbnmvxK52Iz8GbzyRkKH2XcOcDRv4nreIlzkuBmsAM2meqJaUe/dfpt7GawubBj+xehINr2zE+924Zk6vUQoZSUBrfWUvqwM6FrdS77CXSoJeS+DQCfnWir3o5GthtTQ=
 ARC-Message-Signature:i=1; a=rsa-sha256; d=subspace.kernel.org;
-	s=arc-20240116; t=1786070645; c=relaxed/simple;
-	bh=3mlGr2Uq0r79p40uinxjivM75NG+m6wW8CWqynvIxNA=;
-	h=From:To:Cc:Subject:Date:Message-ID:In-Reply-To:References:
-	 MIME-Version:Content-Type; b=Au5h9KtN9c4tcCI9swoIZf42v/BBHXLLvieansmP19k5nMO3iJ+Sl51lkIA8dEflIWHJSzESMNX/5PC5YFIvHoIXnJ0rs30a3VHX29TYFQXgVWrQpsTGRJHwCZocaQf4LzVRBouuxV9YMFliKWk/NqzyeVz4/awkXA2r3lnnHh0=
+	s=arc-20240116; t=1786070650; c=relaxed/simple;
+	bh=pwX3cBGeYnPjp6eZ2FOlZe/Si5oLLE5XMQdlZ2lrVWk=;
+	h=From:To:Cc:Subject:Date:Message-ID:MIME-Version:Content-Type; b=Mv3QR5WX8MSoLddOFwP7trQYaQ9t3hAbEw3Bzl+/GrlzcFmB0wkuFRRbcEi2c90sm8xxBBu8HQDn0lbYvrn61JmZZa0HEKipoZQZu/6cqJHgjoBMi922VSoWb9tczxcs4GhJS8vYPRbSwqG94w/KVmTb2oqpi5YEiKfxMm2IC6E=
 ARC-Authentication-Results:i=1; smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn; spf=pass smtp.mailfrom=kylinos.cn; arc=none smtp.client-ip=124.126.103.232
 Authentication-Results: smtp.subspace.kernel.org; dmarc=none (p=none dis=none) header.from=kylinos.cn
 Authentication-Results: smtp.subspace.kernel.org; spf=pass smtp.mailfrom=kylinos.cn
-X-UUID: d73a68b0920911f1aa26b74ffac11d73-20260807
+X-UUID: d8eaf7b0920911f1aa26b74ffac11d73-20260807
 X-CID-P-RULE: Release_Ham
-X-CID-O-INFO: VERSION:1.3.12,REQID:c9aa53b3-3798-49f9-a7ca-2622ee2467d8,IP:0,U
+X-CID-O-INFO: VERSION:1.3.12,REQID:4106178b-6c22-443f-8b85-3b8bdbf4ae82,IP:0,U
 	RL:0,TC:0,Content:0,EDM:0,RT:0,SF:0,FILE:0,BULK:0,RULE:Release_Ham,ACTION:
 	release,TS:0
-X-CID-META: VersionHash:e7bac3a,CLOUDID:54beb59992935713d1a2ebc40e642617,BulkI
-	D:nil,BulkQuantity:0,Recheck:0,SF:81|82|83|102|136|865|898,TC:nil,Content:
-	0|15|50,EDM:-3|-100,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,C
-	OL:0,OSI:0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
+X-CID-META: VersionHash:e7bac3a,CLOUDID:8a9c9a87391082d94948f77bd7939082,BulkI
+	D:nil,BulkQuantity:0,Recheck:0,SF:102|136|865|898,TC:nil,Content:0|15|50,E
+	DM:-3|-100,IP:nil,URL:0,File:nil,RT:nil,Bulk:nil,QS:nil,BEC:nil,COL:0,OSI:
+	0,OSA:0,AV:0,LES:1,SPR:NO,DKR:0,DKP:0,BRR:0,BRE:0,ARC:0
 X-CID-BVR: 2,SSN|SDN
 X-CID-BAS: 2,SSN|SDN,0,_
 X-CID-FACTOR: TF_CID_SPAM_SNR
 X-CID-RHF: D41D8CD98F00B204E9800998ECF8427E
-X-UUID: d73a68b0920911f1aa26b74ffac11d73-20260807
+X-UUID: d8eaf7b0920911f1aa26b74ffac11d73-20260807
 X-User: xiongweimin@kylinos.cn
 Received: from xwm-tianyi510pro-14imb.. [(10.44.16.150)] by mailgw.kylinos.cn
 	(envelope-from <xiongweimin@kylinos.cn>)
 	(Generic MTA with TLSv1.3 TLS_AES_256_GCM_SHA384 256/256)
-	with ESMTP id 1117453092; Fri, 07 Aug 2026 10:43:58 +0800
+	with ESMTP id 556373050; Fri, 07 Aug 2026 10:44:01 +0800
 From: Xiong Weimin <xiongweimin@kylinos.cn>
-To: "Michael S . Tsirkin" <mst@redhat.com>
-Cc: Jason Wang <jasowang@redhat.com>,
-	virtualization@lists.linux.dev,
-	qemu-devel@nongnu.org,
-	Weimin Xiong <xiongwm2026@163.com>
-Subject: Re: [PATCH 3/3] hw/virtio: Add error handling for vhost_virtqueue_mask failure
-Date: Fri,  7 Aug 2026 10:43:56 +0800
-Message-ID: <20260807024356.2157890-1-xiongweimin@kylinos.cn>
+To: qemu-devel@nongnu.org
+Cc: "Michael S . Tsirkin" <mst@redhat.com>,
+	Jason Wang <jasowang@redhat.com>,
+	virtualization@lists.linux.dev
+Subject: [PATCH] hw/virtio: Propagate vhost_virtqueue_mask errors
+Date: Fri,  7 Aug 2026 10:43:59 +0800
+Message-ID: <20260807024359.2157914-1-xiongweimin@kylinos.cn>
 X-Mailer: git-send-email 2.43.0
-In-Reply-To: <20260724054836-mutt-send-email-mst@kernel.org>
-References: <20260724054836-mutt-send-email-mst@kernel.org>
 Precedence: bulk
 X-Mailing-List: virtualization@lists.linux.dev
 List-Id: <virtualization.lists.linux.dev>
@@ -54,20 +50,76 @@ MIME-Version: 1.0
 Content-Type: text/plain; charset=UTF-8
 Content-Transfer-Encoding: 8bit
 
-On Fri, Jul 24, 2026 at 05:51:46AM -0400, Michael S. Tsirkin wrote:
-> why is this part of this patchset?
->
-> and then what happens?
+vhost_virtqueue_mask() currently reports failures from
+vhost_set_vring_call() but always returns void, so callers cannot
+react.  In particular, vhost_virtqueue_start() has a TODO next to the
+unmask call when !use_guest_notifier_mask.
 
-It should not have been part of that series.  I am dropping the other
-two patches and will resend this as a standalone change.
+Make vhost_virtqueue_mask() return the underlying errno, and on failure
+in vhost_virtqueue_start() jump to the existing fail path which unmaps
+the vring and propagates the error to the device start caller.  Other
+call sites keep today's behavior by ignoring the return value.
 
-Also, the previous version was incomplete: vhost_virtqueue_mask() is
-void today, so simply checking its return value was wrong.  The new
-patch makes it return the errno from vhost_set_vring_call().  On
-failure in vhost_virtqueue_start(), we jump to the existing fail path,
-which unmaps the vring and returns the error so device start fails
-instead of continuing with a half-configured queue.
+Signed-off-by: Xiong Weimin <xiongweimin@kylinos.cn>
+---
+ hw/virtio/vhost.c         | 10 +++++++---
+ include/hw/virtio/vhost.h |  9 ++++++---
+ 2 files changed, 13 insertions(+), 6 deletions(-)
 
-Thanks,
-Xiong Weimin
+diff --git a/hw/virtio/vhost.c b/hw/virtio/vhost.c
+index af41841b52..b02d831d3a 100644
+--- a/hw/virtio/vhost.c
++++ b/hw/virtio/vhost.c
+@@ -1470,8 +1470,10 @@ int vhost_virtqueue_start(struct vhost_dev *dev,
+      * will do it later.
+      */
+     if (!vdev->use_guest_notifier_mask) {
+-        /* TODO: check and handle errors. */
+-        vhost_virtqueue_mask(dev, vdev, idx, false);
++        r = vhost_virtqueue_mask(dev, vdev, idx, false);
++        if (r < 0) {
++            goto fail;
++        }
+     }
+ 
+     if (k->query_guest_notifiers &&
+@@ -1918,7 +1920,7 @@ bool vhost_virtqueue_pending(struct vhost_dev *hdev, int n)
+ }
+ 
+ /* Mask/unmask events from this vq. */
+-void vhost_virtqueue_mask(struct vhost_dev *hdev, VirtIODevice *vdev, int n,
++int vhost_virtqueue_mask(struct vhost_dev *hdev, VirtIODevice *vdev, int n,
+                          bool mask)
+ {
+     struct VirtQueue *vvq = virtio_get_queue(vdev, n);
+@@ -1939,7 +1941,9 @@ void vhost_virtqueue_mask(struct vhost_dev *hdev, VirtIODevice *vdev, int n,
+     r = hdev->vhost_ops->vhost_set_vring_call(hdev, &file);
+     if (r < 0) {
+         error_report("vhost_set_vring_call failed %d", -r);
++        return r;
+     }
++    return 0;
+ }
+ 
+ bool vhost_config_pending(struct vhost_dev *hdev)
+diff --git a/include/hw/virtio/vhost.h b/include/hw/virtio/vhost.h
+index 684bafcaad..3db56433b6 100644
+--- a/include/hw/virtio/vhost.h
++++ b/include/hw/virtio/vhost.h
+@@ -310,10 +310,13 @@ void vhost_dev_set_config_notifier(struct vhost_dev *dev,
+  */
+ bool vhost_virtqueue_pending(struct vhost_dev *hdev, int n);
+ 
+-/* Mask/unmask events from this vq.
++/**
++ * vhost_virtqueue_mask(): mask/unmask events from this vq.
++ *
++ * Returns: 0 on success, a negative errno on failure.
+  */
+-void vhost_virtqueue_mask(struct vhost_dev *hdev, VirtIODevice *vdev, int n,
+-                          bool mask);
++int vhost_virtqueue_mask(struct vhost_dev *hdev, VirtIODevice *vdev, int n,
++                         bool mask);
+ 
+ /**
+  * vhost_get_features_ex() - sanitize the extended features set
